@@ -26,8 +26,10 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <assert.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <cp2101.h>
 
 #define CC_DATA		CP2101_GPIO_MASK(0)
@@ -35,7 +37,7 @@
 #define CC_RESET_N	CP2101_GPIO_MASK(2)
 
 /* painfully slow for now */
-#define CC_CLOCK_US	(2 * 1000)
+#define CC_CLOCK_US	(1000 * 1000)
 
 struct ccdbg {
 	int	fd;
@@ -76,5 +78,52 @@ struct ccdbg {
 #define CC_STEP_INSTR		0x5c
 #define CC_STEP_REPLACE		(0x64|(n))
 #define CC_GET_CHIP_ID		0x68
+
+/* ccdbg-command.c */
+void
+ccdbg_reset(struct ccdbg *dbg);
+
+uint8_t
+ccdbg_read_status(struct ccdbg *dbg);
+
+uint8_t
+ccdbg_rd_config(struct ccdbg *dbg);
+
+/* ccdbg-io.c */
+void
+ccdbg_quarter_clock(struct ccdbg *dbg);
+
+struct ccdbg *
+ccdbg_open(char *file);
+
+void
+ccdbg_close(struct ccdbg *dbg);
+
+void
+ccdbg_clock_1_0(struct ccdbg *dbg);
+
+void
+ccdbg_clock_0_1(struct ccdbg *dbg);
+
+void
+ccdbg_write_bit(struct ccdbg *dbg, uint8_t bit);
+
+void
+ccdbg_write_byte(struct ccdbg *dbg, uint8_t byte);
+
+uint8_t
+ccdbg_read_bit(struct ccdbg *dbg);
+
+uint8_t
+ccdbg_read_byte(struct ccdbg *dbg);
+
+void
+ccdbg_cmd_write(struct ccdbg *dbg, uint8_t cmd, uint8_t *data, int len);
+
+uint8_t
+ccdbg_cmd_write_read8(struct ccdbg *dbg, uint8_t cmd, uint8_t *data, int len);
+
+uint16_t
+ccdbg_cmd_write_read16(struct ccdbg *dbg, uint8_t cmd, uint8_t *data, int len);
 
 #endif /* _CCDBG_H_ */

@@ -26,6 +26,7 @@ cccp_write(struct ccdbg *dbg, uint8_t mask, uint8_t value)
 
 	set = (mask) | (value << 8);
 	dbg->debug_data = (dbg->debug_data & ~mask) | (value & mask);
+	printf (" -> %02x\n", dbg->debug_data);
 	ret = ioctl(dbg->fd, CP2101_IOCTL_GPIOSET, &set);
 	if (ret < 0)
 		perror("CP2101_IOCTL_GPIOSET");
@@ -48,6 +49,7 @@ cccp_read(struct ccdbg *dbg, uint8_t mask)
 		perror("CP2101_IOCTL_GPIOGET");
 		get = 0;
 	}
+	printf (" <- %02x\n", get);
 	return get & mask;
 }
 

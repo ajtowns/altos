@@ -45,6 +45,14 @@ ccdbg_open(char *file)
 }
 
 void
+ccdbg_close(struct ccdbg *dbg)
+{
+	cccp_fini(dbg);
+	close (dbg->fd);
+	free (dbg);
+}
+
+void
 ccdbg_clock_1_0(struct ccdbg *dbg)
 {
 	ccdbg_quarter_clock(dbg);

@@ -16,23 +16,20 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-/*
- * Interface for using a CP2103 to talk to a CC1111
- */
+#include "ccdbg.h"
 
-#ifndef _CCCP_H_
-#define _CCCP_H_
+int
+main (int argc, char **argv)
+{
+	struct ccdbg	*dbg;
+	uint8_t		status;
 
-void
-cccp_write(struct ccdbg *dbg, uint8_t mask, uint8_t value);
-
-uint8_t
-cccp_read(struct ccdbg *dbg, uint8_t mask);
-
-void
-cccp_init(struct ccdbg *dbg);
-
-void
-cccp_fini(struct ccdbg *dbg);
-
-#endif /* _CCCP_H_ */
+	dbg = ccdbg_open("/dev/ttyUSB0");
+	if (!dbg)
+		exit (1);
+	ccdbg_reset(dbg);
+	status = ccdbg_read_status(dbg);
+	printf("Status: 0x%02x\n", status);
+	ccdbg_close(dbg);
+	exit (0);
+}
