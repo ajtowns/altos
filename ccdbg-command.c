@@ -19,14 +19,22 @@
 #include "ccdbg.h"
 
 void
-ccdbg_reset(struct ccdbg *dbg)
+ccdbg_debug_mode(struct ccdbg *dbg)
 {
 	/* force two rising clocks while holding RESET_N low */
-	ccdbg_clock_1_0(dbg);
-	cccp_write(dbg, CC_RESET_N, 0);
-	ccdbg_clock_0_1(dbg);
-	ccdbg_clock_1_0(dbg);
-	ccdbg_clock_0_1(dbg);
+	ccdbg_half_clock(dbg);
+	cccp_write(dbg, CC_RESET_N|CC_CLOCK, 0); ccdbg_half_clock(dbg);
+	cccp_write(dbg, CC_CLOCK, CC_CLOCK);	 ccdbg_half_clock(dbg);
+	cccp_write(dbg, CC_CLOCK, 0);		 ccdbg_half_clock(dbg);
+	cccp_write(dbg, CC_CLOCK, CC_CLOCK);     ccdbg_half_clock(dbg);
+	cccp_write(dbg, CC_RESET_N, CC_RESET_N); ccdbg_half_clock(dbg);
+}
+
+void
+ccdbg_reset(struct ccdbg *dbg)
+{
+	ccdbg_half_clock(dbg);
+	cccp_write(dbg, CC_RESET_N, 0);		ccdbg_half_clock(dbg);
 	cccp_write(dbg, CC_RESET_N, CC_RESET_N);
 }
 
@@ -41,3 +49,10 @@ ccdbg_rd_config(struct ccdbg *dbg)
 {
 	return ccdbg_cmd_write_read8(dbg, CC_RD_CONFIG, NULL, 0);
 }
+
+uint16_t
+ccdbg_get_chip_id(struct ccdbg *dbg)
+{
+	return ccdbg_cmd_write_read16(dbg, CC_GET_CHIP_ID, NULL, 0);
+}
+

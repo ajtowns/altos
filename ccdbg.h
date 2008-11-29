@@ -37,7 +37,7 @@
 #define CC_RESET_N	CP2101_GPIO_MASK(2)
 
 /* painfully slow for now */
-#define CC_CLOCK_US	(1000 * 1000)
+#define CC_CLOCK_US	(1 * 1000)
 
 struct ccdbg {
 	int	fd;
@@ -81,6 +81,9 @@ struct ccdbg {
 
 /* ccdbg-command.c */
 void
+ccdbg_debug_mode(struct ccdbg *dbg);
+
+void
 ccdbg_reset(struct ccdbg *dbg);
 
 uint8_t
@@ -89,9 +92,15 @@ ccdbg_read_status(struct ccdbg *dbg);
 uint8_t
 ccdbg_rd_config(struct ccdbg *dbg);
 
+uint16_t
+ccdbg_get_chip_id(struct ccdbg *dbg);
+
 /* ccdbg-io.c */
 void
 ccdbg_quarter_clock(struct ccdbg *dbg);
+
+void
+ccdbg_half_clock(struct ccdbg *dbg);
 
 struct ccdbg *
 ccdbg_open(char *file);

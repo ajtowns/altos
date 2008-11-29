@@ -27,6 +27,9 @@ void
 cccp_write(struct ccdbg *dbg, uint8_t mask, uint8_t value);
 
 uint8_t
+cccp_read_all(struct ccdbg *dbg);
+
+uint8_t
 cccp_read(struct ccdbg *dbg, uint8_t mask);
 
 void

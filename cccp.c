@@ -18,38 +18,69 @@
 
 #include "ccdbg.h"
 
-void
-cccp_write(struct ccdbg *dbg, uint8_t mask, uint8_t value)
+static void
+say(char *name, uint8_t bits)
+{
+	printf("%s: ", name);
+	if (bits & CC_RESET_N)
+		printf ("R ");
+	else
+		printf (". ");
+	if (bits & CC_CLOCK)
+		printf ("C ");
+	else
+		printf (". ");
+	if (bits & CC_DATA)
+		printf ("D\n");
+	else
+		printf (".\n");
+}
+
+static void
+_cccp_write(struct ccdbg *dbg, uint8_t mask, uint8_t value)
 {
 	uint16_t	set;
 	int		ret;
 
 	set = (mask) | (value << 8);
 	dbg->debug_data = (dbg->debug_data & ~mask) | (value & mask);
-	printf (" -> %02x\n", dbg->debug_data);
 	ret = ioctl(dbg->fd, CP2101_IOCTL_GPIOSET, &set);
 	if (ret < 0)
 		perror("CP2101_IOCTL_GPIOSET");
+}
+
+void
+cccp_write(struct ccdbg *dbg, uint8_t mask, uint8_t value)
+{
+	_cccp_write(dbg, mask, value);
+//	say("w", dbg->debug_data);
+}
+
+uint8_t
+cccp_read_all(struct ccdbg *dbg)
+{
+	int ret;
+	uint8_t	get;
+	ret = ioctl(dbg->fd, CP2101_IOCTL_GPIOGET, &get);
+	if (ret < 0) {
+		perror("CP2101_IOCTL_GPIOGET");
+		get = 0;
+	}
+	return get;
 }
 
 uint8_t
 cccp_read(struct ccdbg *dbg, uint8_t mask)
 {
 	uint8_t		pull_up;
-	int		ret;
 	uint8_t		get;
 
 	/* tri-state the bits of interest */
 	pull_up = (~dbg->debug_data) & mask;
-	if (pull_up) {
-		cccp_write(dbg, pull_up, pull_up);
-	}
-	ret = ioctl(dbg->fd, CP2101_IOCTL_GPIOGET, &get);
-	if (ret < 0) {
-		perror("CP2101_IOCTL_GPIOGET");
-		get = 0;
-	}
-	printf (" <- %02x\n", get);
+	if (pull_up)
+		_cccp_write(dbg, pull_up, pull_up);
+	get = cccp_read_all(dbg);
+	say("\t\tr", get);
 	return get & mask;
 }
 
@@ -58,7 +89,6 @@ cccp_init(struct ccdbg *dbg)
 {
 	/* set all of the GPIOs to a known state */
 	cccp_write(dbg, 0xf, 0xf);
-	dbg->clock = 1;
 }
 
 void

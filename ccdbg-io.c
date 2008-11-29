@@ -24,6 +24,12 @@ ccdbg_quarter_clock(struct ccdbg *dbg)
 	usleep(CC_CLOCK_US / 4);
 }
 
+void
+ccdbg_half_clock(struct ccdbg *dbg)
+{
+	usleep(CC_CLOCK_US / 2);
+}
+
 struct ccdbg *
 ccdbg_open(char *file)
 {
@@ -41,6 +47,8 @@ ccdbg_open(char *file)
 		return NULL;
 	}
 	cccp_init(dbg);
+	cccp_write(dbg, CC_CLOCK, CC_CLOCK);
+	dbg->clock = 1;
 	return dbg;
 }
 
@@ -79,9 +87,17 @@ ccdbg_clock_0_1(struct ccdbg *dbg)
 void
 ccdbg_write_bit(struct ccdbg *dbg, uint8_t bit)
 {
-	ccdbg_clock_1_0(dbg);
-	cccp_write(dbg, CC_DATA, bit ? CC_DATA : 0);
-	ccdbg_clock_0_1(dbg);
+	uint8_t	data;
+
+	assert(dbg->clock == 1);
+	data = CC_CLOCK;
+	if (bit)
+		data |= CC_DATA;
+	ccdbg_half_clock(dbg);
+	cccp_write(dbg, CC_DATA|CC_CLOCK, data);
+	ccdbg_half_clock(dbg);
+	cccp_write(dbg, CC_CLOCK, 0);
+//	printf ("%d", bit);
 }
 
 void
@@ -98,9 +114,11 @@ ccdbg_read_bit(struct ccdbg *dbg)
 {
 	uint8_t	data;
 
-	ccdbg_clock_1_0(dbg);
+	ccdbg_half_clock(dbg);
+	cccp_write(dbg, CC_CLOCK, CC_CLOCK);
+	ccdbg_half_clock(dbg);
+	cccp_write(dbg, CC_CLOCK, 0);
 	data = cccp_read(dbg, CC_DATA);
-	ccdbg_clock_0_1(dbg);
 	return data ? 1 : 0;
 }
 
@@ -127,17 +145,22 @@ ccdbg_cmd_write(struct ccdbg *dbg, uint8_t cmd, uint8_t *data, int len)
 uint8_t
 ccdbg_cmd_write_read8(struct ccdbg *dbg, uint8_t cmd, uint8_t *data, int len)
 {
+	uint8_t	ret;
 	ccdbg_cmd_write(dbg, cmd, data, len);
-	return ccdbg_read_byte(dbg);
+	ret = ccdbg_read_byte(dbg);
+	return ret;
 }
 
 uint16_t
 ccdbg_cmd_write_read16(struct ccdbg *dbg, uint8_t cmd, uint8_t *data, int len)
 {
 	uint8_t	byte1, byte0;
+	int	i;
 	ccdbg_cmd_write(dbg, cmd, data, len);
 	byte1 = ccdbg_read_byte(dbg); 
 	byte0 = ccdbg_read_byte(dbg);
+	for (i = 0; i < 4; i++)
+		(void) ccdbg_read_byte(dbg);
 	return (byte1 << 8) | byte0;
 }
 
