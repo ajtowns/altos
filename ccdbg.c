@@ -43,8 +43,8 @@ ccdbg_write_read(struct ccdbg *dbg, uint8_t set)
 {
 	uint8_t	get;
 
-	cccp_write(dbg, CC_DATA|CC_CLOCK|CC_RESET_N, set);
-	get = cccp_read_all(dbg);
+	ccdbg_write(dbg, CC_DATA|CC_CLOCK|CC_RESET_N, set);
+	get = ccdbg_read(dbg);
 	printf("%c %c %c -> %c %c %c\n",
 	       is_bit(set, 'C', CC_CLOCK),
 	       is_bit(set, 'D', CC_DATA),
@@ -59,6 +59,9 @@ ccdbg_write_read(struct ccdbg *dbg, uint8_t set)
 static void
 _ccdbg_debug_mode(struct ccdbg *dbg)
 {
+	printf ("#\n");
+	printf ("# Debug mode\n");
+	printf ("#\n");
 	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA|CC_RESET_N);
 	ccdbg_write_read(dbg,          CC_DATA           );
 	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA           );
@@ -74,6 +77,131 @@ _ccdbg_reset(struct ccdbg *dbg)
 	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA           );
 	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA           );
 	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA|CC_RESET_N);
+}
+
+static void
+_ccdbg_send_bit(struct ccdbg *dbg, uint8_t bit)
+{
+	if (bit) bit = CC_DATA;
+	ccdbg_write_read(dbg, CC_CLOCK|bit|CC_RESET_N);
+	ccdbg_write_read(dbg,          bit|CC_RESET_N);
+}
+
+static void
+_ccdbg_send_byte(struct ccdbg *dbg, uint8_t byte)
+{
+	int bit;
+	printf ("#\n");
+	printf ("# Send Byte 0x%02x\n", byte);
+	printf ("#\n");
+	for (bit = 7; bit >= 0; bit--) {
+		_ccdbg_send_bit(dbg, (byte >> bit) & 1);
+		if (bit == 3)
+			printf ("\n");
+	}
+}
+
+static void
+_ccdbg_send_bits(struct ccdbg *dbg, int n, uint32_t bits)
+{
+	int bit;
+	printf ("#\n");
+	printf ("# Send %d bits 0x%08x\n", n, bits);
+	printf ("#\n");
+	for (bit = n - 1; bit >= 0; bit--) {
+		_ccdbg_send_bit(dbg, (bits >> bit) & 1);
+		if ((bit & 3) == 3)
+			printf ("\n");
+	}
+}
+
+static void
+_ccdbg_print_bits(int n, uint32_t bits)
+{
+	int	bit;
+
+	for (bit = n - 1; bit >= 0; bit--)
+		printf ("%d", (bits >> bit) & 1);
+}
+
+static uint32_t
+_ccdbg_read_bits(struct ccdbg *dbg, int bits)
+{
+	int		bit;
+	uint32_t	val = 0;
+	uint8_t		get;
+
+	printf ("#\n");
+	printf ("# Read %d bits\n", bits);
+	printf ("#\n");
+	for (bit = 0; bit < bits; bit++) {
+		      ccdbg_write_read(dbg, CC_CLOCK|CC_DATA|CC_RESET_N);
+		get = ccdbg_write_read(dbg,          CC_DATA|CC_RESET_N);
+		val <<= 1;
+		if (get & CC_DATA)
+			val |= 1;
+		if ((bit & 3) == 3)
+			printf ("\n");
+	}
+	printf ("#\n");
+	printf ("# Read "); _ccdbg_print_bits(bits, val); printf ("\n");
+	printf ("#\n");
+	return val;
+}
+
+static int
+_ccdbg_check_bits(uint32_t bits, uint8_t match)
+{
+	int	bit;
+
+	for (bit = 0; bit < 24; bit++)
+		if (((bits >> bit) & 0xff) == match)
+			return 1;
+	return 0;
+}
+
+static uint32_t
+_ccdbg_play(struct ccdbg *dbg, int num_sync, uint32_t sync)
+{
+	uint32_t	bits;
+	_ccdbg_debug_mode(dbg);
+	_ccdbg_send_bits(dbg, num_sync, sync);
+	_ccdbg_send_byte(dbg, CC_GET_CHIP_ID);
+	bits = _ccdbg_read_bits(dbg, 16);
+	_ccdbg_send_byte(dbg, CC_GET_CHIP_ID);
+	bits = _ccdbg_read_bits(dbg, 16);
+//	_ccdbg_send_byte(dbg, CC_READ_STATUS);
+	_ccdbg_reset(dbg);
+	if (_ccdbg_check_bits(bits, 0x11)) {
+		printf("#\n#match with %d bits 0x%08x\n#\n", num_sync, sync);
+		return 1;
+	}
+	return 0;
+}
+
+static int
+_ccdbg_play_num(struct ccdbg *dbg, int num)
+{
+	uint32_t	sync;
+	uint32_t	max;
+
+	printf ("#\n#play %d\n#\n", num);
+	max = (1 << num);
+	for (sync = 0; sync < max; sync++)
+		if (_ccdbg_play(dbg, num, sync))
+			return 1;
+	return 0;
+}
+
+static int
+_ccdbg_play_many(struct ccdbg *dbg, int max)
+{
+	int	num;
+
+	for (num = 0; num < max; num++)
+		if (_ccdbg_play_num(dbg, num))
+			return 1;
+	return 0;
 }
 
 static void
@@ -105,15 +233,19 @@ main (int argc, char **argv)
 	dbg = ccdbg_open("/dev/ttyUSB0");
 	if (!dbg)
 		exit (1);
-	ccdbg_manual(dbg, stdin);
 #if 0	
+	_ccdbg_play(dbg, 0, 0);
+	_ccdbg_play_many(dbg, 8);
+#endif
+	ccdbg_manual(dbg, stdin);
+#if 0
 	ccdbg_debug_mode(dbg);
 	status = ccdbg_read_status(dbg);
 	printf("Status: 0x%02x\n", status);
 	chip_id = ccdbg_get_chip_id(dbg);
 	printf("Chip id: 0x%04x\n", chip_id);
-#endif
 	_ccdbg_reset(dbg);
+#endif
 	ccdbg_close(dbg);
 	exit (0);
 }

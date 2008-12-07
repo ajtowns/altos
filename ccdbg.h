@@ -30,17 +30,29 @@
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#undef USE_KERNEL
+#ifdef USE_KERNEL
 #include <cp2101.h>
-
 #define CC_DATA		CP2101_GPIO_MASK(0)
 #define CC_CLOCK	CP2101_GPIO_MASK(1)
 #define CC_RESET_N	CP2101_GPIO_MASK(2)
+#else
+#define CC_CLOCK	0x1
+#define CC_DATA		0x2
+#define CC_RESET_N	0x4
+#include <usb.h>
+#endif
+
 
 /* painfully slow for now */
-#define CC_CLOCK_US	(1 * 1000)
+#define CC_CLOCK_US	(100 * 1000)
 
 struct ccdbg {
+	usb_dev_handle	*usb_dev;
+	uint8_t	gpio;
+#ifdef USE_KERNEL
 	int	fd;
+#endif
 	uint8_t	debug_data;
 	int	clock;
 };
@@ -102,6 +114,12 @@ ccdbg_quarter_clock(struct ccdbg *dbg);
 void
 ccdbg_half_clock(struct ccdbg *dbg);
 
+int
+ccdbg_write(struct ccdbg *dbg, uint8_t mask, uint8_t value);
+
+uint8_t
+ccdbg_read(struct ccdbg *dbg);
+
 struct ccdbg *
 ccdbg_open(char *file);
 
@@ -134,5 +152,18 @@ ccdbg_cmd_write_read8(struct ccdbg *dbg, uint8_t cmd, uint8_t *data, int len);
 
 uint16_t
 ccdbg_cmd_write_read16(struct ccdbg *dbg, uint8_t cmd, uint8_t *data, int len);
+
+/* cp-usb.c */
+void
+cp_usb_init(struct ccdbg *dbg);
+
+void
+cp_usb_fini(struct ccdbg *dbg);
+
+void
+cp_usb_write(struct ccdbg *dbg, uint8_t mask, uint8_t value);
+
+uint8_t
+cp_usb_read(struct ccdbg *dbg);
 
 #endif /* _CCDBG_H_ */

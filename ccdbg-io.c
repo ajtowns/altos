@@ -40,6 +40,8 @@ ccdbg_open(char *file)
 		perror("calloc");
 		return NULL;
 	}
+	dbg->clock = 1;
+#ifdef USE_KERNEL
 	dbg->fd = open(file, 2);
 	if (dbg->fd < 0) {
 		perror(file);
@@ -48,6 +50,9 @@ ccdbg_open(char *file)
 	}
 	cccp_init(dbg);
 	cccp_write(dbg, CC_CLOCK, CC_CLOCK);
+#else
+	cp_usb_init(dbg);
+#endif
 	dbg->clock = 1;
 	return dbg;
 }
@@ -55,17 +60,42 @@ ccdbg_open(char *file)
 void
 ccdbg_close(struct ccdbg *dbg)
 {
+#if USE_KERNEL
 	cccp_fini(dbg);
 	close (dbg->fd);
+#else
+	cp_usb_fini(dbg);
+#endif
 	free (dbg);
 }
 
+int
+ccdbg_write(struct ccdbg *dbg, uint8_t mask, uint8_t value)
+{
+#if USE_KERNEL
+	return cccp_write(dbg, mask, value);
+#else
+	cp_usb_write(dbg, mask, value);
+	return 0;
+#endif
+}
+
+uint8_t
+ccdbg_read(struct ccdbg *dbg)
+{
+#if USE_KERNEL
+	return cccp_read_all(dbg);
+#else
+	return cp_usb_read(dbg);
+#endif
+}
+	
 void
 ccdbg_clock_1_0(struct ccdbg *dbg)
 {
 	ccdbg_quarter_clock(dbg);
 	assert(dbg->clock == 1);
-	cccp_write(dbg, CC_CLOCK, 0);
+	ccdbg_write(dbg, CC_CLOCK, 0);
 	dbg->clock = 0;
 	ccdbg_quarter_clock(dbg);
 }
@@ -75,7 +105,7 @@ ccdbg_clock_0_1(struct ccdbg *dbg)
 {
 	ccdbg_quarter_clock(dbg);
 	assert(dbg->clock == 0);
-	cccp_write(dbg, CC_CLOCK, CC_CLOCK);
+	ccdbg_write(dbg, CC_CLOCK, CC_CLOCK);
 	dbg->clock = 1;
 	ccdbg_quarter_clock(dbg);
 }
@@ -94,9 +124,9 @@ ccdbg_write_bit(struct ccdbg *dbg, uint8_t bit)
 	if (bit)
 		data |= CC_DATA;
 	ccdbg_half_clock(dbg);
-	cccp_write(dbg, CC_DATA|CC_CLOCK, data);
+	ccdbg_write(dbg, CC_DATA|CC_CLOCK, data);
 	ccdbg_half_clock(dbg);
-	cccp_write(dbg, CC_CLOCK, 0);
+	ccdbg_write(dbg, CC_CLOCK, 0);
 //	printf ("%d", bit);
 }
 
@@ -115,11 +145,11 @@ ccdbg_read_bit(struct ccdbg *dbg)
 	uint8_t	data;
 
 	ccdbg_half_clock(dbg);
-	cccp_write(dbg, CC_CLOCK, CC_CLOCK);
+	ccdbg_write(dbg, CC_CLOCK, CC_CLOCK);
 	ccdbg_half_clock(dbg);
-	cccp_write(dbg, CC_CLOCK, 0);
-	data = cccp_read(dbg, CC_DATA);
-	return data ? 1 : 0;
+	ccdbg_write(dbg, CC_CLOCK, 0);
+	data = ccdbg_read(dbg);
+	return (data & CC_DATA) ? 1 : 0;
 }
 
 uint8_t

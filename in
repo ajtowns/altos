@@ -1,0 +1,146 @@
+#
+# Debug mode - drive RESET_N low for two clock cycles
+#
+C D R
+. D .
+C D .
+. D .
+C D .
+. D .
+
+#C D R
+#. D R
+#C D R
+#. D R
+#C D R
+#. D R
+#C D R
+#. D R
+
+#
+# Ok, we're in debug mode now
+#
+
+#
+# GET_CHIP_ID
+
+#C . R	0
+#. . R
+#C D R	1
+#. D R
+#C D R	1
+#. D R
+#C . R	0
+#. . R
+#
+#C D R	1
+#. D R
+#C . R	0
+#. . R
+#C . R	0
+#. . R
+#C . R	0
+#. . R
+#
+##
+## Read the chip id
+##
+#
+#C D R
+#. D R
+#C D R
+#. D R
+#C D R
+#. D R
+#C D R
+#. D R
+#
+#C D R
+#. D R
+#C D R
+#. D R
+#C D R
+#. D R
+#C D R
+#. D R
+#
+#C D R
+#. D R
+#C D R
+#. D R
+#C D R
+#. D R
+#C D R
+#. D R
+#
+#C D R
+#. D R
+#C D R
+#. D R
+#C D R
+#. D R
+#C D R
+#. D R
+#
+
+#
+# GET_STATUS
+#
+
+C . R	0
+. . R
+C . R	0
+. . R
+C D R	1
+. D R
+C D R	1
+. D R
+
+C . R	0
+. . R
+C D R	1
+. D R
+C . R	0
+. . R
+C . R	0
+. . R
+
+#
+# Now read for a while
+#
+
+C D R
+. D R
+C D R
+. D R
+C D R
+. D R
+C D R
+. D R
+
+C D R
+. D R
+C D R
+. D R
+C D R
+. D R
+C D R
+. D R
+
+C D R
+. D R
+C D R
+. D R
+C D R
+. D R
+C D R
+. D R
+
+C D R
+. D R
+C D R
+. D R
+C D R
+. D R
+C D R
+. D R
