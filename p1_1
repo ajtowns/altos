@@ -23,22 +23,22 @@ C . R	0
 # status byte
 
 C D R
-. D R
-C D R
-. D R
-C D R
-. D R
-C D R
-. D R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
 
-C D R
-. D R
-C D R
-. D R
-C D R
-. D R
-C D R
-. D R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
 
 #
 # DEBUG_INSTR
@@ -126,22 +126,22 @@ C . R	0
 # status byte
 
 C D R
-. D R
-C D R
-. D R
-C D R
-. D R
-C D R
-. D R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
 
-C D R
-. D R
-C D R
-. D R
-C D R
-. D R
-C D R
-. D R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
 
 #
 # DEBUG_INSTR
@@ -228,22 +228,22 @@ C D R	1
 # status byte
 
 C D R
-. D R
-C D R
-. D R
-C D R
-. D R
-C D R
-. D R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
 
-C D R
-. D R
-C D R
-. D R
-C D R
-. D R
-C D R
-. D R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
 
 #
 # DEBUG_INSTR
@@ -330,20 +330,21 @@ C D R	1
 # status byte
 
 C D R
-. D R
-C D R
-. D R
-C D R
-. D R
-C D R
-. D R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
 
 C D R
-. D R
-C D R
-. D R
-C D R
-. D R
-C D R
-. D R
-

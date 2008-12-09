@@ -18,40 +18,55 @@
 
 #include "ccdbg.h"
 
-static uint8_t
-get_bit(char *line, int i, char on, uint8_t bit)
+static void
+get_bit(char *line, int i, char on, uint8_t bit, uint8_t *bits, uint8_t *masks)
 {
-	if (line[i] == on)
-		return bit;
-	if (line[i] == '.')
-		return 0;
+	if (line[i] == on) {
+		*bits |= bit;
+		*masks |= bit;
+		return;
+	}
+	if (line[i] == '.') {
+		*masks |= bit;
+		return;
+	}
+	if (line[i] == '-') {
+		return;
+	}
 	fprintf(stderr, "bad line %s\n", line);
 	exit (1);
 }
 
 static char
-is_bit(uint8_t get, char on, uint8_t bit)
+is_bit(uint8_t get, uint8_t mask, char on, uint8_t bit)
 {
-	if (get&bit)
-		return on;
-	else
-		return '.';
+	if (mask&bit) {
+		if (get&bit)
+			return on;
+		else
+			return '.';
+	} else
+		return '-';
 }
 
 static uint8_t
-ccdbg_write_read(struct ccdbg *dbg, uint8_t set)
+ccdbg_write_read(struct ccdbg *dbg, uint8_t set, uint8_t mask)
 {
-	uint8_t	get;
+	uint8_t	get = set;
 
-	ccdbg_write(dbg, CC_DATA|CC_CLOCK|CC_RESET_N, set);
-	get = ccdbg_read(dbg);
-	printf("%c %c %c -> %c %c %c\n",
-	       is_bit(set, 'C', CC_CLOCK),
-	       is_bit(set, 'D', CC_DATA),
-	       is_bit(set, 'R', CC_RESET_N),
-	       is_bit(get, 'C', CC_CLOCK),
-	       is_bit(get, 'D', CC_DATA),
-	       is_bit(get, 'R', CC_RESET_N));
+	if (mask != (CC_DATA|CC_CLOCK|CC_RESET_N))
+		get = ccdbg_read(dbg);
+	ccdbg_write(dbg, mask, set);
+	printf ("%c %c %c",
+		is_bit(set, mask, 'C', CC_CLOCK),
+		is_bit(set, mask, 'D', CC_DATA),
+		is_bit(set, mask, 'R', CC_RESET_N));
+	if (mask != (CC_DATA|CC_CLOCK|CC_RESET_N))
+		printf(" -> %c %c %c",
+		       is_bit(get, 0xf, 'C', CC_CLOCK),
+		       is_bit(get, 0xf, 'D', CC_DATA),
+		       is_bit(get, 0xf, 'R', CC_RESET_N));
+	printf("\n");
 	ccdbg_half_clock(dbg);
 	return get;
 }
@@ -62,29 +77,29 @@ _ccdbg_debug_mode(struct ccdbg *dbg)
 	printf ("#\n");
 	printf ("# Debug mode\n");
 	printf ("#\n");
-	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA|CC_RESET_N);
-	ccdbg_write_read(dbg,          CC_DATA           );
-	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA           );
-	ccdbg_write_read(dbg,          CC_DATA           );
-	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA           );
-	ccdbg_write_read(dbg,          CC_DATA|CC_RESET_N);
+	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
+	ccdbg_write_read(dbg,          CC_DATA           , CC_CLOCK|CC_DATA|CC_RESET_N);
+	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA           , CC_CLOCK|CC_DATA|CC_RESET_N);
+	ccdbg_write_read(dbg,          CC_DATA           , CC_CLOCK|CC_DATA|CC_RESET_N);
+	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA           , CC_CLOCK|CC_DATA|CC_RESET_N);
+	ccdbg_write_read(dbg,          CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
 }
 
 static void
 _ccdbg_reset(struct ccdbg *dbg)
 {
-	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA|CC_RESET_N);
-	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA           );
-	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA           );
-	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA|CC_RESET_N);
+	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
+	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA           , CC_CLOCK|CC_DATA|CC_RESET_N);
+	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA           , CC_CLOCK|CC_DATA|CC_RESET_N);
+	ccdbg_write_read(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
 }
 
 static void
 _ccdbg_send_bit(struct ccdbg *dbg, uint8_t bit)
 {
 	if (bit) bit = CC_DATA;
-	ccdbg_write_read(dbg, CC_CLOCK|bit|CC_RESET_N);
-	ccdbg_write_read(dbg,          bit|CC_RESET_N);
+	ccdbg_write_read(dbg, CC_CLOCK|bit|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
+	ccdbg_write_read(dbg,          bit|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
 }
 
 static void
@@ -135,8 +150,8 @@ _ccdbg_read_bits(struct ccdbg *dbg, int bits)
 	printf ("# Read %d bits\n", bits);
 	printf ("#\n");
 	for (bit = 0; bit < bits; bit++) {
-		      ccdbg_write_read(dbg, CC_CLOCK|CC_DATA|CC_RESET_N);
-		get = ccdbg_write_read(dbg,          CC_DATA|CC_RESET_N);
+		      ccdbg_write_read(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_RESET_N);
+		get = ccdbg_write_read(dbg,          CC_DATA|CC_RESET_N, CC_CLOCK|CC_RESET_N);
 		val <<= 1;
 		if (get & CC_DATA)
 			val |= 1;
@@ -208,7 +223,7 @@ static void
 ccdbg_manual(struct ccdbg *dbg, FILE *input)
 {
 	char	line[80];
-	uint8_t	set;
+	uint8_t	set, mask;
 
 	while (fgets(line, sizeof line, input)) {
 		if (line[0] == '#' || line[0] == '\n') {
@@ -216,10 +231,11 @@ ccdbg_manual(struct ccdbg *dbg, FILE *input)
 			continue;
 		}
 		set = 0;
-		set |= get_bit(line, 0, 'C', CC_CLOCK);
-		set |= get_bit(line, 2, 'D', CC_DATA);
-		set |= get_bit(line, 4, 'R', CC_RESET_N);
-		ccdbg_write_read(dbg, set);
+		mask = 0;
+		get_bit(line, 0, 'C', CC_CLOCK, &set, &mask);
+		get_bit(line, 2, 'D', CC_DATA, &set, &mask);
+		get_bit(line, 4, 'R', CC_RESET_N, &set, &mask);
+		ccdbg_write_read(dbg, set, mask);
 	}
 }
 

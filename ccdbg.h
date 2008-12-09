@@ -45,7 +45,7 @@
 
 
 /* painfully slow for now */
-#define CC_CLOCK_US	(100 * 1000)
+#define CC_CLOCK_US	(100)
 
 struct ccdbg {
 	usb_dev_handle	*usb_dev;

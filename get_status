@@ -9,7 +9,90 @@ C D .
 . D R
 
 #
-# GET_STATUS
+# Halt 0x44
+#
+
+C . R	0
+. . R
+C D R	1
+. D R
+C . R	0
+. . R
+C . R	0
+. . R
+
+C . R	0
+. . R
+C D R	1
+. D R
+C . R	0
+. . R
+C . R	0
+. . R
+
+# status byte
+
+C D R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+# Resume 0x4c
+#
+
+C . R	0
+. . R
+C D R	1
+. D R
+C . R	0
+. . R
+C . R	0
+. . R
+
+C D R	1
+. D R
+C D R	1
+. D R
+C . R	0
+. . R
+C . R	0
+. . R
+
+# status byte
+
+C D R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+#
+# READ_STATUS
 #
 
 C . R	0
@@ -31,41 +114,216 @@ C . R	0
 . . R
 
 #
-# Now read for a while
+# status
 #
 
 C D R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+#
+# READ_STATUS
+#
+
+C . R	0
+. . R
+C . R	0
+. . R
+C D R	1
 . D R
-C D R
-. D R
-C D R
-. D R
-C D R
+C D R	1
 . D R
 
-C D R
+C . R	0
+. . R
+C D R	1
 . D R
-C D R
-. D R
-C D R
-. D R
-C D R
-. D R
+C . R	0
+. . R
+C . R	0
+. . R
+
+#
+# status
+#
 
 C D R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+#
+# READ_STATUS
+#
+
+C . R	0
+. . R
+C . R	0
+. . R
+C D R	1
 . D R
-C D R
-. D R
-C D R
-. D R
-C D R
+C D R	1
 . D R
 
-C D R
+C . R	0
+. . R
+C D R	1
 . D R
+C . R	0
+. . R
+C . R	0
+. . R
+
+#
+# status
+#
+
 C D R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+#
+# Halt 0x44
+#
+
+C . R	0
+. . R
+C D R	1
 . D R
+C . R	0
+. . R
+C . R	0
+. . R
+
+C . R	0
+. . R
+C D R	1
+. D R
+C . R	0
+. . R
+C . R	0
+. . R
+
+# status byte
+
 C D R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+#
+# READ_STATUS
+#
+
+C . R	0
+. . R
+C . R	0
+. . R
+C D R	1
 . D R
+C D R	1
+. D R
+
+C . R	0
+. . R
+C D R	1
+. D R
+C . R	0
+. . R
+C . R	0
+. . R
+
+#
+# status
+#
+
 C D R
-. D R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
