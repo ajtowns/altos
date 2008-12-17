@@ -33,8 +33,8 @@
 #undef USE_KERNEL
 #ifdef USE_KERNEL
 #include <cp2101.h>
-#define CC_DATA		CP2101_GPIO_MASK(0)
-#define CC_CLOCK	CP2101_GPIO_MASK(1)
+#define CC_CLOCK	CP2101_GPIO_MASK(0)
+#define CC_DATA		CP2101_GPIO_MASK(1)
 #define CC_RESET_N	CP2101_GPIO_MASK(2)
 #else
 #define CC_CLOCK	0x1
