@@ -18,25 +18,42 @@
 
 #include "ccdbg.h"
 
-#define MOV	0x75
+#define MOV_direct_data		0x75
+#define LJMP			0x02
+#define MOV_Rn_data(n)		(0x78 | (n))
+#define DJNZ_Rn_rel(n)		(0xd8 | (n))
 
+#if 0
 static uint8_t instructions[] = {
-	3, MOV, 0xfe, 0x02,
-	3, MOV, 0x90, 0xff,
+	3, MOV_direct_data, 0xfe, 0x02,
+	3, MOV_direct_data, 0x90, 0xff,
 	0
 };
+#endif
 
-static void
-ccdbg_instructions(struct ccdbg *dbg, uint8_t *inst)
-{
-	while(inst[0] != 0) {
-		uint8_t	len = inst[0];
-		uint8_t status;
-		status = ccdbg_debug_instr(dbg, inst+1, len);
-		printf ("inst status 0x%02x\n", status);
-		inst += len + 1;
-	}
-}
+static uint8_t mem_instr[] = {
+	MOV_direct_data, 0xfe, 0x02,
+	MOV_direct_data, 0x90, 0xff,
+	MOV_Rn_data(2), 0x10,
+	MOV_Rn_data(0), 0xff,
+	MOV_Rn_data(1), 0xff,
+	DJNZ_Rn_rel(1), 0xfe,
+	DJNZ_Rn_rel(0), 0xfa,
+	DJNZ_Rn_rel(2), 0xf6,
+	MOV_direct_data, 0x90, 0xfd,
+	MOV_Rn_data(2), 0x10,
+	MOV_Rn_data(0), 0xff,
+	MOV_Rn_data(1), 0xff,
+	DJNZ_Rn_rel(1), 0xfe,
+	DJNZ_Rn_rel(0), 0xfa,
+	DJNZ_Rn_rel(2), 0xf6,
+	LJMP, 0xf0, 0x03
+};
+
+static uint8_t jump_mem[] = {
+	3, LJMP, 0xf0, 0x00,
+	0
+};
 
 int
 main (int argc, char **argv)
@@ -44,6 +61,9 @@ main (int argc, char **argv)
 	struct ccdbg	*dbg;
 	uint8_t		status;
 	uint16_t	chip_id;
+	uint16_t	pc;
+	uint8_t		memory[0x10];
+	int		i;
 
 	dbg = ccdbg_open("/dev/ttyUSB0");
 	if (!dbg)
@@ -52,6 +72,7 @@ main (int argc, char **argv)
 	ccdbg_manual(dbg, stdin);
 #endif
 #if 1
+	ccdbg_reset(dbg);
 	ccdbg_debug_mode(dbg);
 	status = ccdbg_read_status(dbg);
 	printf("Status: 0x%02x\n", status);
@@ -59,7 +80,17 @@ main (int argc, char **argv)
 	printf("Chip id: 0x%04x\n", chip_id);
 	status = ccdbg_halt(dbg);
 	printf ("halt status: 0x%02x\n", status);
-	ccdbg_instructions(dbg, instructions);
+/*	ccdbg_execute(dbg, instructions); */
+	ccdbg_write_memory(dbg, 0xf000, mem_instr, sizeof (mem_instr));
+	ccdbg_read_memory(dbg, 0xf000, memory, sizeof (memory));
+	for (i = 0; i < sizeof (memory); i++)
+		printf (" %02x", memory[i]);
+	printf ("\n");
+	ccdbg_execute(dbg, jump_mem);
+	pc = ccdbg_get_pc(dbg);
+	printf ("pc starts at 0x%04x\n", pc);
+	status = ccdbg_resume(dbg);
+	printf ("resume status: 0x%02x\n", status);
 #endif
 	ccdbg_close(dbg);
 	exit (0);

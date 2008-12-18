@@ -123,3 +123,26 @@ ccdbg_get_chip_id(struct ccdbg *dbg)
 {
 	return ccdbg_cmd_write_read16(dbg, CC_GET_CHIP_ID, NULL, 0);
 }
+
+/*
+ * Execute a sequence of instructions
+ */
+uint8_t
+ccdbg_execute(struct ccdbg *dbg, uint8_t *inst)
+{
+	uint8_t status = 0;
+	while(inst[0] != 0) {
+		uint8_t	len = inst[0];
+		int i;
+		ccdbg_debug(CC_DEBUG_INSTRUCTIONS, "\t%02x", inst[1]);
+		for (i = 0; i < len - 1; i++)
+			ccdbg_debug(CC_DEBUG_INSTRUCTIONS, " %02x", inst[i+2]);
+		status = ccdbg_debug_instr(dbg, inst+1, len);
+		for (; i < 3; i++)
+			ccdbg_debug(CC_DEBUG_INSTRUCTIONS, "   ");
+		ccdbg_debug(CC_DEBUG_INSTRUCTIONS, " -> %02x\n", status);
+		inst += len + 1;
+	}
+	return status;
+}
+

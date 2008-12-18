@@ -93,6 +93,7 @@ struct ccdbg {
 
 #define CC_DEBUG_BITBANG	0x00000001
 #define CC_DEBUG_COMMAND	0x00000002
+#define CC_DEBUG_INSTRUCTIONS	0x00000004
 
 /* ccdbg-command.c */
 void
@@ -137,7 +138,8 @@ ccdbg_step_replace(struct ccdbg *dbg, uint8_t *instr, int nbytes);
 uint16_t
 ccdbg_get_chip_id(struct ccdbg *dbg);
 
-
+uint8_t
+ccdbg_execute(struct ccdbg *dbg, uint8_t *inst);
 	
 /* ccdbg-debug.c */
 void
@@ -150,9 +152,6 @@ void
 ccdbg_clear_debug(int level);
 
 /* ccdbg-io.c */
-void
-ccdbg_quarter_clock(struct ccdbg *dbg);
-
 void
 ccdbg_half_clock(struct ccdbg *dbg);
 
@@ -223,6 +222,13 @@ ccdbg_print(char *format, uint8_t mask, uint8_t set);
 
 void
 ccdbg_manual(struct ccdbg *dbg, FILE *input);
+
+/* ccdbg-memory.c */
+uint8_t
+ccdbg_write_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes);
+
+uint8_t
+ccdbg_read_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes);
 
 /* cp-usb.c */
 void
