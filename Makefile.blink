@@ -1,0 +1,20 @@
+CC=sdcc
+NO_OPT=--nogcse --noinvariant --noinduction --nojtbound --noloopreverse \
+	--nolabelopt --nooverlay --peep-asm
+DEBUG=--debug
+
+CFLAGS=--model-large $(DEBUG) --less-pedantic --xram-size 4096\
+	--stack-auto --no-peep --int-long-reent --float-reent
+
+LDFLAGS=-L/usr/share/sdcc/lib/large \
+	--code-loc 0xf000 --xram-loc 0xf400
+
+SRC=blink.c
+OBJ=$(SRC:.c=.rel)
+
+%.rel : %.c
+	$(CC) -c $(CFLAGS) -o$*.rel $<
+
+blink: $(OBJ)
+	$(CC) $(LDFLAGS) $(CFLAGS) -o$@ $(OBJ)
+

@@ -64,6 +64,7 @@ main (int argc, char **argv)
 	uint16_t	pc;
 	uint8_t		memory[0x10];
 	int		i;
+	struct hex_file	*hex;
 
 	dbg = ccdbg_open("/dev/ttyUSB0");
 	if (!dbg)
@@ -71,7 +72,9 @@ main (int argc, char **argv)
 #if 0
 	ccdbg_manual(dbg, stdin);
 #endif
-#if 1
+	hex = ccdbg_hex_file_read(stdin, "<stdin>");
+	if (!hex)
+		exit (1);
 	ccdbg_reset(dbg);
 	ccdbg_debug_mode(dbg);
 	status = ccdbg_read_status(dbg);
@@ -80,9 +83,9 @@ main (int argc, char **argv)
 	printf("Chip id: 0x%04x\n", chip_id);
 	status = ccdbg_halt(dbg);
 	printf ("halt status: 0x%02x\n", status);
-/*	ccdbg_execute(dbg, instructions); */
-	ccdbg_write_memory(dbg, 0xf000, mem_instr, sizeof (mem_instr));
-	ccdbg_read_memory(dbg, 0xf000, memory, sizeof (memory));
+	
+	ccdbg_write_hex(dbg, hex);
+	ccdbg_hex_file_free(hex);
 	for (i = 0; i < sizeof (memory); i++)
 		printf (" %02x", memory[i]);
 	printf ("\n");
@@ -91,6 +94,10 @@ main (int argc, char **argv)
 	printf ("pc starts at 0x%04x\n", pc);
 	status = ccdbg_resume(dbg);
 	printf ("resume status: 0x%02x\n", status);
+#if 0
+/*	ccdbg_execute(dbg, instructions); */
+	ccdbg_write_memory(dbg, 0xf000, mem_instr, sizeof (mem_instr));
+	ccdbg_read_memory(dbg, 0xf000, memory, sizeof (memory));
 #endif
 	ccdbg_close(dbg);
 	exit (0);

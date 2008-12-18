@@ -73,3 +73,21 @@ ccdbg_read_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes)
 		*bytes++ = ccdbg_execute(dbg, read8);
 	return 0;
 }
+
+uint8_t
+ccdbg_write_hex(struct ccdbg *dbg, struct hex_file *hex)
+{
+	int	i;
+	struct hex_record *record;
+
+	for (i = 0; i < hex->nrecord; i++) {
+		record = hex->records[i];
+		if (record->type == HEX_RECORD_EOF)
+			break;
+		printf("Write %d bytes at 0x%04x\n",
+		       record->length, record->address);
+		ccdbg_write_memory(dbg, record->address,
+				   record->data, record->length);
+	}
+	return 0;
+}

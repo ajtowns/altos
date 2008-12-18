@@ -10,11 +10,15 @@ KERNEL_OBJS=cccp.o
 LIBUSB_OBJS=cp-usb.o
 
 OBJS=ccdbg.o ccdbg-command.o ccdbg-debug.o \
-	ccdbg-io.o ccdbg-memory.o \
+	ccdbg-hex.o ccdbg-io.o ccdbg-memory.o \
 	$(LIBUSB_OBJS)
 INCS=ccdbg.h cccp.h
 
 PROG=ccdbg
+
+LOAD=blink
+
+all: $(PROG) $(LOAD)
 
 $(PROG): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
@@ -23,3 +27,6 @@ clean:
 	rm -f $(PROG) $(OBJS)
 
 $(OBJS): $(INCS)
+
+blink: blink.c Makefile.blink
+	make -f Makefile.blink

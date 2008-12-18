@@ -151,6 +151,30 @@ ccdbg_add_debug(int level);
 void
 ccdbg_clear_debug(int level);
 
+/* ccdbg-hex.c */
+struct hex_record {
+	uint8_t	length;
+	uint16_t address;
+	uint8_t type;
+	uint8_t checksum;
+	uint8_t data[0];
+};
+
+struct hex_file {
+	int			nrecord;
+	struct hex_record	*records[0];
+};
+
+#define HEX_RECORD_NORMAL		0x00
+#define HEX_RECORD_EOF			0x01
+#define HEX_RECORD_EXTENDED_ADDRESS	0x02
+
+struct hex_file *
+ccdbg_hex_file_read(FILE *file, char *name);
+
+void
+ccdbg_hex_file_free(struct hex_file *hex);
+
 /* ccdbg-io.c */
 void
 ccdbg_half_clock(struct ccdbg *dbg);
@@ -229,6 +253,9 @@ ccdbg_write_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes)
 
 uint8_t
 ccdbg_read_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes);
+
+uint8_t
+ccdbg_write_hex(struct ccdbg *dbg, struct hex_file *hex);
 
 /* cp-usb.c */
 void
