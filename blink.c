@@ -24,21 +24,52 @@ sfr at 0xF7 P2INP;
 		nop \
 		_endasm;
 
+void
+delay (int n)
+{
+	int i, j, k;
+
+	for (k = 0; k < n; k++) {
+		for (j = 0; j < 100; j++)
+			for (i = 0; i < 1000; i++)
+				nop();
+	}
+}
+
+void
+dit() {
+	P1 = 0xff;
+	delay(1);
+	P1 = 0xfd;
+	delay(1);
+}
+
+void
+dah () {
+	P1 = 0xff;
+	delay(3);
+	P1 = 0xfd;
+	delay(1);
+}
+
+void
+charspace () {
+	delay(2);
+}
+
+void
+wordspace () {
+	delay(8);
+}
+
 main ()
 {
-	int	i, j;
 	/* Set p1_1 to output */
 	P1DIR = 0x02;
 	P1INP = 0x00;
 	P2INP = 0x00;
 	for (;;) {
-		P1 = 0xff;
-		for (j = 0; j < 100; j++)
-			for (i = 0; i < 1000; i++)
-				nop();
-		P1 = 0xfd;
-		for (j = 0; j < 100; j++)
-			for (i = 0; i < 1000; i++)
-				nop();
+		dah(); dit(); dah(); dit(); charspace ();
+		dah(); dah(); dit(); dah(); wordspace();
 	}
 }
