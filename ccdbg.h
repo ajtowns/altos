@@ -88,7 +88,7 @@ struct ccdbg {
 #define CC_RESUME		0x4c
 #define CC_DEBUG_INSTR(n)	(0x54|(n))
 #define CC_STEP_INSTR		0x5c
-#define CC_STEP_REPLACE		(0x64|(n))
+#define CC_STEP_REPLACE(n)	(0x64|(n))
 #define CC_GET_CHIP_ID		0x68
 
 #define CC_DEBUG_BITBANG	0x00000001
@@ -102,14 +102,43 @@ void
 ccdbg_reset(struct ccdbg *dbg);
 
 uint8_t
-ccdbg_read_status(struct ccdbg *dbg);
+ccdbg_chip_erase(struct ccdbg *dbg);
+
+uint8_t
+ccdbg_wr_config(struct ccdbg *dbg, uint8_t config);
 
 uint8_t
 ccdbg_rd_config(struct ccdbg *dbg);
 
+uint8_t
+ccdbg_get_pc(struct ccdbg *dbg);
+
+uint8_t
+ccdbg_read_status(struct ccdbg *dbg);
+
+uint8_t
+ccdbg_set_hw_brkpnt(struct ccdbg *dbg, uint8_t number, uint8_t enable, uint16_t addr);
+
+uint8_t
+ccdbg_halt(struct ccdbg *dbg);
+
+uint8_t
+ccdbg_resume(struct ccdbg *dbg);
+
+uint8_t
+ccdbg_debug_instr(struct ccdbg *dbg, uint8_t *instr, int nbytes);
+
+uint8_t
+ccdbg_step_instr(struct ccdbg *dbg);
+
+uint8_t
+ccdbg_step_replace(struct ccdbg *dbg, uint8_t *instr, int nbytes);
+
 uint16_t
 ccdbg_get_chip_id(struct ccdbg *dbg);
 
+
+	
 /* ccdbg-debug.c */
 void
 ccdbg_debug(int level, char *format, ...);

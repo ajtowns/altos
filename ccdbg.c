@@ -18,6 +18,26 @@
 
 #include "ccdbg.h"
 
+#define MOV	0x75
+
+static uint8_t instructions[] = {
+	3, MOV, 0xfe, 0x02,
+	3, MOV, 0x90, 0xff,
+	0
+};
+
+static void
+ccdbg_instructions(struct ccdbg *dbg, uint8_t *inst)
+{
+	while(inst[0] != 0) {
+		uint8_t	len = inst[0];
+		uint8_t status;
+		status = ccdbg_debug_instr(dbg, inst+1, len);
+		printf ("inst status 0x%02x\n", status);
+		inst += len + 1;
+	}
+}
+
 int
 main (int argc, char **argv)
 {
@@ -37,7 +57,9 @@ main (int argc, char **argv)
 	printf("Status: 0x%02x\n", status);
 	chip_id = ccdbg_get_chip_id(dbg);
 	printf("Chip id: 0x%04x\n", chip_id);
-	ccdbg_reset(dbg);
+	status = ccdbg_halt(dbg);
+	printf ("halt status: 0x%02x\n", status);
+	ccdbg_instructions(dbg, instructions);
 #endif
 	ccdbg_close(dbg);
 	exit (0);
