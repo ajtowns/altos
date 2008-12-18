@@ -30,7 +30,7 @@ delay (int n)
 	int i, j, k;
 
 	for (k = 0; k < n; k++) {
-		for (j = 0; j < 100; j++)
+		for (j = 0; j < 50; j++)
 			for (i = 0; i < 1000; i++)
 				nop();
 	}
