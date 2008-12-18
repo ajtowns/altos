@@ -17,28 +17,31 @@
  */
 
 #include "ccdbg.h"
+#include <stdarg.h>
 
 int
-main (int argc, char **argv)
-{
-	struct ccdbg	*dbg;
-	uint8_t		status;
-	uint16_t	chip_id;
+ccdbg_level = 0;
 
-	dbg = ccdbg_open("/dev/ttyUSB0");
-	if (!dbg)
-		exit (1);
-#if 0
-	ccdbg_manual(dbg, stdin);
-#endif
-#if 1
-	ccdbg_debug_mode(dbg);
-	status = ccdbg_read_status(dbg);
-	printf("Status: 0x%02x\n", status);
-	chip_id = ccdbg_get_chip_id(dbg);
-	printf("Chip id: 0x%04x\n", chip_id);
-	ccdbg_reset(dbg);
-#endif
-	ccdbg_close(dbg);
-	exit (0);
+void
+ccdbg_add_debug(int level)
+{
+	ccdbg_level |= level;
+}
+
+void
+ccdbg_clear_debug(int level)
+{
+	ccdbg_level &= ~level;
+}
+
+void
+ccdbg_debug(int level, char *format, ...)
+{
+	va_list	ap;
+
+	if (ccdbg_level & level) {
+		va_start(ap, format);
+		vprintf(format, ap);
+		va_end(ap);
+	}
 }

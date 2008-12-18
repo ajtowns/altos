@@ -22,20 +22,29 @@ void
 ccdbg_debug_mode(struct ccdbg *dbg)
 {
 	/* force two rising clocks while holding RESET_N low */
-	ccdbg_half_clock(dbg);
-	ccdbg_write(dbg, CC_RESET_N|CC_CLOCK, 0); ccdbg_half_clock(dbg);
-	ccdbg_write(dbg, CC_CLOCK, CC_CLOCK);	 ccdbg_half_clock(dbg);
-	ccdbg_write(dbg, CC_CLOCK, 0);		 ccdbg_half_clock(dbg);
-	ccdbg_write(dbg, CC_CLOCK, CC_CLOCK);     ccdbg_half_clock(dbg);
-	ccdbg_write(dbg, CC_RESET_N, CC_RESET_N); ccdbg_half_clock(dbg);
+	ccdbg_debug(CC_DEBUG_COMMAND, "#\n");
+	ccdbg_debug(CC_DEBUG_COMMAND, "# Debug mode\n");
+	ccdbg_debug(CC_DEBUG_COMMAND, "#\n");
+	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
+	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N,          CC_DATA           );
+	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
+	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N,          CC_DATA           );
+	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
+	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N,          CC_DATA|CC_RESET_N);
 }
 
 void
 ccdbg_reset(struct ccdbg *dbg)
 {
-	ccdbg_half_clock(dbg);
-	ccdbg_write(dbg, CC_RESET_N, 0);		ccdbg_half_clock(dbg);
-	ccdbg_write(dbg, CC_RESET_N, CC_RESET_N);
+	ccdbg_debug(CC_DEBUG_COMMAND, "#\n");
+	ccdbg_debug(CC_DEBUG_COMMAND, "# Reset\n");
+	ccdbg_debug(CC_DEBUG_COMMAND, "#\n");
+	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
+	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
+	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
+	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
+	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
+	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
 }
 
 uint8_t

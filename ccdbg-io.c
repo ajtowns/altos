@@ -89,108 +89,125 @@ ccdbg_read(struct ccdbg *dbg)
 	return cp_usb_read(dbg);
 #endif
 }
-	
-void
-ccdbg_clock_1_0(struct ccdbg *dbg)
+
+static char
+is_bit(uint8_t get, uint8_t mask, char on, uint8_t bit)
 {
-	ccdbg_quarter_clock(dbg);
-	assert(dbg->clock == 1);
-	ccdbg_write(dbg, CC_CLOCK, 0);
-	dbg->clock = 0;
-	ccdbg_quarter_clock(dbg);
+	if (mask&bit) {
+		if (get&bit)
+			return on;
+		else
+			return '.';
+	} else
+		return '-';
+}
+void
+ccdbg_print(char *format, uint8_t mask, uint8_t set)
+{
+	ccdbg_debug (CC_DEBUG_BITBANG, format,
+		     is_bit(set, mask, 'C', CC_CLOCK),
+		     is_bit(set, mask, 'D', CC_DATA),
+		     is_bit(set, mask, 'R', CC_RESET_N));
 }
 
 void
-ccdbg_clock_0_1(struct ccdbg *dbg)
+ccdbg_send(struct ccdbg *dbg, uint8_t mask, uint8_t set)
 {
-	ccdbg_quarter_clock(dbg);
-	assert(dbg->clock == 0);
-	ccdbg_write(dbg, CC_CLOCK, CC_CLOCK);
-	dbg->clock = 1;
-	ccdbg_quarter_clock(dbg);
-}
-
-/*
- * By convention, every macro function is entered with dbg->clock == 1
- */
-
-void
-ccdbg_write_bit(struct ccdbg *dbg, uint8_t bit)
-{
-	uint8_t	data;
-
-	assert(dbg->clock == 1);
-	data = CC_CLOCK;
-	if (bit)
-		data |= CC_DATA;
+	ccdbg_write(dbg, mask, set);
+	ccdbg_print("%c %c %c\n", mask, set);
 	ccdbg_half_clock(dbg);
-	ccdbg_write(dbg, CC_DATA|CC_CLOCK, data);
-	ccdbg_half_clock(dbg);
-	ccdbg_write(dbg, CC_CLOCK, 0);
-//	printf ("%d", bit);
 }
 
 void
-ccdbg_write_byte(struct ccdbg *dbg, uint8_t byte)
+ccdbg_send_bit(struct ccdbg *dbg, uint8_t bit)
 {
-	int	bit;
+	if (bit) bit = CC_DATA;
+	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|bit|CC_RESET_N);
+	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N,          bit|CC_RESET_N);
+}
 
-	for (bit = 7; bit >= 0; bit--)
-		ccdbg_write_bit(dbg, (byte >> bit) & 1);
+void
+ccdbg_send_byte(struct ccdbg *dbg, uint8_t byte)
+{
+	int bit;
+	ccdbg_debug(CC_DEBUG_BITBANG, "#\n# Send Byte 0x%02x\n#\n", byte);
+	for (bit = 7; bit >= 0; bit--) {
+		ccdbg_send_bit(dbg, (byte >> bit) & 1);
+		if (bit == 3)
+			ccdbg_debug(CC_DEBUG_BITBANG, "\n");
+	}
+}
+
+void
+ccdbg_send_bytes(struct ccdbg *dbg, uint8_t *bytes, int nbytes)
+{
+	while (nbytes--)
+		ccdbg_send_byte(dbg, *bytes++);
 }
 
 uint8_t
-ccdbg_read_bit(struct ccdbg *dbg)
+ccdbg_recv_bit(struct ccdbg *dbg, int first)
 {
-	uint8_t	data;
+	uint8_t mask = first ? CC_DATA : 0;
+	uint8_t read;
 
-	ccdbg_half_clock(dbg);
-	ccdbg_write(dbg, CC_CLOCK, CC_CLOCK);
-	ccdbg_half_clock(dbg);
-	ccdbg_write(dbg, CC_CLOCK, 0);
-	data = ccdbg_read(dbg);
-	return (data & CC_DATA) ? 1 : 0;
+	ccdbg_send(dbg, CC_CLOCK|mask|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
+	read = ccdbg_read(dbg);
+	ccdbg_send(dbg, CC_CLOCK|     CC_RESET_N,                  CC_RESET_N);
+	return (read & CC_DATA) ? 1 : 0;
 }
 
 uint8_t
-ccdbg_read_byte(struct ccdbg *dbg)
+ccdbg_recv_byte(struct ccdbg *dbg, int first)
 {
+	uint8_t byte = 0;
 	int	bit;
-	uint8_t	byte = 0;
 
-	for (bit = 7; bit >= 0; bit--)
-		byte |= ccdbg_read_bit(dbg) << bit;
+	ccdbg_debug(CC_DEBUG_BITBANG, "#\n# Recv byte\n#\n");
+	for (bit = 0; bit < 8; bit++) {
+		byte = byte << 1;
+		byte |= ccdbg_recv_bit(dbg, first);
+		if (bit == 3)
+			ccdbg_debug(CC_DEBUG_BITBANG, "\n");
+		first = 0;
+	}
+	ccdbg_debug(CC_DEBUG_BITBANG, "#\n# Recv 0x%02x\n#\n", byte);
 	return byte;
+}
+
+void
+ccdbg_recv_bytes(struct ccdbg *dbg, uint8_t *bytes, int nbytes)
+{
+	int first = 1;
+	while (nbytes--) {
+		*bytes++ = ccdbg_recv_byte(dbg, first);
+		first = 0;
+	}
 }
 
 void
 ccdbg_cmd_write(struct ccdbg *dbg, uint8_t cmd, uint8_t *data, int len)
 {
 	int	i;
-	ccdbg_write_byte(dbg, cmd);
+	ccdbg_send_byte(dbg, cmd);
 	for (i = 0; i < len; i++)
-		ccdbg_write_byte(dbg, data[i]);
+		ccdbg_send_byte(dbg, data[i]);
 }
 
 uint8_t
 ccdbg_cmd_write_read8(struct ccdbg *dbg, uint8_t cmd, uint8_t *data, int len)
 {
-	uint8_t	ret;
+	uint8_t	byte[1];
 	ccdbg_cmd_write(dbg, cmd, data, len);
-	ret = ccdbg_read_byte(dbg);
-	return ret;
+	ccdbg_recv_bytes(dbg, byte, 1);
+	return byte[0];
 }
 
 uint16_t
 ccdbg_cmd_write_read16(struct ccdbg *dbg, uint8_t cmd, uint8_t *data, int len)
 {
-	uint8_t	byte1, byte0;
-	int	i;
+	uint8_t	byte[2];
 	ccdbg_cmd_write(dbg, cmd, data, len);
-	byte1 = ccdbg_read_byte(dbg); 
-	byte0 = ccdbg_read_byte(dbg);
-	for (i = 0; i < 4; i++)
-		(void) ccdbg_read_byte(dbg);
-	return (byte1 << 8) | byte0;
+	ccdbg_recv_bytes(dbg, byte, 2);
+	return (byte[0] << 8) | byte[1];
 }
-

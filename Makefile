@@ -9,7 +9,7 @@ LIBS=-lusb
 KERNEL_OBJS=cccp.o
 LIBUSB_OBJS=cp-usb.o
 
-OBJS=ccdbg.o ccdbg-command.o ccdbg-io.o $(LIBUSB_OBJS)
+OBJS=ccdbg.o ccdbg-command.o ccdbg-debug.o ccdbg-io.o $(LIBUSB_OBJS)
 INCS=ccdbg.h cccp.h
 
 PROG=ccdbg

@@ -45,7 +45,7 @@
 
 
 /* painfully slow for now */
-#define CC_CLOCK_US	(100)
+#define CC_CLOCK_US	(1000)
 
 struct ccdbg {
 	usb_dev_handle	*usb_dev;
@@ -91,6 +91,9 @@ struct ccdbg {
 #define CC_STEP_REPLACE		(0x64|(n))
 #define CC_GET_CHIP_ID		0x68
 
+#define CC_DEBUG_BITBANG	0x00000001
+#define CC_DEBUG_COMMAND	0x00000002
+
 /* ccdbg-command.c */
 void
 ccdbg_debug_mode(struct ccdbg *dbg);
@@ -106,6 +109,16 @@ ccdbg_rd_config(struct ccdbg *dbg);
 
 uint16_t
 ccdbg_get_chip_id(struct ccdbg *dbg);
+
+/* ccdbg-debug.c */
+void
+ccdbg_debug(int level, char *format, ...);
+
+void
+ccdbg_add_debug(int level);
+
+void
+ccdbg_clear_debug(int level);
 
 /* ccdbg-io.c */
 void
@@ -152,6 +165,35 @@ ccdbg_cmd_write_read8(struct ccdbg *dbg, uint8_t cmd, uint8_t *data, int len);
 
 uint16_t
 ccdbg_cmd_write_read16(struct ccdbg *dbg, uint8_t cmd, uint8_t *data, int len);
+
+void
+ccdbg_send(struct ccdbg *dbg, uint8_t mask, uint8_t set);
+
+void
+ccdbg_send_bit(struct ccdbg *dbg, uint8_t bit);
+
+void
+ccdbg_send_byte(struct ccdbg *dbg, uint8_t byte);
+
+void
+ccdbg_send_bytes(struct ccdbg *dbg, uint8_t *bytes, int nbytes);
+
+uint8_t
+ccdbg_recv_bit(struct ccdbg *dbg, int first);
+
+uint8_t
+ccdbg_recv_byte(struct ccdbg *dbg, int first);
+
+void
+ccdbg_recv_bytes(struct ccdbg *dbg, uint8_t *bytes, int nbytes);
+
+void
+ccdbg_print(char *format, uint8_t mask, uint8_t set);
+
+/* ccdbg-manual.c */
+
+void
+ccdbg_manual(struct ccdbg *dbg, FILE *input);
 
 /* cp-usb.c */
 void
