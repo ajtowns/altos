@@ -1,2 +1,15 @@
 ccdbg
+blink-flash
+blink-ram
 *.o
+tags
+*.adb
+*.asm
+*.cdb
+*.lnk
+*.lst
+*.map
+*.mem
+*.rel
+*.rst
+*.sym
