@@ -1,3 +1,4 @@
+.NOTPARALLEL:
 CC=sdcc
 NO_OPT=--nogcse --noinvariant --noinduction --nojtbound --noloopreverse \
 	--nolabelopt --nooverlay --peep-asm
@@ -6,15 +7,39 @@ DEBUG=--debug
 CFLAGS=--model-large $(DEBUG) --less-pedantic --xram-size 4096\
 	--stack-auto --no-peep --int-long-reent --float-reent
 
-LDFLAGS=-L/usr/share/sdcc/lib/large \
-	--code-loc 0xf000 --xram-loc 0xf400
+LDFLAGS=-L/usr/share/sdcc/lib/large --out-fmt-ihx
+LDFLAGS_RAM=$(LDFLAGS) --code-loc 0xf000 --xram-loc 0xf400
+
+LDFLAGS_FLASH=$(LDFLAGS) --code-loc 0x0000 --xram-loc 0xf000
 
 SRC=blink.c
-OBJ=$(SRC:.c=.rel)
+ADB=$(SRC:.c=.adb)
+ASM=$(SRC:.c=.asm)
+LNK=$(SRC:.c=.lnk)
+LST=$(SRC:.c=.lst)
+REL=$(SRC:.c=.rel)
+RST=$(SRC:.c=.rst)
+SYM=$(SRC:.c=.sym)
+
+PROGS=blink-flash blink-ram
+PCDB=$(PROGS:=.cdb)
+PLNK=$(PROGS:=.lnk)
+PMAP=$(PROGS:=.map)
+PMEM=$(PROGS:=.mem)
 
 %.rel : %.c
 	$(CC) -c $(CFLAGS) -o$*.rel $<
 
-blink: $(OBJ)
-	$(CC) $(LDFLAGS) $(CFLAGS) -o$@ $(OBJ)
+all: $(PROGS)
 
+blink-ram: $(REL)
+	$(CC) $(LDFLAGS_RAM) $(CFLAGS) -oblink $(REL)
+	mv blink $@
+
+blink-flash: $(REL)
+	$(CC) $(LDFLAGS_FLASH) $(CFLAGS) -oblink $(REL)
+	mv blink $@
+
+clean:
+	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
+	rm -f $(PROGS) $(PCDB) $(PLNK) $(PMAP) $(PMEM)

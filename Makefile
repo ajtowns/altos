@@ -1,3 +1,4 @@
+.NOTPARALLEL: blink-ram blink-flash
 KERNEL=/local/src/linux-2.6-aiko-64
 KINC=$(KERNEL)/drivers/usb/serial
 
@@ -9,14 +10,17 @@ LIBS=-lusb
 KERNEL_OBJS=cccp.o
 LIBUSB_OBJS=cp-usb.o
 
-OBJS=ccdbg.o ccdbg-command.o ccdbg-debug.o \
-	ccdbg-hex.o ccdbg-io.o ccdbg-memory.o \
+SRCS=ccdbg.c ccdbg-command.c ccdbg-debug.c ccdbg-flash.c \
+	ccdbg-hex.c ccdbg-io.c ccdbg-memory.c \
 	$(LIBUSB_OBJS)
+
+OBJS=$(SRCS:.c=.o)
+
 INCS=ccdbg.h cccp.h
 
 PROG=ccdbg
 
-LOAD=blink
+LOAD=blinks
 
 all: $(PROG) $(LOAD)
 
@@ -25,8 +29,9 @@ $(PROG): $(OBJS)
 
 clean:
 	rm -f $(PROG) $(OBJS)
+	make -f Makefile.blink clean
 
 $(OBJS): $(INCS)
 
-blink: blink.c Makefile.blink
-	make -f Makefile.blink
+blinks: blink.c Makefile.blink
+	make -j1 -f Makefile.blink

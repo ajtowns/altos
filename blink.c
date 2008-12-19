@@ -11,7 +11,7 @@ sfr at 0xA0 P2;
 
 sfr at 0xFD P0DIR;
 sfr at 0xFE P1DIR;
-sfr at 0xFE P2DIR;
+sfr at 0xFF P2DIR;
 sfr at 0x8F P0INP;
 sfr at 0xF6 P1INP;
 sfr at 0xF7 P2INP;
@@ -24,6 +24,7 @@ sfr at 0xF7 P2INP;
 		nop \
 		_endasm;
 
+#if 0
 void
 delay (int n)
 {
@@ -62,14 +63,29 @@ wordspace () {
 	delay(8);
 }
 
+#define _ dit();
+#define ___ dah();
+#define C charspace();
+#define W wordspace();
+
+#endif
+
 main ()
 {
+#if 0
 	/* Set p1_1 to output */
 	P1DIR = 0x02;
 	P1INP = 0x00;
 	P2INP = 0x00;
 	for (;;) {
-		dah(); dit(); dah(); dit(); charspace ();
-		dah(); dah(); dit(); dah(); wordspace();
+		___ _ ___ _ C ___ ___ _ ___ W	/* cq */
+		___ _ _ C _ W			/* de */
+		___ _ ___ C ___ _ _ C		/* kd */
+		___ ___ _ _ _ C	_ _ _ C		/* 7s */
+		___ ___ _ ___ C	___ ___ _ W	/* qg */
 	}
+#else
+	P1DIR = 0x02;
+	for (;;);
+#endif
 }

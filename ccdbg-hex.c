@@ -228,7 +228,7 @@ ccdbg_hex_file_free(struct hex_file *hex)
 		return;
 	for (i = 0; i < hex->nrecord; i++)
 		ccdbg_hex_free(hex->records[i]);
-	free (hex);
+	free(hex);
 }
 
 static int
@@ -249,7 +249,7 @@ ccdbg_hex_file_read(FILE *file, char *name)
 	int srecord = 1;
 	int done = 0;
 
-	hex = calloc (1, sizeof (struct hex_file) + sizeof (struct hex_record *));
+	hex = calloc(sizeof (struct hex_file) + sizeof (struct hex_record *), 1);
 	input.name = name;
 	input.line = 1;
 	input.file = file;
@@ -282,3 +282,45 @@ bail:
 	return NULL;
 }
 
+struct hex_image *
+ccdbg_hex_image_create(struct hex_file *hex)
+{
+	struct hex_image *image;
+	struct hex_record *first, *last, *record;
+	int i;
+	uint32_t base, bound;
+	uint32_t offset;
+
+	first = hex->records[0];
+	last = hex->records[hex->nrecord - 2];	/* skip EOF */
+	base = (uint32_t) first->address;
+	bound = (uint32_t) last->address + (uint32_t) last->length - 1;
+	image = calloc(sizeof(struct hex_image) + bound - base, 1);
+	if (!image)
+		return NULL;
+	image->address = base;
+	image->length = bound - base;
+	memset(image->data, 0xff, image->length);
+	for (i = 0; i < hex->nrecord - 1; i++) {
+		record = hex->records[i];
+		offset = record->address - base;
+		memcpy(image->data + offset, record->data, record->length);
+	}
+	return image;
+}
+
+void
+ccdbg_hex_image_free(struct hex_image *image)
+{
+	free(image);
+}
+
+int
+ccdbg_hex_image_equal(struct hex_image *a, struct hex_image *b)
+{
+	if (a->length != b->length)
+		return 0;
+	if (memcmp(a->data, b->data, a->length) != 0)
+		return 0;
+	return 1;
+}

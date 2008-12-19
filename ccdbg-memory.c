@@ -22,72 +22,77 @@
  * Read and write arbitrary memory through the debug port
  */
 
-#define MOV_dptr_data16		0x90
-
 static uint8_t	memory_init[] = {
-	3,	MOV_dptr_data16,	0,	0,
+	3,	MOV_DPTR_data16,	0,	0,
 #define HIGH_START	2
 #define LOW_START	3
 	0,
 };
 
-#define MOV_a_data	0x74
-#define MOVX_atdptr_a	0xf0
-#define MOVX_a_atdptr	0xe0
-#define INC_dptr	0xa3
 
 static uint8_t write8[] = {
-	2,	MOV_a_data,	0,
+	2,	MOV_A_data,	0,
 #define DATA_BYTE	2
-	1,	MOVX_atdptr_a,
-	1,	INC_dptr,
+	1,	MOVX_atDPTR_A,
+	1,	INC_DPTR,
 	0
 };
 
 static uint8_t read8[] = {
-	1,	MOVX_a_atdptr,
-	1,	INC_dptr,
+	1,	MOVX_A_atDPTR,
+	1,	INC_DPTR,
 	0,
 };
 
 uint8_t
 ccdbg_write_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes)
 {
+	int i, nl = 0;
 	memory_init[HIGH_START] = addr >> 8;
 	memory_init[LOW_START] = addr;
 	(void) ccdbg_execute(dbg, memory_init);
-	while (nbytes-- > 0) {
+	for (i = 0; i < nbytes; i++) {
 		write8[DATA_BYTE] = *bytes++;
 		ccdbg_execute(dbg, write8);
+		if ((i & 0xf) == 0xf) { printf ("."); fflush(stdout); nl = 1; }
+		if ((i & 0xff) == 0xff) { printf ("\n"); nl = 0; }
 	}
+	if (nl) printf ("\n");
 	return 0;
 }
 
 uint8_t
 ccdbg_read_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes)
 {
+	int i, nl = 0;
 	memory_init[HIGH_START] = addr >> 8;
 	memory_init[LOW_START] = addr;
 	(void) ccdbg_execute(dbg, memory_init);
-	while (nbytes-- > 0)
+	for (i = 0; i < nbytes; i++) {
 		*bytes++ = ccdbg_execute(dbg, read8);
+		if ((i & 0xf) == 0xf) { printf ("."); fflush(stdout); nl = 1; }
+		if ((i & 0xff) == 0xff) { printf ("\n"); nl = 0; }
+	}
+	if (nl) printf ("\n");
 	return 0;
 }
 
 uint8_t
-ccdbg_write_hex(struct ccdbg *dbg, struct hex_file *hex)
+ccdbg_write_hex_image(struct ccdbg *dbg, struct hex_image *image, uint16_t offset)
 {
-	int	i;
-	struct hex_record *record;
-
-	for (i = 0; i < hex->nrecord; i++) {
-		record = hex->records[i];
-		if (record->type == HEX_RECORD_EOF)
-			break;
-		printf("Write %d bytes at 0x%04x\n",
-		       record->length, record->address);
-		ccdbg_write_memory(dbg, record->address,
-				   record->data, record->length);
-	}
+	ccdbg_write_memory(dbg, image->address + offset, image->data, image->length);
 	return 0;
+}
+
+struct hex_image *
+ccdbg_read_hex_image(struct ccdbg *dbg, uint16_t address, uint16_t length)
+{
+	struct hex_image *image;
+	
+	image = calloc(sizeof(struct hex_image) + length, 1);
+	image->address = address;
+	image->length = length;
+	memset(image->data, 0xff, length);
+	ccdbg_read_memory(dbg, address, image->data, length);
+	return image;
 }

@@ -65,7 +65,7 @@ ccdbg_rd_config(struct ccdbg *dbg)
 	return ccdbg_cmd_write_read8(dbg, CC_RD_CONFIG, NULL, 0);
 }
 
-uint8_t
+uint16_t
 ccdbg_get_pc(struct ccdbg *dbg)
 {
 	return ccdbg_cmd_write_read16(dbg, CC_GET_PC, NULL, 0);
@@ -144,5 +144,39 @@ ccdbg_execute(struct ccdbg *dbg, uint8_t *inst)
 		inst += len + 1;
 	}
 	return status;
+}
+
+static uint8_t jump_mem[] = {
+	3, LJMP, 0xf0, 0x00,
+#define PC_HIGH	2
+#define PC_LOW	3
+	0
+};
+
+uint8_t
+ccdbg_set_pc(struct ccdbg *dbg, uint16_t pc)
+{
+	jump_mem[PC_HIGH] = pc >> 8;
+	jump_mem[PC_LOW] = pc & 0xff;
+	return ccdbg_execute(dbg, jump_mem);
+}
+
+uint8_t
+ccdbg_execute_hex_image(struct ccdbg *dbg, struct hex_image *image)
+{
+	uint16_t pc;
+	uint8_t status;
+	
+	if (image->address < 0xf000) {
+		fprintf(stderr, "Cannot execute program starting at 0x%04x\n", image->address);
+		return -1;
+	}
+	ccdbg_write_hex_image(dbg, image, 0);
+	ccdbg_set_pc(dbg, image->address);
+	pc = ccdbg_get_pc(dbg);
+	printf ("pc starts at 0x%04x\n", pc);
+	status = ccdbg_resume(dbg);
+	printf ("resume status: 0x%02x\n", status);
+	return 0;
 }
 

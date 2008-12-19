@@ -18,12 +18,7 @@
 
 #include "ccdbg.h"
 
-#define MOV_direct_data		0x75
-#define LJMP			0x02
-#define MOV_Rn_data(n)		(0x78 | (n))
-#define DJNZ_Rn_rel(n)		(0xd8 | (n))
-
-#if 0
+#if 1
 static uint8_t instructions[] = {
 	3, MOV_direct_data, 0xfe, 0x02,
 	3, MOV_direct_data, 0x90, 0xff,
@@ -33,27 +28,32 @@ static uint8_t instructions[] = {
 
 static uint8_t mem_instr[] = {
 	MOV_direct_data, 0xfe, 0x02,
+	MOV_Rn_data(0), 0x00,
+	MOV_Rn_data(1), 0x00,
 	MOV_direct_data, 0x90, 0xff,
 	MOV_Rn_data(2), 0x10,
-	MOV_Rn_data(0), 0xff,
-	MOV_Rn_data(1), 0xff,
 	DJNZ_Rn_rel(1), 0xfe,
-	DJNZ_Rn_rel(0), 0xfa,
-	DJNZ_Rn_rel(2), 0xf6,
+	DJNZ_Rn_rel(0), 0xfc,
+	DJNZ_Rn_rel(2), 0xfa,
 	MOV_direct_data, 0x90, 0xfd,
 	MOV_Rn_data(2), 0x10,
-	MOV_Rn_data(0), 0xff,
-	MOV_Rn_data(1), 0xff,
 	DJNZ_Rn_rel(1), 0xfe,
-	DJNZ_Rn_rel(0), 0xfa,
-	DJNZ_Rn_rel(2), 0xf6,
-	LJMP, 0xf0, 0x03
+	DJNZ_Rn_rel(0), 0xfc,
+	DJNZ_Rn_rel(2), 0xfa,
+	SJMP, 0xe7,
 };
 
-static uint8_t jump_mem[] = {
-	3, LJMP, 0xf0, 0x00,
-	0
-};
+static struct hex_image *
+make_hex_image(uint16_t addr, uint8_t *data, uint16_t length)
+{
+	struct hex_image	*image;
+
+	image = malloc(sizeof (struct hex_image) + length);
+	image->address = addr;
+	image->length = length;
+	memcpy(image->data, data, length);
+	return image;
+}
 
 int
 main (int argc, char **argv)
@@ -62,9 +62,8 @@ main (int argc, char **argv)
 	uint8_t		status;
 	uint16_t	chip_id;
 	uint16_t	pc;
-	uint8_t		memory[0x10];
-	int		i;
 	struct hex_file	*hex;
+	struct hex_image *image;
 
 	dbg = ccdbg_open("/dev/ttyUSB0");
 	if (!dbg)
@@ -72,28 +71,46 @@ main (int argc, char **argv)
 #if 0
 	ccdbg_manual(dbg, stdin);
 #endif
+#if 1
 	hex = ccdbg_hex_file_read(stdin, "<stdin>");
 	if (!hex)
 		exit (1);
+	image = ccdbg_hex_image_create(hex);
+	ccdbg_hex_file_free(hex);
+#else
+	image = make_hex_image(0xf000, mem_instr, sizeof (mem_instr));
+#endif
+	
 	ccdbg_reset(dbg);
 	ccdbg_debug_mode(dbg);
-	status = ccdbg_read_status(dbg);
-	printf("Status: 0x%02x\n", status);
-	chip_id = ccdbg_get_chip_id(dbg);
-	printf("Chip id: 0x%04x\n", chip_id);
-	status = ccdbg_halt(dbg);
-	printf ("halt status: 0x%02x\n", status);
+	ccdbg_halt(dbg);
 	
-	ccdbg_write_hex(dbg, hex);
-	ccdbg_hex_file_free(hex);
-	for (i = 0; i < sizeof (memory); i++)
-		printf (" %02x", memory[i]);
-	printf ("\n");
-	ccdbg_execute(dbg, jump_mem);
-	pc = ccdbg_get_pc(dbg);
-	printf ("pc starts at 0x%04x\n", pc);
-	status = ccdbg_resume(dbg);
-	printf ("resume status: 0x%02x\n", status);
+#if 1
+	if (!image) {
+		fprintf(stderr, "image create failed\n");
+		exit (1);
+	}
+	if (image->address == 0xf000) {
+		printf("Loading code to execute from RAM\n");
+		ccdbg_execute_hex_image(dbg, image);
+	} else if (image->address == 0x0000) {
+		printf("Loading code to execute from FLASH\n");
+		ccdbg_flash_hex_image(dbg, image);
+		ccdbg_set_pc(dbg, 0);
+		ccdbg_resume(dbg);
+	} else {
+		printf("Cannot load code to 0x%04x\n",
+		       image->address);
+		ccdbg_hex_image_free(image);
+		ccdbg_close(dbg);
+		exit(1);
+	}
+#endif
+	for (;;) {
+		pc = ccdbg_get_pc(dbg);
+		status = ccdbg_read_status(dbg);
+		printf("pc: 0x%04x.  status: 0x%02x\n", pc, status);
+	}
 #if 0
 /*	ccdbg_execute(dbg, instructions); */
 	ccdbg_write_memory(dbg, 0xf000, mem_instr, sizeof (mem_instr));

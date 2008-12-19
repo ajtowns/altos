@@ -25,7 +25,7 @@ ccdbg_half_clock(struct ccdbg *dbg)
 	struct timespec	req, rem;
 	req.tv_sec = (CC_CLOCK_US / 2) / 1000000;
 	req.tv_nsec = ((CC_CLOCK_US / 2) % 1000000) * 1000;
-//	nanosleep(&req, &rem);
+	nanosleep(&req, &rem);
 }
 
 struct ccdbg *

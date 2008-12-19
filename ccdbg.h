@@ -47,6 +47,53 @@
 /* painfully slow for now */
 #define CC_CLOCK_US	(50)
 
+#define MOV_direct_data		0x75
+#define LJMP			0x02
+#define MOV_Rn_data(n)		(0x78 | (n))
+#define DJNZ_Rn_rel(n)		(0xd8 | (n))
+#define MOV_A_direct		0xe5
+#define MOV_direct_A		0xf5
+#define MOV_DPTR_data16		0x90
+#define MOV_A_data	0x74
+#define MOVX_atDPTR_A	0xf0
+#define MOVX_A_atDPTR	0xe0
+#define INC_DPTR	0xa3
+#define TRAP		0xa5
+
+#define SJMP		0x80
+
+#define FWT		0xAB
+#define FADDRL		0xAC
+#define FADDRH		0xAD
+#define FCTL		0xAE
+# define FCTL_BUSY	0x80
+# define FCTL_BUSY_BIT	7
+# define FCTL_SWBSY	0x40
+# define FCTL_SWBSY_BIT	6
+# define FCTL_CONTRD	0x10
+# define FCTL_WRITE	0x02
+# define FCTL_ERASE	0x01
+#define FWDATA		0xAF
+
+#define CLKCON		0xC6
+#define  CLKCON_OSC32K	0x80
+#define  CLKCON_OSC	0x40
+#define  CLKCON_TICKSPD	0x38
+#define  CLKCON_CLKSPD	0x07
+
+#define P0		0x80
+#define P1		0x90
+#define P2		0xA0
+#define P0DIR		0xFD
+#define P1DIR		0xFE
+#define P2DIR		0xFF
+
+#define SLEEP		0xBE
+
+#define JB		0x20
+
+#define ACC(bit)	(0xE0 | (bit))
+
 struct ccdbg {
 	usb_dev_handle	*usb_dev;
 	uint8_t	gpio;
@@ -56,6 +103,29 @@ struct ccdbg {
 	uint8_t	debug_data;
 	int	clock;
 };
+
+struct hex_record {
+	uint8_t	length;
+	uint16_t address;
+	uint8_t type;
+	uint8_t checksum;
+	uint8_t data[0];
+};
+
+struct hex_file {
+	int			nrecord;
+	struct hex_record	*records[0];
+};
+
+struct hex_image {
+	uint16_t	address;
+	uint16_t	length;
+	uint8_t		data[0];
+};
+
+#define HEX_RECORD_NORMAL		0x00
+#define HEX_RECORD_EOF			0x01
+#define HEX_RECORD_EXTENDED_ADDRESS	0x02
 
 #include "cccp.h"
 
@@ -111,7 +181,7 @@ ccdbg_wr_config(struct ccdbg *dbg, uint8_t config);
 uint8_t
 ccdbg_rd_config(struct ccdbg *dbg);
 
-uint8_t
+uint16_t
 ccdbg_get_pc(struct ccdbg *dbg);
 
 uint8_t
@@ -141,6 +211,12 @@ ccdbg_get_chip_id(struct ccdbg *dbg);
 uint8_t
 ccdbg_execute(struct ccdbg *dbg, uint8_t *inst);
 	
+uint8_t
+ccdbg_set_pc(struct ccdbg *dbg, uint16_t pc);
+	
+uint8_t
+ccdbg_execute_hex_image(struct ccdbg *dbg, struct hex_image *image);
+
 /* ccdbg-debug.c */
 void
 ccdbg_debug(int level, char *format, ...);
@@ -151,29 +227,25 @@ ccdbg_add_debug(int level);
 void
 ccdbg_clear_debug(int level);
 
+/* ccdbg-flash.c */
+uint8_t
+ccdbg_flash_hex_image(struct ccdbg *dbg, struct hex_image *image);
+
 /* ccdbg-hex.c */
-struct hex_record {
-	uint8_t	length;
-	uint16_t address;
-	uint8_t type;
-	uint8_t checksum;
-	uint8_t data[0];
-};
-
-struct hex_file {
-	int			nrecord;
-	struct hex_record	*records[0];
-};
-
-#define HEX_RECORD_NORMAL		0x00
-#define HEX_RECORD_EOF			0x01
-#define HEX_RECORD_EXTENDED_ADDRESS	0x02
-
 struct hex_file *
 ccdbg_hex_file_read(FILE *file, char *name);
 
 void
 ccdbg_hex_file_free(struct hex_file *hex);
+
+struct hex_image *
+ccdbg_hex_image_create(struct hex_file *hex);
+
+void
+ccdbg_hex_image_free(struct hex_image *image);
+
+int
+ccdbg_hex_image_equal(struct hex_image *a, struct hex_image *b);
 
 /* ccdbg-io.c */
 void
@@ -255,7 +327,10 @@ uint8_t
 ccdbg_read_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes);
 
 uint8_t
-ccdbg_write_hex(struct ccdbg *dbg, struct hex_file *hex);
+ccdbg_write_hex_image(struct ccdbg *dbg, struct hex_image *image, uint16_t offset);
+
+struct hex_image *
+ccdbg_read_hex_image(struct ccdbg *dbg, uint16_t address, uint16_t length);
 
 /* cp-usb.c */
 void
