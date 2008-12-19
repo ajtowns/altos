@@ -1,13 +1,31 @@
+/*
+ * Copyright © 2008 Keith Packard <keithp@keithp.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
 
 sfr at 0x80 P0;
 sfr at 0x90 P1;
 sfr at 0xA0 P2;
+sfr at 0xC6 CLKCON;
 
-#define PERCFG	SFR(0xF1)
-#define ADCCFG	SFR(0xF2)
-#define P0SEL	SFR(0xF3)
-#define P1SEL	SFR(0xF4)
-#define P2SEL	SFR(0xF5)
+sfr at 0xF1 PERCFG;
+sfr at 0xF2 ADCCFG;
+sfr at 0xF3 P0SEL;
+sfr at 0xF4 P1SEL;
+sfr at 0xF5 P2SEL;
 
 sfr at 0xFD P0DIR;
 sfr at 0xFE P1DIR;
@@ -16,25 +34,22 @@ sfr at 0x8F P0INP;
 sfr at 0xF6 P1INP;
 sfr at 0xF7 P2INP;
 
-#define P0IFG	SFR(0x89)
-#define P1IFG	SFR(0x8A)
-#define P2IFG	SFR(0x8B)
+sfr at 0x89 P0IFG;
+sfr at 0x8A P1IFG;
+sfr at 0x8B P2IFG;
 
-#define nop()	_asm \
-		nop \
-		_endasm;
+#define nop()	_asm nop _endasm;
 
-#if 0
 void
-delay (int n)
+delay (unsigned char n)
 {
-	int i, j, k;
+	unsigned char i = 0, j = 0;
 
-	for (k = 0; k < n; k++) {
-		for (j = 0; j < 50; j++)
-			for (i = 0; i < 1000; i++)
+	n <<= 1;
+	while (--n != 0)
+		while (--j != 0)
+			while (--i != 0)
 				nop();
-	}
 }
 
 void
@@ -68,11 +83,9 @@ wordspace () {
 #define C charspace();
 #define W wordspace();
 
-#endif
-
 main ()
 {
-#if 0
+	CLKCON = 0;
 	/* Set p1_1 to output */
 	P1DIR = 0x02;
 	P1INP = 0x00;
@@ -84,8 +97,4 @@ main ()
 		___ ___ _ _ _ C	_ _ _ C		/* 7s */
 		___ ___ _ ___ C	___ ___ _ W	/* qg */
 	}
-#else
-	P1DIR = 0x02;
-	for (;;);
-#endif
 }

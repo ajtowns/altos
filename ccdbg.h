@@ -327,6 +327,9 @@ uint8_t
 ccdbg_read_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes);
 
 uint8_t
+ccdbg_write_uint8(struct ccdbg *dbg, uint16_t addr, uint8_t byte);
+
+uint8_t
 ccdbg_write_hex_image(struct ccdbg *dbg, struct hex_image *image, uint16_t offset);
 
 struct hex_image *

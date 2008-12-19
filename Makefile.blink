@@ -4,13 +4,17 @@ NO_OPT=--nogcse --noinvariant --noinduction --nojtbound --noloopreverse \
 	--nolabelopt --nooverlay --peep-asm
 DEBUG=--debug
 
-CFLAGS=--model-large $(DEBUG) --less-pedantic --xram-size 4096\
-	--stack-auto --no-peep --int-long-reent --float-reent
+CFLAGS=--model-large $(DEBUG) --less-pedantic \
+	--no-peep --int-long-reent --float-reent \
+	--no-pack-iram \
+	--data-loc 0x30 \
 
 LDFLAGS=-L/usr/share/sdcc/lib/large --out-fmt-ihx
-LDFLAGS_RAM=$(LDFLAGS) --code-loc 0xf000 --xram-loc 0xf400
+LDFLAGS_RAM=$(LDFLAGS) --code-loc 0xf000 --xram-loc 0xf400 --xram-size 1024
 
-LDFLAGS_FLASH=$(LDFLAGS) --code-loc 0x0000 --xram-loc 0xf000
+LDFLAGS_FLASH=$(LDFLAGS) --code-loc 0x0000 --xram-loc 0xf000 --xram-size 1024
+
+
 
 SRC=blink.c
 ADB=$(SRC:.c=.adb)
@@ -32,12 +36,12 @@ PMEM=$(PROGS:=.mem)
 
 all: $(PROGS)
 
-blink-ram: $(REL)
-	$(CC) $(LDFLAGS_RAM) $(CFLAGS) -oblink $(REL)
+blink-ram: $(REL) Makefile.blink
+	$(CC) $(LDFLAGS_RAM) $(CFLAGS) -o blink $(REL)
 	mv blink $@
 
-blink-flash: $(REL)
-	$(CC) $(LDFLAGS_FLASH) $(CFLAGS) -oblink $(REL)
+blink-flash: $(REL) Makefile.blink
+	$(CC) $(LDFLAGS_FLASH) $(CFLAGS) -o blink $(REL)
 	mv blink $@
 
 clean:

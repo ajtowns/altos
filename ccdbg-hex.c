@@ -119,6 +119,8 @@ ccdbg_hex_read_record(struct hex_input *input)
 			ccdbg_hex_error(input, "Unexpected EOF");
 			goto bail;
 		}
+		if (c == ' ')
+			continue;
 		if (c == '\n')
 			input->line++;
 		switch (state) {
@@ -290,17 +292,19 @@ ccdbg_hex_image_create(struct hex_file *hex)
 	int i;
 	uint32_t base, bound;
 	uint32_t offset;
+	int length;
 
 	first = hex->records[0];
 	last = hex->records[hex->nrecord - 2];	/* skip EOF */
 	base = (uint32_t) first->address;
-	bound = (uint32_t) last->address + (uint32_t) last->length - 1;
-	image = calloc(sizeof(struct hex_image) + bound - base, 1);
+	bound = (uint32_t) last->address + (uint32_t) last->length;
+	length = bound - base;
+	image = calloc(sizeof(struct hex_image) + length, 1);
 	if (!image)
 		return NULL;
 	image->address = base;
-	image->length = bound - base;
-	memset(image->data, 0xff, image->length);
+	image->length = length;
+	memset(image->data, 0xff, length);
 	for (i = 0; i < hex->nrecord - 1; i++) {
 		record = hex->records[i];
 		offset = record->address - base;

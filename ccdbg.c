@@ -18,7 +18,7 @@
 
 #include "ccdbg.h"
 
-#if 1
+#if 0
 static uint8_t instructions[] = {
 	3, MOV_direct_data, 0xfe, 0x02,
 	3, MOV_direct_data, 0x90, 0xff,
@@ -26,6 +26,7 @@ static uint8_t instructions[] = {
 };
 #endif
 
+#if 0
 static uint8_t mem_instr[] = {
 	MOV_direct_data, 0xfe, 0x02,
 	MOV_Rn_data(0), 0x00,
@@ -42,7 +43,9 @@ static uint8_t mem_instr[] = {
 	DJNZ_Rn_rel(2), 0xfa,
 	SJMP, 0xe7,
 };
+#endif
 
+#if 0
 static struct hex_image *
 make_hex_image(uint16_t addr, uint8_t *data, uint16_t length)
 {
@@ -54,13 +57,13 @@ make_hex_image(uint16_t addr, uint8_t *data, uint16_t length)
 	memcpy(image->data, data, length);
 	return image;
 }
+#endif
 
 int
 main (int argc, char **argv)
 {
 	struct ccdbg	*dbg;
 	uint8_t		status;
-	uint16_t	chip_id;
 	uint16_t	pc;
 	struct hex_file	*hex;
 	struct hex_image *image;
@@ -81,9 +84,7 @@ main (int argc, char **argv)
 	image = make_hex_image(0xf000, mem_instr, sizeof (mem_instr));
 #endif
 	
-	ccdbg_reset(dbg);
 	ccdbg_debug_mode(dbg);
-	ccdbg_halt(dbg);
 	
 #if 1
 	if (!image) {
@@ -91,13 +92,11 @@ main (int argc, char **argv)
 		exit (1);
 	}
 	if (image->address == 0xf000) {
-		printf("Loading code to execute from RAM\n");
-		ccdbg_execute_hex_image(dbg, image);
+		printf("Loading %d bytes to execute from RAM\n", image->length);
+		ccdbg_write_hex_image(dbg, image, 0);
 	} else if (image->address == 0x0000) {
 		printf("Loading code to execute from FLASH\n");
 		ccdbg_flash_hex_image(dbg, image);
-		ccdbg_set_pc(dbg, 0);
-		ccdbg_resume(dbg);
 	} else {
 		printf("Cannot load code to 0x%04x\n",
 		       image->address);
@@ -105,17 +104,9 @@ main (int argc, char **argv)
 		ccdbg_close(dbg);
 		exit(1);
 	}
+	ccdbg_set_pc(dbg, image->address);
 #endif
-	for (;;) {
-		pc = ccdbg_get_pc(dbg);
-		status = ccdbg_read_status(dbg);
-		printf("pc: 0x%04x.  status: 0x%02x\n", pc, status);
-	}
-#if 0
-/*	ccdbg_execute(dbg, instructions); */
-	ccdbg_write_memory(dbg, 0xf000, mem_instr, sizeof (mem_instr));
-	ccdbg_read_memory(dbg, 0xf000, memory, sizeof (memory));
-#endif
+	ccdbg_resume(dbg);
 	ccdbg_close(dbg);
 	exit (0);
 }
