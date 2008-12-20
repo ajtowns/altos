@@ -5,8 +5,7 @@ DEBUG=--debug
 
 CFLAGS=--model-large $(DEBUG) --less-pedantic \
 	--no-peep --int-long-reent --float-reent \
-	--no-pack-iram \
-	--data-loc 0x30 \
+	--data-loc 0x30
 
 LDFLAGS=-L/usr/share/sdcc/lib/large --out-fmt-ihx
 LDFLAGS_RAM=$(LDFLAGS) --code-loc 0xf000 --xram-loc 0xf400 --xram-size 1024
@@ -34,11 +33,11 @@ PAOM=$(PROGS:.ihx=)
 
 all: $(PROGS)
 
-blink-ram.ihx: $(REL) Makefile.blink
+blink-ram.ihx: $(REL) Makefile
 	$(CC) $(LDFLAGS_RAM) $(CFLAGS) -o blink-ram.ihx $(REL)
-
-blink-flash.ihx: $(REL) Makefile.blink
 	$(CC) $(LDFLAGS_FLASH) $(CFLAGS) -o blink-flash.ihx $(REL)
+
+blink-flash.ihx: blink-ram.ihx
 
 clean:
 	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)

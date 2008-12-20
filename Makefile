@@ -29,9 +29,9 @@ $(PROG): $(OBJS)
 
 clean:
 	rm -f $(PROG) $(OBJS)
-	+make -f Makefile.blink clean
+	+make -C blink clean
 
 $(OBJS): $(INCS)
 
-blinks: blink.c Makefile.blink
-	+make -f Makefile.blink
+blinks:
+	+make -C blink
