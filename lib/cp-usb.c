@@ -70,7 +70,7 @@ void
 cp_usb_init(struct ccdbg *dbg)
 {
 	usb_dev_handle *dev_handle;
-	struct usb_device *dev;
+	struct usb_device *dev = NULL;
 	struct usb_bus *bus, *busses;
 	int interface;
 	int ret;
@@ -91,7 +91,7 @@ cp_usb_init(struct ccdbg *dbg)
 			break;
 	}
 	if (!dev){
-		perror("No CP2103 found\n");
+		perror("No CP2103 found");
 		exit(1);
 	}
 	interface = 0;

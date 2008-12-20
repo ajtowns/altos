@@ -258,7 +258,7 @@ uint8_t
 ccdbg_read(struct ccdbg *dbg);
 
 struct ccdbg *
-ccdbg_open(char *file);
+ccdbg_open(void);
 
 void
 ccdbg_close(struct ccdbg *dbg);

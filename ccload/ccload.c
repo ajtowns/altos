@@ -18,47 +18,6 @@
 
 #include "ccdbg.h"
 
-#if 0
-static uint8_t instructions[] = {
-	3, MOV_direct_data, 0xfe, 0x02,
-	3, MOV_direct_data, 0x90, 0xff,
-	0
-};
-#endif
-
-#if 0
-static uint8_t mem_instr[] = {
-	MOV_direct_data, 0xfe, 0x02,
-	MOV_Rn_data(0), 0x00,
-	MOV_Rn_data(1), 0x00,
-	MOV_direct_data, 0x90, 0xff,
-	MOV_Rn_data(2), 0x10,
-	DJNZ_Rn_rel(1), 0xfe,
-	DJNZ_Rn_rel(0), 0xfc,
-	DJNZ_Rn_rel(2), 0xfa,
-	MOV_direct_data, 0x90, 0xfd,
-	MOV_Rn_data(2), 0x10,
-	DJNZ_Rn_rel(1), 0xfe,
-	DJNZ_Rn_rel(0), 0xfc,
-	DJNZ_Rn_rel(2), 0xfa,
-	SJMP, 0xe7,
-};
-#endif
-
-#if 0
-static struct hex_image *
-make_hex_image(uint16_t addr, uint8_t *data, uint16_t length)
-{
-	struct hex_image	*image;
-
-	image = malloc(sizeof (struct hex_image) + length);
-	image->address = addr;
-	image->length = length;
-	memcpy(image->data, data, length);
-	return image;
-}
-#endif
-
 int
 main (int argc, char **argv)
 {
@@ -67,35 +26,43 @@ main (int argc, char **argv)
 	uint16_t	pc;
 	struct hex_file	*hex;
 	struct hex_image *image;
+	char *filename;
+	FILE *file;
 
-	dbg = ccdbg_open("/dev/ttyUSB0");
-	if (!dbg)
-		exit (1);
-#if 0
-	ccdbg_manual(dbg, stdin);
-#endif
-#if 1
-	hex = ccdbg_hex_file_read(stdin, "<stdin>");
+	filename = argv[1];
+	if (filename == NULL) {
+		fprintf(stderr, "usage: %s <filename.ihx>\n", argv[0]);
+		exit(1);
+	}
+	file = fopen(filename, "r");
+	if (!file) {
+		perror(filename);
+		exit(1);
+	}
+	hex = ccdbg_hex_file_read(file, filename);
+	fclose(file);
 	if (!hex)
 		exit (1);
 	image = ccdbg_hex_image_create(hex);
-	ccdbg_hex_file_free(hex);
-#else
-	image = make_hex_image(0xf000, mem_instr, sizeof (mem_instr));
-#endif
-	
-	ccdbg_debug_mode(dbg);
-	
-#if 1
 	if (!image) {
 		fprintf(stderr, "image create failed\n");
 		exit (1);
 	}
+	
+	ccdbg_hex_file_free(hex);
+	dbg = ccdbg_open();
+	if (!dbg)
+		exit (1);
+	
+	ccdbg_debug_mode(dbg);
+	ccdbg_halt(dbg);
 	if (image->address == 0xf000) {
-		printf("Loading %d bytes to execute from RAM\n", image->length);
+		printf("Loading %d bytes to execute from RAM\n",
+		       image->length);
 		ccdbg_write_hex_image(dbg, image, 0);
 	} else if (image->address == 0x0000) {
-		printf("Loading code to execute from FLASH\n");
+		printf("Loading %d bytes to execute from FLASH\n",
+		       image->length);
 		ccdbg_flash_hex_image(dbg, image);
 	} else {
 		printf("Cannot load code to 0x%04x\n",
@@ -105,7 +72,6 @@ main (int argc, char **argv)
 		exit(1);
 	}
 	ccdbg_set_pc(dbg, image->address);
-#endif
 	ccdbg_resume(dbg);
 	ccdbg_close(dbg);
 	exit (0);

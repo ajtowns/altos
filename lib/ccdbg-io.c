@@ -29,7 +29,7 @@ ccdbg_half_clock(struct ccdbg *dbg)
 }
 
 struct ccdbg *
-ccdbg_open(char *file)
+ccdbg_open(void)
 {
 	struct ccdbg *dbg;
 
@@ -40,7 +40,7 @@ ccdbg_open(char *file)
 	}
 	dbg->clock = 1;
 #ifdef USE_KERNEL
-	dbg->fd = open(file, 2);
+	dbg->fd = open("/dev/ttyUSB0", 2);
 	if (dbg->fd < 0) {
 		perror(file);
 		free(dbg);
