@@ -1,4 +1,3 @@
-.NOTPARALLEL:
 CC=sdcc
 NO_OPT=--nogcse --noinvariant --noinduction --nojtbound --noloopreverse \
 	--nolabelopt --nooverlay --peep-asm
@@ -14,8 +13,6 @@ LDFLAGS_RAM=$(LDFLAGS) --code-loc 0xf000 --xram-loc 0xf400 --xram-size 1024
 
 LDFLAGS_FLASH=$(LDFLAGS) --code-loc 0x0000 --xram-loc 0xf000 --xram-size 1024
 
-
-
 SRC=blink.c
 ADB=$(SRC:.c=.adb)
 ASM=$(SRC:.c=.asm)
@@ -25,25 +22,24 @@ REL=$(SRC:.c=.rel)
 RST=$(SRC:.c=.rst)
 SYM=$(SRC:.c=.sym)
 
-PROGS=blink-flash blink-ram
-PCDB=$(PROGS:=.cdb)
-PLNK=$(PROGS:=.lnk)
-PMAP=$(PROGS:=.map)
-PMEM=$(PROGS:=.mem)
+PROGS=blink-flash.ihx blink-ram.ihx
+PCDB=$(PROGS:.ihx=.cdb)
+PLNK=$(PROGS:.ihx=.lnk)
+PMAP=$(PROGS:.ihx=.map)
+PMEM=$(PROGS:.ihx=.mem)
+PAOM=$(PROGS:.ihx=)
 
 %.rel : %.c
 	$(CC) -c $(CFLAGS) -o$*.rel $<
 
 all: $(PROGS)
 
-blink-ram: $(REL) Makefile.blink
-	$(CC) $(LDFLAGS_RAM) $(CFLAGS) -o blink $(REL)
-	mv blink $@
+blink-ram.ihx: $(REL) Makefile.blink
+	$(CC) $(LDFLAGS_RAM) $(CFLAGS) -o blink-ram.ihx $(REL)
 
-blink-flash: $(REL) Makefile.blink
-	$(CC) $(LDFLAGS_FLASH) $(CFLAGS) -o blink $(REL)
-	mv blink $@
+blink-flash.ihx: $(REL) Makefile.blink
+	$(CC) $(LDFLAGS_FLASH) $(CFLAGS) -o blink-flash.ihx $(REL)
 
 clean:
 	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
-	rm -f $(PROGS) $(PCDB) $(PLNK) $(PMAP) $(PMEM)
+	rm -f $(PROGS) $(PCDB) $(PLNK) $(PMAP) $(PMEM) $(PAOM)
