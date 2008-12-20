@@ -1,4 +1,5 @@
 ccdbg
+*.ihx
 blink-flash
 blink-ram
 *.o
