@@ -174,9 +174,9 @@ ccdbg_execute_hex_image(struct ccdbg *dbg, struct hex_image *image)
 	ccdbg_write_hex_image(dbg, image, 0);
 	ccdbg_set_pc(dbg, image->address);
 	pc = ccdbg_get_pc(dbg);
-	printf ("pc starts at 0x%04x\n", pc);
+	ccdbg_debug(CC_DEBUG_EXECUTE, "pc starts at 0x%04x\n", pc);
 	status = ccdbg_resume(dbg);
-	printf ("resume status: 0x%02x\n", status);
+	ccdbg_debug(CC_DEBUG_EXECUTE, "resume status: 0x%02x\n", status);
 	return 0;
 }
 

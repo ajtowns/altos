@@ -38,54 +38,32 @@ ccdbg_open(void)
 		perror("calloc");
 		return NULL;
 	}
-	dbg->clock = 1;
-#ifdef USE_KERNEL
-	dbg->fd = open("/dev/ttyUSB0", 2);
-	if (dbg->fd < 0) {
-		perror(file);
-		free(dbg);
+	dbg->cp = cp_usb_open ();
+	if (!dbg->cp) {
+		free (dbg);
 		return NULL;
 	}
-	cccp_init(dbg);
-	cccp_write(dbg, CC_CLOCK, CC_CLOCK);
-#else
-	cp_usb_init(dbg);
-#endif
-	dbg->clock = 1;
 	return dbg;
 }
 
 void
 ccdbg_close(struct ccdbg *dbg)
 {
-#if USE_KERNEL
-	cccp_fini(dbg);
-	close (dbg->fd);
-#else
-	cp_usb_fini(dbg);
-#endif
+	cp_usb_close(dbg->cp);
 	free (dbg);
 }
 
 int
 ccdbg_write(struct ccdbg *dbg, uint8_t mask, uint8_t value)
 {
-#if USE_KERNEL
-	return cccp_write(dbg, mask, value);
-#else
-	cp_usb_write(dbg, mask, value);
+	cp_usb_write(dbg->cp, mask, value);
 	return 0;
-#endif
 }
 
 uint8_t
 ccdbg_read(struct ccdbg *dbg)
 {
-#if USE_KERNEL
-	return cccp_read_all(dbg);
-#else
-	return cp_usb_read(dbg);
-#endif
+	return cp_usb_read(dbg->cp);
 }
 
 static char

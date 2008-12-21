@@ -112,16 +112,16 @@ ccdbg_flash_erase_page(struct ccdbg *dbg, uint16_t addr)
 	flash_erase_page[ERASE_PAGE_HIGH] = page_addr >> 8;
 	flash_erase_page[ERASE_PAGE_LOW] = page_addr & 0xff;
 	status = ccdbg_execute(dbg, flash_erase_page);
-	printf("erase status 0x%02x\n", status);
+	ccdbg_debug(CC_DEBUG_FLASH, "erase status 0x%02x\n", status);
 	do {
 		status = ccdbg_execute(dbg, flash_read_control);
-		printf("fctl 0x%02x\n", status);
+		ccdbg_debug(CC_DEBUG_FLASH, "fctl 0x%02x\n", status);
 	} while (status & FCTL_BUSY);
 	ccdbg_read_memory(dbg, addr, new, 0x10);
 	for (i = 0; i < 0x10; i++)
-		printf("0x%02x -> 0x%02x\n", old[i], new[i]);
+		ccdbg_debug(CC_DEBUG_FLASH, "0x%02x -> 0x%02x\n", old[i], new[i]);
 	status = ccdbg_execute(dbg, flash_control_clear);
-	printf("clear fctl 0x%02x\n", status);
+	ccdbg_debug(CC_DEBUG_FLASH, "clear fctl 0x%02x\n", status);
 	return 0;
 }
 #endif
@@ -190,22 +190,22 @@ ccdbg_flash_write_word(struct ccdbg *dbg, uint16_t addr, uint8_t data[2])
 	flash_write[WRITE_PAGE_LOW] = page_addr & 0xff;
 	flash_write[WRITE_BYTE_0] = data[0];
 	flash_write[WRITE_BYTE_1] = data[1];
-	printf("upload flash write\n");
+	ccdbg_debug(CC_DEBUG_FLASH, "upload flash write\n");
 	ccdbg_write_memory(dbg, 0xf000, flash_write, sizeof(flash_write));
 	ccdbg_set_pc(dbg, 0xf000);
 	ccdbg_resume(dbg);
 	for (;;) {
 		status = ccdbg_read_status(dbg);
-		printf("waiting for write 0x%02x\n", status);
+		ccdbg_debug(CC_DEBUG_FLASH, "waiting for write 0x%02x\n", status);
 		if ((status & CC_STATUS_CPU_HALTED) != 0)
 			break;
 		sleep (1);
 	}
 	status = ccdbg_execute(dbg, flash_control_clear);
-	printf("clear fctl 0x%02x\n", status);
+	ccdbg_debug(CC_DEBUG_FLASH, "clear fctl 0x%02x\n", status);
 	ccdbg_read_memory(dbg, addr, check, 2);
 	for (i = 0; i < 2; i++)
-		printf("0x%02x : 0x%02x\n", data[i], check[i]);
+		ccdbg_debug(CC_DEBUG_FLASH, "0x%02x : 0x%02x\n", data[i], check[i]);
 	return 0;
 }
 #endif
@@ -231,7 +231,7 @@ ccdbg_flash_lock(struct ccdbg *dbg, uint8_t lock)
 	ccdbg_read_memory(dbg, 0, old, 1);
 	ccdbg_flash_write_word(dbg, 0, bytes);
 	ccdbg_read_memory(dbg, 0, new, 1);
-	printf ("flash lock 0x%02x -> 0x%02x\n", old[0], new[0]);
+	ccdbg_debug(CC_DEBUG_FLASH, "flash lock 0x%02x -> 0x%02x\n", old[0], new[0]);
 	ccdbg_wr_config(dbg, config & ~SEL_FLASH_INFO_PAGE);
 	return 0;
 }
@@ -270,7 +270,7 @@ ccdbg_flash_hex_image(struct ccdbg *dbg, struct hex_image *image)
 	fwt = 0x20;
 
 	flash_page[FLASH_TIMING] = fwt;
-	printf("Upload %d flash program bytes to 0x%04x\n",
+	ccdbg_debug(CC_DEBUG_FLASH, "Upload %d flash program bytes to 0x%04x\n",
 	       sizeof (flash_page), flash_prog);
 	ccdbg_write_memory(dbg, flash_prog, flash_page, sizeof(flash_page));
 	
@@ -283,10 +283,10 @@ ccdbg_flash_hex_image(struct ccdbg *dbg, struct hex_image *image)
 
 		offset = ram_addr - (image->address + start);
 
-		printf("Upload %d bytes at 0x%04x\n", this_time, ram_addr);
+		ccdbg_debug(CC_DEBUG_FLASH, "Upload %d bytes at 0x%04x\n", this_time, ram_addr);
 		ccdbg_write_memory(dbg, ram_addr, image->data + start, this_time);
 
-		printf("Verify %d bytes\n", image->length);
+		ccdbg_debug(CC_DEBUG_FLASH, "Verify %d bytes\n", image->length);
 		ccdbg_read_memory(dbg, ram_addr, verify, this_time);
 		if (memcmp (image->data + start, verify, this_time) != 0) {
 			fprintf(stderr, "image verify failed\n");
@@ -308,12 +308,12 @@ ccdbg_flash_hex_image(struct ccdbg *dbg, struct hex_image *image)
 
 		ccdbg_set_pc(dbg, flash_prog);
 		pc = ccdbg_get_pc(dbg);
-		printf("Starting flash program at 0x%04x\n", pc);
+		ccdbg_debug(CC_DEBUG_FLASH, "Starting flash program at 0x%04x\n", pc);
 		status = ccdbg_resume(dbg);
-		printf("resume status is 0x%02x\n", status);
+		ccdbg_debug(CC_DEBUG_FLASH, "resume status is 0x%02x\n", status);
 		do {
 			status = ccdbg_read_status(dbg);
-			printf("chip status is 0x%02x\n", status);
+			ccdbg_debug(CC_DEBUG_FLASH, "chip status is 0x%02x\n", status);
 			sleep(1);
 		} while ((status & CC_STATUS_CPU_HALTED) == 0);
 		
@@ -321,14 +321,14 @@ ccdbg_flash_hex_image(struct ccdbg *dbg, struct hex_image *image)
 		start += this_time;
 	}
 #if 1
-	printf("Downloading flash to check\n");
+	ccdbg_debug(CC_DEBUG_FLASH, "Downloading flash to check\n");
 	struct hex_image *test_image;
 	test_image = ccdbg_read_hex_image(dbg, image->address, image->length);
 	if (!ccdbg_hex_image_equal(image, test_image)) {
 		int i;
 		fprintf(stderr, "Image not loaded\n");
 		for (i = 0;i < 0x10; i++)
-			printf ("0x%02x : 0x%02x\n", image->data[i], test_image->data[i]);
+			ccdbg_debug(CC_DEBUG_FLASH, "0x%02x : 0x%02x\n", image->data[i], test_image->data[i]);
 		return 1;
 	}
 	return 0;

@@ -98,3 +98,15 @@ cccp_fini(struct ccdbg *dbg)
 	cccp_write(dbg, 0xf, 0xf);
 	dbg->clock = 1;
 }
+
+cccp_open()
+{
+	dbg->fd = open("/dev/ttyUSB0", 2);
+	if (dbg->fd < 0) {
+		perror(file);
+		free(dbg);
+		return NULL;
+	}
+	cccp_init(dbg);
+	cccp_write(dbg, CC_CLOCK, CC_CLOCK);
+}

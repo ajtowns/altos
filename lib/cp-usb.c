@@ -16,8 +16,20 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "ccdbg.h"
-#include <usb.h>
+/*
+ * libusb interface to the GPIO pins on a CP2103.
+ *
+ * Various magic constants came from the cp210x driver published by silabs.
+ */
+
+#include "cp-usb.h"
+#include <stdio.h>
+#include <errno.h>
+
+struct cp_usb {
+	usb_dev_handle *usb_dev;
+	uint8_t	gpio;
+};
 
 #define CP2101_UART	0x00
 #define UART_ENABLE	0x0001
@@ -26,9 +38,9 @@
 #define REQTYPE_DEVICE_TO_HOST  0xc1
 
 static int
-cp_usb_gpio_get(struct ccdbg *dbg, uint8_t *gpio_get)
+cp_usb_gpio_get(struct cp_usb *cp, uint8_t *gpio_get)
 {
-	return usb_control_msg(dbg->usb_dev,		/* dev */
+	return usb_control_msg(cp->usb_dev,		/* dev */
 			       0xc0,			/* request */
 			       0xff,			/* requesttype */
 			       0x00c2,			/* value */
@@ -39,11 +51,11 @@ cp_usb_gpio_get(struct ccdbg *dbg, uint8_t *gpio_get)
 }
 
 static int
-cp_usb_gpio_set(struct ccdbg *dbg, uint8_t mask, uint8_t value)
+cp_usb_gpio_set(struct cp_usb *cp, uint8_t mask, uint8_t value)
 {
 	uint16_t gpio_set = ((uint16_t) value << 8) | mask;
 
-	return usb_control_msg(dbg->usb_dev,		/* dev */
+	return usb_control_msg(cp->usb_dev,		/* dev */
 			       0x40,			/* request */
 			       0xff,			/* requesttype */
 			       0x37e1,			/* value */
@@ -54,9 +66,9 @@ cp_usb_gpio_set(struct ccdbg *dbg, uint8_t mask, uint8_t value)
 }
 
 static int
-cp_usb_uart_enable_disable(struct ccdbg *dbg, uint16_t enable)
+cp_usb_uart_enable_disable(struct cp_usb *cp, uint16_t enable)
 {
-	return usb_control_msg(dbg->usb_dev,
+	return usb_control_msg(cp->usb_dev,
 			       CP2101_UART,
 			       REQTYPE_HOST_TO_DEVICE,
 			       enable,
@@ -66,9 +78,10 @@ cp_usb_uart_enable_disable(struct ccdbg *dbg, uint16_t enable)
 			       300);
 }
 
-void
-cp_usb_init(struct ccdbg *dbg)
+struct cp_usb *
+cp_usb_open(void)
 {
+	struct cp_usb *cp;
 	usb_dev_handle *dev_handle;
 	struct usb_device *dev = NULL;
 	struct usb_bus *bus, *busses;
@@ -92,49 +105,52 @@ cp_usb_init(struct ccdbg *dbg)
 	}
 	if (!dev){
 		perror("No CP2103 found");
-		exit(1);
+		return NULL;
 	}
+	cp = calloc(sizeof(struct cp_usb), 1);
 	interface = 0;
 	dev_handle = usb_open(dev);
 	usb_detach_kernel_driver_np(dev_handle, interface);
 	usb_claim_interface(dev_handle, interface);
-	dbg->usb_dev = dev_handle;
-	ret = cp_usb_uart_enable_disable(dbg, UART_DISABLE);
-	dbg->gpio = 0xf;
-	ret = cp_usb_gpio_set(dbg, 0xf, dbg->gpio);
-	ret = cp_usb_gpio_get(dbg, &gpio);
+	cp->usb_dev = dev_handle;
+	ret = cp_usb_uart_enable_disable(cp, UART_DISABLE);
+	cp->gpio = 0xf;
+	ret = cp_usb_gpio_set(cp, 0xf, cp->gpio);
+	ret = cp_usb_gpio_get(cp, &gpio);
+	return cp;
 }
 
 void
-cp_usb_fini(struct ccdbg *dbg)
+cp_usb_close(struct cp_usb *cp)
 {
-	cp_usb_uart_enable_disable(dbg, UART_DISABLE);
-	usb_close(dbg->usb_dev);
+	cp_usb_uart_enable_disable(cp, UART_DISABLE);
+	usb_close(cp->usb_dev);
+	free(cp);
 }
 
 void
-cp_usb_write(struct ccdbg *dbg, uint8_t mask, uint8_t value)
+cp_usb_write(struct cp_usb *cp, uint8_t mask, uint8_t value)
 {
 	uint8_t	new_gpio;
 	int ret;
 
-	new_gpio = (dbg->gpio & ~mask) | (value & mask);
-	if (new_gpio != dbg->gpio) {
-		ret = cp_usb_gpio_set(dbg, new_gpio ^ dbg->gpio, new_gpio);
+	new_gpio = (cp->gpio & ~mask) | (value & mask);
+	if (new_gpio != cp->gpio) {
+		ret = cp_usb_gpio_set(cp, new_gpio ^ cp->gpio, new_gpio);
 		if (ret < 0)
 			perror("gpio_set");
-		dbg->gpio = new_gpio;
+		cp->gpio = new_gpio;
 	}
 }
 
 uint8_t
-cp_usb_read(struct ccdbg *dbg)
+cp_usb_read(struct cp_usb *cp)
 {
 	int ret;
 	uint8_t gpio;
 
-	ret = cp_usb_gpio_get(dbg, &gpio);
+	ret = cp_usb_gpio_get(cp, &gpio);
 	if (ret < 0)
-		perror("gpio_set");
+		perror("gpio_get");
 	return gpio;
 }

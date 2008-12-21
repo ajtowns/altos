@@ -30,23 +30,14 @@
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
-#undef USE_KERNEL
-#ifdef USE_KERNEL
-#include <cp2101.h>
-#define CC_CLOCK	CP2101_GPIO_MASK(0)
-#define CC_DATA		CP2101_GPIO_MASK(1)
-#define CC_RESET_N	CP2101_GPIO_MASK(2)
-#else
+#include "cp-usb.h"
 #define CC_CLOCK	0x1
 #define CC_DATA		0x2
 #define CC_RESET_N	0x4
-#include <usb.h>
-#endif
+#define CC_CLOCK_US	(40)
 
-
-/* painfully slow for now */
-#define CC_CLOCK_US	(50)
-
+/* 8051 instructions
+ */
 #define MOV_direct_data		0x75
 #define LJMP			0x02
 #define MOV_Rn_data(n)		(0x78 | (n))
@@ -54,56 +45,57 @@
 #define MOV_A_direct		0xe5
 #define MOV_direct_A		0xf5
 #define MOV_DPTR_data16		0x90
-#define MOV_A_data	0x74
-#define MOVX_atDPTR_A	0xf0
-#define MOVX_A_atDPTR	0xe0
-#define INC_DPTR	0xa3
-#define TRAP		0xa5
+#define MOV_A_data		0x74
+#define MOVX_atDPTR_A		0xf0
+#define MOVX_A_atDPTR		0xe0
+#define INC_DPTR		0xa3
+#define TRAP			0xa5
+#define SJMP			0x80
+#define JB			0x20
 
-#define SJMP		0x80
+/* 8051 special function registers
+ */
 
-#define FWT		0xAB
-#define FADDRL		0xAC
-#define FADDRH		0xAD
-#define FCTL		0xAE
-# define FCTL_BUSY	0x80
-# define FCTL_BUSY_BIT	7
-# define FCTL_SWBSY	0x40
-# define FCTL_SWBSY_BIT	6
-# define FCTL_CONTRD	0x10
-# define FCTL_WRITE	0x02
-# define FCTL_ERASE	0x01
-#define FWDATA		0xAF
+/* flash controller */
+#define FWT			0xAB
+#define FADDRL			0xAC
+#define FADDRH			0xAD
+#define FCTL			0xAE
+# define FCTL_BUSY		0x80
+# define FCTL_BUSY_BIT		7
+# define FCTL_SWBSY		0x40
+# define FCTL_SWBSY_BIT		6
+# define FCTL_CONTRD		0x10
+# define FCTL_WRITE		0x02
+# define FCTL_ERASE		0x01
+#define FWDATA			0xAF
 
-#define CLKCON		0xC6
-#define  CLKCON_OSC32K	0x80
-#define  CLKCON_OSC	0x40
-#define  CLKCON_TICKSPD	0x38
-#define  CLKCON_CLKSPD	0x07
+#define SLEEP			0xBE
 
-#define P0		0x80
-#define P1		0x90
-#define P2		0xA0
-#define P0DIR		0xFD
-#define P1DIR		0xFE
-#define P2DIR		0xFF
+/* clock controller */
+#define CLKCON			0xC6
+#define  CLKCON_OSC32K		0x80
+#define  CLKCON_OSC		0x40
+#define  CLKCON_TICKSPD		0x38
+#define  CLKCON_CLKSPD		0x07
 
-#define SLEEP		0xBE
+/* I/O pins */
+#define P0			0x80
+#define P1			0x90
+#define P2			0xA0
+#define P0DIR			0xFD
+#define P1DIR			0xFE
+#define P2DIR			0xFF
 
-#define JB		0x20
-
-#define ACC(bit)	(0xE0 | (bit))
+/* Bit-addressable accumulator */
+#define ACC(bit)		(0xE0 | (bit))
 
 struct ccdbg {
-	usb_dev_handle	*usb_dev;
-	uint8_t	gpio;
-#ifdef USE_KERNEL
-	int	fd;
-#endif
-	uint8_t	debug_data;
-	int	clock;
+	struct cp_usb *cp;
 };
 
+/* Intel hex file format data
+ */
 struct hex_record {
 	uint8_t	length;
 	uint16_t address;
@@ -127,8 +119,8 @@ struct hex_image {
 #define HEX_RECORD_EOF			0x01
 #define HEX_RECORD_EXTENDED_ADDRESS	0x02
 
-#include "cccp.h"
-
+/* CC1111 debug port commands
+ */
 #define CC_CHIP_ERASE		0x14
 
 #define CC_WR_CONFIG		0x1d
@@ -161,9 +153,13 @@ struct hex_image {
 #define CC_STEP_REPLACE(n)	(0x64|(n))
 #define CC_GET_CHIP_ID		0x68
 
+/* Debug levels
+ */
 #define CC_DEBUG_BITBANG	0x00000001
 #define CC_DEBUG_COMMAND	0x00000002
 #define CC_DEBUG_INSTRUCTIONS	0x00000004
+#define CC_DEBUG_EXECUTE	0x00000008
+#define CC_DEBUG_FLASH		0x00000010
 
 /* ccdbg-command.c */
 void
@@ -334,18 +330,5 @@ ccdbg_write_hex_image(struct ccdbg *dbg, struct hex_image *image, uint16_t offse
 
 struct hex_image *
 ccdbg_read_hex_image(struct ccdbg *dbg, uint16_t address, uint16_t length);
-
-/* cp-usb.c */
-void
-cp_usb_init(struct ccdbg *dbg);
-
-void
-cp_usb_fini(struct ccdbg *dbg);
-
-void
-cp_usb_write(struct ccdbg *dbg, uint8_t mask, uint8_t value);
-
-uint8_t
-cp_usb_read(struct ccdbg *dbg);
 
 #endif /* _CCDBG_H_ */
