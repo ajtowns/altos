@@ -58,6 +58,8 @@ static struct command_function functions[] = {
 		"Halt the processor\n" },
 	{ "reset","res",command_reset,	"[res]et",
 		"Reset the CPU\n" },
+	{ "status","status",command_status, "status",
+		"Display CC1111 debug status\n" },
 };
 
 #define NUM_FUNCTIONS (sizeof functions / sizeof functions[0])

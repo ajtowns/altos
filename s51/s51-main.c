@@ -43,7 +43,7 @@ main(int argc, char **argv)
 	FILE *console_out = stdout;
 	char *endptr;
 
-	while ((opt = getopt(argc, argv, "PVvHht:X:c:Z:s:S:p:")) != -1) {
+	while ((opt = getopt(argc, argv, "PVvHht:X:c:r:Z:s:S:p:")) != -1) {
 		switch (opt) {
 		case 't':
 			cpu = optarg;
@@ -63,6 +63,7 @@ main(int argc, char **argv)
 			break;
 		case 'c':
 			break;
+		case 'r':
 		case 'Z':
 			s51_port = strtol(optarg, &endptr, 0);
 			if (endptr == optarg || strlen(endptr) != 0)
@@ -100,17 +101,17 @@ main(int argc, char **argv)
 			perror ("socket");
 			exit(1);
 		}
+		r = setsockopt(l, SOL_SOCKET, SO_REUSEADDR, &one, sizeof (int));
+		if (r) {
+			perror("setsockopt");
+			exit(1);
+		}
 		in.sin_family = AF_INET;
 		in.sin_port = htons(s51_port);
 		in.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 		r = bind(l, (struct sockaddr *) &in, sizeof (in));
 		if (r) {
 			perror("bind");
-			exit(1);
-		}
-		r = setsockopt(l, SOL_SOCKET, SO_REUSEADDR, &one, sizeof (int));
-		if (r) {
-			perror("setsockopt");
 			exit(1);
 		}
 		r = listen(l, 5);
@@ -121,21 +122,23 @@ main(int argc, char **argv)
 		for (;;) {
 			struct sockaddr_in client_addr;
 			socklen_t client_len = sizeof (struct sockaddr_in);
-			FILE *client;
+			FILE *client_in, *client_out;
 			
-			s = accept(r, (struct sockaddr *)
+			s = accept(l, (struct sockaddr *)
 				   &client_addr, &client_len);
 			if (s < 0) {
 				perror("accept");
 				exit(1);
 			}
-			client = fdopen(s, "rw");
-			if (!client) {
+			client_in = fdopen(s, "r");
+			client_out = fdopen(s, "w");
+			if (!client_in || !client_out) {
 				perror("fdopen");
 				exit(1);
 			}
-			command_read(client, client);
-			fclose(client);
+			command_read(client_in, client_out);
+			fclose(client_in);
+			fclose(client_out);
 		}
 	} else
 		command_read(console_in, console_out);

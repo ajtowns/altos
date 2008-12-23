@@ -74,5 +74,11 @@ command_halt (FILE *output, int argc, char **argv);
 enum command_result
 command_reset (FILE *output, int argc, char **argv);
 
+enum command_result
+command_status (FILE *output, int argc, char **argv);
+
+uint8_t
+cc_wait(struct ccdbg *dbg);
+
 void
 command_read (FILE *input, FILE *output);

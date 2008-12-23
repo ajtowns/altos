@@ -1,1 +1,1 @@
-SUBDIRS=lib ccload target/blink
+SUBDIRS=lib ccload s51 target/blink

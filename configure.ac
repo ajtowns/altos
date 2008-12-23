@@ -92,4 +92,5 @@ AC_OUTPUT([
 Makefile 
 lib/Makefile
 ccload/Makefile
+s51/Makefile
 ])
