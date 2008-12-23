@@ -160,6 +160,7 @@ struct hex_image {
 #define CC_DEBUG_INSTRUCTIONS	0x00000004
 #define CC_DEBUG_EXECUTE	0x00000008
 #define CC_DEBUG_FLASH		0x00000010
+#define CC_DEBUG_MEMORY		0x00000020
 
 /* ccdbg-command.c */
 void
@@ -222,6 +223,9 @@ ccdbg_add_debug(int level);
 
 void
 ccdbg_clear_debug(int level);
+
+void
+ccdbg_flush(void);
 
 /* ccdbg-flash.c */
 uint8_t

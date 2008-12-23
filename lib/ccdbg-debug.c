@@ -45,3 +45,9 @@ ccdbg_debug(int level, char *format, ...)
 		va_end(ap);
 	}
 }
+
+void
+ccdbg_flush(void)
+{
+	fflush(stdout);
+}

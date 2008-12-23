@@ -129,6 +129,7 @@ ccdbg_recv_bit(struct ccdbg *dbg, int first)
 
 	ccdbg_send(dbg, CC_CLOCK|mask|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
 	read = ccdbg_read(dbg);
+	ccdbg_print("#\t%c %c %c\n", CC_DATA, read);
 	ccdbg_send(dbg, CC_CLOCK|     CC_RESET_N,                  CC_RESET_N);
 	return (read & CC_DATA) ? 1 : 0;
 }

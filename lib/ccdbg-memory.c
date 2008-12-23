@@ -54,10 +54,18 @@ ccdbg_write_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes)
 	for (i = 0; i < nbytes; i++) {
 		write8[DATA_BYTE] = *bytes++;
 		ccdbg_execute(dbg, write8);
-		if ((i & 0xf) == 0xf) { printf ("."); fflush(stdout); nl = 1; }
-		if ((i & 0xff) == 0xff) { printf ("\n"); nl = 0; }
+		if ((i & 0xf) == 0xf) {
+			ccdbg_debug(CC_DEBUG_MEMORY, ".");
+			ccdbg_flush();
+			nl = 1;
+		}
+		if ((i & 0xff) == 0xff) {
+			ccdbg_debug(CC_DEBUG_MEMORY, "\n");
+			nl = 0;
+		}
 	}
-	if (nl) printf ("\n");
+	if (nl)
+		ccdbg_debug(CC_DEBUG_MEMORY, "\n");
 	return 0;
 }
 
@@ -70,10 +78,18 @@ ccdbg_read_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes)
 	(void) ccdbg_execute(dbg, memory_init);
 	for (i = 0; i < nbytes; i++) {
 		*bytes++ = ccdbg_execute(dbg, read8);
-		if ((i & 0xf) == 0xf) { printf ("."); fflush(stdout); nl = 1; }
-		if ((i & 0xff) == 0xff) { printf ("\n"); nl = 0; }
+		if ((i & 0xf) == 0xf) {
+			ccdbg_debug(CC_DEBUG_MEMORY, ".");
+			ccdbg_flush();
+			nl = 1;
+		}
+		if ((i & 0xff) == 0xff) {
+			ccdbg_debug(CC_DEBUG_MEMORY, "\n");
+			nl = 0;
+		}
 	}
-	if (nl) printf ("\n");
+	if (nl)
+		ccdbg_debug(CC_DEBUG_MEMORY, "\n");
 	return 0;
 }
 
