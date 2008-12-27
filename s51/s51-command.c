@@ -18,6 +18,8 @@
 
 #include "s51.h"
 
+static uint16_t start_address;
+
 static enum command_result
 parse_int(char *value, int *result)
 {
@@ -147,9 +149,23 @@ command_dump (int argc, char **argv)
 enum command_result
 command_file (int argc, char **argv)
 {
+	struct hex_file *hex;
+	FILE *file;
+	
 	if (argc != 2)
 		return command_error;
-	s51_printf("some words read from %s\n", argv[1]);
+	file = fopen (argv[1], "r");
+	if (!file)
+		return command_error;
+	hex = ccdbg_hex_file_read(file, argv[1]);
+	fclose(file);
+	if (!hex)
+		return command_error;
+	if (hex->nrecord == 0) {
+		ccdbg_hex_file_free(hex);
+		return command_error;
+	}
+	start_address = hex->records[0]->address;
 	return command_success;
 }
 
@@ -198,6 +214,15 @@ enable_breakpoint(int b)
 	status = ccdbg_set_hw_brkpnt(s51_dbg, b, 1, breakpoints[b].address);
 	if (status != 0xff)
 		s51_printf("enable_breakpoint status 0x%02x\n", status);
+}
+
+static void
+enable_breakpoints(void)
+{
+	int b;
+	for (b = 0; b < CC_NUM_BREAKPOINTS; b++)
+		if (breakpoints[b].enabled)
+			enable_breakpoint(b);
 }
 
 enum command_result
@@ -261,8 +286,7 @@ find_breakpoint(uint16_t address)
 			break;
 	if (b == CC_NUM_BREAKPOINTS)
 		return -1;
-	if (breakpoints[b].temporary)
-		clear_breakpoint(address, 1);
+	return b;
 }
 
 enum command_result
@@ -317,6 +341,9 @@ cc_stopped(uint8_t status)
 			pc = pc - 1;
 			code = 104;
 			reason = "Breakpoint";
+			b = find_breakpoint(pc);
+			if (b != -1 && breakpoints[b].temporary)
+				clear_breakpoint(pc, 1);
 			ccdbg_set_pc(s51_dbg, pc);
 		} else {
 			code = 105;
@@ -359,6 +386,10 @@ command_run (int argc, char **argv)
 			result = parse_uint16(argv[2], &end);
 			if (result != command_success)
 				return result;
+		}
+		if (start_address && start == 0) {
+			start = start_address;
+			s51_printf("Starting at 0x%04x\n", start);
 		}
 		ccdbg_set_pc(s51_dbg, start);
 	}
@@ -422,6 +453,8 @@ enum command_result
 command_reset (int argc, char **argv)
 {
 	ccdbg_debug_mode(s51_dbg);
+	ccdbg_halt(s51_dbg);
+	enable_breakpoints();
 	return command_success;
 }
 

@@ -174,8 +174,10 @@ s51_printf(char *format, ...)
 
 	va_start(ap, format);
 	vfprintf(s51_output, format, ap);
+#if 1
 	if (s51_port)
 		vfprintf(stdout, format, ap);
+#endif
 	va_end(ap);
 }
 
@@ -195,8 +197,10 @@ s51_read_line(char *line, int len)
 		s51_putc('\0');
 	fflush(s51_output);
 	ret = fgets(line, len, s51_input) != NULL;
+#if 1
 	if (s51_port)
 		printf("> %s", line);
+#endif
 	fflush(stdout);
 	return ret;
 }
