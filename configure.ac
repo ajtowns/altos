@@ -30,7 +30,9 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_RANLIB
+PKG_PROG_PKG_CONFIG
 
+CFLAGS="-g"
 WARN_CFLAGS=""
 if test "x$GCC" = "xyes"; then
 	WARN_CFLAGS="-Wall -Wpointer-arith -Wstrict-prototypes \
@@ -56,6 +58,8 @@ else
 fi
 AC_MSG_RESULT([$CC_FOR_BUILD])
 AC_SUBST(CC_FOR_BUILD)
+
+PKG_CHECK_MODULES([LIBUSB], [libusb-1.0])
 
 AC_MSG_CHECKING([for suffix of executable build tools])
 if test $cross_compiling = yes; then

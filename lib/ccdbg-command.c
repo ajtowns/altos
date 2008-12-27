@@ -31,6 +31,7 @@ ccdbg_debug_mode(struct ccdbg *dbg)
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N,          CC_DATA           );
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N,          CC_DATA|CC_RESET_N);
+	ccdbg_sync_io(dbg);
 }
 
 void
@@ -45,6 +46,7 @@ ccdbg_reset(struct ccdbg *dbg)
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
+	ccdbg_sync_io(dbg);
 }
 
 uint8_t

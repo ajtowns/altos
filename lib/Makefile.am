@@ -1,6 +1,6 @@
 noinst_LIBRARIES = libcc.a
 
-AM_CFLAGS=$(WARN_CFLAGS)
+AM_CFLAGS=$(WARN_CFLAGS) $(LIBUSB_CFLAGS)
 
 libcc_a_SOURCES = \
 	ccdbg-command.c \
@@ -11,4 +11,5 @@ libcc_a_SOURCES = \
 	ccdbg-io.c \
 	ccdbg-manual.c \
 	ccdbg-memory.c \
-	cp-usb.c
+	cp-usb.c \
+	cp-usb-async.c

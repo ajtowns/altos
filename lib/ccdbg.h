@@ -30,11 +30,12 @@
 #include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
-#include "cp-usb.h"
+#include "ccdbg-debug.h"
+
 #define CC_CLOCK	0x1
 #define CC_DATA		0x2
 #define CC_RESET_N	0x4
-#define CC_CLOCK_US	(40)
+#define CC_CLOCK_US	(0)
 
 /* 8051 instructions
  */
@@ -90,8 +91,14 @@
 /* Bit-addressable accumulator */
 #define ACC(bit)		(0xE0 | (bit))
 
+#define CP_USB_ASYNC
+
 struct ccdbg {
+#ifdef CP_USB_ASYNC
+	struct cp_usb_async *cp_async;
+#else
 	struct cp_usb *cp;
+#endif
 };
 
 /* Intel hex file format data
@@ -153,15 +160,6 @@ struct hex_image {
 #define CC_STEP_REPLACE(n)	(0x64|(n))
 #define CC_GET_CHIP_ID		0x68
 
-/* Debug levels
- */
-#define CC_DEBUG_BITBANG	0x00000001
-#define CC_DEBUG_COMMAND	0x00000002
-#define CC_DEBUG_INSTRUCTIONS	0x00000004
-#define CC_DEBUG_EXECUTE	0x00000008
-#define CC_DEBUG_FLASH		0x00000010
-#define CC_DEBUG_MEMORY		0x00000020
-
 /* ccdbg-command.c */
 void
 ccdbg_debug_mode(struct ccdbg *dbg);
@@ -214,19 +212,6 @@ ccdbg_set_pc(struct ccdbg *dbg, uint16_t pc);
 uint8_t
 ccdbg_execute_hex_image(struct ccdbg *dbg, struct hex_image *image);
 
-/* ccdbg-debug.c */
-void
-ccdbg_debug(int level, char *format, ...);
-
-void
-ccdbg_add_debug(int level);
-
-void
-ccdbg_clear_debug(int level);
-
-void
-ccdbg_flush(void);
-
 /* ccdbg-flash.c */
 uint8_t
 ccdbg_flash_hex_image(struct ccdbg *dbg, struct hex_image *image);
@@ -254,8 +239,8 @@ ccdbg_half_clock(struct ccdbg *dbg);
 int
 ccdbg_write(struct ccdbg *dbg, uint8_t mask, uint8_t value);
 
-uint8_t
-ccdbg_read(struct ccdbg *dbg);
+void
+ccdbg_read(struct ccdbg *dbg, uint8_t *valuep);
 
 struct ccdbg *
 ccdbg_open(void);
@@ -302,14 +287,17 @@ ccdbg_send_byte(struct ccdbg *dbg, uint8_t byte);
 void
 ccdbg_send_bytes(struct ccdbg *dbg, uint8_t *bytes, int nbytes);
 
-uint8_t
-ccdbg_recv_bit(struct ccdbg *dbg, int first);
+void
+ccdbg_recv_bit(struct ccdbg *dbg, int first, uint8_t *bit);
 
-uint8_t
-ccdbg_recv_byte(struct ccdbg *dbg, int first);
+void
+ccdbg_recv_byte(struct ccdbg *dbg, int first, uint8_t *byte);
 
 void
 ccdbg_recv_bytes(struct ccdbg *dbg, uint8_t *bytes, int nbytes);
+
+void
+ccdbg_sync_io(struct ccdbg *dbg);
 
 void
 ccdbg_print(char *format, uint8_t mask, uint8_t set);

@@ -18,6 +18,11 @@
 
 #include "ccdbg.h"
 #include <time.h>
+#ifdef CP_USB_ASYNC
+#include "cp-usb-async.h"
+#else
+#include "cp-usb.h"
+#endif
 
 void
 ccdbg_half_clock(struct ccdbg *dbg)
@@ -38,32 +43,60 @@ ccdbg_open(void)
 		perror("calloc");
 		return NULL;
 	}
+#ifdef CP_USB_ASYNC
+	dbg->cp_async = cp_usb_async_open();
+	if (!dbg->cp_async) {
+		free (dbg);
+		return NULL;
+	}
+#else
 	dbg->cp = cp_usb_open ();
 	if (!dbg->cp) {
 		free (dbg);
 		return NULL;
 	}
+#endif
 	return dbg;
 }
 
 void
 ccdbg_close(struct ccdbg *dbg)
 {
+#ifdef CP_USB_ASYNC
+	cp_usb_async_close(dbg->cp_async);
+#else
 	cp_usb_close(dbg->cp);
+#endif
 	free (dbg);
 }
 
 int
 ccdbg_write(struct ccdbg *dbg, uint8_t mask, uint8_t value)
 {
+#ifdef CP_USB_ASYNC
+	cp_usb_async_write(dbg->cp_async, mask, value);
+#else
 	cp_usb_write(dbg->cp, mask, value);
+#endif
 	return 0;
 }
 
-uint8_t
-ccdbg_read(struct ccdbg *dbg)
+void
+ccdbg_read(struct ccdbg *dbg, uint8_t *valuep)
 {
-	return cp_usb_read(dbg->cp);
+#ifdef CP_USB_ASYNC
+	cp_usb_async_read(dbg->cp_async, valuep);
+#else
+	*valuep = cp_usb_read(dbg->cp);
+#endif
+}
+
+void
+ccdbg_sync_io(struct ccdbg *dbg)
+{
+#ifdef CP_USB_ASYNC
+	cp_usb_async_sync(dbg->cp_async);
+#endif
 }
 
 static char
@@ -112,6 +145,7 @@ ccdbg_send_byte(struct ccdbg *dbg, uint8_t byte)
 		if (bit == 3)
 			ccdbg_debug(CC_DEBUG_BITBANG, "\n");
 	}
+	ccdbg_sync_io(dbg);
 }
 
 void
@@ -121,43 +155,47 @@ ccdbg_send_bytes(struct ccdbg *dbg, uint8_t *bytes, int nbytes)
 		ccdbg_send_byte(dbg, *bytes++);
 }
 
-uint8_t
-ccdbg_recv_bit(struct ccdbg *dbg, int first)
+void
+ccdbg_recv_bit(struct ccdbg *dbg, int first, uint8_t *bit)
 {
 	uint8_t mask = first ? CC_DATA : 0;
-	uint8_t read;
 
 	ccdbg_send(dbg, CC_CLOCK|mask|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
-	read = ccdbg_read(dbg);
-	ccdbg_print("#\t%c %c %c\n", CC_DATA, read);
+	ccdbg_read(dbg, bit);
 	ccdbg_send(dbg, CC_CLOCK|     CC_RESET_N,                  CC_RESET_N);
-	return (read & CC_DATA) ? 1 : 0;
 }
 
-uint8_t
-ccdbg_recv_byte(struct ccdbg *dbg, int first)
+void
+ccdbg_recv_byte(struct ccdbg *dbg, int first, uint8_t *bytep)
 {
 	uint8_t byte = 0;
+	uint8_t bits[8];
 	int	bit;
 
 	ccdbg_debug(CC_DEBUG_BITBANG, "#\n# Recv byte\n#\n");
 	for (bit = 0; bit < 8; bit++) {
-		byte = byte << 1;
-		byte |= ccdbg_recv_bit(dbg, first);
-		if (bit == 3)
-			ccdbg_debug(CC_DEBUG_BITBANG, "\n");
+		ccdbg_recv_bit(dbg, first, &bits[bit]);
 		first = 0;
 	}
+	ccdbg_sync_io(dbg);
+	for (bit = 0; bit < 8; bit++) {
+		byte = byte << 1;
+		byte |= (bits[bit] & CC_DATA) ? 1 : 0;
+		ccdbg_print("#\t%c %c %c\n", CC_DATA, bits[bit]);
+		if (bit == 3)
+			ccdbg_debug(CC_DEBUG_BITBANG, "\n");
+	}
 	ccdbg_debug(CC_DEBUG_BITBANG, "#\n# Recv 0x%02x\n#\n", byte);
-	return byte;
+	*bytep = byte;
 }
 
 void
 ccdbg_recv_bytes(struct ccdbg *dbg, uint8_t *bytes, int nbytes)
 {
+	int i;
 	int first = 1;
-	while (nbytes--) {
-		*bytes++ = ccdbg_recv_byte(dbg, first);
+	for (i = 0; i < nbytes; i++) {
+		ccdbg_recv_byte(dbg, first, &bytes[i]);
 		first = 0;
 	}
 }
