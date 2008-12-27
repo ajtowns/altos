@@ -21,12 +21,19 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <signal.h>
+#include <stdarg.h>
+#include <poll.h>
 
 static int s51_port = 0;
 static char *cpu = "8051";
 static double freq = 11059200;
 char *s51_prompt = "> ";
 struct ccdbg *s51_dbg;
+int s51_interrupted = 0;
+
+static FILE *s51_input;
+static FILE *s51_output;
 
 static void
 usage(void)
@@ -35,13 +42,17 @@ usage(void)
 	exit(1);
 }
 
+void s51_sigint()
+{
+	s51_interrupted = 1;
+}
+
 int
 main(int argc, char **argv)
 {
 	int flags, opt;
-	FILE *console_in = stdin;
-	FILE *console_out = stdout;
 	char *endptr;
+	struct sigvec vec, ovec;
 
 	while ((opt = getopt(argc, argv, "PVvHht:X:c:r:Z:s:S:p:")) != -1) {
 		switch (opt) {
@@ -122,7 +133,6 @@ main(int argc, char **argv)
 		for (;;) {
 			struct sockaddr_in client_addr;
 			socklen_t client_len = sizeof (struct sockaddr_in);
-			FILE *client_in, *client_out;
 			
 			s = accept(l, (struct sockaddr *)
 				   &client_addr, &client_len);
@@ -130,17 +140,82 @@ main(int argc, char **argv)
 				perror("accept");
 				exit(1);
 			}
-			client_in = fdopen(s, "r");
-			client_out = fdopen(s, "w");
-			if (!client_in || !client_out) {
+			s51_input = fdopen(s, "r");
+			s51_output = fdopen(s, "w");
+			if (!s51_input || !s51_output) {
 				perror("fdopen");
 				exit(1);
 			}
-			command_read(client_in, client_out);
-			fclose(client_in);
-			fclose(client_out);
+			vec.sv_handler = s51_sigint;
+			vec.sv_mask = 0;
+			vec.sv_flags = 0;
+			sigvec(SIGINT, &vec, &ovec);
+			command_read();
+			sigvec(SIGINT, &ovec, NULL);
+			fclose(s51_input);
+			fclose(s51_output);
 		}
-	} else
-		command_read(console_in, console_out);
+	} else {
+		s51_input = stdin;
+		s51_output = stdout;
+		vec.sv_handler = s51_sigint;
+		vec.sv_mask = 0;
+		vec.sv_flags = 0;
+		sigvec(SIGINT, &vec, &ovec);
+		command_read();
+	}
 	exit(0);
 }
+
+void
+s51_printf(char *format, ...)
+{
+	va_list	ap;
+
+	va_start(ap, format);
+	vfprintf(s51_output, format, ap);
+	if (s51_port)
+		vfprintf(stdout, format, ap);
+	va_end(ap);
+}
+
+void
+s51_putc(int c)
+{
+	putc(c, s51_output);
+}
+
+int
+s51_read_line(char *line, int len)
+{
+	int ret;
+	if (s51_prompt)
+		s51_printf("%s", s51_prompt);
+	else
+		s51_putc('\0');
+	fflush(s51_output);
+	ret = fgets(line, len, s51_input) != NULL;
+	if (s51_port)
+		printf("> %s", line);
+	fflush(stdout);
+	return ret;
+}
+
+int
+s51_check_input(void)
+{
+	struct pollfd	input;
+	int r;
+	int c;
+
+	input.fd = fileno(s51_input);
+	input.events = POLLIN;
+	r = poll(&input, 1, 0);
+	if (r > 0) {
+		char line[256];
+		(void) s51_read_line(line, sizeof (line));
+		return 1; 
+	}
+	return 0;
+}
+

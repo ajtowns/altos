@@ -26,7 +26,7 @@ parse_int(char *value, int *result)
 	*result = strtol(value, &endptr, 0);
 	if (endptr == value)
 		return command_syntax;
-	return command_proceed;
+	return command_success;
 }
 
 static enum command_result
@@ -36,44 +36,44 @@ parse_uint16(char *value, uint16_t *uint16)
 	enum command_result result;
 
 	result = parse_int(value, &v);
-	if (result != command_proceed)
+	if (result != command_success)
 		return command_error;
 	if (v < 0 || v > 0xffff)
 		return command_error;
 	*uint16 = v;
-	return command_proceed;
+	return command_success;
 }
 
 enum command_result
-command_quit (FILE *output, int argc, char **argv)
+command_quit (int argc, char **argv)
 {
 	exit(0);
 	return command_error;
 }
 
 static void
-dump_bytes(FILE *output, uint8_t *memory, int length, uint16_t start)
+dump_bytes(uint8_t *memory, int length, uint16_t start)
 {
 	int group, i;
 	
 	for (group = 0; group < length; group += 8) {
-		fprintf(output, "0x%04x ", start + group);
+		s51_printf("0x%04x ", start + group);
 		for (i = group; i < length && i < group + 8; i++)
-			fprintf(output, "%02x ", memory[i]);
+			s51_printf("%02x ", memory[i]);
 		for (; i < group + 8; i++)
-			fprintf(output, "   ");
+			s51_printf("   ");
 		for (i = group; i < length && i < group + 8; i++) {
 			if (isascii(memory[i]) && isprint(memory[i]))
-				fprintf(output, "%c", memory[i]);
+				s51_printf("%c", memory[i]);
 			else
-				fprintf(output, ".");
+				s51_printf(".");
 		}
-		fprintf(output, "\n");
+		s51_printf("\n");
 	}
 }
 
 enum command_result
-command_di (FILE *output, int argc, char **argv)
+command_di (int argc, char **argv)
 {
 	uint16_t start, end;
 	uint8_t	memory[65536];
@@ -82,18 +82,18 @@ command_di (FILE *output, int argc, char **argv)
 	
 	if (argc != 3)
 		return command_error;
-	if (parse_uint16(argv[1], &start) != command_proceed)
+	if (parse_uint16(argv[1], &start) != command_success)
 		return command_error;
-	if (parse_uint16(argv[2], &end) != command_proceed)
+	if (parse_uint16(argv[2], &end) != command_success)
 		return command_error;
 	length = (int) end - (int) start + 1;
 	status = ccdbg_read_memory(s51_dbg, start + 0xff00, memory, length);
-	dump_bytes(output, memory, length, start);
-	return command_proceed;
+	dump_bytes(memory, length, start);
+	return command_success;
 }
 
 enum command_result
-command_ds (FILE *output, int argc, char **argv)
+command_ds (int argc, char **argv)
 {
 	uint16_t start, end;
 	uint8_t	memory[65536];
@@ -102,18 +102,18 @@ command_ds (FILE *output, int argc, char **argv)
 	
 	if (argc != 3)
 		return command_error;
-	if (parse_uint16(argv[1], &start) != command_proceed)
+	if (parse_uint16(argv[1], &start) != command_success)
 		return command_error;
-	if (parse_uint16(argv[2], &end) != command_proceed)
+	if (parse_uint16(argv[2], &end) != command_success)
 		return command_error;
 	length = (int) end - (int) start + 1;
 	status = ccdbg_read_memory(s51_dbg, start + 0xdf00, memory, length);
-	dump_bytes(output, memory, length, start);
-	return command_proceed;
+	dump_bytes(memory, length, start);
+	return command_success;
 }
 
 enum command_result
-command_dx (FILE *output, int argc, char **argv)
+command_dx (int argc, char **argv)
 {
 	uint16_t start, end;
 	uint8_t	memory[65536];
@@ -122,43 +122,52 @@ command_dx (FILE *output, int argc, char **argv)
 	
 	if (argc != 3)
 		return command_error;
-	if (parse_uint16(argv[1], &start) != command_proceed)
+	if (parse_uint16(argv[1], &start) != command_success)
 		return command_error;
-	if (parse_uint16(argv[2], &end) != command_proceed)
+	if (parse_uint16(argv[2], &end) != command_success)
 		return command_error;
 	length = (int) end - (int) start + 1;
 	status = ccdbg_read_memory(s51_dbg, start, memory, length);
-	dump_bytes(output, memory, length, start);
-	return command_proceed;
+	dump_bytes(memory, length, start);
+	return command_success;
 }
 
 enum command_result
-command_set (FILE *output, int argc, char **argv)
+command_set (int argc, char **argv)
 {
 	return command_error;
 }
 
 enum command_result
-command_dump (FILE *output, int argc, char **argv)
+command_dump (int argc, char **argv)
 {
 	return command_error;
 }
 
 enum command_result
-command_pc (FILE *output, int argc, char **argv)
+command_file (int argc, char **argv)
+{
+	if (argc != 2)
+		return command_error;
+	s51_printf("some words read from %s\n", argv[1]);
+	return command_success;
+}
+
+enum command_result
+command_pc (int argc, char **argv)
 {
 	uint16_t	pc;
 	if (argv[1]) {
 		enum command_result result;
 		result = parse_uint16(argv[1], &pc);
-		if (result != command_proceed)
+		if (result != command_success)
 			return result;
 		ccdbg_set_pc(s51_dbg, pc);
 	} else {
 		pc = ccdbg_get_pc(s51_dbg);
-		printf (" 0x%04x\n", pc);
+		s51_printf("   0x%04x 00\n", pc);
 	}
-	return command_proceed;
+	return command_success;
 }
 
 struct cc_break {
@@ -171,8 +180,28 @@ struct cc_break {
 
 static struct cc_break	breakpoints[CC_NUM_BREAKPOINTS];
 
+static void
+disable_breakpoint(int b)
+{
+	uint8_t status;
+	
+	status = ccdbg_set_hw_brkpnt(s51_dbg, b, 0, breakpoints[b].address);
+	if (status != 0x00 && status != 0xff)
+		s51_printf("disable_breakpoint status 0x%02x\n", status);
+}
+
+static void
+enable_breakpoint(int b)
+{
+	uint8_t status;
+	
+	status = ccdbg_set_hw_brkpnt(s51_dbg, b, 1, breakpoints[b].address);
+	if (status != 0xff)
+		s51_printf("enable_breakpoint status 0x%02x\n", status);
+}
+
 enum command_result
-set_breakpoint(FILE *output, uint16_t address, int temporary)
+set_breakpoint(uint16_t address, int temporary)
 {
 	int b;
 	uint8_t status;
@@ -183,22 +212,21 @@ set_breakpoint(FILE *output, uint16_t address, int temporary)
 			break;
 	}
 	if (b == CC_NUM_BREAKPOINTS) {
-		fprintf(output, "Error: too many breakpoints requested\n");
-		return command_proceed;
+		s51_printf("Error: too many breakpoints requested\n");
+		return command_success;
 	}
 	if (breakpoints[b].enabled == 0) {
 		breakpoints[b].address = address;
-		status = ccdbg_set_hw_brkpnt(s51_dbg, b, 1, address);
-		fprintf(output, "set_hw_brkpnt status 0x%02x\n", status);
+		enable_breakpoint(b);
 	}
 	++breakpoints[b].enabled;
-	fprintf(output, "Breakpoint %d at 0x%04x\n", b, address);
+	s51_printf("Breakpoint %d at 0x%04x\n", b, address);
 	breakpoints[b].temporary += temporary;
-	return command_proceed;
+	return command_success;
 }
 
 enum command_result
-clear_breakpoint(FILE *output, uint16_t address, int temporary)
+clear_breakpoint(uint16_t address, int temporary)
 {
 	int b;
 	uint8_t status;
@@ -210,21 +238,35 @@ clear_breakpoint(FILE *output, uint16_t address, int temporary)
 			break;
 	}
 	if (b == CC_NUM_BREAKPOINTS) {
-		fprintf(output, "Error: no matching breakpoint found\n");
-		return command_proceed;
+		s51_printf("Error: no matching breakpoint found\n");
+		return command_success;
 	}
 	--breakpoints[b].enabled;
-	--breakpoints[b].temporary;
+	breakpoints[b].temporary -= temporary;
 	if (breakpoints[b].enabled == 0) {
+		disable_breakpoint(b);
 		breakpoints[b].address = -1;
-		ccdbg_set_hw_brkpnt(s51_dbg, b, 0, address);
-		fprintf(output, "set_hw_brkpnt status 0x%02x\n", status);
 	}
-	return command_proceed;
+	return command_success;
+}
+
+
+int
+find_breakpoint(uint16_t address)
+{
+	int b;
+
+	for (b = 0; b < CC_NUM_BREAKPOINTS; b++)
+		if (breakpoints[b].enabled && breakpoints[b].address == address)
+			break;
+	if (b == CC_NUM_BREAKPOINTS)
+		return -1;
+	if (breakpoints[b].temporary)
+		clear_breakpoint(address, 1);
 }
 
 enum command_result
-command_break (FILE *output, int argc, char **argv)
+command_break (int argc, char **argv)
 {
 	int b;
 	uint16_t address;
@@ -233,21 +275,21 @@ command_break (FILE *output, int argc, char **argv)
 	if (argc == 1) {
 		for (b = 0; b < CC_NUM_BREAKPOINTS; b++)
 			if (breakpoints[b].enabled)
-				fprintf(output, "Breakpoint %d 0x%04x\n",
+				s51_printf("Breakpoint %d 0x%04x\n",
 					b, breakpoints[b].address);
-		return command_proceed;
+		return command_success;
 	}
 	if (argc != 2)
 		return command_error;
 	result = parse_uint16(argv[1], &address);
-	if (result != command_proceed)
+	if (result != command_success)
 		return result;
 
-	return set_breakpoint(output, address, 0);
+	return set_breakpoint(address, 0);
 }
 
 enum command_result
-command_clear (FILE *output, int argc, char **argv)
+command_clear (int argc, char **argv)
 {
 	int b;
 	uint16_t address;
@@ -256,116 +298,179 @@ command_clear (FILE *output, int argc, char **argv)
 	if (argc != 2)
 		return command_error;
 	result = parse_uint16(argv[1], &address);
-	if (result != command_proceed)
+	if (result != command_success)
 		return result;
-	return clear_breakpoint(output, address, 0);
+	return clear_breakpoint(address, 0);
+}
+
+void
+cc_stopped(uint8_t status)
+{
+	uint16_t pc;
+	int b;
+	int code;
+	char *reason;
+
+	pc = ccdbg_get_pc(s51_dbg);
+	if (status & CC_STATUS_CPU_HALTED) {
+		if ((status & CC_STATUS_HALT_STATUS) != 0) {
+			pc = pc - 1;
+			code = 104;
+			reason = "Breakpoint";
+			ccdbg_set_pc(s51_dbg, pc);
+		} else {
+			code = 105;
+			reason = "Interrupt";
+		}
+		s51_printf("Stop at 0x%04x: (%d) %s\n",
+			pc, code, reason);
+	}
+}
+
+uint8_t
+cc_step(uint16_t pc)
+{
+	int b;
+	uint8_t status;
+
+	b = find_breakpoint(pc);
+	if (b != -1)
+		disable_breakpoint(b);
+	status = ccdbg_step_instr(s51_dbg);
+	if (b != -1)
+		enable_breakpoint(b);
+	return status;
 }
 
 enum command_result
-command_run (FILE *output, int argc, char **argv)
+command_run (int argc, char **argv)
 {
 	uint16_t start, end;
 	enum command_result result;
+	uint16_t pc;
+	uint8_t status;
+	int b;
 	
 	if (argv[1]) {
 		result = parse_uint16(argv[1], &start);
-		if (result != command_proceed)
+		if (result != command_success)
 			return result;
 		if (argv[2]) {
 			result = parse_uint16(argv[2], &end);
-			if (result != command_proceed)
+			if (result != command_success)
 				return result;
 		}
 		ccdbg_set_pc(s51_dbg, start);
 	}
 	else
 		start = ccdbg_get_pc(s51_dbg);
-	fprintf(output, "Resume at 0x%04x\n", start);
+	s51_printf("Resume at 0x%04x\n", start);
+	pc = start;
+	b = find_breakpoint(pc);
+	if (b != -1) {
+		cc_step(pc);
+		pc = ccdbg_get_pc(s51_dbg);
+		if (find_breakpoint(pc) != -1) {
+			status = ccdbg_read_status(s51_dbg);
+			cc_stopped(status);
+			return command_success;
+		}
+	}
 	ccdbg_resume(s51_dbg);
-//	cc_wait(s51_dbg);
-	return command_proceed;
+	result = cc_wait();
+	return result;
 }
 
 enum command_result
-command_next (FILE *output, int argc, char **argv)
+command_next (int argc, char **argv)
 {
-	return command_step(output, argc, argv);
+	return command_step(argc, argv);
 }
 
 enum command_result
-command_step (FILE *output, int argc, char **argv)
+command_step (int argc, char **argv)
 {
 	uint16_t pc;
 	uint8_t	opcode;
 	uint8_t a;
 
-	a = ccdbg_step_instr(s51_dbg);
-	fprintf(output, " ACC= 0x%02x\n", a);
+	a = cc_step(ccdbg_get_pc(s51_dbg));
+	s51_printf(" ACC= 0x%02x\n", a);
 	pc = ccdbg_get_pc(s51_dbg);
 	ccdbg_read_memory(s51_dbg, pc, &opcode, 1);
-	fprintf(output, " ? 0x%04x %02x\n", pc, opcode);
-	return command_proceed;
+	s51_printf(" ? 0x%04x %02x\n", pc, opcode);
+	return command_success;
 }
 
 enum command_result
-command_load (FILE *output, int argc, char **argv)
+command_load (int argc, char **argv)
 {
 	return command_error;
 }
 
 enum command_result
-command_halt (FILE *output, int argc, char **argv)
+command_halt (int argc, char **argv)
 {
 	uint16_t	pc;
 	ccdbg_halt(s51_dbg);
 	pc = ccdbg_get_pc(s51_dbg);
-	fprintf(output, "Halted at 0x%04x\n", pc);
-	return command_proceed;
+	s51_printf("Halted at 0x%04x\n", pc);
+	return command_success;
 }
 
 enum command_result
-command_reset (FILE *output, int argc, char **argv)
+command_reset (int argc, char **argv)
 {
 	ccdbg_debug_mode(s51_dbg);
-	return command_proceed;
+	return command_success;
 }
 
 enum command_result
-command_status(FILE *output, int argc, char **argv)
+command_status(int argc, char **argv)
 {
 	uint8_t	status;
 
 	status = ccdbg_read_status(s51_dbg);
 	if ((status & CC_STATUS_CHIP_ERASE_DONE) == 0)
-		fprintf(output, "\tChip erase in progress\n");
+		s51_printf("\tChip erase in progress\n");
 	if (status & CC_STATUS_PCON_IDLE)
-		fprintf(output, "\tCPU is idle (clock gated)\n");
+		s51_printf("\tCPU is idle (clock gated)\n");
 	if (status & CC_STATUS_CPU_HALTED)
-		fprintf(output, "\tCPU halted\n");
+		s51_printf("\tCPU halted\n");
 	else
-		fprintf(output, "\tCPU running\n");
+		s51_printf("\tCPU running\n");
 	if ((status & CC_STATUS_POWER_MODE_0) == 0)
-		fprintf(output, "\tPower Mode 1-3 selected\n");
+		s51_printf("\tPower Mode 1-3 selected\n");
 	if (status & CC_STATUS_HALT_STATUS)
-		fprintf(output, "\tHalted by software or hw breakpoint\n");
+		s51_printf("\tHalted by software or hw breakpoint\n");
 	else
-		fprintf(output, "\tHalted by debug command\n");
+		s51_printf("\tHalted by debug command\n");
 	if (status & CC_STATUS_DEBUG_LOCKED)
-		fprintf(output, "\tDebug interface is locked\n");
+		s51_printf("\tDebug interface is locked\n");
 	if ((status & CC_STATUS_OSCILLATOR_STABLE) == 0)
-		fprintf(output, "\tOscillators are not stable\n");
+		s51_printf("\tOscillators are not stable\n");
 	if (status & CC_STATUS_STACK_OVERFLOW)
-		fprintf(output, "\tStack overflow\n");
-	return command_proceed;
+		s51_printf("\tStack overflow\n");
+	return command_success;
 }
 
-uint8_t cc_wait(struct ccdbg *dbg)
+enum command_result
+cc_wait(void)
 {
-	uint8_t status;
 	for(;;) {
-		status = ccdbg_read_status(dbg);
-		if (status & CC_STATUS_CPU_HALTED)
-			break;
+		uint8_t status;
+		status = ccdbg_read_status(s51_dbg);
+		if (status & CC_STATUS_CPU_HALTED) {
+			cc_stopped(status);
+			return command_success;
+		}
+		if (s51_interrupted || s51_check_input()) {
+			
+			ccdbg_halt(s51_dbg);
+			status = ccdbg_read_status(s51_dbg);
+			cc_stopped(status);
+			return command_interrupt;
+		}
 	}
-	return status;
 }
+

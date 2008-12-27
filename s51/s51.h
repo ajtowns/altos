@@ -19,66 +19,81 @@
 #include <ccdbg.h>
 
 extern char *s51_prompt;
-
 extern struct ccdbg *s51_dbg;
+extern int s51_interrupted;
 
 enum command_result {
-	command_proceed, command_debug, command_syntax, command_error
+	command_success, command_debug, command_syntax, command_interrupt, command_error,
 };
 
 enum command_result
-command_quit (FILE *output, int argc, char **argv);
+command_quit (int argc, char **argv);
 
 enum command_result
-command_help (FILE *output, int argc, char **argv);
+command_help (int argc, char **argv);
 
 enum command_result
-command_di (FILE *output, int argc, char **argv);
+command_di (int argc, char **argv);
 
 enum command_result
-command_ds (FILE *output, int argc, char **argv);
+command_ds (int argc, char **argv);
 
 enum command_result
-command_dx (FILE *output, int argc, char **argv);
+command_dx (int argc, char **argv);
 
 enum command_result
-command_set (FILE *output, int argc, char **argv);
+command_set (int argc, char **argv);
 
 enum command_result
-command_dump (FILE *output, int argc, char **argv);
+command_dump (int argc, char **argv);
 
 enum command_result
-command_pc (FILE *output, int argc, char **argv);
+command_file (int argc, char **argv);
 
 enum command_result
-command_break (FILE *output, int argc, char **argv);
+command_pc (int argc, char **argv);
 
 enum command_result
-command_clear (FILE *output, int argc, char **argv);
+command_break (int argc, char **argv);
 
 enum command_result
-command_run (FILE *output, int argc, char **argv);
+command_clear (int argc, char **argv);
 
 enum command_result
-command_next (FILE *output, int argc, char **argv);
+command_run (int argc, char **argv);
 
 enum command_result
-command_step (FILE *output, int argc, char **argv);
+command_next (int argc, char **argv);
 
 enum command_result
-command_load (FILE *output, int argc, char **argv);
+command_step (int argc, char **argv);
 
 enum command_result
-command_halt (FILE *output, int argc, char **argv);
+command_load (int argc, char **argv);
 
 enum command_result
-command_reset (FILE *output, int argc, char **argv);
+command_halt (int argc, char **argv);
 
 enum command_result
-command_status (FILE *output, int argc, char **argv);
+command_reset (int argc, char **argv);
 
-uint8_t
-cc_wait(struct ccdbg *dbg);
+enum command_result
+command_status (int argc, char **argv);
+
+enum command_result
+cc_wait(void);
 
 void
-command_read (FILE *input, FILE *output);
+command_read (void);
+
+void
+s51_printf(char *format, ...);
+
+void
+s51_putc(int c);
+
+int
+s51_check_input(void);
+
+int
+s51_read_line(char *line, int len);

@@ -21,7 +21,7 @@
 struct command_function {
 	char			*name;
 	char			*alias;
-	enum command_result	(*func)(FILE *output, int argc, char **argv);
+	enum command_result	(*func)(int argc, char **argv);
 	char			*usage;
 	char			*help;
 };
@@ -40,6 +40,8 @@ static struct command_function functions[] = {
 		"set bit <addr>\n" },
 	{ "dump",   "d",  command_dump,	"[d]ump <prefix> <start> <end>",
 		"Dump {xram|rom|iram|sfr} <start> <end>\n" },
+	{ "file", "file", command_file, "file <filename>",
+		"Pretend to load executable from <filename>\n" },
 	{ "pc",	    "p",  command_pc, "[p]c [addr]",
 		"Get or set pc value\n" },
 	{ "break",  "b",  command_break,"[b]reak <addr>",
@@ -149,23 +151,23 @@ command_split_into_words(char *line, char **argv)
 }
 
 enum command_result
-command_help(FILE *output, int argc, char **argv)
+command_help(int argc, char **argv)
 {
 	int i;
 	struct command_function *func;
 
 	if (argc == 1) {
 		for (i = 0; i < NUM_FUNCTIONS; i++)
-			fprintf(output, "%-10s%s\n", functions[i].name,
+			s51_printf("%-10s%s\n", functions[i].name,
 			       functions[i].usage);
 	} else {
 		for (i = 1; i < argc; i++) {
 			func = command_string_to_function(argv[i]);
 			if (!func) {
-				fprintf(output, "%-10s unknown command\n", argv[i]);
+				s51_printf("%-10s unknown command\n", argv[i]);
 				return command_syntax;
 			}
-			fprintf(output, "%-10s %s\n%s", func->name,
+			s51_printf("%-10s %s\n%s", func->name,
 			       func->usage, func->help);
 		}
 	}
@@ -173,16 +175,16 @@ command_help(FILE *output, int argc, char **argv)
 }
     
 static void
-command_syntax_error(FILE *output, int argc, char **argv)
+command_syntax_error(int argc, char **argv)
 {
-	fprintf(output, "Syntax error in:");
+	s51_printf("Syntax error in:");
 	while (*argv)
-		fprintf(output, " %s", *argv++);
-	fprintf(output, "\n");
+		s51_printf(" %s", *argv++);
+	s51_printf("\n");
 }
 
 void
-command_read (FILE *input, FILE *output)
+command_read (void)
 {
 	int argc;
 	char line[1024];
@@ -196,31 +198,34 @@ command_read (FILE *input, FILE *output)
 		exit(1);
 	}
 	ccdbg_debug_mode(s51_dbg);
-	fprintf(output, "Welcome to the non-simulated processor\n");
+	ccdbg_halt(s51_dbg);
+	s51_printf("Welcome to the non-simulated processor\n");
 	for (;;) {
-		if (s51_prompt)
-			fprintf(output, "%s", s51_prompt);
-		else
-			putc('\0', output);
-		fflush(output);
-		if (!fgets (line, sizeof line, input))
+		if (s51_read_line (line, sizeof line) == 0)
 			break;
+		s51_interrupted = 0;
 		argc = command_split_into_words(line, argv);
 		if (argc > 0) {
 			func = command_string_to_function(argv[0]);
 			if (!func)
-				command_syntax_error(output, argc, argv);
+				command_syntax_error(argc, argv);
 			else
 			{
-				result = (*func->func)(output, argc, argv);
+				result = (*func->func)(argc, argv);
+				if (s51_interrupted)
+					result = command_interrupt;
 				switch (result) {
 				case command_syntax:
-					command_syntax_error(output, argc, argv);
+					command_syntax_error(argc, argv);
 					break;
 				case command_error:
-					fprintf(output, "Error\n");
+					s51_printf("Error\n");
 					break;
-				case command_proceed:
+				case command_success:
+					break;
+				case command_interrupt:
+					ccdbg_halt(s51_dbg);
+					s51_printf("Interrupted\n");
 					break;
 				default:
 					break;
@@ -229,6 +234,6 @@ command_read (FILE *input, FILE *output)
 		}
 	}
 	ccdbg_close(s51_dbg);
-	fprintf(output, "...\n");
+	s51_printf("...\n");
 }
 
