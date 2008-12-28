@@ -31,6 +31,7 @@ static double freq = 11059200;
 char *s51_prompt = "> ";
 struct ccdbg *s51_dbg;
 int s51_interrupted = 0;
+int s51_monitor = 0;
 
 static FILE *s51_input;
 static FILE *s51_output;
@@ -54,7 +55,7 @@ main(int argc, char **argv)
 	char *endptr;
 	struct sigvec vec, ovec;
 
-	while ((opt = getopt(argc, argv, "PVvHht:X:c:r:Z:s:S:p:")) != -1) {
+	while ((opt = getopt(argc, argv, "PVvHhmt:X:c:r:Z:s:S:p:")) != -1) {
 		switch (opt) {
 		case 't':
 			cpu = optarg;
@@ -99,6 +100,9 @@ main(int argc, char **argv)
 			break;
 		case 'h':
 			usage ();
+			break;
+		case 'm':
+			s51_monitor = 1;
 			break;
 		}
 	}
@@ -174,10 +178,8 @@ s51_printf(char *format, ...)
 
 	va_start(ap, format);
 	vfprintf(s51_output, format, ap);
-#if 1
-	if (s51_port)
+	if (s51_monitor)
 		vfprintf(stdout, format, ap);
-#endif
 	va_end(ap);
 }
 
@@ -197,10 +199,8 @@ s51_read_line(char *line, int len)
 		s51_putc('\0');
 	fflush(s51_output);
 	ret = fgets(line, len, s51_input) != NULL;
-#if 1
-	if (s51_port)
+	if (s51_monitor)
 		printf("> %s", line);
-#endif
 	fflush(stdout);
 	return ret;
 }

@@ -46,6 +46,21 @@ parse_uint16(char *value, uint16_t *uint16)
 	return command_success;
 }
 
+static enum command_result
+parse_uint8(char *value, uint8_t *uint8)
+{
+	int	v;
+	enum command_result result;
+
+	result = parse_int(value, &v);
+	if (result != command_success)
+		return command_error;
+	if (v < 0 || v > 0xff)
+		return command_error;
+	*uint8 = v;
+	return command_success;
+}
+
 enum command_result
 command_quit (int argc, char **argv)
 {
@@ -97,19 +112,19 @@ command_di (int argc, char **argv)
 enum command_result
 command_ds (int argc, char **argv)
 {
-	uint16_t start, end;
-	uint8_t	memory[65536];
+	uint8_t start, end;
+	uint8_t	memory[0x100];
 	uint8_t status;
 	int length;
 	
 	if (argc != 3)
 		return command_error;
-	if (parse_uint16(argv[1], &start) != command_success)
+	if (parse_uint8(argv[1], &start) != command_success)
 		return command_error;
-	if (parse_uint16(argv[2], &end) != command_success)
+	if (parse_uint8(argv[2], &end) != command_success)
 		return command_error;
 	length = (int) end - (int) start + 1;
-	status = ccdbg_read_memory(s51_dbg, start + 0xdf00, memory, length);
+	status = ccdbg_read_sfr(s51_dbg, start, memory, length);
 	dump_bytes(memory, length, start);
 	return command_success;
 }
@@ -143,6 +158,15 @@ command_set (int argc, char **argv)
 enum command_result
 command_dump (int argc, char **argv)
 {
+	if (argv[1]) {
+		if (strcmp(argv[1], "rom") == 0 ||
+		    strcmp(argv[1], "xram") == 0)
+			return command_dx(argc-1, argv+1);
+		if (strcmp(argv[1], "iram") == 0)
+			return command_di(argc-1, argv+1);
+		if (strcmp(argv[1], "sfr") == 0)
+			return command_ds(argc-1, argv+1);
+	}
 	return command_error;
 }
 
