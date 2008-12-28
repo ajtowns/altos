@@ -44,6 +44,7 @@
 #define MOV_Rn_data(n)		(0x78 | (n))
 #define DJNZ_Rn_rel(n)		(0xd8 | (n))
 #define MOV_A_direct		0xe5
+#define MOV_direct1_direct2	0x85
 #define MOV_direct_A		0xf5
 #define MOV_DPTR_data16		0x90
 #define MOV_A_data		0x74
@@ -56,6 +57,13 @@
 
 /* 8051 special function registers
  */
+
+#define SFR_P0			0x80
+#define SFR_SP			0x81
+#define SFR_DPL0		0x82
+#define SFR_DPH0		0x83
+#define SFR_DPL1		0x84
+#define SFR_DPH1		0x85
 
 /* flash controller */
 #define FWT			0xAB
@@ -322,5 +330,11 @@ ccdbg_write_hex_image(struct ccdbg *dbg, struct hex_image *image, uint16_t offse
 
 struct hex_image *
 ccdbg_read_hex_image(struct ccdbg *dbg, uint16_t address, uint16_t length);
+
+uint8_t
+ccdbg_read_sfr(struct ccdbg *dbg, uint8_t addr, uint8_t *bytes, int nbytes);
+
+uint8_t
+ccdbg_write_sfr(struct ccdbg *dbg, uint8_t addr, uint8_t *bytes, int nbytes);
 
 #endif /* _CCDBG_H_ */
