@@ -244,13 +244,16 @@ ccdbg_flash_hex_image(struct ccdbg *dbg, struct hex_image *image)
 	uint16_t flash_prog;
 	uint16_t flash_len;
 	uint8_t	fwt;
+	uint16_t flash_addr;
 	uint16_t flash_word_addr;
 	uint16_t flash_words;
+	uint8_t flash_words_high, flash_words_low;
 	uint16_t ram_addr;
 	uint16_t pc;
 	uint8_t status;
 	uint16_t remain, this_time, start;
 	uint8_t verify[0x400];
+	int times;
 
 	ccdbg_clock_init(dbg);
 	if (image->address + image->length > 0x8000) {
@@ -286,52 +289,64 @@ ccdbg_flash_hex_image(struct ccdbg *dbg, struct hex_image *image)
 		ccdbg_debug(CC_DEBUG_FLASH, "Upload %d bytes at 0x%04x\n", this_time, ram_addr);
 		ccdbg_write_memory(dbg, ram_addr, image->data + start, this_time);
 
-		ccdbg_debug(CC_DEBUG_FLASH, "Verify %d bytes\n", image->length);
+		ccdbg_debug(CC_DEBUG_FLASH, "Verify %d bytes in ram\n", this_time);
 		ccdbg_read_memory(dbg, ram_addr, verify, this_time);
 		if (memcmp (image->data + start, verify, this_time) != 0) {
-			fprintf(stderr, "image verify failed\n");
+			fprintf(stderr, "ram verify failed\n");
 			return 1;
 		}
 		
-		flash_word_addr = (image->address + start) >> 1;
+		flash_addr = image->address + start;
+		flash_word_addr = flash_addr >> 1;
 		flash_len = this_time + (this_time & 1);
 		flash_words = flash_len >> 1;
 
+		flash_words_low = flash_words & 0xff;
+		flash_words_high = flash_words >> 8;
+		
+		/* The flash code above is lame */
+		if (flash_words_low)
+			flash_words_high++;
+	
 		ccdbg_write_uint8(dbg, flash_prog + FLASH_ADDR_HIGH, flash_word_addr >> 8);
 		ccdbg_write_uint8(dbg, flash_prog + FLASH_ADDR_LOW, flash_word_addr & 0xff);
 
 		ccdbg_write_uint8(dbg, flash_prog + RAM_ADDR_HIGH, ram_addr >> 8);
 		ccdbg_write_uint8(dbg, flash_prog + RAM_ADDR_LOW, ram_addr & 0xff);
 
-		ccdbg_write_uint8(dbg, flash_prog + FLASH_WORDS_HIGH, flash_words >> 8);
-		ccdbg_write_uint8(dbg, flash_prog + FLASH_WORDS_LOW, flash_words & 0xff);
+		ccdbg_write_uint8(dbg, flash_prog + FLASH_WORDS_HIGH, flash_words_high);
+		ccdbg_write_uint8(dbg, flash_prog + FLASH_WORDS_LOW, flash_words_low);
 
 		ccdbg_set_pc(dbg, flash_prog);
 		pc = ccdbg_get_pc(dbg);
-		ccdbg_debug(CC_DEBUG_FLASH, "Starting flash program at 0x%04x\n", pc);
+		ccdbg_debug(CC_DEBUG_FLASH, "Flashing %d bytes at 0x%04x\n",
+			    this_time, flash_addr);
 		status = ccdbg_resume(dbg);
-		ccdbg_debug(CC_DEBUG_FLASH, "resume status is 0x%02x\n", status);
-		do {
+		for (times = 0; times < 10; times++) {
 			status = ccdbg_read_status(dbg);
 			ccdbg_debug(CC_DEBUG_FLASH, "chip status is 0x%02x\n", status);
-			sleep(1);
-		} while ((status & CC_STATUS_CPU_HALTED) == 0);
+			if ((status & CC_STATUS_CPU_HALTED) != 0)
+				break;
+		}
+		if (times == 10) {
+			fprintf(stderr, "flash page timed out\n");
+			return 1;
+		}
 		
+		ccdbg_debug(CC_DEBUG_FLASH, "Verify %d bytes in flash\n", this_time);
+		ccdbg_read_memory(dbg, flash_addr, verify, this_time);
+		if (memcmp (image->data + start, verify, this_time) != 0) {
+			int i;
+			fprintf(stderr, "flash verify failed\n");
+			for (i = 0; i < this_time; i++) {
+				if (image->data[start + i] != verify[i])
+					fprintf(stderr, "0x%04x: 0x%02x != 0x%02x\n",
+						start + i, image->data[start+i], verify[i]);
+			}
+			return 1;
+		}
 		remain -= this_time;
 		start += this_time;
 	}
-#if 1
-	ccdbg_debug(CC_DEBUG_FLASH, "Downloading flash to check\n");
-	struct hex_image *test_image;
-	test_image = ccdbg_read_hex_image(dbg, image->address, image->length);
-	if (!ccdbg_hex_image_equal(image, test_image)) {
-		int i;
-		fprintf(stderr, "Image not loaded\n");
-		for (i = 0;i < 0x10; i++)
-			ccdbg_debug(CC_DEBUG_FLASH, "0x%02x : 0x%02x\n", image->data[i], test_image->data[i]);
-		return 1;
-	}
-	return 0;
-#endif
 	return 0;
 }

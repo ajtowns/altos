@@ -54,6 +54,8 @@ main (int argc, char **argv)
 	if (!dbg)
 		exit (1);
 	
+	ccdbg_add_debug(CC_DEBUG_FLASH);
+
 	ccdbg_debug_mode(dbg);
 	ccdbg_halt(dbg);
 	if (image->address == 0xf000) {
