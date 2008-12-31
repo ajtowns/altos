@@ -27,11 +27,31 @@ enum command_result {
 	command_success, command_debug, command_syntax, command_interrupt, command_error,
 };
 
+struct command_function {
+	char			*name;
+	char			*alias;
+	enum command_result	(*func)(int argc, char **argv);
+	char			*usage;
+	char			*help;
+};
+
+struct command_function *
+command_string_to_function(struct command_function *functions, char *name);
+
+enum command_result
+command_function_help(struct command_function *functions, int argc, char **argv);
+
+void
+command_syntax_error(int argc, char **argv);
+
 enum command_result
 command_quit (int argc, char **argv);
 
 enum command_result
 command_help (int argc, char **argv);
+
+enum command_result
+command_stop (int argc, char **argv);
 
 enum command_result
 command_di (int argc, char **argv);
@@ -80,6 +100,9 @@ command_reset (int argc, char **argv);
 
 enum command_result
 command_status (int argc, char **argv);
+
+enum command_result
+command_info (int argc, char **argv);
 
 enum command_result
 cc_wait(void);

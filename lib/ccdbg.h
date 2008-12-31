@@ -39,6 +39,7 @@
 
 /* 8051 instructions
  */
+#define NOP			0x00
 #define MOV_direct_data		0x75
 #define LJMP			0x02
 #define MOV_Rn_data(n)		(0x78 | (n))
@@ -99,6 +100,9 @@
 /* Bit-addressable accumulator */
 #define ACC(bit)		(0xE0 | (bit))
 
+/* Bit-addressable status word */
+#define PSW(bit)		(0xD0 | (bit))
+
 #define CP_USB_ASYNC
 
 struct ccdbg {
@@ -107,6 +111,7 @@ struct ccdbg {
 #else
 	struct cp_usb *cp;
 #endif
+	struct hex_image *rom;
 };
 
 /* Intel hex file format data
@@ -128,6 +133,18 @@ struct hex_image {
 	uint16_t	address;
 	uint16_t	length;
 	uint8_t		data[0];
+};
+
+#define CC_STATE_ACC	0x1
+#define CC_STATE_PSW	0x2
+#define CC_STATE_DP	0x4
+
+#define CC_STATE_NSFR	5
+
+struct ccstate {
+	uint16_t	mask;
+	uint8_t		acc;
+	uint8_t		sfr[CC_STATE_NSFR];
 };
 
 #define HEX_RECORD_NORMAL		0x00
@@ -336,5 +353,31 @@ ccdbg_read_sfr(struct ccdbg *dbg, uint8_t addr, uint8_t *bytes, int nbytes);
 
 uint8_t
 ccdbg_write_sfr(struct ccdbg *dbg, uint8_t addr, uint8_t *bytes, int nbytes);
+
+/* ccdbg-rom.c */
+uint8_t
+ccdbg_set_rom(struct ccdbg *dbg, struct hex_image *rom);
+
+uint8_t
+ccdbg_rom_contains(struct ccdbg *dbg, uint16_t addr, int nbytes);
+
+uint8_t
+ccdbg_rom_replace_xmem(struct ccdbg *dbg,
+		       uint16_t addrp, uint8_t *bytesp, int nbytes);
+
+/* ccdbg-state.c */
+uint8_t
+ccdbg_state_save(struct ccdbg *dbg, struct ccstate *state, unsigned int mask);
+
+uint8_t
+ccdbg_state_restore(struct ccdbg *dbg, struct ccstate *state);
+
+void
+ccdbg_state_replace_xmem(struct ccdbg *dbg, struct ccstate *state,
+			 uint16_t addr, uint8_t *bytes, int nbytes);
+
+void
+ccdbg_state_replace_sfr(struct ccdbg *dbg, struct ccstate *state,
+			uint8_t addr, uint8_t *bytes, int nbytes);
 
 #endif /* _CCDBG_H_ */

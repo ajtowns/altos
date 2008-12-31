@@ -288,13 +288,14 @@ ccdbg_flash_hex_image(struct ccdbg *dbg, struct hex_image *image)
 
 		ccdbg_debug(CC_DEBUG_FLASH, "Upload %d bytes at 0x%04x\n", this_time, ram_addr);
 		ccdbg_write_memory(dbg, ram_addr, image->data + start, this_time);
-
+#if 0
 		ccdbg_debug(CC_DEBUG_FLASH, "Verify %d bytes in ram\n", this_time);
 		ccdbg_read_memory(dbg, ram_addr, verify, this_time);
 		if (memcmp (image->data + start, verify, this_time) != 0) {
 			fprintf(stderr, "ram verify failed\n");
 			return 1;
 		}
+#endif
 		
 		flash_addr = image->address + start;
 		flash_word_addr = flash_addr >> 1;
@@ -324,10 +325,13 @@ ccdbg_flash_hex_image(struct ccdbg *dbg, struct hex_image *image)
 		status = ccdbg_resume(dbg);
 		for (times = 0; times < 10; times++) {
 			status = ccdbg_read_status(dbg);
-			ccdbg_debug(CC_DEBUG_FLASH, "chip status is 0x%02x\n", status);
+			ccdbg_debug(CC_DEBUG_FLASH, ".");
+			ccdbg_flush(CC_DEBUG_FLASH);
 			if ((status & CC_STATUS_CPU_HALTED) != 0)
 				break;
+			usleep(10000);
 		}
+		ccdbg_debug(CC_DEBUG_FLASH, "\n");
 		if (times == 10) {
 			fprintf(stderr, "flash page timed out\n");
 			return 1;

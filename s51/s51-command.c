@@ -69,12 +69,12 @@ command_quit (int argc, char **argv)
 }
 
 static void
-dump_bytes(uint8_t *memory, int length, uint16_t start)
+dump_bytes(uint8_t *memory, int length, uint16_t start, char *format)
 {
 	int group, i;
 	
 	for (group = 0; group < length; group += 8) {
-		s51_printf("0x%04x ", start + group);
+		s51_printf(format, start + group);
 		for (i = group; i < length && i < group + 8; i++)
 			s51_printf("%02x ", memory[i]);
 		for (; i < group + 8; i++)
@@ -105,7 +105,7 @@ command_di (int argc, char **argv)
 		return command_error;
 	length = (int) end - (int) start + 1;
 	status = ccdbg_read_memory(s51_dbg, start + 0xff00, memory, length);
-	dump_bytes(memory, length, start);
+	dump_bytes(memory, length, start, "0x%02x ");
 	return command_success;
 }
 
@@ -125,7 +125,7 @@ command_ds (int argc, char **argv)
 		return command_error;
 	length = (int) end - (int) start + 1;
 	status = ccdbg_read_sfr(s51_dbg, start, memory, length);
-	dump_bytes(memory, length, start);
+	dump_bytes(memory, length, start, "0x%02x ");
 	return command_success;
 }
 
@@ -145,7 +145,7 @@ command_dx (int argc, char **argv)
 		return command_error;
 	length = (int) end - (int) start + 1;
 	status = ccdbg_read_memory(s51_dbg, start, memory, length);
-	dump_bytes(memory, length, start);
+	dump_bytes(memory, length, start, "0x%04x ");
 	return command_success;
 }
 
@@ -174,6 +174,7 @@ enum command_result
 command_file (int argc, char **argv)
 {
 	struct hex_file *hex;
+	struct hex_image *image;
 	FILE *file;
 	
 	if (argc != 2)
@@ -189,7 +190,10 @@ command_file (int argc, char **argv)
 		ccdbg_hex_file_free(hex);
 		return command_error;
 	}
-	start_address = hex->records[0]->address;
+	image = ccdbg_hex_image_create(hex);
+	ccdbg_hex_file_free(hex);
+	start_address = image->address;
+	ccdbg_set_rom(s51_dbg, image);
 	return command_success;
 }
 
@@ -474,6 +478,12 @@ command_halt (int argc, char **argv)
 }
 
 enum command_result
+command_stop (int argc, char **argv)
+{
+	return command_success;
+}
+
+enum command_result
 command_reset (int argc, char **argv)
 {
 	ccdbg_debug_mode(s51_dbg);
@@ -509,6 +519,58 @@ command_status(int argc, char **argv)
 	if (status & CC_STATUS_STACK_OVERFLOW)
 		s51_printf("\tStack overflow\n");
 	return command_success;
+}
+
+static enum command_result
+info_breakpoints(int argc, char **argv)
+{
+	int b;
+	uint16_t address;
+	enum command_result result;
+
+	if (argc == 1) {
+		s51_printf("Num Type       Disp Hit   Cnt   Address  What\n");
+		for (b = 0; b < CC_NUM_BREAKPOINTS; b++)
+			if (breakpoints[b].enabled) {
+				s51_printf("%-3d fetch      %s 1     1     0x%04x   uc::disass() unimplemented\n",
+					   b,
+					   breakpoints[b].temporary ? "del " : "keep",
+					   breakpoints[b].address);
+			}
+		return command_success;
+	}
+	
+}
+
+static enum command_result
+info_help(int argc, char **argv);
+
+static struct command_function infos[] = {
+	{ "breakpoints", "b", info_breakpoints, "[b]reakpoints",
+		"List current breakpoints\n" },
+	{ "help",   "?",  info_help,	"help",
+		"Print this list\n" },
+	
+	{ NULL, NULL, NULL, NULL, NULL },
+};
+
+static enum command_result
+info_help(int argc, char **argv)
+{
+	return command_function_help(infos, argc, argv);
+}
+
+enum command_result
+command_info(int argc, char **argv)
+{
+	struct command_function *func;
+	
+	if (argc < 2)
+		return command_error;
+	func = command_string_to_function(infos, argv[1]);
+	if (!func)
+		return command_syntax;
+	return (*func->func)(argc-1, argv+1);
 }
 
 enum command_result

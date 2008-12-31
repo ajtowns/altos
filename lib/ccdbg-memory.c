@@ -23,14 +23,9 @@
  */
 
 static uint8_t	memory_init[] = {
-	2,	MOV_direct_A,		0x7f,
-	3,	MOV_direct1_direct2,	0x7e, SFR_DPL0,
-	3,	MOV_direct1_direct2,	0x7d, SFR_DPH0,
-	3,	MOV_direct1_direct2,	0x7c, SFR_DPL1,
-	3,	MOV_direct1_direct2,	0x7b, SFR_DPH1,
 	3,	MOV_DPTR_data16,	0,	0,
-#define HIGH_START	21
-#define LOW_START	22
+#define HIGH_START	2
+#define LOW_START	3
 	0,
 };
 
@@ -49,19 +44,13 @@ static uint8_t read8[] = {
 	0,
 };
 
-static uint8_t	memory_fini[] = {
-	2,	MOV_A_direct,		0x7f,
-	3,	MOV_direct1_direct2,	SFR_DPL0, 0x7e,
-	3,	MOV_direct1_direct2,	SFR_DPH0, 0x7d,
-	3,	MOV_direct1_direct2,	SFR_DPL1, 0x7c,
-	3,	MOV_direct1_direct2,	SFR_DPH1, 0x7b,
-	0,
-};
-
 uint8_t
 ccdbg_write_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes)
 {
 	int i, nl = 0;
+	struct ccstate state;
+
+	ccdbg_state_save(dbg, &state, CC_STATE_ACC | CC_STATE_PSW | CC_STATE_DP);
 	memory_init[HIGH_START] = addr >> 8;
 	memory_init[LOW_START] = addr;
 	(void) ccdbg_execute(dbg, memory_init);
@@ -70,7 +59,7 @@ ccdbg_write_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes)
 		ccdbg_execute(dbg, write8);
 		if ((i & 0xf) == 0xf) {
 			ccdbg_debug(CC_DEBUG_MEMORY, ".");
-			ccdbg_flush();
+			ccdbg_flush(CC_DEBUG_MEMORY);
 			nl = 1;
 		}
 		if ((i & 0xff) == 0xff) {
@@ -78,7 +67,7 @@ ccdbg_write_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes)
 			nl = 0;
 		}
 	}
-	(void) ccdbg_execute(dbg, memory_fini);
+	ccdbg_state_restore(dbg, &state);
 	if (nl)
 		ccdbg_debug(CC_DEBUG_MEMORY, "\n");
 	return 0;
@@ -88,6 +77,13 @@ uint8_t
 ccdbg_read_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes)
 {
 	int i, nl = 0;
+	struct ccstate state;
+
+	if (ccdbg_rom_contains(dbg, addr, nbytes)) {
+		ccdbg_rom_replace_xmem(dbg, addr, bytes, nbytes);
+		return 0;
+	}
+	ccdbg_state_save(dbg, &state, CC_STATE_ACC | CC_STATE_PSW | CC_STATE_DP);
 	memory_init[HIGH_START] = addr >> 8;
 	memory_init[LOW_START] = addr;
 	(void) ccdbg_execute(dbg, memory_init);
@@ -95,7 +91,7 @@ ccdbg_read_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes)
 		*bytes++ = ccdbg_execute(dbg, read8);
 		if ((i & 0xf) == 0xf) {
 			ccdbg_debug(CC_DEBUG_MEMORY, ".");
-			ccdbg_flush();
+			ccdbg_flush(CC_DEBUG_MEMORY);
 			nl = 1;
 		}
 		if ((i & 0xff) == 0xff) {
@@ -103,7 +99,8 @@ ccdbg_read_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes)
 			nl = 0;
 		}
 	}
-	(void) ccdbg_execute(dbg, memory_fini);
+	ccdbg_state_replace_xmem(dbg, &state, addr, bytes, nbytes);
+	ccdbg_state_restore(dbg, &state);
 	if (nl)
 		ccdbg_debug(CC_DEBUG_MEMORY, "\n");
 	return 0;
@@ -135,16 +132,6 @@ ccdbg_read_hex_image(struct ccdbg *dbg, uint16_t address, uint16_t length)
 	return image;
 }
 
-static uint8_t sfr_init[] = {
-	2,	MOV_direct_A,		0x7f,
-	0,
-};
-
-static uint8_t sfr_fini[] = {
-	2,	MOV_A_direct,		0x7f,
-	0,
-};
-
 static uint8_t sfr_read[] = {
 	2,	MOV_A_direct,		0,
 #define SFR_READ_ADDR	2
@@ -162,12 +149,15 @@ uint8_t
 ccdbg_read_sfr(struct ccdbg *dbg, uint8_t addr, uint8_t *bytes, int nbytes)
 {
 	int	i;
-	(void) ccdbg_execute(dbg, sfr_init);
+	struct ccstate state;
+
+	ccdbg_state_save(dbg, &state, CC_STATE_ACC);
 	for (i = 0; i < nbytes; i++) {
 		sfr_read[SFR_READ_ADDR] = addr + i;
 		*bytes++ = ccdbg_execute(dbg, sfr_read);
 	}
-	(void) ccdbg_execute(dbg, sfr_fini);
+	ccdbg_state_replace_sfr(dbg, &state, addr, bytes, nbytes);
+	ccdbg_state_restore(dbg, &state);
 	return 0;
 }
 

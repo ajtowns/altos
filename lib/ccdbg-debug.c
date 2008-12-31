@@ -47,7 +47,8 @@ ccdbg_debug(int level, char *format, ...)
 }
 
 void
-ccdbg_flush(void)
+ccdbg_flush(int level)
 {
-	fflush(stdout);
+	if (ccdbg_level & level)
+		fflush(stdout);
 }

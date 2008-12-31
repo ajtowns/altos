@@ -39,6 +39,6 @@ void
 ccdbg_clear_debug(int level);
 
 void
-ccdbg_flush(void);
+ccdbg_flush(int level);
 
 #endif /* _CCDBG_DEBUG_H_ */

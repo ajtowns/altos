@@ -18,14 +18,6 @@
 
 #include "s51.h"
 
-struct command_function {
-	char			*name;
-	char			*alias;
-	enum command_result	(*func)(int argc, char **argv);
-	char			*usage;
-	char			*help;
-};
-
 static struct command_function functions[] = {
 	{ "help",   "?",  command_help,	"help",		"Print this list\n" },
 	{ "quit",   "q",  command_quit,	"[q]uit",	"Quit\n" },
@@ -50,6 +42,8 @@ static struct command_function functions[] = {
 		"Clear break point\n" },
 	{ "run",    "r",  command_run, "[r]un [start] [stop]",
 		"Run with optional start and temp breakpoint addresses\n" },
+	{ "go",     "g",  command_run, "[g]o [start] [stop]",
+		"Run with optional start and temp breakpoint addresses\n" },
 	{ "next",   "n",  command_next, "[n]ext",
 		"Step over one instruction, past any call\n" },
 	{ "step",   "s",  command_step, "[s]tep",
@@ -62,9 +56,12 @@ static struct command_function functions[] = {
 		"Reset the CPU\n" },
 	{ "status","status",command_status, "status",
 		"Display CC1111 debug status\n" },
+	{ "info",   "i",  command_info, "[i]info",
+		"Get information\n" },
+	{ "stop",  "stop", command_stop, "stop",
+		"Ignored\n" },
+	{ NULL, NULL, NULL, NULL, NULL },
 };
-
-#define NUM_FUNCTIONS (sizeof functions / sizeof functions[0])
 
 #ifndef FALSE
 #define FALSE 0
@@ -106,16 +103,40 @@ string_to_int(char *s, int *v)
     return TRUE;
 }
 
-static struct command_function *
-command_string_to_function(char *name)
+struct command_function *
+command_string_to_function(struct command_function *functions, char *name)
 {
 	int i;
-	for (i = 0; i < NUM_FUNCTIONS; i++)
+	for (i = 0; functions[i].name; i++)
 		if (!strcmp(name, functions[i].name) ||
 		    !strcmp(name, functions[i].alias))
 			return &functions[i];
 	return NULL;
 }    
+
+enum command_result
+command_function_help(struct command_function *functions, int argc, char **argv)
+{
+	int i;
+	struct command_function *func;
+
+	if (argc == 1) {
+		for (i = 0; functions[i].name; i++)
+			s51_printf("%-10s%s\n", functions[i].name,
+			       functions[i].usage);
+	} else {
+		for (i = 1; i < argc; i++) {
+			func = command_string_to_function(functions, argv[i]);
+			if (!func) {
+				s51_printf("%-10s unknown command\n", argv[i]);
+				return command_syntax;
+			}
+			s51_printf("%-10s %s\n%s", func->name,
+			       func->usage, func->help);
+		}
+	}
+	return command_debug;
+}
 
 static int
 command_split_into_words(char *line, char **argv)
@@ -153,28 +174,10 @@ command_split_into_words(char *line, char **argv)
 enum command_result
 command_help(int argc, char **argv)
 {
-	int i;
-	struct command_function *func;
-
-	if (argc == 1) {
-		for (i = 0; i < NUM_FUNCTIONS; i++)
-			s51_printf("%-10s%s\n", functions[i].name,
-			       functions[i].usage);
-	} else {
-		for (i = 1; i < argc; i++) {
-			func = command_string_to_function(argv[i]);
-			if (!func) {
-				s51_printf("%-10s unknown command\n", argv[i]);
-				return command_syntax;
-			}
-			s51_printf("%-10s %s\n%s", func->name,
-			       func->usage, func->help);
-		}
-	}
-	return command_debug;
+	return command_function_help(functions, argc, argv);
 }
     
-static void
+void
 command_syntax_error(int argc, char **argv)
 {
 	s51_printf("Syntax error in:");
@@ -206,7 +209,7 @@ command_read (void)
 		s51_interrupted = 0;
 		argc = command_split_into_words(line, argv);
 		if (argc > 0) {
-			func = command_string_to_function(argv[0]);
+			func = command_string_to_function(functions, argv[0]);
 			if (!func)
 				command_syntax_error(argc, argv);
 			else
