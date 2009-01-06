@@ -259,6 +259,9 @@ ccdbg_hex_image_equal(struct hex_image *a, struct hex_image *b);
 
 /* ccdbg-io.c */
 void
+ccdbg_set_clock(uint32_t us);
+
+void
 ccdbg_half_clock(struct ccdbg *dbg);
 
 int

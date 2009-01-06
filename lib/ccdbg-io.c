@@ -24,12 +24,20 @@
 #include "cp-usb.h"
 #endif
 
+static uint32_t	cc_clock_us = CC_CLOCK_US;
+
+void
+ccdbg_set_clock(uint32_t us)
+{
+	cc_clock_us = us;
+}
+
 void
 ccdbg_half_clock(struct ccdbg *dbg)
 {
 	struct timespec	req, rem;
-	req.tv_sec = (CC_CLOCK_US / 2) / 1000000;
-	req.tv_nsec = ((CC_CLOCK_US / 2) % 1000000) * 1000;
+	req.tv_sec = (cc_clock_us / 2) / 1000000;
+	req.tv_nsec = ((cc_clock_us / 2) % 1000000) * 1000;
 	nanosleep(&req, &rem);
 }
 
