@@ -150,7 +150,7 @@ main(int argc, char **argv)
 				perror("fdopen");
 				exit(1);
 			}
-			vec.sv_handler = s51_sigint;
+			vec.sv_handler = SIG_IGN;
 			vec.sv_mask = 0;
 			vec.sv_flags = 0;
 			sigvec(SIGINT, &vec, &ovec);
