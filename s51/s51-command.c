@@ -152,7 +152,35 @@ command_dx (int argc, char **argv)
 enum command_result
 command_set (int argc, char **argv)
 {
-	return command_error;
+	uint16_t address;
+	uint8_t *data;
+	int len = argc - 3;
+	int i;
+	enum command_result ret = command_success;
+
+	if (len < 0)
+		return command_error;
+	if (parse_uint16(argv[2], &address) != command_success)
+		return command_error;
+	if (len == 0)
+		return command_success;
+	data = malloc(len);
+	if (!data)
+		return command_error;
+	for (i = 0; i < len; i++)
+		if (parse_uint8(argv[i+3], &data[i]) != command_success)
+			return command_error;
+	
+	if (strcmp(argv[1], "xram") == 0) {
+		ccdbg_write_memory(s51_dbg, address, data, len);
+	} else if (strcmp(argv[1], "iram") == 0) {
+		ccdbg_write_memory(s51_dbg, address + 0xff00, data, len);
+	} else if (strcmp(argv[1], "sfr") == 0) {
+		ccdbg_write_sfr(s51_dbg, (uint8_t) address, data, len);
+	} else
+		ret = command_error;
+	free(data);
+	return ret;
 }
 
 enum command_result

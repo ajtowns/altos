@@ -27,8 +27,8 @@ static struct command_function functions[] = {
 		"Dump sprs\n" },
 	{ "dx",	    "dx", command_dx,	"dx <start> <end>",
 		"Dump xaddr\n" },
-	{ "set",    "t",  command_set,	"se[t] mem <prefix> <start> <end>",
-		"Set mem {xram|rom|iram|sfr} <start> <end>\n"
+	{ "set",    "t",  command_set,	"se[t] mem <prefix> <address> <data> ...",
+		"Set mem {xram|rom|iram|sfr}\n"
 		"set bit <addr>\n" },
 	{ "dump",   "d",  command_dump,	"[d]ump <prefix> <start> <end>",
 		"Dump {xram|rom|iram|sfr} <start> <end>\n" },
