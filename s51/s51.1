@@ -151,14 +151,15 @@ List the things you can get info on.
 This doesn't do anything and is present only to retain compatibility with
 the original 8051 emulator.
 .SH "BOARD BRINGUP DEBUGGING"
-.PP While the original purpose for this program was to connect the source
+.PP 
+While the original purpose for this program was to connect the source
 debugger with the hardware, it can also be used as a low-level hex debugger
 all on its own. In particular, all of the cc1111 peripherals can be
 manipulated directly from the s51 command line.
 .IP "Starting s51"
 If the CP2103 is plugged in, and the CC1111 is connected correctly, the
-'s51' command itself should connect to the device without trouble. Note that
-the CP2103 must have the GPIO pins configured correctly as well.
+\'s51\' command itself should connect to the device without trouble. 
+Note that the CP2103 must have the GPIO pins configured correctly as well.
 .IP
 $ s51
 .br
@@ -193,7 +194,7 @@ ADCCFG register, setting the bits in that which match the pins desired:
 .IP
 > set sfr 0xf2 0x3f	# enable all 6 A/D inputs
 .IP
-To trigger a single conversion, we as the A/D unit to perform an 'extra'
+To trigger a single conversion, we ask the A/D unit to perform an 'extra'
 conversion, which means to do a single conversion not a whole sequence of
 conversions. This is controlled by the ADCCON3 register at 0xB6:
 .IP
