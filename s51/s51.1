@@ -1,0 +1,210 @@
+.\"
+.\" Copyright © 2009 Keith Packard <keithp@keithp.com>
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+.\"
+.\"
+.TH S51 1 "s51" ""
+.SH NAME
+s51 \- hex debugger for cc1111 processors
+.SH SYNOPSIS
+.B "s51"
+[\-t \fIcpu-type\fP]
+[\-X \fIfrequency\fP]
+[\-c]
+[\-r \fIlisten-port\fP]
+[\-Z \fIlisten-port\fP]
+[\-s]
+[\-S]
+[\-p \fIprompt\fP]
+[\-V]
+[\-v]
+[\-H]
+[\-h]
+[\-m]
+.SH DESCRIPTION
+.I s51
+connects to a cc1111 processor through a cp1203-based USB-to-serial
+converter board, using the GPIO pins available on that chip. It provides an
+interface compatible with the 8051 emulator of the same name (s51), but
+communicating with the real chip instead of an emulation. Using a modified
+version of the SDCC debugger (sdcdb), you can control program execution
+on the target machine at source-level.
+
+.SH OPTIONS
+The command line options are designed to be compatible with the 8051
+emulator so that it can be used with sdcdb. As such, they're all one letter
+long.
+.IP "\-t \fIcpu-type\fP"
+The 8051 emulator can operate as one of several different chips. Oddly, the
+real hardware cannot, so this option is ignored.
+.IP "\-X \fIfrequency\fP"
+Similarly, the emulator can pretend to run at an arbitrary frequency
+which the real hardware cannot do. Ignored.
+.IP "\-c"
+.IP "\-s"
+.IP "\-S"
+.IP "\-v"
+.IP "\-V"
+All ignored.
+.IP "\-r \fIlisten-port\fP, -Z \fIlisten-port\fP"
+The emulator and sdcdb communicate through a network socket. This option
+switches the debugger from communicating through stdin/stdout to listening
+on a specific network port instead. Once a connection is made, the debugger
+continues on, using that network port for command input and output. The
+debugger uses port 9756, and attempts to connect before launching s51, so if
+s51 is listening on this port before sdcdb is started, sdcdb will end up
+talking to the existing s51 instance. That's often useful for debugging s51
+itself.
+.IP "\-p \fIprompt\fP"
+This sets the command prompt to the specified string.
+.IP "\-P"
+This sets the command prompt to a single NUL character. This is for use by
+sdcdb.
+.IP "\-h"
+This should print a usage message, but does nothing useful currently.
+.IP "\-m"
+This option is not present in the original 8051 emulator, and causes s51 to
+dump all commands and replies that are received from and sent to sdcdb.
+.SH COMMANDS
+Once started, s51 connects to the cc1111 via the CP2103 using libusb2 and
+then reads and executes commands, either from stdin, or the nework
+connection to sdcdb.
+.PP
+Unlike the command line, s51 contains built-in help for each of these
+commands, via the 'help' command. Most of the commands are available in a
+long form and a single character short form. Below, the short form follows
+the long form after a comma.
+.IP "help, ? {command}"
+Without arguments, prints a list of available commands. With an argument
+prints more detail about the specific command
+.IP "quit, q"
+Terminates the application, without changing the state of the target
+processor.
+.IP "di [start] [end]"
+Dumps imem (256 bytes of "internal" memory) from start to end (inclusive).
+.IP "ds [start] [end]"
+Dumps sprs from start to end (inclusive). Note that while most sprs are
+visible in the global address space, some are not, so use this command
+instead of "dx" to read them.
+.IP "dx [start] [end]"
+Dump external (global) memory from start to end (inclusive).
+.IP "set, t <prefix> [start] {data ...}"
+Store to the memory space specified by prefix where prefix is one of "xram",
+"rom", "iram", or "sfr". Store bytes starting at start.
+.IP "dump, d <prefix> [start] [end]"
+Dump from the memory space specified by prefix, where prefix is one of
+"xram", "rom", "iram" or "sfr". Dumps from start to end (inclusive).
+.IP "file [filename]"
+Specifies an intel-format hex file (ihx) that contains the contents of the
+rom area loaded into the cc1111. This is used to respond to requests to dump
+rom memory contents without getting them from the cc1111 (which is slow).
+.IP "pc, p {address}"
+If the address argument is given, this sets the program counter to the
+specified value. Otherwise, the current program counter value is displayed.
+.IP "break, b [address]"
+Sets a breakpoint at the specified address. This uses the built-in hardware
+breakpoint support in the cc1111. As a result, it supports no more than four
+breakpoints at once. You must therefore use a modified version of sdcdb which
+changes how program execution is controlled to work within this limit.
+.IP "clear, c [address]"
+Clear a breakpoint from the specified address.
+.IP "run, r, go, g {start} {stop}"
+Resumes execution of the program. If the start argument is present, then it
+begins at that address, otherwise it continues running at the current pc. If
+a stop argument is present, then a temporary breakpoint is set at that
+address. This temporary breakpoint will be removed when execution hits it.
+.IP "next, n"
+Step one instruction. In the original s51 program this would ignore
+subroutines, but as sdcdb doesn't require this functionality, it's not
+available here.
+.IP "step, s"
+Step one instruction.
+.IP "load, l [filename]"
+This is not implemented, but it is supposed to load a hex file into flash.
+Use the ccload program instead.
+.IP "halt, h"
+Halt the processor. This is the only command which can be sent while the
+program is running. It is ignored at other times.
+.IP "reset, res"
+Reset the processor. This pulls the reset pin low and re-enables debug mode.
+Check the cc1111 documentation to see precisely what this does.
+.IP "status"
+This dumps the cc1111 debug status register.
+.IP "info, i breakpoints, b"
+List the current breakpoints.
+.IP "info, i help, ?"
+List the things you can get info on.
+.IP "stop"
+This doesn't do anything and is present only to retain compatibility with
+the original 8051 emulator.
+.SH "BOARD BRINGUP DEBUGGING"
+.PP While the original purpose for this program was to connect the source
+debugger with the hardware, it can also be used as a low-level hex debugger
+all on its own. In particular, all of the cc1111 peripherals can be
+manipulated directly from the s51 command line.
+.IP "Starting s51"
+If the CP2103 is plugged in, and the CC1111 is connected correctly, the
+'s51' command itself should connect to the device without trouble. Note that
+the CP2103 must have the GPIO pins configured correctly as well.
+.IP
+$ s51
+.br
+Welcome to the non-simulated processor
+.br
+> status
+.br
+	CPU halted
+.br
+	Halted by debug command
+.br
+>
+.IP "Turning on LEDs"
+Two of the cc1111 GPIO pins, P1_0 and P1_1 are capable of driving external
+LEDs. To control these, set the Port 1 direction bits to make these output
+pins and then change the Port 1 data to set them high or low:
+.IP
+> set sfr 0xfe 0x02	# set P1DIR to 0x2
+.br
+> set sfr 0x90 0x02	# set P1_1 to high
+.br
+> set sfr 0x90 0x00	# set P1_1 to low
+.IP "Reading the A/D converters"
+The six A/D converter inputs can each be connected to any of the P0 pins,
+ground, the A/D voltage refernece, an internal temperature sensor or VDD/3.
+To read one of these values, select an A/D converter to use then start the
+conversion process. The cc1111 manual has the table for selecting the input
+on page 144.
+.IP
+To configure one of the P0 pins for use by the A/D unit, we program the
+ADCCFG register, setting the bits in that which match the pins desired:
+.IP
+> set sfr 0xf2 0x3f	# enable all 6 A/D inputs
+.IP
+To trigger a single conversion, we as the A/D unit to perform an 'extra'
+conversion, which means to do a single conversion not a whole sequence of
+conversions. This is controlled by the ADCCON3 register at 0xB6:
+.IP
+> set sfr 0xb6 0xb2	# sample P0_2 using 12 bits of precision
+.br
+> ds 0xba 0xbb		# dump the ADC data low and high regs
+.br
+> set sfr 0xb6 0xbe	# sample internal temperature sensor
+.br
+> ds 0xba 0xbb		# dump the ADC data low and high regs
+.SH "SEE ALSO"
+sdcdb(1), ccload(1)
+.SH AUTHOR
+Keith Packard
