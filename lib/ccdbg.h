@@ -32,10 +32,10 @@
 #include <sys/stat.h>
 #include "ccdbg-debug.h"
 
-#define CC_CLOCK	0x1
+#define CC_CLOCK	0x4
 #define CC_DATA		0x2
-#define CC_RESET_N	0x4
-#define CC_CLOCK_US	(0)
+#define CC_RESET_N	0x1
+#define CC_CLOCK_US	(1000)
 
 /* Telemetrum has a 10k pull-up to 3.3v, a 0.001uF cap to ground
  * and a 2.7k resistor to the reset line. This takes about 6us
