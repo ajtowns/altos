@@ -97,4 +97,5 @@ Makefile
 lib/Makefile
 ccload/Makefile
 s51/Makefile
+ccmanual/Makefile
 ])
