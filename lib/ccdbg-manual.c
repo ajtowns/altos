@@ -60,6 +60,7 @@ ccdbg_manual(struct ccdbg *dbg, FILE *input)
 		if (mask != (CC_CLOCK|CC_DATA|CC_RESET_N)) {
 			uint8_t	read;
 			ccdbg_read(dbg, &read);
+			ccdbg_sync_io(dbg);
 			ccdbg_print("\t%c %c %c", CC_CLOCK|CC_DATA|CC_RESET_N, read);
 			if ((set & CC_CLOCK) == 0)
 				printf ("\t%d", (read&CC_DATA) ? 1 : 0);
