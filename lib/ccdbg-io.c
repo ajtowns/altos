@@ -25,6 +25,7 @@
 #endif
 
 static uint32_t	cc_clock_us = CC_CLOCK_US;
+static uint32_t	cc_reset_us = CC_RESET_US;
 
 void
 ccdbg_set_clock(uint32_t us)
@@ -41,6 +42,17 @@ ccdbg_half_clock(struct ccdbg *dbg)
 	nanosleep(&req, &rem);
 }
 
+void
+ccdbg_wait_reset(struct ccdbg *dbg)
+{
+	struct timespec	req, rem;
+	
+	ccdbg_sync_io(dbg);
+	req.tv_sec = (cc_reset_us) / 1000000;
+	req.tv_nsec = ((cc_reset_us) % 1000000) * 1000;
+	nanosleep(&req, &rem);
+}
+	
 struct ccdbg *
 ccdbg_open(void)
 {

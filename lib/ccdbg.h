@@ -37,6 +37,12 @@
 #define CC_RESET_N	0x4
 #define CC_CLOCK_US	(0)
 
+/* Telemetrum has a 10k pull-up to 3.3v, a 0.001uF cap to ground
+ * and a 2.7k resistor to the reset line. This takes about 6us
+ * to settle, so we'll wait longer than that after changing the reset line
+ */
+#define CC_RESET_US	(12)
+
 /* 8051 instructions
  */
 #define NOP			0x00
@@ -263,6 +269,9 @@ ccdbg_set_clock(uint32_t us);
 
 void
 ccdbg_half_clock(struct ccdbg *dbg);
+
+void
+ccdbg_wait_reset(struct ccdbg *dbg);
 
 int
 ccdbg_write(struct ccdbg *dbg, uint8_t mask, uint8_t value);

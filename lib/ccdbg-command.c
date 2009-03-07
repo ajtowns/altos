@@ -27,11 +27,12 @@ ccdbg_debug_mode(struct ccdbg *dbg)
 	ccdbg_debug(CC_DEBUG_COMMAND, "#\n");
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N,          CC_DATA           );
+	ccdbg_wait_reset(dbg);
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N,          CC_DATA           );
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N,          CC_DATA|CC_RESET_N);
-	ccdbg_sync_io(dbg);
+	ccdbg_wait_reset(dbg);
 }
 
 void
@@ -42,11 +43,12 @@ ccdbg_reset(struct ccdbg *dbg)
 	ccdbg_debug(CC_DEBUG_COMMAND, "#\n");
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
+	ccdbg_wait_reset(dbg);
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
 	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
-	ccdbg_sync_io(dbg);
+	ccdbg_wait_reset(dbg);
 }
 
 uint8_t
