@@ -38,6 +38,8 @@ struct cp_usb_async {
 	libusb_device_handle	*handle;
 	struct cp_usb_packet	packet[MAX_OUTSTANDING];
 	int			p, ack;
+	uint8_t			value;
+	uint8_t			set;
 };
 
 struct cp_usb_async *
@@ -56,11 +58,14 @@ cp_usb_async_open(void)
 	}
 	cp->handle = libusb_open_device_with_vid_pid(cp->ctx,
 						     0x10c4, 0xea60);
+	cp->ack = -1;
 	if (!cp->handle) {
 		libusb_exit(cp->ctx);
 		free(cp);
 		return NULL;
 	}
+	cp->value = 0;
+	cp->set = 0;
 	return cp;
 }
 
@@ -103,9 +108,16 @@ void
 cp_usb_async_write(struct cp_usb_async *cp, uint8_t mask, uint8_t value)
 {
 	int	p;
-	uint16_t gpio_set = ((uint16_t) value << 8) | mask;
+	uint16_t gpio_set;
 	int	ret;
 
+	if (cp->set) {
+		value = (cp->value & ~mask) | (value & mask);
+		mask = value ^ cp->value;
+	}
+	cp->set = 1;
+	cp->value = value;
+	gpio_set = ((uint16_t) value << 8) | mask;
 	if (cp->p == MAX_OUTSTANDING)
 		cp_usb_async_sync(cp);
 	p = cp->p;
@@ -172,5 +184,5 @@ cp_usb_async_sync(struct cp_usb_async *cp)
 		libusb_handle_events(cp->ctx);
 	}
 	cp->p = 0;
-	cp->ack = 0;
+	cp->ack = -1;
 }
