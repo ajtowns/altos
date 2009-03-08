@@ -67,5 +67,6 @@ ccdbg_manual(struct ccdbg *dbg, FILE *input)
 			printf ("\n");
 		}
 		ccdbg_send(dbg, mask, set);
+		ccdbg_sync_io(dbg);
 	}
 }
