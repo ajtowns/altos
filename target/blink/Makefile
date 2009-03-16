@@ -7,7 +7,7 @@ CFLAGS=--model-large $(DEBUG) --less-pedantic \
 	--no-peep --int-long-reent --float-reent \
 	--data-loc 0x30
 
-LDFLAGS=-L/usr/share/sdcc/lib/large --out-fmt-ihx
+LDFLAGS=--out-fmt-ihx
 LDFLAGS_RAM=$(LDFLAGS) --code-loc 0xf000 --xram-loc 0xf400 --xram-size 1024
 
 LDFLAGS_FLASH=$(LDFLAGS) --code-loc 0x0000 --xram-loc 0xf000 --xram-size 1024
