@@ -78,7 +78,7 @@ low() {
 main ()
 {
 	CLKCON = 0;
-	/* Set p1_1 to output */
+	/* Set P2_0 to output */
 	P2DIR = 0x01;
 	P1INP = 0x00;
 	P2INP = 0x00;
