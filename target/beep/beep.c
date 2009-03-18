@@ -46,9 +46,11 @@ delay (unsigned char n)
 	unsigned char i = 0;
 
 	n <<= 1;
-	while (--n != 0)
+	while (--n != 0) {
+		i = 211;
 		while (--i != 0)
 			nop();
+	}
 }
 
 void
@@ -84,6 +86,6 @@ main ()
 	P2INP = 0x00;
 	for (;;) {
 		high();
-		low();
+/*		low();		*/
 	}
 }
