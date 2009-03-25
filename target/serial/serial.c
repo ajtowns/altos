@@ -188,11 +188,12 @@ usart_init(void)
 	/*
 	 * Reasonable serial parameters
 	 */
-	U1UCR = (UxUCR_FLOW_DISABLE |
-		 UxUCR_D9_EVEN_PARITY |
+	U1UCR = (UxUCR_FLUSH |
+		 UxUCR_FLOW_DISABLE |
+		 UxUCR_D9_ODD_PARITY |
 		 UxUCR_BIT9_8_BITS |
 		 UxUCR_PARITY_DISABLE |
-		 UxUCR_SPB_1_STOP_BIT |
+		 UxUCR_SPB_2_STOP_BITS |
 		 UxUCR_STOP_HIGH |
 		 UxUCR_START_LOW);
 }
