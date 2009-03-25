@@ -273,6 +273,7 @@ usart_in_out(uint8_t byte)
 	U0DBUF = byte;
 	while ((U0CSR & UxCSR_TX_BYTE) == 0)
 		;
+	U0CSR &= ~UxCSR_TX_BYTE;
 }
 
 void
