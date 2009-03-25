@@ -123,7 +123,7 @@ in_byte(void)
 	for (s = 0; s < 8; s++) {
 		b = in_bit();
 		byte = byte << 1;
-		byte |= s;
+		byte |= b;
 	}
 	return byte;
 }
