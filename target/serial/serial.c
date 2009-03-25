@@ -207,7 +207,7 @@ usart_init(void)
 		 UxUCR_D9_ODD_PARITY |
 		 UxUCR_BIT9_8_BITS |
 		 UxUCR_PARITY_DISABLE |
-		 UxUCR_SPB_1_STOP_BIT |
+		 UxUCR_SPB_2_STOP_BITS |
 		 UxUCR_STOP_HIGH |
 		 UxUCR_START_LOW);
 }
@@ -219,7 +219,15 @@ usart_out_byte(uint8_t byte)
 	while (!UTX1IF)
 		;
 	UTX1IF = 0;
-	delay(1);
+}
+
+void
+usart_out_string(uint8_t *string)
+{
+	uint8_t	b;
+
+	while (b = *string++)
+		usart_out_byte(b);
 }
 
 uint8_t
@@ -233,12 +241,8 @@ usart_in_byte(void)
 	return b;
 }
 
-static char string[] = "hello world\r\n";
-
 main ()
 {
-	uint8_t i;
-
 	P1DIR |= 2;
 	CLKCON = 0;
 	while (!(SLEEP & SLEEP_XOSC_STB))
@@ -247,8 +251,7 @@ main ()
 	usart_init();
 
 	for (;;) {
-		for (i = 0; i < sizeof(string) - 1; i++)
-			usart_out_byte(string[i]);
+		usart_out_string("hello world\r\n");
 		delay(5);
 		P1 ^= 2;
 	}
