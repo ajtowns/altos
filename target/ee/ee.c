@@ -26,6 +26,10 @@ sfr at 0x80 P0;
 sfr at 0x90 P1;
 sfr at 0xA0 P2;
 sfr at 0xC6 CLKCON;
+sfr at 0xbe SLEEP;
+
+# define SLEEP_USB_EN		(1 << 7)
+# define SLEEP_XOSC_STB		(1 << 6)
 
 sfr at 0xF1 PERCFG;
 #define PERCFG_T1CFG_ALT_1	(0 << 6)
@@ -379,6 +383,8 @@ main ()
 
 	P1DIR |= 2;
 	CLKCON = 0;
+	while (!(SLEEP & SLEEP_XOSC_STB))
+		;
 	
 	spi_init();
 
