@@ -405,7 +405,15 @@ struct cc_dma_channel __xdata dma_config;
 
 #define ADC_LEN	6
 
-uint8_t __xdata adc_output[ADC_LEN*2];
+/* The DMA engine writes to XDATA in MSB order */
+struct dma_xdata16 {
+	uint8_t	high;
+	uint8_t	low;
+};
+
+struct dma_xdata16 adc_output[ADC_LEN];
+
+#define DMA_XDATA16(a,n)	((uint16_t) ((a)[n].high << 8) | (uint16_t) (a[n].low))
 
 #define ADDRH(a)	(((uint16_t) (a)) >> 8)
 #define ADDRL(a)	(((uint16_t) (a)))
@@ -518,14 +526,16 @@ usart_out_string(uint8_t *string)
 		usart_out_byte(b);
 }
 
-uint8_t __xdata	num_buffer[10];
+#define NUM_LEN 6
+
+uint8_t __xdata	num_buffer[NUM_LEN];
 uint8_t __xdata * __xdata num_ptr;
 
 void
 usart_out_number(uint16_t v)
 {
 
-	num_ptr = num_buffer + 10;
+	num_ptr = num_buffer + NUM_LEN;
 	*--num_ptr = '\0';
 	do {
 		*--num_ptr = '0' + v % 10;
@@ -533,10 +543,10 @@ usart_out_number(uint16_t v)
 	} while (v);
 	while (num_ptr != num_buffer)
 		*--num_ptr = ' ';
-	usart_out_string(num_ptr);
+	usart_out_string(num_buffer);
 }
 
-#define ADC(n)	(((uint16_t) (adc_output[n<<1] << 8)) | (uint16_t) (adc_output[(n<<1)+1]))
+#define ADC(n)	DMA_XDATA16(adc_output,n)
 
 main ()
 {
@@ -551,15 +561,15 @@ main ()
 		adc_run();
 		usart_out_string("accel: ");
 		usart_out_number(ADC(0));
-		usart_out_string("pres: ");
+		usart_out_string(" pres: ");
 		usart_out_number(ADC(1));
-		usart_out_string("temp: ");
+		usart_out_string(" temp: ");
 		usart_out_number(ADC(2));
-		usart_out_string("batt: ");
+		usart_out_string(" batt: ");
 		usart_out_number(ADC(3));
-		usart_out_string("drogue: ");
+		usart_out_string(" drogue: ");
 		usart_out_number(ADC(4));
-		usart_out_string("main: ");
+		usart_out_string(" main: ");
 		usart_out_number(ADC(5));
 		usart_out_string("\r\n");
 		delay(10);
