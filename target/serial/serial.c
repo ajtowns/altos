@@ -79,6 +79,19 @@ sbit at 0x97 P1_7;
 sfr at 0x86 U0CSR;
 sfr at 0xF8 U1CSR;
 
+/*
+ * IRCON2
+ */
+sfr at 0xE8 IRCON2;	/* CPU Interrupt Flag 5 */
+
+sbit at 0xE8 USBIF;	/* USB interrupt flag (shared with Port2) */
+sbit at 0xE8 P2IF;	/* Port2 interrupt flag (shared with USB) */
+sbit at 0xE9 UTX0IF;	/* USART0 TX interrupt flag */
+sbit at 0xEA UTX1IF;	/* USART1 TX interrupt flag (shared with I2S TX) */
+sbit at 0xEA I2STXIF;	/* I2S TX interrupt flag (shared with USART1 TX) */
+sbit at 0xEB P1IF;	/* Port1 interrupt flag */
+sbit at 0xEC WDTIF;	/* Watchdog timer interrupt flag */
+
 # define UxCSR_MODE_UART		(1 << 7)
 # define UxCSR_MODE_SPI			(0 << 7)
 # define UxCSR_RE			(1 << 6)
@@ -193,7 +206,7 @@ usart_init(void)
 		 UxUCR_D9_ODD_PARITY |
 		 UxUCR_BIT9_8_BITS |
 		 UxUCR_PARITY_DISABLE |
-		 UxUCR_SPB_2_STOP_BITS |
+		 UxUCR_SPB_1_STOP_BIT |
 		 UxUCR_STOP_HIGH |
 		 UxUCR_START_LOW);
 }
@@ -202,9 +215,8 @@ void
 usart_out_byte(uint8_t byte)
 {
 	U1DBUF = byte;
-	while ((U1CSR & UxCSR_TX_BYTE) == 0)
-		;
-	U1CSR &= ~UxCSR_TX_BYTE;
+	while (!UTX1IF);
+	UTX1IF = 0;
 }
 
 uint8_t
