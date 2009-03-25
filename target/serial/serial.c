@@ -236,7 +236,8 @@ main ()
 	spi_init();
 
 	for (;;) {
-		usart_out_byte('A');
+		for (i = 0; i < sizeof(string) - 1; i++)
+			usart_out_byte(string[i]);
 		delay(5);
 		P1 ^= 2;
 	}
