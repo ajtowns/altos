@@ -156,6 +156,7 @@ delay (unsigned char n)
 	unsigned char i = 0;
 	unsigned char j = 0;
 
+	n++;
 	while (--n != 0)
 		while (--i != 0)
 			while (--j != 0)
@@ -215,8 +216,10 @@ void
 usart_out_byte(uint8_t byte)
 {
 	U1DBUF = byte;
-	while (!UTX1IF);
+	while (!UTX1IF)
+		;
 	UTX1IF = 0;
+	delay(1);
 }
 
 uint8_t
@@ -230,10 +233,6 @@ usart_in_byte(void)
 	return b;
 }
 
-#define spi_init()	usart_init()
-#define spi_out_byte(b)	usart_out_byte(b)
-#define spi_in_byte()	usart_in_byte()
-
 static char string[] = "hello world\r\n";
 
 main ()
@@ -245,7 +244,7 @@ main ()
 	while (!(SLEEP & SLEEP_XOSC_STB))
 		;
 	
-	spi_init();
+	usart_init();
 
 	for (;;) {
 		for (i = 0; i < sizeof(string) - 1; i++)
