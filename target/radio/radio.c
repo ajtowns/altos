@@ -46,6 +46,11 @@ sfr at 0xE1 RFST;
 
 sfr at 0x88 TCON;
 
+sfr at 0xbe SLEEP;
+
+# define SLEEP_USB_EN		(1 << 7)
+# define SLEEP_XOSC_STB		(1 << 6)
+
 sbit at 0x89 RFTXRXIF;
 
 #define TCON_RFTXRXIF	(1 << 1)
