@@ -105,7 +105,7 @@ sfr at 0xfb U1UCR;
 # define UxUCR_SPB_1_STOP_BIT		(0 << 2)
 # define UxUCR_SPB_2_STOP_BITS		(1 << 2)
 # define UxUCR_STOP_LOW			(0 << 1)
-# define UXUCR_STOP_HIGH		(1 << 1)
+# define UxUCR_STOP_HIGH		(1 << 1)
 # define UxUCR_START_LOW		(0 << 0)
 # define UxUCR_START_HIGH		(1 << 0)
 
@@ -193,20 +193,10 @@ usart_init(void)
 		 UxUCR_BIT9_8_BITS |
 		 UxUCR_PARITY_DISABLE |
 		 UxUCR_SPB_1_STOP_BIT |
-		 UxUCR_STOP_LOW |
+		 UxUCR_STOP_HIGH |
 		 UxUCR_START_LOW);
 }
 
-
-uint8_t
-usart_in_out(uint8_t byte)
-{
-	U1DBUF = byte;
-	while ((U1CSR & UxCSR_TX_BYTE) == 0)
-		;
-	U1CSR &= ~UxCSR_TX_BYTE;
-	return U1DBUF;
-}
 void
 usart_out_byte(uint8_t byte)
 {
