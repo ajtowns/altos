@@ -433,7 +433,7 @@ low() {
 #define RF_POWER_7_DBM		0xc8
 #define RF_POWER_10_DBM		0xc0
 
-#define RF_POWER		RF_POWER_M30_DBM
+#define RF_POWER		RF_POWER_0_DBM
 
 static __code uint8_t radio_setup[] = {
 	RF_PA_TABLE7_OFF,	RF_POWER,
