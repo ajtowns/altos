@@ -518,6 +518,8 @@ radio_init() {
 main ()
 {
 	CLKCON = 0;
+	while (!(SLEEP & SLEEP_XOSC_STB))
+		;
 	/* Set P2_0 to output */
 	radio_init ();
 	delay(100);
