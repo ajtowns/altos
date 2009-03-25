@@ -545,6 +545,14 @@ main ()
 	usart_init();
 	for (;;) {
 		adc_run();
+		usart_out_string("accel: ");
+		usart_out_number(adc_output[0]);
+		usart_out_string("pres: ");
+		usart_out_number(adc_output[1]);
+		usart_out_string("temp: ");
+		usart_out_number(adc_output[2]);
+		usart_out_string("batt: ");
+		usart_out_number(adc_output[3]);
 		usart_out_string("drogue: ");
 		usart_out_number(adc_output[4]);
 		usart_out_string(" main: ");
