@@ -194,16 +194,16 @@ usart_init(void)
 		 UxUCR_PARITY_DISABLE |
 		 UxUCR_SPB_1_STOP_BIT |
 		 UxUCR_STOP_HIGH |
-		 UxUCR_START_HIGH);
+		 UxUCR_START_LOW);
 }
 
 void
 usart_out_byte(uint8_t byte)
 {
-	U1CSR &= ~UxCSR_TX_BYTE;
 	U1DBUF = byte;
 	while ((U1CSR & UxCSR_TX_BYTE) == 0)
 		;
+	U1CSR &= ~UxCSR_TX_BYTE;
 }
 
 uint8_t
