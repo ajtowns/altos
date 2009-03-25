@@ -193,7 +193,7 @@ usart_init(void)
 		 UxUCR_BIT9_8_BITS |
 		 UxUCR_PARITY_DISABLE |
 		 UxUCR_SPB_1_STOP_BIT |
-		 UxUCR_STOP_LOW |
+		 UxUCR_STOP_HIGH |
 		 UxUCR_START_HIGH);
 }
 
