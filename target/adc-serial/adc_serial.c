@@ -417,7 +417,7 @@ adc_init(void)
 			   DMA_CFG0_TMODE_REPEATED_SINGLE |
 			   DMA_CFG0_TRIGGER_ADC_CHALL);
 	dma_config.cfg1 = (DMA_CFG1_SRCINC_0 |
-			   DMA_CFG1_DESTINC_2 |
+			   DMA_CFG1_DESTINC_1 |
 			   DMA_CFG1_PRIORITY_NORMAL);
 	
 	dma_config.src_high = ADDRH(&ADCXDATA);
