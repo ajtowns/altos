@@ -18,12 +18,31 @@
 
 #include <stdint.h>
 
+/*
+ * Validate the SPI-connected EEPROM
+ */
+
 sfr at 0x80 P0;
 sfr at 0x90 P1;
 sfr at 0xA0 P2;
 sfr at 0xC6 CLKCON;
 
 sfr at 0xF1 PERCFG;
+#define PERCFG_T1CFG_ALT_1	(0 << 6)
+#define PERCFG_T1CFG_ALT_2	(1 << 6)
+
+#define PERCFG_T3CFG_ALT_1	(0 << 5)
+#define PERCFG_T3CFG_ALT_2	(1 << 5)
+
+#define PERCFG_T4CFG_ALT_1	(0 << 4)
+#define PERCFG_T4CFG_ALT_2	(1 << 4)
+
+#define PERCFG_U1CFG_ALT_1	(0 << 1)
+#define PERCFG_U1CFG_ALT_2	(1 << 1)
+
+#define PERCFG_U0CFG_ALT_1	(0 << 0)
+#define PERCFG_U0CFG_ALT_2	(1 << 0)
+
 sfr at 0xF2 ADCCFG;
 sfr at 0xF3 P0SEL;
 sfr at 0xF4 P1SEL;
@@ -49,12 +68,53 @@ sbit at 0x95 P1_5;
 sbit at 0x96 P1_6;
 sbit at 0x97 P1_7;
 
+/*
+ * UART registers
+ */
+
+sfr at 0x86 U0CSR;
+sfr at 0xF8 U1CSR;
+
+# define UxCSR_MODE_UART		(1 << 7)
+# define UxCSR_MODE_SPI			(0 << 7)
+# define UxCSR_RE			(1 << 6)
+# define UxCSR_SLAVE			(1 << 5)
+# define UxCSR_MASTER			(0 << 5)
+# define UxCSR_FE			(1 << 4)
+# define UxCSR_ERR			(1 << 3)
+# define UxCSR_RX_BYTE			(1 << 2)
+# define UxCSR_TX_BYTE			(1 << 1)
+# define UxCSR_ACTIVE			(1 << 0)
+
+sfr at 0xc4 U0UCR;
+sfr at 0xfb U1UCR;
+
+sfr at 0xc5 U0GCR;
+sfr at 0xfc U1GCR;
+
+# define UxGCR_CPOL_NEGATIVE		(0 << 7)
+# define UxGCR_CPOL_POSITIVE		(1 << 7)
+# define UxGCR_CPHA_FIRST_EDGE		(0 << 6)
+# define UxGCR_CPHA_SECOND_EDGE		(1 << 6)
+# define UxGCR_ORDER_LSB		(0 << 5)
+# define UxGCR_ORDER_MSB		(1 << 5)
+# define UxGCR_BAUD_E_MASK		(0x1f)
+# define UxGCR_BAUD_E_SHIFT		0
+
+sfr at 0xc1 U0DBUF;
+sfr at 0xf9 U1DBUF;
+sfr at 0xc2 U0BAUD;
+sfr at 0xfa U1BAUD;
+
 #define MOSI	P1_5
 #define MISO	P1_4
 #define SCK	P1_3
 #define CS	P1_2
 
 #define DEBUG	P1_1
+
+#define BITBANG	0
+#define USART	1
 
 #define nop()	_asm nop _endasm;
 
@@ -70,8 +130,14 @@ delay (unsigned char n)
 				nop();
 }
 
+#if BITBANG
+
+/*
+ * This version directly manipulates the GPIOs to synthesize SPI
+ */
+
 void
-cs(uint8_t b)
+bitbang_cs(uint8_t b)
 {
 	SCK = 0;
 	CS = b;
@@ -79,7 +145,7 @@ cs(uint8_t b)
 }
 
 void
-out_bit(uint8_t b)
+bitbang_out_bit(uint8_t b)
 {
 	MOSI = b;
 	delay(1);
@@ -89,19 +155,19 @@ out_bit(uint8_t b)
 }
 
 void
-out_byte(uint8_t byte)
+bitbang_out_byte(uint8_t byte)
 {
 	uint8_t s;
 
 	for (s = 0; s < 8; s++) {
 		uint8_t b = (byte & 0x80) ? 1 : 0;
-		out_bit(b);
+		bitbang_out_bit(b);
 		byte <<= 1;
 	}
 }
 
 uint8_t
-in_bit(void)
+bitbang_in_bit(void)
 {
 	uint8_t	b;
 	
@@ -114,60 +180,160 @@ in_bit(void)
 }
 
 uint8_t
-in_byte(void)
+bitbang_in_byte(void)
 {
 	uint8_t byte = 0;
 	uint8_t s;
 	uint8_t b;
 
 	for (s = 0; s < 8; s++) {
-		b = in_bit();
+		b = bitbang_in_bit();
 		byte = byte << 1;
 		byte |= b;
 	}
 	return byte;
 }
 
+void
+bit_bang_init(void)
+{
+	CS = 1;
+	SCK = 0;
+	P1DIR = ((1 << 5) |
+		 (0 << 4) |
+		 (1 << 3) |
+		 (1 << 2) |
+		 (1 << 1));
+}
+
+#define spi_init()	bitbang_init()
+#define spi_out_byte(b)	bitbang_out_byte(b)
+#define spi_in_byte()	bitbang_in_byte()
+#define spi_cs(b)	bitbang_cs(b)
+#endif
+
+#if USART
+
+/*
+ * This version uses the USART in SPI mode
+ */
+void
+usart_init(void)
+{
+	/*
+	 * Configure our chip select line
+	 */
+	CS = 1;
+	P1DIR |= (1 << 2);
+	/*
+	 * Configure the peripheral pin choices
+	 * for both of the serial ports
+	 *
+	 * Note that telemetrum will use U1CFG_ALT_2
+	 * but that overlaps with SPI ALT_2, so until
+	 * we can test that this works, we'll set this
+	 * to ALT_1
+	 */
+	PERCFG = (PERCFG_U1CFG_ALT_1 |
+		  PERCFG_U0CFG_ALT_2);
+
+	/*
+	 * Make the SPI pins controlled by the SPI
+	 * hardware
+	 */
+	P1SEL |= ((1 << 5) | (1 << 4) | (1 << 3));
+
+	/*
+	 * SPI in master mode
+	 */
+	U0CSR = (UxCSR_MODE_SPI |
+		 UxCSR_MASTER);
+
+	/*
+	 * The cc1111 is limited to a 24/8 MHz SPI clock,
+	 * while the 25LC1024 is limited to 20MHz. So,
+	 * use the 3MHz clock (BAUD_E 17, BAUD_M 0)
+	 */
+	U0BAUD = 0;
+	U0GCR = (UxGCR_CPOL_NEGATIVE |
+		 UxGCR_CPHA_FIRST_EDGE |
+		 UxGCR_ORDER_MSB |
+		 (17 << UxGCR_BAUD_E_SHIFT));
+}
+
+void
+usart_cs(uint8_t b)
+{
+	CS = b;
+}
+
+uint8_t
+usart_in_out(uint8_t byte)
+{
+	U0DBUF = byte;
+	while ((U0CSR & UxCSR_TX_BYTE) == 0)
+		;
+}
+
+void
+usart_out_byte(uint8_t byte)
+{
+	(void) usart_in_out(byte);
+}
+
+uint8_t
+usart_in_byte(void)
+{
+	return usart_in_out(0xff);
+}
+
+#define spi_init()	usart_init()
+#define spi_out_byte(b)	usart_out_byte(b)
+#define spi_in_byte()	usart_in_byte()
+#define spi_cs(b)	usart_cs(b)
+
+#endif
+
 uint8_t
 rdsr(void)
 {
 	uint8_t status;
-	cs(0);
-	out_byte(0x05);
-	status = in_byte();
-	cs(1);
+	spi_cs(0);
+	spi_out_byte(0x05);
+	status = spi_in_byte();
+	spi_cs(1);
 	return status;
 }
 
 void
 wrsr(uint8_t status)
 {
-	cs(0);
-	out_byte(0x01);
-	out_byte(status);
-	cs(1);
+	spi_cs(0);
+	spi_out_byte(0x01);
+	spi_out_byte(status);
+	spi_cs(1);
 }
 	
 void
 wren(void)
 {
-	cs(0);
-	out_byte(0x06);
-	cs(1);
+	spi_cs(0);
+	spi_out_byte(0x06);
+	spi_cs(1);
 }
 
 void
 write(uint32_t addr, uint8_t *bytes, uint16_t len)
 {
 	wren();
-	cs(0);
-	out_byte(0x02);
-	out_byte(addr >> 16);
-	out_byte(addr >> 8);
-	out_byte(addr);
+	spi_cs(0);
+	spi_out_byte(0x02);
+	spi_out_byte(addr >> 16);
+	spi_out_byte(addr >> 8);
+	spi_out_byte(addr);
 	while (len-- > 0)
-		out_byte(*bytes++);
-	cs(1);
+		spi_out_byte(*bytes++);
+	spi_cs(1);
 	for (;;) {
 		uint8_t status = rdsr();
 		if ((status & (1 << 0)) == 0)
@@ -178,14 +344,14 @@ write(uint32_t addr, uint8_t *bytes, uint16_t len)
 void
 read(uint32_t addr, uint8_t *bytes, uint16_t len)
 {
-	cs(0);
-	out_byte(0x03);
-	out_byte(addr >> 16);
-	out_byte(addr >> 8);
-	out_byte(addr);
+	spi_cs(0);
+	spi_out_byte(0x03);
+	spi_out_byte(addr >> 16);
+	spi_out_byte(addr >> 8);
+	spi_out_byte(addr);
 	while (len-- > 0)
-		*bytes++ = in_byte();
-	cs(1);
+		*bytes++ = spi_in_byte();
+	spi_cs(1);
 }
 
 void
@@ -195,7 +361,7 @@ debug_byte(uint8_t byte)
 
 	for (s = 0; s < 8; s++) {
 		DEBUG = byte & 1;
-		delay(2);
+		delay(5);
 		byte >>= 1;
 	}
 }
@@ -211,13 +377,8 @@ main ()
 
 	CLKCON = 0;
 	
-	CS = 1;
-	SCK = 0;
-	P1DIR = ((1 << 5) |
-		 (0 << 4) |
-		 (1 << 3) |
-		 (1 << 2) |
-		 (1 << 1));
+	spi_init();
+
 	status = rdsr();
 	/*
 	 * Turn off both block-protect bits
@@ -228,10 +389,10 @@ main ()
 	 */
 	status &= ~(1 << 7);
 	wrsr(status);
-	write(0x0, STRING, LENGTH);
+//	write(0x0, STRING, LENGTH);
 	for (;;) {
 		read(0x0, buf, LENGTH);
 		for (i = 0; i < LENGTH; i++)
-			debug_byte(buf[i]);
+			debug_byte(STRING[i]);
 	}
 }
