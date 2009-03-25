@@ -200,7 +200,7 @@ debug_byte(uint8_t byte)
 	}
 }
 
-#define STRING	"hi"
+#define STRING	"\360\252"
 #define LENGTH	2
 
 main ()
