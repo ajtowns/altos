@@ -241,6 +241,18 @@ usart_in_byte(void)
 	return b;
 }
 
+void
+debug_byte(uint8_t byte)
+{
+	uint8_t s;
+
+	for (s = 0; s < 8; s++) {
+		DEBUG = byte & 1;
+		delay(5);
+		byte >>= 1;
+	}
+}
+
 main ()
 {
 	P1DIR |= 2;
@@ -252,7 +264,7 @@ main ()
 
 	for (;;) {
 		usart_out_string("hello world\r\n");
-		delay(5);
-		P1 ^= 2;
+		debug_byte(usart_in_byte());
 	}
+	
 }
