@@ -405,7 +405,7 @@ struct cc_dma_channel __xdata dma_config;
 
 #define ADC_LEN	6
 
-uint16_t __xdata adc_output[ADC_LEN];
+uint8_t __xdata adc_output[ADC_LEN*2];
 
 #define ADDRH(a)	(((uint16_t) (a)) >> 8)
 #define ADDRL(a)	(((uint16_t) (a)))
@@ -531,8 +531,12 @@ usart_out_number(uint16_t v)
 		*--num_ptr = '0' + v % 10;
 		v /= 10;
 	} while (v);
+	while (num_ptr != num_buffer)
+		*--num_ptr = ' ';
 	usart_out_string(num_ptr);
 }
+
+#define ADC(n)	(((uint16_t) (adc_output[n<<1] << 8)) | (uint16_t) (adc_output[(n<<1)+1]))
 
 main ()
 {
@@ -546,17 +550,17 @@ main ()
 	for (;;) {
 		adc_run();
 		usart_out_string("accel: ");
-		usart_out_number(adc_output[0]);
-		usart_out_string("\tpres: ");
-		usart_out_number(adc_output[1]);
-		usart_out_string("\ttemp: ");
-		usart_out_number(adc_output[2]);
-		usart_out_string("\tbatt: ");
-		usart_out_number(adc_output[3]);
-		usart_out_string("\tdrogue: ");
-		usart_out_number(adc_output[4]);
-		usart_out_string("\tmain: ");
-		usart_out_number(adc_output[5]);
+		usart_out_number(ADC(0));
+		usart_out_string("pres: ");
+		usart_out_number(ADC(1));
+		usart_out_string("temp: ");
+		usart_out_number(ADC(2));
+		usart_out_string("batt: ");
+		usart_out_number(ADC(3));
+		usart_out_string("drogue: ");
+		usart_out_number(ADC(4));
+		usart_out_string("main: ");
+		usart_out_number(ADC(5));
 		usart_out_string("\r\n");
 		delay(10);
 	}
