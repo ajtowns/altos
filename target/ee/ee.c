@@ -375,6 +375,7 @@ main ()
 	uint8_t buf[LENGTH];
 	int i;
 
+	P1DIR |= 2;
 	CLKCON = 0;
 	
 	spi_init();
