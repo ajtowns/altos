@@ -73,6 +73,7 @@ delay (unsigned char n)
 void
 cs(uint8_t b)
 {
+	SCK = 0;
 	CS = b;
 	delay(1);
 }
@@ -81,10 +82,10 @@ void
 out_bit(uint8_t b)
 {
 	MOSI = b;
+	delay(1);
 	SCK = 1;
 	delay(1);
 	SCK = 0;
-	delay(1);
 }
 
 void
@@ -103,11 +104,12 @@ uint8_t
 in_bit(void)
 {
 	uint8_t	b;
+	
+	delay(1);
 	SCK = 1;
 	delay(1);
 	b = MISO;
 	SCK = 0;
-	delay(1);
 	return b;
 }
 
