@@ -389,10 +389,10 @@ main ()
 	 */
 	status &= ~(1 << 7);
 	wrsr(status);
-//	write(0x0, STRING, LENGTH);
+	write(0x0, STRING, LENGTH);
 	for (;;) {
 		read(0x0, buf, LENGTH);
 		for (i = 0; i < LENGTH; i++)
-			debug_byte(STRING[i]);
+			debug_byte(buf[i]);
 	}
 }
