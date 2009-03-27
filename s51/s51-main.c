@@ -189,19 +189,34 @@ s51_putc(int c)
 	putc(c, s51_output);
 }
 
+#include <readline/readline.h>
+#include <readline/history.h>
+
 int
 s51_read_line(char *line, int len)
 {
 	int ret;
-	if (s51_prompt)
-		s51_printf("%s", s51_prompt);
-	else
-		s51_putc('\0');
-	fflush(s51_output);
-	ret = fgets(line, len, s51_input) != NULL;
-	if (s51_monitor)
-		printf("> %s", line);
-	fflush(stdout);
+	if (s51_output == stdout && s51_input == stdin && s51_prompt) {
+		char *r;
+
+		r = readline(s51_prompt);
+		if (r == NULL)
+			return 0;
+		strncpy (line, r, len);
+		line[len-1] = '\0';
+		add_history(r);
+		return 1;
+	} else {
+		if (s51_prompt)
+			s51_printf("%s", s51_prompt);
+		else
+			s51_putc('\0');
+		fflush(s51_output);
+		ret = fgets(line, len, s51_input) != NULL;
+		if (s51_monitor)
+			printf("> %s", line);
+		fflush(stdout);
+	}
 	return ret;
 }
 

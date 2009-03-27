@@ -1,7 +1,7 @@
 bin_PROGRAMS=s51
 
 AM_CFLAGS=-I$(top_srcdir)/lib $(LIBUSB_CFLAGS)
-S51_LIBS=../lib/libcc.a
+S51_LIBS=../lib/libcc.a -lreadline
 
 man_MANS = s51.1
 
