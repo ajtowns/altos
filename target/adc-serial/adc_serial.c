@@ -550,12 +550,13 @@ usart_out_number(uint16_t v)
 
 main ()
 {
-	P1DIR |= 2;
+	P1DIR = 3;
 	CLKCON = 0;
 	while (!(SLEEP & SLEEP_XOSC_STB))
 		;
 	
 	adc_init();
+	P1_0 = 1;
 	usart_init();
 	for (;;) {
 		adc_run();
