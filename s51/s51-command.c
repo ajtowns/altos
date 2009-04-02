@@ -64,6 +64,7 @@ parse_uint8(char *value, uint8_t *uint8)
 enum command_result
 command_quit (int argc, char **argv)
 {
+	ccdbg_reset(s51_dbg);
 	exit(0);
 	return command_error;
 }
