@@ -1,5 +1,5 @@
 /*
- * Copyright © 2008 Keith Packard <keithp@keithp.com>
+ * Copyright © 2009 Keith Packard <keithp@keithp.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,48 +16,38 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "ccdbg.h"
-#include <stdarg.h>
+#ifndef _CC_USB_H_
+#define _CC_USB_H_
+
+#include <stdint.h>
+
+struct cc_usb;
+
+struct cc_usb *
+cc_usb_open(void);
+
+void
+cc_usb_close(struct cc_usb *cc);
 
 int
-ccdbg_level = 0;
+cc_usb_send_bytes(struct cc_usb *cc, uint8_t *bytes, int len);
+
+int
+cc_usb_recv_bytes(struct cc_usb *cc, uint8_t *bytes, int len);
+
+int
+cc_usb_write_memory(struct cc_usb *cc, uint16_t addr, uint8_t *bytes, int len);
+
+int
+cc_usb_read_memory(struct cc_usb *cc, uint16_t addr, uint8_t *bytes, int len);
+
+int
+cc_usb_debug_mode(struct cc_usb *cc);
+
+int
+cc_usb_reset(struct cc_usb *cc);
 
 void
-ccdbg_add_debug(int level)
-{
-	ccdbg_level |= level;
-}
+cc_usb_sync(struct cc_usb *cc);
 
-void
-ccdbg_clear_debug(int level)
-{
-	ccdbg_level &= ~level;
-}
-
-static int initialized;
-
-void
-ccdbg_debug(int level, char *format, ...)
-{
-	va_list	ap;
-
-	if (!initialized) {
-		char *level;
-		initialized = 1;
-		level = getenv("CCDEBUG");
-		if (level)
-			ccdbg_level |= strtoul(level, NULL, 0);
-	}
-	if (ccdbg_level & level) {
-		va_start(ap, format);
-		vprintf(format, ap);
-		va_end(ap);
-	}
-}
-
-void
-ccdbg_flush(int level)
-{
-	if (ccdbg_level & level)
-		fflush(stdout);
-}
+#endif /* _CC_USB_H_ */

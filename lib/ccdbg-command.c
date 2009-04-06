@@ -18,39 +18,6 @@
 
 #include "ccdbg.h"
 
-void
-ccdbg_debug_mode(struct ccdbg *dbg)
-{
-	/* force two rising clocks while holding RESET_N low */
-	ccdbg_debug(CC_DEBUG_COMMAND, "#\n");
-	ccdbg_debug(CC_DEBUG_COMMAND, "# Debug mode\n");
-	ccdbg_debug(CC_DEBUG_COMMAND, "#\n");
-	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
-	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N,          CC_DATA           );
-	ccdbg_wait_reset(dbg);
-	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
-	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N,          CC_DATA           );
-	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
-	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N,          CC_DATA|CC_RESET_N);
-	ccdbg_wait_reset(dbg);
-}
-
-void
-ccdbg_reset(struct ccdbg *dbg)
-{
-	ccdbg_debug(CC_DEBUG_COMMAND, "#\n");
-	ccdbg_debug(CC_DEBUG_COMMAND, "# Reset\n");
-	ccdbg_debug(CC_DEBUG_COMMAND, "#\n");
-	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
-	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
-	ccdbg_wait_reset(dbg);
-	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
-	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
-	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA           );
-	ccdbg_send(dbg, CC_CLOCK|CC_DATA|CC_RESET_N, CC_CLOCK|CC_DATA|CC_RESET_N);
-	ccdbg_wait_reset(dbg);
-}
-
 uint8_t
 ccdbg_chip_erase(struct ccdbg *dbg)
 {
@@ -117,6 +84,22 @@ ccdbg_debug_instr(struct ccdbg *dbg, uint8_t *instr, int nbytes)
 	return ccdbg_cmd_write_read8(dbg, CC_DEBUG_INSTR(nbytes), instr, nbytes);
 }
 
+void
+ccdbg_debug_instr_discard(struct ccdbg *dbg, uint8_t *instr, int nbytes)
+{
+	static uint8_t	discard;
+	ccdbg_cmd_write_queue8(dbg, CC_DEBUG_INSTR(nbytes),
+			       instr, nbytes, &discard);
+}
+
+void
+ccdbg_debug_instr_queue(struct ccdbg *dbg, uint8_t *instr, int nbytes,
+			uint8_t *reply)
+{
+	return ccdbg_cmd_write_queue8(dbg, CC_DEBUG_INSTR(nbytes),
+				      instr, nbytes, reply);
+}
+
 uint8_t
 ccdbg_step_instr(struct ccdbg *dbg)
 {
@@ -148,12 +131,13 @@ ccdbg_execute(struct ccdbg *dbg, uint8_t *inst)
 		ccdbg_debug(CC_DEBUG_INSTRUCTIONS, "\t%02x", inst[1]);
 		for (i = 0; i < len - 1; i++)
 			ccdbg_debug(CC_DEBUG_INSTRUCTIONS, " %02x", inst[i+2]);
-		status = ccdbg_debug_instr(dbg, inst+1, len);
+		ccdbg_debug_instr_queue(dbg, inst+1, len, &status);
 		for (; i < 3; i++)
 			ccdbg_debug(CC_DEBUG_INSTRUCTIONS, "   ");
 		ccdbg_debug(CC_DEBUG_INSTRUCTIONS, " -> %02x\n", status);
 		inst += len + 1;
 	}
+	ccdbg_sync(dbg);
 	return status;
 }
 

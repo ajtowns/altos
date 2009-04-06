@@ -17,6 +17,7 @@
  */
 
 #include "ccdbg.h"
+#include "cc-bitbang.h"
 
 /*
  * Manual bit-banging to debug the low level protocol
@@ -47,6 +48,10 @@ ccdbg_manual(struct ccdbg *dbg, FILE *input)
 	char	line[80];
 	uint8_t	set, mask;
 
+	if (dbg->bb == NULL) {
+		fprintf(stderr, "Must use bitbang API for manual mode\n");
+		return;
+	}
 	while (fgets(line, sizeof line, input)) {
 		if (line[0] == '#' || line[0] == '\n') {
 			printf ("%s", line);
@@ -59,14 +64,14 @@ ccdbg_manual(struct ccdbg *dbg, FILE *input)
 		get_bit(line, 4, 'R', CC_RESET_N, &set, &mask);
 		if (mask != (CC_CLOCK|CC_DATA|CC_RESET_N)) {
 			uint8_t	read;
-			ccdbg_read(dbg, &read);
-			ccdbg_sync_io(dbg);
-			ccdbg_print("\t%c %c %c", CC_CLOCK|CC_DATA|CC_RESET_N, read);
+			cc_bitbang_read(dbg->bb, &read);
+			cc_bitbang_sync(dbg->bb);
+			cc_bitbang_print("\t%c %c %c", CC_CLOCK|CC_DATA|CC_RESET_N, read);
 			if ((set & CC_CLOCK) == 0)
 				printf ("\t%d", (read&CC_DATA) ? 1 : 0);
 			printf ("\n");
 		}
-		ccdbg_send(dbg, mask, set);
-		ccdbg_sync_io(dbg);
+		cc_bitbang_send(dbg->bb, mask, set);
+		cc_bitbang_sync(dbg->bb);
 	}
 }

@@ -13,5 +13,9 @@ libcc_a_SOURCES = \
 	ccdbg-memory.c \
 	ccdbg-rom.c \
 	ccdbg-state.c \
+	cc-usb.c \
+	cc-usb.h \
+	cc-bitbang.c \
+	cc-bitbang.h \
 	cp-usb.c \
 	cp-usb-async.c

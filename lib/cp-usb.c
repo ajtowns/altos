@@ -25,6 +25,7 @@
 #include "cp-usb.h"
 #include <stdio.h>
 #include <errno.h>
+#include <libusb.h>
 
 struct cp_usb {
 	usb_dev_handle *usb_dev;

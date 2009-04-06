@@ -31,17 +31,8 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include "ccdbg-debug.h"
-
-#define CC_CLOCK	0x1
-#define CC_DATA		0x2
-#define CC_RESET_N	0x4
-#define CC_CLOCK_US	(2)
-
-/* Telemetrum has a 10k pull-up to 3.3v, a 0.001uF cap to ground
- * and a 2.7k resistor to the reset line. This takes about 6us
- * to settle, so we'll wait longer than that after changing the reset line
- */
-#define CC_RESET_US	(12)
+#include "cc-bitbang.h"
+#include "cc-usb.h"
 
 /* 8051 instructions
  */
@@ -109,15 +100,10 @@
 /* Bit-addressable status word */
 #define PSW(bit)		(0xD0 | (bit))
 
-#define CP_USB_ASYNC
-
 struct ccdbg {
-#ifdef CP_USB_ASYNC
-	struct cp_usb_async *cp_async;
-#else
-	struct cp_usb *cp;
-#endif
-	struct hex_image *rom;
+	struct cc_bitbang	*bb;
+	struct cc_usb		*usb;
+	struct hex_image	*rom;
 };
 
 /* Intel hex file format data
@@ -225,6 +211,13 @@ ccdbg_resume(struct ccdbg *dbg);
 uint8_t
 ccdbg_debug_instr(struct ccdbg *dbg, uint8_t *instr, int nbytes);
 
+void
+ccdbg_debug_instr_discard(struct ccdbg *dbg, uint8_t *instr, int nbytes);
+
+void
+ccdbg_debug_instr_queue(struct ccdbg *dbg, uint8_t *instr, int nbytes,
+			uint8_t *reply);
+
 uint8_t
 ccdbg_step_instr(struct ccdbg *dbg);
 
@@ -264,21 +257,6 @@ int
 ccdbg_hex_image_equal(struct hex_image *a, struct hex_image *b);
 
 /* ccdbg-io.c */
-void
-ccdbg_set_clock(uint32_t us);
-
-void
-ccdbg_half_clock(struct ccdbg *dbg);
-
-void
-ccdbg_wait_reset(struct ccdbg *dbg);
-
-int
-ccdbg_write(struct ccdbg *dbg, uint8_t mask, uint8_t value);
-
-void
-ccdbg_read(struct ccdbg *dbg, uint8_t *valuep);
-
 struct ccdbg *
 ccdbg_open(void);
 
@@ -286,58 +264,26 @@ void
 ccdbg_close(struct ccdbg *dbg);
 
 void
-ccdbg_clock_1_0(struct ccdbg *dbg);
-
-void
-ccdbg_clock_0_1(struct ccdbg *dbg);
-
-void
-ccdbg_write_bit(struct ccdbg *dbg, uint8_t bit);
-
-void
-ccdbg_write_byte(struct ccdbg *dbg, uint8_t byte);
-
-uint8_t
-ccdbg_read_bit(struct ccdbg *dbg);
-
-uint8_t
-ccdbg_read_byte(struct ccdbg *dbg);
-
-void
 ccdbg_cmd_write(struct ccdbg *dbg, uint8_t cmd, uint8_t *data, int len);
 
 uint8_t
 ccdbg_cmd_write_read8(struct ccdbg *dbg, uint8_t cmd, uint8_t *data, int len);
 
+void
+ccdbg_cmd_write_queue8(struct ccdbg *dbg, uint8_t cmd,
+		       uint8_t *data, int len, uint8_t *reply);
+
 uint16_t
 ccdbg_cmd_write_read16(struct ccdbg *dbg, uint8_t cmd, uint8_t *data, int len);
-
-void
-ccdbg_send(struct ccdbg *dbg, uint8_t mask, uint8_t set);
-
-void
-ccdbg_send_bit(struct ccdbg *dbg, uint8_t bit);
-
-void
-ccdbg_send_byte(struct ccdbg *dbg, uint8_t byte);
 
 void
 ccdbg_send_bytes(struct ccdbg *dbg, uint8_t *bytes, int nbytes);
 
 void
-ccdbg_recv_bit(struct ccdbg *dbg, int first, uint8_t *bit);
-
-void
-ccdbg_recv_byte(struct ccdbg *dbg, int first, uint8_t *byte);
-
-void
 ccdbg_recv_bytes(struct ccdbg *dbg, uint8_t *bytes, int nbytes);
 
 void
-ccdbg_sync_io(struct ccdbg *dbg);
-
-void
-ccdbg_print(char *format, uint8_t mask, uint8_t set);
+ccdbg_sync(struct ccdbg *dbg);
 
 /* ccdbg-manual.c */
 

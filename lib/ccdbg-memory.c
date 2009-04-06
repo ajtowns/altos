@@ -50,6 +50,8 @@ ccdbg_write_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes)
 	int i, nl = 0;
 	struct ccstate state;
 
+	if (dbg->usb)
+		return cc_usb_write_memory(dbg->usb, addr, bytes, nbytes);
 	ccdbg_state_save(dbg, &state, CC_STATE_ACC | CC_STATE_PSW | CC_STATE_DP);
 	memory_init[HIGH_START] = addr >> 8;
 	memory_init[LOW_START] = addr;
@@ -83,6 +85,8 @@ ccdbg_read_memory(struct ccdbg *dbg, uint16_t addr, uint8_t *bytes, int nbytes)
 		ccdbg_rom_replace_xmem(dbg, addr, bytes, nbytes);
 		return 0;
 	}
+	if (dbg->usb)
+		return cc_usb_read_memory(dbg->usb, addr, bytes, nbytes);
 	ccdbg_state_save(dbg, &state, CC_STATE_ACC | CC_STATE_PSW | CC_STATE_DP);
 	memory_init[HIGH_START] = addr >> 8;
 	memory_init[LOW_START] = addr;
