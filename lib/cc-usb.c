@@ -226,6 +226,7 @@ cc_usb_printf(struct cc_usb *cc, char *format, ...)
 		memcpy(cc->out_buf + cc->out_count, b, this_time);
 		cc->out_count += this_time;
 		ret -= this_time;
+		b += this_time;
 		while (cc->out_count >= CC_BUF)
 			cc_usb_sync(cc);
 	}
