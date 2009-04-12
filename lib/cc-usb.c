@@ -201,7 +201,7 @@ cc_usb_sync(struct cc_usb *cc)
 	}
 }
 
-static void
+void
 cc_usb_printf(struct cc_usb *cc, char *format, ...)
 {
 	char	buf[1024], *b;
@@ -251,7 +251,7 @@ cc_usb_send_bytes(struct cc_usb *cc, uint8_t *bytes, int len)
 	return ret;
 }
 
-static void
+void
 cc_queue_read(struct cc_usb *cc, uint8_t *buf, int len)
 {
 	struct cc_read	*read_buf;

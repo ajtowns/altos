@@ -16,44 +16,37 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#ifndef _CC_USB_H_
-#define _CC_USB_H_
+#include <stdio.h>
+#include <stdlib.h>
+#include "cc-usb.h"
 
-#include <stdint.h>
-
-struct cc_usb;
-
-struct cc_usb *
-cc_usb_open(void);
-
-void
-cc_usb_close(struct cc_usb *cc);
+#define NUM_BLOCK	512
 
 int
-cc_usb_send_bytes(struct cc_usb *cc, uint8_t *bytes, int len);
+main (int argc, char **argv)
+{
+	struct cc_usb	*cc;
+	int		block;
+	uint8_t		bytes[32 * (2 + 8)];
+	uint8_t		*b;
+	int		i, j;
+	uint32_t	addr;
 
-int
-cc_usb_recv_bytes(struct cc_usb *cc, uint8_t *bytes, int len);
-
-int
-cc_usb_write_memory(struct cc_usb *cc, uint16_t addr, uint8_t *bytes, int len);
-
-int
-cc_usb_read_memory(struct cc_usb *cc, uint16_t addr, uint8_t *bytes, int len);
-
-int
-cc_usb_debug_mode(struct cc_usb *cc);
-
-int
-cc_usb_reset(struct cc_usb *cc);
-
-void
-cc_usb_sync(struct cc_usb *cc);
-
-void
-cc_queue_read(struct cc_usb *cc, uint8_t *buf, int len);
-
-void
-cc_usb_printf(struct cc_usb *cc, char *format, ...);
-
-#endif /* _CC_USB_H_ */
+	cc = cc_usb_open();
+	for (block = 0; block < NUM_BLOCK; block++) {
+		cc_queue_read(cc, bytes, sizeof (bytes));
+		cc_usb_printf(cc, "e %x\n", block);
+		cc_usb_sync(cc);
+		for (i = 0; i < 32; i++) {
+			b = bytes + (i * 10);
+			addr = block * 256 + i * 8;
+			printf ("%06x", addr);
+			for (j = 0; j < 8; j++) {
+				printf (" %02x", b[j+2]);
+			}
+			printf ("\n");
+		}
+	}
+	cc_usb_close(cc);
+	exit (0);
+}
