@@ -1,0 +1,13 @@
+*.adb
+*.asm
+*.lst
+*.ihx
+*.rel
+*.sym
+*.rst
+*.cdb
+*.lnk
+*.map
+*.mem
+altos-flash
+altos-ram
