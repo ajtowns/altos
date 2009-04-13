@@ -493,7 +493,38 @@ command_step (int argc, char **argv)
 enum command_result
 command_load (int argc, char **argv)
 {
-	return command_error;
+	char *filename = argv[1];
+	FILE *file;
+	struct hex_file	*hex;
+	struct hex_image *image;
+	
+	if (!filename)
+		return command_error;
+	file = fopen(filename, "r");
+	if (!file) {
+		perror(filename);
+		return command_error;
+	}
+	hex = ccdbg_hex_file_read(file, filename);
+	fclose(file);
+	if (!hex) {
+		return command_error;
+	}
+	image = ccdbg_hex_image_create(hex);
+	ccdbg_hex_file_free(hex);
+	if (!image) {
+		fprintf(stderr, "image create failed\n");
+		return command_error;
+	}
+	if (image->address >= 0xf000) {
+		printf("Loading %d bytes to RAM at 0x%04x\n",
+		       image->length, image->address);
+		ccdbg_write_hex_image(s51_dbg, image, 0);
+	} else {
+		fprintf(stderr, "Can only load to RAM\n");
+	}
+	ccdbg_hex_image_free(image);
+	return command_success;
 }
 
 enum command_result
