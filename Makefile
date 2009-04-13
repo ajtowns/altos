@@ -21,6 +21,7 @@ INC = \
 
 SRC = \
 	ao_task.c \
+	ao_timer.c \
 	ao_panic.c \
 	ao_test.c \
 	_bp.c

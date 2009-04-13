@@ -45,7 +45,7 @@ blink_1(void)
 {
 	for (;;) {
 		P1 ^= 2;
-		delay(20);
+		ao_delay(20);
 	}
 }
 
@@ -53,7 +53,7 @@ void
 wakeup(void)
 {
 	for (;;) {
-		delay(10);
+		ao_delay(10);
 		ao_wakeup(&blink_chan);
 	}
 }
@@ -62,6 +62,9 @@ void
 main(void)
 {
 	CLKCON = 0;
+	while (!(SLEEP & SLEEP_XOSC_STB))
+		;
+
 	/* Set p1_1 and p1_0 to output */
 	P1DIR = 0x03;
 	
