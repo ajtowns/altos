@@ -74,9 +74,9 @@ ao_yield(void) _naked
 		/* Push ACC first, as when restoring the context it must be restored
 		 * last (it is used to set the IE register). */
 		push	ACC
-		/* Store the IE register then disable interrupts. */
+		/* Store the IE register then enable interrupts. */
 		push	_IEN0
-		clr	_EA
+		setb	_EA
 		push	DPL
 		push	DPH
 		push	b
@@ -98,7 +98,7 @@ ao_yield(void) _naked
 	if (ao_cur_task_id != AO_NO_TASK)
 	{
 		/* Save the current stack */
-		stack_len = SP - AO_STACK_START;
+		stack_len = SP - (AO_STACK_START - 1);
 		ao_cur_task->stack_count = stack_len;
 		stack_ptr = (uint8_t __data *) AO_STACK_START;
 		save_ptr = (uint8_t __xdata *) ao_cur_task->stack;
@@ -107,7 +107,7 @@ ao_yield(void) _naked
 	}
 	
 	/* Empty the stack; might as well let interrupts have the whole thing */
-	SP = AO_STACK_START;
+	SP = AO_STACK_START - 1;
 
 	/* Find a task to run. If there isn't any runnable task,
 	 * this loop will run forever, which is just fine
@@ -123,11 +123,12 @@ ao_yield(void) _naked
 
 	/* Restore the old stack */
 	stack_len = ao_cur_task->stack_count;
+	SP = AO_STACK_START - 1 + stack_len;
+
 	stack_ptr = (uint8_t __data *) AO_STACK_START;
 	save_ptr = (uint8_t __xdata *) ao_cur_task->stack;
 	while (stack_len--)
 		*stack_ptr++ = *save_ptr++;
-	SP = (uint8_t) (stack_ptr - 1);
 
 	_asm
 		pop		_bp
