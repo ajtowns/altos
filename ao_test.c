@@ -18,20 +18,44 @@
 
 #include "ao.h"
 
-struct ao_task __xdata blink_task;
+struct ao_task __xdata blink_0_task;
+struct ao_task __xdata blink_1_task;
+struct ao_task __xdata wakeup_task;
 
 void delay(int n) __reentrant
 {
-	while (n--)
-		ao_yield();
+	uint8_t	j = 0;
+	while (--n)
+		while (--j)
+			ao_yield();
+}
+
+static __xdata uint8_t blink_chan;
+
+void
+blink_0(void)
+{
+	for (;;) {
+		P1 ^= 1;
+		ao_sleep(&blink_chan);
+	}
 }
 
 void
-blink(void)
+blink_1(void)
 {
 	for (;;) {
 		P1 ^= 2;
-		delay(100);
+		delay(20);
+	}
+}
+
+void
+wakeup(void)
+{
+	for (;;) {
+		delay(10);
+		ao_wakeup(&blink_chan);
 	}
 }
 
@@ -39,9 +63,11 @@ void
 main(void)
 {
 	CLKCON = 0;
-	/* Set p1_1 to output */
-	P1DIR = 0x02;
+	/* Set p1_1 and p1_0 to output */
+	P1DIR = 0x03;
 	
-	ao_add_task(&blink_task, blink);
+	ao_add_task(&blink_0_task, blink_0);
+	ao_add_task(&blink_1_task, blink_1);
+	ao_add_task(&wakeup_task, wakeup);
 	ao_start_scheduler();
 }
