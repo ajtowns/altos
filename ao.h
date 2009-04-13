@@ -25,7 +25,7 @@
 
 #define DATA_TO_XDATA(a)	((void __xdata *) ((uint8_t) (a) | 0xff00))
 
-#define AO_STACK_START	0x27
+#define AO_STACK_START	0x32
 #define AO_STACK_END	0xfe
 #define AO_STACK_SIZE	(AO_STACK_END - AO_STACK_START + 1)
 
@@ -120,5 +120,22 @@ ao_led_set(uint8_t colors);
 
 void
 ao_led_for(uint8_t colors, uint16_t ticks);
+
+/* ao_usb.c */
+
+void
+ao_usb_isr(void) interrupt 6;
+
+void
+ao_usb_flush(void);
+
+void
+ao_usb_putchar(uint8_t c);
+
+uint8_t
+ao_usb_getchar(void);
+
+void
+ao_usb_init(void);
 
 #endif /* _AO_H_ */

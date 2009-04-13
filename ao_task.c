@@ -183,6 +183,7 @@ ao_start_scheduler(void)
 	ao_adc_init();
 	ao_beep_init();
 	ao_led_init();
+	ao_usb_init();
 
 	ao_cur_task_id = AO_NO_TASK;
 	ao_cur_task = NULL;
