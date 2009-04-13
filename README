@@ -1,0 +1,32 @@
+AltOS - 8051 operating system for Altus-Metrum projects
+
+Parameters:
+
+ * Multi-tasking
+ * Non-preemptive
+ * Unix-style sleep/wakeup scheduling
+ * Strict round-robin, no priorities
+
+API:
+
+	int ao_sleep(void *wchan)
+
+		Puts current task to sleep. Will wake up when wchan is signalled
+	
+	int ao_wakeup(void *wchan)
+
+		Wakeup all tasks sleeping on wchan
+
+	void ao_add_task(struct ao_task *task)
+
+		Adds a task to the queue of available tasks
+
+	void ao_start_scheduler(void)
+
+		Invokes the scheduler, starting the operating system
+
+	void ao_switch(void)
+
+		Switches to another task which is ready to run. Allows
+		tasks which want to run for a while to give up the CPU
+		without needing to sleep
