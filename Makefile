@@ -21,6 +21,8 @@ INC = \
 
 SRC = \
 	ao_adc.c \
+	ao_beep.c \
+	ao_led.c \
 	ao_task.c \
 	ao_timer.c \
 	ao_panic.c \
@@ -35,7 +37,7 @@ REL=$(SRC:.c=.rel)
 RST=$(SRC:.c=.rst)
 SYM=$(SRC:.c=.sym)
 
-PROGS=$(PROG)-flash.ihx $(PROG)-ram.ihx
+PROGS=$(PROG).ihx
 PCDB=$(PROGS:.ihx=.cdb)
 PLNK=$(PROGS:.ihx=.lnk)
 PMAP=$(PROGS:.ihx=.map)
@@ -47,12 +49,9 @@ PAOM=$(PROGS:.ihx=)
 
 all: $(PROGS)
 
-$(PROG)-ram.ihx: $(REL) Makefile
-	$(CC) $(LDFLAGS_RAM) $(CFLAGS) -o $(PROG)-ram.ihx $(REL)
-	$(CC) $(LDFLAGS_FLASH) $(CFLAGS) -o $(PROG)-flash.ihx $(REL)
-	sh check-stack ao.h $(PROG)-flash.mem
-
-$(PROG)-flash.ihx: $(PROG)-ram.ihx
+$(PROG).ihx: $(REL) Makefile
+	$(CC) $(LDFLAGS_FLASH) $(CFLAGS) -o $(PROG).ihx $(REL)
+	sh check-stack ao.h $(PROG).mem
 
 clean:
 	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)

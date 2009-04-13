@@ -9,5 +9,4 @@
 *.lnk
 *.map
 *.mem
-altos-flash
-altos-ram
+altos

@@ -54,6 +54,9 @@ void ao_panic(uint8_t reason);
 
 volatile __data uint16_t ao_time;
 
+#define AO_MS_TO_TICKS(ms)	((ms) / 10)
+#define AO_SEC_TO_TICKS(s)	((s) * 100)
+
 void ao_timer_isr(void) interrupt 9;
 void ao_timer_init(void);
 uint16_t ao_time_atomic(void);
@@ -73,12 +76,49 @@ struct ao_adc {
 	int16_t		sense_m;
 };
 
-extern __xdata struct ao_adc	ao_adc_ring[ADC_RING];
-extern __data uint8_t		ao_adc_head;
+extern volatile __xdata struct ao_adc	ao_adc_ring[ADC_RING];
+extern volatile __data uint8_t		ao_adc_head;
 
 void ao_adc_isr(void) interrupt 1;
 void ao_adc_init(void);
 void ao_adc_poll(void);
 void ao_adc_get(__xdata struct ao_adc *packet);
+
+/* ao_beep.c */
+
+#define AO_BEEP_LOW	150
+#define AO_BEEP_MID	94
+#define AO_BEEP_HIGH	75
+#define AO_BEEP_OFF	0
+
+void
+ao_beep_init(void);
+
+void
+ao_beep(uint8_t beep);
+
+void
+ao_beep_for(uint8_t beep, uint16_t ticks);
+
+/* ao_led.c */
+
+#define AO_LED_NONE	0
+#define AO_LED_GREEN	1
+#define AO_LED_RED	2
+
+void
+ao_led_init(void);
+
+void
+ao_led_on(uint8_t colors);
+
+void
+ao_led_off(uint8_t colors);
+
+void
+ao_led_set(uint8_t colors);
+
+void
+ao_led_for(uint8_t colors, uint16_t ticks);
 
 #endif /* _AO_H_ */

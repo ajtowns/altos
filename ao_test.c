@@ -20,6 +20,7 @@
 struct ao_task __xdata blink_0_task;
 struct ao_task __xdata blink_1_task;
 struct ao_task __xdata wakeup_task;
+struct ao_task __xdata beep_task;
 
 void delay(int n) __reentrant
 {
@@ -34,8 +35,13 @@ static __xdata uint8_t blink_chan;
 void
 blink_0(void)
 {
+	uint8_t	b = 0;
 	for (;;) {
-		P1 ^= 1;
+		b = 1 - b;
+		if (b)
+			ao_led_on(AO_LED_GREEN);
+		else
+			ao_led_off(AO_LED_GREEN);
 		ao_sleep(&blink_chan);
 	}
 }
@@ -49,9 +55,9 @@ blink_1(void)
 		ao_sleep(&ao_adc_ring);
 		ao_adc_get(&adc);
 		if (adc.accel < 15900)
-			P1_1 = 1;
+			ao_led_on(AO_LED_RED);
 		else
-			P1_1 = 0;
+			ao_led_off(AO_LED_RED);
 	}
 }
 
@@ -59,8 +65,21 @@ void
 wakeup(void)
 {
 	for (;;) {
-		ao_delay(10);
+		ao_delay(AO_MS_TO_TICKS(100));
 		ao_wakeup(&blink_chan);
+	}
+}
+
+void
+beep(void)
+{
+	static struct ao_adc adc;
+
+	for (;;) {
+		ao_delay(AO_SEC_TO_TICKS(1));
+		ao_adc_get(&adc);
+		if (adc.temp > 7400)
+			ao_beep_for(AO_BEEP_LOW, AO_MS_TO_TICKS(50));
 	}
 }
 
@@ -71,14 +90,9 @@ main(void)
 	while (!(SLEEP & SLEEP_XOSC_STB))
 		;
 
-	/* Set p1_1 and p1_0 to output */
-	P1DIR = 0x03;
-	
-	ao_adc_init();
-	ao_timer_init();
-
 	ao_add_task(&blink_0_task, blink_0);
 	ao_add_task(&blink_1_task, blink_1);
 	ao_add_task(&wakeup_task, wakeup);
+	ao_add_task(&beep_task, beep);
 	ao_start_scheduler();
 }

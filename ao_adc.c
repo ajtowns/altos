@@ -18,8 +18,8 @@
 
 #include "ao.h"
 
-__xdata struct ao_adc	ao_adc_ring[ADC_RING];
-__data uint8_t		ao_adc_head;
+volatile __xdata struct ao_adc	ao_adc_ring[ADC_RING];
+volatile __data uint8_t		ao_adc_head;
 
 void ao_adc_isr(void) interrupt 1
 {
