@@ -1,4 +1,21 @@
-AltOS - 8051 operating system for Altus-Metrum projects
+	AltOS - 8051 operating system for Altus-Metrum projects
+
+Copyright and License
+
+	Copyright © 2009 Keith Packard <keithp@keithp.com>
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; version 2 of the License.
+
+	This program is distributed in the hope that it will be useful, but
+	WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	General Public License for more details.
+
+	You should have received a copy of the GNU General Public License along
+	with this program; if not, write to the Free Software Foundation, Inc.,
+	59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 
 Parameters:
 
@@ -9,15 +26,15 @@ Parameters:
 
 API:
 
-	int ao_sleep(void *wchan)
+	void ao_sleep(void *wchan)
 
 		Puts current task to sleep. Will wake up when wchan is signalled
 	
-	int ao_wakeup(void *wchan)
+	void ao_wakeup(void *wchan)
 
 		Wakeup all tasks sleeping on wchan
 
-	void ao_add_task(struct ao_task *task)
+	void ao_add_task(struct ao_task *task, void (*start)(void))
 
 		Adds a task to the queue of available tasks
 
@@ -25,8 +42,13 @@ API:
 
 		Invokes the scheduler, starting the operating system
 
-	void ao_switch(void)
+	void ao_yield(void)
 
 		Switches to another task which is ready to run. Allows
 		tasks which want to run for a while to give up the CPU
 		without needing to sleep
+
+	void ao_panic(uint8_t reason)
+
+		Any fatal error should call this function, which can
+		display the error code in some cryptic fashion.
