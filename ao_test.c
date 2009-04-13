@@ -43,9 +43,15 @@ blink_0(void)
 void
 blink_1(void)
 {
+	static struct ao_adc adc;
+
 	for (;;) {
-		P1 ^= 2;
-		ao_delay(20);
+		ao_sleep(&ao_adc_ring);
+		ao_adc_get(&adc);
+		if (adc.accel < 15900)
+			P1_1 = 1;
+		else
+			P1_1 = 0;
 	}
 }
 
@@ -68,6 +74,9 @@ main(void)
 	/* Set p1_1 and p1_0 to output */
 	P1DIR = 0x03;
 	
+	ao_adc_init();
+	ao_timer_init();
+
 	ao_add_task(&blink_0_task, blink_0);
 	ao_add_task(&blink_1_task, blink_1);
 	ao_add_task(&wakeup_task, wakeup);

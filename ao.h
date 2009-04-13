@@ -20,11 +20,12 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include "cc1111.h"
 
 #define DATA_TO_XDATA(a)	((void __xdata *) ((uint8_t) (a) | 0xff00))
 
-#define AO_STACK_START	0x21
+#define AO_STACK_START	0x27
 #define AO_STACK_END	0xfe
 #define AO_STACK_SIZE	(AO_STACK_END - AO_STACK_START + 1)
 
@@ -57,5 +58,27 @@ void ao_timer_isr(void) interrupt 9;
 void ao_timer_init(void);
 uint16_t ao_time_atomic(void);
 void ao_delay(uint16_t ticks);
+
+/* ao_adc.c */
+
+#define ADC_RING	32
+
+struct ao_adc {
+	uint16_t	tick;
+	int16_t		accel;
+	int16_t		pres;
+	int16_t		temp;
+	int16_t		v_batt;
+	int16_t		sense_d;
+	int16_t		sense_m;
+};
+
+extern __xdata struct ao_adc	ao_adc_ring[ADC_RING];
+extern __data uint8_t		ao_adc_head;
+
+void ao_adc_isr(void) interrupt 1;
+void ao_adc_init(void);
+void ao_adc_poll(void);
+void ao_adc_get(__xdata struct ao_adc *packet);
 
 #endif /* _AO_H_ */

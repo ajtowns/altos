@@ -20,6 +20,7 @@ INC = \
 	cc1111.h
 
 SRC = \
+	ao_adc.c \
 	ao_task.c \
 	ao_timer.c \
 	ao_panic.c \

@@ -181,6 +181,5 @@ ao_start_scheduler(void)
 {
 	ao_cur_task_id = AO_NO_TASK;
 	ao_cur_task = NULL;
-	ao_timer_init();
 	ao_yield();
 }

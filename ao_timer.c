@@ -22,6 +22,7 @@ volatile __data uint16_t ao_time;
 void ao_timer_isr(void) interrupt 9
 {
 	++ao_time;
+	ao_adc_poll();
 	ao_wakeup(DATA_TO_XDATA(&ao_time));
 }
 
