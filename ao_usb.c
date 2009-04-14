@@ -301,6 +301,24 @@ ao_usb_set_address(uint8_t address)
 }
 
 static void
+ao_usb_set_configuration(void)
+{
+	uint8_t	size;
+
+	/* Set the IN max packet size, double buffered */
+	USBINDEX = AO_USB_IN_EP;
+	size = AO_USB_IN_SIZE >> 3;
+	USBMAXI = size;
+//	USBCSIH |= USBCSIH_IN_DBL_BUF;
+
+	/* Set the OUT max packet size, double buffered */
+	USBINDEX = AO_USB_OUT_EP;
+	size = AO_USB_OUT_SIZE >> 3;
+	USBMAXO = size;
+//	USBCSOH = USBCSOH_OUT_DBL_BUF;
+}
+
+static void
 ao_usb_ep0_setup(void)
 {
 	/* Pull the setup packet out of the fifo */
@@ -350,6 +368,7 @@ ao_usb_ep0_setup(void)
 				break;
 			case AO_USB_REQ_SET_CONFIGURATION:
 				ao_usb_configuration = ao_usb_setup.value;
+				ao_usb_set_configuration();
 				break;
 			}
 			break;
@@ -494,6 +513,10 @@ ao_usb_getchar(void)
 	}
 	--ao_usb_out_bytes;
 	c = USBFIFO[AO_USB_OUT_EP << 1];
+	if (ao_usb_out_bytes == 0) {
+		USBINDEX = AO_USB_OUT_EP;
+		USBCSOL &= ~USBCSOL_OUTPKT_RDY;
+	}
 	ao_interrupt_enable();
 	return c;
 }
@@ -504,15 +527,7 @@ ao_usb_init(void)
 	/* Turn on the USB controller */
 	SLEEP |= SLEEP_USB_EN;
 
-	/* Set the IN max packet size, double buffered */
-	USBINDEX = AO_USB_IN_EP;
-	USBMAXI = AO_USB_IN_SIZE >> 3;
-	USBCSIH |= USBCSIH_IN_DBL_BUF;
-
-	/* Set the OUT max packet size, double buffered */
-	USBINDEX = AO_USB_OUT_EP;
-	USBMAXO = AO_USB_OUT_SIZE >> 3;
-	USBCSOH = USBCSOH_OUT_DBL_BUF;
+	ao_usb_set_configuration();
 	
 	/* IN interrupts on the control an IN endpoints */
 	USBIIE = (1 << AO_USB_CONTROL_EP) | (1 << AO_USB_IN_EP);

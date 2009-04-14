@@ -21,6 +21,7 @@ struct ao_task __xdata blink_0_task;
 struct ao_task __xdata blink_1_task;
 struct ao_task __xdata wakeup_task;
 struct ao_task __xdata beep_task;
+struct ao_task __xdata echo_task;
 
 void delay(int n) __reentrant
 {
@@ -84,6 +85,19 @@ beep(void)
 }
 
 void
+echo(void)
+{
+	uint8_t	c;
+	for (;;) {
+		c = ao_usb_getchar();
+		ao_usb_putchar(c);
+		if (c == '\r')
+			ao_usb_putchar('\n');
+		ao_usb_flush();
+	}
+}
+
+void
 main(void)
 {
 	CLKCON = 0;
@@ -94,5 +108,6 @@ main(void)
 	ao_add_task(&blink_1_task, blink_1);
 	ao_add_task(&wakeup_task, wakeup);
 	ao_add_task(&beep_task, beep);
+	ao_add_task(&echo_task, echo);
 	ao_start_scheduler();
 }
