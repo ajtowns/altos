@@ -303,19 +303,15 @@ ao_usb_set_address(uint8_t address)
 static void
 ao_usb_set_configuration(void)
 {
-	uint8_t	size;
-
 	/* Set the IN max packet size, double buffered */
 	USBINDEX = AO_USB_IN_EP;
-	size = AO_USB_IN_SIZE >> 3;
-	USBMAXI = size;
-//	USBCSIH |= USBCSIH_IN_DBL_BUF;
+	USBMAXI = AO_USB_IN_SIZE >> 3;
+	USBCSIH |= USBCSIH_IN_DBL_BUF;
 
 	/* Set the OUT max packet size, double buffered */
 	USBINDEX = AO_USB_OUT_EP;
-	size = AO_USB_OUT_SIZE >> 3;
-	USBMAXO = size;
-//	USBCSOH = USBCSOH_OUT_DBL_BUF;
+	USBMAXO = AO_USB_OUT_SIZE >> 3;
+	USBCSOH = USBCSOH_OUT_DBL_BUF;
 }
 
 static void
