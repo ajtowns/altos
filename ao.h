@@ -29,7 +29,7 @@
 /* Stack runs from above the allocated __data space to 0xfe, which avoids
  * writing to 0xff as that triggers the stack overflow indicator
  */
-#define AO_STACK_START	0x4b
+#define AO_STACK_START	0x75
 #define AO_STACK_END	0xfe
 #define AO_STACK_SIZE	(AO_STACK_END - AO_STACK_START + 1)
 
@@ -37,10 +37,14 @@
 struct ao_task {
 	__xdata void *wchan;		/* current wait channel (NULL if running) */
 	uint8_t	stack_count;		/* amount of saved stack */
+	uint8_t task_id;		/* index in the task array */
 	uint8_t	stack[AO_STACK_SIZE];	/* saved stack */
 };
 
+extern __xdata struct ao_task *__data ao_cur_task;
+
 #define AO_NUM_TASKS		10	/* maximum number of tasks */
+#define AO_NO_TASK		0	/* no task id */
 
 /*
  ao_task.c
@@ -71,6 +75,9 @@ ao_start_scheduler(void);
  */
 
 #define AO_PANIC_NO_TASK	1	/* AO_NUM_TASKS is not large enough */
+#define AO_PANIC_DMA		2	/* Attempt to start DMA while active */
+#define AO_PANIC_MUTEX		3	/* Mis-using mutex API */
+#define AO_PANIC_EE		4	/* Mis-using eeprom API */
 
 /* Stop the operating system, beeping and blinking the reason */
 void
@@ -256,5 +263,88 @@ ao_usb_init(void);
  */
 void
 ao_cmd_init(void);
+
+/*
+ * ao_dma.c
+ */
+
+/* Allocate a DMA channel. the 'done' parameter will be set to 1
+ * when the dma is finished and will be used to wakeup any waiters 
+ */
+uint8_t
+ao_dma_alloc(__xdata uint8_t * done);
+
+/* Setup a DMA channel */
+void
+ao_dma_set_transfer(uint8_t id,
+		    void __xdata *srcaddr,
+		    void __xdata *dstaddr,
+		    uint16_t count,
+		    uint8_t cfg0,
+		    uint8_t cfg1);
+
+/* Start a DMA channel */
+void
+ao_dma_start(uint8_t id);
+
+/* Manually trigger a DMA channel */
+void
+ao_dma_trigger(uint8_t id);
+
+/* Abort a running DMA transfer */
+void
+ao_dma_abort(uint8_t id);
+
+/* DMA interrupt routine */
+void
+ao_dma_isr(void) interrupt 8;
+
+/*
+ * ao_mutex.c
+ */
+
+void
+ao_mutex_get(__xdata uint8_t *ao_mutex);
+
+void
+ao_mutex_put(__xdata uint8_t *ao_mutex);
+
+/*
+ * ao_ee.c
+ */
+
+/*
+ * We reserve the last block on the device for
+ * configuration space. Writes and reads in this
+ * area return errors.
+ */
+
+#define AO_EE_BLOCK_SIZE	((uint16_t) (256))
+#define AO_EE_DEVICE_SIZE	((uint32_t) 128 * (uint32_t) 1024)
+#define AO_EE_DATA_SIZE		(AO_EE_DEVICE_SIZE - (uint32_t) AO_EE_BLOCK_SIZE)
+#define AO_EE_CONFIG_BLOCK	((uint16_t) (AO_EE_DATA_SIZE / AO_EE_BLOCK_SIZE))
+
+void
+ao_ee_flush(void);
+
+/* Write to the eeprom */
+uint8_t
+ao_ee_write(uint32_t pos, uint8_t *buf, uint16_t len);
+
+/* Read from the eeprom */
+uint8_t
+ao_ee_read(uint32_t pos, uint8_t *buf, uint16_t len);
+
+/* Write the config block (at the end of the eeprom) */
+uint8_t
+ao_ee_write_config(uint8_t *buf, uint16_t len);
+
+/* Read the config block (at the end of the eeprom) */
+uint8_t
+ao_ee_read_config(uint8_t *buf, uint16_t len);
+
+/* Initialize the EEPROM code */
+void
+ao_ee_init(void);
 
 #endif /* _AO_H_ */

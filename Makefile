@@ -18,7 +18,10 @@ SRC = \
 	ao_adc.c \
 	ao_beep.c \
 	ao_cmd.c \
+	ao_dma.c \
+	ao_ee.c \
 	ao_led.c \
+	ao_mutex.c \
 	ao_panic.c \
 	ao_task.c \
 	ao_timer.c \

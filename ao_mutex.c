@@ -18,18 +18,24 @@
 #include "ao.h"
 
 void
-main(void)
+ao_mutex_get(__xdata uint8_t *mutex)
 {
-	CLKCON = 0;
-	while (!(SLEEP & SLEEP_XOSC_STB))
-		;
+	if (*mutex == ao_cur_task->task_id)
+		ao_panic(AO_PANIC_MUTEX);
+	__critical {
+		while (*mutex) 
+			ao_sleep(mutex);
+		*mutex = ao_cur_task->task_id;
+	}
+}
 
-	ao_timer_init();
-	ao_adc_init();
-	ao_beep_init();
-	ao_led_init();
-	ao_usb_init();
-	ao_ee_init();
-	ao_cmd_init();
-	ao_start_scheduler();
+void
+ao_mutex_put(__xdata uint8_t *mutex)
+{
+	if (*mutex != ao_cur_task->task_id)
+		ao_panic(AO_PANIC_MUTEX);
+	__critical {
+		*mutex = 0;
+		ao_wakeup(mutex);
+	}
 }

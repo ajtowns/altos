@@ -17,11 +17,11 @@
 
 #include "ao.h"
 
-#define AO_NO_TASK	0xff
+#define AO_NO_TASK_INDEX	0xff
 
 __xdata struct ao_task * __xdata ao_tasks[AO_NUM_TASKS];
 __data uint8_t ao_num_tasks;
-__data uint8_t ao_cur_task_id;
+__data uint8_t ao_cur_task_index;
 __xdata struct ao_task *__data ao_cur_task;
 
 void
@@ -31,6 +31,7 @@ ao_add_task(__xdata struct ao_task * task, void (*start)(void))
 	if (ao_num_tasks == AO_NUM_TASKS)
 		ao_panic(AO_PANIC_NO_TASK);
 	ao_tasks[ao_num_tasks++] = task;
+	task->task_id = ao_num_tasks;
 	/*
 	 * Construct a stack frame so that it will 'return'
 	 * to the start of the task
@@ -94,7 +95,7 @@ ao_yield(void) _naked
 		push	_bp
 	_endasm;
 	
-	if (ao_cur_task_id != AO_NO_TASK)
+	if (ao_cur_task_index != AO_NO_TASK_INDEX)
 	{
 		/* Save the current stack */
 		stack_len = SP - (AO_STACK_START - 1);
@@ -112,10 +113,10 @@ ao_yield(void) _naked
 	 * this loop will run forever, which is just fine
 	 */
 	for (;;) {
-		++ao_cur_task_id;
-		if (ao_cur_task_id == ao_num_tasks)
-			ao_cur_task_id = 0;
-		ao_cur_task = ao_tasks[ao_cur_task_id];
+		++ao_cur_task_index;
+		if (ao_cur_task_index == ao_num_tasks)
+			ao_cur_task_index = 0;
+		ao_cur_task = ao_tasks[ao_cur_task_index];
 		if (ao_cur_task->wchan == NULL)
 			break;
 	}
@@ -182,7 +183,7 @@ void
 ao_start_scheduler(void)
 {
 
-	ao_cur_task_id = AO_NO_TASK;
+	ao_cur_task_index = AO_NO_TASK_INDEX;
 	ao_cur_task = NULL;
 	ao_yield();
 }
