@@ -29,7 +29,7 @@
 /* Stack runs from above the allocated __data space to 0xfe, which avoids
  * writing to 0xff as that triggers the stack overflow indicator
  */
-#define AO_STACK_START	0x28
+#define AO_STACK_START	0x4b
 #define AO_STACK_END	0xfe
 #define AO_STACK_SIZE	(AO_STACK_END - AO_STACK_START + 1)
 
@@ -41,9 +41,6 @@ struct ao_task {
 };
 
 #define AO_NUM_TASKS		10	/* maximum number of tasks */
-
-#define ao_interrupt_disable()	(EA = 0)
-#define ao_interrupt_enable()	(EA = 1)
 
 /*
  ao_task.c
@@ -253,5 +250,11 @@ ao_usb_isr(void) interrupt 6;
 /* Initialize the USB system */
 void
 ao_usb_init(void);
+
+/*
+ * ao_cmd.c
+ */
+void
+ao_cmd_init(void);
 
 #endif /* _AO_H_ */

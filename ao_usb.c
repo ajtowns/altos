@@ -32,8 +32,8 @@ struct ao_task __xdata ao_usb_task;
 #define AO_USB_IN_SIZE		256
 #define AO_USB_OUT_SIZE		128
 
-static uint16_t	ao_usb_in_bytes;
-static uint16_t	ao_usb_out_bytes;
+static __xdata uint16_t	ao_usb_in_bytes;
+static __xdata uint16_t	ao_usb_out_bytes;
 static __data uint8_t	ao_usb_iif;
 static __data uint8_t	ao_usb_oif;
 
@@ -65,7 +65,7 @@ struct ao_usb_setup {
 	uint16_t	value;
 	uint16_t	index;
 	uint16_t	length;
-} ao_usb_setup;
+} __xdata ao_usb_setup;
 
 __data uint8_t ao_usb_ep0_state;
 uint8_t * __data ao_usb_ep0_in_data;
@@ -421,15 +421,13 @@ ao_usb_ep0(void)
 
 	ao_usb_ep0_state = AO_USB_EP0_IDLE;
 	for (;;) {
-		ao_interrupt_disable();
-		for (;;) {
+		__critical for (;;) {
 			if (ao_usb_iif & 1) {
 				ao_usb_iif &= ~1;
 				break;
 			}
 			ao_sleep(&ao_usb_task);
 		}
-		ao_interrupt_enable();
 		USBINDEX = 0;
 		cs0 = USBCS0;
 		if (cs0 & USBCS0_SETUP_END) {
@@ -466,21 +464,18 @@ ao_usb_ep0(void)
 }
 
 void
-ao_usb_flush(void)
+ao_usb_flush(void) __critical
 {
-	ao_interrupt_disable();
 	if (ao_usb_in_bytes) {
 		USBINDEX = AO_USB_IN_EP;
 		USBCSIL |= USBCSIL_INPKT_RDY;
 		ao_usb_in_bytes = 0;
 	}
-	ao_interrupt_enable();
 }
 
 void
-ao_usb_putchar(uint8_t c)
+ao_usb_putchar(uint8_t c) __critical
 {
-	ao_interrupt_disable();
 	for (;;) {
 		USBINDEX = AO_USB_IN_EP;
 		if ((USBCSIL & USBCSIL_INPKT_RDY) == 0)
@@ -488,16 +483,17 @@ ao_usb_putchar(uint8_t c)
 		ao_sleep(&ao_usb_in_bytes);
 	}
 	USBFIFO[AO_USB_IN_EP << 1] = c;
-	if (++ao_usb_in_bytes == AO_USB_IN_SIZE)
-		ao_usb_flush();
-	ao_interrupt_enable();
+	if (++ao_usb_in_bytes == AO_USB_IN_SIZE) {
+		USBINDEX = AO_USB_IN_EP;
+		USBCSIL |= USBCSIL_INPKT_RDY;
+		ao_usb_in_bytes = 0;
+	}
 }
 
 uint8_t
-ao_usb_getchar(void)
+ao_usb_getchar(void) __critical
 {
 	uint8_t	c;
-	ao_interrupt_disable();
 	while (ao_usb_out_bytes == 0) {
 		for (;;) {
 			USBINDEX = AO_USB_OUT_EP;
@@ -513,7 +509,6 @@ ao_usb_getchar(void)
 		USBINDEX = AO_USB_OUT_EP;
 		USBCSOL &= ~USBCSOL_OUTPKT_RDY;
 	}
-	ao_interrupt_enable();
 	return c;
 }
 

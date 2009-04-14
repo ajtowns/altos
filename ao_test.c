@@ -50,7 +50,7 @@ blink_0(void)
 void
 blink_1(void)
 {
-	static struct ao_adc adc;
+	static __xdata struct ao_adc adc;
 
 	for (;;) {
 		ao_sleep(&ao_adc_ring);
@@ -74,7 +74,7 @@ wakeup(void)
 void
 beep(void)
 {
-	static struct ao_adc adc;
+	static __xdata struct ao_adc adc;
 
 	for (;;) {
 		ao_delay(AO_SEC_TO_TICKS(1));
@@ -89,11 +89,11 @@ echo(void)
 {
 	uint8_t	c;
 	for (;;) {
+		ao_usb_flush();
 		c = ao_usb_getchar();
 		ao_usb_putchar(c);
 		if (c == '\r')
 			ao_usb_putchar('\n');
-		ao_usb_flush();
 	}
 }
 
@@ -104,10 +104,16 @@ main(void)
 	while (!(SLEEP & SLEEP_XOSC_STB))
 		;
 
-	ao_add_task(&blink_0_task, blink_0);
-	ao_add_task(&blink_1_task, blink_1);
-	ao_add_task(&wakeup_task, wakeup);
-	ao_add_task(&beep_task, beep);
+//	ao_add_task(&blink_0_task, blink_0);
+//	ao_add_task(&blink_1_task, blink_1);
+//	ao_add_task(&wakeup_task, wakeup);
+//	ao_add_task(&beep_task, beep);
 	ao_add_task(&echo_task, echo);
+	ao_timer_init();
+	ao_adc_init();
+	ao_beep_init();
+	ao_led_init();
+	ao_usb_init();
+	
 	ao_start_scheduler();
 }
