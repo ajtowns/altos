@@ -18,13 +18,17 @@
 #ifndef _AO_USB_H_
 #define _AO_USB_H_
 
+#define AO_USB_SETUP_DIR_MASK	(0x01 << 7)
+#define AO_USB_SETUP_TYPE_MASK	(0x03 << 5)
+#define AO_USB_SETUP_RECIP_MASK	(0x1f)
+
 #define AO_USB_DIR_OUT			0
-#define AO_USB_DIR_IN			1
+#define AO_USB_DIR_IN			(1 << 7)
 
 #define AO_USB_TYPE_STANDARD		0
-#define AO_USB_TYPE_CLASS		1
-#define AO_USB_TYPE_VENDOR		2
-#define AO_USB_TYPE_RESERVED		3
+#define AO_USB_TYPE_CLASS		(1 << 5)
+#define AO_USB_TYPE_VENDOR		(2 << 5)
+#define AO_USB_TYPE_RESERVED		(3 << 5)
 
 #define AO_USB_RECIP_DEVICE		0
 #define AO_USB_RECIP_INTERFACE		1

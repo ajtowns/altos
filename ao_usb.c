@@ -34,6 +34,8 @@ struct ao_task __xdata ao_usb_task;
 
 static uint16_t	ao_usb_in_bytes;
 static uint16_t	ao_usb_out_bytes;
+static __data uint8_t	ao_usb_iif;
+static __data uint8_t	ao_usb_oif;
 
 /* This interrupt is shared with port 2, 
  * so when we hook that up, fix this
@@ -41,16 +43,15 @@ static uint16_t	ao_usb_out_bytes;
 void
 ao_usb_isr(void) interrupt 6
 {
-	uint8_t	usb_if;
-
-	usb_if = USBIIF;
-	if (usb_if & 1)
+	USBIF = 0;
+	ao_usb_iif |= USBIIF;
+	if (ao_usb_iif & 1)
 		ao_wakeup(&ao_usb_task);
-	if (usb_if & (1 << AO_USB_IN_EP))
+	if (ao_usb_iif & (1 << AO_USB_IN_EP))
 		ao_wakeup(&ao_usb_in_bytes);
 
-	usb_if = USBOIF;
-	if (usb_if & (1 << AO_USB_OUT_EP))
+	ao_usb_oif |= USBOIF;
+	if (ao_usb_oif & (1 << AO_USB_OUT_EP))
 		ao_wakeup(&ao_usb_out_bytes);
 }
 
@@ -59,9 +60,7 @@ ao_usb_isr(void) interrupt 6
 #define AO_USB_EP0_DATA_OUT	2
 
 struct ao_usb_setup {
-	uint8_t		recip : 5;
-	uint8_t		type : 2;
-	uint8_t		dir : 1;
+	uint8_t		dir_type_recip;
 	uint8_t		request;
 	uint16_t	value;
 	uint16_t	index;
@@ -83,13 +82,15 @@ ao_usb_ep0_flush(void)
 	uint8_t this_len;
 	uint8_t	cs0;
 	
-	if (ao_usb_ep0_state != AO_USB_EP0_DATA_IN)
-		return;
+	USBINDEX = 0;
+	cs0 = USBCS0;
+	if (cs0 & USBCS0_INPKT_RDY)
+		ao_panic(0);
 
-	cs0 = USBCS0_INPKT_RDY;
 	this_len = ao_usb_ep0_in_len;
 	if (this_len > AO_USB_CONTROL_SIZE)
 		this_len = AO_USB_CONTROL_SIZE;
+	cs0 = USBCS0_INPKT_RDY;
 	if (this_len != AO_USB_CONTROL_SIZE) {
 		cs0 = USBCS0_INPKT_RDY | USBCS0_DATA_END;
 		ao_usb_ep0_state = AO_USB_EP0_IDLE;
@@ -246,16 +247,18 @@ static const uint8_t ao_usb_descriptors [] =
 	0
 };
 
+/* Walk through the list of descriptors and find a match
+ */
 static void
-ao_usb_get_descriptor(uint8_t type, uint8_t id)
+ao_usb_get_descriptor(uint16_t value)
 {
 	const uint8_t	*descriptor;
+	uint8_t		type = value >> 8;
+	uint8_t		index = value;
 
 	descriptor = ao_usb_descriptors;
-	ao_usb_ep0_in_len = 0;
-	ao_usb_ep0_in_data = NULL;
 	while (descriptor[0] != 0) {
-		if (descriptor[1] == type && id-- == 0) {
+		if (descriptor[1] == type && index-- == 0) {
 			if (type == AO_USB_DESC_CONFIGURATION)
 				ao_usb_ep0_in_len = descriptor[2];
 			else
@@ -265,9 +268,10 @@ ao_usb_get_descriptor(uint8_t type, uint8_t id)
 		}
 		descriptor += descriptor[0];
 	}
-	ao_usb_ep0_state = AO_USB_EP0_DATA_IN;
 }
 
+/* Read data from the ep0 OUT fifo
+ */
 static void
 ao_usb_ep0_fill(void)
 {
@@ -283,29 +287,9 @@ ao_usb_ep0_fill(void)
 }
 
 void
-ao_usb_send_two_bytes(uint8_t a, uint8_t b)
+ao_usb_ep0_queue_byte(uint8_t a)
 {
-	ao_usb_ep0_in_buf[0] = a;
-	ao_usb_ep0_in_buf[1] = b;
-	ao_usb_ep0_in_data = ao_usb_ep0_in_buf;
-	ao_usb_ep0_in_len = 2;
-	ao_usb_ep0_state = AO_USB_EP0_DATA_IN;
-}
-
-void
-ao_usb_send_one_byte(uint8_t a)
-{
-	ao_usb_ep0_in_buf[0] = a;
-	ao_usb_ep0_in_data = ao_usb_ep0_in_buf;
-	ao_usb_ep0_in_len = 1;
-	ao_usb_ep0_state = AO_USB_EP0_DATA_IN;
-}
-
-void
-ao_usb_send_zero_bytes(void)
-{
-	ao_usb_ep0_in_len = 0;
-	ao_usb_ep0_state = AO_USB_EP0_DATA_IN;
+	ao_usb_ep0_in_buf[ao_usb_ep0_in_len++] = a;
 }
 
 void
@@ -319,28 +303,50 @@ ao_usb_set_address(uint8_t address)
 static void
 ao_usb_ep0_setup(void)
 {
+	/* Pull the setup packet out of the fifo */
 	ao_usb_ep0_out_data = (__xdata uint8_t *) &ao_usb_setup;
 	ao_usb_ep0_out_len = 8;
 	ao_usb_ep0_fill();
-	if (ao_usb_ep0_out_len > 0)
+	if (ao_usb_ep0_out_len != 0)
 		return;
-	switch(ao_usb_setup.type) {
+
+	/* Figure out how to ACK the setup packet */
+	if (ao_usb_setup.dir_type_recip & AO_USB_DIR_IN) {
+		if (ao_usb_setup.length)
+			ao_usb_ep0_state = AO_USB_EP0_DATA_IN;
+		else
+			ao_usb_ep0_state = AO_USB_EP0_IDLE;
+	} else {
+		if (ao_usb_setup.length)
+			ao_usb_ep0_state = AO_USB_EP0_DATA_OUT;
+		else
+			ao_usb_ep0_state = AO_USB_EP0_IDLE;
+	}
+	USBINDEX = 0;
+	if (ao_usb_ep0_state == AO_USB_EP0_IDLE)
+		USBCS0 = USBCS0_CLR_OUTPKT_RDY | USBCS0_DATA_END;
+	else
+		USBCS0 = USBCS0_CLR_OUTPKT_RDY;
+	
+	ao_usb_ep0_in_data = ao_usb_ep0_in_buf;
+	ao_usb_ep0_in_len = 0;
+	switch(ao_usb_setup.dir_type_recip & AO_USB_SETUP_TYPE_MASK) {
 	case AO_USB_TYPE_STANDARD:
-		switch(ao_usb_setup.recip) {
+		switch(ao_usb_setup.dir_type_recip & AO_USB_SETUP_RECIP_MASK) {
 		case AO_USB_RECIP_DEVICE:
 			switch(ao_usb_setup.request) {
 			case AO_USB_REQ_GET_STATUS:
-				ao_usb_send_two_bytes(0,0);
+				ao_usb_ep0_queue_byte(0);
+				ao_usb_ep0_queue_byte(0);
 				break;
 			case AO_USB_REQ_SET_ADDRESS:
 				ao_usb_set_address(ao_usb_setup.value);
 				break;
 			case AO_USB_REQ_GET_DESCRIPTOR:
-				ao_usb_get_descriptor(ao_usb_setup.value,
-						      ao_usb_setup.index);
+				ao_usb_get_descriptor(ao_usb_setup.value);
 				break;
 			case AO_USB_REQ_GET_CONFIGURATION:
-				ao_usb_send_one_byte(ao_usb_configuration);
+				ao_usb_ep0_queue_byte(ao_usb_configuration);
 				break;
 			case AO_USB_REQ_SET_CONFIGURATION:
 				ao_usb_configuration = ao_usb_setup.value;
@@ -350,20 +356,21 @@ ao_usb_ep0_setup(void)
 		case AO_USB_RECIP_INTERFACE:
 			switch(ao_usb_setup.request) {
 			case AO_USB_REQ_GET_STATUS:
-				ao_usb_send_two_bytes(0,0);
+				ao_usb_ep0_queue_byte(0);
+				ao_usb_ep0_queue_byte(0);
 				break;
 			case AO_USB_REQ_GET_INTERFACE:
-				ao_usb_send_one_byte(0);
+				ao_usb_ep0_queue_byte(0);
 				break;
 			case AO_USB_REQ_SET_INTERFACE:
-				ao_usb_send_zero_bytes();
 				break;
 			}
 			break;
 		case AO_USB_RECIP_ENDPOINT:
 			switch(ao_usb_setup.request) {
 			case AO_USB_REQ_GET_STATUS:
-				ao_usb_send_two_bytes(0, 0);
+				ao_usb_ep0_queue_byte(0);
+				ao_usb_ep0_queue_byte(0);
 				break;
 			}
 			break;
@@ -374,19 +381,21 @@ ao_usb_ep0_setup(void)
 		case SET_LINE_CODING:
 			ao_usb_ep0_out_len = 7;
 			ao_usb_ep0_out_data = (__xdata uint8_t *) &ao_usb_line_coding;
-			ao_usb_ep0_state = AO_USB_EP0_DATA_OUT;
 			break;
 		case GET_LINE_CODING:
 			ao_usb_ep0_in_len = 7;
 			ao_usb_ep0_in_data = (uint8_t *) &ao_usb_line_coding;
-			ao_usb_ep0_state = AO_USB_EP0_DATA_IN;
 			break;
 		case SET_CONTROL_LINE_STATE:
 			break;
 		}
 		break;
 	}
-	ao_usb_ep0_flush();
+	if (ao_usb_ep0_state != AO_USB_EP0_DATA_OUT) {
+		if (ao_usb_setup.length < ao_usb_ep0_in_len)
+			ao_usb_ep0_in_len = ao_usb_setup.length;
+		ao_usb_ep0_flush();
+	}
 }
 
 /* End point 0 receives all of the control messages. */
@@ -397,7 +406,15 @@ ao_usb_ep0(void)
 
 	ao_usb_ep0_state = AO_USB_EP0_IDLE;
 	for (;;) {
-		ao_sleep(&ao_usb_task);
+		ao_interrupt_disable();
+		for (;;) {
+			if (ao_usb_iif & 1) {
+				ao_usb_iif &= ~1;
+				break;
+			}
+			ao_sleep(&ao_usb_task);
+		}
+		ao_interrupt_enable();
 		USBINDEX = 0;
 		cs0 = USBCS0;
 		if (cs0 & USBCS0_SETUP_END) {
@@ -408,7 +425,9 @@ ao_usb_ep0(void)
 			ao_usb_ep0_state = AO_USB_EP0_IDLE;
 			USBCS0 &= ~USBCS0_SENT_STALL;
 		}
-		if (cs0 & USBCS0_INPKT_RDY) {
+		if (ao_usb_ep0_state == AO_USB_EP0_DATA_IN &&
+		    (cs0 & USBCS0_INPKT_RDY) == 0)
+		{
 			ao_usb_ep0_flush();
 		}
 		if (cs0 & USBCS0_OUTPKT_RDY) {
@@ -420,13 +439,13 @@ ao_usb_ep0(void)
 				ao_usb_ep0_fill();
 				if (ao_usb_ep0_out_len == 0)
 					ao_usb_ep0_state = AO_USB_EP0_IDLE;
+				USBINDEX = 0;
+				if (ao_usb_ep0_state == AO_USB_EP0_IDLE)
+					USBCS0 = USBCS0_CLR_OUTPKT_RDY | USBCS0_DATA_END;
+				else
+					USBCS0 = USBCS0_CLR_OUTPKT_RDY;
 				break;
 			}
-			USBINDEX = 0;
-			if (ao_usb_ep0_state == AO_USB_EP0_IDLE)
-				USBCS0 = USBCS0_CLR_OUTPKT_RDY | USBCS0_DATA_END;
-			else
-				USBCS0 = USBCS0_CLR_OUTPKT_RDY;
 		}
 	}
 }
@@ -504,6 +523,9 @@ ao_usb_init(void)
 	/* Ignore control interrupts */
 	USBCIE = 0;
 	
+	/* enable USB interrupts */
+	IEN2 |= IEN2_USBIE;
+
 	/* Clear any pending interrupts */
 	USBCIF = 0;
 	USBOIF = 0;

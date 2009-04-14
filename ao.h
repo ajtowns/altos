@@ -25,7 +25,7 @@
 
 #define DATA_TO_XDATA(a)	((void __xdata *) ((uint8_t) (a) | 0xff00))
 
-#define AO_STACK_START	0x32
+#define AO_STACK_START	0x34
 #define AO_STACK_END	0xfe
 #define AO_STACK_SIZE	(AO_STACK_END - AO_STACK_START + 1)
 
