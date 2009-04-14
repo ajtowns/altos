@@ -21,7 +21,30 @@
 volatile __xdata struct ao_adc	ao_adc_ring[ADC_RING];
 volatile __data uint8_t		ao_adc_head;
 
-void ao_adc_isr(void) interrupt 1
+void
+ao_adc_poll(void)
+{
+	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 0;
+}
+
+void
+ao_adc_sleep(void)
+{
+	ao_sleep(&ao_adc_ring);
+}
+
+void
+ao_adc_get(__xdata struct ao_adc *packet)
+{
+	uint8_t	i = ao_adc_head;
+	if (i == 0)
+		i = ADC_RING;
+	i--;
+	memcpy(packet, &ao_adc_ring[i], sizeof (struct ao_adc));
+}
+
+void
+ao_adc_isr(void) interrupt 1
 {
 	uint8_t sequence;
 	uint8_t	__xdata *a;
@@ -35,7 +58,7 @@ void ao_adc_isr(void) interrupt 1
 		ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | (sequence + 1);
 	} else {
 		/* record this conversion series */
-		ao_adc_ring[ao_adc_head].tick = ao_time;
+		ao_adc_ring[ao_adc_head].tick = ao_time();
 		ao_adc_head++;
 		if (ao_adc_head == ADC_RING)
 			ao_adc_head = 0;
@@ -43,7 +66,8 @@ void ao_adc_isr(void) interrupt 1
 	}
 }
 
-void ao_adc_init(void)
+void
+ao_adc_init(void)
 {
 	ADCCFG = ((1 << 0) |	/* acceleration */
 		  (1 << 1) |	/* pressure */
@@ -55,19 +79,5 @@ void ao_adc_init(void)
 	/* enable interrupts */
 	ADCIF = 0;
 	IEN0 |= IEN0_ADCIE;
-}
-
-void ao_adc_poll(void)
-{
-	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 0;
-}
-
-void ao_adc_get(__xdata struct ao_adc *packet)
-{
-	uint8_t	i = ao_adc_head;
-	if (i == 0)
-		i = ADC_RING;
-	i--;
-	memcpy(packet, &ao_adc_ring[i], sizeof (struct ao_adc));
 }
 

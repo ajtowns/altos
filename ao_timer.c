@@ -17,31 +17,37 @@
 
 #include "ao.h"
 
-volatile __data uint16_t ao_time;
+static volatile __data uint16_t ao_tick_count;
 
-void ao_timer_isr(void) interrupt 9
+uint16_t ao_time(void)
 {
-	++ao_time;
-	ao_adc_poll();
-	ao_wakeup(DATA_TO_XDATA(&ao_time));
+	volatile bit ea_save;
+	__data uint16_t ret;
+	
+	ea_save = EA;
+	ret = ao_tick_count;
+	EA = ea_save;
+	return ret;
 }
 
-uint16_t ao_time_atomic(void)
+void
+ao_delay(uint16_t ticks)
 {
-	uint8_t ret1;
-	uint16_t ret2;
-	
-	for (;;) {
-		ret1 = ao_time >> 8;
-		ret2 = ao_time;
-		if (ret1 == ((__xdata uint8_t *)(&ret2))[1])
-			break;
-	}
-	return ret2;
+	uint16_t until = ao_time() + ticks;
+
+	while ((int16_t) (until - ao_time()) > 0)
+		ao_sleep(DATA_TO_XDATA(&ao_tick_count));
 }
 
 #define T1_CLOCK_DIVISOR	8	/* 24e6/8 = 3e6 */
 #define T1_SAMPLE_TIME		30000	/* 3e6/30000 = 100 */
+
+void ao_timer_isr(void) interrupt 9
+{
+	++ao_tick_count;
+	ao_adc_poll();
+	ao_wakeup(DATA_TO_XDATA(&ao_tick_count));
+}
 
 void
 ao_timer_init(void)
@@ -71,11 +77,3 @@ ao_timer_init(void)
 	T1CTL = T1CTL_MODE_MODULO | T1CTL_DIV_8;
 }
 
-void
-ao_delay(uint16_t ticks)
-{
-	uint16_t until = ao_time_atomic() + ticks;
-
-	while ((int16_t) (until - ao_time_atomic()) > 0)
-		ao_sleep(DATA_TO_XDATA(&ao_time));
-}

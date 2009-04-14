@@ -29,7 +29,7 @@ ao_add_task(__xdata struct ao_task * task, void (*start)(void))
 {
 	uint8_t	__xdata *stack;
 	if (ao_num_tasks == AO_NUM_TASKS)
-		ao_panic(AO_ERROR_NO_TASK);
+		ao_panic(AO_PANIC_NO_TASK);
 	ao_tasks[ao_num_tasks++] = task;
 	/*
 	 * Construct a stack frame so that it will 'return'
@@ -162,7 +162,9 @@ ao_yield(void) _naked
 int
 ao_sleep(__xdata void *wchan)
 {
+	ao_interrupt_disable();
 	ao_cur_task->wchan = wchan;
+	ao_interrupt_enable();
 	ao_yield();
 }
 
