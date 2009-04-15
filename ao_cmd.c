@@ -522,8 +522,6 @@ ao_cmd(void *parameters)
 	uint8_t	c;
 	(void) parameters;
 
-	ao_led_on(AO_LED_GREEN);
-	ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(30));
 	lex_echo = 1;
 	for (;;) {
 		readline();
