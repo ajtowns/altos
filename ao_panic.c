@@ -20,11 +20,12 @@
 static void
 ao_panic_delay(uint8_t n)
 {
-	uint8_t	i = 0;
+	uint8_t	i = 0, j = 0;
 
 	while (n--)
-		while (--i)
-			_asm nop _endasm;
+		while (--j)
+			while (--i)
+				_asm nop _endasm;
 }
 
 void
@@ -32,7 +33,7 @@ ao_panic(uint8_t reason)
 {
 	uint8_t	n;
 	
-	for (;;) {
+	__critical for (;;) {
 		ao_led_on(AO_LED_RED);
 		ao_beep(AO_BEEP_MID);
 		ao_panic_delay(2);
