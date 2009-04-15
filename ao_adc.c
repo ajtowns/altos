@@ -18,7 +18,7 @@
 
 #include "ao.h"
 
-volatile __xdata struct ao_adc	ao_adc_ring[ADC_RING];
+volatile __xdata struct ao_adc	ao_adc_ring[AO_ADC_RING];
 volatile __data uint8_t		ao_adc_head;
 
 void
@@ -38,7 +38,7 @@ ao_adc_get(__xdata struct ao_adc *packet)
 {
 	uint8_t	i = ao_adc_head;
 	if (i == 0)
-		i = ADC_RING;
+		i = AO_ADC_RING;
 	i--;
 	memcpy(packet, &ao_adc_ring[i], sizeof (struct ao_adc));
 }
@@ -60,7 +60,7 @@ ao_adc_isr(void) interrupt 1
 		/* record this conversion series */
 		ao_adc_ring[ao_adc_head].tick = ao_time();
 		ao_adc_head++;
-		if (ao_adc_head == ADC_RING)
+		if (ao_adc_head == AO_ADC_RING)
 			ao_adc_head = 0;
 		ao_wakeup(ao_adc_ring);
 	}

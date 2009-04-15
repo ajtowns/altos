@@ -216,15 +216,15 @@ ao_ee_read_block(void)
 	ao_ee_cs_high();
 }
 	
-void
-ao_ee_flush(void)
+static void
+ao_ee_flush_internal(void)
 {
 	if (ao_ee_block_dirty) {
 		ao_ee_write_block();
 		ao_ee_block_dirty = 0;
 	}
 }
-
+	
 static void
 ao_ee_fill(uint16_t block)
 {
@@ -236,7 +236,7 @@ ao_ee_fill(uint16_t block)
 }
 
 uint8_t
-ao_ee_write(uint32_t pos, uint8_t *buf, uint16_t len)
+ao_ee_write(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
 {
 	uint16_t block;
 	uint16_t this_len;
@@ -262,7 +262,7 @@ ao_ee_write(uint32_t pos, uint8_t *buf, uint16_t len)
 			if (this_len != 256)
 				ao_ee_fill(block);
 			else {
-				ao_ee_flush();
+				ao_ee_flush_internal();
 				ao_ee_block = block;
 			}
 			memcpy(ao_ee_data + this_off, buf, this_len);
@@ -277,7 +277,7 @@ ao_ee_write(uint32_t pos, uint8_t *buf, uint16_t len)
 }
 
 uint8_t
-ao_ee_read(uint32_t pos, uint8_t *buf, uint16_t len)
+ao_ee_read(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
 {
 	uint16_t block;
 	uint16_t this_len;
@@ -311,12 +311,20 @@ ao_ee_read(uint32_t pos, uint8_t *buf, uint16_t len)
 	return 1;
 }
 
+void
+ao_ee_flush(void) __reentrant
+{
+	ao_mutex_get(&ao_ee_mutex); {
+		ao_ee_flush_internal();
+	} ao_mutex_put(&ao_ee_mutex);
+}
+
 /*
  * Read/write the config block, which is in
  * the last block of the ao_eeprom
  */
 uint8_t
-ao_ee_write_config(uint8_t *buf, uint16_t len)
+ao_ee_write_config(uint8_t *buf, uint16_t len) __reentrant
 {
 	if (len > AO_EE_BLOCK_SIZE)
 		return 0;
@@ -329,7 +337,7 @@ ao_ee_write_config(uint8_t *buf, uint16_t len)
 }
 
 uint8_t
-ao_ee_read_config(uint8_t *buf, uint16_t len)
+ao_ee_read_config(uint8_t *buf, uint16_t len) __reentrant
 {
 	if (len > AO_EE_BLOCK_SIZE)
 		return 0;

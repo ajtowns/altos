@@ -29,7 +29,7 @@
 /* Stack runs from above the allocated __data space to 0xfe, which avoids
  * writing to 0xff as that triggers the stack overflow indicator
  */
-#define AO_STACK_START	0x75
+#define AO_STACK_START	0x7f
 #define AO_STACK_END	0xfe
 #define AO_STACK_SIZE	(AO_STACK_END - AO_STACK_START + 1)
 
@@ -78,6 +78,7 @@ ao_start_scheduler(void);
 #define AO_PANIC_DMA		2	/* Attempt to start DMA while active */
 #define AO_PANIC_MUTEX		3	/* Mis-using mutex API */
 #define AO_PANIC_EE		4	/* Mis-using eeprom API */
+#define AO_PANIC_LOG		5	/* Failing to read/write log data */
 
 /* Stop the operating system, beeping and blinking the reason */
 void
@@ -111,7 +112,7 @@ ao_timer_init(void);
  * ao_adc.c
  */
 
-#define ADC_RING	128
+#define AO_ADC_RING	128
 
 /*
  * One set of samples read from the A/D converter
@@ -130,7 +131,7 @@ struct ao_adc {
  * A/D data is stored in a ring, with the next sample to be written
  * at ao_adc_head
  */
-extern volatile __xdata struct ao_adc	ao_adc_ring[ADC_RING];
+extern volatile __xdata struct ao_adc	ao_adc_ring[AO_ADC_RING];
 extern volatile __data uint8_t		ao_adc_head;
 
 /* Trigger a conversion sequence (called from the timer interrupt) */
@@ -325,26 +326,174 @@ ao_mutex_put(__xdata uint8_t *ao_mutex);
 #define AO_EE_CONFIG_BLOCK	((uint16_t) (AO_EE_DATA_SIZE / AO_EE_BLOCK_SIZE))
 
 void
-ao_ee_flush(void);
+ao_ee_flush(void) __reentrant;
 
 /* Write to the eeprom */
 uint8_t
-ao_ee_write(uint32_t pos, uint8_t *buf, uint16_t len);
+ao_ee_write(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant;
 
 /* Read from the eeprom */
 uint8_t
-ao_ee_read(uint32_t pos, uint8_t *buf, uint16_t len);
+ao_ee_read(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant;
 
 /* Write the config block (at the end of the eeprom) */
 uint8_t
-ao_ee_write_config(uint8_t *buf, uint16_t len);
+ao_ee_write_config(uint8_t *buf, uint16_t len) __reentrant;
 
 /* Read the config block (at the end of the eeprom) */
 uint8_t
-ao_ee_read_config(uint8_t *buf, uint16_t len);
+ao_ee_read_config(uint8_t *buf, uint16_t len) __reentrant;
 
 /* Initialize the EEPROM code */
 void
 ao_ee_init(void);
+
+/*
+ * ao_log.c
+ */
+
+/*
+ * The data log is recorded in the eeprom as a sequence
+ * of data packets.
+ *
+ * Each packet starts with a 4-byte header that has the
+ * packet type, the packet checksum and the tick count. Then
+ * they all contain 2 16 bit values which hold packet-specific
+ * data.
+ * 
+ * For each flight, the first packet
+ * is FLIGHT packet, indicating the serial number of the
+ * device and a unique number marking the number of flights
+ * recorded by this device.
+ *
+ * During flight, data from the accelerometer and barometer
+ * are recorded in SENSOR packets, using the raw 16-bit values
+ * read from the A/D converter.
+ *
+ * Also during flight, but at a lower rate, the deployment
+ * sensors are recorded in DEPLOY packets. The goal here is to
+ * detect failure in the deployment circuits.
+ *
+ * STATE packets hold state transitions as the flight computer
+ * transitions through different stages of the flight.
+ */
+#define AO_LOG_FLIGHT		'F'
+#define AO_LOG_SENSOR		'A'
+#define AO_LOG_TEMP_VOLT	'T'
+#define AO_LOG_DEPLOY		'D'
+#define AO_LOG_STATE		'S'
+
+#define AO_LOG_POS_NONE		(~0UL)
+
+struct ao_log_record {
+	uint8_t			type;
+	uint8_t			csum;
+	uint16_t		tick;
+	union {
+		struct {
+			uint16_t	serial;
+			uint16_t	flight;
+		} flight;
+		struct {
+			int16_t		accel;
+			int16_t		pres;
+		} sensor;
+		struct {
+			int16_t		temp;
+			int16_t		v_batt;
+		} temp_volt;
+		struct {
+			int16_t		drogue;
+			int16_t		main;
+		} deploy;
+		struct {
+			uint16_t	state;
+			uint16_t	reason;
+		} state;
+		struct {
+			uint16_t	d0;
+			uint16_t	d1;
+		} anon;
+	} u;
+};
+
+/* Write a record to the eeprom log */
+void
+ao_log_data(struct ao_log_record *log);
+
+/* Flush the log */
+void
+ao_log_flush(void);
+
+/* Log dumping API:
+ * ao_log_dump_first() - get first log record
+ * ao_log_dump_next()  - get next log record
+ */
+extern __xdata struct ao_log_record ao_log_dump;
+
+/* Retrieve first log record for the current flight */
+uint8_t
+ao_log_dump_first(void);
+
+/* return next log record for the current flight */
+uint8_t
+ao_log_dump_next(void);
+
+/* Logging thread main routine */
+void
+ao_log(void);
+
+/* Start logging to eeprom */
+void
+ao_log_start(void);
+
+/* Initialize the logging system */
+void
+ao_log_init(void);
+
+/*
+ * ao_flight.c
+ */
+
+enum ao_flight_state {
+	ao_flight_startup,
+	ao_flight_idle,
+	ao_flight_launchpad,
+	ao_flight_boost,
+	ao_flight_coast,
+	ao_flight_apogee,
+	ao_flight_drogue,
+	ao_flight_main,
+	ao_flight_landed,
+	ao_flight_invalid
+};
+
+extern __xdata struct ao_adc	ao_flight_data;
+extern __data enum flight_state	ao_flight_state;
+extern __data uint16_t			ao_flight_state_tick;
+extern __data int16_t			ao_flight_accel;
+extern __data int16_t			ao_flight_pres;
+extern __data int16_t			ao_ground_pres;
+extern __data int16_t			ao_ground_accel;
+extern __data int16_t			ao_min_pres;
+extern __data uint16_t			ao_launch_time;
+
+/* Flight thread */
+void
+ao_flight(void);
+
+/* Initialize flight thread */
+void
+ao_flight_init(void);
+
+/*
+ * ao_report.c
+ */
+
+void
+ao_report_notify(void);
+
+void
+ao_report_init(void);
 
 #endif /* _AO_H_ */

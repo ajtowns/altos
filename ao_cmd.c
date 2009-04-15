@@ -463,20 +463,18 @@ debug_output(void)
 static void
 dump_log(void)
 {
-#if 0
 	uint8_t	more;
 
-	for (more = log_first(); more; more = log_next()) {
-		putchar(log_dump.type);
+	for (more = ao_log_dump_first(); more; more = ao_log_dump_next()) {
+		putchar(ao_log_dump.type);
 		putchar(' ');
-		put16(log_dump.tick);
+		put16(ao_log_dump.tick);
 		putchar(' ');
-		put16(log_dump.u.anon.d0);
+		put16(ao_log_dump.u.anon.d0);
 		putchar(' ');
-		put16(log_dump.u.anon.d1);
+		put16(ao_log_dump.u.anon.d1);
 		putchar('\n');
 	}
-#endif
 }
 
 static const uint8_t help_txt[] = 

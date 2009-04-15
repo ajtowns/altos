@@ -20,9 +20,12 @@ SRC = \
 	ao_cmd.c \
 	ao_dma.c \
 	ao_ee.c \
+	ao_flight.c \
 	ao_led.c \
+	ao_log.c \
 	ao_mutex.c \
 	ao_panic.c \
+	ao_report.c \
 	ao_task.c \
 	ao_timer.c \
 	ao_usb.c \

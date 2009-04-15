@@ -42,10 +42,16 @@ ao_delay(uint16_t ticks)
 #define T1_CLOCK_DIVISOR	8	/* 24e6/8 = 3e6 */
 #define T1_SAMPLE_TIME		30000	/* 3e6/30000 = 100 */
 
+__data uint8_t	ao_adc_interval = 1;
+__data uint8_t	ao_adc_count;
+
 void ao_timer_isr(void) interrupt 9
 {
 	++ao_tick_count;
-	ao_adc_poll();
+	if (++ao_adc_count >= ao_adc_interval) {
+		ao_adc_count = 0;
+		ao_adc_poll();
+	}
 	ao_wakeup(DATA_TO_XDATA(&ao_tick_count));
 }
 
