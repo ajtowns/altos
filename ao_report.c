@@ -38,10 +38,12 @@ static const char * __xdata flight_reports[] = {
 #endif
 #define pause(time)	ao_delay(time)
 
+static __xdata enum ao_flight_state ao_report_state;
+
 static void
-ao_report_state(void)
+ao_report_beep(void)
 {
-	char *r = flight_reports[ao_flight_state];
+	char *r = flight_reports[ao_report_state];
 	char c;
 
 	if (!r)
@@ -53,22 +55,26 @@ ao_report_state(void)
 			signal(AO_MS_TO_TICKS(600));
 		pause(AO_MS_TO_TICKS(200));
 	}
+	pause(AO_MS_TO_TICKS(400));
 }
-
-static __xdata ao_report_wait;
 
 void
 ao_report_notify(void)
 {
-	ao_wakeup(&ao_report_wait);
+	ao_wakeup(&ao_report_state);
 }
 
 void
 ao_report(void)
 {
+	ao_report_state = ao_flight_state;
 	for(;;) {
-		ao_report_state();
-		ao_sleep(&ao_report_wait);
+		ao_report_beep();
+		__critical {
+			while (ao_report_state == ao_flight_state)
+				ao_sleep(&ao_report_state);
+			ao_report_state = ao_flight_state;
+		}
 	}
 }
 
