@@ -20,15 +20,15 @@
 
 /* Main flight thread. */
 
-__xdata struct ao_adc	ao_flight_data;
-__data enum flight_state	ao_flight_state;
-__data uint16_t			ao_flight_state_tick;
-__data int16_t			ao_flight_accel;
-__data int16_t			ao_flight_pres;
-__data int16_t			ao_ground_pres;
-__data int16_t			ao_ground_accel;
-__data int16_t			ao_min_pres;
-__data uint16_t			ao_launch_time;
+__xdata struct ao_adc		ao_flight_data;		/* last acquired data */
+__data enum flight_state	ao_flight_state;	/* current flight state */
+__data uint16_t			ao_flight_state_tick;	/* time of last data */
+__data int16_t			ao_flight_accel;	/* filtered acceleration */
+__data int16_t			ao_flight_pres;		/* filtered pressure */
+__data int16_t			ao_ground_pres;		/* startup pressure */
+__data int16_t			ao_ground_accel;	/* startup acceleration */
+__data int16_t			ao_min_pres;		/* minimum recorded pressure */
+__data uint16_t			ao_launch_time;		/* time of launch detect */
 
 /* Accelerometer calibration
  *
@@ -111,6 +111,8 @@ ao_flight(void)
 				ao_flight_state_tick = ao_time();
 				ao_report_notify();
 			}
+			/* signal successful initialization by turning off the LED */
+			ao_led_off(AO_LED_RED);
 			break;
 		case ao_flight_launchpad:
 			if (ao_flight_accel < ACCEL_BOOST || 

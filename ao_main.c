@@ -24,12 +24,18 @@ main(void)
 	while (!(SLEEP & SLEEP_XOSC_STB))
 		;
 
+	/* Turn on the red LED until the system is stable */
+	ao_led_init();
+	ao_led_on(AO_LED_RED);
+
 	ao_timer_init();
 	ao_adc_init();
 	ao_beep_init();
-	ao_led_init();
-	ao_usb_init();
-	ao_ee_init();
 	ao_cmd_init();
+	ao_ee_init();
+	ao_flight_init();
+	ao_log_init();
+	ao_report_init();
+	ao_usb_init();
 	ao_start_scheduler();
 }
