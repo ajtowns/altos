@@ -305,10 +305,10 @@ ao_dma_isr(void) interrupt 8;
  */
 
 void
-ao_mutex_get(__xdata uint8_t *ao_mutex);
+ao_mutex_get(__xdata uint8_t *ao_mutex) __reentrant;
 
 void
-ao_mutex_put(__xdata uint8_t *ao_mutex);
+ao_mutex_put(__xdata uint8_t *ao_mutex) __reentrant;
 
 /*
  * ao_ee.c

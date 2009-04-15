@@ -18,7 +18,7 @@
 #include "ao.h"
 
 void
-ao_mutex_get(__xdata uint8_t *mutex)
+ao_mutex_get(__xdata uint8_t *mutex) __reentrant
 {
 	if (*mutex == ao_cur_task->task_id)
 		ao_panic(AO_PANIC_MUTEX);
@@ -30,7 +30,7 @@ ao_mutex_get(__xdata uint8_t *mutex)
 }
 
 void
-ao_mutex_put(__xdata uint8_t *mutex)
+ao_mutex_put(__xdata uint8_t *mutex) __reentrant
 {
 	if (*mutex != ao_cur_task->task_id)
 		ao_panic(AO_PANIC_MUTEX);
