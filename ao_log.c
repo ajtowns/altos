@@ -61,8 +61,8 @@ ao_log_flush(void)
 }
 
 __xdata struct ao_log_record ao_log_dump;
-static __data uint16_t ao_log_dump_flight;
-static __data uint32_t ao_log_dump_pos;
+static __xdata uint16_t ao_log_dump_flight;
+static __xdata uint32_t ao_log_dump_pos;
 
 static uint8_t
 ao_log_dump_check_data(void)
@@ -107,8 +107,8 @@ ao_log_dump_next(void)
 	return ao_log_dump_check_data();
 }
 
-uint8_t	ao_log_adc_pos;
-enum flight_state ao_log_state;
+__xdata uint8_t	ao_log_adc_pos;
+__xdata enum flight_state ao_log_state;
 
 void
 ao_log(void)

@@ -34,8 +34,8 @@ struct ao_task __xdata ao_usb_task;
 
 static __xdata uint16_t	ao_usb_in_bytes;
 static __xdata uint16_t	ao_usb_out_bytes;
-static __data uint8_t	ao_usb_iif;
-static __data uint8_t	ao_usb_oif;
+static __xdata uint8_t	ao_usb_iif;
+static __xdata uint8_t	ao_usb_oif;
 
 /* This interrupt is shared with port 2, 
  * so when we hook that up, fix this
@@ -67,20 +67,20 @@ struct ao_usb_setup {
 	uint16_t	length;
 } __xdata ao_usb_setup;
 
-__data uint8_t ao_usb_ep0_state;
-uint8_t * __data ao_usb_ep0_in_data;
-__data uint8_t ao_usb_ep0_in_len;
+__xdata uint8_t ao_usb_ep0_state;
+uint8_t * __xdata ao_usb_ep0_in_data;
+__xdata uint8_t ao_usb_ep0_in_len;
 __xdata uint8_t	ao_usb_ep0_in_buf[2];
-__data uint8_t ao_usb_ep0_out_len;
+__xdata uint8_t ao_usb_ep0_out_len;
 __xdata uint8_t *__data ao_usb_ep0_out_data;
-__data uint8_t ao_usb_configuration;
+__xdata uint8_t ao_usb_configuration;
 
 /* Send an IN data packet */
 static void
 ao_usb_ep0_flush(void)
 {
-	uint8_t this_len;
-	uint8_t	cs0;
+	__xdata uint8_t this_len;
+	__xdata uint8_t	cs0;
 	
 	USBINDEX = 0;
 	cs0 = USBCS0;
@@ -120,7 +120,7 @@ struct ao_usb_line_coding {
 	uint8_t		data_bits;
 } ;
 
-static struct ao_usb_line_coding ao_usb_line_coding = {115200, 0, 0, 8};
+__xdata static struct ao_usb_line_coding ao_usb_line_coding = {115200, 0, 0, 8};
 
 /* USB descriptors in one giant block of bytes */
 static const uint8_t ao_usb_descriptors [] = 
@@ -252,9 +252,9 @@ static const uint8_t ao_usb_descriptors [] =
 static void
 ao_usb_get_descriptor(uint16_t value)
 {
-	const uint8_t	*descriptor;
-	uint8_t		type = value >> 8;
-	uint8_t		index = value;
+	const uint8_t		*__xdata descriptor;
+	__xdata uint8_t		type = value >> 8;
+	__xdata uint8_t		index = value;
 
 	descriptor = ao_usb_descriptors;
 	while (descriptor[0] != 0) {
@@ -275,7 +275,7 @@ ao_usb_get_descriptor(uint16_t value)
 static void
 ao_usb_ep0_fill(void)
 {
-	uint8_t	len;
+	__xdata uint8_t	len;
 	
 	USBINDEX = 0;
 	len = USBCNT0;
@@ -417,7 +417,7 @@ ao_usb_ep0_setup(void)
 static void
 ao_usb_ep0(void)
 {
-	uint8_t	cs0;
+	__xdata uint8_t	cs0;
 
 	ao_usb_ep0_state = AO_USB_EP0_IDLE;
 	for (;;) {
@@ -493,7 +493,7 @@ ao_usb_putchar(uint8_t c) __critical
 uint8_t
 ao_usb_getchar(void) __critical
 {
-	uint8_t	c;
+	__xdata uint8_t	c;
 	while (ao_usb_out_bytes == 0) {
 		for (;;) {
 			USBINDEX = AO_USB_OUT_EP;

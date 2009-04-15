@@ -22,16 +22,16 @@
 #define SYNTAX_ERROR	2
 #define SUCCESS		0
 
-static __data uint16_t lex_i;
-static __data uint8_t	lex_c;
-static __data uint8_t	lex_status;
-static __data uint8_t	lex_echo;
+static __xdata uint16_t lex_i;
+static __xdata uint8_t	lex_c;
+static __xdata uint8_t	lex_status;
+static __xdata uint8_t	lex_echo;
 
 #define CMD_LEN	32
 
 static __xdata uint8_t	cmd_line[CMD_LEN];
-static __data uint8_t	cmd_len;
-static __data uint8_t	cmd_i;
+static __xdata uint8_t	cmd_len;
+static __xdata uint8_t	cmd_i;
 
 void
 putchar(char c)
@@ -56,7 +56,7 @@ getchar(void)
 static void
 put_string(char *s)
 {
-	uint8_t	c;
+	__xdata uint8_t	c;
 	while (c = *s++)
 		putchar(c);
 }
@@ -64,7 +64,7 @@ put_string(char *s)
 static void
 readline(void)
 {
-	static uint8_t c;
+	__xdata uint8_t c;
 	if (lex_echo)
 		put_string("> ");
 	cmd_len = 0;
@@ -153,8 +153,8 @@ void
 puti(int i)
 {
 	static uint8_t __xdata	num_buffer[NUM_LEN];
-	uint8_t __xdata *num_ptr = num_buffer + NUM_LEN;
-	uint8_t neg = 0;
+	uint8_t __xdata * __xdata num_ptr = num_buffer + NUM_LEN;
+	uint8_t __xdata neg = 0;
 	
 	*--num_ptr = '\0';
 	if (i < 0) {
@@ -183,7 +183,7 @@ white(void)
 static void
 hex(void)
 {
-	uint8_t	r = LEX_ERROR;
+	__xdata uint8_t	r = LEX_ERROR;
 	
 	lex_i = 0;
 	white();
@@ -207,7 +207,7 @@ hex(void)
 static void
 decimal(void)
 {
-	uint8_t	r = LEX_ERROR;
+	__xdata uint8_t	r = LEX_ERROR;
 	
 	lex_i = 0;
 	white();
@@ -256,8 +256,8 @@ adc_dump(void)
 static void
 dump(void)
 {
-	uint16_t c;
-	uint8_t __xdata *start, *end;
+	__xdata uint16_t c;
+	__xdata uint8_t * __xdata start, * __xdata end;
 
 	hex();
 	start = (uint8_t __xdata *) lex_i;
@@ -283,9 +283,9 @@ dump(void)
 static void
 ee_dump(void)
 {
-	uint8_t	b;
-	uint16_t block;
-	uint8_t i;
+	__xdata uint8_t	b;
+	__xdata uint16_t block;
+	__xdata uint8_t i;
 	
 	hex();
 	block = lex_i;
@@ -309,11 +309,11 @@ ee_dump(void)
 static void
 ee_store(void)
 {
-	uint16_t block;
-	uint8_t i;
-	uint16_t len;
-	uint8_t b;
-	uint32_t addr;
+	__xdata uint16_t block;
+	__xdata uint8_t i;
+	__xdata uint16_t len;
+	__xdata uint8_t b;
+	__xdata uint32_t addr;
 
 	hex();
 	block = lex_i;
@@ -372,9 +372,9 @@ debug_put(void)
 static void
 debug_get(void)
 {
-	uint16_t count;
-	uint16_t i;
-	uint8_t byte;
+	__xdata uint16_t count;
+	__xdata uint16_t i;
+	__xdata uint8_t byte;
 	hex();
 	if (lex_status != SUCCESS)
 		return;
@@ -396,7 +396,7 @@ debug_get(void)
 static uint8_t
 getnibble(void)
 {
-	uint8_t	c;
+	__xdata uint8_t	c;
 
 	c = getchar();
 	if ('0' <= c && c <= '9')
@@ -412,10 +412,10 @@ getnibble(void)
 static void
 debug_input(void)
 {
-	uint16_t count;
-	uint16_t addr;
-	uint8_t b;
-	uint8_t	i;
+	__xdata uint16_t count;
+	__xdata uint16_t addr;
+	__xdata uint8_t b;
+	__xdata uint8_t	i;
 
 	hex();
 	count = lex_i;
@@ -438,9 +438,9 @@ debug_input(void)
 static void
 debug_output(void)
 {
-	uint16_t count;
-	uint16_t addr;
-	uint8_t b;
+	__xdata uint16_t count;
+	__xdata uint16_t addr;
+	__xdata uint8_t b;
 
 	hex();
 	count = lex_i;
@@ -463,7 +463,7 @@ debug_output(void)
 static void
 dump_log(void)
 {
-	uint8_t	more;
+	__xdata uint8_t	more;
 
 	for (more = ao_log_dump_first(); more; more = ao_log_dump_next()) {
 		putchar(ao_log_dump.type);
@@ -519,7 +519,7 @@ report(void)
 void
 ao_cmd(void *parameters)
 {
-	uint8_t	c;
+	__xdata uint8_t	c;
 	(void) parameters;
 
 	lex_echo = 1;
@@ -583,10 +583,10 @@ ao_cmd(void *parameters)
 		
 }
 
-struct ao_task __xdata cmd_task;
+__xdata struct ao_task ao_cmd_task;
 
 void
 ao_cmd_init(void)
 {
-	ao_add_task(&cmd_task, ao_cmd);
+	ao_add_task(&ao_cmd_task, ao_cmd);
 }
