@@ -229,7 +229,7 @@ static void
 ao_ee_fill(uint16_t block)
 {
 	if (block != ao_ee_block) {
-		ao_ee_flush();
+		ao_ee_flush_internal();
 		ao_ee_block = block;
 		ao_ee_read_block();
 	}
