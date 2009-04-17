@@ -31,8 +31,10 @@ main (int argc, char **argv)
 	uint8_t		*b;
 	int		i, j;
 	uint32_t	addr;
+	char		*tty;
 
-	cc = cc_usb_open();
+	tty = getenv("CCDBG_TTY");
+	cc = cc_usb_open(tty);
 	for (block = 0; block < NUM_BLOCK; block++) {
 		cc_queue_read(cc, bytes, sizeof (bytes));
 		cc_usb_printf(cc, "e %x\n", block);
