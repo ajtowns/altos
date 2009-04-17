@@ -419,7 +419,7 @@ low() {
 #define DRATE_E		10
 #define DRATE_M		163
 
-#define PACKET_LEN	128
+#define PACKET_LEN	255
 
 /* This are from the table for 433MHz */
 
@@ -528,19 +528,17 @@ main ()
 	/* Set P2_0 to output */
 	radio_init ();
 	delay(100);
-	RFST = RFST_SIDLE;
-	delay(100);
-	RFST = RFST_STX;
-	delay(100);
-	for (;;);
-#if 0
+
 	for (;;) {
 		uint8_t	i;
-		for (i = 0; i < PACKET_LEN; i++) {
+		RFST = RFST_SIDLE;
+		delay(100);
+		RFST = RFST_STX;
+		for (i = 0; i < PACKET_LEN - 1; i++) {
 			while (!RFTXRXIF);
 			RFTXRXIF = 0;
 			RFD = 0x55;
 		}
+		delay(100);
 	}
-#endif
 }
