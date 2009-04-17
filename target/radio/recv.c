@@ -53,8 +53,10 @@ main ()
 				break;
 
 		/* get excited if the packet came through correctly */
-		if (i == PACKET_LEN) {
-			for (i = 0; i < 3; i++){
+		if (i == PACKET_LEN &&
+		    packet[PACKET_LEN+1] & PKT_APPEND_STATUS_1_CRC_OK)
+		{
+			for (i = 0; i < 5; i++){
 				P1 = 2;
 				delay(100);
 				P1 = 0;
