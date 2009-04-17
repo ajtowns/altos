@@ -109,6 +109,13 @@ __xdata __at (0xdf03) uint8_t RF_PKTCTRL1;
 #define PKTCTRL1_ADR_CHK_00_BROADCAST		(2 << 0)
 #define PKTCTRL1_ADR_CHK_00_FF_BROADCAST	(3 << 0)
 
+/* If APPEND_STATUS is used, two bytes will be added to the packet data */
+#define PKT_APPEND_STATUS_0_RSSI_MASK		(0xff)
+#define PKT_APPEND_STATUS_0_RSSI_SHIFT		0
+#define PKT_APPEND_STATUS_1_CRC_OK		(1 << 7)
+#define PKT_APPEND_STATUS_1_LQI_MASK		(0x7f)
+#define PKT_APPEND_STATUS_1_LQI_SHIFT		0
+
 __xdata __at (0xdf04) uint8_t RF_PKTCTRL0;
 #define RF_PKTCTRL0_OFF	0x04
 #define RF_PKTCTRL0_WHITE_DATA			(1 << 6)
