@@ -317,13 +317,11 @@ cc_usb_reset(struct cc_usb *cc)
 static struct termios	save_termios;
 
 struct cc_usb *
-cc_usb_open(void)
+cc_usb_open(char *tty)
 {
 	struct cc_usb	*cc;
-	char		*tty;
 	struct termios	termios;
 	
-	tty = getenv("CCDBG_TTY");
 	if (!tty)
 		tty = DEFAULT_TTY;
 	cc = calloc (sizeof (struct cc_usb), 1);

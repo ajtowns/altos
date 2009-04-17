@@ -21,18 +21,20 @@
 #include "cc-usb.h"
 #include "cc-bitbang.h"
 
-
 struct ccdbg *
 ccdbg_open(void)
 {
 	struct ccdbg *dbg;
+	char *tty;
 
 	dbg = calloc(sizeof (struct ccdbg), 1);
 	if (!dbg) {
 		perror("calloc");
 		return NULL;
 	}
-	dbg->usb = cc_usb_open();
+	tty = getenv("CCDBG_TTY");
+	if (!tty || tty[0] == '/')
+		dbg->usb = cc_usb_open(tty);
 	if (!dbg->usb) {
 		dbg->bb = cc_bitbang_open();
 		if (!dbg->bb) {

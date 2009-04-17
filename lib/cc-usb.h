@@ -24,7 +24,7 @@
 struct cc_usb;
 
 struct cc_usb *
-cc_usb_open(void);
+cc_usb_open(char *tty);
 
 void
 cc_usb_close(struct cc_usb *cc);
