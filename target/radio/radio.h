@@ -20,6 +20,15 @@
 
 sfr at 0x80 P0;
 sfr at 0x90 P1;
+sbit at 0x90 P1_0;
+sbit at 0x91 P1_1;
+sbit at 0x92 P1_2;
+sbit at 0x93 P1_3;
+sbit at 0x94 P1_4;
+sbit at 0x95 P1_5;
+sbit at 0x96 P1_6;
+sbit at 0x97 P1_7;
+
 sfr at 0xA0 P2;
 sfr at 0xC6 CLKCON;
 
@@ -42,6 +51,15 @@ sfr at 0x8B P2IFG;
 
 sfr at 0xD9 RFD;
 sfr at 0xE9 RFIF;
+#define RFIF_IM_TXUNF	(1 << 7)
+#define RFIF_IM_RXOVF	(1 << 6)
+#define RFIF_IM_TIMEOUT	(1 << 5)
+#define RFIF_IM_DONE	(1 << 4)
+#define RFIF_IM_CS	(1 << 3)
+#define RFIF_IM_PQT	(1 << 2)
+#define RFIF_IM_CCA	(1 << 1)
+#define RFIF_IM_SFD	(1 << 0)
+
 sfr at 0xE1 RFST;
 
 sfr at 0x88 TCON;
@@ -83,9 +101,22 @@ __xdata __at (0xdf02) uint8_t RF_PKTLEN;
 
 __xdata __at (0xdf03) uint8_t RF_PKTCTRL1;
 #define RF_PKTCTRL1_OFF	0x03
+#define PKTCTRL1_PQT_MASK			(0x7 << 5)
+#define PKTCTRL1_PQT_SHIFT			5
+#define PKTCTRL1_APPEND_STATUS			(1 << 2)
+#define PKTCTRL1_ADR_CHK_NONE			(0 << 0)
+#define PKTCTRL1_ADR_CHK_NO_BROADCAST		(1 << 0)
+#define PKTCTRL1_ADR_CHK_00_BROADCAST		(2 << 0)
+#define PKTCTRL1_ADR_CHK_00_FF_BROADCAST	(3 << 0)
 
 __xdata __at (0xdf04) uint8_t RF_PKTCTRL0;
 #define RF_PKTCTRL0_OFF	0x04
+#define RF_PKTCTRL0_WHITE_DATA			(1 << 6)
+#define RF_PKTCTRL0_PKT_FORMAT_NORMAL		(0 << 4)
+#define RF_PKTCTRL0_PKT_FORMAT_RANDOM		(2 << 4)
+#define RF_PKTCTRL0_CRC_EN			(1 << 2)
+#define RF_PKTCTRL0_LENGTH_CONFIG_FIXED		(0 << 0)
+#define RF_PKTCTRL0_LENGTH_CONFIG_VARIABLE	(1 << 0)
 
 __xdata __at (0xdf05) uint8_t RF_ADDR;
 #define RF_ADDR_OFF	0x05
@@ -128,6 +159,7 @@ __xdata __at (0xdf0e) uint8_t RF_MDMCFG2;
 #define RF_MDMCFG2_OFF	0x0e
 
 #define RF_MDMCFG2_DEM_DCFILT_OFF	(1 << 7)
+#define RF_MDMCFG2_DEM_DCFILT_ON	(0 << 7)
 
 #define RF_MDMCFG2_MOD_FORMAT_MASK	(7 << 4)
 #define RF_MDMCFG2_MOD_FORMAT_2_FSK	(0 << 4)
@@ -151,6 +183,7 @@ __xdata __at (0xdf0f) uint8_t RF_MDMCFG1;
 #define RF_MDMCFG1_OFF	0x0f
 
 #define RF_MDMCFG1_FEC_EN			(1 << 7)
+#define RF_MDMCFG1_FEC_DIS			(0 << 7)
 
 #define RF_MDMCFG1_NUM_PREAMBLE_MASK		(7 << 4)
 #define RF_MDMCFG1_NUM_PREAMBLE_2		(0 << 4)
@@ -178,18 +211,72 @@ __xdata __at (0xdf11) uint8_t RF_DEVIATN;
 
 __xdata __at (0xdf12) uint8_t RF_MCSM2;
 #define RF_MCSM2_OFF	0x12
+#define RF_MCSM2_RX_TIME_RSSI			(1 << 4)
+#define RF_MCSM2_RX_TIME_QUAL			(1 << 3)
+#define RF_MCSM2_RX_TIME_MASK			(0x7)
+#define RF_MCSM2_RX_TIME_SHIFT			0
+#define RF_MCSM2_RX_TIME_END_OF_PACKET		(7)
 
 __xdata __at (0xdf13) uint8_t RF_MCSM1;
 #define RF_MCSM1_OFF	0x13
+#define RF_MCSM1_CCA_MODE_ALWAYS			(0 << 4)
+#define RF_MCSM1_CCA_MODE_RSSI_BELOW			(1 << 4)
+#define RF_MCSM1_CCA_MODE_UNLESS_RECEIVING		(2 << 4)
+#define RF_MCSM1_CCA_MODE_RSSI_BELOW_UNLESS_RECEIVING	(3 << 4)
+#define RF_MCSM1_RXOFF_MODE_IDLE			(0 << 2)
+#define RF_MCSM1_RXOFF_MODE_FSTXON			(1 << 2)
+#define RF_MCSM1_RXOFF_MODE_TX				(2 << 2)
+#define RF_MCSM1_RXOFF_MODE_RX				(3 << 2)
+#define RF_MCSM1_TXOFF_MODE_IDLE			(0 << 0)
+#define RF_MCSM1_TXOFF_MODE_FSTXON			(1 << 0)
+#define RF_MCSM1_TXOFF_MODE_TX				(2 << 0)
+#define RF_MCSM1_TXOFF_MODE_RX				(3 << 0)
 
 __xdata __at (0xdf14) uint8_t RF_MCSM0;
 #define RF_MCSM0_OFF	0x14
+#define RF_MCSM0_FS_AUTOCAL_NEVER		(0 << 4)
+#define RF_MCSM0_FS_AUTOCAL_FROM_IDLE		(1 << 4)
+#define RF_MCSM0_FS_AUTOCAL_TO_IDLE		(2 << 4)
+#define RF_MCSM0_FS_AUTOCAL_TO_IDLE_EVERY_4	(3 << 4)
+#define RF_MCSM0_MAGIC_3			(1 << 3)
+#define RF_MCSM0_MAGIC_2			(1 << 2)
+#define RF_MCSM0_CLOSE_IN_RX_0DB		(0 << 0)
+#define RF_MCSM0_CLOSE_IN_RX_6DB		(1 << 0)
+#define RF_MCSM0_CLOSE_IN_RX_12DB		(2 << 0)
+#define RF_MCSM0_CLOSE_IN_RX_18DB		(3 << 0)
 
 __xdata __at (0xdf15) uint8_t RF_FOCCFG;
 #define RF_FOCCFG_OFF	0x15
+#define RF_FOCCFG_FOC_BS_CS_GATE		(1 << 5)
+#define RF_FOCCFG_FOC_PRE_K_1K			(0 << 3)
+#define RF_FOCCFG_FOC_PRE_K_2K			(1 << 3)
+#define RF_FOCCFG_FOC_PRE_K_3K			(2 << 3)
+#define RF_FOCCFG_FOC_PRE_K_4K			(3 << 3)
+#define RF_FOCCFG_FOC_POST_K_PRE_K		(0 << 2)
+#define RF_FOCCFG_FOC_POST_K_PRE_K_OVER_2	(1 << 2)
+#define RF_FOCCFG_FOC_LIMIT_0			(0 << 0)
+#define RF_FOCCFG_FOC_LIMIT_BW_OVER_8		(1 << 0)
+#define RF_FOCCFG_FOC_LIMIT_BW_OVER_4		(2 << 0)
+#define RF_FOCCFG_FOC_LIMIT_BW_OVER_2		(3 << 0)
 
 __xdata __at (0xdf16) uint8_t RF_BSCFG;
 #define RF_BSCFG_OFF	0x16
+#define RF_BSCFG_BS_PRE_K_1K			(0 << 6)
+#define RF_BSCFG_BS_PRE_K_2K			(1 << 6)
+#define RF_BSCFG_BS_PRE_K_3K			(2 << 6)
+#define RF_BSCFG_BS_PRE_K_4K			(3 << 6)
+#define RF_BSCFG_BS_PRE_KP_1KP			(0 << 4)
+#define RF_BSCFG_BS_PRE_KP_2KP			(1 << 4)
+#define RF_BSCFG_BS_PRE_KP_3KP			(2 << 4)
+#define RF_BSCFG_BS_PRE_KP_4KP			(3 << 4)
+#define RF_BSCFG_BS_POST_KI_PRE_KI		(0 << 3)
+#define RF_BSCFG_BS_POST_KI_PRE_KI_OVER_2	(1 << 3)
+#define RF_BSCFG_BS_POST_KP_PRE_KP		(0 << 2)
+#define RF_BSCFG_BS_POST_KP_PRE_KP_OVER_2	(1 << 2)
+#define RF_BSCFG_BS_LIMIT_0			(0 << 0)
+#define RF_BSCFG_BS_LIMIT_3_125			(1 << 0)
+#define RF_BSCFG_BS_LIMIT_6_25			(2 << 0)
+#define RF_BSCFG_BS_LIMIT_12_5			(3 << 0)
 
 __xdata __at (0xdf17) uint8_t RF_AGCCTRL2;
 #define RF_AGCCTRL2_OFF	0x17
@@ -332,213 +419,10 @@ __xdata __at (0xdf3c) uint8_t RF_PKTSTATUS;
 __xdata __at (0xdf3d) uint8_t RF_VCO_VC_DAC;
 #define RF_VCO_VC_DAC_OFF	0x3d
 
-#define nop()	_asm nop _endasm;
+#define PACKET_LEN	128
 
 void
-delay (unsigned char n)
-{
-	unsigned char i = 0;
-
-	n <<= 1;
-	while (--n != 0)
-		while (--i != 0)
-			nop();
-}
+radio_init(void);
 
 void
-tone (unsigned char n, unsigned char m)
-{
-	unsigned char	i = 0;
-	while (--m != 0) {
-		i = 128;
-		while (--i != 0) {
-			P2 = 0xff;
-			delay(n);
-			P2 = 0xfe;
-			delay(n);
-		}
-	}
-}
-
-void
-high() {
-	tone(1, 2);
-}
-
-void
-low() {
-	tone(2, 1);
-}
-
-/* Values from SmartRF® Studio for:
- *
- * Deviation:	20.507812 kHz
- * Datarate:	38.360596 kBaud
- * Modulation:	GFSK
- * RF Freq:	434.549927 MHz
- * Channel:	99.975586 kHz
- * Channel:	0
- * RX filter:	93.75 kHz
- */
-
-/*
- * For 434.550MHz, the frequency value is:
- *
- * 434.550e6 / (24e6 / 2**16) = 1186611.2
- */
-
-#define FREQ_CONTROL	1186611
-
-/*
- * For IF freq of 140.62kHz, the IF value is:
- *
- * 140.62e3 / (24e6 / 2**10) = 6
- */
-
-#define IF_FREQ_CONTROL	6
-
-/*
- * For channel bandwidth of 93.75 kHz, the CHANBW_E and CHANBW_M values are
- *
- * BW = 24e6 / (8 * (4 + M) * 2 ** E)
- *
- * So, M = 0 and E = 3
- */
-
-#define CHANBW_M	0
-#define CHANBW_E	3
-
-/*
- * For a symbol rate of 38360kBaud, the DRATE_E and DRATE_M values are:
- *
- * R = (256 + M) * 2** E * 24e6 / 2**28
- *
- * So M is 163 and E is 10
- */
-
-#define DRATE_E		10
-#define DRATE_M		163
-
-#define PACKET_LEN	255
-
-/* This are from the table for 433MHz */
-
-#define RF_POWER_M30_DBM	0x12
-#define RF_POWER_M20_DBM	0x0e
-#define RF_POWER_M15_DBM	0x1d
-#define RF_POWER_M10_DBM	0x34
-#define RF_POWER_M5_DBM		0x2c
-#define RF_POWER_0_DBM		0x60
-#define RF_POWER_5_DBM		0x84
-#define RF_POWER_7_DBM		0xc8
-#define RF_POWER_10_DBM		0xc0
-
-#define RF_POWER		RF_POWER_0_DBM
-
-static __code uint8_t radio_setup[] = {
-	RF_PA_TABLE7_OFF,	RF_POWER,
-	RF_PA_TABLE6_OFF,	RF_POWER,
-	RF_PA_TABLE5_OFF,	RF_POWER,
-	RF_PA_TABLE4_OFF,	RF_POWER,
-	RF_PA_TABLE3_OFF,	RF_POWER,
-	RF_PA_TABLE2_OFF,	RF_POWER,
-	RF_PA_TABLE1_OFF,	RF_POWER,
-	RF_PA_TABLE0_OFF,	RF_POWER,
-
-	RF_FREQ2_OFF,		FREQ_CONTROL >> 16,
-	RF_FREQ1_OFF,		FREQ_CONTROL >> 8,
-	RF_FREQ0_OFF,		FREQ_CONTROL >> 0,
-	
-	RF_FSCTRL1_OFF,		(IF_FREQ_CONTROL << RF_FSCTRL1_FREQ_IF_SHIFT),
-	RF_FSCTRL0_OFF,		(0 << RF_FSCTRL0_FREQOFF_SHIFT),
-
-	RF_MDMCFG4_OFF,		((CHANBW_E << RF_MDMCFG4_CHANBW_E_SHIFT) |
-				 (CHANBW_M << RF_MDMCFG4_CHANBW_M_SHIFT) |
-				 (DRATE_E << RF_MDMCFG4_DRATE_E_SHIFT)),
-	RF_MDMCFG3_OFF,		(DRATE_M << RF_MDMCFG3_DRATE_M_SHIFT),
-	RF_MDMCFG2_OFF,		(RF_MDMCFG2_DEM_DCFILT_OFF |
-				 RF_MDMCFG2_MOD_FORMAT_GFSK |
-				 RF_MDMCFG2_SYNC_MODE_NONE),
-	RF_MDMCFG1_OFF,		(RF_MDMCFG1_NUM_PREAMBLE_4 |
-				 (2 << RF_MDMCFG1_CHANSPC_E_SHIFT)),
-	RF_MDMCFG0_OFF,		(17 << RF_MDMCFG0_CHANSPC_M_SHIFT),
-
-	RF_CHANNR_OFF,		0,
-
-	RF_DEVIATN_OFF,		((3 << RF_DEVIATN_DEVIATION_E_SHIFT) |
-				 (6 << RF_DEVIATN_DEVIATION_M_SHIFT)),
-
-	/* SmartRF says set LODIV_BUF_CURRENT_TX to 0
-	 * And, we're not using power ramping, so use PA_POWER 0
-	 */
-	RF_FREND0_OFF,		((1 << RF_FREND0_LODIV_BUF_CURRENT_TX_SHIFT) |
-				 (0 << RF_FREND0_PA_POWER_SHIFT)),
-
-	RF_FREND1_OFF,		((1 << RF_FREND1_LNA_CURRENT_SHIFT) |
-				 (1 << RF_FREND1_LNA2MIX_CURRENT_SHIFT) |
-				 (1 << RF_FREND1_LODIV_BUF_CURRENT_RX_SHIFT) |
-				 (2 << RF_FREND1_MIX_CURRENT_SHIFT)),
-	RF_MCSM0_OFF,		0x18,
-	RF_FOCCFG_OFF,		0x16,
-	RF_BSCFG_OFF,		0x6C,
-
-	RF_AGCCTRL2_OFF,	0x43,
-	RF_AGCCTRL1_OFF,	0x40,
-	RF_AGCCTRL0_OFF,	0x91,
-
-	RF_FSCAL3_OFF,		0xE9,
-	RF_FSCAL2_OFF,		0x0A,
-	RF_FSCAL1_OFF,		0x00,
-	RF_FSCAL0_OFF,		0x1F,
-
-	RF_TEST2_OFF,		0x88,
-	RF_TEST1_OFF,		0x31,
-	RF_TEST0_OFF,		0x09,
-
-	/* default sync values */
-	RF_SYNC1_OFF,		0xD3,
-	RF_SYNC0_OFF,		0x91,
-	
-	/* max packet length */
-	RF_PKTLEN_OFF,		PACKET_LEN,
-
-	RF_PKTCTRL1_OFF,	0x04,
-	RF_PKTCTRL0_OFF,	0x00,
-	RF_ADDR_OFF,		0x00,
-	RF_MCSM2_OFF,		0x07,
-	RF_MCSM1_OFF,		0x30,
-	
-	RF_IOCFG2_OFF,		0x00,
-	RF_IOCFG1_OFF,		0x00,
-	RF_IOCFG0_OFF,		0x00,
-};
-
-void
-radio_init() {
-	uint8_t	i;
-	for (i = 0; i < sizeof (radio_setup); i += 2)
-		RF[radio_setup[i]] = radio_setup[i+1];
-}
-
-main ()
-{
-	CLKCON = 0;
-	while (!(SLEEP & SLEEP_XOSC_STB))
-		;
-	/* Set P2_0 to output */
-	radio_init ();
-	delay(100);
-
-	for (;;) {
-		uint8_t	i;
-		RFST = RFST_SIDLE;
-		delay(100);
-		RFST = RFST_STX;
-		for (i = 0; i < PACKET_LEN - 1; i++) {
-			while (!RFTXRXIF);
-			RFTXRXIF = 0;
-			RFD = 0x55;
-		}
-		delay(100);
-	}
-}
+delay (unsigned char n);

@@ -12,7 +12,7 @@ LDFLAGS_RAM=$(LDFLAGS) --code-loc 0xf000 --xram-loc 0xf400 --xram-size 1024
 
 LDFLAGS_FLASH=$(LDFLAGS) --code-loc 0x0000 --xram-loc 0xf000 --xram-size 1024
 
-SRC=radio.c
+SRC=xmit.c recv.c init.c
 ADB=$(SRC:.c=.adb)
 ASM=$(SRC:.c=.asm)
 LNK=$(SRC:.c=.lnk)
@@ -21,7 +21,7 @@ REL=$(SRC:.c=.rel)
 RST=$(SRC:.c=.rst)
 SYM=$(SRC:.c=.sym)
 
-PROGS=radio-flash.ihx radio-ram.ihx
+PROGS=xmit-flash.ihx xmit-ram.ihx recv-flash.ihx recv-ram.ihx
 PCDB=$(PROGS:.ihx=.cdb)
 PLNK=$(PROGS:.ihx=.lnk)
 PMAP=$(PROGS:.ihx=.map)
@@ -33,11 +33,17 @@ PAOM=$(PROGS:.ihx=)
 
 all: $(PROGS)
 
-radio-ram.ihx: $(REL) Makefile
-	$(CC) $(LDFLAGS_RAM) $(CFLAGS) -o radio-ram.ihx $(REL)
-	$(CC) $(LDFLAGS_FLASH) $(CFLAGS) -o radio-flash.ihx $(REL)
+xmit-ram.ihx: xmit.rel init.rel Makefile
+	$(CC) $(LDFLAGS_RAM) $(CFLAGS) -o xmit-ram.ihx xmit.rel init.rel
+	$(CC) $(LDFLAGS_FLASH) $(CFLAGS) -o xmit-flash.ihx xmit.rel init.rel
 
-radio-flash.ihx: radio-ram.ihx
+xmit-flash.ihx: xmit-ram.ihx
+
+recv-ram.ihx: recv.rel init.rel Makefile
+	$(CC) $(LDFLAGS_RAM) $(CFLAGS) -o recv-ram.ihx recv.rel init.rel
+	$(CC) $(LDFLAGS_FLASH) $(CFLAGS) -o recv-flash.ihx recv.rel init.rel
+
+recv-flash.ihx: recv-ram.ihx
 
 clean:
 	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
