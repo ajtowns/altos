@@ -17,27 +17,31 @@
 
 #include "ao.h"
 
-void
-main(void)
+static const int16_t altitude_table[2048] = {
+#include "altitude.h"
+};
+
+int16_t
+ao_pres_to_altitude(int16_t pres) __reentrant
 {
-	CLKCON = 0;
-	while (!(SLEEP & SLEEP_XOSC_STB))
-		;
-
-	/* Turn on the red LED until the system is stable */
-	ao_led_init();
-	ao_led_on(AO_LED_RED);
-
-	ao_timer_init();
-	ao_adc_init();
-	ao_beep_init();
-	ao_cmd_init();
-	ao_ee_init();
-	ao_flight_init();
-	ao_log_init();
-	ao_report_init();
-	ao_usb_init();
-	ao_serial_init();
-	ao_gps_init();
-	ao_start_scheduler();
+	pres = pres >> 4;
+	if (pres < 0) pres = 0;
+	if (pres > 2047) pres = 2047;
+	return altitude_table[pres];
 }
+
+static __xdata uint8_t	ao_temp_mutex;
+
+int16_t
+ao_temp_to_dC(int16_t temp) __reentrant
+{
+	int16_t	ret;
+
+	ao_mutex_get(&ao_temp_mutex);
+	ret = (int16_t) ((temp >> 4) * 3300L / 2047L) - 500;
+	ao_mutex_put(&ao_temp_mutex);
+	return ret;
+}
+
+int16_t
+ao_accel_to_cm_per_s2(int16_t accel) __reentrant;

@@ -21,12 +21,10 @@ static volatile __data uint16_t ao_tick_count;
 
 uint16_t ao_time(void)
 {
-	volatile bit ea_save;
 	__data uint16_t ret;
-	
-	ea_save = EA;
-	ret = ao_tick_count;
-	EA = ea_save;
+	__critical {
+		ret = ao_tick_count;
+	}
 	return ret;
 }
 

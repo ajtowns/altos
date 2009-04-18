@@ -4,7 +4,7 @@ NO_OPT=--nogcse --noinvariant --noinduction --nojtbound --noloopreverse \
 	--nolabelopt --nooverlay --peep-asm
 DEBUG=--debug
 
-CFLAGS=--model-small $(DEBUG) --less-pedantic
+CFLAGS=--model-small $(DEBUG) --less-pedantic --opt-code-speed
 
 LDFLAGS=--out-fmt-ihx
 LDFLAGS_FLASH=$(LDFLAGS) --code-loc 0x0000 --code-size 0x8000 \
@@ -12,20 +12,25 @@ LDFLAGS_FLASH=$(LDFLAGS) --code-loc 0x0000 --code-size 0x8000 \
 
 INC = \
 	ao.h \
-	cc1111.h
+	cc1111.h \
+	altitude.h
 
 SRC = \
 	ao_adc.c \
 	ao_beep.c \
 	ao_cmd.c \
+	ao_convert.c \
+	ao_dbg.c \
 	ao_dma.c \
 	ao_ee.c \
 	ao_flight.c \
+	ao_gps.c \
 	ao_led.c \
 	ao_log.c \
 	ao_mutex.c \
 	ao_panic.c \
 	ao_report.c \
+	ao_serial.c \
 	ao_task.c \
 	ao_timer.c \
 	ao_usb.c \
@@ -55,6 +60,9 @@ all: $(PROGS)
 $(PROG).ihx: $(REL) Makefile
 	$(CC) $(LDFLAGS_FLASH) $(CFLAGS) -o $(PROG).ihx $(REL)
 	sh check-stack ao.h $(PROG).mem
+
+altitude.h: make-altitude
+	nickle make-altitude > altitude.h
 
 clean:
 	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)

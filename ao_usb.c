@@ -241,7 +241,7 @@ static const uint8_t ao_usb_descriptors [] =
 	/* iSerial */
 	0x0e,
 	AO_USB_DESC_STRING,
-	't', 0, 'e', 0, 'l', 0, 'e', 0, '-', 0, '0', 0, 
+	'0', 0, '0', 0, '0', 0, '0', 0, '0', 0, '0', 0, 
 
 	/* Terminating zero */
 	0

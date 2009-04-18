@@ -29,7 +29,7 @@
 /* Stack runs from above the allocated __data space to 0xfe, which avoids
  * writing to 0xff as that triggers the stack overflow indicator
  */
-#define AO_STACK_START	0x5c
+#define AO_STACK_START	0x6f
 #define AO_STACK_END	0xfe
 #define AO_STACK_SIZE	(AO_STACK_END - AO_STACK_START + 1)
 
@@ -447,6 +447,10 @@ ao_log(void);
 void
 ao_log_start(void);
 
+/* Stop logging */
+void
+ao_log_stop(void);
+
 /* Initialize the logging system */
 void
 ao_log_init(void);
@@ -470,7 +474,7 @@ enum ao_flight_state {
 
 extern __xdata struct ao_adc	ao_flight_data;
 extern __data enum flight_state	ao_flight_state;
-extern __data uint16_t			ao_flight_state_tick;
+extern __data uint16_t			ao_flight_tick;
 extern __data int16_t			ao_flight_accel;
 extern __data int16_t			ao_flight_pres;
 extern __data int16_t			ao_ground_pres;
@@ -496,4 +500,92 @@ ao_report_notify(void);
 void
 ao_report_init(void);
 
+/*
+ * ao_convert.c
+ *
+ * Given raw data, convert to SI units
+ */
+
+/* pressure from the sensor to altitude in meters */
+int16_t
+ao_pres_to_altitude(int16_t pres) __reentrant;
+
+int16_t
+ao_temp_to_dC(int16_t temp) __reentrant;
+
+int16_t
+ao_accel_to_dm_per_s2(int16_t accel)
+{
+	return (998 - (accel >> 4)) * 3300 / 2047;
+}
+
+/*
+ * ao_dbg.c
+ *
+ * debug another telemetrum board
+ */
+
+/* Send a byte to the dbg target */
+void
+ao_dbg_send_byte(uint8_t byte);
+
+/* Receive a byte from the dbg target */
+uint8_t
+ao_dbg_recv_byte(void);
+
+/* Start a bulk transfer to/from dbg target memory */
+void
+ao_dbg_start_transfer(uint16_t addr);
+
+/* End a bulk transfer to/from dbg target memory */
+void
+ao_dbg_end_transfer(void);
+
+/* Write a byte to dbg target memory */
+void
+ao_dbg_write_byte(uint8_t byte);
+
+/* Read a byte from dbg target memory */
+uint8_t
+ao_dbg_read_byte(void);
+
+/* Enable dbg mode, switching use of the pins */
+void
+ao_dbg_debug_mode(void);
+
+/* Reset the dbg target */
+void
+ao_dbg_reset(void);
+
+/*
+ * ao_serial.c
+ */
+
+void
+ao_serial_rx1_isr(void) interrupt 3;
+
+void
+ao_serial_tx1_isr(void) interrupt 14;
+
+uint8_t
+ao_serial_getchar(void) __critical;
+
+void
+ao_serial_putchar(uint8_t c) __critical;
+
+void
+ao_serial_init(void);
+
+/*
+ * ao_gps.c
+ */
+
+void
+ao_gps(void);
+
+void
+ao_gps_init(void);
+
+
 #endif /* _AO_H_ */
+

@@ -22,13 +22,30 @@
 
 __xdata struct ao_adc		ao_flight_data;		/* last acquired data */
 __data enum flight_state	ao_flight_state;	/* current flight state */
-__data uint16_t			ao_flight_state_tick;	/* time of last data */
+__data uint16_t			ao_flight_tick;		/* time of last data */
 __data int16_t			ao_flight_accel;	/* filtered acceleration */
 __data int16_t			ao_flight_pres;		/* filtered pressure */
 __data int16_t			ao_ground_pres;		/* startup pressure */
 __data int16_t			ao_ground_accel;	/* startup acceleration */
 __data int16_t			ao_min_pres;		/* minimum recorded pressure */
 __data uint16_t			ao_launch_time;		/* time of launch detect */
+__data int16_t			ao_main_pres;		/* pressure to eject main */
+
+/*
+ * track min/max data over a long interval to detect
+ * resting
+ */
+__data uint16_t			ao_interval_end;
+__data int16_t			ao_interval_cur_min_accel;
+__data int16_t			ao_interval_cur_max_accel;
+__data int16_t			ao_interval_cur_min_pres;
+__data int16_t			ao_interval_cur_max_pres;
+__data int16_t			ao_interval_min_accel;
+__data int16_t			ao_interval_max_accel;
+__data int16_t			ao_interval_min_pres;
+__data int16_t			ao_interval_max_pres;
+
+#define AO_INTERVAL_TICKS	AO_SEC_TO_TICKS(5)
 
 /* Accelerometer calibration
  *
@@ -73,6 +90,8 @@ __data uint16_t			ao_launch_time;		/* time of launch detect */
 #define BARO_kPa	268
 #define BARO_LAUNCH	(BARO_kPa / 5)	/* .2kPa */
 #define BARO_APOGEE	(BARO_kPa / 10)	/* .1kPa */
+#define BARO_MAIN	(BARO_kPa)	/* 1kPa */
+#define BARO_LAND	(BARO_kPa / 20)	/* .05kPa */
 
 /* We also have a clock, which can be used to sanity check things in
  * case of other failures
@@ -92,7 +111,17 @@ ao_flight(void)
 		ao_flight_accel += ao_flight_data.accel >> 4;
 		ao_flight_pres -= ao_flight_pres >> 4;
 		ao_flight_pres += ao_flight_data.pres >> 4;
+		ao_flight_tick = ao_time();
 		
+		ao_flight_tick = ao_time();
+		if ((int16_t) (ao_flight_tick - ao_interval_end) >= 0) {
+			ao_interval_max_pres = ao_interval_cur_max_pres;
+			ao_interval_min_pres = ao_interval_cur_min_pres;
+			ao_interval_max_accel = ao_interval_cur_max_accel;
+			ao_interval_min_accel = ao_interval_cur_min_accel;
+			ao_interval_end = ao_flight_tick + AO_INTERVAL_TICKS;
+		}
+			       
 		switch (ao_flight_state) {
 		case ao_flight_startup:
 			if (nsamples < 100) {
@@ -102,13 +131,15 @@ ao_flight(void)
 			ao_ground_accel = ao_flight_accel;
 			ao_ground_pres = ao_flight_pres;
 			ao_min_pres = ao_flight_pres;
+			ao_main_pres = ao_ground_pres - BARO_MAIN;
+			
+			ao_interval_end = ao_flight_tick;
+			
 			if (ao_flight_accel < ACCEL_NOSE_UP) {
 				ao_flight_state = ao_flight_launchpad;
-				ao_flight_state_tick = ao_time();
 				ao_report_notify();
 			} else {
 				ao_flight_state = ao_flight_idle;
-				ao_flight_state_tick = ao_time();
 				ao_report_notify();
 			}
 			/* signal successful initialization by turning off the LED */
@@ -119,7 +150,6 @@ ao_flight(void)
 			    ao_flight_pres + BARO_LAUNCH < ao_ground_pres)
 			{
 				ao_flight_state = ao_flight_boost;
-				ao_flight_state_tick = ao_time();
 				ao_log_start();
 				ao_report_notify();
 				break;
@@ -130,7 +160,6 @@ ao_flight(void)
 			    (int16_t) (ao_flight_data.tick - ao_launch_time) > BOOST_TICKS_MAX)
 			{
 				ao_flight_state = ao_flight_coast;
-				ao_flight_state_tick = ao_time();
 				ao_report_notify();
 				break;
 			}
@@ -140,11 +169,33 @@ ao_flight(void)
 				ao_min_pres = ao_flight_pres;
 			if (ao_flight_pres - BARO_APOGEE > ao_min_pres) {
 				ao_flight_state = ao_flight_apogee;
-				ao_flight_state_tick = ao_time();
 				ao_report_notify();
 			}
 			break;
 		case ao_flight_apogee:
+//			ao_ignite(AO_IGNITE_DROGUE);
+			ao_flight_state = ao_flight_drogue;
+			ao_report_notify();
+			break; 
+		case ao_flight_drogue:
+			if (ao_flight_pres >= ao_main_pres) {
+//				ao_ignite(AO_IGNITE_MAIN);
+				ao_flight_state = ao_flight_main;
+				ao_report_notify();
+			}
+			if ((ao_interval_max_pres - ao_interval_min_pres) < BARO_LAND) {
+				ao_flight_state = ao_flight_landed;
+				ao_report_notify();
+			}
+			break;
+		case ao_flight_main:
+			if ((ao_interval_max_pres - ao_interval_min_pres) < BARO_LAND) {
+				ao_flight_state = ao_flight_landed;
+				ao_report_notify();
+			}
+			break;
+		case ao_flight_landed:
+			ao_log_stop();
 			break;
 		}
 	}
@@ -156,6 +207,11 @@ void
 ao_flight_init(void)
 {
 	ao_flight_state = ao_flight_startup;
+	ao_interval_min_accel = 0;
+	ao_interval_max_accel = 0x7fff;
+	ao_interval_min_pres = 0;
+	ao_interval_max_pres = 0x7fff;
+	ao_interval_end = AO_INTERVAL_TICKS;
 
 	ao_add_task(&flight_task, ao_flight);
 }

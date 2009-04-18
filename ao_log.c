@@ -121,7 +121,7 @@ ao_log(void)
 		ao_sleep(&ao_log_running);
 	
 	log.type = AO_LOG_FLIGHT;
-	log.tick = ao_flight_state_tick;
+	log.tick = ao_flight_tick;
 	log.u.flight.serial = 0;
 	log.u.flight.flight = ao_log_dump_flight + 1;
 	ao_log_data(&log);
@@ -130,7 +130,7 @@ ao_log(void)
 		if (ao_flight_state != ao_log_state) {
 			ao_log_state = ao_flight_state;
 			log.type = AO_LOG_STATE;
-			log.tick = ao_flight_state_tick;
+			log.tick = ao_flight_tick;
 			log.u.state.state = ao_log_state;
 			log.u.state.reason = 0;
 			ao_log_data(&log);
@@ -170,6 +170,13 @@ ao_log_start(void)
 	/* start logging */
 	ao_log_running = 1;
 	ao_wakeup(&ao_log_running);
+}
+
+void
+ao_log_stop(void)
+{
+	ao_log_running = 0;
+	ao_log_flush();
 }
 
 static __xdata struct ao_task ao_log_task;

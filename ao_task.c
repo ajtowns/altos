@@ -65,9 +65,6 @@ ao_add_task(__xdata struct ao_task * task, void (*start)(void))
 void
 ao_yield(void) _naked
 {
-	static uint8_t __data stack_len;
-	static __data uint8_t * __data stack_ptr;
-	static __xdata uint8_t * __data save_ptr;
 
 	/* Save current context */
 	_asm
@@ -97,13 +94,17 @@ ao_yield(void) _naked
 	
 	if (ao_cur_task_index != AO_NO_TASK_INDEX)
 	{
+	uint8_t stack_len;
+	__data uint8_t *  stack_ptr;
+	__xdata uint8_t * save_ptr;
 		/* Save the current stack */
 		stack_len = SP - (AO_STACK_START - 1);
 		ao_cur_task->stack_count = stack_len;
 		stack_ptr = (uint8_t __data *) AO_STACK_START;
 		save_ptr = (uint8_t __xdata *) ao_cur_task->stack;
-		while (stack_len--)
+		do
 			*save_ptr++ = *stack_ptr++;
+		while (--stack_len);
 	}
 	
 	/* Empty the stack; might as well let interrupts have the whole thing */
@@ -121,14 +122,21 @@ ao_yield(void) _naked
 			break;
 	}
 
-	/* Restore the old stack */
-	stack_len = ao_cur_task->stack_count;
-	SP = AO_STACK_START - 1 + stack_len;
+	{
+		uint8_t stack_len;
+		__data uint8_t *  stack_ptr;
+		__xdata uint8_t * save_ptr;
 
-	stack_ptr = (uint8_t __data *) AO_STACK_START;
-	save_ptr = (uint8_t __xdata *) ao_cur_task->stack;
-	while (stack_len--)
-		*stack_ptr++ = *save_ptr++;
+		/* Restore the old stack */
+		stack_len = ao_cur_task->stack_count;
+		SP = AO_STACK_START - 1 + stack_len;
+	
+		stack_ptr = (uint8_t __data *) AO_STACK_START;
+		save_ptr = (uint8_t __xdata *) ao_cur_task->stack;
+		do
+			*stack_ptr++ = *save_ptr++;
+		while (--stack_len);
+	}
 
 	_asm
 		pop		_bp

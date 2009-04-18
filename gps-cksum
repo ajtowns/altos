@@ -1,0 +1,17 @@
+#!/usr/bin/env nickle
+
+int checksum(string a)
+{
+	int	c = 0;
+	for (int i = 0; i < String::length(a); i++)
+		c ^= a[i];
+	return c;
+}
+
+void main()
+{
+	for (int i = 1; i < dim(argv); i++)
+		printf ("$%s*%02x\n", argv[i], checksum(argv[i]));
+}
+
+main();

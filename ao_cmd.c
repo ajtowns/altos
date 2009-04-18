@@ -342,17 +342,16 @@ echo(void)
 	lex_echo = lex_i != 0;
 }
 
-#if INCLUDE_REMOTE_DEBUG
 static void
 debug_enable(void)
 {
-	dbg_debug_mode();
+	ao_dbg_debug_mode();
 }
 
 static void
 debug_reset(void)
 {
-	dbg_reset();
+	ao_dbg_reset();
 }
 
 static void
@@ -365,7 +364,7 @@ debug_put(void)
 		hex();
 		if (lex_status != SUCCESS)
 			break;
-		dbg_send_byte(lex_i);
+		ao_dbg_send_byte(lex_i);
 	}
 }
 
@@ -386,7 +385,7 @@ debug_get(void)
 	for (i = 0; i < count; i++) {
 		if (i && (i & 7) == 0)
 			put_string("\n");
-		byte = dbg_recv_byte();
+		byte = ao_dbg_recv_byte();
 		put8(byte);
 		putchar(' ');
 	}
@@ -423,15 +422,15 @@ debug_input(void)
 	addr = lex_i;
 	if (lex_status != SUCCESS)
 		return;
-	dbg_start_transfer(addr);
+	ao_dbg_start_transfer(addr);
 	i = 0;
 	while (count--) {
 		if (!(i++ & 7))
 			put_string("\n");
-		b = dbg_read_byte();
+		b = ao_dbg_read_byte();
 		put8(b);
 	}
-	dbg_end_transfer();
+	ao_dbg_end_transfer();
 	put_string("\n");
 }
 
@@ -448,17 +447,16 @@ debug_output(void)
 	addr = lex_i;
 	if (lex_status != SUCCESS)
 		return;
-	dbg_start_transfer(addr);
+	ao_dbg_start_transfer(addr);
 	while (count--) {
 		b = getnibble() << 4;
 		b |= getnibble();
 		if (lex_status != SUCCESS)
 			return;
-		dbg_write_byte(b);
+		ao_dbg_write_byte(b);
 	}
-	dbg_end_transfer();
+	ao_dbg_end_transfer();
 }
-#endif
 
 static void
 dump_log(void)
@@ -477,6 +475,16 @@ dump_log(void)
 	}
 }
 
+static void
+send_serial(void)
+{
+	white();
+	while (lex_c != '\n') {
+		ao_serial_putchar(lex_c);
+		lex();
+	}
+}
+
 static const uint8_t help_txt[] = 
 	"All numbers are in hex\n"
 	"?                                  Print this message\n"
@@ -486,7 +494,7 @@ static const uint8_t help_txt[] =
 	"w <block> <start> <len> <data> ... Write data to EEPROM\n"
 	"l                                  Dump last flight log\n"
 	"E <0 off, 1 on>                    Set command echo mode\n"
-#if INCLUDE_REMOTE_DEBUG
+	"S<data>                            Send data to serial line\n"
         "\n"
         "Target debug commands:\n"
 	"D                                  Enable debug mode\n"
@@ -495,7 +503,6 @@ static const uint8_t help_txt[] =
 	"G <count>                          Get data from debug port\n"
 	"O <count> <addr>                   Output <count> bytes to target at <addr>\n"
 	"I <count> <addr>                   Input <count> bytes to target at <addr>\n"
-#endif
 ;
 
 static void
@@ -548,10 +555,12 @@ ao_cmd(void *parameters)
 		case 'l':
 			dump_log();
 			break;
+		case 'S':
+			send_serial();
+			break;
 		case 'E':
 			echo();
 			break;
-#if INCLUDE_REMOTE_DEBUG
 		case 'D':
 			debug_enable();
 			break;
@@ -570,7 +579,6 @@ ao_cmd(void *parameters)
 		case 'O':
 			debug_output();
 			break;
-#endif
 		case '\r':
 		case '\n':
 			break;
