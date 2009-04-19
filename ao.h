@@ -477,15 +477,15 @@ enum ao_flight_state {
 	ao_flight_invalid
 };
 
-extern __xdata struct ao_adc	ao_flight_data;
-extern __data enum flight_state	ao_flight_state;
-extern __data uint16_t			ao_flight_tick;
-extern __data int16_t			ao_flight_accel;
-extern __data int16_t			ao_flight_pres;
-extern __data int16_t			ao_ground_pres;
-extern __data int16_t			ao_ground_accel;
-extern __data int16_t			ao_min_pres;
-extern __data uint16_t			ao_launch_time;
+extern __xdata struct ao_adc		ao_flight_data;
+extern __pdata enum flight_state	ao_flight_state;
+extern __pdata uint16_t			ao_flight_tick;
+extern __pdata int16_t			ao_flight_accel;
+extern __pdata int16_t			ao_flight_pres;
+extern __pdata int16_t			ao_ground_pres;
+extern __pdata int16_t			ao_ground_accel;
+extern __pdata int16_t			ao_min_pres;
+extern __pdata uint16_t			ao_launch_time;
 
 /* Flight thread */
 void
@@ -584,6 +584,37 @@ ao_serial_init(void);
 /*
  * ao_gps.c
  */
+
+struct ao_gps_pos {
+	uint8_t	degrees;
+	uint8_t	minutes;
+	uint16_t minutes_fraction;	/* in units of 1/10000 minutes */
+};
+
+#define AO_GPS_NUM_SAT_MASK	(0xf << 0)
+#define AO_GPS_NUM_SAT_SHIFT	(0)
+
+#define AO_GPS_VALID		(1 << 4)
+#define AO_GPS_LONGITUDE_MASK	(1 << 5)
+#define AO_GPS_LONGITUDE_EAST	(0 << 5)
+#define AO_GPS_LONGITUDE_WEST	(1 << 5)
+
+#define AO_GPS_LATITUDE_MASK	(1 << 6)
+#define AO_GPS_LATITUDE_NORTH	(0 << 6)
+#define AO_GPS_LATITUDE_SOUTH	(1 << 6)
+
+struct ao_gps_data {
+	uint8_t			hour;
+	uint8_t			minute;
+	uint8_t			second;
+	uint8_t			flags;
+	struct ao_gps_pos	latitude;
+	struct ao_gps_pos	longitude;
+	int16_t			altitude;
+};
+
+extern __xdata uint8_t ao_gps_mutex;
+extern __xdata struct ao_gps_data ao_gps_data;
 
 void
 ao_gps(void);

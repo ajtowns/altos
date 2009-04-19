@@ -253,6 +253,34 @@ adc_dump(void)
 }
 
 static void
+gps_dump(void) __reentrant
+{
+	ao_mutex_get(&ao_gps_mutex);
+	if (ao_gps_data.flags & AO_GPS_VALID) {
+		printf("GPS %2d:%02d:%02d %2d°%2d.%04d'%c %2d°%2d.%04d'%c %5dm %2d sat\n",
+		       ao_gps_data.hour,
+		       ao_gps_data.minute,
+		       ao_gps_data.second,
+		       ao_gps_data.latitude.degrees,
+		       ao_gps_data.latitude.minutes,
+		       ao_gps_data.latitude.minutes_fraction,
+		       (ao_gps_data.flags & AO_GPS_LATITUDE_MASK) == AO_GPS_LATITUDE_NORTH ?
+		       'N' : 'S',
+		       ao_gps_data.longitude.degrees,
+		       ao_gps_data.longitude.minutes,
+		       ao_gps_data.longitude.minutes_fraction,
+		       (ao_gps_data.flags & AO_GPS_LONGITUDE_MASK) == AO_GPS_LONGITUDE_WEST ?
+		       'W' : 'E',
+		       ao_gps_data.altitude,
+		       (ao_gps_data.flags & AO_GPS_NUM_SAT_MASK) >> AO_GPS_NUM_SAT_SHIFT);
+	} else {
+		printf("GPS %2d sat\n",
+		       (ao_gps_data.flags & AO_GPS_NUM_SAT_MASK) >> AO_GPS_NUM_SAT_SHIFT);;
+	}
+	ao_mutex_put(&ao_gps_mutex);
+}
+
+static void
 dump(void)
 {
 	__xdata uint16_t c;
@@ -488,6 +516,7 @@ static const uint8_t help_txt[] =
 	"All numbers are in hex\n"
 	"?                                  Print this message\n"
 	"a                                  Display current ADC values\n"
+	"g                                  Display current GPS values\n"
 	"d <start> <end>                    Dump memory\n"
 	"e <block>                          Dump a block of EEPROM data\n"
 	"w <block> <start> <len> <data> ... Write data to EEPROM\n"
@@ -545,6 +574,9 @@ ao_cmd(void *parameters)
 			break;
 		case 'a':
 			adc_dump();
+			break;
+		case 'g':
+			gps_dump();
 			break;
 		case 'e':
 			ee_dump();
