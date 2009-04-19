@@ -170,9 +170,9 @@ ao_ee_wrsr(uint8_t status)
 
 #define EE_BLOCK_NONE	0xffff
 
-__xdata uint8_t ao_ee_data[EE_BLOCK];
-__data uint16_t ao_ee_block = EE_BLOCK_NONE;
-__data uint8_t	ao_ee_block_dirty;
+static __xdata uint8_t ao_ee_data[EE_BLOCK];
+static __pdata uint16_t ao_ee_block = EE_BLOCK_NONE;
+static __pdata uint8_t	ao_ee_block_dirty;
 
 /* Write the current block to the EEPROM */
 static void

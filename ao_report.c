@@ -82,5 +82,5 @@ static __xdata struct ao_task ao_report_task;
 void
 ao_report_init(void)
 {
-	ao_add_task(&ao_report_task, ao_report);
+	ao_add_task(&ao_report_task, ao_report, "report");
 }

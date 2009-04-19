@@ -106,7 +106,7 @@ __xdata uint8_t save_dpl1;
 __xdata uint8_t save_dph1;
 
 static uint8_t
-ao_dbg_inst1(uint8_t a)
+ao_dbg_inst1(uint8_t a) __reentrant
 {
 	ao_dbg_send_byte(DEBUG_INSTR(1));
 	ao_dbg_send_byte(a);
@@ -114,7 +114,7 @@ ao_dbg_inst1(uint8_t a)
 }
 
 static uint8_t
-ao_dbg_inst2(uint8_t a, uint8_t b)
+ao_dbg_inst2(uint8_t a, uint8_t b) __reentrant
 {
 	ao_dbg_send_byte(DEBUG_INSTR(2));
 	ao_dbg_send_byte(a);
@@ -123,7 +123,7 @@ ao_dbg_inst2(uint8_t a, uint8_t b)
 }
 
 static uint8_t
-ao_dbg_inst3(uint8_t a, uint8_t b, uint8_t c)
+ao_dbg_inst3(uint8_t a, uint8_t b, uint8_t c) __reentrant
 {
 	ao_dbg_send_byte(DEBUG_INSTR(3));
 	ao_dbg_send_byte(a);

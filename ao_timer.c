@@ -21,7 +21,7 @@ static volatile __data uint16_t ao_tick_count;
 
 uint16_t ao_time(void)
 {
-	__data uint16_t ret;
+	uint16_t ret;
 	__critical {
 		ret = ao_tick_count;
 	}
