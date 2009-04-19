@@ -29,7 +29,7 @@
 /* Stack runs from above the allocated __data space to 0xfe, which avoids
  * writing to 0xff as that triggers the stack overflow indicator
  */
-#define AO_STACK_START	0x6f
+#define AO_STACK_START	0x62
 #define AO_STACK_END	0xfe
 #define AO_STACK_SIZE	(AO_STACK_END - AO_STACK_START + 1)
 
@@ -38,6 +38,7 @@ struct ao_task {
 	__xdata void *wchan;		/* current wait channel (NULL if running) */
 	uint8_t	stack_count;		/* amount of saved stack */
 	uint8_t task_id;		/* index in the task array */
+	__code char *name;		/* task name */
 	uint8_t	stack[AO_STACK_SIZE];	/* saved stack */
 };
 
@@ -64,7 +65,11 @@ ao_yield(void) _naked;
 
 /* Add a task to the run queue */
 void
-ao_add_task(__xdata struct ao_task * task, void (*start)(void));
+ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *name);
+
+/* Dump task info to console */
+void
+ao_task_info(void);
 
 /* Start the scheduler. This will not return */
 void

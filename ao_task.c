@@ -25,13 +25,14 @@ __data uint8_t ao_cur_task_index;
 __xdata struct ao_task *__data ao_cur_task;
 
 void
-ao_add_task(__xdata struct ao_task * task, void (*start)(void))
+ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *name)
 {
 	uint8_t	__xdata *stack;
 	if (ao_num_tasks == AO_NUM_TASKS)
 		ao_panic(AO_PANIC_NO_TASK);
 	ao_tasks[ao_num_tasks++] = task;
 	task->task_id = ao_num_tasks;
+	task->name = name;
 	/*
 	 * Construct a stack frame so that it will 'return'
 	 * to the start of the task
@@ -94,9 +95,9 @@ ao_yield(void) _naked
 	
 	if (ao_cur_task_index != AO_NO_TASK_INDEX)
 	{
-	uint8_t stack_len;
-	__data uint8_t *  stack_ptr;
-	__xdata uint8_t * save_ptr;
+		uint8_t stack_len;
+		__data uint8_t *stack_ptr;
+		__xdata uint8_t *save_ptr;
 		/* Save the current stack */
 		stack_len = SP - (AO_STACK_START - 1);
 		ao_cur_task->stack_count = stack_len;
@@ -124,8 +125,8 @@ ao_yield(void) _naked
 
 	{
 		uint8_t stack_len;
-		__data uint8_t *  stack_ptr;
-		__xdata uint8_t * save_ptr;
+		__data uint8_t *stack_ptr;
+		__xdata uint8_t *save_ptr;
 
 		/* Restore the old stack */
 		stack_len = ao_cur_task->stack_count;
@@ -188,9 +189,23 @@ ao_wakeup(__xdata void *wchan)
 }
 
 void
+ao_task_info(void)
+{
+	uint8_t	i;
+	uint8_t pc_loc;
+
+	for (i = 0; i < ao_num_tasks; i++) {
+		pc_loc = ao_tasks[i]->stack_count - 17;
+		printf("%-8s: wchan %04x pc %04x\n",
+		       ao_tasks[i]->name,
+		       (int16_t) ao_tasks[i]->wchan,
+		       (ao_tasks[i]->stack[pc_loc]) | (ao_tasks[i]->stack[pc_loc+1] << 8));
+	}
+}
+
+void
 ao_start_scheduler(void)
 {
-
 	ao_cur_task_index = AO_NO_TASK_INDEX;
 	ao_cur_task = NULL;
 	ao_yield();

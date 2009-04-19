@@ -537,5 +537,5 @@ ao_usb_init(void)
 	USBOIF = 0;
 	USBIIF = 0;
 	
-	ao_add_task(&ao_usb_task, ao_usb_ep0);
+	ao_add_task(&ao_usb_task, ao_usb_ep0, "usb");
 }

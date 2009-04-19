@@ -17,10 +17,10 @@
 
 #include "ao.h"
 
-__data uint32_t		ao_log_current_pos;
-__data uint32_t		ao_log_start_pos;
-__xdata uint8_t		ao_log_running;
-__xdata uint8_t		ao_log_mutex;
+static __pdata uint32_t	ao_log_current_pos;
+static __pdata uint32_t	ao_log_start_pos;
+static __xdata uint8_t	ao_log_running;
+static __xdata uint8_t	ao_log_mutex;
 
 static uint8_t
 ao_log_csum(uint8_t *b)
@@ -191,5 +191,5 @@ ao_log_init(void)
 	ao_log_state = ao_flight_invalid;
 
 	/* Create a task to log events to eeprom */
-	ao_add_task(&ao_log_task, ao_log);
+	ao_add_task(&ao_log_task, ao_log, "log");
 }

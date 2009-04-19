@@ -494,6 +494,7 @@ static const uint8_t help_txt[] =
 	"l                                  Dump last flight log\n"
 	"E <0 off, 1 on>                    Set command echo mode\n"
 	"S<data>                            Send data to serial line\n"
+	"T                                  Show task states\n"
         "\n"
         "Target debug commands:\n"
 	"D                                  Enable debug mode\n"
@@ -554,6 +555,9 @@ ao_cmd(void *parameters)
 		case 'l':
 			dump_log();
 			break;
+		case 'T':
+			ao_task_info();
+			break;
 		case 'S':
 			send_serial();
 			break;
@@ -595,5 +599,5 @@ __xdata struct ao_task ao_cmd_task;
 void
 ao_cmd_init(void)
 {
-	ao_add_task(&ao_cmd_task, ao_cmd);
+	ao_add_task(&ao_cmd_task, ao_cmd, "cmd");
 }

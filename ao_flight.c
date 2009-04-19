@@ -20,29 +20,29 @@
 /* Main flight thread. */
 
 __xdata struct ao_adc		ao_flight_data;		/* last acquired data */
-__data enum flight_state	ao_flight_state;	/* current flight state */
-__data uint16_t			ao_flight_tick;		/* time of last data */
-__data int16_t			ao_flight_accel;	/* filtered acceleration */
-__data int16_t			ao_flight_pres;		/* filtered pressure */
-__data int16_t			ao_ground_pres;		/* startup pressure */
-__data int16_t			ao_ground_accel;	/* startup acceleration */
-__data int16_t			ao_min_pres;		/* minimum recorded pressure */
-__data uint16_t			ao_launch_time;		/* time of launch detect */
-__data int16_t			ao_main_pres;		/* pressure to eject main */
+__pdata enum flight_state	ao_flight_state;	/* current flight state */
+__pdata uint16_t		ao_flight_tick;		/* time of last data */
+__pdata int16_t			ao_flight_accel;	/* filtered acceleration */
+__pdata int16_t			ao_flight_pres;		/* filtered pressure */
+__pdata int16_t			ao_ground_pres;		/* startup pressure */
+__pdata int16_t			ao_ground_accel;	/* startup acceleration */
+__pdata int16_t			ao_min_pres;		/* minimum recorded pressure */
+__pdata uint16_t		ao_launch_time;		/* time of launch detect */
+__pdata int16_t			ao_main_pres;		/* pressure to eject main */
 
 /*
  * track min/max data over a long interval to detect
  * resting
  */
-__data uint16_t			ao_interval_end;
-__data int16_t			ao_interval_cur_min_accel;
-__data int16_t			ao_interval_cur_max_accel;
-__data int16_t			ao_interval_cur_min_pres;
-__data int16_t			ao_interval_cur_max_pres;
-__data int16_t			ao_interval_min_accel;
-__data int16_t			ao_interval_max_accel;
-__data int16_t			ao_interval_min_pres;
-__data int16_t			ao_interval_max_pres;
+__pdata uint16_t		ao_interval_end;
+__pdata int16_t			ao_interval_cur_min_accel;
+__pdata int16_t			ao_interval_cur_max_accel;
+__pdata int16_t			ao_interval_cur_min_pres;
+__pdata int16_t			ao_interval_cur_max_pres;
+__pdata int16_t			ao_interval_min_accel;
+__pdata int16_t			ao_interval_max_accel;
+__pdata int16_t			ao_interval_min_pres;
+__pdata int16_t			ao_interval_max_pres;
 
 #define AO_INTERVAL_TICKS	AO_SEC_TO_TICKS(5)
 
@@ -101,7 +101,7 @@ __data int16_t			ao_interval_max_pres;
 void
 ao_flight(void)
 {
-	__data static uint8_t	nsamples = 0;
+	__pdata static uint8_t	nsamples = 0;
 	
 	for (;;) {
 		ao_sleep(&ao_adc_ring);
@@ -212,6 +212,6 @@ ao_flight_init(void)
 	ao_interval_max_pres = 0x7fff;
 	ao_interval_end = AO_INTERVAL_TICKS;
 
-	ao_add_task(&flight_task, ao_flight);
+	ao_add_task(&flight_task, ao_flight, "flight");
 }
 
