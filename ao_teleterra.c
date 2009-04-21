@@ -15,6 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+#define AO_NO_ADC_ISR 1
 #include "ao.h"
 
 void
@@ -27,20 +28,28 @@ main(void)
 	/* Turn on the red LED until the system is stable */
 	ao_led_init();
 	ao_led_on(AO_LED_RED);
-
 	ao_timer_init();
-	ao_adc_init();
 	ao_beep_init();
 	ao_cmd_init();
-	ao_ee_init();
-	ao_flight_init();
-	ao_log_init();
-	ao_report_init();
 	ao_usb_init();
 	ao_serial_init();
 	ao_gps_init();
-	ao_telemetry_init();
+	ao_monitor_init();
 	ao_radio_init();
 	ao_dbg_init();
 	ao_start_scheduler();
 }
+
+/* Stub for systems which have no ADC */
+void
+ao_adc_poll(void)
+{
+}
+
+/* Stub to not log GPS data */
+void
+ao_log_data(struct ao_log_record *log)
+{
+	(void) log;
+}
+

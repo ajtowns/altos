@@ -226,10 +226,13 @@ help(void)
 {
 	__xdata uint8_t	cmds;
 	__xdata uint8_t cmd;
+	__code struct ao_cmds * __xdata cs;
 	puts(help_txt);
-	for (cmds = 0; cmds < ao_ncmds; cmds++)
-		for (cmd = 0; ao_cmds[cmds][cmd].cmd; cmd++)
-			puts(ao_cmds[cmds][cmd].help);
+	for (cmds = 0; cmds < ao_ncmds; cmds++) {
+		cs = ao_cmds[cmds];
+		for (cmd = 0; cs[cmd].cmd != '\0'; cmd++)
+			puts(cs[cmd].help);
+	}
 }
 
 static void
@@ -257,6 +260,8 @@ ao_cmd(void *parameters)
 {
 	__xdata uint8_t	c;
 	__xdata uint8_t cmd, cmds;
+	__code struct ao_cmds * __xdata cs;
+	void (*__xdata func)(void);
 	(void) parameters;
 
 	lex_echo = 1;
@@ -268,16 +273,19 @@ ao_cmd(void *parameters)
 		ao_cmd_lex();
 		if (c == '\r' || c == '\n')
 			continue;
-		cmd = 0;
+		func = (void (*)(void)) NULL;
 		for (cmds = 0; cmds < ao_ncmds; cmds++) {
-			for (cmd = 0; ao_cmds[cmds][cmd].cmd != '\0'; cmd++)
-				if (ao_cmds[cmds][cmd].cmd == c)
+			cs = ao_cmds[cmds];
+			for (cmd = 0; cs[cmd].cmd != '\0'; cmd++)
+				if (cs[cmd].cmd == c) {
+					func = cs[cmd].func;
 					break;
-			if (ao_cmds[cmds][cmd].cmd)
+				}
+			if (func)
 				break;
 		}
-		if (ao_cmds[cmds][cmd].cmd)
-			(*ao_cmds[cmds][cmd].func);
+		if (func)
+			(*func)();
 		else
 			ao_cmd_status = ao_cmd_syntax_error;
 		report();
@@ -288,9 +296,9 @@ __xdata struct ao_task ao_cmd_task;
 
 __code struct ao_cmds	ao_base_cmds[] = {
 	{ '?', help,		"?                                  Print this message" },
-	{ 'T', ao_task_info,	"T                                  Show task states\n" },
-	{ 'E', echo,		"E <0 off, 1 on>                    Set command echo mode\n" },
-	{ 'd', dump,		"d <start> <end>                    Dump memory\n" },
+	{ 'T', ao_task_info,	"T                                  Show task states" },
+	{ 'E', echo,		"E <0 off, 1 on>                    Set command echo mode" },
+	{ 'd', dump,		"d <start> <end>                    Dump memory" },
 	{ 0,    help,	NULL },
 };
 

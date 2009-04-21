@@ -403,8 +403,8 @@ ee_store(void)
 }
 
 __code struct ao_cmds ao_ee_cmds[] = {
-	{ 'e', ee_dump, 	"e <block>                          Dump a block of EEPROM data\n" },
-	{ 'w', ee_store,	"w <block> <start> <len> <data> ... Write data to EEPROM\n" },
+	{ 'e', ee_dump, 	"e <block>                          Dump a block of EEPROM data" },
+	{ 'w', ee_store,	"w <block> <start> <len> <data> ... Write data to EEPROM" },
 	{ 0,   ee_store, NULL },
 };
 

@@ -6,7 +6,8 @@ HEADER_STACK=`awk '/#define AO_STACK_START/ {print $3}' $HEADER | nickle`
 MEM_STACK=`awk '/Stack starts at/ {print $4}' $MEM | nickle`
 
 if [ "$HEADER_STACK" -lt "$MEM_STACK" ]; then
-	echo "Set AO_STACK_START to at least $MEM_STACK"
+	MIN=0x`nickle -e "$MEM_STACK # 16"`
+	echo "Set AO_STACK_START to at least $MIN"
 	exit 1
 else
 	exit 0

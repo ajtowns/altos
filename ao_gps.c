@@ -257,7 +257,6 @@ void
 ao_gps_report(void)
 {
 	static __xdata struct ao_log_record	gps_log;
-	static __xdata struct ao_telemetry	gps_telemetry;
 	static __xdata struct ao_gps_data	gps_data;
 
 	for (;;) {
@@ -287,9 +286,6 @@ ao_gps_report(void)
 		gps_log.u.gps_altitude.altitude = gps_data.altitude;
 		gps_log.u.gps_altitude.unused = 0xffff;
 		ao_log_data(&gps_log);
-		gps_telemetry.type = AO_TELEMETRY_GPS;
-		memcpy(&gps_telemetry.u.gps, &gps_data, sizeof (struct ao_gps_data));
-		ao_telemetry_send(&gps_telemetry);
 	}
 		
 }
@@ -306,7 +302,7 @@ gps_dump(void) __reentrant
 }
 
 __code struct ao_cmds ao_gps_cmds[] = {
-	{ 'g', gps_dump,	"g                                  Display current GPS values\n" },
+	{ 'g', gps_dump,	"g                                  Display current GPS values" },
 	{ 0, gps_dump, NULL },
 };
 

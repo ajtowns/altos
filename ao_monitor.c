@@ -45,21 +45,15 @@ ao_monitor(void)
 			ao_state_names[state]);
 		if (!(recv.status & PKT_APPEND_STATUS_1_CRC_OK))
 			printf("CRC INVALID ");
-		switch (recv.telemetry.type) {
-		case AO_TELEMETRY_SENSOR:
-			printf("%5u a: %d p: %d t: %d v: %d d: %d m: %d\n",
-			       recv.telemetry.u.adc.tick,
-			       recv.telemetry.u.adc.accel,
-			       recv.telemetry.u.adc.pres,
-			       recv.telemetry.u.adc.temp,
-			       recv.telemetry.u.adc.v_batt,
-			       recv.telemetry.u.adc.sense_d,
-			       recv.telemetry.u.adc.sense_m);
-			break;
-		case AO_TELEMETRY_GPS:
-			ao_gps_print(&recv.telemetry.u.gps);
-			break;
-		}
+		printf("%5u a: %d p: %d t: %d v: %d d: %d m: %d\n",
+		       recv.telemetry.adc.tick,
+		       recv.telemetry.adc.accel,
+		       recv.telemetry.adc.pres,
+		       recv.telemetry.adc.temp,
+		       recv.telemetry.adc.v_batt,
+		       recv.telemetry.adc.sense_d,
+		       recv.telemetry.adc.sense_m);
+		ao_gps_print(&recv.telemetry.gps);
 		ao_usb_flush();
 	}
 }

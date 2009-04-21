@@ -34,6 +34,9 @@ main(void)
 	ao_usb_init();
 	ao_monitor_init();
 	ao_radio_init();
+	ao_dbg_init();
+	/* Bring up the USB link */
+	ao_led_on(AO_LED_GREEN);
 	ao_start_scheduler();
 }
 

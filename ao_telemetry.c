@@ -34,16 +34,18 @@ ao_telemetry_send(__xdata struct ao_telemetry *telemetry) __reentrant
 void
 ao_telemetry(void)
 {
-	static __xdata struct ao_radio_recv recv;
+	static __xdata struct ao_telemetry telemetry;
 	static uint8_t state;
 
 	while (ao_flight_state == ao_flight_startup || ao_flight_state == ao_flight_idle)
 		ao_sleep(DATA_TO_XDATA(&ao_flight_state));
 
-	recv.telemetry.type = AO_TELEMETRY_SENSOR;
 	for (;;) {
-		ao_adc_get(&recv.telemetry.u.adc);
-		ao_telemetry_send(&recv.telemetry);
+		ao_adc_get(&telemetry.adc);
+		ao_mutex_get(&ao_gps_mutex);
+		memcpy(&telemetry.gps, &ao_gps_data, sizeof (struct ao_gps_data));
+		ao_mutex_put(&ao_gps_mutex);
+		ao_telemetry_send(&telemetry);
 		ao_delay(AO_MS_TO_TICKS(1000));
 	}
 }

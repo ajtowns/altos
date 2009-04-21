@@ -622,6 +622,9 @@ ao_dbg_debug_mode(void);
 void
 ao_dbg_reset(void);
 
+void
+ao_dbg_init(void);
+
 /*
  * ao_serial.c
  */
@@ -685,17 +688,11 @@ ao_gps_init(void);
  * ao_telemetry.c
  */
 
-#define AO_TELEMETRY_SENSOR	1
-#define AO_TELEMETRY_GPS	2
-
 struct ao_telemetry {
-	uint8_t		addr;
-	uint8_t		type;
-	uint8_t		flight_state;
-	union {
-		struct ao_adc		adc;
-		struct ao_gps_data	gps;
-	} u;
+	uint8_t			addr;
+	uint8_t			flight_state;
+	struct ao_adc		adc;
+	struct ao_gps_data	gps;
 };
 
 void

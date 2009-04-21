@@ -141,7 +141,7 @@ ao_log(void)
 			log.u.sensor.accel = ao_adc_ring[ao_log_adc_pos].accel;
 			log.u.sensor.pres = ao_adc_ring[ao_log_adc_pos].pres;
 			ao_log_data(&log);
-			if (ao_log_adc_pos == 0) {
+			if ((ao_log_adc_pos & 0x1f) == 0) {
 				log.type = AO_LOG_TEMP_VOLT;
 				log.tick = ao_adc_ring[ao_log_adc_pos].tick;
 				log.u.temp_volt.temp = ao_adc_ring[ao_log_adc_pos].temp;
@@ -193,7 +193,7 @@ dump_log(void)
 }
 
 __code struct ao_cmds ao_log_cmds[] = {
-	{ 'l',	dump_log,		"l                                  Dump last flight log\n" },
+	{ 'l',	dump_log,		"l                                  Dump last flight log" },
 	{ 0, dump_log, NULL },
 };
 
