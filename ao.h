@@ -696,9 +696,6 @@ struct ao_telemetry {
 };
 
 void
-ao_telemetry_send(__xdata struct ao_telemetry *telemetry) __reentrant;
-
-void
 ao_telemetry_init(void);
 
 /*

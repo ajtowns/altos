@@ -22,16 +22,6 @@
 uint8_t	ao_serial_number = 2;
 
 void
-ao_telemetry_send(__xdata struct ao_telemetry *telemetry) __reentrant
-{
-	if (ao_flight_state != ao_flight_idle && ao_flight_state != ao_flight_startup) {
-		telemetry->addr = ao_serial_number;
-		telemetry->flight_state = ao_flight_state;
-		ao_radio_send(telemetry);
-	}
-}
-
-void
 ao_telemetry(void)
 {
 	static __xdata struct ao_telemetry telemetry;
@@ -41,11 +31,13 @@ ao_telemetry(void)
 		ao_sleep(DATA_TO_XDATA(&ao_flight_state));
 
 	for (;;) {
+		telemetry.addr = ao_serial_number;
+		telemetry.flight_state = ao_flight_state;
 		ao_adc_get(&telemetry.adc);
 		ao_mutex_get(&ao_gps_mutex);
 		memcpy(&telemetry.gps, &ao_gps_data, sizeof (struct ao_gps_data));
 		ao_mutex_put(&ao_gps_mutex);
-		ao_telemetry_send(&telemetry);
+		ao_radio_send(&telemetry);
 		ao_delay(AO_MS_TO_TICKS(1000));
 	}
 }

@@ -217,7 +217,7 @@ ao_radio_send(__xdata struct ao_telemetry *telemetry) __reentrant
 			    DMA_CFG1_PRIORITY_HIGH);
 	ao_dma_start(ao_radio_dma);
 	RFST = RFST_STX;
-	while (!ao_radio_dma_done)
+	__critical while (!ao_radio_dma_done)
 		ao_sleep(&ao_radio_dma_done);
 	ao_mutex_put(&ao_radio_mutex);
 }
@@ -239,7 +239,7 @@ ao_radio_recv(__xdata struct ao_radio_recv *radio) __reentrant
 			    DMA_CFG1_PRIORITY_HIGH);
 	ao_dma_start(ao_radio_dma);
 	RFST = RFST_SRX;
-	while (!ao_radio_dma_done)
+	__critical while (!ao_radio_dma_done)
 		ao_sleep(&ao_radio_dma_done);
 	ao_mutex_put(&ao_radio_mutex);
 }
