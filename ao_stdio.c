@@ -17,29 +17,26 @@
 
 #include "ao.h"
 
+/*
+ * Basic I/O functions to support SDCC stdio package
+ */
+
 void
-main(void)
+putchar(char c)
 {
-	CLKCON = 0;
-	while (!(SLEEP & SLEEP_XOSC_STB))
-		;
+	if (c == '\n')
+		ao_usb_putchar('\r');
+	ao_usb_putchar((uint8_t) c);
+}
 
-	/* Turn on the red LED until the system is stable */
-	ao_led_init();
-	ao_led_on(AO_LED_RED);
+void
+flush(void)
+{
+	ao_usb_flush();
+}
 
-	ao_timer_init();
-	ao_adc_init();
-	ao_beep_init();
-	ao_cmd_init();
-	ao_ee_init();
-	ao_flight_init();
-	ao_log_init();
-	ao_report_init();
-	ao_usb_init();
-	ao_serial_init();
-	ao_gps_init();
-	ao_telemetry_init();
-	ao_radio_init();
-	ao_start_scheduler();
+char
+getchar(void)
+{
+	return (char) ao_usb_getchar();
 }

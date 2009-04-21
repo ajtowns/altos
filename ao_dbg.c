@@ -213,3 +213,134 @@ ao_dbg_reset(void)
 	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|DBG_RESET_N);
 }
 
+static void
+debug_enable(void)
+{
+	ao_dbg_debug_mode();
+}
+
+static void
+debug_reset(void)
+{
+	ao_dbg_reset();
+}
+
+static void
+debug_put(void)
+{
+	for (;;) {
+		ao_cmd_white ();
+		if (ao_cmd_lex_c == '\n')
+			break;
+		ao_cmd_hex();
+		if (ao_cmd_status != ao_cmd_success)
+			break;
+		ao_dbg_send_byte(ao_cmd_lex_i);
+	}
+}
+
+static void
+debug_get(void)
+{
+	__xdata uint16_t count;
+	__xdata uint16_t i;
+	__xdata uint8_t byte;
+	ao_cmd_hex();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	count = ao_cmd_lex_i;
+	if (count > 256) {
+		ao_cmd_status = ao_cmd_syntax_error;
+		return;
+	}
+	for (i = 0; i < count; i++) {
+		if (i && (i & 7) == 0)
+			putchar('\n');
+		byte = ao_dbg_recv_byte();
+		ao_cmd_put8(byte);
+		putchar(' ');
+	}
+	putchar('\n');
+}
+
+static uint8_t
+getnibble(void)
+{
+	__xdata uint8_t	c;
+
+	c = getchar();
+	if ('0' <= c && c <= '9')
+		return c - '0';
+	if ('a' <= c && c <= 'f')
+		return c - ('a' - 10);
+	if ('A' <= c && c <= 'F')
+		return c - ('A' - 10);
+	ao_cmd_status = ao_cmd_lex_error;
+	return 0;
+}
+
+static void
+debug_input(void)
+{
+	__xdata uint16_t count;
+	__xdata uint16_t addr;
+	__xdata uint8_t b;
+	__xdata uint8_t	i;
+
+	ao_cmd_hex();
+	count = ao_cmd_lex_i;
+	ao_cmd_hex();
+	addr = ao_cmd_lex_i;
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	ao_dbg_start_transfer(addr);
+	i = 0;
+	while (count--) {
+		if (!(i++ & 7))
+			putchar('\n');
+		b = ao_dbg_read_byte();
+		ao_cmd_put8(b);
+	}
+	ao_dbg_end_transfer();
+	putchar('\n');
+}
+
+static void
+debug_output(void)
+{
+	__xdata uint16_t count;
+	__xdata uint16_t addr;
+	__xdata uint8_t b;
+
+	ao_cmd_hex();
+	count = ao_cmd_lex_i;
+	ao_cmd_hex();
+	addr = ao_cmd_lex_i;
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	ao_dbg_start_transfer(addr);
+	while (count--) {
+		b = getnibble() << 4;
+		b |= getnibble();
+		if (ao_cmd_status != ao_cmd_success)
+			return;
+		ao_dbg_write_byte(b);
+	}
+	ao_dbg_end_transfer();
+}
+
+__code struct ao_cmds ao_dbg_cmds[7] = {
+	{ 'D',	debug_enable,	"D                                  Enable debug mode\n" },
+	{ 'G',	debug_get,	"G <count>                          Get data from debug port\n" },
+	{ 'I',	debug_input,	"I <count> <addr>                   Input <count> bytes to target at <addr>\n" },
+	{ 'O',	debug_output,	"O <count> <addr>                   Output <count> bytes to target at <addr>\n" },
+	{ 'P',	debug_put,	"P <byte> ...                       Put data to debug port\n" },
+	{ 'R',	debug_reset,	"R                                  Reset target\n" },
+	{ 0, debug_reset,	0 },
+};
+
+void
+ao_dbg_init(void)
+{
+	ao_cmd_register(&ao_dbg_cmds[0]);
+}

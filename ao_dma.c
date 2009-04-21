@@ -88,11 +88,11 @@ ao_dma_start(uint8_t id)
 	DMAARM = 0x80 | mask;
 	nop(); nop(); nop(); nop();
 	nop(); nop(); nop(); nop();
+	*(ao_dma_done[id]) = 0;
 	DMAARM = mask;
 	nop(); nop(); nop(); nop();
 	nop(); nop(); nop(); nop();
 	nop();
-	*(ao_dma_done[id]) = 0;
 }
 
 void

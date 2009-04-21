@@ -169,16 +169,16 @@ ao_yield(void) _naked
 	_endasm;
 }
 
-int
+void
 ao_sleep(__xdata void *wchan)
 {
 	__critical {
-	ao_cur_task->wchan = wchan;
+		ao_cur_task->wchan = wchan;
 	}
 	ao_yield();
 }
 
-int
+void
 ao_wakeup(__xdata void *wchan)
 {
 	uint8_t	i;

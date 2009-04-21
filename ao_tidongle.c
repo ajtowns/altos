@@ -15,6 +15,8 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+#define AO_NO_SERIAL_ISR 1
+#define AO_NO_ADC_ISR 1
 #include "ao.h"
 
 void
@@ -23,23 +25,20 @@ main(void)
 	CLKCON = 0;
 	while (!(SLEEP & SLEEP_XOSC_STB))
 		;
-
-	/* Turn on the red LED until the system is stable */
+	
+	/* Turn on the LED until the system is stable */
 	ao_led_init();
 	ao_led_on(AO_LED_RED);
-
 	ao_timer_init();
-	ao_adc_init();
-	ao_beep_init();
 	ao_cmd_init();
-	ao_ee_init();
-	ao_flight_init();
-	ao_log_init();
-	ao_report_init();
 	ao_usb_init();
-	ao_serial_init();
-	ao_gps_init();
-	ao_telemetry_init();
+	ao_monitor_init();
 	ao_radio_init();
 	ao_start_scheduler();
+}
+
+/* Stub for systems which have no ADC */
+void
+ao_adc_poll(void)
+{
 }

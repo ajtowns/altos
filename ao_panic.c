@@ -34,6 +34,7 @@ ao_panic(uint8_t reason)
 	uint8_t	n;
 	
 	__critical for (;;) {
+		ao_panic_delay(20);
 		for (n = 0; n < 5; n++) {
 			ao_led_on(AO_LED_RED);
 			ao_beep(AO_BEEP_HIGH);
@@ -44,6 +45,7 @@ ao_panic(uint8_t reason)
 		}
 		ao_beep(AO_BEEP_OFF);
 		ao_panic_delay(2);
+#pragma disable_warning 126
 		for (n = 0; n < reason; n++) {
 			ao_led_on(AO_LED_RED);
 			ao_beep(AO_BEEP_MID);
@@ -52,6 +54,5 @@ ao_panic(uint8_t reason)
 			ao_beep(AO_BEEP_OFF);
 			ao_panic_delay(10);
 		}
-		ao_panic_delay(20);
 	}
 }

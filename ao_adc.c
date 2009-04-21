@@ -65,6 +65,21 @@ ao_adc_isr(void) interrupt 1
 	}
 }
 
+static void
+ao_adc_dump(void)
+{
+	__xdata struct ao_adc	packet;
+	ao_adc_get(&packet);
+	printf("tick: %5u accel: %4d pres: %4d temp: %4d batt: %4d drogue: %4d main: %4d\n",
+	       packet.tick, packet.accel >> 4, packet.pres >> 4, packet.temp >> 4,
+	       packet.sense_d >> 4, packet.sense_m >> 4);
+}
+
+__code struct ao_cmds ao_adc_cmds[] = {
+	{ 'a',	ao_adc_dump,	"a                                  Display current ADC values\n" },
+	{ 0,	ao_adc_dump, NULL },
+};
+
 void
 ao_adc_init(void)
 {
@@ -78,5 +93,6 @@ ao_adc_init(void)
 	/* enable interrupts */
 	ADCIF = 0;
 	IEN0 |= IEN0_ADCIE;
+	ao_cmd_register(&ao_adc_cmds[0]);
 }
 

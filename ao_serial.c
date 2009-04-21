@@ -90,6 +90,21 @@ ao_serial_putchar(uint8_t c) __critical
 	ao_serial_tx1_start();
 }
 
+static void
+send_serial(void)
+{
+	ao_cmd_white();
+	while (ao_cmd_lex_c != '\n') {
+		ao_serial_putchar(ao_cmd_lex_c);
+		ao_cmd_lex();
+	}
+}
+
+__code struct ao_cmds ao_serial_cmds[] = {
+	{ 'S', send_serial,		"S<data>                            Send data to serial line\n" },
+	{ 0, send_serial, NULL },
+};
+
 void
 ao_serial_init(void)
 {
@@ -120,4 +135,6 @@ ao_serial_init(void)
 
 	IEN0 |= IEN0_URX1IE;
 	IEN2 |= IEN2_UTX1IE;
+
+	ao_cmd_register(&ao_serial_cmds[0]);
 }

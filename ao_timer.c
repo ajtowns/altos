@@ -40,8 +40,8 @@ ao_delay(uint16_t ticks)
 #define T1_CLOCK_DIVISOR	8	/* 24e6/8 = 3e6 */
 #define T1_SAMPLE_TIME		30000	/* 3e6/30000 = 100 */
 
-__data uint8_t	ao_adc_interval = 1;
-__data uint8_t	ao_adc_count;
+volatile __data uint8_t	ao_adc_interval = 1;
+volatile __data uint8_t	ao_adc_count;
 
 void ao_timer_isr(void) interrupt 9
 {
@@ -54,6 +54,12 @@ void ao_timer_isr(void) interrupt 9
 }
 
 void
+ao_timer_set_adc_interval(uint8_t interval) __critical
+{
+	ao_adc_interval = interval;
+}
+
+void
 ao_timer_init(void)
 {
 	/* NOTE:  This uses a timer only present on cc1111 architecture. */
@@ -63,7 +69,7 @@ ao_timer_init(void)
 
 	/* set the sample rate */
 	T1CC0H = T1_SAMPLE_TIME >> 8;
-	T1CC0L = T1_SAMPLE_TIME;
+	T1CC0L = (uint8_t) T1_SAMPLE_TIME;
 
 	T1CCTL0 = T1CCTL_MODE_COMPARE;
 	T1CCTL1 = 0;

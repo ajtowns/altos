@@ -347,6 +347,67 @@ ao_ee_read_config(uint8_t *buf, uint16_t len) __reentrant
 	return 1;
 }
 
+static void
+ee_dump(void)
+{
+	__xdata uint8_t	b;
+	__xdata uint16_t block;
+	__xdata uint8_t i;
+	
+	ao_cmd_hex();
+	block = ao_cmd_lex_i;
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	i = 0;
+	do {
+		if ((i & 7) == 0) {
+			if (i)
+				putchar('\n');
+			ao_cmd_put16((uint16_t) i);
+		}
+		putchar(' ');
+		ao_ee_read(((uint32_t) block << 8) | i, &b, 1);
+		ao_cmd_put8(b);
+		++i;
+	} while (i != 0);
+	putchar('\n');
+}
+
+static void
+ee_store(void)
+{
+	__xdata uint16_t block;
+	__xdata uint8_t i;
+	__xdata uint16_t len;
+	__xdata uint8_t b;
+	__xdata uint32_t addr;
+
+	ao_cmd_hex();
+	block = ao_cmd_lex_i;
+	ao_cmd_hex();
+	i = ao_cmd_lex_i;
+	addr = ((uint32_t) block << 8) | i;
+	ao_cmd_hex();
+	len = ao_cmd_lex_i;
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	while (len--) {
+		ao_cmd_hex();
+		if (ao_cmd_status != ao_cmd_success)
+			return;
+		b = ao_cmd_lex_i;
+		ao_ee_write(addr, &b, 1);
+		addr++;
+	}
+	ao_ee_flush();	
+}
+
+__code struct ao_cmds ao_ee_cmds[] = {
+	{ 'e', ee_dump, 	"e <block>                          Dump a block of EEPROM data\n" },
+	{ 'w', ee_store,	"w <block> <start> <len> <data> ... Write data to EEPROM\n" },
+	{ 0,   ee_store, NULL },
+};
+
 /*
  * To initialize the chip, set up the CS line and
  * the SPI interface
@@ -393,4 +454,5 @@ ao_ee_init(void)
 		 UxGCR_CPHA_FIRST_EDGE |
 		 UxGCR_ORDER_MSB |
 		 (17 << UxGCR_BAUD_E_SHIFT));
+	ao_cmd_register(&ao_ee_cmds[0]);
 }

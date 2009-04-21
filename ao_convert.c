@@ -44,4 +44,8 @@ ao_temp_to_dC(int16_t temp) __reentrant
 }
 
 int16_t
-ao_accel_to_cm_per_s2(int16_t accel) __reentrant;
+ao_accel_to_cm_per_s2(int16_t accel) __reentrant
+{
+	/* this is wrong */
+	return (998 - (accel >> 4)) * 3300 / 2047;
+}

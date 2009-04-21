@@ -134,12 +134,19 @@ ao_flight(void)
 			
 			ao_interval_end = ao_flight_tick;
 			
-			if (ao_flight_accel < ACCEL_NOSE_UP) {
+			/* Go to launchpad state if the nose is pointing up and the battery is charged */
+			if (ao_flight_accel < ACCEL_NOSE_UP && ao_flight_data.v_batt > 23000) {
 				ao_flight_state = ao_flight_launchpad;
-				ao_report_notify();
+				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			} else {
 				ao_flight_state = ao_flight_idle;
-				ao_report_notify();
+				
+				/* Turn on the Green LED in idle mode
+				 * This also happens to bring the USB up for the TI board
+				 */
+				ao_led_on(AO_LED_GREEN);
+				ao_timer_set_adc_interval(100);
+				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			/* signal successful initialization by turning off the LED */
 			ao_led_off(AO_LED_RED);
@@ -150,7 +157,7 @@ ao_flight(void)
 			{
 				ao_flight_state = ao_flight_boost;
 				ao_log_start();
-				ao_report_notify();
+				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 				break;
 			}
 			break;
@@ -159,7 +166,7 @@ ao_flight(void)
 			    (int16_t) (ao_flight_data.tick - ao_launch_time) > BOOST_TICKS_MAX)
 			{
 				ao_flight_state = ao_flight_coast;
-				ao_report_notify();
+				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 				break;
 			}
 			break;
@@ -168,29 +175,29 @@ ao_flight(void)
 				ao_min_pres = ao_flight_pres;
 			if (ao_flight_pres - BARO_APOGEE > ao_min_pres) {
 				ao_flight_state = ao_flight_apogee;
-				ao_report_notify();
+				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			break;
 		case ao_flight_apogee:
 //			ao_ignite(AO_IGNITE_DROGUE);
 			ao_flight_state = ao_flight_drogue;
-			ao_report_notify();
+			ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			break; 
 		case ao_flight_drogue:
 			if (ao_flight_pres >= ao_main_pres) {
 //				ao_ignite(AO_IGNITE_MAIN);
 				ao_flight_state = ao_flight_main;
-				ao_report_notify();
+				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			if ((ao_interval_max_pres - ao_interval_min_pres) < BARO_LAND) {
 				ao_flight_state = ao_flight_landed;
-				ao_report_notify();
+				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			break;
 		case ao_flight_main:
 			if ((ao_interval_max_pres - ao_interval_min_pres) < BARO_LAND) {
 				ao_flight_state = ao_flight_landed;
-				ao_report_notify();
+				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			break;
 		case ao_flight_landed:

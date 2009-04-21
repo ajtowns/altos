@@ -29,7 +29,7 @@
 /* Stack runs from above the allocated __data space to 0xfe, which avoids
  * writing to 0xff as that triggers the stack overflow indicator
  */
-#define AO_STACK_START	0x62
+#define AO_STACK_START	0x68
 #define AO_STACK_END	0xfe
 #define AO_STACK_SIZE	(AO_STACK_END - AO_STACK_START + 1)
 
@@ -52,11 +52,11 @@ extern __xdata struct ao_task *__data ao_cur_task;
  */
 
 /* Suspend the current task until wchan is awoken */
-int
+void
 ao_sleep(__xdata void *wchan);
 
 /* Wake all tasks sleeping on wchan */
-int
+void
 ao_wakeup(__xdata void *wchan);
 
 /* Yield the processor to another task */
@@ -84,6 +84,7 @@ ao_start_scheduler(void);
 #define AO_PANIC_MUTEX		3	/* Mis-using mutex API */
 #define AO_PANIC_EE		4	/* Mis-using eeprom API */
 #define AO_PANIC_LOG		5	/* Failing to read/write log data */
+#define AO_PANIC_CMD		6	/* Too many command sets registered */
 
 /* Stop the operating system, beeping and blinking the reason */
 void
@@ -104,6 +105,10 @@ ao_time(void);
 /* Suspend the current task until ticks time has passed */
 void
 ao_delay(uint16_t ticks);
+
+/* Set the ADC interval */
+void
+ao_timer_set_adc_interval(uint8_t interval) __critical;
 
 /* Timer interrupt */
 void
@@ -152,8 +157,10 @@ void
 ao_adc_get(__xdata struct ao_adc *packet);
 
 /* The A/D interrupt handler */
+#if !AO_NO_ADC_ISR
 void
 ao_adc_isr(void) interrupt 1;
+#endif
 
 /* Initialize the A/D converter */
 void
@@ -267,6 +274,41 @@ ao_usb_init(void);
 /*
  * ao_cmd.c
  */
+
+enum ao_cmd_status {
+	ao_cmd_success = 0,
+	ao_cmd_lex_error = 1,
+	ao_cmd_syntax_error = 2,
+};
+
+extern __xdata uint16_t ao_cmd_lex_i;
+extern __xdata uint8_t	ao_cmd_lex_c;
+extern __xdata enum ao_cmd_status ao_cmd_status;
+
+void
+ao_cmd_lex(void);
+
+void
+ao_cmd_put8(uint8_t v);
+
+void
+ao_cmd_put16(uint16_t v);
+
+void
+ao_cmd_white(void);
+
+void
+ao_cmd_hex(void);
+
+struct ao_cmds {
+	uint8_t		cmd;
+	void		(*func)(void);
+	const char	*help;
+};
+
+void
+ao_cmd_register(__code struct ao_cmds *cmds);
+
 void
 ao_cmd_init(void);
 
@@ -357,6 +399,14 @@ ao_ee_init(void);
  * ao_log.c
  */
 
+/* Structure containing GPS position, either lat or lon */
+
+struct ao_gps_pos {
+	uint8_t	degrees;
+	uint8_t	minutes;
+	uint16_t minutes_fraction;	/* in units of 1/10000 minutes */
+};
+
 /*
  * The data log is recorded in the eeprom as a sequence
  * of data packets.
@@ -387,6 +437,10 @@ ao_ee_init(void);
 #define AO_LOG_TEMP_VOLT	'T'
 #define AO_LOG_DEPLOY		'D'
 #define AO_LOG_STATE		'S'
+#define AO_LOG_GPS_TIME		'G'
+#define AO_LOG_GPS_LAT		'N'
+#define AO_LOG_GPS_LON		'W'
+#define AO_LOG_GPS_ALT		'H'
 
 #define AO_LOG_POS_NONE		(~0UL)
 
@@ -415,6 +469,18 @@ struct ao_log_record {
 			uint16_t	state;
 			uint16_t	reason;
 		} state;
+		struct {
+			uint8_t		hour;
+			uint8_t		minute;
+			uint8_t		second;
+			uint8_t		flags;
+		} gps_time;
+		struct ao_gps_pos gps_latitude;
+		struct ao_gps_pos gps_longitude;
+		struct {
+			int16_t		altitude;
+			uint16_t	unused;
+		} gps_altitude;
 		struct {
 			uint16_t	d0;
 			uint16_t	d1;
@@ -465,16 +531,16 @@ ao_log_init(void);
  */
 
 enum ao_flight_state {
-	ao_flight_startup,
-	ao_flight_idle,
-	ao_flight_launchpad,
-	ao_flight_boost,
-	ao_flight_coast,
-	ao_flight_apogee,
-	ao_flight_drogue,
-	ao_flight_main,
-	ao_flight_landed,
-	ao_flight_invalid
+	ao_flight_startup = 0,
+	ao_flight_idle = 1,
+	ao_flight_launchpad = 2,
+	ao_flight_boost = 3,
+	ao_flight_coast = 4,
+	ao_flight_apogee = 5,
+	ao_flight_drogue = 6,
+	ao_flight_main = 7,
+	ao_flight_landed = 8,
+	ao_flight_invalid = 9
 };
 
 extern __xdata struct ao_adc		ao_flight_data;
@@ -500,9 +566,6 @@ ao_flight_init(void);
  */
 
 void
-ao_report_notify(void);
-
-void
 ao_report_init(void);
 
 /*
@@ -519,10 +582,7 @@ int16_t
 ao_temp_to_dC(int16_t temp) __reentrant;
 
 int16_t
-ao_accel_to_dm_per_s2(int16_t accel)
-{
-	return (998 - (accel >> 4)) * 3300 / 2047;
-}
+ao_accel_to_cm_per_s2(int16_t accel) __reentrant;
 
 /*
  * ao_dbg.c
@@ -566,11 +626,13 @@ ao_dbg_reset(void);
  * ao_serial.c
  */
 
+#if !AO_NO_SERIAL_ISR
 void
 ao_serial_rx1_isr(void) interrupt 3;
 
 void
 ao_serial_tx1_isr(void) interrupt 14;
+#endif
 
 uint8_t
 ao_serial_getchar(void) __critical;
@@ -584,12 +646,6 @@ ao_serial_init(void);
 /*
  * ao_gps.c
  */
-
-struct ao_gps_pos {
-	uint8_t	degrees;
-	uint8_t	minutes;
-	uint16_t minutes_fraction;	/* in units of 1/10000 minutes */
-};
 
 #define AO_GPS_NUM_SAT_MASK	(0xf << 0)
 #define AO_GPS_NUM_SAT_SHIFT	(0)
@@ -620,8 +676,69 @@ void
 ao_gps(void);
 
 void
+ao_gps_print(__xdata struct ao_gps_data *gps_data);
+
+void
 ao_gps_init(void);
 
+/*
+ * ao_telemetry.c
+ */
+
+#define AO_TELEMETRY_SENSOR	1
+#define AO_TELEMETRY_GPS	2
+
+struct ao_telemetry {
+	uint8_t		addr;
+	uint8_t		type;
+	uint8_t		flight_state;
+	union {
+		struct ao_adc		adc;
+		struct ao_gps_data	gps;
+	} u;
+};
+
+void
+ao_telemetry_send(__xdata struct ao_telemetry *telemetry) __reentrant;
+
+void
+ao_telemetry_init(void);
+
+/*
+ * ao_radio.c
+ */
+
+void
+ao_radio_send(__xdata struct ao_telemetry *telemetry) __reentrant;
+
+struct ao_radio_recv {
+	struct ao_telemetry	telemetry;
+	uint8_t			rssi;
+	uint8_t			status;
+};
+
+void
+ao_radio_recv(__xdata struct ao_radio_recv *recv) __reentrant;
+
+void
+ao_radio_init(void);
+
+/*
+ * ao_monitor.c
+ */
+
+void
+ao_monitor(void);
+
+void
+ao_monitor_init(void);
+
+/*
+ * ao_stdio.c
+ */
+
+void
+flush(void);
 
 #endif /* _AO_H_ */
 

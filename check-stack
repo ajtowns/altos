@@ -2,11 +2,11 @@
 HEADER=$1
 MEM=$2
 
-HEADER_STACK=`awk '/#define AO_STACK_START/ {print $3}' $HEADER`
-MEM_STACK=`awk '/Stack starts at/ {print $4}' $MEM`
+HEADER_STACK=`awk '/#define AO_STACK_START/ {print $3}' $HEADER | nickle`
+MEM_STACK=`awk '/Stack starts at/ {print $4}' $MEM | nickle`
 
-if [ "$HEADER_STACK" != "$MEM_STACK" ]; then
-	echo "Set AO_STACK_START to $MEM_STACK"
+if [ "$HEADER_STACK" -lt "$MEM_STACK" ]; then
+	echo "Set AO_STACK_START to at least $MEM_STACK"
 	exit 1
 else
 	exit 0

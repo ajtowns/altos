@@ -58,12 +58,6 @@ ao_report_beep(void)
 }
 
 void
-ao_report_notify(void)
-{
-	ao_wakeup(&ao_report_state);
-}
-
-void
 ao_report(void)
 {
 	ao_report_state = ao_flight_state;
@@ -71,7 +65,7 @@ ao_report(void)
 		ao_report_beep();
 		__critical {
 			while (ao_report_state == ao_flight_state)
-				ao_sleep(&ao_report_state);
+				ao_sleep(DATA_TO_XDATA(&ao_flight_state));
 			ao_report_state = ao_flight_state;
 		}
 	}

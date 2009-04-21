@@ -102,7 +102,7 @@ ao_usb_ep0_flush(void)
 	USBCS0 = cs0;
 }
 
-#define LE_WORD(x)    ((x)&0xFF),((x)>>8)
+#define LE_WORD(x)    ((x)&0xFF),((uint8_t) (((uint16_t) (x))>>8))
 
 /* CDC definitions */
 #define CS_INTERFACE      0x24
@@ -369,6 +369,7 @@ ao_usb_ep0_setup(void)
 			}
 			break;
 		case AO_USB_RECIP_INTERFACE:
+			#pragma disable_warning 110
 			switch(ao_usb_setup.request) {
 			case AO_USB_REQ_GET_STATUS:
 				ao_usb_ep0_queue_byte(0);
