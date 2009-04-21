@@ -29,9 +29,15 @@ static void
 ao_dbg_send_bits(uint8_t msk, uint8_t val)
 {
 	P0 = (P0 & ~msk) | (val & msk);
+	_asm
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+	_endasm;
 }
-
-#define ao_dbg_pause() do { _asm nop; nop; nop _endasm; } while (0);
 
 void
 ao_dbg_send_byte(uint8_t byte)
@@ -46,9 +52,7 @@ ao_dbg_send_byte(uint8_t byte)
 			d = DBG_DATA;
 		byte <<= 1;
 		ao_dbg_send_bits(DBG_CLOCK|DBG_DATA, DBG_CLOCK|d);
-		ao_dbg_pause();
 		ao_dbg_send_bits(DBG_CLOCK|DBG_DATA,     0    |d);
-		ao_dbg_pause();
 	}
 	P0DIR &= ~DBG_DATA;
 }
@@ -62,11 +66,9 @@ ao_dbg_recv_byte(void)
 	for (b = 0; b < 8; b++) {
 		byte = byte << 1;
 		ao_dbg_send_bits(DBG_CLOCK, DBG_CLOCK);
-		ao_dbg_pause();
 		if (DBG_DATA_PIN)
 			byte |= 1;
 		ao_dbg_send_bits(DBG_CLOCK, 0);
-		ao_dbg_pause();
 	}
 	return byte;
 }
@@ -189,28 +191,51 @@ ao_dbg_set_pins(void)
 	P0DIR = DBG_RESET_N | DBG_CLOCK;
 }
 
+static void
+ao_dbg_long_delay(void)
+{
+	uint8_t	n;
+
+	for (n = 0; n < 20; n++)
+		_asm nop _endasm;
+}
+
 void
 ao_dbg_debug_mode(void)
 {
 	ao_dbg_set_pins();
+	ao_dbg_long_delay();
 	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|DBG_RESET_N);
+	ao_dbg_long_delay();
 	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N,     0    |DBG_DATA|    0    );
+	ao_dbg_long_delay();
 	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
+	ao_dbg_long_delay();
 	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N,     0    |DBG_DATA|    0    );
+	ao_dbg_long_delay();
 	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
+	ao_dbg_long_delay();
 	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N,     0    |DBG_DATA|DBG_RESET_N);
+	ao_dbg_long_delay();
 }
 
 void
 ao_dbg_reset(void)
 {
 	ao_dbg_set_pins();
+	ao_dbg_long_delay();
 	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|DBG_RESET_N);
+	ao_dbg_long_delay();
 	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
+	ao_dbg_long_delay();
 	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
+	ao_dbg_long_delay();
 	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
+	ao_dbg_long_delay();
 	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
+	ao_dbg_long_delay();
 	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|DBG_RESET_N);
+	ao_dbg_long_delay();
 }
 
 static void
