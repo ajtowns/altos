@@ -2,7 +2,7 @@
 # AltOS build
 #
 # 
-CC=/usr/bin/sdcc
+CC=sdcc
 
 CFLAGS=--model-small --debug --opt-code-speed 
 
