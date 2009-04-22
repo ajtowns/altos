@@ -49,7 +49,7 @@ ao_monitor(void)
 			ao_state_names[state]);
 		if (!(recv.status & PKT_APPEND_STATUS_1_CRC_OK))
 			printf("CRC INVALID ");
-		printf("%5u a: %d p: %d t: %d v: %d d: %d m: %d\n",
+		printf("%5u a: %d p: %d t: %d v: %d d: %d m: %d ",
 		       recv.telemetry.adc.tick,
 		       recv.telemetry.adc.accel,
 		       recv.telemetry.adc.pres,
