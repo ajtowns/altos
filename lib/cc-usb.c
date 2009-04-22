@@ -31,7 +31,11 @@
 
 
 #define CC_NUM_READ		16
-#define CC_BUF			1024
+/*
+ * AltOS has different buffer sizes for in/out packets
+ */
+#define CC_IN_BUF		256
+#define CC_OUT_BUF		64
 #define DEFAULT_TTY		"/dev/ttyACM0"
 
 struct cc_read {
@@ -41,9 +45,9 @@ struct cc_read {
 
 struct cc_usb {
 	int		fd;
-	uint8_t		in_buf[CC_BUF];
+	uint8_t		in_buf[CC_IN_BUF];
 	int		in_count;
-	uint8_t		out_buf[CC_BUF];
+	uint8_t		out_buf[CC_OUT_BUF];
 	int		out_count;
 	struct cc_read	read_buf[CC_NUM_READ];
 	int		read_count;
@@ -167,7 +171,7 @@ cc_usb_sync(struct cc_usb *cc)
 		else
 			timeout = 0;
 		fds.events = 0;
-		if (cc->in_count < CC_BUF)
+		if (cc->in_count < CC_IN_BUF)
 			fds.events |= POLLIN;
 		if (cc->out_count)
 			fds.events |= POLLOUT;
@@ -180,12 +184,13 @@ cc_usb_sync(struct cc_usb *cc)
 		}
 		if (fds.revents & POLLIN) {
 			ret = read(cc->fd, cc->in_buf + cc->in_count,
-				   CC_BUF - cc->in_count);
+				   CC_IN_BUF - cc->in_count);
 			if (ret > 0) {
 				cc_usb_dbg(24, cc->in_buf + cc->in_count, ret);
 				cc->in_count += ret;
 				cc_handle_in(cc);
-			}
+			} else if (ret < 0)
+				perror("read");
 		}
 		if (fds.revents & POLLOUT) {
 			ret = write(cc->fd, cc->out_buf,
@@ -196,7 +201,8 @@ cc_usb_sync(struct cc_usb *cc)
 					cc->out_buf + ret,
 					cc->out_count - ret);
 				cc->out_count -= ret;
-			}
+			} else if (ret < 0)
+				perror("write");
 		}
 	}
 }
@@ -221,13 +227,13 @@ cc_usb_printf(struct cc_usb *cc, char *format, ...)
 	b = buf;
 	while (ret > 0) {
 		this_time = ret;
-		if (this_time > CC_BUF - cc->out_count)
-			this_time = CC_BUF - cc->out_count;
+		if (this_time > CC_OUT_BUF - cc->out_count)
+			this_time = CC_OUT_BUF - cc->out_count;
 		memcpy(cc->out_buf + cc->out_count, b, this_time);
 		cc->out_count += this_time;
 		ret -= this_time;
 		b += this_time;
-		while (cc->out_count >= CC_BUF)
+		while (cc->out_count >= CC_OUT_BUF)
 			cc_usb_sync(cc);
 	}
 }
