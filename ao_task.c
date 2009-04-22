@@ -193,13 +193,15 @@ ao_task_info(void)
 {
 	uint8_t	i;
 	uint8_t pc_loc;
+	__xdata struct ao_task *task;
 
 	for (i = 0; i < ao_num_tasks; i++) {
-		pc_loc = ao_tasks[i]->stack_count - 17;
-		printf("%-8s: wchan %04x pc %04x\n",
-		       ao_tasks[i]->name,
-		       (int16_t) ao_tasks[i]->wchan,
-		       (ao_tasks[i]->stack[pc_loc]) | (ao_tasks[i]->stack[pc_loc+1] << 8));
+		task = ao_tasks[i];
+		pc_loc = task->stack_count - 17;
+		printf("%12s: wchan %04x pc %04x\n",
+		       (char *) task->name,
+		       (int16_t) task->wchan,
+		       (task->stack[pc_loc]) | (task->stack[pc_loc+1] << 8));
 	}
 }
 
