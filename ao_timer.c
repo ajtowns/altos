@@ -19,13 +19,9 @@
 
 static volatile __data uint16_t ao_tick_count;
 
-uint16_t ao_time(void)
+uint16_t ao_time(void) __critical
 {
-	uint16_t ret;
-	__critical {
-		ret = ao_tick_count;
-	}
-	return ret;
+	return ao_tick_count;
 }
 
 void
