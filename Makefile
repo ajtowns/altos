@@ -119,7 +119,8 @@ SRC = \
 	$(TELE_COMMON_SRC) \
 	$(TM_DRIVER_SRC) \
 	$(TM_TASK_SRC) \
-	$(TI_TASK_SRC)
+	$(TI_TASK_SRC) \
+	$(TT_TASK_SRC)
 
 TM_REL=$(TM_SRC:.c=.rel)
 TI_REL=$(TI_SRC:.c=.rel)
