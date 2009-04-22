@@ -29,6 +29,8 @@ const char const * const ao_state_names[] = {
 	"apogee", "drogue", "main", "landed", "invalid"
 };
 
+__xdata uint8_t ao_monitoring;
+
 void
 ao_monitor(void)
 {
@@ -36,6 +38,8 @@ ao_monitor(void)
 	uint8_t state;
 
 	for (;;) {
+		__critical while (!ao_monitoring)
+			ao_sleep(&ao_monitoring);
 		ao_radio_recv(&recv);
 		state = recv.telemetry.flight_state;
 		if (state > ao_flight_invalid)
@@ -60,8 +64,23 @@ ao_monitor(void)
 
 __xdata struct ao_task ao_monitor_task;
 
+static void
+ao_set_monitor(void)
+{
+	ao_cmd_hex();
+	ao_monitoring = ao_cmd_lex_i != 0;
+	ao_wakeup(&ao_monitoring);
+}
+
+__code struct ao_cmds ao_monitor_cmds[] = {
+	{ 'M',	ao_set_monitor,	"M                                  Enable/disable radio monitoring" },
+	{ 0,	ao_set_monitor,	NULL },
+};
+
 void
 ao_monitor_init(void)
 {
+	ao_monitoring = 0;
+	ao_cmd_register(&ao_monitor_cmds[0]);
 	ao_add_task(&ao_monitor_task, ao_monitor, "monitor");
 }
