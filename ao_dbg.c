@@ -32,10 +32,6 @@ ao_dbg_send_bits(uint8_t msk, uint8_t val)
 	_asm
 		nop
 		nop
-		nop
-		nop
-		nop
-		nop
 	_endasm;
 }
 
