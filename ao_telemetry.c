@@ -38,7 +38,7 @@ ao_telemetry(void)
 		memcpy(&telemetry.gps, &ao_gps_data, sizeof (struct ao_gps_data));
 		ao_mutex_put(&ao_gps_mutex);
 		ao_radio_send(&telemetry);
-		ao_delay(AO_MS_TO_TICKS(1000));
+		ao_delay(AO_MS_TO_TICKS(100));
 	}
 }
 
