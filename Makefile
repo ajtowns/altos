@@ -111,6 +111,20 @@ TT_SRC = \
 	$(TT_TASK_SRC)
 	
 	
+#
+# Sources for TeleDongle
+#
+
+TD_TASK_SRC = \
+	ao_teledongle.c
+
+TD_SRC = \
+	$(ALTOS_SRC) \
+	$(ALTOS_DRIVER_SRC) \
+	$(TELE_RECEIVER_SRC) \
+	$(TELE_COMMON_SRC) \
+	$(TD_TASK_SRC)
+
 SRC = \
 	$(ALTOS_SRC) \
 	$(ALTOS_DRIVER_SRC) \
@@ -120,11 +134,13 @@ SRC = \
 	$(TM_DRIVER_SRC) \
 	$(TM_TASK_SRC) \
 	$(TI_TASK_SRC) \
-	$(TT_TASK_SRC)
+	$(TT_TASK_SRC) \
+	$(TD_TASK_SRC)
 
 TM_REL=$(TM_SRC:.c=.rel)
 TI_REL=$(TI_SRC:.c=.rel)
 TT_REL=$(TT_SRC:.c=.rel)
+TD_REL=$(TD_SRC:.c=.rel)
 
 ADB=$(SRC:.c=.adb)
 ASM=$(SRC:.c=.asm)
@@ -134,7 +150,8 @@ REL=$(SRC:.c=.rel)
 RST=$(SRC:.c=.rst)
 SYM=$(SRC:.c=.sym)
 
-PROGS=telemetrum.ihx tidongle.ihx teleterra.ihx
+PROGS=telemetrum.ihx tidongle.ihx teleterra.ihx teledongle.ihx ao_flight_test
+
 PCDB=$(PROGS:.ihx=.cdb)
 PLNK=$(PROGS:.ihx=.lnk)
 PMAP=$(PROGS:.ihx=.map)
@@ -161,6 +178,12 @@ teleterra.ihx: $(TT_REL) Makefile
 	sh check-stack ao.h teleterra.mem
 
 teleterra.ihx: tidongle.ihx
+
+teledongle.ihx: $(TD_REL) Makefile
+	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(TD_REL)
+	sh check-stack ao.h teledongle.mem
+
+teledongle.ihx: teleterra.ihx
 
 altitude.h: make-altitude
 	nickle make-altitude > altitude.h
