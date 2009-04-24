@@ -153,6 +153,8 @@ SYM=$(SRC:.c=.sym)
 
 PROGS=telemetrum.ihx tidongle.ihx teleterra.ihx teledongle.ihx
 
+HOST_PROGS=ao_flight_test
+
 PCDB=$(PROGS:.ihx=.cdb)
 PLNK=$(PROGS:.ihx=.lnk)
 PMAP=$(PROGS:.ihx=.map)
@@ -162,7 +164,7 @@ PAOM=$(PROGS:.ihx=)
 %.rel : %.c $(INC)
 	$(CC) -c $(CFLAGS) -o$*.rel $*.c
 
-all: $(PROGS)
+all: $(PROGS) $(HOST_PROGS)
 
 telemetrum.ihx: $(TM_REL) Makefile
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(TM_REL)

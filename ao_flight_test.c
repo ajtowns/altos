@@ -95,7 +95,7 @@ ao_dump_state(void);
 
 void
 ao_sleep(void *wchan);
-	
+
 #include "ao_flight.c"
 
 void
@@ -104,8 +104,8 @@ ao_insert(void)
 	ao_adc_ring[ao_adc_head] = ao_adc_static;
 	ao_adc_head = ao_adc_ring_next(ao_adc_head);
 	if (ao_flight_state != ao_flight_startup) {
-		printf("tick %04x accel %04x pres %04x\n", 
-		       ao_adc_static.tick,
+		printf("time %g accel %d pres %d\n",
+		       (double) ao_adc_static.tick / 100,
 		       ao_adc_static.accel,
 		       ao_adc_static.pres);
 	}
@@ -132,7 +132,8 @@ ao_sleep(void *wchan)
 
 			ret = fscanf(emulator_in, "%c %hx %hx %hx\n", &type, &tick, &a, &b);
 			if (ret == EOF) {
-				ao_insert();
+				printf ("no more data, exiting simulation\n");
+				exit(0);
 				return;
 			}
 			if (ret != 4)
@@ -162,7 +163,7 @@ ao_sleep(void *wchan)
 				break;
 			}
 		}
-		
+
 	}
 }
 
@@ -175,7 +176,6 @@ static int16_t altitude[2048] = {
 #include "altitude.h"
 };
 
-#define GRAVITY 9.80665
 #define COUNTS_PER_G 264.8
 
 void
@@ -186,7 +186,7 @@ ao_dump_state(void)
 	printf ("\t%s accel %g vel %g alt %d\n",
 		ao_state_names[ao_flight_state],
 		(ao_flight_accel - ao_ground_accel) / COUNTS_PER_G * GRAVITY,
-		(double) ao_flight_vel,
+		(double) ao_flight_vel / 100 / COUNTS_PER_G * GRAVITY,
 		altitude[ao_flight_pres >> 4]);
 	if (ao_flight_state == ao_flight_landed)
 		exit(0);
