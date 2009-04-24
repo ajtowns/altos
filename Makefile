@@ -150,7 +150,7 @@ REL=$(SRC:.c=.rel)
 RST=$(SRC:.c=.rst)
 SYM=$(SRC:.c=.sym)
 
-PROGS=telemetrum.ihx tidongle.ihx teleterra.ihx teledongle.ihx ao_flight_test
+PROGS=telemetrum.ihx tidongle.ihx teleterra.ihx teledongle.ihx
 
 PCDB=$(PROGS:.ihx=.cdb)
 PLNK=$(PROGS:.ihx=.lnk)
