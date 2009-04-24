@@ -7,7 +7,7 @@ CC=sdcc
 CFLAGS=--model-small --debug --opt-code-speed 
 
 LDFLAGS=--out-fmt-ihx --code-loc 0x0000 --code-size 0x8000 \
-	--xram-loc 0xf000 --xram-size 0xf00 --iram-size 0xff
+	--xram-loc 0xf000 --xram-size 0xda2 --iram-size 0xff
 
 INC = \
 	ao.h \

@@ -122,7 +122,7 @@ ao_timer_init(void);
  * ao_adc.c
  */
 
-#define AO_ADC_RING	128
+#define AO_ADC_RING	64
 
 /*
  * One set of samples read from the A/D converter
