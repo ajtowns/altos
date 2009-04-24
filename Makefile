@@ -61,7 +61,8 @@ TELE_DRIVER_SRC = \
 #
 TM_DRIVER_SRC = \
 	ao_adc.c \
-	ao_ee.c
+	ao_ee.c \
+	ao_ignite.c
 
 #
 # Tasks run on TeleMetrum
@@ -193,3 +194,6 @@ clean:
 	rm -f $(PROGS) $(PCDB) $(PLNK) $(PMAP) $(PMEM) $(PAOM)
 
 install:
+
+ao_flight_test: ao_flight.c ao_flight_test.c
+	cc -g -o $@ ao_flight_test.c

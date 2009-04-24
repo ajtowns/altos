@@ -52,6 +52,7 @@ ao_monitor(void)
 		       recv.telemetry.adc.sense_m);
 		ao_gps_print(&recv.telemetry.gps);
 		ao_usb_flush();
+		ao_led_for(AO_LED_GREEN, AO_MS_TO_TICKS(10));
 	}
 }
 

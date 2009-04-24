@@ -15,12 +15,13 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+#ifndef AO_FLIGHT_TEST
 #include "ao.h"
+#endif
 
 /* Main flight thread. */
 
-__xdata struct ao_adc		ao_flight_data;		/* last acquired data */
-__pdata enum flight_state	ao_flight_state;	/* current flight state */
+__pdata enum ao_flight_state	ao_flight_state;	/* current flight state */
 __pdata uint16_t		ao_flight_tick;		/* time of last data */
 __pdata int16_t			ao_flight_accel;	/* filtered acceleration */
 __pdata int16_t			ao_flight_pres;		/* filtered pressure */
@@ -44,6 +45,9 @@ __pdata int16_t			ao_interval_max_accel;
 __pdata int16_t			ao_interval_min_pres;
 __pdata int16_t			ao_interval_max_pres;
 
+__data uint8_t ao_flight_adc;
+__xdata int16_t ao_accel, ao_prev_accel, ao_pres;
+
 #define AO_INTERVAL_TICKS	AO_SEC_TO_TICKS(5)
 
 /* Accelerometer calibration
@@ -66,6 +70,7 @@ __pdata int16_t			ao_interval_max_pres;
 #define ACCEL_ZERO_G	16000
 #define ACCEL_NOSE_UP	(ACCEL_ZERO_G - ACCEL_G * 2 /3)
 #define ACCEL_BOOST	(ACCEL_NOSE_UP - ACCEL_G * 2)
+#define ACCEL_LAND	(ACCEL_G / 10)
 
 /*
  * Barometer calibration
@@ -96,23 +101,45 @@ __pdata int16_t			ao_interval_max_pres;
  * case of other failures
  */
 
-#define BOOST_TICKS_MAX	AO_SEC_TO_TICKS(10)
+#define BOOST_TICKS_MAX	AO_SEC_TO_TICKS(15)
+
+/* This value is scaled in a weird way. It's a running total of accelerometer
+ * readings minus the ground accelerometer reading. That means it measures
+ * velocity, and quite accurately too. As it gets updated 100 times a second,
+ * it's scaled by 100
+ */
+__data int32_t	ao_flight_vel;
+
+/* convert m/s to velocity count */
+#define VEL_MPS_TO_COUNT(mps) ((int32_t) ((int32_t) (mps) * (int32_t) 100 / (int32_t) ACCEL_G))
 
 void
 ao_flight(void)
 {
 	__pdata static uint8_t	nsamples = 0;
 	
+	ao_flight_adc = ao_adc_head;
+	ao_prev_accel = 0;
+	ao_accel = 0;
+	ao_pres = 0;
 	for (;;) {
 		ao_sleep(&ao_adc_ring);
-		ao_adc_get(&ao_flight_data);
+		while (ao_flight_adc != ao_adc_head) {
+			ao_accel = ao_adc_ring[ao_flight_adc].accel;
+			ao_pres = ao_adc_ring[ao_flight_adc].pres;
+			ao_flight_tick = ao_adc_ring[ao_flight_adc].tick;
+			ao_flight_vel += (int32_t) (((ao_accel + ao_prev_accel) >> 4) - (ao_ground_accel << 1));
+			ao_prev_accel = ao_accel;
+			ao_flight_adc = ao_adc_ring_next(ao_flight_adc);
+		}
 		ao_flight_accel -= ao_flight_accel >> 4;
-		ao_flight_accel += ao_flight_data.accel >> 4;
+		ao_flight_accel += ao_accel >> 4;
 		ao_flight_pres -= ao_flight_pres >> 4;
-		ao_flight_pres += ao_flight_data.pres >> 4;
-		ao_flight_tick = ao_time();
+		ao_flight_pres += ao_pres >> 4;
 		
-		ao_flight_tick = ao_time();
+		if (ao_flight_pres < ao_min_pres)
+			ao_min_pres = ao_flight_pres;
+
 		if ((int16_t) (ao_flight_tick - ao_interval_end) >= 0) {
 			ao_interval_max_pres = ao_interval_cur_max_pres;
 			ao_interval_min_pres = ao_interval_cur_min_pres;
@@ -131,11 +158,12 @@ ao_flight(void)
 			ao_ground_pres = ao_flight_pres;
 			ao_min_pres = ao_flight_pres;
 			ao_main_pres = ao_ground_pres - BARO_MAIN;
+			ao_flight_vel = 0;
 			
 			ao_interval_end = ao_flight_tick;
 			
-			/* Go to launchpad state if the nose is pointing up and the battery is charged */
-			if (ao_flight_accel < ACCEL_NOSE_UP && ao_flight_data.v_batt > 23000) {
+			/* Go to launchpad state if the nose is pointing up */
+			if (ao_flight_accel < ACCEL_NOSE_UP) {
 				ao_flight_state = ao_flight_launchpad;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			} else {
@@ -152,6 +180,12 @@ ao_flight(void)
 			ao_led_off(AO_LED_RED);
 			break;
 		case ao_flight_launchpad:
+
+			/* pad to boost:
+			 *
+			 * accelerometer: > 2g
+			 * barometer: > 20m vertical motion
+			 */
 			if (ao_flight_accel < ACCEL_BOOST || 
 			    ao_flight_pres + BARO_LAUNCH < ao_ground_pres)
 			{
@@ -162,8 +196,14 @@ ao_flight(void)
 			}
 			break;
 		case ao_flight_boost:
-			if (ao_flight_accel > ACCEL_ZERO_G ||
-			    (int16_t) (ao_flight_data.tick - ao_launch_time) > BOOST_TICKS_MAX)
+
+			/* boost to coast:
+			 *
+			 * accelerometer: start to fall at > 1/4 G
+			 * time: boost for more than 15 seconds
+			 */
+			if (ao_flight_accel > ao_ground_accel + (ACCEL_G >> 2) ||
+			    (int16_t) (ao_flight_tick - ao_launch_time) > BOOST_TICKS_MAX)
 			{
 				ao_flight_state = ao_flight_coast;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
@@ -171,31 +211,60 @@ ao_flight(void)
 			}
 			break;
 		case ao_flight_coast:
-			if (ao_flight_pres < ao_min_pres)
-				ao_min_pres = ao_flight_pres;
-			if (ao_flight_pres - BARO_APOGEE > ao_min_pres) {
+			
+			/* coast to apogee detect:
+			 * 
+			 * accelerometer: integrated velocity < 200 m/s
+			 * barometer: fall at least 500m from max altitude
+			 */
+			if (ao_flight_vel < VEL_MPS_TO_COUNT(200) ||
+			    ao_flight_pres - (5 * BARO_kPa) > ao_min_pres)
+			{
 				ao_flight_state = ao_flight_apogee;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			break;
 		case ao_flight_apogee:
-//			ao_ignite(AO_IGNITE_DROGUE);
-			ao_flight_state = ao_flight_drogue;
-			ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
+
+			/* apogee to drogue deploy:
+			 *
+			 * accelerometer: integrated velocity < 10m/s
+			 * barometer: fall at least 10m
+			 */
+			if (ao_flight_vel < VEL_MPS_TO_COUNT(-10) ||
+			    ao_flight_pres - BARO_APOGEE > ao_min_pres)
+			{
+				ao_ignite(ao_igniter_drogue);
+				ao_flight_state = ao_flight_drogue;
+				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
+			}
 			break; 
 		case ao_flight_drogue:
-			if (ao_flight_pres >= ao_main_pres) {
-//				ao_ignite(AO_IGNITE_MAIN);
+			
+			/* drogue to main deploy:
+			 *
+			 * accelerometer: abs(velocity) > 50m/s
+			 * barometer: reach main deploy altitude
+			 */
+			if (ao_flight_vel < VEL_MPS_TO_COUNT(-50) ||
+			    ao_flight_vel > VEL_MPS_TO_COUNT(50) ||
+			    ao_flight_pres >= ao_main_pres)
+			{
+				ao_ignite(ao_igniter_main);
 				ao_flight_state = ao_flight_main;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
-			if ((ao_interval_max_pres - ao_interval_min_pres) < BARO_LAND) {
-				ao_flight_state = ao_flight_landed;
-				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
-			}
-			break;
+			/* fall through... */
 		case ao_flight_main:
-			if ((ao_interval_max_pres - ao_interval_min_pres) < BARO_LAND) {
+
+			/* drogue/main to land:
+			 *
+			 * accelerometer: value stable
+			 * barometer: altitude stable
+			 */
+			if ((ao_interval_max_accel - ao_interval_min_accel) < ACCEL_LAND ||
+			     (ao_interval_max_pres - ao_interval_min_pres) < BARO_LAND)
+			{
 				ao_flight_state = ao_flight_landed;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}

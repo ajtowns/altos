@@ -29,7 +29,7 @@
 /* Stack runs from above the allocated __data space to 0xfe, which avoids
  * writing to 0xff as that triggers the stack overflow indicator
  */
-#define AO_STACK_START	0x68
+#define AO_STACK_START	0x70
 #define AO_STACK_END	0xfe
 #define AO_STACK_SIZE	(AO_STACK_END - AO_STACK_START + 1)
 
@@ -123,6 +123,8 @@ ao_timer_init(void);
  */
 
 #define AO_ADC_RING	64
+#define ao_adc_ring_next(n)	(((n) + 1) & (AO_ADC_RING - 1))
+#define ao_adc_ring_prev(n)	(((n) - 1) & (AO_ADC_RING - 1))
 
 /*
  * One set of samples read from the A/D converter
@@ -544,7 +546,7 @@ enum ao_flight_state {
 };
 
 extern __xdata struct ao_adc		ao_flight_data;
-extern __pdata enum flight_state	ao_flight_state;
+extern __pdata enum ao_flight_state	ao_flight_state;
 extern __pdata uint16_t			ao_flight_tick;
 extern __pdata int16_t			ao_flight_accel;
 extern __pdata int16_t			ao_flight_pres;
@@ -733,6 +735,31 @@ ao_monitor_init(void);
 
 void
 flush(void);
+
+/*
+ * ao_ignite.c
+ */
+
+enum ao_igniter {
+	ao_igniter_drogue = 0,
+	ao_igniter_main = 1
+};
+
+void
+ao_ignite(enum ao_igniter igniter);
+
+enum ao_igniter_status {
+	ao_igniter_unknown,	/* unknown status (ambiguous voltage) */
+	ao_igniter_ready,	/* continuity detected */
+	ao_igniter_active,	/* igniter firing */
+	ao_igniter_open,	/* open circuit detected */
+};
+
+enum ao_igniter_status
+ao_igniter_status(enum ao_igniter igniter);
+
+void
+ao_igniter_init(void);
 
 #endif /* _AO_H_ */
 

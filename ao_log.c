@@ -153,9 +153,7 @@ ao_log(void)
 				log.u.deploy.main = ao_adc_ring[ao_log_adc_pos].sense_m;
 				ao_log_data(&log);
 			}
-			ao_log_adc_pos++;
-			if (ao_log_adc_pos == AO_ADC_RING)
-				ao_log_adc_pos = 0;
+			ao_log_adc_pos = ao_adc_ring_next(ao_log_adc_pos);
 		}
 		
 		/* Wait for a while */

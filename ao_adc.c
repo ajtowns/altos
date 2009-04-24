@@ -35,10 +35,7 @@ ao_adc_sleep(void)
 void
 ao_adc_get(__xdata struct ao_adc *packet)
 {
-	uint8_t	i = ao_adc_head;
-	if (i == 0)
-		i = AO_ADC_RING;
-	i--;
+	uint8_t	i = ao_adc_ring_prev(ao_adc_head);
 	memcpy(packet, &ao_adc_ring[i], sizeof (struct ao_adc));
 }
 
@@ -58,9 +55,7 @@ ao_adc_isr(void) interrupt 1
 	} else {
 		/* record this conversion series */
 		ao_adc_ring[ao_adc_head].tick = ao_time();
-		ao_adc_head++;
-		if (ao_adc_head == AO_ADC_RING)
-			ao_adc_head = 0;
+		ao_adc_head = ao_adc_ring_next(ao_adc_head);
 		ao_wakeup(ao_adc_ring);
 	}
 }
