@@ -18,14 +18,6 @@
 #include "ao.h"
 
 void
-ao_led_init(void)
-{
-	P1SEL &= ~3;
-	P1 &= ~3;
-	P1DIR |= 3;
-}
-
-void
 ao_led_on(uint8_t colors)
 {
 	P1 |= colors;
@@ -51,3 +43,10 @@ ao_led_for(uint8_t colors, uint16_t ticks)
 	ao_led_off(colors);
 }
 
+void
+ao_led_init(void)
+{
+	P1SEL &= ~3;
+	P1 &= ~3;
+	P1DIR |= 3;
+}
