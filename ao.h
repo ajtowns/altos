@@ -29,7 +29,7 @@
 /* Stack runs from above the allocated __data space to 0xfe, which avoids
  * writing to 0xff as that triggers the stack overflow indicator
  */
-#define AO_STACK_START	0x7e
+#define AO_STACK_START	0x80
 #define AO_STACK_END	0xfe
 #define AO_STACK_SIZE	(AO_STACK_END - AO_STACK_START + 1)
 
@@ -702,12 +702,26 @@ ao_gps_init(void);
  * ao_telemetry.c
  */
 
+#define AO_MAX_CALLSIGN		8
+
 struct ao_telemetry {
 	uint8_t			addr;
 	uint8_t			flight_state;
 	struct ao_adc		adc;
 	struct ao_gps_data	gps;
+	char			callsign[AO_MAX_CALLSIGN];
 };
+
+/* Set delay between telemetry reports (0 to disable) */
+
+#define AO_TELEMETRY_INTERVAL_FLIGHT	AO_MS_TO_TICKS(50)
+#define AO_TELEMETRY_INTERVAL_RECOVER	AO_MS_TO_TICKS(1000)
+
+void
+ao_telemetry_set_interval(uint16_t interval);
+
+void
+ao_rdf_set(uint8_t rdf);
 
 void
 ao_telemetry_init(void);
@@ -721,7 +735,7 @@ ao_radio_send(__xdata struct ao_telemetry *telemetry) __reentrant;
 
 struct ao_radio_recv {
 	struct ao_telemetry	telemetry;
-	uint8_t			rssi;
+	int8_t			rssi;
 	uint8_t			status;
 };
 

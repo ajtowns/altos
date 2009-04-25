@@ -29,6 +29,7 @@ void
 ao_monitor(void)
 {
 	__xdata struct ao_radio_recv recv;
+	__xdata char callsign[AO_MAX_CALLSIGN+1];
 	uint8_t state;
 
 	for (;;) {
@@ -36,10 +37,13 @@ ao_monitor(void)
 			ao_sleep(&ao_monitoring);
 		ao_radio_recv(&recv);
 		state = recv.telemetry.flight_state;
+		memcpy(callsign, recv.telemetry.callsign, AO_MAX_CALLSIGN);
 		if (state > ao_flight_invalid)
 			state = ao_flight_invalid;
-		printf ("SERIAL %3d RSSI %3d STATUS %02x STATE %s ",
-			recv.telemetry.addr, recv.rssi, recv.status,
+		printf ("CALL %s SERIAL %3d RSSI %3d STATUS %02x STATE %s ",
+			callsign,
+			recv.telemetry.addr,
+			(int) recv.rssi - 74, recv.status,
 			ao_state_names[state]);
 		if (!(recv.status & PKT_APPEND_STATUS_1_CRC_OK))
 			printf("CRC INVALID ");
