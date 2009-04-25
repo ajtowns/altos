@@ -273,6 +273,14 @@ ao_usb_flush(void);
 void
 ao_usb_isr(void) interrupt 6;
 
+/* Enable the USB controller */
+void
+ao_usb_enable(void);
+
+/* Disable the USB controller */
+void
+ao_usb_disable(void);
+
 /* Initialize the USB system */
 void
 ao_usb_init(void);

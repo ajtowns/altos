@@ -514,7 +514,7 @@ ao_usb_getchar(void) __critical
 }
 
 void
-ao_usb_init(void)
+ao_usb_enable(void)
 {
 	/* Turn on the USB controller */
 	SLEEP |= SLEEP_USB_EN;
@@ -537,6 +537,30 @@ ao_usb_init(void)
 	USBCIF = 0;
 	USBOIF = 0;
 	USBIIF = 0;
+}
+
+void
+ao_usb_disable(void)
+{
+	/* Disable USB interrupts */
+	USBIIE = 0;
+	USBOIE = 0;
+	USBCIE = 0;
+	IEN2 &= ~IEN2_USBIE;
 	
+	/* Clear any pending interrupts */
+	USBCIF = 0;
+	USBOIF = 0;
+	USBIIF = 0;
+
+	/* Turn off the USB controller */
+	SLEEP &= ~SLEEP_USB_EN;
+}
+
+void
+ao_usb_init(void)
+{
+	ao_usb_enable();
+
 	ao_add_task(&ao_usb_task, ao_usb_ep0, "usb");
 }
