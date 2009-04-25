@@ -27,12 +27,12 @@ main(void)
 		;
 	
 	/* Turn on the LED until the system is stable */
-	ao_led_init();
+	ao_led_init(AO_LED_RED|AO_LED_GREEN);
 	ao_led_on(AO_LED_RED);
 	ao_timer_init();
 	ao_cmd_init();
 	ao_usb_init();
-	ao_monitor_init();
+	ao_monitor_init(AO_LED_GREEN);
 	ao_radio_init();
 	ao_dbg_init();
 	ao_start_scheduler();

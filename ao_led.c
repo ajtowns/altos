@@ -17,22 +17,32 @@
 
 #include "ao.h"
 
+#define AO_LED_ALL	(AO_LED_GREEN|AO_LED_RED)
+
+__pdata uint8_t ao_led_enable;
+
 void
 ao_led_on(uint8_t colors)
 {
-	P1 |= colors;
+	P1 |= (colors & ao_led_enable);
 }
 
 void
 ao_led_off(uint8_t colors)
 {
-	P1 &= ~colors;
+	P1 &= ~(colors & ao_led_enable);
 }
 
 void
 ao_led_set(uint8_t colors)
 {
-	P1 = (P1 & ~3) | colors;
+	P1 = (P1 & ~(ao_led_enable)) | (colors & ao_led_enable);
+}
+
+void
+ao_led_toggle(uint8_t colors)
+{
+	P1 ^= (colors & ao_led_enable);
 }
 
 void
@@ -44,9 +54,10 @@ ao_led_for(uint8_t colors, uint16_t ticks) __reentrant
 }
 
 void
-ao_led_init(void)
+ao_led_init(uint8_t enable)
 {
-	P1SEL &= ~3;
-	P1 &= ~3;
-	P1DIR |= 3;
+	ao_led_enable = enable;
+	P1SEL &= ~enable;
+	P1 &= ~enable;
+	P1DIR |= enable;
 }

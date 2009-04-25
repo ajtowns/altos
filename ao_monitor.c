@@ -23,6 +23,7 @@ const char const * const ao_state_names[] = {
 };
 
 __xdata uint8_t ao_monitoring;
+__pdata uint8_t ao_monitor_led;
 
 void
 ao_monitor(void)
@@ -52,7 +53,7 @@ ao_monitor(void)
 		       recv.telemetry.adc.sense_m);
 		ao_gps_print(&recv.telemetry.gps);
 		ao_usb_flush();
-		ao_led_for(AO_LED_GREEN, AO_MS_TO_TICKS(10));
+		ao_led_toggle(ao_monitor_led);
 	}
 }
 
@@ -72,8 +73,9 @@ __code struct ao_cmds ao_monitor_cmds[] = {
 };
 
 void
-ao_monitor_init(void)
+ao_monitor_init(uint8_t monitor_led)
 {
+	ao_monitor_led = monitor_led;
 	ao_monitoring = 0;
 	ao_cmd_register(&ao_monitor_cmds[0]);
 	ao_add_task(&ao_monitor_task, ao_monitor, "monitor");

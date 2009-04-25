@@ -241,13 +241,17 @@ ao_led_off(uint8_t colors);
 void
 ao_led_set(uint8_t colors);
 
+/* Toggle the specified LEDs */
+void
+ao_led_toggle(uint8_t colors);
+
 /* Turn on the specified LEDs for the indicated interval */
 void
 ao_led_for(uint8_t colors, uint16_t ticks) __reentrant;
 
 /* Initialize the LEDs */
 void
-ao_led_init(void);
+ao_led_init(uint8_t enable);
 
 /*
  * ao_usb.c
@@ -729,7 +733,7 @@ void
 ao_monitor(void);
 
 void
-ao_monitor_init(void);
+ao_monitor_init(uint8_t led);
 
 /*
  * ao_stdio.c
