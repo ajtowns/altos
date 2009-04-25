@@ -32,7 +32,7 @@ ao_beep(uint8_t beep)
 }
 
 void
-ao_beep_for(uint8_t beep, uint16_t ticks)
+ao_beep_for(uint8_t beep, uint16_t ticks) __reentrant
 {
 	ao_beep(beep);
 	ao_delay(ticks);

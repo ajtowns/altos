@@ -25,7 +25,7 @@ __data uint8_t ao_cur_task_index;
 __xdata struct ao_task *__data ao_cur_task;
 
 void
-ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *name)
+ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *name) __reentrant
 {
 	uint8_t	__xdata *stack;
 	if (ao_num_tasks == AO_NUM_TASKS)

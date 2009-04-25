@@ -65,7 +65,7 @@ ao_yield(void) _naked;
 
 /* Add a task to the run queue */
 void
-ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *name);
+ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *name) __reentrant;
 
 /* Dump task info to console */
 void
@@ -215,7 +215,7 @@ ao_beep(uint8_t beep);
 
 /* Turn on the beeper for the specified time */
 void
-ao_beep_for(uint8_t beep, uint16_t ticks);
+ao_beep_for(uint8_t beep, uint16_t ticks) __reentrant;
 
 /* Initialize the beeper */
 void
@@ -243,7 +243,7 @@ ao_led_set(uint8_t colors);
 
 /* Turn on the specified LEDs for the indicated interval */
 void
-ao_led_for(uint8_t colors, uint16_t ticks);
+ao_led_for(uint8_t colors, uint16_t ticks) __reentrant;
 
 /* Initialize the LEDs */
 void
