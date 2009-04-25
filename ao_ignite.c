@@ -19,12 +19,15 @@
 
 #define AO_IGNITER_DROGUE	P2_3
 #define AO_IGNITER_MAIN		P2_4
+#define AO_IGNITER_DIR		P2DIR
+#define AO_IGNITER_DROGUE_BIT	(1 << 3)
+#define AO_IGNITER_MAIN_BIT	(1 << 4)
 
-/* XXX test these values with real igniters */
-#define AO_IGNITER_OPEN		100
-#define AO_IGNITER_CLOSED	20000
-#define AO_IGNITER_FIRE_TIME	AO_MS_TO_TICKS(50)
-#define AO_IGNITER_CHARGE_TIME	AO_MS_TO_TICKS(200)
+/* test these values with real igniters */
+#define AO_IGNITER_OPEN		1000
+#define AO_IGNITER_CLOSED	7000
+#define AO_IGNITER_FIRE_TIME	AO_MS_TO_TICKS(500)
+#define AO_IGNITER_CHARGE_TIME	AO_MS_TO_TICKS(2000)
 
 struct ao_ignition {
 	uint8_t	request;
@@ -119,5 +122,8 @@ __xdata struct ao_task ao_igniter_task;
 void
 ao_igniter_init(void)
 {
+	AO_IGNITER_DROGUE = 0;
+	AO_IGNITER_MAIN = 0;
+	AO_IGNITER_DIR |= AO_IGNITER_DROGUE_BIT | AO_IGNITER_MAIN_BIT;
 	ao_add_task(&ao_igniter_task, ao_igniter, "igniter");
 }
