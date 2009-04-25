@@ -18,18 +18,6 @@
 #include "ao.h"
 
 void
-ao_beep_init(void)
-{
-	/* Our beeper is on P2_0, which is hooked to timer 4 using
-	 * configuration alternative 2
-	 */
-	P2_0 = 0;
-	P2SEL = (P2SEL & ~P2SEL_SELP2_0_MASK) | P2SEL_SELP2_0_GPIO;
-	PERCFG = (PERCFG & ~PERCFG_T4CFG_ALT_MASK) | PERCFG_T4CFG_ALT_2;
-	T4CCTL0 = TxCCTLy_CMP_TOGGLE|TxCCTLy_CMP_MODE_ENABLE;
-}
-
-void
 ao_beep(uint8_t beep)
 {
 	if (beep == 0) {
@@ -49,4 +37,16 @@ ao_beep_for(uint8_t beep, uint16_t ticks)
 	ao_beep(beep);
 	ao_delay(ticks);
 	ao_beep(0);
+}
+
+void
+ao_beep_init(void)
+{
+	/* Our beeper is on P2_0, which is hooked to timer 4 using
+	 * configuration alternative 2
+	 */
+	P2_0 = 0;
+	P2SEL = (P2SEL & ~P2SEL_SELP2_0_MASK) | P2SEL_SELP2_0_GPIO;
+	PERCFG = (PERCFG & ~PERCFG_T4CFG_ALT_MASK) | PERCFG_T4CFG_ALT_2;
+	T4CCTL0 = TxCCTLy_CMP_TOGGLE|TxCCTLy_CMP_MODE_ENABLE;
 }
