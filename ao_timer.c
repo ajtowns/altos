@@ -42,7 +42,7 @@ volatile __data uint8_t	ao_adc_count;
 void ao_timer_isr(void) interrupt 9
 {
 	++ao_tick_count;
-	if (++ao_adc_count >= ao_adc_interval) {
+	if (++ao_adc_count == ao_adc_interval) {
 		ao_adc_count = 0;
 		ao_adc_poll();
 	}
@@ -53,6 +53,7 @@ void
 ao_timer_set_adc_interval(uint8_t interval) __critical
 {
 	ao_adc_interval = interval;
+	ao_adc_count = 0;
 }
 
 void
