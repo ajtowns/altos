@@ -23,6 +23,7 @@
 
 __pdata enum ao_flight_state	ao_flight_state;	/* current flight state */
 __pdata uint16_t		ao_flight_tick;		/* time of last data */
+__pdata uint16_t		ao_flight_prev_tick;	/* time of previous data */
 __pdata int16_t			ao_flight_accel;	/* filtered acceleration */
 __pdata int16_t			ao_flight_pres;		/* filtered pressure */
 __pdata int16_t			ao_ground_pres;		/* startup pressure */
@@ -79,6 +80,9 @@ __pdata int16_t ao_raw_accel, ao_raw_accel_prev, ao_raw_pres;
 #define ACCEL_BOOST	ACCEL_G * 2
 #define ACCEL_INT_LAND	(ACCEL_G / 10)
 #define ACCEL_VEL_LAND	VEL_MPS_TO_COUNT(10)
+#define ACCEL_VEL_MACH	VEL_MPS_TO_COUNT(200)
+#define ACCEL_VEL_APOGEE	VEL_MPS_TO_COUNT(2)
+#define ACCEL_VEL_MAIN	VEL_MPS_TO_COUNT(100)
 
 /*
  * Barometer calibration
@@ -105,7 +109,7 @@ __pdata int16_t ao_raw_accel, ao_raw_accel_prev, ao_raw_pres;
 #define BARO_COAST	(BARO_kPa * 5)  /* 5kpa, or about 500m */
 #define BARO_MAIN	(BARO_kPa)	/* 1kPa, or about 100m */
 #define BARO_INT_LAND	(BARO_kPa / 20)	/* .05kPa, or about 5m */
-#define BARO_LAND	(BARO_kPa * 5)	/* 5kPa or about 1000m */
+#define BARO_LAND	(BARO_kPa * 10)	/* 10kPa or about 1000m */
 
 /* We also have a clock, which can be used to sanity check things in
  * case of other failures
@@ -119,13 +123,15 @@ __pdata int16_t ao_raw_accel, ao_raw_accel_prev, ao_raw_pres;
  * it's scaled by 100
  */
 __pdata int32_t	ao_flight_vel;
-__pdata int32_t ao_max_vel;
+__pdata int32_t ao_min_vel;
 __xdata int32_t ao_raw_accel_sum, ao_raw_pres_sum;
 
 /* Landing is detected by getting constant readings from both pressure and accelerometer
  * for a fairly long time (AO_INTERVAL_TICKS)
  */
 #define AO_INTERVAL_TICKS	AO_SEC_TO_TICKS(20)
+
+#define abs(a)	((a) < 0 ? -(a) : (a))
 
 void
 ao_flight(void)
@@ -140,15 +146,36 @@ ao_flight(void)
 	ao_interval_cur_max_pres = -0x7fff;
 	ao_interval_cur_min_accel = 0x7fff;
 	ao_interval_cur_max_accel = -0x7fff;
+	ao_flight_tick = 0;
 	for (;;) {
 		ao_sleep(&ao_adc_ring);
 		while (ao_flight_adc != ao_adc_head) {
+			__pdata uint8_t ticks;
+			__pdata int16_t ao_vel_change;
+			ao_flight_prev_tick = ao_flight_tick;
+
+			/* Capture a sample */
 			ao_raw_accel = ao_adc_ring[ao_flight_adc].accel;
 			ao_raw_pres = ao_adc_ring[ao_flight_adc].pres;
 			ao_flight_tick = ao_adc_ring[ao_flight_adc].tick;
-			/* all of our accelerations are negative, so subtract instead of add to get speed */
-			ao_flight_vel -= (int32_t) (((ao_raw_accel + ao_raw_accel_prev) >> 1) - ao_ground_accel);
+
+			/* Update velocity
+			 *
+			 * The accelerometer is mounted so that
+			 * acceleration yields negative values
+			 * while deceleration yields positive values,
+			 * so subtract instead of add.
+			 */
+			ticks = ao_flight_tick - ao_flight_prev_tick;
+			ao_vel_change = (((ao_raw_accel + ao_raw_accel_prev) >> 1) - ao_ground_accel);
 			ao_raw_accel_prev = ao_raw_accel;
+
+			/* one is a common interval */
+			if (ticks == 1)
+				ao_flight_vel -= (int32_t) ao_vel_change;
+			else
+				ao_flight_vel -= (int32_t) ao_vel_change * (int32_t) ticks;
+
 			ao_flight_adc = ao_adc_ring_next(ao_flight_adc);
 		}
 		ao_flight_accel -= ao_flight_accel >> 4;
@@ -158,8 +185,13 @@ ao_flight(void)
 
 		if (ao_flight_pres < ao_min_pres)
 			ao_min_pres = ao_flight_pres;
-		if (ao_flight_vel > ao_max_vel)
-			ao_max_vel = ao_flight_vel;
+		if (ao_flight_vel >= 0) {
+			if (ao_flight_vel < ao_min_vel)
+			    ao_min_vel = ao_flight_vel;
+		} else {
+			if (-ao_flight_vel < ao_min_vel)
+			    ao_min_vel = -ao_flight_vel;
+		}
 
 		if (ao_flight_pres < ao_interval_cur_min_pres)
 			ao_interval_cur_min_pres = ao_flight_pres;
@@ -199,12 +231,23 @@ ao_flight(void)
 			ao_min_pres = ao_ground_pres;
 			ao_main_pres = ao_ground_pres - BARO_MAIN;
 			ao_flight_vel = 0;
-			ao_max_vel = 0;
+			ao_min_vel = 0;
 
 			ao_interval_end = ao_flight_tick;
 
 			/* Go to launchpad state if the nose is pointing up */
 			if (ao_flight_accel < ACCEL_NOSE_UP) {
+
+				/* Disable the USB controller in flight mode
+				 * to save power
+				 */
+				ao_usb_disable();
+
+				/* Turn on telemetry system
+				 */
+				ao_rdf_set(1);
+				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_FLIGHT);
+
 				ao_flight_state = ao_flight_launchpad;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			} else {
@@ -236,7 +279,13 @@ ao_flight(void)
 			{
 				ao_flight_state = ao_flight_boost;
 				ao_launch_tick = ao_flight_tick;
+
+				/* start logging data */
 				ao_log_start();
+
+				/* disable RDF beacon */
+				ao_rdf_set(0);
+
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 				break;
 			}
@@ -260,33 +309,40 @@ ao_flight(void)
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 				break;
 			}
-			/* fall through ... */
+			break;
 		case ao_flight_coast:
 
-			/* boost/coast to apogee detect:
+			/* coast to apogee detect:
 			 *
-			 * accelerometer: integrated velocity < 200 m/s AND < max_vel - 50m/s
+			 * accelerometer: integrated velocity < 200 m/s
 			 *               OR
 			 * barometer: fall at least 500m from max altitude
 			 *
 			 * This extra state is required to avoid mis-detecting
-			 * apogee due to mach transitions. For slow flights (<200m/s)
-			 * we expect to transition right through this stage to
-			 * apogee detect.
+			 * apogee due to mach transitions.
+			 *
+			 * XXX this is essentially a single-detector test
+			 * as the 500m altitude change would likely result
+			 * in a loss of the rocket. More data on precisely
+			 * how big a pressure change the mach transition
+			 * generates would be useful here.
 			 */
-			if ((ao_flight_vel < VEL_MPS_TO_COUNT(200) &&
-			     ao_flight_vel < ao_max_vel - VEL_MPS_TO_COUNT(50)) ||
+			if (ao_flight_vel < ACCEL_VEL_MACH ||
 			    ao_flight_pres > ao_min_pres + BARO_COAST)
 			{
+				/* set min velocity to current velocity for
+				 * apogee detect
+				 */
+				ao_min_vel = ao_flight_vel;
 				ao_flight_state = ao_flight_apogee;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			break;
 		case ao_flight_apogee:
 
-			/* apogee to drogue deploy:
+			/* apogee detect to drogue deploy:
 			 *
-			 * accelerometer: integrated velocity < 10m/s
+			 * accelerometer: abs(velocity) > min_velocity + 2m/s
 			 *               OR
 			 * barometer: fall at least 10m
 			 *
@@ -297,10 +353,18 @@ ao_flight(void)
 			 * over in that case and the integrated velocity
 			 * measurement should suffice to find apogee
 			 */
-			if (ao_flight_vel < VEL_MPS_TO_COUNT(-10) ||
-			    ao_flight_pres - BARO_APOGEE > ao_min_pres)
+			if (abs(ao_flight_vel) > ao_min_vel + ACCEL_VEL_APOGEE ||
+			    ao_flight_pres > ao_min_pres + BARO_APOGEE)
 			{
+				/* ignite the drogue charge */
 				ao_ignite(ao_igniter_drogue);
+
+				/* slow down the telemetry system */
+				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_RECOVER);
+
+				/* Enable RDF beacon */
+				ao_rdf_set(1);
+
 				ao_flight_state = ao_flight_drogue;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
@@ -309,12 +373,12 @@ ao_flight(void)
 
 			/* drogue to main deploy:
 			 *
-			 * accelerometer: abs(velocity) > 50m/s
+			 * accelerometer: abs(velocity) > 100m/s (in case the drogue failed)
 			 *               OR
 			 * barometer: reach main deploy altitude
 			 */
-			if (ao_flight_vel < VEL_MPS_TO_COUNT(-50) ||
-			    ao_flight_vel > VEL_MPS_TO_COUNT(50) ||
+			if (ao_flight_vel < -ACCEL_VEL_MAIN ||
+			    ao_flight_vel > ACCEL_VEL_MAIN ||
 			    ao_flight_pres >= ao_main_pres)
 			{
 				ao_ignite(ao_igniter_main);
@@ -328,19 +392,25 @@ ao_flight(void)
 			 *
 			 * accelerometer: value stable and velocity less than 10m/s
 			 *                           OR
-			 * barometer: altitude stable and within 500m of the launch altitude
+			 * barometer: altitude stable and within 1000m of the launch altitude
 			 */
-			if ((ao_flight_vel < ACCEL_VEL_LAND &&
+			if ((abs(ao_flight_vel) < ACCEL_VEL_LAND &&
 			     (ao_interval_max_accel - ao_interval_min_accel) < ACCEL_INT_LAND) ||
 			    (ao_flight_pres > ao_ground_pres - BARO_LAND &&
 			     (ao_interval_max_pres - ao_interval_min_pres) < BARO_INT_LAND))
 			{
 				ao_flight_state = ao_flight_landed;
+
+				/* turn off the ADC capture */
+				ao_timer_set_adc_interval(0);
+
+				/* stop logging data */
+				ao_log_stop();
+
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			break;
 		case ao_flight_landed:
-			ao_log_stop();
 			break;
 		}
 	}
@@ -349,7 +419,7 @@ ao_flight(void)
 #define AO_ACCEL_COUNT_TO_MSS(count)	((count) / 27)
 #define AO_VEL_COUNT_TO_MS(count)	((int16_t) ((count) / 2700))
 
-void
+static void
 ao_flight_status(void)
 {
 	printf("STATE: %7s accel: %d speed: %d altitude: %d\n",

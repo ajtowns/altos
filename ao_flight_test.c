@@ -63,6 +63,9 @@ uint8_t ao_adc_head;
 #define ao_timer_set_adc_interval(i)
 #define ao_wakeup(wchan) ao_dump_state()
 #define ao_cmd_register(c)
+#define ao_usb_disable()
+#define ao_telemetry_set_interval(x)
+#define ao_rdf_set(rdf)
 
 enum ao_igniter {
 	ao_igniter_drogue = 0,
@@ -201,7 +204,7 @@ ao_dump_state(void)
 {
 	if (ao_flight_state == ao_flight_startup)
 		return;
-	printf ("\t%s accel %g vel %g alt %d\n",
+	printf ("\t\t\t\t\t%s accel %g vel %g alt %d\n",
 		ao_state_names[ao_flight_state],
 		(ao_flight_accel - ao_ground_accel) / COUNTS_PER_G * GRAVITY,
 		(double) ao_flight_vel / 100 / COUNTS_PER_G * GRAVITY,
