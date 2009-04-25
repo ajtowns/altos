@@ -39,6 +39,8 @@ struct ao_adc {
 #define __pdata
 #define __data
 #define __xdata
+#define __code
+#define __reentrant
 
 enum ao_flight_state {
 	ao_flight_startup = 0,
@@ -60,6 +62,7 @@ uint8_t ao_adc_head;
 #define ao_led_off(l)
 #define ao_timer_set_adc_interval(i)
 #define ao_wakeup(wchan) ao_dump_state()
+#define ao_cmd_register(c)
 
 enum ao_igniter {
 	ao_igniter_drogue = 0,
@@ -95,6 +98,31 @@ ao_dump_state(void);
 
 void
 ao_sleep(void *wchan);
+
+const char const * const ao_state_names[] = {
+	"startup", "idle", "pad", "boost", "coast",
+	"apogee", "drogue", "main", "landed", "invalid"
+};
+
+struct ao_cmds {
+	uint8_t		cmd;
+	void		(*func)(void);
+	const char	*help;
+};
+
+
+static int16_t altitude_table[2048] = {
+#include "altitude.h"
+};
+
+int16_t
+ao_pres_to_altitude(int16_t pres) __reentrant
+{
+	pres = pres >> 4;
+	if (pres < 0) pres = 0;
+	if (pres > 2047) pres = 2047;
+	return altitude_table[pres];
+}
 
 #include "ao_flight.c"
 
@@ -166,16 +194,6 @@ ao_sleep(void *wchan)
 
 	}
 }
-
-const char const * const ao_state_names[] = {
-	"startup", "idle", "pad", "boost", "coast",
-	"apogee", "drogue", "main", "landed", "invalid"
-};
-
-static int16_t altitude[2048] = {
-#include "altitude.h"
-};
-
 #define COUNTS_PER_G 264.8
 
 void
@@ -187,7 +205,7 @@ ao_dump_state(void)
 		ao_state_names[ao_flight_state],
 		(ao_flight_accel - ao_ground_accel) / COUNTS_PER_G * GRAVITY,
 		(double) ao_flight_vel / 100 / COUNTS_PER_G * GRAVITY,
-		altitude[ao_flight_pres >> 4]);
+		altitude_table[ao_flight_pres >> 4]);
 	if (ao_flight_state == ao_flight_landed)
 		exit(0);
 }
