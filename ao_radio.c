@@ -77,6 +77,29 @@
 #define DEVIATION_M	6
 #define DEVIATION_E	3
 
+/*
+ * For our RDF beacon, set the symbol rate to 2kBaud (for a 1kHz tone),
+ * so the DRATE_E and DRATE_M values are:
+ *
+ * M is 94 and E is 6
+ *
+ * To make the tone last for 200ms, we need 2000 * .2 = 400 bits or 50 bytes
+ */
+
+#define RDF_DRATE_E	6
+#define RDF_DRATE_M	94
+#define RDF_PACKET_LEN	50
+
+/*
+ * RDF deviation should match the normal NFM value of 5kHz
+ *
+ * M is 6 and E is 1
+ *
+ */
+
+#define RDF_DEVIATION_M	6
+#define RDF_DEVIATION_E	1
+
 /* This are from the table for 433MHz */
 
 #define RF_POWER_M30_DBM	0x12
@@ -104,7 +127,7 @@ static __code uint8_t radio_setup[] = {
 	RF_FREQ2_OFF,		(FREQ_CONTROL >> 16) & 0xff,
 	RF_FREQ1_OFF,		(FREQ_CONTROL >> 8) & 0xff,
 	RF_FREQ0_OFF,		(FREQ_CONTROL >> 0) & 0xff,
-	
+
 	RF_FSCTRL1_OFF,		(IF_FREQ_CONTROL << RF_FSCTRL1_FREQ_IF_SHIFT),
 	RF_FSCTRL0_OFF,		(0 << RF_FSCTRL0_FREQOFF_SHIFT),
 
@@ -148,7 +171,7 @@ static __code uint8_t radio_setup[] = {
 	/* default sync values */
 	RF_SYNC1_OFF,		0xD3,
 	RF_SYNC0_OFF,		0x91,
-	
+
 	/* max packet length */
 	RF_PKTLEN_OFF,		sizeof (struct ao_telemetry),
 
@@ -182,6 +205,55 @@ static __code uint8_t radio_setup[] = {
 	RF_IOCFG2_OFF,		0x00,
 	RF_IOCFG1_OFF,		0x00,
 	RF_IOCFG0_OFF,		0x00,
+};
+
+static __code uint8_t rdf_setup[] = {
+	RF_MDMCFG4_OFF,		((CHANBW_E << RF_MDMCFG4_CHANBW_E_SHIFT) |
+				 (CHANBW_M << RF_MDMCFG4_CHANBW_M_SHIFT) |
+				 (RDF_DRATE_E << RF_MDMCFG4_DRATE_E_SHIFT)),
+	RF_MDMCFG3_OFF,		(RDF_DRATE_M << RF_MDMCFG3_DRATE_M_SHIFT),
+	RF_MDMCFG2_OFF,		(RF_MDMCFG2_DEM_DCFILT_OFF |
+				 RF_MDMCFG2_MOD_FORMAT_GFSK |
+				 RF_MDMCFG2_SYNC_MODE_15_16_THRES),
+	RF_MDMCFG1_OFF,		(RF_MDMCFG1_FEC_DIS |
+				 RF_MDMCFG1_NUM_PREAMBLE_2 |
+				 (2 << RF_MDMCFG1_CHANSPC_E_SHIFT)),
+
+	RF_DEVIATN_OFF,		((RDF_DEVIATION_E << RF_DEVIATN_DEVIATION_E_SHIFT) |
+				 (RDF_DEVIATION_M << RF_DEVIATN_DEVIATION_M_SHIFT)),
+
+	/* packet length */
+	RF_PKTLEN_OFF,		RDF_PACKET_LEN,
+	RF_PKTCTRL1_OFF,	((1 << PKTCTRL1_PQT_SHIFT)|
+				 PKTCTRL1_ADR_CHK_NONE),
+	RF_PKTCTRL0_OFF,	(RF_PKTCTRL0_PKT_FORMAT_NORMAL|
+				 RF_PKTCTRL0_LENGTH_CONFIG_FIXED),
+};
+
+static __code uint8_t telemetry_setup[] = {
+	RF_MDMCFG4_OFF,		((CHANBW_E << RF_MDMCFG4_CHANBW_E_SHIFT) |
+				 (CHANBW_M << RF_MDMCFG4_CHANBW_M_SHIFT) |
+				 (DRATE_E << RF_MDMCFG4_DRATE_E_SHIFT)),
+	RF_MDMCFG3_OFF,		(DRATE_M << RF_MDMCFG3_DRATE_M_SHIFT),
+	RF_MDMCFG2_OFF,		(RF_MDMCFG2_DEM_DCFILT_OFF |
+				 RF_MDMCFG2_MOD_FORMAT_GFSK |
+				 RF_MDMCFG2_SYNC_MODE_15_16_THRES),
+	RF_MDMCFG1_OFF,		(RF_MDMCFG1_FEC_EN |
+				 RF_MDMCFG1_NUM_PREAMBLE_4 |
+				 (2 << RF_MDMCFG1_CHANSPC_E_SHIFT)),
+
+	RF_DEVIATN_OFF,		((DEVIATION_E << RF_DEVIATN_DEVIATION_E_SHIFT) |
+				 (DEVIATION_M << RF_DEVIATN_DEVIATION_M_SHIFT)),
+
+	/* max packet length */
+	RF_PKTLEN_OFF,		sizeof (struct ao_telemetry),
+	RF_PKTCTRL1_OFF,	((1 << PKTCTRL1_PQT_SHIFT)|
+				 PKTCTRL1_APPEND_STATUS|
+				 PKTCTRL1_ADR_CHK_NONE),
+	RF_PKTCTRL0_OFF,	(RF_PKTCTRL0_WHITE_DATA|
+				 RF_PKTCTRL0_PKT_FORMAT_NORMAL|
+				 RF_PKTCTRL0_CRC_EN|
+				 RF_PKTCTRL0_LENGTH_CONFIG_FIXED),
 };
 
 __xdata uint8_t	ao_radio_dma;
@@ -242,6 +314,50 @@ ao_radio_recv(__xdata struct ao_radio_recv *radio) __reentrant
 	__critical while (!ao_radio_dma_done)
 		ao_sleep(&ao_radio_dma_done);
 	ao_mutex_put(&ao_radio_mutex);
+}
+
+__xdata ao_radio_rdf_running;
+__xdata ao_radio_rdf_value = 0x55;
+
+void
+ao_radio_rdf(void)
+{
+	uint8_t i;
+	ao_mutex_get(&ao_radio_mutex);
+	ao_radio_idle();
+	ao_radio_rdf_running = 1;
+	for (i = 0; i < sizeof (rdf_setup); i += 2)
+		RF[rdf_setup[i]] = rdf_setup[i+1];
+
+	ao_dma_set_transfer(ao_radio_dma,
+			    &ao_radio_rdf_value,
+			    &RFDXADDR,
+			    RDF_PACKET_LEN,
+			    DMA_CFG0_WORDSIZE_8 |
+			    DMA_CFG0_TMODE_SINGLE |
+			    DMA_CFG0_TRIGGER_RADIO,
+			    DMA_CFG1_SRCINC_0 |
+			    DMA_CFG1_DESTINC_0 |
+			    DMA_CFG1_PRIORITY_HIGH);
+	ao_dma_start(ao_radio_dma);
+	RFST = RFST_STX;
+
+	__critical while (!ao_radio_dma_done)
+		ao_sleep(&ao_radio_dma_done);
+	ao_radio_rdf_running = 0;
+	ao_radio_idle();
+	for (i = 0; i < sizeof (rdf_setup); i += 2)
+		RF[telemetry_setup[i]] = telemetry_setup[i+1];
+	ao_mutex_put(&ao_radio_mutex);
+}
+
+void
+ao_radio_rdf_abort(void)
+{
+	if (ao_radio_rdf_running) {
+		ao_dma_abort(ao_radio_dma);
+		ao_radio_idle();
+	}
 }
 
 void

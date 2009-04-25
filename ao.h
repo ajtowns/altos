@@ -729,6 +729,12 @@ void
 ao_radio_recv(__xdata struct ao_radio_recv *recv) __reentrant;
 
 void
+ao_radio_rdf(void);
+
+void
+ao_radio_rdf_abort(void);
+
+void
 ao_radio_init(void);
 
 /*
