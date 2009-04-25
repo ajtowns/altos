@@ -40,9 +40,9 @@ static const char * __xdata flight_reports[] = {
 static __xdata enum ao_flight_state ao_report_state;
 
 static void
-ao_report_beep(void)
+ao_report_beep(void) __reentrant
 {
-	char *r = flight_reports[ao_report_state];
+	char *r = flight_reports[ao_flight_state];
 	char c;
 
 	if (!r)
@@ -57,11 +57,53 @@ ao_report_beep(void)
 	pause(AO_MS_TO_TICKS(400));
 }
 
+static void
+ao_report_digit(uint8_t digit) __reentrant
+{
+	if (!digit) {
+		signal(AO_MS_TO_TICKS(500));
+		pause(AO_MS_TO_TICKS(200));
+	} else {
+		while (digit--) {
+			signal(AO_MS_TO_TICKS(200));
+			pause(AO_MS_TO_TICKS(200));
+		}
+	}
+	pause(AO_MS_TO_TICKS(300));
+}
+
+static void
+ao_report_altitude(void)
+{
+	__xdata int16_t	agl = ao_pres_to_altitude(ao_min_pres) - ao_pres_to_altitude(ao_ground_pres);
+	__xdata uint8_t	digits[10];
+	__xdata uint8_t ndigits, i;
+
+	if (agl < 0)
+		agl = 0;
+	ndigits = 0;
+	do {
+		digits[ndigits++] = agl % 10;
+		agl /= 10;
+	} while (agl);
+
+	for (;;) {
+		ao_report_beep();
+		i = ndigits;
+		do
+			ao_report_digit(digits[--i]);
+		while (i != 0);
+		pause(AO_SEC_TO_TICKS(5));
+	}
+}
+
 void
 ao_report(void)
 {
 	ao_report_state = ao_flight_state;
 	for(;;) {
+		if (ao_flight_state == ao_flight_landed)
+			ao_report_altitude();
 		ao_report_beep();
 		__critical {
 			while (ao_report_state == ao_flight_state)
