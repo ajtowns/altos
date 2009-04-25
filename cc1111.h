@@ -96,6 +96,11 @@ sfr at 0x9A IEN2;		/* Interrupt Enable 2 Register */
 #define SLEEP_MODE_PM3		(3 << 0)
 #define SLEEP_MODE_MASK		(3 << 0)
 
+/* PCON 0x87 */
+sfr at 0x87 PCON;		/* Power Mode Control Register */
+
+#define PCON_IDLE		(1 << 0)
+
 /*
  * TCON
  */

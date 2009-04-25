@@ -114,13 +114,23 @@ ao_yield(void) _naked
 	/* Find a task to run. If there isn't any runnable task,
 	 * this loop will run forever, which is just fine
 	 */
-	for (;;) {
-		++ao_cur_task_index;
-		if (ao_cur_task_index == ao_num_tasks)
-			ao_cur_task_index = 0;
-		ao_cur_task = ao_tasks[ao_cur_task_index];
-		if (ao_cur_task->wchan == NULL)
-			break;
+	{
+		__pdata uint8_t	ao_next_task_index = ao_cur_task_index;
+		for (;;) {
+			++ao_next_task_index;
+			if (ao_next_task_index == ao_num_tasks)
+				ao_next_task_index = 0;
+
+			ao_cur_task = ao_tasks[ao_next_task_index];
+			if (ao_cur_task->wchan == NULL) {
+				ao_cur_task_index = ao_next_task_index;
+				break;
+			}
+
+			/* Enter lower power mode when there isn't anything to do */
+			if (ao_next_task_index == ao_cur_task_index)
+				PCON = PCON_IDLE;
+		}
 	}
 
 	{
