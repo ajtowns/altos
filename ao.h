@@ -29,7 +29,7 @@
 /* Stack runs from above the allocated __data space to 0xfe, which avoids
  * writing to 0xff as that triggers the stack overflow indicator
  */
-#define AO_STACK_START	0x78
+#define AO_STACK_START	0x7e
 #define AO_STACK_END	0xfe
 #define AO_STACK_SIZE	(AO_STACK_END - AO_STACK_START + 1)
 
@@ -149,7 +149,7 @@ extern volatile __data uint8_t		ao_adc_head;
 /* Trigger a conversion sequence (called from the timer interrupt) */
 void
 ao_adc_poll(void);
- 
+
 /* Suspend the current task until another A/D sample is converted */
 void
 ao_adc_sleep(void);
@@ -319,7 +319,7 @@ ao_cmd_init(void);
  */
 
 /* Allocate a DMA channel. the 'done' parameter will be set to 1
- * when the dma is finished and will be used to wakeup any waiters 
+ * when the dma is finished and will be used to wakeup any waiters
  */
 uint8_t
 ao_dma_alloc(__xdata uint8_t * done);
@@ -417,7 +417,7 @@ struct ao_gps_pos {
  * packet type, the packet checksum and the tick count. Then
  * they all contain 2 16 bit values which hold packet-specific
  * data.
- * 
+ *
  * For each flight, the first packet
  * is FLIGHT packet, indicating the serial number of the
  * device and a unique number marking the number of flights
@@ -722,6 +722,8 @@ ao_radio_init(void);
 /*
  * ao_monitor.c
  */
+
+extern const char const * const ao_state_names[];
 
 void
 ao_monitor(void);
