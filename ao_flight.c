@@ -69,11 +69,16 @@ __pdata int16_t ao_raw_accel, ao_raw_accel_prev, ao_raw_pres;
  * for all further flight computations
  */
 
+#define GRAVITY 9.80665
+/* convert m/s to velocity count */
+#define VEL_MPS_TO_COUNT(mps) ((int32_t) (((mps) / GRAVITY) * ACCEL_G * 100))
+
 #define ACCEL_G		265
 #define ACCEL_ZERO_G	16000
 #define ACCEL_NOSE_UP	(ACCEL_ZERO_G - ACCEL_G * 2 /3)
 #define ACCEL_BOOST	ACCEL_G * 2
-#define ACCEL_LAND	(ACCEL_G / 10)
+#define ACCEL_INT_LAND	(ACCEL_G / 10)
+#define ACCEL_VEL_LAND	VEL_MPS_TO_COUNT(10)
 
 /*
  * Barometer calibration
@@ -99,7 +104,8 @@ __pdata int16_t ao_raw_accel, ao_raw_accel_prev, ao_raw_pres;
 #define BARO_APOGEE	(BARO_kPa / 10)	/* .1kPa, or about 10m */
 #define BARO_COAST	(BARO_kPa * 5)  /* 5kpa, or about 500m */
 #define BARO_MAIN	(BARO_kPa)	/* 1kPa, or about 100m */
-#define BARO_LAND	(BARO_kPa / 20)	/* .05kPa, or about 5m */
+#define BARO_INT_LAND	(BARO_kPa / 20)	/* .05kPa, or about 5m */
+#define BARO_LAND	(BARO_kPa * 5)	/* 5kPa or about 1000m */
 
 /* We also have a clock, which can be used to sanity check things in
  * case of other failures
@@ -112,17 +118,14 @@ __pdata int16_t ao_raw_accel, ao_raw_accel_prev, ao_raw_pres;
  * velocity, and quite accurately too. As it gets updated 100 times a second,
  * it's scaled by 100
  */
-__data int32_t	ao_flight_vel;
+__pdata int32_t	ao_flight_vel;
+__pdata int32_t ao_max_vel;
 __xdata int32_t ao_raw_accel_sum, ao_raw_pres_sum;
-
-#define GRAVITY 9.80665
-/* convert m/s to velocity count */
-#define VEL_MPS_TO_COUNT(mps) ((int32_t) (((mps) / GRAVITY) * ACCEL_G * 100))
 
 /* Landing is detected by getting constant readings from both pressure and accelerometer
  * for a fairly long time (AO_INTERVAL_TICKS)
  */
-#define AO_INTERVAL_TICKS	AO_SEC_TO_TICKS(10)
+#define AO_INTERVAL_TICKS	AO_SEC_TO_TICKS(20)
 
 void
 ao_flight(void)
@@ -155,6 +158,8 @@ ao_flight(void)
 
 		if (ao_flight_pres < ao_min_pres)
 			ao_min_pres = ao_flight_pres;
+		if (ao_flight_vel > ao_max_vel)
+			ao_max_vel = ao_flight_vel;
 
 		if (ao_flight_pres < ao_interval_cur_min_pres)
 			ao_interval_cur_min_pres = ao_flight_pres;
@@ -194,6 +199,7 @@ ao_flight(void)
 			ao_min_pres = ao_ground_pres;
 			ao_main_pres = ao_ground_pres - BARO_MAIN;
 			ao_flight_vel = 0;
+			ao_max_vel = 0;
 
 			ao_interval_end = ao_flight_tick;
 
@@ -259,7 +265,7 @@ ao_flight(void)
 
 			/* boost/coast to apogee detect:
 			 *
-			 * accelerometer: integrated velocity < 200 m/s
+			 * accelerometer: integrated velocity < 200 m/s AND < max_vel - 50m/s
 			 *               OR
 			 * barometer: fall at least 500m from max altitude
 			 *
@@ -268,7 +274,8 @@ ao_flight(void)
 			 * we expect to transition right through this stage to
 			 * apogee detect.
 			 */
-			if (ao_flight_vel < VEL_MPS_TO_COUNT(200) ||
+			if ((ao_flight_vel < VEL_MPS_TO_COUNT(200) &&
+			     ao_flight_vel < ao_max_vel - VEL_MPS_TO_COUNT(50)) ||
 			    ao_flight_pres > ao_min_pres + BARO_COAST)
 			{
 				ao_flight_state = ao_flight_apogee;
@@ -319,12 +326,14 @@ ao_flight(void)
 
 			/* drogue/main to land:
 			 *
-			 * accelerometer: value stable
-			 *           AND
-			 * barometer: altitude stable
+			 * accelerometer: value stable and velocity less than 10m/s
+			 *                           OR
+			 * barometer: altitude stable and within 500m of the launch altitude
 			 */
-			if ((ao_interval_max_accel - ao_interval_min_accel) < ACCEL_LAND &&
-			     (ao_interval_max_pres - ao_interval_min_pres) < BARO_LAND)
+			if ((ao_flight_vel < ACCEL_VEL_LAND &&
+			     (ao_interval_max_accel - ao_interval_min_accel) < ACCEL_INT_LAND) ||
+			    (ao_flight_pres > ao_ground_pres - BARO_LAND &&
+			     (ao_interval_max_pres - ao_interval_min_pres) < BARO_INT_LAND))
 			{
 				ao_flight_state = ao_flight_landed;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
@@ -337,7 +346,25 @@ ao_flight(void)
 	}
 }
 
+#define AO_ACCEL_COUNT_TO_MSS(count)	((count) / 27)
+#define AO_VEL_COUNT_TO_MS(count)	((int16_t) ((count) / 2700))
+
+void
+ao_flight_status(void)
+{
+	printf("STATE: %7s accel: %d speed: %d altitude: %d\n",
+	       ao_state_names[ao_flight_state],
+	       AO_ACCEL_COUNT_TO_MSS(ACCEL_ZERO_G - ao_flight_accel),
+	       AO_VEL_COUNT_TO_MS(ao_flight_vel),
+	       ao_pres_to_altitude(ao_flight_pres));
+}
+
 static __xdata struct ao_task	flight_task;
+
+__code struct ao_cmds ao_flight_cmds[] = {
+	{ 'f', ao_flight_status,	"f                                  Display current flight state" },
+	{ 0, ao_flight_status, NULL }
+};
 
 void
 ao_flight_init(void)
@@ -350,5 +377,5 @@ ao_flight_init(void)
 	ao_interval_end = AO_INTERVAL_TICKS;
 
 	ao_add_task(&flight_task, ao_flight, "flight");
+	ao_cmd_register(&ao_flight_cmds[0]);
 }
-
