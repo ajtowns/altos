@@ -20,18 +20,6 @@
 
 struct ao_task __xdata ao_usb_task;
 
-#define AO_USB_CONTROL_EP	0
-#define AO_USB_INT_EP		1
-#define AO_USB_OUT_EP		4
-#define AO_USB_IN_EP		5
-#define AO_USB_CONTROL_SIZE	32
-/*
- * Double buffer IN and OUT EPs, so each
- * gets half of the available space
- */
-#define AO_USB_IN_SIZE		256
-#define AO_USB_OUT_SIZE		128
-
 static __xdata uint16_t	ao_usb_in_bytes;
 static __xdata uint16_t	ao_usb_out_bytes;
 static __xdata uint8_t	ao_usb_iif;
@@ -54,10 +42,6 @@ ao_usb_isr(void) interrupt 6
 	if (ao_usb_oif & (1 << AO_USB_OUT_EP))
 		ao_wakeup(&ao_usb_out_bytes);
 }
-
-#define AO_USB_EP0_IDLE		0
-#define AO_USB_EP0_DATA_IN	1
-#define AO_USB_EP0_DATA_OUT	2
 
 struct ao_usb_setup {
 	uint8_t		dir_type_recip;
@@ -102,150 +86,7 @@ ao_usb_ep0_flush(void)
 	USBCS0 = cs0;
 }
 
-#define LE_WORD(x)    ((x)&0xFF),((uint8_t) (((uint16_t) (x))>>8))
-
-/* CDC definitions */
-#define CS_INTERFACE      0x24
-#define CS_ENDPOINT       0x25
-
-#define SET_LINE_CODING         0x20
-#define GET_LINE_CODING         0x21
-#define SET_CONTROL_LINE_STATE  0x22
-
-/* Data structure for GET_LINE_CODING / SET_LINE_CODING class requests */
-struct ao_usb_line_coding {
-	uint32_t	rate;
-	uint8_t		char_format;
-	uint8_t		parity;
-	uint8_t		data_bits;
-} ;
-
 __xdata static struct ao_usb_line_coding ao_usb_line_coding = {115200, 0, 0, 8};
-
-/* USB descriptors in one giant block of bytes */
-static const uint8_t ao_usb_descriptors [] = 
-{
-	/* Device descriptor */
-	0x12,
-	AO_USB_DESC_DEVICE,
-	LE_WORD(0x0110),	/*  bcdUSB */
-	0x02,			/*  bDeviceClass */
-	0x00,			/*  bDeviceSubClass */
-	0x00,			/*  bDeviceProtocol */
-	AO_USB_CONTROL_SIZE,	/*  bMaxPacketSize */
-	LE_WORD(0xFFFE),	/*  idVendor */
-	LE_WORD(0x000A),	/*  idProduct */
-	LE_WORD(0x0100),	/*  bcdDevice */
-	0x01,			/*  iManufacturer */
-	0x02,			/*  iProduct */
-	0x03,			/*  iSerialNumber */
-	0x01,			/*  bNumConfigurations */
-
-	/* Configuration descriptor */
-	0x09,
-	AO_USB_DESC_CONFIGURATION,
-	LE_WORD(67),		/*  wTotalLength */
-	0x02,			/*  bNumInterfaces */
-	0x01,			/*  bConfigurationValue */
-	0x00,			/*  iConfiguration */
-	0xC0,			/*  bmAttributes */
-	0x32,			/*  bMaxPower */
-
-	/* Control class interface */
-	0x09,
-	AO_USB_DESC_INTERFACE,
-	0x00,			/*  bInterfaceNumber */
-	0x00,			/*  bAlternateSetting */
-	0x01,			/*  bNumEndPoints */
-	0x02,			/*  bInterfaceClass */
-	0x02,			/*  bInterfaceSubClass */
-	0x01,			/*  bInterfaceProtocol, linux requires value of 1 for the cdc_acm module */
-	0x00,			/*  iInterface */
-
-	/* Header functional descriptor */
-	0x05,
-	CS_INTERFACE,
-	0x00,			/*  bDescriptor SubType Header */
-	LE_WORD(0x0110),	/*  CDC version 1.1 */
-
-	/* Call management functional descriptor */
-	0x05,
-	CS_INTERFACE,
-	0x01,			/* bDescriptor SubType Call Management */
-	0x01,			/* bmCapabilities = device handles call management */
-	0x01,			/* bDataInterface call management interface number */
-
-	/* ACM functional descriptor */
-	0x04,
-	CS_INTERFACE,
-	0x02,			/* bDescriptor SubType Abstract Control Management */
-	0x02,			/* bmCapabilities = D1 (Set_line_Coding, Set_Control_Line_State, Get_Line_Coding and Serial_State) */
-
-	/* Union functional descriptor */
-	0x05,
-	CS_INTERFACE,
-	0x06,			/* bDescriptor SubType Union Functional descriptor */
-	0x00,			/* bMasterInterface */
-	0x01,			/* bSlaveInterface0 */
-
-	/* Notification EP */
-	0x07,
-	AO_USB_DESC_ENDPOINT,
-	AO_USB_INT_EP|0x80,	/* bEndpointAddress */
-	0x03,			/* bmAttributes = intr */
-	LE_WORD(8),		/* wMaxPacketSize */
-	0x0A,			/* bInterval */
-
-	/* Data class interface descriptor */
-	0x09,
-	AO_USB_DESC_INTERFACE,
-	0x01,			/* bInterfaceNumber */
-	0x00,			/* bAlternateSetting */
-	0x02,			/* bNumEndPoints */
-	0x0A,			/* bInterfaceClass = data */
-	0x00,			/* bInterfaceSubClass */
-	0x00,			/* bInterfaceProtocol */
-	0x00,			/* iInterface */
-
-	/* Data EP OUT */
-	0x07,
-	AO_USB_DESC_ENDPOINT,
-	AO_USB_OUT_EP,		/* bEndpointAddress */
-	0x02,			/* bmAttributes = bulk */
-	LE_WORD(AO_USB_OUT_SIZE),/* wMaxPacketSize */
-	0x00,			/* bInterval */
-
-	/* Data EP in */
-	0x07,
-	AO_USB_DESC_ENDPOINT,
-	AO_USB_IN_EP|0x80,	/* bEndpointAddress */
-	0x02,			/* bmAttributes = bulk */
-	LE_WORD(AO_USB_IN_SIZE),/* wMaxPacketSize */
-	0x00,			/* bInterval */
-
-	/* String descriptors */
-	0x04,
-	AO_USB_DESC_STRING,
-	LE_WORD(0x0409),
-
-	/* iManufacturer */
-	0x20,
-	AO_USB_DESC_STRING,
-	'a', 0, 'l', 0, 't', 0, 'u', 0, 's', 0, 'm', 0, 'e', 0, 't', 0, 'r', 0, 'u', 0, 'm', 0, '.', 0, 'o', 0, 'r', 0, 'g', 0, 
-
-	/* iProduct */
-	0x16,
-	AO_USB_DESC_STRING,
-	'T', 0, 'e', 0, 'l', 0, 'e', 0, 'M', 0, 'e', 0, 't', 0, 'r', 0, 'u', 0, 'm', 0, 
-
-	/* iSerial */
-	0x0e,
-	AO_USB_DESC_STRING,
-	'0', 0, '0', 0, '0', 0, '0', 0, '0', 0, '0', 0, 
-
-	/* Terminating zero */
-	0
-};
 
 /* Walk through the list of descriptors and find a match
  */

@@ -60,4 +60,38 @@
 #define AO_USB_GET_DESC_TYPE(x)		(((x)>>8)&0xFF)
 #define AO_USB_GET_DESC_INDEX(x)	((x)&0xFF)
 
+#define AO_USB_CONTROL_EP	0
+#define AO_USB_INT_EP		1
+#define AO_USB_OUT_EP		4
+#define AO_USB_IN_EP		5
+#define AO_USB_CONTROL_SIZE	32
+/*
+ * Double buffer IN and OUT EPs, so each
+ * gets half of the available space
+ */
+#define AO_USB_IN_SIZE		256
+#define AO_USB_OUT_SIZE		128
+
+#define AO_USB_EP0_IDLE		0
+#define AO_USB_EP0_DATA_IN	1
+#define AO_USB_EP0_DATA_OUT	2
+
+#define LE_WORD(x)    ((x)&0xFF),((uint8_t) (((uint16_t) (x))>>8))
+
+/* CDC definitions */
+#define CS_INTERFACE      0x24
+#define CS_ENDPOINT       0x25
+
+#define SET_LINE_CODING         0x20
+#define GET_LINE_CODING         0x21
+#define SET_CONTROL_LINE_STATE  0x22
+
+/* Data structure for GET_LINE_CODING / SET_LINE_CODING class requests */
+struct ao_usb_line_coding {
+	uint32_t	rate;
+	uint8_t		char_format;
+	uint8_t		parity;
+	uint8_t		data_bits;
+} ;
+
 #endif /* _AO_USB_H_ */

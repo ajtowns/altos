@@ -832,4 +832,14 @@ ao_config_get(void);
 void
 ao_config_init(void);
 
+/*
+ * ao_product.c
+ *
+ * values which need to be defined for
+ * each instance of a product
+ */
+
+extern const uint8_t ao_usb_descriptors [];
+extern const uint16_t ao_serial_number;
+
 #endif /* _AO_H_ */

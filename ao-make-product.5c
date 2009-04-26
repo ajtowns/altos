@@ -1,0 +1,72 @@
+#!/bin/sh
+
+autoimport ParseArgs;
+
+void
+write_string(string a, string description)
+{
+	int len = String::length(a);
+
+	printf("/* %s */\n", description);
+	printf("#define AO_%s_LEN 0x%02x\n", description, len * 2 + 2);
+	printf("#define AO_%s_STRING", description);
+	for (int i = 0; i < len; i++) {
+		int	c = a[i];
+		if (i > 0)
+			printf(",");
+		if (0x20 <= c && c < 128)
+			printf(" '%c', 0", c);
+		else
+			printf(" LE_WORD(0x%04x),", c);
+	}
+	printf("\n\n");
+}
+
+void
+write_int(int a, string description)
+{
+	printf ("/* %s */\n", description);
+	printf ("#define AO_%s_NUMBER %d\n\n", description, a);
+}
+
+string manufacturer = "altusmetrum.org";
+string product = "TeleMetrum";
+int serial = 1;
+int user_argind = 0;
+
+argdesc argd = {
+	.args = {
+		{
+			.var = { .arg_string = &manufacturer },
+			.abbr = 'm',
+			.name = "manufacturer",
+			.expr_name = "manf",
+			.desc = "Manufacturer name." },
+		{
+			.var = { .arg_string = &product },
+			.abbr = 'p',
+			.name = "product",
+			.expr_name = "prod",
+			.desc = "Product name." },
+		{
+			.var = { .arg_int = &serial },
+			.abbr = 's',
+			.name = "serial",
+			.expr_name = "number",
+			.desc = "Serial number." },
+	},
+	.prog_name = "usb descriptors",
+};
+
+void
+main()
+{
+	string[dim(argv)-1] nargv = {[n] = argv[n+1]};
+	parseargs(&argd, &nargv);
+	write_string(manufacturer, "iManufacturer");
+	write_string(product, "iProduct");
+	write_string(sprintf("%06d", serial), "iSerial");
+	write_int(serial, "iSerial");
+}
+
+main();

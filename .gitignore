@@ -9,8 +9,12 @@
 *.lnk
 *.map
 *.mem
-telemetrum
-teleterra
-tidongle
-teledongle
+telemetrum-*
+teleterra-*
+tidongle-*
+teledongle-*
 ao_flight_test
+ao-telemetrum-*.h
+ao-teleterra-*.h
+ao-teledongle-*.h
+ao-tidongle-*.h

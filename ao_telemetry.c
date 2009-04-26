@@ -17,9 +17,6 @@
 
 #include "ao.h"
 
-/* XXX make serial numbers real */
-__xdata uint8_t	ao_serial_number = 2;
-
 __xdata uint16_t ao_telemetry_interval = 0;
 __xdata uint8_t ao_rdf = 0;
 __xdata uint16_t ao_rdf_time;
