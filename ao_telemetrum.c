@@ -39,10 +39,12 @@ main(void)
 	ao_usb_init();
 	ao_serial_init();
 	ao_gps_init();
+	ao_gps_report_init();
 	ao_telemetry_init();
 	ao_radio_init();
 	ao_monitor_init(AO_LED_GREEN);
 	ao_igniter_init();
 	ao_dbg_init();
+	ao_config_init();
 	ao_start_scheduler();
 }

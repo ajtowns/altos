@@ -152,9 +152,8 @@ ao_cmd_hex(void)
 		ao_cmd_status = r;
 }
 
-#if 0
-static void
-decimal(void)
+void
+ao_cmd_decimal(void)
 {
 	__xdata uint8_t	r = ao_cmd_lex_error;
 	
@@ -162,7 +161,7 @@ decimal(void)
 	ao_cmd_white();
 	for(;;) {
 		if ('0' <= ao_cmd_lex_c && ao_cmd_lex_c <= '9')
-			ao_cmd_lex_i = (ao_cmd_lex_i * 10 ) | (ao_cmd_lex_c - '0');
+			ao_cmd_lex_i = (ao_cmd_lex_i * 10) + (ao_cmd_lex_c - '0');
 		else
 			break;
 		r = ao_cmd_success;
@@ -171,7 +170,6 @@ decimal(void)
 	if (r != ao_cmd_success)
 		ao_cmd_status = r;
 }
-#endif
 
 static void
 eol(void)

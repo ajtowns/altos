@@ -37,19 +37,6 @@ main(void)
 	ao_monitor_init(AO_LED_GREEN);
 	ao_radio_init();
 	ao_dbg_init();
+	ao_config_init();
 	ao_start_scheduler();
 }
-
-/* Stub for systems which have no ADC */
-void
-ao_adc_poll(void)
-{
-}
-
-/* Stub to not log GPS data */
-void
-ao_log_data(struct ao_log_record *log)
-{
-	(void) log;
-}
-

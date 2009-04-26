@@ -127,6 +127,26 @@ ao_pres_to_altitude(int16_t pres) __reentrant
 	return altitude_table[pres];
 }
 
+int16_t
+ao_altitude_to_pres(int16_t alt) __reentrant
+{
+	int16_t pres;
+
+	for (pres = 0; pres < 2047; pres++)
+		if (altitude_table[pres] <= alt)
+			break;
+	return pres << 4;
+}
+
+struct ao_config {
+	uint16_t	main_deploy;
+	int16_t		accel_zero_g;
+};
+
+#define ao_config_get()
+
+struct ao_config ao_config = { 250, 16000 };
+
 #include "ao_flight.c"
 
 void
@@ -204,11 +224,12 @@ ao_dump_state(void)
 {
 	if (ao_flight_state == ao_flight_startup)
 		return;
-	printf ("\t\t\t\t\t%s accel %g vel %g alt %d\n",
+	printf ("\t\t\t\t\t%s accel %g vel %g alt %d main %d\n",
 		ao_state_names[ao_flight_state],
 		(ao_flight_accel - ao_ground_accel) / COUNTS_PER_G * GRAVITY,
 		(double) ao_flight_vel / 100 / COUNTS_PER_G * GRAVITY,
-		altitude_table[ao_flight_pres >> 4]);
+		ao_pres_to_altitude(ao_flight_pres),
+		ao_pres_to_altitude(ao_main_pres));
 	if (ao_flight_state == ao_flight_landed)
 		exit(0);
 }

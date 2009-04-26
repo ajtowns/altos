@@ -17,39 +17,11 @@
 
 #include "ao.h"
 
-static const int16_t altitude_table[2048] = {
-#include "altitude.h"
-};
+volatile __xdata struct ao_adc	ao_adc_ring[AO_ADC_RING];
+volatile __data uint8_t		ao_adc_head;
 
-int16_t
-ao_pres_to_altitude(int16_t pres) __reentrant
+/* Stub for systems which have no ADC */
+void
+ao_adc_poll(void)
 {
-	pres = pres >> 4;
-	if (pres < 0) pres = 0;
-	if (pres > 2047) pres = 2047;
-	return altitude_table[pres];
-}
-
-int16_t
-ao_altitude_to_pres(int16_t alt) __reentrant
-{
-	int16_t pres;
-
-	for (pres = 0; pres < 2047; pres++)
-		if (altitude_table[pres] <= alt)
-			break;
-	return pres << 4;
-}
-
-static __xdata uint8_t	ao_temp_mutex;
-
-int16_t
-ao_temp_to_dC(int16_t temp) __reentrant
-{
-	int16_t	ret;
-
-	ao_mutex_get(&ao_temp_mutex);
-	ret = (int16_t) ((temp >> 4) * 3300L / 2047L) - 500;
-	ao_mutex_put(&ao_temp_mutex);
-	return ret;
 }

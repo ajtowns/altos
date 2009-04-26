@@ -35,14 +35,9 @@ main(void)
 	ao_monitor_init(AO_LED_RED);
 	ao_radio_init();
 	ao_dbg_init();
+	ao_config_init();
 	/* Bring up the USB link */
 	P1DIR |= 1;
 	P1 |= 1;
 	ao_start_scheduler();
-}
-
-/* Stub for systems which have no ADC */
-void
-ao_adc_poll(void)
-{
 }

@@ -76,7 +76,7 @@ __pdata int16_t ao_raw_accel, ao_raw_accel_prev, ao_raw_pres;
 
 #define ACCEL_G		265
 #define ACCEL_ZERO_G	16000
-#define ACCEL_NOSE_UP	(ACCEL_ZERO_G - ACCEL_G * 2 /3)
+#define ACCEL_NOSE_UP	(ACCEL_G * 2 /3)
 #define ACCEL_BOOST	ACCEL_G * 2
 #define ACCEL_INT_LAND	(ACCEL_G / 10)
 #define ACCEL_VEL_LAND	VEL_MPS_TO_COUNT(10)
@@ -229,14 +229,16 @@ ao_flight(void)
 			ao_ground_accel = (ao_raw_accel_sum / nsamples);
 			ao_ground_pres = (ao_raw_pres_sum / nsamples);
 			ao_min_pres = ao_ground_pres;
-			ao_main_pres = ao_ground_pres - BARO_MAIN;
+			ao_config_get();
+			ao_main_pres = ao_altitude_to_pres(ao_pres_to_altitude(ao_ground_pres) + ao_config.main_deploy);
 			ao_flight_vel = 0;
 			ao_min_vel = 0;
 
 			ao_interval_end = ao_flight_tick;
 
 			/* Go to launchpad state if the nose is pointing up */
-			if (ao_flight_accel < ACCEL_NOSE_UP) {
+			ao_config_get();
+			if (ao_flight_accel < ao_config.accel_zero_g - ACCEL_NOSE_UP) {
 
 				/* Disable the USB controller in flight mode
 				 * to save power
@@ -256,7 +258,6 @@ ao_flight(void)
 				/* Turn on the Green LED in idle mode
 				 */
 				ao_led_on(AO_LED_GREEN);
-				ao_timer_set_adc_interval(100);
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			/* signal successful initialization by turning off the LED */
@@ -362,6 +363,9 @@ ao_flight(void)
 				/* slow down the telemetry system */
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_RECOVER);
 
+				/* slow down the ADC sample rate */
+				ao_timer_set_adc_interval(10);
+
 				/* Enable RDF beacon */
 				ao_rdf_set(1);
 
@@ -422,11 +426,12 @@ ao_flight(void)
 static void
 ao_flight_status(void)
 {
-	printf("STATE: %7s accel: %d speed: %d altitude: %d\n",
+	printf("STATE: %7s accel: %d speed: %d altitude: %d main: %d\n",
 	       ao_state_names[ao_flight_state],
 	       AO_ACCEL_COUNT_TO_MSS(ACCEL_ZERO_G - ao_flight_accel),
 	       AO_VEL_COUNT_TO_MS(ao_flight_vel),
-	       ao_pres_to_altitude(ao_flight_pres));
+	       ao_pres_to_altitude(ao_flight_pres),
+	       ao_pres_to_altitude(ao_main_pres));
 }
 
 static __xdata struct ao_task	flight_task;

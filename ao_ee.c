@@ -331,6 +331,7 @@ ao_ee_write_config(uint8_t *buf, uint16_t len) __reentrant
 		ao_ee_fill(AO_EE_CONFIG_BLOCK);
 		memcpy(ao_ee_data, buf, len);
 		ao_ee_block_dirty = 1;
+		ao_ee_flush_internal();
 	} ao_mutex_put(&ao_ee_mutex);
 	return 1;
 }

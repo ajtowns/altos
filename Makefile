@@ -33,6 +33,7 @@ ALTOS_SRC = \
 #
 ALTOS_DRIVER_SRC = \
 	ao_beep.c \
+	ao_config.c \
 	ao_led.c \
 	ao_radio.c \
 	ao_stdio.c \
@@ -56,12 +57,20 @@ TELE_DRIVER_SRC = \
 	ao_gps.c \
 	ao_serial.c
 
+#
+# Drivers for partially-flled boards (TT, TD and TI)
+#
+TELE_FAKE_SRC = \
+	ao_adc_fake.c \
+	ao_ee_fake.c
+
 # 
 # Drivers only on TeleMetrum
 #
 TM_DRIVER_SRC = \
 	ao_adc.c \
 	ao_ee.c \
+	ao_gps_report.c \
 	ao_ignite.c
 
 #
@@ -97,6 +106,7 @@ TI_SRC = \
 	$(ALTOS_DRIVER_SRC) \
 	$(TELE_RECEIVER_SRC) \
 	$(TELE_COMMON_SRC) \
+	$(TELE_FAKE_SRC) \
 	$(TI_TASK_SRC)
 	
 TT_TASK_SRC = \
@@ -110,6 +120,7 @@ TT_SRC = \
 	$(TELE_RECEIVER_SRC) \
 	$(TELE_DRIVER_SRC) \
 	$(TELE_COMMON_SRC) \
+	$(TELE_FAKE_SRC) \
 	$(TT_TASK_SRC)
 	
 	
@@ -125,6 +136,7 @@ TD_SRC = \
 	$(ALTOS_DRIVER_SRC) \
 	$(TELE_RECEIVER_SRC) \
 	$(TELE_COMMON_SRC) \
+	$(TELE_FAKE_SRC) \
 	$(TD_TASK_SRC)
 
 SRC = \
@@ -133,6 +145,7 @@ SRC = \
 	$(TELE_DRIVER_SRC) \
 	$(TELE_RECEIVER_SRC) \
 	$(TELE_COMMON_SRC) \
+	$(TELE_FAKE_SRC) \
 	$(TM_DRIVER_SRC) \
 	$(TM_TASK_SRC) \
 	$(TI_TASK_SRC) \

@@ -35,11 +35,6 @@ main(void)
 	ao_monitor_init(AO_LED_GREEN);
 	ao_radio_init();
 	ao_dbg_init();
+	ao_config_init();
 	ao_start_scheduler();
-}
-
-/* Stub for systems which have no ADC */
-void
-ao_adc_poll(void)
-{
 }

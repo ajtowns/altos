@@ -275,8 +275,10 @@ ao_radio_idle(void)
 void
 ao_radio_send(__xdata struct ao_telemetry *telemetry) __reentrant
 {
+	ao_config_get();
 	ao_mutex_get(&ao_radio_mutex);
 	ao_radio_idle();
+	RF_CHANNR = ao_config.radio_channel;
 	ao_dma_set_transfer(ao_radio_dma,
 			    telemetry,
 			    &RFDXADDR,
@@ -297,8 +299,10 @@ ao_radio_send(__xdata struct ao_telemetry *telemetry) __reentrant
 void
 ao_radio_recv(__xdata struct ao_radio_recv *radio) __reentrant
 {
+	ao_config_get();
 	ao_mutex_get(&ao_radio_mutex);
 	ao_radio_idle();
+	RF_CHANNR = ao_config.radio_channel;
 	ao_dma_set_transfer(ao_radio_dma,
 			    &RFDXADDR,
 			    radio,

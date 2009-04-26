@@ -18,11 +18,7 @@
 #include "ao.h"
 
 /* XXX make serial numbers real */
-
 __xdata uint8_t	ao_serial_number = 2;
-
-/* XXX make callsigns real */
-__xdata char ao_callsign[AO_MAX_CALLSIGN] = "KD7SQG";
 
 __xdata uint16_t ao_telemetry_interval = 0;
 __xdata uint8_t ao_rdf = 0;
@@ -35,8 +31,9 @@ ao_telemetry(void)
 {
 	static __xdata struct ao_telemetry telemetry;
 
+	ao_config_get();
+	memcpy(telemetry.callsign, ao_config.callsign, AO_MAX_CALLSIGN);
 	telemetry.addr = ao_serial_number;
-	memcpy(telemetry.callsign, ao_callsign, AO_MAX_CALLSIGN);
 	ao_rdf_time = ao_time();
 	for (;;) {
 		while (ao_telemetry_interval == 0)
@@ -53,6 +50,7 @@ ao_telemetry(void)
 		{
 			ao_rdf_time = ao_time() + AO_RDF_INTERVAL;
 			ao_radio_rdf();
+			ao_delay(ao_telemetry_interval);
 		}
 	}
 }

@@ -314,6 +314,9 @@ ao_cmd_white(void);
 void
 ao_cmd_hex(void);
 
+void
+ao_cmd_decimal(void);
+
 struct ao_cmds {
 	uint8_t		cmd;
 	void		(*func)(void);
@@ -593,10 +596,10 @@ int16_t
 ao_pres_to_altitude(int16_t pres) __reentrant;
 
 int16_t
-ao_temp_to_dC(int16_t temp) __reentrant;
+ao_altitude_to_pres(int16_t alt) __reentrant;
 
 int16_t
-ao_accel_to_cm_per_s2(int16_t accel) __reentrant;
+ao_temp_to_dC(int16_t temp) __reentrant;
 
 /*
  * ao_dbg.c
@@ -699,6 +702,16 @@ void
 ao_gps_init(void);
 
 /*
+ * ao_gps_report.c
+ */
+
+void
+ao_gps_report(void);
+
+void
+ao_gps_report_init(void);
+
+/*
  * ao_telemetry.c
  */
 
@@ -795,5 +808,28 @@ ao_igniter_status(enum ao_igniter igniter);
 void
 ao_igniter_init(void);
 
-#endif /* _AO_H_ */
+/*
+ * ao_config.c
+ */
 
+#define AO_CONFIG_MAJOR	1
+#define AO_CONFIG_MINOR	0
+
+struct ao_config {
+	uint8_t		major;
+	uint8_t		minor;
+	uint16_t	main_deploy;
+	int16_t		accel_zero_g;
+	uint8_t		radio_channel;
+	char		callsign[AO_MAX_CALLSIGN + 1];
+};
+
+extern __xdata struct ao_config ao_config;
+
+void
+ao_config_get(void);
+
+void
+ao_config_init(void);
+
+#endif /* _AO_H_ */
