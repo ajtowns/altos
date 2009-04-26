@@ -252,7 +252,7 @@ $(TIDONGLE_DEFS): ao-make-product.5c
 clean:
 	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
 	rm -f $(PROGS) $(PCDB) $(PLNK) $(PMAP) $(PMEM) $(PAOM)
-	rm -f $(ALL_DEFS)
+	rm -f $(ALL_DEFS) $(HOST_PROGS)
 
 install:
 
