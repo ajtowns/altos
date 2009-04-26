@@ -101,7 +101,7 @@ send_serial(void)
 }
 
 __code struct ao_cmds ao_serial_cmds[] = {
-	{ 'S', send_serial,		"S<data>                            Send data to serial line" },
+	{ 'S', send_serial,		"S <data>                           Send data to serial line" },
 	{ 0, send_serial, NULL },
 };
 
