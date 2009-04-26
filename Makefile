@@ -152,7 +152,11 @@ SRC = \
 	$(TELE_COMMON_SRC) \
 	$(TELE_FAKE_SRC) \
 	$(TM_DRIVER_SRC) \
-	$(TM_TASK_SRC)
+	$(TM_TASK_SRC) \
+	$(TM_MAIN_SRC) \
+	$(TI_MAIN_SRC) \
+	$(TD_MAIN_SRC) \
+	$(TT_MAIN_SRC)
 
 TM_REL=$(TM_SRC:.c=.rel) ao_product-telemetrum-$(SERIAL).rel
 TI_REL=$(TI_SRC:.c=.rel) ao_product-tidongle-$(SERIAL).rel
