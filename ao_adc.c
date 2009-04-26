@@ -67,7 +67,7 @@ ao_adc_dump(void)
 	ao_adc_get(&packet);
 	printf("tick: %5u accel: %4d pres: %4d temp: %4d batt: %4d drogue: %4d main: %4d\n",
 	       packet.tick, packet.accel >> 4, packet.pres >> 4, packet.temp >> 4,
-	       packet.sense_d >> 4, packet.sense_m >> 4);
+	       packet.v_batt >> 4, packet.sense_d >> 4, packet.sense_m >> 4);
 }
 
 __code struct ao_cmds ao_adc_cmds[] = {
