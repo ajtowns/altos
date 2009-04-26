@@ -117,6 +117,62 @@ ao_igniter(void)
 	}
 }
 
+static uint8_t
+ao_match_word(__code uint8_t *word)
+{
+	while (*word) {
+		if (ao_cmd_lex_c != *word) {
+			ao_cmd_status = ao_cmd_syntax_error;
+			return 0;
+		}
+		word++;
+		ao_cmd_lex();
+	}
+	return 1;
+}
+
+void
+ao_ignite_manual(void)
+{
+	ao_cmd_white();
+	if (!ao_match_word("DoIt"))
+		return;
+	ao_cmd_white();
+	if (ao_cmd_lex_c == 'm') {
+		if(ao_match_word("main"))
+			ao_igniter_fire(ao_igniter_main);
+	} else {
+		if(ao_match_word("drogue"))
+			ao_igniter_fire(ao_igniter_drogue);
+	}
+}
+
+static __code uint8_t *igniter_status_names[] = {
+	"unknown", "ready", "active", "open"
+};
+
+void
+ao_ignite_print_status(enum ao_igniter igniter, __code uint8_t *name) __reentrant
+{
+	enum ao_igniter_status status = ao_igniter_status(igniter);
+	printf("Igniter: %6s Status: %s\n",
+	       name,
+	       igniter_status_names[status]);
+}
+
+void
+ao_ignite_test(void)
+{
+	ao_ignite_print_status(ao_igniter_drogue, "drogue");
+	ao_ignite_print_status(ao_igniter_main, "main");
+}
+
+__code struct ao_cmds ao_ignite_cmds[] = {
+	{ 'i',	ao_ignite_manual,	"i <key> {main|drogue}              Fire igniter. <key> is doit with D&I" },
+	{ 't',  ao_ignite_test,		"t                                  Test igniter continuity" },
+	{ 0,	ao_ignite_manual,	NULL },
+};
+
 __xdata struct ao_task ao_igniter_task;
 
 void
@@ -125,5 +181,6 @@ ao_igniter_init(void)
 	AO_IGNITER_DROGUE = 0;
 	AO_IGNITER_MAIN = 0;
 	AO_IGNITER_DIR |= AO_IGNITER_DROGUE_BIT | AO_IGNITER_MAIN_BIT;
+	ao_cmd_register(&ao_ignite_cmds[0]);
 	ao_add_task(&ao_igniter_task, ao_igniter, "igniter");
 }

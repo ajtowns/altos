@@ -214,7 +214,7 @@ echo(void)
 
 static const uint8_t help_txt[] = "All numbers are in hex";
 
-#define NUM_CMDS	10
+#define NUM_CMDS	11
 
 static __code struct ao_cmds	*__xdata (ao_cmds[NUM_CMDS]);
 static __xdata uint8_t		ao_ncmds;
