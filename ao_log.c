@@ -125,15 +125,9 @@ ao_log(void)
 	log.u.flight.flight = ao_log_dump_flight + 1;
 	ao_log_data(&log);
 	for (;;) {
-		/* Write state change to EEPROM */
-		if (ao_flight_state != ao_log_state) {
-			ao_log_state = ao_flight_state;
-			log.type = AO_LOG_STATE;
-			log.tick = ao_flight_tick;
-			log.u.state.state = ao_log_state;
-			log.u.state.reason = 0;
-			ao_log_data(&log);
-		}
+		while (!ao_log_running)
+			ao_sleep(&ao_log_running);
+
 		/* Write samples to EEPROM */
 		while (ao_log_adc_pos != ao_adc_head) {
 			log.type = AO_LOG_SENSOR;
@@ -154,6 +148,18 @@ ao_log(void)
 				ao_log_data(&log);
 			}
 			ao_log_adc_pos = ao_adc_ring_next(ao_log_adc_pos);
+		}
+		/* Write state change to EEPROM */
+		if (ao_flight_state != ao_log_state) {
+			ao_log_state = ao_flight_state;
+			log.type = AO_LOG_STATE;
+			log.tick = ao_flight_tick;
+			log.u.state.state = ao_log_state;
+			log.u.state.reason = 0;
+			ao_log_data(&log);
+
+			if (ao_log_state == ao_flight_landed)
+				ao_log_stop();
 		}
 		
 		/* Wait for a while */

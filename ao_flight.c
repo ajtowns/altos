@@ -408,9 +408,6 @@ ao_flight(void)
 				/* turn off the ADC capture */
 				ao_timer_set_adc_interval(0);
 
-				/* stop logging data */
-				ao_log_stop();
-
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			break;

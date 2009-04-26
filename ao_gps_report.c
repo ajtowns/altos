@@ -29,6 +29,9 @@ ao_gps_report(void)
 		memcpy(&gps_data, &ao_gps_data, sizeof (struct ao_gps_data));
 		ao_mutex_put(&ao_gps_mutex);
 
+		if (!(gps_data.flags & AO_GPS_VALID))
+			continue;
+
 		gps_log.tick = ao_time();
 		gps_log.type = AO_LOG_GPS_TIME;
 		gps_log.u.gps_time.hour = gps_data.hour;
