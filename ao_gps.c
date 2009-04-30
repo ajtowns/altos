@@ -19,16 +19,16 @@
 
 #define AO_GPS_LEADER		6
 
-static const uint8_t ao_gps_header[] = "GPGGA,";
+static const char ao_gps_header[] = "GPGGA,";
 __xdata uint8_t ao_gps_mutex;
-static __xdata uint8_t ao_gps_char;
+static __xdata char ao_gps_char;
 static __xdata uint8_t ao_gps_cksum;
 static __xdata uint8_t ao_gps_error;
 
 __xdata struct ao_gps_data	ao_gps_data;
 static __xdata struct ao_gps_data	ao_gps_next;
 
-const uint8_t ao_gps_config[] =
+const char ao_gps_config[] =
 	"$PSRF103,00,00,01,01*25\r\n"	/* GGA 1 per sec */
 	"$PSRF103,01,00,00,01*25\r\n"	/* GLL disable */
 	"$PSRF103,02,00,00,01*26\r\n"	/* GSA disable */
@@ -137,7 +137,7 @@ ao_gps_parse_pos(__xdata struct ao_gps_pos * pos, uint8_t deg_width) __reentrant
 }
 
 static void
-ao_gps_parse_flag(uint8_t yes_c, uint8_t yes, uint8_t no_c, uint8_t no) __reentrant
+ao_gps_parse_flag(char yes_c, uint8_t yes, char no_c, uint8_t no) __reentrant
 {
 	ao_gps_skip_sep();
 	if (ao_gps_char == yes_c)
@@ -153,7 +153,7 @@ ao_gps_parse_flag(uint8_t yes_c, uint8_t yes, uint8_t no_c, uint8_t no) __reentr
 void
 ao_gps(void) __reentrant
 {
-	uint8_t	c;
+	char	c;
 	uint8_t	i;
 
 	for (i = 0; (c = ao_gps_config[i]); i++)
@@ -238,9 +238,8 @@ ao_gps(void) __reentrant
 			ao_gps_skip_field();
 		}
 		if (ao_gps_char == '*') {
-			c = ao_gps_cksum ^ '*';
-			i = ao_gps_hex(2);
-			if (c != i)
+			uint8_t cksum = ao_gps_cksum ^ '*';
+			if (cksum != ao_gps_hex(2))
 				ao_gps_error = 1;
 		} else 
 			ao_gps_error = 1;

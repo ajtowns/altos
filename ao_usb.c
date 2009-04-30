@@ -316,7 +316,7 @@ ao_usb_flush(void) __critical
 }
 
 void
-ao_usb_putchar(uint8_t c) __critical
+ao_usb_putchar(char c) __critical
 {
 	for (;;) {
 		USBINDEX = AO_USB_IN_EP;
@@ -332,10 +332,10 @@ ao_usb_putchar(uint8_t c) __critical
 	}
 }
 
-uint8_t
+char
 ao_usb_getchar(void) __critical
 {
-	__xdata uint8_t	c;
+	__xdata char	c;
 	while (ao_usb_out_bytes == 0) {
 		for (;;) {
 			USBINDEX = AO_USB_OUT_EP;

@@ -287,7 +287,7 @@ debug_get(void)
 static uint8_t
 getnibble(void)
 {
-	__xdata uint8_t	c;
+	__xdata char	c;
 
 	c = getchar();
 	if ('0' <= c && c <= '9')

@@ -118,7 +118,7 @@ ao_igniter(void)
 }
 
 static uint8_t
-ao_match_word(__code uint8_t *word)
+ao_match_word(__code char *word)
 {
 	while (*word) {
 		if (ao_cmd_lex_c != *word) {
@@ -147,12 +147,12 @@ ao_ignite_manual(void)
 	}
 }
 
-static __code uint8_t *igniter_status_names[] = {
+static __code char *igniter_status_names[] = {
 	"unknown", "ready", "active", "open"
 };
 
 void
-ao_ignite_print_status(enum ao_igniter igniter, __code uint8_t *name) __reentrant
+ao_ignite_print_status(enum ao_igniter igniter, __code char *name) __reentrant
 {
 	enum ao_igniter_status status = ao_igniter_status(igniter);
 	printf("Igniter: %6s Status: %s\n",

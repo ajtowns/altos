@@ -22,7 +22,7 @@
 struct ao_fifo {
 	uint8_t	insert;
 	uint8_t	remove;
-	uint8_t	fifo[SERIAL_FIFO];
+	char	fifo[SERIAL_FIFO];
 };
 
 volatile __xdata struct ao_fifo	ao_usart1_rx_fifo;
@@ -71,10 +71,10 @@ ao_serial_tx1_isr(void) interrupt 14
 	ao_wakeup(&ao_usart1_tx_fifo);
 }
 
-uint8_t
+char
 ao_serial_getchar(void) __critical
 {
-	uint8_t	c;
+	char	c;
 	while (ao_fifo_empty(ao_usart1_rx_fifo))
 		ao_sleep(&ao_usart1_rx_fifo);
 	ao_fifo_remove(ao_usart1_rx_fifo, c);
@@ -82,7 +82,7 @@ ao_serial_getchar(void) __critical
 }
 
 void
-ao_serial_putchar(uint8_t c) __critical
+ao_serial_putchar(char c) __critical
 {
 	while (ao_fifo_full(ao_usart1_tx_fifo))
 		ao_sleep(&ao_usart1_tx_fifo);

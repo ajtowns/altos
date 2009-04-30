@@ -18,20 +18,20 @@
 #include "ao.h"
 
 __xdata uint16_t ao_cmd_lex_i;
-__xdata uint8_t	ao_cmd_lex_c;
+__xdata char	ao_cmd_lex_c;
 __xdata enum ao_cmd_status ao_cmd_status;
 static __xdata uint8_t	lex_echo;
 
 #define CMD_LEN	32
 
-static __xdata uint8_t	cmd_line[CMD_LEN];
+static __xdata char	cmd_line[CMD_LEN];
 static __xdata uint8_t	cmd_len;
 static __xdata uint8_t	cmd_i;
 
 static void
 put_string(char *s)
 {
-	__xdata uint8_t	c;
+	__xdata char	c;
 	while (c = *s++)
 		putchar(c);
 }
@@ -39,7 +39,7 @@ put_string(char *s)
 static void
 readline(void)
 {
-	__xdata uint8_t c;
+	__xdata char c;
 	if (lex_echo)
 		put_string("> ");
 	cmd_len = 0;
@@ -212,7 +212,7 @@ echo(void)
 	lex_echo = ao_cmd_lex_i != 0;
 }
 
-static const uint8_t help_txt[] = "All numbers are in hex";
+static const char help_txt[] = "All numbers are in hex";
 
 #define NUM_CMDS	11
 
@@ -256,7 +256,7 @@ ao_cmd_register(__code struct ao_cmds *cmds)
 void
 ao_cmd(void *parameters)
 {
-	__xdata uint8_t	c;
+	__xdata char	c;
 	__xdata uint8_t cmd, cmds;
 	__code struct ao_cmds * __xdata cs;
 	void (*__xdata func)(void);

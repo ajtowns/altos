@@ -259,10 +259,10 @@ ao_led_init(uint8_t enable);
 
 /* Put one character to the USB output queue */
 void
-ao_usb_putchar(uint8_t c);
+ao_usb_putchar(char c);
 
 /* Get one character from the USB input queue */
-uint8_t
+char
 ao_usb_getchar(void);
 
 /* Flush the USB output queue */
@@ -296,7 +296,7 @@ enum ao_cmd_status {
 };
 
 extern __xdata uint16_t ao_cmd_lex_i;
-extern __xdata uint8_t	ao_cmd_lex_c;
+extern __xdata char	ao_cmd_lex_c;
 extern __xdata enum ao_cmd_status ao_cmd_status;
 
 void
@@ -318,7 +318,7 @@ void
 ao_cmd_decimal(void);
 
 struct ao_cmds {
-	uint8_t		cmd;
+	char		cmd;
 	void		(*func)(void);
 	const char	*help;
 };
@@ -462,7 +462,7 @@ struct ao_gps_pos {
 #define AO_LOG_POS_NONE		(~0UL)
 
 struct ao_log_record {
-	uint8_t			type;
+	char			type;
 	uint8_t			csum;
 	uint16_t		tick;
 	union {
@@ -654,11 +654,11 @@ void
 ao_serial_tx1_isr(void) interrupt 14;
 #endif
 
-uint8_t
+char
 ao_serial_getchar(void) __critical;
 
 void
-ao_serial_putchar(uint8_t c) __critical;
+ao_serial_putchar(char c) __critical;
 
 void
 ao_serial_init(void);

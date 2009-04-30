@@ -188,7 +188,7 @@ ao_config_accel_zero_g_set(void) __reentrant
 }
 
 struct ao_config_var {
-	uint8_t		cmd;
+	char		cmd;
 	void		(*set)(void) __reentrant;
 	void		(*show)(void) __reentrant;
 	const char	*help;
@@ -225,7 +225,7 @@ __code struct ao_config_var ao_config_vars[] = {
 void
 ao_config_set(void)
 {
-	uint8_t	c;
+	char	c;
 	uint8_t cmd;
 	void (*__xdata func)(void) __reentrant;
 

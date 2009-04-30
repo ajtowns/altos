@@ -108,7 +108,7 @@ const char const * const ao_state_names[] = {
 };
 
 struct ao_cmds {
-	uint8_t		cmd;
+	char		cmd;
 	void		(*func)(void);
 	const char	*help;
 };

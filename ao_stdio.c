@@ -26,7 +26,7 @@ putchar(char c)
 {
 	if (c == '\n')
 		ao_usb_putchar('\r');
-	ao_usb_putchar((uint8_t) c);
+	ao_usb_putchar(c);
 }
 
 void
@@ -38,5 +38,5 @@ flush(void)
 char
 getchar(void)
 {
-	return (char) ao_usb_getchar();
+	return ao_usb_getchar();
 }

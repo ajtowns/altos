@@ -87,7 +87,7 @@ beep(void)
 void
 echo(void)
 {
-	uint8_t	c;
+	char	c;
 	for (;;) {
 		ao_usb_flush();
 		c = ao_usb_getchar();
