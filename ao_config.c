@@ -97,7 +97,7 @@ ao_config_callsign_set(void) __reentrant
 void
 ao_config_radio_channel_show(void) __reentrant
 {
-	uint32_t	freq = 435550L + ao_config.radio_channel * 100L;
+	uint32_t	freq = 434550L + ao_config.radio_channel * 100L;
 	uint16_t	mhz = freq / 1000L;
 	uint16_t	khz = freq % 1000L;
 
