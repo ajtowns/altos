@@ -142,10 +142,6 @@ ao_flight(void)
 	ao_raw_accel_prev = 0;
 	ao_raw_accel = 0;
 	ao_raw_pres = 0;
-	ao_interval_cur_min_pres = 0x7fff;
-	ao_interval_cur_max_pres = -0x7fff;
-	ao_interval_cur_min_accel = 0x7fff;
-	ao_interval_cur_max_accel = -0x7fff;
 	ao_flight_tick = 0;
 	for (;;) {
 		ao_sleep(&ao_adc_ring);
@@ -193,25 +189,6 @@ ao_flight(void)
 			    ao_min_vel = -ao_flight_vel;
 		}
 
-		if (ao_flight_pres < ao_interval_cur_min_pres)
-			ao_interval_cur_min_pres = ao_flight_pres;
-		if (ao_flight_pres > ao_interval_cur_max_pres)
-			ao_interval_cur_max_pres = ao_flight_pres;
-		if (ao_flight_accel < ao_interval_cur_min_accel)
-			ao_interval_cur_min_accel = ao_flight_accel;
-		if (ao_flight_accel > ao_interval_cur_max_accel)
-			ao_interval_cur_max_accel = ao_flight_accel;
-
-		if ((int16_t) (ao_flight_tick - ao_interval_end) >= 0) {
-			ao_interval_max_pres = ao_interval_cur_max_pres;
-			ao_interval_min_pres = ao_interval_cur_min_pres;
-			ao_interval_max_accel = ao_interval_cur_max_accel;
-			ao_interval_min_accel = ao_interval_cur_min_accel;
-			ao_interval_end = ao_flight_tick + AO_INTERVAL_TICKS;
-			ao_interval_cur_min_pres = ao_interval_cur_max_pres = ao_flight_pres;
-			ao_interval_cur_min_accel = ao_interval_cur_max_accel = ao_flight_accel;
-		}
-
 		switch (ao_flight_state) {
 		case ao_flight_startup:
 
@@ -233,8 +210,6 @@ ao_flight(void)
 			ao_main_pres = ao_altitude_to_pres(ao_pres_to_altitude(ao_ground_pres) + ao_config.main_deploy);
 			ao_flight_vel = 0;
 			ao_min_vel = 0;
-
-			ao_interval_end = ao_flight_tick;
 
 			/* Go to launchpad state if the nose is pointing up */
 			ao_config_get();
@@ -372,6 +347,24 @@ ao_flight(void)
 				ao_flight_state = ao_flight_drogue;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
+			/*
+			 * Start recording min/max accel and pres for a while
+			 * to figure out when the rocket has landed
+			 */
+			/* Set the 'last' limits to max range to prevent
+			 * early resting detection
+			 */
+			ao_interval_min_accel = 0;
+			ao_interval_max_accel = 0x7fff;
+			ao_interval_min_pres = 0;
+			ao_interval_max_pres = 0x7fff;
+
+			/* initialize interval values */
+			ao_interval_end = ao_flight_tick + AO_INTERVAL_TICKS;
+
+			ao_interval_cur_min_pres = ao_interval_cur_max_pres = ao_flight_pres;
+			ao_interval_cur_min_accel = ao_interval_cur_max_accel = ao_flight_accel;
+
 			break;
 		case ao_flight_drogue:
 
@@ -389,6 +382,7 @@ ao_flight(void)
 				ao_flight_state = ao_flight_main;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
+
 			/* fall through... */
 		case ao_flight_main:
 
@@ -398,10 +392,30 @@ ao_flight(void)
 			 *                           OR
 			 * barometer: altitude stable and within 1000m of the launch altitude
 			 */
+
+			if (ao_flight_pres < ao_interval_cur_min_pres)
+				ao_interval_cur_min_pres = ao_flight_pres;
+			if (ao_flight_pres > ao_interval_cur_max_pres)
+				ao_interval_cur_max_pres = ao_flight_pres;
+			if (ao_flight_accel < ao_interval_cur_min_accel)
+				ao_interval_cur_min_accel = ao_flight_accel;
+			if (ao_flight_accel > ao_interval_cur_max_accel)
+				ao_interval_cur_max_accel = ao_flight_accel;
+
+			if ((int16_t) (ao_flight_tick - ao_interval_end) >= 0) {
+				ao_interval_max_pres = ao_interval_cur_max_pres;
+				ao_interval_min_pres = ao_interval_cur_min_pres;
+				ao_interval_max_accel = ao_interval_cur_max_accel;
+				ao_interval_min_accel = ao_interval_cur_min_accel;
+				ao_interval_end = ao_flight_tick + AO_INTERVAL_TICKS;
+				ao_interval_cur_min_pres = ao_interval_cur_max_pres = ao_flight_pres;
+				ao_interval_cur_min_accel = ao_interval_cur_max_accel = ao_flight_accel;
+			}
+
 			if ((abs(ao_flight_vel) < ACCEL_VEL_LAND &&
-			     (ao_interval_max_accel - ao_interval_min_accel) < ACCEL_INT_LAND) ||
+			     (uint16_t) (ao_interval_max_accel - ao_interval_min_accel) < (uint16_t) ACCEL_INT_LAND) ||
 			    (ao_flight_pres > ao_ground_pres - BARO_LAND &&
-			     (ao_interval_max_pres - ao_interval_min_pres) < BARO_INT_LAND))
+			     (uint16_t) (ao_interval_max_pres - ao_interval_min_pres) < (uint16_t) BARO_INT_LAND))
 			{
 				ao_flight_state = ao_flight_landed;
 
