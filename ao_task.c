@@ -209,7 +209,7 @@ ao_task_info(void)
 		task = ao_tasks[i];
 		pc_loc = task->stack_count - 17;
 		printf("%12s: wchan %04x pc %04x\n",
-		       (char *) task->name,
+		       task->name,
 		       (int16_t) task->wchan,
 		       (task->stack[pc_loc]) | (task->stack[pc_loc+1] << 8));
 	}
