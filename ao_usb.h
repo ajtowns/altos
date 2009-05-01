@@ -68,9 +68,12 @@
 /*
  * Double buffer IN and OUT EPs, so each
  * gets half of the available space
+ *
+ * Ah, but USB bulk packets can only come in 8, 16, 32 and 64
+ * byte sizes, so we'll use 64 for everything
  */
-#define AO_USB_IN_SIZE		256
-#define AO_USB_OUT_SIZE		128
+#define AO_USB_IN_SIZE		64
+#define AO_USB_OUT_SIZE		64
 
 #define AO_USB_EP0_IDLE		0
 #define AO_USB_EP0_DATA_IN	1
