@@ -4,6 +4,8 @@
 # 
 CC=sdcc
 
+VERSION=$(shell git describe)
+
 CFLAGS=--model-small --debug --opt-code-speed 
 
 LDFLAGS=--out-fmt-ihx --code-loc 0x0000 --code-size 0x8000 \
@@ -238,21 +240,22 @@ ao_product-tidongle-$(SERIAL).rel: ao_product.c $(TIDONGLE_DEFS)
 	$(CC) -c $(CFLAGS) -D PRODUCT_DEFS='\"$(TIDONGLE_DEFS)\"' -o$@ ao_product.c
 
 $(TELEMETRUM_DEFS): ao-make-product.5c
-	nickle ao-make-product.5c -m altusmetrum.org -p TeleMetrum -s $(SERIAL) > $@
+	nickle ao-make-product.5c -m altusmetrum.org -p TeleMetrum -s $(SERIAL) -v $(VERSION) > $@
 
 $(TELETERRA_DEFS): ao-make-product.5c
-	nickle ao-make-product.5c -m altusmetrum.org -p TeleTerra -s $(SERIAL) > $@
+	nickle ao-make-product.5c -m altusmetrum.org -p TeleTerra -s $(SERIAL) -v $(VERSION) > $@
 
 $(TELEDONGLE_DEFS): ao-make-product.5c
-	nickle ao-make-product.5c -m altusmetrum.org -p TeleDongle -s $(SERIAL) > $@
+	nickle ao-make-product.5c -m altusmetrum.org -p TeleDongle -s $(SERIAL) -v $(VERSION) > $@
 
 $(TIDONGLE_DEFS): ao-make-product.5c
-	nickle ao-make-product.5c -m altusmetrum.org -p TIDongle -s $(SERIAL) > $@
+	nickle ao-make-product.5c -m altusmetrum.org -p TIDongle -s $(SERIAL) -v $(VERSION) > $@
 
 clean:
 	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
 	rm -f $(PROGS) $(PCDB) $(PLNK) $(PMAP) $(PMEM) $(PAOM)
 	rm -f $(ALL_DEFS) $(HOST_PROGS)
+	rm -f $(TELEMETRUM_DEFS) $(TELETERRA_DEFS) $(TELEDONGLE_DEFS) $(TIDONGLE_DEFS)
 
 install:
 

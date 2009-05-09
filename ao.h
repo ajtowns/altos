@@ -841,5 +841,8 @@ ao_config_init(void);
 
 extern const uint8_t ao_usb_descriptors [];
 extern const uint16_t ao_serial_number;
+extern const char ao_version[];
+extern const char ao_manufacturer[];
+extern const char ao_product[];
 
 #endif /* _AO_H_ */

@@ -212,6 +212,15 @@ echo(void)
 	lex_echo = ao_cmd_lex_i != 0;
 }
 
+static void
+version(void)
+{
+	printf("manufacturer     %s\n", ao_manufacturer);
+	printf("product          %s\n", ao_product);
+	printf("serial-number    %u\n", ao_serial_number);
+	printf("software-version %s\n", ao_version);
+}
+
 static const char help_txt[] = "All numbers are in hex";
 
 #define NUM_CMDS	11
@@ -297,6 +306,7 @@ __code struct ao_cmds	ao_base_cmds[] = {
 	{ 'T', ao_task_info,	"T                                  Show task states" },
 	{ 'E', echo,		"E <0 off, 1 on>                    Set command echo mode" },
 	{ 'd', dump,		"d <start> <end>                    Dump memory" },
+	{ 'v', version,		"v                                  Show version" },
 	{ 0,    help,	NULL },
 };
 

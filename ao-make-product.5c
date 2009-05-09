@@ -3,13 +3,14 @@
 autoimport ParseArgs;
 
 void
-write_string(string a, string description)
+write_ucs2(string a, string description)
 {
 	int len = String::length(a);
 
 	printf("/* %s */\n", description);
 	printf("#define AO_%s_LEN 0x%02x\n", description, len * 2 + 2);
-	printf("#define AO_%s_STRING", description);
+	printf("#define AO_%s_STRING \"%s\"\n", description, a);
+	printf("#define AO_%s_UCS2", description);
 	for (int i = 0; i < len; i++) {
 		int	c = a[i];
 		if (i > 0)
@@ -23,6 +24,13 @@ write_string(string a, string description)
 }
 
 void
+write_string(string a, string description)
+{
+	printf ("/* %s */\n", description);
+	printf ("#define AO_%s_STRING \"%s\"\n", description, a);
+}
+
+void
 write_int(int a, string description)
 {
 	printf ("/* %s */\n", description);
@@ -31,6 +39,7 @@ write_int(int a, string description)
 
 string manufacturer = "altusmetrum.org";
 string product = "TeleMetrum";
+string version = "0.0";
 int serial = 1;
 int user_argind = 0;
 
@@ -54,6 +63,12 @@ argdesc argd = {
 			.name = "serial",
 			.expr_name = "number",
 			.desc = "Serial number." },
+		{
+			.var = { .arg_string = &version },
+			.abbr = 'v',
+			.name = "version",
+			.expr_name = "string",
+			.desc = "Program version." },
 	},
 	.prog_name = "usb descriptors",
 };
@@ -63,10 +78,11 @@ main()
 {
 	string[dim(argv)-1] nargv = {[n] = argv[n+1]};
 	parseargs(&argd, &nargv);
-	write_string(manufacturer, "iManufacturer");
-	write_string(product, "iProduct");
-	write_string(sprintf("%06d", serial), "iSerial");
+	write_ucs2(manufacturer, "iManufacturer");
+	write_ucs2(product, "iProduct");
+	write_ucs2(sprintf("%06d", serial), "iSerial");
 	write_int(serial, "iSerial");
+	write_string(version, "iVersion");
 }
 
 main();
