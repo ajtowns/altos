@@ -87,6 +87,8 @@ ao_config_callsign_set(void) __reentrant
 		return;
 	ao_mutex_get(&ao_config_mutex);
 	_ao_config_get();
+	while (c < AO_MAX_CALLSIGN + 1)
+		callsign[c++] = '\0';
 	memcpy(&ao_config.callsign, &callsign,
 	       AO_MAX_CALLSIGN + 1);
 	ao_config_dirty = 1;
