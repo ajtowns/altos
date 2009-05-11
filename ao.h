@@ -467,7 +467,7 @@ struct ao_log_record {
 	uint16_t		tick;
 	union {
 		struct {
-			uint16_t	serial;
+			int16_t		ground_accel;
 			uint16_t	flight;
 		} flight;
 		struct {

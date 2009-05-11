@@ -121,7 +121,7 @@ ao_log(void)
 	
 	log.type = AO_LOG_FLIGHT;
 	log.tick = ao_flight_tick;
-	log.u.flight.serial = 0;
+	log.u.flight.ground_accel = ao_ground_accel;
 	log.u.flight.flight = ao_log_dump_flight + 1;
 	ao_log_data(&log);
 	for (;;) {
