@@ -312,7 +312,7 @@ ao_flight(void)
 				/* set min velocity to current velocity for
 				 * apogee detect
 				 */
-				ao_min_vel = ao_flight_vel;
+				ao_min_vel = abs(ao_flight_vel);
 				ao_flight_state = ao_flight_apogee;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
