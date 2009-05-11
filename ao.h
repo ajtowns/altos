@@ -727,6 +727,7 @@ struct ao_telemetry {
 
 /* Set delay between telemetry reports (0 to disable) */
 
+#define AO_TELEMETRY_INTERVAL_PAD	AO_MS_TO_TICKS(1000)
 #define AO_TELEMETRY_INTERVAL_FLIGHT	AO_MS_TO_TICKS(50)
 #define AO_TELEMETRY_INTERVAL_RECOVER	AO_MS_TO_TICKS(1000)
 

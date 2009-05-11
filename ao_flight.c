@@ -223,7 +223,7 @@ ao_flight(void)
 				/* Turn on telemetry system
 				 */
 				ao_rdf_set(1);
-				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_FLIGHT);
+				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_PAD);
 
 				ao_flight_state = ao_flight_launchpad;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
@@ -258,6 +258,9 @@ ao_flight(void)
 
 				/* start logging data */
 				ao_log_start();
+
+				/* Increase telemetry rate */
+				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_FLIGHT);
 
 				/* disable RDF beacon */
 				ao_rdf_set(0);
