@@ -347,26 +347,28 @@ ao_flight(void)
 				/* Enable RDF beacon */
 				ao_rdf_set(1);
 
+				/*
+				 * Start recording min/max accel and pres for a while
+				 * to figure out when the rocket has landed
+				 */
+				/* Set the 'last' limits to max range to prevent
+				 * early resting detection
+				 */
+				ao_interval_min_accel = 0;
+				ao_interval_max_accel = 0x7fff;
+				ao_interval_min_pres = 0;
+				ao_interval_max_pres = 0x7fff;
+
+				/* initialize interval values */
+				ao_interval_end = ao_flight_tick + AO_INTERVAL_TICKS;
+
+				ao_interval_cur_min_pres = ao_interval_cur_max_pres = ao_flight_pres;
+				ao_interval_cur_min_accel = ao_interval_cur_max_accel = ao_flight_accel;
+
+				/* and enter drogue state */
 				ao_flight_state = ao_flight_drogue;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
-			/*
-			 * Start recording min/max accel and pres for a while
-			 * to figure out when the rocket has landed
-			 */
-			/* Set the 'last' limits to max range to prevent
-			 * early resting detection
-			 */
-			ao_interval_min_accel = 0;
-			ao_interval_max_accel = 0x7fff;
-			ao_interval_min_pres = 0;
-			ao_interval_max_pres = 0x7fff;
-
-			/* initialize interval values */
-			ao_interval_end = ao_flight_tick + AO_INTERVAL_TICKS;
-
-			ao_interval_cur_min_pres = ao_interval_cur_max_pres = ao_flight_pres;
-			ao_interval_cur_min_accel = ao_interval_cur_max_accel = ao_flight_accel;
 
 			break;
 		case ao_flight_drogue:
