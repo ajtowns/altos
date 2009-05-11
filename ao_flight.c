@@ -136,7 +136,7 @@ __xdata int32_t ao_raw_accel_sum, ao_raw_pres_sum;
 void
 ao_flight(void)
 {
-	__pdata static uint8_t	nsamples = 0;
+	__pdata static uint16_t	nsamples = 0;
 
 	ao_flight_adc = ao_adc_head;
 	ao_raw_accel_prev = 0;
@@ -194,10 +194,10 @@ ao_flight(void)
 
 			/* startup state:
 			 *
-			 * Collect 100 samples of acceleration and pressure
+			 * Collect 1000 samples of acceleration and pressure
 			 * data and average them to find the resting values
 			 */
-			if (nsamples < 100) {
+			if (nsamples < 1000) {
 				ao_raw_accel_sum += ao_raw_accel;
 				ao_raw_pres_sum += ao_raw_pres;
 				++nsamples;
