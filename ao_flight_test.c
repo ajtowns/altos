@@ -240,10 +240,10 @@ ao_dump_state(void)
 		return;
 	printf ("\t\t\t\t\t%s accel %g vel %g alt %d main %d\n",
 		ao_state_names[ao_flight_state],
-		(ao_flight_accel - ao_ground_accel) / COUNTS_PER_G * GRAVITY,
+		(ao_ground_accel - ao_flight_accel) / COUNTS_PER_G * GRAVITY,
 		(double) ao_flight_vel / 100 / COUNTS_PER_G * GRAVITY,
-		ao_pres_to_altitude(ao_flight_pres),
-		ao_pres_to_altitude(ao_main_pres));
+		ao_pres_to_altitude(ao_flight_pres) - ao_pres_to_altitude(ao_ground_pres),
+		ao_pres_to_altitude(ao_main_pres) - ao_pres_to_altitude(ao_ground_pres));
 	if (ao_flight_state == ao_flight_landed)
 		exit(0);
 }
