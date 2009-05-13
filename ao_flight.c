@@ -83,6 +83,7 @@ __pdata int16_t ao_raw_accel, ao_raw_accel_prev, ao_raw_pres;
 #define ACCEL_VEL_MACH	VEL_MPS_TO_COUNT(200)
 #define ACCEL_VEL_APOGEE	VEL_MPS_TO_COUNT(2)
 #define ACCEL_VEL_MAIN	VEL_MPS_TO_COUNT(100)
+#define ACCEL_VEL_BOOST	VEL_MPS_TO_COUNT(5)
 
 /*
  * Barometer calibration
@@ -242,7 +243,7 @@ ao_flight(void)
 
 			/* pad to boost:
 			 *
-			 * accelerometer: > 2g
+			 * accelerometer: > 2g AND velocity > 5m/s
 			 *             OR
 			 * barometer: > 20m vertical motion
 			 *
@@ -250,7 +251,8 @@ ao_flight(void)
 			 * the barometer, but we use both to make sure this
 			 * transition is detected
 			 */
-			if (ao_flight_accel < ao_ground_accel - ACCEL_BOOST ||
+			if ((ao_flight_accel < ao_ground_accel - ACCEL_BOOST &&
+			     ao_flight_vel > ACCEL_VEL_BOOST) ||
 			    ao_flight_pres < ao_ground_pres - BARO_LAUNCH)
 			{
 				ao_flight_state = ao_flight_boost;
