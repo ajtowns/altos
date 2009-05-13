@@ -165,6 +165,7 @@ ao_insert(void)
 static int	ao_records_read = 0;
 static int	ao_eof_read = 0;
 static int	ao_flight_ground_accel;
+static int	ao_flight_started = 0;
 
 void
 ao_sleep(void *wchan)
@@ -175,6 +176,7 @@ ao_sleep(void *wchan)
 		uint16_t	tick;
 		uint16_t	a, b;
 		int		ret;
+		char		line[1024];
 
 		for (;;) {
 			if (ao_records_read > 20 && ao_flight_state == ao_flight_startup)
@@ -184,8 +186,7 @@ ao_sleep(void *wchan)
 				return;
 			}
 
-			ret = fscanf(emulator_in, "%c %hx %hx %hx\n", &type, &tick, &a, &b);
-			if (ret == EOF) {
+			if (!fgets(line, sizeof (line), emulator_in)) {
 				if (++ao_eof_read >= 1000) {
 					printf ("no more data, exiting simulation\n");
 					exit(0);
@@ -194,11 +195,16 @@ ao_sleep(void *wchan)
 				ao_insert();
 				return;
 			}
+			ret = sscanf(line, "%c %hx %hx %hx", &type, &tick, &a, &b);
 			if (ret != 4)
 				continue;
+			if (type != 'F' && !ao_flight_started)
+				continue;
+
 			switch (type) {
 			case 'F':
 				ao_flight_ground_accel = a;
+				ao_flight_started = 1;
 				break;
 			case 'S':
 				break;
