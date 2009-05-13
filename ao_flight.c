@@ -377,13 +377,17 @@ ao_flight(void)
 
 			/* drogue to main deploy:
 			 *
-			 * accelerometer: abs(velocity) > 100m/s (in case the drogue failed)
-			 *               OR
 			 * barometer: reach main deploy altitude
+			 *
+			 * Would like to use the accelerometer for this test, but
+			 * the orientation of the flight computer is unknown after
+			 * drogue deploy, so we ignore it. Could also detect
+			 * high descent rate using the pressure sensor to
+			 * recognize drogue deploy failure and eject the main
+			 * at that point. Perhaps also use the drogue sense lines
+			 * to notice continutity?
 			 */
-			if (ao_flight_vel < -ACCEL_VEL_MAIN ||
-			    ao_flight_vel > ACCEL_VEL_MAIN ||
-			    ao_flight_pres >= ao_main_pres)
+			if (ao_flight_pres >= ao_main_pres)
 			{
 				ao_ignite(ao_igniter_main);
 				ao_flight_state = ao_flight_main;
@@ -395,8 +399,8 @@ ao_flight(void)
 
 			/* drogue/main to land:
 			 *
-			 * accelerometer: value stable and velocity less than 10m/s
-			 *                           OR
+			 * accelerometer: value stable
+			 *                           AND
 			 * barometer: altitude stable and within 1000m of the launch altitude
 			 */
 
@@ -419,10 +423,9 @@ ao_flight(void)
 				ao_interval_cur_min_accel = ao_interval_cur_max_accel = ao_flight_accel;
 			}
 
-			if ((abs(ao_flight_vel) < ACCEL_VEL_LAND &&
-			     (uint16_t) (ao_interval_max_accel - ao_interval_min_accel) < (uint16_t) ACCEL_INT_LAND) ||
-			    (ao_flight_pres > ao_ground_pres - BARO_LAND &&
-			     (uint16_t) (ao_interval_max_pres - ao_interval_min_pres) < (uint16_t) BARO_INT_LAND))
+			if ((uint16_t) (ao_interval_max_accel - ao_interval_min_accel) < (uint16_t) ACCEL_INT_LAND &&
+			    ao_flight_pres > ao_ground_pres - BARO_LAND &&
+			    (uint16_t) (ao_interval_max_pres - ao_interval_min_pres) < (uint16_t) BARO_INT_LAND)
 			{
 				ao_flight_state = ao_flight_landed;
 
