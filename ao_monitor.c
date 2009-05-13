@@ -40,22 +40,24 @@ ao_monitor(void)
 		memcpy(callsign, recv.telemetry.callsign, AO_MAX_CALLSIGN);
 		if (state > ao_flight_invalid)
 			state = ao_flight_invalid;
-		printf ("CALL %s SERIAL %3d RSSI %3d STATUS %02x STATE %7s ",
-			callsign,
-			recv.telemetry.addr,
-			(int) recv.rssi - 74, recv.status,
-			ao_state_names[state]);
-		if (!(recv.status & PKT_APPEND_STATUS_1_CRC_OK))
-			printf("CRC INVALID ");
-		printf("%5u a: %5d p: %5d t: %5d v: %5d d: %5d m: %5d ",
-		       recv.telemetry.adc.tick,
-		       recv.telemetry.adc.accel,
-		       recv.telemetry.adc.pres,
-		       recv.telemetry.adc.temp,
-		       recv.telemetry.adc.v_batt,
-		       recv.telemetry.adc.sense_d,
-		       recv.telemetry.adc.sense_m);
-		ao_gps_print(&recv.telemetry.gps);
+		if (recv.status & PKT_APPEND_STATUS_1_CRC_OK) {
+			printf ("CALL %s SERIAL %3d RSSI %3d STATUS %02x STATE %7s ",
+				callsign,
+				recv.telemetry.addr,
+				(int) recv.rssi - 74, recv.status,
+				ao_state_names[state]);
+			printf("%5u a: %5d p: %5d t: %5d v: %5d d: %5d m: %5d ",
+			       recv.telemetry.adc.tick,
+			       recv.telemetry.adc.accel,
+			       recv.telemetry.adc.pres,
+			       recv.telemetry.adc.temp,
+			       recv.telemetry.adc.v_batt,
+			       recv.telemetry.adc.sense_d,
+			       recv.telemetry.adc.sense_m);
+			ao_gps_print(&recv.telemetry.gps);
+		} else {
+			printf("CRC INVALID RSSI %3d\n", (int) recv.rssi - 74);
+		}
 		ao_usb_flush();
 		ao_led_toggle(ao_monitor_led);
 	}
