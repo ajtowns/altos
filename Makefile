@@ -50,7 +50,8 @@ TELE_COMMON_SRC = \
 # Receiver code
 #
 TELE_RECEIVER_SRC =\
-	ao_monitor.c
+	ao_monitor.c \
+	ao_rssi.c
 
 #
 # Shared Tele drivers (on TeleMetrum, TeleTerra, TeleDongle)

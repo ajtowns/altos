@@ -44,7 +44,7 @@ struct ao_task {
 
 extern __xdata struct ao_task *__data ao_cur_task;
 
-#define AO_NUM_TASKS		10	/* maximum number of tasks */
+#define AO_NUM_TASKS		16	/* maximum number of tasks */
 #define AO_NO_TASK		0	/* no task id */
 
 /*
@@ -832,6 +832,16 @@ ao_config_get(void);
 
 void
 ao_config_init(void);
+
+/*
+ * ao_rssi.c
+ */
+
+void
+ao_rssi_set(int rssi_value);
+
+void
+ao_rssi_init(uint8_t rssi_led);
 
 /*
  * ao_product.c

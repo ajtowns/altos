@@ -33,6 +33,7 @@ main(void)
 	ao_cmd_init();
 	ao_usb_init();
 	ao_monitor_init(AO_LED_RED);
+	ao_rssi_init(AO_LED_RED);
 	ao_radio_init();
 	ao_dbg_init();
 	ao_config_init();

@@ -55,6 +55,7 @@ ao_monitor(void)
 			       recv.telemetry.adc.sense_d,
 			       recv.telemetry.adc.sense_m);
 			ao_gps_print(&recv.telemetry.gps);
+			ao_rssi_set((int) recv.rssi - 74);
 		} else {
 			printf("CRC INVALID RSSI %3d\n", (int) recv.rssi - 74);
 		}

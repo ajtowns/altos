@@ -17,35 +17,37 @@
 
 #include "ao.h"
 
+static __xdata volatile uint16_t	ao_rssi_time;
+static __xdata volatile uint16_t	ao_rssi_delay;
+static __xdata uint8_t			ao_rssi_led;
+
 void
-main(void)
+ao_rssi(void)
 {
-	CLKCON = 0;
-	while (!(SLEEP & SLEEP_XOSC_STB))
-		;
+	for (;;) {
+		while ((int16_t) (ao_time() - ao_rssi_time) > AO_SEC_TO_TICKS(3))
+			ao_sleep(&ao_rssi_time);
+		ao_led_for(ao_rssi_led, AO_MS_TO_TICKS(100));
+		ao_delay(ao_rssi_delay);
+	}
+}
 
-	/* Turn on the red LED until the system is stable */
-	ao_led_init(AO_LED_RED|AO_LED_GREEN);
-	ao_led_on(AO_LED_RED);
+void
+ao_rssi_set(int rssi_value)
+{
+	if (rssi_value > 0)
+		rssi_value = 0;
+	ao_rssi_delay = AO_MS_TO_TICKS((-rssi_value) * 5);
+	ao_rssi_time = ao_time();
+	ao_wakeup(&ao_rssi_time);
+}
 
-	ao_timer_init();
-	ao_adc_init();
-	ao_beep_init();
-	ao_cmd_init();
-	ao_ee_init();
-	ao_flight_init();
-	ao_log_init();
-	ao_report_init();
-	ao_usb_init();
-	ao_serial_init();
-	ao_gps_init();
-	ao_gps_report_init();
-	ao_telemetry_init();
-	ao_radio_init();
-	ao_monitor_init(AO_LED_GREEN);
-	ao_rssi_init(AO_LED_RED);
-	ao_igniter_init();
-	ao_dbg_init();
-	ao_config_init();
-	ao_start_scheduler();
+__xdata struct ao_task ao_rssi_task;
+
+void
+ao_rssi_init(uint8_t rssi_led)
+{
+	ao_rssi_led = rssi_led;
+	ao_rssi_delay = 0;
+	ao_add_task(&ao_rssi_task, ao_rssi, "rssi");
 }
