@@ -42,8 +42,6 @@ main(void)
 	ao_gps_report_init();
 	ao_telemetry_init();
 	ao_radio_init();
-	ao_monitor_init(AO_LED_GREEN);
-	ao_rssi_init(AO_LED_RED);
 	ao_igniter_init();
 	ao_dbg_init();
 	ao_config_init();
