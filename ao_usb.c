@@ -23,7 +23,20 @@ struct ao_task __xdata ao_usb_task;
 static __xdata uint16_t	ao_usb_in_bytes;
 static __xdata uint16_t	ao_usb_out_bytes;
 static __xdata uint8_t	ao_usb_iif;
-static __xdata uint8_t	ao_usb_oif;
+static __xdata uint8_t	ao_usb_running;
+
+static void
+ao_usb_set_interrupts(void)
+{
+	/* IN interrupts on the control an IN endpoints */
+	USBIIE = (1 << AO_USB_CONTROL_EP) | (1 << AO_USB_IN_EP);
+
+	/* OUT interrupts on the OUT endpoint */
+	USBOIE = (1 << AO_USB_OUT_EP);
+
+	/* Only care about reset */
+	USBCIE = USBCIE_RSTIE;
+}
 
 /* This interrupt is shared with port 2, 
  * so when we hook that up, fix this
@@ -38,9 +51,11 @@ ao_usb_isr(void) interrupt 6
 	if (ao_usb_iif & (1 << AO_USB_IN_EP))
 		ao_wakeup(&ao_usb_in_bytes);
 
-	ao_usb_oif |= USBOIF;
-	if (ao_usb_oif & (1 << AO_USB_OUT_EP))
+	if (USBOIF & (1 << AO_USB_OUT_EP))
 		ao_wakeup(&ao_usb_out_bytes);
+
+	if (USBCIF & USBCIF_RSTIF)
+		ao_usb_set_interrupts();
 }
 
 struct ao_usb_setup {
@@ -136,6 +151,7 @@ ao_usb_ep0_queue_byte(uint8_t a)
 void
 ao_usb_set_address(uint8_t address)
 {
+	ao_usb_running = 1;
 	USBADDR = address | 0x80;
 	while (USBADDR & 0x80)
 		;
@@ -318,6 +334,8 @@ ao_usb_flush(void) __critical
 void
 ao_usb_putchar(char c) __critical
 {
+	if (!ao_usb_running)
+		return;
 	for (;;) {
 		USBINDEX = AO_USB_IN_EP;
 		if ((USBCSIL & USBCSIL_INPKT_RDY) == 0)
@@ -362,15 +380,8 @@ ao_usb_enable(void)
 
 	ao_usb_set_configuration();
 	
-	/* IN interrupts on the control an IN endpoints */
-	USBIIE = (1 << AO_USB_CONTROL_EP) | (1 << AO_USB_IN_EP);
+	ao_usb_set_interrupts();
 
-	/* OUT interrupts on the OUT endpoint */
-	USBOIE = (1 << AO_USB_OUT_EP);
-
-	/* Ignore control interrupts */
-	USBCIE = 0;
-	
 	/* enable USB interrupts */
 	IEN2 |= IEN2_USBIE;
 

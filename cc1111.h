@@ -337,6 +337,12 @@ __xdata __at (0xde02) volatile uint8_t USBIIF;
 __xdata __at (0xde04) volatile uint8_t USBOIF;
 
 __xdata __at (0xde06) volatile uint8_t USBCIF;
+
+# define USBCIF_SOFIF		(1 << 3)
+# define USBCIF_RSTIF		(1 << 2)
+# define USBCIF_RESUMEIF	(1 << 1)
+# define USBCIF_SUSPENDIF	(1 << 0)
+
 __xdata __at (0xde07) volatile uint8_t USBIIE;
 
 __xdata __at (0xde09) volatile uint8_t USBOIE;
