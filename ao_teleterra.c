@@ -34,8 +34,7 @@ main(void)
 	ao_usb_init();
 	ao_serial_init();
 	ao_gps_init();
-	ao_monitor_init(AO_LED_GREEN);
-	ao_monitor_init(AO_LED_RED);
+	ao_monitor_init(AO_LED_GREEN, TRUE);
 	ao_radio_init();
 	ao_dbg_init();
 	ao_config_init();

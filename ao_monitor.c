@@ -61,24 +61,30 @@ ao_monitor(void)
 
 __xdata struct ao_task ao_monitor_task;
 
-static void
-ao_set_monitor(void)
+void
+ao_set_monitor(uint8_t monitoring)
 {
-	ao_cmd_hex();
-	ao_monitoring = ao_cmd_lex_i != 0;
+	ao_monitoring = monitoring;
 	ao_wakeup(&ao_monitoring);
 }
 
+static void
+set_monitor(void)
+{
+	ao_cmd_hex();
+	ao_set_monitor(ao_cmd_lex_i != 0);
+}
+
 __code struct ao_cmds ao_monitor_cmds[] = {
-	{ 'm',	ao_set_monitor,		"m <0 off, 1 on>                    Enable/disable radio monitoring" },
-	{ 0,	ao_set_monitor,	NULL },
+	{ 'm',	set_monitor,	"m <0 off, 1 on>                    Enable/disable radio monitoring" },
+	{ 0,	set_monitor,	NULL },
 };
 
 void
-ao_monitor_init(uint8_t monitor_led)
+ao_monitor_init(uint8_t monitor_led, uint8_t monitoring) __reentrant
 {
 	ao_monitor_led = monitor_led;
-	ao_monitoring = 0;
+	ao_monitoring = monitoring;
 	ao_cmd_register(&ao_monitor_cmds[0]);
 	ao_add_task(&ao_monitor_task, ao_monitor, "monitor");
 }

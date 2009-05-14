@@ -23,6 +23,9 @@
 #include <string.h>
 #include "cc1111.h"
 
+#define TRUE 1
+#define FALSE 0
+
 /* Convert a __data pointer into an __xdata pointer */
 #define DATA_TO_XDATA(a)	((void __xdata *) ((uint8_t) (a) | 0xff00))
 
@@ -775,7 +778,10 @@ void
 ao_monitor(void);
 
 void
-ao_monitor_init(uint8_t led);
+ao_set_monitor(uint8_t monitoring);
+
+void
+ao_monitor_init(uint8_t led, uint8_t monitoring) __reentrant;
 
 /*
  * ao_stdio.c
