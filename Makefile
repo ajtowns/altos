@@ -44,7 +44,8 @@ ALTOS_DRIVER_SRC = \
 	ao_usb.c
 
 TELE_COMMON_SRC = \
-	ao_gps_print.c
+	ao_gps_print.c \
+	ao_state.c
 
 #
 # Receiver code

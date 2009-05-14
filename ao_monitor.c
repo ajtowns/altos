@@ -17,11 +17,6 @@
 
 #include "ao.h"
 
-const char const * const ao_state_names[] = {
-	"startup", "idle", "pad", "boost", "coast",
-	"apogee", "drogue", "main", "landed", "invalid"
-};
-
 __xdata uint8_t ao_monitoring;
 __pdata uint8_t ao_monitor_led;
 
