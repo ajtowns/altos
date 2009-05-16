@@ -1,0 +1,27 @@
+Requirements:
+	real-time display of telemetry
+	off-line display of logged data
+	Logging of telemetry
+	Capture of logged data to disk
+
+Input data:
+	accelerometer
+	barometer
+	thermometer
+	gps
+	drogue and main continuity
+	battery voltage
+	time
+	reported flight state
+	reported events
+
+Computed data:
+	velocity (from accelerometer)
+	altitude
+	range
+	direction
+
+Displays:
+	numeric display of current rocket status
+	(graphics come later)
+	text message log

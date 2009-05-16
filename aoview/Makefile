@@ -1,0 +1,30 @@
+MODULES=gtk+-2.0 libglade-2.0
+INCLUDES=$(shell pkg-config --cflags $(MODULES)) -I..
+WARN= -Wall -Wpointer-arith -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -fno-strict-aliasing
+CFLAGS=$(INCLUDES) -O0 -g $(WARN)
+LIBS=$(shell pkg-config --libs $(MODULES)) -lm
+
+SRC = \
+	aoview_main.c \
+	aoview_dev.c \
+	aoview_dev_dialog.c \
+	aoview_serial.c \
+	aoview_monitor.c \
+	aoview_state.c \
+	aoview_convert.c
+
+INC = \
+	aoview.h
+
+OBJ = \
+	$(SRC:.c=.o)
+
+PROG = aoview
+
+$(PROG): $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $(OBJ) $(LIBS)
+
+$(OBJ): $(INC)
+
+clean:
+	rm -f $(OBJ) $(PROG)

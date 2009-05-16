@@ -1,0 +1,75 @@
+/*
+ * Copyright © 2009 Keith Packard <keithp@keithp.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
+#include "aoview.h"
+
+static void usage(void) {
+	printf("aoview [--device|-d device_file]");
+	exit(1);
+}
+
+static void destroy_event(GtkWidget *widget, gpointer data)
+{
+	gtk_main_quit();
+}
+
+int main(int argc, char **argv)
+{
+	GladeXML *xml = NULL;
+	GtkWidget *mainwindow;
+	char *device = NULL;
+
+	static struct option long_options[] = {
+		{ "device", 1, 0, 'd'},
+		{ 0, 0, 0, 0 }
+	};
+	for (;;) {
+		int c, temp;
+
+		c = getopt_long_only(argc, argv, "d:", long_options, &temp);
+		if (c == -1)
+			break;
+
+		switch (c) {
+		case 'd':
+			device = optarg;
+			break;
+		default:
+			usage();
+		}
+	}
+
+	gtk_init(&argc, &argv);
+	glade_init();
+
+	xml = glade_xml_new("aoview.glade", NULL, NULL);
+	/* connect the signals in the interface */
+	glade_xml_signal_autoconnect(xml);
+
+	/* Hook up the close button. */
+	mainwindow = glade_xml_get_widget(xml, "aoview");
+	g_signal_connect (G_OBJECT(mainwindow), "destroy",
+	    G_CALLBACK(destroy_event), NULL);
+
+	aoview_dev_dialog_init(xml);
+
+	aoview_state_init(xml);
+
+	gtk_main();
+
+	return 0;
+}
