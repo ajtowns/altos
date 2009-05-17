@@ -1,4 +1,4 @@
-MODULES=gtk+-2.0 libglade-2.0
+MODULES=gtk+-2.0 libglade-2.0 gconf-2.0
 INCLUDES=$(shell pkg-config --cflags $(MODULES)) -I..
 WARN= -Wall -Wpointer-arith -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -fno-strict-aliasing
 CFLAGS=$(INCLUDES) -O0 -g $(WARN)
@@ -11,7 +11,10 @@ SRC = \
 	aoview_serial.c \
 	aoview_monitor.c \
 	aoview_state.c \
-	aoview_convert.c
+	aoview_convert.c \
+	aoview_log.c \
+	aoview_table.c \
+	aoview_util.c
 
 INC = \
 	aoview.h

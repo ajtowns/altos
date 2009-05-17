@@ -72,7 +72,8 @@ aoview_monitor_parse(char *line)
 	int nword;
 	struct aostate	state;
 
-	printf ("%s\n", line);
+	if (aoview_log_get_serial())
+		aoview_log_printf ("%s\n", line);
 	for (nword = 0; nword < 64; nword++) {
 		words[nword] = strtok_r(line, " \t\n", &saveptr);
 		line = NULL;
@@ -85,6 +86,9 @@ aoview_monitor_parse(char *line)
 		return;
 	aoview_parse_string(state.callsign, sizeof (state.callsign), words[1]);
 	aoview_parse_int(&state.serial, words[3]);
+	if (!aoview_log_get_serial())
+		aoview_log_set_serial(state.serial);
+
 	aoview_parse_int(&state.rssi, words[5]);
 	aoview_parse_string(state.state, sizeof (state.state), words[9]);
 	aoview_parse_int(&state.tick, words[10]);
@@ -94,12 +98,15 @@ aoview_monitor_parse(char *line)
 	aoview_parse_int(&state.batt, words[18]);
 	aoview_parse_int(&state.drogue, words[20]);
 	aoview_parse_int(&state.main, words[22]);
+	aoview_parse_int(&state.nsat, words[24]);
 	if (strcmp (words[26], "unlocked") != 0 && nword >= 29) {
+		state.locked = 1;
 		sscanf(words[26], "%d:%d:%d", &state.gps_time.hour, &state.gps_time.minute, &state.gps_time.second);
 		aoview_parse_pos(&state.lat, words[27]);
 		aoview_parse_pos(&state.lon, words[28]);
 		sscanf(words[29], "%dm", &state.alt);
 	} else {
+		state.locked = 0;
 		state.gps_time.hour = state.gps_time.minute = state.gps_time.second = 0;
 		state.lat = state.lon = 0;
 		state.alt = 0;

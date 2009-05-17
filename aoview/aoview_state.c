@@ -66,6 +66,9 @@ aoview_state_notify(struct aostate *state)
 	int	ticks;
 	double	dist;
 	double	bearing;
+	double	temp;
+	double	battery;
+	double	drogue_sense, main_sense;
 
 	if (!strcmp(state->state, "pad")) {
 		if (npad < NUM_PAD_SAMPLES) {
@@ -90,19 +93,39 @@ aoview_state_notify(struct aostate *state)
 	velocity_change = (accel + prev_accel) / 2.0;
 	ticks = state->tick - prev_tick;
 	velocity -= velocity_change * (ticks / 100.0);
+	temp = ((state->temp / 32767.0 * 3.3) - 0.5) / 0.01;
+	battery = (state->batt / 32767.0 * 5.0);
+	drogue_sense = (state->drogue / 32767.0 * 15.0);
+	main_sense = (state->main / 32767.0 * 15.0);
 
 	prev_accel = accel;
 	prev_tick = state->tick;
-	printf ("Pad altitude: %dm\n", aoview_pres_to_altitude(pad_pres));
-	printf ("AGL: %dm\n", altitude);
-	printf ("Acceleration: %gm/s²\n", accel);
-	printf ("Velocity: %gm/s\n", velocity);
-	printf ("Lat: %g\n", state->lat);
-	printf ("Lon: %g\n", state->lon);
-	printf ("GPS alt: %d\n", state->alt);
-	aoview_great_circle(pad_lat, pad_lon, state->lat, state->lon,
-			    &dist, &bearing);
-	printf ("Course: %gkm %g°\n", dist, bearing);
+	aoview_table_start();
+	aoview_table_add_row("RSSI", "%ddB", state->rssi);
+	aoview_table_add_row("Height", "%dm", altitude);
+	aoview_table_add_row("Acceleration", "%gm/s²", accel);
+	aoview_table_add_row("Velocity", "%gm/s", velocity);
+	aoview_table_add_row("Temperature", "%g°C", temp);
+	aoview_table_add_row("Battery", "%gV", battery);
+	aoview_table_add_row("Drogue", "%gV", drogue_sense);
+	aoview_table_add_row("Main", "%gV", main_sense);
+	aoview_table_add_row("Pad altitude", "%dm", aoview_pres_to_altitude(pad_pres));
+	aoview_table_add_row("Satellites", "%d", state->nsat);
+	if (state->locked) {
+		aoview_table_add_row("Lat", "%g", state->lat);
+		aoview_table_add_row("Lon", "%g", state->lon);
+		aoview_table_add_row("GPS alt", "%d", state->alt);
+		aoview_table_add_row("GPS time", "%02d:%02d:%02d",
+				     state->gps_time.hour,
+				     state->gps_time.minute,
+				     state->gps_time.second);
+		aoview_great_circle(pad_lat, pad_lon, state->lat, state->lon,
+				    &dist, &bearing);
+		aoview_table_add_row("Course", "%gkm %g°", dist, bearing);
+	} else {
+		aoview_table_add_row("GPS", "unlocked");
+	}
+	aoview_table_finish();
 }
 
 void

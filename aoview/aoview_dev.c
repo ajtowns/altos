@@ -20,29 +20,9 @@
 #include <dirent.h>
 
 static char *
-fullname (char *dir, char *file)
-{
-	char	*new;
-	int	dlen = strlen (dir);
-	int	flen = strlen (file);
-	int	slen = 0;
-
-	if (dir[dlen-1] != '/')
-		slen = 1;
-	new = malloc (dlen + slen + flen + 1);
-	if (!new)
-		return 0;
-	strcpy(new, dir);
-	if (slen)
-		strcat (new, "/");
-	strcat(new, file);
-	return new;
-}
-
-static char *
 load_string(char *dir, char *file)
 {
-	char	*full = fullname(dir, file);
+	char	*full = aoview_fullname(dir, file);
 	char	line[4096];
 	char	*r;
 	FILE	*f;
@@ -79,17 +59,6 @@ load_hex(char *dir, char *file)
 	return i;
 }
 
-static char *
-basename(char *file)
-{
-	char *b;
-
-	b = strrchr(file, '/');
-	if (!b)
-		return file;
-	return b + 1;
-}
-
 static int
 dir_filter_tty(const struct dirent *d)
 {
@@ -110,20 +79,20 @@ usb_tty(char *sys)
 	int ntty;
 	char *tty;
 
-	base = basename(sys);
+	base = aoview_basename(sys);
 	num_configs = load_hex(sys, "bNumConfigurations");
 	num_interfaces = load_hex(sys, "bNumInterfaces");
 	for (config = 1; config <= num_configs; config++) {
 		for (interface = 0; interface < num_interfaces; interface++) {
 			sprintf(endpoint_base, "%s:%d.%d",
 				base, config, interface);
-			endpoint_full = fullname(sys, endpoint_base);
+			endpoint_full = aoview_fullname(sys, endpoint_base);
 			ntty = scandir(endpoint_full, &namelist,
 				       dir_filter_tty,
 				       alphasort);
 			free(endpoint_full);
 			if (ntty) {
-				tty = fullname("/dev", namelist[0]->d_name + 4);
+				tty = aoview_fullname("/dev", namelist[0]->d_name + 4);
 				free(namelist);
 				return tty;
 			}
@@ -196,7 +165,7 @@ aoview_usb_scan(struct usbdev ***devs_ret)
 	if (!n)
 		return 0;
 	for (e = 0; e < n; e++) {
-		dir = fullname(USB_DEVICES, ents[e]->d_name);
+		dir = aoview_fullname(USB_DEVICES, ents[e]->d_name);
 		dev = usb_scan_device(dir);
 		free(dir);
 		if (dev->idVendor == 0xfffe && dev->tty) {

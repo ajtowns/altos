@@ -18,8 +18,7 @@
 #ifndef _AOVIEW_H_
 #define _AOVIEW_H_
 
-#include <gtk/gtk.h>
-#include <glade/glade.h>
+#define _GNU_SOURCE
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -32,6 +31,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <assert.h>
+
+#include <gtk/gtk.h>
+#include <glade/glade.h>
+#include <gconf/gconf-client.h>
 
 struct usbdev {
 	char	*sys;
@@ -114,5 +117,42 @@ aoview_pres_to_altitude(int16_t pres);
 
 int16_t
 aoview_altitude_to_pres(int16_t alt);
+
+char *
+aoview_fullname (char *dir, char *file);
+
+char *
+aoview_basename(char *file);
+
+GtkTreeViewColumn *
+aoview_add_plain_text_column (GtkTreeView *view, const gchar *title, gint model_column, gint width);
+
+int
+aoview_mkdir(char *dir);
+
+void
+aoview_log_init(GladeXML *xml);
+
+void
+aoview_log_set_serial(int serial);
+
+int
+aoview_log_get_serial(void);
+
+void
+aoview_log_printf(char *format, ...);
+
+void
+aoview_table_start(void);
+
+void
+aoview_table_add_row(char *label, char *format, ...);
+
+void
+aoview_table_finish(void);
+
+void
+aoview_table_init(GladeXML *xml);
+
 
 #endif /* _AOVIEW_H_ */

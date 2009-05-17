@@ -159,6 +159,47 @@
               </widget>
             </child>
             <child>
+              <widget class="GtkMenuItem" id="menuitem5">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_Log</property>
+                <property name="use_underline">True</property>
+                <child>
+                  <widget class="GtkMenu" id="menu5">
+                    <property name="visible">True</property>
+                    <child>
+                      <widget class="GtkImageMenuItem" id="ao_log_new">
+                        <property name="label" translatable="yes">_New log</property>
+                        <property name="visible">True</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">False</property>
+                        <child internal-child="image">
+                          <widget class="GtkImage" id="image3">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-new</property>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkImageMenuItem" id="ao_log_configure">
+                        <property name="label" translatable="yes">_Configure Log</property>
+                        <property name="visible">True</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">False</property>
+                        <signal name="activate" handler="gtk_widget_show" object="log_chooser_dialog" after="yes"/>
+                        <child internal-child="image">
+                          <widget class="GtkImage" id="image4">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-preferences</property>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
+                  </widget>
+                </child>
+              </widget>
+            </child>
+            <child>
               <widget class="GtkMenuItem" id="menuitem4">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_Help</property>
@@ -185,166 +226,12 @@
           </packing>
         </child>
         <child>
-          <widget class="GtkTable" id="table1">
+          <widget class="GtkTreeView" id="dataview">
             <property name="visible">True</property>
-            <property name="n_rows">7</property>
-            <property name="n_columns">2</property>
-            <child>
-              <widget class="GtkLabel" id="altitude_label">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Altitude</property>
-              </widget>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="label2">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Velocity</property>
-              </widget>
-              <packing>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="label3">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Acceleration</property>
-              </widget>
-              <packing>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="label4">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Latitude</property>
-              </widget>
-              <packing>
-                <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="label5">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Longitude</property>
-              </widget>
-              <packing>
-                <property name="top_attach">4</property>
-                <property name="bottom_attach">5</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="label6">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Range</property>
-              </widget>
-              <packing>
-                <property name="top_attach">5</property>
-                <property name="bottom_attach">6</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="label7">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Direction</property>
-              </widget>
-              <packing>
-                <property name="top_attach">6</property>
-                <property name="bottom_attach">7</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="altitude_value">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">0m</property>
-                <property name="selectable">True</property>
-                <property name="single_line_mode">True</property>
-              </widget>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="vel_value">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">150m/s</property>
-                <property name="selectable">True</property>
-              </widget>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="accel_value">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">50m/s&#xB2;</property>
-                <property name="selectable">True</property>
-              </widget>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="lat_value">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">45&#xB0; 31' 24''</property>
-                <property name="selectable">True</property>
-              </widget>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="lon_value">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">122&#xB0; 40' 34''W</property>
-                <property name="selectable">True</property>
-              </widget>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">4</property>
-                <property name="bottom_attach">5</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="range_value">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">500m</property>
-                <property name="selectable">True</property>
-              </widget>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">5</property>
-                <property name="bottom_attach">6</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="direction_value">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">45&#xB0;</property>
-                <property name="selectable">True</property>
-              </widget>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">6</property>
-                <property name="bottom_attach">7</property>
-              </packing>
-            </child>
+            <property name="can_focus">True</property>
+            <property name="headers_clickable">False</property>
+            <property name="show_expanders">False</property>
+            <property name="enable_grid_lines">both</property>
           </widget>
           <packing>
             <property name="position">1</property>
@@ -385,21 +272,6 @@
             <property name="visible">True</property>
             <property name="layout_style">end</property>
             <child>
-              <widget class="GtkButton" id="connect_button">
-                <property name="label" translatable="yes">gtk-connect</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_underline">True</property>
-                <property name="use_stock">True</property>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
               <widget class="GtkButton" id="cancel_button">
                 <property name="label" translatable="yes">gtk-cancel</property>
                 <property name="response_id">1</property>
@@ -413,9 +285,108 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkButton" id="connect_button">
+                <property name="label" translatable="yes">gtk-connect</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="has_default">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
                 <property name="position">1</property>
               </packing>
             </child>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="GtkFileChooserDialog" id="log_chooser_dialog">
+    <property name="border_width">5</property>
+    <property name="title" translatable="yes">Configure Log Directory</property>
+    <property name="type_hint">dialog</property>
+    <property name="has_separator">False</property>
+    <property name="action">select-folder</property>
+    <child internal-child="vbox">
+      <widget class="GtkVBox" id="dialog-vbox2">
+        <property name="visible">True</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <widget class="GtkHButtonBox" id="dialog-action_area2">
+            <property name="visible">True</property>
+            <property name="layout_style">end</property>
+            <child>
+              <widget class="GtkButton" id="log_configure_cancel">
+                <property name="label" translatable="yes">gtk-cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+                <signal name="clicked" handler="gtk_widget_hide" object="log_chooser_dialog"/>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkButton" id="log_configure_ok">
+                <property name="label" translatable="yes">gtk-ok</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="has_default">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="GtkMessageDialog" id="log_fail_dialog">
+    <property name="border_width">5</property>
+    <property name="type">popup</property>
+    <property name="type_hint">normal</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="message_type">error</property>
+    <property name="buttons">close</property>
+    <property name="text">Cannot create log file</property>
+    <child internal-child="vbox">
+      <widget class="GtkVBox" id="dialog-vbox4">
+        <property name="visible">True</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <widget class="GtkHButtonBox" id="dialog-action_area4">
+            <property name="visible">True</property>
+            <property name="layout_style">end</property>
           </widget>
           <packing>
             <property name="expand">False</property>

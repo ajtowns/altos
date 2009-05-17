@@ -17,26 +17,6 @@
 
 #include "aoview.h"
 
-static GtkTreeViewColumn *
-add_plain_text_column (GtkTreeView *view, const gchar *title, gint model_column, gint width)
-{
-	GtkCellRenderer *renderer;
-	GtkTreeViewColumn *column;
-
-	renderer = gtk_cell_renderer_text_new ();
-	g_object_set(renderer, "ellipsize", PANGO_ELLIPSIZE_NONE, NULL);
-	g_object_set(renderer, "width-chars", width, NULL);
-	column = gtk_tree_view_column_new_with_attributes (title, renderer,
-							   "text", model_column,
-							   NULL);
-	gtk_tree_view_column_set_resizable (column, FALSE);
-	gtk_tree_view_append_column (view, column);
-
-	return column;
-}
-
-
-
 static void
 aoview_dev_dialog_map(GtkWidget *widget, gpointer data)
 {
@@ -118,9 +98,9 @@ aoview_dev_dialog_init(GladeXML *xml)
 	dev_list = GTK_TREE_VIEW(glade_xml_get_widget(xml, "dev_list"));
 	assert(dev_list);
 
-	add_plain_text_column(dev_list, _("Product"), 0, 16);
-	add_plain_text_column(dev_list, _("Serial"),  1, 8);
-	add_plain_text_column(dev_list, _("Device"), 2, 13);
+	aoview_add_plain_text_column(dev_list, _("Product"), 0, 16);
+	aoview_add_plain_text_column(dev_list, _("Serial"),  1, 8);
+	aoview_add_plain_text_column(dev_list, _("Device"), 2, 13);
 
 	dev_selection = gtk_tree_view_get_selection(dev_list);
 	gtk_tree_selection_set_mode(dev_selection, GTK_SELECTION_SINGLE);
