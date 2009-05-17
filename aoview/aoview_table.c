@@ -57,6 +57,6 @@ aoview_table_init(GladeXML *xml)
 	dataview = GTK_TREE_VIEW(glade_xml_get_widget(xml, "dataview"));
 	assert(dataview);
 
-	aoview_add_plain_text_column(dataview, "Field", 0, 16);
+	aoview_add_plain_text_column(dataview, "Field", 0, 20);
 	aoview_add_plain_text_column(dataview, "Value", 1, 32);
 }

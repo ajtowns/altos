@@ -45,16 +45,33 @@ aoview_great_circle (double start_lat, double start_lon,
 {
 	double rad = M_PI / 180;
 	double earth_radius = 6371.2;
-	double a = (90 - start_lat) * rad;
-	double b = (90 - end_lat) * rad;
-	double phi = (end_lon - start_lon) * rad;
-	double cosr = cos(a) * cos(b) + sin(a) * sin(b) * cos(phi);
-	double r = acos(cosr);
-	double rdist = earth_radius * r;
-	double sinth = sin(phi) * sin(b) / sin(r);
-	double th = asin(sinth) / rad;
-	*dist = rdist;
-	*bearing = th;
+	double lat1 = rad * start_lat;
+	double lon1 = -rad * start_lon;
+	double lat2 = rad * end_lat;
+	double lon2 = -rad * end_lon;
+
+	double d = acos(sin(lat1)*sin(lat2)+cos(lat1)*cos(lat2)*cos(lon1-lon2));
+	double argacos = (sin(lat2)-sin(lat1)*cos(d))/(sin(d)*cos(lat1));
+	double crs;
+	if (sin(lon2-lon1) < 0)
+		crs = acos(argacos);
+	else
+		crs = 2 * M_PI - acos(argacos);
+	*dist = d * earth_radius;
+	*bearing = crs * 180/M_PI;
+}
+
+static void
+aoview_state_add_deg(char *label, double deg)
+{
+	double	int_part;
+	double	min;
+
+	int_part = floor (deg);
+	min = (deg - int_part) * 60.0;
+	aoview_table_add_row(label, "%d°%lf'",
+			     (int) int_part, min);
+
 }
 
 void
@@ -112,8 +129,8 @@ aoview_state_notify(struct aostate *state)
 	aoview_table_add_row("Pad altitude", "%dm", aoview_pres_to_altitude(pad_pres));
 	aoview_table_add_row("Satellites", "%d", state->nsat);
 	if (state->locked) {
-		aoview_table_add_row("Lat", "%g", state->lat);
-		aoview_table_add_row("Lon", "%g", state->lon);
+		aoview_state_add_deg("Latitude", state->lat);
+		aoview_state_add_deg("Longitude", state->lon);
 		aoview_table_add_row("GPS alt", "%d", state->alt);
 		aoview_table_add_row("GPS time", "%02d:%02d:%02d",
 				     state->gps_time.hour,
@@ -121,7 +138,8 @@ aoview_state_notify(struct aostate *state)
 				     state->gps_time.second);
 		aoview_great_circle(pad_lat, pad_lon, state->lat, state->lon,
 				    &dist, &bearing);
-		aoview_table_add_row("Course", "%gkm %g°", dist, bearing);
+		aoview_table_add_row("Distance from pad", "%gm", dist * 1000);
+		aoview_table_add_row("Direction from pad", "%g°", bearing);
 	} else {
 		aoview_table_add_row("GPS", "unlocked");
 	}
