@@ -31,6 +31,8 @@ aoview_monitor_disconnect(void)
 		aoview_serial_close(monitor_serial);
 		monitor_serial = NULL;
 	}
+	aoview_table_clear();
+	aoview_log_new();
 }
 
 static void

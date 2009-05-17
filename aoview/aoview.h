@@ -110,6 +110,9 @@ void
 aoview_state_notify(struct aostate *state);
 
 void
+aoview_state_new(void);
+
+void
 aoview_state_init(GladeXML *xml);
 
 int16_t
@@ -143,6 +146,9 @@ void
 aoview_log_printf(char *format, ...);
 
 void
+aoview_log_new(void);
+
+void
 aoview_table_start(void);
 
 void
@@ -154,5 +160,7 @@ aoview_table_finish(void);
 void
 aoview_table_init(GladeXML *xml);
 
+void
+aoview_table_clear(void);
 
 #endif /* _AOVIEW_H_ */

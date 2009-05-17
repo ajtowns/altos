@@ -52,7 +52,7 @@ aoview_log_configure(GtkWidget *widget, gpointer data)
 	gtk_widget_hide(GTK_WIDGET(chooser));
 }
 
-static void
+void
 aoview_log_new(void)
 {
 	if (aoview_log_file) {
@@ -60,6 +60,7 @@ aoview_log_new(void)
 		aoview_log_file = NULL;
 	}
 	aoview_log_failed = 0;
+	aoview_state_new();
 }
 
 static void

@@ -52,6 +52,12 @@ aoview_table_finish(void)
 }
 
 void
+aoview_table_clear(void)
+{
+	gtk_tree_view_set_model(dataview, NULL);
+}
+
+void
 aoview_table_init(GladeXML *xml)
 {
 	dataview = GTK_TREE_VIEW(glade_xml_get_widget(xml, "dataview"));
