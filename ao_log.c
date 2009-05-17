@@ -124,10 +124,12 @@ ao_log(void)
 	log.u.flight.ground_accel = ao_ground_accel;
 	log.u.flight.flight = ao_log_dump_flight + 1;
 	ao_log_data(&log);
-	for (;;) {
-		while (!ao_log_running)
-			ao_sleep(&ao_log_running);
 
+	/* Write the whole contents of the ring to the log
+	 * when starting up.
+	 */
+	ao_log_adc_pos = ao_adc_ring_next(ao_adc_head);
+	for (;;) {
 		/* Write samples to EEPROM */
 		while (ao_log_adc_pos != ao_adc_head) {
 			log.type = AO_LOG_SENSOR;
@@ -164,6 +166,10 @@ ao_log(void)
 		
 		/* Wait for a while */
 		ao_delay(AO_MS_TO_TICKS(100));
+
+		/* Stop logging when told to */
+		while (!ao_log_running)
+			ao_sleep(&ao_log_running);
 	}
 }
 
