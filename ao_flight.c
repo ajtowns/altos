@@ -156,6 +156,10 @@ ao_flight(void)
 			ao_raw_pres = ao_adc_ring[ao_flight_adc].pres;
 			ao_flight_tick = ao_adc_ring[ao_flight_adc].tick;
 
+			ao_flight_accel -= ao_flight_accel >> 4;
+			ao_flight_accel += ao_raw_accel >> 4;
+			ao_flight_pres -= ao_flight_pres >> 4;
+			ao_flight_pres += ao_raw_pres >> 4;
 			/* Update velocity
 			 *
 			 * The accelerometer is mounted so that
@@ -175,10 +179,6 @@ ao_flight(void)
 
 			ao_flight_adc = ao_adc_ring_next(ao_flight_adc);
 		}
-		ao_flight_accel -= ao_flight_accel >> 4;
-		ao_flight_accel += ao_raw_accel >> 4;
-		ao_flight_pres -= ao_flight_pres >> 4;
-		ao_flight_pres += ao_raw_pres >> 4;
 
 		if (ao_flight_pres < ao_min_pres)
 			ao_min_pres = ao_flight_pres;
@@ -334,7 +334,7 @@ ao_flight(void)
 			 * over in that case and the integrated velocity
 			 * measurement should suffice to find apogee
 			 */
-			if (abs(ao_flight_vel) > ao_min_vel + ACCEL_VEL_APOGEE ||
+			if (/* abs(ao_flight_vel) > ao_min_vel + ACCEL_VEL_APOGEE || */
 			    ao_flight_pres > ao_min_pres + BARO_APOGEE)
 			{
 				/* ignite the drogue charge */
