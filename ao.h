@@ -568,6 +568,7 @@ extern __pdata enum ao_flight_state	ao_flight_state;
 extern __pdata uint16_t			ao_flight_tick;
 extern __pdata int16_t			ao_flight_accel;
 extern __pdata int16_t			ao_flight_pres;
+extern __pdata int32_t			ao_flight_vel;
 extern __pdata int16_t			ao_ground_pres;
 extern __pdata int16_t			ao_ground_accel;
 extern __pdata int16_t			ao_min_pres;
@@ -723,6 +724,9 @@ ao_gps_report_init(void);
 struct ao_telemetry {
 	uint8_t			addr;
 	uint8_t			flight_state;
+	int16_t			flight_accel;
+	int32_t			flight_vel;
+	int16_t			flight_pres;
 	struct ao_adc		adc;
 	struct ao_gps_data	gps;
 	char			callsign[AO_MAX_CALLSIGN];

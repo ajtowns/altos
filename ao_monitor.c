@@ -41,14 +41,17 @@ ao_monitor(void)
 				recv.telemetry.addr,
 				(int) recv.rssi - 74, recv.status,
 				ao_state_names[state]);
-			printf("%5u a: %5d p: %5d t: %5d v: %5d d: %5d m: %5d ",
+			printf("%5u a: %5d p: %5d t: %5d v: %5d d: %5d m: %5d fa: %5d fv: %7ld fp: %5d ",
 			       recv.telemetry.adc.tick,
 			       recv.telemetry.adc.accel,
 			       recv.telemetry.adc.pres,
 			       recv.telemetry.adc.temp,
 			       recv.telemetry.adc.v_batt,
 			       recv.telemetry.adc.sense_d,
-			       recv.telemetry.adc.sense_m);
+			       recv.telemetry.adc.sense_m,
+			       recv.telemetry.flight_accel,
+			       recv.telemetry.flight_vel,
+			       recv.telemetry.flight_pres);
 			ao_gps_print(&recv.telemetry.gps);
 			ao_rssi_set((int) recv.rssi - 74);
 		} else {

@@ -20,7 +20,6 @@
 
 static int	pad_pres;
 static int	pad_accel;
-
 static int	pad_pres_total;
 static int	pad_accel_total;
 static double	pad_lat_total;
@@ -30,7 +29,6 @@ static int	npad;
 static int	npad_gps;
 static int	prev_tick;
 static double	prev_accel;
-static double	velocity;
 static double	pad_lat;
 static double	pad_lon;
 static double	pad_alt;
@@ -80,19 +78,19 @@ aoview_state_notify(struct aostate *state)
 {
 	int	altitude;
 	double	accel;
-	double	velocity_change;
 	int	ticks;
 	double	dist;
 	double	bearing;
 	double	temp;
+	double	velocity;
 	double	battery;
 	double	drogue_sense, main_sense;
 	double	max_accel;
 
 	if (!strcmp(state->state, "pad")) {
 		if (npad < NUM_PAD_SAMPLES) {
-			pad_accel_total += state->accel;
-			pad_pres_total += state->pres;
+			pad_accel_total += state->flight_accel;
+			pad_pres_total += state->flight_pres;
 			if (state->locked) {
 				pad_lat_total += state->lat;
 				pad_lon_total += state->lon;
@@ -100,7 +98,6 @@ aoview_state_notify(struct aostate *state)
 				npad_gps++;
 			}
 			npad++;
-			velocity = 0;
 		}
 		if (npad <= NUM_PAD_SAMPLES) {
 			pad_pres = pad_pres_total / npad;
@@ -113,21 +110,19 @@ aoview_state_notify(struct aostate *state)
 		}
 		if (npad == NUM_PAD_SAMPLES) {
 			npad++;
-			velocity = 0;
 			min_pres = pad_pres;
 			min_accel = pad_accel;
 		}
 	}
-	if (state->pres < min_pres)
-		min_pres = state->pres;
-	if (state->accel < min_accel)
-		min_accel = state->accel;
-	altitude = aoview_pres_to_altitude(state->pres) - aoview_pres_to_altitude(pad_pres);
-	accel = (pad_accel - state->accel) / 264.8 *  9.80665;
-	max_accel = (pad_accel - min_accel) / 264.8 * 9.80665;
-	velocity_change = (accel + prev_accel) / 2.0;
+	if (state->flight_pres < min_pres)
+		min_pres = state->flight_pres;
+	if (state->flight_accel < min_accel)
+		min_accel = state->flight_accel;
+	altitude = aoview_pres_to_altitude(state->flight_pres) - aoview_pres_to_altitude(pad_pres);
+	accel = (pad_accel - state->flight_accel) / 27.0;
+	velocity = state->flight_vel / 2700.0;
+	max_accel = (pad_accel - min_accel) / 27.0;
 	ticks = state->tick - prev_tick;
-	velocity -= velocity_change * (ticks / 100.0);
 	temp = ((state->temp / 32767.0 * 3.3) - 0.5) / 0.01;
 	battery = (state->batt / 32767.0 * 5.0);
 	drogue_sense = (state->drogue / 32767.0 * 15.0);
@@ -186,9 +181,22 @@ aoview_state_notify(struct aostate *state)
 void
 aoview_state_new(void)
 {
+	pad_pres = 0;
+	pad_accel = 0;
+	pad_pres_total = 0;
+	pad_accel_total = 0;
+	pad_lat_total = 0;
+	pad_lon_total = 0;
+	pad_alt_total = 0;
+	npad = 0;
+	npad_gps = 0;
+	prev_tick = 0;
+	prev_accel = 0;
+	pad_lat = 0;
+	pad_lon = 0;
+	pad_alt = 0;
 	min_pres = 32767;
 	min_accel = 32767;
-	npad = 0;
 }
 
 void

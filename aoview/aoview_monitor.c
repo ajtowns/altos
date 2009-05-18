@@ -82,7 +82,7 @@ aoview_monitor_parse(char *line)
 		if (words[nword] == NULL)
 			break;
 	}
-	if (nword < 26)
+	if (nword < 32)
 		return;
 	if (strcmp(words[0], "CALL") != 0)
 		return;
@@ -100,13 +100,16 @@ aoview_monitor_parse(char *line)
 	aoview_parse_int(&state.batt, words[18]);
 	aoview_parse_int(&state.drogue, words[20]);
 	aoview_parse_int(&state.main, words[22]);
-	aoview_parse_int(&state.nsat, words[24]);
-	if (strcmp (words[26], "unlocked") != 0 && nword >= 29) {
+	aoview_parse_int(&state.flight_accel, words[24]);
+	aoview_parse_int(&state.flight_vel, words[26]);
+	aoview_parse_int(&state.flight_pres, words[28]);
+	aoview_parse_int(&state.nsat, words[30]);
+	if (strcmp (words[32], "unlocked") != 0 && nword >= 35) {
 		state.locked = 1;
-		sscanf(words[26], "%d:%d:%d", &state.gps_time.hour, &state.gps_time.minute, &state.gps_time.second);
-		aoview_parse_pos(&state.lat, words[27]);
-		aoview_parse_pos(&state.lon, words[28]);
-		sscanf(words[29], "%dm", &state.alt);
+		sscanf(words[32], "%d:%d:%d", &state.gps_time.hour, &state.gps_time.minute, &state.gps_time.second);
+		aoview_parse_pos(&state.lat, words[33]);
+		aoview_parse_pos(&state.lon, words[34]);
+		sscanf(words[35], "%dm", &state.alt);
 	} else {
 		state.locked = 0;
 		state.gps_time.hour = state.gps_time.minute = state.gps_time.second = 0;
