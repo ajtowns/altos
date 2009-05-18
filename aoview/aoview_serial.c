@@ -191,6 +191,7 @@ serial_dispatch(GSource *source,
 		gpointer user_data)
 {
 	struct aoview_serial *serial = (struct aoview_serial *) source;
+	aoview_serial_callback func = (aoview_serial_callback) callback;
 	gint revents = serial->poll_fd.revents;
 
 	if (revents & G_IO_IN)
@@ -199,8 +200,8 @@ serial_dispatch(GSource *source,
 	if (revents & G_IO_OUT)
 		aoview_buf_flush(&serial->out_buf, serial->fd);
 
-	if (callback && (revents & G_IO_IN))
-		(*callback)(user_data);
+	if (func)
+		(*func)(user_data, serial, revents);
 	return TRUE;
 }
 
@@ -262,9 +263,9 @@ aoview_serial_close(struct aoview_serial *serial)
 
 void
 aoview_serial_set_callback(struct aoview_serial *serial,
-			   GSourceFunc func,
+			   aoview_serial_callback func,
 			   gpointer data,
 			   GDestroyNotify notify)
 {
-	g_source_set_callback(&serial->source, func, data, notify);
+	g_source_set_callback(&serial->source, (GSourceFunc) func, data, notify);
 }

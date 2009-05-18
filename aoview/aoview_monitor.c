@@ -116,38 +116,45 @@ aoview_monitor_parse(char *line)
 	aoview_state_notify(&state);
 }
 
-static gboolean
-aoview_monitor_callback(void *user_data)
+static void
+aoview_monitor_callback(gpointer user_data,
+			struct aoview_serial *serial,
+			gint revents)
 {
 	int	c;
 
-	if (!monitor_serial)
-		return FALSE;
-
-	for (;;) {
-		c = aoview_serial_getc(monitor_serial);
-		if (c == -1)
-			break;
-		if (c == '\r')
-			continue;
-		if (c == '\n') {
-			monitor_line[monitor_pos] = '\0';
-			if (monitor_pos)
-			aoview_monitor_parse(monitor_line);
-			monitor_pos = 0;
-		} else if (monitor_pos < MONITOR_LEN)
-			monitor_line[monitor_pos++] = c;
+	if (revents & (G_IO_HUP|G_IO_ERR)) {
+		aoview_monitor_disconnect();
+		return;
 	}
-	return TRUE;
+	if (revents & G_IO_IN) {
+		for (;;) {
+			c = aoview_serial_getc(serial);
+			if (c == -1)
+				break;
+			if (c == '\r')
+				continue;
+			if (c == '\n') {
+				monitor_line[monitor_pos] = '\0';
+				if (monitor_pos)
+				aoview_monitor_parse(monitor_line);
+				monitor_pos = 0;
+			} else if (monitor_pos < MONITOR_LEN)
+				monitor_line[monitor_pos++] = c;
+		}
+	}
 }
 
-void
+gboolean
 aoview_monitor_connect(char *tty)
 {
 	aoview_monitor_disconnect();
 	monitor_serial = aoview_serial_open(tty);
+	if (!monitor_serial)
+		return FALSE;
 	aoview_serial_set_callback(monitor_serial,
 				   aoview_monitor_callback,
 				   monitor_serial,
 				   NULL);
+	return TRUE;
 }

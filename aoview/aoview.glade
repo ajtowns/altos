@@ -372,9 +372,10 @@
   </widget>
   <widget class="GtkMessageDialog" id="log_fail_dialog">
     <property name="border_width">5</property>
-    <property name="type">popup</property>
+    <property name="title" translatable="yes">Failed to create log</property>
     <property name="type_hint">normal</property>
     <property name="skip_taskbar_hint">True</property>
+    <property name="transient_for">aoview</property>
     <property name="message_type">error</property>
     <property name="buttons">close</property>
     <property name="text">Cannot create log file</property>
@@ -385,6 +386,34 @@
         <property name="spacing">2</property>
         <child internal-child="action_area">
           <widget class="GtkHButtonBox" id="dialog-action_area4">
+            <property name="visible">True</property>
+            <property name="layout_style">end</property>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="GtkMessageDialog" id="dev_open_fail_dialog">
+    <property name="border_width">5</property>
+    <property name="title" translatable="yes">Failed to open device</property>
+    <property name="type_hint">normal</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="transient_for">aoview</property>
+    <property name="message_type">error</property>
+    <property name="buttons">close</property>
+    <property name="text">Cannot open device</property>
+    <child internal-child="vbox">
+      <widget class="GtkVBox" id="dialog-vbox6">
+        <property name="visible">True</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <widget class="GtkHButtonBox" id="dialog-action_area6">
             <property name="visible">True</property>
             <property name="layout_style">end</property>
           </widget>

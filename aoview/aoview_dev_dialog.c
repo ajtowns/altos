@@ -45,6 +45,23 @@ aoview_dev_dialog_map(GtkWidget *widget, gpointer data)
 	gtk_tree_view_columns_autosize(dev_list);
 }
 
+static GtkMessageDialog *dev_open_fail_dialog;
+
+static void
+aoview_dev_open_failed(char *name)
+{
+	char	*utf8_file;
+	utf8_file = g_filename_to_utf8(name, -1, NULL, NULL, NULL);
+	if (!utf8_file)
+		utf8_file = name;
+	gtk_message_dialog_format_secondary_text(dev_open_fail_dialog,
+						 "\"%s\"", utf8_file);
+	if (utf8_file != name)
+		g_free(utf8_file);
+	gtk_dialog_run(GTK_DIALOG(dev_open_fail_dialog));
+	gtk_widget_hide(GTK_WIDGET(dev_open_fail_dialog));
+}
+
 static void
 aoview_dev_selected(GtkTreeModel *model,
 		    GtkTreePath *path,
@@ -55,7 +72,8 @@ aoview_dev_selected(GtkTreeModel *model,
 	gtk_tree_model_get(model, iter,
 			   2, &string,
 			   -1);
-	aoview_monitor_connect(string);
+	if (!aoview_monitor_connect(string))
+		aoview_dev_open_failed(string);
 }
 
 static GtkWidget	*dialog;
@@ -123,4 +141,7 @@ aoview_dev_dialog_init(GladeXML *xml)
 	g_signal_connect(G_OBJECT(ao_disconnect), "activate",
 			 G_CALLBACK(aoview_dev_disconnect),
 			 ao_disconnect);
+
+	dev_open_fail_dialog = GTK_MESSAGE_DIALOG(glade_xml_get_widget(xml, "dev_open_fail_dialog"));
+	assert(dev_open_fail_dialog);
 }

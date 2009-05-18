@@ -73,7 +73,7 @@ struct aostate {
 void
 aoview_monitor_disconnect(void);
 
-void
+gboolean
 aoview_monitor_connect(char *tty);
 
 struct aoview_serial *
@@ -82,9 +82,11 @@ aoview_serial_open(const char *tty);
 void
 aoview_serial_close(struct aoview_serial *serial);
 
+typedef void (*aoview_serial_callback)(gpointer user_data, struct aoview_serial *serial, gint revents);
+
 void
 aoview_serial_set_callback(struct aoview_serial *serial,
-			   GSourceFunc func,
+			   aoview_serial_callback func,
 			   gpointer data,
 			   GDestroyNotify notify);
 

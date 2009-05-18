@@ -92,7 +92,8 @@ aoview_log_open_failed(char *name)
 						 "\"%s\"", utf8_file);
 	if (utf8_file != name)
 		g_free(utf8_file);
-	gtk_widget_show(GTK_WIDGET(log_fail_dialog));
+	gtk_dialog_run(GTK_DIALOG(log_fail_dialog));
+	gtk_widget_hide(GTK_WIDGET(log_fail_dialog));
 	aoview_log_failed = 1;
 }
 
