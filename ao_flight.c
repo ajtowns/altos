@@ -125,6 +125,8 @@ __pdata int16_t ao_raw_accel, ao_raw_accel_prev, ao_raw_pres;
  */
 __pdata int32_t	ao_flight_vel;
 __pdata int32_t ao_min_vel;
+__pdata int32_t	ao_old_vel;
+__pdata int16_t ao_old_vel_tick;
 __xdata int32_t ao_raw_accel_sum, ao_raw_pres_sum;
 
 /* Landing is detected by getting constant readings from both pressure and accelerometer
@@ -211,6 +213,8 @@ ao_flight(void)
 			ao_main_pres = ao_altitude_to_pres(ao_pres_to_altitude(ao_ground_pres) + ao_config.main_deploy);
 			ao_flight_vel = 0;
 			ao_min_vel = 0;
+			ao_old_vel = ao_flight_vel;
+			ao_old_vel_tick = ao_flight_tick;
 
 			/* Go to launchpad state if the nose is pointing up */
 			ao_config_get();
@@ -241,6 +245,16 @@ ao_flight(void)
 			break;
 		case ao_flight_launchpad:
 
+			/* Trim velocity
+			 *
+			 * Once a second, remove any velocity from
+			 * a second ago
+			 */
+			if ((int16_t) (ao_flight_tick - ao_old_vel_tick) >= AO_SEC_TO_TICKS(1)) {
+				ao_old_vel_tick = ao_flight_tick;
+				ao_flight_vel -= ao_old_vel;
+				ao_old_vel = ao_flight_vel;
+			}
 			/* pad to boost:
 			 *
 			 * accelerometer: > 2g AND velocity > 5m/s
