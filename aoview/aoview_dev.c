@@ -143,6 +143,8 @@ dir_filter_dev(const struct dirent *d)
 			continue;
 		if (c == '-')
 			continue;
+		if (c == '.' && n != d->d_name + 1)
+			continue;
 		return 0;
 	}
 	return 1;
