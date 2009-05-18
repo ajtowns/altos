@@ -5,6 +5,8 @@ WARN= -Wall -Wpointer-arith -Wmissing-prototypes -Wmissing-declarations -Wnested
 CFLAGS=$(INCLUDES) -O0 -g $(WARN) -DAOVIEW_VERSION='"$(VERSION)"'
 LIBS=$(shell pkg-config --libs $(MODULES)) -lm
 
+BIN=/usr/local/bin
+
 SRC = \
 	aoview_main.c \
 	aoview_dev.c \
@@ -34,6 +36,11 @@ aoview_main.o: aoview_glade.h
 
 clean:
 	rm -f $(OBJ) $(PROG)
+
+install: $(BIN)/aoview
+
+$(BIN)/aoview: aoview
+	install aoview $(BIN)
 
 aoview_glade.h: aoview.glade
 	sed -e 's/"/\\"/g' -e 's/^/"/' -e 's/$$/"/' $< > $@
