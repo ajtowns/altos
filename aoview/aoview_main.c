@@ -17,6 +17,10 @@
 
 #include "aoview.h"
 
+static const char aoview_glade[] = {
+#include "aoview_glade.h"
+};
+
 static void usage(void) {
 	printf("aoview [--device|-d device_file]");
 	exit(1);
@@ -57,7 +61,8 @@ int main(int argc, char **argv)
 	gtk_init(&argc, &argv);
 	glade_init();
 
-	xml = glade_xml_new("aoview.glade", NULL, NULL);
+	xml = glade_xml_new_from_buffer(aoview_glade, sizeof (aoview_glade), NULL, NULL);
+
 	/* connect the signals in the interface */
 	glade_xml_signal_autoconnect(xml);
 

@@ -30,5 +30,10 @@ $(PROG): $(OBJ)
 
 $(OBJ): $(INC)
 
+aoview_main.o: aoview_glade.h
+
 clean:
 	rm -f $(OBJ) $(PROG)
+
+aoview_glade.h: aoview.glade
+	sed -e 's/"/\\"/g' -e 's/^/"/' -e 's/$$/"/' $< > $@
