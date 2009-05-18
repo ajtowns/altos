@@ -1,2 +1,3 @@
 *.o
 aoview
+aoview_glade.h
