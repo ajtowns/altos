@@ -32,6 +32,7 @@ int main(int argc, char **argv)
 	GladeXML *xml = NULL;
 	GtkWidget *mainwindow;
 	char *device = NULL;
+	GtkAboutDialog *about_dialog;
 
 	static struct option long_options[] = {
 		{ "device", 1, 0, 'd'},
@@ -62,8 +63,14 @@ int main(int argc, char **argv)
 
 	/* Hook up the close button. */
 	mainwindow = glade_xml_get_widget(xml, "aoview");
+	assert(mainwindow);
+
 	g_signal_connect (G_OBJECT(mainwindow), "destroy",
 	    G_CALLBACK(destroy_event), NULL);
+
+	about_dialog = GTK_ABOUT_DIALOG(glade_xml_get_widget(xml, "about_dialog"));
+	assert(about_dialog);
+	gtk_about_dialog_set_version(about_dialog, AOVIEW_VERSION);
 
 	aoview_dev_dialog_init(xml);
 

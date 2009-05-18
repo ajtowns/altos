@@ -1,7 +1,8 @@
+VERSION=$(shell git describe)
 MODULES=gtk+-2.0 libglade-2.0 gconf-2.0
 INCLUDES=$(shell pkg-config --cflags $(MODULES)) -I..
 WARN= -Wall -Wpointer-arith -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -fno-strict-aliasing
-CFLAGS=$(INCLUDES) -O0 -g $(WARN)
+CFLAGS=$(INCLUDES) -O0 -g $(WARN) -DAOVIEW_VERSION='"$(VERSION)"'
 LIBS=$(shell pkg-config --libs $(MODULES)) -lm
 
 SRC = \
