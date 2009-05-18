@@ -37,8 +37,10 @@ ao_telemetry(void)
 			ao_sleep(&ao_telemetry_interval);
 		telemetry.flight_state = ao_flight_state;
 		telemetry.flight_accel = ao_flight_accel;
+		telemetry.ground_accel = ao_ground_accel;
 		telemetry.flight_vel = ao_flight_vel;
 		telemetry.flight_pres = ao_flight_pres;
+		telemetry.ground_pres = ao_ground_pres;
 		ao_adc_get(&telemetry.adc);
 		ao_mutex_get(&ao_gps_mutex);
 		memcpy(&telemetry.gps, &ao_gps_data, sizeof (struct ao_gps_data));

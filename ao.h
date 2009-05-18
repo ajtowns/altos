@@ -725,8 +725,10 @@ struct ao_telemetry {
 	uint8_t			addr;
 	uint8_t			flight_state;
 	int16_t			flight_accel;
+	int16_t			ground_accel;
 	int32_t			flight_vel;
 	int16_t			flight_pres;
+	int16_t			ground_pres;
 	struct ao_adc		adc;
 	struct ao_gps_data	gps;
 	char			callsign[AO_MAX_CALLSIGN];

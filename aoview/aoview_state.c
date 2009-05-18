@@ -18,14 +18,9 @@
 #include "aoview.h"
 #include <math.h>
 
-static int	pad_pres;
-static int	pad_accel;
-static int	pad_pres_total;
-static int	pad_accel_total;
 static double	pad_lat_total;
 static double	pad_lon_total;
 static int	pad_alt_total;
-static int	npad;
 static int	npad_gps;
 static int	prev_tick;
 static double	prev_accel;
@@ -88,40 +83,28 @@ aoview_state_notify(struct aostate *state)
 	double	max_accel;
 
 	if (!strcmp(state->state, "pad")) {
-		if (npad < NUM_PAD_SAMPLES) {
-			pad_accel_total += state->flight_accel;
-			pad_pres_total += state->flight_pres;
-			if (state->locked) {
-				pad_lat_total += state->lat;
-				pad_lon_total += state->lon;
-				pad_alt_total += state->alt;
-				npad_gps++;
-			}
-			npad++;
+		if (state->locked && npad_gps < NUM_PAD_SAMPLES) {
+			pad_lat_total += state->lat;
+			pad_lon_total += state->lon;
+			pad_alt_total += state->alt;
+			npad_gps++;
 		}
-		if (npad <= NUM_PAD_SAMPLES) {
-			pad_pres = pad_pres_total / npad;
-			pad_accel = pad_accel_total / npad;
-			if (npad_gps) {
-				pad_lat = pad_lat_total / npad_gps;
-				pad_lon = pad_lon_total / npad_gps;
-				pad_alt = pad_alt_total / npad_gps;
-			}
+		if (state->locked && npad_gps <= NUM_PAD_SAMPLES) {
+			pad_lat = pad_lat_total / npad_gps;
+			pad_lon = pad_lon_total / npad_gps;
+			pad_alt = pad_alt_total / npad_gps;
 		}
-		if (npad == NUM_PAD_SAMPLES) {
-			npad++;
-			min_pres = pad_pres;
-			min_accel = pad_accel;
-		}
+		min_pres = state->ground_pres;
+		min_accel = state->ground_accel;
 	}
 	if (state->flight_pres < min_pres)
 		min_pres = state->flight_pres;
 	if (state->flight_accel < min_accel)
 		min_accel = state->flight_accel;
-	altitude = aoview_pres_to_altitude(state->flight_pres) - aoview_pres_to_altitude(pad_pres);
-	accel = (pad_accel - state->flight_accel) / 27.0;
+	altitude = aoview_pres_to_altitude(state->flight_pres) - aoview_pres_to_altitude(state->ground_pres);
+	accel = (state->ground_accel - state->flight_accel) / 27.0;
 	velocity = state->flight_vel / 2700.0;
-	max_accel = (pad_accel - min_accel) / 27.0;
+	max_accel = (state->ground_accel - min_accel) / 27.0;
 	ticks = state->tick - prev_tick;
 	temp = ((state->temp / 32767.0 * 3.3) - 0.5) / 0.01;
 	battery = (state->batt / 32767.0 * 5.0);
@@ -132,20 +115,20 @@ aoview_state_notify(struct aostate *state)
 	prev_tick = state->tick;
 	aoview_table_start();
 
-	if (npad >= NUM_PAD_SAMPLES)
+	if (npad_gps >= NUM_PAD_SAMPLES)
 		aoview_table_add_row("Ground state", "ready");
 	else
-		aoview_table_add_row("Ground state", "preparing (%d)",
-				     NUM_PAD_SAMPLES - npad);
+		aoview_table_add_row("Ground state", "waiting for gps (%d)",
+				     NUM_PAD_SAMPLES - npad_gps);
 	aoview_table_add_row("Rocket state", "%s", state->state);
 	aoview_table_add_row("Callsign", "%s", state->callsign);
 	aoview_table_add_row("Rocket serial", "%d", state->serial);
 
-	aoview_table_add_row("RSSI", "%ddB", state->rssi);
+	aoview_table_add_row("RSSI", "%ddBm", state->rssi);
 	aoview_table_add_row("Height", "%dm", altitude);
 	aoview_table_add_row("Max height", "%dm",
 			     aoview_pres_to_altitude(min_pres) -
-			     aoview_pres_to_altitude(pad_pres));
+			     aoview_pres_to_altitude(state->ground_pres));
 	aoview_table_add_row("Acceleration", "%gm/s²", accel);
 	aoview_table_add_row("Max acceleration", "%gm/s²", max_accel);
 	aoview_table_add_row("Velocity", "%gm/s", velocity);
@@ -153,7 +136,7 @@ aoview_state_notify(struct aostate *state)
 	aoview_table_add_row("Battery", "%gV", battery);
 	aoview_table_add_row("Drogue", "%gV", drogue_sense);
 	aoview_table_add_row("Main", "%gV", main_sense);
-	aoview_table_add_row("Pad altitude", "%dm", aoview_pres_to_altitude(pad_pres));
+	aoview_table_add_row("Pad altitude", "%dm", aoview_pres_to_altitude(state->ground_pres));
 	aoview_table_add_row("Satellites", "%d", state->nsat);
 	if (state->locked) {
 		aoview_state_add_deg("Latitude", state->lat);
@@ -181,14 +164,9 @@ aoview_state_notify(struct aostate *state)
 void
 aoview_state_new(void)
 {
-	pad_pres = 0;
-	pad_accel = 0;
-	pad_pres_total = 0;
-	pad_accel_total = 0;
 	pad_lat_total = 0;
 	pad_lon_total = 0;
 	pad_alt_total = 0;
-	npad = 0;
 	npad_gps = 0;
 	prev_tick = 0;
 	prev_accel = 0;

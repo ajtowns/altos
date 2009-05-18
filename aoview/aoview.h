@@ -59,8 +59,10 @@ struct aostate {
 	int	drogue;
 	int	main;
 	int	flight_accel;
+	int	ground_accel;
 	int	flight_vel;
 	int	flight_pres;
+	int	ground_pres;
 	int	nsat;
 	int	locked;
 	struct {
