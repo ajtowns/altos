@@ -91,7 +91,7 @@ usb_tty(char *sys)
 				       dir_filter_tty,
 				       alphasort);
 			free(endpoint_full);
-			if (ntty) {
+			if (ntty > 0) {
 				tty = aoview_fullname("/dev", namelist[0]->d_name + 4);
 				free(namelist);
 				return tty;
