@@ -81,6 +81,8 @@ int main(int argc, char **argv)
 
 	aoview_state_init(xml);
 
+	aoview_file_init(xml);
+
 	aoview_log_init(xml);
 
 	aoview_table_init(xml);

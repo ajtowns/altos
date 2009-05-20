@@ -167,7 +167,7 @@
                   <widget class="GtkMenu" id="menu5">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkImageMenuItem" id="ao_log_new">
+                      <widget class="GtkImageMenuItem" id="log_new">
                         <property name="label" translatable="yes">_New log</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
@@ -181,12 +181,12 @@
                       </widget>
                     </child>
                     <child>
-                      <widget class="GtkImageMenuItem" id="ao_log_configure">
+                      <widget class="GtkImageMenuItem" id="file_configure">
                         <property name="label" translatable="yes">_Configure Log</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">False</property>
-                        <signal name="activate" handler="gtk_widget_show" object="log_chooser_dialog" after="yes"/>
+                        <signal name="activate" handler="gtk_widget_show" object="file_chooser_dialog" after="yes"/>
                         <child internal-child="image">
                           <widget class="GtkImage" id="image4">
                             <property name="visible">True</property>
@@ -315,7 +315,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="GtkFileChooserDialog" id="log_chooser_dialog">
+  <widget class="GtkFileChooserDialog" id="file_chooser_dialog">
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Configure Log Directory</property>
     <property name="type_hint">dialog</property>
@@ -331,13 +331,13 @@
             <property name="visible">True</property>
             <property name="layout_style">end</property>
             <child>
-              <widget class="GtkButton" id="log_configure_cancel">
+              <widget class="GtkButton" id="file_configure_cancel">
                 <property name="label" translatable="yes">gtk-cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="gtk_widget_hide" object="log_chooser_dialog"/>
+                <signal name="clicked" handler="gtk_widget_hide" object="file_chooser_dialog"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -346,7 +346,7 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkButton" id="log_configure_ok">
+              <widget class="GtkButton" id="file_configure_ok">
                 <property name="label" translatable="yes">gtk-ok</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -371,7 +371,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="GtkMessageDialog" id="log_fail_dialog">
+  <widget class="GtkMessageDialog" id="file_fail_dialog">
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Failed to create log</property>
     <property name="type_hint">normal</property>

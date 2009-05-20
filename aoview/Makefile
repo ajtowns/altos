@@ -17,7 +17,8 @@ SRC = \
 	aoview_convert.c \
 	aoview_log.c \
 	aoview_table.c \
-	aoview_util.c
+	aoview_util.c \
+	aoview_file.c
 
 INC = \
 	aoview.h

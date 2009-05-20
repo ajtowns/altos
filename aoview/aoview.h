@@ -170,4 +170,33 @@ aoview_table_init(GladeXML *xml);
 void
 aoview_table_clear(void);
 
+struct aoview_file;
+
+void
+aoview_file_finish(struct aoview_file *file);
+
+gboolean
+aoview_file_start(struct aoview_file *file);
+
+void
+aoview_file_set_serial(struct aoview_file *file, int serial);
+
+int
+aoview_file_get_serial(struct aoview_file *file);
+
+void
+aoview_file_printf(struct aoview_file *file, char *format, ...);
+
+void
+aoview_file_vprintf(struct aoview_file *file, char *format, va_list ap);
+
+struct aoview_file *
+aoview_file_new(char *ext);
+
+void
+aoview_file_destroy(struct aoview_file *file);
+
+void
+aoview_file_init(GladeXML *xml);
+
 #endif /* _AOVIEW_H_ */
