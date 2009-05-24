@@ -106,12 +106,12 @@ aoview_monitor_parse(char *line)
 	aoview_parse_int(&state.flight_pres, words[30]);
 	aoview_parse_int(&state.ground_pres, words[32]);
 	aoview_parse_int(&state.nsat, words[34]);
-	if (strcmp (words[36], "unlocked") != 0 && nword >= 41) {
+	if (strcmp (words[36], "unlocked") != 0 && nword >= 40) {
 		state.locked = 1;
 		sscanf(words[36], "%d:%d:%d", &state.gps_time.hour, &state.gps_time.minute, &state.gps_time.second);
-		aoview_parse_pos(&state.lat, words[39]);
-		aoview_parse_pos(&state.lon, words[40]);
-		sscanf(words[41], "%dm", &state.alt);
+		aoview_parse_pos(&state.lat, words[37]);
+		aoview_parse_pos(&state.lon, words[38]);
+		sscanf(words[39], "%dm", &state.alt);
 	} else {
 		state.locked = 0;
 		state.gps_time.hour = state.gps_time.minute = state.gps_time.second = 0;
