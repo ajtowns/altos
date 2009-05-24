@@ -170,7 +170,7 @@ ao_flight(void)
 			 * so subtract instead of add.
 			 */
 			ticks = ao_flight_tick - ao_flight_prev_tick;
-			ao_vel_change = (((ao_raw_accel + ao_raw_accel_prev) >> 1) - ao_ground_accel);
+			ao_vel_change = (((ao_raw_accel >> 1) + (ao_raw_accel_prev >> 1)) - ao_ground_accel);
 			ao_raw_accel_prev = ao_raw_accel;
 
 			/* one is a common interval */
