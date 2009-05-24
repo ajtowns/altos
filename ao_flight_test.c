@@ -15,9 +15,12 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+#define _GNU_SOURCE
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define AO_ADC_RING	64
 #define ao_adc_ring_next(n)	(((n) + 1) & (AO_ADC_RING - 1))
@@ -177,9 +180,13 @@ ao_sleep(void *wchan)
 		uint16_t	a, b;
 		int		ret;
 		char		line[1024];
+		char		*saveptr;
+		char		*l;
+		char		*words[64];
+		int		nword;
 
 		for (;;) {
-			if (ao_records_read > 20 && ao_flight_state == ao_flight_startup)
+			if (ao_records_read > 2 && ao_flight_state == ao_flight_startup)
 			{
 				ao_adc_static.accel = ao_flight_ground_accel;
 				ao_insert();
@@ -195,9 +202,30 @@ ao_sleep(void *wchan)
 				ao_insert();
 				return;
 			}
-			ret = sscanf(line, "%c %hx %hx %hx", &type, &tick, &a, &b);
-			if (ret != 4)
-				continue;
+			l = line;
+			for (nword = 0; nword < 64; nword++) {
+				words[nword] = strtok_r(l, " \t\n", &saveptr);
+				l = NULL;
+				if (words[nword] == NULL)
+					break;
+			}
+			if (nword == 4) {
+				type = words[0][0];
+				tick = strtoul(words[1], NULL, 16);
+				a = strtoul(words[2], NULL, 16);
+				b = strtoul(words[2], NULL, 16);
+			} else if (nword >= 36 && strcmp(words[0], "CALL") == 0) {
+				tick = atoi(words[10]);
+				if (!ao_flight_started) {
+					type = 'F';
+					a = atoi(words[26]);
+					ao_flight_started = 1;
+				} else {
+					type = 'A';
+					a = atoi(words[12]);
+					b = atoi(words[14]);
+				}
+			}
 			if (type != 'F' && !ao_flight_started)
 				continue;
 
