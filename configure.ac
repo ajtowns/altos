@@ -99,4 +99,5 @@ ccload/Makefile
 s51/Makefile
 ccmanual/Makefile
 ccdump/Makefile
+aoload/Makefile
 ])
