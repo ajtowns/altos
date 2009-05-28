@@ -11,8 +11,6 @@ CFLAGS=--model-small --debug --opt-code-speed
 LDFLAGS=--out-fmt-ihx --code-loc 0x0000 --code-size 0x8000 \
 	--xram-loc 0xf000 --xram-size 0xda2 --iram-size 0xff
 
-SERIAL=1
-
 INC = \
 	ao.h \
 	cc1111.h \
@@ -161,16 +159,16 @@ SRC = \
 	$(TD_MAIN_SRC) \
 	$(TT_MAIN_SRC)
 
-TM_REL=$(TM_SRC:.c=.rel) ao_product-telemetrum-$(SERIAL).rel
-TI_REL=$(TI_SRC:.c=.rel) ao_product-tidongle-$(SERIAL).rel
-TT_REL=$(TT_SRC:.c=.rel) ao_product-teleterra-$(SERIAL).rel
-TD_REL=$(TD_SRC:.c=.rel) ao_product-teledongle-$(SERIAL).rel
+TM_REL=$(TM_SRC:.c=.rel) ao_product-telemetrum.rel
+TI_REL=$(TI_SRC:.c=.rel) ao_product-tidongle.rel
+TT_REL=$(TT_SRC:.c=.rel) ao_product-teleterra.rel
+TD_REL=$(TD_SRC:.c=.rel) ao_product-teledongle.rel
 
 PROD_REL=\
-	ao_product-telemetrum-$(SERIAL).rel \
-	ao_product-tidongle-$(SERIAL).rel \
-	ao_product-teleterra-$(SERIAL).rel \
-	ao_product-teledongle-$(SERIAL).rel
+	ao_product-telemetrum.rel \
+	ao_product-tidongle.rel \
+	ao_product-teleterra.rel \
+	ao_product-teledongle.rel
 
 REL=$(SRC:.c=.rel) $(PROD_REL)
 ADB=$(REL:.rel=.adb)
@@ -180,8 +178,8 @@ LST=$(REL:.rel=.lst)
 RST=$(REL:.rel=.rst)
 SYM=$(REL:.rel=.sym)
 
-PROGS=	telemetrum-$(SERIAL).ihx tidongle-$(SERIAL).ihx \
-	teleterra-$(SERIAL).ihx teledongle-$(SERIAL).ihx
+PROGS=	telemetrum.ihx tidongle.ihx \
+	teleterra.ihx teledongle.ihx
 
 HOST_PROGS=ao_flight_test
 
@@ -196,61 +194,61 @@ PAOM=$(PROGS:.ihx=)
 
 all: $(PROGS) $(HOST_PROGS)
 
-telemetrum-$(SERIAL).ihx: $(TM_REL) Makefile
+telemetrum.ihx: $(TM_REL) Makefile
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(TM_REL)
-	sh check-stack ao.h telemetrum-$(SERIAL).mem
+	sh check-stack ao.h telemetrum.mem
 
-tidongle-$(SERIAL).ihx: $(TI_REL) Makefile
+tidongle.ihx: $(TI_REL) Makefile
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(TI_REL)
-	sh check-stack ao.h tidongle-$(SERIAL).mem
+	sh check-stack ao.h tidongle.mem
 
-tidongle-$(SERIAL).ihx: telemetrum-$(SERIAL).ihx
+tidongle.ihx: telemetrum.ihx
 
-teleterra-$(SERIAL).ihx: $(TT_REL) Makefile
+teleterra.ihx: $(TT_REL) Makefile
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(TT_REL)
-	sh check-stack ao.h teleterra-$(SERIAL).mem
+	sh check-stack ao.h teleterra.mem
 
-teleterra-$(SERIAL).ihx: tidongle-$(SERIAL).ihx
+teleterra.ihx: tidongle.ihx
 
-teledongle-$(SERIAL).ihx: $(TD_REL) Makefile
+teledongle.ihx: $(TD_REL) Makefile
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(TD_REL)
-	sh check-stack ao.h teledongle-$(SERIAL).mem
+	sh check-stack ao.h teledongle.mem
 
-teledongle-$(SERIAL).ihx: teleterra-$(SERIAL).ihx
+teledongle.ihx: teleterra.ihx
 
 altitude.h: make-altitude
 	nickle make-altitude > altitude.h
 
-TELEMETRUM_DEFS=ao-telemetrum-$(SERIAL).h
-TELETERRA_DEFS=ao-teleterra-$(SERIAL).h
-TELEDONGLE_DEFS=ao-teledongle-$(SERIAL).h
-TIDONGLE_DEFS=ao-tidongle-$(SERIAL).h
+TELEMETRUM_DEFS=ao-telemetrum.h
+TELETERRA_DEFS=ao-teleterra.h
+TELEDONGLE_DEFS=ao-teledongle.h
+TIDONGLE_DEFS=ao-tidongle.h
 
 ALL_DEFS=$(TELEMETRUM_DEFS) $(TELETERRA_DEFS) \
 	$(TELEDONGLE_DEFS) $(TIDONGLE_DEFS)
-ao_product-telemetrum-$(SERIAL).rel: ao_product.c $(TELEMETRUM_DEFS)
+ao_product-telemetrum.rel: ao_product.c $(TELEMETRUM_DEFS)
 	$(CC) -c $(CFLAGS) -D PRODUCT_DEFS='\"$(TELEMETRUM_DEFS)\"' -o$@ ao_product.c
 
-ao_product-teleterra-$(SERIAL).rel: ao_product.c $(TELETERRA_DEFS)
+ao_product-teleterra.rel: ao_product.c $(TELETERRA_DEFS)
 	$(CC) -c $(CFLAGS) -D PRODUCT_DEFS='\"$(TELETERRA_DEFS)\"' -o$@ ao_product.c
 
-ao_product-teledongle-$(SERIAL).rel: ao_product.c $(TELEDONGLE_DEFS)
+ao_product-teledongle.rel: ao_product.c $(TELEDONGLE_DEFS)
 	$(CC) -c $(CFLAGS) -D PRODUCT_DEFS='\"$(TELEDONGLE_DEFS)\"' -o$@ ao_product.c
 
-ao_product-tidongle-$(SERIAL).rel: ao_product.c $(TIDONGLE_DEFS)
+ao_product-tidongle.rel: ao_product.c $(TIDONGLE_DEFS)
 	$(CC) -c $(CFLAGS) -D PRODUCT_DEFS='\"$(TIDONGLE_DEFS)\"' -o$@ ao_product.c
 
 $(TELEMETRUM_DEFS): ao-make-product.5c
-	nickle ao-make-product.5c -m altusmetrum.org -p TeleMetrum -s $(SERIAL) -v $(VERSION) > $@
+	nickle ao-make-product.5c -m altusmetrum.org -p TeleMetrum -v $(VERSION) > $@
 
 $(TELETERRA_DEFS): ao-make-product.5c
-	nickle ao-make-product.5c -m altusmetrum.org -p TeleTerra -s $(SERIAL) -v $(VERSION) > $@
+	nickle ao-make-product.5c -m altusmetrum.org -p TeleTerra -v $(VERSION) > $@
 
 $(TELEDONGLE_DEFS): ao-make-product.5c
-	nickle ao-make-product.5c -m altusmetrum.org -p TeleDongle -s $(SERIAL) -v $(VERSION) > $@
+	nickle ao-make-product.5c -m altusmetrum.org -p TeleDongle -v $(VERSION) > $@
 
 $(TIDONGLE_DEFS): ao-make-product.5c
-	nickle ao-make-product.5c -m altusmetrum.org -p TIDongle -s $(SERIAL) -v $(VERSION) > $@
+	nickle ao-make-product.5c -m altusmetrum.org -p TIDongle -v $(VERSION) > $@
 
 clean:
 	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
