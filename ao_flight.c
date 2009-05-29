@@ -227,7 +227,6 @@ ao_flight(void)
 
 				/* Turn on telemetry system
 				 */
-				ao_rdf_set(1);
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_PAD);
 
 				ao_flight_state = ao_flight_launchpad;
@@ -277,9 +276,6 @@ ao_flight(void)
 
 				/* Increase telemetry rate */
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_FLIGHT);
-
-				/* disable RDF beacon */
-				ao_rdf_set(0);
 
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 				break;
@@ -359,9 +355,6 @@ ao_flight(void)
 
 				/* slow down the ADC sample rate */
 				ao_timer_set_adc_interval(10);
-
-				/* Enable RDF beacon */
-				ao_rdf_set(1);
 
 				/*
 				 * Start recording min/max accel and pres for a while

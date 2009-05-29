@@ -18,10 +18,6 @@
 #include "ao.h"
 
 __xdata uint16_t ao_telemetry_interval = 0;
-__xdata uint8_t ao_rdf = 0;
-__xdata uint16_t ao_rdf_time;
-
-#define AO_RDF_INTERVAL	AO_SEC_TO_TICKS(3)
 
 void
 ao_telemetry(void)
@@ -31,7 +27,6 @@ ao_telemetry(void)
 	ao_config_get();
 	memcpy(telemetry.callsign, ao_config.callsign, AO_MAX_CALLSIGN);
 	telemetry.addr = ao_serial_number;
-	ao_rdf_time = ao_time();
 	for (;;) {
 		while (ao_telemetry_interval == 0)
 			ao_sleep(&ao_telemetry_interval);
@@ -47,13 +42,6 @@ ao_telemetry(void)
 		ao_mutex_put(&ao_gps_mutex);
 		ao_radio_send(&telemetry);
 		ao_delay(ao_telemetry_interval);
-		if (ao_rdf &&
-		    (int16_t) (ao_time() - ao_rdf_time) >= 0)
-		{
-			ao_rdf_time = ao_time() + AO_RDF_INTERVAL;
-			ao_radio_rdf();
-			ao_delay(ao_telemetry_interval);
-		}
 	}
 }
 
@@ -62,14 +50,6 @@ ao_telemetry_set_interval(uint16_t interval)
 {
 	ao_telemetry_interval = interval;
 	ao_wakeup(&ao_telemetry_interval);
-}
-
-void
-ao_rdf_set(uint8_t rdf)
-{
-	ao_rdf = rdf;
-	if (rdf == 0)
-		ao_radio_rdf_abort();
 }
 
 __xdata struct ao_task	ao_telemetry_task;
