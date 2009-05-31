@@ -859,4 +859,68 @@ extern const char ao_version[];
 extern const char ao_manufacturer[];
 extern const char ao_product[];
 
+/*
+ * Fifos
+ */
+
+#define AO_FIFO_SIZE	32
+
+struct ao_fifo {
+	uint8_t	insert;
+	uint8_t	remove;
+	char	fifo[AO_FIFO_SIZE];
+};
+
+#define ao_fifo_insert(f,c) do { \
+	(f).fifo[(f).insert] = (c); \
+	(f).insert = ((f).insert + 1) & (AO_FIFO_SIZE-1); \
+} while(0)
+
+#define ao_fifo_remove(f,c) do {\
+	c = (f).fifo[(f).remove]; \
+	(f).remove = ((f).remove + 1) & (AO_FIFO_SIZE-1); \
+} while(0)
+
+#define ao_fifo_full(f)		((((f).insert + 1) & (AO_FIFO_SIZE-1)) == (f).remove)
+#define ao_fifo_empty(f)	((f).insert == (f).remove)
+
+/*
+ * ao_packet.c
+ *
+ * Packet-based command interface
+ */
+
+#define AO_PACKET_MAX	32
+#define AO_PACKET_WIN	256
+
+#define AO_PACKET_FIN	(1 << 0)
+#define AO_PACKET_SYN	(1 << 1)
+#define AO_PACKET_RST	(1 << 2)
+#define AO_PACKET_ACK	(1 << 3)
+
+struct ao_packet {
+	uint8_t		addr;
+	uint8_t		flags;
+	uint16_t	seq;
+	uint16_t	ack;
+	uint16_t	window;
+	uint8_t		len;
+	uint8_t		d[AO_PACKET_MAX];
+};
+
+uint8_t
+ao_packet_connect(uint8_t dest);
+
+uint8_t
+ao_packet_accept(void);
+
+int
+ao_packet_send(uint8_t *data, int len);
+
+int
+ao_packet_recv(uint8_t *data, int len);
+
+void
+ao_packet_init(void);
+
 #endif /* _AO_H_ */

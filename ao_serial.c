@@ -17,29 +17,8 @@
 
 #include "ao.h"
 
-#define SERIAL_FIFO	32
-
-struct ao_fifo {
-	uint8_t	insert;
-	uint8_t	remove;
-	char	fifo[SERIAL_FIFO];
-};
-
 volatile __xdata struct ao_fifo	ao_usart1_rx_fifo;
 volatile __xdata struct ao_fifo	ao_usart1_tx_fifo;
-
-#define ao_fifo_insert(f,c) do { \
-	(f).fifo[(f).insert] = (c); \
-	(f).insert = ((f).insert + 1) & (SERIAL_FIFO-1); \
-} while(0)
-
-#define ao_fifo_remove(f,c) do {\
-	c = (f).fifo[(f).remove]; \
-	(f).remove = ((f).remove + 1) & (SERIAL_FIFO-1); \
-} while(0)
-
-#define ao_fifo_full(f)	((((f).insert + 1) & (SERIAL_FIFO-1)) == (f).remove)
-#define ao_fifo_empty(f)	((f).insert == (f).remove)
 
 void
 ao_serial_rx1_isr(void) interrupt 3
