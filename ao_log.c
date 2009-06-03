@@ -191,7 +191,7 @@ ao_log_stop(void)
 static void
 dump_log(void)
 {
-	__xdata uint8_t	more;
+	uint8_t	more;
 
 	for (more = ao_log_dump_first(); more; more = ao_log_dump_next()) {
 		printf("%c %4x %4x %4x\n",
@@ -199,7 +199,11 @@ dump_log(void)
 		       ao_log_dump.tick,
 		       ao_log_dump.u.anon.d0,
 		       ao_log_dump.u.anon.d1);
+		if (ao_log_dump.type == AO_LOG_STATE &&
+		    ao_log_dump.u.state.state == ao_flight_landed)
+			break;
 	}
+	printf("end\n");
 }
 
 __code struct ao_cmds ao_log_cmds[] = {
