@@ -83,4 +83,3 @@ ao_timer_init(void)
 	/* enable timer 1 in module mode, dividing by 8 */
 	T1CTL = T1CTL_MODE_MODULO | T1CTL_DIV_8;
 }
-

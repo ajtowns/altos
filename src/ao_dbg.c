@@ -174,12 +174,12 @@ ao_dbg_set_pins(void)
 	/* Disable peripheral use of P0 */
 	ADCCFG = 0;
 	P0SEL = 0;
-	
-	
+
+
 	/* make P0_4 tri-state */
 	P0INP = DBG_DATA;
 	P2INP &= ~(P2INP_PDUP0_PULL_DOWN);
-	
+
 	/* Raise RESET_N and CLOCK */
 	P0 = DBG_RESET_N | DBG_CLOCK;
 

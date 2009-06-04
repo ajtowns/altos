@@ -38,7 +38,7 @@ ao_usb_set_interrupts(void)
 	USBCIE = USBCIE_RSTIE;
 }
 
-/* This interrupt is shared with port 2, 
+/* This interrupt is shared with port 2,
  * so when we hook that up, fix this
  */
 void
@@ -80,7 +80,7 @@ ao_usb_ep0_flush(void)
 {
 	__xdata uint8_t this_len;
 	__xdata uint8_t	cs0;
-	
+
 	USBINDEX = 0;
 	cs0 = USBCS0;
 	if (cs0 & USBCS0_INPKT_RDY)
@@ -132,7 +132,7 @@ static void
 ao_usb_ep0_fill(void)
 {
 	__xdata uint8_t	len;
-	
+
 	USBINDEX = 0;
 	len = USBCNT0;
 	if (len > ao_usb_ep0_out_len)
@@ -198,7 +198,7 @@ ao_usb_ep0_setup(void)
 		USBCS0 = USBCS0_CLR_OUTPKT_RDY | USBCS0_DATA_END;
 	else
 		USBCS0 = USBCS0_CLR_OUTPKT_RDY;
-	
+
 	ao_usb_ep0_in_data = ao_usb_ep0_in_buf;
 	ao_usb_ep0_in_len = 0;
 	switch(ao_usb_setup.dir_type_recip & AO_USB_SETUP_TYPE_MASK) {
@@ -379,7 +379,7 @@ ao_usb_enable(void)
 	SLEEP |= SLEEP_USB_EN;
 
 	ao_usb_set_configuration();
-	
+
 	ao_usb_set_interrupts();
 
 	/* enable USB interrupts */
@@ -399,7 +399,7 @@ ao_usb_disable(void)
 	USBOIE = 0;
 	USBCIE = 0;
 	IEN2 &= ~IEN2_USBIE;
-	
+
 	/* Clear any pending interrupts */
 	USBCIF = 0;
 	USBOIF = 0;

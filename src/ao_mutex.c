@@ -15,30 +15,27 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#define AO_NO_SERIAL_ISR 1
-#define AO_NO_ADC_ISR 1
 #include "ao.h"
 
 void
-main(void)
+ao_mutex_get(__xdata uint8_t *mutex) __reentrant
 {
-	CLKCON = 0;
-	while (!(SLEEP & SLEEP_XOSC_STB))
-		;
-	
-	/* Turn on the LED until the system is stable */
-	ao_led_init(AO_LED_RED);
-	ao_led_on(AO_LED_RED);
-	ao_timer_init();
-	ao_cmd_init();
-	ao_usb_init();
-	ao_monitor_init(AO_LED_RED, TRUE);
-	ao_rssi_init(AO_LED_RED);
-	ao_radio_init();
-	ao_dbg_init();
-	ao_config_init();
-	/* Bring up the USB link */
-	P1DIR |= 1;
-	P1 |= 1;
-	ao_start_scheduler();
+	if (*mutex == ao_cur_task->task_id)
+		ao_panic(AO_PANIC_MUTEX);
+	__critical {
+		while (*mutex)
+			ao_sleep(mutex);
+		*mutex = ao_cur_task->task_id;
+	}
+}
+
+void
+ao_mutex_put(__xdata uint8_t *mutex) __reentrant
+{
+	if (*mutex != ao_cur_task->task_id)
+		ao_panic(AO_PANIC_MUTEX);
+	__critical {
+		*mutex = 0;
+		ao_wakeup(mutex);
+	}
 }

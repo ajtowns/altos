@@ -38,10 +38,10 @@ ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *nam
 	 * to the start of the task
 	 */
 	stack = task->stack;
-	
+
 	*stack++ = ((uint16_t) start);
 	*stack++ = ((uint16_t) start) >> 8;
-	
+
 	/* and the stuff saved by ao_switch */
 	*stack++ = 0;		/* acc */
 	*stack++ = 0x80;	/* IE */
@@ -92,7 +92,7 @@ ao_yield(void) _naked
 	_asm
 		push	_bp
 	_endasm;
-	
+
 	if (ao_cur_task_index != AO_NO_TASK_INDEX)
 	{
 		uint8_t stack_len;
@@ -107,7 +107,7 @@ ao_yield(void) _naked
 			*save_ptr++ = *stack_ptr++;
 		while (--stack_len);
 	}
-	
+
 	/* Empty the stack; might as well let interrupts have the whole thing */
 	SP = AO_STACK_START - 1;
 
@@ -141,7 +141,7 @@ ao_yield(void) _naked
 		/* Restore the old stack */
 		stack_len = ao_cur_task->stack_count;
 		SP = AO_STACK_START - 1 + stack_len;
-	
+
 		stack_ptr = (uint8_t __data *) AO_STACK_START;
 		save_ptr = (uint8_t __xdata *) ao_cur_task->stack;
 		do

@@ -18,7 +18,7 @@
 #include "aoview.h"
 
 static int16_t altitude_table[2048] = {
-#include "../altitude.h"
+#include "altitude.h"
 };
 
 int16_t

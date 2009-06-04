@@ -43,4 +43,3 @@ ao_gps_print(__xdata struct ao_gps_data *gps_data) __reentrant
 		printf(" unlocked\n");
 	}
 }
-

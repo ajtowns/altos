@@ -2,22 +2,22 @@
    Register Declarations for the ChipCon CC1111 Processor Range
 
    Copyright © 2008 Keith Packard <keithp@keithp.com>
-  
+
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; version 2 of the License.
-  
+
    This program is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License along
    with this program; if not, write to the Free Software Foundation, Inc.,
    59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 
    Adapted from the Cygnal C8051F12x config file which is:
- 
+
    Copyright (C) 2003 - Maarten Brock, sourceforge.brock@dse.nl
 
    This library is free software; you can redistribute it and/or
@@ -129,7 +129,7 @@ sbit at 0x99 ENCIF_1;	/* AES interrupt 1. */
 #define S0CON_ENCIF_1	(1 << 1)
 #define S0CON_ENCIF_0	(1 << 0)
 
-/* 
+/*
  * S1CON
  */
 sfr at 0x9B S1CON;	/* CPU Interrupt Flag 3 */
@@ -261,7 +261,7 @@ sfr at 0xCA T3CNT;
 sfr at 0xEA T4CNT;
 
 /* Timer control */
- 
+
 sfr at 0xCB T3CTL;
 sfr at 0xEB T4CTL;
 

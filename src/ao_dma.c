@@ -21,7 +21,7 @@
 
 /*
  * The config address for DMA0 is programmed
- * separately from that of DMA1-4, but for simplicity, 
+ * separately from that of DMA1-4, but for simplicity,
  * we make them all contiguous.
  */
 
@@ -46,7 +46,7 @@ ao_dma_alloc(__xdata uint8_t *done)
 		DMAIRQ = 0;
 		DMAIF = 0;
 		IEN1 |= IEN1_DMAIE;
-	} 
+	}
 
 	return id;
 }
@@ -113,7 +113,7 @@ void
 ao_dma_isr(void) interrupt 8
 {
 	uint8_t id, mask;
-	
+
 	/* Find the first DMA channel which is done */
 	mask = 1;
 	for (id = 0; id < ao_next_dma; id++) {

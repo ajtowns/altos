@@ -18,3 +18,15 @@ ao-telemetrum.h
 ao-teleterra.h
 ao-teledongle.h
 ao-tidongle.h
+Makefile.in
+aclocal.m4
+.deps
+autom4te.cache
+config.*
+depcomp
+install-sh
+missing
+stamp-h1
+configure
+Makefile
+aoview/Makefile

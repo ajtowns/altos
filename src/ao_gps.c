@@ -41,7 +41,7 @@ ao_gps_lexchar(void)
 {
 	if (ao_gps_error)
 		ao_gps_char = '\n';
-	else 
+	else
 		ao_gps_char = ao_serial_getchar();
 	ao_gps_cksum ^= ao_gps_char;
 }
@@ -74,7 +74,7 @@ ao_gps_decimal(uint8_t max_width)
 {
 	int16_t	v;
 	__xdata uint8_t	neg = 0;
-	
+
 	ao_gps_skip_sep();
 	if (ao_gps_char == '-') {
 		neg = 1;
@@ -168,7 +168,7 @@ ao_gps(void) __reentrant
 
 		ao_gps_cksum = 0;
 		ao_gps_error = 0;
-		
+
 		/* Skip anything other than GGA */
 		for (i = 0; i < AO_GPS_LEADER; i++) {
 			ao_gps_lexchar();
@@ -181,9 +181,9 @@ ao_gps(void) __reentrant
 		/* Now read the data into the gps data record
 		 *
 		 * $GPGGA,025149.000,4528.1723,N,12244.2480,W,1,05,2.0,103.5,M,-19.5,M,,0000*66
-		 *  
+		 *
 		 * Essential fix data
-		 * 
+		 *
 		 *	   025149.000	time (02:51:49.000 GMT)
 		 *	   4528.1723,N	Latitude 45°28.1723' N
 		 *	   12244.2480,W	Longitude 122°44.2480' W
@@ -211,27 +211,27 @@ ao_gps(void) __reentrant
 		ao_gps_next.minute = ao_gps_decimal(2);
 		ao_gps_next.second = ao_gps_decimal(2);
 		ao_gps_skip_field();	/* skip seconds fraction */
-		
+
 		ao_gps_parse_pos(&ao_gps_next.latitude, 2);
 		ao_gps_parse_flag('N', AO_GPS_LATITUDE_NORTH, 'S', AO_GPS_LATITUDE_SOUTH);
 		ao_gps_parse_pos(&ao_gps_next.longitude, 3);
 		ao_gps_parse_flag('W', AO_GPS_LONGITUDE_WEST, 'E', AO_GPS_LONGITUDE_EAST);
-		
+
 		i = ao_gps_decimal(0xff);
 		if (i == 1)
 			ao_gps_next.flags |= AO_GPS_VALID;
-		
+
 		i = ao_gps_decimal(0xff) << AO_GPS_NUM_SAT_SHIFT;
 		if (i > AO_GPS_NUM_SAT_MASK)
 			i = AO_GPS_NUM_SAT_MASK;
 		ao_gps_next.flags |= i;
-		
+
 		ao_gps_lexchar();
 		ao_gps_skip_field();	/* Horizontal dilution */
-		
+
 		ao_gps_next.altitude = ao_gps_decimal(0xff);
 		ao_gps_skip_field();	/* skip any fractional portion */
-		
+
 		/* Skip remaining fields */
 		while (ao_gps_char != '*' && ao_gps_char != '\n' && ao_gps_char != '\r') {
 			ao_gps_lexchar();
@@ -241,7 +241,7 @@ ao_gps(void) __reentrant
 			uint8_t cksum = ao_gps_cksum ^ '*';
 			if (cksum != ao_gps_hex(2))
 				ao_gps_error = 1;
-		} else 
+		} else
 			ao_gps_error = 1;
 		if (!ao_gps_error) {
 			ao_mutex_get(&ao_gps_mutex);

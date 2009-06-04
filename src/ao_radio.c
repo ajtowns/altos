@@ -284,4 +284,3 @@ ao_radio_init(void)
 	ao_radio_dma_done = 1;
 	ao_radio_dma = ao_dma_alloc(&ao_radio_dma_done);
 }
-

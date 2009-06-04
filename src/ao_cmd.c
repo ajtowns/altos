@@ -69,7 +69,7 @@ readline(void)
 		/* map CR to NL */
 		if (c == '\r')
 			c = '\n';
-		
+
 		if (c == '\n') {
 			if (lex_echo)
 				putchar('\n');
@@ -133,7 +133,7 @@ void
 ao_cmd_hex(void)
 {
 	__xdata uint8_t	r = ao_cmd_lex_error;
-	
+
 	ao_cmd_lex_i = 0;
 	ao_cmd_white();
 	for(;;) {
@@ -156,7 +156,7 @@ void
 ao_cmd_decimal(void)
 {
 	__xdata uint8_t	r = ao_cmd_lex_error;
-	
+
 	ao_cmd_lex_i = 0;
 	ao_cmd_white();
 	for(;;) {

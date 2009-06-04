@@ -114,6 +114,6 @@ main(void)
 	ao_beep_init();
 	ao_led_init();
 	ao_usb_init();
-	
+
 	ao_start_scheduler();
 }

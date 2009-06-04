@@ -1,12 +1,12 @@
 #
 # AltOS build
 #
-# 
+#
 CC=sdcc
 
 VERSION=$(shell git describe)
 
-CFLAGS=--model-small --debug --opt-code-speed 
+CFLAGS=--model-small --debug --opt-code-speed
 
 LDFLAGS=--out-fmt-ihx --code-loc 0x0000 --code-size 0x8000 \
 	--xram-loc 0xf000 --xram-size 0xda2 --iram-size 0xff
@@ -68,7 +68,7 @@ TELE_FAKE_SRC = \
 	ao_adc_fake.c \
 	ao_ee_fake.c
 
-# 
+#
 # Drivers only on TeleMetrum
 #
 TM_DRIVER_SRC = \
@@ -114,7 +114,7 @@ TI_SRC = \
 	$(TELE_COMMON_SRC) \
 	$(TELE_FAKE_SRC) \
 	$(TI_MAIN_SRC)
-	
+
 TT_MAIN_SRC = \
 	ao_teleterra.c
 #
@@ -128,8 +128,8 @@ TT_SRC = \
 	$(TELE_COMMON_SRC) \
 	$(TELE_FAKE_SRC) \
 	$(TT_MAIN_SRC)
-	
-	
+
+
 #
 # Sources for TeleDongle
 #

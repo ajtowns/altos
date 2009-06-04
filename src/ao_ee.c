@@ -214,7 +214,7 @@ ao_ee_read_block(void)
 	ao_ee_recv(ao_ee_data, EE_BLOCK);
 	ao_ee_cs_high();
 }
-	
+
 static void
 ao_ee_flush_internal(void)
 {
@@ -223,7 +223,7 @@ ao_ee_flush_internal(void)
 		ao_ee_block_dirty = 0;
 	}
 }
-	
+
 static void
 ao_ee_fill(uint16_t block)
 {
@@ -240,11 +240,11 @@ ao_ee_write(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
 	uint16_t block;
 	uint16_t this_len;
 	uint8_t	this_off;
-	
+
 	if (pos >= AO_EE_DATA_SIZE || pos + len > AO_EE_DATA_SIZE)
 		return 0;
 	while (len) {
-		
+
 		/* Compute portion of transfer within
 		 * a single block
 		 */
@@ -281,11 +281,11 @@ ao_ee_read(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
 	uint16_t block;
 	uint16_t this_len;
 	uint8_t	this_off;
-	
+
 	if (pos >= AO_EE_DATA_SIZE || pos + len > AO_EE_DATA_SIZE)
 		return 0;
 	while (len) {
-		
+
 		/* Compute portion of transfer within
 		 * a single block
 		 */
@@ -354,7 +354,7 @@ ee_dump(void)
 	__xdata uint8_t	b;
 	__xdata uint16_t block;
 	__xdata uint8_t i;
-	
+
 	ao_cmd_hex();
 	block = ao_cmd_lex_i;
 	if (ao_cmd_status != ao_cmd_success)
@@ -400,7 +400,7 @@ ee_store(void)
 		ao_ee_write(addr, &b, 1);
 		addr++;
 	}
-	ao_ee_flush();	
+	ao_ee_flush();
 }
 
 __code struct ao_cmds ao_ee_cmds[] = {

@@ -44,7 +44,7 @@ ao_adc_isr(void) interrupt 1
 {
 	uint8_t sequence;
 	uint8_t	__xdata *a;
-	
+
 	sequence = (ADCCON2 & ADCCON2_SCH_MASK) >> ADCCON2_SCH_SHIFT;
 	a = (uint8_t __xdata *) (&ao_adc_ring[ao_adc_head].accel + sequence);
 	a[0] = ADCL;
@@ -84,10 +84,9 @@ ao_adc_init(void)
 		  (1 << 3) |	/* battery voltage */
 		  (1 << 4) |	/* drogue sense */
 		  (1 << 5));	/* main sense */
-	
+
 	/* enable interrupts */
 	ADCIF = 0;
 	IEN0 |= IEN0_ADCIE;
 	ao_cmd_register(&ao_adc_cmds[0]);
 }
-

@@ -32,7 +32,7 @@ void
 ao_panic(uint8_t reason)
 {
 	uint8_t	n;
-	
+
 	__critical for (;;) {
 		ao_panic_delay(20);
 		for (n = 0; n < 5; n++) {

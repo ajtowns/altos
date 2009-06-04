@@ -113,12 +113,12 @@ void
 ao_log(void)
 {
 	static __xdata struct ao_log_record	log;
-	
+
 	ao_log_dump_scan();
 
 	while (!ao_log_running)
 		ao_sleep(&ao_log_running);
-	
+
 	log.type = AO_LOG_FLIGHT;
 	log.tick = ao_flight_tick;
 	log.u.flight.ground_accel = ao_ground_accel;
@@ -163,7 +163,7 @@ ao_log(void)
 			if (ao_log_state == ao_flight_landed)
 				ao_log_stop();
 		}
-		
+
 		/* Wait for a while */
 		ao_delay(AO_MS_TO_TICKS(100));
 
