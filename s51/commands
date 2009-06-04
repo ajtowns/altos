@@ -1,0 +1,60 @@
+Listens on port 9756 for a command stream.
+
+Dump commands:
+	di <start> <end> 	- dump imem
+	ds <start> <end>	- dump sprs
+	dx <start> <end>	- dump xaddr
+
+	Returns a string of hex pairs, each preceded by a space,
+	with 8 pairs per line
+
+Memory access commands:
+	set mem <prefix> <start> <end>
+	dump <prefix> <start> <end>
+
+	<prefix> is one of:
+
+		xram	- external ram or external stack
+		rom	- code space
+		iram	- internal ram or stack
+		sfr	- special function register
+
+
+	dump <addr>
+	set bit <addr>
+
+		bit addressable space
+
+Set PC:
+
+	pc <addr>
+
+	Sets PC to specified address
+
+	pc
+
+	Returns current PC
+
+Breakpoints
+
+	break <addr>
+	clear <addr>
+
+Load a file
+
+	file "<filename>"
+
+Execution control:
+
+	run <start>		- run starting at <start>
+	run <start> <stop>	- set temporary bp at <stop>
+	run			- continue
+	next			- step over calls(?)
+	step			- step one instruction
+
+	reset			- reset the simulator
+	res			- synonym?
+
+Error messages:
+
+	start with "Error:"

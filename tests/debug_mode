@@ -1,0 +1,10 @@
+#
+# Debug mode - drive RESET_N low for two clock cycles
+#
+
+C D R
+. D .
+C D .
+. D .
+C D .
+. D R

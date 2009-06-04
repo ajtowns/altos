@@ -1,5 +1,5 @@
 dnl
-dnl  Copyright © 2008 Keith Packard <keithp@keithp.com>
+dnl  Copyright © 2008,2009 Keith Packard <keithp@keithp.com>
 dnl
 dnl  This program is free software; you can redistribute it and/or modify
 dnl  it under the terms of the GNU General Public License as published by
@@ -17,9 +17,9 @@ dnl  59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 dnl
 dnl Process this file with autoconf to create configure.
 
-AC_INIT(aoview)
+AC_INIT(COPYING)
 
-AM_INIT_AUTOMAKE(aoview, 0.1)
+AM_INIT_AUTOMAKE(altos, 0.1)
 AM_MAINTAINER_MODE
 
 dnl ==========================================================================
@@ -43,16 +43,17 @@ if test "x$GCC" = "xyes"; then
 fi
 AC_SUBST(WARN_CFLAGS)
 
-dnl ==========================================================================
+PKG_CHECK_MODULES([GNOME], [gtk+-2.0 libglade-2.0 gconf-2.0])
 
-AM_CONDITIONAL(CROSS_COMPILING, test $cross_compiling = yes)
-
-dnl ==========================================================================
-
-
-PKG_CHECK_MODULES([AOVIEW], [gtk+-2.0 libglade-2.0 gconf-2.0])
+PKG_CHECK_MODULES([LIBUSB], [libusb-1.0])
 
 AC_OUTPUT([
 Makefile
 aoview/Makefile
+lib/Makefile
+ccload/Makefile
+s51/Makefile
+ccmanual/Makefile
+ccdump/Makefile
+aoload/Makefile
 ])

@@ -1,9 +1,9 @@
 VERSION=$(shell git describe)
-AM_CFLAGS=$(AOVIEW_CFLAGS) -I$(top_srcdir)/src -DAOVIEW_VERSION=\"$(VERSION)\"
+AM_CFLAGS=$(GNOME_CFLAGS) -I$(top_srcdir)/src -DAOVIEW_VERSION=\"$(VERSION)\"
 
 bin_PROGRAMS=aoview
 
-aoview_LDADD=$(AOVIEW_LIBS)
+aoview_LDADD=$(GNOME_LIBS)
 
 aoview_SOURCES = \
 	aoview_main.c \

@@ -1,0 +1,360 @@
+#
+# Debug mode - drive RESET_N low for two clock cycles
+#
+C D R
+. D .
+C D .
+. D .
+C D .
+. D R
+
+#
+# Halt 0x44
+#
+
+C . R	0
+. . R
+C D R	1
+. D R
+C . R	0
+. . R
+C . R	0
+. . R
+
+C . R	0
+. . R
+C D R	1
+. D R
+C . R	0
+. . R
+C . R	0
+. . R
+
+# status byte
+
+C D R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+#
+# DEBUG_INSTR
+#
+
+C . R	0
+. . R
+C D R	1
+. D R
+C . R	0
+. . R
+C D R	1
+. D R
+
+C . R	0
+. . R
+C D R	1
+. D R
+C D R	1
+. D R
+C D R	1
+. D R
+
+# MOV 0xfe, 0x02
+
+# 0x75 0x02 0xfe
+
+# 0x75
+C . R	0
+. . R
+C D R	1
+. D R
+C D R	1
+. D R
+C D R	1
+. D R
+
+C . R	0
+. . R
+C D R	1
+. D R
+C . R	0
+. . R
+C D R	1
+. D R
+
+# 0xfe
+C D R	1
+. D R
+C D R	1
+. D R
+C D R	1
+. D R
+C D R	1
+. D R
+
+C D R	1
+. D R
+C D R	1
+. D R
+C D R	1
+. D R
+C . R	0
+. . R
+
+# 0x02
+C . R	0
+. . R
+C . R	0
+. . R
+C . R	0
+. . R
+C . R	0
+. . R
+
+C . R	0
+. . R
+C . R	0
+. . R
+C D R	1
+. D R
+C . R	0
+. . R
+
+# status byte
+
+C D R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+#
+# DEBUG_INSTR
+#
+
+C . R	0
+. . R
+C D R	1
+. D R
+C . R	0
+. . R
+C D R	1
+. D R
+
+C . R	0
+. . R
+C D R	1
+. D R
+C D R	1
+. D R
+C D R	1
+. D R
+
+# MOV 0x90, 0xfd
+# 0x75 0xfd 0x90
+
+# 0x75
+C . R	0
+. . R
+C D R	1
+. D R
+C D R	1
+. D R
+C D R	1
+. D R
+
+C . R	0
+. . R
+C D R	1
+. D R
+C . R	0
+. . R
+C D R	1
+. D R
+
+# 0x90
+C D R	1
+. D R
+C . R	0
+. . R
+C . R	0
+. . R
+C D R	1
+. D R
+
+C . R	0
+. . R
+C . R	0
+. . R
+C . R	0
+. . R
+C . R	0
+. . R
+
+# 0xff
+C D R	1
+. D R
+C D R	1
+. D R
+C D R	1
+. D R
+C D R	1
+. D R
+
+C D R	1
+. D R
+C D R	1
+. D R
+C D R	1
+. D R
+C D R	1
+. D R
+
+# status byte
+
+C D R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+#
+# DEBUG_INSTR
+#
+
+C . R	0
+. . R
+C D R	1
+. D R
+C . R	0
+. . R
+C D R	1
+. D R
+
+C . R	0
+. . R
+C D R	1
+. D R
+C D R	1
+. D R
+C D R	1
+. D R
+
+# MOV 0x90, 0xfd
+# 0x75 0xfd 0x90
+
+# 0x75
+C . R	0
+. . R
+C D R	1
+. D R
+C D R	1
+. D R
+C D R	1
+. D R
+
+C . R	0
+. . R
+C D R	1
+. D R
+C . R	0
+. . R
+C D R	1
+. D R
+
+# 0x90
+C D R	1
+. D R
+C . R	0
+. . R
+C . R	0
+. . R
+C D R	1
+. D R
+
+C . R	0
+. . R
+C . R	0
+. . R
+C . R	0
+. . R
+C . R	0
+. . R
+
+# 0xfd
+C D R	1
+. D R
+C D R	1
+. D R
+C D R	1
+. D R
+C D R	1
+. D R
+
+C D R	1
+. D R
+C D R	1
+. D R
+C . R	0
+. . R
+C D R	1
+. D R
+
+# status byte
+
+C D R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+C - R
+. - R
+
+C D R

@@ -1,0 +1,13 @@
+*.ihx
+*.adb
+*.asm
+*.cdb
+*.lnk
+*.lst
+*.map
+*.mem
+*.rel
+*.rst
+*.sym
+blink-flash
+blink-ram
