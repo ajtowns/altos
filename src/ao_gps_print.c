@@ -23,7 +23,7 @@ ao_gps_print(__xdata struct ao_gps_data *gps_data) __reentrant
 	printf("GPS %2d sat",
 	       (gps_data->flags & AO_GPS_NUM_SAT_MASK) >> AO_GPS_NUM_SAT_SHIFT);;
 	if (gps_data->flags & AO_GPS_VALID) {
-		printf(" %2d:%02d:%02d %2d°%2d.%04d'%c %2d°%2d.%04d'%c %5dm\n",
+		printf(" %2d:%02d:%02d %2d°%02d.%04d'%c %2d°%02d.%04d'%c %5dm\n",
 		       gps_data->hour,
 		       gps_data->minute,
 		       gps_data->second,
