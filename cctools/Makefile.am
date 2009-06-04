@@ -1,1 +1,1 @@
-SUBDIRS=ccload s51 ccmanual ccdump aoload
+SUBDIRS=lib ccload s51 ccmanual ccdump aoload
