@@ -250,6 +250,8 @@ $(TELEDONGLE_DEFS): ao-make-product.5c
 $(TIDONGLE_DEFS): ao-make-product.5c
 	nickle ao-make-product.5c -m altusmetrum.org -p TIDongle -v $(VERSION) > $@
 
+distclean:	clean
+
 clean:
 	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
 	rm -f $(PROGS) $(PCDB) $(PLNK) $(PMAP) $(PMEM) $(PAOM)
