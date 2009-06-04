@@ -1,1 +1,1 @@
-SUBDIRS=src aoview lib ccload s51 ccmanual ccdump aoload
+SUBDIRS=src aoview cctools

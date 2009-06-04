@@ -50,10 +50,11 @@ PKG_CHECK_MODULES([LIBUSB], [libusb-1.0])
 AC_OUTPUT([
 Makefile
 aoview/Makefile
-lib/Makefile
-ccload/Makefile
-s51/Makefile
-ccmanual/Makefile
-ccdump/Makefile
-aoload/Makefile
+cctools/Makefile
+cctools/lib/Makefile
+cctools/ccload/Makefile
+cctools/s51/Makefile
+cctools/ccmanual/Makefile
+cctools/ccdump/Makefile
+cctools/aoload/Makefile
 ])

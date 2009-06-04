@@ -1,7 +1,7 @@
 bin_PROGRAMS=ccmanual
 
-AM_CFLAGS=-I$(top_srcdir)/lib $(LIBUSB_CFLAGS)
-CCMANUAL_LIBS=../lib/libcc.a
+AM_CFLAGS=-I$(top_srcdir)/cctools/lib $(LIBUSB_CFLAGS)
+CCMANUAL_LIBS=$(top_builddir)/cctools/lib/libcc.a
 
 ccmanual_DEPENDENCIES = $(CCMANUAL_LIBS)
 
