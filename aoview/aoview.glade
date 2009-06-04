@@ -157,6 +157,7 @@
                     <child>
                       <widget class="GtkSeparatorMenuItem" id="seperator">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                       </widget>
                     </child>
                     <child>
