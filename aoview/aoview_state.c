@@ -56,15 +56,20 @@ aoview_great_circle (double start_lat, double start_lon,
 }
 
 static void
-aoview_state_add_deg(char *label, double deg)
+aoview_state_add_deg(char *label, double deg, char pos, char neg)
 {
 	double	int_part;
 	double	min;
+	char	sign = pos;
 
+	if (deg < 0) {
+		deg = -deg;
+		sign = neg;
+	}
 	int_part = floor (deg);
 	min = (deg - int_part) * 60.0;
-	aoview_table_add_row(label, "%d°%lf'",
-			     (int) int_part, min);
+	aoview_table_add_row(label, "%d°%lf'%c",
+			     (int) int_part, min, sign);
 
 }
 
@@ -139,8 +144,8 @@ aoview_state_notify(struct aostate *state)
 	aoview_table_add_row("Pad altitude", "%dm", aoview_pres_to_altitude(state->ground_pres));
 	aoview_table_add_row("Satellites", "%d", state->nsat);
 	if (state->locked) {
-		aoview_state_add_deg("Latitude", state->lat);
-		aoview_state_add_deg("Longitude", state->lon);
+		aoview_state_add_deg("Latitude", state->lat, 'N', 'S');
+		aoview_state_add_deg("Longitude", state->lon, 'E', 'W');
 		aoview_table_add_row("GPS alt", "%d", state->alt);
 		aoview_table_add_row("GPS time", "%02d:%02d:%02d",
 				     state->gps_time.hour,
@@ -154,8 +159,8 @@ aoview_state_notify(struct aostate *state)
 		aoview_table_add_row("GPS", "unlocked");
 	}
 	if (npad_gps) {
-		aoview_state_add_deg("Pad latitude", pad_lat);
-		aoview_state_add_deg("Pad longitude", pad_lon);
+		aoview_state_add_deg("Pad latitude", pad_lat, 'N', 'S');
+		aoview_state_add_deg("Pad longitude", pad_lon, 'E', 'W');
 		aoview_table_add_row("Pad GPS alt", "%gm", pad_alt);
 	}
 	aoview_table_finish();

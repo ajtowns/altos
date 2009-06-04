@@ -88,8 +88,7 @@ aoview_monitor_parse(char *line)
 		return;
 	aoview_parse_string(state.callsign, sizeof (state.callsign), words[1]);
 	aoview_parse_int(&state.serial, words[3]);
-	if (!aoview_log_get_serial())
-		aoview_log_set_serial(state.serial);
+	aoview_log_set_serial(state.serial);
 
 	aoview_parse_int(&state.rssi, words[5]);
 	aoview_parse_string(state.state, sizeof (state.state), words[9]);

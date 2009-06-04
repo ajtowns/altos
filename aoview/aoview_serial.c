@@ -259,6 +259,7 @@ aoview_serial_close(struct aoview_serial *serial)
 	g_source_remove_poll(&serial->source, &serial->poll_fd);
 	g_source_destroy(&serial->source);
 	g_source_unref(&serial->source);
+	free(serial);
 }
 
 void

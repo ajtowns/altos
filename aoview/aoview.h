@@ -178,6 +178,9 @@ aoview_file_finish(struct aoview_file *file);
 gboolean
 aoview_file_start(struct aoview_file *file);
 
+const char *
+aoview_file_name(struct aoview_file *file);
+
 void
 aoview_file_set_serial(struct aoview_file *file, int serial);
 
@@ -198,5 +201,13 @@ aoview_file_destroy(struct aoview_file *file);
 
 void
 aoview_file_init(GladeXML *xml);
+
+/* aoview_eeprom.c */
+
+gboolean
+aoview_eeprom_save(const char *device);
+
+void
+aoview_eeprom_init(GladeXML *xml);
 
 #endif /* _AOVIEW_H_ */

@@ -59,7 +59,7 @@ aoview_log_init(GladeXML *xml)
 {
 	GtkWidget	*log_new;
 
-	aoview_log = aoview_file_new("log");
+	aoview_log = aoview_file_new("telem");
 	assert(aoview_log);
 
 	log_new = glade_xml_get_widget(xml, "log_new");

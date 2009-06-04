@@ -68,6 +68,12 @@ aoview_file_finish(struct aoview_file *file)
 	file->failed = 0;
 }
 
+const char *
+aoview_file_name(struct aoview_file *file)
+{
+	return file->name;
+}
+
 static GtkMessageDialog *file_fail_dialog;
 
 static void

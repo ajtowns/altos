@@ -62,6 +62,8 @@ aoview_dev_open_failed(char *name)
 	gtk_widget_hide(GTK_WIDGET(dev_open_fail_dialog));
 }
 
+gboolean	dialog_save_log;
+
 static void
 aoview_dev_selected(GtkTreeModel *model,
 		    GtkTreePath *path,
@@ -72,8 +74,14 @@ aoview_dev_selected(GtkTreeModel *model,
 	gtk_tree_model_get(model, iter,
 			   2, &string,
 			   -1);
-	if (!aoview_monitor_connect(string))
-		aoview_dev_open_failed(string);
+	if (dialog_save_log) {
+		dialog_save_log = FALSE;
+		if (!aoview_eeprom_save(string))
+			aoview_dev_open_failed(string);
+	} else {
+		if (!aoview_monitor_connect(string))
+			aoview_dev_open_failed(string);
+	}
 }
 
 static GtkWidget	*dialog;
@@ -90,7 +98,6 @@ aoview_dev_dialog_connect(GtkWidget *widget, gpointer data)
 	gtk_tree_selection_selected_foreach(tree_selection,
 					    aoview_dev_selected,
 					    data);
-
 	gtk_widget_hide(dialog);
 }
 
@@ -98,6 +105,13 @@ static void
 aoview_dev_disconnect(GtkWidget *widget)
 {
 	aoview_monitor_disconnect();
+}
+
+static void
+aoview_dev_savelog(GtkWidget *widget, gpointer data)
+{
+	dialog_save_log = TRUE;
+	gtk_widget_show(dialog);
 }
 
 #define _(a) a
@@ -109,6 +123,7 @@ aoview_dev_dialog_init(GladeXML *xml)
 	GtkWidget	*connect_button;
 	GtkTreeSelection	*dev_selection;
 	GtkWidget	*ao_disconnect;
+	GtkWidget	*ao_savelog;
 
 	dialog = glade_xml_get_widget(xml, "device_connect_dialog");
 	assert(dialog);
@@ -142,6 +157,12 @@ aoview_dev_dialog_init(GladeXML *xml)
 			 G_CALLBACK(aoview_dev_disconnect),
 			 ao_disconnect);
 
+	ao_savelog = glade_xml_get_widget(xml, "ao_savelog");
+	assert(ao_savelog);
+
+	g_signal_connect(G_OBJECT(ao_savelog), "activate",
+			 G_CALLBACK(aoview_dev_savelog),
+			 dialog);
 	dev_open_fail_dialog = GTK_MESSAGE_DIALOG(glade_xml_get_widget(xml, "dev_open_fail_dialog"));
 	assert(dev_open_fail_dialog);
 }

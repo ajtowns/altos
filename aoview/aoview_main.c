@@ -87,6 +87,8 @@ int main(int argc, char **argv)
 
 	aoview_table_init(xml);
 
+	aoview_eeprom_init(xml);
+
 	gtk_main();
 
 	return 0;
