@@ -343,7 +343,7 @@ cc_usb_open(char *tty)
 	save_termios = termios;
 	cfmakeraw(&termios);
 	tcsetattr(cc->fd, TCSAFLUSH, &termios);
-	cc_usb_printf(cc, "E 0\n");
+	cc_usb_printf(cc, "E 0\nm 0\n");
 	cc_usb_sync(cc);
 	sleep(1);
 	cc_usb_sync(cc);
