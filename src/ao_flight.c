@@ -216,7 +216,7 @@ ao_flight(void)
 			ao_old_vel = ao_flight_vel;
 			ao_old_vel_tick = ao_flight_tick;
 
-			/* Go to launchpad state if the nose is pointing up */
+			/* Go to pad state if the nose is pointing up */
 			ao_config_get();
 			if (ao_flight_accel < ao_config.accel_zero_g - ACCEL_NOSE_UP) {
 
@@ -229,7 +229,7 @@ ao_flight(void)
 				 */
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_PAD);
 
-				ao_flight_state = ao_flight_launchpad;
+				ao_flight_state = ao_flight_pad;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			} else {
 				ao_flight_state = ao_flight_idle;
@@ -242,7 +242,7 @@ ao_flight(void)
 			/* signal successful initialization by turning off the LED */
 			ao_led_off(AO_LED_RED);
 			break;
-		case ao_flight_launchpad:
+		case ao_flight_pad:
 
 			/* Trim velocity
 			 *
@@ -283,7 +283,7 @@ ao_flight(void)
 			break;
 		case ao_flight_boost:
 
-			/* boost to coast:
+			/* boost to fast:
 			 *
 			 * accelerometer: start to fall at > 1/4 G
 			 *              OR
@@ -296,14 +296,14 @@ ao_flight(void)
 			if (ao_flight_accel > ao_ground_accel + (ACCEL_G >> 2) ||
 			    (int16_t) (ao_flight_tick - ao_launch_tick) > BOOST_TICKS_MAX)
 			{
-				ao_flight_state = ao_flight_coast;
+				ao_flight_state = ao_flight_fast;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 				break;
 			}
 			break;
-		case ao_flight_coast:
+		case ao_flight_fast:
 
-			/* coast to apogee detect:
+			/* fast to coast:
 			 *
 			 * accelerometer: integrated velocity < 200 m/s
 			 *               OR

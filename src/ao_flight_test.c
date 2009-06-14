@@ -48,9 +48,9 @@ struct ao_adc {
 enum ao_flight_state {
 	ao_flight_startup = 0,
 	ao_flight_idle = 1,
-	ao_flight_launchpad = 2,
+	ao_flight_pad = 2,
 	ao_flight_boost = 3,
-	ao_flight_coast = 4,
+	ao_flight_fast = 4,
 	ao_flight_apogee = 5,
 	ao_flight_drogue = 6,
 	ao_flight_main = 7,
@@ -105,7 +105,7 @@ void
 ao_sleep(void *wchan);
 
 const char const * const ao_state_names[] = {
-	"startup", "idle", "pad", "boost", "coast",
+	"startup", "idle", "pad", "boost", "fast",
 	"apogee", "drogue", "main", "landed", "invalid"
 };
 
