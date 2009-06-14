@@ -23,7 +23,7 @@ static const char * __xdata flight_reports[] = {
 	".--.",		/* pad 'P' */
 	"-...",		/* boost 'B' */
 	"..-.",		/* fast 'F' */
-	".-",		/* apogee 'A' */
+	"-.-.",		/* coast 'C' */
 	"-..",		/* drogue 'D' */
 	"--",		/* main 'M' */
 	".-..",		/* landed 'L' */

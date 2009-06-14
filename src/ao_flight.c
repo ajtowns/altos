@@ -325,13 +325,13 @@ ao_flight(void)
 				 * apogee detect
 				 */
 				ao_min_vel = abs(ao_flight_vel);
-				ao_flight_state = ao_flight_apogee;
+				ao_flight_state = ao_flight_coast;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			break;
-		case ao_flight_apogee:
+		case ao_flight_coast:
 
-			/* apogee detect to drogue deploy:
+			/* apogee detect: coast to drogue deploy:
 			 *
 			 * accelerometer: abs(velocity) > min_velocity + 2m/s
 			 *               OR

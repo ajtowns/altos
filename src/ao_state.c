@@ -19,5 +19,5 @@
 
 const char const * const ao_state_names[] = {
 	"startup", "idle", "pad", "boost", "fast",
-	"apogee", "drogue", "main", "landed", "invalid"
+	"coast", "drogue", "main", "landed", "invalid"
 };
