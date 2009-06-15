@@ -60,9 +60,15 @@ load_hex(char *dir, char *file)
 }
 
 static int
-dir_filter_tty(const struct dirent *d)
+dir_filter_tty_colon(const struct dirent *d)
 {
 	return strncmp(d->d_name, "tty:", 4) == 0;
+}
+
+static int
+dir_filter_tty(const struct dirent *d)
+{
+	return strncmp(d->d_name, "tty", 3) == 0;
 }
 
 static char *
@@ -76,6 +82,7 @@ usb_tty(char *sys)
 	int num_interfaces;
 	char endpoint_base[20];
 	char *endpoint_full;
+	char *tty_dir;
 	int ntty;
 	char *tty;
 
@@ -87,12 +94,29 @@ usb_tty(char *sys)
 			sprintf(endpoint_base, "%s:%d.%d",
 				base, config, interface);
 			endpoint_full = aoview_fullname(sys, endpoint_base);
+
+			/* Check for tty:ttyACMx style names
+			 */
 			ntty = scandir(endpoint_full, &namelist,
+				       dir_filter_tty_colon,
+				       alphasort);
+			if (ntty > 0) {
+				free(endpoint_full);
+				tty = aoview_fullname("/dev", namelist[0]->d_name + 4);
+				free(namelist);
+				return tty;
+			}
+
+			/* Check for tty/ttyACMx style names
+			 */
+			tty_dir = aoview_fullname(endpoint_full, "tty");
+			free(endpoint_full);
+			ntty = scandir(tty_dir, &namelist,
 				       dir_filter_tty,
 				       alphasort);
-			free(endpoint_full);
+			free (tty_dir);
 			if (ntty > 0) {
-				tty = aoview_fullname("/dev", namelist[0]->d_name + 4);
+				tty = aoview_fullname("/dev", namelist[0]->d_name);
 				free(namelist);
 				return tty;
 			}
