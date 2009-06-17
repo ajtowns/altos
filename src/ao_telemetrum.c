@@ -20,9 +20,7 @@
 void
 main(void)
 {
-	CLKCON = 0;
-	while (!(SLEEP & SLEEP_XOSC_STB))
-		;
+	ao_clock_init();
 
 	/* Turn on the red LED until the system is stable */
 	ao_led_init(AO_LED_RED|AO_LED_GREEN);

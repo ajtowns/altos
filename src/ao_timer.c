@@ -83,3 +83,24 @@ ao_timer_init(void)
 	/* enable timer 1 in module mode, dividing by 8 */
 	T1CTL = T1CTL_MODE_MODULO | T1CTL_DIV_8;
 }
+
+/*
+ * AltOS always cranks the clock to the max frequency
+ */
+void
+ao_clock_init(void)
+{
+	/* Switch system clock to crystal oscilator */
+	CLKCON = (CLKCON & ~CLKCON_OSC_MASK) | (CLKCON_OSC_XTAL);
+
+	while (!(SLEEP & SLEEP_XOSC_STB))
+		;
+
+	/* Crank up the timer tick and system clock speed */
+	CLKCON = ((CLKCON & ~(CLKCON_TICKSPD_MASK | CLKCON_CLKSPD_MASK)) |
+		  (CLKCON_TICKSPD_1 | CLKCON_CLKSPD_1));
+
+	while ((CLKCON & (CLKCON_TICKSPD_MASK|CLKCON_CLKSPD_MASK)) !=
+	       (CLKCON_TICKSPD_1 | CLKCON_CLKSPD_1))
+		;
+}

@@ -121,6 +121,10 @@ ao_timer_isr(void) interrupt 9;
 void
 ao_timer_init(void);
 
+/* Initialize the hardware clock. Must be called first */
+void
+ao_clock_init(void);
+
 /*
  * ao_adc.c
  */

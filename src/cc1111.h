@@ -81,6 +81,35 @@ sfr at 0x9A IEN2;		/* Interrupt Enable 2 Register */
 #define IEN2_USBIE		(1 << 1)	/* USB interrupt enable */
 #define IEN2_RFIE		(1 << 0)	/* RF general interrupt enable */
 
+/* CLKCON 0xC6 */
+sfr at 0xC6 CLKCON;		/* Clock Control */
+
+#define CLKCON_OSC32K_RC	(1 << 7)
+#define CLKCON_OSC32K_XTAL	(0 << 7)
+#define CLKCON_OSC32K_MASK	(1 << 7)
+#define CLKCON_OSC_RC		(1 << 6)
+#define CLKCON_OSC_XTAL		(0 << 6)
+#define CLKCON_OSC_MASK		(1 << 6)
+#define CLKCON_TICKSPD_MASK	(7 << 3)
+# define CLKCON_TICKSPD_1	(0 << 3)
+# define CLKCON_TICKSPD_1_2	(1 << 3)
+# define CLKCON_TICKSPD_1_4	(2 << 3)
+# define CLKCON_TICKSPD_1_8	(3 << 3)
+# define CLKCON_TICKSPD_1_16	(4 << 3)
+# define CLKCON_TICKSPD_1_32	(5 << 3)
+# define CLKCON_TICKSPD_1_64	(6 << 3)
+# define CLKCON_TICKSPD_1_128	(7 << 3)
+
+#define CLKCON_CLKSPD_MASK	(7 << 0)
+# define CLKCON_CLKSPD_1	(0 << 0)
+# define CLKCON_CLKSPD_1_2	(1 << 0)
+# define CLKCON_CLKSPD_1_4	(2 << 0)
+# define CLKCON_CLKSPD_1_8	(3 << 0)
+# define CLKCON_CLKSPD_1_16	(4 << 0)
+# define CLKCON_CLKSPD_1_32	(5 << 0)
+# define CLKCON_CLKSPD_1_64	(6 << 0)
+# define CLKCON_CLKSPD_1_128	(7 << 0)
+
 /* SLEEP 0xBE */
 #define SLEEP_USB_EN		(1 << 7)
 #define SLEEP_XOSC_STB		(1 << 6)
@@ -641,9 +670,6 @@ sbit at 0xa1 P2_1;
 sbit at 0xa2 P2_2;
 sbit at 0xa3 P2_3;
 sbit at 0xa4 P2_4;
-sbit at 0xa5 P2_5;
-sbit at 0xa6 P2_6;
-sbit at 0xa7 P2_7;
 
 /* DMA controller */
 struct cc_dma_channel {
