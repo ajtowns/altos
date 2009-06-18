@@ -57,4 +57,5 @@ cctools/s51/Makefile
 cctools/ccmanual/Makefile
 cctools/ccdump/Makefile
 cctools/aoload/Makefile
+utils/Makefile
 ])

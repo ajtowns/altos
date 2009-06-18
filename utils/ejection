@@ -1,0 +1,64 @@
+#!/usr/bin/env nickle
+
+void main () {
+	real R = 22.16 * 12;	/* in lbf / lbm (gas constant for ffff powder */
+	real T = 3307; /* combustion temperature for BP */
+	real d_mm; /* diameter(mm) */
+	real l_mm; /* length(mm) */
+	real f_N;   /* force(N) */
+	real f_lb;
+	real A_mm²; /* area of bulkhead (mm²) */
+	real A_in²;
+	real V_mm³; /* free volume (mm³) */
+	real V_in³;
+	real M_lb;  /* mass of BP in lb */
+	real M_g;
+	real P_Nmm²;	/* pressure (N/mm²) */
+	real P_lbin²; /* pressure (psi) */
+
+	if (dim(argv) != 4) {
+		File::fprintf(stderr,
+			      "usage: %s diameter(mm) length(mm) force(N)\n",
+			      argv[0]);
+		exit(1);
+	}
+
+	d_mm = string_to_real(argv[1]);
+	l_mm = string_to_real(argv[2]);
+	f_N = string_to_real(argv[3]);
+	f_lb = f_N * 0.22480894;
+
+	A_mm² = pi * (d_mm/2) ** 2;
+	V_mm³ = A_mm² * l_mm;
+
+	A_in² = A_mm² / (25.4**2);
+	V_in³ = V_mm³ / (25.4**3);
+
+	P_Nmm² = f_N / A_mm²;
+
+	P_lbin² = P_Nmm² * 0.22480894 * (25.4 ** 2);
+
+	M_lb = (P_lbin² * V_in³) / (R * T);
+	M_g = M_lb * 453.59237;
+
+	printf ("Input parameters:\n");
+	printf ("    Diameter: %.1g (mm) %.3g (in)\n",
+		d_mm, d_mm / 25.4);
+	printf ("    Length: %.1g (mm) %.3g (in)\n",
+		l_mm, l_mm / 25.4);
+	printf ("    Force: %.1g (N) %.3g (lb)\n",
+		f_N, f_lb);
+
+	printf ("Chamber values:\n");
+	printf ("    Area: %.0f (mm²) %.3g (in²)\n",
+		A_mm², A_in²);
+	printf ("    Volume: %.0f (mm³) %.3g (in³)\n",
+		V_mm³, V_in³);
+	printf ("    Pressure: %.2g (lb/in²) %.5g (N/mm²)\n",
+		P_lbin², P_Nmm²);
+
+	printf ("Results:\n");
+	printf ("    FFFF powder: %.3g (g)\n", M_g);
+}
+
+main();
