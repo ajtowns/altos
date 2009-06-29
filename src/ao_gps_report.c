@@ -40,14 +40,10 @@ ao_gps_report(void)
 		gps_log.u.gps_time.flags = gps_data.flags;
 		ao_log_data(&gps_log);
 		gps_log.type = AO_LOG_GPS_LAT;
-		gps_log.u.gps_latitude.degrees = gps_data.latitude.degrees;
-		gps_log.u.gps_latitude.minutes = gps_data.latitude.minutes;
-		gps_log.u.gps_latitude.minutes_fraction = gps_data.latitude.minutes_fraction;
+		gps_log.u.gps_latitude = gps_data.latitude;
 		ao_log_data(&gps_log);
 		gps_log.type = AO_LOG_GPS_LON;
-		gps_log.u.gps_longitude.degrees = gps_data.longitude.degrees;
-		gps_log.u.gps_longitude.minutes = gps_data.longitude.minutes;
-		gps_log.u.gps_longitude.minutes_fraction = gps_data.longitude.minutes_fraction;
+		gps_log.u.gps_longitude = gps_data.longitude;
 		ao_log_data(&gps_log);
 		gps_log.type = AO_LOG_GPS_ALT;
 		gps_log.u.gps_altitude.altitude = gps_data.altitude;

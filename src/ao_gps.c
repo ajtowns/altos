@@ -17,237 +17,282 @@
 
 #include "ao.h"
 
-#define AO_GPS_LEADER		6
-
-static const char ao_gps_header[] = "GPGGA,";
 __xdata uint8_t ao_gps_mutex;
-static __xdata char ao_gps_char;
-static __xdata uint8_t ao_gps_cksum;
-static __xdata uint8_t ao_gps_error;
-
 __xdata struct ao_gps_data	ao_gps_data;
-static __xdata struct ao_gps_data	ao_gps_next;
 
-const char ao_gps_config[] =
-	"$PSRF103,00,00,01,01*25\r\n"	/* GGA 1 per sec */
-	"$PSRF103,01,00,00,01*25\r\n"	/* GLL disable */
-	"$PSRF103,02,00,00,01*26\r\n"	/* GSA disable */
-	"$PSRF103,03,00,00,01*27\r\n"	/* GSV disable */
-	"$PSRF103,04,00,00,01*20\r\n"	/* RMC disable */
-	"$PSRF103,05,00,00,01*21\r\n";	/* VTG disable */
+const char ao_gps_config[] = {
+	/* Serial param - binary, 4800 baud, 8 bits, 1 stop, no parity */
+	'$', 'P', 'S', 'R', 'F', '1', '0', '0', ',', '0', ',',
+	'4', '8', '0', '0', ',', '8', ',', '1', ',', '0', '*',
+	'0', 'F', '\r','\n',
+
+	0xa0, 0xa2, 0x00, 0x0e,	/* length: 14 bytes */
+	136,			/* mode control */
+	0, 0,			/* reserved */
+	4,			/* degraded mode (disabled) */
+	0, 0,			/* reserved */
+	0, 0,			/* user specified altitude */
+	2,			/* alt hold mode (disabled, require 3d fixes) */
+	0,			/* alt hold source (use last computed altitude) */
+	0,			/* reserved */
+	0,			/* Degraded time out (disabled) */
+	0,			/* Dead Reckoning time out (disabled) */
+	0,			/* Track smoothing (disabled) */
+	0x00, 0x8e, 0xb0, 0xb3,
+
+	0xa0, 0xa2, 0x00, 0x02,	/* length: 2 bytes */
+	143,			/* static navigation */
+	0,			/* disable */
+	0x00, 0x8f, 0xb0, 0xb3,
+
+	0xa0, 0xa2, 0x00, 0x08,	/* length: 8 bytes */
+	166,			/* Set message rate */
+	2,			/* enable/disable all messages */
+	0,			/* message id (ignored) */
+	0,			/* update rate (0 = disable) */
+	0, 0, 0, 0,		/* reserved */
+	0x00, 0xa8, 0xb0, 0xb3,
+
+	0xa0, 0xa2, 0x00, 0x08,	/* length: 8 bytes */
+	166,			/* Set message rate */
+	0,			/* enable/disable one message */
+	41,			/* message 41 */
+	1,			/* once per second */
+	0, 0, 0, 0,		/* reserved */
+	0x00, 0xd0, 0xb0, 0xb3,
+};
+
+#define NAV_TYPE_GPS_FIX_TYPE_MASK			(7 << 0)
+#define NAV_TYPE_NO_FIX					(0 << 0)
+#define NAV_TYPE_SV_KF					(1 << 0)
+#define NAV_TYPE_2_SV_KF				(2 << 0)
+#define NAV_TYPE_3_SV_KF				(3 << 0)
+#define NAV_TYPE_4_SV_KF				(4 << 0)
+#define NAV_TYPE_2D_LEAST_SQUARES			(5 << 0)
+#define NAV_TYPE_3D_LEAST_SQUARES			(6 << 0)
+#define NAV_TYPE_DR					(7 << 0)
+#define NAV_TYPE_TRICKLE_POWER				(1 << 3)
+#define NAV_TYPE_ALTITUDE_HOLD_MASK			(3 << 4)
+#define NAV_TYPE_ALTITUDE_HOLD_NONE			(0 << 4)
+#define NAV_TYPE_ALTITUDE_HOLD_KF			(1 << 4)
+#define NAV_TYPE_ALTITUDE_HOLD_USER			(2 << 4)
+#define NAV_TYPE_ALTITUDE_HOLD_ALWAYS			(3 << 4)
+#define NAV_TYPE_DOP_LIMIT_EXCEEDED			(1 << 6)
+#define NAV_TYPE_DGPS_APPLIED				(1 << 7)
+#define NAV_TYPE_SENSOR_DR				(1 << 8)
+#define NAV_TYPE_OVERDETERMINED				(1 << 9)
+#define NAV_TYPE_DR_TIMEOUT_EXCEEDED			(1 << 10)
+#define NAV_TYPE_FIX_MI_EDIT				(1 << 11)
+#define NAV_TYPE_INVALID_VELOCITY			(1 << 12)
+#define NAV_TYPE_ALTITUDE_HOLD_DISABLED			(1 << 13)
+#define NAV_TYPE_DR_ERROR_STATUS_MASK			(3 << 14)
+#define NAV_TYPE_DR_ERROR_STATUS_GPS_ONLY		(0 << 14)
+#define NAV_TYPE_DR_ERROR_STATUS_DR_FROM_GPS		(1 << 14)
+#define NAV_TYPE_DR_ERROR_STATUS_DR_SENSOR_ERROR	(2 << 14)
+#define NAV_TYPE_DR_ERROR_STATUS_DR_IN_TEST		(3 << 14)
+
+struct sirf_geodetic_nav_data {
+	uint16_t	nav_type;
+	uint16_t	utc_year;
+	uint8_t 	utc_month;
+	uint8_t 	utc_day;
+	uint8_t 	utc_hour;
+	uint8_t 	utc_minute;
+	uint16_t 	utc_second;
+	int32_t		lat;
+	int32_t		lon;
+	int32_t		alt_msl;
+	uint16_t	ground_speed;
+	uint16_t	course;
+	int16_t		climb_rate;
+	uint32_t	h_error;
+	uint32_t	v_error;
+	uint8_t		num_sv;
+	uint8_t		hdop;
+};
+
+static __xdata struct sirf_geodetic_nav_data	ao_sirf_data;
+
+static __pdata uint16_t ao_sirf_cksum;
+static __pdata uint16_t ao_sirf_len;
+
+#define ao_sirf_byte()	((uint8_t) ao_serial_getchar())
+
+static uint8_t data_byte(void)
+{
+	uint8_t	c = ao_sirf_byte();
+	--ao_sirf_len;
+	ao_sirf_cksum += c;
+	return c;
+}
+
+static void sirf_u16(uint8_t offset)
+{
+	uint16_t __xdata *ptr = (uint16_t __xdata *) (((char __xdata *) &ao_sirf_data) + offset);
+	uint16_t val;
+
+	val = data_byte() << 8;
+	val |= data_byte ();
+	*ptr = val;
+}
+
+static void sirf_u8(uint8_t offset)
+{
+	uint8_t __xdata *ptr = (uint8_t __xdata *) (((char __xdata *) &ao_sirf_data) + offset);
+	uint8_t val;
+
+	val = data_byte ();
+	*ptr = val;
+}
+
+static void sirf_u32(uint8_t offset)
+{
+	uint32_t __xdata *ptr = (uint32_t __xdata *) (((char __xdata *) &ao_sirf_data) + offset);
+	uint32_t val;
+
+	val = ((uint32_t) data_byte ()) << 24;
+	val |= ((uint32_t) data_byte ()) << 16;
+	val |= ((uint32_t) data_byte ()) << 8;
+	val |= ((uint32_t) data_byte ());
+	*ptr = val;
+}
+
+static void sirf_discard(uint8_t len)
+{
+	while (len--)
+		data_byte();
+}
+
+#define SIRF_END	0
+#define SIRF_DISCARD	1
+#define SIRF_U8		2
+#define SIRF_U16	3
+#define SIRF_U32	4
+
+struct sirf_packet_parse {
+	uint8_t	type;
+	uint8_t	offset;
+};
+
+static const struct sirf_packet_parse geodetic_nav_data_packet[] = {
+	{ SIRF_DISCARD, 2 },							/* 1 nav valid */
+	{ SIRF_U16, offsetof(struct sirf_geodetic_nav_data, nav_type) },	/* 3 */
+	{ SIRF_DISCARD, 6 },							/* 5 week number, time of week */
+	{ SIRF_U16, offsetof(struct sirf_geodetic_nav_data, utc_year) },	/* 11 */
+	{ SIRF_U8, offsetof(struct sirf_geodetic_nav_data, utc_month) },	/* 13 */
+	{ SIRF_U8, offsetof(struct sirf_geodetic_nav_data, utc_day) },		/* 14 */
+	{ SIRF_U8, offsetof(struct sirf_geodetic_nav_data, utc_hour) },		/* 15 */
+	{ SIRF_U8, offsetof(struct sirf_geodetic_nav_data, utc_minute) },	/* 16 */
+	{ SIRF_U16, offsetof(struct sirf_geodetic_nav_data, utc_second) },	/* 17 */
+	{ SIRF_DISCARD, 4 },	/* satellite id list */				/* 19 */
+	{ SIRF_U32, offsetof(struct sirf_geodetic_nav_data, lat) },		/* 23 */
+	{ SIRF_U32, offsetof(struct sirf_geodetic_nav_data, lon) },		/* 27 */
+	{ SIRF_DISCARD, 4 },	/* altitude from ellipsoid */			/* 31 */
+	{ SIRF_U32, offsetof(struct sirf_geodetic_nav_data, alt_msl) },		/* 35 */
+	{ SIRF_DISCARD, 1 },	/* map datum */					/* 39 */
+	{ SIRF_U16, offsetof(struct sirf_geodetic_nav_data, ground_speed) },	/* 40 */
+	{ SIRF_U16, offsetof(struct sirf_geodetic_nav_data, course) },		/* 42 */
+	{ SIRF_DISCARD, 2 },	/* magnetic variation */			/* 44 */
+	{ SIRF_U16, offsetof(struct sirf_geodetic_nav_data, climb_rate) },	/* 46 */
+	{ SIRF_DISCARD, 2 },	/* turn rate */					/* 48 */
+	{ SIRF_U32, offsetof(struct sirf_geodetic_nav_data, h_error) },		/* 50 */
+	{ SIRF_U32, offsetof(struct sirf_geodetic_nav_data, v_error) },		/* 54 */
+	{ SIRF_DISCARD, 30 },	/* time error, h_vel error, clock_bias,
+				   clock bias error, clock drift,
+				   clock drift error, distance,
+				   distance error, heading error */		/* 58 */
+	{ SIRF_U8, offsetof(struct sirf_geodetic_nav_data, num_sv) },		/* 88 */
+	{ SIRF_U8, offsetof(struct sirf_geodetic_nav_data, hdop) },		/* 89 */
+	{ SIRF_DISCARD, 1 },	/* additional mode info */			/* 90 */
+	{ SIRF_END, 0 },							/* 91 */
+};
 
 static void
-ao_gps_lexchar(void)
+ao_sirf_parse_41(void)
 {
-	if (ao_gps_error)
-		ao_gps_char = '\n';
-	else
-		ao_gps_char = ao_serial_getchar();
-	ao_gps_cksum ^= ao_gps_char;
-}
+	uint8_t	i, offset;
 
-void
-ao_gps_skip(void)
-{
-	while (ao_gps_char >= '0')
-		ao_gps_lexchar();
-}
-
-void
-ao_gps_skip_field(void)
-{
-	while (ao_gps_char != ',' && ao_gps_char != '*' && ao_gps_char != '\n')
-		ao_gps_lexchar();
-}
-
-void
-ao_gps_skip_sep(void)
-{
-	while (ao_gps_char == ',' || ao_gps_char == '.' || ao_gps_char == '*')
-		ao_gps_lexchar();
-}
-
-__xdata static uint8_t ao_gps_num_width;
-
-static int16_t
-ao_gps_decimal(uint8_t max_width)
-{
-	int16_t	v;
-	__xdata uint8_t	neg = 0;
-
-	ao_gps_skip_sep();
-	if (ao_gps_char == '-') {
-		neg = 1;
-		ao_gps_lexchar();
-	}
-	v = 0;
-	ao_gps_num_width = 0;
-	while (ao_gps_num_width < max_width) {
-		if (ao_gps_char < '0' || '9' < ao_gps_char)
+	for (i = 0; ; i++) {
+		offset = geodetic_nav_data_packet[i].offset;
+		switch (geodetic_nav_data_packet[i].type) {
+		case SIRF_END:
+			return;
+		case SIRF_DISCARD:
+			sirf_discard(offset);
 			break;
-		v = v * (int16_t) 10 + ao_gps_char - '0';
-		ao_gps_num_width++;
-		ao_gps_lexchar();
-	}
-	if (neg)
-		v = -v;
-	return v;
-}
-
-static uint8_t
-ao_gps_hex(uint8_t max_width)
-{
-	uint8_t	v, d;
-
-	ao_gps_skip_sep();
-	v = 0;
-	ao_gps_num_width = 0;
-	while (ao_gps_num_width < max_width) {
-		if ('0' <= ao_gps_char && ao_gps_char <= '9')
-			d = ao_gps_char - '0';
-		else if ('A' <= ao_gps_char && ao_gps_char <= 'F')
-			d = ao_gps_char - 'A' + 10;
-		else if ('a' <= ao_gps_char && ao_gps_char <= 'f')
-			d = ao_gps_char - 'a' + 10;
-		else
+		case SIRF_U8:
+			sirf_u8(offset);
 			break;
-		v = (v << 4) | d;
-		ao_gps_num_width++;
-		ao_gps_lexchar();
-	}
-	return v;
-}
-
-static void
-ao_gps_parse_pos(__xdata struct ao_gps_pos * pos, uint8_t deg_width) __reentrant
-{
-	pos->degrees = ao_gps_decimal(deg_width);
-	pos->minutes = ao_gps_decimal(2);
-	if (ao_gps_char == '.') {
-		pos->minutes_fraction = ao_gps_decimal(4);
-		while (ao_gps_num_width < 4) {
-			pos->minutes_fraction *= 10;
-			ao_gps_num_width++;
+		case SIRF_U16:
+			sirf_u16(offset);
+			break;
+		case SIRF_U32:
+			sirf_u32(offset);
+			break;
 		}
-	} else {
-		pos->minutes_fraction = 0;
-		if (ao_gps_char != ',')
-			ao_gps_error = 1;
 	}
 }
-
-static void
-ao_gps_parse_flag(char yes_c, uint8_t yes, char no_c, uint8_t no) __reentrant
-{
-	ao_gps_skip_sep();
-	if (ao_gps_char == yes_c)
-		ao_gps_next.flags |= yes;
-	else if (ao_gps_char == no_c)
-		ao_gps_next.flags |= no;
-	else
-		ao_gps_error = 1;
-	ao_gps_lexchar();
-}
-
 
 void
 ao_gps(void) __reentrant
 {
 	char	c;
 	uint8_t	i;
+	uint16_t cksum;
 
 	for (i = 0; (c = ao_gps_config[i]); i++)
 		ao_serial_putchar(c);
 	for (;;) {
 		/* Locate the begining of the next record */
-		for (;;) {
-			c = ao_serial_getchar();
-			if (c == '$')
-				break;
-		}
-
-		ao_gps_cksum = 0;
-		ao_gps_error = 0;
-
-		/* Skip anything other than GGA */
-		for (i = 0; i < AO_GPS_LEADER; i++) {
-			ao_gps_lexchar();
-			if (ao_gps_char != ao_gps_header[i])
-				break;
-		}
-		if (i != AO_GPS_LEADER)
+		while (ao_sirf_byte() != 0xa0)
+			;
+		if (ao_sirf_byte() != 0xa2)
 			continue;
 
-		/* Now read the data into the gps data record
-		 *
-		 * $GPGGA,025149.000,4528.1723,N,12244.2480,W,1,05,2.0,103.5,M,-19.5,M,,0000*66
-		 *
-		 * Essential fix data
-		 *
-		 *	   025149.000	time (02:51:49.000 GMT)
-		 *	   4528.1723,N	Latitude 45°28.1723' N
-		 *	   12244.2480,W	Longitude 122°44.2480' W
-		 *	   1		Fix quality:
-		 *				   0 = invalid
-		 *				   1 = GPS fix (SPS)
-		 *				   2 = DGPS fix
-		 *				   3 = PPS fix
-		 *				   4 = Real Time Kinematic
-		 *				   5 = Float RTK
-		 *				   6 = estimated (dead reckoning)
-		 *				   7 = Manual input mode
-		 *				   8 = Simulation mode
-		 *	   05		Number of satellites (5)
-		 *	   2.0		Horizontal dilution
-		 *	   103.5,M		Altitude, 103.5M above msl
-		 *	   -19.5,M		Height of geoid above WGS84 ellipsoid
-		 *	   ?		time in seconds since last DGPS update
-		 *	   0000		DGPS station ID
-		 *	   *66		checksum
-		 */
+		/* Length */
+		ao_sirf_len = ao_sirf_byte() << 8;
+		ao_sirf_len |= ao_sirf_byte();
+		if (ao_sirf_len > 1023)
+			continue;
 
-		ao_gps_next.flags = 0;
-		ao_gps_next.hour = ao_gps_decimal(2);
-		ao_gps_next.minute = ao_gps_decimal(2);
-		ao_gps_next.second = ao_gps_decimal(2);
-		ao_gps_skip_field();	/* skip seconds fraction */
+		ao_sirf_cksum = 0;
 
-		ao_gps_parse_pos(&ao_gps_next.latitude, 2);
-		ao_gps_parse_flag('N', AO_GPS_LATITUDE_NORTH, 'S', AO_GPS_LATITUDE_SOUTH);
-		ao_gps_parse_pos(&ao_gps_next.longitude, 3);
-		ao_gps_parse_flag('W', AO_GPS_LONGITUDE_WEST, 'E', AO_GPS_LONGITUDE_EAST);
+		/* message ID */
+		i = data_byte ();							/* 0 */
 
-		i = ao_gps_decimal(0xff);
-		if (i == 1)
-			ao_gps_next.flags |= AO_GPS_VALID;
-
-		i = ao_gps_decimal(0xff) << AO_GPS_NUM_SAT_SHIFT;
-		if (i > AO_GPS_NUM_SAT_MASK)
-			i = AO_GPS_NUM_SAT_MASK;
-		ao_gps_next.flags |= i;
-
-		ao_gps_lexchar();
-		ao_gps_skip_field();	/* Horizontal dilution */
-
-		ao_gps_next.altitude = ao_gps_decimal(0xff);
-		ao_gps_skip_field();	/* skip any fractional portion */
-
-		/* Skip remaining fields */
-		while (ao_gps_char != '*' && ao_gps_char != '\n' && ao_gps_char != '\r') {
-			ao_gps_lexchar();
-			ao_gps_skip_field();
+		switch (i) {
+		case 41:
+			if (ao_sirf_len < 91)
+				break;
+			ao_sirf_parse_41();
+			break;
 		}
-		if (ao_gps_char == '*') {
-			uint8_t cksum = ao_gps_cksum ^ '*';
-			if (cksum != ao_gps_hex(2))
-				ao_gps_error = 1;
-		} else
-			ao_gps_error = 1;
-		if (!ao_gps_error) {
+		if (ao_sirf_len != 0)
+			continue;
+
+		/* verify checksum and end sequence */
+		ao_sirf_cksum &= 0x7fff;
+		cksum = ao_sirf_byte() << 8;
+		cksum |= ao_sirf_byte();
+		if (ao_sirf_cksum != cksum)
+			continue;
+		if (ao_sirf_byte() != 0xb0)
+			continue;
+		if (ao_sirf_byte() != 0xb3)
+			continue;
+
+		switch (i) {
+		case 41:
 			ao_mutex_get(&ao_gps_mutex);
-			memcpy(&ao_gps_data, &ao_gps_next, sizeof (struct ao_gps_data));
+			ao_gps_data.hour = ao_sirf_data.utc_hour;
+			ao_gps_data.minute = ao_sirf_data.utc_minute;
+			ao_gps_data.second = ao_sirf_data.utc_second / 1000;
+			ao_gps_data.flags = (ao_sirf_data.num_sv << AO_GPS_NUM_SAT_SHIFT) & AO_GPS_NUM_SAT_MASK;
+			if ((ao_sirf_data.nav_type & NAV_TYPE_GPS_FIX_TYPE_MASK) >= NAV_TYPE_4_SV_KF)
+				ao_gps_data.flags |= AO_GPS_VALID;
 			ao_mutex_put(&ao_gps_mutex);
 			ao_wakeup(&ao_gps_data);
+			break;
 		}
 	}
 }

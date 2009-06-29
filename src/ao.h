@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <stddef.h>
 #include "cc1111.h"
 
 #define TRUE 1
@@ -423,14 +424,6 @@ ao_ee_init(void);
  * ao_log.c
  */
 
-/* Structure containing GPS position, either lat or lon */
-
-struct ao_gps_pos {
-	uint8_t	degrees;
-	uint8_t	minutes;
-	uint16_t minutes_fraction;	/* in units of 1/10000 minutes */
-};
-
 /*
  * The data log is recorded in the eeprom as a sequence
  * of data packets.
@@ -499,8 +492,8 @@ struct ao_log_record {
 			uint8_t		second;
 			uint8_t		flags;
 		} gps_time;
-		struct ao_gps_pos gps_latitude;
-		struct ao_gps_pos gps_longitude;
+		int32_t		gps_latitude;
+		int32_t		gps_longitude;
 		struct {
 			int16_t		altitude;
 			uint16_t	unused;
@@ -679,21 +672,14 @@ ao_serial_init(void);
 #define AO_GPS_NUM_SAT_SHIFT	(0)
 
 #define AO_GPS_VALID		(1 << 4)
-#define AO_GPS_LONGITUDE_MASK	(1 << 5)
-#define AO_GPS_LONGITUDE_EAST	(0 << 5)
-#define AO_GPS_LONGITUDE_WEST	(1 << 5)
-
-#define AO_GPS_LATITUDE_MASK	(1 << 6)
-#define AO_GPS_LATITUDE_NORTH	(0 << 6)
-#define AO_GPS_LATITUDE_SOUTH	(1 << 6)
 
 struct ao_gps_data {
 	uint8_t			hour;
 	uint8_t			minute;
 	uint8_t			second;
 	uint8_t			flags;
-	struct ao_gps_pos	latitude;
-	struct ao_gps_pos	longitude;
+	int32_t			latitude;
+	int32_t			longitude;
 	int16_t			altitude;
 };
 
