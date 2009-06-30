@@ -678,9 +678,15 @@ struct ao_gps_data {
 	uint8_t			minute;
 	uint8_t			second;
 	uint8_t			flags;
-	int32_t			latitude;
-	int32_t			longitude;
-	int16_t			altitude;
+	int32_t			latitude;	/* degrees * 10⁷ */
+	int32_t			longitude;	/* degrees * 10⁷ */
+	int16_t			altitude;	/* m */
+	uint16_t		ground_speed;	/* cm/s */
+	uint8_t			course;		/* degrees / 2 */
+	uint8_t			hdop;		/* * 5 */
+	int16_t			climb_rate;	/* cm/s */
+	uint16_t		h_error;	/* m */
+	uint16_t		v_error;	/* m */
 };
 
 extern __xdata uint8_t ao_gps_mutex;

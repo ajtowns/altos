@@ -20,6 +20,10 @@
 
 #define _GNU_SOURCE
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -70,9 +74,15 @@ struct aostate {
 		int minute;
 		int second;
 	} gps_time;
-	double	lat;
-	double	lon;
-	int	alt;
+	double	lat;		/* degrees (+N -S) */
+	double	lon;		/* degrees (+E -W) */
+	int	alt;		/* m */
+	double	ground_speed;	/* m/s */
+	int	course;		/* degrees */
+	double	climb_rate;	/* m/s */
+	double	hdop;		/* unitless? */
+	int	h_error;	/* m */
+	int	v_error;	/* m */
 };
 
 void

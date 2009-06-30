@@ -290,6 +290,22 @@ ao_gps(void) __reentrant
 			ao_gps_data.flags = (ao_sirf_data.num_sv << AO_GPS_NUM_SAT_SHIFT) & AO_GPS_NUM_SAT_MASK;
 			if ((ao_sirf_data.nav_type & NAV_TYPE_GPS_FIX_TYPE_MASK) >= NAV_TYPE_4_SV_KF)
 				ao_gps_data.flags |= AO_GPS_VALID;
+			ao_gps_data.latitude = ao_sirf_data.lat;
+			ao_gps_data.longitude = ao_sirf_data.lon;
+			ao_gps_data.altitude = ao_sirf_data.alt_msl / 100;
+			ao_gps_data.ground_speed = ao_sirf_data.ground_speed;
+			ao_gps_data.course = ao_sirf_data.course / 200;
+			ao_gps_data.hdop = ao_sirf_data.hdop;
+			ao_gps_data.climb_rate = ao_sirf_data.climb_rate;
+			if (ao_sirf_data.h_error > 6553500)
+				ao_gps_data.h_error = 65535;
+			else
+				ao_gps_data.h_error = ao_sirf_data.h_error / 100;
+			if (ao_sirf_data.v_error > 6553500)
+				ao_gps_data.v_error = 65535;
+			else
+				ao_gps_data.v_error = ao_sirf_data.v_error / 100;
+			ao_gps_data.h_error = ao_sirf_data.h_error;
 			ao_mutex_put(&ao_gps_mutex);
 			ao_wakeup(&ao_gps_data);
 			break;

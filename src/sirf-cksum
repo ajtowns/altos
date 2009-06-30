@@ -1,0 +1,44 @@
+#!/usr/bin/env nickle
+
+int checksum(int[] msg)
+{
+	int sum = 0;
+	for (int i = 0; i < dim(msg); i++) {
+		sum += msg[i];
+		sum &= 0x7fff;
+	}
+	return sum;
+}
+
+void main()
+{
+	string[...]	input;
+	int[...]	msg;
+
+	setdim(input, 0);
+	while (!File::end(stdin)) {
+		input[dim(input)] = gets();
+	}
+
+	setdim(msg, 0);
+	for (int i = 0; i < dim(input); i++) {
+		string[*] words = String::wordsplit(input[i], " ,\t");
+		for (int j = 0; j < dim(words); j++) {
+			if (words[j] == "/" + "*")
+				break;
+			if (String::length(words[j]) > 0 &&
+			    Ctype::isdigit(words[j][0])) {
+				msg[dim(msg)] = string_to_integer(words[j]);
+			}
+		 }
+	}
+	printf("\t0xa0, 0xa2, 0x%02x, 0x%02x,\t/* length: %d bytes */\n",
+	       dim(msg) >> 8, dim(msg) & 0xff, dim(msg));
+	for (int i = 0; i < dim(input); i++)
+		printf("%s\n", input[i]);
+	int csum = checksum(msg);
+	printf ("\t0x%02x, 0x%02x, 0xb0, 0xb3,\n",
+		csum >> 8, csum & 0xff);
+}
+
+main();

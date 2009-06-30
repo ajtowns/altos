@@ -151,6 +151,13 @@ aoview_state_notify(struct aostate *state)
 				     state->gps_time.hour,
 				     state->gps_time.minute,
 				     state->gps_time.second);
+		aoview_table_add_row("GPS ground speed", "%fm/s %d°",
+				     state->ground_speed,
+				     state->course);
+		aoview_table_add_row("GPS climb rate", "%fm/s",
+				     state->climb_rate);
+		aoview_table_add_row("GPS precision", "%f(hdop) %dm(h) %dm(v)\n",
+				     state->hdop, state->h_error, state->v_error);
 		aoview_great_circle(pad_lat, pad_lon, state->lat, state->lon,
 				    &dist, &bearing);
 		aoview_table_add_row("Distance from pad", "%gm", dist * 1000);

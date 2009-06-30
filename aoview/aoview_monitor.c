@@ -117,6 +117,21 @@ aoview_monitor_parse(char *line)
 		state.lat = state.lon = 0;
 		state.alt = 0;
 	}
+	if (nword >= 46) {
+		sscanf(words[40], "%lfm/s", &state.ground_speed);
+		sscanf(words[41], "%d", &state.course);
+		sscanf(words[42], "%lfm/s", &state.climb_rate);
+		sscanf(words[43], "%lf", &state.hdop);
+		sscanf(words[44], "%d", &state.h_error);
+		sscanf(words[45], "%d", &state.v_error);
+	} else {
+		state.ground_speed = 0;
+		state.course = 0;
+		state.climb_rate = 0;
+		state.hdop = 0;
+		state.h_error = 0;
+		state.v_error = 0;
+	}
 	aoview_state_notify(&state);
 }
 
