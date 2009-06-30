@@ -18,41 +18,47 @@
 #include "aoview.h"
 #include <math.h>
 
-static double	pad_lat_total;
-static double	pad_lon_total;
-static int	pad_alt_total;
-static int	npad_gps;
-static int	prev_tick;
-static double	prev_accel;
-static double	pad_lat;
-static double	pad_lon;
-static double	pad_alt;
-static double	min_pres;
-static double	min_accel;
-
-#define NUM_PAD_SAMPLES	10
+static inline double sqr(a) { return a * a; };
 
 static void
 aoview_great_circle (double start_lat, double start_lon,
 		     double end_lat, double end_lon,
 		     double *dist, double *bearing)
 {
-	double rad = M_PI / 180;
-	double earth_radius = 6371.2;
+	const double rad = M_PI / 180;
+	const double earth_radius = 6371.2 * 1000;	/* in meters */
 	double lat1 = rad * start_lat;
-	double lon1 = -rad * start_lon;
+	double lon1 = rad * -start_lon;
 	double lat2 = rad * end_lat;
-	double lon2 = -rad * end_lon;
+	double lon2 = rad * -end_lon;
 
-	double d = acos(sin(lat1)*sin(lat2)+cos(lat1)*cos(lat2)*cos(lon1-lon2));
-	double argacos = (sin(lat2)-sin(lat1)*cos(d))/(sin(d)*cos(lat1));
-	double crs;
-	if (sin(lon2-lon1) < 0)
-		crs = acos(argacos);
-	else
-		crs = 2 * M_PI - acos(argacos);
+	double d_lat = lat2 - lat1;
+	double d_lon = lon2 - lon1;
+
+	/* From http://en.wikipedia.org/wiki/Great-circle_distance */
+	double vdn = sqrt(sqr(cos(lat2) * sin(d_lon)) +
+			  sqr(cos(lat1) * sin(lat2) -
+			      sin(lat1) * cos(lat2) * cos(d_lon)));
+	double vdd = sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(d_lon);
+	double d = atan2(vdn,vdd);
+	double course;
+
+	if (cos(lat1) < 1e-20) {
+		if (lat1 > 0)
+			course = M_PI;
+		else
+			course = -M_PI;
+	} else {
+		if (d < 1e-10)
+			course = 0;
+		else
+			course = acos((sin(lat2)-sin(lat1)*cos(d)) /
+				      (sin(d)*cos(lat1)));
+		if (sin(lon2-lon1) > 0)
+			course = 2 * M_PI-course;
+	}
 	*dist = d * earth_radius;
-	*bearing = crs * 180/M_PI;
+	*bearing = course * 180/M_PI;
 }
 
 static void
@@ -80,117 +86,119 @@ static char *ascent_states[] = {
 	0,
 };
 
+/*
+ * Fill out the derived data fields
+ */
+static void
+aoview_state_derive(struct aostate *state)
+{
+	int	i;
+
+	state->ground_altitude = aoview_pres_to_altitude(state->ground_pres);
+	state->height = aoview_pres_to_altitude(state->flight_pres) - state->ground_altitude;
+	state->acceleration = (state->ground_accel - state->flight_accel) / 27.0;
+	state->speed = state->flight_vel / 2700.0;
+	state->temperature = ((state->temp / 32767.0 * 3.3) - 0.5) / 0.01;
+	state->drogue_sense = state->drogue / 32767.0 * 15.0;
+	state->main_sense = state->main / 32767.0 * 15.0;
+	state->battery = state->batt / 32767.0 * 5.0;
+	if (!strcmp(state->state, "pad")) {
+		if (state->locked) {
+			state->npad++;
+			state->pad_lat_total += state->lat;
+			state->pad_lon_total += state->lon;
+			state->pad_alt_total += state->alt;
+			state->pad_lat = state->pad_lat_total / state->npad;
+			state->pad_lon = state->pad_lon_total / state->npad;
+			state->pad_alt = state->pad_alt_total / state->npad;
+		}
+	}
+	state->ascent = FALSE;
+	for (i = 0; ascent_states[i]; i++)
+		if (!strcmp(state->state, ascent_states[i]))
+			state->ascent = TRUE;
+
+	/* Only look at accelerometer data on the way up */
+	if (state->ascent && state->acceleration > state->max_acceleration)
+		state->max_acceleration = state->acceleration;
+	if (state->ascent && state->speed > state->max_speed)
+		state->max_speed = state->speed;
+
+	if (state->height > state->max_height)
+		state->max_height = state->height;
+	aoview_great_circle(state->pad_lat, state->pad_lon, state->lat, state->lon,
+			    &state->distance, &state->bearing);
+}
+
 void
 aoview_state_speak(struct aostate *state)
 {
 	static char	last_state[32];
 	int		i;
 	gboolean	report = FALSE;
-	static time_t	last_time;
-	time_t		this_time;
+	int		this_tick;
+	static int	last_tick;
 	static int	last_altitude;
 	int		this_altitude;
 
 	if (strcmp(state->state, last_state)) {
-		aoview_voice_speak("rocket state now %s\n", state->state);
+		aoview_voice_speak("%s\n", state->state);
 		if (!strcmp(state->state, "drogue"))
-			aoview_voice_speak("maximum altitude %d meters\n",
-					   aoview_pres_to_altitude(min_pres) -
-					   aoview_pres_to_altitude(state->ground_pres));
+			aoview_voice_speak("apogee %d meters\n",
+					   (int) state->max_height);
 		report = TRUE;
 		strcpy(last_state, state->state);
 	}
-	this_time = time(NULL);
 	this_altitude = aoview_pres_to_altitude(state->flight_pres) - aoview_pres_to_altitude(state->ground_pres);
-	if (this_time - last_time >= 10)
-		report = TRUE;
-	if (this_altitude / 1000 != last_altitude / 1000)
-		report = TRUE;
-
-	if (report) {
-		aoview_voice_speak("altitude %d meters\n",
-				   this_altitude);
-		for (i = 0; ascent_states[i]; i++)
-			if (!strcmp(ascent_states[i], state->state)) {
-				aoview_voice_speak("speed %d meters per second\n",
-						   state->flight_vel / 2700);
-				break;
-			}
+	this_tick = state->tick;
+	while (this_tick < last_tick)
+		this_tick += 65536;
+	if (strcmp(state->state, "pad") != 0) {
+		if (this_altitude / 1000 != last_altitude / 1000)
+			report = TRUE;
+		if (this_tick - last_tick >= 10 * 100)
+			report = TRUE;
 	}
-
-	last_time = this_time;
-	last_altitude = this_altitude;
+	if (report) {
+		aoview_voice_speak("%d meters\n",
+				   this_altitude);
+		if (state->ascent)
+			aoview_voice_speak("%d meters per second\n",
+					   state->flight_vel / 2700);
+		last_tick = state->tick;
+		last_altitude = this_altitude;
+		printf ("report at tick %d height %d\n",
+			state->tick, this_altitude);
+	}
 }
 
 void
 aoview_state_notify(struct aostate *state)
 {
-	int	altitude;
-	double	accel;
-	int	ticks;
-	double	dist;
-	double	bearing;
-	double	temp;
-	double	velocity;
-	double	battery;
-	double	drogue_sense, main_sense;
-	double	max_accel;
-
-	if (!strcmp(state->state, "pad")) {
-		if (state->locked && npad_gps < NUM_PAD_SAMPLES) {
-			pad_lat_total += state->lat;
-			pad_lon_total += state->lon;
-			pad_alt_total += state->alt;
-			npad_gps++;
-		}
-		if (state->locked && npad_gps <= NUM_PAD_SAMPLES) {
-			pad_lat = pad_lat_total / npad_gps;
-			pad_lon = pad_lon_total / npad_gps;
-			pad_alt = pad_alt_total / npad_gps;
-		}
-		min_pres = state->ground_pres;
-		min_accel = state->ground_accel;
-	}
-	if (state->flight_pres < min_pres)
-		min_pres = state->flight_pres;
-	if (state->flight_accel < min_accel)
-		min_accel = state->flight_accel;
-	altitude = aoview_pres_to_altitude(state->flight_pres) - aoview_pres_to_altitude(state->ground_pres);
-	accel = (state->ground_accel - state->flight_accel) / 27.0;
-	velocity = state->flight_vel / 2700.0;
-	max_accel = (state->ground_accel - min_accel) / 27.0;
-	ticks = state->tick - prev_tick;
-	temp = ((state->temp / 32767.0 * 3.3) - 0.5) / 0.01;
-	battery = (state->batt / 32767.0 * 5.0);
-	drogue_sense = (state->drogue / 32767.0 * 15.0);
-	main_sense = (state->main / 32767.0 * 15.0);
-
-	prev_accel = accel;
-	prev_tick = state->tick;
+	aoview_state_derive(state);
 	aoview_table_start();
 
-	if (npad_gps >= NUM_PAD_SAMPLES)
+	if (state->npad >= MIN_PAD_SAMPLES)
 		aoview_table_add_row("Ground state", "ready");
 	else
 		aoview_table_add_row("Ground state", "waiting for gps (%d)",
-				     NUM_PAD_SAMPLES - npad_gps);
+				     MIN_PAD_SAMPLES - state->npad);
 	aoview_table_add_row("Rocket state", "%s", state->state);
 	aoview_table_add_row("Callsign", "%s", state->callsign);
 	aoview_table_add_row("Rocket serial", "%d", state->serial);
 
 	aoview_table_add_row("RSSI", "%ddBm", state->rssi);
-	aoview_table_add_row("Height", "%dm", altitude);
-	aoview_table_add_row("Max height", "%dm",
-			     aoview_pres_to_altitude(min_pres) -
-			     aoview_pres_to_altitude(state->ground_pres));
-	aoview_table_add_row("Acceleration", "%gm/s²", accel);
-	aoview_table_add_row("Max acceleration", "%gm/s²", max_accel);
-	aoview_table_add_row("Velocity", "%gm/s", velocity);
-	aoview_table_add_row("Temperature", "%g°C", temp);
-	aoview_table_add_row("Battery", "%gV", battery);
-	aoview_table_add_row("Drogue", "%gV", drogue_sense);
-	aoview_table_add_row("Main", "%gV", main_sense);
-	aoview_table_add_row("Pad altitude", "%dm", aoview_pres_to_altitude(state->ground_pres));
+	aoview_table_add_row("Height", "%dm", state->height);
+	aoview_table_add_row("Max height", "%dm", state->max_height);
+	aoview_table_add_row("Acceleration", "%gm/s²", state->acceleration);
+	aoview_table_add_row("Max acceleration", "%gm/s²", state->max_acceleration);
+	aoview_table_add_row("Speed", "%gm/s", state->speed);
+	aoview_table_add_row("Max Speed", "%gm/s", state->max_speed);
+	aoview_table_add_row("Temperature", "%g°C", state->temperature);
+	aoview_table_add_row("Battery", "%gV", state->battery);
+	aoview_table_add_row("Drogue", "%gV", state->drogue_sense);
+	aoview_table_add_row("Main", "%gV", state->main_sense);
+	aoview_table_add_row("Pad altitude", "%dm", state->ground_altitude);
 	aoview_table_add_row("Satellites", "%d", state->nsat);
 	if (state->locked) {
 		aoview_state_add_deg("Latitude", state->lat, 'N', 'S');
@@ -207,36 +215,24 @@ aoview_state_notify(struct aostate *state)
 				     state->climb_rate);
 		aoview_table_add_row("GPS precision", "%f(hdop) %dm(h) %dm(v)\n",
 				     state->hdop, state->h_error, state->v_error);
-		aoview_great_circle(pad_lat, pad_lon, state->lat, state->lon,
-				    &dist, &bearing);
-		aoview_table_add_row("Distance from pad", "%gm", dist * 1000);
-		aoview_table_add_row("Direction from pad", "%g°", bearing);
+		aoview_table_add_row("Distance from pad", "%gm", state->distance);
+		aoview_table_add_row("Direction from pad", "%g°", state->bearing);
 	} else {
 		aoview_table_add_row("GPS", "unlocked");
 	}
-	if (npad_gps) {
-		aoview_state_add_deg("Pad latitude", pad_lat, 'N', 'S');
-		aoview_state_add_deg("Pad longitude", pad_lon, 'E', 'W');
-		aoview_table_add_row("Pad GPS alt", "%gm", pad_alt);
+	if (state->npad) {
+		aoview_state_add_deg("Pad latitude", state->pad_lat, 'N', 'S');
+		aoview_state_add_deg("Pad longitude", state->pad_lon, 'E', 'W');
+		aoview_table_add_row("Pad GPS alt", "%gm", state->pad_alt);
 	}
 	aoview_table_finish();
+	aoview_label_show(state);
 	aoview_state_speak(state);
 }
 
 void
 aoview_state_new(void)
 {
-	pad_lat_total = 0;
-	pad_lon_total = 0;
-	pad_alt_total = 0;
-	npad_gps = 0;
-	prev_tick = 0;
-	prev_accel = 0;
-	pad_lat = 0;
-	pad_lon = 0;
-	pad_alt = 0;
-	min_pres = 32767;
-	min_accel = 32767;
 }
 
 void

@@ -83,13 +83,47 @@ struct aostate {
 	double	hdop;		/* unitless? */
 	int	h_error;	/* m */
 	int	v_error;	/* m */
+
+	/* derived data */
+
+	gboolean	ascent;	/* going up? */
+
+	int	ground_altitude;
+	int	height;
+	double	speed;
+	double	acceleration;
+	double	battery;
+	double	temperature;
+	double	main_sense;
+	double	drogue_sense;
+
+	int	max_height;
+	double	max_acceleration;
+	double	max_speed;
+
+	double	pad_lat;
+	double	pad_lon;
+	double	pad_alt;
+	double	pad_lat_total;
+	double	pad_lon_total;
+	double	pad_alt_total;
+	int	npad;
+
+	double	distance;
+	double	bearing;
 };
+
+/* GPS is 'stable' when we've seen at least this many samples */
+#define MIN_PAD_SAMPLES	10
 
 void
 aoview_monitor_disconnect(void);
 
 gboolean
 aoview_monitor_connect(char *tty);
+
+gboolean
+aoview_monitor_parse(char *line);
 
 struct aoview_serial *
 aoview_serial_open(const char *tty);
@@ -182,6 +216,8 @@ aoview_table_clear(void);
 
 struct aoview_file;
 
+extern char *aoview_file_dir;
+
 void
 aoview_file_finish(struct aoview_file *file);
 
@@ -226,5 +262,12 @@ void aoview_voice_open(void);
 void aoview_voice_close(void);
 
 void aoview_voice_speak(char *format, ...);
+
+/* aoview_label.c */
+
+void aoview_label_init(GladeXML *xml);
+
+void
+aoview_label_show(struct aostate *state);
 
 #endif /* _AOVIEW_H_ */

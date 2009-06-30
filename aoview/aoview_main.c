@@ -91,6 +91,10 @@ int main(int argc, char **argv)
 
 	aoview_eeprom_init(xml);
 
+	aoview_replay_init(xml);
+
+	aoview_label_init(xml);
+
 	gtk_main();
 
 	return 0;

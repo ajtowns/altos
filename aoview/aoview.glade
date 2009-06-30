@@ -176,6 +176,22 @@
                         </child>
                       </widget>
                     </child>
+                    <child>
+                      <widget class="GtkImageMenuItem" id="ao_replay">
+                        <property name="label" translatable="yes">_Replay</property>
+                        <property name="visible">True</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">False</property>
+                        <signal name="activate_item" handler="gtk_widget_show" object="ao_replay_dialog" after="yes"/>
+                        <signal name="activate" handler="gtk_widget_show" object="ao_replay_dialog"/>
+                        <child internal-child="image">
+                          <widget class="GtkImage" id="image6">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-media-play</property>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
                   </widget>
                 </child>
               </widget>
@@ -269,6 +285,86 @@
           </packing>
         </child>
         <child>
+          <widget class="GtkTable" id="table1">
+            <property name="visible">True</property>
+            <property name="n_rows">2</property>
+            <property name="n_columns">3</property>
+            <property name="row_spacing">3</property>
+            <property name="homogeneous">True</property>
+            <child>
+              <widget class="GtkLabel" id="height_label">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Height</property>
+                <property name="justify">center</property>
+              </widget>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="state_label">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">State</property>
+              </widget>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="rssi_label">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">RSSI</property>
+              </widget>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="height_value">
+                <property name="visible">True</property>
+                <property name="ypad">2</property>
+                <property name="label" translatable="yes">0m</property>
+                <property name="selectable">True</property>
+              </widget>
+              <packing>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="state_value">
+                <property name="visible">True</property>
+                <property name="ypad">2</property>
+                <property name="label" translatable="yes">pad</property>
+                <property name="selectable">True</property>
+              </widget>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="rssi_value">
+                <property name="visible">True</property>
+                <property name="ypad">2</property>
+                <property name="label" translatable="yes">-50dBm</property>
+                <property name="selectable">True</property>
+              </widget>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
           <widget class="GtkTreeView" id="dataview">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
@@ -277,7 +373,7 @@
             <property name="enable_grid_lines">both</property>
           </widget>
           <packing>
-            <property name="position">1</property>
+            <property name="position">2</property>
           </packing>
         </child>
       </widget>
@@ -529,6 +625,61 @@ You should have received a copy of the GNU General Public License along with AoV
           <widget class="GtkHButtonBox" id="dialog-action_area11">
             <property name="visible">True</property>
             <property name="layout_style">end</property>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="GtkFileChooserDialog" id="ao_replay_dialog">
+    <property name="border_width">5</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="type_hint">dialog</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="transient_for">aoview</property>
+    <property name="has_separator">False</property>
+    <child internal-child="vbox">
+      <widget class="GtkVBox" id="dialog-vbox10">
+        <property name="visible">True</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <widget class="GtkHButtonBox" id="dialog-action_area10">
+            <property name="visible">True</property>
+            <property name="layout_style">end</property>
+            <child>
+              <widget class="GtkButton" id="ao_replay_cancel">
+                <property name="label" translatable="yes">gtk-cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+                <signal name="clicked" handler="gtk_widget_hide" object="ao_replay_dialog"/>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkButton" id="ao_replay_ok">
+                <property name="label" translatable="yes">gtk-ok</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="expand">False</property>

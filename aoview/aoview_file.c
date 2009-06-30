@@ -17,7 +17,7 @@
 
 #include "aoview.h"
 
-static char *aoview_file_dir;
+char *aoview_file_dir;
 
 #define ALTOS_DIR_PATH	"/apps/aoview/log_dir"
 #define DEFAULT_DIR	"AltOS"

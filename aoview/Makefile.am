@@ -5,7 +5,7 @@ if USE_FLITE
 FLITE_PROG=aoview_flite
 endif
 
-bin_PROGRAMS=aoview $(FLITE_PROG)
+bin_PROGRAMS=aoview $(FLITE_PROG) aoview_slowtelem
 
 aoview_LDADD=$(GNOME_LIBS)
 
@@ -23,10 +23,15 @@ aoview_SOURCES = \
 	aoview_file.c \
 	aoview_eeprom.c \
 	aoview_voice.c \
+	aoview_replay.c \
+	aoview_label.c \
 	aoview.h
 
 aoview_flite_SOURCES = \
 	aoview_flite.c
+
+aoview_slowtelem_SOURCES = \
+	aoview_slowtelem.c
 
 aoview_flite_LDADD=@FLITE_LIBS@
 

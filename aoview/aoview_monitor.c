@@ -66,16 +66,15 @@ aoview_parse_pos(double *target, char *source)
 	*target = r;
 }
 
-static void
+static struct aostate	state;
+
+gboolean
 aoview_monitor_parse(char *line)
 {
 	char *saveptr;
 	char *words[64];
 	int nword;
-	struct aostate	state;
 
-	if (aoview_log_get_serial())
-		aoview_log_printf ("%s\n", line);
 	for (nword = 0; nword < 64; nword++) {
 		words[nword] = strtok_r(line, " \t\n", &saveptr);
 		line = NULL;
@@ -83,12 +82,11 @@ aoview_monitor_parse(char *line)
 			break;
 	}
 	if (nword < 36)
-		return;
+		return FALSE;
 	if (strcmp(words[0], "CALL") != 0)
-		return;
+		return FALSE;
 	aoview_parse_string(state.callsign, sizeof (state.callsign), words[1]);
 	aoview_parse_int(&state.serial, words[3]);
-	aoview_log_set_serial(state.serial);
 
 	aoview_parse_int(&state.rssi, words[5]);
 	aoview_parse_string(state.state, sizeof (state.state), words[9]);
@@ -133,6 +131,7 @@ aoview_monitor_parse(char *line)
 		state.v_error = 0;
 	}
 	aoview_state_notify(&state);
+	return TRUE;
 }
 
 static void
@@ -155,8 +154,13 @@ aoview_monitor_callback(gpointer user_data,
 				continue;
 			if (c == '\n') {
 				monitor_line[monitor_pos] = '\0';
-				if (monitor_pos)
-				aoview_monitor_parse(monitor_line);
+				if (monitor_pos) {
+					if (aoview_monitor_parse(monitor_line)) {
+						aoview_log_set_serial(state.serial);
+						if (aoview_log_get_serial())
+							aoview_log_printf ("%s\n", monitor_line);
+					}
+				}
 				monitor_pos = 0;
 			} else if (monitor_pos < MONITOR_LEN)
 				monitor_line[monitor_pos++] = c;
