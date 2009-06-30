@@ -31,7 +31,6 @@ aoview_monitor_disconnect(void)
 		aoview_serial_close(monitor_serial);
 		monitor_serial = NULL;
 	}
-	aoview_table_clear();
 	aoview_log_new();
 }
 
@@ -134,6 +133,12 @@ aoview_monitor_parse(char *line)
 	return TRUE;
 }
 
+void
+aoview_monitor_reset(void)
+{
+	memset(&state, '\0', sizeof (state));
+}
+
 static void
 aoview_monitor_callback(gpointer user_data,
 			struct aoview_serial *serial,
@@ -175,6 +180,8 @@ aoview_monitor_connect(char *tty)
 	monitor_serial = aoview_serial_open(tty);
 	if (!monitor_serial)
 		return FALSE;
+	aoview_table_clear();
+	aoview_monitor_reset();
 	aoview_serial_set_callback(monitor_serial,
 				   aoview_monitor_callback,
 				   monitor_serial,

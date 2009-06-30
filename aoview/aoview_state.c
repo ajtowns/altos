@@ -18,7 +18,7 @@
 #include "aoview.h"
 #include <math.h>
 
-static inline double sqr(a) { return a * a; };
+static inline double sqr(double a) { return a * a; };
 
 static void
 aoview_great_circle (double start_lat, double start_lon,
@@ -103,7 +103,7 @@ aoview_state_derive(struct aostate *state)
 	state->main_sense = state->main / 32767.0 * 15.0;
 	state->battery = state->batt / 32767.0 * 5.0;
 	if (!strcmp(state->state, "pad")) {
-		if (state->locked) {
+		if (state->locked && state->nsat > 4) {
 			state->npad++;
 			state->pad_lat_total += state->lat;
 			state->pad_lon_total += state->lon;
@@ -128,6 +128,11 @@ aoview_state_derive(struct aostate *state)
 		state->max_height = state->height;
 	aoview_great_circle(state->pad_lat, state->pad_lon, state->lat, state->lon,
 			    &state->distance, &state->bearing);
+	if (state->npad) {
+		state->gps_height = state->alt - state->pad_alt;
+	} else {
+		state->gps_height = 0;
+	}
 }
 
 void
@@ -167,8 +172,6 @@ aoview_state_speak(struct aostate *state)
 					   state->flight_vel / 2700);
 		last_tick = state->tick;
 		last_altitude = this_altitude;
-		printf ("report at tick %d height %d\n",
-			state->tick, this_altitude);
 	}
 }
 
@@ -203,7 +206,7 @@ aoview_state_notify(struct aostate *state)
 	if (state->locked) {
 		aoview_state_add_deg("Latitude", state->lat, 'N', 'S');
 		aoview_state_add_deg("Longitude", state->lon, 'E', 'W');
-		aoview_table_add_row("GPS alt", "%d", state->alt);
+		aoview_table_add_row("GPS height", "%d", state->gps_height);
 		aoview_table_add_row("GPS time", "%02d:%02d:%02d",
 				     state->gps_time.hour,
 				     state->gps_time.minute,
@@ -239,5 +242,4 @@ void
 aoview_state_init(GladeXML *xml)
 {
 	aoview_state_new();
-	aoview_voice_speak("initializing rocket flight monitoring system\n");
 }

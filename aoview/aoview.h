@@ -111,6 +111,7 @@ struct aostate {
 
 	double	distance;
 	double	bearing;
+	int	gps_height;
 };
 
 /* GPS is 'stable' when we've seen at least this many samples */
@@ -124,6 +125,9 @@ aoview_monitor_connect(char *tty);
 
 gboolean
 aoview_monitor_parse(char *line);
+
+void
+aoview_monitor_reset(void);
 
 struct aoview_serial *
 aoview_serial_open(const char *tty);
@@ -269,5 +273,13 @@ void aoview_label_init(GladeXML *xml);
 
 void
 aoview_label_show(struct aostate *state);
+
+/* aoview_flite.c */
+
+FILE *
+aoview_flite_start(void);
+
+void
+aoview_flite_stop(void);
 
 #endif /* _AOVIEW_H_ */

@@ -107,6 +107,7 @@ aoview_replay_open(GtkWidget *widget, gpointer data)
 		gtk_widget_destroy(dialog);
 	} else {
 		replay_tick = -1;
+		aoview_monitor_reset();
 		aoview_replay_read(NULL);
 	}
 	gtk_widget_hide(GTK_WIDGET(replay_dialog));
@@ -115,9 +116,28 @@ aoview_replay_open(GtkWidget *widget, gpointer data)
 void
 aoview_replay_init(GladeXML *xml)
 {
+	GtkFileFilter	*telem_filter;
+	GtkFileFilter	*all_filter;
+	GtkFileFilter	*log_filter;
+
+	telem_filter = gtk_file_filter_new();
+	gtk_file_filter_add_pattern(telem_filter, "*.telem");
+	gtk_file_filter_set_name(telem_filter, "Telemetry Files");
+
+	log_filter = gtk_file_filter_new();
+	gtk_file_filter_add_pattern(log_filter, "*.log");
+	gtk_file_filter_set_name(log_filter, "Log Files");
+
+	all_filter = gtk_file_filter_new();
+	gtk_file_filter_add_pattern(all_filter, "*");
+	gtk_file_filter_set_name(all_filter, "All Files");
+
 	replay_dialog = GTK_FILE_CHOOSER(glade_xml_get_widget(xml, "ao_replay_dialog"));
 	assert(replay_dialog);
 	gtk_file_chooser_set_current_folder(replay_dialog, aoview_file_dir);
+	gtk_file_chooser_add_filter(replay_dialog, telem_filter);
+	gtk_file_chooser_add_filter(replay_dialog, log_filter);
+	gtk_file_chooser_add_filter(replay_dialog, all_filter);
 
 	replay_ok = glade_xml_get_widget(xml, "ao_replay_ok");
 	assert(replay_ok);

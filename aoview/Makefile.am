@@ -1,13 +1,9 @@
 VERSION=$(shell git describe)
 AM_CFLAGS=$(GNOME_CFLAGS) -I$(top_srcdir)/src -DAOVIEW_VERSION=\"$(VERSION)\" @FLITE_INCS@
 
-if USE_FLITE
-FLITE_PROG=aoview_flite
-endif
+bin_PROGRAMS=aoview
 
-bin_PROGRAMS=aoview $(FLITE_PROG) aoview_slowtelem
-
-aoview_LDADD=$(GNOME_LIBS)
+aoview_LDADD=$(GNOME_LIBS) $(FLITE_LIBS)
 
 aoview_SOURCES = \
 	aoview_main.c \
@@ -25,15 +21,8 @@ aoview_SOURCES = \
 	aoview_voice.c \
 	aoview_replay.c \
 	aoview_label.c \
+	aoview_flite.c \
 	aoview.h
-
-aoview_flite_SOURCES = \
-	aoview_flite.c
-
-aoview_slowtelem_SOURCES = \
-	aoview_slowtelem.c
-
-aoview_flite_LDADD=@FLITE_LIBS@
 
 BUILT_SOURCES = aoview_glade.h
 

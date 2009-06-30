@@ -25,13 +25,13 @@ FILE	*aoview_flite;
 void aoview_voice_open(void)
 {
 	if (!aoview_flite)
-		aoview_flite = popen("aoview_flite", "w");
+		aoview_flite = aoview_flite_start();
 }
 
 void aoview_voice_close(void)
 {
 	if (aoview_flite) {
-		pclose(aoview_flite);
+		aoview_flite_stop();
 		aoview_flite = NULL;
 	}
 }
@@ -65,25 +65,54 @@ void aoview_voice_speak(char *format, ...)
 
 static GtkCheckMenuItem	*voice_enable;
 
+#define ALTOS_VOICE_PATH	"/apps/aoview/voice"
+
 static void
 aoview_voice_enable(GtkWidget *widget, gpointer data)
 {
-	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
+	gboolean	enabled = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+	GError		*error;
+	GConfClient	*gconf_client;
+
+	if (enabled) {
 		aoview_voice_open();
-		aoview_voice_speak("enable voice system\n");
+		aoview_voice_speak("enable voice\n");
 	} else {
-		aoview_voice_speak("disable voice system\n");
+		aoview_voice_speak("disable voice\n");
 		aoview_voice_close();
 	}
+	gconf_client = gconf_client_get_default();
+	gconf_client_set_bool(gconf_client,
+			      ALTOS_VOICE_PATH,
+			      enabled,
+			      &error);
 }
 
 void
 aoview_voice_init(GladeXML *xml)
 {
-	aoview_voice_open();
+	gboolean	enabled;
+	GConfClient	*gconf_client;
 
 	voice_enable = GTK_CHECK_MENU_ITEM(glade_xml_get_widget(xml, "voice_enable"));
 	assert(voice_enable);
+
+	gconf_client = gconf_client_get_default();
+	enabled = TRUE;
+	if (gconf_client)
+	{
+		GError	*error;
+
+		error = NULL;
+		enabled = gconf_client_get_bool(gconf_client,
+						ALTOS_VOICE_PATH,
+						&error);
+		if (error)
+			enabled = TRUE;
+	}
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(voice_enable), enabled);
+	if (enabled)
+		aoview_voice_open();
 
 	g_signal_connect(G_OBJECT(voice_enable), "toggled",
 			 G_CALLBACK(aoview_voice_enable),

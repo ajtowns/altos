@@ -31,6 +31,8 @@ static void destroy_event(GtkWidget *widget, gpointer data)
 	gtk_main_quit();
 }
 
+extern int _Xdebug;
+
 int main(int argc, char **argv)
 {
 	GladeXML *xml = NULL;
@@ -40,12 +42,13 @@ int main(int argc, char **argv)
 
 	static struct option long_options[] = {
 		{ "device", 1, 0, 'd'},
+		{ "sync", 0, 0, 's'},
 		{ 0, 0, 0, 0 }
 	};
 	for (;;) {
 		int c, temp;
 
-		c = getopt_long_only(argc, argv, "d:", long_options, &temp);
+		c = getopt_long_only(argc, argv, "sd:", long_options, &temp);
 		if (c == -1)
 			break;
 
@@ -53,11 +56,15 @@ int main(int argc, char **argv)
 		case 'd':
 			device = optarg;
 			break;
+		case 's':
+			_Xdebug = 1;
+			break;
 		default:
 			usage();
 		}
 	}
 
+	g_thread_init(NULL);
 	gtk_init(&argc, &argv);
 	glade_init();
 
@@ -94,6 +101,8 @@ int main(int argc, char **argv)
 	aoview_replay_init(xml);
 
 	aoview_label_init(xml);
+
+	aoview_voice_speak("rocket flight monitor ready\n");
 
 	gtk_main();
 
