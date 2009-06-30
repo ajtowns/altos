@@ -48,7 +48,7 @@ AC_CHECK_LIB(flite, flite_init,HAVE_LIBFLITE=yes,HAVE_LIBFLITE=no,-lm)
 
 if test "x$HAVE_FLITE_H" = "xyes" -a "x$HAVE_LIBFLITE" = "xyes"; then
 	AC_DEFINE(HAVE_FLITE,1,[Define if the flite library is usable])
-	AC_SUBST(FLITE_LIBS,"-lflite_cmu_us_kal -lflite_usenglish -lflite_cmulex -lflite -lm")
+	AC_SUBST(FLITE_LIBS,"-lflite_cmu_us_kal16 -lflite_usenglish -lflite_cmulex -lflite -lm")
 	AC_SUBST(FLITE_INCS,-Iflite)
 fi
 AM_CONDITIONAL(USE_FLITE,test "x$HAVE_FLITE_H" = "xyes" -a "x$HAVE_LIBFLITE" = "xyes")
