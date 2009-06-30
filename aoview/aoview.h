@@ -220,4 +220,11 @@ aoview_eeprom_save(const char *device);
 void
 aoview_eeprom_init(GladeXML *xml);
 
+/* aoview_voice.c */
+void aoview_voice_open(void);
+
+void aoview_voice_close(void);
+
+void aoview_voice_speak(char *format, ...);
+
 #endif /* _AOVIEW_H_ */

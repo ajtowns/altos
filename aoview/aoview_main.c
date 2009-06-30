@@ -77,6 +77,8 @@ int main(int argc, char **argv)
 	assert(about_dialog);
 	gtk_about_dialog_set_version(about_dialog, AOVIEW_VERSION);
 
+	aoview_voice_init(xml);
+
 	aoview_dev_dialog_init(xml);
 
 	aoview_state_init(xml);

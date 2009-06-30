@@ -73,6 +73,55 @@ aoview_state_add_deg(char *label, double deg, char pos, char neg)
 
 }
 
+static char *ascent_states[] = {
+	"boost",
+	"fast",
+	"coast",
+	0,
+};
+
+void
+aoview_state_speak(struct aostate *state)
+{
+	static char	last_state[32];
+	int		i;
+	gboolean	report = FALSE;
+	static time_t	last_time;
+	time_t		this_time;
+	static int	last_altitude;
+	int		this_altitude;
+
+	if (strcmp(state->state, last_state)) {
+		aoview_voice_speak("rocket state now %s\n", state->state);
+		if (!strcmp(state->state, "drogue"))
+			aoview_voice_speak("maximum altitude %d meters\n",
+					   aoview_pres_to_altitude(min_pres) -
+					   aoview_pres_to_altitude(state->ground_pres));
+		report = TRUE;
+		strcpy(last_state, state->state);
+	}
+	this_time = time(NULL);
+	this_altitude = aoview_pres_to_altitude(state->flight_pres) - aoview_pres_to_altitude(state->ground_pres);
+	if (this_time - last_time >= 10)
+		report = TRUE;
+	if (this_altitude / 1000 != last_altitude / 1000)
+		report = TRUE;
+
+	if (report) {
+		aoview_voice_speak("altitude %d meters\n",
+				   this_altitude);
+		for (i = 0; ascent_states[i]; i++)
+			if (!strcmp(ascent_states[i], state->state)) {
+				aoview_voice_speak("speed %d meters per second\n",
+						   state->flight_vel / 2700);
+				break;
+			}
+	}
+
+	last_time = this_time;
+	last_altitude = this_altitude;
+}
+
 void
 aoview_state_notify(struct aostate *state)
 {
@@ -171,6 +220,7 @@ aoview_state_notify(struct aostate *state)
 		aoview_table_add_row("Pad GPS alt", "%gm", pad_alt);
 	}
 	aoview_table_finish();
+	aoview_state_speak(state);
 }
 
 void
@@ -193,4 +243,5 @@ void
 aoview_state_init(GladeXML *xml)
 {
 	aoview_state_new();
+	aoview_voice_speak("initializing rocket flight monitoring system\n");
 }
