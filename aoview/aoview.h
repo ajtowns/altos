@@ -124,7 +124,7 @@ gboolean
 aoview_monitor_connect(char *tty);
 
 gboolean
-aoview_monitor_parse(char *line);
+aoview_monitor_parse(const char *line);
 
 void
 aoview_monitor_reset(void);

@@ -68,12 +68,17 @@ aoview_parse_pos(double *target, char *source)
 static struct aostate	state;
 
 gboolean
-aoview_monitor_parse(char *line)
+aoview_monitor_parse(const char *input_line)
 {
 	char *saveptr;
 	char *words[64];
 	int nword;
+	char line_buf[8192], *line;
 
+	/* avoid smashing our input parameter */
+	strncpy (line_buf, input_line, sizeof (line_buf)-1);
+	line_buf[sizeof(line_buf) - 1] = '\0';
+	line = line_buf;
 	for (nword = 0; nword < 64; nword++) {
 		words[nword] = strtok_r(line, " \t\n", &saveptr);
 		line = NULL;
