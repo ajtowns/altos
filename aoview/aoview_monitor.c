@@ -65,8 +65,6 @@ aoview_parse_pos(double *target, char *source)
 	*target = r;
 }
 
-static struct aostate	state;
-
 gboolean
 aoview_monitor_parse(const char *input_line)
 {
@@ -74,6 +72,7 @@ aoview_monitor_parse(const char *input_line)
 	char *words[64];
 	int nword;
 	char line_buf[8192], *line;
+	struct aodata	data;
 
 	/* avoid smashing our input parameter */
 	strncpy (line_buf, input_line, sizeof (line_buf)-1);
@@ -89,59 +88,53 @@ aoview_monitor_parse(const char *input_line)
 		return FALSE;
 	if (strcmp(words[0], "CALL") != 0)
 		return FALSE;
-	aoview_parse_string(state.callsign, sizeof (state.callsign), words[1]);
-	aoview_parse_int(&state.serial, words[3]);
+	aoview_parse_string(data.callsign, sizeof (data.callsign), words[1]);
+	aoview_parse_int(&data.serial, words[3]);
 
-	aoview_parse_int(&state.rssi, words[5]);
-	aoview_parse_string(state.state, sizeof (state.state), words[9]);
-	aoview_parse_int(&state.tick, words[10]);
-	aoview_parse_int(&state.accel, words[12]);
-	aoview_parse_int(&state.pres, words[14]);
-	aoview_parse_int(&state.temp, words[16]);
-	aoview_parse_int(&state.batt, words[18]);
-	aoview_parse_int(&state.drogue, words[20]);
-	aoview_parse_int(&state.main, words[22]);
-	aoview_parse_int(&state.flight_accel, words[24]);
-	aoview_parse_int(&state.ground_accel, words[26]);
-	aoview_parse_int(&state.flight_vel, words[28]);
-	aoview_parse_int(&state.flight_pres, words[30]);
-	aoview_parse_int(&state.ground_pres, words[32]);
-	aoview_parse_int(&state.nsat, words[34]);
+	aoview_parse_int(&data.rssi, words[5]);
+	aoview_parse_string(data.state, sizeof (data.state), words[9]);
+	aoview_parse_int(&data.tick, words[10]);
+	aoview_parse_int(&data.accel, words[12]);
+	aoview_parse_int(&data.pres, words[14]);
+	aoview_parse_int(&data.temp, words[16]);
+	aoview_parse_int(&data.batt, words[18]);
+	aoview_parse_int(&data.drogue, words[20]);
+	aoview_parse_int(&data.main, words[22]);
+	aoview_parse_int(&data.flight_accel, words[24]);
+	aoview_parse_int(&data.ground_accel, words[26]);
+	aoview_parse_int(&data.flight_vel, words[28]);
+	aoview_parse_int(&data.flight_pres, words[30]);
+	aoview_parse_int(&data.ground_pres, words[32]);
+	aoview_parse_int(&data.nsat, words[34]);
 	if (strcmp (words[36], "unlocked") != 0 && nword >= 40) {
-		state.locked = 1;
-		sscanf(words[36], "%d:%d:%d", &state.gps_time.hour, &state.gps_time.minute, &state.gps_time.second);
-		aoview_parse_pos(&state.lat, words[37]);
-		aoview_parse_pos(&state.lon, words[38]);
-		sscanf(words[39], "%dm", &state.alt);
+		data.locked = 1;
+		sscanf(words[36], "%d:%d:%d", &data.gps_time.hour, &data.gps_time.minute, &data.gps_time.second);
+		aoview_parse_pos(&data.lat, words[37]);
+		aoview_parse_pos(&data.lon, words[38]);
+		sscanf(words[39], "%dm", &data.alt);
 	} else {
-		state.locked = 0;
-		state.gps_time.hour = state.gps_time.minute = state.gps_time.second = 0;
-		state.lat = state.lon = 0;
-		state.alt = 0;
+		data.locked = 0;
+		data.gps_time.hour = data.gps_time.minute = data.gps_time.second = 0;
+		data.lat = data.lon = 0;
+		data.alt = 0;
 	}
 	if (nword >= 46) {
-		sscanf(words[40], "%lfm/s", &state.ground_speed);
-		sscanf(words[41], "%d", &state.course);
-		sscanf(words[42], "%lfm/s", &state.climb_rate);
-		sscanf(words[43], "%lf", &state.hdop);
-		sscanf(words[44], "%d", &state.h_error);
-		sscanf(words[45], "%d", &state.v_error);
+		sscanf(words[40], "%lfm/s", &data.ground_speed);
+		sscanf(words[41], "%d", &data.course);
+		sscanf(words[42], "%lfm/s", &data.climb_rate);
+		sscanf(words[43], "%lf", &data.hdop);
+		sscanf(words[44], "%d", &data.h_error);
+		sscanf(words[45], "%d", &data.v_error);
 	} else {
-		state.ground_speed = 0;
-		state.course = 0;
-		state.climb_rate = 0;
-		state.hdop = 0;
-		state.h_error = 0;
-		state.v_error = 0;
+		data.ground_speed = 0;
+		data.course = 0;
+		data.climb_rate = 0;
+		data.hdop = 0;
+		data.h_error = 0;
+		data.v_error = 0;
 	}
-	aoview_state_notify(&state);
+	aoview_state_notify(&data);
 	return TRUE;
-}
-
-void
-aoview_monitor_reset(void)
-{
-	memset(&state, '\0', sizeof (state));
 }
 
 static void
@@ -166,7 +159,7 @@ aoview_monitor_callback(gpointer user_data,
 				monitor_line[monitor_pos] = '\0';
 				if (monitor_pos) {
 					if (aoview_monitor_parse(monitor_line)) {
-						aoview_log_set_serial(state.serial);
+						aoview_log_set_serial(aostate.data.serial);
 						if (aoview_log_get_serial())
 							aoview_log_printf ("%s\n", monitor_line);
 					}
@@ -186,7 +179,7 @@ aoview_monitor_connect(char *tty)
 	if (!monitor_serial)
 		return FALSE;
 	aoview_table_clear();
-	aoview_monitor_reset();
+	aoview_state_reset();
 	aoview_serial_set_callback(monitor_serial,
 				   aoview_monitor_callback,
 				   monitor_serial,

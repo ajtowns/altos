@@ -22,12 +22,14 @@ static struct {
 	char		*initial_value;
 	GtkLabel	*widget;
 } label_widgets[] = {
-	{ "height_label", "Height", NULL },
+	{ "height_label", "Height (m)", NULL },
 	{ "state_label", "State", NULL },
-	{ "rssi_label", "RSSI", NULL },
-	{ "height_value", "0m", NULL },
+	{ "rssi_label", "RSSI (dBm)", NULL },
+	{ "speed_label", "Speed (m/s)", NULL },
+	{ "height_value", "0", NULL },
 	{ "state_value", "pad", NULL },
-	{ "rssi_value", "-50dBm", NULL },
+	{ "rssi_value", "-50", NULL },
+	{ "speed_value", "0", NULL },
 };
 
 static void
@@ -44,13 +46,19 @@ void
 aoview_label_show(struct aostate *state)
 {
 	char	line[1024];
-	sprintf(line, "%dm", state->height);
-	aoview_label_assign(label_widgets[3].widget, line);
+	sprintf(line, "%d", state->height);
+	aoview_label_assign(label_widgets[4].widget, line);
 
-	aoview_label_assign(label_widgets[4].widget, state->state);
+	aoview_label_assign(label_widgets[5].widget, state->data.state);
 
-	sprintf(line, "%ddBm", state->rssi);
-	aoview_label_assign(label_widgets[5].widget, line);
+	sprintf(line, "%d", state->data.rssi);
+	aoview_label_assign(label_widgets[6].widget, line);
+
+	if (state->ascent)
+		sprintf(line, "%6.0f", fabs(state->speed));
+	else
+		sprintf(line, "%6.0f", fabs(state->baro_speed));
+	aoview_label_assign(label_widgets[7].widget, line);
 }
 
 void

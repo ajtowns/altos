@@ -35,6 +35,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <assert.h>
+#include <math.h>
 
 #include <gtk/gtk.h>
 #include <glade/glade.h>
@@ -50,7 +51,7 @@ struct usbdev {
 	int	idVendor;
 };
 
-struct aostate {
+struct aodata {
 	char	callsign[16];
 	int	serial;
 	int	rssi;
@@ -83,8 +84,16 @@ struct aostate {
 	double	hdop;		/* unitless? */
 	int	h_error;	/* m */
 	int	v_error;	/* m */
+};
+
+struct aostate {
+	struct aodata	data;
 
 	/* derived data */
+
+	struct aodata	prev_data;
+
+	double		report_time;
 
 	gboolean	ascent;	/* going up? */
 
@@ -96,10 +105,15 @@ struct aostate {
 	double	temperature;
 	double	main_sense;
 	double	drogue_sense;
+	double	baro_speed;
 
 	int	max_height;
 	double	max_acceleration;
 	double	max_speed;
+
+	double	lat;
+	double	lon;
+	int	gps_valid;
 
 	double	pad_lat;
 	double	pad_lon;
@@ -112,7 +126,12 @@ struct aostate {
 	double	distance;
 	double	bearing;
 	int	gps_height;
+
+	int	speak_tick;
+	int	speak_altitude;
 };
+
+extern struct aostate aostate;
 
 /* GPS is 'stable' when we've seen at least this many samples */
 #define MIN_PAD_SAMPLES	10
@@ -162,7 +181,7 @@ void
 aoview_usbdev_free(struct usbdev *usbdev);
 
 void
-aoview_state_notify(struct aostate *state);
+aoview_state_notify(struct aodata *data);
 
 void
 aoview_state_new(void);

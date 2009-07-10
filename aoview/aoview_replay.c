@@ -107,7 +107,7 @@ aoview_replay_open(GtkWidget *widget, gpointer data)
 		gtk_widget_destroy(dialog);
 	} else {
 		replay_tick = -1;
-		aoview_monitor_reset();
+		aoview_state_reset();
 		aoview_replay_read(NULL);
 	}
 	gtk_widget_hide(GTK_WIDGET(replay_dialog));
