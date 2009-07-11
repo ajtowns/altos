@@ -24,6 +24,8 @@ FILE	*aoview_flite;
 
 void aoview_voice_open(void)
 {
+	int	err;
+
 	if (!aoview_flite)
 		aoview_flite = aoview_flite_start();
 }

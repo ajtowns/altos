@@ -57,6 +57,8 @@ PKG_CHECK_MODULES([GNOME], [gtk+-2.0 libglade-2.0 gconf-2.0])
 
 PKG_CHECK_MODULES([LIBUSB], [libusb-1.0])
 
+PKG_CHECK_MODULES([ALSA], [alsa])
+
 AC_OUTPUT([
 Makefile
 aoview/Makefile
