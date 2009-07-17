@@ -15,7 +15,9 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+#ifndef AO_GPS_TEST
 #include "ao.h"
+#endif
 
 struct ao_gps_split {
 	uint8_t positive;

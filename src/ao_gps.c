@@ -15,17 +15,29 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+#ifndef AO_GPS_TEST
 #include "ao.h"
+#endif
 
 __xdata uint8_t ao_gps_mutex;
 __xdata struct ao_gps_data	ao_gps_data;
 
-const char ao_gps_config[] = {
-	/* Serial param - binary, 4800 baud, 8 bits, 1 stop, no parity */
+const char ao_gps_set_binary[] = {
 	'$', 'P', 'S', 'R', 'F', '1', '0', '0', ',', '0', ',',
-	'4', '8', '0', '0', ',', '8', ',', '1', ',', '0', '*',
-	'0', 'F', '\r','\n',
+	'9', '6', '0', '0', ',', '8', ',', '1', ',', '0', '*',
+	'0', 'C', '\r','\n',
 
+	0xa0, 0xa2, 0x00, 0x09,	/* length 9 bytes */
+	134,			/* Set binary serial port */
+	0, 0, 0x25, 0x80,	/* 9600 baud */
+	8,			/* data bits */
+	1,			/* stop bits */
+	0,			/* parity */
+	0,			/* pad */
+	0x01, 0x34, 0xb0, 0xb3,
+};
+
+const char ao_gps_config[] = {
 	0xa0, 0xa2, 0x00, 0x0e,	/* length: 14 bytes */
 	136,			/* mode control */
 	0, 0,			/* reserved */
@@ -212,21 +224,27 @@ ao_sirf_parse_41(void)
 {
 	uint8_t	i, offset;
 
+	printf("parse 41\n");
 	for (i = 0; ; i++) {
 		offset = geodetic_nav_data_packet[i].offset;
 		switch (geodetic_nav_data_packet[i].type) {
 		case SIRF_END:
+			printf("parse 41 done\n");
 			return;
 		case SIRF_DISCARD:
+			printf("parse 41 discard %d\n", offset);
 			sirf_discard(offset);
 			break;
 		case SIRF_U8:
+			printf("parse 41 u8 %d\n", offset);
 			sirf_u8(offset);
 			break;
 		case SIRF_U16:
+			printf("parse 41 u16 %d\n", offset);
 			sirf_u16(offset);
 			break;
 		case SIRF_U32:
+			printf("parse 41 u32 %d\n", offset);
 			sirf_u32(offset);
 			break;
 		}
@@ -234,14 +252,26 @@ ao_sirf_parse_41(void)
 }
 
 void
+ao_gps_setup(void) __reentrant
+{
+	uint8_t	i, j;
+	for (j = 0; j < 2; j++) {
+#ifdef AO_GPS_TEST
+		ao_serial_set_speed(j);
+#endif
+		for (i = 0; i < sizeof (ao_gps_set_binary); i++)
+			ao_serial_putchar(ao_gps_set_binary[i]);
+	}
+}
+
+void
 ao_gps(void) __reentrant
 {
-	char	c;
 	uint8_t	i;
 	uint16_t cksum;
 
-	for (i = 0; (c = ao_gps_config[i]); i++)
-		ao_serial_putchar(c);
+	for (i = 0; i < sizeof (ao_gps_config); i++)
+		ao_serial_putchar(ao_gps_config[i]);
 	for (;;) {
 		/* Locate the begining of the next record */
 		while (ao_sirf_byte() != 0xa0)
@@ -259,10 +289,11 @@ ao_gps(void) __reentrant
 
 		/* message ID */
 		i = data_byte ();							/* 0 */
+		printf ("message %d len %d\n", i, ao_sirf_len);
 
 		switch (i) {
 		case 41:
-			if (ao_sirf_len < 91)
+			if (ao_sirf_len < 90)
 				break;
 			ao_sirf_parse_41();
 			break;
