@@ -56,22 +56,6 @@ const char ao_gps_config[] = {
 	143,			/* static navigation */
 	0,			/* disable */
 	0x00, 0x8f, 0xb0, 0xb3,
-
-	0xa0, 0xa2, 0x00, 0x08,	/* length: 8 bytes */
-	166,			/* Set message rate */
-	2,			/* enable/disable all messages */
-	0,			/* message id (ignored) */
-	0,			/* update rate (0 = disable) */
-	0, 0, 0, 0,		/* reserved */
-	0x00, 0xa8, 0xb0, 0xb3,
-
-	0xa0, 0xa2, 0x00, 0x08,	/* length: 8 bytes */
-	166,			/* Set message rate */
-	0,			/* enable/disable one message */
-	41,			/* message 41 */
-	1,			/* once per second */
-	0, 0, 0, 0,		/* reserved */
-	0x00, 0xd0, 0xb0, 0xb3,
 };
 
 #define NAV_TYPE_GPS_FIX_TYPE_MASK			(7 << 0)
@@ -224,27 +208,21 @@ ao_sirf_parse_41(void)
 {
 	uint8_t	i, offset;
 
-	printf("parse 41\n");
 	for (i = 0; ; i++) {
 		offset = geodetic_nav_data_packet[i].offset;
 		switch (geodetic_nav_data_packet[i].type) {
 		case SIRF_END:
-			printf("parse 41 done\n");
 			return;
 		case SIRF_DISCARD:
-			printf("parse 41 discard %d\n", offset);
 			sirf_discard(offset);
 			break;
 		case SIRF_U8:
-			printf("parse 41 u8 %d\n", offset);
 			sirf_u8(offset);
 			break;
 		case SIRF_U16:
-			printf("parse 41 u16 %d\n", offset);
 			sirf_u16(offset);
 			break;
 		case SIRF_U32:
-			printf("parse 41 u32 %d\n", offset);
 			sirf_u32(offset);
 			break;
 		}
@@ -259,10 +237,52 @@ ao_gps_setup(void) __reentrant
 #ifdef AO_GPS_TEST
 		ao_serial_set_speed(j);
 #endif
+		for (i = 255; i != 0; i--)
+			ao_serial_putchar(0);
+
 		for (i = 0; i < sizeof (ao_gps_set_binary); i++)
 			ao_serial_putchar(ao_gps_set_binary[i]);
 	}
 }
+
+static const char ao_gps_set_message_rate[] = {
+	0xa0, 0xa2, 0x00, 0x08,
+	166,
+	0,
+#define SET_MESSAGE_RATE_ID	6
+#define SET_MESSAGE_RATE	7
+
+};
+
+void
+ao_sirf_set_message_rate(uint8_t msg, uint8_t rate)
+{
+	uint16_t	cksum = 0x00a6;
+	uint8_t		i;
+
+	for (i = 0; i < sizeof (ao_gps_set_message_rate); i++)
+		ao_serial_putchar(ao_gps_set_message_rate[i]);
+	ao_serial_putchar(msg);
+	ao_serial_putchar(rate);
+	cksum = 0xa6 + msg + rate;
+	for (i = 0; i < 4; i++)
+		ao_serial_putchar(0);
+	ao_serial_putchar((cksum >> 8) & 0x7f);
+	ao_serial_putchar(cksum & 0xff);
+	ao_serial_putchar(0xb0);
+	ao_serial_putchar(0xb3);
+}
+
+static const uint8_t sirf_disable[] = {
+	2,
+	4,
+	9,
+	10,
+	27,
+	50,
+	52,
+	4,
+};
 
 void
 ao_gps(void) __reentrant
@@ -272,6 +292,9 @@ ao_gps(void) __reentrant
 
 	for (i = 0; i < sizeof (ao_gps_config); i++)
 		ao_serial_putchar(ao_gps_config[i]);
+	for (i = 0; i < sizeof (sirf_disable); i++)
+		ao_sirf_set_message_rate(sirf_disable[i], 0);
+	ao_sirf_set_message_rate(41, 1);
 	for (;;) {
 		/* Locate the begining of the next record */
 		while (ao_sirf_byte() != 0xa0)
@@ -336,7 +359,6 @@ ao_gps(void) __reentrant
 				ao_gps_data.v_error = 65535;
 			else
 				ao_gps_data.v_error = ao_sirf_data.v_error / 100;
-			ao_gps_data.h_error = ao_sirf_data.h_error;
 			ao_mutex_put(&ao_gps_mutex);
 			ao_wakeup(&ao_gps_data);
 			break;
