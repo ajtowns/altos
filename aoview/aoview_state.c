@@ -62,7 +62,7 @@ aoview_great_circle (double start_lat, double start_lon,
 }
 
 static void
-aoview_state_add_deg(char *label, double deg, char pos, char neg)
+aoview_state_add_deg(int column, char *label, double deg, char pos, char neg)
 {
 	double	int_part;
 	double	min;
@@ -74,7 +74,7 @@ aoview_state_add_deg(char *label, double deg, char pos, char neg)
 	}
 	int_part = floor (deg);
 	min = (deg - int_part) * 60.0;
-	aoview_table_add_row(label, "%d°%lf'%c",
+	aoview_table_add_row(column, label, "%d°%lf'%c",
 			     (int) int_part, min, sign);
 
 }
@@ -266,51 +266,51 @@ aoview_state_notify(struct aodata *data)
 	aoview_table_start();
 
 	if (state->npad >= MIN_PAD_SAMPLES)
-		aoview_table_add_row("Ground state", "ready");
+		aoview_table_add_row(0, "Ground state", "ready");
 	else
-		aoview_table_add_row("Ground state", "waiting for gps (%d)",
+		aoview_table_add_row(0, "Ground state", "waiting for gps (%d)",
 				     MIN_PAD_SAMPLES - state->npad);
-	aoview_table_add_row("Rocket state", "%s", state->data.state);
-	aoview_table_add_row("Callsign", "%s", state->data.callsign);
-	aoview_table_add_row("Rocket serial", "%d", state->data.serial);
+	aoview_table_add_row(0, "Rocket state", "%s", state->data.state);
+	aoview_table_add_row(0, "Callsign", "%s", state->data.callsign);
+	aoview_table_add_row(0, "Rocket serial", "%d", state->data.serial);
 
-	aoview_table_add_row("RSSI", "%6ddBm", state->data.rssi);
-	aoview_table_add_row("Height", "%6dm", state->height);
-	aoview_table_add_row("Max height", "%6dm", state->max_height);
-	aoview_table_add_row("Acceleration", "%7.1fm/s²", state->acceleration);
-	aoview_table_add_row("Max acceleration", "%7.1fm/s²", state->max_acceleration);
-	aoview_table_add_row("Speed", "%7.1fm/s", state->ascent ? state->speed : state->baro_speed);
-	aoview_table_add_row("Max Speed", "%7.1fm/s", state->max_speed);
-	aoview_table_add_row("Temperature", "%6.2f°C", state->temperature);
-	aoview_table_add_row("Battery", "%5.2fV", state->battery);
-	aoview_table_add_row("Drogue", "%5.2fV", state->drogue_sense);
-	aoview_table_add_row("Main", "%5.2fV", state->main_sense);
-	aoview_table_add_row("Pad altitude", "%dm", state->ground_altitude);
-	aoview_table_add_row("Satellites", "%d", state->data.nsat);
+	aoview_table_add_row(0, "RSSI", "%6ddBm", state->data.rssi);
+	aoview_table_add_row(0, "Height", "%6dm", state->height);
+	aoview_table_add_row(0, "Max height", "%6dm", state->max_height);
+	aoview_table_add_row(0, "Acceleration", "%7.1fm/s²", state->acceleration);
+	aoview_table_add_row(0, "Max acceleration", "%7.1fm/s²", state->max_acceleration);
+	aoview_table_add_row(0, "Speed", "%7.1fm/s", state->ascent ? state->speed : state->baro_speed);
+	aoview_table_add_row(0, "Max Speed", "%7.1fm/s", state->max_speed);
+	aoview_table_add_row(0, "Temperature", "%6.2f°C", state->temperature);
+	aoview_table_add_row(0, "Battery", "%5.2fV", state->battery);
+	aoview_table_add_row(0, "Drogue", "%5.2fV", state->drogue_sense);
+	aoview_table_add_row(0, "Main", "%5.2fV", state->main_sense);
+	aoview_table_add_row(0, "Pad altitude", "%dm", state->ground_altitude);
+	aoview_table_add_row(1, "Satellites", "%d", state->data.nsat);
 	if (state->data.locked) {
-		aoview_state_add_deg("Latitude", state->data.lat, 'N', 'S');
-		aoview_state_add_deg("Longitude", state->data.lon, 'E', 'W');
-		aoview_table_add_row("GPS height", "%d", state->gps_height);
-		aoview_table_add_row("GPS time", "%02d:%02d:%02d",
+		aoview_state_add_deg(1, "Latitude", state->data.lat, 'N', 'S');
+		aoview_state_add_deg(1, "Longitude", state->data.lon, 'E', 'W');
+		aoview_table_add_row(1, "GPS height", "%d", state->gps_height);
+		aoview_table_add_row(1, "GPS time", "%02d:%02d:%02d",
 				     state->data.gps_time.hour,
 				     state->data.gps_time.minute,
 				     state->data.gps_time.second);
-		aoview_table_add_row("GPS ground speed", "%7.1fm/s %d°",
+		aoview_table_add_row(1, "GPS ground speed", "%7.1fm/s %d°",
 				     state->data.ground_speed,
 				     state->data.course);
-		aoview_table_add_row("GPS climb rate", "%7.1fm/s",
+		aoview_table_add_row(1, "GPS climb rate", "%7.1fm/s",
 				     state->data.climb_rate);
-		aoview_table_add_row("GPS precision", "%f(hdop) %dm(h) %dm(v)\n",
+		aoview_table_add_row(1, "GPS precision", "%f(hdop) %dm(h) %dm(v)\n",
 				     state->data.hdop, state->data.h_error, state->data.v_error);
-		aoview_table_add_row("Distance from pad", "%5.0fm", state->distance);
-		aoview_table_add_row("Direction from pad", "%4.0f°", state->bearing);
+		aoview_table_add_row(1, "Distance from pad", "%5.0fm", state->distance);
+		aoview_table_add_row(1, "Direction from pad", "%4.0f°", state->bearing);
 	} else {
-		aoview_table_add_row("GPS", "unlocked");
+		aoview_table_add_row(1, "GPS", "unlocked");
 	}
 	if (state->npad) {
-		aoview_state_add_deg("Pad latitude", state->pad_lat, 'N', 'S');
-		aoview_state_add_deg("Pad longitude", state->pad_lon, 'E', 'W');
-		aoview_table_add_row("Pad GPS alt", "%gm", state->pad_alt);
+		aoview_state_add_deg(1, "Pad latitude", state->pad_lat, 'N', 'S');
+		aoview_state_add_deg(1, "Pad longitude", state->pad_lon, 'E', 'W');
+		aoview_table_add_row(1, "Pad GPS alt", "%gm", state->pad_alt);
 	}
 	aoview_table_finish();
 	aoview_label_show(state);

@@ -17,17 +17,21 @@
 
 #include "aoview.h"
 
-static GtkTreeView	*dataview;
-static GtkListStore	*datalist;
+#define NCOL	2
+
+static GtkTreeView	*dataview[NCOL];
+static GtkListStore	*datalist[NCOL];
 
 void
 aoview_table_start(void)
 {
-	datalist = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
+	int col;
+	for (col = 0; col < NCOL; col++)
+		datalist[col] = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
 }
 
 void
-aoview_table_add_row(char *label, char *format, ...)
+aoview_table_add_row(int col, char *label, char *format, ...)
 {
 	char		buf[1024];
 	va_list		ap;
@@ -36,8 +40,8 @@ aoview_table_add_row(char *label, char *format, ...)
 	va_start(ap, format);
 	vsnprintf(buf, sizeof (buf), format, ap);
 	va_end(ap);
-	gtk_list_store_append(datalist, &iter);
-	gtk_list_store_set(datalist, &iter,
+	gtk_list_store_append(datalist[col], &iter);
+	gtk_list_store_set(datalist[col], &iter,
 			   0, label,
 			   1, buf,
 			   -1);
@@ -46,23 +50,34 @@ aoview_table_add_row(char *label, char *format, ...)
 void
 aoview_table_finish(void)
 {
-	gtk_tree_view_set_model(dataview, GTK_TREE_MODEL(datalist));
-	g_object_unref(G_OBJECT(datalist));
-	gtk_tree_view_columns_autosize(dataview);
+	int	col;
+	for (col = 0; col < NCOL; col++) {
+		gtk_tree_view_set_model(dataview[col], GTK_TREE_MODEL(datalist[col]));
+		g_object_unref(G_OBJECT(datalist[col]));
+		gtk_tree_view_columns_autosize(dataview[col]);
+	}
 }
 
 void
 aoview_table_clear(void)
 {
-	gtk_tree_view_set_model(dataview, NULL);
+	int	col;
+	for (col = 0; col < NCOL; col++)
+		gtk_tree_view_set_model(dataview[col], NULL);
 }
 
 void
 aoview_table_init(GladeXML *xml)
 {
-	dataview = GTK_TREE_VIEW(glade_xml_get_widget(xml, "dataview"));
-	assert(dataview);
+	int	col;
 
-	aoview_add_plain_text_column(dataview, "Field", 0, 20);
-	aoview_add_plain_text_column(dataview, "Value", 1, 32);
+	for (col = 0; col < NCOL; col++) {
+		char	name[32];
+		sprintf(name, "dataview_%d", col);
+		dataview[col] = GTK_TREE_VIEW(glade_xml_get_widget(xml, name));
+		assert(dataview[col]);
+
+		aoview_add_plain_text_column(dataview[col], "Field", 0, 20);
+		aoview_add_plain_text_column(dataview[col], "Value", 1, 32);
+	}
 }

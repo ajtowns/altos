@@ -226,7 +226,7 @@ void
 aoview_table_start(void);
 
 void
-aoview_table_add_row(char *label, char *format, ...);
+aoview_table_add_row(int column, char *label, char *format, ...);
 
 void
 aoview_table_finish(void);
