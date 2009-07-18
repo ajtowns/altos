@@ -50,6 +50,8 @@ ao_serial_tx1_isr(void) interrupt 14
 	ao_wakeup(&ao_usart1_tx_fifo);
 }
 
+static __pdata serial_echo;
+
 char
 ao_serial_getchar(void) __critical
 {
@@ -57,6 +59,10 @@ ao_serial_getchar(void) __critical
 	while (ao_fifo_empty(ao_usart1_rx_fifo))
 		ao_sleep(&ao_usart1_rx_fifo);
 	ao_fifo_remove(ao_usart1_rx_fifo, c);
+	if (serial_echo) {
+		printf("%02x\n", (uint8_t) c);
+		flush();
+	}
 	return c;
 }
 
@@ -79,8 +85,16 @@ send_serial(void)
 	}
 }
 
+static void
+monitor_serial(void)
+{
+	ao_cmd_hex();
+	serial_echo = ao_cmd_lex_i != 0;
+}
+
 __code struct ao_cmds ao_serial_cmds[] = {
 	{ 'S', send_serial,		"S <data>                           Send data to serial line" },
+	{ 'M', monitor_serial,		"M <enable>                         Monitor serial data" },
 	{ 0, send_serial, NULL },
 };
 
