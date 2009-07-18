@@ -106,14 +106,22 @@ aoview_monitor_parse(const char *input_line)
 	aoview_parse_int(&data.flight_pres, words[30]);
 	aoview_parse_int(&data.ground_pres, words[32]);
 	aoview_parse_int(&data.nsat, words[34]);
-	if (strcmp (words[36], "unlocked") != 0 && nword >= 40) {
-		data.locked = 1;
+	if (strcmp (words[36], "unlocked") == 0) {
+		data.gps_connected = 1;
+		data.gps_locked = 0;
+		data.gps_time.hour = data.gps_time.minute = data.gps_time.second = 0;
+		data.lat = data.lon = 0;
+		data.alt = 0;
+	} else if (nword >= 40) {
+		data.gps_locked = 1;
+		data.gps_connected = 1;
 		sscanf(words[36], "%d:%d:%d", &data.gps_time.hour, &data.gps_time.minute, &data.gps_time.second);
 		aoview_parse_pos(&data.lat, words[37]);
 		aoview_parse_pos(&data.lon, words[38]);
 		sscanf(words[39], "%dm", &data.alt);
 	} else {
-		data.locked = 0;
+		data.gps_connected = 0;
+		data.gps_locked = 0;
 		data.gps_time.hour = data.gps_time.minute = data.gps_time.second = 0;
 		data.lat = data.lon = 0;
 		data.alt = 0;

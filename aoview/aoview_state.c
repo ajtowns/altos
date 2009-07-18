@@ -130,7 +130,7 @@ aoview_state_derive(struct aodata *data, struct aostate *state)
 	state->main_sense = data->main / 32767.0 * 15.0;
 	state->battery = data->batt / 32767.0 * 5.0;
 	if (!strcmp(data->state, "pad")) {
-		if (data->locked && data->nsat >= 4) {
+		if (data->gps_locked && data->nsat >= 4) {
 			state->npad++;
 			state->pad_lat_total += data->lat;
 			state->pad_lon_total += data->lon;
@@ -159,7 +159,7 @@ aoview_state_derive(struct aodata *data, struct aostate *state)
 
 	if (state->height > state->max_height)
 		state->max_height = state->height;
-	if (data->locked) {
+	if (data->gps_locked) {
 		state->lat = data->lat;
 		state->lon = data->lon;
 		aoview_great_circle(state->pad_lat, state->pad_lon, data->lat, data->lon,
@@ -296,7 +296,7 @@ aoview_state_notify(struct aodata *data)
 	aoview_table_add_row(0, "Main", "%5.2fV", state->main_sense);
 	aoview_table_add_row(0, "Pad altitude", "%dm", state->ground_altitude);
 	aoview_table_add_row(1, "Satellites", "%d", state->data.nsat);
-	if (state->data.locked) {
+	if (state->data.gps_locked) {
 		aoview_state_add_deg(1, "Latitude", state->data.lat, 'N', 'S');
 		aoview_state_add_deg(1, "Longitude", state->data.lon, 'E', 'W');
 		aoview_table_add_row(1, "GPS height", "%d", state->gps_height);
@@ -313,8 +313,10 @@ aoview_state_notify(struct aodata *data)
 				     state->data.hdop, state->data.h_error, state->data.v_error);
 		aoview_table_add_row(1, "Distance from pad", "%5.0fm", state->distance);
 		aoview_table_add_row(1, "Direction from pad", "%4.0f°", state->bearing);
-	} else {
+	} else if (state->data.gps_connected) {
 		aoview_table_add_row(1, "GPS", "unlocked");
+	} else {
+		aoview_table_add_row(1, "GPS", "not available");
 	}
 	if (state->npad) {
 		aoview_state_add_deg(1, "Pad latitude", state->pad_lat, 'N', 'S');

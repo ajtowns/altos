@@ -69,7 +69,8 @@ struct aodata {
 	int	flight_pres;
 	int	ground_pres;
 	int	nsat;
-	int	locked;
+	int	gps_locked;
+	int	gps_connected;
 	struct {
 		int hour;
 		int minute;
