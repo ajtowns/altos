@@ -110,6 +110,7 @@ aoview_state_derive(struct aodata *data, struct aostate *state)
 	state->report_time = aoview_time();
 
 	state->prev_data = state->data;
+	state->prev_npad = state->npad;
 	state->data = *data;
 	tick_count = data->tick;
 	if (tick_count < state->prev_data.tick)
@@ -129,14 +130,20 @@ aoview_state_derive(struct aodata *data, struct aostate *state)
 	state->main_sense = data->main / 32767.0 * 15.0;
 	state->battery = data->batt / 32767.0 * 5.0;
 	if (!strcmp(data->state, "pad")) {
-		if (data->locked && data->nsat > 4) {
+		if (data->locked && data->nsat >= 4) {
 			state->npad++;
 			state->pad_lat_total += data->lat;
 			state->pad_lon_total += data->lon;
 			state->pad_alt_total += data->alt;
-			state->pad_lat = state->pad_lat_total / state->npad;
-			state->pad_lon = state->pad_lon_total / state->npad;
-			state->pad_alt = state->pad_alt_total / state->npad;
+			if (state->npad > 1) {
+				state->pad_lat = (state->pad_lat * 31 + data->lat) / 32.0;
+				state->pad_lon = (state->pad_lon * 31 + data->lon) / 32.0;
+				state->pad_alt = (state->pad_alt * 31 + data->alt) / 32.0;
+			} else {
+				state->pad_lat = data->lat;
+				state->pad_lon = data->lon;
+				state->pad_alt = data->alt;
+			}
 		}
 	}
 	state->ascent = FALSE;
@@ -178,6 +185,8 @@ aoview_speak_state(struct aostate *state)
 			aoview_voice_speak("max speed %d meters per second\n",
 					   (int) state->max_speed);
 	}
+	if (state->prev_npad < MIN_PAD_SAMPLES && state->npad >= MIN_PAD_SAMPLES)
+		aoview_voice_speak("g p s ready\n");
 }
 
 void

@@ -122,6 +122,7 @@ struct aostate {
 	double	pad_lon_total;
 	double	pad_alt_total;
 	int	npad;
+	int	prev_npad;
 
 	double	distance;
 	double	bearing;
