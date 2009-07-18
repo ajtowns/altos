@@ -140,7 +140,7 @@ aoview_eeprom_save(const char *device)
 	serial = aoview_serial_open(device);
 	if (!serial)
 		return FALSE;
-	aoview_serial_set_callback(serial, aoview_eeprom_callback, serial, NULL);
+	aoview_serial_set_callback(serial, aoview_eeprom_callback);
 	aoview_serial_printf(serial, "v\nl\n");
 	return TRUE;
 }

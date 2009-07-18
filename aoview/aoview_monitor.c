@@ -189,8 +189,6 @@ aoview_monitor_connect(char *tty)
 	aoview_table_clear();
 	aoview_state_reset();
 	aoview_serial_set_callback(monitor_serial,
-				   aoview_monitor_callback,
-				   monitor_serial,
-				   NULL);
+				   aoview_monitor_callback);
 	return TRUE;
 }

@@ -160,9 +160,7 @@ typedef void (*aoview_serial_callback)(gpointer user_data, struct aoview_serial 
 
 void
 aoview_serial_set_callback(struct aoview_serial *serial,
-			   aoview_serial_callback func,
-			   gpointer data,
-			   GDestroyNotify notify);
+			   aoview_serial_callback func);
 
 void
 aoview_serial_printf(struct aoview_serial *serial, char *format, ...);

@@ -250,6 +250,7 @@ aoview_serial_open(const char *tty)
 	serial->poll_fd.events = G_IO_IN | G_IO_OUT | G_IO_HUP | G_IO_ERR;
 	g_source_attach(&serial->source, NULL);
 	g_source_add_poll(&serial->source,&serial->poll_fd);
+	aoview_serial_set_callback(serial, NULL);
 	return serial;
 }
 
@@ -257,16 +258,13 @@ void
 aoview_serial_close(struct aoview_serial *serial)
 {
 	g_source_remove_poll(&serial->source, &serial->poll_fd);
+	close(serial->fd);
 	g_source_destroy(&serial->source);
-	g_source_unref(&serial->source);
-	free(serial);
 }
 
 void
 aoview_serial_set_callback(struct aoview_serial *serial,
-			   aoview_serial_callback func,
-			   gpointer data,
-			   GDestroyNotify notify)
+			   aoview_serial_callback func)
 {
-	g_source_set_callback(&serial->source, (GSourceFunc) func, data, notify);
+	g_source_set_callback(&serial->source, (GSourceFunc) func, serial, NULL);
 }
