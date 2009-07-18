@@ -49,8 +49,7 @@ ao_gps_print(__xdata struct ao_gps_data *gps_data) __reentrant
 	       (gps_data->flags & AO_GPS_NUM_SAT_MASK) >> AO_GPS_NUM_SAT_SHIFT);
 	if (gps_data->flags & AO_GPS_VALID) {
 		static __xdata struct ao_gps_split	lat, lon;
-		int16_t climb;
-		uint8_t climb_sign;
+		int16_t climb, climb_int, climb_frac;
 
 		ao_gps_split(gps_data->latitude, &lat);
 		ao_gps_split(gps_data->longitude, &lon);
@@ -68,18 +67,19 @@ ao_gps_print(__xdata struct ao_gps_data *gps_data) __reentrant
 		       lon.minutes_fraction,
 		       lon.positive ? 'E' : 'W',
 		       gps_data->altitude);
-		if (gps_data->climb_rate >= 0) {
-			climb_sign = ' ';
-			climb = gps_data->climb_rate;
+		climb = gps_data->climb_rate;
+		if (climb >= 0) {
+			climb_int = climb / 100;
+			climb_frac = climb % 100;
 		} else {
-			climb_sign = '-';
-			climb = -gps_data->climb_rate;
+			climb = -climb;
+			climb_int = -(climb / 100);
+			climb_frac = climb % 100;
 		}
-		printf(" %5u.%02dm/s(H) %d° %c%5d.%02dm/s(V)",
+		printf(" %5u.%02dm/s(H) %d° %5d.%02dm/s(V)",
 		       gps_data->ground_speed / 100,
 		       gps_data->ground_speed % 100,
 		       gps_data->course * 2,
-		       climb_sign,
 		       climb / 100,
 		       climb % 100);
 		printf(" %d.%d(hdop) %5u(herr) %5u(verr)\n",
