@@ -234,7 +234,7 @@ aoview_serial_open(const char *tty)
 	aoview_buf_init(&serial->out_buf);
 	serial->fd = open (tty, O_RDWR | O_NONBLOCK);
 	if (serial->fd < 0) {
-		free (serial);
+		g_source_destroy(&serial->source);
 		return NULL;
 	}
 	tcgetattr(serial->fd, &termios);
