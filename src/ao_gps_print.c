@@ -82,11 +82,14 @@ ao_gps_print(__xdata struct ao_gps_data *gps_data) __reentrant
 		       climb_sign,
 		       climb / 100,
 		       climb % 100);
-		printf(" %d.%d(hdop) %5d(herr) %5d(verr)\n",
-		       gps_data->hdop,
+		printf(" %d.%d(hdop) %5u(herr) %5u(verr)\n",
+		       gps_data->hdop / 5,
+		       (gps_data->hdop * 2) % 10,
 		       gps_data->h_error,
 		       gps_data->v_error);
-	} else {
+	} else if (gps_data->flags & AO_GPS_RUNNING) {
 		printf(" unlocked\n");
+	} else {
+		printf (" not-connected\n");
 	}
 }

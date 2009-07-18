@@ -26,6 +26,7 @@
 #define AO_GPS_NUM_SAT_SHIFT	(0)
 
 #define AO_GPS_VALID		(1 << 4)
+#define AO_GPS_RUNNING		(1 << 5)
 
 struct ao_gps_data {
 	uint8_t			hour;
