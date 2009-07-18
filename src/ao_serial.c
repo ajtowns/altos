@@ -84,6 +84,27 @@ __code struct ao_cmds ao_serial_cmds[] = {
 	{ 0, send_serial, NULL },
 };
 
+static const struct {
+	uint8_t	baud;
+	uint8_t	gcr;
+} ao_serial_speeds[] = {
+	/* [AO_SERIAL_SPEED_4800] = */ {
+		/* .baud = */ 163,
+		/* .gcr  = */ (7 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
+	},
+	/* [AO_SERIAL_SPEED_57600] = */ {
+		/* .baud = */ 59,
+		/* .gcr =  */ (11 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
+	},
+};
+
+void
+ao_serial_set_speed(uint8_t speed)
+{
+	U1BAUD = ao_serial_speeds[speed].baud;
+	U1GCR = ao_serial_speeds[speed].gcr;
+}
+
 void
 ao_serial_init(void)
 {
@@ -99,8 +120,7 @@ ao_serial_init(void)
 	U1CSR = (UxCSR_MODE_UART | UxCSR_RE);
 
 	/* Pick a 4800 baud rate */
-	U1BAUD = 163;				/* 4800 */
-	U1GCR = 7 << UxGCR_BAUD_E_SHIFT;	/* 4800 */
+	ao_serial_set_speed(AO_SERIAL_SPEED_4800);
 
 	/* Reasonable serial parameters */
 	U1UCR = (UxUCR_FLUSH |

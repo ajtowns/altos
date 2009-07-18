@@ -22,8 +22,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <pthread.h>
-#include <semaphore.h>
 #define AO_GPS_NUM_SAT_MASK	(0xf << 0)
 #define AO_GPS_NUM_SAT_SHIFT	(0)
 
@@ -79,24 +77,6 @@ ao_dbg_char(char c)
 static char	input_queue[QUEUE_LEN];
 int		input_head, input_tail;
 
-static sem_t input_semaphore;
-
-char
-ao_serial_getchar(void)
-{
-	char	c;
-	int	value;
-	char	line[100];
-
-	sem_getvalue(&input_semaphore, &value);
-//	printf ("ao_serial_getchar %d\n", value);
-	sem_wait(&input_semaphore);
-	c = input_queue[input_head];
-	input_head = (input_head + 1) % QUEUE_LEN;
-//	sprintf (line, "%02x\n", ((int) c) & 0xff);
-//	write(1, line, strlen(line));
-	return c;
-}
 
 static void
 check_sirf_message(char *from, uint8_t *msg, int len)
@@ -234,47 +214,44 @@ check_sirf_message(char *from, uint8_t *msg, int len)
 	}
 }
 
+static uint8_t	sirf_message[4096];
+static int	sirf_message_len;
 static uint8_t	sirf_in_message[4096];
 static int	sirf_in_len;
 
-void *
-ao_gps_input(void *arg)
+char
+ao_serial_getchar(void)
 {
-	int	i;
 	char	c;
+	uint8_t	uc;
 
-	printf("ao_gps_input\n");
-	for (;;) {
-		i = read(ao_gps_fd, &c, 1);
-		if (i == 1) {
-			int	v;
-			uint8_t	uc = c;
-
-			if (sirf_in_len || uc == 0xa0) {
-				if (sirf_in_len < 4096)
-					sirf_in_message[sirf_in_len++] = uc;
-				if (uc == 0xb3) {
-					check_sirf_message("recv", sirf_in_message, sirf_in_len);
-					sirf_in_len = 0;
-				}
+	while (input_head == input_tail) {
+		for (;;) {
+			input_tail = read(ao_gps_fd, input_queue, QUEUE_LEN);
+			if (input_tail < 0) {
+				if (errno == EINTR || errno == EAGAIN)
+					continue;
+				perror ("getchar");
+				exit (1);
 			}
-			input_queue[input_tail] = c;
-			input_tail = (input_tail + 1) % QUEUE_LEN;
-			sem_post(&input_semaphore);
-			sem_getvalue(&input_semaphore, &v);
-//			printf ("ao_gps_input %02x %d\n", ((int) c) & 0xff, v);
-			fflush(stdout);
-			continue;
+			input_head = 0;
+			break;
 		}
-		if (i < 0 && (errno == EINTR || errno == EAGAIN))
-			continue;
-		perror("getchar");
-		exit(1);
 	}
+	c = input_queue[input_head];
+	input_head = (input_head + 1) % QUEUE_LEN;
+	uc = c;
+	if (sirf_in_len || uc == 0xa0) {
+		if (sirf_in_len < 4096)
+			sirf_in_message[sirf_in_len++] = uc;
+		if (uc == 0xb3) {
+			check_sirf_message("recv", sirf_in_message, sirf_in_len);
+			sirf_in_len = 0;
+		}
+	}
+	return c;
 }
 
-static uint8_t	sirf_message[4096];
-static int	sirf_message_len;
 
 void
 ao_serial_putchar(char c)
@@ -294,8 +271,12 @@ ao_serial_putchar(char c)
 		i = write(ao_gps_fd, &c, 1);
 		if (i == 1) {
 			if ((uint8_t) c == 0xb3 || c == '\r') {
+				static const struct timespec delay = {
+					.tv_sec = 0,
+					.tv_nsec = 100 * 1000 * 1000
+				};
 				tcdrain(ao_gps_fd);
-				usleep (1000 * 100);
+//				nanosleep(&delay, NULL);
 			}
 			break;
 		}
@@ -306,15 +287,25 @@ ao_serial_putchar(char c)
 	}
 }
 
+#define AO_SERIAL_SPEED_4800	0
+#define AO_SERIAL_SPEED_57600	1
+
 static void
-ao_serial_set_speed(uint8_t fast)
+ao_serial_set_speed(uint8_t speed)
 {
 	int	fd = ao_gps_fd;
 	struct termios	termios;
 
 	tcdrain(fd);
 	tcgetattr(fd, &termios);
-	cfsetspeed(&termios, fast ? B9600 : B4800);
+	switch (speed) {
+	case AO_SERIAL_SPEED_4800:
+		cfsetspeed(&termios, B4800);
+		break;
+	case AO_SERIAL_SPEED_57600:
+		cfsetspeed(&termios, B57600);
+		break;
+	}
 	tcsetattr(fd, TCSAFLUSH, &termios);
 	tcflush(fd, TCIFLUSH);
 }
@@ -366,8 +357,6 @@ ao_gps_open(const char *tty)
 	return fd;
 }
 
-pthread_t input_thread;
-
 int
 main (int argc, char **argv)
 {
@@ -379,8 +368,5 @@ main (int argc, char **argv)
 		exit (1);
 	}
 	ao_gps_setup();
-	sem_init(&input_semaphore, 0, 0);
-	if (pthread_create(&input_thread, NULL, ao_gps_input, NULL) != 0)
-		perror("pthread_create");
 	ao_gps();
 }

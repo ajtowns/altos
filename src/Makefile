@@ -264,4 +264,4 @@ ao_flight_test: ao_flight.c ao_flight_test.c
 	cc -g -o $@ ao_flight_test.c
 
 ao_gps_test: ao_gps.c ao_gps_test.c ao_host.h
-	cc -g -o $@ ao_gps_test.c -lpthread
+	cc -g -o $@ ao_gps_test.c
