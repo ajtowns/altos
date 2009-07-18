@@ -279,6 +279,7 @@ ao_gps(void) __reentrant
 	uint8_t	i, k;
 	uint16_t cksum;
 
+	ao_gps_setup();
 	for (k = 0; k < 5; k++)
 	{
 		for (i = 0; i < sizeof (ao_gps_config); i++)
