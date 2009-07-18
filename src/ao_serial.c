@@ -60,7 +60,7 @@ ao_serial_getchar(void) __critical
 		ao_sleep(&ao_usart1_rx_fifo);
 	ao_fifo_remove(ao_usart1_rx_fifo, c);
 	if (serial_echo) {
-		printf("%02x\n", (uint8_t) c);
+		printf("%02x\n", ((int) c) & 0xff);
 		flush();
 	}
 	return c;
