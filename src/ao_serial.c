@@ -99,9 +99,17 @@ monitor_serial(void)
 	serial_echo = ao_cmd_lex_i != 0;
 }
 
+static void
+serial_baud(void)
+{
+	ao_cmd_hex();
+	ao_serial_set_speed(ao_cmd_lex_i);
+}
+
 __code struct ao_cmds ao_serial_cmds[] = {
 	{ 'S', send_serial,		"S <data>                           Send data to serial line" },
 	{ 'M', monitor_serial,		"M <enable>                         Monitor serial data" },
+	{ 'B', serial_baud,		"B <0 = 4800, 1 = 57600>            Set serial baud rate" },
 	{ 0, send_serial, NULL },
 };
 
