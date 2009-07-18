@@ -251,7 +251,7 @@ aoview_state_timeout(gpointer data)
 				aoview_voice_speak("rocket landed safely\n");
 			else
 				aoview_voice_speak("rocket may have crashed\n");
-			if (aostate.gps.gps_connected) {
+			if (aostate.gps_valid) {
 				aoview_voice_speak("rocket reported %s of pad distance %d meters\n",
 						   aoview_compass_point(aostate.bearing),
 						   (int) aostate.distance);
