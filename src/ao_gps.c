@@ -22,7 +22,13 @@
 __xdata uint8_t ao_gps_mutex;
 __xdata struct ao_gps_data	ao_gps_data;
 
-static const char ao_gps_set_nmea[] = "$PSRF100,0,57600,8,1,0*37\r\n";
+#undef AO_GPS_4800
+
+#ifdef AO_GPS_4800
+static const char ao_gps_set_nmea[] = "\r\n$PSRF100,0,57600,8,1,0*37\r\n\r\n";
+#else
+static const char ao_gps_set_nmea[] = "\r\n$PSRF100,0,4800,8,1,0*0F\r\n\r\n";
+#endif
 
 const char ao_gps_config[] = {
 	0xa0, 0xa2, 0x00, 0x0e,	/* length: 14 bytes */
@@ -224,17 +230,22 @@ ao_sirf_parse_41(void)
 	}
 }
 
-void
+static void
 ao_gps_setup(void) __reentrant
 {
-	uint8_t	i;
+	uint8_t	i, k;
+#ifdef AO_GPS_4800
 	ao_serial_set_speed(AO_SERIAL_SPEED_4800);
-	for (i = 0; i < 16; i++)
+#endif
+	for (i = 0; i < 64; i++)
 		ao_serial_putchar(0x00);
-	for (i = 0; i < sizeof (ao_gps_set_nmea) - 1; i++)
-		ao_serial_putchar(ao_gps_set_nmea[i]);
+	for (k = 0; k < 3; k++)
+		for (i = 0; i < sizeof (ao_gps_set_nmea); i++)
+			ao_serial_putchar(ao_gps_set_nmea[i]);
+#ifdef AO_GPS_4800
 	ao_serial_set_speed(AO_SERIAL_SPEED_57600);
-	for (i = 0; i < 16; i++)
+#endif
+	for (i = 0; i < 64; i++)
 		ao_serial_putchar(0x00);
 }
 
