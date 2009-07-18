@@ -76,6 +76,13 @@ ao_serial_putchar(char c) __critical
 }
 
 static void
+ao_serial_drain(void) __critical
+{
+	while (!ao_fifo_empty(ao_usart1_tx_fifo))
+		ao_sleep(&ao_usart1_tx_fifo);
+}
+
+static void
 send_serial(void)
 {
 	ao_cmd_white();
@@ -115,6 +122,9 @@ static const struct {
 void
 ao_serial_set_speed(uint8_t speed)
 {
+	ao_serial_drain();
+	if (speed > AO_SERIAL_SPEED_57600)
+		return;
 	U1BAUD = ao_serial_speeds[speed].baud;
 	U1GCR = ao_serial_speeds[speed].gcr;
 }
