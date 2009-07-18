@@ -22,16 +22,14 @@
 __xdata uint8_t ao_gps_mutex;
 __xdata struct ao_gps_data	ao_gps_data;
 
-const char ao_gps_set_binary[] = {
+static const char ao_gps_set_nmea[] = {
+
 	'$', 'P', 'S', 'R', 'F', '1', '0', '0', ',', '0', ',',
 	'9', '6', '0', '0', ',', '8', ',', '1', ',', '0', '*',
 	'0', 'C', '\r','\n',
+};
 
-	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-
+static const char ao_gps_set_sirf[] = {
 	0xa0, 0xa2, 0x00, 0x09,	/* length 9 bytes */
 	134,			/* Set binary serial port */
 	0, 0, 0x25, 0x80,	/* 9600 baud */
@@ -56,6 +54,14 @@ const char ao_gps_config[] = {
 	0,			/* Dead Reckoning time out (disabled) */
 	0,			/* Track smoothing (disabled) */
 	0x00, 0x8e, 0xb0, 0xb3,
+
+	0xa0, 0xa2, 0x00, 0x08,	/* length: 8 bytes */
+	166,			/* Set message rate */
+	2,			/* enable/disable all messages */
+	0,			/* message id (ignored) */
+	0,			/* update rate (0 = disable) */
+	0, 0, 0, 0,		/* reserved */
+	0x00, 0xa8, 0xb0, 0xb3,
 
 	0xa0, 0xa2, 0x00, 0x02,	/* length: 2 bytes */
 	143,			/* static navigation */
@@ -237,16 +243,21 @@ ao_sirf_parse_41(void)
 void
 ao_gps_setup(void) __reentrant
 {
-	uint8_t	i, j;
+	uint8_t	i, j, k;
 	for (j = 0; j < 2; j++) {
 #ifdef AO_GPS_TEST
 		ao_serial_set_speed(j);
 #endif
-		for (i = 255; i != 0; i--)
-			ao_serial_putchar(0);
-
-		for (i = 0; i < sizeof (ao_gps_set_binary); i++)
-			ao_serial_putchar(ao_gps_set_binary[i]);
+		for (i = 0; i < 128; i++)
+			ao_serial_putchar(0x55);
+		for (k = 0; k < 4; k++)
+			for (i = 0; i < sizeof (ao_gps_set_nmea); i++)
+				ao_serial_putchar(ao_gps_set_nmea[i]);
+		for (i = 0; i < 128; i++)
+			ao_serial_putchar(0x55);
+		for (k = 0; k < 4; k++)
+			for (i = 0; i < sizeof (ao_gps_set_sirf); i++)
+				ao_serial_putchar(ao_gps_set_sirf[i]);
 	}
 }
 
@@ -286,7 +297,6 @@ static const uint8_t sirf_disable[] = {
 	27,
 	50,
 	52,
-	4,
 };
 
 void
