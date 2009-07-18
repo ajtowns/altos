@@ -130,19 +130,19 @@ aoview_state_derive(struct aodata *data, struct aostate *state)
 	state->main_sense = data->main / 32767.0 * 15.0;
 	state->battery = data->batt / 32767.0 * 5.0;
 	if (!strcmp(data->state, "pad")) {
-		if (data->gps_locked && data->nsat >= 4) {
+		if (data->gps.gps_locked && data->gps.nsat >= 4) {
 			state->npad++;
-			state->pad_lat_total += data->lat;
-			state->pad_lon_total += data->lon;
-			state->pad_alt_total += data->alt;
+			state->pad_lat_total += data->gps.lat;
+			state->pad_lon_total += data->gps.lon;
+			state->pad_alt_total += data->gps.alt;
 			if (state->npad > 1) {
-				state->pad_lat = (state->pad_lat * 31 + data->lat) / 32.0;
-				state->pad_lon = (state->pad_lon * 31 + data->lon) / 32.0;
-				state->pad_alt = (state->pad_alt * 31 + data->alt) / 32.0;
+				state->pad_lat = (state->pad_lat * 31 + data->gps.lat) / 32.0;
+				state->pad_lon = (state->pad_lon * 31 + data->gps.lon) / 32.0;
+				state->pad_alt = (state->pad_alt * 31 + data->gps.alt) / 32.0;
 			} else {
-				state->pad_lat = data->lat;
-				state->pad_lon = data->lon;
-				state->pad_alt = data->alt;
+				state->pad_lat = data->gps.lat;
+				state->pad_lon = data->gps.lon;
+				state->pad_alt = data->gps.alt;
 			}
 		}
 	}
@@ -159,15 +159,17 @@ aoview_state_derive(struct aodata *data, struct aostate *state)
 
 	if (state->height > state->max_height)
 		state->max_height = state->height;
-	if (data->gps_locked) {
-		state->lat = data->lat;
-		state->lon = data->lon;
-		aoview_great_circle(state->pad_lat, state->pad_lon, data->lat, data->lon,
-				    &state->distance, &state->bearing);
+	state->gps.gps_locked = data->gps.gps_locked;
+	state->gps.gps_connected = data->gps.gps_connected;
+	if (data->gps.gps_locked) {
+		state->gps = data->gps;
 		state->gps_valid = 1;
+		if (state->npad)
+			aoview_great_circle(state->pad_lat, state->pad_lon, state->gps.lat, state->gps.lon,
+					    &state->distance, &state->bearing);
 	}
 	if (state->npad) {
-		state->gps_height = data->alt - state->pad_alt;
+		state->gps_height = state->gps.alt - state->pad_alt;
 	} else {
 		state->gps_height = 0;
 	}
@@ -249,7 +251,7 @@ aoview_state_timeout(gpointer data)
 				aoview_voice_speak("rocket landed safely\n");
 			else
 				aoview_voice_speak("rocket may have crashed\n");
-			if (aostate.gps_valid) {
+			if (aostate.gps.gps_connected) {
 				aoview_voice_speak("rocket reported %s of pad distance %d meters\n",
 						   aoview_compass_point(aostate.bearing),
 						   (int) aostate.distance);
@@ -295,30 +297,35 @@ aoview_state_notify(struct aodata *data)
 	aoview_table_add_row(0, "Drogue", "%5.2fV", state->drogue_sense);
 	aoview_table_add_row(0, "Main", "%5.2fV", state->main_sense);
 	aoview_table_add_row(0, "Pad altitude", "%dm", state->ground_altitude);
-	aoview_table_add_row(1, "Satellites", "%d", state->data.nsat);
-	if (state->data.gps_locked) {
-		aoview_state_add_deg(1, "Latitude", state->data.lat, 'N', 'S');
-		aoview_state_add_deg(1, "Longitude", state->data.lon, 'E', 'W');
-		aoview_table_add_row(1, "GPS height", "%d", state->gps_height);
-		aoview_table_add_row(1, "GPS time", "%02d:%02d:%02d",
-				     state->data.gps_time.hour,
-				     state->data.gps_time.minute,
-				     state->data.gps_time.second);
-		aoview_table_add_row(1, "GPS ground speed", "%7.1fm/s %d°",
-				     state->data.ground_speed,
-				     state->data.course);
-		aoview_table_add_row(1, "GPS climb rate", "%7.1fm/s",
-				     state->data.climb_rate);
-		aoview_table_add_row(1, "GPS precision", "%f(hdop) %dm(h) %dm(v)\n",
-				     state->data.hdop, state->data.h_error, state->data.v_error);
-		aoview_table_add_row(1, "Distance from pad", "%5.0fm", state->distance);
-		aoview_table_add_row(1, "Direction from pad", "%4.0f°", state->bearing);
-	} else if (state->data.gps_connected) {
+	aoview_table_add_row(1, "Satellites", "%d", state->gps.nsat);
+	if (state->gps.gps_locked) {
+		aoview_table_add_row(1, "GPS", "locked");
+	} else if (state->gps.gps_connected) {
 		aoview_table_add_row(1, "GPS", "unlocked");
 	} else {
 		aoview_table_add_row(1, "GPS", "not available");
 	}
+	if (state->gps_valid) {
+		aoview_state_add_deg(1, "Latitude", state->gps.lat, 'N', 'S');
+		aoview_state_add_deg(1, "Longitude", state->gps.lon, 'E', 'W');
+		aoview_table_add_row(1, "GPS height", "%d", state->gps_height);
+		aoview_table_add_row(1, "GPS time", "%02d:%02d:%02d",
+				     state->gps.gps_time.hour,
+				     state->gps.gps_time.minute,
+				     state->gps.gps_time.second);
+	}
+	if (state->gps.gps_extended) {
+		aoview_table_add_row(1, "GPS ground speed", "%7.1fm/s %d°",
+				     state->gps.ground_speed,
+				     state->gps.course);
+		aoview_table_add_row(1, "GPS climb rate", "%7.1fm/s",
+				     state->gps.climb_rate);
+		aoview_table_add_row(1, "GPS precision", "%4.1f(hdop) %3dm(h) %3dm(v)",
+				     state->gps.hdop, state->gps.h_error, state->gps.v_error);
+	}
 	if (state->npad) {
+		aoview_table_add_row(1, "Distance from pad", "%5.0fm", state->distance);
+		aoview_table_add_row(1, "Direction from pad", "%4.0f°", state->bearing);
 		aoview_state_add_deg(1, "Pad latitude", state->pad_lat, 'N', 'S');
 		aoview_state_add_deg(1, "Pad longitude", state->pad_lon, 'E', 'W');
 		aoview_table_add_row(1, "Pad GPS alt", "%gm", state->pad_alt);

@@ -51,6 +51,30 @@ struct usbdev {
 	int	idVendor;
 };
 
+struct aogps_time {
+	int hour;
+	int minute;
+	int second;
+};
+
+struct aogps {
+	int	nsat;
+	int	gps_locked;
+	int	gps_connected;
+	struct aogps_time gps_time;
+	double	lat;		/* degrees (+N -S) */
+	double	lon;		/* degrees (+E -W) */
+	int	alt;		/* m */
+
+	int	gps_extended;	/* has extra data */
+	double	ground_speed;	/* m/s */
+	int	course;		/* degrees */
+	double	climb_rate;	/* m/s */
+	double	hdop;		/* unitless? */
+	int	h_error;	/* m */
+	int	v_error;	/* m */
+};
+
 struct aodata {
 	char	callsign[16];
 	int	serial;
@@ -68,23 +92,7 @@ struct aodata {
 	int	flight_vel;
 	int	flight_pres;
 	int	ground_pres;
-	int	nsat;
-	int	gps_locked;
-	int	gps_connected;
-	struct {
-		int hour;
-		int minute;
-		int second;
-	} gps_time;
-	double	lat;		/* degrees (+N -S) */
-	double	lon;		/* degrees (+E -W) */
-	int	alt;		/* m */
-	double	ground_speed;	/* m/s */
-	int	course;		/* degrees */
-	double	climb_rate;	/* m/s */
-	double	hdop;		/* unitless? */
-	int	h_error;	/* m */
-	int	v_error;	/* m */
+	struct aogps	gps;
 };
 
 struct aostate {
@@ -112,10 +120,9 @@ struct aostate {
 	double	max_acceleration;
 	double	max_speed;
 
-	double	lat;
-	double	lon;
-	int	gps_valid;
+	struct aogps	gps;
 
+	int	gps_valid;
 	double	pad_lat;
 	double	pad_lon;
 	double	pad_alt;

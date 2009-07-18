@@ -105,41 +105,43 @@ aoview_monitor_parse(const char *input_line)
 	aoview_parse_int(&data.flight_vel, words[28]);
 	aoview_parse_int(&data.flight_pres, words[30]);
 	aoview_parse_int(&data.ground_pres, words[32]);
-	aoview_parse_int(&data.nsat, words[34]);
+	aoview_parse_int(&data.gps.nsat, words[34]);
 	if (strcmp (words[36], "unlocked") == 0) {
-		data.gps_connected = 1;
-		data.gps_locked = 0;
-		data.gps_time.hour = data.gps_time.minute = data.gps_time.second = 0;
-		data.lat = data.lon = 0;
-		data.alt = 0;
+		data.gps.gps_connected = 1;
+		data.gps.gps_locked = 0;
+		data.gps.gps_time.hour = data.gps.gps_time.minute = data.gps.gps_time.second = 0;
+		data.gps.lat = data.gps.lon = 0;
+		data.gps.alt = 0;
 	} else if (nword >= 40) {
-		data.gps_locked = 1;
-		data.gps_connected = 1;
-		sscanf(words[36], "%d:%d:%d", &data.gps_time.hour, &data.gps_time.minute, &data.gps_time.second);
-		aoview_parse_pos(&data.lat, words[37]);
-		aoview_parse_pos(&data.lon, words[38]);
-		sscanf(words[39], "%dm", &data.alt);
+		data.gps.gps_locked = 1;
+		data.gps.gps_connected = 1;
+		sscanf(words[36], "%d:%d:%d", &data.gps.gps_time.hour, &data.gps.gps_time.minute, &data.gps.gps_time.second);
+		aoview_parse_pos(&data.gps.lat, words[37]);
+		aoview_parse_pos(&data.gps.lon, words[38]);
+		sscanf(words[39], "%dm", &data.gps.alt);
 	} else {
-		data.gps_connected = 0;
-		data.gps_locked = 0;
-		data.gps_time.hour = data.gps_time.minute = data.gps_time.second = 0;
-		data.lat = data.lon = 0;
-		data.alt = 0;
+		data.gps.gps_connected = 0;
+		data.gps.gps_locked = 0;
+		data.gps.gps_time.hour = data.gps.gps_time.minute = data.gps.gps_time.second = 0;
+		data.gps.lat = data.gps.lon = 0;
+		data.gps.alt = 0;
 	}
 	if (nword >= 46) {
-		sscanf(words[40], "%lfm/s", &data.ground_speed);
-		sscanf(words[41], "%d", &data.course);
-		sscanf(words[42], "%lfm/s", &data.climb_rate);
-		sscanf(words[43], "%lf", &data.hdop);
-		sscanf(words[44], "%d", &data.h_error);
-		sscanf(words[45], "%d", &data.v_error);
+		data.gps.gps_extended = 1;
+		sscanf(words[40], "%lfm/s", &data.gps.ground_speed);
+		sscanf(words[41], "%d", &data.gps.course);
+		sscanf(words[42], "%lfm/s", &data.gps.climb_rate);
+		sscanf(words[43], "%lf", &data.gps.hdop);
+		sscanf(words[44], "%d", &data.gps.h_error);
+		sscanf(words[45], "%d", &data.gps.v_error);
 	} else {
-		data.ground_speed = 0;
-		data.course = 0;
-		data.climb_rate = 0;
-		data.hdop = 0;
-		data.h_error = 0;
-		data.v_error = 0;
+		data.gps.gps_extended = 0;
+		data.gps.ground_speed = 0;
+		data.gps.course = 0;
+		data.gps.climb_rate = 0;
+		data.gps.hdop = 0;
+		data.gps.h_error = 0;
+		data.gps.v_error = 0;
 	}
 	aoview_state_notify(&data);
 	return TRUE;
