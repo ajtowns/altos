@@ -289,9 +289,9 @@ ao_gps(void) __reentrant
 	}
 	for (;;) {
 		/* Locate the begining of the next record */
-		while (ao_sirf_byte() != 0xa0)
+		while (ao_sirf_byte() != (uint8_t) 0xa0)
 			;
-		if (ao_sirf_byte() != 0xa2)
+		if (ao_sirf_byte() != (uint8_t) 0xa2)
 			continue;
 
 		/* Length */
@@ -321,9 +321,9 @@ ao_gps(void) __reentrant
 		cksum |= ao_sirf_byte();
 		if (ao_sirf_cksum != cksum)
 			continue;
-		if (ao_sirf_byte() != 0xb0)
+		if (ao_sirf_byte() != (uint8_t) 0xb0)
 			continue;
-		if (ao_sirf_byte() != 0xb3)
+		if (ao_sirf_byte() != (uint8_t) 0xb3)
 			continue;
 
 		switch (i) {
