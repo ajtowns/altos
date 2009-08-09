@@ -58,15 +58,21 @@ aoview_flite_task(gpointer data)
 		{
 			rate = wave->sample_rate;
 			channels = wave->num_channels;
-			snd_pcm_set_params(alsa_handle,
-					   SND_PCM_FORMAT_S16,
-					   SND_PCM_ACCESS_RW_INTERLEAVED,
-					   channels,
-					   rate,
-					   1,
-					   100000);
+			err = snd_pcm_set_params(alsa_handle,
+						 SND_PCM_FORMAT_S16,
+						 SND_PCM_ACCESS_RW_INTERLEAVED,
+						 channels,
+						 rate,
+						 1,
+						 100000);
+			if (err < 0)
+				fprintf(stderr, "alsa set_params error %s\n",
+					strerror(-err));
 		}
-		snd_pcm_prepare(alsa_handle);
+		err = snd_pcm_prepare(alsa_handle);
+		if (err < 0)
+			fprintf(stderr, "alsa pcm_prepare error %s\n",
+				strerror(-err));
 		err = snd_pcm_writei(alsa_handle,
 				     wave->samples,
 				     wave->num_samples);
