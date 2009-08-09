@@ -37,6 +37,8 @@ aoview_flite_task(gpointer data)
 	int		rate;
 	int		channels;
 	int		err;
+	char		*samples;
+	int		num_samples;
 
 	err = snd_pcm_open(&alsa_handle, "default",
 			   SND_PCM_STREAM_PLAYBACK, 0);
@@ -73,12 +75,19 @@ aoview_flite_task(gpointer data)
 		if (err < 0)
 			fprintf(stderr, "alsa pcm_prepare error %s\n",
 				strerror(-err));
-		err = snd_pcm_writei(alsa_handle,
-				     wave->samples,
-				     wave->num_samples);
-		if (err < 0)
-			fprintf(stderr, "alsa write error %s\n",
-				strerror(-err));
+		samples = (char *) wave->samples;
+		num_samples = wave->num_samples;
+		while (num_samples > 0) {
+			err = snd_pcm_writei(alsa_handle,
+					     samples, num_samples);
+			if (err <= 0) {
+				fprintf(stderr, "alsa write error %s\n",
+					strerror(-err));
+				break;
+			}
+			num_samples -= err;
+			samples += err * 2 * channels;
+		}
 		snd_pcm_drain(alsa_handle);
 		delete_wave(wave);
 	}
