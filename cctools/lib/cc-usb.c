@@ -282,6 +282,7 @@ cc_usb_write_memory(struct cc_usb *cc, uint16_t addr, uint8_t *bytes, int len)
 	cc_usb_printf(cc, "O %x %x\n", len, addr);
 	while (len--)
 		cc_usb_printf(cc, "%02x", *bytes++);
+	cc_usb_sync(cc);
 	return 0;
 }
 
