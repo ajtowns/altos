@@ -19,6 +19,8 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <stdint.h>
+#include <unistd.h>
+#include <getopt.h>
 #include "ccdbg.h"
 
 #define AO_USB_DESC_STRING		3
@@ -94,6 +96,7 @@ rewrite(struct hex_image *image, unsigned addr, char *data, int len)
 	memcpy(image->data + addr - image->address, data, len);
 }
 
+static const struct option
 int
 main (int argc, char **argv)
 {
