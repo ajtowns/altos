@@ -22,20 +22,10 @@
 #include "ccdbg-debug.h"
 #include "cc-bitbang.h"
 
-#define CP_USB_ASYNC
-
-#ifdef CP_USB_ASYNC
 #include "cp-usb-async.h"
-#else
-#include "cp-usb.h"
-#endif
 
 struct cc_bitbang {
-#ifdef CP_USB_ASYNC
 	struct cp_usb_async *cp_async;
-#else
-	struct cp_usb *cp;
-#endif
 };
 
 static uint32_t	cc_clock_us = CC_CLOCK_US;
@@ -77,30 +67,18 @@ cc_bitbang_open(void)
 		perror("calloc");
 		return NULL;
 	}
-#ifdef CP_USB_ASYNC
 	bb->cp_async = cp_usb_async_open();
 	if (!bb->cp_async) {
 		free (bb);
 		return NULL;
 	}
-#else
-	bb->cp = cp_usb_open ();
-	if (!bb->cp) {
-		free (bb);
-		return NULL;
-	}
-#endif
 	return bb;
 }
 
 void
 cc_bitbang_close(struct cc_bitbang *bb)
 {
-#ifdef CP_USB_ASYNC
 	cp_usb_async_close(bb->cp_async);
-#else
-	cp_usb_close(bb->cp);
-#endif
 	free (bb);
 }
 
@@ -140,30 +118,20 @@ cc_bitbang_reset(struct cc_bitbang *bb)
 int
 cc_bitbang_write(struct cc_bitbang *bb, uint8_t mask, uint8_t value)
 {
-#ifdef CP_USB_ASYNC
 	cp_usb_async_write(bb->cp_async, mask, value);
-#else
-	cp_usb_write(bb->cp, mask, value);
-#endif
 	return 0;
 }
 
 void
 cc_bitbang_read(struct cc_bitbang *bb, uint8_t *valuep)
 {
-#ifdef CP_USB_ASYNC
 	cp_usb_async_read(bb->cp_async, valuep);
-#else
-	*valuep = cp_usb_read(bb->cp);
-#endif
 }
 
 void
 cc_bitbang_sync(struct cc_bitbang *bb)
 {
-#ifdef CP_USB_ASYNC
 	cp_usb_async_sync(bb->cp_async);
-#endif
 }
 
 static char

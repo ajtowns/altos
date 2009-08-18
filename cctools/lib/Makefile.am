@@ -5,6 +5,7 @@ AM_CFLAGS=$(WARN_CFLAGS) $(LIBUSB_CFLAGS)
 libcc_a_SOURCES = \
 	ccdbg-command.c \
 	ccdbg-debug.c \
+	ccdbg-debug.h \
 	ccdbg-flash.c \
 	ccdbg.h \
 	ccdbg-hex.c \
@@ -17,5 +18,5 @@ libcc_a_SOURCES = \
 	cc-usb.h \
 	cc-bitbang.c \
 	cc-bitbang.h \
-	cp-usb.c \
-	cp-usb-async.c
+	cp-usb-async.c \
+	cp-usb-async.h
