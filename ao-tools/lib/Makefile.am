@@ -1,8 +1,8 @@
-noinst_LIBRARIES = libcc.a
+noinst_LIBRARIES = libao-tools.a
 
 AM_CFLAGS=$(WARN_CFLAGS) $(LIBUSB_CFLAGS)
 
-libcc_a_SOURCES = \
+libao_tools_a_SOURCES = \
 	ccdbg-command.c \
 	ccdbg-debug.c \
 	ccdbg-debug.h \

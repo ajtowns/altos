@@ -16,7 +16,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "s51.h"
+#include "ao-dbg.h"
 
 static struct command_function functions[] = {
 	{ "help",   "?",  command_help,	"help",		"Print this list\n" },

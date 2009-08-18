@@ -16,7 +16,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "s51.h"
+#include "ao-dbg.h"
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>

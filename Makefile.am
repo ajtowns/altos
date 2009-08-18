@@ -1,1 +1,1 @@
-SUBDIRS=src aoview cctools utils
+SUBDIRS=src ao-view ao-tools ao-utils

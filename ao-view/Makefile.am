@@ -1,11 +1,12 @@
 VERSION=$(shell git describe)
+
 AM_CFLAGS=$(GNOME_CFLAGS) $(ALSA_CFLAGS) -I$(top_srcdir)/src -DAOVIEW_VERSION=\"$(VERSION)\" @FLITE_INCS@
 
-bin_PROGRAMS=aoview
+bin_PROGRAMS=ao-view
 
-aoview_LDADD=$(GNOME_LIBS) $(FLITE_LIBS) $(ALSA_LIBS)
+ao_view_LDADD=$(GNOME_LIBS) $(FLITE_LIBS) $(ALSA_LIBS)
 
-aoview_SOURCES = \
+ao_view_SOURCES = \
 	aoview_main.c \
 	aoview_dev.c \
 	aoview_dev_dialog.c \
