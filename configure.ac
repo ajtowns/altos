@@ -53,6 +53,18 @@ if test "x$HAVE_FLITE_H" = "xyes" -a "x$HAVE_LIBFLITE" = "xyes"; then
 fi
 AM_CONDITIONAL(USE_FLITE,test "x$HAVE_FLITE_H" = "xyes" -a "x$HAVE_LIBFLITE" = "xyes")
 
+AC_CHECK_PROG([HAVE_SDCC], [sdcc], yes, no)
+if test "x$HAVE_SDCC" = "xno"; then
+	AC_MSG_ERROR([Please install sdcc to build AltOs])
+fi
+
+AC_CHECK_PROG([HAVE_NICKLE], [nickle], yes, no)
+if test "x$HAVE_NICKLE" = "xno"; then
+	AC_MSG_ERROR([Please install nickle to build AltOs])
+fi
+
+AC_CHECK_LIB(readline, readline)
+
 PKG_CHECK_MODULES([GNOME], [gtk+-2.0 libglade-2.0 gconf-2.0])
 
 PKG_CHECK_MODULES([LIBUSB], [libusb-1.0])
