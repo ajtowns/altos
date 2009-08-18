@@ -73,13 +73,13 @@ PKG_CHECK_MODULES([ALSA], [alsa])
 
 AC_OUTPUT([
 Makefile
-aoview/Makefile
-cctools/Makefile
-cctools/lib/Makefile
-cctools/ccload/Makefile
-cctools/s51/Makefile
-cctools/ccmanual/Makefile
-cctools/ccdump/Makefile
-cctools/aoload/Makefile
-utils/Makefile
+ao-view/Makefile
+ao-tools/Makefile
+ao-tools/lib/Makefile
+ao-tools/ao-rawload/Makefile
+ao-tools/ao-dbg/Makefile
+ao-tools/ao-bitbang/Makefile
+ao-tools/ao-eeprom/Makefile
+ao-tools/ao-load/Makefile
+ao-utils/Makefile
 ])
