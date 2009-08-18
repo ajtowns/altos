@@ -308,4 +308,8 @@ aoview_flite_start(void);
 void
 aoview_flite_stop(void);
 
+/* aoview_main.c */
+
+extern char *aoview_tty;
+
 #endif /* _AOVIEW_H_ */

@@ -19,16 +19,11 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <stdint.h>
+#include <unistd.h>
+#include <getopt.h>
 #include "ccdbg.h"
 
 #define AO_USB_DESC_STRING		3
-
-void
-usage(char *program)
-{
-	fprintf(stderr, "usage: %s <filename.ihx> <serial>\n", program);
-	exit(1);
-}
 
 struct sym {
 	unsigned	addr;
@@ -94,6 +89,17 @@ rewrite(struct hex_image *image, unsigned addr, char *data, int len)
 	memcpy(image->data + addr - image->address, data, len);
 }
 
+static const struct option options[] = {
+	{ .name = "tty", .has_arg = 1, .val = 'T' },
+	{ 0, 0, 0, 0},
+};
+
+static void usage(char *program)
+{
+	fprintf(stderr, "usage: %s [--tty <tty-name>] file.ihx serial-number\n", program);
+	exit(1);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -102,12 +108,12 @@ main (int argc, char **argv)
 	uint16_t	pc;
 	struct hex_file	*hex;
 	struct hex_image *image;
-	char *filename;
-	FILE *file;
-	FILE *map;
-	char *serial_string;
-	unsigned int serial;
-	char *mapname, *dot;
+	char		*filename;
+	FILE		*file;
+	FILE		*map;
+	char		*serial_string;
+	unsigned int	serial;
+	char		*mapname, *dot;
 	char		*serial_ucs2;
 	int		serial_ucs2_len;
 	char		serial_int[2];
@@ -115,8 +121,20 @@ main (int argc, char **argv)
 	int		i;
 	unsigned	usb_descriptors;
 	int		string_num;
+	char		*tty = NULL;
+	int		c;
 
-	filename = argv[1];
+	while ((c = getopt_long(argc, argv, "T:", options, NULL)) != -1) {
+		switch (c) {
+		case 'T':
+			tty = optarg;
+			break;
+		default:
+			usage(argv[0]);
+			break;
+		}
+	}
+	filename = argv[optind];
 	if (filename == NULL)
 		usage(argv[0]);
 	mapname = strdup(filename);
@@ -125,7 +143,7 @@ main (int argc, char **argv)
 		usage(argv[0]);
 	strcpy(dot, ".map");
 
-	serial_string = argv[2];
+	serial_string = argv[optind + 1];
 	if (serial_string == NULL)
 		usage(argv[0]);
 
@@ -160,7 +178,7 @@ main (int argc, char **argv)
 
 	serial = strtoul(serial_string, NULL, 0);
 	if (!serial)
-		usage(argv[0]);
+(argv[0]);
 
 	serial_int[0] = serial & 0xff;
 	serial_int[1] = (serial >> 8) & 0xff;
@@ -201,7 +219,7 @@ main (int argc, char **argv)
 	if (!rewrite(image, usb_descriptors + 2 + image->address, serial_ucs2, serial_ucs2_len))
 		usage(argv[0]);
 
-	dbg = ccdbg_open();
+	dbg = ccdbg_open(tty);
 	if (!dbg)
 		exit (1);
 

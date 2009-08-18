@@ -16,7 +16,20 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+#include <unistd.h>
+#include <getopt.h>
 #include "ccdbg.h"
+
+static const struct option options[] = {
+	{ .name = "tty", .has_arg = 1, .val = 'T' },
+	{ 0, 0, 0, 0},
+};
+
+static void usage(char *program)
+{
+	fprintf(stderr, "usage: %s [--tty <tty-name>] file.ihx\n", program);
+	exit(1);
+}
 
 int
 main (int argc, char **argv)
@@ -26,10 +39,22 @@ main (int argc, char **argv)
 	uint16_t	pc;
 	struct hex_file	*hex;
 	struct hex_image *image;
-	char *filename;
-	FILE *file;
+	char		*filename;
+	FILE		*file;
+	char		*tty = NULL;
+	int		c;
 
-	filename = argv[1];
+	while ((c = getopt_long(argc, argv, "T:", options, NULL)) != -1) {
+		switch (c) {
+		case 'T':
+			tty = optarg;
+			break;
+		default:
+			usage(argv[0]);
+			break;
+		}
+	}
+	filename = argv[optind];
 	if (filename == NULL) {
 		fprintf(stderr, "usage: %s <filename.ihx>\n", argv[0]);
 		exit(1);
@@ -50,7 +75,7 @@ main (int argc, char **argv)
 	}
 
 	ccdbg_hex_file_free(hex);
-	dbg = ccdbg_open();
+	dbg = ccdbg_open(tty);
 	if (!dbg)
 		exit (1);
 

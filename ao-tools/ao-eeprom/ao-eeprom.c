@@ -18,9 +18,22 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <getopt.h>
 #include "cc-usb.h"
 
 #define NUM_BLOCK	512
+
+static const struct option options[] = {
+	{ .name = "tty", .has_arg = 1, .val = 'T' },
+	{ 0, 0, 0, 0},
+};
+
+static void usage(char *program)
+{
+	fprintf(stderr, "usage: %s [--tty <tty-name>]\n", program);
+	exit(1);
+}
 
 int
 main (int argc, char **argv)
@@ -31,10 +44,26 @@ main (int argc, char **argv)
 	uint8_t		*b;
 	int		i, j;
 	uint32_t	addr;
-	char		*tty;
+	char		*tty = NULL;
+	int		c;
 
-	tty = getenv("CCDBG_TTY");
+	while ((c = getopt_long(argc, argv, "T:", options, NULL)) != -1) {
+		switch (c) {
+		case 'T':
+			tty = optarg;
+			break;
+		default:
+			usage(argv[0]);
+			break;
+		}
+	}
+	if (!tty)
+		tty = getenv("ALTOS_TTY");
+	if (!tty)
+		tty="/dev/ttyACM0";
 	cc = cc_usb_open(tty);
+	if (!cc)
+		exit(1);
 	for (block = 0; block < NUM_BLOCK; block++) {
 		cc_queue_read(cc, bytes, sizeof (bytes));
 		cc_usb_printf(cc, "e %x\n", block);

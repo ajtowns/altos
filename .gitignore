@@ -12,6 +12,7 @@
 *.rst
 *.sym
 .deps
+TAGS
 aclocal.m4
 src/ao_flight_test
 src/ao_gps_test

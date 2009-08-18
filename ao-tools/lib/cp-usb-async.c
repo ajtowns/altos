@@ -60,6 +60,7 @@ cp_usb_async_open(void)
 						     0x10c4, 0xea60);
 	cp->ack = -1;
 	if (!cp->handle) {
+		fprintf(stderr, "Cannot find USB device 10c4:ea60\n");
 		libusb_exit(cp->ctx);
 		free(cp);
 		return NULL;
