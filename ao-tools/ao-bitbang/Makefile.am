@@ -8,3 +8,5 @@ ao_bitbang_DEPENDENCIES = $(AO_BITBANG_LIBS)
 ao_bitbang_LDADD=$(AO_BITBANG_LIBS) $(LIBUSB_LIBS)
 
 ao_bitbang_SOURCES = ao-bitbang.c
+
+man_MANS=ao-bitbang.1

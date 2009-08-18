@@ -8,3 +8,5 @@ ao_eeprom_DEPENDENCIES = $(AO_EEPROM_LIBS)
 ao_eeprom_LDADD=$(AO_EEPROM_LIBS) $(LIBUSB_LIBS)
 
 ao_eeprom_SOURCES = ao-eeprom.c
+
+man_MANS = ao-eeprom.1

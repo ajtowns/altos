@@ -29,5 +29,7 @@ BUILT_SOURCES = aoview_glade.h
 
 CLEANFILES = aoview_glade.h
 
+man_MANS=ao-view.1
+
 aoview_glade.h: aoview.glade
 	sed -e 's/"/\\"/g' -e 's/^/"/' -e 's/$$/"/' $< > $@

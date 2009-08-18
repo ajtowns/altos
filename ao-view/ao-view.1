@@ -1,0 +1,50 @@
+.\"
+.\" Copyright © 2009 Keith Packard <keithp@keithp.com>
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+.\"
+.\"
+.TH AO-VIEW 1 "ao-view" ""
+.SH NAME
+ao-view \- Rocket flight monitor
+.SH SYNOPSIS
+.B "ao-view"
+[\--tty \fItty-device\fP]
+.SH DESCRIPTION
+.I ao-view
+connects to a TeleDongle or TeleMetrum device through a USB serial device.
+It provides a user interface to monitor, record and review rocket flight data.
+.SH OPTIONS
+The usual Gtk+ command line options can be used, along with
+.IP "\--tty"
+This selects a target device to connect at startup time to.
+The target device may also be selected through the user interface.
+.SH USAGE
+When connected to a TeleDongle device, ao-view turns on the radio
+receiver and listens for telemetry packets. It displays the received
+telemetry data, and reports flight status via voice synthesis. All
+received telemetry information is recorded to a file.
+.P
+When connected to a TeleMetrum device, ao-view downloads the eeprom
+data and stores it in a file.
+.SH FILES
+All data log files are recorded into a user-specified directory
+(default ~/AltOS). Files are named using the current date, the serial
+number of the reporting device, the flight number recorded in the data
+and either '.telem' for telemetry data or '.eeprom' for eeprom data.
+.SH "SEE ALSO"
+ao-load(1), ao-eeprom(1)
+.SH AUTHOR
+Keith Packard
