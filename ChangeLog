@@ -1,3 +1,15 @@
+commit 42ab6d52540d0326ef89e9d57954b08248558468
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 19 02:21:06 2009 -0600
+
+    fix location for delivery of sources.list fragment
+
+commit 977f5dc0bc7c666dcc1f21db77416efca0d696aa
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 19 02:11:11 2009 -0600
+
+    update changelogs for Debian build
+
 commit 8d4d6655f1b4c2fbc522fd255bfb75406e5ddaef
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed Aug 19 02:11:00 2009 -0600
