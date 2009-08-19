@@ -1,0 +1,17 @@
+Source: altos
+Section: otherosfs
+Priority: extra
+Maintainer: Bdale Garbee <bdale@gag.com>
+Uploaders: Keith Packard <keithp@keithp.com>
+Build-Depends: debhelper (>= 7), autoconf, automake, flite1-dev, libasound2-dev, libgconf2-dev, libglade2-dev, libgtk2.0-dev, libreadline5-dev, libusb-1.0-0-dev, nickle, sdcc
+Standards-Version: 3.8.3
+Homepage: http://altusmetrum.org/
+
+Package: altos
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, nickle
+Description: Altus Metrum firmware and utilities
+ Firmware and utilities needed to support the TeleMetrum dual-deploy
+ recording altimeter for high power model rocketry.  
+ .
+ See http://altusmetrum.org/ for more information.

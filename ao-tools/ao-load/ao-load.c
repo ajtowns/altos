@@ -89,9 +89,6 @@ rewrite(struct hex_image *image, unsigned addr, char *data, int len)
 	memcpy(image->data + addr - image->address, data, len);
 }
 
-<<<<<<< HEAD:ao-tools/ao-load/ao-load.c
-static const struct option
-=======
 static const struct option options[] = {
 	{ .name = "tty", .has_arg = 1, .val = 'T' },
 	{ 0, 0, 0, 0},
@@ -103,7 +100,6 @@ static void usage(char *program)
 	exit(1);
 }
 
->>>>>>> c29275b72438637d46d7a50742882d2736eb176a:ao-tools/ao-load/ao-load.c
 int
 main (int argc, char **argv)
 {

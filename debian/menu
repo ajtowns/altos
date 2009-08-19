@@ -1,0 +1,2 @@
+?package(altos):needs="X11" section="Applications/Viewers"\
+  title="aoview" command="/usr/bin/aoview"

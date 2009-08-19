@@ -1,0 +1,2755 @@
+commit ea86b19629001059952f7572fa8564e2263dc9f6
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 20:47:41 2009 -0600
+
+    deliver sources.list.d fragment so updates are closer to automatic
+
+commit cec78502c06f11880366f6131c0442906c6ed864
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 20:17:31 2009 -0600
+
+    update changelogs for Debian build
+
+commit 82d24bc65af85231b0d67394b30adfdb7beb6564
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 20:17:08 2009 -0600
+
+    we need ChangeLog in the repo for git-buildpackage to work right
+
+commit c8e04df1423bfd4e9318d9fccae2cfb4a97983ab
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 20:12:44 2009 -0600
+
+    update Debian changelog for build
+
+commit 2fda90c0f8ab46a83175ed168fcba9b11efcd453
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 20:12:22 2009 -0600
+
+    update Debian changelog for build
+
+commit a40f45bf4791bced48efb728be8990e41a7e4280
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 20:08:10 2009 -0600
+
+    move the ChangeLog creation to the prebuild target
+
+commit ae7752210a0e06beacad011c17dbf75bff39eda8
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 18:57:56 2009 -0600
+
+    update Debian changelog for build
+
+commit c7f7a1ed3494db008b397a613cfcd3ab36c01920
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 18:56:20 2009 -0600
+
+    update Debian changelog for build
+
+commit ebaf8b0d02d82bce7c7ea78e281377768b996d6d
+Merge: 79501a5 d996aa9
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 18:56:16 2009 -0600
+
+    Merge branch 'master' into debian
+
+commit d996aa9b32fb0eb385bd3d158256c29788a42fe3
+Merge: b3b2d3c 7d4ceb7
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 18:56:09 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 7d4ceb75a454e6c9b3fe0bd934fadcb5104dea36
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 18 17:55:22 2009 -0700
+
+    Add ao-ejection.1 man page
+    
+    Document the input requirements and output format
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 79501a5462ab29d661cf76f63628bd4616b6ae1b
+Merge: f48eb20 b3b2d3c
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 18:37:10 2009 -0600
+
+    Merge branch 'master' into debian
+
+commit b3b2d3c475a135084b5628c730fc6fca1ba0817b
+Merge: 4685fc5 da12b89
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 18:36:03 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit f48eb2033f3685fedd42d307963671a8060604c3
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 18:33:53 2009 -0600
+
+    don't ship a zero-length ChangeLog, when it's easy to make one...
+
+commit da12b89fb056a68e65ba363fef91d266727cb685
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 18 17:30:43 2009 -0700
+
+    Create ChangeLog from git log
+
+commit 7d69e2b3715faed10ce21ad562fc4d25dfc5f9c1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 18 17:29:29 2009 -0700
+
+    Fix ao-bitbang examples to not have . in the first column
+
+commit 192b08c28719b5518ed349d9897f9a21add3c615
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 18:24:50 2009 -0600
+
+    update Debian changelog for build
+
+commit 5969d1d0e3aa554187a5bcc899a2f1347656fd5e
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 18:24:22 2009 -0600
+
+    fixing things lintian points out
+
+commit 9bf7c23f6e8ac7080240b91a28b355e50ecb4c4d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 18:14:02 2009 -0600
+
+    update Debian changelog for build
+
+commit d861218bc6c2f57816953af3271d93fc48f8afc2
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 18:13:48 2009 -0600
+
+    fix merge conflict
+
+commit 3f953f56fbfd4e903c09ca1e4309664d38c2c669
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 18:10:06 2009 -0600
+
+    update Debian changelog for build
+
+commit 7fcbe76ce82ec5a17cf536afa0d1b9061e225aa9
+Merge: 035ba6d 4685fc5
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 18:09:59 2009 -0600
+
+    Merge branch 'master' into debian
+
+commit 4685fc541466afbeefc151bcb64cd054739c048b
+Merge: 1c2a0b6 c29275b
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 18:09:38 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+    
+    Conflicts:
+    	ao-tools/ao-bitbang/Makefile.am
+    	ao-tools/ao-eeprom/Makefile.am
+    	ao-tools/ao-load/Makefile.am
+    	ao-tools/ao-load/ao-load.c
+    	ao-tools/ao-rawload/Makefile.am
+
+commit c29275b72438637d46d7a50742882d2736eb176a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 18 15:21:57 2009 -0700
+
+    Add manual pages for remaining commands.
+    
+    Manuals written for ao-bitbang, ao-eeprom, ao-load, ao-rawload and
+    ao-view.
+    
+    Manual for ao-dbg updated to reflect program name change.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9b03d620722dc54630539afba40720c30de69b2d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 18 12:19:31 2009 -0700
+
+    Use --tty/-T on command line to specify target device
+    
+    Also, use the ALTOS_TTY environment variable in all tools. Note that
+    the magic value of "BITBANG" switches the library to connecting
+    through a CP2103 instead.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7c790fe859dff062692964338091ffbbcdf63257
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 18 12:40:24 2009 -0700
+
+    Rename tools to ao-<foo>
+    
+    Use a consistent prefix to make it easier to remember which programs
+    belong to this package
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 035ba6df17f016953351bc77a98623c165b69909
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 14:40:58 2009 -0600
+
+    update Debian changelog for build
+
+commit 7aa251970cbbb6b9d9678ed0721e28da3df9036b
+Merge: 107055e 1c2a0b6
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 14:40:54 2009 -0600
+
+    Merge branch 'master' into debian
+
+commit 1c2a0b6653623b689d68d7349a6b2dce3e20a4a6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 18 13:36:54 2009 -0700
+
+    re-add debugger sources
+
+commit 107055e969e89771d1e2f8ac8b1a4c5b4b9e9a48
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 14:03:48 2009 -0600
+
+    update Debian changelog for build
+
+commit 14915158049918fa2fa5294f325b77dc9b08bab8
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 14:03:41 2009 -0600
+
+    update Debian changelog for build
+
+commit 0fcc426f96577ebbaf0c2d009cd2708e974de315
+Merge: 91b8592 9789ca5
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 14:03:16 2009 -0600
+
+    Merge branch 'master' into debian
+
+commit 9a9cce5510b87252f863239ac807b9fb4395b288
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 18 12:19:31 2009 -0700
+
+    Start working on using getopt for the tty name
+
+commit 9789ca5e8caa9a013e804f307b9da380e147bd75
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 18 12:40:24 2009 -0700
+
+    Rename tools to ao-<foo>
+    
+    Use a consistent prefix to make it easier to remember which programs
+    belong to this package
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 91b85929df6a3464396702fd177a6f74c6f28c7a
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 12:59:36 2009 -0600
+
+    update Debian changelog for build
+
+commit 645cc909a279347aa1665ce883c71090b29935a9
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 12:59:28 2009 -0600
+
+    update Debian changelog for build
+
+commit f54e075705b3d4d6919494e8cff99141128f0303
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 12:59:15 2009 -0600
+
+    deliver firmware files too
+
+commit 30fb0e78a464794a11fb8cf4ae385c3123922371
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 12:52:39 2009 -0600
+
+    update Debian changelog for build
+
+commit 022e77db3416175e9b440828f94fb75b739ec00a
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 12:49:05 2009 -0600
+
+    oops, need to force prefix to /usr for Debian policy compliance
+
+commit a382039ebb91e3bea682b601feef15517290ad3b
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 12:39:41 2009 -0600
+
+    update Debian changelog for build
+
+commit 90347b16e11743e80f85308700e50b1228c2b8e0
+Merge: 06a0e43 a578239
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 12:39:17 2009 -0600
+
+    Merge branch 'master' into debian
+
+commit a5782398d968e7cb11f7203afada7c216f233b3b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 18 11:34:28 2009 -0700
+
+    Remove unused cctools code paths for old libusb and cp2103 ioctls.
+    
+    Communication with the CP2103 board has gone through three revisions,
+    first using ioctls supported by the CP2103 kernel driver, then using
+    the old synchronous usb library and now using the newer libusb
+    asynchronous interface. There's no reason to keep shipping the old
+    stale code now that the new stuff works reliably.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 06a0e432480efb4e10220b0bdf402282aad32de9
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 12:16:23 2009 -0600
+
+    update Debian changelog for build
+
+commit f9126a21b6a027e56d3c9d086889375fd7f37f3c
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 12:06:03 2009 -0600
+
+    update Debian changelog for build
+
+commit 4d7c4c69a5e0ab16018c2a9325168e363a10084b
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 12:05:46 2009 -0600
+
+    fix the changelog version extraction to work for a native version
+
+commit fc761cc0117cb5a091b041b73b34d222b56a60f0
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 11:58:29 2009 -0600
+
+    update Debian changelog for build
+
+commit 9a97abb7b1afc90e8f67ba065583a49107a55f61
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 11:58:18 2009 -0600
+
+    update Debian changelog for build
+
+commit 24c337de950ac5d4b1d074dc20eb7c6a68338462
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 11:58:11 2009 -0600
+
+    oops, fix syntax
+
+commit 11c610c0e09d4f175b7e164e071ada361a1e9e2e
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 11:57:52 2009 -0600
+
+    update Debian changelog for build
+
+commit f65fa2b7d810ebae4b6df313de8bfe3687223a16
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 11:57:00 2009 -0600
+
+    call debian/rules prebuild before creating source tarball
+
+commit dc5679ee90429fe43c6180d1d298183a79334dfc
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 11:54:11 2009 -0600
+
+    update Debian changelog for build
+
+commit cf1fa8b062c05ee995d6befee9088908b2b22473
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 11:53:31 2009 -0600
+
+    add a prebuild target for use from git-buildpackage clean hook, that creates
+    a new debian/changelog entry based on git-describe output
+
+commit d7e60e48b6d85274690478223ef3b571a818e228
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 11:52:46 2009 -0600
+
+    update Debian changelog for build
+
+commit e946fa231a719abfdd3f319b8c3345dfc75ee185
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 00:08:30 2009 -0600
+
+    allow pass-in of VERSION, only call git describe if VERSION not set yet
+
+commit f762a9dfb3b9c81e443a85cd434154598c737ed8
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 00:06:24 2009 -0600
+
+    see if this works
+
+commit c6514ac5c47b44456a15d0f627f274eca769122e
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 00:03:27 2009 -0600
+
+    undo the post-commit hook stuff
+
+commit 2d53e72e938086688c81d16750b2c880fee1f4cd
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 17 23:55:47 2009 -0600
+
+    tweak makefile to use version file instead of calling git describe directly
+
+commit 2732624c67f5397fed5f31b062feb0f27b7f8fbd
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 17 23:53:35 2009 -0600
+
+    add version to the list of ignored files
+
+commit 08b28a0d4a71ba25ca949fe57bb150a89b401cef
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 17 23:39:35 2009 -0600
+
+    add build dependencies
+
+commit bc5d65b7e9776c87948edc4bd88fc4125ca20209
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 17 23:32:49 2009 -0600
+
+    build as a Debian specific package since we have no "upstream"
+
+commit e4fb67c989e10f626042e3b125ffd900bf477d60
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 17 23:31:52 2009 -0600
+
+    add a config file for git-buildpackage
+
+commit 5f59df632f3a82348aefc2b16f2521f6ebd30a50
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 17 23:31:20 2009 -0600
+
+    don't fail to clean if Makefile not present
+
+commit 946f2be3f4fdd0e7cf5c9867ff6fa0d348d95ee1
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 17 23:30:20 2009 -0600
+
+    package for Debian
+
+commit 7cba411de0780c65e3490ab67186a514f0ea42ec
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 17 20:47:31 2009 -0700
+
+    test for sdcc, nickle and readline
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f48dcffae761700355a17b59345d55a60703f0c4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 9 20:43:10 2009 -0700
+
+    Sync USB data after each memory write command
+    
+    This makes sure we flush the USB link often enough for the other end to keep
+    up.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit cd5456f18e4b39ad76d5549df91a0e0cfb18a2e9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 9 16:08:07 2009 -0700
+
+    Handle partial ALSA PCM writes
+    
+    The ALSA spec says that snd_pcm_writei will not return a partial write, but
+    at least on the OLPC, that's not true. Deal with this.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3056cb8eef5aee0dcd342488386355d8b8f574c8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 9 15:55:19 2009 -0700
+
+    Check more alsa return statuses
+
+commit 8ddf3345afd8cbf638e81993633f7861d8dbca63
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 18 01:47:34 2009 -0700
+
+    Don't report distance to rocket without valid GPS
+    
+    When there's no valid GPS data, don't try to report the distance and bearing
+    to the rocket after landing.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fbcb7b20fa701a6e534d38e307839466545668e3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 18 01:05:33 2009 -0700
+
+    Add B command to set serial baud rate
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 91b023e7e4eeed838e0320d2ddac0f6aac39e565
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 18 01:05:13 2009 -0700
+
+    Get rid of spaces after minus sign in climb value
+
+commit 28be20cf914fb34dc3c776519708d0f02091764e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 18 01:04:39 2009 -0700
+
+    Switch to 57600 baud for GPS data
+
+commit d3f76ce58b9c0ed2e5a9fe3bbc7fb9cb38247714
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 18 01:04:17 2009 -0700
+
+    Drain serial port before changing speed
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d7c2d358ed8a1afc9f0ba2bd830b10f6b56dc7b1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 18 00:44:42 2009 -0700
+
+    Display last known GPS coord while unlocked
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5195fcfe239e430e1f9f11774c9a245c7b29dae9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 18 00:44:01 2009 -0700
+
+    use g_source_destroy instead of free on serial object
+
+commit 1e5e98bd8f5ea0bc15592de454e3629383462371
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 18 00:43:22 2009 -0700
+
+    Trim aoview_serial_set_callback args down to just port and callback
+
+commit 08f37056deec25d77062bc411a04033401b033a5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jul 17 22:11:03 2009 -0700
+
+    Reset GPS at boot time
+
+commit 1150aa850f5a025b849556e32c4dddb27937d9af
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jul 17 22:10:43 2009 -0700
+
+    Fix up serial debug output
+
+commit 2a7956a64935246475f92d44c08369e0230b676a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jul 17 21:34:13 2009 -0700
+
+    Allow the GPS port to run at 4800 baud if desired
+
+commit 8d650769c319261c97f5e68eff9138207b95c0f8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jul 17 21:33:53 2009 -0700
+
+    Initialize the GPS serial protocol state
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ab40d224b39ba6d29c4056e2d2c365e1eb3d3793
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jul 17 21:33:18 2009 -0700
+
+    Use uint8_t for comparisons to avoid int conversions
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d6749bf24792bb41ca700cf4b8e5e1ac1a63cbf0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jul 17 21:30:53 2009 -0700
+
+    Add AO_GPS_RUNNING state.
+    
+    This tracks whether the GPS receiver has ever sent a valid report to the
+    flight computer, allowing the user to tell whether the GPS receiver is
+    working at all.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a1da7e871aee75308bc05ce1b7a0dc402e4c9509
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jul 17 21:25:35 2009 -0700
+
+    Add M command to monitor serial bytes
+
+commit ddfa2308c0be4c002f982ae9da6032ee7854117d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jul 17 21:24:45 2009 -0700
+
+    Support the not-connected GPS state
+
+commit 34f148500df427c148188c0ada20bf914a7c74ba
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jul 17 19:23:10 2009 -0700
+
+    Use 57600 baud for GPS. Clean up gps init.
+    
+    Assume GPS is either in 4800 NMEA or 57600 SiRF mode, send just the sequence
+    to get from 4800 NMEA to 5760 SiRF.
+    
+    Also, eliminate threads from the gps test program.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2deca0c52cd6cfb4baceb59c8a5458344bada338
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jul 17 17:09:20 2009 -0700
+
+    Try harder to get the GPS receiver serial link sync'd up.
+    
+    We cannot assume that the GPS receiver is in any particular state when it
+    boots, so we try to send the serial configuration at several rates and hope
+    that it eventually sees something that it likes.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 31d5670a9144b943ce9c8cb00deb5fb659af0b1c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jul 17 17:06:18 2009 -0700
+
+    Rolling average for pad location. Say 'GPS ready'.
+    
+    Use a rolling average for the pad location, instead of just averaging all
+    positions. This filters out old (presumably less accurate) values eventually.
+    
+    When enough GPS samples have been acquired, say 'GPS ready'.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit bfe1e76c82738baaf65abbc58c3244a07ea8fefe
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jul 17 16:22:51 2009 -0700
+
+    Split GPS data into a separate column
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5f0179652e8bb85add9067e5253e981c60f2c51e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jul 17 16:03:35 2009 -0700
+
+    Fix up SiRF parsing and test code so that it actually works
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0b35447d05a0c7eaf4fefcbcf0065fe3320bba82
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jul 17 13:58:14 2009 -0700
+
+    Add host-side gps protocol testing program
+
+commit fef7334bddb9fccfbd6deab7d5d466ab3e76323a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 11 00:56:13 2009 -0700
+
+    Hook aoview directly to alsa
+    
+    This skips the flite internal audio stuff which opened and closed the audio
+    device for each phrase. This caused the first part of some phrases to be
+    missed when using an external audio device.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 80cadf44f5f1accd6ddfca25c2af8d4d424f26d9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jul 9 20:55:10 2009 -0700
+
+    Show speed. Format numbers. Timeout and report final status.
+    
+    The speed value is now shown in the top label bar. Ascent shows
+    accelerometer-derived data, otherwise it's baro derived.
+    
+    All of the numbers displayed are now given sensible printf formats so they
+    don't contain way too many digits.
+    
+    Instead of doing periodic reporting based on flight tick count, data is
+    reported every 10 seconds based on wall time. After landing, or when no data
+    have been received for a while, final flight information is spoken.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 19630ef084866f4230e68ccf11284b30c68128b1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jul 5 08:35:28 2009 -0700
+
+    Dont smash aoview_monitor_parse input buffer
+
+commit e506ed4b6efb86eab50204658fcd433b987e3831
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jun 30 15:25:52 2009 -0700
+
+    Integrate flite into aoview directly. Fix great circle computation.
+    
+    Use a separate thread for flite rather than a separate program.
+    Save voice state to gconf.
+    Add filters for replay file selection
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5b988e0146075d57434f8484e1ec9fcf3e183df2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jun 30 15:24:53 2009 -0700
+
+    Make window taller
+
+commit 696233b088645bba1aaa6aa6c5358c3ecfa5cd3f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jun 30 15:24:31 2009 -0700
+
+    Use 16kHz voice
+
+commit 2e06772c8b6fd74f86e640ed97f0d5bc8c095c2f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jun 30 11:58:30 2009 -0700
+
+    Add telem replay and larger labels
+    
+    Replays telemetry files in real time
+    Shows height/state/rssi in big values at the top.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 566dde161385263700eaae51095eecfa9b5972ee
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jun 29 23:06:47 2009 -0700
+
+    Update aoview/.gitignore
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4ca2d910f3be689fd3c78a4f1be0555d6b1a30c1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jun 29 23:05:27 2009 -0700
+
+    Use flite to announce flight state
+    
+    This uses the flite voice synthesis library from festival to announce
+    altitude and speed information during the rocket flight.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 527d7c803ed9597b210634018cb2eb9d048d9846
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jun 29 23:03:58 2009 -0700
+
+    Add GPS speed and error data to telemetry and aoview
+    
+    Having switched to the SiRF binary GPS format, the velocity and error data
+    can now be displayed.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ee4919dd771b00e2a2dd1083c9528efa7baab50f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jun 29 13:54:00 2009 -0700
+
+    Convert GPS to SiRF binary protocol.
+    
+    This switches the GPS unit from NMEA to SiRF protocol at startup and then
+    parses the binary data. The binary data uses a different encoding of lat/lon
+    than the NMEA strings, and so the telemetry and eeprom data formats change
+    with this switch.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 49bf37767d2453869f2ca2c0832d1124322c66e0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jun 17 23:22:25 2009 -0700
+
+    Add ejection computation utility
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e59520e343c2573b1b92c0b3c4aaa93e51bc55d3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jun 17 13:55:23 2009 -0700
+
+    Fix clock initialization to not try to use 32kHz xtal on P2_3/P2_4
+    
+    None of our boards have a 32kHz xtal oscillator, instead we use those pins
+    (on Telemetrum) for the deployment firing circuits. The old clock
+    initialization code was switching from the 32kHz RC oscillator to the 32kHz
+    crystal and overriding our use of those pins.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1c3cc12c08ddefbd6456a55c54ef87dd94d4ae9a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jun 14 17:25:34 2009 -0700
+
+    Some kernels reference USB ttys as tty/tty* instead of tty:tty*
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0f2cbd41332b1b63865c5f1a4e749419b469853a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jun 14 16:45:19 2009 -0700
+
+    Rename state apogee -> coast
+
+commit 5834a12c1d3d71105c9e3d1ceaf9f3ffac9ff1eb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jun 14 16:39:28 2009 -0700
+
+    rename states. launchpad -> pad, coast -> fast
+
+commit 8c40f19acd09fe93d492c9355da8a1198c34b1c3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jun 14 16:36:29 2009 -0700
+
+    Disable monitor mode when communicating via usb
+
+commit 7adea9c59c73acd52743446c74fb675e0a1d6d05
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jun 4 14:38:45 2009 -0700
+
+    Format GPS seconds as %02d.%04d to avoid spaces in the value
+    
+    The aoview GPS parsing code doesn't deal well with spaces in the middle of
+    the value, so pad the seconds field with a zero as needed.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a0e6bfee635b64092262936c858542318f6fc6dc
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Jun 4 13:11:48 2009 -0600
+
+    newer INSTALL file pulled in by autogen.sh
+
+commit cf1e258d52b878df10b51a047709b10ecd51a68e
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Jun 4 13:09:29 2009 -0600
+
+    add a distclean target to src/Makefile
+
+commit 176052b7c14fcad067835ecb550778faf67cf4da
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Jun 4 13:07:10 2009 -0600
+
+    add lib to the front of the subdir list
+
+commit 208bc15714c7b4020c017eef19011c4eb9ab51e2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jun 4 11:20:10 2009 -0700
+
+    Move build and debug tools to 'cctools' directory.
+    
+    These tools were merged in from the ccdbg package.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 17d2432a8b9c15963cd3b821f025ad33972ef477
+Merge: 210dbaa 8a9a3f0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jun 4 11:13:15 2009 -0700
+
+    Merge ccdbg and altos sources into one giant repository
+    
+    Keeping these separate isn't making things any easier.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 210dbaa23cdacf3a6f2d6e23493e96ee2ac9bca7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jun 4 10:41:34 2009 -0700
+
+    Use autotools, move altos to src subdir
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8cce307bb3156584ba17ae5a787f645dfee5fb94
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jun 4 10:25:30 2009 -0700
+
+    Make menu seperator insensitive
+
+commit 778cae8fc5a4b30e5045e4703316fc61ae18562a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jun 3 17:07:34 2009 -0700
+
+    aoview: Add eeprom data fetching
+    
+    Fetches the last flight data from a TM device connected via USB and writes
+    it to the flight log directory.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit bf140966e9649e75b884c8aa5f25ffbf9eed10ea
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jun 3 10:57:46 2009 -0700
+
+    Stop log dumping at flight end. Print 'end' at end of log.
+    
+    No reason to continue dumping data past the end of the flight now that the
+    logging stuff has been demonstrated to work reliably. Also, to make
+    automated log dumping easier, this prints out 'end' after the log data so
+    that aoview knows when to stop reading.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 35ac66969abe24ca23776618306a59fc17770e06
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 31 09:22:01 2009 -0700
+
+    Start adding bi-directional packet link
+
+commit 3a3bfd471a868d546d83cdc431b53c8f5208edb9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu May 28 23:17:33 2009 -0700
+
+    Eliminate RDF tone generation.
+    
+    Now that we have a viable telemetry-signal based RDF device via TeleDongle,
+    there's no reason to continue to waste power and bandwidth with a NFM tone.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4d83eef0fe1d24a845ab29a535dfc56e13e7ee20
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu May 28 23:17:25 2009 -0700
+
+    Change .gitignore to match new aoload procedure
+
+commit dcfcf3bec6788460b6fe8c239c80bad4526bd15b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 27 22:01:37 2009 -0700
+
+    Leave serial number writing to aoload
+    
+    Instead of building per-serial hex files, leave that
+    process to the new aoload program
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8a9a3f02b951382573ff74dd6ce5a1c0f335fa86
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 27 21:53:15 2009 -0700
+
+    Add aoload to load serial-numbered altos binaries.
+    
+    aoload is a custom version of ccload which edits the data before sending it
+    to the target machine, writing the target serial number into the data.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5a7a63c34b778e40a61ddabd16ec1af9a2be50c3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat May 23 21:20:12 2009 -0700
+
+    Fix aoview telemetry GPS parsing code to use correct columns
+    
+    This code was trying to pull the GPS data from the wrong columns, causing
+    aoview to fail to display GPS information.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 26988c3e7acb2fa832810475e43e08fd2867459c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat May 23 21:18:57 2009 -0700
+
+    Parse both telemetry or log data ao_flight_test
+    
+    Change the way data is fed from files to the flight test rig to handle
+    either kind of input file.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d6f5a0689023546464a71561f53fa2c943077c88
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat May 23 21:16:22 2009 -0700
+
+    Avoid 16-bit overflow in velocity computation.
+    
+    Adding two 16 bit integers together can wrap around to negative numbers,
+    this resulted in velocity values which never decreased, making the switch
+    from coast to apogee state not occur.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit aa6d87aeb616dd62f0debaded297232022b4f8bd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 20 09:44:55 2009 -0700
+
+    Make file handling more general so it can be reused.
+    
+    The log file handling stuff will be useful for saving eeprom data, so pull
+    it out of the real-time log handling code and make a general interface.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b730c8bcbce649cdddba935e1112aaae538bc526
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 17 23:54:44 2009 -0700
+
+    Ignore aoview_glade.h
+
+commit 91b07410122d0eaaf292cdb31c200925d45eaf2c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 17 23:36:21 2009 -0700
+
+    Transmit computed ground pressure and acceleration values
+    
+    These are the last two values relevant to figuring out the state of the
+    flight computer, and as they are computed by averaging 10 seconds of 100Hz
+    sample data, they're a lot more accurate than anything the receiver could do
+    on its own.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 71d1689759829f1bc8550f1a4d8c9f2dc90b2ab4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 17 23:18:09 2009 -0700
+
+    Provide install target
+
+commit f301b95e87c8ec1e3b58d595a05d486bede5e0c2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 17 23:13:20 2009 -0700
+
+    Embed glade file in executable
+    
+    This eliminates install issues nicely.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 26361686d6fc63dc22d22285f0543c5c2c756fb4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 17 23:05:23 2009 -0700
+
+    Add About dialog to aoview.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0f3233c49f43cd4e372e613303919ce4d50255b2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 17 22:44:19 2009 -0700
+
+    USB device names can contain '.' too
+    
+    Depending on the hierarchy of devices, names can contain '.', so allow those
+    too.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 33221277690e6ee30387c506c3f2b8237ed48efd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 17 22:43:34 2009 -0700
+
+    scandir returns -1 on error
+    
+    In which case, the namelist is invalid, so don't look at it, and don't free
+    it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7cb9fb675f56bf30ab6bf0bcdc5cb679709ffe3e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 17 22:29:54 2009 -0700
+
+    Send computed accel/vel/pres values over the radio
+    
+    These computed values reflect what the flight computer is actually refering
+    to for state changes, and will be useful in debugging the flight software as
+    well as provide a filtered view of the data.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2c780d67b8a22d75a2da4b2af21fd35f0c6f5236
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 17 22:29:06 2009 -0700
+
+    Handle disappearing serial devices
+    
+    Put up a dialog when the serial open fails, and shut down monitoring when
+    the serial device disappears while running.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 69616104813fc5ba89fb3128d04fb9328961c59c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 17 22:24:53 2009 -0700
+
+    While on the pad, zero out velocity every second
+    
+    We integrate acceleration to get velocity, but that means sitting on the pad
+    for a long time can add substantial error to the velocity value. Each
+    second, take the velocity value from a full second ago and subtract that out
+    of the current velocity. Once we detect boost, this will stop, which means
+    that as long as we detect boost within a second, we won't have subtracted
+    out any "real" velocity.
+    
+    This keeps the pad velocity hovering around zero, which is pretty useful.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1234694eb903b204488ddc7cb30bcfe34bf1e677
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 17 01:29:06 2009 -0700
+
+    Clear table, reset log on disconnect
+
+commit 4316b6af86b37522038e642235c163fcaad52e96
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 17 01:28:16 2009 -0700
+
+    Add pad lat/lon, max accel, max height
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4348281bd788a13ea700413537f12da3c00356e4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 17 00:46:09 2009 -0700
+
+    Clean up GPS display
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ff68e38770351ddac3285ce275cd85adab01fd3d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 17 00:45:38 2009 -0700
+
+    Make aoview window taller
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit be3f4fed7b863c8cdaabe32b61b65a8b3cd11355
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 17 00:13:45 2009 -0700
+
+    Add lots more aoview UI bits
+    
+    Logs data to files, displays current state in window.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 93d7ce8e054515ed7b166eb042ae7f47e564d21d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat May 16 20:45:26 2009 -0700
+
+    When logging starts up, right the whole ring to the log.
+    
+    This preserves the data pre boost-detect for later analysis.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fec4212a59a7b3321536b25707dcabc43c797c33
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat May 16 20:04:31 2009 -0700
+
+    Abandon use of accelerometer for apogee detect.
+    
+    Integrating the accelerometer data to compute velocity worked for one rocket
+    flight, but additional testing shows that it doesn't work in other
+    airframes. Until we figure out how this should work, we'll rely on the
+    altimeter to detect apogee.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 09771c644de54ae354e8f98af7ba74289b3c0fcc
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat May 16 02:25:04 2009 -0700
+
+    Add preliminary aoview code
+    
+    AoView connects with TeleDongle to present telemetry information in a
+    reasonable form. Right now, it just displays information to stdout, but it
+    does have fancy dialogs for finding the USB devices.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 37250b00f6286aee4b3b28604f5d463db3079a89
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 13 20:41:54 2009 -0700
+
+    Discard usb output before connection. Handle USB reset.
+    
+    Discarding output before USB is plugged in allows threads that send output
+    and do other things to work without a USB connection. Unfortuantely, there
+    doesn't appear to be any way to detect when the USB link is disconnected,
+    which means that once USB is enabled, future writes will continue to block.
+    
+    USB reset causes the USB interrupts to all be reconfigured back to power-on
+    state.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9b974217958b1017e62d6c4f4568f547ccc30c58
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 13 20:40:42 2009 -0700
+
+    Enable radio monitor by default in teleterra, teledongle and tidongle
+    
+    These ground loads want to monitor the radio constantly, and not require use
+    of the 'm' command before listening.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 25fc03a333b2cfad0a93ebc385fbcf74b63c229e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 13 20:39:28 2009 -0700
+
+    Remove monitor/rssi functions from telemetrum load
+    
+    Telemetrum is now a flight-only load, use teleterra or teledongle for ground
+    boards.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 05493b98eb1ae4d30cb0b600849d70b03fa33594
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 13 20:38:11 2009 -0700
+
+    Split out ao_state_names to separate file
+    
+    Allows state names to be used in programs without monitoring enabled.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d085d43701e3cdd2119e947a9ae45baa78c80318
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 13 14:29:30 2009 -0700
+
+    Indicate RSSI with a blinking LED
+    
+    Blink the red LED at a rate proportional to the RSSI value.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 055331d5f7d5adc40c348c3efd331a562dcda82a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 13 11:19:13 2009 -0700
+
+    Make ao_flight_test show AGL altitude and positive acceleration under boost
+    
+    This makes the output more readable
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d91208fbf5fc7797b93087ef8619454c4bed0130
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 13 11:18:24 2009 -0700
+
+    Make ao_flight_test able to read raw logging data
+    
+    Protect ao_flight_test reading functions so that a simple
+    'script' output can be fed to the program and have it work correctly.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d3dbd8949e1102220ad5fd0863f493c819b96e46
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 13 11:16:53 2009 -0700
+
+    Print only RSSI when packet CRC is invalid
+    
+    Packets with invalid CRC usually contain bogus data, so don't print that,
+    just print out the RSSI which may contain useful data.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8168820b667cc1deffab64dd81cb4e6e2e6eabe4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 13 11:00:43 2009 -0700
+
+    Accelerometer-based velocity values are invalid after apogee
+    
+    Because the orientation of the flight computer relative to the ground is
+    unknown after apogee, the accelerometer data cannot be integrated to compute
+    velocity. Main deploy is now based purely on barometric altitude and landing
+    detection no longer checks for a low velocity value.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 24fdda44ff8604e40510b196ead17564d8f8cd3d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 13 10:59:04 2009 -0700
+
+    Add velocity check for boost detect via accelerometer
+    
+    Bumping the rocket can cause a brief period of high acceleration, which may
+    cause a mistaken boost detection. Require both a high acceleration and
+    reasonable velocity to trigger boost phase.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7a1aa3fdbc0d1fae5e7ee027bf8904598c6ebe41
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 13 10:58:30 2009 -0700
+
+    Typo in callsign
+
+commit 497c89a7d08920630894b2605c3b6a0bdc4c229b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 10 23:11:06 2009 -0700
+
+    Use recorded accelerometer baseline data in ao_flight_test
+    
+    With the flight computer recording a long-term average value for the
+    accelerometer in the flight record, use that to prime the flight test code
+    when running a log file through the simulator.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ba3c53636e485450f48093d0a88a6629775f7c3a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 10 23:01:16 2009 -0700
+
+    Don't re-initialize the landing range data at each apogee detect sample
+    
+    The landing range values are used only after apogee detect, so we need only
+    initialize them on the transition from apogee to drogue.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b623b1098bc7a10d471730259438fb82804221d0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 10 23:00:06 2009 -0700
+
+    Initialize ao_min_vel with |ao_flight_vel|
+    
+    As ao_min_vel is stored as an absolute value, it's important to preserve
+    that invariant, even though we don't expect ao_flight_vel to be negative at
+    coast.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e9584e846b9bd7926d61451d32ba5d7a30416f7b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 10 22:58:31 2009 -0700
+
+    Decrease telemetry rate on the pad to 1/sec instead of 20/sec
+    
+    Transmitting telemetry through the radio consumes a significant amount of
+    battery; reducing the rate to 1/sec will reduce power usage while waiting
+    for launch.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 97cecb517cd7bf75e1219c76a93bfe6964c07052
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 10 22:57:19 2009 -0700
+
+    Increase the initial accel/baro average to 1000 samples
+    
+    To get an accurate baseline of the launchpad state, take a longer average of
+    the two sensors as the unit boots up.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 98806b1ff3f41484663d61ff430e9e2764c7b5e6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 10 22:54:14 2009 -0700
+
+    Record average accelerometer value in flight start log record
+    
+    The average accelerometer value cannot be extracted from the log as the
+    record starts after that is computed. As that drives much of the
+    accelerometer-based state transition logic, it is an important value to
+    have, so we log it as part of the flight start record now.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a12edbfe21fe27a9efbf87bacda9ab4806256e2b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat May 9 10:24:10 2009 -0700
+
+    Add version command to show product information
+
+commit e80b87f5e3ccf152d67a2e87bdefda161c455599
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat May 9 10:23:49 2009 -0700
+
+    Pad callsign with nuls
+
+commit beae3360828da21eb1a3c4f88e930f242d4e36b7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri May 1 08:14:57 2009 -0700
+
+    USB spec limits bulk endpoints to 64 byte payload max.
+    
+    For full-speed devices, bulk endpoints may use 8, 16, 32 or 64 bytes, but no
+    more.
+
+commit de7814c738488c2c16c6216c93fa78128895e5d5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 29 17:46:56 2009 -0700
+
+    Use 'char' instead of 'uint8_t' for character data
+    
+    String and character constants are of char type, so using uint8_t causes
+    promotion to 16-bit types when comparing the two.
+
+commit 4ae74fffb939d67424efa3e7f433637f1f920ebc
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 29 17:46:36 2009 -0700
+
+    Eliminate incorrect cast in printf string argument
+    
+    char * is a pointer to a string in the default address space, not a generic pointer
+    to a string. As such, the compiler (at least 2.9.0) mis-compiles this if the
+    cast is included.
+
+commit 39f2a3c6bd501d12a92bfd38434ce67bb5beb70d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 29 17:44:41 2009 -0700
+
+    Correct radio frequency shown in config display.
+    
+    Radio frequency base is 434.550, not 435.550
+
+commit 75ca1751b7cac2f8074d0713ee96d6ab45b54f19
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 29 17:42:26 2009 -0700
+
+    Reset landing interval tests at apogee
+    
+    This moves all of the interval management into the landing test code and
+    out of the main loop. The interval is reset at apogee to make sure the
+    sensors produce a stable reading for at least 20 seconds
+
+commit 7a1b77c2d7253a681389f32b70e2460aac188807
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Apr 26 17:53:13 2009 -0600
+
+    clean up host programs, too
+
+commit 5df80c346d65a9d56a8699b056dc44924acb31fe
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 26 16:04:07 2009 -0700
+
+    Was missing v_batt in adc dump command
+
+commit c3fec2c4c65db71e88ef0c05c69463438a7cfc6c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 26 15:38:28 2009 -0700
+
+    Add manual ignition and igniter test commands
+
+commit 819f1de8dd6010fae050bcef930943c7923929f9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 26 15:38:03 2009 -0700
+
+    Clean up commands a bit
+
+commit 178abb5c8439509926a5507911d7148b84f051b8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 26 15:08:58 2009 -0700
+
+    Clear more files on make clean
+
+commit 70a69f3acdca27b80cdb2069de59bbc6dba83dbd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 26 15:05:29 2009 -0700
+
+    Label binaries with product and serial info
+
+commit 5ed3b1cb52b573db1fee9655a29a0e6dd72f53fe
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 26 01:37:02 2009 -0700
+
+    Make sure full log is written and flushed on landing.
+    
+    The final state change to landing is recorded in the logging thread, so have
+    that turn off logging once it has recorded that state. Then make it go to
+    sleep.
+
+commit 2e737ad00cad5d893b252d8aa9dbff3d9b800731
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 26 01:36:53 2009 -0700
+
+    Clean up monitor output a bit
+
+commit 38a0b61b0a0b3c00f064c8d562950a17a6ddff4a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 26 00:11:32 2009 -0700
+
+    Add configuration support
+    
+    Current config variables:
+    Main deploy altitude above launch (in meters)
+    Acceleration zero g calibration (manual or automatic)
+    Radio channel (freq = 435.550MHz + channel * 100kHz)
+    Callsign (max 8 characters)
+    
+    Supporting this involved shuffling code around so that the
+    non-telemetrum builds could include only the stuff they needed.
+
+commit c65f1a1acd2ca00758833cec5d3f8056d303d3e2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 25 14:44:33 2009 -0700
+
+    Allow for slower ADC operation. Add power saving code.
+    
+    This tries to make the flight computer use less power by disabling USB in
+    flight mode, lowering the telemetry rate after ascent. It also disables the
+    RDF beacon during ascent and re-enables it once descent has started.
+
+commit 8e7b48b5f090be81980ab00fbce814ae1cc253e4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 25 14:44:04 2009 -0700
+
+    Allow ADC to be disabled
+
+commit 7bc3d9962872850e7b420221cf689db16b4305cc
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 25 14:43:23 2009 -0700
+
+    Place CPU in P0 state while idle
+
+commit e45fce7f82d704d677f84c69b0e07588d109d780
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 25 14:42:20 2009 -0700
+
+    Add RDF beacon and callsign to telemetry
+
+commit 61510f98404bca6861b2da98f6cd9ba9deb76968
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 25 14:40:51 2009 -0700
+
+    Add radio code to emit a 1kHz tone
+
+commit 0f07803d84b5ac89500ee33a6818c50583e3ff7f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 25 13:18:37 2009 -0700
+
+    Allow the USB system to be disabled/enabled at run-time
+
+commit 45976af820fc41099928df71ea8304c56eb9fc7c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 25 13:16:27 2009 -0700
+
+    Make LED usage depend on target device
+
+commit 4a050704ad2c497e9f1b0988334228b0bbc4c170
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 25 13:13:24 2009 -0700
+
+    Make some functions reentrant to save DSEG space
+
+commit 6b3d25a6d6d7847765eb03b836913dd5ecef2993
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 24 19:17:37 2009 -0700
+
+    Add monitor task to flight software
+    
+    Allows the use of telemetrum in teledongle mode.
+
+commit ad0d2d88a91cbd02c56ea5ff6dab23e16aec6510
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 24 19:17:19 2009 -0700
+
+    Report difference from ground to max altitude at landing
+
+commit f94ab879ff6f97708827c74facd11003a2d8b590
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 24 19:16:29 2009 -0700
+
+    Display data with units while running simulation
+
+commit 6fb26340b150e831a8a9e25e3b68074c29e48dbe
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 24 19:13:31 2009 -0700
+
+    Enabling apogee detect via speed: < 200m/s && < max_speed - 50m/s
+    
+    This change ensures that we actually got going fairly fast, and then slowed
+    down a bunch before enabling apogee detect. Otherwise, we'll detect apogee
+    right off the pad as we're not going very fast at that point...
+    
+    This also adds the 'f' command to show the current flight status on the USB
+    port.
+
+commit 20b9f304ecbddd73a0ee2461b4c5e80f08157f98
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 24 19:12:28 2009 -0700
+
+    configure igniter ports, set values to measured ones
+
+commit 6bf1d91ce0b723abe2bcec89668c13135ec044cf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 24 19:11:40 2009 -0700
+
+    Move ao_led_init to end of file to be consistent with other files
+
+commit b4de7d550ec9a09ccf5f6a72debc6646706e3516
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 24 19:10:20 2009 -0700
+
+    Define ao_state_names in ao.h so other people can share
+
+commit 8e62747b3692d0ac75b08eaf5c3e4b5d766be6ad
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 24 19:09:31 2009 -0700
+
+    Bump NUM_CMDS to 10
+
+commit 2f781beb73ef24ab5fbe2688a83d07ad26c15972
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 24 19:09:09 2009 -0700
+
+    Move beep_init to end of file to be consistent with other files
+
+commit b99315cee4ab796376458a2442cf36806fa4aed3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 24 10:19:31 2009 -0700
+
+    Update flight algorithm based on data collected from SN-1 Flight 1
+    
+    This now correctly sequences through the flight data collected from the
+    first TeleMetrum test flight.
+    
+    This also completes up the flight algorithm test harness (ao_flight_test),
+    which runs the flight algorithm on the Linux host from a captured data log.
+
+commit b32f2f0090ff967edac07ae4d7a9895ed0b96d31
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 23 22:17:44 2009 -0700
+
+    Add igniters and update flight control algorithm
+
+commit f155333ae18a25068644792e8940269d9fb28033
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 24 00:15:09 2009 -0700
+
+    Avoid ram from 0xfda2 through feff, its funky
+
+commit f9c1c545c9dc11c3190a6cf7504883131fffce2f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 23 22:18:33 2009 -0700
+
+    remove ao_flight_test until its ready
+
+commit 86e73c009f78dc4664883353124fc891fbb01dce
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 23 20:50:07 2009 -0700
+
+    Add teledongle module
+
+commit 204daac71ad56926730f5d6860bd70c645302e19
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 23 14:26:01 2009 -0700
+
+    Set telemetry rate to 100ms
+
+commit 306b28f632e21b42ab165e7944283cf9764b590e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 23 14:23:26 2009 -0700
+
+    Wrong license on ao_monitor.c
+
+commit dca3a6de26d26c0020f3fb2cf5d8ac1552c195b1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 23 14:23:00 2009 -0700
+
+    Crank up radio to 10dBm
+
+commit fbe3096f7e9a8112dbc79f376eccdaa6872ae520
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 22 16:03:28 2009 -0700
+
+    Add COPYING file
+
+commit 9b7788f18bbaf3c4e5ebbf6c5ebd926468b0e045
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 22 15:55:01 2009 -0700
+
+    Clean up TeleTerra files
+
+commit 61cee50c86e275f9fde875bd317c3e74255394ec
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 22 15:53:55 2009 -0700
+
+    simplify ao_time function
+
+commit 3703ecdc9e190f2e0b7ead0e71b78be881c1f3b7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 22 15:53:46 2009 -0700
+
+    One line radio status
+
+commit 1fbb3c17672a03ea6318fee07f9c2dcd7a8d0b16
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 22 15:49:16 2009 -0700
+
+    Add new binaries to .gitignore
+
+commit 00d5610caff61559eb24c24beaa56629d6bb03be
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 22 15:49:00 2009 -0700
+
+    Speed up dbg port bit frobbing
+
+commit c7555eb16876aa8ff9fe7f648d325a1b8fb54d23
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 22 15:48:28 2009 -0700
+
+    Use sdcc from path
+
+commit ada6dea04b94be016598566c4c13e6105aaec353
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 22 15:48:14 2009 -0700
+
+    Clean up task list formatting
+
+commit 0a1b2297ee9f5bbb918bd72f26088a3e0b84839a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 22 15:47:57 2009 -0700
+
+    Control radio monitoring with the M command
+
+commit 837c620f07b63efc171be3ac14c78bc99adf7592
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 22 14:25:43 2009 -0700
+
+    Shrink USB output buffers, work around USB packet errors
+
+commit d87e9c25947d7cc2eba8894a524977f2c55a089a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 21 02:07:24 2009 -0700
+
+    Clean up telemetry now that all packets are the same
+
+commit 1b333def5052d2ed47fdeaef23a897fe326f6340
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 21 02:07:08 2009 -0700
+
+    Add longer debug delays to reset/debug_mode entry
+
+commit d1887ded41a5bfec8e10e9fd736fa9444b9b6222
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 21 01:17:03 2009 -0700
+
+    Fix up fancy dbg stuff. Add teleterra initial bits.
+    
+    The dbg stuff needed a bit of help to actually walk the tables; it appears
+    that complex expressions confuse sdcc.
+    
+    This also adds primitive teleterra bits, but no UI, etc.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 43c8f7012102cdb591ace899420c10e4a78385ad
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Apr 20 23:33:41 2009 -0700
+
+    Add radio support. Build separate executables for TeleMetrum and the TI dongle
+    
+    Ok, way too big a patch, but things were in rough shape.
+    This patch adds support for the radio, both transmit and receive.
+    Then, because I could no longer run the TeleMetrum code on the TI
+    dongle, I ended up building a separate image for the TI board, which
+    involved creating a mechanism for having multiple command sets and splitting
+    code for different functions into different files.
+
+commit 5be13b76a2e29b84cd6d1eec065e3354b0dafce5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 18 23:19:24 2009 -0700
+
+    Start using pdata area for less-frequently used data
+
+commit 3e18b5a0d4c7d84df98b6ed0b7783de1d42d45bf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 18 23:19:05 2009 -0700
+
+    Slow down panic presentation
+
+commit c4e983daa4579896b227fdcb2be43fad75e94307
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 18 23:17:45 2009 -0700
+
+    Parse GPS data locally. Add 'g' command to display recent GPS results.
+    
+    This parses the GPS GGA message and stores it in a global variable,
+    protected by a mutex.
+
+commit ed6f67dc47d750d5ff8bea63ae7cbb560689b9b6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 18 23:16:01 2009 -0700
+
+    Add task names and 'T' command to show task status.
+    
+    The T command shows the current wchan and PC for each task in the system.
+
+commit 3d5a5fc4db5f681e848202c4ee4099d2879677d6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 18 19:32:18 2009 -0700
+
+    Fix GPL version at 2
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 022f83ca6fd589005d8eb3e25e633950fef69fa7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 17 23:38:14 2009 -0700
+
+    Add gps, debug dongle support and pressure alt tables
+    
+    GPS also pulled in serial support. The altitude tables take raw 11-bit
+    pressure sample numbers and convert them to standard pressure altitude
+    values.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 31fce622b1bab7e3f421069d7f6d4d9bdcd825de
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 17 10:32:45 2009 -0700
+
+    Enable FEC in radio packets
+
+commit 293a357911090a2f37bdd6f7ea96942079ffdf2e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 17 10:29:42 2009 -0700
+
+    Add CRC to radio packets
+
+commit 20834caf01ddf481e8362b0d2627ef383a82e09d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 17 10:23:10 2009 -0700
+
+    Add data whitening
+
+commit 94e5343a72121a81ab19bf5025e6b6fc9847eb4f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 17 10:19:25 2009 -0700
+
+    Add packet status byte defines
+
+commit 04bc51c170c6f22bb5cc16867ce9a307818a7a00
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 17 10:11:31 2009 -0700
+
+    Add separate xmit/recv programs to radio demo
+
+commit fafe55c3405964e0defdf25b6c00236f9aaefbc5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 17 10:11:11 2009 -0700
+
+    Get env var for debug method selection
+
+commit 26095fc0511ee0d5213f038986032f7c59964cf0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 17 10:10:47 2009 -0700
+
+    Run-time selection between cp2103 and cc1111
+
+commit 543bedde83cbce5145668e72965e02d892187b59
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 16 20:38:14 2009 -0700
+
+    Send data
+
+commit 5e2393eb6b1a6d7b180bd63d5165ee7b7ff5f9e0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 15 14:25:26 2009 -0700
+
+    Move a bunch of variables from __data to __xdata
+
+commit 4d1091d9bd121f05f5fe0a9c9d2bc0da8c562b9a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 14 21:25:15 2009 -0700
+
+    Slow down panic code, disable interrupts
+
+commit 545478dd02eaeff6a65d318e722b1e4fce5e01b4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 14 21:24:25 2009 -0700
+
+    Keep reporting flight state while it changes
+
+commit 9605045164882b4ca3d1317ac860b02513a51f30
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 14 21:23:55 2009 -0700
+
+    use red LED to indicate system startup
+
+commit dc844ee7e49a3b6145b3165252a592ed070d600f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 14 21:23:13 2009 -0700
+
+    Use ao_ee_flush_internal while holding mutex
+
+commit 5e45d1c89b00e74d5b2730345843f43aab516af2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 14 21:22:56 2009 -0700
+
+    Leave beeping and lights to the flight code
+
+commit 902c342289c1d13a4d55b9224acb6d67578b7a60
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 14 21:22:31 2009 -0700
+
+    Make mutex functions reentrant
+
+commit acc4fc635edb70ec1ba2dff9f7ac0c8542c72c47
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 14 19:08:01 2009 -0700
+
+    Add in existing flight pieces: flight/report/log
+    
+    These pieces come from the old telemetrum firmware.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ac99982b10fd5772218660137ee21db9b90cd885
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 14 14:21:56 2009 -0700
+
+    Add eeprom driver and command loop
+    
+    This involved adding dma control and a mutex implementation.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fbd8f4aff5058f4d371596b04715b7cb6d38e729
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 14 11:04:09 2009 -0700
+
+    Switch from --model-large to --model-small
+    
+    This shrinks the application quite a bit, and should make it faster as well.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fb63262699d3a6fbf347d24efda8b01f75b7d0d3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 14 10:02:19 2009 -0700
+
+    Add comments, clean up white space, etc.
+    
+    Various clean ups now that the basic code appears to work.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7e4abf3a40c39d0ce4f466281bef9a464df85dd4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Apr 13 21:58:07 2009 -0700
+
+    Switch USB to double-buffered
+
+commit b56a44e48552bc32dbba9ff21770c370219a684a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Apr 13 21:51:59 2009 -0700
+
+    Fix USB input/output by reloading packet limits.
+    
+    The USB controller is reset during the connection process, which clears the
+    packet limits set in the controller at initialization time. Reload those
+    values when the configuration is set.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit cdaf3fc5802acf2ddc7972a15649ab0e1b31b873
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Apr 13 20:39:46 2009 -0700
+
+    USB working up through reading strings
+
+commit c5c1e3fb1c253d387be02c127253ac2a55d577b4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Apr 13 13:51:08 2009 -0700
+
+    Add USB support.
+    
+    This offers a single CDC ACM device over USB.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f3f25a1cec7d2a034aa544569cfd23bea1a996c5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 12 23:53:55 2009 -0700
+
+    Add beep/led support.
+    
+    Support our P2_0 connected buzzer, and formalize LED output support.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e14f07bfdb8824fc7ed6df1129c66ee39ffd6d54
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 12 23:17:16 2009 -0700
+
+    Add A/D sampler
+    
+    Sample A/D at the timer tick, placing data in a ring
+    of samples.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 823f4f92de0c1f8dd7a644a8e56ffe9822bee6e2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 12 22:52:47 2009 -0700
+
+    Add 100Hz timer
+    
+    Use Timer 1 to generate a 100Hz timer interrupt
+
+commit 650a77e209dbb54c8d8fd9824cee430985564973
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 12 21:58:49 2009 -0700
+
+    Update README
+
+commit 870e98334018a66de8a6e4a659d2dc5dee1cbecf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 12 21:52:56 2009 -0700
+
+    GPL Version 2 only
+
+commit 11c526bdcbf4012e18fbfdc29ca8832870ca38f0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 12 21:47:32 2009 -0700
+
+    Add load command to s51
+
+commit 55402ba3e87fd699c51079843309f1f0d1534724
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 12 21:33:55 2009 -0700
+
+    Make test more complicated
+
+commit 3d3f849c9af9028f667cef4afedc0798d39a9efc
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 12 21:33:46 2009 -0700
+
+    SP points at last pushed byte
+
+commit f72c4cbc8fd9412dd1cce0fc446e7bbd2edc2d34
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 12 20:27:03 2009 -0700
+
+    Add .gitignore
+
+commit 1903a86bf2cc6b685ccc475e62eabe49a4ec5b43
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 12 20:25:39 2009 -0700
+
+    Initial AltOS import
+
+commit 5221dc63cf3a059a32aca2bfa7828c215be814a1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 12 12:38:58 2009 -0700
+
+    Add ccdump
+
+commit ee110425fb814780476d1d3d8a257af126f41763
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Apr 6 17:09:23 2009 -0700
+
+    Bump buffer pointer as data is written to cc-usb
+
+commit 2d9b8a83a2d9f495199033e43f519d26f27938fe
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Apr 6 11:31:49 2009 -0700
+
+    Add support for a serial-connected custom debug dongle
+    
+    This uses the cc1111 board as a custom debug dongle with faster
+    methods for communicating with the debug target.
+
+commit 24edd56155ed0fa02fdd8f66fdc7aa5a1021bf7d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 1 17:50:47 2009 -0700
+
+    Reset cc1111 on s51 exit
+
+commit 5fcfe854d29e1862d9a6adcbef3ef5119eb52fa3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 1 00:06:45 2009 -0700
+
+    Add timer-based beep test
+
+commit 91607bebdd167ac632aca4b66e22cb0cabdf0d20
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Mar 26 22:41:47 2009 -0700
+
+    Add readline support to s51
+
+commit 66ee94ed10e3d79b24f45a5c63e58456d4d30343
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 11:37:48 2009 -0700
+
+    Deal with MSB-outputing DMA engine
+
+commit d3732fd405af03c3752a84c4b78da7ef5ebd3744
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 11:14:03 2009 -0700
+
+    Flip ADC bytes around
+
+commit 50cc8e97e76d9b60c622962e1c74cf422dfb2c0f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 11:01:30 2009 -0700
+
+    Add spacing for serial adc data
+
+commit 5577ca3762bfc000b0bc3782c73a8f95996a28a6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 10:58:57 2009 -0700
+
+    Inc only one on dest addr
+
+commit 378227d869a3e8787c532c8c4e1563b44002c4b5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 10:55:17 2009 -0700
+
+    Dump remaining inputs
+
+commit f54a41e37d6897db2e24fbc82880076b78a0ae41
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 10:50:36 2009 -0700
+
+    Remove poll for ti demo button
+
+commit 2b93a70fdd9e47e8195855451aa19ecad5d8b068
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 10:50:14 2009 -0700
+
+    Add adc to serial conversion
+
+commit d9fd548db15232e3a8823815962b252c7a5e7cba
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 10:04:50 2009 -0700
+
+    Add ADC via DMA example
+
+commit 61faf2b773300988fe27cfde5bc045be9950a1b0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 09:45:14 2009 -0700
+
+    Add DMA example
+
+commit 7b3fdf5b42c9be9bebc1ceb7a52ff0f5a2a28fcd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 01:05:36 2009 -0700
+
+    Back to 0dBm
+
+commit 31d59b88baa2cd96dc6263d1c5877283f2cd8c36
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 01:03:08 2009 -0700
+
+    Make radio test compile again
+
+commit 9ce713fdd19bf1a51370dacba3670504356c5c11
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 01:02:07 2009 -0700
+
+    Wait for xtal to stabilize
+
+commit ffd43886dc902f3bb7407294018e3d62cac39480
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 00:55:11 2009 -0700
+
+    Check serial input
+
+commit 029963cc94fbb47560118b5de73c537e2c14ed7c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 00:50:02 2009 -0700
+
+    Eliminate array walking
+
+commit 019456a17d36f8f9f9b72cfbc980492175086d32
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 00:41:49 2009 -0700
+
+    Add a per-char delay
+
+commit cfaf187e96ba98eb8dd934409a10bc70273fe68a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 00:36:35 2009 -0700
+
+    Use UTX1IF to wait for serial TX complete
+
+commit 006124529b243c7657a94312d2c868a82878d8bb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 00:29:29 2009 -0700
+
+    Send more interesting text
+
+commit 5049acd3d1ae42304513f667f55a2ddffa4c685a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 00:24:56 2009 -0700
+
+    More random serial bit frobbing
+
+commit 50bdc2407c674a4770912d3a626f36820a7f1527
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 00:13:15 2009 -0700
+
+    Flip serial TX code around a bit
+
+commit 7b7617e376afe0df1d505375b76198358330370c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 00:09:47 2009 -0700
+
+    Try serial polarity high/high
+
+commit 18edacdb1e6e429cc29a164e22ef2a566096b9d9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 00:06:32 2009 -0700
+
+    Make serial test simpler
+
+commit 62744c186792739c3bf5798c80ff87c69fbe2b65
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 25 00:03:45 2009 -0700
+
+    Flip start/stop bits around
+
+commit 9e96107d5d1a9681b07c36bb5860c748bfe10ec0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 24 23:57:12 2009 -0700
+
+    Stop high
+
+commit c41ceb9a488b2209d1d3c09967d1473ce608030f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 24 23:24:01 2009 -0700
+
+    Change radio to -30dBm
+
+commit c35de083ca3d4f362063b056a0fd74ffe629d168
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 24 23:11:48 2009 -0700
+
+    Add serial test program
+
+commit 8ecbd8734f0fb5588b2a8eb20720cfc6f43dfb47
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 24 22:37:38 2009 -0700
+
+    Wait for xtal to stabilize after changing to 24MHz
+
+commit e120269fc0f8e14ddf1755337b1d092173e16da2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 24 22:21:31 2009 -0700
+
+    Actually return byte read from SPI
+
+commit de1ac6f99a1526fa840a52cfc10fa3edc0589bed
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 24 22:12:51 2009 -0700
+
+    Clear UxCSR_TX_BYTE after transmitting a byte
+
+commit 3ed3ff63e46767a256d30c5da5c52ae20089a91d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 24 20:04:58 2009 -0700
+
+    Led the LED turn on
+
+commit 91b3a6ae74184692f45702587c4d678b2799ad8c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 24 19:55:04 2009 -0700
+
+    actually write and compare SPI test bits
+
+commit 7de3a43887485c3c6cf52960376ccde33fb33985
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 24 19:54:02 2009 -0700
+
+    Add USART-based SPI test code
+
+commit ef0eef68280e9b6ca5e3bb71062e23054340e1ed
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 24 17:22:36 2009 -0700
+
+    Change spi test string
+
+commit 8131389ee5018c05b721146a98367150cf500fdf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 24 17:15:09 2009 -0700
+
+    Oops, not merging in the bit read for SPI test
+
+commit 3429016d1359ec650993d2fb0596184e3f717871
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 24 17:04:45 2009 -0700
+
+    Adjust clock/data phase for spi test
+
+commit fedd18b28ea54e1dabcd2f9e8cab3ae4ee0fd070
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 24 16:35:13 2009 -0700
+
+    MISO needs to be an input
+
+commit f0c233f25a208a636833312b1766825815735304
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 24 15:41:55 2009 -0700
+
+    Add bit-banging spi eeprom test program
+
+commit 6eeee64cf16ccc9218dbdde5426f25bda5e3407f
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Mar 18 02:58:33 2009 -0600
+
+    working beep at around 4khz
+
+commit 4726317de811c20e8d6754762437b5c9cbb3a48c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 18 01:54:34 2009 -0700
+
+    Add simple test program to light up the transmitter at 434.550MHz
+    
+    This starts a transmit sequence, but doesn't send any data so the
+    transmitter just locks on.
+
+commit a0a27600ee2bf237e74eb83767a8d2e7c91df24f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Mar 15 18:14:21 2009 -0700
+
+    Correctly comment which bit the beep program uses
+
+commit 25b77d236c01258abfc03114c2fc9ea2d69ca6e7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Mar 15 18:11:53 2009 -0700
+
+    Add telemetrum beeper example
+
+commit 164b4e4749ad64ebbe26e84fd7b4fa1aa733dbe4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Mar 15 18:11:20 2009 -0700
+
+    sdcc gets the lib path correct based on the model
+
+commit 04a316133af93b79bfbebb91f05eec1015ec2abc
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Mar 15 18:10:43 2009 -0700
+
+    Bump debug speed back up
+
+commit 9fd63972758d6d5572f7bcaadec9b1c0e974a2e8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 7 21:05:40 2009 -0800
+
+    Only flip changing bits in async mode
+
+commit c8fd04e154bcfd65ae1200980bd8163caabd7fe4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 7 21:05:06 2009 -0800
+
+    The debug port only works if reset is higher than clock. weird
+
+commit ade11f88754b4ab0386ebf86afc5257e59238f62
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 7 21:04:38 2009 -0800
+
+    Make manual bit flipping sync after every transaction
+
+commit e63b5271bb54afc36e4b9891e51e053ff6011092
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 7 14:49:22 2009 -0800
+
+    Add ccmanual
+
+commit 77d754afc2d14aaa4413c13ebe3777ef385f62a9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 7 14:48:49 2009 -0800
+
+    Sync after manual bit reading
+
+commit 5a338c8a7394d003355f96a8777b6fe83bb8493c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 7 14:48:35 2009 -0800
+
+    Flip debug pins around to match telemetrum
+
+commit cc0495b7028f4b1189a00707d828a68534d1dea2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Mar 6 22:52:35 2009 -0800
+
+    Wait for a while when switching the RESET_N line
+    
+    The cc1111 manual suggests placing a 2.7kΩ resister and 1nF capacitor on the
+    RESET_N line to filter out noise. This increases the time necessary to reset
+    the chip to several microseconds which is longer than the interval between
+    two USB packets. Flush the USB packet queue and sleep for a while after
+    changing the value on the RESET_N line to make sure the chip sees the state
+    change.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 41289e6d8f1767547a33fea349866e928e44910f
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Mar 2 07:46:20 2009 -0700
+
+    minor s51.1 formatting fixes
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fdee231ed097a4348aee78fbd4aa92826b80de03
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Mar 1 23:12:31 2009 -0800
+
+    Add s51 manual.
+    
+    This documents (briefly) the s51 hex debugging interface program, including
+    some simple commands to test the operation of the system interactively.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f7d91bd23b8214e09deae0aafb516331e934c49b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Mar 1 18:43:03 2009 -0800
+
+    Sometimes the link breaks and the GET_PC command returns garbage
+
+commit 3cc8d11eb8d5d0b42141dd84a58d461287f59e3a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jan 25 08:38:48 2009 -0800
+
+    Support 'set' command
+    
+    The 'set' command modifies target memory and registers
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 60940b4be23962db79b8e914ec943d0636dd68ad
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jan 5 21:45:21 2009 -0800
+
+    Expose ccdbg_set_clock API
+    
+    This allows applications to change the debug port clock
+    rate on the fly.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit eb09e61b0682eb2aeac8e1a34d58b897ba6db8e7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jan 5 21:44:44 2009 -0800
+
+    Use custom sdcc libraries (this needs to be configured...)
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1ccfe0887c794397131ab1c986c25f66eea86a6c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jan 5 21:43:44 2009 -0800
+
+    Have S51 ignore SIGINT while running under sdcdb.
+    
+    This prevents keyboard interrupts from accidentally stopping
+    s51.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7c03937b36aac82b08f4ea0c6da33a994fe15ec7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Dec 30 22:40:13 2008 -0800
+
+    Add simple and timer sample programs
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6c2a65c743a4ffae96ed27dbc38c1bf9242ed1df
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Dec 30 22:35:53 2008 -0800
+
+    Save/restore registers to host during memory operations. Cache ROM data.
+    
+    Because the debug port uses instructions for most operations, the debug code
+    will clobber registers used by the running program. Save and restore these
+    to avoid corrupting application data.
+    
+    If the ROM file is known, use that to return data instead of fetching it
+    from the target to improve performance.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ea366058aa467a8a7caf17e7014758f3741ea7f7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Dec 29 12:35:11 2008 -0800
+
+    Fix flashing less than a full page of data. Verify page at a time.
+    
+    The 8051 flashing code requires special help with counts with non-zero low
+    byte. Also, instead of verifying the entire flash contents at the end,
+    verify each page as it goes.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e0697186a2f9b6139636ff5d5c162879c85caf9c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Dec 28 00:11:13 2008 -0800
+
+    Use SFR access funcs. Support 'dump' command. Add -m (monitor) flag.
+    
+    Not all SFRs are visible in the unified address space, so the SFR-specific
+    accessors are required.
+    
+    The dump command is the same as the various 'd*'
+    commands, but also supports dumping program memory.
+    
+    The new -m (monitor) flag watches the command stream between s51 and sdcdb.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 23aca1fcbc169184e32d4ec19f28dd4fd4cfda36
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Dec 28 00:09:30 2008 -0800
+
+    Save/restore regs when reading/writing memory. Add SFR access.
+    
+    The DPL and ACC registers are used by the memory access code,
+    so they need to be saved and restored. Stuff them up high in ram for now;
+    this should probably be fixed to pull them back to the host instead.
+    
+    Special SFR access is required as not all SFRs are visible in the unified
+    address space.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1405838160b69e2cda456e21502a1d03b3aa7548
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Dec 27 11:25:58 2008 -0800
+
+    s51: get start address from ihx file. re-enable breakpoints after reset.
+    
+    Use the start of the ihx file when asked to run from 0x0, this lets
+    sdcdb run programs from ram.
+    
+    The reset command clears all hw breakpoints, so reset them afterwards.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1264c3676e95427bba5d01e05c303d036a7f9eca
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 26 23:05:04 2008 -0800
+
+    Switch to libusb-1.0 and use async interface.
+    
+    The async libusb interface offers substantial performance benefits by not
+    making each command wait for the reply. This makes talking over this
+    interface almost reasonable.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d2d9cfd74fd66836c913c02276e09136d83b35dc
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 26 17:58:48 2008 -0800
+
+    s51: add breakpoints and the ability to block awaiting a breakpoint.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4c4093c3fdd309123fdd068c0e1ff4947104492d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Dec 22 19:11:56 2008 -0800
+
+    Add more commands to s51 assembly-language debugger
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 55eba4fa08b022197106245d36a70f575a070b0a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Dec 22 19:10:27 2008 -0800
+
+    Make read_memory debug output use ccdbg_debug.
+    
+    This makes it default to not being presented, which makes s51 much happier
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e75918f3667a5c8ad294bec4acef6fe81682edf6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Dec 21 23:33:35 2008 -0800
+
+    Add preliminary version of s51, a UI clone of the 8051 emulator.
+    
+    sdcdb provides source-level debugging using the 8051 emulator, s51. By
+    emulating that emulator a the UI level, we should be able to get source
+    debugging right on our target platform.
+    
+    This is just the preliminary structure for the program with most commands
+    not yet implemented.
+
+commit f7d49868aeae80d515b12a7e339628f1296754a6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Dec 20 23:30:06 2008 -0800
+
+    Cleanup work; separating out the cp interface to be more abstract.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 30f23f23a6db3d12fdc9c088cf6ab47c5e5077fb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 19 21:13:04 2008 -0800
+
+    Clean up autotools stuff.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9025eb792861930e6af918d2727c4f5d97a69936
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 19 21:11:45 2008 -0800
+
+    Autotools.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ab909db28307cfbf7ee8d692506bb79d7ffd627a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 19 19:08:13 2008 -0800
+
+    Ignore .ihx files
+
+commit cc8db276bc4f2fd7eb00168a5c0689a8457a5c6f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 19 19:07:37 2008 -0800
+
+    Move blink example to subdir
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 82e2d7ebed6682062dc400478c736bd6c91195c9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 19 19:04:26 2008 -0800
+
+    Clean up makefiles, move ihx files to .ihx
+
+commit 52fb5f795adfd7f62e5b6dbe65877d14361cfdae
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 19 14:39:57 2008 -0800
+
+    ignore more stuff
+
+commit 4ecfc33f16aa36b315519e6f279da65374b67aba
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 19 14:37:53 2008 -0800
+
+    Add cc1111 isr stub example
+
+commit d32e6658c3e489b62ba3cf6d22e3ab177b9b8a3a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 19 14:37:29 2008 -0800
+
+    Add blink-tiny flash and ram versions
+
+commit b4d1127ef007843c643b778b3b2f6b915b1d5d9a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 19 14:19:29 2008 -0800
+
+    Flash multiple pages. Eliminate off-by-one error in hex_image length.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 55995515b9d4fc1e193039eab697c5d03db417c2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 19 11:04:16 2008 -0800
+
+    Add flash writing code.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0bc52385b8f86f9ca1c450ad106e6d8afe3bc153
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Dec 18 12:37:32 2008 -0800
+
+    faster
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3779cc8b32cac3640f42bd0400d4199ddae965a1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Dec 18 12:17:41 2008 -0800
+
+    cq
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit dc03adc179669d41e3551d74b3c5a60db41ff217
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Dec 18 12:07:06 2008 -0800
+
+    Add ability to load Intel HEX files. Add sample sdcc LED blinker.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 807e2adacb025af77bb53c03209e9c8e0d7a5f95
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Dec 18 00:18:50 2008 -0800
+
+    Add ability to read/write arbitrary memory. Write LED blinker program.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8c879bf51c14a5928135d59211facd72f6a32808
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Dec 17 23:15:47 2008 -0800
+
+    Move manual bit-banging debug code to separate file
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit aec3bbce84a5ceb92060a4b3889379f2af2404ac
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Dec 17 23:15:19 2008 -0800
+
+    reduce clock to 50us
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fa168f963f8b00144d12aa2770e9c0917cfae123
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Dec 17 23:12:59 2008 -0800
+
+    Fill out ccdbg-command to support all debug commands.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5df84df7cd6a31527dcfd11030f00ef9d8abf170
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Dec 17 22:24:59 2008 -0800
+
+    Clean up bitbanging layer. Add debug printfs.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 584e28bac8af38de433767e017977ed1adddeb36
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Dec 17 12:32:15 2008 -0800
+
+    Clean up sample debug files
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e64b4dbf15e9ee1cb0de002985de7575e83d46e9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Dec 8 17:25:28 2008 -0800
+
+    Add support for input-only lines (-)
+
+commit 4f38974a9941cddaba27c17c5a46f923db386c94
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Dec 6 16:32:27 2008 -0800
+
+    Add another example
+
+commit 3709ec3205cfb152b6568f3ea505c67fe7504c2a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Dec 6 16:32:12 2008 -0800
+
+    Add libusb support and lots more examples
+
+commit 39801e6e9fb9388072ee414a447f74095a6ac960
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 28 22:57:07 2008 -0800
+
+    Random hacking
+
+commit 01cb2799875e086ee6096627c058ee235bbc33d5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Nov 27 17:07:15 2008 -0800
+
+    Add prototypes, add stub mainline, add .gitignore
+
+commit 0ffe4ef870b0e564789a1990aeab5b6651868e5b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Nov 27 12:33:40 2008 -0800
+
+    cc1111 debug port access through cp2103 serial chip

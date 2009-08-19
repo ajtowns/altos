@@ -1,0 +1,78 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+export DH_VERBOSE=1
+PKG_VERSION := $(shell dpkg-parsechangelog | sed -ne 's/^Version: \(.*\)/\1/p')
+
+# this target invoked by git-buildpackage using a clean hook, see .gbp.conf
+prebuild:
+	dch -v `git describe | tr - +` "build for Debian from git"
+	git log > ChangeLog
+	git commit ChangeLog debian/changelog \
+		-m "update changelogs for Debian build"
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	./autogen.sh --prefix=/usr
+	touch configure-stamp
+
+build: build-stamp
+
+build-stamp: configure-stamp  
+	dh_testdir
+	$(MAKE) VERSION=$(PKG_VERSION)
+	touch $@
+
+clean: 
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+	[ ! -f Makefile ] || $(MAKE) distclean
+	dh_clean 
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_prep  
+	dh_installdirs
+
+	$(MAKE) DESTDIR=$(CURDIR)/debian/altos install
+
+# Build architecture-independent files here.
+binary-indep: install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs ChangeLog
+	dh_installdocs
+	dh_installexamples
+	dh_install
+#	dh_installmenu
+#	dh_installdebconf
+#	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+#	dh_installmime
+#	dh_python
+#	dh_installinit
+#	dh_installcron
+#	dh_installinfo
+	dh_installman
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+#	dh_perl
+#	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure
