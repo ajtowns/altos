@@ -1,3 +1,39 @@
+commit 4486d9156e19e4280b42bcd422d81d04f2d04a92
+Merge: dd09f0b 33edd62
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 19 00:49:24 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 33edd62992a32b0ec8ca66d879fa300871db5937
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 18 23:38:16 2009 -0700
+
+    Update ao-view to add GPS satellite tracking data
+    
+    This adds another column to the display to hold per-satellite GPS
+    tracking data and a count of the visible and locked sats.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 29687cbd462a332d9a36ed87500c5b737dcae3f4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 18 22:35:15 2009 -0700
+
+    Handle GPS satellite tracking data
+    
+    SiRF message #4 includes signal strength and GPS engine state for each
+    of the satellites being tracked. This data is now parsed and sent to
+    eeprom and the radio.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit dd09f0bc2b950c00f3b489878cd69ad8a003f46c
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 18 21:57:01 2009 -0600
+
+    update changelogs for Debian build
+
 commit cd5ce661e2a8f9694933358ccb5b916fbed089c2
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Tue Aug 18 21:49:39 2009 -0600
