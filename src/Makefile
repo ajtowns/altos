@@ -262,8 +262,8 @@ clean:
 
 install:
 
-ao_flight_test: ao_flight.c ao_flight_test.c
+ao_flight_test: ao_flight.c ao_flight_test.c ao_host.h
 	cc -g -o $@ ao_flight_test.c
 
-ao_gps_test: ao_gps.c ao_gps_test.c ao_host.h
+ao_gps_test: ao_gps.c ao_gps_test.c ao_gps_print.c ao_host.h
 	cc -g -o $@ ao_gps_test.c

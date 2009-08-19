@@ -55,6 +55,9 @@ ao_monitor(void)
 			       recv.telemetry.flight_pres,
 			       recv.telemetry.ground_pres);
 			ao_gps_print(&recv.telemetry.gps);
+			putchar(' ');
+			ao_gps_tracking_print(&recv.telemetry.gps_tracking);
+			putchar('\n');
 			ao_rssi_set((int) recv.rssi - 74);
 		} else {
 			printf("CRC INVALID RSSI %3d\n", (int) recv.rssi - 74);

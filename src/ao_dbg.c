@@ -26,7 +26,7 @@
 #define DBG_RESET_N_PIN	(P0_5)
 
 static void
-ao_dbg_send_bits(uint8_t msk, uint8_t val)
+ao_dbg_send_bits(uint8_t msk, uint8_t val) __reentrant
 {
 	P0 = (P0 & ~msk) | (val & msk);
 	_asm

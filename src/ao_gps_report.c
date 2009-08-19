@@ -52,10 +52,41 @@ ao_gps_report(void)
 	}
 }
 
+void
+ao_gps_tracking_report(void)
+{
+	static __xdata struct ao_log_record	gps_log;
+	static __xdata struct ao_gps_tracking_data	gps_tracking_data;
+	uint8_t	c, n;
+
+	for (;;) {
+		ao_sleep(&ao_gps_tracking_data);
+		ao_mutex_get(&ao_gps_mutex);
+		memcpy(&gps_tracking_data, &ao_gps_tracking_data, sizeof (struct ao_gps_tracking_data));
+		ao_mutex_put(&ao_gps_mutex);
+
+		if (!(n = gps_tracking_data.channels))
+			continue;
+
+		gps_log.tick = ao_time();
+		gps_log.type = AO_LOG_GPS_SAT;
+		for (c = 0; c < n; c++)
+			if ((gps_log.u.gps_sat.svid = gps_tracking_data.sats[c].svid) &&
+			    (gps_log.u.gps_sat.state = gps_tracking_data.sats[c].state))
+			{
+				gps_log.u.gps_sat.c_n = gps_tracking_data.sats[c].c_n_1;
+				gps_log.u.gps_sat.unused = 0;
+				ao_log_data(&gps_log);
+			}
+	}
+}
+
 __xdata struct ao_task ao_gps_report_task;
+__xdata struct ao_task ao_gps_tracking_report_task;
 
 void
 ao_gps_report_init(void)
 {
 	ao_add_task(&ao_gps_report_task, ao_gps_report, "gps_report");
+	ao_add_task(&ao_gps_tracking_report_task, ao_gps_tracking_report, "gps_tracking_report");
 }

@@ -44,6 +44,26 @@ struct ao_gps_data {
 	uint16_t		v_error;	/* m */
 };
 
+#define SIRF_SAT_STATE_ACQUIRED			(1 << 0)
+#define SIRF_SAT_STATE_CARRIER_PHASE_VALID	(1 << 1)
+#define SIRF_SAT_BIT_SYNC_COMPLETE		(1 << 2)
+#define SIRF_SAT_SUBFRAME_SYNC_COMPLETE		(1 << 3)
+#define SIRF_SAT_CARRIER_PULLIN_COMPLETE	(1 << 4)
+#define SIRF_SAT_CODE_LOCKED			(1 << 5)
+#define SIRF_SAT_ACQUISITION_FAILED		(1 << 6)
+#define SIRF_SAT_EPHEMERIS_AVAILABLE		(1 << 7)
+
+struct ao_gps_sat_data {
+	uint8_t		svid;
+	uint8_t		state;
+	uint8_t		c_n_1;
+};
+
+struct ao_gps_tracking_data {
+	uint8_t			channels;
+	struct ao_gps_sat_data	sats[12];
+};
+
 void
 ao_mutex_get(uint8_t *mutex)
 {
@@ -78,6 +98,15 @@ ao_dbg_char(char c)
 static char	input_queue[QUEUE_LEN];
 int		input_head, input_tail;
 
+#include <sys/time.h>
+
+int
+get_millis(void)
+{
+	struct timeval	tv;
+	gettimeofday(&tv, NULL);
+	return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+}
 
 static void
 check_sirf_message(char *from, uint8_t *msg, int len)
@@ -101,9 +130,11 @@ check_sirf_message(char *from, uint8_t *msg, int len)
 	}
 	encoded_len = (msg[2] << 8) | msg[3];
 	id = msg[4];
+/*	printf ("%9d: %3d\n", get_millis(), id); */
 	if (encoded_len != len - 8) {
-		printf ("length mismatch (got %d, wanted %d)\n",
-			len - 8, encoded_len);
+		if (id != 52)
+			printf ("length mismatch (got %d, wanted %d)\n",
+				len - 8, encoded_len);
 		return;
 	}
 	encoded_cksum = (msg[len - 4] << 8) | msg[len-3];
@@ -116,7 +147,8 @@ check_sirf_message(char *from, uint8_t *msg, int len)
 		return;
 	}
 	id = msg[4];
-	if (id == 41) {
+	switch (id) {
+	case 41:{
 		int	off = 4;
 
 		uint8_t		id;
@@ -181,29 +213,83 @@ check_sirf_message(char *from, uint8_t *msg, int len)
 		printf ("Geodetic Navigation Data (41):\n");
 		printf ("\tNav valid %04x\n", nav_valid);
 		printf ("\tNav type %04x\n", nav_type);
-		printf ("\tWeek %d\n", week);
-		printf ("\tTOW %d\n", tow);
-		printf ("\tyear %d\n", year);
-		printf ("\tmonth %d\n", month);
-		printf ("\tday %d\n", day);
-		printf ("\thour %d\n", hour);
-		printf ("\tminute %d\n", minute);
-		printf ("\tsecond %g\n", second / 1000.0);
+		printf ("\tWeek %5d", week);
+		printf (" TOW %9d", tow);
+		printf (" %4d-%2d-%2d %02d:%02d:%07.4f\n",
+			year, month, day,
+			hour, minute, second / 1000.0);
 		printf ("\tsats: %08x\n", sat_list);
-		printf ("\tlat: %g\n", lat / 1.0e7);
-		printf ("\tlon: %g\n", lon / 1.0e7);
-		printf ("\talt_ell: %g\n", alt_ell / 100.0);
-		printf ("\talt_msll: %g\n", alt_msl / 100.0);
-		printf ("\tdatum: %d\n", datum);
-		printf ("\tground speed: %g\n", sog / 100.0);
-		printf ("\tcourse: %g\n", cog / 100.0);
-		printf ("\tclimb: %g\n", climb_rate / 100.0);
-		printf ("\theading rate: %g\n", heading_rate / 100.0);
-		printf ("\th error: %g\n", h_error / 100.0);
-		printf ("\tv error: %g\n", v_error / 100.0);
-		printf ("\tt error: %g\n", t_error / 100.0);
-		printf ("\th vel error: %g\n", h_v_error / 100.0);
-	} else {
+		printf ("\tlat: %g", lat / 1.0e7);
+		printf (" lon: %g", lon / 1.0e7);
+		printf (" alt_ell: %g", alt_ell / 100.0);
+		printf (" alt_msll: %g", alt_msl / 100.0);
+		printf (" datum: %d\n", datum);
+		printf ("\tground speed: %g", sog / 100.0);
+		printf (" course: %g", cog / 100.0);
+		printf (" climb: %g", climb_rate / 100.0);
+		printf (" heading rate: %g\n", heading_rate / 100.0);
+		printf ("\th error: %g", h_error / 100.0);
+		printf (" v error: %g", v_error / 100.0);
+		printf (" t error: %g", t_error / 100.0);
+		printf (" h vel error: %g\n", h_v_error / 100.0);
+		break;
+	}
+	case 4: {
+		int off = 4;
+		uint8_t		id;
+		int16_t		gps_week;
+		uint32_t	gps_tow;
+		uint8_t		channels;
+		int		j, k;
+
+		get_u8(id);
+		get_u16(gps_week);
+		get_u32(gps_tow);
+		get_u8(channels);
+
+		printf ("Measured Tracker Data (4):\n");
+		printf ("GPS week: %d\n", gps_week);
+		printf ("GPS time of week: %d\n", gps_tow);
+		printf ("channels: %d\n", channels);
+		for (j = 0; j < 12; j++) {
+			uint8_t	svid, azimuth, elevation;
+			uint16_t state;
+			uint8_t	c_n[10];
+			get_u8(svid);
+			get_u8(azimuth);
+			get_u8(elevation);
+			get_u16(state);
+			for (k = 0; k < 10; k++) {
+				get_u8(c_n[k]);
+			}
+			printf ("Sat %3d:", svid);
+			printf (" aziumuth: %6.1f", azimuth * 1.5);
+			printf (" elevation: %6.1f", elevation * 0.5);
+			printf (" state: 0x%02x", state);
+			printf (" c_n:");
+			for (k = 0; k < 10; k++)
+				printf(" %3d", c_n[k]);
+			if (state & SIRF_SAT_STATE_ACQUIRED)
+				printf(" acq,");
+			if (state & SIRF_SAT_STATE_CARRIER_PHASE_VALID)
+				printf(" car,");
+			if (state & SIRF_SAT_BIT_SYNC_COMPLETE)
+				printf(" bit,");
+			if (state & SIRF_SAT_SUBFRAME_SYNC_COMPLETE)
+				printf(" sub,");
+			if (state & SIRF_SAT_CARRIER_PULLIN_COMPLETE)
+				printf(" pullin,");
+			if (state & SIRF_SAT_CODE_LOCKED)
+				printf(" code,");
+			if (state & SIRF_SAT_ACQUISITION_FAILED)
+				printf(" fail,");
+			if (state & SIRF_SAT_EPHEMERIS_AVAILABLE)
+				printf(" ephem,");
+			printf ("\n");
+		}
+		break;
+	}
+	default:
 		return;
 		printf ("%s %4d:", from, encoded_len);
 		for (i = 4; i < len - 4; i++) {
@@ -315,9 +401,16 @@ ao_serial_set_speed(uint8_t speed)
 #include "ao_gps.c"
 
 void
-ao_dump_state(void)
+ao_dump_state(void *wchan)
 {
 	double	lat, lon;
+	int	i;
+	if (wchan == &ao_gps_data)
+		ao_gps_print(&ao_gps_data);
+	else
+		ao_gps_tracking_print(&ao_gps_tracking_data);
+	putchar('\n');
+	return;
 	printf ("%02d:%02d:%02d",
 		ao_gps_data.hour, ao_gps_data.minute,
 		ao_gps_data.second);
@@ -336,6 +429,12 @@ ao_dump_state(void)
 		ao_gps_data.hdop / 5.0,
 		ao_gps_data.h_error, ao_gps_data.v_error);
 	printf("\n");
+	printf ("\t");
+	for (i = 0; i < 12; i++)
+		printf (" %2d(%02x)",
+			ao_gps_tracking_data.sats[i].svid,
+			ao_gps_tracking_data.sats[i].state);
+	printf ("\n");
 }
 
 int
@@ -358,14 +457,38 @@ ao_gps_open(const char *tty)
 	return fd;
 }
 
+#include <getopt.h>
+
+static const struct option options[] = {
+	{ .name = "tty", .has_arg = 1, .val = 'T' },
+	{ 0, 0, 0, 0},
+};
+
+static void usage(char *program)
+{
+	fprintf(stderr, "usage: %s [--tty <tty-name>]\n", program);
+	exit(1);
+}
+
 int
 main (int argc, char **argv)
 {
-	char	*gps_file = "/dev/ttyUSB0";
+	char	*tty = "/dev/ttyUSB0";
+	int	c;
 
-	ao_gps_fd = ao_gps_open(gps_file);
+	while ((c = getopt_long(argc, argv, "T:", options, NULL)) != -1) {
+		switch (c) {
+		case 'T':
+			tty = optarg;
+			break;
+		default:
+			usage(argv[0]);
+			break;
+		}
+	}
+	ao_gps_fd = ao_gps_open(tty);
 	if (ao_gps_fd < 0) {
-		perror (gps_file);
+		perror (tty);
 		exit (1);
 	}
 	ao_gps_setup();

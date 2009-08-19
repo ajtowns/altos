@@ -82,14 +82,44 @@ ao_gps_print(__xdata struct ao_gps_data *gps_data) __reentrant
 		       gps_data->course * 2,
 		       climb / 100,
 		       climb % 100);
-		printf(" %d.%d(hdop) %5u(herr) %5u(verr)\n",
+		printf(" %d.%d(hdop) %5u(herr) %5u(verr)",
 		       gps_data->hdop / 5,
 		       (gps_data->hdop * 2) % 10,
 		       gps_data->h_error,
 		       gps_data->v_error);
 	} else if (gps_data->flags & AO_GPS_RUNNING) {
-		printf(" unlocked\n");
+		printf(" unlocked");
 	} else {
-		printf (" not-connected\n");
+		printf (" not-connected");
+	}
+}
+
+void
+ao_gps_tracking_print(__xdata struct ao_gps_tracking_data *gps_tracking_data) __reentrant
+{
+	uint8_t	c, n, v;
+	__xdata struct ao_gps_sat_data	*sat;
+	printf("SAT ");
+	n = gps_tracking_data->channels;
+	if (n == 0) {
+		printf("not-connected");
+		return;
+	}
+	sat = gps_tracking_data->sats;
+	v = 0;
+	for (c = 0; c < n; c++) {
+		if (sat->svid && sat->state)
+			v++;
+		sat++;
+	}
+	printf("%d ", v);
+	sat = gps_tracking_data->sats;
+	for (c = 0; c < n; c++) {
+		if (sat->svid && sat->state)
+			printf (" %3d %02x %3d",
+				sat->svid,
+				sat->state,
+				sat->c_n_1);
+		sat++;
 	}
 }
