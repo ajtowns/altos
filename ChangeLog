@@ -1,3 +1,15 @@
+commit 21e3dd0affac89919e5d0e29c6e9eb1eacb51801
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 19 02:06:49 2009 -0600
+
+    enable support for Debian menus
+
+commit 0087c1776e0253fc2bd3b86f15bf9d1b32bdc45a
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 19 00:52:57 2009 -0600
+
+    update changelogs for Debian build
+
 commit 4486d9156e19e4280b42bcd422d81d04f2d04a92
 Merge: dd09f0b 33edd62
 Author: Bdale Garbee <bdale@gag.com>
