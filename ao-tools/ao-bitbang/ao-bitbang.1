@@ -41,156 +41,87 @@ bits must be listed in the correct order, and the 'on' values must
 match the desired bit.
 .SH EXAMPLE
 .IP "Reset the target device"
-# reset
-.br
-C D R
-.br
-C D R
-.br
-C D R
-.br
-C D R
+.nf
+ # reset
+ C D R
+ C D R
+ C D R
+ C D R
+.fi
 .IP "Get Chip ID"
-#
-.br
-# Debug mode - drive RESET_N low for two clock cycles
-.br
-#
-.br
-C D R
-.br
-. D .
-.br
-C D .
-.br
-. D .
-.br
-C D .
-.br
-. D R
-.br
+.nf
+ #
+ # Debug mode - drive RESET_N low for two clock cycles
+ #
+ C D R
+ . D .
+ C D .
+ . D .
+ C D .
+ . D R
 
-.br
-#
-.br
-# GET_CHIP_ID
-.br
+ #
+ # GET_CHIP_ID
 
-.br
-C . R	0
-.br
-. . R
-.br
-C D R	1
-.br
-. D R
-.br
-C D R	1
-.br
-. D R
-.br
-C . R	0
-.br
-. . R
-.br
+ C . R	0
+ . . R
+ C D R	1
+ . D R
+ C D R	1
+ . D R
+ C . R	0
+ . . R
 
-.br
-C D R	1
-.br
-. D R
-.br
-C . R	0
-.br
-. . R
-.br
-C . R	0
-.br
-. . R
-.br
-C . R	0
-.br
-. . R
-.br
+ C D R	1
+ . D R
+ C . R	0
+ . . R
+ C . R	0
+ . . R
+ C . R	0
+ . . R
 
-.br
-#
-.br
-# start reading again
-.br
+ #
+ # start reading again
+ #
 
-.br
-C D R
-.br
-. - R
-.br
-C - R
-.br
-. - R
-.br
-C - R
-.br
-. - R
-.br
-C - R
-.br
-. - R
-.br
+ C D R
+ . - R
+ C - R
+ . - R
+ C - R
+ . - R
+ C - R
+ . - R
 
-.br
-C - R
-.br
-. - R
-.br
-C - R
-.br
-. - R
-.br
-C - R
-.br
-. - R
-.br
-C - R
-.br
-. - R
-.br
+ C - R
+ . - R
+ C - R
+ . - R
+ C - R
+ . - R
+ C - R
+ . - R
 
-.br
-C - R
-.br
-. - R
-.br
-C - R
-.br
-. - R
-.br
-C - R
-.br
-. - R
-.br
-C - R
-.br
-. - R
-.br
+ C - R
+ . - R
+ C - R
+ . - R
+ C - R
+ . - R
+ C - R
+ . - R
 
-.br
-C - R
-.br
-. - R
-.br
-C - R
-.br
-. - R
-.br
-C - R
-.br
-. - R
-.br
-C - R
-.br
-. - R
-.br
+ C - R
+ . - R
+ C - R
+ . - R
+ C - R
+ . - R
+ C - R
+ . - R
 
-.br
-C D R
+ C D R
+.fi
 .SH AUTHOR
 Keith Packard
