@@ -1,57 +1,8 @@
-commit ea86b19629001059952f7572fa8564e2263dc9f6
+commit cd5ce661e2a8f9694933358ccb5b916fbed089c2
 Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 20:47:41 2009 -0600
+Date:   Tue Aug 18 21:49:39 2009 -0600
 
-    deliver sources.list.d fragment so updates are closer to automatic
-
-commit cec78502c06f11880366f6131c0442906c6ed864
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 20:17:31 2009 -0600
-
-    update changelogs for Debian build
-
-commit 82d24bc65af85231b0d67394b30adfdb7beb6564
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 20:17:08 2009 -0600
-
-    we need ChangeLog in the repo for git-buildpackage to work right
-
-commit c8e04df1423bfd4e9318d9fccae2cfb4a97983ab
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 20:12:44 2009 -0600
-
-    update Debian changelog for build
-
-commit 2fda90c0f8ab46a83175ed168fcba9b11efcd453
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 20:12:22 2009 -0600
-
-    update Debian changelog for build
-
-commit a40f45bf4791bced48efb728be8990e41a7e4280
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 20:08:10 2009 -0600
-
-    move the ChangeLog creation to the prebuild target
-
-commit ae7752210a0e06beacad011c17dbf75bff39eda8
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 18:57:56 2009 -0600
-
-    update Debian changelog for build
-
-commit c7f7a1ed3494db008b397a613cfcd3ab36c01920
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 18:56:20 2009 -0600
-
-    update Debian changelog for build
-
-commit ebaf8b0d02d82bce7c7ea78e281377768b996d6d
-Merge: 79501a5 d996aa9
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 18:56:16 2009 -0600
-
-    Merge branch 'master' into debian
+    add support for building Debian package
 
 commit d996aa9b32fb0eb385bd3d158256c29788a42fe3
 Merge: b3b2d3c 7d4ceb7
@@ -70,25 +21,12 @@ Date:   Tue Aug 18 17:55:22 2009 -0700
     
     Signed-off-by: Keith Packard <keithp@keithp.com>
 
-commit 79501a5462ab29d661cf76f63628bd4616b6ae1b
-Merge: f48eb20 b3b2d3c
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 18:37:10 2009 -0600
-
-    Merge branch 'master' into debian
-
 commit b3b2d3c475a135084b5628c730fc6fca1ba0817b
 Merge: 4685fc5 da12b89
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Tue Aug 18 18:36:03 2009 -0600
 
     Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
-
-commit f48eb2033f3685fedd42d307963671a8060604c3
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 18:33:53 2009 -0600
-
-    don't ship a zero-length ChangeLog, when it's easy to make one...
 
 commit da12b89fb056a68e65ba363fef91d266727cb685
 Author: Keith Packard <keithp@keithp.com>
@@ -101,43 +39,6 @@ Author: Keith Packard <keithp@keithp.com>
 Date:   Tue Aug 18 17:29:29 2009 -0700
 
     Fix ao-bitbang examples to not have . in the first column
-
-commit 192b08c28719b5518ed349d9897f9a21add3c615
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 18:24:50 2009 -0600
-
-    update Debian changelog for build
-
-commit 5969d1d0e3aa554187a5bcc899a2f1347656fd5e
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 18:24:22 2009 -0600
-
-    fixing things lintian points out
-
-commit 9bf7c23f6e8ac7080240b91a28b355e50ecb4c4d
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 18:14:02 2009 -0600
-
-    update Debian changelog for build
-
-commit d861218bc6c2f57816953af3271d93fc48f8afc2
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 18:13:48 2009 -0600
-
-    fix merge conflict
-
-commit 3f953f56fbfd4e903c09ca1e4309664d38c2c669
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 18:10:06 2009 -0600
-
-    update Debian changelog for build
-
-commit 7fcbe76ce82ec5a17cf536afa0d1b9061e225aa9
-Merge: 035ba6d 4685fc5
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 18:09:59 2009 -0600
-
-    Merge branch 'master' into debian
 
 commit 4685fc541466afbeefc151bcb64cd054739c048b
 Merge: 1c2a0b6 c29275b
@@ -189,43 +90,11 @@ Date:   Tue Aug 18 12:40:24 2009 -0700
     
     Signed-off-by: Keith Packard <keithp@keithp.com>
 
-commit 035ba6df17f016953351bc77a98623c165b69909
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 14:40:58 2009 -0600
-
-    update Debian changelog for build
-
-commit 7aa251970cbbb6b9d9678ed0721e28da3df9036b
-Merge: 107055e 1c2a0b6
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 14:40:54 2009 -0600
-
-    Merge branch 'master' into debian
-
 commit 1c2a0b6653623b689d68d7349a6b2dce3e20a4a6
 Author: Keith Packard <keithp@keithp.com>
 Date:   Tue Aug 18 13:36:54 2009 -0700
 
     re-add debugger sources
-
-commit 107055e969e89771d1e2f8ac8b1a4c5b4b9e9a48
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 14:03:48 2009 -0600
-
-    update Debian changelog for build
-
-commit 14915158049918fa2fa5294f325b77dc9b08bab8
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 14:03:41 2009 -0600
-
-    update Debian changelog for build
-
-commit 0fcc426f96577ebbaf0c2d009cd2708e974de315
-Merge: 91b8592 9789ca5
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 14:03:16 2009 -0600
-
-    Merge branch 'master' into debian
 
 commit 9a9cce5510b87252f863239ac807b9fb4395b288
 Author: Keith Packard <keithp@keithp.com>
@@ -244,49 +113,6 @@ Date:   Tue Aug 18 12:40:24 2009 -0700
     
     Signed-off-by: Keith Packard <keithp@keithp.com>
 
-commit 91b85929df6a3464396702fd177a6f74c6f28c7a
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 12:59:36 2009 -0600
-
-    update Debian changelog for build
-
-commit 645cc909a279347aa1665ce883c71090b29935a9
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 12:59:28 2009 -0600
-
-    update Debian changelog for build
-
-commit f54e075705b3d4d6919494e8cff99141128f0303
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 12:59:15 2009 -0600
-
-    deliver firmware files too
-
-commit 30fb0e78a464794a11fb8cf4ae385c3123922371
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 12:52:39 2009 -0600
-
-    update Debian changelog for build
-
-commit 022e77db3416175e9b440828f94fb75b739ec00a
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 12:49:05 2009 -0600
-
-    oops, need to force prefix to /usr for Debian policy compliance
-
-commit a382039ebb91e3bea682b601feef15517290ad3b
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 12:39:41 2009 -0600
-
-    update Debian changelog for build
-
-commit 90347b16e11743e80f85308700e50b1228c2b8e0
-Merge: 06a0e43 a578239
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 12:39:17 2009 -0600
-
-    Merge branch 'master' into debian
-
 commit a5782398d968e7cb11f7203afada7c216f233b3b
 Author: Keith Packard <keithp@keithp.com>
 Date:   Tue Aug 18 11:34:28 2009 -0700
@@ -300,133 +126,6 @@ Date:   Tue Aug 18 11:34:28 2009 -0700
     stale code now that the new stuff works reliably.
     
     Signed-off-by: Keith Packard <keithp@keithp.com>
-
-commit 06a0e432480efb4e10220b0bdf402282aad32de9
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 12:16:23 2009 -0600
-
-    update Debian changelog for build
-
-commit f9126a21b6a027e56d3c9d086889375fd7f37f3c
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 12:06:03 2009 -0600
-
-    update Debian changelog for build
-
-commit 4d7c4c69a5e0ab16018c2a9325168e363a10084b
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 12:05:46 2009 -0600
-
-    fix the changelog version extraction to work for a native version
-
-commit fc761cc0117cb5a091b041b73b34d222b56a60f0
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 11:58:29 2009 -0600
-
-    update Debian changelog for build
-
-commit 9a97abb7b1afc90e8f67ba065583a49107a55f61
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 11:58:18 2009 -0600
-
-    update Debian changelog for build
-
-commit 24c337de950ac5d4b1d074dc20eb7c6a68338462
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 11:58:11 2009 -0600
-
-    oops, fix syntax
-
-commit 11c610c0e09d4f175b7e164e071ada361a1e9e2e
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 11:57:52 2009 -0600
-
-    update Debian changelog for build
-
-commit f65fa2b7d810ebae4b6df313de8bfe3687223a16
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 11:57:00 2009 -0600
-
-    call debian/rules prebuild before creating source tarball
-
-commit dc5679ee90429fe43c6180d1d298183a79334dfc
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 11:54:11 2009 -0600
-
-    update Debian changelog for build
-
-commit cf1fa8b062c05ee995d6befee9088908b2b22473
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 11:53:31 2009 -0600
-
-    add a prebuild target for use from git-buildpackage clean hook, that creates
-    a new debian/changelog entry based on git-describe output
-
-commit d7e60e48b6d85274690478223ef3b571a818e228
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 11:52:46 2009 -0600
-
-    update Debian changelog for build
-
-commit e946fa231a719abfdd3f319b8c3345dfc75ee185
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 00:08:30 2009 -0600
-
-    allow pass-in of VERSION, only call git describe if VERSION not set yet
-
-commit f762a9dfb3b9c81e443a85cd434154598c737ed8
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 00:06:24 2009 -0600
-
-    see if this works
-
-commit c6514ac5c47b44456a15d0f627f274eca769122e
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Tue Aug 18 00:03:27 2009 -0600
-
-    undo the post-commit hook stuff
-
-commit 2d53e72e938086688c81d16750b2c880fee1f4cd
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Mon Aug 17 23:55:47 2009 -0600
-
-    tweak makefile to use version file instead of calling git describe directly
-
-commit 2732624c67f5397fed5f31b062feb0f27b7f8fbd
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Mon Aug 17 23:53:35 2009 -0600
-
-    add version to the list of ignored files
-
-commit 08b28a0d4a71ba25ca949fe57bb150a89b401cef
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Mon Aug 17 23:39:35 2009 -0600
-
-    add build dependencies
-
-commit bc5d65b7e9776c87948edc4bd88fc4125ca20209
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Mon Aug 17 23:32:49 2009 -0600
-
-    build as a Debian specific package since we have no "upstream"
-
-commit e4fb67c989e10f626042e3b125ffd900bf477d60
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Mon Aug 17 23:31:52 2009 -0600
-
-    add a config file for git-buildpackage
-
-commit 5f59df632f3a82348aefc2b16f2521f6ebd30a50
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Mon Aug 17 23:31:20 2009 -0600
-
-    don't fail to clean if Makefile not present
-
-commit 946f2be3f4fdd0e7cf5c9867ff6fa0d348d95ee1
-Author: Bdale Garbee <bdale@gag.com>
-Date:   Mon Aug 17 23:30:20 2009 -0600
-
-    package for Debian
 
 commit 7cba411de0780c65e3490ab67186a514f0ea42ec
 Author: Keith Packard <keithp@keithp.com>

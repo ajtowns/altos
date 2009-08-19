@@ -1,3 +1,9 @@
+altos (0.4+88+gcd5ce66) unstable; urgency=low
+
+  * build for Debian from git
+
+ -- Bdale Garbee <bdale@gag.com>  Tue, 18 Aug 2009 21:57:00 -0600
+
 altos (0) unstable; urgency=low
 
   * Initial packaging
