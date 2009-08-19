@@ -48,6 +48,12 @@ aoview_parse_int(int *target, char *source)
 }
 
 static void
+aoview_parse_hex(int *target, char *source)
+{
+	*target = strtol(source, NULL, 16);
+}
+
+static void
 aoview_parse_pos(double *target, char *source)
 {
 	int	deg;
@@ -65,20 +71,23 @@ aoview_parse_pos(double *target, char *source)
 	*target = r;
 }
 
+#define PARSE_MAX_WORDS	256
+
 gboolean
 aoview_monitor_parse(const char *input_line)
 {
 	char *saveptr;
-	char *words[64];
+	char *words[PARSE_MAX_WORDS];
 	int nword;
 	char line_buf[8192], *line;
 	struct aodata	data;
+	int	tracking_pos;
 
 	/* avoid smashing our input parameter */
 	strncpy (line_buf, input_line, sizeof (line_buf)-1);
 	line_buf[sizeof(line_buf) - 1] = '\0';
 	line = line_buf;
-	for (nword = 0; nword < 64; nword++) {
+	for (nword = 0; nword < PARSE_MAX_WORDS; nword++) {
 		words[nword] = strtok_r(line, " \t\n", &saveptr);
 		line = NULL;
 		if (words[nword] == NULL)
@@ -112,6 +121,7 @@ aoview_monitor_parse(const char *input_line)
 		data.gps.gps_time.hour = data.gps.gps_time.minute = data.gps.gps_time.second = 0;
 		data.gps.lat = data.gps.lon = 0;
 		data.gps.alt = 0;
+		tracking_pos = 37;
 	} else if (nword >= 40) {
 		data.gps.gps_locked = 1;
 		data.gps.gps_connected = 1;
@@ -119,6 +129,7 @@ aoview_monitor_parse(const char *input_line)
 		aoview_parse_pos(&data.gps.lat, words[37]);
 		aoview_parse_pos(&data.gps.lon, words[38]);
 		sscanf(words[39], "%dm", &data.gps.alt);
+		tracking_pos = 46;
 	} else {
 		data.gps.gps_connected = 0;
 		data.gps.gps_locked = 0;
@@ -142,6 +153,25 @@ aoview_monitor_parse(const char *input_line)
 		data.gps.hdop = 0;
 		data.gps.h_error = 0;
 		data.gps.v_error = 0;
+	}
+	if (nword >= tracking_pos + 2 && strcmp(words[tracking_pos], "SAT") == 0) {
+		int	c, n, pos;
+		aoview_parse_int(&n, words[tracking_pos + 1]);
+		pos = tracking_pos + 2;
+		if (nword >= pos + n * 3) {
+			data.gps_tracking.channels = n;
+			for (c = 0; c < n; c++) {
+				aoview_parse_int(&data.gps_tracking.sats[c].svid,
+						 words[pos + 0]);
+				aoview_parse_hex(&data.gps_tracking.sats[c].state,
+						 words[pos + 1]);
+				aoview_parse_int(&data.gps_tracking.sats[c].c_n0,
+						 words[pos + 2]);
+				pos += 3;
+			}
+		} else {
+			data.gps_tracking.channels = 0;
+		}
 	}
 	aoview_state_notify(&data);
 	return TRUE;

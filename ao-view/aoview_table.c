@@ -17,7 +17,7 @@
 
 #include "aoview.h"
 
-#define NCOL	2
+#define NCOL	3
 
 static GtkTreeView	*dataview[NCOL];
 static GtkListStore	*datalist[NCOL];

@@ -168,6 +168,8 @@ aoview_state_derive(struct aodata *data, struct aostate *state)
 			aoview_great_circle(state->pad_lat, state->pad_lon, state->gps.lat, state->gps.lon,
 					    &state->distance, &state->bearing);
 	}
+	if (data->gps_tracking.channels)
+		state->gps_tracking = data->gps_tracking;
 	if (state->npad) {
 		state->gps_height = state->gps.alt - state->pad_alt;
 	} else {
@@ -308,6 +310,7 @@ aoview_state_notify(struct aodata *data)
 	if (state->gps_valid) {
 		aoview_state_add_deg(1, "Latitude", state->gps.lat, 'N', 'S');
 		aoview_state_add_deg(1, "Longitude", state->gps.lon, 'E', 'W');
+		aoview_table_add_row(1, "GPS altitude", "%d", state->gps.alt);
 		aoview_table_add_row(1, "GPS height", "%d", state->gps_height);
 		aoview_table_add_row(1, "GPS time", "%02d:%02d:%02d",
 				     state->gps.gps_time.hour,
@@ -329,6 +332,27 @@ aoview_state_notify(struct aodata *data)
 		aoview_state_add_deg(1, "Pad latitude", state->pad_lat, 'N', 'S');
 		aoview_state_add_deg(1, "Pad longitude", state->pad_lon, 'E', 'W');
 		aoview_table_add_row(1, "Pad GPS alt", "%gm", state->pad_alt);
+	}
+	if (state->gps.gps_connected) {
+		int	nsat_vis = 0;
+		int	nsat_locked = 0;
+		int	c;
+
+		for (c = 0; c < state->gps_tracking.channels; c++) {
+			if ((state->gps_tracking.sats[c].state & 0xff) == 0xbf)
+				nsat_locked++;
+		}
+		aoview_table_add_row(2, "Satellites Visible", "%d", state->gps_tracking.channels);
+		aoview_table_add_row(2, "Satellites Locked", "%d", nsat_locked);
+		for (c = 0; c < state->gps_tracking.channels; c++) {
+			aoview_table_add_row(2, "Satellite id,state,C/N0",
+					     "%3d,%02x,%2d%s",
+					     state->gps_tracking.sats[c].svid,
+					     state->gps_tracking.sats[c].state,
+					     state->gps_tracking.sats[c].c_n0,
+					     (state->gps_tracking.sats[c].state & 0xff) == 0xbf ?
+					     " LOCKED" : "");
+		}
 	}
 	aoview_table_finish();
 	aoview_label_show(state);

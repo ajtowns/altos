@@ -102,7 +102,7 @@ ao_gps_tracking_print(__xdata struct ao_gps_tracking_data *gps_tracking_data) __
 	printf("SAT ");
 	n = gps_tracking_data->channels;
 	if (n == 0) {
-		printf("not-connected\n");
+		printf("not-connected");
 		return;
 	}
 	sat = gps_tracking_data->sats;
@@ -122,5 +122,4 @@ ao_gps_tracking_print(__xdata struct ao_gps_tracking_data *gps_tracking_data) __
 				sat->c_n_1);
 		sat++;
 	}
-	printf ("\n");
 }
