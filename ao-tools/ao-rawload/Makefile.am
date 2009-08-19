@@ -8,3 +8,5 @@ ao_rawload_DEPENDENCIES = $(AO_RAWLOAD_LIBS)
 ao_rawload_LDADD=$(AO_RAWLOAD_LIBS) $(LIBUSB_LIBS)
 
 ao_rawload_SOURCES = ao-rawload.c
+
+man_MANS=ao-rawload.1

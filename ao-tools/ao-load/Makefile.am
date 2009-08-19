@@ -8,3 +8,5 @@ ao_load_DEPENDENCIES = $(AO_LOAD_LIBS)
 ao_load_LDADD=$(AO_LOAD_LIBS) $(LIBUSB_LIBS)
 
 ao_load_SOURCES = ao-load.c
+
+man_MANS = ao-load.1

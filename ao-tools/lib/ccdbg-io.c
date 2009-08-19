@@ -22,22 +22,29 @@
 #include "cc-bitbang.h"
 
 struct ccdbg *
-ccdbg_open(void)
+ccdbg_open(char *tty)
 {
 	struct ccdbg *dbg;
-	char *tty;
 
 	dbg = calloc(sizeof (struct ccdbg), 1);
 	if (!dbg) {
 		perror("calloc");
 		return NULL;
 	}
-	tty = getenv("CCDBG_TTY");
-	if (!tty || tty[0] == '/')
-		dbg->usb = cc_usb_open(tty);
-	if (!dbg->usb) {
+	if (!tty)
+		tty = getenv("ALTOS_TTY");
+	if (!tty)
+		tty="/dev/ttyACM0";
+
+	if (!strcmp(tty, "BITBANG")) {
 		dbg->bb = cc_bitbang_open();
 		if (!dbg->bb) {
+			free(dbg);
+			return NULL;
+		}
+	} else {
+		dbg->usb = cc_usb_open(tty);
+		if (!dbg->usb) {
 			free(dbg);
 			return NULL;
 		}

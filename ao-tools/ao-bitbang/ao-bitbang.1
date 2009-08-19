@@ -1,0 +1,196 @@
+.\"
+.\" Copyright © 2009 Keith Packard <keithp@keithp.com>
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+.\"
+.\"
+.TH AO-BITBANG 1 "ao-bitbang" ""
+.SH NAME
+ao-bitbang \- Low-level cc1111 interface diagnostic tool
+.SH SYNOPSIS
+.B "ao-bitbang"
+.SH DESCRIPTION
+.I ao-bitbang
+connects through a CP2103 usb-to-serial converter and uses the GPIO
+pins to communicate with the debug port on a cc1111 device. It
+provides raw access to the debug pins to help debug the lowest level
+communication path.
+.SH USAGE
+.I ao-bitbang
+reads a sequence of bit manipulations from stdin, sends them to the
+device and reports status on stdout.
+.P
+Each line on stdin should contain a single letter command for each of
+the three debug lines on the cc1111 -- clock, data and reset. Each bit
+can be in one of three states -- on (C, D or R), off (.) or tri-state
+(-) for input. Empty lines, or lines starting with '#' are
+ignored. Anything beyond the last bit in a line is also ignored. The
+bits must be listed in the correct order, and the 'on' values must
+match the desired bit.
+.SH EXAMPLE
+.IP "Reset the target device"
+# reset
+.br
+C D R
+.br
+C D R
+.br
+C D R
+.br
+C D R
+.IP "Get Chip ID"
+#
+.br
+# Debug mode - drive RESET_N low for two clock cycles
+.br
+#
+.br
+C D R
+.br
+. D .
+.br
+C D .
+.br
+. D .
+.br
+C D .
+.br
+. D R
+.br
+
+.br
+#
+.br
+# GET_CHIP_ID
+.br
+
+.br
+C . R	0
+.br
+. . R
+.br
+C D R	1
+.br
+. D R
+.br
+C D R	1
+.br
+. D R
+.br
+C . R	0
+.br
+. . R
+.br
+
+.br
+C D R	1
+.br
+. D R
+.br
+C . R	0
+.br
+. . R
+.br
+C . R	0
+.br
+. . R
+.br
+C . R	0
+.br
+. . R
+.br
+
+.br
+#
+.br
+# start reading again
+.br
+
+.br
+C D R
+.br
+. - R
+.br
+C - R
+.br
+. - R
+.br
+C - R
+.br
+. - R
+.br
+C - R
+.br
+. - R
+.br
+
+.br
+C - R
+.br
+. - R
+.br
+C - R
+.br
+. - R
+.br
+C - R
+.br
+. - R
+.br
+C - R
+.br
+. - R
+.br
+
+.br
+C - R
+.br
+. - R
+.br
+C - R
+.br
+. - R
+.br
+C - R
+.br
+. - R
+.br
+C - R
+.br
+. - R
+.br
+
+.br
+C - R
+.br
+. - R
+.br
+C - R
+.br
+. - R
+.br
+C - R
+.br
+. - R
+.br
+C - R
+.br
+. - R
+.br
+
+.br
+C D R
+.SH AUTHOR
+Keith Packard

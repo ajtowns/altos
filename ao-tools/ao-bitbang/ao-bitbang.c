@@ -23,7 +23,7 @@ main (int argc, char **argv)
 {
 	struct ccdbg	*dbg;
 
-	dbg = ccdbg_open();
+	dbg = ccdbg_open("BITBANG");
 	if (!dbg)
 		exit (1);
 

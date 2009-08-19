@@ -22,6 +22,7 @@ extern char *s51_prompt;
 extern struct ccdbg *s51_dbg;
 extern int s51_interrupted;
 extern int s51_monitor;
+extern char *s51_tty;
 
 enum command_result {
 	command_success, command_debug, command_syntax, command_interrupt, command_error,

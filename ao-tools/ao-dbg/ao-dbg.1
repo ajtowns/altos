@@ -16,11 +16,11 @@
 .\" 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 .\"
 .\"
-.TH S51 1 "s51" ""
+.TH AO-DBG 1 "ao-dbg" ""
 .SH NAME
-s51 \- hex debugger for cc1111 processors
+ao-dbg \- hex debugger for cc1111 processors
 .SH SYNOPSIS
-.B "s51"
+.B "ao-dbg"
 [\-t \fIcpu-type\fP]
 [\-X \fIfrequency\fP]
 [\-c]
@@ -34,14 +34,16 @@ s51 \- hex debugger for cc1111 processors
 [\-H]
 [\-h]
 [\-m]
+[\-T \fItty-device\fP]
 .SH DESCRIPTION
-.I s51
-connects to a cc1111 processor through a cp1203-based USB-to-serial
-converter board, using the GPIO pins available on that chip. It provides an
-interface compatible with the 8051 emulator of the same name (s51), but
-communicating with the real chip instead of an emulation. Using a modified
-version of the SDCC debugger (sdcdb), you can control program execution
-on the target machine at source-level.
+.I ao-dbg
+connects to a cc1111 processor through either a suitable cc1111 board
+or a cp2103 usb to serial converter board, using the GPIO pins
+available on that chip. It provides an interface compatible with the
+8051 emulator from sdcc called s51, but communicating with the real
+chip instead of an emulation. Using a modified version of the SDCC
+debugger (sdcdb), you can control program execution on the target
+machine at source-level.
 
 .SH OPTIONS
 The command line options are designed to be compatible with the 8051
@@ -64,9 +66,9 @@ The emulator and sdcdb communicate through a network socket. This option
 switches the debugger from communicating through stdin/stdout to listening
 on a specific network port instead. Once a connection is made, the debugger
 continues on, using that network port for command input and output. The
-debugger uses port 9756, and attempts to connect before launching s51, so if
-s51 is listening on this port before sdcdb is started, sdcdb will end up
-talking to the existing s51 instance. That's often useful for debugging s51
+debugger uses port 9756, and attempts to connect before launching ao-dbg, so if
+ao-dbg is listening on this port before sdcdb is started, sdcdb will end up
+talking to the existing ao-dbg instance. That's often useful for debugging ao-dbg
 itself.
 .IP "\-p \fIprompt\fP"
 This sets the command prompt to the specified string.
@@ -76,14 +78,19 @@ sdcdb.
 .IP "\-h"
 This should print a usage message, but does nothing useful currently.
 .IP "\-m"
-This option is not present in the original 8051 emulator, and causes s51 to
+This option is not present in the original 8051 emulator, and causes ao-dbg to
 dump all commands and replies that are received from and sent to sdcdb.
+.IP "\-T"
+This selects which tty device the debugger uses to communicate with
+the target device. The special name 'BITBANG' directs ao-dbg to use
+the cp2103 connection, otherwise this should be a usb serial port
+connected to a suitable cc1111 debug node.
 .SH COMMANDS
-Once started, s51 connects to the cc1111 via the CP2103 using libusb2 and
-then reads and executes commands, either from stdin, or the nework
-connection to sdcdb.
+Once started, ao-dbg connects to the cc1111 and then reads and
+executes commands, either from stdin, or the nework connection to
+sdcdb.
 .PP
-Unlike the command line, s51 contains built-in help for each of these
+Unlike the command line, ao-dbg contains built-in help for each of these
 commands, via the 'help' command. Most of the commands are available in a
 long form and a single character short form. Below, the short form follows
 the long form after a comma.
@@ -155,13 +162,12 @@ the original 8051 emulator.
 While the original purpose for this program was to connect the source
 debugger with the hardware, it can also be used as a low-level hex debugger
 all on its own. In particular, all of the cc1111 peripherals can be
-manipulated directly from the s51 command line.
-.IP "Starting s51"
-If the CP2103 is plugged in, and the CC1111 is connected correctly, the
-\'s51\' command itself should connect to the device without trouble.
-Note that the CP2103 must have the GPIO pins configured correctly as well.
+manipulated directly from the ao-dbg command line.
+.IP "Starting ao-dbg"
+First ensure that the target cc1111 device and intermediate cp2103 or
+cc111 board are all hooked up correctly.
 .IP
-$ s51
+$ ao-dbg
 .br
 Welcome to the non-simulated processor
 .br

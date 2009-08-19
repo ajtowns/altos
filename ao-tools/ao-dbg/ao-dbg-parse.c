@@ -195,11 +195,9 @@ command_read (void)
 	enum command_result result;
 	struct command_function *func;
 
-	s51_dbg = ccdbg_open ();
-	if (!s51_dbg) {
-		perror("ccdbg_open");
+	s51_dbg = ccdbg_open (s51_tty);
+	if (!s51_dbg)
 		exit(1);
-	}
 	ccdbg_debug_mode(s51_dbg);
 	ccdbg_halt(s51_dbg);
 	s51_printf("Welcome to the non-simulated processor\n");

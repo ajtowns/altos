@@ -258,7 +258,7 @@ ccdbg_hex_image_equal(struct hex_image *a, struct hex_image *b);
 
 /* ccdbg-io.c */
 struct ccdbg *
-ccdbg_open(void);
+ccdbg_open(char *tty);
 
 void
 ccdbg_close(struct ccdbg *dbg);

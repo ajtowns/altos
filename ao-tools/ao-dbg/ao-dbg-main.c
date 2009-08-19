@@ -24,6 +24,7 @@
 #include <signal.h>
 #include <stdarg.h>
 #include <poll.h>
+#include <getopt.h>
 
 static int s51_port = 0;
 static char *cpu = "8051";
@@ -32,6 +33,7 @@ char *s51_prompt = "> ";
 struct ccdbg *s51_dbg;
 int s51_interrupted = 0;
 int s51_monitor = 0;
+char *s51_tty = NULL;
 
 static FILE *s51_input;
 static FILE *s51_output;
@@ -48,6 +50,11 @@ void s51_sigint()
 	s51_interrupted = 1;
 }
 
+static const struct option options[] = {
+	{ .name = "tty", .has_arg = 1, .val = 'T' },
+	{ 0, 0, 0, 0 },
+};
+
 int
 main(int argc, char **argv)
 {
@@ -55,7 +62,7 @@ main(int argc, char **argv)
 	char *endptr;
 	struct sigvec vec, ovec;
 
-	while ((opt = getopt(argc, argv, "PVvHhmt:X:c:r:Z:s:S:p:")) != -1) {
+	while ((opt = getopt_long(argc, argv, "PVvHhmt:X:c:r:Z:s:S:p:T:", options, NULL)) != -1) {
 		switch (opt) {
 		case 't':
 			cpu = optarg;
@@ -103,6 +110,9 @@ main(int argc, char **argv)
 			break;
 		case 'm':
 			s51_monitor = 1;
+			break;
+		case 'T':
+			s51_tty = optarg;
 			break;
 		}
 	}
