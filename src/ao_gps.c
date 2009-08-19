@@ -21,6 +21,7 @@
 
 __xdata uint8_t ao_gps_mutex;
 __xdata struct ao_gps_data	ao_gps_data;
+__xdata struct ao_gps_tracking_data	ao_gps_tracking_data;
 
 static const char ao_gps_set_nmea[] = "\r\n$PSRF100,0,57600,8,1,0*37\r\n";
 
@@ -105,6 +106,21 @@ struct sirf_geodetic_nav_data {
 
 static __xdata struct sirf_geodetic_nav_data	ao_sirf_data;
 
+struct sirf_measured_sat_data {
+	uint8_t		svid;
+	uint16_t	state;
+	uint8_t		c_n_1;
+};
+
+struct sirf_measured_tracker_data {
+	int16_t				gps_week;
+	uint32_t			gps_tow;
+	uint8_t				channels;
+	struct sirf_measured_sat_data	sats[12];
+};
+
+static __xdata struct sirf_measured_tracker_data	ao_sirf_tracker_data;
+
 static __pdata uint16_t ao_sirf_cksum;
 static __pdata uint16_t ao_sirf_len;
 
@@ -118,9 +134,11 @@ static uint8_t data_byte(void)
 	return c;
 }
 
+static char __xdata *sirf_target;
+
 static void sirf_u16(uint8_t offset)
 {
-	uint16_t __xdata *ptr = (uint16_t __xdata *) (((char __xdata *) &ao_sirf_data) + offset);
+	uint16_t __xdata *ptr = (uint16_t __xdata *) (sirf_target + offset);
 	uint16_t val;
 
 	val = data_byte() << 8;
@@ -130,16 +148,16 @@ static void sirf_u16(uint8_t offset)
 
 static void sirf_u8(uint8_t offset)
 {
-	uint8_t __xdata *ptr = (uint8_t __xdata *) (((char __xdata *) &ao_sirf_data) + offset);
+	uint8_t __xdata *ptr = (uint8_t __xdata *) (sirf_target + offset);
 	uint8_t val;
 
 	val = data_byte ();
 	*ptr = val;
 }
 
-static void sirf_u32(uint8_t offset)
+static void sirf_u32(uint8_t offset) __reentrant
 {
-	uint32_t __xdata *ptr = (uint32_t __xdata *) (((char __xdata *) &ao_sirf_data) + offset);
+	uint32_t __xdata *ptr = (uint32_t __xdata *) (sirf_target + offset);
 	uint32_t val;
 
 	val = ((uint32_t) data_byte ()) << 24;
@@ -160,11 +178,43 @@ static void sirf_discard(uint8_t len)
 #define SIRF_U8		2
 #define SIRF_U16	3
 #define SIRF_U32	4
+#define SIRF_U8X10	5
 
 struct sirf_packet_parse {
 	uint8_t	type;
 	uint8_t	offset;
 };
+
+static void
+ao_sirf_parse(void __xdata *target, const struct sirf_packet_parse *parse) __reentrant
+{
+	uint8_t	i, offset, j;
+
+	sirf_target = target;
+	for (i = 0; ; i++) {
+		offset = parse[i].offset;
+		switch (parse[i].type) {
+		case SIRF_END:
+			return;
+		case SIRF_DISCARD:
+			sirf_discard(offset);
+			break;
+		case SIRF_U8:
+			sirf_u8(offset);
+			break;
+		case SIRF_U16:
+			sirf_u16(offset);
+			break;
+		case SIRF_U32:
+			sirf_u32(offset);
+			break;
+		case SIRF_U8X10:
+			for (j = 10; j--;)
+				sirf_u8(offset++);
+			break;
+		}
+	}
+}
 
 static const struct sirf_packet_parse geodetic_nav_data_packet[] = {
 	{ SIRF_DISCARD, 2 },							/* 1 nav valid */
@@ -200,29 +250,34 @@ static const struct sirf_packet_parse geodetic_nav_data_packet[] = {
 };
 
 static void
-ao_sirf_parse_41(void)
+ao_sirf_parse_41(void) __reentrant
 {
-	uint8_t	i, offset;
+	ao_sirf_parse(&ao_sirf_data, geodetic_nav_data_packet);
+}
 
-	for (i = 0; ; i++) {
-		offset = geodetic_nav_data_packet[i].offset;
-		switch (geodetic_nav_data_packet[i].type) {
-		case SIRF_END:
-			return;
-		case SIRF_DISCARD:
-			sirf_discard(offset);
-			break;
-		case SIRF_U8:
-			sirf_u8(offset);
-			break;
-		case SIRF_U16:
-			sirf_u16(offset);
-			break;
-		case SIRF_U32:
-			sirf_u32(offset);
-			break;
-		}
-	}
+static const struct sirf_packet_parse measured_tracker_data_packet[] = {
+	{ SIRF_U16, offsetof (struct sirf_measured_tracker_data, gps_week) },	/* 1 week */
+	{ SIRF_U32, offsetof (struct sirf_measured_tracker_data, gps_tow) },	/* 3 time of week */
+	{ SIRF_U8, offsetof (struct sirf_measured_tracker_data, channels) },	/* 7 channels */
+	{ SIRF_END, 0 },
+};
+
+static const struct sirf_packet_parse measured_sat_data_packet[] = {
+	{ SIRF_U8, offsetof (struct sirf_measured_sat_data, svid) },		/* 0 SV id */
+	{ SIRF_DISCARD, 2 },							/* 1 azimuth, 2 elevation */
+	{ SIRF_U16, offsetof (struct sirf_measured_sat_data, state) },		/* 2 state */
+	{ SIRF_U8, offsetof (struct sirf_measured_sat_data, c_n_1) },		/* C/N0 1 */
+	{ SIRF_DISCARD, 9 },							/* C/N0 2-10 */
+	{ SIRF_END, 0 },
+};
+
+static void
+ao_sirf_parse_4(void) __reentrant
+{
+	uint8_t	i;
+	ao_sirf_parse(&ao_sirf_tracker_data, measured_tracker_data_packet);
+	for (i = 0; i < 12; i++)
+		ao_sirf_parse(&ao_sirf_tracker_data.sats[i], measured_sat_data_packet);
 }
 
 static void
@@ -267,7 +322,6 @@ ao_sirf_set_message_rate(uint8_t msg, uint8_t rate)
 
 static const uint8_t sirf_disable[] = {
 	2,
-	4,
 	9,
 	10,
 	27,
@@ -289,6 +343,7 @@ ao_gps(void) __reentrant
 		for (i = 0; i < sizeof (sirf_disable); i++)
 			ao_sirf_set_message_rate(sirf_disable[i], 0);
 		ao_sirf_set_message_rate(41, 1);
+		ao_sirf_set_message_rate(4, 1);
 	}
 	for (;;) {
 		/* Locate the begining of the next record */
@@ -313,6 +368,11 @@ ao_gps(void) __reentrant
 			if (ao_sirf_len < 90)
 				break;
 			ao_sirf_parse_41();
+			break;
+		case 4:
+			if (ao_sirf_len < 187)
+				break;
+			ao_sirf_parse_4();
 			break;
 		}
 		if (ao_sirf_len != 0)
@@ -356,6 +416,17 @@ ao_gps(void) __reentrant
 			ao_mutex_put(&ao_gps_mutex);
 			ao_wakeup(&ao_gps_data);
 			break;
+		case 4:
+			ao_mutex_get(&ao_gps_mutex);
+			ao_gps_tracking_data.channels = ao_sirf_tracker_data.channels;
+			for (i = 0; i < 12; i++) {
+				ao_gps_tracking_data.sats[i].svid = ao_sirf_tracker_data.sats[i].svid;
+				ao_gps_tracking_data.sats[i].state = (uint8_t) ao_sirf_tracker_data.sats[i].state;
+				ao_gps_tracking_data.sats[i].c_n_1 = ao_sirf_tracker_data.sats[i].c_n_1;
+			}
+			ao_mutex_put(&ao_gps_mutex);
+			ao_wakeup(&ao_gps_tracking_data);
+			break;
 		}
 	}
 }
@@ -367,6 +438,9 @@ gps_dump(void) __reentrant
 {
 	ao_mutex_get(&ao_gps_mutex);
 	ao_gps_print(&ao_gps_data);
+	putchar('\n');
+	ao_gps_tracking_print(&ao_gps_tracking_data);
+	putchar('\n');
 	ao_mutex_put(&ao_gps_mutex);
 }
 

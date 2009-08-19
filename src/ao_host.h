@@ -65,7 +65,7 @@ uint8_t ao_adc_head;
 #define ao_led_on(l)
 #define ao_led_off(l)
 #define ao_timer_set_adc_interval(i)
-#define ao_wakeup(wchan) ao_dump_state()
+#define ao_wakeup(wchan) ao_dump_state(wchan)
 #define ao_cmd_register(c)
 #define ao_usb_disable()
 #define ao_telemetry_set_interval(x)
@@ -100,7 +100,7 @@ struct ao_adc ao_adc_static;
 FILE *emulator_in;
 
 void
-ao_dump_state(void);
+ao_dump_state(void *wchan);
 
 void
 ao_sleep(void *wchan);

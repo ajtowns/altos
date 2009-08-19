@@ -458,6 +458,7 @@ ao_ee_init(void);
 #define AO_LOG_GPS_LAT		'N'
 #define AO_LOG_GPS_LON		'W'
 #define AO_LOG_GPS_ALT		'H'
+#define AO_LOG_GPS_SAT		'V'
 
 #define AO_LOG_POS_NONE		(~0UL)
 
@@ -498,6 +499,12 @@ struct ao_log_record {
 			int16_t		altitude;
 			uint16_t	unused;
 		} gps_altitude;
+		struct {
+			uint16_t	svid;
+			uint8_t		state;
+			uint8_t		c_n;
+			uint8_t		unused;
+		} gps_sat;
 		struct {
 			uint16_t	d0;
 			uint16_t	d1;
@@ -696,14 +703,38 @@ struct ao_gps_data {
 	uint16_t		v_error;	/* m */
 };
 
+#define SIRF_SAT_STATE_ACQUIRED			(1 << 0)
+#define SIRF_SAT_STATE_CARRIER_PHASE_VALID	(1 << 1)
+#define SIRF_SAT_BIT_SYNC_COMPLETE		(1 << 2)
+#define SIRF_SAT_SUBFRAME_SYNC_COMPLETE		(1 << 3)
+#define SIRF_SAT_CARRIER_PULLIN_COMPLETE	(1 << 4)
+#define SIRF_SAT_CODE_LOCKED			(1 << 5)
+#define SIRF_SAT_ACQUISITION_FAILED		(1 << 6)
+#define SIRF_SAT_EPHEMERIS_AVAILABLE		(1 << 7)
+
+struct ao_gps_sat_data {
+	uint8_t		svid;
+	uint8_t		state;
+	uint8_t		c_n_1;
+};
+
+struct ao_gps_tracking_data {
+	uint8_t			channels;
+	struct ao_gps_sat_data	sats[12];
+};
+
 extern __xdata uint8_t ao_gps_mutex;
 extern __xdata struct ao_gps_data ao_gps_data;
+extern __xdata struct ao_gps_tracking_data ao_gps_tracking_data;
 
 void
 ao_gps(void);
 
 void
 ao_gps_print(__xdata struct ao_gps_data *gps_data);
+
+void
+ao_gps_tracking_print(__xdata struct ao_gps_tracking_data *gps_tracking_data);
 
 void
 ao_gps_init(void);
@@ -735,6 +766,7 @@ struct ao_telemetry {
 	struct ao_adc		adc;
 	struct ao_gps_data	gps;
 	char			callsign[AO_MAX_CALLSIGN];
+	struct ao_gps_tracking_data	gps_tracking;
 };
 
 /* Set delay between telemetry reports (0 to disable) */
