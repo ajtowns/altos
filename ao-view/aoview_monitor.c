@@ -136,6 +136,7 @@ aoview_monitor_parse(const char *input_line)
 		data.gps.gps_time.hour = data.gps.gps_time.minute = data.gps.gps_time.second = 0;
 		data.gps.lat = data.gps.lon = 0;
 		data.gps.alt = 0;
+		tracking_pos = -1;
 	}
 	if (nword >= 46) {
 		data.gps.gps_extended = 1;
@@ -154,7 +155,7 @@ aoview_monitor_parse(const char *input_line)
 		data.gps.h_error = 0;
 		data.gps.v_error = 0;
 	}
-	if (nword >= tracking_pos + 2 && strcmp(words[tracking_pos], "SAT") == 0) {
+	if (tracking_pos >= 0 && nword >= tracking_pos + 2 && strcmp(words[tracking_pos], "SAT") == 0) {
 		int	c, n, pos;
 		aoview_parse_int(&n, words[tracking_pos + 1]);
 		pos = tracking_pos + 2;
@@ -172,6 +173,8 @@ aoview_monitor_parse(const char *input_line)
 		} else {
 			data.gps_tracking.channels = 0;
 		}
+	} else {
+		data.gps_tracking.channels = 0;
 	}
 	aoview_state_notify(&data);
 	return TRUE;
