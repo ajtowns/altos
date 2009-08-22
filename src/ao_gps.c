@@ -30,14 +30,14 @@ const char ao_gps_config[] = {
 	0xa0, 0xa2, 0x00, 0x0e,	/* length: 14 bytes */
 	136,			/* mode control */
 	0, 0,			/* reserved */
-	4,			/* degraded mode (disabled) */
+	0,			/* degraded mode (allow 1-SV navigation) */
 	0, 0,			/* reserved */
 	0, 0,			/* user specified altitude */
 	2,			/* alt hold mode (disabled, require 3d fixes) */
 	0,			/* alt hold source (use last computed altitude) */
 	0,			/* reserved */
-	0,			/* Degraded time out (disabled) */
-	0,			/* Dead Reckoning time out (disabled) */
+	10,			/* Degraded time out (10 sec) */
+	10,			/* Dead Reckoning time out (10 sec) */
 	0,			/* Track smoothing (disabled) */
 	0x00, 0x8e, 0xb0, 0xb3,
 
