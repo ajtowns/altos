@@ -38,6 +38,8 @@ install: build
 	dh_installdirs
 
 	$(MAKE) DESTDIR=$(CURDIR)/debian/altos install
+	install -o root -g root -m 0644 debian/altusmetrum.xpm \
+		$(CURDIR)/debian/altos/usr/share/pixmaps/altusmetrum.xpm
 
 # Build architecture-independent files here.
 binary-indep: install
@@ -52,8 +54,6 @@ binary-arch: install
 	dh_installexamples
 	dh_install
 	dh_installmenu
-	install debian/altusmetrum.xpm \
-		debian/altos/usr/share/pixmaps/altusmetrum.xpm
 #	dh_installdebconf
 #	dh_installlogrotate
 #	dh_installemacsen
