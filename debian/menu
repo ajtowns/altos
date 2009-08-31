@@ -1,2 +1,6 @@
-?package(altos):needs="X11" section="Applications/Viewers"\
-  title="ao-view" command="/usr/bin/ao-view"
+?package(altos): \
+	needs="X11" \
+	section="Applications/Viewers" \
+	title="ao-view" \
+	command="/usr/bin/ao-view" \
+	icon="/usr/share/pixmaps/altusmetrum.xpm"

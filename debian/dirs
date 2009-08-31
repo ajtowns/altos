@@ -1,3 +1,4 @@
 etc/apt/sources.list.d
 usr/bin
 usr/share/altos
+/usr/share/pixmaps

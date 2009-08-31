@@ -52,6 +52,8 @@ binary-arch: install
 	dh_installexamples
 	dh_install
 	dh_installmenu
+	install debian/altusmetrum.xpm \
+		debian/altos/usr/share/pixmaps/altusmetrum.xpm
 #	dh_installdebconf
 #	dh_installlogrotate
 #	dh_installemacsen
