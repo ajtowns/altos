@@ -1,3 +1,24 @@
+commit b34474c1f3083e73b7184d519f54d4c8031836fd
+Merge: 8df1697 0d65bff
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 31 16:25:32 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 0d65bff443c17d4d98c18b620ec075ab66b30efd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Aug 21 10:47:46 2009 -0700
+
+    Turn off GPS tracking data when not present in data stream
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8df169791835510d96c11a3b0aa3cc5b79fa7fde
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 19 02:21:23 2009 -0600
+
+    update changelogs for Debian build
+
 commit 42ab6d52540d0326ef89e9d57954b08248558468
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed Aug 19 02:21:06 2009 -0600
