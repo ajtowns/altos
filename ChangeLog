@@ -1,3 +1,15 @@
+commit 6926c4ab5d87a8f2eb4fcde2c673fb3a4639e115
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 31 16:47:44 2009 -0600
+
+    pixmap file should not be executable
+
+commit 1495e2f27acde3743c3764a0c31ee082224d6c64
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 31 16:42:55 2009 -0600
+
+    update changelogs for Debian build
+
 commit c8c5b7963babe8eb16e2651fba9cd2c8d1cba74e
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Mon Aug 31 16:42:37 2009 -0600
