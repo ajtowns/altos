@@ -1,3 +1,15 @@
+commit c8c5b7963babe8eb16e2651fba9cd2c8d1cba74e
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 31 16:42:37 2009 -0600
+
+    deliver an icon for the Debian menu system
+
+commit 591b99c232e780246fc07841c09c8c4e7835facb
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 31 16:26:00 2009 -0600
+
+    update changelogs for Debian build
+
 commit b34474c1f3083e73b7184d519f54d4c8031836fd
 Merge: 8df1697 0d65bff
 Author: Bdale Garbee <bdale@gag.com>
