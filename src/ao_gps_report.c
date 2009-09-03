@@ -75,7 +75,6 @@ ao_gps_tracking_report(void)
 			    (gps_log.u.gps_sat.state = gps_tracking_data.sats[c].state))
 			{
 				gps_log.u.gps_sat.c_n = gps_tracking_data.sats[c].c_n_1;
-				gps_log.u.gps_sat.unused = 0;
 				ao_log_data(&gps_log);
 			}
 	}

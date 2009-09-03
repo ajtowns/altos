@@ -24,7 +24,6 @@ INC = \
 #
 ALTOS_SRC = \
 	ao_cmd.c \
-	ao_dbg.c \
 	ao_dma.c \
 	ao_mutex.c \
 	ao_panic.c \
@@ -71,6 +70,12 @@ TELE_FAKE_SRC = \
 	ao_ee_fake.c
 
 #
+# Debug dongle driver (only on TI)
+#
+DBG_DONGLE_SRC = \
+	ao_dbg.c
+
+#
 # Drivers only on TeleMetrum
 #
 TM_DRIVER_SRC = \
@@ -115,7 +120,8 @@ TI_SRC = \
 	$(TELE_RECEIVER_SRC) \
 	$(TELE_COMMON_SRC) \
 	$(TELE_FAKE_SRC) \
-	$(TI_MAIN_SRC)
+	$(TI_MAIN_SRC) \
+	$(DBG_DONGLE_SRC)
 
 TT_MAIN_SRC = \
 	ao_teleterra.c

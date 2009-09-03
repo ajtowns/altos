@@ -271,6 +271,7 @@ ao_ee_write(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
 		/* See how much is left */
 		buf += this_len;
 		len -= this_len;
+		pos += this_len;
 	}
 	return 1;
 }
@@ -306,6 +307,7 @@ ao_ee_read(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
 		/* See how much is left */
 		buf += this_len;
 		len -= this_len;
+		pos += this_len;
 	}
 	return 1;
 }
