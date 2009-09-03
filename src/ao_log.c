@@ -109,6 +109,9 @@ ao_log_dump_next(void)
 __xdata uint8_t	ao_log_adc_pos;
 __xdata enum flight_state ao_log_state;
 
+/* a hack to make sure that ao_log_records fill the eeprom block in even units */
+typedef uint8_t check_log_size[1-(256 % sizeof(struct ao_log_record))] ;
+
 void
 ao_log(void)
 {
