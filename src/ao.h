@@ -503,7 +503,6 @@ struct ao_log_record {
 			uint16_t	svid;
 			uint8_t		state;
 			uint8_t		c_n;
-			uint8_t		unused;
 		} gps_sat;
 		struct {
 			uint16_t	d0;
