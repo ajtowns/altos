@@ -1,3 +1,55 @@
+commit cb4a73f3b65ba72f645fd37ab8712829c9537bf8
+Merge: 9ddd869 e2e449d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Sep 2 23:17:37 2009 -0600
+
+    Merge commit 'origin/master'
+
+commit e2e449d5c23356e913f312de1fb2611a9dd5a352
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 2 22:01:52 2009 -0700
+
+    Remove bit-banging debug support from TM board builds
+    
+    Our current TM boards don't have the wires to do bit-banging to
+    another cc1111 board, so it doesn't make sense to fill up their flash
+    with useless code (and the 'help' text with useless commands). Leave
+    this to the TI board until we have boards that can serve as debug dongles.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit acea083d80e1ecc4287083519ea666964016b257
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 2 22:00:37 2009 -0700
+
+    Make the ao_log_record structures 8 bytes again.
+    
+    When the GPS signal strength data was added, the structure was
+    accidentally extended to 9 bytes, making all log records 9 bytes
+    long. While not a serious problem, this left log records spanning
+    across eeprom block boundaries, which seems like a bad plan.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7d39f17684feb49ac8a0017902158f298696e37c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 2 21:57:54 2009 -0700
+
+    Make eeprom reads and writes across block boundary work
+    
+    Reading and writing across the block boundary was not stepping the
+    eeprom position after the partial i/o operation at the end of the
+    first block. This meant that the operation would re-use the end of the
+    previous block, either re-reading or re-writing it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9ddd8696b4004ccc03238d95a8c2a1d07075e0fb
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 31 16:48:03 2009 -0600
+
+    update changelogs for Debian build
+
 commit 6926c4ab5d87a8f2eb4fcde2c673fb3a4639e115
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Mon Aug 31 16:47:44 2009 -0600
@@ -28,6 +80,17 @@ Author: Bdale Garbee <bdale@gag.com>
 Date:   Mon Aug 31 16:25:32 2009 -0600
 
     Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 6358041f846ba9a20fa650c367d907dc4336e54c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 22 13:38:56 2009 -0700
+
+    Enable GPS degraded mode, set 10 sec degraded timeout.
+    
+    No reason not to let the GPS report solutions whenever it likes, let's
+    see how this works.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
 
 commit 0d65bff443c17d4d98c18b620ec075ab66b30efd
 Author: Keith Packard <keithp@keithp.com>
