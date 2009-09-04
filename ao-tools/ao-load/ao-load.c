@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include "ccdbg.h"
+#include "cc.h"
 
 #define AO_USB_DESC_STRING		3
 
@@ -91,12 +92,13 @@ rewrite(struct hex_image *image, unsigned addr, char *data, int len)
 
 static const struct option options[] = {
 	{ .name = "tty", .has_arg = 1, .val = 'T' },
+	{ .name = "device", .has_arg = 1, .val = 'D' },
 	{ 0, 0, 0, 0},
 };
 
 static void usage(char *program)
 {
-	fprintf(stderr, "usage: %s [--tty <tty-name>] file.ihx serial-number\n", program);
+	fprintf(stderr, "usage: %s [--tty <tty-name>] [--device <device-name>] file.ihx serial-number\n", program);
 	exit(1);
 }
 
@@ -122,12 +124,16 @@ main (int argc, char **argv)
 	unsigned	usb_descriptors;
 	int		string_num;
 	char		*tty = NULL;
+	char		*device = NULL;
 	int		c;
 
-	while ((c = getopt_long(argc, argv, "T:", options, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "T:D:", options, NULL)) != -1) {
 		switch (c) {
 		case 'T':
 			tty = optarg;
+			break;
+		case 'D':
+			device = optarg;
 			break;
 		default:
 			usage(argv[0]);
@@ -219,6 +225,8 @@ main (int argc, char **argv)
 	if (!rewrite(image, usb_descriptors + 2 + image->address, serial_ucs2, serial_ucs2_len))
 		usage(argv[0]);
 
+	if (!tty)
+		tty = cc_usbdevs_find_by_arg(device, "TIDongle");
 	dbg = ccdbg_open(tty);
 	if (!dbg)
 		exit (1);
