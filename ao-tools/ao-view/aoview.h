@@ -37,19 +37,11 @@
 #include <assert.h>
 #include <math.h>
 
+#include "cc.h"
+
 #include <gtk/gtk.h>
 #include <glade/glade.h>
 #include <gconf/gconf-client.h>
-
-struct usbdev {
-	char	*sys;
-	char	*tty;
-	char	*manufacturer;
-	char	*product;
-	char	*serial;
-	int	idProduct;
-	int	idVendor;
-};
 
 struct aogps_time {
 	int hour;
@@ -202,12 +194,6 @@ aoview_serial_getc(struct aoview_serial *serial);
 
 void
 aoview_dev_dialog_init(GladeXML *xml);
-
-int
-aoview_usb_scan(struct usbdev ***devs_ret);
-
-void
-aoview_usbdev_free(struct usbdev *usbdev);
 
 void
 aoview_state_notify(struct aodata *data);

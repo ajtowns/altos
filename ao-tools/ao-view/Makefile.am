@@ -1,14 +1,16 @@
 VERSION=$(shell git describe)
 
-AM_CFLAGS=$(GNOME_CFLAGS) $(ALSA_CFLAGS) -I$(top_srcdir)/src -DAOVIEW_VERSION=\"$(VERSION)\" @FLITE_INCS@
+AO_VIEW_CFLAGS=-I$(top_srcdir)/ao-tools/lib
+AO_VIEW_LIBS=$(top_builddir)/ao-tools/lib/libao-tools.a
+AM_CFLAGS=$(AO_VIEW_CFLAGS) $(GNOME_CFLAGS) $(ALSA_CFLAGS) -I$(top_srcdir)/src -DAOVIEW_VERSION=\"$(VERSION)\" @FLITE_INCS@
 
 bin_PROGRAMS=ao-view
 
-ao_view_LDADD=$(GNOME_LIBS) $(FLITE_LIBS) $(ALSA_LIBS)
+ao_view_DEPENDENCIES=$(AO_VIEW_LIBS)
+ao_view_LDADD=$(GNOME_LIBS) $(FLITE_LIBS) $(ALSA_LIBS) $(AO_VIEW_LIBS) $(LIBUSB_LIBS)
 
 ao_view_SOURCES = \
 	aoview_main.c \
-	aoview_dev.c \
 	aoview_dev_dialog.c \
 	aoview_serial.c \
 	aoview_monitor.c \

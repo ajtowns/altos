@@ -3,7 +3,8 @@
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; version 2 of the License.
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,14 +16,18 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "aoview.h"
+#include "cc.h"
+
 #include <ctype.h>
 #include <dirent.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 static char *
 load_string(char *dir, char *file)
 {
-	char	*full = aoview_fullname(dir, file);
+	char	*full = cc_fullname(dir, file);
 	char	line[4096];
 	char	*r;
 	FILE	*f;
@@ -86,14 +91,14 @@ usb_tty(char *sys)
 	int ntty;
 	char *tty;
 
-	base = aoview_basename(sys);
+	base = cc_basename(sys);
 	num_configs = load_hex(sys, "bNumConfigurations");
 	num_interfaces = load_hex(sys, "bNumInterfaces");
 	for (config = 1; config <= num_configs; config++) {
 		for (interface = 0; interface < num_interfaces; interface++) {
 			sprintf(endpoint_base, "%s:%d.%d",
 				base, config, interface);
-			endpoint_full = aoview_fullname(sys, endpoint_base);
+			endpoint_full = cc_fullname(sys, endpoint_base);
 
 			/* Check for tty:ttyACMx style names
 			 */
@@ -102,21 +107,21 @@ usb_tty(char *sys)
 				       alphasort);
 			if (ntty > 0) {
 				free(endpoint_full);
-				tty = aoview_fullname("/dev", namelist[0]->d_name + 4);
+				tty = cc_fullname("/dev", namelist[0]->d_name + 4);
 				free(namelist);
 				return tty;
 			}
 
 			/* Check for tty/ttyACMx style names
 			 */
-			tty_dir = aoview_fullname(endpoint_full, "tty");
+			tty_dir = cc_fullname(endpoint_full, "tty");
 			free(endpoint_full);
 			ntty = scandir(tty_dir, &namelist,
 				       dir_filter_tty,
 				       alphasort);
 			free (tty_dir);
 			if (ntty > 0) {
-				tty = aoview_fullname("/dev", namelist[0]->d_name);
+				tty = cc_fullname("/dev", namelist[0]->d_name);
 				free(namelist);
 				return tty;
 			}
@@ -125,12 +130,12 @@ usb_tty(char *sys)
 	return NULL;
 }
 
-static struct usbdev *
+static struct cc_usbdev *
 usb_scan_device(char *sys)
 {
-	struct usbdev *usbdev;
+	struct cc_usbdev *usbdev;
 
-	usbdev = calloc(1, sizeof (struct usbdev));
+	usbdev = calloc(1, sizeof (struct cc_usbdev));
 	if (!usbdev)
 		return NULL;
 	usbdev->sys = strdup(sys);
@@ -143,8 +148,8 @@ usb_scan_device(char *sys)
 	return usbdev;
 }
 
-void
-aoview_usbdev_free(struct usbdev *usbdev)
+static void
+usbdev_free(struct cc_usbdev *usbdev)
 {
 	free(usbdev->sys);
 	free(usbdev->manufacturer);
@@ -174,16 +179,19 @@ dir_filter_dev(const struct dirent *d)
 	return 1;
 }
 
-int
-aoview_usb_scan(struct usbdev ***devs_ret)
+struct cc_usbdevs *
+cc_usbdevs_scan(void)
 {
-	int		n;
-	int		ndev = 0;
-	int		e;
-	struct dirent	**ents;
-	char		*dir;
-	struct usbdev	**devs = NULL;
-	struct usbdev	*dev;
+	int			e;
+	struct dirent		**ents;
+	char			*dir;
+	struct cc_usbdev	*dev;
+	struct cc_usbdevs	*devs;
+	int			n;
+
+	devs = calloc(1, sizeof (struct cc_usbdevs));
+	if (!devs)
+		return NULL;
 
 	n = scandir (USB_DEVICES, &ents,
 		     dir_filter_dev,
@@ -191,18 +199,30 @@ aoview_usb_scan(struct usbdev ***devs_ret)
 	if (!n)
 		return 0;
 	for (e = 0; e < n; e++) {
-		dir = aoview_fullname(USB_DEVICES, ents[e]->d_name);
+		dir = cc_fullname(USB_DEVICES, ents[e]->d_name);
 		dev = usb_scan_device(dir);
 		free(dir);
 		if (dev->idVendor == 0xfffe && dev->tty) {
-			if (devs)
-				devs = realloc(devs, ndev + 1 * sizeof (struct usbdev *));
+			if (devs->dev)
+				devs->dev = realloc(devs->dev,
+						    devs->ndev + 1 * sizeof (struct usbdev *));
 			else
-				devs = malloc (sizeof (struct usbdev *));
-			devs[ndev++] = dev;
+				devs->dev = malloc (sizeof (struct usbdev *));
+			devs->dev[devs->ndev++] = dev;
 		}
 	}
 	free(ents);
-	*devs_ret = devs;
-	return ndev;
+	return devs;
+}
+
+void
+cc_usbdevs_free(struct cc_usbdevs *usbdevs)
+{
+	int	i;
+
+	if (!usbdevs)
+		return;
+	for (i = 0; i < usbdevs->ndev; i++)
+		usbdev_free(usbdevs->dev[i]);
+	free(usbdevs);
 }

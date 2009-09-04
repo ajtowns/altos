@@ -73,7 +73,6 @@ PKG_CHECK_MODULES([ALSA], [alsa])
 
 AC_OUTPUT([
 Makefile
-ao-view/Makefile
 ao-tools/Makefile
 ao-tools/lib/Makefile
 ao-tools/ao-rawload/Makefile
@@ -81,5 +80,6 @@ ao-tools/ao-dbg/Makefile
 ao-tools/ao-bitbang/Makefile
 ao-tools/ao-eeprom/Makefile
 ao-tools/ao-load/Makefile
+ao-tools/ao-view/Makefile
 ao-utils/Makefile
 ])

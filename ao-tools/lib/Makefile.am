@@ -16,6 +16,9 @@ libao_tools_a_SOURCES = \
 	ccdbg-state.c \
 	cc-usb.c \
 	cc-usb.h \
+	cc.h \
+	cc-usbdev.c \
+	cc-util.c \
 	cc-bitbang.c \
 	cc-bitbang.h \
 	cp-usb-async.c \

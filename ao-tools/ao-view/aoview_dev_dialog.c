@@ -24,25 +24,30 @@ aoview_dev_dialog_map(GtkWidget *widget, gpointer data)
 	GtkListStore	*list_store;
 	GtkTreeIter	iter;
 	int		ndev, n;
-	struct usbdev	**devs;
+	struct cc_usbdevs	*devs;
+	struct cc_usbdev	*dev;
 
 	list_store = gtk_list_store_new(3,
 					G_TYPE_STRING,
 					G_TYPE_STRING,
 					G_TYPE_STRING);
 
-	ndev = aoview_usb_scan(&devs);
-	for (n = 0; n < ndev; n++) {
-		gtk_list_store_append(list_store, &iter);
-		gtk_list_store_set(list_store, &iter,
-				   0, devs[n]->product,
-				   1, devs[n]->serial,
-				   2, devs[n]->tty,
-				   -1);
+	devs = cc_usbdevs_scan();
+	if (devs) {
+		for (n = 0; n < devs->ndev; n++) {
+			dev = devs->dev[n];
+			gtk_list_store_append(list_store, &iter);
+			gtk_list_store_set(list_store, &iter,
+					   0, dev->product,
+					   1, dev->serial,
+					   2, dev->tty,
+					   -1);
+		}
 	}
 	gtk_tree_view_set_model (dev_list, GTK_TREE_MODEL(list_store));
 	g_object_unref(G_OBJECT(list_store));
 	gtk_tree_view_columns_autosize(dev_list);
+	cc_usbdevs_free(devs);
 }
 
 static GtkMessageDialog *dev_open_fail_dialog;
