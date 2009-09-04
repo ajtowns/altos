@@ -157,7 +157,8 @@ cc_usb_dbg(int indent, uint8_t *bytes, int len)
 /*
  * Flush pending writes, fill pending reads
  */
-void
+
+int
 cc_usb_sync(struct cc_usb *cc)
 {
 	int		ret;
@@ -167,7 +168,7 @@ cc_usb_sync(struct cc_usb *cc)
 	fds.fd = cc->fd;
 	for (;;) {
 		if (cc->read_count || cc->out_count)
-			timeout = -1;
+			timeout = 5000;
 		else
 			timeout = 0;
 		fds.events = 0;
@@ -176,8 +177,13 @@ cc_usb_sync(struct cc_usb *cc)
 		if (cc->out_count)
 			fds.events |= POLLOUT;
 		ret = poll(&fds, 1, timeout);
-		if (ret == 0)
+		if (ret == 0) {
+			if (timeout) {
+				fprintf(stderr, "USB link timeout\n");
+				exit(1);
+			}
 			break;
+		}
 		if (ret < 0) {
 			perror("poll");
 			break;

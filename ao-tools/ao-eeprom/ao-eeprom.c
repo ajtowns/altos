@@ -21,17 +21,19 @@
 #include <unistd.h>
 #include <getopt.h>
 #include "cc-usb.h"
+#include "cc.h"
 
 #define NUM_BLOCK	512
 
 static const struct option options[] = {
 	{ .name = "tty", .has_arg = 1, .val = 'T' },
+	{ .name = "device", .has_arg = 1, .val = 'D' },
 	{ 0, 0, 0, 0},
 };
 
 static void usage(char *program)
 {
-	fprintf(stderr, "usage: %s [--tty <tty-name>]\n", program);
+	fprintf(stderr, "usage: %s [--tty <tty-name>] [--device <device-name>\n", program);
 	exit(1);
 }
 
@@ -40,17 +42,21 @@ main (int argc, char **argv)
 {
 	struct cc_usb	*cc;
 	int		block;
-	uint8_t		bytes[32 * (2 + 8)];
+	uint8_t		bytes[2 * 32 * (2 + 8)];
 	uint8_t		*b;
 	int		i, j;
 	uint32_t	addr;
 	char		*tty = NULL;
+	char		*device = NULL;
 	int		c;
 
-	while ((c = getopt_long(argc, argv, "T:", options, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "T:D:", options, NULL)) != -1) {
 		switch (c) {
 		case 'T':
 			tty = optarg;
+			break;
+		case 'D':
+			device = optarg;
 			break;
 		default:
 			usage(argv[0]);
@@ -58,17 +64,19 @@ main (int argc, char **argv)
 		}
 	}
 	if (!tty)
+		tty = cc_usbdevs_find_by_arg(device, "TeleMetrum");
+	if (!tty)
 		tty = getenv("ALTOS_TTY");
 	if (!tty)
 		tty="/dev/ttyACM0";
 	cc = cc_usb_open(tty);
 	if (!cc)
 		exit(1);
-	for (block = 0; block < NUM_BLOCK; block++) {
+	for (block = 0; block < NUM_BLOCK; block += 2) {
 		cc_queue_read(cc, bytes, sizeof (bytes));
-		cc_usb_printf(cc, "e %x\n", block);
+		cc_usb_printf(cc, "e %x\ne %x\n", block, block + 1);
 		cc_usb_sync(cc);
-		for (i = 0; i < 32; i++) {
+		for (i = 0; i < 32 * 2; i++) {
 			b = bytes + (i * 10);
 			addr = block * 256 + i * 8;
 			printf ("%06x", addr);

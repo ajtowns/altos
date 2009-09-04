@@ -47,7 +47,7 @@ cc_usb_debug_mode(struct cc_usb *cc);
 int
 cc_usb_reset(struct cc_usb *cc);
 
-void
+int
 cc_usb_sync(struct cc_usb *cc);
 
 void

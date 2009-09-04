@@ -1,1 +1,1 @@
-SUBDIRS=lib ao-rawload ao-dbg ao-bitbang ao-eeprom ao-load ao-view
+SUBDIRS=lib ao-rawload ao-dbg ao-bitbang ao-eeprom ao-list ao-load ao-view
