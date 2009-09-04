@@ -223,7 +223,6 @@ static __code uint8_t rdf_setup[] = {
 				 (RDF_DEVIATION_M << RF_DEVIATN_DEVIATION_M_SHIFT)),
 
 	/* packet length */
-	RF_PKTLEN_OFF,		RDF_PACKET_LEN,
 	RF_PKTCTRL1_OFF,	((1 << PKTCTRL1_PQT_SHIFT)|
 				 PKTCTRL1_ADR_CHK_NONE),
 	RF_PKTCTRL0_OFF,	(RF_PKTCTRL0_PKT_FORMAT_NORMAL|
@@ -324,19 +323,32 @@ __xdata ao_radio_rdf_running;
 __xdata ao_radio_rdf_value = 0x55;
 
 void
-ao_radio_rdf(void)
+ao_radio_rdf(int ms)
 {
 	uint8_t i;
+	uint8_t pkt_len;
 	ao_mutex_get(&ao_radio_mutex);
 	ao_radio_idle();
 	ao_radio_rdf_running = 1;
 	for (i = 0; i < sizeof (rdf_setup); i += 2)
 		RF[rdf_setup[i]] = rdf_setup[i+1];
 
+	/*
+	 * Compute the packet length as follows:
+	 *
+	 * 2000 bps (for a 1kHz tone)
+	 * so, for 'ms' milliseconds, we need
+	 * 2 * ms bits, or ms / 4 bytes
+	 */
+	if (ms > (255 * 4))
+		ms = 255 * 4;
+	pkt_len = ms >> 2;
+	RF[RF_PKTLEN_OFF] = pkt_len;
+
 	ao_dma_set_transfer(ao_radio_dma,
 			    &ao_radio_rdf_value,
 			    &RFDXADDR,
-			    RDF_PACKET_LEN,
+			    pkt_len,
 			    DMA_CFG0_WORDSIZE_8 |
 			    DMA_CFG0_TMODE_SINGLE |
 			    DMA_CFG0_TRIGGER_RADIO,

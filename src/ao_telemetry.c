@@ -21,7 +21,8 @@ __xdata uint16_t ao_telemetry_interval = 0;
 __xdata uint8_t ao_rdf = 0;
 __xdata uint16_t ao_rdf_time;
 
-#define AO_RDF_INTERVAL	AO_SEC_TO_TICKS(3)
+#define AO_RDF_INTERVAL_TICKS	AO_SEC_TO_TICKS(5)
+#define AO_RDF_LENGTH_MS	500
 
 void
 ao_telemetry(void)
@@ -51,8 +52,8 @@ ao_telemetry(void)
 		if (ao_rdf &&
 		    (int16_t) (ao_time() - ao_rdf_time) >= 0)
 		{
-			ao_rdf_time = ao_time() + AO_RDF_INTERVAL;
-			ao_radio_rdf();
+			ao_rdf_time = ao_time() + AO_RDF_INTERVAL_TICKS;
+			ao_radio_rdf(AO_RDF_LENGTH_MS);
 			ao_delay(ao_telemetry_interval);
 		}
 	}
@@ -71,6 +72,8 @@ ao_rdf_set(uint8_t rdf)
 	ao_rdf = rdf;
 	if (rdf == 0)
 		ao_radio_rdf_abort();
+	else
+		ao_rdf_time = ao_time();
 }
 
 __xdata struct ao_task	ao_telemetry_task;

@@ -360,9 +360,6 @@ ao_flight(void)
 				/* slow down the ADC sample rate */
 				ao_timer_set_adc_interval(10);
 
-				/* Enable RDF beacon */
-				ao_rdf_set(1);
-
 				/*
 				 * Start recording min/max accel and pres for a while
 				 * to figure out when the rocket has landed
@@ -445,6 +442,8 @@ ao_flight(void)
 
 				/* turn off the ADC capture */
 				ao_timer_set_adc_interval(0);
+				/* Enable RDF beacon */
+				ao_rdf_set(1);
 
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
