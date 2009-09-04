@@ -222,7 +222,7 @@ static __code uint8_t rdf_setup[] = {
 	RF_DEVIATN_OFF,		((RDF_DEVIATION_E << RF_DEVIATN_DEVIATION_E_SHIFT) |
 				 (RDF_DEVIATION_M << RF_DEVIATN_DEVIATION_M_SHIFT)),
 
-	/* packet length */
+	/* packet length is set in-line */
 	RF_PKTCTRL1_OFF,	((1 << PKTCTRL1_PQT_SHIFT)|
 				 PKTCTRL1_ADR_CHK_NONE),
 	RF_PKTCTRL0_OFF,	(RF_PKTCTRL0_PKT_FORMAT_NORMAL|
@@ -362,7 +362,7 @@ ao_radio_rdf(int ms)
 		ao_sleep(&ao_radio_dma_done);
 	ao_radio_rdf_running = 0;
 	ao_radio_idle();
-	for (i = 0; i < sizeof (rdf_setup); i += 2)
+	for (i = 0; i < sizeof (telemetry_setup); i += 2)
 		RF[telemetry_setup[i]] = telemetry_setup[i+1];
 	ao_mutex_put(&ao_radio_mutex);
 }
