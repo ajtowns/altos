@@ -32,7 +32,7 @@ struct cc_usbdev {
 	char	*tty;
 	char	*manufacturer;
 	char	*product;
-	char	*serial;
+	int	serial;	/* AltOS always uses simple integer serial numbers */
 	int	idProduct;
 	int	idVendor;
 };
@@ -47,5 +47,8 @@ cc_usbdevs_free(struct cc_usbdevs *usbdevs);
 
 struct cc_usbdevs *
 cc_usbdevs_scan(void);
+
+char *
+cc_usbdevs_find_by_arg(char *arg, char *default_product);
 
 #endif /* _CC_H_ */

@@ -16,8 +16,8 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+#define _GNU_SOURCE
 #include "cc.h"
-
 #include <ctype.h>
 #include <dirent.h>
 #include <stdio.h>
@@ -58,6 +58,23 @@ load_hex(char *dir, char *file)
 	if (!line)
 		return -1;
 	i = strtol(line, &end, 16);
+	free(line);
+	if (end == line)
+		return -1;
+	return i;
+}
+
+static int
+load_dec(char *dir, char *file)
+{
+	char	*line;
+	char	*end;
+	long	i;
+
+	line = load_string(dir, file);
+	if (!line)
+		return -1;
+	i = strtol(line, &end, 10);
 	free(line);
 	if (end == line)
 		return -1;
@@ -141,7 +158,7 @@ usb_scan_device(char *sys)
 	usbdev->sys = strdup(sys);
 	usbdev->manufacturer = load_string(sys, "manufacturer");
 	usbdev->product = load_string(sys, "product");
-	usbdev->serial = load_string(sys, "serial");
+	usbdev->serial = load_dec(sys, "serial");
 	usbdev->idProduct = load_hex(sys, "idProduct");
 	usbdev->idVendor = load_hex(sys, "idVendor");
 	usbdev->tty = usb_tty(sys);
@@ -154,8 +171,9 @@ usbdev_free(struct cc_usbdev *usbdev)
 	free(usbdev->sys);
 	free(usbdev->manufacturer);
 	free(usbdev->product);
-	free(usbdev->serial);
-	free(usbdev->tty);
+	/* this can get used as a return value */
+	if (usbdev->tty)
+		free(usbdev->tty);
 	free(usbdev);
 }
 
@@ -225,4 +243,75 @@ cc_usbdevs_free(struct cc_usbdevs *usbdevs)
 	for (i = 0; i < usbdevs->ndev; i++)
 		usbdev_free(usbdevs->dev[i]);
 	free(usbdevs);
+}
+
+static char *
+match_dev(char *product, int serial)
+{
+	struct cc_usbdevs	*devs;
+	struct cc_usbdev	*dev;
+	int			i;
+	char			*tty = NULL;
+
+	devs = cc_usbdevs_scan();
+	if (!devs)
+		return NULL;
+	for (i = 0; i < devs->ndev; i++) {
+		dev = devs->dev[i];
+		if (product && strcmp (product, dev->product) != 0)
+			continue;
+		if (serial && serial != dev->serial)
+			continue;
+		break;
+	}
+	if (i < devs->ndev) {
+		tty = devs->dev[i]->tty;
+		devs->dev[i]->tty = NULL;
+	}
+	cc_usbdevs_free(devs);
+	return tty;
+}
+
+char *
+cc_usbdevs_find_by_arg(char *arg, char *default_product)
+{
+	char	*product;
+	int	serial;
+	char	*end;
+	char	*colon;
+	char	*tty;
+
+	if (arg)
+	{
+		/* check for <serial> */
+		serial = strtol(arg, &end, 0);
+		if (end != arg) {
+			if (*end != '\0')
+				return NULL;
+			product = NULL;
+		} else {
+			/* check for <product>:<serial> */
+			colon = strchr(arg, ':');
+			if (colon) {
+				product = strndup(arg, colon - arg);
+				serial = strtol(colon + 1, &end, 0);
+				if (*end != '\0')
+					return NULL;
+			} else {
+				product = arg;
+				serial = 0;
+			}
+		}
+	} else {
+		product = NULL;
+		serial = 0;
+	}
+	tty = NULL;
+	if (!product && default_product)
+		tty = match_dev(default_product, serial);
+	if (!tty)
+		tty = match_dev(product, serial);
+	if (product && product != arg)
+		free(product);
+	return tty;
 }

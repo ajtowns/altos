@@ -29,7 +29,7 @@ aoview_dev_dialog_map(GtkWidget *widget, gpointer data)
 
 	list_store = gtk_list_store_new(3,
 					G_TYPE_STRING,
-					G_TYPE_STRING,
+					G_TYPE_INT,
 					G_TYPE_STRING);
 
 	devs = cc_usbdevs_scan();
