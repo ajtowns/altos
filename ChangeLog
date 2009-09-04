@@ -1,3 +1,96 @@
+commit 332b056459b1352e233a8bf5f08498df12d32160
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 4 15:01:32 2009 -0700
+
+    'fix' ao-eeprom to read two blocks at once. Work around kernel bugs.
+    
+    The kernel appears to leave serial data undelivered at times. Reading
+    two blocks at once appears to make it relinquish the queued data.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit df88ae4c5f229efcc0ea5cb0a81fc2bb8f96fea2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 4 14:23:02 2009 -0700
+
+    Add 'ao-list' utility to show attached AltOS devices
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0935d6a7e907e20381a42882ae728051f9bece02
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 4 14:21:19 2009 -0700
+
+    Parse the USB serial number as an integer.
+    
+    AltOS devices use simple integer serial numbers, so parse the USB
+    value as such to make matching values more forgiving.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0c771d999914f9d17c723900f2987acc45fd0fbb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 4 13:00:02 2009 -0700
+
+    Move usb scanning code to ao-tools library
+    
+    This will allow the scanning code to be used by the command line tools
+    as well as the ao-view GUI.
+    
+    Now that ao-view depends on the ao-tools library, it has been moved to
+    the ao-tools directory as well.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 15341b6e6dcf52df083d6aa37ef881ea6ad48ee5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 4 12:25:37 2009 -0700
+
+    Set all of the values to reset the radio for telemetry
+    
+    Was sizeof(rdf_setup) instead of sizeof(telemetry_setup) when
+    resetting the radio back to telemetry data mode from rdf mode. With
+    the length value removed from the rdf config, these two arrays are no
+    longer the same length, and so the last config value was not set
+    leaving the radio sending garbage.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fee46389b70a624ab5b1128a8b4c3083c7747bcb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 4 11:46:55 2009 -0700
+
+    Make RDF beacon only run on pad and after landing.
+    
+    It's pretty much impossible to RDF the rocket during flight, and it
+    interferes with the telemetry data stream. Leave it enabled on the pad
+    so that radios can be tested, and then re-enable it once the rocket
+    has landed.
+    
+    This patch also turns the rdf 'on' time into a parameter so it can be
+    changed, and then sets that parameter to 500ms, once every 5 seconds.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 54545640b0db7747137655f84bc67fd290ecb904
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 4 11:45:52 2009 -0700
+
+    Add back the RDF tone generator
+    
+    Tracking the rocket on the ground may be easier using tones than using
+    the digital data stream, so we'll try that and see what we think.
+    
+    This reverts commit 3a3bfd471a868d546d83cdc431b53c8f5208edb9.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9fafee109e96435c96639b21211cac0500673a63
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Sep 2 23:18:15 2009 -0600
+
+    update changelogs for Debian build
+
 commit cb4a73f3b65ba72f645fd37ab8712829c9537bf8
 Merge: 9ddd869 e2e449d
 Author: Bdale Garbee <bdale@gag.com>
