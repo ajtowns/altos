@@ -778,6 +778,9 @@ void
 ao_telemetry_set_interval(uint16_t interval);
 
 void
+ao_rdf_set(uint8_t rdf);
+
+void
 ao_telemetry_init(void);
 
 /*
@@ -795,6 +798,12 @@ struct ao_radio_recv {
 
 void
 ao_radio_recv(__xdata struct ao_radio_recv *recv) __reentrant;
+
+void
+ao_radio_rdf(void);
+
+void
+ao_radio_rdf_abort(void);
 
 void
 ao_radio_init(void);

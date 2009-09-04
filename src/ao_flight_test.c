@@ -68,6 +68,7 @@ uint8_t ao_adc_head;
 #define ao_cmd_register(c)
 #define ao_usb_disable()
 #define ao_telemetry_set_interval(x)
+#define ao_rdf_set(rdf)
 
 enum ao_igniter {
 	ao_igniter_drogue = 0,
