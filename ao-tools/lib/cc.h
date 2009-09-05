@@ -51,4 +51,13 @@ cc_usbdevs_scan(void);
 char *
 cc_usbdevs_find_by_arg(char *arg, char *default_product);
 
+void
+cc_set_log_dir(char *dir);
+
+char *
+cc_get_log_dir(void);
+
+char *
+cc_make_filename(int serial, char *ext);
+
 #endif /* _CC_H_ */

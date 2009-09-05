@@ -1,0 +1,68 @@
+.\"
+.\" Copyright © 2009 Keith Packard <keithp@keithp.com>
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+.\"
+.\"
+.TH AO-DUMPLOG 1 "ao-dumplog" ""
+.SH NAME
+ao-dumplog \- Store flight log from TeleMetrum device
+.SH SYNOPSIS
+.B "ao-dumplog"
+[\-T \fItty-device\fP]
+[\--tty \fItty-device\fP]
+[\-D \fIaltos-device\fP]
+[\--device \fIaltos-device\fP]
+.SH OPTIONS
+.TP
+\-T tty-device | --tty tty-device
+This selects which tty device ao-dumplog uses to communicate with
+the target device.
+.TP
+\-D AltOS-device | --device AltOS-device
+Search for a connected device. This requires an argument of one of the
+following forms:
+.IP
+TeleMetrum:2
+.br
+TeleMetrum
+.br
+2
+.IP
+Leaving out the product name will cause the tool to select a suitable
+product, leaving out the serial number will cause the tool to match
+one of the available devices.
+.SH DESCRIPTION
+.I ao-dumplog
+downloads the flight log from a connected TeleMetrum device and stores
+it to the configured flight log directory using a name of the form
+.IP
+\fIyyyy\fP-\fImm\fP-\fIdd\fP-serialP-\fIsss\fP-flight-\fIfff\fP.eeprom
+.PP
+\fIyyyy\fP is the current year
+.br
+\fImm\fP is the current month
+.br
+\fIdd\fP is the current day
+.br
+\fIsss\fP is the device serial number
+.br
+\fIfff\fP is a flight sequence number (to make filenames unique)
+.SH USAGE
+.I ao-dumplog
+connects to the specified target device and dumps the stored flight
+log.
+.SH AUTHOR
+Keith Packard

@@ -30,27 +30,29 @@
 #include "cc-usb.h"
 
 
-#define CC_NUM_READ		16
+#define CC_NUM_HEX_READ		64
 /*
  * AltOS has different buffer sizes for in/out packets
  */
-#define CC_IN_BUF		256
+#define CC_IN_BUF		65536
 #define CC_OUT_BUF		64
 #define DEFAULT_TTY		"/dev/ttyACM0"
 
-struct cc_read {
+struct cc_hex_read {
 	uint8_t	*buf;
 	int	len;
 };
 
 struct cc_usb {
-	int		fd;
-	uint8_t		in_buf[CC_IN_BUF];
-	int		in_count;
-	uint8_t		out_buf[CC_OUT_BUF];
-	int		out_count;
-	struct cc_read	read_buf[CC_NUM_READ];
-	int		read_count;
+	int			fd;
+	uint8_t			in_buf[CC_IN_BUF];
+	int			in_pos;
+	int			in_count;
+	uint8_t			out_buf[CC_OUT_BUF];
+	int			out_count;
+
+	struct cc_hex_read	hex_buf[CC_NUM_HEX_READ];
+	int			hex_count;
 };
 
 #define NOT_HEX	0xff
@@ -72,61 +74,48 @@ cc_hex_nibble(uint8_t c)
  * and write them to the waiting buffer
  */
 static void
-cc_handle_in(struct cc_usb *cc)
+cc_handle_hex_read(struct cc_usb *cc)
 {
 	uint8_t	h, l;
-	int	in_pos;
-	int	read_pos;
+	int	hex_pos;
 
-	in_pos = 0;
-	read_pos = 0;
-	while (read_pos < cc->read_count && in_pos < cc->in_count) {
+	hex_pos = 0;
+	while (hex_pos < cc->hex_count && cc->in_pos < cc->in_count) {
 		/*
 		 * Skip to next hex character
 		 */
-		while (in_pos < cc->in_count &&
-		       cc_hex_nibble(cc->in_buf[in_pos]) == NOT_HEX)
-			in_pos++;
+		while (cc->in_pos < cc->in_count &&
+		       cc_hex_nibble(cc->in_buf[cc->in_pos]) == NOT_HEX)
+			cc->in_pos++;
 		/*
 		 * Make sure we have two characters left
 		 */
-		if (cc->in_count - in_pos < 2)
+		if (cc->in_count - cc->in_pos < 2)
 			break;
 		/*
 		 * Parse hex number
 		 */
-		h = cc_hex_nibble(cc->in_buf[in_pos]);
-		l = cc_hex_nibble(cc->in_buf[in_pos+1]);
+		h = cc_hex_nibble(cc->in_buf[cc->in_pos]);
+		l = cc_hex_nibble(cc->in_buf[cc->in_pos+1]);
 		if (h == NOT_HEX || l == NOT_HEX) {
 			fprintf(stderr, "hex read error\n");
 			break;
 		}
-		in_pos += 2;
+		cc->in_pos += 2;
 		/*
 		 * Store hex number
 		 */
-		*cc->read_buf[read_pos].buf++ = (h << 4) | l;
-		if (--cc->read_buf[read_pos].len <= 0)
-			read_pos++;
+		*cc->hex_buf[hex_pos].buf++ = (h << 4) | l;
+		if (--cc->hex_buf[hex_pos].len <= 0)
+			hex_pos++;
 	}
 
-	/* Move remaining bytes to the start of the input buffer */
-	if (in_pos) {
-		memmove(cc->in_buf, cc->in_buf + in_pos,
-			cc->in_count - in_pos);
-		cc->in_count -= in_pos;
+	/* Move pending hex reads to the start of the array */
+	if (hex_pos) {
+		memmove(cc->hex_buf, cc->hex_buf + hex_pos,
+			(cc->hex_count - hex_pos) * sizeof (cc->hex_buf[0]));
+		cc->hex_count -= hex_pos;
 	}
-
-	/* Move pending reads to the start of the array */
-	if (read_pos) {
-		memmove(cc->read_buf, cc->read_buf + read_pos,
-			(cc->read_count - read_pos) * sizeof (cc->read_buf[0]));
-		cc->read_count -= read_pos;
-	}
-
-	/* Once we're done reading, flush any pending input */
-	if (cc->read_count == 0)
-		cc->in_count = 0;
 }
 
 static void
@@ -158,8 +147,8 @@ cc_usb_dbg(int indent, uint8_t *bytes, int len)
  * Flush pending writes, fill pending reads
  */
 
-int
-cc_usb_sync(struct cc_usb *cc)
+static int
+_cc_usb_sync(struct cc_usb *cc, int wait_for_input)
 {
 	int		ret;
 	struct pollfd	fds;
@@ -167,26 +156,33 @@ cc_usb_sync(struct cc_usb *cc)
 
 	fds.fd = cc->fd;
 	for (;;) {
-		if (cc->read_count || cc->out_count)
+		if (cc->hex_count || cc->out_count)
 			timeout = 5000;
+		else if (wait_for_input && cc->in_pos == cc->in_count)
+			timeout = wait_for_input;
 		else
 			timeout = 0;
 		fds.events = 0;
+		/* Move remaining bytes to the start of the input buffer */
+		if (cc->in_pos) {
+			memmove(cc->in_buf, cc->in_buf + cc->in_pos,
+				cc->in_count - cc->in_pos);
+			cc->in_count -= cc->in_pos;
+			cc->in_pos = 0;
+		}
 		if (cc->in_count < CC_IN_BUF)
 			fds.events |= POLLIN;
 		if (cc->out_count)
 			fds.events |= POLLOUT;
 		ret = poll(&fds, 1, timeout);
 		if (ret == 0) {
-			if (timeout) {
-				fprintf(stderr, "USB link timeout\n");
-				exit(1);
-			}
+			if (timeout)
+				return -1;
 			break;
 		}
 		if (ret < 0) {
 			perror("poll");
-			break;
+			return -1;
 		}
 		if (fds.revents & POLLIN) {
 			ret = read(cc->fd, cc->in_buf + cc->in_count,
@@ -194,7 +190,8 @@ cc_usb_sync(struct cc_usb *cc)
 			if (ret > 0) {
 				cc_usb_dbg(24, cc->in_buf + cc->in_count, ret);
 				cc->in_count += ret;
-				cc_handle_in(cc);
+				if (cc->hex_count)
+					cc_handle_hex_read(cc);
 			} else if (ret < 0)
 				perror("read");
 		}
@@ -210,6 +207,16 @@ cc_usb_sync(struct cc_usb *cc)
 			} else if (ret < 0)
 				perror("write");
 		}
+	}
+	return 0;
+}
+
+void
+cc_usb_sync(struct cc_usb *cc)
+{
+	if (_cc_usb_sync(cc, 0) < 0) {
+		fprintf(stderr, "USB link timeout\n");
+		exit(1);
 	}
 }
 
@@ -245,6 +252,38 @@ cc_usb_printf(struct cc_usb *cc, char *format, ...)
 }
 
 int
+cc_usb_getchar(struct cc_usb *cc)
+{
+	while (cc->in_pos == cc->in_count) {
+		if (_cc_usb_sync(cc, 5000) < 0) {
+			fprintf(stderr, "USB link timeout\n");
+			exit(1);
+		}
+	}
+	return cc->in_buf[cc->in_pos++];
+}
+
+void
+cc_usb_getline(struct cc_usb *cc, char *line, int max)
+{
+	int	c;
+
+	while ((c = cc_usb_getchar(cc)) != '\n') {
+		switch (c) {
+		case '\r':
+			break;
+		default:
+			if (max > 1) {
+				*line++ = c;
+				max--;
+			}
+			break;
+		}
+	}
+	*line++ = '\0';
+}
+
+int
 cc_usb_send_bytes(struct cc_usb *cc, uint8_t *bytes, int len)
 {
 	int	this_len;
@@ -266,12 +305,18 @@ cc_usb_send_bytes(struct cc_usb *cc, uint8_t *bytes, int len)
 void
 cc_queue_read(struct cc_usb *cc, uint8_t *buf, int len)
 {
-	struct cc_read	*read_buf;
-	while (cc->read_count >= CC_NUM_READ)
+	struct cc_hex_read	*hex_buf;
+
+	/* At the start of a command sequence, flush any pending input */
+	if (cc->hex_count == 0) {
 		cc_usb_sync(cc);
-	read_buf = &cc->read_buf[cc->read_count++];
-	read_buf->buf = buf;
-	read_buf->len = len;
+		cc->in_count = 0;
+	}
+	while (cc->hex_count >= CC_NUM_HEX_READ)
+		cc_usb_sync(cc);
+	hex_buf = &cc->hex_buf[cc->hex_count++];
+	hex_buf->buf = buf;
+	hex_buf->len = len;
 }
 
 int
@@ -351,9 +396,10 @@ cc_usb_open(char *tty)
 	cfmakeraw(&termios);
 	tcsetattr(cc->fd, TCSAFLUSH, &termios);
 	cc_usb_printf(cc, "E 0\nm 0\n");
-	cc_usb_sync(cc);
-	sleep(1);
-	cc_usb_sync(cc);
+	do {
+		cc->in_count = cc->in_pos = 0;
+		_cc_usb_sync(cc, 100);
+	} while (cc->in_count > 0);
 	return cc;
 }
 
