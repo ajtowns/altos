@@ -75,6 +75,7 @@ struct cc_timedata {
 	int			num;
 	int			size;
 	struct cc_timedataelt	*data;
+	double			time_offset;
 };
 
 
@@ -92,8 +93,8 @@ struct cc_gpselt {
 struct cc_gpsdata {
 	int			num;
 	int			size;
-	double			time_offset;
 	struct cc_gpselt	*data;
+	double			time_offset;
 };
 
 /*

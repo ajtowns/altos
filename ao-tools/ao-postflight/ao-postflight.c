@@ -81,43 +81,57 @@ analyse_flight(struct cc_flightraw *f)
 
 	pres_i = cc_timedata_min(&f->pres, f->pres.data[0].time,
 				 f->pres.data[f->pres.num-1].time);
-	min_pres = f->pres.data[pres_i].value;
-	height = cc_barometer_to_altitude(min_pres) -
-		cc_barometer_to_altitude(f->ground_pres);
-	printf ("Max height: %9.2fm    %9.2fft %9.2fs\n",
-		height, height * 100 / 2.54 / 12,
-		(f->pres.data[pres_i].time - boost_start) / 100.0);
+	if (pres_i)
+	{
+		min_pres = f->pres.data[pres_i].value;
+		height = cc_barometer_to_altitude(min_pres) -
+			cc_barometer_to_altitude(f->ground_pres);
+		printf ("Max height: %9.2fm    %9.2fft %9.2fs\n",
+			height, height * 100 / 2.54 / 12,
+			(f->pres.data[pres_i].time - boost_start) / 100.0);
+	}
 
 	accel_i = cc_timedata_min(&f->accel, boost_start, boost_stop);
-	accel = cc_accelerometer_to_acceleration(f->accel.data[accel_i].value,
-						 f->ground_accel);
-	printf ("Max accel:  %9.2fm/s² %9.2fg  %9.2fs\n",
-		accel, accel /  9.80665,
-		(f->accel.data[accel_i].time - boost_start) / 100.0);
+	if (accel_i)
+	{
+		accel = cc_accelerometer_to_acceleration(f->accel.data[accel_i].value,
+							 f->ground_accel);
+		printf ("Max accel:  %9.2fm/s² %9.2fg  %9.2fs\n",
+			accel, accel /  9.80665,
+			(f->accel.data[accel_i].time - boost_start) / 100.0);
+	}
 	for (i = 0; i < f->state.num; i++) {
 		state = f->state.data[i].value;
 		state_start = f->state.data[i].time;
+		while (i < f->state.num - 1 && f->state.data[i+1].value == state)
+			i++;
 		if (i < f->state.num - 1)
-			state_stop = f->state.data[i+1].time;
+			state_stop = f->state.data[i + 1].time;
 		else
 			state_stop = f->accel.data[f->accel.num-1].time;
 		printf("State: %s\n", state_names[state]);
 		printf("\tStart:      %9.2fs\n", (state_start - boost_start) / 100.0);
 		printf("\tDuration:   %9.2fs\n", (state_stop - state_start) / 100.0);
 		accel_i = cc_timedata_min(&f->accel, state_start, state_stop);
-		accel = cc_accelerometer_to_acceleration(f->accel.data[accel_i].value,
-							 f->ground_accel);
-		printf("\tMax accel:  %9.2fm/s² %9.2fg  %9.2fs\n",
-		       accel, accel / 9.80665,
-		       (f->accel.data[accel_i].time - boost_start) / 100.0);
+		if (accel_i >= 0)
+		{
+			accel = cc_accelerometer_to_acceleration(f->accel.data[accel_i].value,
+								 f->ground_accel);
+			printf("\tMax accel:  %9.2fm/s² %9.2fg  %9.2fs\n",
+			       accel, accel / 9.80665,
+			       (f->accel.data[accel_i].time - boost_start) / 100.0);
+		}
 
 		pres_i = cc_timedata_min(&f->pres, state_start, state_stop);
-		min_pres = f->pres.data[pres_i].value;
-		height = cc_barometer_to_altitude(min_pres) -
-			cc_barometer_to_altitude(f->ground_pres);
-		printf ("\tMax height: %9.2fm    %9.2fft %9.2fs\n",
-			height, height * 100 / 2.54 / 12,
-			(f->pres.data[pres_i].time - boost_start) / 100.0);
+		if (pres_i >= 0)
+		{
+			min_pres = f->pres.data[pres_i].value;
+			height = cc_barometer_to_altitude(min_pres) -
+				cc_barometer_to_altitude(f->ground_pres);
+			printf ("\tMax height: %9.2fm    %9.2fft %9.2fs\n",
+				height, height * 100 / 2.54 / 12,
+				(f->pres.data[pres_i].time - boost_start) / 100.0);
+		}
 	}
 }
 

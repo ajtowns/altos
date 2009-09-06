@@ -22,11 +22,11 @@ cc_timedata_min(struct cc_timedata *d, double min_time, double max_time)
 {
 	int	i;
 	int	set = 0;
-	int	min_i;
+	int	min_i = -1;
 	double	min;
 
 	if (d->num == 0)
-		return 0;
+		return -1;
 	for (i = 0; i < d->num; i++)
 		if (min_time <= d->data[i].time && d->data[i].time <= max_time)
 			if (!set || d->data[i].value < min) {
@@ -42,11 +42,11 @@ cc_timedata_max(struct cc_timedata *d, double min_time, double max_time)
 {
 	int	i;
 	double	max;
-	int	max_i;
+	int	max_i = -1;
 	int	set = 0;
 
 	if (d->num == 0)
-		return 0;
+		return -1;
 	for (i = 0; i < d->num; i++)
 		if (min_time <= d->data[i].time && d->data[i].time <= max_time)
 			if (!set || d->data[i].value > max) {

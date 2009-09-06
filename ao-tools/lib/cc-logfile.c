@@ -18,6 +18,7 @@
 #include "cc.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static int
 timedata_add(struct cc_timedata *data, double time, double value)
@@ -35,8 +36,11 @@ timedata_add(struct cc_timedata *data, double time, double value)
 		data->size = newsize;
 		data->data = newdata;
 	}
-	if (data->num && data->data[data->num-1].time > time)
+	time += data->time_offset;
+	if (data->num && data->data[data->num-1].time > time) {
+		data->time_offset += 65536;
 		time += 65536;
+	}
 	data->data[data->num].time = time;
 	data->data[data->num].value = value;
 	data->num++;
@@ -65,6 +69,11 @@ gpsdata_add(struct cc_gpsdata *data, struct cc_gpselt *elt)
 			return 0;
 		data->size = newsize;
 		data->data = newdata;
+	}
+	elt->time += data->time_offset;
+	if (data->num && data->data[data->num-1].time > elt->time) {
+		data->time_offset += 65536;
+		elt->time += 65536;
 	}
 	data->data[data->num] = *elt;
 	data->num++;
@@ -156,6 +165,29 @@ read_eeprom(const char *line, struct cc_flightraw *f, double *ground_pres, int *
 	return 1;
 }
 
+static const char *state_names[] = {
+	"startup",
+	"idle",
+	"pad",
+	"boost",
+	"fast",
+	"coast",
+	"drogue",
+	"main",
+	"landed",
+	"invalid"
+};
+
+static enum ao_flight_state
+state_name_to_state(char *state_name)
+{
+	enum ao_flight_state	state;
+	for (state = ao_flight_startup; state < ao_flight_invalid; state++)
+		if (!strcmp(state_names[state], state_name))
+			return state;
+	return ao_flight_invalid;
+}
+
 static int
 read_telem(const char *line, struct cc_flightraw *f)
 {
@@ -172,6 +204,7 @@ read_telem(const char *line, struct cc_flightraw *f)
 	timedata_add(&f->volt, telem.tick, telem.batt);
 	timedata_add(&f->drogue, telem.tick, telem.drogue);
 	timedata_add(&f->main, telem.tick, telem.main);
+	timedata_add(&f->state, telem.tick, state_name_to_state(telem.state));
 	if (telem.gps.gps_locked) {
 		gps.time = telem.tick;
 		gps.lat = telem.gps.lat;
