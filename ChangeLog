@@ -1,3 +1,39 @@
+commit 37e6c9a492a1d51373bf9333fb3172e0c377720f
+Merge: d256f82 2e6686b
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 17:46:10 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 2e6686b1e183c66188ea447b8a54e4c29402443b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 16:45:47 2009 -0700
+
+    Use plplotd instead of plplotd-gnome2
+
+commit d256f8204e9fce53ae4309562bb4c0cde1fae43e
+Merge: 0fc344d 32d3536
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 17:34:08 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 32d3536706324808df6cd02248a236302b831571
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 16:24:35 2009 -0700
+
+    Add plots to ao-postflight using the plplot library
+    
+    It's not perfect, but it generates .svg plot output.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0fc344dfc031a8b1eef7cc40efb1d5ba7782269d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 14:15:57 2009 -0600
+
+    update changelogs for Debian build
+
 commit 4b0de757874c0ecaf38e3dfd3beefc398150e3d5
 Merge: 773c4ff d0eac98
 Author: Bdale Garbee <bdale@gag.com>
