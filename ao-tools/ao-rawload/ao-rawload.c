@@ -22,12 +22,13 @@
 
 static const struct option options[] = {
 	{ .name = "tty", .has_arg = 1, .val = 'T' },
+	{ .name = "device", .has_arg = 1, .val = 'D' },
 	{ 0, 0, 0, 0},
 };
 
 static void usage(char *program)
 {
-	fprintf(stderr, "usage: %s [--tty <tty-name>] file.ihx\n", program);
+	fprintf(stderr, "usage: %s [--tty <tty-name>] [--device <device-name>] file.ihx\n", program);
 	exit(1);
 }
 
@@ -42,12 +43,16 @@ main (int argc, char **argv)
 	char		*filename;
 	FILE		*file;
 	char		*tty = NULL;
+	char		*device = NULL;
 	int		c;
 
-	while ((c = getopt_long(argc, argv, "T:", options, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "T:D:", options, NULL)) != -1) {
 		switch (c) {
 		case 'T':
 			tty = optarg;
+			break;
+		case 'D':
+			device = optarg;
 			break;
 		default:
 			usage(argv[0]);
@@ -75,6 +80,8 @@ main (int argc, char **argv)
 	}
 
 	ccdbg_hex_file_free(hex);
+	if (!tty)
+		tty = cc_usbdevs_find_by_arg(device, "TIDongle");
 	dbg = ccdbg_open(tty);
 	if (!dbg)
 		exit (1);

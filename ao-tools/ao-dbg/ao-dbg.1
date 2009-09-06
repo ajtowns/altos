@@ -35,6 +35,9 @@ ao-dbg \- hex debugger for cc1111 processors
 [\-h]
 [\-m]
 [\-T \fItty-device\fP]
+[\--tty \fItty-device\fP]
+[\-D \fIaltos-device\fP]
+[\--device \fIaltos-device\fP]
 .SH DESCRIPTION
 .I ao-dbg
 connects to a cc1111 processor through either a suitable cc1111 board
@@ -80,11 +83,26 @@ This should print a usage message, but does nothing useful currently.
 .IP "\-m"
 This option is not present in the original 8051 emulator, and causes ao-dbg to
 dump all commands and replies that are received from and sent to sdcdb.
-.IP "\-T"
+.TP
+\-T tty-device | --tty tty-device
 This selects which tty device the debugger uses to communicate with
 the target device. The special name 'BITBANG' directs ao-dbg to use
 the cp2103 connection, otherwise this should be a usb serial port
 connected to a suitable cc1111 debug node.
+.TP
+\-D AltOS-device | --device AltOS-device
+Search for a connected device. This requires an argument of one of the
+following forms:
+.IP
+TeleMetrum:2
+.br
+TeleMetrum
+.br
+2
+.IP
+Leaving out the product name will cause the tool to select a suitable
+product, leaving out the serial number will cause the tool to match
+one of the available devices.
 .SH COMMANDS
 Once started, ao-dbg connects to the cc1111 and then reads and
 executes commands, either from stdin, or the nework connection to

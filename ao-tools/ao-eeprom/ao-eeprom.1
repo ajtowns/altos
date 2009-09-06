@@ -21,7 +21,31 @@
 ao-eeprom \- Fetch eeprom contents from TeleMetrum device
 .SH SYNOPSIS
 .B "ao-eeprom"
-[\-tty \fItty-device\fP]
+[\-T \fItty-device\fP]
+[\--tty \fItty-device\fP]
+[\-D \fIaltos-device\fP]
+[\--device \fIaltos-device\fP]
+.SH OPTIONS
+.TP
+\-T tty-device | --tty tty-device
+This selects which tty device the debugger uses to communicate with
+the target device. The special name 'BITBANG' directs ao-dbg to use
+the cp2103 connection, otherwise this should be a usb serial port
+connected to a suitable cc1111 debug node.
+.TP
+\-D AltOS-device | --device AltOS-device
+Search for a connected device. This requires an argument of one of the
+following forms:
+.IP
+TeleMetrum:2
+.br
+TeleMetrum
+.br
+2
+.IP
+Leaving out the product name will cause the tool to select a suitable
+product, leaving out the serial number will cause the tool to match
+one of the available devices.
 .SH DESCRIPTION
 .I ao-eeprom
 downloads the eeprom contents from a connected TeleMetrum device.

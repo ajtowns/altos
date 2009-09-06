@@ -16,27 +16,20 @@
 .\" 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 .\"
 .\"
-.TH AO-RAWLOAD 1 "ao-rawload" ""
+.TH AO-DUMPLOG 1 "ao-dumplog" ""
 .SH NAME
-ao-rawload \- flash a program to a AltOS device
+ao-dumplog \- Store flight log from TeleMetrum device
 .SH SYNOPSIS
-.B "ao-rawload"
+.B "ao-dumplog"
 [\-T \fItty-device\fP]
 [\--tty \fItty-device\fP]
 [\-D \fIaltos-device\fP]
 [\--device \fIaltos-device\fP]
-\fIfile.ihx\fP
-.SH DESCRIPTION
-.I ao-rawload
-loads the specified .ihx file, without modification, into the target
-device flash memory.
 .SH OPTIONS
 .TP
 \-T tty-device | --tty tty-device
-This selects which tty device the debugger uses to communicate with
-the target device. The special name 'BITBANG' directs ao-dbg to use
-the cp2103 connection, otherwise this should be a usb serial port
-connected to a suitable cc1111 debug node.
+This selects which tty device ao-dumplog uses to communicate with
+the target device.
 .TP
 \-D AltOS-device | --device AltOS-device
 Search for a connected device. This requires an argument of one of the
@@ -51,10 +44,25 @@ TeleMetrum
 Leaving out the product name will cause the tool to select a suitable
 product, leaving out the serial number will cause the tool to match
 one of the available devices.
+.SH DESCRIPTION
+.I ao-dumplog
+downloads the flight log from a connected TeleMetrum device and stores
+it to the configured flight log directory using a name of the form
+.IP
+\fIyyyy\fP-\fImm\fP-\fIdd\fP-serialP-\fIsss\fP-flight-\fIfff\fP.eeprom
+.PP
+\fIyyyy\fP is the current year
+.br
+\fImm\fP is the current month
+.br
+\fIdd\fP is the current day
+.br
+\fIsss\fP is the device serial number
+.br
+\fIfff\fP is a flight sequence number (to make filenames unique)
 .SH USAGE
-.I ao-rawload
-reads the specified .ihx file into memory. It then connects to the
-specified target device and writes the program to the target device
-flash memory.
+.I ao-dumplog
+connects to the specified target device and dumps the stored flight
+log.
 .SH AUTHOR
 Keith Packard

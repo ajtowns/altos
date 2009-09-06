@@ -47,11 +47,17 @@ cc_usb_debug_mode(struct cc_usb *cc);
 int
 cc_usb_reset(struct cc_usb *cc);
 
-int
+void
 cc_usb_sync(struct cc_usb *cc);
 
 void
 cc_queue_read(struct cc_usb *cc, uint8_t *buf, int len);
+
+int
+cc_usb_getchar(struct cc_usb *cc);
+
+void
+cc_usb_getline(struct cc_usb *cc, char *line, int max);
 
 void
 cc_usb_printf(struct cc_usb *cc, char *format, ...);

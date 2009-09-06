@@ -34,6 +34,7 @@ struct ccdbg *s51_dbg;
 int s51_interrupted = 0;
 int s51_monitor = 0;
 char *s51_tty = NULL;
+char *s51_device = NULL;
 
 static FILE *s51_input;
 static FILE *s51_output;
@@ -52,6 +53,7 @@ void s51_sigint()
 
 static const struct option options[] = {
 	{ .name = "tty", .has_arg = 1, .val = 'T' },
+	{ .name = "device", .has_arg = 1, .val = 'D' },
 	{ 0, 0, 0, 0 },
 };
 
@@ -113,6 +115,9 @@ main(int argc, char **argv)
 			break;
 		case 'T':
 			s51_tty = optarg;
+			break;
+		case 'D':
+			s51_device = optarg;
 			break;
 		}
 	}
