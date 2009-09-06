@@ -138,3 +138,21 @@ cc_flight_cook(struct cc_flightraw *raw)
 	cooked->state.time_offset = raw->state.time_offset;
 	return cooked;
 }
+
+#define if_free(x)	((x) ? free(x) : (void) 0)
+
+void
+cc_flightcooked_free(struct cc_flightcooked *cooked)
+{
+	if_free(cooked->accel_accel.data);
+	if_free(cooked->accel_speed.data);
+	if_free(cooked->accel_pos.data);
+	if_free(cooked->pres_pos.data);
+	if_free(cooked->pres_speed.data);
+	if_free(cooked->pres_accel.data);
+	if_free(cooked->gps_lat.data);
+	if_free(cooked->gps_lon.data);
+	if_free(cooked->gps_alt.data);
+	if_free(cooked->state.data);
+	free(cooked);
+}
