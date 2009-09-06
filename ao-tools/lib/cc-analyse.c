@@ -16,6 +16,7 @@
  */
 
 #include "cc.h"
+#include <math.h>
 
 int
 cc_timedata_min(struct cc_timedata *d, double min_time, double max_time)
@@ -54,5 +55,61 @@ cc_timedata_max(struct cc_timedata *d, double min_time, double max_time)
 				max = d->data[i].value;
 				set = 1;
 			}
+	return max_i;
+}
+
+int
+cc_perioddata_min(struct cc_perioddata *d, double min_time, double max_time)
+{
+	int	start, stop;
+	int	i;
+	double	min;
+	int	min_i;
+
+	if (d->num == 0)
+		return -1;
+	start = (int) ceil((min_time - d->start) / d->step);
+	if (start < 0)
+		start = 0;
+	stop = (int) floor((max_time - d->start) / d->step);
+	if (stop >= d->num)
+		stop = d->num - 1;
+	if (stop < start)
+		return -1;
+	min = d->data[start];
+	min_i = start;
+	for (i = start + 1; i <= stop; i++)
+		if (d->data[i] < min) {
+			min = d->data[i];
+			min_i = i;
+		}
+	return min_i;
+}
+
+int
+cc_perioddata_max(struct cc_perioddata *d, double min_time, double max_time)
+{
+	int	start, stop;
+	int	i;
+	double	max;
+	int	max_i;
+
+	if (d->num == 0)
+		return -1;
+	start = (int) ceil((min_time - d->start) / d->step);
+	if (start < 0)
+		start = 0;
+	stop = (int) floor((max_time - d->start) / d->step);
+	if (stop >= d->num)
+		stop = d->num - 1;
+	if (stop < start)
+		return -1;
+	max = d->data[start];
+	max_i = start;
+	for (i = start + 1; i <= stop; i++)
+		if (fabs(d->data[i]) > max) {
+			max = fabs(d->data[i]);
+			max_i = i;
+		}
 	return max_i;
 }
