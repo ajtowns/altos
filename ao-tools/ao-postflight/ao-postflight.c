@@ -230,7 +230,7 @@ main (int argc, char **argv)
 		}
 	}
 	if (detail_name) {
-		if (!strcmp (summary_name, detail_name))
+		if (summary_name && !strcmp (summary_name, detail_name))
 			detail_file = summary_file;
 		else {
 			detail_file = fopen(detail_name, "w");
