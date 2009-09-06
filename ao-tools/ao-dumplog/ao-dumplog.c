@@ -86,6 +86,7 @@ main (int argc, char **argv)
 			if (!out) {
 				perror(filename);
 			}
+			fprintf (out, "%s\n", line);
 		} else if (sscanf(line, "%c %x %x %x", &cmd, &tick, &a, &b) == 4) {
 			if (out) {
 				fprintf(out, "%s\n", line);
