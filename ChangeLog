@@ -1,3 +1,36 @@
+commit 4b0de757874c0ecaf38e3dfd3beefc398150e3d5
+Merge: 773c4ff d0eac98
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 14:15:53 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit d0eac989b1ffc8ae30ba12da403eb4bf1ad42d6b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 13:15:10 2009 -0700
+
+    Don't look at NULL strings (summary_name)
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 73f4a57239f770aff603b961169c0e2cfe2c276b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 13:08:54 2009 -0700
+
+    Use pressure speed for drogue and beyond states. Fix differentiation time.
+    
+    Drogue state should always use pressure speeds.
+    
+    Differentiation code was using centi-seconds instead of seconds.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 773c4ffbc1d2e02eb02cfa543a077a408986da30
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 14:05:55 2009 -0600
+
+    update changelogs for Debian build
+
 commit 45ede4a4b203ef9da5bf05c49cb9c5a2e6382ec5
 Merge: 45e2938 e35e485
 Author: Bdale Garbee <bdale@gag.com>
