@@ -1,3 +1,15 @@
+commit 3f95a5abbf8ada70328ced45fbb2781ed1cb3d29
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 17:48:10 2009 -0600
+
+    more build deps for plotting lib
+
+commit 9d7e96e323d652de08b2f2a73e0eb3c321080185
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 17:47:56 2009 -0600
+
+    update changelogs for Debian build
+
 commit ae4e131b61244e06020b82919e31e05dd7dba88f
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Sun Sep 6 17:46:39 2009 -0600
