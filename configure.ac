@@ -71,6 +71,8 @@ PKG_CHECK_MODULES([LIBUSB], [libusb-1.0])
 
 PKG_CHECK_MODULES([ALSA], [alsa])
 
+PKG_CHECK_MODULES([PLPLOT], [plplotd-gnome2])
+
 AC_OUTPUT([
 Makefile
 ao-tools/Makefile

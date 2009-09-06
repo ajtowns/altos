@@ -266,13 +266,40 @@ int
 cc_timedata_min(struct cc_timedata *d, double min_time, double max_time);
 
 int
+cc_timedata_min_mag(struct cc_timedata *d, double min_time, double max_time);
+
+int
 cc_timedata_max(struct cc_timedata *d, double min_time, double max_time);
+
+int
+cc_timedata_max_mag(struct cc_timedata *d, double min_time, double max_time);
+
+double
+cc_timedata_average(struct cc_timedata *d, double min_time, double max_time);
+
+double
+cc_timedata_average_mag(struct cc_timedata *d, double min_time, double max_time);
+
+int
+cc_perioddata_limits(struct cc_perioddata *d, double min_time, double max_time, int *start, int *stop);
 
 int
 cc_perioddata_min(struct cc_perioddata *d, double min_time, double max_time);
 
 int
+cc_perioddata_min_mag(struct cc_perioddata *d, double min_time, double max_time);
+
+int
 cc_perioddata_max(struct cc_perioddata *d, double min_time, double max_time);
+
+int
+cc_perioddata_max_mag(struct cc_perioddata *d, double min_time, double max_time);
+
+double
+cc_perioddata_average(struct cc_perioddata *d, double min_time, double max_time);
+
+double
+cc_perioddata_average_mag(struct cc_perioddata *d, double min_time, double max_time);
 
 double *
 cc_low_pass(double *data, int data_len, double omega_pass, double omega_stop, double error);
@@ -295,5 +322,7 @@ cc_perioddata_differentiate(struct cc_perioddata *i);
 struct cc_flightcooked *
 cc_flight_cook(struct cc_flightraw *raw);
 
+void
+cc_flightcooked_free(struct cc_flightcooked *cooked);
 
 #endif /* _CC_H_ */
