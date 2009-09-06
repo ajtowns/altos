@@ -205,7 +205,7 @@ main (int argc, char **argv)
 	int			c;
 	int			serial;
 	char			*s;
-	char			*summary_name, *detail_name;
+	char			*summary_name = NULL, *detail_name = NULL;
 
 	while ((c = getopt_long(argc, argv, "S:D:", options, NULL)) != -1) {
 		switch (c) {
