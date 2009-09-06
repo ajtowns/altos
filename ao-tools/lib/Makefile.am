@@ -16,7 +16,11 @@ libao_tools_a_SOURCES = \
 	ccdbg-state.c \
 	cc-analyse.c \
 	cc-convert.c \
+	cc-dsp.c \
 	cc-log.c \
+	cc-integrate.c \
+	cc-period.c \
+	cc-process.c \
 	cc-usb.c \
 	cc-usb.h \
 	cc.h \
@@ -27,4 +31,8 @@ libao_tools_a_SOURCES = \
 	cc-logfile.c \
 	cc-telem.c \
 	cp-usb-async.c \
-	cp-usb-async.h
+	cp-usb-async.h \
+	i0.c \
+	chbevl.c \
+	mconf.h \
+	cephes.h

@@ -268,4 +268,32 @@ cc_timedata_min(struct cc_timedata *d, double min_time, double max_time);
 int
 cc_timedata_max(struct cc_timedata *d, double min_time, double max_time);
 
+int
+cc_perioddata_min(struct cc_perioddata *d, double min_time, double max_time);
+
+int
+cc_perioddata_max(struct cc_perioddata *d, double min_time, double max_time);
+
+double *
+cc_low_pass(double *data, int data_len, double omega_pass, double omega_stop, double error);
+
+struct cc_perioddata *
+cc_period_make(struct cc_timedata *td, double start_time, double stop_time);
+
+struct cc_perioddata *
+cc_period_low_pass(struct cc_perioddata *raw, double omega_pass, double omega_stop, double error);
+
+struct cc_timedata *
+cc_timedata_convert(struct cc_timedata *d, double (*f)(double v, double a), double a);
+
+struct cc_timedata *
+cc_timedata_integrate(struct cc_timedata *d);
+
+struct cc_perioddata *
+cc_perioddata_differentiate(struct cc_perioddata *i);
+
+struct cc_flightcooked *
+cc_flight_cook(struct cc_flightraw *raw);
+
+
 #endif /* _CC_H_ */
