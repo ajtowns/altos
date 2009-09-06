@@ -1,3 +1,60 @@
+commit 35c54b3a278fa9bc2bc7f4b5ee04866697c93ba0
+Merge: 4f8eff7 6d018ab
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 10:39:23 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 6d018ab933832e2d80bb1564c339d9fb18b57be2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 5 22:45:49 2009 -0700
+
+    Handle vageries of .telem files in ao-postflight
+    
+    Telem files have multiple entries of the same state, and sometimes
+    long gaps between recordings. Deal with this as best as possible.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c46e832b28820d7c5be4efaacbbd7c0607927fe5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 5 22:03:31 2009 -0700
+
+    Add simple post-flight analysis tool (ao-postflight)
+    
+    This tool reads either an eeprom or telem log file and displays some
+    rudimentary data (max accel/alt for each flight stage).
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 26f56b51bd11aa91f1d77b81827b49c28cb6ec5f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 5 00:29:26 2009 -0700
+
+    Add ao-dumplog to capture flight log from command line
+    
+    This duplicates the functionality of the flight log stuf in ao-view,
+    except from the command line where it belongs.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 73adae3661160d410dcc802873b530d255c210e5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 4 15:30:22 2009 -0700
+
+    Add --device/-D support to the command line tools and manuals
+    
+    Use the new cc_usbdevs_find_by_arg function to locate suitable target
+    devices connected via USB.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4f8eff7401ee2d8092ab36fa33411f9b23dda880
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Sep 4 16:03:55 2009 -0600
+
+    update changelogs for Debian build
+
 commit 332b056459b1352e233a8bf5f08498df12d32160
 Author: Keith Packard <keithp@keithp.com>
 Date:   Fri Sep 4 15:01:32 2009 -0700
