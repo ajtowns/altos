@@ -1,3 +1,9 @@
+altos (0.5+36+gd42ebf0) unstable; urgency=low
+
+  * build for Debian from git
+
+ -- Bdale Garbee <bdale@gag.com>  Sun, 06 Sep 2009 14:02:14 -0600
+
 altos (0.5+33+g35c54b3) unstable; urgency=low
 
   * build for Debian from git

@@ -1,3 +1,28 @@
+commit d42ebf0661ecf15455e5051de1e16ae66f8dd857
+Merge: 384dbe9 7a19aac
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 14:02:09 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 7a19aac5e881e635962a64fff73027ca2143b96f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 12:51:48 2009 -0700
+
+    Add DSP code to filter data, allowing for integration/differentiation
+    
+    This adds the computation of speed from both accelerometer and
+    barometer measurements and then presents a periodic flight profile
+    using filtered data as a detailed flight record.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 384dbe9fc7fa8e4e5dceec5e150f0f1d3383bbdc
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 10:40:06 2009 -0600
+
+    update changelogs for Debian build
+
 commit 35c54b3a278fa9bc2bc7f4b5ee04866697c93ba0
 Merge: 4f8eff7 6d018ab
 Author: Bdale Garbee <bdale@gag.com>
