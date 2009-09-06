@@ -72,7 +72,7 @@ cc_perioddata_differentiate(struct cc_perioddata *i)
 	d->step = i->step;
 	d->data = calloc (d->num, sizeof(double));
 	for (n = 1; n < d->num; n++)
-		d->data[n] = (i->data[n] - i->data[n-1]) / i->step;
+		d->data[n] = (i->data[n] - i->data[n-1]) / (i->step / 100.0);
 	d->data[0] = d->data[1];
 	return d;
 }

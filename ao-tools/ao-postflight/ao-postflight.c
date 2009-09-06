@@ -128,7 +128,7 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file)
 		}
 
 		if (cooked) {
-			if (state_start < apogee) {
+			if (state < ao_flight_drogue) {
 				speed_i = cc_perioddata_max(&cooked->accel_speed, state_start, state_stop);
 				if (speed_i >= 0)
 					speed = cooked->accel_speed.data[speed_i];
@@ -230,7 +230,7 @@ main (int argc, char **argv)
 		}
 	}
 	if (detail_name) {
-		if (!strcmp (summary_name, detail_name))
+		if (summary_name && !strcmp (summary_name, detail_name))
 			detail_file = summary_file;
 		else {
 			detail_file = fopen(detail_name, "w");
