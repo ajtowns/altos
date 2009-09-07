@@ -37,24 +37,27 @@ cc_timedata_convert(struct cc_timedata *d, double (*f)(double v, double a), doub
 }
 
 struct cc_timedata *
-cc_timedata_integrate(struct cc_timedata *d)
+cc_timedata_integrate(struct cc_timedata *d, double min_time, double max_time)
 {
 	struct cc_timedata	*i;
-	int			n;
+	int			n, m;
+	int			start, stop;
 
+	cc_timedata_limits(d, min_time, max_time, &start, &stop);
 	i = calloc (1, sizeof (struct cc_timedata));
-	i->num = d->num;
-	i->size = d->num;
+	i->num = stop - start + 1;
+	i->size = i->num;
 	i->data = calloc (i->size, sizeof (struct cc_timedataelt));
-	i->time_offset = d->time_offset;
-	for (n = 0; n < d->num; n++) {
-		i->data[n].time = d->data[n].time;
+	i->time_offset = d->data[start].time;
+	for (n = 0; n < i->num; n++) {
+		m = n + start;
+		i->data[n].time = d->data[m].time;
 		if (n == 0) {
 			i->data[n].value = 0;
 		} else {
 			i->data[n].value = i->data[n-1].value +
-				(d->data[n].value + d->data[n-1].value) / 2 *
-				((d->data[n].time - d->data[n-1].time) / 100.0);
+				(d->data[m].value + d->data[m-1].value) / 2 *
+				((d->data[m].time - d->data[m-1].time) / 100.0);
 		}
 	}
 	return i;

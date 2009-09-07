@@ -23,15 +23,29 @@ ao-postflight \- Analyse a flight log (either telemetry or eeprom)
 .B "ao-postflight"
 [\-s <summary-file>]
 [\--summary=<summary-file>]
-[\-d <detail-file]
+[\-d <detail-file>]
 [\--detail=<detail-file>]
+[\-r <raw-file>]
+[\--raw=<raw-file>]
 [\-p <plot-file>]
 [\--plot=<plot-file>]
 {flight.eeprom|flight.telem}
 .SH DESCRIPTION
 .I ao-postflight
-reads the specified flight log and produces a summary of the flight on
-stdout or to the specified file along with an optional .svg format
-plot and detailed table of time/height/speed/accel.
+reads the specified flight log and produces several different kinds of
+output.
+.IP Summary
+By default, summary information is shown on stdout. With the --summary
+option, it can be redirected to a file.
+.IP Detail
+When requested with the --detail option, a filtered version of the
+flight position, speed and acceleration are written to the specified
+file.
+.IP Raw
+The --raw option writes the unfiltered, but converted acceleration
+and height data to the specified file.
+.IP Plot
+The --plot option writes plots of height, speed and acceleration to
+the specified file in .svg format
 .SH AUTHOR
 Keith Packard

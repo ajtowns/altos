@@ -17,35 +17,27 @@
 
 #include "cc.h"
 #include <stdlib.h>
+#include <math.h>
 
 struct cc_perioddata *
 cc_period_make(struct cc_timedata *td, double start_time, double stop_time)
 {
 	int			len = stop_time - start_time + 1;
 	struct cc_perioddata	*pd;
-	int			i;
-	double			prev_time;
-	double			next_time;
-	double			interval;
+	int			i, j;
+	double			t;
 
 	pd = calloc(1, sizeof (struct cc_perioddata));
 	pd->start = start_time;
 	pd->step = 1;
 	pd->num = len;
 	pd->data = calloc(len, sizeof(double));
-	prev_time = start_time;
-	for (i = 0; i < td->num; i++) {
-		if (start_time <= td->data[i].time && td->data[i].time <= stop_time) {
-			int	pos = td->data[i].time - start_time;
-
-			if (i < td->num - 1 && td->data[i+1].time < stop_time)
-				next_time = (td->data[i].time + td->data[i+1].time) / 2.0;
-			else
-				next_time = stop_time;
-			interval = next_time - prev_time;
-			pd->data[pos] = td->data[i].value * interval;
-			prev_time = next_time;
-		}
+	j = 0;
+	for (i = 0; i < pd->num; i++) {
+		t = start_time + i * pd->step;
+		while (j < td->num - 1 && fabs(t - td->data[j].time) > fabs(t - td->data[j+1].time))
+			j++;
+		pd->data[i] = td->data[j].value;
 	}
 	return pd;
 }
