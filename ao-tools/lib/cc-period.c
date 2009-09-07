@@ -35,7 +35,7 @@ cc_period_make(struct cc_timedata *td, double start_time, double stop_time)
 	j = 0;
 	for (i = 0; i < pd->num; i++) {
 		t = start_time + i * pd->step;
-		while (j < td->num - 1 && fabs(t - td->data[j].time) > fabs(t - td->data[j+1].time))
+		while (j < td->num - 1 && fabs(t - td->data[j].time) >= fabs(t - td->data[j+1].time))
 			j++;
 		pd->data[i] = td->data[j].value;
 	}
