@@ -325,7 +325,7 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file, FI
 		plot_perioddata(speed, "meters/second", "Speed", -1e10, 1e10, PLOT_SPEED);
 		plot_perioddata(speed, "meters/second", "Speed to Apogee", boost_start, apogee, PLOT_SPEED);
 		plot_perioddata(&cooked->accel_accel, "meters/second²", "Acceleration", -1e10, 1e10, PLOT_ACCEL);
-		plot_perioddata(&cooked->accel_accel, "meters/second²", "Acceleration to Apogee", boost_start, apogee, PLOT_ACCEL);
+		plot_perioddata(&cooked->accel_accel, "meters/second²", "Acceleration during Boost", boost_start, boost_stop + (boost_stop - boost_start) / 2.0, PLOT_ACCEL);
 		free(speed->data);
 		free(speed);
 		plend();
