@@ -21,9 +21,17 @@
 ao-postflight \- Analyse a flight log (either telemetry or eeprom)
 .SH SYNOPSIS
 .B "ao-postflight"
+[\-s <summary-file>]
+[\--summary=<summary-file>]
+[\-d <detail-file]
+[\--detail=<detail-file>]
+[\-p <plot-file>]
+[\--plot=<plot-file>]
 {flight.eeprom|flight.telem}
 .SH DESCRIPTION
 .I ao-postflight
-reads the specified flight log and produces a summary of the flight on stdout.
+reads the specified flight log and produces a summary of the flight on
+stdout or to the specified file along with an optional .svg format
+plot and detailed table of time/height/speed/accel.
 .SH AUTHOR
 Keith Packard

@@ -275,7 +275,7 @@ static const struct option options[] = {
 
 static void usage(char *program)
 {
-	fprintf(stderr, "usage: %s [--summary=<summary-file>] [--detail=<detail-file] [--plot=<plot-file>] {flight-log} ...\n", program);
+	fprintf(stderr, "usage: %s [--summary=<summary-file>] [-s <summary-file>] [--detail=<detail-file] [-d <detail-file>] [--plot=<plot-file> -p <plot-file>] {flight-log} ...\n", program);
 	exit(1);
 }
 
