@@ -83,7 +83,7 @@ plot_perioddata(struct cc_perioddata *d, char *axis_label, char *plot_label,
 
 static void
 plot_timedata(struct cc_timedata *d, char *axis_label, char *plot_label,
-		double min_time, double max_time)
+	      double min_time, double max_time, int plot_type)
 {
 	double	*times;
 	double	*values;
@@ -112,13 +112,16 @@ plot_timedata(struct cc_timedata *d, char *axis_label, char *plot_label,
 	ymax_i = cc_timedata_max(d, min_time, max_time);
 	ymin = d->data[ymin_i].value;
 	ymax = d->data[ymax_i].value;
-	plcol0(1);
-	pllab("Time", axis_label, plot_label);
 	for (i = start; i <= stop; i++) {
 		times[i-start] = (d->data[i].time - start_time)/100.0;
 		values[i-start] = d->data[i].value;
 	}
+	plscol0(1, 0, 0, 0);
+	plscol0(2, plot_colors[plot_type][0],  plot_colors[plot_type][1],  plot_colors[plot_type][2]);
+	plcol0(1);
 	plenv(times[0], times[stop-start], ymin, ymax, 0, 2);
+	pllab("Time", axis_label, plot_label);
+	plcol0(2);
 	plline(stop - start + 1, times, values);
 	free(times);
 	free(values);
@@ -320,12 +323,20 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file, FI
 		plstar(2, 3);
 		speed = merge_data(&cooked->accel_speed, &cooked->pres_speed, apogee);
 
-		plot_perioddata(&cooked->pres_pos, "meters", "Height", -1e10, 1e10, PLOT_HEIGHT);
-		plot_perioddata(&cooked->pres_pos, "meters", "Height to Apogee", boost_start, apogee, PLOT_HEIGHT);
-		plot_perioddata(speed, "meters/second", "Speed", -1e10, 1e10, PLOT_SPEED);
-		plot_perioddata(speed, "meters/second", "Speed to Apogee", boost_start, apogee, PLOT_SPEED);
-		plot_perioddata(&cooked->accel_accel, "meters/second²", "Acceleration", -1e10, 1e10, PLOT_ACCEL);
-		plot_perioddata(&cooked->accel_accel, "meters/second²", "Acceleration during Boost", boost_start, boost_stop + (boost_stop - boost_start) / 2.0, PLOT_ACCEL);
+		plot_perioddata(&cooked->pres_pos, "meters", "Height",
+				-1e10, 1e10, PLOT_HEIGHT);
+		plot_perioddata(&cooked->pres_pos, "meters", "Height to Apogee",
+				boost_start, apogee + (apogee - boost_start) / 10.0, PLOT_HEIGHT);
+		plot_perioddata(speed, "meters/second", "Speed",
+				-1e10, 1e10, PLOT_SPEED);
+		plot_perioddata(speed, "meters/second", "Speed to Apogee",
+				boost_start, apogee + (apogee - boost_start) / 10.0, PLOT_SPEED);
+		plot_perioddata(&cooked->accel_accel, "meters/second²", "Acceleration",
+				-1e10, 1e10, PLOT_ACCEL);
+/*		plot_perioddata(&cooked->accel_accel, "meters/second²", "Acceleration during Boost",
+		boost_start, boost_stop + (boost_stop - boost_start) / 2.0, PLOT_ACCEL); */
+		plot_timedata(&cooked->accel, "meters/second²", "Acceleration during Boost",
+				boost_start, boost_stop + (boost_stop - boost_start) / 2.0, PLOT_ACCEL);
 		free(speed->data);
 		free(speed);
 		plend();
