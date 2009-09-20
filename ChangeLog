@@ -1,3 +1,69 @@
+commit df42ccaaf468cdc5d93cbd1c001f58df58419722
+Merge: 0b24e40 078e9cd
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 20 09:19:28 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 078e9cdbdb388b22c6151f76ff0660fc14b8ef55
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 10 11:53:06 2009 -0700
+
+    Plot raw accel data for the motor accel section.
+    
+    This shows a short sequence of accelerometer data without any filtering.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8b485d937ff148848ebda7f9ca6be29bb1de1f16
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 21:02:48 2009 -0700
+
+    Show acceleration only during boost phase.
+    
+    We're interested in motor performance; the rest of the flight is
+    boring, after all.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9e660315e1bd2bf71ab1c0574e895e1f7608a58f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 21:01:44 2009 -0700
+
+    Fix cc_period_make to not get stuck on samples with matching time
+    
+    When two samples have matching times, step to the second one;
+    otherwise, we'll get stuck forever.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 932f1539b38567e565fd484171c13539b1467308
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 20:26:17 2009 -0700
+
+    Color plots, integrate only flight portion of data.
+    
+    Telemetry files have piles of pad data which shouldn't be integrated
+    into the velocity data as it tends to generate huge values from the
+    noise of the sensor.
+    
+    Also make the data lines colored to keep them visually distinct from
+    the rest of the plot image.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9177f5f4e9d832558ddd9ab227c4511f6201e7e5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 18:11:24 2009 -0700
+
+    Update usage and man page for ao-postflight
+
+commit 0b24e4034f93010372a3d084668d10f0e4a2c2e1
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 18:01:20 2009 -0600
+
+    update changelogs for Debian build
+
 commit a5e94aa0677070a051714443cf7fd7e2b5e90269
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Sun Sep 6 17:59:47 2009 -0600
