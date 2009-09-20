@@ -80,6 +80,44 @@ gpsdata_add(struct cc_gpsdata *data, struct cc_gpselt *elt)
 	return 1;
 }
 
+static int
+gpssat_add(struct cc_gpsdata *data, struct cc_gpssat *sat)
+{
+	int	i, j;
+	int	reuse = 0;
+	int	newsizesats;
+	struct cc_gpssats	*newsats;
+
+	for (i = data->numsats; --i >= 0;) {
+		if (data->sats[i].sat[0].time == sat->time) {
+			reuse = 1;
+			break;
+		}
+		if (data->sats[i].sat[0].time < sat->time)
+			break;
+	}
+	if (!reuse) {
+		if (data->numsats == data->sizesats) {
+			if (data->sizesats == 0)
+				newsats = malloc((newsizesats = 256) * sizeof (struct cc_gpssats));
+			else
+				newsats = realloc (data->data, (newsizesats = data->sizesats * 2)
+						   * sizeof (struct cc_gpssats));
+			if (!newsats)
+				return 0;
+			data->sats = newsats;
+		}
+		i = data->numsats++;
+		data->sats[i].nsat = 0;
+	}
+	j = data->sats[i].nsat;
+	if (j < 12) {
+		data->sats[i].sat[j] = *sat;
+		data->sats[i].nsat = j + 1;
+	}
+	return 1;
+}
+
 static void
 gpsdata_free(struct cc_gpsdata *data)
 {
@@ -100,13 +138,20 @@ gpsdata_free(struct cc_gpsdata *data)
 
 #define AO_LOG_POS_NONE		(~0UL)
 
+#define GPS_TIME	1
+#define GPS_LAT		2
+#define GPS_LON		4
+#define GPS_ALT		8
+
 static int
 read_eeprom(const char *line, struct cc_flightraw *f, double *ground_pres, int *ground_pres_count)
 {
 	char	type;
 	int	tick;
 	int	a, b;
-	struct cc_gpselt	gps;
+	static struct cc_gpselt	gps;
+	static int		gps_valid;
+	struct cc_gpssat	sat;
 	int	serial;
 
 	if (sscanf(line, "serial-number %u", &serial) == 1) {
@@ -145,22 +190,37 @@ read_eeprom(const char *line, struct cc_flightraw *f, double *ground_pres, int *
 		timedata_add(&f->state, tick, a);
 		break;
 	case AO_LOG_GPS_TIME:
+		/* the flight computer writes TIME first, so reset
+		 * any stale data before adding this record
+		 */
 		gps.time = tick;
+		gps_valid = GPS_TIME;
 		break;
 	case AO_LOG_GPS_LAT:
 		gps.lat = ((int32_t) (a + (b << 16))) / 10000000.0;
+		gps_valid |= GPS_LAT;
 		break;
 	case AO_LOG_GPS_LON:
 		gps.lon = ((int32_t) (a + (b << 16))) / 10000000.0;
+		gps_valid |= GPS_LON;
 		break;
 	case AO_LOG_GPS_ALT:
-		gps.alt = ((int32_t) (a + (b << 16)));
-		gpsdata_add(&f->gps, &gps);
+		gps.alt = (int16_t) a;
+		gps_valid |= GPS_ALT;
 		break;
 	case AO_LOG_GPS_SAT:
+		sat.time = tick;
+		sat.svid = a;
+		sat.state = (b & 0xff);
+		sat.c_n = (b >> 8) & 0xff;
+		gpssat_add(&f->gps, &sat);
 		break;
 	default:
 		return 0;
+	}
+	if (gps_valid == 0xf) {
+		gps_valid = 0;
+		gpsdata_add(&f->gps, &gps);
 	}
 	return 1;
 }
