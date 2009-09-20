@@ -39,9 +39,19 @@ static const char *state_names[] = {
 	"invalid"
 };
 
+static int plot_colors[3][3] = {
+	{ 0, 0x90, 0 },	/* height */
+	{ 0xa0, 0, 0 },	/* speed */
+	{ 0, 0, 0xc0 },	/* accel */
+};
+
+#define PLOT_HEIGHT	0
+#define PLOT_SPEED	1
+#define PLOT_ACCEL	2
+
 static void
 plot_perioddata(struct cc_perioddata *d, char *axis_label, char *plot_label,
-		double min_time, double max_time)
+		double min_time, double max_time, int plot_type)
 {
 	double	*times;
 	double	ymin, ymax;
@@ -60,11 +70,61 @@ plot_perioddata(struct cc_perioddata *d, char *axis_label, char *plot_label,
 	ymax_i = cc_perioddata_max(d, min_time, max_time);
 	ymin = d->data[ymin_i];
 	ymax = d->data[ymax_i];
+	plscol0(1, 0, 0, 0);
+	plscol0(2, plot_colors[plot_type][0],  plot_colors[plot_type][1],  plot_colors[plot_type][2]);
+	plcol0(1);
 	plenv(times[0], times[stop-start],
 	      ymin, ymax, 0, 2);
-	plcol0(1);
 	pllab("Time", axis_label, plot_label);
+	plcol0(2);
 	plline(stop - start + 1, times, d->data + start);
+	free(times);
+}
+
+static void
+plot_timedata(struct cc_timedata *d, char *axis_label, char *plot_label,
+	      double min_time, double max_time, int plot_type)
+{
+	double	*times;
+	double	*values;
+	double	ymin, ymax;
+	int	ymin_i, ymax_i;
+	int	i;
+	int	start = -1, stop = -1;
+	double	start_time = 0, stop_time = 0;
+	int	num;
+
+	for (i = 0; i < d->num; i++) {
+		if (start < 0 && d->data[i].time >= min_time) {
+			start_time = d->data[i].time;
+			start = i;
+		}
+		if (d->data[i].time <= max_time) {
+			stop_time = d->data[i].time;
+			stop = i;
+		}
+	}
+
+	times = calloc(stop - start + 1, sizeof (double));
+	values = calloc(stop - start + 1, sizeof (double));
+
+	ymin_i = cc_timedata_min(d, min_time, max_time);
+	ymax_i = cc_timedata_max(d, min_time, max_time);
+	ymin = d->data[ymin_i].value;
+	ymax = d->data[ymax_i].value;
+	for (i = start; i <= stop; i++) {
+		times[i-start] = (d->data[i].time - start_time)/100.0;
+		values[i-start] = d->data[i].value;
+	}
+	plscol0(1, 0, 0, 0);
+	plscol0(2, plot_colors[plot_type][0],  plot_colors[plot_type][1],  plot_colors[plot_type][2]);
+	plcol0(1);
+	plenv(times[0], times[stop-start], ymin, ymax, 0, 2);
+	pllab("Time", axis_label, plot_label);
+	plcol0(2);
+	plline(stop - start + 1, times, values);
+	free(times);
+	free(values);
 }
 
 static struct cc_perioddata *
@@ -102,7 +162,7 @@ merge_data(struct cc_perioddata *first, struct cc_perioddata *last, double split
 }
 
 static void
-analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file, char *plot_name)
+analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file, FILE *raw_file, char *plot_name)
 {
 	double	height;
 	double	accel;
@@ -241,6 +301,17 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file, ch
 			       time, pos, speed, accel);
 		}
 	}
+	if (raw_file) {
+		fprintf(raw_file, "%9s %9s %9s\n",
+		       "time", "height", "accel");
+		for (i = 0; i < cooked->pres.num; i++) {
+			double time = cooked->pres.data[i].time;
+			double pres = cooked->pres.data[i].value;
+			double accel = cooked->accel.data[i].value;
+			fprintf(raw_file, "%9.2f %9.2f %9.2f %9.2f\n",
+				time, pres, accel);
+		}
+	}
 	if (cooked && plot_name) {
 		struct cc_perioddata	*speed;
 		plsdev("svgcairo");
@@ -252,12 +323,20 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file, ch
 		plstar(2, 3);
 		speed = merge_data(&cooked->accel_speed, &cooked->pres_speed, apogee);
 
-		plot_perioddata(&cooked->pres_pos, "meters", "Height", -1e10, 1e10);
-		plot_perioddata(&cooked->pres_pos, "meters", "Height", boost_start, apogee);
-		plot_perioddata(speed, "meters/second", "Speed", -1e10, 1e10);
-		plot_perioddata(speed, "meters/second", "Speed", boost_start, apogee);
-		plot_perioddata(&cooked->accel_accel, "meters/second²", "Acceleration", -1e10, 1e10);
-		plot_perioddata(&cooked->accel_accel, "meters/second²", "Acceleration", boost_start, apogee);
+		plot_perioddata(&cooked->pres_pos, "meters", "Height",
+				-1e10, 1e10, PLOT_HEIGHT);
+		plot_perioddata(&cooked->pres_pos, "meters", "Height to Apogee",
+				boost_start, apogee + (apogee - boost_start) / 10.0, PLOT_HEIGHT);
+		plot_perioddata(speed, "meters/second", "Speed",
+				-1e10, 1e10, PLOT_SPEED);
+		plot_perioddata(speed, "meters/second", "Speed to Apogee",
+				boost_start, apogee + (apogee - boost_start) / 10.0, PLOT_SPEED);
+		plot_perioddata(&cooked->accel_accel, "meters/second²", "Acceleration",
+				-1e10, 1e10, PLOT_ACCEL);
+/*		plot_perioddata(&cooked->accel_accel, "meters/second²", "Acceleration during Boost",
+		boost_start, boost_stop + (boost_stop - boost_start) / 2.0, PLOT_ACCEL); */
+		plot_timedata(&cooked->accel, "meters/second²", "Acceleration during Boost",
+				boost_start, boost_stop + (boost_stop - boost_start) / 2.0, PLOT_ACCEL);
 		free(speed->data);
 		free(speed);
 		plend();
@@ -270,12 +349,18 @@ static const struct option options[] = {
 	{ .name = "summary", .has_arg = 1, .val = 's' },
 	{ .name = "detail", .has_arg = 1, .val = 'd' },
 	{ .name = "plot", .has_arg = 1, .val = 'p' },
+	{ .name = "raw", .has_arg = 1, .val = 'r' },
 	{ 0, 0, 0, 0},
 };
 
 static void usage(char *program)
 {
-	fprintf(stderr, "usage: %s [--summary=<summary-file>] [--detail=<detail-file] [--plot=<plot-file>] {flight-log} ...\n", program);
+	fprintf(stderr, "usage: %s\n"
+		"\t[--summary=<summary-file>] [-s <summary-file>]\n"
+		"\t[--detail=<detail-file] [-d <detail-file>]\n"
+		"\t[--raw=<raw-file> -r <raw-file]\n"
+		"\t[--plot=<plot-file> -p <plot-file>]\n"
+		"\t{flight-log} ...\n", program);
 	exit(1);
 }
 
@@ -283,18 +368,21 @@ int
 main (int argc, char **argv)
 {
 	FILE			*file;
-	FILE			*summary_file;
-	FILE			*detail_file;
+	FILE			*summary_file = NULL;
+	FILE			*detail_file = NULL;
+	FILE			*raw_file = NULL;
 	int			i;
 	int			ret = 0;
 	struct cc_flightraw	*raw;
 	int			c;
 	int			serial;
 	char			*s;
-	char			*summary_name = NULL, *detail_name = NULL;
+	char			*summary_name = NULL;
+	char			*detail_name = NULL;
+	char			*raw_name = NULL;
 	char			*plot_name = NULL;
 
-	while ((c = getopt_long(argc, argv, "s:d:p:", options, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "s:d:p:r:", options, NULL)) != -1) {
 		switch (c) {
 		case 's':
 			summary_name = optarg;
@@ -305,13 +393,15 @@ main (int argc, char **argv)
 		case 'p':
 			plot_name = optarg;
 			break;
+		case 'r':
+			raw_name = optarg;
+			break;
 		default:
 			usage(argv[0]);
 			break;
 		}
 	}
 	summary_file = stdout;
-	detail_file = NULL;
 	if (summary_name) {
 		summary_file = fopen(summary_name, "w");
 		if (!summary_file) {
@@ -328,6 +418,13 @@ main (int argc, char **argv)
 				perror(detail_name);
 				exit(1);
 			}
+		}
+	}
+	if (raw_name) {
+		raw_file = fopen (raw_name, "w");
+		if (!raw_file) {
+			perror(raw_name);
+			exit(1);
 		}
 	}
 	for (i = optind; i < argc; i++) {
@@ -350,7 +447,7 @@ main (int argc, char **argv)
 		}
 		if (!raw->serial)
 			raw->serial = serial;
-		analyse_flight(raw, summary_file, detail_file, plot_name);
+		analyse_flight(raw, summary_file, detail_file, raw_file, plot_name);
 		cc_flightraw_free(raw);
 	}
 	return ret;

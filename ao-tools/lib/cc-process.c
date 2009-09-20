@@ -33,8 +33,6 @@ cook_timed(struct cc_timedata *td, struct cc_perioddata *pd,
 	free (filtered);
 	free (unfiltered->data);
 	free (unfiltered);
-	free (td->data);
-	free (td);
 }
 
 static double
@@ -93,11 +91,15 @@ cc_flight_cook(struct cc_flightraw *raw)
 	} else {
 		flight_stop = raw->accel.data[raw->accel.num-1].time;
 	}
+	cooked->flight_start = flight_start;
+	cooked->flight_stop = flight_stop;
 
 	/* Integrate the accelerometer data to get speed and position */
 	accel = cc_timedata_convert(&raw->accel, cc_accelerometer_to_acceleration, raw->ground_accel);
-	accel_speed = cc_timedata_integrate(accel);
-	accel_pos = cc_timedata_integrate(accel_speed);
+	cooked->accel = *accel;
+	free(accel);
+	accel_speed = cc_timedata_integrate(&cooked->accel, flight_start - 10, flight_stop);
+	accel_pos = cc_timedata_integrate(accel_speed, flight_start - 10, flight_stop);
 
 #define ACCEL_OMEGA_PASS	(2 * M_PI * 5 / 100)
 #define ACCEL_OMEGA_STOP	(2 * M_PI * 8 / 100)
@@ -105,20 +107,24 @@ cc_flight_cook(struct cc_flightraw *raw)
 #define BARO_OMEGA_STOP		(2 * M_PI * 1 / 100)
 #define FILTER_ERROR		(1e-8)
 
-	cook_timed(accel, &cooked->accel_accel,
+	cook_timed(&cooked->accel, &cooked->accel_accel,
 		   flight_start, flight_stop,
 		   ACCEL_OMEGA_PASS, ACCEL_OMEGA_STOP, FILTER_ERROR);
 	cook_timed(accel_speed, &cooked->accel_speed,
 		   flight_start, flight_stop,
 		   ACCEL_OMEGA_PASS, ACCEL_OMEGA_STOP, FILTER_ERROR);
+	free(accel_speed->data); free(accel_speed);
 	cook_timed(accel_pos, &cooked->accel_pos,
 		   flight_start, flight_stop,
 		   ACCEL_OMEGA_PASS, ACCEL_OMEGA_STOP, FILTER_ERROR);
+	free(accel_pos->data); free(accel_pos);
 
 	/* Filter the pressure data */
 	pres = cc_timedata_convert(&raw->pres, barometer_to_altitude,
 				   cc_barometer_to_altitude(raw->ground_pres));
-	cook_timed(pres, &cooked->pres_pos,
+	cooked->pres = *pres;
+	free(pres);
+	cook_timed(&cooked->pres, &cooked->pres_pos,
 		   flight_start, flight_stop,
 		   BARO_OMEGA_PASS, BARO_OMEGA_STOP, FILTER_ERROR);
 	/* differentiate twice to get to acceleration */
@@ -154,5 +160,7 @@ cc_flightcooked_free(struct cc_flightcooked *cooked)
 	if_free(cooked->gps_lon.data);
 	if_free(cooked->gps_alt.data);
 	if_free(cooked->state.data);
+	if_free(cooked->accel.data);
+	if_free(cooked->pres.data);
 	free(cooked);
 }

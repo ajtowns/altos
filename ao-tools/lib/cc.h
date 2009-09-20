@@ -142,6 +142,9 @@ void
 cc_flightraw_free(struct cc_flightraw *raw);
 
 struct cc_flightcooked {
+	double			flight_start;
+	double			flight_stop;
+
 	struct cc_perioddata	accel_accel;
 	struct cc_perioddata	accel_speed;
 	struct cc_perioddata	accel_pos;
@@ -151,6 +154,10 @@ struct cc_flightcooked {
 	struct cc_perioddata	gps_lat;
 	struct cc_perioddata	gps_lon;
 	struct cc_perioddata	gps_alt;
+
+	/* unfiltered, but converted */
+	struct cc_timedata	pres;
+	struct cc_timedata	accel;
 	struct cc_timedata	state;
 };
 
@@ -262,6 +269,9 @@ cc_great_circle (double start_lat, double start_lon,
 		 double end_lat, double end_lon,
 		 double *dist, double *bearing);
 
+void
+cc_timedata_limits(struct cc_timedata *d, double min_time, double max_time, int *start, int *stop);
+
 int
 cc_timedata_min(struct cc_timedata *d, double min_time, double max_time);
 
@@ -314,7 +324,7 @@ struct cc_timedata *
 cc_timedata_convert(struct cc_timedata *d, double (*f)(double v, double a), double a);
 
 struct cc_timedata *
-cc_timedata_integrate(struct cc_timedata *d);
+cc_timedata_integrate(struct cc_timedata *d, double min_time, double max_time);
 
 struct cc_perioddata *
 cc_perioddata_differentiate(struct cc_perioddata *i);

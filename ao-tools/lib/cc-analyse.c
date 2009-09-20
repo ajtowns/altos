@@ -18,6 +18,20 @@
 #include "cc.h"
 #include <math.h>
 
+void
+cc_timedata_limits(struct cc_timedata *d, double min_time, double max_time, int *start, int *stop)
+{
+	int	i;
+
+	*start = -1;
+	for (i = 0; i < d->num; i++) {
+		if (*start < 0 && min_time <= d->data[i].time)
+			*start = i;
+		if (d->data[i].time <= max_time)
+			*stop = i;
+	}
+}
+
 int
 cc_timedata_min(struct cc_timedata *d, double min_time, double max_time)
 {
