@@ -1,3 +1,34 @@
+commit 327c64305a59f48ababf19875874a550af6b9cef
+Merge: c8a81a4 74f0fb4
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Sep 21 11:00:22 2009 -0700
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 74f0fb4dd189abc1d5027c64fa5a648a6003285a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 20 13:33:59 2009 -0700
+
+    make bit-banging reset script actually reset
+
+commit 7ea371a09385e2a93199f78685e8cb86793ed104
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 20 13:33:26 2009 -0700
+
+    Add --gps option to ao-postflight
+
+commit bc7ccb339e538a0e6120db0e5c0d9130c565e0dd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 20 13:32:59 2009 -0700
+
+    ao_rawload: Don't reset after we finish loading
+
+commit c8a81a419f7f2331624f90bd6c107a86f6b04451
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 20 09:21:00 2009 -0600
+
+    update changelogs for Debian build
+
 commit df42ccaaf468cdc5d93cbd1c001f58df58419722
 Merge: 0b24e40 078e9cd
 Author: Bdale Garbee <bdale@gag.com>
