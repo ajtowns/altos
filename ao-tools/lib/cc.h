@@ -19,6 +19,7 @@
 #define _CC_H_
 
 #include <stdio.h>
+#include <stdint.h>
 
 char *
 cc_fullname (char *dir, char *file);
@@ -90,11 +91,35 @@ struct cc_gpselt {
 	double		alt;
 };
 
+#define SIRF_SAT_STATE_ACQUIRED			(1 << 0)
+#define SIRF_SAT_STATE_CARRIER_PHASE_VALID	(1 << 1)
+#define SIRF_SAT_BIT_SYNC_COMPLETE		(1 << 2)
+#define SIRF_SAT_SUBFRAME_SYNC_COMPLETE		(1 << 3)
+#define SIRF_SAT_CARRIER_PULLIN_COMPLETE	(1 << 4)
+#define SIRF_SAT_CODE_LOCKED			(1 << 5)
+#define SIRF_SAT_ACQUISITION_FAILED		(1 << 6)
+#define SIRF_SAT_EPHEMERIS_AVAILABLE		(1 << 7)
+
+struct cc_gpssat {
+	double		time;
+	uint16_t	svid;
+	uint8_t		state;
+	uint8_t		c_n;
+};
+
+struct cc_gpssats {
+	int			nsat;
+	struct cc_gpssat	sat[12];
+};
+
 struct cc_gpsdata {
 	int			num;
 	int			size;
 	struct cc_gpselt	*data;
 	double			time_offset;
+	int			numsats;
+	int			sizesats;
+	struct cc_gpssats	*sats;
 };
 
 /*

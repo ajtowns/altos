@@ -162,7 +162,7 @@ merge_data(struct cc_perioddata *first, struct cc_perioddata *last, double split
 }
 
 static void
-analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file, FILE *raw_file, char *plot_name)
+analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file, FILE *raw_file, char *plot_name, FILE *gps_file)
 {
 	double	height;
 	double	accel;
@@ -312,6 +312,17 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file, FI
 				time, pres, accel);
 		}
 	}
+	if (gps_file) {
+		fprintf(gps_file, "%9s %12s %12s %12s\n",
+			"time", "lat", "lon", "alt");
+		for (i = 0; i < f->gps.num; i++) {
+			fprintf(gps_file, "%12.7f %12.7f %12.7f %12.7f\n",
+				(f->gps.data[i].time - boost_start) / 100.0,
+				f->gps.data[i].lat,
+				f->gps.data[i].lon,
+				f->gps.data[i].alt);
+		}
+	}
 	if (cooked && plot_name) {
 		struct cc_perioddata	*speed;
 		plsdev("svgcairo");
@@ -350,6 +361,7 @@ static const struct option options[] = {
 	{ .name = "detail", .has_arg = 1, .val = 'd' },
 	{ .name = "plot", .has_arg = 1, .val = 'p' },
 	{ .name = "raw", .has_arg = 1, .val = 'r' },
+	{ .name = "gps", .has_arg = 1, .val = 'g' },
 	{ 0, 0, 0, 0},
 };
 
@@ -360,6 +372,7 @@ static void usage(char *program)
 		"\t[--detail=<detail-file] [-d <detail-file>]\n"
 		"\t[--raw=<raw-file> -r <raw-file]\n"
 		"\t[--plot=<plot-file> -p <plot-file>]\n"
+		"\t[--gps=<gps-file> -g <gps-file>]\n"
 		"\t{flight-log} ...\n", program);
 	exit(1);
 }
@@ -371,6 +384,7 @@ main (int argc, char **argv)
 	FILE			*summary_file = NULL;
 	FILE			*detail_file = NULL;
 	FILE			*raw_file = NULL;
+	FILE			*gps_file = NULL;
 	int			i;
 	int			ret = 0;
 	struct cc_flightraw	*raw;
@@ -381,8 +395,9 @@ main (int argc, char **argv)
 	char			*detail_name = NULL;
 	char			*raw_name = NULL;
 	char			*plot_name = NULL;
+	char			*gps_name = NULL;
 
-	while ((c = getopt_long(argc, argv, "s:d:p:r:", options, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "s:d:p:r:g:", options, NULL)) != -1) {
 		switch (c) {
 		case 's':
 			summary_name = optarg;
@@ -395,6 +410,9 @@ main (int argc, char **argv)
 			break;
 		case 'r':
 			raw_name = optarg;
+			break;
+		case 'g':
+			gps_name = optarg;
 			break;
 		default:
 			usage(argv[0]);
@@ -427,6 +445,13 @@ main (int argc, char **argv)
 			exit(1);
 		}
 	}
+	if (gps_name) {
+		gps_file = fopen(gps_name, "w");
+		if (!gps_file) {
+			perror(gps_name);
+			exit(1);
+		}
+	}
 	for (i = optind; i < argc; i++) {
 		file = fopen(argv[i], "r");
 		if (!file) {
@@ -447,7 +472,7 @@ main (int argc, char **argv)
 		}
 		if (!raw->serial)
 			raw->serial = serial;
-		analyse_flight(raw, summary_file, detail_file, raw_file, plot_name);
+		analyse_flight(raw, summary_file, detail_file, raw_file, plot_name, gps_file);
 		cc_flightraw_free(raw);
 	}
 	return ret;

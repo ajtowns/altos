@@ -105,8 +105,6 @@ main (int argc, char **argv)
 		ccdbg_close(dbg);
 		exit(1);
 	}
-	ccdbg_set_pc(dbg, image->address);
-	ccdbg_resume(dbg);
 	ccdbg_close(dbg);
 	exit (0);
 }
