@@ -1,3 +1,9 @@
+commit 459ff3d377297f80ee2fba0df0a29ff6603467a1
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Sep 21 11:00:32 2009 -0700
+
+    update changelogs for Debian build
+
 commit 327c64305a59f48ababf19875874a550af6b9cef
 Merge: c8a81a4 74f0fb4
 Author: Bdale Garbee <bdale@gag.com>
