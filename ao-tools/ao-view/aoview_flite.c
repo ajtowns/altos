@@ -42,12 +42,10 @@ aoview_flite_task(gpointer data)
 
 	err = snd_pcm_open(&alsa_handle, "default",
 			   SND_PCM_STREAM_PLAYBACK, 0);
-	if (err >= 0)
-	{
-		if (err < 0) {
-			snd_pcm_close(alsa_handle);
-			alsa_handle = 0;
-		}
+	if (err < 0) {
+		fprintf(stderr, "alsa open failed %s\n",
+			strerror(-err));
+		alsa_handle = NULL;
 	}
 	rate = 0;
 	channels = 0;
