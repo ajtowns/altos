@@ -313,14 +313,30 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file, FI
 		}
 	}
 	if (gps_file) {
+		int	j = 0;
 		fprintf(gps_file, "%9s %12s %12s %12s\n",
 			"time", "lat", "lon", "alt");
 		for (i = 0; i < f->gps.num; i++) {
-			fprintf(gps_file, "%12.7f %12.7f %12.7f %12.7f\n",
+			int	nsat = 0;
+			int	k;
+			while (j < f->gps.numsats - 1) {
+				if (f->gps.sats[j].sat[0].time <= f->gps.data[i].time &&
+				    f->gps.data[i].time < f->gps.sats[j+1].sat[0].time)
+					break;
+				j++;
+			}
+			fprintf(gps_file, "%12.7f %12.7f %12.7f %12.7f",
 				(f->gps.data[i].time - boost_start) / 100.0,
 				f->gps.data[i].lat,
 				f->gps.data[i].lon,
 				f->gps.data[i].alt);
+			nsat = 0;
+			for (k = 0; k < f->gps.sats[j].nsat; k++) {
+				fprintf (gps_file, " %12.7f", (double) f->gps.sats[j].sat[k].c_n);
+				if (f->gps.sats[j].sat[k].state == 0xbf)
+					nsat++;
+			}
+			fprintf(gps_file, " %d\n", nsat);
 		}
 	}
 	if (cooked && plot_name) {
