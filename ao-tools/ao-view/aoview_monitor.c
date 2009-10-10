@@ -82,6 +82,7 @@ aoview_monitor_parse(const char *input_line)
 	char line_buf[8192], *line;
 	struct aodata	data;
 	int	tracking_pos;
+	int channel;
 
 	/* avoid smashing our input parameter */
 	strncpy (line_buf, input_line, sizeof (line_buf)-1);
@@ -214,15 +215,26 @@ aoview_monitor_callback(gpointer user_data,
 	}
 }
 
+void
+aoview_monitor_set_channel(int channel)
+{
+	if (monitor_serial)
+		aoview_serial_printf(monitor_serial, "c r %d\n", channel);
+}
+
 gboolean
 aoview_monitor_connect(char *tty)
 {
+	int	channel;
 	aoview_monitor_disconnect();
 	monitor_serial = aoview_serial_open(tty);
 	if (!monitor_serial)
 		return FALSE;
 	aoview_table_clear();
 	aoview_state_reset();
+	channel = aoview_channel_current();
+	if (channel >= 0)
+		aoview_monitor_set_channel(channel);
 	aoview_serial_set_callback(monitor_serial,
 				   aoview_monitor_callback);
 	return TRUE;

@@ -169,6 +169,9 @@ gboolean
 aoview_monitor_parse(const char *line);
 
 void
+aoview_monitor_set_channel(int channel);
+
+void
 aoview_monitor_reset(void);
 
 struct aoview_serial *
@@ -319,5 +322,13 @@ aoview_flite_stop(void);
 /* aoview_main.c */
 
 extern char *aoview_tty;
+
+/* aoview_channel.c */
+
+int
+aoview_channel_current(void);
+
+void
+aoview_channel_init(GladeXML *xml);
 
 #endif /* _AOVIEW_H_ */
