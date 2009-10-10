@@ -59,7 +59,6 @@ TELE_RECEIVER_SRC =\
 
 TELE_DRIVER_SRC = \
 	ao_convert.c \
-	ao_gps_skytraq.c \
 	ao_serial.c
 
 #
@@ -85,6 +84,17 @@ TM_DRIVER_SRC = \
 	ao_ignite.c
 
 #
+# Drivers only on TeleMetrum
+#
+TM_SIRF_DRIVER_SRC = \
+	ao_gps_sirf.c
+#
+# Drivers only on TeleMetrum
+#
+TM_SKY_DRIVER_SRC = \
+	ao_gps_skytraq.c
+
+#
 # Tasks run on TeleMetrum
 #
 TM_TASK_SRC = \
@@ -107,6 +117,14 @@ TM_SRC = \
 	$(TM_DRIVER_SRC) \
 	$(TM_TASK_SRC) \
 	$(TM_MAIN_SRC)
+
+TM_SIRF_SRC = \
+	$(TM_SRC) \
+	$(TM_SIRF_DRIVER_SRC)
+
+TM_SKY_SRC = \
+	$(TM_SRC) \
+	$(TM_SKY_DRIVER_SRC)
 
 TI_MAIN_SRC = \
 	ao_tidongle.c
@@ -161,13 +179,16 @@ SRC = \
 	$(TELE_COMMON_SRC) \
 	$(TELE_FAKE_SRC) \
 	$(TM_DRIVER_SRC) \
+	$(TM_SIRF_DRIVER_SRC) \
+	$(TM_SKY_DRIVER_SRC) \
 	$(TM_TASK_SRC) \
 	$(TM_MAIN_SRC) \
 	$(TI_MAIN_SRC) \
 	$(TD_MAIN_SRC) \
 	$(TT_MAIN_SRC)
 
-TM_REL=$(TM_SRC:.c=.rel) ao_product-telemetrum.rel
+TM_SIRF_REL=$(TM_SIRF_SRC:.c=.rel) ao_product-telemetrum.rel
+TM_SKY_REL=$(TM_SKY_SRC:.c=.rel) ao_product-telemetrum.rel
 TI_REL=$(TI_SRC:.c=.rel) ao_product-tidongle.rel
 TT_REL=$(TT_SRC:.c=.rel) ao_product-teleterra.rel
 TD_REL=$(TD_SRC:.c=.rel) ao_product-teledongle.rel
@@ -186,7 +207,7 @@ LST=$(REL:.rel=.lst)
 RST=$(REL:.rel=.rst)
 SYM=$(REL:.rel=.sym)
 
-PROGS=	telemetrum.ihx tidongle.ihx \
+PROGS=	telemetrum-sirf.ihx telemetrum-sky.ihx tidongle.ihx \
 	teleterra.ihx teledongle.ihx
 
 HOST_PROGS=ao_flight_test ao_gps_test ao_gps_test_skytraq
@@ -202,15 +223,21 @@ PAOM=$(PROGS:.ihx=)
 
 all: $(PROGS) $(HOST_PROGS)
 
-telemetrum.ihx: $(TM_REL) Makefile
-	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(TM_REL)
-	sh check-stack ao.h telemetrum.mem
+telemetrum-sirf.ihx: $(TM_SIRF_REL) Makefile
+	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(TM_SIRF_REL)
+	sh check-stack ao.h telemetrum-sirf.mem
+
+telemetrum-sky.ihx: $(TM_SKY_REL) Makefile
+	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(TM_SKY_REL)
+	sh check-stack ao.h telemetrum-sky.mem
+
+telemetrum-sky.ihx: telemetrum-sirf.ihx
 
 tidongle.ihx: $(TI_REL) Makefile
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(TI_REL)
 	sh check-stack ao.h tidongle.mem
 
-tidongle.ihx: telemetrum.ihx
+tidongle.ihx: telemetrum-sky.ihx
 
 teleterra.ihx: $(TT_REL) Makefile
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(TT_REL)

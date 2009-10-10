@@ -16,6 +16,7 @@ TAGS
 aclocal.m4
 src/ao_flight_test
 src/ao_gps_test
+src/ao_gps_test_skytraq
 ao-teledongle.h
 ao-telemetrum.h
 ao-teleterra.h
@@ -47,6 +48,7 @@ missing
 stamp-h1
 tags
 teledongle
-telemetrum
+telemetrum-sirf
+telemetrum-sky
 teleterra
 tidongle
