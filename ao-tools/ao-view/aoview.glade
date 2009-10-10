@@ -258,6 +258,107 @@
               </widget>
             </child>
             <child>
+              <widget class="GtkMenuItem" id="channel_menu_item">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_Channel</property>
+                <property name="use_underline">True</property>
+                <child>
+                  <widget class="GtkMenu" id="menu7">
+                    <property name="visible">True</property>
+                    <child>
+                      <widget class="GtkRadioMenuItem" id="channel_0">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Channel 0 (434.550MHz)</property>
+                        <property name="use_underline">True</property>
+                        <property name="draw_as_radio">True</property>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkRadioMenuItem" id="channel_1">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Channel 1 (434.650MHz)</property>
+                        <property name="use_underline">True</property>
+                        <property name="draw_as_radio">True</property>
+                        <property name="group">channel_0</property>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkRadioMenuItem" id="channel_2">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Channel 2 (434.750MHz)</property>
+                        <property name="use_underline">True</property>
+                        <property name="draw_as_radio">True</property>
+                        <property name="group">channel_0</property>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkRadioMenuItem" id="channel_3">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Channel 3 (434.850MHz)</property>
+                        <property name="use_underline">True</property>
+                        <property name="draw_as_radio">True</property>
+                        <property name="group">channel_0</property>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkRadioMenuItem" id="channel_4">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Channel 4 (434.950MHz)</property>
+                        <property name="use_underline">True</property>
+                        <property name="draw_as_radio">True</property>
+                        <property name="group">channel_0</property>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkRadioMenuItem" id="channel_5">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Channel 5 (435.050MHz)</property>
+                        <property name="use_underline">True</property>
+                        <property name="draw_as_radio">True</property>
+                        <property name="group">channel_0</property>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkRadioMenuItem" id="channel_6">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Channel 6 (435.150MHz)</property>
+                        <property name="use_underline">True</property>
+                        <property name="draw_as_radio">True</property>
+                        <property name="group">channel_0</property>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkRadioMenuItem" id="channel_7">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Channel 7 (435.250MHz)</property>
+                        <property name="use_underline">True</property>
+                        <property name="draw_as_radio">True</property>
+                        <property name="group">channel_0</property>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkRadioMenuItem" id="channel_8">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Channel 8 (435.350MHz)</property>
+                        <property name="use_underline">True</property>
+                        <property name="draw_as_radio">True</property>
+                        <property name="group">channel_0</property>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkRadioMenuItem" id="channel_9">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Channel 9 (435.450MHz)</property>
+                        <property name="use_underline">True</property>
+                        <property name="draw_as_radio">True</property>
+                        <property name="group">channel_0</property>
+                      </widget>
+                    </child>
+                  </widget>
+                </child>
+              </widget>
+            </child>
+            <child>
               <widget class="GtkMenuItem" id="menuitem4">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_Help</property>

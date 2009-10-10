@@ -86,6 +86,8 @@ int main(int argc, char **argv)
 
 	aoview_voice_init(xml);
 
+	aoview_channel_init(xml);
+
 	aoview_dev_dialog_init(xml);
 
 	aoview_state_init(xml);

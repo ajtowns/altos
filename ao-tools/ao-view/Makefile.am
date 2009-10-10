@@ -25,6 +25,7 @@ ao_view_SOURCES = \
 	aoview_replay.c \
 	aoview_label.c \
 	aoview_flite.c \
+	aoview_channel.c \
 	aoview.h
 
 BUILT_SOURCES = aoview_glade.h
