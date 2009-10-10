@@ -37,6 +37,30 @@ static void usage(char *program)
 	exit(1);
 }
 
+static uint8_t
+log_checksum(int d[8])
+{
+	uint8_t	sum = 0x5a;
+	int	i;
+
+	for (i = 0; i < 8; i++)
+		sum += (uint8_t) d[i];
+	return -sum;
+}
+
+static const char *state_names[] = {
+	"startup",
+	"idle",
+	"pad",
+	"boost",
+	"fast",
+	"coast",
+	"drogue",
+	"main",
+	"landed",
+	"invalid"
+};
+
 int
 main (int argc, char **argv)
 {
@@ -50,6 +74,12 @@ main (int argc, char **argv)
 	int		serial_number;
 	char		cmd;
 	int		tick, a, b;
+	int		block;
+	int		addr;
+	int		received_addr;
+	int		data[8];
+	int		done;
+	int		column;
 
 	while ((c = getopt_long(argc, argv, "T:D:", options, NULL)) != -1) {
 		switch (c) {
@@ -74,12 +104,10 @@ main (int argc, char **argv)
 	if (!cc)
 		exit(1);
 	/* send a 'version' command followed by a 'log' command */
-	cc_usb_printf(cc, "v\nl\n");
+	cc_usb_printf(cc, "v\n");
 	out = NULL;
 	for (;;) {
 		cc_usb_getline(cc, line, sizeof (line));
-		if (!strcmp (line, "end"))
-			break;
 		if (sscanf(line, "serial-number %u", &serial_number) == 1) {
 			filename = cc_make_filename(serial_number, "eeprom");
 			out = fopen (filename, "w");
@@ -87,16 +115,65 @@ main (int argc, char **argv)
 				perror(filename);
 			}
 			fprintf (out, "%s\n", line);
-		} else if (sscanf(line, "%c %x %x %x", &cmd, &tick, &a, &b) == 4) {
-			if (out) {
-				fprintf(out, "%s\n", line);
-				if (cmd == 'S' && a == 8) {
-					fclose(out);
-					out = NULL;
+		}
+		if (!strncmp(line, "software-version", 16))
+			break;
+	}
+	if (!out) {
+		fprintf(stderr, "no serial number found\n");
+		cc_usb_close(cc);
+		exit(1);
+	}
+	printf ("Serial number: %d\n", serial_number);
+	printf ("File name:     %s\n", filename);
+	done = 0;
+	column = 0;
+	for (block = 0; !done && block < 511; block++) {
+		cc_usb_printf(cc, "e %x\n", block);
+		if (column == 64) {
+			putchar('\n');
+			column = 0;
+		}
+		putchar('.'); fflush(stdout); column++;
+		for (addr = 0; addr < 0x100;) {
+			cc_usb_getline(cc, line, sizeof (line));
+			if (sscanf(line, "00%x %x %x %x %x %x %x %x %x",
+					  &received_addr,
+					  &data[0], &data[1], &data[2], &data[3],
+					  &data[4], &data[5], &data[6], &data[7]) == 9)
+			{
+				if (received_addr != addr)
+					fprintf(stderr, "data out of sync at 0x%x\n",
+						block * 256 + received_addr);
+
+				if (log_checksum(data) != 0)
+					fprintf (stderr, "invalid checksum at 0x%x\n",
+						 block * 256 + received_addr);
+
+				cmd = data[0];
+				tick = data[2] + (data[3] << 8);
+				a = data[4] + (data[5] << 8);
+				b = data[6] + (data[7] << 8);
+				if (cmd == 'S' && a <= 8) {
+					if (column) putchar('\n');
+					printf("%s\n", state_names[a]);
+					column = 0;
 				}
+				if (out) {
+					fprintf(out, "%c %4x %4x %4x\n",
+						cmd, tick, a, b);
+					if (cmd == 'S' && a == 8) {
+						fclose(out);
+						out = NULL;
+						done = 1;
+					}
+				}
+				addr += 8;
 			}
 		}
 	}
+	if (column)
+		putchar('\n');
 	if (out)
 		fclose (out);
 	cc_usb_close(cc);
