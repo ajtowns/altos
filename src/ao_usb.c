@@ -21,6 +21,7 @@
 struct ao_task __xdata ao_usb_task;
 
 static __xdata uint16_t	ao_usb_in_bytes;
+static __xdata uint16_t ao_usb_in_bytes_last;
 static __xdata uint16_t	ao_usb_out_bytes;
 static __xdata uint8_t	ao_usb_iif;
 static __xdata uint8_t	ao_usb_running;
@@ -321,13 +322,40 @@ ao_usb_ep0(void)
 	}
 }
 
+/* Wait for a free IN buffer */
+static void
+ao_usb_in_wait(void)
+{
+	for (;;) {
+		USBINDEX = AO_USB_IN_EP;
+		if ((USBCSIL & USBCSIL_INPKT_RDY) == 0)
+			break;
+		ao_sleep(&ao_usb_in_bytes);
+	}
+}
+
+/* Send the current IN packet */
+static void
+ao_usb_in_send(void)
+{
+	USBINDEX = AO_USB_IN_EP;
+	USBCSIL |= USBCSIL_INPKT_RDY;
+	ao_usb_in_bytes_last = ao_usb_in_bytes;
+	ao_usb_in_bytes = 0;
+}
+
 void
 ao_usb_flush(void) __critical
 {
-	if (ao_usb_in_bytes) {
-		USBINDEX = AO_USB_IN_EP;
-		USBCSIL |= USBCSIL_INPKT_RDY;
-		ao_usb_in_bytes = 0;
+	if (!ao_usb_running)
+		return;
+
+	/* If there are pending bytes, or if the last packet was full,
+	 * send another IN packet
+	 */
+	if (ao_usb_in_bytes || (ao_usb_in_bytes_last == AO_USB_IN_SIZE)) {
+		ao_usb_in_wait();
+		ao_usb_in_send();
 	}
 }
 
@@ -336,18 +364,13 @@ ao_usb_putchar(char c) __critical
 {
 	if (!ao_usb_running)
 		return;
-	for (;;) {
-		USBINDEX = AO_USB_IN_EP;
-		if ((USBCSIL & USBCSIL_INPKT_RDY) == 0)
-			break;
-		ao_sleep(&ao_usb_in_bytes);
-	}
+
+	ao_usb_in_wait();
+
+	/* Queue a byte, sending the packet when full */
 	USBFIFO[AO_USB_IN_EP << 1] = c;
-	if (++ao_usb_in_bytes == AO_USB_IN_SIZE) {
-		USBINDEX = AO_USB_IN_EP;
-		USBCSIL |= USBCSIL_INPKT_RDY;
-		ao_usb_in_bytes = 0;
-	}
+	if (++ao_usb_in_bytes == AO_USB_IN_SIZE)
+		ao_usb_in_send();
 }
 
 char
