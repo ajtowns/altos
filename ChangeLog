@@ -1,3 +1,72 @@
+commit 541da6f3bbf81be93dfe3c01f7c8cfd757b28a2b
+Merge: dfc73cb 5f26ad6
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sat Oct 10 15:05:50 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 5f26ad663b3f60dddc9d967206e365f45dc4acd1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 10 13:58:16 2009 -0700
+
+    ao-dumplog: switch to 'e' command, display progress
+    
+    Using the 'e' command allows additional checking of the data,
+    including end-to-end checksums and detection of missing data.
+    
+    Progress is displayed by showing the recorded flight state along with
+    a '.' for each eeprom block read.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b8fc3975bd92037a0cf53b0ff2b0e05ce0ba668f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 10 13:39:01 2009 -0700
+
+    Send 0-length IN packet to flush USB after full packet
+    
+    USB bulk transfers are a sequence of maximum-sized packets followed by
+    a short packet, which signals the end of the transfer. When the last
+    packet of the transfer would be a full-sized packet, an additional
+    packet of zero length is sent to signal the transfer end.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e29961fdb2a48874c895829880eadbf13e094c0c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 10 11:43:31 2009 -0700
+
+    Add channel menu to ao-view.
+    
+    Sets radio channel when TD is connected, saves selected channel in
+    gconf database.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a3771bfc5ce740f9d89193e9f8b1d7987aa57264
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Oct 6 20:06:00 2009 -0700
+
+    ao-view: fix snd_pcm_open return checking
+    
+    I don't know how this code was supposed to work before...
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ac4b8a73848f434999a532eab4665253c267c597
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Oct 6 20:05:36 2009 -0700
+
+    ao-postflight: dump out GPS signal data
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit dfc73cba1bee8b121e00e8cba45e7dfaaf79e9d8
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Sep 21 22:46:59 2009 -0700
+
+    update changelogs for Debian build
+
 commit 459ff3d377297f80ee2fba0df0a29ff6603467a1
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Mon Sep 21 11:00:32 2009 -0700
