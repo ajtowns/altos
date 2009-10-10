@@ -60,7 +60,10 @@ ao_serial_getchar(void) __critical
 		ao_sleep(&ao_usart1_rx_fifo);
 	ao_fifo_remove(ao_usart1_rx_fifo, c);
 	if (serial_echo) {
-		printf("%02x\n", ((int) c) & 0xff);
+		printf("%02x ", ((int) c) & 0xff);
+		if (c >= ' ')
+			putchar(c);
+		putchar('\n');
 		flush();
 	}
 	return c;
@@ -120,6 +123,10 @@ static const struct {
 	/* [AO_SERIAL_SPEED_4800] = */ {
 		/* .baud = */ 163,
 		/* .gcr  = */ (7 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
+	},
+	/* [AO_SERIAL_SPEED_9600] = */ {
+		/* .baud = */ 163,
+		/* .gcr  = */ (8 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
 	},
 	/* [AO_SERIAL_SPEED_57600] = */ {
 		/* .baud = */ 59,

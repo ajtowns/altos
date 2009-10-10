@@ -59,7 +59,7 @@ TELE_RECEIVER_SRC =\
 
 TELE_DRIVER_SRC = \
 	ao_convert.c \
-	ao_gps.c \
+	ao_gps_skytraq.c \
 	ao_serial.c
 
 #
@@ -189,7 +189,7 @@ SYM=$(REL:.rel=.sym)
 PROGS=	telemetrum.ihx tidongle.ihx \
 	teleterra.ihx teledongle.ihx
 
-HOST_PROGS=ao_flight_test ao_gps_test
+HOST_PROGS=ao_flight_test ao_gps_test ao_gps_test_skytraq
 
 PCDB=$(PROGS:.ihx=.cdb)
 PLNK=$(PROGS:.ihx=.lnk)
@@ -271,5 +271,8 @@ install:
 ao_flight_test: ao_flight.c ao_flight_test.c ao_host.h
 	cc -g -o $@ ao_flight_test.c
 
-ao_gps_test: ao_gps.c ao_gps_test.c ao_gps_print.c ao_host.h
+ao_gps_test: ao_gps_sirf.c ao_gps_test.c ao_gps_print.c ao_host.h
 	cc -g -o $@ ao_gps_test.c
+
+ao_gps_test_skytraq: ao_gps_skytraq.c ao_gps_test_skytraq.c ao_gps_print.c ao_host.h
+	cc -g -o $@ ao_gps_test_skytraq.c

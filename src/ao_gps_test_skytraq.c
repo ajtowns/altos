@@ -109,13 +109,15 @@ get_millis(void)
 }
 
 static void
-check_sirf_message(char *from, uint8_t *msg, int len)
+check_skytraq_message(char *from, uint8_t *msg, int len)
 {
 	uint16_t	encoded_len, encoded_cksum;
 	uint16_t	cksum;
 	uint8_t		id;
 	int		i;
 
+//	fwrite(msg, 1, len, stdout);
+	return;
 	if (msg[0] != 0xa0 || msg[1] != 0xa2) {
 		printf ("bad header\n");
 		return;
@@ -301,10 +303,10 @@ check_sirf_message(char *from, uint8_t *msg, int len)
 	}
 }
 
-static uint8_t	sirf_message[4096];
-static int	sirf_message_len;
-static uint8_t	sirf_in_message[4096];
-static int	sirf_in_len;
+static uint8_t	skytraq_message[4096];
+static int	skytraq_message_len;
+static uint8_t	skytraq_in_message[4096];
+static int	skytraq_in_len;
 
 char
 ao_serial_getchar(void)
@@ -328,12 +330,13 @@ ao_serial_getchar(void)
 	c = input_queue[input_head];
 	input_head = (input_head + 1) % QUEUE_LEN;
 	uc = c;
-	if (sirf_in_len || uc == 0xa0) {
-		if (sirf_in_len < 4096)
-			sirf_in_message[sirf_in_len++] = uc;
-		if (uc == 0xb3) {
-			check_sirf_message("recv", sirf_in_message, sirf_in_len);
-			sirf_in_len = 0;
+//	printf ("c: %02x %c\n", uc, uc);
+	if (skytraq_in_len || uc == '$') {
+		if (skytraq_in_len < 4096)
+			skytraq_in_message[skytraq_in_len++] = uc;
+		if (uc == 0x0a) {
+			check_skytraq_message("recv", skytraq_in_message, skytraq_in_len);
+			skytraq_in_len = 0;
 		}
 	}
 	return c;
@@ -346,12 +349,12 @@ ao_serial_putchar(char c)
 	int	i;
 	uint8_t	uc = (uint8_t) c;
 
-	if (sirf_message_len || uc == 0xa0) {
-		if (sirf_message_len < 4096)
-			sirf_message[sirf_message_len++] = uc;
-		if (uc == 0xb3) {
-			check_sirf_message("send", sirf_message, sirf_message_len);
-			sirf_message_len = 0;
+	if (skytraq_message_len || uc == 0xa0) {
+		if (skytraq_message_len < 4096)
+			skytraq_message[skytraq_message_len++] = uc;
+		if (uc == 0x0a) {
+			check_skytraq_message("send", skytraq_message, skytraq_message_len);
+			skytraq_message_len = 0;
 		}
 	}
 	for (;;) {
@@ -375,7 +378,8 @@ ao_serial_putchar(char c)
 }
 
 #define AO_SERIAL_SPEED_4800	0
-#define AO_SERIAL_SPEED_57600	1
+#define AO_SERIAL_SPEED_9600	1
+#define AO_SERIAL_SPEED_57600	2
 
 static void
 ao_serial_set_speed(uint8_t speed)
@@ -389,6 +393,9 @@ ao_serial_set_speed(uint8_t speed)
 	case AO_SERIAL_SPEED_4800:
 		cfsetspeed(&termios, B4800);
 		break;
+	case AO_SERIAL_SPEED_9600:
+		cfsetspeed(&termios, B38400);
+		break;
 	case AO_SERIAL_SPEED_57600:
 		cfsetspeed(&termios, B57600);
 		break;
@@ -398,7 +405,7 @@ ao_serial_set_speed(uint8_t speed)
 }
 
 #include "ao_gps_print.c"
-#include "ao_gps_sirf.c"
+#include "ao_gps_skytraq.c"
 
 void
 ao_dump_state(void *wchan)
@@ -411,30 +418,6 @@ ao_dump_state(void *wchan)
 		ao_gps_tracking_print(&ao_gps_tracking_data);
 	putchar('\n');
 	return;
-	printf ("%02d:%02d:%02d",
-		ao_gps_data.hour, ao_gps_data.minute,
-		ao_gps_data.second);
-	printf (" nsat %d %svalid",
-		ao_gps_data.flags & AO_GPS_NUM_SAT_MASK,
-		ao_gps_data.flags & AO_GPS_VALID ? "" : "not ");
-	printf (" lat %g lon %g alt %d",
-		ao_gps_data.latitude / 1.0e7,
-		ao_gps_data.longitude / 1.0e7,
-		ao_gps_data.altitude);
-	printf (" speed %g climb %g course %d",
-		ao_gps_data.ground_speed / 100.0,
-		ao_gps_data.climb_rate / 100.0,
-		ao_gps_data.course * 2);
-	printf (" hdop %g h_error %d v_error %d",
-		ao_gps_data.hdop / 5.0,
-		ao_gps_data.h_error, ao_gps_data.v_error);
-	printf("\n");
-	printf ("\t");
-	for (i = 0; i < 12; i++)
-		printf (" %2d(%02x)",
-			ao_gps_tracking_data.sats[i].svid,
-			ao_gps_tracking_data.sats[i].state);
-	printf ("\n");
 }
 
 int
@@ -491,6 +474,5 @@ main (int argc, char **argv)
 		perror (tty);
 		exit (1);
 	}
-	ao_gps_setup();
 	ao_gps();
 }

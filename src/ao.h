@@ -668,7 +668,8 @@ void
 ao_serial_putchar(char c) __critical;
 
 #define AO_SERIAL_SPEED_4800	0
-#define AO_SERIAL_SPEED_57600	1
+#define AO_SERIAL_SPEED_9600	1
+#define AO_SERIAL_SPEED_57600	2
 
 void
 ao_serial_set_speed(uint8_t speed);
