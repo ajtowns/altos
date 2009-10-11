@@ -860,7 +860,7 @@ ao_igniter_init(void);
  */
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	0
+#define AO_CONFIG_MINOR	1
 
 struct ao_config {
 	uint8_t		major;
@@ -869,6 +869,7 @@ struct ao_config {
 	int16_t		accel_zero_g;
 	uint8_t		radio_channel;
 	char		callsign[AO_MAX_CALLSIGN + 1];
+	uint8_t		apogee_delay;
 };
 
 extern __xdata struct ao_config ao_config;

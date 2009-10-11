@@ -26,6 +26,7 @@ __xdata uint8_t ao_config_mutex;
 #define AO_CONFIG_DEFAULT_RADIO_CHANNEL	0
 #define AO_CONFIG_DEFAULT_CALLSIGN	"KD7SQG"
 #define AO_CONFIG_DEFAULT_ACCEL_ZERO_G	16000
+#define AO_CONFIG_DEFAULT_APOGEE_DELAY	0
 
 static void
 _ao_config_put(void)
@@ -48,9 +49,16 @@ _ao_config_get(void)
 		memset(&ao_config.callsign, '\0', sizeof (ao_config.callsign));
 		memcpy(&ao_config.callsign, AO_CONFIG_DEFAULT_CALLSIGN,
 		       sizeof(AO_CONFIG_DEFAULT_CALLSIGN) - 1);
+		ao_config.apogee_delay = AO_CONFIG_DEFAULT_APOGEE_DELAY;
 		ao_config_dirty = 1;
 	}
-	/* deal with minor version issues here, at 0 we haven't any */
+	if (ao_config.minor < AO_CONFIG_MINOR) {
+		/* Fixups for major version 1 */
+		if (ao_config.minor < 1)
+			ao_config.apogee_delay = AO_CONFIG_DEFAULT_APOGEE_DELAY;
+		ao_config.minor = AO_CONFIG_MINOR;
+		ao_config_dirty = 1;
+	}
 	ao_config_loaded = 1;
 }
 
@@ -124,7 +132,7 @@ ao_config_radio_channel_set(void) __reentrant
 void
 ao_config_main_deploy_show(void) __reentrant
 {
-	printf("Main deploy set to %d meters (%d feet)\n",
+	printf("Main deploy: %d meters (%d feet)\n",
 	       ao_config.main_deploy,
 	       (int16_t) ((int32_t) ao_config.main_deploy * 328 / 100));
 }
@@ -146,7 +154,7 @@ ao_config_main_deploy_set(void) __reentrant
 void
 ao_config_accel_zero_g_show(void) __reentrant
 {
-	printf("Accel zero g point set to %d\n",
+	printf("Accel zero g point: %d\n",
 	       ao_config.accel_zero_g);
 }
 
@@ -189,6 +197,27 @@ ao_config_accel_zero_g_set(void) __reentrant
 	ao_config_accel_zero_g_show();
 }
 
+void
+ao_config_apogee_delay_show(void) __reentrant
+{
+	printf("Apogee delay: %d seconds\n",
+	       ao_config.apogee_delay);
+}
+
+void
+ao_config_apogee_delay_set(void) __reentrant
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	ao_mutex_get(&ao_config_mutex);
+	_ao_config_get();
+	ao_config.apogee_delay = ao_cmd_lex_i;
+	ao_config_dirty = 1;
+	ao_mutex_put(&ao_config_mutex);
+	ao_config_apogee_delay_show();
+}
+
 struct ao_config_var {
 	char		cmd;
 	void		(*set)(void) __reentrant;
@@ -214,6 +243,8 @@ __code struct ao_config_var ao_config_vars[] = {
 		"r <channel> Set radio channel (freq = 434.550 + channel * .1)" },
 	{ 'c',	ao_config_callsign_set,		ao_config_callsign_show,
 		"c <call>    Set callsign broadcast in each packet (8 char max)" },
+	{ 'd',	ao_config_apogee_delay_set,	ao_config_apogee_delay_show,
+	        "d <delay>   Set apogee igniter delay (in seconds)" },
 	{ 's',	ao_config_show,			ao_config_show,
 		"s           Show current config values" },
 	{ 'w',	ao_config_write,		ao_config_write,
@@ -258,6 +289,8 @@ void
 ao_config_show(void) __reentrant
 {
 	uint8_t cmd;
+	printf("Config version: %d.%d\n",
+	       ao_config.major, ao_config.minor);
 	for (cmd = 0; ao_config_vars[cmd].cmd != '\0'; cmd++)
 		if (ao_config_vars[cmd].show != ao_config_vars[cmd].set)
 			(*ao_config_vars[cmd].show)();
