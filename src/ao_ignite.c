@@ -103,10 +103,14 @@ ao_igniter(void)
 	__xdata enum ao_ignter igniter;
 	__xdata enum ao_igniter_status status;
 
+	ao_config_get();
 	for (;;) {
 		ao_sleep(&ao_ignition);
 		for (igniter = ao_igniter_drogue; igniter <= ao_igniter_main; igniter++) {
 			if (ao_ignition[igniter].request && !ao_ignition[igniter].fired) {
+				if (igniter == ao_igniter_drogue && ao_config.apogee_delay)
+					ao_delay(AO_SEC_TO_TICKS(ao_config.apogee_delay));
+
 				ao_igniter_fire(igniter);
 				ao_delay(AO_IGNITER_CHARGE_TIME);
 				status = ao_igniter_status(igniter);
