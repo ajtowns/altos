@@ -12,6 +12,7 @@ prebuild:
 	git commit ChangeLog debian/changelog \
 		-m "update changelogs for Debian build"
 	git tag debian/$(DEB_VERSION)
+	git push --tags master
 
 configure: configure-stamp
 configure-stamp:
