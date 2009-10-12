@@ -1,3 +1,15 @@
+commit 2de548f45d0f50b558acc83f57e1e2fc1223ab92
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:58:19 2009 -0600
+
+    oops, forgot to specify the repo to push to
+
+commit 68008ac11c2735ca53a1b474324df43f2f1d5cdd
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:57:33 2009 -0600
+
+    update changelogs for Debian build
+
 commit 513328ac5f7c25f9ee144ab6befbea60d69eed1a
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Mon Oct 12 16:56:50 2009 -0600
