@@ -3,13 +3,15 @@
 
 export DH_VERBOSE=1
 PKG_VERSION := $(shell dpkg-parsechangelog | sed -ne 's/^Version: \(.*\)/\1/p')
+DEB_VERSION := $(shell git describe | tr - +)
 
 # this target invoked by git-buildpackage using a clean hook, see .gbp.conf
 prebuild:
-	git-dch --release --new-version=`git describe | tr - +`
+	git-dch --release --new-version=$(DEB_VERSION)
 	git log > ChangeLog
 	git commit ChangeLog debian/changelog \
 		-m "update changelogs for Debian build"
+	git tag debian/$(DEB_VERSION)
 
 configure: configure-stamp
 configure-stamp:
