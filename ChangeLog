@@ -1,3 +1,21 @@
+commit 23bc21a93ccb9f35917f283ac5df6ce0870df71a
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:54:16 2009 -0600
+
+    undue damage from partial build
+
+commit 7da56ad8576ef212ffb6cb573bdaf578453e3fe0
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:52:52 2009 -0600
+
+    add support for tagging git repository on each Debian package build
+
+commit 8d4aa4ee54f85f4951cdd7293d58aaa405cfcdc5
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:49:34 2009 -0600
+
+    update changelogs for Debian build
+
 commit 241a860fe856b1dfad6e792736313648300d5c24
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Mon Oct 12 16:48:43 2009 -0600

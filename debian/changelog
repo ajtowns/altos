@@ -1,3 +1,11 @@
+altos (0.5+82+g23bc21a) unstable; urgency=low
+
+  * flush repetitive junk out of debian/changelog, and update the
+    prebuild target
+  * add support for tagging git repository on each Debian package build
+
+ -- Bdale Garbee <bdale@gag.com>  Mon, 12 Oct 2009 16:54:28 -0600
+
 altos (0.5+77+gc57bd7f) unstable; urgency=low
 
   * build for Debian from git
