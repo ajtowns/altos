@@ -1,3 +1,16 @@
+commit 241a860fe856b1dfad6e792736313648300d5c24
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:48:43 2009 -0600
+
+    flush repetitive junk out of debian/changelog, and update the prebuild target
+    in debian/rules to put git commit details into the Debian changelog
+
+commit 6c4cdc927b43736b39be29d23ac3dc723f69e4d6
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 15:57:19 2009 -0600
+
+    update changelogs for Debian build
+
 commit c57bd7fd2f80e50b0b4c87fccb024ab07c93773d
 Merge: adf8764 2b76572
 Author: Bdale Garbee <bdale@gag.com>
