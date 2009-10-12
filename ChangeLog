@@ -1,3 +1,43 @@
+commit c57bd7fd2f80e50b0b4c87fccb024ab07c93773d
+Merge: adf8764 2b76572
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 15:57:08 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 2b765728ce177e26899f6feef00bfdf6aeaf2678
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 10 17:15:38 2009 -0700
+
+    Add apogee igniter delay.
+    
+    Provide for a delay after apogee before the drogue charge is
+    fired. This allows TM to be used as a back-up altimeter.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8f7ea3de7037f40b0ff462b60d503c19431ae62b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 10 15:08:14 2009 -0700
+
+    Report igniter continuity in pad/idle mode via beeper
+    
+    one short beep = drogue
+    two short beeps = main
+    three short beeps = both
+    one long warble = neither
+    
+    In idle mode, it does this just once. In pad mode, it keeps testing
+    and reporting.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit adf8764bc4591795ba4e618ccbd6393fc6ce6450
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sat Oct 10 15:11:23 2009 -0600
+
+    update changelogs for Debian build
+
 commit 541da6f3bbf81be93dfe3c01f7c8cfd757b28a2b
 Merge: dfc73cb 5f26ad6
 Author: Bdale Garbee <bdale@gag.com>
