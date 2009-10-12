@@ -1,3 +1,15 @@
+commit 513328ac5f7c25f9ee144ab6befbea60d69eed1a
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:56:50 2009 -0600
+
+    automate push of updated and tagged master branch during debian/rules prebuild
+
+commit 67bf7d388a6dd2dbf65575bf4f0423ad355b4f2f
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:54:44 2009 -0600
+
+    update changelogs for Debian build
+
 commit 23bc21a93ccb9f35917f283ac5df6ce0870df71a
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Mon Oct 12 16:54:16 2009 -0600

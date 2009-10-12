@@ -1,5 +1,7 @@
-altos (0.5+82+g23bc21a) unstable; urgency=low
+altos (0.5+84+g513328a) unstable; urgency=low
 
+  * automate push of updated and tagged master branch during
+    debian/rules prebuild
   * flush repetitive junk out of debian/changelog, and update the
     prebuild target
   * add support for tagging git repository on each Debian package build
