@@ -192,7 +192,7 @@ ao_log_stop(void)
 }
 
 static void
-dump_log(void)
+dump_log(void) __reentrant
 {
 	uint8_t	more;
 

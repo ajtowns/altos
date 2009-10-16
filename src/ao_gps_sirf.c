@@ -302,7 +302,7 @@ static const char ao_gps_set_message_rate[] = {
 };
 
 void
-ao_sirf_set_message_rate(uint8_t msg, uint8_t rate)
+ao_sirf_set_message_rate(uint8_t msg, uint8_t rate) __reentrant
 {
 	uint16_t	cksum = 0x00a6;
 	uint8_t		i;

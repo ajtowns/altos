@@ -458,7 +458,7 @@ ao_flight(void)
 #define AO_VEL_COUNT_TO_MS(count)	((int16_t) ((count) / 2700))
 
 static void
-ao_flight_status(void)
+ao_flight_status(void) __reentrant
 {
 	printf("STATE: %7s accel: %d speed: %d altitude: %d main: %d\n",
 	       ao_state_names[ao_flight_state],

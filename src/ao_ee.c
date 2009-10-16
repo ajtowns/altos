@@ -351,11 +351,11 @@ ao_ee_read_config(uint8_t *buf, uint16_t len) __reentrant
 }
 
 static void
-ee_dump(void)
+ee_dump(void) __reentrant
 {
-	__xdata uint8_t	b;
-	__xdata uint16_t block;
-	__xdata uint8_t i;
+	uint8_t	b;
+	uint16_t block;
+	uint8_t i;
 
 	ao_cmd_hex();
 	block = ao_cmd_lex_i;
@@ -377,13 +377,13 @@ ee_dump(void)
 }
 
 static void
-ee_store(void)
+ee_store(void) __reentrant
 {
-	__xdata uint16_t block;
-	__xdata uint8_t i;
-	__xdata uint16_t len;
-	__xdata uint8_t b;
-	__xdata uint32_t addr;
+	uint16_t block;
+	uint8_t i;
+	uint16_t len;
+	uint8_t b;
+	uint32_t addr;
 
 	ao_cmd_hex();
 	block = ao_cmd_lex_i;

@@ -61,9 +61,9 @@ ao_adc_isr(void) interrupt 1
 }
 
 static void
-ao_adc_dump(void)
+ao_adc_dump(void) __reentrant
 {
-	__xdata struct ao_adc	packet;
+	static __xdata struct ao_adc	packet;
 	ao_adc_get(&packet);
 	printf("tick: %5u accel: %4d pres: %4d temp: %4d batt: %4d drogue: %4d main: %4d\n",
 	       packet.tick, packet.accel >> 4, packet.pres >> 4, packet.temp >> 4,

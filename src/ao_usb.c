@@ -72,7 +72,7 @@ uint8_t * __xdata ao_usb_ep0_in_data;
 __xdata uint8_t ao_usb_ep0_in_len;
 __xdata uint8_t	ao_usb_ep0_in_buf[2];
 __xdata uint8_t ao_usb_ep0_out_len;
-__xdata uint8_t *__data ao_usb_ep0_out_data;
+__xdata uint8_t *__xdata ao_usb_ep0_out_data;
 __xdata uint8_t ao_usb_configuration;
 
 /* Send an IN data packet */
