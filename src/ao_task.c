@@ -93,7 +93,9 @@ ao_yield(void) _naked
 		push	_bp
 	_endasm;
 
-	if (ao_cur_task_index != AO_NO_TASK_INDEX)
+	if (ao_cur_task_index == AO_NO_TASK_INDEX)
+		ao_cur_task_index = ao_num_tasks-1;
+	else
 	{
 		uint8_t stack_len;
 		__data uint8_t *stack_ptr;
@@ -196,6 +198,24 @@ ao_wakeup(__xdata void *wchan)
 	for (i = 0; i < ao_num_tasks; i++)
 		if (ao_tasks[i]->wchan == wchan)
 			ao_tasks[i]->wchan = NULL;
+}
+
+void
+ao_wake_task(__xdata struct ao_task *task)
+{
+	task->wchan = NULL;
+}
+
+void
+ao_exit(void)
+{
+	uint8_t	i;
+	ao_num_tasks--;
+	for (i = ao_cur_task_index; i < ao_num_tasks; i++)
+		ao_tasks[i] = ao_tasks[i+1];
+	ao_cur_task_index = AO_NO_TASK_INDEX;
+	ao_yield();
+	/* we'll never get back here */
 }
 
 void

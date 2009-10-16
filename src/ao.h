@@ -63,6 +63,10 @@ ao_sleep(__xdata void *wchan);
 void
 ao_wakeup(__xdata void *wchan);
 
+/* Wake up a specific task */
+void
+ao_wake_task(__xdata struct ao_task *task);
+
 /* Yield the processor to another task */
 void
 ao_yield(void) _naked;
@@ -70,6 +74,10 @@ ao_yield(void) _naked;
 /* Add a task to the run queue */
 void
 ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *name) __reentrant;
+
+/* Terminate the current task */
+void
+ao_exit(void);
 
 /* Dump task info to console */
 void
