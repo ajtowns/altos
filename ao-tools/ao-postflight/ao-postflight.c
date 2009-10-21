@@ -161,8 +161,33 @@ merge_data(struct cc_perioddata *first, struct cc_perioddata *last, double split
 	return pd;
 }
 
+static const char kml_header[] =
+	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+	"<kml xmlns=\"http://earth.google.com/kml/2.0\">\n"
+	"  <Placemark>\n"
+	"    <name>gps</name>\n"
+	"    <Style id=\"khStyle690\">\n"
+	"      <LineStyle id=\"khLineStyle694\">\n"
+	"        <color>ff00ffff</color>\n"
+	"        <width>4</width>\n"
+	"      </LineStyle>\n"
+	"      </Style>\n"
+	"    <MultiGeometry id=\"khMultiGeometry697\">\n"
+	"      <LineString id=\"khLineString698\">\n"
+	"        <tessellate>1</tessellate>\n"
+	"        <altitudeMode>absolute</altitudeMode>\n"
+	"        <coordinates>\n";
+
+static const char kml_footer[] =
+	"</coordinates>\n"
+	"    </LineString>\n"
+	"  </MultiGeometry>\n"
+	"</Placemark>\n"
+	"</kml>\n";
+
 static void
-analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file, FILE *raw_file, char *plot_name, FILE *gps_file)
+analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
+	       FILE *raw_file, char *plot_name, FILE *gps_file, FILE *kml_file)
 {
 	double	height;
 	double	accel;
@@ -339,6 +364,37 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file, FI
 			fprintf(gps_file, " %d\n", nsat);
 		}
 	}
+	if (kml_file) {
+		int	j = 0;
+
+		fprintf(kml_file, "%s", kml_header);
+		for (i = 0; i < f->gps.num; i++) {
+			int	nsat = 0;
+			int	k;
+			while (j < f->gps.numsats - 1) {
+				if (f->gps.sats[j].sat[0].time <= f->gps.data[i].time &&
+				    f->gps.data[i].time < f->gps.sats[j+1].sat[0].time)
+					break;
+				j++;
+			}
+			nsat = 0;
+			for (k = 0; k < f->gps.sats[j].nsat; k++)
+				if (f->gps.sats[j].sat[k].state == 0xbf)
+					nsat++;
+
+			fprintf(kml_file, "%12.7f, %12.7f, %12.7f <!-- time %12.7f sats %d -->",
+				f->gps.data[i].lon,
+				f->gps.data[i].lat,
+				f->gps.data[i].alt,
+				(f->gps.data[i].time - boost_start) / 100.0,
+				nsat);
+			if (i < f->gps.num - 1)
+				fprintf(kml_file, ",\n");
+			else
+				fprintf(kml_file, "\n");
+		}
+		fprintf(kml_file, "%s", kml_footer);
+	}
 	if (cooked && plot_name) {
 		struct cc_perioddata	*speed;
 		plsdev("svgcairo");
@@ -378,6 +434,7 @@ static const struct option options[] = {
 	{ .name = "plot", .has_arg = 1, .val = 'p' },
 	{ .name = "raw", .has_arg = 1, .val = 'r' },
 	{ .name = "gps", .has_arg = 1, .val = 'g' },
+	{ .name = "kml", .has_arg = 1, .val = 'k' },
 	{ 0, 0, 0, 0},
 };
 
@@ -389,6 +446,7 @@ static void usage(char *program)
 		"\t[--raw=<raw-file> -r <raw-file]\n"
 		"\t[--plot=<plot-file> -p <plot-file>]\n"
 		"\t[--gps=<gps-file> -g <gps-file>]\n"
+		"\t[--kml=<kml-file> -k <kml-file>]\n"
 		"\t{flight-log} ...\n", program);
 	exit(1);
 }
@@ -401,6 +459,7 @@ main (int argc, char **argv)
 	FILE			*detail_file = NULL;
 	FILE			*raw_file = NULL;
 	FILE			*gps_file = NULL;
+	FILE			*kml_file = NULL;
 	int			i;
 	int			ret = 0;
 	struct cc_flightraw	*raw;
@@ -412,8 +471,9 @@ main (int argc, char **argv)
 	char			*raw_name = NULL;
 	char			*plot_name = NULL;
 	char			*gps_name = NULL;
+	char			*kml_name = NULL;
 
-	while ((c = getopt_long(argc, argv, "s:d:p:r:g:", options, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "s:d:p:r:g:k:", options, NULL)) != -1) {
 		switch (c) {
 		case 's':
 			summary_name = optarg;
@@ -429,6 +489,9 @@ main (int argc, char **argv)
 			break;
 		case 'g':
 			gps_name = optarg;
+			break;
+		case 'k':
+			kml_name = optarg;
 			break;
 		default:
 			usage(argv[0]);
@@ -468,6 +531,13 @@ main (int argc, char **argv)
 			exit(1);
 		}
 	}
+	if (kml_name) {
+		kml_file = fopen(kml_name, "w");
+		if (!kml_file) {
+			perror(kml_name);
+			exit(1);
+		}
+	}
 	for (i = optind; i < argc; i++) {
 		file = fopen(argv[i], "r");
 		if (!file) {
@@ -488,7 +558,7 @@ main (int argc, char **argv)
 		}
 		if (!raw->serial)
 			raw->serial = serial;
-		analyse_flight(raw, summary_file, detail_file, raw_file, plot_name, gps_file);
+		analyse_flight(raw, summary_file, detail_file, raw_file, plot_name, gps_file, kml_file);
 		cc_flightraw_free(raw);
 	}
 	return ret;
