@@ -255,11 +255,62 @@ static __code uint8_t telemetry_setup[] = {
 				 RF_PKTCTRL0_LENGTH_CONFIG_FIXED),
 };
 
+static __code uint8_t packet_setup[] = {
+	RF_MDMCFG4_OFF,		((CHANBW_E << RF_MDMCFG4_CHANBW_E_SHIFT) |
+				 (CHANBW_M << RF_MDMCFG4_CHANBW_M_SHIFT) |
+				 (DRATE_E << RF_MDMCFG4_DRATE_E_SHIFT)),
+	RF_MDMCFG3_OFF,		(DRATE_M << RF_MDMCFG3_DRATE_M_SHIFT),
+	RF_MDMCFG2_OFF,		(RF_MDMCFG2_DEM_DCFILT_OFF |
+				 RF_MDMCFG2_MOD_FORMAT_GFSK |
+				 RF_MDMCFG2_SYNC_MODE_15_16_THRES),
+	RF_MDMCFG1_OFF,		(RF_MDMCFG1_FEC_EN |
+				 RF_MDMCFG1_NUM_PREAMBLE_4 |
+				 (2 << RF_MDMCFG1_CHANSPC_E_SHIFT)),
+
+	RF_DEVIATN_OFF,		((DEVIATION_E << RF_DEVIATN_DEVIATION_E_SHIFT) |
+				 (DEVIATION_M << RF_DEVIATN_DEVIATION_M_SHIFT)),
+
+	/* max packet length */
+	RF_PKTLEN_OFF,		sizeof (struct ao_packet),
+	RF_PKTCTRL1_OFF,	((1 << PKTCTRL1_PQT_SHIFT)|
+				 PKTCTRL1_APPEND_STATUS|
+				 PKTCTRL1_ADR_CHK_NONE),
+	RF_PKTCTRL0_OFF,	(RF_PKTCTRL0_WHITE_DATA|
+				 RF_PKTCTRL0_PKT_FORMAT_NORMAL|
+				 RF_PKTCTRL0_CRC_EN|
+				 RF_PKTCTRL0_LENGTH_CONFIG_FIXED),
+};
+
+
+void
+ao_radio_set_telemetry(void)
+{
+	uint8_t	i;
+	for (i = 0; i < sizeof (telemetry_setup); i += 2)
+		RF[telemetry_setup[i]] = telemetry_setup[i+1];
+}
+
+void
+ao_radio_set_packet(void)
+{
+	uint8_t	i;
+	for (i = 0; i < sizeof (packet_setup); i += 2)
+		RF[packet_setup[i]] = packet_setup[i+1];
+}
+
+void
+ao_radio_set_rdf(void)
+{
+	uint8_t	i;
+	for (i = 0; i < sizeof (rdf_setup); i += 2)
+		RF[rdf_setup[i]] = rdf_setup[i+1];
+}
+
 __xdata uint8_t	ao_radio_dma;
 __xdata uint8_t ao_radio_dma_done;
 __xdata uint8_t ao_radio_mutex;
 
-static void
+void
 ao_radio_idle(void)
 {
 	if (RF_MARCSTATE != RF_MARCSTATE_IDLE)
@@ -295,7 +346,7 @@ ao_radio_send(__xdata struct ao_telemetry *telemetry) __reentrant
 	ao_mutex_put(&ao_radio_mutex);
 }
 
-void
+uint8_t
 ao_radio_recv(__xdata struct ao_radio_recv *radio) __reentrant
 {
 	ao_config_get();
@@ -317,6 +368,7 @@ ao_radio_recv(__xdata struct ao_radio_recv *radio) __reentrant
 	__critical while (!ao_radio_dma_done)
 		ao_sleep(&ao_radio_dma_done);
 	ao_mutex_put(&ao_radio_mutex);
+	return (ao_radio_dma_done & AO_DMA_DONE);
 }
 
 __xdata ao_radio_rdf_running;
@@ -368,12 +420,17 @@ ao_radio_rdf(int ms)
 }
 
 void
+ao_radio_abort(uint8_t reason)
+{
+	ao_dma_abort(ao_radio_dma, reason);
+	ao_radio_idle();
+}
+
+void
 ao_radio_rdf_abort(void)
 {
-	if (ao_radio_rdf_running) {
-		ao_dma_abort(ao_radio_dma);
-		ao_radio_idle();
-	}
+	if (ao_radio_rdf_running)
+		ao_radio_abort(AO_DMA_ABORTED);
 }
 
 void
@@ -382,6 +439,7 @@ ao_radio_init(void)
 	uint8_t	i;
 	for (i = 0; i < sizeof (radio_setup); i += 2)
 		RF[radio_setup[i]] = radio_setup[i+1];
+	ao_radio_set_telemetry();
 	ao_radio_dma_done = 1;
 	ao_radio_dma = ao_dma_alloc(&ao_radio_dma_done);
 }

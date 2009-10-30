@@ -30,7 +30,8 @@ ao_monitor(void)
 	for (;;) {
 		__critical while (!ao_monitoring)
 			ao_sleep(&ao_monitoring);
-		ao_radio_recv(&recv);
+		if (!ao_radio_recv(&recv))
+			continue;
 		state = recv.telemetry.flight_state;
 		memcpy(callsign, recv.telemetry.callsign, AO_MAX_CALLSIGN);
 		if (state > ao_flight_invalid)
@@ -74,6 +75,7 @@ ao_set_monitor(uint8_t monitoring)
 {
 	ao_monitoring = monitoring;
 	ao_wakeup(&ao_monitoring);
+	ao_radio_abort(AO_DMA_ABORTED);
 }
 
 static void

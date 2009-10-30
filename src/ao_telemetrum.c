@@ -40,6 +40,7 @@ main(void)
 	ao_gps_report_init();
 	ao_telemetry_init();
 	ao_radio_init();
+	ao_packet_init();
 	ao_igniter_init();
 	ao_config_init();
 	ao_start_scheduler();

@@ -33,6 +33,7 @@ main(void)
 	ao_monitor_init(AO_LED_GREEN, TRUE);
 	ao_rssi_init(AO_LED_RED);
 	ao_radio_init();
+	ao_packet_init();
 	ao_config_init();
 	ao_start_scheduler();
 }

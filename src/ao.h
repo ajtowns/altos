@@ -138,7 +138,7 @@ ao_clock_init(void);
  * ao_adc.c
  */
 
-#define AO_ADC_RING	64
+#define AO_ADC_RING	32
 #define ao_adc_ring_next(n)	(((n) + 1) & (AO_ADC_RING - 1))
 #define ao_adc_ring_prev(n)	(((n) - 1) & (AO_ADC_RING - 1))
 
@@ -349,9 +349,15 @@ ao_cmd_init(void);
  * ao_dma.c
  */
 
-/* Allocate a DMA channel. the 'done' parameter will be set to 1
- * when the dma is finished and will be used to wakeup any waiters
+/* Allocate a DMA channel. the 'done' parameter will be set
+ * when the dma is finished or aborted and will be used to
+ * wakeup any waiters
  */
+
+#define AO_DMA_DONE	1
+#define AO_DMA_ABORTED	2
+#define AO_DMA_TIMEOUT	4
+
 uint8_t
 ao_dma_alloc(__xdata uint8_t * done);
 
@@ -374,7 +380,7 @@ ao_dma_trigger(uint8_t id);
 
 /* Abort a running DMA transfer */
 void
-ao_dma_abort(uint8_t id);
+ao_dma_abort(uint8_t id, uint8_t reason);
 
 /* DMA interrupt routine */
 void
@@ -796,6 +802,19 @@ ao_telemetry_init(void);
  * ao_radio.c
  */
 
+extern __xdata uint8_t	ao_radio_dma;
+extern __xdata uint8_t ao_radio_dma_done;
+extern __xdata uint8_t ao_radio_mutex;
+
+void
+ao_radio_set_telemetry(void);
+
+void
+ao_radio_set_packet(void);
+
+void
+ao_radio_set_rdf(void);
+
 void
 ao_radio_send(__xdata struct ao_telemetry *telemetry) __reentrant;
 
@@ -805,14 +824,20 @@ struct ao_radio_recv {
 	uint8_t			status;
 };
 
-void
+uint8_t
 ao_radio_recv(__xdata struct ao_radio_recv *recv) __reentrant;
 
 void
 ao_radio_rdf(int ms);
 
 void
+ao_radio_abort(uint8_t reason);
+
+void
 ao_radio_rdf_abort(void);
+
+void
+ao_radio_idle(void);
 
 void
 ao_radio_init(void);
@@ -943,35 +968,21 @@ struct ao_fifo {
  * Packet-based command interface
  */
 
-#define AO_PACKET_MAX	32
-#define AO_PACKET_WIN	256
-
-#define AO_PACKET_FIN	(1 << 0)
-#define AO_PACKET_SYN	(1 << 1)
-#define AO_PACKET_RST	(1 << 2)
-#define AO_PACKET_ACK	(1 << 3)
+#define AO_PACKET_MAX	8
 
 struct ao_packet {
 	uint8_t		addr;
-	uint8_t		flags;
-	uint16_t	seq;
-	uint16_t	ack;
-	uint16_t	window;
 	uint8_t		len;
+	uint8_t		seq;
+	uint8_t		ack;
 	uint8_t		d[AO_PACKET_MAX];
 };
 
-uint8_t
-ao_packet_connect(uint8_t dest);
-
-uint8_t
-ao_packet_accept(void);
-
-int
-ao_packet_send(uint8_t *data, int len);
-
-int
-ao_packet_recv(uint8_t *data, int len);
+struct ao_packet_recv {
+	struct ao_packet	packet;
+	int8_t			rssi;
+	uint8_t			status;
+};
 
 void
 ao_packet_init(void);

@@ -46,6 +46,12 @@ static const char ao_gps_config[] = {
 	1,				/* zda interval */
 	0,				/* attributes (0 = update to sram, 1 = update flash too) */
 	0x09, 0x0d, 0x0a,
+
+	0xa0, 0xa1, 0x00, 0x03,		/* length: 3 bytes */
+	0x3c,				/* configure navigation mode */
+	0x00,				/* 0 = car, 1 = pedestrian */
+	0x00,				/* 0 = update to sram, 1 = update sram + flash */
+	0x3c, 0x0d, 0x0a,
 };
 
 static void
