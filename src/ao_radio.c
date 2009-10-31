@@ -281,6 +281,24 @@ static __code uint8_t packet_setup[] = {
 				 RF_PKTCTRL0_LENGTH_CONFIG_FIXED),
 };
 
+__xdata uint8_t	ao_radio_dma;
+__xdata uint8_t ao_radio_dma_done;
+__xdata uint8_t ao_radio_done;
+__xdata uint8_t ao_radio_mutex;
+
+void
+ao_radio_general_isr(void) interrupt 16
+{
+	S1CON &= ~0x03;
+	if (RFIF & RFIF_IM_TIMEOUT) {
+		ao_dma_abort(ao_radio_dma);
+		RFIF &= ~ RFIF_IM_TIMEOUT;
+	} else if (RFIF & RFIF_IM_DONE) {
+		ao_radio_done = 1;
+		ao_wakeup(&ao_radio_done);
+		RFIF &= ~RFIF_IM_DONE;
+	}
+}
 
 void
 ao_radio_set_telemetry(void)
@@ -306,10 +324,6 @@ ao_radio_set_rdf(void)
 		RF[rdf_setup[i]] = rdf_setup[i+1];
 }
 
-__xdata uint8_t	ao_radio_dma;
-__xdata uint8_t ao_radio_dma_done;
-__xdata uint8_t ao_radio_mutex;
-
 void
 ao_radio_idle(void)
 {
@@ -328,6 +342,7 @@ ao_radio_send(__xdata struct ao_telemetry *telemetry) __reentrant
 	ao_config_get();
 	ao_mutex_get(&ao_radio_mutex);
 	ao_radio_idle();
+	ao_radio_done = 0;
 	RF_CHANNR = ao_config.radio_channel;
 	ao_dma_set_transfer(ao_radio_dma,
 			    telemetry,
@@ -341,8 +356,8 @@ ao_radio_send(__xdata struct ao_telemetry *telemetry) __reentrant
 			    DMA_CFG1_PRIORITY_HIGH);
 	ao_dma_start(ao_radio_dma);
 	RFST = RFST_STX;
-	__critical while (!ao_radio_dma_done)
-		ao_sleep(&ao_radio_dma_done);
+	__critical while (!ao_radio_done)
+		ao_sleep(&ao_radio_done);
 	ao_mutex_put(&ao_radio_mutex);
 }
 
@@ -462,5 +477,8 @@ ao_radio_init(void)
 	ao_radio_set_telemetry();
 	ao_radio_dma_done = 1;
 	ao_radio_dma = ao_dma_alloc(&ao_radio_dma_done);
+	RFIF = 0;
+	RFIM = RFIM_IM_TIMEOUT|RFIM_IM_DONE;
+	IEN2 |= IEN2_RFIE;
 	ao_cmd_register(&ao_radio_cmds[0]);
 }
