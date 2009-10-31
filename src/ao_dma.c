@@ -102,12 +102,12 @@ ao_dma_trigger(uint8_t id)
 }
 
 void
-ao_dma_abort(uint8_t id, uint8_t reason)
+ao_dma_abort(uint8_t id)
 {
 	uint8_t	mask = (1 << id);
 	DMAARM = 0x80 | mask;
 	DMAIRQ &= ~mask;
-	*(ao_dma_done[id]) |= reason;
+	*(ao_dma_done[id]) |= AO_DMA_ABORTED;
 	ao_wakeup(ao_dma_done[id]);
 }
 

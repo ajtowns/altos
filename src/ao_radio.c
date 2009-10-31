@@ -435,9 +435,9 @@ ao_radio_rdf(int ms)
 }
 
 void
-ao_radio_abort(uint8_t reason)
+ao_radio_abort(void)
 {
-	ao_dma_abort(ao_radio_dma, reason);
+	ao_dma_abort(ao_radio_dma);
 	ao_radio_idle();
 }
 

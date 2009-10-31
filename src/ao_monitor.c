@@ -75,7 +75,7 @@ ao_set_monitor(uint8_t monitoring)
 {
 	ao_monitoring = monitoring;
 	ao_wakeup(&ao_monitoring);
-	ao_radio_abort(AO_DMA_ABORTED);
+	ao_radio_abort();
 }
 
 static void

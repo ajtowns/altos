@@ -365,7 +365,6 @@ ao_cmd_init(void);
 
 #define AO_DMA_DONE	1
 #define AO_DMA_ABORTED	2
-#define AO_DMA_TIMEOUT	4
 
 uint8_t
 ao_dma_alloc(__xdata uint8_t * done);
@@ -389,7 +388,7 @@ ao_dma_trigger(uint8_t id);
 
 /* Abort a running DMA transfer */
 void
-ao_dma_abort(uint8_t id, uint8_t reason);
+ao_dma_abort(uint8_t id);
 
 /* DMA interrupt routine */
 void
@@ -844,7 +843,7 @@ void
 ao_radio_rdf(int ms);
 
 void
-ao_radio_abort(uint8_t reason);
+ao_radio_abort(void);
 
 void
 ao_radio_rdf_abort(void);

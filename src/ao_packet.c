@@ -288,7 +288,7 @@ ao_packet_forward(void) __reentrant
 			ao_packet_flush();
 	}
 	ao_packet_enable = 0;
-	ao_radio_abort(AO_DMA_ABORTED);
+	ao_radio_abort();
 	while (ao_packet_echo_task.wchan || ao_packet_task.wchan) {
 		ao_wake_task(&ao_packet_echo_task);
 		ao_wake_task(&ao_packet_task);
