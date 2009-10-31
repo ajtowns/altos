@@ -34,6 +34,7 @@ ao_packet_send(void)
 	ao_config_get();
 	ao_mutex_get(&ao_radio_mutex);
 	ao_radio_idle();
+	ao_radio_done = 0;
 	RF_CHANNR = ao_config.radio_channel;
 	ao_dma_set_transfer(ao_radio_dma,
 			    &tx_packet,
@@ -47,8 +48,8 @@ ao_packet_send(void)
 			    DMA_CFG1_PRIORITY_HIGH);
 	ao_dma_start(ao_radio_dma);
 	RFST = RFST_STX;
-	__critical while (!ao_radio_dma_done)
-		ao_sleep(&ao_radio_dma_done);
+	__critical while (!ao_radio_done)
+		ao_sleep(&ao_radio_done);
 	ao_mutex_put(&ao_radio_mutex);
 }
 
