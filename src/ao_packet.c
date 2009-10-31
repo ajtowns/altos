@@ -31,8 +31,16 @@ static __xdata uint8_t ao_packet_master_sleeping;
 void
 ao_packet_send(void)
 {
+	ao_led_on(AO_LED_RED);
 	ao_config_get();
 	ao_mutex_get(&ao_radio_mutex);
+	if (tx_used && tx_packet.len == 0) {
+		memcpy(&tx_packet.d, tx_data, tx_used);
+		tx_packet.len = tx_used;
+		tx_packet.seq++;
+		tx_used = 0;
+		ao_wakeup(&tx_data);
+	}
 	ao_radio_idle();
 	ao_radio_done = 0;
 	RF_CHANNR = ao_config.radio_channel;
@@ -51,6 +59,7 @@ ao_packet_send(void)
 	__critical while (!ao_radio_done)
 		ao_sleep(&ao_radio_done);
 	ao_mutex_put(&ao_radio_mutex);
+	ao_led_off(AO_LED_RED);
 }
 
 uint8_t
@@ -58,6 +67,7 @@ ao_packet_recv(void)
 {
 	uint8_t	dma_done;
 
+	ao_led_on(AO_LED_GREEN);
 	ao_config_get();
 	ao_mutex_get(&ao_radio_mutex);
 	ao_radio_idle();
@@ -75,30 +85,28 @@ ao_packet_recv(void)
 	ao_dma_start(ao_radio_dma);
 	RFST = RFST_SRX;
 	__critical while (!ao_radio_dma_done)
-			   if (ao_sleep(&ao_radio_dma_done) != 0) {
-				   printf("recv timeout\n"); flush();
+			   if (ao_sleep(&ao_radio_dma_done) != 0)
 				   ao_radio_abort();
-			   }
 	dma_done = ao_radio_dma_done;
 	ao_mutex_put(&ao_radio_mutex);
+	ao_led_off(AO_LED_GREEN);
 
 	if (dma_done & AO_DMA_DONE) {
-		if (!(rx_packet.status & PKT_APPEND_STATUS_1_CRC_OK)) {
-			printf ("bad crc\n"); flush();
+		if (!(rx_packet.status & PKT_APPEND_STATUS_1_CRC_OK))
 			return AO_DMA_ABORTED;
-		}
 		if (rx_packet.packet.len == AO_PACKET_SYN) {
 			rx_seq = rx_packet.packet.seq;
 			tx_packet.seq = rx_packet.packet.ack;
 			tx_packet.ack = rx_seq;
 		} else if (rx_packet.packet.len) {
-			if (rx_packet.packet.seq == rx_seq + 1 && rx_used == rx_len)
-			{
+			if (rx_packet.packet.seq == (uint8_t) (rx_seq + (uint8_t) 1) && rx_used == rx_len) {
+#if 0
 				printf ("rx len %3d seq %3d ack %3d\n",
 					rx_packet.packet.len,
 					rx_packet.packet.seq,
 					rx_packet.packet.ack);
 				flush();
+#endif
 				memcpy(rx_data, rx_packet.packet.d, rx_packet.packet.len);
 				rx_used = 0;
 				rx_len = rx_packet.packet.len;
@@ -122,13 +130,8 @@ ao_packet_slave(void)
 	tx_packet.addr = ao_serial_number;
 	tx_packet.len = AO_PACKET_SYN;
 	while (ao_packet_enable) {
-		ao_led_on(AO_LED_GREEN);
 		ao_packet_recv();
-		ao_led_off(AO_LED_GREEN);
-		ao_led_on(AO_LED_RED);
-		ao_delay(AO_MS_TO_TICKS(100));
 		ao_packet_send();
-		ao_led_off(AO_LED_RED);
 	}
 	ao_exit();
 }
@@ -144,15 +147,13 @@ ao_packet_master(void)
 	tx_packet.addr = ao_serial_number;
 	tx_packet.len = AO_PACKET_SYN;
 	while (ao_packet_enable) {
-		ao_led_on(AO_LED_RED);
-		ao_delay(AO_MS_TO_TICKS(100));
 		ao_packet_send();
-		ao_led_off(AO_LED_RED);
-		ao_led_on(AO_LED_GREEN);
-		ao_alarm(AO_MS_TO_TICKS(1000));
+		ao_alarm(AO_MS_TO_TICKS(100));
 		status = ao_packet_recv();
-		ao_led_off(AO_LED_GREEN);
 		if (status & AO_DMA_DONE) {
+			/* if we can transmit data, do so */
+			if (tx_used && tx_packet.len == 0)
+				continue;
 			ao_packet_master_sleeping = 1;
 			ao_delay(AO_MS_TO_TICKS(1000));
 			ao_packet_master_sleeping = 0;
@@ -164,32 +165,20 @@ ao_packet_master(void)
 void
 ao_packet_flush(void)
 {
-	if (!tx_used)
-		return;
-
-	/* Wait for previous packet to be received
+	/* If there is data to send, and this is the master,
+	 * then poke the master to send all queued data
 	 */
-	while (tx_packet.len)
-		ao_sleep(&tx_packet);
-
-	/* Prepare next packet
-	 */
-	if (tx_used) {
-		memcpy(&tx_packet.d, tx_data, tx_used);
-		tx_packet.len = tx_used;
-		tx_packet.seq++;
-		tx_used = 0;
-
-		if (ao_packet_master_sleeping)
-			ao_wake_task(&ao_packet_task);
-	}
+	if (tx_used && ao_packet_master_sleeping)
+		ao_wake_task(&ao_packet_task);
 }
 
 void
 ao_packet_putchar(char c)
 {
-	while (tx_used == AO_PACKET_MAX && ao_packet_enable)
+	while (tx_used == AO_PACKET_MAX && ao_packet_enable) {
 		ao_packet_flush();
+		ao_sleep(&tx_data);
+	}
 
 	if (ao_packet_enable)
 		tx_data[tx_used++] = c;
@@ -199,7 +188,9 @@ char
 ao_packet_getchar(void) __critical
 {
 	while (rx_used == rx_len && ao_packet_enable) {
-		flush();
+		/* poke the master to get more data */
+		if (ao_packet_master_sleeping)
+			ao_wake_task(&ao_packet_task);
 		ao_sleep(&rx_data);
 	}
 
@@ -217,7 +208,7 @@ ao_packet_echo(void) __reentrant
 		c = ao_packet_getchar();
 		if (ao_packet_enable) {
 			putchar(c);
-			if (c == (uint8_t) '\n')
+			if (c == (uint8_t) '\n' || c == (uint8_t) '\r')
 				flush();
 		}
 	}
