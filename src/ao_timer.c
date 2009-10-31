@@ -24,13 +24,13 @@ uint16_t ao_time(void) __critical
 	return ao_tick_count;
 }
 
+static __xdata uint8_t ao_forever;
+
 void
 ao_delay(uint16_t ticks)
 {
-	uint16_t until = ao_time() + ticks;
-
-	while ((int16_t) (until - ao_time()) > 0)
-		ao_sleep(DATA_TO_XDATA(&ao_tick_count));
+	ao_alarm(ticks);
+	ao_sleep(&ao_forever);
 }
 
 #define T1_CLOCK_DIVISOR	8	/* 24e6/8 = 3e6 */
