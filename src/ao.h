@@ -40,6 +40,7 @@
 /* An AltOS task */
 struct ao_task {
 	__xdata void *wchan;		/* current wait channel (NULL if running) */
+	uint16_t alarm;			/* abort ao_sleep time */
 	uint8_t	stack_count;		/* amount of saved stack */
 	uint8_t task_id;		/* index in the task array */
 	__code char *name;		/* task name */
@@ -55,8 +56,12 @@ extern __xdata struct ao_task *__data ao_cur_task;
  ao_task.c
  */
 
-/* Suspend the current task until wchan is awoken */
-void
+/* Suspend the current task until wchan is awoken.
+ * returns:
+ *  0 on normal wake
+ *  1 on alarm
+ */
+uint8_t
 ao_sleep(__xdata void *wchan);
 
 /* Wake all tasks sleeping on wchan */
@@ -66,6 +71,10 @@ ao_wakeup(__xdata void *wchan);
 /* Wake up a specific task */
 void
 ao_wake_task(__xdata struct ao_task *task);
+
+/* set an alarm to go off in 'delay' ticks */
+void
+ao_alarm(uint16_t delay);
 
 /* Yield the processor to another task */
 void

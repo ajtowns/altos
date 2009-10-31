@@ -129,6 +129,13 @@ ao_yield(void) _naked
 				break;
 			}
 
+			/* Check if the alarm is set for a time which has passed */
+			if (ao_cur_task->alarm &&
+			    (int16_t) (ao_time() - ao_cur_task->alarm) >= 0) {
+				ao_cur_task_index = ao_next_task_index;
+				break;
+			}
+
 			/* Enter lower power mode when there isn't anything to do */
 			if (ao_next_task_index == ao_cur_task_index)
 				PCON = PCON_IDLE;
@@ -181,13 +188,20 @@ ao_yield(void) _naked
 	_endasm;
 }
 
-void
+uint8_t
 ao_sleep(__xdata void *wchan)
 {
 	__critical {
 		ao_cur_task->wchan = wchan;
 	}
 	ao_yield();
+	if (ao_cur_task->wchan) {
+		ao_cur_task->wchan = NULL;
+		ao_cur_task->alarm = 0;
+		return 1;
+	}
+	ao_cur_task->alarm = 0;
+	return 0;
 }
 
 void
@@ -198,6 +212,13 @@ ao_wakeup(__xdata void *wchan)
 	for (i = 0; i < ao_num_tasks; i++)
 		if (ao_tasks[i]->wchan == wchan)
 			ao_tasks[i]->wchan = NULL;
+}
+
+void
+ao_alarm(uint16_t delay)
+{
+	if (!(ao_cur_task->alarm = ao_time() + delay))
+		ao_cur_task->alarm = 1;
 }
 
 void
