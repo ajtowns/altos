@@ -83,14 +83,22 @@ ao_packet_recv(void)
 	ao_mutex_put(&ao_radio_mutex);
 
 	if (dma_done & AO_DMA_DONE) {
-		printf ("rssi %d status %x\n", rx_packet.rssi, rx_packet.status); flush();
 		if (!(rx_packet.status & PKT_APPEND_STATUS_1_CRC_OK)) {
 			printf ("bad crc\n"); flush();
-//			return AO_DMA_ABORTED;
+			return AO_DMA_ABORTED;
 		}
-		if (rx_packet.packet.len) {
+		if (rx_packet.packet.len == AO_PACKET_SYN) {
+			rx_seq = rx_packet.packet.seq;
+			tx_packet.seq = rx_packet.packet.ack;
+			tx_packet.ack = rx_seq;
+		} else if (rx_packet.packet.len) {
 			if (rx_packet.packet.seq == rx_seq + 1 && rx_used == rx_len)
 			{
+				printf ("rx len %3d seq %3d ack %3d\n",
+					rx_packet.packet.len,
+					rx_packet.packet.seq,
+					rx_packet.packet.ack);
+				flush();
 				memcpy(rx_data, rx_packet.packet.d, rx_packet.packet.len);
 				rx_used = 0;
 				rx_len = rx_packet.packet.len;
@@ -110,14 +118,17 @@ ao_packet_recv(void)
 void
 ao_packet_slave(void)
 {
-	tx_packet.addr = ao_serial_number;
 	ao_radio_set_packet();
+	tx_packet.addr = ao_serial_number;
+	tx_packet.len = AO_PACKET_SYN;
 	while (ao_packet_enable) {
+		ao_led_on(AO_LED_GREEN);
 		ao_packet_recv();
-		ao_led_toggle(AO_LED_GREEN);
+		ao_led_off(AO_LED_GREEN);
+		ao_led_on(AO_LED_RED);
 		ao_delay(AO_MS_TO_TICKS(100));
 		ao_packet_send();
-		ao_led_toggle(AO_LED_RED);
+		ao_led_off(AO_LED_RED);
 	}
 	ao_exit();
 }

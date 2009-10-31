@@ -981,6 +981,7 @@ struct ao_fifo {
  */
 
 #define AO_PACKET_MAX	8
+#define AO_PACKET_SYN		0xff
 
 struct ao_packet {
 	uint8_t		addr;
