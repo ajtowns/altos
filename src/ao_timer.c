@@ -46,7 +46,6 @@ void ao_timer_isr(void) interrupt 9
 		ao_adc_count = 0;
 		ao_adc_poll();
 	}
-	ao_wakeup(DATA_TO_XDATA(&ao_tick_count));
 }
 
 void
