@@ -882,6 +882,16 @@ sfr at 0xE9 RFIF;
 #define RFIF_IM_CCA	(1 << 1)
 #define RFIF_IM_SFD	(1 << 0)
 
+sfr at 0x91 RFIM;
+#define RFIM_IM_TXUNF	(1 << 7)
+#define RFIM_IM_RXOVF	(1 << 6)
+#define RFIM_IM_TIMEOUT	(1 << 5)
+#define RFIM_IM_DONE	(1 << 4)
+#define RFIM_IM_CS	(1 << 3)
+#define RFIM_IM_PQT	(1 << 2)
+#define RFIM_IM_CCA	(1 << 1)
+#define RFIM_IM_SFD	(1 << 0)
+
 sfr at 0xE1 RFST;
 
 #define RFST_SFSTXON	0x00
