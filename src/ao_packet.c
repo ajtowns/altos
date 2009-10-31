@@ -24,59 +24,9 @@ static __xdata char rx_data[AO_PACKET_MAX];
 static __pdata uint8_t rx_len, rx_used, tx_used;
 static __pdata uint8_t rx_seq;
 
-static __xdata uint16_t ao_packet_timer_delay;
-static __xdata uint8_t ao_packet_timer_cancelled;
-
 static __xdata struct ao_task	ao_packet_task;
-static __xdata struct ao_task	ao_packet_timer_task;
 static __xdata uint8_t ao_packet_enable;
 static __xdata uint8_t ao_packet_master_sleeping;
-
-void
-ao_packet_timer(void) __reentrant
-{
-	uint16_t	delay;
-
-	while (ao_packet_enable) {
-
-		/* wait until the timer task is needed
-		 */
-		while (!ao_packet_timer_delay && ao_packet_enable)
-			ao_sleep(&ao_packet_timer_delay);
-
-		delay = ao_packet_timer_delay;
-		ao_packet_timer_delay = 0;
-
-		/* pause waiting for either a timeout or
-		 * a timer cancel
-		 */
-		ao_delay(delay);
-
-		/* if not canceled, abort the receive
-		 */
-		if (!ao_packet_timer_cancelled) {
-			printf ("packet timeout\n"); flush();
-			ao_radio_abort(AO_DMA_TIMEOUT);
-		}
-	}
-	ao_exit();
-}
-
-void
-ao_packet_timer_set(uint16_t delay)
-{
-	ao_packet_timer_delay = delay;
-	ao_packet_timer_cancelled = 0;
-	ao_wakeup(&ao_packet_timer_delay);
-}
-
-void
-ao_packet_timer_cancel(void)
-{
-	ao_packet_timer_cancelled = 1;
-	ao_packet_timer_delay = 0;
-	ao_wake_task(&ao_packet_timer_task);
-}
 
 void
 ao_packet_send(void)
@@ -124,7 +74,10 @@ ao_packet_recv(void)
 	ao_dma_start(ao_radio_dma);
 	RFST = RFST_SRX;
 	__critical while (!ao_radio_dma_done)
-		ao_sleep(&ao_radio_dma_done);
+			   if (ao_sleep(&ao_radio_dma_done) != 0) {
+				   printf("recv timeout\n"); flush();
+				   ao_radio_abort();
+			   }
 	dma_done = ao_radio_dma_done;
 	ao_mutex_put(&ao_radio_mutex);
 
@@ -174,19 +127,22 @@ void
 ao_packet_master(void)
 {
 	uint8_t	status;
-	tx_packet.addr = ao_serial_number;
+
 	ao_radio_set_packet();
+	tx_packet.addr = ao_serial_number;
+	tx_packet.len = AO_PACKET_SYN;
 	while (ao_packet_enable) {
+		ao_led_on(AO_LED_RED);
 		ao_delay(AO_MS_TO_TICKS(100));
 		ao_packet_send();
-		ao_led_toggle(AO_LED_RED);
-		ao_packet_timer_set(AO_MS_TO_TICKS(1000));
+		ao_led_off(AO_LED_RED);
+		ao_led_on(AO_LED_GREEN);
+		ao_alarm(AO_MS_TO_TICKS(1000));
 		status = ao_packet_recv();
-		ao_packet_timer_cancel();
+		ao_led_off(AO_LED_GREEN);
 		if (status & AO_DMA_DONE) {
-			ao_led_toggle(AO_LED_GREEN);
 			ao_packet_master_sleeping = 1;
-			ao_sleep(AO_MS_TO_TICKS(1000));
+			ao_delay(AO_MS_TO_TICKS(1000));
 			ao_packet_master_sleeping = 0;
 		}
 	}
@@ -260,25 +216,8 @@ ao_packet_forward(void) __reentrant
 	ao_packet_enable = 1;
 	ao_cmd_white();
 
-	ao_radio_set_packet();
-	if (ao_cmd_lex_c == 'm') {
-		while ((c = getchar()) != '~')
-			ao_packet_send();
-	} else {
-		for (;;) {
-			ao_packet_recv();
-			ao_led_toggle(AO_LED_GREEN);
-			if (rx_packet.packet.d[0] == (uint8_t) '@')
-				break;
-		}
-	}
-	ao_packet_enable = 0;
-	return;
-#if 0
-	if (ao_cmd_lex_c == 'm') {
-		ao_add_task(&ao_packet_timer_task, ao_packet_timer, "timeout");
+	if (ao_cmd_lex_c == 'm')
 		ao_add_task(&ao_packet_task, ao_packet_master, "master");
-	}
 	else
 		ao_add_task(&ao_packet_task, ao_packet_slave, "slave");
 	ao_add_task(&ao_packet_echo_task, ao_packet_echo, "echo");
