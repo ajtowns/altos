@@ -430,8 +430,28 @@ void
 ao_radio_rdf_abort(void)
 {
 	if (ao_radio_rdf_running)
-		ao_radio_abort(AO_DMA_ABORTED);
+		ao_radio_abort();
 }
+
+/* Output carrier */
+void
+ao_radio_test(void)
+{
+	ao_config_get();
+	ao_mutex_get(&ao_radio_mutex);
+	ao_radio_idle();
+	printf ("Hit a character to stop..."); flush();
+	RFST = RFST_STX;
+	getchar();
+	ao_radio_idle();
+	ao_mutex_put(&ao_radio_mutex);
+	putchar('\n');
+}
+
+__code struct ao_cmds ao_radio_cmds[] = {
+	{ 'C',	ao_radio_test,	"C                                  Radio carrier test" },
+	{ 0,	ao_radio_test,	NULL },
+};
 
 void
 ao_radio_init(void)
@@ -442,4 +462,5 @@ ao_radio_init(void)
 	ao_radio_set_telemetry();
 	ao_radio_dma_done = 1;
 	ao_radio_dma = ao_dma_alloc(&ao_radio_dma_done);
+	ao_cmd_register(&ao_radio_cmds[0]);
 }
