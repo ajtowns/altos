@@ -198,8 +198,10 @@ ao_packet_putchar(char c)
 char
 ao_packet_getchar(void) __critical
 {
-	while (rx_used == rx_len && ao_packet_enable)
+	while (rx_used == rx_len && ao_packet_enable) {
+		flush();
 		ao_sleep(&rx_data);
+	}
 
 	if (!ao_packet_enable)
 		return 0;
@@ -213,8 +215,11 @@ ao_packet_echo(void) __reentrant
 	uint8_t	c;
 	while (ao_packet_enable) {
 		c = ao_packet_getchar();
-		if (ao_packet_enable)
+		if (ao_packet_enable) {
 			putchar(c);
+			if (c == (uint8_t) '\n')
+				flush();
+		}
 	}
 	ao_exit();
 }
@@ -233,18 +238,14 @@ ao_packet_forward(void) __reentrant
 	else
 		ao_add_task(&ao_packet_task, ao_packet_slave, "slave");
 	ao_add_task(&ao_packet_echo_task, ao_packet_echo, "echo");
-	while ((c = getchar()) != '~') {
+	while ((c = getchar()) != '~')
 		ao_packet_putchar(c);
-		if (c == '\n')
-			ao_packet_flush();
-	}
 	ao_packet_enable = 0;
 	ao_radio_abort();
 	while (ao_packet_echo_task.wchan || ao_packet_task.wchan) {
 		ao_wake_task(&ao_packet_echo_task);
 		ao_wake_task(&ao_packet_task);
 	}
-#endif
 }
 
 __code struct ao_cmds ao_packet_cmds[] = {
