@@ -228,7 +228,7 @@ ao_wake_task(__xdata struct ao_task *task)
 }
 
 void
-ao_exit(void)
+ao_exit(void) __critical
 {
 	uint8_t	i;
 	ao_num_tasks--;
