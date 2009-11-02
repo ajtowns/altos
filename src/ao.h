@@ -106,6 +106,7 @@ ao_start_scheduler(void);
 #define AO_PANIC_EE		4	/* Mis-using eeprom API */
 #define AO_PANIC_LOG		5	/* Failing to read/write log data */
 #define AO_PANIC_CMD		6	/* Too many command sets registered */
+#define AO_PANIC_STDIO		7	/* Too many stdio handlers registered */
 
 /* Stop the operating system, beeping and blinking the reason */
 void
@@ -873,8 +874,23 @@ ao_monitor_init(uint8_t led, uint8_t monitoring) __reentrant;
  * ao_stdio.c
  */
 
+#define AO_READ_AGAIN	((char) -1)
+
+struct ao_stdio {
+	char	(*pollchar)(void);
+	void	(*putchar)(char c) __reentrant;
+	void	(*flush)(void);
+};
+
 void
 flush(void);
+
+extern __xdata uint8_t ao_stdin_ready;
+
+void
+ao_add_stdio(char (*pollchar)(void),
+	     void (*putchar)(char) __reentrant,
+	     void (*flush)(void));
 
 /*
  * ao_ignite.c
@@ -997,7 +1013,42 @@ struct ao_packet_recv {
 	uint8_t			status;
 };
 
+extern __xdata struct ao_packet_recv ao_rx_packet;
+extern __xdata struct ao_packet ao_tx_packet;
+extern __xdata struct ao_task	ao_packet_task;
+extern __xdata uint8_t ao_packet_enable;
+extern __xdata uint8_t ao_packet_master_sleeping;
+extern __pdata uint8_t ao_packet_rx_len, ao_packet_rx_used, ao_packet_tx_used;
+
 void
-ao_packet_init(void);
+ao_packet_send(void);
+
+uint8_t
+ao_packet_recv(void);
+
+void
+ao_packet_flush(void);
+
+void
+ao_packet_putchar(char c) __reentrant;
+
+char
+ao_packet_pollchar(void) __critical;
+
+/* ao_packet_master.c */
+
+void
+ao_packet_master_init(void);
+
+/* ao_packet_slave.c */
+
+void
+ao_packet_slave_start(void);
+
+void
+ao_packet_slave_stop(void);
+
+void
+ao_packet_slave_init(void);
 
 #endif /* _AO_H_ */

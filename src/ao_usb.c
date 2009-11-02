@@ -53,7 +53,7 @@ ao_usb_isr(void) interrupt 6
 		ao_wakeup(&ao_usb_in_bytes);
 
 	if (USBOIF & (1 << AO_USB_OUT_EP))
-		ao_wakeup(&ao_usb_out_bytes);
+		ao_wakeup(&ao_stdin_ready);
 
 	if (USBCIF & USBCIF_RSTIF)
 		ao_usb_set_interrupts();
@@ -360,7 +360,7 @@ ao_usb_flush(void) __critical
 }
 
 void
-ao_usb_putchar(char c) __critical
+ao_usb_putchar(char c) __critical __reentrant
 {
 	if (!ao_usb_running)
 		return;
@@ -374,16 +374,13 @@ ao_usb_putchar(char c) __critical
 }
 
 char
-ao_usb_getchar(void) __critical
+ao_usb_pollchar(void) __critical
 {
-	__xdata char	c;
+	char c;
 	while (ao_usb_out_bytes == 0) {
-		for (;;) {
-			USBINDEX = AO_USB_OUT_EP;
-			if ((USBCSOL & USBCSOL_OUTPKT_RDY) != 0)
-				break;
-			ao_sleep(&ao_usb_out_bytes);
-		}
+		USBINDEX = AO_USB_OUT_EP;
+		if ((USBCSOL & USBCSOL_OUTPKT_RDY) == 0)
+			return AO_READ_AGAIN;
 		ao_usb_out_bytes = (USBCNTH << 8) | USBCNTL;
 	}
 	--ao_usb_out_bytes;
@@ -392,6 +389,16 @@ ao_usb_getchar(void) __critical
 		USBINDEX = AO_USB_OUT_EP;
 		USBCSOL &= ~USBCSOL_OUTPKT_RDY;
 	}
+	return c;
+}
+
+char
+ao_usb_getchar(void)
+{
+	char	c;
+
+	while ((c = ao_usb_pollchar()) == AO_READ_AGAIN)
+		ao_sleep(&ao_stdin_ready);
 	return c;
 }
 
@@ -438,4 +445,5 @@ ao_usb_init(void)
 	ao_usb_enable();
 
 	ao_add_task(&ao_usb_task, ao_usb_ep0, "usb");
+	ao_add_stdio(ao_usb_pollchar, ao_usb_putchar, ao_usb_flush);
 }

@@ -17,16 +17,17 @@
 
 #include "ao.h"
 
-static __xdata struct ao_packet_recv rx_packet;
-static __xdata struct ao_packet tx_packet;
+__xdata struct ao_packet_recv ao_rx_packet;
+__xdata struct ao_packet ao_tx_packet;
+__pdata uint8_t ao_packet_rx_len, ao_packet_rx_used, ao_packet_tx_used;
+
 static __xdata char tx_data[AO_PACKET_MAX];
 static __xdata char rx_data[AO_PACKET_MAX];
-static __pdata uint8_t rx_len, rx_used, tx_used;
 static __pdata uint8_t rx_seq;
 
-static __xdata struct ao_task	ao_packet_task;
-static __xdata uint8_t ao_packet_enable;
-static __xdata uint8_t ao_packet_master_sleeping;
+__xdata struct ao_task	ao_packet_task;
+__xdata uint8_t ao_packet_enable;
+__xdata uint8_t ao_packet_master_sleeping;
 
 void
 ao_packet_send(void)
@@ -34,18 +35,18 @@ ao_packet_send(void)
 	ao_led_on(AO_LED_RED);
 	ao_config_get();
 	ao_mutex_get(&ao_radio_mutex);
-	if (tx_used && tx_packet.len == 0) {
-		memcpy(&tx_packet.d, tx_data, tx_used);
-		tx_packet.len = tx_used;
-		tx_packet.seq++;
-		tx_used = 0;
+	if (ao_packet_tx_used && ao_tx_packet.len == 0) {
+		memcpy(&ao_tx_packet.d, tx_data, ao_packet_tx_used);
+		ao_tx_packet.len = ao_packet_tx_used;
+		ao_tx_packet.seq++;
+		ao_packet_tx_used = 0;
 		ao_wakeup(&tx_data);
 	}
 	ao_radio_idle();
 	ao_radio_done = 0;
 	RF_CHANNR = ao_config.radio_channel;
 	ao_dma_set_transfer(ao_radio_dma,
-			    &tx_packet,
+			    &ao_tx_packet,
 			    &RFDXADDR,
 			    sizeof (struct ao_packet),
 			    DMA_CFG0_WORDSIZE_8 |
@@ -74,7 +75,7 @@ ao_packet_recv(void)
 	RF_CHANNR = ao_config.radio_channel;
 	ao_dma_set_transfer(ao_radio_dma,
 			    &RFDXADDR,
-			    &rx_packet,
+			    &ao_rx_packet,
 			    sizeof (struct ao_packet_recv),
 			    DMA_CFG0_WORDSIZE_8 |
 			    DMA_CFG0_TMODE_SINGLE |
@@ -92,74 +93,28 @@ ao_packet_recv(void)
 	ao_led_off(AO_LED_GREEN);
 
 	if (dma_done & AO_DMA_DONE) {
-		if (!(rx_packet.status & PKT_APPEND_STATUS_1_CRC_OK))
+		if (!(ao_rx_packet.status & PKT_APPEND_STATUS_1_CRC_OK))
 			return AO_DMA_ABORTED;
-		if (rx_packet.packet.len == AO_PACKET_SYN) {
-			rx_seq = rx_packet.packet.seq;
-			tx_packet.seq = rx_packet.packet.ack;
-			tx_packet.ack = rx_seq;
-		} else if (rx_packet.packet.len) {
-			if (rx_packet.packet.seq == (uint8_t) (rx_seq + (uint8_t) 1) && rx_used == rx_len) {
-#if 0
-				printf ("rx len %3d seq %3d ack %3d\n",
-					rx_packet.packet.len,
-					rx_packet.packet.seq,
-					rx_packet.packet.ack);
-				flush();
-#endif
-				memcpy(rx_data, rx_packet.packet.d, rx_packet.packet.len);
-				rx_used = 0;
-				rx_len = rx_packet.packet.len;
-				rx_seq = rx_packet.packet.seq;
-				tx_packet.ack = rx_seq;
-				ao_wakeup(&rx_data);
+		if (ao_rx_packet.packet.len == AO_PACKET_SYN) {
+			rx_seq = ao_rx_packet.packet.seq;
+			ao_tx_packet.seq = ao_rx_packet.packet.ack;
+			ao_tx_packet.ack = rx_seq;
+		} else if (ao_rx_packet.packet.len) {
+			if (ao_rx_packet.packet.seq == (uint8_t) (rx_seq + (uint8_t) 1) && ao_packet_rx_used == ao_packet_rx_len) {
+				memcpy(rx_data, ao_rx_packet.packet.d, ao_rx_packet.packet.len);
+				ao_packet_rx_used = 0;
+				ao_packet_rx_len = ao_rx_packet.packet.len;
+				rx_seq = ao_rx_packet.packet.seq;
+				ao_tx_packet.ack = rx_seq;
+				ao_wakeup(&ao_stdin_ready);
 			}
 		}
-		if (rx_packet.packet.ack == tx_packet.seq) {
-			tx_packet.len = 0;
-			ao_wakeup(&tx_packet);
+		if (ao_rx_packet.packet.ack == ao_tx_packet.seq) {
+			ao_tx_packet.len = 0;
+			ao_wakeup(&ao_tx_packet);
 		}
 	}
 	return dma_done;
-}
-
-void
-ao_packet_slave(void)
-{
-	ao_radio_set_packet();
-	tx_packet.addr = ao_serial_number;
-	tx_packet.len = AO_PACKET_SYN;
-	while (ao_packet_enable) {
-		ao_packet_recv();
-		ao_packet_send();
-	}
-	ao_exit();
-}
-
-/* Thread for the master side of the packet link */
-
-void
-ao_packet_master(void)
-{
-	uint8_t	status;
-
-	ao_radio_set_packet();
-	tx_packet.addr = ao_serial_number;
-	tx_packet.len = AO_PACKET_SYN;
-	while (ao_packet_enable) {
-		ao_packet_send();
-		ao_alarm(AO_MS_TO_TICKS(100));
-		status = ao_packet_recv();
-		if (status & AO_DMA_DONE) {
-			/* if we can transmit data, do so */
-			if (tx_used && tx_packet.len == 0)
-				continue;
-			ao_packet_master_sleeping = 1;
-			ao_delay(AO_MS_TO_TICKS(1000));
-			ao_packet_master_sleeping = 0;
-		}
-	}
-	ao_exit();
 }
 
 void
@@ -168,84 +123,30 @@ ao_packet_flush(void)
 	/* If there is data to send, and this is the master,
 	 * then poke the master to send all queued data
 	 */
-	if (tx_used && ao_packet_master_sleeping)
+	if (ao_packet_tx_used && ao_packet_master_sleeping)
 		ao_wake_task(&ao_packet_task);
 }
 
 void
-ao_packet_putchar(char c)
+ao_packet_putchar(char c) __reentrant
 {
-	while (tx_used == AO_PACKET_MAX && ao_packet_enable) {
+	while (ao_packet_tx_used == AO_PACKET_MAX && ao_packet_enable) {
 		ao_packet_flush();
 		ao_sleep(&tx_data);
 	}
 
 	if (ao_packet_enable)
-		tx_data[tx_used++] = c;
+		tx_data[ao_packet_tx_used++] = c;
 }
 
 char
-ao_packet_getchar(void) __critical
+ao_packet_pollchar(void) __critical
 {
-	while (rx_used == rx_len && ao_packet_enable) {
-		/* poke the master to get more data */
-		if (ao_packet_master_sleeping)
-			ao_wake_task(&ao_packet_task);
-		ao_sleep(&rx_data);
-	}
-
 	if (!ao_packet_enable)
-		return 0;
+		return AO_READ_AGAIN;
 
-	return rx_data[rx_used++];
-}
+	if (ao_packet_rx_used == ao_packet_rx_len)
+		return AO_READ_AGAIN;
 
-static void
-ao_packet_echo(void) __reentrant
-{
-	uint8_t	c;
-	while (ao_packet_enable) {
-		c = ao_packet_getchar();
-		if (ao_packet_enable) {
-			putchar(c);
-			if (c == (uint8_t) '\n' || c == (uint8_t) '\r')
-				flush();
-		}
-	}
-	ao_exit();
-}
-
-static __xdata struct ao_task	ao_packet_echo_task;
-
-static void
-ao_packet_forward(void) __reentrant
-{
-	char c;
-	ao_packet_enable = 1;
-	ao_cmd_white();
-
-	if (ao_cmd_lex_c == 'm')
-		ao_add_task(&ao_packet_task, ao_packet_master, "master");
-	else
-		ao_add_task(&ao_packet_task, ao_packet_slave, "slave");
-	ao_add_task(&ao_packet_echo_task, ao_packet_echo, "echo");
-	while ((c = getchar()) != '~')
-		ao_packet_putchar(c);
-	ao_packet_enable = 0;
-	ao_radio_abort();
-	while (ao_packet_echo_task.wchan || ao_packet_task.wchan) {
-		ao_wake_task(&ao_packet_echo_task);
-		ao_wake_task(&ao_packet_task);
-	}
-}
-
-__code struct ao_cmds ao_packet_cmds[] = {
-	{ 'p',	ao_packet_forward,	"p {m|s}                            Remote packet link. m=master, s=slave" },
-	{ 0,	ao_packet_forward,	NULL },
-};
-
-void
-ao_packet_init(void)
-{
-	ao_cmd_register(&ao_packet_cmds[0]);
+	return rx_data[ao_packet_rx_used++];
 }

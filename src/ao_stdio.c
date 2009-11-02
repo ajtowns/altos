@@ -21,22 +21,56 @@
  * Basic I/O functions to support SDCC stdio package
  */
 
+#define AO_NUM_STDIOS	2
+
+static __xdata struct ao_stdio stdios[AO_NUM_STDIOS];
+static __data int8_t ao_cur_stdio;
+static __data int8_t ao_num_stdios;
+
 void
 putchar(char c)
 {
 	if (c == '\n')
-		ao_usb_putchar('\r');
-	ao_usb_putchar(c);
+		(*stdios[ao_cur_stdio].putchar)('\r');
+	(*stdios[ao_cur_stdio].putchar)(c);
 }
 
 void
 flush(void)
 {
-	ao_usb_flush();
+	stdios[ao_cur_stdio].flush();
 }
 
+__xdata uint8_t ao_stdin_ready;
+
 char
-getchar(void)
+getchar(void) __reentrant
 {
-	return ao_usb_getchar();
+	char c;
+	int8_t stdio = ao_cur_stdio;
+
+	for (;;) {
+		c = stdios[stdio].pollchar();
+		if (c != AO_READ_AGAIN)
+			break;
+		if (++stdio == ao_num_stdios)
+			stdio = 0;
+		if (stdio == ao_cur_stdio)
+			ao_sleep(&ao_stdin_ready);
+	}
+	ao_cur_stdio = stdio;
+	return c;
+}
+
+void
+ao_add_stdio(char (*pollchar)(void),
+	     void (*putchar)(char),
+	     void (*flush)(void))
+{
+	if (ao_num_stdios == AO_NUM_STDIOS)
+		ao_panic(AO_PANIC_STDIO);
+	stdios[ao_num_stdios].pollchar = pollchar;
+	stdios[ao_num_stdios].putchar = putchar;
+	stdios[ao_num_stdios].flush = flush;
+	ao_num_stdios++;
 }

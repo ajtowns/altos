@@ -235,9 +235,9 @@ ao_flight(void)
 			} else {
 				ao_flight_state = ao_flight_idle;
 
-				/* Turn on the Green LED in idle mode
+				/* Turn on packet system in idle mode
 				 */
-				ao_led_on(AO_LED_GREEN);
+				ao_packet_slave_start();
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			/* signal successful initialization by turning off the LED */

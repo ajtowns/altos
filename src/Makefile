@@ -45,6 +45,7 @@ ALTOS_DRIVER_SRC = \
 TELE_COMMON_SRC = \
 	ao_gps_print.c \
 	ao_packet.c \
+	ao_packet_slave.c \
 	ao_state.c
 
 #
@@ -52,6 +53,7 @@ TELE_COMMON_SRC = \
 #
 TELE_RECEIVER_SRC =\
 	ao_monitor.c \
+	ao_packet_master.c \
 	ao_rssi.c
 
 #

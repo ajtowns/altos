@@ -18,30 +18,41 @@
 #include "ao.h"
 
 void
-main(void)
+ao_packet_slave(void)
 {
-	ao_clock_init();
+	ao_radio_set_packet();
+	ao_tx_packet.addr = ao_serial_number;
+	ao_tx_packet.len = AO_PACKET_SYN;
+	while (ao_packet_enable) {
+		ao_packet_recv();
+		ao_packet_send();
+	}
+	ao_exit();
+}
 
-	/* Turn on the red LED until the system is stable */
-	ao_led_init(AO_LED_RED|AO_LED_GREEN);
-	ao_led_on(AO_LED_RED);
+void
+ao_packet_slave_start(void)
+{
+	ao_packet_enable = 1;
+	ao_add_task(&ao_packet_task, ao_packet_slave, "slave");
+}
 
-	ao_timer_init();
-	ao_adc_init();
-	ao_beep_init();
-	ao_cmd_init();
-	ao_ee_init();
-	ao_flight_init();
-	ao_log_init();
-	ao_report_init();
-	ao_usb_init();
-	ao_serial_init();
-	ao_gps_init();
-	ao_gps_report_init();
-	ao_telemetry_init();
-	ao_radio_init();
-	ao_packet_slave_init();
-	ao_igniter_init();
-	ao_config_init();
-	ao_start_scheduler();
+void
+ao_packet_slave_stop(void)
+{
+	ao_packet_enable = 0;
+	ao_radio_abort();
+	while (ao_packet_task.wchan) {
+		ao_wake_task(&ao_packet_task);
+		ao_yield();
+	}
+	ao_radio_set_telemetry();
+}
+
+void
+ao_packet_slave_init(void)
+{
+	ao_add_stdio(ao_packet_pollchar,
+		     ao_packet_putchar,
+		     ao_packet_flush);
 }
