@@ -17,18 +17,18 @@ Copyright and License
 	with this program; if not, write to the Free Software Foundation, Inc.,
 	59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 
-Parameters:
+Tasking API:
 
- * Multi-tasking
- * Non-preemptive
- * Unix-style sleep/wakeup scheduling
- * Strict round-robin, no priorities
+	 * Multi-tasking
+	 * Non-preemptive
+	 * Unix-style sleep/wakeup scheduling
+	 * Strict round-robin, no priorities
 
-API:
+	uint8_t ao_sleep(void *wchan)
 
-	void ao_sleep(void *wchan)
-
-		Puts current task to sleep. Will wake up when wchan is signalled
+		Puts current task to sleep. Will wake up when wchan is
+		signalled (returning 0), or when an alarm has expired
+		(returning 1).
 	
 	void ao_wakeup(void *wchan)
 
@@ -52,3 +52,63 @@ API:
 
 		Any fatal error should call this function, which can
 		display the error code in some cryptic fashion.
+
+	void ao_wake_task(struct ao_task *task)
+
+		Wake the task as if the wchan it is waiting on had
+		been signalled.
+
+	void ao_alarm(uint16_t delay)
+
+		Queue an alarm to expire 'delay' ticks in the future.
+		The alarm will cause the task to wake from ao_sleep
+		and return 1. Alarms are cancelled if the task is
+		awoken by ao_wakeup or ao_wake_task.
+
+	void ao_exit(void)
+
+		Stop the current task and remove it from the list of
+		available tasks.
+
+Timer API
+
+	 * Regular timer ticks (at 100Hz, by default)
+	 * All time values are in ticks
+
+	 uint16_t ao_time(void)
+
+		Returns the curent tick count
+
+	void ao_delay(uint16_t delay)
+
+		Suspend task execution for 'delay' ticks.
+
+DMA API
+
+	 * Static DMA entry allocation
+
+	uint8_t ao_dma_alloc(uint8_t *done)
+
+		Allocates one of the 5 DMA units on the cc1111
+		processor. When this DMA unit is finished, it will
+		set *done to 1 and wakeup anyone waiting on that.
+
+	void ao_dma_set_transfer(uint8_t id, void *src, void *dst,
+				 uint16_t count, uint8_t cfg0, uint8_t cfg1)
+
+		Prepares the specified DMA unit for operation.
+
+	void ao_dma_start(uint8_t id)
+
+		Start DMA on the specified channel.
+
+	void ao_dma_trigger(uint8_t id)
+
+		Manually trigger a DMA channel
+
+	void ao_dma_abort(uint8_t id)
+
+		Abort a pending DMA transfer, signalling
+		that by setting the associated 'done' to
+		AO_DMA_ABORTED and waking any task
+		sleeping on that.
