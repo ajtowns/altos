@@ -1,3 +1,34 @@
+commit 7db9d86178ecfd58cc1c17ac9fcbdcfd2f13aaec
+Merge: b219801 f9de200
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 2 15:47:40 2009 -0800
+
+    Merge remote branch 'origin/master'
+
+commit b219801fb0e5eaff7778d21701da977104522da3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 2 15:45:58 2009 -0800
+
+    Add ao_usb_pollchar to ao.h
+
+commit b92333ff5e75bf96804359e9fbf464d3b518bd95
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 2 15:45:42 2009 -0800
+
+    Disable interrupts while removing tasks from task list
+
+commit d519564fd08d2defe1211de83ccbdfa3c7cfe702
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 2 15:45:07 2009 -0800
+
+    Add more docs to the README file
+
+commit f9de20000794c97a04d5bc2476191864bd2af371
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Nov 2 16:00:11 2009 -0700
+
+    update changelogs for Debian build
+
 commit 127c3125e5a4b86b8f304bc2889e313688c3d83e
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Mon Nov 2 15:59:12 2009 -0700
@@ -15,6 +46,134 @@ Author: Bdale Garbee <bdale@gag.com>
 Date:   Mon Nov 2 15:56:42 2009 -0700
 
     de-version the libreadline-dev build dependency
+
+commit 0b483233118673cbc2cda1be6acd379df82bc95a
+Merge: ca5d323 550482d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Nov 1 20:59:02 2009 -0800
+
+    Merge remote branch 'origin/master' into skytraq
+
+commit ca5d323a3d206050d95f52a61e92c69e1f54e7b5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Nov 1 20:57:03 2009 -0800
+
+    Enable packet-based communcation to command processor
+    
+    This splits the packet code into master/slave halves and hooks the
+    slave side up to the getchar/putchar/flush logic in ao_stdio.c
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6c1a9ce16b966a21c885bf3be31cbcb85368b3fa
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 31 01:30:22 2009 -0700
+
+    No need to wakeup &ao_tick_count now
+
+commit cd0d495d7ef276956e730196476daa70a4359918
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 31 01:20:26 2009 -0700
+
+    Poke master to speed up packet rate when things are busy
+
+commit 442b1ef18c8320d4e5329dc92bb5268a36058fc5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 31 01:19:41 2009 -0700
+
+    Use ao_alarm for ao_delay so it can be easily interrupted
+
+commit 4f7ed9ff484778381db647c27d2a34d0cadec41e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Oct 30 23:53:03 2009 -0700
+
+    Do more flushing in packet test code
+
+commit 6a7aa1810a90a9216160aec55ec4bd02b3240e1b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Oct 30 23:52:44 2009 -0700
+
+    Add RFIM register
+
+commit bf65e0b2a1299b49adc2d339ab9d9c7599aded9e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Oct 30 23:52:22 2009 -0700
+
+    Send SYN packet to set sequence numbers
+
+commit d46797e5c08d4955d516458185e2cfb51ee2d567
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Oct 30 23:51:38 2009 -0700
+
+    Use ao_radio_done to wait for TX to completely finish with packet
+
+commit c5ec6fcfa1bd17aad0f85d2fbe603f1d125836e6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Oct 30 23:50:54 2009 -0700
+
+    Switch packet code from timer thread to ao_alarm
+
+commit b428faf74ae145126ec1da972028fcfe0b4b2b18
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Oct 30 23:48:36 2009 -0700
+
+    Remove reason from ao_dma_abort
+
+commit 73db30b2f9128c37dc7fa075793a8862814ce044
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Oct 30 23:46:21 2009 -0700
+
+    Add ao_alarm
+
+commit 251b0971f049cbf2f8db79a32729d47441ce65f3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Oct 30 23:45:43 2009 -0700
+
+    Wait for TX to finish sending data
+
+commit 9b31f07fe3556896b3e997bba156e30ef5777a80
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Oct 30 23:43:52 2009 -0700
+
+    Add radio carrier command
+
+commit 7b14c3e609749f4fc00dbd660541375048535218
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Oct 30 16:39:15 2009 -0700
+
+    Initial packet bits. Just testing transmission
+
+commit 690fc263516d8beb6b24e86fbcd6588f42ce4e5c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Oct 21 17:18:49 2009 +0900
+
+    Add keyhole-markup generation for ao-postflight.
+    
+    This lets you see the flight path in googleearth.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b657aa209b9ea3b3efd33a940283b3ba60a169af
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Oct 16 12:59:53 2009 +0900
+
+    Add ao_wake_task and ao_exit
+    
+    ao_wake_task signals a specific task to wake up.
+    ao_exit terminates the current task.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d709a0688eff84e25e24d755850ef045d6b0c3de
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Oct 16 12:56:45 2009 +0900
+
+    Save some DSEG space by marking cmd functions __reentrant
+    
+    __reentrant causes the compiler to place args and locals on the stack
+    instead of in the data segment.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
 
 commit 550482d953c491a5ede9f2d243493afb13289898
 Author: Bdale Garbee <bdale@gag.com>
@@ -84,6 +243,13 @@ Date:   Mon Oct 12 15:57:08 2009 -0600
 
     Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
 
+commit 69b6f6bb465163cf767bb68e0e4a716d8ad2b39c
+Merge: bc77da6 2b76572
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 10 17:16:21 2009 -0700
+
+    Merge branch 'master' into skytraq
+
 commit 2b765728ce177e26899f6feef00bfdf6aeaf2678
 Author: Keith Packard <keithp@keithp.com>
 Date:   Sat Oct 10 17:15:38 2009 -0700
@@ -94,6 +260,13 @@ Date:   Sat Oct 10 17:15:38 2009 -0700
     fired. This allows TM to be used as a back-up altimeter.
     
     Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit bc77da68c9cb7d4cca483eadbbb7e9ccf71c0060
+Merge: 46cccf6 8f7ea3d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 10 15:09:48 2009 -0700
+
+    Merge branch 'master' into skytraq
 
 commit 8f7ea3de7037f40b0ff462b60d503c19431ae62b
 Author: Keith Packard <keithp@keithp.com>
@@ -124,6 +297,13 @@ Date:   Sat Oct 10 15:05:50 2009 -0600
 
     Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
 
+commit 46cccf62fb40514b5930fcb2ffdaf2735415c764
+Merge: fb8f3fe 5f26ad6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 10 14:00:03 2009 -0700
+
+    Merge branch 'master' into skytraq
+
 commit 5f26ad663b3f60dddc9d967206e365f45dc4acd1
 Author: Keith Packard <keithp@keithp.com>
 Date:   Sat Oct 10 13:58:16 2009 -0700
@@ -138,6 +318,13 @@ Date:   Sat Oct 10 13:58:16 2009 -0700
     
     Signed-off-by: Keith Packard <keithp@keithp.com>
 
+commit fb8f3fee6a1bab1e46d782e84405845cee2dadb4
+Merge: 22856cf b8fc397
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 10 13:41:00 2009 -0700
+
+    Merge branch 'master' into skytraq
+
 commit b8fc3975bd92037a0cf53b0ff2b0e05ce0ba668f
 Author: Keith Packard <keithp@keithp.com>
 Date:   Sat Oct 10 13:39:01 2009 -0700
@@ -151,6 +338,13 @@ Date:   Sat Oct 10 13:39:01 2009 -0700
     
     Signed-off-by: Keith Packard <keithp@keithp.com>
 
+commit 22856cf8bb0f5e1f37c9b774132d9ef6934526ed
+Merge: 2f76034 e29961f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 10 11:44:20 2009 -0700
+
+    Merge branch 'master' into skytraq
+
 commit e29961fdb2a48874c895829880eadbf13e094c0c
 Author: Keith Packard <keithp@keithp.com>
 Date:   Sat Oct 10 11:43:31 2009 -0700
@@ -159,6 +353,27 @@ Date:   Sat Oct 10 11:43:31 2009 -0700
     
     Sets radio channel when TD is connected, saves selected channel in
     gconf database.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2f7603490a169df8f18b565db4fa967832ffc9bd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Oct 9 22:48:29 2009 -0700
+
+    Build two versions of TM, one for SiRF, one for SkyTraq
+    
+    This creates two separate images, depending on which GPS unit is
+    connected.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 33b0b6f2f2e07de105619a7b463226d2813152ab
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Oct 9 22:02:40 2009 -0700
+
+    Add support for the SkyTraq GPS unit
+    
+    This is a build-time option selected by hacking the Makefile at present.
     
     Signed-off-by: Keith Packard <keithp@keithp.com>
 

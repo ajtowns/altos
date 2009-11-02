@@ -1,3 +1,31 @@
+altos (0.6) unstable; urgency=low
+
+  [ Keith Packard ]
+  * Add support for the SkyTraq GPS unit
+  * Build two versions of TM, one for SiRF, one for SkyTraq
+  * Save some DSEG space by marking cmd functions __reentrant
+  * Add ao_wake_task and ao_exit
+  * Add keyhole-markup generation for ao-postflight.
+  * Initial packet bits. Just testing transmission
+  * Add radio carrier command
+  * Wait for TX to finish sending data
+  * Add ao_alarm
+  * Remove reason from ao_dma_abort
+  * Switch packet code from timer thread to ao_alarm
+  * Use ao_radio_done to wait for TX to completely finish with packet
+  * Send SYN packet to set sequence numbers
+  * Add RFIM register
+  * Do more flushing in packet test code
+  * Use ao_alarm for ao_delay so it can be easily interrupted
+  * Poke master to speed up packet rate when things are busy
+  * No need to wakeup &ao_tick_count now
+  * Enable packet-based communcation to command processor
+  * Add more docs to the README file
+  * Disable interrupts while removing tasks from task list
+  * Add ao_usb_pollchar to ao.h
+
+ -- Bdale Garbee <bdale@gag.com>  Mon, 02 Nov 2009 16:53:45 -0700
+
 altos (0.5+90+g127c312) unstable; urgency=low
 
   * de-version the libreadline-dev build dependency
