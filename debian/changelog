@@ -1,3 +1,9 @@
+altos (0.5+88+g8203bfa) unstable; urgency=low
+
+  * de-version the libreadline-dev build dependency
+
+ -- Bdale Garbee <bdale@gag.com>  Mon, 02 Nov 2009 15:57:29 -0700
+
 altos (0.5+86+g2de548f) unstable; urgency=low
 
   * automate push of updated and tagged master branch during
