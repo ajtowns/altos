@@ -1,3 +1,27 @@
+commit 127c3125e5a4b86b8f304bc2889e313688c3d83e
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Nov 2 15:59:12 2009 -0700
+
+    update changelogs for Debian build
+
+commit 6b1e77569e2fed3c44606ed268421df5d3ed4020
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Nov 2 15:57:41 2009 -0700
+
+    update changelogs for Debian build
+
+commit 8203bfa58af32a1d07a44c1c151b200df0b65f15
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Nov 2 15:56:42 2009 -0700
+
+    de-version the libreadline-dev build dependency
+
+commit 550482d953c491a5ede9f2d243493afb13289898
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:58:46 2009 -0600
+
+    update changelogs for Debian build
+
 commit 2de548f45d0f50b558acc83f57e1e2fc1223ab92
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Mon Oct 12 16:58:19 2009 -0600
