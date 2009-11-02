@@ -291,6 +291,12 @@ ao_usb_putchar(char c);
 char
 ao_usb_getchar(void);
 
+/* Poll for a charcter on the USB input queue.
+ * returns AO_READ_AGAIN if none are available
+ */
+char
+ao_usb_pollchar(void);
+
 /* Flush the USB output queue */
 void
 ao_usb_flush(void);
