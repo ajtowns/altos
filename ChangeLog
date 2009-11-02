@@ -1,3 +1,567 @@
+commit 2de548f45d0f50b558acc83f57e1e2fc1223ab92
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:58:19 2009 -0600
+
+    oops, forgot to specify the repo to push to
+
+commit 68008ac11c2735ca53a1b474324df43f2f1d5cdd
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:57:33 2009 -0600
+
+    update changelogs for Debian build
+
+commit 513328ac5f7c25f9ee144ab6befbea60d69eed1a
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:56:50 2009 -0600
+
+    automate push of updated and tagged master branch during debian/rules prebuild
+
+commit 67bf7d388a6dd2dbf65575bf4f0423ad355b4f2f
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:54:44 2009 -0600
+
+    update changelogs for Debian build
+
+commit 23bc21a93ccb9f35917f283ac5df6ce0870df71a
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:54:16 2009 -0600
+
+    undue damage from partial build
+
+commit 7da56ad8576ef212ffb6cb573bdaf578453e3fe0
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:52:52 2009 -0600
+
+    add support for tagging git repository on each Debian package build
+
+commit 8d4aa4ee54f85f4951cdd7293d58aaa405cfcdc5
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:49:34 2009 -0600
+
+    update changelogs for Debian build
+
+commit 241a860fe856b1dfad6e792736313648300d5c24
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 16:48:43 2009 -0600
+
+    flush repetitive junk out of debian/changelog, and update the prebuild target
+    in debian/rules to put git commit details into the Debian changelog
+
+commit 6c4cdc927b43736b39be29d23ac3dc723f69e4d6
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 15:57:19 2009 -0600
+
+    update changelogs for Debian build
+
+commit c57bd7fd2f80e50b0b4c87fccb024ab07c93773d
+Merge: adf8764 2b76572
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Oct 12 15:57:08 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 2b765728ce177e26899f6feef00bfdf6aeaf2678
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 10 17:15:38 2009 -0700
+
+    Add apogee igniter delay.
+    
+    Provide for a delay after apogee before the drogue charge is
+    fired. This allows TM to be used as a back-up altimeter.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8f7ea3de7037f40b0ff462b60d503c19431ae62b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 10 15:08:14 2009 -0700
+
+    Report igniter continuity in pad/idle mode via beeper
+    
+    one short beep = drogue
+    two short beeps = main
+    three short beeps = both
+    one long warble = neither
+    
+    In idle mode, it does this just once. In pad mode, it keeps testing
+    and reporting.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit adf8764bc4591795ba4e618ccbd6393fc6ce6450
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sat Oct 10 15:11:23 2009 -0600
+
+    update changelogs for Debian build
+
+commit 541da6f3bbf81be93dfe3c01f7c8cfd757b28a2b
+Merge: dfc73cb 5f26ad6
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sat Oct 10 15:05:50 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 5f26ad663b3f60dddc9d967206e365f45dc4acd1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 10 13:58:16 2009 -0700
+
+    ao-dumplog: switch to 'e' command, display progress
+    
+    Using the 'e' command allows additional checking of the data,
+    including end-to-end checksums and detection of missing data.
+    
+    Progress is displayed by showing the recorded flight state along with
+    a '.' for each eeprom block read.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b8fc3975bd92037a0cf53b0ff2b0e05ce0ba668f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 10 13:39:01 2009 -0700
+
+    Send 0-length IN packet to flush USB after full packet
+    
+    USB bulk transfers are a sequence of maximum-sized packets followed by
+    a short packet, which signals the end of the transfer. When the last
+    packet of the transfer would be a full-sized packet, an additional
+    packet of zero length is sent to signal the transfer end.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e29961fdb2a48874c895829880eadbf13e094c0c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Oct 10 11:43:31 2009 -0700
+
+    Add channel menu to ao-view.
+    
+    Sets radio channel when TD is connected, saves selected channel in
+    gconf database.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a3771bfc5ce740f9d89193e9f8b1d7987aa57264
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Oct 6 20:06:00 2009 -0700
+
+    ao-view: fix snd_pcm_open return checking
+    
+    I don't know how this code was supposed to work before...
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ac4b8a73848f434999a532eab4665253c267c597
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Oct 6 20:05:36 2009 -0700
+
+    ao-postflight: dump out GPS signal data
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit dfc73cba1bee8b121e00e8cba45e7dfaaf79e9d8
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Sep 21 22:46:59 2009 -0700
+
+    update changelogs for Debian build
+
+commit 459ff3d377297f80ee2fba0df0a29ff6603467a1
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Sep 21 11:00:32 2009 -0700
+
+    update changelogs for Debian build
+
+commit 327c64305a59f48ababf19875874a550af6b9cef
+Merge: c8a81a4 74f0fb4
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Sep 21 11:00:22 2009 -0700
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 74f0fb4dd189abc1d5027c64fa5a648a6003285a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 20 13:33:59 2009 -0700
+
+    make bit-banging reset script actually reset
+
+commit 7ea371a09385e2a93199f78685e8cb86793ed104
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 20 13:33:26 2009 -0700
+
+    Add --gps option to ao-postflight
+
+commit bc7ccb339e538a0e6120db0e5c0d9130c565e0dd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 20 13:32:59 2009 -0700
+
+    ao_rawload: Don't reset after we finish loading
+
+commit c8a81a419f7f2331624f90bd6c107a86f6b04451
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 20 09:21:00 2009 -0600
+
+    update changelogs for Debian build
+
+commit df42ccaaf468cdc5d93cbd1c001f58df58419722
+Merge: 0b24e40 078e9cd
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 20 09:19:28 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 078e9cdbdb388b22c6151f76ff0660fc14b8ef55
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 10 11:53:06 2009 -0700
+
+    Plot raw accel data for the motor accel section.
+    
+    This shows a short sequence of accelerometer data without any filtering.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8b485d937ff148848ebda7f9ca6be29bb1de1f16
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 21:02:48 2009 -0700
+
+    Show acceleration only during boost phase.
+    
+    We're interested in motor performance; the rest of the flight is
+    boring, after all.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9e660315e1bd2bf71ab1c0574e895e1f7608a58f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 21:01:44 2009 -0700
+
+    Fix cc_period_make to not get stuck on samples with matching time
+    
+    When two samples have matching times, step to the second one;
+    otherwise, we'll get stuck forever.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 932f1539b38567e565fd484171c13539b1467308
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 20:26:17 2009 -0700
+
+    Color plots, integrate only flight portion of data.
+    
+    Telemetry files have piles of pad data which shouldn't be integrated
+    into the velocity data as it tends to generate huge values from the
+    noise of the sensor.
+    
+    Also make the data lines colored to keep them visually distinct from
+    the rest of the plot image.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9177f5f4e9d832558ddd9ab227c4511f6201e7e5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 18:11:24 2009 -0700
+
+    Update usage and man page for ao-postflight
+
+commit 0b24e4034f93010372a3d084668d10f0e4a2c2e1
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 18:01:20 2009 -0600
+
+    update changelogs for Debian build
+
+commit a5e94aa0677070a051714443cf7fd7e2b5e90269
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 17:59:47 2009 -0600
+
+    need a run-time dependency to pull in the cairo module
+
+commit 97acef95cc9843998963921459fdd71dd7eaa6b4
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 17:48:23 2009 -0600
+
+    update changelogs for Debian build
+
+commit 3f95a5abbf8ada70328ced45fbb2781ed1cb3d29
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 17:48:10 2009 -0600
+
+    more build deps for plotting lib
+
+commit 9d7e96e323d652de08b2f2a73e0eb3c321080185
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 17:47:56 2009 -0600
+
+    update changelogs for Debian build
+
+commit ae4e131b61244e06020b82919e31e05dd7dba88f
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 17:46:39 2009 -0600
+
+    update changelogs for Debian build
+
+commit 37e6c9a492a1d51373bf9333fb3172e0c377720f
+Merge: d256f82 2e6686b
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 17:46:10 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 2e6686b1e183c66188ea447b8a54e4c29402443b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 16:45:47 2009 -0700
+
+    Use plplotd instead of plplotd-gnome2
+
+commit d256f8204e9fce53ae4309562bb4c0cde1fae43e
+Merge: 0fc344d 32d3536
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 17:34:08 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 32d3536706324808df6cd02248a236302b831571
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 16:24:35 2009 -0700
+
+    Add plots to ao-postflight using the plplot library
+    
+    It's not perfect, but it generates .svg plot output.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0fc344dfc031a8b1eef7cc40efb1d5ba7782269d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 14:15:57 2009 -0600
+
+    update changelogs for Debian build
+
+commit 4b0de757874c0ecaf38e3dfd3beefc398150e3d5
+Merge: 773c4ff d0eac98
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 14:15:53 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit d0eac989b1ffc8ae30ba12da403eb4bf1ad42d6b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 13:15:10 2009 -0700
+
+    Don't look at NULL strings (summary_name)
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 73f4a57239f770aff603b961169c0e2cfe2c276b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 13:08:54 2009 -0700
+
+    Use pressure speed for drogue and beyond states. Fix differentiation time.
+    
+    Drogue state should always use pressure speeds.
+    
+    Differentiation code was using centi-seconds instead of seconds.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 773c4ffbc1d2e02eb02cfa543a077a408986da30
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 14:05:55 2009 -0600
+
+    update changelogs for Debian build
+
+commit 45ede4a4b203ef9da5bf05c49cb9c5a2e6382ec5
+Merge: 45e2938 e35e485
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 14:05:51 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit e35e485ffe6b26034788ab295121bc2693b7eec1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 13:04:31 2009 -0700
+
+    Initialize summary_name and detail_name so stuff appears on stdout.
+    
+    Uninitialized variables lead to mysterious results.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 45e2938121411d1fc9b3aec3fdeaaeb3c90db5ed
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 14:02:14 2009 -0600
+
+    update changelogs for Debian build
+
+commit d42ebf0661ecf15455e5051de1e16ae66f8dd857
+Merge: 384dbe9 7a19aac
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 14:02:09 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 7a19aac5e881e635962a64fff73027ca2143b96f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 6 12:51:48 2009 -0700
+
+    Add DSP code to filter data, allowing for integration/differentiation
+    
+    This adds the computation of speed from both accelerometer and
+    barometer measurements and then presents a periodic flight profile
+    using filtered data as a detailed flight record.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 384dbe9fc7fa8e4e5dceec5e150f0f1d3383bbdc
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 10:40:06 2009 -0600
+
+    update changelogs for Debian build
+
+commit 35c54b3a278fa9bc2bc7f4b5ee04866697c93ba0
+Merge: 4f8eff7 6d018ab
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Sep 6 10:39:23 2009 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 6d018ab933832e2d80bb1564c339d9fb18b57be2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 5 22:45:49 2009 -0700
+
+    Handle vageries of .telem files in ao-postflight
+    
+    Telem files have multiple entries of the same state, and sometimes
+    long gaps between recordings. Deal with this as best as possible.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c46e832b28820d7c5be4efaacbbd7c0607927fe5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 5 22:03:31 2009 -0700
+
+    Add simple post-flight analysis tool (ao-postflight)
+    
+    This tool reads either an eeprom or telem log file and displays some
+    rudimentary data (max accel/alt for each flight stage).
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 26f56b51bd11aa91f1d77b81827b49c28cb6ec5f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 5 00:29:26 2009 -0700
+
+    Add ao-dumplog to capture flight log from command line
+    
+    This duplicates the functionality of the flight log stuf in ao-view,
+    except from the command line where it belongs.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 73adae3661160d410dcc802873b530d255c210e5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 4 15:30:22 2009 -0700
+
+    Add --device/-D support to the command line tools and manuals
+    
+    Use the new cc_usbdevs_find_by_arg function to locate suitable target
+    devices connected via USB.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4f8eff7401ee2d8092ab36fa33411f9b23dda880
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Sep 4 16:03:55 2009 -0600
+
+    update changelogs for Debian build
+
+commit 332b056459b1352e233a8bf5f08498df12d32160
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 4 15:01:32 2009 -0700
+
+    'fix' ao-eeprom to read two blocks at once. Work around kernel bugs.
+    
+    The kernel appears to leave serial data undelivered at times. Reading
+    two blocks at once appears to make it relinquish the queued data.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit df88ae4c5f229efcc0ea5cb0a81fc2bb8f96fea2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 4 14:23:02 2009 -0700
+
+    Add 'ao-list' utility to show attached AltOS devices
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0935d6a7e907e20381a42882ae728051f9bece02
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 4 14:21:19 2009 -0700
+
+    Parse the USB serial number as an integer.
+    
+    AltOS devices use simple integer serial numbers, so parse the USB
+    value as such to make matching values more forgiving.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0c771d999914f9d17c723900f2987acc45fd0fbb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 4 13:00:02 2009 -0700
+
+    Move usb scanning code to ao-tools library
+    
+    This will allow the scanning code to be used by the command line tools
+    as well as the ao-view GUI.
+    
+    Now that ao-view depends on the ao-tools library, it has been moved to
+    the ao-tools directory as well.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 15341b6e6dcf52df083d6aa37ef881ea6ad48ee5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 4 12:25:37 2009 -0700
+
+    Set all of the values to reset the radio for telemetry
+    
+    Was sizeof(rdf_setup) instead of sizeof(telemetry_setup) when
+    resetting the radio back to telemetry data mode from rdf mode. With
+    the length value removed from the rdf config, these two arrays are no
+    longer the same length, and so the last config value was not set
+    leaving the radio sending garbage.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fee46389b70a624ab5b1128a8b4c3083c7747bcb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 4 11:46:55 2009 -0700
+
+    Make RDF beacon only run on pad and after landing.
+    
+    It's pretty much impossible to RDF the rocket during flight, and it
+    interferes with the telemetry data stream. Leave it enabled on the pad
+    so that radios can be tested, and then re-enable it once the rocket
+    has landed.
+    
+    This patch also turns the rdf 'on' time into a parameter so it can be
+    changed, and then sets that parameter to 500ms, once every 5 seconds.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 54545640b0db7747137655f84bc67fd290ecb904
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 4 11:45:52 2009 -0700
+
+    Add back the RDF tone generator
+    
+    Tracking the rocket on the ground may be easier using tones than using
+    the digital data stream, so we'll try that and see what we think.
+    
+    This reverts commit 3a3bfd471a868d546d83cdc431b53c8f5208edb9.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9fafee109e96435c96639b21211cac0500673a63
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Sep 2 23:18:15 2009 -0600
+
+    update changelogs for Debian build
+
 commit cb4a73f3b65ba72f645fd37ab8712829c9537bf8
 Merge: 9ddd869 e2e449d
 Author: Bdale Garbee <bdale@gag.com>
