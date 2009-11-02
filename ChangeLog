@@ -1,3 +1,9 @@
+commit 6b1e77569e2fed3c44606ed268421df5d3ed4020
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Nov 2 15:57:41 2009 -0700
+
+    update changelogs for Debian build
+
 commit 8203bfa58af32a1d07a44c1c151b200df0b65f15
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Mon Nov 2 15:56:42 2009 -0700

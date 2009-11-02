@@ -1,4 +1,4 @@
-altos (0.5+88+g8203bfa) unstable; urgency=low
+altos (0.5+89+g6b1e775) unstable; urgency=low
 
   * de-version the libreadline-dev build dependency
 
