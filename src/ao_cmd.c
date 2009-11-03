@@ -179,33 +179,6 @@ eol(void)
 }
 
 static void
-dump(void)
-{
-	__xdata uint16_t c;
-	__xdata uint8_t * __xdata start, * __xdata end;
-
-	ao_cmd_hex();
-	start = (uint8_t __xdata *) ao_cmd_lex_i;
-	ao_cmd_hex();
-	end = (uint8_t __xdata *) ao_cmd_lex_i;
-	if (ao_cmd_status != ao_cmd_success)
-		return;
-	c = 0;
-	while (start <= end) {
-		if ((c & 7) == 0) {
-			if (c)
-				putchar('\n');
-			ao_cmd_put16((uint16_t) start);
-		}
-		putchar(' ');
-		ao_cmd_put8(*start);
-		++c;
-		start++;
-	}
-	putchar('\n');
-}
-
-static void
 echo(void)
 {
 	ao_cmd_hex();
@@ -305,7 +278,6 @@ __code struct ao_cmds	ao_base_cmds[] = {
 	{ '?', help,		"?                                  Print this message" },
 	{ 'T', ao_task_info,	"T                                  Show task states" },
 	{ 'E', echo,		"E <0 off, 1 on>                    Set command echo mode" },
-	{ 'd', dump,		"d <start> <end>                    Dump memory" },
 	{ 'v', version,		"v                                  Show version" },
 	{ 0,    help,	NULL },
 };
