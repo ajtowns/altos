@@ -191,29 +191,6 @@ ao_log_stop(void)
 	ao_log_flush();
 }
 
-static void
-dump_log(void) __reentrant
-{
-	uint8_t	more;
-
-	for (more = ao_log_dump_first(); more; more = ao_log_dump_next()) {
-		printf("%c %4x %4x %4x\n",
-		       ao_log_dump.type,
-		       ao_log_dump.tick,
-		       ao_log_dump.u.anon.d0,
-		       ao_log_dump.u.anon.d1);
-		if (ao_log_dump.type == AO_LOG_STATE &&
-		    ao_log_dump.u.state.state == ao_flight_landed)
-			break;
-	}
-	printf("end\n");
-}
-
-__code struct ao_cmds ao_log_cmds[] = {
-	{ 'l',	dump_log,		"l                                  Dump last flight log" },
-	{ 0, dump_log, NULL },
-};
-
 static __xdata struct ao_task ao_log_task;
 
 void
@@ -228,5 +205,4 @@ ao_log_init(void)
 
 	/* Create a task to log events to eeprom */
 	ao_add_task(&ao_log_task, ao_log, "log");
-	ao_cmd_register(&ao_log_cmds[0]);
 }
