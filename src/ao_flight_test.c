@@ -217,7 +217,7 @@ ao_sleep(void *wchan)
 				type = words[0][0];
 				tick = strtoul(words[1], NULL, 16);
 				a = strtoul(words[2], NULL, 16);
-				b = strtoul(words[2], NULL, 16);
+				b = strtoul(words[3], NULL, 16);
 			} else if (nword >= 36 && strcmp(words[0], "CALL") == 0) {
 				tick = atoi(words[10]);
 				if (!ao_flight_started) {
