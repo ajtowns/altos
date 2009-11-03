@@ -65,9 +65,9 @@ ao_adc_dump(void) __reentrant
 {
 	static __xdata struct ao_adc	packet;
 	ao_adc_get(&packet);
-	printf("tick: %5u accel: %4d pres: %4d temp: %4d batt: %4d drogue: %4d main: %4d\n",
-	       packet.tick, packet.accel >> 4, packet.pres >> 4, packet.temp >> 4,
-	       packet.v_batt >> 4, packet.sense_d >> 4, packet.sense_m >> 4);
+	printf("tick: %5u accel: %5d pres: %5d temp: %5d batt: %5d drogue: %5d main: %5d\n",
+	       packet.tick, packet.accel, packet.pres, packet.temp,
+	       packet.v_batt, packet.sense_d, packet.sense_m);
 }
 
 __code struct ao_cmds ao_adc_cmds[] = {
