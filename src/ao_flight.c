@@ -454,26 +454,7 @@ ao_flight(void)
 	}
 }
 
-#define AO_ACCEL_COUNT_TO_MSS(count)	((count) / 27)
-#define AO_VEL_COUNT_TO_MS(count)	((int16_t) ((count) / 2700))
-
-static void
-ao_flight_status(void) __reentrant
-{
-	printf("STATE: %7s accel: %d speed: %d altitude: %d main: %d\n",
-	       ao_state_names[ao_flight_state],
-	       AO_ACCEL_COUNT_TO_MSS( - ao_flight_accel),
-	       AO_VEL_COUNT_TO_MS(ao_flight_vel),
-	       ao_pres_to_altitude(ao_flight_pres),
-	       ao_pres_to_altitude(ao_main_pres));
-}
-
 static __xdata struct ao_task	flight_task;
-
-__code struct ao_cmds ao_flight_cmds[] = {
-	{ 'f', ao_flight_status,	"f                                  Display current flight state" },
-	{ 0, ao_flight_status, NULL }
-};
 
 void
 ao_flight_init(void)
@@ -486,5 +467,4 @@ ao_flight_init(void)
 	ao_interval_end = AO_INTERVAL_TICKS;
 
 	ao_add_task(&flight_task, ao_flight, "flight");
-	ao_cmd_register(&ao_flight_cmds[0]);
 }
