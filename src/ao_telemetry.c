@@ -32,6 +32,8 @@ ao_telemetry(void)
 	ao_config_get();
 	memcpy(telemetry.callsign, ao_config.callsign, AO_MAX_CALLSIGN);
 	telemetry.addr = ao_serial_number;
+	telemetry.accel_plus_g = ao_config.accel_plus_g;
+	telemetry.accel_minus_g = ao_config.accel_minus_g;
 	ao_rdf_time = ao_time();
 	for (;;) {
 		while (ao_telemetry_interval == 0)

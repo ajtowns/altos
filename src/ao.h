@@ -784,6 +784,7 @@ ao_gps_report_init(void);
  */
 
 #define AO_MAX_CALLSIGN		8
+#define AO_TELEMETRY_VERSION	1
 
 struct ao_telemetry {
 	uint8_t			addr;
@@ -793,6 +794,8 @@ struct ao_telemetry {
 	int32_t			flight_vel;
 	int16_t			flight_pres;
 	int16_t			ground_pres;
+	int16_t			accel_plus_g;
+	int16_t			accel_minus_g;
 	struct ao_adc		adc;
 	struct ao_gps_data	gps;
 	char			callsign[AO_MAX_CALLSIGN];

@@ -37,12 +37,14 @@ ao_monitor(void)
 		if (state > ao_flight_invalid)
 			state = ao_flight_invalid;
 		if (recv.status & PKT_APPEND_STATUS_1_CRC_OK) {
-			printf ("CALL %s SERIAL %3d RSSI %4d STATUS %02x STATE %7s ",
-				callsign,
-				recv.telemetry.addr,
-				(int) recv.rssi - 74, recv.status,
-				ao_state_names[state]);
-			printf("%5u a: %5d p: %5d t: %5d v: %5d d: %5d m: %5d fa: %5d ga: %d fv: %7ld fp: %5d gp: %5d ",
+			printf("VERSION %d CALL %s SERIAL %3d RSSI %4d STATUS %02x STATE %7s ",
+			       AO_TELEMETRY_VERSION,
+			       callsign,
+			       recv.telemetry.addr,
+			       (int) recv.rssi - 74, recv.status,
+			       ao_state_names[state]);
+			printf("%5u a: %5d p: %5d t: %5d v: %5d d: %5d m: %5d "
+			       "fa: %5d ga: %d fv: %7ld fp: %5d gp: %5d a+: %5d a-: %5d ",
 			       recv.telemetry.adc.tick,
 			       recv.telemetry.adc.accel,
 			       recv.telemetry.adc.pres,
@@ -54,7 +56,9 @@ ao_monitor(void)
 			       recv.telemetry.ground_accel,
 			       recv.telemetry.flight_vel,
 			       recv.telemetry.flight_pres,
-			       recv.telemetry.ground_pres);
+			       recv.telemetry.ground_pres,
+			       recv.telemetry.accel_plus_g,
+			       recv.telemetry.accel_minus_g);
 			ao_gps_print(&recv.telemetry.gps);
 			putchar(' ');
 			ao_gps_tracking_print(&recv.telemetry.gps_tracking);

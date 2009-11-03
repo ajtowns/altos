@@ -77,7 +77,9 @@ gboolean
 aoview_monitor_parse(const char *input_line)
 {
 	char *saveptr;
-	char *words[PARSE_MAX_WORDS];
+	char *raw_words[PARSE_MAX_WORDS];
+	char **words;
+	int version = 0;
 	int nword;
 	char line_buf[8192], *line;
 	struct aodata	data;
@@ -89,13 +91,19 @@ aoview_monitor_parse(const char *input_line)
 	line_buf[sizeof(line_buf) - 1] = '\0';
 	line = line_buf;
 	for (nword = 0; nword < PARSE_MAX_WORDS; nword++) {
-		words[nword] = strtok_r(line, " \t\n", &saveptr);
+		raw_words[nword] = strtok_r(line, " \t\n", &saveptr);
 		line = NULL;
-		if (words[nword] == NULL)
+		if (raw_words[nword] == NULL)
 			break;
 	}
 	if (nword < 36)
 		return FALSE;
+	words = raw_words;
+	if (strcmp(words[0], "VERSION") == 0) {
+		aoview_parse_int(&version, words[1]);
+		words += 2;
+		nword -= 2;
+	}
 	if (strcmp(words[0], "CALL") != 0)
 		return FALSE;
 	aoview_parse_string(data.callsign, sizeof (data.callsign), words[1]);
@@ -115,6 +123,15 @@ aoview_monitor_parse(const char *input_line)
 	aoview_parse_int(&data.flight_vel, words[28]);
 	aoview_parse_int(&data.flight_pres, words[30]);
 	aoview_parse_int(&data.ground_pres, words[32]);
+	if (version >= 1) {
+		aoview_parse_int(&data.accel_plus_g, words[34]);
+		aoview_parse_int(&data.accel_minus_g, words[36]);
+		words += 4;
+		nword -= 4;
+	} else {
+		data.accel_plus_g = data.ground_accel;
+		data.accel_minus_g = data.ground_accel + 530;
+	}
 	aoview_parse_int(&data.gps.nsat, words[34]);
 	if (strcmp (words[36], "unlocked") == 0) {
 		data.gps.gps_connected = 1;

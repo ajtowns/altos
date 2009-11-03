@@ -104,6 +104,8 @@ struct aodata {
 	int	flight_vel;
 	int	flight_pres;
 	int	ground_pres;
+	int	accel_plus_g;
+	int	accel_minus_g;
 	struct aogps	gps;
 	struct aogps_tracking	gps_tracking;
 };

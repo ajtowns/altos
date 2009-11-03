@@ -105,6 +105,7 @@ aoview_state_derive(struct aodata *data, struct aostate *state)
 	double	new_height;
 	double	height_change;
 	double	time_change;
+	double	accel_counts_per_mss;
 	int	tick_count;
 
 	state->report_time = aoview_time();
@@ -123,8 +124,9 @@ aoview_state_derive(struct aodata *data, struct aostate *state)
 	state->height = new_height;
 	if (time_change)
 		state->baro_speed = (state->baro_speed * 3 + (height_change / time_change)) / 4.0;
-	state->acceleration = (data->ground_accel - data->flight_accel) / 27.0;
-	state->speed = data->flight_vel / 2700.0;
+	accel_counts_per_mss = ((data->accel_minus_g - data->accel_plus_g) / 2.0) / 9.80665;
+	state->acceleration = (data->ground_accel - data->flight_accel) / accel_counts_per_mss;
+	state->speed = data->flight_vel / (accel_counts_per_mss * 100.0);
 	state->temperature = ((data->temp / 32767.0 * 3.3) - 0.5) / 0.01;
 	state->drogue_sense = data->drogue / 32767.0 * 15.0;
 	state->main_sense = data->main / 32767.0 * 15.0;
