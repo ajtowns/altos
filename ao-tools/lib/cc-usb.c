@@ -53,6 +53,8 @@ struct cc_usb {
 
 	struct cc_hex_read	hex_buf[CC_NUM_HEX_READ];
 	int			hex_count;
+
+	int			remote;
 };
 
 #define NOT_HEX	0xff
@@ -372,6 +374,28 @@ cc_usb_reset(struct cc_usb *cc)
 	return 1;
 }
 
+void
+cc_usb_open_remote(struct cc_usb *cc)
+{
+	if (!cc->remote) {
+		cc_usb_printf(cc, "p\nE 0\n");
+		do {
+			cc->in_count = cc->in_pos = 0;
+			_cc_usb_sync(cc, 100);
+		} while (cc->in_count > 0);
+		cc->remote = 1;
+	}
+}
+
+void
+cc_usb_close_remote(struct cc_usb *cc)
+{
+	if (cc->remote) {
+		cc_usb_printf(cc, "~");
+		cc->remote = 0;
+	}
+}
+
 static struct termios	save_termios;
 
 struct cc_usb *
@@ -406,6 +430,8 @@ cc_usb_open(char *tty)
 void
 cc_usb_close(struct cc_usb *cc)
 {
+	cc_usb_close_remote(cc);
+	cc_usb_sync(cc);
 	tcsetattr(cc->fd, TCSAFLUSH, &save_termios);
 	close (cc->fd);
 	free (cc);

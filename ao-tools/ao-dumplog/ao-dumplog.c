@@ -28,12 +28,13 @@
 static const struct option options[] = {
 	{ .name = "tty", .has_arg = 1, .val = 'T' },
 	{ .name = "device", .has_arg = 1, .val = 'D' },
+	{ .name = "remote", .has_arg = 1, .val = 'R' },
 	{ 0, 0, 0, 0},
 };
 
 static void usage(char *program)
 {
-	fprintf(stderr, "usage: %s [--tty <tty-name>] [--device <device-name>\n", program);
+	fprintf(stderr, "usage: %s [--tty <tty-name>] [--device <device-name>] [-R]\n", program);
 	exit(1);
 }
 
@@ -80,8 +81,9 @@ main (int argc, char **argv)
 	int		data[8];
 	int		done;
 	int		column;
+	int		remote = 0;
 
-	while ((c = getopt_long(argc, argv, "T:D:", options, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "T:D:R", options, NULL)) != -1) {
 		switch (c) {
 		case 'T':
 			tty = optarg;
@@ -89,13 +91,20 @@ main (int argc, char **argv)
 		case 'D':
 			device = optarg;
 			break;
+		case 'R':
+			remote = 1;
+			break;
 		default:
 			usage(argv[0]);
 			break;
 		}
 	}
-	if (!tty)
-		tty = cc_usbdevs_find_by_arg(device, "TeleMetrum");
+	if (!tty) {
+		if (remote)
+			tty = cc_usbdevs_find_by_arg(device, "TeleDongle");
+		else
+			tty = cc_usbdevs_find_by_arg(device, "TeleMetrum");
+	}
 	if (!tty)
 		tty = getenv("ALTOS_TTY");
 	if (!tty)
@@ -103,6 +112,8 @@ main (int argc, char **argv)
 	cc = cc_usb_open(tty);
 	if (!cc)
 		exit(1);
+	if (remote)
+		cc_usb_open_remote(cc);
 	/* send a 'version' command followed by a 'log' command */
 	cc_usb_printf(cc, "v\n");
 	out = NULL;

@@ -62,4 +62,10 @@ cc_usb_getline(struct cc_usb *cc, char *line, int max);
 void
 cc_usb_printf(struct cc_usb *cc, char *format, ...);
 
+void
+cc_usb_open_remote(struct cc_usb *cc);
+
+void
+cc_usb_close_remote(struct cc_usb *cc);
+
 #endif /* _CC_USB_H_ */
