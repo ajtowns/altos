@@ -22,6 +22,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define AO_HERTZ	100
+
 #define AO_ADC_RING	64
 #define ao_adc_ring_next(n)	(((n) + 1) & (AO_ADC_RING - 1))
 #define ao_adc_ring_prev(n)	(((n) - 1) & (AO_ADC_RING - 1))
@@ -144,12 +146,13 @@ ao_altitude_to_pres(int16_t alt) __reentrant
 
 struct ao_config {
 	uint16_t	main_deploy;
-	int16_t		accel_zero_g;
+	int16_t		accel_plus_g;
+	int16_t		accel_minus_g;
 };
 
 #define ao_config_get()
 
-struct ao_config ao_config = { 250, 16000 };
+struct ao_config ao_config = { 250, 15937, 16467 };
 
 #include "ao_flight.c"
 

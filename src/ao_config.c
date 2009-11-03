@@ -45,7 +45,8 @@ _ao_config_get(void)
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config.main_deploy = AO_CONFIG_DEFAULT_MAIN_DEPLOY;
 		ao_config.radio_channel = AO_CONFIG_DEFAULT_RADIO_CHANNEL;
-		ao_config.accel_zero_g = AO_CONFIG_DEFAULT_ACCEL_ZERO_G;
+		ao_config.accel_plus_g = 0;
+		ao_config.accel_minus_g = 0;
 		memset(&ao_config.callsign, '\0', sizeof (ao_config.callsign));
 		memcpy(&ao_config.callsign, AO_CONFIG_DEFAULT_CALLSIGN,
 		       sizeof(AO_CONFIG_DEFAULT_CALLSIGN) - 1);
@@ -53,9 +54,14 @@ _ao_config_get(void)
 		ao_config_dirty = 1;
 	}
 	if (ao_config.minor < AO_CONFIG_MINOR) {
-		/* Fixups for major version 1 */
+		/* Fixups for mior version 1 */
 		if (ao_config.minor < 1)
 			ao_config.apogee_delay = AO_CONFIG_DEFAULT_APOGEE_DELAY;
+		/* Fixupes for minor version 2 */
+		if (ao_config.minor < 2) {
+			ao_config.accel_plus_g = 0;
+			ao_config.accel_minus_g = 0;
+		}
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
@@ -152,23 +158,28 @@ ao_config_main_deploy_set(void) __reentrant
 }
 
 void
-ao_config_accel_zero_g_show(void) __reentrant
+ao_config_accel_calibrate_show(void) __reentrant
 {
-	printf("Accel zero g point: %d\n",
-	       ao_config.accel_zero_g);
+	printf("Accel cal +1g: %d -1g: %d\n",
+	       ao_config.accel_plus_g, ao_config.accel_minus_g);
 }
 
-#define ZERO_G_SAMPLES	1000
+#define ACCEL_CALIBRATE_SAMPLES	1024
+#define ACCEL_CALIBRATE_SHIFT	10
 
 static int16_t
-ao_config_accel_zero_g_auto(void) __reentrant
+ao_config_accel_calibrate_auto(char *orientation) __reentrant
 {
 	uint16_t	i;
 	int32_t		accel_total;
 	uint8_t		cal_adc_ring;
 
-	puts("Calibrating accelerometer..."); flush();
-	i = ZERO_G_SAMPLES;
+	printf("Orient %s and press a key...", orientation);
+	flush();
+	(void) getchar();
+	puts("\r\n"); flush();
+	puts("Calibrating..."); flush();
+	i = ACCEL_CALIBRATE_SAMPLES;
 	accel_total = 0;
 	cal_adc_ring = ao_adc_head;
 	while (i) {
@@ -179,22 +190,38 @@ ao_config_accel_zero_g_auto(void) __reentrant
 			i--;
 		}
 	}
-	return (int16_t) (accel_total / ZERO_G_SAMPLES);
+	return accel_total >> ACCEL_CALIBRATE_SHIFT;
 }
+
 void
-ao_config_accel_zero_g_set(void) __reentrant
+ao_config_accel_calibrate_set(void) __reentrant
 {
+	int16_t	up, down;
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
 		return;
-	if (ao_cmd_lex_i == 0)
-		ao_cmd_lex_i = ao_config_accel_zero_g_auto();
+	if (ao_cmd_lex_i == 0) {
+		up = ao_config_accel_calibrate_auto("antenna up");
+		down = ao_config_accel_calibrate_auto("antenna down");
+	} else {
+		up = ao_cmd_lex_i;
+		ao_cmd_decimal();
+		if (ao_cmd_status != ao_cmd_success)
+			return;
+		down = ao_cmd_lex_i;
+	}
+	if (up >= down) {
+		printf("Invalid accel calibration: antenna up (%d) should be less than antenna down (%d)\n",
+		       up, down);
+		return;
+	}
 	ao_mutex_get(&ao_config_mutex);
 	_ao_config_get();
-	ao_config.accel_zero_g = ao_cmd_lex_i;
+	ao_config.accel_plus_g = up;
+	ao_config.accel_minus_g = down;
 	ao_config_dirty = 1;
 	ao_mutex_put(&ao_config_mutex);
-	ao_config_accel_zero_g_show();
+	ao_config_accel_calibrate_show();
 }
 
 void
@@ -237,8 +264,8 @@ ao_config_write(void) __reentrant;
 __code struct ao_config_var ao_config_vars[] = {
 	{ 'm',	ao_config_main_deploy_set,	ao_config_main_deploy_show,
 		"m <meters>  Set height above launch for main deploy (in meters)" },
-	{ 'a',	ao_config_accel_zero_g_set,	ao_config_accel_zero_g_show,
-		"a <value>   Set accelerometer zero g point (0 for auto)" },
+	{ 'a',	ao_config_accel_calibrate_set,	ao_config_accel_calibrate_show,
+		"a <+g> <-g> Set accelerometer calibration (0 for auto)" },
 	{ 'r',	ao_config_radio_channel_set,	ao_config_radio_channel_show,
 		"r <channel> Set radio channel (freq = 434.550 + channel * .1)" },
 	{ 'c',	ao_config_callsign_set,		ao_config_callsign_show,

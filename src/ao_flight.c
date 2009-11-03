@@ -48,6 +48,7 @@ __pdata int16_t			ao_interval_max_pres;
 
 __data uint8_t ao_flight_adc;
 __pdata int16_t ao_raw_accel, ao_raw_accel_prev, ao_raw_pres;
+__pdata int16_t ao_accel_2g;
 
 /* Accelerometer calibration
  *
@@ -72,18 +73,17 @@ __pdata int16_t ao_raw_accel, ao_raw_accel_prev, ao_raw_pres;
 
 #define GRAVITY 9.80665
 /* convert m/s to velocity count */
-#define VEL_MPS_TO_COUNT(mps) ((int32_t) (((mps) / GRAVITY) * ACCEL_G * 100))
+#define VEL_MPS_TO_COUNT(mps) (((int32_t) (((mps) / GRAVITY) * (AO_HERTZ/2))) * (int32_t) ao_accel_2g)
 
 #define ACCEL_G		265
-#define ACCEL_ZERO_G	16000
-#define ACCEL_NOSE_UP	(ACCEL_G * 2 /3)
-#define ACCEL_BOOST	ACCEL_G * 2
+#define ACCEL_NOSE_UP	(ao_accel_2g / 4)
+#define ACCEL_BOOST	ao_accel_2g
 #define ACCEL_INT_LAND	(ACCEL_G / 10)
-#define ACCEL_VEL_LAND	VEL_MPS_TO_COUNT(10)
 #define ACCEL_VEL_MACH	VEL_MPS_TO_COUNT(200)
-#define ACCEL_VEL_APOGEE	VEL_MPS_TO_COUNT(2)
-#define ACCEL_VEL_MAIN	VEL_MPS_TO_COUNT(100)
 #define ACCEL_VEL_BOOST	VEL_MPS_TO_COUNT(5)
+
+int32_t accel_vel_mach;
+int32_t accel_vel_boost;
 
 /*
  * Barometer calibration
@@ -170,14 +170,14 @@ ao_flight(void)
 			 * so subtract instead of add.
 			 */
 			ticks = ao_flight_tick - ao_flight_prev_tick;
-			ao_vel_change = (((ao_raw_accel >> 1) + (ao_raw_accel_prev >> 1)) - ao_ground_accel);
+			ao_vel_change = ao_ground_accel - (((ao_raw_accel + 1) >> 1) + ((ao_raw_accel_prev + 1) >> 1));
 			ao_raw_accel_prev = ao_raw_accel;
 
 			/* one is a common interval */
 			if (ticks == 1)
-				ao_flight_vel -= (int32_t) ao_vel_change;
+				ao_flight_vel += (int32_t) ao_vel_change;
 			else
-				ao_flight_vel -= (int32_t) ao_vel_change * (int32_t) ticks;
+				ao_flight_vel += (int32_t) ao_vel_change * (int32_t) ticks;
 
 			ao_flight_adc = ao_adc_ring_next(ao_flight_adc);
 		}
@@ -211,6 +211,9 @@ ao_flight(void)
 			ao_min_pres = ao_ground_pres;
 			ao_config_get();
 			ao_main_pres = ao_altitude_to_pres(ao_pres_to_altitude(ao_ground_pres) + ao_config.main_deploy);
+			ao_accel_2g = ao_config.accel_minus_g - ao_config.accel_plus_g;
+			accel_vel_mach = ACCEL_VEL_MACH;
+			accel_vel_boost = ACCEL_VEL_BOOST;
 			ao_flight_vel = 0;
 			ao_min_vel = 0;
 			ao_old_vel = ao_flight_vel;
@@ -218,8 +221,9 @@ ao_flight(void)
 
 			/* Go to pad state if the nose is pointing up */
 			ao_config_get();
-			if (ao_flight_accel < ao_config.accel_zero_g - ACCEL_NOSE_UP) {
-
+			if (ao_config.accel_plus_g != 0 && ao_config.accel_minus_g != 0 &&
+			    ao_flight_accel < ao_config.accel_plus_g + ACCEL_NOSE_UP)
+			{
 				/* Disable the USB controller in flight mode
 				 * to save power
 				 */
@@ -337,19 +341,15 @@ ao_flight(void)
 
 			/* apogee detect: coast to drogue deploy:
 			 *
-			 * accelerometer: abs(velocity) > min_velocity + 2m/s
-			 *               OR
 			 * barometer: fall at least 10m
 			 *
-			 * If the barometer saturates because the flight
-			 * goes over its measuring range (about 53k'),
-			 * requiring a 10m fall will avoid prematurely
-			 * detecting apogee; the accelerometer will take
-			 * over in that case and the integrated velocity
-			 * measurement should suffice to find apogee
+			 * It would be nice to use the accelerometer
+			 * to detect apogee as well, but tests have
+			 * shown that flights far from vertical would
+			 * grossly mis-detect apogee. So, for now,
+			 * we'll trust to a single sensor for this test
 			 */
-			if (/* abs(ao_flight_vel) > ao_min_vel + ACCEL_VEL_APOGEE || */
-			    ao_flight_pres > ao_min_pres + BARO_APOGEE)
+			if (ao_flight_pres > ao_min_pres + BARO_APOGEE)
 			{
 				/* ignite the drogue charge */
 				ao_ignite(ao_igniter_drogue);
@@ -462,7 +462,7 @@ ao_flight_status(void) __reentrant
 {
 	printf("STATE: %7s accel: %d speed: %d altitude: %d main: %d\n",
 	       ao_state_names[ao_flight_state],
-	       AO_ACCEL_COUNT_TO_MSS(ACCEL_ZERO_G - ao_flight_accel),
+	       AO_ACCEL_COUNT_TO_MSS( - ao_flight_accel),
 	       AO_VEL_COUNT_TO_MS(ao_flight_vel),
 	       ao_pres_to_altitude(ao_flight_pres),
 	       ao_pres_to_altitude(ao_main_pres));

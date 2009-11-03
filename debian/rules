@@ -9,7 +9,7 @@ DEB_VERSION := $(shell git describe | tr - +)
 prebuild:
 	git-dch --release --new-version=$(DEB_VERSION)
 	git log > ChangeLog
-	git commit ChangeLog debian/changelog \
+	git commit -n ChangeLog debian/changelog \
 		-m "update changelogs for Debian build"
 	git tag debian/$(DEB_VERSION)
 	git push --tags origin master

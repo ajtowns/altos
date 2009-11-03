@@ -117,8 +117,9 @@ ao_panic(uint8_t reason);
  */
 
 /* Our timer runs at 100Hz */
-#define AO_MS_TO_TICKS(ms)	((ms) / 10)
-#define AO_SEC_TO_TICKS(s)	((s) * 100)
+#define AO_HERTZ		100
+#define AO_MS_TO_TICKS(ms)	((ms) / (1000 / AO_HERTZ))
+#define AO_SEC_TO_TICKS(s)	((s) * AO_HERTZ)
 
 /* Returns the current time in ticks */
 uint16_t
@@ -928,16 +929,17 @@ ao_igniter_init(void);
  */
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	1
+#define AO_CONFIG_MINOR	2
 
 struct ao_config {
 	uint8_t		major;
 	uint8_t		minor;
 	uint16_t	main_deploy;
-	int16_t		accel_zero_g;
+	int16_t		accel_plus_g;
 	uint8_t		radio_channel;
 	char		callsign[AO_MAX_CALLSIGN + 1];
 	uint8_t		apogee_delay;
+	int16_t		accel_minus_g;
 };
 
 extern __xdata struct ao_config ao_config;
