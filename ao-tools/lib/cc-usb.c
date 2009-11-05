@@ -378,7 +378,7 @@ void
 cc_usb_open_remote(struct cc_usb *cc)
 {
 	if (!cc->remote) {
-		cc_usb_printf(cc, "p\nE 0\n");
+		cc_usb_printf(cc, "\np\nE 0\n");
 		do {
 			cc->in_count = cc->in_pos = 0;
 			_cc_usb_sync(cc, 100);
@@ -419,7 +419,7 @@ cc_usb_open(char *tty)
 	save_termios = termios;
 	cfmakeraw(&termios);
 	tcsetattr(cc->fd, TCSAFLUSH, &termios);
-	cc_usb_printf(cc, "E 0\nm 0\n");
+	cc_usb_printf(cc, "\nE 0\nm 0\n");
 	do {
 		cc->in_count = cc->in_pos = 0;
 		_cc_usb_sync(cc, 100);
