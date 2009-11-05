@@ -82,6 +82,8 @@ main (int argc, char **argv)
 	int		done;
 	int		column;
 	int		remote = 0;
+	int		any_valid;
+	int		invalid;
 
 	while ((c = getopt_long(argc, argv, "T:D:R", options, NULL)) != -1) {
 		switch (c) {
@@ -146,6 +148,7 @@ main (int argc, char **argv)
 			column = 0;
 		}
 		putchar('.'); fflush(stdout); column++;
+		any_valid = 0;
 		for (addr = 0; addr < 0x100;) {
 			cc_usb_getline(cc, line, sizeof (line));
 			if (sscanf(line, "00%x %x %x %x %x %x %x %x %x",
@@ -160,6 +163,8 @@ main (int argc, char **argv)
 				if (log_checksum(data) != 0)
 					fprintf (stderr, "invalid checksum at 0x%x\n",
 						 block * 256 + received_addr);
+				else
+					any_valid = 1;
 
 				cmd = data[0];
 				tick = data[2] + (data[3] << 8);
@@ -181,6 +186,11 @@ main (int argc, char **argv)
 				}
 				addr += 8;
 			}
+		}
+		if (!any_valid) {
+			fclose(out);
+			out = NULL;
+			done = 1;
 		}
 	}
 	if (column)
