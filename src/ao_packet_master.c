@@ -27,6 +27,7 @@ ao_packet_getchar(void)
 			break;
 		if (ao_packet_master_sleeping)
 			ao_wake_task(&ao_packet_task);
+		flush();
 		ao_sleep(&ao_stdin_ready);
 	}
 	return c;
@@ -94,8 +95,6 @@ ao_packet_master(void)
 				continue;
 			if (ao_rx_packet.packet.len)
 				ao_packet_master_busy();
-			else
-				flush();
 			ao_packet_master_sleeping = 1;
 			ao_delay(ao_packet_master_delay);
 			ao_packet_master_sleeping = 0;
