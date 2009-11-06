@@ -536,6 +536,23 @@ sfr at 0xB6 ADCCON3;
 sfr at 0xF2 ADCCFG;
 
 /*
+ * Watchdog timer
+ */
+
+sfr at 0xc9 WDCTL;
+
+#define WDCTL_CLEAR_FIRST	(0xa << 4)
+#define WDCTL_CLEAR_SECOND	(0x5 << 4)
+#define WDCTL_EN		(1 << 3)
+#define WDCTL_MODE_WATCHDOG	(0 << 2)
+#define WDCTL_MODE_TIMER	(1 << 2)
+#define WDCTL_MODE_MASK		(1 << 2)
+#define WDCTL_INT_32768		(0 << 0)
+#define WDCTL_INT_8192		(1 << 0)
+#define WDCTL_INT_512		(2 << 0)
+#define WDCTL_INT_64		(3 << 0)
+
+/*
  * Pin selectors, these set which pins are
  * using their peripheral function
  */
