@@ -121,20 +121,6 @@ ao_igniter(void)
 	}
 }
 
-static uint8_t
-ao_match_word(__code char *word)
-{
-	while (*word) {
-		if (ao_cmd_lex_c != *word) {
-			ao_cmd_status = ao_cmd_syntax_error;
-			return 0;
-		}
-		word++;
-		ao_cmd_lex();
-	}
-	return 1;
-}
-
 void
 ao_ignite_manual(void)
 {

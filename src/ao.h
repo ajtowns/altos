@@ -350,6 +350,9 @@ ao_cmd_hex(void);
 void
 ao_cmd_decimal(void);
 
+uint8_t
+ao_match_word(__code char *word);
+
 struct ao_cmds {
 	char		cmd;
 	void		(*func)(void);
