@@ -200,6 +200,17 @@ echo(void)
 }
 
 static void
+ao_reboot(void)
+{
+	ao_cmd_white();
+	if (!ao_match_word("eboot"))
+		return;
+	WDCTL = WDCTL_EN | WDCTL_MODE_WATCHDOG | WDCTL_INT_64;
+	ao_sleep(AO_SEC_TO_TICKS(2));
+	ao_panic(AO_PANIC_REBOOT);
+}
+
+static void
 version(void)
 {
 	printf("manufacturer     %s\n", ao_manufacturer);
@@ -292,6 +303,7 @@ __code struct ao_cmds	ao_base_cmds[] = {
 	{ '?', help,		"?                                  Print this message" },
 	{ 'T', ao_task_info,	"T                                  Show task states" },
 	{ 'E', echo,		"E <0 off, 1 on>                    Set command echo mode" },
+	{ 'r', ao_reboot,	"r eboot                            Reboot" },
 	{ 'v', version,		"v                                  Show version" },
 	{ 0,    help,	NULL },
 };

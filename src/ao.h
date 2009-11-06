@@ -107,6 +107,7 @@ ao_start_scheduler(void);
 #define AO_PANIC_LOG		5	/* Failing to read/write log data */
 #define AO_PANIC_CMD		6	/* Too many command sets registered */
 #define AO_PANIC_STDIO		7	/* Too many stdio handlers registered */
+#define AO_PANIC_REBOOT		8	/* Reboot failed */
 
 /* Stop the operating system, beeping and blinking the reason */
 void
