@@ -43,79 +43,12 @@
 #include <glade/glade.h>
 #include <gconf/gconf-client.h>
 
-struct aogps_time {
-	int hour;
-	int minute;
-	int second;
-};
-
-struct aogps {
-	int	nsat;
-	int	gps_locked;
-	int	gps_connected;
-	struct aogps_time gps_time;
-	double	lat;		/* degrees (+N -S) */
-	double	lon;		/* degrees (+E -W) */
-	int	alt;		/* m */
-
-	int	gps_extended;	/* has extra data */
-	double	ground_speed;	/* m/s */
-	int	course;		/* degrees */
-	double	climb_rate;	/* m/s */
-	double	hdop;		/* unitless? */
-	int	h_error;	/* m */
-	int	v_error;	/* m */
-};
-
-#define SIRF_SAT_STATE_ACQUIRED			(1 << 0)
-#define SIRF_SAT_STATE_CARRIER_PHASE_VALID	(1 << 1)
-#define SIRF_SAT_BIT_SYNC_COMPLETE		(1 << 2)
-#define SIRF_SAT_SUBFRAME_SYNC_COMPLETE		(1 << 3)
-#define SIRF_SAT_CARRIER_PULLIN_COMPLETE	(1 << 4)
-#define SIRF_SAT_CODE_LOCKED			(1 << 5)
-#define SIRF_SAT_ACQUISITION_FAILED		(1 << 6)
-#define SIRF_SAT_EPHEMERIS_AVAILABLE		(1 << 7)
-
-struct aogps_sat {
-	int	svid;
-	int	state;
-	int	c_n0;
-};
-
-struct aogps_tracking {
-	int			channels;
-	struct aogps_sat	sats[12];
-};
-
-struct aodata {
-	char	callsign[16];
-	int	serial;
-	int	rssi;
-	char	state[16];
-	int	tick;
-	int	accel;
-	int	pres;
-	int	temp;
-	int	batt;
-	int	drogue;
-	int	main;
-	int	flight_accel;
-	int	ground_accel;
-	int	flight_vel;
-	int	flight_pres;
-	int	ground_pres;
-	int	accel_plus_g;
-	int	accel_minus_g;
-	struct aogps	gps;
-	struct aogps_tracking	gps_tracking;
-};
-
 struct aostate {
-	struct aodata	data;
+	struct cc_telem	data;
 
 	/* derived data */
 
-	struct aodata	prev_data;
+	struct cc_telem	prev_data;
 
 	double		report_time;
 
@@ -135,8 +68,8 @@ struct aostate {
 	double	max_acceleration;
 	double	max_speed;
 
-	struct aogps	gps;
-	struct aogps_tracking	gps_tracking;
+	struct cc_gps	gps;
+	struct cc_gps_tracking	gps_tracking;
 
 	int	gps_valid;
 	double	pad_lat;
@@ -201,7 +134,7 @@ void
 aoview_dev_dialog_init(GladeXML *xml);
 
 void
-aoview_state_notify(struct aodata *data);
+aoview_state_notify(struct cc_telem *data);
 
 void
 aoview_state_new(void);

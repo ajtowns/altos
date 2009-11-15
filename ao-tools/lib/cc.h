@@ -252,6 +252,8 @@ struct cc_telem {
 	int	flight_vel;
 	int	flight_pres;
 	int	ground_pres;
+	int	accel_plus_g;
+	int	accel_minus_g;
 	struct cc_gps	gps;
 	struct cc_gps_tracking	gps_tracking;
 };

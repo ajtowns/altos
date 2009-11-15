@@ -99,7 +99,7 @@ aoview_time(void)
  * Fill out the derived data fields
  */
 static void
-aoview_state_derive(struct aodata *data, struct aostate *state)
+aoview_state_derive(struct cc_telem *data, struct aostate *state)
 {
 	int	i;
 	double	new_height;
@@ -274,7 +274,7 @@ aoview_state_reset(void)
 }
 
 void
-aoview_state_notify(struct aodata *data)
+aoview_state_notify(struct cc_telem *data)
 {
 	struct aostate *state = &aostate;
 	aoview_state_derive(data, state);
