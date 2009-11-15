@@ -298,6 +298,8 @@ clean:
 
 install:
 
+uninstall:
+
 ao_flight_test: ao_flight.c ao_flight_test.c ao_host.h
 	cc -g -o $@ ao_flight_test.c
 
