@@ -204,8 +204,10 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 	struct cc_flightcooked *cooked;
 	double	apogee;
 
-	fprintf(summary_file, "Flight:  %9d\nSerial:  %9d\n",
-		f->flight, f->serial);
+	fprintf(summary_file,
+		"Serial:  %9d\n"
+		"Flight:  %9d\n",
+		f->serial, f->flight);
 	boost_start = f->accel.data[0].time;
 	boost_stop = f->accel.data[f->accel.num-1].time;
 	for (i = 0; i < f->state.num; i++) {
