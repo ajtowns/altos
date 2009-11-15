@@ -59,51 +59,30 @@ ao_log_flush(void)
 	ao_ee_flush();
 }
 
-__xdata struct ao_log_record ao_log_dump;
-static __xdata uint16_t ao_log_dump_flight;
-static __xdata uint32_t ao_log_dump_pos;
+__xdata struct ao_log_record log;
+__xdata uint16_t ao_flight_number;
 
 static uint8_t
 ao_log_dump_check_data(void)
 {
-	if (ao_log_csum((uint8_t *) &ao_log_dump) != 0)
+	if (ao_log_csum((uint8_t *) &log) != 0)
 		return 0;
 	return 1;
 }
 
-static uint8_t
-ao_log_dump_scan(void)
+static void
+ao_log_scan(void)
 {
-	if (!ao_ee_read(0, (uint8_t *) &ao_log_dump, sizeof (struct ao_log_record)))
+	if (!ao_ee_read(0, (uint8_t *) &log, sizeof (struct ao_log_record)))
 		ao_panic(AO_PANIC_LOG);
-	if (ao_log_dump_check_data() && ao_log_dump.type == AO_LOG_FLIGHT) {
-		ao_log_dump_flight = ao_log_dump.u.flight.flight;
-		return 1;
+	if (ao_log_dump_check_data() && log.type == AO_LOG_FLIGHT) {
+		ao_flight_number = log.u.flight.flight + 1;
+		if (ao_flight_number == 0)
+			ao_flight_number = 1;
 	} else {
-		ao_log_dump_flight = 0;
-		return 0;
+		ao_flight_number = 1;
 	}
-}
-
-uint8_t
-ao_log_dump_first(void)
-{
-	ao_log_dump_pos = 0;
-	if (!ao_log_dump_scan())
-		return 0;
-	return 1;
-}
-
-uint8_t
-ao_log_dump_next(void)
-{
-	ao_log_dump_pos += sizeof (struct ao_log_record);
-	if (ao_log_dump_pos >= AO_EE_DEVICE_SIZE)
-		return 0;
-	if (!ao_ee_read(ao_log_dump_pos, (uint8_t *) &ao_log_dump,
-			sizeof (struct ao_log_record)))
-		return 0;
-	return ao_log_dump_check_data();
+	ao_wakeup(&ao_flight_number);
 }
 
 __xdata uint8_t	ao_log_adc_pos;
@@ -115,9 +94,7 @@ typedef uint8_t check_log_size[1-(256 % sizeof(struct ao_log_record))] ;
 void
 ao_log(void)
 {
-	static __xdata struct ao_log_record	log;
-
-	ao_log_dump_scan();
+	ao_log_scan();
 
 	while (!ao_log_running)
 		ao_sleep(&ao_log_running);
@@ -125,7 +102,7 @@ ao_log(void)
 	log.type = AO_LOG_FLIGHT;
 	log.tick = ao_flight_tick;
 	log.u.flight.ground_accel = ao_ground_accel;
-	log.u.flight.flight = ao_log_dump_flight + 1;
+	log.u.flight.flight = ao_flight_number;
 	ao_log_data(&log);
 
 	/* Write the whole contents of the ring to the log

@@ -288,6 +288,7 @@ aoview_state_notify(struct cc_telem *data)
 	aoview_table_add_row(0, "Rocket state", "%s", state->data.state);
 	aoview_table_add_row(0, "Callsign", "%s", state->data.callsign);
 	aoview_table_add_row(0, "Rocket serial", "%d", state->data.serial);
+	aoview_table_add_row(0, "Rocket flight", "%d", state->data.flight);
 
 	aoview_table_add_row(0, "RSSI", "%6ddBm", state->data.rssi);
 	aoview_table_add_row(0, "Height", "%6dm", state->height);

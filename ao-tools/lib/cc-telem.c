@@ -93,6 +93,13 @@ cc_telem_parse(const char *input_line, struct cc_telem *telem)
 	cc_parse_string(telem->callsign, sizeof (telem->callsign), words[1]);
 	cc_parse_int(&telem->serial, words[3]);
 
+	if (version >= 2) {
+		cc_parse_int(&telem->flight, words[5]);
+		words += 2;
+		nword -= 2;
+	} else
+		telem->flight = 0;
+
 	cc_parse_int(&telem->rssi, words[5]);
 	cc_parse_string(telem->state, sizeof (telem->state), words[9]);
 	cc_parse_int(&telem->tick, words[10]);

@@ -238,6 +238,7 @@ struct cc_gps_tracking {
 struct cc_telem {
 	char	callsign[16];
 	int	serial;
+	int	flight;
 	int	rssi;
 	char	state[16];
 	int	tick;

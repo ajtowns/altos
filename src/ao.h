@@ -553,11 +553,11 @@ ao_log_data(struct ao_log_record *log);
 void
 ao_log_flush(void);
 
-/* Log dumping API:
- * ao_log_dump_first() - get first log record
- * ao_log_dump_next()  - get next log record
+/* We record flight numbers in the first record of
+ * the log. Tasks may wait for this to be initialized
+ * by sleeping on this variable.
  */
-extern __xdata struct ao_log_record ao_log_dump;
+extern __xdata uint16_t ao_flight_number;
 
 /* Retrieve first log record for the current flight */
 uint8_t
@@ -788,10 +788,11 @@ ao_gps_report_init(void);
  */
 
 #define AO_MAX_CALLSIGN		8
-#define AO_TELEMETRY_VERSION	1
+#define AO_TELEMETRY_VERSION	2
 
 struct ao_telemetry {
 	uint8_t			addr;
+	uint16_t		flight;
 	uint8_t			flight_state;
 	int16_t			flight_accel;
 	int16_t			ground_accel;
