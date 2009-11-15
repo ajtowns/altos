@@ -75,10 +75,10 @@ __pdata int16_t ao_accel_2g;
 /* convert m/s to velocity count */
 #define VEL_MPS_TO_COUNT(mps) (((int32_t) (((mps) / GRAVITY) * (AO_HERTZ/2))) * (int32_t) ao_accel_2g)
 
-#define ACCEL_G		265
-#define ACCEL_NOSE_UP	(ao_accel_2g / 4)
+#define ACCEL_NOSE_UP	(ao_accel_2g >> 2)
 #define ACCEL_BOOST	ao_accel_2g
-#define ACCEL_INT_LAND	(ACCEL_G / 10)
+#define ACCEL_COAST	(ao_accel_2g >> 3)
+#define ACCEL_INT_LAND	(ao_accel_2g >> 3)
 #define ACCEL_VEL_MACH	VEL_MPS_TO_COUNT(200)
 #define ACCEL_VEL_BOOST	VEL_MPS_TO_COUNT(5)
 
@@ -132,7 +132,7 @@ __xdata int32_t ao_raw_accel_sum, ao_raw_pres_sum;
 /* Landing is detected by getting constant readings from both pressure and accelerometer
  * for a fairly long time (AO_INTERVAL_TICKS)
  */
-#define AO_INTERVAL_TICKS	AO_SEC_TO_TICKS(20)
+#define AO_INTERVAL_TICKS	AO_SEC_TO_TICKS(5)
 
 #define abs(a)	((a) < 0 ? -(a) : (a))
 
@@ -301,7 +301,7 @@ ao_flight(void)
 			 * deceleration, or by waiting until the maximum burn duration
 			 * (15 seconds) has past.
 			 */
-			if (ao_flight_accel > ao_ground_accel + (ACCEL_G >> 2) ||
+			if (ao_flight_accel > ao_ground_accel + ACCEL_COAST ||
 			    (int16_t) (ao_flight_tick - ao_launch_tick) > BOOST_TICKS_MAX)
 			{
 				ao_flight_state = ao_flight_fast;
@@ -432,20 +432,20 @@ ao_flight(void)
 				ao_interval_end = ao_flight_tick + AO_INTERVAL_TICKS;
 				ao_interval_cur_min_pres = ao_interval_cur_max_pres = ao_flight_pres;
 				ao_interval_cur_min_accel = ao_interval_cur_max_accel = ao_flight_accel;
-			}
 
-			if ((uint16_t) (ao_interval_max_accel - ao_interval_min_accel) < (uint16_t) ACCEL_INT_LAND &&
-			    ao_flight_pres > ao_ground_pres - BARO_LAND &&
-			    (uint16_t) (ao_interval_max_pres - ao_interval_min_pres) < (uint16_t) BARO_INT_LAND)
-			{
-				ao_flight_state = ao_flight_landed;
+				if ((uint16_t) (ao_interval_max_accel - ao_interval_min_accel) < (uint16_t) ACCEL_INT_LAND &&
+				    ao_flight_pres > ao_ground_pres - BARO_LAND &&
+				    (uint16_t) (ao_interval_max_pres - ao_interval_min_pres) < (uint16_t) BARO_INT_LAND)
+				{
+					ao_flight_state = ao_flight_landed;
 
-				/* turn off the ADC capture */
-				ao_timer_set_adc_interval(0);
-				/* Enable RDF beacon */
-				ao_rdf_set(1);
+					/* turn off the ADC capture */
+					ao_timer_set_adc_interval(0);
+					/* Enable RDF beacon */
+					ao_rdf_set(1);
 
-				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
+					ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
+				}
 			}
 			break;
 		case ao_flight_landed:
