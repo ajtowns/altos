@@ -99,6 +99,7 @@ aoview_monitor_connect(char *tty)
 	channel = aoview_channel_current();
 	if (channel >= 0)
 		aoview_monitor_set_channel(channel);
+	aoview_serial_printf(monitor_serial, "m 1\n");
 	aoview_serial_set_callback(monitor_serial,
 				   aoview_monitor_callback);
 	return TRUE;
