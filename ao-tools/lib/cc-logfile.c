@@ -101,11 +101,12 @@ gpssat_add(struct cc_gpsdata *data, struct cc_gpssat *sat)
 			if (data->sizesats == 0)
 				newsats = malloc((newsizesats = 256) * sizeof (struct cc_gpssats));
 			else
-				newsats = realloc (data->data, (newsizesats = data->sizesats * 2)
+				newsats = realloc (data->sats, (newsizesats = data->sizesats * 2)
 						   * sizeof (struct cc_gpssats));
 			if (!newsats)
 				return 0;
 			data->sats = newsats;
+			data->sizesats = newsizesats;
 		}
 		i = data->numsats++;
 		data->sats[i].nsat = 0;
