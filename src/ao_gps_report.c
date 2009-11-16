@@ -22,6 +22,7 @@ ao_gps_report(void)
 {
 	static __xdata struct ao_log_record	gps_log;
 	static __xdata struct ao_gps_data	gps_data;
+	uint8_t	date_reported = 0;
 
 	for (;;) {
 		ao_sleep(&ao_gps_data);
@@ -49,6 +50,14 @@ ao_gps_report(void)
 		gps_log.u.gps_altitude.altitude = gps_data.altitude;
 		gps_log.u.gps_altitude.unused = 0xffff;
 		ao_log_data(&gps_log);
+		if (!date_reported && (gps_data.flags & AO_GPS_DATE_VALID)) {
+			date_reported = 1;
+			gps_log.type = AO_LOG_GPS_DATE;
+			gps_log.u.gps_date.year = gps_data.year;
+			gps_log.u.gps_date.month = gps_data.month;
+			gps_log.u.gps_date.day = gps_data.day;
+			ao_log_data(&gps_log);
+		}
 	}
 }
 
@@ -71,8 +80,7 @@ ao_gps_tracking_report(void)
 		gps_log.tick = ao_time();
 		gps_log.type = AO_LOG_GPS_SAT;
 		for (c = 0; c < n; c++)
-			if ((gps_log.u.gps_sat.svid = gps_tracking_data.sats[c].svid) &&
-			    (gps_log.u.gps_sat.state = gps_tracking_data.sats[c].state))
+			if ((gps_log.u.gps_sat.svid = gps_tracking_data.sats[c].svid))
 			{
 				gps_log.u.gps_sat.c_n = gps_tracking_data.sats[c].c_n_1;
 				ao_log_data(&gps_log);

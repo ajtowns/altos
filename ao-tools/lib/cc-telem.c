@@ -127,6 +127,7 @@ cc_telem_parse(const char *input_line, struct cc_telem *telem)
 	if (strcmp (words[36], "unlocked") == 0) {
 		telem->gps.gps_connected = 1;
 		telem->gps.gps_locked = 0;
+		telem->gps.gps_time.year = telem->gps.gps_time.month = telem->gps.gps_time.day = 0;
 		telem->gps.gps_time.hour = telem->gps.gps_time.minute = telem->gps.gps_time.second = 0;
 		telem->gps.lat = telem->gps.lon = 0;
 		telem->gps.alt = 0;
@@ -134,6 +135,16 @@ cc_telem_parse(const char *input_line, struct cc_telem *telem)
 	} else if (nword >= 40) {
 		telem->gps.gps_locked = 1;
 		telem->gps.gps_connected = 1;
+		if (version >= 2) {
+			sscanf(words[36], "%d-%d-%d",
+			       &telem->gps.gps_time.year,
+			       &telem->gps.gps_time.month,
+			       &telem->gps.gps_time.day);
+			words += 1;
+			nword -= 1;
+		} else {
+			telem->gps.gps_time.year = telem->gps.gps_time.month = telem->gps.gps_time.day = 0;
+		}
 		sscanf(words[36], "%d:%d:%d", &telem->gps.gps_time.hour, &telem->gps.gps_time.minute, &telem->gps.gps_time.second);
 		cc_parse_pos(&telem->gps.lat, words[37]);
 		cc_parse_pos(&telem->gps.lon, words[38]);
@@ -142,6 +153,7 @@ cc_telem_parse(const char *input_line, struct cc_telem *telem)
 	} else {
 		telem->gps.gps_connected = 0;
 		telem->gps.gps_locked = 0;
+		telem->gps.gps_time.year = telem->gps.gps_time.month = telem->gps.gps_time.day = 0;
 		telem->gps.gps_time.hour = telem->gps.gps_time.minute = telem->gps.gps_time.second = 0;
 		telem->gps.lat = telem->gps.lon = 0;
 		telem->gps.alt = 0;

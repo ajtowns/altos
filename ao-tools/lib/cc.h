@@ -192,6 +192,9 @@ struct cc_flightcooked {
 
 
 struct cc_gps_time {
+	int year;
+	int month;
+	int day;
 	int hour;
 	int minute;
 	int second;

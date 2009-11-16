@@ -493,6 +493,7 @@ ao_ee_init(void);
 #define AO_LOG_GPS_LON		'W'
 #define AO_LOG_GPS_ALT		'H'
 #define AO_LOG_GPS_SAT		'V'
+#define AO_LOG_GPS_DATE		'Y'
 
 #define AO_LOG_POS_NONE		(~0UL)
 
@@ -538,6 +539,11 @@ struct ao_log_record {
 			uint8_t		state;
 			uint8_t		c_n;
 		} gps_sat;
+		struct {
+			uint8_t		year;
+			uint8_t		month;
+			uint8_t		day;
+		} gps_date;
 		struct {
 			uint16_t	d0;
 			uint16_t	d1;
@@ -720,8 +726,12 @@ ao_serial_init(void);
 
 #define AO_GPS_VALID		(1 << 4)
 #define AO_GPS_RUNNING		(1 << 5)
+#define AO_GPS_DATE_VALID	(1 << 6)
 
 struct ao_gps_data {
+	uint8_t			year;
+	uint8_t			month;
+	uint8_t			day;
 	uint8_t			hour;
 	uint8_t			minute;
 	uint8_t			second;

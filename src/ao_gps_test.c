@@ -27,8 +27,12 @@
 
 #define AO_GPS_VALID		(1 << 4)
 #define AO_GPS_RUNNING		(1 << 5)
+#define AO_GPS_DATE_VALID	(1 << 6)
 
 struct ao_gps_data {
+	uint8_t			year;
+	uint8_t			month;
+	uint8_t			day;
 	uint8_t			hour;
 	uint8_t			minute;
 	uint8_t			second;

@@ -53,6 +53,10 @@ ao_gps_print(__xdata struct ao_gps_data *gps_data) __reentrant
 
 		ao_gps_split(gps_data->latitude, &lat);
 		ao_gps_split(gps_data->longitude, &lon);
+		printf(" 20%02d-%02d-%02d",
+		       gps_data->year,
+		       gps_data->month,
+		       gps_data->day);
 		printf(" %2d:%02d:%02d",
 		       gps_data->hour,
 		       gps_data->minute,

@@ -315,6 +315,10 @@ aoview_state_notify(struct cc_telem *data)
 		aoview_state_add_deg(1, "Longitude", state->gps.lon, 'E', 'W');
 		aoview_table_add_row(1, "GPS altitude", "%d", state->gps.alt);
 		aoview_table_add_row(1, "GPS height", "%d", state->gps_height);
+		aoview_table_add_row(1, "GPS date", "%04d-%02d-%02d",
+				     state->gps.gps_time.year,
+				     state->gps.gps_time.month,
+				     state->gps.gps_time.day);
 		aoview_table_add_row(1, "GPS time", "%02d:%02d:%02d",
 				     state->gps.gps_time.hour,
 				     state->gps.gps_time.minute,

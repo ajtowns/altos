@@ -19,9 +19,9 @@
 #include "ao.h"
 #endif
 
-#define AO_GPS_LEADER		3
+#define AO_GPS_LEADER		2
 
-static const char ao_gps_header[] = "GPG";
+static const char ao_gps_header[] = "GP";
 
 __xdata uint8_t ao_gps_mutex;
 static __xdata char ao_gps_char;
@@ -32,6 +32,7 @@ __xdata struct ao_gps_data	ao_gps_data;
 __xdata struct ao_gps_tracking_data	ao_gps_tracking_data;
 
 static __xdata struct ao_gps_data		ao_gps_next;
+static __xdata uint8_t				ao_gps_date_flags;
 static __xdata struct ao_gps_tracking_data	ao_gps_tracking_next;
 
 static const char ao_gps_config[] = {
@@ -181,7 +182,7 @@ ao_gps_parse_flag(char no_c, char yes_c) __reentrant
 void
 ao_gps(void) __reentrant
 {
-	char	c;
+	char	a, c;
 	uint8_t	i;
 
 	ao_serial_set_speed(AO_SERIAL_SPEED_9600);
@@ -198,7 +199,7 @@ ao_gps(void) __reentrant
 		ao_gps_cksum = 0;
 		ao_gps_error = 0;
 
-		/* Skip anything other than GPG */
+		/* Skip anything other than GP */
 		for (i = 0; i < AO_GPS_LEADER; i++) {
 			ao_gps_lexchar();
 			if (ao_gps_char != ao_gps_header[i])
@@ -209,6 +210,8 @@ ao_gps(void) __reentrant
 
 		/* pull the record identifier characters off the link */
 		ao_gps_lexchar();
+		a = ao_gps_char;
+		ao_gps_lexchar();
 		c = ao_gps_char;
 		ao_gps_lexchar();
 		i = ao_gps_char;
@@ -216,7 +219,7 @@ ao_gps(void) __reentrant
 		if (ao_gps_char != ',')
 			continue;
 
-		if (c == (uint8_t) 'G' && i == (uint8_t) 'A') {
+		if (a == (uint8_t) 'G' && c == (uint8_t) 'G' && i == (uint8_t) 'A') {
 			/* Now read the data into the gps data record
 			 *
 			 * $GPGGA,025149.000,4528.1723,N,12244.2480,W,1,05,2.0,103.5,M,-19.5,M,,0000*66
@@ -245,7 +248,7 @@ ao_gps(void) __reentrant
 			 *	   *66		checksum
 			 */
 
-			ao_gps_next.flags = AO_GPS_RUNNING;
+			ao_gps_next.flags = AO_GPS_RUNNING | ao_gps_date_flags;
 			ao_gps_next.hour = ao_gps_decimal(2);
 			ao_gps_next.minute = ao_gps_decimal(2);
 			ao_gps_next.second = ao_gps_decimal(2);
@@ -290,7 +293,7 @@ ao_gps(void) __reentrant
 				ao_mutex_put(&ao_gps_mutex);
 				ao_wakeup(&ao_gps_data);
 			}
-		} else if (c == (uint8_t) 'S' && i == (uint8_t) 'V') {
+		} else if (a == (uint8_t) 'G' && c == (uint8_t) 'S' && i == (uint8_t) 'V') {
 			uint8_t	done;
 			/* Now read the data into the GPS tracking data record
 			 *
@@ -344,6 +347,56 @@ ao_gps(void) __reentrant
 				       sizeof(ao_gps_tracking_data));
 				ao_mutex_put(&ao_gps_mutex);
 				ao_wakeup(&ao_gps_tracking_data);
+			}
+		} else if (a == (uint8_t) 'R' && c == (uint8_t) 'M' && i == (uint8_t) 'C') {
+			/* Parse the RMC record to read out the current date */
+
+			/* $GPRMC,111636.932,A,2447.0949,N,12100.5223,E,000.0,000.0,030407,,,A*61
+			 *
+			 * Recommended Minimum Specific GNSS Data
+			 *
+			 *	111636.932	UTC time 11:16:36.932
+			 *	A		Data Valid (V = receiver warning)
+			 *	2447.0949	Latitude
+			 *	N		North/south indicator
+			 *	12100.5223	Longitude
+			 *	E		East/west indicator
+			 *	000.0		Speed over ground
+			 *	000.0		Course over ground
+			 *	030407		UTC date (ddmmyy format)
+			 *	A		Mode indicator:
+			 *			N = data not valid
+			 *			A = autonomous mode
+			 *			D = differential mode
+			 *			E = estimated (dead reckoning) mode
+			 *			M = manual input mode
+			 *			S = simulator mode
+			 *	61		checksum
+			 */
+			ao_gps_skip_field();
+			for (i = 0; i < 8; i++) {
+				ao_gps_lexchar();
+				ao_gps_skip_field();
+			}
+			a = ao_gps_decimal(2);
+			c = ao_gps_decimal(2);
+			i = ao_gps_decimal(2);
+			/* Skip remaining fields */
+			while (ao_gps_char != '*' && ao_gps_char != '\n' && ao_gps_char != '\r') {
+				ao_gps_lexchar();
+				ao_gps_skip_field();
+			}
+			if (ao_gps_char == '*') {
+				uint8_t cksum = ao_gps_cksum ^ '*';
+				if (cksum != ao_gps_hex(2))
+					ao_gps_error = 1;
+			} else
+				ao_gps_error = 1;
+			if (!ao_gps_error) {
+				ao_gps_next.year = i;
+				ao_gps_next.month = c;
+				ao_gps_next.day = a;
+				ao_gps_date_flags = AO_GPS_DATE_VALID;
 			}
 		}
 	}
