@@ -178,18 +178,25 @@ cc_telem_parse(const char *input_line, struct cc_telem *telem)
 	}
 	if (tracking_pos >= 0 && nword >= tracking_pos + 2 && strcmp(words[tracking_pos], "SAT") == 0) {
 		int	c, n, pos;
+		int	per_sat;
+		int	state;
+
+		if (version >= 2)
+			per_sat = 2;
+		else
+			per_sat = 3;
 		cc_parse_int(&n, words[tracking_pos + 1]);
 		pos = tracking_pos + 2;
-		if (nword >= pos + n * 3) {
+		if (nword >= pos + n * per_sat) {
 			telem->gps_tracking.channels = n;
 			for (c = 0; c < n; c++) {
 				cc_parse_int(&telem->gps_tracking.sats[c].svid,
 						 words[pos + 0]);
-				cc_parse_hex(&telem->gps_tracking.sats[c].state,
-						 words[pos + 1]);
+				if (version < 2)
+					cc_parse_hex(&state, words[pos + 1]);
 				cc_parse_int(&telem->gps_tracking.sats[c].c_n0,
-						 words[pos + 2]);
-				pos += 3;
+						 words[pos + per_sat - 1]);
+				pos += per_sat;
 			}
 		} else {
 			telem->gps_tracking.channels = 0;

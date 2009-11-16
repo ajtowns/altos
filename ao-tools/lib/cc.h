@@ -103,7 +103,6 @@ struct cc_gpselt {
 struct cc_gpssat {
 	double		time;
 	uint16_t	svid;
-	uint8_t		state;
 	uint8_t		c_n;
 };
 

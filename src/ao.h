@@ -536,7 +536,7 @@ struct ao_log_record {
 		} gps_altitude;
 		struct {
 			uint16_t	svid;
-			uint8_t		state;
+			uint8_t		unused;
 			uint8_t		c_n;
 		} gps_sat;
 		struct {
@@ -747,18 +747,8 @@ struct ao_gps_data {
 	uint16_t		v_error;	/* m */
 };
 
-#define SIRF_SAT_STATE_ACQUIRED			(1 << 0)
-#define SIRF_SAT_STATE_CARRIER_PHASE_VALID	(1 << 1)
-#define SIRF_SAT_BIT_SYNC_COMPLETE		(1 << 2)
-#define SIRF_SAT_SUBFRAME_SYNC_COMPLETE		(1 << 3)
-#define SIRF_SAT_CARRIER_PULLIN_COMPLETE	(1 << 4)
-#define SIRF_SAT_CODE_LOCKED			(1 << 5)
-#define SIRF_SAT_ACQUISITION_FAILED		(1 << 6)
-#define SIRF_SAT_EPHEMERIS_AVAILABLE		(1 << 7)
-
 struct ao_gps_sat_data {
 	uint8_t		svid;
-	uint8_t		state;
 	uint8_t		c_n_1;
 };
 

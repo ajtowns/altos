@@ -212,7 +212,6 @@ read_eeprom(const char *line, struct cc_flightraw *f, double *ground_pres, int *
 	case AO_LOG_GPS_SAT:
 		sat.time = tick;
 		sat.svid = a;
-		sat.state = (b & 0xff);
 		sat.c_n = (b >> 8) & 0xff;
 		gpssat_add(&f->gps, &sat);
 		break;

@@ -360,7 +360,7 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 			nsat = 0;
 			for (k = 0; k < f->gps.sats[j].nsat; k++) {
 				fprintf (gps_file, " %12.7f", (double) f->gps.sats[j].sat[k].c_n);
-				if (f->gps.sats[j].sat[k].state == 0xbf)
+				if (f->gps.sats[j].sat[k].svid != 0)
 					nsat++;
 			}
 			fprintf(gps_file, " %d\n", nsat);
@@ -381,7 +381,7 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 			}
 			nsat = 0;
 			for (k = 0; k < f->gps.sats[j].nsat; k++)
-				if (f->gps.sats[j].sat[k].state == 0xbf)
+				if (f->gps.sats[j].sat[k].svid != 0)
 					nsat++;
 
 			fprintf(kml_file, "%12.7f, %12.7f, %12.7f <!-- time %12.7f sats %d -->",

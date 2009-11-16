@@ -108,7 +108,6 @@ static __xdata struct sirf_geodetic_nav_data	ao_sirf_data;
 
 struct sirf_measured_sat_data {
 	uint8_t		svid;
-	uint16_t	state;
 	uint8_t		c_n_1;
 };
 
@@ -264,8 +263,7 @@ static const struct sirf_packet_parse measured_tracker_data_packet[] = {
 
 static const struct sirf_packet_parse measured_sat_data_packet[] = {
 	{ SIRF_U8, offsetof (struct sirf_measured_sat_data, svid) },		/* 0 SV id */
-	{ SIRF_DISCARD, 2 },							/* 1 azimuth, 2 elevation */
-	{ SIRF_U16, offsetof (struct sirf_measured_sat_data, state) },		/* 2 state */
+	{ SIRF_DISCARD, 4 },							/* 1 azimuth, 2 elevation, 3 state */
 	{ SIRF_U8, offsetof (struct sirf_measured_sat_data, c_n_1) },		/* C/N0 1 */
 	{ SIRF_DISCARD, 9 },							/* C/N0 2-10 */
 	{ SIRF_END, 0 },
@@ -421,7 +419,6 @@ ao_gps(void) __reentrant
 			ao_gps_tracking_data.channels = ao_sirf_tracker_data.channels;
 			for (i = 0; i < 12; i++) {
 				ao_gps_tracking_data.sats[i].svid = ao_sirf_tracker_data.sats[i].svid;
-				ao_gps_tracking_data.sats[i].state = (uint8_t) ao_sirf_tracker_data.sats[i].state;
 				ao_gps_tracking_data.sats[i].c_n_1 = ao_sirf_tracker_data.sats[i].c_n_1;
 			}
 			ao_mutex_put(&ao_gps_mutex);

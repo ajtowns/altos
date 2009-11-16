@@ -112,17 +112,16 @@ ao_gps_tracking_print(__xdata struct ao_gps_tracking_data *gps_tracking_data) __
 	sat = gps_tracking_data->sats;
 	v = 0;
 	for (c = 0; c < n; c++) {
-		if (sat->svid && sat->state)
+		if (sat->svid)
 			v++;
 		sat++;
 	}
 	printf("%d ", v);
 	sat = gps_tracking_data->sats;
 	for (c = 0; c < n; c++) {
-		if (sat->svid && sat->state)
-			printf (" %3d %02x %3d",
+		if (sat->svid)
+			printf (" %3d %3d",
 				sat->svid,
-				sat->state,
 				sat->c_n_1);
 		sat++;
 	}

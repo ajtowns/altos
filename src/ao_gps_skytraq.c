@@ -326,10 +326,8 @@ ao_gps(void) __reentrant
 				ao_gps_skip_field();	/* elevation */
 				ao_gps_lexchar();
 				ao_gps_skip_field();	/* azimuth */
-				if (ao_gps_tracking_next.sats[i].c_n_1 = ao_gps_decimal(2))	/* C/N0 */
-					ao_gps_tracking_next.sats[i].state = 0xbf;
-				else
-					ao_gps_tracking_next.sats[i].state = 0;
+				if (!(ao_gps_tracking_next.sats[i].c_n_1 = ao_gps_decimal(2)))	/* C/N0 */
+					ao_gps_tracking_next.sats[i].svid = 0;
 				ao_gps_tracking_next.channels = i + 1;
 			}
 			if (ao_gps_char == '*') {

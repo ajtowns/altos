@@ -59,7 +59,6 @@ struct ao_gps_data {
 
 struct ao_gps_sat_data {
 	uint8_t		svid;
-	uint8_t		state;
 	uint8_t		c_n_1;
 };
 
@@ -435,9 +434,9 @@ ao_dump_state(void *wchan)
 	printf("\n");
 	printf ("\t");
 	for (i = 0; i < 12; i++)
-		printf (" %2d(%02x)",
+		printf (" %2d(%02d)",
 			ao_gps_tracking_data.sats[i].svid,
-			ao_gps_tracking_data.sats[i].state);
+			ao_gps_tracking_data.sats[i].c_n_1);
 	printf ("\n");
 }
 
