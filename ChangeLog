@@ -1,3 +1,48 @@
+commit 87e6f3e5c1688503ab8595912d8d6eb7139830b7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 20 12:16:37 2009 -0800
+
+    Eliminate SiRF state values from ao-view.
+    
+    With Skytraq not having any visible GPS state information, just
+    remove this from the display.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8065b8146a31438e66f83c13b99281ec47439a73
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 20 11:56:48 2009 -0800
+
+    Add GPS date/time output to ao-postflight.
+    
+    GPS date/time information was already being stored in the log, it just
+    wasn't getting displayed by ao-postflight.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6894541e0ee144bfc689cc02d4ed333711d3b500
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 20 11:55:28 2009 -0800
+
+    Reduce igniter firing time from 500ms to 50ms.
+    
+    Given that the system will brown-out with the longer pulse, it doesn't
+    make sense to even try; failure at 50ms probably indicates a short.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b75aa1c825b84bd7fa1578320fbc7e904c373a7d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Nov 19 21:43:13 2009 -0700
+
+    fix typo in comment
+
+commit c2f661b75ec035f6a3f700962290ef297f9ab0af
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Nov 20 11:44:06 2009 -0700
+
+    update changelogs for Debian build
+
 commit b0d7e3f9c9322542e9b649bb6ad7f7e5bb99dffa
 Author: Keith Packard <keithp@keithp.com>
 Date:   Sun Nov 15 16:20:18 2009 -0800

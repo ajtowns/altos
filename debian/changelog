@@ -1,3 +1,15 @@
+altos (0.6+32+g87e6f3e) unstable; urgency=low
+
+  [ Bdale Garbee ]
+  * fix typo in comment
+
+  [ Keith Packard ]
+  * Reduce igniter firing time from 500ms to 50ms.
+  * Add GPS date/time output to ao-postflight.
+  * Eliminate SiRF state values from ao-view.
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 20 Nov 2009 13:18:06 -0700
+
 altos (0.6+27+gb0d7e3f) unstable; urgency=low
 
   [ Keith Packard ]
