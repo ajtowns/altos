@@ -342,23 +342,14 @@ aoview_state_notify(struct cc_telem *data)
 	}
 	if (state->gps.gps_connected) {
 		int	nsat_vis = 0;
-		int	nsat_locked = 0;
 		int	c;
 
-		for (c = 0; c < state->gps_tracking.channels; c++) {
-			if ((state->gps_tracking.sats[c].state & 0xff) == 0xbf)
-				nsat_locked++;
-		}
 		aoview_table_add_row(2, "Satellites Visible", "%d", state->gps_tracking.channels);
-		aoview_table_add_row(2, "Satellites Locked", "%d", nsat_locked);
 		for (c = 0; c < state->gps_tracking.channels; c++) {
-			aoview_table_add_row(2, "Satellite id,state,C/N0",
-					     "%3d,%02x,%2d%s",
+			aoview_table_add_row(2, "Satellite id,C/N0",
+					     "%3d,%2d",
 					     state->gps_tracking.sats[c].svid,
-					     state->gps_tracking.sats[c].state,
-					     state->gps_tracking.sats[c].c_n0,
-					     (state->gps_tracking.sats[c].state & 0xff) == 0xbf ?
-					     " LOCKED" : "");
+					     state->gps_tracking.sats[c].c_n0);
 		}
 	}
 	aoview_table_finish();

@@ -233,7 +233,6 @@ struct cc_gps {
 
 struct cc_gps_sat {
 	int	svid;
-	int	state;
 	int	c_n0;
 };
 
