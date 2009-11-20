@@ -26,7 +26,7 @@
 /* test these values with real igniters */
 #define AO_IGNITER_OPEN		1000
 #define AO_IGNITER_CLOSED	7000
-#define AO_IGNITER_FIRE_TIME	AO_MS_TO_TICKS(500)
+#define AO_IGNITER_FIRE_TIME	AO_MS_TO_TICKS(50)
 #define AO_IGNITER_CHARGE_TIME	AO_MS_TO_TICKS(2000)
 
 struct ao_ignition {
