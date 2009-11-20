@@ -1,3 +1,272 @@
+commit b0d7e3f9c9322542e9b649bb6ad7f7e5bb99dffa
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Nov 15 16:20:18 2009 -0800
+
+    Stop using SiRF state info.
+    
+    With the switch to the skytraq GPS unit, we don't have the same level
+    of detail in the GPS stream, so stop reporting that in the telemetry
+    stream, in the UI and writing it to eeprom.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 524665fc221b0d483453c67b7211e282cebc8980
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Nov 15 16:04:41 2009 -0800
+
+    Add date to GPS data, captured from GPRMC packet.
+    
+    Pull the date out of the GPS stream and send it over the telemetry
+    link and write it to the eeprom.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3ee279ba76c2a79d142c466f19ef758cf4c01d70
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Nov 15 15:59:01 2009 -0800
+
+    Add flight number to telemetry stream.
+    
+    This makes it easier to tie the telemetry and eeprom files together as
+    they're now both labeled with serial and flight numbers, which should
+    be unique.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6391c89bd5b89f5f46255b8365c658a873e5959a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Nov 15 15:53:01 2009 -0800
+
+    Switch order of serial/flight in ao-postflight summary
+
+commit 9b06e294e2777f69bcf5e98789c3f5477097d53b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Nov 15 15:51:58 2009 -0800
+
+    Enable telemetry receive in ao_view
+
+commit 4cffc9c4b079e39c8196ddbaf91129cda6df7f8b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 14 22:24:37 2009 -0800
+
+    Share telemetry parsing code in cc library.
+    
+    ao-view had a private copy of the telemetry parsing code which
+    included the ability to parse the newer version of that file. Those
+    changes have been moved to the library version and the private copy removed.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0e0db8ca3af4c07bae909938486766c646bf580b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 14 22:24:09 2009 -0800
+
+    Provide a dummy 'uninstall' target in the src directory.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1c654a9369294c9b8066c33f91161d8005b96680
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 14 22:17:24 2009 -0800
+
+    Loosen tolerances for main->landed transition
+    
+    Detecting that the rocket has landed is required for the system to
+    flush the eeprom log and re-enable the RDF beacon. This patch changes
+    the landed state entry requirements for the accelerometer to require
+    only that the accelerometer stay within a quarter of a g (down from
+    1/10g) and changes the testing interval from 20 seconds to 5
+    seconds.
+    
+    The requirement that the barometric altitude be within 1000m of the
+    launch altitude and that the barometer change by no more than 0.05kPa
+    are unchanged.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 03092d1a72a9651711e22c58dca6d6aba5705c5e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 14 16:35:12 2009 -0800
+
+    ao-postflight: fix sloppy gps sat data realloc code (was crashing).
+    
+    Realloc'ing the wrong data, and failing to set the realloc'ed size was
+    causing ao-postflight to crash while reading long logs.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit adf656192441eb7f44792955c86e469145477e29
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Nov 5 22:11:59 2009 -0800
+
+    Return radio to telemetry settings when packet system closed.
+    
+    To receive telemetry after disabling the packet system, the radio must
+    be reconfigured for telemetry mode.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 83afdbdc154fe013bfe35ce5ecf1d61570b04ed6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Nov 5 21:45:00 2009 -0800
+
+    Add reboot command.
+    
+    This resets the processor using the watchdog timer.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0358988ac0ee25a564d48af79b1c3fb0c0fe0a88
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Nov 5 21:44:31 2009 -0800
+
+    Add Watchdog Timer Control register definitions
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4114210e0b813f4af99d0cb7755ad2ac2c4b120e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Nov 5 21:43:21 2009 -0800
+
+    Move ao_match_word from ao_ignite.c to ao_cmd.c
+    
+    This is a generally useful command line utility.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5a79a04ddb0b3ee64de34e366f71a0f6db509c01
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Nov 4 21:59:51 2009 -0800
+
+    Stop recording in ao-dumplog after receiving an invalid block
+    
+    If no samples in a block are valid, assume the flight log is over.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 843ee489aac34ad6d81f55f1c85fb9eecc42d86b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Nov 4 21:59:12 2009 -0800
+
+    Flush pending input when switching to remote packet mode
+    
+    Any pending input would just confuse the application, so pull it off
+    the link and dump it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 036400a2db303f3db3be7cc0426f88359c6bd2b1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Nov 4 21:42:51 2009 -0800
+
+    Explicitly use USB I/O routines in packet code
+    
+    Using the implicit stdio functions (putchar/getchar/flush) would
+    result in essentially random redirection of each, depending on whether
+    the packet code had characters available when getchar was called. This
+    would cause lockups in putchar.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3ece984f4d72b4f720a5efdfaad7cff77a93d676
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Nov 4 21:32:07 2009 -0800
+
+    In USB pollchar, wait for packet before re-checking USB out len
+    
+    This probably wouldn't actually cause a problem, but it seems more
+    reliable to wait for a packet interrupt before re-reading the packet
+    OUT len register. This could avoid spinning while waiting for a USB
+    packet, which seems like a good thing.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit bc62bb254085cc705203b57260c04ac5e14c6611
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Nov 4 21:29:37 2009 -0800
+
+    In packet master, move USB flush from packet thread to echo thread
+    
+    This keeps the packet thread from blocking on USB and also makes the
+    flush happen after every packet (slightly more USB traffic, but
+    packets are slow anyway).
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 27ebaf8e13aed06bb1ea6e770f767495a02be6c5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Nov 3 01:27:37 2009 -0800
+
+    Add ability to dump eeprom data over radio link.
+    
+    This adds a '-R' option to ao-dumplog to redirect the connection
+    through a USB attached TeleDongle over the radio link to a remote
+    TeleMetrum device.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1de322b960005c9a16051afa1881fadb00f4bcd6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Nov 3 00:40:38 2009 -0800
+
+    Pass accel calibration over telemetry stream. Telemetry data format change.
+    
+    This allows the ground station to convert the accelerometer sensor
+    values into acceleration and speed data. This requires a new telemetry
+    data structure, and so TeleMetrum and TeleDongle units must be updated
+    synchronously. ao-view will parse either telemetry stream, and the
+    serial format from TeleDongle now has a version number to allow for
+    future changes.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b529e5e8998702986909111a457f3ce9932e1ccf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 2 23:48:29 2009 -0800
+
+    ao_flight_test was using accel value for pressure too
+
+commit f57bea012d4fbca097df0d98fcd30eb4abd9701a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 2 21:47:41 2009 -0800
+
+    Reformat ADC values to show all 16 bits
+
+commit 79718e798e96567f0ba11c61f187e432fdcf95ee
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 2 21:48:16 2009 -0800
+
+    Remove "f" command
+
+commit a4137263b69864c524d39c6ff88a0225fd06e79b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 2 21:47:15 2009 -0800
+
+    Remove "d" command
+
+commit 47f510464907d2b9488109c96ade87a41d878842
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 2 21:46:39 2009 -0800
+
+    Remove "l" command as ao-dumplong no longer uses it
+
+commit 144db05f6b286a0450d486f69ce192632a2c0656
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 2 21:38:18 2009 -0800
+
+    Add two-point accelerometer calibration.
+    
+    Calibration now uses two values, one upside right and the other upside
+    down instead of a single horizontal value. This allows the use of
+    other accelerometers and compensates for variations in the divider
+    circuit to provide more accurate data.
+
+commit 17611788aadc9460287145a340a7c18bf63766aa
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Nov 2 16:54:06 2009 -0700
+
+    update changelogs for Debian build
+
 commit 7db9d86178ecfd58cc1c17ac9fcbdcfd2f13aaec
 Merge: b219801 f9de200
 Author: Keith Packard <keithp@keithp.com>

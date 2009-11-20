@@ -1,3 +1,36 @@
+altos (0.6+27+gb0d7e3f) unstable; urgency=low
+
+  [ Keith Packard ]
+  * Add two-point accelerometer calibration.
+  * Remove "l" command as ao-dumplong no longer uses it
+  * Remove "d" command
+  * Remove "f" command
+  * Reformat ADC values to show all 16 bits
+  * ao_flight_test was using accel value for pressure too
+  * Pass accel calibration over telemetry stream. Telemetry data format
+    change.
+  * Add ability to dump eeprom data over radio link.
+  * In packet master, move USB flush from packet thread to echo thread
+  * In USB pollchar, wait for packet before re-checking USB out len
+  * Explicitly use USB I/O routines in packet code
+  * Flush pending input when switching to remote packet mode
+  * Stop recording in ao-dumplog after receiving an invalid block
+  * Move ao_match_word from ao_ignite.c to ao_cmd.c
+  * Add Watchdog Timer Control register definitions
+  * Add reboot command.
+  * Return radio to telemetry settings when packet system closed.
+  * ao-postflight: fix sloppy gps sat data realloc code (was crashing).
+  * Loosen tolerances for main->landed transition
+  * Provide a dummy 'uninstall' target in the src directory.
+  * Share telemetry parsing code in cc library.
+  * Enable telemetry receive in ao_view
+  * Switch order of serial/flight in ao-postflight summary
+  * Add flight number to telemetry stream.
+  * Add date to GPS data, captured from GPRMC packet.
+  * Stop using SiRF state info.
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 20 Nov 2009 11:43:56 -0700
+
 altos (0.6) unstable; urgency=low
 
   [ Keith Packard ]
