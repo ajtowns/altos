@@ -54,7 +54,7 @@ _ao_config_get(void)
 		ao_config_dirty = 1;
 	}
 	if (ao_config.minor < AO_CONFIG_MINOR) {
-		/* Fixups for mior version 1 */
+		/* Fixups for minor version 1 */
 		if (ao_config.minor < 1)
 			ao_config.apogee_delay = AO_CONFIG_DEFAULT_APOGEE_DELAY;
 		/* Fixupes for minor version 2 */
