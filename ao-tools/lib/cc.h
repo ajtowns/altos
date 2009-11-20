@@ -86,6 +86,10 @@ struct cc_timedata {
 
 struct cc_gpselt {
 	double		time;
+	int		hour;
+	int		minute;
+	int		second;
+	int		flags;
 	double		lat;
 	double		lon;
 	double		alt;
@@ -149,6 +153,7 @@ struct cc_flightraw {
 	int			serial;
 	double			ground_accel;
 	double			ground_pres;
+	int			year, month, day;
 	struct cc_timedata	accel;
 	struct cc_timedata	pres;
 	struct cc_timedata	temp;

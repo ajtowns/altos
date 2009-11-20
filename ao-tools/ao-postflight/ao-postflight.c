@@ -208,6 +208,18 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 		"Serial:  %9d\n"
 		"Flight:  %9d\n",
 		f->serial, f->flight);
+	if (f->year) {
+		fprintf(summary_file,
+			"Date:   %04d-%02d-%02d\n",
+			f->year, f->month, f->day);
+	}
+	if (f->gps.num) {
+		fprintf(summary_file,
+			"Time:     %2d:%02d:%02d\n",
+			f->gps.data[0].hour,
+			f->gps.data[0].minute,
+			f->gps.data[0].second);
+	}
 	boost_start = f->accel.data[0].time;
 	boost_stop = f->accel.data[f->accel.num-1].time;
 	for (i = 0; i < f->state.num; i++) {

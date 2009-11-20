@@ -136,6 +136,7 @@ gpsdata_free(struct cc_gpsdata *data)
 #define AO_LOG_GPS_LON		'W'
 #define AO_LOG_GPS_ALT		'H'
 #define AO_LOG_GPS_SAT		'V'
+#define AO_LOG_GPS_DATE		'Y'
 
 #define AO_LOG_POS_NONE		(~0UL)
 
@@ -195,6 +196,10 @@ read_eeprom(const char *line, struct cc_flightraw *f, double *ground_pres, int *
 		 * any stale data before adding this record
 		 */
 		gps.time = tick;
+		gps.hour = (a & 0xff);
+		gps.minute = (a >> 8) & 0xff;
+		gps.second = (b & 0xff);
+		gps.flags = (b >> 8) & 0xff;
 		gps_valid = GPS_TIME;
 		break;
 	case AO_LOG_GPS_LAT:
@@ -214,6 +219,11 @@ read_eeprom(const char *line, struct cc_flightraw *f, double *ground_pres, int *
 		sat.svid = a;
 		sat.c_n = (b >> 8) & 0xff;
 		gpssat_add(&f->gps, &sat);
+		break;
+	case AO_LOG_GPS_DATE:
+		f->year = 2000 + (a & 0xff);
+		f->month = (a >> 8) & 0xff;
+		f->day = (b & 0xff);
 		break;
 	default:
 		return 0;
@@ -266,10 +276,16 @@ read_telem(const char *line, struct cc_flightraw *f)
 	timedata_add(&f->main, telem.tick, telem.main);
 	timedata_add(&f->state, telem.tick, state_name_to_state(telem.state));
 	if (telem.gps.gps_locked) {
+		f->year = telem.gps.gps_time.year;
+		f->month = telem.gps.gps_time.month;
+		f->day = telem.gps.gps_time.day;
 		gps.time = telem.tick;
 		gps.lat = telem.gps.lat;
 		gps.lon = telem.gps.lon;
 		gps.alt = telem.gps.alt;
+		gps.hour = telem.gps.gps_time.hour;
+		gps.minute = telem.gps.gps_time.minute;
+		gps.second = telem.gps.gps_time.second;
 		gpsdata_add(&f->gps, &gps);
 	}
 	return 1;
