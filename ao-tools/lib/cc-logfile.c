@@ -263,6 +263,9 @@ read_telem(const char *line, struct cc_flightraw *f)
 {
 	struct cc_telem		telem;
 	struct cc_gpselt	gps;
+	struct cc_gpssat	sat;
+	int			s;
+
 	if (!cc_telem_parse(line, &telem))
 		return 0;
 	f->ground_accel = telem.ground_accel;
@@ -287,6 +290,12 @@ read_telem(const char *line, struct cc_flightraw *f)
 		gps.minute = telem.gps.gps_time.minute;
 		gps.second = telem.gps.gps_time.second;
 		gpsdata_add(&f->gps, &gps);
+	}
+	for (s = 0; s < telem.gps_tracking.channels; s++) {
+		sat.time = telem.tick;
+		sat.svid = telem.gps_tracking.sats[s].svid;
+		sat.c_n = telem.gps_tracking.sats[s].c_n0;
+		gpssat_add(&f->gps, &sat);
 	}
 	return 1;
 }
