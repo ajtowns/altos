@@ -271,7 +271,15 @@ ao_gps(void) __reentrant
 			ao_gps_next.flags |= i;
 
 			ao_gps_lexchar();
-			ao_gps_skip_field();	/* Horizontal dilution */
+			ao_gps_next.hdop = ao_gps_decimal(0xff);
+			if (ao_gps_next.hdop <= 50) {
+				ao_gps_next.hdop = (uint8_t) 5 * ao_gps_next.hdop;
+				if (ao_gps_char == '.')
+					ao_gps_next.hdop = (ao_gps_next.hdop +
+							    ((uint8_t) ao_gps_decimal(1) >> 1));
+			} else
+				ao_gps_next.hdop = 255;
+			ao_gps_skip_field();
 
 			ao_gps_next.altitude = ao_gps_decimal(0xff);
 			ao_gps_skip_field();	/* skip any fractional portion */
