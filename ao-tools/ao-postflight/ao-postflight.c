@@ -407,20 +407,22 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 			}
 
 			nsat = 0;
-			for (k = 0; k < f->gps.sats[j].nsat; k++) {
-				if (f->gps.sats[j].sat[k].svid != 0)
-					nsat++;
-			}
-			if (gps_file) {
-				fprintf(gps_file, " %4d", nsat);
+			if (f->gps.sats) {
 				for (k = 0; k < f->gps.sats[j].nsat; k++) {
-					if (f->gps.sats[j].sat[k].svid != 0) {
-						fprintf (gps_file, " %3d(%4.1f)",
-							 f->gps.sats[j].sat[k].svid,
-							 (double) f->gps.sats[j].sat[k].c_n);
-					}
+					if (f->gps.sats[j].sat[k].svid != 0)
+						nsat++;
 				}
-				fprintf(gps_file, "\n");
+				if (gps_file) {
+					fprintf(gps_file, " %4d", nsat);
+					for (k = 0; k < f->gps.sats[j].nsat; k++) {
+						if (f->gps.sats[j].sat[k].svid != 0) {
+							fprintf (gps_file, " %3d(%4.1f)",
+								 f->gps.sats[j].sat[k].svid,
+								 (double) f->gps.sats[j].sat[k].c_n);
+						}
+					}
+					fprintf(gps_file, "\n");
+				}
 			}
 		}
 		if (kml_file)
