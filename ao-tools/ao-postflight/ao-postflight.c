@@ -392,9 +392,11 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 				j++;
 			}
 			nsat = 0;
-			for (k = 0; k < f->gps.sats[j].nsat; k++)
-				if (f->gps.sats[j].sat[k].svid != 0)
-					nsat++;
+			if (j < f->gps.numsats) {
+				for (k = 0; k < f->gps.sats[j].nsat; k++)
+					if (f->gps.sats[j].sat[k].svid != 0)
+						nsat++;
+			}
 
 			fprintf(kml_file, "%12.7f, %12.7f, %12.7f <!-- time %12.7f sats %d -->",
 				f->gps.data[i].lon,
@@ -443,12 +445,12 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 }
 
 static const struct option options[] = {
-	{ .name = "summary", .has_arg = 1, .val = 's' },
-	{ .name = "detail", .has_arg = 1, .val = 'd' },
-	{ .name = "plot", .has_arg = 1, .val = 'p' },
-	{ .name = "raw", .has_arg = 1, .val = 'r' },
-	{ .name = "gps", .has_arg = 1, .val = 'g' },
-	{ .name = "kml", .has_arg = 1, .val = 'k' },
+	{ .name = "summary", .has_arg = 2, .val = 's' },
+	{ .name = "detail", .has_arg = 2, .val = 'd' },
+	{ .name = "plot", .has_arg = 2, .val = 'p' },
+	{ .name = "raw", .has_arg = 2, .val = 'r' },
+	{ .name = "gps", .has_arg = 2, .val = 'g' },
+	{ .name = "kml", .has_arg = 2, .val = 'k' },
 	{ 0, 0, 0, 0},
 };
 
@@ -463,6 +465,46 @@ static void usage(char *program)
 		"\t[--kml=<kml-file> -k <kml-file>]\n"
 		"\t{flight-log} ...\n", program);
 	exit(1);
+}
+
+char *
+replace_extension(char *file, char *extension)
+{
+	char	*slash;
+	char	*dot;
+	char	*new;
+	int	newlen;
+
+	slash = strrchr(file, '/');
+	dot = strrchr(file, '.');
+	if (!dot || (slash && dot < slash))
+		dot = file + strlen(file);
+	newlen = (dot - file) + strlen (extension) + 1;
+	new = malloc (newlen);
+	strncpy (new, file, dot - file);
+	new[dot-file] = '\0';
+	strcat (new, extension);
+	return new;
+}
+
+FILE *
+open_output(char *outname, char *inname, char *extension)
+{
+	char	*o;
+	FILE	*out;
+
+	if (outname)
+		o = outname;
+	else
+		o = replace_extension(inname, extension);
+	out = fopen(o, "w");
+	if (!out) {
+		perror (o);
+		exit(1);
+	}
+	if (o != outname)
+		free(o);
+	return out;
 }
 
 int
@@ -486,72 +528,46 @@ main (int argc, char **argv)
 	char			*plot_name = NULL;
 	char			*gps_name = NULL;
 	char			*kml_name = NULL;
+	int			has_summary = 0;
+	int			has_detail = 0;
+	int			has_plot = 0;
+	int			has_raw = 0;
+	int			has_gps = 0;
+	int			has_kml = 0;
 
 	while ((c = getopt_long(argc, argv, "s:d:p:r:g:k:", options, NULL)) != -1) {
 		switch (c) {
 		case 's':
 			summary_name = optarg;
+			has_summary = 1;
 			break;
 		case 'd':
 			detail_name = optarg;
+			has_detail = 1;
 			break;
 		case 'p':
 			plot_name = optarg;
+			has_plot = 1;
 			break;
 		case 'r':
 			raw_name = optarg;
+			has_raw = 1;
 			break;
 		case 'g':
 			gps_name = optarg;
+			has_gps = 1;
 			break;
 		case 'k':
 			kml_name = optarg;
+			has_kml = 1;
 			break;
 		default:
 			usage(argv[0]);
 			break;
 		}
 	}
-	summary_file = stdout;
-	if (summary_name) {
-		summary_file = fopen(summary_name, "w");
-		if (!summary_file) {
-			perror (summary_name);
-			exit(1);
-		}
-	}
-	if (detail_name) {
-		if (summary_name && !strcmp (summary_name, detail_name))
-			detail_file = summary_file;
-		else {
-			detail_file = fopen(detail_name, "w");
-			if (!detail_file) {
-				perror(detail_name);
-				exit(1);
-			}
-		}
-	}
-	if (raw_name) {
-		raw_file = fopen (raw_name, "w");
-		if (!raw_file) {
-			perror(raw_name);
-			exit(1);
-		}
-	}
-	if (gps_name) {
-		gps_file = fopen(gps_name, "w");
-		if (!gps_file) {
-			perror(gps_name);
-			exit(1);
-		}
-	}
-	if (kml_name) {
-		kml_file = fopen(kml_name, "w");
-		if (!kml_file) {
-			perror(kml_name);
-			exit(1);
-		}
-	}
+	if (!has_summary)
+		summary_file = stdout;
 	for (i = optind; i < argc; i++) {
 		file = fopen(argv[i], "r");
 		if (!file) {
@@ -559,6 +575,16 @@ main (int argc, char **argv)
 			ret++;
 			continue;
 		}
+		if (has_summary && !summary_file)
+			summary_file = open_output(summary_name, argv[i], ".summary");
+		if (has_detail && !detail_file)
+			detail_file = open_output(detail_name, argv[i], ".detail");
+		if (has_raw && !raw_file)
+			raw_file = open_output(raw_name, argv[i], ".raw");
+		if (has_gps && !gps_file)
+			gps_file = open_output(gps_name, argv[i], ".gps");
+		if (has_kml && !kml_file)
+			kml_file = open_output(gps_name, argv[i], ".kml");
 		s = strstr(argv[i], "-serial-");
 		if (s)
 			serial = atoi(s + 8);
@@ -574,6 +600,21 @@ main (int argc, char **argv)
 			raw->serial = serial;
 		analyse_flight(raw, summary_file, detail_file, raw_file, plot_name, gps_file, kml_file);
 		cc_flightraw_free(raw);
+		if (has_summary && !summary_name) {
+			fclose(summary_file); summary_file = NULL;
+		}
+		if (has_detail && !detail_name) {
+			fclose(detail_file); detail_file = NULL;
+		}
+		if (has_summary && !raw_name) {
+			fclose(raw_file); raw_file = NULL;
+		}
+		if (has_gps && !gps_name) {
+			fclose(gps_file); gps_file = NULL;
+		}
+		if (has_kml && !kml_name) {
+			fclose(kml_file); kml_file = NULL;
+		}
 	}
 	return ret;
 }
