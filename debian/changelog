@@ -1,3 +1,19 @@
+altos (0.6+43+gd6ba07e) unstable; urgency=low
+
+  [ Keith Packard ]
+  * Decode HDOP data from skytraq GPS
+  * Document ao-postflight --gps and --kml options.
+  * Make ao-postflight create filenames using input filenames.
+  * Make TD print 0000-00-00 for invalid dates.
+  * Fix --plot arg handling. Add -all option.
+  * Convert telemetry file GPS satellite information in cc_log_read
+  * Don't crash if --plot isn't passed on ao-postflight command line
+  * ao-postflight: compute barometric alt for each GPS position
+  * ao-postflight: don't try to use missing gps sat data
+  * Automatically extract flight number for eeprom and telem filenames.
+
+ -- Bdale Garbee <bdale@gag.com>  Sun, 22 Nov 2009 10:18:26 -0700
+
 altos (0.6+32+g87e6f3e) unstable; urgency=low
 
   [ Bdale Garbee ]

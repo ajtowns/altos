@@ -1,3 +1,122 @@
+commit d6ba07e885bdc62ba64719c9d8cc42fcecbcb09d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Nov 22 01:10:44 2009 -0800
+
+    Automatically extract flight number for eeprom and telem filenames.
+    
+    Extract flight number from either telemetry or eeprom files and use
+    that in the resulting filenames. To ensure that files remain unique,
+    add a new field, -seq-%03d. This is appended only when the sequence
+    number is non-zero as it shouldn't occur in normal usage.
+    
+    This also eliminates some duplicate filename creation code in the
+    library and aoview sources.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 06cebd1026dc1bd6ee51526fa2d02905df3b3b37
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Nov 22 00:52:58 2009 -0800
+
+    ao-postflight: don't try to use missing gps sat data
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a9ada1b538af3308e1b22bd024d9204521184173
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 21 22:12:21 2009 -0800
+
+    ao-postflight: compute barometric alt for each GPS position
+    
+    Print that to the --gps file, and use that in the --kml file for the
+    altitude. Gives a very different picture of our flight tracks,
+    presumably far more accurate (at least in altitude).
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b84b634d9ae8ce6ab1c02833a3ed8514404e1ca3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 21 22:11:45 2009 -0800
+
+    Don't crash if --plot isn't passed on ao-postflight command line
+    
+    Crashing is not nice.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2d77c18b15834046b7b79d49d87211828f2409e9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 21 21:10:09 2009 -0800
+
+    Convert telemetry file GPS satellite information in cc_log_read
+    
+    The satellite info wasn't being correctly converted from telemetry
+    files to the data log structure, so ao-postflight was not seeing it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1e7fb61700f1f6f2ed5fdbc4380d7187b0cd187b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 21 21:09:03 2009 -0800
+
+    Fix --plot arg handling. Add -all option.
+    
+    The --plot file name handing is special as the library wants a
+    filename instead of a stdio file pointer.
+    
+    Add a --all option that just creates all of the possible outputs.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 199f0cecae22645140185238682b9e1aba0e5715
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 21 20:36:20 2009 -0800
+
+    Make TD print 0000-00-00 for invalid dates.
+    
+    This 'shouldn't' happen, but in case it does, I want to know about it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 238d03462a56dc1b7c871608cb00f961a88c1b97
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 21 20:35:22 2009 -0800
+
+    Make ao-postflight create filenames using input filenames.
+    
+    Instead of requiring the user to provide names for the various output
+    options, just create them from the input name by replacing the extension.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1a3b4c02a01187f8b7b9a9c97712476d0007ab35
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 21 19:52:26 2009 -0800
+
+    Document ao-postflight --gps and --kml options.
+    
+    These were missing from the man page, but included in the --help output.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 80b23f3044a654d61212891a61fadb8a3a4e5572
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 21 18:57:45 2009 -0800
+
+    Decode HDOP data from skytraq GPS
+    
+    The hdop data was getting dropped on the floor, but is rather useful
+    when deciding if the GPS position is crazy or not. This reports HDOP *
+    5 (giving a useful range of .2-50).
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8f036ee7cd30ce3ed2e5cc8501914a4c19b73875
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Nov 20 13:19:02 2009 -0700
+
+    update changelogs for Debian build
+
 commit 87e6f3e5c1688503ab8595912d8d6eb7139830b7
 Author: Keith Packard <keithp@keithp.com>
 Date:   Fri Nov 20 12:16:37 2009 -0800
