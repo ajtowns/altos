@@ -351,10 +351,21 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 				time, pres, accel);
 		}
 	}
-	if (gps_file) {
-		int	j = 0;
-		fprintf(gps_file, "%9s %12s %12s %12s\n",
-			"time", "lat", "lon", "alt");
+	if (gps_file || kml_file) {
+		int	j = 0, baro_pos;
+		double	baro_offset;
+		double	baro = 0.0;
+
+		if (gps_file)
+			fprintf(gps_file, "%9s %12s %12s %9s %8s %5s\n",
+				"time", "lat", "lon", "alt", "baro", "nsat");
+		if (kml_file)
+			fprintf(kml_file, "%s", kml_header);
+		if (f->gps.num)
+			baro_offset = f->gps.data[0].alt;
+		else
+			baro_offset = 0;
+		baro_pos = 0;
 		for (i = 0; i < f->gps.num; i++) {
 			int	nsat = 0;
 			int	k;
@@ -364,52 +375,56 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 					break;
 				j++;
 			}
-			fprintf(gps_file, "%12.7f %12.7f %12.7f %12.7f",
-				(f->gps.data[i].time - boost_start) / 100.0,
-				f->gps.data[i].lat,
-				f->gps.data[i].lon,
-				f->gps.data[i].alt);
+			if (cooked) {
+				while (baro_pos < cooked->pres_pos.num) {
+					double  baro_time = cooked->accel_accel.start + baro_pos * cooked->accel_accel.step;
+					if (baro_time >= f->gps.data[i].time)
+						break;
+					baro_pos++;
+				}
+				if (baro_pos < cooked->pres_pos.num)
+					baro = cooked->pres_pos.data[baro_pos];
+			}
+			if (gps_file)
+				fprintf(gps_file, "%12.7f %12.7f %12.7f %7.1f %7.1f",
+					(f->gps.data[i].time - boost_start) / 100.0,
+					f->gps.data[i].lat,
+					f->gps.data[i].lon,
+					f->gps.data[i].alt,
+					baro + baro_offset);
+			if (kml_file) {
+				fprintf(kml_file, "%12.7f, %12.7f, %12.7f <!-- alt %12.7f time %12.7f sats %d -->",
+					f->gps.data[i].lon,
+					f->gps.data[i].lat,
+					baro + baro_offset,
+					f->gps.data[i].alt,
+					(f->gps.data[i].time - boost_start) / 100.0,
+					nsat);
+				if (i < f->gps.num - 1)
+					fprintf(kml_file, ",\n");
+				else
+					fprintf(kml_file, "\n");
+			}
+
 			nsat = 0;
 			for (k = 0; k < f->gps.sats[j].nsat; k++) {
-				fprintf (gps_file, " %12.7f", (double) f->gps.sats[j].sat[k].c_n);
 				if (f->gps.sats[j].sat[k].svid != 0)
 					nsat++;
 			}
-			fprintf(gps_file, " %d\n", nsat);
-		}
-	}
-	if (kml_file) {
-		int	j = 0;
-
-		fprintf(kml_file, "%s", kml_header);
-		for (i = 0; i < f->gps.num; i++) {
-			int	nsat = 0;
-			int	k;
-			while (j < f->gps.numsats - 1) {
-				if (f->gps.sats[j].sat[0].time <= f->gps.data[i].time &&
-				    f->gps.data[i].time < f->gps.sats[j+1].sat[0].time)
-					break;
-				j++;
+			if (gps_file) {
+				fprintf(gps_file, " %4d", nsat);
+				for (k = 0; k < f->gps.sats[j].nsat; k++) {
+					if (f->gps.sats[j].sat[k].svid != 0) {
+						fprintf (gps_file, " %3d(%4.1f)",
+							 f->gps.sats[j].sat[k].svid,
+							 (double) f->gps.sats[j].sat[k].c_n);
+					}
+				}
+				fprintf(gps_file, "\n");
 			}
-			nsat = 0;
-			if (j < f->gps.numsats) {
-				for (k = 0; k < f->gps.sats[j].nsat; k++)
-					if (f->gps.sats[j].sat[k].svid != 0)
-						nsat++;
-			}
-
-			fprintf(kml_file, "%12.7f, %12.7f, %12.7f <!-- time %12.7f sats %d -->",
-				f->gps.data[i].lon,
-				f->gps.data[i].lat,
-				f->gps.data[i].alt,
-				(f->gps.data[i].time - boost_start) / 100.0,
-				nsat);
-			if (i < f->gps.num - 1)
-				fprintf(kml_file, ",\n");
-			else
-				fprintf(kml_file, "\n");
 		}
-		fprintf(kml_file, "%s", kml_footer);
+		if (kml_file)
+			fprintf(kml_file, "%s", kml_footer);
 	}
 	if (cooked && plot_name) {
 		struct cc_perioddata	*speed;
