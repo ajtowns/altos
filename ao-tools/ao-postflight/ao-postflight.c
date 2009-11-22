@@ -536,7 +536,7 @@ main (int argc, char **argv)
 	int			has_raw = 0;
 	int			has_gps = 0;
 	int			has_kml = 0;
-	char			*this_plot_name;
+	char			*this_plot_name = NULL;;
 
 	while ((c = getopt_long(argc, argv, "s:d:p:r:g:k:a", options, NULL)) != -1) {
 		switch (c) {
