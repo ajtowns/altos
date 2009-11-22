@@ -39,6 +39,18 @@ aoview_log_get_serial(void)
 }
 
 void
+aoview_log_set_flight(int flight)
+{
+	aoview_file_set_flight(aoview_log, flight);
+}
+
+int
+aoview_log_get_flight(void)
+{
+	return aoview_file_get_flight(aoview_log);
+}
+
+void
 aoview_log_printf(char *format, ...)
 {
 	va_list	ap;

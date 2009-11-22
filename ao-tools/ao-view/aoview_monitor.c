@@ -68,6 +68,7 @@ aoview_monitor_callback(gpointer user_data,
 				if (monitor_pos) {
 					if (aoview_monitor_parse(monitor_line)) {
 						aoview_log_set_serial(aostate.data.serial);
+						aoview_log_set_flight(aostate.data.flight);
 						if (aoview_log_get_serial())
 							aoview_log_printf ("%s\n", monitor_line);
 					}

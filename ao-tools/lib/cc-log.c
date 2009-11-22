@@ -82,9 +82,10 @@ cc_get_log_dir(void)
 }
 
 char *
-cc_make_filename(int serial, char *ext)
+cc_make_filename(int serial, int flight, char *ext)
 {
 	char		base[50];
+	char		seq[20];
 	struct tm	tm;
 	time_t		now;
 	char		*full;
@@ -96,13 +97,19 @@ cc_make_filename(int serial, char *ext)
 	cc_mkdir(cc_get_log_dir());
 	sequence = 0;
 	for (;;) {
-		snprintf(base, sizeof (base), "%04d-%02d-%02d-serial-%03d-flight-%03d.%s",
-			tm.tm_year + 1900,
-			tm.tm_mon + 1,
-			tm.tm_mday,
-			serial,
-			sequence,
-			ext);
+		if (sequence)
+			snprintf(seq, sizeof(seq), "-seq-%03d", sequence);
+		else
+			seq[0] = '\0';
+
+		snprintf(base, sizeof (base), "%04d-%02d-%02d-serial-%03d-flight-%03d%s.%s",
+			 tm.tm_year + 1900,
+			 tm.tm_mon + 1,
+			 tm.tm_mday,
+			 serial,
+			 flight,
+			 seq,
+			 ext);
 		full = cc_fullname(cc_get_log_dir(), base);
 		r = access(full, F_OK);
 		if (r < 0)

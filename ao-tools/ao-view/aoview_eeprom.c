@@ -66,6 +66,8 @@ aoview_eeprom_parse(struct aoview_serial *serial,
 	if (sscanf(line, "serial-number %u", &serial_number) == 1) {
 		aoview_file_set_serial(eeprom_file, serial_number);
 	} else if (sscanf(line, "%c %x %x %x", &cmd, &tick, &a, &b) == 4) {
+		if (cmd == 'F')
+			aoview_file_set_flight(eeprom_file, b);
 		aoview_file_printf(eeprom_file, "%s\n", line);
 		if (cmd == 'S' && a == 8) {
 			aoview_eeprom_done(serial);

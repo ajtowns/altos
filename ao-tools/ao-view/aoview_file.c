@@ -28,6 +28,7 @@ struct aoview_file {
 	char	*name;
 	int	failed;
 	int	serial;
+	int	flight;
 	int	sequence;
 };
 
@@ -94,6 +95,7 @@ gboolean
 aoview_file_start(struct aoview_file *file)
 {
 	char		base[50];
+	char		seq[20];
 	struct tm	tm;
 	time_t		now;
 	char		*full;
@@ -105,34 +107,17 @@ aoview_file_start(struct aoview_file *file)
 	if (file->failed)
 		return FALSE;
 
-	now = time(NULL);
-	(void) localtime_r(&now, &tm);
-	aoview_mkdir(aoview_file_dir);
-	for (;;) {
-		snprintf(base, sizeof (base), "%04d-%02d-%02d-serial-%03d-flight-%03d.%s",
-			tm.tm_year + 1900,
-			tm.tm_mon + 1,
-			tm.tm_mday,
-			file->serial,
-			file->sequence,
-			file->ext);
-		full = aoview_fullname(aoview_file_dir, base);
-		r = access(full, F_OK);
-		if (r < 0) {
-			file->file = fopen(full, "w");
-			if (!file->file) {
-				aoview_file_open_failed(full);
-				free(full);
-				file->failed = 1;
-				return FALSE;
-			} else {
-				setlinebuf(file->file);
-				file->name = full;
-				return TRUE;
-			}
-		}
+	full = cc_make_filename(file->serial, file->flight, file->ext);
+	file->file = fopen(full, "w");
+	if (!file->file) {
+		aoview_file_open_failed(full);
 		free(full);
-		file->sequence++;
+		file->failed = 1;
+		return FALSE;
+	} else {
+		setlinebuf(file->file);
+		file->name = full;
+		return TRUE;
 	}
 }
 
@@ -193,6 +178,20 @@ int
 aoview_file_get_serial(struct aoview_file *file)
 {
 	return file->serial;
+}
+
+void
+aoview_file_set_flight(struct aoview_file *file, int flight)
+{
+	if (flight != file->flight)
+		aoview_file_finish(file);
+	file->flight = flight;
+}
+
+int
+aoview_file_get_flight(struct aoview_file *file)
+{
+	return file->flight;
 }
 
 void

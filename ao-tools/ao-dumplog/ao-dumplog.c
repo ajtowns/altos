@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <string.h>
 #include "cc-usb.h"
 #include "cc.h"
 
@@ -62,6 +63,7 @@ static const char *state_names[] = {
 	"invalid"
 };
 
+
 int
 main (int argc, char **argv)
 {
@@ -72,7 +74,8 @@ main (int argc, char **argv)
 	char		line[8192];
 	FILE		*out;
 	char		*filename;
-	int		serial_number;
+	int		serial_number = 0;
+	int		flight = 0;
 	char		cmd;
 	int		tick, a, b;
 	int		block;
@@ -84,6 +87,7 @@ main (int argc, char **argv)
 	int		remote = 0;
 	int		any_valid;
 	int		invalid;
+	char		serial_line[8192];
 
 	while ((c = getopt_long(argc, argv, "T:D:R", options, NULL)) != -1) {
 		switch (c) {
@@ -121,24 +125,17 @@ main (int argc, char **argv)
 	out = NULL;
 	for (;;) {
 		cc_usb_getline(cc, line, sizeof (line));
-		if (sscanf(line, "serial-number %u", &serial_number) == 1) {
-			filename = cc_make_filename(serial_number, "eeprom");
-			out = fopen (filename, "w");
-			if (!out) {
-				perror(filename);
-			}
-			fprintf (out, "%s\n", line);
-		}
+		if (sscanf(line, "serial-number %u", &serial_number) == 1)
+			strcpy(serial_line, line);
 		if (!strncmp(line, "software-version", 16))
 			break;
 	}
-	if (!out) {
+	if (!serial_number) {
 		fprintf(stderr, "no serial number found\n");
 		cc_usb_close(cc);
 		exit(1);
 	}
 	printf ("Serial number: %d\n", serial_number);
-	printf ("File name:     %s\n", filename);
 	done = 0;
 	column = 0;
 	for (block = 0; !done && block < 511; block++) {
@@ -170,6 +167,19 @@ main (int argc, char **argv)
 				tick = data[2] + (data[3] << 8);
 				a = data[4] + (data[5] << 8);
 				b = data[6] + (data[7] << 8);
+				if (cmd == 'F') {
+					flight = b;
+					filename = cc_make_filename(serial_number, flight, "eeprom");
+					printf ("Flight:       %d\n", flight);
+					printf ("File name:     %s\n", filename);
+					out = fopen (filename, "w");
+					if (!out) {
+						perror(filename);
+						exit(1);
+					}
+					fprintf(out, "%s\n", serial_line);
+				}
+
 				if (cmd == 'S' && a <= 8) {
 					if (column) putchar('\n');
 					printf("%s\n", state_names[a]);

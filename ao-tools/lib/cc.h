@@ -61,7 +61,7 @@ char *
 cc_get_log_dir(void);
 
 char *
-cc_make_filename(int serial, char *ext);
+cc_make_filename(int serial, int flight, char *ext);
 
 /*
  * For sequential data which are not evenly spaced
