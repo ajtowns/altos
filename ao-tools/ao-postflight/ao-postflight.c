@@ -451,12 +451,14 @@ static const struct option options[] = {
 	{ .name = "raw", .has_arg = 2, .val = 'r' },
 	{ .name = "gps", .has_arg = 2, .val = 'g' },
 	{ .name = "kml", .has_arg = 2, .val = 'k' },
+	{ .name = "all", .has_arg = 0, .val = 'a' },
 	{ 0, 0, 0, 0},
 };
 
 static void usage(char *program)
 {
 	fprintf(stderr, "usage: %s\n"
+		"\t[--all] [-a]\n"
 		"\t[--summary=<summary-file>] [-s <summary-file>]\n"
 		"\t[--detail=<detail-file] [-d <detail-file>]\n"
 		"\t[--raw=<raw-file> -r <raw-file]\n"
@@ -534,8 +536,9 @@ main (int argc, char **argv)
 	int			has_raw = 0;
 	int			has_gps = 0;
 	int			has_kml = 0;
+	char			*this_plot_name;
 
-	while ((c = getopt_long(argc, argv, "s:d:p:r:g:k:", options, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "s:d:p:r:g:k:a", options, NULL)) != -1) {
 		switch (c) {
 		case 's':
 			summary_name = optarg;
@@ -561,6 +564,9 @@ main (int argc, char **argv)
 			kml_name = optarg;
 			has_kml = 1;
 			break;
+		case 'a':
+			has_summary = has_detail = has_plot = has_raw = has_gps = has_kml = 1;
+			break;
 		default:
 			usage(argv[0]);
 			break;
@@ -579,6 +585,12 @@ main (int argc, char **argv)
 			summary_file = open_output(summary_name, argv[i], ".summary");
 		if (has_detail && !detail_file)
 			detail_file = open_output(detail_name, argv[i], ".detail");
+		if (has_plot) {
+			if (plot_name)
+				this_plot_name = plot_name;
+			else
+				this_plot_name = replace_extension(argv[i], ".plot");
+		}
 		if (has_raw && !raw_file)
 			raw_file = open_output(raw_name, argv[i], ".raw");
 		if (has_gps && !gps_file)
@@ -598,7 +610,7 @@ main (int argc, char **argv)
 		}
 		if (!raw->serial)
 			raw->serial = serial;
-		analyse_flight(raw, summary_file, detail_file, raw_file, plot_name, gps_file, kml_file);
+		analyse_flight(raw, summary_file, detail_file, raw_file, this_plot_name, gps_file, kml_file);
 		cc_flightraw_free(raw);
 		if (has_summary && !summary_name) {
 			fclose(summary_file); summary_file = NULL;
@@ -606,7 +618,10 @@ main (int argc, char **argv)
 		if (has_detail && !detail_name) {
 			fclose(detail_file); detail_file = NULL;
 		}
-		if (has_summary && !raw_name) {
+		if (this_plot_name && this_plot_name != plot_name) {
+			free (this_plot_name); this_plot_name = NULL;
+		}
+		if (has_raw && !raw_name) {
 			fclose(raw_file); raw_file = NULL;
 		}
 		if (has_gps && !gps_name) {
