@@ -1,3 +1,10 @@
+altos (0.6+46+gab1075e) unstable; urgency=low
+
+  * fix absolute path in debian/dirs, add Suggests for slim-altusmetrum
+  * change home URL in control file to be the AltOS page
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 26 Nov 2009 11:15:47 -0700
+
 altos (0.6+43+gd6ba07e) unstable; urgency=low
 
   [ Keith Packard ]

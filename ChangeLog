@@ -1,3 +1,21 @@
+commit ab1075e7219b02258c1613d93379582be4168947
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Nov 26 11:15:13 2009 -0700
+
+    change home URL in control file to be the AltOS page
+
+commit d34dcc5f3616e59ee90ed172770fe2a3eb1e0cac
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Nov 26 10:40:07 2009 -0700
+
+    fix absolute path in debian/dirs, add Suggests for slim-altusmetrum
+
+commit ea40561b36519a5dcabedabe18672b79ea5e9993
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Nov 22 10:18:44 2009 -0700
+
+    update changelogs for Debian build
+
 commit d6ba07e885bdc62ba64719c9d8cc42fcecbcb09d
 Author: Keith Packard <keithp@keithp.com>
 Date:   Sun Nov 22 01:10:44 2009 -0800
