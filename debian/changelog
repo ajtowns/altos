@@ -1,4 +1,4 @@
-altos (0.6+46+gab1075e) unstable; urgency=low
+altos (0.6+47+g4053309) unstable; urgency=low
 
   * fix absolute path in debian/dirs, add Suggests for slim-altusmetrum
   * change home URL in control file to be the AltOS page
