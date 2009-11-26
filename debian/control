@@ -10,6 +10,7 @@ Homepage: http://altusmetrum.org/
 Package: altos
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, nickle, plplot9-driver-cairo
+Suggests: slim-altusmetrum
 Description: Altus Metrum firmware and utilities
  Firmware and utilities needed to support the TeleMetrum dual-deploy
  recording altimeter for high power model rocketry.  
