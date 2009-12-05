@@ -1,3 +1,15 @@
+commit 9a1d7dd78c07d18954ef620b6ed25d6701df21e2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 4 14:35:39 2009 -0800
+
+    Change default callsign to "N0CALL"
+
+commit 291e2004e77debdc1543912cf11043c849305de8
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Nov 26 11:18:37 2009 -0700
+
+    update changelogs for Debian build
+
 commit 40533095a96b6c6364eebdc4b7d53c4eabe72e9a
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Nov 26 11:16:04 2009 -0700

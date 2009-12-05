@@ -1,3 +1,10 @@
+altos (0.6+49+g9a1d7dd) unstable; urgency=low
+
+  [ Keith Packard ]
+  * Change default callsign to "N0CALL"
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 04 Dec 2009 21:01:55 -0700
+
 altos (0.6+47+g4053309) unstable; urgency=low
 
   * fix absolute path in debian/dirs, add Suggests for slim-altusmetrum
