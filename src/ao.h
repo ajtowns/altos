@@ -949,7 +949,7 @@ struct ao_config {
 	char		callsign[AO_MAX_CALLSIGN + 1];
 	uint8_t		apogee_delay;		/* minor version 1 */
 	int16_t		accel_minus_g;		/* minor version 2 */
-	uint32_t	radio_frequency;	/* minor version 3 */
+	uint32_t	radio_cal;		/* minor version 3 */
 };
 
 extern __xdata struct ao_config ao_config;
