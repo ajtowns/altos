@@ -27,6 +27,12 @@ __xdata uint8_t ao_config_mutex;
 #define AO_CONFIG_DEFAULT_CALLSIGN	"N0CALL"
 #define AO_CONFIG_DEFAULT_ACCEL_ZERO_G	16000
 #define AO_CONFIG_DEFAULT_APOGEE_DELAY	0
+/*
+ * For 434.550MHz, the frequency value is:
+ *
+ * 434.550e6 / (24e6 / 2**16) = 1186611.2
+ */
+#define AO_CONFIG_DEFAULT_RADIO_FREQUENCY	1186611
 
 static void
 _ao_config_put(void)
@@ -51,17 +57,21 @@ _ao_config_get(void)
 		memcpy(&ao_config.callsign, AO_CONFIG_DEFAULT_CALLSIGN,
 		       sizeof(AO_CONFIG_DEFAULT_CALLSIGN) - 1);
 		ao_config.apogee_delay = AO_CONFIG_DEFAULT_APOGEE_DELAY;
+		ao_config.radio_frequency = AO_CONFIG_DEFAULT_RADIO_FREQUENCY;
 		ao_config_dirty = 1;
 	}
 	if (ao_config.minor < AO_CONFIG_MINOR) {
 		/* Fixups for minor version 1 */
 		if (ao_config.minor < 1)
 			ao_config.apogee_delay = AO_CONFIG_DEFAULT_APOGEE_DELAY;
-		/* Fixupes for minor version 2 */
+		/* Fixups for minor version 2 */
 		if (ao_config.minor < 2) {
 			ao_config.accel_plus_g = 0;
 			ao_config.accel_minus_g = 0;
 		}
+		/* Fixups for minor version 3 */
+		if (ao_config.minor < 3)
+			ao_config.radio_frequency = AO_CONFIG_DEFAULT_RADIO_FREQUENCY;
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
@@ -245,6 +255,26 @@ ao_config_apogee_delay_set(void) __reentrant
 	ao_config_apogee_delay_show();
 }
 
+void
+ao_config_radio_frequency_show(void) __reentrant
+{
+	printf("Radio frequency: %ld\n", ao_config.radio_frequency);
+}
+
+void
+ao_config_radio_frequency_set(void) __reentrant
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	ao_mutex_get(&ao_config_mutex);
+	_ao_config_get();
+	ao_config.radio_frequency = ao_cmd_lex_u32;
+	ao_config_dirty = 1;
+	ao_mutex_put(&ao_config_mutex);
+	ao_config_radio_frequency_show();
+}
+
 struct ao_config_var {
 	char		cmd;
 	void		(*set)(void) __reentrant;
@@ -268,6 +298,8 @@ __code struct ao_config_var ao_config_vars[] = {
 		"a <+g> <-g> Set accelerometer calibration (0 for auto)" },
 	{ 'r',	ao_config_radio_channel_set,	ao_config_radio_channel_show,
 		"r <channel> Set radio channel (freq = 434.550 + channel * .1)" },
+	{ 'f',  ao_config_radio_frequency_set,  ao_config_radio_frequency_show,
+		"f <cal>     Set radio calibration value (cal = rf/(xtal/2^16))" },
 	{ 'c',	ao_config_callsign_set,		ao_config_callsign_show,
 		"c <call>    Set callsign broadcast in each packet (8 char max)" },
 	{ 'd',	ao_config_apogee_delay_set,	ao_config_apogee_delay_show,

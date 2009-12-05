@@ -29,14 +29,6 @@
  */
 
 /*
- * For 434.550MHz, the frequency value is:
- *
- * 434.550e6 / (24e6 / 2**16) = 1186611.2
- */
-
-#define FREQ_CONTROL	1186611
-
-/*
  * For IF freq of 140.62kHz, the IF value is:
  *
  * 140.62e3 / (24e6 / 2**10) = 6
@@ -123,10 +115,6 @@ static __code uint8_t radio_setup[] = {
 	RF_PA_TABLE2_OFF,	RF_POWER,
 	RF_PA_TABLE1_OFF,	RF_POWER,
 	RF_PA_TABLE0_OFF,	RF_POWER,
-
-	RF_FREQ2_OFF,		(FREQ_CONTROL >> 16) & 0xff,
-	RF_FREQ1_OFF,		(FREQ_CONTROL >> 8) & 0xff,
-	RF_FREQ0_OFF,		(FREQ_CONTROL >> 0) & 0xff,
 
 	RF_FSCTRL1_OFF,		(IF_FREQ_CONTROL << RF_FSCTRL1_FREQ_IF_SHIFT),
 	RF_FSCTRL0_OFF,		(0 << RF_FSCTRL0_FREQOFF_SHIFT),
@@ -336,14 +324,25 @@ ao_radio_idle(void)
 	}
 }
 
-void
-ao_radio_send(__xdata struct ao_telemetry *telemetry) __reentrant
+static void
+ao_radio_get(void)
 {
 	ao_config_get();
 	ao_mutex_get(&ao_radio_mutex);
 	ao_radio_idle();
-	ao_radio_done = 0;
 	RF_CHANNR = ao_config.radio_channel;
+	RF_FREQ2 = (uint8_t) (ao_config.radio_frequency >> 16);
+	RF_FREQ1 = (uint8_t) (ao_config.radio_frequency >> 8);
+	RF_FREQ0 = (uint8_t) (ao_config.radio_frequency);
+}
+
+#define ao_radio_put() ao_mutex_put(&ao_radio_mutex)
+
+void
+ao_radio_send(__xdata struct ao_telemetry *telemetry) __reentrant
+{
+	ao_radio_get();
+	ao_radio_done = 0;
 	ao_dma_set_transfer(ao_radio_dma,
 			    telemetry,
 			    &RFDXADDR,
@@ -358,16 +357,13 @@ ao_radio_send(__xdata struct ao_telemetry *telemetry) __reentrant
 	RFST = RFST_STX;
 	__critical while (!ao_radio_done)
 		ao_sleep(&ao_radio_done);
-	ao_mutex_put(&ao_radio_mutex);
+	ao_radio_put();
 }
 
 uint8_t
 ao_radio_recv(__xdata struct ao_radio_recv *radio) __reentrant
 {
-	ao_config_get();
-	ao_mutex_get(&ao_radio_mutex);
-	ao_radio_idle();
-	RF_CHANNR = ao_config.radio_channel;
+	ao_radio_get();
 	ao_dma_set_transfer(ao_radio_dma,
 			    &RFDXADDR,
 			    radio,
@@ -382,7 +378,7 @@ ao_radio_recv(__xdata struct ao_radio_recv *radio) __reentrant
 	RFST = RFST_SRX;
 	__critical while (!ao_radio_dma_done)
 		ao_sleep(&ao_radio_dma_done);
-	ao_mutex_put(&ao_radio_mutex);
+	ao_radio_put();
 	return (ao_radio_dma_done & AO_DMA_DONE);
 }
 
@@ -394,8 +390,8 @@ ao_radio_rdf(int ms)
 {
 	uint8_t i;
 	uint8_t pkt_len;
-	ao_mutex_get(&ao_radio_mutex);
-	ao_radio_idle();
+
+	ao_radio_get();
 	ao_radio_rdf_running = 1;
 	for (i = 0; i < sizeof (rdf_setup); i += 2)
 		RF[rdf_setup[i]] = rdf_setup[i+1];
@@ -431,7 +427,7 @@ ao_radio_rdf(int ms)
 	ao_radio_idle();
 	for (i = 0; i < sizeof (telemetry_setup); i += 2)
 		RF[telemetry_setup[i]] = telemetry_setup[i+1];
-	ao_mutex_put(&ao_radio_mutex);
+	ao_radio_put();
 }
 
 void
@@ -448,18 +444,18 @@ ao_radio_rdf_abort(void)
 		ao_radio_abort();
 }
 
+
 /* Output carrier */
 void
 ao_radio_test(void)
 {
-	ao_config_get();
-	ao_mutex_get(&ao_radio_mutex);
-	ao_radio_idle();
+	ao_packet_slave_stop();
+	ao_radio_get();
 	printf ("Hit a character to stop..."); flush();
 	RFST = RFST_STX;
 	getchar();
 	ao_radio_idle();
-	ao_mutex_put(&ao_radio_mutex);
+	ao_radio_put();
 	putchar('\n');
 }
 

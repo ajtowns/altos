@@ -938,17 +938,18 @@ ao_igniter_init(void);
  */
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	2
+#define AO_CONFIG_MINOR	3
 
 struct ao_config {
 	uint8_t		major;
 	uint8_t		minor;
 	uint16_t	main_deploy;
-	int16_t		accel_plus_g;
+	int16_t		accel_plus_g;		/* changed for minor version 2 */
 	uint8_t		radio_channel;
 	char		callsign[AO_MAX_CALLSIGN + 1];
-	uint8_t		apogee_delay;
-	int16_t		accel_minus_g;
+	uint8_t		apogee_delay;		/* minor version 1 */
+	int16_t		accel_minus_g;		/* minor version 2 */
+	uint32_t	radio_frequency;	/* minor version 3 */
 };
 
 extern __xdata struct ao_config ao_config;
