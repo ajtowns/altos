@@ -18,6 +18,7 @@
 #include "ao.h"
 
 __xdata uint16_t ao_cmd_lex_i;
+__xdata uint32_t ao_cmd_lex_u32;
 __xdata char	ao_cmd_lex_c;
 __xdata enum ao_cmd_status ao_cmd_status;
 static __xdata uint8_t	lex_echo;
@@ -157,11 +158,11 @@ ao_cmd_decimal(void)
 {
 	__xdata uint8_t	r = ao_cmd_lex_error;
 
-	ao_cmd_lex_i = 0;
+	ao_cmd_lex_u32 = 0;
 	ao_cmd_white();
 	for(;;) {
 		if ('0' <= ao_cmd_lex_c && ao_cmd_lex_c <= '9')
-			ao_cmd_lex_i = (ao_cmd_lex_i * 10) + (ao_cmd_lex_c - '0');
+			ao_cmd_lex_u32 = (ao_cmd_lex_u32 * 10) + (ao_cmd_lex_c - '0');
 		else
 			break;
 		r = ao_cmd_success;
@@ -169,6 +170,7 @@ ao_cmd_decimal(void)
 	}
 	if (r != ao_cmd_success)
 		ao_cmd_status = r;
+	ao_cmd_lex_i = (uint16_t) ao_cmd_lex_u32;
 }
 
 uint8_t

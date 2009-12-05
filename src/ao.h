@@ -330,6 +330,7 @@ enum ao_cmd_status {
 };
 
 extern __xdata uint16_t ao_cmd_lex_i;
+extern __xdata uint32_t ao_cmd_lex_u32;
 extern __xdata char	ao_cmd_lex_c;
 extern __xdata enum ao_cmd_status ao_cmd_status;
 
