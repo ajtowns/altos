@@ -1,3 +1,43 @@
+commit cd49847f3125df1733f298b56a43e8027ab5ce05
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 4 23:38:26 2009 -0800
+
+    Add radio calibration configuration.
+    
+    The crystal we use is only good for 20ppm, which generates a fairly
+    significant error bounds at our RF frequency. This commit adds a
+    configuration variable that sets the RF frequency control variable so
+    that the output frequency can be adjusted.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c671a3f31f54715284beef5baa4a72ca922e4018
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 4 23:36:54 2009 -0800
+
+    Make ao_cmd_decimal produce both 32 and 16 bit values.
+    
+    ao_cmd_lex_u32 is produced in addition to ao_cmd_lex_i so that
+    functions can easily read 32-bit values from the command line.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e6d6ad66ce177eb6e49eaa04b1ecc6426f4bbdbf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 4 23:35:40 2009 -0800
+
+    Remove send_serial and serial_baud commands.
+    
+    No longer useful, and they take up space.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ce7325cefbbe91054c1e8174cf40a6c687f6694b
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Dec 4 21:02:07 2009 -0700
+
+    update changelogs for Debian build
+
 commit 9a1d7dd78c07d18954ef620b6ed25d6701df21e2
 Author: Keith Packard <keithp@keithp.com>
 Date:   Fri Dec 4 14:35:39 2009 -0800
