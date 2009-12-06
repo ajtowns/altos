@@ -31,8 +31,12 @@ __xdata uint8_t ao_config_mutex;
  * For 434.550MHz, the frequency value is:
  *
  * 434.550e6 / (24e6 / 2**16) = 1186611.2
+ *
+ * This value is stored in a const variable so that
+ * ao-load can change it during programming for
+ * devices that have no eeprom for config data.
  */
-#define AO_CONFIG_DEFAULT_RADIO_CAL	1186611
+const uint32_t ao_radio_cal = 1186611;
 
 static void
 _ao_config_put(void)
@@ -57,7 +61,7 @@ _ao_config_get(void)
 		memcpy(&ao_config.callsign, AO_CONFIG_DEFAULT_CALLSIGN,
 		       sizeof(AO_CONFIG_DEFAULT_CALLSIGN) - 1);
 		ao_config.apogee_delay = AO_CONFIG_DEFAULT_APOGEE_DELAY;
-		ao_config.radio_cal = AO_CONFIG_DEFAULT_RADIO_CAL;
+		ao_config.radio_cal = ao_radio_cal;
 		ao_config_dirty = 1;
 	}
 	if (ao_config.minor < AO_CONFIG_MINOR) {
@@ -71,7 +75,7 @@ _ao_config_get(void)
 		}
 		/* Fixups for minor version 3 */
 		if (ao_config.minor < 3)
-			ao_config.radio_cal = AO_CONFIG_DEFAULT_RADIO_CAL;
+			ao_config.radio_cal = ao_radio_cal;
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
