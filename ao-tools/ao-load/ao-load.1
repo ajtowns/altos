@@ -25,6 +25,7 @@ ao-load \- flash a program to a AltOS device
 [\--tty \fItty-device\fP]
 [\-D \fIaltos-device\fP]
 [\--device \fIaltos-device\fP]
+[\--cal \fIradio-calibration\fP]
 \fIfile.ihx\fP
 \fIdevice serial number\fP
 .SH DESCRIPTION
@@ -52,6 +53,16 @@ TeleMetrum
 Leaving out the product name will cause the tool to select a suitable
 product, leaving out the serial number will cause the tool to match
 one of the available devices.
+.TP
+\-c radio-calibration | --cal radio-calibration
+This programs the radio calibration value into the image for hardware
+which doesn't have any eeprom storage for this value. The value here
+can be computed given the current radio calibration value, the
+measured frequency and the desired frequency:
+.IP
+	cal' = cal * (desired/measured)
+.IP
+The default calibration value is 1186611.
 .SH USAGE
 .I ao-load
 reads the specified .ihx file into memory, locates the matching .map

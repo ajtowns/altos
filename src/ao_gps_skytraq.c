@@ -410,25 +410,8 @@ ao_gps(void) __reentrant
 
 __xdata struct ao_task ao_gps_task;
 
-static void
-gps_dump(void) __reentrant
-{
-	ao_mutex_get(&ao_gps_mutex);
-	ao_gps_print(&ao_gps_data);
-	putchar('\n');
-	ao_gps_tracking_print(&ao_gps_tracking_data);
-	putchar('\n');
-	ao_mutex_put(&ao_gps_mutex);
-}
-
-__code struct ao_cmds ao_gps_cmds[] = {
-	{ 'g', gps_dump,	"g                                  Display current GPS values" },
-	{ 0, gps_dump, NULL },
-};
-
 void
 ao_gps_init(void)
 {
 	ao_add_task(&ao_gps_task, ao_gps, "gps");
-	ao_cmd_register(&ao_gps_cmds[0]);
 }
