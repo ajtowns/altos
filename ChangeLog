@@ -1,3 +1,38 @@
+commit 7ac8efea5d60b81adccdc1e38ac4c13facfae7c9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Dec 15 23:58:29 2009 -0800
+
+    Add --cal to man page
+
+commit 5481082b18226a0de6b377215b3b330bdbc4a6c6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Dec 5 19:50:38 2009 -0800
+
+    Allow radio calibration to be set from ao-load
+    
+    This moves the initial radio calibration value into const memory where
+    it will be used if no eeprom configuration value is available, either
+    on an unprogrammed board with eeprom or a device without an eeprom.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 46f03ab3145a61139c8ca6fc99e8f2798728b5a9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Dec 5 15:36:12 2009 -0800
+
+    Re-order config values. Change frequency to cal
+    
+    Place more often used values at top, and consistently call the radio
+    value 'calibration' instead of 'frequency'.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit bf29a62532fec12e6af2d2f3a6624882c863e933
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sat Dec 5 11:03:42 2009 -0700
+
+    update changelogs for Debian build
+
 commit cd49847f3125df1733f298b56a43e8027ab5ce05
 Author: Keith Packard <keithp@keithp.com>
 Date:   Fri Dec 4 23:38:26 2009 -0800

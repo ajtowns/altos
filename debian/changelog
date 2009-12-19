@@ -1,3 +1,12 @@
+altos (0.6+57+g7ac8efe) unstable; urgency=low
+
+  [ Keith Packard ]
+  * Re-order config values. Change frequency to cal
+  * Allow radio calibration to be set from ao-load
+  * Add --cal to man page
+
+ -- Bdale Garbee <bdale@gag.com>  Sat, 19 Dec 2009 12:05:26 -0700
+
 altos (0.6+53+gcd49847) unstable; urgency=low
 
   [ Keith Packard ]
