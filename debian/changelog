@@ -1,3 +1,10 @@
+altos (0.6+60+g10d1bbc) unstable; urgency=low
+
+  [ Keith Packard ]
+  * Use ao_radio_get/ao_radio_put in packet code.
+
+ -- Bdale Garbee <bdale@gag.com>  Sat, 19 Dec 2009 13:53:32 -0700
+
 altos (0.6+58+gbbb152c) unstable; urgency=low
 
   [ Keith Packard ]
