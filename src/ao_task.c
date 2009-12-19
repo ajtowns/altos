@@ -217,7 +217,10 @@ ao_wakeup(__xdata void *wchan)
 void
 ao_alarm(uint16_t delay)
 {
-	if (!(ao_cur_task->alarm = ao_time() + delay))
+	/* Make sure we sleep *at least* delay ticks, which means adding
+	 * one to account for the fact that we may be close to the next tick
+	 */
+	if (!(ao_cur_task->alarm = ao_time() + delay + 1))
 		ao_cur_task->alarm = 1;
 }
 
