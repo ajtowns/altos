@@ -17,6 +17,13 @@
 
 #include "ao.h"
 
+/* stub so as telemetrum doesn't have monitor mode */
+void
+ao_set_monitor(uint8_t monitoring)
+{
+	(void) monitoring;
+}
+
 void
 main(void)
 {

@@ -448,6 +448,7 @@ ao_radio_rdf_abort(void)
 void
 ao_radio_test(void)
 {
+	ao_set_monitor(0);
 	ao_packet_slave_stop();
 	ao_radio_get();
 	printf ("Hit a character to stop..."); flush();
