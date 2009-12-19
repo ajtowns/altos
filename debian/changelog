@@ -1,4 +1,4 @@
-altos (0.6+57+g7ac8efe) unstable; urgency=low
+altos (0.6+58+gbbb152c) unstable; urgency=low
 
   [ Keith Packard ]
   * Re-order config values. Change frequency to cal
