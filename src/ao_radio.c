@@ -324,7 +324,7 @@ ao_radio_idle(void)
 	}
 }
 
-static void
+void
 ao_radio_get(void)
 {
 	ao_config_get();
@@ -336,7 +336,6 @@ ao_radio_get(void)
 	RF_FREQ0 = (uint8_t) (ao_config.radio_cal);
 }
 
-#define ao_radio_put() ao_mutex_put(&ao_radio_mutex)
 
 void
 ao_radio_send(__xdata struct ao_telemetry *telemetry) __reentrant

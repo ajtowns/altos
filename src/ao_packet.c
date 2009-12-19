@@ -33,8 +33,9 @@ void
 ao_packet_send(void)
 {
 	ao_led_on(AO_LED_RED);
-	ao_config_get();
-	ao_mutex_get(&ao_radio_mutex);
+	ao_radio_get();
+
+	/* If any tx data is pending then copy it into the tx packet */
 	if (ao_packet_tx_used && ao_tx_packet.len == 0) {
 		memcpy(&ao_tx_packet.d, tx_data, ao_packet_tx_used);
 		ao_tx_packet.len = ao_packet_tx_used;
@@ -42,9 +43,7 @@ ao_packet_send(void)
 		ao_packet_tx_used = 0;
 		ao_wakeup(&tx_data);
 	}
-	ao_radio_idle();
 	ao_radio_done = 0;
-	RF_CHANNR = ao_config.radio_channel;
 	ao_dma_set_transfer(ao_radio_dma,
 			    &ao_tx_packet,
 			    &RFDXADDR,
@@ -59,7 +58,7 @@ ao_packet_send(void)
 	RFST = RFST_STX;
 	__critical while (!ao_radio_done)
 		ao_sleep(&ao_radio_done);
-	ao_mutex_put(&ao_radio_mutex);
+	ao_radio_put();
 	ao_led_off(AO_LED_RED);
 }
 
@@ -69,10 +68,7 @@ ao_packet_recv(void)
 	uint8_t	dma_done;
 
 	ao_led_on(AO_LED_GREEN);
-	ao_config_get();
-	ao_mutex_get(&ao_radio_mutex);
-	ao_radio_idle();
-	RF_CHANNR = ao_config.radio_channel;
+	ao_radio_get();
 	ao_dma_set_transfer(ao_radio_dma,
 			    &RFDXADDR,
 			    &ao_rx_packet,
@@ -89,7 +85,7 @@ ao_packet_recv(void)
 			   if (ao_sleep(&ao_radio_dma_done) != 0)
 				   ao_radio_abort();
 	dma_done = ao_radio_dma_done;
-	ao_mutex_put(&ao_radio_mutex);
+	ao_radio_put();
 	ao_led_off(AO_LED_GREEN);
 
 	if (dma_done & AO_DMA_DONE) {

@@ -836,6 +836,11 @@ void
 ao_radio_general_isr(void) interrupt 16;
 
 void
+ao_radio_get(void);
+
+#define ao_radio_put() ao_mutex_put(&ao_radio_mutex)
+
+void
 ao_radio_set_telemetry(void);
 
 void
