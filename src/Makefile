@@ -43,7 +43,6 @@ ALTOS_DRIVER_SRC = \
 	ao_usb.c
 
 TELE_COMMON_SRC = \
-	ao_dbg.c \
 	ao_packet.c \
 	ao_packet_slave.c \
 	ao_state.c
