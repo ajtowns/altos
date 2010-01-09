@@ -51,7 +51,11 @@ ao_adc_isr(void) interrupt 1
 	a[1] = ADCH;
 	if (sequence < 5) {
 		/* start next channel conversion */
-		ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | (sequence + 1);
+		sequence++;
+		/* skip channel 2, we don't have a temp sensor on v0.2 */
+		if (sequence == 2)
+			sequence++;
+		ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | sequence;
 	} else {
 		/* record this conversion series */
 		ao_adc_ring[ao_adc_head].tick = ao_time();
@@ -80,7 +84,7 @@ ao_adc_init(void)
 {
 	ADCCFG = ((1 << 0) |	/* acceleration */
 		  (1 << 1) |	/* pressure */
-		  (1 << 2) |	/* temperature */
+/*		  (1 << 2) |	  v0.1 temperature */
 		  (1 << 3) |	/* battery voltage */
 		  (1 << 4) |	/* drogue sense */
 		  (1 << 5));	/* main sense */
