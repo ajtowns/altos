@@ -82,7 +82,7 @@ DBG_DONGLE_SRC = \
 #
 TM_DRIVER_SRC = \
 	ao_adc.c \
-	ao_ee.c \
+	ao_flash.c \
 	ao_gps_report.c \
 	ao_ignite.c
 
