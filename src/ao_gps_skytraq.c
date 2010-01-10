@@ -410,8 +410,24 @@ ao_gps(void) __reentrant
 
 __xdata struct ao_task ao_gps_task;
 
+static void
+gps_dump(void) __reentrant
+{
+	ao_mutex_get(&ao_gps_mutex);
+	printf ("Date: %02d/%02d/%02d\n", ao_gps_data.year, ao_gps_data.month, ao_gps_data.day);
+	printf ("Time: %02d:%02d:%02d\n", ao_gps_data.hour, ao_gps_data.minute, ao_gps_data.second);
+	printf ("Lat/Lon: %ld %ld\n", ao_gps_data.latitude, ao_gps_data.longitude);
+	printf ("Alt: %d\n", ao_gps_data.altitude);
+}
+
+__code struct ao_cmds ao_gps_cmds[] = {
+	{ 'g', gps_dump, 	"g                                  Display current GPS values" },
+	{ 0,   gps_dump, NULL },
+};
+
 void
 ao_gps_init(void)
 {
 	ao_add_task(&ao_gps_task, ao_gps, "gps");
+	ao_cmd_register(&ao_gps_cmds[0]);
 }
