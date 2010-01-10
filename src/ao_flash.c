@@ -169,6 +169,7 @@ static __pdata uint8_t  ao_flash_write_pending;
 static __pdata uint8_t	ao_flash_setup_done;
 static __data uint32_t	ao_flash_device_size;
 static __data uint8_t	ao_flash_block_shift;
+static __data uint16_t	ao_flash_block_size;
 
 static void
 ao_flash_setup(void)
@@ -183,7 +184,6 @@ ao_flash_setup(void)
 		ao_mutex_put(&ao_flash_mutex);
 		return;
 	}
-	ao_flash_setup_done = 1;
 
 	/* On first use, check to see if the flash chip has
 	 * been programmed to use 512 byte pages. If not, do so.
@@ -238,6 +238,8 @@ ao_flash_setup(void)
 	default:
 		ao_panic(AO_PANIC_FLASH);
 	}
+	ao_flash_block_size = 1 << ao_flash_block_shift;
+	ao_flash_setup_done = 1;
 	ao_mutex_put(&ao_flash_mutex);
 }
 

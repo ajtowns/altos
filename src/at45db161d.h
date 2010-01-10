@@ -28,7 +28,7 @@
 
 #define FLASH_BLOCK_SIZE_MAX	512
 #define FLASH_BLOCK_SHIFT	(ao_flash_block_shift)
-#define FLASH_BLOCK_SIZE	(1 << FLASH_BLOCK_SHIFT)
+#define FLASH_BLOCK_SIZE	(ao_flash_block_size)
 #define FLASH_BLOCK_MASK	(FLASH_BLOCK_SIZE - 1)
 #define FLASH_DEVICE_SIZE	(ao_flash_device_size)
 #define FLASH_DATA_SIZE		(FLASH_DEVICE_SIZE - (uint32_t) FLASH_BLOCK_SIZE)
