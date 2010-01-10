@@ -404,6 +404,7 @@ ao_ee_write_config(uint8_t *buf, uint16_t len) __reentrant
 	if (len > FLASH_BLOCK_SIZE)
 		return 0;
 	ao_mutex_get(&ao_flash_mutex); {
+		printf("FLASH_CONFIG_BLOCK: %d\n", FLASH_CONFIG_BLOCK);
 		ao_flash_fill(FLASH_CONFIG_BLOCK);
 		memcpy(ao_flash_data, buf, len);
 		ao_flash_block_dirty = 1;
@@ -485,9 +486,16 @@ flash_status(void) __reentrant
 {
 	uint8_t	status;
 
+	ao_flash_setup();
 	ao_mutex_get(&ao_flash_mutex); {
 		status = ao_flash_read_status();
 		printf ("Flash status: 0x%02x\n", status);
+		printf ("Flash block shift: %d\n", FLASH_BLOCK_SHIFT);
+		printf ("Flash block size: %d\n", FLASH_BLOCK_SIZE);
+		printf ("Flash block mask: %d\n", FLASH_BLOCK_MASK);
+		printf ("Flash device size: %ld\n", FLASH_DEVICE_SIZE);
+		printf ("Flash data size: %ld\n", FLASH_DATA_SIZE);
+		printf ("Flash config block: %d\n", FLASH_CONFIG_BLOCK);
 	} ao_mutex_put(&ao_flash_mutex);
 }
 
