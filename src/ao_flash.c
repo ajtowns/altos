@@ -480,9 +480,21 @@ flash_store(void) __reentrant
 	ao_ee_flush();
 }
 
+static void
+flash_status(void) __reentrant
+{
+	uint8_t	status;
+
+	ao_mutex_get(&ao_flash_mutex); {
+		status = ao_flash_read_status();
+		printf ("Flash status: 0x%02x\n", status);
+	} ao_mutex_put(&ao_flash_mutex);
+}
+
 __code struct ao_cmds ao_flash_cmds[] = {
 	{ 'e', flash_dump, 	"e <block>                          Dump a block of flash data" },
 	{ 'w', flash_store,	"w <block> <start> <len> <data> ... Write data to flash" },
+	{ 'f', flash_status,	"f                                  Show flash status register" },
 	{ 0,   flash_store, NULL },
 };
 
