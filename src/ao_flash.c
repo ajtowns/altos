@@ -397,6 +397,30 @@ ao_ee_flush(void) __reentrant
  * Read/write the config block, which is in
  * the last block of the flash
  */
+
+void
+ao_ee_dump_config(void) __reentrant
+{
+	uint16_t	i;
+	printf("Configuration block %d\n", FLASH_CONFIG_BLOCK);
+	ao_mutex_get(&ao_flash_mutex); {
+		ao_flash_flush_internal();
+		ao_flash_block = FLASH_BLOCK_NONE;
+		ao_flash_fill(FLASH_CONFIG_BLOCK);
+		i = 0;
+		do {
+			if ((i & 7) == 0) {
+				if (i)
+					putchar('\n');
+				ao_cmd_put16((uint16_t) i);
+			}
+			putchar(' ');
+			ao_cmd_put8(ao_flash_data[i]);
+			++i;
+		} while (i < sizeof (ao_config));
+	} ao_mutex_put(&ao_flash_mutex);
+}
+
 uint8_t
 ao_ee_write_config(uint8_t *buf, uint16_t len) __reentrant
 {
@@ -410,6 +434,7 @@ ao_ee_write_config(uint8_t *buf, uint16_t len) __reentrant
 		ao_flash_block_dirty = 1;
 		ao_flash_flush_internal();
 	} ao_mutex_put(&ao_flash_mutex);
+	ao_ee_dump_config();
 	return 1;
 }
 
@@ -419,6 +444,7 @@ ao_ee_read_config(uint8_t *buf, uint16_t len) __reentrant
 	ao_flash_setup();
 	if (len > FLASH_BLOCK_SIZE)
 		return 0;
+	ao_ee_dump_config();
 	ao_mutex_get(&ao_flash_mutex); {
 		ao_flash_fill(FLASH_CONFIG_BLOCK);
 		memcpy(buf, ao_flash_data, len);
@@ -497,6 +523,7 @@ flash_status(void) __reentrant
 		printf ("Flash data size: %ld\n", FLASH_DATA_SIZE);
 		printf ("Flash config block: %d\n", FLASH_CONFIG_BLOCK);
 	} ao_mutex_put(&ao_flash_mutex);
+	ao_ee_dump_config();
 }
 
 __code struct ao_cmds ao_flash_cmds[] = {
