@@ -29,10 +29,20 @@ main(void)
 {
 	ao_clock_init();
 
+
 	/* Turn on the red LED until the system is stable */
 	ao_led_init(AO_LED_RED);
 	ao_led_on(AO_LED_RED);
 
+	/* A hack -- look at the SPI clock pin, if it's sitting at
+	 *  ground, then we force the computer to idle mode instead of
+	 *  flight mode
+	 */
+	if (P1_3 == 0) {
+		ao_flight_force_idle = 1;
+		while (P1_3 == 0)
+			;
+	}
 	ao_timer_init();
 	ao_adc_init();
 	ao_beep_init();

@@ -618,6 +618,7 @@ extern __pdata int16_t			ao_ground_pres;
 extern __pdata int16_t			ao_ground_accel;
 extern __pdata int16_t			ao_min_pres;
 extern __pdata uint16_t			ao_launch_time;
+extern __xdata uint8_t			ao_flight_force_idle;
 
 /* Flight thread */
 void

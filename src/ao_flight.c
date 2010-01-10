@@ -50,6 +50,8 @@ __data uint8_t ao_flight_adc;
 __pdata int16_t ao_raw_accel, ao_raw_accel_prev, ao_raw_pres;
 __pdata int16_t ao_accel_2g;
 
+__xdata uint8_t ao_flight_force_idle;
+
 /* Accelerometer calibration
  *
  * We're sampling the accelerometer through a resistor divider which
@@ -221,8 +223,10 @@ ao_flight(void)
 
 			/* Go to pad state if the nose is pointing up */
 			ao_config_get();
-			if (ao_config.accel_plus_g != 0 && ao_config.accel_minus_g != 0 &&
-			    ao_flight_accel < ao_config.accel_plus_g + ACCEL_NOSE_UP)
+			if (ao_config.accel_plus_g != 0 &&
+			    ao_config.accel_minus_g != 0 &&
+			    ao_flight_accel < ao_config.accel_plus_g + ACCEL_NOSE_UP &&
+			    !ao_flight_force_idle)
 			{
 				/* Disable the USB controller in flight mode
 				 * to save power
