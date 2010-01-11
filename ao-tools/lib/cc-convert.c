@@ -213,10 +213,19 @@ cc_accelerometer_to_acceleration(double accel, double ground_accel)
 	return (ground_accel - accel) / count_per_mss;
 }
 
+/* Value for the CC1111 built-in temperature sensor
+ * Output voltage at 0°C = 0.755V
+ * Coefficient = 0.00247V/°C
+ * Reference voltage = 1.25V
+ *
+ * temp = ((value / 32767) * 1.25 - 0.755) / 0.00247
+ *      = (value - 19791.268) / 32768 * 1.25 / 0.00247
+ */
+
 double
 cc_thermometer_to_temperature(double thermo)
 {
-	return ((thermo / 32767 * 3.3) - 0.5) / 0.01;
+	return (thermo - 19791.268) / 32728.0 * 1.25 / 0.00247;
 }
 
 double

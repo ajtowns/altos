@@ -127,10 +127,10 @@ aoview_state_derive(struct cc_telem *data, struct aostate *state)
 	accel_counts_per_mss = ((data->accel_minus_g - data->accel_plus_g) / 2.0) / 9.80665;
 	state->acceleration = (data->ground_accel - data->flight_accel) / accel_counts_per_mss;
 	state->speed = data->flight_vel / (accel_counts_per_mss * 100.0);
-	state->temperature = ((data->temp / 32767.0 * 3.3) - 0.5) / 0.01;
-	state->drogue_sense = data->drogue / 32767.0 * 15.0;
-	state->main_sense = data->main / 32767.0 * 15.0;
-	state->battery = data->batt / 32767.0 * 5.0;
+	state->temperature = cc_thermometer_to_temperature(data->temp);
+	state->drogue_sense = cc_ignitor_to_voltage(data->drogue);
+	state->main_sense = cc_ignitor_to_voltage(data->main);
+	state->battery = cc_battery_to_voltage(data->batt);
 	if (!strcmp(data->state, "pad")) {
 		if (data->gps.gps_locked && data->gps.nsat >= 4) {
 			state->npad++;

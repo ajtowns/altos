@@ -46,16 +46,18 @@ ao_adc_isr(void) interrupt 1
 	uint8_t	__xdata *a;
 
 	sequence = (ADCCON2 & ADCCON2_SCH_MASK) >> ADCCON2_SCH_SHIFT;
+	if (sequence == ADCCON3_ECH_TEMP)
+		sequence = 2;
 	a = (uint8_t __xdata *) (&ao_adc_ring[ao_adc_head].accel + sequence);
 	a[0] = ADCL;
 	a[1] = ADCH;
 	if (sequence < 5) {
 		/* start next channel conversion */
-		sequence++;
-		/* skip channel 2, we don't have a temp sensor on v0.2 */
-		if (sequence == 2)
-			sequence++;
-		ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | sequence;
+		/* v0.2 replaces external temp sensor with internal one */
+		if (sequence == 1)
+			ADCCON3 = ADCCON3_EREF_1_25 | ADCCON3_EDIV_512 | ADCCON3_ECH_TEMP;
+		else
+			ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | (sequence + 1);
 	} else {
 		/* record this conversion series */
 		ao_adc_ring[ao_adc_head].tick = ao_time();

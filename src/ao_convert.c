@@ -49,7 +49,15 @@ ao_temp_to_dC(int16_t temp) __reentrant
 	int16_t	ret;
 
 	ao_mutex_get(&ao_temp_mutex);
-	ret = (int16_t) ((temp >> 4) * 3300L / 2047L) - 500;
+	/* Output voltage at 0°C = 0.755V
+	 * Coefficient = 0.00247V/°C
+	 * Reference voltage = 1.25V
+	 *
+	 * temp = ((value / 32767) * 1.25 - 0.755) / 0.00247
+	 *      = (value - 19791.268) / 32768 * 1.25 / 0.00247
+	 *	≃ (value - 19791) * 1012 / 65536
+	 */
+	ret = ((temp - 19791) * 1012L) >> 16;
 	ao_mutex_put(&ao_temp_mutex);
 	return ret;
 }
