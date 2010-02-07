@@ -185,6 +185,75 @@ static const char kml_footer[] =
 	"</Placemark>\n"
 	"</kml>\n";
 
+static unsigned
+gps_daytime(struct cc_gpselt *gps)
+{
+	return ((gps->hour * 60 +
+		 gps->minute) * 60 +
+		gps->second) * 1000;
+}
+
+int
+daytime_hour(unsigned daytime)
+{
+	return daytime / 1000 / 60 / 60;
+}
+
+int
+daytime_minute(unsigned daytime)
+{
+	return (daytime / 1000 / 60) % 60;
+}
+
+int
+daytime_second(unsigned daytime)
+{
+	return (daytime / 1000) % 60;
+}
+
+int
+daytime_millisecond(unsigned daytime)
+{
+	return daytime % 1000;
+}
+
+static unsigned
+compute_daytime_ms(double time, struct cc_gpsdata *gps)
+{
+	int	i;
+	unsigned	gps_start_daytime, gps_stop_daytime;
+
+	if (time <= gps->data[0].time) {
+		gps_stop_daytime = gps_daytime(&gps->data[0]);
+		return gps_stop_daytime - (gps->data[0].time - time) * 10;
+	}
+	for (i = 0; i < gps->num - 1; i++)
+		if (time > gps->data[i].time)
+			break;
+	gps_start_daytime = gps_daytime(&gps->data[i]);
+	if (i == gps->num - 1) {
+		return gps_start_daytime + (time - gps->data[i].time) * 10;
+	} else {
+		unsigned	gps_period_daytime;
+		double		gps_period_time;
+		double		time_since_start;
+
+		gps_stop_daytime = gps_daytime(&gps->data[i + 1]);
+
+		/* range of gps daytime values */
+		gps_period_daytime = gps_stop_daytime - gps_start_daytime;
+
+		/* range of gps time values */
+		gps_period_time = gps->data[i+1].time - gps->data[i].time;
+
+		/* sample time after first gps time */
+		time_since_start = time - gps->data[i].time;
+
+		return gps_start_daytime +
+			gps_period_daytime * time_since_start / gps_period_time;
+	}
+}
+
 static void
 analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 	       FILE *raw_file, char *plot_name, FILE *gps_file, FILE *kml_file)
@@ -325,30 +394,49 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 		int	i;
 		double	*times;
 
-		fprintf(detail_file, "%9s %9s %9s %9s\n",
-		       "time", "height", "speed", "accel");
+		fprintf(detail_file, "%9s %9s %9s %9s %9s\n",
+			"time", "height", "speed", "accel", "daytime");
 		for (i = 0; i < cooked->pres_pos.num; i++) {
-			double	time = (cooked->accel_accel.start + i * cooked->accel_accel.step - boost_start) / 100.0;
+			double	clock_time = cooked->accel_accel.start + i * cooked->accel_accel.step;
+			double	time = (clock_time - boost_start) / 100.0;
 			double	accel = cooked->accel_accel.data[i];
 			double	pos = cooked->pres_pos.data[i];
 			double	speed;
+			unsigned	daytime;
 			if (cooked->pres_pos.start + cooked->pres_pos.step * i < apogee)
 				speed = cooked->accel_speed.data[i];
 			else
 				speed = cooked->pres_speed.data[i];
-			fprintf(detail_file, "%9.2f %9.2f %9.2f %9.2f\n",
-			       time, pos, speed, accel);
+			if (f->gps.num)
+				daytime = compute_daytime_ms(clock_time, &f->gps);
+			else
+				daytime = 0;
+			fprintf(detail_file, "%9.2f %9.2f %9.2f %9.2f %02d:%02d:%02d.%03d\n",
+				time, pos, speed, accel,
+				daytime_hour(daytime),
+				daytime_minute(daytime),
+				daytime_second(daytime),
+				daytime_millisecond(daytime));
 		}
 	}
 	if (raw_file) {
-		fprintf(raw_file, "%9s %9s %9s\n",
-		       "time", "height", "accel");
+		fprintf(raw_file, "%9s %9s %9s %9s\n",
+			"time", "height", "accel", "daytime");
 		for (i = 0; i < cooked->pres.num; i++) {
 			double time = cooked->pres.data[i].time;
 			double pres = cooked->pres.data[i].value;
 			double accel = cooked->accel.data[i].value;
-			fprintf(raw_file, "%9.2f %9.2f %9.2f %9.2f\n",
-				time, pres, accel);
+			unsigned	daytime;
+			if (f->gps.num)
+				daytime = compute_daytime_ms(time, &f->gps);
+			else
+				daytime = 0;
+			fprintf(raw_file, "%9.2f %9.2f %9.2f %9.2f %02d:%02d:%02d.%03d\n",
+				time, pres, accel,
+				daytime_hour(daytime),
+				daytime_minute(daytime),
+				daytime_second(daytime),
+				daytime_millisecond(daytime));
 		}
 	}
 	if (gps_file || kml_file) {
@@ -357,7 +445,8 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 		double	baro = 0.0;
 
 		if (gps_file)
-			fprintf(gps_file, "%9s %12s %12s %9s %8s %5s\n",
+			fprintf(gps_file, "%2s %2s %2s %9s %12s %12s %9s %8s %5s\n",
+				"hr", "mn", "sc",
 				"time", "lat", "lon", "alt", "baro", "nsat");
 		if (kml_file)
 			fprintf(kml_file, "%s", kml_header);
@@ -386,7 +475,10 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 					baro = cooked->pres_pos.data[baro_pos];
 			}
 			if (gps_file)
-				fprintf(gps_file, "%12.7f %12.7f %12.7f %7.1f %7.1f",
+				fprintf(gps_file, "%2d %2d %2d %12.7f %12.7f %12.7f %7.1f %7.1f",
+					f->gps.data[i].hour,
+					f->gps.data[i].minute,
+					f->gps.data[i].second,
 					(f->gps.data[i].time - boost_start) / 100.0,
 					f->gps.data[i].lat,
 					f->gps.data[i].lon,
