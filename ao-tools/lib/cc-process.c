@@ -70,7 +70,7 @@ cc_flight_cook(struct cc_flightraw *raw)
 	 */
 	for (i = 0; i < raw->state.num; i++) {
 		if (!start_set && raw->state.data[i].value > ao_flight_pad) {
-			flight_start = raw->state.data[i].time;
+			flight_start = raw->state.data[i].time - 10;
 			start_set = 1;
 		}
 		if (!stop_set && raw->state.data[i].value > ao_flight_main) {
@@ -79,7 +79,7 @@ cc_flight_cook(struct cc_flightraw *raw)
 		}
 	}
 
-	if (!start_set)
+	if (!start_set || flight_start < raw->accel.data[0].time)
 		flight_start = raw->accel.data[0].time;
 	if (stop_set) {
 		for (i = 0; i < raw->accel.num - 1; i++) {
@@ -101,8 +101,8 @@ cc_flight_cook(struct cc_flightraw *raw)
 	accel_speed = cc_timedata_integrate(&cooked->accel, flight_start - 10, flight_stop);
 	accel_pos = cc_timedata_integrate(accel_speed, flight_start - 10, flight_stop);
 
-#define ACCEL_OMEGA_PASS	(2 * M_PI * 5 / 100)
-#define ACCEL_OMEGA_STOP	(2 * M_PI * 8 / 100)
+#define ACCEL_OMEGA_PASS	(2 * M_PI * 20 / 100)
+#define ACCEL_OMEGA_STOP	(2 * M_PI * 30 / 100)
 #define BARO_OMEGA_PASS		(2 * M_PI * .5 / 100)
 #define BARO_OMEGA_STOP		(2 * M_PI * 1 / 100)
 #define FILTER_ERROR		(1e-8)
