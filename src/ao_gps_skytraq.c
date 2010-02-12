@@ -418,6 +418,7 @@ gps_dump(void) __reentrant
 	printf ("Time: %02d:%02d:%02d\n", ao_gps_data.hour, ao_gps_data.minute, ao_gps_data.second);
 	printf ("Lat/Lon: %ld %ld\n", ao_gps_data.latitude, ao_gps_data.longitude);
 	printf ("Alt: %d\n", ao_gps_data.altitude);
+	ao_mutex_put(&ao_gps_mutex);
 }
 
 __code struct ao_cmds ao_gps_cmds[] = {
