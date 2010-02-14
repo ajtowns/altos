@@ -20,6 +20,7 @@
 #endif
 
 __xdata uint8_t ao_gps_mutex;
+__xdata uint16_t ao_gps_tick;
 __xdata struct ao_gps_data	ao_gps_data;
 __xdata struct ao_gps_tracking_data	ao_gps_tracking_data;
 
@@ -390,6 +391,7 @@ ao_gps(void) __reentrant
 		switch (i) {
 		case 41:
 			ao_mutex_get(&ao_gps_mutex);
+			ao_gps_tick = ao_time();
 			ao_gps_data.hour = ao_sirf_data.utc_hour;
 			ao_gps_data.minute = ao_sirf_data.utc_minute;
 			ao_gps_data.second = ao_sirf_data.utc_second / 1000;

@@ -408,6 +408,8 @@ ao_serial_set_speed(uint8_t speed)
 	tcflush(fd, TCIFLUSH);
 }
 
+#define ao_time() 0
+
 #include "ao_gps_print.c"
 #include "ao_gps_skytraq.c"
 

@@ -33,7 +33,7 @@ ao_gps_report(void)
 		if (!(gps_data.flags & AO_GPS_VALID))
 			continue;
 
-		gps_log.tick = ao_time();
+		gps_log.tick = ao_gps_tick;
 		gps_log.type = AO_LOG_GPS_TIME;
 		gps_log.u.gps_time.hour = gps_data.hour;
 		gps_log.u.gps_time.minute = gps_data.minute;
@@ -71,13 +71,13 @@ ao_gps_tracking_report(void)
 	for (;;) {
 		ao_sleep(&ao_gps_tracking_data);
 		ao_mutex_get(&ao_gps_mutex);
+		gps_log.tick = ao_gps_tick;
 		memcpy(&gps_tracking_data, &ao_gps_tracking_data, sizeof (struct ao_gps_tracking_data));
 		ao_mutex_put(&ao_gps_mutex);
 
 		if (!(n = gps_tracking_data.channels))
 			continue;
 
-		gps_log.tick = ao_time();
 		gps_log.type = AO_LOG_GPS_SAT;
 		for (c = 0; c < n; c++)
 			if ((gps_log.u.gps_sat.svid = gps_tracking_data.sats[c].svid))

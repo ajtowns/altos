@@ -289,6 +289,10 @@ ao_flight(void)
 				/* disable RDF beacon */
 				ao_rdf_set(0);
 
+				/* Record current GPS position by waking up GPS log tasks */
+				ao_wakeup(&ao_gps_data);
+				ao_wakeup(&ao_gps_tracking_data);
+
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 				break;
 			}

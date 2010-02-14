@@ -731,6 +731,8 @@ ao_serial_init(void);
 #define AO_GPS_RUNNING		(1 << 5)
 #define AO_GPS_DATE_VALID	(1 << 6)
 
+extern __xdata uint16_t ao_gps_tick;
+
 struct ao_gps_data {
 	uint8_t			year;
 	uint8_t			month;
