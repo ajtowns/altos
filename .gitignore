@@ -39,6 +39,8 @@ config.h.in
 config.h.in~
 config.log
 config.status
+build-stamp
+configure-stamp
 configure
 depcomp
 install-sh
@@ -47,8 +49,3 @@ Makefile.in
 missing
 stamp-h1
 tags
-teledongle
-telemetrum-sirf
-telemetrum-sky
-teleterra
-tidongle
