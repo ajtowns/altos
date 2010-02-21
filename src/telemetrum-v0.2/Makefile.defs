@@ -1,0 +1,11 @@
+PROG = telemetrum-v0.2.ihx
+
+SRC = \
+	$(TM_BASE_SRC) \
+	$(FLASH_DRIVER_SRC) \
+	$(SKY_DRIVER_SRC) \
+	$(DBG_SRC)
+
+PRODUCT=TeleMetrum-v0.2
+
+CFLAGS += -DTELEMETRUM_V_0_2 -I.

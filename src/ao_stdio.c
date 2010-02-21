@@ -38,7 +38,8 @@ putchar(char c)
 void
 flush(void)
 {
-	stdios[ao_cur_stdio].flush();
+	if (stdios[ao_cur_stdio].flush)
+		stdios[ao_cur_stdio].flush();
 }
 
 __xdata uint8_t ao_stdin_ready;

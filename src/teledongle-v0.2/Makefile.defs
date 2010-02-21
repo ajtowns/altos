@@ -1,0 +1,9 @@
+PROG = teledongle-v0.2.ihx
+
+SRC = \
+	$(TD_SRC) \
+	$(DBG_SRC)
+
+PRODUCT=TeleDongle-v0.2
+
+CFLAGS += -DTELEDONGLE_V_0_2 -I.

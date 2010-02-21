@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stddef.h>
 #include "cc1111.h"
+#include "ao_pins.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -148,15 +149,7 @@ void
 ao_clock_init(void);
 
 /*
- * ao_adc.c
- */
-
-#define AO_ADC_RING	32
-#define ao_adc_ring_next(n)	(((n) + 1) & (AO_ADC_RING - 1))
-#define ao_adc_ring_prev(n)	(((n) - 1) & (AO_ADC_RING - 1))
-
-/*
- * One set of samples read from the A/D converter
+ * One set of samples read from the A/D converter or telemetry
  */
 struct ao_adc {
 	uint16_t	tick;		/* tick when the sample was read */
@@ -167,6 +160,20 @@ struct ao_adc {
 	int16_t		sense_d;	/* drogue continuity sense */
 	int16_t		sense_m;	/* main continuity sense */
 };
+
+#ifndef HAS_ADC
+#error Please define HAS_ADC
+#endif
+
+#if HAS_ADC
+/*
+ * ao_adc.c
+ */
+
+#define AO_ADC_RING	32
+#define ao_adc_ring_next(n)	(((n) + 1) & (AO_ADC_RING - 1))
+#define ao_adc_ring_prev(n)	(((n) - 1) & (AO_ADC_RING - 1))
+
 
 /*
  * A/D data is stored in a ring, with the next sample to be written
@@ -188,14 +195,15 @@ void
 ao_adc_get(__xdata struct ao_adc *packet);
 
 /* The A/D interrupt handler */
-#if !AO_NO_ADC_ISR
+
 void
 ao_adc_isr(void) interrupt 1;
-#endif
 
 /* Initialize the A/D converter */
 void
 ao_adc_init(void);
+
+#endif /* HAS_ADC */
 
 /*
  * ao_beep.c
@@ -696,13 +704,16 @@ ao_dbg_init(void);
  * ao_serial.c
  */
 
-#if !AO_NO_SERIAL_ISR
+#ifndef HAS_SERIAL_1
+#error Please define HAS_SERIAL_1
+#endif
+
+#if HAS_SERIAL_1
 void
 ao_serial_rx1_isr(void) interrupt 3;
 
 void
 ao_serial_tx1_isr(void) interrupt 14;
-#endif
 
 char
 ao_serial_getchar(void) __critical;
@@ -719,6 +730,7 @@ ao_serial_set_speed(uint8_t speed);
 
 void
 ao_serial_init(void);
+#endif
 
 /*
  * ao_gps.c

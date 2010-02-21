@@ -1,0 +1,11 @@
+PROG = telemetrum-v0.1-sirf.ihx
+
+SRC = \
+	$(TM_BASE_SRC) \
+	$(EE_DRIVER_SRC) \
+	$(SIRF_DRIVER_SRC) \
+	$(DBG_SRC)
+
+PRODUCT=TeleMetrum-v0.1-SiRF
+
+CFLAGS += -DTELEMETRUM_V_0_1 -I.

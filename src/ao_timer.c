@@ -36,24 +36,30 @@ ao_delay(uint16_t ticks)
 #define T1_CLOCK_DIVISOR	8	/* 24e6/8 = 3e6 */
 #define T1_SAMPLE_TIME		30000	/* 3e6/30000 = 100 */
 
+#if HAS_ADC
 volatile __data uint8_t	ao_adc_interval = 1;
 volatile __data uint8_t	ao_adc_count;
+#endif
 
 void ao_timer_isr(void) interrupt 9
 {
 	++ao_tick_count;
+#if HAS_ADC
 	if (++ao_adc_count == ao_adc_interval) {
 		ao_adc_count = 0;
 		ao_adc_poll();
 	}
+#endif
 }
 
+#if HAS_ADC
 void
 ao_timer_set_adc_interval(uint8_t interval) __critical
 {
 	ao_adc_interval = interval;
 	ao_adc_count = 0;
 }
+#endif
 
 void
 ao_timer_init(void)

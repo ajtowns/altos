@@ -113,6 +113,11 @@ ao_packet_recv(void)
 	return dma_done;
 }
 
+#ifndef PACKET_HAS_MASTER
+#define PACKET_HAS_MASTER 1
+#endif
+
+#if PACKET_HAS_MASTER
 void
 ao_packet_flush(void)
 {
@@ -122,12 +127,15 @@ ao_packet_flush(void)
 	if (ao_packet_tx_used && ao_packet_master_sleeping)
 		ao_wake_task(&ao_packet_task);
 }
+#endif /* PACKET_HAS_MASTER */
 
 void
 ao_packet_putchar(char c) __reentrant
 {
 	while (ao_packet_tx_used == AO_PACKET_MAX && ao_packet_enable) {
+#if PACKET_HAS_MASTER
 		ao_packet_flush();
+#endif
 		ao_sleep(&tx_data);
 	}
 

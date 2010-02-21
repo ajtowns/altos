@@ -16,6 +16,7 @@
  */
 
 #include "ao.h"
+#include "ao_pins.h"
 
 /* stub so as telemetrum doesn't have monitor mode */
 void
@@ -31,7 +32,7 @@ main(void)
 
 
 	/* Turn on the red LED until the system is stable */
-	ao_led_init(AO_LED_RED);
+	ao_led_init(LEDS_AVAILABLE);
 	ao_led_on(AO_LED_RED);
 
 	/* A hack -- look at the SPI clock pin, if it's sitting at
@@ -59,6 +60,9 @@ main(void)
 	ao_radio_init();
 	ao_packet_slave_init();
 	ao_igniter_init();
+#if HAS_DBG
+	ao_dbg_init();
+#endif
 	ao_config_init();
 	ao_start_scheduler();
 }

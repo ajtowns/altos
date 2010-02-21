@@ -38,18 +38,22 @@ __xdata uint8_t ao_config_mutex;
  */
 const uint32_t ao_radio_cal = 1186611;
 
+#if HAS_EEPROM
 static void
 _ao_config_put(void)
 {
 	ao_ee_write_config((uint8_t *) &ao_config, sizeof (ao_config));
 }
+#endif
 
 static void
 _ao_config_get(void)
 {
 	if (ao_config_loaded)
 		return;
+#if HAS_EEPROM
 	ao_ee_read_config((uint8_t *) &ao_config, sizeof (ao_config));
+#endif
 	if (ao_config.major != AO_CONFIG_MAJOR) {
 		ao_config.major = AO_CONFIG_MAJOR;
 		ao_config.minor = AO_CONFIG_MINOR;
@@ -148,6 +152,8 @@ ao_config_radio_channel_set(void) __reentrant
 	ao_mutex_put(&ao_config_mutex);
 	ao_config_radio_channel_show();
 }
+
+#if HAS_ADC
 
 void
 ao_config_main_deploy_show(void) __reentrant
@@ -259,6 +265,8 @@ ao_config_apogee_delay_set(void) __reentrant
 	ao_config_apogee_delay_show();
 }
 
+#endif /* HAS_ADC */
+
 void
 ao_config_radio_cal_show(void) __reentrant
 {
@@ -296,25 +304,31 @@ void
 ao_config_write(void) __reentrant;
 
 __code struct ao_config_var ao_config_vars[] = {
+#if HAS_ADC
 	{ 'm',	ao_config_main_deploy_set,	ao_config_main_deploy_show,
 		"m <meters>  Set height above launch for main deploy (in meters)" },
 	{ 'd',	ao_config_apogee_delay_set,	ao_config_apogee_delay_show,
 	        "d <delay>   Set apogee igniter delay (in seconds)" },
+#endif /* HAS_ADC */
 	{ 'r',	ao_config_radio_channel_set,	ao_config_radio_channel_show,
 		"r <channel> Set radio channel (freq = 434.550 + channel * .1)" },
 	{ 'c',	ao_config_callsign_set,		ao_config_callsign_show,
 		"c <call>    Set callsign broadcast in each packet (8 char max)" },
+#if HAS_ADC
 	{ 'a',	ao_config_accel_calibrate_set,	ao_config_accel_calibrate_show,
 		"a <+g> <-g> Set accelerometer calibration (0 for auto)" },
+#endif /* HAS_ADC */
 	{ 'f',  ao_config_radio_cal_set,  	ao_config_radio_cal_show,
 		"f <cal>     Set radio calibration value (cal = rf/(xtal/2^16))" },
 	{ 's',	ao_config_show,			ao_config_show,
 		"s           Show current config values" },
+#if HAS_EEPROM
 	{ 'w',	ao_config_write,		ao_config_write,
 		"w           Write current values to eeprom" },
+#endif
 	{ '?',	ao_config_help,			ao_config_help,
 		"?           Show available config variables" },
-	{ 0,	ao_config_main_deploy_set,	ao_config_main_deploy_show,
+	{ 0,	ao_config_help,	ao_config_help,
 		NULL },
 };
 
@@ -359,6 +373,7 @@ ao_config_show(void) __reentrant
 			(*ao_config_vars[cmd].show)();
 }
 
+#if HAS_EEPROM
 void
 ao_config_write(void) __reentrant
 {
@@ -370,6 +385,7 @@ ao_config_write(void) __reentrant
 	}
 	ao_mutex_put(&ao_config_mutex);
 }
+#endif
 
 __code struct ao_cmds ao_config_cmds[] = {
 	{ 'c',	ao_config_set,	"c <var> <value>                    Set config variable (? for help, s to show)" },

@@ -1,0 +1,11 @@
+PROG = telemetrum-v0.1-sky.ihx
+
+SRC = \
+	$(TM_BASE_SRC) \
+	$(EE_DRIVER_SRC) \
+	$(SKY_DRIVER_SRC) \
+	$(DBG_SRC)
+
+PRODUCT=TeleMetrum-v0.1
+
+CFLAGS += -DTELEMETRUM_V_0_1 -I.

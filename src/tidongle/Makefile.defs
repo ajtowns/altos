@@ -1,0 +1,8 @@
+PROG = tidongle.ihx
+
+SRC = \
+	$(TI_SRC)
+
+PRODUCT=TIDongle
+
+CFLAGS += -DTIDONGLE -I.

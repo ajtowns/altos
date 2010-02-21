@@ -16,19 +16,12 @@
  */
 
 #include "ao.h"
-
-#define DBG_CLOCK	(1 << 3)
-#define DBG_DATA	(1 << 4)
-#define DBG_RESET_N	(1 << 5)
-
-#define DBG_CLOCK_PIN	(P0_3)
-#define DBG_DATA_PIN	(P0_4)
-#define DBG_RESET_N_PIN	(P0_5)
+#include "ao_pins.h"
 
 static void
 ao_dbg_send_bits(uint8_t msk, uint8_t val) __reentrant
 {
-	P0 = (P0 & ~msk) | (val & msk);
+	DBG_PORT = (DBG_PORT & ~msk) | (val & msk);
 	_asm
 		nop
 		nop
@@ -40,8 +33,8 @@ ao_dbg_send_byte(uint8_t byte)
 {
 	__xdata uint8_t	b, d;
 
-	P0 |= DBG_DATA;
-	P0DIR |= DBG_DATA;
+	DBG_PORT |= DBG_DATA;
+	DBG_PORT_DIR |= DBG_DATA;
 	for (b = 0; b < 8; b++) {
 		d = 0;
 		if (byte & 0x80)
@@ -50,7 +43,7 @@ ao_dbg_send_byte(uint8_t byte)
 		ao_dbg_send_bits(DBG_CLOCK|DBG_DATA, DBG_CLOCK|d);
 		ao_dbg_send_bits(DBG_CLOCK|DBG_DATA,     0    |d);
 	}
-	P0DIR &= ~DBG_DATA;
+	DBG_PORT_DIR &= ~DBG_DATA;
 }
 
 uint8_t
@@ -171,20 +164,15 @@ ao_dbg_read_byte(void)
 static void
 ao_dbg_set_pins(void)
 {
-	/* Disable peripheral use of P0 */
-	ADCCFG = 0;
-	P0SEL = 0;
-
-
-	/* make P0_4 tri-state */
-	P0INP = DBG_DATA;
-	P2INP &= ~(P2INP_PDUP0_PULL_DOWN);
+	/* make DBG_DATA tri-state */
+	DBG_PORT_INP |= DBG_DATA;
 
 	/* Raise RESET_N and CLOCK */
-	P0 = DBG_RESET_N | DBG_CLOCK;
+	DBG_PORT |= DBG_RESET_N | DBG_CLOCK;
 
 	/* RESET_N and CLOCK are outputs now */
-	P0DIR = DBG_RESET_N | DBG_CLOCK;
+	DBG_PORT_DIR |= DBG_RESET_N | DBG_CLOCK;
+	DBG_PORT_DIR &= ~DBG_DATA;
 }
 
 static void

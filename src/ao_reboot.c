@@ -17,44 +17,12 @@
 
 #include "ao.h"
 
+/* Use the watchdog timer to force a complete reboot
+ */
 void
-ao_packet_slave(void)
+ao_reboot(void)
 {
-	ao_radio_set_packet();
-	ao_tx_packet.addr = ao_serial_number;
-	ao_tx_packet.len = AO_PACKET_SYN;
-	while (ao_packet_enable) {
-		ao_packet_recv();
-		ao_packet_send();
-	}
-	ao_exit();
-}
-
-void
-ao_packet_slave_start(void)
-{
-	ao_packet_enable = 1;
-	ao_add_task(&ao_packet_task, ao_packet_slave, "slave");
-}
-
-void
-ao_packet_slave_stop(void)
-{
-	if (ao_packet_enable) {
-		ao_packet_enable = 0;
-		ao_radio_abort();
-		while (ao_packet_task.wchan) {
-			ao_wake_task(&ao_packet_task);
-			ao_yield();
-		}
-		ao_radio_set_telemetry();
-	}
-}
-
-void
-ao_packet_slave_init(void)
-{
-	ao_add_stdio(ao_packet_pollchar,
-		     ao_packet_putchar,
-		     NULL);
+	WDCTL = WDCTL_EN | WDCTL_MODE_WATCHDOG | WDCTL_INT_32768;
+	ao_sleep(AO_SEC_TO_TICKS(2));
+	ao_panic(AO_PANIC_REBOOT);
 }

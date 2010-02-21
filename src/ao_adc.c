@@ -16,6 +16,7 @@
  */
 
 #include "ao.h"
+#include "ao_pins.h"
 
 volatile __xdata struct ao_adc	ao_adc_ring[AO_ADC_RING];
 volatile __data uint8_t		ao_adc_head;
@@ -52,11 +53,13 @@ ao_adc_isr(void) interrupt 1
 	a[0] = ADCL;
 	a[1] = ADCH;
 	if (sequence < 5) {
+#if HAS_EXTERNAL_TEMP == 0
 		/* start next channel conversion */
 		/* v0.2 replaces external temp sensor with internal one */
 		if (sequence == 1)
 			ADCCON3 = ADCCON3_EREF_1_25 | ADCCON3_EDIV_512 | ADCCON3_ECH_TEMP;
 		else
+#endif
 			ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | (sequence + 1);
 	} else {
 		/* record this conversion series */
@@ -86,7 +89,9 @@ ao_adc_init(void)
 {
 	ADCCFG = ((1 << 0) |	/* acceleration */
 		  (1 << 1) |	/* pressure */
-/*		  (1 << 2) |	  v0.1 temperature */
+#if HAS_EXTERNAL_TEMP
+		  (1 << 2) |	/* v0.1 temperature */
+#endif
 		  (1 << 3) |	/* battery voltage */
 		  (1 << 4) |	/* drogue sense */
 		  (1 << 5));	/* main sense */
