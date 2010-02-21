@@ -15,40 +15,63 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+#ifndef AO_CONVERT_TEST
 #include "ao.h"
+#endif
 
-static const int16_t altitude_table[2048] = {
+static const int16_t altitude_table[] = {
 #include "altitude.h"
 };
+
+#define ALT_FRAC_SCALE	(1 << ALT_FRAC_BITS)
+#define ALT_FRAC_MASK	(ALT_FRAC_SCALE - 1)
 
 int16_t
 ao_pres_to_altitude(int16_t pres) __reentrant
 {
-	pres = pres >> 4;
-	if (pres < 0) pres = 0;
-	if (pres > 2047) pres = 2047;
-	return altitude_table[pres];
+	uint8_t	o;
+	int16_t	part;
+
+	if (pres < 0)
+		pres = 0;
+	o = pres >> ALT_FRAC_BITS;
+	part = pres & ALT_FRAC_MASK;
+
+	return ((int32_t) altitude_table[o] * (ALT_FRAC_SCALE - part) +
+		(int32_t) altitude_table[o+1] * part + (ALT_FRAC_SCALE >> 1)) >> ALT_FRAC_BITS;
 }
 
 int16_t
 ao_altitude_to_pres(int16_t alt) __reentrant
 {
-	int16_t pres;
+	int16_t span, sub_span;
+	uint8_t	l, h, m;
+	int32_t pres;
 
-	for (pres = 0; pres < 2047; pres++)
-		if (altitude_table[pres] <= alt)
-			break;
-	return pres << 4;
+	l = 0;
+	h = NALT - 1;
+	while ((h - l) != 1) {
+		m = (l + h) >> 1;
+		if (altitude_table[m] < alt)
+			h = m;
+		else
+			l = m;
+	}
+	span = altitude_table[l] - altitude_table[h];
+	sub_span = altitude_table[l] - alt;
+	pres = ((((int32_t) l * (span - sub_span) + (int32_t) h * sub_span) << ALT_FRAC_BITS) + (span >> 1)) / span;
+	if (pres > 32767)
+		pres = 32767;
+	if (pres < 0)
+		pres = 0;
+	return (int16_t) pres;
 }
-
-static __xdata uint8_t	ao_temp_mutex;
 
 int16_t
 ao_temp_to_dC(int16_t temp) __reentrant
 {
 	int16_t	ret;
 
-	ao_mutex_get(&ao_temp_mutex);
 	/* Output voltage at 0°C = 0.755V
 	 * Coefficient = 0.00247V/°C
 	 * Reference voltage = 1.25V
@@ -58,6 +81,5 @@ ao_temp_to_dC(int16_t temp) __reentrant
 	 *	≃ (value - 19791) * 1012 / 65536
 	 */
 	ret = ((temp - 19791) * 1012L) >> 16;
-	ao_mutex_put(&ao_temp_mutex);
 	return ret;
 }

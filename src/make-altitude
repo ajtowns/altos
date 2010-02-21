@@ -179,14 +179,105 @@ real meters_to_feet(real meters)
 real counts_per_kPa = 27 * 2047 / 3300;
 real counts_at_101_3kPa = 1674;
 
-real count_to_kPa(real count)
+real fraction_to_kPa(real fraction)
 {
-	return (count / 2047 + 0.095) / 0.009;
+	return (fraction + 0.095) / 0.009;
 }
 
-for (real count = 0; count <= 2047; count++) {
-	real	kPa = count_to_kPa(count);
+
+real count_to_kPa(real count) = fraction_to_kPa(count / 2047);
+
+typedef struct {
+	real m, b;
+	int m_i, b_i;
+} line_t;
+
+line_t best_fit(real[] values, int first, int last) {
+       real sum_x = 0, sum_x2 = 0, sum_y = 0, sum_xy = 0;
+       int n = last - first + 1;
+       real m, b;
+       int m_i, b_i;
+
+       for (int i = first; i <= last; i++) {
+	       sum_x += i;
+	       sum_x2 += i**2;
+	       sum_y += values[i];
+	       sum_xy += values[i] * i;
+       }
+       m = (n*sum_xy - sum_y*sum_x) / (n*sum_x2 - sum_x**2);
+       b = sum_y/n - m*(sum_x/n);
+       return (line_t) { m = m, b = b };
+}
+
+real count_to_altitude(real count) {
+     return pressure_to_altitude(count_to_kPa(count) * 1000);
+}
+
+real fraction_to_altitude(real frac) = pressure_to_altitude(fraction_to_kPa(frac) * 1000);
+
+int num_samples = 1024;
+
+real[num_samples] alt = { [n] = fraction_to_altitude(n/(num_samples - 1)) };
+
+int num_part = 128;
+int seg_len = num_samples / num_part;
+
+line_t [dim(alt) / seg_len] fit = {
+	[n] = best_fit(alt, n * seg_len, n * seg_len + seg_len - 1)
+};
+
+int[num_samples/seg_len + 1]	alt_part;
+
+alt_part[0] = floor (fit[0].b + 0.5);
+alt_part[dim(fit)] = floor(fit[dim(fit)-1].m * dim(fit) * seg_len + fit[dim(fit)-1].b + 0.5);
+
+for (int i = 0; i < dim(fit) - 1; i++) {
+	real	here, there;
+	here = fit[i].m * (i+1) * seg_len + fit[i].b;
+	there = fit[i+1].m * (i+1) * seg_len + fit[i+1].b;
+	alt_part[i+1] = floor ((here + there) / 2 + 0.5);
+}
+
+real count_to_fit_altitude(int count) {
+	int	sub = count // seg_len;
+	int	off = count % seg_len;
+	line_t	l = fit[sub];
+	real r_v;
+	real i_v;
+
+	r_v = count * l.m + l.b;
+	i_v = (alt_part[sub] * (seg_len - off) + alt_part[sub+1] * off) / seg_len;
+	return i_v;
+}
+
+real max_error = 0;
+int max_error_count = 0;
+real total_error = 0;
+
+for (int count = 0; count < num_samples; count++) {
+	real	kPa = fraction_to_kPa(count / (num_samples - 1));
 	real	meters = pressure_to_altitude(kPa * 1000);
-	printf ("	%d,	/* %6.2g kPa %d count */\n",
-		floor (meters + 0.5), kPa, count);
+
+	real	meters_approx = count_to_fit_altitude(count);
+	real	error = abs(meters - meters_approx);
+
+	total_error += error;
+	if (error > max_error) {
+		max_error = error;
+		max_error_count = count;
+	}
+#	printf ("	%7d,	/* %6.2g kPa %5d count approx %d */\n",
+#		floor (meters + 0.5), kPa, count, floor(count_to_fit_altitude(count) + 0.5));
+}
+
+printf ("/*max error %f at %7.3f%%. Average error %f*/\n", max_error, max_error_count / (num_samples - 1) * 100, total_error / num_samples);
+
+printf ("#define NALT %d\n", dim(alt_part));
+printf ("#define ALT_FRAC_BITS %d\n", floor (log2(32768/(dim(alt_part)-1)) + 0.1));
+
+for (int i = 0; i < dim(alt_part); i++) {
+	real fraction = i / (dim(alt_part) - 1);
+	real kPa = fraction_to_kPa(fraction);
+	printf ("%9d, /* %6.2f kPa %7.3f%% */\n",
+		alt_part[i], kPa, fraction * 100);
 }
