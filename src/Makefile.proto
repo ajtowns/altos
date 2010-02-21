@@ -174,6 +174,10 @@ TD_SRC = \
 
 include Makefile.defs
 
+CFLAGS += $(PRODUCT_DEF) -I.
+
+NICKLE=nickle
+
 REL=$(SRC:.c=.rel) ao_product.rel
 ADB=$(REL:.rel=.adb)
 ASM=$(REL:.rel=.asm)
@@ -188,29 +192,38 @@ PMAP=$(PROG:.ihx=.map)
 PMEM=$(PROG:.ihx=.mem)
 PAOM=$(PROG:.ihx=)
 
+V=0
+# The user has explicitly enabled quiet compilation.
+ifeq ($(V),0)
+quiet = @printf "  $1 $2 $@\n"; $($1)
+endif
+# Otherwise, print the full command line.
+quiet ?= $($1)
+
 %.rel : %.c $(INC)
-	$(CC) -c $(CFLAGS) -o$@ $<
+	$(call quiet,CC,$(PRODUCT_DEF)) $(CFLAGS) -c -o$@ $<
 
-all: $(PROG)
+all: ../$(PROG)
 
-$(PROG): $(REL) Makefile Makefile.defs ../Makefile.proto
-	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(REL)
+../$(PROG): $(REL) Makefile Makefile.defs ../Makefile.proto
+	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(REL) && mv $(PROG) ..
 
 ../altitude.h: make-altitude
 	nickle $< > $@
 
 ao_product.h: ao-make-product.5c
-	      nickle $< -m altusmetrum.org -p $(PRODUCT) -v $(VERSION) > $@
+	$(call quiet,NICKLE,$<) $< -m altusmetrum.org -p $(PRODUCT) -v $(VERSION) > $@
 
 ao_product.rel: ao_product.c ao_product.h
-	$(CC) -c $(CFLAGS) -D PRODUCT_DEFS='\"ao_product.h\"' -o$@ $<
+	$(call quiet,CC) -c $(CFLAGS) -D PRODUCT_DEFS='\"ao_product.h\"' -o$@ $<
 
 distclean:	clean
 
 clean:
 	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
-	rm -f $(PROG) $(PCDB) $(PLNK) $(PMAP) $(PMEM) $(PAOM)
+	rm -f $(PCDB) $(PLNK) $(PMAP) $(PMEM) $(PAOM)
 	rm -f ao_product.h
+	rm -f ../$(PROG)
 
 install:
 
