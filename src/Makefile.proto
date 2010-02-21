@@ -177,6 +177,7 @@ include Makefile.defs
 CFLAGS += $(PRODUCT_DEF) -I.
 
 NICKLE=nickle
+CHECK_STACK=sh ../check-stack
 
 REL=$(SRC:.c=.rel) ao_product.rel
 ADB=$(REL:.rel=.adb)
@@ -207,6 +208,7 @@ all: ../$(PROG)
 
 ../$(PROG): $(REL) Makefile Makefile.defs ../Makefile.proto
 	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(REL) && mv $(PROG) ..
+	$(call quiet,CHECK_STACK) ../ao.h $(@F:.ihx=.mem)
 
 ../altitude.h: make-altitude
 	nickle $< > $@
