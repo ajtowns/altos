@@ -1,4 +1,4 @@
-altos (0.6+85+g82fdbfe) unstable; urgency=low
+altos (0.6+86+g2491282) unstable; urgency=low
 
   [ Keith Packard ]
   * Disable monitor mode before attempting radio test.

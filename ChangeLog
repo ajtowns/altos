@@ -1,3 +1,9 @@
+commit 24912821b3230b8357b9e0094cd69fa0bccc5513
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Feb 24 14:53:27 2010 -0700
+
+    update changelogs for Debian build
+
 commit 82fdbfe1229d1ea5e6906ea240d54b3da73d9a69
 Author: Keith Packard <keithp@keithp.com>
 Date:   Sat Feb 20 21:35:43 2010 -0800
