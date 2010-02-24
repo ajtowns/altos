@@ -1,3 +1,15 @@
+commit deccc10f0305c0cd02bf6317d6dc9d2ae38c3dac
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Feb 24 16:43:32 2010 -0700
+
+    add gawk as a build dependency since strtonum is a gawk extension
+
+commit ac45da6e61597dcdb119b976f7301b2cc7fdced4
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Feb 24 14:57:26 2010 -0700
+
+    update changelogs for Debian build
+
 commit 24912821b3230b8357b9e0094cd69fa0bccc5513
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed Feb 24 14:53:27 2010 -0700

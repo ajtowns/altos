@@ -1,3 +1,9 @@
+altos (0.6+88+gdeccc10) unstable; urgency=low
+
+  * add gawk as a build dependency since strtonum is a gawk extension
+
+ -- Bdale Garbee <bdale@gag.com>  Wed, 24 Feb 2010 16:44:35 -0700
+
 altos (0.6+86+g2491282) unstable; urgency=low
 
   [ Keith Packard ]
