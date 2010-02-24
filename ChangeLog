@@ -1,3 +1,234 @@
+commit 82fdbfe1229d1ea5e6906ea240d54b3da73d9a69
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 20 21:35:43 2010 -0800
+
+    Must install .map files for ao-load to work
+    
+    ao-load uses the .map files to rewrite the serial number and other
+    config parameters into the program flash.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a5215c2bd9249a285fc834db0c453fb3e7daed87
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 20 21:20:05 2010 -0800
+
+    Add back stack size checking to altos linking phase
+    
+    This verifies that the stack start specified during the compile
+    will work with the resulting program
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 18eeb79026f7e5c54bf99435537c024427011a36
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 20 21:05:45 2010 -0800
+
+    Quiet make output.
+    
+    This borrows ideas from the notmuch project to reduce the command line
+    clutter seen when compiling or linking stuff.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 004c2a9b7a4b44ef71ca60482573e8e9d8c6ce93
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 20 20:36:08 2010 -0800
+
+    Update .gitignore files
+
+commit 84c93bb2fc4558a5e4654794ba90e730a84eaf67
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 20 20:22:16 2010 -0800
+
+    Change altos build process to support per-product compile-time changes
+    
+    This creates per-product subdirectories and recompiles everything for
+    each product, allowing per-product compile-time changes for things
+    like peripheral pin assignments and attached serial devices.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fd0a42e0e96dcb8ecc9e999f70bcf70692692af9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 20 20:21:07 2010 -0800
+
+    Change barometer conversion code to shrink conversion table
+
+commit 876e9a10b9096ead85fbe08ec9a6a0329cf7cbd4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 13 16:42:27 2010 -0800
+
+    Log GPS data on pad after boost detect.
+    
+    This wakes up the two GPS reporting tasks and gets them to report out
+    any existing GPS data to the log file. To make sure the timestamps in
+    that GPS data are accurate, this also records GPS time on receipt of
+    the GPS data instead of when that is logged.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c83615567b4567f3dc45a7f7b894943b45fbb65c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Feb 7 00:25:22 2010 -0800
+
+    Pull in a bit more data for filtering the start of the boost
+
+commit f8967607b3dda0c0ce7afe8bb077da2da5ed3dcd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Feb 7 00:24:56 2010 -0800
+
+    Compute daytime using GPS as time base
+
+commit 2a6350149407c7d2e7d143906c40c5e331248aeb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Feb 11 18:48:56 2010 -0800
+
+    Missing ao_mutex_put in gps_dump
+
+commit 9856b7c4397afcecc8f541af9a83824e817b3612
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jan 10 16:31:50 2010 -0800
+
+    Switch to using internal cc1111 temperature sensor
+    
+    v0.2 has no temperature sensor, and several of the v0.1 boards didn't
+    get a temperature sensor loaded. Use the internal temperature sensor
+    on the cc1111 in all cases instead.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0c2533be15858774ef9381aa8c8344356fd5b971
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 9 22:06:19 2010 -0800
+
+    Force idle mode by shorting the SPI clock to ground at boot time.
+    
+    This allows you to override the flight mode detection code in case the
+    accelerometer calibration is broken somehow. Hold the SPI clock shoted
+    to ground until the LED comes on, then remove it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 28346736a7799c0767e54511d9949cd61d35e471
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 9 20:57:48 2010 -0800
+
+    Add simple gps dump command 'g'
+    
+    This just dumps out the data in a very simple format to verify the GPS
+    receiver.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a6082a8b4501ac4cb18584ace1f0c40e088e5484
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 9 20:57:29 2010 -0800
+
+    Remove flash debugging printfs
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 05bb953830604721c9a49dd56256b86f3666b5ff
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 9 20:42:57 2010 -0800
+
+    Don't set ao_flash_setup_done until we're actually done.
+    
+    Because we're accessing this variable outside of the mutex, we need to
+    make sure it isn't set until the data it covers has been initialized.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 327e5e782958e516a7b7a786ab6c176b0decb8b8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 9 20:04:42 2010 -0800
+
+    Dump config block from read/write config and flash_status commands
+
+commit 05e5bb2d330b755967d06fb859585c81f5f5fbb5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 9 19:46:46 2010 -0800
+
+    Dump more flash parameters for the flash_status command
+
+commit d4c8895b349998e02e03ed83466a0ca7afb3d99b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 9 17:57:52 2010 -0800
+
+    Add 'f' command to display flash status register contents
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c1334f712f01543adb10809bc1a3ca120e27290b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 9 09:55:04 2010 -0800
+
+    Add at45db161d.h header file for new flash part.
+    
+    Forgot to add this when I added the driver.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a0d4c1b06d27e850d233f8ddf8fe32912bf0ec8f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 9 01:29:41 2010 -0800
+
+    Remove green LED and temp sensor from v0.2 code
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit dc8d18736239b14c2ec48a40a01515912c5c25e6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 9 01:22:06 2010 -0800
+
+    Add AT45DBxx1D driver
+    
+    This driver supports the AT45DB011D through AT45DB321D DataFlash
+    parts as found in TeleMetrum v0.2
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3bab7e66d25988f5d63ec139c8814a85b983f8f3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Dec 19 20:32:18 2009 -0800
+
+    Remove dbg driver code from telemetrum/teledongle
+    
+    The only board with debug outputs is the TI dongle at this point, so
+    the debug modules were disabled in TM and TD some time
+    ago. Unfortunately, the code was not removed then.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit eddb82390a0ecb07ef83c04861993842906b03ab
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Dec 19 15:31:36 2009 -0800
+
+    Ensure that ao_alarm waits at least the specified time
+    
+    Because the timer tick may happen soon, it's important to delay by
+    another tick to ensure that we don't wake up early.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 598d168bd6552c3756e4b0267de44147eadab9f6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Dec 19 14:03:11 2009 -0800
+
+    Disable monitor mode before attempting radio test.
+    
+    If monitor mode is left active, then the radio lock will not be able
+    to be acquired for the radio test.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d4cf1446680d8b47396bcda338e8df7af395d102
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sat Dec 19 13:53:38 2009 -0700
+
+    update changelogs for Debian build
+
 commit 10d1bbcd9709a5eee8d50989215242b16feb7232
 Author: Keith Packard <keithp@keithp.com>
 Date:   Sat Dec 19 11:34:16 2009 -0800

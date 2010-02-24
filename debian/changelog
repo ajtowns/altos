@@ -1,3 +1,34 @@
+altos (0.6+85+g82fdbfe) unstable; urgency=low
+
+  [ Keith Packard ]
+  * Disable monitor mode before attempting radio test.
+  * Ensure that ao_alarm waits at least the specified time
+  * Remove dbg driver code from telemetrum/teledongle
+  * Add AT45DBxx1D driver
+  * Remove green LED and temp sensor from v0.2 code
+  * Add at45db161d.h header file for new flash part.
+  * Add 'f' command to display flash status register contents
+  * Dump more flash parameters for the flash_status command
+  * Dump config block from read/write config and flash_status commands
+  * Don't set ao_flash_setup_done until we're actually done.
+  * Remove flash debugging printfs
+  * Add simple gps dump command 'g'
+  * Force idle mode by shorting the SPI clock to ground at boot time.
+  * Switch to using internal cc1111 temperature sensor
+  * Missing ao_mutex_put in gps_dump
+  * Compute daytime using GPS as time base
+  * Pull in a bit more data for filtering the start of the boost
+  * Log GPS data on pad after boost detect.
+  * Change barometer conversion code to shrink conversion table
+  * Change altos build process to support per-product compile-time
+    changes
+  * Update .gitignore files
+  * Quiet make output.
+  * Add back stack size checking to altos linking phase
+  * Must install .map files for ao-load to work
+
+ -- Bdale Garbee <bdale@gag.com>  Wed, 24 Feb 2010 14:53:01 -0700
+
 altos (0.6+60+g10d1bbc) unstable; urgency=low
 
   [ Keith Packard ]
