@@ -7,6 +7,7 @@ DEB_VERSION := $(shell if [ -x /usr/bin/git ]; then git describe; else echo 0; f
 
 # this target invoked by git-buildpackage using a clean hook, see .gbp.conf
 prebuild:
+	echo $(DEB_VERSION)
 	git-dch --release --new-version=$(DEB_VERSION)
 	git log > ChangeLog
 	git commit -n ChangeLog debian/changelog \
