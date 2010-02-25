@@ -1,3 +1,21 @@
+commit 4b6b28530206c6fdbe46699b81746fbbcab5b148
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Feb 24 17:22:20 2010 -0700
+
+    see if this works
+
+commit c74958d3e8c5ce8006a9f9f6853238fce0c77432
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Feb 24 17:13:29 2010 -0700
+
+    move git-using variable declaration into the prebuild target
+
+commit cf091a7252eba09902a42a3cfe7b4d6a343907ce
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Feb 24 16:44:44 2010 -0700
+
+    update changelogs for Debian build
+
 commit deccc10f0305c0cd02bf6317d6dc9d2ae38c3dac
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed Feb 24 16:43:32 2010 -0700
