@@ -1,3 +1,10 @@
+altos (0.6+95+g2f45953) unstable; urgency=low
+
+  * update changelogs for Debian build
+  * conditionalize use of git on executability of /usr/bin/git binary
+
+ -- Bdale Garbee <bdale@gag.com>  Wed, 24 Feb 2010 17:30:00 -0700
+
 altos (0.6+88+gdeccc10) unstable; urgency=low
 
   * add gawk as a build dependency since strtonum is a gawk extension
