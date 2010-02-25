@@ -3,10 +3,10 @@
 
 export DH_VERBOSE=1
 PKG_VERSION := $(shell dpkg-parsechangelog | sed -ne 's/^Version: \(.*\)/\1/p')
-DEB_VERSION := $(shell git describe | tr - +)
 
 # this target invoked by git-buildpackage using a clean hook, see .gbp.conf
 prebuild:
+	DEB_VERSION := $(shell git describe | tr - +)
 	git-dch --release --new-version=$(DEB_VERSION)
 	git log > ChangeLog
 	git commit -n ChangeLog debian/changelog \
