@@ -17,7 +17,12 @@ XMIT_SRC = \
 	ao_radio_xmit.c
 XMIT_REL=$(XMIT_SRC:.c=.rel) $(BRINGUP_REL)
 
-SRC=$(BRINGUP_SRC) $(XMIT_SRC)
+LED_SRC = \
+	ao_led_blink.c
+
+LED_REL=$(LED_SRC:.c=.rel) $(BRINGUP_REL)
+
+SRC=$(BRINGUP_SRC) $(XMIT_SRC) $(LED_SRC)
 
 ADB=$(SRC:.c=.adb)
 ASM=$(SRC:.c=.asm)
@@ -27,7 +32,7 @@ REL=$(SRC:.c=.rel)
 RST=$(SRC:.c=.rst)
 SYM=$(SRC:.c=.sym)
 
-PROGS=ao_radio_xmit.ihx
+PROGS=ao_radio_xmit.ihx ao_led_blink.ihx
 
 PCDB=$(PROGS:.ihx=.cdb)
 PLNK=$(PROGS:.ihx=.lnk)
@@ -42,6 +47,9 @@ all: $(PROGS)
 
 ao_radio_xmit.ihx: $(XMIT_REL)
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(XMIT_REL)
+
+ao_led_blink.ihx: $(LED_REL)
+	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(LED_REL)
 
 clean:
 	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)

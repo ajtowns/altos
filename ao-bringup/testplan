@@ -1,0 +1,17 @@
+Low level hardware tests
+
+ * cpu
+ * barometer
+ * accelerometer
+ * flash
+ * gps
+ * igniter continuity
+ * igniters
+ * radio calibration
+ * led
+
+Higher level tests
+
+ * USB serial communication
+ * memory flashing
+ * reading/writing eeprom
