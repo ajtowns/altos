@@ -49,7 +49,7 @@ main (int argc, char **argv)
 	int		c;
 	int		run = 0;
 
-	while ((c = getopt_long(argc, argv, "T:D:", options, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "rT:D:", options, NULL)) != -1) {
 		switch (c) {
 		case 'T':
 			tty = optarg;
@@ -67,7 +67,7 @@ main (int argc, char **argv)
 	}
 	filename = argv[optind];
 	if (filename == NULL) {
-		fprintf(stderr, "usage: %s <filename.ihx>\n", argv[0]);
+		usage(argv[0]);
 		exit(1);
 	}
 	file = fopen(filename, "r");

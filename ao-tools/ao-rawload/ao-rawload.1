@@ -29,7 +29,7 @@ ao-rawload \- flash a program to a AltOS device
 .SH DESCRIPTION
 .I ao-rawload
 loads the specified .ihx file, without modification, into the target
-device flash memory.
+device flash or ram (depending on the base address of the .ihx file).
 .SH OPTIONS
 .TP
 \-T tty-device | --tty tty-device
@@ -51,10 +51,15 @@ TeleMetrum
 Leaving out the product name will cause the tool to select a suitable
 product, leaving out the serial number will cause the tool to match
 one of the available devices.
+.TP
+\-r | --run
+After the file has been loaded, set the PC to the base address of the
+image and resume execution there.
+the .ihx file.
 .SH USAGE
 .I ao-rawload
 reads the specified .ihx file into memory. It then connects to the
 specified target device and writes the program to the target device
-flash memory.
+memory and, optionally, starts the program executing.
 .SH AUTHOR
 Keith Packard
