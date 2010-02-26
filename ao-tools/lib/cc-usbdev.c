@@ -258,7 +258,7 @@ match_dev(char *product, int serial)
 		return NULL;
 	for (i = 0; i < devs->ndev; i++) {
 		dev = devs->dev[i];
-		if (product && strcmp (product, dev->product) != 0)
+		if (product && strncmp (product, dev->product, strlen(product)) != 0)
 			continue;
 		if (serial && serial != dev->serial)
 			continue;
