@@ -207,7 +207,7 @@ quiet ?= $($1)
 all: ../$(PROG)
 
 ../$(PROG): $(REL) Makefile Makefile.defs ../Makefile.proto
-	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(REL) && mv $(PROG) $(PMAP) ..
+	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(REL) && cp $(PROG) $(PMAP) ..
 	$(call quiet,CHECK_STACK) ../ao.h $(PMEM)
 
 ../altitude.h: make-altitude
