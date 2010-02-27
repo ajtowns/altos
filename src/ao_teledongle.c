@@ -23,7 +23,7 @@ main(void)
 	ao_clock_init();
 
 	/* Turn on the LED until the system is stable */
-	ao_led_init(AO_LED_RED|AO_LED_GREEN);
+	ao_led_init(LEDS_AVAILABLE);
 	ao_led_on(AO_LED_RED);
 	ao_timer_init();
 	ao_cmd_init();

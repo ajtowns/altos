@@ -17,8 +17,6 @@
 
 #include "ao.h"
 
-#define AO_LED_ALL	(AO_LED_GREEN|AO_LED_RED)
-
 __pdata uint8_t ao_led_enable;
 
 void

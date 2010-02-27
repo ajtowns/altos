@@ -263,8 +263,6 @@ ao_beep_init(void);
  */
 
 #define AO_LED_NONE	0
-#define AO_LED_GREEN	1
-#define AO_LED_RED	2
 
 /* Turn on the specified LEDs */
 void

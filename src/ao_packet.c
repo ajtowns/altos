@@ -67,7 +67,9 @@ ao_packet_recv(void)
 {
 	uint8_t	dma_done;
 
+#ifdef AO_LED_GREEN
 	ao_led_on(AO_LED_GREEN);
+#endif
 	ao_radio_get();
 	ao_dma_set_transfer(ao_radio_dma,
 			    &RFDXADDR,
@@ -86,7 +88,9 @@ ao_packet_recv(void)
 				   ao_radio_abort();
 	dma_done = ao_radio_dma_done;
 	ao_radio_put();
+#ifdef AO_LED_GREEN
 	ao_led_off(AO_LED_GREEN);
+#endif
 
 	if (dma_done & AO_DMA_DONE) {
 		if (!(ao_rx_packet.status & PKT_APPEND_STATUS_1_CRC_OK))
