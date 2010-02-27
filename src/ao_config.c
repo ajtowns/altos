@@ -377,13 +377,18 @@ ao_config_show(void) __reentrant
 void
 ao_config_write(void) __reentrant
 {
+	uint8_t saved = 0;
 	ao_mutex_get(&ao_config_mutex);
 	if (ao_config_dirty) {
 		_ao_config_put();
 		ao_config_dirty = 0;
-		printf("Saved\n");
+		saved = 1;
 	}
 	ao_mutex_put(&ao_config_mutex);
+	if (saved)
+		puts("Saved");
+	else
+		puts("Nothing to save");
 }
 #endif
 
