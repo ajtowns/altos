@@ -1,0 +1,28 @@
+#!/bin/sh
+
+echo "TeleDongle v0.2 Turn-On and Calibration Program"
+echo "Copyright 2010 by Bdale Garbee.  Released under GPL v2"
+echo
+echo "Expectations:"
+echo "\tTeleDongle v0.2 powered from USB"
+echo "\t\twith TIdongle (on /dev/ttyACM0) cabled to debug header"
+echo "\t\twith coax from SMA to frequency counter"
+echo
+echo -n "TeleDongle serial number: "
+read SERIAL
+
+../ao-tools/ao-rawload/ao-rawload -r ao_led_blink.ihx
+echo "LEDs should be blinking"
+sleep 5
+
+../ao-tools/ao-rawload/ao-rawload -r ao_radio_xmit.ihx
+echo -n "Generating RF carrier.  Please enter measured frequency: "
+read FREQ
+
+CAL_VALUE=`nickle -e "ceil(434.55 / $FREQ * 1186611)"`
+
+echo "Programming flash with cal value " $CAL_VALUE
+ao-load --cal $CAL_VALUE /usr/share/altos/teledongle-v0.2.ihx $SERIAL
+
+echo "Serial number "$SERIAL" programmed with RF cal value "$CAL_VALUE
+echo "Unplug and replug USB, cu to the board, confirm freq and record power"
