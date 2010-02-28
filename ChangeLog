@@ -1,3 +1,105 @@
+commit a1478f65538fdaac7b58ffbd958a035b74956099
+Merge: 901fce5 bbf8c9f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 27 15:19:33 2010 -0800
+
+    Merge remote branch 'origin/master'
+
+commit 901fce5fe3e2762406079ecaa787612b5ed4b34a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 27 15:18:47 2010 -0800
+
+    Add .gitignore for ao-bringup
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7aab73a265841aac817ea34235dd1eb819debf76
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 27 15:14:04 2010 -0800
+
+    Fix up LED colors for each product.
+    
+    Different products assign different color LEDs to the two available
+    LED drivers (P1_0, P1_1). Make the LED color pin assignments
+    per-product (in ao_pins.h), then deal with not always having a green LED.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1d6d8d76ec65373ffee70add75d183f5c4168f61
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 27 15:11:44 2010 -0800
+
+    Eliminate deadlock when writing config from radio link
+    
+    Writing the 'Saved\r\n' string would fill the packet buffer and cause
+    a flush to occur, which would need to wait for the radio link to
+    receive and transmit a packet. The radio link always re-fetches the
+    radio channel number when lighting up the radio, so it need to look in
+    the config space. If the config mutex was held by the config writing
+    process while the radio was trying to get the channel number, then
+    we'd get a deadlock.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f1956ebadd7bf46b84a05a0c383b6404ca26b344
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 27 15:10:16 2010 -0800
+
+    Leave .ihx files in the build directory too - easier to debug that way
+    
+    sdcdb wants the .ihx and .cdb files in the same directory, so humor it
+    by copying the .ihx files to the src directory instead of moving them.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit bbf8c9f1748af3f1fac08ddf80ae98da2e9b5727
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Feb 26 15:21:12 2010 -0700
+
+    create a turn on script for lighting up TeleDongle v0.2 boards
+
+commit 461d4a1948e112ec7353caf88967391d876469dd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Feb 26 10:33:13 2010 -0800
+
+    Add LED test
+
+commit 5d7a3a5fbc0af4621c67a6fd51a9c9d5ae688fa5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Feb 25 16:40:13 2010 -0800
+
+    Fix and document the ao-rawload --run flag
+    
+    This allows ram-based programs to be loaded and executed easily.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1e60deca147c85a064719dfad14ccabd1049bbbd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Feb 25 16:33:34 2010 -0800
+
+    Allow product names to have suffixes (like board revisions)
+    
+    When looking for a board by product name, just look at the prefix of
+    the name instead of requiring an exact match. This will allow products
+    to have board version suffixes.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f4d5790a284e2d02dd7568fbca90402fa5ed1aea
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Feb 25 16:32:57 2010 -0800
+
+    Add ao_radio_xmit to help test boards without flashing them.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d7d551b0078acb1596a9b9023c3df6dbfa46213c
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Feb 24 17:30:23 2010 -0700
+
+    update changelogs for Debian build
+
 commit 2f45953ee54034209a23c254e65da36e44cf075f
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed Feb 24 17:29:47 2010 -0700

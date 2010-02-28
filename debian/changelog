@@ -1,3 +1,20 @@
+altos (0.6+106+ga1478f6) unstable; urgency=low
+
+  [ Keith Packard ]
+  * Add ao_radio_xmit to help test boards without flashing them.
+  * Allow product names to have suffixes (like board revisions)
+  * Fix and document the ao-rawload --run flag
+  * Add LED test
+  * Leave .ihx files in the build directory too - easier to debug that way
+  * Eliminate deadlock when writing config from radio link
+  * Fix up LED colors for each product.
+  * Add .gitignore for ao-bringup
+
+  [ Bdale Garbee ]
+  * create a turn on script for lighting up TeleDongle v0.2 boards
+
+ -- Bdale Garbee <bdale@gag.com>  Sat, 27 Feb 2010 17:35:32 -0700
+
 altos (0.6+95+g2f45953) unstable; urgency=low
 
   * update changelogs for Debian build
