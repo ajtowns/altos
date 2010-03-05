@@ -1,3 +1,10 @@
+altos (0.6+108+g6e61170) unstable; urgency=low
+
+  [ Keith Packard ]
+  * Need to duplicate new altitude conversion code in aoview.
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 04 Mar 2010 17:33:27 -0700
+
 altos (0.6+106+ga1478f6) unstable; urgency=low
 
   [ Keith Packard ]

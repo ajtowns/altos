@@ -1,3 +1,20 @@
+commit 6e61170d42936c18cd6efba6f4c14af616a30745
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Feb 28 18:24:46 2010 -0800
+
+    Need to duplicate new altitude conversion code in aoview.
+    
+    Altitude conversion is now done with a smaller table and interpolation
+    instead of a giant table.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e4e17e6d3844ae682a0e7a9469a522359bac77b6
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sat Feb 27 17:36:13 2010 -0700
+
+    update changelogs for Debian build
+
 commit a1478f65538fdaac7b58ffbd958a035b74956099
 Merge: 901fce5 bbf8c9f
 Author: Keith Packard <keithp@keithp.com>
