@@ -1,3 +1,9 @@
+commit eda5e1166a97766aa22561beaa1086ba4e19ee16
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Mar 4 17:33:39 2010 -0700
+
+    update changelogs for Debian build
+
 commit 6e61170d42936c18cd6efba6f4c14af616a30745
 Author: Keith Packard <keithp@keithp.com>
 Date:   Sun Feb 28 18:24:46 2010 -0800
