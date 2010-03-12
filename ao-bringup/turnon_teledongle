@@ -19,7 +19,7 @@ sleep 5
 echo -n "Generating RF carrier.  Please enter measured frequency: "
 read FREQ
 
-CAL_VALUE=`nickle -e "ceil(434.55 / $FREQ * 1186611)"`
+CAL_VALUE=`nickle -e "floor(434.55 / $FREQ * 1186611 + 0.5)"`
 
 echo "Programming flash with cal value " $CAL_VALUE
 ao-load --cal $CAL_VALUE /usr/share/altos/teledongle-v0.2.ihx $SERIAL
