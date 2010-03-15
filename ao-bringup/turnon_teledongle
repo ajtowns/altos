@@ -1,5 +1,23 @@
 #!/bin/sh
 
+if [ -x ../ao-tools/ao-load/ao-load ]; then
+	AOLOAD=../ao-tools/ao-load/ao-load
+elif [ -x /usr/bin/ao-load ]; then
+	AOLOAD=/usr/bin/ao-load
+else
+	echo "Can't find ao-load!  Aborting."
+	exit 1
+fi
+
+if [ -x ../ao-tools/ao-rawload/ao-rawload ]; then
+	RAWLOAD=../ao-tools/ao-rawload/ao-rawload
+elif [ -x /usr/bin/ao-rawload ]; then
+	RAWLOAD=/usr/bin/ao-rawload
+else
+	echo "Can't find ao-rawload!  Aborting."
+	exit 1
+fi
+
 echo "TeleDongle v0.2 Turn-On and Calibration Program"
 echo "Copyright 2010 by Bdale Garbee.  Released under GPL v2"
 echo
@@ -11,18 +29,20 @@ echo
 echo -n "TeleDongle serial number: "
 read SERIAL
 
-../ao-tools/ao-rawload/ao-rawload -r ao_led_blink.ihx
+echo $RAWLOAD
+
+$RAWLOAD -r ao_led_blink.ihx
 echo "LEDs should be blinking"
 sleep 5
 
-../ao-tools/ao-rawload/ao-rawload -r ao_radio_xmit.ihx
+$RAWLOAD -r ao_radio_xmit.ihx
 echo -n "Generating RF carrier.  Please enter measured frequency: "
 read FREQ
 
 CAL_VALUE=`nickle -e "ceil(434.55 / $FREQ * 1186611)"`
 
 echo "Programming flash with cal value " $CAL_VALUE
-ao-load --cal $CAL_VALUE /usr/share/altos/teledongle-v0.2.ihx $SERIAL
+$AOLOAD --cal $CAL_VALUE /usr/share/altos/teledongle-v0.2.ihx $SERIAL
 
 echo "Serial number "$SERIAL" programmed with RF cal value "$CAL_VALUE
 echo "Unplug and replug USB, cu to the board, confirm freq and record power"
