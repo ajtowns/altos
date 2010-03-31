@@ -49,3 +49,6 @@ Makefile.in
 missing
 stamp-h1
 tags
+doc/telemetrum.fo
+doc/telemetrum.html
+doc/telemetrum.pdf

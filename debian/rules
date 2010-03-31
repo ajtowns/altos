@@ -26,6 +26,7 @@ build: build-stamp
 build-stamp: configure-stamp  
 	dh_testdir
 	$(MAKE) VERSION=$(PKG_VERSION)
+	(cd doc ; $(MAKE))
 	touch $@
 
 clean: 
