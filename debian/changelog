@@ -1,9 +1,16 @@
-altos (0.6+111+g20d4d41) unstable; urgency=low
+altos (0.6+117+gb41e617) unstable; urgency=low
 
+  [ Bdale Garbee ]
+  * update changelogs for Debian build
   * move gbp.conf into debian/
   * initial harness for documentation
 
- -- Bdale Garbee <bdale@gag.com>  Tue, 30 Mar 2010 23:13:02 -0600
+  [ Keith Packard ]
+  * Round radio calibration value instead of truncating
+  * Document the ao-dumplog '--remote' flag for radio-link downloads
+
+
+ -- Bdale Garbee <bdale@gag.com>  Tue, 30 Mar 2010 23:18:08 -0600
 
 altos (0.6+108+g6e61170) unstable; urgency=low
 
