@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 commit 20d4d410e0fc04fe192e309811eed6c0194fa5a8
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Tue Mar 30 23:11:40 2010 -0600
@@ -10,6 +11,8 @@ Date:   Mon Mar 15 12:04:18 2010 -0600
 
     move gbp.conf into debian/
 
+=======
+>>>>>>> df7bda1f32b0049c3878c325ea0b55999f3980e3
 commit eda5e1166a97766aa22561beaa1086ba4e19ee16
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Mar 4 17:33:39 2010 -0700

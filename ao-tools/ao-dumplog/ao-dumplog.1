@@ -25,6 +25,8 @@ ao-dumplog \- Store flight log from TeleMetrum device
 [\--tty \fItty-device\fP]
 [\-D \fIaltos-device\fP]
 [\--device \fIaltos-device\fP]
+[\--R\fP]
+[\--remote\fP]
 .SH OPTIONS
 .TP
 \-T tty-device | --tty tty-device
@@ -44,6 +46,10 @@ TeleMetrum
 Leaving out the product name will cause the tool to select a suitable
 product, leaving out the serial number will cause the tool to match
 one of the available devices.
+.TP
+\-R | --remote
+This uses the command radio link to download the log from TeleMetrum
+through a TeleDongle.
 .SH DESCRIPTION
 .I ao-dumplog
 downloads the flight log from a connected TeleMetrum device and stores
