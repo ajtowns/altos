@@ -1,3 +1,10 @@
+altos (0.6+111+g20d4d41) unstable; urgency=low
+
+  * move gbp.conf into debian/
+  * initial harness for documentation
+
+ -- Bdale Garbee <bdale@gag.com>  Tue, 30 Mar 2010 23:13:02 -0600
+
 altos (0.6+108+g6e61170) unstable; urgency=low
 
   [ Keith Packard ]
