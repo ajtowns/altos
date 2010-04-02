@@ -1,41 +1,42 @@
-[Version]
-Signature = "$Windows NT$"
-Class     = Modem
-ClassGuid = {4D36E978-E325-11CE-BFC1-08002BE10318}
-Provider  = %ALTUSMETRUM%
-DriverVer = 30/03/2010,1.0.0.0
-
 ; Copyright (C) 2010 Keith Packard (keithp@keithp.com)
 ; released under GNU General Public License version 2
 
-[Manufacturer]
-%ALTUSMETRUM%=TeleMetrumDeviceList
+[Version]
+Signature	= "$Windows NT$"
+Class           = Ports
+ClassGUID       = {4d36e978-e325-11ce-bfc1-08002be10318}
+Provider	= %Mfg%
+DriverVer	= 30/03/2010,4.0.0.8
 
-[TeleMetrumDeviceList]
-%TELEMETRUM%=TeleMetrum, USB\VID_FFFE&PID_000A
+[Manufacturer]
+%Mfg%           = Models
+
+[Models]
+%TeleMetrum%    = TELEMETRUM, USB\VID_FFFE&PID_000A
 
 [DestinationDirs]
-DefaultDestDir=12
+DefaultDestDir  = 12
 
 [ControlFlags]
-ExcludeFromSelect=USB\VID_FFFE&PID_000A
+ExcludeFromSelect=USB\VID_0BAF&PID_0303
 
 [Strings]
-ALTUSMETRUM="altusmetrum.org"
-TELEMETRUM="TeleMetrum/TeleDongle"
+Mfg = "altusmetrum.org"
+TeleMetrum       = "TeleMetrum/TeleDongle"
 
-[TeleMetrum.NT]
+[TELEMETRUM.NT]
 include=mdmcpq.inf
 CopyFiles=FakeModemCopyFileSection
-AddReg = Uninstall.AddReg
+AddReg=Uninstall
 
-[TeleMetrum.NT.HW]
-include=mdmcpq.inf
+[TELEMETRUM.NT.HW]
+Include=mdmcpq.inf
 AddReg=LowerFilterAddReg
 
-[TeleMetrum.NT.Services]
-include=mdmcpq.inf
+[TELEMETRUM.NT.Services]
+Include=mdmcpq.inf
 AddService=usbser, 0x00000000, LowerFilter_Service_Inst
 
-[Uninstall.AddReg]
-HKLM,Software\Microsoft\Windows\CurrentVersion\Uninstall\%TELEMETRUM%,DisplayName,,"%TELEMETRUM%"
+[Uninstall]
+HKLM,Software\Microsoft\Windows\CurrentVersion\Uninstall\%TeleMetrum%,DisplayName,,"%TeleMetrum%"
+
