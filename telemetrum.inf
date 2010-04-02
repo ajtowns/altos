@@ -1,0 +1,41 @@
+[Version]
+Signature = "$Windows NT$"
+Class     = Modem
+ClassGuid = {4D36E978-E325-11CE-BFC1-08002BE10318}
+Provider  = %ALTUSMETRUM%
+DriverVer = 30/03/2010,1.0.0.0
+
+; Copyright (C) 2010 Keith Packard (keithp@keithp.com)
+; released under GNU General Public License version 2
+
+[Manufacturer]
+%ALTUSMETRUM%=TeleMetrumDeviceList
+
+[TeleMetrumDeviceList]
+%TELEMETRUM%=TeleMetrum, USB\VID_FFFE&PID_000A
+
+[DestinationDirs]
+DefaultDestDir=12
+
+[ControlFlags]
+ExcludeFromSelect=USB\VID_FFFE&PID_000A
+
+[Strings]
+ALTUSMETRUM="altusmetrum.org"
+TELEMETRUM="TeleMetrum/TeleDongle"
+
+[TeleMetrum.NT]
+include=mdmcpq.inf
+CopyFiles=FakeModemCopyFileSection
+AddReg = Uninstall.AddReg
+
+[TeleMetrum.NT.HW]
+include=mdmcpq.inf
+AddReg=LowerFilterAddReg
+
+[TeleMetrum.NT.Services]
+include=mdmcpq.inf
+AddService=usbser, 0x00000000, LowerFilter_Service_Inst
+
+[Uninstall.AddReg]
+HKLM,Software\Microsoft\Windows\CurrentVersion\Uninstall\%TELEMETRUM%,DisplayName,,"%TELEMETRUM%"
