@@ -19,77 +19,14 @@ package altosui;
 
 import java.lang.*;
 import java.text.*;
+import java.util.HashMap;
+import altosui.AltosConvert;
+import altosui.AltosGPS;
 
 /*
  * Telemetry data contents
  */
 
-class AltosGPSTime {
-	int year;
-	int month;
-	int day;
-	int hour;
-	int minute;
-	int second;
-
-	int parse_int(String v) throws ParseException {
-		try {
-			return Integer.parseInt(v);
-		} catch (NumberFormatException e) {
-			throw new ParseException("error parsing GPS value " + v, 0);
-		}
-	}
-
-	public AltosGPSTime(String date, String time) throws ParseException {
-		String[] ymd = date.split("-");
-		if (ymd.length != 3)
-			throw new ParseException("error parsing GPS date " + date + " got " + ymd.length, 0);
-		year = parse_int(ymd[0]);
-		month = parse_int(ymd[1]);
-		day = parse_int(ymd[2]);
-
-		String[] hms = time.split(":");
-		if (hms.length != 3)
-			throw new ParseException("Error parsing GPS time " + time + " got " + hms.length, 0);
-		hour = parse_int(hms[0]);
-		minute = parse_int(hms[1]);
-		second = parse_int(hms[2]);
-	}
-
-	public AltosGPSTime() {
-		year = month = day = 0;
-		hour = minute = second = 0;
-	}
-};
-
-class AltosGPS {
-	int	nsat;
-	int	gps_locked;
-	int	gps_connected;
-	AltosGPSTime gps_time;
-	double	lat;		/* degrees (+N -S) */
-	double	lon;		/* degrees (+E -W) */
-	int	alt;		/* m */
-
-	int	gps_extended;	/* has extra data */
-	double	ground_speed;	/* m/s */
-	int	course;		/* degrees */
-	double	climb_rate;	/* m/s */
-	double	hdop;		/* unitless? */
-	int	h_error;	/* m */
-	int	v_error;	/* m */
-
-}
-
-class AltosGPSSat {
-	int	svid;
-	int	c_n0;
-}
-
-class AltosGPSTracking {
-	int			channels;
-	AltosGPSSat[]		cc_gps_sat;
-}
 
 /*
  * The telemetry data stream is a bit of a mess at present, with no consistent
@@ -137,58 +74,44 @@ public class AltosTelemetry {
 	int	accel_plus_g;
 	int	accel_minus_g;
 	AltosGPS	gps;
-	AltosGPSTracking	gps_tracking;
 
-	int parse_int(String v) throws ParseException {
-		try {
-			return Integer.parseInt(v);
-		} catch (NumberFormatException e) {
-			throw new ParseException("error parsing int " + v, 0);
-		}
+	public static final int ao_flight_startup = 0;
+	public static final int ao_flight_idle = 1;
+	public static final int ao_flight_pad = 2;
+	public static final int ao_flight_boost = 3;
+	public static final int ao_flight_fast = 4;
+	public static final int ao_flight_coast = 5;
+	public static final int ao_flight_drogue = 6;
+	public static final int ao_flight_main = 7;
+	public static final int ao_flight_landed = 8;
+	public static final int ao_flight_invalid = 9;
+
+	static HashMap<String,Integer>	states = new HashMap<String,Integer>();
+	{
+		states.put("startup", ao_flight_startup);
+		states.put("idle", ao_flight_idle);
+		states.put("pad", ao_flight_pad);
+		states.put("boost", ao_flight_boost);
+		states.put("fast", ao_flight_fast);
+		states.put("coast", ao_flight_coast);
+		states.put("drogue", ao_flight_drogue);
+		states.put("main", ao_flight_main);
+		states.put("landed", ao_flight_landed);
+		states.put("invalid", ao_flight_invalid);
 	}
 
-	int parse_hex(String v) throws ParseException {
-		try {
-			return Integer.parseInt(v, 16);
-		} catch (NumberFormatException e) {
-			throw new ParseException("error parsing hex " + v, 0);
-		}
+	public int state() {
+		if (states.containsKey(state))
+			return states.get(state);
+		return ao_flight_invalid;
 	}
 
-	double parse_double(String v) throws ParseException {
-		try {
-			return Double.parseDouble(v);
-		} catch (NumberFormatException e) {
-			throw new ParseException("error parsing double " + v, 0);
-		}
+	public double altitude() {
+		return AltosConvert.cc_pressure_to_altitude(AltosConvert.cc_barometer_to_pressure(pres));
 	}
 
-	double parse_coord(String coord) throws ParseException {
-		String[]	dsf = coord.split("\\D+");
-
-		if (dsf.length != 3) {
-			throw new ParseException("error parsing coord " + coord, 0);
-		}
-		int deg = parse_int(dsf[0]);
-		int min = parse_int(dsf[1]);
-		int frac = parse_int(dsf[2]);
-
-		double r = deg + (min + frac / 10000.0) / 60.0;
-		if (coord.endsWith("S") || coord.endsWith("W"))
-			r = -r;
-		return r;
-	}
-
-	String strip_suffix(String v, String suffix) {
-		if (v.endsWith(suffix))
-			return v.substring(0, v.length() - suffix.length());
-		return v;
-	}
-
-	void word(String v, String m) throws ParseException {
-		if (!v.equals(m)) {
-			throw new ParseException("error matching '" + v + "' '" + m + "'", 0);
-		}
+	public double pad_altitude() {
+		return AltosConvert.cc_pressure_to_altitude(AltosConvert.cc_barometer_to_pressure(ground_pres));
 	}
 
 	public AltosTelemetry(String line) throws ParseException {
@@ -196,106 +119,67 @@ public class AltosTelemetry {
 
 		int	i = 0;
 
-		word (words[i++], "VERSION");
-		version = parse_int(words[i++]);
+		AltosParse.word (words[i++], "VERSION");
+		version = AltosParse.parse_int(words[i++]);
 
-		word (words[i++], "CALL");
+		AltosParse.word (words[i++], "CALL");
 		callsign = words[i++];
 
-		word (words[i++], "SERIAL");
-		serial = parse_int(words[i++]);
+		AltosParse.word (words[i++], "SERIAL");
+		serial = AltosParse.parse_int(words[i++]);
 
-		word (words[i++], "FLIGHT");
-		flight = parse_int(words[i++]);
+		AltosParse.word (words[i++], "FLIGHT");
+		flight = AltosParse.parse_int(words[i++]);
 
-		word(words[i++], "RSSI");
-		rssi = parse_int(words[i++]);
+		AltosParse.word(words[i++], "RSSI");
+		rssi = AltosParse.parse_int(words[i++]);
 
-		word(words[i++], "STATUS");
-		status = parse_hex(words[i++]);
+		AltosParse.word(words[i++], "STATUS");
+		status = AltosParse.parse_hex(words[i++]);
 
-		word(words[i++], "STATE");
+		AltosParse.word(words[i++], "STATE");
 		state = words[i++];
 
-		tick = parse_int(words[i++]);
+		tick = AltosParse.parse_int(words[i++]);
 
-		word(words[i++], "a:");
-		accel = parse_int(words[i++]);
+		AltosParse.word(words[i++], "a:");
+		accel = AltosParse.parse_int(words[i++]);
 
-		word(words[i++], "p:");
-		pres = parse_int(words[i++]);
+		AltosParse.word(words[i++], "p:");
+		pres = AltosParse.parse_int(words[i++]);
 
-		word(words[i++], "t:");
-		temp = parse_int(words[i++]);
+		AltosParse.word(words[i++], "t:");
+		temp = AltosParse.parse_int(words[i++]);
 
-		word(words[i++], "v:");
-		batt = parse_int(words[i++]);
+		AltosParse.word(words[i++], "v:");
+		batt = AltosParse.parse_int(words[i++]);
 
-		word(words[i++], "d:");
-		drogue = parse_int(words[i++]);
+		AltosParse.word(words[i++], "d:");
+		drogue = AltosParse.parse_int(words[i++]);
 
-		word(words[i++], "m:");
-		main = parse_int(words[i++]);
+		AltosParse.word(words[i++], "m:");
+		main = AltosParse.parse_int(words[i++]);
 
-		word(words[i++], "fa:");
-		flight_accel = parse_int(words[i++]);
+		AltosParse.word(words[i++], "fa:");
+		flight_accel = AltosParse.parse_int(words[i++]);
 
-		word(words[i++], "ga:");
-		ground_accel = parse_int(words[i++]);
+		AltosParse.word(words[i++], "ga:");
+		ground_accel = AltosParse.parse_int(words[i++]);
 
-		word(words[i++], "fv:");
-		flight_vel = parse_int(words[i++]);
+		AltosParse.word(words[i++], "fv:");
+		flight_vel = AltosParse.parse_int(words[i++]);
 
-		word(words[i++], "fp:");
-		flight_pres = parse_int(words[i++]);
+		AltosParse.word(words[i++], "fp:");
+		flight_pres = AltosParse.parse_int(words[i++]);
 
-		word(words[i++], "gp:");
-		ground_pres = parse_int(words[i++]);
+		AltosParse.word(words[i++], "gp:");
+		ground_pres = AltosParse.parse_int(words[i++]);
 
-		word(words[i++], "a+:");
-		accel_plus_g = parse_int(words[i++]);
+		AltosParse.word(words[i++], "a+:");
+		accel_plus_g = AltosParse.parse_int(words[i++]);
 
-		word(words[i++], "a-:");
-		accel_minus_g = parse_int(words[i++]);
+		AltosParse.word(words[i++], "a-:");
+		accel_minus_g = AltosParse.parse_int(words[i++]);
 
-		word(words[i++], "GPS");
-		gps = new AltosGPS();
-		gps.nsat = parse_int(words[i++]);
-		word(words[i++], "sat");
-
-		gps.gps_connected = 0;
-		gps.gps_locked = 0;
-		gps.lat = gps.lon = 0;
-		gps.alt = 0;
-		if ((words[i]).equals("unlocked")) {
-			gps.gps_connected = 1;
-			gps.gps_time = new AltosGPSTime();
-			i++;
-		} else if (words.length >= 40) {
-			gps.gps_locked = 1;
-			gps.gps_connected = 1;
-
-			gps.gps_time = new AltosGPSTime(words[i], words[i+1]); i += 2;
-			gps.lat = parse_coord(words[i++]);
-			gps.lon = parse_coord(words[i++]);
-			gps.alt = parse_int(strip_suffix(words[i++], "m"));
-			gps.ground_speed = parse_double(strip_suffix(words[i++], "m/s(H)"));
-			gps.course = parse_int(strip_suffix(words[i++], "Â°"));
-			gps.climb_rate = parse_double(strip_suffix(words[i++], "m/s(V)"));
-			gps.hdop = parse_double(strip_suffix(words[i++], "(hdop)"));
-			gps.h_error = parse_int(strip_suffix(words[i++], "(herr)"));
-			gps.v_error = parse_int(strip_suffix(words[i++], "(verr)"));
-		} else {
-			gps.gps_time = new AltosGPSTime();
-		}
-		word(words[i++], "SAT");
-		gps_tracking = new AltosGPSTracking();
-		gps_tracking.channels = parse_int(words[i++]);
-		gps_tracking.cc_gps_sat = new AltosGPSSat[gps_tracking.channels];
-		for (int chan = 0; chan < gps_tracking.channels; chan++) {
-			gps_tracking.cc_gps_sat[chan] = new AltosGPSSat();
-			gps_tracking.cc_gps_sat[chan].svid = parse_int(words[i++]);
-			gps_tracking.cc_gps_sat[chan].c_n0 = parse_int(words[i++]);
-		}
 	}
 }

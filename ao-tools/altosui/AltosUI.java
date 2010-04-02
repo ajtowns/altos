@@ -20,6 +20,8 @@ package altosui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.AbstractTableModel;
 import java.io.*;
 import java.util.*;
 import java.text.*;
@@ -27,10 +29,38 @@ import gnu.io.CommPortIdentifier;
 
 import altosui.AltosSerial;
 import altosui.AltosSerialMonitor;
+import altosui.AltosTelemetry;
+import altosui.AltosState;
 
 class AltosUIMonitor implements AltosSerialMonitor {
 	public void data(String data) {
 		System.out.println(data);
+	}
+}
+
+class AltosFlightStatusTableModel extends AbstractTableModel {
+	private String[] columnNames = {"Height (m)", "State", "RSSI (dBm)", "Speed (m/s)" };
+	private Object[] data = { 0, "idle", 0, 0 };
+
+	public int getColumnCount() { return columnNames.length; }
+	public int getRowCount() { return 1; }
+	public String getColumnName(int col) { return columnNames[col]; }
+	public Object getValueAt(int row, int col) { return data[col]; }
+
+	public void setValueAt(Object value, int col) {
+		data[col] = value;
+		fireTableCellUpdated(0, col);
+	}
+
+	public void setValueAt(Object value, int row, int col) {
+		setValueAt(value, col);
+	}
+
+	public void set(AltosState state) {
+		setValueAt(state.height, 0);
+		setValueAt(state.data.state, 1);
+		setValueAt(state.data.rssi, 2);
+		setValueAt(state.speed, 3);
 	}
 }
 
@@ -71,6 +101,31 @@ public class AltosUI extends JFrame {
 	}
 
 	final JFileChooser deviceChooser = new JFileChooser();
+	final JFileChooser logdirChooser = new JFileChooser();
+	final String logdirName = "TeleMetrum";
+	File logdir = null;
+
+	private void setLogdir() {
+		if (logdir == null)
+			logdir = new File(logdirChooser.getCurrentDirectory(), logdirName);
+		logdirChooser.setCurrentDirectory(logdir);
+	}
+
+	private void makeLogdir() {
+		setLogdir();
+		if (!logdir.exists()) {
+			if (!logdir.mkdirs())
+				JOptionPane.showMessageDialog(AltosUI.this,
+							      logdir.getName(),
+							      "Cannot create directory",
+							      JOptionPane.ERROR_MESSAGE);
+		} else if (!logdir.isDirectory()) {
+			JOptionPane.showMessageDialog(AltosUI.this,
+						      logdir.getName(),
+						      "Is not a directory",
+						      JOptionPane.ERROR_MESSAGE);
+		}
+	}
 
 	private void PickSerialDevice() {
 		java.util.Enumeration<CommPortIdentifier> port_list = CommPortIdentifier.getPortIdentifiers();
@@ -111,16 +166,23 @@ public class AltosUI extends JFrame {
 		return null;
 	}
 
-	private void Replay() {
-//		int returnVal = deviceChooser.showOpenDialog(AltosUI.this);
+	/*
+	 * Open an existing telemetry file and replay it in realtime
+	 */
 
-		/*		if (returnVal == JFileChooser.APPROVE_OPTION) */ {
-//			File file = deviceChooser.getSelectedFile();
-//			String	filename = file.getName();
-			String	filename = "/home/keithp/src/cc1111/flights/2010-02-13-serial-051-flight-002.telem";
+	private void Replay() {
+		setLogdir();
+		logdirChooser.setDialogTitle("Select Telemetry File");
+		logdirChooser.setFileFilter(new FileNameExtensionFilter("Telemetry file", "telem"));
+		int returnVal = logdirChooser.showOpenDialog(AltosUI.this);
+
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = logdirChooser.getSelectedFile();
+			if (file == null)
+				System.out.println("No file selected?");
+			String	filename = file.getName();
 			try {
-//				FileInputStream	replay = new FileInputStream(file);
-				FileInputStream	replay = new FileInputStream(filename);
+				FileInputStream	replay = new FileInputStream(file);
 				String	line;
 
 				try {

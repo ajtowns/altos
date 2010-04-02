@@ -1,7 +1,17 @@
 .SUFFIXES: .java .class
 
 CLASSPATH=..:/usr/share/java/*
-CLASSFILES=AltosSerialMonitor.class AltosSerial.class AltosTelemetry.class AltosUI.class
+CLASSFILES=\
+	AltosConvert.class \
+	AltosGPS.class \
+	AltosGreatCircle.class \
+	AltosParse.class \
+	AltosSerialMonitor.class \
+	AltosSerial.class \
+	AltosState.class \
+	AltosTelemetry.class \
+	AltosUI.class
+
 JAVAFLAGS=-Xlint:unchecked
 
 all: $(CLASSFILES) altosui
