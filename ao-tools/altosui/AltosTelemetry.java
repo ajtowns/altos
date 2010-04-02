@@ -36,25 +36,21 @@ class AltosGPSTime {
 		try {
 			return Integer.parseInt(v);
 		} catch (NumberFormatException e) {
-			throw new ParseException(v, 0);
+			throw new ParseException("error parsing GPS value " + v, 0);
 		}
 	}
 
 	public AltosGPSTime(String date, String time) throws ParseException {
 		String[] ymd = date.split("-");
-		if (ymd.length != 3) {
-			System.out.println("Error parsing GPS date " + date + " got " + ymd.length);
-			throw new ParseException(date, 0);
-		}
+		if (ymd.length != 3)
+			throw new ParseException("error parsing GPS date " + date + " got " + ymd.length, 0);
 		year = parse_int(ymd[0]);
 		month = parse_int(ymd[1]);
 		day = parse_int(ymd[2]);
 
 		String[] hms = time.split(":");
-		if (hms.length != 3) {
-			System.out.println("Error parsing GPS time " + time + " got " + hms.length);
-			throw new ParseException(time, 0);
-		}
+		if (hms.length != 3)
+			throw new ParseException("Error parsing GPS time " + time + " got " + hms.length, 0);
 		hour = parse_int(hms[0]);
 		minute = parse_int(hms[1]);
 		second = parse_int(hms[2]);
@@ -95,6 +91,29 @@ class AltosGPSTracking {
 	AltosGPSSat[]		cc_gps_sat;
 }
 
+/*
+ * The telemetry data stream is a bit of a mess at present, with no consistent
+ * formatting. In particular, the GPS data is formatted for viewing instead of parsing.
+ * However, the key feature is that every telemetry line contains all of the information
+ * necessary to describe the current rocket state, including the calibration values
+ * for accelerometer and barometer.
+ *
+ * GPS unlocked:
+ *
+ * VERSION 2 CALL KB0G SERIAL  51 FLIGHT     2 RSSI  -68 STATUS ff STATE     pad  1001 \
+ *    a: 16032 p: 21232 t: 20284 v: 25160 d:   204 m:   204 fa: 16038 ga: 16032 fv:       0 \
+ *    fp: 21232 gp: 21230 a+: 16049 a-: 16304 GPS  0 sat unlocked SAT 1   15  30
+ *
+ * GPS locked:
+ *
+ * VERSION 2 CALL KB0G SERIAL  51 FLIGHT     2 RSSI  -71 STATUS ff STATE     pad  2504 \
+ *     a: 16028 p: 21220 t: 20360 v: 25004 d:   208 m:   200 fa: 16031 ga: 16032 fv:     330 \
+ *     fp: 21231 gp: 21230 a+: 16049 a-: 16304 \
+ *     GPS  9 sat 2010-02-13 17:16:51 35°20.0803'N 106°45.2235'W  1790m  \
+ *     0.00m/s(H) 0°     0.00m/s(V) 1.0(hdop)     0(herr)     0(verr) \
+ *     SAT 10   29  30  24  28   5  25  21  20  15  33   1  23  30  24  18  26  10  29   2  26
+ */
+
 public class AltosTelemetry {
 	int	version;
 	String 	callsign;
@@ -124,8 +143,7 @@ public class AltosTelemetry {
 		try {
 			return Integer.parseInt(v);
 		} catch (NumberFormatException e) {
-			System.out.println("error parsing int " + v);
-			throw new ParseException(v, 0);
+			throw new ParseException("error parsing int " + v, 0);
 		}
 	}
 
@@ -133,8 +151,7 @@ public class AltosTelemetry {
 		try {
 			return Integer.parseInt(v, 16);
 		} catch (NumberFormatException e) {
-			System.out.println("error parsing hex " + v);
-			throw new ParseException(v, 0);
+			throw new ParseException("error parsing hex " + v, 0);
 		}
 	}
 
@@ -142,8 +159,7 @@ public class AltosTelemetry {
 		try {
 			return Double.parseDouble(v);
 		} catch (NumberFormatException e) {
-			System.out.println("error parsing double " + v);
-			throw new ParseException(v, 0);
+			throw new ParseException("error parsing double " + v, 0);
 		}
 	}
 
@@ -151,8 +167,7 @@ public class AltosTelemetry {
 		String[]	dsf = coord.split("\\D+");
 
 		if (dsf.length != 3) {
-			System.out.println("error parsing coord " + coord);
-			throw new ParseException(coord, 0);
+			throw new ParseException("error parsing coord " + coord, 0);
 		}
 		int deg = parse_int(dsf[0]);
 		int min = parse_int(dsf[1]);
@@ -172,8 +187,7 @@ public class AltosTelemetry {
 
 	void word(String v, String m) throws ParseException {
 		if (!v.equals(m)) {
-			System.out.println("error matching '" + v + "' '" + m + "'");
-			throw new ParseException(v, 0);
+			throw new ParseException("error matching '" + v + "' '" + m + "'", 0);
 		}
 	}
 

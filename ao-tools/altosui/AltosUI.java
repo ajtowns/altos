@@ -17,29 +17,14 @@
 
 package altosui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.KeyStroke;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.DefaultTableCellRenderer;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import gnu.io.CommPortIdentifier;
+
 import altosui.AltosSerial;
 import altosui.AltosSerialMonitor;
 
@@ -71,13 +56,10 @@ public class AltosUI extends JFrame {
 
 		createMenu();
 
-		serialLine = new AltosSerial("/dev/ttyACM0");
+		serialLine = new AltosSerial();
 		serialLine.monitor(new AltosUIMonitor());
-		serialLine.start();
-		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-		size.width = size.width*9/10;
-		size.height = size.height*9/10;
-		this.setSize(size);
+		int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
+		this.setSize(new Dimension (dpi * 5, dpi * 4));
 		this.validate();
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -86,6 +68,94 @@ public class AltosUI extends JFrame {
 				System.exit(0);
 			}
 		});
+	}
+
+	final JFileChooser deviceChooser = new JFileChooser();
+
+	private void PickSerialDevice() {
+		java.util.Enumeration<CommPortIdentifier> port_list = CommPortIdentifier.getPortIdentifiers();
+		while (port_list.hasMoreElements()) {
+			CommPortIdentifier identifier = port_list.nextElement();
+			System.out.println("Serial port " + identifier.getName());
+		}
+	}
+
+	private void ConnectToDevice() {
+		PickSerialDevice();
+		int returnVal = deviceChooser.showOpenDialog(AltosUI.this);
+
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = deviceChooser.getSelectedFile();
+			try {
+				serialLine.open(file);
+			} catch (FileNotFoundException ee) {
+				JOptionPane.showMessageDialog(AltosUI.this,
+							      file.getName(),
+							      "Cannot open serial port",
+							      JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
+	String readline(FileInputStream s) throws IOException {
+		int c;
+		String	line = "";
+
+		while ((c = s.read()) != -1) {
+			if (c == '\r')
+				continue;
+			if (c == '\n')
+				return line;
+			line = line + (char) c;
+		}
+		return null;
+	}
+
+	private void Replay() {
+//		int returnVal = deviceChooser.showOpenDialog(AltosUI.this);
+
+		/*		if (returnVal == JFileChooser.APPROVE_OPTION) */ {
+//			File file = deviceChooser.getSelectedFile();
+//			String	filename = file.getName();
+			String	filename = "/home/keithp/src/cc1111/flights/2010-02-13-serial-051-flight-002.telem";
+			try {
+//				FileInputStream	replay = new FileInputStream(file);
+				FileInputStream	replay = new FileInputStream(filename);
+				String	line;
+
+				try {
+					while ((line = readline(replay)) != null) {
+						try {
+							AltosTelemetry	t = new AltosTelemetry(line);
+							System.out.println ("Version " + t.version + t.callsign);
+						} catch (ParseException pp) {
+							JOptionPane.showMessageDialog(AltosUI.this,
+										      line,
+										      "error parsing",
+										      JOptionPane.ERROR_MESSAGE);
+							break;
+						}
+					}
+				} catch (IOException ee) {
+					JOptionPane.showMessageDialog(AltosUI.this,
+								      filename,
+								      "error reading",
+								      JOptionPane.ERROR_MESSAGE);
+				} finally {
+					try {
+						replay.close();
+					} catch (IOException e) {}
+				}
+			} catch (FileNotFoundException ee) {
+				JOptionPane.showMessageDialog(AltosUI.this,
+							      filename,
+							      "Cannot open serial port",
+							      JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
+	private void SaveFlightData() {
 	}
 
 	private void createMenu() {
@@ -120,6 +190,7 @@ public class AltosUI extends JFrame {
 			item = new JMenuItem("Connect to Device",KeyEvent.VK_C);
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						ConnectToDevice();
 					}
 				});
 			menu.add(item);
@@ -127,6 +198,7 @@ public class AltosUI extends JFrame {
 			item = new JMenuItem("Disconnect from Device",KeyEvent.VK_D);
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						serialLine.close();
 					}
 				});
 			menu.add(item);
@@ -136,6 +208,7 @@ public class AltosUI extends JFrame {
 			item = new JMenuItem("Save Flight Data",KeyEvent.VK_S);
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						SaveFlightData();
 					}
 				});
 			menu.add(item);
@@ -143,6 +216,7 @@ public class AltosUI extends JFrame {
 			item = new JMenuItem("Replay",KeyEvent.VK_R);
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						Replay();
 					}
 				});
 			menu.add(item);
@@ -186,16 +260,21 @@ public class AltosUI extends JFrame {
 			menu = new JMenu("Channel", true);
 			menu.setMnemonic(KeyEvent.VK_C);
 			menubar.add(menu);
+			ButtonGroup group = new ButtonGroup();
 
 			for (int c = 0; c <= 9; c++) {
-				radioitem = new JRadioButtonMenuItem("Channel " + c + " (" +
-								(434.550 + c * .1) + ")",
-								c == 0);
+				radioitem = new JRadioButtonMenuItem(String.format("Channel %1d (%7.3fMHz)", c,
+										   434.550 + c * 0.1),
+								     c == 0);
+				radioitem.setActionCommand(String.format("%d", c));
 				radioitem.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {
+							System.out.println("Command: " + e.getActionCommand() + " param: " +
+									   e.paramString());
 						}
 					});
 				menu.add(radioitem);
+				group.add(radioitem);
 			}
 		}
 

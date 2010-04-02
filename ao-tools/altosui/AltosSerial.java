@@ -21,18 +21,12 @@
 
 package altosui;
 
-import java.lang.String;
-import java.lang.System;
-import java.lang.Character;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.FileNotFoundException;
+import java.lang.*;
+import java.io.*;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.lang.InterruptedException;
 import java.util.LinkedList;
-import altosui.AltosSerialMonitor;
 import java.util.Iterator;
+import altosui.AltosSerialMonitor;
 
 /*
  * This class reads from the serial port and places each received
@@ -43,6 +37,7 @@ class AltosSerialReader implements Runnable {
 	FileInputStream	serial_in;
 	LinkedBlockingQueue<String> monitor_queue;
 	LinkedBlockingQueue<String> reply_queue;
+	Thread input_thread;
 	String line;
 
 	public void run () {
@@ -71,20 +66,12 @@ class AltosSerialReader implements Runnable {
 		}
 	}
 
-	public String get_telem() {
-		try {
-			return monitor_queue.take();
-		} catch (InterruptedException e) {
-			return "";
-		}
+	public String get_telem() throws InterruptedException {
+		return monitor_queue.take();
 	}
 
-	public String get_reply() {
-		try {
-			return reply_queue.take();
-		} catch (InterruptedException e) {
-			return "";
-		}
+	public String get_reply() throws InterruptedException {
+		return reply_queue.take();
 	}
 
 	public void flush () {
@@ -94,56 +81,131 @@ class AltosSerialReader implements Runnable {
 			reply_queue.clear();
 		}
 	}
-	public AltosSerialReader (FileInputStream in) {
-		serial_in = in;
+
+	public boolean opened() {
+		return serial_in != null;
+	}
+
+	public void close() {
+		if (serial_in != null) {
+			try {
+				serial_in.close();
+			} catch (IOException e) {
+			}
+			serial_in = null;
+		}
+		if (input_thread != null) {
+			try {
+				input_thread.join();
+			} catch (InterruptedException e) {
+			}
+			input_thread = null;
+		}
+	}
+
+	public void open(File name) throws FileNotFoundException {
+		close();
+		serial_in = new FileInputStream(name);
+		input_thread = new Thread(this);
+		input_thread.start();
+	}
+	public AltosSerialReader () {
+		serial_in = null;
+		input_thread = null;
+		line = "";
 		monitor_queue = new LinkedBlockingQueue<String> ();
 		reply_queue = new LinkedBlockingQueue<String> ();
-		line = "";
 	}
 
 }
 
 public class AltosSerial implements Runnable {
-	FileInputStream	serial_in = null;
 	FileOutputStream serial_out = null;
-	AltosSerialReader reader;
+	Thread monitor_thread = null;
+	AltosSerialReader reader = null;
 	LinkedList<AltosSerialMonitor> callbacks;
 
 	public void run() {
-		for (;;) {
-			String s = reader.get_reply();
-			synchronized(callbacks) {
-				Iterator<AltosSerialMonitor> i = callbacks.iterator();
-				while (i.hasNext()) {
-					i.next().data(s);
+		try {
+			for (;;) {
+				String s = reader.get_telem();
+				synchronized(callbacks) {
+					Iterator<AltosSerialMonitor> i = callbacks.iterator();
+					while (i.hasNext()) {
+						i.next().data(s);
+					}
 				}
+			}
+		} catch (InterruptedException e) {
+		}
+	}
+
+	boolean need_monitor() {
+		return reader.opened() && !callbacks.isEmpty();
+	}
+
+	void maybe_stop_monitor() {
+		if (!need_monitor() && monitor_thread != null) {
+			monitor_thread.interrupt();
+			try {
+				monitor_thread.join();
+			} catch (InterruptedException e) {
+			} finally {
+				monitor_thread = null;
 			}
 		}
 	}
 
-	public void start () {
-		try {
-			serial_out.write('?');
-			serial_out.write('\r');
-		} catch (IOException e) {
+	void maybe_start_monitor() {
+		if (need_monitor() && monitor_thread == null) {
+			monitor_thread = new Thread(this);
+			monitor_thread.start();
 		}
-		(new Thread(reader)).start();
-		(new Thread(this)).start();
 	}
 
 	public void monitor(AltosSerialMonitor monitor) {
 		synchronized(callbacks) {
 			callbacks.add(monitor);
+			maybe_start_monitor();
 		}
 	}
 
-	public AltosSerial(String serial_name) {
-		try {
-			serial_in = new FileInputStream(serial_name);
-			serial_out = new FileOutputStream(serial_name);
-			reader = new AltosSerialReader(serial_in);
-			callbacks = new LinkedList<AltosSerialMonitor>();
-		} catch (FileNotFoundException e) {
+
+	public void unmonitor(AltosSerialMonitor monitor) {
+		synchronized(callbacks) {
+			callbacks.remove(monitor);
+			maybe_stop_monitor();
 		}
+	}
+
+	public void close() {
+		synchronized(callbacks) {
+			reader.close();
+			maybe_stop_monitor();
+		}
+	}
+
+	public void open(File serial_name) throws FileNotFoundException {
+		reader.open(serial_name);
+		serial_out = new FileOutputStream(serial_name);
+		try {
+			serial_out.write('?');
+			serial_out.write('\r');
+		} catch (IOException e) {
+		}
+	}
+
+	void init() {
+		reader = new AltosSerialReader();
+		callbacks = new LinkedList<AltosSerialMonitor>();
+	}
+
+	public AltosSerial() {
+		init();
+	}
+
+	public AltosSerial(File serial_name) throws FileNotFoundException {
+		init();
+		open(serial_name);
 	}
 }
