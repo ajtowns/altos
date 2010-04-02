@@ -13,7 +13,7 @@
     </author>
     <copyright>
       <year>2010</year>
-      <holder>Bdale Garbee</holder>
+      <holder>Bdale Garbee and Keith Packard</holder>
     </copyright>
     <title>TeleMetrum</title>
     <subtitle>Owner's Manual for the TeleMetrum System</subtitle>
@@ -35,7 +35,43 @@
     </revhistory>
   </bookinfo>
   <chapter>
-    <title>Introduction</title>
+    <title>Introduction and Overview</title>
+    <para>
+      Placeholder.
+    </para>
+  </chapter>
+  <chapter>
+    <title>Specifications</title>
+    <para>
+      Placeholder.
+    </para>
+  </chapter>
+  <chapter>
+    <title>Handling Precautions</title>
+    <para>
+      Placeholder.
+    </para>
+  </chapter>
+  <chapter>
+    <title>Hardware Overview</title>
+    <para>
+      Placeholder.
+    </para>
+  </chapter>
+  <chapter>
+    <title>Operation</title>
+    <para>
+      Placeholder.
+    </para>
+  </chapter>
+  <chapter>
+    <title>System Overview</title>
+    <para>
+      Placeholder.
+    </para>
+  </chapter>
+  <chapter>
+    <title>System Overview</title>
     <para>
       Placeholder.
     </para>
