@@ -10,11 +10,15 @@ CLASSFILES=\
 	AltosSerial.class \
 	AltosState.class \
 	AltosTelemetry.class \
-	AltosUI.class
+	AltosUI.class \
+	AltosDevice.class \
+	AltosDeviceName.class \
+	AltosDeviceLinux.class \
+	AltosDeviceNameLinux.class
 
 JAVAFLAGS=-Xlint:unchecked
 
-all: $(CLASSFILES) altosui
+all: $(CLASSFILES) altosui altosui.jar
 
 .java.class:
 	javac -cp "$(CLASSPATH)" $(JAVAFLAGS) $*.java
@@ -23,6 +27,9 @@ altosui: Makefile
 	(echo '#!/bin/sh'; \
 	echo exec java -cp '"$(CLASSPATH)"' altosui/AltosUI) > $@
 	chmod +x $@
+
+altosui.jar: $(CLASSFILES) Manifest.txt
+	cd .. && jar cfm altosui/$@ altosui/Manifest.txt altosui/*.class
 
 clean:
 	rm -f *.class
