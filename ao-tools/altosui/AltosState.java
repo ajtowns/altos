@@ -35,6 +35,8 @@ public class AltosState {
 	int	state;
 	boolean	ascent;	/* going up? */
 
+	double	time_change;
+
 	double	ground_altitude;
 	double	height;
 	double	speed;
@@ -50,9 +52,7 @@ public class AltosState {
 	double	max_speed;
 
 	AltosGPS	gps;
-	AltosGPSTracking	gps_tracking;
 
-	boolean	gps_valid;
 	double	pad_lat;
 	double	pad_lon;
 	double	pad_alt;
@@ -75,11 +75,10 @@ public class AltosState {
 		return System.currentTimeMillis() / 1000.0;
 	}
 
-	public AltosState (AltosTelemetry cur, AltosTelemetry prev, int prev_npad) {
+	void init (AltosTelemetry cur, AltosTelemetry prev, int prev_npad) {
 		int	i;
 		double	new_height;
 		double	height_change;
-		double	time_change;
 		double	accel_counts_per_mss;
 		int	tick_count;
 
@@ -108,7 +107,7 @@ public class AltosState {
 		battery = AltosConvert.cc_battery_to_voltage(data.batt);
 		state = data.state();
 		if (state == AltosTelemetry.ao_flight_pad) {
-			if (data.gps.gps_locked && data.gps.nsat >= 4) {
+			if (data.gps != null && data.gps.gps_locked && data.gps.nsat >= 4) {
 				npad++;
 				pad_lat_total += data.gps.lat;
 				pad_lon_total += data.gps.lon;
@@ -135,12 +134,9 @@ public class AltosState {
 
 		if (height > max_height)
 			max_height = height;
-		gps.gps_locked = data.gps.gps_locked;
-		gps.gps_connected = data.gps.gps_connected;
-		if (data.gps.gps_locked) {
+		if (data.gps != null) {
 			gps = data.gps;
-			gps_valid = true;
-			if (npad > 0)
+			if (npad > 0 && gps.gps_locked)
 				from_pad = new AltosGreatCircle(pad_lat, pad_lon, gps.lat, gps.lon);
 		}
 		if (npad > 0) {
@@ -151,16 +147,16 @@ public class AltosState {
 	}
 
 	public AltosState(AltosTelemetry cur) {
-		this(cur, cur, 0);
+		init(cur, cur, 0);
 	}
 
 	public AltosState (AltosTelemetry cur, AltosState prev) {
-		this(cur, prev.data, prev.npad);
-		if (gps == null) {
-			gps = prev.gps;
-			gps_valid = prev.gps_valid;
+		if (prev == null)
+			init(cur, cur, 0);
+		else {
+			init(cur, prev.data, prev.npad);
+			if (gps == null)
+				gps = prev.gps;
 		}
-		if (gps_tracking == null)
-			gps_tracking = prev.gps_tracking;
 	}
 }
