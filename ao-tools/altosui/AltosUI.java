@@ -295,55 +295,55 @@ public class AltosUI extends JFrame {
 		if (state.gps == null) {
 			info_add_row(1, "GPS", "not available");
 		} else {
-			if (state.gps.gps_locked)
-				info_add_row(1, "GPS", "locked");
-			else if (state.gps.gps_connected)
-				info_add_row(1, "GPS", "unlocked");
+			if (state.data.gps.gps_locked)
+				info_add_row(1, "GPS", "   locked");
+			else if (state.data.gps.gps_connected)
+				info_add_row(1, "GPS", " unlocked");
 			else
-				info_add_row(1, "GPS", "missing");
+				info_add_row(1, "GPS", "  missing");
 			info_add_row(1, "Satellites", "%6d", state.gps.nsat);
 			info_add_deg(1, "Latitude", state.gps.lat, 'N', 'S');
 			info_add_deg(1, "Longitude", state.gps.lon, 'E', 'W');
-			info_add_row(1, "GPS altitude", "%d", state.gps.alt);
+			info_add_row(1, "GPS altitude", "%6d", state.gps.alt);
 			info_add_row(1, "GPS height", "%6.0f", state.gps_height);
-			info_add_row(1, "GPS date", "%04d-%02d-%02d",
-				       state.gps.gps_time.year,
-				       state.gps.gps_time.month,
-				       state.gps.gps_time.day);
-			info_add_row(1, "GPS time", "%02d:%02d:%02d",
-				       state.gps.gps_time.hour,
-				       state.gps.gps_time.minute,
-				       state.gps.gps_time.second);
-			info_add_row(1, "GPS ground speed", "%7.1fm/s %d°",
+			info_add_row(1, "GPS ground speed", "%8.1f m/s %3d°",
 				       state.gps.ground_speed,
 				       state.gps.course);
-			info_add_row(1, "GPS climb rate", "%7.1fm/s",
+			info_add_row(1, "GPS climb rate", "%8.1f m/s",
 				     state.gps.climb_rate);
-			info_add_row(1, "GPS hdop", "%4.1f", state.gps.hdop);
-			info_add_row(1, "GPS error", "%3dm(h) %3dm(v)",
+			info_add_row(1, "GPS hdop", "%8.1f", state.gps.hdop);
+			info_add_row(1, "GPS error", "%6d m(h)%3d m(v)",
 				     state.gps.h_error, state.gps.v_error);
 			if (state.npad > 0) {
 				if (state.from_pad != null) {
-					info_add_row(1, "Distance from pad", "%5.0fm", state.from_pad.distance);
-					info_add_row(1, "Direction from pad", "%4.0f°", state.from_pad.bearing);
+					info_add_row(1, "Distance from pad", "%6.0f m", state.from_pad.distance);
+					info_add_row(1, "Direction from pad", "%6.0f°", state.from_pad.bearing);
 				} else {
 					info_add_row(1, "Distance from pad", "unknown");
 					info_add_row(1, "Direction from pad", "unknown");
 				}
 				info_add_deg(1, "Pad latitude", state.pad_lat, 'N', 'S');
 				info_add_deg(1, "Pad longitude", state.pad_lon, 'E', 'W');
-				info_add_row(1, "Pad GPS alt", "%gm", state.pad_alt);
+				info_add_row(1, "Pad GPS alt", "%9.2fm", state.pad_alt);
 			}
+			info_add_row(1, "GPS date", "%04d-%02d-%02d",
+				       state.gps.gps_time.year,
+				       state.gps.gps_time.month,
+				       state.gps.gps_time.day);
+			info_add_row(1, "GPS time", "  %02d:%02d:%02d",
+				       state.gps.gps_time.hour,
+				       state.gps.gps_time.minute,
+				       state.gps.gps_time.second);
 			int	nsat_vis = 0;
 			int	c;
 
 			if (state.gps.cc_gps_sat == null)
-				info_add_row(2, "Satellites Visible", "%d", 0);
+				info_add_row(2, "Satellites Visible", "%4d", 0);
 			else {
-				info_add_row(2, "Satellites Visible", "%d", state.gps.cc_gps_sat.length);
+				info_add_row(2, "Satellites Visible", "%4d", state.gps.cc_gps_sat.length);
 				for (c = 0; c < state.gps.cc_gps_sat.length; c++) {
 					info_add_row(2, "Satellite id,C/N0",
-						     "%3d,%2d",
+						     "%4d, %4d",
 						     state.gps.cc_gps_sat[c].svid,
 						     state.gps.cc_gps_sat[c].c_n0);
 				}
