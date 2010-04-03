@@ -52,7 +52,7 @@ class AltosFlightStatusTableModel extends AbstractTableModel {
 
 	public void setValueAt(Object value, int col) {
 		data[col] = value;
-		fireTableCellUpdated(0, col);
+		fireTableCellUpdated(1, col);
 	}
 
 	public void setValueAt(Object value, int row, int col) {
@@ -273,7 +273,7 @@ public class AltosUI extends JFrame {
 		if (state.npad >= MIN_PAD_SAMPLES)
 			info_add_row(0, "Ground state", "%s", "ready");
 		else
-			info_add_row(0, "Ground state", "waiting for gps (%d)",
+			info_add_row(0, "Ground state", "wait (%d)",
 				     MIN_PAD_SAMPLES - state.npad);
 		info_add_row(0, "Rocket state", "%s", state.data.state);
 		info_add_row(0, "Callsign", "%s", state.data.callsign);
