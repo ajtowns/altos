@@ -301,7 +301,7 @@ public class AltosUI extends JFrame {
 				info_add_row(1, "GPS", " unlocked");
 			else
 				info_add_row(1, "GPS", "  missing");
-			info_add_row(1, "Satellites", "%6d", state.gps.nsat);
+			info_add_row(1, "Satellites", "%6d", state.data.gps.nsat);
 			info_add_deg(1, "Latitude", state.gps.lat, 'N', 'S');
 			info_add_deg(1, "Longitude", state.gps.lon, 'E', 'W');
 			info_add_row(1, "GPS altitude", "%6d", state.gps.alt);
