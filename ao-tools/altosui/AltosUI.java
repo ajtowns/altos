@@ -70,26 +70,6 @@ class AltosFlightStatusTableModel extends AbstractTableModel {
 	}
 }
 
-class AltosFlightStatusCellRenderer extends DefaultTableCellRenderer {
-
-	static Font statusFont = new Font("SansSerif", Font.BOLD, 24);
-
-	@Override public Component getTableCellRendererComponent (JTable table, Object value, boolean isSelected,
-							boolean hasFocus, int row, int column)
-	{
-		Component cell = super.getTableCellRendererComponent
-			(table, value, isSelected, hasFocus, row, column);
-		System.out.println("Selecting new font for cell " + row + " " + column + " " + statusFont);
-		cell.setFont(statusFont);
-		return cell;
-	}
-
-	public AltosFlightStatusCellRenderer () {
-		super();
-		System.out.println("Made a status cell renderer\n");
-	}
-}
-
 class AltosFlightInfoTableModel extends AbstractTableModel {
 	private String[] columnNames = {"Field", "Value"};
 
@@ -437,8 +417,11 @@ public class AltosUI extends JFrame {
 			filename = name;
 		}
 
+		/* Run the replay in a separate thread
+		 * so that the UI can update
+		 */
 		public void run() {
-			String	line;
+			String		line;
 			AltosState	state = null;
 			try {
 				while ((line = readline(replay)) != null) {
@@ -446,6 +429,8 @@ public class AltosUI extends JFrame {
 						AltosTelemetry	t = new AltosTelemetry(line);
 						state = new AltosState(t, state);
 						show(state);
+
+						/* Make it run in realtime after the rocket leaves the pad */
 						try {
 							if (state.state > AltosTelemetry.ao_flight_pad)
 								Thread.sleep((int) (state.time_change * 1000));
