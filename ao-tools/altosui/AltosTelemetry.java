@@ -181,5 +181,6 @@ public class AltosTelemetry {
 		AltosParse.word(words[i++], "a-:");
 		accel_minus_g = AltosParse.parse_int(words[i++]);
 
+		gps = new AltosGPS(words, i);
 	}
 }

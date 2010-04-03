@@ -26,16 +26,16 @@ import altosui.AltosGPS;
 
 public class AltosState {
 	AltosTelemetry data;
-	AltosTelemetry prev_data;
 
 	/* derived data */
 
 	double  report_time;
 
+	double	time_change;
+	int	tick;
+
 	int	state;
 	boolean	ascent;	/* going up? */
-
-	double	time_change;
 
 	double	ground_altitude;
 	double	height;
@@ -56,9 +56,6 @@ public class AltosState {
 	double	pad_lat;
 	double	pad_lon;
 	double	pad_alt;
-	double	pad_lat_total;
-	double	pad_lon_total;
-	double	pad_alt_total;
 	int	npad;
 	int	prev_npad;
 
@@ -75,29 +72,18 @@ public class AltosState {
 		return System.currentTimeMillis() / 1000.0;
 	}
 
-	void init (AltosTelemetry cur, AltosTelemetry prev, int prev_npad) {
-		int	i;
-		double	new_height;
-		double	height_change;
+	void init (AltosTelemetry cur, AltosState prev_state) {
+		int		i;
+		AltosTelemetry prev;
 		double	accel_counts_per_mss;
-		int	tick_count;
 
 		data = cur;
-		prev_data = prev;
-		npad = prev_npad;
-		tick_count = data.tick;
-		if (tick_count < prev_data.tick)
-			tick_count += 65536;
-		time_change = (tick_count - prev_data.tick) / 100.0;
+
+		ground_altitude = AltosConvert.cc_barometer_to_altitude(data.ground_pres);
+		height = AltosConvert.cc_barometer_to_altitude(data.flight_pres) - ground_altitude;
 
 		report_time = aoview_time();
 
-		ground_altitude = AltosConvert.cc_pressure_to_altitude(data.ground_pres);
-		new_height = AltosConvert.cc_pressure_to_altitude(data.flight_pres) - ground_altitude;
-		height_change = new_height - height;
-		height = new_height;
-		if (time_change > 0)
-			baro_speed = (baro_speed * 3 + (height_change / time_change)) / 4.0;
 		accel_counts_per_mss = ((data.accel_minus_g - data.accel_plus_g) / 2.0) / 9.80665;
 		acceleration = (data.ground_accel - data.flight_accel) / accel_counts_per_mss;
 		speed = data.flight_vel / (accel_counts_per_mss * 100.0);
@@ -105,17 +91,46 @@ public class AltosState {
 		drogue_sense = AltosConvert.cc_ignitor_to_voltage(data.drogue);
 		main_sense = AltosConvert.cc_ignitor_to_voltage(data.main);
 		battery = AltosConvert.cc_battery_to_voltage(data.batt);
+		tick = data.tick;
 		state = data.state();
+
+		if (prev_state != null) {
+
+			/* Preserve any existing gps data */
+			npad = prev_state.npad;
+			gps = prev_state.gps;
+			pad_lat = prev_state.pad_lat;
+			pad_lon = prev_state.pad_lon;
+			pad_alt = prev_state.pad_alt;
+
+			/* make sure the clock is monotonic */
+			while (tick < prev_state.tick)
+				tick += 65536;
+
+			time_change = (tick - prev_state.tick) / 100.0;
+
+			/* compute barometric speed */
+
+			double height_change = height - prev_state.height;
+			if (time_change > 0)
+				baro_speed = (prev_state.baro_speed * 3 + (height_change / time_change)) / 4.0;
+			else
+				baro_speed = prev_state.baro_speed;
+		} else {
+			npad = 0;
+			gps = null;
+			baro_speed = 0;
+			time_change = 0;
+		}
+
 		if (state == AltosTelemetry.ao_flight_pad) {
 			if (data.gps != null && data.gps.gps_locked && data.gps.nsat >= 4) {
 				npad++;
-				pad_lat_total += data.gps.lat;
-				pad_lon_total += data.gps.lon;
-				pad_alt_total += data.gps.alt;
 				if (npad > 1) {
-					pad_lat = (pad_lat * 31 + data.gps.lat) / 32.0;
-					pad_lon = (pad_lon * 31 + data.gps.lon) / 32.0;
-					pad_alt = (pad_alt * 31 + data.gps.alt) / 32.0;
+					/* filter pad position */
+					pad_lat = (pad_lat * 31.0 + data.gps.lat) / 32.0;
+					pad_lon = (pad_lon * 31.0 + data.gps.lon) / 32.0;
+					pad_alt = (pad_alt * 31.0 + data.gps.alt) / 32.0;
 				} else {
 					pad_lat = data.gps.lat;
 					pad_lon = data.gps.lon;
@@ -135,7 +150,8 @@ public class AltosState {
 		if (height > max_height)
 			max_height = height;
 		if (data.gps != null) {
-			gps = data.gps;
+			if (gps == null || !gps.gps_locked || data.gps.gps_locked)
+				gps = data.gps;
 			if (npad > 0 && gps.gps_locked)
 				from_pad = new AltosGreatCircle(pad_lat, pad_lon, gps.lat, gps.lon);
 		}
@@ -147,16 +163,10 @@ public class AltosState {
 	}
 
 	public AltosState(AltosTelemetry cur) {
-		init(cur, cur, 0);
+		init(cur, null);
 	}
 
 	public AltosState (AltosTelemetry cur, AltosState prev) {
-		if (prev == null)
-			init(cur, cur, 0);
-		else {
-			init(cur, prev.data, prev.npad);
-			if (gps == null)
-				gps = prev.gps;
-		}
+		init(cur, prev);
 	}
 }

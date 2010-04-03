@@ -111,6 +111,7 @@ public class AltosGPS {
 		int tracking_channels = AltosParse.parse_int(words[i++]);
 		cc_gps_sat = new AltosGPS.AltosGPSSat[tracking_channels];
 		for (int chan = 0; chan < tracking_channels; chan++) {
+			cc_gps_sat[chan] = new AltosGPS.AltosGPSSat();
 			cc_gps_sat[chan].svid = AltosParse.parse_int(words[i++]);
 			cc_gps_sat[chan].c_n0 = AltosParse.parse_int(words[i++]);
 		}

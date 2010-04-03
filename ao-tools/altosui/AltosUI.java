@@ -214,7 +214,7 @@ public class AltosUI extends JFrame {
 		serialLine = new AltosSerial();
 		serialLine.monitor(new AltosUIMonitor());
 		int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
-		this.setSize(new Dimension (infoValueMetrics.charWidth('0') * 6 * 15,
+		this.setSize(new Dimension (infoValueMetrics.charWidth('0') * 6 * 20,
 					    statusHeight * 4 + infoHeight * 17));
 		this.validate();
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -292,22 +292,20 @@ public class AltosUI extends JFrame {
 		info_add_row(0, "Drogue", "%9.2f V", state.drogue_sense);
 		info_add_row(0, "Main", "%9.2f V", state.main_sense);
 		info_add_row(0, "Pad altitude", "%6.0f    m", state.ground_altitude);
-		if (state.gps != null)
-			info_add_row(1, "Satellites", "%6d", state.gps.nsat);
-		else
-			info_add_row(1, "Satellites", "%6d", 0);
-		if (state.gps != null && state.gps.gps_locked) {
-			info_add_row(1, "GPS", "locked");
-		} else if (state.gps != null && state.gps.gps_connected) {
-			info_add_row(1, "GPS", "unlocked");
-		} else {
+		if (state.gps == null) {
 			info_add_row(1, "GPS", "not available");
-		}
-		if (state.gps != null) {
+		} else {
+			if (state.gps.gps_locked)
+				info_add_row(1, "GPS", "locked");
+			else if (state.gps.gps_connected)
+				info_add_row(1, "GPS", "unlocked");
+			else
+				info_add_row(1, "GPS", "missing");
+			info_add_row(1, "Satellites", "%6d", state.gps.nsat);
 			info_add_deg(1, "Latitude", state.gps.lat, 'N', 'S');
 			info_add_deg(1, "Longitude", state.gps.lon, 'E', 'W');
 			info_add_row(1, "GPS altitude", "%d", state.gps.alt);
-			info_add_row(1, "GPS height", "%d", state.gps_height);
+			info_add_row(1, "GPS height", "%6.0f", state.gps_height);
 			info_add_row(1, "GPS date", "%04d-%02d-%02d",
 				       state.gps.gps_time.year,
 				       state.gps.gps_time.month,
@@ -321,17 +319,21 @@ public class AltosUI extends JFrame {
 				       state.gps.course);
 			info_add_row(1, "GPS climb rate", "%7.1fm/s",
 				     state.gps.climb_rate);
-			info_add_row(1, "GPS precision", "%4.1f(hdop) %3dm(h) %3dm(v)",
-				     state.gps.hdop, state.gps.h_error, state.gps.v_error);
-		}
-		if (state.npad > 0) {
-			info_add_row(1, "Distance from pad", "%5.0fm", state.from_pad.distance);
-			info_add_row(1, "Direction from pad", "%4.0f°", state.from_pad.bearing);
-			info_add_deg(1, "Pad latitude", state.pad_lat, 'N', 'S');
-			info_add_deg(1, "Pad longitude", state.pad_lon, 'E', 'W');
-			info_add_row(1, "Pad GPS alt", "%gm", state.pad_alt);
-		}
-		if (state.gps != null && state.gps.gps_connected) {
+			info_add_row(1, "GPS hdop", "%4.1f", state.gps.hdop);
+			info_add_row(1, "GPS error", "%3dm(h) %3dm(v)",
+				     state.gps.h_error, state.gps.v_error);
+			if (state.npad > 0) {
+				if (state.from_pad != null) {
+					info_add_row(1, "Distance from pad", "%5.0fm", state.from_pad.distance);
+					info_add_row(1, "Direction from pad", "%4.0f°", state.from_pad.bearing);
+				} else {
+					info_add_row(1, "Distance from pad", "unknown");
+					info_add_row(1, "Direction from pad", "unknown");
+				}
+				info_add_deg(1, "Pad latitude", state.pad_lat, 'N', 'S');
+				info_add_deg(1, "Pad longitude", state.pad_lon, 'E', 'W');
+				info_add_row(1, "Pad GPS alt", "%gm", state.pad_alt);
+			}
 			int	nsat_vis = 0;
 			int	c;
 
