@@ -306,14 +306,19 @@ public class AltosUI extends JFrame {
 			info_add_deg(1, "Longitude", state.gps.lon, 'E', 'W');
 			info_add_row(1, "GPS altitude", "%6d", state.gps.alt);
 			info_add_row(1, "GPS height", "%6.0f", state.gps_height);
-			info_add_row(1, "GPS ground speed", "%8.1f m/s %3d°",
-				       state.gps.ground_speed,
-				       state.gps.course);
-			info_add_row(1, "GPS climb rate", "%8.1f m/s",
-				     state.gps.climb_rate);
+
+			/* The SkyTraq GPS doesn't report these values */
+			if (false) {
+				info_add_row(1, "GPS ground speed", "%8.1f m/s %3d°",
+					     state.gps.ground_speed,
+					     state.gps.course);
+				info_add_row(1, "GPS climb rate", "%8.1f m/s",
+					     state.gps.climb_rate);
+				info_add_row(1, "GPS error", "%6d m(h)%3d m(v)",
+					     state.gps.h_error, state.gps.v_error);
+			}
 			info_add_row(1, "GPS hdop", "%8.1f", state.gps.hdop);
-			info_add_row(1, "GPS error", "%6d m(h)%3d m(v)",
-				     state.gps.h_error, state.gps.v_error);
+
 			if (state.npad > 0) {
 				if (state.from_pad != null) {
 					info_add_row(1, "Distance from pad", "%6.0f m", state.from_pad.distance);
@@ -324,7 +329,7 @@ public class AltosUI extends JFrame {
 				}
 				info_add_deg(1, "Pad latitude", state.pad_lat, 'N', 'S');
 				info_add_deg(1, "Pad longitude", state.pad_lon, 'E', 'W');
-				info_add_row(1, "Pad GPS alt", "%9.2fm", state.pad_alt);
+				info_add_row(1, "Pad GPS alt", "%6.0f m", state.pad_alt);
 			}
 			info_add_row(1, "GPS date", "%04d-%02d-%02d",
 				       state.gps.gps_time.year,

@@ -102,6 +102,9 @@ public class AltosState {
 			pad_lat = prev_state.pad_lat;
 			pad_lon = prev_state.pad_lon;
 			pad_alt = prev_state.pad_alt;
+			max_height = prev_state.max_height;
+			max_acceleration = prev_state.max_acceleration;
+			max_speed = prev_state.max_speed;
 
 			/* make sure the clock is monotonic */
 			while (tick < prev_state.tick)
