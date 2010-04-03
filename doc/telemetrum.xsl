@@ -125,7 +125,10 @@
           doesn't get you close enough because the rocket dropped into a canyon, or 
           the wind is blowing it across a dry lake bed, or something like that...  Keith
           and Bdale both currently own and use the 
-          [Yaesu VX-6R](http://yaesu.com/indexVS.cfm?cmd=DisplayProducts&ProdCatID=111&encProdID=4C6F204F6FEBB5BAFA58BCC1C131EAC0&DivisionID=65&isArchived=0) 
+        <ulink url="http://yaesu.com/indexVS.cfm?cmd=DisplayProducts&ProdCat
+ID=111&encProdID=4C6F204F6FEBB5BAFA58BCC1C131EAC0&DivisionID=65&isArchived=0">
+	  Yaesu VX-6R
+        </ulink>
           at launches.
         </para>
         <para>
@@ -151,9 +154,11 @@
         <para>
           The best hand-held commercial directional antennas we've found for radio 
           direction finding rockets are from 
-          [Arrow Antennas](http://www.arrowantennas.com/).  The 440-3 and 440-5 are 
-          both good choices for finding a TeleMetrum-equipped rocket when used with 
-          a suitable 70cm HT.  
+	<ulink url="http://www.arrowantennas.com/" >
+          Arrow Antennas.
+	</ulink>
+The 440-3 and 440-5 are both good choices for finding a 
+TeleMetrum-equipped rocket when used with a suitable 70cm HT.  
         </para>
       </section>
       <section>
