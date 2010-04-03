@@ -21,7 +21,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.AbstractTableModel;
+import javax.swing.table.*;
 import java.io.*;
 import java.util.*;
 import java.text.*;
@@ -43,9 +43,12 @@ class AltosFlightStatusTableModel extends AbstractTableModel {
 	private Object[] data = { 0, "idle", 0, 0 };
 
 	public int getColumnCount() { return columnNames.length; }
-	public int getRowCount() { return 1; }
-	public String getColumnName(int col) { return columnNames[col]; }
-	public Object getValueAt(int row, int col) { return data[col]; }
+	public int getRowCount() { return 2; }
+	public Object getValueAt(int row, int col) {
+		if (row == 0)
+			return columnNames[col];
+		return data[col];
+	}
 
 	public void setValueAt(Object value, int col) {
 		data[col] = value;
@@ -64,6 +67,26 @@ class AltosFlightStatusTableModel extends AbstractTableModel {
 		if (state.ascent)
 			speed = state.speed;
 		setValueAt(String.format("%1.0f", speed), 3);
+	}
+}
+
+class AltosFlightStatusCellRenderer extends DefaultTableCellRenderer {
+
+	static Font statusFont = new Font("SansSerif", Font.BOLD, 24);
+
+	@Override public Component getTableCellRendererComponent (JTable table, Object value, boolean isSelected,
+							boolean hasFocus, int row, int column)
+	{
+		Component cell = super.getTableCellRendererComponent
+			(table, value, isSelected, hasFocus, row, column);
+		System.out.println("Selecting new font for cell " + row + " " + column + " " + statusFont);
+		cell.setFont(statusFont);
+		return cell;
+	}
+
+	public AltosFlightStatusCellRenderer () {
+		super();
+		System.out.println("Made a status cell renderer\n");
 	}
 }
 
@@ -133,6 +156,10 @@ public class AltosUI extends JFrame {
 	private Box vbox;
 	private Box hbox;
 
+	private Font statusFont = new Font("SansSerif", Font.BOLD, 24);
+	private Font infoLabelFont = new Font("SansSerif", Font.PLAIN, 14);
+	private Font infoValueFont = new Font("Monospaced", Font.PLAIN, 14);
+
 	public AltosUI() {
 
 		String[] statusNames = { "Height (m)", "State", "RSSI (dBm)", "Speed (m/s)" };
@@ -143,23 +170,37 @@ public class AltosUI extends JFrame {
 
 		flightStatusModel = new AltosFlightStatusTableModel();
 		flightStatus = new JTable(flightStatusModel);
+		flightStatus.setFont(statusFont);
+		TableColumnModel tcm = flightStatus.getColumnModel();
+		for (int i = 0; i < flightStatusModel.getColumnCount(); i++) {
+			DefaultTableCellRenderer       r = new DefaultTableCellRenderer();
+			r.setFont(statusFont);
+			r.setHorizontalAlignment(SwingConstants.CENTER);
+			tcm.getColumn(i).setCellRenderer(r);
+		}
 
+		FontMetrics	statusMetrics = flightStatus.getFontMetrics(statusFont);
+		int statusHeight = (statusMetrics.getHeight() + statusMetrics.getLeading()) * 15 / 10;
+		flightStatus.setRowHeight(statusHeight);
 		flightStatus.setShowGrid(false);
 
-		flightInfo = new JTable[3];
-		flightInfoModel = new AltosFlightInfoTableModel[3];
-		ibox = new Box[3];
-
-		vbox.add(flightStatus.getTableHeader());
 		vbox.add(flightStatus);
 
 		hbox = Box.createHorizontalBox();
 		vbox.add(hbox);
 
+		flightInfo = new JTable[3];
+		flightInfoModel = new AltosFlightInfoTableModel[3];
+		ibox = new Box[3];
+		FontMetrics	infoValueMetrics = flightStatus.getFontMetrics(infoValueFont);
+		int infoHeight = (infoValueMetrics.getHeight() + infoValueMetrics.getLeading()) * 20 / 10;
+
 		for (int i = 0; i < info_columns; i++) {
 			ibox[i] = Box.createVerticalBox();
 			flightInfoModel[i] = new AltosFlightInfoTableModel();
 			flightInfo[i] = new JTable(flightInfoModel[i]);
+			flightInfo[i].setFont(infoValueFont);
+			flightInfo[i].setRowHeight(infoHeight);
 			flightInfo[i].setShowGrid(true);
 			ibox[i].add(flightInfo[i].getTableHeader());
 			ibox[i].add(flightInfo[i]);
@@ -173,7 +214,8 @@ public class AltosUI extends JFrame {
 		serialLine = new AltosSerial();
 		serialLine.monitor(new AltosUIMonitor());
 		int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
-		this.setSize(new Dimension (dpi * 5, dpi * 4));
+		this.setSize(new Dimension (infoValueMetrics.charWidth('0') * 6 * 15,
+					    statusHeight * 4 + infoHeight * 17));
 		this.validate();
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -235,25 +277,25 @@ public class AltosUI extends JFrame {
 				     MIN_PAD_SAMPLES - state.npad);
 		info_add_row(0, "Rocket state", "%s", state.data.state);
 		info_add_row(0, "Callsign", "%s", state.data.callsign);
-		info_add_row(0, "Rocket serial", "%d", state.data.serial);
-		info_add_row(0, "Rocket flight", "%d", state.data.flight);
+		info_add_row(0, "Rocket serial", "%6d", state.data.serial);
+		info_add_row(0, "Rocket flight", "%6d", state.data.flight);
 
-		info_add_row(0, "RSSI", "%6ddBm", state.data.rssi);
-		info_add_row(0, "Height", "%6.0fm", state.height);
-		info_add_row(0, "Max height", "%6.0fm", state.max_height);
-		info_add_row(0, "Acceleration", "%7.1fm/s²", state.acceleration);
-		info_add_row(0, "Max acceleration", "%7.1fm/s²", state.max_acceleration);
-		info_add_row(0, "Speed", "%7.1fm/s", state.ascent ? state.speed : state.baro_speed);
-		info_add_row(0, "Max Speed", "%7.1fm/s", state.max_speed);
-		info_add_row(0, "Temperature", "%6.2f°C", state.temperature);
-		info_add_row(0, "Battery", "%5.2fV", state.battery);
-		info_add_row(0, "Drogue", "%5.2fV", state.drogue_sense);
-		info_add_row(0, "Main", "%5.2fV", state.main_sense);
-		info_add_row(0, "Pad altitude", "%6.0fm", state.ground_altitude);
+		info_add_row(0, "RSSI", "%6d    dBm", state.data.rssi);
+		info_add_row(0, "Height", "%6.0f    m", state.height);
+		info_add_row(0, "Max height", "%6.0f    m", state.max_height);
+		info_add_row(0, "Acceleration", "%8.1f  m/s²", state.acceleration);
+		info_add_row(0, "Max acceleration", "%8.1f  m/s²", state.max_acceleration);
+		info_add_row(0, "Speed", "%8.1f  m/s", state.ascent ? state.speed : state.baro_speed);
+		info_add_row(0, "Max Speed", "%8.1f  m/s", state.max_speed);
+		info_add_row(0, "Temperature", "%9.2f °C", state.temperature);
+		info_add_row(0, "Battery", "%9.2f V", state.battery);
+		info_add_row(0, "Drogue", "%9.2f V", state.drogue_sense);
+		info_add_row(0, "Main", "%9.2f V", state.main_sense);
+		info_add_row(0, "Pad altitude", "%6.0f    m", state.ground_altitude);
 		if (state.gps != null)
-			info_add_row(1, "Satellites", "%d", state.gps.nsat);
+			info_add_row(1, "Satellites", "%6d", state.gps.nsat);
 		else
-			info_add_row(1, "Satellites", "%d", 0);
+			info_add_row(1, "Satellites", "%6d", 0);
 		if (state.gps != null && state.gps.gps_locked) {
 			info_add_row(1, "GPS", "locked");
 		} else if (state.gps != null && state.gps.gps_connected) {
