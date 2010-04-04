@@ -25,7 +25,8 @@ import javax.swing.table.*;
 import java.io.*;
 import java.util.*;
 import java.text.*;
-import gnu.io.CommPortIdentifier;
+import java.util.prefs.*;
+import gnu.io.*;
 
 import altosui.AltosSerial;
 import altosui.AltosSerialMonitor;
@@ -337,32 +338,63 @@ public class AltosUI extends JFrame {
 		info_finish();
 	}
 
+	/* User Preferences */
+	Preferences altosui_preferences = Preferences.userNodeForPackage(this.getClass());
 
-	final JFileChooser deviceChooser = new JFileChooser();
-	final JFileChooser logdirChooser = new JFileChooser();
-	final String logdirName = "TeleMetrum";
-	File logdir = null;
+	/* Log directory */
+	private File logdir = null;
 
-	private void setLogdir() {
-		if (logdir == null)
-			logdir = new File(logdirChooser.getCurrentDirectory(), logdirName);
-		logdirChooser.setCurrentDirectory(logdir);
+	/* logdir preference name */
+	final static String logdirPreference = "LOGDIR";
+
+	/* Default logdir is ~/TeleMetrum */
+	final static String logdirName = "TeleMetrum";
+
+	/* Initialize logdir from preferences */
+	{
+		String logdir_string = altosui_preferences.get(logdirPreference, null);
+		if (logdir_string != null)
+			logdir = new File(logdir_string);
+		else
+			/* a hack -- make the file chooser tell us what the default directory
+			 * would be and stick our logdir in a subdirectory of that.
+			 */
+			logdir = new File(new JFileChooser().getCurrentDirectory(), logdirName);
 	}
 
-	private void makeLogdir() {
-		setLogdir();
-		if (!logdir.exists()) {
-			if (!logdir.mkdirs())
+	private void set_logdir(File new_logdir) {
+		logdir = new_logdir;
+		System.out.printf("Set logdir to %s\n", logdir.toString());
+		synchronized (altosui_preferences) {
+			altosui_preferences.put(logdirPreference, logdir.getPath());
+			try {
+				altosui_preferences.flush();
+			} catch (BackingStoreException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
-							      logdir.getName(),
+							      altosui_preferences.absolutePath(),
+							      "Cannot save prefernces",
+							      JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
+	private boolean check_dir(File dir) {
+		if (!dir.exists()) {
+			if (!dir.mkdirs()) {
+				JOptionPane.showMessageDialog(AltosUI.this,
+							      dir.getName(),
 							      "Cannot create directory",
 							      JOptionPane.ERROR_MESSAGE);
-		} else if (!logdir.isDirectory()) {
+				return false;
+			}
+		} else if (!dir.isDirectory()) {
 			JOptionPane.showMessageDialog(AltosUI.this,
-						      logdir.getName(),
+						      dir.getName(),
 						      "Is not a directory",
 						      JOptionPane.ERROR_MESSAGE);
+			return false;
 		}
+		return true;
 	}
 
 	private void PickSerialDevice() {
@@ -374,17 +406,32 @@ public class AltosUI extends JFrame {
 	}
 
 	private void ConnectToDevice() {
-		PickSerialDevice();
-		int returnVal = deviceChooser.showOpenDialog(AltosUI.this);
+		JFileChooser	device_chooser = new JFileChooser();
+		int returnVal = device_chooser.showOpenDialog(AltosUI.this);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = deviceChooser.getSelectedFile();
+			File file = device_chooser.getSelectedFile();
 			try {
-				serialLine.open(file);
+				serialLine.connect(file.getCanonicalPath());
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
 							      file.getName(),
 							      "Cannot open serial port",
+							      JOptionPane.ERROR_MESSAGE);
+			} catch (NoSuchPortException ee) {
+				JOptionPane.showMessageDialog(AltosUI.this,
+							      file.getName(),
+							      "No such serial port",
+							      JOptionPane.ERROR_MESSAGE);
+			} catch (PortInUseException ee) {
+				JOptionPane.showMessageDialog(AltosUI.this,
+							      file.getName(),
+							      "Port in use",
+							      JOptionPane.ERROR_MESSAGE);
+			} catch (IOException ee) {
+				JOptionPane.showMessageDialog(AltosUI.this,
+							      file.getName(),
+							      "Unkonwn I/O error",
 							      JOptionPane.ERROR_MESSAGE);
 			}
 		}
@@ -456,14 +503,19 @@ public class AltosUI extends JFrame {
 		}
 	}
 
+	/*
+	 * Replay a flight from telemetry data
+	 */
 	private void Replay() {
-		setLogdir();
-		logdirChooser.setDialogTitle("Select Telemetry File");
-		logdirChooser.setFileFilter(new FileNameExtensionFilter("Telemetry file", "telem"));
-		int returnVal = logdirChooser.showOpenDialog(AltosUI.this);
+		JFileChooser	logfile_chooser = new JFileChooser();
+
+		logfile_chooser.setDialogTitle("Select Telemetry File");
+		logfile_chooser.setFileFilter(new FileNameExtensionFilter("Telemetry file", "telem"));
+		logfile_chooser.setCurrentDirectory(logdir);
+		int returnVal = logfile_chooser.showOpenDialog(AltosUI.this);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = logdirChooser.getSelectedFile();
+			File file = logfile_chooser.getSelectedFile();
 			if (file == null)
 				System.out.println("No file selected?");
 			String	filename = file.getName();
@@ -480,7 +532,28 @@ public class AltosUI extends JFrame {
 		}
 	}
 
+	/*
+	 * Connect to TeleMetrum, either directly or through
+	 * a TeleDongle over the packet link
+	 */
 	private void SaveFlightData() {
+	}
+
+	/* Configure the log directory. This is where all telemetry and eeprom files
+	 * will be written to, and where replay will look for telemetry files
+	 */
+	private void ConfigureLog() {
+		JFileChooser	logdir_chooser = new JFileChooser();
+
+		logdir_chooser.setDialogTitle("Configure Data Logging Directory");
+		logdir_chooser.setCurrentDirectory(logdir.getParentFile());
+		logdir_chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+		if (logdir_chooser.showDialog(AltosUI.this, "Select Directory") == JFileChooser.APPROVE_OPTION) {
+			File dir = logdir_chooser.getSelectedFile();
+			if (check_dir(dir))
+				set_logdir(dir);
+		}
 	}
 
 	private void createMenu() {
@@ -562,6 +635,7 @@ public class AltosUI extends JFrame {
 			item = new JMenuItem("Configure Log",KeyEvent.VK_C);
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						ConfigureLog();
 					}
 				});
 			menu.add(item);

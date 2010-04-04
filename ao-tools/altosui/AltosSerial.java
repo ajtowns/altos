@@ -26,6 +26,7 @@ import java.io.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.LinkedList;
 import java.util.Iterator;
+import gnu.io.*;
 import altosui.AltosSerialMonitor;
 
 /*
@@ -34,7 +35,7 @@ import altosui.AltosSerialMonitor;
  * threads.
  */
 class AltosSerialReader implements Runnable {
-	FileInputStream	serial_in;
+	InputStream	serial_in;
 	LinkedBlockingQueue<String> monitor_queue;
 	LinkedBlockingQueue<String> reply_queue;
 	Thread input_thread;
@@ -109,6 +110,12 @@ class AltosSerialReader implements Runnable {
 		input_thread = new Thread(this);
 		input_thread.start();
 	}
+	public void open(CommPort c) throws IOException {
+		close();
+		serial_in = c.getInputStream();
+		input_thread = new Thread(this);
+		input_thread.start();
+	}
 	public AltosSerialReader () {
 		serial_in = null;
 		input_thread = null;
@@ -120,7 +127,7 @@ class AltosSerialReader implements Runnable {
 }
 
 public class AltosSerial implements Runnable {
-	FileOutputStream serial_out = null;
+	OutputStream serial_out = null;
 	Thread monitor_thread = null;
 	AltosSerialReader reader = null;
 	LinkedList<AltosSerialMonitor> callbacks;
@@ -188,11 +195,19 @@ public class AltosSerial implements Runnable {
 	public void open(File serial_name) throws FileNotFoundException {
 		reader.open(serial_name);
 		serial_out = new FileOutputStream(serial_name);
-		try {
-			serial_out.write('?');
-			serial_out.write('\r');
-		} catch (IOException e) {
-		}
+	}
+
+	public void open(CommPort comm_port) throws IOException {
+		reader.open(comm_port);
+		serial_out = comm_port.getOutputStream();
+	}
+
+	public void connect(String port_name) throws IOException, NoSuchPortException, PortInUseException {
+		System.out.printf("Opening serial port %s\n", port_name);
+		CommPort comm_port = new RXTXPort(port_name);
+//		CommPortIdentifier port_identifier = CommPortIdentifier.getPortIdentifier(port_name);
+//		CommPort comm_port = port_identifier.open("Altos", 1000);
+		open(comm_port);
 	}
 
 	void init() {
@@ -207,5 +222,10 @@ public class AltosSerial implements Runnable {
 	public AltosSerial(File serial_name) throws FileNotFoundException {
 		init();
 		open(serial_name);
+	}
+
+	public AltosSerial(CommPort comm_port) throws IOException {
+		init();
+		open(comm_port);
 	}
 }
