@@ -532,8 +532,7 @@ public class AltosUI extends JFrame {
 		}
 	}
 
-	/*
-	 * Connect to TeleMetrum, either directly or through
+	/* Connect to TeleMetrum, either directly or through
 	 * a TeleDongle over the packet link
 	 */
 	private void SaveFlightData() {
@@ -556,6 +555,8 @@ public class AltosUI extends JFrame {
 		}
 	}
 
+	/* Create the AltosUI menus
+	 */
 	private void createMenu() {
 		JMenuBar menubar = new JMenuBar();
 		JMenu menu;
