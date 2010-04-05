@@ -18,7 +18,7 @@
 #ifndef _AO_PINS_H_
 #define _AO_PINS_H_
 
-#if defined(TELEMETRUM_V_0_2)
+#if defined(TELEMETRUM_V_1_0)
 	#define HAS_SERIAL_1		1
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1

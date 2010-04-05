@@ -4,7 +4,7 @@
 #
 CC=sdcc
 
-SUBDIRS=telemetrum-v0.2 teledongle-v0.2 telemetrum-v0.1-sky telemetrum-v0.1-sirf teledongle-v0.1 tidongle test
+SUBDIRS=telemetrum-v1.0 teledongle-v0.2 telemetrum-v0.1-sky telemetrum-v0.1-sirf teledongle-v0.1 tidongle test
 
 all: all-recursive
 
