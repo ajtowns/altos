@@ -80,7 +80,8 @@ ao_set_monitor(uint8_t monitoring)
 {
 	ao_monitoring = monitoring;
 	ao_wakeup(&ao_monitoring);
-	ao_radio_abort();
+	if (!ao_monitoring)
+		ao_radio_abort();
 }
 
 static void
