@@ -317,8 +317,8 @@ ao_radio_idle(void)
 {
 	if (RF_MARCSTATE != RF_MARCSTATE_IDLE)
 	{
-		RFST = RFST_SIDLE;
 		do {
+			RFST = RFST_SIDLE;
 			ao_yield();
 		} while (RF_MARCSTATE != RF_MARCSTATE_IDLE);
 	}
