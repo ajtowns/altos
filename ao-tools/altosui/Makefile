@@ -12,9 +12,7 @@ CLASSFILES=\
 	AltosTelemetry.class \
 	AltosUI.class \
 	AltosDevice.class \
-	AltosDeviceName.class \
 	AltosDeviceLinux.class \
-	AltosDeviceNameLinux.class
 
 JAVAFLAGS=-Xlint:unchecked
 

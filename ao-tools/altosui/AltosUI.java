@@ -682,6 +682,10 @@ public class AltosUI extends JFrame {
 
 	}
 	public static void main(final String[] args) {
+		AltosDevice[] devices = AltosDeviceLinux.list();
+		for (int i = 0; i < devices.length; i++)
+			System.out.printf("Model: %s Serial: %d Tty: %s\n",
+					  devices[i].product, devices[i].serial, devices[i].tty);
 		AltosUI altosui = new AltosUI();
 		altosui.setVisible(true);
 	}
