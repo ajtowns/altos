@@ -108,7 +108,12 @@ public class AltosGPS {
 			gps_time = new AltosGPSTime();
 		}
 		AltosParse.word(words[i++], "SAT");
-		int tracking_channels = AltosParse.parse_int(words[i++]);
+		int tracking_channels = 0;
+		if (words[i].equals("not-connected"))
+			tracking_channels = 0;
+		else
+			tracking_channels = AltosParse.parse_int(words[i]);
+		i++;
 		cc_gps_sat = new AltosGPS.AltosGPSSat[tracking_channels];
 		for (int chan = 0; chan < tracking_channels; chan++) {
 			cc_gps_sat[chan] = new AltosGPS.AltosGPSSat();
