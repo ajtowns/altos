@@ -481,7 +481,9 @@ public class AltosUI extends JFrame {
 						try {
 							if (state.state > AltosTelemetry.ao_flight_pad)
 								Thread.sleep((int) (state.time_change * 1000));
-						} catch (InterruptedException e) {}
+						} catch (InterruptedException e) {
+							break;
+						}
 					} catch (ParseException pp) {
 						JOptionPane.showMessageDialog(AltosUI.this,
 									      line,
@@ -503,6 +505,7 @@ public class AltosUI extends JFrame {
 		}
 	}
 
+	ReplayThread	replay_thread;
 	/*
 	 * Replay a flight from telemetry data
 	 */
@@ -522,7 +525,10 @@ public class AltosUI extends JFrame {
 			try {
 				FileInputStream	replay = new FileInputStream(file);
 				ReplayThread	thread = new ReplayThread(replay, filename);
-				thread.start();
+				if (thread != null && replay_thread != null && replay_thread.isAlive())
+					replay_thread.interrupt();
+				replay_thread = thread;
+				replay_thread.start();
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
 							      filename,
