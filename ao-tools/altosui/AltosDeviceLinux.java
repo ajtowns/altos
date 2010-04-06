@@ -19,8 +19,6 @@ package altosui;
 import java.lang.*;
 import java.io.*;
 import java.util.*;
-import altosui.AltosDeviceName;
-import altosui.AltosDeviceNameLinux;
 import altosui.AltosDevice;
 
 public class AltosDeviceLinux extends AltosDevice {
@@ -120,7 +118,7 @@ public class AltosDeviceLinux extends AltosDevice {
 	}
 
 	public String toString() {
-		return manufacturer + " " + product + " " + serial + " " + idProduct + " " + idVendor + " " + tty;
+		return String.format("%-20s %6d %-15s", product, serial, tty == null ? "" : tty);
 	}
 	static public AltosDeviceLinux[] list() {
 		LinkedList<AltosDeviceLinux> devices = new LinkedList<AltosDeviceLinux>();
@@ -152,20 +150,23 @@ public class AltosDeviceLinux extends AltosDevice {
 			}
 		}
 		AltosDeviceLinux[] foo = new AltosDeviceLinux[devices.size()];
-		for (int e = 0; e < devices.size(); e++) {
+		for (int e = 0; e < devices.size(); e++)
 			foo[e] = devices.get(e);
-			System.out.println("Device " + foo[e]);
-		}
 		return foo;
 	}
 
 	static public AltosDeviceLinux[] list(String model) {
 		AltosDeviceLinux[] devices = list();
-		LinkedList<AltosDeviceLinux> subset = new LinkedList<AltosDeviceLinux>();
-		for (int i = 0; i < devices.length; i++) {
-			if (devices[i].product.startsWith(model))
-				subset.add(devices[i]);
+		if (model != null) {
+			LinkedList<AltosDeviceLinux> subset = new LinkedList<AltosDeviceLinux>();
+			for (int i = 0; i < devices.length; i++) {
+				if (devices[i].product.startsWith(model))
+					subset.add(devices[i]);
+			}
+			devices = new AltosDeviceLinux[subset.size()];
+			for (int e = 0; e < subset.size(); e++)
+				devices[e] = subset.get(e);
 		}
-		return (AltosDeviceLinux[]) subset.toArray();
+		return devices;
 	}
 }

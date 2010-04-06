@@ -32,12 +32,7 @@ import altosui.AltosSerial;
 import altosui.AltosSerialMonitor;
 import altosui.AltosTelemetry;
 import altosui.AltosState;
-
-class AltosUIMonitor implements AltosSerialMonitor {
-	public void data(String data) {
-		System.out.println(data);
-	}
-}
+import altosui.AltosDeviceDialog;
 
 class AltosFlightStatusTableModel extends AbstractTableModel {
 	private String[] columnNames = {"Height (m)", "State", "RSSI (dBm)", "Speed (m/s)" };
@@ -193,7 +188,6 @@ public class AltosUI extends JFrame {
 		createMenu();
 
 		serialLine = new AltosSerial();
-		serialLine.monitor(new AltosUIMonitor());
 		int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
 		this.setSize(new Dimension (infoValueMetrics.charWidth('0') * 6 * 20,
 					    statusHeight * 4 + infoHeight * 17));
@@ -405,36 +399,92 @@ public class AltosUI extends JFrame {
 		}
 	}
 
-	private void ConnectToDevice() {
-		JFileChooser	device_chooser = new JFileChooser();
-		int returnVal = device_chooser.showOpenDialog(AltosUI.this);
+	class DisplayThread extends Thread {
+		String read() throws InterruptedException { return null; }
 
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = device_chooser.getSelectedFile();
+		void close() { }
+
+		void update(AltosState state) throws InterruptedException { }
+
+		public void run() {
+			String		line;
+			AltosState	state = null;
+
+			info_reset();
+			info_finish();
 			try {
-				serialLine.connect(file.getCanonicalPath());
+				while ((line = read()) != null) {
+					try {
+						AltosTelemetry	t = new AltosTelemetry(line);
+						state = new AltosState(t, state);
+						update(state);
+						show(state);
+					} catch (ParseException pp) {
+						System.out.printf("Parse error on %s\n", line);
+						System.out.println("exception " + pp);
+					}
+				}
+			} catch (InterruptedException ee) {
+			} finally {
+				close();
+			}
+		}
+	}
+
+	class DeviceThread extends DisplayThread {
+		AltosSerial	serial;
+
+		String read() throws InterruptedException {
+			System.out.println("Waiting for telemetry");
+			String s = serial.get_telem();
+			System.out.println("Got telemetry " + s);
+			return s;
+		}
+
+		void close() {
+			serial.close();
+			System.out.println("DisplayThread done");
+		}
+
+		public DeviceThread(AltosSerial s) {
+			serial = s;
+		}
+	}
+
+	private void ConnectToDevice() {
+		AltosDevice	device = AltosDeviceDialog.show(AltosUI.this, "TeleDongle");
+
+		if (device != null) {
+			try {
+				serialLine.connect(device.tty);
+				DeviceThread thread = new DeviceThread(serialLine);
+				run_display(thread);
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
-							      file.getName(),
+							      device.tty,
 							      "Cannot open serial port",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (NoSuchPortException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
-							      file.getName(),
+							      device.tty,
 							      "No such serial port",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (PortInUseException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
-							      file.getName(),
+							      device.tty,
 							      "Port in use",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (IOException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
-							      file.getName(),
+							      device.tty,
 							      "Unkonwn I/O error",
 							      JOptionPane.ERROR_MESSAGE);
 			}
 		}
+	}
+
+	void DisconnectFromDevice () {
+		stop_display();
 	}
 
 	String readline(FileInputStream s) throws IOException {
@@ -455,7 +505,7 @@ public class AltosUI extends JFrame {
 	 * Open an existing telemetry file and replay it in realtime
 	 */
 
-	class ReplayThread extends Thread {
+	class ReplayThread extends DisplayThread {
 		FileInputStream	replay;
 		String filename;
 
@@ -464,48 +514,46 @@ public class AltosUI extends JFrame {
 			filename = name;
 		}
 
-		/* Run the replay in a separate thread
-		 * so that the UI can update
-		 */
-		public void run() {
-			String		line;
-			AltosState	state = null;
+		String read() {
 			try {
-				while ((line = readline(replay)) != null) {
-					try {
-						AltosTelemetry	t = new AltosTelemetry(line);
-						state = new AltosState(t, state);
-						show(state);
-
-						/* Make it run in realtime after the rocket leaves the pad */
-						try {
-							if (state.state > AltosTelemetry.ao_flight_pad)
-								Thread.sleep((int) (state.time_change * 1000));
-						} catch (InterruptedException e) {
-							break;
-						}
-					} catch (ParseException pp) {
-						JOptionPane.showMessageDialog(AltosUI.this,
-									      line,
-									      "error parsing",
-									      JOptionPane.ERROR_MESSAGE);
-						break;
-					}
-				}
+				return readline(replay);
 			} catch (IOException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
 							      filename,
 							      "error reading",
 							      JOptionPane.ERROR_MESSAGE);
-			} finally {
-				try {
-					replay.close();
-				} catch (IOException e) {}
 			}
+			return null;
+		}
+
+		void close () {
+			try {
+				replay.close();
+			} catch (IOException ee) {
+			}
+		}
+
+		void update(AltosState state) throws InterruptedException {
+			/* Make it run in realtime after the rocket leaves the pad */
+			if (state.state > AltosTelemetry.ao_flight_pad)
+				Thread.sleep((int) (state.time_change * 1000));
 		}
 	}
 
-	ReplayThread	replay_thread;
+	Thread		display_thread;
+
+	private void stop_display() {
+		if (display_thread != null && display_thread.isAlive())
+			display_thread.interrupt();
+		display_thread = null;
+	}
+
+	private void run_display(Thread thread) {
+		stop_display();
+		display_thread = thread;
+		display_thread.start();
+	}
+
 	/*
 	 * Replay a flight from telemetry data
 	 */
@@ -525,10 +573,7 @@ public class AltosUI extends JFrame {
 			try {
 				FileInputStream	replay = new FileInputStream(file);
 				ReplayThread	thread = new ReplayThread(replay, filename);
-				if (thread != null && replay_thread != null && replay_thread.isAlive())
-					replay_thread.interrupt();
-				replay_thread = thread;
-				replay_thread.start();
+				run_display(thread);
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
 							      filename,
@@ -603,7 +648,7 @@ public class AltosUI extends JFrame {
 			item = new JMenuItem("Disconnect from Device",KeyEvent.VK_D);
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						serialLine.close();
+						DisconnectFromDevice();
 					}
 				});
 			menu.add(item);
@@ -688,10 +733,6 @@ public class AltosUI extends JFrame {
 
 	}
 	public static void main(final String[] args) {
-		AltosDevice[] devices = AltosDeviceLinux.list();
-		for (int i = 0; i < devices.length; i++)
-			System.out.printf("Model: %s Serial: %d Tty: %s\n",
-					  devices[i].product, devices[i].serial, devices[i].tty);
 		AltosUI altosui = new AltosUI();
 		altosui.setVisible(true);
 	}

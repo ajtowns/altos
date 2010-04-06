@@ -13,6 +13,7 @@ CLASSFILES=\
 	AltosUI.class \
 	AltosDevice.class \
 	AltosDeviceLinux.class \
+	AltosDeviceDialog.class
 
 JAVAFLAGS=-Xlint:unchecked
 
