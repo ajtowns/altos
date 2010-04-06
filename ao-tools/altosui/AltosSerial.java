@@ -45,7 +45,12 @@ class AltosSerialReader implements Runnable {
 		int c;
 
 		try {
-			while ((c = serial_in.read()) != -1) {
+			for (;;) {
+				c = serial_in.read();
+				if (Thread.interrupted())
+					break;
+				if (c == -1)
+					continue;
 				if (c == '\r')
 					continue;
 				synchronized(this) {
@@ -68,7 +73,9 @@ class AltosSerialReader implements Runnable {
 	}
 
 	public String get_telem() throws InterruptedException {
-		return monitor_queue.take();
+		String s = monitor_queue.take();
+		System.out.println(s);
+		return s;
 	}
 
 	public String get_reply() throws InterruptedException {
@@ -97,6 +104,7 @@ class AltosSerialReader implements Runnable {
 		}
 		if (input_thread != null) {
 			try {
+				input_thread.interrupt();
 				input_thread.join();
 			} catch (InterruptedException e) {
 			}
@@ -112,6 +120,10 @@ class AltosSerialReader implements Runnable {
 	}
 	public void open(CommPort c) throws IOException {
 		close();
+		try {
+		c.enableReceiveTimeout(1000);	/* icky. the read method cannot be interrupted */
+		} catch (UnsupportedCommOperationException ee) {
+		}
 		serial_in = c.getInputStream();
 		input_thread = new Thread(this);
 		input_thread.start();
@@ -126,69 +138,24 @@ class AltosSerialReader implements Runnable {
 
 }
 
-public class AltosSerial implements Runnable {
+public class AltosSerial {
 	OutputStream serial_out = null;
-	Thread monitor_thread = null;
 	AltosSerialReader reader = null;
-	LinkedList<AltosSerialMonitor> callbacks;
 
-	public void run() {
-		try {
-			for (;;) {
-				String s = reader.get_telem();
-				synchronized(callbacks) {
-					Iterator<AltosSerialMonitor> i = callbacks.iterator();
-					while (i.hasNext()) {
-						i.next().data(s);
-					}
-				}
-			}
-		} catch (InterruptedException e) {
-		}
+	public String get_telem() throws InterruptedException {
+		return reader.get_telem();
 	}
 
-	boolean need_monitor() {
-		return reader.opened() && !callbacks.isEmpty();
-	}
-
-	void maybe_stop_monitor() {
-		if (!need_monitor() && monitor_thread != null) {
-			monitor_thread.interrupt();
-			try {
-				monitor_thread.join();
-			} catch (InterruptedException e) {
-			} finally {
-				monitor_thread = null;
-			}
-		}
-	}
-
-	void maybe_start_monitor() {
-		if (need_monitor() && monitor_thread == null) {
-			monitor_thread = new Thread(this);
-			monitor_thread.start();
-		}
-	}
-
-	public void monitor(AltosSerialMonitor monitor) {
-		synchronized(callbacks) {
-			callbacks.add(monitor);
-			maybe_start_monitor();
-		}
-	}
-
-
-	public void unmonitor(AltosSerialMonitor monitor) {
-		synchronized(callbacks) {
-			callbacks.remove(monitor);
-			maybe_stop_monitor();
-		}
-	}
+	CommPort comm_port = null;
 
 	public void close() {
-		synchronized(callbacks) {
-			reader.close();
-			maybe_stop_monitor();
+		try {
+			serial_out.close();
+		} catch (IOException ee) {
+		}
+		reader.close();
+		if (comm_port != null) {
+			comm_port.close();
 		}
 	}
 
@@ -197,22 +164,18 @@ public class AltosSerial implements Runnable {
 		serial_out = new FileOutputStream(serial_name);
 	}
 
-	public void open(CommPort comm_port) throws IOException {
-		reader.open(comm_port);
-		serial_out = comm_port.getOutputStream();
+	public void open(CommPort c) throws IOException {
+		reader.open(c);
+		serial_out = c.getOutputStream();
 	}
 
 	public void connect(String port_name) throws IOException, NoSuchPortException, PortInUseException {
-		System.out.printf("Opening serial port %s\n", port_name);
-		CommPort comm_port = new RXTXPort(port_name);
-//		CommPortIdentifier port_identifier = CommPortIdentifier.getPortIdentifier(port_name);
-//		CommPort comm_port = port_identifier.open("Altos", 1000);
+		comm_port = new RXTXPort(port_name);
 		open(comm_port);
 	}
 
 	void init() {
 		reader = new AltosSerialReader();
-		callbacks = new LinkedList<AltosSerialMonitor>();
 	}
 
 	public AltosSerial() {
