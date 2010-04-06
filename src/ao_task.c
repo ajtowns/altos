@@ -28,10 +28,19 @@ void
 ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *name) __reentrant
 {
 	uint8_t	__xdata *stack;
+	uint8_t task_id;
+	uint8_t t;
 	if (ao_num_tasks == AO_NUM_TASKS)
 		ao_panic(AO_PANIC_NO_TASK);
+	for (task_id = 1; task_id != 0; task_id++) {
+		for (t = 0; t < ao_num_tasks; t++)
+			if (ao_tasks[t]->task_id == task_id)
+				break;
+		if (t == ao_num_tasks)
+			break;
+	}
 	ao_tasks[ao_num_tasks++] = task;
-	task->task_id = ao_num_tasks;
+	task->task_id = task_id;
 	task->name = name;
 	/*
 	 * Construct a stack frame so that it will 'return'
