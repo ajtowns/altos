@@ -1,3 +1,30 @@
+altos (0.6+131+g6629ec5) unstable; urgency=low
+
+  * lose the url entirely for now
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 08 Apr 2010 12:43:01 -0600
+
+altos (0.6+129+g934434f) unstable; urgency=low
+
+  * fix typo in url
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 08 Apr 2010 12:41:38 -0600
+
+altos (0.6+127+g05ad583) unstable; urgency=low
+
+  * need another build dep
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 08 Apr 2010 12:35:04 -0600
+
+altos (0.6+125+g8f1d47e) unstable; urgency=low
+
+  * make lintian happy
+  * tweak copyright assertion
+  * crudely incorporate "day in the life" info from web page
+  * rewrite urls in docbook format
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 08 Apr 2010 12:28:04 -0600
+
 altos (0.6+119+g00f49c8) unstable; urgency=low
 
   [ Bdale Garbee ]
