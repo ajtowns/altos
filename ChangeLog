@@ -1,3 +1,15 @@
+commit 6629ec52def8917ad033847812a1adc4c3e9c947
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Apr 8 12:42:47 2010 -0600
+
+    lose the url entirely for now
+
+commit a1539a075a0cc79c9122fea878d9a20ee722a18c
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Apr 8 12:41:42 2010 -0600
+
+    update changelogs for Debian build
+
 commit 934434ffb3514fe9ff95692784750d7c5217a5d3
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Apr 8 12:41:28 2010 -0600

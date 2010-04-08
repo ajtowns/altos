@@ -1,3 +1,9 @@
+altos (0.6+131+g6629ec5) unstable; urgency=low
+
+  * lose the url entirely for now
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 08 Apr 2010 12:43:01 -0600
+
 altos (0.6+129+g934434f) unstable; urgency=low
 
   * fix typo in url
