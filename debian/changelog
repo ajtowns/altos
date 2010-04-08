@@ -1,3 +1,9 @@
+altos (0.6+127+g05ad583) unstable; urgency=low
+
+  * need another build dep
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 08 Apr 2010 12:35:04 -0600
+
 altos (0.6+125+g8f1d47e) unstable; urgency=low
 
   * make lintian happy

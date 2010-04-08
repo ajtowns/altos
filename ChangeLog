@@ -1,3 +1,15 @@
+commit 05ad58389fa3814ecb56344bf4ec3a3e025920a2
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Apr 8 12:34:54 2010 -0600
+
+    need another build dep
+
+commit 6fbdc7037db185f03bd5ff96b9d9320646572df7
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Apr 8 12:28:49 2010 -0600
+
+    update changelogs for Debian build
+
 commit 8f1d47e9cd61738e516d15fc97d5730d80611e87
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Apr 8 12:28:20 2010 -0600
