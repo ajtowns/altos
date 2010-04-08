@@ -1,3 +1,15 @@
+commit 934434ffb3514fe9ff95692784750d7c5217a5d3
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Apr 8 12:41:28 2010 -0600
+
+    fix typo in url
+
+commit 8a067cd0eebbec313fc39086747ef618f2d1cf37
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Apr 8 12:36:18 2010 -0600
+
+    update changelogs for Debian build
+
 commit 05ad58389fa3814ecb56344bf4ec3a3e025920a2
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Apr 8 12:34:54 2010 -0600

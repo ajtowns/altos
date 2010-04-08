@@ -1,3 +1,9 @@
+altos (0.6+129+g934434f) unstable; urgency=low
+
+  * fix typo in url
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 08 Apr 2010 12:41:38 -0600
+
 altos (0.6+127+g05ad583) unstable; urgency=low
 
   * need another build dep
