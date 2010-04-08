@@ -1,3 +1,33 @@
+commit c66eebad323e4572bb7cc23bc476ee144f03e9b8
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sat Apr 3 08:02:44 2010 -0600
+
+    rewrite urls in docbook format
+
+commit 8c600abf87c95f8f214b5e56ff6eab955795dff5
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Apr 1 23:56:47 2010 -0600
+
+    crudely incorporate "day in the life" info from web page
+
+commit 53ca3f98aeb70cb780031fee788de950e4388cf6
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Apr 1 23:39:42 2010 -0600
+
+    tweak copyright assertion
+
+commit 76768804e68ed09421d7a48cb0b390f102ce2d76
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Mar 30 23:26:35 2010 -0600
+
+    make lintian happy
+
+commit eb3cc3e9b60ec23acbb7d797affa743d671801ab
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Mar 30 23:19:48 2010 -0600
+
+    update changelogs for Debian build
+
 commit 00f49c8fb0aa38331360bdb85c32bcebe60dcdc3
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Tue Mar 30 23:19:07 2010 -0600

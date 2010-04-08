@@ -1,3 +1,12 @@
+altos (0.6+124+gc66eeba) unstable; urgency=low
+
+  * make lintian happy
+  * tweak copyright assertion
+  * crudely incorporate "day in the life" info from web page
+  * rewrite urls in docbook format
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 08 Apr 2010 12:28:04 -0600
+
 altos (0.6+119+g00f49c8) unstable; urgency=low
 
   [ Bdale Garbee ]
