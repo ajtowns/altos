@@ -1,4 +1,4 @@
-altos (0.6+124+gc66eeba) unstable; urgency=low
+altos (0.6+125+g8f1d47e) unstable; urgency=low
 
   * make lintian happy
   * tweak copyright assertion
