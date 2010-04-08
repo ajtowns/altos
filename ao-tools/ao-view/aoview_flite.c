@@ -20,7 +20,7 @@
 #include "aoview.h"
 #include <alsa/asoundlib.h>
 
-cst_voice *register_cmu_us_kal();
+cst_voice *register_cmu_us_kal16();
 static cst_voice *voice;
 
 static FILE *pipe_write;
@@ -118,7 +118,7 @@ aoview_flite_start(void)
 
 	if (!once) {
 		flite_init();
-		voice = register_cmu_us_kal();
+		voice = register_cmu_us_kal16();
 		if (!voice) {
 			perror("register voice");
 			exit(1);
