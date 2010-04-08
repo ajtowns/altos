@@ -124,11 +124,7 @@
           if the rocket is hiding in sage brush or a tree, or if the last GPS position 
           doesn't get you close enough because the rocket dropped into a canyon, or 
           the wind is blowing it across a dry lake bed, or something like that...  Keith
-          and Bdale both currently own and use the 
-        <ulink url="http://yaesu.com/indexVS.cfm?cmd=DisplayProducts&ProdCatID=111&encProdID=4C6F204F6FEBB5BAFA58BCC1C131EAC0&DivisionID=65&isArchived=0">
-	  Yaesu VX-6R
-        </ulink>
-          at launches.
+          and Bdale both currently own and use the Yaesu VX-6R at launches.
         </para>
         <para>
           So, to recap, on the ground the hardware you'll need includes:
