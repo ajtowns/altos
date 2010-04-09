@@ -1,4 +1,7 @@
-altos (0.6+166+gea5d4f0) unstable; urgency=low
+altos (0.6+168+gc0ee1ae) unstable; urgency=low
+
+  [ Bdale Garbee ]
+  * INSTALL file changed by auto tools
 
   [ Keith Packard ]
   * libflite may forget to reference libasound

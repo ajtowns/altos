@@ -1,3 +1,15 @@
+commit c0ee1ae25e1d18138d8372f47085de48ffada344
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Apr 9 00:09:21 2010 -0600
+
+    file changed by auto tools
+
+commit 25e69ebfec94560e0714cf2cc623dc9697b4ea99
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Apr 9 00:08:32 2010 -0600
+
+    update changelogs for Debian build
+
 commit ea5d4f01d18d93d032f05933041b7b6881289780
 Author: Keith Packard <keithp@keithp.com>
 Date:   Thu Apr 8 22:45:04 2010 -0700
