@@ -1,3 +1,41 @@
+altos (0.6+163+g01e524f) unstable; urgency=low
+
+  [ Keith Packard ]
+  * Start adding java-based UI
+  * Add telemetry data parsing code
+  * Add Windows install .inf file
+  * Fix windows install file
+  * Add telem parsing code
+  * Steal C code from ao-view
+  * Display table of flight info. gps is not working yet though
+  * Fix up table formatting
+  * Fix status update
+  * Fix state updates
+  * Clean up GPS data formatting
+  * Report current gps nsat, not last locked nsat
+  * Remove GPS data missing from skytraq. Save max height/accel/speed
+  * Remove unused cell renderer class
+  * Make .jar file
+  * Use RXTX for serial comm. Add logdir preference saving
+  * Make ao_radio_idle keep trying to get the radio to idle.
+  * Don't abort the radio when enabling telemetry monitoring
+  * Clean up some altosui comments
+  * Switch TeleMetrum from v0.2 to v1.0
+  * Add Linux device discovery
+  * Interrupt running replay thread when starting another replay
+  * serial port read function cannot be interrupted. poll every 1 second
+  * TD reports "not-connected" when GPS has 0 sats
+  * Tasks may move in task structure as a result of ao_exit
+  * Enable telemetry monitoring
+  * Use 16-bit flite voice (which appears to have changed symbols
+    recently)
+  * When changing RESET line, delay 20ms
+
+  [ Bdale Garbee ]
+  * choose a better set of docbook xsl files
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 08 Apr 2010 19:56:27 -0600
+
 altos (0.6+131+g6629ec5) unstable; urgency=low
 
   * lose the url entirely for now

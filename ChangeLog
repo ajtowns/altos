@@ -1,3 +1,50 @@
+commit 01e524f11a67390a8ea1f20aa2d611909b4da363
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Apr 8 19:55:05 2010 -0600
+
+    choose a better set of docbook xsl files
+
+commit f93c9bf3695862db31f2c3b3bc5a7bb24ef3766c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 8 17:28:17 2010 -0700
+
+    When changing RESET line, delay 20ms
+    
+    The GPS data sheet suggests a 1uF cap on the reset line to ensure it
+    is held low long enough for the power supply to come up to voltage. TM
+    v1.0 loads a 0.001uF cap there, but in case that isn't large enough,
+    it could be replaced with the larger one. This change makes sure that
+    even with that larger value, the debugging link will be able to reset
+    the target.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit baaaac499cfbc1286ae55374cfdc796d32983b92
+Merge: a4356b9 dec9971
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 8 13:31:23 2010 -0700
+
+    Merge remote branch 'origin/master'
+
+commit a4356b9bcf679c4d7b88fbbad77a98ecb0f80098
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 8 13:30:16 2010 -0700
+
+    Use 16-bit flite voice (which appears to have changed symbols recently)
+
+commit 447c121fc1ceb878e45718ad1364a5349965a59a
+Merge: 10330d2 53ca3f9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 8 11:46:56 2010 -0700
+
+    Merge remote branch 'origin/master' into altosui
+
+commit dec9971d70f17067ba0051206851b49c7604ac85
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Apr 8 12:43:03 2010 -0600
+
+    update changelogs for Debian build
+
 commit 6629ec52def8917ad033847812a1adc4c3e9c947
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Apr 8 12:42:47 2010 -0600
@@ -40,11 +87,164 @@ Date:   Thu Apr 8 12:28:20 2010 -0600
 
     update changelogs for Debian build
 
+commit 10330d23518c94a8b791193a97a6cc07b1c9a97c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 6 00:58:00 2010 -0700
+
+    Enable telemetry monitoring
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9e10e43eff9de3f034da49c4f88728fb933f5035
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 6 00:56:57 2010 -0700
+
+    Tasks may move in task structure as a result of ao_exit
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a7fc7901cd591c93d9d0cffeec2977ebb17554d4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 6 00:55:19 2010 -0700
+
+    TD reports "not-connected" when GPS has 0 sats
+
+commit e064d05da87926c19fb665b40fb280fb59328183
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 6 00:54:52 2010 -0700
+
+    serial port read function cannot be interrupted. poll every 1 second
+
+commit c099a67d9ea37e731e0eca318102560281ac240f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Apr 5 22:42:05 2010 -0700
+
+    Interrupt running replay thread when starting another replay
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit cc600a0389720bc7e435dbda8bec080ef19e0c58
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Apr 5 22:21:46 2010 -0700
+
+    Add Linux device discovery
+    
+    AltosDeviceLinux.java scans /proc to locate suitable devices. This
+    will be hooked up to the UI shortly.
+
+commit c28646d72005daeadb70b95fd3b0050bd752cc55
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 4 20:55:30 2010 -0700
+
+    Switch TeleMetrum from v0.2 to v1.0
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d22ba55ae0e056530a727df50f14ad853d79a2c8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 4 20:55:18 2010 -0700
+
+    Clean up some altosui comments
+
+commit 6251e89c6eea655769f77bc18e98e79c99cf3cad
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 4 19:54:46 2010 -0700
+
+    Don't abort the radio when enabling telemetry monitoring
+    
+    If telemetry monitoring is already on, then there isn't any point, and
+    if it's not on, then presumably there isn't any radio work to abort.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b0b99f30c4e00689e9faceb363a5c7284541c6be
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 4 19:48:50 2010 -0700
+
+    Make ao_radio_idle keep trying to get the radio to idle.
+    
+    Attempting to abort a radio operation could lead to a hang if the user
+    of the radio jumped in and started using it again before the task
+    attempting to abort woke up. This change just keeps smacking the radio
+    until the radio goes idle long enough to detect it.
+
+commit 0e7abc9fedec568b431c983d3df1b0b29f4f10e3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Apr 4 16:32:04 2010 -0700
+
+    Use RXTX for serial comm. Add logdir preference saving
+
 commit c66eebad323e4572bb7cc23bc476ee144f03e9b8
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Sat Apr 3 08:02:44 2010 -0600
 
     rewrite urls in docbook format
+
+commit 3d34c488c5b71020d86f83156fd821fd860bf214
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 3 00:02:44 2010 -0700
+
+    Make .jar file
+
+commit 4bea4c327e002ce8f88218f0d840af7c1521bc35
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 2 23:25:02 2010 -0700
+
+    Remove unused cell renderer class
+
+commit 4ad062969ae8a608b8428620579bbe114e580a11
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 2 23:20:38 2010 -0700
+
+    Remove GPS data missing from skytraq. Save max height/accel/speed
+
+commit ebd49d4ec6b0b60c85b2de45cfe2e36add8fe9bf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 2 23:05:40 2010 -0700
+
+    Report current gps nsat, not last locked nsat
+
+commit 3f9b66b307ee88172151e3bee58e50f5acbde109
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 2 23:00:30 2010 -0700
+
+    Clean up GPS data formatting
+
+commit 9cc48698ec14c34d437baad7b6540edc31e9741c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 2 22:47:40 2010 -0700
+
+    Fix state updates
+
+commit 6d523ee4dad3b9890d3cf05852459101fe7e26ea
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 2 21:48:41 2010 -0700
+
+    Fix status update
+
+commit caa0bf49668344937483190d1c258bfa32971d19
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 2 21:44:00 2010 -0700
+
+    Fix up table formatting
+
+commit a579402f428dd6a0529505069d1846f70b83ab5d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 2 18:10:59 2010 -0700
+
+    Display table of flight info. gps is not working yet though
+
+commit 65079f84ea64220fa928c3ad96652fed159bf74b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 2 16:07:40 2010 -0700
+
+    Steal C code from ao-view
+
+commit 02f2be90879b682b6e648cf2debc83223d127b9d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 2 13:37:52 2010 -0700
+
+    Add telem parsing code
 
 commit 8c600abf87c95f8f214b5e56ff6eab955795dff5
 Author: Bdale Garbee <bdale@gag.com>
@@ -57,6 +257,30 @@ Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Apr 1 23:39:42 2010 -0600
 
     tweak copyright assertion
+
+commit 6454e309858aeef7912e862de8632618d89b4205
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 1 18:31:14 2010 -0700
+
+    Fix windows install file
+
+commit 584ab100640a07dec6e06829e73b7260d17d2232
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 1 18:30:56 2010 -0700
+
+    Add Windows install .inf file
+
+commit a06bee96e648d9ded8776f3d6cba9505e7be1a60
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 31 23:05:03 2010 -0700
+
+    Add telemetry data parsing code
+
+commit 7f233369e32c3254165ee251df0a3dbc21ea5a29
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 31 13:49:54 2010 -0700
+
+    Start adding java-based UI
 
 commit 76768804e68ed09421d7a48cb0b390f102ce2d76
 Author: Bdale Garbee <bdale@gag.com>
