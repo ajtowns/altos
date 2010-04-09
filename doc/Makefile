@@ -6,12 +6,12 @@ all:	telemetrum.html telemetrum.pdf
 
 telemetrum.html:	telemetrum.xsl
 	xsltproc -o telemetrum.html \
-		/usr/share/xml/docbook/stylesheet/nwalsh/html/docbook.xsl \
+		/usr/share/xml/docbook/stylesheet/docbook-xsl/html/docbook.xsl \
 		telemetrum.xsl
 
 telemetrum.fo:	telemetrum.xsl
 	xsltproc -o telemetrum.fo \
-		/usr/share/xml/docbook/stylesheet/nwalsh/fo/docbook.xsl \
+		/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl \
 		telemetrum.xsl
 
 telemetrum.pdf:	telemetrum.fo
