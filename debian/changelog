@@ -1,3 +1,10 @@
+altos (0.6+166+gea5d4f0) unstable; urgency=low
+
+  [ Keith Packard ]
+  * libflite may forget to reference libasound
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 09 Apr 2010 00:08:24 -0600
+
 altos (0.6+164+g5c3b6e2) unstable; urgency=low
 
   [ Keith Packard ]

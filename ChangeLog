@@ -1,3 +1,15 @@
+commit ea5d4f01d18d93d032f05933041b7b6881289780
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 8 22:45:04 2010 -0700
+
+    libflite may forget to reference libasound
+
+commit 4b02f293e9c32a568fad89558274f21157e7d473
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Apr 8 20:08:07 2010 -0600
+
+    update changelogs for Debian build
+
 commit 5c3b6e2d1989bcaa19ae3e294f297ec3e5648a53
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Apr 8 19:56:40 2010 -0600
