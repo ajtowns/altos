@@ -1,3 +1,13 @@
+altos (0.6+171+g9394393) unstable; urgency=low
+
+  [ Bdale Garbee ]
+  * wrong Yaesu model
+
+  [ Keith Packard ]
+  * Only have the slave return a packet if it received one.
+
+ -- Bdale Garbee <bdale@gag.com>  Sat, 10 Apr 2010 15:01:04 -0600
+
 altos (0.6+168+gc0ee1ae) unstable; urgency=low
 
   [ Bdale Garbee ]

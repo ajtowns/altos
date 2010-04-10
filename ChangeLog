@@ -1,3 +1,30 @@
+commit 9394393c24c0a96b94319f2d0aa78fb498a121c9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 9 17:51:01 2010 -0700
+
+    Only have the slave return a packet if it received one.
+    
+    When the receive is aborted to switch modes, it's important to not
+    immediately re-acquire the radio and try to send a packet as the
+    aborting thread won't know to kick the receiver again.
+    
+    This prevents the 'C' command from locking up as it tries to stop the
+    packet slave before turning on the transmitter.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ce39372a3aeffff1a08d609e63164a00cf974663
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Apr 9 13:50:49 2010 -0600
+
+    wrong Yaesu model
+
+commit a832c7e9d9e9e420e1281136188bd53b34c56464
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Apr 9 00:10:03 2010 -0600
+
+    update changelogs for Debian build
+
 commit c0ee1ae25e1d18138d8372f47085de48ffada344
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Fri Apr 9 00:09:21 2010 -0600
