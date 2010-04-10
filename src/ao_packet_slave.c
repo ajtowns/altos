@@ -20,12 +20,15 @@
 void
 ao_packet_slave(void)
 {
+	uint8_t	status;
+
 	ao_radio_set_packet();
 	ao_tx_packet.addr = ao_serial_number;
 	ao_tx_packet.len = AO_PACKET_SYN;
 	while (ao_packet_enable) {
-		ao_packet_recv();
-		ao_packet_send();
+		status = ao_packet_recv();
+		if (status & AO_DMA_DONE)
+			ao_packet_send();
 	}
 	ao_exit();
 }
