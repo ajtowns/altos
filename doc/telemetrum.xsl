@@ -37,25 +37,188 @@
   <chapter>
     <title>Introduction and Overview</title>
     <para>
-      Placeholder.
+      Welcome to the Altus Metrum community!  Our circuits and software reflect
+      our passion for both hobby rocketry and Free Software.  We hope their
+      capabilities and performance will delight you in every way, but by
+      releasing all of our hardware and software designs under open licenses,
+      we also hope to empower you to take as active a role in our collective
+      future as you wish!
+    </para>
+    <para>
+      The focal point of our community is TeleMetrum, a dual deploy altimeter 
+      with fully integrated GPS and radio telemetry as standard features, and
+      a "companion interface" that will support optional capabilities in the 
+      future.
+    </para>
+    <para>    
+      Complementing TeleMetrum is TeleDongle, a USB to RF interface for 
+      communicating with TeleMetrum.  Combined with your choice of antenna and 
+      notebook computer, TeleDongle and our associated user interface software
+      form a complete ground station capable of logging and displaying in-flight
+      telemetry, aiding rocket recovery, then processing and archiving flight
+      data for analysis and review.
     </para>
   </chapter>
   <chapter>
     <title>Specifications</title>
-    <para>
-      Placeholder.
-    </para>
+
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Recording altimeter for model rocketry.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Supports dual deployment (can fire 2 ejection charges).
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  70cm ham-band transceiver for telemetry downlink.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Barometric pressure sensor good to 45k feet MSL.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  1-axis high-g accelerometer for motor characterization, capable of 
+	  +/- 50g using default part.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  On-board, integrated GPS receiver with 5hz update rate capability.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  On-board 1 megabyte non-volatile memory for flight data storage.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  USB interface for battery charging, configuration, and data recovery.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Fully integrated support for LiPo rechargeable batteries.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Uses LiPo to fire e-matches, support for optional separate pyro 
+	  battery if needed.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  2.75 x 1 inch board designed to fit inside 29mm airframe coupler tube.
+	</para>
+      </listitem>
+    </itemizedlist>
   </chapter>
   <chapter>
     <title>Handling Precautions</title>
     <para>
-      Placeholder.
+      TeleMetrum is a sophisticated electronic device.  When handled gently and
+      properly installed in an airframe, it will deliver extraordinary results.
+      However, like all electronic devices, there are some precautions you
+      must take.
+    </para>
+    <para>
+      The Lithium Polymer rechargeable batteries used with TeleMetrum have an 
+      extraordinary power density.  This is great because we can fly with
+      much less battery mass than if we used alkaline batteries or previous
+      generation rechargeable batteries... but if they are punctured 
+      or their leads are allowed to short, they can and will release their 
+      energy very rapidly!
+      Thus we recommend that you take some care when handling our batteries 
+      and consider giving them some extra protection in your airframe.  We 
+      often wrap them in suitable scraps of closed-cell packing foam before 
+      strapping them down, for example.
+    </para>
+    <para>
+      The TeleMetrum barometric sensor is sensitive to sunlight.  In normal 
+      mounting situations, it and all of the other surface mount components 
+      are "down" towards whatever the underlying mounting surface is, so
+      this is not normally a problem.  Please consider this, though, when
+      designing an installation, for example, in a 29mm airframe's see-through
+      plastic payload bay.
+    </para>
+    <para>
+      The TeleMetrum barometric sensor sampling port must be able to "breathe",
+      both by not being covered by foam or tape or other materials that might
+      directly block the hole on the top of the sensor, but also by having a
+      suitable static vent to outside air.  
+    </para>
+    <para>
+      As with all other rocketry electronics, TeleMetrum must be protected 
+      from exposure to corrosive motor exhaust and ejection charge gasses.
     </para>
   </chapter>
   <chapter>
     <title>Hardware Overview</title>
     <para>
-      Placeholder.
+      TeleMetrum is a 1 inch by 2.75 inch circuit board.  It was designed to
+      fit inside coupler for 29mm airframe tubing, but using it in a tube that
+      small in diameter may require some creativity in mounting and wiring 
+      to succeed!  The default 1/4
+      wave UHF wire antenna attached to the center of the nose-cone end of
+      the board is about 7 inches long, and wiring for a power switch and
+      the e-matches for apogee and main ejection charges depart from the 
+      fin can end of the board.  Given all this, an ideal "simple" avionics 
+      bay for TeleMetrum should have at least 10 inches of interior length.
+    </para>
+    <para>
+      A typical TeleMetrum installation using the on-board GPS antenna and
+      default wire UHF antenna involves attaching only a suitable
+      Lithium Polymer battery, a single pole switch for power on/off, and 
+      two pairs of wires connecting e-matches for the apogee and main ejection
+      charges.  
+    </para>
+    <para>
+      By default, we use the unregulated output of the LiPo battery directly
+      to fire ejection charges.  This works marvelously with standard e-matches
+      from companies like [insert company and product names for e-matches we've
+      tried and like] and with Quest Q2G2 igniters.  However, if you
+      want or need to use a separate pyro battery, you can do so by adding
+      a second 2mm connector to position B2 on the board and cutting the
+      thick pcb trace connecting the LiPo battery to the pyro circuit between
+      the two silk screen marks on the surface mount side of the board shown
+      here [insert photo]
+    </para>
+    <para>
+      We offer two choices of pyro and power switch connector, or you can 
+      choose neither and solder wires directly to the board.  All three choices
+      are reasonable depending on the constraints of your airframe.  Our
+      favorite option when there is sufficient room above the board is to use
+      the Tyco pin header with polarization and locking.  If you choose this
+      option, you crimp individual wires for the power switch and e-matches
+      into a mating connector, and installing and removing the TeleMetrum
+      board from an airframe is as easy as plugging or unplugging two 
+      connectors.  If the airframe will not support this much height or if
+      you want to be able to directly attach e-match leads to the board, we
+      offer a screw terminal block.  This is very similar to what most other
+      altimeter vendors provide by default and so may be the most familiar
+      option.  You'll need a very small straight blade screwdriver to connect
+      and disconnect the board in this case, such as you might find in a
+      jeweler's screwdriver set.  Finally, you can forego both options and
+      solder wires directly to the board, which may be the best choice for
+      minimum diameter and/or minimum mass designs. 
+    </para>
+    <para>
+      For most airframes, the integrated GPS antenna and wire UHF antenna are
+      a great combination.  However, if you are installing in a carbon-fiber
+      electronics bay which is opaque to RF signals, you may need to use 
+      off-board external antennas instead.  In this case, you can order
+      TeleMetrum with an SMA connector for the UHF antenna connection, and
+      you can unplug the integrated GPS antenna and select an appropriate 
+      off-board GPS antenna with cable terminating in a U.FL connector.
     </para>
   </chapter>
   <chapter>
