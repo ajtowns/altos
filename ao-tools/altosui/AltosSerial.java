@@ -36,7 +36,7 @@ import altosui.AltosSerialMonitor;
  */
 class AltosSerialReader implements Runnable {
 	InputStream	serial_in;
-	LinkedBlockingQueue<String> monitor_queue;
+	LinkedList<LinkedBlockingQueue<String>> monitors;
 	LinkedBlockingQueue<String> reply_queue;
 	Thread input_thread;
 	String line;
@@ -56,9 +56,12 @@ class AltosSerialReader implements Runnable {
 				synchronized(this) {
 					if (c == '\n') {
 						if (line != "") {
-							if (line.startsWith("VERSION"))
-								monitor_queue.put(line);
-							else
+							if (line.startsWith("VERSION")) {
+								for (int e = 0; e < monitors.size(); e++) {
+									LinkedBlockingQueue<String> q = monitors.get(e);
+									q.put(line);
+								}
+							} else
 								reply_queue.put(line);
 							line = "";
 						}
@@ -72,14 +75,16 @@ class AltosSerialReader implements Runnable {
 		}
 	}
 
-	public String get_telem() throws InterruptedException {
-		String s = monitor_queue.take();
-		System.out.println(s);
-		return s;
-	}
-
 	public String get_reply() throws InterruptedException {
 		return reply_queue.take();
+	}
+
+	public void add_monitor(LinkedBlockingQueue<String> q) {
+		monitors.add(q);
+	}
+
+	public void remove_monitor(LinkedBlockingQueue<String> q) {
+		monitors.remove(q);
 	}
 
 	public void flush () {
@@ -132,7 +137,7 @@ class AltosSerialReader implements Runnable {
 		serial_in = null;
 		input_thread = null;
 		line = "";
-		monitor_queue = new LinkedBlockingQueue<String> ();
+		monitors = new LinkedList<LinkedBlockingQueue<String>> ();
 		reply_queue = new LinkedBlockingQueue<String> ();
 	}
 
@@ -141,10 +146,6 @@ class AltosSerialReader implements Runnable {
 public class AltosSerial {
 	OutputStream serial_out = null;
 	AltosSerialReader reader = null;
-
-	public String get_telem() throws InterruptedException {
-		return reader.get_telem();
-	}
 
 	CommPort comm_port = null;
 
@@ -176,6 +177,14 @@ public class AltosSerial {
 
 	void init() {
 		reader = new AltosSerialReader();
+	}
+
+	public void add_monitor(LinkedBlockingQueue<String> q) {
+		reader.add_monitor(q);
+	}
+
+	public void remove_monitor(LinkedBlockingQueue<String> q) {
+		reader.remove_monitor(q);
 	}
 
 	public AltosSerial() {

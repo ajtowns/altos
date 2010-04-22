@@ -26,6 +26,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
+import java.util.concurrent.LinkedBlockingQueue;
 import gnu.io.*;
 
 import altosui.AltosSerial;
@@ -391,14 +392,6 @@ public class AltosUI extends JFrame {
 		return true;
 	}
 
-	private void PickSerialDevice() {
-		java.util.Enumeration<CommPortIdentifier> port_list = CommPortIdentifier.getPortIdentifiers();
-		while (port_list.hasMoreElements()) {
-			CommPortIdentifier identifier = port_list.nextElement();
-			System.out.println("Serial port " + identifier.getName());
-		}
-	}
-
 	class DisplayThread extends Thread {
 		String read() throws InterruptedException { return null; }
 
@@ -433,21 +426,22 @@ public class AltosUI extends JFrame {
 
 	class DeviceThread extends DisplayThread {
 		AltosSerial	serial;
+		LinkedBlockingQueue<String> telem;
 
 		String read() throws InterruptedException {
-			System.out.println("Waiting for telemetry");
-			String s = serial.get_telem();
-			System.out.println("Got telemetry " + s);
-			return s;
+			return telem.take();
 		}
 
 		void close() {
 			serial.close();
+			serial.remove_monitor(telem);
 			System.out.println("DisplayThread done");
 		}
 
 		public DeviceThread(AltosSerial s) {
 			serial = s;
+			telem = new LinkedBlockingQueue<String>();
+			serial.add_monitor(telem);
 		}
 	}
 

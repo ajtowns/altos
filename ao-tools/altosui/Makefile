@@ -3,9 +3,12 @@
 CLASSPATH=..:/usr/share/java/*
 CLASSFILES=\
 	AltosConvert.class \
+	AltosFile.class \
 	AltosGPS.class \
 	AltosGreatCircle.class \
+	AltosLog.class \
 	AltosParse.class \
+	AltosPreferences.class \
 	AltosSerialMonitor.class \
 	AltosSerial.class \
 	AltosState.class \
