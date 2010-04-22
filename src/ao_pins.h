@@ -41,7 +41,8 @@
 	#define DBG_ON_P1		1
 	#define DBG_ON_P0 		0
 	#define PACKET_HAS_MASTER	1
-	#define PACKET_HAS_SLAVE	0
+	#define PACKET_HAS_SLAVE	1
+	#define PACKET_HAS_SLAVE_CMD	1
 	#define AO_LED_RED		1
 	#define AO_LED_GREEN		2
 	#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
