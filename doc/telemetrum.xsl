@@ -61,64 +61,63 @@
   </chapter>
   <chapter>
     <title>Specifications</title>
-
     <itemizedlist>
       <listitem>
-	<para>
-	  Recording altimeter for model rocketry.
-	</para>
+        <para>
+          Recording altimeter for model rocketry.
+        </para>
       </listitem>
       <listitem>
-	<para>
-	  Supports dual deployment (can fire 2 ejection charges).
-	</para>
+        <para>
+          Supports dual deployment (can fire 2 ejection charges).
+        </para>
       </listitem>
       <listitem>
-	<para>
-	  70cm ham-band transceiver for telemetry downlink.
-	</para>
+        <para>
+          70cm ham-band transceiver for telemetry downlink.
+        </para>
       </listitem>
       <listitem>
-	<para>
-	  Barometric pressure sensor good to 45k feet MSL.
-	</para>
+        <para>
+          Barometric pressure sensor good to 45k feet MSL.
+        </para>
       </listitem>
       <listitem>
-	<para>
-	  1-axis high-g accelerometer for motor characterization, capable of 
-	  +/- 50g using default part.
-	</para>
+        <para>
+          1-axis high-g accelerometer for motor characterization, capable of 
+          +/- 50g using default part.
+        </para>
       </listitem>
       <listitem>
-	<para>
-	  On-board, integrated GPS receiver with 5hz update rate capability.
-	</para>
+        <para>
+          On-board, integrated GPS receiver with 5hz update rate capability.
+        </para>
       </listitem>
       <listitem>
-	<para>
-	  On-board 1 megabyte non-volatile memory for flight data storage.
-	</para>
+        <para>
+          On-board 1 megabyte non-volatile memory for flight data storage.
+        </para>
       </listitem>
       <listitem>
-	<para>
-	  USB interface for battery charging, configuration, and data recovery.
-	</para>
+        <para>
+          USB interface for battery charging, configuration, and data recovery.
+        </para>
       </listitem>
       <listitem>
-	<para>
-	  Fully integrated support for LiPo rechargeable batteries.
-	</para>
+        <para>
+          Fully integrated support for LiPo rechargeable batteries.
+        </para>
       </listitem>
       <listitem>
-	<para>
-	  Uses LiPo to fire e-matches, support for optional separate pyro 
-	  battery if needed.
-	</para>
+        <para>
+          Uses LiPo to fire e-matches, support for optional separate pyro 
+          battery if needed.
+        </para>
       </listitem>
       <listitem>
-	<para>
-	  2.75 x 1 inch board designed to fit inside 29mm airframe coupler tube.
-	</para>
+        <para>
+          2.75 x 1 inch board designed to fit inside 29mm airframe coupler tube.
+        </para>
       </listitem>
     </itemizedlist>
   </chapter>
@@ -223,9 +222,45 @@
   </chapter>
   <chapter>
     <title>Operation</title>
-    <para>
-      Placeholder.
-    </para>
+    <section>
+      <title>Radio Link </title>
+      <para>
+        The chip our boards are based on incorporates an RF transceiver, but
+        it's not a full duplex system... each end can only be transmitting or
+        receiving at any given moment.  So we have to decide how to manage the
+        link...
+      </para>
+      <para>
+        By design, TeleMetrum firmware listens for an RF connection when
+        it's in "idle mode" (turned on while the rocket is horizontal), which
+        allows us to use the RF link to configure the rocket, do things like
+        ejection tests, and extract data after a flight without having to 
+        crack open the airframe.  However, when the board is in "flight 
+        mode" (turned on when the rocket is vertical) the TeleMetrum only 
+        transmits and doesn't listen at all.  That's because we want to put 
+        ultimate priority on event detection and getting telemetry out of 
+        the rocket and out over
+        the RF link in case the rocket crashes and we aren't able to extract
+        data later... 
+      </para>
+      <para>
+        We don't use a 'normal packet radio' mode because they're just too
+        inefficient.  GFSK is just FSK with the baseband pulses passed through a
+        Gaussian filter before they go into the modulator to limit the
+        transmitted bandwidth.  When combined with the hardware forward error
+        correction support in the cc1111 chip, this allows us to have a very
+        robust 38.4 kilobit data link with only 10 milliwatts of transmit power,
+        a whip antenna in the rocket, and a hand-held Yagi on the ground.  We've
+        had a test flight above 12k AGL with good reception, and my calculations
+        say we should be good to 40k AGL or more with just a 5-element yagi on
+        the ground.  I expect to push 30k with a 54mm minimum airframe I'm
+        working on now, so we'll hopefully have further practical confirmation
+        of our link margin in a few months.
+      </para>
+      <para>
+        Placeholder.
+      </para>
+    </section>
   </chapter>
   <chapter>
     <title>Using Altus Metrum Products</title>
@@ -312,11 +347,11 @@
         <para>
           The best hand-held commercial directional antennas we've found for radio 
           direction finding rockets are from 
-	<ulink url="http://www.arrowantennas.com/" >
-          Arrow Antennas.
-	</ulink>
-The 440-3 and 440-5 are both good choices for finding a 
-TeleMetrum-equipped rocket when used with a suitable 70cm HT.  
+          <ulink url="http://www.arrowantennas.com/" >
+            Arrow Antennas.
+          </ulink>
+          The 440-3 and 440-5 are both good choices for finding a 
+          TeleMetrum-equipped rocket when used with a suitable 70cm HT.  
         </para>
       </section>
       <section>
