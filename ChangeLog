@@ -1,3 +1,72 @@
+commit 99094f02bf4849ba1f6b9842ded6c39d894320f7
+Merge: 641e76c 75d8ffd
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Apr 27 00:17:37 2010 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 641e76c5d419dab057298541b3a7546877643198
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Apr 27 00:17:15 2010 -0600
+
+    add some RF usage information from an email reply sent today, and re-indent
+
+commit 75d8ffd4eadf31d50b2f58c021530c17ff1bdc66
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 23 13:53:25 2010 -0700
+
+    Autodetect flite voice registration function
+    
+    Old versions of flite exported the function 'register_cmu_us_kal'
+    while new ones export 'register_cmu_us_kal16'. This patch just checks
+    which one is available and uses that.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 97f4874d19ec05c81a04a3ecd06abffcf7fbfafc
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 22 16:25:35 2010 -0700
+
+    More ALtosUI changes
+
+commit e7dc7fab787df63a4de72c8450e94092eb04d7db
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 22 14:53:44 2010 -0700
+
+    Add optional 's' command to packet slave to enable/disable slave mode
+    
+    This option has been selected for teledongle so that you can use slave
+    mode and hook two teledongles together over the RF link.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f4383394b5d2b275b21e3ce8040d8cb9e48bb375
+Merge: 5f93cf8 c879b17
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Apr 18 08:36:07 2010 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 5f93cf8c73555f43c14b1b0757f264bde69e9b8a
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Apr 18 08:35:43 2010 -0600
+
+    capture work done on SFO->DEN flight
+
+commit c879b178d83c9a9a521f42a960b10e19b11cee92
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 10 22:09:57 2010 -0700
+
+    Increase reset switch time to 100ms
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b3a2e1221735d54dc3f2b97b4e75ed6f33ab8227
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sat Apr 10 15:01:14 2010 -0600
+
+    update changelogs for Debian build
+
 commit 9394393c24c0a96b94319f2d0aa78fb498a121c9
 Author: Keith Packard <keithp@keithp.com>
 Date:   Fri Apr 9 17:51:01 2010 -0700

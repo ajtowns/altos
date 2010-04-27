@@ -1,3 +1,19 @@
+altos (0.6+180+g99094f0) unstable; urgency=low
+
+  [ Keith Packard ]
+  * Increase reset switch time to 100ms
+  * Add optional 's' command to packet slave to enable/disable slave
+    mode
+  * More ALtosUI changes
+  * Autodetect flite voice registration function
+
+  [ Bdale Garbee ]
+  * capture work done on SFO->DEN flight
+  * add some RF usage information from an email reply sent today, and
+    re-indent
+
+ -- Bdale Garbee <bdale@gag.com>  Tue, 27 Apr 2010 00:17:57 -0600
+
 altos (0.6+171+g9394393) unstable; urgency=low
 
   [ Bdale Garbee ]
