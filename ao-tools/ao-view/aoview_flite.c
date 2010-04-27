@@ -21,6 +21,8 @@
 #include <alsa/asoundlib.h>
 
 cst_voice *register_cmu_us_kal16();
+cst_voice *register_cmu_us_kal();
+
 static cst_voice *voice;
 
 static FILE *pipe_write;
@@ -118,7 +120,13 @@ aoview_flite_start(void)
 
 	if (!once) {
 		flite_init();
+#if HAVE_REGISTER_CMU_US_KAL16
 		voice = register_cmu_us_kal16();
+#else
+#if HAVE_REGISTER_CMU_US_KAL
+		voice = register_cmu_us_kal();
+#endif
+#endif
 		if (!voice) {
 			perror("register voice");
 			exit(1);
