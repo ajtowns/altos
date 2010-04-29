@@ -223,6 +223,97 @@
   <chapter>
     <title>Operation</title>
     <section>
+      <title>Firmware Modes </title>
+<para>
+	The AltOS firmware build for TeleMetrum has two fundamental modes,
+	"idle" and "flight".  Which of these modes the firmware operates in
+	is determined by the orientation of the rocket (well, actually the
+	board, of course...) at the time power is switched on.  If the rocket
+	is "nose up", then TeleMetrum assumes it's on a rail or rod being
+	prepared for launch, so the firmware chooses flight mode.  However,
+	if the rocket is more or less horizontal, the firmware instead enters
+	idle mode.
+</para>
+<para>
+	In flight mode, TeleMetrum turns on the GPS system, engages the flight
+	state machine, goes into transmit-only mode on the RF link sending 
+	telemetry, and waits for launch to be detected.  Flight mode is
+	indicated by an audible "di-dah-dah-dit" on the beeper, followed by
+	beeps indicating the state of the pyrotechnic igniter continuity.
+	One beep indicates [FIXME] apogee continuity, two beeps indicate
+	main continuity, three beeps indicate both apogee and main continuity,
+	and one longer "brap" sound indicates no continuity.  For a dual
+	deploy flight, make sure you're getting three beeps before launching!
+	For apogee-only or motor eject flights, do what makes sense.
+</para>
+<para>
+	In idle mode, the normal flight state machine is disengaged, and thus
+	no ejection charges will fire.  TeleMetrum also listens on the RF
+	link when in idle mode for packet mode requests sent from TeleDongle.
+	Commands can thus be issues to a TeleMetrum in idle mode over either
+	USB or the RF link equivalently.
+	Idle mode is useful for configuring TeleMetrum, for extracting data 
+	from the on-board storage chip after flight, and for ground testing
+	pyro charges.
+</para>
+<para>
+	One "neat trick" of particular value when TeleMetrum is used with very
+	large airframes, is that you can power the board up while the rocket
+	is horizontal, such that it comes up in idle mode.  Then you can 
+	raise the airframe to launch position, use a TeleDongle to open
+	a packet connection, and issue a 'reset' command which will cause
+	TeleMetrum to reboot, realize it's now nose-up, and thus choose
+	flight mode.  This is much safer than standing on the top step of a
+	rickety step-ladder or hanging off the side of a launch tower with
+	a screw-driver trying to turn on your avionics before installing
+	igniters!
+</para>
+    </section>
+    <section>
+      <title>GPS </title>
+<para>
+	TeleMetrum includes a complete GPS receiver.  See a later section for
+	a brief explanation of how GPS works that will help you understand
+	the information in the telemetry stream.  The bottom line is that
+	the TeleMetrum GPS receiver needs to lock onto at least four 
+	satellites to obtain a solid 3 dimensional position fix and know 
+	what time it is!
+</para>
+<para>
+	TeleMetrum provides backup power to the GPS chip any time a LiPo
+	battery is connected.  This allows the receiver to "warm start" on
+	the launch rail much faster than if every power-on were a "cold start"
+	for the GPS receiver.  In typical operations, powering up TeleMetrum
+	on the flight line in idle mode while performing final airframe
+	preparation will be sufficient to allow the GPS receiver to cold
+	start and acquire lock.  Then the board can be powered down during
+	RSO review and installation on a launch rod or rail.  When the board
+	is turned back on, the GPS system should lock very quickly, typically
+	long before igniter installation and return to the flight line are
+	complete.
+</para>
+    </section>
+    <section>
+      <title>Ground Testing </title>
+	<para>
+	An important aspect of preparing a rocket using electronic deployment
+	for flight is ground testing the recovery system.  Thanks
+	to the bi-directional RF link central to the Altus Metrum system, 
+	this can be accomplished in a TeleMetrum-equipped rocket without as
+	much work as you may be accustomed to with other systems.  It can
+	even be fun!
+	</para>
+	<para>
+	Just prep the rocket for flight, then power up TeleMetrum while the
+	airframe is horizontal.  This will cause the firmware to go into 
+	"idle" mode, in which the normal flight state machine is disabled and
+	charges will not fire without manual command.  Then, establish an
+	RF packet connection from a TeleDongle-equipped computer using the 
+	P command from a safe distance.  You can now command TeleMetrum to
+	fire the apogee or main charges to complete your testing.
+	</para>
+    </section>
+    <section>
       <title>Radio Link </title>
       <para>
         The chip our boards are based on incorporates an RF transceiver, but
@@ -396,6 +487,14 @@
           we aren't already working on, and maybe we'll get excited about it too... 
         </para>
       </section>
+    </section>
+    <section>
+	<title>
+	How GPS Works
+	</title>
+	<para>
+	Placeholder.
+	</para>
     </section>
   </chapter>
 </book>
