@@ -1,3 +1,11 @@
+altos (0.6+190+g8b6767e) unstable; urgency=low
+
+  [ Keith Packard ]
+  * Fix all stdio reading functions to be __critical
+  * Use ao_delay to sleep for 2 seconds instead of trying ao_sleep
+
+ -- Bdale Garbee <bdale@gag.com>  Wed, 05 May 2010 02:34:06 -0600
+
 altos (0.6+187+g8702f49) unstable; urgency=low
 
   [ Bdale Garbee ]

@@ -1,3 +1,29 @@
+commit 8b6767e24a88482dbd3d4c4c969a0be08917d22b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 5 01:32:46 2010 -0700
+
+    Use ao_delay to sleep for 2 seconds instead of trying ao_sleep
+    
+    ao_sleep doesn't delay for a specified time interval as much as one
+    might want it to.
+
+commit e6bb80975fde20928a830170f0821d59a8c72690
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 5 01:31:57 2010 -0700
+
+    Fix all stdio reading functions to be __critical
+    
+    Oh, right SDCC has '__critical' to mark sections of code that need to
+    run with interrupts disabled; no need to use EA = 0 and EA = 1.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ff03cdf746b83542ebcca00d32e6cc69ccfc122d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed May 5 01:57:54 2010 -0600
+
+    update changelogs for Debian build
+
 commit 8702f497c4278648303eced1aed5bd76d559521a
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed May 5 01:57:11 2010 -0600
