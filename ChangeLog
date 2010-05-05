@@ -1,3 +1,15 @@
+commit 8702f497c4278648303eced1aed5bd76d559521a
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed May 5 01:57:11 2010 -0600
+
+    initial attempt at a telemetrum turn on script .. needs work
+
+commit 01cefa181b04e53c20109ef8f3ffff633744da73
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed May 5 01:56:51 2010 -0600
+
+    update changelogs for Debian build
+
 commit 45a1c2d2dfb69e5269ef2756fcd0f734b48d41cb
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed May 5 01:54:33 2010 -0600

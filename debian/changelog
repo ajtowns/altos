@@ -1,7 +1,8 @@
-altos (0.6+185+g45a1c2d) unstable; urgency=low
+altos (0.6+187+g8702f49) unstable; urgency=low
 
   [ Bdale Garbee ]
   * more text created during SFO->DEN flight
+  * initial attempt at a telemetrum turn on script .. needs work
 
   [ Keith Packard ]
   * Revert "Add optional 's' command to packet slave to enable/disable
