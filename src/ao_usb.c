@@ -395,7 +395,7 @@ ao_usb_pollchar(void) __critical
 }
 
 char
-ao_usb_getchar(void)
+ao_usb_getchar(void) __critical
 {
 	char	c;
 

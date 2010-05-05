@@ -45,12 +45,11 @@ flush(void)
 __xdata uint8_t ao_stdin_ready;
 
 char
-getchar(void) __reentrant
+getchar(void) __reentrant __critical
 {
 	char c;
 	int8_t stdio = ao_cur_stdio;
 
-	EA = 0;
 	for (;;) {
 		c = stdios[stdio].pollchar();
 		if (c != AO_READ_AGAIN)
@@ -60,7 +59,6 @@ getchar(void) __reentrant
 		if (stdio == ao_cur_stdio)
 			ao_sleep(&ao_stdin_ready);
 	}
-	EA = 1;
 	ao_cur_stdio = stdio;
 	return c;
 }

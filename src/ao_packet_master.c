@@ -18,7 +18,7 @@
 #include "ao.h"
 
 static char
-ao_packet_getchar(void)
+ao_packet_getchar(void) __critical
 {
 	char c;
 	while ((c = ao_packet_pollchar()) == AO_READ_AGAIN)
