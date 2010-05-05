@@ -1,3 +1,42 @@
+commit f7ff3278bb670df59d7425a014cfe8e3718fea3f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 5 00:44:42 2010 -0700
+
+    Disable interrupts while reading from stdin
+    
+    With multiple input source support, there is a lag between asking a
+    device if it has data and then waiting for more data to appear. If an
+    interrupt signalling additional input arrives in this interval, we'll
+    go to sleep with input available.
+    
+    This patch uses a big hammer by just disabling interrupts for the
+    whole process.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit aa9ff021d683764a43800eaa18ea0c9be5134939
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue May 4 21:42:54 2010 -0700
+
+    Revert "Add optional 's' command to packet slave to enable/disable slave mode"
+    
+    This reverts commit e7dc7fab787df63a4de72c8450e94092eb04d7db.
+    
+    This patch didn't work, and magically appears to break flashing TM
+    from TD.
+
+commit 8c95f33686f69da717013ec2c25dbcd99c03aa45
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Apr 29 17:48:44 2010 -0600
+
+    more text created during SFO->DEN flight
+
+commit af0613ffc178b9b1f011c315923f92f2581fe53e
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Apr 27 00:18:43 2010 -0600
+
+    update changelogs for Debian build
+
 commit 99094f02bf4849ba1f6b9842ded6c39d894320f7
 Merge: 641e76c 75d8ffd
 Author: Bdale Garbee <bdale@gag.com>

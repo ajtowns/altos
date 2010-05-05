@@ -1,3 +1,15 @@
+altos (0.6+184+gf7ff327) unstable; urgency=low
+
+  [ Bdale Garbee ]
+  * more text created during SFO->DEN flight
+
+  [ Keith Packard ]
+  * Revert "Add optional 's' command to packet slave to enable/disable
+    slave mode"
+  * Disable interrupts while reading from stdin
+
+ -- Bdale Garbee <bdale@gag.com>  Wed, 05 May 2010 01:52:27 -0600
+
 altos (0.6+180+g99094f0) unstable; urgency=low
 
   [ Keith Packard ]
