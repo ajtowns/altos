@@ -23,6 +23,6 @@ void
 ao_reboot(void)
 {
 	WDCTL = WDCTL_EN | WDCTL_MODE_WATCHDOG | WDCTL_INT_32768;
-	ao_sleep(AO_SEC_TO_TICKS(2));
+	ao_delay(AO_SEC_TO_TICKS(2));
 	ao_panic(AO_PANIC_REBOOT);
 }
