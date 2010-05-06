@@ -1,3 +1,9 @@
+altos (0.6+195+gcde60f1) unstable; urgency=low
+
+  * Revert "Merge remote branch 'remotes/origin/fix-reset'"
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 06 May 2010 13:59:16 -0600
+
 altos (0.6+193+g314d27a) unstable; urgency=low
 
   [ Keith Packard ]

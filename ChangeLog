@@ -1,3 +1,20 @@
+commit cde60f16f6ab2cdd5010a0e106ae312d144947cf
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu May 6 13:58:31 2010 -0600
+
+    Revert "Merge remote branch 'remotes/origin/fix-reset'"
+    
+    This reverts commit 314d27a73c903fef2968dabac3d5313573713460, reversing
+    changes made to fa77db2ffd8a749c93767db5a6311131e00473ae.
+    
+    For whatever reason, this is utterly not doing the right things today!
+
+commit 8be04df7e1e0a369ffb1137c6e2ec63585e3c935
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu May 6 12:48:00 2010 -0600
+
+    update changelogs for Debian build
+
 commit 314d27a73c903fef2968dabac3d5313573713460
 Merge: fa77db2 823fc0a
 Author: Bdale Garbee <bdale@gag.com>
