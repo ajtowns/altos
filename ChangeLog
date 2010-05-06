@@ -1,3 +1,28 @@
+commit 314d27a73c903fef2968dabac3d5313573713460
+Merge: fa77db2 823fc0a
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu May 6 12:47:30 2010 -0600
+
+    Merge remote branch 'remotes/origin/fix-reset'
+
+commit 823fc0ac27b8df9b4ba1ca0f229b431baf5b46dd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 5 12:50:39 2010 -0700
+
+    Don't change dbg clock while changing reset_n. Use 20ms everywhere
+    
+    This changes the reset code to be more conservative about changing
+    things at the same time, and also sets all timings to 20ms to make
+    debugging with the scope easier.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fa77db2ffd8a749c93767db5a6311131e00473ae
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed May 5 02:34:41 2010 -0600
+
+    update changelogs for Debian build
+
 commit 8b6767e24a88482dbd3d4c4c969a0be08917d22b
 Author: Keith Packard <keithp@keithp.com>
 Date:   Wed May 5 01:32:46 2010 -0700
