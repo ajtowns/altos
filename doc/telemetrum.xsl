@@ -125,7 +125,7 @@
     <title>Handling Precautions</title>
     <para>
       TeleMetrum is a sophisticated electronic device.  When handled gently and
-      properly installed in an airframe, it will deliver extraordinary results.
+      properly installed in an airframe, it will deliver impressive results.
       However, like all electronic devices, there are some precautions you
       must take.
     </para>
@@ -182,9 +182,9 @@
     </para>
     <para>
       By default, we use the unregulated output of the LiPo battery directly
-      to fire ejection charges.  This works marvelously with standard e-matches
-      from companies like [insert company and product names for e-matches we've
-      tried and like] and with Quest Q2G2 igniters.  However, if you
+      to fire ejection charges.  This works marvelously with standard 
+      low-current e-matches like the J-Tek from MJG Technologies, and with 
+      Quest Q2G2 igniters.  However, if you
       want or need to use a separate pyro battery, you can do so by adding
       a second 2mm connector to position B2 on the board and cutting the
       thick pcb trace connecting the LiPo battery to the pyro circuit between
@@ -203,7 +203,7 @@
       connectors.  If the airframe will not support this much height or if
       you want to be able to directly attach e-match leads to the board, we
       offer a screw terminal block.  This is very similar to what most other
-      altimeter vendors provide by default and so may be the most familiar
+      altimeter vendors provide and so may be the most familiar
       option.  You'll need a very small straight blade screwdriver to connect
       and disconnect the board in this case, such as you might find in a
       jeweler's screwdriver set.  Finally, you can forego both options and
@@ -235,22 +235,30 @@
 	idle mode.
 </para>
 <para>
+	At power on, you will hear three beeps ("S" in Morse code for startup)
+        and then a pause while 
+	TeleMetrum completes initialization and self tests, and decides which
+	mode to enter next.
+</para>
+<para>
 	In flight mode, TeleMetrum turns on the GPS system, engages the flight
 	state machine, goes into transmit-only mode on the RF link sending 
 	telemetry, and waits for launch to be detected.  Flight mode is
-	indicated by an audible "di-dah-dah-dit" on the beeper, followed by
+	indicated by an audible "di-dah-dah-dit" ("P" for pad) on the 
+        beeper, followed by
 	beeps indicating the state of the pyrotechnic igniter continuity.
-	One beep indicates [FIXME] apogee continuity, two beeps indicate
+	One beep indicates apogee continuity, two beeps indicate
 	main continuity, three beeps indicate both apogee and main continuity,
 	and one longer "brap" sound indicates no continuity.  For a dual
 	deploy flight, make sure you're getting three beeps before launching!
 	For apogee-only or motor eject flights, do what makes sense.
 </para>
 <para>
-	In idle mode, the normal flight state machine is disengaged, and thus
+	In idle mode, you will hear an audible "di-dit" ("I" for idle), and
+        the normal flight state machine is disengaged, thus
 	no ejection charges will fire.  TeleMetrum also listens on the RF
 	link when in idle mode for packet mode requests sent from TeleDongle.
-	Commands can thus be issues to a TeleMetrum in idle mode over either
+	Commands can be issued to a TeleMetrum in idle mode over either
 	USB or the RF link equivalently.
 	Idle mode is useful for configuring TeleMetrum, for extracting data 
 	from the on-board storage chip after flight, and for ground testing
@@ -312,14 +320,23 @@
 	P command from a safe distance.  You can now command TeleMetrum to
 	fire the apogee or main charges to complete your testing.
 	</para>
+	<para>
+	In order to reduce the chance of accidental firing of pyrotechnic
+	charges, the command to fire a charge is intentionally somewhat
+	difficult to type, and the built-in help is slightly cryptic to 
+	prevent accidental echoing of characters from the help text back at
+	the board from firing a charge.  The command to fire the apogee
+	drogue charge is 'i DoIt drogue' and the command to fire the main
+	charge is 'i DoIt main'.
+	</para>
     </section>
     <section>
       <title>Radio Link </title>
       <para>
         The chip our boards are based on incorporates an RF transceiver, but
         it's not a full duplex system... each end can only be transmitting or
-        receiving at any given moment.  So we have to decide how to manage the
-        link...
+        receiving at any given moment.  So we had to decide how to manage the
+        link.
       </para>
       <para>
         By design, TeleMetrum firmware listens for an RF connection when
@@ -336,21 +353,148 @@
       </para>
       <para>
         We don't use a 'normal packet radio' mode because they're just too
-        inefficient.  GFSK is just FSK with the baseband pulses passed through a
+        inefficient.  The GFSK modulation we use is just FSK with the 
+	baseband pulses passed through a
         Gaussian filter before they go into the modulator to limit the
         transmitted bandwidth.  When combined with the hardware forward error
         correction support in the cc1111 chip, this allows us to have a very
         robust 38.4 kilobit data link with only 10 milliwatts of transmit power,
         a whip antenna in the rocket, and a hand-held Yagi on the ground.  We've
-        had a test flight above 12k AGL with good reception, and my calculations
-        say we should be good to 40k AGL or more with just a 5-element yagi on
-        the ground.  I expect to push 30k with a 54mm minimum airframe I'm
-        working on now, so we'll hopefully have further practical confirmation
-        of our link margin in a few months.
+        had a test flight above 12k AGL with good reception, and calculations
+        suggest we should be good to 40k AGL or more with a 5-element yagi on
+        the ground.  We hope to fly boards to higher altitudes soon, and would
+	of course appreciate customer feedback on performance in higher
+	altitude flights!
       </para>
-      <para>
-        Placeholder.
-      </para>
+    </section>
+    <section>
+	<title>Configurable Parameters</title>
+	<para>
+	Configuring a TeleMetrum board for flight is very simple.  Because we
+	have both acceleration and pressure sensors, there is no need to set
+	a "mach delay", for example.  The few configurable parameters can all
+	be set using a simple terminal program over the USB port or RF link
+	via TeleDongle.
+	</para>
+	<section>
+	<title>Radio Channel</title>
+	<para>
+	Our firmware supports 10 channels.  The default channel 0 corresponds
+	to a center frequency of 434.550 Mhz, and channels are spaced every 
+	100 khz.  Thus, channel 1 is 434.650 Mhz, and channel 9 is 435.550 Mhz.
+	At any given launch, we highly recommend coordinating who will use
+	each channel and when to avoid interference.  And of course, both 
+	TeleMetrum and TeleDongle must be configured to the same channel to
+	successfully communicate with each other.
+	</para>
+	<para>
+	To set the radio channel, use the 'c r' command, like 'c r 3' to set
+	channel 3.  
+	As with all 'c' sub-commands, follow this with a 'c w' to write the 
+	change to the parameter block in the on-board DataFlash chip.
+	</para>
+	</section>
+	<section>
+	<title>Apogee Delay</title>
+	<para>
+	Apogee delay is the number of seconds after TeleMetrum detects flight
+	apogee that the drogue charge should be fired.  In most cases, this
+	should be left at the default of 0.  However, if you are flying
+	redundant electronics such as for an L3 certification, you may wish 
+	to set one of your altimeters to a positive delay so that both 
+	primary and backup pyrotechnic charges do not fire simultaneously.
+	</para>
+	<para>
+	To set the apogee delay, use the [FIXME] command.
+	As with all 'c' sub-commands, follow this with a 'c w' to write the 
+	change to the parameter block in the on-board DataFlash chip.
+	</para>
+	</section>
+	<section>
+	<title>Main Deployment Altitude</title>
+	<para>
+	By default, TeleMetrum will fire the main deployment charge at an
+	elevation of 250 meters (about 820 feet) above ground.  We think this
+	is a good elevation for most airframes, but feel free to change this 
+	to suit.  In particular, if you are flying two altimeters, you may
+	wish to set the
+	deployment elevation for the backup altimeter to be something lower
+	than the primary so that both pyrotechnic charges don't fire
+	simultaneously.
+	</para>
+	<para>
+	To set the main deployment altitude, use the [FIXME] command.
+	As with all 'c' sub-commands, follow this with a 'c w' to write the 
+	change to the parameter block in the on-board DataFlash chip.
+	</para>
+	</section>
+    </section>
+    <section>
+	<title>Calibration</title>
+	<para>
+	There are only two calibrations required for a TeleMetrum board, and
+	only one for TeleDongle.
+	</para>
+	<section>
+	<title>Radio Frequency</title>
+	<para>
+	The radio frequency is synthesized from a clock based on the 48 Mhz
+	crystal on the board.  The actual frequency of this oscillator must be
+	measured to generate a calibration constant.  While our GFSK modulation
+	bandwidth is wide enough to allow boards to communicate even when 
+	their oscillators are not on exactly the same frequency, performance
+	is best when they are closely matched.
+	Radio frequency calibration requires a calibrated frequency counter.
+	Fortunately, once set, the variation in frequency due to aging and
+	temperature changes is small enough that re-calibration by customers
+	should generally not be required.
+	</para>
+	<para>
+	To calibrate the radio frequency, connect the UHF antenna port to a
+	frequency counter, set the board to channel 0, and use the 'C' 
+	command to generate a CW carrier.  Wait for the transmitter temperature
+	to stabilize and the frequency to settle down.  
+	Then, divide 434.550 Mhz by the 
+	measured frequency and multiply by the current radio cal value show
+	in the 'c s' command.  For an unprogrammed board, the default value
+	is 1186611.  Take the resulting integer and program it using the 'c f'
+	command.  Testing with the 'C' command again should show a carrier
+	within a few tens of Hertz of the intended frequency.
+	As with all 'c' sub-commands, follow this with a 'c w' to write the 
+	change to the parameter block in the on-board DataFlash chip.
+	</para>
+	</section>
+	<section>
+	<title>Accelerometer</title>
+	<para>
+	The accelerometer we use has its own 5 volt power supply and
+	the output must be passed through a resistive voltage divider to match
+	the input of our 3.3 volt ADC.  This means that unlike the barometric
+	sensor, the output of the acceleration sensor is not ratiometric to 
+	the ADC converter, and calibration is required.  We also support the 
+	use of any of several accelerometers from a Freescale family that 
+	includes at least +/- 40g, 50g, 100g, and 200g parts.  Using gravity,
+	a simple 2-point calibration yields acceptable results capturing both
+	the different sensitivities and ranges of the different accelerometer
+	parts and any variation in power supply voltages or resistor values
+	in the divider network.
+	</para>
+	<para>
+	To calibrate the acceleration sensor, use the 'c a 0' command.  You
+	will be prompted to orient the board vertically with the UHF antenna
+	up and press a key, then to orient the board vertically with the 
+	UHF antenna down and press a key.
+	As with all 'c' sub-commands, follow this with a 'c w' to write the 
+	change to the parameter block in the on-board DataFlash chip.
+	</para>
+	<para>
+	The +1g and -1g calibration points are included in each telemetry
+	frame and are part of the header extracted by ao-dumplog after flight.
+	Note that we always store and return raw ADC samples for each
+	sensor... nothing is permanently "lost" or "damaged" if the 
+	calibration is poor.
+	</para>
+	</section>
     </section>
   </chapter>
   <chapter>
