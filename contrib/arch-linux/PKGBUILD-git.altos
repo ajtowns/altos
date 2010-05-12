@@ -1,0 +1,53 @@
+# Contributor: Bob Finch <w9ya@qrpqrci.net>
+pkgname=altos-git
+pkgver=VERSION
+pkgrel=1
+pkgdesc="Software solutions for high powered rocketry avionics"
+arch=('i686' 'x86_64')
+url="http://www.altusmetrum.org/AltOS/"
+license=('GPL')
+depends=('openssl>=1.0.0' 'libusb-BETA' 'plplot-svn' 'sdcc' 'nickle' 'flite' 'kernel26>=2.6.33')
+makedepends=('git')
+optdepends=('uucp: cu is included and is a bare boned terminal to serial program'
+            'cutemon: gui-based minimal terminal to serial program'
+            'google-earth: useful for viewing the kml files of the flight path'
+            'docbook-xsl: for making an html doc file from the xsl source'
+            'fop: for making a pdf doc file from the xsl source')
+source=(altos.desktop)
+md5sums=('7308c5b015991046b195d1a2c0987004')
+
+_gitroot="git://git.gag.com/fw/altos"
+_gitname="altos"
+
+build() {
+  cd "$srcdir"
+#  msg "Connecting to GIT server...."
+
+  if [ -d $_gitname ] ; then
+    cd $_gitname && git pull origin
+#    msg "The local files are updated."
+  else
+    git clone $_gitroot
+  fi
+
+#  msg "GIT checkout done or server timeout"
+#  msg "Starting make..."
+
+  rm -rf "$srcdir/$_gitname-build"
+  git clone "$srcdir/$_gitname" "$srcdir/$_gitname-build"
+  cd "$srcdir/$_gitname-build"
+
+  #
+  # BUILD HERE
+  #
+
+  ./autogen.sh
+  ./configure --prefix=/usr
+  make || return 1
+  make DESTDIR="$pkgdir/" install
+  
+  mkdir -p $startdir/pkg/usr/share/pixmaps
+  mkdir -p $startdir/pkg/usr/share/applications
+  install -m644 debian/*.xpm $startdir/pkg/usr/share/pixmaps
+  install -m644 ../*.desktop $startdir/pkg/usr/share/applications
+} 
