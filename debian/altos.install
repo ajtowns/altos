@@ -1,3 +1,4 @@
+debian/altos.desktop	usr/share/applications
 debian/altos.list	etc/apt/sources.list.d
 src/*.ihx		usr/share/altos
 src/*.map		usr/share/altos
