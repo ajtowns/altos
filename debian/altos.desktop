@@ -1,12 +1,10 @@
 [Desktop Entry]
-Encoding=UTF-8
-Name=AltOS-View
-GenericName=TeleMetrum-telemetry-viewer
+Type=Application
+Name="AltOS View"
+GenericName="TeleMetrum Telemetry Viewer"
 Comment=View and log downlink data from TeleMetrum
+Icon=/usr/share/pixmaps/altusmetrum.xpm
 Exec=/usr/bin/ao-view %f
 Terminal=false
-MultipleArgs=false
-Type=Application
-Icon=/usr/share/pixmaps/altusmetrum.xpm
-Categories=Application;Network
-MimeType=text/plain
+MimeType=text/plain;
+Categories=Viewer;Network;
