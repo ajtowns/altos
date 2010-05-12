@@ -1,3 +1,15 @@
+commit ae6854df00579ea1c3486f1bf8f19443d5ac9498
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed May 12 17:04:13 2010 -0600
+
+    update desktop file for conformance with current standards
+
+commit 7191d74e680a63728f5eb139069a674fef969e6c
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed May 12 16:45:00 2010 -0600
+
+    update changelogs for Debian build
+
 commit 68eaaa694bb7bf20642ad11eac8a13c1c8e21b7d
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed May 12 16:44:14 2010 -0600
