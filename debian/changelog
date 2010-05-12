@@ -1,3 +1,10 @@
+altos (0.6+200+g68eaaa6) unstable; urgency=low
+
+  * add initial package build scripts for Arch Linux from Bob Finch
+  * add desktop file provided by Bob Finch
+
+ -- Bdale Garbee <bdale@gag.com>  Wed, 12 May 2010 16:44:27 -0600
+
 altos (0.6+195+gcde60f1) unstable; urgency=low
 
   * Revert "Merge remote branch 'remotes/origin/fix-reset'"

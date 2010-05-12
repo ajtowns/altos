@@ -1,3 +1,33 @@
+commit 68eaaa694bb7bf20642ad11eac8a13c1c8e21b7d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed May 12 16:44:14 2010 -0600
+
+    add desktop file
+
+commit 9d3d09578381bb6e6f88c39b0e945371bbc22c5a
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed May 12 16:34:49 2010 -0600
+
+    add desktop file provided by Bob Finch
+
+commit 3cc1dad3b497524ffef61190dd68908cb19e8c35
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed May 12 16:28:35 2010 -0600
+
+    add initial package build scripts for Arch Linux from Bob Finch
+
+commit 1b8671bd0a00cec6ae4ccf442cd007b18af82fb0
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun May 9 01:41:00 2010 -0600
+
+    lots of updates
+
+commit 53b9a9bc28a9278249ff37f92110c21380e93cda
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu May 6 13:59:23 2010 -0600
+
+    update changelogs for Debian build
+
 commit cde60f16f6ab2cdd5010a0e106ae312d144947cf
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu May 6 13:58:31 2010 -0600
