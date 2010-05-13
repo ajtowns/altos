@@ -38,6 +38,6 @@ build() {
   make || return 1
   make DESTDIR="$pkgdir/" install
   
-  install -D -m 644 $startdir/src/COPYING\
-     $startdir/pkg/usr/share/licenses/$pkgname/COPYING.txt
+  install -D -m 644 COPYING\
+     $startdir/pkg/usr/share/licenses/nickle/COPYING.txt
 } 
