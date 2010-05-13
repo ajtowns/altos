@@ -1,3 +1,15 @@
+commit 6bd85138c1bfbc1d8b78dce1501870a65a64db36
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed May 12 19:53:40 2010 -0600
+
+    lose the quotes since they apparently aren't necessary
+
+commit d639144b9bb840fbbced199738787ec054eddf12
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed May 12 17:04:41 2010 -0600
+
+    update changelogs for Debian build
+
 commit ae6854df00579ea1c3486f1bf8f19443d5ac9498
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed May 12 17:04:13 2010 -0600

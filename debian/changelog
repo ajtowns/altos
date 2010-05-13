@@ -1,3 +1,9 @@
+altos (0.6+204+g6bd8513) unstable; urgency=low
+
+  * lose the quotes since they apparently aren't necessary
+
+ -- Bdale Garbee <bdale@gag.com>  Wed, 12 May 2010 19:53:58 -0600
+
 altos (0.6+202+gae6854d) unstable; urgency=low
 
   * update desktop file for conformance with current standards
