@@ -57,7 +57,7 @@ build() {
 #       doc/telemetrum.xml
 #  xsltproc -o telemetrum.fo /usr/share/xml/docbook/xsl-stylesheets-1.74.0/fo/docbook.xsl\
 #       doc/telemetrum.xml
-#  fop -fo telemetrum.fo -pdf telemetrum.pd
+#  fop -fo telemetrum.fo -pdf telemetrum.pdf
 #  
 #  mkdir -p $startdir/pkg/usr/share/altos/doc
 #  install -m 644 *.html $startdir/pkg/usr/share/altos/doc/
