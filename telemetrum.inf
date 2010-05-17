@@ -3,31 +3,42 @@
 
 [Version]
 Signature	= "$Windows NT$"
-Class           = Ports
-ClassGUID       = {4d36e978-e325-11ce-bfc1-08002be10318}
+Class   	= Modem
+ClassGUID	={4D36E96D-E325-11CE-BFC1-08002BE10318}
 Provider	= %Mfg%
-DriverVer	= 30/03/2010,4.0.0.8
+DriverVer	= 08/05/2010,3.1.0.41
 
 [Manufacturer]
-%Mfg%           = Models
+%Mfg% = Models, NTx86, NTamd64, NTia64
 
-[Models]
-%TeleMetrum%    = TELEMETRUM, USB\VID_FFFE&PID_000A
+[Models.NTx86]
+%TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
+
+[Models.NTamd64]
+%TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
+
+[Models.NTia64]
+%TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
 
 [DestinationDirs]
-DefaultDestDir  = 12
+DefaultDestDir=12
 
 [ControlFlags]
-ExcludeFromSelect=USB\VID_0BAF&PID_0303
+ExcludeFromSelect=USB\VID_FFFE&PID_000A
 
 [Strings]
 Mfg = "altusmetrum.org"
-TeleMetrum       = "TeleMetrum/TeleDongle"
+TeleMetrum = "TeleMetrum/TeleDongle"
+
+
+;----------------------------------------------------------------------------
+; Installation sections
+;----------------------------------------------------------------------------
 
 [TELEMETRUM.NT]
 include=mdmcpq.inf
 CopyFiles=FakeModemCopyFileSection
-AddReg=Uninstall
+AddReg = All, mfglt, Modem.AddReg, VerboseResultCodes, Uninstall.AddReg
 
 [TELEMETRUM.NT.HW]
 Include=mdmcpq.inf
@@ -37,6 +48,30 @@ AddReg=LowerFilterAddReg
 Include=mdmcpq.inf
 AddService=usbser, 0x00000000, LowerFilter_Service_Inst
 
-[Uninstall]
+
+;----------------------------------------------------------------------------
+; AddReg sections
+;----------------------------------------------------------------------------
+[Modem.AddReg]
+HKR,, Properties, 1, C0,01,00,00, 00,00,00,00, FF,00,00,00, 07,00,00,00, 0F,00,00,00, F7,0F,00,00, 00,84,03,00, C0,DA,00,00
+
+
+;----------------------------------------------------------------------------
+; Common Registry Sections
+;
+; The [All] section is installed for all modems.
+;
+;----------------------------------------------------------------------------
+[All]
+HKR,,FriendlyDriver,,Unimodem.vxd
+HKR,,DevLoader,,*vcomm
+HKR,,PortSubClass,1,02
+HKR,,ConfigDialog,,modemui.dll
+HKR,,EnumPropPages,,"modemui.dll,EnumPropPages"
+HKR,,DeviceType,1,01
+HKR,,OCM2KXP,1,01
+HKR,, DCB, 1, 1c,00,00,00, 00,C2,01,00, 15,20,00,00, 00,00, 0a,00, 0a,00, 08, 00, 00, 11, 13, 00, 00, 00
+
+[Uninstall.AddReg]
 HKLM,Software\Microsoft\Windows\CurrentVersion\Uninstall\%TeleMetrum%,DisplayName,,"%TeleMetrum%"
 
