@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!DOCTYPE greeter SYSTEM "greeter.dtd">
+<greeter>
+
+<item type="pixmap">
+	<normal file="background.png"/>
+	<pos x="0" y="0" width="100%" height="100%"/>
+</item>
+
+<item type="rect">
+	<normal color="#ffffff" alpha="0.1"/>
+	<pos anchor="center" x="50%" y="94%" width="100%" height="6%"/>
+	<fixed>
+		<item type="rect">
+			<normal color="#000000" alpha="0.3"/>
+			<pos anchor="w" x="84%" y="50%" height="24" width="15%"/>
+			<fixed>
+				<item type="entry" id="user-pw-entry">
+					<pos anchor="nw" x="1" y="1" height="-2" width="-2"/>
+					<normal color="#000000" font="Bitstream Vera Sans 10"/>
+				</item>
+			</fixed>
+		</item>
+	</fixed>
+</item>
+
+<item type="label" id="system_button" button="true">
+	<pos anchor="w" x="1%" y="94%"/>
+	<normal font="Bitstream Vera Sans Bold 10" color="#ffffff" alpha="0.8"/>
+	<active font="Bitstream Vera Sans Bold 10" color="#ffffff" alpha="0.8"/>
+	<prelight font="Bitstream Vera Sans Bold 10" color="#ffffff"/>
+	<text>%n | %c</text>
+</item>
+
+<item type="label" id="pam-prompt">
+	<pos anchor="e" x="83%" y="94%"/>
+	<normal font="Bitstream Vera Sans Bold 10" color="#ffffff" alpha="0.8"/>
+	<stock type="username-label"/>
+</item>
+
+<item type="label" id="timed-label">
+	<pos anchor="center" x="50%" y="30%"/>
+	<show type="timed"/>
+	<normal font="Bitstream Vera Sans Bold 10" color="#ffffff"/>
+	<stock type="timed-label"/>
+</item>
+
+<item type="label" id="pam-error">
+	<pos anchor="center" x="50%" y="50%"/>
+	<normal font="Bitstream Vera Sans Bold 10" color="#ffffff"/>
+	<text></text>
+</item>
+
+<item type="label" id="caps-lock-warning">
+	<pos anchor="center" x="50%" y="70%"/>
+	<normal font="Bitstream Vera Sans Bold 10" color="#ffffff"/>
+	<stock type="caps-lock-warning"/>
+</item>
+
+</greeter>
