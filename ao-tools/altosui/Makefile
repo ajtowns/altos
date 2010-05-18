@@ -1,6 +1,6 @@
 .SUFFIXES: .java .class
 
-CLASSPATH=..:/usr/share/java/*
+CLASSPATH=..:/usr/share/java/*:/home/keithp/src/freetts/freetts-1.2.2
 CLASSFILES=\
 	AltosConvert.class \
 	AltosFile.class \
@@ -16,7 +16,8 @@ CLASSFILES=\
 	AltosUI.class \
 	AltosDevice.class \
 	AltosDeviceLinux.class \
-	AltosDeviceDialog.class
+	AltosDeviceDialog.class \
+	AltosVoice.class
 
 JAVAFLAGS=-Xlint:unchecked
 

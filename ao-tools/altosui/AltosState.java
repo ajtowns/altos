@@ -29,7 +29,7 @@ public class AltosState {
 
 	/* derived data */
 
-	double  report_time;
+	long  	report_time;
 
 	double	time_change;
 	int	tick;
@@ -66,11 +66,6 @@ public class AltosState {
 	int	speak_tick;
 	double	speak_altitude;
 
-	static double
-	aoview_time()
-	{
-		return System.currentTimeMillis() / 1000.0;
-	}
 
 	void init (AltosTelemetry cur, AltosState prev_state) {
 		int		i;
@@ -82,7 +77,7 @@ public class AltosState {
 		ground_altitude = AltosConvert.cc_barometer_to_altitude(data.ground_pres);
 		height = AltosConvert.cc_barometer_to_altitude(data.flight_pres) - ground_altitude;
 
-		report_time = aoview_time();
+		report_time = System.currentTimeMillis();
 
 		accel_counts_per_mss = ((data.accel_minus_g - data.accel_plus_g) / 2.0) / 9.80665;
 		acceleration = (data.ground_accel - data.flight_accel) / accel_counts_per_mss;
