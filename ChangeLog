@@ -1,3 +1,65 @@
+commit bc89d962c87b50e5487628f8ca25e4443ac4823d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue May 18 00:24:03 2010 -0600
+
+    merge the altusmetrum-themes package
+
+commit 0c6cf621dfd8339b8bc3915750a3147235f1331b
+Merge: 32e430b 563a9dc
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon May 17 23:59:43 2010 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 32e430b8a5f93b312f6359b4d553bad92ed37b19
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon May 17 22:43:19 2010 -0600
+
+    merge in a derivative of Bob Finch's mere mortals guide as a getting started
+    chapter
+
+commit 563a9dcdfef42718370c49f16cc2271642b3e055
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon May 17 21:30:57 2010 -0700
+
+    Finish basic flight monitoring UI with voice using FreeTTS
+    
+    This captures telemetry data to log files and presents flight status
+    information in audio form using FreeTTS.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 69092ffd23ac1928d5c84413fd00c2423f313fc2
+Merge: 3c2211a cc002c0
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon May 17 20:10:46 2010 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit cc002c0a43a02845ba67d1a61828be382f307b2e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun May 16 22:31:23 2010 -0700
+
+    Fix telemetrum.inf, tested by Adrian and Keithp
+
+commit 3c2211ad7877d622435bc9e8c9c0b01d62be6ff0
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu May 13 15:37:37 2010 -0600
+
+    typo fix from Bob
+
+commit f0433c83d76e90d78fb86a1f4a2f145f3c57fb25
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu May 13 01:27:39 2010 -0600
+
+    updates from Bob
+
+commit 0f05cf06e3f1ec510b11d993d9038211ac66c97b
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed May 12 19:54:04 2010 -0600
+
+    update changelogs for Debian build
+
 commit 6bd85138c1bfbc1d8b78dce1501870a65a64db36
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed May 12 19:53:40 2010 -0600
