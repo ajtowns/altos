@@ -34,6 +34,9 @@ import altosui.AltosSerialMonitor;
 import altosui.AltosTelemetry;
 import altosui.AltosState;
 import altosui.AltosDeviceDialog;
+import altosui.AltosPreferences;
+import altosui.AltosLog;
+import altosui.AltosVoice;
 
 class AltosFlightStatusTableModel extends AbstractTableModel {
 	private String[] columnNames = {"Height (m)", "State", "RSSI (dBm)", "Speed (m/s)" };
@@ -128,7 +131,8 @@ public class AltosUI extends JFrame {
 
 	private AltosFlightInfoTableModel[] flightInfoModel;
 	private JTable[] flightInfo;
-	private AltosSerial serialLine;
+	private AltosSerial serial_line;
+	private AltosLog altos_log;
 	private Box[] ibox;
 	private Box vbox;
 	private Box hbox;
@@ -137,10 +141,14 @@ public class AltosUI extends JFrame {
 	private Font infoLabelFont = new Font("SansSerif", Font.PLAIN, 14);
 	private Font infoValueFont = new Font("Monospaced", Font.PLAIN, 14);
 
+	public AltosVoice voice = new AltosVoice();
+
 	public AltosUI() {
 
 		String[] statusNames = { "Height (m)", "State", "RSSI (dBm)", "Speed (m/s)" };
 		Object[][] statusData = { { "0", "pad", "-50", "0" } };
+
+		AltosPreferences.init(this);
 
 		vbox = Box.createVerticalBox();
 		this.add(vbox);
@@ -188,7 +196,8 @@ public class AltosUI extends JFrame {
 
 		createMenu();
 
-		serialLine = new AltosSerial();
+		serial_line = new AltosSerial();
+		altos_log = new AltosLog(serial_line);
 		int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
 		this.setSize(new Dimension (infoValueMetrics.charWidth('0') * 6 * 20,
 					    statusHeight * 4 + infoHeight * 17));
@@ -333,63 +342,76 @@ public class AltosUI extends JFrame {
 		info_finish();
 	}
 
-	/* User Preferences */
-	Preferences altosui_preferences = Preferences.userNodeForPackage(this.getClass());
+	class IdleThread extends Thread {
 
-	/* Log directory */
-	private File logdir = null;
+		private AltosState state;
 
-	/* logdir preference name */
-	final static String logdirPreference = "LOGDIR";
+		public void run () {
+			int	reported_landing = 0;
 
-	/* Default logdir is ~/TeleMetrum */
-	final static String logdirName = "TeleMetrum";
-
-	/* Initialize logdir from preferences */
-	{
-		String logdir_string = altosui_preferences.get(logdirPreference, null);
-		if (logdir_string != null)
-			logdir = new File(logdir_string);
-		else
-			/* a hack -- make the file chooser tell us what the default directory
-			 * would be and stick our logdir in a subdirectory of that.
-			 */
-			logdir = new File(new JFileChooser().getCurrentDirectory(), logdirName);
-	}
-
-	private void set_logdir(File new_logdir) {
-		logdir = new_logdir;
-		System.out.printf("Set logdir to %s\n", logdir.toString());
-		synchronized (altosui_preferences) {
-			altosui_preferences.put(logdirPreference, logdir.getPath());
+			state = null;
 			try {
-				altosui_preferences.flush();
-			} catch (BackingStoreException ee) {
-				JOptionPane.showMessageDialog(AltosUI.this,
-							      altosui_preferences.absolutePath(),
-							      "Cannot save prefernces",
-							      JOptionPane.ERROR_MESSAGE);
+				for (;;) {
+					Thread.sleep(10000);
+					if (state == null)
+						continue;
+
+					/* reset the landing count once we hear about a new flight */
+					if (state.state < AltosTelemetry.ao_flight_drogue)
+						reported_landing = 0;
+
+					/* Shut up once the rocket is on the ground */
+					if (reported_landing > 2)
+						continue;
+
+					/* If the rocket isn't on the pad, then report height */
+					if (state.state > AltosTelemetry.ao_flight_pad) {
+						voice.speak(String.format("%d meters", (int) (state.height + 0.5)));
+					}
+
+					/* If the rocket is coming down, check to see if it has landed;
+					 * either we've got a landed report or we haven't heard from it in
+					 * a long time
+					 */
+					if (!state.ascent &&
+					    (System.currentTimeMillis() - state.report_time > 10000 ||
+					     state.state == AltosTelemetry.ao_flight_landed))
+					{
+						if (Math.abs(state.baro_speed) < 20 && state.height < 100)
+							voice.speak("rocket landed safely");
+						else
+							voice.speak("rocket may have crashed");
+						if (state.gps != null)
+							voice.speak(String.format("bearing %d degrees, range %d meters",
+										  (int) (state.from_pad.bearing + 0.5),
+										  (int) (state.from_pad.distance + 0.5)));
+						++reported_landing;
+					}
+				}
+			} catch (InterruptedException ie) {
 			}
+		}
+
+		public void notice(AltosState new_state) {
+			state = new_state;
 		}
 	}
 
-	private boolean check_dir(File dir) {
-		if (!dir.exists()) {
-			if (!dir.mkdirs()) {
-				JOptionPane.showMessageDialog(AltosUI.this,
-							      dir.getName(),
-							      "Cannot create directory",
-							      JOptionPane.ERROR_MESSAGE);
-				return false;
+	private void tell(AltosState state, AltosState old_state) {
+		if (old_state == null || old_state.state != state.state) {
+			voice.speak(state.data.state);
+			switch (state.state) {
+			case AltosTelemetry.ao_flight_fast:
+				voice.speak(String.format("max speed %d meters per second",
+							  (int) (state.max_speed + 0.5)));
+				break;
+			case AltosTelemetry.ao_flight_drogue:
+				voice.speak(String.format("max height %d meters",
+							  (int) (state.max_height + 0.5)));
+				break;
 			}
-		} else if (!dir.isDirectory()) {
-			JOptionPane.showMessageDialog(AltosUI.this,
-						      dir.getName(),
-						      "Is not a directory",
-						      JOptionPane.ERROR_MESSAGE);
-			return false;
 		}
-		return true;
+		old_state = state;
 	}
 
 	class DisplayThread extends Thread {
@@ -402,16 +424,22 @@ public class AltosUI extends JFrame {
 		public void run() {
 			String		line;
 			AltosState	state = null;
+			AltosState	old_state = null;
+			IdleThread	idle_thread = new IdleThread();
 
 			info_reset();
 			info_finish();
+			idle_thread.start();
 			try {
 				while ((line = read()) != null) {
 					try {
 						AltosTelemetry	t = new AltosTelemetry(line);
+						old_state = state;
 						state = new AltosState(t, state);
 						update(state);
 						show(state);
+						tell(state, old_state);
+						idle_thread.notice(state);
 					} catch (ParseException pp) {
 						System.out.printf("Parse error on %s\n", line);
 						System.out.println("exception " + pp);
@@ -420,6 +448,7 @@ public class AltosUI extends JFrame {
 			} catch (InterruptedException ee) {
 			} finally {
 				close();
+				idle_thread.interrupt();
 			}
 		}
 	}
@@ -450,8 +479,8 @@ public class AltosUI extends JFrame {
 
 		if (device != null) {
 			try {
-				serialLine.connect(device.tty);
-				DeviceThread thread = new DeviceThread(serialLine);
+				serial_line.connect(device.tty);
+				DeviceThread thread = new DeviceThread(serial_line);
 				run_display(thread);
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
@@ -556,7 +585,7 @@ public class AltosUI extends JFrame {
 
 		logfile_chooser.setDialogTitle("Select Telemetry File");
 		logfile_chooser.setFileFilter(new FileNameExtensionFilter("Telemetry file", "telem"));
-		logfile_chooser.setCurrentDirectory(logdir);
+		logfile_chooser.setCurrentDirectory(AltosPreferences.logdir());
 		int returnVal = logfile_chooser.showOpenDialog(AltosUI.this);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -581,23 +610,6 @@ public class AltosUI extends JFrame {
 	 * a TeleDongle over the packet link
 	 */
 	private void SaveFlightData() {
-	}
-
-	/* Configure the log directory. This is where all telemetry and eeprom files
-	 * will be written to, and where replay will look for telemetry files
-	 */
-	private void ConfigureLog() {
-		JFileChooser	logdir_chooser = new JFileChooser();
-
-		logdir_chooser.setDialogTitle("Configure Data Logging Directory");
-		logdir_chooser.setCurrentDirectory(logdir.getParentFile());
-		logdir_chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-		if (logdir_chooser.showDialog(AltosUI.this, "Select Directory") == JFileChooser.APPROVE_OPTION) {
-			File dir = logdir_chooser.getSelectedFile();
-			if (check_dir(dir))
-				set_logdir(dir);
-		}
 	}
 
 	/* Create the AltosUI menus
@@ -681,7 +693,7 @@ public class AltosUI extends JFrame {
 			item = new JMenuItem("Configure Log",KeyEvent.VK_C);
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						ConfigureLog();
+						AltosPreferences.ConfigureLog();
 					}
 				});
 			menu.add(item);

@@ -1,0 +1,69 @@
+/*
+ * Copyright © 2010 Keith Packard <keithp@keithp.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
+package altosui;
+
+import com.sun.speech.freetts.Voice;
+import com.sun.speech.freetts.VoiceManager;
+import com.sun.speech.freetts.audio.JavaClipAudioPlayer;
+import java.util.concurrent.LinkedBlockingQueue;
+
+public class AltosVoice implements Runnable {
+	VoiceManager			voice_manager;
+	Voice				voice;
+	LinkedBlockingQueue<String>	phrases;
+	Thread				thread;
+
+	final static String voice_name = "kevin16";
+
+	public void run() {
+		try {
+			for (;;) {
+				String s = phrases.take();
+				voice.speak(s);
+			}
+		} catch (InterruptedException e) {
+		}
+	}
+	public void speak(String s) {
+		try {
+			if (voice != null)
+				phrases.put(s);
+		} catch (InterruptedException e) {
+		}
+	}
+
+	public AltosVoice () {
+		voice_manager = VoiceManager.getInstance();
+		voice = voice_manager.getVoice(voice_name);
+		if (voice != null) {
+			voice.allocate();
+			phrases = new LinkedBlockingQueue<String> ();
+			thread = new Thread(this);
+			thread.start();
+			speak("Rocket Flight Monitor Ready");
+		} else {
+			System.out.printf("Voice manager failed to open %s\n", voice_name);
+			Voice[] voices = voice_manager.getVoices();
+			System.out.printf("Available voices:\n");
+			for (int i = 0; i < voices.length; i++) {
+				System.out.println("    " + voices[i].getName()
+						   + " (" + voices[i].getDomain() + " domain)");
+			}
+		}
+	}
+}
