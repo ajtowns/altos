@@ -1,4 +1,4 @@
-altos (0.6+213+gbc89d96) unstable; urgency=low
+altos (0.6+214+g16c4cae) unstable; urgency=low
 
   [ Bdale Garbee ]
   * updates including a typo fix from Bob Finch to the PKGBUILD-git.altos
