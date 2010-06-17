@@ -83,8 +83,11 @@ aoview_monitor_callback(gpointer user_data,
 void
 aoview_monitor_set_channel(int channel)
 {
-	if (monitor_serial)
+	if (monitor_serial) {
+		aoview_serial_printf(monitor_serial, "m 0\n");
 		aoview_serial_printf(monitor_serial, "c r %d\n", channel);
+		aoview_serial_printf(monitor_serial, "m 1\n");
+	}
 }
 
 gboolean
@@ -98,9 +101,7 @@ aoview_monitor_connect(char *tty)
 	aoview_table_clear();
 	aoview_state_reset();
 	channel = aoview_channel_current();
-	if (channel >= 0)
-		aoview_monitor_set_channel(channel);
-	aoview_serial_printf(monitor_serial, "m 1\n");
+	aoview_monitor_set_channel(channel);
 	aoview_serial_set_callback(monitor_serial,
 				   aoview_monitor_callback);
 	return TRUE;
