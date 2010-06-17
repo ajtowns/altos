@@ -85,7 +85,7 @@ ao_usb_ep0_flush(void)
 	USBINDEX = 0;
 	cs0 = USBCS0;
 	if (cs0 & USBCS0_INPKT_RDY)
-		ao_panic(0);
+		ao_panic(AO_PANIC_USB);
 
 	this_len = ao_usb_ep0_in_len;
 	if (this_len > AO_USB_CONTROL_SIZE)
