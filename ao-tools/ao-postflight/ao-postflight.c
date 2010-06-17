@@ -39,6 +39,19 @@ static const char *state_names[] = {
 	"invalid"
 };
 
+static const char *kml_state_colours[] = {
+	"FF000000",
+	"FF000000",
+	"FF000000",
+	"FF0000FF",
+	"FF4080FF",
+	"FF00FFFF",
+	"FFFF0000",
+	"FF00FF00",
+	"FF000000",
+	"FFFFFFFF"
+};
+
 static int plot_colors[3][3] = {
 	{ 0, 0x90, 0 },	/* height */
 	{ 0xa0, 0, 0 },	/* speed */
@@ -161,28 +174,48 @@ merge_data(struct cc_perioddata *first, struct cc_perioddata *last, double split
 	return pd;
 }
 
-static const char kml_header[] =
+static const char kml_header_start[] =
 	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-	"<kml xmlns=\"http://earth.google.com/kml/2.0\">\n"
+	"<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n"
+	"<Document>\n"
+	"  <name>%s</name>\n"
+	"  <description>\n";
+static const char kml_header_end[] =
+	"  </description>\n"
+	"  <open>0</open>\n";
+
+static const char kml_style_start[] =
+	"  <Style id=\"ao-flightstate-%s\">\n"
+	"    <LineStyle><color>%s</color><width>4</width></LineStyle>\n"
+	"    <BalloonStyle>\n"
+	"      <text>\n";
+static const char kml_style_end[] =
+	"      </text>\n"
+	"    </BalloonStyle>\n"
+	"  </Style>\n";
+
+static const char kml_placemark_start[] =
 	"  <Placemark>\n"
-	"    <name>gps</name>\n"
-	"    <Style id=\"khStyle690\">\n"
-	"      <LineStyle id=\"khLineStyle694\">\n"
-	"        <color>ff00ffff</color>\n"
-	"        <width>4</width>\n"
-	"      </LineStyle>\n"
-	"      </Style>\n"
-	"    <MultiGeometry id=\"khMultiGeometry697\">\n"
-	"      <LineString id=\"khLineString698\">\n"
-	"        <tessellate>1</tessellate>\n"
-	"        <altitudeMode>absolute</altitudeMode>\n"
-	"        <coordinates>\n";
+	"    <name>%s</name>\n"
+	"    <styleUrl>#ao-flightstate-%s</styleUrl>\n"
+	"    <LineString>\n"
+	"      <tessellate>1</tessellate>\n"
+	"      <altitudeMode>absolute</altitudeMode>\n"
+	"      <coordinates>\n";
+
+static const char kml_coord_fmt[] =
+	"        %12.7f, %12.7f, %12.7f <!-- alt %12.7f time %12.7f sats %d -->\n";
+
+static const char kml_placemark_end[] =
+	"      </coordinates>\n"
+	"    </LineString>\n"
+	"  </Placemark>\n";
 
 static const char kml_footer[] =
-	"</coordinates>\n"
+	"      </coordinates>\n"
 	"    </LineString>\n"
-	"  </MultiGeometry>\n"
-	"</Placemark>\n"
+	"  </Placemark>\n"
+	"</Document>\n"
 	"</kml>\n";
 
 static unsigned
@@ -272,22 +305,33 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 	double	state_start, state_stop;
 	struct cc_flightcooked *cooked;
 	double	apogee;
+	char	buf[128];
+
+	if (kml_file) {
+                snprintf(buf, sizeof (buf), "AO Flight#%d S/N: %03d", f->flight, f->serial);
+		fprintf(kml_file, kml_header_start, buf);
+	}
 
 	fprintf(summary_file,
 		"Serial:  %9d\n"
 		"Flight:  %9d\n",
 		f->serial, f->flight);
+
 	if (f->year) {
-		fprintf(summary_file,
+		snprintf(buf, sizeof (buf),
 			"Date:   %04d-%02d-%02d\n",
 			f->year, f->month, f->day);
+		fprintf(summary_file, "%s", buf);
+		if (kml_file) fprintf(kml_file, "%s", buf);
 	}
 	if (f->gps.num) {
-		fprintf(summary_file,
+		snprintf(buf, sizeof (buf),
 			"Time:     %2d:%02d:%02d\n",
 			f->gps.data[0].hour,
 			f->gps.data[0].minute,
 			f->gps.data[0].second);
+		fprintf(summary_file, "%s", buf);
+		if (kml_file) fprintf(kml_file, "%s", buf);
 	}
 	boost_start = f->accel.data[0].time;
 	boost_stop = f->accel.data[f->accel.num-1].time;
@@ -309,10 +353,12 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 		min_pres = f->pres.data[pres_i].value;
 		height = cc_barometer_to_altitude(min_pres) -
 			cc_barometer_to_altitude(f->ground_pres);
-		fprintf(summary_file, "Max height: %9.2fm    %9.2fft   %9.2fs\n",
+		apogee = f->pres.data[pres_i].time;
+		snprintf(buf, sizeof (buf), "Max height: %9.2fm    %9.2fft   %9.2fs\n",
 			height, height * 100 / 2.54 / 12,
 			(f->pres.data[pres_i].time - boost_start) / 100.0);
-		apogee = f->pres.data[pres_i].time;
+		fprintf(summary_file, "%s", buf);
+		if (kml_file) fprintf(kml_file, "%s", buf);
 	}
 
 	cooked = cc_flight_cook(f);
@@ -320,9 +366,11 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 		speed_i = cc_perioddata_max(&cooked->accel_speed, boost_start, boost_stop);
 		if (speed_i >= 0) {
 			speed = cooked->accel_speed.data[speed_i];
-			fprintf(summary_file, "Max speed:  %9.2fm/s  %9.2fft/s %9.2fs\n",
+			snprintf(buf, sizeof (buf), "Max speed:  %9.2fm/s  %9.2fft/s %9.2fs\n",
 			       speed, speed * 100 / 2.4 / 12.0,
 			       (cooked->accel_speed.start + speed_i * cooked->accel_speed.step - boost_start) / 100.0);
+			fprintf(summary_file, "%s", buf);
+			if (kml_file) fprintf(kml_file, "%s", buf);
 		}
 	}
 	accel_i = cc_timedata_min(&f->accel, boost_start, boost_stop);
@@ -330,10 +378,15 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 	{
 		accel = cc_accelerometer_to_acceleration(f->accel.data[accel_i].value,
 							 f->ground_accel);
-		fprintf(summary_file, "Max accel:  %9.2fm/s² %9.2fg    %9.2fs\n",
+		snprintf(buf, sizeof (buf), "Max accel:  %9.2fm/s² %9.2fg    %9.2fs\n",
 			accel, accel /  9.80665,
 			(f->accel.data[accel_i].time - boost_start) / 100.0);
+		fprintf(summary_file, "%s", buf);
+		if (kml_file) fprintf(kml_file, "%s", buf);
 	}
+
+	if (kml_file)
+		fprintf(kml_file, "%s", kml_header_end);
 
 	for (i = 0; i < f->state.num; i++) {
 		state = f->state.data[i].value;
@@ -347,14 +400,23 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 		fprintf(summary_file, "State: %s\n", state_names[state]);
 		fprintf(summary_file, "\tStart:      %9.2fs\n", (state_start - boost_start) / 100.0);
 		fprintf(summary_file, "\tDuration:   %9.2fs\n", (state_stop - state_start) / 100.0);
+		if (kml_file) {
+			fprintf(kml_file, kml_style_start, state_names[state], kml_state_colours[state]);
+			fprintf(kml_file, "\tState: %s\n", state_names[state]);
+			fprintf(kml_file, "\tStart:      %9.2fs\n", (state_start - boost_start) / 100.0);
+			fprintf(kml_file, "\tDuration:   %9.2fs\n", (state_stop - state_start) / 100.0);
+		}
+
 		accel_i = cc_timedata_min(&f->accel, state_start, state_stop);
 		if (accel_i >= 0)
 		{
 			accel = cc_accelerometer_to_acceleration(f->accel.data[accel_i].value,
 								 f->ground_accel);
-			fprintf(summary_file, "\tMax accel:  %9.2fm/s² %9.2fg    %9.2fs\n",
+			snprintf(buf, sizeof (buf), "\tMax accel:  %9.2fm/s² %9.2fg    %9.2fs\n",
 			       accel, accel / 9.80665,
 			       (f->accel.data[accel_i].time - boost_start) / 100.0);
+			fprintf(summary_file, "%s", buf);
+			if (kml_file) fprintf(kml_file, "%s", buf);
 		}
 
 		if (cooked) {
@@ -371,11 +433,16 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 			}
 			if (speed_i >= 0)
 			{
-				fprintf(summary_file, "\tMax speed:  %9.2fm/s  %9.2fft/s %9.2fs\n",
+				snprintf(buf, sizeof (buf), "\tMax speed:  %9.2fm/s  %9.2fft/s %9.2fs\n",
 				       speed, speed * 100 / 2.4 / 12.0,
 				       (cooked->accel_speed.start + speed_i * cooked->accel_speed.step - boost_start) / 100.0);
-				fprintf(summary_file, "\tAvg speed:  %9.2fm/s  %9.2fft/s\n",
+				fprintf(summary_file, "%s", buf);
+				if (kml_file) fprintf(kml_file, "%s", buf);
+
+				snprintf(buf, sizeof (buf), "\tAvg speed:  %9.2fm/s  %9.2fft/s\n",
 					avg_speed, avg_speed * 100 / 2.4 / 12.0);
+				fprintf(summary_file, "%s", buf);
+				if (kml_file) fprintf(kml_file, "%s", buf);
 			}
 		}
 		pres_i = cc_timedata_min(&f->pres, state_start, state_stop);
@@ -384,10 +451,13 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 			min_pres = f->pres.data[pres_i].value;
 			height = cc_barometer_to_altitude(min_pres) -
 				cc_barometer_to_altitude(f->ground_pres);
-			fprintf(summary_file, "\tMax height: %9.2fm    %9.2fft   %9.2fs\n",
+			snprintf(buf, sizeof (buf), "\tMax height: %9.2fm    %9.2fft   %9.2fs\n",
 				height, height * 100 / 2.54 / 12,
 				(f->pres.data[pres_i].time - boost_start) / 100.0);
+			fprintf(summary_file, "%s", buf);
+			if (kml_file) fprintf(kml_file, "%s", buf);
 		}
+		if (kml_file) fprintf(kml_file, "%s", kml_style_end);
 	}
 	if (cooked && detail_file) {
 		double	max_height = 0;
@@ -431,7 +501,7 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 				daytime = compute_daytime_ms(time, &f->gps);
 			else
 				daytime = 0;
-			fprintf(raw_file, "%9.2f %9.2f %9.2f %9.2f %02d:%02d:%02d.%03d\n",
+			fprintf(raw_file, "%9.2f %9.2f %9.2f %02d:%02d:%02d.%03d\n",
 				time, pres, accel,
 				daytime_hour(daytime),
 				daytime_minute(daytime),
@@ -443,13 +513,17 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 		int	j = 0, baro_pos;
 		double	baro_offset;
 		double	baro = 0.0;
+		int	state_idx = 0;
 
 		if (gps_file)
 			fprintf(gps_file, "%2s %2s %2s %9s %12s %12s %9s %8s %5s\n",
 				"hr", "mn", "sc",
 				"time", "lat", "lon", "alt", "baro", "nsat");
 		if (kml_file)
-			fprintf(kml_file, "%s", kml_header);
+			fprintf(kml_file, kml_placemark_start,
+				state_names[(int)f->state.data[state_idx].value],
+				state_names[(int)f->state.data[state_idx].value]); 
+
 		if (f->gps.num)
 			baro_offset = f->gps.data[0].alt;
 		else
@@ -484,19 +558,6 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 					f->gps.data[i].lon,
 					f->gps.data[i].alt,
 					baro + baro_offset);
-			if (kml_file) {
-				fprintf(kml_file, "%12.7f, %12.7f, %12.7f <!-- alt %12.7f time %12.7f sats %d -->",
-					f->gps.data[i].lon,
-					f->gps.data[i].lat,
-					baro + baro_offset,
-					f->gps.data[i].alt,
-					(f->gps.data[i].time - boost_start) / 100.0,
-					nsat);
-				if (i < f->gps.num - 1)
-					fprintf(kml_file, ",\n");
-				else
-					fprintf(kml_file, "\n");
-			}
 
 			nsat = 0;
 			if (f->gps.sats) {
@@ -516,6 +577,28 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 					fprintf(gps_file, "\n");
 				}
 			}
+
+			if (kml_file) {
+	                	snprintf(buf, sizeof (buf), kml_coord_fmt,
+					f->gps.data[i].lon,
+					f->gps.data[i].lat,
+					baro + baro_offset,
+					f->gps.data[i].alt,
+					(f->gps.data[i].time - boost_start) / 100.0,
+					nsat);
+				fprintf(kml_file, "%s", buf);
+				if (state_idx + 1 <= f->state.num && f->state.data[state_idx + 1].time <= f->gps.data[i].time) {
+					state_idx++;
+					if (f->state.data[state_idx - 1].value != f->state.data[state_idx].value) {
+						fprintf(kml_file, "%s", kml_placemark_end);
+						fprintf(kml_file, kml_placemark_start,
+							state_names[(int)f->state.data[state_idx].value],
+							state_names[(int)f->state.data[state_idx].value]); 
+						fprintf(kml_file, "%s", buf);
+					}
+				}
+			}
+
 		}
 		if (kml_file)
 			fprintf(kml_file, "%s", kml_footer);
@@ -705,7 +788,7 @@ main (int argc, char **argv)
 		if (has_gps && !gps_file)
 			gps_file = open_output(gps_name, argv[i], ".gps");
 		if (has_kml && !kml_file)
-			kml_file = open_output(gps_name, argv[i], ".kml");
+			kml_file = open_output(kml_name, argv[i], ".kml");
 		s = strstr(argv[i], "-serial-");
 		if (s)
 			serial = atoi(s + 8);
