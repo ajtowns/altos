@@ -1,35 +1,37 @@
-# Contributor: Bob Finch <w9ya@qrpqrci.net>
+# Original contributor: Bob Finch <w9ya@qrpqrci.net>
 pkgname=altos-git
-pkgver=20100507
+pkgver=20100518
 pkgrel=1
 pkgdesc="Software solutions for high powered rocketry avionics"
 arch=('i686' 'x86_64')
 url="http://www.altusmetrum.org/AltOS/"
 license=('GPL')
-depends=('openssl>=1.0.0' 'libusb-BETA' 'plplot-svn' 'sdcc' 'nickle' 'flite' 'kernel26>=2.6.33')
+provides=('altos')
+conflicts=('altos')
+depends=('openssl>=1.0.0' 'libusb-beta' 'plplot-svn' 'sdcc' 'nickle'\
+         'flite' 'kernel26>=2.6.33' 'gconf' 'alsa-lib' 'libglade'\
+         'docbook-xsl' 'fop')
 makedepends=('git')
-optdepends=('uucp: cu is included and is a bare boned terminal to serial program'
+optdepends=('uucp: cu is included & is a bare boned terminal 2 serial program'
             'cutemon: gui-based minimal terminal to serial program'
-            'google-earth: useful for viewing the kml files of the flight path'
-            'docbook-xsl: for making an html doc file from the xsl source'
-            'fop: for making a pdf doc file from the xsl source')
+            'google-earth: useful for viewing the kml files of the flight path')
 
 _gitroot="git://git.gag.com/fw/altos"
 _gitname="altos"
 
 build() {
   cd "$srcdir"
-#  msg "Connecting to GIT server...."
+  msg "Connecting to GIT server...."
 
   if [ -d $_gitname ] ; then
     cd $_gitname && git pull origin
-#    msg "The local files are updated."
+    msg "The local files are updated."
   else
     git clone $_gitroot
   fi
 
-#  msg "GIT checkout done or server timeout"
-#  msg "Starting make..."
+  msg "GIT checkout done or server timeout"
+  msg "Starting make..."
 
   rm -rf "$srcdir/$_gitname-build"
   git clone "$srcdir/$_gitname" "$srcdir/$_gitname-build"
@@ -49,17 +51,14 @@ build() {
   install -m644 debian/*.xpm $startdir/pkg/usr/share/pixmaps
   install -m644 debian/*.desktop $startdir/pkg/usr/share/applications
   
-  #
-  # OPTIONAL DOC BUILD - *** UNCOMMENT TO INSTALL DOCUMENTATION
-  #
   
-#  xsltproc -o telemetrum.html /usr/share/xml/docbook/xsl-stylesheets-1.74.0/html/docbook.xsl\
-#       doc/telemetrum.xml
-#  xsltproc -o telemetrum.fo /usr/share/xml/docbook/xsl-stylesheets-1.74.0/fo/docbook.xsl\
-#       doc/telemetrum.xml
-#  fop -fo telemetrum.fo -pdf telemetrum.pd
-#  
-#  mkdir -p $startdir/pkg/usr/share/altos/doc
-#  install -m 644 *.html $startdir/pkg/usr/share/altos/doc/
-#  install -m 644 *.pdf $startdir/pkg/usr/share/altos/doc/
+  xsltproc -o telemetrum.html /usr/share/xml/docbook/xsl-stylesheets-1.74.0/html/docbook.xsl\
+       doc/telemetrum.xsl
+  xsltproc -o telemetrum.fo /usr/share/xml/docbook/xsl-stylesheets-1.74.0/fo/docbook.xsl\
+       doc/telemetrum.xsl
+  fop -fo telemetrum.fo -pdf telemetrum.pdf
+  
+  mkdir -p $startdir/pkg/usr/share/altos/doc
+  install -m 644 *.html $startdir/pkg/usr/share/altos/doc/
+  install -m 644 *.pdf $startdir/pkg/usr/share/altos/doc/
 } 

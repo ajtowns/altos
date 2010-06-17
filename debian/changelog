@@ -1,3 +1,16 @@
+altos (0.6+214+g16c4cae) unstable; urgency=low
+
+  [ Bdale Garbee ]
+  * updates including a typo fix from Bob Finch to the PKGBUILD-git.altos
+  * merge a derivative of Bob Finch's mere mortals guide as getting started
+  * merge the altusmetrum-themes package
+
+  [ Keith Packard ]
+  * Fix telemetrum.inf, tested by Adrian and Keithp
+  * Finish basic flight monitoring UI with voice using FreeTTS
+
+ -- Bdale Garbee <bdale@gag.com>  Tue, 18 May 2010 00:24:40 -0600
+
 altos (0.6+204+g6bd8513) unstable; urgency=low
 
   * lose the quotes since they apparently aren't necessary

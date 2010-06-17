@@ -1,11 +1,14 @@
-# Contributor: Bob Finch <w9ya@qrpqrci.net>
+# Original contributor: Bob Finch <w9ya@qrpqrci.net>
 pkgname=nickle-git
-pkgver=20100507
+pkgver=20100518
 pkgrel=1
 pkgdesc="A desk calculator language with powerful programming and scripting capabilities."
 arch=('i686' 'x86_64')
 url="http://keithp.com/git-repository/"
 license=('custom')
+provides=('nickle')
+conflicts=('nickle')
+depends=('readline')
 makedepends=('git')
 
 _gitroot="git://keithp.com/git/nickle"
@@ -13,17 +16,17 @@ _gitname="nickle"
 
 build() {
   cd "$srcdir"
-#  msg "Connecting to GIT server...."
+  msg "Connecting to GIT server...."
 
   if [ -d $_gitname ] ; then
     cd $_gitname && git pull origin
-#    msg "The local files are updated."
+    msg "The local files are updated."
   else
     git clone $_gitroot
   fi
 
-#  msg "GIT checkout done or server timeout"
-#  msg "Starting make..."
+  msg "GIT checkout done or server timeout"
+  msg "Starting make..."
 
   rm -rf "$srcdir/$_gitname-build"
   git clone "$srcdir/$_gitname" "$srcdir/$_gitname-build"
@@ -39,5 +42,5 @@ build() {
   make DESTDIR="$pkgdir/" install
   
   install -D -m 644 COPYING\
-     $startdir/pkg/usr/share/licenses/nickle/COPYING.txt
+     $startdir/pkg/usr/share/licenses/$_gitname/COPYING.txt
 } 
