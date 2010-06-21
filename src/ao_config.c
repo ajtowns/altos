@@ -151,6 +151,7 @@ ao_config_radio_channel_set(void) __reentrant
 	ao_config_dirty = 1;
 	ao_mutex_put(&ao_config_mutex);
 	ao_config_radio_channel_show();
+	ao_radio_abort();
 }
 
 #if HAS_ADC
