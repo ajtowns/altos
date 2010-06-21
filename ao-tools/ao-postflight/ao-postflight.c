@@ -587,7 +587,7 @@ analyse_flight(struct cc_flightraw *f, FILE *summary_file, FILE *detail_file,
 					(f->gps.data[i].time - boost_start) / 100.0,
 					nsat);
 				fprintf(kml_file, "%s", buf);
-				if (state_idx + 1 <= f->state.num && f->state.data[state_idx + 1].time <= f->gps.data[i].time) {
+				if (state_idx + 1 < f->state.num && f->state.data[state_idx + 1].time <= f->gps.data[i].time) {
 					state_idx++;
 					if (f->state.data[state_idx - 1].value != f->state.data[state_idx].value) {
 						fprintf(kml_file, "%s", kml_placemark_end);
