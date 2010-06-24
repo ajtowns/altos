@@ -1,3 +1,19 @@
+altos (0.6+223+g5283451) unstable; urgency=low
+
+  [ Bdale Garbee ]
+  * documentation updates from Bob
+
+  [ Mike Beattie ]
+  * Extension to KML output format, and minor bug fix
+
+  [ Keith Packard ]
+  * ao-view: disable radio telemetry monitoring during channel change
+  * Add special code for USB panic's.
+  * ao-postflight: was walking off state.data array
+  * Abort any in-progress radio operation when changing radio channel
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 24 Jun 2010 12:37:34 -0700
+
 altos (0.6+214+g16c4cae) unstable; urgency=low
 
   [ Bdale Garbee ]

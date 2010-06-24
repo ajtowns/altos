@@ -1,3 +1,91 @@
+commit 52834517c0706b1f16fb81643a42dc1c1997e00a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jun 21 15:53:33 2010 -0700
+
+    Abort any in-progress radio operation when changing radio channel
+    
+    In monitor mode, the current receive operation must be aborted so that
+    the radio channel change can take effect without receiving a
+    telemetry packet on the old channel. Aborting any in-progress radio
+    operation will make sure that happens.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5933eaa44fe45027b856f1303dd657b974eb53e7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jun 21 11:44:32 2010 -0700
+
+    ao-postflight: was walking off state.data array
+
+commit 11d155d558d0b121b66f089adee0a47d71f65a78
+Merge: 544003a 24393ea
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jun 16 21:54:06 2010 -0700
+
+    Merge remote branch 'mjb/master'
+
+commit 544003a8da0248fd6f3c62ded86af74ab7cdadf6
+Merge: 267923e 93c1e29
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jun 16 21:52:23 2010 -0700
+
+    Merge remote branch 'origin/master'
+
+commit 267923e56e22b3635a21f42ef77a3a36158bc273
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jun 16 21:49:43 2010 -0700
+
+    Add special code for USB panic's.
+    
+    The USB system may panic if the hardware isn't ready for IN data when
+    the driver thinks it should be. This adds a special panic code to make
+    figuring this out easier.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 50ae347bf9de49ccfc92d26888f36e155fb406a3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jun 16 21:48:04 2010 -0700
+
+    ao-view: disable radio telemetry monitoring during channel change
+    
+    This makes ao-view disable the radio so that the channel change has an
+    immediate effect rather than waiting for a packet on the old channel.
+    
+    Note that this should also be fixed in the TM code itself so that this
+    change wouldn't be required.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 24393eab0ea085f2d0224b59fdc3c00693e5d3a9
+Author: Mike Beattie <mike@ethernal.org>
+Date:   Thu Jun 17 14:04:01 2010 +1200
+
+    Extension to KML output format, and minor bug fix
+    
+    Extended KML output by breaking flight into coloured segments representing
+    flight state. Add extra statistical information to description bubbles
+    visible in Google Earth when clicking on links in My Places.
+    
+    Fix Bugs:
+    * output kml to file provided as argument.
+    * move kml coordinate output code to take advantage of nsat calculation
+    * remove superfluous %9.2f format specifier from raw_file output.
+    
+    Signed-off-by: Mike Beattie <mike@ethernal.org>
+
+commit 93c1e29b07c331a5ca6e0f647b9d2e9266ed3014
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue May 18 23:12:45 2010 -0600
+
+    updates from Bob
+
+commit bb46c9a1da5788a082e4483e576a5a6d3963507b
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue May 18 00:26:28 2010 -0600
+
+    update changelogs for Debian build
+
 commit 16c4cae7ebed7bd3ee0f12b8872bf950574f17e8
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Tue May 18 00:26:00 2010 -0600
