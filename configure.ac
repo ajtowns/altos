@@ -77,6 +77,8 @@ PKG_CHECK_MODULES([ALSA], [alsa])
 
 PKG_CHECK_MODULES([PLPLOT], [plplotd])
 
+PKG_CHECK_MODULES([SNDFILE], [sndfile])
+
 AC_OUTPUT([
 Makefile
 ao-tools/Makefile

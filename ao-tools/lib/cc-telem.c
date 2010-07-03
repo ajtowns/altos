@@ -101,6 +101,10 @@ cc_telem_parse(const char *input_line, struct cc_telem *telem)
 		telem->flight = 0;
 
 	cc_parse_int(&telem->rssi, words[5]);
+	if (version <= 2) {
+		/* Older telemetry versions mis-computed the rssi value */
+		telem->rssi = (telem->rssi + 74) / 2 - 74;
+	}
 	cc_parse_string(telem->state, sizeof (telem->state), words[9]);
 	cc_parse_int(&telem->tick, words[10]);
 	cc_parse_int(&telem->accel, words[12]);
