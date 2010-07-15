@@ -164,6 +164,12 @@ ao_dbg_read_byte(void)
 static void
 ao_dbg_set_pins(void)
 {
+	/* Make the DBG pins GPIOs. On TeleMetrum, this will
+	 * disable the SPI link, so don't expect SPI to work after
+	 * using the debugger.
+	 */
+	DBG_PORT_SEL &= ~(DBG_CLOCK|DBG_DATA|DBG_RESET_N);
+
 	/* make DBG_DATA tri-state */
 	DBG_PORT_INP |= DBG_DATA;
 
