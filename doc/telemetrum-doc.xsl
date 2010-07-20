@@ -28,6 +28,11 @@
     </legalnotice>
     <revhistory>
       <revision>
+        <revnumber>0.2</revnumber>
+        <date>18 July 2010</date>
+        <revremark>Significant update</revremark>
+      </revision>
+      <revision>
         <revnumber>0.1</revnumber>
         <date>30 March 2010</date>
         <revremark>Initial content</revremark>
@@ -57,6 +62,11 @@
       form a complete ground station capable of logging and displaying in-flight
       telemetry, aiding rocket recovery, then processing and archiving flight
       data for analysis and review.
+    </para>
+    <para>
+      More products will be added to the Altus Metrum family over time, and
+      we currently envision that this will be a single, comprehensive manual
+      for the entire product family.
     </para>
   </chapter>
   <chapter>
@@ -107,13 +117,14 @@
     <para>
       When you have successfully installed the software suite (either from 
       compiled source code or as the pre-built Debian package) you will 
-      have 10 executable programs all of which have names beginning with 'ao-'.
-      ('ao-view' is the lone GUI-based program. 
-      The rest are command-line based.) You will also 
-      have 10 man pages, that give you basic info on each program.
-      And you will also get this documentation in two file types,
-      telemetrum.pdf and telemetrum.html.
-      Finally you will have a couple of control files that allow the ao-view 
+      have 10 or so executable programs all of which have names beginning 
+	with 'ao-'.
+      ('ao-view' is the lone GUI-based program, the rest are command-line 
+      oriented.) You will also have man pages, that give you basic info 
+	on each program.
+      You will also get this documentation in two file types in the doc/ 
+directory, telemetrum-doc.pdf and telemetrum-doc.html.
+      Finally you will have a couple control files that allow the ao-view 
       GUI-based program to appear in your menu of programs (under 
       the 'Internet' category). 
     </para>
@@ -121,8 +132,8 @@
       Both Telemetrum and TeleDongle can be directly communicated 
       with using USB ports. The first thing you should try after getting 
       both units plugged into to your computer's usb port(s) is to run 
-      'ao-list' from a terminal-window (I use konsole for this,) to see what 
-      port-device-name each device has been assigned by the operating system. 
+      'ao-list' from a terminal-window to see what port-device-name each 
+	device has been assigned by the operating system. 
       You will need this information to access the devices via their 
       respective on-board firmware and data using other command line
       programs in the AltOS software suite.
@@ -146,8 +157,8 @@
     </para>
     <para>
       Both TeleMetrum and TeleDongle share the concept of a two level 
-      command set in their 
-      firmware.  The first layer has several single letter commands. Once 
+      command set in their firmware.  
+	The first layer has several single letter commands. Once 
       you are using 'cu' (or 'cutecom') sending (typing) a '?' 
       returns a full list of these
       commands. The second level are configuration sub-commands accessed 
@@ -165,10 +176,11 @@
       place to start is by setting your call sign.  By default, the boards
       use 'N0CALL' which is cute, but not exactly legal!
       Spend a few minutes getting comfortable with the units, their 
-      firmware, 'cu' (and possibly 'cutecom') For instance, try to send 
-      (type) a 'cr2' and verify the channel change by sending a 'cs'. 
-      Verify you can connect and disconnect from the units while in 'cu' 
-      by sending the escape-disconnect mentioned above.
+      firmware, and 'cu' (or possibly 'cutecom').
+	For instance, try to send 
+      (type) a 'c r 2' and verify the channel change by sending a 'c s'. 
+      Verify you can connect and disconnect from the units while in your
+      terminal program by sending the escape-disconnect mentioned above.
     </para>
     <para>
       Note that the 'reboot' command, which is very useful on TeleMetrum, 
@@ -237,7 +249,8 @@
     <para>
       As for ao-view.... some things are in the menu but don't do anything 
       very useful.  The developers have stopped working on ao-view to focus
-      on a new, cross-platform ground station program.  Mostly you just use 
+      on a new, cross-platform ground station program.  So ao-view may or 
+	may not be updated in the future.  Mostly you just use 
       the Log and Device menus.  It has a wonderful display of the incoming 
       flight data and I am sure you will enjoy what it has to say to you 
       once you enable the voice output!
@@ -291,7 +304,9 @@
         unlike the rf-linked .telem files that are subject to the 
         turnarounds/data-packaging time slots in the half-duplex rf data path. 
         See the above instructions on what and how to save the eeprom stored 
-        data after physically retrieving your TeleMetrum.
+        data after physically retrieving your TeleMetrum.  Make sure to save
+	the on-board data after each flight, as the current firmware will
+	over-write any previous flight data during a new flight.
         </para>
       </section>
     </chapter>
@@ -382,11 +397,12 @@
         mounting situations, it and all of the other surface mount components 
         are "down" towards whatever the underlying mounting surface is, so
         this is not normally a problem.  Please consider this, though, when
-        designing an installation, for example, in a 29mm airframe's see-through
-        plastic payload bay.
+        designing an installation, for example, in a 29mm airframe with a 
+	see-through plastic payload bay.
       </para>
       <para>
-        The TeleMetrum barometric sensor sampling port must be able to "breathe",
+        The TeleMetrum barometric sensor sampling port must be able to 
+	"breathe",
         both by not being covered by foam or tape or other materials that might
         directly block the hole on the top of the sensor, but also by having a
         suitable static vent to outside air.  
@@ -439,8 +455,8 @@
         connectors.  If the airframe will not support this much height or if
         you want to be able to directly attach e-match leads to the board, we
         offer a screw terminal block.  This is very similar to what most other
-        altimeter vendors provide and so may be the most familiar
-        option.  You'll need a very small straight blade screwdriver to connect
+        altimeter vendors provide and so may be the most familiar option.  
+	You'll need a very small straight blade screwdriver to connect
         and disconnect the board in this case, such as you might find in a
         jeweler's screwdriver set.  Finally, you can forego both options and
         solder wires directly to the board, which may be the best choice for
@@ -471,13 +487,14 @@
           idle mode.
         </para>
         <para>
-          At power on, you will hear three beeps ("S" in Morse code for startup)
-          and then a pause while 
+          At power on, you will hear three beeps 
+	  ("S" in Morse code for startup) and then a pause while 
           TeleMetrum completes initialization and self tests, and decides which
           mode to enter next.
         </para>
         <para>
-          In flight mode, TeleMetrum turns on the GPS system, engages the flight
+          In flight or "pad" mode, TeleMetrum turns on the GPS system, 
+	  engages the flight
           state machine, goes into transmit-only mode on the RF link sending 
           telemetry, and waits for launch to be detected.  Flight mode is
           indicated by an audible "di-dah-dah-dit" ("P" for pad) on the 
@@ -596,8 +613,8 @@
           correction support in the cc1111 chip, this allows us to have a very
           robust 38.4 kilobit data link with only 10 milliwatts of transmit power,
           a whip antenna in the rocket, and a hand-held Yagi on the ground.  We've
-          had a test flight above 12k AGL with good reception, and calculations
-          suggest we should be good to 40k AGL or more with a 5-element yagi on
+          had flights to above 21k feet AGL with good reception, and calculations
+          suggest we should be good to well over 40k feet AGL with a 5-element yagi on
           the ground.  We hope to fly boards to higher altitudes soon, and would
           of course appreciate customer feedback on performance in higher
           altitude flights!
@@ -627,7 +644,8 @@
             To set the radio channel, use the 'c r' command, like 'c r 3' to set
             channel 3.  
             As with all 'c' sub-commands, follow this with a 'c w' to write the 
-            change to the parameter block in the on-board DataFlash chip.
+            change to the parameter block in the on-board DataFlash chip on
+	your TeleMetrum board if you want the change to stay in place across reboots.
           </para>
         </section>
         <section>
@@ -644,6 +662,16 @@
             To set the apogee delay, use the [FIXME] command.
             As with all 'c' sub-commands, follow this with a 'c w' to write the 
             change to the parameter block in the on-board DataFlash chip.
+          </para>
+          <para>
+	Please note that the TeleMetrum apogee detection algorithm always
+	fires a fraction of a second *after* apogee.  If you are also flying
+	an altimeter like the PerfectFlite MAWD, which only supports selecting
+	0 or 1 seconds of apogee delay, you may wish to set the MAWD to 0
+	seconds delay and set the TeleMetrum to fire your backup 2 or 3
+	seconds later to avoid any chance of both charges firing 
+	simultaneously.  We've flown several airframes this way quite happily,
+	including Keith's successful L3 cert.
           </para>
         </section>
         <section>
