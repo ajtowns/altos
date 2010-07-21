@@ -1,3 +1,15 @@
+commit 8f1933717e3acfbcb09191da6e79a7944f91f9d9
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jul 20 22:19:27 2010 -0600
+
+    reflect documentation file name change
+
+commit 2cf1ef555a7feceeb1c333b273c19dd848e8d03f
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jul 20 22:15:47 2010 -0600
+
+    update changelogs for Debian build
+
 commit 74c67fc466118b86b4eb5173f7a6886ae220a985
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Tue Jul 20 22:14:27 2010 -0600
