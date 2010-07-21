@@ -804,7 +804,7 @@ ao_gps_report_init(void);
  */
 
 #define AO_MAX_CALLSIGN		8
-#define AO_TELEMETRY_VERSION	2
+#define AO_TELEMETRY_VERSION	3
 
 struct ao_telemetry {
 	uint8_t			addr;

@@ -26,6 +26,7 @@ ao_monitor(void)
 	__xdata struct ao_radio_recv recv;
 	__xdata char callsign[AO_MAX_CALLSIGN+1];
 	uint8_t state;
+	int16_t rssi;
 
 	for (;;) {
 		__critical while (!ao_monitoring)
@@ -33,6 +34,9 @@ ao_monitor(void)
 		if (!ao_radio_recv(&recv))
 			continue;
 		state = recv.telemetry.flight_state;
+
+		/* Typical RSSI offset for 38.4kBaud at 433 MHz is 74 */
+		rssi = (int16_t) (recv.rssi >> 1) - 74;
 		memcpy(callsign, recv.telemetry.callsign, AO_MAX_CALLSIGN);
 		if (state > ao_flight_invalid)
 			state = ao_flight_invalid;
@@ -42,7 +46,7 @@ ao_monitor(void)
 			       callsign,
 			       recv.telemetry.addr,
 			       recv.telemetry.flight,
-			       (int) recv.rssi - 74, recv.status,
+			       rssi, recv.status,
 			       ao_state_names[state]);
 			printf("%5u a: %5d p: %5d t: %5d v: %5d d: %5d m: %5d "
 			       "fa: %5d ga: %d fv: %7ld fp: %5d gp: %5d a+: %5d a-: %5d ",
@@ -64,9 +68,9 @@ ao_monitor(void)
 			putchar(' ');
 			ao_gps_tracking_print(&recv.telemetry.gps_tracking);
 			putchar('\n');
-			ao_rssi_set((int) recv.rssi - 74);
+			ao_rssi_set(rssi);
 		} else {
-			printf("CRC INVALID RSSI %3d\n", (int) recv.rssi - 74);
+			printf("CRC INVALID RSSI %3d\n", rssi);
 		}
 		ao_usb_flush();
 		ao_led_toggle(ao_monitor_led);
