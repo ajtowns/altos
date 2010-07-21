@@ -1,3 +1,15 @@
+commit 74c67fc466118b86b4eb5173f7a6886ae220a985
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jul 20 22:14:27 2010 -0600
+
+    add build dep for sndfile
+
+commit 0794ab1e13313fa49b7caf01aef20b052ad78a88
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jul 20 22:10:01 2010 -0600
+
+    update changelogs for Debian build
+
 commit 15a6791ba8f8313b6b55752c3fa7dc254d56dd5c
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Tue Jul 20 22:08:56 2010 -0600
