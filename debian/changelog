@@ -1,4 +1,4 @@
-altos (0.6+229+ge747954) unstable; urgency=low
+altos (0.6+230+g15a6791) unstable; urgency=low
 
   [ Keith Packard ]
   * Telemetry code was mis-computing RSSI
