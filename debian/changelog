@@ -1,4 +1,4 @@
-altos (0.6+234+g8f19337) unstable; urgency=low
+altos (0.6+236+gcd8aa79) unstable; urgency=low
 
   [ Keith Packard ]
   * Telemetry code was mis-computing RSSI
@@ -9,8 +9,9 @@ altos (0.6+234+g8f19337) unstable; urgency=low
   * significant documentation update
   * add build dep for sndfile
   * reflect documentation file name change
+  * update to latest Debian standards version
 
- -- Bdale Garbee <bdale@gag.com>  Tue, 20 Jul 2010 22:08:06 -0600
+ -- Bdale Garbee <bdale@gag.com>  Tue, 20 Jul 2010 22:24:14 -0600
 
 altos (0.6+224+g4766b13) unstable; urgency=low
 

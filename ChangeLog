@@ -1,3 +1,15 @@
+commit cd8aa79de72b8b6b3a26d0c2522e94c621b70f13
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jul 20 22:24:01 2010 -0600
+
+    update to latest Debian standards version
+
+commit 3284c7516e302e6db403d18866924ad926ffb2a7
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jul 20 22:20:08 2010 -0600
+
+    update changelogs for Debian build
+
 commit 8f1933717e3acfbcb09191da6e79a7944f91f9d9
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Tue Jul 20 22:19:27 2010 -0600
