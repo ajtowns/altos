@@ -32,7 +32,7 @@ read SERIAL
 echo $RAWLOAD
 
 $RAWLOAD -r ao_led_blink.ihx
-echo "LEDs should be blinking"
+echo "the red LED should be blinking"
 sleep 5
 
 $RAWLOAD -r ao_radio_xmit.ihx
