@@ -1,3 +1,15 @@
+altos (0.6+229+ge747954) unstable; urgency=low
+
+  [ Keith Packard ]
+  * Telemetry code was mis-computing RSSI
+  * Switch DBG pins to GPIO when using any debug commands. Reboot to
+    restore.
+
+  [ Bdale Garbee ]
+  * significant documentation update
+
+ -- Bdale Garbee <bdale@gag.com>  Tue, 20 Jul 2010 22:08:06 -0600
+
 altos (0.6+224+g4766b13) unstable; urgency=low
 
   [ Bdale Garbee ]

@@ -1,3 +1,49 @@
+commit e747954b6a9e71705f619684df8a118a909b1039
+Merge: bd40a5b 695879d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jul 20 22:07:22 2010 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit bd40a5b431847c071f5c486d754eca5627e5e3b9
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jul 20 02:12:03 2010 -0600
+
+    significant update
+
+commit 695879dbccfc5ec6b79698653c58814158f91686
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 14 19:07:02 2010 -0700
+
+    Switch DBG pins to GPIO when using any debug commands. Reboot to restore.
+    
+    If you want to use TeleMetrum as a debug dongle, you need to flip the
+    three pins used to talk to the remote debug port from SPI mode to GPIO
+    mode.
+    
+    This patch doesn't provide any way to get back to SPI mode, so you'll
+    have to reboot the TeleMetrum to write out config parameters or log
+    flight data after using any debug commands.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a9ec6be0e92dee01f7aac006ef6f7779c1da1b36
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 3 17:42:36 2010 -0400
+
+    Telemetry code was mis-computing RSSI
+    
+    The RSSI data from the hardware reports in 1/2 dBm increments, and so
+    must be divided to report plain RSSI numbers.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 62294ea3830d3ea261a8761edc9fa6f98201d321
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Jun 24 12:38:23 2010 -0700
+
+    update changelogs for Debian build
+
 commit 4766b13d1241fa585907c6f77707d2d4b3ccff75
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Jun 24 12:37:55 2010 -0700
