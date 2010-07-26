@@ -82,10 +82,11 @@ ao_usb_ep0_flush(void)
 	__xdata uint8_t this_len;
 	__xdata uint8_t	cs0;
 
+	/* If the IN packet hasn't been picked up, just return */
 	USBINDEX = 0;
 	cs0 = USBCS0;
 	if (cs0 & USBCS0_INPKT_RDY)
-		ao_panic(AO_PANIC_USB);
+		return;
 
 	this_len = ao_usb_ep0_in_len;
 	if (this_len > AO_USB_CONTROL_SIZE)
