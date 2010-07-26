@@ -1,6 +1,6 @@
 .SUFFIXES: .java .class
 
-CLASSPATH=..:/usr/share/java/*:/home/keithp/src/freetts/freetts-1.2.2
+CLASSPATH=..:../libaltos:/usr/share/java/*:/home/keithp/src/freetts/freetts-1.2.2
 CLASSFILES=\
 	AltosConvert.class \
 	AltosFile.class \
@@ -15,24 +15,18 @@ CLASSFILES=\
 	AltosTelemetry.class \
 	AltosUI.class \
 	AltosDevice.class \
-	AltosDeviceLinux.class \
 	AltosDeviceDialog.class \
 	AltosVoice.class
 
 JAVAFLAGS=-Xlint:unchecked
 
-all: $(CLASSFILES) altosui altosui.jar
+all: $(CLASSFILES) altosui.jar
 
 .java.class:
 	javac -cp "$(CLASSPATH)" $(JAVAFLAGS) $*.java
 
-altosui: Makefile
-	(echo '#!/bin/sh'; \
-	echo exec java -cp '"$(CLASSPATH)"' altosui/AltosUI) > $@
-	chmod +x $@
-
 altosui.jar: $(CLASSFILES) Manifest.txt
-	cd .. && jar cfm altosui/$@ altosui/Manifest.txt altosui/*.class
+	jar cfm $@ altosui/Manifest.txt altosui/*.class libaltosJNI/*.class
 
 clean:
 	rm -f *.class

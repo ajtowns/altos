@@ -90,6 +90,9 @@ public class AltosGPS {
 			gps_connected = true;
 			gps_time = new AltosGPSTime();
 			i++;
+		} else if ((words[i]).equals("not-connected")) {
+			gps_time = new AltosGPSTime();
+			i++;
 		} else if (words.length >= 40) {
 			gps_locked = true;
 			gps_connected = true;
@@ -106,6 +109,7 @@ public class AltosGPS {
 			v_error = AltosParse.parse_int(AltosParse.strip_suffix(words[i++], "(verr)"));
 		} else {
 			gps_time = new AltosGPSTime();
+			i++;
 		}
 		AltosParse.word(words[i++], "SAT");
 		int tracking_channels = 0;

@@ -27,7 +27,6 @@ import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
-import gnu.io.*;
 
 import altosui.AltosSerial;
 import altosui.AltosSerialMonitor;
@@ -37,6 +36,8 @@ import altosui.AltosDeviceDialog;
 import altosui.AltosPreferences;
 import altosui.AltosLog;
 import altosui.AltosVoice;
+
+import libaltosJNI.*;
 
 class AltosFlightStatusTableModel extends AbstractTableModel {
 	private String[] columnNames = {"Height (m)", "State", "RSSI (dBm)", "Speed (m/s)" };
@@ -475,31 +476,21 @@ public class AltosUI extends JFrame {
 	}
 
 	private void ConnectToDevice() {
-		AltosDevice	device = AltosDeviceDialog.show(AltosUI.this, "TeleDongle");
+		altos_device	device = AltosDeviceDialog.show(AltosUI.this, "TeleDongle");
 
 		if (device != null) {
 			try {
-				serial_line.connect(device.tty);
+				serial_line.open(device);
 				DeviceThread thread = new DeviceThread(serial_line);
 				run_display(thread);
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
-							      device.tty,
+							      device.getPath(),
 							      "Cannot open serial port",
-							      JOptionPane.ERROR_MESSAGE);
-			} catch (NoSuchPortException ee) {
-				JOptionPane.showMessageDialog(AltosUI.this,
-							      device.tty,
-							      "No such serial port",
-							      JOptionPane.ERROR_MESSAGE);
-			} catch (PortInUseException ee) {
-				JOptionPane.showMessageDialog(AltosUI.this,
-							      device.tty,
-							      "Port in use",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (IOException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
-							      device.tty,
+							      device.getPath(),
 							      "Unkonwn I/O error",
 							      JOptionPane.ERROR_MESSAGE);
 			}

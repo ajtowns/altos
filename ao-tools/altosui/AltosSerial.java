@@ -26,8 +26,11 @@ import java.io.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.LinkedList;
 import java.util.Iterator;
-import gnu.io.*;
 import altosui.AltosSerialMonitor;
+import libaltosJNI.libaltos;
+import libaltosJNI.altos_device;
+import libaltosJNI.SWIGTYPE_p_altos_file;
+import libaltosJNI.SWIGTYPE_p_altos_list;
 
 /*
  * This class reads from the serial port and places each received
@@ -35,7 +38,7 @@ import altosui.AltosSerialMonitor;
  * threads.
  */
 class AltosSerialReader implements Runnable {
-	InputStream	serial_in;
+	SWIGTYPE_p_altos_file altos;
 	LinkedList<LinkedBlockingQueue<String>> monitors;
 	LinkedBlockingQueue<String> reply_queue;
 	Thread input_thread;
@@ -46,7 +49,7 @@ class AltosSerialReader implements Runnable {
 
 		try {
 			for (;;) {
-				c = serial_in.read();
+				c = libaltos.altos_getchar(altos, 0);
 				if (Thread.interrupted())
 					break;
 				if (c == -1)
@@ -70,7 +73,6 @@ class AltosSerialReader implements Runnable {
 					}
 				}
 			}
-		} catch (IOException e) {
 		} catch (InterruptedException e) {
 		}
 	}
@@ -96,16 +98,13 @@ class AltosSerialReader implements Runnable {
 	}
 
 	public boolean opened() {
-		return serial_in != null;
+		return altos != null;
 	}
 
 	public void close() {
-		if (serial_in != null) {
-			try {
-				serial_in.close();
-			} catch (IOException e) {
-			}
-			serial_in = null;
+		if (altos != null) {
+			libaltos.altos_close(altos);
+			altos = null;
 		}
 		if (input_thread != null) {
 			try {
@@ -117,62 +116,30 @@ class AltosSerialReader implements Runnable {
 		}
 	}
 
-	public void open(File name) throws FileNotFoundException {
+	public void open(altos_device device) throws FileNotFoundException {
 		close();
-		serial_in = new FileInputStream(name);
-		input_thread = new Thread(this);
-		input_thread.start();
-	}
-	public void open(CommPort c) throws IOException {
-		close();
-		try {
-		c.enableReceiveTimeout(1000);	/* icky. the read method cannot be interrupted */
-		} catch (UnsupportedCommOperationException ee) {
-		}
-		serial_in = c.getInputStream();
+		altos = libaltos.altos_open(device);
 		input_thread = new Thread(this);
 		input_thread.start();
 	}
 	public AltosSerialReader () {
-		serial_in = null;
+		altos = null;
 		input_thread = null;
 		line = "";
 		monitors = new LinkedList<LinkedBlockingQueue<String>> ();
 		reply_queue = new LinkedBlockingQueue<String> ();
 	}
-
 }
 
 public class AltosSerial {
-	OutputStream serial_out = null;
 	AltosSerialReader reader = null;
 
-	CommPort comm_port = null;
-
 	public void close() {
-		try {
-			serial_out.close();
-		} catch (IOException ee) {
-		}
 		reader.close();
-		if (comm_port != null) {
-			comm_port.close();
-		}
 	}
 
-	public void open(File serial_name) throws FileNotFoundException {
-		reader.open(serial_name);
-		serial_out = new FileOutputStream(serial_name);
-	}
-
-	public void open(CommPort c) throws IOException {
-		reader.open(c);
-		serial_out = c.getOutputStream();
-	}
-
-	public void connect(String port_name) throws IOException, NoSuchPortException, PortInUseException {
-		comm_port = new RXTXPort(port_name);
-		open(comm_port);
+	public void open(altos_device device) throws FileNotFoundException {
+		reader.open(device);
 	}
 
 	void init() {
@@ -191,13 +158,8 @@ public class AltosSerial {
 		init();
 	}
 
-	public AltosSerial(File serial_name) throws FileNotFoundException {
+	public AltosSerial(altos_device device) throws FileNotFoundException {
 		init();
-		open(serial_name);
-	}
-
-	public AltosSerial(CommPort comm_port) throws IOException {
-		init();
-		open(comm_port);
+		open(device);
 	}
 }
