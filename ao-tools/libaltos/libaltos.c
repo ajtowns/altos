@@ -16,10 +16,379 @@
  */
 
 #include "libaltos.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#define USE_DARWIN
+static int
+match_dev(char *product, int serial, struct altos_device *device)
+{
+	struct altos_list	*list;
+	int			i;
 
-#ifdef USE_DARWIN
+	list = altos_list_start();
+	if (!list)
+		return 0;
+	while ((i = altos_list_next(list, device)) != 0) {
+		if (product && strncmp (product, device->product, strlen(product)) != 0)
+			continue;
+		if (serial && serial != device->serial)
+			continue;
+		break;
+	}
+	altos_list_finish(list);
+	return i;
+}
+
+int
+altos_find_by_arg(char *arg, char *default_product, struct altos_device *device)
+{
+	char	*product;
+	int	serial;
+	char	*end;
+	char	*colon;
+	int	ret;
+
+	if (arg)
+	{
+		/* check for <serial> */
+		serial = strtol(arg, &end, 0);
+		if (end != arg) {
+			if (*end != '\0')
+				return 0;
+			product = NULL;
+		} else {
+			/* check for <product>:<serial> */
+			colon = strchr(arg, ':');
+			if (colon) {
+				product = strndup(arg, colon - arg);
+				serial = strtol(colon + 1, &end, 0);
+				if (*end != '\0')
+					return 0;
+			} else {
+				product = arg;
+				serial = 0;
+			}
+		}
+	} else {
+		product = NULL;
+		serial = 0;
+	}
+	if (!product && default_product)
+		ret = match_dev(default_product, serial, device);
+	if (!ret)
+		ret = match_dev(product, serial, device);
+	if (product && product != arg)
+		free(product);
+	return ret;
+}
+
+#ifdef LINUX
+
+#define _GNU_SOURCE
+#include <ctype.h>
+#include <dirent.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+static char *
+cc_fullname (char *dir, char *file)
+{
+	char	*new;
+	int	dlen = strlen (dir);
+	int	flen = strlen (file);
+	int	slen = 0;
+
+	if (dir[dlen-1] != '/')
+		slen = 1;
+	new = malloc (dlen + slen + flen + 1);
+	if (!new)
+		return 0;
+	strcpy(new, dir);
+	if (slen)
+		strcat (new, "/");
+	strcat(new, file);
+	return new;
+}
+
+static char *
+cc_basename(char *file)
+{
+	char *b;
+
+	b = strrchr(file, '/');
+	if (!b)
+		return file;
+	return b + 1;
+}
+
+static char *
+load_string(char *dir, char *file)
+{
+	char	*full = cc_fullname(dir, file);
+	char	line[4096];
+	char	*r;
+	FILE	*f;
+	int	rlen;
+
+	f = fopen(full, "r");
+	free(full);
+	if (!f)
+		return NULL;
+	r = fgets(line, sizeof (line), f);
+	fclose(f);
+	if (!r)
+		return NULL;
+	rlen = strlen(r);
+	if (r[rlen-1] == '\n')
+		r[rlen-1] = '\0';
+	return strdup(r);
+}
+
+static int
+load_hex(char *dir, char *file)
+{
+	char	*line;
+	char	*end;
+	long	i;
+
+	line = load_string(dir, file);
+	if (!line)
+		return -1;
+	i = strtol(line, &end, 16);
+	free(line);
+	if (end == line)
+		return -1;
+	return i;
+}
+
+static int
+load_dec(char *dir, char *file)
+{
+	char	*line;
+	char	*end;
+	long	i;
+
+	line = load_string(dir, file);
+	if (!line)
+		return -1;
+	i = strtol(line, &end, 10);
+	free(line);
+	if (end == line)
+		return -1;
+	return i;
+}
+
+static int
+dir_filter_tty_colon(const struct dirent *d)
+{
+	return strncmp(d->d_name, "tty:", 4) == 0;
+}
+
+static int
+dir_filter_tty(const struct dirent *d)
+{
+	return strncmp(d->d_name, "tty", 3) == 0;
+}
+
+struct altos_usbdev {
+	char	*sys;
+	char	*tty;
+	char	*manufacturer;
+	char	*product;
+	int	serial;	/* AltOS always uses simple integer serial numbers */
+	int	idProduct;
+	int	idVendor;
+};
+
+static char *
+usb_tty(char *sys)
+{
+	char *base;
+	int num_configs;
+	int config;
+	struct dirent **namelist;
+	int interface;
+	int num_interfaces;
+	char endpoint_base[20];
+	char *endpoint_full;
+	char *tty_dir;
+	int ntty;
+	char *tty;
+
+	base = cc_basename(sys);
+	num_configs = load_hex(sys, "bNumConfigurations");
+	num_interfaces = load_hex(sys, "bNumInterfaces");
+	for (config = 1; config <= num_configs; config++) {
+		for (interface = 0; interface < num_interfaces; interface++) {
+			sprintf(endpoint_base, "%s:%d.%d",
+				base, config, interface);
+			endpoint_full = cc_fullname(sys, endpoint_base);
+
+			/* Check for tty:ttyACMx style names
+			 */
+			ntty = scandir(endpoint_full, &namelist,
+				       dir_filter_tty_colon,
+				       alphasort);
+			if (ntty > 0) {
+				free(endpoint_full);
+				tty = cc_fullname("/dev", namelist[0]->d_name + 4);
+				free(namelist);
+				return tty;
+			}
+
+			/* Check for tty/ttyACMx style names
+			 */
+			tty_dir = cc_fullname(endpoint_full, "tty");
+			free(endpoint_full);
+			ntty = scandir(tty_dir, &namelist,
+				       dir_filter_tty,
+				       alphasort);
+			free (tty_dir);
+			if (ntty > 0) {
+				tty = cc_fullname("/dev", namelist[0]->d_name);
+				free(namelist);
+				return tty;
+			}
+		}
+	}
+	return NULL;
+}
+
+static struct altos_usbdev *
+usb_scan_device(char *sys)
+{
+	struct altos_usbdev *usbdev;
+
+	usbdev = calloc(1, sizeof (struct altos_usbdev));
+	if (!usbdev)
+		return NULL;
+	usbdev->sys = strdup(sys);
+	usbdev->manufacturer = load_string(sys, "manufacturer");
+	usbdev->product = load_string(sys, "product");
+	usbdev->serial = load_dec(sys, "serial");
+	usbdev->idProduct = load_hex(sys, "idProduct");
+	usbdev->idVendor = load_hex(sys, "idVendor");
+	usbdev->tty = usb_tty(sys);
+	return usbdev;
+}
+
+static void
+usbdev_free(struct altos_usbdev *usbdev)
+{
+	free(usbdev->sys);
+	free(usbdev->manufacturer);
+	free(usbdev->product);
+	/* this can get used as a return value */
+	if (usbdev->tty)
+		free(usbdev->tty);
+	free(usbdev);
+}
+
+#define USB_DEVICES	"/sys/bus/usb/devices"
+
+static int
+dir_filter_dev(const struct dirent *d)
+{
+	const char	*n = d->d_name;
+	char	c;
+
+	while ((c = *n++)) {
+		if (isdigit(c))
+			continue;
+		if (c == '-')
+			continue;
+		if (c == '.' && n != d->d_name + 1)
+			continue;
+		return 0;
+	}
+	return 1;
+}
+
+struct altos_list {
+	struct altos_usbdev	**dev;
+	int			current;
+	int			ndev;
+};
+
+int
+altos_init(void)
+{
+	return 1;
+}
+
+void
+altos_fini(void)
+{
+}
+
+struct altos_list *
+altos_list_start(void)
+{
+	int			e;
+	struct dirent		**ents;
+	char			*dir;
+	struct altos_usbdev	*dev;
+	struct altos_list	*devs;
+	int			n;
+
+	devs = calloc(1, sizeof (struct altos_list));
+	if (!devs)
+		return NULL;
+
+	n = scandir (USB_DEVICES, &ents,
+		     dir_filter_dev,
+		     alphasort);
+	if (!n)
+		return 0;
+	for (e = 0; e < n; e++) {
+		dir = cc_fullname(USB_DEVICES, ents[e]->d_name);
+		dev = usb_scan_device(dir);
+		free(dir);
+		if (dev->idVendor == 0xfffe && dev->tty) {
+			if (devs->dev)
+				devs->dev = realloc(devs->dev,
+						    devs->ndev + 1 * sizeof (struct usbdev *));
+			else
+				devs->dev = malloc (sizeof (struct usbdev *));
+			devs->dev[devs->ndev++] = dev;
+		}
+	}
+	free(ents);
+	devs->current = 0;
+	return devs;
+}
+
+int
+altos_list_next(struct altos_list *list, struct altos_device *device)
+{
+	struct altos_usbdev *dev;
+	if (list->current >= list->ndev)
+		return 0;
+	dev = list->dev[list->current];
+	strcpy(device->product, dev->product);
+	strcpy(device->path, dev->tty);
+	device->serial = dev->serial;
+	list->current++;
+	return 1;
+}
+
+void
+altos_list_finish(struct altos_list *usbdevs)
+{
+	int	i;
+
+	if (!usbdevs)
+		return;
+	for (i = 0; i < usbdevs->ndev; i++)
+		usbdev_free(usbdevs->dev[i]);
+	free(usbdevs);
+}
+
+#endif
+
+#ifdef DARWIN
 
 #include <IOKitLib.h>
 #include <IOKit/usb/USBspec.h>
@@ -30,36 +399,32 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
-#include <poll.h>
-#include <termios.h>
-#include <errno.h>
 
 struct altos_list {
-  io_iterator_t iterator;
+	io_iterator_t iterator;
 };
 
 static int
 get_string(io_object_t object, CFStringRef entry, char *result, int result_len)
 {
-  CFTypeRef entry_as_string;
-  Boolean got_string;
+	CFTypeRef entry_as_string;
+	Boolean got_string;
 
-  entry_as_string = IORegistryEntrySearchCFProperty (object,
-						     kIOServicePlane,
-						     entry,
-						     kCFAllocatorDefault,
-						     kIORegistryIterateRecursively);
-  if (entry_as_string) {
-    got_string = CFStringGetCString(entry_as_string,
-				    result, result_len,
-				    kCFStringEncodingASCII);
+	entry_as_string = IORegistryEntrySearchCFProperty (object,
+							   kIOServicePlane,
+							   entry,
+							   kCFAllocatorDefault,
+							   kIORegistryIterateRecursively);
+	if (entry_as_string) {
+		got_string = CFStringGetCString(entry_as_string,
+						result, result_len,
+						kCFStringEncodingASCII);
     
-    CFRelease(entry_as_string);
-    if (got_string)
-      return 1;
-  }
-  return 0;
+		CFRelease(entry_as_string);
+		if (got_string)
+			return 1;
+	}
+	return 0;
 }
 
 int
@@ -117,10 +482,19 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 void
 altos_list_finish(struct altos_list *list)
 {
-  IOObjectRelease (list->iterator);
-  free(list);
+	IOObjectRelease (list->iterator);
+	free(list);
 }
 
+#endif
+
+#ifdef POSIX_TTY
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <termios.h>
+#include <errno.h>
 
 #define USB_BUF_SIZE	64
 
@@ -132,54 +506,6 @@ struct altos_file {
 	int				in_used;
 	int				in_read;
 };
-
-void
-altos_test(char *path)
-{
-	int n;
-	char buf[16];
-	int fd;
-	struct termios term;
-
-	fd = open(path, O_RDWR | O_NOCTTY);
-	if (fd < 0) {
-		perror(path);
-		return;
-	}
-	if (ioctl(fd, TIOCEXCL, (char *) 0) < 0) {
-		perror("TIOCEXCL");
-		close (fd);
-		return;
-	}
-
-	n = tcgetattr(fd, &term);
-	if (n < 0) {
-		perror("tcgetattr");
-		close(fd);
-		return;
-	}
-	cfmakeraw(&term);
-	term.c_cc[VMIN] = 0;
-	term.c_cc[VTIME] = 1;
-	n = tcsetattr(fd, TCSAFLUSH, &term);
-	if (n < 0) {
-		perror("tcsetattr");
-		close(fd);
-		return;
-	}
-	write(fd, "\n?\n", 3);
-	for (;;) {
-		n = read(fd, buf, sizeof (buf));
-		if (n < 0) {
-			perror("read");
-			break;
-		}
-		if (n == 0)
-			break;
-		write(1, buf, n);
-	}
-	close(fd);
-}
 
 struct altos_file *
 altos_open(struct altos_device *device)
@@ -273,7 +599,7 @@ altos_getchar(struct altos_file *file, int timeout)
 	return file->in_data[file->in_read++];
 }
 
-#endif /* USE_DARWIN */
+#endif /* POSIX_TTY */
 
 #ifdef USE_LIBUSB
 #include <libusb.h>

@@ -1,3 +1,29 @@
+OS:=$(shell uname)
+
+ifeq ($(OS),Linux)
+
+JAVA_CFLAGS=-I/usr/lib/jvm/java-6-openjdk/include -I.
+
+OS_CFLAGS=-DLINUX -DPOSIX_TTY $(JAVA_CFLAGS)
+
+LIBEXT=so
+
+endif
+
+ifeq ($(OS),Darwin)
+
+DARWIN_CFLAGS=\
+	-I/System/Library/Frameworks/JavaVM.framework/Headers \
+	-I/System/Library/Frameworks/IOKit.framework/Headers \
+	-I/System/Library/Frameworks/CoreFoundation.framework/Headers
+DARWIN_LIBS=\
+	-framework IOKit -framework CoreFoundation
+
+OS_CFLAGS = $(DARWIN_CFLAGS) -DDARWIN -DPOSIX_TTY
+LIBEXT=dylib
+
+endif
+
 .SUFFIXES: .java .class
 
 CLASSPATH=".:jnitest/*:libaltosJNI:/usr/share/java/*"
@@ -14,8 +40,6 @@ JNI_SRCS=$(JNI_FILE) \
 	$(JNI_DIR)/altos_device.java \
 	$(JNI_DIR)/libaltos.java
 
-LIBEXT=dylib
-
 JAVAFILES=\
 	$(JNI_SRCS)
 
@@ -28,14 +52,7 @@ all: libaltos.$(LIBEXT) cjnitest $(CLASSFILES)
 .java.class:
 	javac -cp "$(CLASSPATH)" $(JAVAFLAGS) $*.java
 
-DARWIN_CFLAGS=\
-	-I/System/Library/Frameworks/JavaVM.framework/Headers \
-	-I/System/Library/Frameworks/IOKit.framework/Headers \
-	-I/System/Library/Frameworks/CoreFoundation.framework/Headers
-DARWIN_LIBS=\
-	-framework IOKit -framework CoreFoundation
-
-CFLAGS = $(DARWIN_CFLAGS) -I. -O0 -g
+CFLAGS=$(OS_CFLAGS) -O0 -g
 
 HEADERS=libaltos.h
 SRCS = libaltos.c $(SWIG_WRAP)
@@ -46,7 +63,7 @@ cjnitest: cjnitest.o $(OBJS)
 	cc -o $@ $(CFLAGS) cjnitest.o $(OBJS) $(LIBS)
 
 libaltos.$(LIBEXT): $(OBJS)
-	gcc -shared -o $@ $(OBJS) $(LIBS)
+	gcc -shared -o $@ $(CFLAGS) $(OBJS) $(LIBS)
 
 clean:
 	rm -f $(CLASSFILES) $(OBJS) libaltos.$(LIBEXT) cjnitest
