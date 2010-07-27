@@ -29,7 +29,7 @@ import altosui.AltosDevice;
 public class AltosDeviceDialog {
 
 	static altos_device show (JFrame frame, String product) {
-		altos_device[]	devices = null;
+		AltosDevice[]	devices;
 		devices = AltosDevice.list(product);
 		if (devices != null & devices.length > 0) {
 			Object o = JOptionPane.showInputDialog(frame,

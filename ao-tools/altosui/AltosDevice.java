@@ -20,32 +20,34 @@ import java.lang.*;
 import java.util.*;
 import libaltosJNI.*;
 
-public class AltosDevice {
+public class AltosDevice extends altos_device {
+
+	public String toString() {
+		return String.format("%-20.20s %4d %s",
+				     getProduct(), getSerial(), getPath());
+	}
 
 	static {
 		System.loadLibrary("altos");
 		libaltos.altos_init();
 	}
-	static altos_device[] list(String product) {
+	static AltosDevice[] list(String product) {
 		SWIGTYPE_p_altos_list list = libaltos.altos_list_start();
 
-		ArrayList<altos_device> device_list = new ArrayList<altos_device>();
+		ArrayList<AltosDevice> device_list = new ArrayList<AltosDevice>();
 		if (list != null) {
 			SWIGTYPE_p_altos_file file;
 
 			for (;;) {
-				altos_device device = new altos_device();
+				AltosDevice device = new AltosDevice();
 				if (libaltos.altos_list_next(list, device) == 0)
 					break;
-				System.out.printf("Found device %s %d %s\n",
-						  device.getProduct(), device.getSerial(), device.getPath());
-
 				device_list.add(device);
 			}
 			libaltos.altos_list_finish(list);
 		}
 
-		altos_device[] devices = new altos_device[device_list.size()];
+		AltosDevice[] devices = new AltosDevice[device_list.size()];
 		for (int i = 0; i < device_list.size(); i++)
 			devices[i] = device_list.get(i);
 		return devices;
