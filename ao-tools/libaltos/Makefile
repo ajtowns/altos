@@ -13,13 +13,14 @@ endif
 ifeq ($(OS),Darwin)
 
 DARWIN_CFLAGS=\
-	-I/System/Library/Frameworks/JavaVM.framework/Headers \
-	-I/System/Library/Frameworks/IOKit.framework/Headers \
-	-I/System/Library/Frameworks/CoreFoundation.framework/Headers
+	--sysroot=/Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 \
+	-iwithsysroot /System/Library/Frameworks/JavaVM.framework/Headers \
+	-iwithsysroot /System/Library/Frameworks/IOKit.framework/Headers \
+	-iwithsysroot /System/Library/Frameworks/CoreFoundation.framework/Headers
 DARWIN_LIBS=\
 	-framework IOKit -framework CoreFoundation
 
-OS_CFLAGS = $(DARWIN_CFLAGS) -DDARWIN -DPOSIX_TTY
+OS_CFLAGS = $(DARWIN_CFLAGS) -DDARWIN -DPOSIX_TTY -arch i386 -arch x86_64
 LIBEXT=dylib
 
 endif
@@ -63,7 +64,7 @@ cjnitest: cjnitest.o $(OBJS)
 	cc -o $@ $(CFLAGS) cjnitest.o $(OBJS) $(LIBS)
 
 libaltos.$(LIBEXT): $(OBJS)
-	gcc -shared -o $@ $(CFLAGS) $(OBJS) $(LIBS)
+	gcc -shared $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 clean:
 	rm -f $(CLASSFILES) $(OBJS) libaltos.$(LIBEXT) cjnitest cjnitest.o
