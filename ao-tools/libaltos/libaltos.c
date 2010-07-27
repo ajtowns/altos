@@ -40,6 +40,26 @@ match_dev(char *product, int serial, struct altos_device *device)
 	return i;
 }
 
+#ifdef DARWIN
+/* Mac OS X don't have strndup even if _GNU_SOURCE is defined */
+static char *
+altos_strndup (const char *s, size_t n)
+{
+    size_t len = strlen (s);
+    char *ret;
+
+    if (len <= n)
+       return strdup (s);
+    ret = malloc(n + 1);
+    strncpy(ret, s, n);
+    ret[n] = '\0';
+    return ret;
+}
+
+#else
+#define altos_strndup strndup
+#endif
+
 int
 altos_find_by_arg(char *arg, char *default_product, struct altos_device *device)
 {
@@ -61,7 +81,7 @@ altos_find_by_arg(char *arg, char *default_product, struct altos_device *device)
 			/* check for <product>:<serial> */
 			colon = strchr(arg, ':');
 			if (colon) {
-				product = strndup(arg, colon - arg);
+				product = altos_strndup(arg, colon - arg);
 				serial = strtol(colon + 1, &end, 0);
 				if (*end != '\0')
 					return 0;
