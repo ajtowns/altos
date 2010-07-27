@@ -2,7 +2,7 @@ OS:=$(shell uname)
 
 ifeq ($(OS),Linux)
 
-JAVA_CFLAGS=-I/usr/lib/jvm/java-6-openjdk/include -I.
+JAVA_CFLAGS=-I/usr/lib/jvm/java-6-openjdk/include
 
 OS_CFLAGS=-DLINUX -DPOSIX_TTY $(JAVA_CFLAGS)
 
@@ -52,7 +52,7 @@ all: libaltos.$(LIBEXT) cjnitest $(CLASSFILES)
 .java.class:
 	javac -cp "$(CLASSPATH)" $(JAVAFLAGS) $*.java
 
-CFLAGS=$(OS_CFLAGS) -O0 -g
+CFLAGS=$(OS_CFLAGS) -O0 -g -I.
 
 HEADERS=libaltos.h
 SRCS = libaltos.c $(SWIG_WRAP)
