@@ -338,48 +338,57 @@ public class AltosUI extends JFrame {
 	class IdleThread extends Thread {
 
 		private AltosState state;
+		int	reported_landing;
+
+		public void report(boolean last) {
+			if (state == null)
+				return;
+
+			/* reset the landing count once we hear about a new flight */
+			if (state.state < AltosTelemetry.ao_flight_drogue)
+				reported_landing = 0;
+
+			/* Shut up once the rocket is on the ground */
+			if (reported_landing > 2) {
+				return;
+			}
+
+			/* If the rocket isn't on the pad, then report height */
+			if (state.state > AltosTelemetry.ao_flight_pad) {
+				voice.speak("%d meters", (int) (state.height + 0.5));
+			} else {
+				reported_landing = 0;
+			}
+
+			/* If the rocket is coming down, check to see if it has landed;
+			 * either we've got a landed report or we haven't heard from it in
+			 * a long time
+			 */
+			if (!state.ascent &&
+			    (last ||
+			     System.currentTimeMillis() - state.report_time >= 15000 ||
+			     state.state == AltosTelemetry.ao_flight_landed))
+			{
+				if (Math.abs(state.baro_speed) < 20 && state.height < 100)
+					voice.speak("rocket landed safely");
+				else
+					voice.speak("rocket may have crashed");
+				if (state.gps != null)
+					voice.speak("bearing %d degrees, range %d meters",
+						    (int) (state.from_pad.bearing + 0.5),
+						    (int) (state.from_pad.distance + 0.5));
+				++reported_landing;
+			}
+		}
 
 		public void run () {
-			int	reported_landing = 0;
 
+			reported_landing = 0;
 			state = null;
 			try {
 				for (;;) {
 					Thread.sleep(10000);
-					if (state == null)
-						continue;
-
-					/* reset the landing count once we hear about a new flight */
-					if (state.state < AltosTelemetry.ao_flight_drogue)
-						reported_landing = 0;
-
-					/* Shut up once the rocket is on the ground */
-					if (reported_landing > 2)
-						continue;
-
-					/* If the rocket isn't on the pad, then report height */
-					if (state.state > AltosTelemetry.ao_flight_pad) {
-						voice.speak("%d meters", (int) (state.height + 0.5));
-					}
-
-					/* If the rocket is coming down, check to see if it has landed;
-					 * either we've got a landed report or we haven't heard from it in
-					 * a long time
-					 */
-					if (!state.ascent &&
-					    (System.currentTimeMillis() - state.report_time > 10000 ||
-					     state.state == AltosTelemetry.ao_flight_landed))
-					{
-						if (Math.abs(state.baro_speed) < 20 && state.height < 100)
-							voice.speak("rocket landed safely");
-						else
-							voice.speak("rocket may have crashed");
-						if (state.gps != null)
-							voice.speak("bearing %d degrees, range %d meters",
-								    (int) (state.from_pad.bearing + 0.5),
-								    (int) (state.from_pad.distance + 0.5));
-						++reported_landing;
-					}
+					report(false);
 				}
 			} catch (InterruptedException ie) {
 			}
@@ -393,21 +402,22 @@ public class AltosUI extends JFrame {
 	private void tell(AltosState state, AltosState old_state) {
 		if (old_state == null || old_state.state != state.state) {
 			voice.speak(state.data.state);
-			switch (state.state) {
-			case AltosTelemetry.ao_flight_fast:
-				voice.speak("max speed %d meters per second",
+			if ((old_state == null || old_state.state <= AltosTelemetry.ao_flight_boost) &&
+			    state.state > AltosTelemetry.ao_flight_boost) {
+				voice.speak("max speed: %d meters per second.",
 					    (int) (state.max_speed + 0.5));
-				break;
-			case AltosTelemetry.ao_flight_drogue:
-				voice.speak("max height %d meters",
+			} else if ((old_state == null || old_state.state < AltosTelemetry.ao_flight_drogue) &&
+				   state.state >= AltosTelemetry.ao_flight_drogue) {
+				voice.speak("max height: %d meters.",
 					    (int) (state.max_height + 0.5));
-				break;
 			}
 		}
 		old_state = state;
 	}
 
 	class DisplayThread extends Thread {
+		IdleThread	idle_thread;
+
 		String read() throws InterruptedException { return null; }
 
 		void close() { }
@@ -418,7 +428,8 @@ public class AltosUI extends JFrame {
 			String		line;
 			AltosState	state = null;
 			AltosState	old_state = null;
-			IdleThread	idle_thread = new IdleThread();
+
+			idle_thread = new IdleThread();
 
 			info_reset();
 			info_finish();
@@ -443,6 +454,11 @@ public class AltosUI extends JFrame {
 				close();
 				idle_thread.interrupt();
 			}
+		}
+
+		public void report() {
+			if (idle_thread != null)
+				idle_thread.report(true);
 		}
 	}
 
@@ -500,8 +516,9 @@ public class AltosUI extends JFrame {
 		while ((c = s.read()) != -1) {
 			if (c == '\r')
 				continue;
-			if (c == '\n')
+			if (c == '\n') {
 				return line;
+			}
 			line = line + (char) c;
 		}
 		return null;
@@ -537,12 +554,13 @@ public class AltosUI extends JFrame {
 				replay.close();
 			} catch (IOException ee) {
 			}
+			report();
 		}
 
 		void update(AltosState state) throws InterruptedException {
 			/* Make it run in realtime after the rocket leaves the pad */
 			if (state.state > AltosTelemetry.ao_flight_pad)
-				Thread.sleep((int) (state.time_change * 1000));
+				Thread.sleep((int) (Math.min(state.time_change,10) * 1000));
 		}
 	}
 
@@ -583,7 +601,7 @@ public class AltosUI extends JFrame {
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
 							      filename,
-							      "Cannot open serial port",
+							      "Cannot open telemetry file",
 							      JOptionPane.ERROR_MESSAGE);
 			}
 		}
