@@ -35,12 +35,12 @@ JAVAFLAGS=-Xlint:unchecked
 
 all: altosui.jar
 
-$(CLASSFILES): classes/altosui classes/libaltosJNI $(FREETTSJAR)
+$(CLASSFILES):
 
 .java.class:
 	javac -cp "$(CLASSPATH)" $(JAVAFLAGS) $*.java
 
-altosui.jar: $(CLASSFILES) Manifest.txt
+altosui.jar: classes/altosui classes/libaltosJNI $(FREETTSJAR) $(CLASSFILES) Manifest.txt
 	cd ./classes && jar cfm ../$@ altosui/Manifest.txt altosui/*.class libaltosJNI/*.class
 
 classes/altosui:
