@@ -1,6 +1,6 @@
 .SUFFIXES: .java .class
 
-CLASSPATH=..:../libaltos:/usr/share/java/*:/home/keithp/src/freetts/freetts-1.2.2
+CLASSPATH=..:../libaltos:/usr/share/java/*:/Users/keithp/freetts-1.2.2/lib/*
 CLASSFILES=\
 	AltosConvert.class \
 	AltosFile.class \

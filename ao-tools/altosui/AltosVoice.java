@@ -17,16 +17,14 @@
 
 package altosui;
 
-/*import com.sun.speech.freetts.Voice;
+import com.sun.speech.freetts.Voice;
 import com.sun.speech.freetts.VoiceManager;
-import com.sun.speech.freetts.audio.JavaClipAudioPlayer; */
+import com.sun.speech.freetts.audio.JavaClipAudioPlayer;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class AltosVoice implements Runnable {
-/*
 	VoiceManager			voice_manager;
 	Voice				voice;
-*/
 	LinkedBlockingQueue<String>	phrases;
 	Thread				thread;
 
@@ -36,29 +34,29 @@ public class AltosVoice implements Runnable {
 		try {
 			for (;;) {
 				String s = phrases.take();
-/*				voice.speak(s); */
+				voice.speak(s);
 			}
 		} catch (InterruptedException e) {
 		}
 	}
 	public void speak(String s) {
 		try {
-/*			if (voice != null) */
+			if (voice != null)
 				phrases.put(s);
 		} catch (InterruptedException e) {
 		}
 	}
 
 	public AltosVoice () {
-/*		voice_manager = VoiceManager.getInstance();
+		voice_manager = VoiceManager.getInstance();
 		voice = voice_manager.getVoice(voice_name);
-		if (voice != null)  */ {
-/*			voice.allocate(); */
+		if (voice != null) {
+			voice.allocate();
 			phrases = new LinkedBlockingQueue<String> ();
 			thread = new Thread(this);
 			thread.start();
 			speak("Rocket Flight Monitor Ready");
-		} /* else {
+		} else {
 			System.out.printf("Voice manager failed to open %s\n", voice_name);
 			Voice[] voices = voice_manager.getVoices();
 			System.out.printf("Available voices:\n");
@@ -66,6 +64,6 @@ public class AltosVoice implements Runnable {
 				System.out.println("    " + voices[i].getName()
 						   + " (" + voices[i].getDomain() + " domain)");
 			}
-			} */
+		}
 	}
 }
