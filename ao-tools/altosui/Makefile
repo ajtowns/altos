@@ -1,6 +1,6 @@
 .SUFFIXES: .java .class
 
-CLASSPATH=..:../libaltos:/usr/share/java/*:/Users/keithp/freetts-1.2.2/lib/*
+CLASSPATH=classes:./*
 CLASSFILES=\
 	AltosConvert.class \
 	AltosFile.class \
@@ -18,15 +18,42 @@ CLASSFILES=\
 	AltosDeviceDialog.class \
 	AltosVoice.class
 
+FREETTSSRC=/home/keithp/src/freetts/freetts-1.2.2
+FREETTSLIB=$(FREETTSSRC)/lib
+FREETTSJAR= \
+	cmudict04.jar \
+	cmulex.jar \
+	cmu_time_awb.jar \
+	cmutimelex.jar \
+	cmu_us_kal.jar \
+	en_us.jar \
+	freetts.jar \
+	freetts-jsapi10.jar \
+	jsapi.jar
+
 JAVAFLAGS=-Xlint:unchecked
 
-all: $(CLASSFILES) altosui.jar
+all: altosui.jar
+
+$(CLASSFILES): classes/altosui classes/libaltosJNI $(FREETTSJAR)
 
 .java.class:
 	javac -cp "$(CLASSPATH)" $(JAVAFLAGS) $*.java
 
 altosui.jar: $(CLASSFILES) Manifest.txt
-	jar cfm $@ altosui/Manifest.txt altosui/*.class libaltosJNI/*.class
+	cd ./classes && jar cfm ../$@ altosui/Manifest.txt altosui/*.class libaltosJNI/*.class
+
+classes/altosui:
+	mkdir -p classes
+	ln -s .. classes/altosui
+
+classes/libaltosJNI:
+	mkdir -p classes
+	ln -s ../../libaltos/libaltosJNI classes/libaltosJNI
+
+$(FREETTSJAR):
+	ln -s $(FREETTSLIB)/$@ .
 
 clean:
-	rm -f *.class
+	rm -f *.class $(FREETTSJAR) altosui.jar
+	rm -rf classes
