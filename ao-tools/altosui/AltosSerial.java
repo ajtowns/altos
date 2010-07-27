@@ -37,7 +37,9 @@ import libaltosJNI.SWIGTYPE_p_altos_list;
  * line in a queue. Dealing with that queue is left up to other
  * threads.
  */
-class AltosSerialReader implements Runnable {
+
+public class AltosSerial implements Runnable {
+
 	SWIGTYPE_p_altos_file altos;
 	LinkedList<LinkedBlockingQueue<String>> monitors;
 	LinkedBlockingQueue<String> reply_queue;
@@ -116,50 +118,31 @@ class AltosSerialReader implements Runnable {
 		}
 	}
 
+	public void putc(char c) {
+		libaltos.altos_putchar(altos, c);
+	}
+
+	public void print(String data) {
+		for (int i = 0; i < data.length(); i++)
+			putc(data.charAt(i));
+	}
+
+	public void printf(String format, Object ... arguments) {
+		print(String.format(format, arguments));
+	}
+
 	public void open(altos_device device) throws FileNotFoundException {
 		close();
 		altos = libaltos.altos_open(device);
 		input_thread = new Thread(this);
 		input_thread.start();
 	}
-	public AltosSerialReader () {
+
+	public AltosSerial() {
 		altos = null;
 		input_thread = null;
 		line = "";
 		monitors = new LinkedList<LinkedBlockingQueue<String>> ();
 		reply_queue = new LinkedBlockingQueue<String> ();
-	}
-}
-
-public class AltosSerial {
-	AltosSerialReader reader = null;
-
-	public void close() {
-		reader.close();
-	}
-
-	public void open(altos_device device) throws FileNotFoundException {
-		reader.open(device);
-	}
-
-	void init() {
-		reader = new AltosSerialReader();
-	}
-
-	public void add_monitor(LinkedBlockingQueue<String> q) {
-		reader.add_monitor(q);
-	}
-
-	public void remove_monitor(LinkedBlockingQueue<String> q) {
-		reader.remove_monitor(q);
-	}
-
-	public AltosSerial() {
-		init();
-	}
-
-	public AltosSerial(altos_device device) throws FileNotFoundException {
-		init();
-		open(device);
 	}
 }

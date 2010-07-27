@@ -221,16 +221,8 @@ public class AltosUI extends JFrame {
 		flightInfoModel[col].addRow(name, value);
 	}
 
-	public void info_add_row(int col, String name, String format, Object value) {
-		flightInfoModel[col].addRow(name, String.format(format, value));
-	}
-
-	public void info_add_row(int col, String name, String format, Object v1, Object v2) {
-		flightInfoModel[col].addRow(name, String.format(format, v1, v2));
-	}
-
-	public void info_add_row(int col, String name, String format, Object v1, Object v2, Object v3) {
-		flightInfoModel[col].addRow(name, String.format(format, v1, v2, v3));
+	public void info_add_row(int col, String name, String format, Object... parameters) {
+		flightInfoModel[col].addRow(name, String.format(format, parameters));
 	}
 
 	public void info_add_deg(int col, String name, double v, int pos, int neg) {
@@ -367,7 +359,7 @@ public class AltosUI extends JFrame {
 
 					/* If the rocket isn't on the pad, then report height */
 					if (state.state > AltosTelemetry.ao_flight_pad) {
-						voice.speak(String.format("%d meters", (int) (state.height + 0.5)));
+						voice.speak("%d meters", (int) (state.height + 0.5));
 					}
 
 					/* If the rocket is coming down, check to see if it has landed;
@@ -383,9 +375,9 @@ public class AltosUI extends JFrame {
 						else
 							voice.speak("rocket may have crashed");
 						if (state.gps != null)
-							voice.speak(String.format("bearing %d degrees, range %d meters",
-										  (int) (state.from_pad.bearing + 0.5),
-										  (int) (state.from_pad.distance + 0.5)));
+							voice.speak("bearing %d degrees, range %d meters",
+								    (int) (state.from_pad.bearing + 0.5),
+								    (int) (state.from_pad.distance + 0.5));
 						++reported_landing;
 					}
 				}
@@ -403,12 +395,12 @@ public class AltosUI extends JFrame {
 			voice.speak(state.data.state);
 			switch (state.state) {
 			case AltosTelemetry.ao_flight_fast:
-				voice.speak(String.format("max speed %d meters per second",
-							  (int) (state.max_speed + 0.5)));
+				voice.speak("max speed %d meters per second",
+					    (int) (state.max_speed + 0.5));
 				break;
 			case AltosTelemetry.ao_flight_drogue:
-				voice.speak(String.format("max height %d meters",
-							  (int) (state.max_height + 0.5)));
+				voice.speak("max height %d meters",
+					    (int) (state.max_height + 0.5));
 				break;
 			}
 		}

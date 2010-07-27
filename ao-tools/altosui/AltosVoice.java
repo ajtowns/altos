@@ -47,6 +47,10 @@ public class AltosVoice implements Runnable {
 		}
 	}
 
+	public void speak(String format, Object... parameters) {
+		speak(String.format(format, parameters));
+	}
+
 	public AltosVoice () {
 		voice_manager = VoiceManager.getInstance();
 		voice = voice_manager.getVoice(voice_name);
