@@ -66,7 +66,8 @@ libaltos.$(LIBEXT): $(OBJS)
 	gcc -shared -o $@ $(CFLAGS) $(OBJS) $(LIBS)
 
 clean:
-	rm -f $(CLASSFILES) $(OBJS) libaltos.$(LIBEXT) cjnitest
+	rm -f $(CLASSFILES) $(OBJS) libaltos.$(LIBEXT) cjnitest cjnitest.o
+	rm -rf swig_bindings libaltosJNI
 
 $(JNI_FILE): libaltos.i0 $(HEADERS)
 	mkdir -p $(SWIG_DIR)
