@@ -3,6 +3,7 @@
 CLASSPATH=classes:./*
 CLASSFILES=\
 	AltosConvert.class \
+	AltosEeprom.class \
 	AltosFile.class \
 	AltosGPS.class \
 	AltosGreatCircle.class \

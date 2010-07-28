@@ -139,7 +139,7 @@ public class AltosSerial implements Runnable {
 			throw new FileNotFoundException(device.getPath());
 		input_thread = new Thread(this);
 		input_thread.start();
-		print("\nE 0\nm 1\n");
+		print("\nE 0\n");
 		try {
 			Thread.sleep(200);
 		} catch (InterruptedException e) {
