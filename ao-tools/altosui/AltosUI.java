@@ -210,6 +210,7 @@ public class AltosUI extends JFrame {
 				System.exit(0);
 			}
 		});
+		voice.speak("Rocket flight monitor ready.");
 	}
 
 	public void info_reset() {
@@ -490,6 +491,7 @@ public class AltosUI extends JFrame {
 			try {
 				serial_line.open(device);
 				DeviceThread thread = new DeviceThread(serial_line);
+				serial_line.set_channel(AltosPreferences.channel());
 				run_display(thread);
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
@@ -706,9 +708,16 @@ public class AltosUI extends JFrame {
 			menu.setMnemonic(KeyEvent.VK_V);
 			menubar.add(menu);
 
-			radioitem = new JRadioButtonMenuItem("Enable Voice");
+			radioitem = new JRadioButtonMenuItem("Enable Voice", AltosPreferences.voice());
 			radioitem.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						JRadioButtonMenuItem item = (JRadioButtonMenuItem) e.getSource();
+						boolean enabled = item.isSelected();
+						AltosPreferences.set_voice(enabled);
+						if (enabled)
+							voice.speak_always("Enable voice.");
+						else
+							voice.speak_always("Disable voice.");
 					}
 				});
 			menu.add(radioitem);
@@ -724,12 +733,13 @@ public class AltosUI extends JFrame {
 			for (int c = 0; c <= 9; c++) {
 				radioitem = new JRadioButtonMenuItem(String.format("Channel %1d (%7.3fMHz)", c,
 										   434.550 + c * 0.1),
-								     c == 0);
+								     c == AltosPreferences.channel());
 				radioitem.setActionCommand(String.format("%d", c));
 				radioitem.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {
-							System.out.println("Command: " + e.getActionCommand() + " param: " +
-									   e.paramString());
+							int new_channel = Integer.parseInt(e.getActionCommand());
+							AltosPreferences.set_channel(new_channel);
+							serial_line.set_channel(new_channel);
 						}
 					});
 				menu.add(radioitem);

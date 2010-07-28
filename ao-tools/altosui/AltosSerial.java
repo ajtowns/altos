@@ -119,7 +119,8 @@ public class AltosSerial implements Runnable {
 	}
 
 	public void putc(char c) {
-		libaltos.altos_putchar(altos, c);
+		if (altos != null)
+			libaltos.altos_putchar(altos, c);
 	}
 
 	public void print(String data) {
@@ -138,6 +139,17 @@ public class AltosSerial implements Runnable {
 			throw new FileNotFoundException(device.getPath());
 		input_thread = new Thread(this);
 		input_thread.start();
+		print("\nE 0\nm 1\n");
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+		}
+		flush();
+	}
+
+	public void set_channel(int channel) {
+		if (altos != null)
+			printf("m 0\nc r %d\nm 1\n", channel);
 	}
 
 	public AltosSerial() {

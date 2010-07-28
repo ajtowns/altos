@@ -31,6 +31,12 @@ class AltosPreferences {
 	/* logdir preference name */
 	final static String logdirPreference = "LOGDIR";
 
+	/* channel preference name */
+	final static String channelPreference = "CHANNEL";
+
+	/* voice preference name */
+	final static String voicePreference = "VOICE";
+
 	/* Default logdir is ~/TeleMetrum */
 	final static String logdirName = "TeleMetrum";
 
@@ -39,6 +45,12 @@ class AltosPreferences {
 
 	/* Log directory */
 	static File logdir;
+
+	/* Telemetry channel */
+	static int channel;
+
+	/* Voice preference */
+	static boolean voice;
 
 	public static void init(Component ui) {
 		preferences = Preferences.userRoot().node("/org/altusmetrum/altosui");
@@ -55,6 +67,10 @@ class AltosPreferences {
 			if (!logdir.exists())
 				logdir.mkdirs();
 		}
+
+		channel = preferences.getInt(channelPreference, 0);
+
+		voice = preferences.getBoolean(voicePreference, true);
 	}
 
 	static void flush_preferences() {
@@ -113,5 +129,29 @@ class AltosPreferences {
 
 	public static File logdir() {
 		return logdir;
+	}
+
+	public static void set_channel(int new_channel) {
+		channel = new_channel;
+		synchronized (preferences) {
+			preferences.putInt(channelPreference, channel);
+			flush_preferences();
+		}
+	}
+
+	public static int channel() {
+		return channel;
+	}
+
+	public static void set_voice(boolean new_voice) {
+		voice = new_voice;
+		synchronized (preferences) {
+			preferences.putBoolean(voicePreference, voice);
+			flush_preferences();
+		}
+	}
+
+	public static boolean voice() {
+		return voice;
 	}
 }

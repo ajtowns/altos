@@ -39,12 +39,18 @@ public class AltosVoice implements Runnable {
 		} catch (InterruptedException e) {
 		}
 	}
-	public void speak(String s) {
+
+	public void speak_always(String s) {
 		try {
 			if (voice != null)
 				phrases.put(s);
 		} catch (InterruptedException e) {
 		}
+	}
+
+	public void speak(String s) {
+		if (AltosPreferences.voice())
+			speak_always(s);
 	}
 
 	public void speak(String format, Object... parameters) {
@@ -59,7 +65,6 @@ public class AltosVoice implements Runnable {
 			phrases = new LinkedBlockingQueue<String> ();
 			thread = new Thread(this);
 			thread.start();
-			speak("Rocket Flight Monitor Ready");
 		} else {
 			System.out.printf("Voice manager failed to open %s\n", voice_name);
 			Voice[] voices = voice_manager.getVoices();
