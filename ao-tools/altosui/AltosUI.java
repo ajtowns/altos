@@ -474,7 +474,6 @@ public class AltosUI extends JFrame {
 		void close() {
 			serial.close();
 			serial.remove_monitor(telem);
-			System.out.println("DisplayThread done");
 		}
 
 		public DeviceThread(AltosSerial s) {
