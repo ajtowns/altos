@@ -562,7 +562,7 @@ struct ao_log_record {
 
 /* Write a record to the eeprom log */
 void
-ao_log_data(struct ao_log_record *log);
+ao_log_data(__xdata struct ao_log_record *log) __reentrant;
 
 /* Flush the log */
 void
