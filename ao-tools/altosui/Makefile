@@ -38,7 +38,7 @@ all: altosui.jar
 $(CLASSFILES):
 
 .java.class:
-	javac -cp "$(CLASSPATH)" $(JAVAFLAGS) $*.java
+	javac -encoding UTF8 -classpath "$(CLASSPATH)" $(JAVAFLAGS) $*.java
 
 altosui.jar: classes/altosui classes/libaltosJNI $(FREETTSJAR) $(CLASSFILES) Manifest.txt
 	cd ./classes && jar cfm ../$@ altosui/Manifest.txt altosui/*.class libaltosJNI/*.class
