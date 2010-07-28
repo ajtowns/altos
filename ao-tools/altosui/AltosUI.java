@@ -721,6 +721,13 @@ public class AltosUI extends JFrame {
 					}
 				});
 			menu.add(radioitem);
+			item = new JMenuItem("Test Voice",KeyEvent.VK_T);
+			item.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						voice.speak("That's one small step for man; one giant leap for mankind.");
+					}
+				});
+			menu.add(item);
 		}
 
 		// Channel menu
