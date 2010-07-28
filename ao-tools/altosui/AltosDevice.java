@@ -18,13 +18,38 @@
 package altosui;
 import java.lang.*;
 import java.util.*;
+import libaltosJNI.*;
 
-public class AltosDevice {
-	String	tty;	/* suitable to be passed to AltosSerial.connect */
-	String	manufacturer;
-	String	product;
-	int	serial;
-	int	idProduct;
-	int	idVendor;
+public class AltosDevice extends altos_device {
 
+	public String toString() {
+		return String.format("%-20.20s %4d %s",
+				     getProduct(), getSerial(), getPath());
+	}
+
+	static {
+		System.loadLibrary("altos");
+		libaltos.altos_init();
+	}
+	static AltosDevice[] list(String product) {
+		SWIGTYPE_p_altos_list list = libaltos.altos_list_start();
+
+		ArrayList<AltosDevice> device_list = new ArrayList<AltosDevice>();
+		if (list != null) {
+			SWIGTYPE_p_altos_file file;
+
+			for (;;) {
+				AltosDevice device = new AltosDevice();
+				if (libaltos.altos_list_next(list, device) == 0)
+					break;
+				device_list.add(device);
+			}
+			libaltos.altos_list_finish(list);
+		}
+
+		AltosDevice[] devices = new AltosDevice[device_list.size()];
+		for (int i = 0; i < device_list.size(); i++)
+			devices[i] = device_list.get(i);
+		return devices;
+	}
 }
