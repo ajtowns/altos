@@ -23,7 +23,7 @@ JAVAFLAGS=-Xlint:unchecked
 all: $(CLASSFILES) altosui.jar
 
 .java.class:
-	javac -cp "$(CLASSPATH)" $(JAVAFLAGS) $*.java
+	javac -encoding UTF8 -classpath "$(CLASSPATH)" $(JAVAFLAGS) $*.java
 
 altosui.jar: $(CLASSFILES) Manifest.txt
 	jar cfm $@ altosui/Manifest.txt altosui/*.class libaltosJNI/*.class
