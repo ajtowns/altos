@@ -134,6 +134,8 @@ public class AltosSerial implements Runnable {
 	public void open(altos_device device) throws FileNotFoundException {
 		close();
 		altos = libaltos.altos_open(device);
+		if (altos == null)
+			throw new FileNotFoundException(device.getPath());
 		input_thread = new Thread(this);
 		input_thread.start();
 	}

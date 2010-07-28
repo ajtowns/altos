@@ -42,7 +42,8 @@ public class AltosDevice extends altos_device {
 				AltosDevice device = new AltosDevice();
 				if (libaltos.altos_list_next(list, device) == 0)
 					break;
-				device_list.add(device);
+				if (product == null || device.getProduct().startsWith(product))
+					device_list.add(device);
 			}
 			libaltos.altos_list_finish(list);
 		}

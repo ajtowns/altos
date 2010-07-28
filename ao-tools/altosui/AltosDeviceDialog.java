@@ -41,6 +41,10 @@ public class AltosDeviceDialog {
 							       devices[0]);
 			return (altos_device) o;
 		} else {
+			JOptionPane.showMessageDialog(frame,
+						      "No AltOS devices available",
+						      "No AltOS devices",
+						      JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
 	}

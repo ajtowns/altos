@@ -493,8 +493,9 @@ public class AltosUI extends JFrame {
 				run_display(thread);
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
-							      device.getPath(),
-							      "Cannot open serial port",
+							      String.format("Cannot open device \"%s\"",
+									    device.getPath()),
+							      "Cannot open target device",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (IOException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
