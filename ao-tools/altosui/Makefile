@@ -33,7 +33,17 @@ FREETTSJAR= \
 
 JAVAFLAGS=-Xlint:unchecked
 
-all: altosui.jar
+OS:=$(shell uname)
+
+ifeq ($(OS),Linux)
+ALTOSUI_APP=altosui
+endif
+
+ifeq ($(OS),Darwin)
+ALTOSUI_APP=AltosUI.app/Contents/Resources/Java/altosui.jar
+endif
+
+all: altosui.jar $(ALTOSUI_APP)
 
 $(CLASSFILES):
 
@@ -54,6 +64,22 @@ classes/libaltosJNI:
 $(FREETTSJAR):
 	ln -s $(FREETTSLIB)/$@ .
 
+ifeq ($(OS),Darwin)
+RESOURCES=altosui.jar $(FREETTSJAR) ../libaltos/libaltos.dylib
+
+$(ALTOSUI_APP): $(RESOURCES)
+	mkdir -p AltosUI.app/Contents/Resources/Java
+	cp $(RESOURCES) AltosUI.app/Contents/Resources/Java
+
+endif
+
+ifeq ($(OS),Linux)
+altosui:
+	echo "#!/bin/sh" > $@
+	echo "exec java -Djava.library.path=../libaltos -jar altosui.jar" >> $@
+endif
+
 clean:
 	rm -f *.class $(FREETTSJAR) altosui.jar
+	rm -f AltosUI.app/Contents/Resources/Java/*
 	rm -rf classes
