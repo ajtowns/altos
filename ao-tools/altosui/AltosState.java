@@ -56,8 +56,12 @@ public class AltosState {
 	double	pad_lat;
 	double	pad_lon;
 	double	pad_alt;
+
+	static final int MIN_PAD_SAMPLES = 10;
+
 	int	npad;
-	int	prev_npad;
+	int	gps_waiting;
+	boolean	gps_ready;
 
 	AltosGreatCircle from_pad;
 
@@ -134,8 +138,17 @@ public class AltosState {
 					pad_lon = data.gps.lon;
 					pad_alt = data.gps.alt;
 				}
+			} else {
+				npad = 0;
 			}
 		}
+
+		gps_waiting = MIN_PAD_SAMPLES - npad;
+		if (gps_waiting < 0)
+			gps_waiting = 0;
+
+		gps_ready = gps_waiting == 0;
+
 		ascent = (AltosTelemetry.ao_flight_boost <= state &&
 			  state <= AltosTelemetry.ao_flight_coast);
 

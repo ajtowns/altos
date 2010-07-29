@@ -243,17 +243,15 @@ public class AltosUI extends JFrame {
 			flightInfoModel[i].finish();
 	}
 
-	static final int MIN_PAD_SAMPLES = 10;
-
 	public void show(AltosState state) {
 		flightStatusModel.set(state);
 
 		info_reset();
-		if (state.npad >= MIN_PAD_SAMPLES)
+		if (state.gps_ready)
 			info_add_row(0, "Ground state", "%s", "ready");
 		else
 			info_add_row(0, "Ground state", "wait (%d)",
-				     MIN_PAD_SAMPLES - state.npad);
+				     state.gps_waiting);
 		info_add_row(0, "Rocket state", "%s", state.data.state);
 		info_add_row(0, "Callsign", "%s", state.data.callsign);
 		info_add_row(0, "Rocket serial", "%6d", state.data.serial);
@@ -412,6 +410,12 @@ public class AltosUI extends JFrame {
 				voice.speak("max height: %d meters.",
 					    (int) (state.max_height + 0.5));
 			}
+		}
+		if (old_state == null || old_state.gps_ready != state.gps_ready) {
+			if (state.gps_ready)
+				voice.speak("GPS ready");
+			else if (old_state != null)
+				voice.speak("GPS lost");
 		}
 		old_state = state;
 	}
