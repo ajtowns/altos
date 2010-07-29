@@ -613,7 +613,7 @@ public class AltosUI extends JFrame {
 	 * a TeleDongle over the packet link
 	 */
 	private void SaveFlightData() {
-		AltosEeprom.SaveFlightData(AltosUI.this);
+		new AltosEeprom(AltosUI.this);
 	}
 
 	/* Create the AltosUI menus

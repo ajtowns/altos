@@ -36,10 +36,11 @@ import altosui.AltosDeviceDialog;
 import altosui.AltosPreferences;
 import altosui.AltosLog;
 import altosui.AltosVoice;
+import altosui.AltosEepromMonitor;
 
 import libaltosJNI.*;
 
-public class AltosEeprom {
+public class AltosEeprom implements Runnable {
 
 	static final int AO_LOG_FLIGHT = 'F';
 	static final int AO_LOG_SENSOR = 'A';
@@ -103,9 +104,9 @@ public class AltosEeprom {
 		}
 	}
 
-	static void CaptureLog(AltosSerial serial_line) throws IOException, InterruptedException {
+	static void CaptureLog(JFrame frame, AltosSerial serial_line) throws IOException, InterruptedException {
 		int			serial = 0;
-		int			block;
+		int			block, state_block = 0;
 		int			addr;
 		int			flight = 0;
 		int			year = 0, month = 0, day = 0;
@@ -116,6 +117,7 @@ public class AltosEeprom {
 		FileWriter		eeprom_file = null;
 		AltosFile		eeprom_name;
 		LinkedList<String>	eeprom_pending = new LinkedList<String>();
+		AltosEepromMonitor	monitor = new AltosEepromMonitor(frame, ao_flight_boost, ao_flight_landed);
 
 		serial_line.printf("v\n");
 
@@ -140,11 +142,14 @@ public class AltosEeprom {
 		if (serial == 0)
 			throw new IOException("no serial number found");
 
+		monitor.set_serial(serial);
 		/* Now scan the eeprom, reading blocks of data and converting to .eeprom file form */
 
+		state = 0; state_block = 0;
 		for (block = 0; !done && block < 511; block++) {
 			serial_line.printf("e %x\n", block);
 			any_valid = false;
+			monitor.set_value(state_names[state], state, block - state_block);
 			for (addr = 0; addr < 0x100;) {
 				String	line = serial_line.get_reply();
 				int[] values = ParseHex(line);
@@ -164,14 +169,18 @@ public class AltosEeprom {
 					int	a = values[5] + (values[6] << 8);
 					int	b = values[7] + (values[8] << 8);
 
-					if (cmd == AO_LOG_FLIGHT)
+					if (cmd == AO_LOG_FLIGHT) {
 						flight = b;
+						monitor.set_flight(flight);
+					}
 
 					/* Monitor state transitions to update display */
 					if (cmd == AO_LOG_STATE && a <= ao_flight_landed) {
 						System.out.printf ("%s\n", state_names[a]);
 						if (a > ao_flight_pad)
 							want_file = true;
+						if (a > state)
+							state_block = block;
 						state = a;
 					}
 
@@ -189,6 +198,7 @@ public class AltosEeprom {
 							else
 								eeprom_name = new AltosFile(serial, flight, "eeprom-new");
 
+							monitor.set_file(eeprom_name.getName());
 							eeprom_file = new FileWriter(eeprom_name);
 							if (eeprom_file != null) {
 								FlushPending(eeprom_file, eeprom_pending);
@@ -224,41 +234,60 @@ public class AltosEeprom {
 			eeprom_file.flush();
 			eeprom_file.close();
 		}
+		monitor.done();
 	}
 
-	public static void SaveFlightData (JFrame frame) {
-		altos_device	device = AltosDeviceDialog.show(frame, null);
-		boolean		remote = false;
-		AltosSerial	serial_line = new AltosSerial();
+	JFrame		frame;
+	altos_device	device;
+	AltosSerial	serial_line;
+	boolean		remote;
+	Thread		eeprom_thread;
 
-		if (device == null)
-			return;
+	public void run () {
+		if (remote) {
+			serial_line.printf("m 0\n");
+			serial_line.set_channel(AltosPreferences.channel());
+			serial_line.printf("p\n");
+		}
 		try {
-			serial_line.open(device);
-			if (!device.getProduct().startsWith("TeleMetrum"))
-				remote = true;
-
-			if (remote) {
-				serial_line.printf("m 0\n");
-				serial_line.set_channel(AltosPreferences.channel());
-				serial_line.printf("p\n");
-			}
-			CaptureLog(serial_line);
-			if (remote)
-				serial_line.printf("~");
-			serial_line.close();
-		} catch (FileNotFoundException ee) {
-			JOptionPane.showMessageDialog(frame,
-						      String.format("Cannot open device \"%s\"",
-								    device.getPath()),
-						      "Cannot open target device",
-						      JOptionPane.ERROR_MESSAGE);
+			CaptureLog(frame, serial_line);
 		} catch (IOException ee) {
 			JOptionPane.showMessageDialog(frame,
 						      device.getPath(),
 						      ee.getLocalizedMessage(),
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (InterruptedException ie) {
+		}
+		if (remote)
+			serial_line.printf("~");
+		serial_line.close();
+	}
+
+	public AltosEeprom(JFrame given_frame) {
+		frame = given_frame;
+		device = AltosDeviceDialog.show(frame, null);
+		serial_line = new AltosSerial();
+		remote = false;
+
+		if (device != null) {
+			try {
+				serial_line.open(device);
+				if (!device.getProduct().startsWith("TeleMetrum"))
+					remote = true;
+				eeprom_thread = new Thread(this);
+				eeprom_thread.start();
+			} catch (FileNotFoundException ee) {
+				JOptionPane.showMessageDialog(frame,
+							      String.format("Cannot open device \"%s\"",
+									    device.getPath()),
+							      "Cannot open target device",
+							      JOptionPane.ERROR_MESSAGE);
+			} catch (IOException ee) {
+				JOptionPane.showMessageDialog(frame,
+							      device.getPath(),
+							      ee.getLocalizedMessage(),
+							      JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 }
