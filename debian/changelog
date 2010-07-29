@@ -1,4 +1,4 @@
-altos (0.6+270+g537492d) unstable; urgency=low
+altos (0.6+271+g27a2d0c) unstable; urgency=low
 
   [ Bdale Garbee ]
   * fix text since TM only has one led to blink
