@@ -1,8 +1,33 @@
+commit 7877496d47ce6d25210c0e1c6500666dbfc0876c
+Merge: c71061a 4cf39b1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jul 29 12:07:49 2010 -0700
+
+    Merge remote branch 'origin/master'
+
+commit c71061a37d3d3be2855b61cde33d2371989d7681
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jul 29 12:06:06 2010 -0700
+
+    Make altosui test script executable
+
+commit 4cf39b13a574cb656999cf329f5b08e7f910604b
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Jul 29 12:57:31 2010 -0600
+
+    update changelogs for Debian build
+
 commit d1848193d8208388e4ccdfbed4e5663a9ba04dd3
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Jul 29 12:56:59 2010 -0600
 
     add a jdk to the build deps
+
+commit 9ad4984124b6c05114feac4c4ac078dc248ce16a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jul 29 11:56:24 2010 -0700
+
+    altosui: remove option to install to alternate volume
 
 commit 2e797b18f0724caf7aaf96f45997998c7416f34e
 Author: Bdale Garbee <bdale@gag.com>
@@ -16,11 +41,23 @@ Date:   Thu Jul 29 12:47:37 2010 -0600
 
     ugh, fixing failure due to aborted build
 
+commit 6fb8546575f6d99676dbb1dce190b0b7cf24b657
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jul 29 11:45:56 2010 -0700
+
+    Moved Mac OS packaging to altosui dir
+
 commit 865d5cdf8931ffc796f608e3e12d7c5a70832825
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Jul 29 12:45:18 2010 -0600
 
     add swig as a build dep
+
+commit 91d75fb3919f606a1956bf8c6423a8012d99a56a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jul 29 11:45:12 2010 -0700
+
+    altosui: Switch eeprom extension back to .eeprom
 
 commit 33ffd89d5a64c991d28bd7369b61e1faa18f605b
 Author: Bdale Garbee <bdale@gag.com>
@@ -33,6 +70,70 @@ Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Jul 29 12:40:25 2010 -0600
 
     update changelogs for Debian build
+
+commit 6f86db5e0360bef26b21336769b7635e3a11e160
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jul 29 11:24:47 2010 -0700
+
+    Add Mac OS X packaging bits
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 950f0a8c54e5835ee5d8b0aea360bd8362c21bc5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jul 29 11:09:19 2010 -0700
+
+    altosui: construct Darwin application directory
+    
+    This adds the necessary files and build steps to construct
+    AltosUI.app on a Darwin system.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 669c5f52abb972a82ed6efbee7a8c7d20afb5cd0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jul 29 10:48:52 2010 -0700
+
+    libaltos: build with java src encoding UTF8
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit efa0e034a161f4852947cbac06537d6ba4422a0e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jul 29 10:48:25 2010 -0700
+
+    altosui: remove debug printf
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 53c279b9e96da8b69837ae84038a78ca5707f2a5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jul 29 10:45:02 2010 -0700
+
+    altosui: Close serial, join reader thread, free altos_file
+    
+    Separating out the close and free actions ensures that the reader thread will not
+    access freed memory or dereference a null pointer while shutting down the
+    connection to the serial device. Otherwise, a race condition exists between the
+    serial close and the thread join.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b8bc9994d8bfde6116c8a509e70ddf45fc4decce
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jul 29 10:24:59 2010 -0700
+
+    altosui: Remove unnecessary freetts .jar files
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e33dbbba94ce42295e9fed9f4ba7e46f9eff1517
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jul 29 10:24:09 2010 -0700
+
+    altosui: check for closed serial device before reading
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
 
 commit 27a2d0c00acf78628428c20ab68e2bfba06340da
 Author: Bdale Garbee <bdale@gag.com>

@@ -1,3 +1,20 @@
+altos (0.6+290+g7877496) unstable; urgency=low
+
+  [ Keith Packard ]
+  * altosui: check for closed serial device before reading
+  * altosui: Remove unnecessary freetts .jar files
+  * altosui: Close serial, join reader thread, free altos_file
+  * altosui: remove debug printf
+  * libaltos: build with java src encoding UTF8
+  * altosui: construct Darwin application directory
+  * Add Mac OS X packaging bits
+  * altosui: Switch eeprom extension back to .eeprom
+  * Moved Mac OS packaging to altosui dir
+  * altosui: remove option to install to alternate volume
+  * Make altosui test script executable
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 29 Jul 2010 13:30:19 -0600
+
 altos (0.6+277+gd184819) unstable; urgency=low
 
   [ Bdale Garbee ]
