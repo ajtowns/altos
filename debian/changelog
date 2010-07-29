@@ -1,3 +1,47 @@
+altos (0.6+277+gd184819) unstable; urgency=low
+
+  [ Bdale Garbee ]
+  * fix text since TM only has one led to blink
+  * add swig as a build dep
+  * add a jdk to the build deps
+
+  [ Keith Packard ]
+  * When the EP0 IN buffer is full, don't panic, just skip sending
+    another
+  * Add libaltos which talks to USB connected altos devices
+  * Switch AltosUI to libaltos for device access
+  * Present list of altos devices in nice format
+  * Re-enable freetts
+  * Re-enable Linux support for altosui.
+  * Darwin doesn't have strndup.
+  * libaltos needs -I. on all systems
+  * libaltos: make clean remove all built files
+  * libaltos: build fat 10.5-compatible library
+  * Add Mac OS X packaging files for altosui
+  * Add application icons for Mac OS X
+  * Clean up altosui build a bit
+  * Remove directories as .class file dependencies; it makes them get
+    rebuilt all the time
+  * Java clean ups -- use varargs where possible, remove
+    AltosSerialReader
+  * Java voice reporting cleanups.
+  * Force java source encoding to UTF-8
+  * Make ao_log_data re-entrant as it is used for both sensor and GPS
+    logs
+  * altosui: Catch errors opening USB devices. Limit list to relevant
+    devices
+  * Make voice and channel menus work.
+  * Add voice test command for help in adjusting volume.
+  * Remove debug printf
+  * altosui: Add eeprom data capture function. No UI yet.
+  * altosui: Add progress bar for eeprom downloading status
+  * altosui: Fix Save flight data monitor layout, add cancel
+  * altosui: Replace device dialog. Center eeprom monitor.
+  * altosui: report rocket ground bearing at landing only if known
+  * Reset GPS ready status when GPS comes unlocked on the pad
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 29 Jul 2010 12:50:40 -0600
+
 altos (0.6+236+gcd8aa79) unstable; urgency=low
 
   [ Keith Packard ]
