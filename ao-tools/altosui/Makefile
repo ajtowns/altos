@@ -77,6 +77,7 @@ ifeq ($(OS),Linux)
 altosui:
 	echo "#!/bin/sh" > $@
 	echo "exec java -Djava.library.path=../libaltos -jar altosui.jar" >> $@
+	chmod +x ./altosui
 endif
 
 clean:
