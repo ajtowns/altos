@@ -39,25 +39,78 @@ import altosui.AltosVoice;
 
 public class AltosEepromMonitor extends JDialog {
 
-	JPanel		panel;
+	Container	pane;
 	Box		box;
 	JLabel		serial_label;
 	JLabel		flight_label;
 	JLabel		file_label;
+	JLabel		serial_value;
+	JLabel		flight_value;
+	JLabel		file_value;
+	JButton		cancel;
 	JProgressBar	pbar;
 	int		min_state, max_state;
 
 	public AltosEepromMonitor(JFrame owner, int in_min_state, int in_max_state) {
-		super (owner, "Download Flight Data");
+		super (owner, "Download Flight Data", false);
 
-		box = Box.createVerticalBox();
+		GridBagConstraints c;
+		Insets il = new Insets(4,0,4,4);
+		Insets ir = new Insets(4,4,4,0);
 
+		pane = getContentPane();
+		pane.setLayout(new GridBagLayout());
+
+		c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = 0;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
 		serial_label = new JLabel("Serial:");
-		box.add(serial_label);
+		pane.add(serial_label, c);
+
+		c = new GridBagConstraints();
+		c.gridx = 1; c.gridy = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		serial_value = new JLabel("");
+		pane.add(serial_value, c);
+
+		c = new GridBagConstraints();
+		c.fill = GridBagConstraints.NONE;
+		c.gridx = 0; c.gridy = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
 		flight_label = new JLabel("Flight:");
-		box.add(flight_label);
+		pane.add(flight_label, c);
+
+		c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.gridx = 1; c.gridy = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		flight_value = new JLabel("");
+		pane.add(flight_value, c);
+
+		c = new GridBagConstraints();
+		c.fill = GridBagConstraints.NONE;
+		c.gridx = 0; c.gridy = 2;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
 		file_label = new JLabel("File:");
-		box.add(file_label);
+		pane.add(file_label, c);
+
+		c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.gridx = 1; c.gridy = 2;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		file_value = new JLabel("");
+		pane.add(file_value, c);
 
 		min_state = in_min_state;
 		max_state = in_max_state;
@@ -67,17 +120,33 @@ public class AltosEepromMonitor extends JDialog {
 		pbar.setValue(0);
 		pbar.setString("startup");
 		pbar.setStringPainted(true);
-		box.add(pbar);
+		pbar.setPreferredSize(new Dimension(600, 20));
+		c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.CENTER;
+		c.gridx = 0; c.gridy = 3;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		Insets ib = new Insets(4,0,4,0);
+		c.insets = ib;
+		pane.add(pbar, c);
 
-		panel = new JPanel();
-		panel.add(box);
 
-		add(panel);
+		cancel = new JButton("Cancel");
+		c = new GridBagConstraints();
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.CENTER;
+		c.gridx = 0; c.gridy = 4;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		Insets ic = new Insets(4,4,4,4);
+		c.insets = ic;
+		pane.add(cancel, c);
 
-		setMinimumSize(new Dimension(600, 0));
-		setContentPane(panel);
 		pack();
 		setVisible(true);
+	}
+
+	public void addActionListener (ActionListener l) {
+		cancel.addActionListener(l);
 	}
 
 	public void set_value(String state_name, int in_state, int in_block) {
@@ -92,23 +161,20 @@ public class AltosEepromMonitor extends JDialog {
 
 		int pos = state * 100 + block;
 
-		System.out.printf ("State %s (%d + %d) = %d\n",
-				   state_name, in_state, in_block, pos);
-
 		pbar.setString(state_name);
 		pbar.setValue(pos);
 	}
 
 	public void set_serial(int serial) {
-		serial_label.setText(String.format("Serial: %d", serial));
+		serial_value.setText(String.format("%d", serial));
 	}
 
 	public void set_flight(int flight) {
-		flight_label.setText(String.format("Flight: %d", flight));
+		flight_value.setText(String.format("%d", flight));
 	}
 
 	public void set_file(String file) {
-		file_label.setText(String.format("File: %s", file));
+		file_value.setText(String.format("%s", file));
 	}
 
 	public void done() {

@@ -65,7 +65,7 @@ public class AltosEeprom implements Runnable {
 	static final int ao_flight_landed = 8;
 	static final int ao_flight_invalid = 9;
 
-	static String[] state_names = {
+	static final String[] state_names = {
 		"startup",
 		"idle",
 		"pad",
@@ -78,7 +78,7 @@ public class AltosEeprom implements Runnable {
 		"invalid",
 	};
 
-	static int[] ParseHex(String line) {
+	int[] ParseHex(String line) {
 		String[] tokens = line.split("\\s+");
 		int[] array = new int[tokens.length];
 
@@ -91,20 +91,27 @@ public class AltosEeprom implements Runnable {
 		return array;
 	}
 
-	static int checksum(int[] line) {
+	int checksum(int[] line) {
 		int	csum = 0x5a;
 		for (int i = 1; i < line.length; i++)
 			csum += line[i];
 		return csum & 0xff;
 	}
 
-	static void FlushPending(FileWriter file, LinkedList<String> pending) throws IOException {
+	void FlushPending(FileWriter file, LinkedList<String> pending) throws IOException {
 		while (!pending.isEmpty()) {
 			file.write(pending.remove());
 		}
 	}
 
-	static void CaptureLog(JFrame frame, AltosSerial serial_line) throws IOException, InterruptedException {
+	JFrame			frame;
+	altos_device		device;
+	AltosSerial		serial_line;
+	boolean			remote;
+	Thread			eeprom_thread;
+	AltosEepromMonitor	monitor;
+
+	void CaptureLog() throws IOException, InterruptedException {
 		int			serial = 0;
 		int			block, state_block = 0;
 		int			addr;
@@ -117,7 +124,6 @@ public class AltosEeprom implements Runnable {
 		FileWriter		eeprom_file = null;
 		AltosFile		eeprom_name;
 		LinkedList<String>	eeprom_pending = new LinkedList<String>();
-		AltosEepromMonitor	monitor = new AltosEepromMonitor(frame, ao_flight_boost, ao_flight_landed);
 
 		serial_line.printf("v\n");
 
@@ -176,7 +182,6 @@ public class AltosEeprom implements Runnable {
 
 					/* Monitor state transitions to update display */
 					if (cmd == AO_LOG_STATE && a <= ao_flight_landed) {
-						System.out.printf ("%s\n", state_names[a]);
 						if (a > ao_flight_pad)
 							want_file = true;
 						if (a > state)
@@ -234,14 +239,7 @@ public class AltosEeprom implements Runnable {
 			eeprom_file.flush();
 			eeprom_file.close();
 		}
-		monitor.done();
 	}
-
-	JFrame		frame;
-	altos_device	device;
-	AltosSerial	serial_line;
-	boolean		remote;
-	Thread		eeprom_thread;
 
 	public void run () {
 		if (remote) {
@@ -249,8 +247,15 @@ public class AltosEeprom implements Runnable {
 			serial_line.set_channel(AltosPreferences.channel());
 			serial_line.printf("p\n");
 		}
+
+		monitor = new AltosEepromMonitor(frame, ao_flight_boost, ao_flight_landed);
+		monitor.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					eeprom_thread.interrupt();
+				}
+			});
 		try {
-			CaptureLog(frame, serial_line);
+			CaptureLog();
 		} catch (IOException ee) {
 			JOptionPane.showMessageDialog(frame,
 						      device.getPath(),
@@ -260,12 +265,14 @@ public class AltosEeprom implements Runnable {
 		}
 		if (remote)
 			serial_line.printf("~");
+		monitor.done();
 		serial_line.close();
 	}
 
 	public AltosEeprom(JFrame given_frame) {
 		frame = given_frame;
 		device = AltosDeviceDialog.show(frame, null);
+
 		serial_line = new AltosSerial();
 		remote = false;
 
