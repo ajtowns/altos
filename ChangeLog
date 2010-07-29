@@ -1,3 +1,312 @@
+commit d0fd53bdab2f480cd43b6d7010c2094f4fccda91
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 28 21:49:23 2010 -0700
+
+    Reset GPS ready status when GPS comes unlocked on the pad
+    
+    If GPS becomes unlocked, then report that in the UI and via
+    voice.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5fd225c3a52445ecdc7c04fac5e3d9a0db177c66
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 28 21:01:41 2010 -0700
+
+    altosui: report rocket ground bearing at landing only if known
+    
+    if state.from_pad is null, then there isn't any data to report.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d2d772164af95a35ea0f5d2413a5be67de9a210f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 28 20:18:36 2010 -0700
+
+    altosui: Replace device dialog. Center eeprom monitor.
+    
+    This adds a custom dialog for selecting device, which makes it look
+    much nicer on the screen and allows the user to double-click on an
+    entry to select it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ea32290704a8ca468f01172166b561833b20c954
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 28 19:37:02 2010 -0700
+
+    altosui: Fix Save flight data monitor layout, add cancel
+    
+    Use GridBagLayout to improve the appearance of the flight data monitor
+    widget, add a cancel button to stop loading data (useful if the
+    connection is wedged).
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ce90f3fe2aa6e23695ccccb36a8e6e614a08ba31
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 28 17:08:42 2010 -0700
+
+    altosui: Add progress bar for eeprom downloading status
+    
+    This has a progress bar tracking the state and block count while
+    downloading stuff from telemetrum.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6599e9576c3da9325a1731144c1b8bc4943184c0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 28 15:41:34 2010 -0700
+
+    altosui: Add eeprom data capture function. No UI yet.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8a6040e143ecc7830cc1c0114de85f3b72c067eb
+Merge: 024d077 554a97e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 28 13:29:51 2010 -0700
+
+    Merge remote branch 'keithp/macos'
+
+commit 024d077302f91bdb17abe70d3211ab0949dab8b9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 28 13:29:21 2010 -0700
+
+    Remove debug printf
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 826061eaca88c0dd75051a6006ef6703c91af595
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 28 13:10:11 2010 -0700
+
+    Add voice test command for help in adjusting volume.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 71da54a5ce255395376a44586782ab8b6f3b289f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 28 13:01:52 2010 -0700
+
+    Make voice and channel menus work.
+    
+    Stores voice and channel data to preferences.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e76b9cc32bbcc5176d9bdd6f8d79778024627382
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 28 12:24:53 2010 -0700
+
+    altosui: Catch errors opening USB devices. Limit list to relevant devices
+    
+    Avoids a segfault when failing to open a device. Limit listed telemetry
+    devices to just TeleDongle units.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 172a2817dde6718724f2b5fad5a7761801446fa0
+Merge: f2a006f 81bf204
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 28 11:20:22 2010 -0700
+
+    Merge branch 'macos'
+
+commit f2a006fd98045066bdf429cc142d033e9feb0a8f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 28 09:31:09 2010 -0700
+
+    Make ao_log_data re-entrant as it is used for both sensor and GPS logs
+    
+    Because ao_log_data is called from two different threads, failing to
+    make it re-entrant would cause the 'log' pointer parameter to get
+    overwritten if another thread asked to log data while the eeprom was
+    busy writing out a block.
+    
+    This would cause the second thread to re-writing data from the first
+    thread's address, but without re-checksumming the data as the checksum
+    is computed before the log mutex is taken.
+    
+    The bug can be seen by log blocks with invalid checksums.
+    
+    Here's what happens with the ao_gps_tracking_report and ao_log threads:
+    
+      ao_gps_tracking_report		ao_log
+    
+       Writes a bunch of records
+       *blocks* in the eeprom flush
+    					sets ao_log_data 'log' to global 'log'
+    					computes checksum for 'log' block
+    					*blocks* on ao_log_mutex
+       Wakes up
+       sets ao_log_data 'log' to 'gps_log'
+       writes remaining records
+       'gps_log' is left with svid = 0
+       *blocks* on ao_gps_tracking_data
+    					writes data, reading from
+    					the current ao_log_data 'log'
+    					pointer which points at 'gps_log'
+    
+    Making ao_log_data re-entrant fixes this by ensuring that the 'ao_log'
+    thread has its own copy of the ao_log_data 'log' parameter.
+    
+    I made this function take an __xdata restricted pointer so that it
+    could be passed in the dptr register instead of needing to go on the stack.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 554a97ef455c801dcab825815f44520f96f4c3f3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 27 19:29:38 2010 -0700
+
+    Force java source encoding to UTF-8
+
+commit 81bf2042ca39eb106b789e5a08647c3114669358
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 27 15:29:28 2010 -0700
+
+    Java voice reporting cleanups.
+    
+    Make sure it says something at the end of a log file replay.
+    Make sure it reports max speed after motor burn out, and max height
+    after apogee.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8f2f38f2a9fb0c106e2c6b60cdc205292ce329ea
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 27 10:18:20 2010 -0700
+
+    Java clean ups -- use varargs where possible, remove AltosSerialReader
+    
+    Add methods that format stuff using String.format for voice and serial
+    link, remove AltosSerialReader class and just embed that in the
+    AltosSerial class directly.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 734cd15ccff691f851359518ce6118f29dc9f88d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 27 10:18:09 2010 -0700
+
+    Remove directories as .class file dependencies; it makes them get rebuilt all the time
+
+commit 809feb75e2155e84aebfcc431867edcfd9054670
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 27 01:22:56 2010 -0700
+
+    Clean up altosui build a bit
+
+commit 3784578a40dcc61f447435cfdf22e13c409cb9c0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 27 00:16:15 2010 -0700
+
+    Add application icons for Mac OS X
+
+commit 2c273710ea9b76ebee4101893f9fe84be8a02354
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 27 00:11:58 2010 -0700
+
+    Add Mac OS X packaging files for altosui
+
+commit a58c44cd904e5429b807e5c23913051ed6484edc
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 27 00:09:41 2010 -0700
+
+    libaltos: build fat 10.5-compatible library
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4e3285575e0c7d029e799258587e965779990099
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 27 00:09:18 2010 -0700
+
+    libaltos: make clean remove all built files
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fb8507975c6e081de2e909eca6faaa8f868b609e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 27 00:08:38 2010 -0700
+
+    libaltos needs -I. on all systems
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0a782026f6b19e84ffd44f1ae1b466363474bd30
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jul 26 18:10:07 2010 -0700
+
+    Darwin doesn't have strndup.
+    
+    This provides a private version of this GNU extension.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b51497597868a40df039dd3ca11b35a6258bbbb3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jul 26 18:04:10 2010 -0700
+
+    Re-enable Linux support for altosui.
+    
+    This steals code from cc-usbdev for scanning the USB tree and uses the
+    same tty code as on Darwin
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e9153c4f2c71ed965822fcfe5112d2bc38506baf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jul 26 17:04:04 2010 -0700
+
+    Re-enable freetts
+
+commit 17188f36fe18c23bc2eb877ac9a01b7693f4b863
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jul 26 17:03:47 2010 -0700
+
+    Present list of altos devices in nice format
+
+commit 005e2d6a7bb3b0546b0c1273296875621632ec6d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jul 26 15:42:48 2010 -0700
+
+    Switch AltosUI to libaltos for device access
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c726d8f6eb861801d7543552beab6ee2c920c96f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jul 26 15:41:39 2010 -0700
+
+    Add libaltos which talks to USB connected altos devices
+
+commit 05111d5be4d37bedaaee6415d6ee27347e6a112c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jul 26 12:52:17 2010 -0700
+
+    When the EP0 IN buffer is full, don't panic, just skip sending another
+    
+    If the host doesn't pull the IN packet out of EP0 before sending
+    another SETUP command along, the IN buffer will still be busy when we
+    try to reply to the SETUP command. While I don't quite understand why
+    this would ever happen, there's no need to panic about it, just drop
+    the reply packet on the floor.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d0647950b76bfa9942e4f8cf87353f2b724099f4
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Jul 21 14:26:36 2010 -0600
+
+    fix text since TM only has one led to blink
+
+commit 8eda9fe94a7fd40cb84f50e17e64956f1584ebdc
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jul 20 22:24:32 2010 -0600
+
+    update changelogs for Debian build
+
 commit cd8aa79de72b8b6b3a26d0c2522e94c621b70f13
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Tue Jul 20 22:24:01 2010 -0600
