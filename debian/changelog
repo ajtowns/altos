@@ -1,8 +1,9 @@
-altos (0.6+275+g89109f9) unstable; urgency=low
+altos (0.6+277+gd184819) unstable; urgency=low
 
   [ Bdale Garbee ]
   * fix text since TM only has one led to blink
   * add swig as a build dep
+  * add a jdk to the build deps
 
   [ Keith Packard ]
   * When the EP0 IN buffer is full, don't panic, just skip sending
