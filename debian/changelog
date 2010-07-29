@@ -1,4 +1,4 @@
-altos (0.6+274+g865d5cd) UNRELEASED; urgency=low
+altos (0.6+275+g89109f9) unstable; urgency=low
 
   [ Bdale Garbee ]
   * fix text since TM only has one led to blink
@@ -39,7 +39,7 @@ altos (0.6+274+g865d5cd) UNRELEASED; urgency=low
   * altosui: report rocket ground bearing at landing only if known
   * Reset GPS ready status when GPS comes unlocked on the pad
 
- -- Bdale Garbee <bdale@gag.com>  Thu, 29 Jul 2010 10:57:54 -0600
+ -- Bdale Garbee <bdale@gag.com>  Thu, 29 Jul 2010 12:50:40 -0600
 
 altos (0.6+236+gcd8aa79) unstable; urgency=low
 

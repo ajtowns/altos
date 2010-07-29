@@ -1,3 +1,21 @@
+commit 89109f9dff3ce855d80da166e3362375282f745d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Jul 29 12:47:37 2010 -0600
+
+    ugh, fixing failure due to aborted build
+
+commit 865d5cdf8931ffc796f608e3e12d7c5a70832825
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Jul 29 12:45:18 2010 -0600
+
+    add swig as a build dep
+
+commit 33ffd89d5a64c991d28bd7369b61e1faa18f605b
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Jul 29 12:40:52 2010 -0600
+
+    update changelogs for Debian build
+
 commit 62b4cc51a0f54ef363cbff46caef80a0afecdea2
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Jul 29 12:40:25 2010 -0600
