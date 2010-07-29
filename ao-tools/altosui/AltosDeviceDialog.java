@@ -152,10 +152,8 @@ public class AltosDeviceDialog extends JDialog implements ActionListener {
 
 	//Handle clicks on the Set and Cancel buttons.
 	public void actionPerformed(ActionEvent e) {
-		if ("select".equals(e.getActionCommand())) {
-			System.out.printf("got select action\n");
+		if ("select".equals(e.getActionCommand()))
 			AltosDeviceDialog.value = (altos_device)(list.getSelectedValue());
-		}
 		AltosDeviceDialog.dialog.setVisible(false);
 	}
 
