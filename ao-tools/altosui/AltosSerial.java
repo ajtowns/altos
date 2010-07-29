@@ -51,6 +51,8 @@ public class AltosSerial implements Runnable {
 
 		try {
 			for (;;) {
+				if (altos == null)
+					break;
 				c = libaltos.altos_getchar(altos, 0);
 				if (Thread.interrupted())
 					break;
