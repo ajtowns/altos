@@ -199,9 +199,9 @@ public class AltosEeprom implements Runnable {
 					if (eeprom_file == null) {
 						if (serial != 0 && flight != 0 && want_file) {
 							if (year != 0 && month != 0 && day != 0)
-								eeprom_name = new AltosFile(year, month, day, serial, flight, "eeprom-new");
+								eeprom_name = new AltosFile(year, month, day, serial, flight, "eeprom");
 							else
-								eeprom_name = new AltosFile(serial, flight, "eeprom-new");
+								eeprom_name = new AltosFile(serial, flight, "eeprom");
 
 							monitor.set_file(eeprom_name.getName());
 							eeprom_file = new FileWriter(eeprom_name);
@@ -229,7 +229,7 @@ public class AltosEeprom implements Runnable {
 				done = true;
 		}
 		if (eeprom_file == null) {
-			eeprom_name = new AltosFile(serial,flight,"eeprom-new");
+			eeprom_name = new AltosFile(serial,flight,"eeprom");
 			eeprom_file = new FileWriter(eeprom_name);
 			if (eeprom_file != null) {
 				FlushPending(eeprom_file, eeprom_pending);
