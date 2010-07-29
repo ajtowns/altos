@@ -51,7 +51,7 @@ JAVAFLAGS=-Xlint:unchecked
 all: libaltos.$(LIBEXT) cjnitest $(CLASSFILES)
 
 .java.class:
-	javac -cp "$(CLASSPATH)" $(JAVAFLAGS) $*.java
+	javac -encoding UTF8 -classpath "$(CLASSPATH)" $(JAVAFLAGS) $*.java
 
 CFLAGS=$(OS_CFLAGS) -O0 -g -I.
 
