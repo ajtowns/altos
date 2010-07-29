@@ -374,7 +374,7 @@ public class AltosUI extends JFrame {
 					voice.speak("rocket landed safely");
 				else
 					voice.speak("rocket may have crashed");
-				if (state.gps != null)
+				if (state.from_pad != null)
 					voice.speak("bearing %d degrees, range %d meters",
 						    (int) (state.from_pad.bearing + 0.5),
 						    (int) (state.from_pad.distance + 0.5));
