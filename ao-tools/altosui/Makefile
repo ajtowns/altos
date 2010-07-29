@@ -29,9 +29,7 @@ FREETTSJAR= \
 	cmutimelex.jar \
 	cmu_us_kal.jar \
 	en_us.jar \
-	freetts.jar \
-	freetts-jsapi10.jar \
-	jsapi.jar
+	freetts.jar
 
 JAVAFLAGS=-Xlint:unchecked
 
