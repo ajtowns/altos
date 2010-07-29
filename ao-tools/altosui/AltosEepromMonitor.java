@@ -55,8 +55,8 @@ public class AltosEepromMonitor extends JDialog {
 		super (owner, "Download Flight Data", false);
 
 		GridBagConstraints c;
-		Insets il = new Insets(4,0,4,4);
-		Insets ir = new Insets(4,4,4,0);
+		Insets il = new Insets(4,4,4,4);
+		Insets ir = new Insets(4,4,4,4);
 
 		pane = getContentPane();
 		pane.setLayout(new GridBagLayout());
@@ -126,7 +126,7 @@ public class AltosEepromMonitor extends JDialog {
 		c.anchor = GridBagConstraints.CENTER;
 		c.gridx = 0; c.gridy = 3;
 		c.gridwidth = GridBagConstraints.REMAINDER;
-		Insets ib = new Insets(4,0,4,0);
+		Insets ib = new Insets(4,4,4,4);
 		c.insets = ib;
 		pane.add(pbar, c);
 
@@ -142,6 +142,7 @@ public class AltosEepromMonitor extends JDialog {
 		pane.add(cancel, c);
 
 		pack();
+		setLocationRelativeTo(owner);
 		setVisible(true);
 	}
 
