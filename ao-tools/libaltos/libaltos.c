@@ -567,6 +567,14 @@ void
 altos_close(struct altos_file *file)
 {
 	close(file->fd);
+	file->fd = -1;
+}
+
+void
+altos_free(struct altos_file *file)
+{
+	if (file->fd != -1)
+		close(file->fd);
 	free(file);
 }
 
@@ -592,6 +600,8 @@ altos_flush(struct altos_file *file)
 	while (file->out_used) {
 		int	ret;
 
+		if (file->fd < 0)
+			return -EBADF;
 		ret = write (file->fd, file->out_data, file->out_used);
 		if (ret < 0)
 			return -errno;
@@ -610,6 +620,8 @@ altos_getchar(struct altos_file *file, int timeout)
 		int	ret;
 
 		altos_flush(file);
+		if (file->fd < 0)
+			return -EBADF;
 		ret = read(file->fd, file->in_data, USB_BUF_SIZE);
 		if (ret < 0)
 			return -errno;

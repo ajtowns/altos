@@ -51,8 +51,6 @@ public class AltosSerial implements Runnable {
 
 		try {
 			for (;;) {
-				if (altos == null)
-					break;
 				c = libaltos.altos_getchar(altos, 0);
 				if (Thread.interrupted())
 					break;
@@ -106,10 +104,8 @@ public class AltosSerial implements Runnable {
 	}
 
 	public void close() {
-		if (altos != null) {
+		if (altos != null)
 			libaltos.altos_close(altos);
-			altos = null;
-		}
 		if (input_thread != null) {
 			try {
 				input_thread.interrupt();
@@ -117,6 +113,10 @@ public class AltosSerial implements Runnable {
 			} catch (InterruptedException e) {
 			}
 			input_thread = null;
+		}
+		if (altos != null) {
+			libaltos.altos_free(altos);
+			altos = null;
 		}
 	}
 

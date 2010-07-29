@@ -42,6 +42,8 @@ altos_open(struct altos_device *device);
 
 void altos_close(struct altos_file *file);
 
+void altos_free(struct altos_file *file);
+
 int
 altos_putchar(struct altos_file *file, char c);
 
