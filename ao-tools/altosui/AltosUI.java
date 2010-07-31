@@ -92,17 +92,17 @@ class AltosFlightInfoTableModel extends AbstractTableModel {
 
 	public int getRowCount() { return 20; }
 
+	int	current_row = 0;
+	int	prev_num_rows = 0;
+
 	public Object getValueAt(int row, int col) {
-		if (row >= rows.size())
+		if (row >= prev_num_rows)
 			return "";
 		if (col == 0)
 			return rows.get(row).name;
 		else
 			return rows.get(row).value;
 	}
-
-	int	current_row = 0;
-	int	prev_num_rows = 0;
 
 	public void resetRow() {
 		current_row = 0;
@@ -115,10 +115,9 @@ class AltosFlightInfoTableModel extends AbstractTableModel {
 		current_row++;
 	}
 	public void finish() {
-		if (current_row > prev_num_rows) {
+		if (current_row > prev_num_rows)
 			fireTableRowsInserted(prev_num_rows, current_row - 1);
-			prev_num_rows = current_row;
-		}
+		prev_num_rows = current_row;
 		fireTableDataChanged();
 	}
 }
