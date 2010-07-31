@@ -1,3 +1,9 @@
+altos (0.6+292+g8fc261c) unstable; urgency=low
+
+  * see if my new freetts package works
+
+ -- Bdale Garbee <bdale@gag.com>  Sat, 31 Jul 2010 10:55:21 -0600
+
 altos (0.6+290+g7877496) unstable; urgency=low
 
   [ Keith Packard ]

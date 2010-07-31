@@ -1,3 +1,15 @@
+commit 8fc261c2b77bb8aab201a0649a84b5ffa236ce26
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sat Jul 31 10:55:07 2010 -0600
+
+    see if my new freetts package works
+
+commit 2f114c7ff6b0deddb790d34139bb11ac37f8c0da
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Jul 29 13:30:36 2010 -0600
+
+    update changelogs for Debian build
+
 commit 7877496d47ce6d25210c0e1c6500666dbfc0876c
 Merge: c71061a 4cf39b1
 Author: Keith Packard <keithp@keithp.com>
