@@ -103,7 +103,7 @@ public class AltosEepromDownload implements Runnable {
 		AltosFile		eeprom_name;
 		LinkedList<String>	eeprom_pending = new LinkedList<String>();
 
-		serial_line.printf("v\n");
+		serial_line.printf("\nc s\nv\n");
 
 		/* Pull the serial number out of the version information */
 
@@ -113,11 +113,12 @@ public class AltosEepromDownload implements Runnable {
 			if (line.startsWith("serial-number")) {
 				try {
 					serial = Integer.parseInt(line.substring(13).trim());
-					eeprom_pending.add(String.format("%s\n", line));
 				} catch (NumberFormatException ne) {
 					serial = 0;
 				}
 			}
+
+			eeprom_pending.add(String.format("%s\n", line));
 
 			/* signals the end of the version info */
 			if (line.startsWith("software-version"))
