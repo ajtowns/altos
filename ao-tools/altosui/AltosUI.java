@@ -37,90 +37,10 @@ import altosui.AltosDeviceDialog;
 import altosui.AltosPreferences;
 import altosui.AltosLog;
 import altosui.AltosVoice;
+import altosui.AltosFlightStatusTableModel;
+import altosui.AltosFlightInfoTableModel;
 
 import libaltosJNI.*;
-
-class AltosFlightStatusTableModel extends AbstractTableModel {
-	private String[] columnNames = {"Height (m)", "State", "RSSI (dBm)", "Speed (m/s)" };
-	private Object[] data = { 0, "idle", 0, 0 };
-
-	public int getColumnCount() { return columnNames.length; }
-	public int getRowCount() { return 2; }
-	public Object getValueAt(int row, int col) {
-		if (row == 0)
-			return columnNames[col];
-		return data[col];
-	}
-
-	public void setValueAt(Object value, int col) {
-		data[col] = value;
-		fireTableCellUpdated(1, col);
-	}
-
-	public void setValueAt(Object value, int row, int col) {
-		setValueAt(value, col);
-	}
-
-	public void set(AltosState state) {
-		setValueAt(String.format("%1.0f", state.height), 0);
-		setValueAt(state.data.state, 1);
-		setValueAt(state.data.rssi, 2);
-		double speed = state.baro_speed;
-		if (state.ascent)
-			speed = state.speed;
-		setValueAt(String.format("%1.0f", speed), 3);
-	}
-}
-
-class AltosFlightInfoTableModel extends AbstractTableModel {
-	private String[] columnNames = {"Field", "Value"};
-
-	class InfoLine {
-		String	name;
-		String	value;
-
-		public InfoLine(String n, String v) {
-			name = n;
-			value = v;
-		}
-	}
-
-	private ArrayList<InfoLine> rows = new ArrayList<InfoLine>();
-
-	public int getColumnCount() { return columnNames.length; }
-	public String getColumnName(int col) { return columnNames[col]; }
-
-	public int getRowCount() { return 20; }
-
-	int	current_row = 0;
-	int	prev_num_rows = 0;
-
-	public Object getValueAt(int row, int col) {
-		if (row >= prev_num_rows)
-			return "";
-		if (col == 0)
-			return rows.get(row).name;
-		else
-			return rows.get(row).value;
-	}
-
-	public void resetRow() {
-		current_row = 0;
-	}
-	public void addRow(String name, String value) {
-		if (current_row >= rows.size())
-			rows.add(current_row, new InfoLine(name, value));
-		else
-			rows.set(current_row, new InfoLine(name, value));
-		current_row++;
-	}
-	public void finish() {
-		if (current_row > prev_num_rows)
-			fireTableRowsInserted(prev_num_rows, current_row - 1);
-		prev_num_rows = current_row;
-		fireTableDataChanged();
-	}
-}
 
 public class AltosUI extends JFrame {
 	private int channel = -1;

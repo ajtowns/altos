@@ -6,6 +6,8 @@ CLASSFILES=\
 	AltosEeprom.class \
 	AltosEepromMonitor.class \
 	AltosFile.class \
+	AltosFlightInfoTableModel.class \
+	AltosFlightStatusTableModel.class \
 	AltosGPS.class \
 	AltosGreatCircle.class \
 	AltosLog.class \
