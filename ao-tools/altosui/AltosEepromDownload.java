@@ -28,6 +28,7 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import altosui.Altos;
 import altosui.AltosSerial;
 import altosui.AltosSerialMonitor;
 import altosui.AltosTelemetry;
@@ -40,30 +41,7 @@ import altosui.AltosEepromMonitor;
 
 import libaltosJNI.*;
 
-public class AltosEeprom implements Runnable {
-
-	static final int AO_LOG_FLIGHT = 'F';
-	static final int AO_LOG_SENSOR = 'A';
-	static final int AO_LOG_TEMP_VOLT = 'T';
-	static final int AO_LOG_DEPLOY = 'D';
-	static final int AO_LOG_STATE = 'S';
-	static final int AO_LOG_GPS_TIME = 'G';
-	static final int AO_LOG_GPS_LAT = 'N';
-	static final int AO_LOG_GPS_LON = 'W';
-	static final int AO_LOG_GPS_ALT = 'H';
-	static final int AO_LOG_GPS_SAT = 'V';
-	static final int AO_LOG_GPS_DATE = 'Y';
-
-	static final int ao_flight_startup = 0;
-	static final int ao_flight_idle = 1;
-	static final int ao_flight_pad = 2;
-	static final int ao_flight_boost = 3;
-	static final int ao_flight_fast = 4;
-	static final int ao_flight_coast = 5;
-	static final int ao_flight_drogue = 6;
-	static final int ao_flight_main = 7;
-	static final int ao_flight_landed = 8;
-	static final int ao_flight_invalid = 9;
+public class AltosEepromDownload implements Runnable {
 
 	static final String[] state_names = {
 		"startup",
@@ -175,21 +153,21 @@ public class AltosEeprom implements Runnable {
 					int	a = values[5] + (values[6] << 8);
 					int	b = values[7] + (values[8] << 8);
 
-					if (cmd == AO_LOG_FLIGHT) {
+					if (cmd == Altos.AO_LOG_FLIGHT) {
 						flight = b;
 						monitor.set_flight(flight);
 					}
 
 					/* Monitor state transitions to update display */
-					if (cmd == AO_LOG_STATE && a <= ao_flight_landed) {
-						if (a > ao_flight_pad)
+					if (cmd == Altos.AO_LOG_STATE && a <= Altos.ao_flight_landed) {
+						if (a > Altos.ao_flight_pad)
 							want_file = true;
 						if (a > state)
 							state_block = block;
 						state = a;
 					}
 
-					if (cmd == AO_LOG_GPS_DATE) {
+					if (cmd == Altos.AO_LOG_GPS_DATE) {
 						year = 2000 + (a & 0xff);
 						month = (a >> 8) & 0xff;
 						day = (b & 0xff);
@@ -219,7 +197,7 @@ public class AltosEeprom implements Runnable {
 					else
 						eeprom_pending.add(log_line);
 
-					if (cmd == AO_LOG_STATE && a == ao_flight_landed) {
+					if (cmd == Altos.AO_LOG_STATE && a == Altos.ao_flight_landed) {
 						done = true;
 					}
 				}
@@ -248,7 +226,7 @@ public class AltosEeprom implements Runnable {
 			serial_line.printf("p\n");
 		}
 
-		monitor = new AltosEepromMonitor(frame, ao_flight_boost, ao_flight_landed);
+		monitor = new AltosEepromMonitor(frame, Altos.ao_flight_boost, Altos.ao_flight_landed);
 		monitor.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					eeprom_thread.interrupt();
@@ -269,7 +247,7 @@ public class AltosEeprom implements Runnable {
 		serial_line.close();
 	}
 
-	public AltosEeprom(JFrame given_frame) {
+	public AltosEepromDownload(JFrame given_frame) {
 		frame = given_frame;
 		device = AltosDeviceDialog.show(frame, null);
 

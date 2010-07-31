@@ -28,6 +28,7 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import altosui.Altos;
 import altosui.AltosSerial;
 import altosui.AltosSerialMonitor;
 import altosui.AltosTelemetry;
@@ -344,7 +345,7 @@ public class AltosUI extends JFrame {
 				return;
 
 			/* reset the landing count once we hear about a new flight */
-			if (state.state < AltosTelemetry.ao_flight_drogue)
+			if (state.state < Altos.ao_flight_drogue)
 				reported_landing = 0;
 
 			/* Shut up once the rocket is on the ground */
@@ -353,7 +354,7 @@ public class AltosUI extends JFrame {
 			}
 
 			/* If the rocket isn't on the pad, then report height */
-			if (state.state > AltosTelemetry.ao_flight_pad) {
+			if (state.state > Altos.ao_flight_pad) {
 				voice.speak("%d meters", (int) (state.height + 0.5));
 			} else {
 				reported_landing = 0;
@@ -366,7 +367,7 @@ public class AltosUI extends JFrame {
 			if (!state.ascent &&
 			    (last ||
 			     System.currentTimeMillis() - state.report_time >= 15000 ||
-			     state.state == AltosTelemetry.ao_flight_landed))
+			     state.state == Altos.ao_flight_landed))
 			{
 				if (Math.abs(state.baro_speed) < 20 && state.height < 100)
 					voice.speak("rocket landed safely");
@@ -401,12 +402,12 @@ public class AltosUI extends JFrame {
 	private void tell(AltosState state, AltosState old_state) {
 		if (old_state == null || old_state.state != state.state) {
 			voice.speak(state.data.state);
-			if ((old_state == null || old_state.state <= AltosTelemetry.ao_flight_boost) &&
-			    state.state > AltosTelemetry.ao_flight_boost) {
+			if ((old_state == null || old_state.state <= Altos.ao_flight_boost) &&
+			    state.state > Altos.ao_flight_boost) {
 				voice.speak("max speed: %d meters per second.",
 					    (int) (state.max_speed + 0.5));
-			} else if ((old_state == null || old_state.state < AltosTelemetry.ao_flight_drogue) &&
-				   state.state >= AltosTelemetry.ao_flight_drogue) {
+			} else if ((old_state == null || old_state.state < Altos.ao_flight_drogue) &&
+				   state.state >= Altos.ao_flight_drogue) {
 				voice.speak("max height: %d meters.",
 					    (int) (state.max_height + 0.5));
 			}
@@ -617,7 +618,7 @@ public class AltosUI extends JFrame {
 	 * a TeleDongle over the packet link
 	 */
 	private void SaveFlightData() {
-		new AltosEeprom(AltosUI.this);
+		new AltosEepromDownload(AltosUI.this);
 	}
 
 	/* Create the AltosUI menus
