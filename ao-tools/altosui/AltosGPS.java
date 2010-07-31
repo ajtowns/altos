@@ -23,37 +23,6 @@ import altosui.AltosParse;
 
 
 public class AltosGPS {
-	public class AltosGPSTime {
-		int year;
-		int month;
-		int day;
-		int hour;
-		int minute;
-		int second;
-
-		public AltosGPSTime(String date, String time) throws ParseException {
-			String[] ymd = date.split("-");
-			if (ymd.length != 3)
-				throw new ParseException("error parsing GPS date " + date + " got " + ymd.length, 0);
-			year = AltosParse.parse_int(ymd[0]);
-			month = AltosParse.parse_int(ymd[1]);
-			day = AltosParse.parse_int(ymd[2]);
-
-			String[] hms = time.split(":");
-			if (hms.length != 3)
-				throw new ParseException("Error parsing GPS time " + time + " got " + hms.length, 0);
-			hour = AltosParse.parse_int(hms[0]);
-			minute = AltosParse.parse_int(hms[1]);
-			second = AltosParse.parse_int(hms[2]);
-		}
-
-		public AltosGPSTime() {
-			year = month = day = 0;
-			hour = minute = second = 0;
-		}
-
-	}
-
 	public class AltosGPSSat {
 		int	svid;
 		int	c_n0;
@@ -62,10 +31,15 @@ public class AltosGPS {
 	int	nsat;
 	boolean	gps_locked;
 	boolean	gps_connected;
-	AltosGPSTime gps_time;
 	double	lat;		/* degrees (+N -S) */
 	double	lon;		/* degrees (+E -W) */
 	int	alt;		/* m */
+	int	year;
+	int	month;
+	int	day;
+	int	hour;
+	int	minute;
+	int	second;
 
 	int	gps_extended;	/* has extra data */
 	double	ground_speed;	/* m/s */
@@ -77,6 +51,27 @@ public class AltosGPS {
 
 	AltosGPSSat[] cc_gps_sat;	/* tracking data */
 
+	void ParseGPSTime(String date, String time) throws ParseException {
+		String[] ymd = date.split("-");
+		if (ymd.length != 3)
+			throw new ParseException("error parsing GPS date " + date + " got " + ymd.length, 0);
+		year = AltosParse.parse_int(ymd[0]);
+		month = AltosParse.parse_int(ymd[1]);
+		day = AltosParse.parse_int(ymd[2]);
+
+		String[] hms = time.split(":");
+		if (hms.length != 3)
+			throw new ParseException("Error parsing GPS time " + time + " got " + hms.length, 0);
+		hour = AltosParse.parse_int(hms[0]);
+		minute = AltosParse.parse_int(hms[1]);
+		second = AltosParse.parse_int(hms[2]);
+	}
+
+	void ClearGPSTime() {
+		year = month = day = 0;
+		hour = minute = second = 0;
+	}
+
 	public AltosGPS(String[] words, int i) throws ParseException {
 		AltosParse.word(words[i++], "GPS");
 		nsat = AltosParse.parse_int(words[i++]);
@@ -86,18 +81,17 @@ public class AltosGPS {
 		gps_locked = false;
 		lat = lon = 0;
 		alt = 0;
+		ClearGPSTime();
 		if ((words[i]).equals("unlocked")) {
 			gps_connected = true;
-			gps_time = new AltosGPSTime();
 			i++;
 		} else if ((words[i]).equals("not-connected")) {
-			gps_time = new AltosGPSTime();
 			i++;
 		} else if (words.length >= 40) {
 			gps_locked = true;
 			gps_connected = true;
 
-			gps_time = new AltosGPSTime(words[i], words[i+1]); i += 2;
+			ParseGPSTime(words[i], words[i+1]); i += 2;
 			lat = AltosParse.parse_coord(words[i++]);
 			lon = AltosParse.parse_coord(words[i++]);
 			alt = AltosParse.parse_int(AltosParse.strip_suffix(words[i++], "m"));
@@ -108,7 +102,6 @@ public class AltosGPS {
 			h_error = AltosParse.parse_int(AltosParse.strip_suffix(words[i++], "(herr)"));
 			v_error = AltosParse.parse_int(AltosParse.strip_suffix(words[i++], "(verr)"));
 		} else {
-			gps_time = new AltosGPSTime();
 			i++;
 		}
 		AltosParse.word(words[i++], "SAT");
@@ -124,5 +117,53 @@ public class AltosGPS {
 			cc_gps_sat[chan].svid = AltosParse.parse_int(words[i++]);
 			cc_gps_sat[chan].c_n0 = AltosParse.parse_int(words[i++]);
 		}
+	}
+
+	public void set_latitude(int in_lat) {
+		lat = in_lat / 10.0e7;
+	}
+
+	public void set_longitude(int in_lon) {
+		lon = in_lon / 10.0e7;
+	}
+
+	public void set_time(int hour, int minute, int second) {
+		hour = hour;
+		minute = minute;
+		second = second;
+	}
+
+	public void set_date(int year, int month, int day) {
+		year = year;
+		month = month;
+		day = day;
+	}
+
+	public void set_flags(int flags) {
+		flags = flags;
+	}
+
+	public void set_altitude(int altitude) {
+		altitude = altitude;
+	}
+
+	public void add_sat(int svid, int c_n0) {
+		if (cc_gps_sat == null) {
+			cc_gps_sat = new AltosGPS.AltosGPSSat[1];
+		} else {
+			AltosGPSSat[] new_gps_sat = new AltosGPS.AltosGPSSat[cc_gps_sat.length + 1];
+			for (int i = 0; i < cc_gps_sat.length; i++)
+				new_gps_sat[i] = cc_gps_sat[i];
+			cc_gps_sat = new_gps_sat;
+		}
+		AltosGPS.AltosGPSSat	sat = new AltosGPS.AltosGPSSat();
+		sat.svid = svid;
+		sat.c_n0 = c_n0;
+		cc_gps_sat[cc_gps_sat.length - 1] = sat;
+	}
+
+	public AltosGPS() {
+		ClearGPSTime();
+		cc_gps_sat = null;
 	}
 }

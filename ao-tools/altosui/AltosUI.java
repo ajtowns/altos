@@ -310,13 +310,13 @@ public class AltosUI extends JFrame {
 				info_add_row(1, "Pad GPS alt", "%6.0f m", state.pad_alt);
 			}
 			info_add_row(1, "GPS date", "%04d-%02d-%02d",
-				       state.gps.gps_time.year,
-				       state.gps.gps_time.month,
-				       state.gps.gps_time.day);
+				       state.gps.year,
+				       state.gps.month,
+				       state.gps.day);
 			info_add_row(1, "GPS time", "  %02d:%02d:%02d",
-				       state.gps.gps_time.hour,
-				       state.gps.gps_time.minute,
-				       state.gps.gps_time.second);
+				       state.gps.hour,
+				       state.gps.minute,
+				       state.gps.second);
 			int	nsat_vis = 0;
 			int	c;
 
