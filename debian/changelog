@@ -1,11 +1,6 @@
-altos (0.6+298+g410de62) unstable; urgency=low
+altos (0.6+299+ge075b86) unstable; urgency=low
 
   * add freetts as a build dep
-
- -- Bdale Garbee <bdale@gag.com>  Thu, 05 Aug 2010 15:16:07 -0400
-
-altos (0.6+296+gd091099) unstable; urgency=low
-
   * move to science menu
   * working on java packaging details
 
