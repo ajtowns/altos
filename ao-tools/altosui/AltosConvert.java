@@ -62,7 +62,7 @@ public class AltosConvert {
 	 * altitudes are measured with respect to the mean sea level
 	 */
 	static double
-	cc_altitude_to_pressure(double altitude)
+	altitude_to_pressure(double altitude)
 	{
 		double base_temperature = LAYER0_BASE_TEMPERATURE;
 		double base_pressure = LAYER0_BASE_PRESSURE;
@@ -115,7 +115,7 @@ public class AltosConvert {
 /* outputs the altitude associated with the given pressure. the altitude
    returned is measured with respect to the mean sea level */
 	static double
-	cc_pressure_to_altitude(double pressure)
+	pressure_to_altitude(double pressure)
 	{
 
 		double next_base_temperature = LAYER0_BASE_TEMPERATURE;
@@ -176,59 +176,6 @@ public class AltosConvert {
 		}
 
 		return altitude;
-	}
-
-	/*
-	 * Values for our MP3H6115A pressure sensor
-	 *
-	 * From the data sheet:
-	 *
-	 * Pressure range: 15-115 kPa
-	 * Voltage at 115kPa: 2.82
-	 * Output scale: 27mV/kPa
-	 *
-	 *
-	 * 27 mV/kPa * 2047 / 3300 counts/mV = 16.75 counts/kPa
-	 * 2.82V * 2047 / 3.3 counts/V = 1749 counts/115 kPa
-	 */
-
-	static final double counts_per_kPa = 27 * 2047 / 3300;
-	static final double counts_at_101_3kPa = 1674.0;
-
-	static double
-	cc_barometer_to_pressure(double count)
-	{
-		return ((count / 16.0) / 2047.0 + 0.095) / 0.009 * 1000.0;
-	}
-
-	static double
-	cc_barometer_to_altitude(double baro)
-	{
-		double Pa = cc_barometer_to_pressure(baro);
-		return cc_pressure_to_altitude(Pa);
-	}
-
-	static final double count_per_mss = 27.0;
-
-	static double
-	cc_accelerometer_to_acceleration(double accel, double ground_accel)
-	{
-		return (ground_accel - accel) / count_per_mss;
-	}
-
-	/* Value for the CC1111 built-in temperature sensor
-	 * Output voltage at 0°C = 0.755V
-	 * Coefficient = 0.00247V/°C
-	 * Reference voltage = 1.25V
-	 *
-	 * temp = ((value / 32767) * 1.25 - 0.755) / 0.00247
-	 *      = (value - 19791.268) / 32768 * 1.25 / 0.00247
-	 */
-
-	static double
-	cc_thermometer_to_temperature(double thermo)
-	{
-		return (thermo - 19791.268) / 32728.0 * 1.25 / 0.00247;
 	}
 
 	static double

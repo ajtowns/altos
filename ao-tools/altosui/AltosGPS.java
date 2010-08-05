@@ -166,4 +166,34 @@ public class AltosGPS {
 		ClearGPSTime();
 		cc_gps_sat = null;
 	}
+
+	public AltosGPS(AltosGPS old) {
+		nsat = old.nsat;
+		gps_locked = old.gps_locked;
+		gps_connected = old.gps_connected;
+		lat = old.lat;		/* degrees (+N -S) */
+		lon = old.lon;		/* degrees (+E -W) */
+		alt = old.alt;		/* m */
+		year = old.year;
+		month = old.month;
+		day = old.day;
+		hour = old.hour;
+		minute = old.minute;
+		second = old.second;
+
+		gps_extended = old.gps_extended;	/* has extra data */
+		ground_speed = old.ground_speed;	/* m/s */
+		course = old.course;		/* degrees */
+		climb_rate = old.climb_rate;	/* m/s */
+		hdop = old.hdop;		/* unitless? */
+		h_error = old.h_error;	/* m */
+		v_error = old.v_error;	/* m */
+
+		AltosGPSSat[] cc_gps_sat;	/* tracking data */
+		cc_gps_sat = new AltosGPSSat[old.cc_gps_sat.length];
+		for (int i = 0; i < old.cc_gps_sat.length; i++) {
+			cc_gps_sat[i].svid = old.cc_gps_sat[i].svid;
+			cc_gps_sat[i].c_n0 = old.cc_gps_sat[i].c_n0;
+		}
+	}
 }

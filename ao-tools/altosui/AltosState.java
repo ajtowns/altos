@@ -16,16 +16,16 @@
  */
 
 /*
- * Track flight state from telemetry data stream
+ * Track flight state from telemetry or eeprom data stream
  */
 
 package altosui;
 
-import altosui.AltosTelemetry;
+import altosui.AltosRecord;
 import altosui.AltosGPS;
 
 public class AltosState {
-	AltosTelemetry data;
+	AltosRecord data;
 
 	/* derived data */
 
@@ -71,25 +71,23 @@ public class AltosState {
 	double	speak_altitude;
 
 
-	void init (AltosTelemetry cur, AltosState prev_state) {
+	void init (AltosRecord cur, AltosState prev_state) {
 		int		i;
-		AltosTelemetry prev;
-		double	accel_counts_per_mss;
+		AltosRecord prev;
 
 		data = cur;
 
-		ground_altitude = AltosConvert.cc_barometer_to_altitude(data.ground_pres);
-		height = AltosConvert.cc_barometer_to_altitude(data.flight_pres) - ground_altitude;
+		ground_altitude = data.ground_altitude();
+		height = data.altitude() - ground_altitude;
 
 		report_time = System.currentTimeMillis();
 
-		accel_counts_per_mss = ((data.accel_minus_g - data.accel_plus_g) / 2.0) / 9.80665;
-		acceleration = (data.ground_accel - data.flight_accel) / accel_counts_per_mss;
-		speed = data.flight_vel / (accel_counts_per_mss * 100.0);
-		temperature = AltosConvert.cc_thermometer_to_temperature(data.temp);
-		drogue_sense = AltosConvert.cc_ignitor_to_voltage(data.drogue);
-		main_sense = AltosConvert.cc_ignitor_to_voltage(data.main);
-		battery = AltosConvert.cc_battery_to_voltage(data.batt);
+		acceleration = data.acceleration();
+		speed = data.accel_speed();
+		temperature = data.temperature();
+		drogue_sense = data.drogue_voltage();
+		main_sense = data.main_voltage();
+		battery = data.battery_voltage();
 		tick = data.tick;
 		state = data.state();
 
@@ -125,7 +123,7 @@ public class AltosState {
 			time_change = 0;
 		}
 
-		if (state == AltosTelemetry.ao_flight_pad) {
+		if (state == Altos.ao_flight_pad) {
 			if (data.gps != null && data.gps.gps_locked && data.gps.nsat >= 4) {
 				npad++;
 				if (npad > 1) {
@@ -149,8 +147,8 @@ public class AltosState {
 
 		gps_ready = gps_waiting == 0;
 
-		ascent = (AltosTelemetry.ao_flight_boost <= state &&
-			  state <= AltosTelemetry.ao_flight_coast);
+		ascent = (Altos.ao_flight_boost <= state &&
+			  state <= Altos.ao_flight_coast);
 
 		/* Only look at accelerometer data on the way up */
 		if (ascent && acceleration > max_acceleration)
@@ -173,11 +171,11 @@ public class AltosState {
 		}
 	}
 
-	public AltosState(AltosTelemetry cur) {
+	public AltosState(AltosRecord cur) {
 		init(cur, null);
 	}
 
-	public AltosState (AltosTelemetry cur, AltosState prev) {
+	public AltosState (AltosRecord cur, AltosState prev) {
 		init(cur, prev);
 	}
 }

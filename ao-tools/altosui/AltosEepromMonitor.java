@@ -30,6 +30,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import altosui.AltosSerial;
 import altosui.AltosSerialMonitor;
+import altosui.AltosRecord;
 import altosui.AltosTelemetry;
 import altosui.AltosState;
 import altosui.AltosDeviceDialog;

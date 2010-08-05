@@ -2,9 +2,12 @@
 
 CLASSPATH=classes:./*
 CLASSFILES=\
+	Altos.class \
 	AltosConvert.class \
-	AltosEeprom.class \
+	AltosEepromDownload.class \
 	AltosEepromMonitor.class \
+	AltosEepromReader.class \
+	AltosEepromRecord.class \
 	AltosFile.class \
 	AltosFlightInfoTableModel.class \
 	AltosFlightStatusTableModel.class \
@@ -13,6 +16,7 @@ CLASSFILES=\
 	AltosLog.class \
 	AltosParse.class \
 	AltosPreferences.class \
+	AltosRecord.class \
 	AltosSerialMonitor.class \
 	AltosSerial.class \
 	AltosState.class \

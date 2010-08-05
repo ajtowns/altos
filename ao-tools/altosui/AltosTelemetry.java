@@ -21,6 +21,7 @@ import java.lang.*;
 import java.text.*;
 import java.util.HashMap;
 import altosui.AltosConvert;
+import altosui.AltosRecord;
 import altosui.AltosGPS;
 
 /*
@@ -51,72 +52,9 @@ import altosui.AltosGPS;
  *     SAT 10   29  30  24  28   5  25  21  20  15  33   1  23  30  24  18  26  10  29   2  26
  */
 
-public class AltosTelemetry {
-	int	version;
-	String 	callsign;
-	int	serial;
-	int	flight;
-	int	rssi;
-	int	status;
-	String	state;
-	int	tick;
-	int	accel;
-	int	pres;
-	int	temp;
-	int	batt;
-	int	drogue;
-	int	main;
-	int	flight_accel;
-	int	ground_accel;
-	int	flight_vel;
-	int	flight_pres;
-	int	ground_pres;
-	int	accel_plus_g;
-	int	accel_minus_g;
-	AltosGPS	gps;
-
-	public static final int ao_flight_startup = 0;
-	public static final int ao_flight_idle = 1;
-	public static final int ao_flight_pad = 2;
-	public static final int ao_flight_boost = 3;
-	public static final int ao_flight_fast = 4;
-	public static final int ao_flight_coast = 5;
-	public static final int ao_flight_drogue = 6;
-	public static final int ao_flight_main = 7;
-	public static final int ao_flight_landed = 8;
-	public static final int ao_flight_invalid = 9;
-
-	static HashMap<String,Integer>	states = new HashMap<String,Integer>();
-	{
-		states.put("startup", ao_flight_startup);
-		states.put("idle", ao_flight_idle);
-		states.put("pad", ao_flight_pad);
-		states.put("boost", ao_flight_boost);
-		states.put("fast", ao_flight_fast);
-		states.put("coast", ao_flight_coast);
-		states.put("drogue", ao_flight_drogue);
-		states.put("main", ao_flight_main);
-		states.put("landed", ao_flight_landed);
-		states.put("invalid", ao_flight_invalid);
-	}
-
-	public int state() {
-		if (states.containsKey(state))
-			return states.get(state);
-		return ao_flight_invalid;
-	}
-
-	public double altitude() {
-		return AltosConvert.cc_pressure_to_altitude(AltosConvert.cc_barometer_to_pressure(pres));
-	}
-
-	public double pad_altitude() {
-		return AltosConvert.cc_pressure_to_altitude(AltosConvert.cc_barometer_to_pressure(ground_pres));
-	}
-
+public class AltosTelemetry extends AltosRecord {
 	public AltosTelemetry(String line) throws ParseException {
 		String[] words = line.split("\\s+");
-
 		int	i = 0;
 
 		AltosParse.word (words[i++], "VERSION");
