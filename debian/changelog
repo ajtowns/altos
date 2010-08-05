@@ -1,3 +1,10 @@
+altos (0.6+295+gaed55ef) unstable; urgency=low
+
+  * move to science menu
+  * working on java packaging details
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 05 Aug 2010 15:00:37 -0400
+
 altos (0.6+292+g8fc261c) unstable; urgency=low
 
   * see if my new freetts package works

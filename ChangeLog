@@ -1,3 +1,21 @@
+commit aed55ef1ce45b0f6e6fefeebf50be97607b31d65
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 5 15:00:15 2010 -0400
+
+    working on java packaging details
+
+commit 02f17f2cd26189e2676a9dc0d86bd959ed0bc3f4
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 5 00:54:05 2010 -0400
+
+    move to science menu
+
+commit e3a9e3815db3f290e28b40ae02aa654f515cfc37
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sat Jul 31 10:55:27 2010 -0600
+
+    update changelogs for Debian build
+
 commit 8fc261c2b77bb8aab201a0649a84b5ffa236ce26
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Sat Jul 31 10:55:07 2010 -0600
