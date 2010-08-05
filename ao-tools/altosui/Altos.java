@@ -54,6 +54,10 @@ public class Altos {
 	static final int ao_flight_invalid = 9;
 
 	static HashMap<String,Integer>	string_to_state = new HashMap<String,Integer>();
+
+	static boolean map_initialized = false;
+
+	static void initialize_map()
 	{
 		string_to_state.put("startup", ao_flight_startup);
 		string_to_state.put("idle", ao_flight_idle);
@@ -65,6 +69,7 @@ public class Altos {
 		string_to_state.put("main", ao_flight_main);
 		string_to_state.put("landed", ao_flight_landed);
 		string_to_state.put("invalid", ao_flight_invalid);
+		map_initialized = true;
 	}
 
 	static String[] state_to_string = {
@@ -81,6 +86,8 @@ public class Altos {
 	};
 
 	static public int state(String state) {
+		if (!map_initialized)
+			initialize_map();
 		if (string_to_state.containsKey(state))
 			return string_to_state.get(state);
 		return ao_flight_invalid;
