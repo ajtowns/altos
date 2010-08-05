@@ -1,6 +1,6 @@
 .SUFFIXES: .java .class
 
-CLASSPATH=classes:./*
+CLASSPATH=classes:./*:/usr/share/java/*
 CLASSFILES=\
 	AltosConvert.class \
 	AltosEeprom.class \
@@ -20,16 +20,17 @@ CLASSFILES=\
 	AltosDeviceDialog.class \
 	AltosVoice.class
 
-FREETTSSRC=/home/keithp/src/freetts/freetts-1.2.2
-FREETTSLIB=$(FREETTSSRC)/lib
-FREETTSJAR= \
-	cmudict04.jar \
-	cmulex.jar \
-	cmu_time_awb.jar \
-	cmutimelex.jar \
-	cmu_us_kal.jar \
-	en_us.jar \
-	freetts.jar
+#FREETTSSRC=/home/keithp/src/freetts/freetts-1.2.2
+#FREETTSLIB=$(FREETTSSRC)/lib
+#FREETTSJAR=/usr/share/java/freetts.jar
+#FREETTSJAR= \
+#	cmudict04.jar \
+#	cmulex.jar \
+#	cmu_time_awb.jar \
+#	cmutimelex.jar \
+#	cmu_us_kal.jar \
+#	en_us.jar \
+#	freetts.jar
 
 JAVAFLAGS=-Xlint:unchecked
 
@@ -55,14 +56,14 @@ altosui.jar: classes/altosui classes/libaltosJNI $(FREETTSJAR) $(CLASSFILES) Man
 
 classes/altosui:
 	mkdir -p classes
-	ln -s .. classes/altosui
+	ln -sf .. classes/altosui
 
 classes/libaltosJNI:
 	mkdir -p classes
-	ln -s ../../libaltos/libaltosJNI classes/libaltosJNI
+	ln -sf ../../libaltos/libaltosJNI classes/libaltosJNI
 
-$(FREETTSJAR):
-	ln -s $(FREETTSLIB)/$@ .
+#$(FREETTSJAR):
+#	ln -s $(FREETTSLIB)/$@ .
 
 ifeq ($(OS),Darwin)
 RESOURCES=altosui.jar $(FREETTSJAR) ../libaltos/libaltos.dylib
@@ -81,6 +82,6 @@ altosui:
 endif
 
 clean:
-	rm -f *.class $(FREETTSJAR) altosui.jar
+	rm -f *.class altosui.jar
 	rm -f AltosUI.app/Contents/Resources/Java/*
 	rm -rf classes

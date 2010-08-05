@@ -1,2 +1,2 @@
 Main-Class: altosui.AltosUI
-Class-Path: /usr/share/java/freetts-1.2.2.jar
+Class-Path: /usr/share/java/freetts.jar

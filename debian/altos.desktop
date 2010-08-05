@@ -7,4 +7,4 @@ Icon=/usr/share/pixmaps/altusmetrum.xpm
 Exec=/usr/bin/ao-view %f
 Terminal=false
 MimeType=text/plain;
-Categories=Science;
+Categories=Education;Science;
