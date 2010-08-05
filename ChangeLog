@@ -1,3 +1,15 @@
+commit 410de62715a0830f03b0a65d6c7730dff51e6ef4
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 5 15:15:04 2010 -0400
+
+    add freetts as a build dep
+
+commit 0b85160c44d934f3d1352c1c07c296d01ceffc32
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 5 15:02:17 2010 -0400
+
+    update changelogs for Debian build
+
 commit d091099753d9cae01c4805812425ebea19ec09cf
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Aug 5 15:00:46 2010 -0400
