@@ -36,6 +36,10 @@ import altosui.AltosLog;
 import altosui.AltosVoice;
 import altosui.AltosEepromMonitor;
 
+/*
+ * AltosRecords with an index field so they can be sorted by tick while preserving
+ * the original ordering for elements with matching ticks
+ */
 class AltosOrderedRecord extends AltosEepromRecord implements Comparable<AltosOrderedRecord> {
 
 	int	index;
@@ -217,6 +221,13 @@ public class AltosEepromReader {
 		}
 	}
 
+	/*
+	 * Read the whole file, dumping records into a RB tree so
+	 * we can enumerate them in time order -- the eeprom data
+	 * are sometimes out of order with GPS data getting timestamps
+	 * matching the first packet out of the GPS unit but not
+	 * written until the final GPS packet has been received.
+	 */
 	public AltosEepromReader (FileInputStream in_input) {
 		state = new AltosRecord();
 		state.state = Altos.ao_flight_pad;
