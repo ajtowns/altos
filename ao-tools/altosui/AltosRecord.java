@@ -31,7 +31,7 @@ public class AltosRecord {
 	int	flight;
 	int	rssi;
 	int	status;
-	String	state;
+	int	state;
 	int	tick;
 	int	accel;
 	int	pres;
@@ -72,7 +72,7 @@ public class AltosRecord {
 	}
 
 	public double pressure() {
-		return barometer_to_pressure(pres);
+		return barometer_to_pressure(flight_pres);
 	}
 
 	public double ground_pressure() {
@@ -136,9 +136,8 @@ public class AltosRecord {
 		return speed;
 	}
 
-	public int state() {
-		System.out.printf("state: %s -> %d\n", state, Altos.state(state));
-		return Altos.state(state);
+	public String state() {
+		return Altos.state_name(state);
 	}
 
 	public static String gets(FileInputStream s) throws IOException {
@@ -188,7 +187,7 @@ public class AltosRecord {
 		flight = 0;
 		rssi = 0;
 		status = 0;
-		state = "startup";
+		state = Altos.ao_flight_startup;
 		tick = 0;
 		accel = 0;
 		pres = 0;

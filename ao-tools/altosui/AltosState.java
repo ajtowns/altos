@@ -89,7 +89,7 @@ public class AltosState {
 		main_sense = data.main_voltage();
 		battery = data.battery_voltage();
 		tick = data.tick;
-		state = data.state();
+		state = data.state;
 
 		if (prev_state != null) {
 
@@ -124,7 +124,12 @@ public class AltosState {
 		}
 
 		if (state == Altos.ao_flight_pad) {
-			if (data.gps != null && data.gps.gps_locked && data.gps.nsat >= 4) {
+			if (data.gps == null)
+				System.out.printf("on pad, gps null\n");
+			else
+				System.out.printf ("on pad gps lat %f lon %f locked %d nsat %d\n",
+						   data.gps.lat, data.gps.lon, data.gps.locked ? 1 : 0, data.gps.nsat);
+			if (data.gps != null && data.gps.locked && data.gps.nsat >= 4) {
 				npad++;
 				if (npad > 1) {
 					/* filter pad position */
@@ -159,9 +164,9 @@ public class AltosState {
 		if (height > max_height)
 			max_height = height;
 		if (data.gps != null) {
-			if (gps == null || !gps.gps_locked || data.gps.gps_locked)
+			if (gps == null || !gps.locked || data.gps.locked)
 				gps = data.gps;
-			if (npad > 0 && gps.gps_locked)
+			if (npad > 0 && gps.locked)
 				from_pad = new AltosGreatCircle(pad_lat, pad_lon, gps.lat, gps.lon);
 		}
 		if (npad > 0) {

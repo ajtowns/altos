@@ -76,7 +76,7 @@ public class AltosTelemetry extends AltosRecord {
 		status = AltosParse.parse_hex(words[i++]);
 
 		AltosParse.word(words[i++], "STATE");
-		state = words[i++];
+		state = Altos.state(words[i++]);
 
 		tick = AltosParse.parse_int(words[i++]);
 

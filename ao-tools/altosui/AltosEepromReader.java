@@ -36,75 +36,181 @@ import altosui.AltosLog;
 import altosui.AltosVoice;
 import altosui.AltosEepromMonitor;
 
+class AltosOrderedRecord extends AltosEepromRecord implements Comparable<AltosOrderedRecord> {
+
+	int	index;
+
+	public AltosOrderedRecord(String line, int in_index, int prev_tick)
+		throws ParseException {
+		super(line);
+		int new_tick = tick | (prev_tick & ~0xffff);
+		if (new_tick < prev_tick) {
+			if (prev_tick - new_tick > 0x8000)
+				new_tick += 0x10000;
+		}
+		tick = new_tick;
+		index = in_index;
+	}
+
+	public int compareTo(AltosOrderedRecord o) {
+		int	tick_diff = tick - o.tick;
+		if (tick_diff != 0)
+			return tick_diff;
+		return index - o.index;
+	}
+}
+
 public class AltosEepromReader {
 
 	static final int	seen_flight = 1;
 	static final int	seen_sensor = 2;
 	static final int	seen_temp_volt = 4;
 	static final int	seen_deploy = 8;
+	static final int	seen_gps_time = 16;
+	static final int	seen_gps_lat = 32;
+	static final int	seen_gps_lon = 64;
 
 	static final int	seen_basic = seen_flight|seen_sensor|seen_temp_volt|seen_deploy;
 
-	static final int	seen_gps_time = 16;
-
 	AltosRecord		state;
-	AltosEepromRecord	record;
+	AltosOrderedRecord	record;
+
+	TreeSet<AltosOrderedRecord>	records;
+
+	Iterator<AltosOrderedRecord>			record_iterator;
 
 	int			seen;
 
-	int			tick;
+	int			index;
 
-	boolean			done;
+	boolean			last_reported;
+
+	double			ground_pres;
+	double			ground_accel;
+
+	int			n_pad_samples;
+
+	int			gps_tick;
 
 	FileInputStream	input;
 
 	public AltosRecord read() throws IOException, ParseException {
 		for (;;) {
 			if (record == null) {
-				record = new AltosEepromRecord(AltosRecord.gets(input));
-				if (record == null) {
-					if (done)
+				if (!record_iterator.hasNext()) {
+					if (last_reported)
 						return null;
+					last_reported = true;
 					return state;
 				}
+				record = record_iterator.next();
 
-				/* eeprom only records low 16 bits of tick count */
-				int tick = record.tick | (state.tick & ~0xffff);
-
-				if (tick < state.tick) {
-					if (state.tick - tick > 0x8000)
-						tick += 0x10000;
-					else
-						tick = state.tick;
-				}
-
-				/* Accumulate data in the state record while
-				 * the time stamp is not increasing
-				 */
-
-				if ((seen & seen_basic) == seen_basic && tick > state.tick)
+				if ((seen & seen_basic) == seen_basic && record.tick != state.tick)
 					return new AltosRecord(state);
 			}
 
-			state.tick = tick;
+			state.tick = record.tick;
 			switch (record.cmd) {
 			case Altos.AO_LOG_FLIGHT:
 				state.ground_accel = record.a;
 				state.flight = record.b;
+				seen |= seen_flight;
 				break;
 			case Altos.AO_LOG_SENSOR:
 				state.accel = record.a;
 				state.pres = record.b;
+				if (state.state < Altos.ao_flight_boost) {
+					n_pad_samples++;
+					ground_pres += state.pres;
+					state.ground_pres = (int) (ground_pres / n_pad_samples);
+					state.flight_pres = state.ground_pres;
+					System.out.printf("ground pressure %d altitude %f\n",
+							  record.b, state.altitude());
+					ground_accel += state.accel;
+					state.ground_accel = (int) (ground_accel / n_pad_samples);
+					state.flight_accel = state.ground_accel;
+				} else {
+					state.flight_pres = (state.flight_pres * 15 + state.pres) / 16;
+					state.flight_accel = (state.flight_accel * 15 + state.accel) / 16;
+					state.flight_vel += (state.accel_plus_g - state.accel);
+				}
+				seen |= seen_sensor;
 				break;
 			case Altos.AO_LOG_TEMP_VOLT:
 				state.temp = record.a;
 				state.batt = record.b;
+				seen |= seen_temp_volt;
 				break;
 			case Altos.AO_LOG_DEPLOY:
 				state.drogue = record.a;
 				state.main = record.b;
+				seen |= seen_deploy;
+				break;
+			case Altos.AO_LOG_STATE:
+				System.out.printf("state %d\n", record.a);
+				state.state = record.a;
 				break;
 			case Altos.AO_LOG_GPS_TIME:
+				gps_tick = state.tick;
+				state.gps = new AltosGPS();
+				state.gps.hour = (record.a & 0xff);
+				state.gps.minute = (record.a >> 8);
+				state.gps.second = (record.b & 0xff);
+				int flags = (record.b >> 8);
+				state.gps.connected = (flags & Altos.AO_GPS_RUNNING) != 0;
+				state.gps.locked = (flags & Altos.AO_GPS_VALID) != 0;
+				state.gps.date_valid = (flags & Altos.AO_GPS_DATE_VALID) != 0;
+				state.gps.nsat = (flags & Altos.AO_GPS_NUM_SAT_MASK) >>
+					Altos.AO_GPS_NUM_SAT_SHIFT;
+				break;
+			case Altos.AO_LOG_GPS_LAT:
+				int lat32 = record.a | (record.b << 16);
+				state.gps.lat = (double) lat32 / 1e7;
+				break;
+			case Altos.AO_LOG_GPS_LON:
+				int lon32 = record.a | (record.b << 16);
+				state.gps.lon = (double) lon32 / 1e7;
+				break;
+			case Altos.AO_LOG_GPS_ALT:
+				state.gps.alt = record.a;
+				break;
+			case Altos.AO_LOG_GPS_SAT:
+				if (state.tick == gps_tick) {
+					int svid = record.a;
+					int c_n0 = record.b >> 8;
+					state.gps.add_sat(svid, c_n0);
+				}
+				break;
+			case Altos.AO_LOG_GPS_DATE:
+				state.gps.year = record.a & 0xff;
+				state.gps.month = record.a >> 8;
+				state.gps.day = record.b & 0xff;
+				break;
+
+			case Altos.AO_LOG_CONFIG_VERSION:
+				break;
+			case Altos.AO_LOG_MAIN_DEPLOY:
+				break;
+			case Altos.AO_LOG_APOGEE_DELAY:
+				break;
+			case Altos.AO_LOG_RADIO_CHANNEL:
+				break;
+			case Altos.AO_LOG_CALLSIGN:
+				state.callsign = record.data;
+				break;
+			case Altos.AO_LOG_ACCEL_CAL:
+				state.accel_plus_g = record.a;
+				state.accel_minus_g = record.b;
+				break;
+			case Altos.AO_LOG_RADIO_CAL:
+				break;
+			case Altos.AO_LOG_MANUFACTURER:
+				break;
+			case Altos.AO_LOG_PRODUCT:
+				break;
+			case Altos.AO_LOG_SERIAL_NUMBER:
+				break;
+			case Altos.AO_LOG_SOFTWARE_VERSION:
 				break;
 			}
 			record = null;
@@ -113,8 +219,30 @@ public class AltosEepromReader {
 
 	public AltosEepromReader (FileInputStream in_input) {
 		state = new AltosRecord();
+		state.state = Altos.ao_flight_pad;
+		state.accel_plus_g = 15758;
+		state.accel_minus_g = 16294;
 		input = in_input;
 		seen = 0;
-		done = false;
+		records = new TreeSet<AltosOrderedRecord>();
+
+		int index = 0;
+		int tick = 0;
+
+		try {
+			for (;;) {
+				String line = AltosRecord.gets(input);
+				if (line == null)
+					break;
+				AltosOrderedRecord record = new AltosOrderedRecord(line, index++, tick);
+				if (record == null)
+					break;
+				tick = record.tick;
+				records.add(record);
+			}
+		} catch (IOException io) {
+		} catch (ParseException pe) {
+		}
+		record_iterator = records.iterator();
 	}
 }

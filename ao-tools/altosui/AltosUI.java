@@ -173,7 +173,7 @@ public class AltosUI extends JFrame {
 		else
 			info_add_row(0, "Ground state", "wait (%d)",
 				     state.gps_waiting);
-		info_add_row(0, "Rocket state", "%s", state.data.state);
+		info_add_row(0, "Rocket state", "%s", state.data.state());
 		info_add_row(0, "Callsign", "%s", state.data.callsign);
 		info_add_row(0, "Rocket serial", "%6d", state.data.serial);
 		info_add_row(0, "Rocket flight", "%6d", state.data.flight);
@@ -193,9 +193,9 @@ public class AltosUI extends JFrame {
 		if (state.gps == null) {
 			info_add_row(1, "GPS", "not available");
 		} else {
-			if (state.data.gps.gps_locked)
+			if (state.data.gps.locked)
 				info_add_row(1, "GPS", "   locked");
-			else if (state.data.gps.gps_connected)
+			else if (state.data.gps.connected)
 				info_add_row(1, "GPS", " unlocked");
 			else
 				info_add_row(1, "GPS", "  missing");
@@ -321,7 +321,7 @@ public class AltosUI extends JFrame {
 
 	private void tell(AltosState state, AltosState old_state) {
 		if (old_state == null || old_state.state != state.state) {
-			voice.speak(state.data.state);
+			voice.speak(state.data.state());
 			if ((old_state == null || old_state.state <= Altos.ao_flight_boost) &&
 			    state.state > Altos.ao_flight_boost) {
 				voice.speak("max speed: %d meters per second.",
@@ -493,7 +493,23 @@ public class AltosUI extends JFrame {
 	class ReplayEepromThread extends DisplayThread {
 		FileInputStream	replay;
 
-		AltosRecord read () {
+		AltosEepromReader	reader;
+
+		ReplayEepromThread(FileInputStream in, String in_name) {
+			replay = in;
+			name = in_name;
+			reader = new AltosEepromReader (in);
+		}
+
+		AltosRecord read () throws ParseException {
+			try {
+				return reader.read();
+			} catch (IOException ee) {
+				JOptionPane.showMessageDialog(AltosUI.this,
+							      name,
+							      "error reading",
+							      JOptionPane.ERROR_MESSAGE);
+			}
 			return null;
 		}
 
@@ -504,10 +520,10 @@ public class AltosUI extends JFrame {
 			}
 			report();
 		}
-
-		ReplayEepromThread(FileInputStream in, String in_name) {
-			replay = in;
-			name = in_name;
+		void update(AltosState state) throws InterruptedException {
+			/* Make it run in realtime after the rocket leaves the pad */
+			if (state.state > Altos.ao_flight_pad)
+				Thread.sleep((int) (Math.min(state.time_change,10) * 1000));
 		}
 	}
 

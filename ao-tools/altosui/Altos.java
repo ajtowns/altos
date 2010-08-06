@@ -35,8 +35,18 @@ public class Altos {
 	static final int AO_LOG_GPS_SAT = 'V';
 	static final int AO_LOG_GPS_DATE = 'Y';
 
-	/* Added for 'serial-number' entry in eeprom files */
-	static final int AO_LOG_SERIAL_NUMBER = 1000;
+	/* Added for header fields in eeprom files */
+	static final int AO_LOG_CONFIG_VERSION = 1000;
+	static final int AO_LOG_MAIN_DEPLOY = 1001;
+	static final int AO_LOG_APOGEE_DELAY = 1002;
+	static final int AO_LOG_RADIO_CHANNEL = 1003;
+	static final int AO_LOG_CALLSIGN = 1004;
+	static final int AO_LOG_ACCEL_CAL = 1005;
+	static final int AO_LOG_RADIO_CAL = 1006;
+	static final int AO_LOG_MANUFACTURER = 1007;
+	static final int AO_LOG_PRODUCT = 1008;
+	static final int AO_LOG_SERIAL_NUMBER = 1009;
+	static final int AO_LOG_SOFTWARE_VERSION = 1010;
 
 	/* Added to flag invalid records */
 	static final int AO_LOG_INVALID = -1;
@@ -98,4 +108,10 @@ public class Altos {
 			return "invalid";
 		return state_to_string[state];
 	}
+
+	static final int AO_GPS_VALID = (1 << 4);
+	static final int AO_GPS_RUNNING = (1 << 5);
+	static final int AO_GPS_DATE_VALID = (1 << 6);
+	static final int AO_GPS_NUM_SAT_SHIFT = 0;
+	static final int AO_GPS_NUM_SAT_MASK = 0xf;
 }

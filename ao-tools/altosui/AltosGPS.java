@@ -29,8 +29,9 @@ public class AltosGPS {
 	}
 
 	int	nsat;
-	boolean	gps_locked;
-	boolean	gps_connected;
+	boolean	locked;
+	boolean	connected;
+	boolean date_valid;
 	double	lat;		/* degrees (+N -S) */
 	double	lon;		/* degrees (+E -W) */
 	int	alt;		/* m */
@@ -77,19 +78,19 @@ public class AltosGPS {
 		nsat = AltosParse.parse_int(words[i++]);
 		AltosParse.word(words[i++], "sat");
 
-		gps_connected = false;
-		gps_locked = false;
+		connected = false;
+		locked = false;
 		lat = lon = 0;
 		alt = 0;
 		ClearGPSTime();
 		if ((words[i]).equals("unlocked")) {
-			gps_connected = true;
+			connected = true;
 			i++;
 		} else if ((words[i]).equals("not-connected")) {
 			i++;
 		} else if (words.length >= 40) {
-			gps_locked = true;
-			gps_connected = true;
+			locked = true;
+			connected = true;
 
 			ParseGPSTime(words[i], words[i+1]); i += 2;
 			lat = AltosParse.parse_coord(words[i++]);
@@ -169,8 +170,8 @@ public class AltosGPS {
 
 	public AltosGPS(AltosGPS old) {
 		nsat = old.nsat;
-		gps_locked = old.gps_locked;
-		gps_connected = old.gps_connected;
+		locked = old.locked;
+		connected = old.connected;
 		lat = old.lat;		/* degrees (+N -S) */
 		lon = old.lon;		/* degrees (+E -W) */
 		alt = old.alt;		/* m */
@@ -189,11 +190,13 @@ public class AltosGPS {
 		h_error = old.h_error;	/* m */
 		v_error = old.v_error;	/* m */
 
-		AltosGPSSat[] cc_gps_sat;	/* tracking data */
-		cc_gps_sat = new AltosGPSSat[old.cc_gps_sat.length];
-		for (int i = 0; i < old.cc_gps_sat.length; i++) {
-			cc_gps_sat[i].svid = old.cc_gps_sat[i].svid;
-			cc_gps_sat[i].c_n0 = old.cc_gps_sat[i].c_n0;
+		if (old.cc_gps_sat != null) {
+			cc_gps_sat = new AltosGPSSat[old.cc_gps_sat.length];
+			for (int i = 0; i < old.cc_gps_sat.length; i++) {
+				cc_gps_sat[i] = new AltosGPSSat();
+				cc_gps_sat[i].svid = old.cc_gps_sat[i].svid;
+				cc_gps_sat[i].c_n0 = old.cc_gps_sat[i].c_n0;
+			}
 		}
 	}
 }
