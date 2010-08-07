@@ -48,6 +48,8 @@ public class AltosRecord {
 	int	accel_minus_g;
 	AltosGPS	gps;
 
+	double	time;	/* seconds since boost */
+
 	/*
 	 * Values for our MP3H6115A pressure sensor
 	 *

@@ -64,7 +64,7 @@ class AltosOrderedRecord extends AltosEepromRecord implements Comparable<AltosOr
 	}
 }
 
-public class AltosEepromReader {
+public class AltosEepromReader extends AltosReader {
 
 	static final int	seen_flight = 1;
 	static final int	seen_sensor = 2;
@@ -96,7 +96,9 @@ public class AltosEepromReader {
 
 	int			gps_tick;
 
-	FileInputStream	input;
+	boolean			saw_boost;
+
+	int			boost_tick;
 
 	public AltosRecord read() throws IOException, ParseException {
 		for (;;) {
@@ -109,8 +111,11 @@ public class AltosEepromReader {
 				}
 				record = record_iterator.next();
 
-				if ((seen & seen_basic) == seen_basic && record.tick != state.tick)
-					return new AltosRecord(state);
+				if ((seen & seen_basic) == seen_basic && record.tick != state.tick) {
+					AltosRecord r = new AltosRecord(state);
+					r.time = (r.tick - boost_tick) / 100.0;
+					return r;
+				}
 			}
 
 			state.tick = record.tick;
@@ -221,6 +226,48 @@ public class AltosEepromReader {
 		}
 	}
 
+	public void write_comments(PrintStream out) {
+		Iterator<AltosOrderedRecord>	iterator = records.iterator();
+		while (iterator.hasNext()) {
+			AltosOrderedRecord	record = iterator.next();
+			switch (record.cmd) {
+			case Altos.AO_LOG_CONFIG_VERSION:
+				out.printf("# Config version: %s\n", record.data);
+				break;
+			case Altos.AO_LOG_MAIN_DEPLOY:
+				out.printf("# Main deploy: %s\n", record.a);
+				break;
+			case Altos.AO_LOG_APOGEE_DELAY:
+				out.printf("# Apogee delay: %s\n", record.a);
+				break;
+			case Altos.AO_LOG_RADIO_CHANNEL:
+				out.printf("# Radio channel: %s\n", record.a);
+				break;
+			case Altos.AO_LOG_CALLSIGN:
+				out.printf("# Callsign: %s\n", record.data);
+				break;
+			case Altos.AO_LOG_ACCEL_CAL:
+				out.printf ("# Accel cal: %d %d\n", record.a, record.b);
+				break;
+			case Altos.AO_LOG_RADIO_CAL:
+				out.printf ("# Radio cal: %d %d\n", record.a);
+				break;
+			case Altos.AO_LOG_MANUFACTURER:
+				out.printf ("# Manufacturer: %s\n", record.data);
+				break;
+			case Altos.AO_LOG_PRODUCT:
+				out.printf ("# Product: %s\n", record.data);
+				break;
+			case Altos.AO_LOG_SERIAL_NUMBER:
+				out.printf ("# Serial number: %d\n", record.a);
+				break;
+			case Altos.AO_LOG_SOFTWARE_VERSION:
+				out.printf ("# Software version: %s\n", record.data);
+				break;
+			}
+		}
+	}
+
 	/*
 	 * Read the whole file, dumping records into a RB tree so
 	 * we can enumerate them in time order -- the eeprom data
@@ -228,12 +275,11 @@ public class AltosEepromReader {
 	 * matching the first packet out of the GPS unit but not
 	 * written until the final GPS packet has been received.
 	 */
-	public AltosEepromReader (FileInputStream in_input) {
+	public AltosEepromReader (FileInputStream input) {
 		state = new AltosRecord();
 		state.state = Altos.ao_flight_pad;
 		state.accel_plus_g = 15758;
 		state.accel_minus_g = 16294;
-		input = in_input;
 		seen = 0;
 		records = new TreeSet<AltosOrderedRecord>();
 
@@ -249,11 +295,21 @@ public class AltosEepromReader {
 				if (record == null)
 					break;
 				tick = record.tick;
+				if (!saw_boost && record.cmd == Altos.AO_LOG_STATE &&
+				    record.a == Altos.ao_flight_boost)
+				{
+					saw_boost = true;
+					boost_tick = state.tick;
+				}
 				records.add(record);
 			}
 		} catch (IOException io) {
 		} catch (ParseException pe) {
 		}
 		record_iterator = records.iterator();
+		try {
+			input.close();
+		} catch (IOException ie) {
+		}
 	}
 }

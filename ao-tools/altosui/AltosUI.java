@@ -391,21 +391,12 @@ public class AltosUI extends JFrame {
 		}
 	}
 
-	class TelemetryThread extends DisplayThread {
-
-		String readline() throws InterruptedException { return null; }
-
-		AltosRecord read() throws InterruptedException, ParseException {
-			return new AltosTelemetry(readline());
-		}
-	}
-
-	class DeviceThread extends TelemetryThread {
+	class DeviceThread extends DisplayThread {
 		AltosSerial	serial;
 		LinkedBlockingQueue<String> telem;
 
-		String readline() throws InterruptedException {
-			return telem.take();
+		AltosRecord read() throws InterruptedException, ParseException {
+			return new AltosTelemetry(telem.take());
 		}
 
 		void close() {
@@ -453,36 +444,30 @@ public class AltosUI extends JFrame {
 	 * Open an existing telemetry file and replay it in realtime
 	 */
 
-	class ReplayTelemetryThread extends TelemetryThread {
-		FileInputStream	replay;
+	class ReplayThread extends DisplayThread {
+		AltosReader	reader;
+		String		name;
 
-		ReplayTelemetryThread(FileInputStream in, String in_name) {
-			replay = in;
-			name = in_name;
-		}
-
-		String readline() {
+		public AltosRecord read() {
 			try {
-				String	line = AltosRecord.gets(replay);
-				System.out.printf("telemetry line %s\n", line);
-				return line;
-			} catch (IOException ee) {
+				return reader.read();
+			} catch (IOException ie) {
 				JOptionPane.showMessageDialog(AltosUI.this,
 							      name,
 							      "error reading",
 							      JOptionPane.ERROR_MESSAGE);
+			} catch (ParseException pe) {
 			}
 			return null;
 		}
 
-		void close () {
-			try {
-				replay.close();
-			} catch (IOException ee) {
-			}
+		public void close () {
 			report();
 		}
 
+		public ReplayThread(AltosReader in_reader, String in_name) {
+			reader = in_reader;
+		}
 		void update(AltosState state) throws InterruptedException {
 			/* Make it run in realtime after the rocket leaves the pad */
 			if (state.state > Altos.ao_flight_pad)
@@ -490,40 +475,16 @@ public class AltosUI extends JFrame {
 		}
 	}
 
-	class ReplayEepromThread extends DisplayThread {
-		FileInputStream	replay;
+	class ReplayTelemetryThread extends ReplayThread {
+		ReplayTelemetryThread(FileInputStream in, String in_name) {
+			super(new AltosTelemetryReader(in), in_name);
+		}
 
-		AltosEepromReader	reader;
+	}
 
+	class ReplayEepromThread extends ReplayThread {
 		ReplayEepromThread(FileInputStream in, String in_name) {
-			replay = in;
-			name = in_name;
-			reader = new AltosEepromReader (in);
-		}
-
-		AltosRecord read () throws ParseException {
-			try {
-				return reader.read();
-			} catch (IOException ee) {
-				JOptionPane.showMessageDialog(AltosUI.this,
-							      name,
-							      "error reading",
-							      JOptionPane.ERROR_MESSAGE);
-			}
-			return null;
-		}
-
-		void close () {
-			try {
-				replay.close();
-			} catch (IOException ee) {
-			}
-			report();
-		}
-		void update(AltosState state) throws InterruptedException {
-			/* Make it run in realtime after the rocket leaves the pad */
-			if (state.state > Altos.ao_flight_pad)
-				Thread.sleep((int) (Math.min(state.time_change,10) * 1000));
+			super(new AltosEepromReader(in), in_name);
 		}
 	}
 

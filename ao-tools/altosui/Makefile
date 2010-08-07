@@ -4,6 +4,7 @@ CLASSPATH=classes:./*
 CLASSFILES=\
 	Altos.class \
 	AltosConvert.class \
+	AltosCSV.class \
 	AltosEepromDownload.class \
 	AltosEepromMonitor.class \
 	AltosEepromReader.class \
@@ -21,6 +22,7 @@ CLASSFILES=\
 	AltosSerial.class \
 	AltosState.class \
 	AltosTelemetry.class \
+	AltosTelemetryReader.class \
 	AltosUI.class \
 	AltosDevice.class \
 	AltosDeviceDialog.class \
