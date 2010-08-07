@@ -1034,7 +1034,7 @@ struct ao_fifo {
  * Packet-based command interface
  */
 
-#define AO_PACKET_MAX	8
+#define AO_PACKET_MAX		64
 #define AO_PACKET_SYN		(uint8_t) 0xff
 
 struct ao_packet {
@@ -1043,6 +1043,7 @@ struct ao_packet {
 	uint8_t		seq;
 	uint8_t		ack;
 	uint8_t		d[AO_PACKET_MAX];
+	uint8_t		callsign[AO_MAX_CALLSIGN];
 };
 
 struct ao_packet_recv {

@@ -27,8 +27,10 @@ ao_packet_slave(void)
 	ao_tx_packet.len = AO_PACKET_SYN;
 	while (ao_packet_enable) {
 		status = ao_packet_recv();
-		if (status & AO_DMA_DONE)
+		if (status & AO_DMA_DONE) {
+			memcpy(&ao_tx_packet.callsign, &ao_rx_packet.packet.callsign, AO_MAX_CALLSIGN);
 			ao_packet_send();
+		}
 	}
 	ao_exit();
 }

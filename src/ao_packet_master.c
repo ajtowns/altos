@@ -77,12 +77,14 @@ ao_packet_master(void)
 {
 	uint8_t	status;
 
+	ao_config_get();
 	ao_radio_set_packet();
 	ao_tx_packet.addr = ao_serial_number;
 	ao_tx_packet.len = AO_PACKET_SYN;
 	ao_packet_master_time = ao_time();
 	ao_packet_master_delay = AO_PACKET_MASTER_DELAY_SHORT;
 	while (ao_packet_enable) {
+		memcpy(ao_tx_packet.callsign, ao_config.callsign, AO_MAX_CALLSIGN);
 		ao_packet_send();
 		if (ao_tx_packet.len)
 			ao_packet_master_busy();
