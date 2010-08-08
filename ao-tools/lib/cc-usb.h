@@ -63,7 +63,7 @@ void
 cc_usb_printf(struct cc_usb *cc, char *format, ...);
 
 void
-cc_usb_open_remote(struct cc_usb *cc);
+cc_usb_open_remote(struct cc_usb *cc, int channel);
 
 void
 cc_usb_close_remote(struct cc_usb *cc);

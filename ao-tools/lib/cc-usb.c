@@ -375,10 +375,11 @@ cc_usb_reset(struct cc_usb *cc)
 }
 
 void
-cc_usb_open_remote(struct cc_usb *cc)
+cc_usb_open_remote(struct cc_usb *cc, int channel)
 {
 	if (!cc->remote) {
-		cc_usb_printf(cc, "\np\nE 0\n");
+		printf ("channel %d\n", channel);
+		cc_usb_printf(cc, "\nc r %d\np\nE 0\n", channel);
 		do {
 			cc->in_count = cc->in_pos = 0;
 			_cc_usb_sync(cc, 100);

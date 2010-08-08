@@ -30,12 +30,13 @@ static const struct option options[] = {
 	{ .name = "tty", .has_arg = 1, .val = 'T' },
 	{ .name = "device", .has_arg = 1, .val = 'D' },
 	{ .name = "remote", .has_arg = 1, .val = 'R' },
+	{ .name = "channel", .has_arg = 1, .val = 'C' },
 	{ 0, 0, 0, 0},
 };
 
 static void usage(char *program)
 {
-	fprintf(stderr, "usage: %s [--tty <tty-name>] [--device <device-name>] [-R]\n", program);
+	fprintf(stderr, "usage: %s [--tty <tty-name>] [--device <device-name>] [--remote] [--channel <radio-channel>]\n", program);
 	exit(1);
 }
 
@@ -75,6 +76,7 @@ main (int argc, char **argv)
 	FILE		*out;
 	char		*filename;
 	int		serial_number = 0;
+	int		channel = 0;
 	int		flight = 0;
 	char		cmd;
 	int		tick, a, b;
@@ -100,6 +102,9 @@ main (int argc, char **argv)
 		case 'R':
 			remote = 1;
 			break;
+		case 'C':
+			channel = atoi(optarg);
+			break;
 		default:
 			usage(argv[0]);
 			break;
@@ -119,7 +124,7 @@ main (int argc, char **argv)
 	if (!cc)
 		exit(1);
 	if (remote)
-		cc_usb_open_remote(cc);
+		cc_usb_open_remote(cc, channel);
 	/* send a 'version' command followed by a 'log' command */
 	cc_usb_printf(cc, "v\n");
 	out = NULL;
