@@ -1,4 +1,4 @@
-altos (0.6+299+ge075b86) unstable; urgency=low
+altos (0.6+300+ga0a9b44) unstable; urgency=low
 
   * add freetts as a build dep
   * move to science menu
