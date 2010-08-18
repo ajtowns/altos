@@ -1,6 +1,15 @@
 #include <stdio.h>
 #include "libaltos.h"
 
+static void
+altos_puts(struct altos_file *file, char *string)
+{
+	char	c;
+
+	while ((c = *string++))
+		altos_putchar(file, c);
+}
+
 main ()
 {
 	struct altos_device	device;
@@ -12,12 +21,20 @@ main ()
 		struct altos_file	*file;
 		int			c;
 
+		printf ("%04x:%04x %-20s %4d %s\n", device.vendor, device.product,
+			device.name, device.serial, device.path);
+
 		file = altos_open(&device);
-		altos_putchar(file, '?'); altos_putchar(file, '\n'); altos_flush(file);
+		if (!file) {
+			printf("altos_open failed\n");
+			continue;
+		}
+		altos_puts(file,"v\nc s\n");
 		while ((c = altos_getchar(file, 100)) >= 0) {
 			putchar (c);
 		}
-		printf ("getchar returns %d\n", c);
+		if (c != LIBALTOS_TIMEOUT)
+			printf ("getchar returns %d\n", c);
 		altos_close(file);
 	}
 	altos_list_finish(list);

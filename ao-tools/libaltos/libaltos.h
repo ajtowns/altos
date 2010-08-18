@@ -18,39 +18,83 @@
 #ifndef _LIBALTOS_H_
 #define _LIBALTOS_H_
 
+#if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
+# ifndef BUILD_STATIC
+#  ifdef BUILD_DLL
+#   define PUBLIC __declspec(dllexport)
+#  else
+#   define PUBLIC __declspec(dllimport)
+#  endif
+# endif /* BUILD_STATIC */
+#endif
+
+#ifndef PUBLIC
+# define PUBLIC
+#endif
+
+#define USB_VENDOR_FSF			0xfffe
+#define USB_VENDOR_ALTUSMETRUM		USB_VENDOR_FSF
+#define USB_PRODUCT_ALTUSMETRUM		0x000a
+#define USB_PRODUCT_TELEMETRUM		0x000b
+#define USB_PRODUCT_TELEDONGLE		0x000c
+#define USB_PRODUCT_TELETERRA		0x000d
+#define USB_PRODUCT_ALTUSMETRUM_MIN	0x000a
+#define USB_PRODUCT_ALTUSMETRUM_MAX	0x0013
+
+#define USB_IS_ALTUSMETRUM(v,p)	((v) == USB_VENDOR_ALTUSMETRUM && \
+		(USB_PRODUCT_ALTUSMETRUM_MIN <= (p) && \
+		 (p) <= USB_PRODUCT_ALTUSMETRUM_MAX))
+
 struct altos_device {
 	//%immutable;
-	char				product[256];
+	int				vendor;
+	int				product;
 	int				serial;
+	char				name[256];
 	char				path[256];
 	//%mutable;
 };
 
-int altos_init(void);
+#define LIBALTOS_SUCCESS	0
+#define LIBALTOS_ERROR		-1
+#define LIBALTOS_TIMEOUT	-2
 
-void altos_fini(void);
+/* Returns 0 for success, < 0 on error */
+PUBLIC int
+altos_init(void);
 
-struct altos_list *
+PUBLIC void
+altos_fini(void);
+
+PUBLIC struct altos_list *
 altos_list_start(void);
 
-int altos_list_next(struct altos_list *list, struct altos_device *device);
+/* Returns 1 for success, zero on end of list */
+PUBLIC int
+altos_list_next(struct altos_list *list, struct altos_device *device);
 
-void altos_list_finish(struct altos_list *list);
+PUBLIC void
+altos_list_finish(struct altos_list *list);
 
-struct altos_file *
+PUBLIC struct altos_file *
 altos_open(struct altos_device *device);
 
-void altos_close(struct altos_file *file);
+PUBLIC void
+altos_close(struct altos_file *file);
 
-void altos_free(struct altos_file *file);
+PUBLIC void
+altos_free(struct altos_file *file);
 
-int
+/* Returns < 0 for error */
+PUBLIC int
 altos_putchar(struct altos_file *file, char c);
 
-int
+/* Returns < 0 for error */
+PUBLIC int
 altos_flush(struct altos_file *file);
 
-int
+/* Returns < 0 for error or timeout. timeout of 0 == wait forever */
+PUBLIC int
 altos_getchar(struct altos_file *file, int timeout);
 
 #endif /* _LIBALTOS_H_ */

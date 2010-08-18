@@ -15,29 +15,21 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+#define BUILD_DLL
 #include "libaltos.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-static int
-match_dev(char *product, int serial, struct altos_device *device)
+PUBLIC int
+altos_init(void)
 {
-	struct altos_list	*list;
-	int			i;
+	return LIBALTOS_SUCCESS;
+}
 
-	list = altos_list_start();
-	if (!list)
-		return 0;
-	while ((i = altos_list_next(list, device)) != 0) {
-		if (product && strncmp (product, device->product, strlen(product)) != 0)
-			continue;
-		if (serial && serial != device->serial)
-			continue;
-		break;
-	}
-	altos_list_finish(list);
-	return i;
+PUBLIC void
+altos_fini(void)
+{
 }
 
 #ifdef DARWIN
@@ -60,48 +52,9 @@ altos_strndup (const char *s, size_t n)
 #define altos_strndup strndup
 #endif
 
-int
-altos_find_by_arg(char *arg, char *default_product, struct altos_device *device)
-{
-	char	*product;
-	int	serial;
-	char	*end;
-	char	*colon;
-	int	ret;
-
-	if (arg)
-	{
-		/* check for <serial> */
-		serial = strtol(arg, &end, 0);
-		if (end != arg) {
-			if (*end != '\0')
-				return 0;
-			product = NULL;
-		} else {
-			/* check for <product>:<serial> */
-			colon = strchr(arg, ':');
-			if (colon) {
-				product = altos_strndup(arg, colon - arg);
-				serial = strtol(colon + 1, &end, 0);
-				if (*end != '\0')
-					return 0;
-			} else {
-				product = arg;
-				serial = 0;
-			}
-		}
-	} else {
-		product = NULL;
-		serial = 0;
-	}
-	if (!product && default_product)
-		ret = match_dev(default_product, serial, device);
-	if (!ret)
-		ret = match_dev(product, serial, device);
-	if (product && product != arg)
-		free(product);
-	return ret;
-}
+/*
+ * Scan for Altus Metrum devices by looking through /sys
+ */
 
 #ifdef LINUX
 
@@ -216,7 +169,7 @@ struct altos_usbdev {
 	char	*sys;
 	char	*tty;
 	char	*manufacturer;
-	char	*product;
+	char	*product_name;
 	int	serial;	/* AltOS always uses simple integer serial numbers */
 	int	idProduct;
 	int	idVendor;
@@ -286,7 +239,7 @@ usb_scan_device(char *sys)
 		return NULL;
 	usbdev->sys = strdup(sys);
 	usbdev->manufacturer = load_string(sys, "manufacturer");
-	usbdev->product = load_string(sys, "product");
+	usbdev->product_name = load_string(sys, "product");
 	usbdev->serial = load_dec(sys, "serial");
 	usbdev->idProduct = load_hex(sys, "idProduct");
 	usbdev->idVendor = load_hex(sys, "idVendor");
@@ -299,7 +252,7 @@ usbdev_free(struct altos_usbdev *usbdev)
 {
 	free(usbdev->sys);
 	free(usbdev->manufacturer);
-	free(usbdev->product);
+	free(usbdev->product_name);
 	/* this can get used as a return value */
 	if (usbdev->tty)
 		free(usbdev->tty);
@@ -332,17 +285,6 @@ struct altos_list {
 	int			ndev;
 };
 
-int
-altos_init(void)
-{
-	return 1;
-}
-
-void
-altos_fini(void)
-{
-}
-
 struct altos_list *
 altos_list_start(void)
 {
@@ -366,7 +308,7 @@ altos_list_start(void)
 		dir = cc_fullname(USB_DEVICES, ents[e]->d_name);
 		dev = usb_scan_device(dir);
 		free(dir);
-		if (dev->idVendor == 0xfffe && dev->tty) {
+		if (USB_IS_ALTUSMETRUM(dev->idVendor, dev->idProduct)) {
 			if (devs->dev)
 				devs->dev = realloc(devs->dev,
 						    devs->ndev + 1 * sizeof (struct usbdev *));
@@ -387,7 +329,9 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 	if (list->current >= list->ndev)
 		return 0;
 	dev = list->dev[list->current];
-	strcpy(device->product, dev->product);
+	strcpy(device->name, dev->product_name);
+	device->vendor = dev->idVendor;
+	device->product = dev->idProduct;
 	strcpy(device->path, dev->tty);
 	device->serial = dev->serial;
 	list->current++;
@@ -445,17 +389,6 @@ get_string(io_object_t object, CFStringRef entry, char *result, int result_len)
 			return 1;
 	}
 	return 0;
-}
-
-int
-altos_init(void)
-{
-	return 1;
-}
-
-void
-altos_fini(void)
-{
 }
 
 struct altos_list *
@@ -566,15 +499,16 @@ altos_open(struct altos_device *device)
 void
 altos_close(struct altos_file *file)
 {
-	close(file->fd);
-	file->fd = -1;
+	if (file->fd != -1) {
+		close(file->fd);
+		file->fd = -1;
+	}
 }
 
 void
 altos_free(struct altos_file *file)
 {
-	if (file->fd != -1)
-		close(file->fd);
+	altos_close(file);
 	free(file);
 }
 
@@ -613,6 +547,8 @@ altos_flush(struct altos_file *file)
 	}
 }
 
+#include <poll.h>
+
 int
 altos_getchar(struct altos_file *file, int timeout)
 {
@@ -622,9 +558,18 @@ altos_getchar(struct altos_file *file, int timeout)
 		altos_flush(file);
 		if (file->fd < 0)
 			return -EBADF;
+		if (timeout) {
+			struct pollfd fd;
+			int ret;
+			fd.fd = file->fd;
+			fd.events = POLLIN;
+			ret = poll(&fd, 1, timeout);
+			if (ret == 0)
+				return LIBALTOS_TIMEOUT;
+		}
 		ret = read(file->fd, file->in_data, USB_BUF_SIZE);
 		if (ret < 0)
-			return -errno;
+			return LIBALTOS_ERROR;
 		file->in_read = 0;
 		file->in_used = ret;
 	}
@@ -633,93 +578,20 @@ altos_getchar(struct altos_file *file, int timeout)
 
 #endif /* POSIX_TTY */
 
-#ifdef USE_LIBUSB
-#include <libusb.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ifdef WINDOWS
 
-libusb_context	*usb_context;
+#include <windows.h>
+#include <setupapi.h>
 
-int altos_init(void)
-{
-	int	ret;
-	ret = libusb_init(&usb_context);
-	if (ret)
-		return ret;
-	libusb_set_debug(usb_context, 3);
-	return 0;
-}
-
-void altos_fini(void)
-{
-	libusb_exit(usb_context);
-	usb_context = NULL;
-}
-
-static libusb_device **list;
-static ssize_t num, current;
-
-int altos_list_start(void)
-{
-	if (list)
-		altos_list_finish();
-	current = 0;
-	num = libusb_get_device_list(usb_context, &list);
-	if (num == 0) {
-		current = num = 0;
-		list = NULL;
-		return 0;
-	}
-	return 1;
-}
-
-int altos_list_next(struct altos_device *device)
-{
-	while (current < num) {
-		struct libusb_device_descriptor descriptor;
-		libusb_device *usb_device = list[current++];
-
-		if (libusb_get_device_descriptor(usb_device, &descriptor) == 0) {
-			if (descriptor.idVendor == 0xfffe)
-			{
-				libusb_device_handle	*handle;
-				if (libusb_open(usb_device, &handle) == 0) {
-					char	serial_number[256];
-					libusb_get_string_descriptor_ascii(handle, descriptor.iProduct,
-									   device->product,
-									   sizeof(device->product));
-					libusb_get_string_descriptor_ascii(handle, descriptor.iSerialNumber,
-									   serial_number,
-									   sizeof (serial_number));
-					libusb_close(handle);
-					device->serial = atoi(serial_number);
-					device->device = usb_device;
-					return 1;
-				}
-			}
-		}
-	}
-	return 0;
-}
-
-void altos_list_finish(void)
-{
-	if (list) {
-		libusb_free_device_list(list, 1);
-		list = NULL;
-	}
-}
+struct altos_list {
+	HDEVINFO	dev_info;
+	int		index;
+};
 
 #define USB_BUF_SIZE	64
 
 struct altos_file {
-	struct libusb_device		*device;
-	struct libusb_device_handle	*handle;
-	int				out_ep;
-	int				out_size;
-	int				in_ep;
-	int				in_size;
+	HANDLE				handle;
 	unsigned char			out_data[USB_BUF_SIZE];
 	int				out_used;
 	unsigned char			in_data[USB_BUF_SIZE];
@@ -727,49 +599,234 @@ struct altos_file {
 	int				in_read;
 };
 
-struct altos_file *
-altos_open(struct altos_device *device)
+
+PUBLIC struct altos_list *
+altos_list_start(void)
 {
-	struct altos_file		*file;
-	struct libusb_device_handle	*handle;
-	if (libusb_open(device->device, &handle) == 0) {
-		int	ret;
+	struct altos_list	*list = calloc(1, sizeof (struct altos_list));
 
-		ret = libusb_claim_interface(handle, 1);
-#if 0
-		if (ret) {
-			libusb_close(handle);
-			return NULL;
-		}
-#endif
-		ret = libusb_detach_kernel_driver(handle, 1);
-#if 0
-		if (ret) {
-			libusb_close(handle);
-			return NULL;
-		}
-#endif
-
-		file = calloc(sizeof (struct altos_file), 1);
-		file->device = libusb_ref_device(device->device);
-		file->handle = handle;
-		/* XXX should get these from the endpoint descriptors */
-		file->out_ep = 4 | LIBUSB_ENDPOINT_OUT;
-		file->out_size = 64;
-		file->in_ep = 5 | LIBUSB_ENDPOINT_IN;
-		file->in_size = 64;
-
-		return file;
+	if (!list)
+		return NULL;
+	list->dev_info = SetupDiGetClassDevs(NULL, "USB", NULL,
+					     DIGCF_ALLCLASSES|DIGCF_PRESENT);
+	if (list->dev_info == INVALID_HANDLE_VALUE) {
+		printf("SetupDiGetClassDevs failed %d\n", GetLastError());
+		free(list);
+		return NULL;
 	}
-	return NULL;
+	list->index = 0;
+	return list;
 }
 
-void
+PUBLIC int
+altos_list_next(struct altos_list *list, struct altos_device *device)
+{
+	SP_DEVINFO_DATA dev_info_data;
+	char		port[128];
+	DWORD		port_len;
+	char		location[256];
+	char		symbolic[256];
+	DWORD		symbolic_len;
+	HKEY		dev_key;
+	int		vid, pid;
+	int		serial;
+	HRESULT 	result;
+	DWORD		location_type;
+	DWORD		location_len;
+
+	dev_info_data.cbSize = sizeof (SP_DEVINFO_DATA);
+	while(SetupDiEnumDeviceInfo(list->dev_info, list->index,
+				    &dev_info_data))
+	{
+		list->index++;
+
+		dev_key = SetupDiOpenDevRegKey(list->dev_info, &dev_info_data,
+					       DICS_FLAG_GLOBAL, 0, DIREG_DEV,
+					       KEY_READ);
+		if (dev_key == INVALID_HANDLE_VALUE) {
+			printf("cannot open device registry key\n");
+			continue;
+		}
+
+		/* Fetch symbolic name for this device and parse out
+		 * the vid/pid/serial info */
+		symbolic_len = sizeof(symbolic);
+		result = RegQueryValueEx(dev_key, "SymbolicName", NULL, NULL,
+					 symbolic, &symbolic_len);
+		if (result != 0) {
+			printf("cannot find SymbolicName value\n");
+			RegCloseKey(dev_key);
+			continue;
+		}
+		vid = pid = serial = 0;
+		sscanf(symbolic + sizeof("\\??\\USB#VID_") - 1,
+		       "%04X", &vid);
+		sscanf(symbolic + sizeof("\\??\\USB#VID_XXXX&PID_") - 1,
+		       "%04X", &pid);
+		sscanf(symbolic + sizeof("\\??\\USB#VID_XXXX&PID_XXXX#") - 1,
+		       "%d", &serial);
+		if (!USB_IS_ALTUSMETRUM(vid, pid)) {
+			printf("Not Altus Metrum symbolic name: %s\n",
+			       symbolic);
+			RegCloseKey(dev_key);
+			continue;
+		}
+
+		/* Fetch the com port name */
+		port_len = sizeof (port);
+		result = RegQueryValueEx(dev_key, "PortName", NULL, NULL,
+					 port, &port_len);
+		RegCloseKey(dev_key);
+		if (result != 0) {
+			printf("failed to get PortName\n");
+			continue;
+		}
+
+		/* Fetch the 'location information' which is the device name,
+		 * at least on XP */
+		location_len = sizeof (location);
+		if(!SetupDiGetDeviceRegistryProperty(list->dev_info,
+						     &dev_info_data,
+						     SPDRP_LOCATION_INFORMATION,
+						     &location_type,
+						     (BYTE *)location,
+						     sizeof(location),
+						     &location_len))
+		{
+			printf("Failed to get location\n");
+			continue;
+		}
+		device->vendor = vid;
+		device->product = pid;
+		device->serial = serial;
+
+		if (strcasestr(location, "tele"))
+			strcpy(device->name, location);
+		else
+			strcpy(device->name, "");
+
+		strcpy(device->path, port);
+		printf ("product: %04x:%04x (%s)  path: %s serial %d\n",
+			device->vendor, device->product, device->name,
+			device->path, device->serial);
+		return 1;
+	}
+	result = GetLastError();
+	if (result != ERROR_NO_MORE_ITEMS)
+		printf ("SetupDiEnumDeviceInfo failed error %d\n", result);
+	return 0;
+}
+
+PUBLIC void
+altos_list_finish(struct altos_list *list)
+{
+	SetupDiDestroyDeviceInfoList(list->dev_info);
+	free(list);
+}
+
+static int
+altos_fill(struct altos_file *file, int timeout)
+{
+	DWORD	result;
+	DWORD	got;
+	COMMTIMEOUTS timeouts;
+
+	if (file->in_read < file->in_used)
+		return LIBALTOS_SUCCESS;
+	file->in_read = file->in_used = 0;
+
+	if (timeout) {
+		timeouts.ReadIntervalTimeout = MAXDWORD;
+		timeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
+		timeouts.ReadTotalTimeoutConstant = timeout;
+	} else {
+		timeouts.ReadIntervalTimeout = 0;
+		timeouts.ReadTotalTimeoutMultiplier = 0;
+		timeouts.ReadTotalTimeoutConstant = 0;
+	}
+	timeouts.WriteTotalTimeoutMultiplier = 0;
+	timeouts.WriteTotalTimeoutConstant = 0;
+
+	if (!SetCommTimeouts(file->handle, &timeouts)) {
+		printf("SetCommTimeouts failed %d\n", GetLastError());
+	}
+
+	if (!ReadFile(file->handle, file->in_data, USB_BUF_SIZE, &got, NULL)) {
+		result = GetLastError();
+		printf ("read failed %d\n", result);
+		return LIBALTOS_ERROR;
+		got = 0;
+	}
+	if (got)
+		return LIBALTOS_SUCCESS;
+	return LIBALTOS_TIMEOUT;
+}
+
+PUBLIC int
+altos_flush(struct altos_file *file)
+{
+	DWORD	put;
+	char	*data = file->out_data;
+	char	used = file->out_used;
+	DWORD	result;
+
+	while (used) {
+		if (!WriteFile(file->handle, data, used, &put, NULL)) {
+			result = GetLastError();
+			printf ("write failed %d\n", result);
+			return LIBALTOS_ERROR;
+		}
+		data += put;
+		used -= put;
+	}
+	file->out_used = 0;
+	return LIBALTOS_SUCCESS;
+}
+
+PUBLIC struct altos_file *
+altos_open(struct altos_device *device)
+{
+	struct altos_file	*file = calloc (sizeof (struct altos_file), 1);
+	char	full_name[64];
+
+	if (!file)
+		return NULL;
+
+	strcpy(full_name, "\\\\.\\");
+	strcat(full_name, device->path);
+	file->handle = CreateFile(full_name, GENERIC_READ|GENERIC_WRITE,
+				  0, NULL, OPEN_EXISTING,
+				  FILE_ATTRIBUTE_NORMAL, NULL);
+	if (file->handle == INVALID_HANDLE_VALUE) {
+		free(file);
+		return NULL;
+	}
+
+	timeouts.ReadIntervalTimeout = MAXDWORD;
+	timeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
+	timeouts.ReadTotalTimeoutConstant = 100;
+	timeouts.WriteTotalTimeoutMultiplier = 0;
+	timeouts.WriteTotalTimeoutConstant = 10000;
+	if (!SetCommTimeouts(file->handle, &timeouts)) {
+		printf("SetCommTimeouts failed %d\n", GetLastError());
+	}
+
+	return file;
+}
+
+PUBLIC void
 altos_close(struct altos_file *file)
 {
-	libusb_close(file->handle);
-	libusb_unref_device(file->device);
-	file->handle = NULL;
+	if (file->handle != INVALID_HANDLE_VALUE) {
+		CloseHandle(file->handle);
+		file->handle = INVALID_HANDLE_VALUE;
+	}
+}
+
+PUBLIC void
+altos_free(struct altos_file *file)
+{
+	altos_close(file);
 	free(file);
 }
 
@@ -778,60 +835,32 @@ altos_putchar(struct altos_file *file, char c)
 {
 	int	ret;
 
-	if (file->out_used == file->out_size) {
+	if (file->out_used == USB_BUF_SIZE) {
 		ret = altos_flush(file);
 		if (ret)
 			return ret;
 	}
 	file->out_data[file->out_used++] = c;
-	if (file->out_used == file->out_size)
+	if (file->out_used == USB_BUF_SIZE)
 		return altos_flush(file);
-	return 0;
-}
-
-int
-altos_flush(struct altos_file *file)
-{
-	while (file->out_used) {
-		int	transferred;
-		int	ret;
-
-		ret = libusb_bulk_transfer(file->handle,
-					   file->out_ep,
-					   file->out_data,
-					   file->out_used,
-					   &transferred,
-					   0);
-		if (ret)
-			return ret;
-		if (transferred) {
-			memmove(file->out_data, file->out_data + transferred,
-				file->out_used - transferred);
-			file->out_used -= transferred;
-		}
-	}
+	return LIBALTOS_SUCCESS;
 }
 
 int
 altos_getchar(struct altos_file *file, int timeout)
 {
+	int	ret;
 	while (file->in_read == file->in_used) {
-		int	ret;
-		int	transferred;
-
-		altos_flush(file);
-		ret = libusb_bulk_transfer(file->handle,
-					   file->in_ep,
-					   file->in_data,
-					   file->in_size,
-					   &transferred,
-					   (unsigned int) timeout);
+		ret = altos_flush(file);
 		if (ret)
 			return ret;
-		file->in_read = 0;
-		file->in_used = transferred;
+		if (file->handle == INVALID_HANDLE_VALUE)
+			return LIBALTOS_ERROR;
+		ret = altos_fill(file, timeout);
+		if (ret)
+			return ret;
 	}
 	return file->in_data[file->in_read++];
 }
 
-#endif /* USE_LIBUSB */
+#endif

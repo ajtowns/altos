@@ -1,27 +1,56 @@
 OS:=$(shell uname)
 
+#
+# Linux
+#
 ifeq ($(OS),Linux)
 
 JAVA_CFLAGS=-I/usr/lib/jvm/java-6-openjdk/include
 
 OS_CFLAGS=-DLINUX -DPOSIX_TTY $(JAVA_CFLAGS)
 
-LIBEXT=so
+OS_LDFLAGS=
+
+LIBNAME=libaltos.so
+EXEEXT=
 
 endif
 
+#
+# Darwin (Mac OS X)
+#
 ifeq ($(OS),Darwin)
 
-DARWIN_CFLAGS=\
+OS_CFLAGS=\
+	-DDARWIN -DPOSIX_TTY -arch i386 -arch x86_64 \
 	--sysroot=/Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 \
 	-iwithsysroot /System/Library/Frameworks/JavaVM.framework/Headers \
 	-iwithsysroot /System/Library/Frameworks/IOKit.framework/Headers \
 	-iwithsysroot /System/Library/Frameworks/CoreFoundation.framework/Headers
-DARWIN_LIBS=\
+
+OS_LDFLAGS =\
 	-framework IOKit -framework CoreFoundation
 
-OS_CFLAGS = $(DARWIN_CFLAGS) -DDARWIN -DPOSIX_TTY -arch i386 -arch x86_64
-LIBEXT=dylib
+LIBNAME=libaltos.dylib
+EXEEXT=
+
+endif
+
+#
+# Windows
+#
+ifneq (,$(findstring MINGW,$(OS)))
+
+CC=gcc
+
+OS_CFLAGS = -DWINDOWS -mconsole
+
+OS_LDFLAGS = -lgdi32 -luser32 -lcfgmgr32 -lsetupapi -lole32 \
+	-ladvapi32 -lcomctl32 -mconsole -Wl,--add-stdcall-alias
+
+LIBNAME=altos.dll
+
+EXEEXT=.exe
 
 endif
 
@@ -48,26 +77,30 @@ CLASSFILES = $(JAVAFILES:%.java=%.class)
 
 JAVAFLAGS=-Xlint:unchecked
 
-all: libaltos.$(LIBEXT) cjnitest $(CLASSFILES)
+CJNITEST=cjnitest$(EXEEXT)
+
+all: $(LIBNAME) $(CJNITEST) $(CLASSFILES)
 
 .java.class:
 	javac -encoding UTF8 -classpath "$(CLASSPATH)" $(JAVAFLAGS) $*.java
 
 CFLAGS=$(OS_CFLAGS) -O0 -g -I.
 
+LDFLAGS=$(OS_LDFLAGS)
+
 HEADERS=libaltos.h
 SRCS = libaltos.c $(SWIG_WRAP)
 OBJS = $(SRCS:%.c=%.o)
 LIBS = $(DARWIN_LIBS)
 
-cjnitest: cjnitest.o $(OBJS)
+$(CJNITEST): cjnitest.o $(OBJS)
 	cc -o $@ $(CFLAGS) cjnitest.o $(OBJS) $(LIBS)
 
-libaltos.$(LIBEXT): $(OBJS)
-	gcc -shared $(CFLAGS) -o $@ $(OBJS) $(LIBS)
+$(LIBNAME): $(OBJS)
+	gcc -shared $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(LDFLAGS)
 
 clean:
-	rm -f $(CLASSFILES) $(OBJS) libaltos.$(LIBEXT) cjnitest cjnitest.o
+	rm -f $(CLASSFILES) $(OBJS) $(LIBNAME) $(CJNITEST) cjnitest.o
 	rm -rf swig_bindings libaltosJNI
 
 $(JNI_FILE): libaltos.i0 $(HEADERS)
