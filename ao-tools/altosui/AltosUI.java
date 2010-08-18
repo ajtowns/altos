@@ -413,7 +413,7 @@ public class AltosUI extends JFrame {
 	}
 
 	private void ConnectToDevice() {
-		altos_device	device = AltosDeviceDialog.show(AltosUI.this, "TeleDongle");
+		AltosDevice	device = AltosDeviceDialog.show(AltosUI.this, AltosDevice.BaseStation);
 
 		if (device != null) {
 			try {

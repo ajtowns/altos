@@ -22,16 +22,76 @@ import libaltosJNI.*;
 
 public class AltosDevice extends altos_device {
 
+	static boolean initialized = false;
+	static {
+		try {
+			System.loadLibrary("altos");
+			libaltos.altos_init();
+			initialized = true;
+		} catch (UnsatisfiedLinkError e) {
+			System.err.println("Native library failed to load.\n" + e);
+		}
+	}
+	public final static int TeleMetrum = libaltosConstants.USB_PRODUCT_TELEMETRUM;
+	public final static int TeleDongle = libaltosConstants.USB_PRODUCT_TELEDONGLE;
+	public final static int TeleTerra = libaltosConstants.USB_PRODUCT_TELETERRA;
+	public final static int Any = 0x10000;
+	public final static int BaseStation = 0x10000 + 1;
+
 	public String toString() {
+		String	name = getName();
+		if (name == null)
+			name = "Altus Metrum";
 		return String.format("%-20.20s %4d %s",
-				     getProduct(), getSerial(), getPath());
+				     getName(), getSerial(), getPath());
 	}
 
-	static {
-		System.loadLibrary("altos");
-		libaltos.altos_init();
+	public boolean isAltusMetrum() {
+		if (getVendor() != libaltosConstants.USB_VENDOR_ALTUSMETRUM)
+			return false;
+		if (getProduct() < libaltosConstants.USB_PRODUCT_ALTUSMETRUM_MIN)
+			return false;
+		if (getProduct() > libaltosConstants.USB_PRODUCT_ALTUSMETRUM_MAX)
+			return false;
+		return true;
 	}
-	static AltosDevice[] list(String product) {
+
+	public boolean matchProduct(int want_product) {
+
+		if (want_product == Any)
+			return true;
+
+		if (want_product == BaseStation)
+			return matchProduct(TeleDongle) || matchProduct(TeleTerra);
+
+		if (!isAltusMetrum())
+			return false;
+
+		int have_product = getProduct();
+
+		if (want_product == have_product)
+			return true;
+
+		if (have_product != libaltosConstants.USB_PRODUCT_ALTUSMETRUM)
+			return false;
+
+		String name = getName();
+
+		if (name == null)
+			return false;
+		if (want_product == libaltosConstants.USB_PRODUCT_TELEMETRUM)
+			return name.startsWith("TeleMetrum");
+		if (want_product == libaltosConstants.USB_PRODUCT_TELEDONGLE)
+			return name.startsWith("TeleDongle");
+		if (want_product == libaltosConstants.USB_PRODUCT_TELETERRA)
+			return name.startsWith("TeleTerra");
+		return false;
+	}
+
+	static AltosDevice[] list(int product) {
+		if (!initialized)
+			return null;
+
 		SWIGTYPE_p_altos_list list = libaltos.altos_list_start();
 
 		ArrayList<AltosDevice> device_list = new ArrayList<AltosDevice>();
@@ -42,7 +102,7 @@ public class AltosDevice extends altos_device {
 				AltosDevice device = new AltosDevice();
 				if (libaltos.altos_list_next(list, device) == 0)
 					break;
-				if (product == null || device.getProduct().startsWith(product))
+				if (device.matchProduct(product))
 					device_list.add(device);
 			}
 			libaltos.altos_list_finish(list);

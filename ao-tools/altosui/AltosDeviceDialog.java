@@ -31,16 +31,16 @@ import altosui.AltosDevice;
 public class AltosDeviceDialog extends JDialog implements ActionListener {
 
 	private static AltosDeviceDialog	dialog;
-	private static altos_device		value = null;
+	private static AltosDevice		value = null;
 	private JList				list;
 
-	public static altos_device show (Component frameComp, String product) {
+	public static AltosDevice show (Component frameComp, int product) {
 
 		Frame frame = JOptionPane.getFrameForComponent(frameComp);
 		AltosDevice[]	devices;
 		devices = AltosDevice.list(product);
 
-		if (devices != null & devices.length > 0) {
+		if (devices != null && devices.length > 0) {
 			value = null;
 			dialog = new AltosDeviceDialog(frame, frameComp,
 						       devices,
@@ -153,7 +153,7 @@ public class AltosDeviceDialog extends JDialog implements ActionListener {
 	//Handle clicks on the Set and Cancel buttons.
 	public void actionPerformed(ActionEvent e) {
 		if ("select".equals(e.getActionCommand()))
-			AltosDeviceDialog.value = (altos_device)(list.getSelectedValue());
+			AltosDeviceDialog.value = (AltosDevice)(list.getSelectedValue());
 		AltosDeviceDialog.dialog.setVisible(false);
 	}
 

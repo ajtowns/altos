@@ -84,7 +84,7 @@ public class AltosEepromDownload implements Runnable {
 	}
 
 	JFrame			frame;
-	altos_device		device;
+	AltosDevice		device;
 	AltosSerial		serial_line;
 	boolean			remote;
 	Thread			eeprom_thread;
@@ -251,7 +251,7 @@ public class AltosEepromDownload implements Runnable {
 
 	public AltosEepromDownload(JFrame given_frame) {
 		frame = given_frame;
-		device = AltosDeviceDialog.show(frame, null);
+		device = AltosDeviceDialog.show(frame, AltosDevice.Any);
 
 		serial_line = new AltosSerial();
 		remote = false;
@@ -259,7 +259,8 @@ public class AltosEepromDownload implements Runnable {
 		if (device != null) {
 			try {
 				serial_line.open(device);
-				if (!device.getProduct().startsWith("TeleMetrum"))
+				String name = device.getName();
+				if (!device.matchProduct(AltosDevice.TeleMetrum))
 					remote = true;
 				eeprom_thread = new Thread(this);
 				eeprom_thread.start();
