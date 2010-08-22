@@ -420,6 +420,7 @@ public class AltosUI extends JFrame {
 				serial_line.open(device);
 				DeviceThread thread = new DeviceThread(serial_line);
 				serial_line.set_channel(AltosPreferences.channel());
+				serial_line.set_callsign(AltosPreferences.callsign());
 				run_display(thread);
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(AltosUI.this,
@@ -438,6 +439,18 @@ public class AltosUI extends JFrame {
 
 	void DisconnectFromDevice () {
 		stop_display();
+	}
+
+	void ConfigureCallsign() {
+		String	result;
+		result = JOptionPane.showInputDialog(AltosUI.this,
+						     "Configure Callsign",
+						     AltosPreferences.callsign());
+		if (result != null) {
+			AltosPreferences.set_callsign(result);
+			if (serial_line != null)
+				serial_line.set_callsign(result);
+		}
 	}
 
 	/*
@@ -556,6 +569,22 @@ public class AltosUI extends JFrame {
 			menu.setMnemonic(KeyEvent.VK_F);
 			menubar.add(menu);
 
+			item = new JMenuItem("Replay File",KeyEvent.VK_R);
+			item.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						Replay();
+					}
+				});
+			menu.add(item);
+
+			item = new JMenuItem("Save Flight Data",KeyEvent.VK_S);
+			item.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						SaveFlightData();
+					}
+				});
+			menu.add(item);
+
 			item = new JMenuItem("Quit",KeyEvent.VK_Q);
 			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
 								   ActionEvent.CTRL_MASK));
@@ -591,20 +620,13 @@ public class AltosUI extends JFrame {
 
 			menu.addSeparator();
 
-			item = new JMenuItem("Save Flight Data",KeyEvent.VK_S);
+			item = new JMenuItem("Set Callsign",KeyEvent.VK_S);
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						SaveFlightData();
+						ConfigureCallsign();
 					}
 				});
-			menu.add(item);
 
-			item = new JMenuItem("Replay",KeyEvent.VK_R);
-			item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						Replay();
-					}
-				});
 			menu.add(item);
 		}
 		// Log menu

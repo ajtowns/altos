@@ -37,6 +37,9 @@ class AltosPreferences {
 	/* voice preference name */
 	final static String voicePreference = "VOICE";
 
+	/* callsign preference name */
+	final static String callsignPreference = "CALLSIGN";
+
 	/* Default logdir is ~/TeleMetrum */
 	final static String logdirName = "TeleMetrum";
 
@@ -51,6 +54,8 @@ class AltosPreferences {
 
 	/* Voice preference */
 	static boolean voice;
+
+	static String callsign;
 
 	public static void init(Component ui) {
 		preferences = Preferences.userRoot().node("/org/altusmetrum/altosui");
@@ -71,6 +76,8 @@ class AltosPreferences {
 		channel = preferences.getInt(channelPreference, 0);
 
 		voice = preferences.getBoolean(voicePreference, true);
+
+		callsign = preferences.get(callsignPreference,"N0CALL");
 	}
 
 	static void flush_preferences() {
@@ -153,5 +160,17 @@ class AltosPreferences {
 
 	public static boolean voice() {
 		return voice;
+	}
+
+	public static void set_callsign(String new_callsign) {
+		callsign = new_callsign;
+		synchronized(preferences) {
+			preferences.put(callsignPreference, callsign);
+			flush_preferences();
+		}
+	}
+
+	public static String callsign() {
+		return callsign;
 	}
 }

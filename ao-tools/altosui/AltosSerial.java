@@ -154,6 +154,11 @@ public class AltosSerial implements Runnable {
 			printf("m 0\nc r %d\nm 1\n", channel);
 	}
 
+	public void set_callsign(String callsign) {
+		if (altos != null)
+			printf ("c c %s\n", callsign);
+	}
+
 	public AltosSerial() {
 		altos = null;
 		input_thread = null;
