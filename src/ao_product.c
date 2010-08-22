@@ -40,7 +40,7 @@ const uint8_t ao_usb_descriptors [] =
 	0x00,			/*  bDeviceProtocol */
 	AO_USB_CONTROL_SIZE,	/*  bMaxPacketSize */
 	LE_WORD(0xFFFE),	/*  idVendor */
-	LE_WORD(0x000A),	/*  idProduct */
+	LE_WORD(AO_idProduct_NUMBER),	/*  idProduct */
 	LE_WORD(0x0100),	/*  bcdDevice */
 	0x01,			/*  iManufacturer */
 	0x02,			/*  iProduct */
