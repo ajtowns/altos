@@ -40,6 +40,7 @@ import altosui.AltosLog;
 import altosui.AltosVoice;
 import altosui.AltosFlightStatusTableModel;
 import altosui.AltosFlightInfoTableModel;
+import altosui.AltosChannelMenu;
 
 import libaltosJNI.*;
 
@@ -453,6 +454,9 @@ public class AltosUI extends JFrame {
 		}
 	}
 
+	void ConfigureTeleMetrum() {
+		new AltosConfig(AltosUI.this);
+	}
 	/*
 	 * Open an existing telemetry file and replay it in realtime
 	 */
@@ -628,6 +632,15 @@ public class AltosUI extends JFrame {
 				});
 
 			menu.add(item);
+
+			item = new JMenuItem("Configure TeleMetrum device",KeyEvent.VK_T);
+			item.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						ConfigureTeleMetrum();
+					}
+				});
+
+			menu.add(item);
 		}
 		// Log menu
 		{
@@ -680,26 +693,16 @@ public class AltosUI extends JFrame {
 
 		// Channel menu
 		{
-			menu = new JMenu("Channel", true);
-			menu.setMnemonic(KeyEvent.VK_C);
-			menubar.add(menu);
-			ButtonGroup group = new ButtonGroup();
-
-			for (int c = 0; c <= 9; c++) {
-				radioitem = new JRadioButtonMenuItem(String.format("Channel %1d (%7.3fMHz)", c,
-										   434.550 + c * 0.1),
-								     c == AltosPreferences.channel());
-				radioitem.setActionCommand(String.format("%d", c));
-				radioitem.addActionListener(new ActionListener() {
+			menu = new AltosChannelMenu(AltosPreferences.channel());
+			menu.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {
 							int new_channel = Integer.parseInt(e.getActionCommand());
 							AltosPreferences.set_channel(new_channel);
 							serial_line.set_channel(new_channel);
 						}
-					});
-				menu.add(radioitem);
-				group.add(radioitem);
-			}
+				});
+			menu.setMnemonic(KeyEvent.VK_C);
+			menubar.add(menu);
 		}
 
 		this.setJMenuBar(menubar);

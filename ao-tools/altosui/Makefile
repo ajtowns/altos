@@ -3,6 +3,9 @@
 CLASSPATH=classes:./*
 CLASSFILES=\
 	Altos.class \
+	AltosChannelMenu.class \
+	AltosConfig.class \
+	AltosConfigUI.class \
 	AltosConvert.class \
 	AltosCSV.class \
 	AltosEepromDownload.class \
@@ -39,7 +42,7 @@ FREETTSJAR= \
 	en_us.jar \
 	freetts.jar
 
-JAVAFLAGS=-Xlint:unchecked
+JAVAFLAGS=-Xlint:unchecked -Xlint:deprecation
 
 OS:=$(shell uname)
 
