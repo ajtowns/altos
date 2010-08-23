@@ -13,10 +13,12 @@ CLASSFILES=\
 	AltosEepromReader.class \
 	AltosEepromRecord.class \
 	AltosFile.class \
+	AltosFlash.class \
 	AltosFlightInfoTableModel.class \
 	AltosFlightStatusTableModel.class \
 	AltosGPS.class \
 	AltosGreatCircle.class \
+	AltosHexfile.class \
 	AltosLog.class \
 	AltosParse.class \
 	AltosPreferences.class \
