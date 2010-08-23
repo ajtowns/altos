@@ -225,6 +225,7 @@ public class AltosEepromDownload implements Runnable {
 		if (remote) {
 			serial_line.printf("m 0\n");
 			serial_line.set_channel(AltosPreferences.channel());
+			serial_line.set_callsign(AltosPreferences.callsign());
 			serial_line.printf("p\n");
 		}
 
@@ -259,7 +260,6 @@ public class AltosEepromDownload implements Runnable {
 		if (device != null) {
 			try {
 				serial_line.open(device);
-				String name = device.getName();
 				if (!device.matchProduct(AltosDevice.TeleMetrum))
 					remote = true;
 				eeprom_thread = new Thread(this);
