@@ -44,7 +44,10 @@ import altosui.AltosFlightInfoTableModel;
 
 import libaltosJNI.*;
 
-public class AltosConfigUI extends JDialog implements ActionListener, ItemListener, DocumentListener {
+public class AltosConfigUI
+	extends JDialog
+	implements ActionListener, ItemListener, DocumentListener
+{
 
 	Container	pane;
 	Box		box;

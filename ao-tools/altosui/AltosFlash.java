@@ -30,49 +30,43 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import altosui.AltosHexfile;
 
-public class AltosFlash implements Runnable {
+public class AltosFlash {
 	File		file;
 	FileInputStream	input;
 	Thread		thread;
 	AltosHexfile	image;
 	JFrame		frame;
+	AltosDevice	debug_dongle;
+	AltosDebug	debug;
+	AltosRomconfig	rom_config;
 
-	public void run() {
-		try {
-			image = new AltosHexfile(input);
-			System.out.printf("read file start %d length %d\n",
-					  image.address, image.data.length);
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(frame,
-						      file,
-						      e.getMessage(),
-						      JOptionPane.ERROR_MESSAGE);
-		}
+	public void flash() throws IOException, FileNotFoundException, InterruptedException {
+		if (!check_rom_config())
+			throw new IOException("Invalid rom config settings");
+		rom_config.write(image);
 	}
 
-	public AltosFlash(JFrame in_frame) {
-		frame = in_frame;
+	public boolean check_rom_config() {
+		if (rom_config == null)
+			rom_config = debug.romconfig();
+		return rom_config != null && rom_config.valid();
+	}
 
-		JFileChooser	hexfile_chooser = new JFileChooser();
+	public void set_romconfig (AltosRomconfig romconfig) {
+		rom_config = romconfig;
+	}
 
-		hexfile_chooser.setDialogTitle("Select Flash Image");
-		hexfile_chooser.setFileFilter(new FileNameExtensionFilter("Flash Image", "ihx"));
-		int returnVal = hexfile_chooser.showOpenDialog(frame);
+	public void open() throws IOException, FileNotFoundException, InterruptedException {
+		input = new FileInputStream(file);
+		image = new AltosHexfile(input);
+		debug.open(debug_dongle);
+		if (!debug.check_connection())
+			throw new IOException("Debug port not connected");
+	}
 
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			file = hexfile_chooser.getSelectedFile();
-			if (file != null) {
-				try {
-					input = new FileInputStream(file);
-					thread = new Thread(this);
-					thread.start();
-				} catch (FileNotFoundException ee) {
-					JOptionPane.showMessageDialog(frame,
-								      file,
-								      "Cannot open flash file",
-								      JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		}
+	public AltosFlash(File in_file, AltosDevice in_debug_dongle) {
+		file = in_file;
+		debug_dongle = in_debug_dongle;
+		debug = new AltosDebug();
 	}
 }

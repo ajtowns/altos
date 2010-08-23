@@ -214,6 +214,10 @@ public class AltosHexfile {
 	public int	address;
 	public byte[]	data;
 
+	public byte get_byte(int a) {
+		return data[a - address];
+	}
+
 	public AltosHexfile(FileInputStream file) throws IOException {
 		HexFileInputStream	input = new HexFileInputStream(file);
 		LinkedList<HexRecord>	record_list = new LinkedList<HexRecord>();
@@ -244,5 +248,7 @@ public class AltosHexfile {
 					data[records[i].address - base + j] = records[i].data[j];
 			}
 		}
+		for (int i = 0xa0; i < 0xaa; i++)
+			System.out.printf ("%04x: %02x\n", i, get_byte(i));
 	}
 }

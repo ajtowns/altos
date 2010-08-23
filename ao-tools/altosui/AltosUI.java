@@ -41,7 +41,7 @@ import altosui.AltosVoice;
 import altosui.AltosFlightStatusTableModel;
 import altosui.AltosFlightInfoTableModel;
 import altosui.AltosChannelMenu;
-import altosui.AltosFlash;
+import altosui.AltosFlashUI;
 
 import libaltosJNI.*;
 
@@ -460,7 +460,7 @@ public class AltosUI extends JFrame {
 	}
 
 	void FlashImage() {
-		new AltosFlash(AltosUI.this);
+		new AltosFlashUI(AltosUI.this);
 	}
 
 	/*

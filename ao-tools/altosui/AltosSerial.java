@@ -79,6 +79,10 @@ public class AltosSerial implements Runnable {
 		}
 	}
 
+	public void flush_reply() {
+		reply_queue.clear();
+	}
+
 	public String get_reply() throws InterruptedException {
 		return reply_queue.take();
 	}
