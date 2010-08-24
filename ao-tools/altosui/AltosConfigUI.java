@@ -147,6 +147,7 @@ public class AltosConfigUI
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
+		c.ipady = 5;
 		version_label = new JLabel("Software version:");
 		pane.add(version_label, c);
 
@@ -157,6 +158,7 @@ public class AltosConfigUI
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
+		c.ipady = 5;
 		version_value = new JLabel("");
 		pane.add(version_value, c);
 
@@ -167,6 +169,7 @@ public class AltosConfigUI
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
+		c.ipady = 5;
 		serial_label = new JLabel("Serial:");
 		pane.add(serial_label, c);
 
@@ -177,6 +180,7 @@ public class AltosConfigUI
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
+		c.ipady = 5;
 		serial_value = new JLabel("");
 		pane.add(serial_value, c);
 
@@ -187,7 +191,7 @@ public class AltosConfigUI
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
-		c.ipady = 3;
+		c.ipady = 5;
 		main_deploy_label = new JLabel("Main Deploy Altitude(m):");
 		pane.add(main_deploy_label, c);
 
@@ -278,7 +282,7 @@ public class AltosConfigUI
 		/* Buttons */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 7;
-		c.gridwidth = 2;
+		c.gridwidth = 6;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
@@ -288,8 +292,8 @@ public class AltosConfigUI
 		save.setActionCommand("save");
 
 		c = new GridBagConstraints();
-		c.gridx = 2; c.gridy = 7;
-		c.gridwidth = 2;
+		c.gridx = 0; c.gridy = 7;
+		c.gridwidth = 6;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
 		c.insets = il;
@@ -299,8 +303,8 @@ public class AltosConfigUI
 		reset.setActionCommand("reset");
 
 		c = new GridBagConstraints();
-		c.gridx = 4; c.gridy = 7;
-		c.gridwidth = 2;
+		c.gridx = 0; c.gridy = 7;
+		c.gridwidth = 6;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_END;
 		c.insets = il;
