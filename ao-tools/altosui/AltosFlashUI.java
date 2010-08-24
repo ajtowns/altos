@@ -31,15 +31,43 @@ import java.util.concurrent.LinkedBlockingQueue;
 import altosui.AltosHexfile;
 import altosui.AltosFlash;
 
-public class AltosFlashUI implements Runnable {
+public class AltosFlashUI
+	extends JDialog
+	implements Runnable, ActionListener
+{
+	Container	pane;
+	Box		box;
+	JLabel		serial_label;
+	JLabel		serial_value;
+	JLabel		file_label;
+	JLabel		file_value;
+	JProgressBar	pbar;
+	JButton		cancel;
+
 	File		file;
 	Thread		thread;
 	JFrame		frame;
 	AltosDevice	debug_dongle;
 	AltosFlash	flash;
 
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == cancel) {
+			abort();
+			dispose();
+		} else {
+			String	cmd = e.getActionCommand();
+			if (cmd.equals("done"))
+				dispose();
+			else {
+				pbar.setValue(e.getID());
+				pbar.setString(cmd);
+			}
+		}
+	}
+
 	public void run() {
 		flash = new AltosFlash(file, debug_dongle);
+		flash.addActionListener(this);
 		try {
 			flash.open();
 			if (!flash.check_rom_config()) {
@@ -50,6 +78,10 @@ public class AltosFlashUI implements Runnable {
 					return;
 				flash.set_romconfig(romconfig);
 			}
+			serial_value.setText(String.format("%d",
+							   flash.romconfig().serial_number));
+			file_value.setText(file.toString());
+			setVisible(true);
 			flash.flash();
 		} catch (FileNotFoundException ee) {
 			JOptionPane.showMessageDialog(frame,
@@ -67,8 +99,89 @@ public class AltosFlashUI implements Runnable {
 		}
 	}
 
+	public void abort() {
+		if (flash != null)
+			flash.abort();
+	}
+
+	public void build_dialog() {
+		GridBagConstraints c;
+		Insets il = new Insets(4,4,4,4);
+		Insets ir = new Insets(4,4,4,4);
+
+		pane = getContentPane();
+		pane.setLayout(new GridBagLayout());
+
+		c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = 0;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
+		serial_label = new JLabel("Serial:");
+		pane.add(serial_label, c);
+
+		c = new GridBagConstraints();
+		c.gridx = 1; c.gridy = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		serial_value = new JLabel("");
+		pane.add(serial_value, c);
+
+		c = new GridBagConstraints();
+		c.fill = GridBagConstraints.NONE;
+		c.gridx = 0; c.gridy = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
+		file_label = new JLabel("File:");
+		pane.add(file_label, c);
+
+		c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.gridx = 1; c.gridy = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		file_value = new JLabel("");
+		pane.add(file_value, c);
+
+		pbar = new JProgressBar();
+		pbar.setMinimum(0);
+		pbar.setMaximum(100);
+		pbar.setValue(0);
+		pbar.setString("");
+		pbar.setStringPainted(true);
+		pbar.setPreferredSize(new Dimension(600, 20));
+		c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.CENTER;
+		c.gridx = 0; c.gridy = 2;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		Insets ib = new Insets(4,4,4,4);
+		c.insets = ib;
+		pane.add(pbar, c);
+
+		cancel = new JButton("Cancel");
+		c = new GridBagConstraints();
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.CENTER;
+		c.gridx = 0; c.gridy = 3;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		Insets ic = new Insets(4,4,4,4);
+		c.insets = ic;
+		pane.add(cancel, c);
+		cancel.addActionListener(this);
+		pack();
+		setLocationRelativeTo(frame);
+	}
+
 	public AltosFlashUI(JFrame in_frame) {
+		super(in_frame, "Program Altusmetrum Device", false);
+
 		frame = in_frame;
+
+		build_dialog();
 
 		debug_dongle = AltosDeviceDialog.show(frame, AltosDevice.Any);
 
