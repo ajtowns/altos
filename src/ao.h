@@ -293,12 +293,13 @@ ao_led_init(uint8_t enable);
  * ao_romconfig.c
  */
 
-#define AO_ROMCONFIG_VERSION	1
+#define AO_ROMCONFIG_VERSION	2
 
 extern __code __at (0x00a0) uint16_t ao_romconfig_version;
 extern __code __at (0x00a2) uint16_t ao_romconfig_check;
 extern __code __at (0x00a4) uint16_t ao_serial_number;
 extern __code __at (0x00a6) uint32_t ao_radio_cal;
+extern __code __at (0x00aa) uint8_t ao_usb_descriptors [];
 
 /*
  * ao_usb.c
@@ -1008,7 +1009,7 @@ ao_rssi_init(uint8_t rssi_led);
  * each instance of a product
  */
 
-extern const uint8_t ao_usb_descriptors [];
+extern __code __at(0x00aa) uint8_t ao_usb_descriptors [];
 extern const char ao_version[];
 extern const char ao_manufacturer[];
 extern const char ao_product[];
