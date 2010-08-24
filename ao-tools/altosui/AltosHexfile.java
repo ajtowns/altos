@@ -248,7 +248,5 @@ public class AltosHexfile {
 					data[records[i].address - base + j] = records[i].data[j];
 			}
 		}
-		for (int i = 0xa0; i < 0xaa; i++)
-			System.out.printf ("%04x: %02x\n", i, get_byte(i));
 	}
 }
