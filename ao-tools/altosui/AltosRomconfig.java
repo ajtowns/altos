@@ -59,9 +59,6 @@ public class AltosRomconfig {
 				break;
 			}
 		}
-		System.out.printf("version 0x%x check 0x%x valid %s serial %d cal %d\n",
-				  version, check, valid ? "true" : "false",
-				  serial_number, radio_calibration);
 	}
 
 	public AltosRomconfig(AltosHexfile hexfile) {
