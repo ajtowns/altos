@@ -97,7 +97,7 @@ public class AltosDebug extends AltosSerial {
 
 	void ensure_debug_mode() {
 		if (!debug_mode) {
-			printf("D\n");
+			printf("m 0\nD\n");
 			debug_mode = true;
 		}
 	}
