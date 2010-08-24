@@ -57,8 +57,10 @@ public class AltosFlashUI
 		} else {
 			String	cmd = e.getActionCommand();
 			if (cmd.equals("done"))
-				dispose();
-			else {
+				;
+			else if (cmd.equals("start")) {
+				setVisible(true);
+			} else {
 				pbar.setValue(e.getID());
 				pbar.setString(cmd);
 			}
@@ -88,15 +90,14 @@ public class AltosFlashUI
 						      "Cannot open image",
 						      file.toString(),
 						      JOptionPane.ERROR_MESSAGE);
-			return;
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(frame,
 						      e.getMessage(),
 						      file.toString(),
 						      JOptionPane.ERROR_MESSAGE);
-			return;
 		} catch (InterruptedException ie) {
 		}
+		dispose();
 	}
 
 	public void abort() {
