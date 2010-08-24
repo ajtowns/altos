@@ -315,6 +315,8 @@ public class AltosFlash {
 	}
 
 	public AltosRomconfig romconfig() {
+		if (!check_rom_config())
+			return null;
 		return rom_config;
 	}
 
