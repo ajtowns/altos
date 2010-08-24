@@ -532,26 +532,10 @@ public class AltosUI extends JFrame {
 	private void Replay() {
 		AltosLogfileChooser chooser = new AltosLogfileChooser(
 			AltosUI.this);
-
-		File file = chooser.runDialog();
-
-		if (file != null) {
-			String	filename = file.getName();
-			try {
-				FileInputStream	replay = new FileInputStream(file);
-				DisplayThread	thread;
-				if (filename.endsWith("eeprom"))
-				    thread = new ReplayEepromThread(replay, filename);
-				else
-				    thread = new ReplayTelemetryThread(replay, filename);
-				run_display(thread);
-			} catch (FileNotFoundException ee) {
-				JOptionPane.showMessageDialog(AltosUI.this,
-							      filename,
-							      "Cannot open telemetry file",
-							      JOptionPane.ERROR_MESSAGE);
-			}
-		}
+		AltosReader reader = chooser.runDialog();
+		if (reader != null)
+			run_display(new ReplayThread(reader,
+						     chooser.filename()));
 	}
 
 	/* Connect to TeleMetrum, either directly or through
