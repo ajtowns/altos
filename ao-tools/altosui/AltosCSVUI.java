@@ -26,58 +26,58 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
+import java.util.concurrent.LinkedBlockingQueue;
 
-import altosui.AltosPreferences;
-import altosui.AltosReader;
-import altosui.AltosEepromReader;
-import altosui.AltosTelemetryReader;
+import altosui.AltosLogfileChooser;
+import altosui.AltosCSV;
 
-public class AltosLogfileChooser extends JFileChooser {
-	JFrame	frame;
-	String	filename;
-	File	file;
+public class AltosCSVUI
+	extends JDialog
+	implements Runnable, ActionListener
+{
+	JFrame		frame;
+	Thread		thread;
+	AltosReader	reader;
+	AltosCSV	writer;
 
-	public String filename() {
-		return filename;
-	}
+	public void run() {
+		AltosLogfileChooser	chooser;
 
-	public File file() {
-		return file;
-	}
+		chooser = new AltosLogfileChooser(frame);
+		reader = chooser.runDialog();
+		if (reader == null)
+			return;
+		JFileChooser	csv_chooser;
 
-	public AltosReader runDialog() {
-		int	ret;
-
-		ret = showOpenDialog(frame);
-		if (ret == APPROVE_OPTION) {
-			file = getSelectedFile();
-			if (file == null)
-				return null;
-			filename = file.getName();
+		File file = chooser.file();
+		String path = file.getPath();
+		int dot = path.lastIndexOf(".");
+		if (dot >= 0)
+			path = path.substring(0,dot);
+		path = path.concat(".csv");
+		csv_chooser = new JFileChooser(path);
+		int ret = csv_chooser.showSaveDialog(frame);
+		if (ret == JFileChooser.APPROVE_OPTION) {
 			try {
-				FileInputStream in;
-
-				in = new FileInputStream(file);
-				if (filename.endsWith("eeprom"))
-					return new AltosEepromReader(in);
-				else
-					return new AltosTelemetryReader(in);
-			} catch (FileNotFoundException fe) {
+				writer = new AltosCSV(csv_chooser.getSelectedFile());
+			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(frame,
-							      filename,
+							      file.getName(),
 							      "Cannot open file",
 							      JOptionPane.ERROR_MESSAGE);
 			}
+			writer.write(reader);
+			reader.close();
+			writer.close();
 		}
-		return null;
 	}
 
-	public AltosLogfileChooser(JFrame in_frame) {
+	public void actionPerformed(ActionEvent e) {
+	}
+
+	public AltosCSVUI(JFrame in_frame) {
 		frame = in_frame;
-		setDialogTitle("Select Flight Record File");
-		setFileFilter(new FileNameExtensionFilter("Flight data file",
-							  "eeprom",
-							  "telem"));
-		setCurrentDirectory(AltosPreferences.logdir());
+		thread = new Thread(this);
+		thread.start();
 	}
 }

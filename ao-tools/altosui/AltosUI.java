@@ -43,6 +43,7 @@ import altosui.AltosFlightInfoTableModel;
 import altosui.AltosChannelMenu;
 import altosui.AltosFlashUI;
 import altosui.AltosLogfileChooser;
+import altosui.AltosCSVUI;
 
 import libaltosJNI.*;
 
@@ -545,6 +546,14 @@ public class AltosUI extends JFrame {
 		new AltosEepromDownload(AltosUI.this);
 	}
 
+	/* Load a flight log file and write out a CSV file containing
+	 * all of the data in standard units
+	 */
+
+	private void ExportData() {
+		new AltosCSVUI(AltosUI.this);
+	}
+
 	/* Create the AltosUI menus
 	 */
 	private void createMenu() {
@@ -579,6 +588,14 @@ public class AltosUI extends JFrame {
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						FlashImage();
+					}
+				});
+			menu.add(item);
+
+			item = new JMenuItem("Export Data",KeyEvent.VK_F);
+			item.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						ExportData();
 					}
 				});
 			menu.add(item);

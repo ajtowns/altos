@@ -218,6 +218,7 @@ public class AltosEepromReader extends AltosReader {
 			case Altos.AO_LOG_PRODUCT:
 				break;
 			case Altos.AO_LOG_SERIAL_NUMBER:
+				state.serial = record.a;
 				break;
 			case Altos.AO_LOG_SOFTWARE_VERSION:
 				break;
@@ -228,6 +229,7 @@ public class AltosEepromReader extends AltosReader {
 
 	public void write_comments(PrintStream out) {
 		Iterator<AltosOrderedRecord>	iterator = records.iterator();
+		out.printf("# Comments\n");
 		while (iterator.hasNext()) {
 			AltosOrderedRecord	record = iterator.next();
 			switch (record.cmd) {
@@ -250,7 +252,7 @@ public class AltosEepromReader extends AltosReader {
 				out.printf ("# Accel cal: %d %d\n", record.a, record.b);
 				break;
 			case Altos.AO_LOG_RADIO_CAL:
-				out.printf ("# Radio cal: %d %d\n", record.a);
+				out.printf ("# Radio cal: %d\n", record.a);
 				break;
 			case Altos.AO_LOG_MANUFACTURER:
 				out.printf ("# Manufacturer: %s\n", record.data);

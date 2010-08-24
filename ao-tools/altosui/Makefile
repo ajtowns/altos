@@ -8,6 +8,7 @@ CLASSFILES=\
 	AltosConfigUI.class \
 	AltosConvert.class \
 	AltosCSV.class \
+	AltosCSVUI.class \
 	AltosDebug.class \
 	AltosEepromDownload.class \
 	AltosEepromMonitor.class \

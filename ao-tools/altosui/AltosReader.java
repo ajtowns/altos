@@ -25,4 +25,6 @@ import altosui.AltosRecord;
 
 public class AltosReader {
 	public AltosRecord read() throws IOException, ParseException { return null; }
+	public void close() { }
+	public void write_comments(PrintStream out) { }
 }
