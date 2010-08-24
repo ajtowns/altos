@@ -66,8 +66,10 @@ public class AltosSerial implements Runnable {
 									LinkedBlockingQueue<String> q = monitors.get(e);
 									q.put(line);
 								}
-							} else
+							} else {
+//								System.out.printf("GOT: %s\n", line);
 								reply_queue.put(line);
+							}
 							line = "";
 						}
 					} else {
@@ -80,6 +82,11 @@ public class AltosSerial implements Runnable {
 	}
 
 	public void flush_reply() {
+		libaltos.altos_flush(altos);
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException ie) {
+		}
 		reply_queue.clear();
 	}
 
@@ -132,6 +139,7 @@ public class AltosSerial implements Runnable {
 	}
 
 	public void print(String data) {
+//		System.out.printf("\"%s\" ", data);
 		for (int i = 0; i < data.length(); i++)
 			putc(data.charAt(i));
 	}
