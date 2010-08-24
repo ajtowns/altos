@@ -79,8 +79,14 @@ public class AltosSerial implements Runnable {
 		}
 	}
 
+	public void flush_reply() {
+		reply_queue.clear();
+	}
+
 	public String get_reply() throws InterruptedException {
-		return reply_queue.take();
+		libaltos.altos_flush(altos);
+		String line = reply_queue.take();
+		return line;
 	}
 
 	public void add_monitor(LinkedBlockingQueue<String> q) {

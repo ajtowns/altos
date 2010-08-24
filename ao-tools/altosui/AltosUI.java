@@ -41,6 +41,7 @@ import altosui.AltosVoice;
 import altosui.AltosFlightStatusTableModel;
 import altosui.AltosFlightInfoTableModel;
 import altosui.AltosChannelMenu;
+import altosui.AltosFlashUI;
 
 import libaltosJNI.*;
 
@@ -457,6 +458,11 @@ public class AltosUI extends JFrame {
 	void ConfigureTeleMetrum() {
 		new AltosConfig(AltosUI.this);
 	}
+
+	void FlashImage() {
+		new AltosFlashUI(AltosUI.this);
+	}
+
 	/*
 	 * Open an existing telemetry file and replay it in realtime
 	 */
@@ -585,6 +591,14 @@ public class AltosUI extends JFrame {
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						SaveFlightData();
+					}
+				});
+			menu.add(item);
+
+			item = new JMenuItem("Flash Image",KeyEvent.VK_F);
+			item.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						FlashImage();
 					}
 				});
 			menu.add(item);

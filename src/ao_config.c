@@ -27,16 +27,6 @@ __xdata uint8_t ao_config_mutex;
 #define AO_CONFIG_DEFAULT_CALLSIGN	"N0CALL"
 #define AO_CONFIG_DEFAULT_ACCEL_ZERO_G	16000
 #define AO_CONFIG_DEFAULT_APOGEE_DELAY	0
-/*
- * For 434.550MHz, the frequency value is:
- *
- * 434.550e6 / (24e6 / 2**16) = 1186611.2
- *
- * This value is stored in a const variable so that
- * ao-load can change it during programming for
- * devices that have no eeprom for config data.
- */
-const uint32_t ao_radio_cal = 1186611;
 
 #if HAS_EEPROM
 static void

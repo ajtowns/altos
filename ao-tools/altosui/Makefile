@@ -8,15 +8,19 @@ CLASSFILES=\
 	AltosConfigUI.class \
 	AltosConvert.class \
 	AltosCSV.class \
+	AltosDebug.class \
 	AltosEepromDownload.class \
 	AltosEepromMonitor.class \
 	AltosEepromReader.class \
 	AltosEepromRecord.class \
 	AltosFile.class \
+	AltosFlash.class \
+	AltosFlashUI.class \
 	AltosFlightInfoTableModel.class \
 	AltosFlightStatusTableModel.class \
 	AltosGPS.class \
 	AltosGreatCircle.class \
+	AltosHexfile.class \
 	AltosLog.class \
 	AltosParse.class \
 	AltosPreferences.class \
@@ -29,6 +33,8 @@ CLASSFILES=\
 	AltosUI.class \
 	AltosDevice.class \
 	AltosDeviceDialog.class \
+	AltosRomconfig.class \
+	AltosRomconfigUI.class \
 	AltosVoice.class
 
 #FREETTSSRC=/home/keithp/src/freetts/freetts-1.2.2

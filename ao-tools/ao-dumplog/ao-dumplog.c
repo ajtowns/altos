@@ -29,7 +29,7 @@
 static const struct option options[] = {
 	{ .name = "tty", .has_arg = 1, .val = 'T' },
 	{ .name = "device", .has_arg = 1, .val = 'D' },
-	{ .name = "remote", .has_arg = 1, .val = 'R' },
+	{ .name = "remote", .has_arg = 0, .val = 'R' },
 	{ .name = "channel", .has_arg = 1, .val = 'C' },
 	{ 0, 0, 0, 0},
 };
@@ -91,7 +91,7 @@ main (int argc, char **argv)
 	int		invalid;
 	char		serial_line[8192];
 
-	while ((c = getopt_long(argc, argv, "T:D:R", options, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "T:D:C:R", options, NULL)) != -1) {
 		switch (c) {
 		case 'T':
 			tty = optarg;
