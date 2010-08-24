@@ -72,14 +72,15 @@ public class AltosFlashUI
 		flash.addActionListener(this);
 		try {
 			flash.open();
-			if (!flash.check_rom_config()) {
-				AltosRomconfigUI romconfig_ui = new AltosRomconfigUI (frame);
-				romconfig_ui.showDialog();
-				AltosRomconfig romconfig = romconfig_ui.romconfig();
-				if (romconfig == null)
-					return;
-				flash.set_romconfig(romconfig);
-			}
+			AltosRomconfigUI romconfig_ui = new AltosRomconfigUI (frame);
+
+			romconfig_ui.set(flash.romconfig());
+			romconfig_ui.showDialog();
+
+			AltosRomconfig romconfig = romconfig_ui.romconfig();
+			if (romconfig == null || !romconfig.valid())
+				return;
+			flash.set_romconfig(romconfig);
 			serial_value.setText(String.format("%d",
 							   flash.romconfig().serial_number));
 			file_value.setText(file.toString());
