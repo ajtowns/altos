@@ -35,6 +35,7 @@ ALTOS_SRC = \
 	ao_panic.c \
 	ao_task.c \
 	ao_timer.c \
+	ao_romconfig.c \
 	_bp.c
 
 #
