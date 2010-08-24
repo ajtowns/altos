@@ -448,16 +448,20 @@ altos_list_finish(struct altos_list *list)
 #include <fcntl.h>
 #include <termios.h>
 #include <errno.h>
+#include <pthread.h>
 
 #define USB_BUF_SIZE	64
 
 struct altos_file {
 	int				fd;
+	int				pipe[2];
 	unsigned char			out_data[USB_BUF_SIZE];
 	int				out_used;
 	unsigned char			in_data[USB_BUF_SIZE];
 	int				in_used;
 	int				in_read;
+	pthread_mutex_t			putc_mutex;
+	pthread_mutex_t			getc_mutex;
 };
 
 struct altos_file *
@@ -470,6 +474,7 @@ altos_open(struct altos_device *device)
 	if (!file)
 		return NULL;
 
+	pipe(file->pipe);
 	file->fd = open(device->path, O_RDWR | O_NOCTTY);
 	if (file->fd < 0) {
 		perror(device->path);
@@ -484,8 +489,8 @@ altos_open(struct altos_device *device)
 		return NULL;
 	}
 	cfmakeraw(&term);
-	term.c_cc[VMIN] = 0;
-	term.c_cc[VTIME] = 1;
+	term.c_cc[VMIN] = 1;
+	term.c_cc[VTIME] = 0;
 	ret = tcsetattr(file->fd, TCSAFLUSH, &term);
 	if (ret < 0) {
 		perror("tcsetattr");
@@ -493,6 +498,8 @@ altos_open(struct altos_device *device)
 		free(file);
 		return NULL;
 	}
+	pthread_mutex_init(&file->putc_mutex,NULL);
+	pthread_mutex_init(&file->getc_mutex,NULL);
 	return file;
 }
 
@@ -500,8 +507,10 @@ void
 altos_close(struct altos_file *file)
 {
 	if (file->fd != -1) {
-		close(file->fd);
+		int	fd = file->fd;
 		file->fd = -1;
+		write(file->pipe[1], "\r", 1);
+		close(fd);
 	}
 }
 
@@ -512,30 +521,15 @@ altos_free(struct altos_file *file)
 	free(file);
 }
 
-int
-altos_putchar(struct altos_file *file, char c)
-{
-	int	ret;
-
-	if (file->out_used == USB_BUF_SIZE) {
-		ret = altos_flush(file);
-		if (ret)
-			return ret;
-	}
-	file->out_data[file->out_used++] = c;
-	if (file->out_used == USB_BUF_SIZE)
-		return altos_flush(file);
-	return 0;
-}
-
-int
-altos_flush(struct altos_file *file)
+static int
+_altos_flush(struct altos_file *file)
 {
 	while (file->out_used) {
 		int	ret;
 
 		if (file->fd < 0)
 			return -EBADF;
+		fflush(stdout);
 		ret = write (file->fd, file->out_data, file->out_used);
 		if (ret < 0)
 			return -errno;
@@ -547,33 +541,84 @@ altos_flush(struct altos_file *file)
 	}
 }
 
+int
+altos_putchar(struct altos_file *file, char c)
+{
+	int	ret;
+
+	pthread_mutex_lock(&file->putc_mutex);
+	if (file->out_used == USB_BUF_SIZE) {
+		ret = _altos_flush(file);
+		if (ret) {
+			pthread_mutex_unlock(&file->putc_mutex);
+			return ret;
+		}
+	}
+	file->out_data[file->out_used++] = c;
+	ret = 0;
+	if (file->out_used == USB_BUF_SIZE)
+		ret = _altos_flush(file);
+	pthread_mutex_unlock(&file->putc_mutex);
+	return 0;
+}
+
+int
+altos_flush(struct altos_file *file)
+{
+	int ret;
+	pthread_mutex_lock(&file->putc_mutex);
+	ret = _altos_flush(file);
+	pthread_mutex_unlock(&file->putc_mutex);
+	return ret;
+}
+
+
 #include <poll.h>
 
 int
 altos_getchar(struct altos_file *file, int timeout)
 {
-	while (file->in_read == file->in_used) {
-		int	ret;
+	int		ret;
+	struct pollfd	fd[2];
 
-		altos_flush(file);
-		if (file->fd < 0)
-			return -EBADF;
-		if (timeout) {
-			struct pollfd fd;
-			int ret;
-			fd.fd = file->fd;
-			fd.events = POLLIN;
-			ret = poll(&fd, 1, timeout);
-			if (ret == 0)
-				return LIBALTOS_TIMEOUT;
-		}
-		ret = read(file->fd, file->in_data, USB_BUF_SIZE);
-		if (ret < 0)
+	if (timeout == 0)
+		timeout = -1;
+	pthread_mutex_lock(&file->getc_mutex);
+	fd[0].fd = file->fd;
+	fd[0].events = POLLIN;
+	fd[1].fd = file->pipe[0];
+	fd[1].events = POLLIN;
+	while (file->in_read == file->in_used) {
+		if (file->fd < 0) {
+			pthread_mutex_unlock(&file->getc_mutex);
 			return LIBALTOS_ERROR;
-		file->in_read = 0;
-		file->in_used = ret;
+		}
+		altos_flush(file);
+
+		ret = poll(fd, 2, timeout);
+		if (ret < 0) {
+			perror("altos_getchar");
+			pthread_mutex_unlock(&file->getc_mutex);
+			return LIBALTOS_ERROR;
+		}
+		if (ret == 0) {
+			pthread_mutex_unlock(&file->getc_mutex);
+			return LIBALTOS_TIMEOUT;
+		}
+		if (fd[0].revents & POLLIN) {
+			ret = read(file->fd, file->in_data, USB_BUF_SIZE);
+			if (ret < 0) {
+				perror("altos_getchar");
+				pthread_mutex_unlock(&file->getc_mutex);
+				return LIBALTOS_ERROR;
+			}
+			file->in_read = 0;
+			file->in_used = ret;
+		}
 	}
-	return file->in_data[file->in_read++];
+	ret = file->in_data[file->in_read++];
+	pthread_mutex_unlock(&file->getc_mutex);
+	return ret;
 }
 
 #endif /* POSIX_TTY */
