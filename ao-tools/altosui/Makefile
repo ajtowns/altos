@@ -22,6 +22,7 @@ CLASSFILES=\
 	AltosGreatCircle.class \
 	AltosHexfile.class \
 	AltosLog.class \
+	AltosLogfileChooser.class \
 	AltosParse.class \
 	AltosPreferences.class \
 	AltosRecord.class \

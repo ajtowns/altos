@@ -42,6 +42,7 @@ import altosui.AltosFlightStatusTableModel;
 import altosui.AltosFlightInfoTableModel;
 import altosui.AltosChannelMenu;
 import altosui.AltosFlashUI;
+import altosui.AltosLogfileChooser;
 
 import libaltosJNI.*;
 
@@ -529,17 +530,12 @@ public class AltosUI extends JFrame {
 	 * Replay a flight from telemetry data
 	 */
 	private void Replay() {
-		JFileChooser	logfile_chooser = new JFileChooser();
+		AltosLogfileChooser chooser = new AltosLogfileChooser(
+			AltosUI.this);
 
-		logfile_chooser.setDialogTitle("Select Flight Record File");
-		logfile_chooser.setFileFilter(new FileNameExtensionFilter("Flight data file", "eeprom", "telem"));
-		logfile_chooser.setCurrentDirectory(AltosPreferences.logdir());
-		int returnVal = logfile_chooser.showOpenDialog(AltosUI.this);
+		File file = chooser.runDialog();
 
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = logfile_chooser.getSelectedFile();
-			if (file == null)
-				System.out.println("No file selected?");
+		if (file != null) {
 			String	filename = file.getName();
 			try {
 				FileInputStream	replay = new FileInputStream(file);
