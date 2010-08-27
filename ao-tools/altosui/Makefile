@@ -101,7 +101,7 @@ altosui:
 
 install:	altosui.jar altosui
 	/usr/bin/install -m 0644 altosui.jar $(DESTDIR)/usr/share/java/altosui.jar
-	/usr/bin/install -m 0644 altosui.1 $(DESTDIR)/usr/share/man/altosui.1
+	/usr/bin/install -m 0644 altosui.1 $(DESTDIR)/usr/share/man/man1/altosui.1
 	/usr/bin/install altosui $(DESTDIR)/usr/bin/altosui
 	
 endif
