@@ -44,6 +44,7 @@ public class AltosCSV {
 	 *	flight number
 	 *	callsign
 	 *	time (seconds since boost)
+	 *	rssi
 	 *
 	 * Flight status
 	 *	state
@@ -74,6 +75,8 @@ public class AltosCSV {
 	 *	hour (0-23)
 	 *	minute (0-59)
 	 *	second (0-59)
+	 *	from_pad_dist (m)
+	 *	from_pad_dir (deg true)
 	 *
 	 * GPS Sat data
 	 *	hdop
@@ -81,13 +84,14 @@ public class AltosCSV {
 	 */
 
 	void write_general_header() {
-		out.printf("version serial flight call time");
+		out.printf("version serial flight call time rssi");
 	}
 
 	void write_general(AltosRecord record) {
-		out.printf("%s,%d,%d,%s,%8.2f",
+		out.printf("%s,%d,%d,%s,%8.2f,%4d",
 			   record.version, record.serial, record.flight, record.callsign,
-			   (double) (record.tick - boost_tick) / 100.0);
+			   (double) record.time,
+			   record.rssi);
 	}
 
 	void write_flight_header() {
@@ -117,7 +121,7 @@ public class AltosCSV {
 	}
 
 	void write_gps_header() {
-		out.printf("connected locked nsat latitude longitude altitude year month day hour minute second");
+		out.printf("connected locked nsat latitude longitude altitude year month day hour minute second pad_dist pad_dir");
 	}
 
 	void write_gps(AltosRecord record) {
@@ -125,7 +129,11 @@ public class AltosCSV {
 		if (gps == null)
 			gps = new AltosGPS();
 
-		out.printf("%2d,%2d,%3d,%12.7f,%12.7f,%6d,%5d,%3d,%3d,%3d,%3d,%3d",
+		AltosGreatCircle from_pad = state.from_pad;
+		if (from_pad == null)
+			from_pad = new AltosGreatCircle();
+
+		out.printf("%2d,%2d,%3d,%12.7f,%12.7f,%6d,%5d,%3d,%3d,%3d,%3d,%3d,%9.0f,%4.0f",
 			   gps.connected?1:0,
 			   gps.locked?1:0,
 			   gps.nsat,
@@ -137,7 +145,9 @@ public class AltosCSV {
 			   gps.day,
 			   gps.hour,
 			   gps.minute,
-			   gps.second);
+			   gps.second,
+			   from_pad.distance,
+			   from_pad.bearing);
 	}
 
 	void write_header() {
@@ -205,7 +215,9 @@ public class AltosCSV {
 				write(record);
 			}
 		} catch (IOException ie) {
+			System.out.printf("IOException\n");
 		} catch (ParseException pe) {
+			System.out.printf("ParseException %s\n", pe.getMessage());
 		}
 	}
 
@@ -213,5 +225,9 @@ public class AltosCSV {
 		name = in_name;
 		out = new PrintStream(name);
 		pad_records = new LinkedList<AltosRecord>();
+	}
+
+	public AltosCSV(String in_string) throws FileNotFoundException {
+		this(new File(in_string));
 	}
 }
