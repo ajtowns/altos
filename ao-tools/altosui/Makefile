@@ -100,8 +100,8 @@ altosui:
 	chmod +x ./altosui
 
 install:	altosui.jar altosui
-	/usr/bin/install -c altosui.jar $(DESTDIR)/usr/share/java/altosui.jar
-	/usr/bin/install -c altosui $(DESTDIR)/usr/bin/altosui
+	/usr/bin/install -m 0644 altosui.jar $(DESTDIR)/usr/share/java/altosui.jar
+	/usr/bin/install altosui $(DESTDIR)/usr/bin/altosui
 	
 endif
 
