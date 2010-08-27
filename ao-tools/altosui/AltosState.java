@@ -124,11 +124,6 @@ public class AltosState {
 		}
 
 		if (state == Altos.ao_flight_pad) {
-			if (data.gps == null)
-				System.out.printf("on pad, gps null\n");
-			else
-				System.out.printf ("on pad gps lat %f lon %f locked %d nsat %d\n",
-						   data.gps.lat, data.gps.lon, data.gps.locked ? 1 : 0, data.gps.nsat);
 			if (data.gps != null && data.gps.locked && data.gps.nsat >= 4) {
 				npad++;
 				if (npad > 1) {
