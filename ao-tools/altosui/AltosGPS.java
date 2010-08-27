@@ -52,14 +52,16 @@ public class AltosGPS {
 
 	AltosGPSSat[] cc_gps_sat;	/* tracking data */
 
-	void ParseGPSTime(String date, String time) throws ParseException {
+	void ParseGPSDate(String date) throws ParseException {
 		String[] ymd = date.split("-");
 		if (ymd.length != 3)
 			throw new ParseException("error parsing GPS date " + date + " got " + ymd.length, 0);
 		year = AltosParse.parse_int(ymd[0]);
 		month = AltosParse.parse_int(ymd[1]);
 		day = AltosParse.parse_int(ymd[2]);
+	}
 
+	void ParseGPSTime(String time) throws ParseException {
 		String[] hms = time.split(":");
 		if (hms.length != 3)
 			throw new ParseException("Error parsing GPS time " + time + " got " + hms.length, 0);
@@ -73,7 +75,7 @@ public class AltosGPS {
 		hour = minute = second = 0;
 	}
 
-	public AltosGPS(String[] words, int i) throws ParseException {
+	public AltosGPS(String[] words, int i, int version) throws ParseException {
 		AltosParse.word(words[i++], "GPS");
 		nsat = AltosParse.parse_int(words[i++]);
 		AltosParse.word(words[i++], "sat");
@@ -92,32 +94,44 @@ public class AltosGPS {
 			locked = true;
 			connected = true;
 
-			ParseGPSTime(words[i], words[i+1]); i += 2;
+			if (version > 1)
+				ParseGPSDate(words[i++]);
+			else
+				year = month = day = 0;
+			ParseGPSTime(words[i++]);
 			lat = AltosParse.parse_coord(words[i++]);
 			lon = AltosParse.parse_coord(words[i++]);
-			alt = AltosParse.parse_int(AltosParse.strip_suffix(words[i++], "m"));
-			ground_speed = AltosParse.parse_double(AltosParse.strip_suffix(words[i++], "m/s(H)"));
-			course = AltosParse.parse_int(AltosParse.strip_suffix(words[i++], "Â°"));
-			climb_rate = AltosParse.parse_double(AltosParse.strip_suffix(words[i++], "m/s(V)"));
-			hdop = AltosParse.parse_double(AltosParse.strip_suffix(words[i++], "(hdop)"));
-			h_error = AltosParse.parse_int(AltosParse.strip_suffix(words[i++], "(herr)"));
-			v_error = AltosParse.parse_int(AltosParse.strip_suffix(words[i++], "(verr)"));
+			alt = AltosParse.parse_int(words[i++]);
+			if (version > 1 || (i < words.length && !words[i].equals("SAT"))) {
+				ground_speed = AltosParse.parse_double(AltosParse.strip_suffix(words[i++], "m/s(H)"));
+				course = AltosParse.parse_int(words[i++]);
+				climb_rate = AltosParse.parse_double(AltosParse.strip_suffix(words[i++], "m/s(V)"));
+				hdop = AltosParse.parse_double(AltosParse.strip_suffix(words[i++], "(hdop)"));
+				h_error = AltosParse.parse_int(words[i++]);
+				v_error = AltosParse.parse_int(words[i++]);
+			}
 		} else {
 			i++;
 		}
-		AltosParse.word(words[i++], "SAT");
-		int tracking_channels = 0;
-		if (words[i].equals("not-connected"))
-			tracking_channels = 0;
-		else
-			tracking_channels = AltosParse.parse_int(words[i]);
-		i++;
-		cc_gps_sat = new AltosGPS.AltosGPSSat[tracking_channels];
-		for (int chan = 0; chan < tracking_channels; chan++) {
-			cc_gps_sat[chan] = new AltosGPS.AltosGPSSat();
-			cc_gps_sat[chan].svid = AltosParse.parse_int(words[i++]);
-			cc_gps_sat[chan].c_n0 = AltosParse.parse_int(words[i++]);
-		}
+		if (i < words.length) {
+			AltosParse.word(words[i++], "SAT");
+			int tracking_channels = 0;
+			if (words[i].equals("not-connected"))
+				tracking_channels = 0;
+			else
+				tracking_channels = AltosParse.parse_int(words[i]);
+			i++;
+			cc_gps_sat = new AltosGPS.AltosGPSSat[tracking_channels];
+			for (int chan = 0; chan < tracking_channels; chan++) {
+				cc_gps_sat[chan] = new AltosGPS.AltosGPSSat();
+				cc_gps_sat[chan].svid = AltosParse.parse_int(words[i++]);
+				/* Older versions included SiRF status bits */
+				if (version < 2)
+					i++;
+				cc_gps_sat[chan].c_n0 = AltosParse.parse_int(words[i++]);
+			}
+		} else
+			cc_gps_sat = new AltosGPS.AltosGPSSat[0];
 	}
 
 	public void set_latitude(int in_lat) {
@@ -172,6 +186,7 @@ public class AltosGPS {
 		nsat = old.nsat;
 		locked = old.locked;
 		connected = old.connected;
+		date_valid = old.date_valid;
 		lat = old.lat;		/* degrees (+N -S) */
 		lon = old.lon;		/* degrees (+E -W) */
 		alt = old.alt;		/* m */
