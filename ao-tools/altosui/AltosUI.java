@@ -719,8 +719,67 @@ public class AltosUI extends JFrame {
 		this.setJMenuBar(menubar);
 
 	}
+
+	static String replace_extension(String input, String extension) {
+		int dot = input.lastIndexOf(".");
+		if (dot > 0)
+			input = input.substring(0,dot);
+		return input.concat(extension);
+	}
+
+	static AltosReader open_logfile(String filename) {
+		File file = new File (filename);
+		try {
+			FileInputStream in;
+
+			in = new FileInputStream(file);
+			if (filename.endsWith("eeprom"))
+				return new AltosEepromReader(in);
+			else
+				return new AltosTelemetryReader(in);
+		} catch (FileNotFoundException fe) {
+			System.out.printf("Cannot open '%s'\n", filename);
+			return null;
+		}
+	}
+
+	static AltosCSV open_csv(String filename) {
+		File file = new File (filename);
+		try {
+			return new AltosCSV(file);
+		} catch (FileNotFoundException fe) {
+			System.out.printf("Cannot open '%s'\n", filename);
+			return null;
+		}
+	}
+
+	static void process_file(String input) {
+		String output = replace_extension(input,".csv");
+		if (input.equals(output)) {
+			System.out.printf("Not processing '%s'\n", input);
+			return;
+		}
+		System.out.printf("Processing \"%s\" to \"%s\"\n", input, output);
+		AltosReader reader = open_logfile(input);
+		if (reader == null)
+			return;
+		AltosCSV writer = open_csv(output);
+		if (writer == null)
+			return;
+		writer.write(reader);
+		reader.close();
+		writer.close();
+	}
+
 	public static void main(final String[] args) {
-		AltosUI altosui = new AltosUI();
-		altosui.setVisible(true);
+
+		/* Handle batch-mode */
+		if (args.length > 0) {
+			for (int i = 0; i < args.length; i++)
+				process_file(args[i]);
+		} else {
+			AltosUI altosui = new AltosUI();
+			altosui.setVisible(true);
+		}
 	}
 }
