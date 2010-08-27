@@ -143,12 +143,31 @@ public class AltosRomconfigUI
 		return Integer.parseInt(serial_value.getText());
 	}
 
+	void set_serial(int serial) {
+		serial_value.setText(String.format("%d", serial));
+	}
+
 	int radio_calibration() {
 		return Integer.parseInt(radio_calibration_value.getText());
 	}
 
+	void set_radio_calibration(int calibration) {
+		radio_calibration_value.setText(String.format("%d", calibration));
+	}
+
+	public void set(AltosRomconfig config) {
+		if (config != null && config.valid()) {
+			set_serial(config.serial_number);
+			set_radio_calibration(config.radio_calibration);
+		}
+	}
+
 	public AltosRomconfig romconfig() {
-		return new AltosRomconfig(serial(), radio_calibration());
+		try {
+			return new AltosRomconfig(serial(), radio_calibration());
+		} catch (NumberFormatException ne) {
+			return null;
+		}
 	}
 
 	public AltosRomconfig showDialog() {

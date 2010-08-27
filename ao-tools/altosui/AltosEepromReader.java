@@ -133,8 +133,6 @@ public class AltosEepromReader extends AltosReader {
 					ground_pres += state.pres;
 					state.ground_pres = (int) (ground_pres / n_pad_samples);
 					state.flight_pres = state.ground_pres;
-					System.out.printf("ground pressure %d altitude %f\n",
-							  record.b, state.altitude());
 					ground_accel += state.accel;
 					state.ground_accel = (int) (ground_accel / n_pad_samples);
 					state.flight_accel = state.ground_accel;
@@ -156,7 +154,6 @@ public class AltosEepromReader extends AltosReader {
 				seen |= seen_deploy;
 				break;
 			case Altos.AO_LOG_STATE:
-				System.out.printf("state %d\n", record.a);
 				state.state = record.a;
 				break;
 			case Altos.AO_LOG_GPS_TIME:
@@ -218,6 +215,7 @@ public class AltosEepromReader extends AltosReader {
 			case Altos.AO_LOG_PRODUCT:
 				break;
 			case Altos.AO_LOG_SERIAL_NUMBER:
+				state.serial = record.a;
 				break;
 			case Altos.AO_LOG_SOFTWARE_VERSION:
 				break;
@@ -228,6 +226,7 @@ public class AltosEepromReader extends AltosReader {
 
 	public void write_comments(PrintStream out) {
 		Iterator<AltosOrderedRecord>	iterator = records.iterator();
+		out.printf("# Comments\n");
 		while (iterator.hasNext()) {
 			AltosOrderedRecord	record = iterator.next();
 			switch (record.cmd) {
@@ -250,7 +249,7 @@ public class AltosEepromReader extends AltosReader {
 				out.printf ("# Accel cal: %d %d\n", record.a, record.b);
 				break;
 			case Altos.AO_LOG_RADIO_CAL:
-				out.printf ("# Radio cal: %d %d\n", record.a);
+				out.printf ("# Radio cal: %d\n", record.a);
 				break;
 			case Altos.AO_LOG_MANUFACTURER:
 				out.printf ("# Manufacturer: %s\n", record.data);
@@ -296,10 +295,10 @@ public class AltosEepromReader extends AltosReader {
 					break;
 				tick = record.tick;
 				if (!saw_boost && record.cmd == Altos.AO_LOG_STATE &&
-				    record.a == Altos.ao_flight_boost)
+				    record.a >= Altos.ao_flight_boost)
 				{
 					saw_boost = true;
-					boost_tick = state.tick;
+					boost_tick = tick;
 				}
 				records.add(record);
 			}

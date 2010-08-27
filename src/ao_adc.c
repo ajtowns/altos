@@ -41,7 +41,7 @@ ao_adc_get(__xdata struct ao_adc *packet)
 }
 
 void
-ao_adc_isr(void) interrupt 1
+ao_adc_isr(void) __interrupt 1
 {
 	uint8_t sequence;
 	uint8_t	__xdata *a;

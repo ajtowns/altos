@@ -8,6 +8,7 @@ CLASSFILES=\
 	AltosConfigUI.class \
 	AltosConvert.class \
 	AltosCSV.class \
+	AltosCSVUI.class \
 	AltosDebug.class \
 	AltosEepromDownload.class \
 	AltosEepromMonitor.class \
@@ -22,6 +23,7 @@ CLASSFILES=\
 	AltosGreatCircle.class \
 	AltosHexfile.class \
 	AltosLog.class \
+	AltosLogfileChooser.class \
 	AltosParse.class \
 	AltosPreferences.class \
 	AltosRecord.class \

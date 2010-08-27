@@ -41,7 +41,7 @@ volatile __data uint8_t	ao_adc_interval = 1;
 volatile __data uint8_t	ao_adc_count;
 #endif
 
-void ao_timer_isr(void) interrupt 9
+void ao_timer_isr(void) __interrupt 9
 {
 	++ao_tick_count;
 #if HAS_ADC

@@ -214,8 +214,10 @@ all: ../$(PROG)
 ../altitude.h: make-altitude
 	nickle $< > $@
 
-ao_product.h: ao-make-product.5c
+ao_product.h: ao-make-product.5c always
 	$(call quiet,NICKLE,$<) $< -m altusmetrum.org -i $(IDPRODUCT) -p $(PRODUCT) -v $(VERSION) > $@
+
+always:
 
 ao_product.rel: ao_product.c ao_product.h
 	$(call quiet,CC) -c $(CFLAGS) -D PRODUCT_DEFS='\"ao_product.h\"' -o$@ $<

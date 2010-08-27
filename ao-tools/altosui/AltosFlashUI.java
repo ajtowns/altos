@@ -57,8 +57,10 @@ public class AltosFlashUI
 		} else {
 			String	cmd = e.getActionCommand();
 			if (cmd.equals("done"))
-				dispose();
-			else {
+				;
+			else if (cmd.equals("start")) {
+				setVisible(true);
+			} else {
 				pbar.setValue(e.getID());
 				pbar.setString(cmd);
 			}
@@ -70,14 +72,15 @@ public class AltosFlashUI
 		flash.addActionListener(this);
 		try {
 			flash.open();
-			if (!flash.check_rom_config()) {
-				AltosRomconfigUI romconfig_ui = new AltosRomconfigUI (frame);
-				romconfig_ui.showDialog();
-				AltosRomconfig romconfig = romconfig_ui.romconfig();
-				if (romconfig == null)
-					return;
-				flash.set_romconfig(romconfig);
-			}
+			AltosRomconfigUI romconfig_ui = new AltosRomconfigUI (frame);
+
+			romconfig_ui.set(flash.romconfig());
+			romconfig_ui.showDialog();
+
+			AltosRomconfig romconfig = romconfig_ui.romconfig();
+			if (romconfig == null || !romconfig.valid())
+				return;
+			flash.set_romconfig(romconfig);
 			serial_value.setText(String.format("%d",
 							   flash.romconfig().serial_number));
 			file_value.setText(file.toString());
@@ -88,15 +91,14 @@ public class AltosFlashUI
 						      "Cannot open image",
 						      file.toString(),
 						      JOptionPane.ERROR_MESSAGE);
-			return;
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(frame,
 						      e.getMessage(),
 						      file.toString(),
 						      JOptionPane.ERROR_MESSAGE);
-			return;
 		} catch (InterruptedException ie) {
 		}
+		dispose();
 	}
 
 	public void abort() {

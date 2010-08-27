@@ -33,14 +33,16 @@ ao_log_csum(__xdata uint8_t *b) __reentrant
 	return -sum;
 }
 
-void
+uint8_t
 ao_log_data(__xdata struct ao_log_record *log) __reentrant
 {
+	uint8_t wrote = 0;
 	/* set checksum */
 	log->csum = 0;
 	log->csum = ao_log_csum((__xdata uint8_t *) log);
 	ao_mutex_get(&ao_log_mutex); {
 		if (ao_log_running) {
+			wrote = 1;
 			ao_ee_write(ao_log_current_pos,
 				    (uint8_t *) log,
 				    sizeof (struct ao_log_record));
@@ -51,6 +53,7 @@ ao_log_data(__xdata struct ao_log_record *log) __reentrant
 				ao_log_running = 0;
 		}
 	} ao_mutex_put(&ao_log_mutex);
+	return wrote;
 }
 
 void

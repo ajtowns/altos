@@ -42,6 +42,8 @@ import altosui.AltosFlightStatusTableModel;
 import altosui.AltosFlightInfoTableModel;
 import altosui.AltosChannelMenu;
 import altosui.AltosFlashUI;
+import altosui.AltosLogfileChooser;
+import altosui.AltosCSVUI;
 
 import libaltosJNI.*;
 
@@ -529,33 +531,12 @@ public class AltosUI extends JFrame {
 	 * Replay a flight from telemetry data
 	 */
 	private void Replay() {
-		JFileChooser	logfile_chooser = new JFileChooser();
-
-		logfile_chooser.setDialogTitle("Select Flight Record File");
-		logfile_chooser.setFileFilter(new FileNameExtensionFilter("Flight data file", "eeprom", "telem"));
-		logfile_chooser.setCurrentDirectory(AltosPreferences.logdir());
-		int returnVal = logfile_chooser.showOpenDialog(AltosUI.this);
-
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = logfile_chooser.getSelectedFile();
-			if (file == null)
-				System.out.println("No file selected?");
-			String	filename = file.getName();
-			try {
-				FileInputStream	replay = new FileInputStream(file);
-				DisplayThread	thread;
-				if (filename.endsWith("eeprom"))
-				    thread = new ReplayEepromThread(replay, filename);
-				else
-				    thread = new ReplayTelemetryThread(replay, filename);
-				run_display(thread);
-			} catch (FileNotFoundException ee) {
-				JOptionPane.showMessageDialog(AltosUI.this,
-							      filename,
-							      "Cannot open telemetry file",
-							      JOptionPane.ERROR_MESSAGE);
-			}
-		}
+		AltosLogfileChooser chooser = new AltosLogfileChooser(
+			AltosUI.this);
+		AltosReader reader = chooser.runDialog();
+		if (reader != null)
+			run_display(new ReplayThread(reader,
+						     chooser.filename()));
 	}
 
 	/* Connect to TeleMetrum, either directly or through
@@ -563,6 +544,14 @@ public class AltosUI extends JFrame {
 	 */
 	private void SaveFlightData() {
 		new AltosEepromDownload(AltosUI.this);
+	}
+
+	/* Load a flight log file and write out a CSV file containing
+	 * all of the data in standard units
+	 */
+
+	private void ExportData() {
+		new AltosCSVUI(AltosUI.this);
 	}
 
 	/* Create the AltosUI menus
@@ -599,6 +588,14 @@ public class AltosUI extends JFrame {
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						FlashImage();
+					}
+				});
+			menu.add(item);
+
+			item = new JMenuItem("Export Data",KeyEvent.VK_F);
+			item.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						ExportData();
 					}
 				});
 			menu.add(item);
@@ -722,8 +719,67 @@ public class AltosUI extends JFrame {
 		this.setJMenuBar(menubar);
 
 	}
+
+	static String replace_extension(String input, String extension) {
+		int dot = input.lastIndexOf(".");
+		if (dot > 0)
+			input = input.substring(0,dot);
+		return input.concat(extension);
+	}
+
+	static AltosReader open_logfile(String filename) {
+		File file = new File (filename);
+		try {
+			FileInputStream in;
+
+			in = new FileInputStream(file);
+			if (filename.endsWith("eeprom"))
+				return new AltosEepromReader(in);
+			else
+				return new AltosTelemetryReader(in);
+		} catch (FileNotFoundException fe) {
+			System.out.printf("Cannot open '%s'\n", filename);
+			return null;
+		}
+	}
+
+	static AltosCSV open_csv(String filename) {
+		File file = new File (filename);
+		try {
+			return new AltosCSV(file);
+		} catch (FileNotFoundException fe) {
+			System.out.printf("Cannot open '%s'\n", filename);
+			return null;
+		}
+	}
+
+	static void process_file(String input) {
+		String output = replace_extension(input,".csv");
+		if (input.equals(output)) {
+			System.out.printf("Not processing '%s'\n", input);
+			return;
+		}
+		System.out.printf("Processing \"%s\" to \"%s\"\n", input, output);
+		AltosReader reader = open_logfile(input);
+		if (reader == null)
+			return;
+		AltosCSV writer = open_csv(output);
+		if (writer == null)
+			return;
+		writer.write(reader);
+		reader.close();
+		writer.close();
+	}
+
 	public static void main(final String[] args) {
-		AltosUI altosui = new AltosUI();
-		altosui.setVisible(true);
+
+		/* Handle batch-mode */
+		if (args.length > 0) {
+			for (int i = 0; i < args.length; i++)
+				process_file(args[i]);
+		} else {
+			AltosUI altosui = new AltosUI();
+			altosui.setVisible(true);
+		}
 	}
 }

@@ -247,6 +247,7 @@ public class AltosFlash {
 		int flash_addr = image.address;
 		int image_start = 0;
 
+		action("start", 0);
 		action(0, image.data.length);
 		while (remain > 0 && !aborted) {
 			int this_time = remain;
@@ -314,6 +315,8 @@ public class AltosFlash {
 	}
 
 	public AltosRomconfig romconfig() {
+		if (!check_rom_config())
+			return null;
 		return rom_config;
 	}
 

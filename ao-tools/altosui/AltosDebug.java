@@ -58,46 +58,12 @@ public class AltosDebug extends AltosSerial {
 	public static final byte GET_CHIP_ID =		0x68;
 
 
-	static boolean ishex(int c) {
-		if ('0' <= c && c <= '9')
-			return true;
-		if ('a' <= c && c <= 'f')
-			return true;
-		if ('A' <= c && c <= 'F')
-			return true;
-		return false;
-	}
-
-	static boolean ishex(String s) {
-		for (int i = 0; i < s.length(); i++)
-			if (!ishex(s.charAt(i)))
-				return false;
-		return true;
-	}
-	static boolean isspace(int c) {
-		switch (c) {
-		case ' ':
-		case '\t':
-			return true;
-		}
-		return false;
-	}
-
-	static int fromhex(int c) {
-		if ('0' <= c && c <= '9')
-			return c - '0';
-		if ('a' <= c && c <= 'f')
-			return c - 'a' + 10;
-		if ('A' <= c && c <= 'F')
-			return c - 'A' + 10;
-		return -1;
-	}
-
 	boolean	debug_mode;
 
 	void ensure_debug_mode() {
 		if (!debug_mode) {
-			printf("D\n");
+			printf("m 0\nD\n");
+			flush_reply();
 			debug_mode = true;
 		}
 	}
@@ -144,14 +110,14 @@ public class AltosDebug extends AltosSerial {
 		int start = 0;
 		while (i < length) {
 			String	line = get_reply().trim();
-			if (!ishex(line) || line.length() % 2 != 0)
+			if (!Altos.ishex(line) || line.length() % 2 != 0)
 				throw new IOException(
 					String.format
 					("Invalid reply \"%s\"", line));
 			int this_time = line.length() / 2;
 			for (int j = 0; j < this_time; j++)
-				data[start + j] = (byte) ((fromhex(line.charAt(j*2)) << 4) +
-						  fromhex(line.charAt(j*2+1)));
+				data[start + j] = (byte) ((Altos.fromhex(line.charAt(j*2)) << 4) +
+						  Altos.fromhex(line.charAt(j*2+1)));
 			start += this_time;
 			i += this_time;
 		}
@@ -198,7 +164,7 @@ public class AltosDebug extends AltosSerial {
 			String line = get_reply().trim();
 			String tokens[] = line.split("\\s+");
 			for (int j = 0; j < tokens.length; j++) {
-				if (!ishex(tokens[j]) ||
+				if (!Altos.ishex(tokens[j]) ||
 				    tokens[j].length() != 2)
 					throw new IOException(
 						String.format

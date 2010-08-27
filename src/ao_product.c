@@ -28,7 +28,7 @@ const char ao_product[] = AO_iProduct_STRING;
 #define LE_WORD(x)    ((x)&0xFF),((uint8_t) (((uint16_t) (x))>>8))
 
 /* USB descriptors in one giant block of bytes */
-const uint8_t ao_usb_descriptors [] =
+__code __at(0x00aa) uint8_t ao_usb_descriptors [] =
 {
 	/* Device descriptor */
 	0x12,
