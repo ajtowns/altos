@@ -51,12 +51,12 @@ ao_gps_report(void)
 		gps_log.u.gps_altitude.unused = 0xffff;
 		ao_log_data(&gps_log);
 		if (!date_reported && (gps_data.flags & AO_GPS_DATE_VALID)) {
-			date_reported = 1;
 			gps_log.type = AO_LOG_GPS_DATE;
 			gps_log.u.gps_date.year = gps_data.year;
 			gps_log.u.gps_date.month = gps_data.month;
 			gps_log.u.gps_date.day = gps_data.day;
-			ao_log_data(&gps_log);
+			gps_log.u.gps_date.extra = 0;
+			date_reported = ao_log_data(&gps_log);
 		}
 	}
 }

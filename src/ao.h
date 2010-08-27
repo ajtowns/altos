@@ -564,6 +564,7 @@ struct ao_log_record {
 			uint8_t		year;
 			uint8_t		month;
 			uint8_t		day;
+			uint8_t		extra;
 		} gps_date;
 		struct {
 			uint16_t	d0;
@@ -573,7 +574,7 @@ struct ao_log_record {
 };
 
 /* Write a record to the eeprom log */
-void
+uint8_t
 ao_log_data(__xdata struct ao_log_record *log) __reentrant;
 
 /* Flush the log */
