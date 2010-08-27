@@ -1,5 +1,8 @@
 OS:=$(shell uname)
 
+# dummy install target for now so I can work on the rest of the packaging
+install:
+	@echo warning - make install doing nothing in libaltos!
 #
 # Linux
 #
