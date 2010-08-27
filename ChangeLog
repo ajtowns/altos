@@ -1,3 +1,526 @@
+commit cf65c6b8056c4af7c26b52ec6f9fbd3400cef638
+Merge: 5f2f6a8 ae5eff7
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 12:38:25 2010 -0600
+
+    Merge branch 'bdale'
+    
+    Conflicts:
+    	debian/control
+
+commit ae5eff7bc0b63047737223423009707bedcb00f5
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 12:37:36 2010 -0600
+
+    Revert "lose the prebuild hook for now while I'm fumbling"
+    
+    This reverts commit a21b6bb60ac1c07ebd161534a4ea63bfde50dcdf.
+
+commit de2e71c4923a0282df74dbe37d087c34b4ddd279
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 12:25:20 2010 -0600
+
+    fix man page delivery path
+
+commit a8dbe082960dc9bdd44c6e4b1198423c4e566029
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 12:18:28 2010 -0600
+
+    install altosui man page
+
+commit 5cc933039e4763b8675611c63b6147b42878a2bb
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 12:16:19 2010 -0600
+
+    fix permissions on installed jar file, switch from ao-view to altosui in
+    the desktop file
+
+commit 138009e9fad01f79df4c3820fbc206f78688bdce
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 12:06:01 2010 -0600
+
+    update Debian standards version
+
+commit c280071b7db4e9a7af31dc5740eb8d27f137950e
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 12:04:13 2010 -0600
+
+    fix up the wrapper's path to the jar file
+
+commit 5f2f6a8f9ba56be867888758848bc7f152ccbd47
+Merge: 63bd34c 9d1b27f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Aug 27 11:00:31 2010 -0700
+
+    Merge remote branch 'origin/master' into new-packet-format
+
+commit 63bd34cd1b5a411489e8c3ab377f0fe0eec11f67
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Aug 27 10:58:55 2010 -0700
+
+    altosui: add elevation and range information
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 72a18502e40f55cbba6418dc94315517881cd411
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 11:51:24 2010 -0600
+
+    add an install target for altosui
+
+commit 72c33a72ee105ec692dad62d6d9c1ad40b89bfe8
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 11:45:19 2010 -0600
+
+    add install target for libaltos
+
+commit a21b6bb60ac1c07ebd161534a4ea63bfde50dcdf
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 11:26:29 2010 -0600
+
+    lose the prebuild hook for now while I'm fumbling
+
+commit 9ea94411c9730f7a271366d309ab4827beeeb839
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 11:17:54 2010 -0600
+
+    add a dummy install target
+
+commit c443f43f8dee6e0fcbcecf9d09e948fd928b7af4
+Merge: 2950431 2923cf5
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 03:08:53 2010 -0600
+
+    Merge branch 'new-packet-format' of ssh://git.gag.com/scm/git/fw/altos into new-package-format
+
+commit 2923cf5057f9cef110dd547d8677ea5b60e00796
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Aug 27 00:10:29 2010 -0700
+
+    altos: prepare for sdcc 2.9.1
+    
+    A few minor language changes -- non-standard keywords are now prefixed
+    with __, such as 'at', 'interrupt', 'naked'.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 68967157cee620ebedcc8c2ffd6fc7656532087b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 26 23:55:44 2010 -0700
+
+    altosui: command line args are converted to csv format
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7e0506dc2014b7178f52b950e8c1cb820b35f9c6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 26 23:54:53 2010 -0700
+
+    altosui: Remove debug printf from AltosState.java
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 49364608b59de7421ab00d87d2685bc3b5f58411
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 26 23:53:06 2010 -0700
+
+    altosui: When parsing saved telem files, errors shouldn't abort file
+    
+    Make syntax errors in telem files just skip the current line and move
+    on to the next one instead of abandoning the whole file.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a16db143fc7ca72dc91e7989420049192114642d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 26 23:50:51 2010 -0700
+
+    altosui: Serial line is in UTF-8 encoding. Deal with it.
+    
+    We read bytes from the serial line and need to convert each line into
+    a string. So, save the bytes and at EOL, pass the whole mess to the
+    string constructor with the appropriate encoding info.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0942912163255523d923140c01afbdb5da1c19b5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 26 23:49:37 2010 -0700
+
+    altosui: Add support for old (version < 3) telemetry files
+    
+    This lets the code read telemetry files from pre-released versions of
+    the software. Not strictly necessary for production, but useful for
+    analysing old files.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e383595cd281687de903fb6176564bbef270cb83
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 26 23:47:38 2010 -0700
+
+    altosui: AltosEepromReader was mis-setting boost tick
+    
+    It was supposed to use record.tick instead of the (unset) state.tick
+    value.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 651f6102ac79459fc8d5679d852c963dcb5bb3fc
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 26 23:44:25 2010 -0700
+
+    altosui: add rssi and distance/dir from pad to CSV files
+    
+    Just adds a couple more fields to the CSV files that might be interesting.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3dc67c1401976d6e9e2e942d5a4707a4810a0404
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 26 23:43:00 2010 -0700
+
+    altosui: Add AltosGreatCircle constructors
+    
+    This adds constructurs from AltosGPS pairs and also one from empty
+    args (which defines both distance and bearing as 0).
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f0fd423d0bf83bc5c3f9d39e9c09397fbe8caed2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 26 23:41:26 2010 -0700
+
+    altosui: Move number parsing code to Altos general class
+    
+    This moves these shared functions to the global shared class.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 68b2b66d7574dfd0bd5e3571b8ffad32ca5d2b73
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 26 23:37:29 2010 -0700
+
+    altos: mark gps date written only after it gets into eeprom
+    
+    Data logging doesn't start until boost detect occurs. As the GPS date
+    is only logged once, if that happens before logging is written to the
+    flash, then the GPS date will never get saved.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit aa6c27df5db6bdae59d00affccb891854a6caa18
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 26 15:59:09 2010 -0700
+
+    altos: print GPS state flags in GPS 'g' command
+    
+    Having the GPS state information can help with GPS debugging.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 34055129b4008f6a9833887b12dee39ffa408002
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 26 15:57:09 2010 -0700
+
+    altos: always rebuild ao_product.c to track git version
+    
+    The git version is built into ao_product.c and saved in eeprom log
+    files, providing useful diagnostics about the firmware revision used
+    for each flight. However, if ao_product.c isn't recompiled, then the
+    updated version won't be included. Force recompilation of this file
+    each time make is run to ensure that the final output contains an
+    updated version number.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 99400fdc0f19ef538fc362dde5c3ab5b7cdac409
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 24 16:43:38 2010 -0700
+
+    altosui: flush replies from serial link when entering debug mode
+    
+    We use replies in debug mode a lot and depend on them matching the
+    expected parameters. The case which caused trouble was using
+    TeleMetrum to reprogram TeleDongle -- sending the 'm 0' command (to
+    disable telemetry monitoring on TeleDongle) to the TeleMetrum caused
+    it to reply 'Syntax Error' which confused the subsequent flashing
+    operation. Flushing that reply gets things back in sync.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ba086cc77273efe5397f60dcaccd1e3771441481
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 24 04:02:27 2010 -0700
+
+    altosui: write USB serial number string while flashing
+    
+    USB serial number is encoded in UCS2 as a part of the string
+    descriptors. Place those right after the other rom config bits so that
+    altosui can find it. altosui is changed to write the serial number there.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 220f3afdaa432c65f8ad45be7cdbe5c8a3616db3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 24 04:01:47 2010 -0700
+
+    altosui: always display romconfig ui while flashing
+
+commit f62b2aa08ebfd912b3c732397d43ff9f6162ec88
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 24 04:01:14 2010 -0700
+
+    altosui: fetch existing romconfig for flashing
+
+commit d93787284c8e514a929edb9f944c98ae0206a33f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 24 03:59:09 2010 -0700
+
+    altosui: Delay mapping Flash UI until flashing actually starts
+    
+    The flash operation may be abandoned before it even starts; this makes
+    sure the UI doesn't flash up on the screen.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7d44cbd621d2b113ac2b802ef17e3d8a660ce7f2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 24 03:58:00 2010 -0700
+
+    altosui: disable radio monitoring while using serial line for debugging
+
+commit 7bd220dfd9b3fb0e42eb90c3b37eb7b4169eb21b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 24 00:29:11 2010 -0700
+
+    altosui: Add ability to create CSV file from telem or eeprom files
+    
+    This creates a comma separated value file to export data for
+    external programs.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 634a550149e7c344a22a637ba484f115592b1018
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 23 23:15:05 2010 -0700
+
+    altosui: refactor logfile chooser dialog to share more code
+    
+    Move file opening logic into logfile chooser as it can be shared that way.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a55b132668a819cc26478a609cb79bd9190deb9d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 23 23:01:36 2010 -0700
+
+    altosui: Separate out log file choosing dialog to share with CSV generator
+    
+    This dialog will be shared with the CSV file generating code, so split
+    it out instead of duplicating it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 295043112ccde35092945c286596f9045ee6fa05
+Merge: 2007288 ef8376c
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 23 23:11:22 2010 -0600
+
+    Merge branch 'new-packet-format' of ssh://git.gag.com/scm/git/fw/altos into new-package-format
+
+commit ef8376c4dd8262a34e02b6bb9e19e907ac2f4330
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 23 22:08:30 2010 -0700
+
+    altosui: make default Manifest look for built-in freetts
+
+commit 56b906f535ac2f86bcab71addbbcd376d74f6a73
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 23 22:03:36 2010 -0700
+
+    altos: Place rom config variables in fixed location
+    
+    The device serial number and radio calibration values are stored in
+    flash, mostly so that TeleDongle gets them saved.
+    
+    Placing them in well-known locations (starting at 0xa0) makes it
+    possible to find the previous configuration and to re-write it
+    easily, without requiring the .map file.
+    
+    altosui doesn't have the .map file parsing code, so it relies upon
+    this new technique. As a benefit, it reads the old values from the
+    device before reprogramming it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4c0c099716197ef7539be0cf55bbb164f6804958
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 23 22:02:21 2010 -0700
+
+    altosui: Finish device programming code
+    
+    Altosui can now reprogram Altusmetrum devices.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit bd2b44ddd61fadd8bf8ee6bf783ce019b1be7cc0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 23 22:01:38 2010 -0700
+
+    altosui: Remove debug printf from AltosRomconfig
+
+commit c3f57ffdb6c74de90d982eacd604e658ce9b00a5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 23 22:01:11 2010 -0700
+
+    altosui: flush serial output before waiting for reply
+
+commit 8857ac5e43eac6db8d5594b8864df497a712242b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 23 22:00:16 2010 -0700
+
+    altosui: remove debug printf from AltosHexfile
+
+commit b1758be01397fd49c441f40852f3558fe9343a2d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 23 21:58:50 2010 -0700
+
+    altosui: Add lots more cc1111 debug interface functions
+    
+    These are sufficient to program the flash.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f9e80f39bc39e5882bfe75f959b6501cb3277cd2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 23 21:55:49 2010 -0700
+
+    libaltos: use pipe to wake up getchar on close. use mutexes
+
+commit 86f7b9314b042f2e512fdf35067817e68532867b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 23 21:54:47 2010 -0700
+
+    altosui: pad TM config dialog values to avoid clipping descenders
+
+commit b8519b8669ff54741dd738ac343fbd2424451247
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 23 21:53:37 2010 -0700
+
+    ao-dumplog: Fix --remote and --channel options to actually work
+
+commit ebeb13688a9a5442c838641ede6ba0dc92c9a1a4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 23 14:32:58 2010 -0700
+
+    altosui: Add debug dongle API, split flash UI out
+    
+    Create an API to talk through the debug port on another AltOS
+    device. Split the flash UI out from the flash implementation so that a
+    command line flash utility can be written.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7f8d7978606abe544b1b9b6065c5480ed813b8ec
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 23 11:53:19 2010 -0700
+
+    altosui: Add .ihx file reading code and stub out flashing UI
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2007288da8a83e3aa925e11cc196f1c65aab2e5c
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 5 15:00:15 2010 -0400
+
+    working on java packaging details
+
+commit 44b26dd550eef789e70082ccaa46d7d430c67bce
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 5 15:15:04 2010 -0400
+
+    add freetts as a build dep
+
+commit 0e17853c08f77debef3e8cf82e9cdb6a5079fc9b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 22 23:06:15 2010 -0700
+
+    altosui: Set callsign when fetching eeprom data over the air
+    
+    The updated firmware places the callsign in each packet to comply with
+    regulations, this ensures that TeleDongle has the current callsign
+    configured.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 953bc3438b10b21f3d65d292356c4ab2de23cddd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 22 23:05:20 2010 -0700
+
+    altosui: Add TeleMetrum configuration
+    
+    This presents a dialog with all of the user-settable options in the
+    TeleMetrum set for editing. Combo boxes are used for everything except
+    the callsign.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e1463d8e265dfd42c824d90088cd2a51b4cf8131
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 21 17:57:31 2010 -0700
+
+    altosui: Make teledongle callsign configurable
+    
+    Teledongle uses the callsign in packet mode; this provides a way to
+    set that.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 09252ec22d58e946494e4ca2cf367bf3bbe1cc50
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 21 17:09:41 2010 -0700
+
+    altos: Define USB product ID in per-product Makefile.defs file
+    
+    This allows Win7 to tell which kind of device is connected purely by
+    USB id as it doesn't expose the USB product ID string to user space.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 22800dc094797e1e0ad99124198809d0360f7556
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 17 18:22:28 2010 -0700
+
+    altosui: Select devices by USB vendor/product ID.
+    
+    Because Win7 doesn't expose the product name, we're swtiching to using
+    the USB idProduct/idVendor values. This patch adds support for
+    selecting devices by those new IDs.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d14c96663a1027164fa30ed89b53f5a9d3fdb82b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 17 18:19:43 2010 -0700
+
+    libaltos: integrate Windows support.
+    
+    This adds Windows support for discovery and I/O.
+    
+    The API to the library is mostly unchanged, except that it now exports
+    product and vendor USB IDs as Win7 doesn't expose the product name
+    anywhere that we've been able to find, so we'll be updating the
+    firmware to use unique idProduct values for each product.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9d1b27fa147fc8b765d5be165ebef7ee0f85bd37
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 11 22:11:50 2010 -0400
+
+    update changelogs for Debian build
+
 commit b6da90b4627dde1fe88240c38c51559d8f781dd0
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed Aug 11 17:15:39 2010 -0400
@@ -15,6 +538,55 @@ Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed Aug 11 08:36:59 2010 -0400
 
     update changelogs for Debian build
+
+commit 294d9c7db21eaf1e71504dbcca5040371abcce55
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 7 22:30:55 2010 -0400
+
+    ao-dumplog: add --channel option (for use with -R option)
+    
+    Sets the channel when downloading data with the -R option.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f317f1324b69b4241f4bb192e164b33d712d5a43
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 7 00:42:25 2010 -0400
+
+    altosui: Start adding code to write csv files from eeprom/telem files
+    
+    This is a start to code which can write out a csv file full of flight
+    data from either an eeprom or telem input file. It's not hooked up,
+    but the restructuring necessary is finished and the output is started.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4738cb2fc639adb1d9237e6c903479f0690dd81a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 7 00:40:59 2010 -0400
+
+    altos: add callsign to packet mode, increase payload to 64 bytes
+    
+    Untested, but it 'should' work. Need to add callsign setting to packet
+    mode users.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b7699a5907e64bc7547fcc27e73f4a35bbaabfff
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Aug 6 13:09:21 2010 -0400
+
+    altosui: Add comments to Eeprom reader
+
+commit 0e917f3ff822616adb147517ac961422e5fedbfd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 5 22:49:53 2010 -0400
+
+    altosui: Compute flight state from eeprom data
+    
+    This lets eeprom files be used to replay flights.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
 
 commit a0a9b445a4d379730b67720f8d7b682d5206a582
 Author: Bdale Garbee <bdale@gag.com>
@@ -52,11 +624,87 @@ Date:   Thu Aug 5 15:00:15 2010 -0400
 
     working on java packaging details
 
+commit d8bf05f7ad55964c9bce0551e58f4ef6c9f721ad
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 5 13:50:18 2010 -0400
+
+    altosui: Split flight record out of telemetry class
+    
+    This will permit either telemetry or eeprom data to be used to
+    construct the sequence of flight events for reply or data generation.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 85a670b5a904d6750d0f179ae307baeb8fc7cbd2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 5 13:40:17 2010 -0400
+
+    altosui: Explicitly initialize Altos class
+    
+    Because the Altos class is never instantiated, the static initializers
+    are never called, leaving the string to state mapping empty. Hand-code
+    the call to the initialer instead.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
 commit 02f17f2cd26189e2676a9dc0d86bd959ed0bc3f4
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Aug 5 00:54:05 2010 -0400
 
     move to science menu
+
+commit 9e8f7f75442303f9bfa99a0435984f5d36863ae6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 31 10:34:21 2010 -0700
+
+    altosui: Split status and info panels into separate files
+    
+    This moves some code out of AltosUI.java into separate files
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9c9b35254c693b3ade42b24d1e29eaf31e6ba2aa
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 31 10:24:56 2010 -0700
+
+    altosui: Clear displayed data rows as needed.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 88e0137a60d7a13ddb7781befa76650e13ad44ae
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 31 10:07:38 2010 -0700
+
+    altosui: Merge gps date and time classes into gps class
+    
+    No reason to split out the date and time information from the other gps info.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1c3b2fe357d6acf28f48aeddd91693f10381be51
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 31 10:05:15 2010 -0700
+
+    altosui: Capture config and version info in .eeprom files
+    
+    Instead of only writing the serial number to the .eeprom file, write
+    all of the config values and all of the version reply to the .eeprom
+    file. The config values, in particular, contain the accelerometer
+    calibration data which is needed to correctly compute acceleration
+    from the captured accelerometer data.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e286eb61ad2a90746c1c31f95d26d5edb48738d3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 31 09:57:49 2010 -0700
+
+    altosui: rename AltosEeprom -> AltosEepromDownload, split out Altos constants
+    
+    Renames the eeprom downloading code and adds a new file to share the
+    flight data constants across the various UI modules.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
 
 commit e3a9e3815db3f290e28b40ae02aa654f515cfc37
 Author: Bdale Garbee <bdale@gag.com>

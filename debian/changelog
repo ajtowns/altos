@@ -1,3 +1,89 @@
+altos (0.6+373+gcf65c6b) unstable; urgency=low
+
+  [ Keith Packard ]
+  * altosui: rename AltosEeprom -> AltosEepromDownload, split out Altos
+    constants
+  * altosui: Capture config and version info in .eeprom files
+  * altosui: Merge gps date and time classes into gps class
+  * altosui: Clear displayed data rows as needed.
+  * altosui: Split status and info panels into separate files
+  * altosui: Explicitly initialize Altos class
+  * altosui: Split flight record out of telemetry class
+  * altosui: Compute flight state from eeprom data
+  * altosui: Add comments to Eeprom reader
+  * altos: add callsign to packet mode, increase payload to 64 bytes
+  * altosui: Start adding code to write csv files from eeprom/telem
+    files
+  * ao-dumplog: add --channel option (for use with -R option)
+  * libaltos: integrate Windows support.
+  * altosui: Select devices by USB vendor/product ID.
+  * altos: Define USB product ID in per-product Makefile.defs file
+  * altosui: Make teledongle callsign configurable
+  * altosui: Add TeleMetrum configuration
+  * altosui: Set callsign when fetching eeprom data over the air
+
+  [ Bdale Garbee ]
+  * add freetts as a build dep
+  * working on java packaging details
+
+  [ Keith Packard ]
+  * altosui: Add .ihx file reading code and stub out flashing UI
+  * altosui: Add debug dongle API, split flash UI out
+  * ao-dumplog: Fix --remote and --channel options to actually work
+  * altosui: pad TM config dialog values to avoid clipping descenders
+  * libaltos: use pipe to wake up getchar on close. use mutexes
+  * altosui: Add lots more cc1111 debug interface functions
+  * altosui: remove debug printf from AltosHexfile
+  * altosui: flush serial output before waiting for reply
+  * altosui: Remove debug printf from AltosRomconfig
+  * altosui: Finish device programming code
+  * altos: Place rom config variables in fixed location
+  * altosui: make default Manifest look for built-in freetts
+  * altosui: Separate out log file choosing dialog to share with CSV
+    generator
+  * altosui: refactor logfile chooser dialog to share more code
+  * altosui: Add ability to create CSV file from telem or eeprom files
+  * altosui: disable radio monitoring while using serial line for
+    debugging
+  * altosui: Delay mapping Flash UI until flashing actually starts
+  * altosui: fetch existing romconfig for flashing
+  * altosui: always display romconfig ui while flashing
+  * altosui: write USB serial number string while flashing
+  * altosui: flush replies from serial link when entering debug mode
+  * altos: always rebuild ao_product.c to track git version
+  * altos: print GPS state flags in GPS 'g' command
+  * altos: mark gps date written only after it gets into eeprom
+  * altosui: Move number parsing code to Altos general class
+  * altosui: Add AltosGreatCircle constructors
+  * altosui: add rssi and distance/dir from pad to CSV files
+  * altosui: AltosEepromReader was mis-setting boost tick
+  * altosui: Add support for old (version < 3) telemetry files
+  * altosui: Serial line is in UTF-8 encoding. Deal with it.
+  * altosui: When parsing saved telem files, errors shouldn't abort file
+  * altosui: Remove debug printf from AltosState.java
+  * altosui: command line args are converted to csv format
+  * altos: prepare for sdcc 2.9.1
+
+  [ Bdale Garbee ]
+  * add a dummy install target
+  * lose the prebuild hook for now while I'm fumbling
+  * add install target for libaltos
+  * add an install target for altosui
+
+  [ Keith Packard ]
+  * altosui: add elevation and range information
+
+  [ Bdale Garbee ]
+  * fix up the wrapper's path to the jar file
+  * update Debian standards version
+  * fix permissions on installed jar file, switch from ao-view to
+    altosui in
+  * install altosui man page
+  * fix man page delivery path
+  * Revert "lose the prebuild hook for now while I'm fumbling"
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 27 Aug 2010 12:40:04 -0600
+
 altos (0.6+303+gb6da90b) unstable; urgency=low
 
   * add freetts as a build dep
