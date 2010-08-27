@@ -45,6 +45,8 @@ public class AltosSerial implements Runnable {
 	LinkedBlockingQueue<String> reply_queue;
 	Thread input_thread;
 	String line;
+	byte[] line_bytes;
+	int line_count;
 
 	public void run () {
 		int c;
@@ -60,7 +62,14 @@ public class AltosSerial implements Runnable {
 					continue;
 				synchronized(this) {
 					if (c == '\n') {
-						if (line != "") {
+						if (line_count != 0) {
+							try {
+								line = new String(line_bytes, 0, line_count, "UTF-8");
+							} catch (UnsupportedEncodingException ue) {
+								line = "";
+								for (int i = 0; i < line_count; i++)
+									line = line + line_bytes[i];
+							}
 							if (line.startsWith("VERSION")) {
 								for (int e = 0; e < monitors.size(); e++) {
 									LinkedBlockingQueue<String> q = monitors.get(e);
@@ -70,10 +79,19 @@ public class AltosSerial implements Runnable {
 //								System.out.printf("GOT: %s\n", line);
 								reply_queue.put(line);
 							}
+							line_count = 0;
 							line = "";
 						}
 					} else {
-						line = line + (char) c;
+						if (line_bytes == null) {
+							line_bytes = new byte[256];
+						} else if (line_count == line_bytes.length) {
+							byte[] new_line_bytes = new byte[line_count * 2];
+							System.arraycopy(line_bytes, 0, new_line_bytes, 0, line_count);
+							line_bytes = new_line_bytes;
+						}
+						line_bytes[line_count] = (byte) c;
+						line_count++;
 					}
 				}
 			}
@@ -139,7 +157,7 @@ public class AltosSerial implements Runnable {
 	}
 
 	public void print(String data) {
-//		System.out.printf("\"%s\" ", data);
+//h		System.out.printf("\"%s\" ", data);
 		for (int i = 0; i < data.length(); i++)
 			putc(data.charAt(i));
 	}
