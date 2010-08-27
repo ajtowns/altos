@@ -20,10 +20,16 @@ package altosui;
 import java.text.*;
 import java.lang.*;
 
+import altosui.Altos;
+
 public class AltosParse {
+	static boolean isdigit(char c) {
+		return '0' <= c && c <= '9';
+	}
+
 	static int parse_int(String v) throws ParseException {
 		try {
-			return Integer.parseInt(v);
+			return Altos.fromdec(v);
 		} catch (NumberFormatException e) {
 			throw new ParseException("error parsing int " + v, 0);
 		}
@@ -31,7 +37,7 @@ public class AltosParse {
 
 	static int parse_hex(String v) throws ParseException {
 		try {
-			return Integer.parseInt(v, 16);
+			return Altos.fromhex(v);
 		} catch (NumberFormatException e) {
 			throw new ParseException("error parsing hex " + v, 0);
 		}
