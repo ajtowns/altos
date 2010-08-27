@@ -1,5 +1,6 @@
 etc/apt/sources.list.d
 usr/bin
+usr/lib/altos
 usr/share/altos
 usr/share/applications
 usr/share/gdm/themes/altusmetrum

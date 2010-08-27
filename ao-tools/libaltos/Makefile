@@ -1,8 +1,5 @@
 OS:=$(shell uname)
 
-# dummy install target for now so I can work on the rest of the packaging
-install:
-	@echo warning - make install doing nothing in libaltos!
 #
 # Linux
 #
@@ -16,6 +13,9 @@ OS_LDFLAGS=
 
 LIBNAME=libaltos.so
 EXEEXT=
+
+install:	$(LIBNAME)
+	/usr/bin/install -c $(LIBNAME) $(DESTDIR)/usr/lib/altos/$(LIBNAME)
 
 endif
 
