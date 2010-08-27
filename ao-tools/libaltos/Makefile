@@ -14,6 +14,9 @@ OS_LDFLAGS=
 LIBNAME=libaltos.so
 EXEEXT=
 
+install:	$(LIBNAME)
+	/usr/bin/install -c $(LIBNAME) $(DESTDIR)/usr/lib/altos/$(LIBNAME)
+
 endif
 
 #
