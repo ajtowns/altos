@@ -43,7 +43,7 @@ ao_usb_set_interrupts(void)
  * so when we hook that up, fix this
  */
 void
-ao_usb_isr(void) interrupt 6
+ao_usb_isr(void) __interrupt 6
 {
 	USBIF = 0;
 	ao_usb_iif |= USBIIF;

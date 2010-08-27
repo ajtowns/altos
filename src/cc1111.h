@@ -40,16 +40,16 @@
 #include <cc1110.h>
 #include <stdint.h>
 
-sfr at 0xA8 IEN0;		/* Interrupt Enable 0 Register */
+sfr __at 0xA8 IEN0;		/* Interrupt Enable 0 Register */
 
-sbit at 0xA8 RFTXRXIE;		/* RF TX/RX done interrupt enable */
-sbit at 0xA9 ADCIE;		/* ADC interrupt enable */
-sbit at 0xAA URX0IE;		/* USART0 RX interrupt enable */
-sbit at 0xAB URX1IE;		/* USART1 RX interrupt enable (shared with I2S RX) */
-sbit at 0xAB I2SRXIE;		/* I2S RX interrupt enable (shared with USART1 RX) */
-sbit at 0xAC ENCIE;		/* AES encryption/decryption interrupt enable */
-sbit at 0xAD STIE;		/* Sleep Timer interrupt enable */
-sbit at 0xAF EA;		/* Enable All */
+sbit __at 0xA8 RFTXRXIE;	/* RF TX/RX done interrupt enable */
+sbit __at 0xA9 ADCIE;		/* ADC interrupt enable */
+sbit __at 0xAA URX0IE;		/* USART0 RX interrupt enable */
+sbit __at 0xAB URX1IE;		/* USART1 RX interrupt enable (shared with I2S RX) */
+sbit __at 0xAB I2SRXIE;		/* I2S RX interrupt enable (shared with USART1 RX) */
+sbit __at 0xAC ENCIE;		/* AES encryption/decryption interrupt enable */
+sbit __at 0xAD STIE;		/* Sleep Timer interrupt enable */
+sbit __at 0xAF EA;		/* Enable All */
 
 #define IEN0_EA			(1 << 7)
 #define IEN0_STIE		(1 << 5)
@@ -60,7 +60,7 @@ sbit at 0xAF EA;		/* Enable All */
 #define IEN0_ADCIE		(1 << 1)
 #define IEN0_RFTXRXIE		(1 << 0)
 
-sfr at 0xB8 IEN1;		/* Interrupt Enable 1 Register */
+sfr __at 0xB8 IEN1;		/* Interrupt Enable 1 Register */
 
 #define IEN1_P0IE		(1 << 5)	/* Port 0 interrupt enable */
 #define IEN1_T4IE		(1 << 4)	/* Timer 4 interrupt enable */
@@ -70,7 +70,7 @@ sfr at 0xB8 IEN1;		/* Interrupt Enable 1 Register */
 #define IEN1_DMAIE		(1 << 0)	/* DMA transfer interrupt enable */
 
 /* IEN2 */
-sfr at 0x9A IEN2;		/* Interrupt Enable 2 Register */
+sfr __at 0x9A IEN2;		/* Interrupt Enable 2 Register */
 
 #define IEN2_WDTIE		(1 << 5)	/* Watchdog timer interrupt enable */
 #define IEN2_P1IE		(1 << 4)	/* Port 1 interrupt enable */
@@ -82,7 +82,7 @@ sfr at 0x9A IEN2;		/* Interrupt Enable 2 Register */
 #define IEN2_RFIE		(1 << 0)	/* RF general interrupt enable */
 
 /* CLKCON 0xC6 */
-sfr at 0xC6 CLKCON;		/* Clock Control */
+sfr __at 0xC6 CLKCON;		/* Clock Control */
 
 #define CLKCON_OSC32K_RC	(1 << 7)
 #define CLKCON_OSC32K_XTAL	(0 << 7)
@@ -126,20 +126,20 @@ sfr at 0xC6 CLKCON;		/* Clock Control */
 #define SLEEP_MODE_MASK		(3 << 0)
 
 /* PCON 0x87 */
-sfr at 0x87 PCON;		/* Power Mode Control Register */
+sfr __at 0x87 PCON;		/* Power Mode Control Register */
 
 #define PCON_IDLE		(1 << 0)
 
 /*
  * TCON
  */
-sfr at 0x88 TCON;	/* CPU Interrupt Flag 1 */
+sfr __at 0x88 TCON;		/* CPU Interrupt Flag 1 */
 
-sbit at 0x8F URX1IF;	/* USART1 RX interrupt flag. Automatically cleared */
-sbit at 0x8F I2SRXIF;	/* I2S RX interrupt flag. Automatically cleared */
-sbit at 0x8D ADCIF;	/* ADC interrupt flag. Automatically cleared */
-sbit at 0x8B URX0IF;	/* USART0 RX interrupt flag. Automatically cleared */
-sbit at 0x89 RFTXRXIF;	/* RF TX/RX complete interrupt flag. Automatically cleared */
+sbit __at 0x8F URX1IF;		/* USART1 RX interrupt flag. Automatically cleared */
+sbit __at 0x8F I2SRXIF;		/* I2S RX interrupt flag. Automatically cleared */
+sbit __at 0x8D ADCIF;		/* ADC interrupt flag. Automatically cleared */
+sbit __at 0x8B URX0IF;		/* USART0 RX interrupt flag. Automatically cleared */
+sbit __at 0x89 RFTXRXIF;	/* RF TX/RX complete interrupt flag. Automatically cleared */
 
 #define TCON_URX1IF	(1 << 7)
 #define TCON_I2SRXIF	(1 << 7)
@@ -150,10 +150,10 @@ sbit at 0x89 RFTXRXIF;	/* RF TX/RX complete interrupt flag. Automatically cleare
 /*
  * S0CON
  */
-sfr at 0x98 S0CON;	/* CPU Interrupt Flag 2 */
+sfr __at 0x98 S0CON;	/* CPU Interrupt Flag 2 */
 
-sbit at 0x98 ENCIF_0;	/* AES interrupt 0. */
-sbit at 0x99 ENCIF_1;	/* AES interrupt 1. */
+sbit __at 0x98 ENCIF_0;	/* AES interrupt 0. */
+sbit __at 0x99 ENCIF_1;	/* AES interrupt 1. */
 
 #define S0CON_ENCIF_1	(1 << 1)
 #define S0CON_ENCIF_0	(1 << 0)
@@ -161,7 +161,7 @@ sbit at 0x99 ENCIF_1;	/* AES interrupt 1. */
 /*
  * S1CON
  */
-sfr at 0x9B S1CON;	/* CPU Interrupt Flag 3 */
+sfr __at 0x9B S1CON;	/* CPU Interrupt Flag 3 */
 
 #define S1CON_RFIF_1	(1 << 1)
 #define S1CON_RFIF_0	(1 << 0)
@@ -169,15 +169,15 @@ sfr at 0x9B S1CON;	/* CPU Interrupt Flag 3 */
 /*
  * IRCON
  */
-sfr at 0xC0 IRCON;	/* CPU Interrupt Flag 4 */
+sfr __at 0xC0 IRCON;	/* CPU Interrupt Flag 4 */
 
-sbit at 0xC0 DMAIF;	/* DMA complete interrupt flag */
-sbit at 0xC1 T1IF;	/* Timer 1 interrupt flag. Automatically cleared */
-sbit at 0xC2 T2IF;	/* Timer 2 interrupt flag. Automatically cleared */
-sbit at 0xC3 T3IF;	/* Timer 3 interrupt flag. Automatically cleared */
-sbit at 0xC4 T4IF;	/* Timer 4 interrupt flag. Automatically cleared */
-sbit at 0xC5 P0IF;	/* Port0 interrupt flag */
-sbit at 0xC7 STIF;	/* Sleep Timer interrupt flag */
+sbit __at 0xC0 DMAIF;	/* DMA complete interrupt flag */
+sbit __at 0xC1 T1IF;	/* Timer 1 interrupt flag. Automatically cleared */
+sbit __at 0xC2 T2IF;	/* Timer 2 interrupt flag. Automatically cleared */
+sbit __at 0xC3 T3IF;	/* Timer 3 interrupt flag. Automatically cleared */
+sbit __at 0xC4 T4IF;	/* Timer 4 interrupt flag. Automatically cleared */
+sbit __at 0xC5 P0IF;	/* Port0 interrupt flag */
+sbit __at 0xC7 STIF;	/* Sleep Timer interrupt flag */
 
 #define IRCON_DMAIF	(1 << 0)	/* DMA complete interrupt flag */
 #define IRCON_T1IF	(1 << 1)	/* Timer 1 interrupt flag. Automatically cleared */
@@ -190,15 +190,15 @@ sbit at 0xC7 STIF;	/* Sleep Timer interrupt flag */
 /*
  * IRCON2
  */
-sfr at 0xE8 IRCON2;	/* CPU Interrupt Flag 5 */
+sfr __at 0xE8 IRCON2;	/* CPU Interrupt Flag 5 */
 
-sbit at 0xE8 USBIF;	/* USB interrupt flag (shared with Port2) */
-sbit at 0xE8 P2IF;	/* Port2 interrupt flag (shared with USB) */
-sbit at 0xE9 UTX0IF;	/* USART0 TX interrupt flag */
-sbit at 0xEA UTX1IF;	/* USART1 TX interrupt flag (shared with I2S TX) */
-sbit at 0xEA I2STXIF;	/* I2S TX interrupt flag (shared with USART1 TX) */
-sbit at 0xEB P1IF;	/* Port1 interrupt flag */
-sbit at 0xEC WDTIF;	/* Watchdog timer interrupt flag */
+sbit __at 0xE8 USBIF;	/* USB interrupt flag (shared with Port2) */
+sbit __at 0xE8 P2IF;	/* Port2 interrupt flag (shared with USB) */
+sbit __at 0xE9 UTX0IF;	/* USART0 TX interrupt flag */
+sbit __at 0xEA UTX1IF;	/* USART1 TX interrupt flag (shared with I2S TX) */
+sbit __at 0xEA I2STXIF;	/* I2S TX interrupt flag (shared with USART1 TX) */
+sbit __at 0xEB P1IF;	/* Port1 interrupt flag */
+sbit __at 0xEC WDTIF;	/* Watchdog timer interrupt flag */
 
 #define IRCON2_USBIF	(1 << 0)	/* USB interrupt flag (shared with Port2) */
 #define IRCON2_P2IF	(1 << 0)	/* Port2 interrupt flag (shared with USB) */
@@ -225,8 +225,8 @@ sbit at 0xEC WDTIF;	/* Watchdog timer interrupt flag */
  * Priority = (IP1 << 1) | IP0. Higher priority interrupts served first
  */
 
-sfr at 0xB9 IP1;	/* Interrupt Priority 1 */
-sfr at 0xA9 IP0;	/* Interrupt Priority 0 */
+sfr __at 0xB9 IP1;	/* Interrupt Priority 1 */
+sfr __at 0xA9 IP0;	/* Interrupt Priority 0 */
 
 #define IP1_IPG5	(1 << 5)
 #define IP1_IPG4	(1 << 4)
@@ -286,13 +286,13 @@ sfr at 0xA9 IP0;	/* Interrupt Priority 0 */
  */
 
 /* Timer count */
-sfr at 0xCA T3CNT;
-sfr at 0xEA T4CNT;
+sfr __at 0xCA T3CNT;
+sfr __at 0xEA T4CNT;
 
 /* Timer control */
 
-sfr at 0xCB T3CTL;
-sfr at 0xEB T4CTL;
+sfr __at 0xCB T3CTL;
+sfr __at 0xEB T4CTL;
 
 #define TxCTL_DIV_1		(0 << 5)
 #define TxCTL_DIV_2		(1 << 5)
@@ -312,10 +312,10 @@ sfr at 0xEB T4CTL;
 
 /* Timer 4 channel 0 compare control */
 
-sfr at 0xCC T3CCTL0;
-sfr at 0xCE T3CCTL1;
-sfr at 0xEC T4CCTL0;
-sfr at 0xEE T4CCTL1;
+sfr __at 0xCC T3CCTL0;
+sfr __at 0xCE T3CCTL1;
+sfr __at 0xEC T4CCTL0;
+sfr __at 0xEE T4CCTL1;
 
 #define TxCCTLy_IM			(1 << 6)
 #define TxCCTLy_CMP_SET			(0 << 3)
@@ -328,16 +328,16 @@ sfr at 0xEE T4CCTL1;
 #define TxCCTLy_CMP_MODE_ENABLE		(1 << 2)
 
 /* Timer compare value */
-sfr at 0xCD T3CC0;
-sfr at 0xCF T3CC1;
-sfr at 0xED T4CC0;
-sfr at 0xEF T4CC1;
+sfr __at 0xCD T3CC0;
+sfr __at 0xCF T3CC1;
+sfr __at 0xED T4CC0;
+sfr __at 0xEF T4CC1;
 
 /*
  * Peripheral control
  */
 
-sfr at 0xf1 PERCFG;
+sfr __at 0xf1 PERCFG;
 #define PERCFG_T1CFG_ALT_1      (0 << 6)
 #define PERCFG_T1CFG_ALT_2      (1 << 6)
 #define PERCFG_T1CFG_ALT_MASK   (1 << 6)

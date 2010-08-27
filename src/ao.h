@@ -79,7 +79,7 @@ ao_alarm(uint16_t delay);
 
 /* Yield the processor to another task */
 void
-ao_yield(void) _naked;
+ao_yield(void) __naked;
 
 /* Add a task to the run queue */
 void
@@ -139,7 +139,7 @@ ao_timer_set_adc_interval(uint8_t interval) __critical;
 
 /* Timer interrupt */
 void
-ao_timer_isr(void) interrupt 9;
+ao_timer_isr(void) __interrupt 9;
 
 /* Initialize the timer */
 void
@@ -198,7 +198,7 @@ ao_adc_get(__xdata struct ao_adc *packet);
 /* The A/D interrupt handler */
 
 void
-ao_adc_isr(void) interrupt 1;
+ao_adc_isr(void) __interrupt 1;
 
 /* Initialize the A/D converter */
 void
@@ -325,7 +325,7 @@ ao_usb_flush(void);
 
 /* USB interrupt handler */
 void
-ao_usb_isr(void) interrupt 6;
+ao_usb_isr(void) __interrupt 6;
 
 /* Enable the USB controller */
 void
@@ -425,7 +425,7 @@ ao_dma_abort(uint8_t id);
 
 /* DMA interrupt routine */
 void
-ao_dma_isr(void) interrupt 8;
+ao_dma_isr(void) __interrupt 8;
 
 /*
  * ao_mutex.c
@@ -722,10 +722,10 @@ ao_dbg_init(void);
 
 #if HAS_SERIAL_1
 void
-ao_serial_rx1_isr(void) interrupt 3;
+ao_serial_rx1_isr(void) __interrupt 3;
 
 void
-ao_serial_tx1_isr(void) interrupt 14;
+ao_serial_tx1_isr(void) __interrupt 14;
 
 char
 ao_serial_getchar(void) __critical;
@@ -861,7 +861,7 @@ extern __xdata uint8_t ao_radio_done;
 extern __xdata uint8_t ao_radio_mutex;
 
 void
-ao_radio_general_isr(void) interrupt 16;
+ao_radio_general_isr(void) __interrupt 16;
 
 void
 ao_radio_get(void);

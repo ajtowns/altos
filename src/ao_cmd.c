@@ -263,13 +263,12 @@ ao_cmd_register(__code struct ao_cmds *cmds)
 }
 
 void
-ao_cmd(void *parameters)
+ao_cmd(void)
 {
 	__xdata char	c;
 	__xdata uint8_t cmd, cmds;
 	__code struct ao_cmds * __xdata cs;
 	void (*__xdata func)(void);
-	(void) parameters;
 
 	lex_echo = 1;
 	for (;;) {

@@ -275,7 +275,7 @@ __xdata uint8_t ao_radio_done;
 __xdata uint8_t ao_radio_mutex;
 
 void
-ao_radio_general_isr(void) interrupt 16
+ao_radio_general_isr(void) __interrupt 16
 {
 	S1CON &= ~0x03;
 	if (RFIF & RFIF_IM_TIMEOUT) {
