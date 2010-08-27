@@ -1,3 +1,15 @@
+commit 0bd4cc03b3bf23aa32b5ce1921078021d1d8a9c6
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 13:12:46 2010 -0600
+
+    fix path to installed shared library
+
+commit 99c1d9b4ef10ec4ebbee058ce0bb38c954a0a3a6
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 12:41:26 2010 -0600
+
+    update changelogs for Debian build
+
 commit cf65c6b8056c4af7c26b52ec6f9fbd3400cef638
 Merge: 5f2f6a8 ae5eff7
 Author: Bdale Garbee <bdale@gag.com>

@@ -1,3 +1,9 @@
+altos (0.6+375+g0bd4cc0) unstable; urgency=low
+
+  * fix path to installed shared library
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 27 Aug 2010 13:13:14 -0600
+
 altos (0.6+373+gcf65c6b) unstable; urgency=low
 
   [ Keith Packard ]
