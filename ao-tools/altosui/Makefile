@@ -96,8 +96,13 @@ endif
 ifeq ($(OS),Linux)
 altosui:
 	echo "#!/bin/sh" > $@
-	echo "exec java -Djava.library.path=../libaltos -jar altosui.jar" >> $@
+	echo "exec java -Djava.library.path=/usr/lib/altos/libaltos -jar altosui.jar" >> $@
 	chmod +x ./altosui
+
+install:	altosui.jar altosui
+	/usr/bin/install -c altosui.jar $(DESTDIR)/usr/share/java/altosui.jar
+	/usr/bin/install -c altosui $(DESTDIR)/usr/bin/altosui
+	
 endif
 
 clean:
