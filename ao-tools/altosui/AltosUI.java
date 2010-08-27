@@ -264,7 +264,7 @@ public class AltosUI extends JFrame {
 		private AltosState state;
 		int	reported_landing;
 
-		public void report(boolean last) {
+		public synchronized void report(boolean last) {
 			if (state == null)
 				return;
 
@@ -278,7 +278,16 @@ public class AltosUI extends JFrame {
 			}
 
 			/* If the rocket isn't on the pad, then report height */
-			if (state.state > Altos.ao_flight_pad) {
+			if (Altos.ao_flight_drogue <= state.state &&
+			    state.state < Altos.ao_flight_landed &&
+			    state.range >= 0)
+			{
+				voice.speak("Height %d, bearing %d, elevation %d, range %d.\n",
+					    (int) (state.height + 0.5),
+					    (int) (state.from_pad.bearing + 0.5),
+					    (int) (state.elevation + 0.5),
+					    (int) (state.range + 0.5));
+			} else if (state.state > Altos.ao_flight_pad) {
 				voice.speak("%d meters", (int) (state.height + 0.5));
 			} else {
 				reported_landing = 0;
@@ -288,7 +297,7 @@ public class AltosUI extends JFrame {
 			 * either we've got a landed report or we haven't heard from it in
 			 * a long time
 			 */
-			if (!state.ascent &&
+			if (state.state >= Altos.ao_flight_drogue &&
 			    (last ||
 			     System.currentTimeMillis() - state.report_time >= 15000 ||
 			     state.state == Altos.ao_flight_landed))
@@ -298,7 +307,7 @@ public class AltosUI extends JFrame {
 				else
 					voice.speak("rocket may have crashed");
 				if (state.from_pad != null)
-					voice.speak("bearing %d degrees, range %d meters",
+					voice.speak("Bearing %d degrees, range %d meters.",
 						    (int) (state.from_pad.bearing + 0.5),
 						    (int) (state.from_pad.distance + 0.5));
 				++reported_landing;
@@ -311,7 +320,7 @@ public class AltosUI extends JFrame {
 			state = null;
 			try {
 				for (;;) {
-					Thread.sleep(10000);
+					Thread.sleep(20000);
 					report(false);
 				}
 			} catch (InterruptedException ie) {
@@ -319,7 +328,10 @@ public class AltosUI extends JFrame {
 		}
 
 		public void notice(AltosState new_state) {
+			AltosState old_state = state;
 			state = new_state;
+			if (old_state != null && old_state.state != state.state)
+				report(false);
 		}
 	}
 

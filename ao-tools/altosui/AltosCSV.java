@@ -76,7 +76,9 @@ public class AltosCSV {
 	 *	minute (0-59)
 	 *	second (0-59)
 	 *	from_pad_dist (m)
-	 *	from_pad_dir (deg true)
+	 *	from_pad_azimuth (deg true)
+	 *	from_pad_range (m)
+	 *	from_pad_elevation (deg from horizon)
 	 *
 	 * GPS Sat data
 	 *	hdop
@@ -121,7 +123,7 @@ public class AltosCSV {
 	}
 
 	void write_gps_header() {
-		out.printf("connected locked nsat latitude longitude altitude year month day hour minute second pad_dist pad_dir");
+		out.printf("connected locked nsat latitude longitude altitude year month day hour minute second pad_dist pad_range pad_az pad_el");
 	}
 
 	void write_gps(AltosRecord record) {
@@ -133,7 +135,7 @@ public class AltosCSV {
 		if (from_pad == null)
 			from_pad = new AltosGreatCircle();
 
-		out.printf("%2d,%2d,%3d,%12.7f,%12.7f,%6d,%5d,%3d,%3d,%3d,%3d,%3d,%9.0f,%4.0f",
+		out.printf("%2d,%2d,%3d,%12.7f,%12.7f,%6d,%5d,%3d,%3d,%3d,%3d,%3d,%9.0f,%9.0f,%4.0f,%4.0f",
 			   gps.connected?1:0,
 			   gps.locked?1:0,
 			   gps.nsat,
@@ -147,7 +149,9 @@ public class AltosCSV {
 			   gps.minute,
 			   gps.second,
 			   from_pad.distance,
-			   from_pad.bearing);
+			   state.range,
+			   from_pad.bearing,
+			   state.elevation);
 	}
 
 	void write_header() {

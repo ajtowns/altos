@@ -44,7 +44,7 @@ public class AltosEepromRecord {
 	public int	tick;
 	public int	a;
 	public int	b;
-	String		data;
+	public String	data;
 	public boolean	tick_valid;
 
 	public AltosEepromRecord (String line) throws ParseException {
@@ -107,4 +107,11 @@ public class AltosEepromRecord {
 		}
 	}
 
+	public AltosEepromRecord(int in_cmd, int in_tick, int in_a, int in_b) {
+		tick_valid = true;
+		cmd = in_cmd;
+		tick = in_tick;
+		a = in_a;
+		b = in_b;
+	}
 }
