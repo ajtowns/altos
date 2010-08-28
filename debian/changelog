@@ -1,3 +1,9 @@
+altos (0.7+18+g42055af) unstable; urgency=low
+
+  * rebuilding to pick up tag 0.7
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 27 Aug 2010 22:12:48 -0600
+
 altos (0.6+375+g0bd4cc0) unstable; urgency=low
 
   * fix path to installed shared library
