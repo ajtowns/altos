@@ -1,3 +1,15 @@
+commit 1cda15fdef2d9d3e54354bd5c43a0bcc7e3240cb
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 22:24:51 2010 -0600
+
+    fix up for an 0.7 release
+
+commit 4c5c7c7f198775c398c1ad2edafb3488384cc297
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 22:13:38 2010 -0600
+
+    update changelogs for Debian build
+
 commit 42055af5c6f17d14a2f1c6a2b5e1ce6d3b45a615
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Fri Aug 27 13:13:19 2010 -0600
