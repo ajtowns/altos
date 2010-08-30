@@ -62,8 +62,8 @@ public class AltosDebug extends AltosSerial {
 
 	void ensure_debug_mode() {
 		if (!debug_mode) {
-			printf("m 0\nD\n");
-			flush_reply();
+			printf("D\n");
+			flush_input();
 			debug_mode = true;
 		}
 	}
@@ -103,7 +103,7 @@ public class AltosDebug extends AltosSerial {
 		throws IOException, InterruptedException {
 		byte[]	data = new byte[length];
 
-		flush_reply();
+		flush_input();
 		ensure_debug_mode();
 		printf("I %x %x\n", length, address);
 		int i = 0;
@@ -155,7 +155,7 @@ public class AltosDebug extends AltosSerial {
 	public byte[] read_bytes(int length)
 		throws IOException, InterruptedException {
 
-		flush_reply();
+		flush_input();
 		ensure_debug_mode();
 		printf("G %x\n", length);
 		int i = 0;

@@ -47,6 +47,7 @@ public class AltosSerial implements Runnable {
 	String line;
 	byte[] line_bytes;
 	int line_count;
+	boolean monitor_mode;
 
 	public void run () {
 		int c;
@@ -99,35 +100,39 @@ public class AltosSerial implements Runnable {
 		}
 	}
 
-	public void flush_reply() {
+	public void flush_output() {
 		libaltos.altos_flush(altos);
+	}
+
+	public void flush_input() {
+		flush_output();
 		try {
-			Thread.sleep(100);
+			Thread.sleep(200);
 		} catch (InterruptedException ie) {
 		}
-		reply_queue.clear();
+		synchronized(this) {
+			if (!"VERSION".startsWith(line) &&
+			    !line.startsWith("VERSION"))
+				line = "";
+			reply_queue.clear();
+		}
 	}
 
 	public String get_reply() throws InterruptedException {
-		libaltos.altos_flush(altos);
+		flush_output();
 		String line = reply_queue.take();
 		return line;
 	}
 
 	public void add_monitor(LinkedBlockingQueue<String> q) {
+		set_monitor(true);
 		monitors.add(q);
 	}
 
 	public void remove_monitor(LinkedBlockingQueue<String> q) {
 		monitors.remove(q);
-	}
-
-	public void flush () {
-		synchronized(this) {
-			if (!"VERSION".startsWith(line) && !line.startsWith("VERSION"))
-				line = "";
-			reply_queue.clear();
-		}
+		if (monitors.isEmpty())
+			set_monitor(false);
 	}
 
 	public boolean opened() {
@@ -135,8 +140,9 @@ public class AltosSerial implements Runnable {
 	}
 
 	public void close() {
-		if (altos != null)
+		if (altos != null) {
 			libaltos.altos_close(altos);
+		}
 		if (input_thread != null) {
 			try {
 				input_thread.interrupt();
@@ -157,7 +163,7 @@ public class AltosSerial implements Runnable {
 	}
 
 	public void print(String data) {
-//h		System.out.printf("\"%s\" ", data);
+//		System.out.printf("\"%s\" ", data);
 		for (int i = 0; i < data.length(); i++)
 			putc(data.charAt(i));
 	}
@@ -173,17 +179,28 @@ public class AltosSerial implements Runnable {
 			throw new FileNotFoundException(device.getPath());
 		input_thread = new Thread(this);
 		input_thread.start();
-		print("\nE 0\n");
-		try {
-			Thread.sleep(200);
-		} catch (InterruptedException e) {
-		}
-		flush();
+		print("~\nE 0\n");
+		set_monitor(monitor_mode);
+		flush_input();
 	}
 
 	public void set_channel(int channel) {
-		if (altos != null)
-			printf("m 0\nc r %d\nm 1\n", channel);
+		if (altos != null) {
+			if (monitor_mode)
+				printf("m 0\nc r %d\nm 1\n", channel);
+			else
+				printf("c r %d\n", channel);
+		}
+	}
+
+	void set_monitor(boolean monitor) {
+		monitor_mode = monitor;
+		if (altos != null) {
+			if (monitor)
+				printf("m 1\n");
+			else
+				printf("m 0\n");
+		}
 	}
 
 	public void set_callsign(String callsign) {
@@ -195,6 +212,7 @@ public class AltosSerial implements Runnable {
 		altos = null;
 		input_thread = null;
 		line = "";
+		monitor_mode = false;
 		monitors = new LinkedList<LinkedBlockingQueue<String>> ();
 		reply_queue = new LinkedBlockingQueue<String> ();
 	}
