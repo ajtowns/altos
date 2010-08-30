@@ -7,16 +7,14 @@ ifeq ($(OS),Linux)
 
 JAVA_CFLAGS=-I/usr/lib/jvm/java-6-openjdk/include
 
-OS_CFLAGS=-DLINUX -DPOSIX_TTY $(JAVA_CFLAGS)
+OS_LIB_CFLAGS=-DLINUX -DPOSIX_TTY $(JAVA_CFLAGS)
+
+OS_APP_CFLAGS=$(OS_LIB_CFLAGS)
 
 OS_LDFLAGS=
 
 LIBNAME=libaltos.so
 EXEEXT=
-
-install:	$(LIBNAME)
-	/usr/bin/install -c $(LIBNAME) $(DESTDIR)/usr/lib/altos/$(LIBNAME)
-
 endif
 
 #
@@ -24,12 +22,13 @@ endif
 #
 ifeq ($(OS),Darwin)
 
-OS_CFLAGS=\
+OS_LIB_CFLAGS=\
 	-DDARWIN -DPOSIX_TTY -arch i386 -arch x86_64 \
 	--sysroot=/Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 \
 	-iwithsysroot /System/Library/Frameworks/JavaVM.framework/Headers \
 	-iwithsysroot /System/Library/Frameworks/IOKit.framework/Headers \
 	-iwithsysroot /System/Library/Frameworks/CoreFoundation.framework/Headers
+OS_APP_CFLAGS=$(OS_LIB_CFLAGS)
 
 OS_LDFLAGS =\
 	-framework IOKit -framework CoreFoundation
@@ -46,7 +45,8 @@ ifneq (,$(findstring MINGW,$(OS)))
 
 CC=gcc
 
-OS_CFLAGS = -DWINDOWS -mconsole
+OS_LIB_CFLAGS = -DWINDOWS -mconsole -DBUILD_DLL
+OS_APP_CFLAGS = -DWINDOWS -mconsole
 
 OS_LDFLAGS = -lgdi32 -luser32 -lcfgmgr32 -lsetupapi -lole32 \
 	-ladvapi32 -lcomctl32 -mconsole -Wl,--add-stdcall-alias
@@ -87,7 +87,7 @@ all: $(LIBNAME) $(CJNITEST) $(CLASSFILES)
 .java.class:
 	javac -encoding UTF8 -classpath "$(CLASSPATH)" $(JAVAFLAGS) $*.java
 
-CFLAGS=$(OS_CFLAGS) -O0 -g -I.
+CFLAGS=$(OS_LIB_CFLAGS) -O -I.
 
 LDFLAGS=$(OS_LDFLAGS)
 
@@ -96,11 +96,11 @@ SRCS = libaltos.c $(SWIG_WRAP)
 OBJS = $(SRCS:%.c=%.o)
 LIBS = $(DARWIN_LIBS)
 
-$(CJNITEST): cjnitest.o $(LIBNAME)
-	cc -o $@ $(CFLAGS) cjnitest.o $(OBJS) $(LIBNAME) $(LIBS) $(OS_LDFLAGS)
+$(CJNITEST): cjnitest.c $(LIBNAME)
+	$(CC) -o $@ $(OS_APP_CFLAGS) cjnitest.c $(LIBNAME) $(LIBS) $(LDFLAGS)
 
 $(LIBNAME): $(OBJS)
-	gcc -shared $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(LDFLAGS)
+	$(CC) -shared $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(LDFLAGS)
 
 clean:
 	rm -f $(CLASSFILES) $(OBJS) $(LIBNAME) $(CJNITEST) cjnitest.o
@@ -114,3 +114,11 @@ $(JNI_FILE): libaltos.i0 $(HEADERS)
 	cp swig_bindings/java/*.java libaltosJNI
 
 $(SWIG_WRAP): $(JNI_FILE)
+
+ifeq ($(OS),Linux)
+install:	$(LIBNAME)
+	/usr/bin/install -c $(LIBNAME) $(DESTDIR)/usr/lib/altos/$(LIBNAME)
+
+endif
+
+.NOTPARALLEL:
