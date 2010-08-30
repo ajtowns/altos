@@ -39,39 +39,56 @@ CLASSFILES=\
 	AltosRomconfigUI.class \
 	AltosVoice.class
 
-#FREETTSSRC=/home/keithp/src/freetts/freetts-1.2.2
-#FREETTSLIB=$(FREETTSSRC)/lib
-#FREETTSJAR=/usr/share/java/freetts.jar
-#FREETTSJAR= \
-#	cmudict04.jar \
-#	cmulex.jar \
-#	cmu_time_awb.jar \
-#	cmutimelex.jar \
-#	cmu_us_kal.jar \
-#	en_us.jar \
-#	freetts.jar
+# where altosui.jar gets installed
+ALTOSLIB=/usr/share/java
+
+# where freetts.jar is to be found
+FREETTSLIB=/usr/share/java
+
+# all of the freetts files
+FREETTSJAR= \
+	$(FREETTSLIB)/cmudict04.jar \
+	$(FREETTSLIB)/cmulex.jar \
+	$(FREETTSLIB)/cmu_time_awb.jar \
+	$(FREETTSLIB)/cmutimelex.jar \
+	$(FREETTSLIB)/cmu_us_kal.jar \
+	$(FREETTSLIB)/en_us.jar \
+	$(FREETTSLIB)/freetts.jar
+
+# The current hex files
+HEXLIB=../../src
+HEXFILES = \
+	$(HEXLIB)/telemetrum-v1.0.ihx \
+	$(HEXLIB)/teledongle-v0.2.ihx
 
 JAVAFLAGS=-Xlint:unchecked -Xlint:deprecation
 
+ALTOSUIJAR = altosui.jar
+FATJAR = fat/altosui.jar
+
 OS:=$(shell uname)
 
-ifeq ($(OS),Linux)
-ALTOSUI_APP=altosui
-endif
+LINUX_APP=altosui
 
-ifeq ($(OS),Darwin)
-ALTOSUI_APP=AltosUI.app/Contents/Resources/Java/altosui.jar
-endif
+DARWIN_ZIP=Altos-Mac.zip
 
-all: altosui.jar $(ALTOSUI_APP)
+WINDOWS_ZIP=Altos-Windows.zip
+
+LINUX_TGZ=Altos-Linux.tgz
+
+all: $(LINUX_APP) $(DARWIN_ZIP) $(WINDOWS_ZIP) $(LINUX_TGZ)
 
 $(CLASSFILES):
 
 .java.class:
 	javac -encoding UTF8 -classpath "$(CLASSPATH)" $(JAVAFLAGS) $*.java
 
-altosui.jar: classes/altosui classes/libaltosJNI $(FREETTSJAR) $(CLASSFILES) Manifest.txt
+altosui.jar: classes/altosui classes/libaltosJNI $(CLASSFILES) Manifest.txt
 	cd ./classes && jar cfm ../$@ altosui/Manifest.txt altosui/*.class libaltosJNI/*.class
+
+Manifest.txt: Makefile $(CLASSFILES)
+	echo 'Main-Class: altosui.AltosUI' > $@
+	echo "Class-Path: $(FREETTSLIB)/freetts.jar' >> $@
 
 classes/altosui:
 	mkdir -p classes
@@ -81,32 +98,68 @@ classes/libaltosJNI:
 	mkdir -p classes
 	ln -sf ../../libaltos/libaltosJNI classes/libaltosJNI
 
-#$(FREETTSJAR):
-#	ln -s $(FREETTSLIB)/$@ .
-
-ifeq ($(OS),Darwin)
-RESOURCES=altosui.jar $(FREETTSJAR) ../libaltos/libaltos.dylib
-
-$(ALTOSUI_APP): $(RESOURCES)
-	mkdir -p AltosUI.app/Contents/Resources/Java
-	cp $(RESOURCES) AltosUI.app/Contents/Resources/Java
-
-endif
-
-ifeq ($(OS),Linux)
 altosui:
 	echo "#!/bin/sh" > $@
 	echo "exec java -Djava.library.path=/usr/lib/altos -jar /usr/share/java/altosui.jar" >> $@
 	chmod +x ./altosui
 
-install:	altosui.jar altosui
+fat/altosui:
+	echo "#!/bin/sh" > $@
+	echo 'ME=`which "$0"`' >> $@
+	echo 'DIR=`dirname "$ME"`' >> $@
+	echo 'exec java -Djava.library.path="$$DIR" -jar "$$DIR"/altosui.jar' >> $@
+	chmod +x $@
+
+fat/altosui.jar: $(CLASSFILES) fat/classes/Manifest.txt
+	mkdir -p fat/classes
+	test -L fat/classes/altosui || ln -sf ../.. fat/classes/altosui
+	test -L fat/classes/libaltosJNI || ln -sf ../../../libaltos/libaltosJNI fat/classes/libaltosJNI
+	cd ./fat/classes && jar cfm ../../$@ Manifest.txt altosui/*.class libaltosJNI/*.class
+
+fat/classes/Manifest.txt: $(CLASSFILES) Makefile
+	mkdir -p fat/classes
+	echo 'Main-Class: altosui.AltosUI' > $@
+	echo "Class-Path: freetts.jar" >> $@
+
+install: altosui.jar altosui
 	/usr/bin/install -m 0644 altosui.jar $(DESTDIR)/usr/share/java/altosui.jar
 	/usr/bin/install -m 0644 altosui.1 $(DESTDIR)/usr/share/man/man1/altosui.1
 	/usr/bin/install altosui $(DESTDIR)/usr/bin/altosui
-	
-endif
 
 clean:
 	rm -f *.class altosui.jar
 	rm -f AltosUI.app/Contents/Resources/Java/*
 	rm -rf classes
+	rm -rf windows linux
+
+FAT_FILES=$(FATJAR) $(FREETTSJAR) $(HEXFILES)
+
+LINUX_FILES=$(FAT_FILES) ../libaltos/libaltos.so fat/altosui
+$(LINUX_TGZ): $(LINUX_FILES)
+	rm $@
+	mkdir -p linux/AltOS
+	rm -f linux/AltOS/*
+	cp $(LINUX_FILES) linux/AltOS
+	cd linux && tar czf ../$@ AltOS
+
+DARWIN_RESOURCES=$(FATJAR) $(FREETTSJAR) ../libaltos/libaltos.dylib
+DARWIN_EXTRA=$(HEXFILES)
+DARWIN_FILES=$(DARWIN_RESOURCES) $(DARWIN_EXTRA)
+
+$(DARWIN_ZIP): $(DARWIN_FILES)
+	rm $@
+	cp -a AltosUI.app darwin/
+	mkdir -p darwin/AltosUI.app/Contents/Resources/Java
+	cp $(DARWIN_RESOURCES) darwin/AltosUI.app/Contents/Resources/Java
+	mkdir -p darwin/AltOS
+	cp $(DARWIN_EXTRA) darwin/AltOS
+	cd darwin && zip -j -r ../$@ AltosUI.app AltOS
+
+WINDOWS_FILES = $(FAT_FILES) ../libaltos/altos.dll ../../telemetrum.inf
+
+$(WINDOWS_ZIP): $(WINDOWS_FILES)
+	rm $@
+	mkdir -p windows/AltOS
+	rm -f windows/AltOS/*
+	cp $(WINDOWS_FILES) windows/AltOS
+	cd windows && zip -j -r ../$@ AltOS
