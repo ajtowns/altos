@@ -136,7 +136,7 @@ FAT_FILES=$(FATJAR) $(FREETTSJAR) $(HEXFILES)
 
 LINUX_FILES=$(FAT_FILES) ../libaltos/libaltos.so fat/altosui
 $(LINUX_TGZ): $(LINUX_FILES)
-	rm $@
+	rm -f $@
 	mkdir -p linux/AltOS
 	rm -f linux/AltOS/*
 	cp $(LINUX_FILES) linux/AltOS
@@ -147,7 +147,7 @@ DARWIN_EXTRA=$(HEXFILES)
 DARWIN_FILES=$(DARWIN_RESOURCES) $(DARWIN_EXTRA)
 
 $(DARWIN_ZIP): $(DARWIN_FILES)
-	rm $@
+	rm -f $@
 	cp -a AltosUI.app darwin/
 	mkdir -p darwin/AltosUI.app/Contents/Resources/Java
 	cp $(DARWIN_RESOURCES) darwin/AltosUI.app/Contents/Resources/Java
@@ -158,7 +158,7 @@ $(DARWIN_ZIP): $(DARWIN_FILES)
 WINDOWS_FILES = $(FAT_FILES) ../libaltos/altos.dll ../../telemetrum.inf
 
 $(WINDOWS_ZIP): $(WINDOWS_FILES)
-	rm $@
+	rm -f $@
 	mkdir -p windows/AltOS
 	rm -f windows/AltOS/*
 	cp $(WINDOWS_FILES) windows/AltOS
