@@ -29,6 +29,8 @@ ao_packet_getchar(void) __critical
 			ao_wake_task(&ao_packet_task);
 		ao_usb_flush();
 		ao_sleep(&ao_stdin_ready);
+		if (!ao_packet_enable)
+			break;
 	}
 	return c;
 }
@@ -127,10 +129,9 @@ ao_packet_forward(void) __reentrant
 		ao_delay(AO_MS_TO_TICKS(100));
 	ao_packet_enable = 0;
 	while (ao_packet_echo_task.wchan || ao_packet_task.wchan) {
-		ao_radio_abort();
-		ao_wake_task(&ao_packet_echo_task);
-		ao_wake_task(&ao_packet_task);
-		ao_yield();
+		if (ao_packet_echo_task.wchan)
+			ao_wake_task(&ao_packet_echo_task);
+		ao_delay(AO_MS_TO_TICKS(10));
 	}
 }
 
