@@ -15,7 +15,6 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#define BUILD_DLL
 #include "libaltos.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -503,9 +502,7 @@ altos_open(struct altos_device *device)
 	if (!file)
 		return NULL;
 
-	printf("open %s\n", device->path);
 	file->fd = open(device->path, O_RDWR | O_NOCTTY);
-	printf("opened %d\n", file->fd);
 	if (file->fd < 0) {
 		perror(device->path);
 		free(file);
@@ -550,7 +547,6 @@ altos_open(struct altos_device *device)
 		free(file);
 		return NULL;
 	}
-	printf("running %d\n", file->fd);
 	return file;
 }
 
@@ -566,7 +562,6 @@ altos_close(struct altos_file *file)
 		close(file->out_fd);
 		file->out_fd = -1;
 #endif
-		printf("close %d\n", fd);
 		close(fd);
 	}
 }
@@ -586,7 +581,6 @@ altos_flush(struct altos_file *file)
 
 		if (file->fd < 0)
 			return -EBADF;
-		printf("write %d\n", file->out_used);
 #ifdef USE_POLL
 		ret = write (file->fd, file->out_data, file->out_used);
 #else
@@ -654,8 +648,6 @@ altos_fill(struct altos_file *file, int timeout)
 #endif
 		{
 			ret = read(file->fd, file->in_data, USB_BUF_SIZE);
-			if (ret)
-				printf("read %d\n", ret);
 			if (ret < 0) {
 				perror("altos_getchar");
 				return LIBALTOS_ERROR;
@@ -689,6 +681,7 @@ altos_getchar(struct altos_file *file, int timeout)
 
 #ifdef WINDOWS
 
+#include <stdlib.h>
 #include <windows.h>
 #include <setupapi.h>
 
@@ -707,7 +700,6 @@ struct altos_file {
 	int				in_used;
 	int				in_read;
 };
-
 
 PUBLIC struct altos_list *
 altos_list_start(void)
@@ -733,15 +725,15 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 	SP_DEVINFO_DATA dev_info_data;
 	char		port[128];
 	DWORD		port_len;
-	char		location[256];
+	char		friendlyname[256];
 	char		symbolic[256];
 	DWORD		symbolic_len;
 	HKEY		dev_key;
 	int		vid, pid;
 	int		serial;
 	HRESULT 	result;
-	DWORD		location_type;
-	DWORD		location_len;
+	DWORD		friendlyname_type;
+	DWORD		friendlyname_len;
 
 	dev_info_data.cbSize = sizeof (SP_DEVINFO_DATA);
 	while(SetupDiEnumDeviceInfo(list->dev_info, list->index,
@@ -775,8 +767,6 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 		sscanf(symbolic + sizeof("\\??\\USB#VID_XXXX&PID_XXXX#") - 1,
 		       "%d", &serial);
 		if (!USB_IS_ALTUSMETRUM(vid, pid)) {
-			printf("Not Altus Metrum symbolic name: %s\n",
-			       symbolic);
 			RegCloseKey(dev_key);
 			continue;
 		}
@@ -791,33 +781,26 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 			continue;
 		}
 
-		/* Fetch the 'location information' which is the device name,
-		 * at least on XP */
-		location_len = sizeof (location);
+		/* Fetch the device description which is the device name,
+		 * with firmware that has unique USB ids */
+		friendlyname_len = sizeof (friendlyname);
 		if(!SetupDiGetDeviceRegistryProperty(list->dev_info,
 						     &dev_info_data,
-						     SPDRP_LOCATION_INFORMATION,
-						     &location_type,
-						     (BYTE *)location,
-						     sizeof(location),
-						     &location_len))
+						     SPDRP_FRIENDLYNAME,
+						     &friendlyname_type,
+						     (BYTE *)friendlyname,
+						     sizeof(friendlyname),
+						     &friendlyname_len))
 		{
-			printf("Failed to get location\n");
+			printf("Failed to get friendlyname\n");
 			continue;
 		}
 		device->vendor = vid;
 		device->product = pid;
 		device->serial = serial;
-
-		if (strcasestr(location, "tele"))
-			strcpy(device->name, location);
-		else
-			strcpy(device->name, "");
+		strcpy(device->name, friendlyname);
 
 		strcpy(device->path, port);
-		printf ("product: %04x:%04x (%s)  path: %s serial %d\n",
-			device->vendor, device->product, device->name,
-			device->path, device->serial);
 		return 1;
 	}
 	result = GetLastError();
@@ -844,31 +827,32 @@ altos_fill(struct altos_file *file, int timeout)
 		return LIBALTOS_SUCCESS;
 	file->in_read = file->in_used = 0;
 
-	if (timeout) {
-		timeouts.ReadIntervalTimeout = MAXDWORD;
-		timeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
+	if (timeout)
 		timeouts.ReadTotalTimeoutConstant = timeout;
-	} else {
-		timeouts.ReadIntervalTimeout = 0;
-		timeouts.ReadTotalTimeoutMultiplier = 0;
-		timeouts.ReadTotalTimeoutConstant = 0;
-	}
+	else
+		timeouts.ReadTotalTimeoutConstant = 1000;
+
+	timeouts.ReadIntervalTimeout = MAXDWORD;
+	timeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
 	timeouts.WriteTotalTimeoutMultiplier = 0;
 	timeouts.WriteTotalTimeoutConstant = 0;
 
-	if (!SetCommTimeouts(file->handle, &timeouts)) {
+	if (!SetCommTimeouts(file->handle, &timeouts))
 		printf("SetCommTimeouts failed %d\n", GetLastError());
-	}
 
-	if (!ReadFile(file->handle, file->in_data, USB_BUF_SIZE, &got, NULL)) {
-		result = GetLastError();
-		printf ("read failed %d\n", result);
-		return LIBALTOS_ERROR;
-		got = 0;
+	for (;;) {
+		if (!ReadFile(file->handle, file->in_data, USB_BUF_SIZE, &got, NULL)) {
+			result = GetLastError();
+			return LIBALTOS_ERROR;
+			got = 0;
+		}
+		file->in_read = 0;
+		file->in_used = got;
+		if (got)
+			return LIBALTOS_SUCCESS;
+		if (timeout)
+			return LIBALTOS_TIMEOUT;
 	}
-	if (got)
-		return LIBALTOS_SUCCESS;
-	return LIBALTOS_TIMEOUT;
 }
 
 PUBLIC int
@@ -882,7 +866,6 @@ altos_flush(struct altos_file *file)
 	while (used) {
 		if (!WriteFile(file->handle, data, used, &put, NULL)) {
 			result = GetLastError();
-			printf ("write failed %d\n", result);
 			return LIBALTOS_ERROR;
 		}
 		data += put;
@@ -895,8 +878,9 @@ altos_flush(struct altos_file *file)
 PUBLIC struct altos_file *
 altos_open(struct altos_device *device)
 {
-	struct altos_file	*file = calloc (sizeof (struct altos_file), 1);
+	struct altos_file	*file = calloc (1, sizeof (struct altos_file));
 	char	full_name[64];
+	DCB dcbSerialParams = {0};
 
 	if (!file)
 		return NULL;
@@ -910,14 +894,20 @@ altos_open(struct altos_device *device)
 		free(file);
 		return NULL;
 	}
-
-	timeouts.ReadIntervalTimeout = MAXDWORD;
-	timeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
-	timeouts.ReadTotalTimeoutConstant = 100;
-	timeouts.WriteTotalTimeoutMultiplier = 0;
-	timeouts.WriteTotalTimeoutConstant = 10000;
-	if (!SetCommTimeouts(file->handle, &timeouts)) {
-		printf("SetCommTimeouts failed %d\n", GetLastError());
+	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
+	if (!GetCommState(file->handle, &dcbSerialParams)) {
+		CloseHandle(file->handle);
+		free(file);
+		return NULL;
+	}
+	dcbSerialParams.BaudRate = CBR_9600;
+	dcbSerialParams.ByteSize = 8;
+	dcbSerialParams.StopBits = ONESTOPBIT;
+	dcbSerialParams.Parity = NOPARITY;
+	if (!SetCommState(file->handle, &dcbSerialParams)) {
+		CloseHandle(file->handle);
+		free(file);
+		return NULL;
 	}
 
 	return file;
