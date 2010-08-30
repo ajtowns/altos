@@ -21,6 +21,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define USE_POLL
+
 PUBLIC int
 altos_init(void)
 {
@@ -33,6 +35,9 @@ altos_fini(void)
 }
 
 #ifdef DARWIN
+
+#undef USE_POLL
+
 /* Mac OS X don't have strndup even if _GNU_SOURCE is defined */
 static char *
 altos_strndup (const char *s, size_t n)
@@ -471,20 +476,21 @@ altos_list_finish(struct altos_list *list)
 #include <fcntl.h>
 #include <termios.h>
 #include <errno.h>
-#include <pthread.h>
 
 #define USB_BUF_SIZE	64
 
 struct altos_file {
 	int				fd;
+#ifdef USE_POLL
 	int				pipe[2];
+#else
+	int				out_fd;
+#endif
 	unsigned char			out_data[USB_BUF_SIZE];
 	int				out_used;
 	unsigned char			in_data[USB_BUF_SIZE];
 	int				in_used;
 	int				in_read;
-	pthread_mutex_t			putc_mutex;
-	pthread_mutex_t			getc_mutex;
 };
 
 struct altos_file *
@@ -497,32 +503,54 @@ altos_open(struct altos_device *device)
 	if (!file)
 		return NULL;
 
-	pipe(file->pipe);
+	printf("open %s\n", device->path);
 	file->fd = open(device->path, O_RDWR | O_NOCTTY);
+	printf("opened %d\n", file->fd);
 	if (file->fd < 0) {
 		perror(device->path);
 		free(file);
 		return NULL;
 	}
+#ifdef USE_POLL
+	pipe(file->pipe);
+#else
+	file->out_fd = open(device->path, O_RDWR | O_NOCTTY);
+	if (file->out_fd < 0) {
+		perror(device->path);
+		close(file->fd);
+		free(file);
+		return NULL;
+	}
+#endif
 	ret = tcgetattr(file->fd, &term);
 	if (ret < 0) {
 		perror("tcgetattr");
 		close(file->fd);
+#ifndef USE_POLL
+		close(file->out_fd);
+#endif
 		free(file);
 		return NULL;
 	}
 	cfmakeraw(&term);
+#ifdef USE_POLL
 	term.c_cc[VMIN] = 1;
 	term.c_cc[VTIME] = 0;
+#else
+	term.c_cc[VMIN] = 0;
+	term.c_cc[VTIME] = 1;
+#endif
 	ret = tcsetattr(file->fd, TCSAFLUSH, &term);
 	if (ret < 0) {
 		perror("tcsetattr");
 		close(file->fd);
+#ifndef USE_POLL
+		close(file->out_fd);
+#endif
 		free(file);
 		return NULL;
 	}
-	pthread_mutex_init(&file->putc_mutex,NULL);
-	pthread_mutex_init(&file->getc_mutex,NULL);
+	printf("running %d\n", file->fd);
 	return file;
 }
 
@@ -532,7 +560,13 @@ altos_close(struct altos_file *file)
 	if (file->fd != -1) {
 		int	fd = file->fd;
 		file->fd = -1;
+#ifdef USE_POLL
 		write(file->pipe[1], "\r", 1);
+#else
+		close(file->out_fd);
+		file->out_fd = -1;
+#endif
+		printf("close %d\n", fd);
 		close(fd);
 	}
 }
@@ -544,16 +578,20 @@ altos_free(struct altos_file *file)
 	free(file);
 }
 
-static int
-_altos_flush(struct altos_file *file)
+int
+altos_flush(struct altos_file *file)
 {
 	while (file->out_used) {
 		int	ret;
 
 		if (file->fd < 0)
 			return -EBADF;
-		fflush(stdout);
+		printf("write %d\n", file->out_used);
+#ifdef USE_POLL
 		ret = write (file->fd, file->out_data, file->out_used);
+#else
+		ret = write (file->out_fd, file->out_data, file->out_used);
+#endif
 		if (ret < 0)
 			return -errno;
 		if (ret) {
@@ -562,6 +600,7 @@ _altos_flush(struct altos_file *file)
 			file->out_used -= ret;
 		}
 	}
+	return 0;
 }
 
 int
@@ -569,79 +608,81 @@ altos_putchar(struct altos_file *file, char c)
 {
 	int	ret;
 
-	pthread_mutex_lock(&file->putc_mutex);
 	if (file->out_used == USB_BUF_SIZE) {
-		ret = _altos_flush(file);
+		ret = altos_flush(file);
 		if (ret) {
-			pthread_mutex_unlock(&file->putc_mutex);
 			return ret;
 		}
 	}
 	file->out_data[file->out_used++] = c;
 	ret = 0;
 	if (file->out_used == USB_BUF_SIZE)
-		ret = _altos_flush(file);
-	pthread_mutex_unlock(&file->putc_mutex);
+		ret = altos_flush(file);
 	return 0;
 }
 
-int
-altos_flush(struct altos_file *file)
-{
-	int ret;
-	pthread_mutex_lock(&file->putc_mutex);
-	ret = _altos_flush(file);
-	pthread_mutex_unlock(&file->putc_mutex);
-	return ret;
-}
-
-
+#ifdef USE_POLL
 #include <poll.h>
+#endif
 
 int
-altos_getchar(struct altos_file *file, int timeout)
+altos_fill(struct altos_file *file, int timeout)
 {
 	int		ret;
+#ifdef USE_POLL
 	struct pollfd	fd[2];
+#endif
 
 	if (timeout == 0)
 		timeout = -1;
-	pthread_mutex_lock(&file->getc_mutex);
-	fd[0].fd = file->fd;
-	fd[0].events = POLLIN;
-	fd[1].fd = file->pipe[0];
-	fd[1].events = POLLIN;
 	while (file->in_read == file->in_used) {
-		if (file->fd < 0) {
-			pthread_mutex_unlock(&file->getc_mutex);
+		if (file->fd < 0)
 			return LIBALTOS_ERROR;
-		}
-		altos_flush(file);
-
+#ifdef USE_POLL
+		fd[0].fd = file->fd;
+		fd[0].events = POLLIN;
+		fd[1].fd = file->pipe[0];
+		fd[1].events = POLLIN;
 		ret = poll(fd, 2, timeout);
 		if (ret < 0) {
 			perror("altos_getchar");
-			pthread_mutex_unlock(&file->getc_mutex);
 			return LIBALTOS_ERROR;
 		}
-		if (ret == 0) {
-			pthread_mutex_unlock(&file->getc_mutex);
+		if (ret == 0)
 			return LIBALTOS_TIMEOUT;
-		}
-		if (fd[0].revents & POLLIN) {
+		if (fd[0].revents & POLLIN)
+#endif
+		{
 			ret = read(file->fd, file->in_data, USB_BUF_SIZE);
+			if (ret)
+				printf("read %d\n", ret);
 			if (ret < 0) {
 				perror("altos_getchar");
-				pthread_mutex_unlock(&file->getc_mutex);
 				return LIBALTOS_ERROR;
 			}
 			file->in_read = 0;
 			file->in_used = ret;
+#ifndef USE_POLL
+			if (ret == 0 && timeout > 0)
+				return LIBALTOS_TIMEOUT;
+#endif
 		}
 	}
-	ret = file->in_data[file->in_read++];
-	pthread_mutex_unlock(&file->getc_mutex);
-	return ret;
+	return 0;
+}
+
+int
+altos_getchar(struct altos_file *file, int timeout)
+{
+	int	ret;
+	while (file->in_read == file->in_used) {
+		if (file->fd < 0)
+			return LIBALTOS_ERROR;
+		ret = altos_fill(file, timeout);
+		if (ret)
+			return ret;
+	}
+	return file->in_data[file->in_read++];
 }
 
 #endif /* POSIX_TTY */
@@ -919,9 +960,6 @@ altos_getchar(struct altos_file *file, int timeout)
 {
 	int	ret;
 	while (file->in_read == file->in_used) {
-		ret = altos_flush(file);
-		if (ret)
-			return ret;
 		if (file->handle == INVALID_HANDLE_VALUE)
 			return LIBALTOS_ERROR;
 		ret = altos_fill(file, timeout);
