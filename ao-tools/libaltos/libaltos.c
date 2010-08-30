@@ -391,24 +391,40 @@ get_string(io_object_t object, CFStringRef entry, char *result, int result_len)
 	return 0;
 }
 
+static int
+get_number(io_object_t object, CFStringRef entry, int *result)
+{
+	CFTypeRef entry_as_number;
+	Boolean got_number;
+	
+	entry_as_number = IORegistryEntrySearchCFProperty (object,
+							   kIOServicePlane,
+							   entry,
+							   kCFAllocatorDefault,
+							   kIORegistryIterateRecursively);
+	if (entry_as_number) {
+		got_number = CFNumberGetValue(entry_as_number,
+					      kCFNumberIntType,
+					      result);
+		if (got_number)
+			return 1;
+	}
+	return 0;
+}
+
 struct altos_list *
 altos_list_start(void)
 {
 	struct altos_list *list = calloc (sizeof (struct altos_list), 1);
 	CFMutableDictionaryRef matching_dictionary = IOServiceMatching("IOUSBDevice");
-	UInt32 vendor = 0xfffe, product = 0x000a;
-	CFNumberRef vendor_ref = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &vendor);
-	CFNumberRef product_ref = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &product);
 	io_iterator_t tdIterator;
 	io_object_t tdObject;
-  
-	CFDictionaryAddValue(matching_dictionary, CFSTR(kUSBVendorID), vendor_ref);
-	CFDictionaryAddValue(matching_dictionary, CFSTR(kUSBProductID), product_ref);
+	kern_return_t ret;
+	int i;
 
-	IOServiceGetMatchingServices(kIOMasterPortDefault, matching_dictionary, &list->iterator);
-  
-	CFRelease(vendor_ref);
-	CFRelease(product_ref);
+	ret = IOServiceGetMatchingServices(kIOMasterPortDefault, matching_dictionary, &list->iterator);
+	if (ret != kIOReturnSuccess)
+		return NULL;
 	return list;
 }
 
@@ -423,8 +439,15 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 		if (!object)
 			return 0;
   
+		if (!get_number (object, CFSTR(kUSBVendorID), &device->vendor) ||
+		    !get_number (object, CFSTR(kUSBProductID), &device->product))
+			continue;
+		if (device->vendor != 0xfffe)
+			continue;
+		if (device->product < 0x000a || 0x0013 < device->product)
+			continue;
 		if (get_string (object, CFSTR("IOCalloutDevice"), device->path, sizeof (device->path)) &&
-		    get_string (object, CFSTR("USB Product Name"), device->product, sizeof (device->product)) &&
+		    get_string (object, CFSTR("USB Product Name"), device->name, sizeof (device->name)) &&
 		    get_string (object, CFSTR("USB Serial Number"), serial_string, sizeof (serial_string))) {
 			device->serial = atoi(serial_string);
 			return 1;
