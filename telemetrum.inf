@@ -12,23 +12,38 @@ DriverVer	= 08/05/2010,3.1.0.41
 %Mfg% = Models, NTx86, NTamd64, NTia64
 
 [Models.NTx86]
-%TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
+%AltusMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
+%TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000B
+%TeleDongle% = TELEMETRUM, USB\VID_FFFE&PID_000C
+%TeleTerra% = TELEMETRUM, USB\VID_FFFE&PID_000D
 
 [Models.NTamd64]
 %TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
+%TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000B
+%TeleDongle% = TELEMETRUM, USB\VID_FFFE&PID_000C
+%TeleTerra% = TELEMETRUM, USB\VID_FFFE&PID_000D
 
 [Models.NTia64]
 %TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
+%TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000B
+%TeleDongle% = TELEMETRUM, USB\VID_FFFE&PID_000C
+%TeleTerra% = TELEMETRUM, USB\VID_FFFE&PID_000D
 
 [DestinationDirs]
 DefaultDestDir=12
 
 [ControlFlags]
 ExcludeFromSelect=USB\VID_FFFE&PID_000A
+ExcludeFromSelect=USB\VID_FFFE&PID_000B
+ExcludeFromSelect=USB\VID_FFFE&PID_000C
+ExcludeFromSelect=USB\VID_FFFE&PID_000D
 
 [Strings]
 Mfg = "altusmetrum.org"
-TeleMetrum = "TeleMetrum/TeleDongle"
+AltusMetrum = "Unknown AltusMetrum Device"
+TeleMetrum = "TeleMetrum"
+TeleDongle = "TeleDongle"
+TeleTerra = "TeleTerra"
 
 
 ;----------------------------------------------------------------------------
