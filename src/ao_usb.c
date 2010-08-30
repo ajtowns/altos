@@ -383,8 +383,11 @@ ao_usb_pollchar(void) __critical
 		if ((USBCSOL & USBCSOL_OUTPKT_RDY) == 0)
 			return AO_READ_AGAIN;
 		ao_usb_out_bytes = (USBCNTH << 8) | USBCNTL;
-		if (ao_usb_out_bytes == 0)
+		if (ao_usb_out_bytes == 0) {
+			USBINDEX = AO_USB_OUT_EP;
+			USBCSOL &= ~USBCSOL_OUTPKT_RDY;
 			return AO_READ_AGAIN;
+		}
 	}
 	--ao_usb_out_bytes;
 	c = USBFIFO[AO_USB_OUT_EP << 1];
