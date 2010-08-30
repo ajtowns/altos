@@ -121,6 +121,10 @@ ao_packet_forward(void) __reentrant
 		if (c == '\r') c = '\n';
 		ao_packet_putchar(c);
 	}
+
+	/* Wait for a second if there is any pending data */
+	for (c = 0; (ao_packet_tx_used || ao_tx_packet.len) && c < 10; c++)
+		ao_delay(AO_MS_TO_TICKS(100));
 	ao_packet_enable = 0;
 	ao_radio_abort();
 	while (ao_packet_echo_task.wchan || ao_packet_task.wchan) {
