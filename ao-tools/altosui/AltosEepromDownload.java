@@ -142,6 +142,7 @@ public class AltosEepromDownload implements Runnable {
 
 				if (values == null) {
 					System.out.printf("invalid line: %s\n", line);
+					continue;
 				} else if (values[0] != addr) {
 					System.out.printf("data address out of sync at 0x%x\n",
 							  block * 256 + values[0]);
