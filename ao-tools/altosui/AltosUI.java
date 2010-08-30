@@ -38,31 +38,25 @@ import altosui.AltosDeviceDialog;
 import altosui.AltosPreferences;
 import altosui.AltosLog;
 import altosui.AltosVoice;
-import altosui.AltosFlightStatusTableModel;
 import altosui.AltosFlightInfoTableModel;
 import altosui.AltosChannelMenu;
 import altosui.AltosFlashUI;
 import altosui.AltosLogfileChooser;
 import altosui.AltosCSVUI;
 import altosui.AltosLine;
+import altosui.AltosStatusTable;
+import altosui.AltosInfoTable;
 
 import libaltosJNI.*;
 
 public class AltosUI extends JFrame {
 	private int channel = -1;
 
-	private AltosFlightStatusTableModel flightStatusModel;
-	private JTable flightStatus;
-
-	static final int info_columns = 3;
-
-	private AltosFlightInfoTableModel[] flightInfoModel;
-	private JTable[] flightInfo;
+	private AltosStatusTable flightStatus;
+	private AltosInfoTable flightInfo;
 	private AltosSerial serial_line;
 	private AltosLog altos_log;
-	private Box[] ibox;
 	private Box vbox;
-	private Box hbox;
 
 	private Font statusFont = new Font("SansSerif", Font.BOLD, 24);
 	private Font infoLabelFont = new Font("SansSerif", Font.PLAIN, 14);
@@ -98,44 +92,12 @@ public class AltosUI extends JFrame {
 		vbox = Box.createVerticalBox();
 		this.add(vbox);
 
-		flightStatusModel = new AltosFlightStatusTableModel();
-		flightStatus = new JTable(flightStatusModel);
-		flightStatus.setFont(statusFont);
-		TableColumnModel tcm = flightStatus.getColumnModel();
-		for (int i = 0; i < flightStatusModel.getColumnCount(); i++) {
-			DefaultTableCellRenderer       r = new DefaultTableCellRenderer();
-			r.setFont(statusFont);
-			r.setHorizontalAlignment(SwingConstants.CENTER);
-			tcm.getColumn(i).setCellRenderer(r);
-		}
-
-		FontMetrics	statusMetrics = flightStatus.getFontMetrics(statusFont);
-		int statusHeight = (statusMetrics.getHeight() + statusMetrics.getLeading()) * 15 / 10;
-		flightStatus.setRowHeight(statusHeight);
-		flightStatus.setShowGrid(false);
+		flightStatus = new AltosStatusTable(this);
 
 		vbox.add(flightStatus);
 
-		hbox = Box.createHorizontalBox();
-		vbox.add(hbox);
-
-		flightInfo = new JTable[3];
-		flightInfoModel = new AltosFlightInfoTableModel[3];
-		ibox = new Box[3];
-		FontMetrics	infoValueMetrics = flightStatus.getFontMetrics(infoValueFont);
-		int infoHeight = (infoValueMetrics.getHeight() + infoValueMetrics.getLeading()) * 20 / 10;
-
-		for (int i = 0; i < info_columns; i++) {
-			ibox[i] = Box.createVerticalBox();
-			flightInfoModel[i] = new AltosFlightInfoTableModel();
-			flightInfo[i] = new JTable(flightInfoModel[i]);
-			flightInfo[i].setFont(infoValueFont);
-			flightInfo[i].setRowHeight(infoHeight);
-			flightInfo[i].setShowGrid(true);
-			ibox[i].add(flightInfo[i].getTableHeader());
-			ibox[i].add(flightInfo[i]);
-			hbox.add(ibox[i]);
-		}
+		flightInfo = new AltosInfoTable();
+		vbox.add(flightInfo.box());
 
 		setTitle("AltOS");
 
@@ -144,8 +106,8 @@ public class AltosUI extends JFrame {
 		serial_line = new AltosSerial();
 		altos_log = new AltosLog(serial_line);
 		int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
-		this.setSize(new Dimension (infoValueMetrics.charWidth('0') * 6 * 20,
-					    statusHeight * 4 + infoHeight * 17));
+		this.setSize(new Dimension (flightInfo.width(),
+					    flightStatus.height() + flightInfo.height()));
 		this.validate();
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -157,136 +119,11 @@ public class AltosUI extends JFrame {
 		voice.speak("Rocket flight monitor ready.");
 	}
 
-	public void info_reset() {
-		for (int i = 0; i < info_columns; i++)
-			flightInfoModel[i].resetRow();
-	}
-
-	public void info_add_row(int col, String name, String value) {
-		flightInfoModel[col].addRow(name, value);
-	}
-
-	public void info_add_row(int col, String name, String format, Object... parameters) {
-		flightInfoModel[col].addRow(name, String.format(format, parameters));
-	}
-
-	public void info_add_deg(int col, String name, double v, int pos, int neg) {
-		int	c = pos;
-		if (v < 0) {
-			c = neg;
-			v = -v;
+	void show(AltosState state, int crc_errors) {
+		if (state != null) {
+			flightStatus.set(state);
+			flightInfo.show(state, crc_errors);
 		}
-		double	deg = Math.floor(v);
-		double	min = (v - deg) * 60;
-
-		flightInfoModel[col].addRow(name, String.format("%3.0f°%08.5f'", deg, min));
-	}
-
-	public void info_finish() {
-		for (int i = 0; i < info_columns; i++)
-			flightInfoModel[i].finish();
-	}
-
-	public void show(AltosState state, int crc_errors) {
-		if (state == null)
-			return;
-		flightStatusModel.set(state);
-
-		info_reset();
-		info_add_row(0, "Rocket state", "%s", state.data.state());
-		info_add_row(0, "Callsign", "%s", state.data.callsign);
-		info_add_row(0, "Rocket serial", "%6d", state.data.serial);
-		info_add_row(0, "Rocket flight", "%6d", state.data.flight);
-
-		info_add_row(0, "RSSI", "%6d    dBm", state.data.rssi);
-		info_add_row(0, "CRC Errors", "%6d", crc_errors);
-		info_add_row(0, "Height", "%6.0f    m", state.height);
-		info_add_row(0, "Max height", "%6.0f    m", state.max_height);
-		info_add_row(0, "Acceleration", "%8.1f  m/s²", state.acceleration);
-		info_add_row(0, "Max acceleration", "%8.1f  m/s²", state.max_acceleration);
-		info_add_row(0, "Speed", "%8.1f  m/s", state.ascent ? state.speed : state.baro_speed);
-		info_add_row(0, "Max Speed", "%8.1f  m/s", state.max_speed);
-		info_add_row(0, "Temperature", "%9.2f °C", state.temperature);
-		info_add_row(0, "Battery", "%9.2f V", state.battery);
-		info_add_row(0, "Drogue", "%9.2f V", state.drogue_sense);
-		info_add_row(0, "Main", "%9.2f V", state.main_sense);
-		info_add_row(0, "Pad altitude", "%6.0f    m", state.ground_altitude);
-		if (state.gps == null) {
-			info_add_row(1, "GPS", "not available");
-		} else {
-			if (state.gps_ready)
-				info_add_row(1, "GPS state", "%s", "ready");
-			else
-				info_add_row(1, "GPS state", "wait (%d)",
-					     state.gps_waiting);
-			if (state.data.gps.locked)
-				info_add_row(1, "GPS", "   locked");
-			else if (state.data.gps.connected)
-				info_add_row(1, "GPS", " unlocked");
-			else
-				info_add_row(1, "GPS", "  missing");
-			info_add_row(1, "Satellites", "%6d", state.data.gps.nsat);
-			info_add_deg(1, "Latitude", state.gps.lat, 'N', 'S');
-			info_add_deg(1, "Longitude", state.gps.lon, 'E', 'W');
-			info_add_row(1, "GPS altitude", "%6d", state.gps.alt);
-			info_add_row(1, "GPS height", "%6.0f", state.gps_height);
-
-			/* The SkyTraq GPS doesn't report these values */
-			if (false) {
-				info_add_row(1, "GPS ground speed", "%8.1f m/s %3d°",
-					     state.gps.ground_speed,
-					     state.gps.course);
-				info_add_row(1, "GPS climb rate", "%8.1f m/s",
-					     state.gps.climb_rate);
-				info_add_row(1, "GPS error", "%6d m(h)%3d m(v)",
-					     state.gps.h_error, state.gps.v_error);
-			}
-			info_add_row(1, "GPS hdop", "%8.1f", state.gps.hdop);
-
-			if (state.npad > 0) {
-				if (state.from_pad != null) {
-					info_add_row(1, "Distance from pad", "%6d m",
-						     (int) (state.from_pad.distance + 0.5));
-					info_add_row(1, "Direction from pad", "%6d°",
-						     (int) (state.from_pad.bearing + 0.5));
-					info_add_row(1, "Elevation from pad", "%6d°",
-						     (int) (state.elevation + 0.5));
-					info_add_row(1, "Range from pad", "%6d m",
-						     (int) (state.range + 0.5));
-				} else {
-					info_add_row(1, "Distance from pad", "unknown");
-					info_add_row(1, "Direction from pad", "unknown");
-					info_add_row(1, "Elevation from pad", "unknown");
-					info_add_row(1, "Range from pad", "unknown");
-				}
-				info_add_deg(1, "Pad latitude", state.pad_lat, 'N', 'S');
-				info_add_deg(1, "Pad longitude", state.pad_lon, 'E', 'W');
-				info_add_row(1, "Pad GPS alt", "%6.0f m", state.pad_alt);
-			}
-			info_add_row(1, "GPS date", "%04d-%02d-%02d",
-				       state.gps.year,
-				       state.gps.month,
-				       state.gps.day);
-			info_add_row(1, "GPS time", "  %02d:%02d:%02d",
-				       state.gps.hour,
-				       state.gps.minute,
-				       state.gps.second);
-			int	nsat_vis = 0;
-			int	c;
-
-			if (state.gps.cc_gps_sat == null)
-				info_add_row(2, "Satellites Visible", "%4d", 0);
-			else {
-				info_add_row(2, "Satellites Visible", "%4d", state.gps.cc_gps_sat.length);
-				for (c = 0; c < state.gps.cc_gps_sat.length; c++) {
-					info_add_row(2, "Satellite id,C/N0",
-						     "%4d, %4d",
-						     state.gps.cc_gps_sat[c].svid,
-						     state.gps.cc_gps_sat[c].c_n0);
-				}
-			}
-		}
-		info_finish();
 	}
 
 	class IdleThread extends Thread {
@@ -455,8 +292,7 @@ public class AltosUI extends JFrame {
 
 			idle_thread = new IdleThread();
 
-			info_reset();
-			info_finish();
+			flightInfo.clear();
 			try {
 				for (;;) {
 					try {
