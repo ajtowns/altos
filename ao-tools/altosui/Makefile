@@ -76,7 +76,7 @@ WINDOWS_ZIP=Altos-Windows.zip
 
 LINUX_TGZ=Altos-Linux.tgz
 
-all: $(LINUX_APP) $(DARWIN_ZIP) $(WINDOWS_ZIP) $(LINUX_TGZ)
+all: altosui altosui.jar $(LINUX_APP) $(DARWIN_ZIP) $(WINDOWS_ZIP) $(LINUX_TGZ)
 
 $(CLASSFILES):
 
@@ -88,7 +88,7 @@ altosui.jar: classes/altosui classes/libaltosJNI $(CLASSFILES) Manifest.txt
 
 Manifest.txt: Makefile $(CLASSFILES)
 	echo 'Main-Class: altosui.AltosUI' > $@
-	echo "Class-Path: $(FREETTSLIB)/freetts.jar' >> $@
+	echo "Class-Path: $(FREETTSLIB)/freetts.jar" >> $@
 
 classes/altosui:
 	mkdir -p classes
