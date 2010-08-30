@@ -492,7 +492,7 @@ struct altos_file {
 	int				in_read;
 };
 
-struct altos_file *
+PUBLIC struct altos_file *
 altos_open(struct altos_device *device)
 {
 	struct altos_file	*file = calloc (sizeof (struct altos_file), 1);
@@ -550,7 +550,7 @@ altos_open(struct altos_device *device)
 	return file;
 }
 
-void
+PUBLIC void
 altos_close(struct altos_file *file)
 {
 	if (file->fd != -1) {
@@ -566,14 +566,14 @@ altos_close(struct altos_file *file)
 	}
 }
 
-void
+PUBLIC void
 altos_free(struct altos_file *file)
 {
 	altos_close(file);
 	free(file);
 }
 
-int
+PUBLIC int
 altos_flush(struct altos_file *file)
 {
 	while (file->out_used) {
@@ -597,7 +597,7 @@ altos_flush(struct altos_file *file)
 	return 0;
 }
 
-int
+PUBLIC int
 altos_putchar(struct altos_file *file, char c)
 {
 	int	ret;
@@ -619,7 +619,7 @@ altos_putchar(struct altos_file *file, char c)
 #include <poll.h>
 #endif
 
-int
+static int
 altos_fill(struct altos_file *file, int timeout)
 {
 	int		ret;
@@ -663,7 +663,7 @@ altos_fill(struct altos_file *file, int timeout)
 	return 0;
 }
 
-int
+PUBLIC int
 altos_getchar(struct altos_file *file, int timeout)
 {
 	int	ret;
@@ -699,6 +699,9 @@ struct altos_file {
 	unsigned char			in_data[USB_BUF_SIZE];
 	int				in_used;
 	int				in_read;
+	OVERLAPPED			ov_read;
+	BOOL				pend_read;
+	OVERLAPPED			ov_write;
 };
 
 PUBLIC struct altos_list *
@@ -817,42 +820,72 @@ altos_list_finish(struct altos_list *list)
 }
 
 static int
+altos_queue_read(struct altos_file *file)
+{
+	DWORD	got;
+	if (file->pend_read)
+		return LIBALTOS_SUCCESS;
+
+	if (!ReadFile(file->handle, file->in_data, USB_BUF_SIZE, &got, &file->ov_read)) {
+		if (GetLastError() != ERROR_IO_PENDING)
+			return LIBALTOS_ERROR;
+		file->pend_read = TRUE;
+	} else {
+		file->pend_read = FALSE;
+		file->in_read = 0;
+		file->in_used = got;
+	}
+	return LIBALTOS_SUCCESS;
+}
+
+static int
+altos_wait_read(struct altos_file *file, int timeout)
+{
+	DWORD	ret;
+	DWORD	got;
+
+	if (!file->pend_read)
+		return LIBALTOS_SUCCESS;
+
+	if (!timeout)
+		timeout = INFINITE;
+
+	ret = WaitForSingleObject(file->ov_read.hEvent, timeout);
+	switch (ret) {
+	case WAIT_OBJECT_0:
+		if (!GetOverlappedResult(file->handle, &file->ov_read, &got, FALSE))
+			return LIBALTOS_ERROR;
+		file->pend_read = FALSE;
+		file->in_read = 0;
+		file->in_used = got;
+		break;
+	case WAIT_TIMEOUT:
+		return LIBALTOS_TIMEOUT;
+		break;
+	default:
+		return LIBALTOS_ERROR;
+	}
+	return LIBALTOS_SUCCESS;
+}
+
+static int
 altos_fill(struct altos_file *file, int timeout)
 {
-	DWORD	result;
-	DWORD	got;
-	COMMTIMEOUTS timeouts;
+	int	ret;
 
 	if (file->in_read < file->in_used)
 		return LIBALTOS_SUCCESS;
+
 	file->in_read = file->in_used = 0;
 
-	if (timeout)
-		timeouts.ReadTotalTimeoutConstant = timeout;
-	else
-		timeouts.ReadTotalTimeoutConstant = 1000;
+	ret = altos_queue_read(file);
+	if (ret)
+		return ret;
+	ret = altos_wait_read(file, timeout);
+	if (ret)
+		return ret;
 
-	timeouts.ReadIntervalTimeout = MAXDWORD;
-	timeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
-	timeouts.WriteTotalTimeoutMultiplier = 0;
-	timeouts.WriteTotalTimeoutConstant = 0;
-
-	if (!SetCommTimeouts(file->handle, &timeouts))
-		printf("SetCommTimeouts failed %d\n", GetLastError());
-
-	for (;;) {
-		if (!ReadFile(file->handle, file->in_data, USB_BUF_SIZE, &got, NULL)) {
-			result = GetLastError();
-			return LIBALTOS_ERROR;
-			got = 0;
-		}
-		file->in_read = 0;
-		file->in_used = got;
-		if (got)
-			return LIBALTOS_SUCCESS;
-		if (timeout)
-			return LIBALTOS_TIMEOUT;
-	}
+	return LIBALTOS_SUCCESS;
 }
 
 PUBLIC int
@@ -861,12 +894,21 @@ altos_flush(struct altos_file *file)
 	DWORD	put;
 	char	*data = file->out_data;
 	char	used = file->out_used;
-	DWORD	result;
+	DWORD	ret;
 
 	while (used) {
-		if (!WriteFile(file->handle, data, used, &put, NULL)) {
-			result = GetLastError();
-			return LIBALTOS_ERROR;
+		if (!WriteFile(file->handle, data, used, &put, &file->ov_write)) {
+			if (GetLastError() != ERROR_IO_PENDING)
+				return LIBALTOS_ERROR;
+			ret = WaitForSingleObject(file->ov_write.hEvent, INFINITE);
+			switch (ret) {
+			case WAIT_OBJECT_0:
+				if (!GetOverlappedResult(file->handle, &file->ov_write, &put, FALSE))
+					return LIBALTOS_ERROR;
+				break;
+			default:
+				return LIBALTOS_ERROR;
+			}
 		}
 		data += put;
 		used -= put;
@@ -881,6 +923,7 @@ altos_open(struct altos_device *device)
 	struct altos_file	*file = calloc (1, sizeof (struct altos_file));
 	char	full_name[64];
 	DCB dcbSerialParams = {0};
+	COMMTIMEOUTS timeouts;
 
 	if (!file)
 		return NULL;
@@ -889,11 +932,21 @@ altos_open(struct altos_device *device)
 	strcat(full_name, device->path);
 	file->handle = CreateFile(full_name, GENERIC_READ|GENERIC_WRITE,
 				  0, NULL, OPEN_EXISTING,
-				  FILE_ATTRIBUTE_NORMAL, NULL);
+				  FILE_FLAG_OVERLAPPED, NULL);
 	if (file->handle == INVALID_HANDLE_VALUE) {
 		free(file);
 		return NULL;
 	}
+	file->ov_read.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	file->ov_write.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+	timeouts.ReadIntervalTimeout = MAXDWORD;
+	timeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
+	timeouts.ReadTotalTimeoutConstant = 1 << 30;	/* almost forever */
+	timeouts.WriteTotalTimeoutMultiplier = 0;
+	timeouts.WriteTotalTimeoutConstant = 0;
+	SetCommTimeouts(file->handle, &timeouts);
+
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
 	if (!GetCommState(file->handle, &dcbSerialParams)) {
 		CloseHandle(file->handle);
