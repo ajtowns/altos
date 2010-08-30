@@ -96,8 +96,8 @@ SRCS = libaltos.c $(SWIG_WRAP)
 OBJS = $(SRCS:%.c=%.o)
 LIBS = $(DARWIN_LIBS)
 
-$(CJNITEST): cjnitest.o $(OBJS)
-	cc -o $@ $(CFLAGS) cjnitest.o $(OBJS) $(LIBS)
+$(CJNITEST): cjnitest.o $(LIBNAME)
+	cc -o $@ $(CFLAGS) cjnitest.o $(OBJS) $(LIBNAME) $(LIBS) $(OS_LDFLAGS)
 
 $(LIBNAME): $(OBJS)
 	gcc -shared $(CFLAGS) -o $@ $(OBJS) $(LIBS) $(LDFLAGS)
