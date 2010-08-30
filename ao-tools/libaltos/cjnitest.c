@@ -30,6 +30,7 @@ main ()
 			continue;
 		}
 		altos_puts(file,"v\nc s\n");
+		altos_flush(file);
 		while ((c = altos_getchar(file, 100)) >= 0) {
 			putchar (c);
 		}
