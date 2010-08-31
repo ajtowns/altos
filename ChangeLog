@@ -1,3 +1,15 @@
+commit d006c5e1255433181aca4c8e6a277b2d1bc0841b
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 31 00:19:37 2010 -0400
+
+    add runtime dependencies for altos binary package
+
+commit c1c7d731e3774883fa0bb5538be225a59334d124
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 30 19:52:51 2010 -0600
+
+    update changelogs for Debian build
+
 commit c35632efb1919764e4b8581ed6fcf2bedd4bd517
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Mon Aug 30 19:37:50 2010 -0600

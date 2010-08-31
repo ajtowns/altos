@@ -1,3 +1,9 @@
+altos (0.7+28+gd006c5e) unstable; urgency=low
+
+  * add runtime dependencies for altos binary package
+
+ -- Bdale Garbee <bdale@gag.com>  Tue, 31 Aug 2010 00:20:00 -0400
+
 altos (0.7+26+gc35632e) unstable; urgency=low
 
   * don't build all the "fat" jar deliverables by default
