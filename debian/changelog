@@ -1,4 +1,4 @@
-altos (0.7+22+g4790f78) unstable; urgency=low
+altos (0.7+23+g25764fc) unstable; urgency=low
 
   [ Bdale Garbee ]
   * fix up for an 0.7 release
@@ -33,70 +33,6 @@ altos (0.7+22+g4790f78) unstable; urgency=low
     library
 
  -- Bdale Garbee <bdale@gag.com>  Mon, 30 Aug 2010 19:07:13 -0600
-
-altos (0.7+18+g42055af) unstable; urgency=low
-
-  [ Keith Packard ]
-  * libaltos: AltusMetrum devices use more than one USB ID.
-  * altosui: provide separate flush_input/flush_output for serial. deal
-    with monitor automatically
-  * altosui: discard invalid lines while reading Eeprom flight data
-  * libaltos: Mac OS X cannot use 'poll(2)' on serial lines.
-  * libaltos: Missing OS_LDFLAGS on cjnitest build
-  * libaltos: cjnitest needs altos_flush now
-  * altos: flush pending output when terminating packet mode
-  * altos: Abort radio harder when terminating packet mode.
-  * altos: shut down packet mode cleanly
-  * libaltos: Fix windows build.
-  * libaltos: Improve Makefile
-  * Update telemetrum.inf to include all current USB ids.
-  * libaltos: Add pre-built Mac OS X libaltos.dylib
-  * libaltos: Add pre-built Windows .dll
-  * altos: Windows sends USB Out packets of 0 length. Ack them.
-  * libaltos: Use overlapped I/O on windows
-  * altosui: Build linux, mac and windows archives on Linux
-  * altosui: build debian-style altosui too
-  * altosui: Devices with USB id 0x000a always get listed
-
-  [ Bdale Garbee ]
-  * continue even if rm's don't have anything to do
-  * make invocation of 'install' pathless to work on more Unix variants
-  * add a .gitattributes file, configuring the Mac and Windows binary
-    library
-
- -- Bdale Garbee <bdale@gag.com>  Mon, 30 Aug 2010 19:05:34 -0600
-
-altos (0.7+22+g4790f78) unstable; urgency=low
-
-  [ Keith Packard ]
-  * libaltos: AltusMetrum devices use more than one USB ID.
-  * altosui: provide separate flush_input/flush_output for serial. deal
-    with monitor automatically
-  * altosui: discard invalid lines while reading Eeprom flight data
-  * libaltos: Mac OS X cannot use 'poll(2)' on serial lines.
-  * libaltos: Missing OS_LDFLAGS on cjnitest build
-  * libaltos: cjnitest needs altos_flush now
-  * altos: flush pending output when terminating packet mode
-  * altos: Abort radio harder when terminating packet mode.
-  * altos: shut down packet mode cleanly
-  * libaltos: Fix windows build.
-  * libaltos: Improve Makefile
-  * Update telemetrum.inf to include all current USB ids.
-  * libaltos: Add pre-built Mac OS X libaltos.dylib
-  * libaltos: Add pre-built Windows .dll
-  * altos: Windows sends USB Out packets of 0 length. Ack them.
-  * libaltos: Use overlapped I/O on windows
-  * altosui: Build linux, mac and windows archives on Linux
-  * altosui: build debian-style altosui too
-  * altosui: Devices with USB id 0x000a always get listed
-
-  [ Bdale Garbee ]
-  * continue even if rm's don't have anything to do
-  * make invocation of 'install' pathless to work on more Unix variants
-  * add a .gitattributes file, configuring the Mac and Windows binary
-    library
-
- -- Bdale Garbee <bdale@gag.com>  Mon, 30 Aug 2010 19:03:37 -0600
 
 altos (0.7) unstable; urgency=low
 
