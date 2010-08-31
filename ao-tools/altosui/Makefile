@@ -76,7 +76,8 @@ WINDOWS_ZIP=Altos-Windows.zip
 
 LINUX_TGZ=Altos-Linux.tgz
 
-all: altosui altosui.jar $(LINUX_APP) $(DARWIN_ZIP) $(WINDOWS_ZIP) $(LINUX_TGZ)
+all: altosui.jar $(LINUX_APP)
+fat: altosui.jar $(LINUX_APP) $(DARWIN_ZIP) $(WINDOWS_ZIP) $(LINUX_TGZ)
 
 $(CLASSFILES):
 
