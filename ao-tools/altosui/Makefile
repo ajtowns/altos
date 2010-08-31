@@ -26,6 +26,7 @@ CLASSFILES=\
 	AltosLogfileChooser.class \
 	AltosParse.class \
 	AltosPreferences.class \
+	AltosReader.class \
 	AltosRecord.class \
 	AltosSerialMonitor.class \
 	AltosSerial.class \
