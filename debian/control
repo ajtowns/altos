@@ -9,7 +9,7 @@ Homepage: http://altusmetrum.org/AltOS
 
 Package: altos
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, nickle, plplot9-driver-cairo
+Depends: ${shlibs:Depends}, ${misc:Depends}, default-jre | java2-runtime, freetts, nickle, plplot9-driver-cairo
 Suggests: slim | gdm
 Replaces: altusmetrum-themes, slim-altusmetrum
 Conflicts: altusmetrum-themes, slim-altusmetrum
