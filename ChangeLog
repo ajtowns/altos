@@ -1,3 +1,15 @@
+commit 2a004d17a13b4ff52d892bfdecff8ad3d0823f7c
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 30 19:37:17 2010 -0600
+
+    don't build all the "fat" jar deliverables by default
+
+commit 507e429db6638f82c32449e9c5ca06b46da30134
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 30 19:09:00 2010 -0600
+
+    update changelogs for Debian build
+
 commit 25764fcd1b65c3a5a817afdb5901ac30e8a5f0c0
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Mon Aug 30 19:08:29 2010 -0600

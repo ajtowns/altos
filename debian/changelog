@@ -1,3 +1,9 @@
+altos (0.7+25+g2a004d1) unstable; urgency=low
+
+  * don't build all the "fat" jar deliverables by default
+
+ -- Bdale Garbee <bdale@gag.com>  Mon, 30 Aug 2010 19:37:40 -0600
+
 altos (0.7+23+g25764fc) unstable; urgency=low
 
   [ Bdale Garbee ]
