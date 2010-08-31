@@ -117,7 +117,7 @@ $(SWIG_WRAP): $(JNI_FILE)
 
 ifeq ($(OS),Linux)
 install:	$(LIBNAME)
-	/usr/bin/install -c $(LIBNAME) $(DESTDIR)/usr/lib/altos/$(LIBNAME)
+	install -c $(LIBNAME) $(DESTDIR)/usr/lib/altos/$(LIBNAME)
 
 endif
 

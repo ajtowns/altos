@@ -122,9 +122,9 @@ fat/classes/Manifest.txt: $(CLASSFILES) Makefile
 	echo "Class-Path: freetts.jar" >> $@
 
 install: altosui.jar altosui
-	/usr/bin/install -m 0644 altosui.jar $(DESTDIR)/usr/share/java/altosui.jar
-	/usr/bin/install -m 0644 altosui.1 $(DESTDIR)/usr/share/man/man1/altosui.1
-	/usr/bin/install altosui $(DESTDIR)/usr/bin/altosui
+	install -m 0644 altosui.jar $(DESTDIR)/usr/share/java/altosui.jar
+	install -m 0644 altosui.1 $(DESTDIR)/usr/share/man/man1/altosui.1
+	install altosui $(DESTDIR)/usr/bin/altosui
 
 clean:
 	rm -f *.class altosui.jar
