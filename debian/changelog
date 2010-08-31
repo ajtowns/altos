@@ -1,4 +1,4 @@
-altos (0.7+25+g2a004d1) unstable; urgency=low
+altos (0.7+26+gc35632e) unstable; urgency=low
 
   * don't build all the "fat" jar deliverables by default
 
