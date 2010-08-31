@@ -1,3 +1,239 @@
+commit 4790f78aead8a816e5b247c022b2998ce3a94053
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 30 18:48:50 2010 -0600
+
+    add a .gitattributes file, configuring the Mac and Windows binary library
+    files with the export-ignore attribute, in hopes that this will prevent
+    them showing up in source packages
+
+commit 81318e5b7179b0311ab099043ecb04a25d763750
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 30 18:15:40 2010 -0600
+
+    make invocation of 'install' pathless to work on more Unix variants
+
+commit cbc72399a0f4d7429df0189bcdae683dd491cb9e
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 30 17:56:56 2010 -0600
+
+    continue even if rm's don't have anything to do
+
+commit a9a8d23c877e6f6c76857b7c85e3d43b4da1db27
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 30 05:49:11 2010 -0700
+
+    altosui: Devices with USB id 0x000a always get listed
+    
+    List 'unknown' AltusMetrum devices anytime the UI needs a device
+    name.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a94900b8862b99b4e317ea0ee3edd2a560f270c7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 30 05:48:23 2010 -0700
+
+    altosui: build debian-style altosui too
+    
+    This adds the dependencies to make sure altosui and altosui.jar get built.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 38ac388baf8125c0644b868a7aaf8eba1bdf990d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 30 05:28:37 2010 -0700
+
+    altosui: Build linux, mac and windows archives on Linux
+    
+    This adds 'fat' archives for each target OS.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 35d9a8214252dbe79aeb69ae47d2e5c58a654702
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 30 05:27:45 2010 -0700
+
+    libaltos: Use overlapped I/O on windows
+    
+    Otherwise, reads block writes and vice-versa. Crazy stuff.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c7ba92317ac55272acbde12416448ebd17b983a6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 30 04:52:00 2010 -0700
+
+    altos: Windows sends USB Out packets of 0 length. Ack them.
+    
+    This was an untested case as no other operating system sents 0-length
+    out packets (they're not necessary). The correct response is to ACK
+    them by clearing the OUTPKT_RDY bit so that another packet can be sent.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 20a472cfe3369200150ea4ff067ceb28968dbcac
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 30 02:58:23 2010 -0700
+
+    libaltos: Add pre-built Windows .dll
+    
+    This lets us create the windows distribution on Linux.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0300fe581c949232bc52b05fe9c1f6032cad6b60
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 30 02:56:25 2010 -0700
+
+    libaltos: Add pre-built Mac OS X libaltos.dylib
+    
+    This allows the mac bits to be built on Linux.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5d48c494325524bbeed10e0dc7300ed44e7e208e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 30 02:53:26 2010 -0700
+
+    Update telemetrum.inf to include all current USB ids.
+    
+    Windows 7 has 'encouraged' us to split out each product into a
+    separate USB ID. telemetrum.inf now has all of them listed.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit df34bbe7d1c43b12ab6d610fe810b6e1683e4c21
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 30 02:49:49 2010 -0700
+
+    libaltos: Improve Makefile
+    
+    Builds Windows .dll correctly now and sample app.
+    Moves linux install target to end so it is not default
+    Adds .NOTPARALLEL to disable parallel gnumake.
+    Removes -g debugging flags to shrink file size.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit dd5374b8e660012ae4f8b058454fd101e0749ca7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 30 02:00:30 2010 -0700
+
+    libaltos: Fix windows build.
+    
+    Need stdlib.h to get calloc/free defined, remove debug printfs, fix
+    serial timeouts.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 63c832394a829f41b8f77d075786530536360349
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 29 23:22:27 2010 -0700
+
+    altos: shut down packet mode cleanly
+    
+    Instead of constantly bashing the packet master thread, let it shut
+    itself down in an orderly fashion. It will shut down fairly quickly as
+    all of the activities in that thread are bounded. Otherwise, the
+    master packet thread might leave mutexes locked and all sorts of other
+    horrors.
+    
+    Tested on Linux and Mac OS X and shown to be reliable.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 43619c13f749b79c096d1e8fdab3d5cfb5fd85f1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 29 22:42:23 2010 -0700
+
+    altos: Abort radio harder when terminating packet mode.
+    
+    Make sure the master radio tasks don't get stuck waiting for an
+    incoming packet again by aborting the radio each time we poke the
+    tasks.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c4a8569f61eddf690d00337543462235ecbfbe54
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 29 22:41:18 2010 -0700
+
+    altos: flush pending output when terminating packet mode
+    
+    Just in case the last command sent hasn't been transmitted, hang
+    around for up to a second waiting for the data to get across the link.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1acd3c7ec167b1b18e4ea493e5978c938a91cc89
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 29 21:45:19 2010 -0700
+
+    libaltos: cjnitest needs altos_flush now
+
+commit 6527357d1f0e94faf9e7dacac10a39875131be7c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 29 21:43:46 2010 -0700
+
+    libaltos: Missing OS_LDFLAGS on cjnitest build
+
+commit b7fa1ea3338f63b8edcf8aacccb5e519ca0b213f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 29 21:41:40 2010 -0700
+
+    libaltos: Mac OS X cannot use 'poll(2)' on serial lines.
+    
+    Who ships this stuff, anyway? Instead of blocking, we'll poll every 100ms now,
+    otherwise, we won't be able to abort the read when the device is closed. Yay!
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e60c59123232915e808cee23ef89eb1a38ced34b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 29 21:40:21 2010 -0700
+
+    altosui: discard invalid lines while reading Eeprom flight data
+    
+    This shouldn't happen, but it's easy enough to get back in sync by just
+    skipping lines with weird contents.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ae02b1590439d5c8dfb472cf1f83a14fdcfbaf11
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 29 21:36:47 2010 -0700
+
+    altosui: provide separate flush_input/flush_output for serial. deal with monitor automatically
+    
+    (yes, this should be two patches, but the diffs in AltosSerial were merged together).
+    
+    First, this replaces the existing flush/flush_reply mess with two simple functions,
+    one to flush output to the serial device, making sure that all data written will be seen
+    while we wait for input. The other sucks any pending input off of the serial line and
+    discards it.
+    
+    Second, AltosSerial now tracks whether the serial line is being used for telemetry
+    monitoring. If so, it enables monitoring, otherwise it disables it. Eliminates a
+    bunch of manual state tracking elsewhere.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit edcfb1bdf64772d3b83405ccf99385b8fea5d8e4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 29 17:33:59 2010 -0700
+
+    libaltos: AltusMetrum devices use more than one USB ID.
+    
+    List all usb devices, picking those with AltusMetrum IDs.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 236685807b63860ad033aa0254ce8f6d8d36d4ef
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 27 22:26:09 2010 -0600
+
+    update changelogs for Debian build
+
 commit 1cda15fdef2d9d3e54354bd5c43a0bcc7e3240cb
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Fri Aug 27 22:24:51 2010 -0600
