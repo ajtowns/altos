@@ -162,7 +162,7 @@ public class AltosRomconfigUI
 		}
 	}
 
-	public AltosRomconfig romconfig() {
+	AltosRomconfig romconfig() {
 		try {
 			return new AltosRomconfig(serial(), radio_calibration());
 		} catch (NumberFormatException ne) {
