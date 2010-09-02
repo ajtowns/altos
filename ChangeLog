@@ -1,3 +1,27 @@
+commit 59a40f6d5a2159b9009a3fa0737bb679efd5b32c
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 2 00:55:01 2010 -0400
+
+    another distclean fix
+
+commit 59ff9180f11063c257746b895a167179b3a4ff7c
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 2 00:53:16 2010 -0400
+
+    and a few more distclean fixes
+
+commit 3aafd70257b70b7c11ba9c55749157979bc61ea2
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 2 00:52:04 2010 -0400
+
+    more makefile distclean target work
+
+commit d5a6ad87c7a9ac03b2e694bed0a54b6cc4322a6f
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 2 00:50:16 2010 -0400
+
+    update changelogs for Debian build
+
 commit 14fa24ed93b3b1cec08a170004c6fb7f4d74f7e5
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Sep 2 00:48:31 2010 -0400

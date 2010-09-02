@@ -1,8 +1,8 @@
-altos (0.7+36+g14fa24e) unstable; urgency=low
+altos (0.7+40+g59a40f6) unstable; urgency=low
 
   [ Bdale Garbee ]
   * add distclean targets to libaltos and altosui to all Debian package
-    to build
+    to build, and clean up other distclean content as needed
 
   [ Keith Packard ]
   * altosui: missed AltosReader.class in the Makefile
