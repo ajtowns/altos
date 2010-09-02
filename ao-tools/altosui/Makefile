@@ -135,6 +135,7 @@ clean:
 	rm -rf windows linux
 
 distclean:	clean
+	rm -f $(DARWIN_ZIP) $(WINDOWS_ZIP) $(LINUX_TGZ)
 
 FAT_FILES=$(FATJAR) $(FREETTSJAR) $(HEXFILES)
 
