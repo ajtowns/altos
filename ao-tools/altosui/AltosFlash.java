@@ -202,9 +202,13 @@ public class AltosFlash {
 		debug.debug_instr(set_clkcon_fast);
 
 		byte	status;
-		do {
+		for (int times = 0; times < 20; times++) {
+			Thread.sleep(1);
 			status = debug.debug_instr(get_sleep);
-		} while ((status & SLEEP_XOSC_STB) == 0);
+			if ((status & SLEEP_XOSC_STB) != 0)
+				return;
+		}
+		throw new IOException("Failed to initialize target clock");
 	}
 
 	void action(String s, int percent) {
@@ -219,6 +223,22 @@ public class AltosFlash {
 		action(String.format("%d/%d (%d%%)",
 				     part, total, percent),
 		       percent);
+	}
+
+	void run(int pc) throws IOException, InterruptedException {
+		debug.set_pc(pc);
+		int set_pc = debug.get_pc();
+		if (pc != set_pc)
+			throw new IOException("Failed to set target program counter");
+		debug.resume();
+
+		for (int times = 0; times < 20; times++) {
+			byte status = debug.read_status();
+			if ((status & AltosDebug.STATUS_CPU_HALTED) != 0)
+				return;
+		}
+
+		throw new IOException("Failed to execute program on target");
 	}
 
 	public void flash() throws IOException, FileNotFoundException, InterruptedException {
@@ -264,16 +284,7 @@ public class AltosFlash {
 							    this_time);
 			debug.write_memory(flash_prog, flash_page);
 
-			debug.set_pc(flash_prog);
-			int pc = debug.get_pc();
-			debug.resume();
-			Thread.sleep(100);
-			for (int times = 0; times < 10; times++) {
-				byte status = debug.read_status();
-				if ((status & AltosDebug.STATUS_CPU_HALTED) != 0)
-					break;
-				Thread.sleep(100);
-			}
+			run(flash_prog);
 
 			byte[] check = debug.read_memory(flash_addr, this_time);
 			for (int i = 0; i < this_time; i++)
