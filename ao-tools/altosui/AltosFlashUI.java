@@ -75,17 +75,17 @@ public class AltosFlashUI
 			AltosRomconfigUI romconfig_ui = new AltosRomconfigUI (frame);
 
 			romconfig_ui.set(flash.romconfig());
-			romconfig_ui.showDialog();
+			AltosRomconfig romconfig = romconfig_ui.showDialog();
 
-			AltosRomconfig romconfig = romconfig_ui.romconfig();
-			if (romconfig == null || !romconfig.valid())
-				return;
-			flash.set_romconfig(romconfig);
-			serial_value.setText(String.format("%d",
-							   flash.romconfig().serial_number));
-			file_value.setText(file.toString());
-			setVisible(true);
-			flash.flash();
+			if (romconfig != null && romconfig.valid()) {
+				flash.set_romconfig(romconfig);
+				serial_value.setText(String.format("%d",
+								   flash.romconfig().serial_number));
+				file_value.setText(file.toString());
+				setVisible(true);
+				flash.flash();
+				flash = null;
+			}
 		} catch (FileNotFoundException ee) {
 			JOptionPane.showMessageDialog(frame,
 						      "Cannot open image",
@@ -97,6 +97,8 @@ public class AltosFlashUI
 						      file.toString(),
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (InterruptedException ie) {
+		} finally {
+			abort();
 		}
 		dispose();
 	}
