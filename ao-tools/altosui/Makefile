@@ -134,6 +134,8 @@ clean:
 	rm -rf classes
 	rm -rf windows linux
 
+distclean:	clean
+
 FAT_FILES=$(FATJAR) $(FREETTSJAR) $(HEXFILES)
 
 LINUX_FILES=$(FAT_FILES) ../libaltos/libaltos.so fat/altosui

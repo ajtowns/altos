@@ -106,6 +106,8 @@ clean:
 	rm -f $(CLASSFILES) $(OBJS) $(LIBNAME) $(CJNITEST) cjnitest.o
 	rm -rf swig_bindings libaltosJNI
 
+distclean:	clean
+
 $(JNI_FILE): libaltos.i0 $(HEADERS)
 	mkdir -p $(SWIG_DIR)
 	mkdir -p libaltosJNI
