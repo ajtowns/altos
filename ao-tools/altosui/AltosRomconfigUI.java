@@ -134,8 +134,17 @@ public class AltosRomconfigUI
 	public void actionPerformed(ActionEvent e) {
 		String	cmd = e.getActionCommand();
 
-		if (cmd.equals("ok"))
+		if (cmd.equals("ok")) {
+			AltosRomconfig	romconfig = romconfig();
+			if (romconfig == null || !romconfig.valid()) {
+				JOptionPane.showMessageDialog(this,
+							      "Invalid serial number or radio calibration value",
+							      "Invalid rom configuration",
+							      JOptionPane.ERROR_MESSAGE);
+				return;
+			}
 			selected = true;
+		}
 		setVisible(false);
 	}
 
