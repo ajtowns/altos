@@ -1,4 +1,4 @@
-altos (0.7+35+g83552df) unstable; urgency=low
+altos (0.7+36+g14fa24e) unstable; urgency=low
 
   [ Bdale Garbee ]
   * add distclean targets to libaltos and altosui to all Debian package
