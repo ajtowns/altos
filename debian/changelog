@@ -1,4 +1,4 @@
-altos (0.7+32+ga470315) unstable; urgency=low
+altos (0.7+33+gd079bfe) unstable; urgency=low
 
   [ Keith Packard ]
   * altosui: missed AltosReader.class in the Makefile
