@@ -1,3 +1,15 @@
+commit 83552dfa0d38db9cdf3efc89e64e6c7896467856
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 2 00:47:54 2010 -0400
+
+    add distclean targets to libaltos and altosui to all Debian package to build
+
+commit 6f24d2a476759104a10b26b54faff2b18b0e208b
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 2 00:46:21 2010 -0400
+
+    update changelogs for Debian build
+
 commit d079bfe86ed40ff450ece445cf5f5e3970e44cec
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Sep 2 00:44:30 2010 -0400
