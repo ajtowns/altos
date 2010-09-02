@@ -26,6 +26,8 @@ telemetrum-doc.pdf:	telemetrum-doc.fo
 clean:
 	rm -f telemetrum-doc.html telemetrum-doc.pdf telemetrum-doc.fo
 
+distclean:	clean
+
 indent:		telemetrum-doc.xsl
 	xmlindent -i 2 < telemetrum-doc.xsl > telemetrum-doc.new
 
