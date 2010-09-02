@@ -57,7 +57,6 @@ public class AltosRomconfig {
 	static void put_usb_serial(int value, byte[] bytes, int start) {
 		int offset = start + 0xa;
 		int string_num = 0;
-		System.out.printf("Put usb serial %d\n", value);
 
 		while (offset < bytes.length && bytes[offset] != 0) {
 			if (bytes[offset + 1] == AO_USB_DESC_STRING) {
@@ -67,13 +66,10 @@ public class AltosRomconfig {
 			}
 			offset += ((int) bytes[offset]) & 0xff;
 		}
-		System.out.printf("offset %d content %d\n",
-				  offset, bytes[offset]);
 		if (offset >= bytes.length || bytes[offset] == 0)
 			return;
 		int len = ((((int) bytes[offset]) & 0xff) - 2) / 2;
 		String fmt = String.format("%%0%dd", len);
-		System.out.printf("existing serial length %d format %s\n", len, fmt);
 
 		String s = String.format(fmt, value);
 		if (s.length() != len) {
@@ -90,14 +86,12 @@ public class AltosRomconfig {
 	public AltosRomconfig(byte[] bytes, int offset) {
 		version = get_int(bytes, offset + 0, 2);
 		check = get_int(bytes, offset + 2, 2);
-		System.out.printf("version %d check %d\n", version, check);
 		if (check == (~version & 0xffff)) {
 			switch (version) {
 			case 2:
 			case 1:
 				serial_number = get_int(bytes, offset + 4, 2);
 				radio_calibration = get_int(bytes, offset + 6, 4);
-				System.out.printf("serial %d cal %d\n", serial_number, radio_calibration);
 				valid = true;
 				break;
 			}
