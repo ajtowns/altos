@@ -333,14 +333,19 @@ ao_gps(void) __reentrant
 			ao_gps_skip_field();	/* sats in view */
 			while (ao_gps_char != '*' && ao_gps_char != '\n' && ao_gps_char != '\r') {
 				i = ao_gps_tracking_next.channels;
-				ao_gps_tracking_next.sats[i].svid = ao_gps_decimal(2);	/* SVID */
+				c = ao_gps_decimal(2);	/* SVID */
+				if (i < AO_MAX_GPS_TRACKING)
+					ao_gps_tracking_next.sats[i].svid = c;
 				ao_gps_lexchar();
 				ao_gps_skip_field();	/* elevation */
 				ao_gps_lexchar();
 				ao_gps_skip_field();	/* azimuth */
-				if (!(ao_gps_tracking_next.sats[i].c_n_1 = ao_gps_decimal(2)))	/* C/N0 */
-					ao_gps_tracking_next.sats[i].svid = 0;
-				ao_gps_tracking_next.channels = i + 1;
+				c = ao_gps_decimal(2);	/* C/N0 */
+				if (i < AO_MAX_GPS_TRACKING) {
+					if (!(ao_gps_tracking_next.sats[i].c_n_1 = c))
+						ao_gps_tracking_next.sats[i].svid = 0;
+					ao_gps_tracking_next.channels = i + 1;
+				}
 			}
 			if (ao_gps_char == '*') {
 				uint8_t cksum = ao_gps_cksum ^ '*';

@@ -781,9 +781,11 @@ struct ao_gps_sat_data {
 	uint8_t		c_n_1;
 };
 
+#define AO_MAX_GPS_TRACKING	12
+
 struct ao_gps_tracking_data {
 	uint8_t			channels;
-	struct ao_gps_sat_data	sats[12];
+	struct ao_gps_sat_data	sats[AO_MAX_GPS_TRACKING];
 };
 
 extern __xdata uint8_t ao_gps_mutex;
