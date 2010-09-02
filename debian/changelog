@@ -1,3 +1,12 @@
+altos (0.7+32+ga470315) unstable; urgency=low
+
+  [ Keith Packard ]
+  * altosui: missed AltosReader.class in the Makefile
+  * altos: Bounds check Skytraq GPS tracking data array
+  * altosui: Remove Manifest.txt from git repo as it's built now
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 02 Sep 2010 00:44:15 -0400
+
 altos (0.7+28+gd006c5e) unstable; urgency=low
 
   * add runtime dependencies for altos binary package

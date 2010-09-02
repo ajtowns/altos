@@ -1,3 +1,46 @@
+commit a470315e5d822a69ef5304512cf73c604c88e481
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 1 20:14:51 2010 -0700
+
+    altosui: Remove Manifest.txt from git repo as it's built now
+    
+    This file is built with appropriate contents for each different .jar file.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1177e0a684328422be5adc68093d0091a218a824
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 1 19:53:24 2010 -0700
+
+    altos: Bounds check Skytraq GPS tracking data array
+    
+    Missing GPS serial data could cause the tracking array reset to
+    get skipped, causing the array to be overrun, smashing critical data
+    beyond the array.
+    
+    This was detected using the 'altosui' flash command to program a
+    device from TM. Hitting the USB that hard caused TM to crash with a
+    mutex error (3 beeps) after the ao_gps_task structure was overwritten
+    with zeros.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 775acb89660cdee2f3c54c38297baefe39f2414c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 30 22:24:09 2010 -0700
+
+    altosui: missed AltosReader.class in the Makefile
+    
+    This caused clean builds to fail to make this file
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit bd2b9d958c2b7f846031b076ed51c4fbaaf2d68f
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 31 00:20:06 2010 -0400
+
+    update changelogs for Debian build
+
 commit d006c5e1255433181aca4c8e6a277b2d1bc0841b
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Tue Aug 31 00:19:37 2010 -0400
