@@ -101,7 +101,8 @@ public class AltosSerial implements Runnable {
 	}
 
 	public void flush_output() {
-		libaltos.altos_flush(altos);
+		if (altos != null)
+			libaltos.altos_flush(altos);
 	}
 
 	public void flush_input() {
@@ -180,8 +181,8 @@ public class AltosSerial implements Runnable {
 		input_thread = new Thread(this);
 		input_thread.start();
 		print("~\nE 0\n");
+		flush_output();
 		set_monitor(monitor_mode);
-		flush_input();
 	}
 
 	public void set_channel(int channel) {
@@ -190,6 +191,7 @@ public class AltosSerial implements Runnable {
 				printf("m 0\nc r %d\nm 1\n", channel);
 			else
 				printf("c r %d\n", channel);
+			flush_output();
 		}
 	}
 
@@ -200,12 +202,15 @@ public class AltosSerial implements Runnable {
 				printf("m 1\n");
 			else
 				printf("m 0\n");
+			flush_output();
 		}
 	}
 
 	public void set_callsign(String callsign) {
-		if (altos != null)
+		if (altos != null) {
 			printf ("c c %s\n", callsign);
+			flush_output();
+		}
 	}
 
 	public AltosSerial() {
