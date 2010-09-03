@@ -44,6 +44,7 @@ import altosui.AltosChannelMenu;
 import altosui.AltosFlashUI;
 import altosui.AltosLogfileChooser;
 import altosui.AltosCSVUI;
+import altosui.AltosLine;
 
 import libaltosJNI.*;
 
@@ -169,6 +170,8 @@ public class AltosUI extends JFrame {
 	}
 
 	public void show(AltosState state, int crc_errors) {
+		if (state == null)
+			return;
 		flightStatusModel.set(state);
 
 		info_reset();
@@ -367,7 +370,7 @@ public class AltosUI extends JFrame {
 
 		void init() { }
 
-		AltosRecord read() throws InterruptedException, ParseException, AltosCRCException { return null; }
+		AltosRecord read() throws InterruptedException, ParseException, AltosCRCException, IOException { return null; }
 
 		void close() { }
 
@@ -403,6 +406,11 @@ public class AltosUI extends JFrame {
 					}
 				}
 			} catch (InterruptedException ee) {
+			} catch (IOException ie) {
+				JOptionPane.showMessageDialog(AltosUI.this,
+							      String.format("Error reading from \"%s\"", name),
+							      "Telemetry Read Error",
+							      JOptionPane.ERROR_MESSAGE);
 			} finally {
 				close();
 				idle_thread.interrupt();
@@ -417,10 +425,13 @@ public class AltosUI extends JFrame {
 
 	class DeviceThread extends DisplayThread {
 		AltosSerial	serial;
-		LinkedBlockingQueue<String> telem;
+		LinkedBlockingQueue<AltosLine> telem;
 
-		AltosRecord read() throws InterruptedException, ParseException, AltosCRCException {
-			return new AltosTelemetry(telem.take());
+		AltosRecord read() throws InterruptedException, ParseException, AltosCRCException, IOException {
+			AltosLine l = telem.take();
+			if (l.line == null)
+				throw new IOException("IO error");
+			return new AltosTelemetry(l.line);
 		}
 
 		void close() {
@@ -428,11 +439,11 @@ public class AltosUI extends JFrame {
 			serial.remove_monitor(telem);
 		}
 
-		public DeviceThread(AltosSerial s) {
+		public DeviceThread(AltosSerial s, String in_name) {
 			serial = s;
-			telem = new LinkedBlockingQueue<String>();
+			telem = new LinkedBlockingQueue<AltosLine>();
 			serial.add_monitor(telem);
-			name = "telemetry";
+			name = in_name;
 		}
 	}
 
@@ -443,7 +454,7 @@ public class AltosUI extends JFrame {
 			try {
 				stop_display();
 				serial_line.open(device);
-				DeviceThread thread = new DeviceThread(serial_line);
+				DeviceThread thread = new DeviceThread(serial_line, device.getPath());
 				serial_line.set_channel(AltosPreferences.channel());
 				serial_line.set_callsign(AltosPreferences.callsign());
 				run_display(thread);

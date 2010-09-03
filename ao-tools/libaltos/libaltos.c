@@ -576,6 +576,11 @@ altos_free(struct altos_file *file)
 PUBLIC int
 altos_flush(struct altos_file *file)
 {
+	if (file->out_used && 0) {
+		printf ("flush \"");
+		fwrite(file->out_data, 1, file->out_used, stdout);
+		printf ("\"\n");
+	}
 	while (file->out_used) {
 		int	ret;
 
@@ -634,7 +639,7 @@ altos_fill(struct altos_file *file, int timeout)
 			return LIBALTOS_ERROR;
 #ifdef USE_POLL
 		fd[0].fd = file->fd;
-		fd[0].events = POLLIN;
+		fd[0].events = POLLIN|POLLERR|POLLHUP|POLLNVAL;
 		fd[1].fd = file->pipe[0];
 		fd[1].events = POLLIN;
 		ret = poll(fd, 2, timeout);
@@ -644,6 +649,9 @@ altos_fill(struct altos_file *file, int timeout)
 		}
 		if (ret == 0)
 			return LIBALTOS_TIMEOUT;
+
+		if (fd[0].revents & (POLLHUP|POLLERR|POLLNVAL))
+			return LIBALTOS_ERROR;
 		if (fd[0].revents & POLLIN)
 #endif
 		{
@@ -659,6 +667,11 @@ altos_fill(struct altos_file *file, int timeout)
 				return LIBALTOS_TIMEOUT;
 #endif
 		}
+	}
+	if (file->in_used && 0) {
+		printf ("fill \"");
+		fwrite(file->in_data, 1, file->in_used, stdout);
+		printf ("\"\n");
 	}
 	return 0;
 }

@@ -27,10 +27,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.LinkedList;
 import java.util.Iterator;
 import altosui.AltosSerialMonitor;
+import altosui.AltosLine;
 import libaltosJNI.libaltos;
 import libaltosJNI.altos_device;
 import libaltosJNI.SWIGTYPE_p_altos_file;
 import libaltosJNI.SWIGTYPE_p_altos_list;
+import libaltosJNI.libaltosConstants;
 
 /*
  * This class reads from the serial port and places each received
@@ -41,8 +43,8 @@ import libaltosJNI.SWIGTYPE_p_altos_list;
 public class AltosSerial implements Runnable {
 
 	SWIGTYPE_p_altos_file altos;
-	LinkedList<LinkedBlockingQueue<String>> monitors;
-	LinkedBlockingQueue<String> reply_queue;
+	LinkedList<LinkedBlockingQueue<AltosLine>> monitors;
+	LinkedBlockingQueue<AltosLine> reply_queue;
 	Thread input_thread;
 	String line;
 	byte[] line_bytes;
@@ -57,7 +59,15 @@ public class AltosSerial implements Runnable {
 				c = libaltos.altos_getchar(altos, 0);
 				if (Thread.interrupted())
 					break;
-				if (c == -1)
+				if (c == libaltosConstants.LIBALTOS_ERROR) {
+					for (int e = 0; e < monitors.size(); e++) {
+						LinkedBlockingQueue<AltosLine> q = monitors.get(e);
+						q.put(new AltosLine());
+					}
+					reply_queue.put (new AltosLine());
+					break;
+				}
+				if (c == libaltosConstants.LIBALTOS_TIMEOUT)
 					continue;
 				if (c == '\r')
 					continue;
@@ -73,12 +83,12 @@ public class AltosSerial implements Runnable {
 							}
 							if (line.startsWith("VERSION") || line.startsWith("CRC")) {
 								for (int e = 0; e < monitors.size(); e++) {
-									LinkedBlockingQueue<String> q = monitors.get(e);
-									q.put(line);
+									LinkedBlockingQueue<AltosLine> q = monitors.get(e);
+									q.put(new AltosLine (line));
 								}
 							} else {
 //								System.out.printf("GOT: %s\n", line);
-								reply_queue.put(line);
+								reply_queue.put(new AltosLine (line));
 							}
 							line_count = 0;
 							line = "";
@@ -121,16 +131,16 @@ public class AltosSerial implements Runnable {
 
 	public String get_reply() throws InterruptedException {
 		flush_output();
-		String line = reply_queue.take();
-		return line;
+		AltosLine line = reply_queue.take();
+		return line.line;
 	}
 
-	public void add_monitor(LinkedBlockingQueue<String> q) {
+	public void add_monitor(LinkedBlockingQueue<AltosLine> q) {
 		set_monitor(true);
 		monitors.add(q);
 	}
 
-	public void remove_monitor(LinkedBlockingQueue<String> q) {
+	public void remove_monitor(LinkedBlockingQueue<AltosLine> q) {
 		monitors.remove(q);
 		if (monitors.isEmpty())
 			set_monitor(false);
@@ -218,7 +228,7 @@ public class AltosSerial implements Runnable {
 		input_thread = null;
 		line = "";
 		monitor_mode = false;
-		monitors = new LinkedList<LinkedBlockingQueue<String>> ();
-		reply_queue = new LinkedBlockingQueue<String> ();
+		monitors = new LinkedList<LinkedBlockingQueue<AltosLine>> ();
+		reply_queue = new LinkedBlockingQueue<AltosLine> ();
 	}
 }

@@ -23,6 +23,7 @@ CLASSFILES=\
 	AltosGPS.class \
 	AltosGreatCircle.class \
 	AltosHexfile.class \
+	AltosLine.class \
 	AltosLog.class \
 	AltosLogfileChooser.class \
 	AltosParse.class \
