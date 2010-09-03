@@ -71,7 +71,7 @@ public class AltosSerial implements Runnable {
 								for (int i = 0; i < line_count; i++)
 									line = line + line_bytes[i];
 							}
-							if (line.startsWith("VERSION")) {
+							if (line.startsWith("VERSION") || line.startsWith("CRC")) {
 								for (int e = 0; e < monitors.size(); e++) {
 									LinkedBlockingQueue<String> q = monitors.get(e);
 									q.put(line);

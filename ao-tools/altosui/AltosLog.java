@@ -74,6 +74,7 @@ class AltosLog implements Runnable {
 						open(telem);
 					}
 				} catch (ParseException pe) {
+				} catch (AltosCRCException ce) {
 				}
 				if (log_file != null) {
 					log_file.write(line);

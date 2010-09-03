@@ -168,21 +168,17 @@ public class AltosUI extends JFrame {
 			flightInfoModel[i].finish();
 	}
 
-	public void show(AltosState state) {
+	public void show(AltosState state, int crc_errors) {
 		flightStatusModel.set(state);
 
 		info_reset();
-		if (state.gps_ready)
-			info_add_row(0, "Ground state", "%s", "ready");
-		else
-			info_add_row(0, "Ground state", "wait (%d)",
-				     state.gps_waiting);
 		info_add_row(0, "Rocket state", "%s", state.data.state());
 		info_add_row(0, "Callsign", "%s", state.data.callsign);
 		info_add_row(0, "Rocket serial", "%6d", state.data.serial);
 		info_add_row(0, "Rocket flight", "%6d", state.data.flight);
 
 		info_add_row(0, "RSSI", "%6d    dBm", state.data.rssi);
+		info_add_row(0, "CRC Errors", "%6d", crc_errors);
 		info_add_row(0, "Height", "%6.0f    m", state.height);
 		info_add_row(0, "Max height", "%6.0f    m", state.max_height);
 		info_add_row(0, "Acceleration", "%8.1f  m/s²", state.acceleration);
@@ -197,6 +193,11 @@ public class AltosUI extends JFrame {
 		if (state.gps == null) {
 			info_add_row(1, "GPS", "not available");
 		} else {
+			if (state.gps_ready)
+				info_add_row(1, "GPS state", "%s", "ready");
+			else
+				info_add_row(1, "GPS state", "wait (%d)",
+					     state.gps_waiting);
 			if (state.data.gps.locked)
 				info_add_row(1, "GPS", "   locked");
 			else if (state.data.gps.connected)
@@ -362,7 +363,11 @@ public class AltosUI extends JFrame {
 
 		String		name;
 
-		AltosRecord read() throws InterruptedException, ParseException { return null; }
+		int		crc_errors;
+
+		void init() { }
+
+		AltosRecord read() throws InterruptedException, ParseException, AltosCRCException { return null; }
 
 		void close() { }
 
@@ -387,11 +392,14 @@ public class AltosUI extends JFrame {
 						old_state = state;
 						state = new AltosState(record, state);
 						update(state);
-						show(state);
+						show(state, crc_errors);
 						tell(state, old_state);
 						idle_thread.notice(state);
 					} catch (ParseException pp) {
 						System.out.printf("Parse error: %d \"%s\"\n", pp.getErrorOffset(), pp.getMessage());
+					} catch (AltosCRCException ce) {
+						++crc_errors;
+						show(state, crc_errors);
 					}
 				}
 			} catch (InterruptedException ee) {
@@ -411,7 +419,7 @@ public class AltosUI extends JFrame {
 		AltosSerial	serial;
 		LinkedBlockingQueue<String> telem;
 
-		AltosRecord read() throws InterruptedException, ParseException {
+		AltosRecord read() throws InterruptedException, ParseException, AltosCRCException {
 			return new AltosTelemetry(telem.take());
 		}
 

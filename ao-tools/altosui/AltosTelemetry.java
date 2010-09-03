@@ -23,6 +23,7 @@ import java.util.HashMap;
 import altosui.AltosConvert;
 import altosui.AltosRecord;
 import altosui.AltosGPS;
+import altosui.AltosCRCException;
 
 /*
  * Telemetry data contents
@@ -53,10 +54,16 @@ import altosui.AltosGPS;
  */
 
 public class AltosTelemetry extends AltosRecord {
-	public AltosTelemetry(String line) throws ParseException {
+	public AltosTelemetry(String line) throws ParseException, AltosCRCException {
 		String[] words = line.split("\\s+");
 		int	i = 0;
 
+		if (words[i].equals("CRC") && words[i+1].equals("INVALID")) {
+			i += 2;
+			AltosParse.word(words[i++], "RSSI");
+			rssi = AltosParse.parse_int(words[i++]);
+			throw new AltosCRCException(rssi);
+		}
 		if (words[i].equals("CALL")) {
 			version = 0;
 		} else {

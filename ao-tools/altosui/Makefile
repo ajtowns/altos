@@ -7,6 +7,7 @@ CLASSFILES=\
 	AltosConfig.class \
 	AltosConfigUI.class \
 	AltosConvert.class \
+	AltosCRCException.class \
 	AltosCSV.class \
 	AltosCSVUI.class \
 	AltosDebug.class \

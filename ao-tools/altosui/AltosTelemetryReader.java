@@ -62,6 +62,8 @@ public class AltosTelemetryReader extends AltosReader {
 					records.add(record);
 				} catch (ParseException pe) {
 					System.out.printf("parse exception %s\n", pe.getMessage());
+				} catch (AltosCRCException ce) {
+					System.out.printf("crc error\n");
 				}
 			}
 		} catch (IOException io) {
