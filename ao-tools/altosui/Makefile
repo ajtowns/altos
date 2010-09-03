@@ -159,7 +159,7 @@ $(DARWIN_ZIP): $(DARWIN_FILES)
 	cp $(DARWIN_RESOURCES) darwin/AltosUI.app/Contents/Resources/Java
 	mkdir -p darwin/AltOS
 	cp $(DARWIN_EXTRA) darwin/AltOS
-	cd darwin && zip -j -r ../$@ AltosUI.app AltOS
+	cd darwin && zip -r ../$@ AltosUI.app AltOS
 
 WINDOWS_FILES = $(FAT_FILES) ../libaltos/altos.dll ../../telemetrum.inf
 
