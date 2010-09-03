@@ -441,6 +441,7 @@ public class AltosUI extends JFrame {
 
 		if (device != null) {
 			try {
+				stop_display();
 				serial_line.open(device);
 				DeviceThread thread = new DeviceThread(serial_line);
 				serial_line.set_channel(AltosPreferences.channel());
@@ -536,8 +537,12 @@ public class AltosUI extends JFrame {
 	Thread		display_thread;
 
 	private void stop_display() {
-		if (display_thread != null && display_thread.isAlive())
+		if (display_thread != null && display_thread.isAlive()) {
 			display_thread.interrupt();
+			try {
+				display_thread.join();
+			} catch (InterruptedException ie) {}
+		}
 		display_thread = null;
 	}
 
