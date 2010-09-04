@@ -42,6 +42,9 @@ CLASSFILES=\
 	AltosRomconfigUI.class \
 	AltosVoice.class
 
+JAVA_ICON=../../icon/altus-metrum-16x16.jpg
+WINDOWS_ICON=../../icon/altus-metrum.ico
+
 # where altosui.jar gets installed
 ALTOSLIB=/usr/share/java
 
@@ -87,8 +90,8 @@ $(CLASSFILES):
 .java.class:
 	javac -encoding UTF8 -classpath "$(CLASSPATH)" $(JAVAFLAGS) $*.java
 
-altosui.jar: classes/altosui classes/libaltosJNI $(CLASSFILES) Manifest.txt
-	cd ./classes && jar cfm ../$@ altosui/Manifest.txt altosui/*.class libaltosJNI/*.class
+altosui.jar: classes/images classes/altosui classes/libaltosJNI $(CLASSFILES) Manifest.txt
+	cd ./classes && jar cfm ../$@ altosui/Manifest.txt images/* altosui/*.class libaltosJNI/*.class
 
 Manifest.txt: Makefile $(CLASSFILES)
 	echo 'Main-Class: altosui.AltosUI' > $@
@@ -102,6 +105,10 @@ classes/libaltosJNI:
 	mkdir -p classes
 	ln -sf ../../libaltos/libaltosJNI classes/libaltosJNI
 
+classes/images:
+	mkdir -p classes/images
+	ln -sf ../../$(JAVA_ICON) classes/images
+
 altosui:
 	echo "#!/bin/sh" > $@
 	echo "exec java -Djava.library.path=/usr/lib/altos -jar /usr/share/java/altosui.jar" >> $@
@@ -114,11 +121,13 @@ fat/altosui:
 	echo 'exec java -Djava.library.path="$$DIR" -jar "$$DIR"/altosui.jar' >> $@
 	chmod +x $@
 
-fat/altosui.jar: $(CLASSFILES) fat/classes/Manifest.txt
+fat/altosui.jar: $(CLASSFILES) $(JAVA_ICON) fat/classes/Manifest.txt
 	mkdir -p fat/classes
 	test -L fat/classes/altosui || ln -sf ../.. fat/classes/altosui
+	mkdir -p fat/classes/images
+	cp $(JAVA_ICON) fat/classes/images
 	test -L fat/classes/libaltosJNI || ln -sf ../../../libaltos/libaltosJNI fat/classes/libaltosJNI
-	cd ./fat/classes && jar cfm ../../$@ Manifest.txt altosui/*.class libaltosJNI/*.class
+	cd ./fat/classes && jar cfm ../../$@ Manifest.txt images/* altosui/*.class libaltosJNI/*.class
 
 fat/classes/Manifest.txt: $(CLASSFILES) Makefile
 	mkdir -p fat/classes
@@ -163,7 +172,7 @@ $(DARWIN_ZIP): $(DARWIN_FILES)
 	cp $(DARWIN_EXTRA) darwin/AltOS
 	cd darwin && zip -r ../$@ AltosUI.app AltOS
 
-WINDOWS_FILES = $(FAT_FILES) ../libaltos/altos.dll ../../telemetrum.inf
+WINDOWS_FILES = $(FAT_FILES) ../libaltos/altos.dll ../../telemetrum.inf $(WINDOWS_ICON)
 
 $(WINDOWS_EXE): $(WINDOWS_FILES) altos-windows.nsi
 	rm -f $@

@@ -50,11 +50,13 @@ Section "AltosUI Application"
 	File "windows/AltOS/*.jar"
 	File "windows/AltOS/*.dll"
 
-	CreateShortCut "$SMPROGRAMS\AltusMetrum.lnk" "$INSTDIR\altosui.jar"
+	File "windows/AltOS/*.ico"
+
+	CreateShortCut "$SMPROGRAMS\AltusMetrum.lnk" "$INSTDIR\altosui.jar" "" "$INSTDIR\altus-metrum.ico"
 SectionEnd
 
 Section "AltosUI Desktop Shortcut"
-	CreateShortCut "$DESKTOP\AltusMetrum.lnk" "$INSTDIR\altosui.jar"
+	CreateShortCut "$DESKTOP\AltusMetrum.lnk" "$INSTDIR\altosui.jar"  "" "$INSTDIR\altus-metrum.ico"
 SectionEnd
 
 Section "TeleMetrum and TeleDongle Firmware"
