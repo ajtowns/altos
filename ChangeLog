@@ -1,3 +1,145 @@
+commit 59798c6fd11502a9c8b66090c23ba50eb250692e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 3 12:43:45 2010 -0700
+
+    altosui: Catch I/O errors on telemetry device, report to user
+    
+    This catches the USB device being unplugged and makes sure the
+    user sees an error dialog in this case.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 16d8d6a8853d09f683b13f9cda3c3174a0aab130
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 3 12:31:05 2010 -0700
+
+    altosui: Must flush serial line after configuring for telemetry
+    
+    Without flushing the configuration commands to the serial device, it
+    never sees them as the telemetry input thread doesn't flush.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d4f64e95e31e2335470efc15df2ab357b7d197f3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 3 11:48:55 2010 -0700
+
+    Revert "altosui: Deal with altos bug setting radio channel while monitoring"
+    
+    This reverts commit ba65e4aeb952a1cf49a77f1e24e235508fcea71f.
+    
+    Testing the old code
+
+commit 71191ecef3ba0e00d0f8a7cd1a24982bfa44ec72
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 3 01:30:33 2010 -0700
+
+    altosui: Allow 'connect to device' when already connected
+    
+    Opening another serial device involves shutting down the display
+    thread (to reset its state) and spawning another one. Shutting down
+    the display thread normally closes the serial device as a part of the
+    process, and if this isn't done before the new serial device is
+    opened, then the new serial device ends up getting closed too.
+    
+    Interrupting the display thread and waiting for it to stop before
+    opening the new serial device solves the problem.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ba65e4aeb952a1cf49a77f1e24e235508fcea71f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 3 01:21:57 2010 -0700
+
+    altosui: Deal with altos bug setting radio channel while monitoring
+    
+    If the monitoring thread is active, then setting the radio channel can
+    sometimes cause the monitoring thread to get stuck. I'm not entirely
+    sure why though. For now, work around the issue by making sure
+    monitoring is off, and the monitoring thread has stopped, before
+    changing the radio channel.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e5ef42c2b22c6639d90631dbbb588f9fd2494385
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 3 01:12:24 2010 -0700
+
+    altosui: Report telemetry CRC errors in UI
+    
+    Telemetry CRC errors can signal problems with TeleMetrum or TeleDongle
+    units, so report them in the UI.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3b3aa448f3a0f44137f7530b04b58967ba5f22f5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 2 21:11:29 2010 -0700
+
+    altosui: build Mac OS .zip file to include paths
+    
+    Without the paths, the OS X zip file doesn't create a usable
+    application structure.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit cff0d1ef6b338b3d5ad9450d4d5f95df934cb5e4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 1 22:56:34 2010 -0700
+
+    altosui: Post error dialog on invalid ROM config values.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8d8980f56a4f2c7d6f2ce667130706e0f04f8ded
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 1 22:56:12 2010 -0700
+
+    altosui: Remove some debug printfs from AltosRomconfig class
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5ee6cd41ed189c3166f76558ecada80917f40652
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 1 22:47:15 2010 -0700
+
+    altosui: Hide internal rom config UI helper function
+    
+    This was getting mis-used by the flash UI causing the rom dialog
+    'cancel' button to work just like 'ok'.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9a690c9795e8257d2a3225f905117681668a472f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 1 22:46:04 2010 -0700
+
+    altosui: allow flashing to be canceled from the rom config dialog
+    
+    Was using the rom config class wrong, causing cancel actions to work
+    just like 'ok' actions. Oops.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2f07ad14a16dbf1b75c71784ceae303825c90ade
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 1 22:43:22 2010 -0700
+
+    altosui: Abort flashing if debug port isn't working
+    
+    Check each command going over the debug port and make sure it works as
+    expected. This commit adds checks for initializing the clock,
+    selecting the desired program counter and running the flash
+    program.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit cf30343aadd5039627a85319872685f743e64b16
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 2 00:55:41 2010 -0400
+
+    update changelogs for Debian build
+
 commit 59a40f6d5a2159b9009a3fa0737bb679efd5b32c
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Sep 2 00:55:01 2010 -0400
