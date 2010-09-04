@@ -75,12 +75,12 @@ LINUX_APP=altosui
 
 DARWIN_ZIP=Altos-Mac.zip
 
-WINDOWS_ZIP=Altos-Windows.zip
+WINDOWS_EXE=Altos-Windows.exe
 
 LINUX_TGZ=Altos-Linux.tgz
 
 all: altosui.jar $(LINUX_APP)
-fat: altosui.jar $(LINUX_APP) $(DARWIN_ZIP) $(WINDOWS_ZIP) $(LINUX_TGZ)
+fat: altosui.jar $(LINUX_APP) $(DARWIN_ZIP) $(WINDOWS_EXE) $(LINUX_TGZ)
 
 $(CLASSFILES):
 
@@ -137,7 +137,7 @@ clean:
 	rm -rf windows linux
 
 distclean:	clean
-	rm -f $(DARWIN_ZIP) $(WINDOWS_ZIP) $(LINUX_TGZ)
+	rm -f $(DARWIN_ZIP) $(WINDOWS_EXE) $(LINUX_TGZ)
 	rm -rf darwin fat
 
 FAT_FILES=$(FATJAR) $(FREETTSJAR) $(HEXFILES)
@@ -165,9 +165,9 @@ $(DARWIN_ZIP): $(DARWIN_FILES)
 
 WINDOWS_FILES = $(FAT_FILES) ../libaltos/altos.dll ../../telemetrum.inf
 
-$(WINDOWS_ZIP): $(WINDOWS_FILES)
+$(WINDOWS_EXE): $(WINDOWS_FILES) altos-install.nsi
 	rm -f $@
 	mkdir -p windows/AltOS
 	rm -f windows/AltOS/*
 	cp $(WINDOWS_FILES) windows/AltOS
-	cd windows && zip -j -r ../$@ AltOS
+	makensis altos-windows.nsi
