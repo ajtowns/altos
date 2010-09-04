@@ -1,2 +1,14 @@
+windows/
+linux/
+darwin/
+fat/
+Manifest.txt
+libaltosJNI
+classes
+altosui
+Altos-Linux.tgz
+Altos-Mac.zip
+Altos-Windows.exe
+*.jar
 *.class
 altosui
