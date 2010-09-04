@@ -165,7 +165,7 @@ $(DARWIN_ZIP): $(DARWIN_FILES)
 
 WINDOWS_FILES = $(FAT_FILES) ../libaltos/altos.dll ../../telemetrum.inf
 
-$(WINDOWS_EXE): $(WINDOWS_FILES) altos-install.nsi
+$(WINDOWS_EXE): $(WINDOWS_FILES) altos-windows.nsi
 	rm -f $@
 	mkdir -p windows/AltOS
 	rm -f windows/AltOS/*
