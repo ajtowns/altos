@@ -1,4 +1,4 @@
-PROG = tidongle.ihx
+PROG = tidongle-$(VERSION).ihx
 
 SRC = \
 	$(TI_SRC)

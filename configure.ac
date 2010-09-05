@@ -59,7 +59,6 @@ fi
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
-AC_PROG_RANLIB
 AC_PROG_LIBTOOL
 PKG_PROG_PKG_CONFIG
 
@@ -126,4 +125,5 @@ ao-tools/ao-view/Makefile
 ao-tools/libaltos/Makefile
 ao-tools/altosui/Makefile
 ao-utils/Makefile
+src/Version
 ])

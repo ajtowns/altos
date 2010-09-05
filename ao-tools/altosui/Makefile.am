@@ -66,8 +66,8 @@ JAVA_ICON=$(top_srcdir)/icon/altus-metrum-16x16.jpg
 WINDOWS_ICON=$(top_srcdir)/icon/altus-metrum.ico
 
 # Firmware
-FIRMWARE_TD=$(top_srcdir)/src/teledongle-v0.2.ihx
-FIRMWARE_TM=$(top_srcdir)/src/telemetrum-v1.0.ihx
+FIRMWARE_TD=$(top_srcdir)/src/teledongle-v0.2-$(VERSION).ihx
+FIRMWARE_TM=$(top_srcdir)/src/telemetrum-v1.0-$(VERSION).ihx
 FIRMWARE=$(FIRMWARE_TM) $(FIRMWARE_TD)
 
 # Distribution targets
@@ -77,7 +77,7 @@ WINDOWS_DIST=Altos-Windows-$(VERSION_DASH).exe
 
 FAT_FILES=$(FATJAR) $(FREETTS_CLASS)
 
-LINUX_FILES=$(FAT_FILES) libaltos.so
+LINUX_FILES=$(FAT_FILES) libaltos.so $(FIRMWARE)
 
 MACOSX_FILES=$(FAT_FILES) libaltos.dylib
 MACOSX_EXTRA=$(FIRMWARE)
@@ -162,4 +162,4 @@ $(MACOSX_DIST): $(MACOSX_FILES) $(MACOSX_EXTRA)
 
 $(WINDOWS_DIST): $(WINDOWS_FILES) altos-windows.nsi
 	-rm -f $@
-	makensis -Oaltos-windows.log "-XOutFile $@" altos-windows.nsi
+	makensis -Oaltos-windows.log "-XOutFile $@" "-DVERSION=$(VERSION)" altos-windows.nsi

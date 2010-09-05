@@ -69,8 +69,8 @@ Section "TeleMetrum and TeleDongle Firmware"
 
 	SetOutPath $INSTDIR
 
-	File "../../src/telemetrum-v1.0/telemetrum-v1.0.ihx"
-	File "../../src/teledongle-v0.2/teledongle-v0.2.ihx"
+	File "../../src/telemetrum-v1.0/telemetrum-v1.0-${VERSION}.ihx"
+	File "../../src/teledongle-v0.2/teledongle-v0.2-${VERSION}.ihx"
 
 SectionEnd
 
