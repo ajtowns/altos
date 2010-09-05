@@ -64,6 +64,8 @@ public class AltosState {
 	boolean	gps_ready;
 
 	AltosGreatCircle from_pad;
+	double	elevation;	/* from pad */
+	double	range;		/* total distance */
 
 	double	gps_height;
 
@@ -124,12 +126,7 @@ public class AltosState {
 		}
 
 		if (state == Altos.ao_flight_pad) {
-			if (data.gps == null)
-				System.out.printf("on pad, gps null\n");
-			else
-				System.out.printf ("on pad gps lat %f lon %f locked %d nsat %d\n",
-						   data.gps.lat, data.gps.lon, data.gps.locked ? 1 : 0, data.gps.nsat);
-			if (data.gps != null && data.gps.locked && data.gps.nsat >= 4) {
+			if (data.gps != null && data.gps.locked) {
 				npad++;
 				if (npad > 1) {
 					/* filter pad position */
@@ -166,11 +163,18 @@ public class AltosState {
 		if (data.gps != null) {
 			if (gps == null || !gps.locked || data.gps.locked)
 				gps = data.gps;
-			if (npad > 0 && gps.locked)
+			if (npad > 0 && gps.locked) {
 				from_pad = new AltosGreatCircle(pad_lat, pad_lon, gps.lat, gps.lon);
+			}
 		}
+		elevation = 0;
+		range = -1;
 		if (npad > 0) {
 			gps_height = gps.alt - pad_alt;
+			if (from_pad != null) {
+				elevation = Math.atan2(height, from_pad.distance) * 180 / Math.PI;
+				range = Math.sqrt(height * height + from_pad.distance * from_pad.distance);
+			}
 		} else {
 			gps_height = 0;
 		}

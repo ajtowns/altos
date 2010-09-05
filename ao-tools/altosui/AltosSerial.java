@@ -27,10 +27,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.LinkedList;
 import java.util.Iterator;
 import altosui.AltosSerialMonitor;
+import altosui.AltosLine;
 import libaltosJNI.libaltos;
 import libaltosJNI.altos_device;
 import libaltosJNI.SWIGTYPE_p_altos_file;
 import libaltosJNI.SWIGTYPE_p_altos_list;
+import libaltosJNI.libaltosConstants;
 
 /*
  * This class reads from the serial port and places each received
@@ -41,10 +43,13 @@ import libaltosJNI.SWIGTYPE_p_altos_list;
 public class AltosSerial implements Runnable {
 
 	SWIGTYPE_p_altos_file altos;
-	LinkedList<LinkedBlockingQueue<String>> monitors;
-	LinkedBlockingQueue<String> reply_queue;
+	LinkedList<LinkedBlockingQueue<AltosLine>> monitors;
+	LinkedBlockingQueue<AltosLine> reply_queue;
 	Thread input_thread;
 	String line;
+	byte[] line_bytes;
+	int line_count;
+	boolean monitor_mode;
 
 	public void run () {
 		int c;
@@ -54,24 +59,50 @@ public class AltosSerial implements Runnable {
 				c = libaltos.altos_getchar(altos, 0);
 				if (Thread.interrupted())
 					break;
-				if (c == -1)
+				if (c == libaltosConstants.LIBALTOS_ERROR) {
+					for (int e = 0; e < monitors.size(); e++) {
+						LinkedBlockingQueue<AltosLine> q = monitors.get(e);
+						q.put(new AltosLine());
+					}
+					reply_queue.put (new AltosLine());
+					break;
+				}
+				if (c == libaltosConstants.LIBALTOS_TIMEOUT)
 					continue;
 				if (c == '\r')
 					continue;
 				synchronized(this) {
 					if (c == '\n') {
-						if (line != "") {
-							if (line.startsWith("VERSION")) {
+						if (line_count != 0) {
+							try {
+								line = new String(line_bytes, 0, line_count, "UTF-8");
+							} catch (UnsupportedEncodingException ue) {
+								line = "";
+								for (int i = 0; i < line_count; i++)
+									line = line + line_bytes[i];
+							}
+							if (line.startsWith("VERSION") || line.startsWith("CRC")) {
 								for (int e = 0; e < monitors.size(); e++) {
-									LinkedBlockingQueue<String> q = monitors.get(e);
-									q.put(line);
+									LinkedBlockingQueue<AltosLine> q = monitors.get(e);
+									q.put(new AltosLine (line));
 								}
-							} else
-								reply_queue.put(line);
+							} else {
+//								System.out.printf("GOT: %s\n", line);
+								reply_queue.put(new AltosLine (line));
+							}
+							line_count = 0;
 							line = "";
 						}
 					} else {
-						line = line + (char) c;
+						if (line_bytes == null) {
+							line_bytes = new byte[256];
+						} else if (line_count == line_bytes.length) {
+							byte[] new_line_bytes = new byte[line_count * 2];
+							System.arraycopy(line_bytes, 0, new_line_bytes, 0, line_count);
+							line_bytes = new_line_bytes;
+						}
+						line_bytes[line_count] = (byte) c;
+						line_count++;
 					}
 				}
 			}
@@ -79,24 +110,40 @@ public class AltosSerial implements Runnable {
 		}
 	}
 
-	public String get_reply() throws InterruptedException {
-		return reply_queue.take();
+	public void flush_output() {
+		if (altos != null)
+			libaltos.altos_flush(altos);
 	}
 
-	public void add_monitor(LinkedBlockingQueue<String> q) {
-		monitors.add(q);
-	}
-
-	public void remove_monitor(LinkedBlockingQueue<String> q) {
-		monitors.remove(q);
-	}
-
-	public void flush () {
+	public void flush_input() {
+		flush_output();
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException ie) {
+		}
 		synchronized(this) {
-			if (!"VERSION".startsWith(line) && !line.startsWith("VERSION"))
+			if (!"VERSION".startsWith(line) &&
+			    !line.startsWith("VERSION"))
 				line = "";
 			reply_queue.clear();
 		}
+	}
+
+	public String get_reply() throws InterruptedException {
+		flush_output();
+		AltosLine line = reply_queue.take();
+		return line.line;
+	}
+
+	public void add_monitor(LinkedBlockingQueue<AltosLine> q) {
+		set_monitor(true);
+		monitors.add(q);
+	}
+
+	public void remove_monitor(LinkedBlockingQueue<AltosLine> q) {
+		monitors.remove(q);
+		if (monitors.isEmpty())
+			set_monitor(false);
 	}
 
 	public boolean opened() {
@@ -104,8 +151,9 @@ public class AltosSerial implements Runnable {
 	}
 
 	public void close() {
-		if (altos != null)
+		if (altos != null) {
 			libaltos.altos_close(altos);
+		}
 		if (input_thread != null) {
 			try {
 				input_thread.interrupt();
@@ -126,6 +174,7 @@ public class AltosSerial implements Runnable {
 	}
 
 	public void print(String data) {
+//		System.out.printf("\"%s\" ", data);
 		for (int i = 0; i < data.length(); i++)
 			putc(data.charAt(i));
 	}
@@ -141,29 +190,45 @@ public class AltosSerial implements Runnable {
 			throw new FileNotFoundException(device.getPath());
 		input_thread = new Thread(this);
 		input_thread.start();
-		print("\nE 0\n");
-		try {
-			Thread.sleep(200);
-		} catch (InterruptedException e) {
-		}
-		flush();
+		print("~\nE 0\n");
+		flush_output();
+		set_monitor(monitor_mode);
 	}
 
 	public void set_channel(int channel) {
-		if (altos != null)
-			printf("m 0\nc r %d\nm 1\n", channel);
+		if (altos != null) {
+			if (monitor_mode)
+				printf("m 0\nc r %d\nm 1\n", channel);
+			else
+				printf("c r %d\n", channel);
+			flush_output();
+		}
+	}
+
+	void set_monitor(boolean monitor) {
+		monitor_mode = monitor;
+		if (altos != null) {
+			if (monitor)
+				printf("m 1\n");
+			else
+				printf("m 0\n");
+			flush_output();
+		}
 	}
 
 	public void set_callsign(String callsign) {
-		if (altos != null)
+		if (altos != null) {
 			printf ("c c %s\n", callsign);
+			flush_output();
+		}
 	}
 
 	public AltosSerial() {
 		altos = null;
 		input_thread = null;
 		line = "";
-		monitors = new LinkedList<LinkedBlockingQueue<String>> ();
-		reply_queue = new LinkedBlockingQueue<String> ();
+		monitor_mode = false;
+		monitors = new LinkedList<LinkedBlockingQueue<AltosLine>> ();
+		reply_queue = new LinkedBlockingQueue<AltosLine> ();
 	}
 }

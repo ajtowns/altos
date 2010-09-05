@@ -18,6 +18,8 @@
 #ifndef _LIBALTOS_H_
 #define _LIBALTOS_H_
 
+#include <stdlib.h>
+
 #if defined(_WIN32) || defined(__WIN32__) || defined(__CYGWIN__)
 # ifndef BUILD_STATIC
 #  ifdef BUILD_DLL

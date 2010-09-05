@@ -1,3 +1,182 @@
+altos (0.7+53+g59798c6) unstable; urgency=low
+
+  [ Keith Packard ]
+  * altosui: Abort flashing if debug port isn't working
+  * altosui: allow flashing to be canceled from the rom config dialog
+  * altosui: Hide internal rom config UI helper function
+  * altosui: Remove some debug printfs from AltosRomconfig class
+  * altosui: Post error dialog on invalid ROM config values.
+  * altosui: build Mac OS .zip file to include paths
+  * altosui: Report telemetry CRC errors in UI
+  * altosui: Deal with altos bug setting radio channel while monitoring
+  * altosui: Allow 'connect to device' when already connected
+  * Revert "altosui: Deal with altos bug setting radio channel while
+    monitoring"
+  * altosui: Must flush serial line after configuring for telemetry
+  * altosui: Catch I/O errors on telemetry device, report to user
+
+ -- Bdale Garbee <bdale@gag.com>  Sat, 04 Sep 2010 00:46:12 -0400
+
+altos (0.7+40+g59a40f6) unstable; urgency=low
+
+  [ Bdale Garbee ]
+  * add distclean targets to libaltos and altosui to all Debian package
+    to build, and clean up other distclean content as needed
+
+  [ Keith Packard ]
+  * altosui: missed AltosReader.class in the Makefile
+  * altos: Bounds check Skytraq GPS tracking data array
+  * altosui: Remove Manifest.txt from git repo as it's built now
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 02 Sep 2010 00:44:15 -0400
+
+altos (0.7+28+gd006c5e) unstable; urgency=low
+
+  * add runtime dependencies for altos binary package
+
+ -- Bdale Garbee <bdale@gag.com>  Tue, 31 Aug 2010 00:20:00 -0400
+
+altos (0.7+26+gc35632e) unstable; urgency=low
+
+  * don't build all the "fat" jar deliverables by default
+
+ -- Bdale Garbee <bdale@gag.com>  Mon, 30 Aug 2010 19:37:40 -0600
+
+altos (0.7+23+g25764fc) unstable; urgency=low
+
+  [ Bdale Garbee ]
+  * fix up for an 0.7 release
+  * update changelogs for Debian build
+
+  [ Keith Packard ]
+  * libaltos: AltusMetrum devices use more than one USB ID.
+  * altosui: provide separate flush_input/flush_output for serial. deal
+    with monitor automatically
+  * altosui: discard invalid lines while reading Eeprom flight data
+  * libaltos: Mac OS X cannot use 'poll(2)' on serial lines.
+  * libaltos: Missing OS_LDFLAGS on cjnitest build
+  * libaltos: cjnitest needs altos_flush now
+  * altos: flush pending output when terminating packet mode
+  * altos: Abort radio harder when terminating packet mode.
+  * altos: shut down packet mode cleanly
+  * libaltos: Fix windows build.
+  * libaltos: Improve Makefile
+  * Update telemetrum.inf to include all current USB ids.
+  * libaltos: Add pre-built Mac OS X libaltos.dylib
+  * libaltos: Add pre-built Windows .dll
+  * altos: Windows sends USB Out packets of 0 length. Ack them.
+  * libaltos: Use overlapped I/O on windows
+  * altosui: Build linux, mac and windows archives on Linux
+  * altosui: build debian-style altosui too
+  * altosui: Devices with USB id 0x000a always get listed
+
+  [ Bdale Garbee ]
+  * continue even if rm's don't have anything to do
+  * make invocation of 'install' pathless to work on more Unix variants
+  * add a .gitattributes file, configuring the Mac and Windows binary
+    library
+
+ -- Bdale Garbee <bdale@gag.com>  Mon, 30 Aug 2010 19:07:13 -0600
+
+altos (0.7) unstable; urgency=low
+
+  * update changelogs for Debian build
+  * fix up for an 0.7 release
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 27 Aug 2010 22:25:38 -0600
+
+altos (0.6+375+g0bd4cc0) unstable; urgency=low
+
+  * fix path to installed shared library
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 27 Aug 2010 13:13:14 -0600
+
+altos (0.6+373+gcf65c6b) unstable; urgency=low
+
+  [ Keith Packard ]
+  * altosui: rename AltosEeprom -> AltosEepromDownload, split out Altos
+    constants
+  * altosui: Capture config and version info in .eeprom files
+  * altosui: Merge gps date and time classes into gps class
+  * altosui: Clear displayed data rows as needed.
+  * altosui: Split status and info panels into separate files
+  * altosui: Explicitly initialize Altos class
+  * altosui: Split flight record out of telemetry class
+  * altosui: Compute flight state from eeprom data
+  * altosui: Add comments to Eeprom reader
+  * altos: add callsign to packet mode, increase payload to 64 bytes
+  * altosui: Start adding code to write csv files from eeprom/telem
+    files
+  * ao-dumplog: add --channel option (for use with -R option)
+  * libaltos: integrate Windows support.
+  * altosui: Select devices by USB vendor/product ID.
+  * altos: Define USB product ID in per-product Makefile.defs file
+  * altosui: Make teledongle callsign configurable
+  * altosui: Add TeleMetrum configuration
+  * altosui: Set callsign when fetching eeprom data over the air
+
+  [ Bdale Garbee ]
+  * add freetts as a build dep
+  * working on java packaging details
+
+  [ Keith Packard ]
+  * altosui: Add .ihx file reading code and stub out flashing UI
+  * altosui: Add debug dongle API, split flash UI out
+  * ao-dumplog: Fix --remote and --channel options to actually work
+  * altosui: pad TM config dialog values to avoid clipping descenders
+  * libaltos: use pipe to wake up getchar on close. use mutexes
+  * altosui: Add lots more cc1111 debug interface functions
+  * altosui: remove debug printf from AltosHexfile
+  * altosui: flush serial output before waiting for reply
+  * altosui: Remove debug printf from AltosRomconfig
+  * altosui: Finish device programming code
+  * altos: Place rom config variables in fixed location
+  * altosui: make default Manifest look for built-in freetts
+  * altosui: Separate out log file choosing dialog to share with CSV
+    generator
+  * altosui: refactor logfile chooser dialog to share more code
+  * altosui: Add ability to create CSV file from telem or eeprom files
+  * altosui: disable radio monitoring while using serial line for
+    debugging
+  * altosui: Delay mapping Flash UI until flashing actually starts
+  * altosui: fetch existing romconfig for flashing
+  * altosui: always display romconfig ui while flashing
+  * altosui: write USB serial number string while flashing
+  * altosui: flush replies from serial link when entering debug mode
+  * altos: always rebuild ao_product.c to track git version
+  * altos: print GPS state flags in GPS 'g' command
+  * altos: mark gps date written only after it gets into eeprom
+  * altosui: Move number parsing code to Altos general class
+  * altosui: Add AltosGreatCircle constructors
+  * altosui: add rssi and distance/dir from pad to CSV files
+  * altosui: AltosEepromReader was mis-setting boost tick
+  * altosui: Add support for old (version < 3) telemetry files
+  * altosui: Serial line is in UTF-8 encoding. Deal with it.
+  * altosui: When parsing saved telem files, errors shouldn't abort file
+  * altosui: Remove debug printf from AltosState.java
+  * altosui: command line args are converted to csv format
+  * altos: prepare for sdcc 2.9.1
+
+  [ Bdale Garbee ]
+  * add a dummy install target
+  * lose the prebuild hook for now while I'm fumbling
+  * add install target for libaltos
+  * add an install target for altosui
+
+  [ Keith Packard ]
+  * altosui: add elevation and range information
+
+  [ Bdale Garbee ]
+  * fix up the wrapper's path to the jar file
+  * update Debian standards version
+  * fix permissions on installed jar file, switch from ao-view to
+    altosui in
+  * install altosui man page
+  * fix man page delivery path
+  * Revert "lose the prebuild hook for now while I'm fumbling"
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 27 Aug 2010 12:40:04 -0600
+
 altos (0.6+303+gb6da90b) unstable; urgency=low
 
   * add freetts as a build dep

@@ -42,7 +42,7 @@ import altosui.AltosEepromMonitor;
  */
 class AltosOrderedRecord extends AltosEepromRecord implements Comparable<AltosOrderedRecord> {
 
-	int	index;
+	public int	index;
 
 	public AltosOrderedRecord(String line, int in_index, int prev_tick)
 		throws ParseException {
@@ -53,6 +53,11 @@ class AltosOrderedRecord extends AltosEepromRecord implements Comparable<AltosOr
 				new_tick += 0x10000;
 		}
 		tick = new_tick;
+		index = in_index;
+	}
+
+	public AltosOrderedRecord(int in_cmd, int in_tick, int in_a, int in_b, int in_index) {
+		super(in_cmd, in_tick, in_a, in_b);
 		index = in_index;
 	}
 
@@ -96,9 +101,11 @@ public class AltosEepromReader extends AltosReader {
 
 	int			gps_tick;
 
-	boolean			saw_boost;
-
 	int			boost_tick;
+
+	boolean			saw_gps_date;
+
+	boolean			missing_gps_time;
 
 	public AltosRecord read() throws IOException, ParseException {
 		for (;;) {
@@ -107,7 +114,7 @@ public class AltosEepromReader extends AltosReader {
 					if (last_reported)
 						return null;
 					last_reported = true;
-					return state;
+					return new AltosRecord(state);
 				}
 				record = record_iterator.next();
 
@@ -121,9 +128,7 @@ public class AltosEepromReader extends AltosReader {
 			state.tick = record.tick;
 			switch (record.cmd) {
 			case Altos.AO_LOG_FLIGHT:
-				state.ground_accel = record.a;
-				state.flight = record.b;
-				seen |= seen_flight;
+				/* recorded when first read from the file */
 				break;
 			case Altos.AO_LOG_SENSOR:
 				state.accel = record.a;
@@ -133,8 +138,6 @@ public class AltosEepromReader extends AltosReader {
 					ground_pres += state.pres;
 					state.ground_pres = (int) (ground_pres / n_pad_samples);
 					state.flight_pres = state.ground_pres;
-					System.out.printf("ground pressure %d altitude %f\n",
-							  record.b, state.altitude());
 					ground_accel += state.accel;
 					state.ground_accel = (int) (ground_accel / n_pad_samples);
 					state.flight_accel = state.ground_accel;
@@ -156,12 +159,19 @@ public class AltosEepromReader extends AltosReader {
 				seen |= seen_deploy;
 				break;
 			case Altos.AO_LOG_STATE:
-				System.out.printf("state %d\n", record.a);
 				state.state = record.a;
 				break;
 			case Altos.AO_LOG_GPS_TIME:
 				gps_tick = state.tick;
+				AltosGPS old = state.gps;
 				state.gps = new AltosGPS();
+
+				/* GPS date doesn't get repeated through the file */
+				if (old != null) {
+					state.gps.year = old.year;
+					state.gps.month = old.month;
+					state.gps.day = old.day;
+				}
 				state.gps.hour = (record.a & 0xff);
 				state.gps.minute = (record.a >> 8);
 				state.gps.second = (record.b & 0xff);
@@ -191,7 +201,7 @@ public class AltosEepromReader extends AltosReader {
 				}
 				break;
 			case Altos.AO_LOG_GPS_DATE:
-				state.gps.year = record.a & 0xff;
+				state.gps.year = (record.a & 0xff) + 2000;
 				state.gps.month = record.a >> 8;
 				state.gps.day = record.b & 0xff;
 				break;
@@ -218,6 +228,7 @@ public class AltosEepromReader extends AltosReader {
 			case Altos.AO_LOG_PRODUCT:
 				break;
 			case Altos.AO_LOG_SERIAL_NUMBER:
+				state.serial = record.a;
 				break;
 			case Altos.AO_LOG_SOFTWARE_VERSION:
 				break;
@@ -228,6 +239,7 @@ public class AltosEepromReader extends AltosReader {
 
 	public void write_comments(PrintStream out) {
 		Iterator<AltosOrderedRecord>	iterator = records.iterator();
+		out.printf("# Comments\n");
 		while (iterator.hasNext()) {
 			AltosOrderedRecord	record = iterator.next();
 			switch (record.cmd) {
@@ -250,7 +262,7 @@ public class AltosEepromReader extends AltosReader {
 				out.printf ("# Accel cal: %d %d\n", record.a, record.b);
 				break;
 			case Altos.AO_LOG_RADIO_CAL:
-				out.printf ("# Radio cal: %d %d\n", record.a);
+				out.printf ("# Radio cal: %d\n", record.a);
 				break;
 			case Altos.AO_LOG_MANUFACTURER:
 				out.printf ("# Manufacturer: %s\n", record.data);
@@ -269,6 +281,34 @@ public class AltosEepromReader extends AltosReader {
 	}
 
 	/*
+	 * Given an AO_LOG_GPS_TIME record with correct time, and one
+	 * missing time, rewrite the missing time values with the good
+	 * ones, assuming that the difference between them is 'diff' seconds
+	 */
+	void update_time(AltosOrderedRecord good, AltosOrderedRecord bad) {
+
+		int diff = (bad.tick - good.tick + 50) / 100;
+
+		int hour = (good.a & 0xff);
+		int minute = (good.a >> 8);
+		int second = (good.b & 0xff);
+		int flags = (good.b >> 8);
+		int seconds = hour * 3600 + minute * 60 + second;
+
+		int new_seconds = seconds + diff;
+		if (new_seconds < 0)
+			new_seconds += 24 * 3600;
+		int new_second = (new_seconds % 60);
+		int new_minutes = (new_seconds / 60);
+		int new_minute = (new_minutes % 60);
+		int new_hours = (new_minutes / 60);
+		int new_hour = (new_hours % 24);
+
+		bad.a = new_hour + (new_minute << 8);
+		bad.b = new_second + (flags << 8);
+	}
+
+	/*
 	 * Read the whole file, dumping records into a RB tree so
 	 * we can enumerate them in time order -- the eeprom data
 	 * are sometimes out of order with GPS data getting timestamps
@@ -283,8 +323,12 @@ public class AltosEepromReader extends AltosReader {
 		seen = 0;
 		records = new TreeSet<AltosOrderedRecord>();
 
+		AltosOrderedRecord last_gps_time = null;
+
 		int index = 0;
 		int tick = 0;
+
+		boolean missing_time = false;
 
 		try {
 			for (;;) {
@@ -294,12 +338,55 @@ public class AltosEepromReader extends AltosReader {
 				AltosOrderedRecord record = new AltosOrderedRecord(line, index++, tick);
 				if (record == null)
 					break;
+				if (record.cmd == Altos.AO_LOG_INVALID)
+					continue;
 				tick = record.tick;
-				if (!saw_boost && record.cmd == Altos.AO_LOG_STATE &&
-				    record.a == Altos.ao_flight_boost)
-				{
-					saw_boost = true;
-					boost_tick = state.tick;
+				if (record.cmd == Altos.AO_LOG_FLIGHT) {
+					state.ground_accel = record.a;
+					state.flight = record.b;
+					boost_tick = tick;
+					seen |= seen_flight;
+				}
+
+				/* Two firmware bugs caused the loss of some GPS data.
+				 * The flight date would never be recorded, and often
+				 * the flight time would get overwritten by another
+				 * record. Detect the loss of the GPS date and fix up the
+				 * missing time records
+				 */
+				if (record.cmd == Altos.AO_LOG_GPS_DATE)
+					saw_gps_date = true;
+
+				/* go back and fix up any missing time values */
+				if (record.cmd == Altos.AO_LOG_GPS_TIME) {
+					last_gps_time = record;
+					if (missing_time) {
+						Iterator<AltosOrderedRecord> iterator = records.iterator();
+						while (iterator.hasNext()) {
+							AltosOrderedRecord old = iterator.next();
+							if (old.cmd == Altos.AO_LOG_GPS_TIME &&
+							    old.a == -1 && old.b == -1)
+							{
+								update_time(record, old);
+							}
+						}
+						missing_time = false;
+					}
+				}
+
+				if (record.cmd == Altos.AO_LOG_GPS_LAT) {
+					if (last_gps_time == null || last_gps_time.tick != record.tick) {
+						AltosOrderedRecord add_gps_time = new AltosOrderedRecord(Altos.AO_LOG_GPS_TIME,
+													 record.tick,
+													 -1, -1, index-1);
+						if (last_gps_time != null)
+							update_time(last_gps_time, add_gps_time);
+						else
+							missing_time = true;
+
+						records.add(add_gps_time);
+						record.index = index++;
+					}
 				}
 				records.add(record);
 			}

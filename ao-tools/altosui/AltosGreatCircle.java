@@ -17,6 +17,8 @@
 
 package altosui;
 
+import altosui.AltosGPS;
+
 import java.lang.Math;
 
 public class AltosGreatCircle {
@@ -28,8 +30,8 @@ public class AltosGreatCircle {
 	static final double rad = Math.PI / 180;
 	static final double earth_radius = 6371.2 * 1000;	/* in meters */
 
-	AltosGreatCircle (double start_lat, double start_lon,
-			  double end_lat, double end_lon)
+	public AltosGreatCircle (double start_lat, double start_lon,
+				 double end_lat, double end_lon)
 	{
 		double lat1 = rad * start_lat;
 		double lon1 = rad * -start_lon;
@@ -62,5 +64,14 @@ public class AltosGreatCircle {
 		}
 		distance = d * earth_radius;
 		bearing = course * 180/Math.PI;
+	}
+
+	public AltosGreatCircle(AltosGPS start, AltosGPS end) {
+		this(start.lat, start.lon, end.lat, end.lon);
+	}
+
+	public AltosGreatCircle() {
+		distance = 0;
+		bearing = 0;
 	}
 }

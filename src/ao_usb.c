@@ -43,7 +43,7 @@ ao_usb_set_interrupts(void)
  * so when we hook that up, fix this
  */
 void
-ao_usb_isr(void) interrupt 6
+ao_usb_isr(void) __interrupt 6
 {
 	USBIF = 0;
 	ao_usb_iif |= USBIIF;
@@ -383,8 +383,11 @@ ao_usb_pollchar(void) __critical
 		if ((USBCSOL & USBCSOL_OUTPKT_RDY) == 0)
 			return AO_READ_AGAIN;
 		ao_usb_out_bytes = (USBCNTH << 8) | USBCNTL;
-		if (ao_usb_out_bytes == 0)
+		if (ao_usb_out_bytes == 0) {
+			USBINDEX = AO_USB_OUT_EP;
+			USBCSOL &= ~USBCSOL_OUTPKT_RDY;
 			return AO_READ_AGAIN;
+		}
 	}
 	--ao_usb_out_bytes;
 	c = USBFIFO[AO_USB_OUT_EP << 1];

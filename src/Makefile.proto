@@ -10,7 +10,7 @@ vpath ao-make-product.5c ..
 CC=sdcc
 
 ifndef VERSION
-VERSION=$(shell git describe)
+include ../Version
 endif
 
 CFLAGS=--model-small --debug --opt-code-speed
@@ -35,6 +35,7 @@ ALTOS_SRC = \
 	ao_panic.c \
 	ao_task.c \
 	ao_timer.c \
+	ao_romconfig.c \
 	_bp.c
 
 #
@@ -213,7 +214,7 @@ all: ../$(PROG)
 ../altitude.h: make-altitude
 	nickle $< > $@
 
-ao_product.h: ao-make-product.5c
+ao_product.h: ao-make-product.5c ../Version
 	$(call quiet,NICKLE,$<) $< -m altusmetrum.org -i $(IDPRODUCT) -p $(PRODUCT) -v $(VERSION) > $@
 
 ao_product.rel: ao_product.c ao_product.h

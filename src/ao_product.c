@@ -21,7 +21,6 @@
 
 /* Defines which mark this particular AltOS product */
 
-const uint16_t ao_serial_number = AO_iSerial_NUMBER;
 const char ao_version[] = AO_iVersion_STRING;
 const char ao_manufacturer[] = AO_iManufacturer_STRING;
 const char ao_product[] = AO_iProduct_STRING;
@@ -29,7 +28,7 @@ const char ao_product[] = AO_iProduct_STRING;
 #define LE_WORD(x)    ((x)&0xFF),((uint8_t) (((uint16_t) (x))>>8))
 
 /* USB descriptors in one giant block of bytes */
-const uint8_t ao_usb_descriptors [] =
+__code __at(0x00aa) uint8_t ao_usb_descriptors [] =
 {
 	/* Device descriptor */
 	0x12,

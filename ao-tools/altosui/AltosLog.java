@@ -24,6 +24,7 @@ import java.text.ParseException;
 import java.util.concurrent.LinkedBlockingQueue;
 import altosui.AltosSerial;
 import altosui.AltosFile;
+import altosui.AltosLine;
 
 /*
  * This creates a thread to capture telemetry data and write it to
@@ -31,7 +32,7 @@ import altosui.AltosFile;
  */
 class AltosLog implements Runnable {
 
-	LinkedBlockingQueue<String>	input_queue;
+	LinkedBlockingQueue<AltosLine>	input_queue;
 	LinkedBlockingQueue<String>	pending_queue;
 	int				serial;
 	int				flight;
@@ -64,9 +65,11 @@ class AltosLog implements Runnable {
 	public void run () {
 		try {
 			for (;;) {
-				String	line = input_queue.take();
+				AltosLine	line = input_queue.take();
+				if (line.line == null)
+					continue;
 				try {
-					AltosTelemetry	telem = new AltosTelemetry(line);
+					AltosTelemetry	telem = new AltosTelemetry(line.line);
 					if (telem.serial != serial || telem.flight != flight || log_file == null) {
 						close();
 						serial = telem.serial;
@@ -74,13 +77,14 @@ class AltosLog implements Runnable {
 						open(telem);
 					}
 				} catch (ParseException pe) {
+				} catch (AltosCRCException ce) {
 				}
 				if (log_file != null) {
-					log_file.write(line);
+					log_file.write(line.line);
 					log_file.write('\n');
 					log_file.flush();
 				} else
-					pending_queue.put(line);
+					pending_queue.put(line.line);
 			}
 		} catch (InterruptedException ie) {
 		} catch (IOException ie) {
@@ -93,7 +97,7 @@ class AltosLog implements Runnable {
 
 	public AltosLog (AltosSerial s) {
 		pending_queue = new LinkedBlockingQueue<String> ();
-		input_queue = new LinkedBlockingQueue<String> ();
+		input_queue = new LinkedBlockingQueue<AltosLine> ();
 		s.add_monitor(input_queue);
 		serial = -1;
 		flight = -1;

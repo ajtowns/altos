@@ -23,6 +23,7 @@ import java.util.HashMap;
 import altosui.AltosConvert;
 import altosui.AltosRecord;
 import altosui.AltosGPS;
+import altosui.AltosCRCException;
 
 /*
  * Telemetry data contents
@@ -53,12 +54,22 @@ import altosui.AltosGPS;
  */
 
 public class AltosTelemetry extends AltosRecord {
-	public AltosTelemetry(String line) throws ParseException {
+	public AltosTelemetry(String line) throws ParseException, AltosCRCException {
 		String[] words = line.split("\\s+");
 		int	i = 0;
 
-		AltosParse.word (words[i++], "VERSION");
-		version = AltosParse.parse_int(words[i++]);
+		if (words[i].equals("CRC") && words[i+1].equals("INVALID")) {
+			i += 2;
+			AltosParse.word(words[i++], "RSSI");
+			rssi = AltosParse.parse_int(words[i++]);
+			throw new AltosCRCException(rssi);
+		}
+		if (words[i].equals("CALL")) {
+			version = 0;
+		} else {
+			AltosParse.word (words[i++], "VERSION");
+			version = AltosParse.parse_int(words[i++]);
+		}
 
 		AltosParse.word (words[i++], "CALL");
 		callsign = words[i++];
@@ -66,11 +77,18 @@ public class AltosTelemetry extends AltosRecord {
 		AltosParse.word (words[i++], "SERIAL");
 		serial = AltosParse.parse_int(words[i++]);
 
-		AltosParse.word (words[i++], "FLIGHT");
-		flight = AltosParse.parse_int(words[i++]);
+		if (version >= 2) {
+			AltosParse.word (words[i++], "FLIGHT");
+			flight = AltosParse.parse_int(words[i++]);
+		} else
+			flight = 0;
 
 		AltosParse.word(words[i++], "RSSI");
 		rssi = AltosParse.parse_int(words[i++]);
+
+		/* Older telemetry data had mis-computed RSSI value */
+		if (version <= 2)
+			rssi = (rssi + 74) / 2 - 74;
 
 		AltosParse.word(words[i++], "STATUS");
 		status = AltosParse.parse_hex(words[i++]);
@@ -113,12 +131,17 @@ public class AltosTelemetry extends AltosRecord {
 		AltosParse.word(words[i++], "gp:");
 		ground_pres = AltosParse.parse_int(words[i++]);
 
-		AltosParse.word(words[i++], "a+:");
-		accel_plus_g = AltosParse.parse_int(words[i++]);
+		if (version >= 1) {
+			AltosParse.word(words[i++], "a+:");
+			accel_plus_g = AltosParse.parse_int(words[i++]);
 
-		AltosParse.word(words[i++], "a-:");
-		accel_minus_g = AltosParse.parse_int(words[i++]);
+			AltosParse.word(words[i++], "a-:");
+			accel_minus_g = AltosParse.parse_int(words[i++]);
+		} else {
+			accel_plus_g = ground_accel;
+			accel_minus_g = ground_accel + 530;
+		}
 
-		gps = new AltosGPS(words, i);
+		gps = new AltosGPS(words, i, version);
 	}
 }

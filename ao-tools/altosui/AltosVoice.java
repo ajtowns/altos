@@ -27,6 +27,7 @@ public class AltosVoice implements Runnable {
 	Voice				voice;
 	LinkedBlockingQueue<String>	phrases;
 	Thread				thread;
+	boolean				busy;
 
 	final static String voice_name = "kevin16";
 
@@ -35,15 +36,30 @@ public class AltosVoice implements Runnable {
 			for (;;) {
 				String s = phrases.take();
 				voice.speak(s);
+				synchronized(this) {
+					if (phrases.isEmpty()) {
+						busy = false;
+						notifyAll();
+					}
+				}
 			}
 		} catch (InterruptedException e) {
 		}
 	}
 
+	public synchronized void drain() throws InterruptedException {
+		while (busy)
+			wait();
+	}
+
 	public void speak_always(String s) {
 		try {
-			if (voice != null)
-				phrases.put(s);
+			if (voice != null) {
+				synchronized(this) {
+					busy = true;
+					phrases.put(s);
+				}
+			}
 		} catch (InterruptedException e) {
 		}
 	}
@@ -58,6 +74,7 @@ public class AltosVoice implements Runnable {
 	}
 
 	public AltosVoice () {
+		busy = false;
 		voice_manager = VoiceManager.getInstance();
 		voice = voice_manager.getVoice(voice_name);
 		if (voice != null) {

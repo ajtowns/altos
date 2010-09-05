@@ -41,6 +41,10 @@ import altosui.AltosVoice;
 import altosui.AltosFlightStatusTableModel;
 import altosui.AltosFlightInfoTableModel;
 import altosui.AltosChannelMenu;
+import altosui.AltosFlashUI;
+import altosui.AltosLogfileChooser;
+import altosui.AltosCSVUI;
+import altosui.AltosLine;
 
 import libaltosJNI.*;
 
@@ -70,6 +74,10 @@ public class AltosUI extends JFrame {
 
 		String[] statusNames = { "Height (m)", "State", "RSSI (dBm)", "Speed (m/s)" };
 		Object[][] statusData = { { "0", "pad", "-50", "0" } };
+
+		java.net.URL imgURL = AltosUI.class.getResource("/altus-metrum-16x16.jpg");
+		if (imgURL != null)
+			setIconImage(new ImageIcon(imgURL).getImage());
 
 		AltosPreferences.init(this);
 
@@ -165,21 +173,19 @@ public class AltosUI extends JFrame {
 			flightInfoModel[i].finish();
 	}
 
-	public void show(AltosState state) {
+	public void show(AltosState state, int crc_errors) {
+		if (state == null)
+			return;
 		flightStatusModel.set(state);
 
 		info_reset();
-		if (state.gps_ready)
-			info_add_row(0, "Ground state", "%s", "ready");
-		else
-			info_add_row(0, "Ground state", "wait (%d)",
-				     state.gps_waiting);
 		info_add_row(0, "Rocket state", "%s", state.data.state());
 		info_add_row(0, "Callsign", "%s", state.data.callsign);
 		info_add_row(0, "Rocket serial", "%6d", state.data.serial);
 		info_add_row(0, "Rocket flight", "%6d", state.data.flight);
 
 		info_add_row(0, "RSSI", "%6d    dBm", state.data.rssi);
+		info_add_row(0, "CRC Errors", "%6d", crc_errors);
 		info_add_row(0, "Height", "%6.0f    m", state.height);
 		info_add_row(0, "Max height", "%6.0f    m", state.max_height);
 		info_add_row(0, "Acceleration", "%8.1f  m/s²", state.acceleration);
@@ -194,6 +200,11 @@ public class AltosUI extends JFrame {
 		if (state.gps == null) {
 			info_add_row(1, "GPS", "not available");
 		} else {
+			if (state.gps_ready)
+				info_add_row(1, "GPS state", "%s", "ready");
+			else
+				info_add_row(1, "GPS state", "wait (%d)",
+					     state.gps_waiting);
 			if (state.data.gps.locked)
 				info_add_row(1, "GPS", "   locked");
 			else if (state.data.gps.connected)
@@ -220,11 +231,19 @@ public class AltosUI extends JFrame {
 
 			if (state.npad > 0) {
 				if (state.from_pad != null) {
-					info_add_row(1, "Distance from pad", "%6.0f m", state.from_pad.distance);
-					info_add_row(1, "Direction from pad", "%6.0f°", state.from_pad.bearing);
+					info_add_row(1, "Distance from pad", "%6d m",
+						     (int) (state.from_pad.distance + 0.5));
+					info_add_row(1, "Direction from pad", "%6d°",
+						     (int) (state.from_pad.bearing + 0.5));
+					info_add_row(1, "Elevation from pad", "%6d°",
+						     (int) (state.elevation + 0.5));
+					info_add_row(1, "Range from pad", "%6d m",
+						     (int) (state.range + 0.5));
 				} else {
 					info_add_row(1, "Distance from pad", "unknown");
 					info_add_row(1, "Direction from pad", "unknown");
+					info_add_row(1, "Elevation from pad", "unknown");
+					info_add_row(1, "Range from pad", "unknown");
 				}
 				info_add_deg(1, "Pad latitude", state.pad_lat, 'N', 'S');
 				info_add_deg(1, "Pad longitude", state.pad_lon, 'E', 'W');
@@ -258,10 +277,13 @@ public class AltosUI extends JFrame {
 
 	class IdleThread extends Thread {
 
+		boolean	started;
 		private AltosState state;
 		int	reported_landing;
+		int	report_interval;
+		long	report_time;
 
-		public void report(boolean last) {
+		public synchronized void report(boolean last) {
 			if (state == null)
 				return;
 
@@ -275,7 +297,16 @@ public class AltosUI extends JFrame {
 			}
 
 			/* If the rocket isn't on the pad, then report height */
-			if (state.state > Altos.ao_flight_pad) {
+			if (Altos.ao_flight_drogue <= state.state &&
+			    state.state < Altos.ao_flight_landed &&
+			    state.range >= 0)
+			{
+				voice.speak("Height %d, bearing %d, elevation %d, range %d.\n",
+					    (int) (state.height + 0.5),
+					    (int) (state.from_pad.bearing + 0.5),
+					    (int) (state.elevation + 0.5),
+					    (int) (state.range + 0.5));
+			} else if (state.state > Altos.ao_flight_pad) {
 				voice.speak("%d meters", (int) (state.height + 0.5));
 			} else {
 				reported_landing = 0;
@@ -285,7 +316,7 @@ public class AltosUI extends JFrame {
 			 * either we've got a landed report or we haven't heard from it in
 			 * a long time
 			 */
-			if (!state.ascent &&
+			if (state.state >= Altos.ao_flight_drogue &&
 			    (last ||
 			     System.currentTimeMillis() - state.report_time >= 15000 ||
 			     state.state == Altos.ao_flight_landed))
@@ -295,51 +326,95 @@ public class AltosUI extends JFrame {
 				else
 					voice.speak("rocket may have crashed");
 				if (state.from_pad != null)
-					voice.speak("bearing %d degrees, range %d meters",
+					voice.speak("Bearing %d degrees, range %d meters.",
 						    (int) (state.from_pad.bearing + 0.5),
 						    (int) (state.from_pad.distance + 0.5));
 				++reported_landing;
 			}
 		}
 
+		long now () {
+			return System.currentTimeMillis();
+		}
+
+		void set_report_time() {
+			report_time = now() + report_interval;
+		}
+
 		public void run () {
 
 			reported_landing = 0;
 			state = null;
+			report_interval = 10000;
 			try {
 				for (;;) {
-					Thread.sleep(10000);
+					set_report_time();
+					for (;;) {
+						voice.drain();
+						synchronized (this) {
+							long	sleep_time = report_time - now();
+							if (sleep_time <= 0)
+								break;
+							wait(sleep_time);
+						}
+					}
 					report(false);
 				}
 			} catch (InterruptedException ie) {
+				try {
+					voice.drain();
+				} catch (InterruptedException iie) { }
 			}
 		}
 
-		public void notice(AltosState new_state) {
+		public synchronized void notice(AltosState new_state, boolean spoken) {
+			AltosState old_state = state;
 			state = new_state;
+			if (!started && state.state > Altos.ao_flight_pad) {
+				started = true;
+				start();
+			}
+
+			if (state.state < Altos.ao_flight_drogue)
+				report_interval = 10000;
+			else
+				report_interval = 20000;
+			if (old_state != null && old_state.state != state.state) {
+				report_time = now();
+				this.notify();
+			} else if (spoken)
+				set_report_time();
 		}
 	}
 
-	private void tell(AltosState state, AltosState old_state) {
+	private boolean tell(AltosState state, AltosState old_state) {
+		boolean	ret = false;
 		if (old_state == null || old_state.state != state.state) {
 			voice.speak(state.data.state());
 			if ((old_state == null || old_state.state <= Altos.ao_flight_boost) &&
 			    state.state > Altos.ao_flight_boost) {
 				voice.speak("max speed: %d meters per second.",
 					    (int) (state.max_speed + 0.5));
+				ret = true;
 			} else if ((old_state == null || old_state.state < Altos.ao_flight_drogue) &&
 				   state.state >= Altos.ao_flight_drogue) {
 				voice.speak("max height: %d meters.",
 					    (int) (state.max_height + 0.5));
+				ret = true;
 			}
 		}
 		if (old_state == null || old_state.gps_ready != state.gps_ready) {
-			if (state.gps_ready)
+			if (state.gps_ready) {
 				voice.speak("GPS ready");
-			else if (old_state != null)
+				ret = true;
+			}
+			else if (old_state != null) {
 				voice.speak("GPS lost");
+				ret = true;
+			}
 		}
 		old_state = state;
+		return ret;
 	}
 
 	class DisplayThread extends Thread {
@@ -347,22 +422,27 @@ public class AltosUI extends JFrame {
 
 		String		name;
 
-		AltosRecord read() throws InterruptedException, ParseException { return null; }
+		int		crc_errors;
 
-		void close() { }
+		void init() { }
+
+		AltosRecord read() throws InterruptedException, ParseException, AltosCRCException, IOException { return null; }
+
+		void close(boolean interrupted) { }
 
 		void update(AltosState state) throws InterruptedException { }
 
 		public void run() {
+			boolean		interrupted = false;
 			String		line;
 			AltosState	state = null;
 			AltosState	old_state = null;
+			boolean		told;
 
 			idle_thread = new IdleThread();
 
 			info_reset();
 			info_finish();
-			idle_thread.start();
 			try {
 				for (;;) {
 					try {
@@ -372,17 +452,29 @@ public class AltosUI extends JFrame {
 						old_state = state;
 						state = new AltosState(record, state);
 						update(state);
-						show(state);
-						tell(state, old_state);
-						idle_thread.notice(state);
+						show(state, crc_errors);
+						told = tell(state, old_state);
+						idle_thread.notice(state, told);
 					} catch (ParseException pp) {
 						System.out.printf("Parse error: %d \"%s\"\n", pp.getErrorOffset(), pp.getMessage());
+					} catch (AltosCRCException ce) {
+						++crc_errors;
+						show(state, crc_errors);
 					}
 				}
 			} catch (InterruptedException ee) {
+				interrupted = true;
+			} catch (IOException ie) {
+				JOptionPane.showMessageDialog(AltosUI.this,
+							      String.format("Error reading from \"%s\"", name),
+							      "Telemetry Read Error",
+							      JOptionPane.ERROR_MESSAGE);
 			} finally {
-				close();
+				close(interrupted);
 				idle_thread.interrupt();
+				try {
+					idle_thread.join();
+				} catch (InterruptedException ie) {}
 			}
 		}
 
@@ -394,22 +486,25 @@ public class AltosUI extends JFrame {
 
 	class DeviceThread extends DisplayThread {
 		AltosSerial	serial;
-		LinkedBlockingQueue<String> telem;
+		LinkedBlockingQueue<AltosLine> telem;
 
-		AltosRecord read() throws InterruptedException, ParseException {
-			return new AltosTelemetry(telem.take());
+		AltosRecord read() throws InterruptedException, ParseException, AltosCRCException, IOException {
+			AltosLine l = telem.take();
+			if (l.line == null)
+				throw new IOException("IO error");
+			return new AltosTelemetry(l.line);
 		}
 
-		void close() {
+		void close(boolean interrupted) {
 			serial.close();
 			serial.remove_monitor(telem);
 		}
 
-		public DeviceThread(AltosSerial s) {
+		public DeviceThread(AltosSerial s, String in_name) {
 			serial = s;
-			telem = new LinkedBlockingQueue<String>();
+			telem = new LinkedBlockingQueue<AltosLine>();
 			serial.add_monitor(telem);
-			name = "telemetry";
+			name = in_name;
 		}
 	}
 
@@ -418,8 +513,9 @@ public class AltosUI extends JFrame {
 
 		if (device != null) {
 			try {
+				stop_display();
 				serial_line.open(device);
-				DeviceThread thread = new DeviceThread(serial_line);
+				DeviceThread thread = new DeviceThread(serial_line, device.getPath());
 				serial_line.set_channel(AltosPreferences.channel());
 				serial_line.set_callsign(AltosPreferences.callsign());
 				run_display(thread);
@@ -457,6 +553,11 @@ public class AltosUI extends JFrame {
 	void ConfigureTeleMetrum() {
 		new AltosConfig(AltosUI.this);
 	}
+
+	void FlashImage() {
+		new AltosFlashUI(AltosUI.this);
+	}
+
 	/*
 	 * Open an existing telemetry file and replay it in realtime
 	 */
@@ -478,8 +579,9 @@ public class AltosUI extends JFrame {
 			return null;
 		}
 
-		public void close () {
-			report();
+		public void close (boolean interrupted) {
+			if (!interrupted)
+				report();
 		}
 
 		public ReplayThread(AltosReader in_reader, String in_name) {
@@ -508,8 +610,12 @@ public class AltosUI extends JFrame {
 	Thread		display_thread;
 
 	private void stop_display() {
-		if (display_thread != null && display_thread.isAlive())
+		if (display_thread != null && display_thread.isAlive()) {
 			display_thread.interrupt();
+			try {
+				display_thread.join();
+			} catch (InterruptedException ie) {}
+		}
 		display_thread = null;
 	}
 
@@ -523,33 +629,12 @@ public class AltosUI extends JFrame {
 	 * Replay a flight from telemetry data
 	 */
 	private void Replay() {
-		JFileChooser	logfile_chooser = new JFileChooser();
-
-		logfile_chooser.setDialogTitle("Select Flight Record File");
-		logfile_chooser.setFileFilter(new FileNameExtensionFilter("Flight data file", "eeprom", "telem"));
-		logfile_chooser.setCurrentDirectory(AltosPreferences.logdir());
-		int returnVal = logfile_chooser.showOpenDialog(AltosUI.this);
-
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = logfile_chooser.getSelectedFile();
-			if (file == null)
-				System.out.println("No file selected?");
-			String	filename = file.getName();
-			try {
-				FileInputStream	replay = new FileInputStream(file);
-				DisplayThread	thread;
-				if (filename.endsWith("eeprom"))
-				    thread = new ReplayEepromThread(replay, filename);
-				else
-				    thread = new ReplayTelemetryThread(replay, filename);
-				run_display(thread);
-			} catch (FileNotFoundException ee) {
-				JOptionPane.showMessageDialog(AltosUI.this,
-							      filename,
-							      "Cannot open telemetry file",
-							      JOptionPane.ERROR_MESSAGE);
-			}
-		}
+		AltosLogfileChooser chooser = new AltosLogfileChooser(
+			AltosUI.this);
+		AltosReader reader = chooser.runDialog();
+		if (reader != null)
+			run_display(new ReplayThread(reader,
+						     chooser.filename()));
 	}
 
 	/* Connect to TeleMetrum, either directly or through
@@ -557,6 +642,14 @@ public class AltosUI extends JFrame {
 	 */
 	private void SaveFlightData() {
 		new AltosEepromDownload(AltosUI.this);
+	}
+
+	/* Load a flight log file and write out a CSV file containing
+	 * all of the data in standard units
+	 */
+
+	private void ExportData() {
+		new AltosCSVUI(AltosUI.this);
 	}
 
 	/* Create the AltosUI menus
@@ -585,6 +678,22 @@ public class AltosUI extends JFrame {
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						SaveFlightData();
+					}
+				});
+			menu.add(item);
+
+			item = new JMenuItem("Flash Image",KeyEvent.VK_F);
+			item.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						FlashImage();
+					}
+				});
+			menu.add(item);
+
+			item = new JMenuItem("Export Data",KeyEvent.VK_F);
+			item.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						ExportData();
 					}
 				});
 			menu.add(item);
@@ -708,8 +817,67 @@ public class AltosUI extends JFrame {
 		this.setJMenuBar(menubar);
 
 	}
+
+	static String replace_extension(String input, String extension) {
+		int dot = input.lastIndexOf(".");
+		if (dot > 0)
+			input = input.substring(0,dot);
+		return input.concat(extension);
+	}
+
+	static AltosReader open_logfile(String filename) {
+		File file = new File (filename);
+		try {
+			FileInputStream in;
+
+			in = new FileInputStream(file);
+			if (filename.endsWith("eeprom"))
+				return new AltosEepromReader(in);
+			else
+				return new AltosTelemetryReader(in);
+		} catch (FileNotFoundException fe) {
+			System.out.printf("Cannot open '%s'\n", filename);
+			return null;
+		}
+	}
+
+	static AltosCSV open_csv(String filename) {
+		File file = new File (filename);
+		try {
+			return new AltosCSV(file);
+		} catch (FileNotFoundException fe) {
+			System.out.printf("Cannot open '%s'\n", filename);
+			return null;
+		}
+	}
+
+	static void process_file(String input) {
+		String output = replace_extension(input,".csv");
+		if (input.equals(output)) {
+			System.out.printf("Not processing '%s'\n", input);
+			return;
+		}
+		System.out.printf("Processing \"%s\" to \"%s\"\n", input, output);
+		AltosReader reader = open_logfile(input);
+		if (reader == null)
+			return;
+		AltosCSV writer = open_csv(output);
+		if (writer == null)
+			return;
+		writer.write(reader);
+		reader.close();
+		writer.close();
+	}
+
 	public static void main(final String[] args) {
-		AltosUI altosui = new AltosUI();
-		altosui.setVisible(true);
+
+		/* Handle batch-mode */
+		if (args.length > 0) {
+			for (int i = 0; i < args.length; i++)
+				process_file(args[i]);
+		} else {
+			AltosUI altosui = new AltosUI();
+			altosui.setVisible(true);
+		}
 	}
 }

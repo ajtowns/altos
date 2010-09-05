@@ -32,6 +32,7 @@ public class AltosDevice extends altos_device {
 			System.err.println("Native library failed to load.\n" + e);
 		}
 	}
+	public final static int AltusMetrum = libaltosConstants.USB_PRODUCT_ALTUSMETRUM;
 	public final static int TeleMetrum = libaltosConstants.USB_PRODUCT_TELEMETRUM;
 	public final static int TeleDongle = libaltosConstants.USB_PRODUCT_TELEDONGLE;
 	public final static int TeleTerra = libaltosConstants.USB_PRODUCT_TELETERRA;
@@ -58,33 +59,23 @@ public class AltosDevice extends altos_device {
 
 	public boolean matchProduct(int want_product) {
 
+		if (!isAltusMetrum())
+			return false;
+
 		if (want_product == Any)
 			return true;
 
 		if (want_product == BaseStation)
 			return matchProduct(TeleDongle) || matchProduct(TeleTerra);
 
-		if (!isAltusMetrum())
-			return false;
-
 		int have_product = getProduct();
+
+		if (have_product == AltusMetrum)	/* old devices match any request */
+			return true;
 
 		if (want_product == have_product)
 			return true;
 
-		if (have_product != libaltosConstants.USB_PRODUCT_ALTUSMETRUM)
-			return false;
-
-		String name = getName();
-
-		if (name == null)
-			return false;
-		if (want_product == libaltosConstants.USB_PRODUCT_TELEMETRUM)
-			return name.startsWith("TeleMetrum");
-		if (want_product == libaltosConstants.USB_PRODUCT_TELEDONGLE)
-			return name.startsWith("TeleDongle");
-		if (want_product == libaltosConstants.USB_PRODUCT_TELETERRA)
-			return name.startsWith("TeleTerra");
 		return false;
 	}
 

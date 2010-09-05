@@ -21,7 +21,7 @@ volatile __xdata struct ao_fifo	ao_usart1_rx_fifo;
 volatile __xdata struct ao_fifo	ao_usart1_tx_fifo;
 
 void
-ao_serial_rx1_isr(void) interrupt 3
+ao_serial_rx1_isr(void) __interrupt 3
 {
 	if (!ao_fifo_full(ao_usart1_rx_fifo))
 		ao_fifo_insert(ao_usart1_rx_fifo, U1DBUF);
@@ -42,7 +42,7 @@ ao_serial_tx1_start(void)
 }
 
 void
-ao_serial_tx1_isr(void) interrupt 14
+ao_serial_tx1_isr(void) __interrupt 14
 {
 	UTX1IF = 0;
 	ao_serial_tx1_started = 0;

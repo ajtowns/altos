@@ -15,11 +15,12 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#define BUILD_DLL
 #include "libaltos.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define USE_POLL
 
 PUBLIC int
 altos_init(void)
@@ -33,6 +34,9 @@ altos_fini(void)
 }
 
 #ifdef DARWIN
+
+#undef USE_POLL
+
 /* Mac OS X don't have strndup even if _GNU_SOURCE is defined */
 static char *
 altos_strndup (const char *s, size_t n)
@@ -391,24 +395,40 @@ get_string(io_object_t object, CFStringRef entry, char *result, int result_len)
 	return 0;
 }
 
+static int
+get_number(io_object_t object, CFStringRef entry, int *result)
+{
+	CFTypeRef entry_as_number;
+	Boolean got_number;
+	
+	entry_as_number = IORegistryEntrySearchCFProperty (object,
+							   kIOServicePlane,
+							   entry,
+							   kCFAllocatorDefault,
+							   kIORegistryIterateRecursively);
+	if (entry_as_number) {
+		got_number = CFNumberGetValue(entry_as_number,
+					      kCFNumberIntType,
+					      result);
+		if (got_number)
+			return 1;
+	}
+	return 0;
+}
+
 struct altos_list *
 altos_list_start(void)
 {
 	struct altos_list *list = calloc (sizeof (struct altos_list), 1);
 	CFMutableDictionaryRef matching_dictionary = IOServiceMatching("IOUSBDevice");
-	UInt32 vendor = 0xfffe, product = 0x000a;
-	CFNumberRef vendor_ref = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &vendor);
-	CFNumberRef product_ref = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &product);
 	io_iterator_t tdIterator;
 	io_object_t tdObject;
-  
-	CFDictionaryAddValue(matching_dictionary, CFSTR(kUSBVendorID), vendor_ref);
-	CFDictionaryAddValue(matching_dictionary, CFSTR(kUSBProductID), product_ref);
+	kern_return_t ret;
+	int i;
 
-	IOServiceGetMatchingServices(kIOMasterPortDefault, matching_dictionary, &list->iterator);
-  
-	CFRelease(vendor_ref);
-	CFRelease(product_ref);
+	ret = IOServiceGetMatchingServices(kIOMasterPortDefault, matching_dictionary, &list->iterator);
+	if (ret != kIOReturnSuccess)
+		return NULL;
 	return list;
 }
 
@@ -423,8 +443,15 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 		if (!object)
 			return 0;
   
+		if (!get_number (object, CFSTR(kUSBVendorID), &device->vendor) ||
+		    !get_number (object, CFSTR(kUSBProductID), &device->product))
+			continue;
+		if (device->vendor != 0xfffe)
+			continue;
+		if (device->product < 0x000a || 0x0013 < device->product)
+			continue;
 		if (get_string (object, CFSTR("IOCalloutDevice"), device->path, sizeof (device->path)) &&
-		    get_string (object, CFSTR("USB Product Name"), device->product, sizeof (device->product)) &&
+		    get_string (object, CFSTR("USB Product Name"), device->name, sizeof (device->name)) &&
 		    get_string (object, CFSTR("USB Serial Number"), serial_string, sizeof (serial_string))) {
 			device->serial = atoi(serial_string);
 			return 1;
@@ -453,6 +480,11 @@ altos_list_finish(struct altos_list *list)
 
 struct altos_file {
 	int				fd;
+#ifdef USE_POLL
+	int				pipe[2];
+#else
+	int				out_fd;
+#endif
 	unsigned char			out_data[USB_BUF_SIZE];
 	int				out_used;
 	unsigned char			in_data[USB_BUF_SIZE];
@@ -460,7 +492,7 @@ struct altos_file {
 	int				in_read;
 };
 
-struct altos_file *
+PUBLIC struct altos_file *
 altos_open(struct altos_device *device)
 {
 	struct altos_file	*file = calloc (sizeof (struct altos_file), 1);
@@ -476,67 +508,89 @@ altos_open(struct altos_device *device)
 		free(file);
 		return NULL;
 	}
-	ret = tcgetattr(file->fd, &term);
-	if (ret < 0) {
-		perror("tcgetattr");
+#ifdef USE_POLL
+	pipe(file->pipe);
+#else
+	file->out_fd = open(device->path, O_RDWR | O_NOCTTY);
+	if (file->out_fd < 0) {
+		perror(device->path);
 		close(file->fd);
 		free(file);
 		return NULL;
 	}
+#endif
+	ret = tcgetattr(file->fd, &term);
+	if (ret < 0) {
+		perror("tcgetattr");
+		close(file->fd);
+#ifndef USE_POLL
+		close(file->out_fd);
+#endif
+		free(file);
+		return NULL;
+	}
 	cfmakeraw(&term);
+#ifdef USE_POLL
+	term.c_cc[VMIN] = 1;
+	term.c_cc[VTIME] = 0;
+#else
 	term.c_cc[VMIN] = 0;
 	term.c_cc[VTIME] = 1;
+#endif
 	ret = tcsetattr(file->fd, TCSAFLUSH, &term);
 	if (ret < 0) {
 		perror("tcsetattr");
 		close(file->fd);
+#ifndef USE_POLL
+		close(file->out_fd);
+#endif
 		free(file);
 		return NULL;
 	}
 	return file;
 }
 
-void
+PUBLIC void
 altos_close(struct altos_file *file)
 {
 	if (file->fd != -1) {
-		close(file->fd);
+		int	fd = file->fd;
 		file->fd = -1;
+#ifdef USE_POLL
+		write(file->pipe[1], "\r", 1);
+#else
+		close(file->out_fd);
+		file->out_fd = -1;
+#endif
+		close(fd);
 	}
 }
 
-void
+PUBLIC void
 altos_free(struct altos_file *file)
 {
 	altos_close(file);
 	free(file);
 }
 
-int
-altos_putchar(struct altos_file *file, char c)
-{
-	int	ret;
-
-	if (file->out_used == USB_BUF_SIZE) {
-		ret = altos_flush(file);
-		if (ret)
-			return ret;
-	}
-	file->out_data[file->out_used++] = c;
-	if (file->out_used == USB_BUF_SIZE)
-		return altos_flush(file);
-	return 0;
-}
-
-int
+PUBLIC int
 altos_flush(struct altos_file *file)
 {
+	if (file->out_used && 0) {
+		printf ("flush \"");
+		fwrite(file->out_data, 1, file->out_used, stdout);
+		printf ("\"\n");
+	}
 	while (file->out_used) {
 		int	ret;
 
 		if (file->fd < 0)
 			return -EBADF;
+#ifdef USE_POLL
 		ret = write (file->fd, file->out_data, file->out_used);
+#else
+		ret = write (file->out_fd, file->out_data, file->out_used);
+#endif
 		if (ret < 0)
 			return -errno;
 		if (ret) {
@@ -545,33 +599,93 @@ altos_flush(struct altos_file *file)
 			file->out_used -= ret;
 		}
 	}
+	return 0;
 }
 
-#include <poll.h>
+PUBLIC int
+altos_putchar(struct altos_file *file, char c)
+{
+	int	ret;
 
-int
+	if (file->out_used == USB_BUF_SIZE) {
+		ret = altos_flush(file);
+		if (ret) {
+			return ret;
+		}
+	}
+	file->out_data[file->out_used++] = c;
+	ret = 0;
+	if (file->out_used == USB_BUF_SIZE)
+		ret = altos_flush(file);
+	return 0;
+}
+
+#ifdef USE_POLL
+#include <poll.h>
+#endif
+
+static int
+altos_fill(struct altos_file *file, int timeout)
+{
+	int		ret;
+#ifdef USE_POLL
+	struct pollfd	fd[2];
+#endif
+
+	if (timeout == 0)
+		timeout = -1;
+	while (file->in_read == file->in_used) {
+		if (file->fd < 0)
+			return LIBALTOS_ERROR;
+#ifdef USE_POLL
+		fd[0].fd = file->fd;
+		fd[0].events = POLLIN|POLLERR|POLLHUP|POLLNVAL;
+		fd[1].fd = file->pipe[0];
+		fd[1].events = POLLIN;
+		ret = poll(fd, 2, timeout);
+		if (ret < 0) {
+			perror("altos_getchar");
+			return LIBALTOS_ERROR;
+		}
+		if (ret == 0)
+			return LIBALTOS_TIMEOUT;
+
+		if (fd[0].revents & (POLLHUP|POLLERR|POLLNVAL))
+			return LIBALTOS_ERROR;
+		if (fd[0].revents & POLLIN)
+#endif
+		{
+			ret = read(file->fd, file->in_data, USB_BUF_SIZE);
+			if (ret < 0) {
+				perror("altos_getchar");
+				return LIBALTOS_ERROR;
+			}
+			file->in_read = 0;
+			file->in_used = ret;
+#ifndef USE_POLL
+			if (ret == 0 && timeout > 0)
+				return LIBALTOS_TIMEOUT;
+#endif
+		}
+	}
+	if (file->in_used && 0) {
+		printf ("fill \"");
+		fwrite(file->in_data, 1, file->in_used, stdout);
+		printf ("\"\n");
+	}
+	return 0;
+}
+
+PUBLIC int
 altos_getchar(struct altos_file *file, int timeout)
 {
+	int	ret;
 	while (file->in_read == file->in_used) {
-		int	ret;
-
-		altos_flush(file);
 		if (file->fd < 0)
-			return -EBADF;
-		if (timeout) {
-			struct pollfd fd;
-			int ret;
-			fd.fd = file->fd;
-			fd.events = POLLIN;
-			ret = poll(&fd, 1, timeout);
-			if (ret == 0)
-				return LIBALTOS_TIMEOUT;
-		}
-		ret = read(file->fd, file->in_data, USB_BUF_SIZE);
-		if (ret < 0)
 			return LIBALTOS_ERROR;
-		file->in_read = 0;
-		file->in_used = ret;
+		ret = altos_fill(file, timeout);
+		if (ret)
+			return ret;
 	}
 	return file->in_data[file->in_read++];
 }
@@ -580,6 +694,7 @@ altos_getchar(struct altos_file *file, int timeout)
 
 #ifdef WINDOWS
 
+#include <stdlib.h>
 #include <windows.h>
 #include <setupapi.h>
 
@@ -597,8 +712,10 @@ struct altos_file {
 	unsigned char			in_data[USB_BUF_SIZE];
 	int				in_used;
 	int				in_read;
+	OVERLAPPED			ov_read;
+	BOOL				pend_read;
+	OVERLAPPED			ov_write;
 };
-
 
 PUBLIC struct altos_list *
 altos_list_start(void)
@@ -624,15 +741,15 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 	SP_DEVINFO_DATA dev_info_data;
 	char		port[128];
 	DWORD		port_len;
-	char		location[256];
+	char		friendlyname[256];
 	char		symbolic[256];
 	DWORD		symbolic_len;
 	HKEY		dev_key;
 	int		vid, pid;
 	int		serial;
 	HRESULT 	result;
-	DWORD		location_type;
-	DWORD		location_len;
+	DWORD		friendlyname_type;
+	DWORD		friendlyname_len;
 
 	dev_info_data.cbSize = sizeof (SP_DEVINFO_DATA);
 	while(SetupDiEnumDeviceInfo(list->dev_info, list->index,
@@ -666,8 +783,6 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 		sscanf(symbolic + sizeof("\\??\\USB#VID_XXXX&PID_XXXX#") - 1,
 		       "%d", &serial);
 		if (!USB_IS_ALTUSMETRUM(vid, pid)) {
-			printf("Not Altus Metrum symbolic name: %s\n",
-			       symbolic);
 			RegCloseKey(dev_key);
 			continue;
 		}
@@ -682,33 +797,26 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 			continue;
 		}
 
-		/* Fetch the 'location information' which is the device name,
-		 * at least on XP */
-		location_len = sizeof (location);
+		/* Fetch the device description which is the device name,
+		 * with firmware that has unique USB ids */
+		friendlyname_len = sizeof (friendlyname);
 		if(!SetupDiGetDeviceRegistryProperty(list->dev_info,
 						     &dev_info_data,
-						     SPDRP_LOCATION_INFORMATION,
-						     &location_type,
-						     (BYTE *)location,
-						     sizeof(location),
-						     &location_len))
+						     SPDRP_FRIENDLYNAME,
+						     &friendlyname_type,
+						     (BYTE *)friendlyname,
+						     sizeof(friendlyname),
+						     &friendlyname_len))
 		{
-			printf("Failed to get location\n");
+			printf("Failed to get friendlyname\n");
 			continue;
 		}
 		device->vendor = vid;
 		device->product = pid;
 		device->serial = serial;
-
-		if (strcasestr(location, "tele"))
-			strcpy(device->name, location);
-		else
-			strcpy(device->name, "");
+		strcpy(device->name, friendlyname);
 
 		strcpy(device->path, port);
-		printf ("product: %04x:%04x (%s)  path: %s serial %d\n",
-			device->vendor, device->product, device->name,
-			device->path, device->serial);
 		return 1;
 	}
 	result = GetLastError();
@@ -725,41 +833,72 @@ altos_list_finish(struct altos_list *list)
 }
 
 static int
+altos_queue_read(struct altos_file *file)
+{
+	DWORD	got;
+	if (file->pend_read)
+		return LIBALTOS_SUCCESS;
+
+	if (!ReadFile(file->handle, file->in_data, USB_BUF_SIZE, &got, &file->ov_read)) {
+		if (GetLastError() != ERROR_IO_PENDING)
+			return LIBALTOS_ERROR;
+		file->pend_read = TRUE;
+	} else {
+		file->pend_read = FALSE;
+		file->in_read = 0;
+		file->in_used = got;
+	}
+	return LIBALTOS_SUCCESS;
+}
+
+static int
+altos_wait_read(struct altos_file *file, int timeout)
+{
+	DWORD	ret;
+	DWORD	got;
+
+	if (!file->pend_read)
+		return LIBALTOS_SUCCESS;
+
+	if (!timeout)
+		timeout = INFINITE;
+
+	ret = WaitForSingleObject(file->ov_read.hEvent, timeout);
+	switch (ret) {
+	case WAIT_OBJECT_0:
+		if (!GetOverlappedResult(file->handle, &file->ov_read, &got, FALSE))
+			return LIBALTOS_ERROR;
+		file->pend_read = FALSE;
+		file->in_read = 0;
+		file->in_used = got;
+		break;
+	case WAIT_TIMEOUT:
+		return LIBALTOS_TIMEOUT;
+		break;
+	default:
+		return LIBALTOS_ERROR;
+	}
+	return LIBALTOS_SUCCESS;
+}
+
+static int
 altos_fill(struct altos_file *file, int timeout)
 {
-	DWORD	result;
-	DWORD	got;
-	COMMTIMEOUTS timeouts;
+	int	ret;
 
 	if (file->in_read < file->in_used)
 		return LIBALTOS_SUCCESS;
+
 	file->in_read = file->in_used = 0;
 
-	if (timeout) {
-		timeouts.ReadIntervalTimeout = MAXDWORD;
-		timeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
-		timeouts.ReadTotalTimeoutConstant = timeout;
-	} else {
-		timeouts.ReadIntervalTimeout = 0;
-		timeouts.ReadTotalTimeoutMultiplier = 0;
-		timeouts.ReadTotalTimeoutConstant = 0;
-	}
-	timeouts.WriteTotalTimeoutMultiplier = 0;
-	timeouts.WriteTotalTimeoutConstant = 0;
+	ret = altos_queue_read(file);
+	if (ret)
+		return ret;
+	ret = altos_wait_read(file, timeout);
+	if (ret)
+		return ret;
 
-	if (!SetCommTimeouts(file->handle, &timeouts)) {
-		printf("SetCommTimeouts failed %d\n", GetLastError());
-	}
-
-	if (!ReadFile(file->handle, file->in_data, USB_BUF_SIZE, &got, NULL)) {
-		result = GetLastError();
-		printf ("read failed %d\n", result);
-		return LIBALTOS_ERROR;
-		got = 0;
-	}
-	if (got)
-		return LIBALTOS_SUCCESS;
-	return LIBALTOS_TIMEOUT;
+	return LIBALTOS_SUCCESS;
 }
 
 PUBLIC int
@@ -768,13 +907,21 @@ altos_flush(struct altos_file *file)
 	DWORD	put;
 	char	*data = file->out_data;
 	char	used = file->out_used;
-	DWORD	result;
+	DWORD	ret;
 
 	while (used) {
-		if (!WriteFile(file->handle, data, used, &put, NULL)) {
-			result = GetLastError();
-			printf ("write failed %d\n", result);
-			return LIBALTOS_ERROR;
+		if (!WriteFile(file->handle, data, used, &put, &file->ov_write)) {
+			if (GetLastError() != ERROR_IO_PENDING)
+				return LIBALTOS_ERROR;
+			ret = WaitForSingleObject(file->ov_write.hEvent, INFINITE);
+			switch (ret) {
+			case WAIT_OBJECT_0:
+				if (!GetOverlappedResult(file->handle, &file->ov_write, &put, FALSE))
+					return LIBALTOS_ERROR;
+				break;
+			default:
+				return LIBALTOS_ERROR;
+			}
 		}
 		data += put;
 		used -= put;
@@ -786,8 +933,10 @@ altos_flush(struct altos_file *file)
 PUBLIC struct altos_file *
 altos_open(struct altos_device *device)
 {
-	struct altos_file	*file = calloc (sizeof (struct altos_file), 1);
+	struct altos_file	*file = calloc (1, sizeof (struct altos_file));
 	char	full_name[64];
+	DCB dcbSerialParams = {0};
+	COMMTIMEOUTS timeouts;
 
 	if (!file)
 		return NULL;
@@ -796,19 +945,35 @@ altos_open(struct altos_device *device)
 	strcat(full_name, device->path);
 	file->handle = CreateFile(full_name, GENERIC_READ|GENERIC_WRITE,
 				  0, NULL, OPEN_EXISTING,
-				  FILE_ATTRIBUTE_NORMAL, NULL);
+				  FILE_FLAG_OVERLAPPED, NULL);
 	if (file->handle == INVALID_HANDLE_VALUE) {
 		free(file);
 		return NULL;
 	}
+	file->ov_read.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	file->ov_write.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
 	timeouts.ReadIntervalTimeout = MAXDWORD;
 	timeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
-	timeouts.ReadTotalTimeoutConstant = 100;
+	timeouts.ReadTotalTimeoutConstant = 1 << 30;	/* almost forever */
 	timeouts.WriteTotalTimeoutMultiplier = 0;
-	timeouts.WriteTotalTimeoutConstant = 10000;
-	if (!SetCommTimeouts(file->handle, &timeouts)) {
-		printf("SetCommTimeouts failed %d\n", GetLastError());
+	timeouts.WriteTotalTimeoutConstant = 0;
+	SetCommTimeouts(file->handle, &timeouts);
+
+	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
+	if (!GetCommState(file->handle, &dcbSerialParams)) {
+		CloseHandle(file->handle);
+		free(file);
+		return NULL;
+	}
+	dcbSerialParams.BaudRate = CBR_9600;
+	dcbSerialParams.ByteSize = 8;
+	dcbSerialParams.StopBits = ONESTOPBIT;
+	dcbSerialParams.Parity = NOPARITY;
+	if (!SetCommState(file->handle, &dcbSerialParams)) {
+		CloseHandle(file->handle);
+		free(file);
+		return NULL;
 	}
 
 	return file;
@@ -851,9 +1016,6 @@ altos_getchar(struct altos_file *file, int timeout)
 {
 	int	ret;
 	while (file->in_read == file->in_used) {
-		ret = altos_flush(file);
-		if (ret)
-			return ret;
 		if (file->handle == INVALID_HANDLE_VALUE)
 			return LIBALTOS_ERROR;
 		ret = altos_fill(file, timeout);

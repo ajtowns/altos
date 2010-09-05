@@ -1,10 +1,10 @@
 [Desktop Entry]
 Type=Application
-Name=AltOS View
+Name=AltOS UI
 GenericName=TeleMetrum Telemetry Viewer
 Comment=View and log downlink data from TeleMetrum
 Icon=/usr/share/pixmaps/altusmetrum.xpm
-Exec=/usr/bin/ao-view %f
+Exec=/usr/bin/altosui %f
 Terminal=false
 MimeType=text/plain;
 Categories=Education;Science;

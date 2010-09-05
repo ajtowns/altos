@@ -142,6 +142,7 @@ public class AltosEepromDownload implements Runnable {
 
 				if (values == null) {
 					System.out.printf("invalid line: %s\n", line);
+					continue;
 				} else if (values[0] != addr) {
 					System.out.printf("data address out of sync at 0x%x\n",
 							  block * 256 + values[0]);
@@ -223,10 +224,10 @@ public class AltosEepromDownload implements Runnable {
 
 	public void run () {
 		if (remote) {
-			serial_line.printf("m 0\n");
 			serial_line.set_channel(AltosPreferences.channel());
 			serial_line.set_callsign(AltosPreferences.callsign());
-			serial_line.printf("p\n");
+			serial_line.printf("p\nE 0\n");
+			serial_line.flush_input();
 		}
 
 		monitor = new AltosEepromMonitor(frame, Altos.ao_flight_boost, Altos.ao_flight_landed);
@@ -247,6 +248,7 @@ public class AltosEepromDownload implements Runnable {
 		if (remote)
 			serial_line.printf("~");
 		monitor.done();
+		serial_line.flush_output();
 		serial_line.close();
 	}
 

@@ -1,2 +1,0 @@
-Main-Class: altosui.AltosUI
-Class-Path: /usr/share/java/freetts.jar

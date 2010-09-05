@@ -1,4 +1,4 @@
-PROG = telemetrum-v0.1-sky.ihx
+PROG = telemetrum-v0.1-sky-$(VERSION).ihx
 
 SRC = \
 	$(TM_BASE_SRC) \

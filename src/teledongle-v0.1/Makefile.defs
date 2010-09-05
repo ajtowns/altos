@@ -1,4 +1,4 @@
-PROG = teledongle-v0.1.ihx
+PROG = teledongle-v0.1-$(VERSION).ihx
 
 SRC = \
 	$(TD_SRC) \

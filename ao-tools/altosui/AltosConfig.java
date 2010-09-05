@@ -122,17 +122,17 @@ public class AltosConfig implements Runnable, ActionListener {
 
 	void start_serial() throws InterruptedException {
 		if (remote) {
-			serial_line.printf("m 0\n");
 			serial_line.set_channel(AltosPreferences.channel());
 			serial_line.set_callsign(AltosPreferences.callsign());
 			serial_line.printf("p\n");
+			serial_line.flush_input();
 		}
 	}
 
 	void stop_serial() throws InterruptedException {
 		if (remote) {
-			serial_line.printf("~\n");
-			serial_line.flush();
+			serial_line.printf("~");
+			serial_line.flush_output();
 		}
 	}
 

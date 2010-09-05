@@ -17,19 +17,49 @@ dnl  59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 dnl
 dnl Process this file with autoconf to create configure.
 
-AC_INIT(COPYING)
-
-AM_INIT_AUTOMAKE(altos, 0.1)
+AC_PREREQ(2.57)
+AC_INIT([altos], 0.7.1)
+AC_CONFIG_SRCDIR([src/ao.h])
+AM_INIT_AUTOMAKE([foreign dist-bzip2])
 AM_MAINTAINER_MODE
+
+VERSION_DASH=`echo $VERSION | sed 's/\./-/g'`
+AC_SUBST(VERSION_DASH)
 
 dnl ==========================================================================
 
 AM_CONFIG_HEADER(config.h)
 
+AC_ARG_WITH(freetts, AS_HELP_STRING([--with-freetts=PATH],
+	[Set freetts class path (default /usr/share/java)]),
+	[FREETTS=$withval], [FREETTS=/usr/share/java])
+
+AC_SUBST(FREETTS)
+
+AC_ARG_WITH(jvm, AS_HELP_STRING([--with-jvm-include=PATH],
+	[Set jvm include path for jni builds (default searches in /usr/lib/jvm)]),
+	[JVM_INCLUDE=$withval], [JVM_INCLUDE=auto])
+
+if test "x$JVM_INCLUDE" = "xauto"; then
+	AC_MSG_CHECKING([JVM include files])
+	for jvm in default-java java-6-openjdk java-6-sun; do
+		if test "x$JVM_INCLUDE" = "xauto"; then
+			INCLUDE="/usr/lib/jvm/$jvm/include"
+			if test -f "$INCLUDE"/jni.h; then
+				JVM_INCLUDE="$INCLUDE"
+			fi
+		fi
+	done
+	if test "x$JVM_INCLUDE" = "xauto"; then
+		AC_MSG_ERROR([no JVM include files found])
+	fi
+	AC_MSG_RESULT([$JVM_INCLUDE])
+fi
+
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
-AC_PROG_RANLIB
+AC_PROG_LIBTOOL
 PKG_PROG_PKG_CONFIG
 
 CFLAGS="-g"
@@ -92,5 +122,8 @@ ao-tools/ao-list/Makefile
 ao-tools/ao-load/Makefile
 ao-tools/ao-postflight/Makefile
 ao-tools/ao-view/Makefile
+ao-tools/libaltos/Makefile
+ao-tools/altosui/Makefile
 ao-utils/Makefile
+src/Version
 ])

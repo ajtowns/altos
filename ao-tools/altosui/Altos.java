@@ -114,4 +114,90 @@ public class Altos {
 	static final int AO_GPS_DATE_VALID = (1 << 6);
 	static final int AO_GPS_NUM_SAT_SHIFT = 0;
 	static final int AO_GPS_NUM_SAT_MASK = 0xf;
+
+	static boolean isspace(int c) {
+		switch (c) {
+		case ' ':
+		case '\t':
+			return true;
+		}
+		return false;
+	}
+
+	static boolean ishex(int c) {
+		if ('0' <= c && c <= '9')
+			return true;
+		if ('a' <= c && c <= 'f')
+			return true;
+		if ('A' <= c && c <= 'F')
+			return true;
+		return false;
+	}
+
+	static boolean ishex(String s) {
+		for (int i = 0; i < s.length(); i++)
+			if (!ishex(s.charAt(i)))
+				return false;
+		return true;
+	}
+
+	static int fromhex(int c) {
+		if ('0' <= c && c <= '9')
+			return c - '0';
+		if ('a' <= c && c <= 'f')
+			return c - 'a' + 10;
+		if ('A' <= c && c <= 'F')
+			return c - 'A' + 10;
+		return -1;
+	}
+
+	static int fromhex(String s) throws NumberFormatException {
+		int c, v = 0;
+		for (int i = 0; i < s.length(); i++) {
+			c = s.charAt(i);
+			if (!ishex(c)) {
+				if (i == 0)
+					throw new NumberFormatException(String.format("invalid hex \"%s\"", s));
+				return v;
+			}
+			v = v * 16 + fromhex(c);
+		}
+		return v;
+	}
+
+	static boolean isdec(int c) {
+		if ('0' <= c && c <= '9')
+			return true;
+		return false;
+	}
+
+	static boolean isdec(String s) {
+		for (int i = 0; i < s.length(); i++)
+			if (!isdec(s.charAt(i)))
+				return false;
+		return true;
+	}
+
+	static int fromdec(int c) {
+		if ('0' <= c && c <= '9')
+			return c - '0';
+		return -1;
+	}
+
+	static int fromdec(String s) throws NumberFormatException {
+		int c, v = 0;
+		int sign = 1;
+		for (int i = 0; i < s.length(); i++) {
+			c = s.charAt(i);
+			if (i == 0 && c == '-') {
+				sign = -1;
+			} else if (!isdec(c)) {
+				if (i == 0)
+					throw new NumberFormatException(String.format("invalid number \"%s\"", s));
+				return v;
+			} else
+				v = v * 10 + fromdec(c);
+		}
+		return v * sign;
+	}
 }

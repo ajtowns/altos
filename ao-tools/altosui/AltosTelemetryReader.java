@@ -47,20 +47,27 @@ public class AltosTelemetryReader extends AltosReader {
 		try {
 			for (;;) {
 				String line = AltosRecord.gets(input);
-				if (line == null)
+				if (line == null) {
 					break;
-				AltosTelemetry record = new AltosTelemetry(line);
-				if (record == null)
-					break;
-				if (!saw_boost && record.state >= Altos.ao_flight_boost)
-				{
-					saw_boost = true;
-					boost_tick = record.tick;
 				}
-				records.add(record);
+				try {
+					AltosTelemetry record = new AltosTelemetry(line);
+					if (record == null)
+						break;
+					if (!saw_boost && record.state >= Altos.ao_flight_boost)
+					{
+						saw_boost = true;
+						boost_tick = record.tick;
+					}
+					records.add(record);
+				} catch (ParseException pe) {
+					System.out.printf("parse exception %s\n", pe.getMessage());
+				} catch (AltosCRCException ce) {
+					System.out.printf("crc error\n");
+				}
 			}
 		} catch (IOException io) {
-		} catch (ParseException pe) {
+			System.out.printf("io exception\n");
 		}
 		record_iterator = records.iterator();
 		try {

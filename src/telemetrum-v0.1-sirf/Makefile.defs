@@ -1,4 +1,4 @@
-PROG = telemetrum-v0.1-sirf.ihx
+PROG = telemetrum-v0.1-sirf-$(VERSION).ihx
 
 SRC = \
 	$(TM_BASE_SRC) \

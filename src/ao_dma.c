@@ -112,7 +112,7 @@ ao_dma_abort(uint8_t id)
 }
 
 void
-ao_dma_isr(void) interrupt 8
+ao_dma_isr(void) __interrupt 8
 {
 	uint8_t id, mask;
 
