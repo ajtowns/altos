@@ -231,11 +231,19 @@ public class AltosUI extends JFrame {
 
 			if (state.npad > 0) {
 				if (state.from_pad != null) {
-					info_add_row(1, "Distance from pad", "%6.0f m", state.from_pad.distance);
-					info_add_row(1, "Direction from pad", "%6.0f°", state.from_pad.bearing);
+					info_add_row(1, "Distance from pad", "%6d m",
+						     (int) (state.from_pad.distance + 0.5));
+					info_add_row(1, "Direction from pad", "%6d°",
+						     (int) (state.from_pad.bearing + 0.5));
+					info_add_row(1, "Elevation from pad", "%6d°",
+						     (int) (state.elevation + 0.5));
+					info_add_row(1, "Range from pad", "%6d m",
+						     (int) (state.range + 0.5));
 				} else {
 					info_add_row(1, "Distance from pad", "unknown");
 					info_add_row(1, "Direction from pad", "unknown");
+					info_add_row(1, "Elevation from pad", "unknown");
+					info_add_row(1, "Range from pad", "unknown");
 				}
 				info_add_deg(1, "Pad latitude", state.pad_lat, 'N', 'S');
 				info_add_deg(1, "Pad longitude", state.pad_lon, 'E', 'W');
