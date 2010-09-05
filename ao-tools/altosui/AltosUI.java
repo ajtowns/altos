@@ -277,6 +277,7 @@ public class AltosUI extends JFrame {
 
 	class IdleThread extends Thread {
 
+		boolean	started;
 		private AltosState state;
 		int	reported_landing;
 
@@ -346,6 +347,10 @@ public class AltosUI extends JFrame {
 		public void notice(AltosState new_state) {
 			AltosState old_state = state;
 			state = new_state;
+			if (!started && state.state > Altos.ao_flight_pad) {
+				started = true;
+				start();
+			}
 			if (old_state != null && old_state.state != state.state)
 				report(false);
 		}
@@ -398,7 +403,6 @@ public class AltosUI extends JFrame {
 
 			info_reset();
 			info_finish();
-			idle_thread.start();
 			try {
 				for (;;) {
 					try {
