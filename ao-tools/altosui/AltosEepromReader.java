@@ -101,8 +101,6 @@ public class AltosEepromReader extends AltosReader {
 
 	int			gps_tick;
 
-	boolean			saw_boost;
-
 	int			boost_tick;
 
 	boolean			saw_gps_date;
@@ -343,15 +341,10 @@ public class AltosEepromReader extends AltosReader {
 				if (record.cmd == Altos.AO_LOG_INVALID)
 					continue;
 				tick = record.tick;
-				if (!saw_boost && record.cmd == Altos.AO_LOG_STATE &&
-				    record.a >= Altos.ao_flight_boost)
-				{
-					saw_boost = true;
-					boost_tick = tick;
-				}
 				if (record.cmd == Altos.AO_LOG_FLIGHT) {
 					state.ground_accel = record.a;
 					state.flight = record.b;
+					boost_tick = tick;
 					seen |= seen_flight;
 				}
 
