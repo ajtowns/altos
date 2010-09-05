@@ -130,9 +130,7 @@ public class AltosEepromReader extends AltosReader {
 			state.tick = record.tick;
 			switch (record.cmd) {
 			case Altos.AO_LOG_FLIGHT:
-				state.ground_accel = record.a;
-				state.flight = record.b;
-				seen |= seen_flight;
+				/* recorded when first read from the file */
 				break;
 			case Altos.AO_LOG_SENSOR:
 				state.accel = record.a;
@@ -350,6 +348,11 @@ public class AltosEepromReader extends AltosReader {
 				{
 					saw_boost = true;
 					boost_tick = tick;
+				}
+				if (record.cmd == Altos.AO_LOG_FLIGHT) {
+					state.ground_accel = record.a;
+					state.flight = record.b;
+					seen |= seen_flight;
 				}
 
 				/* Two firmware bugs caused the loss of some GPS data.
