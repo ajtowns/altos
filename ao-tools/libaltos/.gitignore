@@ -1,0 +1,12 @@
+*.so
+*.lo
+*.la
+*.java
+*.class
+.libs/
+classlibaltos.stamp
+libaltos_wrap.c
+libaltosJNI
+cjnitest
+libaltos.swig
+swig_bindings/

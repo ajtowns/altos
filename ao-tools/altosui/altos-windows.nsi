@@ -2,8 +2,6 @@
 
 Name "Altus Metrum Installer"
 
-OutFile "Altos-Windows.exe"
-
 ; Default install directory
 InstallDir "$PROGRAMFILES\AltusMetrum"
 
@@ -47,10 +45,18 @@ SectionEnd
 Section "AltosUI Application"
 	SetOutPath $INSTDIR
 
-	File "windows/AltOS/*.jar"
-	File "windows/AltOS/*.dll"
+	File "altosui.jar"
+	File "cmudict04.jar"
+	File "cmulex.jar"
+	File "cmu_time_awb.jar"
+	File "cmutimelex.jar"
+	File "cmu_us_kal.jar"
+	File "en_us.jar"
+	File "freetts.jar"
 
-	File "windows/AltOS/*.ico"
+	File "*.dll"
+
+	File "../../icon/*.ico"
 
 	CreateShortCut "$SMPROGRAMS\AltusMetrum.lnk" "$INSTDIR\altosui.jar" "" "$INSTDIR\altus-metrum.ico"
 SectionEnd
@@ -63,8 +69,8 @@ Section "TeleMetrum and TeleDongle Firmware"
 
 	SetOutPath $INSTDIR
 
-	File "windows/AltOS/telemetrum-v1.0.ihx"
-	File "windows/AltOS/teledongle-v0.2.ihx"
+	File "../../src/telemetrum-v1.0/telemetrum-v1.0.ihx"
+	File "../../src/teledongle-v0.2/teledongle-v0.2.ihx"
 
 SectionEnd
 

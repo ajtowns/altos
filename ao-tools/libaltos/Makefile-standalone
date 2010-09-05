@@ -66,7 +66,7 @@ SWIG_FILE=$(SWIG_DIR)/libaltos.swig
 SWIG_WRAP=$(SWIG_DIR)/libaltos_wrap.c
 
 JNI_DIR=libaltosJNI
-JNI_FILE=$(JNI_DIR)/libaltosJNI.java 
+JNI_FILE=$(JNI_DIR)/libaltosJNI.java
 JNI_SRCS=$(JNI_FILE) \
 	$(JNI_DIR)/SWIGTYPE_p_altos_file.java \
 	$(JNI_DIR)/SWIGTYPE_p_altos_list.java \

@@ -75,7 +75,7 @@ public class AltosUI extends JFrame {
 		String[] statusNames = { "Height (m)", "State", "RSSI (dBm)", "Speed (m/s)" };
 		Object[][] statusData = { { "0", "pad", "-50", "0" } };
 
-		java.net.URL imgURL = AltosUI.class.getResource("/images/altus-metrum-16x16.jpg");
+		java.net.URL imgURL = AltosUI.class.getResource("/altus-metrum-16x16.jpg");
 		if (imgURL != null)
 			setIconImage(new ImageIcon(imgURL).getImage());
 
