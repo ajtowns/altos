@@ -3,6 +3,8 @@ AM_JAVACFLAGS=-encoding UTF-8
 
 CLASSPATH_ENV=CLASSPATH=".:classes:../libaltos:$(FREETTS)/*:/usr/share/java/*"
 
+bin_SCRIPTS=altosui
+
 altosui_JAVA = \
 	AltosChannelMenu.java \
 	AltosConfig.java \
@@ -129,12 +131,12 @@ Manifest-fat.txt:
 
 altosui: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java  -cp "$(FREETTS)/*" -Djava.library.path="$(libdir)" -jar "$(altosuidir)/altosui.jar"' >> $@
+	echo 'exec java  -cp "$(FREETTS)/*" -Djava.library.path="$(libdir)" -jar "$(altosuidir)/altosui.jar" "$$@"' >> $@
 	chmod +x $@
 
 altosui-test: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java -cp "$(FREETTS)/*" -Djava.library.path="../libaltos" -jar altosui.jar' >> $@
+	echo 'exec java -cp "$(FREETTS)/*" -Djava.library.path="../libaltos" -jar altosui.jar "$$*"' >> $@
 	chmod +x $@
 
 $(LIBALTOS):
