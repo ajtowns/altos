@@ -116,7 +116,7 @@ public class AltosEepromReader extends AltosReader {
 					if (last_reported)
 						return null;
 					last_reported = true;
-					return state;
+					return new AltosRecord(state);
 				}
 				record = record_iterator.next();
 
@@ -167,7 +167,15 @@ public class AltosEepromReader extends AltosReader {
 				break;
 			case Altos.AO_LOG_GPS_TIME:
 				gps_tick = state.tick;
+				AltosGPS old = state.gps;
 				state.gps = new AltosGPS();
+
+				/* GPS date doesn't get repeated through the file */
+				if (old != null) {
+					state.gps.year = old.year;
+					state.gps.month = old.month;
+					state.gps.day = old.day;
+				}
 				state.gps.hour = (record.a & 0xff);
 				state.gps.minute = (record.a >> 8);
 				state.gps.second = (record.b & 0xff);
@@ -197,7 +205,7 @@ public class AltosEepromReader extends AltosReader {
 				}
 				break;
 			case Altos.AO_LOG_GPS_DATE:
-				state.gps.year = record.a & 0xff;
+				state.gps.year = (record.a & 0xff) + 2000;
 				state.gps.month = record.a >> 8;
 				state.gps.day = record.b & 0xff;
 				break;
@@ -334,6 +342,8 @@ public class AltosEepromReader extends AltosReader {
 				AltosOrderedRecord record = new AltosOrderedRecord(line, index++, tick);
 				if (record == null)
 					break;
+				if (record.cmd == Altos.AO_LOG_INVALID)
+					continue;
 				tick = record.tick;
 				if (!saw_boost && record.cmd == Altos.AO_LOG_STATE &&
 				    record.a >= Altos.ao_flight_boost)
