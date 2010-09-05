@@ -177,12 +177,6 @@ public class AltosEepromReader extends AltosReader {
 				state.gps.date_valid = (flags & Altos.AO_GPS_DATE_VALID) != 0;
 				state.gps.nsat = (flags & Altos.AO_GPS_NUM_SAT_MASK) >>
 					Altos.AO_GPS_NUM_SAT_SHIFT;
-				System.out.printf("GPS %2d:%02d:%02d%s%s%s %d\n",
-						  state.gps.hour, state.gps.minute, state.gps.second,
-						  state.gps.connected ? " connected" : "",
-						  state.gps.locked ? " locked" : "",
-						  state.gps.date_valid ? " date_valid" : "",
-						  state.gps.nsat);
 				break;
 			case Altos.AO_LOG_GPS_LAT:
 				int lat32 = record.a | (record.b << 16);
@@ -306,10 +300,6 @@ public class AltosEepromReader extends AltosReader {
 		int new_hours = (new_minutes / 60);
 		int new_hour = (new_hours % 24);
 
-		System.out.printf("Synthesizing time good %2d:%02d:%02d bad %2d:%02d:%02d\n",
-				  hour, minute, second,
-				  new_hour, new_minute, new_second);
-
 		bad.a = new_hour + (new_minute << 8);
 		bad.b = new_second + (flags << 8);
 	}
@@ -365,13 +355,9 @@ public class AltosEepromReader extends AltosReader {
 				if (record.cmd == Altos.AO_LOG_GPS_TIME) {
 					last_gps_time = record;
 					if (missing_time) {
-						System.out.printf("Going back to clean up broken GPS time records\n");
 						Iterator<AltosOrderedRecord> iterator = records.iterator();
 						while (iterator.hasNext()) {
 							AltosOrderedRecord old = iterator.next();
-							if (old.cmd == Altos.AO_LOG_GPS_TIME) {
-								System.out.printf("Old time record %d, %d\n", old.a, old.b);
-							}
 							if (old.cmd == Altos.AO_LOG_GPS_TIME &&
 							    old.a == -1 && old.b == -1)
 							{
@@ -389,10 +375,9 @@ public class AltosEepromReader extends AltosReader {
 													 -1, -1, index-1);
 						if (last_gps_time != null)
 							update_time(last_gps_time, add_gps_time);
-						else {
-							System.out.printf("early GPS missing time\n");
+						else
 							missing_time = true;
-						}
+
 						records.add(add_gps_time);
 						record.index = index++;
 					}
