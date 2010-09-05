@@ -384,11 +384,12 @@ public class AltosUI extends JFrame {
 
 		AltosRecord read() throws InterruptedException, ParseException, AltosCRCException, IOException { return null; }
 
-		void close() { }
+		void close(boolean interrupted) { }
 
 		void update(AltosState state) throws InterruptedException { }
 
 		public void run() {
+			boolean		interrupted = false;
 			String		line;
 			AltosState	state = null;
 			AltosState	old_state = null;
@@ -418,14 +419,18 @@ public class AltosUI extends JFrame {
 					}
 				}
 			} catch (InterruptedException ee) {
+				interrupted = true;
 			} catch (IOException ie) {
 				JOptionPane.showMessageDialog(AltosUI.this,
 							      String.format("Error reading from \"%s\"", name),
 							      "Telemetry Read Error",
 							      JOptionPane.ERROR_MESSAGE);
 			} finally {
-				close();
+				close(interrupted);
 				idle_thread.interrupt();
+				try {
+					idle_thread.join();
+				} catch (InterruptedException ie) {}
 			}
 		}
 
@@ -446,7 +451,7 @@ public class AltosUI extends JFrame {
 			return new AltosTelemetry(l.line);
 		}
 
-		void close() {
+		void close(boolean interrupted) {
 			serial.close();
 			serial.remove_monitor(telem);
 		}
@@ -530,8 +535,9 @@ public class AltosUI extends JFrame {
 			return null;
 		}
 
-		public void close () {
-			report();
+		public void close (boolean interrupted) {
+			if (!interrupted)
+				report();
 		}
 
 		public ReplayThread(AltosReader in_reader, String in_name) {
