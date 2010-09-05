@@ -11,3 +11,6 @@ ChangeLog:
 	(touch ChangeLog; echo 'git directory not found: installing possibly empty changelog.' >&2)
 
 dist-hook: ChangeLog
+
+fat:
+	cd ao-tools/altosui && $(MAKE) fat
