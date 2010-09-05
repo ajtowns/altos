@@ -280,6 +280,8 @@ public class AltosUI extends JFrame {
 		boolean	started;
 		private AltosState state;
 		int	reported_landing;
+		int	report_interval;
+		long	report_time;
 
 		public synchronized void report(boolean last) {
 			if (state == null)
@@ -331,51 +333,88 @@ public class AltosUI extends JFrame {
 			}
 		}
 
+		long now () {
+			return System.currentTimeMillis();
+		}
+
+		void set_report_time() {
+			report_time = now() + report_interval;
+		}
+
 		public void run () {
 
 			reported_landing = 0;
 			state = null;
+			report_interval = 10000;
 			try {
 				for (;;) {
-					Thread.sleep(20000);
+					set_report_time();
+					for (;;) {
+						voice.drain();
+						synchronized (this) {
+							long	sleep_time = report_time - now();
+							if (sleep_time <= 0)
+								break;
+							wait(sleep_time);
+						}
+					}
 					report(false);
 				}
 			} catch (InterruptedException ie) {
+				try {
+					voice.drain();
+				} catch (InterruptedException iie) { }
 			}
 		}
 
-		public void notice(AltosState new_state) {
+		public synchronized void notice(AltosState new_state, boolean spoken) {
 			AltosState old_state = state;
 			state = new_state;
 			if (!started && state.state > Altos.ao_flight_pad) {
 				started = true;
 				start();
 			}
-			if (old_state != null && old_state.state != state.state)
-				report(false);
+
+			if (state.state < Altos.ao_flight_drogue)
+				report_interval = 10000;
+			else
+				report_interval = 20000;
+			if (old_state != null && old_state.state != state.state) {
+				report_time = now();
+				this.notify();
+			} else if (spoken)
+				set_report_time();
 		}
 	}
 
-	private void tell(AltosState state, AltosState old_state) {
+	private boolean tell(AltosState state, AltosState old_state) {
+		boolean	ret = false;
 		if (old_state == null || old_state.state != state.state) {
 			voice.speak(state.data.state());
 			if ((old_state == null || old_state.state <= Altos.ao_flight_boost) &&
 			    state.state > Altos.ao_flight_boost) {
 				voice.speak("max speed: %d meters per second.",
 					    (int) (state.max_speed + 0.5));
+				ret = true;
 			} else if ((old_state == null || old_state.state < Altos.ao_flight_drogue) &&
 				   state.state >= Altos.ao_flight_drogue) {
 				voice.speak("max height: %d meters.",
 					    (int) (state.max_height + 0.5));
+				ret = true;
 			}
 		}
 		if (old_state == null || old_state.gps_ready != state.gps_ready) {
-			if (state.gps_ready)
+			if (state.gps_ready) {
 				voice.speak("GPS ready");
-			else if (old_state != null)
+				ret = true;
+			}
+			else if (old_state != null) {
 				voice.speak("GPS lost");
+				ret = true;
+			}
 		}
 		old_state = state;
+		return ret;
 	}
 
 	class DisplayThread extends Thread {
@@ -398,6 +437,7 @@ public class AltosUI extends JFrame {
 			String		line;
 			AltosState	state = null;
 			AltosState	old_state = null;
+			boolean		told;
 
 			idle_thread = new IdleThread();
 
@@ -413,8 +453,8 @@ public class AltosUI extends JFrame {
 						state = new AltosState(record, state);
 						update(state);
 						show(state, crc_errors);
-						tell(state, old_state);
-						idle_thread.notice(state);
+						told = tell(state, old_state);
+						idle_thread.notice(state, told);
 					} catch (ParseException pp) {
 						System.out.printf("Parse error: %d \"%s\"\n", pp.getErrorOffset(), pp.getMessage());
 					} catch (AltosCRCException ce) {
