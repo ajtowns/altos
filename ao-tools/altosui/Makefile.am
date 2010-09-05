@@ -1,7 +1,7 @@
 JAVAROOT=classes
 AM_JAVACFLAGS=-encoding UTF-8
 
-CLASSPATH_ENV=CLASSPATH="classes/altosui/*:../libaltos/libaltosJNI/*:$(FREETTS)/*:/usr/share/java/*"
+CLASSPATH_ENV=CLASSPATH=".:classes:../libaltos:$(FREETTS)/*:/usr/share/java/*"
 
 altosui_JAVA = \
 	AltosChannelMenu.java \
