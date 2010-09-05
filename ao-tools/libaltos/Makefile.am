@@ -1,5 +1,6 @@
 JAVAC=javac
 AM_CFLAGS="-I$(JVM_INCLUDE)"
+AM_JAVACFLAGS=-encoding UTF-8
 
 lib_LTLIBRARIES=libaltos.la
 

@@ -1,4 +1,5 @@
 JAVAROOT=classes
+AM_JAVACFLAGS=-encoding UTF-8
 
 CLASSPATH_ENV=CLASSPATH="classes/altosui/*:../libaltos/libaltosJNI/*:$(FREETTS)/*:/usr/share/java/*"
 
@@ -77,14 +78,14 @@ WINDOWS_DIST=Altos-Windows-$(VERSION_DASH).exe
 
 FAT_FILES=$(FATJAR) $(FREETTS_CLASS)
 
-LINUX_FILES=$(FAT_FILES) libaltos.so $(FIRMWARE)
+LINUX_FILES=$(FAT_FILES) libaltos.so $(FIRMWARE) altosui-fat
 
 MACOSX_FILES=$(FAT_FILES) libaltos.dylib
 MACOSX_EXTRA=$(FIRMWARE)
 
 WINDOWS_FILES=$(FAT_FILES) altos.dll $(top_srcdir)/telemetrum.inf $(WINDOWS_ICON)
 
-all-local: classes/altosui $(JAR) $(FATJAR)
+all-local: classes/altosui $(JAR) $(FATJAR) altosui altosui-test
 
 clean-local:
 	-rm -rf classes/altosui $(JAR) $(FATJAR) \
@@ -139,7 +140,7 @@ $(LIBALTOS):
 	-rm -f "$@"
 	$(LN_S) ../libaltos/"$@" .
 
-$(FREETTS_CLASS): Makefile
+$(FREETTS_CLASS):
 	-rm -f "$@"
 	$(LN_S) "$(FREETTS)"/"$@" .
 

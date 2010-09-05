@@ -45,7 +45,7 @@ SectionEnd
 Section "AltosUI Application"
 	SetOutPath $INSTDIR
 
-	File "altosui.jar"
+	File "altosui-fat.jar"
 	File "cmudict04.jar"
 	File "cmulex.jar"
 	File "cmu_time_awb.jar"
@@ -58,11 +58,11 @@ Section "AltosUI Application"
 
 	File "../../icon/*.ico"
 
-	CreateShortCut "$SMPROGRAMS\AltusMetrum.lnk" "$INSTDIR\altosui.jar" "" "$INSTDIR\altus-metrum.ico"
+	CreateShortCut "$SMPROGRAMS\AltusMetrum.lnk" "$INSTDIR\altosui-fat.jar" "" "$INSTDIR\altus-metrum.ico"
 SectionEnd
 
 Section "AltosUI Desktop Shortcut"
-	CreateShortCut "$DESKTOP\AltusMetrum.lnk" "$INSTDIR\altosui.jar"  "" "$INSTDIR\altus-metrum.ico"
+	CreateShortCut "$DESKTOP\AltusMetrum.lnk" "$INSTDIR\altosui-fat.jar"  "" "$INSTDIR\altus-metrum.ico"
 SectionEnd
 
 Section "TeleMetrum and TeleDongle Firmware"
