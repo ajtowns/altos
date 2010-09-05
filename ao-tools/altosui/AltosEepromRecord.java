@@ -47,7 +47,7 @@ public class AltosEepromRecord {
 	public String	data;
 	public boolean	tick_valid;
 
-	public AltosEepromRecord (String line) throws ParseException {
+	public AltosEepromRecord (String line) {
 		tick_valid = false;
 		tick = 0;
 		a = 0;
@@ -55,52 +55,61 @@ public class AltosEepromRecord {
 		data = null;
 		if (line == null) {
 			cmd = Altos.AO_LOG_INVALID;
+			data = "";
 		} else {
-			String[] tokens = line.split("\\s+");
+			try {
+				String[] tokens = line.split("\\s+");
 
-			if (tokens[0].length() == 1) {
-				if (tokens.length != 4)
-					throw new ParseException(line, 0);
-				cmd = tokens[0].codePointAt(0);
-				tick = Integer.parseInt(tokens[1],16);
-				tick_valid = true;
-				a = Integer.parseInt(tokens[2],16);
-				b = Integer.parseInt(tokens[3],16);
-			} else if (tokens[0].equals("Config") && tokens[1].equals("version:")) {
-				cmd = Altos.AO_LOG_CONFIG_VERSION;
-				data = tokens[2];
-			} else if (tokens[0].equals("Main") && tokens[1].equals("deploy:")) {
-				cmd = Altos.AO_LOG_MAIN_DEPLOY;
-				a = Integer.parseInt(tokens[2]);
-			} else if (tokens[0].equals("Apogee") && tokens[1].equals("delay:")) {
-				cmd = Altos.AO_LOG_APOGEE_DELAY;
-				a = Integer.parseInt(tokens[2]);
-			} else if (tokens[0].equals("Radio") && tokens[1].equals("channel:")) {
-				cmd = Altos.AO_LOG_RADIO_CHANNEL;
-				a = Integer.parseInt(tokens[2]);
-			} else if (tokens[0].equals("Callsign:")) {
-				cmd = Altos.AO_LOG_CALLSIGN;
-				data = tokens[1].replaceAll("\"","");
-			} else if (tokens[0].equals("Accel") && tokens[1].equals("cal")) {
-				cmd = Altos.AO_LOG_ACCEL_CAL;
-				a = Integer.parseInt(tokens[3]);
-				b = Integer.parseInt(tokens[5]);
-			} else if (tokens[0].equals("Radio") && tokens[1].equals("cal:")) {
-				cmd = Altos.AO_LOG_RADIO_CAL;
-				a = Integer.parseInt(tokens[2]);
-			} else if (tokens[0].equals("manufacturer")) {
-				cmd = Altos.AO_LOG_MANUFACTURER;
-				data = tokens[1];
-			} else if (tokens[0].equals("product")) {
-				cmd = Altos.AO_LOG_PRODUCT;
-				data = tokens[1];
-			} else if (tokens[0].equals("serial-number")) {
-				cmd = Altos.AO_LOG_SERIAL_NUMBER;
-				a = Integer.parseInt(tokens[1]);
-			} else if (tokens[0].equals("software-version")) {
-				cmd = Altos.AO_LOG_SOFTWARE_VERSION;
-				data = tokens[1];
-			} else {
+				if (tokens[0].length() == 1) {
+					if (tokens.length != 4) {
+						cmd = Altos.AO_LOG_INVALID;
+						data = line;
+					} else {
+						cmd = tokens[0].codePointAt(0);
+						tick = Integer.parseInt(tokens[1],16);
+						tick_valid = true;
+						a = Integer.parseInt(tokens[2],16);
+						b = Integer.parseInt(tokens[3],16);
+					}
+				} else if (tokens[0].equals("Config") && tokens[1].equals("version:")) {
+					cmd = Altos.AO_LOG_CONFIG_VERSION;
+					data = tokens[2];
+				} else if (tokens[0].equals("Main") && tokens[1].equals("deploy:")) {
+					cmd = Altos.AO_LOG_MAIN_DEPLOY;
+					a = Integer.parseInt(tokens[2]);
+				} else if (tokens[0].equals("Apogee") && tokens[1].equals("delay:")) {
+					cmd = Altos.AO_LOG_APOGEE_DELAY;
+					a = Integer.parseInt(tokens[2]);
+				} else if (tokens[0].equals("Radio") && tokens[1].equals("channel:")) {
+					cmd = Altos.AO_LOG_RADIO_CHANNEL;
+					a = Integer.parseInt(tokens[2]);
+				} else if (tokens[0].equals("Callsign:")) {
+					cmd = Altos.AO_LOG_CALLSIGN;
+					data = tokens[1].replaceAll("\"","");
+				} else if (tokens[0].equals("Accel") && tokens[1].equals("cal")) {
+					cmd = Altos.AO_LOG_ACCEL_CAL;
+					a = Integer.parseInt(tokens[3]);
+					b = Integer.parseInt(tokens[5]);
+				} else if (tokens[0].equals("Radio") && tokens[1].equals("cal:")) {
+					cmd = Altos.AO_LOG_RADIO_CAL;
+					a = Integer.parseInt(tokens[2]);
+				} else if (tokens[0].equals("manufacturer")) {
+					cmd = Altos.AO_LOG_MANUFACTURER;
+					data = tokens[1];
+				} else if (tokens[0].equals("product")) {
+					cmd = Altos.AO_LOG_PRODUCT;
+					data = tokens[1];
+				} else if (tokens[0].equals("serial-number")) {
+					cmd = Altos.AO_LOG_SERIAL_NUMBER;
+					a = Integer.parseInt(tokens[1]);
+				} else if (tokens[0].equals("software-version")) {
+					cmd = Altos.AO_LOG_SOFTWARE_VERSION;
+					data = tokens[1];
+				} else {
+					cmd = Altos.AO_LOG_INVALID;
+					data = line;
+				}
+			} catch (NumberFormatException ne) {
 				cmd = Altos.AO_LOG_INVALID;
 				data = line;
 			}
