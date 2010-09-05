@@ -157,8 +157,9 @@ $(MACOSX_DIST): $(MACOSX_FILES) $(MACOSX_EXTRA)
 	mkdir macosx
 	cp -a AltosUI.app macosx/
 	mkdir -p macosx/AltOS macosx/AltosUI.app/Contents/Resources/Java
-	cp -a $(MACOSX_FILES) macosx/AltosUI.app/Contents/Resources/Java
-	cp -a $(MACOSX_EXTRA) macosx/AltOS
+	cp -p $(FATJAR) macosx/AltosUI.app/Contents/Resources/Java/altosui.jar
+	cp -p $(FREETTS_CLASS) libaltos.dylib macosx/AltosUI.app/Contents/Resources/Java
+	cp -p $(MACOSX_EXTRA) macosx/AltOS
 	cd macosx && zip -r ../$@ AltosUI.app AltOS
 
 $(WINDOWS_DIST): $(WINDOWS_FILES) altos-windows.nsi
