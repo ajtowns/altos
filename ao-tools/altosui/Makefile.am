@@ -78,7 +78,8 @@ WINDOWS_DIST=Altos-Windows-$(VERSION_DASH).exe
 
 FAT_FILES=$(FATJAR) $(FREETTS_CLASS)
 
-LINUX_FILES=$(FAT_FILES) libaltos.so $(FIRMWARE) altosui-fat
+LINUX_FILES=$(FAT_FILES) libaltos.so $(FIRMWARE)
+LINUX_EXTRA=altosui-fat
 
 MACOSX_FILES=$(FAT_FILES) libaltos.dylib
 MACOSX_EXTRA=$(FIRMWARE)
@@ -144,11 +145,13 @@ $(FREETTS_CLASS):
 	-rm -f "$@"
 	$(LN_S) "$(FREETTS)"/"$@" .
 
-$(LINUX_DIST): $(LINUX_FILES)
+$(LINUX_DIST): $(LINUX_FILES) $(LINUX_EXTRA)
 	-rm -f $@
 	-rm -rf linux
 	mkdir -p linux/AltOS
-	cp -a $(LINUX_FILES) linux/AltOS
+	cp -p $(LINUX_FILES) linux/AltOS
+	cp -p altosui-fat linux/AltOS/altosui
+	chmod +x linux/AltOS/altosui
 	tar cjf $@ -C linux AltOS
 
 $(MACOSX_DIST): $(MACOSX_FILES) $(MACOSX_EXTRA)
