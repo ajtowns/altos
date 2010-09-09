@@ -1,7 +1,7 @@
 JAVAROOT=classes
 AM_JAVACFLAGS=-encoding UTF-8
 
-CLASSPATH_ENV=CLASSPATH=".:classes:../libaltos:$(FREETTS)/*:/usr/share/java/*"
+CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../libaltos:$(FREETTS)/*:/usr/share/java/*"
 
 bin_SCRIPTS=altosui
 
@@ -108,11 +108,6 @@ install-altosuiJAVA: altosui.jar
 
 classes/altosui:
 	mkdir -p classes/altosui
-
-classaltosui.stamp: classes
-
-classes:
-	mkdir -p classes
 
 $(JAR): classaltosui.stamp Manifest.txt $(JAVA_ICON)
 	jar cfm $@ Manifest.txt \
