@@ -91,8 +91,8 @@ WINDOWS_FILES=$(FAT_FILES) altos.dll $(top_srcdir)/telemetrum.inf $(WINDOWS_ICON
 all-local: classes/altosui $(JAR) $(FATJAR) altosui altosui-test
 
 clean-local:
-	-rm -rf classes/altosui $(JAR) $(FATJAR) \
-		$(LINUX_DIST) $(MACOSX_DIST) $(WINDOWS_DIST) $(FREETTS_CLASS) \
+	-rm -rf classes $(JAR) $(FATJAR) \
+		$(LINUX_DIST) $(MACOSX_DIST) windows $(WINDOWS_DIST) $(FREETTS_CLASS) \
 		$(LIBALTOS) Manifest.txt Manifest-fat.txt altos-windows.log \
 		altosui altosui-test macosx linux
 
@@ -108,6 +108,11 @@ install-altosuiJAVA: altosui.jar
 
 classes/altosui:
 	mkdir -p classes/altosui
+
+classaltosui.stamp: classes
+
+classes:
+	mkdir -p classes
 
 $(JAR): classaltosui.stamp Manifest.txt $(JAVA_ICON)
 	jar cfm $@ Manifest.txt \
