@@ -1,3 +1,273 @@
+commit 3d49d5f69b41c27003dbc5ccf1899014bd13bd99
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 5 02:05:06 2010 -0700
+
+    altosui: ensure that 'altosui' script is installed. Pass arguments along.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b61fec225ada6a9e252e4c7920101ee18c77cbdc
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 5 01:55:56 2010 -0700
+
+    altosui: eeprom files place 'boost' time in the flight number record.
+    
+    Instead of looking for the first state change record, use the Flight
+    record to get the boost tick.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6c653a4cba5fef8d49261cf1c024f3e86e9058c6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 5 01:52:36 2010 -0700
+
+    altosui: Record flight number when scanning file, not when running
+    
+    The very first record in the eeprom is the flight number, but it is
+    time-stamped with the 'boost' time, and so it gets sorted until much
+    later, delaying the return of data until the rocket enters boost
+    mode. This drops all of the nice pad GPS and state date on the floor.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 38e1d87c8d449866faac026577fefa9a118428cb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 5 01:23:53 2010 -0700
+
+    altosui: Use local .class files in the classpath
+    
+    This ensures that compiling only a few changed files will
+    locate the old .class files instead of using a stale .jar file.
+
+commit 9941b05a1d03dafd6cd899b5fe999ed769efb1d6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 5 01:21:14 2010 -0700
+
+    altosui: Prevent voice altitude data from queueing up
+    
+    When flight status changes rapidly, the queue of voice data can get
+    quite long. This change does two things -- first, it remembers when
+    the altitude reporting happens due to flight events and delays the
+    periodic reporting until a suitable time after that, second it ensures
+    that the voice data has all been delivered before generating a new
+    altitude report.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4dec5c36702d76dc95beada7c1d3222a638a2cbb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 5 01:19:11 2010 -0700
+
+    altosui: Add AltosVoice.drain() to wait for queued speech to finish
+    
+    drain() blocks until all pending phrases have been processed, allowing
+    the UI code to avoid pending data that will end up stale by the time
+    it is emitted.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 410ba89eef9c9817eef81b702966cb88820ff7c4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 5 01:13:01 2010 -0700
+
+    altosui: Start idle thread after the rocket leaves the pad
+    
+    This makes the first altitude report time consistently 10 seconds
+    after launch, instead of some random time depending on when the rocket
+    launched relative to the time the device connection was made.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6205547ec7191aab0259a8449520e966a96129e6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 5 01:08:50 2010 -0700
+
+    altosui: When replay thread is interrupted, don't make final report
+    
+    Normally, the replay process makes one final report after the file has
+    been parsed. However, if the reading process is interrupted to display
+    something else, this report is just annoying, so don't make it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3d99584fcfe43b22e8581874e0ac77ce3d635d48
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 5 01:03:18 2010 -0700
+
+    altosui: Add elevation and range data to main display
+    
+    Reported by voice, it's useful to see these on the display as well.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2d58f319a7c1a6a8ccc6a539722009996ba886ab
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 5 01:01:10 2010 -0700
+
+    altosui: Eeprom files contain only one date; save it.
+    
+    While reading eeprom files, the GPS record is reconstructed each time
+    the system sees the first GPS log item (the time field), but as the
+    date isn't repeated, we need to copy it from the old GPS data record.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b2aa689bf3d61e4a3ebe7c828162d1be20aad0f6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 5 00:59:54 2010 -0700
+
+    altosui: Remove debugging printf from AltosEepromReader
+    
+    These were in place while validing the GPS data reconstruction code
+    that handles eeprom files missing the first GPS date line due to the
+    record overwriting bug in old firmware versions.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit eb0e7a59f0806734a4c959a3ce7c57f71cbe3986
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 5 00:57:38 2010 -0700
+
+    altosui: Return AO_LOG_INVALID instead of exception for eeprom files
+    
+    When an eeprom file contains an invalid line, just return
+    AO_LOG_INVALID instead of throwing an exception. This allows us to
+    replay and parse files with extraneous serial communication.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c3a17c71a45207dd715d537704f161de9219f0d7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 4 18:49:22 2010 -0700
+
+    altosui: Fix linux fat distribution
+    
+    Again, use 'cp -p' instead of 'cp -a' to get files into the archive
+    instead of links. Also, make the shell script 'altosui' instead of
+    'altosui-fat'.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 828e9e4c68e3ac90b6ba2e9fd5f131a9975f7e4a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 4 18:39:58 2010 -0700
+
+    altosui: Fix up Mac OSX .zip file
+    
+    Must contain 'altosui.jar' instead of altosui-fat.jar.
+    Also, was using 'cp -a' instead of 'cp -p' which made files
+    represented by symlinks not end up in the archive.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 044fd27449c70474f51b99dec25fd23d3c03a559
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 4 18:20:45 2010 -0700
+
+    altosui: Fix windows installer to ship correct files
+    
+    Was shipping altosui.jar instead of altosui-fat.jar
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 148b927c3b8bc7b7b5c5356392032faf2b1203d3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 4 18:04:04 2010 -0700
+
+    Add top-level 'fat' target to aid building distribution files
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit aed59e1c057c13e28fd368dc2592aa4628211097
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 4 17:59:11 2010 -0700
+
+    Add version numbers to released files. Set version to 0.7.1
+    
+    Instead of using git revision counts for version numbers, use explicit
+    versions numbers configured in the configure.ac file. Expose published
+    files with version numbers.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2808bba3efa1cff133cc060dabff06fab8b75388
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 4 17:58:52 2010 -0700
+
+    Ignore libtool files.
+
+commit bc183400ab93d5902c52851319999cc77f27bc81
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 4 17:35:17 2010 -0700
+
+    altos: add some SDCDB config files
+
+commit 887b11f6b9c81b9f15348d54017e700ca7dc5e55
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 4 17:27:17 2010 -0700
+
+    Use autotools for altosui and libaltos
+    
+    This switches from hand-written Makefiles to automake with libtool
+    for these parts of the system.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e844e8a0695e27af6f8e3e37a5e3bcc865b862e3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 4 01:13:42 2010 -0700
+
+    altosui: Add icons to application and Windows menus.
+    
+    Use the altus-metrum icon for an application icon and a windows start
+    menu/desktop icon.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e9ea28504c646fc25791aab09b9e5faf73e0ac0c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 4 01:08:34 2010 -0700
+
+    icon: add some icons for application programs
+    
+    altus-metrum.ico: Windows ICO file
+    altus-metrum-16x16.jpg: 16x16 jpg image for java
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f550677df016070430ed38bfa2b2be33f1b8c40a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 4 00:16:41 2010 -0700
+
+    altosui: oops. renamed the nsis file to altos-windows.nsi
+    
+    And forgot to change the dependency in the Makefile
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c0988ddbf104ea729090c2e7e2a28cc6dc9e90f6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 4 00:14:15 2010 -0700
+
+    altosui: ignore built files
+
+commit ecb4a09535b6a8da0765010489a96e605dbdeb46
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Sep 4 00:13:11 2010 -0700
+
+    altosui: Add windows installer build using 'nsis'
+    
+    nsis happens to be packaged in debian, and it appears to build usable
+    installers, which is all very cool.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit bf22923cd8b4f6f954718358b411b5b10d8e7b4d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sat Sep 4 00:46:29 2010 -0400
+
+    update changelogs for Debian build
+
 commit 59798c6fd11502a9c8b66090c23ba50eb250692e
 Author: Keith Packard <keithp@keithp.com>
 Date:   Fri Sep 3 12:43:45 2010 -0700

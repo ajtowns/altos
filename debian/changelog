@@ -1,3 +1,36 @@
+altos (0.7+79+g3d49d5f) unstable; urgency=low
+
+  [ Keith Packard ]
+  * altosui: Add windows installer build using 'nsis'
+  * altosui: ignore built files
+  * altosui: oops. renamed the nsis file to altos-windows.nsi
+  * icon: add some icons for application programs
+  * altosui: Add icons to application and Windows menus.
+  * Use autotools for altosui and libaltos
+  * altos: add some SDCDB config files
+  * Ignore libtool files.
+  * Add version numbers to released files. Set version to 0.7.1
+  * Add top-level 'fat' target to aid building distribution files
+  * altosui: Fix windows installer to ship correct files
+  * altosui: Fix up Mac OSX .zip file
+  * altosui: Fix linux fat distribution
+  * altosui: Return AO_LOG_INVALID instead of exception for eeprom files
+  * altosui: Remove debugging printf from AltosEepromReader
+  * altosui: Eeprom files contain only one date; save it.
+  * altosui: Add elevation and range data to main display
+  * altosui: When replay thread is interrupted, don't make final report
+  * altosui: Start idle thread after the rocket leaves the pad
+  * altosui: Add AltosVoice.drain() to wait for queued speech to finish
+  * altosui: Prevent voice altitude data from queueing up
+  * altosui: Use local .class files in the classpath
+  * altosui: Record flight number when scanning file, not when running
+  * altosui: eeprom files place 'boost' time in the flight number
+    record.
+  * altosui: ensure that 'altosui' script is installed. Pass arguments
+    along.
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 09 Sep 2010 15:43:28 -0600
+
 altos (0.7+53+g59798c6) unstable; urgency=low
 
   [ Keith Packard ]
