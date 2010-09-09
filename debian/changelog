@@ -1,4 +1,7 @@
-altos (0.7+79+g3d49d5f) unstable; urgency=low
+altos (0.7+81+g012e717) unstable; urgency=low
+
+  [ Bdale Garbee ]
+  * add libtool to build deps
 
   [ Keith Packard ]
   * altosui: Add windows installer build using 'nsis'

@@ -1,3 +1,15 @@
+commit 012e7176954a6b74b3b667317be0f6dc41d7ab70
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 9 15:51:02 2010 -0600
+
+    add libtool to build deps
+
+commit 3e5824b9a71971ce99bfe38a1e860b421e265f02
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 9 15:43:47 2010 -0600
+
+    update changelogs for Debian build
+
 commit 3d49d5f69b41c27003dbc5ccf1899014bd13bd99
 Author: Keith Packard <keithp@keithp.com>
 Date:   Sun Sep 5 02:05:06 2010 -0700
