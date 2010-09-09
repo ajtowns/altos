@@ -88,7 +88,7 @@ MACOSX_EXTRA=$(FIRMWARE)
 
 WINDOWS_FILES=$(FAT_FILES) altos.dll $(top_srcdir)/telemetrum.inf $(WINDOWS_ICON)
 
-all-local: classes/altosui $(JAR) $(FATJAR) altosui altosui-test
+all-local: classes/altosui $(JAR) altosui altosui-test
 
 clean-local:
 	-rm -rf classes $(JAR) $(FATJAR) \
