@@ -1,4 +1,13 @@
-altos (0.7+81+g012e717) unstable; urgency=low
+altos (0.7+86+g6c0ae7e) unstable; urgency=low
+
+  [ Keith Packard ]
+  * altosui: Add explicit requirement to create classes directory
+  * altosui: fix telemetrum.inf FFFE:000A product names on AMD64 and
+    ia64
+  * altosui: hack to make JAVAROOT directory get created before javac
+    runs
+  * altosui: remove FATJAR from all-local to avoid building fat .jar
+    file
 
   [ Bdale Garbee ]
   * add libtool to build deps
