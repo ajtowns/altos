@@ -39,6 +39,12 @@ public class AltosDevice extends altos_device {
 		return loaded_library;
 	}
 
+	static int usb_vendor_altusmetrum() {
+		if (load_library())
+			return libaltosConstants.USB_VENDOR_ALTUSMETRUM;
+		return 0x000a;
+	}
+
 	static int usb_product_altusmetrum() {
 		if (load_library())
 			return libaltosConstants.USB_PRODUCT_ALTUSMETRUM;
@@ -65,26 +71,27 @@ public class AltosDevice extends altos_device {
 
 	static int usb_product_teledongle() {
 		if (load_library())
-			return libaltosConstants.USB_PRODUCT_ALTUSMETRUM;
+			return libaltosConstants.USB_PRODUCT_TELEDONGLE;
 		return 0x000c;
 	}
 
 	static int usb_product_teleterra() {
 		if (load_library())
-			return libaltosConstants.USB_PRODUCT_ALTUSMETRUM;
+			return libaltosConstants.USB_PRODUCT_TELETERRA;
 		return 0x000d;
 	}
 
-	public final static int AltusMetrum = usb_product_altusmetrum();
-	public final static int TeleMetrum = usb_product_telemetrum();
-	public final static int TeleDongle = usb_product_teledongle();
-	public final static int TeleTerra = usb_product_teleterra();
-	public final static int AltusMetrumMin = usb_product_altusmetrum_min();
-	public final static int AltusMetrumMax = usb_product_altusmetrum_max();
+	public final static int vendor_altusmetrum = usb_vendor_altusmetrum();
+	public final static int product_altusmetrum = usb_product_altusmetrum();
+	public final static int product_telemetrum = usb_product_telemetrum();
+	public final static int product_teledongle = usb_product_teledongle();
+	public final static int product_teleterra = usb_product_teleterra();
+	public final static int product_altusmetrum_min = usb_product_altusmetrum_min();
+	public final static int product_altusmetrum_max = usb_product_altusmetrum_max();
 
 
-	public final static int Any = 0x10000;
-	public final static int BaseStation = 0x10000 + 1;
+	public final static int product_any = 0x10000;
+	public final static int product_basestation = 0x10000 + 1;
 
 	public String toString() {
 		String	name = getName();
@@ -95,29 +102,34 @@ public class AltosDevice extends altos_device {
 	}
 
 	public boolean isAltusMetrum() {
-		if (getVendor() != AltusMetrum)
+		if (getVendor() != vendor_altusmetrum)
 			return false;
-		if (getProduct() < AltusMetrumMin)
+		if (getProduct() < product_altusmetrum_min)
 			return false;
-		if (getProduct() > AltusMetrumMax)
+		if (getProduct() > product_altusmetrum_max)
 			return false;
 		return true;
 	}
 
 	public boolean matchProduct(int want_product) {
 
+		System.out.printf("vendor %x product %x want %x\n",
+				  getVendor(), getProduct(), want_product);
+		System.out.printf("vendor_altusmetrum: %d\n", vendor_altusmetrum);
+		System.out.printf("telemetrum: %d\n", product_telemetrum);
+
 		if (!isAltusMetrum())
 			return false;
 
-		if (want_product == Any)
+		if (want_product == product_any)
 			return true;
 
-		if (want_product == BaseStation)
-			return matchProduct(TeleDongle) || matchProduct(TeleTerra);
+		if (want_product == product_basestation)
+			return matchProduct(product_teledongle) || matchProduct(product_teleterra);
 
 		int have_product = getProduct();
 
-		if (have_product == AltusMetrum)	/* old devices match any request */
+		if (have_product == product_altusmetrum)	/* old devices match any request */
 			return true;
 
 		if (want_product == have_product)
@@ -127,19 +139,23 @@ public class AltosDevice extends altos_device {
 	}
 
 	static AltosDevice[] list(int product) {
-		if (!load_library())
+		if (!load_library()) {
+			System.out.printf("no library\n");
 			return null;
+		}
 
 		SWIGTYPE_p_altos_list list = libaltos.altos_list_start();
 
 		ArrayList<AltosDevice> device_list = new ArrayList<AltosDevice>();
 		if (list != null) {
+			System.out.printf("got device list\n");
 			SWIGTYPE_p_altos_file file;
 
 			for (;;) {
 				AltosDevice device = new AltosDevice();
 				if (libaltos.altos_list_next(list, device) == 0)
 					break;
+				System.out.printf("got device\n");
 				if (device.matchProduct(product))
 					device_list.add(device);
 			}

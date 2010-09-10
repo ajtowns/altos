@@ -523,7 +523,8 @@ public class AltosUI extends JFrame {
 	}
 
 	private void ConnectToDevice() {
-		AltosDevice	device = AltosDeviceDialog.show(AltosUI.this, AltosDevice.BaseStation);
+		AltosDevice	device = AltosDeviceDialog.show(AltosUI.this,
+								AltosDevice.product_basestation);
 
 		if (device != null) {
 			try {
