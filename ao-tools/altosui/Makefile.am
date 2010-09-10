@@ -1,6 +1,8 @@
 JAVAROOT=classes
 AM_JAVACFLAGS=-encoding UTF-8
 
+altoslibdir=$(libdir)/altos
+
 CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../libaltos:$(FREETTS)/*:/usr/share/java/*"
 
 bin_SCRIPTS=altosui
@@ -131,12 +133,12 @@ Manifest-fat.txt:
 
 altosui: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java  -cp "$(FREETTS)/*" -Djava.library.path="$(libdir)" -jar "$(altosuidir)/altosui.jar" "$$@"' >> $@
+	echo 'exec java  -cp "$(FREETTS)/*" -Djava.library.path="$(altoslibdir)" -jar "$(altosuidir)/altosui.jar" "$$@"' >> $@
 	chmod +x $@
 
 altosui-test: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java -cp "$(FREETTS)/*" -Djava.library.path="../libaltos" -jar altosui.jar "$$*"' >> $@
+	echo 'exec java -cp "$(FREETTS)/*" -Djava.library.path="../libaltos/.libs" -jar altosui.jar "$$@"' >> $@
 	chmod +x $@
 
 $(LIBALTOS):
