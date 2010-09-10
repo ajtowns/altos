@@ -1,3 +1,19 @@
+altos (0.7.1) unstable; urgency=low
+
+  [ Keith Packard ]
+  * Add firmware and libaltos to 'fat' target at top-level
+  * altosui: Remove some debug printfs.
+  * altosui: libaltos.so is built with libtool -- it's in
+    ../libaltos/.libs
+  * Add --with-fat-dir configure option to publish finished stand-alone
+    bits
+  * altosui: Fix telemetry file reader to handle tick count wrapping
+  * altosui: Remove debug printfs from AltosTelemetryReader
+  * altosui: Fill in time value of last Eeprom record read from file
+  * altosui: Stop parsing eeprom file after hitting 'landed' state
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 10 Sep 2010 00:09:02 -0600
+
 altos (0.7+96+g48f5799) unstable; urgency=low
 
   [ Keith Packard ]
