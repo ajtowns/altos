@@ -1,3 +1,55 @@
+commit 0ea75761416bff299233991e961ba25b6c7dcf89
+Merge: 35d70c9 8ee3464
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 9 20:05:27 2010 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 8ee3464d8064ebe1694c7b20177878c0d9961451
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 9 17:54:41 2010 -0700
+
+    altosui: Display error dialog when AltOS JNI library can't be loaded
+    
+    Having an error dialog appear at application startup seems better than
+    simply failing to present the device dialog later on.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4224a7526e51eb8fbf1f0a31bae7ee68c6385095
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 9 17:52:46 2010 -0700
+
+    altosui: Store libaltos.so in $(libdir)/altos
+    
+    It's not a public library, so hide it away in a subdirectory.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1e4c18777d982061f5e507a4d4f4f1cd4d685268
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 9 17:49:37 2010 -0700
+
+    altosui: Need to have JVM include path substituted into libaltos Makefile
+    
+    The libaltos Makefile needs to find the relevant jni.h file, which is
+    found in the JVM_INCLUDE path, all nicely located by the configure.ac script.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 35d70c92307dd478bc619b2f6c5a88e155cdad28
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 9 17:27:07 2010 -0600
+
+    handle versioning of ihx files (poorly) by just wildcarding the file name,
+    which assumes there's only one matching .. probably ok on Debian?
+
+commit c286ada6457579d64e9d8ca44b927258b4a561da
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 9 16:27:40 2010 -0600
+
+    update changelogs for Debian build
+
 commit 6c0ae7e966a81ece35bccbe89d626a58afe899a2
 Author: Keith Packard <keithp@keithp.com>
 Date:   Thu Sep 9 15:25:18 2010 -0700

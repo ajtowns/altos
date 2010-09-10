@@ -1,3 +1,17 @@
+altos (0.7+92+g0ea7576) unstable; urgency=low
+
+  [ Bdale Garbee ]
+  * handle versioning of ihx files (poorly) by just wildcarding the file
+    name
+
+  [ Keith Packard ]
+  * altosui: Need to have JVM include path substituted into libaltos
+    Makefile
+  * altosui: Store libaltos.so in $(libdir)/altos
+  * altosui: Display error dialog when AltOS JNI library can't be loaded
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 09 Sep 2010 20:05:44 -0600
+
 altos (0.7+86+g6c0ae7e) unstable; urgency=low
 
   [ Keith Packard ]
