@@ -102,6 +102,30 @@ clean-local:
 
 fat: $(FATJAR) $(LINUX_DIST) $(MACOSX_DIST) $(WINDOWS_DIST)
 
+if FATINSTALL
+
+FATTARGET=$(FATDIR)/$(VERSION)
+
+LINUX_DIST_TARGET=$(FATTARGET)/$(LINUX_DIST)
+MACOSX_DIST_TARGET=$(FATTARGET)/$(MACOSX_DIST)
+WINDOWS_DIST_TARGET=$(FATTARGET)/$(WINDOWS_DIST)
+
+fat: $(LINUX_DIST_TARGET) $(MACOSX_DIST_TARGET) $(WINDOWS_DIST_TARGET)
+
+$(LINUX_DIST_TARGET): $(LINUX_DIST)
+	mkdir -p $(FATTARGET)
+	cp -p $< $@
+
+$(MACOSX_DIST_TARGET): $(MACOSX_DIST)
+	mkdir -p $(FATTARGET)
+	cp -p $< $@
+
+$(WINDOWS_DIST_TARGET): $(WINDOWS_DIST)
+	mkdir -p $(FATTARGET)
+	cp -p $< $@
+
+endif
+
 altosuidir=$(datadir)/java
 
 install-altosuiJAVA: altosui.jar
