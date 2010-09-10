@@ -143,7 +143,15 @@ altosui-test: Makefile
 	echo 'exec java -cp "$(FREETTS)/*" -Djava.library.path="../libaltos/.libs" -jar altosui.jar "$$@"' >> $@
 	chmod +x $@
 
-$(LIBALTOS):
+libaltos.so:
+	-rm -f "$@"
+	$(LN_S) ../libaltos/.libs/"$@" .
+
+libaltos.dylib:
+	-rm -f "$@"
+	$(LN_S) ../libaltos/"$@" .
+
+altos.dll:
 	-rm -f "$@"
 	$(LN_S) ../libaltos/"$@" .
 
