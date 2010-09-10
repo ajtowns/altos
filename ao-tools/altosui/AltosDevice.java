@@ -113,11 +113,6 @@ public class AltosDevice extends altos_device {
 
 	public boolean matchProduct(int want_product) {
 
-		System.out.printf("vendor %x product %x want %x\n",
-				  getVendor(), getProduct(), want_product);
-		System.out.printf("vendor_altusmetrum: %d\n", vendor_altusmetrum);
-		System.out.printf("telemetrum: %d\n", product_telemetrum);
-
 		if (!isAltusMetrum())
 			return false;
 
@@ -139,23 +134,19 @@ public class AltosDevice extends altos_device {
 	}
 
 	static AltosDevice[] list(int product) {
-		if (!load_library()) {
-			System.out.printf("no library\n");
+		if (!load_library())
 			return null;
-		}
 
 		SWIGTYPE_p_altos_list list = libaltos.altos_list_start();
 
 		ArrayList<AltosDevice> device_list = new ArrayList<AltosDevice>();
 		if (list != null) {
-			System.out.printf("got device list\n");
 			SWIGTYPE_p_altos_file file;
 
 			for (;;) {
 				AltosDevice device = new AltosDevice();
 				if (libaltos.altos_list_next(list, device) == 0)
 					break;
-				System.out.printf("got device\n");
 				if (device.matchProduct(product))
 					device_list.add(device);
 			}
