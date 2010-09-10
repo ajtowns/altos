@@ -49,10 +49,15 @@ public class AltosDeviceDialog extends JDialog implements ActionListener {
 			dialog.setVisible(true);
 			return value;
 		} else {
-			JOptionPane.showMessageDialog(frame,
-						      "No AltOS devices available",
-						      "No AltOS devices",
-						      JOptionPane.ERROR_MESSAGE);
+			/* check for missing altos JNI library, which
+			 * will put up its own error dialog
+			 */
+			if (AltosUI.load_library(frame)) {
+				JOptionPane.showMessageDialog(frame,
+							      "No AltOS devices available",
+							      "No AltOS devices",
+							      JOptionPane.ERROR_MESSAGE);
+			}
 			return null;
 		}
 	}

@@ -1,11 +1,22 @@
 JAVAC=javac
-AM_CFLAGS="-I$(JVM_INCLUDE)"
+AM_CFLAGS=-DLINUX -DPOSIX_TTY -I$(JVM_INCLUDE)
 AM_JAVACFLAGS=-encoding UTF-8
 
-lib_LTLIBRARIES=libaltos.la
+altoslibdir=$(libdir)/altos
+
+altoslib_LTLIBRARIES=libaltos.la
+
+libaltos_la_LDFLAGS = -version-info 1:0:1
 
 libaltos_la_SOURCES=\
-	libaltos.c
+	libaltos.c \
+	libaltos_wrap.c
+
+noinst_PROGRAMS=cjnitest
+
+cjnitest_LDADD=libaltos.la
+
+LIBS=
 
 HFILES=libaltos.h
 
@@ -18,6 +29,8 @@ $(SWIG_FILE): libaltos.i0 $(HFILES)
 
 all-local: classlibaltos.stamp
 
+libaltos_wrap.c: classlibaltos.stamp
+
 classlibaltos.stamp: $(SWIG_FILE)
 	swig -java -package libaltosJNI $(SWIG_FILE)
 	mkdir -p libaltosJNI
@@ -25,4 +38,4 @@ classlibaltos.stamp: $(SWIG_FILE)
 	touch classlibaltos.stamp
 
 clean-local:
-	-rm -rf libaltosJNI *.class *.java classlibaltos.stamp $(SWIG_FILE)
+	-rm -rf libaltosJNI *.class *.java classlibaltos.stamp $(SWIG_FILE) libaltos_wrap.c

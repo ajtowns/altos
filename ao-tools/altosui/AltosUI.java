@@ -70,7 +70,21 @@ public class AltosUI extends JFrame {
 
 	public AltosVoice voice = new AltosVoice();
 
+	public static boolean load_library(Frame frame) {
+		if (!AltosDevice.load_library()) {
+			JOptionPane.showMessageDialog(frame,
+						      String.format("No AltOS library in \"%s\"",
+								    System.getProperty("java.library.path","<undefined>")),
+						      "Cannot load device access library",
+						      JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		return true;
+	}
+
 	public AltosUI() {
+
+		load_library(null);
 
 		String[] statusNames = { "Height (m)", "State", "RSSI (dBm)", "Speed (m/s)" };
 		Object[][] statusData = { { "0", "pad", "-50", "0" } };
