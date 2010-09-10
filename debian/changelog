@@ -1,3 +1,10 @@
+altos (0.7+96+g48f5799) unstable; urgency=low
+
+  [ Keith Packard ]
+  * altosui: conflating USB product and vendor IDs is a bad idea
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 09 Sep 2010 21:29:13 -0600
+
 altos (0.7+94+g1ac3d7e) unstable; urgency=low
 
   * initial cut at an altosui man page

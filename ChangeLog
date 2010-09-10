@@ -1,3 +1,24 @@
+commit 48f57997452e17564e28fe3e37403f6f63d32dea
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 9 20:24:42 2010 -0700
+
+    altosui: conflating USB product and vendor IDs is a bad idea
+    
+    We've now got a USB vendor ID called 'altusmetrum' for generic
+    altusmetrum devices (old USB ID 0x000A) while the general vendor name
+    for all devices is 'altusmetrum' as well.
+    
+    This patch splits vendors and products into separate name spaces,
+    products are prefixed with product_ and vendor with (oddly) vendor_.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 632d276118ab04de67561104be650f8fb69a0450
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 9 20:34:43 2010 -0600
+
+    update changelogs for Debian build
+
 commit 1ac3d7e3ba52d1b0dc834eaa5d7886c730eaf307
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Sep 9 20:34:22 2010 -0600
