@@ -114,7 +114,9 @@ public class AltosEepromReader extends AltosReader {
 					if (last_reported)
 						return null;
 					last_reported = true;
-					return new AltosRecord(state);
+					AltosRecord r = new AltosRecord(state);
+					r.time = (r.tick - boost_tick) / 100.0;
+					return r;
 				}
 				record = record_iterator.next();
 
@@ -389,6 +391,11 @@ public class AltosEepromReader extends AltosReader {
 					}
 				}
 				records.add(record);
+
+				/* Bail after reading the 'landed' record; we're all done */
+				if (record.cmd == Altos.AO_LOG_STATE &&
+				    record.a == Altos.ao_flight_landed)
+					break;
 			}
 		} catch (IOException io) {
 		} catch (ParseException pe) {

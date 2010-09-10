@@ -1,3 +1,70 @@
+commit 9d0e89e8ad8926dc8371fa809835a580ae49711d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 9 23:04:59 2010 -0700
+
+    altosui: Stop parsing eeprom file after hitting 'landed' state
+    
+    Sometimes there are additional records found in the eeprom file; the
+    reader is mostly worried about not losing anything, so it reads as
+    much as it can. However, the last record written for any flight is the
+    'landed' record, so we can stop looking at the file after hitting that.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 67b6952f7126704478ede5575e5e938d18fcc329
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 9 23:04:14 2010 -0700
+
+    altosui: Fill in time value of last Eeprom record read from file
+    
+    The last record is handled separately, and was missing the code to
+    compute the time. Sigh.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8b0b584cd0ca7542e65aac0c7897ad7ab4115122
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 9 22:55:47 2010 -0700
+
+    altosui: Remove debug printfs from AltosTelemetryReader
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a80bfae15f1499c49f7ef47978bf0337d8120892
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 9 23:57:34 2010 -0600
+
+    rewind packaging changelog, again
+
+commit 78ce3120e5a53858ca0d43c734aa5d28b4948ce3
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 9 23:52:20 2010 -0600
+
+    update changelogs for Debian build
+
+commit 71c85613a28c24c3aad7b4aa3299d8677ef1268e
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 9 23:51:23 2010 -0600
+
+    rewind packaging changelog
+
+commit af200f5b84555de0556b52146379f3934774a3f3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 9 22:30:48 2010 -0700
+
+    altosui: Fix telemetry file reader to handle tick count wrapping
+    
+    The telemetry reader was ignoring tick count wrapping, so you'd see
+    time go backwards in jumps. Not useful.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 96ca7051f60ea299e3e05bafbe5717fc83c3afd2
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 9 22:50:03 2010 -0600
+
+    update changelogs for Debian build
+
 commit 2d5e48c5dc0e822fdf430f43804c1e5e79fdbf84
 Author: Keith Packard <keithp@keithp.com>
 Date:   Thu Sep 9 21:28:10 2010 -0700

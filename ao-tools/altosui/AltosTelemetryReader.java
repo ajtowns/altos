@@ -52,7 +52,6 @@ public class AltosTelemetryReader extends AltosReader {
 					break;
 				}
 				try {
-					System.out.printf("%s\n", line);
 					AltosTelemetry record = new AltosTelemetry(line);
 					if (record == null)
 						break;
@@ -65,7 +64,6 @@ public class AltosTelemetryReader extends AltosReader {
 						current_tick = tick;
 						record.tick = current_tick;
 					}
-					System.out.printf("\tRSSI %d tick %d\n", record.rssi, record.tick);
 					if (!saw_boost && record.state >= Altos.ao_flight_boost)
 					{
 						saw_boost = true;
