@@ -1,6 +1,8 @@
 JAVAROOT=classes
 AM_JAVACFLAGS=-encoding UTF-8
 
+man_MANS=altosui.1
+
 altoslibdir=$(libdir)/altos
 
 CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../libaltos:$(FREETTS)/*:/usr/share/java/*"
