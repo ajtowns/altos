@@ -1,3 +1,9 @@
+altos (0.7+94+g1ac3d7e) unstable; urgency=low
+
+  * initial cut at an altosui man page
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 09 Sep 2010 20:34:38 -0600
+
 altos (0.7+92+g0ea7576) unstable; urgency=low
 
   [ Bdale Garbee ]

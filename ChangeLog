@@ -1,3 +1,15 @@
+commit 1ac3d7e3ba52d1b0dc834eaa5d7886c730eaf307
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 9 20:34:22 2010 -0600
+
+    initial cut at an altosui man page
+
+commit 5c4e437975054d33604402591e1ea2f314932593
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 9 20:06:09 2010 -0600
+
+    update changelogs for Debian build
+
 commit 0ea75761416bff299233991e961ba25b6c7dcf89
 Merge: 35d70c9 8ee3464
 Author: Bdale Garbee <bdale@gag.com>
