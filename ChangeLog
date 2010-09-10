@@ -1,3 +1,26 @@
+commit 71c85613a28c24c3aad7b4aa3299d8677ef1268e
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 9 23:51:23 2010 -0600
+
+    rewind packaging changelog
+
+commit af200f5b84555de0556b52146379f3934774a3f3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 9 22:30:48 2010 -0700
+
+    altosui: Fix telemetry file reader to handle tick count wrapping
+    
+    The telemetry reader was ignoring tick count wrapping, so you'd see
+    time go backwards in jumps. Not useful.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 96ca7051f60ea299e3e05bafbe5717fc83c3afd2
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 9 22:50:03 2010 -0600
+
+    update changelogs for Debian build
+
 commit 2d5e48c5dc0e822fdf430f43804c1e5e79fdbf84
 Author: Keith Packard <keithp@keithp.com>
 Date:   Thu Sep 9 21:28:10 2010 -0700

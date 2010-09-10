@@ -1,3 +1,16 @@
+altos (0.7.1) unstable; urgency=low
+
+  [ Keith Packard ]
+  * Add firmware and libaltos to 'fat' target at top-level
+  * altosui: Remove some debug printfs.
+  * altosui: libaltos.so is built with libtool -- it's in
+    ../libaltos/.libs
+  * Add --with-fat-dir configure option to publish finished stand-alone
+    bits
+  * altosui: Fix telemetry file reader to handle tick count wrapping
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 09 Sep 2010 23:51:53 -0600
+
 altos (0.7+96+g48f5799) unstable; urgency=low
 
   [ Keith Packard ]
