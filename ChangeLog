@@ -1,3 +1,51 @@
+commit 2d5e48c5dc0e822fdf430f43804c1e5e79fdbf84
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 9 21:28:10 2010 -0700
+
+    Add --with-fat-dir configure option to publish finished stand-alone bits
+    
+    --with-fat-dir specifies a directory to copy the finished
+    linux/macosx/windows stand-alone ("fat") packages to. A sub-directory
+    will be created under the specified directory based on the product
+    version number and the files copied there.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit dd2b77b2a516a055f29191dcdfeb727e637aae86
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 9 20:59:29 2010 -0700
+
+    altosui: libaltos.so is built with libtool -- it's in ../libaltos/.libs
+    
+    It used to be in ../libaltos
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 72a5c1258db92d0ddd660bfa875e8e55cab47af7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 9 20:39:41 2010 -0700
+
+    altosui: Remove some debug printfs.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 031fd9a954f2e3447d0150eb4ecc81af7b620dca
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 9 20:36:12 2010 -0700
+
+    Add firmware and libaltos to 'fat' target at top-level
+    
+    This ensures that all of the necessary bits are available to construct
+    the distribution images.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fcaa480b1dfeb2fd4044f9c4e1b6d50c46fc9984
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 9 21:29:20 2010 -0600
+
+    update changelogs for Debian build
+
 commit 48f57997452e17564e28fe3e37403f6f63d32dea
 Author: Keith Packard <keithp@keithp.com>
 Date:   Thu Sep 9 20:24:42 2010 -0700
