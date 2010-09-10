@@ -22,20 +22,67 @@ import libaltosJNI.*;
 
 public class AltosDevice extends altos_device {
 
-	static boolean initialized = false;
-	static {
-		try {
-			System.loadLibrary("altos");
-			libaltos.altos_init();
+	static public boolean initialized = false;
+	static public boolean loaded_library = false;
+
+	public static boolean load_library() {
+		if (!initialized) {
+			try {
+				System.loadLibrary("altos");
+				libaltos.altos_init();
+				loaded_library = true;
+			} catch (UnsatisfiedLinkError e) {
+				loaded_library = false;
+			}
 			initialized = true;
-		} catch (UnsatisfiedLinkError e) {
-			System.err.println("Native library failed to load.\n" + e);
 		}
+		return loaded_library;
 	}
-	public final static int AltusMetrum = libaltosConstants.USB_PRODUCT_ALTUSMETRUM;
-	public final static int TeleMetrum = libaltosConstants.USB_PRODUCT_TELEMETRUM;
-	public final static int TeleDongle = libaltosConstants.USB_PRODUCT_TELEDONGLE;
-	public final static int TeleTerra = libaltosConstants.USB_PRODUCT_TELETERRA;
+
+	static int usb_product_altusmetrum() {
+		if (load_library())
+			return libaltosConstants.USB_PRODUCT_ALTUSMETRUM;
+		return 0x000a;
+	}
+
+	static int usb_product_altusmetrum_min() {
+		if (load_library())
+			return libaltosConstants.USB_PRODUCT_ALTUSMETRUM_MIN;
+		return 0x000a;
+	}
+
+	static int usb_product_altusmetrum_max() {
+		if (load_library())
+			return libaltosConstants.USB_PRODUCT_ALTUSMETRUM_MAX;
+		return 0x000d;
+	}
+
+	static int usb_product_telemetrum() {
+		if (load_library())
+			return libaltosConstants.USB_PRODUCT_TELEMETRUM;
+		return 0x000b;
+	}
+
+	static int usb_product_teledongle() {
+		if (load_library())
+			return libaltosConstants.USB_PRODUCT_ALTUSMETRUM;
+		return 0x000c;
+	}
+
+	static int usb_product_teleterra() {
+		if (load_library())
+			return libaltosConstants.USB_PRODUCT_ALTUSMETRUM;
+		return 0x000d;
+	}
+
+	public final static int AltusMetrum = usb_product_altusmetrum();
+	public final static int TeleMetrum = usb_product_telemetrum();
+	public final static int TeleDongle = usb_product_teledongle();
+	public final static int TeleTerra = usb_product_teleterra();
+	public final static int AltusMetrumMin = usb_product_altusmetrum_min();
+	public final static int AltusMetrumMax = usb_product_altusmetrum_max();
+
+
 	public final static int Any = 0x10000;
 	public final static int BaseStation = 0x10000 + 1;
 
@@ -48,11 +95,11 @@ public class AltosDevice extends altos_device {
 	}
 
 	public boolean isAltusMetrum() {
-		if (getVendor() != libaltosConstants.USB_VENDOR_ALTUSMETRUM)
+		if (getVendor() != AltusMetrum)
 			return false;
-		if (getProduct() < libaltosConstants.USB_PRODUCT_ALTUSMETRUM_MIN)
+		if (getProduct() < AltusMetrumMin)
 			return false;
-		if (getProduct() > libaltosConstants.USB_PRODUCT_ALTUSMETRUM_MAX)
+		if (getProduct() > AltusMetrumMax)
 			return false;
 		return true;
 	}
@@ -80,7 +127,7 @@ public class AltosDevice extends altos_device {
 	}
 
 	static AltosDevice[] list(int product) {
-		if (!initialized)
+		if (!load_library())
 			return null;
 
 		SWIGTYPE_p_altos_list list = libaltos.altos_list_start();
