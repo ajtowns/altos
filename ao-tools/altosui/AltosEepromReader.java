@@ -391,6 +391,11 @@ public class AltosEepromReader extends AltosReader {
 					}
 				}
 				records.add(record);
+
+				/* Bail after reading the 'landed' record; we're all done */
+				if (record.cmd == Altos.AO_LOG_STATE &&
+				    record.a == Altos.ao_flight_landed)
+					break;
 			}
 		} catch (IOException io) {
 		} catch (ParseException pe) {
