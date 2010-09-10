@@ -6,7 +6,7 @@ Signature	= "$Windows NT$"
 Class   	= Modem
 ClassGUID	={4D36E96D-E325-11CE-BFC1-08002BE10318}
 Provider	= %Mfg%
-DriverVer	= 08/05/2010,3.1.0.41
+DriverVer	= 08/05/2010,7.1.0.0
 
 [Manufacturer]
 %Mfg% = Models, NTx86, NTamd64, NTia64
@@ -18,13 +18,13 @@ DriverVer	= 08/05/2010,3.1.0.41
 %TeleTerra% = TELEMETRUM, USB\VID_FFFE&PID_000D
 
 [Models.NTamd64]
-%TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
+%AltusMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
 %TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000B
 %TeleDongle% = TELEMETRUM, USB\VID_FFFE&PID_000C
 %TeleTerra% = TELEMETRUM, USB\VID_FFFE&PID_000D
 
 [Models.NTia64]
-%TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
+%AltusMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
 %TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000B
 %TeleDongle% = TELEMETRUM, USB\VID_FFFE&PID_000C
 %TeleTerra% = TELEMETRUM, USB\VID_FFFE&PID_000D
@@ -40,7 +40,7 @@ ExcludeFromSelect=USB\VID_FFFE&PID_000D
 
 [Strings]
 Mfg = "altusmetrum.org"
-AltusMetrum = "Unknown AltusMetrum Device"
+AltusMetrum = "AltusMetrum"
 TeleMetrum = "TeleMetrum"
 TeleDongle = "TeleDongle"
 TeleTerra = "TeleTerra"

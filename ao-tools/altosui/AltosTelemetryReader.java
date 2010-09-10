@@ -41,6 +41,7 @@ public class AltosTelemetryReader extends AltosReader {
 
 	public AltosTelemetryReader (FileInputStream input) {
 		boolean saw_boost = false;
+		int	current_tick = 0;
 
 		records = new LinkedList<AltosRecord> ();
 
@@ -51,9 +52,20 @@ public class AltosTelemetryReader extends AltosReader {
 					break;
 				}
 				try {
+					System.out.printf("%s\n", line);
 					AltosTelemetry record = new AltosTelemetry(line);
 					if (record == null)
 						break;
+					if (records.isEmpty()) {
+						current_tick = record.tick;
+					} else {
+						int tick = record.tick | (current_tick & ~ 0xffff);
+						if (tick < current_tick - 0x1000)
+							tick += 0x10000;
+						current_tick = tick;
+						record.tick = current_tick;
+					}
+					System.out.printf("\tRSSI %d tick %d\n", record.rssi, record.tick);
 					if (!saw_boost && record.state >= Altos.ao_flight_boost)
 					{
 						saw_boost = true;

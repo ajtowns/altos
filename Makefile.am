@@ -13,4 +13,6 @@ ChangeLog:
 dist-hook: ChangeLog
 
 fat:
+	cd src && $(MAKE) all
+	cd ao-tools/libaltos && $(MAKE) all
 	cd ao-tools/altosui && $(MAKE) fat

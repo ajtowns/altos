@@ -1,7 +1,11 @@
 JAVAROOT=classes
 AM_JAVACFLAGS=-encoding UTF-8
 
-CLASSPATH_ENV=CLASSPATH=".:classes:../libaltos:$(FREETTS)/*:/usr/share/java/*"
+man_MANS=altosui.1
+
+altoslibdir=$(libdir)/altos
+
+CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../libaltos:$(FREETTS)/*:/usr/share/java/*"
 
 bin_SCRIPTS=altosui
 
@@ -88,15 +92,39 @@ MACOSX_EXTRA=$(FIRMWARE)
 
 WINDOWS_FILES=$(FAT_FILES) altos.dll $(top_srcdir)/telemetrum.inf $(WINDOWS_ICON)
 
-all-local: classes/altosui $(JAR) $(FATJAR) altosui altosui-test
+all-local: classes/altosui $(JAR) altosui altosui-test
 
 clean-local:
-	-rm -rf classes/altosui $(JAR) $(FATJAR) \
-		$(LINUX_DIST) $(MACOSX_DIST) $(WINDOWS_DIST) $(FREETTS_CLASS) \
+	-rm -rf classes $(JAR) $(FATJAR) \
+		$(LINUX_DIST) $(MACOSX_DIST) windows $(WINDOWS_DIST) $(FREETTS_CLASS) \
 		$(LIBALTOS) Manifest.txt Manifest-fat.txt altos-windows.log \
 		altosui altosui-test macosx linux
 
 fat: $(FATJAR) $(LINUX_DIST) $(MACOSX_DIST) $(WINDOWS_DIST)
+
+if FATINSTALL
+
+FATTARGET=$(FATDIR)/$(VERSION)
+
+LINUX_DIST_TARGET=$(FATTARGET)/$(LINUX_DIST)
+MACOSX_DIST_TARGET=$(FATTARGET)/$(MACOSX_DIST)
+WINDOWS_DIST_TARGET=$(FATTARGET)/$(WINDOWS_DIST)
+
+fat: $(LINUX_DIST_TARGET) $(MACOSX_DIST_TARGET) $(WINDOWS_DIST_TARGET)
+
+$(LINUX_DIST_TARGET): $(LINUX_DIST)
+	mkdir -p $(FATTARGET)
+	cp -p $< $@
+
+$(MACOSX_DIST_TARGET): $(MACOSX_DIST)
+	mkdir -p $(FATTARGET)
+	cp -p $< $@
+
+$(WINDOWS_DIST_TARGET): $(WINDOWS_DIST)
+	mkdir -p $(FATTARGET)
+	cp -p $< $@
+
+endif
 
 altosuidir=$(datadir)/java
 
@@ -131,15 +159,23 @@ Manifest-fat.txt:
 
 altosui: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java  -cp "$(FREETTS)/*" -Djava.library.path="$(libdir)" -jar "$(altosuidir)/altosui.jar" "$$@"' >> $@
+	echo 'exec java  -cp "$(FREETTS)/*" -Djava.library.path="$(altoslibdir)" -jar "$(altosuidir)/altosui.jar" "$$@"' >> $@
 	chmod +x $@
 
 altosui-test: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java -cp "$(FREETTS)/*" -Djava.library.path="../libaltos" -jar altosui.jar "$$*"' >> $@
+	echo 'exec java -cp "$(FREETTS)/*" -Djava.library.path="../libaltos/.libs" -jar altosui.jar "$$@"' >> $@
 	chmod +x $@
 
-$(LIBALTOS):
+libaltos.so:
+	-rm -f "$@"
+	$(LN_S) ../libaltos/.libs/"$@" .
+
+libaltos.dylib:
+	-rm -f "$@"
+	$(LN_S) ../libaltos/"$@" .
+
+altos.dll:
 	-rm -f "$@"
 	$(LN_S) ../libaltos/"$@" .
 

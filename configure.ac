@@ -56,6 +56,16 @@ if test "x$JVM_INCLUDE" = "xauto"; then
 	AC_MSG_RESULT([$JVM_INCLUDE])
 fi
 
+AC_SUBST(JVM_INCLUDE)
+
+AC_ARG_WITH(fat-dir, AS_HELP_STRING([--with-fat-dir=PATH],
+	    [Set the directory to install the 'fat' distribution files to (defaults to not installing)]),
+	    [FATDIR=$withval], [FATDIR=none])
+
+AM_CONDITIONAL(FATINSTALL, [test "x$FATDIR" != "xnone"])
+
+AC_SUBST(FATDIR)
+
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S

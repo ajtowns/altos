@@ -238,12 +238,12 @@ public class AltosConfig implements Runnable, ActionListener {
 		version = new string_ref("unknown");
 		product = new string_ref("unknown");
 
-		device = AltosDeviceDialog.show(owner, AltosDevice.Any);
+		device = AltosDeviceDialog.show(owner, AltosDevice.product_any);
 		serial_line = new AltosSerial();
 		if (device != null) {
 			try {
 				serial_line.open(device);
-				if (!device.matchProduct(AltosDevice.TeleMetrum))
+				if (!device.matchProduct(AltosDevice.product_telemetrum))
 					remote = true;
 				config_thread = new Thread(this);
 				config_thread.start();

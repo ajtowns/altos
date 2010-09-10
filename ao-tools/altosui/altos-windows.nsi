@@ -40,6 +40,9 @@ Section "Install Driver" InstDriver
 	SetOutPath $TEMP
 	File "../../telemetrum.inf"
 	InstDrv::InstallDriver /NOUNLOAD "$TEMP\telemetrum.inf"
+
+	SetOutPath $INSTDIR
+	File "../../telemetrum.inf"
 SectionEnd
 
 Section "AltosUI Application"
