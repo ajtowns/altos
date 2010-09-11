@@ -194,6 +194,10 @@ public class AltosFlashUI
 
 		JFileChooser	hexfile_chooser = new JFileChooser();
 
+		File firmwaredir = AltosPreferences.firmwaredir();
+		if (firmwaredir != null)
+			hexfile_chooser.setCurrentDirectory(firmwaredir);
+
 		hexfile_chooser.setDialogTitle("Select Flash Image");
 		hexfile_chooser.setFileFilter(new FileNameExtensionFilter("Flash Image", "ihx"));
 		int returnVal = hexfile_chooser.showOpenDialog(frame);
@@ -202,6 +206,9 @@ public class AltosFlashUI
 			return;
 
 		file = hexfile_chooser.getSelectedFile();
+
+		if (file != null)
+			AltosPreferences.set_firmwaredir(file.getParentFile());
 
 		thread = new Thread(this);
 		thread.start();
