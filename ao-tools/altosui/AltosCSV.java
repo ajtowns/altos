@@ -86,7 +86,7 @@ public class AltosCSV {
 	 */
 
 	void write_general_header() {
-		out.printf("version serial flight call time rssi");
+		out.printf("version,serial,flight,call,time,rssi");
 	}
 
 	void write_general(AltosRecord record) {
@@ -97,7 +97,7 @@ public class AltosCSV {
 	}
 
 	void write_flight_header() {
-		out.printf("state state_name");
+		out.printf("state,state_name");
 	}
 
 	void write_flight(AltosRecord record) {
@@ -105,7 +105,7 @@ public class AltosCSV {
 	}
 
 	void write_basic_header() {
-		out.printf("acceleration pressure altitude height accel_speed baro_speed temperature battery_voltage drogue_voltage main_voltage");
+		out.printf("acceleration,pressure,altitude,height,accel_speed,baro_speed,temperature,battery_voltage,drogue_voltage,main_voltage");
 	}
 
 	void write_basic(AltosRecord record) {
@@ -123,7 +123,7 @@ public class AltosCSV {
 	}
 
 	void write_gps_header() {
-		out.printf("connected locked nsat latitude longitude altitude year month day hour minute second pad_dist pad_range pad_az pad_el");
+		out.printf("connected,locked,nsat,latitude,longitude,altitude,year,month,day,hour,minute,second,pad_dist,pad_range,pad_az,pad_el");
 	}
 
 	void write_gps(AltosRecord record) {
@@ -155,10 +155,10 @@ public class AltosCSV {
 	}
 
 	void write_header() {
-		out.printf("# "); write_general_header();
-		out.printf(" "); write_flight_header();
-		out.printf(" "); write_basic_header();
-		out.printf(" "); write_gps_header();
+		out.printf("#"); write_general_header();
+		out.printf(","); write_flight_header();
+		out.printf(","); write_basic_header();
+		out.printf(","); write_gps_header();
 		out.printf ("\n");
 	}
 

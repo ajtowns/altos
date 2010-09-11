@@ -40,6 +40,9 @@ class AltosPreferences {
 	/* callsign preference name */
 	final static String callsignPreference = "CALLSIGN";
 
+	/* firmware directory preference name */
+	final static String firmwaredirPreference = "FIRMWARE";
+
 	/* Default logdir is ~/TeleMetrum */
 	final static String logdirName = "TeleMetrum";
 
@@ -55,7 +58,11 @@ class AltosPreferences {
 	/* Voice preference */
 	static boolean voice;
 
+	/* Callsign preference */
 	static String callsign;
+
+	/* Firmware directory */
+	static File firmwaredir;
 
 	public static void init(Component ui) {
 		preferences = Preferences.userRoot().node("/org/altusmetrum/altosui");
@@ -78,6 +85,12 @@ class AltosPreferences {
 		voice = preferences.getBoolean(voicePreference, true);
 
 		callsign = preferences.get(callsignPreference,"N0CALL");
+
+		String firmwaredir_string = preferences.get(firmwaredirPreference, null);
+		if (firmwaredir_string != null)
+			firmwaredir = new File(firmwaredir_string);
+		else
+			firmwaredir = null;
 	}
 
 	static void flush_preferences() {
@@ -172,5 +185,17 @@ class AltosPreferences {
 
 	public static String callsign() {
 		return callsign;
+	}
+
+	public static void set_firmwaredir(File new_firmwaredir) {
+		firmwaredir = new_firmwaredir;
+		synchronized (preferences) {
+			preferences.put(firmwaredirPreference, firmwaredir.getPath());
+			flush_preferences();
+		}
+	}
+
+	public static File firmwaredir() {
+		return firmwaredir;
 	}
 }

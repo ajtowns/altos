@@ -56,6 +56,7 @@ public class AltosCSVUI
 			path = path.substring(0,dot);
 		path = path.concat(".csv");
 		csv_chooser = new JFileChooser(path);
+		csv_chooser.setSelectedFile(new File(path));
 		int ret = csv_chooser.showSaveDialog(frame);
 		if (ret == JFileChooser.APPROVE_OPTION) {
 			try {
