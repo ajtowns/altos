@@ -5,7 +5,7 @@ man_MANS=altosui.1
 
 altoslibdir=$(libdir)/altos
 
-CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../libaltos:$(FREETTS)/*:/usr/share/java/*"
+CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../libaltos:$(JFREECHART)/*:$(FREETTS)/*:/usr/share/java/*"
 
 bin_SCRIPTS=altosui
 
@@ -48,7 +48,18 @@ altosui_JAVA = \
 	AltosTelemetry.java \
 	AltosTelemetryReader.java \
 	AltosUI.java \
+    AltosCsvReader.java \
+    AltosDataPoint.java \
+    AltosGraph.java \
+    AltosGraphTime.java \
+    AltosGraphUI.java \
+    AltosGraphDataChooser.java \
 	AltosVoice.java
+
+JFREECHART_CLASS= \
+    jfreechart.jar \
+    jcommon.jar \
+    csv.jar
 
 FREETTS_CLASS= \
 	cmudict04.jar \
@@ -82,7 +93,7 @@ LINUX_DIST=Altos-Linux-$(VERSION).tar.bz2
 MACOSX_DIST=Altos-Mac-$(VERSION).zip
 WINDOWS_DIST=Altos-Windows-$(VERSION_DASH).exe
 
-FAT_FILES=$(FATJAR) $(FREETTS_CLASS)
+FAT_FILES=$(FATJAR) $(FREETTS_CLASS) $(JFREECHART_CLASS)
 
 LINUX_FILES=$(FAT_FILES) libaltos.so $(FIRMWARE)
 LINUX_EXTRA=altosui-fat
@@ -97,7 +108,7 @@ all-local: classes/altosui $(JAR) altosui altosui-test
 clean-local:
 	-rm -rf classes $(JAR) $(FATJAR) \
 		$(LINUX_DIST) $(MACOSX_DIST) windows $(WINDOWS_DIST) $(FREETTS_CLASS) \
-		$(LIBALTOS) Manifest.txt Manifest-fat.txt altos-windows.log \
+		$(JFREECHART_CLASS) $(LIBALTOS) Manifest.txt Manifest-fat.txt altos-windows.log \
 		altosui altosui-test macosx linux
 
 fat: $(FATJAR) $(LINUX_DIST) $(MACOSX_DIST) $(WINDOWS_DIST)
@@ -143,7 +154,7 @@ $(JAR): classaltosui.stamp Manifest.txt $(JAVA_ICON)
 		-C classes altosui \
 		-C ../libaltos libaltosJNI
 
-$(FATJAR): classaltosui.stamp Manifest-fat.txt $(FREETTS_CLASS) $(LIBALTOS) $(JAVA_ICON)
+$(FATJAR): classaltosui.stamp Manifest-fat.txt $(FREETTS_CLASS) $(JFREECHART_CLASS) $(LIBALTOS) $(JAVA_ICON)
 	jar cfm $@ Manifest-fat.txt \
 		-C $(top_srcdir)/icon altus-metrum-16x16.jpg \
 		-C classes altosui \
@@ -151,11 +162,11 @@ $(FATJAR): classaltosui.stamp Manifest-fat.txt $(FREETTS_CLASS) $(LIBALTOS) $(JA
 
 Manifest.txt: Makefile
 	echo 'Main-Class: altosui.AltosUI' > $@
-	echo "Class-Path: $(FREETTS)/freetts.jar" >> $@
+	echo "Class-Path: $(FREETTS)/freetts.jar $(JFREECHART)/jfreechart.jar $(JFREECHAR)/jcommon.jar $(JFREECHART)/csv.jar" >> $@
 
 Manifest-fat.txt:
 	echo 'Main-Class: altosui.AltosUI' > $@
-	echo "Class-Path: freetts.jar" >> $@
+	echo "Class-Path: freetts.jar jfreechart.jar jcommon.jar csv.jar" >> $@
 
 altosui: Makefile
 	echo "#!/bin/sh" > $@
