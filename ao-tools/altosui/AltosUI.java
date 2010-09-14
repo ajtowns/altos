@@ -667,6 +667,13 @@ public class AltosUI extends JFrame {
 		new AltosCSVUI(AltosUI.this);
 	}
 
+	/* Load a flight log CSV file and display a pretty graph.
+	 */
+
+	private void GraphData() {
+		new AltosGraphUI(AltosUI.this);
+	}
+
 	/* Create the AltosUI menus
 	 */
 	private void createMenu() {
@@ -709,6 +716,14 @@ public class AltosUI extends JFrame {
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						ExportData();
+					}
+				});
+			menu.add(item);
+
+			item = new JMenuItem("Graph Data",KeyEvent.VK_F);
+			item.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						GraphData();
 					}
 				});
 			menu.add(item);
