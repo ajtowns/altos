@@ -445,19 +445,6 @@ public class AltosUI extends JFrame {
 		}
 	}
 
-	class ReplayTelemetryThread extends ReplayThread {
-		ReplayTelemetryThread(FileInputStream in, String in_name) {
-			super(new AltosTelemetryReader(in), in_name);
-		}
-
-	}
-
-	class ReplayEepromThread extends ReplayThread {
-		ReplayEepromThread(FileInputStream in, String in_name) {
-			super(new AltosEepromReader(in), in_name);
-		}
-	}
-
 	Thread		display_thread;
 
 	private void stop_display() {
