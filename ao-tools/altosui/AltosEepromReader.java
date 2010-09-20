@@ -95,7 +95,6 @@ public class AltosEepromReader extends AltosReader {
 	boolean			last_reported;
 
 	double			ground_pres;
-	double			ground_accel;
 
 	int			n_pad_samples;
 
@@ -140,9 +139,6 @@ public class AltosEepromReader extends AltosReader {
 					ground_pres += state.pres;
 					state.ground_pres = (int) (ground_pres / n_pad_samples);
 					state.flight_pres = state.ground_pres;
-					ground_accel += state.accel;
-					state.ground_accel = (int) (ground_accel / n_pad_samples);
-					state.flight_accel = state.ground_accel;
 				} else {
 					state.flight_pres = (state.flight_pres * 15 + state.pres) / 16;
 					state.flight_accel = (state.flight_accel * 15 + state.accel) / 16;
@@ -345,6 +341,7 @@ public class AltosEepromReader extends AltosReader {
 				tick = record.tick;
 				if (record.cmd == Altos.AO_LOG_FLIGHT) {
 					state.ground_accel = record.a;
+					state.flight_accel = record.a;
 					state.flight = record.b;
 					boost_tick = tick;
 					seen |= seen_flight;

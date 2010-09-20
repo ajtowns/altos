@@ -80,7 +80,7 @@ public class AltosState {
 		data = cur;
 
 		ground_altitude = data.ground_altitude();
-		height = data.altitude() - ground_altitude;
+		height = data.filtered_altitude() - ground_altitude;
 
 		report_time = System.currentTimeMillis();
 

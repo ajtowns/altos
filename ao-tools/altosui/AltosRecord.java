@@ -73,7 +73,11 @@ public class AltosRecord {
 		return ((count / 16.0) / 2047.0 + 0.095) / 0.009 * 1000.0;
 	}
 
-	public double pressure() {
+	public double raw_pressure() {
+		return barometer_to_pressure(pres);
+	}
+
+	public double filtered_pressure() {
 		return barometer_to_pressure(flight_pres);
 	}
 
@@ -81,16 +85,24 @@ public class AltosRecord {
 		return barometer_to_pressure(ground_pres);
 	}
 
-	public double altitude() {
-		return AltosConvert.pressure_to_altitude(pressure());
+	public double filtered_altitude() {
+		return AltosConvert.pressure_to_altitude(filtered_pressure());
+	}
+
+	public double raw_altitude() {
+		return AltosConvert.pressure_to_altitude(raw_pressure());
 	}
 
 	public double ground_altitude() {
 		return AltosConvert.pressure_to_altitude(ground_pressure());
 	}
 
-	public double height() {
-		return altitude() - ground_altitude();
+	public double filtered_height() {
+		return filtered_altitude() - ground_altitude();
+	}
+
+	public double raw_height() {
+		return raw_altitude() - ground_altitude();
 	}
 
 	public double battery_voltage() {
