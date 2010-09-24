@@ -60,6 +60,7 @@ public class AltosState {
 	static final int MIN_PAD_SAMPLES = 10;
 
 	int	npad;
+	int	ngps;
 	int	gps_waiting;
 	boolean	gps_ready;
 
@@ -97,6 +98,7 @@ public class AltosState {
 
 			/* Preserve any existing gps data */
 			npad = prev_state.npad;
+			ngps = prev_state.ngps;
 			gps = prev_state.gps;
 			pad_lat = prev_state.pad_lat;
 			pad_lon = prev_state.pad_lon;
@@ -120,15 +122,23 @@ public class AltosState {
 				baro_speed = prev_state.baro_speed;
 		} else {
 			npad = 0;
+			ngps = 0;
 			gps = null;
 			baro_speed = 0;
 			time_change = 0;
 		}
 
 		if (state == Altos.ao_flight_pad) {
-			if (data.gps != null && data.gps.locked) {
+
+			/* Track consecutive 'good' gps reports, waiting for 10 of them */
+			if (data.gps != null && data.gps.locked && data.gps.nsat >= 4)
 				npad++;
-				if (npad > 1) {
+			else
+				npad = 0;
+
+			/* Average GPS data while on the pad */
+			if (data.gps != null && data.gps.locked && data.gps.nsat >= 4) {
+				if (ngps > 1) {
 					/* filter pad position */
 					pad_lat = (pad_lat * 31.0 + data.gps.lat) / 32.0;
 					pad_lon = (pad_lon * 31.0 + data.gps.lon) / 32.0;
@@ -138,8 +148,7 @@ public class AltosState {
 					pad_lon = data.gps.lon;
 					pad_alt = data.gps.alt;
 				}
-			} else {
-				npad = 0;
+				ngps++;
 			}
 		}
 
@@ -163,13 +172,13 @@ public class AltosState {
 		if (data.gps != null) {
 			if (gps == null || !gps.locked || data.gps.locked)
 				gps = data.gps;
-			if (npad > 0 && gps.locked) {
+			if (ngps > 0 && gps.locked) {
 				from_pad = new AltosGreatCircle(pad_lat, pad_lon, gps.lat, gps.lon);
 			}
 		}
 		elevation = 0;
 		range = -1;
-		if (npad > 0) {
+		if (ngps > 0) {
 			gps_height = gps.alt - pad_alt;
 			if (from_pad != null) {
 				elevation = Math.atan2(height, from_pad.distance) * 180 / Math.PI;

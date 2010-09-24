@@ -33,6 +33,7 @@ altosui_JAVA = \
 	AltosGreatCircle.java \
 	AltosHexfile.java \
 	Altos.java \
+	AltosInfoTable.java \
 	AltosLine.java \
 	AltosLogfileChooser.java \
 	AltosLog.java \
@@ -45,6 +46,7 @@ altosui_JAVA = \
 	AltosSerial.java \
 	AltosSerialMonitor.java \
 	AltosState.java \
+	AltosStatusTable.java \
 	AltosTelemetry.java \
 	AltosTelemetryReader.java \
 	AltosUI.java \
@@ -111,8 +113,6 @@ clean-local:
 		$(JFREECHART_CLASS) $(LIBALTOS) Manifest.txt Manifest-fat.txt altos-windows.log \
 		altosui altosui-test macosx linux
 
-fat: $(FATJAR) $(LINUX_DIST) $(MACOSX_DIST) $(WINDOWS_DIST)
-
 if FATINSTALL
 
 FATTARGET=$(FATDIR)/$(VERSION)
@@ -135,7 +135,10 @@ $(WINDOWS_DIST_TARGET): $(WINDOWS_DIST)
 	mkdir -p $(FATTARGET)
 	cp -p $< $@
 
+else
+fat: $(LINUX_DIST) $(MACOSX_DIST) $(WINDOWS_DIST)
 endif
+
 
 altosuidir=$(datadir)/java
 

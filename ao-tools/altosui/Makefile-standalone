@@ -24,6 +24,7 @@ CLASSFILES=\
 	AltosGreatCircle.class \
 	AltosHexfile.class \
 	AltosLine.class \
+	AltosInfoTable.class \
 	AltosLog.class \
 	AltosLogfileChooser.class \
 	AltosParse.class \
@@ -33,6 +34,7 @@ CLASSFILES=\
 	AltosSerialMonitor.class \
 	AltosSerial.class \
 	AltosState.class \
+	AltosStatusTable.class \
 	AltosTelemetry.class \
 	AltosTelemetryReader.class \
 	AltosUI.class \
