@@ -35,17 +35,17 @@ public class AltosCSVUI
 	extends JDialog
 	implements Runnable, ActionListener
 {
-	JFrame		frame;
-	Thread		thread;
-	AltosReader	reader;
-	AltosCSV	writer;
+	JFrame			frame;
+	Thread			thread;
+	AltosRecordIterable	iterable;
+	AltosCSV		writer;
 
 	public void run() {
 		AltosLogfileChooser	chooser;
 
 		chooser = new AltosLogfileChooser(frame);
-		reader = chooser.runDialog();
-		if (reader == null)
+		iterable = chooser.runDialog();
+		if (iterable == null)
 			return;
 		JFileChooser	csv_chooser;
 
@@ -67,8 +67,7 @@ public class AltosCSVUI
 							      "Cannot open file",
 							      JOptionPane.ERROR_MESSAGE);
 			}
-			writer.write(reader);
-			reader.close();
+			writer.write(iterable);
 			writer.close();
 		}
 	}

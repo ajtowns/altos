@@ -22,26 +22,17 @@ import java.util.*;
 import java.text.*;
 import altosui.AltosTelemetry;
 
-public class AltosTelemetryReader extends AltosReader {
+public class AltosTelemetryIterable extends AltosRecordIterable {
 	LinkedList<AltosRecord>	records;
 
-	Iterator<AltosRecord> record_iterator;
-
-	int	boost_tick;
-
-	public AltosRecord read() throws IOException, ParseException {
-		AltosRecord	r;
-		if (!record_iterator.hasNext())
-			return null;
-
-		r = record_iterator.next();
-		r.time = (r.tick - boost_tick) / 100.0;
-		return r;
+	public Iterator<AltosRecord> iterator () {
+		return records.iterator();
 	}
 
-	public AltosTelemetryReader (FileInputStream input) {
+	public AltosTelemetryIterable (FileInputStream input) {
 		boolean saw_boost = false;
 		int	current_tick = 0;
+		int	boost_tick = 0;
 
 		records = new LinkedList<AltosRecord> ();
 
@@ -79,7 +70,11 @@ public class AltosTelemetryReader extends AltosReader {
 		} catch (IOException io) {
 			System.out.printf("io exception\n");
 		}
-		record_iterator = records.iterator();
+
+		/* adjust all tick counts to be relative to boost time */
+		for (AltosRecord r : this)
+			r.time = (r.tick - boost_tick) / 100.0;
+
 		try {
 			input.close();
 		} catch (IOException ie) {

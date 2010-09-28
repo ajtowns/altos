@@ -20,9 +20,10 @@ altosui_JAVA = \
 	AltosDebug.java \
 	AltosDeviceDialog.java \
 	AltosDevice.java \
+	AltosDisplayThread.java \
 	AltosEepromDownload.java \
 	AltosEepromMonitor.java \
-	AltosEepromReader.java \
+	AltosEepromIterable.java \
 	AltosEepromRecord.java \
 	AltosFile.java \
 	AltosFlash.java \
@@ -41,6 +42,8 @@ altosui_JAVA = \
 	AltosPreferences.java \
 	AltosReader.java \
 	AltosRecord.java \
+	AltosRecordIterable.java \
+	AltosReplayThread.java \
 	AltosRomconfig.java \
 	AltosRomconfigUI.java \
 	AltosSerial.java \
@@ -48,7 +51,7 @@ altosui_JAVA = \
 	AltosState.java \
 	AltosStatusTable.java \
 	AltosTelemetry.java \
-	AltosTelemetryReader.java \
+	AltosTelemetryIterable.java \
 	AltosUI.java \
     AltosCsvReader.java \
     AltosDataPoint.java \
