@@ -39,7 +39,7 @@ public class AltosGraphUI extends JFrame
         AltosGraphTime.Element speed =
             new AltosGraphTime.TimeSeries("Speed (m/s)", "Vertical Speed", green) { 
                 public void gotTimeData(double time, AltosDataPoint d) {
-                    if (d.state() < 4) {
+                    if (d.state() < Altos.ao_flight_drogue) {
                         series.add(time, d.accel_speed());
                     } else {
                         series.add(time, d.baro_speed());
@@ -81,13 +81,13 @@ public class AltosGraphUI extends JFrame
                 }
             };
     
-        AltosGraphTime.Element e_pad    = new AltosGraphTime.StateMarker(2, "Pad");
-        AltosGraphTime.Element e_boost  = new AltosGraphTime.StateMarker(3, "Boost");
-        AltosGraphTime.Element e_fast   = new AltosGraphTime.StateMarker(4, "Fast");
-        AltosGraphTime.Element e_coast  = new AltosGraphTime.StateMarker(5, "Coast");
-        AltosGraphTime.Element e_drogue = new AltosGraphTime.StateMarker(6, "Drogue");
-        AltosGraphTime.Element e_main   = new AltosGraphTime.StateMarker(7, "Main");
-        AltosGraphTime.Element e_landed = new AltosGraphTime.StateMarker(8, "Landed");
+        AltosGraphTime.Element e_pad    = new AltosGraphTime.StateMarker(Altos.ao_flight_pad, "Pad");
+        AltosGraphTime.Element e_boost  = new AltosGraphTime.StateMarker(Altos.ao_flight_boost, "Boost");
+        AltosGraphTime.Element e_fast   = new AltosGraphTime.StateMarker(Altos.ao_flight_fast, "Fast");
+        AltosGraphTime.Element e_coast  = new AltosGraphTime.StateMarker(Altos.ao_flight_coast, "Coast");
+	AltosGraphTime.Element e_drogue = new AltosGraphTime.StateMarker(Altos.ao_flight_drogue, "Drogue");
+	AltosGraphTime.Element e_main   = new AltosGraphTime.StateMarker(Altos.ao_flight_main, "Main");
+        AltosGraphTime.Element e_landed = new AltosGraphTime.StateMarker(Altos.ao_flight_landed, "Landed");
     
         protected AltosGraphTime myAltosGraphTime(String suffix) {
             return (new AltosGraphTime("Overall " + suffix))
@@ -130,7 +130,7 @@ public class AltosGraphUI extends JFrame
             return (new AltosGraphTime("Ascent " + suffix) {
                 public void addData(AltosDataPoint d) {
                     int state = d.state();
-                    if (3 <= state && state <= 5) {
+                    if (Altos.ao_flight_boost <= state && state <= Altos.ao_flight_coast) {
                         super.addData(d);
                     }
                 }
@@ -145,7 +145,7 @@ public class AltosGraphUI extends JFrame
             return (new AltosGraphTime("Descent " + suffix) {
                 public void addData(AltosDataPoint d) {
                     int state = d.state();
-                    if (6 <= state && state <= 7) {
+                    if (Altos.ao_flight_drogue <= state && state <= Altos.ao_flight_main) {
                         super.addData(d);
                     }
                 }
