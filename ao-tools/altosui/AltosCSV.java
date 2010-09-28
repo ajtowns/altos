@@ -23,7 +23,6 @@ import java.text.*;
 import java.util.*;
 
 import altosui.AltosRecord;
-import altosui.AltosReader;
 
 public class AltosCSV {
 	File			name;

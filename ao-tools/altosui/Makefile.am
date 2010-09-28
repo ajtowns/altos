@@ -5,7 +5,7 @@ man_MANS=altosui.1
 
 altoslibdir=$(libdir)/altos
 
-CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../libaltos:$(JFREECHART)/*:$(FREETTS)/*:/usr/share/java/*"
+CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../libaltos:$(FREETTS)/*:/usr/share/java/*"
 
 bin_SCRIPTS=altosui
 
@@ -53,6 +53,7 @@ altosui_JAVA = \
 	AltosTelemetry.java \
 	AltosTelemetryIterable.java \
 	AltosUI.java \
+    AltosDataPointReader.java \
     AltosCsvReader.java \
     AltosDataPoint.java \
     AltosGraph.java \
@@ -168,7 +169,7 @@ $(FATJAR): classaltosui.stamp Manifest-fat.txt $(FREETTS_CLASS) $(JFREECHART_CLA
 
 Manifest.txt: Makefile
 	echo 'Main-Class: altosui.AltosUI' > $@
-	echo "Class-Path: $(FREETTS)/freetts.jar $(JFREECHART)/jfreechart.jar $(JFREECHAR)/jcommon.jar $(JFREECHART)/csv.jar" >> $@
+	echo "Class-Path: $(FREETTS)/freetts.jar $(FREETTS)/jfreechart.jar $(FREETTS)/jcommon.jar $(FREETTS)/csv.jar" >> $@
 
 Manifest-fat.txt:
 	echo 'Main-Class: altosui.AltosUI' > $@
