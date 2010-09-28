@@ -131,6 +131,10 @@ class AltosGraphTime extends AltosGraph {
         }
     }
 
+    private String callsign = null;
+    private Integer serial = null;
+    private Integer flight = null; 
+
     private String title;
     private ArrayList<Element> elements;
     private HashMap<String,Integer> axes;
@@ -186,6 +190,9 @@ class AltosGraphTime extends AltosGraph {
         for (Element e : elements) {
             e.gotTimeData(time, d);
         }
+        if (callsign == null) callsign = d.callsign();
+        if (serial == null) serial = new Integer(d.serial());
+        if (flight == null) flight = new Integer(d.flight());
     }
 
     public JFreeChart createChart() {
@@ -196,6 +203,13 @@ class AltosGraphTime extends AltosGraph {
         plot.setDomainAxis(xAxis);
         plot.setRenderer(renderer);
         plot.setOrientation(PlotOrientation.VERTICAL);
+
+        if (serial != null && flight != null) {
+            title = serial + "/" + flight + ": " + title;
+        }
+        if (callsign != null) {
+            title = callsign + " - " + title;
+        }
 
         renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
         JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT,
