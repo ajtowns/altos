@@ -44,15 +44,19 @@ class AltosOrderedRecord extends AltosEepromRecord implements Comparable<AltosOr
 
 	public int	index;
 
-	public AltosOrderedRecord(String line, int in_index, int prev_tick)
+	public AltosOrderedRecord(String line, int in_index, int prev_tick, boolean prev_tick_valid)
 		throws ParseException {
 		super(line);
-		int new_tick = tick | (prev_tick & ~0xffff);
-		if (new_tick < prev_tick) {
-			if (prev_tick - new_tick > 0x8000)
-				new_tick += 0x10000;
+		if (prev_tick_valid) {
+			tick |= (prev_tick & ~0xffff);
+			if (tick < prev_tick) {
+				if (prev_tick - tick > 0x8000)
+					tick += 0x10000;
+			} else {
+				if (tick - prev_tick > 0x8000)
+					tick -= 0x10000;
+			}
 		}
-		tick = new_tick;
 		index = in_index;
 	}
 
@@ -340,7 +344,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 
 		int index = 0;
 		int prev_tick = 0;
-
+		boolean prev_tick_valid = false;
 		boolean missing_time = false;
 
 		try {
@@ -348,12 +352,14 @@ public class AltosEepromIterable extends AltosRecordIterable {
 				String line = AltosRecord.gets(input);
 				if (line == null)
 					break;
-				AltosOrderedRecord record = new AltosOrderedRecord(line, index++, prev_tick);
+				AltosOrderedRecord record = new AltosOrderedRecord(line, index++, prev_tick, prev_tick_valid);
 				if (record == null)
 					break;
 				if (record.cmd == Altos.AO_LOG_INVALID)
 					continue;
 				prev_tick = record.tick;
+				if (record.cmd < Altos.AO_LOG_CONFIG_VERSION)
+					prev_tick_valid = true;
 				if (record.cmd == Altos.AO_LOG_FLIGHT) {
 					flight_record = record;
 					continue;
