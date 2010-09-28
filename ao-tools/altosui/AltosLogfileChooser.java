@@ -27,11 +27,6 @@ import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
 
-import altosui.AltosPreferences;
-import altosui.AltosReader;
-import altosui.AltosEepromReader;
-import altosui.AltosTelemetryReader;
-
 public class AltosLogfileChooser extends JFileChooser {
 	JFrame	frame;
 	String	filename;
@@ -45,7 +40,7 @@ public class AltosLogfileChooser extends JFileChooser {
 		return file;
 	}
 
-	public AltosReader runDialog() {
+	public AltosRecordIterable runDialog() {
 		int	ret;
 
 		ret = showOpenDialog(frame);
@@ -59,9 +54,9 @@ public class AltosLogfileChooser extends JFileChooser {
 
 				in = new FileInputStream(file);
 				if (filename.endsWith("eeprom"))
-					return new AltosEepromReader(in);
+					return new AltosEepromIterable(in);
 				else
-					return new AltosTelemetryReader(in);
+					return new AltosTelemetryIterable(in);
 			} catch (FileNotFoundException fe) {
 				JOptionPane.showMessageDialog(frame,
 							      filename,

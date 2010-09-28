@@ -207,22 +207,10 @@ public class AltosCSV {
 		out.close();
 	}
 
-	public void write(AltosReader reader) {
-		AltosRecord	record;
-
-		reader.write_comments(out());
-		try {
-			for (;;) {
-				record = reader.read();
-				if (record == null)
-					break;
-				write(record);
-			}
-		} catch (IOException ie) {
-			System.out.printf("IOException\n");
-		} catch (ParseException pe) {
-			System.out.printf("ParseException %s\n", pe.getMessage());
-		}
+	public void write(AltosRecordIterable iterable) {
+		iterable.write_comments(out());
+		for (AltosRecord r : iterable)
+			write(r);
 	}
 
 	public AltosCSV(File in_name) throws FileNotFoundException {

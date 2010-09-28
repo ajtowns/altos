@@ -142,7 +142,7 @@ public class AltosRecord {
 		return counts_per_g / 9.80665;
 	}
 	public double acceleration() {
-		return (accel_plus_g - accel) / accel_counts_per_mss();
+		return (ground_accel - accel) / accel_counts_per_mss();
 	}
 
 	public double accel_speed() {
