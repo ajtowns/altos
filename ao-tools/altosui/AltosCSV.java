@@ -45,6 +45,7 @@ public class AltosCSV {
 	 *	callsign
 	 *	time (seconds since boost)
 	 *	rssi
+	 *	link quality
 	 *
 	 * Flight status
 	 *	state
@@ -79,21 +80,22 @@ public class AltosCSV {
 	 *	from_pad_azimuth (deg true)
 	 *	from_pad_range (m)
 	 *	from_pad_elevation (deg from horizon)
+	 *	hdop
 	 *
 	 * GPS Sat data
-	 *	hdop
 	 *	C/N0 data for all 32 valid SDIDs
 	 */
 
 	void write_general_header() {
-		out.printf("version,serial,flight,call,time,rssi");
+		out.printf("version,serial,flight,call,time,rssi,lqi");
 	}
 
 	void write_general(AltosRecord record) {
-		out.printf("%s,%d,%d,%s,%8.2f,%4d",
+		out.printf("%s, %d, %d, %s, %8.2f, %4d, %3d",
 			   record.version, record.serial, record.flight, record.callsign,
 			   (double) record.time,
-			   record.rssi);
+			   record.rssi,
+			   record.status & 0x7f);
 	}
 
 	void write_flight_header() {
@@ -123,7 +125,7 @@ public class AltosCSV {
 	}
 
 	void write_gps_header() {
-		out.printf("connected,locked,nsat,latitude,longitude,altitude,year,month,day,hour,minute,second,pad_dist,pad_range,pad_az,pad_el");
+		out.printf("connected,locked,nsat,latitude,longitude,altitude,year,month,day,hour,minute,second,pad_dist,pad_range,pad_az,pad_el,hdop");
 	}
 
 	void write_gps(AltosRecord record) {
@@ -135,7 +137,7 @@ public class AltosCSV {
 		if (from_pad == null)
 			from_pad = new AltosGreatCircle();
 
-		out.printf("%2d,%2d,%3d,%12.7f,%12.7f,%6d,%5d,%3d,%3d,%3d,%3d,%3d,%9.0f,%9.0f,%4.0f,%4.0f",
+		out.printf("%2d,%2d,%3d,%12.7f,%12.7f,%6d,%5d,%3d,%3d,%3d,%3d,%3d,%9.0f,%9.0f,%4.0f,%4.0f,%6.1f",
 			   gps.connected?1:0,
 			   gps.locked?1:0,
 			   gps.nsat,
@@ -151,7 +153,33 @@ public class AltosCSV {
 			   from_pad.distance,
 			   state.range,
 			   from_pad.bearing,
-			   state.elevation);
+			   state.elevation,
+			   gps.hdop);
+	}
+
+	void write_gps_sat_header() {
+		for(int i = 1; i <= 32; i++) {
+			out.printf("sat%02d", i);
+			if (i != 32)
+				out.printf(",");
+		}
+	}
+
+	void write_gps_sat(AltosRecord record) {
+		AltosGPS	gps = record.gps;
+		for(int i = 1; i <= 32; i++) {
+			int	c_n0 = 0;
+			if (gps != null && gps.cc_gps_sat != null) {
+				for(int j = 0; j < gps.cc_gps_sat.length; j++)
+					if (gps.cc_gps_sat[j].svid == i) {
+						c_n0 = gps.cc_gps_sat[j].c_n0;
+						break;
+					}
+			}
+			out.printf ("%3d", c_n0);
+			if (i != 32)
+				out.printf(",");
+		}
 	}
 
 	void write_header() {
@@ -159,6 +187,7 @@ public class AltosCSV {
 		out.printf(","); write_flight_header();
 		out.printf(","); write_basic_header();
 		out.printf(","); write_gps_header();
+		out.printf(","); write_gps_sat_header();
 		out.printf ("\n");
 	}
 
@@ -167,7 +196,8 @@ public class AltosCSV {
 		write_general(record); out.printf(",");
 		write_flight(record); out.printf(",");
 		write_basic(record); out.printf(",");
-		write_gps(record);
+		write_gps(record); out.printf(",");
+		write_gps_sat(record);
 		out.printf ("\n");
 	}
 
