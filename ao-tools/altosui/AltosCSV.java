@@ -22,9 +22,7 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
-import altosui.AltosRecord;
-
-public class AltosCSV {
+public class AltosCSV implements AltosWriter {
 	File			name;
 	PrintStream		out;
 	boolean			header_written;
@@ -33,9 +31,9 @@ public class AltosCSV {
 	LinkedList<AltosRecord>	pad_records;
 	AltosState		state;
 
-	static final int ALTOS_CSV_VERSION = 1;
+	static final int ALTOS_CSV_VERSION = 2;
 
-	/* Version 1 format:
+	/* Version 2 format:
 	 *
 	 * General info
 	 *	version number
@@ -91,7 +89,7 @@ public class AltosCSV {
 
 	void write_general(AltosRecord record) {
 		out.printf("%s, %d, %d, %s, %8.2f, %4d, %3d",
-			   record.version, record.serial, record.flight, record.callsign,
+			   ALTOS_CSV_VERSION, record.serial, record.flight, record.callsign,
 			   (double) record.time,
 			   record.rssi,
 			   record.status & 0x7f);

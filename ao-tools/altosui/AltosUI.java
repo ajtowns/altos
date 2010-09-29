@@ -426,13 +426,6 @@ public class AltosUI extends JFrame {
 
 	}
 
-	static String replace_extension(String input, String extension) {
-		int dot = input.lastIndexOf(".");
-		if (dot > 0)
-			input = input.substring(0,dot);
-		return input.concat(extension);
-	}
-
 	static AltosRecordIterable open_logfile(String filename) {
 		File file = new File (filename);
 		try {
@@ -449,7 +442,7 @@ public class AltosUI extends JFrame {
 		}
 	}
 
-	static AltosCSV open_csv(String filename) {
+	static AltosWriter open_csv(String filename) {
 		File file = new File (filename);
 		try {
 			return new AltosCSV(file);
@@ -459,29 +452,65 @@ public class AltosUI extends JFrame {
 		}
 	}
 
-	static void process_file(String input) {
-		String output = replace_extension(input,".csv");
-		if (input.equals(output)) {
-			System.out.printf("Not processing '%s'\n", input);
-			return;
+	static AltosWriter open_kml(String filename) {
+		File file = new File (filename);
+		try {
+			return new AltosKML(file);
+		} catch (FileNotFoundException fe) {
+			System.out.printf("Cannot open '%s'\n", filename);
+			return null;
 		}
-		System.out.printf("Processing \"%s\" to \"%s\"\n", input, output);
+	}
+
+	static final int process_csv = 1;
+	static final int process_kml = 2;
+
+	static void process_file(String input, int process) {
 		AltosRecordIterable iterable = open_logfile(input);
 		if (iterable == null)
 			return;
-		AltosCSV writer = open_csv(output);
-		if (writer == null)
-			return;
-		writer.write(iterable);
-		writer.close();
+		if (process == 0)
+			process = process_csv;
+		if ((process & process_csv) != 0) {
+			String output = Altos.replace_extension(input,".csv");
+			System.out.printf("Processing \"%s\" to \"%s\"\n", input, output);
+			if (input.equals(output)) {
+				System.out.printf("Not processing '%s'\n", input);
+			} else {
+				AltosWriter writer = open_csv(output);
+				if (writer != null) {
+					writer.write(iterable);
+					writer.close();
+				}
+			}
+		}
+		if ((process & process_kml) != 0) {
+			String output = Altos.replace_extension(input,".kml");
+			System.out.printf("Processing \"%s\" to \"%s\"\n", input, output);
+			if (input.equals(output)) {
+				System.out.printf("Not processing '%s'\n", input);
+			} else {
+				AltosWriter writer = open_kml(output);
+				if (writer == null)
+					return;
+				writer.write(iterable);
+				writer.close();
+			}
+		}
 	}
 
 	public static void main(final String[] args) {
-
+		int	process = 0;
 		/* Handle batch-mode */
 		if (args.length > 0) {
-			for (int i = 0; i < args.length; i++)
-				process_file(args[i]);
+			for (int i = 0; i < args.length; i++) {
+				if (args[i].equals("--kml"))
+					process |= process_kml;
+				else if (args[i].equals("--csv"))
+					process |= process_csv;
+				else
+					process_file(args[i], process);
+			}
 		} else {
 			AltosUI altosui = new AltosUI();
 			altosui.setVisible(true);

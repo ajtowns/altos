@@ -38,7 +38,25 @@ public class AltosCSVUI
 	JFrame			frame;
 	Thread			thread;
 	AltosRecordIterable	iterable;
-	AltosCSV		writer;
+	AltosWriter		writer;
+	JFileChooser		csv_chooser;
+	JComboBox		combo_box;
+
+	static String[]		combo_box_items = { "CSV", "KML" };
+
+	void set_default_file() {
+		File	current = csv_chooser.getSelectedFile();
+		String	current_name = current.getName();
+		String	new_name = null;
+		String	selected = (String) combo_box.getSelectedItem();
+
+		if (selected.equals("CSV"))
+			new_name = Altos.replace_extension(current_name, ".csv");
+		else if (selected.equals("KML"))
+			new_name = Altos.replace_extension(current_name, ".kml");
+		if (new_name != null)
+			csv_chooser.setSelectedFile(new File(new_name));
+	}
 
 	public void run() {
 		AltosLogfileChooser	chooser;
@@ -47,20 +65,22 @@ public class AltosCSVUI
 		iterable = chooser.runDialog();
 		if (iterable == null)
 			return;
-		JFileChooser	csv_chooser;
 
-		File file = chooser.file();
-		String path = file.getPath();
-		int dot = path.lastIndexOf(".");
-		if (dot >= 0)
-			path = path.substring(0,dot);
-		path = path.concat(".csv");
-		csv_chooser = new JFileChooser(path);
-		csv_chooser.setSelectedFile(new File(path));
+		csv_chooser = new JFileChooser(chooser.file());
+		combo_box = new JComboBox(combo_box_items);
+		combo_box.addActionListener(this);
+		csv_chooser.setAccessory(combo_box);
+		csv_chooser.setSelectedFile(chooser.file());
+		set_default_file();
 		int ret = csv_chooser.showSaveDialog(frame);
 		if (ret == JFileChooser.APPROVE_OPTION) {
+			File 	file = csv_chooser.getSelectedFile();
+			String	type = (String) combo_box.getSelectedItem();
 			try {
-				writer = new AltosCSV(csv_chooser.getSelectedFile());
+				if (type.equals("CSV"))
+					writer = new AltosCSV(file);
+				else
+					writer = new AltosKML(file);
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(frame,
 							      file.getName(),
@@ -73,6 +93,9 @@ public class AltosCSVUI
 	}
 
 	public void actionPerformed(ActionEvent e) {
+		System.out.printf("command %s param %s\n", e.getActionCommand(), e.paramString());
+		if (e.getActionCommand().equals("comboBoxChanged"))
+			set_default_file();
 	}
 
 	public AltosCSVUI(JFrame in_frame) {

@@ -200,4 +200,11 @@ public class Altos {
 		}
 		return v * sign;
 	}
+
+	static String replace_extension(String input, String extension) {
+		int dot = input.lastIndexOf(".");
+		if (dot > 0)
+			input = input.substring(0,dot);
+		return input.concat(extension);
+	}
 }

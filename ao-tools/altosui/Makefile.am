@@ -35,6 +35,7 @@ altosui_JAVA = \
 	AltosHexfile.java \
 	Altos.java \
 	AltosInfoTable.java \
+	AltosKML.java \
 	AltosLine.java \
 	AltosLogfileChooser.java \
 	AltosLog.java \
@@ -53,13 +54,14 @@ altosui_JAVA = \
 	AltosTelemetry.java \
 	AltosTelemetryIterable.java \
 	AltosUI.java \
-    AltosDataPointReader.java \
-    AltosCsvReader.java \
-    AltosDataPoint.java \
-    AltosGraph.java \
-    AltosGraphTime.java \
-    AltosGraphUI.java \
-    AltosGraphDataChooser.java \
+	AltosWriter.java \
+	AltosDataPointReader.java \
+	AltosCsvReader.java \
+	AltosDataPoint.java \
+	AltosGraph.java \
+	AltosGraphTime.java \
+	AltosGraphUI.java \
+	AltosGraphDataChooser.java \
 	AltosVoice.java
 
 JFREECHART_CLASS= \
@@ -109,13 +111,13 @@ MACOSX_EXTRA=$(FIRMWARE)
 
 WINDOWS_FILES=$(FAT_FILES) altos.dll $(top_srcdir)/telemetrum.inf $(WINDOWS_ICON)
 
-all-local: classes/altosui $(JAR) altosui altosui-test
+all-local: classes/altosui $(JAR) altosui altosui-test altosui-jdb
 
 clean-local:
 	-rm -rf classes $(JAR) $(FATJAR) \
 		$(LINUX_DIST) $(MACOSX_DIST) windows $(WINDOWS_DIST) $(FREETTS_CLASS) \
 		$(JFREECHART_CLASS) $(LIBALTOS) Manifest.txt Manifest-fat.txt altos-windows.log \
-		altosui altosui-test macosx linux
+		altosui altosui-test altosui-jdb macosx linux
 
 if FATINSTALL
 
@@ -183,6 +185,11 @@ altosui: Makefile
 altosui-test: Makefile
 	echo "#!/bin/sh" > $@
 	echo 'exec java -cp "$(FREETTS)/*" -Djava.library.path="../libaltos/.libs" -jar altosui.jar "$$@"' >> $@
+	chmod +x $@
+
+altosui-jdb: Makefile
+	echo "#!/bin/sh" > $@
+	echo 'exec jdb -classpath "classes:../libaltos:$(FREETTS)/*" -Djava.library.path="../libaltos/.libs" altosui/AltosUI "$$@"' >> $@
 	chmod +x $@
 
 libaltos.so:
