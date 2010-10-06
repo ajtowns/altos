@@ -1,3 +1,227 @@
+commit d8a2f4ceb1c70a6be976a78e2264c961de2f2277
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Oct 6 16:18:45 2010 -0600
+
+    add build dep on jfreechart lib
+
+commit f0d1468ceae065f0cdae6f6ae3323dec5636f073
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Sep 28 17:56:49 2010 -0700
+
+    altosui: Add KML file export.
+    
+    Command line has switches now, --kml and --csv
+    Export save dialog has combo box to select kml or csv result.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5a119fd92532d53e552efe1f7c61e87181fcace0
+Merge: 28da340 82744c3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Sep 27 22:28:07 2010 -0700
+
+    Merge remote branch 'aj/master'
+
+commit 82744c3497d37650b88dee80be7956c4bd1cffb2
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Tue Sep 28 15:27:07 2010 +1000
+
+    Add callsign/serial/flight to graph title
+
+commit 28da3406426437604125d332e4cda90d459df487
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Sep 27 22:26:56 2010 -0700
+
+    altosui: use Altos constants in graphing code
+    
+    The Altos class nicely defines constants for all of the flight states.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ce7f59fbfb5a94a67a4ceced3cc371b4c6b6e5d1
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Tue Sep 28 14:45:01 2010 +1000
+
+    Hax0r graphing to support telem/eeprom files
+
+commit e2b9f47a205348d38756c70e928a2a9183de6884
+Merge: 7ef3ad0 8032031
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Tue Sep 28 12:55:47 2010 +1000
+
+    Merge branch 'master' of git://git.gag.com/fw/altos
+
+commit 803203197e51e71e9c77b3610047fd5bf9a56c56
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Sep 27 18:52:30 2010 -0700
+
+    altosui: Deal with eeprom dates going backwards across wrap
+    
+    eeprom timestamps can go backwards as the GPS time stamps are
+    recorded when the first GPS character is received, but not placed into
+    the eeprom log until the last GPS packet is complete. If this happens
+    at the same time the tick count is wrapping, then the tick count will
+    wrap backwards across the 0 boundary causing time to jump forwards.
+    
+    Fix this by letting time go backwards across the tick boundary, which
+    requires that we know when the first 'real' tick is read from the
+    eeprom file.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fe7eba2e4af36cf29d8dc2378ac6985be04f68c6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Sep 27 18:51:05 2010 -0700
+
+    altosui: .CSV output: add link quality, gps hdop and sat C/N0 numbers
+    
+    This makes the CSV files contain all of the available information.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c89a34d1eb25155405b0036baeadc7bbfeade1c2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Sep 27 17:11:48 2010 -0700
+
+    altosui: Create iterables for log file scanning. Split out display threads
+    
+    Convert from log file reading paradigm to using iterators which is
+    more idiomatic for java. Split more code out of AltosUI.java,
+    including the display update threads for telemetry monitoring and
+    logfile replay.x
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7ef3ad0c9354c0484c25badc69334b59c7f355e2
+Merge: eb74866 e66919a
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Fri Sep 24 10:28:06 2010 +1000
+
+    Merge branch 'master' of git://git.gag.com/fw/altos
+
+commit e66919aa46193bd8c7a1e86fb32a3367dae121f5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 23 16:52:51 2010 -0700
+
+    altosui: Require 4 sats for 'good' GPS data
+    
+    Wait for 10 consecutive GPS reports with at least 4 sats before
+    reporting "GPS ready" state.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 34ca8c00f4be72c314baff4c96f1e2f010948454
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Sep 20 06:30:49 2010 -0700
+
+    altosui: remove unused ReplayThread wrapper classes
+    
+    These aren't used now that the replay opener dialog knows how to build
+    a reader from a filename.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fd010661ced6075f82a961625826665a3d8d1efe
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 30 14:00:04 2010 -0700
+
+    altosui: Factor some UI elements into separate classes
+    
+    Clean up AltosUI by moving the two main tables to separate class files.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit eb74866e919e8c661153847871f5a79e66d37296
+Merge: af404b4 1260589
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Mon Sep 20 22:05:26 2010 +1000
+
+    Merge branch 'master' of git://git.gag.com/fw/altos
+
+commit 1260589976c1a95848b298497fd251c4ee7d3f93
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 19 02:52:29 2010 -0700
+
+    altosui: Write raw sensor data to .csv files
+    
+    For data export, provide the raw sensor samples instead of the
+    filtered values.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7a4d7110debb88f4e906fee7c46f2badd561809d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 19 02:50:43 2010 -0700
+
+    altosui: Use recorded ground acceleration when reading eeprom files
+    
+    The flight software records 1000 accelerometer samples and records
+    that in the flight log. Use that value instead of using the very few
+    samples recorded in the eeprom before boost is detected. This
+    generates far more accurate accerometer data in the .csv files.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit af404b428bd742039afc25ff3850f76bc92c7c29
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Wed Sep 15 07:24:04 2010 +1000
+
+    Add JFreeChart to Makefile.am
+
+commit 61590b8729831cb138b2ba6b88802c208d114753
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Wed Sep 15 06:51:05 2010 +1000
+
+    Add graphing.
+
+commit 3d64f5a6511529ca53699190f4d54de1ba62a9bd
+Merge: ec6da08 b9623f8
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sat Sep 11 15:15:14 2010 +1000
+
+    Merge branch 'master' of git://git.gag.com/fw/altos
+
+commit b9623f8ef26491e9fa14e2478295fe6f5cbbd87f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 10 21:07:14 2010 -0700
+
+    altosui: Remember directory containing firmware files
+    
+    Instead of forcing the user to navigate to the firmware directory each
+    time, this remembers the previous directory and starts there.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7f2204e0832b14b1edca4266a2cbc272141ecc2b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 10 20:55:05 2010 -0700
+
+    altosui: set default .csv file name in file save dialog
+    
+    This uses setSelectedFile to specify which output filename to make the
+    default in the save dialog.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7e053ae1f2d09347123ac9fa79e46645378b4c70
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Sep 10 10:42:35 2010 -0600
+
+    make the column headers comma separated, too, so they align with the data
+
+commit ec6da0824474e46de842845d7b53fe1a1dde33ed
+Merge: 7c2e411 1031067
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Fri Sep 10 16:11:34 2010 +1000
+
+    Merge branch 'master' of git://git.gag.com/fw/altos
+
+commit 10310672a83a66dc630718b151d653fc066f8e59
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Sep 10 00:09:25 2010 -0600
+
+    update changelogs for Debian build
+
 commit 9d0e89e8ad8926dc8371fa809835a580ae49711d
 Author: Keith Packard <keithp@keithp.com>
 Date:   Thu Sep 9 23:04:59 2010 -0700
@@ -47,6 +271,13 @@ Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Sep 9 23:51:23 2010 -0600
 
     rewind packaging changelog
+
+commit 7c2e4114a3a43f919a7a6c967d3f16e5d630f90f
+Merge: ddc83b4 af200f5
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Fri Sep 10 15:50:01 2010 +1000
+
+    Merge branch 'master' of git://git.gag.com/fw/altos
 
 commit af200f5b84555de0556b52146379f3934774a3f3
 Author: Keith Packard <keithp@keithp.com>
@@ -258,6 +489,13 @@ Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Sep 9 15:43:47 2010 -0600
 
     update changelogs for Debian build
+
+commit ddc83b4c401be965a9947782becf20cc8c54e6a2
+Merge: afea6c2 3d49d5f
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Sep 5 20:49:34 2010 +1000
+
+    Merge branch 'master' of git://git.gag.com/fw/altos
 
 commit 3d49d5f69b41c27003dbc5ccf1899014bd13bd99
 Author: Keith Packard <keithp@keithp.com>
@@ -1376,6 +1614,13 @@ Date:   Mon Aug 23 23:15:05 2010 -0700
     Move file opening logic into logfile chooser as it can be shared that way.
     
     Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit afea6c264c5ebf12f1d629bd4bc724da86d11b7a
+Merge: 0e17853 9d1b27f
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Tue Aug 24 00:02:31 2010 -0600
+
+    Merge branch 'master' of git://git.gag.com/fw/altos
 
 commit a55b132668a819cc26478a609cb79bd9190deb9d
 Author: Keith Packard <keithp@keithp.com>

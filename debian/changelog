@@ -1,3 +1,46 @@
+altos (0.7.1+28+gd8a2f4c) unstable; urgency=low
+
+  [ Bdale Garbee ]
+  * make the column headers comma separated, too, so they align with the
+    data
+
+  [ Keith Packard ]
+  * altosui: set default .csv file name in file save dialog
+  * altosui: Remember directory containing firmware files
+
+  [ Anthony Towns ]
+  * Add graphing.
+  * Add JFreeChart to Makefile.am
+
+  [ Keith Packard ]
+  * altosui: Use recorded ground acceleration when reading eeprom files
+  * altosui: Write raw sensor data to .csv files
+  * altosui: Factor some UI elements into separate classes
+  * altosui: remove unused ReplayThread wrapper classes
+  * altosui: Require 4 sats for 'good' GPS data
+  * altosui: Create iterables for log file scanning. Split out display
+    threads
+  * altosui: .CSV output: add link quality, gps hdop and sat C/N0
+    numbers
+  * altosui: Deal with eeprom dates going backwards across wrap
+
+  [ Anthony Towns ]
+  * Hax0r graphing to support telem/eeprom files
+
+  [ Keith Packard ]
+  * altosui: use Altos constants in graphing code
+
+  [ Anthony Towns ]
+  * Add callsign/serial/flight to graph title
+
+  [ Keith Packard ]
+  * altosui: Add KML file export.
+
+  [ Bdale Garbee ]
+  * add build dep on jfreechart lib
+
+ -- Bdale Garbee <bdale@gag.com>  Wed, 06 Oct 2010 16:19:12 -0600
+
 altos (0.7.1) unstable; urgency=low
 
   [ Keith Packard ]
