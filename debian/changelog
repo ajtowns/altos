@@ -1,4 +1,4 @@
-altos (0.7.1+31+g635066c) unstable; urgency=low
+altos (0.7.1+32+g8103432) unstable; urgency=low
 
   * add build-dep on libcsv-java
 
