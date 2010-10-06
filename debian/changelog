@@ -1,3 +1,14 @@
+altos (0.7.1+36+g811ced6) unstable; urgency=low
+
+  [ Bdale Garbee ]
+  * remove the csv build dep, as that code will be abandoned
+
+  [ Keith Packard ]
+  * altosui: Remove ability to graph data in .csv files
+  * altosui: Separate out jfreechart and jcommon directories
+
+ -- Bdale Garbee <bdale@gag.com>  Wed, 06 Oct 2010 17:47:32 -0600
+
 altos (0.7.1+32+g8103432) unstable; urgency=low
 
   * add build-dep on libcsv-java

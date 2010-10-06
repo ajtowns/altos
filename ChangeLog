@@ -1,3 +1,36 @@
+commit 811ced628d586134224c1b501b40ce9eb435fc7c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Oct 6 16:42:27 2010 -0700
+
+    altosui: Separate out jfreechart and jcommon directories
+    
+    This allows these packages to be referenced separately
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c2c4d515ef9cc2cae8a8f2803e9498bb0794c4ed
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Oct 6 16:25:49 2010 -0700
+
+    altosui: Remove ability to graph data in .csv files
+    
+    There's no reason to support these files when the raw .eeprom or
+    .telem files which generate them should be used instead.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d5caf6f2f4d9257e26aa4305b26c02d1b263fa24
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Oct 6 17:14:35 2010 -0600
+
+    remove the csv build dep, as that code will be abandoned
+
+commit 43e23a60780191e3c6f61df44c5dd08cc8604c51
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Oct 6 16:27:57 2010 -0600
+
+    update changelogs for Debian build
+
 commit 8103432bf7adfe6ee5bf3ee42e1672475e6edd5a
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed Oct 6 16:26:33 2010 -0600
