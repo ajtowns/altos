@@ -59,10 +59,6 @@ public class AltosUI extends JFrame {
 	private AltosLog altos_log;
 	private Box vbox;
 
-	private Font statusFont = new Font("SansSerif", Font.BOLD, 24);
-	private Font infoLabelFont = new Font("SansSerif", Font.PLAIN, 14);
-	private Font infoValueFont = new Font("Monospaced", Font.PLAIN, 14);
-
 	public AltosVoice voice = new AltosVoice();
 
 	public static boolean load_library(Frame frame) {

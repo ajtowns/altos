@@ -17,7 +17,6 @@ import org.jfree.chart.axis.AxisLocation;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
-import altosui.AltosCsvReader;
 import altosui.AltosDataPoint;
 import altosui.AltosGraphTime;
 
@@ -227,26 +226,6 @@ public class AltosGraphUI extends JFrame
         }
 
         return graph;
-    }
-
-    public static void main(String[] args) 
-        throws java.io.FileNotFoundException, java.io.IOException 
-    {
-        if (args.length < 1 || 2 < args.length)
-        {
-            System.out.println("Please specify telemetry csv");
-            return;
-        }
-
-        AltosCsvReader csv = new AltosCsvReader(args[0]);
-        if (args.length == 1) {
-            for (AltosGraph g : createGraphs(csv)) {
-                g.toPNG();
-            }
-        } else {
-            int which = Integer.parseInt(args[1].trim());
-            AltosGraphUI demo = new AltosGraphUI(csv, which);
-        }
     }
 }
 

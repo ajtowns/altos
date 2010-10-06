@@ -56,7 +56,6 @@ altosui_JAVA = \
 	AltosUI.java \
 	AltosWriter.java \
 	AltosDataPointReader.java \
-	AltosCsvReader.java \
 	AltosDataPoint.java \
 	AltosGraph.java \
 	AltosGraphTime.java \

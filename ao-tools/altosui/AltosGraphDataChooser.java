@@ -28,7 +28,6 @@ import java.text.*;
 import java.util.prefs.*;
 
 import altosui.AltosPreferences;
-import altosui.AltosCsvReader;
 import altosui.AltosDataPointReader;
 import altosui.AltosEepromIterable;
 import altosui.AltosTelemetryIterable;
@@ -62,8 +61,6 @@ public class AltosGraphDataChooser extends JFileChooser {
                 } else if (filename.endsWith("telem")) {
                     FileInputStream in = new FileInputStream(file);
                     return new AltosDataPointReader(new AltosTelemetryIterable(in));
-                } else if (filename.endsWith("csv")) {
-				    return new AltosCsvReader(new FileReader(file));
                 } else {
                     throw new FileNotFoundException();
                 }
@@ -81,7 +78,7 @@ public class AltosGraphDataChooser extends JFileChooser {
 		frame = in_frame;
 		setDialogTitle("Select Flight Record File");
 		setFileFilter(new FileNameExtensionFilter("Flight data file",
-							  "csv", "telem", "eeprom"));
+							  "telem", "eeprom"));
 		setCurrentDirectory(AltosPreferences.logdir());
 	}
 }
