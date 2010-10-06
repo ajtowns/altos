@@ -64,9 +64,10 @@ altosui_JAVA = \
 	AltosVoice.java
 
 JFREECHART_CLASS= \
-    jfreechart.jar \
-    jcommon.jar \
-    csv.jar
+    jfreechart.jar
+
+JCOMMON_CLASS=\
+    jcommon.jar
 
 FREETTS_CLASS= \
 	cmudict04.jar \
@@ -100,7 +101,7 @@ LINUX_DIST=Altos-Linux-$(VERSION).tar.bz2
 MACOSX_DIST=Altos-Mac-$(VERSION).zip
 WINDOWS_DIST=Altos-Windows-$(VERSION_DASH).exe
 
-FAT_FILES=$(FATJAR) $(FREETTS_CLASS) $(JFREECHART_CLASS)
+FAT_FILES=$(FATJAR) $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS)
 
 LINUX_FILES=$(FAT_FILES) libaltos.so $(FIRMWARE)
 LINUX_EXTRA=altosui-fat
@@ -115,7 +116,7 @@ all-local: classes/altosui $(JAR) altosui altosui-test altosui-jdb
 clean-local:
 	-rm -rf classes $(JAR) $(FATJAR) \
 		$(LINUX_DIST) $(MACOSX_DIST) windows $(WINDOWS_DIST) $(FREETTS_CLASS) \
-		$(JFREECHART_CLASS) $(LIBALTOS) Manifest.txt Manifest-fat.txt altos-windows.log \
+		$(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) Manifest.txt Manifest-fat.txt altos-windows.log \
 		altosui altosui-test altosui-jdb macosx linux
 
 if FATINSTALL
@@ -162,7 +163,7 @@ $(JAR): classaltosui.stamp Manifest.txt $(JAVA_ICON)
 		-C classes altosui \
 		-C ../libaltos libaltosJNI
 
-$(FATJAR): classaltosui.stamp Manifest-fat.txt $(FREETTS_CLASS) $(JFREECHART_CLASS) $(LIBALTOS) $(JAVA_ICON)
+$(FATJAR): classaltosui.stamp Manifest-fat.txt $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) $(JAVA_ICON)
 	jar cfm $@ Manifest-fat.txt \
 		-C $(top_srcdir)/icon altus-metrum-16x16.jpg \
 		-C classes altosui \
@@ -170,25 +171,25 @@ $(FATJAR): classaltosui.stamp Manifest-fat.txt $(FREETTS_CLASS) $(JFREECHART_CLA
 
 Manifest.txt: Makefile
 	echo 'Main-Class: altosui.AltosUI' > $@
-	echo "Class-Path: $(FREETTS)/freetts.jar $(FREETTS)/jfreechart.jar $(FREETTS)/jcommon.jar $(FREETTS)/csv.jar" >> $@
+	echo "Class-Path: $(FREETTS)/freetts.jar $(JFREECHART)/jfreechart.jar $(JCOMMON)/jcommon.jar" >> $@
 
 Manifest-fat.txt:
 	echo 'Main-Class: altosui.AltosUI' > $@
-	echo "Class-Path: freetts.jar jfreechart.jar jcommon.jar csv.jar" >> $@
+	echo "Class-Path: freetts.jar jfreechart.jar jcommon.jar" >> $@
 
 altosui: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java  -cp "$(FREETTS)/*" -Djava.library.path="$(altoslibdir)" -jar "$(altosuidir)/altosui.jar" "$$@"' >> $@
+	echo 'exec java  -cp "$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="$(altoslibdir)" -jar "$(altosuidir)/altosui.jar" "$$@"' >> $@
 	chmod +x $@
 
 altosui-test: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java -cp "$(FREETTS)/*" -Djava.library.path="../libaltos/.libs" -jar altosui.jar "$$@"' >> $@
+	echo 'exec java -cp "$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="../libaltos/.libs" -jar altosui.jar "$$@"' >> $@
 	chmod +x $@
 
 altosui-jdb: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec jdb -classpath "classes:../libaltos:$(FREETTS)/*" -Djava.library.path="../libaltos/.libs" altosui/AltosUI "$$@"' >> $@
+	echo 'exec jdb -classpath "classes:../libaltos:$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="../libaltos/.libs" altosui/AltosUI "$$@"' >> $@
 	chmod +x $@
 
 libaltos.so:
@@ -207,6 +208,14 @@ $(FREETTS_CLASS):
 	-rm -f "$@"
 	$(LN_S) "$(FREETTS)"/"$@" .
 
+$(JFREECHART_CLASS):
+	-rm -f "$@"
+	$(LN_S) "$(JFREECHART)"/"$@" .
+
+$(JCOMMON_CLASS):
+	-rm -f "$@"
+	$(LN_S) "$(JCOMMON)"/"$@" .
+
 $(LINUX_DIST): $(LINUX_FILES) $(LINUX_EXTRA)
 	-rm -f $@
 	-rm -rf linux
@@ -224,6 +233,7 @@ $(MACOSX_DIST): $(MACOSX_FILES) $(MACOSX_EXTRA)
 	mkdir -p macosx/AltOS macosx/AltosUI.app/Contents/Resources/Java
 	cp -p $(FATJAR) macosx/AltosUI.app/Contents/Resources/Java/altosui.jar
 	cp -p $(FREETTS_CLASS) libaltos.dylib macosx/AltosUI.app/Contents/Resources/Java
+	cp -p $(JFREECHART_CLASS) libaltos.dylib macosx/AltosUI.app/Contents/Resources/Java
 	cp -p $(MACOSX_EXTRA) macosx/AltOS
 	cd macosx && zip -r ../$@ AltosUI.app AltOS
 

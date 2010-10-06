@@ -36,6 +36,18 @@ AC_ARG_WITH(freetts, AS_HELP_STRING([--with-freetts=PATH],
 
 AC_SUBST(FREETTS)
 
+AC_ARG_WITH(jfreechart, AS_HELP_STRING([--with-jfreechart=PATH],
+	[Set jfreechart class path (default /usr/share/java)]),
+	[JFREECHART=$withval], [JFREECHART=/usr/share/java])
+
+AC_SUBST(JFREECHART)
+
+AC_ARG_WITH(jcommon, AS_HELP_STRING([--with-jcommon=PATH],
+	[Set jcommon class path (default /usr/share/java)]),
+	[JCOMMON=$withval], [JCOMMON=/usr/share/java])
+
+AC_SUBST(JCOMMON)
+
 AC_ARG_WITH(jvm, AS_HELP_STRING([--with-jvm-include=PATH],
 	[Set jvm include path for jni builds (default searches in /usr/lib/jvm)]),
 	[JVM_INCLUDE=$withval], [JVM_INCLUDE=auto])
