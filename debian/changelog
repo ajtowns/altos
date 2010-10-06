@@ -1,3 +1,9 @@
+altos (0.7.1+30+g4396aaa) unstable; urgency=low
+
+  * add build-dep on libcsv-java
+
+ -- Bdale Garbee <bdale@gag.com>  Wed, 06 Oct 2010 16:25:57 -0600
+
 altos (0.7.1+28+gd8a2f4c) unstable; urgency=low
 
   [ Bdale Garbee ]

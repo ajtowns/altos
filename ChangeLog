@@ -1,3 +1,15 @@
+commit 4396aaaf34cda3751dcca0eceb05b4ffeb411cde
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Oct 6 16:25:22 2010 -0600
+
+    add build-dep on libcsv-java
+
+commit 7475ab5804bf3fb12b1b755e850af90d5a15d3eb
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Oct 6 16:19:35 2010 -0600
+
+    update changelogs for Debian build
+
 commit d8a2f4ceb1c70a6be976a78e2264c961de2f2277
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed Oct 6 16:18:45 2010 -0600
