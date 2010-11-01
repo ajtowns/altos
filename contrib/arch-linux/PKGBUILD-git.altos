@@ -1,6 +1,6 @@
 # Original contributor: Bob Finch <w9ya@qrpqrci.net>
 pkgname=altos-git
-pkgver=20100518
+pkgver=20101031
 pkgrel=1
 pkgdesc="Software solutions for high powered rocketry avionics"
 arch=('i686' 'x86_64')
@@ -8,57 +8,95 @@ url="http://www.altusmetrum.org/AltOS/"
 license=('GPL')
 provides=('altos')
 conflicts=('altos')
-depends=('openssl>=1.0.0' 'libusb-beta' 'plplot-svn' 'sdcc' 'nickle'\
-         'flite' 'kernel26>=2.6.33' 'gconf' 'alsa-lib' 'libglade'\
-         'docbook-xsl' 'fop')
-makedepends=('git')
+depends=('openssl>=1.0.0' 'libusb1' 'plplot-svn' 'nickle' 'flite' 'kernel26>=2.6.33' 'fop'\
+         'gconf' 'alsa-oss' 'swig' 'libglade' 'freetts' 'jdk>=6u21' 'jfreechart' 'jcommon')
+makedepends=('git' 'docbook-xsl=1.76.0' 'sdcc=2.9.0-2_patched' 'nsis' 'tar' 'gzip' 'zip')
 optdepends=('uucp: cu is included & is a bare boned terminal 2 serial program'
             'cutemon: gui-based minimal terminal to serial program'
             'google-earth: useful for viewing the kml files of the flight path')
+options=('docs')
 
 _gitroot="git://git.gag.com/fw/altos"
 _gitname="altos"
+_pkgname="altosui"
+_libname="libaltos"
 
 build() {
   cd "$srcdir"
   msg "Connecting to GIT server...."
-
+  
   if [ -d $_gitname ] ; then
     cd $_gitname && git pull origin
     msg "The local files are updated."
   else
     git clone $_gitroot
   fi
-
+  
   msg "GIT checkout done or server timeout"
   msg "Starting make..."
-
+  
   rm -rf "$srcdir/$_gitname-build"
   git clone "$srcdir/$_gitname" "$srcdir/$_gitname-build"
-  cd "$srcdir/$_gitname-build"
-
+  
   #
   # BUILD HERE
   #
-
-  ./autogen.sh
-  ./configure --prefix=/usr
+  
+  sh /etc/profile.d/jdk.sh
+  
+  cd "$srcdir/$_gitname-build"
+  ./autogen.sh --prefix=/usr --with-jvm=/opt/java/include/\
+   --with-freetts=/usr/share/java/freetts/lib --with-jcommon=/usr/share/java/jcommon/lib\
+   --with-jfreechart=/usr/share/java/jfreechart/lib\
+  # --with-fat-dir=$srcdir
+  # Use this ^ for placing all 3 "fat" packages (linux,mac,windows) into a numbered dir.
+  
+  cd "$srcdir/$_gitname-build/ao-tools/$_pkgname/"
+  sed -i 's:\$(datadir)/java:\$(datadir)/java/altos:' Makefile
+  # This ^ places altosui.jar in an 'altos' subdirectory.
+  sed -i 's:\${exec_prefix}/bin:\${exec_prefix}/share/java/altos:' Makefile
+  # This ^ relocates altosui to allow for an aoss wrapper script.
+  sed -i 's|:/usr/share/java/\*|:/usr/share/java/*:$(JCOMMON)/*:$(JFREECHART)/*|' Makefile
+  # This ^ fixes compilation to include reference to jcommon.jar .
+  sed -i 's:cp -p $(JFREECHART_CLASS):cp -p $(JFREECHART_CLASS) $(JCOMMON_CLASS):' Makefile
+  # This ^ includes jcommon.jar in the macosx fat package.
+  
+  cd "$srcdir/$_gitname-build/ao-tools/$_libname/"
+  sed -i 's:$(JVM_INCLUDE):/opt/java/include\ -I/opt/java/include/linux:' Makefile
+  # This ^ enables both jni.h and jni_md.h to be found as required.
+  
+  cd "$srcdir/$_gitname-build/doc"
+  sed -i 's:stylesheet/docbook-xsl:xsl-stylesheets-1.76.0:' Makefile
+  # This ^ fixes archlinux's use of a specfic reference.
+  
+  cd "$srcdir/$_gitname-build"
   make || return 1
+  
+  cd "$srcdir/$_gitname-build/doc"
+  make all
+  
+  cd "$srcdir/$_gitname-build/ao-tools/altosui"
+  make fat
+}
+
+package() {
+  cd "$srcdir/$_gitname-build"
   make DESTDIR="$pkgdir/" install
+  
+  mkdir -p $startdir/pkg/usr/share/altos
+  install -m 644 src/telemetrum-v1.0-* $startdir/pkg/usr/share/altos/
+  install -m 644 src/teledongle-v0.2-* $startdir/pkg/usr/share/altos/
   
   mkdir -p $startdir/pkg/usr/share/pixmaps
   mkdir -p $startdir/pkg/usr/share/applications
   install -m644 debian/*.xpm $startdir/pkg/usr/share/pixmaps
   install -m644 debian/*.desktop $startdir/pkg/usr/share/applications
   
+  echo "#!/bin/sh" > holding.bin
+  echo ". aoss /usr/share/java/altos/altosui" >> holding.bin
+  install -D -m 755 holding.bin $startdir/pkg/usr/bin/$_pkgname
   
-  xsltproc -o telemetrum.html /usr/share/xml/docbook/xsl-stylesheets-1.74.0/html/docbook.xsl\
-       doc/telemetrum.xsl
-  xsltproc -o telemetrum.fo /usr/share/xml/docbook/xsl-stylesheets-1.74.0/fo/docbook.xsl\
-       doc/telemetrum.xsl
-  fop -fo telemetrum.fo -pdf telemetrum.pdf
-  
-  mkdir -p $startdir/pkg/usr/share/altos/doc
-  install -m 644 *.html $startdir/pkg/usr/share/altos/doc/
-  install -m 644 *.pdf $startdir/pkg/usr/share/altos/doc/
-} 
+  mkdir -p $startdir/pkg/usr/share/doc/altos
+  install -m 644 doc/*.html $startdir/pkg/usr/share/doc/altos/
+  install -m 644 doc/*.pdf $startdir/pkg/usr/share/doc/altos/
+}
