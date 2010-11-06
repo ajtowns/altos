@@ -30,13 +30,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class AltosDisplayThread extends Thread {
 
-	Frame		parent;
-	IdleThread	idle_thread;
-	AltosVoice	voice;
-	String		name;
-	int		crc_errors;
-	AltosStatusTable flightStatus;
-	AltosInfoTable flightInfo;
+	Frame			parent;
+	IdleThread		idle_thread;
+	AltosVoice		voice;
+	String			name;
+	AltosFlightReader	reader;
+	int			crc_errors;
+	AltosStatusTable	flightStatus;
+	AltosInfoTable		flightInfo;
 
 	class IdleThread extends Thread {
 
@@ -150,14 +151,6 @@ public class AltosDisplayThread extends Thread {
 		}
 	}
 
-	void init() { }
-
-	AltosRecord read() throws InterruptedException, ParseException, AltosCRCException, IOException { return null; }
-
-	void close(boolean interrupted) { }
-
-	void update(AltosState state) throws InterruptedException { }
-
 	boolean tell(AltosState state, AltosState old_state) {
 		boolean	ret = false;
 		if (old_state == null || old_state.state != state.state) {
@@ -208,12 +201,12 @@ public class AltosDisplayThread extends Thread {
 		try {
 			for (;;) {
 				try {
-					AltosRecord record = read();
+					AltosRecord record = reader.read();
 					if (record == null)
 						break;
 					old_state = state;
 					state = new AltosState(record, state);
-					update(state);
+					reader.update(state);
 					show(state, crc_errors);
 					told = tell(state, old_state);
 					idle_thread.notice(state, told);
@@ -232,7 +225,9 @@ public class AltosDisplayThread extends Thread {
 						      "Telemetry Read Error",
 						      JOptionPane.ERROR_MESSAGE);
 		} finally {
-			close(interrupted);
+			if (!interrupted)
+				idle_thread.report(true);
+			reader.close(interrupted);
 			idle_thread.interrupt();
 			try {
 				idle_thread.join();
@@ -240,16 +235,11 @@ public class AltosDisplayThread extends Thread {
 		}
 	}
 
-	public AltosDisplayThread(Frame in_parent, AltosVoice in_voice, AltosStatusTable in_status, AltosInfoTable in_info) {
+	public AltosDisplayThread(Frame in_parent, AltosVoice in_voice, AltosStatusTable in_status, AltosInfoTable in_info, AltosFlightReader in_reader) {
 		parent = in_parent;
 		voice = in_voice;
 		flightStatus = in_status;
 		flightInfo = in_info;
+		reader = in_reader;
 	}
-
-	public void report() {
-		if (idle_thread != null)
-			idle_thread.report(true);
-	}
-
 }

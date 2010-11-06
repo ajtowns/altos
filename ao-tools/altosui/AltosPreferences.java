@@ -32,7 +32,7 @@ class AltosPreferences {
 	final static String logdirPreference = "LOGDIR";
 
 	/* channel preference name */
-	final static String channelPreference = "CHANNEL";
+	final static String channelPreferenceFormat = "CHANNEL-%d";
 
 	/* voice preference name */
 	final static String voicePreference = "VOICE";
@@ -52,8 +52,8 @@ class AltosPreferences {
 	/* Log directory */
 	static File logdir;
 
-	/* Telemetry channel */
-	static int channel;
+	/* Channel (map serial to channel) */
+	static Hashtable<Integer, Integer> channels;
 
 	/* Voice preference */
 	static boolean voice;
@@ -80,7 +80,7 @@ class AltosPreferences {
 				logdir.mkdirs();
 		}
 
-		channel = preferences.getInt(channelPreference, 0);
+		channels = new Hashtable<Integer,Integer>();
 
 		voice = preferences.getBoolean(voicePreference, true);
 
@@ -151,15 +151,19 @@ class AltosPreferences {
 		return logdir;
 	}
 
-	public static void set_channel(int new_channel) {
-		channel = new_channel;
+	public static void set_channel(int serial, int new_channel) {
+		channels.put(serial, new_channel);
 		synchronized (preferences) {
-			preferences.putInt(channelPreference, channel);
+			preferences.putInt(String.format(channelPreferenceFormat, serial), new_channel);
 			flush_preferences();
 		}
 	}
 
-	public static int channel() {
+	public static int channel(int serial) {
+		if (channels.containsKey(serial))
+			return channels.get(serial);
+		int channel = preferences.getInt(String.format(channelPreferenceFormat, serial), 0);
+		channels.put(serial, channel);
 		return channel;
 	}
 

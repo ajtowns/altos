@@ -39,7 +39,6 @@ import altosui.AltosPreferences;
 import altosui.AltosLog;
 import altosui.AltosVoice;
 import altosui.AltosFlightInfoTableModel;
-import altosui.AltosChannelMenu;
 import altosui.AltosFlashUI;
 import altosui.AltosLogfileChooser;
 import altosui.AltosCSVUI;
@@ -51,14 +50,6 @@ import altosui.AltosDisplayThread;
 import libaltosJNI.*;
 
 public class AltosUI extends JFrame {
-	private int channel = -1;
-
-	private AltosStatusTable flightStatus;
-	private AltosInfoTable flightInfo;
-	private AltosSerial serial_line;
-	private AltosLog altos_log;
-	private Box vbox;
-
 	public AltosVoice voice = new AltosVoice();
 
 	public static boolean load_library(Frame frame) {
@@ -73,12 +64,28 @@ public class AltosUI extends JFrame {
 		return true;
 	}
 
+	void telemetry_window(AltosDevice device) {
+		try {
+			AltosFlightReader reader = new AltosTelemetryReader(device);
+			if (reader != null)
+				new AltosFlightUI(voice, reader, device.getSerial());
+		} catch (FileNotFoundException ee) {
+			JOptionPane.showMessageDialog(AltosUI.this,
+						      String.format("Cannot open device \"%s\"",
+								    device.getPath()),
+						      "Cannot open target device",
+						      JOptionPane.ERROR_MESSAGE);
+		} catch (IOException ee) {
+			JOptionPane.showMessageDialog(AltosUI.this,
+						      device.getPath(),
+						      "Unkonwn I/O error",
+						      JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
 	public AltosUI() {
 
 		load_library(null);
-
-		String[] statusNames = { "Height (m)", "State", "RSSI (dBm)", "Speed (m/s)" };
-		Object[][] statusData = { { "0", "pad", "-50", "0" } };
 
 		java.net.URL imgURL = AltosUI.class.getResource("/altus-metrum-16x16.jpg");
 		if (imgURL != null)
@@ -86,25 +93,12 @@ public class AltosUI extends JFrame {
 
 		AltosPreferences.init(this);
 
-		vbox = Box.createVerticalBox();
-		this.add(vbox);
-
-		flightStatus = new AltosStatusTable(this);
-
-		vbox.add(flightStatus);
-
-		flightInfo = new AltosInfoTable();
-		vbox.add(flightInfo.box());
-
 		setTitle("AltOS");
 
 		createMenu();
 
-		serial_line = new AltosSerial();
-		altos_log = new AltosLog(serial_line);
 		int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
-		this.setSize(new Dimension (flightInfo.width(),
-					    flightStatus.height() + flightInfo.height()));
+		this.setSize(new Dimension (300, 100));
 		this.validate();
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -113,63 +107,14 @@ public class AltosUI extends JFrame {
 				System.exit(0);
 			}
 		});
-		voice.speak("Rocket flight monitor ready.");
-	}
-
-	class DeviceThread extends AltosDisplayThread {
-		AltosSerial	serial;
-		LinkedBlockingQueue<AltosLine> telem;
-
-		AltosRecord read() throws InterruptedException, ParseException, AltosCRCException, IOException {
-			AltosLine l = telem.take();
-			if (l.line == null)
-				throw new IOException("IO error");
-			return new AltosTelemetry(l.line);
-		}
-
-		void close(boolean interrupted) {
-			serial.close();
-			serial.remove_monitor(telem);
-		}
-
-		public DeviceThread(AltosSerial s, String in_name, AltosVoice voice, AltosStatusTable status, AltosInfoTable info) {
-			super(AltosUI.this, voice, status, info);
-			serial = s;
-			telem = new LinkedBlockingQueue<AltosLine>();
-			serial.add_monitor(telem);
-			name = in_name;
-		}
 	}
 
 	private void ConnectToDevice() {
 		AltosDevice	device = AltosDeviceDialog.show(AltosUI.this,
 								AltosDevice.product_basestation);
 
-		if (device != null) {
-			try {
-				stop_display();
-				serial_line.open(device);
-				DeviceThread thread = new DeviceThread(serial_line, device.getPath(), voice, flightStatus, flightInfo);
-				serial_line.set_channel(AltosPreferences.channel());
-				serial_line.set_callsign(AltosPreferences.callsign());
-				run_display(thread);
-			} catch (FileNotFoundException ee) {
-				JOptionPane.showMessageDialog(AltosUI.this,
-							      String.format("Cannot open device \"%s\"",
-									    device.getPath()),
-							      "Cannot open target device",
-							      JOptionPane.ERROR_MESSAGE);
-			} catch (IOException ee) {
-				JOptionPane.showMessageDialog(AltosUI.this,
-							      device.getPath(),
-							      "Unkonwn I/O error",
-							      JOptionPane.ERROR_MESSAGE);
-			}
-		}
-	}
-
-	void DisconnectFromDevice () {
-		stop_display();
+		if (device != null)
+			telemetry_window(device);
 	}
 
 	void ConfigureCallsign() {
@@ -177,11 +122,8 @@ public class AltosUI extends JFrame {
 		result = JOptionPane.showInputDialog(AltosUI.this,
 						     "Configure Callsign",
 						     AltosPreferences.callsign());
-		if (result != null) {
+		if (result != null)
 			AltosPreferences.set_callsign(result);
-			if (serial_line != null)
-				serial_line.set_callsign(result);
-		}
 	}
 
 	void ConfigureTeleMetrum() {
@@ -192,25 +134,6 @@ public class AltosUI extends JFrame {
 		new AltosFlashUI(AltosUI.this);
 	}
 
-
-	Thread		display_thread;
-
-	private void stop_display() {
-		if (display_thread != null && display_thread.isAlive()) {
-			display_thread.interrupt();
-			try {
-				display_thread.join();
-			} catch (InterruptedException ie) {}
-		}
-		display_thread = null;
-	}
-
-	private void run_display(Thread thread) {
-		stop_display();
-		display_thread = thread;
-		display_thread.start();
-	}
-
 	/*
 	 * Replay a flight from telemetry data
 	 */
@@ -218,12 +141,11 @@ public class AltosUI extends JFrame {
 		AltosLogfileChooser chooser = new AltosLogfileChooser(
 			AltosUI.this);
 		AltosRecordIterable iterable = chooser.runDialog();
-		if (iterable != null)
-			run_display(new AltosReplayThread(this, iterable.iterator(),
-							  chooser.filename(),
-							  voice,
-							  flightStatus,
-							  flightInfo));
+		if (iterable != null) {
+			AltosFlightReader reader = new AltosReplayReader(iterable.iterator(),
+									 chooser.filename());
+			new AltosFlightUI(voice, reader);
+		}
 	}
 
 	/* Connect to TeleMetrum, either directly or through
@@ -278,7 +200,7 @@ public class AltosUI extends JFrame {
 				});
 			menu.add(item);
 
-			item = new JMenuItem("Flash Image",KeyEvent.VK_F);
+			item = new JMenuItem("Flash Image",KeyEvent.VK_I);
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						FlashImage();
@@ -286,7 +208,7 @@ public class AltosUI extends JFrame {
 				});
 			menu.add(item);
 
-			item = new JMenuItem("Export Data",KeyEvent.VK_F);
+			item = new JMenuItem("Export Data",KeyEvent.VK_E);
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						ExportData();
@@ -294,7 +216,7 @@ public class AltosUI extends JFrame {
 				});
 			menu.add(item);
 
-			item = new JMenuItem("Graph Data",KeyEvent.VK_F);
+			item = new JMenuItem("Graph Data",KeyEvent.VK_G);
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						GraphData();
@@ -307,6 +229,7 @@ public class AltosUI extends JFrame {
 								   ActionEvent.CTRL_MASK));
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						System.out.printf("exiting\n");
 						System.exit(0);
 					}
 				});
@@ -314,7 +237,7 @@ public class AltosUI extends JFrame {
 		}
 
 		// Device menu
-		{
+		if (false) {
 			menu = new JMenu("Device");
 			menu.setMnemonic(KeyEvent.VK_D);
 			menubar.add(menu);
@@ -323,14 +246,6 @@ public class AltosUI extends JFrame {
 			item.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						ConnectToDevice();
-					}
-				});
-			menu.add(item);
-
-			item = new JMenuItem("Disconnect from Device",KeyEvent.VK_D);
-			item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						DisconnectFromDevice();
 					}
 				});
 			menu.add(item);
@@ -403,23 +318,7 @@ public class AltosUI extends JFrame {
 				});
 			menu.add(item);
 		}
-
-		// Channel menu
-		{
-			menu = new AltosChannelMenu(AltosPreferences.channel());
-			menu.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							int new_channel = Integer.parseInt(e.getActionCommand());
-							AltosPreferences.set_channel(new_channel);
-							serial_line.set_channel(new_channel);
-						}
-				});
-			menu.setMnemonic(KeyEvent.VK_C);
-			menubar.add(menu);
-		}
-
 		this.setJMenuBar(menubar);
-
 	}
 
 	static AltosRecordIterable open_logfile(String filename) {
@@ -510,6 +409,10 @@ public class AltosUI extends JFrame {
 		} else {
 			AltosUI altosui = new AltosUI();
 			altosui.setVisible(true);
+
+			AltosDevice[] devices = AltosDevice.list(AltosDevice.product_basestation);
+			for (int i = 0; i < devices.length; i++)
+				altosui.telemetry_window(devices[i]);
 		}
 	}
 }

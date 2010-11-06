@@ -34,14 +34,11 @@ import altosui.AltosFlightInfoTableModel;
 public class AltosStatusTable extends JTable {
 	private AltosFlightStatusTableModel flightStatusModel;
 
-	JFrame	frame;
-
 	private Font statusFont = new Font("SansSerif", Font.BOLD, 24);
 
-	public AltosStatusTable(JFrame in_frame) {
+	public AltosStatusTable() {
 		super((TableModel) new AltosFlightStatusTableModel());
 		flightStatusModel = (AltosFlightStatusTableModel) getModel();
-		frame = in_frame;
 
 		setFont(statusFont);
 

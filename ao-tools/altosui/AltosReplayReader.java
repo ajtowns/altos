@@ -28,33 +28,12 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import altosui.Altos;
-import altosui.AltosSerial;
-import altosui.AltosSerialMonitor;
-import altosui.AltosRecord;
-import altosui.AltosTelemetry;
-import altosui.AltosState;
-import altosui.AltosDeviceDialog;
-import altosui.AltosPreferences;
-import altosui.AltosLog;
-import altosui.AltosVoice;
-import altosui.AltosFlightInfoTableModel;
-import altosui.AltosChannelMenu;
-import altosui.AltosFlashUI;
-import altosui.AltosLogfileChooser;
-import altosui.AltosCSVUI;
-import altosui.AltosLine;
-import altosui.AltosStatusTable;
-import altosui.AltosInfoTable;
-import altosui.AltosDisplayThread;
-
 /*
  * Open an existing telemetry file and replay it in realtime
  */
 
-public class AltosReplayThread extends AltosDisplayThread {
+public class AltosReplayReader extends AltosFlightReader {
 	Iterator<AltosRecord>	iterator;
-	String			name;
 
 	public AltosRecord read() {
 		if (iterator.hasNext())
@@ -63,8 +42,6 @@ public class AltosReplayThread extends AltosDisplayThread {
 	}
 
 	public void close (boolean interrupted) {
-		if (!interrupted)
-			report();
 	}
 
 	void update(AltosState state) throws InterruptedException {
@@ -73,10 +50,7 @@ public class AltosReplayThread extends AltosDisplayThread {
 			Thread.sleep((int) (Math.min(state.time_change,10) * 1000));
 	}
 
-	public AltosReplayThread(Frame parent, Iterator<AltosRecord> in_iterator,
-				 String in_name, AltosVoice voice,
-				 AltosStatusTable status, AltosInfoTable info) {
-		super(parent, voice, status, info);
+	public AltosReplayReader(Iterator<AltosRecord> in_iterator, String in_name) {
 		iterator = in_iterator;
 		name = in_name;
 	}

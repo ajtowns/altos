@@ -29,7 +29,9 @@ altosui_JAVA = \
 	AltosFlash.java \
 	AltosFlashUI.java \
 	AltosFlightInfoTableModel.java \
+	AltosFlightReader.java \
 	AltosFlightStatusTableModel.java \
+	AltosFlightUI.java \
 	AltosGPS.java \
 	AltosGreatCircle.java \
 	AltosHexfile.java \
@@ -44,7 +46,8 @@ altosui_JAVA = \
 	AltosReader.java \
 	AltosRecord.java \
 	AltosRecordIterable.java \
-	AltosReplayThread.java \
+	AltosTelemetryReader.java \
+	AltosReplayReader.java \
 	AltosRomconfig.java \
 	AltosRomconfigUI.java \
 	AltosSerial.java \

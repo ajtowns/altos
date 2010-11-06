@@ -39,9 +39,15 @@ class AltosLog implements Runnable {
 	FileWriter			log_file;
 	Thread				log_thread;
 
-	void close() throws IOException {
-		if (log_file != null)
-			log_file.close();
+	void close() {
+		if (log_file != null) {
+			try {
+				log_file.close();
+			} catch (IOException io) {
+			}
+		}
+		if (log_thread != null)
+			log_thread.interrupt();
 	}
 
 	boolean open (AltosTelemetry telem) throws IOException {
@@ -89,10 +95,7 @@ class AltosLog implements Runnable {
 		} catch (InterruptedException ie) {
 		} catch (IOException ie) {
 		}
-		try {
-			close();
-		} catch (IOException ie) {
-		}
+		close();
 	}
 
 	public AltosLog (AltosSerial s) {
