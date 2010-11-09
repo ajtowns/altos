@@ -193,7 +193,7 @@ public class AltosSerial implements Runnable {
 		print("~\nE 0\n");
 		flush_output();
 		set_monitor(monitor_mode);
-		set_channel(AltosPreferences.channel());
+		set_channel(AltosPreferences.channel(device.getSerial()));
 		set_callsign(AltosPreferences.callsign());
 	}
 
