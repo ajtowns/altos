@@ -83,6 +83,27 @@ public class AltosUI extends JFrame {
 		}
 	}
 
+	Container	pane;
+	GridBagLayout	gridbag;
+
+	JButton addButton(int x, int y, String label) {
+		GridBagConstraints	c;
+		JButton			b;
+
+		c = new GridBagConstraints();
+		c.gridx = x; c.gridy = y;
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 1;
+		c.weighty = 1;
+		b = new JButton(label);
+
+		Dimension ps = b.getPreferredSize();
+
+		gridbag.setConstraints(b, c);
+		add(b, c);
+		return b;
+	}
+
 	public AltosUI() {
 
 		load_library(null);
@@ -93,13 +114,67 @@ public class AltosUI extends JFrame {
 
 		AltosPreferences.init(this);
 
+		pane = getContentPane();
+		gridbag = new GridBagLayout();
+		pane.setLayout(gridbag);
+
+		JButton	b;
+
+		b = addButton(0, 0, "Monitor Flight");
+		b.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						ConnectToDevice();
+					}
+				});
+		b = addButton(1, 0, "Save Flight Data");
+		b.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						SaveFlightData();
+					}
+				});
+		b = addButton(2, 0, "Replay Flight");
+		b.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						Replay();
+					}
+				});
+		b = addButton(0, 1, "Graph Data");
+		b.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						GraphData();
+					}
+				});
+		b = addButton(1, 1, "Export Data");
+		b.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						ExportData();
+					}
+				});
+		b = addButton(2, 1, "Configure TeleMetrum");
+		b.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						ConfigureTeleMetrum();
+					}
+				});
+
 		setTitle("AltOS");
 
 		createMenu();
 
-		int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
-		this.setSize(new Dimension (300, 100));
-		this.validate();
+		pane.doLayout();
+		pane.validate();
+
+		doLayout();
+		validate();
+
+		setVisible(true);
+
+		Insets i = getInsets();
+		Dimension ps = rootPane.getPreferredSize();
+		ps.width += i.left + i.right;
+		ps.height += i.top + i.bottom;
+		setPreferredSize(ps);
+		setSize(ps);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -183,22 +258,6 @@ public class AltosUI extends JFrame {
 			menu = new JMenu("File");
 			menu.setMnemonic(KeyEvent.VK_F);
 			menubar.add(menu);
-
-			item = new JMenuItem("Replay File",KeyEvent.VK_R);
-			item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						Replay();
-					}
-				});
-			menu.add(item);
-
-			item = new JMenuItem("Save Flight Data",KeyEvent.VK_S);
-			item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						SaveFlightData();
-					}
-				});
-			menu.add(item);
 
 			item = new JMenuItem("Flash Image",KeyEvent.VK_I);
 			item.addActionListener(new ActionListener() {
