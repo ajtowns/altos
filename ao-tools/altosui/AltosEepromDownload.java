@@ -224,7 +224,7 @@ public class AltosEepromDownload implements Runnable {
 
 	public void run () {
 		if (remote) {
-			serial_line.set_channel(AltosPreferences.channel());
+			serial_line.set_channel(AltosPreferences.channel(device.getSerial()));
 			serial_line.set_callsign(AltosPreferences.callsign());
 			serial_line.printf("p\nE 0\n");
 			serial_line.flush_input();
