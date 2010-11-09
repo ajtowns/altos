@@ -28,6 +28,7 @@ altosui_JAVA = \
 	AltosFile.java \
 	AltosFlash.java \
 	AltosFlashUI.java \
+	AltosFlightDisplay.java \
 	AltosFlightInfoTableModel.java \
 	AltosFlightReader.java \
 	AltosFlightStatusTableModel.java \

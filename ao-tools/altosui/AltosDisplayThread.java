@@ -36,8 +36,7 @@ public class AltosDisplayThread extends Thread {
 	String			name;
 	AltosFlightReader	reader;
 	int			crc_errors;
-	AltosStatusTable	flightStatus;
-	AltosInfoTable		flightInfo;
+	AltosFlightDisplay	display;
 
 	class IdleThread extends Thread {
 
@@ -182,10 +181,8 @@ public class AltosDisplayThread extends Thread {
 	}
 
 	void show(AltosState state, int crc_errors) {
-		if (state != null) {
-			flightStatus.set(state);
-			flightInfo.show(state, crc_errors);
-		}
+		if (state != null)
+			display.show(state, crc_errors);
 	}
 
 	public void run() {
@@ -197,7 +194,7 @@ public class AltosDisplayThread extends Thread {
 
 		idle_thread = new IdleThread();
 
-		flightInfo.clear();
+		display.reset();
 		try {
 			for (;;) {
 				try {
@@ -235,11 +232,10 @@ public class AltosDisplayThread extends Thread {
 		}
 	}
 
-	public AltosDisplayThread(Frame in_parent, AltosVoice in_voice, AltosStatusTable in_status, AltosInfoTable in_info, AltosFlightReader in_reader) {
+	public AltosDisplayThread(Frame in_parent, AltosVoice in_voice, AltosFlightDisplay in_display, AltosFlightReader in_reader) {
 		parent = in_parent;
 		voice = in_voice;
-		flightStatus = in_status;
-		flightInfo = in_info;
+		display = in_display;
 		reader = in_reader;
 	}
 }

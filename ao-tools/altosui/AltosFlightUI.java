@@ -28,7 +28,7 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class AltosFlightUI extends JFrame {
+public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	String[] statusNames = { "Height (m)", "State", "RSSI (dBm)", "Speed (m/s)" };
 	Object[][] statusData = { { "0", "pad", "-50", "0" } };
 
@@ -60,6 +60,15 @@ public class AltosFlightUI extends JFrame {
 
 	void disconnect() {
 		stop_display();
+	}
+
+	public void reset() {
+		flightInfo.clear();
+	}
+
+	public void show(AltosState state, int crc_errors) {
+		flightStatus.set(state);
+		flightInfo.show(state, crc_errors);
 	}
 
 	public AltosFlightUI(AltosVoice in_voice, AltosFlightReader in_reader, final int serial) {
@@ -117,7 +126,7 @@ public class AltosFlightUI extends JFrame {
 
 		this.setVisible(true);
 
-		thread = new AltosDisplayThread(this, voice, flightStatus, flightInfo, reader);
+		thread = new AltosDisplayThread(this, voice, this, reader);
 
 		thread.start();
 	}
