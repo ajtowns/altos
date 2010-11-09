@@ -39,9 +39,12 @@ altosui_JAVA = \
 	Altos.java \
 	AltosInfoTable.java \
 	AltosKML.java \
+	AltosLed.java \
+	AltosLights.java \
 	AltosLine.java \
 	AltosLogfileChooser.java \
 	AltosLog.java \
+	AltosPad.java \
 	AltosParse.java \
 	AltosPreferences.java \
 	AltosReader.java \
@@ -92,8 +95,21 @@ JAR=altosui.jar
 FATJAR=altosui-fat.jar
 
 # Icons
-JAVA_ICON=$(top_srcdir)/icon/altus-metrum-16x16.jpg
-WINDOWS_ICON=$(top_srcdir)/icon/altus-metrum.ico
+ICONDIR=$(top_srcdir)/icon
+
+JAVA_ICON=$(ICONDIR)/altus-metrum-16x16.jpg
+
+ICONS=	$(ICONDIR)/redled.png $(ICONDIR)/redoff.png \
+	$(ICONDIR)/greenled.png $(ICONDIR)/greenoff.png \
+	$(ICONDIR)/grayled.png $(ICONDIR)/grayoff.png
+
+# icon base names for jar
+ICONJAR= -C $(ICONDIR) altus-metrum-16x16.jpg \
+	-C $(ICONDIR) redled.png -C $(ICONDIR) redoff.png \
+	-C $(ICONDIR) greenled.png -C $(ICONDIR) greenoff.png \
+	-C $(ICONDIR) grayon.png -C $(ICONDIR) grayled.png
+
+WINDOWS_ICON=$(ICONDIR)/altus-metrum.ico
 
 # Firmware
 FIRMWARE_TD=$(top_srcdir)/src/teledongle-v0.2-$(VERSION).ihx
@@ -163,13 +179,13 @@ classes/altosui:
 
 $(JAR): classaltosui.stamp Manifest.txt $(JAVA_ICON)
 	jar cfm $@ Manifest.txt \
-		-C $(top_srcdir)/icon altus-metrum-16x16.jpg \
+		$(ICONJAR) \
 		-C classes altosui \
 		-C ../libaltos libaltosJNI
 
 $(FATJAR): classaltosui.stamp Manifest-fat.txt $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) $(JAVA_ICON)
 	jar cfm $@ Manifest-fat.txt \
-		-C $(top_srcdir)/icon altus-metrum-16x16.jpg \
+		$(ICONJAR) \
 		-C classes altosui \
 		-C ../libaltos libaltosJNI
 

@@ -37,6 +37,11 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	AltosDisplayThread	thread;
 
 	private Box vbox;
+
+	JTabbedPane	pane;
+
+	AltosPad	pad;
+
 	private AltosStatusTable flightStatus;
 	private AltosInfoTable flightInfo;
 
@@ -63,10 +68,12 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	}
 
 	public void reset() {
+		pad.reset();
 		flightInfo.clear();
 	}
 
 	public void show(AltosState state, int crc_errors) {
+		pad.show(state, crc_errors);
 		flightStatus.set(state);
 		flightInfo.show(state, crc_errors);
 	}
@@ -86,8 +93,15 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		vbox = new Box (BoxLayout.Y_AXIS);
 		vbox.add(flightStatus);
 
+		pane = new JTabbedPane();
+
+		pad = new AltosPad();
+		pane.add("Launch Pad", pad);
+
 		flightInfo = new AltosInfoTable();
-		vbox.add(flightInfo.box());
+		pane.add("Table", flightInfo.box());
+
+		vbox.add(pane);
 
 		this.add(vbox);
 
