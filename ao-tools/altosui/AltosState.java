@@ -35,6 +35,7 @@ public class AltosState {
 	int	tick;
 
 	int	state;
+	boolean	landed;
 	boolean	ascent;	/* going up? */
 
 	double	ground_altitude;

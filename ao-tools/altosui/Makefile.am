@@ -10,6 +10,7 @@ CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../libaltos:$(FREETTS)/
 bin_SCRIPTS=altosui
 
 altosui_JAVA = \
+	AltosAscent.java \
 	AltosChannelMenu.java \
 	AltosConfig.java \
 	AltosConfigUI.java \
@@ -18,6 +19,7 @@ altosui_JAVA = \
 	AltosCSV.java \
 	AltosCSVUI.java \
 	AltosDebug.java \
+	AltosDescent.java \
 	AltosDeviceDialog.java \
 	AltosDevice.java \
 	AltosDisplayThread.java \
@@ -39,6 +41,7 @@ altosui_JAVA = \
 	Altos.java \
 	AltosInfoTable.java \
 	AltosKML.java \
+	AltosLanded.java \
 	AltosLed.java \
 	AltosLights.java \
 	AltosLine.java \

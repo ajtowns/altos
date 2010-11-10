@@ -35,12 +35,12 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	public class LaunchStatus {
 		JLabel		label;
-		JLabel		value;
+		JTextField	value;
 		AltosLights	lights;
 
 		void show(AltosState state, int crc_errors) {}
 		void reset() {
-			value.setText("0");
+			value.setText("");
 			lights.set(false);
 		}
 
@@ -64,12 +64,11 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			layout.setConstraints(label, c);
 			add(label);
 
-			value = new JLabel("4.00");
+			value = new JTextField(10);
 			value.setFont(label_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;
-			c.anchor = GridBagConstraints.EAST;
-			c.fill = GridBagConstraints.EAST;
+			c.anchor = GridBagConstraints.WEST;
 			layout.setConstraints(value, c);
 			add(value);
 
@@ -78,11 +77,11 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	public class LaunchValue {
 		JLabel		label;
-		JLabel		value;
+		JTextField	value;
 		void show(AltosState state, int crc_errors) {}
 
 		void reset() {
-			value.setText("0");
+			value.setText("");
 		}
 		public LaunchValue (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
@@ -93,16 +92,15 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			c.gridx = 1; c.gridy = y;
 			c.insets = new Insets(10, 10, 10, 10);
 			c.anchor = GridBagConstraints.WEST;
-			c.fill = GridBagConstraints.WEST;
 			layout.setConstraints(label, c);
 			add(label);
 
-			value = new JLabel("4.00");
+			value = new JTextField(20);
 			value.setFont(label_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;
 			c.anchor = GridBagConstraints.EAST;
-			c.fill = GridBagConstraints.EAST;
+			c.fill = GridBagConstraints.HORIZONTAL;
 			layout.setConstraints(value, c);
 			add(value);
 		}

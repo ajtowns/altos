@@ -38,6 +38,11 @@ public class AltosDisplayThread extends Thread {
 	int			crc_errors;
 	AltosFlightDisplay	display;
 
+	synchronized void show(AltosState state, int crc_errors) {
+		if (state != null)
+			display.show(state, crc_errors);
+	}
+
 	class IdleThread extends Thread {
 
 		boolean	started;
@@ -93,6 +98,10 @@ public class AltosDisplayThread extends Thread {
 						    (int) (state.from_pad.bearing + 0.5),
 						    (int) (state.from_pad.distance + 0.5));
 				++reported_landing;
+				if (state.state != Altos.ao_flight_landed) {
+					state.state = Altos.ao_flight_landed;
+					show(state, 0);
+				}
 			}
 		}
 
@@ -178,11 +187,6 @@ public class AltosDisplayThread extends Thread {
 		}
 		old_state = state;
 		return ret;
-	}
-
-	void show(AltosState state, int crc_errors) {
-		if (state != null)
-			display.show(state, crc_errors);
 	}
 
 	public void run() {

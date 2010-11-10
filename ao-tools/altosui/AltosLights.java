@@ -60,6 +60,7 @@ public class AltosLights extends JComponent {
 		c = new GridBagConstraints();
 		red = new AltosLed("/redled.png", "/redoff.png");
 		c.gridx = 0; c.gridy = 0;
+		c.insets = new Insets (0, 5, 0, 5);
 		gridbag.setConstraints(red, c);
 		add(red);
 		red.set(true);

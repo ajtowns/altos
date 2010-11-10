@@ -41,9 +41,29 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	JTabbedPane	pane;
 
 	AltosPad	pad;
+	AltosAscent	ascent;
+	AltosDescent	descent;
+	AltosLanded	landed;
 
 	private AltosStatusTable flightStatus;
 	private AltosInfoTable flightInfo;
+
+	static final int tab_pad = 1;
+	static final int tab_ascent = 2;
+	static final int tab_descent = 3;
+	static final int tab_landed = 4;
+
+	int cur_tab = 0;
+
+	int which_tab(AltosState state) {
+		if (state.state < Altos.ao_flight_boost)
+			return tab_pad;
+		if (state.state <= Altos.ao_flight_coast)
+			return tab_ascent;
+		if (state.state <= Altos.ao_flight_main)
+			return tab_descent;
+		return tab_landed;
+	}
 
 	public int width() {
 		return flightInfo.width();
@@ -69,11 +89,34 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 	public void reset() {
 		pad.reset();
+		ascent.reset();
+		descent.reset();
+		landed.reset();
 		flightInfo.clear();
 	}
 
 	public void show(AltosState state, int crc_errors) {
+		int	tab = which_tab(state);
 		pad.show(state, crc_errors);
+		ascent.show(state, crc_errors);
+		descent.show(state, crc_errors);
+		landed.show(state, crc_errors);
+		if (tab != cur_tab) {
+			switch (tab) {
+			case tab_pad:
+				pane.setSelectedComponent(pad);
+				break;
+			case tab_ascent:
+				pane.setSelectedComponent(ascent);
+				break;
+			case tab_descent:
+				pane.setSelectedComponent(descent);
+				break;
+			case tab_landed:
+				pane.setSelectedComponent(landed);
+			}
+			cur_tab = tab;
+		}
 		flightStatus.set(state);
 		flightInfo.show(state, crc_errors);
 	}
@@ -97,6 +140,15 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 		pad = new AltosPad();
 		pane.add("Launch Pad", pad);
+
+		ascent = new AltosAscent();
+		pane.add("Ascent", ascent);
+
+		descent = new AltosDescent();
+		pane.add("Descent", descent);
+
+		landed = new AltosLanded();
+		pane.add("Landed", landed);
 
 		flightInfo = new AltosInfoTable();
 		pane.add("Table", flightInfo.box());
