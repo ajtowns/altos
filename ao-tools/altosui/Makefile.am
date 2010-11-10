@@ -61,6 +61,7 @@ altosui_JAVA = \
 	AltosGraphTime.java \
 	AltosGraphUI.java \
 	AltosGraphDataChooser.java \
+	AltosAnalysisUI.java \
 	AltosVoice.java
 
 JFREECHART_CLASS= \
@@ -184,7 +185,7 @@ altosui: Makefile
 
 altosui-test: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java -cp "$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="../libaltos/.libs" -jar altosui.jar "$$@"' >> $@
+	echo 'exec java -cp "./altosui.jar:/usr/share/java/napkinlaf.jar" -Daltosui.test=true -Djava.library.path="../libaltos/.libs" altosui.AltosUI "$$@"' >> $@
 	chmod +x $@
 
 altosui-jdb: Makefile

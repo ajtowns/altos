@@ -245,7 +245,7 @@ public class AltosUI extends JFrame {
 	 */
 
 	private void GraphData() {
-		new AltosGraphUI(AltosUI.this);
+        AltosGraphUI.getAltosGraphUIWindow(AltosUI.this);
 	}
 
 	/* Create the AltosUI menus
@@ -508,6 +508,18 @@ public class AltosUI extends JFrame {
 					process_file(args[i], process);
 			}
 		} else {
+            try {
+                String uimcn = UIManager.getSystemLookAndFeelClassName();
+                String istest = System.getProperty("altosui.test");
+                if (istest != null && istest.equals("true")) {
+                    uimcn = "net.sourceforge.napkinlaf.NapkinLookAndFeel";
+                }
+                System.out.println("trying to load " + uimcn);
+                UIManager.setLookAndFeel(uimcn);
+            } catch(Exception e) {
+                // useful for debugging
+                throw new RuntimeException(e);
+            }
 			AltosUI altosui = new AltosUI();
 			altosui.setVisible(true);
 		}

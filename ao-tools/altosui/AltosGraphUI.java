@@ -8,6 +8,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import java.awt.Color;
 
 import org.jfree.chart.ChartPanel;
@@ -20,7 +21,7 @@ import org.jfree.ui.RefineryUtilities;
 import altosui.AltosDataPoint;
 import altosui.AltosGraphTime;
 
-public class AltosGraphUI extends JFrame 
+public class AltosGraphUI extends ChartPanel
 {
     static final private Color red = new Color(194,31,31);
     static final private Color green = new Color(31,194,31);
@@ -154,40 +155,31 @@ public class AltosGraphUI extends JFrame
         }
     }
 
-    public AltosGraphUI(JFrame frame)
+    public static JFrame getAltosGraphUIWindow(JFrame frame)
     {
-        super("Altos Graph");
-
         AltosGraphDataChooser chooser;
         chooser = new AltosGraphDataChooser(frame);
         Iterable<AltosDataPoint> reader = chooser.runDialog();
         if (reader == null)
-            return;
+            return null;
         
-        init(reader, 0);
+        AltosGraphUI ui = new AltosGraphUI(reader, 0);
+        JFrame win = new JFrame("Altos Graph");
+        
+        win.setContentPane(ui);
+        win.pack();
+        RefineryUtilities.centerFrameOnScreen(win);
+        win.setDefaultCloseOperation(win.DISPOSE_ON_CLOSE);
+        win.setVisible(true);
+
+        return win;
     }
 
     public AltosGraphUI(Iterable<AltosDataPoint> data, int which) 
     {
-        super("Altos Graph");
-        init(data, which);
-    }
-
-    private void init(Iterable<AltosDataPoint> data, int which) {
-        AltosGraph graph = createGraph(data, which);
-
-        JFreeChart chart = graph.createChart();
-        ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setMouseWheelEnabled(true);
-        chartPanel.setPreferredSize(new java.awt.Dimension(800, 500));
-        setContentPane(chartPanel);
-
-        pack();
-
-        RefineryUtilities.centerFrameOnScreen(this);
-
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setVisible(true);
+        super(createGraph(data, which).createChart());
+        setMouseWheelEnabled(true);
+        setPreferredSize(new java.awt.Dimension(800, 500));
     }
 
     private static AltosGraph createGraph(Iterable<AltosDataPoint> data,
