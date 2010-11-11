@@ -44,6 +44,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	AltosAscent	ascent;
 	AltosDescent	descent;
 	AltosLanded	landed;
+    AltosSiteMap    sitemap;
 
 	private AltosStatusTable flightStatus;
 	private AltosInfoTable flightInfo;
@@ -93,6 +94,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		descent.reset();
 		landed.reset();
 		flightInfo.clear();
+		sitemap.reset();
 	}
 
 	public void show(AltosState state, int crc_errors) {
@@ -119,6 +121,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		}
 		flightStatus.set(state);
 		flightInfo.show(state, crc_errors);
+		sitemap.show(state, crc_errors);
 	}
 
 	public AltosFlightUI(AltosVoice in_voice, AltosFlightReader in_reader, final int serial) {
@@ -154,6 +157,9 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 		flightInfo = new AltosInfoTable();
 		pane.add("Table", flightInfo.box());
+
+        sitemap = new AltosSiteMap();
+        pane.add("Site Map", sitemap);
 
 		vbox.add(pane);
 

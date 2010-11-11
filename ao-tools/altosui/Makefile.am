@@ -59,6 +59,7 @@ altosui_JAVA = \
 	AltosRomconfigUI.java \
 	AltosSerial.java \
 	AltosSerialMonitor.java \
+	AltosSiteMap.java \
 	AltosState.java \
 	AltosStatusTable.java \
 	AltosTelemetry.java \
