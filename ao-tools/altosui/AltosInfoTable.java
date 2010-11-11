@@ -37,8 +37,8 @@ public class AltosInfoTable {
 	private AltosFlightInfoTableModel model[];
 	private Box			  ibox[];
 
-	private Font infoLabelFont = new Font("SansSerif", Font.PLAIN, 14);
-	private Font infoValueFont = new Font("Monospaced", Font.PLAIN, 14);
+	private Font infoLabelFont = new Font("SansSerif", Font.PLAIN, 12);
+	private Font infoValueFont = new Font("Monospaced", Font.PLAIN, 12);
 
 	static final int info_columns = 3;
 	static final int info_rows = 17;

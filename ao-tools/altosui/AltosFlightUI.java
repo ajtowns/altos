@@ -122,6 +122,8 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	}
 
 	public AltosFlightUI(AltosVoice in_voice, AltosFlightReader in_reader, final int serial) {
+        AltosPreferences.init(this);
+
 		voice = in_voice;
 		reader = in_reader;
 
