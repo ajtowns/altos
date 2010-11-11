@@ -156,7 +156,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		pane.add("Landed", landed);
 
 		flightInfo = new AltosInfoTable();
-		pane.add("Table", flightInfo.box());
+		pane.add("Table", new JScrollPane(flightInfo.box()));
 
         sitemap = new AltosSiteMap();
         pane.add("Site Map", sitemap);
