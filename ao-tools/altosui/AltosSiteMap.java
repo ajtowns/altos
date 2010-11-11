@@ -78,9 +78,9 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
     }
 
 
-	public void reset() {
-		// ?
-	}
+    public void reset() {
+        // ?
+    }
 
     static Color stateColors[] = {
         Color.WHITE,  // startup
@@ -94,7 +94,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
         Color.BLACK   // landed
     };
 
-	public void show(AltosState state, int crc_errors) {
+    public void show(AltosState state, int crc_errors) {
         if (!state.gps_ready)
             return;
         Point2D.Double pt = pt(state.gps.lat, state.gps.lon);
@@ -106,7 +106,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
         }
         last_pt = pt;
         repaint();
-	}
+    }
     
     public AltosSiteMap() {
         GridBagLayout layout = new GridBagLayout();
