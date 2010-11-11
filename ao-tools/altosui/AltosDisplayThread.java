@@ -69,8 +69,10 @@ public class AltosDisplayThread extends Thread {
 			    state.state < Altos.ao_flight_landed &&
 			    state.range >= 0)
 			{
-				voice.speak("Height %d, bearing %d, elevation %d, range %d.\n",
+				voice.speak("Height %d, bearing %s %d, elevation %d, range %d.\n",
 					    (int) (state.height + 0.5),
+                        state.from_pad.bearing_words(
+                            AltosGreatCircle.BEARING_VOICE),
 					    (int) (state.from_pad.bearing + 0.5),
 					    (int) (state.elevation + 0.5),
 					    (int) (state.range + 0.5));
