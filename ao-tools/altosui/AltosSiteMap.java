@@ -40,7 +40,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
 
     Graphics2D g2d;
 
-    private void setLocation(double new_lat, double new_lng) {
+    private boolean setLocation(double new_lat, double new_lng) {
         int new_zoom = 15;
         lat = new_lat;
         lng = new_lng;
@@ -60,8 +60,10 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
             picLabel.setIcon(new ImageIcon( myPicture ));
             g2d = myPicture.createGraphics();
         } catch (Exception e) { 
-            throw new RuntimeException(e);
-        };
+            // throw new RuntimeException(e);
+            return false;
+        }
+        return true;
     }
 
     private static double limit(double v, double lo, double hi) {
@@ -116,14 +118,20 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
         Color.BLACK   // landed
     };
 
+    boolean nomaps = false;
     public void show(AltosState state, int crc_errors) {
+        if (nomaps)
+            return;
         if (!state.gps_ready && state.pad_lat == 0 && state.pad_lon == 0)
             return;
         double plat = (int)(state.pad_lat*200)/200.0;
         double plon = (int)(state.pad_lon*200)/200.0;
 
         if (last_pt == null) {
-            setLocation(plat, plon);
+            if (!setLocation(plat, plon)) {
+                nomaps = true;
+                return;
+            }
         }
 
         Point2D.Double pt = pt(state.gps.lat, state.gps.lon);
