@@ -762,6 +762,54 @@ directory, telemetrum-doc.pdf and telemetrum-doc.html.
       </section>
     </chapter>
     <chapter>
+      <title>Updating Device Firmware
+	<para>
+	  The big conceptual thing to realize is that you have to use a
+	  TeleDongle as a programmer to update a TeleMetrum, and vice versa.
+	  Due to limited memory resources in the cc1111, we don't support
+	  programming a unit directly over USB.
+	</para>
+	<para>
+	  Find the 'programming cable' that you got as part of the starter
+	  kit, that has a red 8-pin MicroMaTch connector on one end and a
+	  red 4-pin MicroMaTch connector on the other end.  Take the 2
+	  screws out of the TeleDongle case to get access to the circuit
+	  board.  Plug the 8-pin end of the programming cable to the
+	  matching connector on the TeleDongle, and the 4-pin end to the
+	  matching connector on the TeleMetrum.  Plug the TeleDongle into
+	  your computer's USB port, power up the TeleMetrum, then run
+	  altosui.  Using the File/Flash menu, pick the TeleDongle as the
+	  programming device, and the image you want put on the TeleMetrum,
+	  and it should flash the TeleMetrum with new firmware.
+	</para>
+	<para>
+	  Confirm that the TeleMetrum board seems to have updated ok, which you
+	  can do by plugging in to it over USB and using a terminal program
+	  to connect to the board and issue the 'v' command to check
+	  the version, etc.
+	</para>
+	<para>
+	  To update the TeleDongle's firmware, you switch things around.  Put
+	  the 8-pin end of the programming cable on the TeleMetrum board's
+	  (locking) 8-pin connector, put the 4-pin end on the TeleDongle
+	  board, plug both into USB (the TeleDongle needs power, the
+	  TeleMetrum is now the programmer).  Use the altosui interface to
+	  pick the TeleMetrum as the programmer and a suitable image for
+	  the TeleDongle, and it should program ok.  You can verify the
+	  TeleDongle programmed correctly by using a terminal program to
+	  talk to it and using the 'v' command, etc.  Once you're happy,
+	  put the cover back on the TeleDongle.
+	</para>
+	<para>
+	  Be careful removing the programming cable from the locking 8-pin
+	  connector on TeleMetrum.  You'll need a fingernail or perhaps a thin
+	  screwdriver or knife blade to gently pry the locking ears out 
+	  slightly to extract the connector.  We used a locking connector on 
+	  TeleMetrum to help ensure that the cabling to companion boards 
+	  used in a rocket don't ever come loose accidentally in flight.
+	</para>
+    </chapter>
+    <chapter>
       <title>Using Altus Metrum Products</title>
       <section>
         <title>Being Legal</title>
