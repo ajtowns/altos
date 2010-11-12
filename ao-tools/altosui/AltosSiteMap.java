@@ -40,7 +40,8 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
 
     Graphics2D g2d;
 
-    private void setLocation(double new_lat, double new_lng, int new_zoom) {
+    private void setLocation(double new_lat, double new_lng) {
+        int new_zoom = 15;
         lat = new_lat;
         lng = new_lng;
         zoom = new_zoom;
@@ -50,6 +51,17 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
         coord_pt.x = 320-coord_pt.x;
         coord_pt.y = 320-coord_pt.y;
         last_pt = null;
+
+        try {
+            File pngfile = new File(AltosPreferences.logdir(), 
+                                    FileCoord(lat, lng, zoom));
+            System.out.printf("Trying file %s\n", pngfile);
+            BufferedImage myPicture = ImageIO.read(pngfile);
+            picLabel.setIcon(new ImageIcon( myPicture ));
+            g2d = myPicture.createGraphics();
+        } catch (Exception e) { 
+            throw new RuntimeException(e);
+        };
     }
 
     private static double limit(double v, double lo, double hi) {
@@ -59,6 +71,16 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
             return hi;
         return v;
     }
+
+    private static String FileCoord(double lat, double lng, int zoom) {
+        char chlat = lat < 0 ? 'S' : 'N';
+        char chlng = lng < 0 ? 'E' : 'W';
+        if (lat < 0) lat = -lat;
+        if (lng < 0) lng = -lng;
+        return String.format("map-%c%.3f,%c%.3f-%d.png",
+                chlat, lat, chlng, lng, zoom);
+    }
+
 
     // based on google js
     //  http://maps.gstatic.com/intl/en_us/mapfiles/api-3/2/10/main.js
@@ -95,8 +117,15 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
     };
 
     public void show(AltosState state, int crc_errors) {
-        if (!state.gps_ready)
+        if (!state.gps_ready && state.pad_lat == 0 && state.pad_lon == 0)
             return;
+        double plat = (int)(state.pad_lat*200)/200.0;
+        double plon = (int)(state.pad_lon*200)/200.0;
+
+        if (last_pt == null) {
+            setLocation(plat, plon);
+        }
+
         Point2D.Double pt = pt(state.gps.lat, state.gps.lon);
         if (last_pt != null && pt != last_pt) {
             if (0 <= state.state && state.state < stateColors.length) {
@@ -107,31 +136,24 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
         last_pt = pt;
         repaint();
     }
-    
+   
+    JLabel picLabel = new JLabel();
+
     public AltosSiteMap() {
         GridBagLayout layout = new GridBagLayout();
         setLayout(layout);
 
         GridBagConstraints c = new GridBagConstraints();
 
-        setLocation(-27.850, 152.960, 15);
-        String pngfile = "/home/aj/qrs-S27.850,W152.960-15.png";
-
         c.gridx = 0; c.gridy = 0;
         c.weightx = 1; c.weighty = 1;
         c.anchor = GridBagConstraints.CENTER;
         c.fill = GridBagConstraints.BOTH;
+        picLabel = new JLabel();
+        JScrollPane scrollPane = new JScrollPane(picLabel);
+        layout.setConstraints(scrollPane, c);
+        add(scrollPane);
 
-        try {
-            BufferedImage myPicture = ImageIO.read(new File(pngfile));
-            g2d = myPicture.createGraphics();
-            JLabel picLabel = new JLabel(new ImageIcon( myPicture ));
-            JScrollPane scrollPane = new JScrollPane(picLabel);
-            layout.setConstraints(scrollPane, c);
-            add(scrollPane);
-        } catch (Exception e) { 
-            throw new RuntimeException(e);
-        };
     }
 }
 
