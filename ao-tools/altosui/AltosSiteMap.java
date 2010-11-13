@@ -118,6 +118,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
         Color.BLACK   // landed
     };
 
+    boolean drawn_landed_circle = false;
     boolean nomaps = false;
     public void show(AltosState state, int crc_errors) {
         if (nomaps)
@@ -141,6 +142,15 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
             }
             g2d.draw(new Line2D.Double(last_pt, pt));
         }
+
+        if (state.state == 8 && !drawn_landed_circle) {
+            drawn_landed_circle = true;
+            g2d.setColor(Color.RED);
+            g2d.drawOval((int)pt.x-5, (int)pt.y-5, 10, 10);
+            g2d.drawOval((int)pt.x-20, (int)pt.y-20, 40, 40);
+            g2d.drawOval((int)pt.x-35, (int)pt.y-35, 70, 70);
+        }
+
         last_pt = pt;
         repaint();
     }
