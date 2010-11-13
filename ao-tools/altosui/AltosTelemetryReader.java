@@ -58,5 +58,6 @@ class AltosTelemetryReader extends AltosFlightReader {
 
 		telem = new LinkedBlockingQueue<AltosLine>();
 		serial.add_monitor(telem);
+        serial.open(device);
 	}
 }
