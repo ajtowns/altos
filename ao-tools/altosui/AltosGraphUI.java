@@ -17,9 +17,6 @@ import org.jfree.chart.axis.AxisLocation;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
-import altosui.AltosDataPoint;
-import altosui.AltosGraphTime;
-
 public class AltosGraphUI extends JFrame 
 {
     static final private Color red = new Color(194,31,31);

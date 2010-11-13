@@ -28,9 +28,6 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import altosui.AltosHexfile;
-import altosui.AltosFlash;
-
 public class AltosFlashUI
 	extends JDialog
 	implements Runnable, ActionListener

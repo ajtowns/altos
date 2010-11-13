@@ -28,9 +28,6 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import altosui.AltosFlightInfoTableModel;
-import altosui.AltosState;
-
 public class AltosInfoTable {
 	private Box			  box;
 	private JTable			  table[];

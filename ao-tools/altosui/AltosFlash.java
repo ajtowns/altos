@@ -28,8 +28,6 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import altosui.AltosHexfile;
-
 public class AltosFlash {
 	File		file;
 	FileInputStream	input;

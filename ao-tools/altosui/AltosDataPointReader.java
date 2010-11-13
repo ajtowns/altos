@@ -10,11 +10,6 @@ import java.lang.UnsupportedOperationException;
 import java.util.NoSuchElementException;
 import java.util.Iterator;
 
-import altosui.AltosDataPoint;
-import altosui.AltosRecordIterable;
-import altosui.AltosRecord;
-import altosui.AltosState;
-
 class AltosDataPointReader implements Iterable<AltosDataPoint> {
     Iterator<AltosRecord> iter;
     AltosState state;

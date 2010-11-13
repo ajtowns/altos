@@ -21,8 +21,6 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 
-import altosui.AltosRecord;
-
 public class AltosReader {
 	public AltosRecord read() throws IOException, ParseException { return null; }
 	public void close() { }

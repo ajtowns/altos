@@ -22,9 +22,6 @@ import java.lang.*;
 import java.util.*;
 import java.text.ParseException;
 import java.util.concurrent.LinkedBlockingQueue;
-import altosui.AltosSerial;
-import altosui.AltosFile;
-import altosui.AltosLine;
 
 /*
  * This creates a thread to capture telemetry data and write it to

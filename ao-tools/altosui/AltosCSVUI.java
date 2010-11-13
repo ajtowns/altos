@@ -28,9 +28,6 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import altosui.AltosLogfileChooser;
-import altosui.AltosCSV;
-
 public class AltosCSVUI
 	extends JDialog
 	implements Runnable, ActionListener

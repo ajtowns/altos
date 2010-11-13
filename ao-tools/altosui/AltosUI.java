@@ -28,25 +28,6 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import altosui.Altos;
-import altosui.AltosSerial;
-import altosui.AltosSerialMonitor;
-import altosui.AltosRecord;
-import altosui.AltosTelemetry;
-import altosui.AltosState;
-import altosui.AltosDeviceDialog;
-import altosui.AltosPreferences;
-import altosui.AltosLog;
-import altosui.AltosVoice;
-import altosui.AltosFlightInfoTableModel;
-import altosui.AltosFlashUI;
-import altosui.AltosLogfileChooser;
-import altosui.AltosCSVUI;
-import altosui.AltosLine;
-import altosui.AltosStatusTable;
-import altosui.AltosInfoTable;
-import altosui.AltosDisplayThread;
-
 import libaltosJNI.*;
 
 public class AltosUI extends JFrame {

@@ -20,8 +20,6 @@ package altosui;
 import java.lang.*;
 import java.io.File;
 import java.util.*;
-import altosui.AltosTelemetry;
-import altosui.AltosPreferences;
 
 class AltosFile extends File {
 

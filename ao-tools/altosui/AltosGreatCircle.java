@@ -17,8 +17,6 @@
 
 package altosui;
 
-import altosui.AltosGPS;
-
 import java.lang.Math;
 
 public class AltosGreatCircle {

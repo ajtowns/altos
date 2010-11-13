@@ -28,8 +28,6 @@ import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
 
-import altosui.AltosRomconfig;
-
 public class AltosRomconfigUI
 	extends JDialog
 	implements ActionListener

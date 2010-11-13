@@ -29,19 +29,6 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import altosui.Altos;
-import altosui.AltosSerial;
-import altosui.AltosSerialMonitor;
-import altosui.AltosRecord;
-import altosui.AltosTelemetry;
-import altosui.AltosState;
-import altosui.AltosDeviceDialog;
-import altosui.AltosPreferences;
-import altosui.AltosLog;
-import altosui.AltosVoice;
-import altosui.AltosFlightStatusTableModel;
-import altosui.AltosFlightInfoTableModel;
-
 import libaltosJNI.*;
 
 public class AltosConfigUI

@@ -28,14 +28,6 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import altosui.AltosRecord;
-import altosui.AltosState;
-import altosui.AltosDeviceDialog;
-import altosui.AltosPreferences;
-import altosui.AltosLog;
-import altosui.AltosVoice;
-import altosui.AltosEepromMonitor;
-
 public abstract class AltosRecordIterable implements Iterable<AltosRecord> {
 	public abstract Iterator<AltosRecord> iterator();
 	public void write_comments(PrintStream out) { }

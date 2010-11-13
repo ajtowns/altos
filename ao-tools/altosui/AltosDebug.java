@@ -22,8 +22,6 @@ import java.io.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.LinkedList;
 import java.util.Iterator;
-import altosui.AltosSerial;
-import altosui.AltosRomconfig;
 
 public class AltosDebug extends AltosSerial {
 

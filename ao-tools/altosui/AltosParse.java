@@ -20,8 +20,6 @@ package altosui;
 import java.text.*;
 import java.lang.*;
 
-import altosui.Altos;
-
 public class AltosParse {
 	static boolean isdigit(char c) {
 		return '0' <= c && c <= '9';

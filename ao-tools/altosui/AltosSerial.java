@@ -26,13 +26,8 @@ import java.io.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.LinkedList;
 import java.util.Iterator;
-import altosui.AltosSerialMonitor;
-import altosui.AltosLine;
-import libaltosJNI.libaltos;
-import libaltosJNI.altos_device;
-import libaltosJNI.SWIGTYPE_p_altos_file;
-import libaltosJNI.SWIGTYPE_p_altos_list;
-import libaltosJNI.libaltosConstants;
+
+import libaltosJNI.*;
 
 /*
  * This class reads from the serial port and places each received

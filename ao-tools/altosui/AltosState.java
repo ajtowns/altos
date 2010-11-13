@@ -21,9 +21,6 @@
 
 package altosui;
 
-import altosui.AltosRecord;
-import altosui.AltosGPS;
-
 public class AltosState {
 	AltosRecord data;
 

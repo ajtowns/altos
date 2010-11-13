@@ -27,11 +27,6 @@ import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
 
-import altosui.AltosPreferences;
-import altosui.AltosDataPointReader;
-import altosui.AltosEepromIterable;
-import altosui.AltosTelemetryIterable;
-
 public class AltosGraphDataChooser extends JFileChooser {
 	JFrame	frame;
 	String	filename;

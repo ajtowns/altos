@@ -26,7 +26,6 @@ import libaltosJNI.libaltos;
 import libaltosJNI.altos_device;
 import libaltosJNI.SWIGTYPE_p_altos_file;
 import libaltosJNI.SWIGTYPE_p_altos_list;
-import altosui.AltosDevice;
 
 public class AltosDeviceDialog extends JDialog implements ActionListener {
 
