@@ -57,6 +57,7 @@ public class AltosConfigUI
 	JLabel		main_deploy_label;
 	JLabel		apogee_delay_label;
 	JLabel		radio_channel_label;
+	JLabel		radio_calibration_label;
 	JLabel		callsign_label;
 
 	public boolean		dirty;
@@ -68,6 +69,7 @@ public class AltosConfigUI
 	JComboBox	main_deploy_value;
 	JComboBox	apogee_delay_value;
 	JComboBox	radio_channel_value;
+	JTextField	radio_calibration_value;
 	JTextField	callsign_value;
 
 	JButton		save;
@@ -256,9 +258,32 @@ public class AltosConfigUI
 		radio_channel_value.addItemListener(this);
 		pane.add(radio_channel_value, c);
 
-		/* Callsign */
+		/* Radio Calibration */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 6;
+		c.gridwidth = 3;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
+		c.ipady = 5;
+		radio_calibration_label = new JLabel("RF Calibration:");
+		pane.add(radio_calibration_label, c);
+
+		c = new GridBagConstraints();
+		c.gridx = 3; c.gridy = 6;
+		c.gridwidth = 3;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		c.ipady = 5;
+		radio_calibration_value = new JTextField(String.format("%d", 1186611));
+		radio_calibration_value.getDocument().addDocumentListener(this);
+		pane.add(radio_calibration_value, c);
+
+		/* Callsign */
+		c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = 7;
 		c.gridwidth = 3;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -268,7 +293,7 @@ public class AltosConfigUI
 		pane.add(callsign_label, c);
 
 		c = new GridBagConstraints();
-		c.gridx = 3; c.gridy = 6;
+		c.gridx = 3; c.gridy = 7;
 		c.gridwidth = 3;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
@@ -281,7 +306,7 @@ public class AltosConfigUI
 
 		/* Buttons */
 		c = new GridBagConstraints();
-		c.gridx = 0; c.gridy = 7;
+		c.gridx = 0; c.gridy = 8;
 		c.gridwidth = 6;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -292,7 +317,7 @@ public class AltosConfigUI
 		save.setActionCommand("save");
 
 		c = new GridBagConstraints();
-		c.gridx = 0; c.gridy = 7;
+		c.gridx = 0; c.gridy = 8;
 		c.gridwidth = 6;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
@@ -303,7 +328,7 @@ public class AltosConfigUI
 		reset.setActionCommand("reset");
 
 		c = new GridBagConstraints();
-		c.gridx = 0; c.gridy = 7;
+		c.gridx = 0; c.gridy = 8;
 		c.gridwidth = 6;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_END;
@@ -413,6 +438,14 @@ public class AltosConfigUI
 
 	public int radio_channel() {
 		return radio_channel_value.getSelectedIndex();
+	}
+
+	public void set_radio_calibration(int new_radio_calibration) {
+		radio_calibration_value.setText(String.format("%d", new_radio_calibration));
+	}
+
+	public int radio_calibration() {
+		return Integer.parseInt(radio_calibration_value.getText());
 	}
 
 	public void set_callsign(String new_callsign) {

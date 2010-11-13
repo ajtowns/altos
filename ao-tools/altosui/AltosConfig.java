@@ -83,6 +83,7 @@ public class AltosConfig implements Runnable, ActionListener {
 	int_ref		main_deploy;
 	int_ref		apogee_delay;
 	int_ref		radio_channel;
+	int_ref		radio_calibration;
 	string_ref	version;
 	string_ref	product;
 	string_ref	callsign;
@@ -146,6 +147,7 @@ public class AltosConfig implements Runnable, ActionListener {
 				get_int(line, "Main deploy:", main_deploy);
 				get_int(line, "Apogee delay:", apogee_delay);
 				get_int(line, "Radio channel:", radio_channel);
+				get_int(line, "Radio cal:", radio_calibration);
 				get_string(line, "Callsign:", callsign);
 				get_string(line,"software-version", version);
 				get_string(line,"product", product);
@@ -175,6 +177,7 @@ public class AltosConfig implements Runnable, ActionListener {
 			config_ui.set_main_deploy(main_deploy.get());
 			config_ui.set_apogee_delay(apogee_delay.get());
 			config_ui.set_radio_channel(radio_channel.get());
+			config_ui.set_radio_calibration(radio_calibration.get());
 			config_ui.set_callsign(callsign.get());
 			config_ui.set_clean();
 		} catch (InterruptedException ie) {
@@ -188,12 +191,14 @@ public class AltosConfig implements Runnable, ActionListener {
 		main_deploy.set(config_ui.main_deploy());
 		apogee_delay.set(config_ui.apogee_delay());
 		radio_channel.set(config_ui.radio_channel());
+		radio_calibration.set(config_ui.radio_calibration());
 		callsign.set(config_ui.callsign());
 		try {
 			start_serial();
 			serial_line.printf("c m %d\n", main_deploy.get());
 			serial_line.printf("c d %d\n", apogee_delay.get());
 			serial_line.printf("c r %d\n", radio_channel.get());
+			serial_line.printf("c f %d\n", radio_calibration.get());
 			serial_line.printf("c c %s\n", callsign.get());
 			serial_line.printf("c w\n");
 		} catch (InterruptedException ie) {
@@ -234,6 +239,7 @@ public class AltosConfig implements Runnable, ActionListener {
 		main_deploy = new int_ref(250);
 		apogee_delay = new int_ref(0);
 		radio_channel = new int_ref(0);
+		radio_calibration = new int_ref(1186611);
 		callsign = new string_ref("N0CALL");
 		version = new string_ref("unknown");
 		product = new string_ref("unknown");
