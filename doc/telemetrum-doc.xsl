@@ -72,8 +72,8 @@
     </para>
     <para>
       More products will be added to the Altus Metrum family over time, and
-      we currently envision that this will be a single, comprehensive manual
-      for the entire product family.
+      we currently envision that this will evolve to be be the single, 
+      comprehensive manual for the entire product family.
     </para>
   </chapter>
   <chapter>
@@ -88,52 +88,39 @@
     <para>
       The first thing to do after you check the inventory of parts in your 
       "starter kit" is to charge the battery by plugging it into the 
-      corresponding socket of the TeleMetrum and then using the USB A to B 
-      cable to plug the Telemetrum into your computer's USB socket. The 
+      corresponding socket of the TeleMetrum and then using the USB A to mini
+      B cable to plug the Telemetrum into your computer's USB socket. The 
       TeleMetrum circuitry will charge the battery whenever it is plugged 
-      into the usb socket. The TeleMetrum's on-off switch does NOT control 
-      the charging circuitry.  When the GPS chip is initially searching for
-      satellites, the unit will pull more current than it can pull from the
-      usb port, so the battery must be plugged in order to get a good 
-      satellite lock.  Once GPS is locked the current consumption goes back 
+      in, because the TeleMetrum's on-off switch does NOT control the 
+      charging circuitry.  When the GPS chip is initially searching for
+      satellites, TeleMetrum will consume more current than it can pull 
+      from the usb port, so the battery must be attached in order to get
+      satellite lock.  Once GPS is locked, the current consumption goes back 
       down enough to enable charging while 
       running. So it's a good idea to fully charge the battery as your 
       first item of business so there is no issue getting and maintaining 
       satellite lock.  The yellow charge indicator led will go out when the 
-      battery is nearly full and the charger goes to trickle charge.
+      battery is nearly full and the charger goes to trickle charge.  It
+      can take several hours to fully recharge a deeply discharged battery.
     </para>
     <para>
-      The other active device in the starter kit is the half-duplex TeleDongle 
-      rf link.  If you plug it in to your computer it should "just work",
-      showing up as a serial port device.  If you are using Linux and are
+      The other active device in the starter kit is the TeleDongle USB to
+      RF interface.  If you plug it in to your Mac or Linux computer it should 
+      "just work", showing up as a serial port device.  Windows systems need
+      driver information that is part of the AltOS download to know that the
+      existing USB modem driver will work.  If you are using Linux and are
       having problems, try moving to a fresher kernel (2.6.33 or newer), as
-      there were some ugly USB serial driver bugs in earlier versions.
+      the USB serial driver had ugly bugs in some earlier versions.
     </para>
     <para>
-      Next you should obtain and install the AltOS utilities.  The first
-      generation sofware was written for Linux only.  New software is coming
-      soon that will also run on Windows and Mac.  For now, we'll concentrate
-      on Linux.  If you are using Debian, an 'altos' package already exists, 
-      see http://altusmetrum.org/AltOS for details on how to install it.
-      User-contributed directions for building packages on ArchLinux may be 
-      found in the contrib/arch-linux directory as PKGBUILD files.
-      Between the debian/rules file and the PKGBUILD files in 
-      contrib, you should find enough information to learn how to build the 
-      software for any other version of Linux.
-    </para>
-    <para>
-      When you have successfully installed the software suite (either from 
-      compiled source code or as the pre-built Debian package) you will 
-      have 10 or so executable programs all of which have names beginning 
-      with 'ao-'.
-      ('ao-view' is the lone GUI-based program, the rest are command-line 
-      oriented.) You will also have man pages, that give you basic info 
-      on each program.
-      You will also get this documentation in two file types in the doc/ 
-      directory, telemetrum-doc.pdf and telemetrum-doc.html.
-      Finally you will have a couple control files that allow the ao-view 
-      GUI-based program to appear in your menu of programs (under 
-      the 'Internet' category). 
+      Next you should obtain and install the AltOS utilities.  These include
+      the AltosUI ground station program, current firmware images for 
+      TeleMetrum and TeleDongle, and a number of standalone utilities that
+      are rarely needed.  Pre-built binary packages are available for Debian
+      Linux, Microsoft Windows, and recent MacOSX versions.  Full sourcecode
+      and build instructions for some other Linux variants are also available.
+      The latest version may always be downloaded from
+      http://altusmetrum.org/AltOS.
     </para>
     <para>
       Both Telemetrum and TeleDongle can be directly communicated 
@@ -796,7 +783,6 @@
           kit, that has a red 8-pin MicroMaTch connector on one end and a
           red 4-pin MicroMaTch connector on the other end.  
         </listitem>
-         
         <listitem> 
           Take the 2 screws out of the TeleDongle case to get access 
           to the circuit board.  
@@ -805,6 +791,9 @@
           Plug the 8-pin end of the programming cable to the
           matching connector on the TeleDongle, and the 4-pin end to the
           matching connector on the TeleMetrum.  
+	  Note that each MicroMaTch connector has an alignment pin that
+	  goes through a hole in the PC board when you have the cable
+	  oriented correctly.
         </listitem>
         <listitem>
           Attach a battery to the TeleMetrum board.
@@ -871,6 +860,9 @@
           Plug the 8-pin end of the programming cable to the (latching)
           matching connector on the TeleMetrum, and the 4-pin end to the
           matching connector on the TeleDongle.  
+	  Note that each MicroMaTch connector has an alignment pin that
+	  goes through a hole in the PC board when you have the cable
+	  oriented correctly.
         </listitem>
         <listitem>
           Attach a battery to the TeleMetrum board.
@@ -883,7 +875,7 @@
           Run AltosUI, and select 'Flash Image' from the File menu.
         </listitem>
         <listitem>
-          Pick the TeleMongle device from the list, identifying it as the 
+          Pick the TeleMetrum device from the list, identifying it as the 
           programming device.
         </listitem>
         <listitem>
