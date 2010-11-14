@@ -329,17 +329,14 @@ public class AltosFlash {
 		return rom_config;
 	}
 
-	public void open() throws IOException, FileNotFoundException, InterruptedException {
-		input = new FileInputStream(file);
-		image = new AltosHexfile(input);
-		debug.open(debug_dongle);
-		if (!debug.check_connection())
-			throw new IOException("Debug port not connected");
-	}
-
-	public AltosFlash(File in_file, AltosDevice in_debug_dongle) {
+	public AltosFlash(File in_file, AltosDevice in_debug_dongle)
+		throws IOException, FileNotFoundException, AltosSerialInUseException, InterruptedException {
 		file = in_file;
 		debug_dongle = in_debug_dongle;
-		debug = new AltosDebug();
+		debug = new AltosDebug(in_debug_dongle);
+		input = new FileInputStream(file);
+		image = new AltosHexfile(input);
+		if (!debug.check_connection())
+			throw new IOException("Debug port not connected");
 	}
 }

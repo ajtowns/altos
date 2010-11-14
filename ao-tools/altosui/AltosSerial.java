@@ -23,9 +23,8 @@ package altosui;
 
 import java.lang.*;
 import java.io.*;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.LinkedList;
-import java.util.Iterator;
+import java.util.concurrent.*;
+import java.util.*;
 
 import libaltosJNI.*;
 
@@ -37,6 +36,9 @@ import libaltosJNI.*;
 
 public class AltosSerial implements Runnable {
 
+	static List<String> devices_opened = Collections.synchronizedList(new LinkedList<String>());
+
+	altos_device device;
 	SWIGTYPE_p_altos_file altos;
 	LinkedList<LinkedBlockingQueue<AltosLine>> monitors;
 	LinkedBlockingQueue<AltosLine> reply_queue;
@@ -141,10 +143,6 @@ public class AltosSerial implements Runnable {
 			set_monitor(false);
 	}
 
-	public boolean opened() {
-		return altos != null;
-	}
-
 	public void close() {
 		if (altos != null) {
 			libaltos.altos_close(altos);
@@ -160,6 +158,9 @@ public class AltosSerial implements Runnable {
 		if (altos != null) {
 			libaltos.altos_free(altos);
 			altos = null;
+		}
+		synchronized (devices_opened) {
+			devices_opened.remove(device.getPath());
 		}
 	}
 
@@ -178,7 +179,12 @@ public class AltosSerial implements Runnable {
 		print(String.format(format, arguments));
 	}
 
-	public void open(altos_device device) throws FileNotFoundException {
+	private void open() throws FileNotFoundException, AltosSerialInUseException {
+		synchronized (devices_opened) {
+			if (devices_opened.contains(device.getPath()))
+				throw new AltosSerialInUseException(device);
+			devices_opened.add(device.getPath());
+		}
 		close();
 		altos = libaltos.altos_open(device);
 		if (altos == null)
@@ -220,12 +226,12 @@ public class AltosSerial implements Runnable {
 		}
 	}
 
-	public AltosSerial() {
-		altos = null;
-		input_thread = null;
+	public AltosSerial(altos_device in_device) throws FileNotFoundException, AltosSerialInUseException {
+		device = in_device;
 		line = "";
 		monitor_mode = false;
 		monitors = new LinkedList<LinkedBlockingQueue<AltosLine>> ();
 		reply_queue = new LinkedBlockingQueue<AltosLine> ();
+		open();
 	}
 }

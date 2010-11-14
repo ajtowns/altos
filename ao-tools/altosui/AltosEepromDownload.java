@@ -244,12 +244,11 @@ public class AltosEepromDownload implements Runnable {
 		frame = given_frame;
 		device = AltosDeviceDialog.show(frame, AltosDevice.product_any);
 
-		serial_line = new AltosSerial();
 		remote = false;
 
 		if (device != null) {
 			try {
-				serial_line.open(device);
+				serial_line = new AltosSerial(device);
 				if (!device.matchProduct(AltosDevice.product_telemetrum))
 					remote = true;
 				eeprom_thread = new Thread(this);
@@ -259,6 +258,12 @@ public class AltosEepromDownload implements Runnable {
 							      String.format("Cannot open device \"%s\"",
 									    device.getPath()),
 							      "Cannot open target device",
+							      JOptionPane.ERROR_MESSAGE);
+			} catch (AltosSerialInUseException si) {
+				JOptionPane.showMessageDialog(frame,
+							      String.format("Device \"%s\" already in use",
+									    device.getPath()),
+							      "Device in use",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (IOException ee) {
 				JOptionPane.showMessageDialog(frame,

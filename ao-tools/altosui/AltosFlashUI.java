@@ -65,10 +65,9 @@ public class AltosFlashUI
 	}
 
 	public void run() {
-		flash = new AltosFlash(file, debug_dongle);
-		flash.addActionListener(this);
 		try {
-			flash.open();
+			flash = new AltosFlash(file, debug_dongle);
+			flash.addActionListener(this);
 			AltosRomconfigUI romconfig_ui = new AltosRomconfigUI (frame);
 
 			romconfig_ui.set(flash.romconfig());
@@ -87,6 +86,12 @@ public class AltosFlashUI
 			JOptionPane.showMessageDialog(frame,
 						      "Cannot open image",
 						      file.toString(),
+						      JOptionPane.ERROR_MESSAGE);
+		} catch (AltosSerialInUseException si) {
+			JOptionPane.showMessageDialog(frame,
+						      String.format("Device \"%s\" already in use",
+								    debug_dongle.getPath()),
+						      "Device in use",
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(frame,

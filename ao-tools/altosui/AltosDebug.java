@@ -19,9 +19,10 @@ package altosui;
 
 import java.lang.*;
 import java.io.*;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.LinkedList;
-import java.util.Iterator;
+import java.util.concurrent.*;
+import java.util.*;
+
+import libaltosJNI.*;
 
 public class AltosDebug extends AltosSerial {
 
@@ -258,5 +259,9 @@ public class AltosDebug extends AltosSerial {
 	 */
 	public void reset() {
 		printf ("R\n");
+	}
+
+	public AltosDebug (altos_device in_device) throws FileNotFoundException, AltosSerialInUseException {
+		super(in_device);
 	}
 }

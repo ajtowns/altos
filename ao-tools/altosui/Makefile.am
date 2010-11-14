@@ -58,6 +58,7 @@ altosui_JAVA = \
 	AltosRomconfig.java \
 	AltosRomconfigUI.java \
 	AltosSerial.java \
+	AltosSerialInUseException.java \
 	AltosSerialMonitor.java \
 	AltosState.java \
 	AltosStatusTable.java \

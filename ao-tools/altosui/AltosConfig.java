@@ -231,10 +231,9 @@ public class AltosConfig implements Runnable, ActionListener {
 		product = new string_ref("unknown");
 
 		device = AltosDeviceDialog.show(owner, AltosDevice.product_any);
-		serial_line = new AltosSerial();
 		if (device != null) {
 			try {
-				serial_line.open(device);
+				serial_line = new AltosSerial(device);
 				if (!device.matchProduct(AltosDevice.product_telemetrum))
 					remote = true;
 				config_thread = new Thread(this);
@@ -244,6 +243,12 @@ public class AltosConfig implements Runnable, ActionListener {
 							      String.format("Cannot open device \"%s\"",
 									    device.getPath()),
 							      "Cannot open target device",
+							      JOptionPane.ERROR_MESSAGE);
+			} catch (AltosSerialInUseException si) {
+				JOptionPane.showMessageDialog(owner,
+							      String.format("Device \"%s\" already in use",
+									    device.getPath()),
+							      "Device in use",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (IOException ee) {
 				JOptionPane.showMessageDialog(owner,

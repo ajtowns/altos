@@ -56,6 +56,12 @@ public class AltosUI extends JFrame {
 								    device.getPath()),
 						      "Cannot open target device",
 						      JOptionPane.ERROR_MESSAGE);
+		} catch (AltosSerialInUseException si) {
+			JOptionPane.showMessageDialog(AltosUI.this,
+						      String.format("Device \"%s\" already in use",
+								    device.getPath()),
+						      "Device in use",
+						      JOptionPane.ERROR_MESSAGE);
 		} catch (IOException ee) {
 			JOptionPane.showMessageDialog(AltosUI.this,
 						      device.getPath(),
