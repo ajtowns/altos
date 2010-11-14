@@ -46,11 +46,13 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 		public LaunchStatus (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
+			c.weighty = 1;
 
 			lights = new AltosLights();
 			c.gridx = 0; c.gridy = y;
 			c.anchor = GridBagConstraints.CENTER;
-			c.fill = GridBagConstraints.CENTER;
+			c.fill = GridBagConstraints.VERTICAL;
+			c.weightx = 0;
 			layout.setConstraints(lights, c);
 			add(lights);
 
@@ -60,7 +62,8 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			c.gridx = 1; c.gridy = y;
 			c.insets = new Insets(10, 10, 10, 10);
 			c.anchor = GridBagConstraints.WEST;
-			c.fill = GridBagConstraints.WEST;
+			c.fill = GridBagConstraints.VERTICAL;
+			c.weightx = 0;
 			layout.setConstraints(label, c);
 			add(label);
 
@@ -69,6 +72,8 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;
 			c.anchor = GridBagConstraints.WEST;
+			c.fill = GridBagConstraints.BOTH;
+			c.weightx = 1;
 			layout.setConstraints(value, c);
 			add(value);
 
@@ -85,13 +90,16 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		}
 		public LaunchValue (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
+			c.insets = new Insets(10, 10, 10, 10);
+			c.weighty = 1;
 
 			label = new JLabel(text);
 			label.setFont(label_font);
 			label.setHorizontalAlignment(SwingConstants.LEFT);
 			c.gridx = 1; c.gridy = y;
-			c.insets = new Insets(10, 10, 10, 10);
 			c.anchor = GridBagConstraints.WEST;
+			c.fill = GridBagConstraints.VERTICAL;
+			c.weightx = 0;
 			layout.setConstraints(label, c);
 			add(label);
 
@@ -100,7 +108,8 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;
 			c.anchor = GridBagConstraints.EAST;
-			c.fill = GridBagConstraints.HORIZONTAL;
+			c.fill = GridBagConstraints.BOTH;
+			c.weightx = 1;
 			layout.setConstraints(value, c);
 			add(value);
 		}
@@ -221,13 +230,10 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	public AltosPad() {
 		layout = new GridBagLayout();
 
-		GridBagConstraints	c;
-
 		label_font = new Font("Dialog", Font.PLAIN, 24);
 		value_font = new Font("Monospaced", Font.PLAIN, 24);
 		setLayout(layout);
 
-		c = new GridBagConstraints();
 		/* Elements in pad display:
 		 *
 		 * Battery voltage

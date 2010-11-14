@@ -33,7 +33,7 @@ altosui_JAVA = \
 	AltosFlightDisplay.java \
 	AltosFlightInfoTableModel.java \
 	AltosFlightReader.java \
-	AltosFlightStatusTableModel.java \
+	AltosFlightStatus.java \
 	AltosFlightUI.java \
 	AltosGPS.java \
 	AltosGreatCircle.java \
@@ -61,7 +61,6 @@ altosui_JAVA = \
 	AltosSerialInUseException.java \
 	AltosSerialMonitor.java \
 	AltosState.java \
-	AltosStatusTable.java \
 	AltosTelemetry.java \
 	AltosTelemetryIterable.java \
 	AltosUI.java \

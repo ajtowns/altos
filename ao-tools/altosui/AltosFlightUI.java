@@ -45,7 +45,8 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	AltosDescent	descent;
 	AltosLanded	landed;
 
-	private AltosStatusTable flightStatus;
+	private AltosFlightStatus flightStatus;
+	private JScrollPane flightInfoPane;
 	private AltosInfoTable flightInfo;
 
 	static final int tab_pad = 1;
@@ -117,7 +118,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 			}
 			cur_tab = tab;
 		}
-		flightStatus.set(state);
+		flightStatus.show(state, crc_errors);
 		flightInfo.show(state, crc_errors);
 	}
 
@@ -133,7 +134,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 		setTitle(String.format("AltOS %s", reader.name));
 
-		flightStatus = new AltosStatusTable();
+		flightStatus = new AltosFlightStatus();
 
 		vbox = new Box (BoxLayout.Y_AXIS);
 		vbox.add(flightStatus);
@@ -153,7 +154,8 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		pane.add("Landed", landed);
 
 		flightInfo = new AltosInfoTable();
-		pane.add("Table", flightInfo.box());
+		flightInfoPane = new JScrollPane(flightInfo.box());
+		pane.add("Table", flightInfoPane);
 
 		vbox.add(pane);
 

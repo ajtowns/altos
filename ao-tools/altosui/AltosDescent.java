@@ -48,6 +48,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 		public DescentValue (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
+			c.weighty = 1;
 
 			label = new JLabel(text);
 			label.setFont(label_font);
@@ -55,6 +56,8 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			c.gridx = 0; c.gridy = y;
 			c.insets = new Insets(10, 10, 10, 10);
 			c.anchor = GridBagConstraints.WEST;
+			c.fill = GridBagConstraints.VERTICAL;
+			c.weightx = 0;
 			layout.setConstraints(label, c);
 			add(label);
 
@@ -64,7 +67,8 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			c.gridx = 1; c.gridy = y;
 			c.gridwidth = 2;
 			c.anchor = GridBagConstraints.WEST;
-			c.fill = GridBagConstraints.HORIZONTAL;
+			c.fill = GridBagConstraints.BOTH;
+			c.weightx = 1;
 			layout.setConstraints(value, c);
 			add(value);
 		}
@@ -138,50 +142,54 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		JLabel		label;
 		JTextField	value;
 		JTextField	value_deg;
-        void reset () {
+		void reset () {
 			value.setText("");
 			value_deg.setText("");
-        }
+		}
 		void show (AltosState state, int crc_errors) {
 			if (state.from_pad != null) {
-                value.setText(state.from_pad.bearing_words(
-                                AltosGreatCircle.BEARING_LONG));
+				value.setText(state.from_pad.bearing_words(
+						      AltosGreatCircle.BEARING_LONG));
 				value_deg.setText(String.format("%3.0f°", state.from_pad.bearing));
 			} else {
 				value.setText("???");
 				value_deg.setText("???");
-            }
+			}
 		}
 		public Bearing (GridBagLayout layout, int y) {
-            GridBagConstraints      c = new GridBagConstraints();
+			GridBagConstraints      c = new GridBagConstraints();
+			c.weighty = 1;
 
-            label = new JLabel("Bearing");
-            label.setFont(label_font);
-            label.setHorizontalAlignment(SwingConstants.LEFT);
-            c.gridx = 0; c.gridy = y;
-            c.insets = new Insets(10, 10, 10, 10);
-            c.anchor = GridBagConstraints.WEST;
-            layout.setConstraints(label, c);
-            add(label);
+			label = new JLabel("Bearing");
+			label.setFont(label_font);
+			label.setHorizontalAlignment(SwingConstants.LEFT);
+			c.gridx = 0; c.gridy = y;
+			c.insets = new Insets(10, 10, 10, 10);
+			c.anchor = GridBagConstraints.WEST;
+			c.weightx = 0;
+			c.fill = GridBagConstraints.VERTICAL;
+			layout.setConstraints(label, c);
+			add(label);
 
-            value = new JTextField(30);
-            value.setFont(value_font);
-            value.setHorizontalAlignment(SwingConstants.RIGHT);
-            c.gridx = 1; c.gridy = y;
-            c.anchor = GridBagConstraints.EAST;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            layout.setConstraints(value, c);
-            add(value);
+			value = new JTextField(30);
+			value.setFont(value_font);
+			value.setHorizontalAlignment(SwingConstants.RIGHT);
+			c.gridx = 1; c.gridy = y;
+			c.anchor = GridBagConstraints.EAST;
+			c.weightx = 1;
+			c.fill = GridBagConstraints.BOTH;
+			layout.setConstraints(value, c);
+			add(value);
 
-            value_deg = new JTextField(5);
-            value_deg.setFont(value_font);
-            value_deg.setHorizontalAlignment(SwingConstants.RIGHT);
-            c.gridx = 2; c.gridy = y;
-            c.anchor = GridBagConstraints.EAST;
-            c.fill = GridBagConstraints.HORIZONTAL;
-
-            layout.setConstraints(value_deg, c);
-            add(value_deg);
+			value_deg = new JTextField(5);
+			value_deg.setFont(value_font);
+			value_deg.setHorizontalAlignment(SwingConstants.RIGHT);
+			c.gridx = 2; c.gridy = y;
+			c.anchor = GridBagConstraints.EAST;
+			c.weightx = 1;
+			c.fill = GridBagConstraints.BOTH;
+			layout.setConstraints(value_deg, c);
+			add(value_deg);
 		}
 	}
 

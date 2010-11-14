@@ -43,6 +43,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		}
 		public AscentValue (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
+			c.weighty = 1;
 
 			label = new JLabel(text);
 			label.setFont(label_font);
@@ -50,6 +51,8 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			c.gridx = 0; c.gridy = y;
 			c.insets = new Insets(10, 10, 10, 10);
 			c.anchor = GridBagConstraints.WEST;
+			c.fill = GridBagConstraints.VERTICAL;
+			c.weightx = 0;
 			layout.setConstraints(label, c);
 			add(label);
 
@@ -58,8 +61,9 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 1; c.gridy = y;
 			c.anchor = GridBagConstraints.WEST;
-			c.fill = GridBagConstraints.HORIZONTAL;
+			c.fill = GridBagConstraints.BOTH;
 			c.gridwidth = 2;
+			c.weightx = 1;
 			layout.setConstraints(value, c);
 			add(value);
 		}
@@ -88,6 +92,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		}
 		public AscentValueHold (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
+			c.weighty = 1;
 
 			label = new JLabel(text);
 			label.setFont(label_font);
@@ -95,6 +100,8 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			c.gridx = 0; c.gridy = y;
 			c.insets = new Insets(10, 10, 10, 10);
 			c.anchor = GridBagConstraints.WEST;
+			c.fill = GridBagConstraints.VERTICAL;
+			c.weightx = 0;
 			layout.setConstraints(label, c);
 			add(label);
 
@@ -103,6 +110,8 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 1; c.gridy = y;
 			c.anchor = GridBagConstraints.EAST;
+			c.fill = GridBagConstraints.BOTH;
+			c.weightx = 1;
 			layout.setConstraints(value, c);
 			add(value);
 
@@ -111,6 +120,8 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			max_value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;
 			c.anchor = GridBagConstraints.EAST;
+			c.fill = GridBagConstraints.BOTH;
+			c.weightx = 1;
 			layout.setConstraints(max_value, c);
 			add(max_value);
 		}

@@ -48,6 +48,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay {
 
 		public LandedValue (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
+			c.weighty = 1;
 
 			label = new JLabel(text);
 			label.setFont(label_font);
@@ -55,6 +56,8 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay {
 			c.gridx = 0; c.gridy = y;
 			c.insets = new Insets(10, 10, 10, 10);
 			c.anchor = GridBagConstraints.WEST;
+			c.weightx = 0;
+			c.fill = GridBagConstraints.VERTICAL;
 			layout.setConstraints(label, c);
 			add(label);
 
@@ -63,7 +66,8 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay {
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 1; c.gridy = y;
 			c.anchor = GridBagConstraints.WEST;
-			c.fill = GridBagConstraints.HORIZONTAL;
+			c.weightx = 1;
+			c.fill = GridBagConstraints.BOTH;
 			layout.setConstraints(value, c);
 			add(value);
 		}
