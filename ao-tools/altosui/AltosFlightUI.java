@@ -56,6 +56,8 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 	int cur_tab = 0;
 
+	boolean exit_on_close = false;
+
 	int which_tab(AltosState state) {
 		if (state.state < Altos.ao_flight_boost)
 			return tab_pad;
@@ -122,8 +124,12 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		flightInfo.show(state, crc_errors);
 	}
 
+	public void set_exit_on_close() {
+		exit_on_close = true;
+	}
+
 	public AltosFlightUI(AltosVoice in_voice, AltosFlightReader in_reader, final int serial) {
-        AltosPreferences.init(this);
+		AltosPreferences.init(this);
 
 		voice = in_voice;
 		reader = in_reader;
@@ -191,6 +197,8 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 				disconnect();
 				setVisible(false);
 				dispose();
+				if (exit_on_close)
+					System.exit(0);
 			}
 		});
 

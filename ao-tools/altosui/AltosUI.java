@@ -443,26 +443,27 @@ public class AltosUI extends JFrame {
 	public static void main(final String[] args) {
 		int	process = 0;
 		/* Handle batch-mode */
-        if (args.length == 2 && args[0].equals("--replay")) {
-            String filename = args[1];
-            FileInputStream in;
-            try {
-                in = new FileInputStream(filename);
-            } catch (Exception e) {
-                System.out.printf("Failed to open file '%s'\n", filename);
-                return;
-            }
-            AltosRecordIterable recs;
-            AltosReplayReader reader;
-            if (filename.endsWith("eeprom")) {
-              recs = new AltosEepromIterable(in);
-            } else {
-              recs = new AltosTelemetryIterable(in); 
-            }
-            reader = new AltosReplayReader(recs.iterator(), filename);
-            new AltosFlightUI(new AltosVoice(), reader);
-            return;
-        } else if (args.length > 0) {
+		if (args.length == 2 && args[0].equals("--replay")) {
+			String filename = args[1];
+			FileInputStream in;
+			try {
+				in = new FileInputStream(filename);
+			} catch (Exception e) {
+				System.out.printf("Failed to open file '%s'\n", filename);
+				return;
+			}
+			AltosRecordIterable recs;
+			AltosReplayReader reader;
+			if (filename.endsWith("eeprom")) {
+				recs = new AltosEepromIterable(in);
+			} else {
+				recs = new AltosTelemetryIterable(in);
+			}
+			reader = new AltosReplayReader(recs.iterator(), filename);
+			AltosFlightUI flight_ui = new AltosFlightUI(new AltosVoice(), reader);
+			flight_ui.set_exit_on_close();
+			return;
+		} else if (args.length > 0) {
 			for (int i = 0; i < args.length; i++) {
 				if (args[i].equals("--kml"))
 					process |= process_kml;
