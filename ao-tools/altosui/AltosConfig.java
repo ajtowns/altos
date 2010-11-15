@@ -198,12 +198,26 @@ public class AltosConfig implements Runnable, ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		String	cmd = e.getActionCommand();
-		if (cmd.equals("save")) {
+		if (cmd.equals("Save")) {
 			save_data();
 			set_ui();
-		} else if (cmd.equals("reset")) {
+		} else if (cmd.equals("Reset")) {
 			set_ui();
-		} else if (cmd.equals("close")) {
+		} else if (cmd.equals("Reboot")) {
+			if (serial_line != null) {
+				try {
+					start_serial();
+					serial_line.printf("r eboot\n");
+				} catch (InterruptedException ie) {
+				} finally {
+					try {
+						stop_serial();
+					} catch (InterruptedException ie) {
+					}
+				}
+				serial_line.close();
+			}
+		} else if (cmd.equals("Close")) {
 			if (serial_line != null)
 				serial_line.close();
 		}

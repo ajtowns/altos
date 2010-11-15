@@ -61,6 +61,7 @@ public class AltosConfigUI
 
 	JButton		save;
 	JButton		reset;
+	JButton		reboot;
 	JButton		close;
 
 	ActionListener	listener;
@@ -92,7 +93,7 @@ public class AltosConfigUI
 		public void windowClosing(WindowEvent e) {
 			ui.actionPerformed(new ActionEvent(e.getSource(),
 							   ActionEvent.ACTION_PERFORMED,
-							   "close"));
+							   "Close"));
 		}
 	}
 
@@ -112,7 +113,7 @@ public class AltosConfigUI
 		/* Product */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 0;
-		c.gridwidth = 3;
+		c.gridwidth = 4;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
@@ -120,8 +121,8 @@ public class AltosConfigUI
 		pane.add(product_label, c);
 
 		c = new GridBagConstraints();
-		c.gridx = 3; c.gridy = 0;
-		c.gridwidth = 3;
+		c.gridx = 4; c.gridy = 0;
+		c.gridwidth = 4;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -132,7 +133,7 @@ public class AltosConfigUI
 		/* Version */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 1;
-		c.gridwidth = 3;
+		c.gridwidth = 4;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
@@ -141,8 +142,8 @@ public class AltosConfigUI
 		pane.add(version_label, c);
 
 		c = new GridBagConstraints();
-		c.gridx = 3; c.gridy = 1;
-		c.gridwidth = 3;
+		c.gridx = 4; c.gridy = 1;
+		c.gridwidth = 4;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -154,7 +155,7 @@ public class AltosConfigUI
 		/* Serial */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 2;
-		c.gridwidth = 3;
+		c.gridwidth = 4;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
@@ -163,8 +164,8 @@ public class AltosConfigUI
 		pane.add(serial_label, c);
 
 		c = new GridBagConstraints();
-		c.gridx = 3; c.gridy = 2;
-		c.gridwidth = 3;
+		c.gridx = 4; c.gridy = 2;
+		c.gridwidth = 4;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -176,7 +177,7 @@ public class AltosConfigUI
 		/* Main deploy */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 3;
-		c.gridwidth = 3;
+		c.gridwidth = 4;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
@@ -185,8 +186,8 @@ public class AltosConfigUI
 		pane.add(main_deploy_label, c);
 
 		c = new GridBagConstraints();
-		c.gridx = 3; c.gridy = 3;
-		c.gridwidth = 3;
+		c.gridx = 4; c.gridy = 3;
+		c.gridwidth = 4;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -200,7 +201,7 @@ public class AltosConfigUI
 		/* Apogee delay */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 4;
-		c.gridwidth = 3;
+		c.gridwidth = 4;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
@@ -209,8 +210,8 @@ public class AltosConfigUI
 		pane.add(apogee_delay_label, c);
 
 		c = new GridBagConstraints();
-		c.gridx = 3; c.gridy = 4;
-		c.gridwidth = 3;
+		c.gridx = 4; c.gridy = 4;
+		c.gridwidth = 4;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -224,7 +225,7 @@ public class AltosConfigUI
 		/* Radio channel */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 5;
-		c.gridwidth = 3;
+		c.gridwidth = 4;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
@@ -233,8 +234,8 @@ public class AltosConfigUI
 		pane.add(radio_channel_label, c);
 
 		c = new GridBagConstraints();
-		c.gridx = 3; c.gridy = 5;
-		c.gridwidth = 3;
+		c.gridx = 4; c.gridy = 5;
+		c.gridwidth = 4;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -248,7 +249,7 @@ public class AltosConfigUI
 		/* Radio Calibration */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 6;
-		c.gridwidth = 3;
+		c.gridwidth = 4;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
@@ -257,8 +258,8 @@ public class AltosConfigUI
 		pane.add(radio_calibration_label, c);
 
 		c = new GridBagConstraints();
-		c.gridx = 3; c.gridy = 6;
-		c.gridwidth = 3;
+		c.gridx = 4; c.gridy = 6;
+		c.gridwidth = 4;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -271,7 +272,7 @@ public class AltosConfigUI
 		/* Callsign */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 7;
-		c.gridwidth = 3;
+		c.gridwidth = 4;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
@@ -280,8 +281,8 @@ public class AltosConfigUI
 		pane.add(callsign_label, c);
 
 		c = new GridBagConstraints();
-		c.gridx = 3; c.gridy = 7;
-		c.gridwidth = 3;
+		c.gridx = 4; c.gridy = 7;
+		c.gridwidth = 4;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -294,36 +295,47 @@ public class AltosConfigUI
 		/* Buttons */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 8;
-		c.gridwidth = 6;
+		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
 		save = new JButton("Save");
 		pane.add(save, c);
 		save.addActionListener(this);
-		save.setActionCommand("save");
+		save.setActionCommand("Save");
 
 		c = new GridBagConstraints();
-		c.gridx = 0; c.gridy = 8;
-		c.gridwidth = 6;
+		c.gridx = 2; c.gridy = 8;
+		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
 		c.insets = il;
 		reset = new JButton("Reset");
 		pane.add(reset, c);
 		reset.addActionListener(this);
-		reset.setActionCommand("reset");
+		reset.setActionCommand("Reset");
 
 		c = new GridBagConstraints();
-		c.gridx = 0; c.gridy = 8;
-		c.gridwidth = 6;
+		c.gridx = 4; c.gridy = 8;
+		c.gridwidth = 2;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.CENTER;
+		c.insets = il;
+		reboot = new JButton("Reboot");
+		pane.add(reboot, c);
+		reboot.addActionListener(this);
+		reboot.setActionCommand("Reboot");
+
+		c = new GridBagConstraints();
+		c.gridx = 6; c.gridy = 8;
+		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_END;
 		c.insets = il;
 		close = new JButton("Close");
 		pane.add(close, c);
 		close.addActionListener(this);
-		close.setActionCommand("close");
+		close.setActionCommand("Close");
 
 		addWindowListener(new ConfigListener(this));
 	}
@@ -336,12 +348,12 @@ public class AltosConfigUI
 	}
 
 	/* If any values have been changed, confirm before closing */
-	public boolean check_dirty() {
+	public boolean check_dirty(String operation) {
 		if (dirty) {
-			Object[] options = { "Close anyway", "Keep editing" };
+			Object[] options = { String.format("%s anyway", operation), "Keep editing" };
 			int i;
 			i = JOptionPane.showOptionDialog(this,
-							 "Configuration modified, close anyway?",
+							 String.format("Configuration modified. %s anyway?", operation),
 							 "Configuration Modified",
 							 JOptionPane.DEFAULT_OPTION,
 							 JOptionPane.WARNING_MESSAGE,
@@ -356,11 +368,11 @@ public class AltosConfigUI
 	public void actionPerformed(ActionEvent e) {
 		String	cmd = e.getActionCommand();
 
-		if (cmd.equals("close"))
-			if (!check_dirty())
+		if (cmd.equals("Close") || cmd.equals("Reboot"))
+			if (!check_dirty(cmd))
 				return;
 		listener.actionPerformed(e);
-		if (cmd.equals("close")) {
+		if (cmd.equals("Close") || cmd.equals("Reboot")) {
 			setVisible(false);
 			dispose();
 		}
