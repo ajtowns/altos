@@ -14,6 +14,7 @@ altosui_JAVA = \
 	AltosChannelMenu.java \
 	AltosConfig.java \
 	AltosConfigUI.java \
+	AltosConfigureUI.java \
 	AltosConvert.java \
 	AltosCRCException.java \
 	AltosCSV.java \
