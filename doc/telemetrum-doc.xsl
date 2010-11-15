@@ -752,6 +752,21 @@
           sensor... nothing is permanently "lost" or "damaged" if the 
           calibration is poor.
         </para>
+        <para>
+	  In the unlikely event an accel cal that goes badly, it is possible
+	  that TeleMetrum may always come up in 'pad mode' and as such not be
+	  listening to either the USB or radio interfaces.  If that happens,
+	  there is a special hook in the firmware to force the board back
+	  in to 'idle mode' so you can re-do the cal.  To use this hook, you 
+	  just need to ground the SPI clock pin at power-on.  This pin is 
+	  available as pin 2 on the 8-pin companion connector, and pin 1 is 
+	  ground.  So either carefully install a fine-gauge wire jumper 
+	  between the two pins closest to the index hole end of the 8-pin 
+	  connector, or plug in the programming cable to the 8-pin connector
+	  and use a small screwdriver or similar to short the two pins closest
+	  to the index post on the 4-pin end of the programming cable, and
+	  power up the board.  It should come up in 'idle mode' (two beeps).
+        </para>
       </section>
     </section>
   </chapter>
