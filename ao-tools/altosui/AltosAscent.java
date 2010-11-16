@@ -31,6 +31,53 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class AltosAscent extends JComponent implements AltosFlightDisplay {
 	GridBagLayout	layout;
 
+	public class AscentStatus {
+		JLabel		label;
+		JTextField	value;
+		AltosLights	lights;
+
+		void show(AltosState state, int crc_errors) {}
+		void reset() {
+			value.setText("");
+			lights.set(false);
+		}
+
+		public AscentStatus (GridBagLayout layout, int y, String text) {
+			GridBagConstraints	c = new GridBagConstraints();
+			c.weighty = 1;
+
+			lights = new AltosLights();
+			c.gridx = 0; c.gridy = y;
+			c.anchor = GridBagConstraints.CENTER;
+			c.fill = GridBagConstraints.VERTICAL;
+			c.weightx = 0;
+			layout.setConstraints(lights, c);
+			add(lights);
+
+			label = new JLabel(text);
+			label.setFont(Altos.label_font);
+			label.setHorizontalAlignment(SwingConstants.LEFT);
+			c.gridx = 1; c.gridy = y;
+			c.insets = new Insets(Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad);
+			c.anchor = GridBagConstraints.WEST;
+			c.fill = GridBagConstraints.VERTICAL;
+			c.weightx = 0;
+			layout.setConstraints(label, c);
+			add(label);
+
+			value = new JTextField(15);
+			value.setFont(Altos.value_font);
+			value.setHorizontalAlignment(SwingConstants.RIGHT);
+			c.gridx = 2; c.gridy = y;
+			c.anchor = GridBagConstraints.WEST;
+			c.fill = GridBagConstraints.BOTH;
+			c.weightx = 1;
+			layout.setConstraints(value, c);
+			add(value);
+
+		}
+	}
+
 	public class AscentValue {
 		JLabel		label;
 		JTextField	value;
@@ -173,6 +220,30 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		return String.format("%s %4d° %9.6f", h, deg, min);
 	}
 
+	class Apogee extends AscentStatus {
+		void show (AltosState state, int crc_errors) {
+			value.setText(String.format("%4.2f V", state.drogue_sense));
+			lights.set(state.drogue_sense > 3.2);
+		}
+		public Apogee (GridBagLayout layout, int y) {
+			super(layout, y, "Apogee Igniter Voltage");
+		}
+	}
+
+	Apogee apogee;
+
+	class Main extends AscentStatus {
+		void show (AltosState state, int crc_errors) {
+			value.setText(String.format("%4.2f V", state.main_sense));
+			lights.set(state.main_sense > 3.2);
+		}
+		public Main (GridBagLayout layout, int y) {
+			super(layout, y, "Main Igniter Voltage");
+		}
+	}
+
+	Main main;
+
 	class Lat extends AscentValue {
 		void show (AltosState state, int crc_errors) {
 			if (state.gps != null)
@@ -204,6 +275,8 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 	public void reset() {
 		lat.reset();
 		lon.reset();
+		main.reset();
+		apogee.reset();
 		height.reset();
 		speed.reset();
 		accel.reset();
@@ -213,6 +286,8 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		lat.show(state, crc_errors);
 		lon.show(state, crc_errors);
 		height.show(state, crc_errors);
+		main.show(state, crc_errors);
+		apogee.show(state, crc_errors);
 		speed.show(state, crc_errors);
 		accel.show(state, crc_errors);
 	}
@@ -253,5 +328,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		accel = new Accel(layout, 3);
 		lat = new Lat(layout, 4);
 		lon = new Lon(layout, 5);
+		apogee = new Apogee(layout, 6);
+		main = new Main(layout, 7);
 	}
 }

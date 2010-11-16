@@ -30,8 +30,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class AltosPad extends JComponent implements AltosFlightDisplay {
 	GridBagLayout	layout;
-	Font		label_font;
-	Font		value_font;
 
 	public class LaunchStatus {
 		JLabel		label;
@@ -57,7 +55,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			add(lights);
 
 			label = new JLabel(text);
-			label.setFont(label_font);
+			label.setFont(Altos.label_font);
 			label.setHorizontalAlignment(SwingConstants.LEFT);
 			c.gridx = 1; c.gridy = y;
 			c.insets = new Insets(Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad);
@@ -68,7 +66,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			add(label);
 
 			value = new JTextField(15);
-			value.setFont(value_font);
+			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;
 			c.anchor = GridBagConstraints.WEST;
@@ -94,7 +92,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			c.weighty = 1;
 
 			label = new JLabel(text);
-			label.setFont(label_font);
+			label.setFont(Altos.label_font);
 			label.setHorizontalAlignment(SwingConstants.LEFT);
 			c.gridx = 1; c.gridy = y;
 			c.anchor = GridBagConstraints.WEST;
@@ -104,7 +102,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			add(label);
 
 			value = new JTextField(30);
-			value.setFont(value_font);
+			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;
 			c.anchor = GridBagConstraints.EAST;
@@ -247,8 +245,6 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	public AltosPad() {
 		layout = new GridBagLayout();
 
-		label_font = new Font("Dialog", Font.PLAIN, 22);
-		value_font = new Font("Monospaced", Font.PLAIN, 22);
 		setLayout(layout);
 
 		/* Elements in pad display:
