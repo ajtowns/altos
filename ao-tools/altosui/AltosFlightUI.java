@@ -187,7 +187,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 			this.setJMenuBar(menubar);
 		}
 
-		this.setSize(new Dimension (width(), height()));
+		this.setSize(this.getPreferredSize());
 		this.validate();
 
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

@@ -60,7 +60,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			label.setFont(label_font);
 			label.setHorizontalAlignment(SwingConstants.LEFT);
 			c.gridx = 1; c.gridy = y;
-			c.insets = new Insets(10, 10, 10, 10);
+			c.insets = new Insets(Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad);
 			c.anchor = GridBagConstraints.WEST;
 			c.fill = GridBagConstraints.VERTICAL;
 			c.weightx = 0;
@@ -90,7 +90,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		}
 		public LaunchValue (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
-			c.insets = new Insets(10, 10, 10, 10);
+			c.insets = new Insets(Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad);
 			c.weighty = 1;
 
 			label = new JLabel(text);
@@ -151,17 +151,32 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	Main main;
 
-	class GPS extends LaunchStatus {
+	class GPSLocked extends LaunchStatus {
 		void show (AltosState state, int crc_errors) {
 			value.setText(String.format("%4d sats", state.gps.nsat));
-			lights.set(state.gps_ready);
+			lights.set(state.gps.locked);
 		}
-		public GPS (GridBagLayout layout, int y) {
-			super (layout, y, "GPS Status");
+		public GPSLocked (GridBagLayout layout, int y) {
+			super (layout, y, "GPS Locked");
 		}
 	}
 
-	GPS gps;
+	GPSLocked gps_locked;
+
+	class GPSReady extends LaunchStatus {
+		void show (AltosState state, int crc_errors) {
+			if (state.gps_ready)
+				value.setText("Ready");
+			else
+				value.setText(String.format("Waiting %d", state.gps_waiting));
+			lights.set(state.gps_ready);
+		}
+		public GPSReady (GridBagLayout layout, int y) {
+			super (layout, y, "GPS Ready");
+		}
+	}
+
+	GPSReady gps_ready;
 
 	String pos(double p, String pos, String neg) {
 		String	h = pos;
@@ -211,7 +226,8 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		battery.reset();
 		apogee.reset();
 		main.reset();
-		gps.reset();
+		gps_locked.reset();
+		gps_ready.reset();
 		pad_lat.reset();
 		pad_lon.reset();
 		pad_alt.reset();
@@ -221,7 +237,8 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		battery.show(state, crc_errors);
 		apogee.show(state, crc_errors);
 		main.show(state, crc_errors);
-		gps.show(state, crc_errors);
+		gps_locked.show(state, crc_errors);
+		gps_ready.show(state, crc_errors);
 		pad_lat.show(state, crc_errors);
 		pad_lon.show(state, crc_errors);
 		pad_alt.show(state, crc_errors);
@@ -230,24 +247,27 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	public AltosPad() {
 		layout = new GridBagLayout();
 
-		label_font = new Font("Dialog", Font.PLAIN, 24);
-		value_font = new Font("Monospaced", Font.PLAIN, 24);
+		label_font = new Font("Dialog", Font.PLAIN, 22);
+		value_font = new Font("Monospaced", Font.PLAIN, 22);
 		setLayout(layout);
 
 		/* Elements in pad display:
 		 *
 		 * Battery voltage
 		 * Igniter continuity
-		 * GPS lock status and location
+		 * GPS lock status
+		 * GPS ready status
+		 * GPS location
 		 * Pad altitude
 		 * RSSI
 		 */
 		battery = new Battery(layout, 0);
 		apogee = new Apogee(layout, 1);
 		main = new Main(layout, 2);
-		gps = new GPS(layout, 3);
-		pad_lat = new PadLat(layout, 4);
-		pad_lon = new PadLon(layout, 5);
-		pad_alt = new PadAlt(layout, 6);
+		gps_locked = new GPSLocked(layout, 3);
+		gps_ready = new GPSReady(layout, 4);
+		pad_lat = new PadLat(layout, 5);
+		pad_lon = new PadLon(layout, 6);
+		pad_alt = new PadAlt(layout, 7);
 	}
 }

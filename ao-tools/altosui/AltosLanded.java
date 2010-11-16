@@ -196,8 +196,8 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay {
 	public AltosLanded() {
 		layout = new GridBagLayout();
 
-		label_font = new Font("Dialog", Font.PLAIN, 24);
-		value_font = new Font("Monospaced", Font.PLAIN, 24);
+		label_font = new Font("Dialog", Font.PLAIN, 22);
+		value_font = new Font("Monospaced", Font.PLAIN, 22);
 		setLayout(layout);
 
 		/* Elements in descent display */

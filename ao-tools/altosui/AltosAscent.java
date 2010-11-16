@@ -30,8 +30,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class AltosAscent extends JComponent implements AltosFlightDisplay {
 	GridBagLayout	layout;
-	Font		label_font;
-	Font		value_font;
 
 	public class AscentValue {
 		JLabel		label;
@@ -46,10 +44,10 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			c.weighty = 1;
 
 			label = new JLabel(text);
-			label.setFont(label_font);
+			label.setFont(Altos.label_font);
 			label.setHorizontalAlignment(SwingConstants.LEFT);
 			c.gridx = 0; c.gridy = y;
-			c.insets = new Insets(10, 10, 10, 10);
+			c.insets = new Insets(Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad);
 			c.anchor = GridBagConstraints.WEST;
 			c.fill = GridBagConstraints.VERTICAL;
 			c.weightx = 0;
@@ -57,7 +55,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			add(label);
 
 			value = new JTextField(30);
-			value.setFont(value_font);
+			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 1; c.gridy = y;
 			c.anchor = GridBagConstraints.WEST;
@@ -95,10 +93,10 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			c.weighty = 1;
 
 			label = new JLabel(text);
-			label.setFont(label_font);
+			label.setFont(Altos.label_font);
 			label.setHorizontalAlignment(SwingConstants.LEFT);
 			c.gridx = 0; c.gridy = y;
-			c.insets = new Insets(10, 10, 10, 10);
+			c.insets = new Insets(Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad);
 			c.anchor = GridBagConstraints.WEST;
 			c.fill = GridBagConstraints.VERTICAL;
 			c.weightx = 0;
@@ -106,7 +104,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			add(label);
 
 			value = new JTextField(15);
-			value.setFont(value_font);
+			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 1; c.gridy = y;
 			c.anchor = GridBagConstraints.EAST;
@@ -116,7 +114,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			add(value);
 
 			max_value = new JTextField(15);
-			max_value.setFont(value_font);
+			max_value.setFont(Altos.value_font);
 			max_value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;
 			c.anchor = GridBagConstraints.EAST;
@@ -224,15 +222,15 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		JLabel			cur, max;
 
 		cur = new JLabel("Current");
-		cur.setFont(label_font);
+		cur.setFont(Altos.label_font);
 		c = new GridBagConstraints();
 		c.gridx = 1; c.gridy = y;
-		c.insets = new Insets(10, 10, 10, 10);
+		c.insets = new Insets(Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad);
 		layout.setConstraints(cur, c);
 		add(cur);
 
 		max = new JLabel("Maximum");
-		max.setFont(label_font);
+		max.setFont(Altos.label_font);
 		c.gridx = 2; c.gridy = y;
 		layout.setConstraints(max, c);
 		add(max);
@@ -241,8 +239,6 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 	public AltosAscent() {
 		layout = new GridBagLayout();
 
-		label_font = new Font("Dialog", Font.PLAIN, 24);
-		value_font = new Font("Monospaced", Font.PLAIN, 24);
 		setLayout(layout);
 
 		/* Elements in ascent display:

@@ -31,8 +31,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class AltosFlightStatus extends JComponent implements AltosFlightDisplay {
 	GridBagLayout	layout;
 
-	private Font status_font;
-
 	public class FlightValue {
 		JLabel		label;
 		JTextField	value;
@@ -51,14 +49,14 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 			c.weighty = 1;
 
 			label = new JLabel(text);
-			label.setFont(status_font);
+			label.setFont(Altos.status_font);
 			label.setHorizontalAlignment(SwingConstants.CENTER);
 			c.gridx = x; c.gridy = 0;
 			layout.setConstraints(label, c);
 			add(label);
 
 			value = new JTextField("");
-			value.setFont(status_font);
+			value.setFont(Altos.status_font);
 			value.setHorizontalAlignment(SwingConstants.CENTER);
 			c.gridx = x; c.gridy = 1;
 			layout.setConstraints(value, c);
@@ -145,7 +143,6 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 	public AltosFlightStatus() {
 		layout = new GridBagLayout();
 
-		status_font = new Font("SansSerif", Font.BOLD, 24);
 		setLayout(layout);
 
 		call = new Call(layout, 0);
