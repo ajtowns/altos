@@ -22,13 +22,17 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.*;
+import javax.swing.event.*;
 import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class AltosConfigureUI extends JDialog {
+public class AltosConfigureUI
+	extends JDialog
+	implements DocumentListener
+{
 	JFrame		owner;
 	AltosVoice	voice;
 	Container	pane;
@@ -39,6 +43,22 @@ public class AltosConfigureUI extends JDialog {
 
 	JButton		configure_log;
 	JTextField	log_directory;
+
+	JLabel		callsign_label;
+	JTextField	callsign_value;
+
+	/* DocumentListener interface methods */
+	public void changedUpdate(DocumentEvent e) {
+		AltosPreferences.set_callsign(callsign_value.getText());
+	}
+
+	public void insertUpdate(DocumentEvent e) {
+		changedUpdate(e);
+	}
+
+	public void removeUpdate(DocumentEvent e) {
+		changedUpdate(e);
+	}
 
 	public AltosConfigureUI(JFrame in_owner, AltosVoice in_voice) {
 		super(in_owner, "Configure AltosUI", false);
@@ -83,17 +103,6 @@ public class AltosConfigureUI extends JDialog {
 			});
 		pane.add(test_voice, c);
 
-		close = new JButton("Close");
-		close.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					setVisible(false);
-				}
-			});
-		c.gridx = 0;
-		c.gridy = 3;
-		c.gridwidth = 2;
-		pane.add(close, c);
-
 		configure_log = new JButton("Configure Log");
 		configure_log.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -112,6 +121,29 @@ public class AltosConfigureUI extends JDialog {
 		c.gridy = 2;
 		c.fill = GridBagConstraints.BOTH;
 		pane.add(log_directory, c);
+
+		callsign_label = new JLabel("Callsign");
+		c.gridx = 0;
+		c.gridy = 3;
+		pane.add(callsign_label, c);
+
+		callsign_value = new JTextField(AltosPreferences.callsign());
+		callsign_value.getDocument().addDocumentListener(this);
+		c.gridx = 1;
+		c.gridy = 3;
+		pane.add(callsign_value, c);
+
+		close = new JButton("Close");
+		close.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					setVisible(false);
+				}
+			});
+		c.gridx = 0;
+		c.gridy = 4;
+		c.gridwidth = 2;
+		c.fill = GridBagConstraints.NONE;
+		pane.add(close, c);
 
 		pack();
 		setLocationRelativeTo(owner);

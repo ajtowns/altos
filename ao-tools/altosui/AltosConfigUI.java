@@ -288,7 +288,7 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		callsign_value = new JTextField("N0CALL");
+		callsign_value = new JTextField(AltosPreferences.callsign());
 		callsign_value.getDocument().addDocumentListener(this);
 		pane.add(callsign_value, c);
 
