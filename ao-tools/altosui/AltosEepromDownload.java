@@ -28,18 +28,6 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import altosui.Altos;
-import altosui.AltosSerial;
-import altosui.AltosSerialMonitor;
-import altosui.AltosRecord;
-import altosui.AltosTelemetry;
-import altosui.AltosState;
-import altosui.AltosDeviceDialog;
-import altosui.AltosPreferences;
-import altosui.AltosLog;
-import altosui.AltosVoice;
-import altosui.AltosEepromMonitor;
-
 import libaltosJNI.*;
 
 public class AltosEepromDownload implements Runnable {
@@ -256,12 +244,11 @@ public class AltosEepromDownload implements Runnable {
 		frame = given_frame;
 		device = AltosDeviceDialog.show(frame, AltosDevice.product_any);
 
-		serial_line = new AltosSerial();
 		remote = false;
 
 		if (device != null) {
 			try {
-				serial_line.open(device);
+				serial_line = new AltosSerial(device);
 				if (!device.matchProduct(AltosDevice.product_telemetrum))
 					remote = true;
 				eeprom_thread = new Thread(this);
@@ -271,6 +258,12 @@ public class AltosEepromDownload implements Runnable {
 							      String.format("Cannot open device \"%s\"",
 									    device.getPath()),
 							      "Cannot open target device",
+							      JOptionPane.ERROR_MESSAGE);
+			} catch (AltosSerialInUseException si) {
+				JOptionPane.showMessageDialog(frame,
+							      String.format("Device \"%s\" already in use",
+									    device.getPath()),
+							      "Device in use",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (IOException ee) {
 				JOptionPane.showMessageDialog(frame,

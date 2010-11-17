@@ -20,10 +20,6 @@ package altosui;
 import java.lang.*;
 import java.text.*;
 import java.util.HashMap;
-import altosui.AltosConvert;
-import altosui.AltosRecord;
-import altosui.AltosGPS;
-import altosui.AltosCRCException;
 
 /*
  * Telemetry data contents

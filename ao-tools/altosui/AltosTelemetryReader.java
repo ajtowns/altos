@@ -50,14 +50,14 @@ class AltosTelemetryReader extends AltosFlightReader {
 		serial.set_callsign(callsign);
 	}
 
-	public AltosTelemetryReader (AltosDevice in_device) throws FileNotFoundException, IOException {
+	public AltosTelemetryReader (AltosDevice in_device)
+		throws FileNotFoundException, AltosSerialInUseException, IOException {
 		device = in_device;
-		serial = new AltosSerial();
+		serial = new AltosSerial(device);
 		log = new AltosLog(serial);
 		name = device.getPath();
 
 		telem = new LinkedBlockingQueue<AltosLine>();
 		serial.add_monitor(telem);
-        serial.open(device);
 	}
 }

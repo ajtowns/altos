@@ -67,6 +67,12 @@ public class Altos {
 
 	static boolean map_initialized = false;
 
+	static final int tab_elt_pad = 5;
+
+	static final Font label_font = new Font("Dialog", Font.PLAIN, 22);
+	static final Font value_font = new Font("Monospaced", Font.PLAIN, 22);
+	static final Font status_font = new Font("SansSerif", Font.BOLD, 24);
+
 	static void initialize_map()
 	{
 		string_to_state.put("startup", ao_flight_startup);

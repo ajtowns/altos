@@ -28,14 +28,6 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import altosui.AltosRecord;
-import altosui.AltosState;
-import altosui.AltosDeviceDialog;
-import altosui.AltosPreferences;
-import altosui.AltosLog;
-import altosui.AltosVoice;
-import altosui.AltosEepromMonitor;
-
 /*
  * AltosRecords with an index field so they can be sorted by tick while preserving
  * the original ordering for elements with matching ticks

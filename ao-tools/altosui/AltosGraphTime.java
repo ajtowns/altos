@@ -24,9 +24,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleAnchor;
 import org.jfree.ui.TextAnchor;
 
-import altosui.AltosDataPoint;
-import altosui.AltosGraph;
-
 class AltosGraphTime extends AltosGraph {
     static interface Element {
         void attachGraph(AltosGraphTime g);

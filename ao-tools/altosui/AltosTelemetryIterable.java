@@ -20,7 +20,6 @@ package altosui;
 import java.io.*;
 import java.util.*;
 import java.text.*;
-import altosui.AltosTelemetry;
 
 public class AltosTelemetryIterable extends AltosRecordIterable {
 	LinkedList<AltosRecord>	records;

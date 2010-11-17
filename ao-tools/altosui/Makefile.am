@@ -14,6 +14,7 @@ altosui_JAVA = \
 	AltosChannelMenu.java \
 	AltosConfig.java \
 	AltosConfigUI.java \
+	AltosConfigureUI.java \
 	AltosConvert.java \
 	AltosCRCException.java \
 	AltosCSV.java \
@@ -33,7 +34,7 @@ altosui_JAVA = \
 	AltosFlightDisplay.java \
 	AltosFlightInfoTableModel.java \
 	AltosFlightReader.java \
-	AltosFlightStatusTableModel.java \
+	AltosFlightStatus.java \
 	AltosFlightUI.java \
 	AltosGPS.java \
 	AltosGreatCircle.java \
@@ -58,10 +59,10 @@ altosui_JAVA = \
 	AltosRomconfig.java \
 	AltosRomconfigUI.java \
 	AltosSerial.java \
+	AltosSerialInUseException.java \
 	AltosSerialMonitor.java \
 	AltosSiteMap.java \
 	AltosState.java \
-	AltosStatusTable.java \
 	AltosTelemetry.java \
 	AltosTelemetryIterable.java \
 	AltosUI.java \

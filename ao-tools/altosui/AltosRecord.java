@@ -21,8 +21,6 @@ import java.lang.*;
 import java.text.*;
 import java.util.HashMap;
 import java.io.*;
-import altosui.AltosConvert;
-import altosui.AltosGPS;
 
 public class AltosRecord {
 	int	version;

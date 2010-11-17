@@ -17,28 +17,12 @@
 
 package altosui;
 
-import java.lang.*;
-import java.io.File;
-import java.util.*;
+import libaltosJNI.*;
 
-class AltosFile extends File {
+public class AltosSerialInUseException extends Exception {
+	public altos_device	device;
 
-	public AltosFile(int year, int month, int day, int serial, int flight, String extension) {
-		super (AltosPreferences.logdir(),
-		       String.format("%04d-%02d-%02d-serial-%03d-flight-%03d.%s",
-				     year, month, day, serial, flight, extension));
-	}
-
-	public AltosFile(int serial, int flight, String extension) {
-		this(Calendar.getInstance().get(Calendar.YEAR),
-		     Calendar.getInstance().get(Calendar.MONTH) + 1,
-		     Calendar.getInstance().get(Calendar.DAY_OF_MONTH),
-		     serial,
-		     flight,
-		     extension);
-	}
-
-	public AltosFile(AltosTelemetry telem) {
-		this(telem.serial, telem.flight, "telem");
+	public AltosSerialInUseException (altos_device in_device) {
+		device = in_device;
 	}
 }

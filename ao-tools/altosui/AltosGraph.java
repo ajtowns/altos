@@ -9,8 +9,6 @@ import java.io.*;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartUtilities;
 
-import altosui.AltosDataPoint;
-
 abstract class AltosGraph {
     public String filename;
     public abstract void addData(AltosDataPoint d);

@@ -28,25 +28,6 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import altosui.Altos;
-import altosui.AltosSerial;
-import altosui.AltosSerialMonitor;
-import altosui.AltosRecord;
-import altosui.AltosTelemetry;
-import altosui.AltosState;
-import altosui.AltosDeviceDialog;
-import altosui.AltosPreferences;
-import altosui.AltosLog;
-import altosui.AltosVoice;
-import altosui.AltosFlightInfoTableModel;
-import altosui.AltosFlashUI;
-import altosui.AltosLogfileChooser;
-import altosui.AltosCSVUI;
-import altosui.AltosLine;
-import altosui.AltosStatusTable;
-import altosui.AltosInfoTable;
-import altosui.AltosDisplayThread;
-
 import libaltosJNI.*;
 
 public class AltosUI extends JFrame {
@@ -74,6 +55,12 @@ public class AltosUI extends JFrame {
 						      String.format("Cannot open device \"%s\"",
 								    device.getPath()),
 						      "Cannot open target device",
+						      JOptionPane.ERROR_MESSAGE);
+		} catch (AltosSerialInUseException si) {
+			JOptionPane.showMessageDialog(AltosUI.this,
+						      String.format("Device \"%s\" already in use",
+								    device.getPath()),
+						      "Device in use",
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (IOException ee) {
 			JOptionPane.showMessageDialog(AltosUI.this,
@@ -157,9 +144,28 @@ public class AltosUI extends JFrame {
 					}
 				});
 
-		setTitle("AltOS");
+		b = addButton(0, 2, "Configure AltosUI");
+		b.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ConfigureAltosUI();
+				}
+			});
 
-		createMenu();
+		b = addButton(1, 2, "Flash Image");
+		b.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					FlashImage();
+				}
+			});
+
+		b = addButton(2, 2, "Quit");
+		b.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					System.exit(0);
+				}
+			});
+
+		setTitle("AltOS");
 
 		pane.doLayout();
 		pane.validate();
@@ -245,139 +251,8 @@ public class AltosUI extends JFrame {
 		new AltosGraphUI(AltosUI.this);
 	}
 
-	/* Create the AltosUI menus
-	 */
-	private void createMenu() {
-		JMenuBar menubar = new JMenuBar();
-		JMenu menu;
-		JMenuItem item;
-		JRadioButtonMenuItem radioitem;
-
-		// File menu
-		{
-			menu = new JMenu("File");
-			menu.setMnemonic(KeyEvent.VK_F);
-			menubar.add(menu);
-
-			item = new JMenuItem("Flash Image",KeyEvent.VK_I);
-			item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						FlashImage();
-					}
-				});
-			menu.add(item);
-
-			item = new JMenuItem("Export Data",KeyEvent.VK_E);
-			item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						ExportData();
-					}
-				});
-			menu.add(item);
-
-			item = new JMenuItem("Graph Data",KeyEvent.VK_G);
-			item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						GraphData();
-					}
-				});
-			menu.add(item);
-
-			item = new JMenuItem("Quit",KeyEvent.VK_Q);
-			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
-								   ActionEvent.CTRL_MASK));
-			item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						System.out.printf("exiting\n");
-						System.exit(0);
-					}
-				});
-			menu.add(item);
-		}
-
-		// Device menu
-		if (false) {
-			menu = new JMenu("Device");
-			menu.setMnemonic(KeyEvent.VK_D);
-			menubar.add(menu);
-
-			item = new JMenuItem("Connect to Device",KeyEvent.VK_C);
-			item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						ConnectToDevice();
-					}
-				});
-			menu.add(item);
-
-			menu.addSeparator();
-
-			item = new JMenuItem("Set Callsign",KeyEvent.VK_S);
-			item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						ConfigureCallsign();
-					}
-				});
-
-			menu.add(item);
-
-			item = new JMenuItem("Configure TeleMetrum device",KeyEvent.VK_T);
-			item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						ConfigureTeleMetrum();
-					}
-				});
-
-			menu.add(item);
-		}
-		// Log menu
-		{
-			menu = new JMenu("Log");
-			menu.setMnemonic(KeyEvent.VK_L);
-			menubar.add(menu);
-
-			item = new JMenuItem("New Log",KeyEvent.VK_N);
-			item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-					}
-				});
-			menu.add(item);
-
-			item = new JMenuItem("Configure Log",KeyEvent.VK_C);
-			item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						AltosPreferences.ConfigureLog();
-					}
-				});
-			menu.add(item);
-		}
-		// Voice menu
-		{
-			menu = new JMenu("Voice", true);
-			menu.setMnemonic(KeyEvent.VK_V);
-			menubar.add(menu);
-
-			radioitem = new JRadioButtonMenuItem("Enable Voice", AltosPreferences.voice());
-			radioitem.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						JRadioButtonMenuItem item = (JRadioButtonMenuItem) e.getSource();
-						boolean enabled = item.isSelected();
-						AltosPreferences.set_voice(enabled);
-						if (enabled)
-							voice.speak_always("Enable voice.");
-						else
-							voice.speak_always("Disable voice.");
-					}
-				});
-			menu.add(radioitem);
-			item = new JMenuItem("Test Voice",KeyEvent.VK_T);
-			item.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						voice.speak("That's one small step for man; one giant leap for mankind.");
-					}
-				});
-			menu.add(item);
-		}
-		this.setJMenuBar(menubar);
+	private void ConfigureAltosUI() {
+		new AltosConfigureUI(AltosUI.this, voice);
 	}
 
 	static AltosRecordIterable open_logfile(String filename) {
@@ -456,26 +331,27 @@ public class AltosUI extends JFrame {
 	public static void main(final String[] args) {
 		int	process = 0;
 		/* Handle batch-mode */
-        if (args.length == 2 && args[0].equals("--replay")) {
-            String filename = args[1];
-            FileInputStream in;
-            try {
-                in = new FileInputStream(filename);
-            } catch (Exception e) {
-                System.out.printf("Failed to open file '%s'\n", filename);
-                return;
-            }
-            AltosRecordIterable recs;
-            AltosReplayReader reader;
-            if (filename.endsWith("eeprom")) {
-              recs = new AltosEepromIterable(in);
-            } else {
-              recs = new AltosTelemetryIterable(in); 
-            }
-            reader = new AltosReplayReader(recs.iterator(), filename);
-            new AltosFlightUI(new AltosVoice(), reader);
-            return;
-        } else if (args.length > 0) {
+		if (args.length == 2 && args[0].equals("--replay")) {
+			String filename = args[1];
+			FileInputStream in;
+			try {
+				in = new FileInputStream(filename);
+			} catch (Exception e) {
+				System.out.printf("Failed to open file '%s'\n", filename);
+				return;
+			}
+			AltosRecordIterable recs;
+			AltosReplayReader reader;
+			if (filename.endsWith("eeprom")) {
+				recs = new AltosEepromIterable(in);
+			} else {
+				recs = new AltosTelemetryIterable(in);
+			}
+			reader = new AltosReplayReader(recs.iterator(), filename);
+			AltosFlightUI flight_ui = new AltosFlightUI(new AltosVoice(), reader);
+			flight_ui.set_exit_on_close();
+			return;
+		} else if (args.length > 0) {
 			for (int i = 0; i < args.length; i++) {
 				if (args[i].equals("--kml"))
 					process |= process_kml;

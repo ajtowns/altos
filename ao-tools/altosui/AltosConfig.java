@@ -28,20 +28,6 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import altosui.Altos;
-import altosui.AltosSerial;
-import altosui.AltosSerialMonitor;
-import altosui.AltosRecord;
-import altosui.AltosTelemetry;
-import altosui.AltosState;
-import altosui.AltosDeviceDialog;
-import altosui.AltosPreferences;
-import altosui.AltosLog;
-import altosui.AltosVoice;
-import altosui.AltosFlightStatusTableModel;
-import altosui.AltosFlightInfoTableModel;
-import altosui.AltosConfigUI;
-
 import libaltosJNI.*;
 
 public class AltosConfig implements Runnable, ActionListener {
@@ -212,12 +198,26 @@ public class AltosConfig implements Runnable, ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		String	cmd = e.getActionCommand();
-		if (cmd.equals("save")) {
+		if (cmd.equals("Save")) {
 			save_data();
 			set_ui();
-		} else if (cmd.equals("reset")) {
+		} else if (cmd.equals("Reset")) {
 			set_ui();
-		} else if (cmd.equals("close")) {
+		} else if (cmd.equals("Reboot")) {
+			if (serial_line != null) {
+				try {
+					start_serial();
+					serial_line.printf("r eboot\n");
+				} catch (InterruptedException ie) {
+				} finally {
+					try {
+						stop_serial();
+					} catch (InterruptedException ie) {
+					}
+				}
+				serial_line.close();
+			}
+		} else if (cmd.equals("Close")) {
 			if (serial_line != null)
 				serial_line.close();
 		}
@@ -245,10 +245,9 @@ public class AltosConfig implements Runnable, ActionListener {
 		product = new string_ref("unknown");
 
 		device = AltosDeviceDialog.show(owner, AltosDevice.product_any);
-		serial_line = new AltosSerial();
 		if (device != null) {
 			try {
-				serial_line.open(device);
+				serial_line = new AltosSerial(device);
 				if (!device.matchProduct(AltosDevice.product_telemetrum))
 					remote = true;
 				config_thread = new Thread(this);
@@ -258,6 +257,12 @@ public class AltosConfig implements Runnable, ActionListener {
 							      String.format("Cannot open device \"%s\"",
 									    device.getPath()),
 							      "Cannot open target device",
+							      JOptionPane.ERROR_MESSAGE);
+			} catch (AltosSerialInUseException si) {
+				JOptionPane.showMessageDialog(owner,
+							      String.format("Device \"%s\" already in use",
+									    device.getPath()),
+							      "Device in use",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (IOException ee) {
 				JOptionPane.showMessageDialog(owner,

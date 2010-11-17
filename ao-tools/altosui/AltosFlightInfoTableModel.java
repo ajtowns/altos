@@ -46,7 +46,7 @@ public class AltosFlightInfoTableModel extends AbstractTableModel {
 	public int getColumnCount() { return columnNames.length; }
 	public String getColumnName(int col) { return columnNames[col]; }
 
-	public int getRowCount() { return 20; }
+	public int getRowCount() { return 17; }
 
 	int	current_row = 0;
 	int	prev_num_rows = 0;

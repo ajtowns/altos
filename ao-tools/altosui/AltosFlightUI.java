@@ -46,7 +46,8 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	AltosLanded	landed;
     AltosSiteMap    sitemap;
 
-	private AltosStatusTable flightStatus;
+	private AltosFlightStatus flightStatus;
+	private JScrollPane flightInfoPane;
 	private AltosInfoTable flightInfo;
 
 	static final int tab_pad = 1;
@@ -55,6 +56,8 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	static final int tab_landed = 4;
 
 	int cur_tab = 0;
+
+	boolean exit_on_close = false;
 
 	int which_tab(AltosState state) {
 		if (state.state < Altos.ao_flight_boost)
@@ -119,13 +122,17 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 			}
 			cur_tab = tab;
 		}
-		flightStatus.set(state);
+		flightStatus.show(state, crc_errors);
 		flightInfo.show(state, crc_errors);
 		sitemap.show(state, crc_errors);
 	}
 
+	public void set_exit_on_close() {
+		exit_on_close = true;
+	}
+
 	public AltosFlightUI(AltosVoice in_voice, AltosFlightReader in_reader, final int serial) {
-        AltosPreferences.init(this);
+		AltosPreferences.init(this);
 
 		voice = in_voice;
 		reader = in_reader;
@@ -136,7 +143,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 		setTitle(String.format("AltOS %s", reader.name));
 
-		flightStatus = new AltosStatusTable();
+		flightStatus = new AltosFlightStatus();
 
 		vbox = new Box (BoxLayout.Y_AXIS);
 		vbox.add(flightStatus);
@@ -156,7 +163,8 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		pane.add("Landed", landed);
 
 		flightInfo = new AltosInfoTable();
-		pane.add("Table", new JScrollPane(flightInfo.box()));
+		flightInfoPane = new JScrollPane(flightInfo.box());
+		pane.add("Table", flightInfoPane);
 
         sitemap = new AltosSiteMap();
         pane.add("Site Map", sitemap);
@@ -185,7 +193,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 			this.setJMenuBar(menubar);
 		}
 
-		this.setSize(new Dimension (width(), height()));
+		this.setSize(this.getPreferredSize());
 		this.validate();
 
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -195,6 +203,8 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 				disconnect();
 				setVisible(false);
 				dispose();
+				if (exit_on_close)
+					System.exit(0);
 			}
 		});
 

@@ -19,8 +19,6 @@ package altosui;
 
 import java.lang.*;
 import java.text.*;
-import altosui.AltosParse;
-
 
 public class AltosGPS {
 	public class AltosGPSSat {

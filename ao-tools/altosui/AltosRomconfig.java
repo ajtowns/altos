@@ -17,7 +17,6 @@
 
 package altosui;
 import java.io.*;
-import altosui.AltosHexfile;
 
 public class AltosRomconfig {
 	public boolean	valid;
