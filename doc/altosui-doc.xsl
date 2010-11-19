@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
   "/usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd">
+
 <book>
   <title>AltosUI</title>
   <subtitle>Altos Metrum Graphical User Interface Manual</subtitle>
@@ -551,6 +552,40 @@
   <chapter>
     <title>Flash Image</title>
     <para>
+      This reprograms any Altus Metrum device by using a TeleMetrum or
+      TeleDongle as a programming dongle. Please read the directions
+      for connecting the programming cable in the main TeleMetrum
+      manual before reading these instructions.
+    </para>
+    <para>
+      Once you have the programmer and target devices connected,
+      push the 'Flash Image' button. That will present a dialog box
+      listing all of the connected devices. Carefully select the
+      programmer device, not the device to be programmed.
+    </para>
+    <para>
+      Next, select the image to flash to the device. These are named
+      with the product name and firmware version. The file selector
+      will start in the directory containing the firmware included
+      with the AltosUI package. Navigate to the directory containing
+      the desired firmware if it isn't there.
+    </para>
+    <para>
+      Next, a small dialog containing the device serial number and
+      RF calibration values should appear. If these values are
+      incorrect (possibly due to a corrupted image in the device),
+      enter the correct values here.
+    </para>
+    <para>
+      Finally, a dialog containing a progress bar will follow the
+      programming process.
+    </para>
+    <para>
+      When programming is complete, the target device will
+      reboot. Note that if the target device is connected via USB, you
+      will have to unplug it and then plug it back in for the USB
+      connection to reset so that you can communicate with the device
+      again.
     </para>
   </chapter>
   <chapter>
