@@ -45,11 +45,13 @@ public class AltosSiteMapTile extends JLabel {
     int px_size = 512;
 
     private boolean setLocation(double lat, double lng) {
-        Point2D.Double north_1nm;
+        Point2D.Double north_step;
+        double step_nm = 0.5;
         for (zoom = 3; zoom < 22; zoom++) {
             coord_pt = pt(lat, lng, new Point2D.Double(0,0), zoom);
-            north_1nm = pt(lat+1/60.0, lng, new Point2D.Double(0,0), zoom);
-            if (coord_pt.y - north_1nm.y > px_size/2)
+            north_step = pt(lat+step_nm/60.0, lng, 
+                    new Point2D.Double(0,0), zoom);
+            if (coord_pt.y - north_step.y > px_size/2)
                 break;
         }
         coord_pt.x = -px_size * Math.floor(coord_pt.x/px_size + off_x);
