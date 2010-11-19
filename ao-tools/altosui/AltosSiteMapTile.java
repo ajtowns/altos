@@ -52,8 +52,8 @@ public class AltosSiteMapTile extends JLabel {
             if (coord_pt.y - north_1nm.y > px_size/2)
                 break;
         }
-        coord_pt.x = px_size/2 - ((long)coord_pt.x/px_size + off_x) * px_size;
-        coord_pt.y = px_size/2 - ((long)coord_pt.y/px_size + off_y) * px_size;
+        coord_pt.x = -px_size * Math.floor(coord_pt.x/px_size + off_x);
+        coord_pt.y = -px_size * Math.floor(coord_pt.y/px_size + off_y);
 
         scale_x = 256/360.0 * Math.pow(2, zoom);
         scale_y = 256/(2.0*Math.PI) * Math.pow(2, zoom);
