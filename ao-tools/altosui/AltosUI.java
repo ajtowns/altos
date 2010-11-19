@@ -125,40 +125,47 @@ public class AltosUI extends JFrame {
 						Replay();
 					}
 				});
-		b = addButton(0, 1, "Graph Data");
+		b = addButton(3, 0, "Graph Data");
 		b.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						GraphData();
 					}
 				});
-		b = addButton(1, 1, "Export Data");
+		b = addButton(4, 0, "Export Data");
 		b.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						ExportData();
 					}
 				});
-		b = addButton(2, 1, "Configure TeleMetrum");
+		b = addButton(0, 1, "Configure TeleMetrum");
 		b.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						ConfigureTeleMetrum();
 					}
 				});
 
-		b = addButton(0, 2, "Configure AltosUI");
+		b = addButton(1, 1, "Configure AltosUI");
 		b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					ConfigureAltosUI();
 				}
 			});
 
-		b = addButton(1, 2, "Flash Image");
+		b = addButton(2, 1, "Flash Image");
 		b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					FlashImage();
 				}
 			});
 
-		b = addButton(2, 2, "Quit");
+		b = addButton(3, 1, "Fire Igniter");
+		b.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					FireIgniter();
+				}
+			});
+
+		b = addButton(4, 1, "Quit");
 		b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					System.exit(0);
@@ -213,6 +220,10 @@ public class AltosUI extends JFrame {
 
 	void FlashImage() {
 		new AltosFlashUI(AltosUI.this);
+	}
+
+	void FireIgniter() {
+		new AltosIgniteUI(AltosUI.this);
 	}
 
 	/*
