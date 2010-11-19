@@ -75,12 +75,25 @@ public class AltosConfigureUI
 		c = new GridBagConstraints();
 		c.insets = insets;
 		c.fill = GridBagConstraints.NONE;
-		c.anchor = GridBagConstraints.CENTER;
+		c.anchor = GridBagConstraints.WEST;
 
-		/* Enable Voice */
+		/* Nice label at the top */
 		c.gridx = 0;
 		c.gridy = 0;
-		enable_voice = new JRadioButton("Enable Voice", AltosPreferences.voice());
+		c.gridwidth = 3;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.CENTER;
+		pane.add(new JLabel ("Configure AltOS UI"), c);
+
+		/* Voice settings */
+		c.gridx = 0;
+		c.gridy = 1;
+		c.gridwidth = 1;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(new JLabel("Voice"), c);
+
+		enable_voice = new JRadioButton("Enable", AltosPreferences.voice());
 		enable_voice.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					JRadioButton item = (JRadioButton) e.getSource();
@@ -92,9 +105,20 @@ public class AltosConfigureUI
 						voice.speak_always("Disable voice.");
 				}
 			});
-		pane.add(enable_voice, c);
 		c.gridx = 1;
-		c.gridy = 0;
+		c.gridy = 1;
+		c.gridwidth = 1;
+		c.weightx = 1;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(enable_voice, c);
+
+		c.gridx = 2;
+		c.gridy = 1;
+		c.gridwidth = 1;
+		c.weightx = 1;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.EAST;
 		test_voice = new JButton("Test Voice");
 		test_voice.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -103,36 +127,46 @@ public class AltosConfigureUI
 			});
 		pane.add(test_voice, c);
 
-		configure_log = new JButton("Configure Log");
+		/* Log directory settings */
+		c.gridx = 0;
+		c.gridy = 2;
+		c.gridwidth = 1;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(new JLabel("Log Directory"), c);
+
+		configure_log = new JButton(AltosPreferences.logdir().getPath());
 		configure_log.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					AltosPreferences.ConfigureLog();
-					log_directory.setText(AltosPreferences.logdir().getPath());
+					configure_log.setText(AltosPreferences.logdir().getPath());
 				}
 			});
-		c.gridwidth = 1;
-
-		c.gridx = 0;
-		c.gridy = 2;
-		pane.add(configure_log, c);
-
-		log_directory = new JTextField(AltosPreferences.logdir().getPath());
 		c.gridx = 1;
 		c.gridy = 2;
+		c.gridwidth = 2;
 		c.fill = GridBagConstraints.BOTH;
-		pane.add(log_directory, c);
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(configure_log, c);
 
-		callsign_label = new JLabel("Callsign");
+		/* Callsign setting */
 		c.gridx = 0;
 		c.gridy = 3;
-		pane.add(callsign_label, c);
+		c.gridwidth = 1;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(new JLabel("Callsign"), c);
 
 		callsign_value = new JTextField(AltosPreferences.callsign());
 		callsign_value.getDocument().addDocumentListener(this);
 		c.gridx = 1;
 		c.gridy = 3;
+		c.gridwidth = 2;
+		c.fill = GridBagConstraints.BOTH;
+		c.anchor = GridBagConstraints.WEST;
 		pane.add(callsign_value, c);
 
+		/* And a close button at the bottom */
 		close = new JButton("Close");
 		close.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -141,8 +175,9 @@ public class AltosConfigureUI
 			});
 		c.gridx = 0;
 		c.gridy = 4;
-		c.gridwidth = 2;
+		c.gridwidth = 3;
 		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.CENTER;
 		pane.add(close, c);
 
 		pack();
