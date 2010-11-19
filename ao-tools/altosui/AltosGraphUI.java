@@ -151,18 +151,15 @@ public class AltosGraphUI extends JFrame
         }
     }
 
-    public AltosGraphUI(JFrame frame)
-    {
-        super("Altos Graph");
+	public AltosGraphUI(AltosRecordIterable records) {
+		super("Altos Graph");
 
-        AltosGraphDataChooser chooser;
-        chooser = new AltosGraphDataChooser(frame);
-        Iterable<AltosDataPoint> reader = chooser.runDialog();
-        if (reader == null)
-            return;
+		Iterable<AltosDataPoint> reader = new AltosDataPointReader (records);
+		if (reader == null)
+			return;
         
-        init(reader, 0);
-    }
+		init(reader, 0);
+	}
 
     public AltosGraphUI(Iterable<AltosDataPoint> data, int which) 
     {

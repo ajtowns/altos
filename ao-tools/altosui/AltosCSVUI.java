@@ -30,16 +30,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class AltosCSVUI
 	extends JDialog
-	implements Runnable, ActionListener
+	implements ActionListener
 {
-	JFrame			frame;
-	Thread			thread;
+	JFileChooser		csv_chooser;
+	JPanel			accessory;
+	JComboBox		combo_box;
 	AltosRecordIterable	iterable;
 	AltosWriter		writer;
-	JFileChooser		csv_chooser;
-	JComboBox		combo_box;
 
-	static String[]		combo_box_items = { "CSV", "KML" };
+	static String[]		combo_box_items = { "Comma Separated Values (.CSV)", "Googleearth Data (.KML)" };
 
 	void set_default_file() {
 		File	current = csv_chooser.getSelectedFile();
@@ -47,57 +46,63 @@ public class AltosCSVUI
 		String	new_name = null;
 		String	selected = (String) combo_box.getSelectedItem();
 
-		if (selected.equals("CSV"))
+		if (selected.contains("CSV"))
 			new_name = Altos.replace_extension(current_name, ".csv");
-		else if (selected.equals("KML"))
+		else if (selected.contains("KML"))
 			new_name = Altos.replace_extension(current_name, ".kml");
 		if (new_name != null)
 			csv_chooser.setSelectedFile(new File(new_name));
 	}
 
-	public void run() {
-		AltosLogfileChooser	chooser;
+	public void actionPerformed(ActionEvent e) {
+		if (e.getActionCommand().equals("comboBoxChanged"))
+			set_default_file();
+	}
 
-		chooser = new AltosLogfileChooser(frame);
-		iterable = chooser.runDialog();
-		if (iterable == null)
-			return;
+	public AltosCSVUI(JFrame frame, AltosRecordIterable in_iterable, File source_file) {
+		iterable = in_iterable;
+		csv_chooser = new JFileChooser(source_file);
 
-		csv_chooser = new JFileChooser(chooser.file());
+		accessory = new JPanel();
+		accessory.setLayout(new GridBagLayout());
+
+		GridBagConstraints	c = new GridBagConstraints();
+		c.fill = GridBagConstraints.NONE;
+		c.weightx = 1;
+		c.weighty = 0;
+		c.insets = new Insets (4, 4, 4, 4);
+
+		JLabel accessory_label = new JLabel("Export File Type");
+		c.gridx = 0;
+		c.gridy = 0;
+		accessory.add(accessory_label, c);
+
 		combo_box = new JComboBox(combo_box_items);
 		combo_box.addActionListener(this);
-		csv_chooser.setAccessory(combo_box);
-		csv_chooser.setSelectedFile(chooser.file());
+		c.gridx = 0;
+		c.gridy = 1;
+		accessory.add(combo_box, c);
+
+		csv_chooser.setAccessory(accessory);
+		csv_chooser.setSelectedFile(source_file);
 		set_default_file();
 		int ret = csv_chooser.showSaveDialog(frame);
 		if (ret == JFileChooser.APPROVE_OPTION) {
-			File 	file = csv_chooser.getSelectedFile();
-			String	type = (String) combo_box.getSelectedItem();
+			File file = csv_chooser.getSelectedFile();
+			String type = (String) combo_box.getSelectedItem();
 			try {
-				if (type.equals("CSV"))
+				if (type.contains("CSV"))
 					writer = new AltosCSV(file);
 				else
 					writer = new AltosKML(file);
+				writer.write(iterable);
+				writer.close();
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(frame,
 							      file.getName(),
 							      "Cannot open file",
 							      JOptionPane.ERROR_MESSAGE);
 			}
-			writer.write(iterable);
-			writer.close();
 		}
-	}
-
-	public void actionPerformed(ActionEvent e) {
-		System.out.printf("command %s param %s\n", e.getActionCommand(), e.paramString());
-		if (e.getActionCommand().equals("comboBoxChanged"))
-			set_default_file();
-	}
-
-	public AltosCSVUI(JFrame in_frame) {
-		frame = in_frame;
-		thread = new Thread(this);
-		thread.start();
 	}
 }

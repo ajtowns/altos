@@ -230,8 +230,9 @@ public class AltosUI extends JFrame {
 	 * Replay a flight from telemetry data
 	 */
 	private void Replay() {
-		AltosLogfileChooser chooser = new AltosLogfileChooser(
+		AltosDataChooser chooser = new AltosDataChooser(
 			AltosUI.this);
+
 		AltosRecordIterable iterable = chooser.runDialog();
 		if (iterable != null) {
 			AltosFlightReader reader = new AltosReplayReader(iterable.iterator(),
@@ -252,14 +253,24 @@ public class AltosUI extends JFrame {
 	 */
 
 	private void ExportData() {
-		new AltosCSVUI(AltosUI.this);
+		AltosDataChooser chooser;
+		chooser = new AltosDataChooser(this);
+		AltosRecordIterable record_reader = chooser.runDialog();
+		if (record_reader == null)
+			return;
+		new AltosCSVUI(AltosUI.this, record_reader, chooser.file());
 	}
 
 	/* Load a flight log CSV file and display a pretty graph.
 	 */
 
 	private void GraphData() {
-		new AltosGraphUI(AltosUI.this);
+		AltosDataChooser chooser;
+		chooser = new AltosDataChooser(this);
+		AltosRecordIterable record_reader = chooser.runDialog();
+		if (record_reader == null)
+			return;
+		new AltosGraphUI(record_reader);
 	}
 
 	private void ConfigureAltosUI() {
