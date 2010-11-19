@@ -62,6 +62,7 @@ altosui_JAVA = \
 	AltosSerialInUseException.java \
 	AltosSerialMonitor.java \
 	AltosSiteMap.java \
+	AltosSiteMapTile.java \
 	AltosState.java \
 	AltosTelemetry.java \
 	AltosTelemetryIterable.java \
