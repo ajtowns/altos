@@ -32,7 +32,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Line2D;
 
 public class AltosSiteMapTile extends JLabel {
-    double lat, lng;
     int zoom;
     double scale_x, scale_y;
     Point2D.Double coord_pt;
@@ -45,16 +44,20 @@ public class AltosSiteMapTile extends JLabel {
 
     int px_size = 512;
 
-    private boolean setLocation(double new_lat, double new_lng) {
-        int new_zoom = 16;
-        lat = new_lat;
-        lng = new_lng;
-        zoom = new_zoom;
+    private boolean setLocation(double lat, double lng) {
+        Point2D.Double north_1nm;
+        for (zoom = 3; zoom < 22; zoom++) {
+            coord_pt = pt(lat, lng, new Point2D.Double(0,0), zoom);
+            north_1nm = pt(lat+1/60.0, lng, new Point2D.Double(0,0), zoom);
+            if (coord_pt.y - north_1nm.y > px_size/2)
+                break;
+        }
+        coord_pt.x = px_size/2 - ((long)coord_pt.x/px_size + off_x) * px_size;
+        coord_pt.y = px_size/2 - ((long)coord_pt.y/px_size + off_y) * px_size;
+
         scale_x = 256/360.0 * Math.pow(2, zoom);
         scale_y = 256/(2.0*Math.PI) * Math.pow(2, zoom);
-        coord_pt = pt(lat, lng, new Point2D.Double(0,0));
-        coord_pt.x = px_size/2-coord_pt.x - off_x * px_size;
-        coord_pt.y = px_size/2-coord_pt.y - off_y * px_size;
+
         last_pt = null;
 
         Point2D.Double map_latlng;
@@ -97,7 +100,7 @@ public class AltosSiteMapTile extends JLabel {
         char chlng = lng < 0 ? 'E' : 'W';
         if (lat < 0) lat = -lat;
         if (lng < 0) lng = -lng;
-        return String.format("map-%c%.3f,%c%.3f-%d.png",
+        return String.format("map-%c%.6f,%c%.6f-%d.png",
                 chlat, lat, chlng, lng, zoom);
     }
 
@@ -106,10 +109,20 @@ public class AltosSiteMapTile extends JLabel {
     //  http://maps.gstatic.com/intl/en_us/mapfiles/api-3/2/10/main.js
     // search for fromLatLngToPoint and fromPointToLatLng
     private Point2D.Double pt(double lat, double lng) {
-        return pt(lat, lng, coord_pt);
+        return pt(lat, lng, coord_pt, scale_x, scale_y);
     }
 
-    private Point2D.Double pt(double lat, double lng, Point2D.Double centre) {
+    private static Point2D.Double pt(double lat, double lng, 
+            Point2D.Double centre, int zoom)
+    {
+        double scale_x = 256/360.0 * Math.pow(2, zoom);
+        double scale_y = 256/(2.0*Math.PI) * Math.pow(2, zoom);
+        return pt(lat, lng, centre, scale_x, scale_y);
+    }
+
+    private static Point2D.Double pt(double lat, double lng, 
+            Point2D.Double centre, double scale_x, double scale_y)
+    {
         Point2D.Double res = new Point2D.Double();
         double e;
 
