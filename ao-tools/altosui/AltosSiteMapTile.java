@@ -32,96 +32,15 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Line2D;
 
 public class AltosSiteMapTile extends JLayeredPane {
-    int zoom;
-    double scale_x, scale_y;
     Point2D.Double coord_pt;
     Point2D.Double last_pt;
 
-    AltosSiteMapLabel mapLabel;
+    JLabel mapLabel;
     JLabel draw;
     Graphics2D g2d;
 
-    int off_x;
-    int off_y;
-
-    static final int px_size = 512;
-
-    private void loadMap() {
-        Point2D.Double map_latlng = latlng(px_size/2, px_size/2);
-        mapLabel.loadMap(map_latlng.x, map_latlng.y, zoom, px_size);
-    }
-
-    private boolean setLocation(double lat, double lng) {
-        Point2D.Double north_step;
-        double step_nm = 0.5;
-        for (zoom = 3; zoom < 22; zoom++) {
-            coord_pt = pt(lat, lng, new Point2D.Double(0,0), zoom);
-            north_step = pt(lat+step_nm/60.0, lng, 
-                    new Point2D.Double(0,0), zoom);
-            if (coord_pt.y - north_step.y > px_size/2)
-                break;
-        }
-        coord_pt.x = -px_size * Math.floor(coord_pt.x/px_size + off_x);
-        coord_pt.y = -px_size * Math.floor(coord_pt.y/px_size + off_y);
-
-        scale_x = 256/360.0 * Math.pow(2, zoom);
-        scale_y = 256/(2.0*Math.PI) * Math.pow(2, zoom);
-
-        last_pt = null;
-
-        return true;
-    }
-
-    private static double limit(double v, double lo, double hi) {
-        if (v < lo)
-            return lo;
-        if (hi < v)
-            return hi;
-        return v;
-    }
-
-    // based on google js
-    //  http://maps.gstatic.com/intl/en_us/mapfiles/api-3/2/10/main.js
-    // search for fromLatLngToPoint and fromPointToLatLng
-    private Point2D.Double pt(double lat, double lng) {
-        return pt(lat, lng, coord_pt, scale_x, scale_y);
-    }
-
-    private static Point2D.Double pt(double lat, double lng, 
-            Point2D.Double centre, int zoom)
-    {
-        double scale_x = 256/360.0 * Math.pow(2, zoom);
-        double scale_y = 256/(2.0*Math.PI) * Math.pow(2, zoom);
-        return pt(lat, lng, centre, scale_x, scale_y);
-    }
-
-    private static Point2D.Double pt(double lat, double lng, 
-            Point2D.Double centre, double scale_x, double scale_y)
-    {
-        Point2D.Double res = new Point2D.Double();
-        double e;
-
-        res.x = centre.x + lng*scale_x;
-        e = limit(Math.sin(Math.toRadians(lat)),-(1-1.0E-15),1-1.0E-15);
-        res.y = centre.y + 0.5*Math.log((1+e)/(1-e))*-scale_y;
-        return res;
-    }
-
-    private Point2D.Double latlng(double x, double y) {
-        return latlng(new Point2D.Double(x,y), coord_pt);
-    }
-    private Point2D.Double latlng(Point2D.Double pt) {
-        return latlng(pt, coord_pt);
-    }
-    private Point2D.Double latlng(Point2D.Double pt, Point2D.Double centre) {
-        double lat, lng;
-        double rads;
-
-        lng = (pt.x - centre.x)/scale_x;
-        rads = 2 * Math.atan(Math.exp((pt.y-centre.y)/-scale_y));
-        lat = Math.toDegrees(rads - Math.PI/2);
-                                                                    
-        return new Point2D.Double(lat,lng);
+    public void loadMap(ImageIcon icn) {
+        mapLabel.setIcon(icn);
     }
 
     static Color stateColors[] = {
@@ -138,21 +57,13 @@ public class AltosSiteMapTile extends JLayeredPane {
 
     boolean drawn_landed_circle = false;
     boolean drawn_boost_circle = false;
-    public void show(AltosState state, int crc_errors) {
-        if (!state.gps_ready) {
-            if (state.pad_lat == 0 && state.pad_lon == 0)
-                return;
-            if (state.ngps < 3)
-                return;
-        }
-
+    public void show(AltosState state, int crc_errors, Point2D.Double pt) {
         if (last_pt == null) {
-            setLocation(state.pad_lat, state.pad_lon);
-            loadMap();
-            last_pt = pt(state.pad_lat, state.pad_lon);
+            // setLocation(state.pad_lat, state.pad_lon);
+            // loadMap();
+            last_pt = pt;
         }
 
-        Point2D.Double pt = pt(state.gps.lat, state.gps.lon);
         if (pt != last_pt) {
             if (0 <= state.state && state.state < stateColors.length) {
                 g2d.setColor(stateColors[state.state]);
@@ -160,6 +71,7 @@ public class AltosSiteMapTile extends JLayeredPane {
             g2d.draw(new Line2D.Double(last_pt, pt));
         }
 
+        int px_size = getWidth();
         if (0 <= pt.x && pt.x < px_size) {
             if (0 <= pt.y && pt.y < px_size) {
                 int dx = 500, dy = 250;
@@ -192,7 +104,7 @@ public class AltosSiteMapTile extends JLayeredPane {
         repaint();
     }
 
-    public static Graphics2D fillLabel(JLabel l, Color c) {
+    public static Graphics2D fillLabel(JLabel l, Color c, int px_size) {
         BufferedImage img = new BufferedImage(px_size, px_size,
                 BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = img.createGraphics();
@@ -202,24 +114,21 @@ public class AltosSiteMapTile extends JLayeredPane {
         return g;
     }
 
-    public AltosSiteMapTile(int x_tile_offset, int y_tile_offset) {
+    public AltosSiteMapTile(int px_size) {
         setPreferredSize(new Dimension(px_size, px_size));
 
-        mapLabel = new AltosSiteMapLabel();
-        fillLabel(mapLabel, Color.GRAY);
+        mapLabel = new JLabel();
+        fillLabel(mapLabel, Color.GRAY, px_size);
         mapLabel.setOpaque(true);
         mapLabel.setBounds(0, 0, px_size, px_size);
         add(mapLabel, new Integer(0));
 
         draw = new JLabel();
-        g2d = fillLabel(draw, new Color(127, 127, 127, 0));
+        g2d = fillLabel(draw, new Color(127, 127, 127, 0), px_size);
         draw.setBounds(0, 0, px_size, px_size);
         draw.setOpaque(false);
 
         add(draw, new Integer(1));
-
-        off_x = x_tile_offset;
-        off_y = y_tile_offset;
     }
 }
 

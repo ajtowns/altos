@@ -10,6 +10,7 @@ CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../libaltos:$(FREETTS)/
 bin_SCRIPTS=altosui
 
 altosui_JAVA = \
+	GrabNDrag.java \
 	AltosAscent.java \
 	AltosChannelMenu.java \
 	AltosConfig.java \
@@ -63,7 +64,7 @@ altosui_JAVA = \
 	AltosSerialInUseException.java \
 	AltosSerialMonitor.java \
 	AltosSiteMap.java \
-	AltosSiteMapLabel.java \
+	AltosSiteMapCache.java \
 	AltosSiteMapTile.java \
 	AltosState.java \
 	AltosTelemetry.java \

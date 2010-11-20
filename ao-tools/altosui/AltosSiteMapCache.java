@@ -30,7 +30,7 @@ import java.util.prefs.*;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class AltosSiteMapLabel extends JLabel {
+public class AltosSiteMapCache extends JLabel {
     public static boolean fetchMap(File file, String url) {
         URL u;
         try {
@@ -78,65 +78,26 @@ public class AltosSiteMapLabel extends JLabel {
         return true;
     }
 
-    public void fetchAndLoadMap(final File pngfile, final String url) {
-        System.out.printf("# Trying to fetch %s...\n", pngfile);
-
-        Thread thread = new Thread() {
-            public void run() {
-                try {
-                    if (fetchMap(pngfile, url)) {
-                        setIcon(new ImageIcon(ImageIO.read(pngfile)));
-                    }
-                } catch (Exception e) {
-                    System.out.printf("# Failed to fetch file %s\n", pngfile);
-                    System.out.printf(" wget -O '%s' ''\n", pngfile, url);
-                }
+    public static ImageIcon fetchAndLoadMap(File pngfile, String url) {
+        if (!pngfile.exists()) {
+            if (!fetchMap(pngfile, url)) {
+                return null;
             }
-        };
-        thread.start();
-    }
-
-    public void fetchMap(double lat, double lng, int zoom, int px_size) {
-        File pngfile = MapFile(lat, lng, zoom);
-        String url = MapURL(lat, lng, zoom, px_size);
-
-        if (!pngfile.exists()) {
-            fetchMap(pngfile, url);
         }
+        return loadMap(pngfile, url);
     }
 
-    public void loadMap(double lat, double lng, int zoom, int px_size) {
-        File pngfile = MapFile(lat, lng, zoom);
-        String url = MapURL(lat, lng, zoom, px_size);
-        
+    public static ImageIcon loadMap(File pngfile, String url) {
         if (!pngfile.exists()) {
-            fetchAndLoadMap(pngfile, url);
-            return;
+            return null;
         }
 
         try {
-            setIcon(new ImageIcon(ImageIO.read(pngfile)));
-            return;
+            return new ImageIcon(ImageIO.read(pngfile));
         } catch (IOException e) { 
             System.out.printf("# IO error trying to load %s\n", pngfile);
-            return;
+            return null;
         }
-    }
-
-    private static File MapFile(double lat, double lng, int zoom) {
-        char chlat = lat < 0 ? 'S' : 'N';
-        char chlng = lng < 0 ? 'E' : 'W';
-        if (lat < 0) lat = -lat;
-        if (lng < 0) lng = -lng;
-        return new File(AltosPreferences.logdir(), 
-                String.format("map-%c%.6f,%c%.6f-%d.png",
-                    chlat, lat, chlng, lng, zoom));
-    }
-
-    private static String MapURL(double lat, double lng, 
-            int zoom, int px_size) 
-    {
-        return String.format("http://maps.google.com/maps/api/staticmap?center=%.6f,%.6f&zoom=%d&size=%dx%d&sensor=false&maptype=hybrid&format=png32", lat, lng, zoom, px_size, px_size);
     }
 }
 
