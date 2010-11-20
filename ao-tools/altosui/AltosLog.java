@@ -51,7 +51,6 @@ class AltosLog implements Runnable {
 		if (log_thread != null) {
 			log_thread.interrupt();
 			log_thread = null;
-			log_thread.interrupt();
 		}
 	}
 
