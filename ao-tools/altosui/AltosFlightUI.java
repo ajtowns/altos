@@ -36,8 +36,6 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	AltosFlightReader	reader;
 	AltosDisplayThread	thread;
 
-	private Box vbox;
-
 	JTabbedPane	pane;
 
 	AltosPad	pad;
@@ -128,11 +126,18 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		exit_on_close = true;
 	}
 
+	Container	bag;
+
 	public AltosFlightUI(AltosVoice in_voice, AltosFlightReader in_reader, final int serial) {
 		AltosPreferences.init(this);
 
 		voice = in_voice;
 		reader = in_reader;
+
+		bag = getContentPane();
+		bag.setLayout(new GridBagLayout());
+
+		GridBagConstraints c = new GridBagConstraints();
 
 		java.net.URL imgURL = AltosUI.class.getResource("/altus-metrum-16x16.jpg");
 		if (imgURL != null)
@@ -140,10 +145,28 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 		setTitle(String.format("AltOS %s", reader.name));
 
-		flightStatus = new AltosFlightStatus();
+		if (serial >= 0) {
+			// Channel menu
+			JComboBox channels = new AltosChannelMenu(AltosPreferences.channel(serial));
+			channels.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						int channel = Integer.parseInt(e.getActionCommand());
+						reader.set_channel(channel);
+						AltosPreferences.set_channel(serial, channel);
+					}
+				});
+			c.gridx = 0;
+			c.gridy = 0;
+			c.anchor = GridBagConstraints.WEST;
+			bag.add (channels, c);
+		}
 
-		vbox = new Box (BoxLayout.Y_AXIS);
-		vbox.add(flightStatus);
+		flightStatus = new AltosFlightStatus();
+		c.gridx = 0;
+		c.gridy = 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		bag.add(flightStatus, c);
 
 		pane = new JTabbedPane();
 
@@ -163,29 +186,12 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		flightInfoPane = new JScrollPane(flightInfo.box());
 		pane.add("Table", flightInfoPane);
 
-		vbox.add(pane);
-
-		this.add(vbox);
-
-		if (serial >= 0) {
-			JMenuBar menubar = new JMenuBar();
-
-			// Channel menu
-			{
-				JMenu menu = new AltosChannelMenu(AltosPreferences.channel(serial));
-				menu.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							int channel = Integer.parseInt(e.getActionCommand());
-							reader.set_channel(channel);
-							AltosPreferences.set_channel(serial, channel);
-						}
-					});
-				menu.setMnemonic(KeyEvent.VK_C);
-				menubar.add(menu);
-			}
-
-			this.setJMenuBar(menubar);
-		}
+		c.gridx = 0;
+		c.gridy = 2;
+		c.fill = GridBagConstraints.BOTH;
+		c.weightx = 1;
+		c.weighty = 1;
+		bag.add(pane, c);
 
 		this.setSize(this.getPreferredSize());
 		this.validate();

@@ -103,7 +103,7 @@ public class AltosIgniteUI
 		close();
 		JOptionPane.showMessageDialog(owner,
 					      String.format("Connection to \"%s\" failed",
-							    device.toString()),
+							    device.toShortString()),
 					      "Connection Failed",
 					      JOptionPane.ERROR_MESSAGE);
 	}
@@ -194,18 +194,18 @@ public class AltosIgniteUI
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(owner,
 							      String.format("Cannot open device \"%s\"",
-									    device.toString()),
+									    device.toShortString()),
 							      "Cannot open target device",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (AltosSerialInUseException si) {
 				JOptionPane.showMessageDialog(owner,
 							      String.format("Device \"%s\" already in use",
-									    device.toString()),
+									    device.toShortString()),
 							      "Device in use",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (IOException ee) {
 				JOptionPane.showMessageDialog(owner,
-							      device.toString(),
+							      device.toShortString(),
 							      ee.getLocalizedMessage(),
 							      JOptionPane.ERROR_MESSAGE);
 			}

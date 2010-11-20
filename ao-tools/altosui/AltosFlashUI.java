@@ -90,7 +90,7 @@ public class AltosFlashUI
 		} catch (AltosSerialInUseException si) {
 			JOptionPane.showMessageDialog(frame,
 						      String.format("Device \"%s\" already in use",
-								    debug_dongle.toString()),
+								    debug_dongle.toShortString()),
 						      "Device in use",
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (IOException e) {

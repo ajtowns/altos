@@ -232,14 +232,14 @@ public class AltosEepromDownload implements Runnable {
 			CaptureLog();
 		} catch (IOException ee) {
 			JOptionPane.showMessageDialog(frame,
-						      device.toString(),
+						      device.toShortString(),
 						      ee.getLocalizedMessage(),
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (InterruptedException ie) {
 		} catch (TimeoutException te) {
 			JOptionPane.showMessageDialog(frame,
 						      String.format("Connection to \"%s\" failed",
-								    device.toString()),
+								    device.toShortString()),
 						      "Connection Failed",
 						      JOptionPane.ERROR_MESSAGE);
 		}
@@ -266,18 +266,18 @@ public class AltosEepromDownload implements Runnable {
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(frame,
 							      String.format("Cannot open device \"%s\"",
-									    device.toString()),
+									    device.toShortString()),
 							      "Cannot open target device",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (AltosSerialInUseException si) {
 				JOptionPane.showMessageDialog(frame,
 							      String.format("Device \"%s\" already in use",
-									    device.toString()),
+									    device.toShortString()),
 							      "Device in use",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (IOException ee) {
 				JOptionPane.showMessageDialog(frame,
-							      device.toString(),
+							      device.toShortString(),
 							      ee.getLocalizedMessage(),
 							      JOptionPane.ERROR_MESSAGE);
 			}

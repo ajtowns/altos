@@ -261,7 +261,7 @@ public class AltosDebug extends AltosSerial {
 		printf ("R\n");
 	}
 
-	public AltosDebug (altos_device in_device) throws FileNotFoundException, AltosSerialInUseException {
+	public AltosDebug (AltosDevice in_device) throws FileNotFoundException, AltosSerialInUseException {
 		super(in_device);
 	}
 }
