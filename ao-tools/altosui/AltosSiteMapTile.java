@@ -37,7 +37,7 @@ public class AltosSiteMapTile extends JLayeredPane {
     Point2D.Double coord_pt;
     Point2D.Double last_pt;
 
-    JLabel mapLabel;
+    AltosSiteMapLabel mapLabel;
     JLabel draw;
     Graphics2D g2d;
 
@@ -48,15 +48,7 @@ public class AltosSiteMapTile extends JLayeredPane {
 
     private void loadMap() {
         Point2D.Double map_latlng = latlng(px_size/2, px_size/2);
-        File pngfile = new File(AltosPreferences.logdir(), 
-                                FileCoord(map_latlng, zoom));
-        try {
-            mapLabel.setIcon(new ImageIcon(ImageIO.read(pngfile)));
-        } catch (Exception e) { 
-            // throw new RuntimeException(e);
-            System.out.printf("# Failed to find file %s\n", pngfile);
-            System.out.printf(" wget -O '%s' 'http://maps.google.com/maps/api/staticmap?center=%.6f,%.6f&zoom=%d&size=%dx%d&sensor=false&maptype=hybrid&format=png32'\n", pngfile, map_latlng.x, map_latlng.y, zoom, px_size, px_size);
-        }
+        mapLabel.loadMap(map_latlng.x, map_latlng.y, zoom, px_size);
     }
 
     private boolean setLocation(double lat, double lng) {
@@ -87,22 +79,6 @@ public class AltosSiteMapTile extends JLayeredPane {
             return hi;
         return v;
     }
-
-    private static String FileCoord(Point2D.Double latlng, int zoom) {
-        double lat, lng;
-        lat = latlng.x;
-        lng = latlng.y;
-        return FileCoord(lat, lng, zoom);
-    }
-    private static String FileCoord(double lat, double lng, int zoom) {
-        char chlat = lat < 0 ? 'S' : 'N';
-        char chlng = lng < 0 ? 'E' : 'W';
-        if (lat < 0) lat = -lat;
-        if (lng < 0) lng = -lng;
-        return String.format("map-%c%.6f,%c%.6f-%d.png",
-                chlat, lat, chlng, lng, zoom);
-    }
-
 
     // based on google js
     //  http://maps.gstatic.com/intl/en_us/mapfiles/api-3/2/10/main.js
@@ -172,7 +148,7 @@ public class AltosSiteMapTile extends JLayeredPane {
         if (last_pt == null) {
             setLocation(state.pad_lat, state.pad_lon);
             loadMap();
-            last_pt = pt;
+            last_pt = pt(state.pad_lat, state.pad_lon);
         }
 
         Point2D.Double pt = pt(state.gps.lat, state.gps.lon);
@@ -221,7 +197,7 @@ public class AltosSiteMapTile extends JLayeredPane {
     public AltosSiteMapTile(int x_tile_offset, int y_tile_offset) {
         setPreferredSize(new Dimension(px_size, px_size));
 
-        mapLabel = new JLabel();
+        mapLabel = new AltosSiteMapLabel();
         fillLabel(mapLabel, Color.GRAY);
         mapLabel.setOpaque(true);
         mapLabel.setBounds(0, 0, px_size, px_size);
