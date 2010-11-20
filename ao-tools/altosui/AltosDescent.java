@@ -61,15 +61,16 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			c.insets = new Insets(Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad);
 			c.anchor = GridBagConstraints.WEST;
 			c.fill = GridBagConstraints.VERTICAL;
+			c.gridwidth = 3;
 			c.weightx = 0;
 			layout.setConstraints(label, c);
 			add(label);
 
-			value = new JTextField(15);
+			value = new JTextField(17);
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
-			c.gridx = 2; c.gridy = y;
-			c.gridwidth = 2;
+			c.gridx = 4; c.gridy = y;
+			c.gridwidth = 1;
 			c.anchor = GridBagConstraints.WEST;
 			c.fill = GridBagConstraints.BOTH;
 			c.weightx = 1;
@@ -93,6 +94,10 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			value.setText(String.format(format, v));
 		}
 
+		void show(String v) {
+			value.setText(v);
+		}
+
 		public DescentValue (GridBagLayout layout, int x, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
 			c.weighty = 1;
@@ -105,19 +110,17 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			c.anchor = GridBagConstraints.WEST;
 			c.fill = GridBagConstraints.VERTICAL;
 			c.weightx = 0;
-			layout.setConstraints(label, c);
-			add(label);
+			add(label, c);
 
 			value = new JTextField(17);
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = x + 2; c.gridy = y;
-			c.gridwidth = 2;
+			c.gridwidth = 1;
 			c.anchor = GridBagConstraints.WEST;
 			c.fill = GridBagConstraints.BOTH;
 			c.weightx = 1;
-			layout.setConstraints(value, c);
-			add(value);
+			add(value, c);
 		}
 	}
 
@@ -169,10 +172,11 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			value2 = new JTextField(17);
 			value2.setFont(Altos.value_font);
 			value2.setHorizontalAlignment(SwingConstants.RIGHT);
-			c.gridx = x + 3; c.gridy = y;
+			c.gridx = x + 4; c.gridy = y;
 			c.anchor = GridBagConstraints.WEST;
 			c.fill = GridBagConstraints.BOTH;
 			c.weightx = 1;
+			c.gridwidth = 1;
 			layout.setConstraints(value2, c);
 			add(value2);
 		}
@@ -211,23 +215,36 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		}
 		int deg = (int) Math.floor(p);
 		double min = (p - Math.floor(p)) * 60.0;
-		return String.format("%s %4d° %9.6f", h, deg, min);
+		return String.format("%s %d° %9.6f", h, deg, min);
 	}
 
-	class LatLon extends DescentDualValue {
+	class Lat extends DescentValue {
 		void show (AltosState state, int crc_errors) {
 			if (state.gps != null)
-				show(pos(state.gps.lat,"N", "S"),
-				     pos(state.gps.lon,"W", "E"));
+				show(pos(state.gps.lat,"N", "S"));
 			else
-				show("???", "???");
+				show("???");
 		}
-		public LatLon (GridBagLayout layout, int x, int y) {
-			super (layout, x, y, "Latitude, Longitude");
+		public Lat (GridBagLayout layout, int x, int y) {
+			super (layout, x, y, "Latitude");
 		}
 	}
 
-	LatLon latlon;
+	Lat lat;
+
+	class Lon extends DescentValue {
+		void show (AltosState state, int crc_errors) {
+			if (state.gps != null)
+				show(pos(state.gps.lon,"W", "E"));
+			else
+				show("???");
+		}
+		public Lon (GridBagLayout layout, int x, int y) {
+			super (layout, x, y, "Longitude");
+		}
+	}
+
+	Lon lon;
 
 	class Apogee extends DescentStatus {
 		void show (AltosState state, int crc_errors) {
@@ -270,24 +287,36 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	Bearing bearing;
 
-	class Range extends DescentDualValue {
+	class Range extends DescentValue {
 		void show (AltosState state, int crc_errors) {
-			show("%6.0f m", state.range,
-			     "%3.0f°", state.elevation);
+			show("%6.0f m", state.range);
 		}
 		public Range (GridBagLayout layout, int x, int y) {
-			super (layout, x, y, "Range, Elevation");
+			super (layout, x, y, "Range");
 		}
 	}
 
 	Range range;
 
+	class Elevation extends DescentValue {
+		void show (AltosState state, int crc_errors) {
+			show("%3.0f°", state.elevation);
+		}
+		public Elevation (GridBagLayout layout, int x, int y) {
+			super (layout, x, y, "Elevation");
+		}
+	}
+
+	Elevation elevation;
+
 	public void reset() {
-		latlon.reset();
+		lat.reset();
+		lon.reset();
 		height.reset();
 		speed.reset();
 		bearing.reset();
 		range.reset();
+		elevation.reset();
 		main.reset();
 		apogee.reset();
 	}
@@ -297,7 +326,9 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		speed.show(state, crc_errors);
 		bearing.show(state, crc_errors);
 		range.show(state, crc_errors);
-		latlon.show(state, crc_errors);
+		elevation.show(state, crc_errors);
+		lat.show(state, crc_errors);
+		lon.show(state, crc_errors);
 		main.show(state, crc_errors);
 		apogee.show(state, crc_errors);
 	}
@@ -309,12 +340,14 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 		/* Elements in descent display */
 		speed = new Speed(layout, 0, 0);
-		height = new Height(layout, 0, 1);
-		range = new Range(layout, 0, 2);
-		bearing = new Bearing(layout, 0, 3);
-		latlon = new LatLon(layout, 0, 4);
+		height = new Height(layout, 2, 0);
+		elevation = new Elevation(layout, 0, 1);
+		range = new Range(layout, 2, 1);
+		bearing = new Bearing(layout, 0, 2);
+		lat = new Lat(layout, 0, 3);
+		lon = new Lon(layout, 2, 3);
 
-		apogee = new Apogee(layout, 5);
-		main = new Main(layout, 6);
+		apogee = new Apogee(layout, 4);
+		main = new Main(layout, 5);
 	}
 }
