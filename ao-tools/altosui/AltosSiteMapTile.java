@@ -31,18 +31,33 @@ import java.lang.Math;
 import java.awt.geom.Point2D;
 import java.awt.geom.Line2D;
 
-public class AltosSiteMapTile extends JLabel {
+public class AltosSiteMapTile extends JLayeredPane {
     int zoom;
     double scale_x, scale_y;
     Point2D.Double coord_pt;
     Point2D.Double last_pt;
 
+    JLabel mapLabel;
+    JLabel draw;
     Graphics2D g2d;
 
     int off_x;
     int off_y;
 
-    int px_size = 512;
+    static final int px_size = 512;
+
+    private void loadMap() {
+        Point2D.Double map_latlng = latlng(px_size/2, px_size/2);
+        File pngfile = new File(AltosPreferences.logdir(), 
+                                FileCoord(map_latlng, zoom));
+        try {
+            mapLabel.setIcon(new ImageIcon(ImageIO.read(pngfile)));
+        } catch (Exception e) { 
+            // throw new RuntimeException(e);
+            System.out.printf("# Failed to find file %s\n", pngfile);
+            System.out.printf(" wget -O '%s' 'http://maps.google.com/maps/api/staticmap?center=%.6f,%.6f&zoom=%d&size=%dx%d&sensor=false&maptype=hybrid&format=png32'\n", pngfile, map_latlng.x, map_latlng.y, zoom, px_size, px_size);
+        }
+    }
 
     private boolean setLocation(double lat, double lng) {
         Point2D.Double north_step;
@@ -62,22 +77,6 @@ public class AltosSiteMapTile extends JLabel {
 
         last_pt = null;
 
-        Point2D.Double map_latlng;
-        map_latlng = latlng(new Point2D.Double(px_size/2, px_size/2));
-
-        File pngfile = new File(AltosPreferences.logdir(), 
-                                FileCoord(map_latlng, zoom));
-        try {
-            BufferedImage myPicture;
-            myPicture = ImageIO.read(pngfile);
-            setIcon(new ImageIcon( myPicture ));
-            System.out.printf("# Found file %s\n", pngfile);
-            g2d = myPicture.createGraphics();
-        } catch (Exception e) { 
-            // throw new RuntimeException(e);
-            System.out.printf("# Failed to find file %s\n", pngfile);
-            System.out.printf(" wget -O '%s' 'http://maps.google.com/maps/api/staticmap?center=%.6f,%.6f&zoom=%d&size=%dx%d&sensor=false&maptype=hybrid&format=png32'\n", pngfile, map_latlng.x, map_latlng.y, zoom, px_size, px_size);
-        }
         return true;
     }
 
@@ -132,6 +131,9 @@ public class AltosSiteMapTile extends JLabel {
         return res;
     }
 
+    private Point2D.Double latlng(double x, double y) {
+        return latlng(new Point2D.Double(x,y), coord_pt);
+    }
     private Point2D.Double latlng(Point2D.Double pt) {
         return latlng(pt, coord_pt);
     }
@@ -159,24 +161,22 @@ public class AltosSiteMapTile extends JLabel {
     };
 
     boolean drawn_landed_circle = false;
-    boolean nomaps = false;
     public void show(AltosState state, int crc_errors) {
-        if (nomaps)
-            return;
-        if (!state.gps_ready && state.pad_lat == 0 && state.pad_lon == 0)
-            return;
-        double plat = state.pad_lat;
-        double plon = state.pad_lon;
+        if (!state.gps_ready) {
+            if (state.pad_lat == 0 && state.pad_lon == 0)
+                return;
+            if (state.ngps < 3)
+                return;
+        }
 
         if (last_pt == null) {
-            if (!setLocation(plat, plon)) {
-                nomaps = true;
-                return;
-            }
+            setLocation(state.pad_lat, state.pad_lon);
+            loadMap();
+            last_pt = pt;
         }
 
         Point2D.Double pt = pt(state.gps.lat, state.gps.lon);
-        if (last_pt != null && pt != last_pt) {
+        if (pt != last_pt) {
             if (0 <= state.state && state.state < stateColors.length) {
                 g2d.setColor(stateColors[state.state]);
             }
@@ -186,7 +186,7 @@ public class AltosSiteMapTile extends JLabel {
         if (0 <= pt.x && pt.x < px_size) {
             if (0 <= pt.y && pt.y < px_size) {
                 int dx = 500, dy = 250;
-                if (last_pt != null && state.state > 2) {
+                if (state.state > 2) {
                     dx = Math.min(200, 20 + (int) Math.abs(last_pt.x - pt.x));
                     dy = Math.min(100, 10 + (int) Math.abs(last_pt.y - pt.y));
                 }
@@ -207,14 +207,32 @@ public class AltosSiteMapTile extends JLabel {
         last_pt = pt;
         repaint();
     }
-   
+
+    public static Graphics2D fillLabel(JLabel l, Color c) {
+        BufferedImage img = new BufferedImage(px_size, px_size,
+                BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = img.createGraphics();
+        g.setColor(c);
+        g.fillRect(0, 0, px_size, px_size);
+        l.setIcon(new ImageIcon(img));
+        return g;
+    }
+
     public AltosSiteMapTile(int x_tile_offset, int y_tile_offset) {
-        BufferedImage myPicture = new BufferedImage(px_size, px_size, 
-                BufferedImage.TYPE_INT_RGB);
-        setIcon(new ImageIcon( myPicture ));
-        g2d = myPicture.createGraphics();
-        g2d.setColor(Color.GRAY);
-        g2d.fillRect(0, 0, px_size, px_size);
+        setPreferredSize(new Dimension(px_size, px_size));
+
+        mapLabel = new JLabel();
+        fillLabel(mapLabel, Color.GRAY);
+        mapLabel.setOpaque(true);
+        mapLabel.setBounds(0, 0, px_size, px_size);
+        add(mapLabel, new Integer(0));
+
+        draw = new JLabel();
+        g2d = fillLabel(draw, new Color(127, 127, 127, 0));
+        draw.setBounds(0, 0, px_size, px_size);
+        draw.setOpaque(false);
+
+        add(draw, new Integer(1));
 
         off_x = x_tile_offset;
         off_y = y_tile_offset;
