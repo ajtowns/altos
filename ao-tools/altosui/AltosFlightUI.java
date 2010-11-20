@@ -127,6 +127,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	}
 
 	Container	bag;
+	JComboBox	channels;
 
 	public AltosFlightUI(AltosVoice in_voice, AltosFlightReader in_reader, final int serial) {
 		AltosPreferences.init(this);
@@ -147,10 +148,10 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 		if (serial >= 0) {
 			// Channel menu
-			JComboBox channels = new AltosChannelMenu(AltosPreferences.channel(serial));
+			channels = new AltosChannelMenu(AltosPreferences.channel(serial));
 			channels.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						int channel = Integer.parseInt(e.getActionCommand());
+						int channel = channels.getSelectedIndex();
 						reader.set_channel(channel);
 						AltosPreferences.set_channel(serial, channel);
 					}
