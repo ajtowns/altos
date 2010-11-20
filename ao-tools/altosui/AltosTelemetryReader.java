@@ -55,7 +55,7 @@ class AltosTelemetryReader extends AltosFlightReader {
 		device = in_device;
 		serial = new AltosSerial(device);
 		log = new AltosLog(serial);
-		name = device.getPath();
+		name = device.toString();
 
 		telem = new LinkedBlockingQueue<AltosLine>();
 		serial.add_monitor(telem);

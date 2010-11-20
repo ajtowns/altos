@@ -26,7 +26,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 import libaltosJNI.*;
 
@@ -123,12 +123,14 @@ public class AltosConfig implements Runnable, ActionListener {
 		}
 	}
 
-	void get_data() throws InterruptedException {
+	void get_data() throws InterruptedException, TimeoutException {
 		try {
 			start_serial();
 			serial_line.printf("c s\nv\n");
 			for (;;) {
-				String line = serial_line.get_reply();
+				String line = serial_line.get_reply(1000);
+				if (line == null)
+					throw new TimeoutException();
 				get_int(line, "serial-number", serial);
 				get_int(line, "Main deploy:", main_deploy);
 				get_int(line, "Apogee delay:", apogee_delay);
@@ -147,27 +149,34 @@ public class AltosConfig implements Runnable, ActionListener {
 		}
 	}
 
-	void init_ui () {
+	void init_ui () throws InterruptedException, TimeoutException {
 		config_ui = new AltosConfigUI(owner);
 		config_ui.addActionListener(this);
 		set_ui();
 	}
 
-	void set_ui() {
-		try {
-			if (serial_line != null)
-				get_data();
-			config_ui.set_serial(serial.get());
-			config_ui.set_product(product.get());
-			config_ui.set_version(version.get());
-			config_ui.set_main_deploy(main_deploy.get());
-			config_ui.set_apogee_delay(apogee_delay.get());
-			config_ui.set_radio_channel(radio_channel.get());
-			config_ui.set_radio_calibration(radio_calibration.get());
-			config_ui.set_callsign(callsign.get());
-			config_ui.set_clean();
-		} catch (InterruptedException ie) {
-		}
+	void abort() {
+		JOptionPane.showMessageDialog(owner,
+					      String.format("Connection to \"%s\" failed",
+							    device.toString()),
+					      "Connection Failed",
+					      JOptionPane.ERROR_MESSAGE);
+		serial_line.close();
+		serial_line = null;
+	}
+
+	void set_ui() throws InterruptedException, TimeoutException {
+		if (serial_line != null)
+			get_data();
+		config_ui.set_serial(serial.get());
+		config_ui.set_product(product.get());
+		config_ui.set_version(version.get());
+		config_ui.set_main_deploy(main_deploy.get());
+		config_ui.set_apogee_delay(apogee_delay.get());
+		config_ui.set_radio_channel(radio_channel.get());
+		config_ui.set_radio_calibration(radio_calibration.get());
+		config_ui.set_callsign(callsign.get());
+		config_ui.set_clean();
 	}
 
 	void run_dialog() {
@@ -198,28 +207,28 @@ public class AltosConfig implements Runnable, ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		String	cmd = e.getActionCommand();
-		if (cmd.equals("Save")) {
-			save_data();
-			set_ui();
-		} else if (cmd.equals("Reset")) {
-			set_ui();
-		} else if (cmd.equals("Reboot")) {
-			if (serial_line != null) {
-				try {
+		try {
+			if (cmd.equals("Save")) {
+				save_data();
+				set_ui();
+			} else if (cmd.equals("Reset")) {
+				set_ui();
+			} else if (cmd.equals("Reboot")) {
+				if (serial_line != null) {
 					start_serial();
 					serial_line.printf("r eboot\n");
-				} catch (InterruptedException ie) {
-				} finally {
-					try {
-						stop_serial();
-					} catch (InterruptedException ie) {
-					}
+					serial_line.flush_output();
+					stop_serial();
+					serial_line.close();
 				}
-				serial_line.close();
+			} else if (cmd.equals("Close")) {
+				if (serial_line != null)
+					serial_line.close();
 			}
-		} else if (cmd.equals("Close")) {
-			if (serial_line != null)
-				serial_line.close();
+		} catch (InterruptedException ie) {
+			abort();
+		} catch (TimeoutException te) {
+			abort();
 		}
 	}
 
@@ -227,8 +236,10 @@ public class AltosConfig implements Runnable, ActionListener {
 		try {
 			init_ui();
 			config_ui.make_visible();
-//		} catch (InterruptedException ie) {
-		} finally {
+		} catch (InterruptedException ie) {
+			abort();
+		} catch (TimeoutException te) {
+			abort();
 		}
 	}
 
@@ -255,18 +266,18 @@ public class AltosConfig implements Runnable, ActionListener {
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(owner,
 							      String.format("Cannot open device \"%s\"",
-									    device.getPath()),
+									    device.toString()),
 							      "Cannot open target device",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (AltosSerialInUseException si) {
 				JOptionPane.showMessageDialog(owner,
 							      String.format("Device \"%s\" already in use",
-									    device.getPath()),
+									    device.toString()),
 							      "Device in use",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (IOException ee) {
 				JOptionPane.showMessageDialog(owner,
-							      device.getPath(),
+							      device.toString(),
 							      ee.getLocalizedMessage(),
 							      JOptionPane.ERROR_MESSAGE);
 			}

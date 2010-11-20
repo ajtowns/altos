@@ -53,18 +53,18 @@ public class AltosUI extends JFrame {
 		} catch (FileNotFoundException ee) {
 			JOptionPane.showMessageDialog(AltosUI.this,
 						      String.format("Cannot open device \"%s\"",
-								    device.getPath()),
+								    device.toString()),
 						      "Cannot open target device",
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (AltosSerialInUseException si) {
 			JOptionPane.showMessageDialog(AltosUI.this,
 						      String.format("Device \"%s\" already in use",
-								    device.getPath()),
+								    device.toString()),
 						      "Device in use",
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (IOException ee) {
 			JOptionPane.showMessageDialog(AltosUI.this,
-						      device.getPath(),
+						      device.toString(),
 						      "Unkonwn I/O error",
 						      JOptionPane.ERROR_MESSAGE);
 		}

@@ -26,7 +26,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 import libaltosJNI.*;
 
@@ -78,7 +78,7 @@ public class AltosEepromDownload implements Runnable {
 	Thread			eeprom_thread;
 	AltosEepromMonitor	monitor;
 
-	void CaptureLog() throws IOException, InterruptedException {
+	void CaptureLog() throws IOException, InterruptedException, TimeoutException {
 		int			serial = 0;
 		int			block, state_block = 0;
 		int			addr;
@@ -97,8 +97,10 @@ public class AltosEepromDownload implements Runnable {
 		/* Pull the serial number out of the version information */
 
 		for (;;) {
-			String	line = serial_line.get_reply();
+			String	line = serial_line.get_reply(1000);
 
+			if (line == null)
+				throw new TimeoutException();
 			if (line.startsWith("serial-number")) {
 				try {
 					serial = Integer.parseInt(line.substring(13).trim());
@@ -125,7 +127,9 @@ public class AltosEepromDownload implements Runnable {
 			any_valid = false;
 			monitor.set_value(state_names[state], state, block - state_block);
 			for (addr = 0; addr < 0x100;) {
-				String	line = serial_line.get_reply();
+				String	line = serial_line.get_reply(1000);
+				if (line == null)
+					throw new TimeoutException();
 				int[] values = ParseHex(line);
 
 				if (values == null) {
@@ -228,10 +232,16 @@ public class AltosEepromDownload implements Runnable {
 			CaptureLog();
 		} catch (IOException ee) {
 			JOptionPane.showMessageDialog(frame,
-						      device.getPath(),
+						      device.toString(),
 						      ee.getLocalizedMessage(),
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (InterruptedException ie) {
+		} catch (TimeoutException te) {
+			JOptionPane.showMessageDialog(frame,
+						      String.format("Connection to \"%s\" failed",
+								    device.toString()),
+						      "Connection Failed",
+						      JOptionPane.ERROR_MESSAGE);
 		}
 		if (remote)
 			serial_line.printf("~");
@@ -256,18 +266,18 @@ public class AltosEepromDownload implements Runnable {
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(frame,
 							      String.format("Cannot open device \"%s\"",
-									    device.getPath()),
+									    device.toString()),
 							      "Cannot open target device",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (AltosSerialInUseException si) {
 				JOptionPane.showMessageDialog(frame,
 							      String.format("Device \"%s\" already in use",
-									    device.getPath()),
+									    device.toString()),
 							      "Device in use",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (IOException ee) {
 				JOptionPane.showMessageDialog(frame,
-							      device.getPath(),
+							      device.toString(),
 							      ee.getLocalizedMessage(),
 							      JOptionPane.ERROR_MESSAGE);
 			}

@@ -18,6 +18,7 @@
 package altosui;
 
 import java.io.*;
+import java.util.concurrent.*;
 
 public class AltosIgnite {
 	AltosDevice	device;
@@ -91,33 +92,38 @@ public class AltosIgnite {
 		return Unknown;
 	}
 
-	public int status(int igniter) {
+	public int status(int igniter) throws InterruptedException, TimeoutException {
 		int status = Unknown;
 		if (serial == null)
 			return status;
 		string_ref status_name = new string_ref();
-		try {
-			start_serial();
-			serial.printf("t\n");
-			for (;;) {
-				String line = serial.get_reply();
-				if (get_string(line, "Igniter: drogue Status: ", status_name))
-					if (igniter == Apogee)
-						status = status(status_name.get());
-				if (get_string(line, "Igniter:   main Status: ", status_name)) {
-					if (igniter == Main)
-						status = status(status_name.get());
-					break;
-				}
-			}
-		} catch (InterruptedException ie) {
-		} finally {
-			try {
-				stop_serial();
-			} catch (InterruptedException ie) {
+		start_serial();
+		serial.printf("t\n");
+		for (;;) {
+			String line = serial.get_reply(1000);
+			if (line == null)
+				throw new TimeoutException();
+			if (get_string(line, "Igniter: drogue Status: ", status_name))
+				if (igniter == Apogee)
+					status = status(status_name.get());
+			if (get_string(line, "Igniter:   main Status: ", status_name)) {
+				if (igniter == Main)
+					status = status(status_name.get());
+				break;
 			}
 		}
+		stop_serial();
 		return status;
+	}
+
+	public String status_string(int status) {
+		switch (status) {
+		case Unknown: return "Unknown";
+		case Ready: return "Ready";
+		case Active: return "Active";
+		case Open: return "Open";
+		default: return "Unknown";
+		}
 	}
 
 	public void fire(int igniter) {
@@ -142,14 +148,18 @@ public class AltosIgnite {
 		}
 	}
 
+	public void close() {
+		serial.close();
+		serial = null;
+	}
+
 	public AltosIgnite(AltosDevice in_device) throws FileNotFoundException, AltosSerialInUseException {
 
 		device = in_device;
-		serial = null;
-//		serial = new AltosSerial(device);
+		serial = new AltosSerial(device);
 		remote = false;
 
-//		if (!device.matchProduct(AltosDevice.product_telemetrum))
-//			remote = true;
+		if (!device.matchProduct(AltosDevice.product_telemetrum))
+			remote = true;
 	}
 }

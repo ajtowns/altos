@@ -27,22 +27,31 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
+import java.util.concurrent.*;
 
 public class AltosIgniteUI
 	extends JDialog
 	implements ActionListener
 {
+	AltosDevice	device;
+	AltosIgnite	ignite;
 	JFrame		owner;
 	JLabel		label;
 	JRadioButton	apogee;
+	JLabel		apogee_status_label;
 	JRadioButton	main;
+	JLabel		main_status_label;
 	JToggleButton	arm;
 	JButton		fire;
 	javax.swing.Timer	timer;
 
+	int		apogee_status;
+	int		main_status;
+
 	final static int	timeout = 1 * 1000;
 
 	int		time_remaining;
+	boolean		timer_running;
 
 	void set_arm_text() {
 		if (arm.isSelected())
@@ -54,7 +63,7 @@ public class AltosIgniteUI
 	void start_timer() {
 		time_remaining = 10;
 		set_arm_text();
-		timer.restart();
+		timer_running = true;
 	}
 
 	void stop_timer() {
@@ -62,7 +71,7 @@ public class AltosIgniteUI
 		arm.setSelected(false);
 		arm.setEnabled(false);
 		fire.setEnabled(false);
-		timer.stop();
+		timer_running = false;
 		set_arm_text();
 	}
 
@@ -73,12 +82,47 @@ public class AltosIgniteUI
 		stop_timer();
 	}
 
+	void get_ignite_status() throws InterruptedException, TimeoutException {
+		apogee_status = ignite.status(AltosIgnite.Apogee);
+		main_status = ignite.status(AltosIgnite.Main);
+	}
+
+	void set_ignite_status() throws InterruptedException, TimeoutException {
+		get_ignite_status();
+		apogee_status_label.setText(String.format("\"%s\"", ignite.status_string(apogee_status)));
+		main_status_label.setText(String.format("\"%s\"", ignite.status_string(main_status)));
+	}
+
+	void close() {
+		timer.stop();
+		setVisible(false);
+		ignite.close();
+	}
+
+	void abort() {
+		close();
+		JOptionPane.showMessageDialog(owner,
+					      String.format("Connection to \"%s\" failed",
+							    device.toString()),
+					      "Connection Failed",
+					      JOptionPane.ERROR_MESSAGE);
+	}
+
 	void tick_timer() {
-		--time_remaining;
-		if (time_remaining <= 0)
-			cancel();
-		else
-			set_arm_text();
+		if (timer_running) {
+			--time_remaining;
+			if (time_remaining <= 0)
+				cancel();
+			else
+				set_arm_text();
+		}
+		try {
+			set_ignite_status();
+		} catch (InterruptedException ie) {
+			abort();
+		} catch (TimeoutException te) {
+			abort();
+		}
 	}
 
 	void fire() {
@@ -88,7 +132,7 @@ public class AltosIgniteUI
 				igniter = AltosIgnite.Apogee;
 			else if (main.isSelected() && !apogee.isSelected())
 				igniter = AltosIgnite.Main;
-			System.out.printf ("fire %d\n", igniter);
+			ignite.fire(igniter);
 			cancel();
 		}
 	}
@@ -97,13 +141,18 @@ public class AltosIgniteUI
 		String cmd = e.getActionCommand();
 		if (cmd.equals("apogee") || cmd.equals("main")) {
 			stop_timer();
-			arm.setEnabled(true);
 		}
 
-		if (cmd.equals("apogee") && apogee.isSelected())
+		if (cmd.equals("apogee") && apogee.isSelected()) {
 			main.setSelected(false);
-		if (cmd.equals("main") && main.isSelected())
+			if (apogee_status == AltosIgnite.Ready)
+				arm.setEnabled(true);
+		}
+		if (cmd.equals("main") && main.isSelected()) {
 			apogee.setSelected(false);
+			if (main_status == AltosIgnite.Ready)
+				arm.setEnabled(true);
+		}
 
 		if (cmd.equals("arm")) {
 			if (arm.isSelected()) {
@@ -116,15 +165,71 @@ public class AltosIgniteUI
 			fire();
 		if (cmd.equals("tick"))
 			tick_timer();
+		if (cmd.equals("close")) {
+			close();
+		}
+	}
+
+	/* A window listener to catch closing events and tell the config code */
+	class ConfigListener extends WindowAdapter {
+		AltosIgniteUI	ui;
+
+		public ConfigListener(AltosIgniteUI this_ui) {
+			ui = this_ui;
+		}
+
+		public void windowClosing(WindowEvent e) {
+			ui.actionPerformed(new ActionEvent(e.getSource(),
+							   ActionEvent.ACTION_PERFORMED,
+							   "close"));
+		}
+	}
+
+	private boolean open() {
+		device = AltosDeviceDialog.show(owner, AltosDevice.product_any);
+		if (device != null) {
+			try {
+				ignite = new AltosIgnite(device);
+				return true;
+			} catch (FileNotFoundException ee) {
+				JOptionPane.showMessageDialog(owner,
+							      String.format("Cannot open device \"%s\"",
+									    device.toString()),
+							      "Cannot open target device",
+							      JOptionPane.ERROR_MESSAGE);
+			} catch (AltosSerialInUseException si) {
+				JOptionPane.showMessageDialog(owner,
+							      String.format("Device \"%s\" already in use",
+									    device.toString()),
+							      "Device in use",
+							      JOptionPane.ERROR_MESSAGE);
+			} catch (IOException ee) {
+				JOptionPane.showMessageDialog(owner,
+							      device.toString(),
+							      ee.getLocalizedMessage(),
+							      JOptionPane.ERROR_MESSAGE);
+			}
+		}
+		return false;
 	}
 
 	public AltosIgniteUI(JFrame in_owner) {
+
+		owner = in_owner;
+		apogee_status = AltosIgnite.Unknown;
+		main_status = AltosIgnite.Unknown;
+
+		if (!open())
+			return;
+
 		Container		pane = getContentPane();
 		GridBagConstraints	c = new GridBagConstraints();
 		Insets			i = new Insets(4,4,4,4);
 
 		timer = new javax.swing.Timer(timeout, this);
 		timer.setActionCommand("tick");
+		timer_running = false;
+		timer.restart();
 
 		owner = in_owner;
 
@@ -139,12 +244,14 @@ public class AltosIgniteUI
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridwidth = 2;
+		c.anchor = GridBagConstraints.CENTER;
 		label = new JLabel ("Fire Igniter");
 		pane.add(label, c);
 
 		c.gridx = 0;
 		c.gridy = 1;
 		c.gridwidth = 1;
+		c.anchor = GridBagConstraints.WEST;
 		apogee = new JRadioButton ("Apogee");
 		pane.add(apogee, c);
 		apogee.addActionListener(this);
@@ -153,14 +260,40 @@ public class AltosIgniteUI
 		c.gridx = 1;
 		c.gridy = 1;
 		c.gridwidth = 1;
+		c.anchor = GridBagConstraints.WEST;
+		apogee_status_label = new JLabel();
+		pane.add(apogee_status_label, c);
+
+		c.gridx = 0;
+		c.gridy = 2;
+		c.gridwidth = 1;
+		c.anchor = GridBagConstraints.WEST;
 		main = new JRadioButton ("Main");
 		pane.add(main, c);
 		main.addActionListener(this);
 		main.setActionCommand("main");
 
-		c.gridx = 0;
+		c.gridx = 1;
 		c.gridy = 2;
 		c.gridwidth = 1;
+		c.anchor = GridBagConstraints.WEST;
+		main_status_label = new JLabel();
+		pane.add(main_status_label, c);
+
+		try {
+			set_ignite_status();
+		} catch (InterruptedException ie) {
+			abort();
+			return;
+		} catch (TimeoutException te) {
+			abort();
+			return;
+		}
+
+		c.gridx = 0;
+		c.gridy = 3;
+		c.gridwidth = 1;
+		c.anchor = GridBagConstraints.CENTER;
 		arm = new JToggleButton ("Arm");
 		pane.add(arm, c);
 		arm.addActionListener(this);
@@ -168,8 +301,9 @@ public class AltosIgniteUI
 		arm.setEnabled(false);
 
 		c.gridx = 1;
-		c.gridy = 2;
+		c.gridy = 3;
 		c.gridwidth = 1;
+		c.anchor = GridBagConstraints.CENTER;
 		fire = new JButton ("Fire");
 		fire.setEnabled(false);
 		pane.add(fire, c);
@@ -179,5 +313,7 @@ public class AltosIgniteUI
 		pack();
 		setLocationRelativeTo(owner);
 		setVisible(true);
+
+		addWindowListener(new ConfigListener(this));
 	}
 }
