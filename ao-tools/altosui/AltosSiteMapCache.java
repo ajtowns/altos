@@ -31,73 +31,73 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class AltosSiteMapCache extends JLabel {
-    public static boolean fetchMap(File file, String url) {
-        URL u;
-        try {
-            u = new URL(url);
-        } catch (java.net.MalformedURLException e) {
-            return false;
-        }
+	public static boolean fetchMap(File file, String url) {
+		URL u;
+		try {
+			u = new URL(url);
+		} catch (java.net.MalformedURLException e) {
+			return false;
+		}
 
-        byte[] data;
-        try {
-            URLConnection uc = u.openConnection();
-            int contentLength = uc.getContentLength();
-            InputStream in = new BufferedInputStream(uc.getInputStream());
-            int bytesRead = 0;
-            int offset = 0;
-            data = new byte[contentLength];
-            while (offset < contentLength) {
-                bytesRead = in.read(data, offset, data.length - offset);
-                if (bytesRead == -1)
-                    break;
-                offset += bytesRead;
-            }
-            in.close();
+		byte[] data;
+		try {
+			URLConnection uc = u.openConnection();
+			int contentLength = uc.getContentLength();
+			InputStream in = new BufferedInputStream(uc.getInputStream());
+			int bytesRead = 0;
+			int offset = 0;
+			data = new byte[contentLength];
+			while (offset < contentLength) {
+				bytesRead = in.read(data, offset, data.length - offset);
+				if (bytesRead == -1)
+					break;
+				offset += bytesRead;
+			}
+			in.close();
 
-            if (offset != contentLength) {
-                return false;
-            }
-        } catch (IOException e) {
-            return false;
-        }
-   
-        try {
-            FileOutputStream out = new FileOutputStream(file);
-            out.write(data);
-            out.flush();
-            out.close();
-        } catch (FileNotFoundException e) {
-            return false;
-        } catch (IOException e) {
-            if (file.exists()) {
-                file.delete();
-            }
-            return false;
-        }
-        return true;
-    }
+			if (offset != contentLength) {
+				return false;
+			}
+		} catch (IOException e) {
+			return false;
+		}
 
-    public static ImageIcon fetchAndLoadMap(File pngfile, String url) {
-        if (!pngfile.exists()) {
-            if (!fetchMap(pngfile, url)) {
-                return null;
-            }
-        }
-        return loadMap(pngfile, url);
-    }
+		try {
+			FileOutputStream out = new FileOutputStream(file);
+			out.write(data);
+			out.flush();
+			out.close();
+		} catch (FileNotFoundException e) {
+			return false;
+		} catch (IOException e) {
+			if (file.exists()) {
+				file.delete();
+			}
+			return false;
+		}
+		return true;
+	}
 
-    public static ImageIcon loadMap(File pngfile, String url) {
-        if (!pngfile.exists()) {
-            return null;
-        }
+	public static ImageIcon fetchAndLoadMap(File pngfile, String url) {
+		if (!pngfile.exists()) {
+			if (!fetchMap(pngfile, url)) {
+				return null;
+			}
+		}
+		return loadMap(pngfile, url);
+	}
 
-        try {
-            return new ImageIcon(ImageIO.read(pngfile));
-        } catch (IOException e) { 
-            System.out.printf("# IO error trying to load %s\n", pngfile);
-            return null;
-        }
-    }
+	public static ImageIcon loadMap(File pngfile, String url) {
+		if (!pngfile.exists()) {
+			return null;
+		}
+
+		try {
+			return new ImageIcon(ImageIO.read(pngfile));
+		} catch (IOException e) {
+			System.out.printf("# IO error trying to load %s\n", pngfile);
+			return null;
+		}
+	}
 }
 
