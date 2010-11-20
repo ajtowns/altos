@@ -137,6 +137,7 @@ public class AltosSiteMapTile extends JLayeredPane {
     };
 
     boolean drawn_landed_circle = false;
+    boolean drawn_boost_circle = false;
     public void show(AltosState state, int crc_errors) {
         if (!state.gps_ready) {
             if (state.pad_lat == 0 && state.pad_lon == 0)
@@ -172,9 +173,16 @@ public class AltosSiteMapTile extends JLayeredPane {
             }
         }
 
+        if (state.state == 3 && !drawn_boost_circle) {
+            drawn_boost_circle = true;
+            g2d.setColor(Color.RED);
+            g2d.drawOval((int)last_pt.x-5, (int)last_pt.y-5, 10, 10);
+            g2d.drawOval((int)last_pt.x-20, (int)last_pt.y-20, 40, 40);
+            g2d.drawOval((int)last_pt.x-35, (int)last_pt.y-35, 70, 70);
+        }
         if (state.state == 8 && !drawn_landed_circle) {
             drawn_landed_circle = true;
-            g2d.setColor(Color.RED);
+            g2d.setColor(Color.BLACK);
             g2d.drawOval((int)pt.x-5, (int)pt.y-5, 10, 10);
             g2d.drawOval((int)pt.x-20, (int)pt.y-20, 40, 40);
             g2d.drawOval((int)pt.x-35, (int)pt.y-35, 70, 70);
