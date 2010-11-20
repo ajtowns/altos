@@ -262,6 +262,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
             comp.add(mapTiles[x]);
         }
         setViewportView(comp);
+        setPreferredSize(new Dimension(500,200));
     }
 }
 
