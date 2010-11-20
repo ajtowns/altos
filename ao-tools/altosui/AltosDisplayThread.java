@@ -116,10 +116,6 @@ public class AltosDisplayThread extends Thread {
 		}
 
 		public void run () {
-
-			reported_landing = 0;
-			state = null;
-			report_interval = 10000;
 			try {
 				for (;;) {
 					set_report_time();
@@ -158,6 +154,12 @@ public class AltosDisplayThread extends Thread {
 				this.notify();
 			} else if (spoken)
 				set_report_time();
+		}
+
+		public IdleThread() {
+			state = null;
+			reported_landing = 0;
+			report_interval = 10000;
 		}
 	}
 
