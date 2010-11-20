@@ -27,7 +27,7 @@ import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
 
-public class AltosLogfileChooser extends JFileChooser {
+public class AltosDataChooser extends JFileChooser {
 	JFrame	frame;
 	String	filename;
 	File	file;
@@ -50,13 +50,15 @@ public class AltosLogfileChooser extends JFileChooser {
 				return null;
 			filename = file.getName();
 			try {
-				FileInputStream in;
-
-				in = new FileInputStream(file);
-				if (filename.endsWith("eeprom"))
+				if (filename.endsWith("eeprom")) {
+					FileInputStream in = new FileInputStream(file);
 					return new AltosEepromIterable(in);
-				else
+				} else if (filename.endsWith("telem")) {
+					FileInputStream in = new FileInputStream(file);
 					return new AltosTelemetryIterable(in);
+				} else {
+					throw new FileNotFoundException();
+				}
 			} catch (FileNotFoundException fe) {
 				JOptionPane.showMessageDialog(frame,
 							      filename,
@@ -67,12 +69,11 @@ public class AltosLogfileChooser extends JFileChooser {
 		return null;
 	}
 
-	public AltosLogfileChooser(JFrame in_frame) {
+	public AltosDataChooser(JFrame in_frame) {
 		frame = in_frame;
 		setDialogTitle("Select Flight Record File");
 		setFileFilter(new FileNameExtensionFilter("Flight data file",
-							  "eeprom",
-							  "telem"));
+							  "telem", "eeprom"));
 		setCurrentDirectory(AltosPreferences.logdir());
 	}
 }

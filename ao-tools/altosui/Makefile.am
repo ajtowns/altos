@@ -40,13 +40,14 @@ altosui_JAVA = \
 	AltosGreatCircle.java \
 	AltosHexfile.java \
 	Altos.java \
+	AltosIgnite.java \
+	AltosIgniteUI.java \
 	AltosInfoTable.java \
 	AltosKML.java \
 	AltosLanded.java \
 	AltosLed.java \
 	AltosLights.java \
 	AltosLine.java \
-	AltosLogfileChooser.java \
 	AltosLog.java \
 	AltosPad.java \
 	AltosParse.java \
@@ -73,7 +74,7 @@ altosui_JAVA = \
 	AltosGraph.java \
 	AltosGraphTime.java \
 	AltosGraphUI.java \
-	AltosGraphDataChooser.java \
+	AltosDataChooser.java \
 	AltosVoice.java
 
 JFREECHART_CLASS= \

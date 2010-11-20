@@ -28,8 +28,7 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class AltosChannelMenu extends JMenu implements ActionListener {
-	ButtonGroup			group;
+public class AltosChannelMenu extends JComboBox implements ActionListener {
 	int				channel;
 	LinkedList<ActionListener>	listeners;
 
@@ -38,33 +37,28 @@ public class AltosChannelMenu extends JMenu implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		channel = Integer.parseInt(e.getActionCommand());
+		channel = getSelectedIndex();
+
+		ActionEvent newe = new ActionEvent(this, channel, e.getActionCommand());
 
 		ListIterator<ActionListener>	i = listeners.listIterator();
 
-		ActionEvent newe = new ActionEvent(this, channel, e.getActionCommand());
 		while (i.hasNext()) {
 			ActionListener	listener = i.next();
 			listener.actionPerformed(newe);
 		}
+		setMaximumSize(getPreferredSize());
 	}
 
 	public AltosChannelMenu(int current_channel) {
-		super("Channel", true);
-		group = new ButtonGroup();
 
 		channel = current_channel;
 
 		listeners = new LinkedList<ActionListener>();
-		for (int c = 0; c <= 9; c++) {
-			JRadioButtonMenuItem radioitem = new JRadioButtonMenuItem(String.format("Channel %1d (%7.3fMHz)", c,
-												434.550 + c * 0.1),
-							     c == channel);
-			radioitem.setActionCommand(String.format("%d", c));
-			radioitem.addActionListener(this);
-			add(radioitem);
-			group.add(radioitem);
-		}
+		for (int c = 0; c <= 9; c++)
+			addItem(String.format("Channel %1d (%7.3fMHz)", c, 434.550 + c * 0.1));
+		setSelectedIndex(channel);
+		setMaximumRowCount(10);
 	}
 
 }

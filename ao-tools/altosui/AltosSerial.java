@@ -38,7 +38,7 @@ public class AltosSerial implements Runnable {
 
 	static List<String> devices_opened = Collections.synchronizedList(new LinkedList<String>());
 
-	altos_device device;
+	AltosDevice device;
 	SWIGTYPE_p_altos_file altos;
 	LinkedList<LinkedBlockingQueue<AltosLine>> monitors;
 	LinkedBlockingQueue<AltosLine> reply_queue;
@@ -132,6 +132,14 @@ public class AltosSerial implements Runnable {
 		return line.line;
 	}
 
+	public String get_reply(int timeout) throws InterruptedException {
+		flush_output();
+		AltosLine line = reply_queue.poll(timeout, TimeUnit.MILLISECONDS);
+		if (line == null)
+			return null;
+		return line.line;
+	}
+
 	public void add_monitor(LinkedBlockingQueue<AltosLine> q) {
 		set_monitor(true);
 		monitors.add(q);
@@ -185,10 +193,9 @@ public class AltosSerial implements Runnable {
 				throw new AltosSerialInUseException(device);
 			devices_opened.add(device.getPath());
 		}
-		close();
 		altos = libaltos.altos_open(device);
 		if (altos == null)
-			throw new FileNotFoundException(device.getPath());
+			throw new FileNotFoundException(device.toShortString());
 		input_thread = new Thread(this);
 		input_thread.start();
 		print("~\nE 0\n");
@@ -226,7 +233,7 @@ public class AltosSerial implements Runnable {
 		}
 	}
 
-	public AltosSerial(altos_device in_device) throws FileNotFoundException, AltosSerialInUseException {
+	public AltosSerial(AltosDevice in_device) throws FileNotFoundException, AltosSerialInUseException {
 		device = in_device;
 		line = "";
 		monitor_mode = false;

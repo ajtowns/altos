@@ -53,18 +53,18 @@ public class AltosUI extends JFrame {
 		} catch (FileNotFoundException ee) {
 			JOptionPane.showMessageDialog(AltosUI.this,
 						      String.format("Cannot open device \"%s\"",
-								    device.getPath()),
+								    device.toShortString()),
 						      "Cannot open target device",
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (AltosSerialInUseException si) {
 			JOptionPane.showMessageDialog(AltosUI.this,
 						      String.format("Device \"%s\" already in use",
-								    device.getPath()),
+								    device.toShortString()),
 						      "Device in use",
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (IOException ee) {
 			JOptionPane.showMessageDialog(AltosUI.this,
-						      device.getPath(),
+						      device.toShortString(),
 						      "Unkonwn I/O error",
 						      JOptionPane.ERROR_MESSAGE);
 		}
@@ -125,40 +125,47 @@ public class AltosUI extends JFrame {
 						Replay();
 					}
 				});
-		b = addButton(0, 1, "Graph Data");
+		b = addButton(3, 0, "Graph Data");
 		b.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						GraphData();
 					}
 				});
-		b = addButton(1, 1, "Export Data");
+		b = addButton(4, 0, "Export Data");
 		b.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						ExportData();
 					}
 				});
-		b = addButton(2, 1, "Configure TeleMetrum");
+		b = addButton(0, 1, "Configure TeleMetrum");
 		b.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						ConfigureTeleMetrum();
 					}
 				});
 
-		b = addButton(0, 2, "Configure AltosUI");
+		b = addButton(1, 1, "Configure AltosUI");
 		b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					ConfigureAltosUI();
 				}
 			});
 
-		b = addButton(1, 2, "Flash Image");
+		b = addButton(2, 1, "Flash Image");
 		b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					FlashImage();
 				}
 			});
 
-		b = addButton(2, 2, "Quit");
+		b = addButton(3, 1, "Fire Igniter");
+		b.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					FireIgniter();
+				}
+			});
+
+		b = addButton(4, 1, "Quit");
 		b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					System.exit(0);
@@ -215,12 +222,17 @@ public class AltosUI extends JFrame {
 		new AltosFlashUI(AltosUI.this);
 	}
 
+	void FireIgniter() {
+		new AltosIgniteUI(AltosUI.this);
+	}
+
 	/*
 	 * Replay a flight from telemetry data
 	 */
 	private void Replay() {
-		AltosLogfileChooser chooser = new AltosLogfileChooser(
+		AltosDataChooser chooser = new AltosDataChooser(
 			AltosUI.this);
+
 		AltosRecordIterable iterable = chooser.runDialog();
 		if (iterable != null) {
 			AltosFlightReader reader = new AltosReplayReader(iterable.iterator(),
@@ -241,14 +253,24 @@ public class AltosUI extends JFrame {
 	 */
 
 	private void ExportData() {
-		new AltosCSVUI(AltosUI.this);
+		AltosDataChooser chooser;
+		chooser = new AltosDataChooser(this);
+		AltosRecordIterable record_reader = chooser.runDialog();
+		if (record_reader == null)
+			return;
+		new AltosCSVUI(AltosUI.this, record_reader, chooser.file());
 	}
 
 	/* Load a flight log CSV file and display a pretty graph.
 	 */
 
 	private void GraphData() {
-		new AltosGraphUI(AltosUI.this);
+		AltosDataChooser chooser;
+		chooser = new AltosDataChooser(this);
+		AltosRecordIterable record_reader = chooser.runDialog();
+		if (record_reader == null)
+			return;
+		new AltosGraphUI(record_reader);
 	}
 
 	private void ConfigureAltosUI() {

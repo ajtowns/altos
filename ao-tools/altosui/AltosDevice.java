@@ -101,6 +101,15 @@ public class AltosDevice extends altos_device {
 				     getName(), getSerial(), getPath());
 	}
 
+	public String toShortString() {
+		String	name = getName();
+		if (name == null)
+			name = "Altus Metrum";
+		return String.format("%s %d %s",
+				     name, getSerial(), getPath());
+
+	}
+
 	public boolean isAltusMetrum() {
 		if (getVendor() != vendor_altusmetrum)
 			return false;
