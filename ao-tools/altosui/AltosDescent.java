@@ -178,13 +178,12 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		}
 	}
 
-	class Height extends DescentDualValue {
+	class Height extends DescentValue {
 		void show (AltosState state, int crc_errors) {
-			show("%6.0f m", state.height,
-				 "%3.0f°", state.elevation);
+			show("%6.0f m", state.height);
 		}
 		public Height (GridBagLayout layout, int x, int y) {
-			super (layout, x, y, "Height/Elevation");
+			super (layout, x, y, "Height");
 		}
 	}
 
@@ -224,7 +223,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 				show("???", "???");
 		}
 		public LatLon (GridBagLayout layout, int x, int y) {
-			super (layout, x, y, "Lat/Long");
+			super (layout, x, y, "Latitude, Longitude");
 		}
 	}
 
@@ -257,9 +256,9 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	class Bearing extends DescentDualValue {
 		void show (AltosState state, int crc_errors) {
 			if (state.from_pad != null) {
-                show( state.from_pad.bearing_words(
-                            AltosGreatCircle.BEARING_LONG),
-				      String.format("%3.0f°", state.from_pad.bearing));
+                show( String.format("%3.0f°", state.from_pad.bearing),
+                        state.from_pad.bearing_words(
+                            AltosGreatCircle.BEARING_LONG));
 			} else {
 				show("???", "???");
 			}
@@ -271,12 +270,13 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	Bearing bearing;
 
-	class Range extends DescentValue {
+	class Range extends DescentDualValue {
 		void show (AltosState state, int crc_errors) {
-			show("%6.0f m", state.range);
+			show("%6.0f m", state.range,
+                 "%3.0f°", state.elevation);
 		}
 		public Range (GridBagLayout layout, int x, int y) {
-			super (layout, x, y, "Range");
+			super (layout, x, y, "Range, Elevation");
 		}
 	}
 
