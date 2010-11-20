@@ -1,0 +1,51 @@
+/*
+ * Copyright © 2010 Anthony Towns <aj@erisian.com.au>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
+package altosui;
+
+import java.awt.*;
+import java.awt.image.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.event.MouseInputAdapter;
+import javax.imageio.ImageIO;
+import javax.swing.table.*;
+import java.io.*;
+import java.util.*;
+import java.text.*;
+
+class GrabNDrag extends MouseInputAdapter {
+    private JComponent scroll;
+    private Point startPt = new Point();
+
+    public GrabNDrag(JComponent parent) {
+        scroll = parent;
+    }
+
+    public void mousePressed(MouseEvent e) {
+        startPt.setLocation(e.getPoint());
+    }
+    public void mouseDragged(MouseEvent e) {
+        int xd = e.getX() - startPt.x;
+        int yd = e.getY() - startPt.y;
+
+        Rectangle r = scroll.getVisibleRect();
+        r.x -= xd;
+        r.y -= yd;
+        scroll.scrollRectToVisible(r);
+    }
+}
