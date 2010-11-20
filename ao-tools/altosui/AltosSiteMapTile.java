@@ -65,21 +65,19 @@ public class AltosSiteMapTile extends JLabel {
         Point2D.Double map_latlng;
         map_latlng = latlng(new Point2D.Double(px_size/2, px_size/2));
 
-        BufferedImage myPicture;
         File pngfile = new File(AltosPreferences.logdir(), 
                                 FileCoord(map_latlng, zoom));
         try {
+            BufferedImage myPicture;
             myPicture = ImageIO.read(pngfile);
+            setIcon(new ImageIcon( myPicture ));
             System.out.printf("# Found file %s\n", pngfile);
+            g2d = myPicture.createGraphics();
         } catch (Exception e) { 
             // throw new RuntimeException(e);
             System.out.printf("# Failed to find file %s\n", pngfile);
             System.out.printf(" wget -O '%s' 'http://maps.google.com/maps/api/staticmap?center=%.6f,%.6f&zoom=%d&size=%dx%d&sensor=false&maptype=hybrid&format=png32'\n", pngfile, map_latlng.x, map_latlng.y, zoom, px_size, px_size);
-            myPicture = new BufferedImage(px_size, px_size, 
-                    BufferedImage.TYPE_INT_RGB);
         }
-        setIcon(new ImageIcon( myPicture ));
-        g2d = myPicture.createGraphics();
         return true;
     }
 
@@ -167,8 +165,8 @@ public class AltosSiteMapTile extends JLabel {
             return;
         if (!state.gps_ready && state.pad_lat == 0 && state.pad_lon == 0)
             return;
-        double plat = (int)(state.pad_lat*200)/200.0;
-        double plon = (int)(state.pad_lon*200)/200.0;
+        double plat = state.pad_lat;
+        double plon = state.pad_lon;
 
         if (last_pt == null) {
             if (!setLocation(plat, plon)) {
@@ -185,6 +183,19 @@ public class AltosSiteMapTile extends JLabel {
             g2d.draw(new Line2D.Double(last_pt, pt));
         }
 
+        if (0 <= pt.x && pt.x < px_size) {
+            if (0 <= pt.y && pt.y < px_size) {
+                int dx = 500, dy = 250;
+                if (last_pt != null && state.state > 2) {
+                    dx = Math.min(200, 20 + (int) Math.abs(last_pt.x - pt.x));
+                    dy = Math.min(100, 10 + (int) Math.abs(last_pt.y - pt.y));
+                }
+                Rectangle r = new Rectangle((int)pt.x-dx, (int)pt.y-dy, 
+                                            dx*2, dy*2);
+                scrollRectToVisible(r);
+            }
+        }
+
         if (state.state == 8 && !drawn_landed_circle) {
             drawn_landed_circle = true;
             g2d.setColor(Color.RED);
@@ -198,6 +209,13 @@ public class AltosSiteMapTile extends JLabel {
     }
    
     public AltosSiteMapTile(int x_tile_offset, int y_tile_offset) {
+        BufferedImage myPicture = new BufferedImage(px_size, px_size, 
+                BufferedImage.TYPE_INT_RGB);
+        setIcon(new ImageIcon( myPicture ));
+        g2d = myPicture.createGraphics();
+        g2d.setColor(Color.GRAY);
+        g2d.fillRect(0, 0, px_size, px_size);
+
         off_x = x_tile_offset;
         off_y = y_tile_offset;
     }

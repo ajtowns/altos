@@ -21,6 +21,7 @@ import java.awt.*;
 import java.awt.image.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.event.MouseInputAdapter;
 import javax.imageio.ImageIO;
 import javax.swing.table.*;
 import java.io.*;
@@ -31,7 +32,7 @@ import java.lang.Math;
 import java.awt.geom.Point2D;
 import java.awt.geom.Line2D;
 
-public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
+public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
     public void reset() {
         // nothing
     }
@@ -43,10 +44,40 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
   
     AltosSiteMapTile [] mapTiles = new AltosSiteMapTile[9];
 
+    class GrabNDrag extends MouseInputAdapter {
+        private JComponent scroll;
+        private Point startPt = new Point();
+
+        public GrabNDrag(JComponent parent) {
+            scroll = parent;
+        }
+
+        public void mousePressed(MouseEvent e) {
+            startPt.setLocation(e.getPoint());
+        }
+        public void mouseDragged(MouseEvent e) {
+            int xd = e.getX() - startPt.x;
+            int yd = e.getY() - startPt.y;
+
+            Rectangle r = scroll.getVisibleRect();
+            r.x -= xd;
+            r.y -= yd;
+            scroll.scrollRectToVisible(r);
+        }
+    }
+
     public AltosSiteMap() {
+        JComponent comp = new JComponent() {
+            GrabNDrag scroller = new GrabNDrag(this);
+            {
+                addMouseMotionListener(scroller);
+                addMouseListener(scroller);
+                setAutoscrolls(true);
+            }
+        };
 
         GridBagLayout layout = new GridBagLayout();
-        setLayout(layout);
+        comp.setLayout(layout);
 
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.CENTER;
@@ -56,8 +87,9 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
             c.gridx = x % 3; c.gridy = x / 3;
             mapTiles[x] = new AltosSiteMapTile((x%3)-1, (x/3)-1);
             layout.setConstraints(mapTiles[x], c);
-            add(mapTiles[x]);
+            comp.add(mapTiles[x]);
         }
+        setViewportView(comp);
     }
 }
 

@@ -46,7 +46,6 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 	private AltosFlightStatus flightStatus;
 	private JScrollPane flightInfoPane;
-	private JScrollPane sitemapPane;
 	private AltosInfoTable flightInfo;
 
 	static final int tab_pad = 1;
@@ -192,8 +191,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		pane.add("Table", flightInfoPane);
 
         sitemap = new AltosSiteMap();
-		sitemapPane = new JScrollPane(sitemap);
-        pane.add("Site Map", sitemapPane);
+        pane.add("Site Map", sitemap);
 
 		c.gridx = 0;
 		c.gridy = 2;
