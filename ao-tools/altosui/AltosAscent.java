@@ -69,7 +69,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;
-            c.gridwidth = 2;
+			c.gridwidth = 2;
 			c.anchor = GridBagConstraints.WEST;
 			c.fill = GridBagConstraints.BOTH;
 			c.weightx = 1;

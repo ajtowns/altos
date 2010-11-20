@@ -69,7 +69,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;
-            c.gridwidth = 2;
+			c.gridwidth = 2;
 			c.anchor = GridBagConstraints.WEST;
 			c.fill = GridBagConstraints.BOTH;
 			c.weightx = 1;
@@ -112,7 +112,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = x + 2; c.gridy = y;
-            c.gridwidth = 2;
+			c.gridwidth = 2;
 			c.anchor = GridBagConstraints.WEST;
 			c.fill = GridBagConstraints.BOTH;
 			c.weightx = 1;
@@ -133,9 +133,9 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 		abstract void show(AltosState state, int crc_errors);
 		void show(String v1, String v2) {
-            value1.setText(v1);
-            value2.setText(v2);
-        }
+			value1.setText(v1);
+			value2.setText(v2);
+		}
 		void show(String f1, double v1, String f2, double v2) {
 			value1.setText(String.format(f1, v1));
 			value2.setText(String.format(f2, v2));
@@ -217,8 +217,8 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	class LatLon extends DescentDualValue {
 		void show (AltosState state, int crc_errors) {
 			if (state.gps != null)
-                show(pos(state.gps.lat,"N", "S"),
-                        pos(state.gps.lon,"W", "E"));
+				show(pos(state.gps.lat,"N", "S"),
+				     pos(state.gps.lon,"W", "E"));
 			else
 				show("???", "???");
 		}
@@ -256,16 +256,16 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	class Bearing extends DescentDualValue {
 		void show (AltosState state, int crc_errors) {
 			if (state.from_pad != null) {
-                show( String.format("%3.0f°", state.from_pad.bearing),
-                        state.from_pad.bearing_words(
-                            AltosGreatCircle.BEARING_LONG));
+				show( String.format("%3.0f°", state.from_pad.bearing),
+				      state.from_pad.bearing_words(
+					      AltosGreatCircle.BEARING_LONG));
 			} else {
 				show("???", "???");
 			}
 		}
 		public Bearing (GridBagLayout layout, int x, int y) {
 			super (layout, x, y, "Bearing");
-        }
+		}
 	}
 
 	Bearing bearing;
@@ -273,7 +273,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	class Range extends DescentDualValue {
 		void show (AltosState state, int crc_errors) {
 			show("%6.0f m", state.range,
-                 "%3.0f°", state.elevation);
+			     "%3.0f°", state.elevation);
 		}
 		public Range (GridBagLayout layout, int x, int y) {
 			super (layout, x, y, "Range, Elevation");
@@ -308,11 +308,11 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		setLayout(layout);
 
 		/* Elements in descent display */
-        speed = new Speed(layout, 0, 0);    
-        height = new Height(layout, 0, 1);
-        range = new Range(layout, 0, 2);
-        bearing = new Bearing(layout, 0, 3);
-        latlon = new LatLon(layout, 0, 4);
+		speed = new Speed(layout, 0, 0);
+		height = new Height(layout, 0, 1);
+		range = new Range(layout, 0, 2);
+		bearing = new Bearing(layout, 0, 3);
+		latlon = new LatLon(layout, 0, 4);
 
 		apogee = new Apogee(layout, 5);
 		main = new Main(layout, 6);
