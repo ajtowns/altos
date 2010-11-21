@@ -125,6 +125,9 @@ public class AltosSiteMapTile extends JLayeredPane {
 
 		draw = new JLabel();
 		g2d = fillLabel(draw, new Color(127, 127, 127, 0), px_size);
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				     RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.setStroke(new BasicStroke(6, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 		draw.setBounds(0, 0, px_size, px_size);
 		draw.setOpaque(false);
 
