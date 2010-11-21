@@ -52,10 +52,17 @@ public class AltosSiteMapTile extends JLayeredPane {
 		Color.BLACK   // landed
 	};
 
-	boolean drawn_landed_circle = false;
-	boolean drawn_boost_circle = false;
-	public void show(AltosState state, int crc_errors,
-			 Point2D.Double last_pt, Point2D.Double pt)
+	private boolean drawn_landed_circle = false;
+	private boolean drawn_boost_circle = false;
+	private boolean scrollable = false;
+	public synchronized void setScrollable() {
+		scrollable = true;
+	}
+	public synchronized boolean isScrollable() {
+		return scrollable;
+	}
+	public synchronized void show(AltosState state, int crc_errors,
+				      Point2D.Double last_pt, Point2D.Double pt)
 	{
 		if (0 <= state.state && state.state < stateColors.length) {
 			g2d.setColor(stateColors[state.state]);
@@ -63,7 +70,7 @@ public class AltosSiteMapTile extends JLayeredPane {
 		g2d.draw(new Line2D.Double(last_pt, pt));
 
 		int px_size = getWidth();
-		if (0 <= pt.x && pt.x < px_size) {
+		if (isScrollable() && 0 <= pt.x && pt.x < px_size) {
 			if (0 <= pt.y && pt.y < px_size) {
 				int dx = 500, dy = 250;
 				if (state.state > 2) {

@@ -260,28 +260,56 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 				if (0 <= ref.y && ref.y < px_size)
 					in_any = true;
 		}
-		if (!in_any) {
-			final AltosSiteMapTile tile = new AltosSiteMapTile(px_size);
-			final Point offset = tileOffset(pt);
-			mapTiles.put(offset, tile);
 
+		Point offset = tileOffset(pt);
+		if (!in_any) {
 			Point2D.Double ref, lref;
 			ref = translatePoint(pt, tileCoordOffset(offset));
 			lref = translatePoint(last_pt, tileCoordOffset(offset));
+
+			AltosSiteMapTile tile = createTile(offset);
 			tile.show(state, crc_errors, lref, ref);
-
 			initMap(tile, offset);
-
-			SwingUtilities.invokeLater( new Runnable() {
-				public void run() {
-					addTileAt(tile, offset);
-					setViewportView(comp);
-				}
-			} );
+			finishTileLater(tile, offset);
 		}
+
+		if (offset != tileOffset(last_pt)) {
+			ensureTilesAround(offset);
+		}
+
 		last_pt = pt;
 		last_state = state.state;
 	}
+
+	private AltosSiteMapTile createTile(final Point offset) {
+		final AltosSiteMapTile tile = new AltosSiteMapTile(px_size);
+		mapTiles.put(offset, tile);
+		return tile;
+	}
+	private void finishTileLater(final AltosSiteMapTile tile,
+				     final Point offset)
+	{
+		SwingUtilities.invokeLater( new Runnable() {
+			public void run() {
+				addTileAt(tile, offset);
+				tile.setScrollable();
+			}
+		} );
+	}
+
+	private void ensureTilesAround(Point base_offset) {
+		for (int x = -1; x <= 1; x++) {
+			for (int y = -1; y <= 1; y++) {
+				Point offset = new Point(base_offset.x + x, base_offset.y + y);
+				if (mapTiles.containsKey(offset))
+					continue;
+				AltosSiteMapTile tile = createTile(offset);
+				initMap(tile, offset);
+				finishTileLater(tile, offset);
+			}
+		}
+	}
+
 
 	private void addTileAt(AltosSiteMapTile tile, Point offset) {
 		if (Math.abs(offset.x) >= MAX_TILE_DELTA ||
@@ -328,10 +356,11 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 
 		for (int x = -1; x <= 1; x++) {
 			for (int y = -1; y <= 1; y++) {
-				AltosSiteMapTile t = new AltosSiteMapTile(px_size);
 				Point offset = new Point(x, y);
+				AltosSiteMapTile t = new AltosSiteMapTile(px_size);
 				mapTiles.put(offset, t);
 				addTileAt(t, offset);
+				t.setScrollable();
 			}
 		}
 		setViewportView(comp);
