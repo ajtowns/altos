@@ -66,7 +66,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			layout.setConstraints(label, c);
 			add(label);
 
-			value = new JTextField(17);
+			value = new JTextField(Altos.text_width);
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 4; c.gridy = y;
@@ -112,7 +112,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			c.weightx = 0;
 			add(label, c);
 
-			value = new JTextField(17);
+			value = new JTextField(Altos.text_width);
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = x + 2; c.gridy = y;
@@ -159,7 +159,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			layout.setConstraints(label, c);
 			add(label);
 
-			value1 = new JTextField(17);
+			value1 = new JTextField(Altos.text_width);
 			value1.setFont(Altos.value_font);
 			value1.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = x + 2; c.gridy = y;
@@ -169,7 +169,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			layout.setConstraints(value1, c);
 			add(value1);
 
-			value2 = new JTextField(17);
+			value2 = new JTextField(Altos.text_width);
 			value2.setFont(Altos.value_font);
 			value2.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = x + 4; c.gridy = y;

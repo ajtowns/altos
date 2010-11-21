@@ -44,7 +44,6 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	AltosLanded	landed;
 
 	private AltosFlightStatus flightStatus;
-	private JScrollPane flightInfoPane;
 	private AltosInfoTable flightInfo;
 
 	static final int tab_pad = 1;
@@ -64,14 +63,6 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		if (state.state <= Altos.ao_flight_main)
 			return tab_descent;
 		return tab_landed;
-	}
-
-	public int width() {
-		return flightInfo.width();
-	}
-
-	public int height() {
-		return flightStatus.height() + flightInfo.height();
 	}
 
 	void stop_display() {
@@ -146,6 +137,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 		setTitle(String.format("AltOS %s", reader.name));
 
+		/* Stick channel selector at top of table for telemetry monitoring */
 		if (serial >= 0) {
 			// Channel menu
 			channels = new AltosChannelMenu(AltosPreferences.channel(serial));
@@ -162,6 +154,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 			bag.add (channels, c);
 		}
 
+		/* Flight status is always visible */
 		flightStatus = new AltosFlightStatus();
 		c.gridx = 0;
 		c.gridy = 1;
@@ -169,6 +162,9 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		c.weightx = 1;
 		bag.add(flightStatus, c);
 
+		/* The rest of the window uses a tabbed pane to
+		 * show one of the alternate data views
+		 */
 		pane = new JTabbedPane();
 
 		pad = new AltosPad();
@@ -184,18 +180,15 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		pane.add("Landed", landed);
 
 		flightInfo = new AltosInfoTable();
-		flightInfoPane = new JScrollPane(flightInfo.box());
-		pane.add("Table", flightInfoPane);
+		pane.add("Table", new JScrollPane(flightInfo));
 
+		/* Make the tabbed pane use the rest of the window space */
 		c.gridx = 0;
 		c.gridy = 2;
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
 		c.weighty = 1;
 		bag.add(pane, c);
-
-		this.setSize(this.getPreferredSize());
-		this.validate();
 
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -209,7 +202,8 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 			}
 		});
 
-		this.setVisible(true);
+		pack();
+		setVisible(true);
 
 		thread = new AltosDisplayThread(this, voice, this, reader);
 

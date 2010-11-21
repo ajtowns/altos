@@ -73,6 +73,8 @@ public class Altos {
 	static final Font value_font = new Font("Monospaced", Font.PLAIN, 22);
 	static final Font status_font = new Font("SansSerif", Font.BOLD, 24);
 
+	static final int text_width = 16;
+
 	static void initialize_map()
 	{
 		string_to_state.put("startup", ao_flight_startup);
