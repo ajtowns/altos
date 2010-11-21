@@ -40,6 +40,8 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 
 	static final int px_size = 512;
 
+	static final int MAX_TILE_DELTA = 100;
+
 	private static Point2D.Double translatePoint(Point2D.Double p,
 			Point2D.Double d)
 	{
@@ -282,15 +284,22 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	}
 
 	private void addTileAt(AltosSiteMapTile tile, Point offset) {
+		if (Math.abs(offset.x) >= MAX_TILE_DELTA ||
+				Math.abs(offset.y) >= MAX_TILE_DELTA)
+		{
+			System.out.printf("Rocket too far away from pad (tile %d,%d)\n",
+					  offset.x, offset.y);
+			return;
+		}
+
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.CENTER;
 		c.fill = GridBagConstraints.BOTH;
-
 		// put some space between the map tiles, debugging only
 		// c.insets = new Insets(5, 5, 5, 5);
-		//
-		c.gridx = offset.x + 100;
-		c.gridy = offset.y + 100;
+
+		c.gridx = offset.x + MAX_TILE_DELTA;
+		c.gridy = offset.y + MAX_TILE_DELTA;
 		layout.setConstraints(tile, c);
 		comp.add(tile);
 	}
