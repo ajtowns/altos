@@ -65,7 +65,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			layout.setConstraints(label, c);
 			add(label);
 
-			value = new JTextField(17);
+			value = new JTextField(Altos.text_width);
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;
@@ -101,7 +101,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			layout.setConstraints(label, c);
 			add(label);
 
-			value = new JTextField(17);
+			value = new JTextField(Altos.text_width);
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;

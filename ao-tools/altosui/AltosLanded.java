@@ -61,7 +61,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay {
 			layout.setConstraints(label, c);
 			add(label);
 
-			value = new JTextField(17);
+			value = new JTextField(Altos.text_width);
 			value.setFont(value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 1; c.gridy = y;

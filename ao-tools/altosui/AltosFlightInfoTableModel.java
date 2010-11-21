@@ -29,53 +29,56 @@ import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class AltosFlightInfoTableModel extends AbstractTableModel {
-	private String[] columnNames = {"Field", "Value"};
+	final static private String[] columnNames = {"Field", "Value"};
 
-	class InfoLine {
-		String	name;
-		String	value;
+	int	rows;
+	int	cols;
+	private String[][] data;
 
-		public InfoLine(String n, String v) {
-			name = n;
-			value = v;
-		}
-	}
-
-	private ArrayList<InfoLine> rows = new ArrayList<InfoLine>();
-
-	public int getColumnCount() { return columnNames.length; }
-	public String getColumnName(int col) { return columnNames[col]; }
-
-	public int getRowCount() { return 17; }
-
-	int	current_row = 0;
-	int	prev_num_rows = 0;
+	public int getColumnCount() { return cols; }
+	public int getRowCount() { return rows; }
+	public String getColumnName(int col) { return columnNames[col & 1]; }
 
 	public Object getValueAt(int row, int col) {
-		if (row >= rows.size())
+		if (row >= rows || col >= cols)
 			return "";
-		if (col == 0)
-			return rows.get(row).name;
-		else
-			return rows.get(row).value;
+		return data[row][col];
 	}
 
-	public void resetRow() {
-		current_row = 0;
+	int[]	current_row;
+
+	public void reset() {
+		for (int i = 0; i < cols / 2; i++)
+			current_row[i] = 0;
 	}
-	public void addRow(String name, String value) {
-		if (current_row >= rows.size())
-			rows.add(current_row, new InfoLine(name, value));
-		else
-			rows.set(current_row, new InfoLine(name, value));
-		current_row++;
-	}
-	public void finish() {
-		if (current_row > prev_num_rows)
-			fireTableRowsInserted(prev_num_rows, current_row - 1);
-		while (rows.size() > current_row)
-			rows.remove(rows.size() - 1);
-		prev_num_rows = current_row;
+
+	public void clear() {
+		reset();
+		for (int c = 0; c < cols; c++)
+			for (int r = 0; r < rows; r++)
+				data[r][c] = "";
 		fireTableDataChanged();
+	}
+
+	public void addRow(int col, String name, String value) {
+		if (current_row[col] < rows) {
+			data[current_row[col]][col * 2] = name;
+			data[current_row[col]][col * 2 + 1] = value;
+		}
+		current_row[col]++;
+	}
+
+	public void finish() {
+		for (int c = 0; c < cols / 2; c++)
+			while (current_row[c] < rows)
+				addRow(c, "", "");
+		fireTableDataChanged();
+	}
+
+	public AltosFlightInfoTableModel (int in_rows, int in_cols) {
+		rows = in_rows;
+		cols = in_cols * 2;
+		data = new String[rows][cols];
+		current_row = new int[in_cols];
 	}
 }

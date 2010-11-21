@@ -28,11 +28,8 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class AltosInfoTable {
-	private Box			  box;
-	private JTable			  table[];
-	private AltosFlightInfoTableModel model[];
-	private Box			  ibox[];
+public class AltosInfoTable extends JTable {
+	private AltosFlightInfoTableModel model;
 
 	private Font infoLabelFont = new Font("SansSerif", Font.PLAIN, 14);
 	private Font infoValueFont = new Font("Monospaced", Font.PLAIN, 14);
@@ -40,58 +37,35 @@ public class AltosInfoTable {
 	static final int info_columns = 3;
 	static final int info_rows = 17;
 
+	int desired_row_height() {
+		FontMetrics	infoValueMetrics = getFontMetrics(infoValueFont);
+		return (infoValueMetrics.getHeight() + infoValueMetrics.getLeading()) * 18 / 10;
+	}
+
 	public AltosInfoTable() {
-		box = Box.createHorizontalBox();
-		model = new AltosFlightInfoTableModel[info_columns];
-		table = new JTable[info_columns];
-		ibox = new Box[info_columns];
-		for (int i = 0; i < info_columns; i++) {
-			model[i] = new AltosFlightInfoTableModel();
-			table[i] = new JTable(model[i]);
-			ibox[i] = box.createVerticalBox();
-
-			table[i].setFont(infoValueFont);
-			table[i].setRowHeight(rowHeight());
-			table[i].setShowGrid(true);
-			ibox[i].add(table[i].getTableHeader());
-			ibox[i].add(table[i]);
-			box.add(ibox[i]);
-		}
+		super(new AltosFlightInfoTableModel(info_rows, info_columns));
+		model = (AltosFlightInfoTableModel) getModel();
+		setFont(infoValueFont);
+		setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
+		setShowGrid(true);
+		setRowHeight(desired_row_height());
+		doLayout();
 	}
 
-	public int rowHeight() {
-		FontMetrics	infoValueMetrics = table[0].getFontMetrics(infoValueFont);
-		return (infoValueMetrics.getHeight() + infoValueMetrics.getLeading()) * 20 / 10;
-	}
-
-	public int columnWidth() {
-		FontMetrics	infoValueMetrics = table[0].getFontMetrics(infoValueFont);
-		return infoValueMetrics.charWidth('0') * 20 * 2;
-	}
-
-	public int height() {
-		return rowHeight() * info_rows;
-	}
-
-	public int width() {
-		return columnWidth() * info_columns;
-	}
-
-	public Box box() {
-		return box;
+	public Dimension getPreferredScrollableViewportSize() {
+		return getPreferredSize();
 	}
 
 	void info_reset() {
-		for (int i = 0; i < info_columns; i++)
-			model[i].resetRow();
+		model.reset();
 	}
 
 	void info_add_row(int col, String name, String value) {
-		model[col].addRow(name, value);
+		model.addRow(col, name, value);
 	}
 
 	void info_add_row(int col, String name, String format, Object... parameters) {
-		model[col].addRow(name, String.format(format, parameters));
+		info_add_row (col, name, String.format(format, parameters));
 	}
 
 	void info_add_deg(int col, String name, double v, int pos, int neg) {
@@ -103,17 +77,15 @@ public class AltosInfoTable {
 		double	deg = Math.floor(v);
 		double	min = (v - deg) * 60;
 
-		model[col].addRow(name, String.format("%3.0f°%08.5f'", deg, min));
+		info_add_row(col, name, String.format("%3.0f°%08.5f'", deg, min));
 	}
 
 	void info_finish() {
-		for (int i = 0; i < info_columns; i++)
-			model[i].finish();
+		model.finish();
 	}
 
 	public void clear() {
-		info_reset();
-		info_finish();
+		model.clear();
 	}
 
 	public void show(AltosState state, int crc_errors) {
