@@ -33,8 +33,10 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Line2D;
 
 public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
-	// max vertical step in a tile in naut. miles
-	static final double tile_size_nmi = 2.0;
+	// preferred vertical step in a tile in naut. miles
+	// will actually choose a step size between x and 2x, where this
+	// is 1.5x
+	static final double tile_size_nmi = 1.5;
 
 	static final int px_size = 512;
 
@@ -117,7 +119,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 			scale_x = 256/360.0 * Math.pow(2, zoom);
 			scale_y = 256/(2.0*Math.PI) * Math.pow(2, zoom);
 			locn = pt(lat, lng);
-			north_step = pt(lat+tile_size_nmi/60.0, lng);
+			north_step = pt(lat+tile_size_nmi*4/3/60.0, lng);
 			if (locn.y - north_step.y > px_size)
 				break;
 		} while (zoom < 22);
