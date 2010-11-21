@@ -34,7 +34,7 @@ import java.awt.geom.Line2D;
 
 public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	// max vertical step in a tile in naut. miles
-	static final double tile_size_nmi = 1.0;
+	static final double tile_size_nmi = 2.0;
 
 	static final int px_size = 512;
 
@@ -211,10 +211,10 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	boolean initialised = false;
 	public void show(AltosState state, int crc_errors) {
 		// if insufficient gps data, nothing to update
-		if (!state.gps_ready) {
+		if (!state.gps.locked) {
 			if (state.pad_lat == 0 && state.pad_lon == 0)
 				return;
-			if (state.ngps < 3)
+			if (state.gps.nsat < 4)
 				return;
 		}
 
