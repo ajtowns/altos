@@ -228,9 +228,9 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		// if insufficient gps data, nothing to update
 		if (state.gps == null)
 			return;
+		if (state.pad_lat == 0 && state.pad_lon == 0)
+			return;
 		if (!state.gps.locked) {
-			if (state.pad_lat == 0 && state.pad_lon == 0)
-				return;
 			if (state.gps.nsat < 4)
 				return;
 		}
