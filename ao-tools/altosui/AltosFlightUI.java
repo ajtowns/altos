@@ -42,6 +42,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	AltosAscent	ascent;
 	AltosDescent	descent;
 	AltosLanded	landed;
+	AltosSiteMap    sitemap;
 
 	private AltosFlightStatus flightStatus;
 	private AltosInfoTable flightInfo;
@@ -85,6 +86,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		descent.reset();
 		landed.reset();
 		flightInfo.clear();
+		sitemap.reset();
 	}
 
 	public void show(AltosState state, int crc_errors) {
@@ -111,6 +113,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		}
 		flightStatus.show(state, crc_errors);
 		flightInfo.show(state, crc_errors);
+		sitemap.show(state, crc_errors);
 	}
 
 	public void set_exit_on_close() {
@@ -182,6 +185,9 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		flightInfo = new AltosInfoTable();
 		pane.add("Table", new JScrollPane(flightInfo));
 
+		sitemap = new AltosSiteMap();
+		pane.add("Site Map", sitemap);
+
 		/* Make the tabbed pane use the rest of the window space */
 		c.gridx = 0;
 		c.gridy = 2;
@@ -192,15 +198,15 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				disconnect();
-				setVisible(false);
-				dispose();
-				if (exit_on_close)
-					System.exit(0);
-			}
-		});
+				@Override
+				public void windowClosing(WindowEvent e) {
+					disconnect();
+					setVisible(false);
+					dispose();
+					if (exit_on_close)
+						System.exit(0);
+				}
+			});
 
 		pack();
 		setVisible(true);

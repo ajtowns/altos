@@ -31,8 +31,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class AltosInfoTable extends JTable {
 	private AltosFlightInfoTableModel model;
 
-	private Font infoLabelFont = new Font("SansSerif", Font.PLAIN, 12);
-	private Font infoValueFont = new Font("Monospaced", Font.PLAIN, 12);
+	private Font infoLabelFont = new Font("SansSerif", Font.PLAIN, 14);
+	private Font infoValueFont = new Font("Monospaced", Font.PLAIN, 14);
 
 	static final int info_columns = 3;
 	static final int info_rows = 17;

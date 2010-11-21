@@ -353,7 +353,11 @@ public class AltosUI extends JFrame {
 	public static void main(final String[] args) {
 		int	process = 0;
 		/* Handle batch-mode */
-		if (args.length == 2 && args[0].equals("--replay")) {
+        if (args.length == 3 && args[0].equals("--fetchmaps")) {
+            double lat = Double.parseDouble(args[1]);
+            double lon = Double.parseDouble(args[2]);
+            AltosSiteMap.prefetchMaps(lat, lon, 5, 5);
+        } else if (args.length == 2 && args[0].equals("--replay")) {
 			String filename = args[1];
 			FileInputStream in;
 			try {
