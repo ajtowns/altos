@@ -229,7 +229,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	boolean initialised = false;
 	Point2D.Double last_pt = null;
 	int last_state = -1;
-	public void show(AltosState state, int crc_errors) {
+	public void show(final AltosState state, final int crc_errors) {
 		// if insufficient gps data, nothing to update
 		if (state.gps == null)
 			return;
@@ -245,7 +245,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 			initialised = true;
 		}
 
-		Point2D.Double pt = pt(state.gps.lat, state.gps.lon);
+		final Point2D.Double pt = pt(state.gps.lat, state.gps.lon);
 		if (last_pt == pt && last_state == state.state)
 			return;
 
@@ -263,15 +263,23 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 					in_any = true;
 		}
 		if (!in_any) {
-			AltosSiteMapTile tile = addTileAt(tileOffset(pt));
-			setViewportView(comp);
+			try {
+				SwingUtilities.invokeAndWait( new Runnable() {
+					public void run() {
+						AltosSiteMapTile tile = addTileAt(tileOffset(pt));
+						setViewportView(comp);
 
-			Point2D.Double ref, lref;
-			ref = translatePoint(pt, tileCoordOffset(tile));
-			lref = translatePoint(last_pt, tileCoordOffset(tile));
-			tile.show(state, crc_errors, lref, ref);
+						Point2D.Double ref, lref;
+						ref = translatePoint(pt, tileCoordOffset(tile));
+						lref = translatePoint(last_pt, tileCoordOffset(tile));
+						tile.show(state, crc_errors, lref, ref);
 
-			initMap(tile);
+						initMap(tile);
+					}
+				} );
+			} catch (Exception e) {
+				// pray
+			}
 		}
 		last_pt = pt;
 		last_state = state.state;
