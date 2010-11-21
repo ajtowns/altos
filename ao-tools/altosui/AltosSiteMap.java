@@ -264,12 +264,14 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		}
 		if (!in_any) {
 			AltosSiteMapTile tile = addTileAt(tileOffset(pt));
+			setViewportView(comp);
+
 			Point2D.Double ref, lref;
 			ref = translatePoint(pt, tileCoordOffset(tile));
 			lref = translatePoint(last_pt, tileCoordOffset(tile));
-			initMap(tile);
-			setViewportView(comp);
 			tile.show(state, crc_errors, lref, ref);
+
+			initMap(tile);
 		}
 		last_pt = pt;
 		last_state = state.state;
