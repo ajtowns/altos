@@ -145,12 +145,12 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 			// Channel menu
 			channels = new AltosChannelMenu(AltosPreferences.channel(serial));
 			channels.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						int channel = channels.getSelectedIndex();
-						reader.set_channel(channel);
-						AltosPreferences.set_channel(serial, channel);
-					}
-				});
+				public void actionPerformed(ActionEvent e) {
+					int channel = channels.getSelectedIndex();
+					reader.set_channel(channel);
+					AltosPreferences.set_channel(serial, channel);
+				}
+			});
 			c.gridx = 0;
 			c.gridy = 0;
 			c.anchor = GridBagConstraints.WEST;
