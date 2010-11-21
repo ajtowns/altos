@@ -309,6 +309,12 @@ public class AltosEepromIterable extends AltosRecordIterable {
 		int flags = (good.b >> 8);
 		int seconds = hour * 3600 + minute * 60 + second;
 
+		/* Make sure this looks like a good GPS value */
+		if ((flags & Altos.AO_GPS_NUM_SAT_MASK) >> Altos.AO_GPS_NUM_SAT_SHIFT < 4)
+			flags = (flags & ~Altos.AO_GPS_NUM_SAT_MASK) | (4 << Altos.AO_GPS_NUM_SAT_SHIFT);
+		flags |= Altos.AO_GPS_RUNNING;
+		flags |= Altos.AO_GPS_VALID;
+
 		int new_seconds = seconds + diff;
 		if (new_seconds < 0)
 			new_seconds += 24 * 3600;
