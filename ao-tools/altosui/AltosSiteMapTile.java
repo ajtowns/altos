@@ -32,9 +32,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Line2D;
 
 public class AltosSiteMapTile extends JLayeredPane {
-	Point2D.Double coord_pt;
-	Point2D.Double last_pt;
-
 	JLabel mapLabel;
 	JLabel draw;
 	Graphics2D g2d;
@@ -57,19 +54,13 @@ public class AltosSiteMapTile extends JLayeredPane {
 
 	boolean drawn_landed_circle = false;
 	boolean drawn_boost_circle = false;
-	public void show(AltosState state, int crc_errors, Point2D.Double pt) {
-		if (last_pt == null) {
-			// setLocation(state.pad_lat, state.pad_lon);
-			// loadMap();
-			last_pt = pt;
+	public void show(AltosState state, int crc_errors,
+			 Point2D.Double last_pt, Point2D.Double pt)
+	{
+		if (0 <= state.state && state.state < stateColors.length) {
+			g2d.setColor(stateColors[state.state]);
 		}
-
-		if (pt != last_pt) {
-			if (0 <= state.state && state.state < stateColors.length) {
-				g2d.setColor(stateColors[state.state]);
-			}
-			g2d.draw(new Line2D.Double(last_pt, pt));
-		}
+		g2d.draw(new Line2D.Double(last_pt, pt));
 
 		int px_size = getWidth();
 		if (0 <= pt.x && pt.x < px_size) {
@@ -100,7 +91,6 @@ public class AltosSiteMapTile extends JLayeredPane {
 			g2d.drawOval((int)pt.x-35, (int)pt.y-35, 70, 70);
 		}
 
-		last_pt = pt;
 		repaint();
 	}
 

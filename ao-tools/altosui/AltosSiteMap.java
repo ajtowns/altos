@@ -36,7 +36,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	// preferred vertical step in a tile in naut. miles
 	// will actually choose a step size between x and 2x, where this
 	// is 1.5x
-	static final double tile_size_nmi = 1.5;
+	static final double tile_size_nmi = 0.75;
 
 	static final int px_size = 512;
 
@@ -106,8 +106,23 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		return latlng(pt, scale_x, scale_y);
 	}
 
-	AltosSiteMapTile [] mapTiles = new AltosSiteMapTile[9];
-	Point2D.Double [] tileOffset = new Point2D.Double[9];
+	Vector<AltosSiteMapTile> mapTiles = new Vector<AltosSiteMapTile>();
+	Point2D.Double centre;
+
+	private Point tileOffset(AltosSiteMapTile tile) {
+		GridBagConstraints c = layout.getConstraints(tile);
+		return new Point(c.gridx - 100, c.gridy - 100);
+	}
+	private Point2D.Double tileCoordOffset(AltosSiteMapTile tile) {
+		Point p = tileOffset(tile);
+		return new Point2D.Double(centre.x - p.x*px_size,
+					  centre.y - p.y * px_size);
+	}
+
+	private Point tileOffset(Point2D.Double p) {
+		return new Point((int)Math.floor((centre.x+p.x)/px_size),
+				 (int)Math.floor((centre.y+p.y)/px_size));
+	}
 
 	private Point2D.Double getBaseLocation(double lat, double lng) {
 		Point2D.Double locn, north_step;
@@ -132,15 +147,16 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		// nothing
 	}
 
-	private void bgLoadMap(final int i,
+	private void bgLoadMap(final AltosSiteMapTile tile,
 			       final File pngfile, final String pngurl)
 	{
+		//System.out.printf("Loading/fetching map %s\n", pngfile);
 		Thread thread = new Thread() {
 			public void run() {
 				ImageIcon res;
 				res = AltosSiteMapCache.fetchAndLoadMap(pngfile, pngurl);
 				if (res != null) {
-					mapTiles[i].loadMap(res);
+					tile.loadMap(res);
 				} else {
 					System.out.printf("# Failed to fetch file %s\n", pngfile);
 					System.out.printf(" wget -O '%s' ''\n", pngfile, pngurl);
@@ -154,15 +170,16 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		AltosPreferences.init(null);
 
 		AltosSiteMap asm = new AltosSiteMap(true);
-		Point2D.Double c = asm.getBaseLocation(lat, lng);
+		asm.centre = asm.getBaseLocation(lat, lng);
+
 		Point2D.Double p = new Point2D.Double();
 		Point2D.Double p2;
 		int dx = -w/2, dy = -h/2;
 		for (int y = dy; y < h+dy; y++) {
 			for (int x = dx; x < w+dx; x++) {
 				LatLng map_latlng = asm.latlng(
-							    -c.x + x*px_size + px_size/2,
-							    -c.y + y*px_size + px_size/2);
+							    -asm.centre.x + x*px_size + px_size/2,
+							    -asm.centre.y + y*px_size + px_size/2);
 				File pngfile = asm.MapFile(map_latlng.lat, map_latlng.lng);
 				String pngurl = asm.MapURL(map_latlng.lat, map_latlng.lng);
 				if (pngfile.exists()) {
@@ -177,22 +194,21 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		}
 	}
 
+	private void initMap(AltosSiteMapTile tile) {
+		Point2D.Double offset = tileCoordOffset(tile);
+
+		LatLng map_latlng = latlng(px_size/2-offset.x, px_size/2-offset.y);
+
+		File pngfile = MapFile(map_latlng.lat, map_latlng.lng);
+		String pngurl = MapURL(map_latlng.lat, map_latlng.lng);
+		bgLoadMap(tile, pngfile, pngurl);
+	}
+
 	private void initMaps(double lat, double lng) {
-		Point2D.Double c = getBaseLocation(lat, lng);
-		Point2D.Double p = new Point2D.Double();
+		centre = getBaseLocation(lat, lng);
 
-		for (int i = 0; i < 9; i++) {
-			int x = i%3 - 1, y = i/3 - 1;
-
-			tileOffset[i] = new Point2D.Double(
-				c.x - x*px_size, p.y = c.y - y*px_size);
-			LatLng map_latlng = latlng(
-						    -tileOffset[i].x+px_size/2,
-						    -tileOffset[i].y+px_size/2);
-
-			File pngfile = MapFile(map_latlng.lat, map_latlng.lng);
-			String pngurl = MapURL(map_latlng.lat, map_latlng.lng);
-			bgLoadMap(i, pngfile, pngurl);
+		for (AltosSiteMapTile tile : mapTiles) {
+			initMap(tile);
 		}
 	}
 
@@ -211,6 +227,8 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	}
 
 	boolean initialised = false;
+	Point2D.Double last_pt = null;
+	int last_state = -1;
 	public void show(AltosState state, int crc_errors) {
 		// if insufficient gps data, nothing to update
 		if (state.gps == null)
@@ -228,10 +246,51 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		}
 
 		Point2D.Double pt = pt(state.gps.lat, state.gps.lon);
-		for (int x = 0; x < mapTiles.length; x++) {
-			mapTiles[x].show(state, crc_errors,
-					 translatePoint(pt, tileOffset[x]));
+		if (last_pt == pt && last_state == state.state)
+			return;
+
+		if (last_pt == null) {
+			last_pt = pt;
 		}
+		boolean in_any = false;
+		for (AltosSiteMapTile tile : mapTiles) {
+			Point2D.Double ref, lref;
+			ref = translatePoint(pt, tileCoordOffset(tile));
+			lref = translatePoint(last_pt, tileCoordOffset(tile));
+			tile.show(state, crc_errors, lref, ref);
+			if (0 <= ref.x && ref.x < px_size)
+				if (0 <= ref.y && ref.y < px_size)
+					in_any = true;
+		}
+		if (!in_any) {
+			AltosSiteMapTile tile = addTileAt(tileOffset(pt));
+			Point2D.Double ref, lref;
+			ref = translatePoint(pt, tileCoordOffset(tile));
+			lref = translatePoint(last_pt, tileCoordOffset(tile));
+			initMap(tile);
+			setViewportView(comp);
+			tile.show(state, crc_errors, lref, ref);
+		}
+		last_pt = pt;
+		last_state = state.state;
+	}
+
+	private AltosSiteMapTile addTileAt(Point offset) {
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.CENTER;
+		c.fill = GridBagConstraints.BOTH;
+
+		// put some space between the map tiles, debugging only
+		// c.insets = new Insets(5, 5, 5, 5);
+		//
+		AltosSiteMapTile t = new AltosSiteMapTile(px_size);
+		mapTiles.add(t);
+		c.gridx = offset.x + 100;
+		c.gridy = offset.y + 100;
+		layout.setConstraints(t, c);
+		comp.add(t);
+
+		return t;
 	}
 
 	private AltosSiteMap(boolean knowWhatYouAreDoing) {
@@ -240,8 +299,11 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		}
 	}
 
+	JComponent comp;
+	private GridBagLayout layout;
+
 	public AltosSiteMap() {
-		JComponent comp = new JComponent() {
+		comp = new JComponent() {
 			GrabNDrag scroller = new GrabNDrag(this);
 			{
 				addMouseMotionListener(scroller);
@@ -250,21 +312,13 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 			}
 		};
 
-		GridBagLayout layout = new GridBagLayout();
+		layout = new GridBagLayout();
 		comp.setLayout(layout);
 
-		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.CENTER;
-		c.fill = GridBagConstraints.BOTH;
-
-		// put some space between the map tiles, debugging only
-		// c.insets = new Insets(5, 5, 5, 5);
-		for (int x = 0; x < 9; x++) {
-			c.gridx = x % 3;
-			c.gridy = x / 3;
-			mapTiles[x] = new AltosSiteMapTile(px_size);
-			layout.setConstraints(mapTiles[x], c);
-			comp.add(mapTiles[x]);
+		for (int x = -1; x <= 1; x++) {
+			for (int y = -1; y <= 1; y++) {
+				addTileAt(new Point(x, y));
+			}
 		}
 		setViewportView(comp);
 		setPreferredSize(new Dimension(500,200));
