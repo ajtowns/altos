@@ -273,6 +273,8 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 			finishTileLater(tile, offset);
 		}
 
+		scrollRocketToVisible(pt);
+
 		if (offset != tileOffset(last_pt)) {
 			ensureTilesAround(offset);
 		}
@@ -281,8 +283,8 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		last_state = state.state;
 	}
 
-	private AltosSiteMapTile createTile(final Point offset) {
-		final AltosSiteMapTile tile = new AltosSiteMapTile(px_size);
+	private AltosSiteMapTile createTile(Point offset) {
+		AltosSiteMapTile tile = new AltosSiteMapTile(px_size);
 		mapTiles.put(offset, tile);
 		return tile;
 	}
@@ -292,7 +294,6 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		SwingUtilities.invokeLater( new Runnable() {
 			public void run() {
 				addTileAt(tile, offset);
-				tile.setScrollable();
 			}
 		} );
 	}
@@ -310,6 +311,18 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		}
 	}
 
+	private Point topleft = new Point(0,0);
+	private void scrollRocketToVisible(Point2D.Double pt) {
+		Rectangle r = comp.getVisibleRect();
+		Point2D.Double copt = translatePoint(pt, tileCoordOffset(topleft));
+		int dx = (int)copt.x - r.width/2 - r.x;
+		int dy = (int)copt.y - r.height/2 - r.y;
+		if (Math.abs(dx) > r.width/3 || Math.abs(dy) > r.height/3) {
+			r.x += dx;
+			r.y += dy;
+			comp.scrollRectToVisible(r);
+		}
+	}
 
 	private void addTileAt(AltosSiteMapTile tile, Point offset) {
 		if (Math.abs(offset.x) >= MAX_TILE_DELTA ||
@@ -320,6 +333,18 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 			return;
 		}
 
+		boolean review = false;
+		Rectangle r = comp.getVisibleRect();
+		if (offset.x < topleft.x) {
+			r.x += (topleft.x - offset.x) * px_size;
+			topleft.x = offset.x;
+			review = true;
+		}
+		if (offset.y < topleft.y) {
+			r.y += (topleft.y - offset.y) * px_size;
+			topleft.y = offset.y;
+			review = true;
+		}
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.CENTER;
 		c.fill = GridBagConstraints.BOTH;
@@ -329,7 +354,11 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		c.gridx = offset.x + MAX_TILE_DELTA;
 		c.gridy = offset.y + MAX_TILE_DELTA;
 		layout.setConstraints(tile, c);
+
 		comp.add(tile);
+		if (review) {
+			comp.scrollRectToVisible(r);
+		}
 	}
 
 	private AltosSiteMap(boolean knowWhatYouAreDoing) {
@@ -338,29 +367,19 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		}
 	}
 
-	JComponent comp;
-	private GridBagLayout layout;
+	JComponent comp = new JComponent() { };
+	private GridBagLayout layout = new GridBagLayout();
 
 	public AltosSiteMap() {
-		comp = new JComponent() {
-			GrabNDrag scroller = new GrabNDrag(this);
-			{
-				addMouseMotionListener(scroller);
-				addMouseListener(scroller);
-				setAutoscrolls(true);
-			}
-		};
+		GrabNDrag scroller = new GrabNDrag(comp);
 
-		layout = new GridBagLayout();
 		comp.setLayout(layout);
 
 		for (int x = -1; x <= 1; x++) {
 			for (int y = -1; y <= 1; y++) {
 				Point offset = new Point(x, y);
-				AltosSiteMapTile t = new AltosSiteMapTile(px_size);
-				mapTiles.put(offset, t);
+				AltosSiteMapTile t = createTile(offset);
 				addTileAt(t, offset);
-				t.setScrollable();
 			}
 		}
 		setViewportView(comp);

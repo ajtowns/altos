@@ -29,23 +29,26 @@ import java.util.*;
 import java.text.*;
 
 class GrabNDrag extends MouseInputAdapter {
-    private JComponent scroll;
-    private Point startPt = new Point();
+	private JComponent scroll;
+	private Point startPt = new Point();
 
-    public GrabNDrag(JComponent parent) {
-        scroll = parent;
-    }
+	public GrabNDrag(JComponent scroll) {
+		this.scroll = scroll;
+		scroll.addMouseMotionListener(this);
+		scroll.addMouseListener(this);
+		scroll.setAutoscrolls(true);
+	}
 
-    public void mousePressed(MouseEvent e) {
-        startPt.setLocation(e.getPoint());
-    }
-    public void mouseDragged(MouseEvent e) {
-        int xd = e.getX() - startPt.x;
-        int yd = e.getY() - startPt.y;
+	public void mousePressed(MouseEvent e) {
+		startPt.setLocation(e.getPoint());
+	}
+	public void mouseDragged(MouseEvent e) {
+		int xd = e.getX() - startPt.x;
+		int yd = e.getY() - startPt.y;
 
-        Rectangle r = scroll.getVisibleRect();
-        r.x -= xd;
-        r.y -= yd;
-        scroll.scrollRectToVisible(r);
-    }
+		Rectangle r = scroll.getVisibleRect();
+		r.x -= xd;
+		r.y -= yd;
+		scroll.scrollRectToVisible(r);
+	}
 }
