@@ -448,19 +448,32 @@ ao_radio_rdf_abort(void)
 void
 ao_radio_test(void)
 {
-	ao_set_monitor(0);
-	ao_packet_slave_stop();
-	ao_radio_get();
-	printf ("Hit a character to stop..."); flush();
-	RFST = RFST_STX;
-	getchar();
-	ao_radio_idle();
-	ao_radio_put();
-	putchar('\n');
+	uint8_t	mode = 2;
+	ao_cmd_white();
+	if (ao_cmd_lex_c != '\n') {
+		ao_cmd_decimal();
+		mode = (uint8_t) ao_cmd_lex_u32;
+	}
+	mode++;
+	if (mode & 2) {
+		ao_set_monitor(0);
+		ao_packet_slave_stop();
+		ao_radio_get();
+		RFST = RFST_STX;
+	}
+	if (mode == 3) {
+		printf ("Hit a character to stop..."); flush();
+		getchar();
+		putchar('\n');
+	}
+	if (mode & 1) {
+		ao_radio_idle();
+		ao_radio_put();
+	}
 }
 
 __code struct ao_cmds ao_radio_cmds[] = {
-	{ 'C',	ao_radio_test,	"C                                  Radio carrier test" },
+	{ 'C',	ao_radio_test,	"C <1 start, 0 stop, none both>     Radio carrier test" },
 	{ 0,	ao_radio_test,	NULL },
 };
 
