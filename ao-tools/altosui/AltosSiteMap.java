@@ -317,7 +317,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		Point2D.Double copt = translatePoint(pt, tileCoordOffset(topleft));
 		int dx = (int)copt.x - r.width/2 - r.x;
 		int dy = (int)copt.y - r.height/2 - r.y;
-		if (Math.abs(dx) > r.width/3 || Math.abs(dy) > r.height/3) {
+		if (Math.abs(dx) > r.width/4 || Math.abs(dy) > r.height/4) {
 			r.x += dx;
 			r.y += dy;
 			comp.scrollRectToVisible(r);
