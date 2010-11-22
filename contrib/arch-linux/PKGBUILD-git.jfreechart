@@ -1,0 +1,27 @@
+# Original contributor: Bob Finch <w9ya@qrpqrci.net> 
+
+pkgname=jfreechart
+_pkgname=JFreeChart
+pkgver=1.0.13
+pkgrel=1
+pkgdesc="Charting program for Java"
+arch=('any')
+license=('lgpl')
+depends=('java-environment' 'jcommon')
+makedepends=('apache-ant' 'zip' 'gzip' 'tar')
+source=(http://downloads.sourceforge.net/project/\
+$pkgname/1.%20$_pkgname/$pkgver/$pkgname-$pkgver.tar.gz)
+url="http://www.jfree.org/jfreechart/"
+md5sums=('c90e2f8f612b9aaf3f24a4afce219076')
+
+build() {
+  [ -z "${JAVA_HOME}" ] && . /etc/profile.d/jdk.sh
+  [ -z "${ANT_HOME}" ] && . /etc/profile.d/apache-ant.sh
+
+  cd ${startdir}/src/$pkgname-$pkgver/ant
+  /usr/share/java/apache-ant/bin/ant
+  
+  cd ${startdir}/src/$pkgname-$pkgver
+  install -d $pkgdir/usr/share/java/$pkgname/lib
+  install -m644 lib/$pkgname-$pkgver.jar $pkgdir/usr/share/java/$pkgname/lib/$pkgname.jar
+}

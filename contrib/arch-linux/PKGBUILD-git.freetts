@@ -1,0 +1,38 @@
+# Original contributor: Bob Finch <w9ya@qrpqrci.net> 
+
+pkgname=freetts
+_pkgname=FreeTTS
+pkgver=1.2.2
+_pkgver=1.2
+pkgrel=1
+pkgdesc="Sun's rewrite of flite for java"
+arch=('any')
+license=('custom')
+depends=('java-environment')
+makedepends=('junit' 'apache-ant')
+#source=(http://downloads.sourceforge.net/project/\
+#$pkgname/$_pkgname/$_pkgname%20$pkgver/$pkgname-$pkgver-src.zip)
+source=(http://downloads.sourceforge.net/project/\
+$pkgname/$_pkgname/$_pkgname%20$pkgver/$pkgname-$pkgver-bin.zip)
+url="http://freetts.sourceforge.net/"
+#md5sums=('692b5ece251fed88539736e55af5f391')
+md5sums=('cd751e5fd5c7ed29cf6879fc5200605d')
+
+build() {
+#  [ -z "${JAVA_HOME}" ] && . /etc/profile.d/jdk.sh
+#  [ -z "${ANT_HOME}" ] && . /etc/profile.d/apache-ant.sh
+
+#  cd ${startdir}/src/$pkgname-$pkgver/lib
+  cd ${startdir}/src/$pkgname-$_pkgver/lib
+  rm README.txt jsapi.sh jsapi.exe
+
+#  cd ${startdir}/src/$pkgname-$pkgver
+#  ln -s . src
+#  /usr/share/java/apache-ant/bin/ant
+  
+  cd $srcdir/$pkgname-$_pkgver
+  install -d $pkgdir/usr/share/java/$pkgname/lib
+  install -m644 lib/* $pkgdir/usr/share/java/$pkgname/lib/
+  
+#  cp -a bld $pkgdir/usr/share/java/$pkgname/
+}
