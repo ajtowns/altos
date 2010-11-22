@@ -1,0 +1,28 @@
+# Original contributor: Bob Finch <w9ya@qrpqrci.net> 
+
+pkgname=jcommon
+_pkgname=JCommon
+_project=jfreechart
+pkgver=1.0.16
+pkgrel=1
+pkgdesc="Base routines for JFreeChart"
+arch=('any')
+license=('lgpl')
+depends=('java-environment')
+makedepends=('apache-ant' 'zip' 'gzip' 'tar')
+source=(http://downloads.sourceforge.net/project/\
+$_project/3.%20$_pkgname/$pkgver/$pkgname-$pkgver.tar.gz)
+url="http://www.jfree.org/jcommon/"
+md5sums=('5fb774c225cdc7d15a99c9702031ae05')
+
+build() {
+  [ -z "${JAVA_HOME}" ] && . /etc/profile.d/jdk.sh
+  [ -z "${ANT_HOME}" ] && . /etc/profile.d/apache-ant.sh
+
+  cd ${startdir}/src/$pkgname-$pkgver/ant
+  /usr/share/java/apache-ant/bin/ant
+  
+  cd ${startdir}/src/$pkgname-$pkgver
+  install -d $pkgdir/usr/share/java/$pkgname/lib
+  install -m644 $pkgname-$pkgver.jar $pkgdir/usr/share/java/$pkgname/lib/$pkgname.jar
+}
