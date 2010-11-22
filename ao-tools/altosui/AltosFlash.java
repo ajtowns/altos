@@ -336,7 +336,9 @@ public class AltosFlash {
 		debug = new AltosDebug(in_debug_dongle);
 		input = new FileInputStream(file);
 		image = new AltosHexfile(input);
-		if (!debug.check_connection())
+		if (!debug.check_connection()) {
+			debug.close();
 			throw new IOException("Debug port not connected");
+		}
 	}
 }
