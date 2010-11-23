@@ -353,7 +353,14 @@ public class AltosUI extends JFrame {
 	public static void main(final String[] args) {
 		int	process = 0;
 		/* Handle batch-mode */
-        if (args.length == 3 && args[0].equals("--fetchmaps")) {
+        if (args.length == 1 && args[0].equals("--help")) {
+		System.out.printf("Usage: altosui [OPTION]... [FILE]...\n");
+		System.out.printf("  Options:\n");
+		System.out.printf("    --fetchmaps <lat> <lon>\tpre-fetch maps for site map view\n");
+		System.out.printf("    --replay <filename>\t\trelive the glory of past flights \n");
+		System.out.printf("    --csv\tgenerate comma separated output for spreadsheets, etc\n");
+		System.out.printf("    --kml\tgenerate KML output for use with Google Earth\n");
+        } else if (args.length == 3 && args[0].equals("--fetchmaps")) {
             double lat = Double.parseDouble(args[1]);
             double lon = Double.parseDouble(args[2]);
             AltosSiteMap.prefetchMaps(lat, lon, 5, 5);
