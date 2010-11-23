@@ -2,8 +2,8 @@
 #	http://docbook.sourceforge.net/release/xsl/current/README
 #
 
-HTML=telemetrum-doc.html altosui-doc.html
-PDF=telemetrum-doc.pdf altosui-doc.pdf
+HTML=telemetrum-doc.html altosui-doc.html altos.html
+PDF=telemetrum-doc.pdf altosui-doc.pdf altos.pdf
 DOC=$(HTML) $(PDF)
 HTMLSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/html/docbook.xsl
 FOSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl
