@@ -74,7 +74,7 @@ public class AltosConfig implements Runnable, ActionListener {
 	string_ref	product;
 	string_ref	callsign;
 	AltosConfigUI	config_ui;
-
+	boolean		serial_started;
 
 	boolean get_int(String line, String label, int_ref x) {
 		if (line.startsWith(label)) {
@@ -108,6 +108,7 @@ public class AltosConfig implements Runnable, ActionListener {
 	}
 
 	void start_serial() throws InterruptedException {
+		serial_started = true;
 		if (remote) {
 			serial_line.set_radio();
 			serial_line.printf("p\nE 0\n");
@@ -116,6 +117,9 @@ public class AltosConfig implements Runnable, ActionListener {
 	}
 
 	void stop_serial() throws InterruptedException {
+		if (!serial_started)
+			return;
+		serial_started = false;
 		if (remote) {
 			serial_line.printf("~");
 			serial_line.flush_output();
@@ -160,6 +164,10 @@ public class AltosConfig implements Runnable, ActionListener {
 							    device.toShortString()),
 					      "Connection Failed",
 					      JOptionPane.ERROR_MESSAGE);
+		try {
+			stop_serial();
+		} catch (InterruptedException ie) {
+		}
 		serial_line.close();
 		serial_line = null;
 	}

@@ -24,6 +24,7 @@ public class AltosIgnite {
 	AltosDevice	device;
 	AltosSerial	serial;
 	boolean		remote;
+	boolean		serial_started;
 	final static int	None = 0;
 	final static int	Apogee = 1;
 	final static int	Main = 2;
@@ -34,6 +35,7 @@ public class AltosIgnite {
 	final static int	Open = 3;
 
 	private void start_serial() throws InterruptedException {
+		serial_started = true;
 		if (remote) {
 			serial.set_radio();
 			serial.printf("p\nE 0\n");
@@ -42,6 +44,9 @@ public class AltosIgnite {
 	}
 
 	private void stop_serial() throws InterruptedException {
+		if (!serial_started)
+			return;
+		serial_started = false;
 		if (serial == null)
 			return;
 		if (remote) {
@@ -148,6 +153,10 @@ public class AltosIgnite {
 	}
 
 	public void close() {
+		try {
+			stop_serial();
+		} catch (InterruptedException ie) {
+		}
 		serial.close();
 		serial = null;
 	}
