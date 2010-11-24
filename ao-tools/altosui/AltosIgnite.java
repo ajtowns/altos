@@ -24,6 +24,7 @@ public class AltosIgnite {
 	AltosDevice	device;
 	AltosSerial	serial;
 	boolean		remote;
+	boolean		serial_started;
 	final static int	None = 0;
 	final static int	Apogee = 1;
 	final static int	Main = 2;
@@ -34,15 +35,18 @@ public class AltosIgnite {
 	final static int	Open = 3;
 
 	private void start_serial() throws InterruptedException {
+		serial_started = true;
 		if (remote) {
-			serial.set_channel(AltosPreferences.channel(device.getSerial()));
-			serial.set_callsign(AltosPreferences.callsign());
-			serial.printf("~\np\n");
+			serial.set_radio();
+			serial.printf("p\nE 0\n");
 			serial.flush_input();
 		}
 	}
 
 	private void stop_serial() throws InterruptedException {
+		if (!serial_started)
+			return;
+		serial_started = false;
 		if (serial == null)
 			return;
 		if (remote) {
@@ -100,7 +104,7 @@ public class AltosIgnite {
 		start_serial();
 		serial.printf("t\n");
 		for (;;) {
-			String line = serial.get_reply(1000);
+			String line = serial.get_reply(5000);
 			if (line == null)
 				throw new TimeoutException();
 			if (get_string(line, "Igniter: drogue Status: ", status_name))
@@ -149,6 +153,10 @@ public class AltosIgnite {
 	}
 
 	public void close() {
+		try {
+			stop_serial();
+		} catch (InterruptedException ie) {
+		}
 		serial.close();
 		serial = null;
 	}

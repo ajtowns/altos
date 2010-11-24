@@ -44,10 +44,7 @@ class AltosTelemetryReader extends AltosFlightReader {
 
 	void set_channel(int channel) {
 		serial.set_channel(channel);
-	}
-
-	void set_callsign(String callsign) {
-		serial.set_callsign(callsign);
+		AltosPreferences.set_channel(device.getSerial(), channel);
 	}
 
 	public AltosTelemetryReader (AltosDevice in_device)
@@ -58,6 +55,7 @@ class AltosTelemetryReader extends AltosFlightReader {
 		name = device.toShortString();
 
 		telem = new LinkedBlockingQueue<AltosLine>();
+		serial.set_radio();
 		serial.add_monitor(telem);
 	}
 }

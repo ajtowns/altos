@@ -432,8 +432,11 @@ ao_radio_rdf(int ms)
 void
 ao_radio_abort(void)
 {
-	ao_dma_abort(ao_radio_dma);
-	ao_radio_idle();
+	/* Only abort if a task is waiting to receive data */
+	if (RFST == RFST_SRX) {
+		ao_dma_abort(ao_radio_dma);
+		ao_radio_idle();
+	}
 }
 
 void
@@ -449,26 +452,29 @@ void
 ao_radio_test(void)
 {
 	uint8_t	mode = 2;
+	static __xdata radio_on;
 	ao_cmd_white();
 	if (ao_cmd_lex_c != '\n') {
 		ao_cmd_decimal();
 		mode = (uint8_t) ao_cmd_lex_u32;
 	}
 	mode++;
-	if (mode & 2) {
+	if ((mode & 2) && !radio_on) {
 		ao_set_monitor(0);
 		ao_packet_slave_stop();
 		ao_radio_get();
 		RFST = RFST_STX;
+		radio_on = 1;
 	}
 	if (mode == 3) {
 		printf ("Hit a character to stop..."); flush();
 		getchar();
 		putchar('\n');
 	}
-	if (mode & 1) {
+	if ((mode & 1) && radio_on) {
 		ao_radio_idle();
 		ao_radio_put();
+		radio_on = 0;
 	}
 }
 

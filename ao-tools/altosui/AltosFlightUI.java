@@ -132,7 +132,6 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 				public void actionPerformed(ActionEvent e) {
 					int channel = channels.getSelectedIndex();
 					reader.set_channel(channel);
-					AltosPreferences.set_channel(serial, channel);
 				}
 			});
 			c.gridx = 0;

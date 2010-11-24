@@ -145,13 +145,11 @@ public class AltosIgniteUI
 
 		if (cmd.equals("apogee") && apogee.isSelected()) {
 			main.setSelected(false);
-			if (apogee_status == AltosIgnite.Ready)
-				arm.setEnabled(true);
+			arm.setEnabled(true);
 		}
 		if (cmd.equals("main") && main.isSelected()) {
 			apogee.setSelected(false);
-			if (main_status == AltosIgnite.Ready)
-				arm.setEnabled(true);
+			arm.setEnabled(true);
 		}
 
 		if (cmd.equals("arm")) {

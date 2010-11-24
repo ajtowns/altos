@@ -74,7 +74,7 @@ public class AltosConfig implements Runnable, ActionListener {
 	string_ref	product;
 	string_ref	callsign;
 	AltosConfigUI	config_ui;
-
+	boolean		serial_started;
 
 	boolean get_int(String line, String label, int_ref x) {
 		if (line.startsWith(label)) {
@@ -108,15 +108,18 @@ public class AltosConfig implements Runnable, ActionListener {
 	}
 
 	void start_serial() throws InterruptedException {
+		serial_started = true;
 		if (remote) {
-			serial_line.set_channel(AltosPreferences.channel(device.getSerial()));
-			serial_line.set_callsign(AltosPreferences.callsign());
-			serial_line.printf("p\n");
+			serial_line.set_radio();
+			serial_line.printf("p\nE 0\n");
 			serial_line.flush_input();
 		}
 	}
 
 	void stop_serial() throws InterruptedException {
+		if (!serial_started)
+			return;
+		serial_started = false;
 		if (remote) {
 			serial_line.printf("~");
 			serial_line.flush_output();
@@ -128,7 +131,7 @@ public class AltosConfig implements Runnable, ActionListener {
 			start_serial();
 			serial_line.printf("c s\nv\n");
 			for (;;) {
-				String line = serial_line.get_reply(1000);
+				String line = serial_line.get_reply(5000);
 				if (line == null)
 					throw new TimeoutException();
 				get_int(line, "serial-number", serial);
@@ -150,7 +153,7 @@ public class AltosConfig implements Runnable, ActionListener {
 	}
 
 	void init_ui () throws InterruptedException, TimeoutException {
-		config_ui = new AltosConfigUI(owner);
+		config_ui = new AltosConfigUI(owner, remote);
 		config_ui.addActionListener(this);
 		set_ui();
 	}
@@ -161,6 +164,10 @@ public class AltosConfig implements Runnable, ActionListener {
 							    device.toShortString()),
 					      "Connection Failed",
 					      JOptionPane.ERROR_MESSAGE);
+		try {
+			stop_serial();
+		} catch (InterruptedException ie) {
+		}
 		serial_line.close();
 		serial_line = null;
 	}
@@ -192,8 +199,10 @@ public class AltosConfig implements Runnable, ActionListener {
 			start_serial();
 			serial_line.printf("c m %d\n", main_deploy.get());
 			serial_line.printf("c d %d\n", apogee_delay.get());
-			serial_line.printf("c r %d\n", radio_channel.get());
-			serial_line.printf("c f %d\n", radio_calibration.get());
+			if (!remote) {
+				serial_line.printf("c r %d\n", radio_channel.get());
+				serial_line.printf("c f %d\n", radio_calibration.get());
+			}
 			serial_line.printf("c c %s\n", callsign.get());
 			serial_line.printf("c w\n");
 		} catch (InterruptedException ie) {

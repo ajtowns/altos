@@ -114,16 +114,20 @@ public class AltosSerial implements Runnable {
 
 	public void flush_input() {
 		flush_output();
-		try {
-			Thread.sleep(200);
-		} catch (InterruptedException ie) {
-		}
-		synchronized(this) {
-			if (!"VERSION".startsWith(line) &&
-			    !line.startsWith("VERSION"))
-				line = "";
-			reply_queue.clear();
-		}
+		boolean	got_some;
+		do {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException ie) {
+			}
+			got_some = !reply_queue.isEmpty();
+			synchronized(this) {
+				if (!"VERSION".startsWith(line) &&
+				    !line.startsWith("VERSION"))
+					line = "";
+				reply_queue.clear();
+			}
+		} while (got_some);
 	}
 
 	public String get_reply() throws InterruptedException {
@@ -194,13 +198,18 @@ public class AltosSerial implements Runnable {
 			devices_opened.add(device.getPath());
 		}
 		altos = libaltos.altos_open(device);
-		if (altos == null)
+		if (altos == null) {
+			close();
 			throw new FileNotFoundException(device.toShortString());
+		}
 		input_thread = new Thread(this);
 		input_thread.start();
 		print("~\nE 0\n");
+		set_monitor(false);
 		flush_output();
-		set_monitor(monitor_mode);
+	}
+
+	public void set_radio() {
 		set_channel(AltosPreferences.channel(device.getSerial()));
 		set_callsign(AltosPreferences.callsign());
 	}
