@@ -432,8 +432,11 @@ ao_radio_rdf(int ms)
 void
 ao_radio_abort(void)
 {
-	ao_dma_abort(ao_radio_dma);
-	ao_radio_idle();
+	/* Only abort if a task is waiting to receive data */
+	if (RFST == RFST_SRX) {
+		ao_dma_abort(ao_radio_dma);
+		ao_radio_idle();
+	}
 }
 
 void
