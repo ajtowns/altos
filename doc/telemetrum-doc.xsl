@@ -1087,7 +1087,30 @@
     <section>
       <title>Graph Data</title>
       <para>
-        This section should be written by AJ.
+        Select this button and you are prompted to select a flight
+        record file, either a .telem file recording telemetry data or a
+        .eeprom file containing flight data saved from the TeleMetrum
+        flash memory.
+      </para>
+      <para>
+        Once a flight record is selected, the acceleration (blue),
+        velocity (green) and altitude (red) of the flight are plotted and
+        displayed, measured in metric units.
+      </para>
+      <para>
+        The graph can be zoomed into a particular area by clicking and
+        dragging down and to the right. Once zoomed, the graph can be
+        reset by clicking and dragging up and to the left. Holding down
+        control and clicking and dragging allows the graph to be panned.
+        The right mouse button causes a popup menu to be displayed, giving
+        you the option save or print the plot.
+      </para>
+      <para>
+        Note that telemetry files will generally produce poor graphs
+        due to the lower sampling rate and missed telemetry packets,
+        and will also often have significant amounts of data received
+        while the rocket was waiting on the pad. Use saved flight data
+        for graphing where possible.
       </para>
     </section>
     <section>
