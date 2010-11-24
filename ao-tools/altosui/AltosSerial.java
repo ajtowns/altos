@@ -114,16 +114,20 @@ public class AltosSerial implements Runnable {
 
 	public void flush_input() {
 		flush_output();
-		try {
-			Thread.sleep(200);
-		} catch (InterruptedException ie) {
-		}
-		synchronized(this) {
-			if (!"VERSION".startsWith(line) &&
-			    !line.startsWith("VERSION"))
-				line = "";
-			reply_queue.clear();
-		}
+		boolean	got_some;
+		do {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException ie) {
+			}
+			got_some = !reply_queue.isEmpty();
+			synchronized(this) {
+				if (!"VERSION".startsWith(line) &&
+				    !line.startsWith("VERSION"))
+					line = "";
+				reply_queue.clear();
+			}
+		} while (got_some);
 	}
 
 	public String get_reply() throws InterruptedException {
