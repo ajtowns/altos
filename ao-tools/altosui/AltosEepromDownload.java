@@ -97,7 +97,7 @@ public class AltosEepromDownload implements Runnable {
 		/* Pull the serial number out of the version information */
 
 		for (;;) {
-			String	line = serial_line.get_reply(1000);
+			String	line = serial_line.get_reply(5000);
 
 			if (line == null)
 				throw new TimeoutException();
@@ -127,7 +127,7 @@ public class AltosEepromDownload implements Runnable {
 			any_valid = false;
 			monitor.set_value(state_names[state], state, block - state_block);
 			for (addr = 0; addr < 0x100;) {
-				String	line = serial_line.get_reply(1000);
+				String	line = serial_line.get_reply(5000);
 				if (line == null)
 					throw new TimeoutException();
 				int[] values = ParseHex(line);
@@ -216,8 +216,7 @@ public class AltosEepromDownload implements Runnable {
 
 	public void run () {
 		if (remote) {
-			serial_line.set_channel(AltosPreferences.channel(device.getSerial()));
-			serial_line.set_callsign(AltosPreferences.callsign());
+			serial_line.set_radio();
 			serial_line.printf("p\nE 0\n");
 			serial_line.flush_input();
 		}

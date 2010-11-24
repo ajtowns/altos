@@ -35,9 +35,8 @@ public class AltosIgnite {
 
 	private void start_serial() throws InterruptedException {
 		if (remote) {
-			serial.set_channel(AltosPreferences.channel(device.getSerial()));
-			serial.set_callsign(AltosPreferences.callsign());
-			serial.printf("~\np\n");
+			serial.set_radio();
+			serial.printf("p\nE 0\n");
 			serial.flush_input();
 		}
 	}
@@ -100,7 +99,7 @@ public class AltosIgnite {
 		start_serial();
 		serial.printf("t\n");
 		for (;;) {
-			String line = serial.get_reply(1000);
+			String line = serial.get_reply(5000);
 			if (line == null)
 				throw new TimeoutException();
 			if (get_string(line, "Igniter: drogue Status: ", status_name))

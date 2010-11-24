@@ -198,13 +198,18 @@ public class AltosSerial implements Runnable {
 			devices_opened.add(device.getPath());
 		}
 		altos = libaltos.altos_open(device);
-		if (altos == null)
+		if (altos == null) {
+			close();
 			throw new FileNotFoundException(device.toShortString());
+		}
 		input_thread = new Thread(this);
 		input_thread.start();
 		print("~\nE 0\n");
+		set_monitor(false);
 		flush_output();
-		set_monitor(monitor_mode);
+	}
+
+	public void set_radio() {
 		set_channel(AltosPreferences.channel(device.getSerial()));
 		set_callsign(AltosPreferences.callsign());
 	}

@@ -109,9 +109,8 @@ public class AltosConfig implements Runnable, ActionListener {
 
 	void start_serial() throws InterruptedException {
 		if (remote) {
-			serial_line.set_channel(AltosPreferences.channel(device.getSerial()));
-			serial_line.set_callsign(AltosPreferences.callsign());
-			serial_line.printf("p\n");
+			serial_line.set_radio();
+			serial_line.printf("p\nE 0\n");
 			serial_line.flush_input();
 		}
 	}
@@ -128,7 +127,7 @@ public class AltosConfig implements Runnable, ActionListener {
 			start_serial();
 			serial_line.printf("c s\nv\n");
 			for (;;) {
-				String line = serial_line.get_reply(1000);
+				String line = serial_line.get_reply(5000);
 				if (line == null)
 					throw new TimeoutException();
 				get_int(line, "serial-number", serial);
