@@ -1044,6 +1044,27 @@
           during the flight are displayed for your admiring observers.
         </para>
       </section>
+      <section>
+        <title>Site Map</title>
+        <para>
+          When the rocket gets a GPS fix, the Site Map tab will map
+          the rocket's position to make it easier for you to locate the
+          rocket, both while it is in the air, and when it has landed. The
+          rocket's state is indicated by colour: white for pad, red for
+          boost, pink for fast, yellow for coast, light blue for drogue,
+          dark blue for main, and black for landed.
+        </para>
+        <para>
+          The map's scale is approximately 3m (10ft) per pixel. The map
+          can be dragged using the left mouse button. The map will attempt
+          to keep the rocket roughly centred while data is being received.
+        </para>
+        <para>
+          Images are fetched automatically via the Google Maps Static API,
+          and are cached for reuse. If map images cannot be downloaded,
+          the rocket's path will be traced on a dark grey background
+          instead.
+        </para>
     </section>
     <section>
       <title>Save Flight Data</title>
