@@ -101,7 +101,6 @@ void
 ao_igniter(void)
 {
 	__xdata enum ao_ignter igniter;
-	__xdata enum ao_igniter_status status;
 
 	ao_config_get();
 	for (;;) {
