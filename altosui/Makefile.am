@@ -1,3 +1,4 @@
+SUBDIRS=libaltos
 JAVAROOT=classes
 AM_JAVACFLAGS=-encoding UTF-8
 
@@ -5,7 +6,7 @@ man_MANS=altosui.1
 
 altoslibdir=$(libdir)/altos
 
-CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../libaltos:$(FREETTS)/*:/usr/share/java/*"
+CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:libaltos:$(FREETTS)/*:/usr/share/java/*"
 
 bin_SCRIPTS=altosui
 
@@ -190,13 +191,13 @@ $(JAR): classaltosui.stamp Manifest.txt $(JAVA_ICON)
 	jar cfm $@ Manifest.txt \
 		$(ICONJAR) \
 		-C classes altosui \
-		-C ../libaltos libaltosJNI
+		-C libaltos libaltosJNI
 
 $(FATJAR): classaltosui.stamp Manifest-fat.txt $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) $(JAVA_ICON)
 	jar cfm $@ Manifest-fat.txt \
 		$(ICONJAR) \
 		-C classes altosui \
-		-C ../libaltos libaltosJNI
+		-C libaltos libaltosJNI
 
 Manifest.txt: Makefile
 	echo 'Main-Class: altosui.AltosUI' > $@
@@ -213,25 +214,25 @@ altosui: Makefile
 
 altosui-test: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java -cp "$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="../libaltos/.libs" -jar altosui.jar "$$@"' >> $@
+	echo 'exec java -cp "$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="libaltos/.libs" -jar altosui.jar "$$@"' >> $@
 	chmod +x $@
 
 altosui-jdb: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec jdb -classpath "classes:../libaltos:$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="../libaltos/.libs" altosui/AltosUI "$$@"' >> $@
+	echo 'exec jdb -classpath "classes:libaltos:$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="libaltos/.libs" altosui/AltosUI "$$@"' >> $@
 	chmod +x $@
 
 libaltos.so:
 	-rm -f "$@"
-	$(LN_S) ../libaltos/.libs/"$@" .
+	$(LN_S) libaltos/.libs/"$@" .
 
 libaltos.dylib:
 	-rm -f "$@"
-	$(LN_S) ../libaltos/"$@" .
+	$(LN_S) libaltos/"$@" .
 
 altos.dll:
 	-rm -f "$@"
-	$(LN_S) ../libaltos/"$@" .
+	$(LN_S) libaltos/"$@" .
 
 $(FREETTS_CLASS):
 	-rm -f "$@"

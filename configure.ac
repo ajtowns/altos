@@ -133,6 +133,8 @@ PKG_CHECK_MODULES([SNDFILE], [sndfile])
 
 AC_OUTPUT([
 Makefile
+altosui/Makefile
+altosui/libaltos/Makefile
 ao-tools/Makefile
 ao-tools/lib/Makefile
 ao-tools/ao-rawload/Makefile
@@ -144,8 +146,6 @@ ao-tools/ao-list/Makefile
 ao-tools/ao-load/Makefile
 ao-tools/ao-postflight/Makefile
 ao-tools/ao-view/Makefile
-ao-tools/libaltos/Makefile
-ao-tools/altosui/Makefile
 ao-utils/Makefile
 src/Version
 ])
