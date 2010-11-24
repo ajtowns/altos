@@ -149,7 +149,7 @@ public class AltosConfig implements Runnable, ActionListener {
 	}
 
 	void init_ui () throws InterruptedException, TimeoutException {
-		config_ui = new AltosConfigUI(owner);
+		config_ui = new AltosConfigUI(owner, remote);
 		config_ui.addActionListener(this);
 		set_ui();
 	}
@@ -191,8 +191,10 @@ public class AltosConfig implements Runnable, ActionListener {
 			start_serial();
 			serial_line.printf("c m %d\n", main_deploy.get());
 			serial_line.printf("c d %d\n", apogee_delay.get());
-			serial_line.printf("c r %d\n", radio_channel.get());
-			serial_line.printf("c f %d\n", radio_calibration.get());
+			if (!remote) {
+				serial_line.printf("c r %d\n", radio_channel.get());
+				serial_line.printf("c f %d\n", radio_calibration.get());
+			}
 			serial_line.printf("c c %s\n", callsign.get());
 			serial_line.printf("c w\n");
 		} catch (InterruptedException ie) {

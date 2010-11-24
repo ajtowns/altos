@@ -98,7 +98,7 @@ public class AltosConfigUI
 	}
 
 	/* Build the UI using a grid bag */
-	public AltosConfigUI(JFrame in_owner) {
+	public AltosConfigUI(JFrame in_owner, boolean remote) {
 		super (in_owner, "Configure TeleMetrum", false);
 
 		owner = in_owner;
@@ -244,6 +244,8 @@ public class AltosConfigUI
 		radio_channel_value = new JComboBox(radio_channel_values);
 		radio_channel_value.setEditable(false);
 		radio_channel_value.addItemListener(this);
+		if (remote)
+			radio_channel_value.setEnabled(false);
 		pane.add(radio_channel_value, c);
 
 		/* Radio Calibration */
@@ -267,6 +269,8 @@ public class AltosConfigUI
 		c.ipady = 5;
 		radio_calibration_value = new JTextField(String.format("%d", 1186611));
 		radio_calibration_value.getDocument().addDocumentListener(this);
+		if (remote)
+			radio_calibration_value.setEnabled(false);
 		pane.add(radio_calibration_value, c);
 
 		/* Callsign */
