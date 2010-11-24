@@ -1461,14 +1461,6 @@
         </para>
       </section>
     </section>
-    <section>
-      <title>
-        How GPS Works
-      </title>
-      <para>
-        Placeholder.
-      </para>
-    </section>
   </chapter>
 </book>
 
