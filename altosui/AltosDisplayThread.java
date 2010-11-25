@@ -38,9 +38,43 @@ public class AltosDisplayThread extends Thread {
 	int			crc_errors;
 	AltosFlightDisplay	display;
 
-	synchronized void show(AltosState state, int crc_errors) {
+	void show_internal(AltosState state, int crc_errors) {
 		if (state != null)
 			display.show(state, crc_errors);
+	}
+
+	void show_safely(AltosState in_state, int in_crc_errors) {
+		final AltosState state = in_state;
+		final int crc_errors = in_crc_errors;
+		Runnable r = new Runnable() {
+				public void run() {
+					try {
+						show_internal(state, crc_errors);
+					} catch (Exception ex) {
+					}
+				}
+			};
+		SwingUtilities.invokeLater(r);
+	}
+
+	void reading_error_internal(String name) {
+		JOptionPane.showMessageDialog(parent,
+					      String.format("Error reading from \"%s\"", name),
+					      "Telemetry Read Error",
+					      JOptionPane.ERROR_MESSAGE);
+	}
+
+	void reading_error_safely(String in_name) {
+		final String name = in_name;
+		Runnable r = new Runnable() {
+				public void run() {
+					try {
+						reading_error_internal(name);
+					} catch (Exception ex) {
+					}
+				}
+			};
+		SwingUtilities.invokeLater(r);
 	}
 
 	class IdleThread extends Thread {
@@ -102,7 +136,7 @@ public class AltosDisplayThread extends Thread {
 				++reported_landing;
 				if (state.state != Altos.ao_flight_landed) {
 					state.state = Altos.ao_flight_landed;
-					show(state, 0);
+					show_safely(state, 0);
 				}
 			}
 		}
@@ -202,7 +236,6 @@ public class AltosDisplayThread extends Thread {
 
 		idle_thread = new IdleThread();
 
-		display.reset();
 		try {
 			for (;;) {
 				try {
@@ -212,23 +245,20 @@ public class AltosDisplayThread extends Thread {
 					old_state = state;
 					state = new AltosState(record, state);
 					reader.update(state);
-					show(state, crc_errors);
+					show_safely(state, crc_errors);
 					told = tell(state, old_state);
 					idle_thread.notice(state, told);
 				} catch (ParseException pp) {
 					System.out.printf("Parse error: %d \"%s\"\n", pp.getErrorOffset(), pp.getMessage());
 				} catch (AltosCRCException ce) {
 					++crc_errors;
-					show(state, crc_errors);
+					show_safely(state, crc_errors);
 				}
 			}
 		} catch (InterruptedException ee) {
 			interrupted = true;
 		} catch (IOException ie) {
-			JOptionPane.showMessageDialog(parent,
-						      String.format("Error reading from \"%s\"", name),
-						      "Telemetry Read Error",
-						      JOptionPane.ERROR_MESSAGE);
+			reading_error_safely(name);
 		} finally {
 			if (!interrupted)
 				idle_thread.report(true);
@@ -245,5 +275,6 @@ public class AltosDisplayThread extends Thread {
 		voice = in_voice;
 		display = in_display;
 		reader = in_reader;
+		display.reset();
 	}
 }
