@@ -2,8 +2,8 @@
 #	http://docbook.sourceforge.net/release/xsl/current/README
 #
 
-HTML=telemetrum-doc.html altos.html
-PDF=telemetrum-doc.pdf altos.pdf
+HTML=altusmetrum.html altos.html
+PDF=altusmetrum.pdf altos.pdf
 DOC=$(HTML) $(PDF)
 HTMLSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/html/docbook.xsl
 FOSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl
@@ -23,7 +23,7 @@ PDFSTYLE=
 all:	$(HTML) $(PDF)
 
 publish:	$(DOC)
-	cp $(DOC)telemetrum-doc.html home/bdale/web/altusmetrum/TeleMetrum/doc/
+	cp $(DOC)altusmetrum.html home/bdale/web/altusmetrum/TeleMetrum/doc/
 	(cd /home/bdale/web/altusmetrum ; echo "update docs" | git commit -F - /home/bdale/web/altusmetrum/TeleMetrum/doc/* ; git push)
 
 clean:
@@ -32,6 +32,6 @@ clean:
 distclean:
 	rm -f *.html *.pdf *.fo
 
-indent:		telemetrum-doc.xsl
-	xmlindent -i 2 < telemetrum-doc.xsl > telemetrum-doc.new
+indent:		altusmetrum.xsl
+	xmlindent -i 2 < altusmetrum.xsl > altusmetrum.new
 
