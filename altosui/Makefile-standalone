@@ -44,8 +44,8 @@ CLASSFILES=\
 	AltosRomconfigUI.class \
 	AltosVoice.class
 
-JAVA_ICON=../../icon/altus-metrum-16x16.jpg
-WINDOWS_ICON=../../icon/altus-metrum.ico
+JAVA_ICON=../icon/altus-metrum-16x16.jpg
+WINDOWS_ICON=../icon/altus-metrum.ico
 
 # where altosui.jar gets installed
 ALTOSLIB=/usr/share/java
@@ -64,7 +64,7 @@ FREETTSJAR= \
 	$(FREETTSLIB)/freetts.jar
 
 # The current hex files
-HEXLIB=../../src
+HEXLIB=../src
 HEXFILES = \
 	$(HEXLIB)/telemetrum-v1.0.ihx \
 	$(HEXLIB)/teledongle-v0.2.ihx
@@ -105,11 +105,11 @@ classes/altosui:
 
 classes/libaltosJNI:
 	mkdir -p classes
-	ln -sf ../../libaltos/libaltosJNI classes/libaltosJNI
+	ln -sf ../libaltos/libaltosJNI classes/libaltosJNI
 
 classes/images:
 	mkdir -p classes/images
-	ln -sf ../../$(JAVA_ICON) classes/images
+	ln -sf ../$(JAVA_ICON) classes/images
 
 altosui:
 	echo "#!/bin/sh" > $@
@@ -128,7 +128,7 @@ fat/altosui.jar: $(CLASSFILES) $(JAVA_ICON) fat/classes/Manifest.txt
 	test -L fat/classes/altosui || ln -sf ../.. fat/classes/altosui
 	mkdir -p fat/classes/images
 	cp $(JAVA_ICON) fat/classes/images
-	test -L fat/classes/libaltosJNI || ln -sf ../../../libaltos/libaltosJNI fat/classes/libaltosJNI
+	test -L fat/classes/libaltosJNI || ln -sf ../../libaltos/libaltosJNI fat/classes/libaltosJNI
 	cd ./fat/classes && jar cfm ../../$@ Manifest.txt images/* altosui/*.class libaltosJNI/*.class
 
 fat/classes/Manifest.txt: $(CLASSFILES) Makefile
@@ -153,7 +153,7 @@ distclean:	clean
 
 FAT_FILES=$(FATJAR) $(FREETTSJAR) $(HEXFILES)
 
-LINUX_FILES=$(FAT_FILES) ../libaltos/libaltos.so fat/altosui
+LINUX_FILES=$(FAT_FILES) libaltos/libaltos.so fat/altosui
 $(LINUX_TGZ): $(LINUX_FILES)
 	rm -f $@
 	mkdir -p linux/AltOS
@@ -161,7 +161,7 @@ $(LINUX_TGZ): $(LINUX_FILES)
 	cp $(LINUX_FILES) linux/AltOS
 	cd linux && tar czf ../$@ AltOS
 
-DARWIN_RESOURCES=$(FATJAR) $(FREETTSJAR) ../libaltos/libaltos.dylib
+DARWIN_RESOURCES=$(FATJAR) $(FREETTSJAR) libaltos/libaltos.dylib
 DARWIN_EXTRA=$(HEXFILES)
 DARWIN_FILES=$(DARWIN_RESOURCES) $(DARWIN_EXTRA)
 
@@ -174,7 +174,7 @@ $(DARWIN_ZIP): $(DARWIN_FILES)
 	cp $(DARWIN_EXTRA) darwin/AltOS
 	cd darwin && zip -r ../$@ AltosUI.app AltOS
 
-WINDOWS_FILES = $(FAT_FILES) ../libaltos/altos.dll ../../telemetrum.inf $(WINDOWS_ICON)
+WINDOWS_FILES = $(FAT_FILES) libaltos/altos.dll ../telemetrum.inf $(WINDOWS_ICON)
 
 $(WINDOWS_EXE): $(WINDOWS_FILES) altos-windows.nsi
 	rm -f $@
