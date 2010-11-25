@@ -28,19 +28,9 @@
     </legalnotice>
     <revhistory>
       <revision>
-        <revnumber>0.3</revnumber>
-        <date>23 November 2010</date>
-        <revremark>New section on AltosUI mostly by Keith</revremark>
-      </revision>
-      <revision>
-        <revnumber>0.2</revnumber>
-        <date>18 July 2010</date>
-        <revremark>Significant update</revremark>
-      </revision>
-      <revision>
-        <revnumber>0.1</revnumber>
-        <date>30 March 2010</date>
-        <revremark>Initial content</revremark>
+        <revnumber>0.8</revnumber>
+        <date>24 November 2010</date>
+	<revremark>Updated for software version 0.8 </revremark>
       </revision>
     </revhistory>
   </bookinfo>
@@ -86,52 +76,40 @@
     <para>
       The first thing to do after you check the inventory of parts in your 
       "starter kit" is to charge the battery by plugging it into the 
-      corresponding socket of the TeleMetrum and then using the USB A to B 
+      corresponding socket of the TeleMetrum and then using the USB A to 
+mini B 
       cable to plug the Telemetrum into your computer's USB socket. The 
       TeleMetrum circuitry will charge the battery whenever it is plugged 
-      into the usb socket. The TeleMetrum's on-off switch does NOT control 
-      the charging circuitry.  When the GPS chip is initially searching for
-      satellites, the unit will pull more current than it can pull from the
-      usb port, so the battery must be plugged in order to get a good 
-      satellite lock.  Once GPS is locked the current consumption goes back 
+      in, because the TeleMetrum's on-off switch does NOT control the
+      charging circuitry.  When the GPS chip is initially searching for
+      satellites, TeleMetrum will consume more current than it can pull
+      from the usb port, so the battery must be attached in order to get
+      satellite lock.  Once GPS is locked, the current consumption goes back
       down enough to enable charging while 
       running. So it's a good idea to fully charge the battery as your 
       first item of business so there is no issue getting and maintaining 
       satellite lock.  The yellow charge indicator led will go out when the 
-      battery is nearly full and the charger goes to trickle charge.
+      battery is nearly full and the charger goes to trickle charge. It
+	can takeseveral hours to fully recharge a deeply discharged battery.
     </para>
     <para>
-      The other active device in the starter kit is the half-duplex TeleDongle 
-      rf link.  If you plug it in to your computer it should "just work",
-      showing up as a serial port device.  If you are using Linux and are
+      The other active device in the starter kit is the TeleDongle USB to
+      RF interface.  If you plug it in to your Mac or Linux computer it should
+      "just work", showing up as a serial port device.  Windows systems need
+      driver information that is part of the AltOS download to know that the
+      existing USB modem driver will work.  If you are using Linux and are
       having problems, try moving to a fresher kernel (2.6.33 or newer), as
-      there were some ugly USB serial driver bugs in earlier versions.
+	the USB serial driver had ugly bugs in some earlier versions.
     </para>
     <para>
-      Next you should obtain and install the AltOS utilities.  The first
-      generation sofware was written for Linux only.  New software is coming
-      soon that will also run on Windows and Mac.  For now, we'll concentrate
-      on Linux.  If you are using Debian, an 'altos' package already exists, 
-      see http://altusmetrum.org/AltOS for details on how to install it.
-      User-contributed directions for building packages on ArchLinux may be 
-      found in the contrib/arch-linux directory as PKGBUILD files.
-      Between the debian/rules file and the PKGBUILD files in 
-      contrib, you should find enough information to learn how to build the 
-      software for any other version of Linux.
-    </para>
-    <para>
-      When you have successfully installed the software suite (either from 
-      compiled source code or as the pre-built Debian package) you will 
-      have 10 or so executable programs all of which have names beginning 
-      with 'ao-'.
-      ('ao-view' is the lone GUI-based program, the rest are command-line 
-      oriented.) You will also have man pages, that give you basic info 
-      on each program.
-      You will also get this documentation in two file types in the doc/ 
-      directory, telemetrum-doc.pdf and telemetrum-doc.html.
-      Finally you will have a couple control files that allow the ao-view 
-      GUI-based program to appear in your menu of programs (under 
-      the 'Internet' category). 
+      Next you should obtain and install the AltOS utilities.  These include
+      the AltosUI ground station program, current firmware images for
+      TeleMetrum and TeleDongle, and a number of standalone utilities that
+      are rarely needed.  Pre-built binary packages are available for Debian
+      Linux, Microsoft Windows, and recent MacOSX versions.  Full sourcecode
+      and build instructions for some other Linux variants are also available.
+      The latest version may always be downloaded from
+      http://altusmetrum.org/AltOS.
     </para>
     <para>
       Both Telemetrum and TeleDongle can be directly communicated 
@@ -763,8 +741,191 @@
           sensor... nothing is permanently "lost" or "damaged" if the 
           calibration is poor.
         </para>
+        <para>
+         In the unlikely event an accel cal that goes badly, it is possible
+         that TeleMetrum may always come up in 'pad mode' and as such not be
+         listening to either the USB or radio interfaces.  If that happens,
+         there is a special hook in the firmware to force the board back
+         in to 'idle mode' so you can re-do the cal.  To use this hook, you
+         just need to ground the SPI clock pin at power-on.  This pin is
+         available as pin 2 on the 8-pin companion connector, and pin 1 is
+         ground.  So either carefully install a fine-gauge wire jumper
+         between the two pins closest to the index hole end of the 8-pin
+         connector, or plug in the programming cable to the 8-pin connector
+         and use a small screwdriver or similar to short the two pins closest
+         to the index post on the 4-pin end of the programming cable, and
+         power up the board.  It should come up in 'idle mode' (two beeps).
+        </para>
       </section>
     </section>
+
+
+
+  <section>
+    <title>Updating Device Firmware</title>
+    <para>
+      The big conceptual thing to realize is that you have to use a
+      TeleDongle as a programmer to update a TeleMetrum, and vice versa.
+      Due to limited memory resources in the cc1111, we don't support
+      programming either unit directly over USB.
+    </para>
+    <para>
+      You may wish to begin by ensuring you have current firmware images.
+      These are distributed as part of the AltOS software bundle that
+      also includes the AltosUI ground station program.  Newer ground
+      station versions typically work fine with older firmware versions, 
+      so you don't need to update your devices just to try out new 
+      software features.  You can always download the most recent 
+      version from http://www.altusmetrum.org/AltOS/.
+    </para>
+    <para>
+      We recommend updating TeleMetrum first, before updating TeleDongle.
+    </para>
+    <section>
+      <title>Updating TeleMetrum Firmware</title>
+      <orderedlist inheritnum='inherit' numeration='arabic'>
+        <listitem> 
+          Find the 'programming cable' that you got as part of the starter
+          kit, that has a red 8-pin MicroMaTch connector on one end and a
+          red 4-pin MicroMaTch connector on the other end.  
+        </listitem>
+        <listitem> 
+          Take the 2 screws out of the TeleDongle case to get access 
+          to the circuit board.  
+        </listitem>
+        <listitem>
+          Plug the 8-pin end of the programming cable to the
+          matching connector on the TeleDongle, and the 4-pin end to the
+          matching connector on the TeleMetrum.  
+	  Note that each MicroMaTch connector has an alignment pin that
+	  goes through a hole in the PC board when you have the cable
+	  oriented correctly.
+        </listitem>
+        <listitem>
+          Attach a battery to the TeleMetrum board.
+        </listitem>
+        <listitem>
+          Plug the TeleDongle into your computer's USB port, and power 
+          up the TeleMetrum. 
+        </listitem>
+        <listitem>
+          Run AltosUI, and select 'Flash Image' from the File menu.
+        </listitem>
+        <listitem>
+          Pick the TeleDongle device from the list, identifying it as the 
+          programming device.
+        </listitem>
+        <listitem>
+          Select the image you want put on the TeleMetrum, which should have a 
+          name in the form telemetrum-v1.0-0.7.1.ihx.  It should be visible 
+	in the default directory, if not you may have to poke around 
+	your system to find it.
+        </listitem>
+        <listitem>
+          Make sure the configuration parameters are reasonable
+          looking. If the serial number and/or RF configuration
+          values aren't right, you'll need to change them.
+        </listitem>
+        <listitem>
+          Hit the 'OK' button and the software should proceed to flash 
+          the TeleMetrum with new firmware, showing a progress bar.
+        </listitem>
+        <listitem>
+          Confirm that the TeleMetrum board seems to have updated ok, which you
+          can do by plugging in to it over USB and using a terminal program
+          to connect to the board and issue the 'v' command to check
+          the version, etc.
+        </listitem>
+        <listitem>
+          If something goes wrong, give it another try.
+        </listitem>
+      </orderedlist>
+    </section>
+    <section>
+      <title>Updating TeleDongle Firmware</title>
+      <para>
+        Updating TeleDongle's firmware is just like updating TeleMetrum
+	firmware, but you switch which board is the programmer and which
+	is the programming target.
+	</para>
+      <orderedlist inheritnum='inherit' numeration='arabic'>
+        <listitem> 
+          Find the 'programming cable' that you got as part of the starter
+          kit, that has a red 8-pin MicroMaTch connector on one end and a
+          red 4-pin MicroMaTch connector on the other end.  
+        </listitem>
+        <listitem>
+	  Find the USB cable that you got as part of the starter kit, and
+	  plug the "mini" end in to the mating connector on TeleMetrum.
+        </listitem>
+        <listitem>
+          Take the 2 screws out of the TeleDongle case to get access 
+          to the circuit board.  
+        </listitem>
+        <listitem>
+          Plug the 8-pin end of the programming cable to the (latching)
+          matching connector on the TeleMetrum, and the 4-pin end to the
+          matching connector on the TeleDongle.  
+	  Note that each MicroMaTch connector has an alignment pin that
+	  goes through a hole in the PC board when you have the cable
+	  oriented correctly.
+        </listitem>
+        <listitem>
+          Attach a battery to the TeleMetrum board.
+        </listitem>
+        <listitem>
+          Plug both TeleMetrum and TeleDongle into your computer's USB 
+	  ports, and power up the TeleMetrum. 
+        </listitem>
+        <listitem>
+          Run AltosUI, and select 'Flash Image' from the File menu.
+        </listitem>
+        <listitem>
+          Pick the TeleMetrum device from the list, identifying it as the 
+          programming device.
+        </listitem>
+        <listitem>
+          Select the image you want put on the TeleDongle, which should have a 
+          name in the form teledongle-v0.2-0.7.1.ihx.  It should be visible 
+	in the default directory, if not you may have to poke around 
+	your system to find it.
+        </listitem>
+        <listitem>
+          Make sure the configuration parameters are reasonable
+          looking. If the serial number and/or RF configuration
+          values aren't right, you'll need to change them.  The TeleDongle
+	  serial number is on the "bottom" of the circuit board, and can 
+	  usually be read through the translucent blue plastic case without
+	  needing to remove the board from the case.
+        </listitem>
+        <listitem>
+          Hit the 'OK' button and the software should proceed to flash 
+          the TeleDongle with new firmware, showing a progress bar.
+        </listitem>
+        <listitem>
+          Confirm that the TeleDongle board seems to have updated ok, which you
+          can do by plugging in to it over USB and using a terminal program
+          to connect to the board and issue the 'v' command to check
+          the version, etc.  Once you're happy, remove the programming cable
+	  and put the cover back on the TeleDongle.	
+        </listitem>
+        <listitem>
+          If something goes wrong, give it another try.
+        </listitem>
+      </orderedlist>
+      <para>
+        Be careful removing the programming cable from the locking 8-pin
+        connector on TeleMetrum.  You'll need a fingernail or perhaps a thin
+        screwdriver or knife blade to gently pry the locking ears out 
+        slightly to extract the connector.  We used a locking connector on 
+        TeleMetrum to help ensure that the cabling to companion boards 
+        used in a rocket don't ever come loose accidentally in flight.
+      </para>
+    </section>
+  </section>
+
+
+
   </chapter>
   <chapter>
     
@@ -1065,6 +1226,7 @@
           the rocket's path will be traced on a dark grey background
           instead.
         </para>
+      </section>
     </section>
     <section>
       <title>Save Flight Data</title>
