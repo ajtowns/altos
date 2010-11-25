@@ -1,6 +1,6 @@
 # Original contributor: Bob Finch <w9ya@qrpqrci.net>
 pkgname=altos-git
-pkgver=20101031
+pkgver=20101125
 pkgrel=1
 pkgdesc="Software solutions for high powered rocketry avionics"
 arch=('i686' 'x86_64')
@@ -51,7 +51,7 @@ build() {
   # --with-fat-dir=$srcdir
   # Use this ^ for placing all 3 "fat" packages (linux,mac,windows) into a numbered dir.
   
-  cd "$srcdir/$_gitname-build/ao-tools/$_pkgname/"
+  cd "$srcdir/$_gitname-build/$_pkgname/"
   sed -i 's:\$(datadir)/java:\$(datadir)/java/altos:' Makefile
   # This ^ places altosui.jar in an 'altos' subdirectory.
   sed -i 's:\${exec_prefix}/bin:\${exec_prefix}/share/java/altos:' Makefile
@@ -61,7 +61,7 @@ build() {
   sed -i 's:cp -p $(JFREECHART_CLASS):cp -p $(JFREECHART_CLASS) $(JCOMMON_CLASS):' Makefile
   # This ^ includes jcommon.jar in the macosx fat package.
   
-  cd "$srcdir/$_gitname-build/ao-tools/$_libname/"
+  cd "$srcdir/$_gitname-build/$_pkgname/$_libname/"
   sed -i 's:$(JVM_INCLUDE):/opt/java/include\ -I/opt/java/include/linux:' Makefile
   # This ^ enables both jni.h and jni_md.h to be found as required.
   
@@ -75,7 +75,7 @@ build() {
   cd "$srcdir/$_gitname-build/doc"
   make all
   
-  cd "$srcdir/$_gitname-build/ao-tools/altosui"
+  cd "$srcdir/$_gitname-build/$_pkgname"
   make fat
 }
 
