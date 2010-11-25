@@ -230,16 +230,19 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		// if insufficient gps data, nothing to update
 		if (state.gps == null)
 			return;
-		if (state.pad_lat == 0 && state.pad_lon == 0)
+		if (!state.gps.locked && state.gps.nsat < 4)
 			return;
-		if (!state.gps.locked) {
-			if (state.gps.nsat < 4)
-				return;
-		}
 
 		if (!initialised) {
-			initMaps(state.pad_lat, state.pad_lon);
-			initialised = true;
+			if (state.pad_lat != 0 || state.pad_lon != 0) {
+				initMaps(state.pad_lat, state.pad_lon);
+				initialised = true;
+			} else if (state.gps.lat != 0 || state.gps.lon != 0) {
+				initMaps(state.gps.lat, state.gps.lon);
+				initialised = true;
+			} else {
+				return;
+			}
 		}
 
 		final Point2D.Double pt = pt(state.gps.lat, state.gps.lon);

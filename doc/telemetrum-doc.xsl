@@ -1044,6 +1044,27 @@
           during the flight are displayed for your admiring observers.
         </para>
       </section>
+      <section>
+        <title>Site Map</title>
+        <para>
+          When the rocket gets a GPS fix, the Site Map tab will map
+          the rocket's position to make it easier for you to locate the
+          rocket, both while it is in the air, and when it has landed. The
+          rocket's state is indicated by colour: white for pad, red for
+          boost, pink for fast, yellow for coast, light blue for drogue,
+          dark blue for main, and black for landed.
+        </para>
+        <para>
+          The map's scale is approximately 3m (10ft) per pixel. The map
+          can be dragged using the left mouse button. The map will attempt
+          to keep the rocket roughly centred while data is being received.
+        </para>
+        <para>
+          Images are fetched automatically via the Google Maps Static API,
+          and are cached for reuse. If map images cannot be downloaded,
+          the rocket's path will be traced on a dark grey background
+          instead.
+        </para>
     </section>
     <section>
       <title>Save Flight Data</title>
@@ -1087,7 +1108,30 @@
     <section>
       <title>Graph Data</title>
       <para>
-        This section should be written by AJ.
+        Select this button and you are prompted to select a flight
+        record file, either a .telem file recording telemetry data or a
+        .eeprom file containing flight data saved from the TeleMetrum
+        flash memory.
+      </para>
+      <para>
+        Once a flight record is selected, the acceleration (blue),
+        velocity (green) and altitude (red) of the flight are plotted and
+        displayed, measured in metric units.
+      </para>
+      <para>
+        The graph can be zoomed into a particular area by clicking and
+        dragging down and to the right. Once zoomed, the graph can be
+        reset by clicking and dragging up and to the left. Holding down
+        control and clicking and dragging allows the graph to be panned.
+        The right mouse button causes a popup menu to be displayed, giving
+        you the option save or print the plot.
+      </para>
+      <para>
+        Note that telemetry files will generally produce poor graphs
+        due to the lower sampling rate and missed telemetry packets,
+        and will also often have significant amounts of data received
+        while the rocket was waiting on the pad. Use saved flight data
+        for graphing where possible.
       </para>
     </section>
     <section>
