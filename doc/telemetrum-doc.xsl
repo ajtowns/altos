@@ -2,8 +2,8 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
   "/usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd">
 <book>
-  <title>TeleMetrum</title>
-  <subtitle>Owner's Manual for the TeleMetrum System</subtitle>
+  <title>The Altus Metrum System</title>
+  <subtitle>Owner's Manual for TeleMetrum and TeleDongle Devices</subtitle>
   <bookinfo>
     <author>
       <firstname>Bdale</firstname>
@@ -12,6 +12,14 @@
     <author>
       <firstname>Keith</firstname>
       <surname>Packard</surname>
+    </author>
+    <author>
+      <firstname>Bob</firstname>
+      <surname>Finch</surname>
+    </author>
+    <author>
+      <firstname>Anthony</firstname>
+      <surname>Towns</surname>
     </author>
     <copyright>
       <year>2010</year>
@@ -34,6 +42,34 @@
       </revision>
     </revhistory>
   </bookinfo>
+  <acknowledgements>
+    <para>
+      Thanks to Bob Finch, W9YA, NAR 12965, TRA 12350 for writing "The
+      Mere-Mortals Quick Start/Usage Guide to the Altus Metrum Starter
+      Kit" which has turned into the Getting Started chapter in this
+      book. Bob was one of our first customers for a production
+      TeleMetrum, and the enthusiasm that led to his contribution of
+      this section is immensely gratifying and highy appreciated!
+    </para>
+    <para>
+      And thanks to Anthony (AJ) Towns for contributing the
+      AltosUI graphing and site map code and documentation. Free
+      software means that our customers and friends can become our
+      collaborators, and we certainly appreciate this level of
+      contribution.
+    </para>
+    <para>
+      Have fun using these products, and we hope to meet all of you
+      out on the rocket flight line somewhere.
+      <literallayout>
+Bdale Garbee, KB0G
+NAR #87103, TRA #12201
+
+Keith Packard, KD7SQG
+NAR #88757, TRA #12200
+      </literallayout>
+    </para>
+  </acknowledgements>
   <chapter>
     <title>Introduction and Overview</title>
     <para>
@@ -67,17 +103,10 @@
   <chapter>
     <title>Getting Started</title>
     <para>
-      This chapter began as "The Mere-Mortals Quick Start/Usage Guide to 
-      the Altus Metrum Starter Kit" by Bob Finch, W9YA, NAR 12965, TRA 12350, 
-      w9ya@amsat.org.  Bob was one of our first customers for a production
-      TeleMetrum, and the enthusiasm that led to his contribution of this
-      section is immensely gratifying and highy appreciated!
-    </para>
-    <para>
       The first thing to do after you check the inventory of parts in your 
       "starter kit" is to charge the battery by plugging it into the 
       corresponding socket of the TeleMetrum and then using the USB A to 
-mini B 
+      mini B
       cable to plug the Telemetrum into your computer's USB socket. The 
       TeleMetrum circuitry will charge the battery whenever it is plugged 
       in, because the TeleMetrum's on-off switch does NOT control the
@@ -90,7 +119,7 @@ mini B
       first item of business so there is no issue getting and maintaining 
       satellite lock.  The yellow charge indicator led will go out when the 
       battery is nearly full and the charger goes to trickle charge. It
-	can takeseveral hours to fully recharge a deeply discharged battery.
+      can take several hours to fully recharge a deeply discharged battery.
     </para>
     <para>
       The other active device in the starter kit is the TeleDongle USB to
@@ -99,7 +128,7 @@ mini B
       driver information that is part of the AltOS download to know that the
       existing USB modem driver will work.  If you are using Linux and are
       having problems, try moving to a fresher kernel (2.6.33 or newer), as
-	the USB serial driver had ugly bugs in some earlier versions.
+      the USB serial driver had ugly bugs in some earlier versions.
     </para>
     <para>
       Next you should obtain and install the AltOS utilities.  These include
@@ -109,7 +138,7 @@ mini B
       Linux, Microsoft Windows, and recent MacOSX versions.  Full sourcecode
       and build instructions for some other Linux variants are also available.
       The latest version may always be downloaded from
-      http://altusmetrum.org/AltOS.
+      <ulink url="http://altusmetrum.org/AltOS"/>.
     </para>
     <para>
       Both Telemetrum and TeleDongle can be directly communicated 
@@ -642,7 +671,7 @@ mini B
           primary and backup pyrotechnic charges do not fire simultaneously.
         </para>
         <para>
-          To set the apogee delay, use the [FIXME] command.
+          To set the apogee delay, use the 'c d' command.
           As with all 'c' sub-commands, follow this with a 'c w' to write the 
           change to the parameter block in the on-board DataFlash chip.
         </para>
@@ -670,7 +699,7 @@ mini B
           simultaneously.
         </para>
         <para>
-          To set the main deployment altitude, use the [FIXME] command.
+          To set the main deployment altitude, use the 'c m' command.
           As with all 'c' sub-commands, follow this with a 'c w' to write the 
           change to the parameter block in the on-board DataFlash chip.
         </para>
@@ -776,7 +805,7 @@ mini B
       station versions typically work fine with older firmware versions, 
       so you don't need to update your devices just to try out new 
       software features.  You can always download the most recent 
-      version from http://www.altusmetrum.org/AltOS/.
+      version from <ulink url="http://www.altusmetrum.org/AltOS/"/>.
     </para>
     <para>
       We recommend updating TeleMetrum first, before updating TeleDongle.
@@ -957,6 +986,19 @@ mini B
         link. Simply select the appropriate TeleDongle device when
         the list of devices is presented and AltosUI will use packet
         command mode.
+      </para>
+      <para>
+	One oddity in the current interface is how AltosUI selects the
+	channel for packet mode communications. Instead of providing
+	an interface to specifically configure the channel, it uses
+	whatever channel was most recently selected for the target
+	TeleDongle device in Monitor Flight mode. If you haven't ever
+	used that mode with the TeleDongle in question, select the
+	Monitor Flight button from the top level UI, pick the
+	appropriate TeleDongle device. Once the flight monitoring
+	window is open, select the desired channel and then close it
+	down again. All Packet Command Mode operations will now use
+	that channel.
       </para>
       <itemizedlist>
         <listitem>
@@ -1529,6 +1571,28 @@ mini B
     <section>
       <title>Fire Igniter</title>
       <para>
+	This activates the igniter circuits in TeleMetrum to help test
+	recovery systems deployment. Because this command can operate
+	over the Packet Command Link, you can prepare the rocket as
+	for flight and then test the recovery system without needing
+	to snake wires inside the airframe.
+      </para>
+      <para>
+	Selecting the 'Fire Igniter' button brings up the usual device
+	selection dialog. Pick the desired TeleDongle or TeleMetrum
+	device. This brings up another window which shows the current
+	continutity test status for both apogee and main charges.
+      </para>
+      <para>
+	Next, select the desired igniter to fire. This will enable the
+	'Arm' button.
+      </para>
+      <para>
+	Select the 'Arm' button. This enables the 'Fire' button. The
+	word 'Arm' is replaced by a countdown timer indicating that
+	you have 10 seconds to press the 'Fire' button or the system
+	will deactivate, at which point you start over again at
+	selecting the desired igniter.
       </para>
     </section>
   </chapter>
@@ -1537,16 +1601,16 @@ mini B
     <section>
       <title>Being Legal</title>
       <para>
-        First off, in the US, you need an [amateur radio license](../Radio) or 
+        First off, in the US, you need an <ulink url="http://www.altusmetrum.org/Radio/">amateur radio license</ulink> or
         other authorization to legally operate the radio transmitters that are part
         of our products.
       </para>
       <section>
         <title>In the Rocket</title>
         <para>
-          In the rocket itself, you just need a [TeleMetrum](../TeleMetrum) board and 
+          In the rocket itself, you just need a <ulink url="http://www.altusmetrum.org/TeleMetrum/">TeleMetrum</ulink> board and
           a LiPo rechargeable battery.  An 860mAh battery weighs less than a 9V 
-          alkaline battery, and will run a [TeleMetrum](../TeleMetrum) for hours.
+          alkaline battery, and will run a <ulink url="http://www.altusmetrum.org/TeleMetrum/">TeleMetrum</ulink> for hours.
         </para>
         <para>
           By default, we ship TeleMetrum with a simple wire antenna.  If your 
@@ -1560,16 +1624,15 @@ mini B
         <title>On the Ground</title>
         <para>
           To receive the data stream from the rocket, you need an antenna and short 
-          feedline connected to one of our [TeleDongle](../TeleDongle) units.  The
+          feedline connected to one of our <ulink url="http://www.altusmetrum.org/TeleDongle/">TeleDongle</ulink> units.  The
           TeleDongle in turn plugs directly into the USB port on a notebook 
           computer.  Because TeleDongle looks like a simple serial port, your computer
           does not require special device drivers... just plug it in.
         </para>
         <para>
-          Right now, all of our application software is written for Linux.  However, 
-          because we understand that many people run Windows or MacOS, we are working 
-          on a new ground station program written in Java that should work on all
-          operating systems.
+	  The GUI tool, AltosUI, is written in Java and runs across
+	  Linux, Mac OS and Windows. There's also a suite of C tools
+	  for Linux which can perform most of the same tasks.
         </para>
         <para>
           After the flight, you can use the RF link to extract the more detailed data 
