@@ -9,7 +9,7 @@ InstallDir "$PROGRAMFILES\AltusMetrum"
 InstallDirRegKey HKLM "Software\AltusMetrum" "Install_Dir"
 
 LicenseText "GNU General Public License Version 2"
-LicenseData "../../COPYING"
+LicenseData "../COPYING"
 
 ; Need admin privs for Vista or Win7
 RequestExecutionLevel admin
@@ -38,11 +38,11 @@ Section "Install Driver" InstDriver
 	InstDrv::DeleteOemInfFiles /NOUNLOAD
 	InstDrv::CreateDevice /NOUNLOAD
 	SetOutPath $TEMP
-	File "../../telemetrum.inf"
+	File "../telemetrum.inf"
 	InstDrv::InstallDriver /NOUNLOAD "$TEMP\telemetrum.inf"
 
 	SetOutPath $INSTDIR
-	File "../../telemetrum.inf"
+	File "../telemetrum.inf"
 SectionEnd
 
 Section "AltosUI Application"
@@ -59,7 +59,7 @@ Section "AltosUI Application"
 
 	File "*.dll"
 
-	File "../../icon/*.ico"
+	File "../icon/*.ico"
 
 	CreateShortCut "$SMPROGRAMS\AltusMetrum.lnk" "$INSTDIR\altosui-fat.jar" "" "$INSTDIR\altus-metrum.ico"
 SectionEnd
@@ -72,8 +72,8 @@ Section "TeleMetrum and TeleDongle Firmware"
 
 	SetOutPath $INSTDIR
 
-	File "../../src/telemetrum-v1.0/telemetrum-v1.0-${VERSION}.ihx"
-	File "../../src/teledongle-v0.2/teledongle-v0.2-${VERSION}.ihx"
+	File "../src/telemetrum-v1.0/telemetrum-v1.0-${VERSION}.ihx"
+	File "../src/teledongle-v0.2/teledongle-v0.2-${VERSION}.ihx"
 
 SectionEnd
 
