@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
-  "/usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd">
+"/usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd">
 
 <book>
   <title>AltOS</title>
@@ -37,41 +37,41 @@
       AltOS is a operating system built for the 8051-compatible
       processor found in the TI cc1111 microcontroller. It's designed
       to be small and easy to program with. The main features are:
-    <itemizedlist>
-      <listitem>
-	<para>Multi-tasking. While the 8051 doesn't provide separate
-	address spaces, it's often easier to write code that operates
-	in separate threads instead of tying everything into one giant
-	event loop.
-	</para>
-      </listitem>
-      <listitem>
-	<para>Non-preemptive. This increases latency for thread
-	switching but reduces the number of places where context
-	switching can occur. It also simplifies the operating system
-	design somewhat. Nothing in the target system (rocket flight
-	control) has tight timing requirements, and so this seems like
-	a reasonable compromise.
-	</para>
-      </listitem>
-      <listitem>
-	<para>Sleep/wakeup scheduling. Taken directly from ancient
-	Unix designs, these two provide the fundemental scheduling
-	primitive within AltOS.
-	</para>
-      </listitem>
-      <listitem>
-	<para>Mutexes. As a locking primitive, mutexes are easier to
-	use than semaphores, at least in my experience.
-	</para>
-      </listitem>
-      <listitem>
-	<para>Timers. Tasks can set an alarm which will abort any
-	pending sleep, allowing operations to time-out instead of
-	blocking forever.
-	</para>
-      </listitem>
-    </itemizedlist>
+      <itemizedlist>
+	<listitem>
+	  <para>Multi-tasking. While the 8051 doesn't provide separate
+	  address spaces, it's often easier to write code that operates
+	  in separate threads instead of tying everything into one giant
+	  event loop.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>Non-preemptive. This increases latency for thread
+	  switching but reduces the number of places where context
+	  switching can occur. It also simplifies the operating system
+	  design somewhat. Nothing in the target system (rocket flight
+	  control) has tight timing requirements, and so this seems like
+	  a reasonable compromise.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>Sleep/wakeup scheduling. Taken directly from ancient
+	  Unix designs, these two provide the fundemental scheduling
+	  primitive within AltOS.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>Mutexes. As a locking primitive, mutexes are easier to
+	  use than semaphores, at least in my experience.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>Timers. Tasks can set an alarm which will abort any
+	  pending sleep, allowing operations to time-out instead of
+	  blocking forever.
+	  </para>
+	</listitem>
+      </itemizedlist>
     </para>
     <para>
       The device drivers and other subsystems in AltOS are
@@ -82,28 +82,28 @@
       may add tasks to the scheduler to handle the device. A typical
       main program, thus, looks like:
       <programlisting>
-void
-main(void)
-{
-	ao_clock_init();
+	void
+	main(void)
+	{
+	        ao_clock_init();
 
-	/* Turn on the LED until the system is stable */
-	ao_led_init(LEDS_AVAILABLE);
-	ao_led_on(AO_LED_RED);
-	ao_timer_init();
-	ao_cmd_init();
-	ao_usb_init();
-	ao_monitor_init(AO_LED_GREEN, TRUE);
-	ao_rssi_init(AO_LED_RED);
-	ao_radio_init();
-	ao_packet_slave_init();
-	ao_packet_master_init();
-#if HAS_DBG
-	ao_dbg_init();
-#endif
-	ao_config_init();
-	ao_start_scheduler();
-}
+	        /* Turn on the LED until the system is stable */
+	        ao_led_init(LEDS_AVAILABLE);
+	        ao_led_on(AO_LED_RED);
+	        ao_timer_init();
+	        ao_cmd_init();
+	        ao_usb_init();
+	        ao_monitor_init(AO_LED_GREEN, TRUE);
+	        ao_rssi_init(AO_LED_RED);
+	        ao_radio_init();
+	        ao_packet_slave_init();
+	        ao_packet_master_init();
+	        #if HAS_DBG
+	        ao_dbg_init();
+	        #endif
+	        ao_config_init();
+	        ao_start_scheduler();
+	}
       </programlisting>
       As you can see, a long sequence of subsystems are initialized
       and then the scheduler is started.
@@ -137,96 +137,79 @@ main(void)
 	code but makes the resulting code far smaller and more
 	efficient.
       </para>
-      <variablelist>
-	<title>SDCC 8051 memory spaces</title>
-	<varlistentry>
-	  <term>__data</term>
-	  <listitem>
-	    <para>
-	      The 8051 can directly address these 128 bytes of
-	      memory. This makes them precious so they should be
-	      reserved for frequently addressed values. Oh, just to
-	      confuse things further, the 8 general registers in the
-	      CPU are actually stored in this memory space. There are
-	      magic instructions to 'bank switch' among 4 banks of
-	      these registers located at 0x00 - 0x1F. AltOS uses only
-	      the first bank at 0x00 - 0x07, leaving the other 24
-	      bytes available for other data.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry>
-	  <term>__idata</term>
-	  <listitem>
-	    <para>
-	      There are an additional 128 bytes of internal memory
-	      that share the same address space as __data but which
-	      cannot be directly addressed. The stack normally
-	      occupies this space and so AltOS doesn't place any
-	      static storage here.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry>
-	  <term>__xdata</term>
-	  <listitem>
-	    <para>
-	      This is additional general memory accessed through a
-	      single 16-bit address register. The CC1111F32 has 32kB
-	      of memory available here. Most program data should live
-	      in this memory space.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry>
-	  <term>__pdata</term>
-	  <listitem>
-	    <para>
-	      This is an alias for the first 256 bytes of __xdata
-	      memory, but uses a shorter addressing mode with
-	      single global 8-bit value for the high 8 bits of the
-	      address and any of several 8-bit registers for the low 8
-	      bits. AltOS uses a few bits of this memory, it should
-	      probably use more.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry>
-	  <term>__code</term>
-	  <listitem>
-	    <para>
-	      All executable code must live in this address space, but
-	      you can stick read-only data here too. It is addressed
-	      using the 16-bit address register and special 'code'
-	      access opcodes. Anything read-only should live in this space.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry>
-	  <term>__bit</term>
-	  <listitem>
-	    <para>
-	      The 8051 has 128 bits of bit-addressible memory that
-	      lives in the __data segment from 0x20 through
-	      0x2f. Special instructions access these bits
-	      in a single atomic operation. This isn't so much a
-	      separate address space as a special addressing mode for
-	      a few bytes in the __data segment.
-	    </para>
-	  </listitem>
-	</varlistentry>
-	<varlistentry>
-	  <term>__sfr, __sfr16, __sfr32, __sbit</term>
-	  <listitem>
-	    <para>
-	      Access to physical registers in the device use this mode
-	      which declares the variable name, it's type and the
-	      address it lives at. No memory is allocated for these
-	      variables.
-	    </para>
-	  </listitem>
-	</varlistentry>
-      </variablelist>
+      <section>
+	<title>__data</title>
+	<para>
+	  The 8051 can directly address these 128 bytes of
+	  memory. This makes them precious so they should be
+	  reserved for frequently addressed values. Oh, just to
+	  confuse things further, the 8 general registers in the
+	  CPU are actually stored in this memory space. There are
+	  magic instructions to 'bank switch' among 4 banks of
+	  these registers located at 0x00 - 0x1F. AltOS uses only
+	  the first bank at 0x00 - 0x07, leaving the other 24
+	  bytes available for other data.
+	</para>
+      </section>
+      <section>
+	<title>__idata</title>
+	<para>
+	  There are an additional 128 bytes of internal memory
+	  that share the same address space as __data but which
+	  cannot be directly addressed. The stack normally
+	  occupies this space and so AltOS doesn't place any
+	  static storage here.
+	</para>
+      </section>
+      <section>
+	<title>__xdata</title>
+	<para>
+	  This is additional general memory accessed through a
+	  single 16-bit address register. The CC1111F32 has 32kB
+	  of memory available here. Most program data should live
+	  in this memory space.
+	</para>
+      </section>
+      <section>
+	<title>__pdata</title>
+	<para>
+	  This is an alias for the first 256 bytes of __xdata
+	  memory, but uses a shorter addressing mode with
+	  single global 8-bit value for the high 8 bits of the
+	  address and any of several 8-bit registers for the low 8
+	  bits. AltOS uses a few bits of this memory, it should
+	  probably use more.
+	</para>
+      </section>
+      <section>
+	<title>__code</title>
+	<para>
+	  All executable code must live in this address space, but
+	  you can stick read-only data here too. It is addressed
+	  using the 16-bit address register and special 'code'
+	  access opcodes. Anything read-only should live in this space.
+	</para>
+      </section>
+      <section>
+	<title>__bit</title>
+	<para>
+	  The 8051 has 128 bits of bit-addressible memory that
+	  lives in the __data segment from 0x20 through
+	  0x2f. Special instructions access these bits
+	  in a single atomic operation. This isn't so much a
+	  separate address space as a special addressing mode for
+	  a few bytes in the __data segment.
+	</para>
+      </section>
+      <section>
+	<title>__sfr, __sfr16, __sfr32, __sbit</title>
+	<para>
+	  Access to physical registers in the device use this mode
+	  which declares the variable name, it's type and the
+	  address it lives at. No memory is allocated for these
+	  variables.
+	</para>
+      </section>
     </section>
     <section>
       <title>Function calls on the 8051</title>
@@ -305,124 +288,139 @@ main(void)
     <para>
       This chapter documents how to create, destroy and schedule AltOS tasks.
     </para>
-    <variablelist>
-      <title>AltOS Task Functions</title>
-      <varlistentry>
-	<term>ao_add_task</term>
-	<listitem>
-	  <programlisting>
-void
-ao_add_task(__xdata struct ao_task * task,
-            void (*start)(void),
-            __code char *name);
-	  </programlisting>
-	  <para>
-	    This initializes the statically allocated task structure,
-	    assigns a name to it (not used for anything but the task
-	    display), and the start address. It does not switch to the
-	    new task. 'start' must not ever return; there is no place
-	    to return to.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_exit</term>
-	<listitem>
-	  <programlisting>
-void
-ao_exit(void)
-	  </programlisting>
-	  <para>
-	    This terminates the current task.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_sleep</term>
-	<listitem>
-	  <programlisting>
-void
-ao_sleep(__xdata void *wchan)
-	  </programlisting>
-	  <para>
-	    This suspends the current task until 'wchan' is signaled
-	    by ao_wakeup, or until the timeout, set by ao_alarm,
-	    fires. If 'wchan' is signaled, ao_sleep returns 0, otherwise
-	    it returns 1. This is the only way to switch to another task.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_wakeup</term>
-	<listitem>
-	  <programlisting>
-void
-ao_wakeup(__xdata void *wchan)
-	  </programlisting>
-	  <para>
-	    Wake all tasks blocked on 'wchan'. This makes them
-	    available to be run again, but does not actually switch
-	    to another task.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_alarm</term>
-	<listitem>
-	  <programlisting>
-void
-ao_alarm(uint16_t delay)
-	  </programlisting>
-	  <para>
-	    Schedules an alarm to fire in at least 'delay' ticks. If
-	    the task is asleep when the alarm fires, it will wakeup
-	    and ao_sleep will return 1.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_wake_task</term>
-	<listitem>
-	  <programlisting>
-void
-ao_wake_task(__xdata struct ao_task *task)
-	  </programlisting>
-	  <para>
-	    Force a specific task to wake up, independent of which
-	    'wchan' it is waiting for.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_start_scheduler</term>
-	<listitem>
-	  <programlisting>
-void
-ao_start_scheduler(void)
-	  </programlisting>
-	  <para>
-	    This is called from 'main' when the system is all
-	    initialized and ready to run. It will not return.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_clock_init</term>
-	<listitem>
-	  <programlisting>
-void
-ao_clock_init(void)
-	  </programlisting>
-	  <para>
-	    This turns on the external 48MHz clock then switches the
-	    hardware to using it. This is required by many of the
-	    internal devices like USB. It should be called by the
-	    'main' function first, before initializing any of the
-	    other devices in the system.
-	  </para>
-	</listitem>
-      </varlistentry>
-    </variablelist>
+    <section>
+      <title>ao_add_task</title>
+      <programlisting>
+	void
+	ao_add_task(__xdata struct ao_task * task,
+	            void (*start)(void),
+	            __code char *name);
+      </programlisting>
+      <para>
+	This initializes the statically allocated task structure,
+	assigns a name to it (not used for anything but the task
+	display), and the start address. It does not switch to the
+	new task. 'start' must not ever return; there is no place
+	to return to.
+      </para>
+    </section>
+    <section>
+      <title>ao_exit</title>
+      <programlisting>
+	void
+	ao_exit(void)
+      </programlisting>
+      <para>
+	This terminates the current task.
+      </para>
+    </section>
+    <section>
+      <title>ao_sleep</title>
+      <programlisting>
+	void
+	ao_sleep(__xdata void *wchan)
+      </programlisting>
+      <para>
+	This suspends the current task until 'wchan' is signaled
+	by ao_wakeup, or until the timeout, set by ao_alarm,
+	fires. If 'wchan' is signaled, ao_sleep returns 0, otherwise
+	it returns 1. This is the only way to switch to another task.
+      </para>
+      <para>
+	Because ao_wakeup wakes every task waiting on a particular
+	location, ao_sleep should be used in a loop that first
+	checks the desired condition, blocks in ao_sleep and then
+	rechecks until the condition is satisfied. If the
+	location may be signaled from an interrupt handler, the
+	code will need to block interrupts by using the __critical
+	label around the block of code. Here's a complete example:
+	<programlisting>
+	  __critical while (!ao_radio_done)
+	          ao_sleep(&amp;ao_radio_done);
+	</programlisting>
+      </para>
+    </section>
+    <section>
+      <title>ao_wakeup</title>
+      <programlisting>
+	void
+	ao_wakeup(__xdata void *wchan)
+      </programlisting>
+      <para>
+	Wake all tasks blocked on 'wchan'. This makes them
+	available to be run again, but does not actually switch
+	to another task. Here's an example of using this:
+	<programlisting>
+	  if (RFIF &amp; RFIF_IM_DONE) {
+	          ao_radio_done = 1;
+	          ao_wakeup(&amp;ao_radio_done);
+	          RFIF &amp;= ~RFIF_IM_DONE;
+	  }
+	</programlisting>
+	Note that this need not be enclosed in __critical as the
+	ao_sleep block can only be run from normal mode, and so
+	this sequence can never be interrupted with execution of
+	the other sequence.
+      </para>
+    </section>
+    <section>
+      <title>ao_alarm</title>
+      <programlisting>
+	void
+	ao_alarm(uint16_t delay)
+      </programlisting>
+      <para>
+	Schedules an alarm to fire in at least 'delay' ticks. If
+	the task is asleep when the alarm fires, it will wakeup
+	and ao_sleep will return 1.
+	<programlisting>
+	  ao_alarm(ao_packet_master_delay);
+	  __critical while (!ao_radio_dma_done)
+	          if (ao_sleep(&amp;ao_radio_dma_done) != 0)
+	                  ao_radio_abort();
+	</programlisting>
+	In this example, a timeout is set before waiting for
+	incoming radio data. If no data is received before the
+	timeout fires, ao_sleep will return 1 and then this code
+	will abort the radio receive operation.
+      </para>
+    </section>
+    <section>
+      <title>ao_wake_task</title>
+      <programlisting>
+	void
+	ao_wake_task(__xdata struct ao_task *task)
+      </programlisting>
+      <para>
+	Force a specific task to wake up, independent of which
+	'wchan' it is waiting for.
+      </para>
+    </section>
+    <section>
+      <title>ao_start_scheduler</title>
+      <programlisting>
+	void
+	ao_start_scheduler(void)
+      </programlisting>
+      <para>
+	This is called from 'main' when the system is all
+	initialized and ready to run. It will not return.
+      </para>
+    </section>
+    <section>
+      <title>ao_clock_init</title>
+      <programlisting>
+	void
+	ao_clock_init(void)
+      </programlisting>
+      <para>
+	This turns on the external 48MHz clock then switches the
+	hardware to using it. This is required by many of the
+	internal devices like USB. It should be called by the
+	'main' function first, before initializing any of the
+	other devices in the system.
+      </para>
+    </section>
   </chapter>
   <chapter>
     <title>Timer Functions</title>
@@ -435,62 +433,51 @@ ao_clock_init(void)
       that the ADC values are sampled at a regular rate, independent
       of any scheduling jitter.
     </para>
-    <variablelist>
-      <title>AltOS Timer Functions</title>
-      <varlistentry>
-	<term>ao_time</term>
-	<listitem>
-	  <programlisting>
-uint16_t
-ao_time(void)
-	  </programlisting>
-	  <para>
-	    Returns the current system tick count. Note that this is
-	    only a 16 bit value, and so it wraps every 655.36 seconds.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_delay</term>
-	<listitem>
-	  <programlisting>
-void
-ao_delay(uint16_t ticks);
-	  </programlisting>
-	  <para>
-	    Suspend the current task for at least 'ticks' clock units.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_timer_set_adc_interval</term>
-	<listitem>
-	  <programlisting>
-void
-ao_timer_set_adc_interval(uint8_t interval);
-	  </programlisting>
-	  <para>
-	    This sets the number of ticks between ADC samples. If set
-	    to 0, no ADC samples are generated. AltOS uses this to
-	    slow down the ADC sampling rate to save power.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_timer_init</term>
-	<listitem>
-	  <programlisting>
-void
-ao_timer_init(void)
-	  </programlisting>
-	  <para>
-	    This turns on the 100Hz tick using the CC1111 timer 1. It
-	    is required for any of the time-based functions to
-	    work. It should be called by 'main' before ao_start_scheduler.
-	  </para>
-	</listitem>
-      </varlistentry>
-    </variablelist>
+    <section>
+      <title>ao_time</title>
+      <programlisting>
+	uint16_t
+	ao_time(void)
+      </programlisting>
+      <para>
+	Returns the current system tick count. Note that this is
+	only a 16 bit value, and so it wraps every 655.36 seconds.
+      </para>
+    </section>
+    <section>
+      <title>ao_delay</title>
+      <programlisting>
+	void
+	ao_delay(uint16_t ticks);
+      </programlisting>
+      <para>
+	Suspend the current task for at least 'ticks' clock units.
+      </para>
+    </section>
+    <section>
+      <title>ao_timer_set_adc_interval</title>
+      <programlisting>
+	void
+	ao_timer_set_adc_interval(uint8_t interval);
+      </programlisting>
+      <para>
+	This sets the number of ticks between ADC samples. If set
+	to 0, no ADC samples are generated. AltOS uses this to
+	slow down the ADC sampling rate to save power.
+      </para>
+    </section>
+    <section>
+      <title>ao_timer_init</title>
+      <programlisting>
+	void
+	ao_timer_init(void)
+      </programlisting>
+      <para>
+	This turns on the 100Hz tick using the CC1111 timer 1. It
+	is required for any of the time-based functions to
+	work. It should be called by 'main' before ao_start_scheduler.
+      </para>
+    </section>
   </chapter>
   <chapter>
     <title>AltOS Mutexes</title>
@@ -502,35 +489,28 @@ ao_timer_init(void)
       already held by the current task or releasing a mutex not held
       by the current task will both cause a panic.
     </para>
-    <variablelist>
-      <title>Mutex Functions</title>
-      <varlistentry>
-	<term>ao_mutex_get</term>
-	<listitem>
-	  <programlisting>
-void
-ao_mutex_get(__xdata uint8_t *mutex);
-	  </programlisting>
-	  <para>
-	    Acquires the specified mutex, blocking if the mutex is
-	    owned by another task.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_mutex_put</term>
-	<listitem>
-	  <programlisting>
-void
-ao_mutex_put(__xdata uint8_t *mutex);
-	  </programlisting>
-	  <para>
-	    Releases the specified mutex, waking up all tasks waiting
-	    for it.
-	  </para>
-	</listitem>
-      </varlistentry>
-    </variablelist>
+    <section>
+      <title>ao_mutex_get</title>
+      <programlisting>
+	void
+	ao_mutex_get(__xdata uint8_t *mutex);
+      </programlisting>
+      <para>
+	Acquires the specified mutex, blocking if the mutex is
+	owned by another task.
+      </para>
+    </section>
+    <section>
+      <title>ao_mutex_put</title>
+      <programlisting>
+	void
+	ao_mutex_put(__xdata uint8_t *mutex);
+      </programlisting>
+      <para>
+	Releases the specified mutex, waking up all tasks waiting
+	for it.
+      </para>
+    </section>
   </chapter>
   <chapter>
     <title>CC1111 DMA engine</title>
@@ -554,86 +534,73 @@ ao_mutex_put(__xdata uint8_t *mutex);
       hardware device. When copying data from memory to hardware, the
       transfer is usually initiated by software.
     </para>
-    <variablelist>
-      <title>AltOS DMA functions</title>
-      <varlistentry>
-	<term>ao_dma_alloc</term>
-	<listitem>
-	  <programlisting>
-uint8_t
-ao_dma_alloc(__xdata uint8_t *done)
-	  </programlisting>
-	  <para>
-	    Allocates a DMA engine, returning the identifier. Whenever
-	    this DMA engine completes a transfer. 'done' is cleared
-	    when the DMA is started, and then receives the
-	    AO_DMA_DONE bit on a successful transfer or the
-	    AO_DMA_ABORTED bit if ao_dma_abort was called. Note that
-	    it is possible to get both bits if the transfer was
-	    aborted after it had finished.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_dma_set_transfer</term>
-	<listitem>
-	  <programlisting>
-void
-ao_dma_set_transfer(uint8_t id,
-		    void __xdata *srcaddr,
-		    void __xdata *dstaddr,
-		    uint16_t count,
-		    uint8_t cfg0,
-		    uint8_t cfg1)
-	  </programlisting>
-	  <para>
-	    Initializes the specified dma engine to copy data
-	    from 'srcaddr' to 'dstaddr' for 'count' units. cfg0 and
-	    cfg1 are values directly out of the CC1111 documentation
-	    and tell the DMA engine what the transfer unit size,
-	    direction and step are.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_dma_start</term>
-	<listitem>
-	  <programlisting>
-void
-ao_dma_start(uint8_t id);
-	  </programlisting>
-	  <para>
-	    Arm the specified DMA engine and await a signal from
-	    either hardware or software to start transferring data.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_dma_trigger</term>
-	<listitem>
-	  <programlisting>
-void
-ao_dma_trigger(uint8_t id)
-	  </programlisting>
-	  <para>
-	    Trigger the specified DMA engine to start copying data.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_dma_abort</term>
-	<listitem>
-	  <programlisting>
-void
-ao_dma_abort(uint8_t id)
-	  </programlisting>
-	  <para>
-	    Terminate any in-progress DMA transation, marking its
-	    'done' variable with the AO_DMA_ABORTED bit.
-	  </para>
-	</listitem>
-      </varlistentry>
-    </variablelist>
+    <section>
+      <title>ao_dma_alloc</title>
+      <programlisting>
+	uint8_t
+	ao_dma_alloc(__xdata uint8_t *done)
+      </programlisting>
+      <para>
+	Allocates a DMA engine, returning the identifier. Whenever
+	this DMA engine completes a transfer. 'done' is cleared
+	when the DMA is started, and then receives the
+	AO_DMA_DONE bit on a successful transfer or the
+	AO_DMA_ABORTED bit if ao_dma_abort was called. Note that
+	it is possible to get both bits if the transfer was
+	aborted after it had finished.
+      </para>
+    </section>
+    <section>
+      <title>ao_dma_set_transfer</title>
+      <programlisting>
+	void
+	ao_dma_set_transfer(uint8_t id,
+	                    void __xdata *srcaddr,
+	                    void __xdata *dstaddr,
+	                    uint16_t count,
+	                    uint8_t cfg0,
+	                    uint8_t cfg1)
+      </programlisting>
+      <para>
+	Initializes the specified dma engine to copy data
+	from 'srcaddr' to 'dstaddr' for 'count' units. cfg0 and
+	cfg1 are values directly out of the CC1111 documentation
+	and tell the DMA engine what the transfer unit size,
+	direction and step are.
+      </para>
+    </section>
+    <section>
+      <title>ao_dma_start</title>
+      <programlisting>
+	void
+	ao_dma_start(uint8_t id);
+      </programlisting>
+      <para>
+	Arm the specified DMA engine and await a signal from
+	either hardware or software to start transferring data.
+      </para>
+    </section>
+    <section>
+      <title>ao_dma_trigger</title>
+      <programlisting>
+	void
+	ao_dma_trigger(uint8_t id)
+      </programlisting>
+      <para>
+	Trigger the specified DMA engine to start copying data.
+      </para>
+    </section>
+    <section>
+      <title>ao_dma_abort</title>
+      <programlisting>
+	void
+	ao_dma_abort(uint8_t id)
+      </programlisting>
+      <para>
+	Terminate any in-progress DMA transation, marking its
+	'done' variable with the AO_DMA_ABORTED bit.
+      </para>
+    </section>
   </chapter>
   <chapter>
     <title>SDCC Stdio interface</title>
@@ -646,82 +613,71 @@ ao_dma_abort(uint8_t id)
       channels; output is always delivered to the channel which
       provided the most recent input.
     </para>
-    <variablelist>
-      <title>SDCC stdio functions</title>
-      <varlistentry>
-	<term>putchar</term>
-	<listitem>
-	  <programlisting>
-void
-putchar(char c)
-	  </programlisting>
-	  <para>
-	    Delivers a single character to the current console
-	    device.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>getchar</term>
-	<listitem>
-	  <programlisting>
-char
-getchar(void)
-	  </programlisting>
-	  <para>
-	    Reads a single character from any of the available
-	    console devices. The current console device is set to
-	    that which delivered this character. This blocks until
-	    a character is available.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>flush</term>
-	<listitem>
-	  <programlisting>
-void
-flush(void)
-	  </programlisting>
-	  <para>
-	    Flushes the current console device output buffer. Any
-	    pending characters will be delivered to the target device.
-xo	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_add_stdio</term>
-	<listitem>
-	  <programlisting>
-void
-ao_add_stdio(char (*pollchar)(void),
-	     void (*putchar)(char),
-	     void (*flush)(void))
-	  </programlisting>
-	  <para>
-	    This adds another console device to the available
-	    list.
-	  </para>
-	  <para>
-	    'pollchar' returns either an available character or
-	    AO_READ_AGAIN if none is available. Significantly, it does
-	    not block. The device driver must set 'ao_stdin_ready' to
-	    1 and call ao_wakeup(&amp;ao_stdin_ready) when it receives
-	    input to tell getchar that more data is available, at
-	    which point 'pollchar' will be called again.
-	  </para>
-	  <para>
-	    'putchar' queues a character for output, flushing if the output buffer is
-	    full. It may block in this case.
-	  </para>
-	  <para>
-	    'flush' forces the output buffer to be flushed. It may
-	    block until the buffer is delivered, but it is not
-	    required to do so.
-	  </para>
-	</listitem>
-      </varlistentry>
-    </variablelist>
+    <section>
+      <title>putchar</title>
+      <programlisting>
+	void
+	putchar(char c)
+      </programlisting>
+      <para>
+	Delivers a single character to the current console
+	device.
+      </para>
+    </section>
+    <section>
+      <title>getchar</title>
+      <programlisting>
+	char
+	getchar(void)
+      </programlisting>
+      <para>
+	Reads a single character from any of the available
+	console devices. The current console device is set to
+	that which delivered this character. This blocks until
+	a character is available.
+      </para>
+    </section>
+    <section>
+      <title>flush</title>
+      <programlisting>
+	void
+	flush(void)
+      </programlisting>
+      <para>
+	Flushes the current console device output buffer. Any
+	pending characters will be delivered to the target device.
+      xo	  </para>
+    </section>
+    <section>
+      <title>ao_add_stdio</title>
+      <programlisting>
+	void
+	ao_add_stdio(char (*pollchar)(void),
+	                   void (*putchar)(char),
+	                   void (*flush)(void))
+      </programlisting>
+      <para>
+	This adds another console device to the available
+	list.
+      </para>
+      <para>
+	'pollchar' returns either an available character or
+	AO_READ_AGAIN if none is available. Significantly, it does
+	not block. The device driver must set 'ao_stdin_ready' to
+	1 and call ao_wakeup(&amp;ao_stdin_ready) when it receives
+	input to tell getchar that more data is available, at
+	which point 'pollchar' will be called again.
+      </para>
+      <para>
+	'putchar' queues a character for output, flushing if the output buffer is
+	full. It may block in this case.
+      </para>
+      <para>
+	'flush' forces the output buffer to be flushed. It may
+	block until the buffer is delivered, but it is not
+	required to do so.
+      </para>
+    </section>
   </chapter>
   <chapter>
     <title>Command line interface</title>
@@ -732,176 +688,155 @@ ao_add_stdio(char (*pollchar)(void),
       character to invoke it, the remaining characters on the line are
       available as parameters to the command.
     </para>
-    <variablelist>
-      <title>AltOS command line parsing functions</title>
-      <varlistentry>
-	<term>ao_cmd_register</term>
-	<listitem>
-	  <programlisting>
-void
-ao_cmd_register(__code struct ao_cmds *cmds)
-	  </programlisting>
-	  <para>
-	    This registers a set of commands with the command
-	    parser. There is a fixed limit on the number of command
-	    sets, the system will panic if too many are registered.
-	    Each command is defined by a struct ao_cmds entry:
-	    <programlisting>
-struct ao_cmds {
-	char		cmd;
-	void		(*func)(void);
-	const char	*help;
-};
-	    </programlisting>
-	    'cmd' is the character naming the command. 'func' is the
-	    function to invoke and 'help' is a string displayed by the
-	    '?' command. Syntax errors found while executing 'func'
-	    should be indicated by modifying the global ao_cmd_status
-	    variable with one of the following values:
-	    <variablelist>
-	      <varlistentry>
-		<term>ao_cmd_success</term>
-		<listitem>
-		  <para>
-		    The command was parsed successfully. There is no
-		    need to assign this value, it is the default.
-		  </para>
-		</listitem>
-	      </varlistentry>
-	      <varlistentry>
-		<term>ao_cmd_lex_error</term>
-		<listitem>
-		  <para>
-		    A token in the line was invalid, such as a number
-		    containing invalid characters. The low-level
-		    lexing functions already assign this value as needed.
-		  </para>
-		</listitem>
-	      </varlistentry>
-	      <varlistentry>
-		<term>ao_syntax_error</term>
-		<listitem>
-		  <para>
-		    The command line is invalid for some reason other
-		    than invalid tokens.
-		  </para>
-		</listitem>
-	      </varlistentry>
-	    </variablelist>
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_cmd_lex</term>
-	<listitem>
-	  <programlisting>
-void
-ao_cmd_lex(void);
-	  </programlisting>
-	  <para>
-	    This gets the next character out of the command line
-	    buffer and sticks it into ao_cmd_lex_c. At the end of the
-	    line, ao_cmd_lex_c will get a newline ('\n') character.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_cmd_put16</term>
-	<listitem>
-	  <programlisting>
-void
-ao_cmd_put16(uint16_t v);
-	  </programlisting>
-	  <para>
-	    Writes 'v' as four hexadecimal characters.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_cmd_put8</term>
-	<listitem>
-	  <programlisting>
-void
-ao_cmd_put8(uint8_t v);
-	  </programlisting>
-	  <para>
-	    Writes 'v' as two hexadecimal characters.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_cmd_white</term>
-	<listitem>
-	  <programlisting>
-void
-ao_cmd_white(void)
-	  </programlisting>
-	  <para>
-	    This skips whitespace by calling ao_cmd_lex while
-	    ao_cmd_lex_c is either a space or tab. It does not skip
-	    any characters if ao_cmd_lex_c already non-white.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_cmd_hex</term>
-	<listitem>
-	  <programlisting>
-void
-ao_cmd_hex(void)
-	  </programlisting>
-	  <para>
-	    This reads a 16-bit hexadecimal value from the command
-	    line with optional leading whitespace. The resulting value
-	    is stored in ao_cmd_lex_i;
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_cmd_decimal</term>
-	<listitem>
-	  <programlisting>
-void
-ao_cmd_decimal(void)
-	  </programlisting>
-	  <para>
-	    This reads a 32-bit decimal value from the command
-	    line with optional leading whitespace. The resulting value
-	    is stored in ao_cmd_lex_u32 and the low 16 bits are stored
-	    in ao_cmd_lex_i;
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_match_word</term>
-	<listitem>
-	  <programlisting>
-uint8_t
-ao_match_word(__code char *word)
-	  </programlisting>
-	  <para>
-	    This checks to make sure that 'word' occurs on the command
-	    line. It does not skip leading white space. If 'word' is
-	    found, then 1 is returned. Otherwise, ao_cmd_status is set to
-	    ao_cmd_syntax_error and 0 is returned.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_cmd_init</term>
-	<listitem>
-	  <programlisting>
-void
-ao_cmd_init(void
-	  </programlisting>
-	  <para>
-	    Initializes the command system, setting up the built-in
-	    commands and adding a task to run the command processing
-	    loop. It should be called by 'main' before ao_start_scheduler.
-	  </para>
-	</listitem>
-      </varlistentry>
-    </variablelist>
+    <section>
+      <title>ao_cmd_register</title>
+      <programlisting>
+	void
+	ao_cmd_register(__code struct ao_cmds *cmds)
+      </programlisting>
+      <para>
+	This registers a set of commands with the command
+	parser. There is a fixed limit on the number of command
+	sets, the system will panic if too many are registered.
+	Each command is defined by a struct ao_cmds entry:
+	<programlisting>
+	  struct ao_cmds {
+	          char		cmd;
+	          void		(*func)(void);
+	          const char	*help;
+	  };
+	</programlisting>
+	'cmd' is the character naming the command. 'func' is the
+	function to invoke and 'help' is a string displayed by the
+	'?' command. Syntax errors found while executing 'func'
+	should be indicated by modifying the global ao_cmd_status
+	variable with one of the following values:
+	<variablelist>
+	  <varlistentry>
+	    <title>ao_cmd_success</title>
+	    <listitem>
+	      <para>
+		The command was parsed successfully. There is no
+		need to assign this value, it is the default.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <title>ao_cmd_lex_error</title>
+	    <listitem>
+	      <para>
+		A token in the line was invalid, such as a number
+		containing invalid characters. The low-level
+		lexing functions already assign this value as needed.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <title>ao_syntax_error</title>
+	    <listitem>
+	      <para>
+		The command line is invalid for some reason other
+		than invalid tokens.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </para>
+    </section>
+    <section>
+      <title>ao_cmd_lex</title>
+      <programlisting>
+	void
+	ao_cmd_lex(void);
+      </programlisting>
+      <para>
+	This gets the next character out of the command line
+	buffer and sticks it into ao_cmd_lex_c. At the end of the
+	line, ao_cmd_lex_c will get a newline ('\n') character.
+      </para>
+    </section>
+    <section>
+      <title>ao_cmd_put16</title>
+      <programlisting>
+	void
+	ao_cmd_put16(uint16_t v);
+      </programlisting>
+      <para>
+	Writes 'v' as four hexadecimal characters.
+      </para>
+    </section>
+    <section>
+      <title>ao_cmd_put8</title>
+      <programlisting>
+	void
+	ao_cmd_put8(uint8_t v);
+      </programlisting>
+      <para>
+	Writes 'v' as two hexadecimal characters.
+      </para>
+    </section>
+    <section>
+      <title>ao_cmd_white</title>
+      <programlisting>
+	void
+	ao_cmd_white(void)
+      </programlisting>
+      <para>
+	This skips whitespace by calling ao_cmd_lex while
+	ao_cmd_lex_c is either a space or tab. It does not skip
+	any characters if ao_cmd_lex_c already non-white.
+      </para>
+    </section>
+    <section>
+      <title>ao_cmd_hex</title>
+      <programlisting>
+	void
+	ao_cmd_hex(void)
+      </programlisting>
+      <para>
+	This reads a 16-bit hexadecimal value from the command
+	line with optional leading whitespace. The resulting value
+	is stored in ao_cmd_lex_i;
+      </para>
+    </section>
+    <section>
+      <title>ao_cmd_decimal</title>
+      <programlisting>
+	void
+	ao_cmd_decimal(void)
+      </programlisting>
+      <para>
+	This reads a 32-bit decimal value from the command
+	line with optional leading whitespace. The resulting value
+	is stored in ao_cmd_lex_u32 and the low 16 bits are stored
+	in ao_cmd_lex_i;
+      </para>
+    </section>
+    <section>
+      <title>ao_match_word</title>
+      <programlisting>
+	uint8_t
+	ao_match_word(__code char *word)
+      </programlisting>
+      <para>
+	This checks to make sure that 'word' occurs on the command
+	line. It does not skip leading white space. If 'word' is
+	found, then 1 is returned. Otherwise, ao_cmd_status is set to
+	ao_cmd_syntax_error and 0 is returned.
+      </para>
+    </section>
+    <section>
+      <title>ao_cmd_init</title>
+      <programlisting>
+	void
+	ao_cmd_init(void
+      </programlisting>
+      <para>
+	Initializes the command system, setting up the built-in
+	commands and adding a task to run the command processing
+	loop. It should be called by 'main' before ao_start_scheduler.
+      </para>
+    </section>
   </chapter>
   <chapter>
     <title>CC1111 USB target device</title>
@@ -921,121 +856,104 @@ ao_cmd_init(void
       USB link. Alternatively, the functions can be accessed directly
       to provide for USB-specific I/O.
     </para>
-    <variablelist>
-      <title>AltOS USB functions</title>
-      <varlistentry>
-	<term>ao_usb_flush</term>
-	<listitem>
-	  <programlisting>
-void
-ao_usb_flush(void);
-	  </programlisting>
-	  <para>
-	    Flushes any pending USB output. This queues an 'IN' packet
-	    to be delivered to the USB host if there is pending data,
-	    or if the last IN packet was full to indicate to the host
-	    that there isn't any more pending data available.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_usb_putchar</term>
-	<listitem>
-	  <programlisting>
-void
-ao_usb_putchar(char c);
-	  </programlisting>
-	  <para>
-	    If there is a pending 'IN' packet awaiting delivery to the
-	    host, this blocks until that has been fetched. Then, this
-	    adds a byte to the pending IN packet for delivery to the
-	    USB host. If the USB packet is full, this queues the 'IN'
-	    packet for delivery.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_usb_pollchar</term>
-	<listitem>
-	  <programlisting>
-char
-ao_usb_pollchar(void);
-	  </programlisting>
-	  <para>
-	    If there are no characters remaining in the last 'OUT'
-	    packet received, this returns AO_READ_AGAIN. Otherwise, it
-	    returns the next character, reporting to the host that it
-	    is ready for more data when the last character is gone.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_usb_getchar</term>
-	<listitem>
-	  <programlisting>
-char
-ao_usb_getchar(void);
-	  </programlisting>
-	  <para>
-	    This uses ao_pollchar to receive the next character,
-	    blocking while ao_pollchar returns AO_READ_AGAIN.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_usb_disable</term>
-	<listitem>
-	  <programlisting>
-void
-ao_usb_disable(void);
-	  </programlisting>
-	  <para>
-	    This turns off the USB controller. It will no longer
-	    respond to host requests, nor return characters. Calling
-	    any of the i/o routines while the USB device is disabled
-	    is undefined, and likely to break things. Disabling the
-	    USB device when not needed saves power.
-	  </para>
-	  <para>
-	    Note that neither TeleDongle nor TeleMetrum are able to
-	    signal to the USB host that they have disconnected, so
-	    after disabling the USB device, it's likely that the cable
-	    will need to be disconnected and reconnected before it
-	    will work again.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_usb_enable</term>
-	<listitem>
-	  <programlisting>
-void
-ao_usb_enable(void);
-	  </programlisting>
-	  <para>
-	    This turns the USB controller on again after it has been
-	    disabled. See the note above about needing to physically
-	    remove and re-insert the cable to get the host to
-	    re-initialize the USB link.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_usb_init</term>
-	<listitem>
-	  <programlisting>
-void
-ao_usb_init(void);
-	  </programlisting>
-	  <para>
-	    This turns the USB controller on, adds a task to handle
-	    the control end point and adds the usb I/O functions to
-	    the stdio system. Call this from main before
-	    ao_start_scheduler.
-	  </para>
-	</listitem>
-      </varlistentry>
-    </variablelist>
+    <section>
+      <title>ao_usb_flush</title>
+      <programlisting>
+	void
+	ao_usb_flush(void);
+      </programlisting>
+      <para>
+	Flushes any pending USB output. This queues an 'IN' packet
+	to be delivered to the USB host if there is pending data,
+	or if the last IN packet was full to indicate to the host
+	that there isn't any more pending data available.
+      </para>
+    </section>
+    <section>
+      <title>ao_usb_putchar</title>
+      <programlisting>
+	void
+	ao_usb_putchar(char c);
+      </programlisting>
+      <para>
+	If there is a pending 'IN' packet awaiting delivery to the
+	host, this blocks until that has been fetched. Then, this
+	adds a byte to the pending IN packet for delivery to the
+	USB host. If the USB packet is full, this queues the 'IN'
+	packet for delivery.
+      </para>
+    </section>
+    <section>
+      <title>ao_usb_pollchar</title>
+      <programlisting>
+	char
+	ao_usb_pollchar(void);
+      </programlisting>
+      <para>
+	If there are no characters remaining in the last 'OUT'
+	packet received, this returns AO_READ_AGAIN. Otherwise, it
+	returns the next character, reporting to the host that it
+	is ready for more data when the last character is gone.
+      </para>
+    </section>
+    <section>
+      <title>ao_usb_getchar</title>
+      <programlisting>
+	char
+	ao_usb_getchar(void);
+      </programlisting>
+      <para>
+	This uses ao_pollchar to receive the next character,
+	blocking while ao_pollchar returns AO_READ_AGAIN.
+      </para>
+    </section>
+    <section>
+      <title>ao_usb_disable</title>
+      <programlisting>
+	void
+	ao_usb_disable(void);
+      </programlisting>
+      <para>
+	This turns off the USB controller. It will no longer
+	respond to host requests, nor return characters. Calling
+	any of the i/o routines while the USB device is disabled
+	is undefined, and likely to break things. Disabling the
+	USB device when not needed saves power.
+      </para>
+      <para>
+	Note that neither TeleDongle nor TeleMetrum are able to
+	signal to the USB host that they have disconnected, so
+	after disabling the USB device, it's likely that the cable
+	will need to be disconnected and reconnected before it
+	will work again.
+      </para>
+    </section>
+    <section>
+      <title>ao_usb_enable</title>
+      <programlisting>
+	void
+	ao_usb_enable(void);
+      </programlisting>
+      <para>
+	This turns the USB controller on again after it has been
+	disabled. See the note above about needing to physically
+	remove and re-insert the cable to get the host to
+	re-initialize the USB link.
+      </para>
+    </section>
+    <section>
+      <title>ao_usb_init</title>
+      <programlisting>
+	void
+	ao_usb_init(void);
+      </programlisting>
+      <para>
+	This turns the USB controller on, adds a task to handle
+	the control end point and adds the usb I/O functions to
+	the stdio system. Call this from main before
+	ao_start_scheduler.
+      </para>
+    </section>
   </chapter>
   <chapter>
     <title>CC1111 Serial peripheral</title>
@@ -1052,77 +970,64 @@ ao_usb_init(void);
       To prevent loss of data, AltOS provides receive and transmit
       fifos of 32 characters each.
     </para>
-    <variablelist>
-      <title>AltOS serial functions</title>
-      <varlistentry>
-	<term>ao_serial_getchar</term>
-	<listitem>
-	  <programlisting>
-char
-ao_serial_getchar(void);
-	  </programlisting>
-	  <para>
-	    Returns the next character from the receive fifo, blocking
-	    until a character is received if the fifo is empty.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_serial_putchar</term>
-	<listitem>
-	  <programlisting>
-void
-ao_serial_putchar(char c);
-	  </programlisting>
-	  <para>
-	    Adds a character to the transmit fifo, blocking if the
-	    fifo is full. Starts transmitting characters.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_serial_drain</term>
-	<listitem>
-	  <programlisting>
-void
-ao_serial_drain(void);
-	  </programlisting>
-	  <para>
-	    Blocks until the transmit fifo is empty. Used internally
-	    when changing serial speeds.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_serial_set_speed</term>
-	<listitem>
-	  <programlisting>
-void
-ao_serial_set_speed(uint8_t speed);
-	  </programlisting>
-	  <para>
-	    Changes the serial baud rate to one of
-	    AO_SERIAL_SPEED_4800, AO_SERIAL_SPEED_9600 or
-	    AO_SERIAL_SPEED_57600. This first flushes the transmit
-	    fifo using ao_serial_drain.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_serial_init</term>
-	<listitem>
-	  <programlisting>
-void
-ao_serial_init(void)
-	  </programlisting>
-	  <para>
-	    Initializes the serial peripheral. Call this from 'main'
-	    before jumping to ao_start_scheduler. The default speed
-	    setting is AO_SERIAL_SPEED_4800.
-	  </para>
-	</listitem>
-      </varlistentry>
-    </variablelist>
+    <section>
+      <title>ao_serial_getchar</title>
+      <programlisting>
+	char
+	ao_serial_getchar(void);
+      </programlisting>
+      <para>
+	Returns the next character from the receive fifo, blocking
+	until a character is received if the fifo is empty.
+      </para>
+    </section>
+    <section>
+      <title>ao_serial_putchar</title>
+      <programlisting>
+	void
+	ao_serial_putchar(char c);
+      </programlisting>
+      <para>
+	Adds a character to the transmit fifo, blocking if the
+	fifo is full. Starts transmitting characters.
+      </para>
+    </section>
+    <section>
+      <title>ao_serial_drain</title>
+      <programlisting>
+	void
+	ao_serial_drain(void);
+      </programlisting>
+      <para>
+	Blocks until the transmit fifo is empty. Used internally
+	when changing serial speeds.
+      </para>
+    </section>
+    <section>
+      <title>ao_serial_set_speed</title>
+      <programlisting>
+	void
+	ao_serial_set_speed(uint8_t speed);
+      </programlisting>
+      <para>
+	Changes the serial baud rate to one of
+	AO_SERIAL_SPEED_4800, AO_SERIAL_SPEED_9600 or
+	AO_SERIAL_SPEED_57600. This first flushes the transmit
+	fifo using ao_serial_drain.
+      </para>
+    </section>
+    <section>
+      <title>ao_serial_init</title>
+      <programlisting>
+	void
+	ao_serial_init(void)
+      </programlisting>
+      <para>
+	Initializes the serial peripheral. Call this from 'main'
+	before jumping to ao_start_scheduler. The default speed
+	setting is AO_SERIAL_SPEED_4800.
+      </para>
+    </section>
   </chapter>
   <chapter>
     <title>CC1111 Radio peripheral</title>
@@ -1177,265 +1082,221 @@ ao_serial_init(void)
 	</listitem>
       </orderedlist>
     </para>
-    <variablelist>
-      <title>AltOS radio functions</title>
-      <varlistentry>
-	<term>ao_radio_set_telemetry</term>
-	<listitem>
-	  <programlisting>
-void
-ao_radio_set_telemetry(void);
-	  </programlisting>
-	  <para>
-	    Configures the radio to send or receive telemetry
-	    packets. This includes packet length, modulation scheme and
-	    other RF parameters. It does not include the base frequency
-	    or channel though. Those are set at the time of transmission
-	    or reception, in case the values are changed by the user.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_radio_set_packet</term>
-	<listitem>
-	  <programlisting>
-void
-ao_radio_set_packet(void);
-	  </programlisting>
-	  <para>
-	    Configures the radio to send or receive packet data.  This
-	    includes packet length, modulation scheme and other RF
-	    parameters. It does not include the base frequency or
-	    channel though. Those are set at the time of transmission or
-	    reception, in case the values are changed by the user.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_radio_set_rdf</term>
-	<listitem>
-	  <programlisting>
-void
-ao_radio_set_rdf(void);
-	  </programlisting>
-	  <para>
-	    Configures the radio to send RDF 'packets'. An RDF 'packet'
-	    is a sequence of hex 0x55 bytes sent at a base bit rate of
-	    2kbps using a 5kHz deviation. All of the error correction
-	    and data whitening logic is turned off so that the resulting
-	    modulation is received as a 1kHz tone by a conventional 70cm
-	    FM audio receiver.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_radio_idle</term>
-	<listitem>
-	  <programlisting>
-void
-ao_radio_idle(void);
-	  </programlisting>
-	  <para>
-	    Sets the radio device to idle mode, waiting until it reaches
-	    that state. This will terminate any in-progress transmit or
-	    receive operation.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_radio_get</term>
-	<listitem>
-	  <programlisting>
-void
-ao_radio_get(void);
-	  </programlisting>
-	  <para>
-	    Acquires the radio mutex and then configures the radio
-	    frequency using the global radio calibration and channel
-	    values.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_radio_put</term>
-	<listitem>
-	  <programlisting>
-void
-ao_radio_put(void);
-	  </programlisting>
-	  <para>
-	    Releases the radio mutex.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_radio_abort</term>
-	<listitem>
-	  <programlisting>
-void
-ao_radio_abort(void);
-	  </programlisting>
-	  <para>
-	    Aborts any transmission or reception process by aborting the
-	    associated DMA object and calling ao_radio_idle to terminate
-	    the radio operation.
-	  </para>
-	</listitem>
-      </varlistentry>
-    </variablelist>
-    <variablelist>
-      <title>AltOS radio telemetry functions</title>
-      <para>
-	In telemetry mode, you can send or receive a telemetry
-	packet. The data from receiving a packet also includes the RSSI
-	and status values supplied by the receiver. These are added
-	after the telemetry data.
-      </para>
-      <varlistentry>
-	<term>ao_radio_send</term>
-	<listitem>
-	  <programlisting>
-void
-ao_radio_send(__xdata struct ao_telemetry *telemetry);
-	  </programlisting>
-	  <para>
-	    This sends the specific telemetry packet, waiting for the
-	    transmission to complete. The radio must have been set to
-	    telemetry mode. This function calls ao_radio_get() before
-	    sending, and ao_radio_put() afterwards, to correctly
-	    serialize access to the radio device.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_radio_recv</term>
-	<listitem>
-	  <programlisting>
-void
-ao_radio_recv(__xdata struct ao_radio_recv *radio);
-	  </programlisting>
-	  <para>
-	    This blocks waiting for a telemetry packet to be received.
-	    The radio must have been set to telemetry mode. This
-	    function calls ao_radio_get() before receiving, and
-	    ao_radio_put() afterwards, to correctly serialize access
-	    to the radio device. This returns non-zero if a packet was
-	    received, or zero if the operation was aborted (from some
-	    other task calling ao_radio_abort()).
-	  </para>
-	</listitem>
-      </varlistentry>
-    </variablelist>
-    <variablelist>
-      <title>AltOS radio direction finding function</title>
-      <para>
-	In radio direction finding mode, there's just one function to
-	use
-      </para>
-      <varlistentry>
-	<term>ao_radio_rdf</term>
-	<listitem>
-	  <programlisting>
-void
-ao_radio_rdf(int ms);
-	  </programlisting>
-	  <para>
-	    This sends an RDF packet lasting for the specified amount
-	    of time. The maximum length is 1020 ms.
-	  </para>
-	</listitem>
-      </varlistentry>
-    </variablelist>
-    <variablelist>
-      <title>Packet mode functions</title>
-      <para>
-	Packet mode is asymmetrical and is configured at compile time
-	for either master or slave mode (but not both). The basic I/O
-	functions look the same at both ends, but the internals are
-	different, along with the initialization steps.
-      </para>
-      <varlistentry>
-	<term>ao_packet_putchar</term>
-	<listitem>
-	  <programlisting>
-void
-ao_packet_putchar(char c);
-	  </programlisting>
-	  <para>
-	    If the output queue is full, this first blocks waiting for
-	    that data to be delivered. Then, queues a character for
-	    packet transmission. On the master side, this will
-	    transmit a packet if the output buffer is full. On the
-	    slave side, any pending data will be sent the next time
-	    the master polls for data.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_packet_pollchar</term>
-	<listitem>
-	  <programlisting>
-char
-ao_packet_pollchar(void);
-	  </programlisting>
-	  <para>
-	    This returns a pending input character if available,
-	    otherwise returns AO_READ_AGAIN. On the master side, if
-	    this empties the buffer, it triggers a poll for more data.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_packet_slave_start</term>
-	<listitem>
-	  <programlisting>
-void
-ao_packet_slave_start(void);
-	  </programlisting>
-	  <para>
-	    This is available only on the slave side and starts a task
-	    to listen for packet data.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_packet_slave_stop</term>
-	<listitem>
-	  <programlisting>
-void
-ao_packet_slave_stop(void);
-	  </programlisting>
-	  <para>
-	    Disables the packet slave task, stopping the radio receiver.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_packet_slave_init</term>
-	<listitem>
-	  <programlisting>
-void
-ao_packet_slave_init(void);
-	  </programlisting>
-	  <para>
-	    Adds the packet stdio functions to the stdio package so
-	    that when packet slave mode is enabled, characters will
-	    get send and received through the stdio functions.
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>ao_packet_master_init</term>
-	<listitem>
-	  <programlisting>
-void
-ao_packet_master_init(void);
-	  </programlisting>
-	  <para>
-	    Adds the 'p' packet forward command to start packet mode.
-	  </para>
-	</listitem>
-      </varlistentry>
-    </variablelist>
+    <section>
+      <title>ao_radio_set_telemetry</title>
+	<programlisting>
+	  void
+	  ao_radio_set_telemetry(void);
+	</programlisting>
+	<para>
+	  Configures the radio to send or receive telemetry
+	  packets. This includes packet length, modulation scheme and
+	  other RF parameters. It does not include the base frequency
+	  or channel though. Those are set at the time of transmission
+	  or reception, in case the values are changed by the user.
+	</para>
+    </section>
+    <section>
+      <title>ao_radio_set_packet</title>
+	<programlisting>
+	  void
+	  ao_radio_set_packet(void);
+	</programlisting>
+	<para>
+	  Configures the radio to send or receive packet data.  This
+	  includes packet length, modulation scheme and other RF
+	  parameters. It does not include the base frequency or
+	  channel though. Those are set at the time of transmission or
+	  reception, in case the values are changed by the user.
+	</para>
+    </section>
+    <section>
+      <title>ao_radio_set_rdf</title>
+	<programlisting>
+	  void
+	  ao_radio_set_rdf(void);
+	</programlisting>
+	<para>
+	  Configures the radio to send RDF 'packets'. An RDF 'packet'
+	  is a sequence of hex 0x55 bytes sent at a base bit rate of
+	  2kbps using a 5kHz deviation. All of the error correction
+	  and data whitening logic is turned off so that the resulting
+	  modulation is received as a 1kHz tone by a conventional 70cm
+	  FM audio receiver.
+	</para>
+    </section>
+    <section>
+      <title>ao_radio_idle</title>
+	<programlisting>
+	  void
+	  ao_radio_idle(void);
+	</programlisting>
+	<para>
+	  Sets the radio device to idle mode, waiting until it reaches
+	  that state. This will terminate any in-progress transmit or
+	  receive operation.
+	</para>
+    </section>
+    <section>
+      <title>ao_radio_get</title>
+	<programlisting>
+	  void
+	  ao_radio_get(void);
+	</programlisting>
+	<para>
+	  Acquires the radio mutex and then configures the radio
+	  frequency using the global radio calibration and channel
+	  values.
+	</para>
+    </section>
+    <section>
+      <title>ao_radio_put</title>
+	<programlisting>
+	  void
+	  ao_radio_put(void);
+	</programlisting>
+	<para>
+	  Releases the radio mutex.
+	</para>
+    </section>
+    <section>
+      <title>ao_radio_abort</title>
+	<programlisting>
+	  void
+	  ao_radio_abort(void);
+	</programlisting>
+	<para>
+	  Aborts any transmission or reception process by aborting the
+	  associated DMA object and calling ao_radio_idle to terminate
+	  the radio operation.
+	</para>
+    </section>
+    <para>
+      In telemetry mode, you can send or receive a telemetry
+      packet. The data from receiving a packet also includes the RSSI
+      and status values supplied by the receiver. These are added
+      after the telemetry data.
+    </para>
+    <section>
+      <title>ao_radio_send</title>
+	<programlisting>
+	  void
+	  ao_radio_send(__xdata struct ao_telemetry *telemetry);
+	</programlisting>
+	<para>
+	  This sends the specific telemetry packet, waiting for the
+	  transmission to complete. The radio must have been set to
+	  telemetry mode. This function calls ao_radio_get() before
+	  sending, and ao_radio_put() afterwards, to correctly
+	  serialize access to the radio device.
+	</para>
+    </section>
+    <section>
+      <title>ao_radio_recv</title>
+	<programlisting>
+	  void
+	  ao_radio_recv(__xdata struct ao_radio_recv *radio);
+	</programlisting>
+	<para>
+	  This blocks waiting for a telemetry packet to be received.
+	  The radio must have been set to telemetry mode. This
+	  function calls ao_radio_get() before receiving, and
+	  ao_radio_put() afterwards, to correctly serialize access
+	  to the radio device. This returns non-zero if a packet was
+	  received, or zero if the operation was aborted (from some
+	  other task calling ao_radio_abort()).
+	</para>
+    </section>
+    <para>
+      In radio direction finding mode, there's just one function to
+      use
+    </para>
+    <section>
+      <title>ao_radio_rdf</title>
+	<programlisting>
+	  void
+	  ao_radio_rdf(int ms);
+	</programlisting>
+	<para>
+	  This sends an RDF packet lasting for the specified amount
+	  of time. The maximum length is 1020 ms.
+	</para>
+    </section>
+    <para>
+      Packet mode is asymmetrical and is configured at compile time
+      for either master or slave mode (but not both). The basic I/O
+      functions look the same at both ends, but the internals are
+      different, along with the initialization steps.
+    </para>
+    <section>
+      <title>ao_packet_putchar</title>
+	<programlisting>
+	  void
+	  ao_packet_putchar(char c);
+	</programlisting>
+	<para>
+	  If the output queue is full, this first blocks waiting for
+	  that data to be delivered. Then, queues a character for
+	  packet transmission. On the master side, this will
+	  transmit a packet if the output buffer is full. On the
+	  slave side, any pending data will be sent the next time
+	  the master polls for data.
+	</para>
+    </section>
+    <section>
+      <title>ao_packet_pollchar</title>
+	<programlisting>
+	  char
+	  ao_packet_pollchar(void);
+	</programlisting>
+	<para>
+	  This returns a pending input character if available,
+	  otherwise returns AO_READ_AGAIN. On the master side, if
+	  this empties the buffer, it triggers a poll for more data.
+	</para>
+    </section>
+    <section>
+      <title>ao_packet_slave_start</title>
+	<programlisting>
+	  void
+	  ao_packet_slave_start(void);
+	</programlisting>
+	<para>
+	  This is available only on the slave side and starts a task
+	  to listen for packet data.
+	</para>
+    </section>
+    <section>
+      <title>ao_packet_slave_stop</title>
+	<programlisting>
+	  void
+	  ao_packet_slave_stop(void);
+	</programlisting>
+	<para>
+	  Disables the packet slave task, stopping the radio receiver.
+	</para>
+    </section>
+    <section>
+      <title>ao_packet_slave_init</title>
+	<programlisting>
+	  void
+	  ao_packet_slave_init(void);
+	</programlisting>
+	<para>
+	  Adds the packet stdio functions to the stdio package so
+	  that when packet slave mode is enabled, characters will
+	  get send and received through the stdio functions.
+	</para>
+    </section>
+    <section>
+      <title>ao_packet_master_init</title>
+	<programlisting>
+	  void
+	  ao_packet_master_init(void);
+	</programlisting>
+	<para>
+	  Adds the 'p' packet forward command to start packet mode.
+	</para>
+    </section>
   </chapter>
 </book>
