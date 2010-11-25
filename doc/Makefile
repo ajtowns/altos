@@ -2,32 +2,35 @@
 #	http://docbook.sourceforge.net/release/xsl/current/README
 #
 
-all:	telemetrum-doc.html telemetrum-doc.pdf
+HTML=telemetrum-doc.html altos.html
+PDF=telemetrum-doc.pdf altos.pdf
+DOC=$(HTML) $(PDF)
+HTMLSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/html/docbook.xsl
+FOSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl
+PDFSTYLE=
 
-publish:	all
-	cp telemetrum-doc.html \
-		telemetrum-doc.pdf /home/bdale/web/altusmetrum/TeleMetrum/doc/
+.SUFFIXES: .xsl .html .fo .pdf
+
+.xsl.html:
+	xsltproc -o $@ $(HTMLSTYLE) $*.xsl
+
+.xsl.fo:
+	xsltproc -o $@ $(FOSTYLE) $*.xsl
+
+.fo.pdf:
+	fop -fo $*.fo -pdf $@
+
+all:	$(HTML) $(PDF)
+
+publish:	$(DOC)
+	cp $(DOC)telemetrum-doc.html home/bdale/web/altusmetrum/TeleMetrum/doc/
 	(cd /home/bdale/web/altusmetrum ; echo "update docs" | git commit -F - /home/bdale/web/altusmetrum/TeleMetrum/doc/* ; git push)
 
-
-telemetrum-doc.html:	telemetrum-doc.xsl
-	xsltproc -o telemetrum-doc.html \
-		/usr/share/xml/docbook/stylesheet/docbook-xsl/html/docbook.xsl \
-		telemetrum-doc.xsl
-
-telemetrum-doc.fo:	telemetrum-doc.xsl
-	xsltproc -o telemetrum-doc.fo \
-		/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl \
-		telemetrum-doc.xsl
-
-telemetrum-doc.pdf:	telemetrum-doc.fo
-	fop -fo telemetrum-doc.fo -pdf telemetrum-doc.pdf
-
 clean:
-	rm -f telemetrum-doc.html telemetrum-doc.pdf telemetrum-doc.fo
+	rm -f *.html *.pdf *.fo
 
 distclean:
-	rm -f telemetrum-doc.html telemetrum-doc.pdf telemetrum-doc.fo
+	rm -f *.html *.pdf *.fo
 
 indent:		telemetrum-doc.xsl
 	xmlindent -i 2 < telemetrum-doc.xsl > telemetrum-doc.new

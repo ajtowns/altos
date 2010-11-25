@@ -1,0 +1,108 @@
+/*
+ * Copyright © 2010 Keith Packard <keithp@keithp.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
+package altosui;
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.*;
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import java.util.prefs.*;
+import java.util.concurrent.LinkedBlockingQueue;
+
+public class AltosCSVUI
+	extends JDialog
+	implements ActionListener
+{
+	JFileChooser		csv_chooser;
+	JPanel			accessory;
+	JComboBox		combo_box;
+	AltosRecordIterable	iterable;
+	AltosWriter		writer;
+
+	static String[]		combo_box_items = { "Comma Separated Values (.CSV)", "Googleearth Data (.KML)" };
+
+	void set_default_file() {
+		File	current = csv_chooser.getSelectedFile();
+		String	current_name = current.getName();
+		String	new_name = null;
+		String	selected = (String) combo_box.getSelectedItem();
+
+		if (selected.contains("CSV"))
+			new_name = Altos.replace_extension(current_name, ".csv");
+		else if (selected.contains("KML"))
+			new_name = Altos.replace_extension(current_name, ".kml");
+		if (new_name != null)
+			csv_chooser.setSelectedFile(new File(new_name));
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		if (e.getActionCommand().equals("comboBoxChanged"))
+			set_default_file();
+	}
+
+	public AltosCSVUI(JFrame frame, AltosRecordIterable in_iterable, File source_file) {
+		iterable = in_iterable;
+		csv_chooser = new JFileChooser(source_file);
+
+		accessory = new JPanel();
+		accessory.setLayout(new GridBagLayout());
+
+		GridBagConstraints	c = new GridBagConstraints();
+		c.fill = GridBagConstraints.NONE;
+		c.weightx = 1;
+		c.weighty = 0;
+		c.insets = new Insets (4, 4, 4, 4);
+
+		JLabel accessory_label = new JLabel("Export File Type");
+		c.gridx = 0;
+		c.gridy = 0;
+		accessory.add(accessory_label, c);
+
+		combo_box = new JComboBox(combo_box_items);
+		combo_box.addActionListener(this);
+		c.gridx = 0;
+		c.gridy = 1;
+		accessory.add(combo_box, c);
+
+		csv_chooser.setAccessory(accessory);
+		csv_chooser.setSelectedFile(source_file);
+		set_default_file();
+		int ret = csv_chooser.showSaveDialog(frame);
+		if (ret == JFileChooser.APPROVE_OPTION) {
+			File file = csv_chooser.getSelectedFile();
+			String type = (String) combo_box.getSelectedItem();
+			try {
+				if (type.contains("CSV"))
+					writer = new AltosCSV(file);
+				else
+					writer = new AltosKML(file);
+				writer.write(iterable);
+				writer.close();
+			} catch (FileNotFoundException ee) {
+				JOptionPane.showMessageDialog(frame,
+							      file.getName(),
+							      "Cannot open file",
+							      JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+}

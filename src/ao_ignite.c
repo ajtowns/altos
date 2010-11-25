@@ -101,7 +101,6 @@ void
 ao_igniter(void)
 {
 	__xdata enum ao_ignter igniter;
-	__xdata enum ao_igniter_status status;
 
 	ao_config_get();
 	for (;;) {
@@ -113,9 +112,7 @@ ao_igniter(void)
 
 				ao_igniter_fire(igniter);
 				ao_delay(AO_IGNITER_CHARGE_TIME);
-				status = ao_igniter_status(igniter);
-				if (status == ao_igniter_open)
-					ao_ignition[igniter].fired = 1;
+				ao_ignition[igniter].fired = 1;
 			}
 		}
 	}
