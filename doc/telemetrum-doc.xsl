@@ -1065,6 +1065,7 @@
           the rocket's path will be traced on a dark grey background
           instead.
         </para>
+      </section>
     </section>
     <section>
       <title>Save Flight Data</title>
