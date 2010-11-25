@@ -29,8 +29,9 @@
     <revhistory>
       <revision>
         <revnumber>0.3</revnumber>
-        <date>23 November 2010</date>
-        <revremark>New section on AltosUI mostly by Keith</revremark>
+        <date>24 November 2010</date>
+        <revremark>New section on AltosUI mostly by Keith with contributions
+	from Anthony Towns.  Many other updates.</revremark>
       </revision>
       <revision>
         <revnumber>0.2</revnumber>
