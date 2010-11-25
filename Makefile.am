@@ -1,4 +1,4 @@
-SUBDIRS=src ao-tools ao-utils
+SUBDIRS=src altosui ao-tools ao-utils
 
 EXTRA_DIST = ChangeLog
 
