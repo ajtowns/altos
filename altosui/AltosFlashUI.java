@@ -30,7 +30,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class AltosFlashUI
 	extends JDialog
-	implements Runnable, ActionListener
+	implements ActionListener
 {
 	Container	pane;
 	Box		box;
@@ -62,47 +62,6 @@ public class AltosFlashUI
 				pbar.setString(cmd);
 			}
 		}
-	}
-
-	public void run() {
-		try {
-			flash = new AltosFlash(file, debug_dongle);
-			flash.addActionListener(this);
-			AltosRomconfigUI romconfig_ui = new AltosRomconfigUI (frame);
-
-			romconfig_ui.set(flash.romconfig());
-			AltosRomconfig romconfig = romconfig_ui.showDialog();
-
-			if (romconfig != null && romconfig.valid()) {
-				flash.set_romconfig(romconfig);
-				serial_value.setText(String.format("%d",
-								   flash.romconfig().serial_number));
-				file_value.setText(file.toString());
-				setVisible(true);
-				flash.flash();
-				flash = null;
-			}
-		} catch (FileNotFoundException ee) {
-			JOptionPane.showMessageDialog(frame,
-						      "Cannot open image",
-						      file.toString(),
-						      JOptionPane.ERROR_MESSAGE);
-		} catch (AltosSerialInUseException si) {
-			JOptionPane.showMessageDialog(frame,
-						      String.format("Device \"%s\" already in use",
-								    debug_dongle.toShortString()),
-						      "Device in use",
-						      JOptionPane.ERROR_MESSAGE);
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(frame,
-						      e.getMessage(),
-						      file.toString(),
-						      JOptionPane.ERROR_MESSAGE);
-		} catch (InterruptedException ie) {
-		} finally {
-			abort();
-		}
-		dispose();
 	}
 
 	public void abort() {
@@ -212,7 +171,43 @@ public class AltosFlashUI
 		if (file != null)
 			AltosPreferences.set_firmwaredir(file.getParentFile());
 
-		thread = new Thread(this);
-		thread.start();
+		try {
+			flash = new AltosFlash(file, debug_dongle);
+			flash.addActionListener(this);
+			AltosRomconfigUI romconfig_ui = new AltosRomconfigUI (frame);
+
+			romconfig_ui.set(flash.romconfig());
+			AltosRomconfig romconfig = romconfig_ui.showDialog();
+
+			if (romconfig != null && romconfig.valid()) {
+				flash.set_romconfig(romconfig);
+				serial_value.setText(String.format("%d",
+								   flash.romconfig().serial_number));
+				file_value.setText(file.toString());
+				setVisible(true);
+				flash.flash();
+				flash = null;
+			}
+		} catch (FileNotFoundException ee) {
+			JOptionPane.showMessageDialog(frame,
+						      "Cannot open image",
+						      file.toString(),
+						      JOptionPane.ERROR_MESSAGE);
+		} catch (AltosSerialInUseException si) {
+			JOptionPane.showMessageDialog(frame,
+						      String.format("Device \"%s\" already in use",
+								    debug_dongle.toShortString()),
+						      "Device in use",
+						      JOptionPane.ERROR_MESSAGE);
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(frame,
+						      e.getMessage(),
+						      file.toString(),
+						      JOptionPane.ERROR_MESSAGE);
+		} catch (InterruptedException ie) {
+		} finally {
+			abort();
+		}
+		dispose();
 	}
 }
