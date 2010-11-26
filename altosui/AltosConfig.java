@@ -30,7 +30,7 @@ import java.util.concurrent.*;
 
 import libaltosJNI.*;
 
-public class AltosConfig implements Runnable, ActionListener {
+public class AltosConfig implements ActionListener {
 
 	class int_ref {
 		int	value;
@@ -64,7 +64,6 @@ public class AltosConfig implements Runnable, ActionListener {
 	AltosDevice	device;
 	AltosSerial	serial_line;
 	boolean		remote;
-	Thread		config_thread;
 	int_ref		serial;
 	int_ref		main_deploy;
 	int_ref		apogee_delay;
@@ -241,17 +240,6 @@ public class AltosConfig implements Runnable, ActionListener {
 		}
 	}
 
-	public void run () {
-		try {
-			init_ui();
-			config_ui.make_visible();
-		} catch (InterruptedException ie) {
-			abort();
-		} catch (TimeoutException te) {
-			abort();
-		}
-	}
-
 	public AltosConfig(JFrame given_owner) {
 		owner = given_owner;
 
@@ -270,8 +258,14 @@ public class AltosConfig implements Runnable, ActionListener {
 				serial_line = new AltosSerial(device);
 				if (!device.matchProduct(AltosDevice.product_telemetrum))
 					remote = true;
-				config_thread = new Thread(this);
-				config_thread.start();
+				try {
+					init_ui();
+					config_ui.make_visible();
+				} catch (InterruptedException ie) {
+					abort();
+				} catch (TimeoutException te) {
+					abort();
+				}
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(owner,
 							      String.format("Cannot open device \"%s\"",
