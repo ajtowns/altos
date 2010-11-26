@@ -214,6 +214,27 @@ public class AltosEepromDownload implements Runnable {
 		}
 	}
 
+	private void show_error_internal(String message, String title) {
+		JOptionPane.showMessageDialog(frame,
+					      message,
+					      title,
+					      JOptionPane.ERROR_MESSAGE);
+	}
+
+	private void show_error(String in_message, String in_title) {
+		final String message = in_message;
+		final String title = in_title;
+		Runnable r = new Runnable() {
+				public void run() {
+					try {
+						show_error_internal(message, title);
+					} catch (Exception ex) {
+					}
+				}
+			};
+		SwingUtilities.invokeLater(r);
+	}
+
 	public void run () {
 		if (remote) {
 			serial_line.set_radio();
@@ -221,26 +242,16 @@ public class AltosEepromDownload implements Runnable {
 			serial_line.flush_input();
 		}
 
-		monitor = new AltosEepromMonitor(frame, Altos.ao_flight_boost, Altos.ao_flight_landed);
-		monitor.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					eeprom_thread.interrupt();
-				}
-			});
 		try {
 			CaptureLog();
 		} catch (IOException ee) {
-			JOptionPane.showMessageDialog(frame,
-						      device.toShortString(),
-						      ee.getLocalizedMessage(),
-						      JOptionPane.ERROR_MESSAGE);
+			show_error (device.toShortString(),
+				    ee.getLocalizedMessage());
 		} catch (InterruptedException ie) {
 		} catch (TimeoutException te) {
-			JOptionPane.showMessageDialog(frame,
-						      String.format("Connection to \"%s\" failed",
-								    device.toShortString()),
-						      "Connection Failed",
-						      JOptionPane.ERROR_MESSAGE);
+			show_error (String.format("Connection to \"%s\" failed",
+						  device.toShortString()),
+				    "Connection Failed");
 		}
 		if (remote)
 			serial_line.printf("~");
@@ -260,6 +271,14 @@ public class AltosEepromDownload implements Runnable {
 				serial_line = new AltosSerial(device);
 				if (!device.matchProduct(AltosDevice.product_telemetrum))
 					remote = true;
+				monitor = new AltosEepromMonitor(frame, Altos.ao_flight_boost, Altos.ao_flight_landed);
+				monitor.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							if (eeprom_thread != null)
+								eeprom_thread.interrupt();
+						}
+					});
+
 				eeprom_thread = new Thread(this);
 				eeprom_thread.start();
 			} catch (FileNotFoundException ee) {

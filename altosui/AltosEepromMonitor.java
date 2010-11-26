@@ -141,7 +141,7 @@ public class AltosEepromMonitor extends JDialog {
 		cancel.addActionListener(l);
 	}
 
-	public void set_value(String state_name, int in_state, int in_block) {
+	private void set_value_internal(String state_name, int in_state, int in_block) {
 		int block = in_block;
 		int state = in_state;
 
@@ -157,20 +157,86 @@ public class AltosEepromMonitor extends JDialog {
 		pbar.setValue(pos);
 	}
 
-	public void set_serial(int serial) {
+	public void set_value(String in_state_name, int in_state, int in_block) {
+		final String state_name = in_state_name;
+		final int state = in_state;
+		final int block = in_block;
+		Runnable r = new Runnable() {
+				public void run() {
+					try {
+						set_value_internal(state_name, state, block);
+					} catch (Exception ex) {
+					}
+				}
+			};
+		SwingUtilities.invokeLater(r);
+	}
+
+	private void set_serial_internal(int serial) {
 		serial_value.setText(String.format("%d", serial));
 	}
 
-	public void set_flight(int flight) {
+	public void set_serial(int in_serial) {
+		final int serial = in_serial;
+		Runnable r = new Runnable() {
+				public void run() {
+					try {
+						set_serial_internal(serial);
+					} catch (Exception ex) {
+					}
+				}
+			};
+		SwingUtilities.invokeLater(r);
+	}
+
+	private void set_flight_internal(int flight) {
 		flight_value.setText(String.format("%d", flight));
 	}
 
-	public void set_file(String file) {
+	public void set_flight(int in_flight) {
+		final int flight = in_flight;
+		Runnable r = new Runnable() {
+				public void run() {
+					try {
+						set_flight_internal(flight);
+					} catch (Exception ex) {
+					}
+				}
+			};
+		SwingUtilities.invokeLater(r);
+	}
+
+	private void set_file_internal(String file) {
 		file_value.setText(String.format("%s", file));
 	}
 
-	public void done() {
+	public void set_file(String in_file) {
+		final String file = in_file;
+		Runnable r = new Runnable() {
+				public void run() {
+					try {
+						set_file_internal(file);
+					} catch (Exception ex) {
+					}
+				}
+			};
+		SwingUtilities.invokeLater(r);
+	}
+
+	private void done_internal() {
 		setVisible(false);
 		dispose();
+	}
+
+	public void done() {
+		Runnable r = new Runnable() {
+				public void run() {
+					try {
+						done_internal();
+					} catch (Exception ex) {
+					}
+				}
+			};
+		SwingUtilities.invokeLater(r);
 	}
 }
