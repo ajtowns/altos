@@ -1,3 +1,207 @@
+altos (0.7.1+168+gcb08bc2) unstable; urgency=low
+
+  [ Keith Packard ]
+  * altosui: Split out flight monitoring to separate window
+  * altosui: Create buttons for main actions
+  * altosui: Fix channel setting at serial open time
+  * altosui: Fix more calls to AltosPreferences.channel()
+  * altosui: Create abstract interface for flight data display
+  * altosui: Add tab UI with 'pad' mode.
+  * altosui: Add ascent, descent and landed tabs
+
+  [ Bob Finch ]
+  * Updated PKGBUILD-git.altos
+
+  [ Keith Packard ]
+  * altos: Use grey leds when unlit - easier to see
+
+  [ Anthony Towns ]
+  * use value_font for values
+  * add --replay command line argument
+  * read preferences for --replay
+  * reduce font size for FlightInfoTable
+  * use grayled.png for off
+  * add compass bearing to voice output
+  * add compass bearing during descent
+  * add site map tab, at least for QRS launches
+  * tabs -> spaces
+  * make infotable scrollable, revert its fontsize to 14
+  * pull up maps for arbitrary locations
+  * better error behaviour if no map
+
+  [ Bdale Garbee ]
+  * first cut at instructions on how to re-flash TM and TD devices based
+    on email
+  * fold in content from Keith's email on the re-flashing subject
+
+  [ Keith Packard ]
+  * altosui: Add RF calibration to TeleMetrum config dialog
+
+  [ Anthony Towns ]
+  * AltosTelemetryReader: actually open serial port
+  * AltosSiteMap: add targeting circles around landing site
+
+  [ Bdale Garbee ]
+  * continuing to work on the docs
+
+  [ Keith Packard ]
+  * altosui: Eliminate unncessary import altosui lines
+  * altosui: Open serial device at 'new' time. Prohibit duplicate opens.
+  * altosui: Replace flight status table with labels, fix resize.
+  * altosui: With --replay option, exit when replay window is closed
+  * altosui: oops, missed a file in the previous commit
+  * altosui: eliminate menu bar, moving elements to buttons.
+  * altosui: add reboot button to telemetrum configuration UI
+
+  [ Bdale Garbee ]
+  * add a paragraph about forcing TM back to idle mode if an accel cal
+    goes badly
+
+  [ Keith Packard ]
+  * altosui: Add callsign configuration in AltosUI configuration dialog
+  * altosui: Cleanup flight UI layout
+  * altosui: Add igniter status to ascent and descent tabs
+
+  [ Anthony Towns ]
+  * altosui: tile site maps
+  * AltosSiteMapTile: autoscale to about 2 nmi per tile
+  * AltosSiteMapTile: adjust centering calculation
+  * AltosSiteMapTile: adjust scale to 1 nmi per tile
+
+  [ Keith Packard ]
+  * altosui: Add igniter ground testing code
+  * altosui: Unify datafile selection to AltosDataChooser
+  * altosui: Clean up global AltosUI configuration settings dialog
+  * doc: Add preliminary altosui documentation
+  * doc: git ignore generated doc files
+  * doc: Document the 'Flash Image' operation.
+  * altosui: Use timeouts to recover from broken packet links.
+
+  [ Bdale Garbee ]
+  * update turnon scripts to use stashed copies of stable release
+    firmware
+
+  [ Keith Packard ]
+  * altosui: switch channel selector to combo box. Shorten displayed
+    device names
+  * altosui: When switching log files, don't terminate log thread
+  * altosui: calling thread.interrupt with null thread doesn't work well
+  * altosui: Initialize display thread state in constructor instead of
+    run
+  * altosui: Fix channel changing in flight UI to actually work
+
+  [ Anthony Towns ]
+  * AltosSiteMap: add autoscroll and grabndrag scroll
+  * AltosSiteMapTile: seperate map and drawing layers
+  * AltosSiteMap: automatic fetching of map data
+  * AltosSiteMapTile: draw boost circle as well as landed
+  * AltosAscent/Descent: tidy up layout
+  * AltosDescent: switch elev from height to range
+
+  [ Keith Packard ]
+  * altosui: re-indent
+
+  [ Anthony Towns ]
+  * AltosSiteMap: major refactoring
+  * Add GrabNDrag.java
+
+  [ Keith Packard ]
+  * altosui: change descent tab formatting to four columns
+
+  [ Anthony Towns ]
+  * AltosSiteMap: be more polite about preferred size
+  * altosui: reindent
+
+  [ Keith Packard ]
+  * altosui: Rewrite info table to mix with scroll pane well. Fix
+    startup size
+
+  [ Anthony Towns ]
+  * AltosSiteMap: better gps check, lower zoom
+
+  [ Keith Packard ]
+  * altosui: Set site map flight path lines to 6 pixels anti-aliased.
+
+  [ Anthony Towns ]
+  * AltosSiteMap: explain tile size better
+  * AltosSiteMap: extend map if rocket goes far away
+  * AltosSiteMap: try to get new tile construction right
+  * AltosSiteMap: thread safe tile addition
+  * AltosSiteMap: refactor tile collection
+  * AltosSiteMap: never accept 0,0 as lat/long
+  * AltosSiteMap: limit nr of tiles to 200x200
+
+  [ Keith Packard ]
+  * altosui: When fixing eeprom gps time information, make GPS data
+    valid
+
+  [ Anthony Towns ]
+  * AltosSiteMap: ensure buffer around active tile
+  * altosui: improve sitemap scrolling behaviour
+  * altosui: keep sitemap more centred on rocket
+
+  [ Keith Packard ]
+  * altos: Add on/off modes to 'C' command
+
+  [ Bob Finch ]
+  * Added PKGBUILDs for deps into contribs
+
+  [ Keith Packard ]
+  * altosui: Close serial port when debug link fails
+  * altos: assume igniter worked.
+
+  [ Bdale Garbee ]
+  * add a rudimentary --help for command line use
+
+  [ Keith Packard ]
+  * doc: Add internal documentation for AltOS
+
+  [ Anthony Towns ]
+  * altosui: don't switch away from user selected tab
+  * altosui: sitemap uses rocket gps if no pad gps
+
+  [ Bdale Garbee ]
+  * merge Keith's AltosUI documention into "the big book"
+  * lose the placeholder on how GPS works, as it's going to be a
+
+  [ Keith Packard ]
+  * altos: remove unused variable from ao_igniter
+  * altos: Don't abort radio transmissions with ao_radio_abort
+  * altos: Make radio test command careful with the radio mutex.
+  * altosui: Make AltosSerial.flush_input keep reading while non-empty
+  * altosui: New AltosSerial.set_radio function sets channel/call
+  * altosui: Disable radio configation over packet link.
+  * altosui: Let people fire igniters that don't read as 'ready'
+  * altosui: Make sure packet mode is turned off when the connection
+    fails
+
+  [ Anthony Towns ]
+  * docs: Document altosui "Graph Data" button
+
+  [ Keith Packard ]
+  * Move altosui to the top level, placing libaltos inside it.
+
+  [ Anthony Towns ]
+  * doc: Document altosui "Site Map" tab
+
+  [ Keith Packard ]
+  * Missing change to top level Makefile to build altosui
+
+  [ Bdale Garbee ]
+  * fix missing section close in Site Map content
+  * tweak rev history
+  * manually fold in documentation work from the master branch
+
+  [ Keith Packard ]
+  * doc: Reformat altos to use sections for each function
+  * doc: Add more authors, fix URL formatting, note that AltosUI
+    actually exists
+  * doc: Rename telemetrum-doc as altusmetrum
+
+  [ Bdale Garbee ]
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 25 Nov 2010 01:10:18 -0700
+
 altos (0.7.1+36+g811ced6) unstable; urgency=low
 
   [ Bdale Garbee ]

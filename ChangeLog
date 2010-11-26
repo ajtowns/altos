@@ -1,3 +1,1213 @@
+commit da3b39d6b1b5ba48686c2a4add4b5448fd5711af
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Nov 25 22:29:01 2010 -0700
+
+    changed main document name from telemetrum-doc to altusmetrum
+
+commit ab6c9c983a2830bc8807e1b75d2576141b73632d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Nov 25 19:30:02 2010 -0700
+
+    update fat target in Makefiles to reflect move of altosui and libaltos
+
+commit b8f05cdc0e9b4a96852eed9d38ff6d5950e2d2ed
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Nov 25 17:29:28 2010 -0800
+
+    altosui: Clean up flash code to ensure swing gets called from right thread
+    
+    This moves all of the flash code to a separate thread and passes
+    messages back to the swing thread to keep the UI up to date.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit adbb14c63d85b7a54223f88ac623571456f4a462
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Nov 25 16:28:04 2010 -0800
+
+    altosui: Remove gratuitous threading from device flashing UI
+    
+    There's no need for a thread here, and swing doesn't want us to use
+    one anyways.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7f88520089660845009148b69bfcea6c9dff9672
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Nov 25 16:23:18 2010 -0800
+
+    altosui: Flight data download GUI operations called only from main thread
+    
+    Swing doesn't like UI functions being called from non-dispatch thread,
+    so fix up the eeprom download code to use SwingUtilities.invokeLater
+    to make sure this works right.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6d3612e267cd4c1e7fdd74fc33952b3f26f870f5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Nov 25 16:09:37 2010 -0800
+
+    altosui: Eliminate unnecessary thread from config UI
+    
+    There's no reason to use a thread to run a dialog box, and
+    swing doesn't like threads anyways.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 12fb7f0e70cd244475d84469f93283112478d1e1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Nov 25 15:56:42 2010 -0800
+
+    altosui: Only call swing display functions from main thread.
+    
+    Swing insists that all display functions be called from a single
+    thread, and the flight window wasn't following this for display
+    updates. Use SwingUtilities.invokeLater to make sure the flight UI
+    updates happen in the right context.
+    
+    Fixes a UI freeze on Mac OS.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b74cec6cd0bc043f53e9e28472765aa343136813
+Author: Bob Finch <w9ya@qrparci.net>
+Date:   Thu Nov 25 13:30:48 2010 -0700
+
+    Updated AltOS PKGBUILD to track makefile changes
+
+commit f88bde21d76a4ff91099a5051153ebace1619978
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Nov 25 11:16:55 2010 -0800
+
+    altosui: Hack up standalone makefile to maybe build altosui again
+    
+    This isn't tested, but at least the paths are more likely to be correct
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3d98440d53378aaa6da87ed65e9abb2f96f7ee49
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Nov 25 11:16:28 2010 -0800
+
+    altosui: Make windows bits build after moving altosui directory
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4893ed50bc14772986ac02f9b39928f1882da923
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Nov 24 23:54:08 2010 -0800
+
+    Revert "altos: Don't abort radio transmissions with ao_radio_abort"
+    
+    This reverts commit 54468e5dc567aaac5c5c20e921859b7cec28bb88.
+    
+    With this patch in place, TD could not be placed in 'packet' mode.
+
+commit cb08bc264c71ca972027392b42f347a03df76a43
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Nov 24 22:55:08 2010 -0800
+
+    doc: Rename telemetrum-doc as altusmetrum
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 554bdd25e132dbaec322bc11f94093d2c2e78751
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Nov 24 22:49:33 2010 -0800
+
+    doc: Add more authors, fix URL formatting, note that AltosUI actually exists
+    
+    Add aj and bfinch as authors. Insert an acknowledgements section. Fill
+    in the Fire Igniter section in the AltosUI chapter. Then change the
+    section talking about the future plans for Java to mention that they
+    actually exist now.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit bcf78b67717374b5971820021b83061e2e9734cf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Nov 24 21:39:18 2010 -0800
+
+    doc: Reformat altos to use sections for each function
+    
+    This places them in the TOC, making them easier to find.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 51c7741040d95c5deece939dae5e4136cc04afc4
+Merge: d1dbe3b 4e47c44
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Nov 24 21:00:52 2010 -0800
+
+    Merge branch 'buttonbox'
+    
+    Conflicts:
+    	doc/telemetrum-doc.xsl
+    
+    Pull the buttbox version of the docs in as it had been updated.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4e47c44d335276cf0dc5ed3a0756e50c98c1b9b9
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Nov 24 21:44:53 2010 -0700
+
+    manually fold in documentation work from the master branch
+
+commit 8a68c1da253c0b29a7cb9c7540c20585ad6e3dec
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Nov 24 21:21:53 2010 -0700
+
+    tweak rev history
+
+commit 7cd1c7765d137df711caeeb69abaaba1b36e0a65
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Nov 24 20:53:36 2010 -0700
+
+    fix missing section close in Site Map content
+
+commit db2b19b8f0d452d682d53c7ed0ff6e359b46efa0
+Merge: b372f3c 915f881
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Nov 24 18:57:35 2010 -0800
+
+    Merge remote branch 'aj/buttonbox' into buttonbox
+
+commit b372f3c0ee4ec49aabe61c169cb1eb9bb4fb2cfc
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Nov 24 18:50:46 2010 -0800
+
+    Missing change to top level Makefile to build altosui
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 915f881d61294dc6f5a6a3e8d75567e18492a631
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Thu Nov 25 09:52:30 2010 +1000
+
+    doc: Document altosui "Site Map" tab
+
+commit f01096c4b42f9a4720ed0414826c2a283a992545
+Merge: 357826a 3fbefb3
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Thu Nov 25 09:10:50 2010 +1000
+
+    Merge branch 'buttonbox' of git://git.gag.com/fw/altos into buttonbox
+
+commit 3fbefb3eea981d34a09496cf8abf0119de2e35bf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Nov 24 14:57:57 2010 -0800
+
+    Move altosui to the top level, placing libaltos inside it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 357826aa9c7b42c59f5d52b8eb016d73b6da0c7f
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Thu Nov 25 09:07:34 2010 +1000
+
+    docs: Document altosui "Graph Data" button
+
+commit 7811e6dfa6caf10251da7df7c24b98cdc3787892
+Merge: 71b1949 7a50837
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Thu Nov 25 08:47:36 2010 +1000
+
+    Merge branch 'buttonbox' of git://git.gag.com/fw/altos into buttonbox
+
+commit 7a50837ea0d92db3f469f197ec8210aee22aa143
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Nov 24 10:55:18 2010 -0800
+
+    altosui: Make sure packet mode is turned off when the connection fails
+    
+    When the packet connection times out, turn packet mode off when
+    closing the serial port.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7d90e2f6009e060fb59c519f7e564483a7ca6872
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Nov 23 20:17:44 2010 -0800
+
+    altosui: Let people fire igniters that don't read as 'ready'
+    
+    This provides for igniter testing with LEDs or other materials that
+    don't look like regular igniters.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f3233985a132e1d660e6df12d0056b6729f16faf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Nov 23 19:09:31 2010 -0800
+
+    altosui: Disable radio configation over packet link.
+    
+    Attempting to configure the radio over the packet link will only end
+    up confusing the user, so disable it. This also works around a bug in
+    older TM code which would lock up when trying to do this.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6cd9be22f06f21d12ee2f668989d83d3c61d14c0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Nov 23 19:08:07 2010 -0800
+
+    altosui: New AltosSerial.set_radio function sets channel/call
+    
+    Use this anytime you need to set the device radio channel and call
+    sign, either for telemetry reception or packet mode origination. This
+    uses the saved callsign and per-device radio channel number. Do not
+    use this when opening a telemetrum as there won't be a saved channel number.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ed7cf7d262fcf7c0c677c2fb981582b571de9e5e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Nov 23 19:04:55 2010 -0800
+
+    altosui: Make AltosSerial.flush_input keep reading while non-empty
+    
+    Flushing the input buffer can take a while, especially over the packet
+    link. Keep reading while stuff is appearing on the reply queue.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3b9db8c82d26a6a2e43d4ca40742fc1bdc502380
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Nov 23 19:02:54 2010 -0800
+
+    altos: Make radio test command careful with the radio mutex.
+    
+    Remember whether the radio test mode is on or off and don't try to do
+    either of them twice to prevent the mutex from being acquired or
+    released twice.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 54468e5dc567aaac5c5c20e921859b7cec28bb88
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Nov 23 18:57:49 2010 -0800
+
+    altos: Don't abort radio transmissions with ao_radio_abort
+    
+    We only want to abort pending radio reception to release the radio for
+    other use, or to change the radio channel. Let radio transmission
+    proceed. This fixes a problem with using packet mode to configure the
+    radio channel; if the packet transmission is aborted, the TM ends up
+    wedged.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d873dc28f0752aeb58a6263e42bdd5b9095bd392
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Nov 23 18:56:46 2010 -0800
+
+    altos: remove unused variable from ao_igniter
+    
+    The 'status' variable used to hold a reported status value from the
+    igniter after firing, but we ignore that now.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 71b1949e50f4533bcf44537da65b19bc67863c8e
+Merge: a79225c f1892b1
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Wed Nov 24 12:14:11 2010 +1000
+
+    Merge branch 'buttonbox' of git://git.gag.com/fw/altos into buttonbox
+
+commit f1892b137b1de3d6caf0293bd40ed5c3e4948066
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Nov 23 18:58:11 2010 -0700
+
+    lose the placeholder on how GPS works, as it's going to be a
+    while before I tackle that, if ever.
+
+commit a79225c215f17fa5218ddd9db4fc3f5c563a9f74
+Merge: 84cd5d4 853b711
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Wed Nov 24 11:55:14 2010 +1000
+
+    Merge branch 'buttonbox' of git://git.gag.com/fw/altos into buttonbox
+
+commit 853b7112e34212040c4cb7289f9cfdb2f3ea9f90
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Nov 23 18:53:18 2010 -0700
+
+    merge Keith's AltosUI documention into "the big book"
+
+commit 84cd5d42d8b5659463544fe2a400758b56478609
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Wed Nov 24 02:13:32 2010 +1000
+
+    altosui: sitemap uses rocket gps if no pad gps
+
+commit c7119c21baa9d4ca681975b8613ade6593f65577
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Wed Nov 24 02:11:36 2010 +1000
+
+    altosui: don't switch away from user selected tab
+
+commit ae55a107f12546dc65f04618c7abc17beb920d73
+Merge: d1005f6 737f2fd
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Wed Nov 24 01:53:46 2010 +1000
+
+    Merge branch 'buttonbox' of git://git.gag.com/fw/altos into buttonbox
+
+commit 737f2fdd012202f453120ece117ae5e859b32082
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 22 22:26:19 2010 -0800
+
+    doc: Add internal documentation for AltOS
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5523e7d55ecc8d310e495fa4f5115f7483c42d65
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Nov 22 21:07:10 2010 -0700
+
+    add a rudimentary --help for command line use
+
+commit d1005f68376d695039c314b8d7a68bbf9acbca4f
+Merge: 9a83e0d 22c0978
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Tue Nov 23 10:14:55 2010 +1000
+
+    Merge branch 'buttonbox' of git://git.gag.com/fw/altos into buttonbox
+
+commit 22c09781af1df4b38562b577e9926c23e4a397f2
+Merge: b27327a a79606a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 22 16:02:22 2010 -0800
+
+    Merge remote branch 'origin/buttonbox' into buttonbox
+
+commit b27327a05d249eaf969b67d2a8d12fc6a93841f0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 22 15:56:04 2010 -0800
+
+    altos: assume igniter worked.
+    
+    Many igniters don't go open when fired, so there's no way
+    to know if they worked. Assume they did as a failed igniter is
+    unlikely to do anything when fired again anyways.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 68323cbb222f1f33198a42abaa0550af22f75a93
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 22 15:53:27 2010 -0800
+
+    altosui: Close serial port when debug link fails
+    
+    If the debug connection isn't working, close down the serial port when
+    reporting the failure.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9a83e0dc79f7a7467c7814d58daa2a2b89e50972
+Merge: 902735f a79606a
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Tue Nov 23 08:07:04 2010 +1000
+
+    Merge branch 'buttonbox' of git://git.gag.com/fw/altos into buttonbox
+
+commit a79606a6507fc01a74910f7959e84c4e9a730714
+Author: Bob Finch <w9ya@qrparci.net>
+Date:   Mon Nov 22 12:24:42 2010 -0700
+
+    Added PKGBUILDs for deps into contribs
+
+commit 377ee7e90ecd028f984cd1abce96b2efc3b5b977
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Nov 21 14:03:17 2010 -0800
+
+    altos: Add on/off modes to 'C' command
+    
+    This lets the user turn the radio on/off and then invoke other commands.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 902735ffbfdd97672d52b09f17cdcd619193fd05
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Mon Nov 22 05:29:26 2010 +1000
+
+    altosui: keep sitemap more centred on rocket
+
+commit b85df38b5611e45cb9296df07b720badf74ac26e
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Mon Nov 22 05:22:17 2010 +1000
+
+    altosui: improve sitemap scrolling behaviour
+
+commit 4a9ded5b39ed08e13abc2cddba8b712f62b983f2
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 17:39:50 2010 +1000
+
+    AltosSiteMap: ensure buffer around active tile
+
+commit ec47bc93a487614714a752cb30ec9fe3d8f72929
+Merge: 0393830 e7954c8
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 16:08:37 2010 +1000
+
+    Merge branch 'buttonbox' of git://git.gag.com/fw/altos into buttonbox
+
+commit e7954c820763f80e993f9f822e837725cf36af84
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 20 22:03:26 2010 -0800
+
+    altosui: When fixing eeprom gps time information, make GPS data valid
+    
+    Eeprom files may be missing the GPS time (due to a firmware bug). Working
+    around this involves finding the next valid GPS time and using that to
+    create a fake GPS time entry. However, that next GPS time may not
+    be locked or may have few sats as it is from the boost stage of the
+    flight. Fix this by simply forcing the fake time packet to have
+    4 sats and be locked.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0393830f85da5efc96bbdf0d9769b66019c34b33
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 15:13:35 2010 +1000
+
+    AltosSiteMap: limit nr of tiles to 200x200
+
+commit a08b2a6363c194195db92029743f6612676373ce
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 15:03:21 2010 +1000
+
+    AltosSiteMap: never accept 0,0 as lat/long
+
+commit 84e570d8a8a52e0d358582135ec1b3a12be94c26
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 14:45:10 2010 +1000
+
+    AltosSiteMap: refactor tile collection
+
+commit 71e487344395a8efc9cd279aad92f601ff4c6d3d
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 14:05:00 2010 +1000
+
+    AltosSiteMap: thread safe tile addition
+
+commit c040bcd06679484175542208fb564d0271a7fc1b
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 13:19:36 2010 +1000
+
+    AltosSiteMap: try to get new tile construction right
+
+commit c3994dd82d489289ebc99ff9c5fa88f560c023ac
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 13:07:11 2010 +1000
+
+    AltosSiteMap: extend map if rocket goes far away
+
+commit 835b903727a2eabda8d9659cc46e53301f92897c
+Merge: 440a0f3 8789135
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 11:15:02 2010 +1000
+
+    Merge branch 'sitemap' into buttonbox
+    
+    Conflicts:
+    	ao-tools/altosui/AltosSiteMap.java
+
+commit 878913551a1e4e3c8f2b39fa4aeb234880735a1c
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 10:55:22 2010 +1000
+
+    AltosSiteMap: explain tile size better
+
+commit 440a0f3f5130eb0c8e614691892be8c94e7fd3c3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 20 16:55:12 2010 -0800
+
+    altosui: Set site map flight path lines to 6 pixels anti-aliased.
+    
+    Much more visible over the map.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2a7dc3ba36bac81640a9498e0d0caf1470b57c19
+Merge: e5b1ada ece2c86
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 10:45:15 2010 +1000
+
+    Merge branch 'buttonbox' into sitemap
+    
+    Conflicts:
+    	ao-tools/altosui/AltosFlightUI.java
+
+commit 8df185cd95cfecbed8272dd1275d077c5b45535b
+Merge: ece2c86 1e71264
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 20 16:35:48 2010 -0800
+
+    Merge remote branch 'aj/sitemap' into buttonbox
+    
+    Conflicts:
+    	ao-tools/altosui/AltosFlightUI.java
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e5b1adae9b23b98a6321986f5cd67c9d3166b87f
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 10:34:39 2010 +1000
+
+    AltosSiteMap: better gps check, lower zoom
+
+commit ece2c86e2641b2cd613791293526c492b1606aa1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 20 16:19:42 2010 -0800
+
+    altosui: Rewrite info table to mix with scroll pane well. Fix startup size
+    
+    Using a single table for the info table means that the scroll pane
+    automatically picks up the table headers and shows them above the
+    scrollable view.
+    
+    This patch also fixes the application size at startup so that no
+    scrollbar is required in the info table, and the window is < 800x600.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1e712647dd6df1e77650db705f3ac32a3c8f6907
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 08:58:44 2010 +1000
+
+    altosui: reindent
+
+commit a59a204e188e40ec8848a0dc63d6de710cee3039
+Merge: 8263630 37f0201
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 08:56:13 2010 +1000
+
+    Merge branch 'buttonbox' into sitemap
+
+commit 82636305021c41d676f5f0f11378724fe0de0079
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 08:44:13 2010 +1000
+
+    AltosSiteMap: be more polite about preferred size
+
+commit 37f0201d724693528f37ac7d275f68f90cf94da0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 20 14:31:23 2010 -0800
+
+    altosui: change descent tab formatting to four columns
+    
+    This places labels to the left of each field. For igniter voltages,
+    it uses three columns for the labels.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 66ebd954d9c9a44a8db0ee713c682e39306fabd8
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 08:28:24 2010 +1000
+
+    Add GrabNDrag.java
+
+commit 72f5e05f9f0055f2cef8b840812f090556c94338
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 08:18:39 2010 +1000
+
+    AltosSiteMap: major refactoring
+
+commit b47517d4c2e49f6f7b9954d2c85f96397fe1103e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 20 14:06:37 2010 -0800
+
+    altosui: re-indent
+
+commit 6f8bc2ad20b715343e0510563ab0f14787ef3e07
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 01:34:52 2010 +1000
+
+    AltosDescent: switch elev from height to range
+
+commit 89f44c5587ea4f927d5e398b6af919df0d6561c3
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 01:27:01 2010 +1000
+
+    AltosAscent/Descent: tidy up layout
+
+commit 51e403145d28ac913e36d205077a613845596be2
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 00:17:51 2010 +1000
+
+    AltosSiteMapTile: draw boost circle as well as landed
+
+commit 25ffe1cc7823895886b4777f310b4bda1c80133b
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 21 00:07:16 2010 +1000
+
+    AltosSiteMap: automatic fetching of map data
+
+commit 20f714bbe3137de8fb7491b39985021fd1774930
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sat Nov 20 22:49:51 2010 +1000
+
+    AltosSiteMapTile: seperate map and drawing layers
+
+commit 58f8d069ce9488e2987b8e92caa69fe68cda7569
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sat Nov 20 21:06:37 2010 +1000
+
+    AltosSiteMap: add autoscroll and grabndrag scroll
+
+commit 74cab8503b51ba6fb05a4d12a031c749e870b0ef
+Merge: 0ecf033 9a99cab
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sat Nov 20 18:20:45 2010 +1000
+
+    Merge branch 'buttonbox' of git://git.gag.com/fw/altos into buttonbox
+
+commit 0ecf033110084f1a8be98282d7029dc14f70dab5
+Merge: 081fbd5 71c41ea
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sat Nov 20 18:14:30 2010 +1000
+
+    Merge branch 'buttonbox' of git://git.gag.com/fw/altos into buttonbox
+
+commit 9a99cabc1c34c657fc95246192ba6d330f5f22d3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 20 00:13:58 2010 -0800
+
+    altosui: Fix channel changing in flight UI to actually work
+    
+    Replacing the menu with a combo box required reworking the way events
+    are delivered from that widget back to the channel changing
+    function. Just delete the old magic and use the JComboBox action
+    listener directly.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 71c41eadd12c3ece5fffce7669e4991778046d4e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 20 00:09:03 2010 -0800
+
+    altosui: Initialize display thread state in constructor instead of run
+    
+    Some state will get set before run is called, initializing it there
+    can be too late.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 081fbd5715f9d3d81d98e149fb95d40447c07a79
+Merge: 90b9bc4 7920ed5
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sat Nov 20 17:40:49 2010 +1000
+
+    Merge branch 'buttonbox' of git://git.gag.com/fw/altos into buttonbox
+    
+    Conflicts:
+    	ao-tools/altosui/AltosFlightUI.java
+
+commit 7920ed5c34b088f45ce4213b061ddd1ffe22cee8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 19 23:18:51 2010 -0800
+
+    altosui: calling thread.interrupt with null thread doesn't work well
+    
+    This was a left-over from debugging the previous patch.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8c8dc3794c7b5fa5a5b43b1c461d6c8bb3ab425d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 19 23:09:15 2010 -0800
+
+    altosui: When switching log files, don't terminate log thread
+    
+    The log thread automatically switches output files when the incoming
+    telemetry changes. Don't use 'close' for that as 'close' terminates
+    the log thread as well as closing the file. Create a new
+    'close_log_file' function which just closes the file.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 594e80572821f1848db062d0cff18ca8bf0d90ce
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 19 22:44:48 2010 -0800
+
+    altosui: switch channel selector to combo box. Shorten displayed device names
+    
+    A combo box displays the current value, which is quite nice to
+    have. Add a 'toShortString' for AltosDevice so that the window frames
+    and error messages don't have extra spaces generated by the
+    altos_device toString method.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fa07afc73bc5eccff8464a2def05ad600da33c97
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Nov 19 23:33:42 2010 -0700
+
+    update turnon scripts to use stashed copies of stable release firmware
+
+commit 9ffc2eb53a47e435f39b02896b0e43ae5f47f450
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 19 18:25:48 2010 -0800
+
+    altosui: Use timeouts to recover from broken packet links.
+    
+    This puts timeouts every place the system reads from the packet link
+    and aborts the in-progress operation if it takes more than a second to
+    get a response.
+    
+    Also mixed in here are persistent igniter status displays for the
+    ejection testing UI.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 68078eab3c07d8dc83302747cf6f3dcb1797c6ce
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 19 20:44:29 2010 +0800
+
+    doc: Document the 'Flash Image' operation.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b4bdda65488e8ef27d2889cb6cc8eda3c5d50e0a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 19 20:29:14 2010 +0800
+
+    doc: git ignore generated doc files
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f0542085de2139ef562af068ec05fa73f47c73b1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 19 20:26:49 2010 +0800
+
+    doc: Add preliminary altosui documentation
+    
+    Also, update the Makefile to allow for further documents to be added
+    without a lot of custom rules.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0e7a10f71803d60f8b34c5a91efd220449442769
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 19 17:16:03 2010 +0800
+
+    altosui: Clean up global AltosUI configuration settings dialog
+    
+    This dialog had a mish-mash of styles and was confusing.
+    Now it's got a label for each line, and suitable setters for
+    each element
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8f72f08839346fb225238420324f0edcd070e531
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 19 17:14:17 2010 +0800
+
+    altosui: Unify datafile selection to AltosDataChooser
+    
+    Instead of having several separate intefaces, use a single dialog for
+    selecting data files for graph/export/replay.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 24ffcf86c43290ce0f70fb4ee0984b3debdb8a5f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 19 15:41:30 2010 +0800
+
+    altosui: Add igniter ground testing code
+    
+    Not yet hooked up, but the UI is finished.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 90b9bc4475011bead7117ed72fa5efa0f77b2813
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Fri Nov 19 13:30:00 2010 +1000
+
+    AltosSiteMapTile: adjust scale to 1 nmi per tile
+
+commit fa45336062523838ba8abb08427cdc4d9c7de7a8
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Fri Nov 19 13:17:29 2010 +1000
+
+    AltosSiteMapTile: adjust centering calculation
+
+commit fda93afcd8aa4133b0e5f008b824d072e338d0ed
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Fri Nov 19 13:02:05 2010 +1000
+
+    AltosSiteMapTile: autoscale to about 2 nmi per tile
+
+commit 483346a03c94b200692f5e6d59f3feee4dcf2ace
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Fri Nov 19 12:09:46 2010 +1000
+
+    altosui: tile site maps
+
+commit 939be6793238a275b7682ecc376fed14379cf044
+Merge: e68fe94 1a4b6e9
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Thu Nov 18 05:54:06 2010 +1000
+
+    Merge branch 'buttonbox' of git://git.gag.com/fw/altos into buttonbox
+    
+    Conflicts:
+    	ao-tools/altosui/AltosFlightUI.java
+
+commit 1a4b6e96f823035b113f01d1bdfd61afc1f33e25
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Nov 16 22:46:29 2010 +0800
+
+    altosui: Add igniter status to ascent and descent tabs
+    
+    Monitor igniters during all phases of the flight.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d0eb41619544ead6d9dab3a8d024a12936c9cdd0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Nov 16 22:20:00 2010 +0800
+
+    altosui: Cleanup flight UI layout
+    
+    Use common constants for fonts and insets
+    Shrink fonts so that the window is < 600 pixels tall.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fcca333cda64be35f0c9fb0109eef1be3709dddd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Nov 16 21:49:59 2010 +0800
+
+    altosui: Add callsign configuration in AltosUI configuration dialog
+    
+    This callsign is used during packet communication.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d1dbe3b69e6f95ef8ecd4cf959863b922ab47c66
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Nov 15 11:08:00 2010 -0700
+
+    add a paragraph about forcing TM back to idle mode if an accel cal goes badly
+
+commit 39e371561469d8e5059638ffa4e7075f391de268
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 15 23:14:51 2010 +0800
+
+    altosui: add reboot button to telemetrum configuration UI
+    
+    This lets you reconfigure and reboot telemetrum, including over the
+    radio link.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 257e97137325f5dbbd6aa034f20fd6937b67df90
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 15 22:38:35 2010 +0800
+
+    altosui: eliminate menu bar, moving elements to buttons.
+    
+    This adds a new 'configure AltosUI' dialog to set the log directory
+    and voice preferences.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 524644d8d8ce3f8a5a914ecfc7e2a8d474d89095
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 15 22:04:44 2010 +0800
+
+    altosui: oops, missed a file in the previous commit
+    
+    AltosSerialInUseException.java just defines a new exception, thanks to
+    java for making this live in a separate file.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 511903704f7e1b22e88dd3e3cc35fd3c0583820e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Nov 14 03:26:57 2010 -0800
+
+    altosui: With --replay option, exit when replay window is closed
+    
+    Otherwise, the application hangs around forever.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 11c95f687b1f68d35fa1a0af2c4e7982b8bb226a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 13 17:09:51 2010 -0800
+
+    altosui: Replace flight status table with labels, fix resize.
+    
+    There's no reason to use a table for the flight status data,
+    replace that with a selection of widgets instead.
+    
+    Also, set all of the grid bag constraints for the various flight
+    status displays so that resize does something sensible.
+    
+    Adds a scrollbar to the table display so that it can shrink.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit dcfa56498d1b65a213b8aba9cbd6c4806532383c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 13 16:07:04 2010 -0800
+
+    altosui: Open serial device at 'new' time. Prohibit duplicate opens.
+    
+    With the per-serial UI, there's never a reason to create a serial
+    device without opening it right away. This eliminates the bug caused
+    by not opening the serial device for telemetry reception.
+    
+    Serial devices can now be opened only once; this eliminates errors
+    when trying to reflash or configure devices while receiving telemetry.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8463ffcaca6bcd31e645aba71c171f548dce96d8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 13 15:19:14 2010 -0800
+
+    altosui: Eliminate unncessary import altosui lines
+    
+    Java appears to automatically import every module from the current
+    package.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 566c6486c8815ae241e0b116a93b1a0ff4783831
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sat Nov 13 12:19:12 2010 -0700
+
+    continuing to work on the docs
+
+commit e68fe9454352087889c560d95797922493117acb
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 14 00:59:01 2010 +1000
+
+    AltosSiteMap: add targeting circles around landing site
+
+commit 1e7e02987276847274493312202d22222c953149
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 14 00:57:45 2010 +1000
+
+    AltosTelemetryReader: actually open serial port
+
+commit 9c32b93ef5fb43558fb0179ea1b047e35b7ed6e8
+Merge: 991541f a6f30fa
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Nov 14 00:29:11 2010 +1000
+
+    Merge branch 'buttonbox' of git://git.gag.com/fw/altos into buttonbox
+
+commit a6f30fae906bd87dff192c5fd4d10df283f99930
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 12 17:02:22 2010 -0800
+
+    altosui: Add RF calibration to TeleMetrum config dialog
+    
+    I think that's the last user-settable value.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1bdc6166f3bc5ce3f8e55acb1484923781412e21
+Merge: f111871 5c6a533
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Nov 12 17:32:43 2010 -0700
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit f1118717780a81f9257d2eed7828b66538deb8a8
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Nov 12 17:32:21 2010 -0700
+
+    fold in content from Keith's email on the re-flashing subject
+
+commit 7def9dd0d0a4ce9cf7c65de573100e664f278717
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Nov 12 10:58:54 2010 -0700
+
+    first cut at instructions on how to re-flash TM and TD devices based on email
+    reply to a user who asked
+
+commit 991541f57f065f429c6ec425efd6ac731280b2c1
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Fri Nov 12 23:42:42 2010 +1000
+
+    better error behaviour if no map
+
+commit 1bcfa22de7821984149db10cb79913efed36b41e
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Fri Nov 12 23:29:40 2010 +1000
+
+    pull up maps for arbitrary locations
+
+commit beb6c881ec006241c7d2820c64e5381131d41180
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Fri Nov 12 03:24:26 2010 +1000
+
+    make infotable scrollable, revert its fontsize to 14
+
+commit 0327c1da01a3f6ede01f05c1d775651a57fd0c68
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Fri Nov 12 02:08:58 2010 +1000
+
+    tabs -> spaces
+
+commit 81e7b43ecad666e2e2310c7c94184f888bc86585
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Fri Nov 12 02:07:41 2010 +1000
+
+    add site map tab, at least for QRS launches
+
+commit 5394548fa5c7bdbfcc01e8aa19e93e1cf6345e2a
+Merge: 891e629 75f7698
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Nov 10 22:11:21 2010 -0800
+
+    Merge remote branch 'aj/buttonbox' into buttonbox
+
+commit 75f7698b99a661ed17a91748a99699fa6761772a
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Thu Nov 11 16:06:32 2010 +1000
+
+    add compass bearing during descent
+
+commit cc0a730de093c49be2a921101d27622b6f592e92
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Thu Nov 11 15:57:52 2010 +1000
+
+    add compass bearing to voice output
+
+commit 317ec72a34906faad88c6924e634617b074e71db
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Thu Nov 11 15:52:01 2010 +1000
+
+    use grayled.png for off
+
+commit 8503943e3613f8670b128012b12ff14fb54321d7
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Thu Nov 11 15:45:43 2010 +1000
+
+    reduce font size for FlightInfoTable
+
+commit 3ffaa5d1c00b28be20fd4a26deb7bd41d953e92a
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Thu Nov 11 15:43:05 2010 +1000
+
+    read preferences for --replay
+
+commit 1f3e091efdfb2fe6f06a066cac60f5d267b94856
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Thu Nov 11 15:40:37 2010 +1000
+
+    add --replay command line argument
+
+commit b16b873723ee3e5097e6725c59ce191119439ad7
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Thu Nov 11 15:38:27 2010 +1000
+
+    use value_font for values
+
+commit 891e629f6ba20654b614f3ca7211a0f1c92670cb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Nov 10 16:28:19 2010 -0800
+
+    altos: Use grey leds when unlit - easier to see
+
+commit 5c6a5335a057be0219450b4b9889c647d8d4a012
+Author: Bob Finch <w9ya@qrparci.net>
+Date:   Mon Nov 1 14:36:41 2010 -0600
+
+    Updated PKGBUILD-git.altos
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b0d31910da592e2f67c47c8fc3e15ce8135d5094
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Nov 9 23:34:32 2010 -0800
+
+    altosui: Add ascent, descent and landed tabs
+    
+    This completes the set of tabs for in-flight status information.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 22d00785188a880700cd372528189a7a15278da9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Nov 9 14:40:58 2010 -0800
+
+    altosui: Add tab UI with 'pad' mode.
+    
+    This creates a multi-tab interface for flight monitoring
+    and includes a special tab for 'pad' mode.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit eb77e806ded99532dc7eaa39c1893f075b028af6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Nov 9 10:21:34 2010 -0800
+
+    altosui: Create abstract interface for flight data display
+    
+    This allows the implementation of the flight data display to occur in
+    the flight UI instead of the display thread.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a0a92c605e238277c9881545a7226e53b5dbc295
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 8 22:17:26 2010 -0800
+
+    altosui: Fix more calls to AltosPreferences.channel()
+    
+    Oops. Two more.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 94f4a50d6430cc8280cbdaa9f39d3cb858d0e077
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 8 22:10:46 2010 -0800
+
+    altosui: Fix channel setting at serial open time
+    
+    Was using the previous non-device-specific preferences API.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6b17d276271faa8a420a1c8f6be17faaa0c7043c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 8 22:07:04 2010 -0800
+
+    altosui: Create buttons for main actions
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 16916be51d746b1e1057b3219e5bec8f8814259e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 5 23:44:47 2010 -0700
+
+    altosui: Split out flight monitoring to separate window
+    
+    This creates a per-TD (or replay) window to contain the flight
+    monitoring information, allowing multiple monitors.
+    
+    This also adds per-TD preferences for monitoring channel.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ca931b1c484bd6b64617370e81b16e169fdae1c2
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Oct 6 17:47:44 2010 -0600
+
+    update changelogs for Debian build
+
 commit 811ced628d586134224c1b501b40ce9eb435fc7c
 Author: Keith Packard <keithp@keithp.com>
 Date:   Wed Oct 6 16:42:27 2010 -0700
