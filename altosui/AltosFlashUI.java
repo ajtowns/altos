@@ -49,24 +49,27 @@ public class AltosFlashUI
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == cancel) {
-			abort();
+			setVisible(false);
 			dispose();
 		} else {
 			String	cmd = e.getActionCommand();
-			if (cmd.equals("done"))
-				;
-			else if (cmd.equals("start")) {
+			if (e.getID() == -1) {
+				JOptionPane.showMessageDialog(frame,
+							      e.getActionCommand(),
+							      file.toString(),
+							      JOptionPane.ERROR_MESSAGE);
+				setVisible(false);
+				dispose();
+			} else if (cmd.equals("done")) {
+				setVisible(false);
+				dispose();
+			} else if (cmd.equals("start")) {
 				setVisible(true);
 			} else {
 				pbar.setValue(e.getID());
 				pbar.setString(cmd);
 			}
 		}
-	}
-
-	public void abort() {
-		if (flash != null)
-			flash.abort();
 	}
 
 	public void build_dialog() {
@@ -186,7 +189,6 @@ public class AltosFlashUI
 				file_value.setText(file.toString());
 				setVisible(true);
 				flash.flash();
-				flash = null;
 			}
 		} catch (FileNotFoundException ee) {
 			JOptionPane.showMessageDialog(frame,
@@ -205,9 +207,6 @@ public class AltosFlashUI
 						      file.toString(),
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (InterruptedException ie) {
-		} finally {
-			abort();
 		}
-		dispose();
 	}
 }

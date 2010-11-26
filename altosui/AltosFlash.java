@@ -28,7 +28,7 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class AltosFlash {
+public class AltosFlash implements Runnable {
 	File		file;
 	FileInputStream	input;
 	AltosHexfile	image;
@@ -197,23 +197,36 @@ public class AltosFlash {
 	};
 
 	public void clock_init() throws IOException, InterruptedException {
-		debug.debug_instr(set_clkcon_fast);
+		if (debug != null) {
+			debug.debug_instr(set_clkcon_fast);
 
-		byte	status;
-		for (int times = 0; times < 20; times++) {
-			Thread.sleep(1);
-			status = debug.debug_instr(get_sleep);
-			if ((status & SLEEP_XOSC_STB) != 0)
-				return;
+			byte	status;
+			for (int times = 0; times < 20; times++) {
+				Thread.sleep(1);
+				status = debug.debug_instr(get_sleep);
+				if ((status & SLEEP_XOSC_STB) != 0)
+					return;
+			}
+			throw new IOException("Failed to initialize target clock");
 		}
-		throw new IOException("Failed to initialize target clock");
 	}
 
-	void action(String s, int percent) {
-		if (listener != null && !aborted)
-			listener.actionPerformed(new ActionEvent(this,
-								 percent,
-								 s));
+	void action(String in_s, int in_percent) {
+		final String s = in_s;
+		final int percent = in_percent;
+		if (listener != null && !aborted) {
+			Runnable r = new Runnable() {
+					public void run() {
+						try {
+							listener.actionPerformed(new ActionEvent(this,
+												 percent,
+												 s));
+						} catch (Exception ex) {
+						}
+					}
+				};
+			SwingUtilities.invokeLater(r);
+		}
 	}
 
 	void action(int part, int total) {
@@ -223,7 +236,7 @@ public class AltosFlash {
 		       percent);
 	}
 
-	void run(int pc) throws IOException, InterruptedException {
+	void altos_run(int pc) throws IOException, InterruptedException {
 		debug.set_pc(pc);
 		int set_pc = debug.get_pc();
 		if (pc != set_pc)
@@ -239,74 +252,96 @@ public class AltosFlash {
 		throw new IOException("Failed to execute program on target");
 	}
 
-	public void flash() throws IOException, FileNotFoundException, InterruptedException {
-		if (!check_rom_config())
-			throw new IOException("Invalid rom config settings");
-		if (image.address + image.data.length > 0x8000)
-			throw new IOException(String.format("Flash image too long %d",
-							    image.address +
-							    image.data.length));
-		if ((image.address & 0x3ff) != 0)
-			throw new IOException(String.format("Flash image must start on page boundary (is 0x%x)",
-							    image.address));
-		int ram_address = 0xf000;
-		int flash_prog = 0xf400;
+	Thread thread;
 
-		/*
-		 * Store desired config values into image
-		 */
-		rom_config.write(image);
-		/*
-		 * Bring up the clock
-		 */
-		clock_init();
+	public void run() {
+		try {
+			if (!check_rom_config())
+				throw new IOException("Invalid rom config settings");
+			if (image.address + image.data.length > 0x8000)
+				throw new IOException(String.format("Flash image too long %d",
+								    image.address +
+								    image.data.length));
+			if ((image.address & 0x3ff) != 0)
+				throw new IOException(String.format("Flash image must start on page boundary (is 0x%x)",
+								    image.address));
+			int ram_address = 0xf000;
+			int flash_prog = 0xf400;
 
-		int remain = image.data.length;
-		int flash_addr = image.address;
-		int image_start = 0;
+			/*
+			 * Store desired config values into image
+			 */
+			rom_config.write(image);
+			/*
+			 * Bring up the clock
+			 */
+			clock_init();
 
-		action("start", 0);
-		action(0, image.data.length);
-		while (remain > 0 && !aborted) {
-			int this_time = remain;
-			if (this_time > 0x400)
-				this_time = 0x400;
+			int remain = image.data.length;
+			int flash_addr = image.address;
+			int image_start = 0;
 
-			/* write the data */
-			debug.write_memory(ram_address, image.data,
-					   image_start, this_time);
+			action("start", 0);
+			action(0, image.data.length);
+			while (remain > 0 && !aborted) {
+				int this_time = remain;
+				if (this_time > 0x400)
+					this_time = 0x400;
 
-			/* write the flash program */
-			byte[] flash_page = make_flash_page(flash_addr,
-							    ram_address,
-							    this_time);
-			debug.write_memory(flash_prog, flash_page);
+				if (debug != null) {
+					/* write the data */
+					debug.write_memory(ram_address, image.data,
+							   image_start, this_time);
 
-			run(flash_prog);
+					/* write the flash program */
+					byte[] flash_page = make_flash_page(flash_addr,
+									    ram_address,
+									    this_time);
+					debug.write_memory(flash_prog, flash_page);
 
-			byte[] check = debug.read_memory(flash_addr, this_time);
-			for (int i = 0; i < this_time; i++)
-				if (check[i] != image.data[image_start + i])
-					throw new IOException(String.format("Flash write failed at 0x%x (%02x != %02x)",
-									    image.address + image_start + i,
-									    check[i], image.data[image_start + i]));
-			remain -= this_time;
-			flash_addr += this_time;
-			image_start += this_time;
+					altos_run(flash_prog);
+					byte[] check = debug.read_memory(flash_addr, this_time);
+					for (int i = 0; i < this_time; i++)
+						if (check[i] != image.data[image_start + i])
+							throw new IOException(String.format("Flash write failed at 0x%x (%02x != %02x)",
+											    image.address + image_start + i,
+											    check[i], image.data[image_start + i]));
+				} else {
+					Thread.sleep(100);
+				}
 
-			action(image.data.length - remain, image.data.length);
+				remain -= this_time;
+				flash_addr += this_time;
+				image_start += this_time;
+
+				action(image.data.length - remain, image.data.length);
+			}
+			if (!aborted) {
+				action("done", 100);
+				if (debug != null) {
+					debug.set_pc(image.address);
+					debug.resume();
+				}
+			}
+			if (debug != null)
+				debug.close();
+		} catch (IOException ie) {
+			action(ie.getMessage(), -1);
+			abort();
+		} catch (InterruptedException ie) {
+			abort();
 		}
-		if (!aborted) {
-			action("done", 100);
-			debug.set_pc(image.address);
-			debug.resume();
-		}
-		debug.close();
 	}
 
-	public void abort() {
+	public void flash() {
+		thread = new Thread(this);
+		thread.start();
+	}
+
+	synchronized public void abort() {
 		aborted = true;
-		debug.close();
+		if (debug != null)
+			debug.close();
 	}
 
 	public void addActionListener(ActionListener l) {
@@ -314,6 +349,8 @@ public class AltosFlash {
 	}
 
 	public boolean check_rom_config() {
+		if (debug == null)
+			return true;
 		if (rom_config == null)
 			rom_config = debug.romconfig();
 		return rom_config != null && rom_config.valid();
@@ -333,10 +370,11 @@ public class AltosFlash {
 		throws IOException, FileNotFoundException, AltosSerialInUseException, InterruptedException {
 		file = in_file;
 		debug_dongle = in_debug_dongle;
-		debug = new AltosDebug(in_debug_dongle);
+		if (debug_dongle != null)
+			debug = new AltosDebug(in_debug_dongle);
 		input = new FileInputStream(file);
 		image = new AltosHexfile(input);
-		if (!debug.check_connection()) {
+		if (debug != null && !debug.check_connection()) {
 			debug.close();
 			throw new IOException("Debug port not connected");
 		}
