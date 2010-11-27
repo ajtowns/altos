@@ -21,16 +21,13 @@ static char
 ao_packet_getchar(void) __critical
 {
 	char c;
-	while ((c = ao_packet_pollchar()) == AO_READ_AGAIN)
-	{
+	while ((c = ao_packet_pollchar()) == AO_READ_AGAIN) {
 		if (!ao_packet_enable)
 			break;
 		if (ao_packet_master_sleeping)
-			ao_wake_task(&ao_packet_task);
+			ao_wakeup(&ao_packet_master_sleeping);
 		ao_usb_flush();
 		ao_sleep(&ao_stdin_ready);
-		if (!ao_packet_enable)
-			break;
 	}
 	return c;
 }
@@ -41,7 +38,7 @@ ao_packet_echo(void) __reentrant
 	uint8_t	c;
 	while (ao_packet_enable) {
 		c = ao_packet_getchar();
-		if (ao_packet_enable)
+		if (c != AO_READ_AGAIN)
 			ao_usb_putchar(c);
 	}
 	ao_exit();
@@ -97,7 +94,8 @@ ao_packet_master(void)
 			if (ao_rx_packet.packet.len)
 				ao_packet_master_busy();
 			ao_packet_master_sleeping = 1;
-			ao_delay(ao_packet_master_delay);
+			ao_alarm(ao_packet_master_delay);
+			ao_sleep(&ao_packet_master_sleeping);
 			ao_packet_master_sleeping = 0;
 		}
 	}
@@ -126,8 +124,8 @@ ao_packet_forward(void) __reentrant
 		ao_delay(AO_MS_TO_TICKS(100));
 	ao_packet_enable = 0;
 	while (ao_packet_echo_task.wchan || ao_packet_task.wchan) {
-		if (ao_packet_echo_task.wchan)
-			ao_wake_task(&ao_packet_echo_task);
+		ao_radio_recv_abort();
+		ao_wakeup(&ao_stdin_ready);
 		ao_delay(AO_MS_TO_TICKS(10));
 	}
 }

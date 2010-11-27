@@ -377,8 +377,13 @@ ao_radio_recv(__xdata void *packet, uint8_t size) __reentrant
 			    DMA_CFG1_PRIORITY_HIGH);
 	ao_dma_start(ao_radio_dma);
 	RFST = RFST_SRX;
+
+	/* Wait for DMA to be done, for the radio receive process to
+	 * get aborted or for a receive timeout to fire
+	 */
 	__critical while (!ao_radio_dma_done && !ao_radio_abort)
-			   ao_sleep(&ao_radio_dma_done);
+			   if (ao_sleep(&ao_radio_dma_done))
+				   break;
 
 	/* If recv was aborted, clean up by stopping the DMA engine
 	 * and idling the radio

@@ -69,10 +69,6 @@ ao_sleep(__xdata void *wchan);
 void
 ao_wakeup(__xdata void *wchan);
 
-/* Wake up a specific task */
-void
-ao_wake_task(__xdata struct ao_task *task);
-
 /* set an alarm to go off in 'delay' ticks */
 void
 ao_alarm(uint16_t delay);

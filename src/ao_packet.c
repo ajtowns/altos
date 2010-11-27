@@ -117,7 +117,7 @@ ao_packet_flush(void)
 	 * then poke the master to send all queued data
 	 */
 	if (ao_packet_tx_used && ao_packet_master_sleeping)
-		ao_wake_task(&ao_packet_task);
+		ao_wakeup(&ao_packet_master_sleeping);
 }
 #endif /* PACKET_HAS_MASTER */
 

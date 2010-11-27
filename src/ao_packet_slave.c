@@ -44,12 +44,13 @@ ao_packet_slave_stop(void)
 {
 	if (ao_packet_enable) {
 		ao_packet_enable = 0;
-		ao_radio_recv_abort();
 		while (ao_packet_task.wchan) {
-			ao_wake_task(&ao_packet_task);
-			ao_yield();
+			ao_radio_recv_abort();
+			ao_delay(AO_MS_TO_TICKS(10));
 		}
+		ao_radio_get();
 		ao_radio_set_telemetry();
+		ao_radio_put();
 	}
 }
 

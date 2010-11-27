@@ -204,12 +204,11 @@ ao_sleep(__xdata void *wchan)
 		ao_cur_task->wchan = wchan;
 	}
 	ao_yield();
+	ao_cur_task->alarm = 0;
 	if (ao_cur_task->wchan) {
 		ao_cur_task->wchan = NULL;
-		ao_cur_task->alarm = 0;
 		return 1;
 	}
-	ao_cur_task->alarm = 0;
 	return 0;
 }
 
@@ -231,12 +230,6 @@ ao_alarm(uint16_t delay)
 	 */
 	if (!(ao_cur_task->alarm = ao_time() + delay + 1))
 		ao_cur_task->alarm = 1;
-}
-
-void
-ao_wake_task(__xdata struct ao_task *task)
-{
-	task->wchan = NULL;
 }
 
 void
