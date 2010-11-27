@@ -391,13 +391,9 @@ ao_cmd_init(void);
  * ao_dma.c
  */
 
-/* Allocate a DMA channel. the 'done' parameter will be set
- * when the dma is finished or aborted and will be used to
- * wakeup any waiters
+/* Allocate a DMA channel. the 'done' parameter will be set when the
+ * dma is finished and will be used to wakeup any waiters
  */
-
-#define AO_DMA_DONE	1
-#define AO_DMA_ABORTED	2
 
 uint8_t
 ao_dma_alloc(__xdata uint8_t * done);
@@ -838,6 +834,15 @@ struct ao_telemetry {
 	struct ao_gps_tracking_data	gps_tracking;
 };
 
+/*
+ * ao_radio_recv tacks on rssi and status bytes
+ */
+struct ao_telemetry_recv {
+	struct ao_telemetry	telemetry;
+	int8_t			rssi;
+	uint8_t			status;
+};
+
 /* Set delay between telemetry reports (0 to disable) */
 
 #define AO_TELEMETRY_INTERVAL_PAD	AO_MS_TO_TICKS(1000)
@@ -880,22 +885,16 @@ void
 ao_radio_set_rdf(void);
 
 void
-ao_radio_send(__xdata struct ao_telemetry *telemetry) __reentrant;
-
-struct ao_radio_recv {
-	struct ao_telemetry	telemetry;
-	int8_t			rssi;
-	uint8_t			status;
-};
+ao_radio_send(__xdata void *data, uint8_t size) __reentrant;
 
 uint8_t
-ao_radio_recv(__xdata struct ao_radio_recv *recv) __reentrant;
+ao_radio_recv(__xdata void *data, uint8_t size) __reentrant;
+
+void
+ao_radio_recv_abort(void);
 
 void
 ao_radio_rdf(int ms);
-
-void
-ao_radio_abort(void);
 
 void
 ao_radio_rdf_abort(void);

@@ -77,8 +77,6 @@ ao_packet_master_check_busy(void)
 void
 ao_packet_master(void)
 {
-	uint8_t	status;
-
 	ao_config_get();
 	ao_radio_set_packet();
 	ao_tx_packet.addr = ao_serial_number;
@@ -92,8 +90,7 @@ ao_packet_master(void)
 			ao_packet_master_busy();
 		ao_packet_master_check_busy();
 		ao_alarm(ao_packet_master_delay);
-		status = ao_packet_recv();
-		if (status & AO_DMA_DONE) {
+		if (ao_packet_recv()) {
 			/* if we can transmit data, do so */
 			if (ao_packet_tx_used && ao_tx_packet.len == 0)
 				continue;

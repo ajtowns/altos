@@ -107,8 +107,6 @@ ao_dma_abort(uint8_t id)
 	uint8_t	mask = (1 << id);
 	DMAARM = 0x80 | mask;
 	DMAIRQ &= ~mask;
-	*(ao_dma_done[id]) |= AO_DMA_ABORTED;
-	ao_wakeup(ao_dma_done[id]);
 }
 
 void
@@ -124,7 +122,7 @@ ao_dma_isr(void) __interrupt 8
 			DMAIF = 0;
 			/* Clear the completed ID */
 			DMAIRQ = ~mask;
-			*(ao_dma_done[id]) |= AO_DMA_DONE;
+			*(ao_dma_done[id]) = 1;
 			ao_wakeup(ao_dma_done[id]);
 			break;
 		}

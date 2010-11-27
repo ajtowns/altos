@@ -20,14 +20,11 @@
 void
 ao_packet_slave(void)
 {
-	uint8_t	status;
-
 	ao_radio_set_packet();
 	ao_tx_packet.addr = ao_serial_number;
 	ao_tx_packet.len = AO_PACKET_SYN;
 	while (ao_packet_enable) {
-		status = ao_packet_recv();
-		if (status & AO_DMA_DONE) {
+		if (ao_packet_recv()) {
 			memcpy(&ao_tx_packet.callsign, &ao_rx_packet.packet.callsign, AO_MAX_CALLSIGN);
 			ao_packet_send();
 		}
@@ -47,7 +44,7 @@ ao_packet_slave_stop(void)
 {
 	if (ao_packet_enable) {
 		ao_packet_enable = 0;
-		ao_radio_abort();
+		ao_radio_recv_abort();
 		while (ao_packet_task.wchan) {
 			ao_wake_task(&ao_packet_task);
 			ao_yield();

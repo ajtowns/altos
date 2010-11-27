@@ -23,7 +23,7 @@ __pdata uint8_t ao_monitor_led;
 void
 ao_monitor(void)
 {
-	__xdata struct ao_radio_recv recv;
+	__xdata struct ao_telemetry_recv recv;
 	__xdata char callsign[AO_MAX_CALLSIGN+1];
 	uint8_t state;
 	int16_t rssi;
@@ -31,7 +31,7 @@ ao_monitor(void)
 	for (;;) {
 		__critical while (!ao_monitoring)
 			ao_sleep(&ao_monitoring);
-		if (!ao_radio_recv(&recv))
+		if (!ao_radio_recv(&recv, sizeof (recv)))
 			continue;
 		state = recv.telemetry.flight_state;
 
@@ -85,7 +85,7 @@ ao_set_monitor(uint8_t monitoring)
 	ao_monitoring = monitoring;
 	ao_wakeup(&ao_monitoring);
 	if (!ao_monitoring)
-		ao_radio_abort();
+		ao_radio_recv_abort();
 }
 
 static void

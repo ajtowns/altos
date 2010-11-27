@@ -272,6 +272,7 @@ static __code uint8_t packet_setup[] = {
 __xdata uint8_t	ao_radio_dma;
 __xdata uint8_t ao_radio_dma_done;
 __xdata uint8_t ao_radio_done;
+__xdata uint8_t ao_radio_abort;
 __xdata uint8_t ao_radio_mutex;
 
 void
@@ -279,7 +280,7 @@ ao_radio_general_isr(void) __interrupt 16
 {
 	S1CON &= ~0x03;
 	if (RFIF & RFIF_IM_TIMEOUT) {
-		ao_dma_abort(ao_radio_dma);
+		ao_radio_recv_abort();
 		RFIF &= ~ RFIF_IM_TIMEOUT;
 	} else if (RFIF & RFIF_IM_DONE) {
 		ao_radio_done = 1;
@@ -338,14 +339,14 @@ ao_radio_get(void)
 
 
 void
-ao_radio_send(__xdata struct ao_telemetry *telemetry) __reentrant
+ao_radio_send(__xdata void *packet, uint8_t size) __reentrant
 {
 	ao_radio_get();
 	ao_radio_done = 0;
 	ao_dma_set_transfer(ao_radio_dma,
-			    telemetry,
+			    packet,
 			    &RFDXADDR,
-			    sizeof (struct ao_telemetry),
+			    size,
 			    DMA_CFG0_WORDSIZE_8 |
 			    DMA_CFG0_TMODE_SINGLE |
 			    DMA_CFG0_TRIGGER_RADIO,
@@ -360,13 +361,14 @@ ao_radio_send(__xdata struct ao_telemetry *telemetry) __reentrant
 }
 
 uint8_t
-ao_radio_recv(__xdata struct ao_radio_recv *radio) __reentrant
+ao_radio_recv(__xdata void *packet, uint8_t size) __reentrant
 {
+	ao_radio_abort = 0;
 	ao_radio_get();
 	ao_dma_set_transfer(ao_radio_dma,
 			    &RFDXADDR,
-			    radio,
-			    sizeof (struct ao_radio_recv),
+			    packet,
+			    size,
 			    DMA_CFG0_WORDSIZE_8 |
 			    DMA_CFG0_TMODE_SINGLE |
 			    DMA_CFG0_TRIGGER_RADIO,
@@ -375,13 +377,32 @@ ao_radio_recv(__xdata struct ao_radio_recv *radio) __reentrant
 			    DMA_CFG1_PRIORITY_HIGH);
 	ao_dma_start(ao_radio_dma);
 	RFST = RFST_SRX;
-	__critical while (!ao_radio_dma_done)
-		ao_sleep(&ao_radio_dma_done);
+	__critical while (!ao_radio_dma_done && !ao_radio_abort)
+			   ao_sleep(&ao_radio_dma_done);
+
+	/* If recv was aborted, clean up by stopping the DMA engine
+	 * and idling the radio
+	 */
+	if (!ao_radio_dma_done) {
+		ao_dma_abort(ao_radio_dma);
+		ao_radio_idle();
+	}
 	ao_radio_put();
-	return (ao_radio_dma_done & AO_DMA_DONE);
+	return ao_radio_dma_done;
 }
 
-__xdata ao_radio_rdf_running;
+/*
+ * Wake up a task waiting to receive a radio packet
+ * and tell them to abort the transfer
+ */
+
+void
+ao_radio_recv_abort(void)
+{
+	ao_radio_abort = 1;
+	ao_wakeup(&ao_radio_dma_done);
+}
+
 __xdata ao_radio_rdf_value = 0x55;
 
 void
@@ -390,8 +411,9 @@ ao_radio_rdf(int ms)
 	uint8_t i;
 	uint8_t pkt_len;
 
+	ao_radio_abort = 0;
 	ao_radio_get();
-	ao_radio_rdf_running = 1;
+	ao_radio_done = 0;
 	for (i = 0; i < sizeof (rdf_setup); i += 2)
 		RF[rdf_setup[i]] = rdf_setup[i+1];
 
@@ -419,28 +441,22 @@ ao_radio_rdf(int ms)
 			    DMA_CFG1_PRIORITY_HIGH);
 	ao_dma_start(ao_radio_dma);
 	RFST = RFST_STX;
-
-	__critical while (!ao_radio_dma_done)
-		ao_sleep(&ao_radio_dma_done);
-	ao_radio_rdf_running = 0;
-	ao_radio_idle();
+	__critical while (!ao_radio_done && !ao_radio_abort)
+			   ao_sleep(&ao_radio_done);
+	if (!ao_radio_done) {
+		ao_dma_abort(ao_radio_dma);
+		ao_radio_idle();
+	}
 	for (i = 0; i < sizeof (telemetry_setup); i += 2)
 		RF[telemetry_setup[i]] = telemetry_setup[i+1];
 	ao_radio_put();
 }
 
 void
-ao_radio_abort(void)
-{
-	ao_dma_abort(ao_radio_dma);
-	ao_radio_idle();
-}
-
-void
 ao_radio_rdf_abort(void)
 {
-	if (ao_radio_rdf_running)
-		ao_radio_abort();
+	ao_radio_abort = 1;
+	ao_wakeup(&ao_radio_done);
 }
 
 
