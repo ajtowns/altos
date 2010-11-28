@@ -32,32 +32,11 @@ UninstPage instfiles
 
 Section "Install Driver" InstDriver
 
-	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} USB\VID_FFFE&PID_000A
+	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} AltusMetrumSerial
 	Pop $0
 	DetailPrint "InitDriverSetup: $0"
 	InstDrv::DeleteOemInfFiles /NOUNLOAD
 	InstDrv::CreateDevice /NOUNLOAD
-
-	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} USB\VID_FFFE&PID_000B
-	Pop $0
-	DetailPrint "InitDriverSetup: $0"
-	InstDrv::DeleteOemInfFiles /NOUNLOAD
-	InstDrv::CreateDevice /NOUNLOAD
-
-	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} USB\VID_FFFE&PID_000C
-	Pop $0
-	DetailPrint "InitDriverSetup: $0"
-	InstDrv::DeleteOemInfFiles /NOUNLOAD
-	InstDrv::CreateDevice /NOUNLOAD
-
-	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} USB\VID_FFFE&PID_000D
-	Pop $0
-	DetailPrint "InitDriverSetup: $0"
-	InstDrv::DeleteOemInfFiles /NOUNLOAD
-	InstDrv::CreateDevice /NOUNLOAD
-
-	SetOutPath $WINDIR\Inf
-	File "../telemetrum.inf"
 
 	SetOutPath $TEMP
 	File "../telemetrum.inf"
@@ -65,6 +44,10 @@ Section "Install Driver" InstDriver
 
 	SetOutPath $INSTDIR
 	File "../telemetrum.inf"
+
+	SetOutPath $WINDIR\Inf
+	File "../telemetrum.inf"
+
 SectionEnd
 
 Section "AltosUI Application"
@@ -127,10 +110,7 @@ Section "Uninstall"
 	RMDir "$INSTDIR"
 
 	; Remove devices
-	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} USB\VID_FFFE&PID_000A
-	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} USB\VID_FFFE&PID_000B
-	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} USB\VID_FFFE&PID_000C
-	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} USB\VID_FFFE&PID_000D
+	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} AltusMetrumSerial
 	InstDrv::DeleteOemInfFiles /NOUNLOAD
 	InstDrv::RemoveAllDevices
 
