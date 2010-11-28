@@ -11,6 +11,12 @@ DriverVer	= 08/05/2010,7.1.0.0
 [Manufacturer]
 %Mfg% = Models, NTx86, NTamd64, NTia64
 
+[Models]
+%AltusMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
+%TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000B
+%TeleDongle% = TELEMETRUM, USB\VID_FFFE&PID_000C
+%TeleTerra% = TELEMETRUM, USB\VID_FFFE&PID_000D
+
 [Models.NTx86]
 %AltusMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
 %TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000B
@@ -33,10 +39,7 @@ DriverVer	= 08/05/2010,7.1.0.0
 DefaultDestDir=12
 
 [ControlFlags]
-ExcludeFromSelect=USB\VID_FFFE&PID_000A
-ExcludeFromSelect=USB\VID_FFFE&PID_000B
-ExcludeFromSelect=USB\VID_FFFE&PID_000C
-ExcludeFromSelect=USB\VID_FFFE&PID_000D
+ExcludeFromSelect=*
 
 [Strings]
 Mfg = "altusmetrum.org"
@@ -45,31 +48,28 @@ TeleMetrum = "TeleMetrum"
 TeleDongle = "TeleDongle"
 TeleTerra = "TeleTerra"
 
-
 ;----------------------------------------------------------------------------
 ; Installation sections
 ;----------------------------------------------------------------------------
 
-[TELEMETRUM.NT]
+[TELEMETRUM]
 include=mdmcpq.inf
 CopyFiles=FakeModemCopyFileSection
 AddReg = All, mfglt, Modem.AddReg, VerboseResultCodes, Uninstall.AddReg
 
-[TELEMETRUM.NT.HW]
+[TELEMETRUM.HW]
 Include=mdmcpq.inf
 AddReg=LowerFilterAddReg
 
-[TELEMETRUM.NT.Services]
+[TELEMETRUM.Services]
 Include=mdmcpq.inf
 AddService=usbser, 0x00000000, LowerFilter_Service_Inst
-
 
 ;----------------------------------------------------------------------------
 ; AddReg sections
 ;----------------------------------------------------------------------------
 [Modem.AddReg]
 HKR,, Properties, 1, C0,01,00,00, 00,00,00,00, FF,00,00,00, 07,00,00,00, 0F,00,00,00, F7,0F,00,00, 00,84,03,00, C0,DA,00,00
-
 
 ;----------------------------------------------------------------------------
 ; Common Registry Sections

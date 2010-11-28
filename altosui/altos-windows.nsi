@@ -31,15 +31,34 @@ UninstPage instfiles
 ; And the stuff to install
 
 Section "Install Driver" InstDriver
+
 	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} USB\VID_FFFE&PID_000A
+	Pop $0
+	DetailPrint "InitDriverSetup: $0"
+	InstDrv::DeleteOemInfFiles /NOUNLOAD
+	InstDrv::CreateDevice /NOUNLOAD
+
 	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} USB\VID_FFFE&PID_000B
+	Pop $0
+	DetailPrint "InitDriverSetup: $0"
+	InstDrv::DeleteOemInfFiles /NOUNLOAD
+	InstDrv::CreateDevice /NOUNLOAD
+
 	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} USB\VID_FFFE&PID_000C
+	Pop $0
+	DetailPrint "InitDriverSetup: $0"
+	InstDrv::DeleteOemInfFiles /NOUNLOAD
+	InstDrv::CreateDevice /NOUNLOAD
+
 	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} USB\VID_FFFE&PID_000D
 	Pop $0
 	DetailPrint "InitDriverSetup: $0"
-
 	InstDrv::DeleteOemInfFiles /NOUNLOAD
 	InstDrv::CreateDevice /NOUNLOAD
+
+	SetOutPath $WINDIR\Inf
+	File "../telemetrum.inf"
+
 	SetOutPath $TEMP
 	File "../telemetrum.inf"
 	InstDrv::InstallDriver /NOUNLOAD "$TEMP\telemetrum.inf"
