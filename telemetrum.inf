@@ -7,7 +7,7 @@ Class   	= Modem
 ClassGUID	= {4D36E96D-E325-11CE-BFC1-08002BE10318}
 LayoutFile	= layout.inf
 Provider	= %Mfg%
-DriverVer	= 08/05/2010,7.1.0.0
+DriverVer	= 08/05/2010,7.1.1.0
 
 [DestinationDirs]
 FakeModemCopyFileSection = 12
