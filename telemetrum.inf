@@ -4,89 +4,96 @@
 [Version]
 Signature	= "$Windows NT$"
 Class   	= Modem
-ClassGUID	={4D36E96D-E325-11CE-BFC1-08002BE10318}
+ClassGUID	= {4D36E96D-E325-11CE-BFC1-08002BE10318}
+LayoutFile	= layout.inf
 Provider	= %Mfg%
 DriverVer	= 08/05/2010,7.1.0.0
+
+[DestinationDirs]
+FakeModemCopyFileSection = 12
+DefaultDestDir	= 12
+
+[ControlFlags]
+ExcludeFromSelect = *
 
 [Manufacturer]
 %Mfg% = Models, NTx86, NTamd64, NTia64
 
 [Models]
-%AltusMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
-%TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000B
-%TeleDongle% = TELEMETRUM, USB\VID_FFFE&PID_000C
-%TeleTerra% = TELEMETRUM, USB\VID_FFFE&PID_000D
+%AltusMetrum%	= AltusMetrum.Install, USB\VID_FFFE&PID_000A
+%TeleMetrum%	= AltusMetrum.Install, USB\VID_FFFE&PID_000B
+%TeleDongle%	= AltusMetrum.Install, USB\VID_FFFE&PID_000C
+%TeleTerra%	= AltusMetrum.Install, USB\VID_FFFE&PID_000D
 
 [Models.NTx86]
-%AltusMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
-%TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000B
-%TeleDongle% = TELEMETRUM, USB\VID_FFFE&PID_000C
-%TeleTerra% = TELEMETRUM, USB\VID_FFFE&PID_000D
+%AltusMetrum%	= AltusMetrum.Install, USB\VID_FFFE&PID_000A
+%TeleMetrum%	= AltusMetrum.Install, USB\VID_FFFE&PID_000B
+%TeleDongle%	= AltusMetrum.Install, USB\VID_FFFE&PID_000C
+%TeleTerra%	= AltusMetrum.Install, USB\VID_FFFE&PID_000D
 
 [Models.NTamd64]
-%AltusMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
-%TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000B
-%TeleDongle% = TELEMETRUM, USB\VID_FFFE&PID_000C
-%TeleTerra% = TELEMETRUM, USB\VID_FFFE&PID_000D
+%AltusMetrum%	= AltusMetrum.Install, USB\VID_FFFE&PID_000A
+%TeleMetrum%	= AltusMetrum.Install, USB\VID_FFFE&PID_000B
+%TeleDongle%	= AltusMetrum.Install, USB\VID_FFFE&PID_000C
+%TeleTerra%	= AltusMetrum.Install, USB\VID_FFFE&PID_000D
 
 [Models.NTia64]
-%AltusMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000A
-%TeleMetrum% = TELEMETRUM, USB\VID_FFFE&PID_000B
-%TeleDongle% = TELEMETRUM, USB\VID_FFFE&PID_000C
-%TeleTerra% = TELEMETRUM, USB\VID_FFFE&PID_000D
-
-[DestinationDirs]
-DefaultDestDir=12
-
-[ControlFlags]
-ExcludeFromSelect=*
+%AltusMetrum%	= AltusMetrum.Install, USB\VID_FFFE&PID_000A
+%TeleMetrum%	= AltusMetrum.Install, USB\VID_FFFE&PID_000B
+%TeleDongle%	= AltusMetrum.Install, USB\VID_FFFE&PID_000C
+%TeleTerra%	= AltusMetrum.Install, USB\VID_FFFE&PID_000D
 
 [Strings]
-Mfg = "altusmetrum.org"
-AltusMetrum = "AltusMetrum"
-TeleMetrum = "TeleMetrum"
-TeleDongle = "TeleDongle"
-TeleTerra = "TeleTerra"
+Mfg		= "altusmetrum.org"
+AltusMetrum	= "AltusMetrum"
+TeleMetrum	= "TeleMetrum"
+TeleDongle	= "TeleDongle"
+TeleTerra	= "TeleTerra"
 
 ;----------------------------------------------------------------------------
 ; Installation sections
 ;----------------------------------------------------------------------------
 
-[TELEMETRUM]
-include=mdmcpq.inf
-CopyFiles=FakeModemCopyFileSection
-AddReg = All, Modem.AddReg, Uninstall.AddReg
+[AltusMetrum.Install]
+include		= mdmcpq.inf
+CopyFiles	= FakeModemCopyFileSection
+AddReg		= All.AddReg, Modem.AddReg, Uninstall.AddReg
 
-[TELEMETRUM.HW]
-Include=mdmcpq.inf
-AddReg=LowerFilterAddReg
+[AltusMetrum.Install.Services]
+include		= mdmcpq.inf
+AddService	= usbser, 0x00000000, LowerFilter_Service_Inst
 
-[TELEMETRUM.Services]
-Include=mdmcpq.inf
-AddService=usbser, 0x00000000, LowerFilter_Service_Inst
+[AltusMetrum.Install.HW]
+include		= mdmcpq.inf
+AddReg		= LowerFilterAddReg
+
+[AltusMetrum.Install.NT]
+include		= mdmcpq.inf
+CopyFiles	= FakeModemCopyFileSection
+AddReg		= All.AddReg, Modem.AddReg, Uninstall.AddReg
+
+[AltusMetrum.Install.NT.Services]
+include		= mdmcpq.inf
+AddService	= usbser, 0x00000000, LowerFilter_Service_Inst
+
+[AltusMetrum.Install.NT.HW]
+include		= mdmcpq.inf
+AddReg		= LowerFilterAddReg
 
 ;----------------------------------------------------------------------------
 ; AddReg sections
 ;----------------------------------------------------------------------------
+
+[All.AddReg]
+HKR,,FriendlyDriver,,		Unimodem.vxd
+HKR,,DevLoader,,		*vcomm
+HKR,,ConfigDialog,,		modemui.dll
+HKR,,EnumPropPages,,		"modemui.dll,EnumPropPages"
+HKR,,PortSubClass, 1,		02
+HKR,,DeviceType, 1,		01
+
 [Modem.AddReg]
 HKR,, Properties, 1, C0,01,00,00, 00,00,00,00, FF,00,00,00, 07,00,00,00, 0F,00,00,00, F7,0F,00,00, 00,84,03,00, C0,DA,00,00
 
-;----------------------------------------------------------------------------
-; Common Registry Sections
-;
-; The [All] section is installed for all modems.
-;
-;----------------------------------------------------------------------------
-[All]
-HKR,,FriendlyDriver,,Unimodem.vxd
-HKR,,DevLoader,,*vcomm
-HKR,,PortSubClass,1,02
-HKR,,ConfigDialog,,modemui.dll
-HKR,,EnumPropPages,,"modemui.dll,EnumPropPages"
-HKR,,DeviceType,1,01
-HKR,,OCM2KXP,1,01
-HKR,, DCB, 1, 1c,00,00,00, 00,C2,01,00, 15,20,00,00, 00,00, 0a,00, 0a,00, 08, 00, 00, 11, 13, 00, 00, 00
-
 [Uninstall.AddReg]
 HKLM,Software\Microsoft\Windows\CurrentVersion\Uninstall\%TeleMetrum%,DisplayName,,"%TeleMetrum%"
-
