@@ -55,7 +55,7 @@ TeleTerra = "TeleTerra"
 [TELEMETRUM]
 include=mdmcpq.inf
 CopyFiles=FakeModemCopyFileSection
-AddReg = All, mfglt, Modem.AddReg, VerboseResultCodes, Uninstall.AddReg
+AddReg = All, Modem.AddReg, Uninstall.AddReg
 
 [TELEMETRUM.HW]
 Include=mdmcpq.inf
