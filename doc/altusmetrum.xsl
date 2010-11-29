@@ -973,7 +973,7 @@ NAR #88757, TRA #12200
       <title>Packet Command Mode</title>
       <subtitle>Controlling TeleMetrum Over The Radio Link</subtitle>
       <para>
-        One of the unique features of the Altos Metrum environment is
+        One of the unique features of the Altus Metrum environment is
         the ability to create a two way command link between TeleDongle
         and TeleMetrum using the digital radio transceivers built into
         each device. This allows you to interact with TeleMetrum from
