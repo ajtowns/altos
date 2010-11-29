@@ -23,8 +23,12 @@ PDFSTYLE=
 all:	$(HTML) $(PDF)
 
 publish:	$(DOC)
-	cp $(DOC)altusmetrum.html /home/bdale/web/altusmetrum/AltOS/doc/
-	(cd /home/bdale/web/altusmetrum ; echo "update docs" | git commit -F - /home/bdale/web/altusmetrum/AltOS/doc/* ; git push)
+	cp $(DOC) /home/bdale/web/altusmetrum/AltOS/doc/
+	(cd /home/bdale/web/altusmetrum ; \
+	 git add /home/bdale/web/altusmetrum/AltOS/doc/* ; \
+	 echo "update docs" | \
+	 git commit -F - /home/bdale/web/altusmetrum/AltOS/doc/* ; \
+	 git push)
 
 clean:
 	rm -f *.html *.pdf *.fo
