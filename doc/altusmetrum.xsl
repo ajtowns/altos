@@ -1605,6 +1605,7 @@ NAR #88757, TRA #12200
         other authorization to legally operate the radio transmitters that are part
         of our products.
       </para>
+      </section>
       <section>
         <title>In the Rocket</title>
         <para>
@@ -1728,7 +1729,6 @@ NAR #88757, TRA #12200
           feel free to dive in and help!  Or let us know what you'd like to see that
           we aren't already working on, and maybe we'll get excited about it too...
         </para>
-      </section>
     </section>
   </chapter>
 </book>
