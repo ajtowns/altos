@@ -1,3 +1,68 @@
+commit 5e23bcc2d2ad33a839fedd2158213098a05cd9ae
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Nov 28 18:21:31 2010 -0700
+
+    declaring 0.8 released
+
+commit b09d3e11c32abd07f8e11b483ac4b57148f4f2d8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 27 23:08:41 2010 -0800
+
+    windows: Bump .inf file version
+
+commit 42c2394ccc1a1ee6dc134ed963a4f79acf031d0b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 27 23:04:50 2010 -0800
+
+    windows: more .inf file hacking
+    
+    Add a LayoutFile reference
+    Add the FakeModemCopyFileSection
+    
+    Copy AltosMetrum.Install section to AltusMetrum.Install.NT section. I
+    don't know what this might do; existing files seem inconsistent.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 26369a92398f4ebe3fcd54ce34cebffae0cfdf07
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 27 22:39:31 2010 -0800
+
+    windows: remove some non-existent .inf file section references
+    
+    The mfglt and VerboseResultCodes sections are not present in the .inf
+    file, so remove refernces to them.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 641c5373724d34c3adfcf42420a528d6bba736b9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 27 22:35:18 2010 -0800
+
+    windows: try harder to get windows install to work
+    
+    Add devIDs to .nsi file. Fix install section name mapping from the
+    hot-plug info.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit cd414e2c04ce5ecbc75f19325a6d6f82cd489fb3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Nov 27 16:30:29 2010 -0800
+
+    altosui: Correct windows hardware IDs for nsis installer file
+    
+    Need real hardware IDs (encoded USB ids) to get windows to
+    auto-install the driver?
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f834b22905db87557f729f942607dc363b013694
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Nov 25 22:31:33 2010 -0700
+
+    update changelogs for Debian build
+
 commit da3b39d6b1b5ba48686c2a4add4b5448fd5711af
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Nov 25 22:29:01 2010 -0700
