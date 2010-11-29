@@ -1,3 +1,20 @@
+altos (0.8) unstable; urgency=low
+
+  [ Keith Packard ]
+  * altosui: Correct windows hardware IDs for nsis installer file
+  * windows: try harder to get windows install to work
+  * windows: remove some non-existent .inf file section references
+  * windows: more .inf file hacking
+  * windows: Bump .inf file version
+
+  [ Bdale Garbee ]
+  * declaring 0.8 released
+  * update changelogs for Debian build
+  * update changelogs for Debian build
+  * rewind changelog to recover from stupid build failure
+
+ -- Bdale Garbee <bdale@gag.com>  Sun, 28 Nov 2010 18:32:12 -0700
+
 altos (0.7.1+168+gcb08bc2) unstable; urgency=low
 
   [ Keith Packard ]

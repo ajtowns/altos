@@ -1,3 +1,15 @@
+commit a375942979dbcd8239d8c0addb10616e6048f6ea
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Nov 28 18:31:26 2010 -0700
+
+    rewind changelog to recover from stupid build failure
+
+commit 263cf6c4fc5c1a240d719bb0ceb33393864fb3d6
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Nov 28 18:24:00 2010 -0700
+
+    update changelogs for Debian build
+
 commit 2615289265b6f8fa08827be794b4eee569fc6333
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Sun Nov 28 18:23:17 2010 -0700
