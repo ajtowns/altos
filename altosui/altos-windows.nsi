@@ -78,6 +78,8 @@ Section "AltosUI Application"
 	File "cmu_us_kal.jar"
 	File "en_us.jar"
 	File "freetts.jar"
+	File "jfreechart.jar"
+	File "jcommon.jar"
 
 	File "*.dll"
 
