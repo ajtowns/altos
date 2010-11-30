@@ -1,3 +1,73 @@
+commit 11b3f9ff715017a2dec02003275885334f22c009
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Nov 29 21:46:02 2010 -0700
+
+    releasing 0.8.1
+
+commit 5f3f11e11dff9b9f4d1dde279c0d474de0de12a5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 29 20:41:49 2010 -0800
+
+    Add minimal release testing plan to Releasing
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f0a4deee23984a8f779917bbeaf74a66a0abf592
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 29 20:34:27 2010 -0800
+
+    Move "Releasing" to top level
+    
+    This file documents the AltOS release process for all systems.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b727156ef0a7fb6e442ca28be27eb344a213ecf8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Nov 29 20:17:35 2010 -0800
+
+    windows: Add jfreechart.jar and jcommon.jar to windows install image
+    
+    These are necessary for the Graph Data button to do anything useful.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3e2220a180f95971d222a597d2057ca328c27356
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Nov 29 21:29:14 2010 -0700
+
+    adding Bdale's release process document to the source tree
+
+commit 61a924099800494b589cbbb87c65b552ccbd8394
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Nov 29 14:40:27 2010 -0700
+
+    fix an Altos vs Altus typo in the docs
+
+commit e840b6594b8a939f148fa7231e1b06a280d94074
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Nov 28 22:42:43 2010 -0700
+
+    fix section layering
+
+commit f39698bbc12afdfadfac56c90030e16db93cf4fc
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Nov 28 19:46:03 2010 -0700
+
+    fix publish target in doc/Makefile
+
+commit 13cea7a96821165a10a8b2433af1da7508882b0a
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Nov 28 18:48:31 2010 -0700
+
+    moved doc dir in web content to AltOS tree
+
+commit 6f3c72462af86a7d9dec20f4c813a524a5be9fbb
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sun Nov 28 18:32:17 2010 -0700
+
+    update changelogs for Debian build
+
 commit a375942979dbcd8239d8c0addb10616e6048f6ea
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Sun Nov 28 18:31:26 2010 -0700

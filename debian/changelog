@@ -1,3 +1,22 @@
+altos (0.8.1) unstable; urgency=low
+
+  [ Bdale Garbee ]
+  * moved doc dir in web content to AltOS tree
+  * fix publish target in doc/Makefile
+  * fix section layering
+  * fix an Altos vs Altus typo in the docs
+  * adding Bdale's release process document to the source tree
+
+  [ Keith Packard ]
+  * windows: Add jfreechart.jar and jcommon.jar to windows install image
+  * Move "Releasing" to top level
+  * Add minimal release testing plan to Releasing
+
+  [ Bdale Garbee ]
+  * releasing 0.8.1
+
+ -- Bdale Garbee <bdale@gag.com>  Mon, 29 Nov 2010 21:46:54 -0700
+
 altos (0.8) unstable; urgency=low
 
   [ Keith Packard ]
