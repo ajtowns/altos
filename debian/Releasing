@@ -1,0 +1,28 @@
+These are Bdale's notes on how to do a release.
+
+	update the version in configure.ac and commit
+	
+	git tag -a <version>
+
+	git-buildpackage --git-ignore-new
+
+		use --git-ignore-new so trash in checked-out tree doesn't
+		cause the build to fail!
+
+		at this point, we have Debian packages
+
+	make distclean
+
+	./autogen.sh --with-fat-dir=/home/bdale/web/altusmetrum/AltOS/releases
+	make fat
+
+		this pushes packages for each platform to web site
+
+	- go edit ~/web/altusmetrum/AltOS/releases/<rev>.mdwn to include
+	  release date and explicit ref to dir contents so the AltOS page
+	  shows versioned links, commit and push
+
+	(cd doc ; make publish)
+
+		this pushes fresh documents to the web site
+
