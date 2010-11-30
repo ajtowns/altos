@@ -25,3 +25,20 @@ These are Bdale's notes on how to do a release.
 	(cd doc ; make publish)
 
 		this pushes fresh documents to the web site
+
+Testing before a release
+
+	To verify that a build works, the following need to be checked
+	on each platform:
+
+	1) Install package
+
+	2) Connect TM *and* TD devices. Verify that you can Monitor
+	   Flight from the TD and Configure Telemetrum from the TM.
+
+	3) Replay Flight, using your favorite .eeprom file. Check
+	   each tab, especially the 'Site Map' tab. Make sure the
+	   sound works.
+
+	4) Graph Data. Graph a favorite .eeprom file. Make sure you
+	   can zoom in on some region of the graph.
