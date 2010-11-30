@@ -1,7 +1,7 @@
 These are Bdale's notes on how to do a release.
 
 	update the version in configure.ac and commit
-	
+
 	git tag -a <version>
 
 	git-buildpackage --git-ignore-new
@@ -25,4 +25,3 @@ These are Bdale's notes on how to do a release.
 	(cd doc ; make publish)
 
 		this pushes fresh documents to the web site
-
