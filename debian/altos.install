@@ -3,10 +3,9 @@ debian/altos.list	etc/apt/sources.list.d
 debian/altusmetrum.xpm	usr/share/pixmaps
 src/*.ihx		usr/share/altos
 src/*.map		usr/share/altos
-themes/background.png		usr/share/slim/themes/altusmetrum
+themes/background.png		usr/share/altos/themes
 themes/slim/panel.png		usr/share/slim/themes/altusmetrum
 themes/slim/slim.theme		usr/share/slim/themes/altusmetrum
-themes/background.png		usr/share/gdm/themes/altusmetrum
 themes/gdm/altusmetrum.xml	/usr/share/gdm/themes/altusmetrum
 themes/gdm/GdmGreeterTheme.desktop	/usr/share/gdm/themes/altusmetrum
 themes/gdm/screenshot.png	/usr/share/gdm/themes/altusmetrum
