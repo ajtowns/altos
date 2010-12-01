@@ -1,3 +1,10 @@
+altos (0.8.1+2+gea7130e) unstable; urgency=low
+
+  * modify Debian package build to deliver one copy of background.png
+    for
+
+ -- Bdale Garbee <bdale@gag.com>  Wed, 01 Dec 2010 00:03:14 -0700
+
 altos (0.8.1) unstable; urgency=low
 
   [ Bdale Garbee ]

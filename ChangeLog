@@ -1,3 +1,16 @@
+commit ea7130e953622884afc348265f5a4c58f9876823
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Dec 1 00:00:58 2010 -0700
+
+    modify Debian package build to deliver one copy of background.png for
+    the themes and symlink it into place for gdm and slim
+
+commit 3696b30a8d1eb351353d84b5f7af8eeff55c468b
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Nov 29 21:47:13 2010 -0700
+
+    update changelogs for Debian build
+
 commit 11b3f9ff715017a2dec02003275885334f22c009
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Mon Nov 29 21:46:02 2010 -0700
