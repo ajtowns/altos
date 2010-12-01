@@ -54,9 +54,9 @@ binary-arch: install
 	dh_installexamples
 	dh_install
 	ln -s /usr/share/altos/themes/background.png \
-		/usr/share/gdm/themes/altusmetrum/background.png
+		debian/altos/usr/share/gdm/themes/altusmetrum/background.png
 	ln -s /usr/share/altos/themes/background.png \
-		/usr/share/slim/themes/altusmetrum/background.png
+		debian/altos/usr/share/slim/themes/altusmetrum/background.png
 	dh_installmenu
 #	dh_installdebconf
 #	dh_installlogrotate
