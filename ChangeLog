@@ -1,3 +1,15 @@
+commit ea95c060f8bd959cefc60dd6d411151f3c91384e
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Dec 1 00:12:05 2010 -0700
+
+    fix symlink paths in rules file
+
+commit f95220b6f0cc74928e0e7d7c7e1f443eafc32a02
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Dec 1 00:03:23 2010 -0700
+
+    update changelogs for Debian build
+
 commit ea7130e953622884afc348265f5a4c58f9876823
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed Dec 1 00:00:58 2010 -0700

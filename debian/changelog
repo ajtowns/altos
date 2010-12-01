@@ -1,3 +1,9 @@
+altos (0.8.1+4+gea95c06) unstable; urgency=low
+
+  * fix symlink paths in rules file
+
+ -- Bdale Garbee <bdale@gag.com>  Wed, 01 Dec 2010 00:14:24 -0700
+
 altos (0.8.1+2+gea7130e) unstable; urgency=low
 
   * modify Debian package build to deliver one copy of background.png
