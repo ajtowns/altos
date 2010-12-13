@@ -52,6 +52,9 @@ class AltosPreferences {
 	/* Log directory */
 	static File logdir;
 
+	/* Map directory -- hangs of logdir */
+	static File mapdir;
+
 	/* Channel (map serial to channel) */
 	static Hashtable<Integer, Integer> channels;
 
@@ -79,6 +82,9 @@ class AltosPreferences {
 			if (!logdir.exists())
 				logdir.mkdirs();
 		}
+		mapdir = new File(logdir, "maps");
+		if (!mapdir.exists())
+			mapdir.mkdirs();
 
 		channels = new Hashtable<Integer,Integer>();
 
@@ -106,6 +112,9 @@ class AltosPreferences {
 
 	public static void set_logdir(File new_logdir) {
 		logdir = new_logdir;
+		mapdir = new File(logdir, "maps");
+		if (!mapdir.exists())
+			mapdir.mkdirs();
 		synchronized (preferences) {
 			preferences.put(logdirPreference, logdir.getPath());
 			flush_preferences();
@@ -149,6 +158,10 @@ class AltosPreferences {
 
 	public static File logdir() {
 		return logdir;
+	}
+
+	public static File mapdir() {
+		return mapdir;
 	}
 
 	public static void set_channel(int serial, int new_channel) {

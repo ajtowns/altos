@@ -211,10 +211,10 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 
 	private File MapFile(double lat, double lng) {
 		char chlat = lat < 0 ? 'S' : 'N';
-		char chlng = lng < 0 ? 'E' : 'W';
+		char chlng = lng < 0 ? 'W' : 'E';
 		if (lat < 0) lat = -lat;
 		if (lng < 0) lng = -lng;
-		return new File(AltosPreferences.logdir(),
+		return new File(AltosPreferences.mapdir(),
 				String.format("map-%c%.6f,%c%.6f-%d.png",
 					      chlat, lat, chlng, lng, zoom));
 	}
