@@ -72,6 +72,12 @@ TELE_DRIVER_SRC = \
 	ao_serial.c
 
 #
+# Spi bus driver
+#
+SPI_DRIVER_SRC = \
+	ao_spi.c
+
+#
 # Debug dongle driver (only on TI)
 #
 DBG_SRC = \

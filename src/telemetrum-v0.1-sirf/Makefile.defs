@@ -2,6 +2,7 @@ PROG = telemetrum-v0.1-sirf-$(VERSION).ihx
 
 SRC = \
 	$(TM_BASE_SRC) \
+	$(SPI_DRIVER_SRC) \
 	$(EE_DRIVER_SRC) \
 	$(SIRF_DRIVER_SRC) \
 	$(DBG_SRC)

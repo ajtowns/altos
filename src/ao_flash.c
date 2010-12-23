@@ -18,21 +18,10 @@
 #include "ao.h"
 #include "at45db161d.h"
 
-/*
- * Using SPI on USART 0, with P1_1 as the chip select
- */
-
 #define FLASH_CS		P1_1
 #define FLASH_CS_INDEX		1
 
-__xdata uint8_t ao_flash_dma_in_done;
-__xdata uint8_t ao_flash_dma_out_done;
 __xdata uint8_t ao_flash_mutex;
-
-uint8_t	ao_flash_dma_out_id;
-uint8_t ao_flash_dma_in_id;
-
-static __xdata uint8_t	ao_flash_const = 0xff;
 
 #define ao_flash_delay() do { \
 	_asm nop _endasm; \
@@ -54,83 +43,6 @@ void ao_flash_cs_high(void)
 	ao_flash_delay();
 }
 
-/* Send bytes over SPI.
- *
- * This sets up two DMA engines, one writing the data and another reading
- * bytes coming back.  We use the bytes coming back to tell when the transfer
- * is complete, as the transmit register is double buffered and hence signals
- * completion one byte before the transfer is actually complete
- */
-static void
-ao_flash_send(void __xdata *block, uint16_t len)
-{
-	ao_dma_set_transfer(ao_flash_dma_in_id,
-			    &U0DBUFXADDR,
-			    &ao_flash_const,
-			    len,
-			    DMA_CFG0_WORDSIZE_8 |
-			    DMA_CFG0_TMODE_SINGLE |
-			    DMA_CFG0_TRIGGER_URX0,
-			    DMA_CFG1_SRCINC_0 |
-			    DMA_CFG1_DESTINC_0 |
-			    DMA_CFG1_PRIORITY_NORMAL);
-
-	ao_dma_set_transfer(ao_flash_dma_out_id,
-			    block,
-			    &U0DBUFXADDR,
-			    len,
-			    DMA_CFG0_WORDSIZE_8 |
-			    DMA_CFG0_TMODE_SINGLE |
-			    DMA_CFG0_TRIGGER_UTX0,
-			    DMA_CFG1_SRCINC_1 |
-			    DMA_CFG1_DESTINC_0 |
-			    DMA_CFG1_PRIORITY_NORMAL);
-
-	ao_dma_start(ao_flash_dma_in_id);
-	ao_dma_start(ao_flash_dma_out_id);
-	ao_dma_trigger(ao_flash_dma_out_id);
-	__critical while (!ao_flash_dma_in_done)
-		ao_sleep(&ao_flash_dma_in_done);
-}
-
-/* Receive bytes over SPI.
- *
- * This sets up tow DMA engines, one reading the data and another
- * writing constant values to the SPI transmitter as that is what
- * clocks the data coming in.
- */
-static void
-ao_flash_recv(void __xdata *block, uint16_t len)
-{
-	ao_dma_set_transfer(ao_flash_dma_in_id,
-			    &U0DBUFXADDR,
-			    block,
-			    len,
-			    DMA_CFG0_WORDSIZE_8 |
-			    DMA_CFG0_TMODE_SINGLE |
-			    DMA_CFG0_TRIGGER_URX0,
-			    DMA_CFG1_SRCINC_0 |
-			    DMA_CFG1_DESTINC_1 |
-			    DMA_CFG1_PRIORITY_NORMAL);
-
-	ao_dma_set_transfer(ao_flash_dma_out_id,
-			    &ao_flash_const,
-			    &U0DBUFXADDR,
-			    len,
-			    DMA_CFG0_WORDSIZE_8 |
-			    DMA_CFG0_TMODE_SINGLE |
-			    DMA_CFG0_TRIGGER_UTX0,
-			    DMA_CFG1_SRCINC_0 |
-			    DMA_CFG1_DESTINC_0 |
-			    DMA_CFG1_PRIORITY_NORMAL);
-
-	ao_dma_start(ao_flash_dma_in_id);
-	ao_dma_start(ao_flash_dma_out_id);
-	ao_dma_trigger(ao_flash_dma_out_id);
-	__critical while (!ao_flash_dma_in_done)
-		ao_sleep(&ao_flash_dma_in_done);
-}
-
 struct ao_flash_instruction {
 	uint8_t	instruction;
 	uint8_t	address[3];
@@ -144,7 +56,7 @@ ao_flash_set_pagesize_512(void)
 	ao_flash_instruction.address[0] = FLASH_SET_512_BYTE_0;
 	ao_flash_instruction.address[1] = FLASH_SET_512_BYTE_1;
 	ao_flash_instruction.address[2] = FLASH_SET_512_BYTE_2;
-	ao_flash_send(&ao_flash_instruction, 4);
+	ao_spi_send(&ao_flash_instruction, 4);
 	ao_flash_cs_high();
 }
 
@@ -154,8 +66,8 @@ ao_flash_read_status(void)
 {
 	ao_flash_cs_low();
 	ao_flash_instruction.instruction = FLASH_READ_STATUS;
-	ao_flash_send(&ao_flash_instruction, 1);
-	ao_flash_recv(&ao_flash_instruction, 1);
+	ao_spi_send(&ao_flash_instruction, 1);
+	ao_spi_recv(&ao_flash_instruction, 1);
 	ao_flash_cs_high();
 	return ao_flash_instruction.instruction;
 }
@@ -268,8 +180,8 @@ ao_flash_write_block(void)
 	ao_flash_instruction.address[0] = ao_flash_block >> (16 - ao_flash_block_shift);
 	ao_flash_instruction.address[1] = ao_flash_block << (ao_flash_block_shift - 8);
 	ao_flash_instruction.address[2] = 0;
-	ao_flash_send(&ao_flash_instruction, 4);
-	ao_flash_send(ao_flash_data, FLASH_BLOCK_SIZE);
+	ao_spi_send(&ao_flash_instruction, 4);
+	ao_spi_send(ao_flash_data, FLASH_BLOCK_SIZE);
 	ao_flash_cs_high();
 	ao_flash_write_pending = 1;
 }
@@ -286,8 +198,8 @@ ao_flash_read_block(void)
 	ao_flash_instruction.address[0] = ao_flash_block >> (16 - ao_flash_block_shift);
 	ao_flash_instruction.address[1] = ao_flash_block << (ao_flash_block_shift - 8);
 	ao_flash_instruction.address[2] = 0;
-	ao_flash_send(&ao_flash_instruction, 4);
-	ao_flash_recv(ao_flash_data, FLASH_BLOCK_SIZE);
+	ao_spi_send(&ao_flash_instruction, 4);
+	ao_spi_recv(ao_flash_data, FLASH_BLOCK_SIZE);
 	ao_flash_cs_high();
 }
 
@@ -543,40 +455,5 @@ ao_ee_init(void)
 	FLASH_CS = 1;
 	P1DIR |= (1 << FLASH_CS_INDEX);
 	P1SEL &= ~(1 << FLASH_CS_INDEX);
-
-	/* Set up the USART pin assignment */
-	PERCFG = (PERCFG & ~PERCFG_U0CFG_ALT_MASK) | PERCFG_U0CFG_ALT_2;
-
-	/* Ensure that USART0 takes precidence over USART1 for pins that
-	 * they share
-	 */
-	P2SEL = (P2SEL & ~P2SEL_PRI3P1_MASK) | P2SEL_PRI3P1_USART0;
-
-	/* Make the SPI pins be controlled by the USART peripheral */
-	P1SEL |= ((1 << 5) | (1 << 4) | (1 << 3));
-
-	/* Set up OUT DMA */
-	ao_flash_dma_out_id = ao_dma_alloc(&ao_flash_dma_out_done);
-
-	/* Set up IN DMA */
-	ao_flash_dma_in_id = ao_dma_alloc(&ao_flash_dma_in_done);
-
-	/* Set up the USART.
-	 *
-	 * SPI master mode
-	 */
-	U0CSR = (UxCSR_MODE_SPI | UxCSR_RE | UxCSR_MASTER);
-
-	/* Set the baud rate and signal parameters
-	 *
-	 * The cc1111 is limited to a 24/8 MHz SPI clock,
-	 * while the at45db161d.h is limited to 20MHz. So,
-	 * use the 3MHz clock (BAUD_E 17, BAUD_M 0)
-	 */
-	U0BAUD = 0;
-	U0GCR = (UxGCR_CPOL_NEGATIVE |
-		 UxGCR_CPHA_FIRST_EDGE |
-		 UxGCR_ORDER_MSB |
-		 (17 << UxGCR_BAUD_E_SHIFT));
 	ao_cmd_register(&ao_flash_cmds[0]);
 }

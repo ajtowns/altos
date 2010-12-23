@@ -31,6 +31,8 @@
 	#define AO_LED_RED		1
 	#define LEDS_AVAILABLE		(AO_LED_RED)
 	#define HAS_EXTERNAL_TEMP	0
+	#define SPI_CS_ON_P1		1
+	#define SPI_CS_ON_P0		0
 #endif
 
 #if defined(TELEDONGLE_V_0_2)
@@ -45,6 +47,8 @@
 	#define AO_LED_RED		1
 	#define AO_LED_GREEN		2
 	#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
+	#define SPI_CS_ON_P1		1
+	#define SPI_CS_ON_P0		0
 #endif
 
 #if defined(TELEMETRUM_V_0_1)
@@ -60,6 +64,8 @@
 	#define AO_LED_GREEN		1
 	#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
 	#define HAS_EXTERNAL_TEMP	1
+	#define SPI_CS_ON_P1		1
+	#define SPI_CS_ON_P0		0
 #endif
 
 #if defined(TELEDONGLE_V_0_1)
@@ -74,6 +80,8 @@
 	#define AO_LED_RED		2
 	#define AO_LED_GREEN		1
 	#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
+	#define SPI_CS_ON_P1		0
+	#define SPI_CS_ON_P0		1
 #endif
 
 #if defined(TIDONGLE)
@@ -87,6 +95,8 @@
 	#define PACKET_HAS_SLAVE	0
 	#define AO_LED_RED		2
 	#define LEDS_AVAILABLE		(AO_LED_RED)
+	#define SPI_CS_ON_P1		0
+	#define SPI_CS_ON_P0		1
 #endif
 
 #if DBG_ON_P1
@@ -124,6 +134,18 @@
 	#define DBG_PORT_DIR	P0DIR
 
 #endif /* DBG_ON_P0 */
+
+#if SPI_CS_ON_P1
+	#define SPI_CS_PORT	P1
+	#define SPI_CS_SEL	P1SEL
+	#define SPI_CS_DIR	P1DIR
+#endif
+
+#if SPI_CS_ON_P0
+	#define SPI_CS_PORT	P0
+	#define SPI_CS_SEL	P0SEL
+	#define SPI_CS_DIR	P0DIR
+#endif
 
 #ifndef HAS_SERIAL_1
 #error Please define HAS_SERIAL_1

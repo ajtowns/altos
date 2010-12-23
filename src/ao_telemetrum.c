@@ -48,6 +48,7 @@ main(void)
 	ao_adc_init();
 	ao_beep_init();
 	ao_cmd_init();
+	ao_spi_init();
 	ao_ee_init();
 	ao_flight_init();
 	ao_log_init();

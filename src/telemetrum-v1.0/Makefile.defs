@@ -2,6 +2,7 @@ PROG = telemetrum-v1.0-$(VERSION).ihx
 
 SRC = \
 	$(TM_BASE_SRC) \
+	$(SPI_DRIVER_SRC) \
 	$(FLASH_DRIVER_SRC) \
 	$(SKY_DRIVER_SRC) \
 	$(DBG_SRC)

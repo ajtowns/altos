@@ -737,6 +737,19 @@ ao_serial_init(void);
 #endif
 
 /*
+ * ao_spi.c
+ */
+
+void
+ao_spi_send(void __xdata *block, uint16_t len) __reentrant;
+
+void
+ao_spi_recv(void __xdata *block, uint16_t len) __reentrant;
+
+void
+ao_spi_init(void);
+
+/*
  * ao_gps.c
  */
 
