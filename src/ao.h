@@ -1155,4 +1155,9 @@ ao_packet_slave_stop(void);
 void
 ao_packet_slave_init(void);
 
+/* ao_senddata.c */
+
+void
+ao_senddata_init(void);
+
 #endif /* _AO_H_ */

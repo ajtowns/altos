@@ -33,6 +33,7 @@ main(void)
 	ao_radio_init();
 	ao_packet_slave_init();
 	ao_packet_master_init();
+	ao_senddata_init();
 #if HAS_DBG
 	ao_dbg_init();
 #endif

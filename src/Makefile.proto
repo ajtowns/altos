@@ -185,6 +185,7 @@ TD_MAIN_SRC = \
 TD_SRC = \
 	$(ALTOS_SRC) \
 	$(ALTOS_DRIVER_SRC) \
+	ao_senddata.c \
 	$(TELE_RECEIVER_SRC) \
 	$(TELE_COMMON_SRC) \
 	$(TD_MAIN_SRC)
