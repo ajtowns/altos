@@ -35,7 +35,7 @@ ao_packet_getchar(void) __critical
 static void
 ao_packet_echo(void) __reentrant
 {
-	uint8_t	c;
+	char	c;
 	while (ao_packet_enable) {
 		c = ao_packet_getchar();
 		if (c != AO_READ_AGAIN)
