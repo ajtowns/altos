@@ -18,6 +18,18 @@
 #include "ao.h"
 #include "25lc1024.h"
 
+#define EE_BLOCK_SIZE	((uint16_t) (256))
+#define EE_DEVICE_SIZE	((uint32_t) 128 * (uint32_t) 1024)
+
+/* Total bytes of available storage */
+__xdata uint32_t	ao_storage_total;
+
+/* Block size - device is erased in these units. At least 256 bytes */
+__xdata uint32_t	ao_storage_block;
+
+/* Byte offset of config block. Will be ao_storage_block bytes long */
+__xdata uint32_t	ao_storage_config;
+
 /*
  * Using SPI on USART 0, with P1_2 as the chip select
  */
@@ -25,7 +37,7 @@
 #define EE_CS		P1_2
 #define EE_CS_INDEX	2
 
-__xdata uint8_t ao_ee_mutex;
+static __xdata uint8_t ao_ee_mutex;
 
 #define ao_ee_delay() do { \
 	_asm nop _endasm; \
@@ -33,22 +45,19 @@ __xdata uint8_t ao_ee_mutex;
 	_asm nop _endasm; \
 } while(0)
 
-void ao_ee_cs_low(void)
+static void ao_ee_cs_low(void)
 {
 	ao_ee_delay();
 	EE_CS = 0;
 	ao_ee_delay();
 }
 
-void ao_ee_cs_high(void)
+static void ao_ee_cs_high(void)
 {
 	ao_ee_delay();
 	EE_CS = 1;
 	ao_ee_delay();
 }
-
-
-#define EE_BLOCK	256
 
 struct ao_ee_instruction {
 	uint8_t	instruction;
@@ -87,7 +96,7 @@ ao_ee_wrsr(uint8_t status)
 
 #define EE_BLOCK_NONE	0xffff
 
-static __xdata uint8_t ao_ee_data[EE_BLOCK];
+static __xdata uint8_t ao_ee_data[EE_BLOCK_SIZE];
 static __pdata uint16_t ao_ee_block = EE_BLOCK_NONE;
 static __pdata uint8_t	ao_ee_block_dirty;
 
@@ -109,7 +118,7 @@ ao_ee_write_block(void)
 	ao_ee_instruction.address[1] = ao_ee_block;
 	ao_ee_instruction.address[2] = 0;
 	ao_spi_send(&ao_ee_instruction, 4);
-	ao_spi_send(ao_ee_data, EE_BLOCK);
+	ao_spi_send(ao_ee_data, EE_BLOCK_SIZE);
 	ao_ee_cs_high();
 	for (;;) {
 		uint8_t	status = ao_ee_rdsr();
@@ -128,7 +137,7 @@ ao_ee_read_block(void)
 	ao_ee_instruction.address[1] = ao_ee_block;
 	ao_ee_instruction.address[2] = 0;
 	ao_spi_send(&ao_ee_instruction, 4);
-	ao_spi_recv(ao_ee_data, EE_BLOCK);
+	ao_spi_recv(ao_ee_data, EE_BLOCK_SIZE);
 	ao_ee_cs_high();
 }
 
@@ -152,13 +161,13 @@ ao_ee_fill(uint16_t block)
 }
 
 uint8_t
-ao_ee_write(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
+ao_storage_write(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant
 {
 	uint16_t block;
 	uint16_t this_len;
 	uint8_t	this_off;
 
-	if (pos >= AO_EE_DATA_SIZE || pos + len > AO_EE_DATA_SIZE)
+	if (pos >= ao_storage_total || pos + len > ao_storage_total)
 		return 0;
 	while (len) {
 
@@ -166,7 +175,7 @@ ao_ee_write(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
 		 * a single block
 		 */
 		this_off = pos;
-		this_len = 256 - (uint16_t) this_off;
+		this_len = EE_BLOCK_SIZE - (uint16_t) this_off;
 		block = (uint16_t) (pos >> 8);
 		if (this_len > len)
 			this_len = len;
@@ -175,7 +184,7 @@ ao_ee_write(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
 
 		/* Transfer the data */
 		ao_mutex_get(&ao_ee_mutex); {
-			if (this_len != 256)
+			if (this_len != EE_BLOCK_SIZE)
 				ao_ee_fill(block);
 			else {
 				ao_ee_flush_internal();
@@ -194,13 +203,13 @@ ao_ee_write(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
 }
 
 uint8_t
-ao_ee_read(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
+ao_storage_read(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant
 {
 	uint16_t block;
 	uint16_t this_len;
 	uint8_t	this_off;
 
-	if (pos >= AO_EE_DATA_SIZE || pos + len > AO_EE_DATA_SIZE)
+	if (pos >= ao_storage_total || pos + len > ao_storage_total)
 		return 0;
 	while (len) {
 
@@ -208,7 +217,7 @@ ao_ee_read(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
 		 * a single block
 		 */
 		this_off = pos;
-		this_len = 256 - (uint16_t) this_off;
+		this_len = EE_BLOCK_SIZE - (uint16_t) this_off;
 		block = (uint16_t) (pos >> 8);
 		if (this_len > len)
 			this_len = len;
@@ -230,47 +239,17 @@ ao_ee_read(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
 }
 
 void
-ao_ee_flush(void) __reentrant
+ao_storage_flush(void) __reentrant
 {
 	ao_mutex_get(&ao_ee_mutex); {
 		ao_ee_flush_internal();
 	} ao_mutex_put(&ao_ee_mutex);
-}
-
-/*
- * Read/write the config block, which is in
- * the last block of the ao_eeprom
- */
-uint8_t
-ao_ee_write_config(uint8_t *buf, uint16_t len) __reentrant
-{
-	if (len > AO_EE_BLOCK_SIZE)
-		return 0;
-	ao_mutex_get(&ao_ee_mutex); {
-		ao_ee_fill(AO_EE_CONFIG_BLOCK);
-		memcpy(ao_ee_data, buf, len);
-		ao_ee_block_dirty = 1;
-		ao_ee_flush_internal();
-	} ao_mutex_put(&ao_ee_mutex);
-	return 1;
-}
-
-uint8_t
-ao_ee_read_config(uint8_t *buf, uint16_t len) __reentrant
-{
-	if (len > AO_EE_BLOCK_SIZE)
-		return 0;
-	ao_mutex_get(&ao_ee_mutex); {
-		ao_ee_fill(AO_EE_CONFIG_BLOCK);
-		memcpy(buf, ao_ee_data, len);
-	} ao_mutex_put(&ao_ee_mutex);
-	return 1;
 }
 
 static void
 ee_dump(void) __reentrant
 {
-	uint8_t	b;
+	static __xdata uint8_t	b;
 	uint16_t block;
 	uint8_t i;
 
@@ -286,7 +265,7 @@ ee_dump(void) __reentrant
 			ao_cmd_put16((uint16_t) i);
 		}
 		putchar(' ');
-		ao_ee_read(((uint32_t) block << 8) | i, &b, 1);
+		ao_storage_read(((uint32_t) block << 8) | i, &b, 1);
 		ao_cmd_put8(b);
 		++i;
 	} while (i != 0);
@@ -299,7 +278,7 @@ ee_store(void) __reentrant
 	uint16_t block;
 	uint8_t i;
 	uint16_t len;
-	uint8_t b;
+	static __xdata uint8_t b;
 	uint32_t addr;
 
 	ao_cmd_hex();
@@ -316,10 +295,10 @@ ee_store(void) __reentrant
 		if (ao_cmd_status != ao_cmd_success)
 			return;
 		b = ao_cmd_lex_i;
-		ao_ee_write(addr, &b, 1);
+		ao_storage_write(addr, &b, 1);
 		addr++;
 	}
-	ao_ee_flush();
+	ao_storage_flush();
 }
 
 __code struct ao_cmds ao_ee_cmds[] = {
@@ -328,12 +307,22 @@ __code struct ao_cmds ao_ee_cmds[] = {
 	{ 0,   ee_store, NULL },
 };
 
+void
+ao_storage_setup(void)
+{
+	if (ao_storage_total == 0) {
+		ao_storage_total = EE_DEVICE_SIZE;
+		ao_storage_block = EE_BLOCK_SIZE;
+		ao_storage_config = EE_DEVICE_SIZE - EE_BLOCK_SIZE;
+	}
+}
+
 /*
  * To initialize the chip, set up the CS line and
  * the SPI interface
  */
 void
-ao_ee_init(void)
+ao_storage_init(void)
 {
 	/* set up CS */
 	EE_CS = 1;

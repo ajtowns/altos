@@ -18,8 +18,19 @@
 #include "ao.h"
 #include "at45db161d.h"
 
+/* Total bytes of available storage */
+__xdata uint32_t	ao_storage_total;
+
+/* Block size - device is erased in these units. At least 256 bytes */
+__xdata uint32_t	ao_storage_block;
+
+/* Byte offset of config block. Will be ao_storage_block bytes long */
+__xdata uint32_t	ao_storage_config;
+
 #define FLASH_CS		P1_1
 #define FLASH_CS_INDEX		1
+
+#define FLASH_BLOCK_SIZE_MAX	512
 
 __xdata uint8_t ao_flash_mutex;
 
@@ -79,12 +90,12 @@ static __pdata uint16_t ao_flash_block = FLASH_BLOCK_NONE;
 static __pdata uint8_t	ao_flash_block_dirty;
 static __pdata uint8_t  ao_flash_write_pending;
 static __pdata uint8_t	ao_flash_setup_done;
-static __data uint32_t	ao_flash_device_size;
 static __data uint8_t	ao_flash_block_shift;
 static __data uint16_t	ao_flash_block_size;
+static __data uint16_t	ao_flash_block_mask;
 
-static void
-ao_flash_setup(void)
+void
+ao_storage_setup(void)
 {
 	uint8_t	status;
 
@@ -114,43 +125,47 @@ ao_flash_setup(void)
 	/* AT45DB321D */
 	case 0x34:
 		ao_flash_block_shift = 9;
-		ao_flash_device_size = ((uint32_t) 4 * (uint32_t) 1024 * (uint32_t) 1024);
+		ao_storage_total = ((uint32_t) 4 * (uint32_t) 1024 * (uint32_t) 1024);
 		break;
 
 	/* AT45DB161D */
 	case 0x2c:
 		ao_flash_block_shift = 9;
-		ao_flash_device_size = ((uint32_t) 2 * (uint32_t) 1024 * (uint32_t) 1024);
+		ao_storage_total = ((uint32_t) 2 * (uint32_t) 1024 * (uint32_t) 1024);
 		break;
 
 	/* AT45DB081D */
 	case 0x24:
 		ao_flash_block_shift = 8;
-		ao_flash_device_size = ((uint32_t) 1024 * (uint32_t) 1024);
+		ao_storage_total = ((uint32_t) 1024 * (uint32_t) 1024);
 		break;
 
 	/* AT45DB041D */
 	case 0x1c:
 		ao_flash_block_shift = 8;
-		ao_flash_device_size = ((uint32_t) 512 * (uint32_t) 1024);
+		ao_storage_total = ((uint32_t) 512 * (uint32_t) 1024);
 		break;
 
 	/* AT45DB021D */
 	case 0x14:
 		ao_flash_block_shift = 8;
-		ao_flash_device_size = ((uint32_t) 256 * (uint32_t) 1024);
+		ao_storage_total = ((uint32_t) 256 * (uint32_t) 1024);
 		break;
 
 	/* AT45DB011D */
 	case 0x0c:
 		ao_flash_block_shift = 8;
-		ao_flash_device_size = ((uint32_t) 128 * (uint32_t) 1024);
+		ao_storage_total = ((uint32_t) 128 * (uint32_t) 1024);
 		break;
 
 	default:
 		ao_panic(AO_PANIC_FLASH);
 	}
 	ao_flash_block_size = 1 << ao_flash_block_shift;
+
+	ao_storage_block = ao_flash_block_size;
+	ao_storage_config = ao_storage_total - ao_storage_block;
+
 	ao_flash_setup_done = 1;
 	ao_mutex_put(&ao_flash_mutex);
 }
@@ -181,7 +196,7 @@ ao_flash_write_block(void)
 	ao_flash_instruction.address[1] = ao_flash_block << (ao_flash_block_shift - 8);
 	ao_flash_instruction.address[2] = 0;
 	ao_spi_send(&ao_flash_instruction, 4);
-	ao_spi_send(ao_flash_data, FLASH_BLOCK_SIZE);
+	ao_spi_send(ao_flash_data, ao_storage_block);
 	ao_flash_cs_high();
 	ao_flash_write_pending = 1;
 }
@@ -199,7 +214,7 @@ ao_flash_read_block(void)
 	ao_flash_instruction.address[1] = ao_flash_block << (ao_flash_block_shift - 8);
 	ao_flash_instruction.address[2] = 0;
 	ao_spi_send(&ao_flash_instruction, 4);
-	ao_spi_recv(ao_flash_data, FLASH_BLOCK_SIZE);
+	ao_spi_recv(ao_flash_data, ao_flash_block_size);
 	ao_flash_cs_high();
 }
 
@@ -223,29 +238,29 @@ ao_flash_fill(uint16_t block)
 }
 
 uint8_t
-ao_ee_write(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
+ao_storage_write(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant
 {
 	uint16_t block;
 	uint16_t this_len;
 	uint16_t	this_off;
 
-	ao_flash_setup();
-	if (pos >= FLASH_DATA_SIZE || pos + len > FLASH_DATA_SIZE)
+	ao_storage_setup();
+	if (pos >= ao_storage_total || pos + len > ao_storage_total)
 		return 0;
 	while (len) {
 
 		/* Compute portion of transfer within
 		 * a single block
 		 */
-		this_off = (uint16_t) pos & FLASH_BLOCK_MASK;
-		this_len = FLASH_BLOCK_SIZE - this_off;
-		block = (uint16_t) (pos >> FLASH_BLOCK_SHIFT);
+		this_off = (uint16_t) pos & ao_flash_block_mask;
+		this_len = ao_flash_block_size - this_off;
+		block = (uint16_t) (pos >> ao_flash_block_shift);
 		if (this_len > len)
 			this_len = len;
 
 		/* Transfer the data */
 		ao_mutex_get(&ao_flash_mutex); {
-			if (this_len != FLASH_BLOCK_SIZE)
+			if (this_len != ao_flash_block_size)
 				ao_flash_fill(block);
 			else {
 				ao_flash_flush_internal();
@@ -264,14 +279,14 @@ ao_ee_write(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
 }
 
 uint8_t
-ao_ee_read(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
+ao_storage_read(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant
 {
 	uint16_t block;
 	uint16_t this_len;
 	uint16_t this_off;
 
-	ao_flash_setup();
-	if (pos >= FLASH_DATA_SIZE || pos + len > FLASH_DATA_SIZE)
+	ao_storage_setup();
+	if (pos >= ao_storage_total || pos + len > ao_storage_total)
 		return 0;
 	while (len) {
 
@@ -279,9 +294,9 @@ ao_ee_read(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
 		/* Compute portion of transfer within
 		 * a single block
 		 */
-		this_off = (uint16_t) pos & FLASH_BLOCK_MASK;
-		this_len = FLASH_BLOCK_SIZE - this_off;
-		block = (uint16_t) (pos >> FLASH_BLOCK_SHIFT);
+		this_off = (uint16_t) pos & ao_flash_block_mask;
+		this_len = ao_flash_block_size - this_off;
+		block = (uint16_t) (pos >> ao_flash_block_shift);
 		if (this_len > len)
 			this_len = len;
 
@@ -300,50 +315,17 @@ ao_ee_read(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant
 }
 
 void
-ao_ee_flush(void) __reentrant
+ao_storage_flush(void) __reentrant
 {
 	ao_mutex_get(&ao_flash_mutex); {
 		ao_flash_flush_internal();
 	} ao_mutex_put(&ao_flash_mutex);
-}
-
-/*
- * Read/write the config block, which is in
- * the last block of the flash
- */
-
-uint8_t
-ao_ee_write_config(uint8_t *buf, uint16_t len) __reentrant
-{
-	ao_flash_setup();
-	if (len > FLASH_BLOCK_SIZE)
-		return 0;
-	ao_mutex_get(&ao_flash_mutex); {
-		ao_flash_fill(FLASH_CONFIG_BLOCK);
-		memcpy(ao_flash_data, buf, len);
-		ao_flash_block_dirty = 1;
-		ao_flash_flush_internal();
-	} ao_mutex_put(&ao_flash_mutex);
-	return 1;
-}
-
-uint8_t
-ao_ee_read_config(uint8_t *buf, uint16_t len) __reentrant
-{
-	ao_flash_setup();
-	if (len > FLASH_BLOCK_SIZE)
-		return 0;
-	ao_mutex_get(&ao_flash_mutex); {
-		ao_flash_fill(FLASH_CONFIG_BLOCK);
-		memcpy(buf, ao_flash_data, len);
-	} ao_mutex_put(&ao_flash_mutex);
-	return 1;
 }
 
 static void
 flash_dump(void) __reentrant
 {
-	uint8_t	b;
+	static __xdata uint8_t	b;
 	uint16_t block;
 	uint8_t i;
 
@@ -359,7 +341,7 @@ flash_dump(void) __reentrant
 			ao_cmd_put16((uint16_t) i);
 		}
 		putchar(' ');
-		ao_ee_read(((uint32_t) block << 8) | i, &b, 1);
+		ao_storage_read(((uint32_t) block << 8) | i, &b, 1);
 		ao_cmd_put8(b);
 		++i;
 	} while (i != 0);
@@ -372,7 +354,7 @@ flash_store(void) __reentrant
 	uint16_t block;
 	uint8_t i;
 	uint16_t len;
-	uint8_t b;
+	static __xdata uint8_t b;
 	uint32_t addr;
 
 	ao_cmd_hex();
@@ -389,33 +371,10 @@ flash_store(void) __reentrant
 		if (ao_cmd_status != ao_cmd_success)
 			return;
 		b = ao_cmd_lex_i;
-		ao_ee_write(addr, &b, 1);
+		ao_storage_write(addr, &b, 1);
 		addr++;
 	}
-	ao_ee_flush();
-}
-
-void
-ao_ee_dump_config(void) __reentrant
-{
-	uint16_t	i;
-	printf("Configuration block %d\n", FLASH_CONFIG_BLOCK);
-	ao_mutex_get(&ao_flash_mutex); {
-		ao_flash_flush_internal();
-		ao_flash_block = FLASH_BLOCK_NONE;
-		ao_flash_fill(FLASH_CONFIG_BLOCK);
-		i = 0;
-		do {
-			if ((i & 7) == 0) {
-				if (i)
-					putchar('\n');
-				ao_cmd_put16((uint16_t) i);
-			}
-			putchar(' ');
-			ao_cmd_put8(ao_flash_data[i]);
-			++i;
-		} while (i < sizeof (ao_config));
-	} ao_mutex_put(&ao_flash_mutex);
+	ao_storage_flush();
 }
 
 static void
@@ -423,18 +382,15 @@ flash_status(void) __reentrant
 {
 	uint8_t	status;
 
-	ao_flash_setup();
+	ao_storage_setup();
 	ao_mutex_get(&ao_flash_mutex); {
 		status = ao_flash_read_status();
 		printf ("Flash status: 0x%02x\n", status);
-		printf ("Flash block shift: %d\n", FLASH_BLOCK_SHIFT);
-		printf ("Flash block size: %d\n", FLASH_BLOCK_SIZE);
-		printf ("Flash block mask: %d\n", FLASH_BLOCK_MASK);
-		printf ("Flash device size: %ld\n", FLASH_DEVICE_SIZE);
-		printf ("Flash data size: %ld\n", FLASH_DATA_SIZE);
-		printf ("Flash config block: %d\n", FLASH_CONFIG_BLOCK);
+		printf ("Flash block shift: %d\n", ao_flash_block_shift);
+		printf ("Flash block size: %d\n", ao_flash_block_size);
+		printf ("Flash block mask: %d\n", ao_flash_block_mask);
+		printf ("Flash device size: %ld\n", ao_storage_total);
 	} ao_mutex_put(&ao_flash_mutex);
-	ao_ee_dump_config();
 }
 
 __code struct ao_cmds ao_flash_cmds[] = {
@@ -449,7 +405,7 @@ __code struct ao_cmds ao_flash_cmds[] = {
  * the SPI interface
  */
 void
-ao_ee_init(void)
+ao_storage_init(void)
 {
 	/* set up CS */
 	FLASH_CS = 1;

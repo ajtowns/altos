@@ -430,42 +430,38 @@ void
 ao_mutex_put(__xdata uint8_t *ao_mutex) __reentrant;
 
 /*
- * ao_ee.c
+ * Storage interface, provided by one of the eeprom or flash
+ * drivers
  */
 
-/*
- * We reserve the last block on the device for
- * configuration space. Writes and reads in this
- * area return errors.
- */
+/* Total bytes of available storage */
+extern __xdata uint32_t	ao_storage_total;
 
-#define AO_EE_BLOCK_SIZE	((uint16_t) (256))
-#define AO_EE_DEVICE_SIZE	((uint32_t) 128 * (uint32_t) 1024)
-#define AO_EE_DATA_SIZE		(AO_EE_DEVICE_SIZE - (uint32_t) AO_EE_BLOCK_SIZE)
-#define AO_EE_CONFIG_BLOCK	((uint16_t) (AO_EE_DATA_SIZE / AO_EE_BLOCK_SIZE))
+/* Block size - device is erased in these units. At least 256 bytes */
+extern __xdata uint32_t	ao_storage_block;
 
+/* Byte offset of config block. Will be ao_storage_block bytes long */
+extern __xdata uint32_t	ao_storage_config;
+
+/* Initialize above values. Can only be called once the OS is running */
 void
-ao_ee_flush(void) __reentrant;
+ao_storage_setup(void);
 
-/* Write to the eeprom */
-uint8_t
-ao_ee_write(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant;
-
-/* Read from the eeprom */
-uint8_t
-ao_ee_read(uint32_t pos, uint8_t *buf, uint16_t len) __reentrant;
-
-/* Write the config block (at the end of the eeprom) */
-uint8_t
-ao_ee_write_config(uint8_t *buf, uint16_t len) __reentrant;
-
-/* Read the config block (at the end of the eeprom) */
-uint8_t
-ao_ee_read_config(uint8_t *buf, uint16_t len) __reentrant;
-
-/* Initialize the EEPROM code */
+/* Flush any pending write data */
 void
-ao_ee_init(void);
+ao_storage_flush(void) __reentrant;
+
+/* Write data. Returns 0 on failure, 1 on success */
+uint8_t
+ao_storage_write(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant;
+
+/* Read data. Returns 0 on failure, 1 on success */
+uint8_t
+ao_storage_read(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant;
+
+/* Initialize the storage code */
+void
+ao_storage_init(void);
 
 /*
  * ao_log.c

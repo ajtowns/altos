@@ -18,6 +18,7 @@
 #include "ao.h"
 
 static __pdata uint32_t	ao_log_current_pos;
+static __pdata uint32_t ao_log_end_pos;
 static __pdata uint32_t	ao_log_start_pos;
 static __xdata uint8_t	ao_log_running;
 static __xdata uint8_t	ao_log_mutex;
@@ -41,16 +42,14 @@ ao_log_data(__xdata struct ao_log_record *log) __reentrant
 	log->csum = 0;
 	log->csum = ao_log_csum((__xdata uint8_t *) log);
 	ao_mutex_get(&ao_log_mutex); {
+		if (ao_log_current_pos >= ao_log_end_pos)
+			ao_log_running = 0;
 		if (ao_log_running) {
 			wrote = 1;
-			ao_ee_write(ao_log_current_pos,
-				    (uint8_t *) log,
-				    sizeof (struct ao_log_record));
+			ao_storage_write(ao_log_current_pos,
+					 log,
+					 sizeof (struct ao_log_record));
 			ao_log_current_pos += sizeof (struct ao_log_record);
-			if (ao_log_current_pos >= AO_EE_DATA_SIZE)
-				ao_log_current_pos = 0;
-			if (ao_log_current_pos == ao_log_start_pos)
-				ao_log_running = 0;
 		}
 	} ao_mutex_put(&ao_log_mutex);
 	return wrote;
@@ -59,7 +58,7 @@ ao_log_data(__xdata struct ao_log_record *log) __reentrant
 void
 ao_log_flush(void)
 {
-	ao_ee_flush();
+	ao_storage_flush();
 }
 
 __xdata struct ao_log_record log;
@@ -76,7 +75,7 @@ ao_log_dump_check_data(void)
 static void
 ao_log_scan(void)
 {
-	if (!ao_ee_read(0, (uint8_t *) &log, sizeof (struct ao_log_record)))
+	if (!ao_storage_read(0, &log, sizeof (struct ao_log_record)))
 		ao_panic(AO_PANIC_LOG);
 	if (ao_log_dump_check_data() && log.type == AO_LOG_FLIGHT) {
 		ao_flight_number = log.u.flight.flight + 1;
@@ -97,6 +96,12 @@ typedef uint8_t check_log_size[1-(256 % sizeof(struct ao_log_record))] ;
 void
 ao_log(void)
 {
+	ao_storage_setup();
+
+	/* For now, use all of the available space */
+	ao_log_current_pos = 0;
+	ao_log_end_pos = ao_storage_config;
+
 	ao_log_scan();
 
 	while (!ao_log_running)
@@ -179,8 +184,6 @@ ao_log_init(void)
 	ao_log_running = 0;
 
 	/* For now, just log the flight starting at the begining of eeprom */
-	ao_log_start_pos = 0;
-	ao_log_current_pos = ao_log_start_pos;
 	ao_log_state = ao_flight_invalid;
 
 	/* Create a task to log events to eeprom */

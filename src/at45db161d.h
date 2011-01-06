@@ -26,13 +26,6 @@
  * area return errors.
  */
 
-#define FLASH_BLOCK_SIZE_MAX	512
-#define FLASH_BLOCK_SHIFT	(ao_flash_block_shift)
-#define FLASH_BLOCK_SIZE	(ao_flash_block_size)
-#define FLASH_BLOCK_MASK	(FLASH_BLOCK_SIZE - 1)
-#define FLASH_DEVICE_SIZE	(ao_flash_device_size)
-#define FLASH_DATA_SIZE		(FLASH_DEVICE_SIZE - (uint32_t) FLASH_BLOCK_SIZE)
-#define FLASH_CONFIG_BLOCK	((uint16_t) (FLASH_DATA_SIZE / FLASH_BLOCK_SIZE))
 
 #define FLASH_READ		0x03
 #define FLASH_WRITE		0x82
