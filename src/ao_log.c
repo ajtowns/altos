@@ -234,9 +234,10 @@ ao_log_flight(uint8_t slot)
 }
 
 static void
-ao_log_scan(void)
+ao_log_scan(void) __reentrant
 {
 	uint8_t		log_slot;
+	uint8_t		log_slots;
 	uint8_t		log_avail = 0;
 	uint16_t	log_flight;
 
@@ -244,7 +245,7 @@ ao_log_scan(void)
 
 	ao_flight_number = 0;
 
-	/* Scan the log space looking for an empty one, and find the biggest flight number */
+	/* Scan the log space looking for the biggest flight number */
 	log_slot = 0;
 	{
 		log_flight = ao_log_flight(log_slot);
@@ -256,8 +257,9 @@ ao_log_scan(void)
 				ao_flight_number = log_flight;
 			}
 		} else
-			log_avail |= 1 << log_slot;
+			log_avail = 1;
 	}
+	log_slots = log_slot + 1;
 
 	/* Now look through the log of flight numbers from erase operations and
 	 * see if the last one is bigger than what we found above
@@ -279,25 +281,12 @@ ao_log_scan(void)
 	 * that we write logs to each spot about the same number of times.
 	 */
 
-	/* If there are no log slots available, then
-	 * do not log the next flight
-	 */
-	if (!log_avail) {
-		ao_log_current_pos = 0;
-		ao_log_end_pos = 0;
-	} else {
-		log_slot = ao_flight_number % log_slot;
-		while (!((log_avail & (1 << log_slot)))) {
-			if ((1 << log_slot) > log_avail)
-				log_slot = 0;
-			else
-				log_slot++;
-		}
-//		ao_log_current_pos = log_slot * ao_config.flight_log_max;
-//		ao_log_end_pos = ao_log_current_pos + ao_config.flight_log_max;
+	/* Find a log slot for the next flight, if available */
+	if (log_avail) {
 		ao_log_current_pos = 0;
 		ao_log_end_pos = ao_storage_config;
-	}
+	} else
+		ao_log_current_pos = ao_log_end_pos = 0;
 
 	ao_wakeup(&ao_flight_number);
 }
