@@ -443,6 +443,8 @@ extern __xdata uint32_t	ao_storage_block;
 /* Byte offset of config block. Will be ao_storage_block bytes long */
 extern __xdata uint32_t	ao_storage_config;
 
+#define AO_STORAGE_ERASE_LOG	(ao_storage_config + AO_CONFIG_MAX_SIZE)
+
 /* Initialize above values. Can only be called once the OS is running */
 void
 ao_storage_setup(void);
@@ -458,6 +460,10 @@ ao_storage_write(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant;
 /* Read data. Returns 0 on failure, 1 on success */
 uint8_t
 ao_storage_read(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant;
+
+/* Erase a block of storage. This always clears ao_storage_block bytes */
+uint8_t
+ao_storage_erase(uint32_t pos);
 
 /* Initialize the storage code */
 void
@@ -993,8 +999,13 @@ struct ao_config {
 
 extern __xdata struct ao_config ao_config;
 
+#define AO_CONFIG_MAX_SIZE	128
+
 void
 ao_config_get(void);
+
+void
+ao_config_put(void);
 
 void
 ao_config_init(void);

@@ -322,6 +322,18 @@ ao_storage_flush(void) __reentrant
 	} ao_mutex_put(&ao_flash_mutex);
 }
 
+uint8_t
+ao_storage_erase(uint32_t pos) __reentrant
+{
+	ao_mutex_get(&ao_flash_mutex); {
+		uint16_t block = (uint16_t) (pos >> ao_flash_block_shift);
+		ao_flash_fill(block);
+		memset(ao_flash_data, 0xff, ao_flash_block_size);
+		ao_flash_block_dirty = 1;
+	} ao_mutex_put(&ao_flash_mutex);
+	return 1;
+}
+
 static void
 flash_dump(void) __reentrant
 {

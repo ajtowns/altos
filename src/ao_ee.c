@@ -246,6 +246,18 @@ ao_storage_flush(void) __reentrant
 	} ao_mutex_put(&ao_ee_mutex);
 }
 
+uint8_t
+ao_storage_erase(uint32_t pos) __reentrant
+{
+	ao_mutex_get(&ao_ee_mutex); {
+		uint16_t block = (uint16_t) (pos >> 8);
+		ao_ee_fill(block);
+		memset(ao_ee_data, 0xff, EE_BLOCK_SIZE);
+		ao_ee_block_dirty = 1;
+	} ao_mutex_put(&ao_ee_mutex);
+	return 1;
+}
+
 static void
 ee_dump(void) __reentrant
 {

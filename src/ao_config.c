@@ -36,6 +36,14 @@ _ao_config_put(void)
 	ao_storage_write(ao_storage_config, &ao_config, sizeof (ao_config));
 	ao_storage_flush();
 }
+
+void
+ao_config_put(void)
+{
+	ao_mutex_get(&ao_config_mutex);
+	_ao_config_put();
+	ao_mutex_put(&ao_config_mutex);
+}
 #endif
 
 static void
@@ -288,13 +296,13 @@ struct ao_config_var {
 	const char	*help;
 };
 
-void
+static void
 ao_config_help(void) __reentrant;
 
-void
+static void
 ao_config_show(void) __reentrant;
 
-void
+static void
 ao_config_write(void) __reentrant;
 
 __code struct ao_config_var ao_config_vars[] = {
@@ -348,7 +356,7 @@ ao_config_set(void)
 		ao_cmd_status = ao_cmd_syntax_error;
 }
 
-void
+static void
 ao_config_help(void) __reentrant
 {
 	uint8_t cmd;
@@ -356,7 +364,7 @@ ao_config_help(void) __reentrant
 		puts (ao_config_vars[cmd].help);
 }
 
-void
+static void
 ao_config_show(void) __reentrant
 {
 	uint8_t cmd;
@@ -368,7 +376,7 @@ ao_config_show(void) __reentrant
 }
 
 #if HAS_EEPROM
-void
+static void
 ao_config_write(void) __reentrant
 {
 	uint8_t saved = 0;
