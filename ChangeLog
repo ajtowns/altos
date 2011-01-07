@@ -1,3 +1,148 @@
+commit 408a3e04362d626778640dd0ce7d356d3863de53
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jan 6 23:38:13 2011 -0800
+
+    altos: Mark end of available flight list with 'done' to make the UI
+    code easier to write
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e991f52276248fa08d96fbecc458bc478e98d299
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jan 6 23:35:31 2011 -0800
+
+    altos: Rip out 'optimization' in ao_log_scan
+    
+    Remove premature optimization to avoid re-scanning the flight logs for
+    the best empty entry.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 569a1dac55b70c30f01afa7bcb74442ecdd85d85
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jan 6 22:37:38 2011 -0800
+
+    altos: Move common storage code to ao_storage.c. Add M25P80 driver
+    
+    This reworks the storage API so that you erase blocks and then store
+    data to them so that the M25P80 driver will work.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e4ba9bf4291bf17c777c8c3ef7c71e4a30b9947a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jan 6 17:34:58 2011 -0800
+
+    altos: Require manual flight erasing.
+    
+    This supports flash chips that require larger erase blocks.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ddcc94da4326f9ce954bd31a46b36165c58e6c18
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jan 6 12:51:39 2011 -0800
+
+    altos: Simplify storage API
+    
+    This removes the config-specific APIs and exposes global variables for
+    the available storage space, block size and config storage location.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f3f1b1488bdc92fa9277dc549ba9f3210a8d4c8c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jan 6 11:28:35 2011 -0800
+
+    altos: packet and usb i/o routines use 'char', not 'uint8_t'
+    
+    Just fixing the type of a local variable holding a character
+    passed from the packet link to usb.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5688af4e4d7ca8e559d758257e79b7979f1cc924
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Dec 22 21:13:56 2010 -0800
+
+    altos: Add telemetrum-v1.1 directory
+    
+    This just clones the v1.0 build; changes will be added on top of this.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9f7296b3feab872bf51fc369ade69cc1e7cf7a3f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Dec 22 21:06:22 2010 -0800
+
+    altos: Split out SPI driver.
+    
+    For TM with the companion connector, the SPI bus will be shared among
+    multiple devices. Split out the existing SPI code into a common
+    driver, with the SPI bus protected by a mutex.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 51c410c1c952e0e9bcf1b2c438813de63753be5f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Nov 28 00:24:54 2010 -0800
+
+    windows: Update NSIS installer file to use compatibility IDs
+    
+    This allows the file to contain a single InitDriverSetup function,
+    making things shorter and (I hope) clearer.
+
+commit 4a42f9d5c20dcaf5fd7591ccf9e32c6130d9d538
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Nov 28 00:22:14 2010 -0800
+
+    windows: Add compatibility IDs to telemetrum.inf
+    
+    This will allow the .nsi file to reference just the compatibility ID
+    instead of needing to have all of the USB IDs listed.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 484b44e81b655f1ecb48256095382a56d2839bae
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 26 17:39:40 2010 -0800
+
+    altos: eliminate ao_wake_task
+    
+    Waking up a task waiting on some random object is a bad idea. Fix
+    the waiters to look for suitable signalling.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 07213dc34fa20470a4b36a327a83d75b0f010ebb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Nov 26 16:14:15 2010 -0800
+
+    altos: clean up radio abort paths. Share radio code.
+    
+    Instead of aborting the DMA and radio operation and expecting that to
+    be handled reasonably by the radio receiving task, rewrite things so
+    that the abort function just wakes the receiving task while that
+    terminates the DMA and cleans up the radio.
+    
+    This eliminates all kinds of nasty bugs dealing with radio abort
+    smashing the radio registers at the wrong time, or interrupting a
+    radio transmission.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b62580855c5144f5bc7e0172289bce08814d9472
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Tue Dec 14 03:40:18 2010 +1000
+
+    altosui: move maps to subdir, fix E/W mismatch
+
+commit b8d2eb5509096fd5bd04598b1312077659109620
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Dec 1 00:15:17 2010 -0700
+
+    update changelogs for Debian build
+
 commit ea95c060f8bd959cefc60dd6d411151f3c91384e
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed Dec 1 00:12:05 2010 -0700

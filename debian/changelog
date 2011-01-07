@@ -1,3 +1,24 @@
+altos (0.8.1+18+g408a3e0) unstable; urgency=low
+
+  [ Anthony Towns ]
+  * altosui: move maps to subdir, fix E/W mismatch
+
+  [ Keith Packard ]
+  * altos: clean up radio abort paths. Share radio code.
+  * altos: eliminate ao_wake_task
+  * windows: Add compatibility IDs to telemetrum.inf
+  * windows: Update NSIS installer file to use compatibility IDs
+  * altos: Split out SPI driver.
+  * altos: Add telemetrum-v1.1 directory
+  * altos: packet and usb i/o routines use 'char', not 'uint8_t'
+  * altos: Simplify storage API
+  * altos: Require manual flight erasing.
+  * altos: Move common storage code to ao_storage.c. Add M25P80 driver
+  * altos: Rip out 'optimization' in ao_log_scan
+  * altos: Mark end of available flight list with 'done' to make the UI
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 07 Jan 2011 00:51:41 -0700
+
 altos (0.8.1+4+gea95c06) unstable; urgency=low
 
   * fix symlink paths in rules file
