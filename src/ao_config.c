@@ -27,6 +27,7 @@ __xdata uint8_t ao_config_mutex;
 #define AO_CONFIG_DEFAULT_CALLSIGN	"N0CALL"
 #define AO_CONFIG_DEFAULT_ACCEL_ZERO_G	16000
 #define AO_CONFIG_DEFAULT_APOGEE_DELAY	0
+#define AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX	((uint32_t) 256 * (uint32_t) 1024)
 
 #if HAS_EEPROM
 static void
@@ -83,6 +84,9 @@ _ao_config_get(void)
 		/* Fixups for minor version 3 */
 		if (ao_config.minor < 3)
 			ao_config.radio_cal = ao_radio_cal;
+		/* Fixups for minor version 4 */
+		if (ao_config.minor < 4)
+			ao_config.flight_log_max = AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX;
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
@@ -291,6 +295,30 @@ ao_config_radio_cal_set(void) __reentrant
 	ao_config_radio_cal_show();
 }
 
+#if HAS_EEPROM
+void
+ao_config_log_show(void) __reentrant
+{
+	printf("Max flight log: %d kB\n", (int16_t) (ao_config.flight_log_max >> 10));
+}
+
+void
+ao_config_log_set(void) __reentrant
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	ao_mutex_get(&ao_config_mutex);
+	_ao_config_get();
+	if (ao_storage_block > 1024 && (ao_cmd_lex_u32 & ((ao_storage_block >> 10) - 1)))
+		printf("Flight log size must be multiple of %ld\n", ao_storage_block >> 10);
+	ao_config.flight_log_max = ao_cmd_lex_u32 << 10;
+	ao_config_dirty = 1;
+	ao_mutex_put(&ao_config_mutex);
+	ao_config_log_show();
+}
+#endif /* HAS_EEPROM */
+
 struct ao_config_var {
 	char		cmd;
 	void		(*set)(void) __reentrant;
@@ -324,6 +352,10 @@ __code struct ao_config_var ao_config_vars[] = {
 #endif /* HAS_ADC */
 	{ 'f',  ao_config_radio_cal_set,  	ao_config_radio_cal_show,
 		"f <cal>     Set radio calibration value (cal = rf/(xtal/2^16))" },
+#if HAS_EEPROM
+	{ 'l',  ao_config_log_set,		ao_config_log_show,
+		"l <size>    Set flight log size in kB" },
+#endif
 	{ 's',	ao_config_show,			ao_config_show,
 		"s           Show current config values" },
 #if HAS_EEPROM

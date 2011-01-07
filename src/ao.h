@@ -1002,7 +1002,7 @@ ao_igniter_init(void);
  */
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	3
+#define AO_CONFIG_MINOR	4
 
 struct ao_config {
 	uint8_t		major;
@@ -1014,6 +1014,7 @@ struct ao_config {
 	uint8_t		apogee_delay;		/* minor version 1 */
 	int16_t		accel_minus_g;		/* minor version 2 */
 	uint32_t	radio_cal;		/* minor version 3 */
+	uint32_t	flight_log_max;		/* minor version 4 */
 };
 
 extern __xdata struct ao_config ao_config;
