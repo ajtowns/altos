@@ -103,6 +103,10 @@ ao_storage_dump(void) __reentrant
 	}
 }
 
+#if 0
+
+/* not enough space for this today
+ */
 static void
 ao_storage_store(void) __reentrant
 {
@@ -130,6 +134,7 @@ ao_storage_store(void) __reentrant
 		addr++;
 	}
 }
+#endif
 
 void
 ao_storage_zap(void) __reentrant
@@ -138,6 +143,18 @@ ao_storage_zap(void) __reentrant
 	if (ao_cmd_status != ao_cmd_success)
 		return;
 	ao_storage_erase((uint32_t) ao_cmd_lex_i << 8);
+}
+
+void
+ao_storage_zapall(void) __reentrant
+{
+	uint32_t	pos;
+
+	ao_cmd_white();
+	if (!ao_match_word("DoIt"))
+		return;
+	for (pos = 0; pos < ao_storage_config; pos += ao_storage_block)
+		ao_storage_erase(pos);
 }
 
 void
@@ -151,8 +168,11 @@ ao_storage_info(void) __reentrant
 __code struct ao_cmds ao_storage_cmds[] = {
 	{ 'f', ao_storage_info,	"f                                  Show storage info" },
 	{ 'e', ao_storage_dump, "e <block>                          Dump a block of flash data" },
-	{ 'w', ao_storage_store,"w <block> <start> <len> <data> ... Write data to flash" },
-	{ 'z', ao_storage_zap,	"z <block>                          Erase flash containing <block>" },
+#if 0
+	{ 'w', ao_storage_store, "w <block> <start> <len> <data> ... Write data to flash" },
+	#endif
+	{ 'z', ao_storage_zap,	 "z <block>                          Erase flash containing <block>" },
+	{ 'Z', ao_storage_zapall,"Z <key>                            Erase all logs. <key> is doit with D&I" },
 	{ 0,   ao_storage_zap, NULL },
 };
 

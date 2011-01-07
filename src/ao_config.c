@@ -27,7 +27,7 @@ __xdata uint8_t ao_config_mutex;
 #define AO_CONFIG_DEFAULT_CALLSIGN	"N0CALL"
 #define AO_CONFIG_DEFAULT_ACCEL_ZERO_G	16000
 #define AO_CONFIG_DEFAULT_APOGEE_DELAY	0
-#define AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX	((uint32_t) 256 * (uint32_t) 1024)
+#define AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX	((uint32_t) 192 * (uint32_t) 1024)
 
 #if HAS_EEPROM
 static void
@@ -308,14 +308,18 @@ ao_config_log_set(void) __reentrant
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
 		return;
-	ao_mutex_get(&ao_config_mutex);
-	_ao_config_get();
-	if (ao_storage_block > 1024 && (ao_cmd_lex_u32 & ((ao_storage_block >> 10) - 1)))
+	if (ao_log_present())
+		printf("Storage must be empty before changing log size\n");
+	else if (ao_storage_block > 1024 && (ao_cmd_lex_u32 & ((ao_storage_block >> 10) - 1)))
 		printf("Flight log size must be multiple of %ld\n", ao_storage_block >> 10);
-	ao_config.flight_log_max = ao_cmd_lex_u32 << 10;
-	ao_config_dirty = 1;
-	ao_mutex_put(&ao_config_mutex);
-	ao_config_log_show();
+	else {
+		ao_mutex_get(&ao_config_mutex);
+		_ao_config_get();
+		ao_config.flight_log_max = ao_cmd_lex_u32 << 10;
+		ao_config_dirty = 1;
+		ao_mutex_put(&ao_config_mutex);
+		ao_config_log_show();
+	}
 }
 #endif /* HAS_EEPROM */
 

@@ -85,10 +85,6 @@ ao_log(void)
 {
 	ao_storage_setup();
 
-	/* For now, use all of the available space */
-	ao_log_current_pos = 0;
-	ao_log_end_pos = ao_storage_config;
-
 	ao_log_scan();
 
 	while (!ao_log_running)
@@ -200,37 +196,49 @@ ao_log_erase_mark(void)
 	ao_config_put();
 }
 
-static void
-ao_log_erase(uint8_t pos)
+static uint8_t
+ao_log_slots()
 {
-	ao_config_get();
-	(void) pos;
-//	ao_log_current_pos = pos * ao_config.flight_log_max;
-//	ao_log_end_pos = ao_log_current_pos + ao_config.flight_log_max;
-//	if (ao_log_end_pos > ao_storage_config)
-//		return;
+	return (uint8_t) (ao_storage_config / ao_config.flight_log_max);
+}
 
-	ao_log_current_pos = 0;
-	ao_log_end_pos = ao_storage_config;
-
-	while (ao_log_current_pos < ao_log_end_pos) {
-		ao_storage_erase(ao_log_current_pos);
-		ao_log_current_pos += ao_storage_block;
-	}
+static uint32_t
+ao_log_pos(uint8_t slot)
+{
+	return ((slot) * ao_config.flight_log_max);
 }
 
 static uint16_t
 ao_log_flight(uint8_t slot)
 {
-	(void) slot;
-	if (!ao_storage_read(0,
+	if (!ao_storage_read(ao_log_pos(slot),
 			     &log,
 			     sizeof (struct ao_log_record)))
-		ao_panic(AO_PANIC_LOG);
+		return 0;
 
 	if (ao_log_dump_check_data() && log.type == AO_LOG_FLIGHT)
 		return log.u.flight.flight;
 	return 0;
+}
+
+static uint16_t
+ao_log_max_flight(void)
+{
+	uint8_t		log_slot;
+	uint8_t		log_slots;
+	uint16_t	log_flight;
+	uint16_t	max_flight = 0;
+
+	/* Scan the log space looking for the biggest flight number */
+	log_slots = ao_log_slots();
+	for (log_slot = 0; log_slot < log_slots; log_slot++) {
+		log_flight = ao_log_flight(log_slot);
+		if (!log_flight)
+			continue;
+		if (max_flight == 0 || (int16_t) (log_flight - max_flight) > 0)
+			max_flight = log_flight;
+	}
+	return max_flight;
 }
 
 static void
@@ -238,28 +246,14 @@ ao_log_scan(void) __reentrant
 {
 	uint8_t		log_slot;
 	uint8_t		log_slots;
-	uint8_t		log_avail = 0;
-	uint16_t	log_flight;
+	uint8_t		log_want;
 
 	ao_config_get();
 
-	ao_flight_number = 0;
-
-	/* Scan the log space looking for the biggest flight number */
-	log_slot = 0;
-	{
-		log_flight = ao_log_flight(log_slot);
-		if (log_flight) {
-			if (++log_flight == 0)
-				log_flight = 1;
-			if (ao_flight_number == 0 ||
-			    (int16_t) (log_flight - ao_flight_number) > 0) {
-				ao_flight_number = log_flight;
-			}
-		} else
-			log_avail = 1;
-	}
-	log_slots = log_slot + 1;
+	ao_flight_number = ao_log_max_flight();
+	if (ao_flight_number)
+		if (++ao_flight_number == 0)
+			ao_flight_number = 1;
 
 	/* Now look through the log of flight numbers from erase operations and
 	 * see if the last one is bigger than what we found above
@@ -282,11 +276,19 @@ ao_log_scan(void) __reentrant
 	 */
 
 	/* Find a log slot for the next flight, if available */
-	if (log_avail) {
-		ao_log_current_pos = 0;
-		ao_log_end_pos = ao_storage_config;
-	} else
-		ao_log_current_pos = ao_log_end_pos = 0;
+	ao_log_current_pos = ao_log_end_pos = 0;
+	log_slots = ao_log_slots();
+	log_want = (ao_flight_number - 1) % log_slots;
+	log_slot = log_want;
+	do {
+		if (ao_log_flight(log_slot) == 0) {
+			ao_log_current_pos = ao_log_pos(log_slot);
+			ao_log_end_pos = ao_log_current_pos + ao_config.flight_log_max;
+			break;
+		}
+		if (++log_slot >= log_slots)
+			log_slot = 0;
+	} while (log_slot != log_want);
 
 	ao_wakeup(&ao_flight_number);
 }
@@ -306,19 +308,28 @@ ao_log_stop(void)
 	ao_log_flush();
 }
 
+uint8_t
+ao_log_present(void)
+{
+	return ao_log_max_flight() != 0;
+}
+
 static __xdata struct ao_task ao_log_task;
 
 void
 ao_log_list(void) __reentrant
 {
 	uint8_t	slot;
+	uint8_t slots;
 	uint16_t flight;
 
-	slot = 0;
+	slots = ao_log_slots();
+	for (slot = 0; slot < slots; slot++)
 	{
 		flight = ao_log_flight(slot);
 		if (flight)
-			printf ("Flight %d\n", flight);
+			printf ("flight %d start %ld end %ld\n",
+				flight, ao_log_pos(slot), ao_log_pos(slot+1));
 	}
 	printf ("done\n");
 }
@@ -327,15 +338,18 @@ void
 ao_log_delete(void) __reentrant
 {
 	uint8_t slot;
+	uint8_t slots;
+
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
 		return;
-	slot = 0;
+
+	slots = ao_log_slots();
 	/* Look for the flight log matching the requested flight */
-	{
+	for (slot = 0; slot < slots; slot++) {
 		if (ao_log_flight(slot) == ao_cmd_lex_i) {
-			ao_log_current_pos = 0;
-			ao_log_end_pos = ao_storage_config;
+			ao_log_current_pos = ao_log_pos(slot);
+			ao_log_end_pos = ao_log_current_pos + ao_config.flight_log_max;
 			while (ao_log_current_pos < ao_log_end_pos) {
 				/*
 				 * Check to see if we've reached the end of

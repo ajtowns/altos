@@ -624,6 +624,10 @@ ao_log_init(void);
 void
 ao_log_write_erase(uint8_t pos);
 
+/* Returns true if there are any logs stored in eeprom */
+uint8_t
+ao_log_present(void);
+
 /*
  * ao_flight.c
  */
