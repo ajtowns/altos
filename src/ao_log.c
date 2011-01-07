@@ -320,6 +320,7 @@ ao_log_list(void) __reentrant
 		if (flight)
 			printf ("Flight %d\n", flight);
 	}
+	printf ("done\n");
 }
 
 void
