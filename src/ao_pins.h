@@ -48,6 +48,8 @@
 	#define HAS_EXTERNAL_TEMP	0
 	#define SPI_CS_ON_P1		1
 	#define SPI_CS_ON_P0		0
+	#define M25_CS_MASK		0x02	/* CS0 is P1_1 */
+	#define M25_MAX_CHIPS		1
 #endif
 
 #if defined(TELEDONGLE_V_0_2)

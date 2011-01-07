@@ -33,7 +33,9 @@ static void
 _ao_config_put(void)
 {
 	ao_storage_setup();
+	ao_storage_erase(ao_storage_config);
 	ao_storage_write(ao_storage_config, &ao_config, sizeof (ao_config));
+	ao_log_write_erase(0);
 	ao_storage_flush();
 }
 

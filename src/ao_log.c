@@ -168,7 +168,7 @@ ao_log_erase_pos(uint8_t i)
 	return i * sizeof (struct ao_log_erase) + AO_STORAGE_ERASE_LOG;
 }
 
-static void
+void
 ao_log_write_erase(uint8_t pos)
 {
 	erase.unused = 0x00;
@@ -364,12 +364,15 @@ ao_log_delete(void) __reentrant
 				ao_storage_erase(ao_log_current_pos);
 				ao_log_current_pos += ao_storage_block;
 			}
-			puts("Erased\n");
+			puts("Erased");
 			return;
 		}
 	}
+	ao_log_erase_mark();
 	printf("No such flight: %d\n", ao_cmd_lex_i);
 }
+
+
 
 __code struct ao_cmds ao_log_cmds[] = {
 	{ 'l',	ao_log_list,	"l                                  List stored flight logs" },

@@ -443,15 +443,14 @@ extern __xdata uint32_t	ao_storage_block;
 /* Byte offset of config block. Will be ao_storage_block bytes long */
 extern __xdata uint32_t	ao_storage_config;
 
+/* Storage unit size - device reads and writes must be within blocks of this size. Usually 256 bytes. */
+extern __xdata uint16_t ao_storage_unit;
+
 #define AO_STORAGE_ERASE_LOG	(ao_storage_config + AO_CONFIG_MAX_SIZE)
 
 /* Initialize above values. Can only be called once the OS is running */
 void
 ao_storage_setup(void);
-
-/* Flush any pending write data */
-void
-ao_storage_flush(void) __reentrant;
 
 /* Write data. Returns 0 on failure, 1 on success */
 uint8_t
@@ -463,11 +462,35 @@ ao_storage_read(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant;
 
 /* Erase a block of storage. This always clears ao_storage_block bytes */
 uint8_t
-ao_storage_erase(uint32_t pos);
+ao_storage_erase(uint32_t pos) __reentrant;
+
+/* Flush any pending writes to stable storage */
+void
+ao_storage_flush(void) __reentrant;
 
 /* Initialize the storage code */
 void
 ao_storage_init(void);
+
+/*
+ * Low-level functions wrapped by ao_storage.c
+ */
+
+/* Read data within a storage unit */
+uint8_t
+ao_storage_device_read(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant;
+
+/* Write data within a storage unit */
+uint8_t
+ao_storage_device_write(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant;
+
+/* Initialize low-level device bits */
+void
+ao_storage_device_init(void);
+
+/* Print out information about flash chips */
+void
+ao_storage_device_info(void) __reentrant;
 
 /*
  * ao_log.c
@@ -581,14 +604,6 @@ ao_log_flush(void);
  */
 extern __xdata uint16_t ao_flight_number;
 
-/* Retrieve first log record for the current flight */
-uint8_t
-ao_log_dump_first(void);
-
-/* return next log record for the current flight */
-uint8_t
-ao_log_dump_next(void);
-
 /* Logging thread main routine */
 void
 ao_log(void);
@@ -604,6 +619,10 @@ ao_log_stop(void);
 /* Initialize the logging system */
 void
 ao_log_init(void);
+
+/* Write out the current flight number to the erase log */
+void
+ao_log_write_erase(uint8_t pos);
 
 /*
  * ao_flight.c

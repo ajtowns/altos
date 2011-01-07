@@ -29,6 +29,7 @@
 
 #define FLASH_READ		0x03
 #define FLASH_WRITE		0x82
+#define FLASH_PAGE_ERASE	0x81
 #define FLASH_READ_STATUS	0xd7
 #define FLASH_SET_CONFIG	0x3d
 

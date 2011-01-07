@@ -94,13 +94,23 @@ TM_DRIVER_SRC = \
 #
 # 25LC1024 driver source
 EE_DRIVER_SRC = \
+	ao_storage.c \
 	ao_ee.c
 
 #
 # AT45DB161D driver source
 
 FLASH_DRIVER_SRC = \
+	ao_storage.c \
 	ao_flash.c
+
+#
+# Numonyx M25P80 driver source
+#
+
+M25_DRIVER_SRC = \
+	ao_storage.c \
+	ao_m25.c
 
 #
 # SiRF driver source

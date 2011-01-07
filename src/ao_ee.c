@@ -30,6 +30,9 @@ __xdata uint32_t	ao_storage_block;
 /* Byte offset of config block. Will be ao_storage_block bytes long */
 __xdata uint32_t	ao_storage_config;
 
+/* Storage unit size - device reads and writes must be within blocks of this size. Usually 256 bytes. */
+__xdata uint16_t	ao_storage_unit;
+
 /*
  * Using SPI on USART 0, with P1_2 as the chip select
  */
@@ -161,80 +164,34 @@ ao_ee_fill(uint16_t block)
 }
 
 uint8_t
-ao_storage_write(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant
+ao_storage_device_write(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant
 {
-	uint16_t block;
-	uint16_t this_len;
-	uint8_t	this_off;
+	uint16_t block = (uint16_t) (pos >> 8);
 
-	if (pos >= ao_storage_total || pos + len > ao_storage_total)
-		return 0;
-	while (len) {
-
-		/* Compute portion of transfer within
-		 * a single block
-		 */
-		this_off = pos;
-		this_len = EE_BLOCK_SIZE - (uint16_t) this_off;
-		block = (uint16_t) (pos >> 8);
-		if (this_len > len)
-			this_len = len;
-		if (this_len & 0xff00)
-			ao_panic(AO_PANIC_EE);
-
-		/* Transfer the data */
-		ao_mutex_get(&ao_ee_mutex); {
-			if (this_len != EE_BLOCK_SIZE)
-				ao_ee_fill(block);
-			else {
-				ao_ee_flush_internal();
-				ao_ee_block = block;
-			}
-			memcpy(ao_ee_data + this_off, buf, this_len);
-			ao_ee_block_dirty = 1;
-		} ao_mutex_put(&ao_ee_mutex);
-
-		/* See how much is left */
-		buf += this_len;
-		len -= this_len;
-		pos += this_len;
-	}
+	/* Transfer the data */
+	ao_mutex_get(&ao_ee_mutex); {
+		if (len != EE_BLOCK_SIZE)
+			ao_ee_fill(block);
+		else {
+			ao_ee_flush_internal();
+			ao_ee_block = block;
+		}
+		memcpy(ao_ee_data + (uint16_t) (pos & 0xff), buf, len);
+		ao_ee_block_dirty = 1;
+	} ao_mutex_put(&ao_ee_mutex);
 	return 1;
 }
 
 uint8_t
-ao_storage_read(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant
+ao_storage_device_read(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant
 {
-	uint16_t block;
-	uint16_t this_len;
-	uint8_t	this_off;
+	uint16_t block = (uint16_t) (pos >> 8);
 
-	if (pos >= ao_storage_total || pos + len > ao_storage_total)
-		return 0;
-	while (len) {
-
-		/* Compute portion of transfer within
-		 * a single block
-		 */
-		this_off = pos;
-		this_len = EE_BLOCK_SIZE - (uint16_t) this_off;
-		block = (uint16_t) (pos >> 8);
-		if (this_len > len)
-			this_len = len;
-		if (this_len & 0xff00)
-			ao_panic(AO_PANIC_EE);
-
-		/* Transfer the data */
-		ao_mutex_get(&ao_ee_mutex); {
-			ao_ee_fill(block);
-			memcpy(buf, ao_ee_data + this_off, this_len);
-		} ao_mutex_put(&ao_ee_mutex);
-
-		/* See how much is left */
-		buf += this_len;
-		len -= this_len;
-		pos += this_len;
-	}
+	/* Transfer the data */
+	ao_mutex_get(&ao_ee_mutex); {
+		ao_ee_fill(block);
+		memcpy(buf, ao_ee_data + (uint16_t) (pos & 0xff), len);
+	} ao_mutex_put(&ao_ee_mutex);
 	return 1;
 }
 
@@ -259,65 +216,9 @@ ao_storage_erase(uint32_t pos) __reentrant
 }
 
 static void
-ee_dump(void) __reentrant
-{
-	static __xdata uint8_t	b;
-	uint16_t block;
-	uint8_t i;
-
-	ao_cmd_hex();
-	block = ao_cmd_lex_i;
-	if (ao_cmd_status != ao_cmd_success)
-		return;
-	i = 0;
-	do {
-		if ((i & 7) == 0) {
-			if (i)
-				putchar('\n');
-			ao_cmd_put16((uint16_t) i);
-		}
-		putchar(' ');
-		ao_storage_read(((uint32_t) block << 8) | i, &b, 1);
-		ao_cmd_put8(b);
-		++i;
-	} while (i != 0);
-	putchar('\n');
-}
-
-static void
 ee_store(void) __reentrant
 {
-	uint16_t block;
-	uint8_t i;
-	uint16_t len;
-	static __xdata uint8_t b;
-	uint32_t addr;
-
-	ao_cmd_hex();
-	block = ao_cmd_lex_i;
-	ao_cmd_hex();
-	i = ao_cmd_lex_i;
-	addr = ((uint32_t) block << 8) | i;
-	ao_cmd_hex();
-	len = ao_cmd_lex_i;
-	if (ao_cmd_status != ao_cmd_success)
-		return;
-	while (len--) {
-		ao_cmd_hex();
-		if (ao_cmd_status != ao_cmd_success)
-			return;
-		b = ao_cmd_lex_i;
-		ao_storage_write(addr, &b, 1);
-		addr++;
-	}
-	ao_storage_flush();
 }
-
-__code struct ao_cmds ao_ee_cmds[] = {
-	{ 'e', ee_dump, 	"e <block>                          Dump a block of EEPROM data" },
-	{ 'w', ee_store,	"w <block> <start> <len> <data> ... Write data to EEPROM" },
-	{ 0,   ee_store, NULL },
-};
 
 void
 ao_storage_setup(void)
@@ -326,7 +227,13 @@ ao_storage_setup(void)
 		ao_storage_total = EE_DEVICE_SIZE;
 		ao_storage_block = EE_BLOCK_SIZE;
 		ao_storage_config = EE_DEVICE_SIZE - EE_BLOCK_SIZE;
+		ao_storage_unit = EE_BLOCK_SIZE;
 	}
+}
+
+void
+ao_storage_device_info(void) __reentrant
+{
 }
 
 /*
@@ -334,12 +241,10 @@ ao_storage_setup(void)
  * the SPI interface
  */
 void
-ao_storage_init(void)
+ao_storage_device_init(void)
 {
 	/* set up CS */
 	EE_CS = 1;
 	P1DIR |= (1 << EE_CS_INDEX);
 	P1SEL &= ~(1 << EE_CS_INDEX);
-
-	ao_cmd_register(&ao_ee_cmds[0]);
 }
