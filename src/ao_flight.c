@@ -84,9 +84,6 @@ __xdata uint8_t ao_flight_force_idle;
 #define ACCEL_VEL_MACH	VEL_MPS_TO_COUNT(200)
 #define ACCEL_VEL_BOOST	VEL_MPS_TO_COUNT(5)
 
-int32_t accel_vel_mach;
-int32_t accel_vel_boost;
-
 /*
  * Barometer calibration
  *
@@ -214,8 +211,6 @@ ao_flight(void)
 			ao_config_get();
 			ao_main_pres = ao_altitude_to_pres(ao_pres_to_altitude(ao_ground_pres) + ao_config.main_deploy);
 			ao_accel_2g = ao_config.accel_minus_g - ao_config.accel_plus_g;
-			accel_vel_mach = ACCEL_VEL_MACH;
-			accel_vel_boost = ACCEL_VEL_BOOST;
 			ao_flight_vel = 0;
 			ao_min_vel = 0;
 			ao_old_vel = ao_flight_vel;
