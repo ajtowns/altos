@@ -305,17 +305,22 @@ ao_config_log_show(void) __reentrant
 void
 ao_config_log_set(void) __reentrant
 {
+	uint16_t	block = (uint16_t) (ao_storage_block >> 10);
+	uint16_t	config = (uint16_t) (ao_storage_config >> 10);
+
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
 		return;
 	if (ao_log_present())
 		printf("Storage must be empty before changing log size\n");
-	else if (ao_storage_block > 1024 && (ao_cmd_lex_u32 & ((ao_storage_block >> 10) - 1)))
-		printf("Flight log size must be multiple of %ld\n", ao_storage_block >> 10);
+	else if (block > 1024 && (ao_cmd_lex_i & (block - 1)))
+		printf("Flight log size must be multiple of %d kB\n", block);
+	else if (ao_cmd_lex_i > config)
+		printf("Flight log max %d kB\n", config);
 	else {
 		ao_mutex_get(&ao_config_mutex);
 		_ao_config_get();
-		ao_config.flight_log_max = ao_cmd_lex_u32 << 10;
+		ao_config.flight_log_max = (uint32_t) ao_cmd_lex_i << 10;
 		ao_config_dirty = 1;
 		ao_mutex_put(&ao_config_mutex);
 		ao_config_log_show();
