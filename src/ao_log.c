@@ -328,8 +328,10 @@ ao_log_list(void) __reentrant
 	{
 		flight = ao_log_flight(slot);
 		if (flight)
-			printf ("flight %d start %ld end %ld\n",
-				flight, ao_log_pos(slot), ao_log_pos(slot+1));
+			printf ("flight %d start %x end %x\n",
+				flight,
+				(uint16_t) (ao_log_pos(slot) >> 8),
+				(uint16_t) (ao_log_pos(slot+1) >> 8));
 	}
 	printf ("done\n");
 }
