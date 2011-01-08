@@ -19,6 +19,7 @@
 #include "25lc1024.h"
 
 #define EE_BLOCK_SIZE	((uint16_t) (256))
+#define EE_BLOCK_SHIFT	8
 #define EE_DEVICE_SIZE	((uint32_t) 128 * (uint32_t) 1024)
 
 /* Total bytes of available storage */
@@ -166,7 +167,7 @@ ao_ee_fill(uint16_t block)
 uint8_t
 ao_storage_device_write(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant
 {
-	uint16_t block = (uint16_t) (pos >> 8);
+	uint16_t block = (uint16_t) (pos >> EE_BLOCK_SHIFT);
 
 	/* Transfer the data */
 	ao_mutex_get(&ao_ee_mutex); {
@@ -185,7 +186,7 @@ ao_storage_device_write(uint32_t pos, __xdata void *buf, uint16_t len) __reentra
 uint8_t
 ao_storage_device_read(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant
 {
-	uint16_t block = (uint16_t) (pos >> 8);
+	uint16_t block = (uint16_t) (pos >> EE_BLOCK_SHIFT);
 
 	/* Transfer the data */
 	ao_mutex_get(&ao_ee_mutex); {
@@ -207,8 +208,8 @@ uint8_t
 ao_storage_erase(uint32_t pos) __reentrant
 {
 	ao_mutex_get(&ao_ee_mutex); {
-		uint16_t block = (uint16_t) (pos >> 8);
-		ao_ee_fill(block);
+		ao_ee_flush_internal();
+		ao_ee_block = (uint16_t) (pos >> EE_BLOCK_SHIFT);
 		memset(ao_ee_data, 0xff, EE_BLOCK_SIZE);
 		ao_ee_block_dirty = 1;
 	} ao_mutex_put(&ao_ee_mutex);
