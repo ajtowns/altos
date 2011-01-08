@@ -170,6 +170,7 @@ ao_log_write_erase(uint8_t pos)
 	erase.unused = 0x00;
 	erase.flight = ao_flight_number;
 	ao_storage_write(ao_log_erase_pos(pos),  &erase, sizeof (erase));
+	ao_storage_flush();
 }
 
 static void
@@ -350,6 +351,7 @@ ao_log_delete(void) __reentrant
 	/* Look for the flight log matching the requested flight */
 	for (slot = 0; slot < slots; slot++) {
 		if (ao_log_flight(slot) == ao_cmd_lex_i) {
+			ao_log_erase_mark();
 			ao_log_current_pos = ao_log_pos(slot);
 			ao_log_end_pos = ao_log_current_pos + ao_config.flight_log_max;
 			while (ao_log_current_pos < ao_log_end_pos) {
@@ -374,7 +376,6 @@ ao_log_delete(void) __reentrant
 			return;
 		}
 	}
-	ao_log_erase_mark();
 	printf("No such flight: %d\n", ao_cmd_lex_i);
 }
 
