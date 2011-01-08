@@ -45,6 +45,7 @@ public class AltosConfigUI
 	JLabel		apogee_delay_label;
 	JLabel		radio_channel_label;
 	JLabel		radio_calibration_label;
+	JLabel		flight_log_max_label;
 	JLabel		callsign_label;
 
 	public boolean		dirty;
@@ -57,6 +58,7 @@ public class AltosConfigUI
 	JComboBox	apogee_delay_value;
 	JComboBox	radio_channel_value;
 	JTextField	radio_calibration_value;
+	JComboBox	flight_log_max_value;
 	JTextField	callsign_value;
 
 	JButton		save;
@@ -73,6 +75,12 @@ public class AltosConfigUI
 
 	static String[] apogee_delay_values = {
 		"0", "1", "2", "3", "4", "5"
+	};
+
+	static String[] flight_log_max_values = {
+		"64", "128", "192", "256", "320",
+		"384", "448", "512", "576", "640",
+		"704", "768", "832", "896", "960",
 	};
 
 	static String[] radio_channel_values = new String[10];
@@ -296,9 +304,33 @@ public class AltosConfigUI
 		callsign_value.getDocument().addDocumentListener(this);
 		pane.add(callsign_value, c);
 
-		/* Buttons */
+		/* Flight log max */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 8;
+		c.gridwidth = 4;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
+		c.ipady = 5;
+		flight_log_max_label = new JLabel("Maximum Flight Log Size:");
+		pane.add(flight_log_max_label, c);
+
+		c = new GridBagConstraints();
+		c.gridx = 4; c.gridy = 8;
+		c.gridwidth = 4;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		c.ipady = 5;
+		flight_log_max_value = new JComboBox(flight_log_max_values);
+		flight_log_max_value.setEditable(true);
+		flight_log_max_value.addItemListener(this);
+		pane.add(flight_log_max_value, c);
+
+		/* Buttons */
+		c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = 9;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -309,7 +341,7 @@ public class AltosConfigUI
 		save.setActionCommand("Save");
 
 		c = new GridBagConstraints();
-		c.gridx = 2; c.gridy = 8;
+		c.gridx = 2; c.gridy = 9;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
@@ -320,7 +352,7 @@ public class AltosConfigUI
 		reset.setActionCommand("Reset");
 
 		c = new GridBagConstraints();
-		c.gridx = 4; c.gridy = 8;
+		c.gridx = 4; c.gridy = 9;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
@@ -331,7 +363,7 @@ public class AltosConfigUI
 		reboot.setActionCommand("Reboot");
 
 		c = new GridBagConstraints();
-		c.gridx = 6; c.gridy = 8;
+		c.gridx = 6; c.gridy = 9;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_END;
@@ -459,8 +491,17 @@ public class AltosConfigUI
 		return callsign_value.getText();
 	}
 
+	public void set_flight_log_max(int new_flight_log_max) {
+		if (new_flight_log_max == 0)
+			flight_log_max_value.setEnabled(false);
+		flight_log_max_value.setSelectedItem(Integer.toString(new_flight_log_max));
+	}
+
+	public int flight_log_max() {
+		return Integer.parseInt(flight_log_max_value.getSelectedItem().toString());
+	}
+
 	public void set_clean() {
 		dirty = false;
 	}
-
- }
+}
