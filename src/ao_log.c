@@ -315,6 +315,12 @@ ao_log_present(void)
 	return ao_log_max_flight() != 0;
 }
 
+uint8_t
+ao_log_full(void)
+{
+	return ao_log_current_pos == ao_log_end_pos;
+}
+
 static __xdata struct ao_task ao_log_task;
 
 void

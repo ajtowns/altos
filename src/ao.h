@@ -628,6 +628,10 @@ ao_log_write_erase(uint8_t pos);
 uint8_t
 ao_log_present(void);
 
+/* Returns true if there is no more storage space available */
+uint8_t
+ao_log_full(void);
+
 /*
  * ao_flight.c
  */

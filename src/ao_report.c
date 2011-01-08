@@ -128,6 +128,16 @@ ao_report_continuity(void) __reentrant
 			ao_beep_for(AO_BEEP_LOW, AO_MS_TO_TICKS(20));
 		}
 	}
+	if (ao_log_full()) {
+		pause(AO_MS_TO_TICKS(100));
+		c = 2;
+		while (c--) {
+			ao_beep_for(AO_BEEP_LOW, AO_MS_TO_TICKS(100));
+			ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(100));
+			ao_beep_for(AO_BEEP_HIGH, AO_MS_TO_TICKS(100));
+			ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(100));
+		}
+	}
 	c = 50;
 	while (c-- && ao_flight_state == ao_flight_pad)
 		pause(AO_MS_TO_TICKS(100));
