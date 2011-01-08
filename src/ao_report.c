@@ -17,17 +17,24 @@
 
 #include "ao.h"
 
-static const char * __xdata flight_reports[] = {
-	"...",		/* startup, 'S' */
-	"..",		/* idle 'I' */
-	".--.",		/* pad 'P' */
-	"-...",		/* boost 'B' */
-	"..-.",		/* fast 'F' */
-	"-.-.",		/* coast 'C' */
-	"-..",		/* drogue 'D' */
-	"--",		/* main 'M' */
-	".-..",		/* landed 'L' */
-	".-.-.-",	/* invalid */
+#define BIT(i,x)    	   ((x) ? (1 << (i)) : 0)
+#define MORSE1(a)          (1 | BIT(3,a))
+#define MORSE2(a,b)        (2 | BIT(3,a) | BIT(4,b))
+#define MORSE3(a,b,c)      (3 | BIT(3,a) | BIT(4,b) | BIT(5,c))
+#define MORSE4(a,b,c,d)    (4 | BIT(3,a) | BIT(4,b) | BIT(5,c) | BIT(6,d))
+#define MORSE5(a,b,c,d,e)  (5 | BIT(3,a) | BIT(4,b) | BIT(5,c) | BIT(6,d) | BIT(7,e))
+
+static const uint8_t flight_reports[] = {
+	MORSE3(0,0,0),		/* startup, 'S' */
+	MORSE2(0,0),		/* idle 'I' */
+	MORSE4(0,1,1,0),	/* pad 'P' */
+	MORSE4(1,0,0,0),	/* boost 'B' */
+	MORSE4(0,0,1,0),	/* fast 'F' */
+	MORSE4(1,0,1,0),	/* coast 'C' */
+	MORSE3(1,0,0),		/* drogue 'D' */
+	MORSE2(1,1),		/* main 'M' */
+	MORSE4(0,1,0,0),	/* landed 'L' */
+	MORSE4(1,0,0,1),	/* invalid 'X' */
 };
 
 #if 1
@@ -42,17 +49,18 @@ static __xdata enum ao_flight_state ao_report_state;
 static void
 ao_report_beep(void) __reentrant
 {
-	char *r = flight_reports[ao_flight_state];
-	char c;
+	uint8_t r = flight_reports[ao_flight_state];
+	uint8_t l = r & 7;
 
 	if (!r)
 		return;
-	while (c = *r++) {
-		if (c == '.')
-			signal(AO_MS_TO_TICKS(200));
-		else
+	while (l--) {
+		if (r & 8)
 			signal(AO_MS_TO_TICKS(600));
+		else
+			signal(AO_MS_TO_TICKS(200));
 		pause(AO_MS_TO_TICKS(200));
+		r >>= 1;
 	}
 	pause(AO_MS_TO_TICKS(400));
 }
