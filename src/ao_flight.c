@@ -463,11 +463,5 @@ void
 ao_flight_init(void)
 {
 	ao_flight_state = ao_flight_startup;
-	ao_interval_min_accel = 0;
-	ao_interval_max_accel = 0x7fff;
-	ao_interval_min_pres = 0;
-	ao_interval_max_pres = 0x7fff;
-	ao_interval_end = AO_INTERVAL_TICKS;
-
 	ao_add_task(&flight_task, ao_flight, "flight");
 }
