@@ -170,7 +170,7 @@ __code struct ao_cmds ao_storage_cmds[] = {
 	{ 'e', ao_storage_dump, "e <block>                          Dump a block of flash data" },
 #if 0
 	{ 'w', ao_storage_store, "w <block> <start> <len> <data> ... Write data to flash" },
-	#endif
+#endif
 	{ 'z', ao_storage_zap,	 "z <block>                          Erase flash containing <block>" },
 	{ 'Z', ao_storage_zapall,"Z <key>                            Erase all logs. <key> is doit with D&I" },
 	{ 0,   ao_storage_zap, NULL },
