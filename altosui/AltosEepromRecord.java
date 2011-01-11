@@ -26,7 +26,9 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
+
+import libaltosJNI.*;
 
 public class AltosEepromRecord {
 	public int	cmd;
@@ -35,6 +37,49 @@ public class AltosEepromRecord {
 	public int	b;
 	public String	data;
 	public boolean	tick_valid;
+
+	int[] ParseHex(String line) {
+		String[] tokens = line.split("\\s+");
+		int[] array = new int[tokens.length];
+
+		for (int i = 0; i < tokens.length; i++)
+			try {
+				array[i] = Integer.parseInt(tokens[i], 16);
+			} catch (NumberFormatException ne) {
+				return null;
+			}
+		return array;
+	}
+
+	int checksum(int[] line) {
+		int	csum = 0x5a;
+		for (int i = 1; i < line.length; i++)
+			csum += line[i];
+		return csum & 0xff;
+	}
+
+	public AltosEepromRecord (AltosSerial serial_line, int addr)
+		throws TimeoutException, ParseException, InterruptedException {
+		String	line = serial_line.get_reply(5000);
+		if (line == null)
+			throw new TimeoutException();
+		int[] values = ParseHex(line);
+
+		if (values == null)
+			throw new ParseException(String.format("invalid line %s", line), 0);
+		if (values[0] != (addr & 0xff))
+			throw new ParseException(String.format("data address out of sync at 0x%x",
+							       addr), 0);
+		if (checksum(values) != 0)
+			throw new ParseException(String.format("invalid checksum at 0x%x", addr), 0);
+
+		cmd = values[1];
+		tick = values[3] + (values[4] << 8);
+		a = values[5] + (values[6] << 8);
+		b = values[7] + (values[8] << 8);
+		data = null;
+		tick_valid = true;
+	}
 
 	public AltosEepromRecord (String line) {
 		tick_valid = false;

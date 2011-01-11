@@ -15,6 +15,7 @@ altosui_JAVA = \
 	AltosAscent.java \
 	AltosChannelMenu.java \
 	AltosConfig.java \
+	AltosConfigData.java \
 	AltosConfigUI.java \
 	AltosConfigureUI.java \
 	AltosConvert.java \
@@ -26,6 +27,7 @@ altosui_JAVA = \
 	AltosDeviceDialog.java \
 	AltosDevice.java \
 	AltosDisplayThread.java \
+	AltosEepromBlock.java \
 	AltosEepromDownload.java \
 	AltosEepromMonitor.java \
 	AltosEepromIterable.java \

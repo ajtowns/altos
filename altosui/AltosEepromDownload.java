@@ -32,182 +32,105 @@ import libaltosJNI.*;
 
 public class AltosEepromDownload implements Runnable {
 
-	static final String[] state_names = {
-		"startup",
-		"idle",
-		"pad",
-		"boost",
-		"fast",
-		"coast",
-		"drogue",
-		"main",
-		"landed",
-		"invalid",
-	};
-
-	int[] ParseHex(String line) {
-		String[] tokens = line.split("\\s+");
-		int[] array = new int[tokens.length];
-
-		for (int i = 0; i < tokens.length; i++)
-			try {
-				array[i] = Integer.parseInt(tokens[i], 16);
-			} catch (NumberFormatException ne) {
-				return null;
-			}
-		return array;
-	}
-
-	int checksum(int[] line) {
-		int	csum = 0x5a;
-		for (int i = 1; i < line.length; i++)
-			csum += line[i];
-		return csum & 0xff;
-	}
-
-	void FlushPending(FileWriter file, LinkedList<String> pending) throws IOException {
-		while (!pending.isEmpty()) {
-			file.write(pending.remove());
-		}
-	}
-
 	JFrame			frame;
 	AltosDevice		device;
 	AltosSerial		serial_line;
 	boolean			remote;
 	Thread			eeprom_thread;
 	AltosEepromMonitor	monitor;
+	int			serial = 0;
+	int			flight = 0;
+	int			year = 0, month = 0, day = 0;
+	boolean			want_file = false;
+	FileWriter		eeprom_file = null;
+	LinkedList<String>	eeprom_pending = new LinkedList<String>();
+	AltosConfigData		config_data;
 
-	void CaptureLog() throws IOException, InterruptedException, TimeoutException {
-		int			serial = 0;
+	private void FlushPending() throws IOException {
+		for (String s : config_data) {
+			eeprom_file.write(s);
+			eeprom_file.write('\n');
+		}
+
+		for (String s : eeprom_pending)
+			eeprom_file.write(s);
+	}
+
+	private void CheckFile(boolean force) throws IOException {
+		if (eeprom_file != null)
+			return;
+		if (force || (flight != 0 && want_file)) {
+			AltosFile		eeprom_name;
+			if (year != 0 && month != 0 && day != 0)
+				eeprom_name = new AltosFile(year, month, day, serial, flight, "eeprom");
+			else
+				eeprom_name = new AltosFile(serial, flight, "eeprom");
+
+			eeprom_file = new FileWriter(eeprom_name);
+			if (eeprom_file != null) {
+				monitor.set_file(eeprom_name.getName());
+				FlushPending();
+				eeprom_pending = null;
+			}
+		}
+	}
+
+	void CaptureLog(int start_block, int end_block) throws IOException, InterruptedException, TimeoutException {
 		int			block, state_block = 0;
-		int			addr;
-		int			flight = 0;
-		int			year = 0, month = 0, day = 0;
 		int			state = 0;
 		boolean			done = false;
-		boolean			want_file = false;
-		boolean			any_valid;
-		FileWriter		eeprom_file = null;
-		AltosFile		eeprom_name;
-		LinkedList<String>	eeprom_pending = new LinkedList<String>();
+		int			record;
 
-		serial_line.printf("\nc s\nv\n");
-
-		/* Pull the serial number out of the version information */
-
-		for (;;) {
-			String	line = serial_line.get_reply(5000);
-
-			if (line == null)
-				throw new TimeoutException();
-			if (line.startsWith("serial-number")) {
-				try {
-					serial = Integer.parseInt(line.substring(13).trim());
-				} catch (NumberFormatException ne) {
-					serial = 0;
-				}
-			}
-
-			eeprom_pending.add(String.format("%s\n", line));
-
-			/* signals the end of the version info */
-			if (line.startsWith("software-version"))
-				break;
-		}
+		config_data = new AltosConfigData(serial_line);
+		serial = config_data.serial;
 		if (serial == 0)
 			throw new IOException("no serial number found");
 
 		monitor.set_serial(serial);
 		/* Now scan the eeprom, reading blocks of data and converting to .eeprom file form */
 
-		state = 0; state_block = 0;
-		for (block = 0; !done && block < 511; block++) {
-			serial_line.printf("e %x\n", block);
-			any_valid = false;
-			monitor.set_value(state_names[state], state, block - state_block);
-			for (addr = 0; addr < 0x100;) {
-				String	line = serial_line.get_reply(5000);
-				if (line == null)
-					throw new TimeoutException();
-				int[] values = ParseHex(line);
+		state = 0; state_block = start_block;
+		for (block = start_block; !done && block < end_block; block++) {
+			monitor.set_value(Altos.state_to_string[state], state, block - state_block);
 
-				if (values == null) {
-					System.out.printf("invalid line: %s\n", line);
-					continue;
-				} else if (values[0] != addr) {
-					System.out.printf("data address out of sync at 0x%x\n",
-							  block * 256 + values[0]);
-				} else if (checksum(values) != 0) {
-					System.out.printf("invalid checksum at 0x%x\n",
-							  block * 256 + values[0]);
-				} else {
-					any_valid = true;
-					int	cmd = values[1];
-					int	tick = values[3] + (values[4] << 8);
-					int	a = values[5] + (values[6] << 8);
-					int	b = values[7] + (values[8] << 8);
-
-					if (cmd == Altos.AO_LOG_FLIGHT) {
-						flight = b;
-						monitor.set_flight(flight);
-					}
-
-					/* Monitor state transitions to update display */
-					if (cmd == Altos.AO_LOG_STATE && a <= Altos.ao_flight_landed) {
-						if (a > Altos.ao_flight_pad)
-							want_file = true;
-						if (a > state)
-							state_block = block;
-						state = a;
-					}
-
-					if (cmd == Altos.AO_LOG_GPS_DATE) {
-						year = 2000 + (a & 0xff);
-						month = (a >> 8) & 0xff;
-						day = (b & 0xff);
-						want_file = true;
-					}
-
-					if (eeprom_file == null) {
-						if (serial != 0 && flight != 0 && want_file) {
-							if (year != 0 && month != 0 && day != 0)
-								eeprom_name = new AltosFile(year, month, day, serial, flight, "eeprom");
-							else
-								eeprom_name = new AltosFile(serial, flight, "eeprom");
-
-							monitor.set_file(eeprom_name.getName());
-							eeprom_file = new FileWriter(eeprom_name);
-							if (eeprom_file != null) {
-								FlushPending(eeprom_file, eeprom_pending);
-								eeprom_pending = null;
-							}
-						}
-					}
-
-					String log_line = String.format("%c %4x %4x %4x\n",
-									cmd, tick, a, b);
-					if (eeprom_file != null)
-						eeprom_file.write(log_line);
-					else
-						eeprom_pending.add(log_line);
-
-					if (cmd == Altos.AO_LOG_STATE && a == Altos.ao_flight_landed) {
-						done = true;
-					}
-				}
-				addr += 8;
+			AltosEepromBlock	eeblock = new AltosEepromBlock(serial_line, block);
+			if (eeblock.has_flight) {
+				flight = eeblock.flight;
+				monitor.set_flight(flight);
 			}
-			if (!any_valid)
-				done = true;
-		}
-		if (eeprom_file == null) {
-			eeprom_name = new AltosFile(serial,flight,"eeprom");
-			eeprom_file = new FileWriter(eeprom_name);
-			if (eeprom_file != null) {
-				FlushPending(eeprom_file, eeprom_pending);
+			if (eeblock.has_date) {
+				year = eeblock.year;
+				month = eeblock.month;
+				day = eeblock.day;
+				want_file = true;
+			}
+
+			if (eeblock.size() == 0 ||
+			    eeblock.has_state && eeblock.state == Altos.ao_flight_landed)
+					done = true;
+
+			/* Monitor state transitions to update display */
+			if (eeblock.has_state) {
+				if (eeblock.state > Altos.ao_flight_pad)
+					want_file = true;
+				if (eeblock.state > state)
+					state = eeblock.state;
+			}
+
+			CheckFile(true);
+
+			for (record = 0; record < eeblock.size(); record++) {
+				AltosEepromRecord r = eeblock.get(record);
+
+				String log_line = String.format("%c %4x %4x %4x\n",
+								r.cmd, r.tick, r.a, r.b);
+				if (eeprom_file != null)
+					eeprom_file.write(log_line);
+				else
+					eeprom_pending.add(log_line);
 			}
 		}
+		CheckFile(true);
 		if (eeprom_file != null) {
 			eeprom_file.flush();
 			eeprom_file.close();
@@ -235,6 +158,8 @@ public class AltosEepromDownload implements Runnable {
 		SwingUtilities.invokeLater(r);
 	}
 
+	int	start_block, end_block;
+
 	public void run () {
 		if (remote) {
 			serial_line.set_radio();
@@ -243,7 +168,7 @@ public class AltosEepromDownload implements Runnable {
 		}
 
 		try {
-			CaptureLog();
+			CaptureLog(start_block, end_block);
 		} catch (IOException ee) {
 			show_error (device.toShortString(),
 				    ee.getLocalizedMessage());
@@ -271,6 +196,7 @@ public class AltosEepromDownload implements Runnable {
 				serial_line = new AltosSerial(device);
 				if (!device.matchProduct(AltosDevice.product_telemetrum))
 					remote = true;
+
 				monitor = new AltosEepromMonitor(frame, Altos.ao_flight_boost, Altos.ao_flight_landed);
 				monitor.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {
@@ -280,6 +206,8 @@ public class AltosEepromDownload implements Runnable {
 					});
 
 				eeprom_thread = new Thread(this);
+				start_block = 0;
+				end_block = 0xfff;
 				eeprom_thread.start();
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(frame,
