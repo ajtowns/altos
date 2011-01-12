@@ -38,6 +38,12 @@ public class AltosEepromBlock extends ArrayList<AltosEepromRecord> {
 	int	state;
 	boolean	has_date;
 	int	year, month, day;
+	boolean	has_lat;
+	double	lat;
+	boolean	has_lon;
+	double	lon;
+	boolean	has_time;
+	int	hour, minute, second;
 
 	public AltosEepromBlock (AltosSerial serial_line, int block) throws TimeoutException, InterruptedException {
 		int	addr;
@@ -46,6 +52,9 @@ public class AltosEepromBlock extends ArrayList<AltosEepromRecord> {
 		has_flight = false;
 		has_state = false;
 		has_date = false;
+		has_lat = false;
+		has_lon = false;
+		has_time = false;
 		serial_line.printf("e %x\n", block);
 		for (addr = 0; !done && addr < 0x100;) {
 			try {
@@ -70,7 +79,20 @@ public class AltosEepromBlock extends ArrayList<AltosEepromRecord> {
 					day = (r.b & 0xff);
 					has_date = true;
 				}
-
+				if (r.cmd == Altos.AO_LOG_GPS_TIME) {
+					hour = (r.a & 0xff);
+					minute = (r.a >> 8);
+					second = (r.b & 0xff);
+					has_time = true;
+				}
+				if (r.cmd == Altos.AO_LOG_GPS_LAT) {
+					lat = (double) (r.a | (r.b << 16)) / 1e7;
+					has_lat = true;
+				}
+				if (r.cmd == Altos.AO_LOG_GPS_LON) {
+					lon = (double) (r.a | (r.b << 16)) / 1e7;
+					has_lon = true;
+				}
 				if (r.cmd == Altos.AO_LOG_STATE && r.a == Altos.ao_flight_landed)
 					done = true;
 				add(addr / 8, r);

@@ -242,6 +242,16 @@ public class AltosSerial implements Runnable {
 		}
 	}
 
+	public void start_remote() {
+		set_radio();
+		printf("p\nE 0\n");
+		flush_input();
+	}
+
+	public void stop_remote() {
+		printf ("~");
+	}
+
 	public AltosSerial(AltosDevice in_device) throws FileNotFoundException, AltosSerialInUseException {
 		device = in_device;
 		line = "";

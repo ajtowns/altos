@@ -161,11 +161,12 @@ public class AltosEepromDownload implements Runnable {
 	int	start_block, end_block;
 
 	public void run () {
-		if (remote) {
-			serial_line.set_radio();
-			serial_line.printf("p\nE 0\n");
-			serial_line.flush_input();
-		}
+		try {
+			new AltosEepromList(serial_line, remote);
+		} catch (Exception ee) { }
+
+		if (remote)
+			serial_line.start_remote();
 
 		try {
 			CaptureLog(start_block, end_block);
@@ -179,7 +180,7 @@ public class AltosEepromDownload implements Runnable {
 				    "Connection Failed");
 		}
 		if (remote)
-			serial_line.printf("~");
+			serial_line.stop_remote();
 		monitor.done();
 		serial_line.flush_output();
 		serial_line.close();

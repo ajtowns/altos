@@ -65,8 +65,10 @@ public class AltosEepromRecord {
 			throw new TimeoutException();
 		int[] values = ParseHex(line);
 
-		if (values == null)
-			throw new ParseException(String.format("invalid line %s", line), 0);
+		if (values == null || values.length < 9) {
+			System.out.printf("invalid line %s", line);
+			throw new ParseException(String.format("inalid line %s", line), 0);
+		}
 		if (values[0] != (addr & 0xff))
 			throw new ParseException(String.format("data address out of sync at 0x%x",
 							       addr), 0);

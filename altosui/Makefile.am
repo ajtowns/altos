@@ -29,6 +29,8 @@ altosui_JAVA = \
 	AltosDisplayThread.java \
 	AltosEepromBlock.java \
 	AltosEepromDownload.java \
+	AltosEepromList.java \
+	AltosEepromLog.java \
 	AltosEepromMonitor.java \
 	AltosEepromIterable.java \
 	AltosEepromRecord.java \
