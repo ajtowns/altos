@@ -92,7 +92,7 @@ ao_storage_dump(void) __reentrant
 				  storage_data,
 				  8)) {
 			ao_cmd_put16((uint16_t) i);
-			for (j = 0; j < 7; j++) {
+			for (j = 0; j < 8; j++) {
 				putchar(' ');
 				ao_cmd_put8(storage_data[j]);
 			}
