@@ -355,31 +355,33 @@ ao_log_delete(void) __reentrant
 
 	slots = ao_log_slots();
 	/* Look for the flight log matching the requested flight */
-	for (slot = 0; slot < slots; slot++) {
-		if (ao_log_flight(slot) == ao_cmd_lex_i) {
-			ao_log_erase_mark();
-			ao_log_current_pos = ao_log_pos(slot);
-			ao_log_end_pos = ao_log_current_pos + ao_config.flight_log_max;
-			while (ao_log_current_pos < ao_log_end_pos) {
-				/*
-				 * Check to see if we've reached the end of
-				 * the used memory to avoid re-erasing the same
-				 * memory over and over again
-				 */
-				if (ao_storage_read(ao_log_current_pos,
-						    &log,
-						    sizeof (struct ao_log_record))) {
-					for (slot = 0; slot < sizeof (struct ao_log_record); slot++)
-						if (((uint8_t *) &log)[slot] != 0xff)
+	if (ao_cmd_lex_i) {
+		for (slot = 0; slot < slots; slot++) {
+			if (ao_log_flight(slot) == ao_cmd_lex_i) {
+				ao_log_erase_mark();
+				ao_log_current_pos = ao_log_pos(slot);
+				ao_log_end_pos = ao_log_current_pos + ao_config.flight_log_max;
+				while (ao_log_current_pos < ao_log_end_pos) {
+					/*
+					 * Check to see if we've reached the end of
+					 * the used memory to avoid re-erasing the same
+					 * memory over and over again
+					 */
+					if (ao_storage_read(ao_log_current_pos,
+							    &log,
+							    sizeof (struct ao_log_record))) {
+						for (slot = 0; slot < sizeof (struct ao_log_record); slot++)
+							if (((uint8_t *) &log)[slot] != 0xff)
+								break;
+						if (slot == sizeof (struct ao_log_record))
 							break;
-					if (slot == sizeof (struct ao_log_record))
-						break;
+					}
+					ao_storage_erase(ao_log_current_pos);
+					ao_log_current_pos += ao_storage_block;
 				}
-				ao_storage_erase(ao_log_current_pos);
-				ao_log_current_pos += ao_storage_block;
+				puts("Erased");
+				return;
 			}
-			puts("Erased");
-			return;
 		}
 	}
 	printf("No such flight: %d\n", ao_cmd_lex_i);
