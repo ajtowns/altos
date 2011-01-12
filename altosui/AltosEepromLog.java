@@ -30,6 +30,10 @@ import java.util.concurrent.*;
 
 import libaltosJNI.*;
 
+/*
+ * Extract a bit of information from an eeprom-stored flight log.
+ */
+
 public class AltosEepromLog {
 	int		serial;
 	boolean		has_flight;
@@ -42,6 +46,9 @@ public class AltosEepromLog {
 	int		hour, minute, second;
 	double		lat, lon;
 
+	boolean		download;
+	boolean		delete;
+
 	public AltosEepromLog(AltosSerial serial_line, int in_serial,
 			      int in_start_block, int in_end_block)
 		throws InterruptedException, TimeoutException {
@@ -53,6 +60,15 @@ public class AltosEepromLog {
 		end_block = in_end_block;
 		serial = in_serial;
 
+		/*
+		 * By default, request that every log be downloaded but not deleted
+		 */
+		download = true;
+		delete = false;
+		/*
+		 * Only look in the first two blocks so that this
+		 * process doesn't take a long time
+		 */
 		if (in_end_block > in_start_block + 2)
 			in_end_block = in_start_block + 2;
 

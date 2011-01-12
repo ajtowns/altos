@@ -30,6 +30,12 @@ import java.util.concurrent.*;
 
 import libaltosJNI.*;
 
+/*
+ * Temporary structure to hold the list of stored flights;
+ * each of these will be queried in turn to generate more
+ * complete information
+ */
+
 class AltosEepromFlight {
 	int	flight;
 	int	start;
@@ -42,10 +48,16 @@ class AltosEepromFlight {
 	}
 }
 
+/*
+ * Construct a list of flights available in a connected device
+ */
+
 public class AltosEepromList extends ArrayList<AltosEepromLog> {
 	AltosConfigData	config_data;
 
-	public AltosEepromList (AltosSerial serial_line, boolean remote) throws IOException, InterruptedException, TimeoutException {
+	public AltosEepromList (AltosSerial serial_line, boolean remote)
+		throws IOException, InterruptedException, TimeoutException
+	{
 		try {
 			if (remote)
 				serial_line.start_remote();
@@ -54,7 +66,13 @@ public class AltosEepromList extends ArrayList<AltosEepromLog> {
 				throw new IOException("no serial number found");
 
 			ArrayList<AltosEepromFlight> flights = new ArrayList<AltosEepromFlight>();
+
 			if (config_data.flight_log_max != 0) {
+
+				/* Devices with newer firmware will support the 'l'
+				 * command which will list the region of storage
+				 * occupied by each available flight
+				 */
 				serial_line.printf("l\n");
 				for (;;) {
 					String line = serial_line.get_reply(5000);
@@ -83,8 +101,19 @@ public class AltosEepromList extends ArrayList<AltosEepromLog> {
 					} catch (ParseException pe) { System.out.printf("Parse error %s\n", pe.toString()); }
 				}
 			} else {
+
+				/* Older devices will hold only a single
+				 * flight. This also assumes that any older
+				 * device will have a 1MB flash device
+				 */
 				flights.add(new AltosEepromFlight(0, 0, 0xfff));
 			}
+
+			/* With the list of flights collected, collect more complete
+			 * information on them by reading the first block or two of
+			 * data. This will add GPS coordinates and a date. For older
+			 * firmware, this will also extract the flight number.
+			 */
 			for (AltosEepromFlight flight : flights) {
 				System.out.printf("Scanning flight %d %x %x\n", flight.flight, flight.start, flight.end);
 				add(new AltosEepromLog(serial_line, config_data.serial,

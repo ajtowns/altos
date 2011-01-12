@@ -245,7 +245,7 @@ public class AltosUI extends JFrame {
 	 * a TeleDongle over the packet link
 	 */
 	private void SaveFlightData() {
-		new AltosEepromDownload(AltosUI.this);
+		new AltosEepromManage(AltosUI.this);
 	}
 
 	/* Load a flight log file and write out a CSV file containing

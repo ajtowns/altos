@@ -33,21 +33,21 @@ import libaltosJNI.*;
 public class AltosEepromDownload implements Runnable {
 
 	JFrame			frame;
-	AltosDevice		device;
 	AltosSerial		serial_line;
 	boolean			remote;
 	Thread			eeprom_thread;
 	AltosEepromMonitor	monitor;
-	int			serial = 0;
 	int			flight = 0;
 	int			year = 0, month = 0, day = 0;
 	boolean			want_file = false;
 	FileWriter		eeprom_file = null;
 	LinkedList<String>	eeprom_pending = new LinkedList<String>();
-	AltosConfigData		config_data;
+	AltosEepromList		flights;
+	ActionListener		listener;
+	boolean			success;
 
 	private void FlushPending() throws IOException {
-		for (String s : config_data) {
+		for (String s : flights.config_data) {
 			eeprom_file.write(s);
 			eeprom_file.write('\n');
 		}
@@ -62,9 +62,9 @@ public class AltosEepromDownload implements Runnable {
 		if (force || (flight != 0 && want_file)) {
 			AltosFile		eeprom_name;
 			if (year != 0 && month != 0 && day != 0)
-				eeprom_name = new AltosFile(year, month, day, serial, flight, "eeprom");
+				eeprom_name = new AltosFile(year, month, day, flights.config_data.serial, flight, "eeprom");
 			else
-				eeprom_name = new AltosFile(serial, flight, "eeprom");
+				eeprom_name = new AltosFile(flights.config_data.serial, flight, "eeprom");
 
 			eeprom_file = new FileWriter(eeprom_name);
 			if (eeprom_file != null) {
@@ -75,25 +75,24 @@ public class AltosEepromDownload implements Runnable {
 		}
 	}
 
-	void CaptureLog(int start_block, int end_block) throws IOException, InterruptedException, TimeoutException {
+	void CaptureLog(AltosEepromLog log) throws IOException, InterruptedException, TimeoutException {
 		int			block, state_block = 0;
 		int			state = 0;
 		boolean			done = false;
 		int			record;
 
-		config_data = new AltosConfigData(serial_line);
-		serial = config_data.serial;
-		if (serial == 0)
+		if (flights.config_data.serial == 0)
 			throw new IOException("no serial number found");
 
-		monitor.set_serial(serial);
+		monitor.set_serial(flights.config_data.serial);
 		/* Now scan the eeprom, reading blocks of data and converting to .eeprom file form */
 
-		state = 0; state_block = start_block;
-		for (block = start_block; !done && block < end_block; block++) {
+		state = 0; state_block = log.start_block;
+		for (block = log.start_block; !done && block < log.end_block; block++) {
 			monitor.set_value(Altos.state_to_string[state], state, block - state_block);
 
 			AltosEepromBlock	eeblock = new AltosEepromBlock(serial_line, block);
+
 			if (eeblock.has_flight) {
 				flight = eeblock.flight;
 				monitor.set_flight(flight);
@@ -117,7 +116,7 @@ public class AltosEepromDownload implements Runnable {
 					state = eeblock.state;
 			}
 
-			CheckFile(true);
+			CheckFile(false);
 
 			for (record = 0; record < eeblock.size(); record++) {
 				AltosEepromRecord r = eeblock.get(record);
@@ -158,76 +157,73 @@ public class AltosEepromDownload implements Runnable {
 		SwingUtilities.invokeLater(r);
 	}
 
-	int	start_block, end_block;
-
 	public void run () {
-		try {
-			new AltosEepromList(serial_line, remote);
-		} catch (Exception ee) { }
-
 		if (remote)
 			serial_line.start_remote();
 
 		try {
-			CaptureLog(start_block, end_block);
+			for (AltosEepromLog log : flights) {
+				if (log.download) {
+					monitor.reset();
+					CaptureLog(log);
+				}
+			}
+			System.out.printf("All flights successfully downloaded\n");
+			success = true;
 		} catch (IOException ee) {
-			show_error (device.toShortString(),
+			show_error (serial_line.device.toShortString(),
 				    ee.getLocalizedMessage());
 		} catch (InterruptedException ie) {
 		} catch (TimeoutException te) {
 			show_error (String.format("Connection to \"%s\" failed",
-						  device.toShortString()),
+						  serial_line.device.toShortString()),
 				    "Connection Failed");
 		}
 		if (remote)
 			serial_line.stop_remote();
 		monitor.done();
 		serial_line.flush_output();
-		serial_line.close();
+		if (listener != null) {
+			Runnable r = new Runnable() {
+					public void run() {
+						try {
+							listener.actionPerformed(new ActionEvent(this,
+												 success ? 1 : 0,
+												 "download"));
+						} catch (Exception ex) {
+						}
+					}
+				};
+			SwingUtilities.invokeLater(r);
+		}
 	}
 
-	public AltosEepromDownload(JFrame given_frame) {
+	public void start() {
+		eeprom_thread = new Thread(this);
+		eeprom_thread.start();
+	}
+
+	public void addActionListener(ActionListener l) {
+		listener = l;
+	}
+
+	public AltosEepromDownload(JFrame given_frame,
+				   AltosSerial given_serial_line,
+				   boolean given_remote,
+				   AltosEepromList given_flights) {
+
 		frame = given_frame;
-		device = AltosDeviceDialog.show(frame, AltosDevice.product_any);
+		serial_line = given_serial_line;
+		remote = given_remote;
+		flights = given_flights;
+		success = false;
 
-		remote = false;
-
-		if (device != null) {
-			try {
-				serial_line = new AltosSerial(device);
-				if (!device.matchProduct(AltosDevice.product_telemetrum))
-					remote = true;
-
-				monitor = new AltosEepromMonitor(frame, Altos.ao_flight_boost, Altos.ao_flight_landed);
-				monitor.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							if (eeprom_thread != null)
-								eeprom_thread.interrupt();
-						}
-					});
-
-				eeprom_thread = new Thread(this);
-				start_block = 0;
-				end_block = 0xfff;
-				eeprom_thread.start();
-			} catch (FileNotFoundException ee) {
-				JOptionPane.showMessageDialog(frame,
-							      String.format("Cannot open device \"%s\"",
-									    device.toShortString()),
-							      "Cannot open target device",
-							      JOptionPane.ERROR_MESSAGE);
-			} catch (AltosSerialInUseException si) {
-				JOptionPane.showMessageDialog(frame,
-							      String.format("Device \"%s\" already in use",
-									    device.toShortString()),
-							      "Device in use",
-							      JOptionPane.ERROR_MESSAGE);
-			} catch (IOException ee) {
-				JOptionPane.showMessageDialog(frame,
-							      device.toShortString(),
-							      ee.getLocalizedMessage(),
-							      JOptionPane.ERROR_MESSAGE);
-			}
-		}
+		monitor = new AltosEepromMonitor(frame, Altos.ao_flight_boost, Altos.ao_flight_landed);
+		monitor.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (eeprom_thread != null)
+						eeprom_thread.interrupt();
+				}
+			});
 	}
 }

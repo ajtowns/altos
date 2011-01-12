@@ -239,4 +239,22 @@ public class AltosEepromMonitor extends JDialog {
 			};
 		SwingUtilities.invokeLater(r);
 	}
+
+	private void reset_internal() {
+		set_value_internal("startup",min_state,0);
+		set_flight_internal(0);
+		set_file_internal("");
+	}
+
+	public void reset() {
+		Runnable r = new Runnable() {
+				public void run() {
+					try {
+						reset_internal();
+					} catch (Exception ex) {
+					}
+				}
+			};
+		SwingUtilities.invokeLater(r);
+	}
 }

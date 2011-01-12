@@ -28,12 +28,15 @@ altosui_JAVA = \
 	AltosDevice.java \
 	AltosDisplayThread.java \
 	AltosEepromBlock.java \
+	AltosEepromDelete.java \
 	AltosEepromDownload.java \
 	AltosEepromList.java \
 	AltosEepromLog.java \
+	AltosEepromManage.java \
 	AltosEepromMonitor.java \
 	AltosEepromIterable.java \
 	AltosEepromRecord.java \
+	AltosEepromSelect.java \
 	AltosFile.java \
 	AltosFlash.java \
 	AltosFlashUI.java \
