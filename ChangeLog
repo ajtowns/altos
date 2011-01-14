@@ -1,3 +1,190 @@
+commit d794ef9e0fbe4d13259db1bbd69f01717c14400b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jan 12 12:41:26 2011 -0800
+
+    altos: check for valid flight number in ao_log_delete
+    
+    Zero is not a valid flight number, and ao_log_flight uses that to
+    indicate 'no flight in this slot'. Check the user-provided input for
+    zero before looking through the slots.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8801b8c1947bd39f7c985b91a2ba8dbc81bcc91a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jan 12 12:40:45 2011 -0800
+
+    altosui: Add eeprom 'manage' ui to download and delete multiple flights
+    
+    This shows the list of available flights and provides options to
+    download and/or delete each one.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 440d52e34364fdeeddc76a2d744cc6d1c934364f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 11 21:28:07 2011 -0800
+
+    altosui: Add support for parsing list of flights from the 'l' command
+    
+    This adds parsing support to enumerate the available flights, but does
+    not yet provide any UI to use it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7ad419d81c90ef6a16656970466313767fef830f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 11 21:26:41 2011 -0800
+
+    altos: oops -- 'e' command was only showing 7 of the 8 bytes per line
+    
+    Just a silly off-by-one error when printing out the data received from flash.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit bd2480fd757b67557d9c7de42e402034002c3e37
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 11 15:39:24 2011 -0800
+
+    altosui: Split eeprom download code apart
+    
+    Create separate 'download config data', 'read single record' and 'read
+    block' functions. This code will be shared with future multi-log
+    reading code for new firmware.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c437b14b7fc7afdfc7b809a04d7fa29d5e742307
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Fri Jan 7 21:00:10 2011 -0800
+
+    altos: Remove redundant initialization of ao_interval variables
+    
+    These are all initialized in the ao_flight_drogue state transition.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 57de960b8148bf485607898c3d66af6994d76481
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Fri Jan 7 20:52:33 2011 -0800
+
+    altos: Remove unused accel_vel_mach and accel_vel_boost variables
+    
+    Presumably left-over debugging code.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ca66f86a899c191b6362a334417fc84a79349677
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 7 20:46:29 2011 -0800
+
+    altosui: Add configuration of flight log size
+    
+    This adds to the TeleMetrum configuration UI the ability to set the
+    maximum flight log size.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 52ac83fedbfd380d14d4df2e79992bbdfba3552a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 7 20:26:39 2011 -0800
+
+    altos: Check for full log and complain
+    
+    Reports special tone along with the continuity checks.
+    Reports flight 0 in telemetry.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 00891b40754962ef6530b237ef52017bb58112d5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 7 20:25:09 2011 -0800
+
+    altos: Check requested log max size against available space
+    
+    Make sure the amount of memory requested for a single log isn't more
+    than is available on the device.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit bbddcae2a15b6d430e84956ddf26955aa9173cc0
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Fri Jan 7 20:18:25 2011 -0800
+
+    altos: Optimize Morse code generation
+    
+    This reduces the size of data and code needed to report the
+    flight states
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 73620c41017c1774d6190dfd4be5b742eb64f8d3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 7 20:13:28 2011 -0800
+
+    altos: ensure erase mark is written when erasing flights
+    
+    It was getting called only when *failing* to erase a flight (oops),
+    secondly, it wasn't getting written because ao_storage_flush wasn't
+    getting called.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit edd22ee49adf60c35f2fe6ba97c111b7ad4131c2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 7 17:56:06 2011 -0800
+
+    altos: report flight log offsets in hex block numbers instead of bytes
+    
+    makes them compatible with the 'e' command.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1cc08af4f4a1ff61fc0deca3bdd95e8a5ca8ec5c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 7 17:55:54 2011 -0800
+
+    altos: white space fix
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d8c9684239b67a69a4a3d24202a6df0d73c4f7f5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 7 17:54:54 2011 -0800
+
+    altos: Speed up at45 and 25lc erase speeds
+    
+    No need to read the block to be erased before erasing it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2722703bd848b07a02d3ce0c83a502eca52a9f1d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 7 14:58:39 2011 -0800
+
+    altos: support storage of multiple flights.
+    
+    This adds the logging support for dealing with multiple flights
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a9b210bc33cd95e7108ab51925fdf0d5e8deaf7e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 7 10:05:11 2011 -0800
+
+    altos: Add configuration parameter for maximum flight log size
+    
+    This parameter will permit available storage to be split into multiple
+    separate flight logs.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3bcf14f12f6681888c3162d0f33ef2d454eb75dd
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Jan 7 00:52:50 2011 -0700
+
+    update changelogs for Debian build
+
 commit 408a3e04362d626778640dd0ce7d356d3863de53
 Author: Keith Packard <keithp@keithp.com>
 Date:   Thu Jan 6 23:38:13 2011 -0800

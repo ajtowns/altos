@@ -1,3 +1,38 @@
+altos (0.8.1+36+gd794ef9) unstable; urgency=low
+
+  [ Keith Packard ]
+  * altos: Add configuration parameter for maximum flight log size
+  * altos: support storage of multiple flights.
+  * altos: Speed up at45 and 25lc erase speeds
+  * altos: white space fix
+  * altos: report flight log offsets in hex block numbers instead of
+    bytes
+  * altos: ensure erase mark is written when erasing flights
+
+  [ Anthony Towns ]
+  * altos: Optimize Morse code generation
+
+  [ Keith Packard ]
+  * altos: Check requested log max size against available space
+  * altos: Check for full log and complain
+  * altosui: Add configuration of flight log size
+
+  [ Anthony Towns ]
+  * altos: Remove unused accel_vel_mach and accel_vel_boost variables
+  * altos: Remove redundant initialization of ao_interval variables
+
+  [ Keith Packard ]
+  * altosui: Split eeprom download code apart
+  * altos: oops -- 'e' command was only showing 7 of the 8 bytes per
+    line
+  * altosui: Add support for parsing list of flights from the 'l'
+    command
+  * altosui: Add eeprom 'manage' ui to download and delete multiple
+    flights
+  * altos: check for valid flight number in ao_log_delete
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 14 Jan 2011 14:30:37 -0700
+
 altos (0.8.1+18+g408a3e0) unstable; urgency=low
 
   [ Anthony Towns ]
