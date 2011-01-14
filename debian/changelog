@@ -1,4 +1,4 @@
-altos (0.8.1+36+gd794ef9) unstable; urgency=low
+altos (0.8.1+37+g97b1ca9) unstable; urgency=low
 
   [ Keith Packard ]
   * altos: Add configuration parameter for maximum flight log size
