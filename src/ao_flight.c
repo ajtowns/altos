@@ -146,7 +146,8 @@ ao_flight(void)
 	ao_raw_pres = 0;
 	ao_flight_tick = 0;
 	for (;;) {
-		ao_sleep(&ao_adc_ring);
+		ao_wakeup(DATA_TO_XDATA(&ao_flight_adc));
+		ao_sleep(DATA_TO_XDATA(&ao_adc_head));
 		while (ao_flight_adc != ao_adc_head) {
 			__pdata uint8_t ticks;
 			__pdata int16_t ao_vel_change;

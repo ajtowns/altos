@@ -28,15 +28,9 @@ ao_adc_poll(void)
 }
 
 void
-ao_adc_sleep(void)
-{
-	ao_sleep(&ao_adc_ring);
-}
-
-void
 ao_adc_get(__xdata struct ao_adc *packet)
 {
-	uint8_t	i = ao_adc_ring_prev(ao_adc_head);
+	uint8_t	i = ao_adc_ring_prev(ao_flight_adc);
 	memcpy(packet, &ao_adc_ring[i], sizeof (struct ao_adc));
 }
 
@@ -65,7 +59,7 @@ ao_adc_isr(void) __interrupt 1
 		/* record this conversion series */
 		ao_adc_ring[ao_adc_head].tick = ao_time();
 		ao_adc_head = ao_adc_ring_next(ao_adc_head);
-		ao_wakeup(ao_adc_ring);
+		ao_wakeup(DATA_TO_XDATA(&ao_adc_head));
 	}
 }
 

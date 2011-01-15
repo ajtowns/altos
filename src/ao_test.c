@@ -53,7 +53,7 @@ blink_1(void)
 	static __xdata struct ao_adc adc;
 
 	for (;;) {
-		ao_sleep(&ao_adc_ring);
+		ao_sleep(&ao_adc_head);
 		ao_adc_get(&adc);
 		if (adc.accel < 15900)
 			ao_led_on(AO_LED_RED);

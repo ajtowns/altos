@@ -180,7 +180,7 @@ void
 ao_sleep(void *wchan)
 {
 	ao_dump_state();
-	if (wchan == &ao_adc_ring) {
+	if (wchan == &ao_adc_head) {
 		char		type;
 		uint16_t	tick;
 		uint16_t	a, b;

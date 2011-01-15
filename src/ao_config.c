@@ -209,10 +209,10 @@ ao_config_accel_calibrate_auto(char *orientation) __reentrant
 	puts("Calibrating..."); flush();
 	i = ACCEL_CALIBRATE_SAMPLES;
 	accel_total = 0;
-	cal_adc_ring = ao_adc_head;
+	cal_adc_ring = ao_flight_adc;
 	while (i) {
-		ao_sleep(&ao_adc_ring);
-		while (i && cal_adc_ring != ao_adc_head) {
+		ao_sleep(DATA_TO_XDATA(&ao_flight_adc));
+		while (i && cal_adc_ring != ao_flight_adc) {
 			accel_total += (int32_t) ao_adc_ring[cal_adc_ring].accel;
 			cal_adc_ring = ao_adc_ring_next(cal_adc_ring);
 			i--;

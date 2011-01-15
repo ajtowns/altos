@@ -649,7 +649,7 @@ enum ao_flight_state {
 	ao_flight_invalid = 9
 };
 
-extern __xdata struct ao_adc		ao_flight_data;
+extern __data uint8_t			ao_flight_adc;
 extern __pdata enum ao_flight_state	ao_flight_state;
 extern __pdata uint16_t			ao_flight_tick;
 extern __pdata int16_t			ao_flight_accel;

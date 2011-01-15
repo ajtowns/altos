@@ -99,10 +99,10 @@ ao_log(void)
 	/* Write the whole contents of the ring to the log
 	 * when starting up.
 	 */
-	ao_log_adc_pos = ao_adc_ring_next(ao_adc_head);
+	ao_log_adc_pos = ao_adc_ring_next(ao_flight_adc);
 	for (;;) {
 		/* Write samples to EEPROM */
-		while (ao_log_adc_pos != ao_adc_head) {
+		while (ao_log_adc_pos != ao_flight_adc) {
 			log.type = AO_LOG_SENSOR;
 			log.tick = ao_adc_ring[ao_log_adc_pos].tick;
 			log.u.sensor.accel = ao_adc_ring[ao_log_adc_pos].accel;
