@@ -50,6 +50,20 @@ public class AltosEepromManage implements ActionListener {
 		}
 	}
 
+	private String showDeletedFlights() {
+		String	result = "";
+
+		for (AltosEepromLog flight : flights) {
+			if (flight.delete) {
+				if (result.equals(""))
+					result = String.format("%d", flight.flight);
+				else
+					result = String.format("%s, %d", result, flight.flight);
+			}
+		}
+		return result;
+	}
+
 	public void actionPerformed(ActionEvent e) {
 		String	cmd = e.getActionCommand();
 		boolean	success = e.getID() != 0;
@@ -57,15 +71,19 @@ public class AltosEepromManage implements ActionListener {
 		System.out.printf("Eeprom manager action %s %d\n", cmd, e.getID());
 		if (cmd.equals("download")) {
 			if (success) {
-				System.out.printf("Download succeeded\n");
 				if (any_delete)
 					delete.start();
 				else
 					finish();
 			}
 		} else if (cmd.equals("delete")) {
-			if (success)
-				System.out.printf("Delete succeeded\n");
+			if (success) {
+				JOptionPane.showMessageDialog(frame,
+							      String.format("Flights erased: %s",
+									    showDeletedFlights()),
+							      serial_line.device.toShortString(),
+							      JOptionPane.INFORMATION_MESSAGE);
+			}
 			finish();
 		}
 	}
@@ -88,6 +106,11 @@ public class AltosEepromManage implements ActionListener {
 				flights = new AltosEepromList(serial_line, remote);
 
 				if (flights.size() == 0) {
+					JOptionPane.showMessageDialog(frame,
+								      String.format("No flights available on %d",
+										    device.getSerial()),
+								      serial_line.device.toShortString(),
+						JOptionPane.INFORMATION_MESSAGE);
 				} else {
 					AltosEepromSelect	select = new AltosEepromSelect(frame, flights);
 
