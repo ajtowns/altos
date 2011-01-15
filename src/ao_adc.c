@@ -19,12 +19,19 @@
 #include "ao_pins.h"
 
 volatile __xdata struct ao_adc	ao_adc_ring[AO_ADC_RING];
+#if HAS_ACCEL_REF
+volatile __xdata uint16_t 	ao_accel_ref[AO_ADC_RING];
+#endif
 volatile __data uint8_t		ao_adc_head;
 
 void
 ao_adc_poll(void)
 {
+#if HAS_ACCEL_REF
+	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 2;
+#else
 	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 0;
+#endif
 }
 
 void
@@ -41,20 +48,29 @@ ao_adc_isr(void) __interrupt 1
 	uint8_t	__xdata *a;
 
 	sequence = (ADCCON2 & ADCCON2_SCH_MASK) >> ADCCON2_SCH_SHIFT;
-	if (sequence == ADCCON3_ECH_TEMP)
-		sequence = 2;
-	a = (uint8_t __xdata *) (&ao_adc_ring[ao_adc_head].accel + sequence);
+#if HAS_ACCEL_REF
+	if (sequence == 2) {
+		a = (uint8_t __xdata *) (&ao_accel_ref[ao_adc_head]);
+		sequence = 0;
+	} else
+#endif
+	{
+		if (sequence == ADCCON3_ECH_TEMP)
+			sequence = 2;
+		a = (uint8_t __xdata *) (&ao_adc_ring[ao_adc_head].accel + sequence);
+		sequence++;
+	}
 	a[0] = ADCL;
 	a[1] = ADCH;
-	if (sequence < 5) {
+	if (sequence < 6) {
 #if HAS_EXTERNAL_TEMP == 0
 		/* start next channel conversion */
 		/* v0.2 replaces external temp sensor with internal one */
-		if (sequence == 1)
+		if (sequence == 2)
 			ADCCON3 = ADCCON3_EREF_1_25 | ADCCON3_EDIV_512 | ADCCON3_ECH_TEMP;
 		else
 #endif
-			ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | (sequence + 1);
+			ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | sequence;
 	} else {
 		/* record this conversion series */
 		ao_adc_ring[ao_adc_head].tick = ao_time();
