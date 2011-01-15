@@ -221,6 +221,7 @@ ao_flight(void)
 			if (ao_config.accel_plus_g != 0 &&
 			    ao_config.accel_minus_g != 0 &&
 			    ao_flight_accel < ao_config.accel_plus_g + ACCEL_NOSE_UP &&
+			    ao_flight_accel > ao_config.accel_plus_g - ACCEL_NOSE_UP &&
 			    !ao_flight_force_idle)
 			{
 				/* Disable the USB controller in flight mode
