@@ -196,17 +196,17 @@ ao_flight(void)
 
 			/* startup state:
 			 *
-			 * Collect 1000 samples of acceleration and pressure
+			 * Collect 512 samples of acceleration and pressure
 			 * data and average them to find the resting values
 			 */
-			if (nsamples < 1000) {
+			if (nsamples < 512) {
 				ao_raw_accel_sum += ao_raw_accel;
 				ao_raw_pres_sum += ao_raw_pres;
 				++nsamples;
 				continue;
 			}
-			ao_ground_accel = (ao_raw_accel_sum / nsamples);
-			ao_ground_pres = (ao_raw_pres_sum / nsamples);
+			ao_ground_accel = ao_raw_accel_sum >> 9;
+			ao_ground_pres = ao_raw_pres_sum >> 9;
 			ao_min_pres = ao_ground_pres;
 			ao_config_get();
 			ao_main_pres = ao_altitude_to_pres(ao_pres_to_altitude(ao_ground_pres) + ao_config.main_deploy);
