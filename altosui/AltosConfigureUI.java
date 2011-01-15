@@ -47,6 +47,8 @@ public class AltosConfigureUI
 	JLabel		callsign_label;
 	JTextField	callsign_value;
 
+	JRadioButton	serial_debug;
+
 	/* DocumentListener interface methods */
 	public void changedUpdate(DocumentEvent e) {
 		AltosPreferences.set_callsign(callsign_value.getText());
@@ -166,6 +168,30 @@ public class AltosConfigureUI
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(callsign_value, c);
 
+		/* Serial debug setting */
+		c.gridx = 0;
+		c.gridy = 4;
+		c.gridwidth = 1;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(new JLabel("Serial Debug"), c);
+
+		serial_debug = new JRadioButton("Enable", AltosPreferences.serial_debug());
+		serial_debug.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					JRadioButton item = (JRadioButton) e.getSource();
+					boolean enabled = item.isSelected();
+					AltosPreferences.set_serial_debug(enabled);
+				}
+			});
+
+		c.gridx = 1;
+		c.gridy = 4;
+		c.gridwidth = 3;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(serial_debug, c);
+
 		/* And a close button at the bottom */
 		close = new JButton("Close");
 		close.addActionListener(new ActionListener() {
@@ -174,7 +200,7 @@ public class AltosConfigureUI
 				}
 			});
 		c.gridx = 0;
-		c.gridy = 4;
+		c.gridy = 5;
 		c.gridwidth = 3;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;

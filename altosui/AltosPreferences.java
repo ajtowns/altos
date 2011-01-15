@@ -43,6 +43,9 @@ class AltosPreferences {
 	/* firmware directory preference name */
 	final static String firmwaredirPreference = "FIRMWARE";
 
+	/* serial debug preference name */
+	final static String serialDebugPreference = "SERIAL-DEBUG";
+
 	/* Default logdir is ~/TeleMetrum */
 	final static String logdirName = "TeleMetrum";
 
@@ -66,6 +69,9 @@ class AltosPreferences {
 
 	/* Firmware directory */
 	static File firmwaredir;
+
+	/* Serial debug */
+	static boolean serial_debug;
 
 	public static void init(Component ui) {
 		preferences = Preferences.userRoot().node("/org/altusmetrum/altosui");
@@ -97,6 +103,9 @@ class AltosPreferences {
 			firmwaredir = new File(firmwaredir_string);
 		else
 			firmwaredir = null;
+
+		serial_debug = preferences.getBoolean(serialDebugPreference, false);
+		AltosSerial.set_debug(serial_debug);
 	}
 
 	static void flush_preferences() {
@@ -214,5 +223,18 @@ class AltosPreferences {
 
 	public static File firmwaredir() {
 		return firmwaredir;
+	}
+
+	public static void set_serial_debug(boolean new_serial_debug) {
+		serial_debug = new_serial_debug;
+		AltosSerial.set_debug(serial_debug);
+		synchronized (preferences) {
+			preferences.putBoolean(serialDebugPreference, serial_debug);
+			flush_preferences();
+		}
+	}
+
+	public static boolean serial_debug() {
+		return serial_debug;
 	}
 }

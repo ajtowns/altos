@@ -47,6 +47,11 @@ public class AltosSerial implements Runnable {
 	byte[] line_bytes;
 	int line_count;
 	boolean monitor_mode;
+	static boolean debug;
+
+	static void set_debug(boolean new_debug) {
+		debug = new_debug;
+	}
 
 	public void run () {
 		int c;
@@ -84,7 +89,8 @@ public class AltosSerial implements Runnable {
 									q.put(new AltosLine (line));
 								}
 							} else {
-//								System.out.printf("GOT: %s\n", line);
+								if (debug)
+									System.out.printf("\t\t\t\t\t%s\n", line);
 								reply_queue.put(new AltosLine (line));
 							}
 							line_count = 0;
@@ -176,13 +182,14 @@ public class AltosSerial implements Runnable {
 		}
 	}
 
-	public void putc(char c) {
+	private void putc(char c) {
 		if (altos != null)
 			libaltos.altos_putchar(altos, c);
 	}
 
 	public void print(String data) {
-//		System.out.printf("\"%s\" ", data);
+		if (debug)
+			System.out.printf("%s", data);
 		for (int i = 0; i < data.length(); i++)
 			putc(data.charAt(i));
 	}
