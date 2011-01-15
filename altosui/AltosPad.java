@@ -152,7 +152,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	class GPSLocked extends LaunchStatus {
 		void show (AltosState state, int crc_errors) {
 			value.setText(String.format("%4d sats", state.gps.nsat));
-			lights.set(state.gps.locked);
+			lights.set(state.gps.locked && state.gps.nsat >= 4);
 		}
 		public GPSLocked (GridBagLayout layout, int y) {
 			super (layout, y, "GPS Locked");
