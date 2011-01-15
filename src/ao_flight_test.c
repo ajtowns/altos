@@ -154,6 +154,8 @@ struct ao_config {
 
 struct ao_config ao_config = { 250, 15937, 16467 };
 
+#define DATA_TO_XDATA(x) (x)
+
 #include "ao_flight.c"
 
 void
