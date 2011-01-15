@@ -250,6 +250,7 @@ public class AltosSerial implements Runnable {
 
 	public void stop_remote() {
 		printf ("~");
+		flush_output();
 	}
 
 	public AltosSerial(AltosDevice in_device) throws FileNotFoundException, AltosSerialInUseException {
