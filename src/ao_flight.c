@@ -237,9 +237,18 @@ ao_flight(void)
 				ao_flight_state = ao_flight_pad;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			} else {
-				ao_flight_state = ao_flight_idle;
+				if (ao_flight_accel < ao_config.accel_plus_g - ACCEL_NOSE_UP ||
+				    ao_flight_accel > ao_config.accel_minus_g + ACCEL_NOSE_UP)
+				{
+					/* Detected an accel value outside -1.5g to 1.5g
+					 * -> invalid mode
+					 */
+					ao_flight_state = ao_flight_invalid;
+				} else {
+					ao_flight_state = ao_flight_idle;
+				}
 
-				/* Turn on packet system in idle mode
+				/* Turn on packet system in idle or invalid mode
 				 */
 				ao_packet_slave_start();
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
