@@ -1,4 +1,4 @@
-altos (0.8.1+41+gd908c2e) unstable; urgency=low
+altos (0.8.1+42+g646e192) unstable; urgency=low
 
   [ Keith Packard ]
   * altosui: Show dialog after successful delete or when no flights
