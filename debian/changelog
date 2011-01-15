@@ -1,3 +1,12 @@
+altos (0.8.1+41+gd908c2e) unstable; urgency=low
+
+  [ Keith Packard ]
+  * altosui: Show dialog after successful delete or when no flights
+  * altosui: Ensure serial line is flushed after disabling remote link
+  * altosui: Add preference for serial debugging.
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 14 Jan 2011 18:00:51 -0700
+
 altos (0.8.1+37+g97b1ca9) unstable; urgency=low
 
   [ Keith Packard ]

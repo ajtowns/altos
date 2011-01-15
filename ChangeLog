@@ -1,3 +1,39 @@
+commit d908c2ebd0b11a54cfd922a192249d0f0df0ddb0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 14 16:47:36 2011 -0800
+
+    altosui: Add preference for serial debugging.
+    
+    This dumps serial input/output to stdout.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fcaee12a64d5e195b55b8f77c19dfc0c57ef5d58
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 14 16:47:19 2011 -0800
+
+    altosui: Ensure serial line is flushed after disabling remote link
+    
+    Flush the '~' character.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2d154be89246e111a36f7c2700effbb2c97da541
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 14 16:44:50 2011 -0800
+
+    altosui: Show dialog after successful delete or when no flights
+    
+    Make sure the user always sees confirmation for flight log management.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b490455807d1c70c81785ed8931a07ab44e8e421
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Jan 14 14:31:19 2011 -0700
+
+    update changelogs for Debian build
+
 commit 97b1ca994599ad262400eb3c685799582f7f1b94
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Fri Jan 14 14:30:49 2011 -0700
