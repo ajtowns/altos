@@ -238,6 +238,8 @@ ao_sleep(void *wchan)
 			switch (type) {
 			case 'F':
 				ao_flight_ground_accel = a;
+				ao_config.accel_plus_g = a;
+				ao_config.accel_minus_g = a + 530;
 				ao_flight_started = 1;
 				break;
 			case 'S':
