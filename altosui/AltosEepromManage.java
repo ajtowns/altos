@@ -44,7 +44,7 @@ public class AltosEepromManage implements ActionListener {
 
 	public void finish() {
 		if (serial_line != null) {
-			serial_line.flush_output();
+			serial_line.flush_input();
 			serial_line.close();
 			serial_line = null;
 		}
@@ -67,14 +67,15 @@ public class AltosEepromManage implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		String	cmd = e.getActionCommand();
 		boolean	success = e.getID() != 0;
+		boolean running = false;
 
 		System.out.printf("Eeprom manager action %s %d\n", cmd, e.getID());
 		if (cmd.equals("download")) {
 			if (success) {
-				if (any_delete)
+				if (any_delete) {
 					delete.start();
-				else
-					finish();
+					running = true;
+				}
 			}
 		} else if (cmd.equals("delete")) {
 			if (success) {
@@ -84,11 +85,14 @@ public class AltosEepromManage implements ActionListener {
 							      serial_line.device.toShortString(),
 							      JOptionPane.INFORMATION_MESSAGE);
 			}
-			finish();
 		}
+		if (!running)
+			finish();
 	}
 
 	public AltosEepromManage(JFrame given_frame) {
+
+		boolean	running = false;
 
 		frame = given_frame;
 		device = AltosDeviceDialog.show(frame, AltosDevice.product_any);
@@ -139,15 +143,15 @@ public class AltosEepromManage implements ActionListener {
 						 * Start flight log download
 						 */
 
-						if (any_download)
+						if (any_download) {
 							download.start();
-						else if (any_delete)
+							running = true;
+						}
+						else if (any_delete) {
 							delete.start();
-						else
-							finish();
+							running = true;
+						}
 					}
-				} else {
-					finish();
 				}
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(frame,
@@ -166,17 +170,16 @@ public class AltosEepromManage implements ActionListener {
 							      device.toShortString(),
 							      ee.getLocalizedMessage(),
 							      JOptionPane.ERROR_MESSAGE);
-				finish();
 			} catch (TimeoutException te) {
 				JOptionPane.showMessageDialog(frame,
 							      String.format("Communications failed with \"%s\"",
 									    device.toShortString()),
 							      "Cannot open target device",
 							      JOptionPane.ERROR_MESSAGE);
-				finish();
 			} catch (InterruptedException ie) {
-				finish();
 			}
+			if (!running)
+				finish();
 		}
 	}
 }
