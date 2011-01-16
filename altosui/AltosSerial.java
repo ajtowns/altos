@@ -48,6 +48,7 @@ public class AltosSerial implements Runnable {
 	int line_count;
 	boolean monitor_mode;
 	static boolean debug;
+	LinkedList<String> pending_output = new LinkedList<String>();
 
 	static void set_debug(boolean new_debug) {
 		debug = new_debug;
@@ -83,14 +84,14 @@ public class AltosSerial implements Runnable {
 								for (int i = 0; i < line_count; i++)
 									line = line + line_bytes[i];
 							}
+							if (debug)
+								System.out.printf("\t\t\t\t\t%s\n", line);
 							if (line.startsWith("VERSION") || line.startsWith("CRC")) {
 								for (int e = 0; e < monitors.size(); e++) {
 									LinkedBlockingQueue<AltosLine> q = monitors.get(e);
 									q.put(new AltosLine (line));
 								}
 							} else {
-								if (debug)
-									System.out.printf("\t\t\t\t\t%s\n", line);
 								reply_queue.put(new AltosLine (line));
 							}
 							line_count = 0;
@@ -114,8 +115,12 @@ public class AltosSerial implements Runnable {
 	}
 
 	public void flush_output() {
-		if (altos != null)
+		if (altos != null) {
+			for (String s : pending_output)
+				System.out.print(s);
+			pending_output.clear();
 			libaltos.altos_flush(altos);
+		}
 	}
 
 	public void flush_input() {
@@ -180,6 +185,8 @@ public class AltosSerial implements Runnable {
 		synchronized (devices_opened) {
 			devices_opened.remove(device.getPath());
 		}
+		if (debug)
+			System.out.printf("Closing %s\n", device.getPath());
 	}
 
 	private void putc(char c) {
@@ -189,7 +196,7 @@ public class AltosSerial implements Runnable {
 
 	public void print(String data) {
 		if (debug)
-			System.out.printf("%s", data);
+			pending_output.add(data);
 		for (int i = 0; i < data.length(); i++)
 			putc(data.charAt(i));
 	}
@@ -209,6 +216,8 @@ public class AltosSerial implements Runnable {
 			close();
 			throw new FileNotFoundException(device.toShortString());
 		}
+		if (debug)
+			System.out.printf("Open %s\n", device.getPath());
 		input_thread = new Thread(this);
 		input_thread.start();
 		print("~\nE 0\n");
