@@ -37,11 +37,13 @@ public class AltosEepromDownload implements Runnable {
 	boolean			remote;
 	Thread			eeprom_thread;
 	AltosEepromMonitor	monitor;
-	int			flight = 0;
-	int			year = 0, month = 0, day = 0;
-	boolean			want_file = false;
-	FileWriter		eeprom_file = null;
-	LinkedList<String>	eeprom_pending = new LinkedList<String>();
+
+	int			flight;
+	int			year, month, day;
+	boolean			want_file;
+	FileWriter		eeprom_file;
+	LinkedList<String>	eeprom_pending;
+
 	AltosEepromList		flights;
 	ActionListener		listener;
 	boolean			success;
@@ -84,6 +86,16 @@ public class AltosEepromDownload implements Runnable {
 		if (flights.config_data.serial == 0)
 			throw new IOException("no serial number found");
 
+		/* Reset per-capture variables */
+		flight = 0;
+		year = 0;
+		month = 0;
+		day = 0;
+		want_file = false;
+		eeprom_file = null;
+		eeprom_pending = new LinkedList<String>();
+
+		/* Set serial number in the monitor dialog window */
 		monitor.set_serial(flights.config_data.serial);
 		/* Now scan the eeprom, reading blocks of data and converting to .eeprom file form */
 
