@@ -28,11 +28,11 @@ import libaltosJNI.altos_device;
 import libaltosJNI.SWIGTYPE_p_altos_file;
 import libaltosJNI.SWIGTYPE_p_altos_list;
 
-class AltosEepromItem extends JPanel implements ActionListener {
+class AltosEepromItem implements ActionListener {
 	AltosEepromLog	log;
+	JLabel		label;
 	JCheckBox	download;
 	JCheckBox	delete;
-	JLabel		label;
 
 	public void actionPerformed(ActionEvent e) {
 		System.out.printf("eeprom item action %s %d\n", e.getActionCommand(), e.getID());
@@ -50,18 +50,12 @@ class AltosEepromItem extends JPanel implements ActionListener {
 
 		label = new JLabel(String.format("Flight #%02d - %04d-%02d-%02d",
 						 log.flight, log.year, log.month, log.day));
-		label.setPreferredSize(new Dimension(170, 15));
-		add(label);
+
 		download = new JCheckBox("", log.download);
 		download.addActionListener(this);
-		download.setPreferredSize(new Dimension(100, 15));
-		download.setHorizontalAlignment(SwingConstants.CENTER);
-		add(download);
+
 		delete = new JCheckBox("", log.delete);
 		delete.addActionListener(this);
-		delete.setPreferredSize(new Dimension(70, 15));
-		delete.setHorizontalAlignment(SwingConstants.CENTER);
-		add(delete);
 	}
 }
 
@@ -94,6 +88,10 @@ public class AltosEepromSelect extends JDialog implements ActionListener {
 		super(in_frame, String.format("Flight list for serial %d", flights.config_data.serial), true);
 		frame = in_frame;
 
+		/* Create the container for the dialog */
+		Container contentPane = getContentPane();
+
+		/* First, we create a pane containing the dialog's header/title */
 		JLabel	selectLabel = new JLabel("Select flights to download and/or delete", SwingConstants.CENTER);
 
 		JPanel	labelPane = new JPanel();
@@ -103,28 +101,90 @@ public class AltosEepromSelect extends JDialog implements ActionListener {
 		labelPane.add(selectLabel);
 		labelPane.add(Box.createHorizontalGlue());
 
-		JLabel	flightHeaderLabel   = new JLabel("Flight", SwingConstants.CENTER);
-		flightHeaderLabel.setPreferredSize(new Dimension(170, 15));
+		/* Add the header to the container. */
+		contentPane.add(labelPane, BorderLayout.PAGE_START);
 
-		JLabel	downloadHeaderLabel = new JLabel("Download", SwingConstants.CENTER);
-		downloadHeaderLabel.setPreferredSize(new Dimension(100, 15));
 
-		JLabel	deleteHeaderLabel   = new JLabel("Delete", SwingConstants.CENTER);
-		deleteHeaderLabel.setPreferredSize(new Dimension(70, 15));
-
-		JPanel	headerPane = new JPanel();
-		headerPane.add(flightHeaderLabel);
-		headerPane.add(downloadHeaderLabel);
-		headerPane.add(deleteHeaderLabel);
-
-		JPanel	flightPane = new JPanel();
-		flightPane.setLayout(new BoxLayout(flightPane, BoxLayout.Y_AXIS));
+		/* Now we create the evilness that is a GridBag for the flight details */
+		GridBagConstraints c;
+		Insets i = new Insets(4,4,4,4);
+		JPanel flightPane = new JPanel();
+		flightPane.setLayout(new GridBagLayout());
 		flightPane.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		flightPane.add(headerPane);
+
+		/* Flight Header */
+		c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = 0;
+		c.fill = GridBagConstraints.NONE;
+		c.weightx = 0.5;
+		c.anchor = GridBagConstraints.CENTER;
+		c.insets = i;
+		JLabel flightHeaderLabel = new JLabel("Flight:");
+		flightPane.add(flightHeaderLabel, c);
+
+		/* Download Header */
+		c = new GridBagConstraints();
+		c.gridx = 1; c.gridy = 0;
+		c.fill = GridBagConstraints.NONE;
+		c.weightx = 0.5;
+		c.anchor = GridBagConstraints.CENTER;
+		c.insets = i;
+		JLabel downloadHeaderLabel = new JLabel("Download:");
+		flightPane.add(downloadHeaderLabel, c);
+
+		/* Delete Header */
+		c = new GridBagConstraints();
+		c.gridx = 2; c.gridy = 0;
+		c.fill = GridBagConstraints.NONE;
+		c.weightx = 0.5;
+		c.anchor = GridBagConstraints.CENTER;
+		c.insets = i;
+		JLabel deleteHeaderLabel = new JLabel("Delete:");
+		flightPane.add(deleteHeaderLabel, c);
+
+		/* Add the flights to the GridBag */
+		AltosEepromItem item;
+		int itemNumber = 1;
 		for (AltosEepromLog flight : flights) {
-			flightPane.add(new AltosEepromItem(flight));
+			/* Create a flight object with handlers and
+			 * appropriate UI items
+			 */
+			item = new AltosEepromItem(flight);
+
+			/* Add a decriptive label for the flight */
+			c = new GridBagConstraints();
+			c.gridx = 0; c.gridy = itemNumber;
+			c.fill = GridBagConstraints.NONE;
+			c.weightx = 0.5;
+			c.anchor = GridBagConstraints.CENTER;
+			c.insets = i;
+			flightPane.add(item.label, c);
+
+			/* Add a download checkbox for the flight */
+			c = new GridBagConstraints();
+			c.gridx = 1; c.gridy = itemNumber;
+			c.fill = GridBagConstraints.NONE;
+			c.weightx = 0.5;
+			c.anchor = GridBagConstraints.CENTER;
+			c.insets = i;
+			flightPane.add(item.download, c);
+
+			/* Add a delete checkbox for the flight */
+			c = new GridBagConstraints();
+			c.gridx = 2; c.gridy = itemNumber;
+			c.fill = GridBagConstraints.NONE;
+			c.weightx = 0.5;
+			c.anchor = GridBagConstraints.CENTER;
+			c.insets = i;
+			flightPane.add(item.delete, c);
+
+			itemNumber++;
 		}
 
+		/* Add the GridBag to the container */
+		contentPane.add(flightPane, BorderLayout.CENTER);
+
+		/* Create the dialog buttons */
 		ok = new JButton("OK");
 		ok.addActionListener(this);
 		ok.setActionCommand("ok");
@@ -141,12 +201,10 @@ public class AltosEepromSelect extends JDialog implements ActionListener {
 		buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
 		buttonPane.add(ok);
 
-		Container contentPane = getContentPane();
-
-		contentPane.add(labelPane, BorderLayout.PAGE_START);
-		contentPane.add(flightPane, BorderLayout.CENTER);
+		/* Add the buttons to the container */
 		contentPane.add(buttonPane, BorderLayout.PAGE_END);
 
+		/* Pack the window! */
 		pack();
 	}
 }
