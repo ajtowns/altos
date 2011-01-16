@@ -48,6 +48,7 @@ public class AltosSerial implements Runnable {
 	int line_count;
 	boolean monitor_mode;
 	static boolean debug;
+	boolean remote;
 	LinkedList<String> pending_output = new LinkedList<String>();
 
 	static void set_debug(boolean new_debug) {
@@ -126,9 +127,13 @@ public class AltosSerial implements Runnable {
 	public void flush_input() {
 		flush_output();
 		boolean	got_some;
+
+		int timeout = 100;
+		if (remote)
+			timeout = 300;
 		do {
 			try {
-				Thread.sleep(100);
+				Thread.sleep(timeout);
 			} catch (InterruptedException ie) {
 			}
 			got_some = !reply_queue.isEmpty();
@@ -259,14 +264,21 @@ public class AltosSerial implements Runnable {
 	}
 
 	public void start_remote() {
+		if (debug)
+			System.out.printf("start remote\n");
 		set_radio();
 		printf("p\nE 0\n");
 		flush_input();
+		remote = true;
 	}
 
 	public void stop_remote() {
+		if (debug)
+			System.out.printf("stop remote\n");
+		flush_input();
 		printf ("~");
 		flush_output();
+		remote = false;
 	}
 
 	public AltosSerial(AltosDevice in_device) throws FileNotFoundException, AltosSerialInUseException {
