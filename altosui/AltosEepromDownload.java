@@ -180,7 +180,6 @@ public class AltosEepromDownload implements Runnable {
 					CaptureLog(log);
 				}
 			}
-			System.out.printf("All flights successfully downloaded\n");
 			success = true;
 		} catch (IOException ee) {
 			show_error (serial_line.device.toShortString(),
