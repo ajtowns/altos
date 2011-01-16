@@ -41,10 +41,10 @@ ao_monitor(void)
 		if (state > ao_flight_invalid)
 			state = ao_flight_invalid;
 		if (recv.status & PKT_APPEND_STATUS_1_CRC_OK) {
-			printf("VERSION %d CALL %s SERIAL %3d FLIGHT %5u RSSI %4d STATUS %02x STATE %7s ",
+			printf("VERSION %d CALL %s SERIAL %d FLIGHT %5u RSSI %4d STATUS %02x STATE %7s ",
 			       AO_TELEMETRY_VERSION,
 			       callsign,
-			       recv.telemetry.addr,
+			       recv.telemetry.serial,
 			       recv.telemetry.flight,
 			       rssi, recv.status,
 			       ao_state_names[state]);

@@ -856,7 +856,7 @@ ao_gps_report_init(void);
 #define AO_TELEMETRY_VERSION	3
 
 struct ao_telemetry {
-	uint8_t			addr;
+	uint16_t		serial;
 	uint16_t		flight;
 	uint8_t			flight_state;
 	int16_t			flight_accel;
