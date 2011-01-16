@@ -146,6 +146,8 @@ public class AltosEepromManage implements ActionListener {
 						else
 							finish();
 					}
+				} else {
+					finish();
 				}
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(frame,
