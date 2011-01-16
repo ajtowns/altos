@@ -180,6 +180,215 @@ ao_gps_parse_flag(char no_c, char yes_c) __reentrant
 	return ret;
 }
 
+static void
+ao_nmea_gga()
+{
+	uint8_t	i;
+
+	/* Now read the data into the gps data record
+	 *
+	 * $GPGGA,025149.000,4528.1723,N,12244.2480,W,1,05,2.0,103.5,M,-19.5,M,,0000*66
+	 *
+	 * Essential fix data
+	 *
+	 *	   025149.000	time (02:51:49.000 GMT)
+	 *	   4528.1723,N	Latitude 45°28.1723' N
+	 *	   12244.2480,W	Longitude 122°44.2480' W
+	 *	   1		Fix quality:
+	 *				   0 = invalid
+	 *				   1 = GPS fix (SPS)
+	 *				   2 = DGPS fix
+	 *				   3 = PPS fix
+	 *				   4 = Real Time Kinematic
+	 *				   5 = Float RTK
+	 *				   6 = estimated (dead reckoning)
+	 *				   7 = Manual input mode
+	 *				   8 = Simulation mode
+	 *	   05		Number of satellites (5)
+	 *	   2.0		Horizontal dilution
+	 *	   103.5,M		Altitude, 103.5M above msl
+	 *	   -19.5,M		Height of geoid above WGS84 ellipsoid
+	 *	   ?		time in seconds since last DGPS update
+	 *	   0000		DGPS station ID
+	 *	   *66		checksum
+	 */
+
+	ao_gps_next_tick = ao_time();
+	ao_gps_next.flags = AO_GPS_RUNNING | ao_gps_date_flags;
+	ao_gps_next.hour = ao_gps_decimal(2);
+	ao_gps_next.minute = ao_gps_decimal(2);
+	ao_gps_next.second = ao_gps_decimal(2);
+	ao_gps_skip_field();	/* skip seconds fraction */
+
+	ao_gps_next.latitude = ao_gps_parse_pos(2);
+	if (ao_gps_parse_flag('N', 'S'))
+		ao_gps_next.latitude = -ao_gps_next.latitude;
+	ao_gps_next.longitude = ao_gps_parse_pos(3);
+	if (ao_gps_parse_flag('E', 'W'))
+		ao_gps_next.longitude = -ao_gps_next.longitude;
+
+	i = ao_gps_decimal(0xff);
+	if (i == 1)
+		ao_gps_next.flags |= AO_GPS_VALID;
+
+	i = ao_gps_decimal(0xff) << AO_GPS_NUM_SAT_SHIFT;
+	if (i > AO_GPS_NUM_SAT_MASK)
+		i = AO_GPS_NUM_SAT_MASK;
+	ao_gps_next.flags |= i;
+
+	ao_gps_lexchar();
+	ao_gps_next.hdop = ao_gps_decimal(0xff);
+	if (ao_gps_next.hdop <= 50) {
+		ao_gps_next.hdop = (uint8_t) 5 * ao_gps_next.hdop;
+		if (ao_gps_char == '.')
+			ao_gps_next.hdop = (ao_gps_next.hdop +
+					    ((uint8_t) ao_gps_decimal(1) >> 1));
+	} else
+		ao_gps_next.hdop = 255;
+	ao_gps_skip_field();
+
+	ao_gps_next.altitude = ao_gps_decimal(0xff);
+	ao_gps_skip_field();	/* skip any fractional portion */
+
+	/* Skip remaining fields */
+	while (ao_gps_char != '*' && ao_gps_char != '\n' && ao_gps_char != '\r') {
+		ao_gps_lexchar();
+		ao_gps_skip_field();
+	}
+	if (ao_gps_char == '*') {
+		uint8_t cksum = ao_gps_cksum ^ '*';
+		if (cksum != ao_gps_hex(2))
+			ao_gps_error = 1;
+	} else
+		ao_gps_error = 1;
+	if (!ao_gps_error) {
+		ao_mutex_get(&ao_gps_mutex);
+		ao_gps_tick = ao_gps_next_tick;
+		memcpy(&ao_gps_data, &ao_gps_next, sizeof (struct ao_gps_data));
+		ao_mutex_put(&ao_gps_mutex);
+		ao_wakeup(&ao_gps_data);
+	}
+}
+
+static void
+ao_nmea_gsv(void)
+{
+	char	c;
+	uint8_t	i;
+	uint8_t	done;
+	/* Now read the data into the GPS tracking data record
+	 *
+	 * $GPGSV,3,1,12,05,54,069,45,12,44,061,44,21,07,184,46,22,78,289,47*72<CR><LF>
+	 *
+	 * Satellites in view data
+	 *
+	 *	3		Total number of GSV messages
+	 *	1		Sequence number of current GSV message
+	 *	12		Total sats in view (0-12)
+	 *	05		SVID
+	 *	54		Elevation
+	 *	069		Azimuth
+	 *	45		C/N0 in dB
+	 *	...		other SVIDs
+	 *	72		checksum
+	 */
+	c = ao_gps_decimal(1);	/* total messages */
+	i = ao_gps_decimal(1);	/* message sequence */
+	if (i == 1) {
+		ao_gps_tracking_next.channels = 0;
+	}
+	done = (uint8_t) c == i;
+	ao_gps_lexchar();
+	ao_gps_skip_field();	/* sats in view */
+	while (ao_gps_char != '*' && ao_gps_char != '\n' && ao_gps_char != '\r') {
+		i = ao_gps_tracking_next.channels;
+		c = ao_gps_decimal(2);	/* SVID */
+		if (i < AO_MAX_GPS_TRACKING)
+			ao_gps_tracking_next.sats[i].svid = c;
+		ao_gps_lexchar();
+		ao_gps_skip_field();	/* elevation */
+		ao_gps_lexchar();
+		ao_gps_skip_field();	/* azimuth */
+		c = ao_gps_decimal(2);	/* C/N0 */
+		if (i < AO_MAX_GPS_TRACKING) {
+			if (!(ao_gps_tracking_next.sats[i].c_n_1 = c))
+				ao_gps_tracking_next.sats[i].svid = 0;
+			ao_gps_tracking_next.channels = i + 1;
+		}
+	}
+	if (ao_gps_char == '*') {
+		uint8_t cksum = ao_gps_cksum ^ '*';
+		if (cksum != ao_gps_hex(2))
+			ao_gps_error = 1;
+	}
+	else
+		ao_gps_error = 1;
+	if (ao_gps_error)
+		ao_gps_tracking_next.channels = 0;
+	else if (done) {
+		ao_mutex_get(&ao_gps_mutex);
+		memcpy(&ao_gps_tracking_data, &ao_gps_tracking_next,
+		       sizeof(ao_gps_tracking_data));
+		ao_mutex_put(&ao_gps_mutex);
+		ao_wakeup(&ao_gps_tracking_data);
+	}
+}
+
+static void
+ao_nmea_rmc(void)
+{
+	char	a, c;
+	uint8_t	i;
+	/* Parse the RMC record to read out the current date */
+
+	/* $GPRMC,111636.932,A,2447.0949,N,12100.5223,E,000.0,000.0,030407,,,A*61
+	 *
+	 * Recommended Minimum Specific GNSS Data
+	 *
+	 *	111636.932	UTC time 11:16:36.932
+	 *	A		Data Valid (V = receiver warning)
+	 *	2447.0949	Latitude
+	 *	N		North/south indicator
+	 *	12100.5223	Longitude
+	 *	E		East/west indicator
+	 *	000.0		Speed over ground
+	 *	000.0		Course over ground
+	 *	030407		UTC date (ddmmyy format)
+	 *	A		Mode indicator:
+	 *			N = data not valid
+	 *			A = autonomous mode
+	 *			D = differential mode
+	 *			E = estimated (dead reckoning) mode
+	 *			M = manual input mode
+	 *			S = simulator mode
+	 *	61		checksum
+	 */
+	ao_gps_skip_field();
+	for (i = 0; i < 8; i++) {
+		ao_gps_lexchar();
+		ao_gps_skip_field();
+	}
+	a = ao_gps_decimal(2);
+	c = ao_gps_decimal(2);
+	i = ao_gps_decimal(2);
+	/* Skip remaining fields */
+	while (ao_gps_char != '*' && ao_gps_char != '\n' && ao_gps_char != '\r') {
+		ao_gps_lexchar();
+		ao_gps_skip_field();
+	}
+	if (ao_gps_char == '*') {
+		uint8_t cksum = ao_gps_cksum ^ '*';
+		if (cksum != ao_gps_hex(2))
+			ao_gps_error = 1;
+	} else
+		ao_gps_error = 1;
+	if (!ao_gps_error) {
+		ao_gps_next.year = i;
+		ao_gps_next.month = c;
+		ao_gps_next.day = a;
+		ao_gps_date_flags = AO_GPS_DATE_VALID;
+	}
+}
 
 void
 ao_gps(void) __reentrant
@@ -222,197 +431,11 @@ ao_gps(void) __reentrant
 			continue;
 
 		if (a == (uint8_t) 'G' && c == (uint8_t) 'G' && i == (uint8_t) 'A') {
-			/* Now read the data into the gps data record
-			 *
-			 * $GPGGA,025149.000,4528.1723,N,12244.2480,W,1,05,2.0,103.5,M,-19.5,M,,0000*66
-			 *
-			 * Essential fix data
-			 *
-			 *	   025149.000	time (02:51:49.000 GMT)
-			 *	   4528.1723,N	Latitude 45°28.1723' N
-			 *	   12244.2480,W	Longitude 122°44.2480' W
-			 *	   1		Fix quality:
-			 *				   0 = invalid
-			 *				   1 = GPS fix (SPS)
-			 *				   2 = DGPS fix
-			 *				   3 = PPS fix
-			 *				   4 = Real Time Kinematic
-			 *				   5 = Float RTK
-			 *				   6 = estimated (dead reckoning)
-			 *				   7 = Manual input mode
-			 *				   8 = Simulation mode
-			 *	   05		Number of satellites (5)
-			 *	   2.0		Horizontal dilution
-			 *	   103.5,M		Altitude, 103.5M above msl
-			 *	   -19.5,M		Height of geoid above WGS84 ellipsoid
-			 *	   ?		time in seconds since last DGPS update
-			 *	   0000		DGPS station ID
-			 *	   *66		checksum
-			 */
-
-			ao_gps_next_tick = ao_time();
-			ao_gps_next.flags = AO_GPS_RUNNING | ao_gps_date_flags;
-			ao_gps_next.hour = ao_gps_decimal(2);
-			ao_gps_next.minute = ao_gps_decimal(2);
-			ao_gps_next.second = ao_gps_decimal(2);
-			ao_gps_skip_field();	/* skip seconds fraction */
-
-			ao_gps_next.latitude = ao_gps_parse_pos(2);
-			if (ao_gps_parse_flag('N', 'S'))
-				ao_gps_next.latitude = -ao_gps_next.latitude;
-			ao_gps_next.longitude = ao_gps_parse_pos(3);
-			if (ao_gps_parse_flag('E', 'W'))
-				ao_gps_next.longitude = -ao_gps_next.longitude;
-
-			i = ao_gps_decimal(0xff);
-			if (i == 1)
-				ao_gps_next.flags |= AO_GPS_VALID;
-
-			i = ao_gps_decimal(0xff) << AO_GPS_NUM_SAT_SHIFT;
-			if (i > AO_GPS_NUM_SAT_MASK)
-				i = AO_GPS_NUM_SAT_MASK;
-			ao_gps_next.flags |= i;
-
-			ao_gps_lexchar();
-			ao_gps_next.hdop = ao_gps_decimal(0xff);
-			if (ao_gps_next.hdop <= 50) {
-				ao_gps_next.hdop = (uint8_t) 5 * ao_gps_next.hdop;
-				if (ao_gps_char == '.')
-					ao_gps_next.hdop = (ao_gps_next.hdop +
-							    ((uint8_t) ao_gps_decimal(1) >> 1));
-			} else
-				ao_gps_next.hdop = 255;
-			ao_gps_skip_field();
-
-			ao_gps_next.altitude = ao_gps_decimal(0xff);
-			ao_gps_skip_field();	/* skip any fractional portion */
-
-			/* Skip remaining fields */
-			while (ao_gps_char != '*' && ao_gps_char != '\n' && ao_gps_char != '\r') {
-				ao_gps_lexchar();
-				ao_gps_skip_field();
-			}
-			if (ao_gps_char == '*') {
-				uint8_t cksum = ao_gps_cksum ^ '*';
-				if (cksum != ao_gps_hex(2))
-					ao_gps_error = 1;
-			} else
-				ao_gps_error = 1;
-			if (!ao_gps_error) {
-				ao_mutex_get(&ao_gps_mutex);
-				ao_gps_tick = ao_gps_next_tick;
-				memcpy(&ao_gps_data, &ao_gps_next, sizeof (struct ao_gps_data));
-				ao_mutex_put(&ao_gps_mutex);
-				ao_wakeup(&ao_gps_data);
-			}
+			ao_nmea_gga();
 		} else if (a == (uint8_t) 'G' && c == (uint8_t) 'S' && i == (uint8_t) 'V') {
-			uint8_t	done;
-			/* Now read the data into the GPS tracking data record
-			 *
-			 * $GPGSV,3,1,12,05,54,069,45,12,44,061,44,21,07,184,46,22,78,289,47*72<CR><LF>
-			 *
-			 * Satellites in view data
-			 *
-			 *	3		Total number of GSV messages
-			 *	1		Sequence number of current GSV message
-			 *	12		Total sats in view (0-12)
-			 *	05		SVID
-			 *	54		Elevation
-			 *	069		Azimuth
-			 *	45		C/N0 in dB
-			 *	...		other SVIDs
-			 *	72		checksum
-			 */
-			c = ao_gps_decimal(1);	/* total messages */
-			i = ao_gps_decimal(1);	/* message sequence */
-			if (i == 1) {
-				ao_gps_tracking_next.channels = 0;
-			}
-			done = (uint8_t) c == i;
-			ao_gps_lexchar();
-			ao_gps_skip_field();	/* sats in view */
-			while (ao_gps_char != '*' && ao_gps_char != '\n' && ao_gps_char != '\r') {
-				i = ao_gps_tracking_next.channels;
-				c = ao_gps_decimal(2);	/* SVID */
-				if (i < AO_MAX_GPS_TRACKING)
-					ao_gps_tracking_next.sats[i].svid = c;
-				ao_gps_lexchar();
-				ao_gps_skip_field();	/* elevation */
-				ao_gps_lexchar();
-				ao_gps_skip_field();	/* azimuth */
-				c = ao_gps_decimal(2);	/* C/N0 */
-				if (i < AO_MAX_GPS_TRACKING) {
-					if (!(ao_gps_tracking_next.sats[i].c_n_1 = c))
-						ao_gps_tracking_next.sats[i].svid = 0;
-					ao_gps_tracking_next.channels = i + 1;
-				}
-			}
-			if (ao_gps_char == '*') {
-				uint8_t cksum = ao_gps_cksum ^ '*';
-				if (cksum != ao_gps_hex(2))
-					ao_gps_error = 1;
-			}
-			else
-				ao_gps_error = 1;
-			if (ao_gps_error)
-				ao_gps_tracking_next.channels = 0;
-			else if (done) {
-				ao_mutex_get(&ao_gps_mutex);
-				memcpy(&ao_gps_tracking_data, &ao_gps_tracking_next,
-				       sizeof(ao_gps_tracking_data));
-				ao_mutex_put(&ao_gps_mutex);
-				ao_wakeup(&ao_gps_tracking_data);
-			}
+			ao_nmea_gsv();
 		} else if (a == (uint8_t) 'R' && c == (uint8_t) 'M' && i == (uint8_t) 'C') {
-			/* Parse the RMC record to read out the current date */
-
-			/* $GPRMC,111636.932,A,2447.0949,N,12100.5223,E,000.0,000.0,030407,,,A*61
-			 *
-			 * Recommended Minimum Specific GNSS Data
-			 *
-			 *	111636.932	UTC time 11:16:36.932
-			 *	A		Data Valid (V = receiver warning)
-			 *	2447.0949	Latitude
-			 *	N		North/south indicator
-			 *	12100.5223	Longitude
-			 *	E		East/west indicator
-			 *	000.0		Speed over ground
-			 *	000.0		Course over ground
-			 *	030407		UTC date (ddmmyy format)
-			 *	A		Mode indicator:
-			 *			N = data not valid
-			 *			A = autonomous mode
-			 *			D = differential mode
-			 *			E = estimated (dead reckoning) mode
-			 *			M = manual input mode
-			 *			S = simulator mode
-			 *	61		checksum
-			 */
-			ao_gps_skip_field();
-			for (i = 0; i < 8; i++) {
-				ao_gps_lexchar();
-				ao_gps_skip_field();
-			}
-			a = ao_gps_decimal(2);
-			c = ao_gps_decimal(2);
-			i = ao_gps_decimal(2);
-			/* Skip remaining fields */
-			while (ao_gps_char != '*' && ao_gps_char != '\n' && ao_gps_char != '\r') {
-				ao_gps_lexchar();
-				ao_gps_skip_field();
-			}
-			if (ao_gps_char == '*') {
-				uint8_t cksum = ao_gps_cksum ^ '*';
-				if (cksum != ao_gps_hex(2))
-					ao_gps_error = 1;
-			} else
-				ao_gps_error = 1;
-			if (!ao_gps_error) {
-				ao_gps_next.year = i;
-				ao_gps_next.month = c;
-				ao_gps_next.day = a;
-				ao_gps_date_flags = AO_GPS_DATE_VALID;
-			}
+			ao_nmea_rmc();
 		}
 	}
 }
