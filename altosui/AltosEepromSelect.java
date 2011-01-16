@@ -119,7 +119,7 @@ public class AltosEepromSelect extends JDialog implements ActionListener {
 		c.weightx = 0.5;
 		c.anchor = GridBagConstraints.CENTER;
 		c.insets = i;
-		JLabel flightHeaderLabel = new JLabel("Flight:");
+		JLabel flightHeaderLabel = new JLabel("Flight");
 		flightPane.add(flightHeaderLabel, c);
 
 		/* Download Header */
@@ -129,7 +129,7 @@ public class AltosEepromSelect extends JDialog implements ActionListener {
 		c.weightx = 0.5;
 		c.anchor = GridBagConstraints.CENTER;
 		c.insets = i;
-		JLabel downloadHeaderLabel = new JLabel("Download:");
+		JLabel downloadHeaderLabel = new JLabel("Download");
 		flightPane.add(downloadHeaderLabel, c);
 
 		/* Delete Header */
@@ -139,7 +139,7 @@ public class AltosEepromSelect extends JDialog implements ActionListener {
 		c.weightx = 0.5;
 		c.anchor = GridBagConstraints.CENTER;
 		c.insets = i;
-		JLabel deleteHeaderLabel = new JLabel("Delete:");
+		JLabel deleteHeaderLabel = new JLabel("Delete");
 		flightPane.add(deleteHeaderLabel, c);
 
 		/* Add the flights to the GridBag */
