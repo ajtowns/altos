@@ -38,25 +38,30 @@ class AltosEepromItem extends JPanel implements ActionListener {
 		System.out.printf("eeprom item action %s %d\n", e.getActionCommand(), e.getID());
 		if (e.getSource() == download) {
 			log.download = download.isSelected();
-			System.out.printf("download set to %b\n", log.download);
+			System.out.printf("download for flight %d set to %b\n", log.flight, log.download);
 		} else if (e.getSource() == delete) {
 			log.delete = delete.isSelected();
-			System.out.printf("delete set to %b\n", log.delete);
+			System.out.printf("delete for flight %d set to %b\n", log.flight, log.delete);
 		}
 	}
 
 	public AltosEepromItem(AltosEepromLog in_log) {
 		log = in_log;
 
-		download = new JCheckBox("Download", log.download);
-		download.addActionListener(this);
-		add(download);
-		delete = new JCheckBox("Delete", log.delete);
-		delete.addActionListener(this);
-		add(delete);
-		label = new JLabel(String.format("Flight %d %4d-%02d-%02d",
+		label = new JLabel(String.format("Flight #%02d - %04d-%02d-%02d",
 						 log.flight, log.year, log.month, log.day));
+		label.setPreferredSize(new Dimension(170, 15));
 		add(label);
+		download = new JCheckBox("", log.download);
+		download.addActionListener(this);
+		download.setPreferredSize(new Dimension(100, 15));
+		download.setHorizontalAlignment(SwingConstants.CENTER);
+		add(download);
+		delete = new JCheckBox("", log.delete);
+		delete.addActionListener(this);
+		delete.setPreferredSize(new Dimension(70, 15));
+		delete.setHorizontalAlignment(SwingConstants.CENTER);
+		add(delete);
 	}
 }
 
@@ -98,9 +103,24 @@ public class AltosEepromSelect extends JDialog implements ActionListener {
 		labelPane.add(selectLabel);
 		labelPane.add(Box.createHorizontalGlue());
 
+		JLabel	flightHeaderLabel   = new JLabel("Flight", SwingConstants.CENTER);
+		flightHeaderLabel.setPreferredSize(new Dimension(170, 15));
+
+		JLabel	downloadHeaderLabel = new JLabel("Download", SwingConstants.CENTER);
+		downloadHeaderLabel.setPreferredSize(new Dimension(100, 15));
+
+		JLabel	deleteHeaderLabel   = new JLabel("Delete", SwingConstants.CENTER);
+		deleteHeaderLabel.setPreferredSize(new Dimension(70, 15));
+
+		JPanel	headerPane = new JPanel();
+		headerPane.add(flightHeaderLabel);
+		headerPane.add(downloadHeaderLabel);
+		headerPane.add(deleteHeaderLabel);
+
 		JPanel	flightPane = new JPanel();
 		flightPane.setLayout(new BoxLayout(flightPane, BoxLayout.Y_AXIS));
 		flightPane.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		flightPane.add(headerPane);
 		for (AltosEepromLog flight : flights) {
 			flightPane.add(new AltosEepromItem(flight));
 		}
