@@ -42,8 +42,8 @@ ao_log_data(__xdata struct ao_log_record *log) __reentrant
 	log->csum = 0;
 	log->csum = ao_log_csum((__xdata uint8_t *) log);
 	ao_mutex_get(&ao_log_mutex); {
-		if (ao_log_current_pos >= ao_log_end_pos)
-			ao_log_running = 0;
+		if (ao_log_current_pos >= ao_log_end_pos && ao_log_running)
+			ao_log_stop();
 		if (ao_log_running) {
 			wrote = 1;
 			ao_storage_write(ao_log_current_pos,
