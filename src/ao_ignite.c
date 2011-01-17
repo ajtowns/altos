@@ -52,7 +52,6 @@ ao_igniter_status(enum ao_igniter igniter)
 	__xdata uint8_t request, firing, fired;
 
 	__critical {
-		ao_adc_sleep();
 		ao_adc_get(&adc);
 		request = ao_ignition[igniter].request;
 		fired = ao_ignition[igniter].fired;

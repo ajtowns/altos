@@ -146,16 +146,103 @@ ao_flight(void)
 	ao_raw_pres = 0;
 	ao_flight_tick = 0;
 	for (;;) {
-		ao_sleep(&ao_adc_ring);
+		ao_wakeup(DATA_TO_XDATA(&ao_flight_adc));
+		ao_sleep(DATA_TO_XDATA(&ao_adc_head));
 		while (ao_flight_adc != ao_adc_head) {
 			__pdata uint8_t ticks;
 			__pdata int16_t ao_vel_change;
+			__xdata struct ao_adc *ao_adc;
 			ao_flight_prev_tick = ao_flight_tick;
 
 			/* Capture a sample */
-			ao_raw_accel = ao_adc_ring[ao_flight_adc].accel;
-			ao_raw_pres = ao_adc_ring[ao_flight_adc].pres;
-			ao_flight_tick = ao_adc_ring[ao_flight_adc].tick;
+			ao_adc = &ao_adc_ring[ao_flight_adc];
+			ao_flight_tick = ao_adc->tick;
+			ao_raw_accel = ao_adc->accel;
+#if HAS_ACCEL_REF
+			/*
+			 * Ok, the math here is a bit tricky.
+			 *
+			 * ao_raw_accel:  ADC output for acceleration
+			 * ao_accel_ref:  ADC output for the 5V reference.
+			 * ao_cook_accel: Corrected acceleration value
+			 * Vcc:           3.3V supply to the CC1111
+			 * Vac:           5V supply to the accelerometer
+			 * accel:         input voltage to accelerometer ADC pin
+			 * ref:           input voltage to 5V reference ADC pin
+			 *
+			 *
+			 * Measured acceleration is ratiometric to Vcc:
+			 *
+			 *     ao_raw_accel   accel
+			 *     ------------ = -----
+			 *        32767        Vcc
+			 *
+			 * Measured 5v reference is also ratiometric to Vcc:
+			 *
+			 *     ao_accel_ref    ref
+			 *     ------------ = -----
+			 *        32767        Vcc
+			 *
+			 *
+			 *	ao_accel_ref = 32767 * (ref / Vcc)
+			 *
+			 * Acceleration is measured ratiometric to the 5V supply,
+			 * so what we want is:
+			 *
+			 *	ao_cook_accel    accel
+			 *      ------------- =  -----
+			 *          32767         ref
+			 *
+			 *
+			 *	                accel    Vcc
+			 *                    = ----- *  ---
+			 *                       Vcc     ref
+			 *
+			 *                      ao_raw_accel       32767
+			 *                    = ------------ *  ------------
+			 *                         32737        ao_accel_ref
+			 *
+			 * Multiply through by 32767:
+			 *
+			 *                      ao_raw_accel * 32767
+			 *	ao_cook_accel = --------------------
+			 *                          ao_accel_ref
+			 *
+			 * Now, the tricky part. Getting this to compile efficiently
+			 * and keeping all of the values in-range.
+			 *
+			 * First off, we need to use a shift of 16 instead of * 32767 as SDCC
+			 * does the obvious optimizations for byte-granularity shifts:
+			 *
+			 *	ao_cook_accel = (ao_raw_accel << 16) / ao_accel_ref
+			 *
+			 * Next, lets check our input ranges:
+			 *
+			 * 	0 <= ao_raw_accel <= 0x7fff		(singled ended ADC conversion)
+			 *	0x7000 <= ao_accel_ref <= 0x7fff	(the 5V ref value is close to 0x7fff)
+			 *
+			 * Plugging in our input ranges, we get an output range of 0 - 0x12490,
+			 * which is 17 bits. That won't work. If we take the accel ref and shift
+			 * by a bit, we'll change its range:
+			 *
+			 *	0xe000 <= ao_accel_ref<<1 <= 0xfffe
+			 *
+			 *	ao_cook_accel = (ao_raw_accel << 16) / (ao_accel_ref << 1)
+			 *
+			 * Now the output range is 0 - 0x9248, which nicely fits in 16 bits. It
+			 * is, however, one bit too large for our signed computations. So, we
+			 * take the result and shift that by a bit:
+			 *
+			 *	ao_cook_accel = ((ao_raw_accel << 16) / (ao_accel_ref << 1)) >> 1
+			 *
+			 * This finally creates an output range of 0 - 0x4924. As the ADC only
+			 * provides 11 bits of data, we haven't actually lost any precision,
+			 * just dropped a bit of noise off the low end.
+			 */
+			ao_raw_accel = (uint16_t) ((((uint32_t) ao_raw_accel << 16) / (ao_accel_ref[ao_flight_adc] << 1))) >> 1;
+			ao_adc->accel = ao_raw_accel;
+#endif
+			ao_raw_pres = ao_adc->pres;
 
 			ao_flight_accel -= ao_flight_accel >> 4;
 			ao_flight_accel += ao_raw_accel >> 4;

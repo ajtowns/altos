@@ -163,6 +163,11 @@ struct ao_adc {
 #endif
 
 #if HAS_ADC
+
+#ifndef HAS_ACCEL_REF
+#error Please define HAS_ACCEL_REF
+#endif
+
 /*
  * ao_adc.c
  */
@@ -178,6 +183,9 @@ struct ao_adc {
  */
 extern volatile __xdata struct ao_adc	ao_adc_ring[AO_ADC_RING];
 extern volatile __data uint8_t		ao_adc_head;
+#if HAS_ACCEL_REF
+extern volatile __xdata uint16_t	ao_accel_ref[AO_ADC_RING];
+#endif
 
 /* Trigger a conversion sequence (called from the timer interrupt) */
 void
@@ -649,7 +657,7 @@ enum ao_flight_state {
 	ao_flight_invalid = 9
 };
 
-extern __xdata struct ao_adc		ao_flight_data;
+extern __data uint8_t			ao_flight_adc;
 extern __pdata enum ao_flight_state	ao_flight_state;
 extern __pdata uint16_t			ao_flight_tick;
 extern __pdata int16_t			ao_flight_accel;

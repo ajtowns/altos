@@ -31,6 +31,7 @@
 	#define AO_LED_RED		1
 	#define LEDS_AVAILABLE		(AO_LED_RED)
 	#define HAS_EXTERNAL_TEMP	0
+	#define HAS_ACCEL_REF		0
 #endif
 
 #if defined(TELEMETRUM_V_1_1)
@@ -46,6 +47,7 @@
 	#define AO_LED_RED		1
 	#define LEDS_AVAILABLE		(AO_LED_RED)
 	#define HAS_EXTERNAL_TEMP	0
+	#define HAS_ACCEL_REF		1
 	#define SPI_CS_ON_P1		1
 	#define SPI_CS_ON_P0		0
 	#define M25_CS_MASK		0x02	/* CS0 is P1_1 */
@@ -81,6 +83,7 @@
 	#define AO_LED_GREEN		1
 	#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
 	#define HAS_EXTERNAL_TEMP	1
+	#define HAS_ACCEL_REF		0
 	#define SPI_CS_ON_P1		1
 	#define SPI_CS_ON_P0		0
 #endif
