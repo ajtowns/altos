@@ -386,17 +386,6 @@
       </para>
     </section>
     <section>
-      <title>ao_wake_task</title>
-      <programlisting>
-	void
-	ao_wake_task(__xdata struct ao_task *task)
-      </programlisting>
-      <para>
-	Force a specific task to wake up, independent of which
-	'wchan' it is waiting for.
-      </para>
-    </section>
-    <section>
       <title>ao_start_scheduler</title>
       <programlisting>
 	void
