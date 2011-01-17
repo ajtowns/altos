@@ -373,8 +373,8 @@ NAR #88757, TRA #12200
       </listitem>
       <listitem>
         <para>
-          Uses LiPo to fire e-matches, support for optional separate pyro
-          battery if needed.
+          Uses LiPo to fire e-matches, can be modiied to support 
+  	  optional separate pyro battery if needed.
         </para>
       </listitem>
       <listitem>
@@ -449,11 +449,10 @@ NAR #88757, TRA #12200
       to fire ejection charges.  This works marvelously with standard
       low-current e-matches like the J-Tek from MJG Technologies, and with
       Quest Q2G2 igniters.  However, if you
-      want or need to use a separate pyro battery, you can do so by adding
-      a second 2mm connector to position B2 on the board and cutting the
-      thick pcb trace connecting the LiPo battery to the pyro circuit between
-      the two silk screen marks on the surface mount side of the board shown
-      here [insert photo]
+      want or need to use a separate pyro battery, the board can be factory
+      modified to do so.  This involves cutting two traces and adding a jumper
+      in a densely populated part of the board on TeleMetrum v1.0 and v1.1,
+      along with installation of a pyro battery connector at location B2.
     </para>
     <para>
       We offer two choices of pyro and power switch connector, or you can
