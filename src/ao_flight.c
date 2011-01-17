@@ -216,45 +216,56 @@ ao_flight(void)
 			ao_old_vel = ao_flight_vel;
 			ao_old_vel_tick = ao_flight_tick;
 
-			/* Go to pad state if the nose is pointing up */
+			/* Check to see what mode we should go to.
+			 *  - Invalid mode if accel cal appears to be out
+			 *  - pad mode if we're upright,
+			 *  - idle mode otherwise
+			 */
 			ao_config_get();
-			if (ao_config.accel_plus_g != 0 &&
-			    ao_config.accel_minus_g != 0 &&
-			    ao_flight_accel < ao_config.accel_plus_g + ACCEL_NOSE_UP &&
-			    ao_flight_accel > ao_config.accel_plus_g - ACCEL_NOSE_UP &&
-			    !ao_flight_force_idle)
+			if (ao_config.accel_plus_g == 0 ||
+			    ao_config.accel_minus_g == 0 ||
+			    ao_flight_accel < ao_config.accel_plus_g - ACCEL_NOSE_UP ||
+			    ao_flight_accel > ao_config.accel_minus_g + ACCEL_NOSE_UP)
 			{
+				/* Detected an accel value outside -1.5g to 1.5g
+				 * (or uncalibrated values), so we go into invalid mode
+				 */
+				ao_flight_state = ao_flight_invalid;
+				/* Allow packet mode in invalid flight state,
+				 * Still need to be able to fix the problem!
+				 */
+				ao_packet_slave_start();
+
+			} else if (ao_flight_accel < ao_config.accel_plus_g + ACCEL_NOSE_UP &&
+			           !ao_flight_force_idle)
+ 			{
+				/* Set pad mode - we can fly! */
+				ao_flight_state = ao_flight_pad;
+
 				/* Disable the USB controller in flight mode
 				 * to save power
 				 */
 				ao_usb_disable();
 
-				/* Turn on telemetry system
-				 */
+				/* Turn on telemetry system */
 				ao_rdf_set(1);
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_PAD);
 
-				ao_flight_state = ao_flight_pad;
-				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
+				/* signal successful initialization by turning off the LED */
+				ao_led_off(AO_LED_RED);
 			} else {
-				if (ao_flight_accel < ao_config.accel_plus_g - ACCEL_NOSE_UP ||
-				    ao_flight_accel > ao_config.accel_minus_g + ACCEL_NOSE_UP)
-				{
-					/* Detected an accel value outside -1.5g to 1.5g
-					 * -> invalid mode
-					 */
-					ao_flight_state = ao_flight_invalid;
-				} else {
-					ao_flight_state = ao_flight_idle;
-				}
-
-				/* Turn on packet system in idle or invalid mode
-				 */
+				/* Set idle mode */
+ 				ao_flight_state = ao_flight_idle;
+ 
+				/* Turn on packet system in idle mode */
 				ao_packet_slave_start();
-				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
+
+				/* signal successful initialization by turning off the LED */
+				ao_led_off(AO_LED_RED);
 			}
-			/* signal successful initialization by turning off the LED */
-			ao_led_off(AO_LED_RED);
+			/* wakeup threads due to state change */
+			ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
+
 			break;
 		case ao_flight_pad:
 
