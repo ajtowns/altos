@@ -70,6 +70,7 @@ _ao_config_get(void)
 		       sizeof(AO_CONFIG_DEFAULT_CALLSIGN) - 1);
 		ao_config.apogee_delay = AO_CONFIG_DEFAULT_APOGEE_DELAY;
 		ao_config.radio_cal = ao_radio_cal;
+		ao_config.flight_log_max = AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX;
 		ao_config_dirty = 1;
 	}
 	if (ao_config.minor < AO_CONFIG_MINOR) {
