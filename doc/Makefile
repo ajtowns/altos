@@ -22,6 +22,8 @@ PDFSTYLE=
 
 all:	$(HTML) $(PDF)
 
+install:	all
+
 publish:	$(DOC)
 	cp $(DOC) /home/bdale/web/altusmetrum/AltOS/doc/
 	(cd /home/bdale/web/altusmetrum ; \
