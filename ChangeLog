@@ -1,3 +1,21 @@
+commit 2bb83d90aa03d825ca1b751418c91b194b72f1f9
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Jan 19 12:46:02 2011 -0700
+
+    elide changelog entries or re-release of 0.9
+
+commit 9541ccd9ff9e67e0862ca31706358d8308fc85d8
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Jan 19 12:42:40 2011 -0700
+
+    update turnon script to prefer TeleDongle as programmer
+
+commit 159fda30fe57349660c5e2d95017144ea3f5d7db
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Jan 19 12:26:53 2011 -0700
+
+    update changelogs for Debian build
+
 commit 97f4f2e0d28eec1cf19d2d25140e42f6ac277700
 Author: Keith Packard <keithp@keithp.com>
 Date:   Wed Jan 19 11:21:52 2011 -0800

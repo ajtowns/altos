@@ -1,3 +1,15 @@
+altos (0.9) unstable; urgency=low
+
+  [ Bdale Garbee ]
+  * prepare to release
+  * update changelogs for Debian build
+  * update turnon script to prefer TeleDongle as programmer
+
+  [ Keith Packard ]
+  * altos: Program default flight log max value for new boards
+
+ -- Bdale Garbee <bdale@gag.com>  Wed, 19 Jan 2011 12:46:47 -0700
+
 altos (0.8.1+81+g4ae724f) unstable; urgency=low
 
   * we need an install target to prevent parent dir make from failing
