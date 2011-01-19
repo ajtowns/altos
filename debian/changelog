@@ -1,3 +1,9 @@
+altos (0.8.1+81+g4ae724f) unstable; urgency=low
+
+  * we need an install target to prevent parent dir make from failing
+
+ -- Bdale Garbee <bdale@gag.com>  Tue, 18 Jan 2011 23:55:36 -0700
+
 altos (0.8.1+79+g9a5666f) unstable; urgency=low
 
   [ Keith Packard ]

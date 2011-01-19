@@ -1,3 +1,15 @@
+commit 4ae724fe1d2ca0d712321c4fdc2200ff46d77428
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jan 18 23:54:36 2011 -0700
+
+    we need an install target to prevent parent dir make from failing
+
+commit ca7b549fbf62019b01a6e6c85da50645ea9a4502
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jan 18 23:48:08 2011 -0700
+
+    update changelogs for Debian build
+
 commit 9a5666f42d4d90a0a488fd0a85ae9914944fe0be
 Author: Keith Packard <keithp@keithp.com>
 Date:   Tue Jan 18 22:46:25 2011 -0800
