@@ -1289,9 +1289,20 @@ NAR #88757, TRA #12200
         on Packet Command Mode for more information about this.
       </para>
       <para>
-        The filename for the data is computed automatically from the recorded
-        flight date, TeleMetrum serial number and flight number
-        information.
+	After the device has been selected, a dialog showing the
+	flight data saved in the device will be shown allowing you to
+	select which flights to download and which to delete. With
+	version 0.9 or newer firmware, you must erase flights in order
+	for the space they consume to be reused by another
+	flight. This prevents you from accidentally losing flight data
+	if you neglect to download data before flying again. Note that
+	if there is no more space available in the device, then no
+	data will be recorded for a flight.
+      </para>
+      <para>
+        The filename for each flight log is computed automatically
+        from the recorded flight date, TeleMetrum serial number and
+        flight number information.
       </para>
     </section>
     <section>
@@ -1476,6 +1487,35 @@ NAR #88757, TRA #12200
           as needed to conform to your local radio regulations.
         </para>
       </section>
+      <section>
+        <title>Maximum Flight Log Size</title>
+        <para>
+          This sets the space (in kilobytes) allocated for each flight
+          log. The available space will be divided into chunks of this
+          size. A smaller value will allow more flights to be stored,
+          a larger value will record data from longer flights.
+	</para>
+	<para>
+	  During ascent, TeleMetrum records barometer and
+	  accelerometer values 100 times per second, other analog
+	  information (voltages and temperature) 6 times per second
+	  and GPS data once per second. During descent, the non-GPS
+	  data is recorded 1/10th as often. Each barometer +
+	  accelerometer record takes 8 bytes.
+	</para>
+	<para>
+	  The default, 192kB, will store over 200 seconds of data at
+	  the ascent rate, or over 2000 seconds of data at the descent
+	  rate. That's plenty for most flights. This leaves enough
+	  storage for five flights in a 1MB system, or 10 flights in a
+	  2MB system.
+	</para>
+	<para>
+	  The configuration block takes the last available block of
+	  memory, on v1.0 boards that's just 256 bytes. However, the
+	  flash part on the v1.1 boards uses 64kB for each block.
+        </para>
+      </section>
     </section>
     <section>
       <title>Configure AltosUI</title>
@@ -1525,6 +1565,16 @@ NAR #88757, TRA #12200
           packets only from TeleMetrum to TeleDongle. Configure this
           with the AltosUI operators callsign as needed to comply with
           your local radio regulations.
+        </para>
+      </section>
+      <section>
+        <title>Serial Debug</title>
+        <para>
+          This causes all communication with a connected device to be
+          dumped to the console from which AltosUI was started. If
+          you've started it from an icon or menu entry, the output
+          will simply be discarded. This mode can be useful to debug
+          various serial communication issues.
         </para>
       </section>
     </section>
