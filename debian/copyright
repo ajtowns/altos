@@ -10,7 +10,7 @@ Upstream Authors:
 
 Copyright:
 
-    Copyright © 2009 Keith Packard <keithp@keithp.com>
+    Copyright © 2009-2011 Keith Packard <keithp@keithp.com>
 
 License:
 
@@ -29,7 +29,7 @@ License:
 
 The Debian packaging is:
 
-    Copyright (C) 2009 Bdale Garbee <bdale@gag.com>
+    Copyright © 2009-2011 Bdale Garbee <bdale@gag.com>
 
 and is also licensed under the GPL version 2.
 
