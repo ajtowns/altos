@@ -18,11 +18,11 @@ else
 	exit 1
 fi
 
-echo "TeleMetrum v1.0 Turn-On and Calibration Program"
+echo "TeleMetrum v1.1 Turn-On and Calibration Program"
 echo "Copyright 2010 by Bdale Garbee.  Released under GPL v2"
 echo
 echo "Expectations:"
-echo "\tTeleMetrum v1.0 powered from USB"
+echo "\tTeleMetrum v1.1 powered from USB"
 echo "\t\twith TeleDongle (on /dev/ttyACM0) cabled to debug header"
 echo "\t\twith coax from UHF to frequency counter"
 echo
@@ -31,18 +31,19 @@ read SERIAL
 
 echo $RAWLOAD
 
-$RAWLOAD -r ao_led_blink.ihx
+$RAWLOAD --device TeleDongle -r ao_led_blink.ihx
 echo "the red LED should be blinking"
 sleep 5
 
-$RAWLOAD -r ao_radio_xmit.ihx
+$RAWLOAD --device TeleDongle -r ao_radio_xmit.ihx
 echo -n "Generating RF carrier.  Please enter measured frequency: "
 read FREQ
 
 CAL_VALUE=`nickle -e "floor(434.55 / $FREQ * 1186611 + 0.5)"`
 
 echo "Programming flash with cal value " $CAL_VALUE
-$AOLOAD --cal $CAL_VALUE /usr/share/altos/stable/telemetrum-v1.0*.ihx $SERIAL
+$AOLOAD --device TeleDongle --cal $CAL_VALUE \
+	/usr/share/altos/stable/telemetrum-v1.1*.ihx $SERIAL
 
 echo "Serial number "$SERIAL" programmed with RF cal value "$CAL_VALUE
 echo "Unplug and replug USB, cu to the board, confirm freq and record power"
