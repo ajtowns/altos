@@ -36,6 +36,17 @@
     </legalnotice>
     <revhistory>
       <revision>
+        <revnumber>0.9</revnumber>
+        <date>18 January 2011</date>
+	<revremark>
+	  Updated for software version 0.9.  Note that 0.9 represents a
+	  telemetry format change, meaning both ends of a link (TeleMetrum and
+	  TeleDongle) must be updated or communications will fail.
+	</revremark>
+      </revision>
+    </revhistory>
+    <revhistory>
+      <revision>
         <revnumber>0.8</revnumber>
         <date>24 November 2010</date>
 	<revremark>Updated for software version 0.8 </revremark>
