@@ -1,3 +1,305 @@
+commit da42f406e88ccc821cd45d5a94d5afec65ec50e9
+Merge: ea4cdfb cf550f9
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Jan 17 09:50:17 2011 -0700
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit ea4cdfb87e03ecfb974f98305671265b6fb95372
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Jan 17 09:49:45 2011 -0700
+
+    update documentation to reflect reality that modifying a board or separate
+    pyro battery is not as simple as one trace cut on v1.0 and v1.1 boards
+
+commit cf550f9b96fa94d8db559e01df0e265bb1c7b572
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jan 16 23:23:45 2011 -0800
+
+    doc: Remove mention of ao_wake_task
+    
+    This has been removed from the altos sources, so remove it from the
+    docs too.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4b71c4f4ed6cae23a7f4a2e7ae697da9ec614898
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 15 12:26:53 2011 -0800
+
+    altos: Use 5V reference data to correct accelerometer measurements.
+    
+    When the 3.3V and 5V values shift relative to each other (usually due
+    to changes in power consumption), the measured acceleration will
+    appear to shift. This patch converts the 3.3V referenced acceleration
+    value into a 5V referenced acceleration, eliminating this error.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2887fe7affc0706dbeb2f04df9a00a9b799903ed
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 15 12:25:57 2011 -0800
+
+    altos: Optimize fetching of ADC data in flight code
+    
+    This stores the address of the desired sample in a local variable and
+    then fetches through that. Saves quite a few instructions.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2681a17500913cbaf3966f09380bb1d6b59e3863
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 15 12:18:32 2011 -0800
+
+    altos: Sample the accelerometer reference voltage on v1.1 boards
+    
+    This places the 5v reference samples in an array parallel to the basic
+    ADC values. It doesn't do anything with the values, just stores them.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 69290588980bb15732a99eca5c911a3b6e9a37b9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 15 12:12:02 2011 -0800
+
+    altos: Ensure flight code gets first crack at new ADC data
+    
+    Instead of having everyone wait on the raw ADC ring, have the flight
+    code wait on that and have everyone else wait for the flight code to
+    finish looking at the data and move its pointer forwards.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1b8d7313504240ed04e0747e9b0f6e9a83d323e2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jan 16 15:57:15 2011 -0800
+
+    altos: Auto-calibrate linux-based flight testing code
+    
+    Use the provided ground acceleration average to set the two
+    accelerometer calibration values so that the flight code will
+    detect pad/idle mode correctly.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit afd3d3cdb8c2291c1c7cda7908392d68cd04f87f
+Author: Mike Beattie <mike@ethernal.org>
+Date:   Mon Jan 17 15:03:40 2011 +1300
+
+    Rework invalid accel cal detection code
+    
+    Slightly reduces code space.
+    
+    Uncalibrated accelerometer now enters invalid state as well.
+    
+    Signed-off-by: Mike Beattie <mike@ethernal.org>
+
+commit 3566dee1cf83870396a0bb164f5549dd3faf58f5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jan 16 14:40:31 2011 -0800
+
+    altosui: Remove spurious colons from eeprom selection headers
+    
+    This colons make the presentation a bit confusing.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ab31b1c737d8fd32af482e5b06699f1b832a25a1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 15 00:56:22 2011 -0800
+
+    altos: Add DATA_TO_XDATA to linux test harness
+    
+    The flight test harness needs to expose every function used by the
+    flight code in some form, and this macro is about to become used.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit add2802a8a33336180fe6856241a7f4a8200e89c
+Author: Mike Beattie <mike@ethernal.org>
+Date:   Sun Jan 16 00:10:30 2011 +1300
+
+    altos: Added check for out of bounds accel
+    
+    Chose invalid flight mode instead of idle to give user feedback.
+    
+    Signed-off-by: Mike Beattie <mike@ethernal.org>
+
+commit 58838c0b96a91da0bd0cd77c3ff312b589c08136
+Author: Mike Beattie <mike@ethernal.org>
+Date:   Sat Jan 15 23:21:26 2011 +1300
+
+    altos: Added check for an accel value above 1.5g
+    
+    When detecting flight or idle mode, this should indicate
+    that accel cal values are out of whack.
+    
+    Signed-off-by: Mike Beattie <mike@ethernal.org>
+
+commit 118fe84c9ff1cc9d1653e67a2315e22e19d60a14
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 15 11:26:31 2011 -0800
+
+    altos: average 512 accel/baro samples at startup instead of 1000
+    
+    This lets us use a simple shift instead of a divide, saving a huge
+    amount of code space.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8a775b8f9ecefa143050653d74dfd218b32b9bb5
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Jan 16 10:54:45 2011 +1000
+
+    altos: Restructure skytraq NMEA parsing code to save some space
+    
+    Splitting this into several smaller functions appears to make SDCC
+    generate better code.
+
+commit 7a35b2d7048669a96256d4ea0086299f8a0cb1df
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 15 22:42:38 2011 -0800
+
+    altos: Flush log when full
+    
+    When the log storage is full, make sure any pending writes are flushed
+    out so that the last bit isn't lost.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 47ee4597e55749e8f66f61a585ea32776979bf80
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 15 16:25:10 2011 -0800
+
+    altos: TELEMETRY PROTOCOL CHANGE. Switch to 16-bit serial numbers.
+    
+    What a terrible mistake! The flight computer serial numbers were
+    recorded in only 8 bits, so serial numbers > 255 would get truncated.
+    
+    There's really no fix other than bumping the field to 16 bits and
+    reflashing every TM and TD on the planet. Very unfortunate.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b22ba359a02297e39a446cbd5ef51e63b795624a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 15 12:05:50 2011 -0800
+
+    doc: inkscape tracks the filename inside the document
+    
+    telemetrum-outline.svg was renamed from telemetrum.svg and inkscape
+    appears to care.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d0a841b285fb398f0be72183ec3c9d1e358419a9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 15 12:02:43 2011 -0800
+
+    altosui: Require 4 sats to light up the 'GPS locked' light.
+    
+    This tracks the same GPS signal requirement needed for 'GPS ready' and
+    ensures that we have a 3d fix.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1bfdce6fc3367fdf03e0dc7ddd94da18723b8ba3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jan 16 14:30:38 2011 -0800
+
+    altosui: Ensure serial device is closed after eeprom download finishes
+    
+    As this code is all event-driven, track which events will trigger
+    further work and block closing the device in those specific cases,
+    ensuring that all other code paths end up closing the device.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 987039b8f0b1d889aca9109d4c6a83f034ff64a7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jan 16 14:29:57 2011 -0800
+
+    altosui: Remove debug message when eeprom downloads are complete.
+    
+    This message isn't useful now that this code appears to work.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fb534aae15f0f1e5d69790e159d0287b6b8a514a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jan 16 14:28:35 2011 -0800
+
+    altosui: Use long input flush timeout when remote.
+    
+    100ms isn't long enough to capture pending remote serial input, so use
+    300 ms in that mode.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d4add23186b3586c99579d83efdc003f79e9bf7a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jan 16 14:26:18 2011 -0800
+
+    altosui: Make serial debug more complete and accurate
+    
+    Display all serial input, including telemetry.
+    Wait to display serial output until flush time, to debug missing flushing.
+    Show when devices are opened and closed.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit deb3c7b9206be0c9c46f75d35c8f766c26d9838f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jan 15 22:43:37 2011 -0800
+
+    altosui: Reset eeprom download instance variables before reading flight
+    
+    To deal with downloading multiple flights in a single invocation, make
+    sure all relevant instance variables are set back to start of flight
+    download values each time a log is read.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit eec9eb2e81535e62c52fbb2e57a2d33f88f92c1a
+Author: Mike Beattie <mike@ethernal.org>
+Date:   Mon Jan 17 07:56:53 2011 +1300
+
+    Close serial port if Download/Delete dialog is cancelled.
+    
+    Signed-off-by: Mike Beattie <mike@ethernal.org>
+
+commit df1c6ab3ac079199b5a12328c9ff5cfa6ac29b36
+Author: Mike Beattie <mike@ethernal.org>
+Date:   Mon Jan 17 00:40:07 2011 +1300
+
+    Convert EepromSelect dialog to use a GridBag
+    
+    Signed-off-by: Mike Beattie <mike@ethernal.org>
+
+commit fef302656f21ae0ab4772f72979cbb7f071da89a
+Author: Mike Beattie <mike@ethernal.org>
+Date:   Sun Jan 16 20:25:19 2011 +1300
+
+    Re-order and re-arrange eeprom download dialog
+    
+    Signed-off-by: Mike Beattie <mike@ethernal.org>
+
+commit 35adb7c98fe02e84fff70c1bee22bfa019cfacc2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 14 21:44:59 2011 -0800
+
+    doc: Add telemetrum mounting template in svg and pdf forms
+    
+    telemetrum-outline.svg and telemetrum-outline.pdf
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fdba0f24afd59becc499d750bbdb80aea86066ac
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Jan 14 18:01:16 2011 -0700
+
+    update changelogs for Debian build
+
 commit 646e1926cdf56e2cf2425413ce716e6999b64a58
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Fri Jan 14 18:01:00 2011 -0700

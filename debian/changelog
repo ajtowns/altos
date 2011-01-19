@@ -1,3 +1,57 @@
+altos (0.8.1+71+gda42f40) unstable; urgency=low
+
+  [ Keith Packard ]
+  * doc: Add telemetrum mounting template in svg and pdf forms
+
+  [ Mike Beattie ]
+  * Re-order and re-arrange eeprom download dialog
+  * Convert EepromSelect dialog to use a GridBag
+  * Close serial port if Download/Delete dialog is cancelled.
+
+  [ Keith Packard ]
+  * altosui: Reset eeprom download instance variables before reading
+    flight
+  * altosui: Make serial debug more complete and accurate
+  * altosui: Use long input flush timeout when remote.
+  * altosui: Remove debug message when eeprom downloads are complete.
+  * altosui: Ensure serial device is closed after eeprom download
+    finishes
+  * altosui: Require 4 sats to light up the 'GPS locked' light.
+  * doc: inkscape tracks the filename inside the document
+  * altos: TELEMETRY PROTOCOL CHANGE. Switch to 16-bit serial numbers.
+  * altos: Flush log when full
+
+  [ Anthony Towns ]
+  * altos: Restructure skytraq NMEA parsing code to save some space
+
+  [ Keith Packard ]
+  * altos: average 512 accel/baro samples at startup instead of 1000
+
+  [ Mike Beattie ]
+  * altos: Added check for an accel value above 1.5g
+  * altos: Added check for out of bounds accel
+
+  [ Keith Packard ]
+  * altos: Add DATA_TO_XDATA to linux test harness
+  * altosui: Remove spurious colons from eeprom selection headers
+
+  [ Mike Beattie ]
+  * Rework invalid accel cal detection code
+
+  [ Keith Packard ]
+  * altos: Auto-calibrate linux-based flight testing code
+  * altos: Ensure flight code gets first crack at new ADC data
+  * altos: Sample the accelerometer reference voltage on v1.1 boards
+  * altos: Optimize fetching of ADC data in flight code
+  * altos: Use 5V reference data to correct accelerometer measurements.
+  * doc: Remove mention of ao_wake_task
+
+  [ Bdale Garbee ]
+  * update documentation to reflect reality that modifying a board for
+    separate pyro battery is not trivial
+
+ -- Bdale Garbee <bdale@gag.com>  Tue, 18 Jan 2011 17:26:33 -0700
+
 altos (0.8.1+42+g646e192) unstable; urgency=low
 
   [ Keith Packard ]
