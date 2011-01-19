@@ -1,3 +1,72 @@
+commit 9a5666f42d4d90a0a488fd0a85ae9914944fe0be
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 18 22:46:25 2011 -0800
+
+    doc: Build with 'make all' from top level. Build with 'make fat'
+    
+    This will make sure the docs are up-to-date for both regular and
+    fat builds.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 72a04d679d06aaad9c2b4297fefd585fc393ce2e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 18 22:39:07 2011 -0800
+
+    fat: Add docs to Linux package
+    
+    Oops. Missed this one.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5d91c250179f44ca17c26fff36718b7026aa8ee0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 18 22:34:15 2011 -0800
+
+    fat: Add firmware for v1.1 and docs to mac/windows/linux installers
+    
+    We'll need to be sure to update this each time we add a product.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 26c4cc3054b1c7c9ed6ce3c2f21f6254b3245718
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jan 18 23:29:03 2011 -0700
+
+    freshen copyright year
+
+commit e2e20f6ce8a9c2bca36fde5730ccd7151377ec6f
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jan 18 23:18:42 2011 -0700
+
+    add 0.9 revision entry, with caveat about telemetry format change
+
+commit 27e6dbbe95ae9b361d60576e0cbadb66792307f3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 18 20:39:58 2011 -0800
+
+    doc: Add v0.9 features from altosui to documentation.
+    
+    New flight download UI and new config items.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 92d7841edcfc8a841f71f7f97cc541f8e55c4627
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 18 20:39:30 2011 -0800
+
+    doc: Don't delete telemetrum-outline.pdf
+    
+    This has a drilling template for the board.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c411dce69be58238b8312c2fd7405cbe8b5d4a5a
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jan 18 17:27:11 2011 -0700
+
+    update changelogs for Debian build
+
 commit da42f406e88ccc821cd45d5a94d5afec65ec50e9
 Merge: ea4cdfb cf550f9
 Author: Bdale Garbee <bdale@gag.com>

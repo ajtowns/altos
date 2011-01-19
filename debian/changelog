@@ -1,3 +1,20 @@
+altos (0.8.1+79+g9a5666f) unstable; urgency=low
+
+  [ Keith Packard ]
+  * doc: Don't delete telemetrum-outline.pdf
+  * doc: Add v0.9 features from altosui to documentation.
+
+  [ Bdale Garbee ]
+  * add 0.9 revision entry, with caveat about telemetry format change
+  * freshen copyright year
+
+  [ Keith Packard ]
+  * fat: Add firmware for v1.1 and docs to mac/windows/linux installers
+  * fat: Add docs to Linux package
+  * doc: Build with 'make all' from top level. Build with 'make fat'
+
+ -- Bdale Garbee <bdale@gag.com>  Tue, 18 Jan 2011 23:47:52 -0700
+
 altos (0.8.1+71+gda42f40) unstable; urgency=low
 
   [ Keith Packard ]
