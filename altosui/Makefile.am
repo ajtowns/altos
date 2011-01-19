@@ -129,9 +129,20 @@ ICONJAR= -C $(ICONDIR) altus-metrum-16x16.jpg \
 WINDOWS_ICON=$(ICONDIR)/altus-metrum.ico
 
 # Firmware
-FIRMWARE_TD=$(top_srcdir)/src/teledongle-v0.2-$(VERSION).ihx
-FIRMWARE_TM=$(top_srcdir)/src/telemetrum-v1.0-$(VERSION).ihx
+FIRMWARE_TD_0_2=$(top_srcdir)/src/teledongle-v0.2-$(VERSION).ihx
+FIRMWARE_TD=$(FIRMWARE_TD_0_2)
+
+FIRMWARE_TM_1_0=$(top_srcdir)/src/telemetrum-v1.0-$(VERSION).ihx
+FIRMWARE_TM_1_1=$(top_srcdir)/src/telemetrum-v1.1-$(VERSION).ihx
+FIRMWARE_TM=$(FIRMWARE_TM_1_0) $(FIRMWARE_TM_1_1)
+
 FIRMWARE=$(FIRMWARE_TM) $(FIRMWARE_TD)
+
+ALTUSMETRUM_DOC=$(top_srcdir)/doc/altusmetrum.pdf
+ALTOS_DOC=$(top_srcdir)/doc/altos.pdf
+TEMPLATE_DOC=$(top_srcdir)/doc/telemetrum-outline.pdf
+
+DOC=$(ALTUSMETRUM_DOC) $(ALTOS_DOC) $(TEMPLATE_DOC)
 
 # Distribution targets
 LINUX_DIST=Altos-Linux-$(VERSION).tar.bz2

@@ -80,8 +80,18 @@ Section "TeleMetrum and TeleDongle Firmware"
 	SetOutPath $INSTDIR
 
 	File "../src/telemetrum-v1.0/telemetrum-v1.0-${VERSION}.ihx"
+	File "../src/telemetrum-v1.1/telemetrum-v1.1-${VERSION}.ihx"
 	File "../src/teledongle-v0.2/teledongle-v0.2-${VERSION}.ihx"
 
+SectionEnd
+
+Section "Documentation"
+
+	SetOutPath $INSTDIR
+
+	File "../doc/altusmetrum.pdf"
+	File "../doc/altos.pdf"
+	File "../doc/telemetrum-outline.pdf"
 SectionEnd
 
 Section "Uninstaller"
