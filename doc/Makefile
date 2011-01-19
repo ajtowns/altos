@@ -31,10 +31,10 @@ publish:	$(DOC)
 	 git push)
 
 clean:
-	rm -f *.html *.pdf *.fo
+	rm -f $(HTML) $(PDF) *.fo
 
 distclean:
-	rm -f *.html *.pdf *.fo
+	rm -f $(HTML) $(PDF) *.fo
 
 indent:		altusmetrum.xsl
 	xmlindent -i 2 < altusmetrum.xsl > altusmetrum.new
