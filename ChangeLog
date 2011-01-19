@@ -1,3 +1,15 @@
+commit 6244f2316267738781e31a773b377bcf8c476918
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Jan 19 00:04:45 2011 -0700
+
+    prepare to release
+
+commit 3c72103866f041107af49e01a5ccb6d4e6b6ac80
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jan 18 23:55:42 2011 -0700
+
+    update changelogs for Debian build
+
 commit 4ae724fe1d2ca0d712321c4fdc2200ff46d77428
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Tue Jan 18 23:54:36 2011 -0700
