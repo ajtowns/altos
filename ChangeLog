@@ -1,3 +1,21 @@
+commit 97f4f2e0d28eec1cf19d2d25140e42f6ac277700
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jan 19 11:21:52 2011 -0800
+
+    altos: Program default flight log max value for new boards
+    
+    New boards have no config space values at all, and so they need each
+    value to be set. Yes, this should be fixed so that there aren't two
+    copies of these assignments.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 480587cf514ba21885b24c3b8fcb98d6b76ea8f4
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Jan 19 00:05:25 2011 -0700
+
+    update changelogs for Debian build
+
 commit 6244f2316267738781e31a773b377bcf8c476918
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed Jan 19 00:04:45 2011 -0700

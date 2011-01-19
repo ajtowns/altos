@@ -1,3 +1,10 @@
+altos (0.9+2+g97f4f2e) unstable; urgency=low
+
+  [ Keith Packard ]
+  * altos: Program default flight log max value for new boards
+
+ -- Bdale Garbee <bdale@gag.com>  Wed, 19 Jan 2011 12:26:48 -0700
+
 altos (0.9) unstable; urgency=low
 
   * prepare to release
