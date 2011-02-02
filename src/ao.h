@@ -922,13 +922,13 @@ ao_radio_get(void);
 #define ao_radio_put() ao_mutex_put(&ao_radio_mutex)
 
 void
-ao_radio_set_telemetry(void);
+ao_radio_set_fixed_pkt(size_t size);
 
-void
-ao_radio_set_packet(void);
+#define ao_radio_set_telemetry() \
+        ao_radio_set_fixed_pkt(sizeof (struct ao_telemetry))
 
-void
-ao_radio_set_rdf(void);
+#define ao_radio_set_packet() \
+        ao_radio_set_fixed_pkt(sizeof (struct ao_packet))
 
 void
 ao_radio_send(__xdata void *data, uint8_t size) __reentrant;
