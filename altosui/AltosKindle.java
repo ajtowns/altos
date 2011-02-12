@@ -23,6 +23,8 @@ import java.net.InetSocketAddress;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.InputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import com.sun.net.httpserver.*;
 import java.util.*;
 
@@ -39,6 +41,8 @@ public class AltosKindle implements HttpHandler {
 				do_serial_page(exchange, -1);
 			} else if (path.startsWith("/serial/")) {
 				do_serial_page(exchange, Integer.parseInt(path.substring(8)));
+			} else if (path.startsWith("/map-")) {
+				do_map(exchange, path.substring(1));
 			} else if (path.equals("/launch.html")) {
 				do_fixed_page(exchange, "launch.html", "text/html");
 			} else if (path.equals("/launch.js")) {
@@ -120,9 +124,28 @@ public class AltosKindle implements HttpHandler {
 
 		out.add("c_lat", -27.843933);
 		out.add("c_lon", 152.957153);
+		out.add("zoom", 16);
 
 		responseBody.write(out.toString().getBytes());
 		responseBody.write("\n".getBytes());
+		responseBody.close();
+	}
+
+	private void do_map(HttpExchange exchange, String mapname)
+	throws IOException
+	{
+		OutputStream responseBody = exchange.getResponseBody();
+		File mapfile = new File(AltosPreferences.mapdir(), mapname);
+		if (!mapfile.exists()) {
+			exchange.sendResponseHeaders(404, 0);
+			responseBody.close();
+			return;
+		}
+		FileInputStream f = new FileInputStream(mapfile);
+		exchange.getResponseHeaders().set("Content-Type", "image/png");
+		exchange.sendResponseHeaders(200, 0);
+		copy(f, responseBody);
+		f.close();
 		responseBody.close();
 	}
 

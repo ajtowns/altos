@@ -42,13 +42,13 @@ var zoom = 16;
 var llc = {"x": 0, "y": 0};
 
 function map_url(c, i, j, z) {
-    ns = ["S27.834219","S27.843933","S27.853647"][i];
-    ew = ["E152.946167","E152.957153","E152.968140"][j];
-    return "http://azure.humbug.org.au/~aj/tmp/amazon-rockets/maps/map-" + ns + "," + ew + "-" + z + ".png";
+    ns = ["S27.834219","S27.843933","S27.853647"][j];
+    ew = ["E152.946167","E152.957153","E152.968140"][i];
+    return "map-" + ns + "," + ew + "-" + z + ".png";
 }
 
 function check_centre(x) {
-    if (x.c_lat == centre.lat && y.c_lon == centre.lng)
+    if (x.c_lat == centre.lat && x.c_lon == centre.lng)
         return;
     centre.lat = x.c_lat;
     centre.lng = x.c_lon;
