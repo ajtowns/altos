@@ -215,12 +215,14 @@ classes/altosui:
 $(JAR): classaltosui.stamp Manifest.txt $(JAVA_ICON)
 	jar cfm $@ Manifest.txt \
 		$(ICONJAR) \
+		$(HTMLJAR) \
 		-C classes altosui \
 		-C libaltos libaltosJNI
 
 $(FATJAR): classaltosui.stamp Manifest-fat.txt $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) $(JAVA_ICON)
 	jar cfm $@ Manifest-fat.txt \
 		$(ICONJAR) \
+		$(HTMLJAR) \
 		-C classes altosui \
 		-C libaltos libaltosJNI
 

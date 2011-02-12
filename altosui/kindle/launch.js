@@ -34,25 +34,36 @@ function pt_sxy(latlng, scale_x, scale_y) {
 var height = 512*3;
 var width = 512*3;
 
-var visheight = height; // window.innerHeight;
-var viswidth = width; // window.innerWidth;
-
 var paper = new Raphael(document.getElementById('canvas_container'),
-            viswidth, visheight);
+            width, height);
 
-var offx = 0; // -520;
-var offy = 0; // -700;
+var centre = {"lat": 0, "lng": 0};
+var zoom = 16;
+var llc = {"x": 0, "y": 0};
 
-centre = {"lat": -27.843933, "lng": 152.957153};
-paper.image("http://azure.humbug.org.au/~aj/tmp/amazon-rockets/maps/map-S27.834219,E152.946167-16.png",    0+offx,    0+offy, 512,512);
-paper.image("http://azure.humbug.org.au/~aj/tmp/amazon-rockets/maps/map-S27.834219,E152.957153-16.png",  512+offx,    0+offy, 512,512);
-paper.image("http://azure.humbug.org.au/~aj/tmp/amazon-rockets/maps/map-S27.834219,E152.968140-16.png", 1024+offx,    0+offy, 512,512);
-paper.image("http://azure.humbug.org.au/~aj/tmp/amazon-rockets/maps/map-S27.843933,E152.946167-16.png",    0+offx,  512+offy, 512,512);
-paper.image("http://azure.humbug.org.au/~aj/tmp/amazon-rockets/maps/map-S27.843933,E152.957153-16.png",  512+offx,  512+offy, 512,512);
-paper.image("http://azure.humbug.org.au/~aj/tmp/amazon-rockets/maps/map-S27.843933,E152.968140-16.png", 1024+offx,  512+offy, 512,512);
-paper.image("http://azure.humbug.org.au/~aj/tmp/amazon-rockets/maps/map-S27.853647,E152.946167-16.png",    0+offx, 1024+offy, 512,512);
-paper.image("http://azure.humbug.org.au/~aj/tmp/amazon-rockets/maps/map-S27.853647,E152.957153-16.png",  512+offx, 1024+offy, 512,512);
-paper.image("http://azure.humbug.org.au/~aj/tmp/amazon-rockets/maps/map-S27.853647,E152.968140-16.png", 1024+offx, 1024+offy, 512,512);
+function map_url(c, i, j, z) {
+    ns = ["S27.834219","S27.843933","S27.853647"][i];
+    ew = ["E152.946167","E152.957153","E152.968140"][j];
+    return "http://azure.humbug.org.au/~aj/tmp/amazon-rockets/maps/map-" + ns + "," + ew + "-" + z + ".png";
+}
+
+function check_centre(x) {
+    if (x.c_lat == centre.lat && y.c_lon == centre.lng)
+        return;
+    centre.lat = x.c_lat;
+    centre.lng = x.c_lon;
+    zoom = x.zoom;
+
+    llc = pt_z(centre, zoom);
+    llc.x -= 512+256;
+    llc.y -= 512+256;
+
+    for (i = 0; i < 3; i += 1) {
+        for (j = 0; j < 3; j += 1) {
+            paper.image(map_url(centre, i, j, zoom), 512*i, 512*j, 512, 512);
+        }
+    }
+}
 
 statecols = ["white", "white", "gray", "red", "pink", "yellow", "lightblue", "blue", "darkgreen"]
 
@@ -76,6 +87,7 @@ function insertAfter( referenceNode, newNode )
 }
 
 function update_data(x) {
+    check_centre(x);
     if (x.statename == 'pad') {
         vis = 'pad';
     } else if (x.statename == 'boost' || x.statename == 'fast' || x.statename == 'coast') {
@@ -132,13 +144,11 @@ function update_data(x) {
         return;
 
     ll = {"lat": x.gps.lat, "lng": x.gps.lon};
-    ll = pt_z(ll, 16);
-    llc = pt_z(centre, 16);
-    cx = ll.x - llc.x + 512 + 256;
-    cy = ll.y - llc.y + 512 + 256;
-    var circle = paper.circle(cx+offx, cy+offy, 4);
+    ll = pt_z(ll, zoom);
+    cx = ll.x - llc.x;
+    cy = ll.y - llc.y;
+    var circle = paper.circle(cx, cy, 4);
     circle.attr({fill: "black", stroke: statecols[x.state], "stroke-width": 4});
-
     myscroll(cx, cy);
 }
 

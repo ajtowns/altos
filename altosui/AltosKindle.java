@@ -32,6 +32,7 @@ public class AltosKindle implements HttpHandler {
 		if (requestMethod.equalsIgnoreCase("GET")) {
 			URI uri = exchange.getRequestURI();
 			String path = uri.getPath();
+			System.out.print("GET " + path + "\n");
 			if (path.equals("") || path.equals("/")) {
 				do_index(exchange);
 			} else if (path.equals("/replay")) {
@@ -117,7 +118,11 @@ public class AltosKindle implements HttpHandler {
 		out.add("gpsn", s.data.gps.nsat);
 		out.add("gps", s.data.gps);
 
+		out.add("c_lat", -27.843933);
+		out.add("c_lon", 152.957153);
+
 		responseBody.write(out.toString().getBytes());
+		responseBody.write("\n".getBytes());
 		responseBody.close();
 	}
 
