@@ -130,7 +130,7 @@ ICONJAR= -C $(ICONDIR) altus-metrum-16x16.jpg \
 WINDOWS_ICON=$(ICONDIR)/altus-metrum.ico
 
 # static files for kindle http server
-ICONDIR=$(top_srcdir)/altosui/kindle
+HTMLDIR=$(top_srcdir)/altosui/kindle
 HTMLJAR= -C $(HTMLDIR) launch.html \
 	-C $(HTMLDIR) launch.css -C $(HTMLDIR) launch.js \
 	-C $(HTMLDIR) raphael-min.js

@@ -42,6 +42,8 @@ public class AltosKindle implements HttpHandler {
 				do_fixed_page(exchange, "launch.html", "text/html");
 			} else if (path.equals("/launch.js")) {
 				do_fixed_page(exchange, "launch.js", "application/javascript");
+			} else if (path.equals("/raphael-min.js")) {
+				do_fixed_page(exchange, "raphael-min.js", "application/javascript");
 			} else if (path.equals("/launch.css")) {
 				do_fixed_page(exchange, "launch.css", "text/css");
 			} else {
