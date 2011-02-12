@@ -52,6 +52,7 @@ altosui_JAVA = \
 	AltosIgnite.java \
 	AltosIgniteUI.java \
 	AltosInfoTable.java \
+	AltosKindle.java \
 	AltosKML.java \
 	AltosLanded.java \
 	AltosLed.java \

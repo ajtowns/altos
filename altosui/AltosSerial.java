@@ -238,7 +238,7 @@ public class AltosSerial implements Runnable {
 	public void set_channel(int channel) {
 		if (altos != null) {
 			if (monitor_mode)
-				printf("m 0\nc r %d\nm 1\n", channel);
+				printf("m0\nc r %d\nm1\n", channel);
 			else
 				printf("c r %d\n", channel);
 			flush_output();
@@ -249,9 +249,9 @@ public class AltosSerial implements Runnable {
 		monitor_mode = monitor;
 		if (altos != null) {
 			if (monitor)
-				printf("m 1\n");
+				printf("m1\n");
 			else
-				printf("m 0\n");
+				printf("m0\n");
 			flush_output();
 		}
 	}

@@ -37,6 +37,7 @@ public class AltosDisplayThread extends Thread {
 	AltosFlightReader	reader;
 	int			crc_errors;
 	AltosFlightDisplay	display;
+	int        serial;
 
 	void show_internal(AltosState state, int crc_errors) {
 		if (state != null)
@@ -46,14 +47,15 @@ public class AltosDisplayThread extends Thread {
 	void show_safely(AltosState in_state, int in_crc_errors) {
 		final AltosState state = in_state;
 		final int crc_errors = in_crc_errors;
+		AltosKindle.add_record(serial, state);
 		Runnable r = new Runnable() {
-				public void run() {
-					try {
-						show_internal(state, crc_errors);
-					} catch (Exception ex) {
-					}
+			public void run() {
+				try {
+					show_internal(state, crc_errors);
+				} catch (Exception ex) {
 				}
-			};
+			}
+		};
 		SwingUtilities.invokeLater(r);
 	}
 
@@ -67,13 +69,13 @@ public class AltosDisplayThread extends Thread {
 	void reading_error_safely(String in_name) {
 		final String name = in_name;
 		Runnable r = new Runnable() {
-				public void run() {
-					try {
-						reading_error_internal(name);
-					} catch (Exception ex) {
-					}
+			public void run() {
+				try {
+					reading_error_internal(name);
+				} catch (Exception ex) {
 				}
-			};
+			}
+		};
 		SwingUtilities.invokeLater(r);
 	}
 
@@ -100,13 +102,13 @@ public class AltosDisplayThread extends Thread {
 
 			/* If the rocket isn't on the pad, then report height */
 			if (Altos.ao_flight_drogue <= state.state &&
-			    state.state < Altos.ao_flight_landed &&
-			    state.range >= 0)
+					state.state < Altos.ao_flight_landed &&
+					state.range >= 0)
 			{
 				voice.speak("Height %d, bearing %s %d, elevation %d, range %d.\n",
 					    (int) (state.height + 0.5),
-                        state.from_pad.bearing_words(
-                            AltosGreatCircle.BEARING_VOICE),
+					    state.from_pad.bearing_words(
+						    AltosGreatCircle.BEARING_VOICE),
 					    (int) (state.from_pad.bearing + 0.5),
 					    (int) (state.elevation + 0.5),
 					    (int) (state.range + 0.5));
@@ -121,9 +123,9 @@ public class AltosDisplayThread extends Thread {
 			 * a long time
 			 */
 			if (state.state >= Altos.ao_flight_drogue &&
-			    (last ||
-			     System.currentTimeMillis() - state.report_time >= 15000 ||
-			     state.state == Altos.ao_flight_landed))
+					(last ||
+					 System.currentTimeMillis() - state.report_time >= 15000 ||
+					 state.state == Altos.ao_flight_landed))
 			{
 				if (Math.abs(state.baro_speed) < 20 && state.height < 100)
 					voice.speak("rocket landed safely");
@@ -202,12 +204,12 @@ public class AltosDisplayThread extends Thread {
 		if (old_state == null || old_state.state != state.state) {
 			voice.speak(state.data.state());
 			if ((old_state == null || old_state.state <= Altos.ao_flight_boost) &&
-			    state.state > Altos.ao_flight_boost) {
+					state.state > Altos.ao_flight_boost) {
 				voice.speak("max speed: %d meters per second.",
 					    (int) (state.max_speed + 0.5));
 				ret = true;
 			} else if ((old_state == null || old_state.state < Altos.ao_flight_drogue) &&
-				   state.state >= Altos.ao_flight_drogue) {
+					state.state >= Altos.ao_flight_drogue) {
 				voice.speak("max height: %d meters.",
 					    (int) (state.max_height + 0.5));
 				ret = true;
@@ -267,6 +269,7 @@ public class AltosDisplayThread extends Thread {
 			try {
 				idle_thread.join();
 			} catch (InterruptedException ie) {}
+			AltosKindle.finish_record(serial);
 		}
 	}
 
@@ -274,6 +277,7 @@ public class AltosDisplayThread extends Thread {
 		parent = in_parent;
 		voice = in_voice;
 		display = in_display;
+		serial = display.serial();
 		reader = in_reader;
 		display.reset();
 	}

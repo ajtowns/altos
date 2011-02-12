@@ -37,7 +37,7 @@ public class AltosUI extends JFrame {
 		if (!AltosDevice.load_library()) {
 			JOptionPane.showMessageDialog(frame,
 						      String.format("No AltOS library in \"%s\"",
-								    System.getProperty("java.library.path","<undefined>")),
+								      System.getProperty("java.library.path","<undefined>")),
 						      "Cannot load device access library",
 						      JOptionPane.ERROR_MESSAGE);
 			return false;
@@ -53,13 +53,13 @@ public class AltosUI extends JFrame {
 		} catch (FileNotFoundException ee) {
 			JOptionPane.showMessageDialog(AltosUI.this,
 						      String.format("Cannot open device \"%s\"",
-								    device.toShortString()),
+								      device.toShortString()),
 						      "Cannot open target device",
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (AltosSerialInUseException si) {
 			JOptionPane.showMessageDialog(AltosUI.this,
 						      String.format("Device \"%s\" already in use",
-								    device.toShortString()),
+								      device.toShortString()),
 						      "Device in use",
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (IOException ee) {
@@ -78,7 +78,8 @@ public class AltosUI extends JFrame {
 		JButton			b;
 
 		c = new GridBagConstraints();
-		c.gridx = x; c.gridy = y;
+		c.gridx = x;
+		c.gridy = y;
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
 		c.weighty = 1;
@@ -109,68 +110,68 @@ public class AltosUI extends JFrame {
 
 		b = addButton(0, 0, "Monitor Flight");
 		b.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						ConnectToDevice();
-					}
-				});
+			public void actionPerformed(ActionEvent e) {
+				ConnectToDevice();
+			}
+		});
 		b = addButton(1, 0, "Save Flight Data");
 		b.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						SaveFlightData();
-					}
-				});
+			public void actionPerformed(ActionEvent e) {
+				SaveFlightData();
+			}
+		});
 		b = addButton(2, 0, "Replay Flight");
 		b.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						Replay();
-					}
-				});
+			public void actionPerformed(ActionEvent e) {
+				Replay();
+			}
+		});
 		b = addButton(3, 0, "Graph Data");
 		b.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						GraphData();
-					}
-				});
+			public void actionPerformed(ActionEvent e) {
+				GraphData();
+			}
+		});
 		b = addButton(4, 0, "Export Data");
 		b.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						ExportData();
-					}
-				});
+			public void actionPerformed(ActionEvent e) {
+				ExportData();
+			}
+		});
 		b = addButton(0, 1, "Configure TeleMetrum");
 		b.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						ConfigureTeleMetrum();
-					}
-				});
+			public void actionPerformed(ActionEvent e) {
+				ConfigureTeleMetrum();
+			}
+		});
 
 		b = addButton(1, 1, "Configure AltosUI");
 		b.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					ConfigureAltosUI();
-				}
-			});
+			public void actionPerformed(ActionEvent e) {
+				ConfigureAltosUI();
+			}
+		});
 
 		b = addButton(2, 1, "Flash Image");
 		b.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					FlashImage();
-				}
-			});
+			public void actionPerformed(ActionEvent e) {
+				FlashImage();
+			}
+		});
 
 		b = addButton(3, 1, "Fire Igniter");
 		b.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					FireIgniter();
-				}
-			});
+			public void actionPerformed(ActionEvent e) {
+				FireIgniter();
+			}
+		});
 
 		b = addButton(4, 1, "Quit");
 		b.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					System.exit(0);
-				}
-			});
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
 
 		setTitle("AltOS");
 
@@ -199,7 +200,7 @@ public class AltosUI extends JFrame {
 
 	private void ConnectToDevice() {
 		AltosDevice	device = AltosDeviceDialog.show(AltosUI.this,
-								AltosDevice.product_basestation);
+					 AltosDevice.product_basestation);
 
 		if (device != null)
 			telemetry_window(device);
@@ -236,7 +237,7 @@ public class AltosUI extends JFrame {
 		AltosRecordIterable iterable = chooser.runDialog();
 		if (iterable != null) {
 			AltosFlightReader reader = new AltosReplayReader(iterable.iterator(),
-									 chooser.filename());
+					chooser.filename());
 			new AltosFlightUI(voice, reader);
 		}
 	}
@@ -352,6 +353,13 @@ public class AltosUI extends JFrame {
 
 	public static void main(final String[] args) {
 		int	process = 0;
+
+		try {
+			AltosKindle.runServer();
+		} catch (IOException e) {
+			;
+		}
+
 		/* Handle batch-mode */
 		if (args.length == 1 && args[0].equals("--help")) {
 			System.out.printf("Usage: altosui [OPTION]... [FILE]...\n");

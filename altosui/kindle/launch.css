@@ -1,0 +1,31 @@
+body{
+  margin:0;
+  padding:90 0 0 0;
+}
+div#header{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:90px;
+  background: white;
+}
+tr {
+  font-size: 10px;
+}
+tr.data {
+  font-size: 18px;
+  font-weight: bold;
+}
+@media screen{
+  body>div#header{
+   position: fixed;
+  }
+}
+* html body{
+  overflow:hidden;
+}
+* html div#canvas_container{
+  height:100%;
+  overflow:auto;
+}

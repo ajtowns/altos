@@ -44,6 +44,11 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	AltosLanded	landed;
 	AltosSiteMap    sitemap;
 
+	private int serial;
+	public int serial() {
+		return serial;
+	}
+
 	private AltosFlightStatus flightStatus;
 	private AltosInfoTable flightInfo;
 
@@ -110,6 +115,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	public AltosFlightUI(AltosVoice in_voice, AltosFlightReader in_reader, final int serial) {
 		AltosPreferences.init(this);
 
+		this.serial = serial;
 		voice = in_voice;
 		reader = in_reader;
 
@@ -181,15 +187,15 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosing(WindowEvent e) {
-					disconnect();
-					setVisible(false);
-					dispose();
-					if (exit_on_close)
-						System.exit(0);
-				}
-			});
+			@Override
+			public void windowClosing(WindowEvent e) {
+				disconnect();
+				setVisible(false);
+				dispose();
+				if (exit_on_close)
+					System.exit(0);
+			}
+		});
 
 		pack();
 		setVisible(true);

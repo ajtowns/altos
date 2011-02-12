@@ -1,0 +1,98 @@
+<html>
+    <head>
+        <title>Amazon Rocket Display Device Test</title>
+        <link rel="stylesheet" type="text/css" href="launch.css" />
+    </head>
+    <body>
+
+<div id="header">
+    <div id="baseinfo">
+    <table width=100% border=1 cellspacing=0 cellpadding=0>
+        <colgroup width="20%"></colgroup>
+        <colgroup width="20%"></colgroup>
+        <colgroup width="10%"></colgroup>
+        <colgroup width="5%"></colgroup>
+        <colgroup width="15%"></colgroup>
+        <colgroup width="30%"></colgroup>
+        <tr>
+            <td>Time (GPS, UTC)</td>
+            <td>Callsign</td>
+            <td>Serial</td>
+            <td>Flight</td>
+            <td>State</td>
+            <td><span style="float:left">Height</span><span style="float:right">(RSSI <span id="rssi">0</span>)</span></td>
+        </tr>
+        <tr class="data">
+            <td id="time">----</td>
+            <td id="callsign"></td><td id="serial"></td>
+            <td id="flight"></td><td id="state"></td>
+            <td id="height"></td>
+        </tr>
+    </table>
+    </div>
+    <div class="info" name="info" id="pad">
+    <table width=100% border=1 cellspacing=0 cellpadding=0>
+        <colgroup width="15%"></colgroup>
+        <colgroup width="15%"></colgroup>
+        <colgroup width="15%"></colgroup>
+        <colgroup width="15%"></colgroup>
+        <colgroup width="20%"></colgroup>
+        <colgroup width="20%"></colgroup>
+        <tr>
+            <td>Battery</td>
+            <td>Drogue</td><td>Main</td>
+            <td>GPS Sats</td>
+            <td>Latitude</td><td>Longitude</td>
+        </tr>
+        <tr class="data">
+            <td id="battery"></td>
+            <td id="drogue"></td><td id="main"></td>
+            <td id="nsats"></td>
+            <td id="lat"></td><td id="long"></td>
+        </tr>
+    </table>
+    </div>
+
+    <div class="info" name="info" id="ascent">
+    <table width=100% border=1 cellspacing=0 cellpadding=0>
+        <colgroup width="30%"></colgroup>
+        <colgroup width="30%"></colgroup>
+        <colgroup width="20%"></colgroup>
+        <colgroup width="20%"></colgroup>
+        <tr>
+            <td>Accel</td><td>Speed</td>
+            <td>Latitude</td><td>Longitude</td>
+        </tr>
+        <tr class="data">
+            <td id="accel"></td><td id="speed"></td>
+            <td id="lat"></td><td id="long"></td>
+        </tr>
+    </table>
+    </div>
+
+    <div class="info" name="info" id="descent">
+    <table width=100% border=1 cellspacing=0 cellpadding=0>
+        <colgroup width="30%"></colgroup>
+        <colgroup width="15%"></colgroup>
+        <colgroup width="15%"></colgroup>
+        <colgroup width="20%"></colgroup>
+        <colgroup width="20%"></colgroup>
+        <tr>
+            <td>Speed</td><td>Drogue</td><td>Main</td>
+            <td>Latitude</td><td>Longitude</td>
+        </tr>
+        <tr class="data">
+            <td id="baro_speed"></td>
+            <td id="drogue"></td><td id="main"></td>
+            <td id="lat"></td><td id="long"></td>
+        </tr>
+    </table>
+    </div>
+</div>
+
+<div id="canvas_container"></div>
+
+<script type="text/javascript" src="http://azure.humbug.org.au/~aj/tmp/amazon-rockets/raphael-min.js"></script>
+<script type="text/javascript" src="launch.js"></script>
+
+</body></html>
