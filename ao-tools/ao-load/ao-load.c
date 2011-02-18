@@ -102,7 +102,7 @@ static const struct option options[] = {
 
 static void usage(char *program)
 {
-	fprintf(stderr, "usage: %s [--tty <tty-name>] [--device <device-name>] [--cal <radio-cal>] file.ihx serial-number\n", program);
+	fprintf(stderr, "usage: %s [--tty=<tty-name>] [--device=<device-name>] [--cal=<radio-cal>] file.ihx serial-number\n", program);
 	exit(1);
 }
 
