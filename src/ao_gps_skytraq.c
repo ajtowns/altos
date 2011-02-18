@@ -19,7 +19,7 @@
 #include "ao.h"
 #endif
 
-#define AO_GPS_LEADER		2
+#define AO_GPS_LEADER          2
 
 static const char ao_gps_header[] = "GP";
 
@@ -37,24 +37,32 @@ static __xdata struct ao_gps_data		ao_gps_next;
 static __xdata uint8_t				ao_gps_date_flags;
 static __xdata struct ao_gps_tracking_data	ao_gps_tracking_next;
 
-static const char ao_gps_config[] = {
-	0xa0, 0xa1, 0x00, 0x09,		/* length 9 bytes */
-	0x08,				/* configure nmea */
-	1,				/* gga interval */
-	1,				/* gsa interval */
-	1,				/* gsv interval */
-	1,				/* gll interval */
-	1,				/* rmc interval */
-	1,				/* vtg interval */
-	1,				/* zda interval */
-	0,				/* attributes (0 = update to sram, 1 = update flash too) */
-	0x09, 0x0d, 0x0a,
+#define STQ_S 0xa0, 0xa1
+#define STQ_E 0x0d, 0x0a
+#define SKYTRAQ_MSG_2(id,a,b) \
+    STQ_S, 0, 3, id, a,b, (id^a^b), STQ_E
+#define SKYTRAQ_MSG_3(id,a,b,c) \
+    STQ_S, 0, 4, id, a,b,c, (id^a^b^c), STQ_E
+#define SKYTRAQ_MSG_8(id,a,b,c,d,e,f,g,h) \
+    STQ_S, 0, 9, id, a,b,c,d,e,f,g,h, (id^a^b^c^d^e^f^g^h), STQ_E
+#define SKYTRAQ_MSG_14(id,a,b,c,d,e,f,g,h,i,j,k,l,m,n) \
+    STQ_S, 0,15, id, a,b,c,d,e,f,g,h,i,j,k,l,m,n, \
+    (id^a^b^c^d^e^f^g^h^i^j^k^l^m^n), STQ_E
 
-	0xa0, 0xa1, 0x00, 0x03,		/* length: 3 bytes */
-	0x3c,				/* configure navigation mode */
-	0x00,				/* 0 = car, 1 = pedestrian */
-	0x00,				/* 0 = update to sram, 1 = update sram + flash */
-	0x3c, 0x0d, 0x0a,
+static const uint8_t ao_gps_config[] = {
+	SKYTRAQ_MSG_8(0x08, 1, 1, 1, 1, 1, 1, 1, 0), /* configure nmea */
+	/* gga interval */
+	/* gsa interval */
+	/* gsv interval */
+	/* gll interval */
+	/* rmc interval */
+	/* vtg interval */
+	/* zda interval */
+	/* attributes (0 = update to sram, 1 = update flash too) */
+
+	SKYTRAQ_MSG_2(0x3c, 0x00, 0x00), /* configure navigation mode */
+	/* 0 = car, 1 = pedestrian */
+	/* 0 = update to sram, 1 = update sram + flash */
 };
 
 static void
@@ -65,13 +73,6 @@ ao_gps_lexchar(void)
 	else
 		ao_gps_char = ao_serial_getchar();
 	ao_gps_cksum ^= ao_gps_char;
-}
-
-void
-ao_gps_skip(void)
-{
-	while (ao_gps_char >= '0')
-		ao_gps_lexchar();
 }
 
 void
@@ -390,53 +391,68 @@ ao_nmea_rmc(void)
 	}
 }
 
+#define ao_skytraq_sendstruct(s) ao_skytraq_sendbytes((s), (s)+sizeof(s))
+
+static void
+ao_skytraq_sendbytes(const uint8_t *b, const uint8_t *e)
+{
+	while (b != e) {
+		if (*b == 0xa0)
+			ao_delay(AO_MS_TO_TICKS(500));
+		ao_serial_putchar(*b++);
+	}
+}
+
+static void
+ao_gps_nmea_parse(void)
+{
+	uint8_t	a, b, c;
+
+	ao_gps_cksum = 0;
+	ao_gps_error = 0;
+
+	for (a = 0; a < AO_GPS_LEADER; a++) {
+		ao_gps_lexchar();
+		if (ao_gps_char != ao_gps_header[a])
+			return;
+	}
+
+	ao_gps_lexchar();
+	a = ao_gps_char;
+	ao_gps_lexchar();
+	b = ao_gps_char;
+	ao_gps_lexchar();
+	c = ao_gps_char;
+	ao_gps_lexchar();
+
+	if (ao_gps_char != ',')
+		return;
+
+	if (a == (uint8_t) 'G' && b == (uint8_t) 'G' && c == (uint8_t) 'A') {
+		ao_nmea_gga();
+	} else if (a == (uint8_t) 'G' && b == (uint8_t) 'S' && c == (uint8_t) 'V') {
+		ao_nmea_gsv();
+	} else if (a == (uint8_t) 'R' && b == (uint8_t) 'M' && c == (uint8_t) 'C') {
+		ao_nmea_rmc();
+	}
+}
+
 void
 ao_gps(void) __reentrant
 {
-	char	a, c;
-	uint8_t	i;
-
 	ao_serial_set_speed(AO_SERIAL_SPEED_9600);
-	for (i = 0; i < sizeof (ao_gps_config); i++)
-		ao_serial_putchar(ao_gps_config[i]);
+
+	/* give skytraq time to boot in case of cold start */
+	ao_delay(AO_MS_TO_TICKS(2000));
+
+	ao_skytraq_sendstruct(ao_gps_config);
+
 	for (;;) {
 		/* Locate the begining of the next record */
-		for (;;) {
-			c = ao_serial_getchar();
-			if (c == '$')
-				break;
+		if ('$' == (uint8_t) ao_serial_getchar()) {
+			ao_gps_nmea_parse();
 		}
 
-		ao_gps_cksum = 0;
-		ao_gps_error = 0;
-
-		/* Skip anything other than GP */
-		for (i = 0; i < AO_GPS_LEADER; i++) {
-			ao_gps_lexchar();
-			if (ao_gps_char != ao_gps_header[i])
-				break;
-		}
-		if (i != AO_GPS_LEADER)
-			continue;
-
-		/* pull the record identifier characters off the link */
-		ao_gps_lexchar();
-		a = ao_gps_char;
-		ao_gps_lexchar();
-		c = ao_gps_char;
-		ao_gps_lexchar();
-		i = ao_gps_char;
-		ao_gps_lexchar();
-		if (ao_gps_char != ',')
-			continue;
-
-		if (a == (uint8_t) 'G' && c == (uint8_t) 'G' && i == (uint8_t) 'A') {
-			ao_nmea_gga();
-		} else if (a == (uint8_t) 'G' && c == (uint8_t) 'S' && i == (uint8_t) 'V') {
-			ao_nmea_gsv();
-		} else if (a == (uint8_t) 'R' && c == (uint8_t) 'M' && i == (uint8_t) 'C') {
-			ao_nmea_rmc();
-		}
 	}
 }
 
