@@ -11,7 +11,7 @@ clean:
 
 install:
 
-ao_flight_test: ao_flight_test.c ao_flight_test.c ao_host.h
+ao_flight_test: ao_flight_test.c ao_flight_test.c ao_host.h ao_flight.c altitude.h
 	cc -g -o $@ $<
 
 ao_gps_test: ao_gps_test.c ao_gps_sirf.c ao_gps_print.c ao_host.h
