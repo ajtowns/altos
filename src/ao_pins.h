@@ -22,7 +22,7 @@
 	#define HAS_SERIAL_1		1
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1
-	#define HAS_DBG			1
+	#define HAS_DBG			0   /* XXX */
 	#define DBG_ON_P1 		1
 	#define DBG_ON_P0 		0
 	#define PACKET_HAS_MASTER	0
@@ -38,7 +38,7 @@
 	#define HAS_SERIAL_1		1
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1
-	#define HAS_DBG			1
+	#define HAS_DBG			0      /* XXX */
 	#define DBG_ON_P1 		1
 	#define DBG_ON_P0 		0
 	#define PACKET_HAS_MASTER	0

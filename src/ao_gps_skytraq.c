@@ -23,6 +23,19 @@
 
 static const char ao_gps_header[] = "GP";
 
+#ifdef AO_GPS_TEST
+#define ao_sleep(x) ((x)==0 ? 0 : 1)
+#define ao_alarm(x) (void)(x)
+#define ao_cmd_lex() (void)0;
+#define ao_cmd_white() (void)0;
+#define ao_cmd_decimal() (void)0;
+#define ao_cmd_hex() (void)0;
+static int ao_cmd_status;
+static int ao_cmd_success;
+static char ao_cmd_lex_c;
+static int ao_cmd_lex_i;
+#endif
+
 __xdata uint8_t ao_gps_mutex;
 static __xdata char ao_gps_char;
 static __xdata uint8_t ao_gps_cksum;
@@ -414,6 +427,62 @@ ao_skytraq_sendbytes(const uint8_t *b, const uint8_t *e)
 	}
 }
 
+static __xdata uint8_t last_response[50];
+static uint16_t last_response_tick;
+static uint16_t last_response_len;
+
+static void
+ao_skytraq_bin_parse(void)
+{
+	uint8_t c, i, ck;
+
+	c = ao_serial_getchar();
+	if (c != 0xA1)
+		return;
+	c = ao_serial_getchar();
+	last_response_len = (c << 8);
+	c = ao_serial_getchar();
+	last_response_len |= c;
+	if (last_response_len == 0)
+		goto fail;
+
+	ck = 0;
+	for (i = 0; i < last_response_len; i++) {
+		c = ao_serial_getchar();
+		if (i < sizeof(last_response))
+			last_response[i] = c;
+		ck ^= c;
+	}
+	c = ao_serial_getchar();
+	if (c != ck) goto fail;
+	c = ao_serial_getchar();
+	if (c != 0x0D) goto fail;
+	c = ao_serial_getchar();
+	if (c != 0x0A) goto fail;
+
+	last_response_tick = ao_time();
+	ao_wakeup(&last_response);
+
+	return;
+fail:
+	last_response_len = 0;
+	return;
+}
+
+#if 0
+static void
+ao_skytraq_nmea_parse(void)
+{
+	uint8_t c;
+	for (;;) {
+		c = ao_serial_getchar();
+		putchar(c);
+		if (c == '\n')
+			break;
+	}
+	flush();
+}
+#else
 static void
 ao_gps_nmea_parse(void)
 {
@@ -447,6 +516,7 @@ ao_gps_nmea_parse(void)
 		ao_nmea_rmc();
 	}
 }
+#endif
 
 void
 ao_gps(void) __reentrant
@@ -470,6 +540,68 @@ ao_gps(void) __reentrant
 	}
 }
 
+static void
+gps_sendcmd(void) __reentrant
+{
+	uint8_t len, cs, b, cmd;
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+
+	len = ao_cmd_lex_i;
+
+	if (len == 0) {
+		ao_cmd_decimal();
+		printf("Setting serial speed %d\n", ao_cmd_lex_i);
+		ao_serial_set_speed(ao_cmd_lex_i);
+		return;
+	} else if (len == 99) {
+		ao_cmd_white();
+		while (ao_cmd_lex_c != '\n') {
+			ao_serial_putchar(ao_cmd_lex_c);
+			ao_cmd_lex();
+		}
+		ao_serial_putchar('\0');
+		return;
+	}
+
+	ao_serial_putchar(0xa0);
+	ao_serial_putchar(0xa1);
+	ao_serial_putchar(0);
+	ao_serial_putchar(len);
+
+	ao_cmd_hex();
+	cs = cmd = (uint8_t) ao_cmd_lex_i;
+	ao_serial_putchar(cmd);
+
+	while (--len > 0) {
+		ao_cmd_hex();
+		b = (uint8_t) ao_cmd_lex_i;
+		cs ^= b;
+		ao_serial_putchar(b);
+	}
+	ao_serial_putchar(cs);
+	ao_serial_putchar(0x0d);
+	ao_serial_putchar(0x0a);
+
+	for(;;) {
+		ao_alarm(AO_MS_TO_TICKS(1000));
+		if (ao_sleep(&last_response)) {
+			printf("No immediate ACK recevied.\n");
+		} else if (last_response_len == 2) {
+			if (last_response[0] == 0x83) {
+				printf("ACK %02x\n", last_response[1]);
+				if (last_response[1] != cmd)
+					continue;
+			} else if (last_response[0] == 0x84) {
+				printf("NACK %02x\n", last_response[1]);
+			}
+		}
+		break;
+	}
+
+}
+
 __xdata struct ao_task ao_gps_task;
 
 static void
@@ -481,11 +613,29 @@ gps_dump(void) __reentrant
 	printf ("Lat/Lon: %ld %ld\n", ao_gps_data.latitude, ao_gps_data.longitude);
 	printf ("Alt: %d\n", ao_gps_data.altitude);
 	printf ("Flags: 0x%x\n", ao_gps_data.flags);
+	if (last_response_len > 0) {
+		printf("Last Resp: %d", last_response_tick);
+		if (last_response[0] == 0x83 && last_response_len == 2) {
+			printf(" ACK %02x", last_response[1]);
+		} else if (last_response[0] == 0x84 && last_response_len == 2) {
+			printf(" NACK %02x", last_response[1]);
+		} else {
+			int i;
+			for (i = 0; i < last_response_len; i++) {
+				if (i < sizeof(last_response))
+					printf(" %02x", last_response[i]);
+				else
+					printf(" ??");
+			}
+		}
+		printf("\n");
+	}
 	ao_mutex_put(&ao_gps_mutex);
 }
 
 __code struct ao_cmds ao_gps_cmds[] = {
 	{ 'g', gps_dump, 	"g                                  Display current GPS values" },
+	{ 'S', gps_sendcmd, "S n xx xx xx..                     Send n bytes to GPS" },
 	{ 0,   gps_dump, NULL },
 };
 
