@@ -49,6 +49,13 @@ static __xdata struct ao_gps_tracking_data	ao_gps_tracking_next;
     STQ_S, 0,15, id, a,b,c,d,e,f,g,h,i,j,k,l,m,n, \
     (id^a^b^c^d^e^f^g^h^i^j^k^l^m^n), STQ_E
 
+static const uint8_t ao_gps_config_serial[] = {
+	SKYTRAQ_MSG_3(0x05, 0, 4, 0), /* set serial port */
+	/* 0 = com1 */
+	/* 0 = 4800, 1 = 9600, 2 = 19200, 3 = 38400,
+	 * 4 = 57600, 5 = 115200 */
+};
+
 static const uint8_t ao_gps_config[] = {
 	SKYTRAQ_MSG_8(0x08, 1, 1, 1, 1, 1, 1, 1, 0), /* configure nmea */
 	/* gga interval */
@@ -63,6 +70,10 @@ static const uint8_t ao_gps_config[] = {
 	SKYTRAQ_MSG_2(0x3c, 0x00, 0x00), /* configure navigation mode */
 	/* 0 = car, 1 = pedestrian */
 	/* 0 = update to sram, 1 = update sram + flash */
+
+	SKYTRAQ_MSG_2(0x0e, 10, 0), /* config nav interval */
+	/* interval */
+	/* 0 = update to sram, 1 = update sram */
 };
 
 static void
@@ -444,6 +455,9 @@ ao_gps(void) __reentrant
 
 	/* give skytraq time to boot in case of cold start */
 	ao_delay(AO_MS_TO_TICKS(2000));
+	ao_skytraq_sendstruct(ao_gps_config_serial);
+	ao_delay(AO_MS_TO_TICKS(1000));
+	ao_serial_set_speed(AO_SERIAL_SPEED_57600);
 
 	ao_skytraq_sendstruct(ao_gps_config);
 
