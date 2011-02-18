@@ -152,7 +152,7 @@ struct ao_config {
 
 #define ao_config_get()
 
-struct ao_config ao_config = { 250, 15937, 16467 };
+struct ao_config ao_config;
 
 #define DATA_TO_XDATA(x) (x)
 
@@ -220,6 +220,11 @@ ao_sleep(void *wchan)
 				tick = strtoul(words[1], NULL, 16);
 				a = strtoul(words[2], NULL, 16);
 				b = strtoul(words[3], NULL, 16);
+			} else if (nword >= 6 && strcmp(words[0], "Accel")) {
+				ao_config.accel_plus_g = atoi(words[3]);
+				ao_config.accel_minus_g = atoi(words[5]);
+			} else if (nword >= 4 && strcmp(words[0], "Main")) {
+				ao_config.main_deploy = atoi(words[2]);
 			} else if (nword >= 36 && strcmp(words[0], "CALL") == 0) {
 				tick = atoi(words[10]);
 				if (!ao_flight_started) {
@@ -238,8 +243,12 @@ ao_sleep(void *wchan)
 			switch (type) {
 			case 'F':
 				ao_flight_ground_accel = a;
-				ao_config.accel_plus_g = a;
-				ao_config.accel_minus_g = a + 530;
+				if (ao_config.accel_plus_g == 0) {
+					ao_config.accel_plus_g = a;
+					ao_config.accel_minus_g = a + 530;
+				}
+				if (ao_config.main_deploy == 0)
+					ao_config.main_deploy = 250;
 				ao_flight_started = 1;
 				break;
 			case 'S':
