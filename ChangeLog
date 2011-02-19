@@ -1,3 +1,74 @@
+commit 0630e7d6d8cf6abf0fe07f9a6df40ee472cce1ef
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Feb 18 19:54:18 2011 -0700
+
+    tie bringup scripts to Bdale's bench TeleDongle
+
+commit b080e933a65d268aaaec8cfd5f617a13d5babc43
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sat Feb 19 05:49:15 2011 +1000
+
+    src/ao_gps_skytraq.c: Update logging rate to 10Hz
+    
+    Send commands to skytraq to update baud rate to 57,600 bps, and
+    set NMEA output rate to 10Hz.
+
+commit aad7103dcf44e69a5a30e008836cce5542ea33e2
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sat Feb 19 04:17:17 2011 +1000
+
+    src/ao_gps_skytraq: simplify parsing code
+    
+    Added macros to make correctly constructing skytraq commands easier.
+    Simplified code path for NMEA processing marginally.
+
+commit fe5123fa801f5dafed8b052da607899d1ef20500
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Wed Feb 2 19:12:57 2011 +1000
+
+    ao_radio: generalise setup of packet size
+
+commit 8b09cc1825645a57c256f38a2f9586ddecf6bda5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Feb 18 10:02:46 2011 -0800
+
+    altos/test: auto-configure acceleration parameters from the log file
+    
+    The flight test code had static accelerometer configuration values,
+    making it impossible to use data from different boards without
+    recompiling. As the eeprom and telem log files both contain the
+    necessary data, parse that instead.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d3bc27fabb6159ce58b14d0f7929b0f46f67c378
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Feb 18 09:54:01 2011 -0800
+
+    altos/test: Add dependencies in the Makefile for ao_flight_test
+    
+    Yes, it would be nice to automate dependency generation here, but I
+    can't be bothered.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c3080fdafff5212f267ba7c765a2f083435be799
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Feb 18 09:51:37 2011 -0800
+
+    ao-load: fix usage message to note that '=' is required for options
+    
+    The usage message was suggesting incorrect command line syntax; long
+    options use '=' between the option name and value, not whitespace.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a09501ab714c0638410d06f80903a8769d93c688
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Jan 19 12:47:25 2011 -0700
+
+    update changelogs for Debian build
+
 commit 2bb83d90aa03d825ca1b751418c91b194b72f1f9
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed Jan 19 12:46:02 2011 -0700
