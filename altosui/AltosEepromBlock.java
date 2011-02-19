@@ -44,6 +44,7 @@ public class AltosEepromBlock extends ArrayList<AltosEepromRecord> {
 	double	lon;
 	boolean	has_time;
 	int	hour, minute, second;
+	ParseException	parse_exception = null;
 
 	public AltosEepromBlock (AltosSerial serial_line, int block) throws TimeoutException, InterruptedException {
 		int	addr;
@@ -100,6 +101,8 @@ public class AltosEepromBlock extends ArrayList<AltosEepromRecord> {
 			} catch (ParseException pe) {
 				AltosEepromRecord	r = new AltosEepromRecord(Altos.AO_LOG_INVALID,
 										  0, 0, 0);
+				if (parse_exception == null)
+					parse_exception = pe;
 				if (!done)
 					add(addr/8, r);
 			}

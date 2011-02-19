@@ -47,6 +47,7 @@ public class AltosEepromDownload implements Runnable {
 	AltosEepromList		flights;
 	ActionListener		listener;
 	boolean			success;
+	ParseException		parse_exception;
 
 	private void FlushPending() throws IOException {
 		for (String s : flights.config_data) {
@@ -128,17 +129,22 @@ public class AltosEepromDownload implements Runnable {
 					state = eeblock.state;
 			}
 
+			if (parse_exception == null && eeblock.parse_exception != null)
+				parse_exception = eeblock.parse_exception;
+
 			CheckFile(false);
 
 			for (record = 0; record < eeblock.size(); record++) {
 				AltosEepromRecord r = eeblock.get(record);
 
-				String log_line = String.format("%c %4x %4x %4x\n",
-								r.cmd, r.tick, r.a, r.b);
-				if (eeprom_file != null)
-					eeprom_file.write(log_line);
-				else
-					eeprom_pending.add(log_line);
+				if (r.cmd != Altos.AO_LOG_INVALID) {
+					String log_line = String.format("%c %4x %4x %4x\n",
+									r.cmd, r.tick, r.a, r.b);
+					if (eeprom_file != null)
+						eeprom_file.write(log_line);
+					else
+						eeprom_pending.add(log_line);
+				}
 			}
 		}
 		CheckFile(true);
@@ -148,20 +154,21 @@ public class AltosEepromDownload implements Runnable {
 		}
 	}
 
-	private void show_error_internal(String message, String title) {
+	private void show_message_internal(String message, String title, int message_type) {
 		JOptionPane.showMessageDialog(frame,
 					      message,
 					      title,
-					      JOptionPane.ERROR_MESSAGE);
+					      message_type);
 	}
 
-	private void show_error(String in_message, String in_title) {
+	private void show_message(String in_message, String in_title, int in_message_type) {
 		final String message = in_message;
 		final String title = in_title;
+		final int message_type = in_message_type;
 		Runnable r = new Runnable() {
 				public void run() {
 					try {
-						show_error_internal(message, title);
+						show_message_internal(message, title, message_type);
 					} catch (Exception ex) {
 					}
 				}
@@ -174,21 +181,33 @@ public class AltosEepromDownload implements Runnable {
 			serial_line.start_remote();
 
 		try {
+			boolean	failed = false;
 			for (AltosEepromLog log : flights) {
+				parse_exception = null;
 				if (log.download) {
 					monitor.reset();
 					CaptureLog(log);
 				}
+				if (parse_exception != null) {
+					failed = true;
+					show_message(String.format("Flight %d download error\n%s\nValid log data saved",
+								   log.flight,
+								   parse_exception.getMessage()),
+						     serial_line.device.toShortString(),
+						     JOptionPane.WARNING_MESSAGE);
+				}
 			}
-			success = true;
+			success = !failed;
 		} catch (IOException ee) {
-			show_error (serial_line.device.toShortString(),
-				    ee.getLocalizedMessage());
+			show_message(ee.getLocalizedMessage(),
+				     serial_line.device.toShortString(),
+				     JOptionPane.ERROR_MESSAGE);
 		} catch (InterruptedException ie) {
 		} catch (TimeoutException te) {
-			show_error (String.format("Connection to \"%s\" failed",
-						  serial_line.device.toShortString()),
-				    "Connection Failed");
+			show_message(String.format("Connection to \"%s\" failed",
+						   serial_line.device.toShortString()),
+				     "Connection Failed",
+				     JOptionPane.ERROR_MESSAGE);
 		}
 		if (remote)
 			serial_line.stop_remote();
