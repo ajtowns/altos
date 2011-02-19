@@ -72,15 +72,24 @@ public class AltosEepromRecord {
 		if (values[0] != (addr & 0xff))
 			throw new ParseException(String.format("data address out of sync at 0x%x",
 							       addr), 0);
-		if (checksum(values) != 0)
-			throw new ParseException(String.format("invalid checksum at 0x%x", addr), 0);
-
+		int i;
+		for (i = 1; i < values.length; i++)
+			if (values[i] != 0xff)
+				break;
 		cmd = values[1];
+		tick_valid = true;
+		if (i != values.length) {
+			if (checksum(values) != 0)
+				throw new ParseException(String.format("invalid checksum at 0x%x in line %s", addr, line), 0);
+		} else {
+			cmd = Altos.AO_LOG_INVALID;
+			tick_valid = false;
+		}
+
 		tick = values[3] + (values[4] << 8);
 		a = values[5] + (values[6] << 8);
 		b = values[7] + (values[8] << 8);
 		data = null;
-		tick_valid = true;
 	}
 
 	public AltosEepromRecord (String line) {
