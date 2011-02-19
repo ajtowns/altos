@@ -31,18 +31,18 @@ read SERIAL
 
 echo $RAWLOAD
 
-$RAWLOAD --device TeleDongle -r ao_led_blink.ihx
+$RAWLOAD --device 100 -r ao_led_blink.ihx
 echo "the red LED should be blinking"
 sleep 5
 
-$RAWLOAD --device TeleDongle -r ao_radio_xmit.ihx
+$RAWLOAD --device 100 -r ao_radio_xmit.ihx
 echo -n "Generating RF carrier.  Please enter measured frequency: "
 read FREQ
 
 CAL_VALUE=`nickle -e "floor(434.55 / $FREQ * 1186611 + 0.5)"`
 
 echo "Programming flash with cal value " $CAL_VALUE
-$AOLOAD --device TeleDongle --cal $CAL_VALUE \
+$AOLOAD --device 100 --cal $CAL_VALUE \
 	/usr/share/altos/stable/telemetrum-v1.1*.ihx $SERIAL
 
 echo "Serial number "$SERIAL" programmed with RF cal value "$CAL_VALUE
