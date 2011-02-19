@@ -56,7 +56,7 @@ public class AltosEepromBlock extends ArrayList<AltosEepromRecord> {
 		has_lon = false;
 		has_time = false;
 		serial_line.printf("e %x\n", block);
-		for (addr = 0; !done && addr < 0x100;) {
+		for (addr = 0; addr < 0x100;) {
 			try {
 				AltosEepromRecord r = new AltosEepromRecord(serial_line, block * 256 + addr);
 
@@ -93,10 +93,15 @@ public class AltosEepromBlock extends ArrayList<AltosEepromRecord> {
 					lon = (double) (r.a | (r.b << 16)) / 1e7;
 					has_lon = true;
 				}
+				if (!done)
+					add(addr / 8, r);
 				if (r.cmd == Altos.AO_LOG_STATE && r.a == Altos.ao_flight_landed)
 					done = true;
-				add(addr / 8, r);
 			} catch (ParseException pe) {
+				AltosEepromRecord	r = new AltosEepromRecord(Altos.AO_LOG_INVALID,
+										  0, 0, 0);
+				if (!done)
+					add(addr/8, r);
 			}
 			addr += 8;
 		}
