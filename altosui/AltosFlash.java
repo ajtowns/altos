@@ -356,6 +356,20 @@ public class AltosFlash implements Runnable {
 		return rom_config != null && rom_config.valid();
 	}
 
+	public void set_file (File in_file)
+		throws IOException, FileNotFoundException
+	{
+		file = in_file;
+		input = new FileInputStream(file);
+		image = new AltosHexfile(input);
+	}
+
+	public AltosRomconfig file_romconfig() {
+		if (file == null)
+			return null;
+		return new AltosRomconfig(image);
+	}
+
 	public void set_romconfig (AltosRomconfig romconfig) {
 		rom_config = romconfig;
 	}
@@ -366,14 +380,12 @@ public class AltosFlash implements Runnable {
 		return rom_config;
 	}
 
-	public AltosFlash(File in_file, AltosDevice in_debug_dongle)
-		throws IOException, FileNotFoundException, AltosSerialInUseException, InterruptedException {
-		file = in_file;
+	public AltosFlash(AltosDevice in_debug_dongle)
+		throws IOException, AltosSerialInUseException, InterruptedException
+	{
 		debug_dongle = in_debug_dongle;
 		if (debug_dongle != null)
 			debug = new AltosDebug(in_debug_dongle);
-		input = new FileInputStream(file);
-		image = new AltosHexfile(input);
 		if (debug != null && !debug.check_connection()) {
 			debug.close();
 			throw new IOException("Debug port not connected");

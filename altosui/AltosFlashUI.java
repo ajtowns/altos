@@ -21,6 +21,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.*;
 import java.io.*;
 import java.util.*;
@@ -46,6 +47,9 @@ public class AltosFlashUI
 	JFrame		frame;
 	AltosDevice	debug_dongle;
 	AltosFlash	flash;
+
+	String		cur_product_name;
+
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == cancel) {
@@ -144,6 +148,61 @@ public class AltosFlashUI
 		setLocationRelativeTo(frame);
 	}
 
+	private boolean check_reflash(String new_product_name) {
+		if (new_product_name.equals(cur_product_name))
+			return true;
+
+		int n = JOptionPane.showConfirmDialog(frame,
+			String.format(
+			    "Flashing %s image onto what appears to be a %s!!!",
+			    new_product_name, cur_product_name),
+			file.toString(),
+			JOptionPane.OK_CANCEL_OPTION,
+			JOptionPane.WARNING_MESSAGE);
+
+		if (n == JOptionPane.OK_OPTION)
+			return true;
+
+		return false;
+	}
+
+	class FlashFilter extends FileFilter {
+		public boolean accept(File f) {
+			if (!f.isFile())
+				return true;
+
+			String name = f.getName().toLowerCase();
+			if (!name.endsWith(".ihx"))
+				return false;
+			if (!name.startsWith(cur_product_name.toLowerCase()))
+				return false;
+			return true;
+		}
+		public String getDescription() {
+			return "Flash Images for " + cur_product_name;
+		}
+	}
+
+	private void choose_firmware_file() {
+		JFileChooser	hexfile_chooser = new JFileChooser();
+
+		File firmwaredir = AltosPreferences.firmwaredir();
+		if (firmwaredir != null)
+			hexfile_chooser.setCurrentDirectory(firmwaredir);
+
+		hexfile_chooser.setDialogTitle("Select Flash Image");
+		hexfile_chooser.addChoosableFileFilter(new FileNameExtensionFilter("All Flash Images", "ihx"));
+		hexfile_chooser.setFileFilter(new FlashFilter());
+		int returnVal = hexfile_chooser.showOpenDialog(frame);
+
+		if (returnVal != JFileChooser.APPROVE_OPTION)
+			return;
+
+		file = hexfile_chooser.getSelectedFile();
+		if (file != null)
+			AltosPreferences.set_firmwaredir(file.getParentFile());
+	}
+
 	public AltosFlashUI(JFrame in_frame) {
 		super(in_frame, "Program Altusmetrum Device", false);
 
@@ -152,38 +211,33 @@ public class AltosFlashUI
 		build_dialog();
 
 		debug_dongle = AltosDeviceDialog.show(frame, AltosDevice.product_any);
-
 		if (debug_dongle == null)
 			return;
 
-		JFileChooser	hexfile_chooser = new JFileChooser();
-
-		File firmwaredir = AltosPreferences.firmwaredir();
-		if (firmwaredir != null)
-			hexfile_chooser.setCurrentDirectory(firmwaredir);
-
-		hexfile_chooser.setDialogTitle("Select Flash Image");
-		hexfile_chooser.setFileFilter(new FileNameExtensionFilter("Flash Image", "ihx"));
-		int returnVal = hexfile_chooser.showOpenDialog(frame);
-
-		if (returnVal != JFileChooser.APPROVE_OPTION)
-			return;
-
-		file = hexfile_chooser.getSelectedFile();
-
-		if (file != null)
-			AltosPreferences.set_firmwaredir(file.getParentFile());
-
 		try {
-			flash = new AltosFlash(file, debug_dongle);
+			flash = new AltosFlash(debug_dongle);
 			flash.addActionListener(this);
 			AltosRomconfigUI romconfig_ui = new AltosRomconfigUI (frame);
 
-			romconfig_ui.set(flash.romconfig());
+			AltosRomconfig flash_rc = flash.romconfig();
+			romconfig_ui.set(flash_rc);
+			cur_product_name = flash_rc.product_name;
+
 			AltosRomconfig romconfig = romconfig_ui.showDialog();
 
 			if (romconfig != null && romconfig.valid()) {
+				choose_firmware_file();
+				if (file == null)
+					return;
+
+				flash.set_file(file);
+				AltosRomconfig file_rc = flash.file_romconfig();
+
+				if (!check_reflash(file_rc.product_name))
+					return;
+
 				flash.set_romconfig(romconfig);
+
 				serial_value.setText(String.format("%d",
 								   flash.romconfig().serial_number));
 				file_value.setText(file.toString());

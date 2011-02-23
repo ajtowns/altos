@@ -353,18 +353,19 @@ public class AltosUI extends JFrame {
 	public static void main(final String[] args) {
 		int	process = 0;
 		/* Handle batch-mode */
-        if (args.length == 1 && args[0].equals("--help")) {
-		System.out.printf("Usage: altosui [OPTION]... [FILE]...\n");
-		System.out.printf("  Options:\n");
-		System.out.printf("    --fetchmaps <lat> <lon>\tpre-fetch maps for site map view\n");
-		System.out.printf("    --replay <filename>\t\trelive the glory of past flights \n");
-		System.out.printf("    --csv\tgenerate comma separated output for spreadsheets, etc\n");
-		System.out.printf("    --kml\tgenerate KML output for use with Google Earth\n");
-        } else if (args.length == 3 && args[0].equals("--fetchmaps")) {
-            double lat = Double.parseDouble(args[1]);
-            double lon = Double.parseDouble(args[2]);
-            AltosSiteMap.prefetchMaps(lat, lon, 5, 5);
-        } else if (args.length == 2 && args[0].equals("--replay")) {
+		if (args.length == 1 && args[0].equals("--help")) {
+			System.out.printf("Usage: altosui [OPTION]... [FILE]...\n");
+			System.out.printf("  Options:\n");
+			System.out.printf("    --fetchmaps <lat> <lon>\tpre-fetch maps for site map view\n");
+			System.out.printf("    --replay <filename>\t\trelive the glory of past flights \n");
+			System.out.printf("    --csv\t\t\tgenerate CSV output for spreadsheets, etc\n");
+			System.out.printf("    --kml\t\t\tgenerate KML output for use with Google Earth\n");
+			System.out.printf("    --flash\t\t\tflash new firmware to a device\n");
+		} else if (args.length == 3 && args[0].equals("--fetchmaps")) {
+			double lat = Double.parseDouble(args[1]);
+			double lon = Double.parseDouble(args[2]);
+			AltosSiteMap.prefetchMaps(lat, lon, 5, 5);
+		} else if (args.length == 2 && args[0].equals("--replay")) {
 			String filename = args[1];
 			FileInputStream in;
 			try {
@@ -383,6 +384,11 @@ public class AltosUI extends JFrame {
 			reader = new AltosReplayReader(recs.iterator(), filename);
 			AltosFlightUI flight_ui = new AltosFlightUI(new AltosVoice(), reader);
 			flight_ui.set_exit_on_close();
+			return;
+		} else if (args.length == 1 && args[0].equals("--flash")) {
+			AltosPreferences.init(null);
+			AltosFlashUI flash_ui = new AltosFlashUI(null);
+			System.exit(0);
 			return;
 		} else if (args.length > 0) {
 			for (int i = 0; i < args.length; i++) {
