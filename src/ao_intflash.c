@@ -24,7 +24,7 @@
 #define FCTL_WRITE		(1 << 1)
 #define FCTL_ERASE		(1 << 0)
 
-#define ENDOFCODE  (0x51f0 + 1500)
+#define ENDOFCODE  (CODESIZE)
 #define NUM_PAGES ((0x8000-ENDOFCODE)/1024)
 #define SIZE      (1024*NUM_PAGES)
 #define LOCN      (0x8000 - SIZE)
