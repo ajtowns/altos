@@ -147,6 +147,22 @@ TM_BASE_SRC = \
 	$(TM_TASK_SRC) \
 	$(TM_MAIN_SRC)
 
+#
+# Base sources for TeleMini
+#
+TMINI_BASE_SRC = \
+	$(ALTOS_SRC) \
+	ao_config.c \
+	ao_led.c \
+	ao_radio.c \
+	ao_stdio.c \
+	$(TELE_DRIVER_SRC) \
+	$(TELE_COMMON_SRC) \
+	ao_adc.c \
+	ao_ignite.c \
+	$(TM_TASK_SRC) \
+	ao_telemini.c
+
 TI_MAIN_SRC = \
 	ao_tidongle.c
 

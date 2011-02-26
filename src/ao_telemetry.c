@@ -48,10 +48,12 @@ ao_telemetry(void)
 		telemetry.flight_pres = ao_flight_pres;
 		telemetry.ground_pres = ao_ground_pres;
 		ao_adc_get(&telemetry.adc);
+#if HAS_GPS == 1
 		ao_mutex_get(&ao_gps_mutex);
 		memcpy(&telemetry.gps, &ao_gps_data, sizeof (struct ao_gps_data));
 		memcpy(&telemetry.gps_tracking, &ao_gps_tracking_data, sizeof (struct ao_gps_tracking_data));
 		ao_mutex_put(&ao_gps_mutex);
+#endif
 		ao_radio_send(&telemetry, sizeof (telemetry));
 		ao_delay(ao_telemetry_interval);
 		if (ao_rdf &&

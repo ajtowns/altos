@@ -32,6 +32,7 @@
 	#define LEDS_AVAILABLE		(AO_LED_RED)
 	#define HAS_EXTERNAL_TEMP	0
 	#define HAS_ACCEL_REF		0
+	#define HAS_GPS			1
 #endif
 
 #if defined(TELEMETRUM_V_1_1)
@@ -52,6 +53,23 @@
 	#define SPI_CS_ON_P0		0
 	#define M25_CS_MASK		0x02	/* CS0 is P1_1 */
 	#define M25_MAX_CHIPS		1
+	#define HAS_GPS			1
+#endif
+
+#if defined(TELEMINI_V_1_0)
+	#define HAS_SERIAL_1		1
+	#define HAS_ADC			1
+	#define HAS_EEPROM		1
+	#define HAS_DBG			0
+	#define PACKET_HAS_MASTER	0
+	#define PACKET_HAS_SLAVE	1
+
+	#define AO_LED_RED		1
+	#define LEDS_AVAILABLE		(AO_LED_RED)
+	#define HAS_EXTERNAL_TEMP	0
+	#define HAS_ACCEL_REF		0
+	#define HAS_GPS			0
+	#define HAS_STORAGE_DBG		1
 #endif
 
 #if defined(TELEDONGLE_V_0_2)
