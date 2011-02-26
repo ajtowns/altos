@@ -13,9 +13,11 @@ ifndef VERSION
 include ../Version
 endif
 
-CFLAGS=--model-small --debug --opt-code-speed
+CFLAGS=--model-small --debug --opt-code-speed -DCODESIZE=$(CODESIZE)
 
-LDFLAGS=--out-fmt-ihx --code-loc 0x0000 --code-size 0x8000 \
+CODESIZE ?= 0x8000
+
+LDFLAGS=--out-fmt-ihx --code-loc 0x0000 --code-size $(CODESIZE) \
 	--xram-loc 0xf000 --xram-size 0xda2 --iram-size 0xff
 
 INC = \
