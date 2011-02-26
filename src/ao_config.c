@@ -28,6 +28,7 @@ __xdata uint8_t ao_config_mutex;
 #define AO_CONFIG_DEFAULT_ACCEL_ZERO_G	16000
 #define AO_CONFIG_DEFAULT_APOGEE_DELAY	0
 #define AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX	((uint32_t) 192 * (uint32_t) 1024)
+#define AO_CONFIG_DEFAULT_IGNITER_TIME	50
 
 #if HAS_EEPROM
 static void
@@ -88,6 +89,9 @@ _ao_config_get(void)
 		/* Fixups for minor version 4 */
 		if (ao_config.minor < 4)
 			ao_config.flight_log_max = AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX;
+		/* Fixups for minor version 5 */
+		if (ao_config.minor < 5)
+			ao_config.igniter_time = AO_CONFIG_DEFAULT_IGNITER_TIME;
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
@@ -329,6 +333,28 @@ ao_config_log_set(void) __reentrant
 }
 #endif /* HAS_EEPROM */
 
+#if HAS_IGNITER
+void
+ao_config_igniter_show(void) __reentrant
+{
+	printf("Igniter firing time: %d ms\n", ao_config.igniter_time);
+}
+
+void
+ao_config_igniter_set(void) __reentrant
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	ao_mutex_get(&ao_config_mutex);
+	_ao_config_get();
+	ao_config.igniter_time = ao_cmd_lex_i;
+	ao_config_dirty = 1;
+	ao_mutex_put(&ao_config_mutex);
+	ao_config_igniter_show();
+}
+#endif /* HAS_IGNITER */
+
 struct ao_config_var {
 	char		cmd;
 	void		(*set)(void) __reentrant;
@@ -365,6 +391,10 @@ __code struct ao_config_var ao_config_vars[] = {
 #if HAS_EEPROM
 	{ 'l',  ao_config_log_set,		ao_config_log_show,
 		"l <size>    Set flight log size in kB" },
+#endif
+#if HAS_IGNITER
+	{ 'i',	ao_config_igniter_set,		ao_config_igniter_show,
+		"i <ms>      Set igniter firing time in milliseconds" },
 #endif
 	{ 's',	ao_config_show,			ao_config_show,
 		"s           Show current config values" },

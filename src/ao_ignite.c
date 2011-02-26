@@ -17,6 +17,10 @@
 
 #include "ao.h"
 
+#if !HAS_IGNITER
+#error "Must define HAS_IGNITER 1"
+#endif
+
 #define AO_IGNITER_DROGUE	P2_3
 #define AO_IGNITER_MAIN		P2_4
 #define AO_IGNITER_DIR		P2DIR
@@ -26,7 +30,6 @@
 /* test these values with real igniters */
 #define AO_IGNITER_OPEN		1000
 #define AO_IGNITER_CLOSED	7000
-#define AO_IGNITER_FIRE_TIME	AO_MS_TO_TICKS(50)
 #define AO_IGNITER_CHARGE_TIME	AO_MS_TO_TICKS(2000)
 
 struct ao_ignition {
@@ -80,16 +83,18 @@ ao_igniter_status(enum ao_igniter igniter)
 void
 ao_igniter_fire(enum ao_igniter igniter) __critical
 {
+	uint16_t	delay = AO_MS_TO_TICKS(ao_config.igniter_time);
+
 	ao_ignition[igniter].firing = 1;
 	switch (igniter) {
 	case ao_igniter_drogue:
 		AO_IGNITER_DROGUE = 1;
-		ao_delay(AO_IGNITER_FIRE_TIME);
+		ao_delay(delay);
 		AO_IGNITER_DROGUE = 0;
 		break;
 	case ao_igniter_main:
 		AO_IGNITER_MAIN = 1;
-		ao_delay(AO_IGNITER_FIRE_TIME);
+		ao_delay(delay);
 		AO_IGNITER_MAIN = 0;
 		break;
 	}
