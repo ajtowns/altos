@@ -103,8 +103,7 @@ ao_storage_dump(void) __reentrant
 	}
 }
 
-#if 0
-
+#ifdef HAS_STORAGE_DBG
 /* not enough space for this today
  */
 static void
@@ -168,7 +167,7 @@ ao_storage_info(void) __reentrant
 __code struct ao_cmds ao_storage_cmds[] = {
 	{ 'f', ao_storage_info,	"f                                  Show storage info" },
 	{ 'e', ao_storage_dump, "e <block>                          Dump a block of flash data" },
-#if 0
+#ifdef HAS_STORAGE_DBG
 	{ 'w', ao_storage_store, "w <block> <start> <len> <data> ... Write data to flash" },
 #endif
 	{ 'z', ao_storage_zap,	 "z <block>                          Erase flash containing <block>" },
