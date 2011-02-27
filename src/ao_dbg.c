@@ -348,13 +348,13 @@ debug_output(void)
 }
 
 __code struct ao_cmds ao_dbg_cmds[7] = {
-	{ 'D',	debug_enable,	"D                                  Enable debug mode" },
-	{ 'G',	debug_get,	"G <count>                          Get data from debug port" },
-	{ 'I',	debug_input,	"I <count> <addr>                   Input <count> bytes to target at <addr>" },
-	{ 'O',	debug_output,	"O <count> <addr>                   Output <count> bytes to target at <addr>" },
-	{ 'P',	debug_put,	"P <byte> ...                       Put data to debug port" },
-	{ 'R',	debug_reset,	"R                                  Reset target" },
-	{ 0, debug_reset,	0 },
+	{ debug_enable,	"D\0Enable debug mode" },
+	{ debug_get,	"G <count>\0Get data from debug port" },
+	{ debug_input,	"I <count> <addr>\0Input <count> bytes to target at <addr>" },
+	{ debug_output,	"O <count> <addr>\0Output <count> bytes to target at <addr>" },
+	{ debug_put,	"P <byte> ...\0Put data to debug port" },
+	{ debug_reset,	"R\0Reset target" },
+	{ 0, NULL },
 };
 
 void

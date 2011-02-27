@@ -133,8 +133,8 @@ ao_packet_forward(void) __reentrant
 
 
 __code struct ao_cmds ao_packet_master_cmds[] = {
-	{ 'p',	ao_packet_forward,	"p                                  Remote packet link." },
-	{ 0,	ao_packet_forward,	NULL },
+	{ ao_packet_forward,	"p\0Remote packet link." },
+	{ 0,	NULL },
 };
 
 void

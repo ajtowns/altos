@@ -159,9 +159,9 @@ ao_ignite_test(void)
 }
 
 __code struct ao_cmds ao_ignite_cmds[] = {
-	{ 'i',	ao_ignite_manual,	"i <key> {main|drogue}              Fire igniter. <key> is doit with D&I" },
-	{ 't',  ao_ignite_test,		"t                                  Test igniter continuity" },
-	{ 0,	ao_ignite_manual,	NULL },
+	{ ao_ignite_manual,	"i <key> {main|drogue}\0Fire igniter. <key> is doit with D&I" },
+	{ ao_ignite_test,	"t\0Test igniter continuity" },
+	{ 0,	NULL },
 };
 
 __xdata struct ao_task ao_igniter_task;

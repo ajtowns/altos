@@ -96,8 +96,8 @@ set_monitor(void)
 }
 
 __code struct ao_cmds ao_monitor_cmds[] = {
-	{ 'm',	set_monitor,	"m <0 off, 1 on>                    Enable/disable radio monitoring" },
-	{ 0,	set_monitor,	NULL },
+	{ set_monitor,	"m <0 off, 1 on>\0Enable/disable radio monitoring" },
+	{ 0,	NULL },
 };
 
 void

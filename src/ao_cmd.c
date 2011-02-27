@@ -237,8 +237,10 @@ help(void)
 	puts(help_txt);
 	for (cmds = 0; cmds < ao_ncmds; cmds++) {
 		cs = ao_cmds[cmds];
-		for (cmd = 0; cs[cmd].cmd != '\0'; cmd++)
-			puts(cs[cmd].help);
+		for (cmd = 0; cs[cmd].func; cmd++)
+			printf("%-45s %s\n",
+				cs[cmd].help,
+				cs[cmd].help+1+strlen(cs[cmd].help));
 	}
 }
 
@@ -282,8 +284,8 @@ ao_cmd(void)
 		func = (void (*)(void)) NULL;
 		for (cmds = 0; cmds < ao_ncmds; cmds++) {
 			cs = ao_cmds[cmds];
-			for (cmd = 0; cs[cmd].cmd != '\0'; cmd++)
-				if (cs[cmd].cmd == c) {
+			for (cmd = 0; cs[cmd].func; cmd++)
+				if (cs[cmd].help[0] == c) {
 					func = cs[cmd].func;
 					break;
 				}
@@ -301,12 +303,12 @@ ao_cmd(void)
 __xdata struct ao_task ao_cmd_task;
 
 __code struct ao_cmds	ao_base_cmds[] = {
-	{ '?', help,		"?                                  Print this message" },
-	{ 'T', ao_task_info,	"T                                  Show task states" },
-	{ 'E', echo,		"E <0 off, 1 on>                    Set command echo mode" },
-	{ 'r', ao_reboot,	"r eboot                            Reboot" },
-	{ 'v', version,		"v                                  Show version" },
-	{ 0,    help,	NULL },
+	{ help,		"?\0Print this message" },
+	{ ao_task_info,	"T\0Show task states" },
+	{ echo,		"E <0 off, 1 on>\0Set command echo mode" },
+	{ ao_reboot,	"r eboot\0Reboot" },
+	{ version,	"v\0Show version" },
+	{ 0,	NULL },
 };
 
 void

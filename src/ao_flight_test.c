@@ -114,7 +114,6 @@ const char const * const ao_state_names[] = {
 };
 
 struct ao_cmds {
-	char		cmd;
 	void		(*func)(void);
 	const char	*help;
 };
