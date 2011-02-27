@@ -93,8 +93,8 @@ monitor_serial(void)
 }
 
 __code struct ao_cmds ao_serial_cmds[] = {
-	{ 'M', monitor_serial,		"M <enable>                         Monitor serial data" },
-	{ 0, monitor_serial, NULL },
+	{ monitor_serial,		"M <enable>\0Monitor serial data" },
+	{ 0, NULL },
 };
 
 static const struct {

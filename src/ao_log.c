@@ -390,9 +390,9 @@ ao_log_delete(void) __reentrant
 
 
 __code struct ao_cmds ao_log_cmds[] = {
-	{ 'l',	ao_log_list,	"l                                  List stored flight logs" },
-	{ 'd',	ao_log_delete,	"d <flight-number>                  Delete stored flight" },
-	{ 0,	ao_log_delete,	NULL },
+	{ ao_log_list,	"l\0List stored flight logs" },
+	{ ao_log_delete,	"d <flight-number>\0Delete stored flight" },
+	{ 0,	NULL },
 };
 
 void

@@ -380,7 +380,6 @@ uint8_t
 ao_match_word(__code char *word);
 
 struct ao_cmds {
-	char		cmd;
 	void		(*func)(void);
 	const char	*help;
 };

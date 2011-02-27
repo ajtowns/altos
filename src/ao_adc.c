@@ -90,8 +90,8 @@ ao_adc_dump(void) __reentrant
 }
 
 __code struct ao_cmds ao_adc_cmds[] = {
-	{ 'a',	ao_adc_dump,	"a                                  Display current ADC values" },
-	{ 0,	ao_adc_dump, NULL },
+	{ ao_adc_dump,	"a\0Display current ADC values" },
+	{ 0, NULL },
 };
 
 void
