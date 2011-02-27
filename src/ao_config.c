@@ -439,8 +439,8 @@ ao_config_write(void) __reentrant
 #endif
 
 __code struct ao_cmds ao_config_cmds[] = {
-	{ 'c',	ao_config_set,	"c <var> <value>                    Set config variable (? for help, s to show)" },
-	{ '\0', ao_config_set, NULL },
+	{ ao_config_set,	"c <var> <value>\0Set config variable (? for help, s to show)" },
+	{ 0, NULL },
 };
 
 void

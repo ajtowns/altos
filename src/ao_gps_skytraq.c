@@ -485,8 +485,8 @@ gps_dump(void) __reentrant
 }
 
 __code struct ao_cmds ao_gps_cmds[] = {
-	{ 'g', gps_dump, 	"g                                  Display current GPS values" },
-	{ 0,   gps_dump, NULL },
+	{ gps_dump, 	"g\0Display current GPS values" },
+	{ 0, NULL },
 };
 
 void

@@ -455,8 +455,8 @@ ao_radio_test(void)
 }
 
 __code struct ao_cmds ao_radio_cmds[] = {
-	{ 'C',	ao_radio_test,	"C <1 start, 0 stop, none both>     Radio carrier test" },
-	{ 0,	ao_radio_test,	NULL },
+	{ ao_radio_test,	"C <1 start, 0 stop, none both>\0Radio carrier test" },
+	{ 0,	NULL },
 };
 
 void
