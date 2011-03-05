@@ -1,11 +1,11 @@
-PROG = telemini-v1.0-$(VERSION).ihx
+PROG = telemini-v0.1-$(VERSION).ihx
 
 SRC = \
 	$(TMINI_BASE_SRC) \
 	ao_storage.c \
 	ao_intflash.c
 
-PRODUCT=TeleMini-v1.0
-PRODUCT_DEF=-DTELEMINI_V_1_0
+PRODUCT=TeleMini-v0.1
+PRODUCT_DEF=-DTELEMINI_V_0_1
 IDPRODUCT=0x000d
 CODESIZE=0x6400

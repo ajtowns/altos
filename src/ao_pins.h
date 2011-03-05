@@ -56,7 +56,7 @@
 	#define HAS_GPS			1
 #endif
 
-#if defined(TELEMINI_V_1_0)
+#if defined(TELEMINI_V_0_1)
 	#define HAS_SERIAL_1		1
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1
