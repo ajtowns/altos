@@ -1,5 +1,6 @@
 /*
  * Copyright © 2009 Keith Packard <keithp@keithp.com>
+ * Copyright © 2011 Anthony Towns <aj@erisian.com.au>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,24 +38,81 @@ ao_log_csum(__xdata uint8_t *b) __reentrant
 	return -sum;
 }
 
-uint8_t
-ao_log_data(__xdata struct ao_log_record *log) __reentrant
+static __xdata uint16_t log_bytes;
+
+static uint8_t
+ao_log_bytes(uint16_t d) __reentrant
 {
 	uint8_t wrote = 0;
-	/* set checksum */
-	log->csum = 0;
-	log->csum = ao_log_csum((__xdata uint8_t *) log);
 	ao_mutex_get(&ao_log_mutex); {
+		log_bytes = d;
 		if (ao_log_current_pos >= ao_log_end_pos && ao_log_running)
 			ao_log_stop();
 		if (ao_log_running) {
 			wrote = 1;
 			ao_storage_write(ao_log_current_pos,
-					 log,
-					 sizeof (struct ao_log_record));
-			ao_log_current_pos += sizeof (struct ao_log_record);
+					 &log_bytes,
+					 sizeof (log_bytes));
+			ao_log_current_pos += sizeof (log_bytes);
 		}
 	} ao_mutex_put(&ao_log_mutex);
+	return wrote;
+}
+
+#define LOG_8b(data, subcode, code) \
+    LOG_2B( (data), ((((subcode) & 0xF) << 4) | (code & (0xF))) )
+
+#define LOG_2B(hi, lo) \
+    ao_log_data(((uint16_t)((hi) & 0xFF) << 8) | (uint16_t)((lo) & 0xFF))
+
+#define LOG_HI_12b(data, code) \
+    ao_log_data((((uint16_t)(data) & 0xFFF0) << 8) | (uint16_t)(code) & 0x0F)
+
+uint8_t
+ao_log_data(__xdata struct ao_log_record *log) __reentrant
+{
+	uint8_t wrote = 0;
+
+	if (!LOG_8b(log->tick, 0, 0))
+		return 0;
+
+	switch (log->type) {
+	  case AO_LOG_FLIGHT:
+		wrote |= LOG_8b(log->u.flight.flight, 3, 0);
+		break;
+	  case AO_LOG_SENSOR:
+		wrote |= LOG_HI_12b(log->u.sensor.pres, 2);
+		wrote |= LOG_HI_12b(log->u.sensor.accel, 3);
+		break;
+	  case AO_LOG_TEMP_VOLT:
+		wrote |= LOG_HI_12b(log->u.temp_volt.temp, 4);
+		wrote |= LOG_HI_12b(log->u.temp_volt.v_batt, 5);
+		break;
+	  case AO_LOG_DEPLOY:
+		wrote |= LOG_HI_12b(log->u.deploy.drogue, 6);
+		wrote |= LOG_HI_12b(log->u.deploy.main, 7);
+		break;
+	  case AO_LOG_STATE:
+		wrote |= LOG_8b(log->u.state.reason, 2, 0);
+		wrote |= LOG_8b(log->u.state.state, 1, 0);
+		break;
+#if 0
+	  case AO_LOG_GPS_TIME:
+		// gps_time.hour, minute, second, flags;
+	  case AO_LOG_GPS_DATE:
+		// gps_date.year, month, day;
+	  case AO_LOG_GPS_LAT:
+		// gps_latitude;
+	  case AO_LOG_GPS_LON:
+		// gps_longitude;
+	  case AO_LOG_GPS_ALT:
+		// gps_altitude.altitude;
+	  case AO_LOG_GPS_SAT:
+		// gps_sat.svid, c_n;
+#endif
+	  default:
+		break;
+	}
 	return wrote;
 }
 
