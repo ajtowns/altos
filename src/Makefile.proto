@@ -131,6 +131,7 @@ SKY_DRIVER_SRC = \
 TM_TASK_SRC = \
 	ao_flight.c \
 	ao_log.c \
+	ao_flight_log.c \
 	ao_report.c \
 	ao_telemetry.c
 

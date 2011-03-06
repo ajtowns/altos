@@ -601,6 +601,10 @@ struct ao_log_record {
 uint8_t
 ao_log_data(__xdata struct ao_log_record *log) __reentrant;
 
+/* If logging isn't enabled, wait 'til it is */
+void
+ao_log_waitforlogging(void) __reentrant __critical;
+
 /* Flush the log */
 void
 ao_log_flush(void);
