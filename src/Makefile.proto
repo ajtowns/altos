@@ -163,7 +163,11 @@ TMINI_BASE_SRC = \
 	$(TELE_COMMON_SRC) \
 	ao_adc.c \
 	ao_ignite.c \
-	$(TM_TASK_SRC) \
+	ao_flight.c \
+	ao_log_twobyte.c \
+	ao_flight_log.c \
+	ao_report.c \
+	ao_telemetry.c \
 	ao_telemini.c
 
 TI_MAIN_SRC = \
