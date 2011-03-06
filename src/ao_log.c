@@ -17,6 +17,9 @@
 
 #include "ao.h"
 
+__xdata struct ao_log_record log;
+__xdata uint16_t ao_flight_number;
+
 static __pdata uint32_t	ao_log_current_pos;
 static __pdata uint32_t ao_log_end_pos;
 static __pdata uint32_t	ao_log_start_pos;
@@ -55,16 +58,11 @@ ao_log_data(__xdata struct ao_log_record *log) __reentrant
 	return wrote;
 }
 
-void
+static void
 ao_log_flush(void)
 {
 	ao_storage_flush();
 }
-
-static void ao_log_scan(void);
-
-__xdata struct ao_log_record log;
-__xdata uint16_t ao_flight_number;
 
 static uint8_t
 ao_log_dump_check_data(void)
@@ -79,6 +77,8 @@ __xdata enum flight_state ao_log_state;
 
 /* a hack to make sure that ao_log_records fill the eeprom block in even units */
 typedef uint8_t check_log_size[1-(256 % sizeof(struct ao_log_record))] ;
+
+static void ao_log_scan(void) __reentrant;
 
 void
 ao_log(void)
@@ -335,7 +335,7 @@ ao_log_full(void)
 
 static __xdata struct ao_task ao_log_task;
 
-void
+static void
 ao_log_list(void) __reentrant
 {
 	uint8_t	slot;
@@ -355,7 +355,7 @@ ao_log_list(void) __reentrant
 	printf ("done\n");
 }
 
-void
+static void
 ao_log_delete(void) __reentrant
 {
 	uint8_t slot;
