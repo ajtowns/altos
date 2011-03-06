@@ -17,6 +17,9 @@
 
 #include "ao.h"
 
+__xdata struct ao_log_record log;
+__xdata uint16_t ao_flight_number;
+
 static __pdata uint32_t	ao_log_current_pos;
 static __pdata uint32_t ao_log_end_pos;
 static __pdata uint32_t	ao_log_start_pos;
@@ -55,16 +58,11 @@ ao_log_data(__xdata struct ao_log_record *log) __reentrant
 	return wrote;
 }
 
-void
+static void
 ao_log_flush(void)
 {
 	ao_storage_flush();
 }
-
-static void ao_log_scan(void);
-
-__xdata struct ao_log_record log;
-__xdata uint16_t ao_flight_number;
 
 static uint8_t
 ao_log_dump_check_data(void)
@@ -261,7 +259,7 @@ ao_log_full(void)
 	return ao_log_current_pos == ao_log_end_pos;
 }
 
-void
+static void
 ao_log_list(void) __reentrant
 {
 	uint8_t	slot;
@@ -281,7 +279,7 @@ ao_log_list(void) __reentrant
 	printf ("done\n");
 }
 
-void
+static void
 ao_log_delete(void) __reentrant
 {
 	uint8_t slot;
@@ -324,8 +322,6 @@ ao_log_delete(void) __reentrant
 	}
 	printf("No such flight: %d\n", ao_cmd_lex_i);
 }
-
-
 
 __code struct ao_cmds ao_log_cmds[] = {
 	{ ao_log_list,	"l\0List stored flight logs" },
