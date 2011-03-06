@@ -72,81 +72,8 @@ ao_log_dump_check_data(void)
 	return 1;
 }
 
-__xdata uint8_t	ao_log_adc_pos;
-__xdata enum flight_state ao_log_state;
-
 /* a hack to make sure that ao_log_records fill the eeprom block in even units */
 typedef uint8_t check_log_size[1-(256 % sizeof(struct ao_log_record))] ;
-
-static void ao_log_scan(void) __reentrant;
-
-void
-ao_log(void)
-{
-	ao_storage_setup();
-
-	ao_log_scan();
-
-	while (!ao_log_running)
-		ao_sleep(&ao_log_running);
-
-	log.type = AO_LOG_FLIGHT;
-	log.tick = ao_flight_tick;
-#if HAS_ACCEL
-	log.u.flight.ground_accel = ao_ground_accel;
-#endif
-	log.u.flight.flight = ao_flight_number;
-	ao_log_data(&log);
-
-	/* Write the whole contents of the ring to the log
-	 * when starting up.
-	 */
-	ao_log_adc_pos = ao_adc_ring_next(ao_flight_adc);
-	for (;;) {
-		/* Write samples to EEPROM */
-		while (ao_log_adc_pos != ao_flight_adc) {
-			log.type = AO_LOG_SENSOR;
-			log.tick = ao_adc_ring[ao_log_adc_pos].tick;
-#if HAS_ACCEL
-			log.u.sensor.accel = ao_adc_ring[ao_log_adc_pos].accel;
-#endif
-			log.u.sensor.pres = ao_adc_ring[ao_log_adc_pos].pres;
-			ao_log_data(&log);
-			if ((ao_log_adc_pos & 0x1f) == 0) {
-				log.type = AO_LOG_TEMP_VOLT;
-				log.tick = ao_adc_ring[ao_log_adc_pos].tick;
-				log.u.temp_volt.temp = ao_adc_ring[ao_log_adc_pos].temp;
-				log.u.temp_volt.v_batt = ao_adc_ring[ao_log_adc_pos].v_batt;
-				ao_log_data(&log);
-				log.type = AO_LOG_DEPLOY;
-				log.tick = ao_adc_ring[ao_log_adc_pos].tick;
-				log.u.deploy.drogue = ao_adc_ring[ao_log_adc_pos].sense_d;
-				log.u.deploy.main = ao_adc_ring[ao_log_adc_pos].sense_m;
-				ao_log_data(&log);
-			}
-			ao_log_adc_pos = ao_adc_ring_next(ao_log_adc_pos);
-		}
-		/* Write state change to EEPROM */
-		if (ao_flight_state != ao_log_state) {
-			ao_log_state = ao_flight_state;
-			log.type = AO_LOG_STATE;
-			log.tick = ao_flight_tick;
-			log.u.state.state = ao_log_state;
-			log.u.state.reason = 0;
-			ao_log_data(&log);
-
-			if (ao_log_state == ao_flight_landed)
-				ao_log_stop();
-		}
-
-		/* Wait for a while */
-		ao_delay(AO_MS_TO_TICKS(100));
-
-		/* Stop logging when told to */
-		while (!ao_log_running)
-			ao_sleep(&ao_log_running);
-	}
-}
 
 /*
  * When erasing a flight log, make sure the config block
@@ -309,6 +236,13 @@ ao_log_scan(void) __reentrant
 }
 
 void
+ao_log_waitforlogging(void) __reentrant __critical
+{
+	while (!ao_log_running)
+		ao_sleep(&ao_log_running);
+}
+
+void
 ao_log_start(void)
 {
 	/* start logging */
@@ -334,8 +268,6 @@ ao_log_full(void)
 {
 	return ao_log_current_pos == ao_log_end_pos;
 }
-
-static __xdata struct ao_task ao_log_task;
 
 static void
 ao_log_list(void) __reentrant
@@ -427,16 +359,19 @@ __code struct ao_cmds ao_log_cmds[] = {
 	{ 0,	NULL },
 };
 
+void ao_log_flight_init(void);
+
 void
 ao_log_init(void)
 {
 	ao_log_running = 0;
 
-	/* For now, just log the flight starting at the begining of eeprom */
-	ao_log_state = ao_flight_invalid;
-
 	ao_cmd_register(&ao_log_cmds[0]);
 
-	/* Create a task to log events to eeprom */
-	ao_add_task(&ao_log_task, ao_log, "log");
+	/* these probably should be in a thread */
+	ao_storage_setup();
+	ao_log_scan();
+
+	/* ...and this starts a thread, so... */
+	ao_log_flight_init();
 }
