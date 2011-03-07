@@ -31,7 +31,6 @@ static void destroy_event(GtkWidget *widget, gpointer data)
 	gtk_main_quit();
 }
 
-extern int _Xdebug;
 char *aoview_tty = NULL;
 
 int main(int argc, char **argv)
@@ -55,9 +54,6 @@ int main(int argc, char **argv)
 		switch (c) {
 		case 'T':
 			aoview_tty = optarg;
-			break;
-		case 's':
-			_Xdebug = 1;
 			break;
 		default:
 			usage();
