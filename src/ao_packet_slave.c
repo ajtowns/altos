@@ -26,6 +26,9 @@ ao_packet_slave(void)
 	while (ao_packet_enable) {
 		if (ao_packet_recv()) {
 			memcpy(&ao_tx_packet.callsign, &ao_rx_packet.packet.callsign, AO_MAX_CALLSIGN);
+#if HAS_FLIGHT
+			ao_flight_force_idle = TRUE;
+#endif
 			ao_packet_send();
 		}
 	}
@@ -60,4 +63,5 @@ ao_packet_slave_init(void)
 	ao_add_stdio(ao_packet_pollchar,
 		     ao_packet_putchar,
 		     NULL);
+	ao_packet_slave_start();
 }
