@@ -1,0 +1,8 @@
+PROG = telemini-v0.1-$(VERSION).ihx
+
+SRC = \
+	$(TMINI_BASE_SRC)
+
+PRODUCT=TeleMini-v0.1
+PRODUCT_DEF=-DTELEMINI_V_0_1
+IDPRODUCT=0x000a
