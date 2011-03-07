@@ -118,30 +118,7 @@ struct ao_cmds {
 	const char	*help;
 };
 
-
-static int16_t altitude_table[2048] = {
-#include "altitude.h"
-};
-
-int16_t
-ao_pres_to_altitude(int16_t pres) __reentrant
-{
-	pres = pres >> 4;
-	if (pres < 0) pres = 0;
-	if (pres > 2047) pres = 2047;
-	return altitude_table[pres];
-}
-
-int16_t
-ao_altitude_to_pres(int16_t alt) __reentrant
-{
-	int16_t pres;
-
-	for (pres = 0; pres < 2047; pres++)
-		if (altitude_table[pres] <= alt)
-			break;
-	return pres << 4;
-}
+#include "ao_convert.c"
 
 struct ao_config {
 	uint16_t	main_deploy;
