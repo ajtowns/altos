@@ -16,7 +16,6 @@
  */
 
 #include "ao.h"
-#include "ao_usb.h"
 #include PRODUCT_DEFS
 
 /* Defines which mark this particular AltOS product */
@@ -27,6 +26,8 @@ const char ao_product[] = AO_iProduct_STRING;
 
 #define LE_WORD(x)    ((x)&0xFF),((uint8_t) (((uint16_t) (x))>>8))
 
+#if HAS_USB
+#include "ao_usb.h"
 /* USB descriptors in one giant block of bytes */
 __code __at(0x00aa) uint8_t ao_usb_descriptors [] =
 {
@@ -151,3 +152,4 @@ __code __at(0x00aa) uint8_t ao_usb_descriptors [] =
 	/* Terminating zero */
 	0
 };
+#endif

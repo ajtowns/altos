@@ -19,38 +19,56 @@
 #include "ao.h"
 #endif
 
+#ifndef HAS_ACCEL
+#error Please define HAS_ACCEL
+#endif
+
+#ifndef HAS_GPS
+#error Please define HAS_GPS
+#endif
+
+#ifndef HAS_USB
+#error Please define HAS_USB
+#endif
+
 /* Main flight thread. */
 
 __pdata enum ao_flight_state	ao_flight_state;	/* current flight state */
 __pdata uint16_t		ao_flight_tick;		/* time of last data */
 __pdata uint16_t		ao_flight_prev_tick;	/* time of previous data */
-__pdata int16_t			ao_flight_accel;	/* filtered acceleration */
 __pdata int16_t			ao_flight_pres;		/* filtered pressure */
 __pdata int16_t			ao_ground_pres;		/* startup pressure */
-__pdata int16_t			ao_ground_accel;	/* startup acceleration */
 __pdata int16_t			ao_min_pres;		/* minimum recorded pressure */
 __pdata uint16_t		ao_launch_tick;		/* time of launch detect */
 __pdata int16_t			ao_main_pres;		/* pressure to eject main */
+#if HAS_ACCEL
+__pdata int16_t			ao_flight_accel;	/* filtered acceleration */
+__pdata int16_t			ao_ground_accel;	/* startup acceleration */
+#endif
 
 /*
  * track min/max data over a long interval to detect
  * resting
  */
 __pdata uint16_t		ao_interval_end;
-__pdata int16_t			ao_interval_cur_min_accel;
-__pdata int16_t			ao_interval_cur_max_accel;
 __pdata int16_t			ao_interval_cur_min_pres;
 __pdata int16_t			ao_interval_cur_max_pres;
-__pdata int16_t			ao_interval_min_accel;
-__pdata int16_t			ao_interval_max_accel;
 __pdata int16_t			ao_interval_min_pres;
 __pdata int16_t			ao_interval_max_pres;
+#if HAS_ACCEL
+__pdata int16_t			ao_interval_cur_min_accel;
+__pdata int16_t			ao_interval_cur_max_accel;
+__pdata int16_t			ao_interval_min_accel;
+__pdata int16_t			ao_interval_max_accel;
+#endif
 
 __data uint8_t ao_flight_adc;
-__pdata int16_t ao_raw_accel, ao_raw_accel_prev, ao_raw_pres;
-__pdata int16_t ao_accel_2g;
-
+__pdata int16_t ao_raw_pres;
 __xdata uint8_t ao_flight_force_idle;
+
+#if HAS_ACCEL
+__pdata int16_t ao_raw_accel, ao_raw_accel_prev;
+__pdata int16_t ao_accel_2g;
 
 /* Accelerometer calibration
  *
@@ -83,6 +101,8 @@ __xdata uint8_t ao_flight_force_idle;
 #define ACCEL_INT_LAND	(ao_accel_2g >> 3)
 #define ACCEL_VEL_MACH	VEL_MPS_TO_COUNT(200)
 #define ACCEL_VEL_BOOST	VEL_MPS_TO_COUNT(5)
+
+#endif
 
 /*
  * Barometer calibration
@@ -117,6 +137,7 @@ __xdata uint8_t ao_flight_force_idle;
 
 #define BOOST_TICKS_MAX	AO_SEC_TO_TICKS(15)
 
+#if HAS_ACCEL
 /* This value is scaled in a weird way. It's a running total of accelerometer
  * readings minus the ground accelerometer reading. That means it measures
  * velocity, and quite accurately too. As it gets updated 100 times a second,
@@ -126,7 +147,10 @@ __pdata int32_t	ao_flight_vel;
 __pdata int32_t ao_min_vel;
 __pdata int32_t	ao_old_vel;
 __pdata int16_t ao_old_vel_tick;
-__xdata int32_t ao_raw_accel_sum, ao_raw_pres_sum;
+__xdata int32_t ao_raw_accel_sum;
+#endif
+
+__xdata int32_t ao_raw_pres_sum;
 
 /* Landing is detected by getting constant readings from both pressure and accelerometer
  * for a fairly long time (AO_INTERVAL_TICKS)
@@ -141,22 +165,31 @@ ao_flight(void)
 	__pdata static uint16_t	nsamples = 0;
 
 	ao_flight_adc = ao_adc_head;
+	ao_raw_pres = 0;
+#if HAS_ACCEL
 	ao_raw_accel_prev = 0;
 	ao_raw_accel = 0;
-	ao_raw_pres = 0;
+#endif
 	ao_flight_tick = 0;
 	for (;;) {
 		ao_wakeup(DATA_TO_XDATA(&ao_flight_adc));
 		ao_sleep(DATA_TO_XDATA(&ao_adc_head));
 		while (ao_flight_adc != ao_adc_head) {
+#if HAS_ACCEL
 			__pdata uint8_t ticks;
 			__pdata int16_t ao_vel_change;
+#endif
 			__xdata struct ao_adc *ao_adc;
 			ao_flight_prev_tick = ao_flight_tick;
 
 			/* Capture a sample */
 			ao_adc = &ao_adc_ring[ao_flight_adc];
 			ao_flight_tick = ao_adc->tick;
+			ao_raw_pres = ao_adc->pres;
+			ao_flight_pres -= ao_flight_pres >> 4;
+			ao_flight_pres += ao_raw_pres >> 4;
+
+#if HAS_ACCEL
 			ao_raw_accel = ao_adc->accel;
 #if HAS_ACCEL_REF
 			/*
@@ -242,12 +275,9 @@ ao_flight(void)
 			ao_raw_accel = (uint16_t) ((((uint32_t) ao_raw_accel << 16) / (ao_accel_ref[ao_flight_adc] << 1))) >> 1;
 			ao_adc->accel = ao_raw_accel;
 #endif
-			ao_raw_pres = ao_adc->pres;
 
 			ao_flight_accel -= ao_flight_accel >> 4;
 			ao_flight_accel += ao_raw_accel >> 4;
-			ao_flight_pres -= ao_flight_pres >> 4;
-			ao_flight_pres += ao_raw_pres >> 4;
 			/* Update velocity
 			 *
 			 * The accelerometer is mounted so that
@@ -264,12 +294,14 @@ ao_flight(void)
 				ao_flight_vel += (int32_t) ao_vel_change;
 			else
 				ao_flight_vel += (int32_t) ao_vel_change * (int32_t) ticks;
+#endif
 
 			ao_flight_adc = ao_adc_ring_next(ao_flight_adc);
 		}
 
 		if (ao_flight_pres < ao_min_pres)
 			ao_min_pres = ao_flight_pres;
+#if HAS_ACCEL
 		if (ao_flight_vel >= 0) {
 			if (ao_flight_vel < ao_min_vel)
 			    ao_min_vel = ao_flight_vel;
@@ -277,6 +309,7 @@ ao_flight(void)
 			if (-ao_flight_vel < ao_min_vel)
 			    ao_min_vel = -ao_flight_vel;
 		}
+#endif
 
 		switch (ao_flight_state) {
 		case ao_flight_startup:
@@ -287,21 +320,27 @@ ao_flight(void)
 			 * data and average them to find the resting values
 			 */
 			if (nsamples < 512) {
+#if HAS_ACCEL
 				ao_raw_accel_sum += ao_raw_accel;
+#endif
 				ao_raw_pres_sum += ao_raw_pres;
 				++nsamples;
 				continue;
 			}
+#if HAS_ACCEL
 			ao_ground_accel = ao_raw_accel_sum >> 9;
+#endif
 			ao_ground_pres = ao_raw_pres_sum >> 9;
 			ao_min_pres = ao_ground_pres;
 			ao_config_get();
 			ao_main_pres = ao_altitude_to_pres(ao_pres_to_altitude(ao_ground_pres) + ao_config.main_deploy);
+#if HAS_ACCEL
 			ao_accel_2g = ao_config.accel_minus_g - ao_config.accel_plus_g;
 			ao_flight_vel = 0;
 			ao_min_vel = 0;
 			ao_old_vel = ao_flight_vel;
 			ao_old_vel_tick = ao_flight_tick;
+#endif
 
 			/* Check to see what mode we should go to.
 			 *  - Invalid mode if accel cal appears to be out
@@ -309,6 +348,7 @@ ao_flight(void)
 			 *  - idle mode otherwise
 			 */
 			ao_config_get();
+#if HAS_ACCEL
 			if (ao_config.accel_plus_g == 0 ||
 			    ao_config.accel_minus_g == 0 ||
 			    ao_flight_accel < ao_config.accel_plus_g - ACCEL_NOSE_UP ||
@@ -323,17 +363,23 @@ ao_flight(void)
 				 */
 				ao_packet_slave_start();
 
-			} else if (ao_flight_accel < ao_config.accel_plus_g + ACCEL_NOSE_UP &&
-			           !ao_flight_force_idle)
+			} else
+#endif
+				if (!ao_flight_force_idle
+#if HAS_ACCEL
+				    && ao_flight_accel < ao_config.accel_plus_g + ACCEL_NOSE_UP
+#endif
+					)
  			{
 				/* Set pad mode - we can fly! */
 				ao_flight_state = ao_flight_pad;
 
+#if HAS_USB
 				/* Disable the USB controller in flight mode
 				 * to save power
 				 */
 				ao_usb_disable();
-
+#endif
 				/* Turn on telemetry system */
 				ao_rdf_set(1);
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_PAD);
@@ -356,6 +402,7 @@ ao_flight(void)
 			break;
 		case ao_flight_pad:
 
+#if HAS_ACCEL
 			/* Trim velocity
 			 *
 			 * Once a second, remove any velocity from
@@ -366,6 +413,7 @@ ao_flight(void)
 				ao_flight_vel -= ao_old_vel;
 				ao_old_vel = ao_flight_vel;
 			}
+#endif
 			/* pad to boost:
 			 *
 			 * accelerometer: > 2g AND velocity > 5m/s
@@ -376,11 +424,18 @@ ao_flight(void)
 			 * the barometer, but we use both to make sure this
 			 * transition is detected
 			 */
-			if ((ao_flight_accel < ao_ground_accel - ACCEL_BOOST &&
-			     ao_flight_vel > ACCEL_VEL_BOOST) ||
+			if (
+#if HAS_ACCEL
+				(ao_flight_accel < ao_ground_accel - ACCEL_BOOST &&
+				 ao_flight_vel > ACCEL_VEL_BOOST) ||
+#endif
 			    ao_flight_pres < ao_ground_pres - BARO_LAUNCH)
 			{
+#if HAS_ACCEL
 				ao_flight_state = ao_flight_boost;
+#else
+				ao_flight_state = ao_flight_coast;
+#endif
 				ao_launch_tick = ao_flight_tick;
 
 				/* start logging data */
@@ -392,14 +447,17 @@ ao_flight(void)
 				/* disable RDF beacon */
 				ao_rdf_set(0);
 
+#if HAS_GPS
 				/* Record current GPS position by waking up GPS log tasks */
 				ao_wakeup(&ao_gps_data);
 				ao_wakeup(&ao_gps_tracking_data);
+#endif
 
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 				break;
 			}
 			break;
+#if HAS_ACCEL
 		case ao_flight_boost:
 
 			/* boost to fast:
@@ -448,6 +506,7 @@ ao_flight(void)
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			break;
+#endif
 		case ao_flight_coast:
 
 			/* apogee detect: coast to drogue deploy:
@@ -478,8 +537,10 @@ ao_flight(void)
 				/* Set the 'last' limits to max range to prevent
 				 * early resting detection
 				 */
+#if HAS_ACCEL
 				ao_interval_min_accel = 0;
 				ao_interval_max_accel = 0x7fff;
+#endif
 				ao_interval_min_pres = 0;
 				ao_interval_max_pres = 0x7fff;
 
@@ -487,7 +548,9 @@ ao_flight(void)
 				ao_interval_end = ao_flight_tick + AO_INTERVAL_TICKS;
 
 				ao_interval_cur_min_pres = ao_interval_cur_max_pres = ao_flight_pres;
+#if HAS_ACCEL
 				ao_interval_cur_min_accel = ao_interval_cur_max_accel = ao_flight_accel;
+#endif
 
 				/* and enter drogue state */
 				ao_flight_state = ao_flight_drogue;
@@ -530,21 +593,28 @@ ao_flight(void)
 				ao_interval_cur_min_pres = ao_flight_pres;
 			if (ao_flight_pres > ao_interval_cur_max_pres)
 				ao_interval_cur_max_pres = ao_flight_pres;
+#if HAS_ACCEL
 			if (ao_flight_accel < ao_interval_cur_min_accel)
 				ao_interval_cur_min_accel = ao_flight_accel;
 			if (ao_flight_accel > ao_interval_cur_max_accel)
 				ao_interval_cur_max_accel = ao_flight_accel;
+#endif
 
 			if ((int16_t) (ao_flight_tick - ao_interval_end) >= 0) {
 				ao_interval_max_pres = ao_interval_cur_max_pres;
 				ao_interval_min_pres = ao_interval_cur_min_pres;
+				ao_interval_cur_min_pres = ao_interval_cur_max_pres = ao_flight_pres;
+#if HAS_ACCEL
 				ao_interval_max_accel = ao_interval_cur_max_accel;
 				ao_interval_min_accel = ao_interval_cur_min_accel;
-				ao_interval_end = ao_flight_tick + AO_INTERVAL_TICKS;
-				ao_interval_cur_min_pres = ao_interval_cur_max_pres = ao_flight_pres;
 				ao_interval_cur_min_accel = ao_interval_cur_max_accel = ao_flight_accel;
+#endif
+				ao_interval_end = ao_flight_tick + AO_INTERVAL_TICKS;
 
-				if ((uint16_t) (ao_interval_max_accel - ao_interval_min_accel) < (uint16_t) ACCEL_INT_LAND &&
+				if (
+#if HAS_ACCEL
+					(uint16_t) (ao_interval_max_accel - ao_interval_min_accel) < (uint16_t) ACCEL_INT_LAND &&
+#endif
 				    ao_flight_pres > ao_ground_pres - BARO_LAND &&
 				    (uint16_t) (ao_interval_max_pres - ao_interval_min_pres) < (uint16_t) BARO_INT_LAND)
 				{

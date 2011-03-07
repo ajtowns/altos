@@ -37,10 +37,14 @@ static const uint8_t flight_reports[] = {
 	MORSE4(1,0,0,1),	/* invalid 'X' */
 };
 
-#if 1
-#define signal(time)	ao_beep_for(AO_BEEP_MID, time)
+#if HAS_BEEP
+#define low(time)	ao_beep_for(AO_BEEP_LOW, time)
+#define mid(time)	ao_beep_for(AO_BEEP_MID, time)
+#define high(time)	ao_beep_for(AO_BEEP_HIGH, time)
 #else
-#define signal(time)	ao_led_for(AO_LED_RED, time)
+#define low(time)	ao_led_for(AO_LED_RED, time)
+#define mid(time)	ao_led_for(AO_LED_RED|AO_LED_GREEN, time)
+#define high(time)	ao_led_for(AO_LED_GREEN, time)
 #endif
 #define pause(time)	ao_delay(time)
 
@@ -56,9 +60,9 @@ ao_report_beep(void) __reentrant
 		return;
 	while (l--) {
 		if (r & 8)
-			signal(AO_MS_TO_TICKS(600));
+			mid(AO_MS_TO_TICKS(600));
 		else
-			signal(AO_MS_TO_TICKS(200));
+			mid(AO_MS_TO_TICKS(200));
 		pause(AO_MS_TO_TICKS(200));
 		r >>= 1;
 	}
@@ -69,12 +73,12 @@ static void
 ao_report_digit(uint8_t digit) __reentrant
 {
 	if (!digit) {
-		signal(AO_MS_TO_TICKS(500));
+		mid(AO_MS_TO_TICKS(500));
 		pause(AO_MS_TO_TICKS(200));
 	} else {
 		while (digit--) {
-			signal(AO_MS_TO_TICKS(200));
-			pause(AO_MS_TO_TICKS(200));
+			mid(AO_MS_TO_TICKS(200));
+			mid(AO_MS_TO_TICKS(200));
 		}
 	}
 	pause(AO_MS_TO_TICKS(300));
@@ -118,24 +122,24 @@ ao_report_continuity(void) __reentrant
 		     (ao_report_igniter_ready(ao_igniter_main) << 1));
 	if (c) {
 		while (c--) {
-			ao_beep_for(AO_BEEP_HIGH, AO_MS_TO_TICKS(25));
+			high(AO_MS_TO_TICKS(25));
 			pause(AO_MS_TO_TICKS(100));
 		}
 	} else {
 		c = 10;
 		while (c--) {
-			ao_beep_for(AO_BEEP_HIGH, AO_MS_TO_TICKS(20));
-			ao_beep_for(AO_BEEP_LOW, AO_MS_TO_TICKS(20));
+			high(AO_MS_TO_TICKS(20));
+			low(AO_MS_TO_TICKS(20));
 		}
 	}
 	if (ao_log_full()) {
 		pause(AO_MS_TO_TICKS(100));
 		c = 2;
 		while (c--) {
-			ao_beep_for(AO_BEEP_LOW, AO_MS_TO_TICKS(100));
-			ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(100));
-			ao_beep_for(AO_BEEP_HIGH, AO_MS_TO_TICKS(100));
-			ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(100));
+			low(AO_MS_TO_TICKS(100));
+			mid(AO_MS_TO_TICKS(100));
+			high(AO_MS_TO_TICKS(100));
+			mid(AO_MS_TO_TICKS(100));
 		}
 	}
 	c = 50;
