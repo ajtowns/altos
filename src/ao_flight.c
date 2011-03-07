@@ -358,10 +358,6 @@ ao_flight(void)
 				 * (or uncalibrated values), so we go into invalid mode
 				 */
 				ao_flight_state = ao_flight_invalid;
-				/* Allow packet mode in invalid flight state,
-				 * Still need to be able to fix the problem!
-				 */
-				ao_packet_slave_start();
 
 			} else
 #endif
@@ -380,6 +376,10 @@ ao_flight(void)
 				 */
 				ao_usb_disable();
 #endif
+
+				/* Disable packet mode in pad state */
+				ao_packet_slave_stop();
+
 				/* Turn on telemetry system */
 				ao_rdf_set(1);
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_PAD);
@@ -390,9 +390,6 @@ ao_flight(void)
 				/* Set idle mode */
  				ao_flight_state = ao_flight_idle;
  
-				/* Turn on packet system in idle mode */
-				ao_packet_slave_start();
-
 				/* signal successful initialization by turning off the LED */
 				ao_led_off(AO_LED_RED);
 			}

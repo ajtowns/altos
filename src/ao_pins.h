@@ -19,6 +19,7 @@
 #define _AO_PINS_H_
 
 #if defined(TELEMETRUM_V_1_0)
+	#define HAS_FLIGHT		1
 	#define HAS_USB			1
 	#define HAS_BEEP		1
 	#define HAS_GPS			1
@@ -39,6 +40,7 @@
 #endif
 
 #if defined(TELEMETRUM_V_1_1)
+	#define HAS_FLIGHT		1
 	#define HAS_USB			1
 	#define HAS_BEEP		1
 	#define HAS_GPS			1
@@ -63,6 +65,7 @@
 #endif
 
 #if defined(TELEDONGLE_V_0_2)
+	#define HAS_FLIGHT		0
 	#define HAS_USB			1
 	#define HAS_BEEP		0
 	#define HAS_SERIAL_1		0
@@ -81,6 +84,7 @@
 #endif
 
 #if defined(TELEMETRUM_V_0_1)
+	#define HAS_FLIGHT		1
 	#define HAS_USB			1
 	#define HAS_BEEP		1
 	#define HAS_GPS			1
@@ -103,6 +107,7 @@
 #endif
 
 #if defined(TELEDONGLE_V_0_1)
+	#define HAS_FLIGHT		0
 	#define HAS_USB			1
 	#define HAS_BEEP		0
 	#define HAS_SERIAL_1		0
@@ -121,6 +126,7 @@
 #endif
 
 #if defined(TIDONGLE)
+	#define HAS_FLIGHT		0
 	#define HAS_USB			1
 	#define HAS_BEEP		0
 	#define HAS_SERIAL_1		0
