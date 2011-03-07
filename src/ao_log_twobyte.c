@@ -18,15 +18,15 @@
 
 #include "ao.h"
 
-__xdata struct ao_log_record log;
+__xdata struct ao_log_record log; // XXX: used by ao_flight_log, not us
 __xdata uint16_t ao_flight_number;
 
 static __pdata uint32_t	ao_log_current_pos;
 static __pdata uint32_t ao_log_end_pos;
-static __pdata uint32_t	ao_log_start_pos;
 static __xdata uint8_t	ao_log_running;
 static __xdata uint8_t	ao_log_mutex;
 
+#if 0
 static uint8_t
 ao_log_csum(__xdata uint8_t *b) __reentrant
 {
@@ -37,25 +37,35 @@ ao_log_csum(__xdata uint8_t *b) __reentrant
 		sum += *b++;
 	return -sum;
 }
+#endif
 
-static __xdata uint16_t log_bytes;
+static __xdata uint16_t log_data[16] = {0};
+const static uint8_t incrementer = ~0;
 
 static uint8_t
 ao_log_bytes(uint16_t d) __reentrant
 {
 	uint8_t wrote = 0;
-	ao_mutex_get(&ao_log_mutex); {
-		log_bytes = d;
-		if (ao_log_current_pos >= ao_log_end_pos && ao_log_running)
-			ao_log_stop();
-		if (ao_log_running) {
+	uint8_t log_code = d & 0x000F;
+	ao_mutex_get(&ao_log_mutex); do {
+		if (!ao_log_running)
+			break;
+		if (log_code != incrementer && log_data[log_code] == d) {
 			wrote = 1;
-			ao_storage_write(ao_log_current_pos,
-					 &log_bytes,
-					 sizeof (log_bytes));
-			ao_log_current_pos += sizeof (log_bytes);
+			break;
 		}
-	} ao_mutex_put(&ao_log_mutex);
+		if (ao_log_current_pos >= ao_log_end_pos) {
+			ao_log_stop();
+			break;
+		}
+
+		wrote = 1;
+		log_data[log_code] = d;
+		ao_storage_write(ao_log_current_pos,
+				 &log_data[log_code],
+				 sizeof (log_data[0]));
+		ao_log_current_pos += sizeof (log_data[0]);
+	} while(0); ao_mutex_put(&ao_log_mutex);
 	return wrote;
 }
 
@@ -73,7 +83,9 @@ ao_log_data(__xdata struct ao_log_record *log) __reentrant
 {
 	uint8_t wrote = 0;
 
-	if (!LOG_8b(log->tick, 0, 0))
+	if (!LOG_8b((log->tick & 0x00FF), 0, 0))
+		return 0;
+	if (!LOG_8b((log->tick & 0xFF00) >> 8, 2, 0))
 		return 0;
 
 	switch (log->type) {
@@ -122,163 +134,45 @@ ao_log_flush(void)
 	ao_storage_flush();
 }
 
-static uint8_t
-ao_log_dump_check_data(void)
-{
-	if (ao_log_csum((uint8_t *) &log) != 0)
-		return 0;
-	return 1;
-}
-
-/* a hack to make sure that ao_log_records fill the eeprom block in even units */
-typedef uint8_t check_log_size[1-(256 % sizeof(struct ao_log_record))] ;
-
-/*
- * When erasing a flight log, make sure the config block
- * has an up-to-date version of the current flight number
- */
-
-struct ao_log_erase {
-	uint8_t	unused;
-	uint16_t flight;
-};
-
-static __xdata struct ao_log_erase erase;
-
-#define LOG_MAX_ERASE	16
-
-static uint32_t
-ao_log_erase_pos(uint8_t i)
-{
-	return i * sizeof (struct ao_log_erase) + AO_STORAGE_ERASE_LOG;
-}
-
 void
 ao_log_write_erase(uint8_t pos)
 {
-	erase.unused = 0x00;
-	erase.flight = ao_flight_number;
-	ao_storage_write(ao_log_erase_pos(pos),  &erase, sizeof (erase));
-	ao_storage_flush();
-}
-
-static void
-ao_log_read_erase(uint8_t pos)
-{
-	ao_storage_read(ao_log_erase_pos(pos), &erase, sizeof (erase));
-}
-
-
-static void
-ao_log_erase_mark(void)
-{
-	uint8_t				i;
-
-	for (i = 0; i < LOG_MAX_ERASE; i++) {
-		ao_log_read_erase(i);
-		if (erase.unused == 0 && erase.flight == ao_flight_number)
-			return;
-		if (erase.unused == 0xff) {
-			ao_log_write_erase(i);
-			return;
-		}
-	}
-	ao_config_put();
-}
-
-static uint8_t
-ao_log_slots()
-{
-	return (uint8_t) (ao_storage_config / ao_config.flight_log_max);
-}
-
-static uint32_t
-ao_log_pos(uint8_t slot)
-{
-	return ((slot) * ao_config.flight_log_max);
+	(void)pos;
 }
 
 static uint16_t
-ao_log_flight(uint8_t slot)
+ao_log_flight(void)
 {
-	if (!ao_storage_read(ao_log_pos(slot),
-			     &log,
+	if (!ao_storage_read(0,
+			     &log_data[0],
 			     sizeof (struct ao_log_record)))
 		return 0;
 
-	if (ao_log_dump_check_data() && log.type == AO_LOG_FLIGHT)
-		return log.u.flight.flight;
+	if ((log_data[0] & 0x00FF) == 0x0030)
+		return (log_data[0] >> 8);
 	return 0;
 }
 
 static uint16_t
 ao_log_max_flight(void)
 {
-	uint8_t		log_slot;
-	uint8_t		log_slots;
-	uint16_t	log_flight;
-	uint16_t	max_flight = 0;
-
-	/* Scan the log space looking for the biggest flight number */
-	log_slots = ao_log_slots();
-	for (log_slot = 0; log_slot < log_slots; log_slot++) {
-		log_flight = ao_log_flight(log_slot);
-		if (!log_flight)
-			continue;
-		if (max_flight == 0 || (int16_t) (log_flight - max_flight) > 0)
-			max_flight = log_flight;
-	}
-	return max_flight;
+	return ao_log_flight();
 }
 
 static void
 ao_log_scan(void) __reentrant
 {
-	uint8_t		log_slot;
-	uint8_t		log_slots;
-	uint8_t		log_want;
-
 	ao_config_get();
 
-	ao_flight_number = ao_log_max_flight();
-	if (ao_flight_number)
-		if (++ao_flight_number == 0)
-			ao_flight_number = 1;
-
-	/* Now look through the log of flight numbers from erase operations and
-	 * see if the last one is bigger than what we found above
-	 */
-	for (log_slot = LOG_MAX_ERASE; log_slot-- > 0;) {
-		ao_log_read_erase(log_slot);
-		if (erase.unused == 0) {
-			if (ao_flight_number == 0 ||
-			    (int16_t) (erase.flight - ao_flight_number) > 0)
-				ao_flight_number = erase.flight;
-			break;
-		}
+	ao_flight_number = ao_log_flight();
+	if (ao_flight_number) {
+		ao_log_current_pos = ao_log_end_pos = 0;
+		ao_flight_number++;
+	} else {
+		ao_flight_number = 4;
+		ao_log_current_pos = 0;
+		ao_log_end_pos = ao_storage_config;
 	}
-	if (ao_flight_number == 0)
-		ao_flight_number = 1;
-
-	/* With a flight number in hand, find a place to write a new log,
-	 * use the target flight number to index the available log slots so
-	 * that we write logs to each spot about the same number of times.
-	 */
-
-	/* Find a log slot for the next flight, if available */
-	ao_log_current_pos = ao_log_end_pos = 0;
-	log_slots = ao_log_slots();
-	log_want = (ao_flight_number - 1) % log_slots;
-	log_slot = log_want;
-	do {
-		if (ao_log_flight(log_slot) == 0) {
-			ao_log_current_pos = ao_log_pos(log_slot);
-			ao_log_end_pos = ao_log_current_pos + ao_config.flight_log_max;
-			break;
-		}
-		if (++log_slot >= log_slots)
-			log_slot = 0;
-	} while (log_slot != log_want);
 
 	ao_wakeup(&ao_flight_number);
 }
@@ -362,12 +256,12 @@ ao_log_delete(void) __reentrant
 					 * memory over and over again
 					 */
 					if (ao_storage_read(ao_log_current_pos,
-							    &log,
-							    sizeof (struct ao_log_record))) {
-						for (slot = 0; slot < sizeof (struct ao_log_record); slot++)
-							if (((uint8_t *) &log)[slot] != 0xff)
+							    &log_data[0],
+							    sizeof (log_data[0]))) {
+						for (slot = 0; slot < sizeof (log_data[0]); slot++)
+							if (((uint8_t *) &log_data)[slot] != 0xff)
 								break;
-						if (slot == sizeof (struct ao_log_record))
+						if (slot == sizeof (log_data[0]))
 							break;
 					}
 					ao_storage_erase(ao_log_current_pos);

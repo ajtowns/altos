@@ -46,7 +46,7 @@ __xdata uint32_t	ao_storage_total = sizeof(ao_intflash);
 __xdata uint32_t	ao_storage_block = 1024;
 
 /* Byte offset of config block. Will be ao_storage_block bytes long */
-__xdata uint32_t	ao_storage_config = sizeof(ao_intflash);
+__xdata uint32_t	ao_storage_config;
 
 /* Storage unit size - device reads and writes must be within blocks of this size. */
 __xdata uint16_t	ao_storage_unit = 1024;
@@ -66,13 +66,19 @@ static uint8_t ao_intflash_dma;
 /*
  * Erase the specified sector
  */
+
+static __xdata uint8_t config_len_byte = 256 - sizeof(struct ao_config);
+
 uint8_t
 ao_storage_erase(uint32_t pos) __reentrant
 {
 	uint16_t addr;
 
-	if (pos >= ao_storage_total || pos + ao_storage_block > ao_storage_total)
+	if (pos == ao_storage_config) {
+		pos = ao_storage_total - ao_storage_block;
+	} else if (pos >= ao_storage_total || pos + ao_storage_block > ao_storage_total) {
 		return 0;
+	}
 
 	addr = ((uint16_t)(ao_intflash + pos) >> 1);
 
@@ -91,6 +97,11 @@ ao_storage_erase(uint32_t pos) __reentrant
 
 	while (FCTL & FCTL_BUSY)
 		;
+
+	if (pos + ao_storage_block == ao_storage_total) {
+		ao_storage_config = ao_storage_total - 1 - sizeof(struct ao_config);
+		ao_storage_device_write(ao_storage_total - 1, &config_len_byte, 1);
+	}
 
 	return 1;
 }
@@ -135,10 +146,12 @@ word_aligned_write(uint32_t pos, __xdata void *d, uint16_t len) __reentrant
 		;
 }
 
+static __xdata uint8_t ao_intflash_mutex;
+static __xdata uint8_t b[2];
+
 uint8_t
 ao_storage_device_write(uint32_t pos, __xdata void *v, uint16_t len) __reentrant
 {
-	static __xdata uint8_t b[2];
 	__xdata uint8_t *d = v;
 	uint8_t oddlen;
 
@@ -147,9 +160,11 @@ ao_storage_device_write(uint32_t pos, __xdata void *v, uint16_t len) __reentrant
 	if (len == 0)
 		return 1;
 
+	ao_mutex_get(&ao_intflash_mutex);
+
 	if (pos & 1) {
-		b[0] = ~0;
 		b[1] = d[0];
+		b[0] = ~0;
 		word_aligned_write(pos-1, b, 2);
 		pos++;
 		len--;
@@ -166,6 +181,8 @@ ao_storage_device_write(uint32_t pos, __xdata void *v, uint16_t len) __reentrant
 		word_aligned_write(pos+len, b, 2);
 	}
 
+	ao_mutex_put(&ao_intflash_mutex);
+
 	return 1;
 }
 
@@ -175,6 +192,13 @@ ao_storage_device_write(uint32_t pos, __xdata void *v, uint16_t len) __reentrant
 uint8_t
 ao_storage_device_read(uint32_t pos, __xdata void *d, uint16_t len) __reentrant
 {
+	if (pos == ao_storage_config) {
+		uint8_t conflen = ao_storage_total - ao_storage_config - 1;
+		if (len > conflen) {
+			memset(d+len, 0xFF, len-conflen);
+			len = conflen;
+		}
+	}
 	if (pos >= ao_storage_total || pos + len > ao_storage_total)
 		return 0;
 	memcpy(d, ao_intflash+pos, len);
@@ -189,6 +213,13 @@ ao_storage_flush(void) __reentrant
 void
 ao_storage_setup(void)
 {
+	uint8_t config_size = 256 - ao_intflash[ao_storage_total-1];
+	if (config_size == 1) {
+		/* uninitialised */
+		ao_storage_config = ao_storage_total;
+	} else {
+		ao_storage_config = ao_storage_total - 1 - config_size;
+	}
 }
 
 void
