@@ -48,6 +48,8 @@ ao_adc_isr(void) __interrupt 1
 	uint8_t	__xdata *a;
 
 	sequence = (ADCCON2 & ADCCON2_SCH_MASK) >> ADCCON2_SCH_SHIFT;
+#if IGNITE_ON_P2
+	/* TeleMetrum readings */
 #if HAS_ACCEL_REF
 	if (sequence == 2) {
 		a = (uint8_t __xdata *) (&ao_accel_ref[ao_adc_head]);
@@ -71,7 +73,47 @@ ao_adc_isr(void) __interrupt 1
 		else
 #endif
 			ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | sequence;
-	} else {
+	}
+#endif
+
+#if IGNITE_ON_P0
+	/* TeleMini readings */
+	a = (uint8_t __xdata *) (&ao_adc_ring[ao_adc_head].pres);
+	switch (sequence) {
+	case 0:
+		/* pressure */
+		a += 0;
+		sequence = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 1;
+		break;
+	case 1:
+		/* drogue sense */
+		a += 6;
+		sequence = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 2;
+		break;
+	case 2:
+		/* main sense */
+		a += 8;
+		sequence = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 3;
+		break;
+	case 3:
+		/* battery */
+		a += 4;
+		sequence = ADCCON3_EREF_1_25 | ADCCON3_EDIV_512 | ADCCON3_ECH_TEMP;
+		break;
+	case ADCCON3_ECH_TEMP:
+		a += 2;
+		sequence = 0;
+		break;
+	}
+	a[0] = ADCL;
+	a[1] = ADCH;
+	if (sequence) {
+		/* Start next conversion */
+		ADCCON3 = sequence;
+	}
+#endif
+
+	else {
 		/* record this conversion series */
 		ao_adc_ring[ao_adc_head].tick = ao_time();
 		ao_adc_head = ao_adc_ring_next(ao_adc_head);
@@ -97,6 +139,8 @@ __code struct ao_cmds ao_adc_cmds[] = {
 void
 ao_adc_init(void)
 {
+#if IGNITE_ON_P2
+	/* TeleMetrum configuration */
 	ADCCFG = ((1 << 0) |	/* acceleration */
 		  (1 << 1) |	/* pressure */
 #if HAS_EXTERNAL_TEMP
@@ -105,6 +149,15 @@ ao_adc_init(void)
 		  (1 << 3) |	/* battery voltage */
 		  (1 << 4) |	/* drogue sense */
 		  (1 << 5));	/* main sense */
+#endif
+
+#if IGNITE_ON_P0
+	/* TeleMini configuration */
+	ADCCFG = ((1 << 0) |	/* pressure */
+		  (1 << 1) |	/* drogue sense */
+		  (1 << 2) |	/* main sense */
+		  (1 << 3));	/* battery voltage */
+#endif
 
 	/* enable interrupts */
 	ADCIF = 0;
