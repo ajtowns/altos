@@ -72,6 +72,7 @@ uint8_t ao_adc_head;
 #define ao_telemetry_set_interval(x)
 #define ao_rdf_set(rdf)
 #define ao_packet_slave_start()
+#define ao_packet_slave_stop()
 
 enum ao_igniter {
 	ao_igniter_drogue = 0,
@@ -138,8 +139,8 @@ struct ao_config ao_config;
 #define HAS_GPS 1
 #ifndef HAS_ACCEL
 #define HAS_ACCEL 1
-#endif
 #define HAS_ACCEL_REF 0
+#endif
 
 #include "ao_flight.c"
 
@@ -268,12 +269,19 @@ ao_dump_state(void)
 {
 	if (ao_flight_state == ao_flight_startup)
 		return;
+#if HAS_ACCEL
 	printf ("\t\t\t\t\t%s accel %g vel %g alt %d main %d\n",
 		ao_state_names[ao_flight_state],
 		(ao_ground_accel - ao_flight_accel) / COUNTS_PER_G * GRAVITY,
 		(double) ao_flight_vel / 100 / COUNTS_PER_G * GRAVITY,
 		ao_pres_to_altitude(ao_flight_pres) - ao_pres_to_altitude(ao_ground_pres),
 		ao_pres_to_altitude(ao_main_pres) - ao_pres_to_altitude(ao_ground_pres));
+#else
+	printf ("\t\t\t\t\t%s alt %d main %d\n",
+		ao_state_names[ao_flight_state],
+		ao_pres_to_altitude(ao_flight_pres) - ao_pres_to_altitude(ao_ground_pres),
+		ao_pres_to_altitude(ao_main_pres) - ao_pres_to_altitude(ao_ground_pres));
+#endif
 	if (ao_flight_state == ao_flight_landed)
 		exit(0);
 }
