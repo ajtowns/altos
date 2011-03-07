@@ -164,8 +164,12 @@ struct ao_adc {
 
 #if HAS_ADC
 
+#if HAS_ACCEL
 #ifndef HAS_ACCEL_REF
 #error Please define HAS_ACCEL_REF
+#endif
+#else
+#define HAS_ACCEL_REF 0
 #endif
 
 /*
@@ -303,7 +307,14 @@ extern __code __at (0x00a0) uint16_t ao_romconfig_version;
 extern __code __at (0x00a2) uint16_t ao_romconfig_check;
 extern __code __at (0x00a4) uint16_t ao_serial_number;
 extern __code __at (0x00a6) uint32_t ao_radio_cal;
+
+#ifndef HAS_USB
+#error Please define HAS_USB
+#endif
+
+#if HAS_USB
 extern __code __at (0x00aa) uint8_t ao_usb_descriptors [];
+#endif
 
 /*
  * ao_usb.c
@@ -327,9 +338,11 @@ ao_usb_pollchar(void);
 void
 ao_usb_flush(void);
 
+#if HAS_USB
 /* USB interrupt handler */
 void
 ao_usb_isr(void) __interrupt 6;
+#endif
 
 /* Enable the USB controller */
 void
@@ -1062,7 +1075,6 @@ ao_rssi_init(uint8_t rssi_led);
  * each instance of a product
  */
 
-extern __code __at(0x00aa) uint8_t ao_usb_descriptors [];
 extern const char ao_version[];
 extern const char ao_manufacturer[];
 extern const char ao_product[];

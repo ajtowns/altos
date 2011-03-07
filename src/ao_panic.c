@@ -17,6 +17,14 @@
 
 #include "ao.h"
 
+#ifndef HAS_BEEP
+#error Please define HAS_BEEP
+#endif
+
+#if !HAS_BEEP
+#define ao_beep(x)
+#endif
+
 static void
 ao_panic_delay(uint8_t n)
 {

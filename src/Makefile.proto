@@ -42,11 +42,15 @@ ALTOS_SRC = \
 # Shared AltOS drivers
 #
 ALTOS_DRIVER_SRC = \
-	ao_beep.c \
 	ao_config.c \
 	ao_led.c \
 	ao_radio.c \
-	ao_stdio.c \
+	ao_stdio.c
+
+BEEP_DRIVER_SRC = \
+	ao_beep.c
+
+USB_DRIVER_SRC = \
 	ao_usb.c
 
 TELE_COMMON_SRC = \
@@ -68,7 +72,12 @@ TELE_RECEIVER_SRC =\
 #
 
 TELE_DRIVER_SRC = \
-	ao_convert.c \
+	ao_convert.c
+
+#
+# Serial port driver
+#
+SERIAL_DRIVER_SRC = \
 	ao_serial.c
 
 #
@@ -89,7 +98,9 @@ DBG_SRC = \
 TM_DRIVER_SRC = \
 	ao_adc.c \
 	ao_gps_report.c \
-	ao_ignite.c
+	ao_ignite.c \
+	$(BEEP_DRIVER_SRC) \
+	$(USB_DRIVER_SRC)
 
 #
 # 25LC1024 driver source
@@ -142,6 +153,7 @@ TM_BASE_SRC = \
 	$(ALTOS_SRC) \
 	$(ALTOS_DRIVER_SRC) \
 	$(TELE_DRIVER_SRC) \
+	$(SERIAL_DRIVER_SRC) \
 	$(TELE_COMMON_SRC) \
 	$(TM_DRIVER_SRC) \
 	$(TM_TASK_SRC) \
@@ -158,6 +170,7 @@ TI_SRC = \
 	$(ALTOS_DRIVER_SRC) \
 	$(TELE_RECEIVER_SRC) \
 	$(TELE_COMMON_SRC) \
+	$(USB_DRIVER_SRC) \
 	$(TI_MAIN_SRC) \
 	$(DBG_SRC)
 
@@ -172,6 +185,7 @@ TT_SRC = \
 	$(TELE_RECEIVER_SRC) \
 	$(TELE_DRIVER_SRC) \
 	$(TELE_COMMON_SRC) \
+	$(USB_DRIVER_SRC) \
 	$(TT_MAIN_SRC)
 
 
@@ -187,6 +201,7 @@ TD_SRC = \
 	$(ALTOS_DRIVER_SRC) \
 	$(TELE_RECEIVER_SRC) \
 	$(TELE_COMMON_SRC) \
+	$(USB_DRIVER_SRC) \
 	$(TD_MAIN_SRC)
 
 include Makefile.defs

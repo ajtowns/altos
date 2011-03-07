@@ -155,6 +155,15 @@ struct ao_config ao_config;
 
 #define DATA_TO_XDATA(x) (x)
 
+#define HAS_FLIGHT 1
+#define HAS_ADC 1
+#define HAS_USB 1
+#define HAS_GPS 1
+#ifndef HAS_ACCEL
+#define HAS_ACCEL 1
+#endif
+#define HAS_ACCEL_REF 0
+
 #include "ao_flight.c"
 
 void

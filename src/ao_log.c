@@ -92,7 +92,9 @@ ao_log(void)
 
 	log.type = AO_LOG_FLIGHT;
 	log.tick = ao_flight_tick;
+#if HAS_ACCEL
 	log.u.flight.ground_accel = ao_ground_accel;
+#endif
 	log.u.flight.flight = ao_flight_number;
 	ao_log_data(&log);
 
