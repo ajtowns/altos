@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#ifndef AO_CONVERT_TEST
+#if !defined(AO_CONVERT_TEST) && !defined(AO_FLIGHT_TEST)
 #include "ao.h"
 #endif
 
