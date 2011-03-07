@@ -166,6 +166,8 @@ ao_storage_info(void) __reentrant
 }
 
 __code struct ao_cmds ao_storage_cmds[] = {
+	{ ao_storage_info, "f\0Show storage info" },
+	{ ao_storage_dump, "e <block>\0Dump a block of flash data" },
 #ifdef HAS_STORAGE_DBG
 	{ ao_storage_store, "w <block> <start> <len> <data> ...\0Write data to flash" },
 #endif
