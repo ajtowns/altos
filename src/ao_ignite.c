@@ -17,11 +17,21 @@
 
 #include "ao.h"
 
+#if IGNITE_ON_P2
 #define AO_IGNITER_DROGUE	P2_3
 #define AO_IGNITER_MAIN		P2_4
 #define AO_IGNITER_DIR		P2DIR
 #define AO_IGNITER_DROGUE_BIT	(1 << 3)
 #define AO_IGNITER_MAIN_BIT	(1 << 4)
+#endif
+
+#if IGNITE_ON_P0
+#define AO_IGNITER_DROGUE	P0_5
+#define AO_IGNITER_MAIN		P0_4
+#define AO_IGNITER_DIR		P0DIR
+#define AO_IGNITER_DROGUE_BIT	(1 << 5)
+#define AO_IGNITER_MAIN_BIT	(1 << 4)
+#endif
 
 /* test these values with real igniters */
 #define AO_IGNITER_OPEN		1000

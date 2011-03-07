@@ -29,6 +29,8 @@
 	#define HAS_DBG			1
 	#define DBG_ON_P1 		1
 	#define DBG_ON_P0 		0
+	#define IGNITE_ON_P2		1
+	#define IGNITE_ON_P0		0
 	#define PACKET_HAS_MASTER	0
 	#define PACKET_HAS_SLAVE	1
 
@@ -50,6 +52,8 @@
 	#define HAS_DBG			1
 	#define DBG_ON_P1 		1
 	#define DBG_ON_P0 		0
+	#define IGNITE_ON_P2		1
+	#define IGNITE_ON_P0		0
 	#define PACKET_HAS_MASTER	0
 	#define PACKET_HAS_SLAVE	1
 
@@ -74,6 +78,8 @@
 	#define HAS_EEPROM		0
 	#define DBG_ON_P1		1
 	#define DBG_ON_P0 		0
+	#define IGNITE_ON_P2		0
+	#define IGNITE_ON_P0		0
 	#define PACKET_HAS_MASTER	1
 	#define PACKET_HAS_SLAVE	0
 	#define AO_LED_RED		1
@@ -92,6 +98,8 @@
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1
 	#define HAS_DBG			0
+	#define IGNITE_ON_P2		0
+	#define IGNITE_ON_P0		1
 	#define PACKET_HAS_MASTER	0
 	#define PACKET_HAS_SLAVE	1
 
@@ -113,6 +121,8 @@
 	#define HAS_EEPROM		1
 	#define DBG_ON_P1 		0
 	#define DBG_ON_P0 		1
+	#define IGNITE_ON_P2		1
+	#define IGNITE_ON_P0		0
 	#define PACKET_HAS_MASTER	0
 	#define PACKET_HAS_SLAVE	1
 	#define AO_LED_RED		2
@@ -135,6 +145,8 @@
 	#define HAS_EEPROM		0
 	#define DBG_ON_P1		0
 	#define DBG_ON_P0 		1
+	#define IGNITE_ON_P2		0
+	#define IGNITE_ON_P0		0
 	#define PACKET_HAS_MASTER	1
 	#define PACKET_HAS_SLAVE	0
 	#define AO_LED_RED		2
@@ -154,6 +166,8 @@
 	#define HAS_EEPROM		0
 	#define DBG_ON_P1		0
 	#define DBG_ON_P0		1
+	#define IGNITE_ON_P2		0
+	#define IGNITE_ON_P0		0
 	#define PACKET_HAS_MASTER	1
 	#define PACKET_HAS_SLAVE	0
 	#define AO_LED_RED		2
@@ -208,6 +222,14 @@
 	#define SPI_CS_PORT	P0
 	#define SPI_CS_SEL	P0SEL
 	#define SPI_CS_DIR	P0DIR
+#endif
+
+#ifndef IGNITE_ON_P2
+#error Please define IGNITE_ON_P2
+#endif
+
+#ifndef IGNITE_ON_P0
+#error Please define IGNITE_ON_P0
 #endif
 
 #ifndef HAS_SERIAL_1
