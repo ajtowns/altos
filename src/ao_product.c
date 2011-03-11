@@ -26,11 +26,11 @@ const char ao_product[] = AO_iProduct_STRING;
 
 #define LE_WORD(x)    ((x)&0xFF),((uint8_t) (((uint16_t) (x))>>8))
 
-#if HAS_USB
 #include "ao_usb.h"
 /* USB descriptors in one giant block of bytes */
 __code __at(0x00aa) uint8_t ao_usb_descriptors [] =
 {
+#if HAS_USB
 	/* Device descriptor */
 	0x12,
 	AO_USB_DESC_DEVICE,
@@ -128,7 +128,7 @@ __code __at(0x00aa) uint8_t ao_usb_descriptors [] =
 	0x02,			/* bmAttributes = bulk */
 	LE_WORD(AO_USB_IN_SIZE),/* wMaxPacketSize */
 	0x00,			/* bInterval */
-
+#endif
 	/* String descriptors */
 	0x04,
 	AO_USB_DESC_STRING,
@@ -152,4 +152,3 @@ __code __at(0x00aa) uint8_t ao_usb_descriptors [] =
 	/* Terminating zero */
 	0
 };
-#endif
