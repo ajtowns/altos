@@ -89,7 +89,7 @@ ao_storage_erase(uint32_t pos) __reentrant
 	nop;				; Required, see datasheet.
 	_endasm;
 
-	while (FCTL & FCTL_BUSY)
+	__critical while (FCTL & FCTL_BUSY)
 		;
 
 	return 1;
@@ -103,6 +103,7 @@ static void
 word_aligned_write(uint32_t pos, __xdata void *d, uint16_t len) __reentrant
 {
 	uint16_t addr;
+	uint8_t dmamask = 1 << ao_intflash_dma;
 
 	addr = ((uint16_t)(ao_intflash + pos) >> 1);
 
@@ -123,16 +124,20 @@ word_aligned_write(uint32_t pos, __xdata void *d, uint16_t len) __reentrant
 
 	ao_dma_start(ao_intflash_dma);
 
-	_asm
-	.even
-	orl _FCTL, #FCTL_WRITE;		; FCTL |=  FCTL_WRITE
-	_endasm;
+	__critical {
+		_asm
+		.even
+		orl _FCTL, #FCTL_WRITE;		; FCTL |=  FCTL_WRITE
+		_endasm;
 
-	__critical while (!ao_intflash_dma_done)
-		ao_sleep(&ao_intflash_dma_done);
+		while (!(DMAIRQ & dmamask))
+			;
 
-	while (FCTL & (FCTL_BUSY | FCTL_SWBSY))
-		;
+		while (FCTL & (FCTL_BUSY | FCTL_SWBSY))
+			;
+
+		DMAIRQ &= ~dmamask;
+	}
 }
 
 uint8_t
