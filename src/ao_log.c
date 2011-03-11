@@ -389,9 +389,27 @@ ao_log_delete(void) __reentrant
 	printf("No such flight: %d\n", ao_cmd_lex_i);
 }
 
+void
+ao_log_debug(void) __reentrant
+{
+	__xdata static struct ao_log_record d;
 
+	ao_cmd_white();
+	d.type = ao_cmd_lex_c;
+	ao_cmd_hex();
+	d.u.anon.d0 = ao_cmd_lex_i;
+	ao_cmd_hex();
+	d.u.anon.d1 = ao_cmd_lex_i;
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+
+	d.tick = ao_time();
+
+	ao_log_data(&d);
+}
 
 __code struct ao_cmds ao_log_cmds[] = {
+	{ ao_log_debug, "L c d1 d2\0Add entry to log" },
 	{ ao_log_list,	"l\0List stored flight logs" },
 	{ ao_log_delete,	"d <flight-number>\0Delete stored flight" },
 	{ 0,	NULL },

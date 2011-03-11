@@ -17,6 +17,10 @@
 
 #include "ao.h"
 
+#ifdef TELEMINI_V_0_1
+#define HAS_STORAGE_DBG
+#endif
+
 uint8_t
 ao_storage_read(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant
 {
@@ -103,10 +107,7 @@ ao_storage_dump(void) __reentrant
 	}
 }
 
-#if 0
-
-/* not enough space for this today
- */
+#ifdef HAS_STORAGE_DBG
 static void
 ao_storage_store(void) __reentrant
 {

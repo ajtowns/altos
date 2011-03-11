@@ -29,7 +29,7 @@
 #define SIZE      (1024*NUM_PAGES)
 #define LOCN      (0x8000 - SIZE)
 
-#if NUM_PAGES < 1
+#if NUM_PAGES < 2
 #error "Too few pages"
 #endif
 
@@ -46,7 +46,7 @@ __xdata uint32_t	ao_storage_total = sizeof(ao_intflash);
 __xdata uint32_t	ao_storage_block = 1024;
 
 /* Byte offset of config block. Will be ao_storage_block bytes long */
-__xdata uint32_t	ao_storage_config = sizeof(ao_intflash);
+__xdata uint32_t	ao_storage_config = sizeof(ao_intflash) - 1024;
 
 /* Storage unit size - device reads and writes must be within blocks of this size. */
 __xdata uint16_t	ao_storage_unit = 1024;
