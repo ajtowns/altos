@@ -273,11 +273,11 @@ public class AltosDisplayThread extends Thread {
 		}
 	}
 
-	public AltosDisplayThread(Frame in_parent, AltosVoice in_voice, AltosFlightDisplay in_display, AltosFlightReader in_reader) {
+	public AltosDisplayThread(Frame in_parent, AltosVoice in_voice, AltosFlightDisplay in_display, AltosFlightReader in_reader, int in_serial) {
 		parent = in_parent;
 		voice = in_voice;
 		display = in_display;
-		serial = display.serial();
+		serial = in_serial;
 		reader = in_reader;
 		display.reset();
 	}

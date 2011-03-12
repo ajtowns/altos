@@ -19,6 +19,5 @@ package altosui;
 
 public interface AltosFlightDisplay {
 	void reset();
-	int serial();
 	void show(AltosState state, int crc_errors);
 }

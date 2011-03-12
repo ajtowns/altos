@@ -200,7 +200,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		pack();
 		setVisible(true);
 
-		thread = new AltosDisplayThread(this, voice, this, reader);
+		thread = new AltosDisplayThread(this, voice, this, reader, serial);
 
 		thread.start();
 	}
