@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 
 	static struct option long_options[] = {
 		{ "tty", 1, 0, 'T'},
-		{ "sync", 0, 0, 's'},
+		// { "sync", 0, 0, 's'},
 		{ 0, 0, 0, 0 }
 	};
 	for (;;) {
@@ -56,9 +56,11 @@ int main(int argc, char **argv)
 		case 'T':
 			aoview_tty = optarg;
 			break;
+#if 0
 		case 's':
 			_Xdebug = 1;
 			break;
+#endif
 		default:
 			usage();
 		}
