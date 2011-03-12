@@ -421,7 +421,7 @@ ao_flight(void)
 			 * the barometer, but we use both to make sure this
 			 * transition is detected
 			 */
-			if (
+			if (ao_flight_tick > 10000 ||
 #if HAS_ACCEL
 				(ao_flight_accel < ao_ground_accel - ACCEL_BOOST &&
 				 ao_flight_vel > ACCEL_VEL_BOOST) ||

@@ -37,6 +37,7 @@ main(void)
 
 	ao_timer_init();
 	ao_adc_init();
+	ao_beep_init();
 	ao_cmd_init();
 	ao_storage_init();
 	ao_flight_init();
