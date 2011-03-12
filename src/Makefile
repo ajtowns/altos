@@ -17,12 +17,16 @@ all: all-recursive
 
 RECURSIVE_TARGETS = all-recursive clean-recursive install-recursive
 
-$(RECURSIVE_TARGETS):
-	@target=`echo $@ | sed 's/-recursive//'`; \
-	for subdir in $(SUBDIRS); do \
-		echo "Making $$target in $$subdir"; \
-		(cd $$subdir && $(MAKE) $$target) || exit 1; \
-	done
+all-recursive: $(foreach d,$(SUBDIRS),all-recur-$(d))
+clean-recursive: $(foreach d,$(SUBDIRS),clean-recur-$(d))
+install-recursive: $(foreach d,$(SUBDIRS),install-recur-$(d))
+
+RECUR_TARGET = $(shell echo "$@" | sed 's/-recur-.*//')
+RECUR_SUBDIR = $(shell echo "$@" | sed 's/.*-recur-//')
+
+$(foreach t,all clean install,$(foreach d,$(SUBDIRS),$(t)-recur-$(d))):
+	@echo "Making $(RECUR_TARGET) in $(RECUR_SUBDIR)"
+	@cd "$(RECUR_SUBDIR)" && $(MAKE) $(RECUR_TARGET)
 
 distclean:	clean
 
