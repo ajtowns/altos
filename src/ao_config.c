@@ -30,21 +30,11 @@ __xdata uint8_t ao_config_mutex;
 #define AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX	((uint32_t) 192 * (uint32_t) 1024)
 
 #if HAS_EEPROM
-static void
-_ao_config_put(void)
-{
-	ao_storage_setup();
-	ao_storage_erase(ao_storage_config);
-	ao_storage_write(ao_storage_config, &ao_config, sizeof (ao_config));
-	ao_log_write_erase(0);
-	ao_storage_flush();
-}
-
 void
 ao_config_put(void)
 {
 	ao_mutex_get(&ao_config_mutex);
-	_ao_config_put();
+	ao_log_write_config(&ao_config);
 	ao_mutex_put(&ao_config_mutex);
 }
 #endif
@@ -426,7 +416,7 @@ ao_config_write(void) __reentrant
 	uint8_t saved = 0;
 	ao_mutex_get(&ao_config_mutex);
 	if (ao_config_dirty) {
-		_ao_config_put();
+		ao_log_write_config(&ao_config);
 		ao_config_dirty = 0;
 		saved = 1;
 	}

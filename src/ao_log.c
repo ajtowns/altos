@@ -166,7 +166,7 @@ ao_log_erase_pos(uint8_t i)
 	return i * sizeof (struct ao_log_erase) + AO_STORAGE_ERASE_LOG;
 }
 
-void
+static void
 ao_log_write_erase(uint8_t pos)
 {
 	erase.unused = 0x00;
@@ -197,6 +197,16 @@ ao_log_erase_mark(void)
 		}
 	}
 	ao_config_put();
+}
+
+void
+ao_log_write_config(__xdata struct ao_config *config)
+{
+	ao_storage_setup();
+	ao_storage_erase(ao_storage_config);
+	ao_storage_write(ao_storage_config, config, sizeof (struct ao_config));
+	ao_log_write_erase(0);
+	ao_storage_flush();
 }
 
 static uint8_t

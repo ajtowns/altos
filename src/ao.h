@@ -450,6 +450,41 @@ void
 ao_mutex_put(__xdata uint8_t *ao_mutex) __reentrant;
 
 /*
+ * ao_config.c
+ */
+
+#define AO_MAX_CALLSIGN		8
+
+#define AO_CONFIG_MAJOR	1
+#define AO_CONFIG_MINOR	4
+
+struct ao_config {
+	uint8_t		major;
+	uint8_t		minor;
+	uint16_t	main_deploy;
+	int16_t		accel_plus_g;		/* changed for minor version 2 */
+	uint8_t		radio_channel;
+	char		callsign[AO_MAX_CALLSIGN + 1];
+	uint8_t		apogee_delay;		/* minor version 1 */
+	int16_t		accel_minus_g;		/* minor version 2 */
+	uint32_t	radio_cal;		/* minor version 3 */
+	uint32_t	flight_log_max;		/* minor version 4 */
+};
+
+extern __xdata struct ao_config ao_config;
+
+#define AO_CONFIG_MAX_SIZE	128
+
+void
+ao_config_get(void);
+
+void
+ao_config_put(void);
+
+void
+ao_config_init(void);
+
+/*
  * Storage interface, provided by one of the eeprom or flash
  * drivers
  */
@@ -640,9 +675,9 @@ ao_log_stop(void);
 void
 ao_log_init(void);
 
-/* Write out the current flight number to the erase log */
+/* Write out the configuration to the config block */
 void
-ao_log_write_erase(uint8_t pos);
+ao_log_write_config(__xdata struct ao_config *config);
 
 /* Returns true if there are any logs stored in eeprom */
 uint8_t
@@ -872,7 +907,6 @@ ao_gps_report_init(void);
  * ao_telemetry.c
  */
 
-#define AO_MAX_CALLSIGN		8
 #define AO_TELEMETRY_VERSION	3
 
 struct ao_telemetry {
@@ -1024,39 +1058,6 @@ ao_igniter_status(enum ao_igniter igniter);
 
 void
 ao_igniter_init(void);
-
-/*
- * ao_config.c
- */
-
-#define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	4
-
-struct ao_config {
-	uint8_t		major;
-	uint8_t		minor;
-	uint16_t	main_deploy;
-	int16_t		accel_plus_g;		/* changed for minor version 2 */
-	uint8_t		radio_channel;
-	char		callsign[AO_MAX_CALLSIGN + 1];
-	uint8_t		apogee_delay;		/* minor version 1 */
-	int16_t		accel_minus_g;		/* minor version 2 */
-	uint32_t	radio_cal;		/* minor version 3 */
-	uint32_t	flight_log_max;		/* minor version 4 */
-};
-
-extern __xdata struct ao_config ao_config;
-
-#define AO_CONFIG_MAX_SIZE	128
-
-void
-ao_config_get(void);
-
-void
-ao_config_put(void);
-
-void
-ao_config_init(void);
 
 /*
  * ao_rssi.c
