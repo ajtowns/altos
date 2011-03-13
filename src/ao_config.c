@@ -176,6 +176,7 @@ ao_config_main_deploy_set(void) __reentrant
 	ao_config_main_deploy_show();
 }
 
+#if HAS_ACCEL
 void
 ao_config_accel_calibrate_show(void) __reentrant
 {
@@ -242,6 +243,7 @@ ao_config_accel_calibrate_set(void) __reentrant
 	ao_mutex_put(&ao_config_mutex);
 	ao_config_accel_calibrate_show();
 }
+#endif
 
 void
 ao_config_apogee_delay_show(void) __reentrant
@@ -346,10 +348,10 @@ __code struct ao_config_var ao_config_vars[] = {
 		"r <channel> Set radio channel (freq = 434.550 + channel * .1)" },
 	{ 'c',	ao_config_callsign_set,		ao_config_callsign_show,
 		"c <call>    Set callsign broadcast in each packet (8 char max)" },
-#if HAS_ADC
+#if HAS_ADC && HAS_ACCEL
 	{ 'a',	ao_config_accel_calibrate_set,	ao_config_accel_calibrate_show,
 		"a <+g> <-g> Set accelerometer calibration (0 for auto)" },
-#endif /* HAS_ADC */
+#endif /* HAS_ADC && HAS_ACCEL */
 	{ 'f',  ao_config_radio_cal_set,  	ao_config_radio_cal_show,
 		"f <cal>     Set radio calibration value (cal = rf/(xtal/2^16))" },
 #if HAS_EEPROM

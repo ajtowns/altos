@@ -107,7 +107,9 @@ ao_log(void)
 		while (ao_log_adc_pos != ao_flight_adc) {
 			log.type = AO_LOG_SENSOR;
 			log.tick = ao_adc_ring[ao_log_adc_pos].tick;
+#if HAS_ACCEL
 			log.u.sensor.accel = ao_adc_ring[ao_log_adc_pos].accel;
+#endif
 			log.u.sensor.pres = ao_adc_ring[ao_log_adc_pos].pres;
 			ao_log_data(&log);
 			if ((ao_log_adc_pos & 0x1f) == 0) {
