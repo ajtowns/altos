@@ -31,7 +31,6 @@ static void destroy_event(GtkWidget *widget, gpointer data)
 	gtk_main_quit();
 }
 
-extern int _Xdebug;
 char *aoview_tty = NULL;
 
 int main(int argc, char **argv)
@@ -42,22 +41,18 @@ int main(int argc, char **argv)
 
 	static struct option long_options[] = {
 		{ "tty", 1, 0, 'T'},
-		{ "sync", 0, 0, 's'},
 		{ 0, 0, 0, 0 }
 	};
 	for (;;) {
 		int c, temp;
 
-		c = getopt_long_only(argc, argv, "sT:", long_options, &temp);
+		c = getopt_long_only(argc, argv, "T:", long_options, &temp);
 		if (c == -1)
 			break;
 
 		switch (c) {
 		case 'T':
 			aoview_tty = optarg;
-			break;
-		case 's':
-			_Xdebug = 1;
 			break;
 		default:
 			usage();
