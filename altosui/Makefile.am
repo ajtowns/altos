@@ -282,6 +282,7 @@ $(MACOSX_DIST): $(MACOSX_FILES) $(MACOSX_EXTRA)
 	cp -p $(FATJAR) macosx/AltosUI.app/Contents/Resources/Java/altosui.jar
 	cp -p $(FREETTS_CLASS) libaltos.dylib macosx/AltosUI.app/Contents/Resources/Java
 	cp -p $(JFREECHART_CLASS) libaltos.dylib macosx/AltosUI.app/Contents/Resources/Java
+	cp -p $(JCOMMON_CLASS) libaltos.dylib macosx/AltosUI.app/Contents/Resources/Java
 	cp -p $(MACOSX_EXTRA) macosx/AltOS
 	cd macosx && zip -r ../$@ AltosUI.app AltOS
 
