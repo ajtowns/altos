@@ -884,6 +884,26 @@ __xdata __at (0xDFF9) volatile uint8_t U1DBUFXADDR;
 sfr at 0xc2 U0BAUD;
 sfr at 0xfa U1BAUD;
 
+/* Flash controller */
+
+sfr at 0xAE FCTL;
+#define FCTL_BUSY		(1 << 7)
+#define FCTL_SWBSY		(1 << 6)
+#define FCTL_CONTRD_ENABLE	(1 << 4)
+#define FCTL_WRITE		(1 << 1)
+#define FCTL_ERASE		(1 << 0)
+
+/* Flash write data. Write two bytes here */
+sfr at 0xAF FWDATA;
+__xdata __at (0xDFAF) volatile uint8_t FWDATAXADDR;
+
+/* Flash write/erase address */
+sfr at 0xAD FADDRH;
+sfr at 0xAC FADDRL;
+
+/* Flash timing */
+sfr at 0xAB FWT;
+
 /* Radio */
 
 sfr at 0xD9 RFD;

@@ -18,38 +18,45 @@
 #include "ao.h"
 #include "cc1111.h"
 
-#define FCTL_BUSY		(1 << 7)
-#define FCTL_SWBSY		(1 << 6)
-#define FCTL_CONTRD_ENABLE	(1 << 4)
-#define FCTL_WRITE		(1 << 1)
-#define FCTL_ERASE		(1 << 0)
-
 #define ENDOFCODE  (CODESIZE)
-#define NUM_PAGES ((0x8000-ENDOFCODE)/1024)
-#define SIZE      (1024*NUM_PAGES)
-#define LOCN      (0x8000 - SIZE)
+#define AO_INTFLASH_BLOCK	1024
+#define AO_INTFLASH_BLOCKS 	((0x8000 - ENDOFCODE)/AO_INTFLASH_BLOCK)
+#define AO_INTFLASH_SIZE      	(AO_INTFLASH_BLOCK * AO_INTFLASH_BLOCKS)
+#define AO_INTFLASH_LOCATION	(0x8000 - AO_INTFLASH_SIZE)
 
-#if NUM_PAGES < 1
+/*
+ *       21000 * 24e6
+ * FWT = ------------
+ *           16e9
+ *
+ *     = 31.5
+ *
+ * Round up and use 32
+ */
+
+#define FLASH_TIMING	0x20
+
+#if AO_INTFLASH_BLOCKS < 2
 #error "Too few pages"
 #endif
 
-#if LOCN % 1024 != 0
+#if AO_INFTLASH_LOCATION % 1024 != 0
 #error "Pages aren't aligned properly"
 #endif
 
-__xdata __at(LOCN) uint8_t ao_intflash[SIZE];
+__xdata __at(AO_INTFLASH_LOCATION) uint8_t ao_intflash[AO_INTFLASH_SIZE];
 
 /* Total bytes of available storage */
 __xdata uint32_t	ao_storage_total = sizeof(ao_intflash);
 
 /* Block size - device is erased in these units. */
-__xdata uint32_t	ao_storage_block = 1024;
+__xdata uint32_t	ao_storage_block = AO_INTFLASH_BLOCK;
 
 /* Byte offset of config block. Will be ao_storage_block bytes long */
-__xdata uint32_t	ao_storage_config = sizeof(ao_intflash);
+__xdata uint32_t	ao_storage_config = sizeof(ao_intflash) - AO_INTFLASH_BLOCK;
 
 /* Storage unit size - device reads and writes must be within blocks of this size. */
-__xdata uint16_t	ao_storage_unit = 1024;
+__xdata uint16_t	ao_storage_unit = AO_INTFLASH_BLOCK;
 
 __xdata static uint8_t  ao_intflash_dma_done;
 static uint8_t ao_intflash_dma;
@@ -76,21 +83,16 @@ ao_storage_erase(uint32_t pos) __reentrant
 
 	addr = ((uint16_t)(ao_intflash + pos) >> 1);
 
-	while (FCTL & FCTL_BUSY)
-		;
-
-	FWT = 0x1F; // 21000 * f / 16e9 ; f = system freq = 24MHz
 	FADDRH = addr >> 8;
-	FADDRL = addr & ~0xFF00;
+	FADDRL = addr;
 
-	_asm
-	.even
-	orl _FCTL, #FCTL_ERASE;		; FCTL |=  FCTL_ERASE
-	nop;				; Required, see datasheet.
-	_endasm;
-
-	while (FCTL & FCTL_BUSY)
-		;
+	__critical {
+		_asm
+		.even
+		orl _FCTL, #FCTL_ERASE;		; FCTL |=  FCTL_ERASE
+		nop				; Required, see datasheet.
+		_endasm;
+	}
 
 	return 1;
 }
@@ -100,45 +102,54 @@ ao_storage_erase(uint32_t pos) __reentrant
  */
 
 static void
-word_aligned_write(uint32_t pos, __xdata void *d, uint16_t len) __reentrant
+ao_intflash_write_aligned(uint16_t pos, __xdata void *d, uint16_t len) __reentrant
 {
-	uint16_t addr;
+	pos = ((uint16_t) ao_intflash + pos) >> 1;
 
-	addr = ((uint16_t)(ao_intflash + pos) >> 1);
+	ao_dma_set_transfer(ao_intflash_dma,
+			    d,
+			    &FWDATAXADDR,
+			    len,
+			    DMA_CFG0_WORDSIZE_8 |
+			    DMA_CFG0_TMODE_SINGLE |
+			    DMA_CFG0_TRIGGER_FLASH,
+			    DMA_CFG1_SRCINC_1 |
+			    DMA_CFG1_DESTINC_0 |
+			    DMA_CFG1_PRIORITY_HIGH);
 
-	ao_dma_set_transfer(ao_intflash_dma, d, &X_FWDATA,
-		DMA_LEN_HIGH_VLEN_LEN | len,
-		DMA_CFG0_WORDSIZE_8 | DMA_CFG0_TMODE_SINGLE |
-			DMA_CFG0_TRIGGER_FLASH,
-		DMA_CFG1_SRCINC_1 | DMA_CFG1_DESTINC_0 |
-			DMA_CFG1_IRQMASK | DMA_CFG1_PRIORITY_HIGH);
-
-	while (FCTL & FCTL_BUSY)
-		;
-
-	FWT = 0x1F; // 21000 * f / 16e9 ; f = system freq = 24MHz
-
-	FADDRH = addr >> 8;
-	FADDRL = addr & ~0xFF00;
+	FADDRH = pos >> 8;
+	FADDRL = pos;
 
 	ao_dma_start(ao_intflash_dma);
 
-	_asm
-	.even
-	orl _FCTL, #FCTL_WRITE;		; FCTL |=  FCTL_WRITE
-	_endasm;
+	__critical {
+		_asm
+		.even
+		orl _FCTL, #FCTL_WRITE;		; FCTL |=  FCTL_WRITE
+		nop
+		_endasm;
+	}
+}
 
-	__critical while (!ao_intflash_dma_done)
-		ao_sleep(&ao_intflash_dma_done);
+static void
+ao_intflash_write_byte(uint16_t pos, uint8_t byte) __reentrant
+{
+	static __xdata uint8_t b[2];
 
-	while (FCTL & (FCTL_BUSY | FCTL_SWBSY))
-		;
+	if (pos & 1) {
+		b[0] = 0xff;
+		b[1] = byte;
+	} else {
+		b[0] = byte;
+		b[1] = 0xff;
+	}
+	ao_intflash_write_aligned(pos, b, 2);
 }
 
 uint8_t
-ao_storage_device_write(uint32_t pos, __xdata void *v, uint16_t len) __reentrant
+ao_storage_device_write(uint32_t pos32, __xdata void *v, uint16_t len) __reentrant
 {
-	static __xdata uint8_t b[2];
+	uint16_t pos = pos32;
 	__xdata uint8_t *d = v;
 	uint8_t oddlen;
 
@@ -148,23 +159,15 @@ ao_storage_device_write(uint32_t pos, __xdata void *v, uint16_t len) __reentrant
 		return 1;
 
 	if (pos & 1) {
-		b[0] = ~0;
-		b[1] = d[0];
-		word_aligned_write(pos-1, b, 2);
-		pos++;
+		ao_intflash_write_byte(pos++, *d++);
 		len--;
-		d++;
 	}
 	oddlen = len & 1;
-	len &= ~1;
-	if (len > 0) {
-		word_aligned_write(pos, d, len);
-	}
-	if (oddlen) {
-		b[0] = d[len];
-		b[1] = ~0;
-		word_aligned_write(pos+len, b, 2);
-	}
+	len -= oddlen;
+	if (len)
+		ao_intflash_write_aligned(pos, d, len);
+	if (oddlen)
+		ao_intflash_write_byte(pos + len, d[len]);
 
 	return 1;
 }
@@ -194,11 +197,13 @@ ao_storage_setup(void)
 void
 ao_storage_device_info(void) __reentrant
 {
-	printf ("Using internal flash, starting at 0x%04x\n", LOCN);
+	printf ("Using internal flash, starting at 0x%04x\n", AO_INTFLASH_LOCATION);
 }
 
 void
 ao_storage_device_init(void)
 {
 	ao_intflash_dma = ao_dma_alloc(&ao_intflash_dma_done);
+
+	FWT = FLASH_TIMING;
 }
