@@ -516,6 +516,70 @@ ao_storage_device_info(void) __reentrant;
  * ao_log.c
  */
 
+/* We record flight numbers in the first record of
+ * the log. Tasks may wait for this to be initialized
+ * by sleeping on this variable.
+ */
+extern __xdata uint16_t ao_flight_number;
+
+extern __pdata uint32_t ao_log_current_pos;
+extern __pdata uint32_t ao_log_end_pos;
+extern __pdata uint32_t ao_log_start_pos;
+extern __xdata uint8_t	ao_log_running;
+extern __xdata enum flight_state ao_log_state;
+
+/* required functions from the underlying log system */
+
+/* Return the flight number from the given log slot, 0 if none */
+uint16_t
+ao_log_flight(uint8_t slot);
+
+/* Flush the log */
+void
+ao_log_flush(void);
+
+/* Logging thread main routine */
+void
+ao_log(void);
+
+/* functions provided in ao_log.c */
+
+/* Figure out the current flight number */
+void
+ao_log_scan(void) __reentrant;
+
+/* Return the position of the start of the given log slot */
+uint32_t
+ao_log_pos(uint8_t slot);
+
+/* Start logging to eeprom */
+void
+ao_log_start(void);
+
+/* Stop logging */
+void
+ao_log_stop(void);
+
+/* Initialize the logging system */
+void
+ao_log_init(void);
+
+/* Write out the current flight number to the erase log */
+void
+ao_log_write_erase(uint8_t pos);
+
+/* Returns true if there are any logs stored in eeprom */
+uint8_t
+ao_log_present(void);
+
+/* Returns true if there is no more storage space available */
+uint8_t
+ao_log_full(void);
+
+/*
+ * ao_log_big.c
+ */
+
 /*
  * The data log is recorded in the eeprom as a sequence
  * of data packets.
@@ -613,44 +677,6 @@ struct ao_log_record {
 /* Write a record to the eeprom log */
 uint8_t
 ao_log_data(__xdata struct ao_log_record *log) __reentrant;
-
-/* Flush the log */
-void
-ao_log_flush(void);
-
-/* We record flight numbers in the first record of
- * the log. Tasks may wait for this to be initialized
- * by sleeping on this variable.
- */
-extern __xdata uint16_t ao_flight_number;
-
-/* Logging thread main routine */
-void
-ao_log(void);
-
-/* Start logging to eeprom */
-void
-ao_log_start(void);
-
-/* Stop logging */
-void
-ao_log_stop(void);
-
-/* Initialize the logging system */
-void
-ao_log_init(void);
-
-/* Write out the current flight number to the erase log */
-void
-ao_log_write_erase(uint8_t pos);
-
-/* Returns true if there are any logs stored in eeprom */
-uint8_t
-ao_log_present(void);
-
-/* Returns true if there is no more storage space available */
-uint8_t
-ao_log_full(void);
 
 /*
  * ao_flight.c

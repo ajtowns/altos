@@ -17,133 +17,17 @@
 
 #include "ao.h"
 
-static __pdata uint32_t	ao_log_current_pos;
-static __pdata uint32_t ao_log_end_pos;
-static __pdata uint32_t	ao_log_start_pos;
-static __xdata uint8_t	ao_log_running;
-static __xdata uint8_t	ao_log_mutex;
-
-static uint8_t
-ao_log_csum(__xdata uint8_t *b) __reentrant
-{
-	uint8_t	sum = 0x5a;
-	uint8_t	i;
-
-	for (i = 0; i < sizeof (struct ao_log_record); i++)
-		sum += *b++;
-	return -sum;
-}
-
-uint8_t
-ao_log_data(__xdata struct ao_log_record *log) __reentrant
-{
-	uint8_t wrote = 0;
-	/* set checksum */
-	log->csum = 0;
-	log->csum = ao_log_csum((__xdata uint8_t *) log);
-	ao_mutex_get(&ao_log_mutex); {
-		if (ao_log_current_pos >= ao_log_end_pos && ao_log_running)
-			ao_log_stop();
-		if (ao_log_running) {
-			wrote = 1;
-			ao_storage_write(ao_log_current_pos,
-					 log,
-					 sizeof (struct ao_log_record));
-			ao_log_current_pos += sizeof (struct ao_log_record);
-		}
-	} ao_mutex_put(&ao_log_mutex);
-	return wrote;
-}
+__pdata uint32_t ao_log_current_pos;
+__pdata uint32_t ao_log_end_pos;
+__pdata uint32_t ao_log_start_pos;
+__xdata uint8_t	ao_log_running;
+__xdata enum flight_state ao_log_state;
+__xdata uint16_t ao_flight_number;
 
 void
 ao_log_flush(void)
 {
 	ao_storage_flush();
-}
-
-static void ao_log_scan(void);
-
-__xdata struct ao_log_record log;
-__xdata uint16_t ao_flight_number;
-
-static uint8_t
-ao_log_dump_check_data(void)
-{
-	if (ao_log_csum((uint8_t *) &log) != 0)
-		return 0;
-	return 1;
-}
-
-__xdata uint8_t	ao_log_adc_pos;
-__xdata enum flight_state ao_log_state;
-
-/* a hack to make sure that ao_log_records fill the eeprom block in even units */
-typedef uint8_t check_log_size[1-(256 % sizeof(struct ao_log_record))] ;
-
-void
-ao_log(void)
-{
-	ao_storage_setup();
-
-	ao_log_scan();
-
-	while (!ao_log_running)
-		ao_sleep(&ao_log_running);
-
-	log.type = AO_LOG_FLIGHT;
-	log.tick = ao_flight_tick;
-#if HAS_ACCEL
-	log.u.flight.ground_accel = ao_ground_accel;
-#endif
-	log.u.flight.flight = ao_flight_number;
-	ao_log_data(&log);
-
-	/* Write the whole contents of the ring to the log
-	 * when starting up.
-	 */
-	ao_log_adc_pos = ao_adc_ring_next(ao_flight_adc);
-	for (;;) {
-		/* Write samples to EEPROM */
-		while (ao_log_adc_pos != ao_flight_adc) {
-			log.type = AO_LOG_SENSOR;
-			log.tick = ao_adc_ring[ao_log_adc_pos].tick;
-			log.u.sensor.accel = ao_adc_ring[ao_log_adc_pos].accel;
-			log.u.sensor.pres = ao_adc_ring[ao_log_adc_pos].pres;
-			ao_log_data(&log);
-			if ((ao_log_adc_pos & 0x1f) == 0) {
-				log.type = AO_LOG_TEMP_VOLT;
-				log.tick = ao_adc_ring[ao_log_adc_pos].tick;
-				log.u.temp_volt.temp = ao_adc_ring[ao_log_adc_pos].temp;
-				log.u.temp_volt.v_batt = ao_adc_ring[ao_log_adc_pos].v_batt;
-				ao_log_data(&log);
-				log.type = AO_LOG_DEPLOY;
-				log.tick = ao_adc_ring[ao_log_adc_pos].tick;
-				log.u.deploy.drogue = ao_adc_ring[ao_log_adc_pos].sense_d;
-				log.u.deploy.main = ao_adc_ring[ao_log_adc_pos].sense_m;
-				ao_log_data(&log);
-			}
-			ao_log_adc_pos = ao_adc_ring_next(ao_log_adc_pos);
-		}
-		/* Write state change to EEPROM */
-		if (ao_flight_state != ao_log_state) {
-			ao_log_state = ao_flight_state;
-			log.type = AO_LOG_STATE;
-			log.tick = ao_flight_tick;
-			log.u.state.state = ao_log_state;
-			log.u.state.reason = 0;
-			ao_log_data(&log);
-
-			if (ao_log_state == ao_flight_landed)
-				ao_log_stop();
-		}
-
-		/* Wait for a while */
-		ao_delay(AO_MS_TO_TICKS(100));
-
-		/* Stop logging when told to */
-		while (!ao_log_running)
-			ao_sleep(&ao_log_running);
-	}
 }
 
 /*
@@ -205,23 +89,10 @@ ao_log_slots()
 	return (uint8_t) (ao_storage_config / ao_config.flight_log_max);
 }
 
-static uint32_t
+uint32_t
 ao_log_pos(uint8_t slot)
 {
 	return ((slot) * ao_config.flight_log_max);
-}
-
-static uint16_t
-ao_log_flight(uint8_t slot)
-{
-	if (!ao_storage_read(ao_log_pos(slot),
-			     &log,
-			     sizeof (struct ao_log_record)))
-		return 0;
-
-	if (ao_log_dump_check_data() && log.type == AO_LOG_FLIGHT)
-		return log.u.flight.flight;
-	return 0;
 }
 
 static uint16_t
@@ -244,7 +115,7 @@ ao_log_max_flight(void)
 	return max_flight;
 }
 
-static void
+void
 ao_log_scan(void) __reentrant
 {
 	uint8_t		log_slot;
@@ -364,20 +235,21 @@ ao_log_delete(void) __reentrant
 				ao_log_current_pos = ao_log_pos(slot);
 				ao_log_end_pos = ao_log_current_pos + ao_config.flight_log_max;
 				while (ao_log_current_pos < ao_log_end_pos) {
+					uint8_t	i;
+					static __xdata uint8_t b;
+
 					/*
 					 * Check to see if we've reached the end of
 					 * the used memory to avoid re-erasing the same
 					 * memory over and over again
 					 */
-					if (ao_storage_read(ao_log_current_pos,
-							    &log,
-							    sizeof (struct ao_log_record))) {
-						for (slot = 0; slot < sizeof (struct ao_log_record); slot++)
-							if (((uint8_t *) &log)[slot] != 0xff)
+					for (i = 0; i < 16; i++) {
+						if (ao_storage_read(ao_log_current_pos + i, &b, 1))
+							if (b != 0xff)
 								break;
-						if (slot == sizeof (struct ao_log_record))
-							break;
 					}
+					if (i == 16)
+						break;
 					ao_storage_erase(ao_log_current_pos);
 					ao_log_current_pos += ao_storage_block;
 				}
@@ -388,8 +260,6 @@ ao_log_delete(void) __reentrant
 	}
 	printf("No such flight: %d\n", ao_cmd_lex_i);
 }
-
-
 
 __code struct ao_cmds ao_log_cmds[] = {
 	{ ao_log_list,	"l\0List stored flight logs" },
