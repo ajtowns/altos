@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <getopt.h>
 
 #define AO_HERTZ	100
 
@@ -62,6 +63,7 @@ enum ao_flight_state {
 
 struct ao_adc ao_adc_ring[AO_ADC_RING];
 uint8_t ao_adc_head;
+int	ao_summary = 0;
 
 #define ao_led_on(l)
 #define ao_led_off(l)
@@ -79,10 +81,13 @@ enum ao_igniter {
 	ao_igniter_main = 1
 };
 
+struct ao_adc ao_adc_static;
+
 void
 ao_ignite(enum ao_igniter igniter)
 {
-	printf ("ignite %s\n", igniter == ao_igniter_drogue ? "drogue" : "main");
+	printf ("ignite %s at %7.2f\n", igniter == ao_igniter_drogue ? "drogue" : "main",
+		(double) ao_adc_static.tick / 100.0);
 }
 
 struct ao_task {
@@ -98,8 +103,6 @@ struct ao_task {
 #define AO_SEC_TO_TICKS(s)	((s) * 100)
 
 #define AO_FLIGHT_TEST
-
-struct ao_adc ao_adc_static;
 
 FILE *emulator_in;
 
@@ -140,20 +143,37 @@ struct ao_config ao_config;
 #ifndef HAS_ACCEL
 #define HAS_ACCEL 1
 #define HAS_ACCEL_REF 0
+#define USE_KALMAN 0
+#else
+#define USE_KALMAN 1
 #endif
 
 #include "ao_flight.c"
+
+#define to_double(f)	((f) / 65536.0)
 
 void
 ao_insert(void)
 {
 	ao_adc_ring[ao_adc_head] = ao_adc_static;
 	ao_adc_head = ao_adc_ring_next(ao_adc_head);
+	if (ao_summary)
+		return;
 	if (ao_flight_state != ao_flight_startup) {
+#if USE_KALMAN
+		printf("time %7.2f accel %d pres %d k_height %8.2f k_speed %8.5f k_accel %8.5f\n",
+		       (double) ao_adc_static.tick / 100,
+		       ao_adc_static.accel,
+		       ao_adc_static.pres,
+		       to_double(ao_k_height),
+		       to_double(ao_k_speed),
+		       to_double(ao_k_accel));
+#else
 		printf("time %g accel %d pres %d\n",
 		       (double) ao_adc_static.tick / 100,
 		       ao_adc_static.accel,
 		       ao_adc_static.pres);
+#endif
 	}
 }
 
@@ -269,6 +289,8 @@ ao_dump_state(void)
 {
 	if (ao_flight_state == ao_flight_startup)
 		return;
+	if (ao_summary)
+		return;
 #if HAS_ACCEL
 	printf ("\t\t\t\t\t%s accel %g vel %g alt %d main %d\n",
 		ao_state_names[ao_flight_state],
@@ -286,14 +308,44 @@ ao_dump_state(void)
 		exit(0);
 }
 
+static const struct option options[] = {
+	{ .name = "summary", .has_arg = 0, .val = 's' },
+	{ 0, 0, 0, 0},
+};
+
+void run_flight_fixed(char *name, FILE *f, int summary)
+{
+	emulator_in = f;
+	ao_summary = summary;
+	ao_flight_init();
+	ao_flight();
+}
+
 int
 main (int argc, char **argv)
 {
-	emulator_in = fopen (argv[1], "r");
-	if (!emulator_in) {
-		perror(argv[1]);
-		exit(1);
+	int	summary = 0;
+	int	c;
+	int	i;
+
+	while ((c = getopt_long(argc, argv, "s", options, NULL)) != -1) {
+		switch (c) {
+		case 's':
+			summary = 1;
+			break;
+		}
 	}
-	ao_flight_init();
-	ao_flight();
+
+	if (optind == argc)
+		run_flight_fixed("<stdin>", stdin, summary);
+	else
+		for (i = optind; i < argc; i++) {
+			FILE	*f = fopen(argv[i], "r");
+			if (!f) {
+				perror(argv[i]);
+				continue;
+			}
+			run_flight_fixed(argv[i], f, summary);
+			fclose(f);
+		}
 }

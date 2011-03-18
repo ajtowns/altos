@@ -31,6 +31,10 @@
 #error Please define HAS_USB
 #endif
 
+#ifndef USE_KALMAN
+#error Please define USE_KALMAN
+#endif
+
 /* Main flight thread. */
 
 __pdata enum ao_flight_state	ao_flight_state;	/* current flight state */
@@ -148,6 +152,62 @@ __pdata int32_t ao_min_vel;
 __pdata int32_t	ao_old_vel;
 __pdata int16_t ao_old_vel_tick;
 __xdata int32_t ao_raw_accel_sum;
+#endif
+
+#if USE_KALMAN
+__pdata int16_t			ao_ground_height;
+__pdata int32_t			ao_k_max_height;
+__pdata int32_t			ao_k_height;
+__pdata int32_t			ao_k_speed;
+__pdata int32_t			ao_k_accel;
+
+#define to_fix16(x) ((int16_t) ((x) * 65536.0 + 0.5))
+#define to_fix32(x) ((int32_t) ((x) * 65536.0 + 0.5))
+
+#define from_fix(x)	((x) >> 16)
+
+#define AO_K0_100	to_fix16(0.05680323)
+#define AO_K1_100	to_fix16(0.16608182)
+#define AO_K2_100	to_fix16(0.24279580)
+
+#define AO_K_STEP_100		to_fix16(0.01)
+#define AO_K_STEP_2_2_100	to_fix16(0.00005)
+
+#define AO_K0_10	to_fix16(0.23772023)
+#define AO_K1_10	to_fix16(0.32214149)
+#define AO_K2_10	to_fix16(0.21827159)
+
+#define AO_K_STEP_10		to_fix16(0.1)
+#define AO_K_STEP_2_2_10	to_fix16(0.005)
+
+static void
+ao_kalman_baro(void)
+{
+	int16_t	err = ((ao_pres_to_altitude(ao_raw_pres) - ao_ground_height))
+		- (int16_t) (ao_k_height >> 16);
+
+#ifdef AO_FLIGHT_TEST
+	if (ao_flight_tick - ao_flight_prev_tick > 5) {
+		ao_k_height += ((ao_k_speed >> 16) * AO_K_STEP_10 +
+				(ao_k_accel >> 16) * AO_K_STEP_2_2_10);
+		ao_k_speed += (ao_k_accel >> 16) * AO_K_STEP_10;
+
+		/* correct */
+		ao_k_height += (int32_t) AO_K0_10 * err;
+		ao_k_speed += (int32_t) AO_K1_10 * err;
+		ao_k_accel += (int32_t) AO_K2_10 * err;
+		return;
+	}
+#endif
+	ao_k_height += ((ao_k_speed >> 16) * AO_K_STEP_100 +
+			(ao_k_accel >> 16) * AO_K_STEP_2_2_100);
+	ao_k_speed += (ao_k_accel >> 16) * AO_K_STEP_100;
+
+	/* correct */
+	ao_k_height += (int32_t) AO_K0_100 * err;
+	ao_k_speed += (int32_t) AO_K1_100 * err;
+	ao_k_accel += (int32_t) AO_K2_100 * err;
+}
 #endif
 
 __xdata int32_t ao_raw_pres_sum;
@@ -296,6 +356,10 @@ ao_flight(void)
 				ao_flight_vel += (int32_t) ao_vel_change * (int32_t) ticks;
 #endif
 
+#if USE_KALMAN
+			if (ao_flight_state > ao_flight_idle)
+				ao_kalman_baro();
+#endif
 			ao_flight_adc = ao_adc_ring_next(ao_flight_adc);
 		}
 
@@ -333,6 +397,9 @@ ao_flight(void)
 			ao_ground_pres = ao_raw_pres_sum >> 9;
 			ao_min_pres = ao_ground_pres;
 			ao_config_get();
+#if USE_KALMAN
+			ao_ground_height = ao_pres_to_altitude(ao_ground_pres);
+#endif
 			ao_main_pres = ao_altitude_to_pres(ao_pres_to_altitude(ao_ground_pres) + ao_config.main_deploy);
 #if HAS_ACCEL
 			ao_accel_2g = ao_config.accel_minus_g - ao_config.accel_plus_g;
@@ -369,7 +436,6 @@ ao_flight(void)
  			{
 				/* Set pad mode - we can fly! */
 				ao_flight_state = ao_flight_pad;
-
 #if HAS_USB
 				/* Disable the USB controller in flight mode
 				 * to save power
@@ -421,14 +487,20 @@ ao_flight(void)
 			 * the barometer, but we use both to make sure this
 			 * transition is detected
 			 */
+#if USE_KALMAN
+			if ((ao_k_accel > to_fix32(20) &&
+			     ao_k_speed > to_fix32(5)) ||
+			    ao_k_height > to_fix32(20))
+#else
 			if (
 #if HAS_ACCEL
 				(ao_flight_accel < ao_ground_accel - ACCEL_BOOST &&
 				 ao_flight_vel > ACCEL_VEL_BOOST) ||
 #endif
 			    ao_flight_pres < ao_ground_pres - BARO_LAUNCH)
+#endif
 			{
-#if HAS_ACCEL
+#if HAS_ACCEL || USE_KALMAN
 				ao_flight_state = ao_flight_boost;
 #else
 				ao_flight_state = ao_flight_coast;
@@ -454,7 +526,7 @@ ao_flight(void)
 				break;
 			}
 			break;
-#if HAS_ACCEL
+#if HAS_ACCEL || USE_KALMAN
 		case ao_flight_boost:
 
 			/* boost to fast:
@@ -467,8 +539,13 @@ ao_flight(void)
 			 * deceleration, or by waiting until the maximum burn duration
 			 * (15 seconds) has past.
 			 */
+#if USE_KALMAN
+			if ((ao_k_accel < to_fix32(-10) && ao_k_height > to_fix32(100)) ||
+			    (int16_t) (ao_flight_tick - ao_launch_tick) > BOOST_TICKS_MAX)
+#else
 			if (ao_flight_accel > ao_ground_accel + ACCEL_COAST ||
 			    (int16_t) (ao_flight_tick - ao_launch_tick) > BOOST_TICKS_MAX)
+#endif
 			{
 				ao_flight_state = ao_flight_fast;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
@@ -492,20 +569,34 @@ ao_flight(void)
 			 * how big a pressure change the mach transition
 			 * generates would be useful here.
 			 */
+#if USE_KALMAN
+			if (ao_k_speed < to_fix32(200) ||
+			    ao_k_height < ao_k_max_height - to_fix32(500))
+#else
 			if (ao_flight_vel < ACCEL_VEL_MACH ||
 			    ao_flight_pres > ao_min_pres + BARO_COAST)
+#endif
 			{
+#if HAS_ACCEL
 				/* set min velocity to current velocity for
 				 * apogee detect
 				 */
 				ao_min_vel = abs(ao_flight_vel);
+#endif
 				ao_flight_state = ao_flight_coast;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			break;
-#endif
+#endif /* HAS_ACCEL */
 		case ao_flight_coast:
 
+#if USE_KALMAN
+			/* apogee detect: coast to drogue deploy:
+			 *
+			 * speed: < 0
+			 */
+			if (ao_k_speed < 0)
+#else
 			/* apogee detect: coast to drogue deploy:
 			 *
 			 * barometer: fall at least 10m
@@ -517,6 +608,7 @@ ao_flight(void)
 			 * we'll trust to a single sensor for this test
 			 */
 			if (ao_flight_pres > ao_min_pres + BARO_APOGEE)
+#endif
 			{
 				/* ignite the drogue charge */
 				ao_ignite(ao_igniter_drogue);
@@ -569,7 +661,11 @@ ao_flight(void)
 			 * at that point. Perhaps also use the drogue sense lines
 			 * to notice continutity?
 			 */
+#if USE_KALMAN
+			if (from_fix(ao_k_height) < ao_config.main_deploy)
+#else
 			if (ao_flight_pres >= ao_main_pres)
+#endif
 			{
 				ao_ignite(ao_igniter_main);
 				ao_flight_state = ao_flight_main;
