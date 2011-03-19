@@ -706,6 +706,13 @@ extern __pdata int16_t			ao_ground_accel;
 extern __pdata int16_t			ao_min_pres;
 extern __pdata uint16_t			ao_launch_time;
 extern __xdata uint8_t			ao_flight_force_idle;
+#ifdef USE_KALMAN
+extern __pdata int16_t			ao_ground_height;
+extern __pdata int32_t			ao_k_max_height;
+extern __pdata int32_t			ao_k_height;
+extern __pdata int32_t			ao_k_speed;
+extern __pdata int32_t			ao_k_accel;
+#endif
 
 /* Flight thread */
 void

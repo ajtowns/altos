@@ -69,7 +69,7 @@ ao_log(void)
 			if (ao_log_tiny_state == ao_flight_landed)
 				ao_log_stop();
 		}
-		ao_log_tiny_data(ao_flight_pres);	// XXX change to alt
+		ao_log_tiny_data(ao_k_height >> 16);
 		time += ao_log_tiny_interval;
 		delay = time - ao_time();
 		if (delay > 0)
