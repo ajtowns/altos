@@ -18,7 +18,6 @@
 #include "ao.h"
 
 static __data uint16_t	ao_log_tiny_interval;
-static __data uint32_t	ao_log_tiny_pos;
 
 #define AO_LOG_TINY_INTERVAL_ASCENT	AO_MS_TO_TICKS(100)
 #define AO_LOG_TINY_INTERVAL_DEFAULT	AO_MS_TO_TICKS(1000)
@@ -31,11 +30,16 @@ ao_log_tiny_set_interval(uint16_t ticks)
 
 static __xdata uint16_t ao_log_tiny_data_temp;
 
-#define ao_log_tiny_data(d) do { \
-		ao_log_tiny_data_temp = (d);					\
-		ao_storage_write(ao_log_tiny_pos, &ao_log_tiny_data_temp, 2);	\
-		ao_log_tiny_pos += 2;						\
-	} while (0)
+static void ao_log_tiny_data(uint16_t d)
+{
+	if (ao_log_current_pos >= ao_log_end_pos && ao_log_running)
+		ao_log_stop();
+	if (ao_log_running) {
+		ao_log_tiny_data_temp = (d);
+		ao_storage_write(ao_log_current_pos, &ao_log_tiny_data_temp, 2);
+		ao_log_current_pos += 2;
+	}
+}
 
 void
 ao_log(void)
@@ -45,6 +49,8 @@ ao_log(void)
 	enum ao_flight_state	ao_log_tiny_state;
 
 	ao_storage_setup();
+
+	ao_log_scan();
 
 	ao_log_tiny_state = ao_flight_invalid;
 	ao_log_tiny_interval = AO_LOG_TINY_INTERVAL_DEFAULT;
@@ -60,12 +66,17 @@ ao_log(void)
 			ao_log_tiny_interval = AO_LOG_TINY_INTERVAL_DEFAULT;
 			if (ao_log_tiny_state <= ao_flight_coast)
 				ao_log_tiny_interval = AO_LOG_TINY_INTERVAL_ASCENT;
+			if (ao_log_tiny_state == ao_flight_landed)
+				ao_log_stop();
 		}
 		ao_log_tiny_data(ao_flight_pres);	// XXX change to alt
 		time += ao_log_tiny_interval;
 		delay = time - ao_time();
 		if (delay > 0)
 			ao_delay(delay);
+		/* Stop logging when told to */
+		while (!ao_log_running)
+			ao_sleep(&ao_log_running);
 	}
 }
 
