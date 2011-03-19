@@ -26,6 +26,7 @@
 	#define HAS_SERIAL_1		1
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1
+	#define USE_INTERNAL_FLASH	0
 	#define HAS_DBG			1
 	#define USE_KALMAN		0
 	#define DBG_ON_P1 		1
@@ -50,6 +51,7 @@
 	#define HAS_SERIAL_1		1
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1
+	#define USE_INTERNAL_FLASH	0
 	#define HAS_DBG			1
 	#define USE_KALMAN		0
 	#define DBG_ON_P1 		1
@@ -99,6 +101,7 @@
 	#define HAS_SERIAL_1		0
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1
+	#define USE_INTERNAL_FLASH	1
 	#define HAS_DBG			0
 	#define USE_KALMAN		1
 	#define IGNITE_ON_P2		0
@@ -121,6 +124,7 @@
 	#define HAS_SERIAL_1		0
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1
+	#define USE_INTERNAL_FLASH	1
 	#define HAS_DBG			0
 	#define USE_KALMAN		1
 	#define IGNITE_ON_P2		0
@@ -145,6 +149,7 @@
 	#define HAS_DBG			0
 	#define USE_KALMAN		0
 	#define HAS_EEPROM		1
+	#define USE_INTERNAL_FLASH	0
 	#define DBG_ON_P1 		0
 	#define DBG_ON_P0 		1
 	#define IGNITE_ON_P2		1
@@ -268,6 +273,12 @@
 
 #ifndef HAS_EEPROM
 #error Please define HAS_EEPROM
+#endif
+
+#if HAS_EEPROM
+#ifndef USE_INTERNAL_FLASH
+#error Please define USE_INTERNAL_FLASH
+#endif
 #endif
 
 #ifndef HAS_DBG

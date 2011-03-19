@@ -27,7 +27,11 @@ __xdata uint8_t ao_config_mutex;
 #define AO_CONFIG_DEFAULT_CALLSIGN	"N0CALL"
 #define AO_CONFIG_DEFAULT_ACCEL_ZERO_G	16000
 #define AO_CONFIG_DEFAULT_APOGEE_DELAY	0
+#if USE_INTERNAL_EEPROM
+#define AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX	ao_storage_config
+#else
 #define AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX	((uint32_t) 192 * (uint32_t) 1024)
+#endif
 
 #if HAS_EEPROM
 static void
@@ -186,6 +190,7 @@ ao_config_main_deploy_set(void) __reentrant
 	ao_config_main_deploy_show();
 }
 
+#if HAS_ACCEL
 void
 ao_config_accel_calibrate_show(void) __reentrant
 {
@@ -252,6 +257,7 @@ ao_config_accel_calibrate_set(void) __reentrant
 	ao_mutex_put(&ao_config_mutex);
 	ao_config_accel_calibrate_show();
 }
+#endif /* HAS_ACCEL */
 
 void
 ao_config_apogee_delay_show(void) __reentrant
@@ -356,10 +362,10 @@ __code struct ao_config_var ao_config_vars[] = {
 		"r <channel> Set radio channel (freq = 434.550 + channel * .1)" },
 	{ 'c',	ao_config_callsign_set,		ao_config_callsign_show,
 		"c <call>    Set callsign broadcast in each packet (8 char max)" },
-#if HAS_ADC
+#if HAS_ACCEL
 	{ 'a',	ao_config_accel_calibrate_set,	ao_config_accel_calibrate_show,
 		"a <+g> <-g> Set accelerometer calibration (0 for auto)" },
-#endif /* HAS_ADC */
+#endif /* HAS_ACCEL */
 	{ 'f',  ao_config_radio_cal_set,  	ao_config_radio_cal_show,
 		"f <cal>     Set radio calibration value (cal = rf/(xtal/2^16))" },
 #if HAS_EEPROM
