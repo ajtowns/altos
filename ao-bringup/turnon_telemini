@@ -19,11 +19,11 @@ else
 fi
 
 echo "TeleMini v0.1 Turn-On and Calibration Program"
-echo "Copyright 2010 by Bdale Garbee.  Released under GPL v2"
+echo "Copyright 2011 by Bdale Garbee.  Released under GPL v2"
 echo
 echo "Expectations:"
-echo "\tTeleMini v0.1 powered from USB"
-echo "\t\twith TIdongle (on /dev/ttyACM0) cabled to debug header"
+echo "\tTeleMini v0.1 powered from LiPo"
+echo "\t\twith TeleDongle (on /dev/ttyACM0) cabled to debug header"
 echo "\t\twith coax from SMA to frequency counter"
 echo
 echo -n "TeleMini serial number: "
@@ -42,7 +42,7 @@ read FREQ
 CAL_VALUE=`nickle -e "floor(434.55 / $FREQ * 1186611 + 0.5)"`
 
 echo "Programming flash with cal value " $CAL_VALUE
-$AOLOAD -D 100 --cal $CAL_VALUE /usr/share/altos/stable/telemini-v0.1*.ihx $SERIAL
+$AOLOAD -D 100 --cal $CAL_VALUE /usr/share/altos/telemini-v0.1*.ihx $SERIAL
 
 echo "Serial number "$SERIAL" programmed with RF cal value "$CAL_VALUE
 echo "Unplug and replug USB, cu to the board, confirm freq and record power"
