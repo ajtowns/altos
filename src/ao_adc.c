@@ -30,7 +30,11 @@ ao_adc_poll(void)
 #if HAS_ACCEL_REF
 	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 2;
 #else
+# ifdef TELENANO_V_0_1
+	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 1;
+# else
 	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 0;
+# endif
 #endif
 }
 
@@ -62,6 +66,7 @@ ao_adc_isr(void) __interrupt 1
 		a = (uint8_t __xdata *) (&ao_adc_ring[ao_adc_head].accel + sequence);
 		sequence++;
 	}
+#define GOT_ADC
 	a[0] = ADCL;
 	a[1] = ADCH;
 	if (sequence < 6) {
@@ -79,6 +84,7 @@ ao_adc_isr(void) __interrupt 1
 #if IGNITE_ON_P0
 	/* TeleMini readings */
 	a = (uint8_t __xdata *) (&ao_adc_ring[ao_adc_head].pres);
+#ifdef TELEMINI_V_0_1
 	switch (sequence) {
 	case 0:
 		/* pressure */
@@ -105,12 +111,36 @@ ao_adc_isr(void) __interrupt 1
 		sequence = 0;
 		break;
 	}
+#define GOT_ADC
+#endif
+#ifdef TELENANO_V_0_1
+	switch (sequence) {
+	case 1:
+		/* pressure */
+		a += 0;
+		sequence = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 3;
+		break;
+	case 3:
+		/* battery */
+		a += 4;
+		sequence = ADCCON3_EREF_1_25 | ADCCON3_EDIV_512 | ADCCON3_ECH_TEMP;
+		break;
+	case ADCCON3_ECH_TEMP:
+		a += 2;
+		sequence = 0;
+		break;
+	}
+#define GOT_ADC
+#endif
 	a[0] = ADCL;
 	a[1] = ADCH;
 	if (sequence) {
 		/* Start next conversion */
 		ADCCON3 = sequence;
 	}
+#endif
+#ifndef GOT_ADC
+#error No known ADC configuration set
 #endif
 
 	else {
