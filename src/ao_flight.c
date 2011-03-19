@@ -488,9 +488,20 @@ ao_flight(void)
 			 * transition is detected
 			 */
 #if USE_KALMAN
+#if HAS_ACCEL
+			/*
+			 * With an accelerometer, either to detect launch
+			 */
 			if ((ao_k_accel > to_fix32(20) &&
 			     ao_k_speed > to_fix32(5)) ||
 			    ao_k_height > to_fix32(20))
+#else
+			/*
+			 * Without an accelerometer, the barometer is far too
+			 * noisy to rely on speed or acceleration data
+			 */
+			if (ao_k_height > to_fix32(20))
+#endif
 #else
 			if (
 #if HAS_ACCEL
