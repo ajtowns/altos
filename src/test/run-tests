@@ -1,0 +1,22 @@
+#!/bin/sh
+
+DIR=~/src/cc1111/flights
+
+while read flight; do
+	baro=`./ao_flight_test_baro -s $DIR/$flight |
+		awk '/drogue/ {	printf "%s ", $4 }
+		/main/ { printf "%s\n", $4 }'`
+	full=`./ao_flight_test -s $DIR/$flight |
+		awk '/drogue/ {	printf "%s ", $4 }
+		/main/ { printf "%s\n", $4 }'`
+	echo $flight $baro $full
+done < test-flights |
+awk '{ name = $1;
+	drogue_error = $2 - $4;
+	if (drogue_error < 0) drogue_error = -drogue_error;
+	main_error = $3 - $5;
+	if (main_error < 0) main_error = -main_error;
+	if (drogue_error > 4 || main_error > 4)
+		printf ("%s: baro drogue %f main %f. full drogue %f main %f\n",
+			name, $2, $3, $4, $5);
+	}'
