@@ -1197,6 +1197,6 @@ void
 ao_packet_slave_stop(void);
 
 void
-ao_packet_slave_init(void);
+ao_packet_slave_init(uint8_t enable);
 
 #endif /* _AO_H_ */

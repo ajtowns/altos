@@ -42,9 +42,9 @@ main(void)
 	ao_flight_init();
 	ao_log_init();
 	ao_report_init();
-	ao_telemetry_init();
+	ao_telemetry_tiny_init();
 	ao_radio_init();
-	ao_packet_slave_init();
+	ao_packet_slave_init(TRUE);
 	ao_igniter_init();
 	ao_config_init();
 	ao_start_scheduler();
