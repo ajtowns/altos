@@ -20,7 +20,6 @@
 void
 ao_packet_slave(void)
 {
-	ao_radio_set_packet();
 	ao_tx_packet.addr = ao_serial_number;
 	ao_tx_packet.len = AO_PACKET_SYN;
 	while (ao_packet_enable) {
@@ -51,9 +50,6 @@ ao_packet_slave_stop(void)
 			ao_radio_recv_abort();
 			ao_delay(AO_MS_TO_TICKS(10));
 		}
-		ao_radio_get();
-		ao_radio_set_telemetry();
-		ao_radio_put();
 	}
 }
 

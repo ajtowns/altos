@@ -264,12 +264,11 @@ ao_radio_general_isr(void) __interrupt 16
 }
 
 void
-ao_radio_set_fixed_pkt(size_t size)
+ao_radio_set_packet(void)
 {
 	uint8_t	i;
 	for (i = 0; i < sizeof (fixed_pkt_setup); i += 2)
 		RF[fixed_pkt_setup[i]] = fixed_pkt_setup[i+1];
-	RF[RF_PKTLEN_OFF] = size;
 }
 
 void
@@ -285,7 +284,7 @@ ao_radio_idle(void)
 }
 
 void
-ao_radio_get(void)
+ao_radio_get(uint8_t len)
 {
 	ao_config_get();
 	ao_mutex_get(&ao_radio_mutex);
@@ -294,13 +293,14 @@ ao_radio_get(void)
 	RF_FREQ2 = (uint8_t) (ao_config.radio_cal >> 16);
 	RF_FREQ1 = (uint8_t) (ao_config.radio_cal >> 8);
 	RF_FREQ0 = (uint8_t) (ao_config.radio_cal);
+	RF_PKTLEN = len;
 }
 
 
 void
 ao_radio_send(__xdata void *packet, uint8_t size) __reentrant
 {
-	ao_radio_get();
+	ao_radio_get(size);
 	ao_radio_done = 0;
 	ao_dma_set_transfer(ao_radio_dma,
 			    packet,
@@ -323,7 +323,7 @@ uint8_t
 ao_radio_recv(__xdata void *packet, uint8_t size) __reentrant
 {
 	ao_radio_abort = 0;
-	ao_radio_get();
+	ao_radio_get(size - 2);
 	ao_dma_set_transfer(ao_radio_dma,
 			    &RFDXADDR,
 			    packet,
@@ -375,12 +375,6 @@ ao_radio_rdf(int ms)
 	uint8_t i;
 	uint8_t pkt_len;
 
-	ao_radio_abort = 0;
-	ao_radio_get();
-	ao_radio_done = 0;
-	for (i = 0; i < sizeof (rdf_setup); i += 2)
-		RF[rdf_setup[i]] = rdf_setup[i+1];
-
 	/*
 	 * Compute the packet length as follows:
 	 *
@@ -391,7 +385,12 @@ ao_radio_rdf(int ms)
 	if (ms > (255 * 4))
 		ms = 255 * 4;
 	pkt_len = ms >> 2;
-	RF[RF_PKTLEN_OFF] = pkt_len;
+
+	ao_radio_abort = 0;
+	ao_radio_get(pkt_len);
+	ao_radio_done = 0;
+	for (i = 0; i < sizeof (rdf_setup); i += 2)
+		RF[rdf_setup[i]] = rdf_setup[i+1];
 
 	ao_dma_set_transfer(ao_radio_dma,
 			    &ao_radio_rdf_value,
@@ -411,7 +410,7 @@ ao_radio_rdf(int ms)
 		ao_dma_abort(ao_radio_dma);
 		ao_radio_idle();
 	}
-	ao_radio_set_telemetry();
+	ao_radio_set_packet();
 	ao_radio_put();
 }
 
@@ -438,7 +437,7 @@ ao_radio_test(void)
 	if ((mode & 2) && !radio_on) {
 		ao_set_monitor(0);
 		ao_packet_slave_stop();
-		ao_radio_get();
+		ao_radio_get(0xff);
 		RFST = RFST_STX;
 		radio_on = 1;
 	}
@@ -465,7 +464,7 @@ ao_radio_init(void)
 	uint8_t	i;
 	for (i = 0; i < sizeof (radio_setup); i += 2)
 		RF[radio_setup[i]] = radio_setup[i+1];
-	ao_radio_set_telemetry();
+	ao_radio_set_packet();
 	ao_radio_dma_done = 1;
 	ao_radio_dma = ao_dma_alloc(&ao_radio_dma_done);
 	RFIF = 0;

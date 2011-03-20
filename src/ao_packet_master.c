@@ -75,7 +75,6 @@ void
 ao_packet_master(void)
 {
 	ao_config_get();
-	ao_radio_set_packet();
 	ao_tx_packet.addr = ao_serial_number;
 	ao_tx_packet.len = AO_PACKET_SYN;
 	ao_packet_master_time = ao_time();
@@ -99,7 +98,6 @@ ao_packet_master(void)
 			ao_packet_master_sleeping = 0;
 		}
 	}
-	ao_radio_set_telemetry();
 	ao_exit();
 }
 

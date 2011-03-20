@@ -962,18 +962,12 @@ void
 ao_radio_general_isr(void) __interrupt 16;
 
 void
-ao_radio_get(void);
+ao_radio_get(uint8_t len);
 
 #define ao_radio_put() ao_mutex_put(&ao_radio_mutex)
 
 void
-ao_radio_set_fixed_pkt(size_t size);
-
-#define ao_radio_set_telemetry() \
-        ao_radio_set_fixed_pkt(sizeof (struct ao_telemetry))
-
-#define ao_radio_set_packet() \
-        ao_radio_set_fixed_pkt(sizeof (struct ao_packet))
+ao_radio_set_packet(void);
 
 void
 ao_radio_send(__xdata void *data, uint8_t size) __reentrant;
