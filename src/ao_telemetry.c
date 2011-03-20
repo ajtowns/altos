@@ -27,6 +27,8 @@ __xdata uint16_t ao_rdf_time;
 void
 ao_telemetry(void)
 {
+	uint16_t	time;
+	int16_t		delay;
 	static __xdata struct ao_telemetry telemetry;
 
 	ao_config_get();
@@ -37,35 +39,41 @@ ao_telemetry(void)
 	telemetry.flight = ao_log_full() ? 0 : ao_flight_number;
 	telemetry.accel_plus_g = ao_config.accel_plus_g;
 	telemetry.accel_minus_g = ao_config.accel_minus_g;
-	ao_rdf_time = ao_time();
 	for (;;) {
 		while (ao_telemetry_interval == 0)
 			ao_sleep(&ao_telemetry_interval);
-		telemetry.flight_state = ao_flight_state;
+		time = ao_rdf_time = ao_time();
+		while (ao_telemetry_interval) {
+			telemetry.flight_state = ao_flight_state;
 #if HAS_ACCEL
-		telemetry.flight_accel = ao_flight_accel;
-		telemetry.ground_accel = ao_ground_accel;
-		telemetry.flight_vel = ao_flight_vel;
+			telemetry.flight_accel = ao_flight_accel;
+			telemetry.ground_accel = ao_ground_accel;
+			telemetry.flight_vel = ao_flight_vel;
 #endif
-		telemetry.flight_pres = ao_flight_pres;
-		telemetry.ground_pres = ao_ground_pres;
+			telemetry.flight_pres = ao_flight_pres;
+			telemetry.ground_pres = ao_ground_pres;
 #if HAS_ADC
-		ao_adc_get(&telemetry.adc);
+			ao_adc_get(&telemetry.adc);
 #endif
 #if HAS_GPS
-		ao_mutex_get(&ao_gps_mutex);
-		memcpy(&telemetry.gps, &ao_gps_data, sizeof (struct ao_gps_data));
-		memcpy(&telemetry.gps_tracking, &ao_gps_tracking_data, sizeof (struct ao_gps_tracking_data));
-		ao_mutex_put(&ao_gps_mutex);
+			ao_mutex_get(&ao_gps_mutex);
+			memcpy(&telemetry.gps, &ao_gps_data, sizeof (struct ao_gps_data));
+			memcpy(&telemetry.gps_tracking, &ao_gps_tracking_data, sizeof (struct ao_gps_tracking_data));
+			ao_mutex_put(&ao_gps_mutex);
 #endif
-		ao_radio_send(&telemetry, sizeof (telemetry));
-		ao_delay(ao_telemetry_interval);
-		if (ao_rdf &&
-		    (int16_t) (ao_time() - ao_rdf_time) >= 0)
-		{
-			ao_rdf_time = ao_time() + AO_RDF_INTERVAL_TICKS;
-			ao_radio_rdf(AO_RDF_LENGTH_MS);
-			ao_delay(ao_telemetry_interval);
+			ao_radio_send(&telemetry, sizeof (telemetry));
+			if (ao_rdf &&
+			    (int16_t) (ao_time() - ao_rdf_time) >= 0)
+			{
+				ao_rdf_time = ao_time() + AO_RDF_INTERVAL_TICKS;
+				ao_radio_rdf(AO_RDF_LENGTH_MS);
+			}
+			time += ao_telemetry_interval;
+			delay = time - ao_time();
+			if (delay > 0)
+				ao_delay(delay);
+			else
+				time = ao_time();
 		}
 	}
 }
