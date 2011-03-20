@@ -627,8 +627,10 @@ ao_flight(void)
 				/* slow down the telemetry system */
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_RECOVER);
 
+#if !USE_KALMAN
 				/* slow down the ADC sample rate */
 				ao_timer_set_adc_interval(10);
+#endif
 
 				/*
 				 * Start recording min/max accel and pres for a while
