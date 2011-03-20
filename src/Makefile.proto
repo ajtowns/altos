@@ -207,7 +207,7 @@ TNANO_TASK_SRC = \
 	ao_telemetry_tiny.c
 
 TNANO_MAIN_SRC = \
-	ao_telemini.c
+	ao_telenano.c
 
 TNANO_BASE_SRC = \
 	$(ALTOS_SRC) \
