@@ -134,6 +134,7 @@ PKG_CHECK_MODULES([SNDFILE], [sndfile])
 AC_OUTPUT([
 Makefile
 altosui/Makefile
+altosui/AltosVersion.java
 altosui/libaltos/Makefile
 ao-tools/Makefile
 ao-tools/lib/Makefile

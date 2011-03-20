@@ -85,6 +85,7 @@ altosui_JAVA = \
 	AltosGraphTime.java \
 	AltosGraphUI.java \
 	AltosDataChooser.java \
+	AltosVersion.java \
 	AltosVoice.java
 
 JFREECHART_CLASS= \

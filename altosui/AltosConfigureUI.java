@@ -87,9 +87,16 @@ public class AltosConfigureUI
 		c.anchor = GridBagConstraints.CENTER;
 		pane.add(new JLabel ("Configure AltOS UI"), c);
 
-		/* Voice settings */
 		c.gridx = 0;
 		c.gridy = 1;
+		c.gridwidth = 3;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.CENTER;
+		pane.add(new JLabel (String.format("AltOS version %s", AltosVersion.version)), c);
+
+		/* Voice settings */
+		c.gridx = 0;
+		c.gridy = 2;
 		c.gridwidth = 1;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.WEST;
@@ -108,7 +115,7 @@ public class AltosConfigureUI
 				}
 			});
 		c.gridx = 1;
-		c.gridy = 1;
+		c.gridy = 2;
 		c.gridwidth = 1;
 		c.weightx = 1;
 		c.fill = GridBagConstraints.NONE;
@@ -116,7 +123,7 @@ public class AltosConfigureUI
 		pane.add(enable_voice, c);
 
 		c.gridx = 2;
-		c.gridy = 1;
+		c.gridy = 2;
 		c.gridwidth = 1;
 		c.weightx = 1;
 		c.fill = GridBagConstraints.NONE;
@@ -131,7 +138,7 @@ public class AltosConfigureUI
 
 		/* Log directory settings */
 		c.gridx = 0;
-		c.gridy = 2;
+		c.gridy = 3;
 		c.gridwidth = 1;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.WEST;
@@ -145,7 +152,7 @@ public class AltosConfigureUI
 				}
 			});
 		c.gridx = 1;
-		c.gridy = 2;
+		c.gridy = 3;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.WEST;
@@ -153,7 +160,7 @@ public class AltosConfigureUI
 
 		/* Callsign setting */
 		c.gridx = 0;
-		c.gridy = 3;
+		c.gridy = 4;
 		c.gridwidth = 1;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.WEST;
@@ -162,7 +169,7 @@ public class AltosConfigureUI
 		callsign_value = new JTextField(AltosPreferences.callsign());
 		callsign_value.getDocument().addDocumentListener(this);
 		c.gridx = 1;
-		c.gridy = 3;
+		c.gridy = 4;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.WEST;
@@ -170,7 +177,7 @@ public class AltosConfigureUI
 
 		/* Serial debug setting */
 		c.gridx = 0;
-		c.gridy = 4;
+		c.gridy = 5;
 		c.gridwidth = 1;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.WEST;
@@ -186,7 +193,7 @@ public class AltosConfigureUI
 			});
 
 		c.gridx = 1;
-		c.gridy = 4;
+		c.gridy = 5;
 		c.gridwidth = 3;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.WEST;
@@ -200,7 +207,7 @@ public class AltosConfigureUI
 				}
 			});
 		c.gridx = 0;
-		c.gridy = 5;
+		c.gridy = 6;
 		c.gridwidth = 3;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
