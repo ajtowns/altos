@@ -405,6 +405,7 @@ ao_gps(void) __reentrant
 			ao_gps_data.course = ao_sirf_data.course / 200;
 			ao_gps_data.hdop = ao_sirf_data.hdop;
 			ao_gps_data.climb_rate = ao_sirf_data.climb_rate;
+			ao_gps_data.flags |= AO_GPS_COURSE_VALID;
 			if (ao_sirf_data.h_error > 6553500)
 				ao_gps_data.h_error = 65535;
 			else

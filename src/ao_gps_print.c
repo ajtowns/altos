@@ -18,86 +18,61 @@
 #ifndef AO_GPS_TEST
 #include "ao.h"
 #endif
-
-struct ao_gps_split {
-	uint8_t positive;
-	uint8_t	degrees;
-	uint8_t	minutes;
-	uint16_t minutes_fraction;
-};
-
-static void
-ao_gps_split(int32_t v, __xdata struct ao_gps_split *split) __reentrant
-{
-	uint32_t minutes_e7;
-
-	split->positive = 1;
-	if (v < 0) {
-		v = -v;
-		split->positive = 0;
-	}
-	split->degrees = v / 10000000;
-	minutes_e7 = (v % 10000000) * 60;
-	split->minutes = minutes_e7 / 10000000;
-	split->minutes_fraction = (minutes_e7 % 10000000) / 1000;
-}
+#include "ao_telem.h"
 
 void
 ao_gps_print(__xdata struct ao_gps_data *gps_data) __reentrant
 {
-	printf("GPS %2d sat",
-	       (gps_data->flags & AO_GPS_NUM_SAT_MASK) >> AO_GPS_NUM_SAT_SHIFT);
-	if (gps_data->flags & AO_GPS_VALID) {
-		static __xdata struct ao_gps_split	lat, lon;
-		int16_t climb, climb_int, climb_frac;
+	char	state;
 
-		ao_gps_split(gps_data->latitude, &lat);
-		ao_gps_split(gps_data->longitude, &lon);
-		if (gps_data->flags & AO_GPS_DATE_VALID)
-			printf(" 20%02d-%02d-%02d",
-			       gps_data->year,
-			       gps_data->month,
-			       gps_data->day);
-		else
-			printf (" 0000-00-00");
-		printf(" %2d:%02d:%02d",
-		       gps_data->hour,
-		       gps_data->minute,
-		       gps_data->second);
-		printf(" %2d°%02d.%04d'%c %2d°%02d.%04d'%c %5dm",
-		       lat.degrees,
-		       lat.minutes,
-		       lat.minutes_fraction,
-		       lat.positive ? 'N' : 'S',
-		       lon.degrees,
-		       lon.minutes,
-		       lon.minutes_fraction,
-		       lon.positive ? 'E' : 'W',
-		       gps_data->altitude);
-		climb = gps_data->climb_rate;
-		if (climb >= 0) {
-			climb_int = climb / 100;
-			climb_frac = climb % 100;
-		} else {
-			climb = -climb;
-			climb_int = -(climb / 100);
-			climb_frac = climb % 100;
-		}
-		printf(" %5u.%02dm/s(H) %d° %5d.%02dm/s(V)",
-		       gps_data->ground_speed / 100,
-		       gps_data->ground_speed % 100,
-		       gps_data->course * 2,
-		       climb / 100,
-		       climb % 100);
-		printf(" %d.%d(hdop) %5u(herr) %5u(verr)",
-		       gps_data->hdop / 5,
-		       (gps_data->hdop * 2) % 10,
+	if (gps_data->flags & AO_GPS_VALID)
+		state = AO_TELEM_GPS_STATE_LOCKED;
+	else if (gps_data->flags & AO_GPS_RUNNING)
+		state = AO_TELEM_GPS_STATE_UNLOCKED;
+	else
+		state = AO_TELEM_GPS_STATE_ERROR;
+	printf(AO_TELEM_GPS_STATE " %c "
+	       AO_TELEM_GPS_NUM_SAT " %d ",
+	       state,
+	       (gps_data->flags & AO_GPS_NUM_SAT_MASK) >> AO_GPS_NUM_SAT_SHIFT);
+	if (!(gps_data->flags & AO_GPS_VALID))
+		return;
+	printf(AO_TELEM_GPS_LATITUDE " %ld "
+	       AO_TELEM_GPS_LONGITUDE " %ld "
+	       AO_TELEM_GPS_ALTITUDE " %d ",
+	       gps_data->latitude,
+	       gps_data->longitude,
+	       gps_data->altitude);
+
+	if (gps_data->flags & AO_GPS_DATE_VALID)
+		printf(AO_TELEM_GPS_YEAR " %d "
+		       AO_TELEM_GPS_MONTH " %d "
+		       AO_TELEM_GPS_DAY " %d ",
+		       gps_data->year,
+		       gps_data->month,
+		       gps_data->day);
+
+	printf(AO_TELEM_GPS_HOUR " %d "
+	       AO_TELEM_GPS_MINUTE " %d "
+	       AO_TELEM_GPS_SECOND " %d ",
+	       gps_data->hour,
+	       gps_data->minute,
+	       gps_data->second);
+
+	printf(AO_TELEM_GPS_HDOP " %d ",
+	       gps_data->hdop * 2);
+
+	if (gps_data->flags & AO_GPS_COURSE_VALID) {
+		printf(AO_TELEM_GPS_HERROR " %d "
+		       AO_TELEM_GPS_VERROR " %d "
+		       AO_TELEM_GPS_VERTICAL_SPEED " %d "
+		       AO_TELEM_GPS_HORIZONTAL_SPEED " %d "
+		       AO_TELEM_GPS_COURSE " %d ",
 		       gps_data->h_error,
-		       gps_data->v_error);
-	} else if (gps_data->flags & AO_GPS_RUNNING) {
-		printf(" unlocked");
-	} else {
-		printf (" not-connected");
+		       gps_data->v_error,
+		       gps_data->climb_rate,
+		       gps_data->ground_speed,
+		       (int) gps_data->course * 2);
 	}
 }
 
@@ -106,12 +81,11 @@ ao_gps_tracking_print(__xdata struct ao_gps_tracking_data *gps_tracking_data) __
 {
 	uint8_t	c, n, v;
 	__xdata struct ao_gps_sat_data	*sat;
-	printf("SAT ");
+
 	n = gps_tracking_data->channels;
-	if (n == 0) {
-		printf("not-connected");
+	if (n == 0)
 		return;
-	}
+
 	sat = gps_tracking_data->sats;
 	v = 0;
 	for (c = 0; c < n; c++) {
@@ -119,13 +93,20 @@ ao_gps_tracking_print(__xdata struct ao_gps_tracking_data *gps_tracking_data) __
 			v++;
 		sat++;
 	}
-	printf("%d ", v);
+
+	printf (AO_TELEM_SAT_NUM " %d ",
+		v);
+
 	sat = gps_tracking_data->sats;
+	v = 0;
 	for (c = 0; c < n; c++) {
-		if (sat->svid)
-			printf (" %3d %3d",
-				sat->svid,
-				sat->c_n_1);
+		if (sat->svid) {
+			printf (AO_TELEM_SAT_SVID "%d %d "
+				AO_TELEM_SAT_C_N_0 "%d %d ",
+				v, sat->svid,
+				v, sat->c_n_1);
+			v++;
+		}
 		sat++;
 	}
 }

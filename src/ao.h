@@ -841,6 +841,7 @@ ao_spi_init(void);
 #define AO_GPS_VALID		(1 << 4)
 #define AO_GPS_RUNNING		(1 << 5)
 #define AO_GPS_DATE_VALID	(1 << 6)
+#define AO_GPS_COURSE_VALID	(1 << 7)
 
 extern __xdata uint16_t ao_gps_tick;
 
@@ -905,8 +906,7 @@ ao_gps_report_init(void);
  * ao_telemetry.c
  */
 
-#define AO_MAX_CALLSIGN		8
-#define AO_TELEMETRY_VERSION	3
+#define AO_MAX_CALLSIGN			8
 
 struct ao_telemetry {
 	uint16_t		serial;
@@ -1019,6 +1019,10 @@ extern const char const * const ao_state_names[];
 
 void
 ao_monitor(void);
+
+#define AO_MONITORING_OFF	0
+#define AO_MONITORING_FULL	1
+#define AO_MONITORING_TINY	2
 
 void
 ao_set_monitor(uint8_t monitoring);

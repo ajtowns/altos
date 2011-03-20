@@ -28,6 +28,7 @@
 #define AO_GPS_VALID		(1 << 4)
 #define AO_GPS_RUNNING		(1 << 5)
 #define AO_GPS_DATE_VALID	(1 << 6)
+#define AO_GPS_COURSE_VALID	(1 << 7)
 
 struct ao_gps_data {
 	uint8_t			year;
