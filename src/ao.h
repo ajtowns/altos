@@ -925,6 +925,18 @@ struct ao_telemetry {
 	struct ao_gps_tracking_data	gps_tracking;
 };
 
+struct ao_telemetry_tiny {
+	uint16_t		serial;
+	uint16_t		flight;
+	uint8_t			flight_state;
+	int16_t			height;		/* AGL in meters */
+	int16_t			speed;		/* in m/s * 16 */
+	int16_t			accel;		/* in m/s² * 16 */
+	int16_t			ground_pres;	/* sensor units */
+	struct ao_adc		adc;		/* raw ADC readings */
+	char			callsign[AO_MAX_CALLSIGN];
+};
+
 /*
  * ao_radio_recv tacks on rssi and status bytes
  */
@@ -932,6 +944,12 @@ struct ao_telemetry_recv {
 	struct ao_telemetry	telemetry;
 	int8_t			rssi;
 	uint8_t			status;
+};
+
+struct ao_telemetry_tiny_recv {
+	struct ao_telemetry_tiny	telemetry_tiny;
+	int8_t				rssi;
+	uint8_t				status;
 };
 
 /* Set delay between telemetry reports (0 to disable) */
@@ -948,6 +966,9 @@ ao_rdf_set(uint8_t rdf);
 
 void
 ao_telemetry_init(void);
+
+void
+ao_telemetry_tiny_init(void);
 
 /*
  * ao_radio.c

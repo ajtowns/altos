@@ -176,7 +176,7 @@ TMINI_TASK_SRC = \
 	ao_log.c \
 	ao_log_tiny.c \
 	ao_report.c \
-	ao_telemetry.c
+	ao_telemetry_tiny.c
 
 TMINI_MAIN_SRC = \
 	ao_telemini.c
@@ -204,7 +204,7 @@ TNANO_TASK_SRC = \
 	ao_log.c \
 	ao_log_tiny.c \
 	ao_report.c \
-	ao_telemetry.c
+	ao_telemetry_tiny.c
 
 TNANO_MAIN_SRC = \
 	ao_telemini.c
