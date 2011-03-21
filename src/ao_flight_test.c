@@ -29,6 +29,10 @@
 #define ao_adc_ring_next(n)	(((n) + 1) & (AO_ADC_RING - 1))
 #define ao_adc_ring_prev(n)	(((n) - 1) & (AO_ADC_RING - 1))
 
+#define AO_M_TO_HEIGHT(m)	((int16_t) (m))
+#define AO_MS_TO_SPEED(ms)	((int16_t) ((ms) * 16))
+#define AO_MSS_TO_ACCEL(mss)	((int16_t) ((mss) * 16))
+
 /*
  * One set of samples read from the A/D converter
  */
@@ -143,14 +147,25 @@ struct ao_config ao_config;
 #ifndef HAS_ACCEL
 #define HAS_ACCEL 1
 #define HAS_ACCEL_REF 0
-#define USE_KALMAN 0
-#else
-#define USE_KALMAN 1
 #endif
 
 #include "ao_flight.c"
 
 #define to_double(f)	((f) / 65536.0)
+
+#define GRAVITY 9.80665
+extern int16_t ao_ground_accel, ao_raw_accel;
+extern int16_t ao_accel_2g;
+
+int32_t	drogue_height;
+int32_t main_height;
+
+int		tick_offset;
+uint16_t	prev_tick;
+static int	ao_records_read = 0;
+static int	ao_eof_read = 0;
+static int	ao_flight_ground_accel;
+static int	ao_flight_started = 0;
 
 void
 ao_insert(void)
@@ -159,33 +174,39 @@ ao_insert(void)
 	ao_adc_head = ao_adc_ring_next(ao_adc_head);
 	if (ao_summary)
 		return;
-	if (ao_flight_state != ao_flight_startup) {
-#if USE_KALMAN
-		printf("time %7.2f accel %d pres %d k_height %8.2f k_speed %8.5f k_accel %8.5f\n",
-		       (double) ao_adc_static.tick / 100,
-		       ao_adc_static.accel,
-		       ao_adc_static.pres,
-		       to_double(ao_k_height),
-		       to_double(ao_k_speed),
-		       to_double(ao_k_accel));
-#else
-		printf("time %g accel %d pres %d\n",
-		       (double) ao_adc_static.tick / 100,
-		       ao_adc_static.accel,
-		       ao_adc_static.pres);
-#endif
+	if (ao_flight_state == ao_flight_startup)
+		return;
+	{
+		double	height = ao_pres_to_altitude(ao_raw_pres) - ao_ground_height;
+		double  accel = ((ao_flight_ground_accel - ao_adc_static.accel) * GRAVITY * 2.0) /
+			(ao_config.accel_minus_g - ao_config.accel_plus_g);
+
+		if (!tick_offset)
+			tick_offset = ao_adc_static.tick;
+		if (!drogue_height && ao_flight_state >= ao_flight_drogue)
+			drogue_height = ao_k_height;
+		if (!main_height && ao_flight_state >= ao_flight_main)
+			main_height = ao_k_height;
+		if ((prev_tick - ao_adc_static.tick) > 0)
+			tick_offset += 65536;
+		prev_tick = ao_adc_static.tick;
+		printf("%7.2f height %g accel %g state %s k_height %g k_speed %g k_accel %g drogue %g main %g error %d\n",
+		       (double) (ao_adc_static.tick + tick_offset) / 100,
+		       height,
+		       accel,
+		       ao_state_names[ao_flight_state],
+		       ao_k_height / 65536.0,
+		       ao_k_speed / 65536.0 / 16.0,
+		       ao_k_accel / 65536.0 / 16.0,
+		       drogue_height / 65536.0,
+		       main_height / 65536.0,
+		       ao_error_h_sq_avg);
 	}
 }
-
-static int	ao_records_read = 0;
-static int	ao_eof_read = 0;
-static int	ao_flight_ground_accel;
-static int	ao_flight_started = 0;
 
 void
 ao_sleep(void *wchan)
 {
-	ao_dump_state();
 	if (wchan == &ao_adc_head) {
 		char		type;
 		uint16_t	tick;
@@ -291,19 +312,6 @@ ao_dump_state(void)
 		return;
 	if (ao_summary)
 		return;
-#if HAS_ACCEL
-	printf ("\t\t\t\t\t%s accel %g vel %g alt %d main %d\n",
-		ao_state_names[ao_flight_state],
-		(ao_ground_accel - ao_flight_accel) / COUNTS_PER_G * GRAVITY,
-		(double) ao_flight_vel / 100 / COUNTS_PER_G * GRAVITY,
-		ao_pres_to_altitude(ao_flight_pres) - ao_pres_to_altitude(ao_ground_pres),
-		ao_pres_to_altitude(ao_main_pres) - ao_pres_to_altitude(ao_ground_pres));
-#else
-	printf ("\t\t\t\t\t%s alt %d main %d\n",
-		ao_state_names[ao_flight_state],
-		ao_pres_to_altitude(ao_flight_pres) - ao_pres_to_altitude(ao_ground_pres),
-		ao_pres_to_altitude(ao_main_pres) - ao_pres_to_altitude(ao_ground_pres));
-#endif
 	if (ao_flight_state == ao_flight_landed)
 		exit(0);
 }

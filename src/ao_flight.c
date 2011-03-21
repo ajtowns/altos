@@ -31,22 +31,14 @@
 #error Please define HAS_USB
 #endif
 
-#ifndef USE_KALMAN
-#error Please define USE_KALMAN
-#endif
-
 /* Main flight thread. */
 
 __pdata enum ao_flight_state	ao_flight_state;	/* current flight state */
 __pdata uint16_t		ao_flight_tick;		/* time of last data */
 __pdata uint16_t		ao_flight_prev_tick;	/* time of previous data */
-__pdata int16_t			ao_flight_pres;		/* filtered pressure */
-__pdata int16_t			ao_ground_pres;		/* startup pressure */
-__pdata int16_t			ao_min_pres;		/* minimum recorded pressure */
+__xdata int16_t			ao_ground_pres;		/* startup pressure */
 __pdata uint16_t		ao_launch_tick;		/* time of launch detect */
-__pdata int16_t			ao_main_pres;		/* pressure to eject main */
 #if HAS_ACCEL
-__pdata int16_t			ao_flight_accel;	/* filtered acceleration */
 __pdata int16_t			ao_ground_accel;	/* startup acceleration */
 #endif
 
@@ -55,16 +47,8 @@ __pdata int16_t			ao_ground_accel;	/* startup acceleration */
  * resting
  */
 __pdata uint16_t		ao_interval_end;
-__pdata int16_t			ao_interval_cur_min_pres;
-__pdata int16_t			ao_interval_cur_max_pres;
-__pdata int16_t			ao_interval_min_pres;
-__pdata int16_t			ao_interval_max_pres;
-#if HAS_ACCEL
-__pdata int16_t			ao_interval_cur_min_accel;
-__pdata int16_t			ao_interval_cur_max_accel;
-__pdata int16_t			ao_interval_min_accel;
-__pdata int16_t			ao_interval_max_accel;
-#endif
+__pdata int16_t			ao_interval_min_height;
+__pdata int16_t			ao_interval_max_height;
 
 __data uint8_t ao_flight_adc;
 __pdata int16_t ao_raw_pres;
@@ -96,15 +80,8 @@ __pdata int16_t ao_accel_2g;
  */
 
 #define GRAVITY 9.80665
-/* convert m/s to velocity count */
-#define VEL_MPS_TO_COUNT(mps) (((int32_t) (((mps) / GRAVITY) * (AO_HERTZ/2))) * (int32_t) ao_accel_2g)
 
 #define ACCEL_NOSE_UP	(ao_accel_2g >> 2)
-#define ACCEL_BOOST	ao_accel_2g
-#define ACCEL_COAST	(ao_accel_2g >> 3)
-#define ACCEL_INT_LAND	(ao_accel_2g >> 3)
-#define ACCEL_VEL_MACH	VEL_MPS_TO_COUNT(200)
-#define ACCEL_VEL_BOOST	VEL_MPS_TO_COUNT(5)
 
 #endif
 
@@ -127,90 +104,184 @@ __pdata int16_t ao_accel_2g;
  * 27 mV/kPa * 32767 / 3300 counts/mV = 268.1 counts/kPa
  */
 
-#define BARO_kPa	268
-#define BARO_LAUNCH	(BARO_kPa / 5)	/* .2kPa, or about 20m */
-#define BARO_APOGEE	(BARO_kPa / 10)	/* .1kPa, or about 10m */
-#define BARO_COAST	(BARO_kPa * 5)  /* 5kpa, or about 500m */
-#define BARO_MAIN	(BARO_kPa)	/* 1kPa, or about 100m */
-#define BARO_INT_LAND	(BARO_kPa / 20)	/* .05kPa, or about 5m */
-#define BARO_LAND	(BARO_kPa * 10)	/* 10kPa or about 1000m */
-
 /* We also have a clock, which can be used to sanity check things in
  * case of other failures
  */
 
 #define BOOST_TICKS_MAX	AO_SEC_TO_TICKS(15)
 
-#if HAS_ACCEL
-/* This value is scaled in a weird way. It's a running total of accelerometer
- * readings minus the ground accelerometer reading. That means it measures
- * velocity, and quite accurately too. As it gets updated 100 times a second,
- * it's scaled by 100
- */
-__pdata int32_t	ao_flight_vel;
-__pdata int32_t ao_min_vel;
-__pdata int32_t	ao_old_vel;
-__pdata int16_t ao_old_vel_tick;
-__xdata int32_t ao_raw_accel_sum;
-#endif
-
-#if USE_KALMAN
-__pdata int16_t			ao_ground_height;
-__pdata int32_t			ao_k_max_height;
-__pdata int32_t			ao_k_height;
-__pdata int32_t			ao_k_speed;
-__pdata int32_t			ao_k_accel;
-
 #define to_fix16(x) ((int16_t) ((x) * 65536.0 + 0.5))
 #define to_fix32(x) ((int32_t) ((x) * 65536.0 + 0.5))
-
 #define from_fix(x)	((x) >> 16)
 
-#define AO_K0_100	to_fix16(0.05680323)
-#define AO_K1_100	to_fix16(0.16608182)
-#define AO_K2_100	to_fix16(0.24279580)
+#include "ao_kalman.h"
+
+__pdata int16_t			ao_ground_height;
+__pdata int16_t			ao_height;
+__pdata int16_t			ao_speed;
+__pdata int16_t			ao_accel;
+__pdata int16_t			ao_max_height;
+
+static __pdata int32_t		ao_k_height;
+static __pdata int32_t		ao_k_speed;
+static __pdata int32_t		ao_k_accel;
 
 #define AO_K_STEP_100		to_fix16(0.01)
 #define AO_K_STEP_2_2_100	to_fix16(0.00005)
 
-#define AO_K0_10	to_fix16(0.23772023)
-#define AO_K1_10	to_fix16(0.32214149)
-#define AO_K2_10	to_fix16(0.21827159)
-
 #define AO_K_STEP_10		to_fix16(0.1)
 #define AO_K_STEP_2_2_10	to_fix16(0.005)
 
-static void
-ao_kalman_baro(void)
-{
-	int16_t	err = ((ao_pres_to_altitude(ao_raw_pres) - ao_ground_height))
-		- (int16_t) (ao_k_height >> 16);
+/*
+ * Above this height, the baro sensor doesn't work
+ */
+#define AO_MAX_BARO_HEIGHT	8000
 
+/*
+ * Above this speed, baro measurements are unreliable
+ */
+#define AO_MAX_BARO_SPEED	300
+
+static void
+ao_kalman_predict(void)
+{
 #ifdef AO_FLIGHT_TEST
 	if (ao_flight_tick - ao_flight_prev_tick > 5) {
-		ao_k_height += ((ao_k_speed >> 16) * AO_K_STEP_10 +
-				(ao_k_accel >> 16) * AO_K_STEP_2_2_10);
-		ao_k_speed += (ao_k_accel >> 16) * AO_K_STEP_10;
+		ao_k_height += ((int32_t) ao_speed * AO_K_STEP_10 +
+				(int32_t) ao_accel * AO_K_STEP_2_2_10) >> 4;
+		ao_k_speed += (int32_t) ao_accel * AO_K_STEP_10;
 
-		/* correct */
-		ao_k_height += (int32_t) AO_K0_10 * err;
-		ao_k_speed += (int32_t) AO_K1_10 * err;
-		ao_k_accel += (int32_t) AO_K2_10 * err;
 		return;
 	}
 #endif
-	ao_k_height += ((ao_k_speed >> 16) * AO_K_STEP_100 +
-			(ao_k_accel >> 16) * AO_K_STEP_2_2_100);
-	ao_k_speed += (ao_k_accel >> 16) * AO_K_STEP_100;
-
-	/* correct */
-	ao_k_height += (int32_t) AO_K0_100 * err;
-	ao_k_speed += (int32_t) AO_K1_100 * err;
-	ao_k_accel += (int32_t) AO_K2_100 * err;
+	ao_k_height += ((int32_t) ao_speed * AO_K_STEP_100 +
+			(int32_t) ao_accel * AO_K_STEP_2_2_100) >> 4;
+	ao_k_speed += (int32_t) ao_accel * AO_K_STEP_100;
 }
+
+static __pdata int16_t ao_error_h;
+static __pdata int16_t ao_raw_alt;
+static __pdata int16_t ao_raw_height;
+static __pdata int16_t ao_error_h_sq_avg;
+
+static void
+ao_kalman_err_height(void)
+{
+	int16_t	e;
+	ao_error_h = ao_raw_height - (int16_t) (ao_k_height >> 16);
+
+	e = ao_error_h;
+	if (e < 0)
+		e = -e;
+	if (e > 127)
+		e = 127;
+	ao_error_h_sq_avg -= ao_error_h_sq_avg >> 4;
+	ao_error_h_sq_avg += (e * e) >> 4;
+}
+
+static void
+ao_kalman_correct_baro(void)
+{
+	ao_kalman_err_height();
+#ifdef AO_FLIGHT_TEST
+	if (ao_flight_tick - ao_flight_prev_tick > 5) {
+		ao_k_height += (int32_t) AO_BARO_K0_10 * ao_error_h;
+		ao_k_speed  += (int32_t) AO_BARO_K1_10 * ao_error_h;
+		ao_k_accel  += (int32_t) AO_BARO_K2_10 * ao_error_h;
+		return;
+	}
+#endif
+	ao_k_height += (int32_t) AO_BARO_K0_100 * ao_error_h;
+	ao_k_speed  += (int32_t) AO_BARO_K1_100 * ao_error_h;
+	ao_k_accel  += (int32_t) AO_BARO_K2_100 * ao_error_h;
+}
+
+#if HAS_ACCEL
+static __pdata int16_t ao_error_a;
+static __pdata int32_t ao_accel_scale;
+
+static void
+ao_kalman_err_accel(void)
+{
+	int32_t	accel;
+
+	accel = (ao_ground_accel - ao_raw_accel) * ao_accel_scale;
+
+	/* Can't use ao_accel here as it is the pre-prediction value still */
+	ao_error_a = (accel - ao_k_accel) >> 16;
+}
+
+static void
+ao_kalman_correct_both(void)
+{
+	ao_kalman_err_height();
+	ao_kalman_err_accel();
+
+#if 0
+	/*
+	 * Check to see if things are crazy here --
+	 * if the computed height is far above the
+	 * measured height, we assume that the flight
+	 * trajectory is not vertical, and so ignore
+	 * the accelerometer for the remainder of the
+	 * flight.
+	 */
+	if (ao_error_h_sq_avg > 10)
+	{
+		ao_kalman_correct_baro();
+		return;
+	}
 #endif
 
+#ifdef AO_FLIGHT_TEST
+	if (ao_flight_tick - ao_flight_prev_tick > 5) {
+		ao_k_height +=
+			(int32_t) AO_BOTH_K00_10 * ao_error_h +
+			(int32_t) (AO_BOTH_K01_10 >> 4) * ao_error_a;
+		ao_k_speed +=
+			((int32_t) AO_BOTH_K10_10 << 4) * ao_error_h +
+			(int32_t) AO_BOTH_K11_10 * ao_error_a;
+		ao_k_accel +=
+			((int32_t) AO_BOTH_K20_10 << 4) * ao_error_h +
+			(int32_t) AO_BOTH_K21_10 * ao_error_a;
+		return;
+	}
+#endif
+	ao_k_height +=
+		(int32_t) AO_BOTH_K00_100 * ao_error_h +
+		(int32_t) AO_BOTH_K01_100 * ao_error_a;
+	ao_k_speed +=
+		(int32_t) AO_BOTH_K10_100 * ao_error_h +
+		(int32_t) AO_BOTH_K11_100 * ao_error_a;
+	ao_k_accel +=
+		(int32_t) AO_BOTH_K20_100 * ao_error_h +
+		(int32_t) AO_BOTH_K21_100 * ao_error_a;
+}
+
+static void
+ao_kalman_correct_accel(void)
+{
+	ao_kalman_err_accel();
+
+#ifdef AO_FLIGHT_TEST
+	if (ao_flight_tick - ao_flight_prev_tick > 5) {
+		ao_k_height +=(int32_t) AO_ACCEL_K0_10 * ao_error_a;
+		ao_k_speed  += (int32_t) AO_ACCEL_K1_10 * ao_error_a;
+		ao_k_accel  += (int32_t) AO_ACCEL_K2_10 * ao_error_a;
+		return;
+	}
+#endif
+	ao_k_height += (int32_t) AO_ACCEL_K0_100 * ao_error_a;
+	ao_k_speed  += (int32_t) AO_ACCEL_K1_100 * ao_error_a;
+	ao_k_accel  += (int32_t) AO_ACCEL_K2_100 * ao_error_a;
+}
+#endif /* HAS_ACCEL */
+
 __xdata int32_t ao_raw_pres_sum;
+
+#ifdef HAS_ACCEL
+__xdata int32_t ao_raw_accel_sum;
+#endif
 
 /* Landing is detected by getting constant readings from both pressure and accelerometer
  * for a fairly long time (AO_INTERVAL_TICKS)
@@ -235,10 +306,6 @@ ao_flight(void)
 		ao_wakeup(DATA_TO_XDATA(&ao_flight_adc));
 		ao_sleep(DATA_TO_XDATA(&ao_adc_head));
 		while (ao_flight_adc != ao_adc_head) {
-#if HAS_ACCEL
-			__pdata uint8_t ticks;
-			__pdata int16_t ao_vel_change;
-#endif
 			__xdata struct ao_adc *ao_adc;
 			ao_flight_prev_tick = ao_flight_tick;
 
@@ -246,9 +313,8 @@ ao_flight(void)
 			ao_adc = &ao_adc_ring[ao_flight_adc];
 			ao_flight_tick = ao_adc->tick;
 			ao_raw_pres = ao_adc->pres;
-			ao_flight_pres -= ao_flight_pres >> 4;
-			ao_flight_pres += ao_raw_pres >> 4;
-
+			ao_raw_alt = ao_pres_to_altitude(ao_raw_pres);
+			ao_raw_height = ao_raw_alt - ao_ground_height;
 #if HAS_ACCEL
 			ao_raw_accel = ao_adc->accel;
 #if HAS_ACCEL_REF
@@ -335,45 +401,31 @@ ao_flight(void)
 			ao_raw_accel = (uint16_t) ((((uint32_t) ao_raw_accel << 16) / (ao_accel_ref[ao_flight_adc] << 1))) >> 1;
 			ao_adc->accel = ao_raw_accel;
 #endif
-
-			ao_flight_accel -= ao_flight_accel >> 4;
-			ao_flight_accel += ao_raw_accel >> 4;
-			/* Update velocity
-			 *
-			 * The accelerometer is mounted so that
-			 * acceleration yields negative values
-			 * while deceleration yields positive values,
-			 * so subtract instead of add.
-			 */
-			ticks = ao_flight_tick - ao_flight_prev_tick;
-			ao_vel_change = ao_ground_accel - (((ao_raw_accel + 1) >> 1) + ((ao_raw_accel_prev + 1) >> 1));
-			ao_raw_accel_prev = ao_raw_accel;
-
-			/* one is a common interval */
-			if (ticks == 1)
-				ao_flight_vel += (int32_t) ao_vel_change;
-			else
-				ao_flight_vel += (int32_t) ao_vel_change * (int32_t) ticks;
 #endif
 
-#if USE_KALMAN
-			if (ao_flight_state > ao_flight_idle)
-				ao_kalman_baro();
+			if (ao_flight_state > ao_flight_idle) {
+				ao_kalman_predict();
+#if HAS_ACCEL
+				if (ao_flight_state <= ao_flight_coast) {
+#ifndef FORCE_ACCEL
+					if (/*ao_speed < AO_MS_TO_SPEED(AO_MAX_BARO_SPEED) &&*/
+					    ao_raw_alt < AO_MAX_BARO_HEIGHT)
+						ao_kalman_correct_both();
+					else
 #endif
+						ao_kalman_correct_accel();
+				} else
+#endif
+				if (ao_raw_alt < AO_MAX_BARO_HEIGHT || ao_flight_state >= ao_flight_drogue)
+					ao_kalman_correct_baro();
+				ao_height = from_fix(ao_k_height);
+				ao_speed = from_fix(ao_k_speed);
+				ao_accel = from_fix(ao_k_accel);
+				if (ao_height > ao_max_height)
+					ao_max_height = ao_height;
+			}
 			ao_flight_adc = ao_adc_ring_next(ao_flight_adc);
 		}
-
-		if (ao_flight_pres < ao_min_pres)
-			ao_min_pres = ao_flight_pres;
-#if HAS_ACCEL
-		if (ao_flight_vel >= 0) {
-			if (ao_flight_vel < ao_min_vel)
-			    ao_min_vel = ao_flight_vel;
-		} else {
-			if (-ao_flight_vel < ao_min_vel)
-			    ao_min_vel = -ao_flight_vel;
-		}
-#endif
 
 		switch (ao_flight_state) {
 		case ao_flight_startup:
@@ -391,35 +443,25 @@ ao_flight(void)
 				++nsamples;
 				continue;
 			}
+			ao_config_get();
 #if HAS_ACCEL
 			ao_ground_accel = ao_raw_accel_sum >> 9;
+			ao_accel_2g = ao_config.accel_minus_g - ao_config.accel_plus_g;
+			ao_accel_scale = to_fix32(GRAVITY * 2 * 16) / ao_accel_2g;
 #endif
 			ao_ground_pres = ao_raw_pres_sum >> 9;
-			ao_min_pres = ao_ground_pres;
-			ao_config_get();
-#if USE_KALMAN
 			ao_ground_height = ao_pres_to_altitude(ao_ground_pres);
-#endif
-			ao_main_pres = ao_altitude_to_pres(ao_pres_to_altitude(ao_ground_pres) + ao_config.main_deploy);
-#if HAS_ACCEL
-			ao_accel_2g = ao_config.accel_minus_g - ao_config.accel_plus_g;
-			ao_flight_vel = 0;
-			ao_min_vel = 0;
-			ao_old_vel = ao_flight_vel;
-			ao_old_vel_tick = ao_flight_tick;
-#endif
 
 			/* Check to see what mode we should go to.
 			 *  - Invalid mode if accel cal appears to be out
 			 *  - pad mode if we're upright,
 			 *  - idle mode otherwise
 			 */
-			ao_config_get();
 #if HAS_ACCEL
 			if (ao_config.accel_plus_g == 0 ||
 			    ao_config.accel_minus_g == 0 ||
-			    ao_flight_accel < ao_config.accel_plus_g - ACCEL_NOSE_UP ||
-			    ao_flight_accel > ao_config.accel_minus_g + ACCEL_NOSE_UP)
+			    ao_ground_accel < ao_config.accel_plus_g - ACCEL_NOSE_UP ||
+			    ao_ground_accel > ao_config.accel_minus_g + ACCEL_NOSE_UP)
 			{
 				/* Detected an accel value outside -1.5g to 1.5g
 				 * (or uncalibrated values), so we go into invalid mode
@@ -430,7 +472,7 @@ ao_flight(void)
 #endif
 				if (!ao_flight_force_idle
 #if HAS_ACCEL
-				    && ao_flight_accel < ao_config.accel_plus_g + ACCEL_NOSE_UP
+				    && ao_ground_accel < ao_config.accel_plus_g + ACCEL_NOSE_UP
 #endif
 					)
  			{
@@ -465,57 +507,27 @@ ao_flight(void)
 			break;
 		case ao_flight_pad:
 
-#if HAS_ACCEL
-			/* Trim velocity
-			 *
-			 * Once a second, remove any velocity from
-			 * a second ago
-			 */
-			if ((int16_t) (ao_flight_tick - ao_old_vel_tick) >= AO_SEC_TO_TICKS(1)) {
-				ao_old_vel_tick = ao_flight_tick;
-				ao_flight_vel -= ao_old_vel;
-				ao_old_vel = ao_flight_vel;
-			}
-#endif
 			/* pad to boost:
 			 *
-			 * accelerometer: > 2g AND velocity > 5m/s
-			 *             OR
 			 * barometer: > 20m vertical motion
+			 *             OR
+			 * accelerometer: > 2g AND velocity > 5m/s
 			 *
 			 * The accelerometer should always detect motion before
 			 * the barometer, but we use both to make sure this
-			 * transition is detected
+			 * transition is detected. If the device
+			 * doesn't have an accelerometer, then ignore the
+			 * speed and acceleration as they are quite noisy
+			 * on the pad.
 			 */
-#if USE_KALMAN
+			if (ao_height > AO_M_TO_HEIGHT(20)
 #if HAS_ACCEL
-			/*
-			 * With an accelerometer, either to detect launch
-			 */
-			if ((ao_k_accel > to_fix32(20) &&
-			     ao_k_speed > to_fix32(5)) ||
-			    ao_k_height > to_fix32(20))
-#else
-			/*
-			 * Without an accelerometer, the barometer is far too
-			 * noisy to rely on speed or acceleration data
-			 */
-			if (ao_k_height > to_fix32(20))
+			    || (ao_accel > AO_MSS_TO_ACCEL(20) &&
+				ao_speed > AO_MS_TO_SPEED(5))
 #endif
-#else
-			if (
-#if HAS_ACCEL
-				(ao_flight_accel < ao_ground_accel - ACCEL_BOOST &&
-				 ao_flight_vel > ACCEL_VEL_BOOST) ||
-#endif
-			    ao_flight_pres < ao_ground_pres - BARO_LAUNCH)
-#endif
+				)
 			{
-#if HAS_ACCEL || USE_KALMAN
 				ao_flight_state = ao_flight_boost;
-#else
-				ao_flight_state = ao_flight_coast;
-#endif
 				ao_launch_tick = ao_flight_tick;
 
 				/* start logging data */
@@ -537,7 +549,6 @@ ao_flight(void)
 				break;
 			}
 			break;
-#if HAS_ACCEL || USE_KALMAN
 		case ao_flight_boost:
 
 			/* boost to fast:
@@ -550,13 +561,8 @@ ao_flight(void)
 			 * deceleration, or by waiting until the maximum burn duration
 			 * (15 seconds) has past.
 			 */
-#if USE_KALMAN
-			if ((ao_k_accel < to_fix32(-10) && ao_k_height > to_fix32(100)) ||
+			if ((ao_accel < AO_MSS_TO_ACCEL(-2.5) && ao_height > AO_M_TO_HEIGHT(100)) ||
 			    (int16_t) (ao_flight_tick - ao_launch_tick) > BOOST_TICKS_MAX)
-#else
-			if (ao_flight_accel > ao_ground_accel + ACCEL_COAST ||
-			    (int16_t) (ao_flight_tick - ao_launch_tick) > BOOST_TICKS_MAX)
-#endif
 			{
 				ao_flight_state = ao_flight_fast;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
@@ -564,62 +570,28 @@ ao_flight(void)
 			}
 			break;
 		case ao_flight_fast:
-
-			/* fast to coast:
-			 *
-			 * accelerometer: integrated velocity < 200 m/s
-			 *               OR
-			 * barometer: fall at least 500m from max altitude
-			 *
-			 * This extra state is required to avoid mis-detecting
-			 * apogee due to mach transitions.
-			 *
-			 * XXX this is essentially a single-detector test
-			 * as the 500m altitude change would likely result
-			 * in a loss of the rocket. More data on precisely
-			 * how big a pressure change the mach transition
-			 * generates would be useful here.
+			/*
+			 * This is essentially the same as coast,
+			 * but the barometer is being ignored as
+			 * it may be unreliable.
 			 */
-#if USE_KALMAN
-			if (ao_k_speed < to_fix32(200) ||
-			    ao_k_height < ao_k_max_height - to_fix32(500))
-#else
-			if (ao_flight_vel < ACCEL_VEL_MACH ||
-			    ao_flight_pres > ao_min_pres + BARO_COAST)
-#endif
-			{
-#if HAS_ACCEL
-				/* set min velocity to current velocity for
-				 * apogee detect
-				 */
-				ao_min_vel = abs(ao_flight_vel);
-#endif
+			if (ao_speed < AO_MS_TO_SPEED(AO_MAX_BARO_SPEED)) {
 				ao_flight_state = ao_flight_coast;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
+				break;
 			}
 			break;
-#endif /* HAS_ACCEL */
 		case ao_flight_coast:
 
-#if USE_KALMAN
 			/* apogee detect: coast to drogue deploy:
 			 *
 			 * speed: < 0
-			 */
-			if (ao_k_speed < 0)
-#else
-			/* apogee detect: coast to drogue deploy:
 			 *
-			 * barometer: fall at least 10m
-			 *
-			 * It would be nice to use the accelerometer
-			 * to detect apogee as well, but tests have
-			 * shown that flights far from vertical would
-			 * grossly mis-detect apogee. So, for now,
-			 * we'll trust to a single sensor for this test
+			 * Also make sure the model altitude is tracking
+			 * the measured altitude reasonably closely; otherwise
+			 * we're probably transsonic.
 			 */
-			if (ao_flight_pres > ao_min_pres + BARO_APOGEE)
-#endif
+			if (ao_speed < 0 && (ao_raw_alt >= AO_MAX_BARO_HEIGHT || ao_error_h_sq_avg < 100))
 			{
 				/* ignite the drogue charge */
 				ao_ignite(ao_igniter_drogue);
@@ -627,32 +599,15 @@ ao_flight(void)
 				/* slow down the telemetry system */
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_RECOVER);
 
-#if !USE_KALMAN
-				/* slow down the ADC sample rate */
-				ao_timer_set_adc_interval(10);
-#endif
-
 				/*
-				 * Start recording min/max accel and pres for a while
+				 * Start recording min/max height
 				 * to figure out when the rocket has landed
 				 */
-				/* Set the 'last' limits to max range to prevent
-				 * early resting detection
-				 */
-#if HAS_ACCEL
-				ao_interval_min_accel = 0;
-				ao_interval_max_accel = 0x7fff;
-#endif
-				ao_interval_min_pres = 0;
-				ao_interval_max_pres = 0x7fff;
 
 				/* initialize interval values */
 				ao_interval_end = ao_flight_tick + AO_INTERVAL_TICKS;
 
-				ao_interval_cur_min_pres = ao_interval_cur_max_pres = ao_flight_pres;
-#if HAS_ACCEL
-				ao_interval_cur_min_accel = ao_interval_cur_max_accel = ao_flight_accel;
-#endif
+				ao_interval_min_height = ao_interval_max_height = ao_height;
 
 				/* and enter drogue state */
 				ao_flight_state = ao_flight_drogue;
@@ -674,11 +629,7 @@ ao_flight(void)
 			 * at that point. Perhaps also use the drogue sense lines
 			 * to notice continutity?
 			 */
-#if USE_KALMAN
-			if (from_fix(ao_k_height) < ao_config.main_deploy)
-#else
-			if (ao_flight_pres >= ao_main_pres)
-#endif
+			if (ao_height <= ao_config.main_deploy)
 			{
 				ao_ignite(ao_igniter_main);
 				ao_flight_state = ao_flight_main;
@@ -690,39 +641,17 @@ ao_flight(void)
 
 			/* drogue/main to land:
 			 *
-			 * accelerometer: value stable
-			 *                           AND
 			 * barometer: altitude stable and within 1000m of the launch altitude
 			 */
 
-			if (ao_flight_pres < ao_interval_cur_min_pres)
-				ao_interval_cur_min_pres = ao_flight_pres;
-			if (ao_flight_pres > ao_interval_cur_max_pres)
-				ao_interval_cur_max_pres = ao_flight_pres;
-#if HAS_ACCEL
-			if (ao_flight_accel < ao_interval_cur_min_accel)
-				ao_interval_cur_min_accel = ao_flight_accel;
-			if (ao_flight_accel > ao_interval_cur_max_accel)
-				ao_interval_cur_max_accel = ao_flight_accel;
-#endif
+			if (ao_height < ao_interval_min_height)
+				ao_interval_min_height = ao_height;
+			if (ao_height > ao_interval_max_height)
+				ao_interval_max_height = ao_height;
 
 			if ((int16_t) (ao_flight_tick - ao_interval_end) >= 0) {
-				ao_interval_max_pres = ao_interval_cur_max_pres;
-				ao_interval_min_pres = ao_interval_cur_min_pres;
-				ao_interval_cur_min_pres = ao_interval_cur_max_pres = ao_flight_pres;
-#if HAS_ACCEL
-				ao_interval_max_accel = ao_interval_cur_max_accel;
-				ao_interval_min_accel = ao_interval_cur_min_accel;
-				ao_interval_cur_min_accel = ao_interval_cur_max_accel = ao_flight_accel;
-#endif
-				ao_interval_end = ao_flight_tick + AO_INTERVAL_TICKS;
-
-				if (
-#if HAS_ACCEL
-					(uint16_t) (ao_interval_max_accel - ao_interval_min_accel) < (uint16_t) ACCEL_INT_LAND &&
-#endif
-				    ao_flight_pres > ao_ground_pres - BARO_LAND &&
-				    (uint16_t) (ao_interval_max_pres - ao_interval_min_pres) < (uint16_t) BARO_INT_LAND)
+				if (ao_height < AO_M_TO_HEIGHT(1000) &&
+				    ao_interval_max_height - ao_interval_min_height < AO_M_TO_HEIGHT(5))
 				{
 					ao_flight_state = ao_flight_landed;
 
@@ -733,6 +662,8 @@ ao_flight(void)
 
 					ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 				}
+				ao_interval_min_height = ao_interval_max_height = ao_height;
+				ao_interval_end = ao_flight_tick + AO_INTERVAL_TICKS;
 			}
 			break;
 		case ao_flight_landed:

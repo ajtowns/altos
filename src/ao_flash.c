@@ -93,12 +93,12 @@ static __pdata uint16_t ao_flash_block = FLASH_BLOCK_NONE;
 static __pdata uint8_t	ao_flash_block_dirty;
 static __pdata uint8_t  ao_flash_write_pending;
 static __pdata uint8_t	ao_flash_setup_done;
-static __data uint8_t	ao_flash_block_shift;
-static __data uint16_t	ao_flash_block_size;
-static __data uint16_t	ao_flash_block_mask;
+static __pdata uint8_t	ao_flash_block_shift;
+static __pdata uint16_t	ao_flash_block_size;
+static __pdata uint16_t	ao_flash_block_mask;
 
 void
-ao_storage_setup(void)
+ao_storage_setup(void) __reentrant
 {
 	uint8_t	status;
 

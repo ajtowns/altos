@@ -45,12 +45,13 @@ ao_telemetry(void)
 		time = ao_rdf_time = ao_time();
 		while (ao_telemetry_interval) {
 			telemetry.flight_state = ao_flight_state;
+			telemetry.height = ao_height;
+			telemetry.u.k.speed = ao_speed;
+			telemetry.accel = ao_accel;
+			telemetry.u.k.unused = 0x8000;
 #if HAS_ACCEL
-			telemetry.flight_accel = ao_flight_accel;
 			telemetry.ground_accel = ao_ground_accel;
-			telemetry.flight_vel = ao_flight_vel;
 #endif
-			telemetry.flight_pres = ao_flight_pres;
 			telemetry.ground_pres = ao_ground_pres;
 #if HAS_ADC
 			ao_adc_get(&telemetry.adc);

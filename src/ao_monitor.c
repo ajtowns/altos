@@ -92,23 +92,23 @@ ao_monitor(void)
 				       recv.telemetry.accel_plus_g,
 				       recv.telemetry.accel_minus_g);
 
-#if 0
-				/* Kalman state values */
-				printf(AO_TELEM_KALMAN_HEIGHT " %d "
-				       AO_TELEM_KALMAN_SPEED " %d "
-				       AO_TELEM_KALMAN_ACCEL " %d ",
-				       recv.telemetry.height,
-				       recv.telemetry.speed,
-				       recv.telemetry.accel);
-#else
-				/* Ad-hoc flight values */
-				printf(AO_TELEM_ADHOC_ACCEL " %d "
-				       AO_TELEM_ADHOC_SPEED " %ld "
-				       AO_TELEM_ADHOC_BARO " %d ",
-				       recv.telemetry.flight_accel,
-				       recv.telemetry.flight_vel,
-				       recv.telemetry.flight_pres);
-#endif
+				if (recv.telemetry.u.k.unused == 0x8000) {
+					/* Kalman state values */
+					printf(AO_TELEM_KALMAN_HEIGHT " %d "
+					       AO_TELEM_KALMAN_SPEED " %d "
+					       AO_TELEM_KALMAN_ACCEL " %d ",
+					       recv.telemetry.height,
+					       recv.telemetry.u.k.speed,
+					       recv.telemetry.accel);
+				} else {
+					/* Ad-hoc flight values */
+					printf(AO_TELEM_ADHOC_ACCEL " %d "
+					       AO_TELEM_ADHOC_SPEED " %ld "
+					       AO_TELEM_ADHOC_BARO " %d ",
+					       recv.telemetry.accel,
+					       recv.telemetry.u.flight_vel,
+					       recv.telemetry.height);
+				}
 				ao_gps_print(&recv.telemetry.gps);
 				ao_gps_tracking_print(&recv.telemetry.gps_tracking);
 				putchar('\n');

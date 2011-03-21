@@ -87,7 +87,7 @@ ao_report_digit(uint8_t digit) __reentrant
 static void
 ao_report_altitude(void)
 {
-	__xdata int16_t	agl = ao_pres_to_altitude(ao_min_pres) - ao_pres_to_altitude(ao_ground_pres);
+	__xdata int16_t	agl = ao_max_height;
 	__xdata uint8_t	digits[10];
 	__xdata uint8_t ndigits, i;
 

@@ -34,7 +34,7 @@
 /* Stack runs from above the allocated __data space to 0xfe, which avoids
  * writing to 0xff as that triggers the stack overflow indicator
  */
-#define AO_STACK_START	0x80
+#define AO_STACK_START	0x90
 #define AO_STACK_END	0xfe
 #define AO_STACK_SIZE	(AO_STACK_END - AO_STACK_START + 1)
 
@@ -470,7 +470,7 @@ extern __xdata uint16_t ao_storage_unit;
 
 /* Initialize above values. Can only be called once the OS is running */
 void
-ao_storage_setup(void);
+ao_storage_setup(void) __reentrant;
 
 /* Write data. Returns 0 on failure, 1 on success */
 uint8_t
@@ -698,21 +698,19 @@ enum ao_flight_state {
 extern __data uint8_t			ao_flight_adc;
 extern __pdata enum ao_flight_state	ao_flight_state;
 extern __pdata uint16_t			ao_flight_tick;
-extern __pdata int16_t			ao_flight_accel;
-extern __pdata int16_t			ao_flight_pres;
-extern __pdata int32_t			ao_flight_vel;
-extern __pdata int16_t			ao_ground_pres;
+extern __xdata int16_t			ao_ground_pres;
 extern __pdata int16_t			ao_ground_accel;
-extern __pdata int16_t			ao_min_pres;
 extern __pdata uint16_t			ao_launch_time;
 extern __xdata uint8_t			ao_flight_force_idle;
-#ifdef USE_KALMAN
 extern __pdata int16_t			ao_ground_height;
-extern __pdata int32_t			ao_k_max_height;
-extern __pdata int32_t			ao_k_height;
-extern __pdata int32_t			ao_k_speed;
-extern __pdata int32_t			ao_k_accel;
-#endif
+extern __pdata int16_t			ao_max_height;
+extern __pdata int16_t			ao_height;	/* meters */
+extern __pdata int16_t			ao_speed;	/* m/s * 16 */
+extern __pdata int16_t			ao_accel;	/* m/s² * 16 */
+
+#define AO_M_TO_HEIGHT(m)	((int16_t) (m))
+#define AO_MS_TO_SPEED(ms)	((int16_t) ((ms) * 16))
+#define AO_MSS_TO_ACCEL(mss)	((int16_t) ((mss) * 16))
 
 /* Flight thread */
 void
@@ -912,10 +910,16 @@ struct ao_telemetry {
 	uint16_t		serial;
 	uint16_t		flight;
 	uint8_t			flight_state;
-	int16_t			flight_accel;
+	int16_t			accel;
 	int16_t			ground_accel;
-	int32_t			flight_vel;
-	int16_t			flight_pres;
+	union {
+		struct {
+			int16_t			speed;
+			int16_t			unused;
+		} k;
+		int32_t		flight_vel;
+	} u;
+	int16_t			height;
 	int16_t			ground_pres;
 	int16_t			accel_plus_g;
 	int16_t			accel_minus_g;

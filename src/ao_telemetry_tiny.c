@@ -43,9 +43,9 @@ ao_telemetry_tiny(void)
 		time = ao_rdf_time = ao_time();
 		while (ao_telemetry_tiny_interval) {
 			telemetry_tiny.flight_state = ao_flight_state;
-			telemetry_tiny.height = ao_k_height >> 16;
-			telemetry_tiny.speed = ao_k_speed >> 12;
-			telemetry_tiny.accel = ao_k_accel >> 12;
+			telemetry_tiny.height = ao_height;
+			telemetry_tiny.speed = ao_speed;
+			telemetry_tiny.accel = ao_accel;
 			telemetry_tiny.ground_pres = ao_ground_pres;
 			ao_adc_get(&telemetry_tiny.adc);
 			ao_radio_send(&telemetry_tiny, sizeof (telemetry_tiny));
