@@ -1,0 +1,493 @@
+#!/usr/bin/env nickle
+
+/*
+ * Copyright © 2011 Keith Packard <keithp@keithp.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
+autoimport ParseArgs;
+
+load "load_csv.5c"
+import load_csv;
+
+load "matrix.5c"
+import matrix;
+
+load "kalman_filter.5c"
+import kalman;
+
+/*
+ * AltOS keeps speed and accel scaled
+ * by 4 bits to provide additional precision
+ */
+real	height_scale = 1.0;
+real	accel_scale = 16.0;
+real	speed_scale = 16.0;
+
+/*
+ * State:
+ *
+ * x[0] = height
+ * x[1] = velocity
+ * x[2] = acceleration
+ */
+
+/*
+ * Measurement
+ *
+ * z[0] = height
+ * z[1] = acceleration
+ */
+
+real default_σ_m = 5;
+real default_σ_h = 20;
+real default_σ_a = 2;
+
+parameters_t param_both(real t, real σ_m, real σ_h, real σ_a) {
+	if (σ_m == 0)
+		σ_m = default_σ_m;
+	if (σ_h == 0)
+		σ_h = default_σ_h;
+	if (σ_a == 0)
+		σ_a = default_σ_a;
+
+	σ_m = imprecise(σ_m) * accel_scale;
+	σ_h = imprecise(σ_h) * height_scale;
+	σ_a = imprecise(σ_a) * accel_scale;
+
+	t = imprecise(t);
+
+	return (parameters_t) {
+/*
+ * Equation computing state k from state k-1
+ *
+ * height = height- + velocity- * t + acceleration- * t² / 2
+ * velocity = velocity- + acceleration- * t
+ * acceleration = acceleration-
+ */
+		.a = (real[3,3]) {
+			{ 1,
+			  t * height_scale / speed_scale , t**2/2 * height_scale / accel_scale },
+			{ 0, 1, t * speed_scale / accel_scale },
+			{ 0, 0, 1 }
+		},
+/*
+ * Model error covariance. The only inaccuracy in the
+ * model is the assumption that acceleration is constant
+ */
+		.q = (real[3,3]) {
+			{ 0, 0, 0 },
+			{ 0, 0, 0 },
+			{.0, 0, σ_m**2	},
+		},
+/*
+ * Measurement error covariance
+ * Our sensors are independent, so
+ * this matrix is zero off-diagonal
+ */
+		.r = (real[2,2]) {
+			{ σ_h ** 2, 0 },
+			{ 0, σ_a ** 2 },
+		},
+/*
+ * Extract measurements from state,
+ * this just pulls out the height and acceleration
+ * values.
+ */
+		.h = (real[2,3]) {
+			{ 1, 0, 0 },
+			{ 0, 0, 1 },
+		},
+	 };
+}
+
+parameters_t param_baro(real t, real σ_m, real σ_h) {
+	if (σ_m == 0)
+		σ_m = default_σ_m;
+	if (σ_h == 0)
+		σ_h = default_σ_h;
+
+	σ_m = imprecise(σ_m) * accel_scale;
+	σ_h = imprecise(σ_h) * height_scale;
+
+	t = imprecise(t);
+	return (parameters_t) {
+/*
+ * Equation computing state k from state k-1
+ *
+ * height = height- + velocity- * t + acceleration- * t² / 2
+ * velocity = velocity- + acceleration- * t
+ * acceleration = acceleration-
+ */
+		.a = (real[3,3]) {
+			{ 1, t * height_scale / speed_scale , t**2/2 * height_scale / accel_scale },
+			{ 0, 1, t * speed_scale / accel_scale },
+			{ 0, 0, 1 }
+		},
+/*
+ * Model error covariance. The only inaccuracy in the
+ * model is the assumption that acceleration is constant
+ */
+		.q = (real[3,3]) {
+			{ 0, 0, 0 },
+			{ 0, 0, 0 },
+			{.0, 0, σ_m**2	},
+		},
+/*
+ * Measurement error covariance
+ * Our sensors are independent, so
+ * this matrix is zero off-diagonal
+ */
+		.r = (real[1,1]) {
+			{ σ_h ** 2 },
+		},
+/*
+ * Extract measurements from state,
+ * this just pulls out the height
+ * values.
+ */
+		.h = (real[1,3]) {
+			{ 1, 0, 0 },
+		},
+	 };
+}
+
+parameters_t param_accel(real t, real σ_m, real σ_a) {
+	if (σ_m == 0)
+		σ_m = default_σ_m;
+	if (σ_a == 0)
+		σ_a = default_σ_a;
+
+	σ_m = imprecise(σ_m) * accel_scale;
+	σ_a = imprecise(σ_a) * accel_scale;
+
+	t = imprecise(t);
+	return (parameters_t) {
+/*
+ * Equation computing state k from state k-1
+ *
+ * height = height- + velocity- * t + acceleration- * t² / 2
+ * velocity = velocity- + acceleration- * t
+ * acceleration = acceleration-
+ */
+		.a = (real[3,3]) {
+			{ 1, t * height_scale / speed_scale , t**2/2 * height_scale / accel_scale },
+			{ 0, 1, t * speed_scale / accel_scale },
+			{ 0, 0, 1 }
+		},
+/*
+ * Model error covariance. The only inaccuracy in the
+ * model is the assumption that acceleration is constant
+ */
+		.q = (real[3,3]) {
+			{ 0, 0, 0 },
+			{ 0, 0, 0 },
+			{.0, 0, σ_m**2	},
+		},
+/*
+ * Measurement error covariance
+ * Our sensors are independent, so
+ * this matrix is zero off-diagonal
+ */
+		.r = (real[1,1]) {
+			{ σ_a ** 2 },
+		},
+/*
+ * Extract measurements from state,
+ * this just pulls out the acceleration
+ * values.
+ */
+		.h = (real[1,3]) {
+			{ 0, 0, 1 },
+		},
+	 };
+}
+
+parameters_t param_vel(real t) {
+	static real σ_m = .1;
+	static real σ_v = imprecise(10);
+
+	return (parameters_t) {
+/*
+ * Equation computing state k from state k-1
+ *
+ * height = height- + velocity- * t + acceleration- * t² / 2
+ * velocity = velocity- + acceleration- * t
+ * acceleration = acceleration-
+ */
+		.a = (real[3,3]) {
+			{ 1, imprecise(t), imprecise((t**2)/2) },
+			{ 0, 1, imprecise(t) },
+			{ 0, 0, 1 }
+		},
+/*
+ * Model error covariance. The only inaccuracy in the
+ * model is the assumption that acceleration is constant
+ */
+		.q = (real[3,3]) {
+			{ 0, 0, 0 },
+			{ 0, 0, 0 },
+			{.0, 0, σ_m**2	},
+		},
+/*
+ * Measurement error covariance
+ * Our sensors are independent, so
+ * this matrix is zero off-diagonal
+ */
+		.r = (real[1,1]) {
+			{ σ_v ** 2 },
+		},
+/*
+ * Extract measurements from state,
+ * this just pulls out the velocity
+ * values.
+ */
+		.h = (real[1,3]) {
+			{ 0, 1, 0 },
+		},
+	 };
+}
+
+real	max_baro_height = 18000;
+
+bool	just_kalman = true;
+real	accel_input_scale = 1;
+
+void run_flight(string name, file f, bool summary) {
+	state_t	current_both = {
+		.x = (real[3]) { 0, 0, 0 },
+		.p = (real[3,3]) { { 0 ... } ... },
+	};
+	state_t current_accel = current_both;
+	state_t current_baro = current_both;
+	real	t;
+	real	kalman_apogee_time = -1;
+	real	kalman_apogee = 0;
+	real	raw_apogee_time_first;
+	real	raw_apogee_time_last;
+	real	raw_apogee = 0;
+	real	default_descent_rate = 20;
+	real	speed = 0;
+	real	prev_acceleration = 0;
+	state_t	apogee_state;
+	parameters_fast_t	fast_both;
+	parameters_fast_t	fast_baro;
+	parameters_fast_t	fast_accel;
+	real			fast_delta_t = 0;
+	bool			fast = true;
+
+	for (;;) {
+		record_t	record = parse_record(f, accel_input_scale);
+		if (record.done)
+			break;
+		if (is_uninit(&t))
+			t = record.time;
+		real delta_t = record.time - t;
+		if (delta_t <= 0)
+			continue;
+		t = record.time;
+		if (record.height > raw_apogee) {
+			raw_apogee_time_first = record.time;
+			raw_apogee = record.height;
+		}
+		if (record.height == raw_apogee)
+			raw_apogee_time_last = record.time;
+
+		real	acceleration = record.acceleration;
+		real	height = record.height;
+
+		speed = (speed + (acceleration + prev_acceleration / 2) * delta_t);
+		prev_acceleration = acceleration;
+
+		vec_t z_both = (real[2]) { record.height * height_scale,  record.acceleration * accel_scale };
+		vec_t z_accel = (real[1]) { record.acceleration * accel_scale };
+		vec_t z_baro = (real[1]) { record.height * height_scale };
+
+
+		if (fast) {
+			if (delta_t != fast_delta_t) {
+				fast_both = convert_to_fast(param_both(delta_t, 0, 0, 0));
+				fast_accel = convert_to_fast(param_accel(delta_t, 0, 0));
+				fast_baro = convert_to_fast(param_baro(delta_t, 0, 0));
+				fast_delta_t = delta_t;
+			}
+
+			current_both.x = predict_fast(current_both.x, fast_both);
+			current_accel.x = predict_fast(current_accel.x, fast_accel);
+			current_baro.x = predict_fast(current_baro.x, fast_baro);
+
+			current_both.x = correct_fast(current_both.x, z_both, fast_both);
+			current_accel.x = correct_fast(current_accel.x, z_accel, fast_accel);
+			current_baro.x = correct_fast(current_baro.x, z_baro, fast_baro);
+		} else {
+			parameters_t p_both = param_both(delta_t, 0, 0, 0);
+			parameters_t p_accel = param_accel(delta_t, 0, 0);
+			parameters_t p_baro = param_baro(delta_t, 0, 0);
+
+			state_t pred_both = predict(current_both, p_both);
+			state_t pred_accel = predict(current_accel, p_accel);
+			state_t pred_baro = predict(current_baro, p_baro);
+
+			state_t next_both = correct(pred_both, z_both, p_both);
+			state_t next_accel = correct(pred_accel, z_accel, p_accel);
+			state_t next_baro = correct(pred_baro, z_baro, p_baro);
+			current_both = next_both;
+			current_accel = next_accel;
+			current_baro = next_baro;
+		}
+
+		printf ("%16.8f %16.8f %16.8f %16.8f %16.8f %16.8f %16.8f %16.8f %16.8f %16.8f %16.8f %16.8f %16.8f\n",
+			record.time,
+			record.height, speed, record.acceleration,
+			current_both.x[0] / height_scale, current_both.x[1] / speed_scale, current_both.x[2] / accel_scale,
+			current_accel.x[0] / height_scale, current_accel.x[1] / speed_scale, current_accel.x[2] / accel_scale,
+			current_baro.x[0] / height_scale, current_baro.x[1] / speed_scale, current_baro.x[2] / accel_scale);
+		if (kalman_apogee_time < 0) {
+			if (current_both.x[1] < -1 && current_accel.x[1] < -1 && current_baro.x[1] < -1) {
+				kalman_apogee = current_both.x[0];
+				kalman_apogee_time = record.time;
+				break;
+			}
+		}
+	}
+	real raw_apogee_time = (raw_apogee_time_last + raw_apogee_time_first) / 2;
+	if (summary && !just_kalman) {
+		printf("%s: kalman (%8.2f m %6.2f s) raw (%8.2f m %6.2f s) error %6.2f s\n",
+		       name,
+		       kalman_apogee, kalman_apogee_time,
+		       raw_apogee, raw_apogee_time,
+		       kalman_apogee_time - raw_apogee_time);
+	}
+}
+
+void main() {
+	bool	summary = false;
+	int	user_argind = 1;
+	real	time_step = 0.01;
+	string	compute = "none";
+	string	prefix = "AO_K";
+	real	σ_m = 1;
+	real	σ_h = 4;
+	real	σ_a = 1;
+
+	ParseArgs::argdesc argd = {
+		.args = {
+			{ .var = { .arg_flag = &summary },
+			  .abbr = 's',
+			  .name = "summary",
+			  .desc = "Print a summary of the flight" },
+			{ .var = { .arg_real = &max_baro_height },
+			  .abbr = 'm',
+			  .name = "maxbaro",
+			  .expr_name = "height",
+			  .desc = "Set maximum usable barometer height" },
+			{ .var = { .arg_real = &accel_input_scale, },
+			  .abbr = 'a',
+			  .name = "accel",
+			  .expr_name = "<accel-scale>",
+			  .desc = "Set accelerometer scale factor" },
+			{ .var = { .arg_real = &time_step, },
+			  .abbr = 't',
+			  .name = "time",
+			  .expr_name = "<time-step>",
+			  .desc = "Set time step for convergence" },
+			{ .var = { .arg_string = &prefix },
+			  .abbr = 'p',
+			  .name = "prefix",
+			  .expr_name = "<prefix>",
+			  .desc = "Prefix for compute output" },
+			{ .var = { .arg_string = &compute },
+			  .abbr = 'c',
+			  .name = "compute",
+			  .expr_name = "{both,baro,accel}",
+			  .desc = "Compute Kalman factor through convergence" },
+			{ .var = { .arg_real = &σ_m },
+			  .abbr = 'M',
+			  .name = "model",
+			  .expr_name = "<model-accel-error>",
+			  .desc = "Model co-variance for acceleration" },
+			{ .var = { .arg_real = &σ_h },
+			  .abbr = 'H',
+			  .name = "height",
+			  .expr_name = "<measure-height-error>",
+			  .desc = "Measure co-variance for height" },
+			{ .var = { .arg_real = &σ_a },
+			  .abbr = 'A',
+			  .name = "accel",
+			  .expr_name = "<measure-accel-error>",
+			  .desc = "Measure co-variance for acceleration" },
+		},
+
+		.unknown = &user_argind,
+	};
+
+	ParseArgs::parseargs(&argd, &argv);
+
+	if (compute != "none") {
+		parameters_t	param;
+
+		printf ("/* Kalman matrix for %s\n", compute);
+		printf (" *     step = %f\n", time_step);
+		printf (" *     σ_m = %f\n", σ_m);
+		switch (compute) {
+		case "both":
+			printf (" *     σ_h = %f\n", σ_h);
+			printf (" *     σ_a = %f\n", σ_a);
+			param = param_both(time_step, σ_m, σ_h, σ_a);
+			break;
+		case "accel":
+			printf (" *     σ_a = %f\n", σ_a);
+			param = param_accel(time_step, σ_m, σ_a);
+			break;
+		case "baro":
+			printf (" *     σ_h = %f\n", σ_h);
+			param = param_baro(time_step, σ_m, σ_h);
+			break;
+		}
+		printf (" */\n\n");
+		mat_t k = converge(param);
+		int[] d = dims(k);
+		int time_inc = floor(1/time_step + 0.5);
+		if (d[1] == 2) {
+			for (int i = 0; i < d[0]; i++)
+				for (int j = 0; j < d[1]; j++)
+					printf ("#define %s_K%d%d_%d to_fix16(%12.10f)\n",
+						prefix, i, j, time_inc, k[i,j]);
+		} else {
+			for (int i = 0; i < d[0]; i++) {
+				printf ("#define %s_K%d_%d to_fix16(%12.10f)\n",
+					prefix, i, time_inc, k[i,0]);
+			}
+		}
+		printf ("\n");
+		return;
+	}
+	string[dim(argv) - user_argind] rest = { [i] = argv[i+user_argind] };
+
+	#	height_scale = accel_scale = speed_scale = 1;
+
+	if (dim(rest) == 0)
+		run_flight("<stdin>", stdin, summary);
+	else {
+		for (int i = 0; i < dim(rest); i++) {
+			twixt(file f = File::open(rest[i], "r"); File::close(f)) {
+				run_flight(rest[i], f, summary);
+			}
+		}
+	}
+}
+main();
+#kalman(stdin);
+#dump(stdin);

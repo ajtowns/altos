@@ -1,0 +1,63 @@
+/*
+ * Copyright © 2011 Keith Packard <keithp@keithp.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
+namespace load_csv {
+	string[*] parse_data(file f) {
+		while (!File::end(f)) {
+			string l = File::fgets(f);
+			if (l[0] == '#')
+				continue;
+			return String::parse_csv(l);
+		}
+		return (string[0]) {};
+	}
+
+	public typedef struct {
+		bool	done;
+		real	time;
+		real	height;
+		real	acceleration;
+	} record_t;
+
+	public record_t parse_record(file f, real accel_scale) {
+		string[*] data = parse_data(f);
+		if (dim(data) == 0)
+			return (record_t) { .done = true };
+		int time_off = 4;
+		int height_off = 11;
+		int accel_off = 8;
+		if (string_to_integer(data[0]) == 2) {
+			time_off = 4;
+			accel_off = 9;
+			height_off = 12;
+		}
+		return (record_t) {
+			.done = false,
+				.time = string_to_real(data[time_off]),
+				.height = imprecise(string_to_real(data[height_off])),
+				.acceleration = imprecise(string_to_real(data[accel_off]) * accel_scale) };
+	}
+
+	public void dump(file f) {
+		for (;;) {
+			record_t	r = parse_record(f, 1);
+			if (r.done)
+				break;
+			printf ("%f %f %f\n", r.time, r.height, r.acceleration);
+		}
+	}
+}

@@ -1,0 +1,157 @@
+/*
+ * Copyright © 2011 Keith Packard <keithp@keithp.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
+namespace matrix {
+	public typedef real[*] vec_t;
+	public typedef real[*,*] mat_t;
+
+	public mat_t transpose(mat_t m) {
+		int[2] d = dims(m);
+		return (real[d[1],d[0]]) { [i,j] = m[j,i] };
+	}
+
+	public void print_mat(string name, mat_t m) {
+		int[2]	d = dims(m);
+		printf ("%s {\n", name);
+		for (int y = 0; y < d[0]; y++) {
+			for (int x = 0; x < d[1]; x++)
+				printf (" %14.8f", m[y,x]);
+			printf ("\n");
+		}
+		printf ("}\n");
+	}
+
+	public void print_vec(string name, vec_t v) {
+		int d = dim(v);
+		printf ("%s {", name);
+		for (int x = 0; x < d; x++)
+			printf (" %14.8f", v[x]);
+		printf (" }\n");
+	}
+
+	public mat_t multiply(mat_t a, mat_t b) {
+		int[2] da = dims(a);
+		int[2] db = dims(b);
+
+		assert(da[1] == db[0], "invalid matrix dimensions");
+
+		real dot(int rx, int ry) {
+			real	r = 0.0;
+			for (int i = 0; i < da[1]; i++)
+				r += a[ry, i] * b[i, rx];
+			return imprecise(r);
+		}
+
+		mat_t r = (real[da[0], db[1]]) { [ry,rx] = dot(rx,ry) };
+		return r;
+	}
+
+	public mat_t multiply_mat_val(mat_t m, real value) {
+		int[2] d = dims(m);
+		for (int j = 0; j < d[1]; j++)
+			for (int i = 0; i < d[0]; i++)
+				m[i,j] *= value;
+		return m;
+	}
+
+	public mat_t add(mat_t a, mat_t b) {
+		int[2]	da = dims(a);
+		int[2]	db = dims(b);
+
+		assert(da[0] == db[0] && da[1] == db[1], "mismatching dim in plus");
+		return (real[da[0], da[1]]) { [y,x] = a[y,x] + b[y,x] };
+	}
+
+	public mat_t subtract(mat_t a, mat_t b) {
+		int[2]	da = dims(a);
+		int[2]	db = dims(b);
+
+		assert(da[0] == db[0] && da[1] == db[1], "mismatching dim in minus");
+		return (real[da[0], da[1]]) { [y,x] = a[y,x] - b[y,x] };
+	}
+
+	public mat_t inverse(mat_t m) {
+		int[2] d = dims(m);
+
+		real[1,1] inverse_1(real[1,1] m) {
+			return (real[1,1]) { { 1/m[0,0] } };
+		}
+
+		if (d[0] == 1 && d[1] == 1)
+			return inverse_1(m);
+
+		real[2,2] inverse_2(real[2,2] m) {
+			real	a = m[0,0], b = m[0,1];
+			real	c = m[1,0], d = m[1,1];
+			real det = a * d - b * c;
+			return multiply_mat_val((real[2,2]) {
+					{ d, -b }, { -c, a } }, 1/det);
+		}
+
+		if (d[0] == 2 && d[1] == 2)
+			return inverse_2(m);
+
+		real[3,3] inverse_3(real[3,3] m) {
+			real	a = m[0,0], b = m[0,1], c = m[0, 2];
+			real	d = m[1,0], e = m[1,1], f = m[1, 2];
+			real	g = m[2,0], h = m[2,1], k = m[2, 2];
+			real	Z = a*(e*k-f*h) + b*(f*g - d*k) + c*(d*h-e*g);
+			real	A = (e*k-f*h), B = (c*h-b*k), C=(b*f-c*e);
+			real	D = (f*g-d*k), E = (a*k-c*g), F=(c*d-a*f);
+			real	G = (d*h-e*g), H = (b*g-a*h), K=(a*e-b*d);
+			return multiply_mat_val((real[3,3]) {
+					{ A, B, C }, { D, E, F }, { G, H, K }},
+				1/Z);
+		}
+
+		if (d[0] == 3 && d[1] == 3)
+			return inverse_3(m);
+		assert(false, "cannot invert %v\n", d);
+		return m;
+	}
+
+	public mat_t identity(int d) {
+		return (real[d,d]) { [i,j] = (i == j) ? 1 : 0 };
+	}
+
+	public vec_t vec_subtract(vec_t a, vec_t b) {
+		int	da = dim(a);
+		int	db = dim(b);
+
+		assert(da == db, "mismatching dim in minus");
+		return (real[da]) { [x] = a[x] - b[x] };
+	}
+
+	public vec_t vec_add(vec_t a, vec_t b) {
+		int	da = dim(a);
+		int	db = dim(b);
+
+		assert(da == db, "mismatching dim in plus");
+		return (real[da]) { [x] = a[x] + b[x] };
+	}
+
+	public vec_t multiply_vec_mat(vec_t v, mat_t m) {
+		mat_t r2 = matrix::multiply((real[dim(v),1]) { [y,x] = v[y] }, m);
+		return (real[dim(v)]) { [y] = r2[y,0] };
+	}
+
+	public vec_t multiply_mat_vec(mat_t m, vec_t v) {
+		mat_t r2 = matrix::multiply(m, (real[dim(v), 1]) { [y,x] = v[y] });
+		int[2] d = dims(m);
+		return (real[d[0]]) { [y] = r2[y,0] };
+	}
+}
