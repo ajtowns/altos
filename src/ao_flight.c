@@ -135,7 +135,7 @@ static __pdata int32_t		ao_k_accel;
 /*
  * Above this height, the baro sensor doesn't work
  */
-#define AO_MAX_BARO_HEIGHT	8000
+#define AO_MAX_BARO_HEIGHT	12000
 
 /*
  * Above this speed, baro measurements are unreliable
@@ -168,6 +168,11 @@ static void
 ao_kalman_err_height(void)
 {
 	int16_t	e;
+	int16_t height_distrust;
+#if HAS_ACCEL
+	int16_t	speed_distrust;
+#endif
+
 	ao_error_h = ao_raw_height - (int16_t) (ao_k_height >> 16);
 
 	e = ao_error_h;
@@ -177,6 +182,31 @@ ao_kalman_err_height(void)
 		e = 127;
 	ao_error_h_sq_avg -= ao_error_h_sq_avg >> 4;
 	ao_error_h_sq_avg += (e * e) >> 4;
+
+	height_distrust = ao_raw_height - AO_MAX_BARO_HEIGHT;
+#ifdef AO_FLIGHT_TEST
+	if (height_distrust > 0)
+		printf ("height_distrust %d\n", height_distrust);
+#endif
+#if HAS_ACCEL
+	speed_distrust = (ao_speed - AO_MS_TO_SPEED(AO_MAX_BARO_SPEED)) >> 4;
+#ifdef AO_FLIGHT_TEST
+	if (speed_distrust > 0)
+		printf ("speed distrust %d\n", speed_distrust);
+#endif
+	if (speed_distrust <= 0)
+		speed_distrust = 0;
+	else if (speed_distrust > height_distrust)
+		height_distrust = speed_distrust;
+#endif
+	if (height_distrust <= 0)
+		height_distrust = 0;
+
+	if (height_distrust) {
+		if (height_distrust > 0x100)
+			height_distrust = 0x100;
+		ao_error_h = (int16_t) ((int32_t) ao_error_h * (0x100 - height_distrust)) >> 8;
+	}
 }
 
 static void
@@ -407,16 +437,13 @@ ao_flight(void)
 				ao_kalman_predict();
 #if HAS_ACCEL
 				if (ao_flight_state <= ao_flight_coast) {
-#ifndef FORCE_ACCEL
-					if (/*ao_speed < AO_MS_TO_SPEED(AO_MAX_BARO_SPEED) &&*/
-					    ao_raw_alt < AO_MAX_BARO_HEIGHT)
-						ao_kalman_correct_both();
-					else
+#ifdef FORCE_ACCEL
+					ao_kalman_correct_accel();
+#else
+					ao_kalman_correct_both();
 #endif
-						ao_kalman_correct_accel();
 				} else
 #endif
-				if (ao_raw_alt < AO_MAX_BARO_HEIGHT || ao_flight_state >= ao_flight_drogue)
 					ao_kalman_correct_baro();
 				ao_height = from_fix(ao_k_height);
 				ao_speed = from_fix(ao_k_speed);
