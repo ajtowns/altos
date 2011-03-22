@@ -2,17 +2,15 @@
 
 cd ../kalman
 
-SIGMA_ACCEL_MODEL=1
-SIGMA_BARO_MEASURE=8
-SIGMA_ACCEL_MEASURE=4
+SIGMA_BOTH="-M 2 -H 4 -A 4"
+SIGMA_BARO="-M 2 -H 4 -A 4"
+SIGMA_ACCEL="-M 2 -H 4 -A 4"
 
-SIGMA="-M $SIGMA_ACCEL_MODEL -H $SIGMA_BARO_MEASURE -A $SIGMA_ACCEL_MEASURE"
+nickle kalman.5c -p AO_BOTH -c both -t 0.01 $SIGMA_BOTH
+nickle kalman.5c -p AO_BOTH -c both -t 0.1 $SIGMA_BOTH
 
-nickle kalman.5c -p AO_BOTH -c both -t 0.01 $SIGMA
-nickle kalman.5c -p AO_BOTH -c both -t 0.1 $SIGMA
+nickle kalman.5c -p AO_ACCEL -c accel -t 0.01 $SIGMA_ACCEL
+nickle kalman.5c -p AO_ACCEL -c accel -t 0.1 $SIGMA_ACCEL
 
-nickle kalman.5c -p AO_ACCEL -c accel -t 0.01 $SIGMA
-nickle kalman.5c -p AO_ACCEL -c accel -t 0.1 $SIGMA
-
-nickle kalman.5c -p AO_BARO -c baro -t 0.01 $SIGMA
-nickle kalman.5c -p AO_BARO -c baro -t 0.1 $SIGMA
+nickle kalman.5c -p AO_BARO -c baro -t 0.01 $SIGMA_BARO
+nickle kalman.5c -p AO_BARO -c baro -t 0.1 $SIGMA_BARO
