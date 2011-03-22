@@ -184,16 +184,8 @@ ao_kalman_err_height(void)
 	ao_error_h_sq_avg += (e * e) >> 4;
 
 	height_distrust = ao_raw_height - AO_MAX_BARO_HEIGHT;
-#ifdef AO_FLIGHT_TEST
-	if (height_distrust > 0)
-		printf ("height_distrust %d\n", height_distrust);
-#endif
 #if HAS_ACCEL
 	speed_distrust = (ao_speed - AO_MS_TO_SPEED(AO_MAX_BARO_SPEED)) >> 4;
-#ifdef AO_FLIGHT_TEST
-	if (speed_distrust > 0)
-		printf ("speed distrust %d\n", speed_distrust);
-#endif
 	if (speed_distrust <= 0)
 		speed_distrust = 0;
 	else if (speed_distrust > height_distrust)
@@ -246,22 +238,6 @@ ao_kalman_correct_both(void)
 {
 	ao_kalman_err_height();
 	ao_kalman_err_accel();
-
-#if 0
-	/*
-	 * Check to see if things are crazy here --
-	 * if the computed height is far above the
-	 * measured height, we assume that the flight
-	 * trajectory is not vertical, and so ignore
-	 * the accelerometer for the remainder of the
-	 * flight.
-	 */
-	if (ao_error_h_sq_avg > 10)
-	{
-		ao_kalman_correct_baro();
-		return;
-	}
-#endif
 
 #ifdef AO_FLIGHT_TEST
 	if (ao_flight_tick - ao_flight_prev_tick > 5) {
