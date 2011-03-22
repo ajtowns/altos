@@ -460,19 +460,17 @@ void main() {
 		mat_t k = converge(param);
 		int[] d = dims(k);
 		int time_inc = floor(1/time_step + 0.5);
-		if (d[1] == 2) {
-			for (int i = 0; i < d[0]; i++)
-				for (int j = 0; j < d[1]; j++)
-					printf ("#define %s_K%d%d_%d to_fix16(%12.10f)\n",
-						prefix, i, j, time_inc, k[i,j]);
-		} else {
-			for (int i = 0; i < d[0]; i++) {
-				printf ("#define %s_K%d_%d to_fix16(%12.10f)\n",
-					prefix, i, time_inc, k[i,0]);
+		for (int i = 0; i < d[0]; i++)
+			for (int j = 0; j < d[1]; j++) {
+				string name;
+				if (d[1] == 1)
+					name = sprintf("%s_K%d_%d", prefix, i, time_inc);
+				else
+					name = sprintf("%s_K%d%d_%d", prefix, i, j, time_inc);
+				printf ("#define %s to_fix32(%12.10f)\n", name, k[i,j]);
 			}
-		}
 		printf ("\n");
-		return;
+		exit(0);
 	}
 	string[dim(argv) - user_argind] rest = { [i] = argv[i+user_argind] };
 
