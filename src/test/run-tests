@@ -2,21 +2,21 @@
 
 DIR=~/src/cc1111/flights
 
+bad_baro=0
+bad_full=0
 while read flight; do
-	baro=`./ao_flight_test_baro -s $DIR/$flight |
-		awk '/drogue/ {	printf "%s ", $4 }
-		/main/ { printf "%s\n", $4 }'`
-	full=`./ao_flight_test -s $DIR/$flight |
-		awk '/drogue/ {	printf "%s ", $4 }
-		/main/ { printf "%s\n", $4 }'`
-	echo $flight $baro $full
-done < test-flights |
-awk '{ name = $1;
-	drogue_error = $2 - $4;
-	if (drogue_error < 0) drogue_error = -drogue_error;
-	main_error = $3 - $5;
-	if (main_error < 0) main_error = -main_error;
-	if (drogue_error > 4 || main_error > 4)
-		printf ("%s: baro drogue %f main %f. full drogue %f main %f\n",
-			name, $2, $3, $4, $5);
-	}'
+    if ./ao_flight_test_baro -s $DIR/$flight; then
+	:
+    else
+	((bad_baro++))
+    fi
+    if ./ao_flight_test -s $DIR/$flight; then
+	:
+    else
+	((bad_full++))
+    fi
+done < test-flights
+echo baro errors $bad_baro
+echo full errors $bad_full
+((bad = bad_baro + bad_full))
+exit $bad

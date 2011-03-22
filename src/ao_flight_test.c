@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
+#include <math.h>
 
 #define AO_HERTZ	100
 
@@ -87,11 +88,27 @@ enum ao_igniter {
 
 struct ao_adc ao_adc_static;
 
+int	drogue_height;
+double	drogue_time;
+int	main_height;
+double	main_time;
+
+int	tick_offset;
+
+static int32_t	ao_k_height;
+
 void
 ao_ignite(enum ao_igniter igniter)
 {
-	printf ("ignite %s at %7.2f\n", igniter == ao_igniter_drogue ? "drogue" : "main",
-		(double) ao_adc_static.tick / 100.0);
+	double time = (double) (ao_adc_static.tick + tick_offset) / 100;
+
+	if (igniter == ao_igniter_drogue) {
+		drogue_time = time;
+		drogue_height = ao_k_height >> 16;
+	} else {
+		main_time = time;
+		main_height = ao_k_height >> 16;
+	}
 }
 
 struct ao_task {
@@ -108,7 +125,12 @@ struct ao_task {
 
 #define AO_FLIGHT_TEST
 
+int	ao_flight_debug;
+
 FILE *emulator_in;
+char *emulator_app;
+char *emulator_name;
+double emulator_error_max = 10;
 
 void
 ao_dump_state(void);
@@ -157,51 +179,84 @@ struct ao_config ao_config;
 extern int16_t ao_ground_accel, ao_raw_accel;
 extern int16_t ao_accel_2g;
 
-int32_t	drogue_height;
-int32_t main_height;
-
-int		tick_offset;
 uint16_t	prev_tick;
 static int	ao_records_read = 0;
 static int	ao_eof_read = 0;
 static int	ao_flight_ground_accel;
 static int	ao_flight_started = 0;
+static int	ao_test_max_height;
+static double	ao_test_max_height_time;
+static int	ao_test_main_height;
+static double	ao_test_main_height_time;
 
 void
 ao_insert(void)
 {
+	double	time;
+
 	ao_adc_ring[ao_adc_head] = ao_adc_static;
 	ao_adc_head = ao_adc_ring_next(ao_adc_head);
-	if (ao_summary)
-		return;
-	if (ao_flight_state == ao_flight_startup)
-		return;
-	{
+	if (ao_flight_state != ao_flight_startup) {
 		double	height = ao_pres_to_altitude(ao_raw_pres) - ao_ground_height;
 		double  accel = ((ao_flight_ground_accel - ao_adc_static.accel) * GRAVITY * 2.0) /
 			(ao_config.accel_minus_g - ao_config.accel_plus_g);
 
 		if (!tick_offset)
-			tick_offset = ao_adc_static.tick;
-		if (!drogue_height && ao_flight_state >= ao_flight_drogue)
-			drogue_height = ao_k_height;
-		if (!main_height && ao_flight_state >= ao_flight_main)
-			main_height = ao_k_height;
-		if ((prev_tick - ao_adc_static.tick) > 0)
+			tick_offset = -ao_adc_static.tick;
+		if ((prev_tick - ao_adc_static.tick) > 0x400)
 			tick_offset += 65536;
 		prev_tick = ao_adc_static.tick;
-		printf("%7.2f height %g accel %g state %s k_height %g k_speed %g k_accel %g drogue %g main %g error %d\n",
-		       (double) (ao_adc_static.tick + tick_offset) / 100,
-		       height,
-		       accel,
-		       ao_state_names[ao_flight_state],
-		       ao_k_height / 65536.0,
-		       ao_k_speed / 65536.0 / 16.0,
-		       ao_k_accel / 65536.0 / 16.0,
-		       drogue_height / 65536.0,
-		       main_height / 65536.0,
-		       ao_error_h_sq_avg);
+		time = (double) (ao_adc_static.tick + tick_offset) / 100;
+		if (!ao_summary) {
+			printf("%7.2f height %g accel %g state %s k_height %g k_speed %g k_accel %g drogue %d main %d error %d\n",
+			       time,
+			       height,
+			       accel,
+			       ao_state_names[ao_flight_state],
+			       ao_k_height / 65536.0,
+			       ao_k_speed / 65536.0 / 16.0,
+			       ao_k_accel / 65536.0 / 16.0,
+			       drogue_height,
+			       main_height,
+			       ao_error_h_sq_avg);
+		}
+
+		if (ao_test_max_height < height) {
+			ao_test_max_height = height;
+			ao_test_max_height_time = time;
+		}
+		if (height > ao_config.main_deploy) {
+			ao_test_main_height_time = time;
+			ao_test_main_height = height;
+		}
 	}
+}
+
+void
+ao_test_exit(void)
+{
+	double	drogue_error;
+	double	main_error;
+
+	if (!ao_test_main_height_time) {
+		ao_test_main_height_time = ao_test_max_height_time;
+		ao_test_main_height = ao_test_max_height;
+	}
+	drogue_error = fabs(ao_test_max_height_time - drogue_time);
+	main_error = fabs(ao_test_main_height_time - main_time);
+	if (drogue_error > emulator_error_max || main_error > emulator_error_max) {
+		printf ("%s %s\n",
+			emulator_app, emulator_name);
+		printf ("\tApogee error %g\n", drogue_error);
+		printf ("\tMain error %g\n", main_error);
+		printf ("\tActual: apogee: %d at %7.2f main: %d at %7.2f\n",
+			ao_test_max_height, ao_test_max_height_time,
+			ao_test_main_height, ao_test_main_height_time);
+		printf ("\tComputed: apogee: %d at %7.2f main: %d at %7.2f\n",
+			drogue_height, drogue_time, main_height, main_time);
+		exit (1);
+	}
+	exit(0);
 }
 
 void
@@ -228,8 +283,9 @@ ao_sleep(void *wchan)
 
 			if (!fgets(line, sizeof (line), emulator_in)) {
 				if (++ao_eof_read >= 1000) {
-					printf ("no more data, exiting simulation\n");
-					exit(0);
+					if (!ao_summary)
+						printf ("no more data, exiting simulation\n");
+					ao_test_exit();
 				}
 				ao_adc_static.tick += 10;
 				ao_insert();
@@ -247,10 +303,10 @@ ao_sleep(void *wchan)
 				tick = strtoul(words[1], NULL, 16);
 				a = strtoul(words[2], NULL, 16);
 				b = strtoul(words[3], NULL, 16);
-			} else if (nword >= 6 && strcmp(words[0], "Accel")) {
+			} else if (nword >= 6 && strcmp(words[0], "Accel") == 0) {
 				ao_config.accel_plus_g = atoi(words[3]);
 				ao_config.accel_minus_g = atoi(words[5]);
-			} else if (nword >= 4 && strcmp(words[0], "Main")) {
+			} else if (nword >= 4 && strcmp(words[0], "Main") == 0) {
 				ao_config.main_deploy = atoi(words[2]);
 			} else if (nword >= 36 && strcmp(words[0], "CALL") == 0) {
 				tick = atoi(words[10]);
@@ -308,21 +364,17 @@ ao_sleep(void *wchan)
 void
 ao_dump_state(void)
 {
-	if (ao_flight_state == ao_flight_startup)
-		return;
-	if (ao_summary)
-		return;
-	if (ao_flight_state == ao_flight_landed)
-		exit(0);
 }
 
 static const struct option options[] = {
 	{ .name = "summary", .has_arg = 0, .val = 's' },
+	{ .name = "debug", .has_arg = 0, .val = 'd' },
 	{ 0, 0, 0, 0},
 };
 
 void run_flight_fixed(char *name, FILE *f, int summary)
 {
+	emulator_name = name;
 	emulator_in = f;
 	ao_summary = summary;
 	ao_flight_init();
@@ -336,10 +388,18 @@ main (int argc, char **argv)
 	int	c;
 	int	i;
 
-	while ((c = getopt_long(argc, argv, "s", options, NULL)) != -1) {
+#if HAS_ACCEL
+	emulator_app="full";
+#else
+	emulator_app="baro";
+#endif
+	while ((c = getopt_long(argc, argv, "sd", options, NULL)) != -1) {
 		switch (c) {
 		case 's':
 			summary = 1;
+			break;
+		case 'd':
+			ao_flight_debug = 1;
 			break;
 		}
 	}
