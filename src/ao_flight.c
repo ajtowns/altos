@@ -153,6 +153,11 @@ ao_kalman_predict(void)
 
 		return;
 	}
+	if (ao_flight_debug) {
+		printf ("predict speed %g + (%g * %g) = %g\n",
+			ao_k_speed / (65536.0 * 16.0), ao_accel / 16.0, AO_K_STEP_100 / 65536.0,
+			(ao_k_speed + (int32_t) ao_accel * AO_K_STEP_100) / (65536.0 * 16.0));
+	}
 #endif
 	ao_k_height += ((int32_t) ao_speed * AO_K_STEP_100 +
 			(int32_t) ao_accel * AO_K_STEP_2_2_100) >> 4;
@@ -195,9 +200,21 @@ ao_kalman_err_height(void)
 		height_distrust = 0;
 
 	if (height_distrust) {
+#ifdef AO_FLIGHT_TEST
+		int	old_ao_error_h = ao_error_h;
+#endif
 		if (height_distrust > 0x100)
 			height_distrust = 0x100;
 		ao_error_h = (int16_t) ((int32_t) ao_error_h * (0x100 - height_distrust)) >> 8;
+#ifdef AO_FLIGHT_TEST
+		if (ao_flight_debug) {
+			printf("over height %g over speed %g distrust: %g height: error %d -> %d\n",
+			       (double) (ao_raw_height - AO_MAX_BARO_HEIGHT),
+			       (ao_speed - AO_MS_TO_SPEED(AO_MAX_BARO_SPEED)) / 16.0,
+			       height_distrust / 256.0,
+			       old_ao_error_h, ao_error_h);
+		}
+#endif
 	}
 }
 
@@ -241,6 +258,15 @@ ao_kalman_correct_both(void)
 
 #ifdef AO_FLIGHT_TEST
 	if (ao_flight_tick - ao_flight_prev_tick > 5) {
+		if (ao_flight_debug) {
+			printf ("correct speed %g + (%g * %g) + (%g * %g) = %g\n",
+				ao_k_speed / (65536.0 * 16.0),
+				(double) ao_error_h, AO_BOTH_K10_10 / 65536.0,
+				(double) ao_error_a, AO_BOTH_K11_10 / 65536.0,
+				(ao_k_speed +
+				 (int32_t) AO_BOTH_K10_10 * ao_error_h +
+				 (int32_t) AO_BOTH_K11_10 * ao_error_a) / (65536.0 * 16.0));
+		}
 		ao_k_height +=
 			(int32_t) AO_BOTH_K00_10 * ao_error_h +
 			(int32_t) (AO_BOTH_K01_10 >> 4) * ao_error_a;
@@ -251,6 +277,15 @@ ao_kalman_correct_both(void)
 			((int32_t) AO_BOTH_K20_10 << 4) * ao_error_h +
 			(int32_t) AO_BOTH_K21_10 * ao_error_a;
 		return;
+	}
+	if (ao_flight_debug) {
+		printf ("correct speed %g + (%g * %g) + (%g * %g) = %g\n",
+			ao_k_speed / (65536.0 * 16.0),
+			(double) ao_error_h, AO_BOTH_K10_100 / 65536.0,
+			(double) ao_error_a, AO_BOTH_K11_100 / 65536.0,
+			(ao_k_speed +
+			 (int32_t) AO_BOTH_K10_100 * ao_error_h +
+			 (int32_t) AO_BOTH_K11_100 * ao_error_a) / (65536.0 * 16.0));
 	}
 #endif
 	ao_k_height +=
@@ -264,23 +299,23 @@ ao_kalman_correct_both(void)
 		(int32_t) AO_BOTH_K21_100 * ao_error_a;
 }
 
+#ifdef FORCE_ACCEL
 static void
 ao_kalman_correct_accel(void)
 {
 	ao_kalman_err_accel();
 
-#ifdef AO_FLIGHT_TEST
 	if (ao_flight_tick - ao_flight_prev_tick > 5) {
 		ao_k_height +=(int32_t) AO_ACCEL_K0_10 * ao_error_a;
 		ao_k_speed  += (int32_t) AO_ACCEL_K1_10 * ao_error_a;
 		ao_k_accel  += (int32_t) AO_ACCEL_K2_10 * ao_error_a;
 		return;
 	}
-#endif
 	ao_k_height += (int32_t) AO_ACCEL_K0_100 * ao_error_a;
 	ao_k_speed  += (int32_t) AO_ACCEL_K1_100 * ao_error_a;
 	ao_k_accel  += (int32_t) AO_ACCEL_K2_100 * ao_error_a;
 }
+#endif
 #endif /* HAS_ACCEL */
 
 __xdata int32_t ao_raw_pres_sum;
