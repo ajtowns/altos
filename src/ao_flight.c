@@ -140,7 +140,7 @@ static __pdata int32_t		ao_k_accel;
 /*
  * Above this speed, baro measurements are unreliable
  */
-#define AO_MAX_BARO_SPEED	300
+#define AO_MAX_BARO_SPEED	200
 
 static void
 ao_kalman_predict(void)
@@ -185,12 +185,20 @@ ao_kalman_err_height(void)
 		e = -e;
 	if (e > 127)
 		e = 127;
+#if HAS_ACCEL
+	ao_error_h_sq_avg -= ao_error_h_sq_avg >> 2;
+	ao_error_h_sq_avg += (e * e) >> 2;
+#else
 	ao_error_h_sq_avg -= ao_error_h_sq_avg >> 4;
 	ao_error_h_sq_avg += (e * e) >> 4;
+#endif
 
 	height_distrust = ao_raw_height - AO_MAX_BARO_HEIGHT;
 #if HAS_ACCEL
-	speed_distrust = (ao_speed - AO_MS_TO_SPEED(AO_MAX_BARO_SPEED)) >> 4;
+	/* speed is stored * 16, but we need to ramp between 200 and 328, so
+	 * we want to multiply by 2. The result is a shift by 3.
+	 */
+	speed_distrust = (ao_speed - AO_MS_TO_SPEED(AO_MAX_BARO_SPEED)) >> (4 - 1);
 	if (speed_distrust <= 0)
 		speed_distrust = 0;
 	else if (speed_distrust > height_distrust)
@@ -205,7 +213,7 @@ ao_kalman_err_height(void)
 #endif
 		if (height_distrust > 0x100)
 			height_distrust = 0x100;
-		ao_error_h = (int16_t) ((int32_t) ao_error_h * (0x100 - height_distrust)) >> 8;
+		ao_error_h = (int16_t) (((int32_t) ao_error_h * (0x100 - height_distrust)) >> 8);
 #ifdef AO_FLIGHT_TEST
 		if (ao_flight_debug) {
 			printf("over height %g over speed %g distrust: %g height: error %d -> %d\n",
@@ -269,12 +277,12 @@ ao_kalman_correct_both(void)
 		}
 		ao_k_height +=
 			(int32_t) AO_BOTH_K00_10 * ao_error_h +
-			(int32_t) (AO_BOTH_K01_10 >> 4) * ao_error_a;
+			(int32_t) AO_BOTH_K01_10 * ao_error_a;
 		ao_k_speed +=
-			((int32_t) AO_BOTH_K10_10 << 4) * ao_error_h +
+			(int32_t) AO_BOTH_K10_10 * ao_error_h +
 			(int32_t) AO_BOTH_K11_10 * ao_error_a;
 		ao_k_accel +=
-			((int32_t) AO_BOTH_K20_10 << 4) * ao_error_h +
+			(int32_t) AO_BOTH_K20_10 * ao_error_h +
 			(int32_t) AO_BOTH_K21_10 * ao_error_a;
 		return;
 	}
@@ -602,23 +610,31 @@ ao_flight(void)
 			if ((ao_accel < AO_MSS_TO_ACCEL(-2.5) && ao_height > AO_M_TO_HEIGHT(100)) ||
 			    (int16_t) (ao_flight_tick - ao_launch_tick) > BOOST_TICKS_MAX)
 			{
+#if HAS_ACCEL
 				ao_flight_state = ao_flight_fast;
+#else
+				ao_flight_state = ao_flight_coast;
+#endif
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 				break;
 			}
 			break;
+#if HAS_ACCEL
 		case ao_flight_fast:
 			/*
 			 * This is essentially the same as coast,
 			 * but the barometer is being ignored as
 			 * it may be unreliable.
 			 */
-			if (ao_speed < AO_MS_TO_SPEED(AO_MAX_BARO_SPEED)) {
+			if (ao_speed < AO_MS_TO_SPEED(AO_MAX_BARO_SPEED) &&
+			    (ao_raw_alt >= AO_MAX_BARO_HEIGHT || ao_error_h_sq_avg < 30))
+			{
 				ao_flight_state = ao_flight_coast;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 				break;
 			}
 			break;
+#endif
 		case ao_flight_coast:
 
 			/* apogee detect: coast to drogue deploy:
@@ -629,7 +645,11 @@ ao_flight(void)
 			 * the measured altitude reasonably closely; otherwise
 			 * we're probably transsonic.
 			 */
-			if (ao_speed < 0 && (ao_raw_alt >= AO_MAX_BARO_HEIGHT || ao_error_h_sq_avg < 100))
+			if (ao_speed < 0
+#if !HAS_ACCEL
+			    && (ao_raw_alt >= AO_MAX_BARO_HEIGHT || ao_error_h_sq_avg < 30)
+#endif
+				)
 			{
 				/* ignite the drogue charge */
 				ao_ignite(ao_igniter_drogue);
