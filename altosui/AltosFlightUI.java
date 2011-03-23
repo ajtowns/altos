@@ -119,6 +119,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 	Container	bag;
 	JComboBox	channels;
+	JComboBox	telemetries;
 
 	public AltosFlightUI(AltosVoice in_voice, AltosFlightReader in_reader, final int serial) {
 		AltosPreferences.init(this);
@@ -149,8 +150,28 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 			});
 			c.gridx = 0;
 			c.gridy = 0;
+			c.insets = new Insets(3, 3, 3, 3);
 			c.anchor = GridBagConstraints.WEST;
 			bag.add (channels, c);
+
+			// Telemetry format menu
+			telemetries = new JComboBox();
+			telemetries.addItem("TeleMetrum");
+			telemetries.addItem("TeleMini/TeleNano");
+			telemetries.setSelectedIndex(AltosPreferences.telemetry(serial) - 1);
+			telemetries.setMaximumRowCount(2);
+			telemetries.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						int telemetry = telemetries.getSelectedIndex();
+						reader.set_telemetry(telemetry);
+					}
+				});
+			c.gridx = 1;
+			c.gridy = 0;
+			c.fill = GridBagConstraints.NONE;
+			c.anchor = GridBagConstraints.WEST;
+			bag.add (telemetries, c);
+			c.insets = new Insets(0, 0, 0, 0);
 		}
 
 		/* Flight status is always visible */
@@ -159,7 +180,9 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		c.gridy = 1;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
+		c.gridwidth = 2;
 		bag.add(flightStatus, c);
+		c.gridwidth = 1;
 
 		/* The rest of the window uses a tabbed pane to
 		 * show one of the alternate data views
@@ -190,6 +213,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
 		c.weighty = 1;
+		c.gridwidth = 2;
 		bag.add(pane, c);
 
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

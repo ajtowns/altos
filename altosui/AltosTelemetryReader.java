@@ -47,6 +47,11 @@ class AltosTelemetryReader extends AltosFlightReader {
 		AltosPreferences.set_channel(device.getSerial(), channel);
 	}
 
+	void set_telemetry(int telemetry) {
+		serial.set_telemetry(telemetry);
+		AltosPreferences.set_telemetry(device.getSerial(), telemetry);
+	}
+
 	public AltosTelemetryReader (AltosDevice in_device)
 		throws FileNotFoundException, AltosSerialInUseException, IOException {
 		device = in_device;

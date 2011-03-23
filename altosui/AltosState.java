@@ -80,7 +80,6 @@ public class AltosState {
 
 		ground_altitude = data.ground_altitude();
 		height = data.filtered_height();
-		System.out.printf("height %g\n", height);
 
 		report_time = System.currentTimeMillis();
 

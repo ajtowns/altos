@@ -253,12 +253,8 @@ public class AltosTelemetry extends AltosRecord {
 		accel_minus_g = map.get_int(AO_TELEM_CAL_ACCEL_MINUS, MISSING);
 
 		/* flight computer values */
-		acceleration = map.get_int(AO_TELEM_KALMAN_ACCEL, MISSING);
-		if (acceleration != MISSING)
-			acceleration /= 16.0;
-		speed = map.get_int(AO_TELEM_KALMAN_SPEED, MISSING);
-		if (speed != MISSING)
-			speed /= 16.0;
+		acceleration = map.get_double(AO_TELEM_KALMAN_ACCEL, MISSING, 1/16.0);
+		speed = map.get_double(AO_TELEM_KALMAN_SPEED, MISSING, 1/16.0);
 		height = map.get_int(AO_TELEM_KALMAN_HEIGHT, MISSING);
 
 		flight_accel = map.get_int(AO_TELEM_ADHOC_ACCEL, MISSING);

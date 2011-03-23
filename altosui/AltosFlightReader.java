@@ -34,5 +34,7 @@ public class AltosFlightReader {
 
 	void set_channel(int channel) { }
 
+	void set_telemetry(int telemetry) { }
+
 	void update(AltosState state) throws InterruptedException { }
 }

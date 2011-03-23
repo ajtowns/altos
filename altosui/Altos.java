@@ -63,6 +63,11 @@ public class Altos {
 	static final int ao_flight_landed = 8;
 	static final int ao_flight_invalid = 9;
 
+	/* Telemetry modes */
+	static final int ao_telemetry_off = 0;
+	static final int ao_telemetry_full = 1;
+	static final int ao_telemetry_tiny = 2;
+
 	static HashMap<String,Integer>	string_to_state = new HashMap<String,Integer>();
 
 	static boolean map_initialized = false;

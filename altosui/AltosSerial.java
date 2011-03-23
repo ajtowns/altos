@@ -47,6 +47,8 @@ public class AltosSerial implements Runnable {
 	byte[] line_bytes;
 	int line_count;
 	boolean monitor_mode;
+	int telemetry;
+	int channel;
 	static boolean debug;
 	boolean remote;
 	LinkedList<String> pending_output = new LinkedList<String>();
@@ -231,16 +233,28 @@ public class AltosSerial implements Runnable {
 	}
 
 	public void set_radio() {
-		set_channel(AltosPreferences.channel(device.getSerial()));
+		telemetry = AltosPreferences.telemetry(device.getSerial());
+		channel = AltosPreferences.channel(device.getSerial());
+		set_channel(channel);
 		set_callsign(AltosPreferences.callsign());
 	}
 
-	public void set_channel(int channel) {
+	public void set_channel(int in_channel) {
+		channel = in_channel;
 		if (altos != null) {
 			if (monitor_mode)
-				printf("m 0\nc r %d\nm 1\n", channel);
+				printf("m 0\nc r %d\nm %d\n", channel, telemetry);
 			else
 				printf("c r %d\n", channel);
+			flush_output();
+		}
+	}
+
+	public void set_telemetry(int in_telemetry) {
+		telemetry = in_telemetry;
+		if (altos != null) {
+			if (monitor_mode)
+				printf("m 0\nm %d\n", telemetry);
 			flush_output();
 		}
 	}
@@ -249,7 +263,7 @@ public class AltosSerial implements Runnable {
 		monitor_mode = monitor;
 		if (altos != null) {
 			if (monitor)
-				printf("m 1\n");
+				printf("m %d\n", telemetry);
 			else
 				printf("m 0\n");
 			flush_output();
@@ -285,6 +299,7 @@ public class AltosSerial implements Runnable {
 		device = in_device;
 		line = "";
 		monitor_mode = false;
+		telemetry = Altos.ao_telemetry_full;
 		monitors = new LinkedList<LinkedBlockingQueue<AltosLine>> ();
 		reply_queue = new LinkedBlockingQueue<AltosLine> ();
 		open();

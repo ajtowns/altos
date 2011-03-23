@@ -34,6 +34,9 @@ class AltosPreferences {
 	/* channel preference name */
 	final static String channelPreferenceFormat = "CHANNEL-%d";
 
+	/* telemetry format preference name */
+	final static String telemetryPreferenceFormat = "TELEMETRY-%d";
+
 	/* voice preference name */
 	final static String voicePreference = "VOICE";
 
@@ -60,6 +63,9 @@ class AltosPreferences {
 
 	/* Channel (map serial to channel) */
 	static Hashtable<Integer, Integer> channels;
+
+	/* Telemetry (map serial to telemetry format) */
+	static Hashtable<Integer, Integer> telemetries;
 
 	/* Voice preference */
 	static boolean voice;
@@ -93,6 +99,8 @@ class AltosPreferences {
 			mapdir.mkdirs();
 
 		channels = new Hashtable<Integer,Integer>();
+
+		telemetries = new Hashtable<Integer,Integer>();
 
 		voice = preferences.getBoolean(voicePreference, true);
 
@@ -187,6 +195,23 @@ class AltosPreferences {
 		int channel = preferences.getInt(String.format(channelPreferenceFormat, serial), 0);
 		channels.put(serial, channel);
 		return channel;
+	}
+
+	public static void set_telemetry(int serial, int new_telemetry) {
+		telemetries.put(serial, new_telemetry);
+		synchronized (preferences) {
+			preferences.putInt(String.format(telemetryPreferenceFormat, serial), new_telemetry);
+			flush_preferences();
+		}
+	}
+
+	public static int telemetry(int serial) {
+		if (telemetries.containsKey(serial))
+			return telemetries.get(serial);
+		int telemetry = preferences.getInt(String.format(telemetryPreferenceFormat, serial),
+						   Altos.ao_telemetry_full);
+		telemetries.put(serial, telemetry);
+		return telemetry;
 	}
 
 	public static void set_voice(boolean new_voice) {
