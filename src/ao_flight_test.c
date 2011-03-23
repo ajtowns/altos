@@ -130,7 +130,7 @@ int	ao_flight_debug;
 FILE *emulator_in;
 char *emulator_app;
 char *emulator_name;
-double emulator_error_max = 10;
+double emulator_error_max = 4;
 
 void
 ao_dump_state(void);
@@ -190,49 +190,6 @@ static int	ao_test_main_height;
 static double	ao_test_main_height_time;
 
 void
-ao_insert(void)
-{
-	double	time;
-
-	ao_adc_ring[ao_adc_head] = ao_adc_static;
-	ao_adc_head = ao_adc_ring_next(ao_adc_head);
-	if (ao_flight_state != ao_flight_startup) {
-		double	height = ao_pres_to_altitude(ao_raw_pres) - ao_ground_height;
-		double  accel = ((ao_flight_ground_accel - ao_adc_static.accel) * GRAVITY * 2.0) /
-			(ao_config.accel_minus_g - ao_config.accel_plus_g);
-
-		if (!tick_offset)
-			tick_offset = -ao_adc_static.tick;
-		if ((prev_tick - ao_adc_static.tick) > 0x400)
-			tick_offset += 65536;
-		prev_tick = ao_adc_static.tick;
-		time = (double) (ao_adc_static.tick + tick_offset) / 100;
-		if (!ao_summary) {
-			printf("%7.2f height %g accel %g state %s k_height %g k_speed %g k_accel %g drogue %d main %d error %d\n",
-			       time,
-			       height,
-			       accel,
-			       ao_state_names[ao_flight_state],
-			       ao_k_height / 65536.0,
-			       ao_k_speed / 65536.0 / 16.0,
-			       ao_k_accel / 65536.0 / 16.0,
-			       drogue_height,
-			       main_height,
-			       ao_error_h_sq_avg);
-		}
-
-		if (ao_test_max_height < height) {
-			ao_test_max_height = height;
-			ao_test_max_height_time = time;
-		}
-		if (height > ao_config.main_deploy) {
-			ao_test_main_height_time = time;
-			ao_test_main_height = height;
-		}
-	}
-}
-
-void
 ao_test_exit(void)
 {
 	double	drogue_error;
@@ -257,6 +214,52 @@ ao_test_exit(void)
 		exit (1);
 	}
 	exit(0);
+}
+
+void
+ao_insert(void)
+{
+	double	time;
+
+	ao_adc_ring[ao_adc_head] = ao_adc_static;
+	ao_adc_head = ao_adc_ring_next(ao_adc_head);
+	if (ao_flight_state != ao_flight_startup) {
+		double	height = ao_pres_to_altitude(ao_raw_pres) - ao_ground_height;
+		double  accel = ((ao_flight_ground_accel - ao_adc_static.accel) * GRAVITY * 2.0) /
+			(ao_config.accel_minus_g - ao_config.accel_plus_g);
+
+		if (!tick_offset)
+			tick_offset = -ao_adc_static.tick;
+		if ((prev_tick - ao_adc_static.tick) > 0x400)
+			tick_offset += 65536;
+		prev_tick = ao_adc_static.tick;
+		time = (double) (ao_adc_static.tick + tick_offset) / 100;
+
+		if (ao_test_max_height < height) {
+			ao_test_max_height = height;
+			ao_test_max_height_time = time;
+		}
+		if (height > ao_config.main_deploy) {
+			ao_test_main_height_time = time;
+			ao_test_main_height = height;
+		}
+
+		if (!ao_summary) {
+			printf("%7.2f height %g accel %g state %s k_height %g k_speed %g k_accel %g drogue %d main %d error %d\n",
+			       time,
+			       height,
+			       accel,
+			       ao_state_names[ao_flight_state],
+			       ao_k_height / 65536.0,
+			       ao_k_speed / 65536.0 / 16.0,
+			       ao_k_accel / 65536.0 / 16.0,
+			       drogue_height,
+			       main_height,
+			       ao_error_h_sq_avg);
+			if (ao_flight_state == ao_flight_landed)
+				ao_test_exit();
+		}
+	}
 }
 
 void

@@ -3,13 +3,14 @@
 for i in "$@"; do
 ./ao_flight_test "$i" > run-out.full
 ./ao_flight_test_baro "$i" > run-out.baro
-#./ao_flight_test_accel "$i" > run-out.accel
 
+#./ao_flight_test_accel "$i" > run-out.accel
 #"run-out.accel" using 1:9 with lines lt 4 axes x1y1 title "accel height",\
 #"run-out.accel" using 1:11 with lines lt 4 axes x1y2 title "accel speed",\
 #"run-out.accel" using 1:13 with lines lt 4 axes x1y2 title "accel accel",\
 #"run-out.accel" using 1:15 with lines lt 4 axes x1y1 title "accel drogue",\
 #"run-out.accel" using 1:17 with lines lt 4 axes x1y1 title "accel main",\
+#
 
 gnuplot << EOF
 set ylabel "altitude (m)"
