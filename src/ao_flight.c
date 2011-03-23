@@ -626,8 +626,7 @@ ao_flight(void)
 			 * but the barometer is being ignored as
 			 * it may be unreliable.
 			 */
-			if (ao_speed < AO_MS_TO_SPEED(AO_MAX_BARO_SPEED) &&
-			    (ao_raw_alt >= AO_MAX_BARO_HEIGHT || ao_error_h_sq_avg < 30))
+			if (ao_speed < AO_MS_TO_SPEED(AO_MAX_BARO_SPEED))
 			{
 				ao_flight_state = ao_flight_coast;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
@@ -647,7 +646,7 @@ ao_flight(void)
 			 */
 			if (ao_speed < 0
 #if !HAS_ACCEL
-			    && (ao_raw_alt >= AO_MAX_BARO_HEIGHT || ao_error_h_sq_avg < 30)
+			    && (ao_raw_alt >= AO_MAX_BARO_HEIGHT || ao_error_h_sq_avg < 100)
 #endif
 				)
 			{

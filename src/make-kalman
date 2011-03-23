@@ -2,8 +2,8 @@
 
 cd ../kalman
 
-SIGMA_BOTH="-M 2 -H 4 -A 4"
-SIGMA_BARO="-M 2 -H 4 -A 4"
+SIGMA_BOTH="-M 2 -H 6 -A 2"
+SIGMA_BARO="-M 2 -H 6 -A 2"
 SIGMA_ACCEL="-M 2 -H 4 -A 4"
 
 nickle kalman.5c -p AO_BOTH -c both -t 0.01 $SIGMA_BOTH
