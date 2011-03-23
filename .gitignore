@@ -20,6 +20,7 @@ src/Version
 src/ao_flight_test
 src/ao_gps_test
 src/ao_gps_test_skytraq
+src/ao_kalman.h
 ao-teledongle.h
 ao-telemetrum.h
 ao-teleterra.h
