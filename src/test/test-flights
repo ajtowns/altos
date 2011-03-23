@@ -1,70 +1,70 @@
-2009-06-03-serial-003-flight-002.eeprom
-2009-06-05-serial-004-flight-008.eeprom
-2009-06-06-serial-004-flight-009.eeprom
-2009-06-14-serial-004-flight-010.eeprom
-2009-06-20-serial-003-flight-003.eeprom
-2009-07-04-serial-001-flight-006.eeprom
-2009-07-18-serial-001-flight-007.eeprom
-2009-08-22-serial-001-flight-001.eeprom
-2009-08-22-serial-010-flight-001.eeprom
-2009-09-05-serial-010-flight-002.eeprom
-2009-09-05-serial-011-flight-001.eeprom
-2009-09-11-serial-008-flight-003.eeprom
-2009-09-12-serial-002-flight-002.eeprom
-2009-09-12-serial-008-flight-005.eeprom
-2009-09-12-serial-008-flight-007.eeprom
-2009-09-19-serial-011-flight-002.eeprom
-2009-10-03-serial-008-flight-009.eeprom
-2009-10-03-serial-008-flight-010.eeprom
-2009-10-03-serial-009-flight-001.eeprom
-2009-10-03-serial-011-flight-003.eeprom
-2009-10-17-serial-009-flight-002.eeprom
-2009-11-14-serial-003-flight-005.eeprom
-2009-11-14-serial-003-flight-006.eeprom
-2009-11-21-serial-013-flight-001.eeprom
-2009-11-21-serial-013-flight-002.eeprom
-2010-02-13-serial-051-flight-002.eeprom
-2010-02-13-serial-052-flight-002.eeprom
-2010-02-28-serial-052-flight-003.eeprom
-2010-02-28-serial-052-flight-004.eeprom
-2010-03-06-serial-010-flight-004.eeprom
-2010-03-06-serial-013-flight-003.eeprom
-2010-03-06-serial-051-flight-003.eeprom
-2010-03-06-serial-053-flight-004.eeprom
-2010-05-08-serial-229-flight-002.eeprom
-2010-05-28-serial-215-flight-002.eeprom
-2010-05-28-serial-224-flight-001.eeprom
-2010-05-29-serial-052-flight-005.eeprom
-2010-05-30-serial-010-flight-005.eeprom
-2010-05-30-serial-051-flight-004.eeprom
-2010-05-30-serial-224-flight-003.eeprom
-2010-05-30-serial-226-flight-001.eeprom
-2010-05-31-serial-010-flight-006.eeprom
-2010-05-31-serial-216-flight-001.eeprom
-2010-05-31-serial-219-flight-001.eeprom
-2010-05-31-serial-227-flight-003.eeprom
-2010-06-05-serial-220-flight-001.eeprom
-2010-06-26-serial-209-flight-003.eeprom
-2010-06-26-serial-215-flight-004.eeprom
-2010-06-26-serial-220-flight-002.eeprom
-2010-06-26-serial-226-flight-002.eeprom
-2010-06-27-serial-221-flight-002.eeprom
-2010-07-17-serial-230-flight-001.eeprom
-2010-07-18-serial-219-flight-002.eeprom
-2010-08-07-serial-216-flight-003.eeprom
-2010-08-07-serial-220-flight-003.eeprom
-2010-08-12-serial-236-flight-001.eeprom
-2010-08-21-serial-010-flight-007.eeprom
-2010-08-21-serial-224-flight-004.eeprom
-2010-08-21-serial-224-flight-005.eeprom
-2010-08-21-serial-233-flight-002.eeprom
-2010-09-03-serial-051-flight-005.eeprom
-2010-09-03-serial-215-flight-005.eeprom
-2010-09-24-serial-236-flight-006.eeprom
-2010-09-25-serial-223-flight-001.eeprom
-2010-10-17-serial-215-flight-006.eeprom
-2011-01-30-serial-056-flight-001.eeprom
-2011-01-30-serial-250-flight-002.eeprom
-2011-02-19-serial-215-flight-007.eeprom
-2011-02-19-serial-216-flight-006.eeprom
-2011-02-19-serial-286-flight-001.eeprom
+2009-06-03-serial-003-flight-002.eeprom PSAS flight on research motor.Lots of ugly bumps.
+2009-06-05-serial-004-flight-008.eeprom Add June 2009 Lil Nuke flight
+2009-06-06-serial-004-flight-009.eeprom Another Lil nuke flight? 700m, subsonic.
+2009-06-14-serial-004-flight-010.eeprom Lil nuke flies again. 450m, subsonic.
+2009-06-20-serial-003-flight-003.eeprom Transonic flight. 2100m, single deploy.
+2009-07-04-serial-001-flight-006.eeprom Subsonic, 1100m, noisy descent.
+2009-07-18-serial-001-flight-007.eeprom Transonic, 1900m, noisy descent.
+2009-08-22-serial-001-flight-001.eeprom Transonic 2200m. noisy descent
+2009-08-22-serial-010-flight-001.eeprom Subsonic, laggy baro. 400m
+2009-09-05-serial-010-flight-002.eeprom Subsonic, fairly quick baro. 600m
+2009-09-05-serial-011-flight-001.eeprom Subsonic, 1800m. Early Ejection confuses apogee detect.
+2009-09-11-serial-008-flight-003.eeprom Subsonic, 200m, early ejection.
+2009-09-12-serial-002-flight-002.eeprom Subsonic. 1200m. Very nice baro velocity
+2009-09-12-serial-008-flight-005.eeprom Low flight. 220m, 100m/s.
+2009-09-12-serial-008-flight-007.eeprom Model flight.
+2009-09-19-serial-011-flight-002.eeprom Subsonic, but noisy baro.
+2009-10-03-serial-008-flight-009.eeprom Transonic baro bump. 1600m.
+2009-10-03-serial-008-flight-010.eeprom Barely transonic, but other baro bumps.
+2009-10-03-serial-009-flight-001.eeprom Add Ofest ToT flight (drag race with Candy Cane). subsonic, but a bit of baro noise.
+2009-10-03-serial-011-flight-003.eeprom Add Ofest G-spot flight. transonic bump, ugly looking data.
+2009-10-17-serial-009-flight-002.eeprom Clean looking subsonic flight, small baro slump at max-Q
+2009-11-14-serial-003-flight-005.eeprom Model flight.
+2009-11-14-serial-003-flight-006.eeprom Model flight.
+2009-11-21-serial-013-flight-001.eeprom ToT AMW J450ST with Jason Chamberlin strontium nitrate igniter
+2009-11-21-serial-013-flight-002.eeprom ToT - CTI 1009J420CL pro38 6xl
+2010-02-13-serial-051-flight-002.eeprom G-Spot at Albuquerque Rocket Society launch site in Rio Rancho, NM Cesaroni 229H255WT-14A
+2010-02-13-serial-052-flight-002.eeprom Add Grappler flight at OROC February model launch
+2010-02-28-serial-052-flight-003.eeprom LDDD Tillamook airport, 2010-02-28, H252
+2010-02-28-serial-052-flight-004.eeprom LDDD Tillamook airport, 2010-02-28, I161
+2010-03-06-serial-010-flight-004.eeprom Robert's Lil Nuke at Hudson Ranch on a CTI 108G57CL Pro29
+2010-03-06-serial-013-flight-003.eeprom Trick-O-Treat at Hudson Ranch on a J595BS
+2010-03-06-serial-051-flight-003.eeprom G-Spot at Hudson Ranch on an H180W
+2010-03-06-serial-053-flight-004.eeprom Horizon Rebuilt at Hudson Ranch on a J530IM with MAWD as backup
+2010-05-08-serial-229-flight-002.eeprom First customer flight on a sparky.
+2010-05-28-serial-215-flight-002.eeprom Mike's L1 cert flight. Congrats!
+2010-05-28-serial-224-flight-001.eeprom Bill Mott's amram
+2010-05-29-serial-052-flight-005.eeprom LDDD on J335 at MHM
+2010-05-30-serial-010-flight-005.eeprom Robert's Lil Nuke on a 84G88 Smoky Sam at Mile High Mayhem 2010 Version 0.1 TeleMetrum with 5010 GPS board.
+2010-05-30-serial-051-flight-004.eeprom Bdale's G-Spot on a CTI 298H159 Green3 at Mile High Mayhem 2010
+2010-05-30-serial-224-flight-003.eeprom Bill Mott's L3 cert flight
+2010-05-30-serial-226-flight-001.eeprom Robert's RG-2 on a 159G54RL at Mile High Mayhem. Very noise accel data, early apogee
+2010-05-31-serial-010-flight-006.eeprom Robert's Lil Nuke with a v0.1 TeleMetrum and 5010 GPS board flying on a 159G118 Blue Streak on the last day of Mile High Mayhem 2010
+2010-05-31-serial-216-flight-001.eeprom Sharp Stick in the Sky on an "I something" EX motor from James Russell
+2010-05-31-serial-219-flight-001.eeprom Candy Cane on CTI K300 at MHM.
+2010-05-31-serial-227-flight-003.eeprom Mike's Rocket on J285 for successful L2 cert at MHM
+2010-06-05-serial-220-flight-001.eeprom Mini-mmuchness on 159G54RL, Sunday at MHM 2010
+2010-06-26-serial-209-flight-003.eeprom Tripoli Colorado Spring Fling with COSROCS at the Buffalo Ranch
+2010-06-26-serial-215-flight-004.eeprom Tripoli Colorado Spring Fling with COSROCS at the Buffalo Ranch
+2010-06-26-serial-220-flight-002.eeprom Mini Mmuchness on CTI H120CL to 1975m, OROC June 2010
+2010-06-26-serial-226-flight-002.eeprom Tripoli Colorado Spring Fling with COSROCS at the Buffalo Ranch
+2010-06-27-serial-221-flight-002.eeprom PSAS LV2c on N2000 at OROC june launch
+2010-07-17-serial-230-flight-001.eeprom Mike Ward's Level 1 cert flight on H225
+2010-07-18-serial-219-flight-002.eeprom MMuchness on M1230 for successful L3 cert flight
+2010-08-07-serial-216-flight-003.eeprom Sharp stick on I300T at Metra's august launch. Main out at apogee.
+2010-08-07-serial-220-flight-003.eeprom Mini-mmuchness flight at Metra after debconf. Unstable on G80. ABNORMAL FLIGHT.
+2010-08-12-serial-236-flight-001.eeprom Edgar's L1 flight, Madcow Momba on Aerotech H128
+2010-08-21-serial-010-flight-007.eeprom Robert's Lil Nuke, flying on a CTI Pro29 2-grain 110G250 Vmax. Just awesome!  PFND.
+2010-08-21-serial-224-flight-004.eeprom Anthony Towns' LDDD clone, successful L1 cert on a CTI Pro38 2-grain 266H125 classic.  Airframe was set up for apogee-only with motor based ejection.  The BP charge was larger than necessary, caused nose cone to snap back against aft airframe.  Minor damage to leading edge of aft airframe, big chunk of the nose cone skin cracked away.  Same problem Bdale saw on Sharp Stick's nosecone, also from Performance Rocketry, where there was apparently an air bubble below the gel coat.  Determination was that damage was cosmetic and would not affect cert... confirmed by successful L2 later in the day!
+2010-08-21-serial-224-flight-005.eeprom Anthony Towns' LDDD clone, successful L2 cert on a CTI Pro38 5-grain 58J357 blue streak.  Perfect drogueless dual deploy!  0.8-0.9 grams aft charge and about 1.0 grams forward.  Flew without ground testing charges due to time pressure before waiver closed for the day.  About as close to the waiver as you'd ever want to be on a cert flight, again demonstrating that OpenRocket under-estimates apogee ... approximately 6800 ft predicted...
+2010-08-21-serial-233-flight-002.eeprom Tim van Milligan's 5.5" L2 airframe, flying on a CTI Pro38 6-grain 774J410 red, TM indicated a problem with the apogee igniter continuity, noticed during countdown, turned out to be a loose wire!  Perfect dual deploy flight once that was fixed.
+2010-09-03-serial-051-flight-005.eeprom G-spot on an old Aerotech H125-20W single use 29mm motor.  It appears the ejection at apogee actually happened much later, perhaps as much as 10 seconds late!
+2010-09-03-serial-215-flight-005.eeprom Horizon Rebuild on a K490 Green3 reload.  PFND. About 1.4 grams each end.
+2010-09-24-serial-236-flight-006.eeprom LDDD on I236 in Sheridan on 2010-09-24 to 1216m
+2010-09-25-serial-223-flight-001.eeprom Bdale's 10" Goblin, flying on a CTI Pro75 M1300 Imax dual thrust during Chili Blaster 2 at Hudson Ranch.  First flight after rebuild to do dual deploy from one bay with ARRD and 15' surplus "+ sign" parachute.
+2010-10-17-serial-215-flight-006.eeprom Horizon Rebuild on CTI J595BS at Tripoli Colorado launch site near Hartsel, CO
+2011-01-30-serial-056-flight-001.eeprom Group project 5.5" Polecat Thumper airframe built in the Quay West Suites in Brisbane, Australia, during LCA 2011 by Bdale, Keith, Mike Beattie, and Anthony Towns.  Flown at QRS club launch on an Aerotech J315R 54mm 2-grain motor.
+2011-01-30-serial-250-flight-002.eeprom Group project 5.5" Polecat Thumper airframe built in the Quay West Suites in Brisbane, Australia, during LCA 2011 by Bdale, Keith, Mike Beattie, and Anthony Towns.  Flown at QRS club launch on an Aerotech J315R 54mm 2-grain motor.
+2011-02-19-serial-215-flight-007.eeprom Horizon Rebuild on a CTI Pro38 6xl J600R at Hudson Ranch 1.0 grams BP rear, 1.5 grams front Perfect drogueless dual deploy flight with no damage!
+2011-02-19-serial-216-flight-006.eeprom Sharp Stick on a CTI Pro38 3-grain I345WT at Hudson Ranch Added more kevlar to the aft end, flew with 1.3 grams BP rear and 1.0 front. Perfect drogueless dual deploy flight, and no damage!
+2011-02-19-serial-286-flight-001.eeprom Vertical Assault on a CTI Pro38 6xl J595BS at Hudson Ranch 1.5 grams BP rear, 1.8 grams BP front Perfect drogueless dual deploy flight, with no damage!
