@@ -60,7 +60,7 @@ public class AltosCSV implements AltosWriter {
 	 *	drogue (V)
 	 *	main (V)
 	 *
-	 * GPS data
+	 * GPS data (if available)
 	 *	connected (1/0)
 	 *	locked (1/0)
 	 *	nsat (used for solution)
@@ -179,12 +179,14 @@ public class AltosCSV implements AltosWriter {
 		}
 	}
 
-	void write_header() {
+	void write_header(boolean gps) {
 		out.printf("#"); write_general_header();
 		out.printf(","); write_flight_header();
 		out.printf(","); write_basic_header();
-		out.printf(","); write_gps_header();
-		out.printf(","); write_gps_sat_header();
+		if (gps) {
+			out.printf(","); write_gps_header();
+			out.printf(","); write_gps_sat_header();
+		}
 		out.printf ("\n");
 	}
 
@@ -192,9 +194,12 @@ public class AltosCSV implements AltosWriter {
 		state = new AltosState(record, state);
 		write_general(record); out.printf(",");
 		write_flight(record); out.printf(",");
-		write_basic(record); out.printf(",");
-		write_gps(record); out.printf(",");
-		write_gps_sat(record);
+		write_basic(record);
+		if (record.gps != null) {
+			out.printf(",");
+			write_gps(record); out.printf(",");
+			write_gps_sat(record);
+		}
 		out.printf ("\n");
 	}
 
@@ -206,7 +211,7 @@ public class AltosCSV implements AltosWriter {
 
 	public void write(AltosRecord record) {
 		if (!header_written) {
-			write_header();
+			write_header(record.gps != null);
 			header_written = true;
 		}
 		if (!seen_boost) {
@@ -240,10 +245,14 @@ public class AltosCSV implements AltosWriter {
 			write(r);
 	}
 
-	public AltosCSV(File in_name) throws FileNotFoundException {
+	public AltosCSV(PrintStream in_out, File in_name) {
 		name = in_name;
-		out = new PrintStream(name);
+		out = in_out;
 		pad_records = new LinkedList<AltosRecord>();
+	}
+
+	public AltosCSV(File in_name) throws FileNotFoundException {
+		this(new PrintStream(in_name), in_name);
 	}
 
 	public AltosCSV(String in_string) throws FileNotFoundException {

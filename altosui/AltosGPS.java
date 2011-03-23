@@ -26,10 +26,11 @@ public class AltosGPS {
 		int	c_n0;
 	}
 
+	final static int MISSING = AltosRecord.MISSING;
+
 	int	nsat;
 	boolean	locked;
 	boolean	connected;
-	boolean date_valid;
 	double	lat;		/* degrees (+N -S) */
 	double	lon;		/* degrees (+E -W) */
 	int	alt;		/* m */
@@ -40,11 +41,11 @@ public class AltosGPS {
 	int	minute;
 	int	second;
 
-	int	gps_extended;	/* has extra data */
 	double	ground_speed;	/* m/s */
 	int	course;		/* degrees */
 	double	climb_rate;	/* m/s */
-	double	hdop;		/* unitless? */
+	double	hdop;		/* unitless */
+	double	vdop;		/* unitless */
 	int	h_error;	/* m */
 	int	v_error;	/* m */
 
@@ -71,6 +72,44 @@ public class AltosGPS {
 	void ClearGPSTime() {
 		year = month = day = 0;
 		hour = minute = second = 0;
+	}
+
+	public AltosGPS(AltosTelemetryMap map) throws ParseException {
+		String	state = map.get_string(AltosTelemetry.AO_TELEM_GPS_STATE,
+					       AltosTelemetry.AO_TELEM_GPS_STATE_ERROR);
+
+		nsat = map.get_int(AltosTelemetry.AO_TELEM_GPS_NUM_SAT, 0);
+		if (state.equals(AltosTelemetry.AO_TELEM_GPS_STATE_LOCKED)) {
+			connected = true;
+			locked = true;
+			lat = map.get_double(AltosTelemetry.AO_TELEM_GPS_LATITUDE, MISSING, 1.0e-7);
+			lon = map.get_double(AltosTelemetry.AO_TELEM_GPS_LONGITUDE, MISSING, 1.0e-7);
+			alt = map.get_int(AltosTelemetry.AO_TELEM_GPS_ALTITUDE, MISSING);
+			year = map.get_int(AltosTelemetry.AO_TELEM_GPS_YEAR, MISSING);
+			if (year != MISSING)
+				year += 2000;
+			month = map.get_int(AltosTelemetry.AO_TELEM_GPS_MONTH, MISSING);
+			day = map.get_int(AltosTelemetry.AO_TELEM_GPS_DAY, MISSING);
+
+			hour = map.get_int(AltosTelemetry.AO_TELEM_GPS_HOUR, 0);
+			minute = map.get_int(AltosTelemetry.AO_TELEM_GPS_MINUTE, 0);
+			second = map.get_int(AltosTelemetry.AO_TELEM_GPS_SECOND, 0);
+
+			ground_speed = map.get_double(AltosTelemetry.AO_TELEM_GPS_HORIZONTAL_SPEED,
+						      AltosRecord.MISSING, 1/100.0);
+			course = map.get_int(AltosTelemetry.AO_TELEM_GPS_COURSE,
+					     AltosRecord.MISSING);
+			hdop = map.get_double(AltosTelemetry.AO_TELEM_GPS_HDOP, MISSING, 1.0);
+			vdop = map.get_double(AltosTelemetry.AO_TELEM_GPS_VDOP, MISSING, 1.0);
+			h_error = map.get_int(AltosTelemetry.AO_TELEM_GPS_HERROR, MISSING);
+			v_error = map.get_int(AltosTelemetry.AO_TELEM_GPS_VERROR, MISSING);
+		} else if (state.equals(AltosTelemetry.AO_TELEM_GPS_STATE_UNLOCKED)) {
+			connected = true;
+			locked = false;
+		} else {
+			connected = false;
+			locked = false;
+		}
 	}
 
 	public AltosGPS(String[] words, int i, int version) throws ParseException {
@@ -184,7 +223,6 @@ public class AltosGPS {
 		nsat = old.nsat;
 		locked = old.locked;
 		connected = old.connected;
-		date_valid = old.date_valid;
 		lat = old.lat;		/* degrees (+N -S) */
 		lon = old.lon;		/* degrees (+E -W) */
 		alt = old.alt;		/* m */
@@ -195,7 +233,6 @@ public class AltosGPS {
 		minute = old.minute;
 		second = old.second;
 
-		gps_extended = old.gps_extended;	/* has extra data */
 		ground_speed = old.ground_speed;	/* m/s */
 		course = old.course;		/* degrees */
 		climb_rate = old.climb_rate;	/* m/s */

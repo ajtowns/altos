@@ -42,9 +42,21 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay {
 			value.setText("");
 		}
 
+		void show() {
+			label.show();
+			value.show();
+		}
+
+		void hide() {
+			label.hide();
+			value.hide();
+		}
+
 		void show(String format, double v) {
+			show();
 			value.setText(String.format(format, v));
 		}
+
 
 		public LandedValue (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
@@ -86,6 +98,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay {
 
 	class Lat extends LandedValue {
 		void show (AltosState state, int crc_errors) {
+			show();
 			if (state.gps != null)
 				value.setText(pos(state.gps.lat,"N", "S"));
 			else
@@ -100,6 +113,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay {
 
 	class Lon extends LandedValue {
 		void show (AltosState state, int crc_errors) {
+			show();
 			if (state.gps != null)
 				value.setText(pos(state.gps.lon,"E", "W"));
 			else
@@ -114,6 +128,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay {
 
 	class Bearing extends LandedValue {
 		void show (AltosState state, int crc_errors) {
+			show();
 			if (state.from_pad != null)
 				show("%3.0f°", state.from_pad.bearing);
 			else
@@ -128,6 +143,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay {
 
 	class Distance extends LandedValue {
 		void show (AltosState state, int crc_errors) {
+			show();
 			if (state.from_pad != null)
 				show("%6.0f m", state.from_pad.distance);
 			else
@@ -184,10 +200,17 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay {
 	}
 
 	public void show(AltosState state, int crc_errors) {
-		bearing.show(state, crc_errors);
-		distance.show(state, crc_errors);
-		lat.show(state, crc_errors);
-		lon.show(state, crc_errors);
+		if (state.gps != null) {
+			bearing.show(state, crc_errors);
+			distance.show(state, crc_errors);
+			lat.show(state, crc_errors);
+			lon.show(state, crc_errors);
+		} else {
+			bearing.hide();
+			distance.hide();
+			lat.hide();
+			lon.hide();
+		}
 		height.show(state, crc_errors);
 		speed.show(state, crc_errors);
 		accel.show(state, crc_errors);

@@ -29,9 +29,6 @@ import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
-	String[] statusNames = { "Height (m)", "State", "RSSI (dBm)", "Speed (m/s)" };
-	Object[][] statusData = { { "0", "pad", "-50", "0" } };
-
 	AltosVoice		voice;
 	AltosFlightReader	reader;
 	AltosDisplayThread	thread;
@@ -43,6 +40,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	AltosDescent	descent;
 	AltosLanded	landed;
 	AltosSiteMap    sitemap;
+	boolean		has_map;
 
 	private AltosFlightStatus flightStatus;
 	private AltosInfoTable flightInfo;
@@ -85,6 +83,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 	public void show(AltosState state, int crc_errors) {
 		JComponent tab = which_tab(state);
+		try {
 		pad.show(state, crc_errors);
 		ascent.show(state, crc_errors);
 		descent.show(state, crc_errors);
@@ -97,7 +96,21 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		}
 		flightStatus.show(state, crc_errors);
 		flightInfo.show(state, crc_errors);
-		sitemap.show(state, crc_errors);
+		if (state.gps != null) {
+			if (!has_map) {
+				pane.add("Site Map", sitemap);
+				has_map = true;
+			}
+			sitemap.show(state, crc_errors);
+		} else {
+			if (has_map) {
+				pane.remove(sitemap);
+				has_map = false;
+			}
+		}
+		} catch (Exception e) {
+			System.out.print("Show exception" + e);
+		}
 	}
 
 	public void set_exit_on_close() {
@@ -169,7 +182,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		pane.add("Table", new JScrollPane(flightInfo));
 
 		sitemap = new AltosSiteMap();
-		pane.add("Site Map", sitemap);
+		has_map = false;
 
 		/* Make the tabbed pane use the rest of the window space */
 		c.gridx = 0;

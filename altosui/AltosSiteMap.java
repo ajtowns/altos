@@ -228,8 +228,6 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	int last_state = -1;
 	public void show(final AltosState state, final int crc_errors) {
 		// if insufficient gps data, nothing to update
-		if (state.gps == null)
-			return;
 		if (!state.gps.locked && state.gps.nsat < 4)
 			return;
 

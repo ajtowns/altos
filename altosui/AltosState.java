@@ -79,7 +79,8 @@ public class AltosState {
 		data = cur;
 
 		ground_altitude = data.ground_altitude();
-		height = data.filtered_altitude() - ground_altitude;
+		height = data.filtered_height();
+		System.out.printf("height %g\n", height);
 
 		report_time = System.currentTimeMillis();
 
@@ -114,10 +115,14 @@ public class AltosState {
 			/* compute barometric speed */
 
 			double height_change = height - prev_state.height;
-			if (time_change > 0)
-				baro_speed = (prev_state.baro_speed * 3 + (height_change / time_change)) / 4.0;
-			else
-				baro_speed = prev_state.baro_speed;
+			if (data.speed != AltosRecord.MISSING)
+				baro_speed = data.speed;
+			else {
+				if (time_change > 0)
+					baro_speed = (prev_state.baro_speed * 3 + (height_change / time_change)) / 4.0;
+				else
+					baro_speed = prev_state.baro_speed;
+			}
 		} else {
 			npad = 0;
 			ngps = 0;

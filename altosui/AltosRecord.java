@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.io.*;
 
 public class AltosRecord {
+	final static int	MISSING = 0x7fffffff;
+
 	int	version;
 	String 	callsign;
 	int	serial;
@@ -31,19 +33,27 @@ public class AltosRecord {
 	int	status;
 	int	state;
 	int	tick;
+
 	int	accel;
 	int	pres;
 	int	temp;
 	int	batt;
 	int	drogue;
 	int	main;
-	int	flight_accel;
+
 	int	ground_accel;
-	int	flight_vel;
-	int	flight_pres;
 	int	ground_pres;
 	int	accel_plus_g;
 	int	accel_minus_g;
+
+	double	acceleration;
+	double	speed;
+	double	height;
+
+	int	flight_accel;
+	int	flight_vel;
+	int	flight_pres;
+
 	AltosGPS	gps;
 
 	double	time;	/* seconds since boost */
@@ -72,46 +82,82 @@ public class AltosRecord {
 	}
 
 	public double raw_pressure() {
+		if (pres == MISSING)
+			return MISSING;
 		return barometer_to_pressure(pres);
 	}
 
 	public double filtered_pressure() {
+		if (flight_pres == MISSING)
+			return MISSING;
 		return barometer_to_pressure(flight_pres);
 	}
 
 	public double ground_pressure() {
+		if (ground_pres == MISSING)
+			return MISSING;
 		return barometer_to_pressure(ground_pres);
 	}
 
-	public double filtered_altitude() {
-		return AltosConvert.pressure_to_altitude(filtered_pressure());
-	}
-
 	public double raw_altitude() {
-		return AltosConvert.pressure_to_altitude(raw_pressure());
+		double p = raw_pressure();
+		if (p == MISSING)
+			return MISSING;
+		return AltosConvert.pressure_to_altitude(p);
 	}
 
 	public double ground_altitude() {
-		return AltosConvert.pressure_to_altitude(ground_pressure());
+		double p = ground_pressure();
+		if (p == MISSING)
+			return MISSING;
+		return AltosConvert.pressure_to_altitude(p);
+	}
+
+	public double filtered_altitude() {
+		if (height != MISSING && ground_pres != MISSING)
+			return height + ground_altitude();
+
+		double	p = filtered_pressure();
+		if (p == MISSING)
+			return MISSING;
+		return AltosConvert.pressure_to_altitude(p);
 	}
 
 	public double filtered_height() {
-		return filtered_altitude() - ground_altitude();
+		if (height != MISSING)
+			return height;
+
+		double f = filtered_altitude();
+		double g = ground_altitude();
+		if (f == MISSING || g == MISSING)
+			return MISSING;
+		return f - g;
 	}
 
 	public double raw_height() {
-		return raw_altitude() - ground_altitude();
+		double r = raw_altitude();
+		double g = ground_altitude();
+
+		if (r == MISSING || g == MISSING)
+			return MISSING;
+		return r - g;
 	}
 
 	public double battery_voltage() {
+		if (batt == MISSING)
+			return MISSING;
 		return AltosConvert.cc_battery_to_voltage(batt);
 	}
 
 	public double main_voltage() {
+		if (main == MISSING)
+			return MISSING;
 		return AltosConvert.cc_ignitor_to_voltage(main);
 	}
 
 	public double drogue_voltage() {
+		if (drogue == MISSING)
+			return MISSING;
 		return AltosConvert.cc_ignitor_to_voltage(drogue);
 	}
 
@@ -131,6 +177,8 @@ public class AltosRecord {
 	}
 
 	public double temperature() {
+		if (temp == MISSING)
+			return MISSING;
 		return thermometer_to_temperature(temp);
 	}
 
@@ -139,13 +187,22 @@ public class AltosRecord {
 
 		return counts_per_g / 9.80665;
 	}
+
 	public double acceleration() {
+		if (acceleration != MISSING)
+			return acceleration;
+
+		if (ground_accel == MISSING || accel == MISSING)
+			return MISSING;
 		return (ground_accel - accel) / accel_counts_per_mss();
 	}
 
 	public double accel_speed() {
-		double speed = flight_vel / (accel_counts_per_mss() * 100.0);
-		return speed;
+		if (speed != MISSING)
+			return speed;
+		if (flight_vel == MISSING)
+			return MISSING;
+		return flight_vel / (accel_counts_per_mss() * 100.0);
 	}
 
 	public String state() {

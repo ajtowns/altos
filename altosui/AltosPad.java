@@ -42,6 +42,18 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			lights.set(false);
 		}
 
+		public void show() {
+			label.show();
+			value.show();
+			lights.show();
+		}
+
+		public void hide() {
+			label.hide();
+			value.hide();
+			lights.hide();
+		}
+
 		public LaunchStatus (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
 			c.weighty = 1;
@@ -82,6 +94,16 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		JLabel		label;
 		JTextField	value;
 		void show(AltosState state, int crc_errors) {}
+
+		void show() {
+			label.show();
+			value.show();
+		}
+
+		void hide() {
+			label.hide();
+			value.hide();
+		}
 
 		void reset() {
 			value.setText("");
@@ -151,6 +173,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class GPSLocked extends LaunchStatus {
 		void show (AltosState state, int crc_errors) {
+			show();
 			value.setText(String.format("%4d sats", state.gps.nsat));
 			lights.set(state.gps.locked && state.gps.nsat >= 4);
 		}
@@ -163,6 +186,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class GPSReady extends LaunchStatus {
 		void show (AltosState state, int crc_errors) {
+			show();
 			if (state.gps_ready)
 				value.setText("Ready");
 			else
@@ -189,6 +213,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class PadLat extends LaunchValue {
 		void show (AltosState state, int crc_errors) {
+			show();
 			value.setText(pos(state.pad_lat,"N", "S"));
 		}
 		public PadLat (GridBagLayout layout, int y) {
@@ -200,6 +225,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class PadLon extends LaunchValue {
 		void show (AltosState state, int crc_errors) {
+			show();
 			value.setText(pos(state.pad_lon,"E", "W"));
 		}
 		public PadLon (GridBagLayout layout, int y) {
@@ -235,11 +261,18 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		battery.show(state, crc_errors);
 		apogee.show(state, crc_errors);
 		main.show(state, crc_errors);
-		gps_locked.show(state, crc_errors);
-		gps_ready.show(state, crc_errors);
-		pad_lat.show(state, crc_errors);
-		pad_lon.show(state, crc_errors);
 		pad_alt.show(state, crc_errors);
+		if (state.gps != null) {
+			gps_locked.show(state, crc_errors);
+			gps_ready.show(state, crc_errors);
+			pad_lat.show(state, crc_errors);
+			pad_lon.show(state, crc_errors);
+		} else {
+			gps_locked.hide();
+			gps_ready.hide();
+			pad_lat.hide();
+			pad_lon.hide();
+		}
 	}
 
 	public AltosPad() {

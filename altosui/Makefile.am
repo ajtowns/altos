@@ -65,6 +65,7 @@ altosui_JAVA = \
 	AltosRecord.java \
 	AltosRecordIterable.java \
 	AltosTelemetryReader.java \
+	AltosTelemetryMap.java \
 	AltosReplayReader.java \
 	AltosRomconfig.java \
 	AltosRomconfigUI.java \

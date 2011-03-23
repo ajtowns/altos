@@ -108,7 +108,7 @@
  * GPS values
  *
  *	Name		Value
- *	g_s		GPS state (string):
+ *	g		GPS state (string):
  *				l	locked
  *				u	unlocked
  *				e	error (missing or broken)
@@ -123,7 +123,7 @@
  *	g_m		GPS minute (integer - 0-59)
  *	g_s		GPS second (integer - 0-59)
  *	g_v		GPS vertical speed (integer, cm/sec)
- *	g_s		GPS horizontal speed (integer, cm/sec)
+ *	g_g		GPS horizontal speed (integer, cm/sec)
  *	g_c		GPS course (integer, 0-359)
  *	g_hd		GPS hdop (integer * 10)
  *	g_vd		GPS vdop (integer * 10)
@@ -131,7 +131,7 @@
  *	g_ve		GPS v error (integer)
  */
 
-#define AO_TELEM_GPS_STATE		"g_s"
+#define AO_TELEM_GPS_STATE		"g"
 #define AO_TELEM_GPS_STATE_LOCKED	'l'
 #define AO_TELEM_GPS_STATE_UNLOCKED	'u'
 #define AO_TELEM_GPS_STATE_ERROR	'e'
@@ -146,7 +146,7 @@
 #define AO_TELEM_GPS_MINUTE		"g_m"
 #define AO_TELEM_GPS_SECOND		"g_s"
 #define AO_TELEM_GPS_VERTICAL_SPEED	"g_v"
-#define AO_TELEM_GPS_HORIZONTAL_SPEED	"g_s"
+#define AO_TELEM_GPS_HORIZONTAL_SPEED	"g_g"
 #define AO_TELEM_GPS_COURSE		"g_c"
 #define AO_TELEM_GPS_HDOP		"g_hd"
 #define AO_TELEM_GPS_VDOP		"g_vd"

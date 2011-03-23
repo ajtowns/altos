@@ -37,6 +37,19 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		AltosLights	lights;
 
 		abstract void show(AltosState state, int crc_errors);
+
+		void show() {
+			label.show();
+			value.show();
+			lights.show();
+		}
+
+		void hide() {
+			label.hide();
+			value.hide();
+			lights.hide();
+		}
+
 		void reset() {
 			value.setText("");
 			lights.set(false);
@@ -90,6 +103,16 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 		abstract void show(AltosState state, int crc_errors);
 
+		void show() {
+			label.show();
+			value.show();
+		}
+
+		void hide() {
+			label.hide();
+			value.hide();
+		}
+
 		void show(String format, double v) {
 			value.setText(String.format(format, v));
 		}
@@ -134,12 +157,27 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			value2.setText("");
 		}
 
+		void show() {
+			label.show();
+			value1.show();
+			value2.show();
+		}
+
+		void hide() {
+			label.hide();
+			value1.hide();
+			value2.hide();
+		}
+
 		abstract void show(AltosState state, int crc_errors);
+
 		void show(String v1, String v2) {
+			show();
 			value1.setText(v1);
 			value2.setText(v2);
 		}
 		void show(String f1, double v1, String f2, double v2) {
+			show();
 			value1.setText(String.format(f1, v1));
 			value2.setText(String.format(f2, v2));
 		}
@@ -260,6 +298,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	class Main extends DescentStatus {
 		void show (AltosState state, int crc_errors) {
+			show();
 			value.setText(String.format("%4.2f V", state.main_sense));
 			lights.set(state.main_sense > 3.2);
 		}
@@ -324,11 +363,19 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	public void show(AltosState state, int crc_errors) {
 		height.show(state, crc_errors);
 		speed.show(state, crc_errors);
-		bearing.show(state, crc_errors);
-		range.show(state, crc_errors);
-		elevation.show(state, crc_errors);
-		lat.show(state, crc_errors);
-		lon.show(state, crc_errors);
+		if (state.gps != null) {
+			bearing.show(state, crc_errors);
+			range.show(state, crc_errors);
+			elevation.show(state, crc_errors);
+			lat.show(state, crc_errors);
+			lon.show(state, crc_errors);
+		} else {
+			bearing.hide();
+			range.hide();
+			elevation.hide();
+			lat.hide();
+			lon.hide();
+		}
 		main.show(state, crc_errors);
 		apogee.show(state, crc_errors);
 	}

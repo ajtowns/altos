@@ -87,6 +87,16 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		void reset() {
 			value.setText("");
 		}
+
+		void show() {
+			label.show();
+			value.show();
+		}
+
+		void hide() {
+			label.hide();
+			value.hide();
+		}
 		public AscentValue (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
 			c.weighty = 1;
@@ -247,6 +257,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Lat extends AscentValue {
 		void show (AltosState state, int crc_errors) {
+			show();
 			if (state.gps != null)
 				value.setText(pos(state.gps.lat,"N", "S"));
 			else
@@ -261,6 +272,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Lon extends AscentValue {
 		void show (AltosState state, int crc_errors) {
+			show();
 			if (state.gps != null)
 				value.setText(pos(state.gps.lon,"E", "W"));
 			else
@@ -284,8 +296,13 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 	}
 
 	public void show(AltosState state, int crc_errors) {
-		lat.show(state, crc_errors);
-		lon.show(state, crc_errors);
+		if (state.gps != null) {
+			lat.show(state, crc_errors);
+			lon.show(state, crc_errors);
+		} else {
+			lat.hide();
+			lon.hide();
+		}
 		height.show(state, crc_errors);
 		main.show(state, crc_errors);
 		apogee.show(state, crc_errors);

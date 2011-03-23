@@ -328,7 +328,7 @@ public class AltosUI extends JFrame {
 			if (input.equals(output)) {
 				System.out.printf("Not processing '%s'\n", input);
 			} else {
-				AltosWriter writer = open_csv(output);
+				AltosWriter writer = open_csv("/dev/stdout");
 				if (writer != null) {
 					writer.write(iterable);
 					writer.close();

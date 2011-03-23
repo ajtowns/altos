@@ -15,6 +15,8 @@ class AltosDataPointReader implements Iterable<AltosDataPoint> {
     AltosState state;
     AltosRecord record;
 
+    final static int MISSING = AltosRecord.MISSING;
+
     public AltosDataPointReader(Iterable<AltosRecord> reader) {
         this.iter = reader.iterator();
         this.state = null;
