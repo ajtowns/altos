@@ -43,15 +43,15 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		}
 
 		public void show() {
-			label.show();
-			value.show();
-			lights.show();
+			label.setVisible(true);
+			value.setVisible(true);
+			lights.setVisible(true);
 		}
 
 		public void hide() {
-			label.hide();
-			value.hide();
-			lights.hide();
+			label.setVisible(false);
+			value.setVisible(false);
+			lights.setVisible(false);
 		}
 
 		public LaunchStatus (GridBagLayout layout, int y, String text) {
@@ -96,13 +96,13 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		void show(AltosState state, int crc_errors) {}
 
 		void show() {
-			label.show();
-			value.show();
+			label.setVisible(true);
+			value.setVisible(true);
 		}
 
 		void hide() {
-			label.hide();
-			value.hide();
+			label.setVisible(false);
+			value.setVisible(false);
 		}
 
 		void reset() {

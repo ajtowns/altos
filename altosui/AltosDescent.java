@@ -39,15 +39,15 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		abstract void show(AltosState state, int crc_errors);
 
 		void show() {
-			label.show();
-			value.show();
-			lights.show();
+			label.setVisible(true);
+			value.setVisible(true);
+			lights.setVisible(true);
 		}
 
 		void hide() {
-			label.hide();
-			value.hide();
-			lights.hide();
+			label.setVisible(false);
+			value.setVisible(false);
+			lights.setVisible(false);
 		}
 
 		void reset() {
@@ -104,13 +104,13 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		abstract void show(AltosState state, int crc_errors);
 
 		void show() {
-			label.show();
-			value.show();
+			label.setVisible(true);
+			value.setVisible(true);
 		}
 
 		void hide() {
-			label.hide();
-			value.hide();
+			label.setVisible(false);
+			value.setVisible(false);
 		}
 
 		void show(String format, double v) {
@@ -158,15 +158,15 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		}
 
 		void show() {
-			label.show();
-			value1.show();
-			value2.show();
+			label.setVisible(true);
+			value1.setVisible(true);
+			value2.setVisible(true);
 		}
 
 		void hide() {
-			label.hide();
-			value1.hide();
-			value2.hide();
+			label.setVisible(false);
+			value1.setVisible(false);
+			value2.setVisible(false);
 		}
 
 		abstract void show(AltosState state, int crc_errors);

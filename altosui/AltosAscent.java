@@ -89,13 +89,13 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		}
 
 		void show() {
-			label.show();
-			value.show();
+			label.setVisible(true);
+			value.setVisible(true);
 		}
 
 		void hide() {
-			label.hide();
-			value.hide();
+			label.setVisible(false);
+			value.setVisible(false);
 		}
 		public AscentValue (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
