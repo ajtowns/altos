@@ -1,6 +1,6 @@
 SUBDIRS=libaltos
 JAVAROOT=classes
-AM_JAVACFLAGS=-encoding UTF-8
+AM_JAVACFLAGS=-encoding UTF-8 -Xlint:deprecation
 
 man_MANS=altosui.1
 
@@ -27,7 +27,6 @@ altosui_JAVA = \
 	AltosDeviceDialog.java \
 	AltosDevice.java \
 	AltosDisplayThread.java \
-	AltosEepromBlock.java \
 	AltosEepromChunk.java \
 	AltosEepromDelete.java \
 	AltosEepromDownload.java \

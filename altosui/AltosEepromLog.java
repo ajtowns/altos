@@ -41,10 +41,7 @@ public class AltosEepromLog {
 	int		start_block;
 	int		end_block;
 
-	boolean		has_gps;
 	int		year, month, day;
-	int		hour, minute, second;
-	double		lat, lon;
 
 	boolean		download;
 	boolean		delete;
@@ -54,7 +51,7 @@ public class AltosEepromLog {
 		throws InterruptedException, TimeoutException {
 
 		int		block;
-		boolean		has_date = false, has_time = false, has_lat = false, has_lon = false;
+		boolean		has_date = false;
 
 		start_block = in_start_block;
 		end_block = in_end_block;
@@ -82,34 +79,24 @@ public class AltosEepromLog {
 					break;
 				}
 			}
-			AltosEepromBlock eeblock = new AltosEepromBlock(eechunk);
-			if (eeblock.has_flight) {
-				flight = eeblock.flight;
-				has_flight = true;
+			for (int i = 0; i < eechunk.chunk_size; i += AltosEepromRecord.record_length) {
+				try {
+					AltosEepromRecord r = new AltosEepromRecord(eechunk, i);
+
+					if (r.cmd == Altos.AO_LOG_FLIGHT) {
+						flight = r.b;
+						has_flight = true;
+					}
+					if (r.cmd == Altos.AO_LOG_GPS_DATE) {
+						year = 2000 + (r.a & 0xff);
+						month = (r.a >> 8) & 0xff;
+						day = (r.b & 0xff);
+						has_date = true;
+					}
+				} catch (ParseException pe) {
+				}
 			}
-			if (eeblock.has_date) {
-				year = eeblock.year;
-				month = eeblock.month;
-				day = eeblock.day;
-				has_date = true;
-			}
-			if (eeblock.has_time) {
-				hour = eeblock.hour;
-				minute = eeblock.minute;
-				second = eeblock.second;
-				has_time = true;
-			}
-			if (eeblock.has_lat) {
-				lat = eeblock.lat;
-				has_lat = true;
-			}
-			if (eeblock.has_lon) {
-				lon = eeblock.lon;
-				has_lon = true;
-			}
-			if (has_date && has_time && has_lat && has_lon)
-				has_gps = true;
-			if (has_gps && has_flight)
+			if (has_date && has_flight)
 				break;
 		}
 	}

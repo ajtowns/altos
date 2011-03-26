@@ -96,77 +96,88 @@ public class AltosEepromDownload implements Runnable {
 	int			state;
 
 	void CaptureFull(AltosEepromChunk eechunk) throws IOException {
-		AltosEepromBlock	eeblock = new AltosEepromBlock(eechunk);
+		boolean	any_valid = false;
+		for (int i = 0; i < eechunk.chunk_size && !done; i += AltosEepromRecord.record_length) {
+			try {
+				AltosEepromRecord r = new AltosEepromRecord(eechunk, i);
+				if (r.cmd == Altos.AO_LOG_FLIGHT) {
+					flight = r.b;
+					monitor.set_flight(flight);
+				}
 
-		if (eeblock.has_flight) {
-			flight = eeblock.flight;
-			monitor.set_flight(flight);
-		}
-		if (eeblock.has_date) {
-			year = eeblock.year;
-			month = eeblock.month;
-			day = eeblock.day;
-			want_file = true;
+				/* Monitor state transitions to update display */
+				if (r.cmd == Altos.AO_LOG_STATE && r.a <= Altos.ao_flight_landed) {
+					state = r.a;
+					if (state > Altos.ao_flight_pad)
+						want_file = true;
+				}
+
+				if (r.cmd == Altos.AO_LOG_GPS_DATE) {
+					year = 2000 + (r.a & 0xff);
+					month = (r.a >> 8) & 0xff;
+					day = (r.b & 0xff);
+					want_file = true;
+				}
+				if (r.cmd == Altos.AO_LOG_STATE && r.a == Altos.ao_flight_landed)
+					done = true;
+				any_valid = true;
+				Log(r);
+			} catch (ParseException pe) {
+				if (parse_exception == null)
+					parse_exception = pe;
+			}
 		}
 
-		if (eeblock.size() == 0 ||
-		    eeblock.has_state && eeblock.state == Altos.ao_flight_landed)
+		if (!any_valid)
 			done = true;
 
-		/* Monitor state transitions to update display */
-		if (eeblock.has_state) {
-			if (eeblock.state > Altos.ao_flight_pad)
-				want_file = true;
-			if (eeblock.state > state)
-				state = eeblock.state;
-		}
-
-		if (parse_exception == null && eeblock.parse_exception != null)
-			parse_exception = eeblock.parse_exception;
-
 		CheckFile(false);
-
-		for (int record = 0; record < eeblock.size(); record++)
-			Log(eeblock.get(record));
 	}
 
 	boolean	start;
 	int	tiny_tick;
 
 	void CaptureTiny (AltosEepromChunk eechunk) throws IOException {
-		boolean	some_reasonable_data = false;
+		boolean any_valid = false;
 
-		for (int i = 0; i < eechunk.data.length; i += 2) {
-			int	v = eechunk.data16(i);
+		for (int i = 0; i < eechunk.data.length && !done; i += 2) {
+			int			v = eechunk.data16(i);
+			AltosEepromRecord	r;
 
 			if (i == 0 && start) {
 				tiny_tick = 0;
 				start = false;
 				flight = v;
-				Log(new AltosEepromRecord(Altos.AO_LOG_FLIGHT, tiny_tick, 0, v));
-				some_reasonable_data = true;
+				monitor.set_flight(flight);
+				r = new AltosEepromRecord(Altos.AO_LOG_FLIGHT, tiny_tick, 0, v);
+				any_valid = true;
 			} else {
 				int	s = v ^ 0x8000;
+
 				if (Altos.ao_flight_startup <= s && s <= Altos.ao_flight_invalid) {
-					Log(new AltosEepromRecord(Altos.AO_LOG_STATE, tiny_tick, s, 0));
-					if (s == Altos.ao_flight_landed) {
+					r = new AltosEepromRecord(Altos.AO_LOG_STATE, tiny_tick, s, 0);
+					if (s == Altos.ao_flight_landed)
 						done = true;
-						break;
-					}
-					some_reasonable_data = true;
+					any_valid = true;
 				} else {
 					if (v != 0xffff)
-						some_reasonable_data = true;
-					Log(new AltosEepromRecord(Altos.AO_LOG_HEIGHT, tiny_tick, v, 0));
+						any_valid = true;
+					r = new AltosEepromRecord(Altos.AO_LOG_HEIGHT, tiny_tick, v, 0);
+
+					/*
+					 * The flight software records ascent data every 100ms, and descent
+					 * data every 1s.
+					 */
 					if (state < Altos.ao_flight_drogue)
 						tiny_tick += 10;
 					else
 						tiny_tick += 100;
 				}
 			}
+			Log(r);
 		}
 		CheckFile(false);
-		if (!some_reasonable_data)
+		if (!any_valid)
 			done = true;
 	}
 
