@@ -36,11 +36,8 @@ public class AltosIgnite {
 
 	private void start_serial() throws InterruptedException {
 		serial_started = true;
-		if (remote) {
-			serial.set_radio();
-			serial.printf("p\nE 0\n");
-			serial.flush_input();
-		}
+		if (remote)
+			serial.start_remote();
 	}
 
 	private void stop_serial() throws InterruptedException {
@@ -49,10 +46,8 @@ public class AltosIgnite {
 		serial_started = false;
 		if (serial == null)
 			return;
-		if (remote) {
-			serial.printf("~");
-			serial.flush_output();
-		}
+		if (remote)
+			serial.stop_remote();
 	}
 
 	class string_ref {

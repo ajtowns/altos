@@ -109,73 +109,19 @@ public class AltosConfig implements ActionListener {
 
 	void start_serial() throws InterruptedException {
 		serial_started = true;
-		if (remote) {
-			serial_line.set_radio();
-			serial_line.printf("p\nE 0\n");
-			serial_line.flush_input();
-		}
+		if (remote)
+			serial_line.start_remote();
 	}
 
 	void stop_serial() throws InterruptedException {
 		if (!serial_started)
 			return;
 		serial_started = false;
-		if (remote) {
-			serial_line.printf("~");
-			serial_line.flush_output();
-		}
+		if (remote)
+			serial_line.stop_remote();
 	}
 
-	void get_data() throws InterruptedException, TimeoutException {
-		try {
-			start_serial();
-			serial_line.printf("c s\nv\n");
-			for (;;) {
-				String line = serial_line.get_reply(5000);
-				if (line == null)
-					throw new TimeoutException();
-				get_int(line, "serial-number", serial);
-				get_int(line, "Main deploy:", main_deploy);
-				get_int(line, "Apogee delay:", apogee_delay);
-				get_int(line, "Radio channel:", radio_channel);
-				get_int(line, "Radio cal:", radio_calibration);
-				get_int(line, "Max flight log:", flight_log_max);
-				get_string(line, "Callsign:", callsign);
-				get_string(line,"software-version", version);
-				get_string(line,"product", product);
-
-				/* signals the end of the version info */
-				if (line.startsWith("software-version"))
-					break;
-			}
-		} finally {
-			stop_serial();
-		}
-	}
-
-	void init_ui () throws InterruptedException, TimeoutException {
-		config_ui = new AltosConfigUI(owner, remote);
-		config_ui.addActionListener(this);
-		set_ui();
-	}
-
-	void abort() {
-		JOptionPane.showMessageDialog(owner,
-					      String.format("Connection to \"%s\" failed",
-							    device.toShortString()),
-					      "Connection Failed",
-					      JOptionPane.ERROR_MESSAGE);
-		try {
-			stop_serial();
-		} catch (InterruptedException ie) {
-		}
-		serial_line.close();
-		serial_line = null;
-	}
-
-	void set_ui() throws InterruptedException, TimeoutException {
-		if (serial_line != null)
-			get_data();
+	void update_ui() {
 		config_ui.set_serial(serial.get());
 		config_ui.set_product(product.get());
 		config_ui.set_version(version.get());
@@ -186,9 +132,165 @@ public class AltosConfig implements ActionListener {
 		config_ui.set_flight_log_max(flight_log_max.get());
 		config_ui.set_callsign(callsign.get());
 		config_ui.set_clean();
+		config_ui.make_visible();
 	}
 
-	void run_dialog() {
+	void process_line(String line) {
+		if (line == null) {
+			System.out.printf("timeout\n");
+			abort();
+			return;
+		}
+		if (line.equals("done")) {
+			System.out.printf("done\n");
+			if (serial_line != null)
+				update_ui();
+			return;
+		}
+		get_int(line, "serial-number", serial);
+		get_int(line, "Main deploy:", main_deploy);
+		get_int(line, "Apogee delay:", apogee_delay);
+		get_int(line, "Radio channel:", radio_channel);
+		get_int(line, "Radio cal:", radio_calibration);
+		get_int(line, "Max flight log:", flight_log_max);
+		get_string(line, "Callsign:", callsign);
+		get_string(line,"software-version", version);
+		get_string(line,"product", product);
+	}
+
+	final static int	serial_mode_read = 0;
+	final static int	serial_mode_save = 1;
+	final static int	serial_mode_reboot = 2;
+
+	class SerialData implements Runnable {
+		AltosConfig	config;
+		int		serial_mode;
+
+		void process_line(String line) {
+			config.process_line(line);
+		}
+		void callback(String in_line) {
+			final String line = in_line;
+			Runnable r = new Runnable() {
+					public void run() {
+						process_line(line);
+					}
+				};
+			SwingUtilities.invokeLater(r);
+		}
+
+		void get_data() {
+			try {
+				config.start_serial();
+				config.serial_line.printf("c s\nv\n");
+				for (;;) {
+					try {
+						String line = config.serial_line.get_reply(5000);
+						if (line == null)
+							stop_serial();
+						callback(line);
+						if (line.startsWith("software-version"))
+							break;
+					} catch (Exception e) {
+						break;
+					}
+				}
+			} catch (InterruptedException ie) {
+			} finally {
+				try {
+					stop_serial();
+				} catch (InterruptedException ie) {
+				}
+			}
+			callback("done");
+		}
+
+		void save_data() {
+			try {
+				start_serial();
+				serial_line.printf("c m %d\n", main_deploy.get());
+				serial_line.printf("c d %d\n", apogee_delay.get());
+				if (!remote) {
+					serial_line.printf("c r %d\n", radio_channel.get());
+					serial_line.printf("c f %d\n", radio_calibration.get());
+				}
+				serial_line.printf("c c %s\n", callsign.get());
+				if (flight_log_max.get() != 0)
+					serial_line.printf("c l %d\n", flight_log_max.get());
+				serial_line.printf("c w\n");
+			} catch (InterruptedException ie) {
+			} finally {
+				try {
+					stop_serial();
+				} catch (InterruptedException ie) {
+				}
+			}
+		}
+
+		void reboot() {
+			try {
+				start_serial();
+				serial_line.printf("r eboot\n");
+				serial_line.flush_output();
+			} catch (InterruptedException ie) {
+			} finally {
+				try {
+					stop_serial();
+				} catch (InterruptedException ie) {
+				}
+				serial_line.close();
+			}
+		}
+
+		public void run () {
+			switch (serial_mode) {
+			case serial_mode_save:
+				save_data();
+				/* fall through ... */
+			case serial_mode_read:
+				get_data();
+				break;
+			case serial_mode_reboot:
+				reboot();
+				break;
+			}
+		}
+
+		public SerialData(AltosConfig in_config, int in_serial_mode) {
+			config = in_config;
+			serial_mode = in_serial_mode;
+		}
+	}
+
+	void run_serial_thread(int serial_mode) {
+		SerialData	sd = new SerialData(this, serial_mode);
+		Thread		st = new Thread(sd);
+		st.start();
+	}
+
+	void init_ui () throws InterruptedException, TimeoutException {
+		config_ui = new AltosConfigUI(owner, remote);
+		config_ui.addActionListener(this);
+		serial_line.set_frame(owner);
+		set_ui();
+	}
+
+	void abort() {
+		serial_line.close();
+		serial_line = null;
+		JOptionPane.showMessageDialog(owner,
+					      String.format("Connection to \"%s\" failed",
+							    device.toShortString()),
+					      "Connection Failed",
+					      JOptionPane.ERROR_MESSAGE);
+		config_ui.setVisible(false);
+	}
+
+	void set_ui() throws InterruptedException, TimeoutException {
+		if (serial_line != null)
+			run_serial_thread(serial_mode_read);
+		else
+			update_ui();
 	}
 
 	void save_data() {
@@ -198,25 +300,7 @@ public class AltosConfig implements ActionListener {
 		radio_calibration.set(config_ui.radio_calibration());
 		flight_log_max.set(config_ui.flight_log_max());
 		callsign.set(config_ui.callsign());
-		try {
-			start_serial();
-			serial_line.printf("c m %d\n", main_deploy.get());
-			serial_line.printf("c d %d\n", apogee_delay.get());
-			if (!remote) {
-				serial_line.printf("c r %d\n", radio_channel.get());
-				serial_line.printf("c f %d\n", radio_calibration.get());
-			}
-			serial_line.printf("c c %s\n", callsign.get());
-			if (flight_log_max.get() != 0)
-				serial_line.printf("c l %d\n", flight_log_max.get());
-			serial_line.printf("c w\n");
-		} catch (InterruptedException ie) {
-		} finally {
-			try {
-				stop_serial();
-			} catch (InterruptedException ie) {
-			}
-		}
+		run_serial_thread(serial_mode_save);
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -224,17 +308,11 @@ public class AltosConfig implements ActionListener {
 		try {
 			if (cmd.equals("Save")) {
 				save_data();
-				set_ui();
 			} else if (cmd.equals("Reset")) {
 				set_ui();
 			} else if (cmd.equals("Reboot")) {
-				if (serial_line != null) {
-					start_serial();
-					serial_line.printf("r eboot\n");
-					serial_line.flush_output();
-					stop_serial();
-					serial_line.close();
-				}
+				if (serial_line != null)
+					run_serial_thread(serial_mode_reboot);
 			} else if (cmd.equals("Close")) {
 				if (serial_line != null)
 					serial_line.close();
@@ -267,7 +345,6 @@ public class AltosConfig implements ActionListener {
 					remote = true;
 				try {
 					init_ui();
-					config_ui.make_visible();
 				} catch (InterruptedException ie) {
 					abort();
 				} catch (TimeoutException te) {

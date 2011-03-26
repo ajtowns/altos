@@ -25,6 +25,11 @@ import java.lang.*;
 import java.io.*;
 import java.util.concurrent.*;
 import java.util.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.*;
 
 import libaltosJNI.*;
 
@@ -36,7 +41,7 @@ import libaltosJNI.*;
 
 public class AltosSerial implements Runnable {
 
-	static List<String> devices_opened = Collections.synchronizedList(new LinkedList<String>());
+	static java.util.List<String> devices_opened = Collections.synchronizedList(new LinkedList<String>());
 
 	AltosDevice device;
 	SWIGTYPE_p_altos_file altos;
@@ -52,6 +57,7 @@ public class AltosSerial implements Runnable {
 	static boolean debug;
 	boolean remote;
 	LinkedList<String> pending_output = new LinkedList<String>();
+	Frame frame;
 
 	static void set_debug(boolean new_debug) {
 		debug = new_debug;
@@ -126,6 +132,59 @@ public class AltosSerial implements Runnable {
 		}
 	}
 
+	boolean		abort;
+	JDialog		timeout_dialog;
+	boolean	timeout_started = false;
+
+	private void stop_timeout_dialog() {
+		System.out.printf("stop_timeout_dialog\n");
+		Runnable r = new Runnable() {
+				public void run() {
+					if (timeout_dialog != null)
+						timeout_dialog.setVisible(false);
+				}
+			};
+		SwingUtilities.invokeLater(r);
+	}
+
+	private void start_timeout_dialog_internal() {
+		System.out.printf("Creating timeout dialog\n");
+		Object[] options = { "Cancel" };
+
+		JOptionPane	pane = new JOptionPane();
+		pane.setMessage(String.format("Connecting to %s", device.getPath()));
+		pane.setOptions(options);
+		pane.setInitialValue(null);
+
+		timeout_dialog = pane.createDialog(frame, "Connecting...");
+
+		timeout_dialog.setVisible(true);
+
+		Object o = pane.getValue();
+		if (o == null)
+			return;
+		if (options[0].equals(o))
+			abort = true;
+	}
+
+	private boolean check_timeout() {
+		if (!timeout_started && frame != null) {
+			timeout_started = true;
+			System.out.printf("Starting timeout dialog\n");
+			if (SwingUtilities.isEventDispatchThread()) {
+				start_timeout_dialog_internal();
+			} else {
+				Runnable r = new Runnable() {
+						public void run() {
+							start_timeout_dialog_internal();
+						}
+					};
+				SwingUtilities.invokeLater(r);
+			}
+		}
+		return abort;
+	}
+
 	public void flush_input() {
 		flush_output();
 		boolean	got_some;
@@ -156,10 +215,21 @@ public class AltosSerial implements Runnable {
 
 	public String get_reply(int timeout) throws InterruptedException {
 		flush_output();
-		AltosLine line = reply_queue.poll(timeout, TimeUnit.MILLISECONDS);
-		if (line == null)
-			return null;
-		return line.line;
+		if (remote) {
+			timeout = 300;
+			System.out.printf("Doing remote timout\n");
+		}
+		abort = false;
+		timeout_started = false;
+		for (;;) {
+			AltosLine line = reply_queue.poll(timeout, TimeUnit.MILLISECONDS);
+			if (line != null) {
+				stop_timeout_dialog();
+				return line.line;
+			}
+			if (!remote || check_timeout())
+				return null;
+		}
 	}
 
 	public void add_monitor(LinkedBlockingQueue<AltosLine> q) {
@@ -289,16 +359,25 @@ public class AltosSerial implements Runnable {
 	public void stop_remote() {
 		if (debug)
 			System.out.printf("stop remote\n");
-		flush_input();
-		printf ("~");
-		flush_output();
+		try {
+			flush_input();
+		} finally {
+			System.out.printf("Sending tilde\n");
+			printf ("~\n");
+			flush_output();
+		}
 		remote = false;
+	}
+
+	public void set_frame(Frame in_frame) {
+		frame = in_frame;
 	}
 
 	public AltosSerial(AltosDevice in_device) throws FileNotFoundException, AltosSerialInUseException {
 		device = in_device;
 		line = "";
 		monitor_mode = false;
+		frame = null;
 		telemetry = Altos.ao_telemetry_full;
 		monitors = new LinkedList<LinkedBlockingQueue<AltosLine>> ();
 		reply_queue = new LinkedBlockingQueue<AltosLine> ();
