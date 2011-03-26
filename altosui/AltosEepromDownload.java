@@ -78,11 +78,105 @@ public class AltosEepromDownload implements Runnable {
 		}
 	}
 
+	void Log(AltosEepromRecord r) throws IOException {
+		if (r.cmd != Altos.AO_LOG_INVALID) {
+			String log_line = String.format("%c %4x %4x %4x\n",
+							r.cmd, r.tick, r.a, r.b);
+			if (eeprom_file != null)
+				eeprom_file.write(log_line);
+			else
+				eeprom_pending.add(log_line);
+		}
+	}
+
+	static final int	log_full = 1;
+	static final int	log_tiny = 2;
+
+	boolean			done;
+	int			state;
+
+	void CaptureFull(AltosEepromChunk eechunk) throws IOException {
+		AltosEepromBlock	eeblock = new AltosEepromBlock(eechunk);
+
+		if (eeblock.has_flight) {
+			flight = eeblock.flight;
+			monitor.set_flight(flight);
+		}
+		if (eeblock.has_date) {
+			year = eeblock.year;
+			month = eeblock.month;
+			day = eeblock.day;
+			want_file = true;
+		}
+
+		if (eeblock.size() == 0 ||
+		    eeblock.has_state && eeblock.state == Altos.ao_flight_landed)
+			done = true;
+
+		/* Monitor state transitions to update display */
+		if (eeblock.has_state) {
+			if (eeblock.state > Altos.ao_flight_pad)
+				want_file = true;
+			if (eeblock.state > state)
+				state = eeblock.state;
+		}
+
+		if (parse_exception == null && eeblock.parse_exception != null)
+			parse_exception = eeblock.parse_exception;
+
+		CheckFile(false);
+
+		for (int record = 0; record < eeblock.size(); record++)
+			Log(eeblock.get(record));
+	}
+
+	boolean	start;
+	int	tiny_tick;
+
+	void CaptureTiny (AltosEepromChunk eechunk) throws IOException {
+		boolean	some_reasonable_data = false;
+
+		for (int i = 0; i < eechunk.data.length; i += 2) {
+			int	v = eechunk.data16(i);
+
+			if (i == 0 && start) {
+				tiny_tick = 0;
+				start = false;
+				flight = v;
+				Log(new AltosEepromRecord(Altos.AO_LOG_FLIGHT, tiny_tick, 0, v));
+				some_reasonable_data = true;
+			} else {
+				int	s = v ^ 0x8000;
+				if (Altos.ao_flight_startup <= s && s <= Altos.ao_flight_invalid) {
+					Log(new AltosEepromRecord(Altos.AO_LOG_STATE, tiny_tick, s, 0));
+					if (s == Altos.ao_flight_landed) {
+						done = true;
+						break;
+					}
+					some_reasonable_data = true;
+				} else {
+					if (v != 0xffff)
+						some_reasonable_data = true;
+					Log(new AltosEepromRecord(Altos.AO_LOG_HEIGHT, tiny_tick, v, 0));
+					if (state < Altos.ao_flight_drogue)
+						tiny_tick += 10;
+					else
+						tiny_tick += 100;
+				}
+			}
+		}
+		CheckFile(false);
+		if (!some_reasonable_data)
+			done = true;
+	}
+
 	void CaptureLog(AltosEepromLog log) throws IOException, InterruptedException, TimeoutException {
 		int			block, state_block = 0;
-		int			state = 0;
-		boolean			done = false;
-		int			record;
+		int			log_style = 0;
+
+		state = 0;
+		done = false;
+		start = true;
 
 		if (flights.config_data.serial == 0)
 			throw new IOException("no serial number found");
@@ -104,47 +198,26 @@ public class AltosEepromDownload implements Runnable {
 		for (block = log.start_block; !done && block < log.end_block; block++) {
 			monitor.set_value(Altos.state_to_string[state], state, block - state_block);
 
-			AltosEepromBlock	eeblock = new AltosEepromBlock(serial_line, block);
+			AltosEepromChunk	eechunk = new AltosEepromChunk(serial_line, block);
 
-			if (eeblock.has_flight) {
-				flight = eeblock.flight;
-				monitor.set_flight(flight);
-			}
-			if (eeblock.has_date) {
-				year = eeblock.year;
-				month = eeblock.month;
-				day = eeblock.day;
-				want_file = true;
-			}
+			/*
+			 * Figure out what kind of data is there
+			 */
 
-			if (eeblock.size() == 0 ||
-			    eeblock.has_state && eeblock.state == Altos.ao_flight_landed)
-					done = true;
-
-			/* Monitor state transitions to update display */
-			if (eeblock.has_state) {
-				if (eeblock.state > Altos.ao_flight_pad)
-					want_file = true;
-				if (eeblock.state > state)
-					state = eeblock.state;
+			if (block == log.start_block) {
+				if (eechunk.data(0) == Altos.AO_LOG_FLIGHT)
+					log_style = log_full;
+				else
+					log_style = log_tiny;
 			}
 
-			if (parse_exception == null && eeblock.parse_exception != null)
-				parse_exception = eeblock.parse_exception;
-
-			CheckFile(false);
-
-			for (record = 0; record < eeblock.size(); record++) {
-				AltosEepromRecord r = eeblock.get(record);
-
-				if (r.cmd != Altos.AO_LOG_INVALID) {
-					String log_line = String.format("%c %4x %4x %4x\n",
-									r.cmd, r.tick, r.a, r.b);
-					if (eeprom_file != null)
-						eeprom_file.write(log_line);
-					else
-						eeprom_pending.add(log_line);
-				}
+			switch (log_style) {
+			case log_full:
+				CaptureFull(eechunk);
+				break;
+			case log_tiny:
+				CaptureTiny(eechunk);
+				break;
 			}
 		}
 		CheckFile(true);

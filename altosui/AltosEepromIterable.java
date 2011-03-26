@@ -124,6 +124,10 @@ public class AltosEepromIterable extends AltosRecordIterable {
 			}
 			eeprom.seen |= seen_sensor;
 			break;
+		case Altos.AO_LOG_HEIGHT:
+			state.height = record.a;
+			eeprom.seen |= seen_sensor;
+			break;
 		case Altos.AO_LOG_TEMP_VOLT:
 			state.temp = record.a;
 			state.batt = record.b;
@@ -155,7 +159,6 @@ public class AltosEepromIterable extends AltosRecordIterable {
 			int flags = (record.b >> 8);
 			state.gps.connected = (flags & Altos.AO_GPS_RUNNING) != 0;
 			state.gps.locked = (flags & Altos.AO_GPS_VALID) != 0;
-			state.gps.date_valid = (flags & Altos.AO_GPS_DATE_VALID) != 0;
 			state.gps.nsat = (flags & Altos.AO_GPS_NUM_SAT_MASK) >>
 				Altos.AO_GPS_NUM_SAT_SHIFT;
 			break;

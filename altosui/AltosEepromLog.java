@@ -73,7 +73,16 @@ public class AltosEepromLog {
 			in_end_block = in_start_block + 2;
 
 		for (block = in_start_block; block < in_end_block; block++) {
-			AltosEepromBlock eeblock = new AltosEepromBlock(serial_line, block);
+			AltosEepromChunk eechunk = new AltosEepromChunk(serial_line, block);
+
+			if (block == in_start_block) {
+				if (eechunk.data(0) != Altos.AO_LOG_FLIGHT) {
+					flight = eechunk.data16(0);
+					has_flight = true;
+					break;
+				}
+			}
+			AltosEepromBlock eeblock = new AltosEepromBlock(eechunk);
 			if (eeblock.has_flight) {
 				flight = eeblock.flight;
 				has_flight = true;

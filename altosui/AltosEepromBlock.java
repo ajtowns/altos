@@ -46,7 +46,7 @@ public class AltosEepromBlock extends ArrayList<AltosEepromRecord> {
 	int	hour, minute, second;
 	ParseException	parse_exception = null;
 
-	public AltosEepromBlock (AltosSerial serial_line, int block) throws TimeoutException, InterruptedException {
+	public AltosEepromBlock (AltosEepromChunk chunk) {
 		int	addr;
 		boolean	done = false;
 
@@ -56,10 +56,9 @@ public class AltosEepromBlock extends ArrayList<AltosEepromRecord> {
 		has_lat = false;
 		has_lon = false;
 		has_time = false;
-		serial_line.printf("e %x\n", block);
-		for (addr = 0; addr < 0x100;) {
+		for (addr = 0; addr < chunk.chunk_size;) {
 			try {
-				AltosEepromRecord r = new AltosEepromRecord(serial_line, block * 256 + addr);
+				AltosEepromRecord r = new AltosEepromRecord(chunk, addr);
 
 				if (r.cmd == Altos.AO_LOG_FLIGHT) {
 					flight = r.b;

@@ -38,6 +38,8 @@ public class AltosEepromRecord {
 	public String	data;
 	public boolean	tick_valid;
 
+	static final int	record_length = 8;
+
 	int[] ParseHex(String line) {
 		String[] tokens = line.split("\\s+");
 		int[] array = new int[tokens.length];
@@ -51,44 +53,35 @@ public class AltosEepromRecord {
 		return array;
 	}
 
-	int checksum(int[] line) {
+	int checksum(int[] data, int start) {
 		int	csum = 0x5a;
-		for (int i = 1; i < line.length; i++)
-			csum += line[i];
+		for (int i = 0; i < record_length; i++)
+			csum += data[i + start];
 		return csum & 0xff;
 	}
 
-	public AltosEepromRecord (AltosSerial serial_line, int addr)
-		throws TimeoutException, ParseException, InterruptedException {
-		String	line = serial_line.get_reply(5000);
-		if (line == null)
-			throw new TimeoutException();
-		int[] values = ParseHex(line);
+	public AltosEepromRecord (AltosEepromChunk chunk, int start) throws ParseException {
 
-		if (values == null || values.length < 9) {
-			System.out.printf("invalid line %s", line);
-			throw new ParseException(String.format("inalid line %s", line), 0);
-		}
-		if (values[0] != (addr & 0xff))
-			throw new ParseException(String.format("data address out of sync at 0x%x",
-							       addr), 0);
-		int i;
-		for (i = 1; i < values.length; i++)
-			if (values[i] != 0xff)
-				break;
-		cmd = values[1];
+		cmd = chunk.data(start);
 		tick_valid = true;
-		if (i != values.length) {
-			if (checksum(values) != 0)
-				throw new ParseException(String.format("invalid checksum at 0x%x in line %s", addr, line), 0);
+
+		int i;
+		for (i = 0; i < record_length; i++)
+			if (chunk.data[start + i] != 0xff)
+				break;
+		if (i != 8) {
+			if (checksum(chunk.data, start) != 0)
+				throw new ParseException(String.format("invalid checksum at 0x%x",
+								       chunk.address + start), 0);
 		} else {
 			cmd = Altos.AO_LOG_INVALID;
 			tick_valid = false;
 		}
 
-		tick = values[3] + (values[4] << 8);
-		a = values[5] + (values[6] << 8);
-		b = values[7] + (values[8] << 8);
+		tick = chunk.data16(start + 2);
+		a = chunk.data16(start + 4);
+		b = chunk.data16(start + 6);
+
 		data = null;
 	}
 
