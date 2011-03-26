@@ -83,7 +83,6 @@ public class AltosEepromList extends ArrayList<AltosEepromLog> {
 					if (line.contains("Syntax"))
 						continue;
 					String[] tokens = line.split("\\s+");
-					System.out.printf("got line %s (%d tokens)\n", line, tokens.length);
 					if (tokens.length < 6)
 						break;
 
@@ -95,7 +94,6 @@ public class AltosEepromList extends ArrayList<AltosEepromLog> {
 							start = AltosParse.parse_hex(tokens[3]);
 						if (tokens[4].equals("end"))
 							end = AltosParse.parse_hex(tokens[5]);
-						System.out.printf("parsed flight %d %x %x\n", flight, start, end);
 						if (flight > 0 && start >= 0 && end > 0)
 							flights.add(new AltosEepromFlight(flight, start, end));
 					} catch (ParseException pe) { System.out.printf("Parse error %s\n", pe.toString()); }
@@ -115,7 +113,6 @@ public class AltosEepromList extends ArrayList<AltosEepromLog> {
 			 * firmware, this will also extract the flight number.
 			 */
 			for (AltosEepromFlight flight : flights) {
-				System.out.printf("Scanning flight %d %x %x\n", flight.flight, flight.start, flight.end);
 				add(new AltosEepromLog(serial_line, config_data.serial,
 						       flight.start, flight.end));
 			}
@@ -123,10 +120,6 @@ public class AltosEepromList extends ArrayList<AltosEepromLog> {
 			if (remote)
 				serial_line.stop_remote();
 			serial_line.flush_output();
-		}
-		for (int i = 0; i < size(); i++) {
-			AltosEepromLog	l = get(i);
-			System.out.printf("Found flight %d at %x - %x\n", l.flight, l.start_block, l.end_block);
 		}
 	}
 }

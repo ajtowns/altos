@@ -69,7 +69,6 @@ public class AltosEepromManage implements ActionListener {
 		boolean	success = e.getID() != 0;
 		boolean running = false;
 
-		System.out.printf("Eeprom manager action %s %d\n", cmd, e.getID());
 		if (cmd.equals("download")) {
 			if (success) {
 				if (any_delete) {

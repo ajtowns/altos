@@ -103,12 +103,5 @@ public class AltosEepromLog {
 			if (has_gps && has_flight)
 				break;
 		}
-		System.out.printf("Serial %d start block %d end block %d\n",
-				  serial, start_block, end_block);
-		if (has_flight)
-			System.out.printf("Flight %d\n", flight);
-		if (has_gps)
-			System.out.printf("%d-%d-%d %d:%02d:%02d Lat %f Lon %f\n",
-					  year, month, day, hour, minute, second, lat, lon);
 	}
 }

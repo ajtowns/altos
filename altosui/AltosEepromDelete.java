@@ -49,11 +49,9 @@ public class AltosEepromDelete implements Runnable {
 			 */
 			serial_line.flush_input();
 			serial_line.printf("d %d\n", log.flight);
-			System.out.printf("Attempt to delete flight %d\n", log.flight);
 			for (;;) {
 				/* It can take a while to erase the flash... */
 				String line = serial_line.get_reply(20000);
-				System.out.printf("got back line %s\n", line);
 				if (line == null)
 					throw new TimeoutException();
 				if (line.equals("Erased"))
@@ -96,7 +94,6 @@ public class AltosEepromDelete implements Runnable {
 					DeleteLog(log);
 				}
 			}
-			System.out.printf("All flights successfully deleted\n");
 			success = true;
 		} catch (IOException ee) {
 			show_error (ee.getLocalizedMessage(),

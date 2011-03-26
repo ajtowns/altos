@@ -35,13 +35,10 @@ class AltosEepromItem implements ActionListener {
 	JCheckBox	delete;
 
 	public void actionPerformed(ActionEvent e) {
-		System.out.printf("eeprom item action %s %d\n", e.getActionCommand(), e.getID());
 		if (e.getSource() == download) {
 			log.download = download.isSelected();
-			System.out.printf("download for flight %d set to %b\n", log.flight, log.download);
 		} else if (e.getSource() == delete) {
 			log.delete = delete.isSelected();
-			System.out.printf("delete for flight %d set to %b\n", log.flight, log.delete);
 		}
 	}
 
