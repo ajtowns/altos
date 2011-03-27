@@ -137,7 +137,6 @@ public class AltosSerial implements Runnable {
 	boolean	timeout_started = false;
 
 	private void stop_timeout_dialog() {
-		System.out.printf("stop_timeout_dialog\n");
 		Runnable r = new Runnable() {
 				public void run() {
 					if (timeout_dialog != null)
@@ -148,7 +147,6 @@ public class AltosSerial implements Runnable {
 	}
 
 	private void start_timeout_dialog_internal() {
-		System.out.printf("Creating timeout dialog\n");
 		Object[] options = { "Cancel" };
 
 		JOptionPane	pane = new JOptionPane();
@@ -170,10 +168,7 @@ public class AltosSerial implements Runnable {
 	private boolean check_timeout() {
 		if (!timeout_started && frame != null) {
 			timeout_started = true;
-			System.out.printf("Starting timeout dialog\n");
-			if (SwingUtilities.isEventDispatchThread()) {
-				start_timeout_dialog_internal();
-			} else {
+			if (!SwingUtilities.isEventDispatchThread()) {
 				Runnable r = new Runnable() {
 						public void run() {
 							start_timeout_dialog_internal();
@@ -208,16 +203,22 @@ public class AltosSerial implements Runnable {
 	}
 
 	public String get_reply() throws InterruptedException {
+		if (SwingUtilities.isEventDispatchThread())
+			System.out.printf("Uh-oh, reading serial device from swing thread\n");
 		flush_output();
 		AltosLine line = reply_queue.take();
 		return line.line;
 	}
 
 	public String get_reply(int timeout) throws InterruptedException {
+		boolean	can_cancel = true;
+		if (SwingUtilities.isEventDispatchThread()) {
+			can_cancel = false;
+			System.out.printf("Uh-oh, reading serial device from swing thread\n");
+		}
 		flush_output();
-		if (remote) {
+		if (remote && can_cancel) {
 			timeout = 300;
-			System.out.printf("Doing remote timout\n");
 		}
 		abort = false;
 		timeout_started = false;
@@ -227,7 +228,7 @@ public class AltosSerial implements Runnable {
 				stop_timeout_dialog();
 				return line.line;
 			}
-			if (!remote || check_timeout())
+			if (!remote || !can_cancel || check_timeout())
 				return null;
 		}
 	}
@@ -362,7 +363,6 @@ public class AltosSerial implements Runnable {
 		try {
 			flush_input();
 		} finally {
-			System.out.printf("Sending tilde\n");
 			printf ("~\n");
 			flush_output();
 		}
