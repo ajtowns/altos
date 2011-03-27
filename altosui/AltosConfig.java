@@ -207,13 +207,20 @@ public class AltosConfig implements ActionListener {
 
 		void save_data() {
 			try {
+				int	channel;
 				start_serial();
 				serial_line.printf("c m %d\n", main_deploy.get());
 				serial_line.printf("c d %d\n", apogee_delay.get());
-				if (!remote) {
-					serial_line.printf("c r %d\n", radio_channel.get());
-					serial_line.printf("c f %d\n", radio_calibration.get());
+				channel = radio_channel.get();
+				serial_line.printf("c r %d\n", channel);
+				if (remote) {
+					serial_line.stop_remote();
+					serial_line.set_channel(channel);
+					AltosPreferences.set_channel(device.getSerial(), channel);
+					serial_line.start_remote();
 				}
+				if (!remote)
+					serial_line.printf("c f %d\n", radio_calibration.get());
 				serial_line.printf("c c %s\n", callsign.get());
 				if (flight_log_max.get() != 0)
 					serial_line.printf("c l %d\n", flight_log_max.get());

@@ -252,8 +252,6 @@ public class AltosConfigUI
 		radio_channel_value = new JComboBox(radio_channel_values);
 		radio_channel_value.setEditable(false);
 		radio_channel_value.addItemListener(this);
-		if (remote)
-			radio_channel_value.setEnabled(false);
 		pane.add(radio_channel_value, c);
 
 		/* Radio Calibration */
