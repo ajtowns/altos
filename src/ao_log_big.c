@@ -72,8 +72,7 @@ typedef uint8_t check_log_size[1-(256 % sizeof(struct ao_log_record))] ;
 void
 ao_log(void)
 {
-	uint16_t	next_sensor;
-	uint16_t	next_other;
+	uint16_t	next_sensor, next_other;
 
 	ao_storage_setup();
 
@@ -83,7 +82,7 @@ ao_log(void)
 		ao_sleep(&ao_log_running);
 
 	log.type = AO_LOG_FLIGHT;
-	next_other = next_sensor = log.tick = ao_flight_tick;
+	log.tick = ao_flight_tick;
 #if HAS_ACCEL
 	log.u.flight.ground_accel = ao_ground_accel;
 #endif
@@ -94,6 +93,8 @@ ao_log(void)
 	 * when starting up.
 	 */
 	ao_log_adc_pos = ao_adc_ring_next(ao_flight_adc);
+	next_other = next_sensor = ao_adc_ring[ao_log_adc_pos].tick;
+	ao_log_state = ao_flight_startup;
 	for (;;) {
 		/* Write samples to EEPROM */
 		while (ao_log_adc_pos != ao_flight_adc) {
@@ -103,7 +104,7 @@ ao_log(void)
 				log.u.sensor.accel = ao_adc_ring[ao_log_adc_pos].accel;
 				log.u.sensor.pres = ao_adc_ring[ao_log_adc_pos].pres;
 				ao_log_data(&log);
-				if (ao_flight_state <= ao_flight_coast)
+				if (ao_log_state <= ao_flight_coast)
 					next_sensor = log.tick + AO_SENSOR_INTERVAL_ASCENT;
 				else
 					next_sensor = log.tick + AO_SENSOR_INTERVAL_DESCENT;
@@ -120,18 +121,18 @@ ao_log(void)
 				next_other = log.tick + AO_OTHER_INTERVAL;
 			}
 			ao_log_adc_pos = ao_adc_ring_next(ao_log_adc_pos);
-			/* Write state change to EEPROM */
-			if (ao_flight_state != ao_log_state) {
-				ao_log_state = ao_flight_state;
-				log.type = AO_LOG_STATE;
-				log.tick = ao_flight_tick;
-				log.u.state.state = ao_log_state;
-				log.u.state.reason = 0;
-				ao_log_data(&log);
+		}
+		/* Write state change to EEPROM */
+		if (ao_flight_state != ao_log_state) {
+			ao_log_state = ao_flight_state;
+			log.type = AO_LOG_STATE;
+			log.tick = ao_flight_tick;
+			log.u.state.state = ao_log_state;
+			log.u.state.reason = 0;
+			ao_log_data(&log);
 
-				if (ao_log_state == ao_flight_landed)
-					ao_log_stop();
-			}
+			if (ao_log_state == ao_flight_landed)
+				ao_log_stop();
 		}
 
 		/* Wait for a while */
