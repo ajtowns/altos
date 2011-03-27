@@ -162,7 +162,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 			telemetries.setMaximumRowCount(2);
 			telemetries.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						int telemetry = telemetries.getSelectedIndex();
+						int telemetry = telemetries.getSelectedIndex() + 1;
 						reader.set_telemetry(telemetry);
 					}
 				});
