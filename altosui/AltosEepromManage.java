@@ -106,6 +106,8 @@ public class AltosEepromManage implements ActionListener {
 				if (!device.matchProduct(AltosDevice.product_telemetrum))
 					remote = true;
 
+				serial_line.set_frame(frame);
+
 				flights = new AltosEepromList(serial_line, remote);
 
 				if (flights.size() == 0) {

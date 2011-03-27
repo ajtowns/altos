@@ -328,6 +328,7 @@ public class AltosEepromDownload implements Runnable {
 
 		frame = given_frame;
 		serial_line = given_serial_line;
+		serial_line.set_frame(frame);
 		remote = given_remote;
 		flights = given_flights;
 		success = false;
