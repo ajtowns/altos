@@ -168,17 +168,23 @@ public class AltosEepromManage implements ActionListener {
 		AltosEepromManage	manage;
 
 		public void run () {
+			Runnable r;
 			try {
 				flights = new AltosEepromList(serial_line, remote);
-				Runnable r = new Runnable() {
+				r = new Runnable() {
 						public void run() {
-							manage.got_flights(flights);
+							got_flights(flights);
 						}
 					};
-				SwingUtilities.invokeLater(r);
 			} catch (Exception e) {
-				manage.got_exception(e);
+				final Exception f_e = e;
+				r = new Runnable() {
+						public void run() {
+							got_exception(f_e);
+						}
+					};
 			}
+			SwingUtilities.invokeLater(r);
 		}
 
 		public EepromGetList(AltosEepromManage in_manage) {
