@@ -137,16 +137,19 @@ public class AltosSerial implements Runnable {
 	boolean	timeout_started = false;
 
 	private void stop_timeout_dialog() {
-		Runnable r = new Runnable() {
-				public void run() {
-					if (timeout_dialog != null)
+		if (timeout_started) {
+			timeout_started = false;
+			Runnable r = new Runnable() {
+					public void run() {
 						timeout_dialog.setVisible(false);
-				}
-			};
-		SwingUtilities.invokeLater(r);
+					}
+				};
+			SwingUtilities.invokeLater(r);
+		}
 	}
 
 	private void start_timeout_dialog_internal() {
+
 		Object[] options = { "Cancel" };
 
 		JOptionPane	pane = new JOptionPane();
@@ -163,12 +166,14 @@ public class AltosSerial implements Runnable {
 			return;
 		if (options[0].equals(o))
 			abort = true;
+		timeout_dialog.dispose();
+		timeout_dialog = null;
 	}
 
 	private boolean check_timeout() {
 		if (!timeout_started && frame != null) {
-			timeout_started = true;
 			if (!SwingUtilities.isEventDispatchThread()) {
+				timeout_started = true;
 				Runnable r = new Runnable() {
 						public void run() {
 							start_timeout_dialog_internal();
@@ -186,7 +191,7 @@ public class AltosSerial implements Runnable {
 
 		int timeout = 100;
 		if (remote)
-			timeout = 300;
+			timeout = 500;
 		do {
 			try {
 				Thread.sleep(timeout);
@@ -210,15 +215,19 @@ public class AltosSerial implements Runnable {
 		return line.line;
 	}
 
+	int	in_reply;
+
 	public String get_reply(int timeout) throws InterruptedException {
 		boolean	can_cancel = true;
+		++in_reply;
+
 		if (SwingUtilities.isEventDispatchThread()) {
 			can_cancel = false;
 			System.out.printf("Uh-oh, reading serial device from swing thread\n");
 		}
 		flush_output();
 		if (remote && can_cancel) {
-			timeout = 300;
+			timeout = 500;
 		}
 		abort = false;
 		timeout_started = false;
@@ -226,10 +235,13 @@ public class AltosSerial implements Runnable {
 			AltosLine line = reply_queue.poll(timeout, TimeUnit.MILLISECONDS);
 			if (line != null) {
 				stop_timeout_dialog();
+				--in_reply;
 				return line.line;
 			}
-			if (!remote || !can_cancel || check_timeout())
+			if (!remote || !can_cancel || check_timeout()) {
+				--in_reply;
 				return null;
+			}
 		}
 	}
 
@@ -245,6 +257,9 @@ public class AltosSerial implements Runnable {
 	}
 
 	public void close() {
+		if (in_reply != 0)
+			System.out.printf("Uh-oh. Closing active serial device\n");
+
 		if (altos != null) {
 			libaltos.altos_close(altos);
 		}
