@@ -68,16 +68,17 @@ ao_sample_preflight(void)
 #endif
 		ao_sample_pres_sum += ao_sample_pres;
 		++nsamples;
+	} else {
+		ao_config_get();
+#if HAS_ACCEL
+		ao_ground_accel = ao_sample_accel_sum >> 9;
+		ao_accel_2g = ao_config.accel_minus_g - ao_config.accel_plus_g;
+		ao_accel_scale = to_fix32(GRAVITY * 2 * 16) / ao_accel_2g;
+#endif
+		ao_ground_pres = ao_sample_pres_sum >> 9;
+		ao_ground_height = ao_pres_to_altitude(ao_ground_pres);
 		ao_preflight = FALSE;
 	}
-	ao_config_get();
-#if HAS_ACCEL
-	ao_ground_accel = ao_sample_accel_sum >> 9;
-	ao_accel_2g = ao_config.accel_minus_g - ao_config.accel_plus_g;
-	ao_accel_scale = to_fix32(GRAVITY * 2 * 16) / ao_accel_2g;
-#endif
-	ao_ground_pres = ao_sample_pres_sum >> 9;
-	ao_ground_height = ao_pres_to_altitude(ao_ground_pres);
 }
 
 uint8_t
