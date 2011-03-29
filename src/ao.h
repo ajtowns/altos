@@ -709,6 +709,13 @@ void
 ao_flight_init(void);
 
 /*
+ * ao_flight_nano.c
+ */
+
+void
+ao_flight_nano_init(void);
+
+/*
  * ao_sample.c
  */
 

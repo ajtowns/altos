@@ -204,13 +204,12 @@ TMINI_BASE_SRC = \
 # Sources for TeleNano
 TNANO_DRIVER_SRC = \
 	ao_adc.c \
-	ao_ignite.c \
 	ao_config.c \
 	ao_storage.c \
 	ao_intflash.c
 
 TNANO_TASK_SRC = \
-	ao_flight.c \
+	ao_flight_nano.c \
 	ao_sample.c \
 	ao_kalman.c \
 	ao_log.c \

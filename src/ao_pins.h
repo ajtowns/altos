@@ -40,6 +40,7 @@
 	#define HAS_EXTERNAL_TEMP	0
 	#define HAS_ACCEL_REF		0
 	#define HAS_ACCEL		1
+	#define HAS_IGNITE		1
 #endif
 
 #if defined(TELEMETRUM_V_1_1)
@@ -68,6 +69,7 @@
 	#define M25_CS_MASK		0x02	/* CS0 is P1_1 */
 	#define M25_MAX_CHIPS		1
 	#define HAS_ACCEL		1
+	#define HAS_IGNITE		1
 #endif
 
 #if defined(TELEDONGLE_V_0_2)
@@ -89,6 +91,7 @@
 	#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
 	#define SPI_CS_ON_P1		1
 	#define SPI_CS_ON_P0		0
+	#define HAS_IGNITE		0
 #endif
 
 #if defined(TELEMINI_V_0_1)
@@ -111,6 +114,7 @@
 	#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
 	#define HAS_EXTERNAL_TEMP	0
 	#define HAS_ACCEL		0
+	#define HAS_IGNITE		1
 #endif
 
 #if defined(TELENANO_V_0_1)
@@ -133,6 +137,7 @@
 	#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
 	#define HAS_EXTERNAL_TEMP	0
 	#define HAS_ACCEL		0
+	#define HAS_IGNITE		0
 #endif
 
 #if defined(TELEMETRUM_V_0_1)
@@ -159,6 +164,7 @@
 	#define SPI_CS_ON_P1		1
 	#define SPI_CS_ON_P0		0
 	#define HAS_ACCEL		1
+	#define HAS_IGNITE		1
 #endif
 
 #if defined(TELEDONGLE_V_0_1)
@@ -180,6 +186,7 @@
 	#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
 	#define SPI_CS_ON_P1		0
 	#define SPI_CS_ON_P0		1
+	#define HAS_IGNITE		0
 #endif
 
 #if defined(TIDONGLE)
@@ -200,6 +207,7 @@
 	#define LEDS_AVAILABLE		(AO_LED_RED)
 	#define SPI_CS_ON_P1		0
 	#define SPI_CS_ON_P0		1
+	#define HAS_IGNITE		0
 #endif
 
 #if DBG_ON_P1
@@ -278,6 +286,10 @@
 
 #ifndef HAS_DBG
 #error Please define HAS_DBG
+#endif
+
+#ifndef HAS_IGNITE
+#error Please define HAS_IGNITE
 #endif
 
 #ifndef PACKET_HAS_MASTER

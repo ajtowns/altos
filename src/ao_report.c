@@ -109,6 +109,7 @@ ao_report_altitude(void)
 	}
 }
 
+#if HAS_IGNITE
 static uint8_t
 ao_report_igniter_ready(enum ao_igniter igniter)
 {
@@ -146,6 +147,7 @@ ao_report_continuity(void) __reentrant
 	while (c-- && ao_flight_state == ao_flight_pad)
 		pause(AO_MS_TO_TICKS(100));
 }
+#endif
 
 void
 ao_report(void)
@@ -155,10 +157,12 @@ ao_report(void)
 		if (ao_flight_state == ao_flight_landed)
 			ao_report_altitude();
 		ao_report_beep();
+#if HAS_IGNITE
 		if (ao_flight_state == ao_flight_idle)
 			ao_report_continuity();
 		while (ao_flight_state == ao_flight_pad)
 			ao_report_continuity();
+#endif
 		__critical {
 			while (ao_report_state == ao_flight_state)
 				ao_sleep(DATA_TO_XDATA(&ao_flight_state));
