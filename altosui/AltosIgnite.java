@@ -19,6 +19,12 @@ package altosui;
 
 import java.io.*;
 import java.util.concurrent.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.*;
+import javax.swing.event.*;
 
 public class AltosIgnite {
 	AltosDevice	device;
@@ -115,7 +121,7 @@ public class AltosIgnite {
 		return status;
 	}
 
-	public String status_string(int status) {
+	public static String status_string(int status) {
 		switch (status) {
 		case Unknown: return "Unknown";
 		case Ready: return "Ready";
@@ -154,6 +160,10 @@ public class AltosIgnite {
 		}
 		serial.close();
 		serial = null;
+	}
+
+	public void set_frame(Frame frame) {
+		serial.set_frame(frame);
 	}
 
 	public AltosIgnite(AltosDevice in_device) throws FileNotFoundException, AltosSerialInUseException {

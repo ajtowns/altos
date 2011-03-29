@@ -34,7 +34,6 @@ public class AltosIgniteUI
 	implements ActionListener
 {
 	AltosDevice	device;
-	AltosIgnite	ignite;
 	JFrame		owner;
 	JLabel		label;
 	JRadioButton	apogee;
@@ -52,6 +51,70 @@ public class AltosIgniteUI
 
 	int		time_remaining;
 	boolean		timer_running;
+
+	LinkedBlockingQueue<String>	command_queue;
+
+	class IgniteHandler implements Runnable {
+		AltosIgnite	ignite;
+
+		public void run () {
+			for (;;) {
+				Runnable	r;
+
+				try {
+					String		command = command_queue.take();
+					String		reply = null;
+
+					if (command.equals("get_status")) {
+						apogee_status = ignite.status(AltosIgnite.Apogee);
+						main_status = ignite.status(AltosIgnite.Main);
+						reply = "status";
+					} else if (command.equals("main")) {
+						ignite.fire(AltosIgnite.Main);
+						reply = "fired";
+					} else if (command.equals("apogee")) {
+						ignite.fire(AltosIgnite.Apogee);
+						reply = "fired";
+					} else if (command.equals("quit")) {
+						ignite.close();
+						break;
+					} else {
+						throw new ParseException(String.format("invalid command %s", command), 0);
+					}
+					final String f_reply = reply;
+					r = new Runnable() {
+							public void run() {
+								ignite_reply(f_reply);
+							}
+						};
+				} catch (Exception e) {
+					final Exception	f_e = e;
+					r = new Runnable() {
+							public void run() {
+								ignite_exception(f_e);
+							}
+						};
+				}
+				SwingUtilities.invokeLater(r);
+			}
+		}
+
+		public IgniteHandler(AltosIgnite in_ignite) {
+			ignite = in_ignite;
+		}
+	}
+
+	void ignite_exception(Exception e) {
+		abort();
+	}
+
+	void ignite_reply(String reply) {
+		if (reply.equals("status")) {
+			set_ignite_status();
+		} else if (reply.equals("fired")) {
+			fired();
+		}
+	}
 
 	void set_arm_text() {
 		if (arm.isSelected())
@@ -82,21 +145,53 @@ public class AltosIgniteUI
 		stop_timer();
 	}
 
-	void get_ignite_status() throws InterruptedException, TimeoutException {
-		apogee_status = ignite.status(AltosIgnite.Apogee);
-		main_status = ignite.status(AltosIgnite.Main);
+	void send_command(String command) {
+		try {
+			command_queue.put(command);
+		} catch (Exception ex) {
+			abort();
+		}
 	}
 
-	void set_ignite_status() throws InterruptedException, TimeoutException {
-		get_ignite_status();
-		apogee_status_label.setText(String.format("\"%s\"", ignite.status_string(apogee_status)));
-		main_status_label.setText(String.format("\"%s\"", ignite.status_string(main_status)));
+	boolean	getting_status = false;
+
+	boolean	visible = false;
+	void set_ignite_status() {
+		getting_status = false;
+		apogee_status_label.setText(String.format("\"%s\"", AltosIgnite.status_string(apogee_status)));
+		main_status_label.setText(String.format("\"%s\"", AltosIgnite.status_string(main_status)));
+		if (!visible) {
+			visible = true;
+			setVisible(true);
+		}
+	}
+
+	void poll_ignite_status() {
+		if (!getting_status) {
+			getting_status = true;
+			send_command("get_status");
+		}
+	}
+
+	boolean	firing = false;
+
+	void start_fire(String which) {
+		if (!firing) {
+			firing = true;
+			send_command(which);
+		}
+	}
+
+	void fired() {
+		firing = false;
+		cancel();
 	}
 
 	void close() {
+		send_command("quit");
 		timer.stop();
 		setVisible(false);
-		ignite.close();
+		dispose();
 	}
 
 	void abort() {
@@ -116,23 +211,17 @@ public class AltosIgniteUI
 			else
 				set_arm_text();
 		}
-		try {
-			set_ignite_status();
-		} catch (InterruptedException ie) {
-			abort();
-		} catch (TimeoutException te) {
-			abort();
-		}
+		poll_ignite_status();
 	}
 
 	void fire() {
 		if (arm.isEnabled() && arm.isSelected() && time_remaining > 0) {
-			int	igniter = AltosIgnite.None;
+			String	igniter = "none";
 			if (apogee.isSelected() && !main.isSelected())
-				igniter = AltosIgnite.Apogee;
+				igniter = "apogee";
 			else if (main.isSelected() && !apogee.isSelected())
-				igniter = AltosIgnite.Main;
-			ignite.fire(igniter);
+				igniter = "main";
+			send_command(igniter);
 			cancel();
 		}
 	}
@@ -184,10 +273,16 @@ public class AltosIgniteUI
 	}
 
 	private boolean open() {
+		command_queue = new LinkedBlockingQueue<String>();
+
 		device = AltosDeviceDialog.show(owner, AltosDevice.product_any);
 		if (device != null) {
 			try {
-				ignite = new AltosIgnite(device);
+				AltosIgnite 	ignite = new AltosIgnite(device);
+				IgniteHandler	handler = new IgniteHandler(ignite);
+				Thread		t = new Thread(handler);
+				ignite.set_frame(owner);
+				t.start();
 				return true;
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(owner,
@@ -278,16 +373,6 @@ public class AltosIgniteUI
 		main_status_label = new JLabel();
 		pane.add(main_status_label, c);
 
-		try {
-			set_ignite_status();
-		} catch (InterruptedException ie) {
-			abort();
-			return;
-		} catch (TimeoutException te) {
-			abort();
-			return;
-		}
-
 		c.gridx = 0;
 		c.gridy = 3;
 		c.gridwidth = 1;
@@ -310,7 +395,6 @@ public class AltosIgniteUI
 
 		pack();
 		setLocationRelativeTo(owner);
-		setVisible(true);
 
 		addWindowListener(new ConfigListener(this));
 	}
