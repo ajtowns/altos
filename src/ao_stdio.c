@@ -66,7 +66,7 @@ getchar(void) __reentrant __critical
 void
 ao_add_stdio(char (*pollchar)(void),
 	     void (*putchar)(char),
-	     void (*flush)(void))
+	     void (*flush)(void)) __reentrant
 {
 	if (ao_num_stdios == AO_NUM_STDIOS)
 		ao_panic(AO_PANIC_STDIO);

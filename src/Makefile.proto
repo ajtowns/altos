@@ -147,6 +147,8 @@ SKY_DRIVER_SRC = \
 #
 TM_TASK_SRC = \
 	ao_flight.c \
+	ao_sample.c \
+	ao_kalman.c \
 	ao_log.c \
 	ao_log_big.c \
 	ao_report.c \
@@ -179,6 +181,8 @@ TMINI_DRIVER_SRC = \
 
 TMINI_TASK_SRC = \
 	ao_flight.c \
+	ao_sample.c \
+	ao_kalman.c \
 	ao_log.c \
 	ao_log_tiny.c \
 	ao_report.c \
@@ -207,6 +211,8 @@ TNANO_DRIVER_SRC = \
 
 TNANO_TASK_SRC = \
 	ao_flight.c \
+	ao_sample.c \
+	ao_kalman.c \
 	ao_log.c \
 	ao_log_tiny.c \
 	ao_report.c \

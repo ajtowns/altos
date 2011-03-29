@@ -53,6 +53,22 @@ struct ao_adc {
 #define __code
 #define __reentrant
 
+#define to_fix16(x) ((int16_t) ((x) * 65536.0 + 0.5))
+#define to_fix32(x) ((int32_t) ((x) * 65536.0 + 0.5))
+#define from_fix(x)	((x) >> 16)
+
+/*
+ * Above this height, the baro sensor doesn't work
+ */
+#define AO_MAX_BARO_HEIGHT	12000
+
+/*
+ * Above this speed, baro measurements are unreliable
+ */
+#define AO_MAX_BARO_SPEED	200
+
+#define ACCEL_NOSE_UP	(ao_accel_2g >> 2)
+
 enum ao_flight_state {
 	ao_flight_startup = 0,
 	ao_flight_idle = 1,
@@ -65,6 +81,11 @@ enum ao_flight_state {
 	ao_flight_landed = 8,
 	ao_flight_invalid = 9
 };
+
+extern enum ao_flight_state ao_flight_state;
+
+#define FALSE 0
+#define TRUE 1
 
 struct ao_adc ao_adc_ring[AO_ADC_RING];
 uint8_t ao_adc_head;
@@ -171,15 +192,25 @@ struct ao_config ao_config;
 #define HAS_ACCEL_REF 0
 #endif
 
+#define GRAVITY 9.80665
+extern int16_t ao_ground_accel, ao_flight_accel;
+extern int16_t ao_accel_2g;
+
+extern uint16_t	ao_sample_tick;
+
+extern int16_t	ao_sample_height;
+extern int16_t	ao_sample_accel;
+extern int32_t	ao_accel_scale;
+
+int ao_sample_prev_tick;
+uint16_t	prev_tick;
+
+#include "ao_kalman.c"
+#include "ao_sample.c"
 #include "ao_flight.c"
 
 #define to_double(f)	((f) / 65536.0)
 
-#define GRAVITY 9.80665
-extern int16_t ao_ground_accel, ao_raw_accel;
-extern int16_t ao_accel_2g;
-
-uint16_t	prev_tick;
 static int	ao_records_read = 0;
 static int	ao_eof_read = 0;
 static int	ao_flight_ground_accel;
@@ -224,7 +255,7 @@ ao_insert(void)
 	ao_adc_ring[ao_adc_head] = ao_adc_static;
 	ao_adc_head = ao_adc_ring_next(ao_adc_head);
 	if (ao_flight_state != ao_flight_startup) {
-		double	height = ao_pres_to_altitude(ao_raw_pres) - ao_ground_height;
+		double	height = ao_pres_to_altitude(ao_sample_pres) - ao_ground_height;
 		double  accel = ((ao_flight_ground_accel - ao_adc_static.accel) * GRAVITY * 2.0) /
 			(ao_config.accel_minus_g - ao_config.accel_plus_g);
 

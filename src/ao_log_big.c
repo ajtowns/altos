@@ -82,7 +82,7 @@ ao_log(void)
 		ao_sleep(&ao_log_running);
 
 	log.type = AO_LOG_FLIGHT;
-	log.tick = ao_flight_tick;
+	log.tick = ao_sample_tick;
 #if HAS_ACCEL
 	log.u.flight.ground_accel = ao_ground_accel;
 #endif
@@ -92,12 +92,12 @@ ao_log(void)
 	/* Write the whole contents of the ring to the log
 	 * when starting up.
 	 */
-	ao_log_adc_pos = ao_adc_ring_next(ao_flight_adc);
+	ao_log_adc_pos = ao_adc_ring_next(ao_sample_adc);
 	next_other = next_sensor = ao_adc_ring[ao_log_adc_pos].tick;
 	ao_log_state = ao_flight_startup;
 	for (;;) {
 		/* Write samples to EEPROM */
-		while (ao_log_adc_pos != ao_flight_adc) {
+		while (ao_log_adc_pos != ao_sample_adc) {
 			log.tick = ao_adc_ring[ao_log_adc_pos].tick;
 			if ((int16_t) (log.tick - next_sensor) >= 0) {
 				log.type = AO_LOG_SENSOR;
@@ -126,7 +126,7 @@ ao_log(void)
 		if (ao_flight_state != ao_log_state) {
 			ao_log_state = ao_flight_state;
 			log.type = AO_LOG_STATE;
-			log.tick = ao_flight_tick;
+			log.tick = ao_sample_tick;
 			log.u.state.state = ao_log_state;
 			log.u.state.reason = 0;
 			ao_log_data(&log);

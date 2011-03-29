@@ -41,7 +41,7 @@ ao_adc_poll(void)
 void
 ao_adc_get(__xdata struct ao_adc *packet)
 {
-	uint8_t	i = ao_adc_ring_prev(ao_flight_adc);
+	uint8_t	i = ao_adc_ring_prev(ao_sample_adc);
 	memcpy(packet, &ao_adc_ring[i], sizeof (struct ao_adc));
 }
 
