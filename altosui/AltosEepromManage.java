@@ -89,6 +89,103 @@ public class AltosEepromManage implements ActionListener {
 			finish();
 	}
 
+	public void got_flights(AltosEepromList in_flights) {
+		boolean	running = false;;
+
+		flights = in_flights;
+		try {
+			if (flights.size() == 0) {
+				JOptionPane.showMessageDialog(frame,
+							      String.format("No flights available on %d",
+									    device.getSerial()),
+							      serial_line.device.toShortString(),
+							      JOptionPane.INFORMATION_MESSAGE);
+			} else {
+				AltosEepromSelect	select = new AltosEepromSelect(frame, flights);
+
+				if (select.run()) {
+					for (AltosEepromLog flight : flights) {
+						any_download = any_download || flight.download;
+						any_delete = any_delete || flight.delete;
+					}
+					if (any_download) {
+						download = new AltosEepromDownload(frame,
+										   serial_line,
+										   remote,
+										   flights);
+						download.addActionListener(this);
+					}
+
+					if (any_delete) {
+						delete = new AltosEepromDelete(frame,
+									       serial_line,
+									       remote,
+									       flights);
+						delete.addActionListener(this);
+					}
+
+					/*
+					 * Start flight log download
+					 */
+
+					if (any_download) {
+						download.start();
+						running = true;
+					}
+					else if (any_delete) {
+						delete.start();
+						running = true;
+					}
+				}
+			}
+			if (!running)
+				finish();
+		} catch (Exception e) {
+			got_exception(e);
+		}
+	}
+
+	public void got_exception(Exception e) {
+		if (e instanceof IOException) {
+			IOException	ee = (IOException) e;
+			JOptionPane.showMessageDialog(frame,
+						      device.toShortString(),
+						      ee.getLocalizedMessage(),
+						      JOptionPane.ERROR_MESSAGE);
+		} else if (e instanceof TimeoutException) {
+			TimeoutException te = (TimeoutException) e;
+			JOptionPane.showMessageDialog(frame,
+						      String.format("Communications failed with \"%s\"",
+								    device.toShortString()),
+						      "Cannot open target device",
+						      JOptionPane.ERROR_MESSAGE);
+		}
+		finish();
+	}
+
+	class EepromGetList implements Runnable {
+
+		AltosEepromManage	manage;
+
+		public void run () {
+			try {
+				flights = new AltosEepromList(serial_line, remote);
+				Runnable r = new Runnable() {
+						public void run() {
+							manage.got_flights(flights);
+						}
+					};
+				SwingUtilities.invokeLater(r);
+			} catch (Exception e) {
+				manage.got_exception(e);
+			}
+		}
+
+		public EepromGetList(AltosEepromManage in_manage) {
+			manage = in_manage;
+		}
+	}
+
 	public AltosEepromManage(JFrame given_frame) {
 
 		boolean	running = false;
@@ -108,52 +205,9 @@ public class AltosEepromManage implements ActionListener {
 
 				serial_line.set_frame(frame);
 
-				flights = new AltosEepromList(serial_line, remote);
-
-				if (flights.size() == 0) {
-					JOptionPane.showMessageDialog(frame,
-								      String.format("No flights available on %d",
-										    device.getSerial()),
-								      serial_line.device.toShortString(),
-						JOptionPane.INFORMATION_MESSAGE);
-				} else {
-					AltosEepromSelect	select = new AltosEepromSelect(frame, flights);
-
-					if (select.run()) {
-						for (AltosEepromLog flight : flights) {
-							any_download = any_download || flight.download;
-							any_delete = any_delete || flight.delete;
-						}
-						if (any_download) {
-							download = new AltosEepromDownload(frame,
-											   serial_line,
-											   remote,
-											   flights);
-							download.addActionListener(this);
-						}
-
-						if (any_delete) {
-							delete = new AltosEepromDelete(frame,
-										       serial_line,
-										       remote,
-										       flights);
-							delete.addActionListener(this);
-						}
-
-						/*
-						 * Start flight log download
-						 */
-
-						if (any_download) {
-							download.start();
-							running = true;
-						}
-						else if (any_delete) {
-							delete.start();
-							running = true;
-						}
-					}
-				}
+				EepromGetList	get_list = new EepromGetList(this);
+				Thread		t = new Thread(get_list);
+				t.start();
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(frame,
 							      String.format("Cannot open device \"%s\"",
@@ -166,21 +220,7 @@ public class AltosEepromManage implements ActionListener {
 									    device.toShortString()),
 							      "Device in use",
 							      JOptionPane.ERROR_MESSAGE);
-			} catch (IOException ee) {
-				JOptionPane.showMessageDialog(frame,
-							      device.toShortString(),
-							      ee.getLocalizedMessage(),
-							      JOptionPane.ERROR_MESSAGE);
-			} catch (TimeoutException te) {
-				JOptionPane.showMessageDialog(frame,
-							      String.format("Communications failed with \"%s\"",
-									    device.toShortString()),
-							      "Cannot open target device",
-							      JOptionPane.ERROR_MESSAGE);
-			} catch (InterruptedException ie) {
 			}
-			if (!running)
-				finish();
 		}
 	}
 }
