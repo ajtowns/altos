@@ -45,8 +45,14 @@ class AltosEepromItem implements ActionListener {
 	public AltosEepromItem(AltosEepromLog in_log) {
 		log = in_log;
 
-		label = new JLabel(String.format("Flight #%02d - %04d-%02d-%02d",
-						 log.flight, log.year, log.month, log.day));
+		String	text;
+		if (log.year != 0)
+			text = String.format("Flight #%02d - %04d-%02d-%02d",
+					     log.flight, log.year, log.month, log.day);
+		else
+			text = String.format("Flight #%02d", log.flight);
+
+		label = new JLabel(text);
 
 		download = new JCheckBox("", log.download);
 		download.addActionListener(this);
