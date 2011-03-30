@@ -131,6 +131,9 @@ public class AltosEepromRecord {
 				} else if (tokens[0].equals("Radio") && tokens[1].equals("cal:")) {
 					cmd = Altos.AO_LOG_RADIO_CAL;
 					a = Integer.parseInt(tokens[2]);
+				} else if (tokens[0].equals("Max") && tokens[1].equals("flight") && tokens[2].equals("log:")) {
+					cmd = Altos.AO_LOG_MAX_FLIGHT_LOG;
+					a = Integer.parseInt(tokens[3]);
 				} else if (tokens[0].equals("manufacturer")) {
 					cmd = Altos.AO_LOG_MANUFACTURER;
 					data = tokens[1];

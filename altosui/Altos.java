@@ -44,10 +44,11 @@ public class Altos {
 	static final int AO_LOG_CALLSIGN = 1004;
 	static final int AO_LOG_ACCEL_CAL = 1005;
 	static final int AO_LOG_RADIO_CAL = 1006;
-	static final int AO_LOG_MANUFACTURER = 1007;
-	static final int AO_LOG_PRODUCT = 1008;
-	static final int AO_LOG_SERIAL_NUMBER = 1009;
-	static final int AO_LOG_SOFTWARE_VERSION = 1010;
+	static final int AO_LOG_MAX_FLIGHT_LOG = 1007;
+	static final int AO_LOG_MANUFACTURER = 2000;
+	static final int AO_LOG_PRODUCT = 2001;
+	static final int AO_LOG_SERIAL_NUMBER = 2002;
+	static final int AO_LOG_SOFTWARE_VERSION = 9999;
 
 	/* Added to flag invalid records */
 	static final int AO_LOG_INVALID = -1;

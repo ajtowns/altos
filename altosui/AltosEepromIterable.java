@@ -281,6 +281,9 @@ public class AltosEepromIterable extends AltosRecordIterable {
 			case Altos.AO_LOG_RADIO_CAL:
 				out.printf ("# Radio cal: %d\n", record.a);
 				break;
+			case Altos.AO_LOG_MAX_FLIGHT_LOG:
+				out.printf ("# Max flight log: %d\n", record.a);
+				break;
 			case Altos.AO_LOG_MANUFACTURER:
 				out.printf ("# Manufacturer: %s\n", record.data);
 				break;
