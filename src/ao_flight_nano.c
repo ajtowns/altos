@@ -75,6 +75,10 @@ ao_flight_nano(void)
 			if (ao_height> AO_M_TO_HEIGHT(20)) {
 				ao_flight_state = ao_flight_drogue;
 				ao_launch_tick = ao_sample_tick;
+
+				/* start logging data */
+				ao_log_start();
+
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			break;
