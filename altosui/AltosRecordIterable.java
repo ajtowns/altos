@@ -31,4 +31,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public abstract class AltosRecordIterable implements Iterable<AltosRecord> {
 	public abstract Iterator<AltosRecord> iterator();
 	public void write_comments(PrintStream out) { }
+	public boolean has_accel() { return false; }
+	public boolean has_gps() { return false; }
+	public boolean has_ignite() { return false; };
 }

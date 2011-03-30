@@ -57,6 +57,11 @@ class AltosOrderedRecord extends AltosEepromRecord implements Comparable<AltosOr
 		index = in_index;
 	}
 
+	public String toString() {
+		return String.format("%d.%d %04x %04x %04x",
+				     cmd, index, tick, a, b);
+	}
+
 	public int compareTo(AltosOrderedRecord o) {
 		int	tick_diff = tick - o.tick;
 		if (tick_diff != 0)
@@ -75,7 +80,11 @@ public class AltosEepromIterable extends AltosRecordIterable {
 	static final int	seen_gps_lat = 32;
 	static final int	seen_gps_lon = 64;
 
-	static final int	seen_basic = seen_flight|seen_sensor|seen_temp_volt|seen_deploy;
+	static final int	seen_basic = seen_flight|seen_sensor;
+
+	boolean			has_accel;
+	boolean			has_gps;
+	boolean			has_ignite;
 
 	AltosEepromRecord	flight_record;
 	AltosEepromRecord	gps_date_record;
@@ -123,9 +132,10 @@ public class AltosEepromIterable extends AltosRecordIterable {
 				state.flight_vel += (state.accel_plus_g - state.accel);
 			}
 			eeprom.seen |= seen_sensor;
+			has_accel = true;
 			break;
 		case Altos.AO_LOG_HEIGHT:
-			state.height = record.a;
+			state.height = (short) record.a;
 			eeprom.seen |= seen_sensor;
 			break;
 		case Altos.AO_LOG_TEMP_VOLT:
@@ -137,6 +147,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 			state.drogue = record.a;
 			state.main = record.b;
 			eeprom.seen |= seen_deploy;
+			has_ignite = true;
 			break;
 		case Altos.AO_LOG_STATE:
 			state.state = record.a;
@@ -161,6 +172,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 			state.gps.locked = (flags & Altos.AO_GPS_VALID) != 0;
 			state.gps.nsat = (flags & Altos.AO_GPS_NUM_SAT_MASK) >>
 				Altos.AO_GPS_NUM_SAT_SHIFT;
+			has_gps = true;
 			break;
 		case Altos.AO_LOG_GPS_LAT:
 			int lat32 = record.a | (record.b << 16);
@@ -253,6 +265,10 @@ public class AltosEepromIterable extends AltosRecordIterable {
 			list = make_list();
 		return list.iterator();
 	}
+
+	public boolean has_gps() { return has_gps; }
+	public boolean has_accel() { return has_accel; }
+	public boolean has_ignite() { return has_ignite; }
 
 	public void write_comments(PrintStream out) {
 		Iterator<AltosOrderedRecord>	iterator = records.iterator();

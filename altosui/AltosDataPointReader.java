@@ -14,12 +14,18 @@ class AltosDataPointReader implements Iterable<AltosDataPoint> {
     Iterator<AltosRecord> iter;
     AltosState state;
     AltosRecord record;
+    boolean has_gps;
+    boolean has_accel;
+    boolean has_ignite;
 
     final static int MISSING = AltosRecord.MISSING;
 
-    public AltosDataPointReader(Iterable<AltosRecord> reader) {
+    public AltosDataPointReader(AltosRecordIterable reader) {
         this.iter = reader.iterator();
         this.state = null;
+	has_accel = reader.has_accel();
+	has_gps = reader.has_gps();
+	has_ignite = reader.has_ignite();
     }
 
     private void read_next_record() 
@@ -46,7 +52,7 @@ class AltosDataPointReader implements Iterable<AltosDataPoint> {
             public double acceleration() { return record.acceleration(); }
             public double pressure() { return record.raw_pressure(); }
             public double altitude() { return record.raw_altitude(); }
-            public double height() { return record.raw_height(); }
+	    public double height() { return record.raw_height(); }
             public double accel_speed() { return record.accel_speed(); }
             public double baro_speed() { return state.baro_speed; }
             public double temperature() { return record.temperature(); }

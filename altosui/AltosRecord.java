@@ -139,7 +139,7 @@ public class AltosRecord {
 		double g = ground_altitude();
 
 		if (r == MISSING || g == MISSING)
-			return MISSING;
+			return height;
 		return r - g;
 	}
 
@@ -246,6 +246,9 @@ public class AltosRecord {
 		ground_pres = old.ground_pres;
 		accel_plus_g = old.accel_plus_g;
 		accel_minus_g = old.accel_minus_g;
+		acceleration = old.acceleration;
+		speed = old.speed;
+		height = old.height;
 		gps = new AltosGPS(old.gps);
 	}
 
@@ -258,12 +261,12 @@ public class AltosRecord {
 		status = 0;
 		state = Altos.ao_flight_startup;
 		tick = 0;
-		accel = 0;
-		pres = 0;
-		temp = 0;
-		batt = 0;
-		drogue = 0;
-		main = 0;
+		accel = MISSING;
+		pres = MISSING;
+		temp = MISSING;
+		batt = MISSING;
+		drogue = MISSING;
+		main = MISSING;
 		flight_accel = 0;
 		ground_accel = 0;
 		flight_vel = 0;
@@ -271,6 +274,9 @@ public class AltosRecord {
 		ground_pres = 0;
 		accel_plus_g = 0;
 		accel_minus_g = 0;
+		acceleration = MISSING;
+		speed = MISSING;
+		height = MISSING;
 		gps = new AltosGPS();
 	}
 }

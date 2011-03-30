@@ -96,10 +96,14 @@ public class AltosGraphUI extends JFrame
         public ArrayList<AltosGraph> graphs() {
             ArrayList<AltosGraph> graphs = new ArrayList<AltosGraph>();
     
-            graphs.add( myAltosGraphTime("Summary")
-                    .addElement(height)
-                    .addElement(speed)
-                    .addElement(acceleration) );
+	    graphs.add( myAltosGraphTime("Summary")
+			.addElement(height)
+			.addElement(speed)
+			.addElement(acceleration) );
+
+	    graphs.add( myAltosGraphTime("Summary")
+			.addElement(height)
+			.addElement(speed));
     
             graphs.add( myAltosGraphTime("Altitude")
                     .addElement(height) );
@@ -107,15 +111,15 @@ public class AltosGraphUI extends JFrame
             graphs.add( myAltosGraphTime("Speed")
                     .addElement(speed) );
     
-            graphs.add( myAltosGraphTime("Acceleration")
-                    .addElement(acceleration) );
+	    graphs.add( myAltosGraphTime("Acceleration")
+			.addElement(acceleration) );
     
             graphs.add( myAltosGraphTime("Temperature")
                     .addElement(temperature) );
     
-            graphs.add( myAltosGraphTime("Continuity")
-                    .addElement(drogue_voltage)
-                    .addElement(main_voltage) );
+	    graphs.add( myAltosGraphTime("Continuity")
+			.addElement(drogue_voltage)
+			.addElement(main_voltage) );
     
             return graphs;
         }
@@ -154,20 +158,23 @@ public class AltosGraphUI extends JFrame
 	public AltosGraphUI(AltosRecordIterable records) {
 		super("Altos Graph");
 
-		Iterable<AltosDataPoint> reader = new AltosDataPointReader (records);
+		AltosDataPointReader reader = new AltosDataPointReader (records);
 		if (reader == null)
 			return;
         
-		init(reader, 0);
+		if (reader.has_accel)
+			init(reader, 0);
+		else
+			init(reader, 1);
 	}
 
-    public AltosGraphUI(Iterable<AltosDataPoint> data, int which) 
+    public AltosGraphUI(AltosDataPointReader data, int which)
     {
         super("Altos Graph");
         init(data, which);
     }
 
-    private void init(Iterable<AltosDataPoint> data, int which) {
+    private void init(AltosDataPointReader data, int which) {
         AltosGraph graph = createGraph(data, which);
 
         JFreeChart chart = graph.createChart();

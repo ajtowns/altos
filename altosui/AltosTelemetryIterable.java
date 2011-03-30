@@ -28,6 +28,13 @@ public class AltosTelemetryIterable extends AltosRecordIterable {
 		return records.iterator();
 	}
 
+	boolean has_gps = false;
+	boolean has_accel = false;
+	boolean has_ignite = false;
+	public boolean has_gps() { return has_gps; }
+	public boolean has_accel() { return has_accel; }
+	public boolean has_ignite() { return has_ignite; };
+
 	public AltosTelemetryIterable (FileInputStream input) {
 		boolean saw_boost = false;
 		int	current_tick = 0;
@@ -59,6 +66,12 @@ public class AltosTelemetryIterable extends AltosRecordIterable {
 						saw_boost = true;
 						boost_tick = record.tick;
 					}
+					if (record.accel != AltosRecord.MISSING)
+						has_accel = true;
+					if (record.gps != null)
+						has_gps = true;
+					if (record.main != AltosRecord.MISSING)
+						has_ignite = true;
 					records.add(record);
 				} catch (ParseException pe) {
 					System.out.printf("parse exception %s\n", pe.getMessage());
