@@ -234,6 +234,9 @@ ao_flight(void)
 				/* slow down the telemetry system */
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_RECOVER);
 
+				/* Turn the RDF beacon back on */
+				ao_rdf_set(1);
+
 				/*
 				 * Start recording min/max height
 				 * to figure out when the rocket has landed
@@ -292,8 +295,6 @@ ao_flight(void)
 
 					/* turn off the ADC capture */
 					ao_timer_set_adc_interval(0);
-					/* Enable RDF beacon */
-					ao_rdf_set(1);
 
 					ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 				}
