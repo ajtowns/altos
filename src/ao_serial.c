@@ -58,8 +58,6 @@ ao_serial_tx1_isr(void) __interrupt 14
 	ao_wakeup(&ao_usart1_tx_fifo);
 }
 
-static __pdata serial_echo;
-
 char
 ao_serial_getchar(void) __critical
 {
@@ -67,13 +65,6 @@ ao_serial_getchar(void) __critical
 	while (ao_fifo_empty(ao_usart1_rx_fifo))
 		ao_sleep(&ao_usart1_rx_fifo);
 	ao_fifo_remove(ao_usart1_rx_fifo, c);
-	if (serial_echo) {
-		printf("%02x ", ((int) c) & 0xff);
-		if (c >= ' ')
-			putchar(c);
-		putchar('\n');
-		flush();
-	}
 	return c;
 }
 
@@ -115,18 +106,6 @@ ao_serial_drain(void) __critical
 	while (!ao_fifo_empty(ao_usart1_tx_fifo))
 		ao_sleep(&ao_usart1_tx_fifo);
 }
-
-static void
-monitor_serial(void)
-{
-	ao_cmd_hex();
-	serial_echo = ao_cmd_lex_i != 0;
-}
-
-__code struct ao_cmds ao_serial_cmds[] = {
-	{ monitor_serial,		"M <enable>\0Monitor serial data" },
-	{ 0, NULL },
-};
 
 static const struct {
 	uint8_t	baud;
@@ -189,8 +168,6 @@ ao_serial_init(void)
 
 	IEN0 |= IEN0_URX1IE;
 	IEN2 |= IEN2_UTX1IE;
-
-	ao_cmd_register(&ao_serial_cmds[0]);
 #if 0
 #if USE_SERIAL_STDIN
 	ao_add_stdio(ao_serial_pollchar,
