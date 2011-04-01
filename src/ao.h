@@ -935,6 +935,9 @@ ao_serial_set_stdin(uint8_t stdin);
 void
 ao_serial_putchar(char c) __critical;
 
+void
+ao_serial_drain(void) __critical;
+
 #define AO_SERIAL_SPEED_4800	0
 #define AO_SERIAL_SPEED_9600	1
 #define AO_SERIAL_SPEED_19200	2

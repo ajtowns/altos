@@ -100,7 +100,7 @@ ao_serial_putchar(char c) __critical
 	ao_serial_tx1_start();
 }
 
-static void
+void
 ao_serial_drain(void) __critical
 {
 	while (!ao_fifo_empty(ao_usart1_tx_fifo))
