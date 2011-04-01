@@ -136,11 +136,19 @@ M25_DRIVER_SRC = \
 #
 SIRF_DRIVER_SRC = \
 	ao_gps_sirf.c
+
 #
 # Skytraq driver source
 #
 SKY_DRIVER_SRC = \
 	ao_gps_skytraq.c
+
+
+#
+# BTM-182 driver source
+#
+BTM_DRIVER_SRC = \
+	ao_btm.c
 
 #
 # Tasks run on TeleMetrum
@@ -228,6 +236,24 @@ TNANO_BASE_SRC = \
 	$(TNANO_DRIVER_SRC) \
 	$(TNANO_TASK_SRC) \
 	$(TNANO_MAIN_SRC)
+
+#
+# Sources for TeleDongle
+#
+
+TBT_MAIN_SRC = \
+	ao_telebt.c
+
+TBT_BASE_SRC = \
+	$(ALTOS_SRC) \
+	$(ALTOS_DRIVER_SRC) \
+	$(TELE_RECEIVER_SRC) \
+	$(TELE_COMMON_SRC) \
+	$(SERIAL_DRIVER_SRC) \
+	$(USB_DRIVER_SRC) \
+	$(BTM_DRIVER_SRC) \
+	$(DBG_SRC) \
+	$(TBT_MAIN_SRC)
 
 #
 # TI Dongle sources

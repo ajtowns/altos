@@ -903,6 +903,10 @@ ao_dbg_init(void);
 #endif
 
 #if HAS_SERIAL_1
+#ifndef USE_SERIAL_STDIN
+#error Please define USE_SERIAL_STDIN
+#endif
+
 void
 ao_serial_rx1_isr(void) __interrupt 3;
 
@@ -912,12 +916,21 @@ ao_serial_tx1_isr(void) __interrupt 14;
 char
 ao_serial_getchar(void) __critical;
 
+#if USE_SERIAL_STDIN
+char
+ao_serial_pollchar(void) __critical;
+
+void
+ao_serial_set_stdin(uint8_t stdin);
+#endif
+
 void
 ao_serial_putchar(char c) __critical;
 
 #define AO_SERIAL_SPEED_4800	0
 #define AO_SERIAL_SPEED_9600	1
-#define AO_SERIAL_SPEED_57600	2
+#define AO_SERIAL_SPEED_19200	2
+#define AO_SERIAL_SPEED_57600	3
 
 void
 ao_serial_set_speed(uint8_t speed);
@@ -1331,5 +1344,10 @@ ao_packet_slave_stop(void);
 
 void
 ao_packet_slave_init(uint8_t enable);
+
+/* ao_btm.c */
+
+void
+ao_btm_init(void);
 
 #endif /* _AO_H_ */

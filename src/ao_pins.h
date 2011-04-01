@@ -25,6 +25,7 @@
 	#define HAS_GPS			1
 	#define HAS_SERIAL_1		1
 	#define HAS_ADC			1
+	#define USE_SERIAL_STDIN	0
 	#define HAS_EEPROM		1
 	#define USE_INTERNAL_FLASH	0
 	#define HAS_DBG			1
@@ -49,6 +50,7 @@
 	#define HAS_BEEP		1
 	#define HAS_GPS			1
 	#define HAS_SERIAL_1		1
+	#define USE_SERIAL_STDIN	0
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1
 	#define USE_INTERNAL_FLASH	0
@@ -77,6 +79,7 @@
 	#define HAS_USB			1
 	#define HAS_BEEP		0
 	#define HAS_SERIAL_1		0
+	#define USE_SERIAL_STDIN	0
 	#define HAS_ADC			0
 	#define HAS_DBG			1
 	#define HAS_EEPROM		0
@@ -100,6 +103,7 @@
 	#define HAS_BEEP		0
 	#define HAS_GPS			0
 	#define HAS_SERIAL_1		0
+	#define USE_SERIAL_STDIN	0
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1
 	#define USE_INTERNAL_FLASH	1
@@ -123,6 +127,7 @@
 	#define HAS_BEEP		0
 	#define HAS_GPS			0
 	#define HAS_SERIAL_1		0
+	#define USE_SERIAL_STDIN	0
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1
 	#define USE_INTERNAL_FLASH	1
@@ -146,6 +151,7 @@
 	#define HAS_BEEP		1
 	#define HAS_GPS			1
 	#define HAS_SERIAL_1		1
+	#define USE_SERIAL_STDIN	0
 	#define HAS_ADC			1
 	#define HAS_DBG			0
 	#define HAS_EEPROM		1
@@ -172,6 +178,7 @@
 	#define HAS_USB			1
 	#define HAS_BEEP		0
 	#define HAS_SERIAL_1		0
+	#define USE_SERIAL_STDIN	0
 	#define HAS_ADC			0
 	#define HAS_DBG			0
 	#define HAS_EEPROM		0
@@ -194,6 +201,7 @@
 	#define HAS_USB			1
 	#define HAS_BEEP		0
 	#define HAS_SERIAL_1		0
+	#define USE_SERIAL_STDIN	0
 	#define HAS_ADC			0
 	#define HAS_DBG			1
 	#define HAS_EEPROM		0
@@ -207,6 +215,29 @@
 	#define LEDS_AVAILABLE		(AO_LED_RED)
 	#define SPI_CS_ON_P1		0
 	#define SPI_CS_ON_P0		1
+	#define HAS_IGNITE		0
+#endif
+
+#if defined(TELEBT_V_0_0)
+	#define HAS_FLIGHT		0
+	#define HAS_USB			1
+	#define HAS_BEEP		0
+	#define HAS_SERIAL_1		1
+	#define USE_SERIAL_STDIN	1
+	#define HAS_ADC			0
+	#define HAS_DBG			1
+	#define HAS_EEPROM		0
+	#define DBG_ON_P1 		0
+	#define DBG_ON_P0 		1
+	#define IGNITE_ON_P2		0
+	#define IGNITE_ON_P0		0
+	#define PACKET_HAS_MASTER	1
+	#define PACKET_HAS_SLAVE	0
+	#define AO_LED_RED		2
+	#define AO_LED_GREEN		1
+	#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
+	#define SPI_CS_ON_P1		1
+	#define SPI_CS_ON_P0		0
 	#define HAS_IGNITE		0
 #endif
 
@@ -268,6 +299,10 @@
 
 #ifndef HAS_SERIAL_1
 #error Please define HAS_SERIAL_1
+#endif
+
+#ifndef USE_SERIAL_STDIN
+#error Please define USE_SERIAL_STDIN
 #endif
 
 #ifndef HAS_ADC

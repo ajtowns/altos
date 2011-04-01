@@ -20,12 +20,20 @@
 volatile __xdata struct ao_fifo	ao_usart1_rx_fifo;
 volatile __xdata struct ao_fifo	ao_usart1_tx_fifo;
 
+#if USE_SERIAL_STDIN
+__pdata uint8_t	ao_serial_stdin;
+#endif
+
 void
 ao_serial_rx1_isr(void) __interrupt 3
 {
 	if (!ao_fifo_full(ao_usart1_rx_fifo))
 		ao_fifo_insert(ao_usart1_rx_fifo, U1DBUF);
 	ao_wakeup(&ao_usart1_rx_fifo);
+#if USE_SERIAL_STDIN
+	if (ao_serial_stdin)
+		ao_wakeup(&ao_stdin_ready);
+#endif
 }
 
 static __xdata uint8_t ao_serial_tx1_started;
@@ -69,6 +77,29 @@ ao_serial_getchar(void) __critical
 	return c;
 }
 
+#if USE_SERIAL_STDIN
+char
+ao_serial_pollchar(void) __critical
+{
+	char	c;
+#if 0
+	if (!ao_serial_stdin)
+		return AO_READ_AGAIN;
+#endif
+	if (ao_fifo_empty(ao_usart1_rx_fifo))
+		return AO_READ_AGAIN;
+	ao_fifo_remove(ao_usart1_rx_fifo,c);
+	return c;
+}
+
+void
+ao_serial_set_stdin(uint8_t stdin)
+{
+	ao_serial_stdin = stdin;
+}
+
+#endif
+
 void
 ao_serial_putchar(char c) __critical
 {
@@ -108,6 +139,10 @@ static const struct {
 	/* [AO_SERIAL_SPEED_9600] = */ {
 		/* .baud = */ 163,
 		/* .gcr  = */ (8 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
+	},
+	/* [AO_SERIAL_SPEED_19200] = */ {
+		/* .baud = */ 163,
+		/* .gcr  = */ (9 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
 	},
 	/* [AO_SERIAL_SPEED_57600] = */ {
 		/* .baud = */ 59,
@@ -156,4 +191,11 @@ ao_serial_init(void)
 	IEN2 |= IEN2_UTX1IE;
 
 	ao_cmd_register(&ao_serial_cmds[0]);
+#if 0
+#if USE_SERIAL_STDIN
+	ao_add_stdio(ao_serial_pollchar,
+		     ao_serial_putchar,
+		     NULL);
+#endif
+#endif
 }
