@@ -26,7 +26,7 @@ ao_packet_getchar(void) __critical
 			break;
 		if (ao_packet_master_sleeping)
 			ao_wakeup(&ao_packet_master_sleeping);
-		ao_usb_flush();
+		flush();
 		ao_sleep(&ao_stdin_ready);
 	}
 	return c;
@@ -39,7 +39,7 @@ ao_packet_echo(void) __reentrant
 	while (ao_packet_enable) {
 		c = ao_packet_getchar();
 		if (c != AO_READ_AGAIN)
-			ao_usb_putchar(c);
+			putchar(c);
 	}
 	ao_exit();
 }
@@ -112,7 +112,7 @@ ao_packet_forward(void) __reentrant
 	ao_set_monitor(0);
 	ao_add_task(&ao_packet_task, ao_packet_master, "master");
 	ao_add_task(&ao_packet_echo_task, ao_packet_echo, "echo");
-	while ((c = ao_usb_getchar()) != '~') {
+	while ((c = getchar()) != '~') {
 		if (c == '\r') c = '\n';
 		ao_packet_putchar(c);
 	}
