@@ -403,6 +403,14 @@ ao_cmd_register(__code struct ao_cmds *cmds);
 void
 ao_cmd_init(void);
 
+#if HAS_CMD_FILTER
+/*
+ * Provided by an external module to filter raw command lines
+ */
+uint8_t
+ao_cmd_filter(void);
+#endif
+
 /*
  * ao_dma.c
  */
