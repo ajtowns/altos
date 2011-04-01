@@ -20,10 +20,6 @@
 volatile __xdata struct ao_fifo	ao_usart1_rx_fifo;
 volatile __xdata struct ao_fifo	ao_usart1_tx_fifo;
 
-#if USE_SERIAL_STDIN
-__pdata uint8_t	ao_serial_stdin;
-#endif
-
 void
 ao_serial_rx1_isr(void) __interrupt 3
 {
@@ -31,8 +27,7 @@ ao_serial_rx1_isr(void) __interrupt 3
 		ao_fifo_insert(ao_usart1_rx_fifo, U1DBUF);
 	ao_wakeup(&ao_usart1_rx_fifo);
 #if USE_SERIAL_STDIN
-	if (ao_serial_stdin)
-		ao_wakeup(&ao_stdin_ready);
+	ao_wakeup(&ao_stdin_ready);
 #endif
 }
 
@@ -73,22 +68,11 @@ char
 ao_serial_pollchar(void) __critical
 {
 	char	c;
-#if 0
-	if (!ao_serial_stdin)
-		return AO_READ_AGAIN;
-#endif
 	if (ao_fifo_empty(ao_usart1_rx_fifo))
 		return AO_READ_AGAIN;
 	ao_fifo_remove(ao_usart1_rx_fifo,c);
 	return c;
 }
-
-void
-ao_serial_set_stdin(uint8_t stdin)
-{
-	ao_serial_stdin = stdin;
-}
-
 #endif
 
 void
@@ -168,11 +152,4 @@ ao_serial_init(void)
 
 	IEN0 |= IEN0_URX1IE;
 	IEN2 |= IEN2_UTX1IE;
-#if 0
-#if USE_SERIAL_STDIN
-	ao_add_stdio(ao_serial_pollchar,
-		     ao_serial_putchar,
-		     NULL);
-#endif
-#endif
 }
