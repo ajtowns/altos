@@ -1169,6 +1169,9 @@ struct ao_stdio {
 	void	(*flush)(void);
 };
 
+extern __data int8_t ao_cur_stdio;
+extern __data int8_t ao_num_stdios;
+
 void
 flush(void);
 
