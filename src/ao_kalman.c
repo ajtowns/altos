@@ -89,7 +89,9 @@ ao_kalman_err_height(void)
 	ao_error_h_sq_avg += (e * e) >> 4;
 #endif
 
-	height_distrust = ao_sample_height - AO_MAX_BARO_HEIGHT;
+	if (ao_flight_state >= ao_flight_drogue)
+		return;
+	height_distrust = ao_sample_alt - AO_MAX_BARO_HEIGHT;
 #if HAS_ACCEL
 	/* speed is stored * 16, but we need to ramp between 200 and 328, so
 	 * we want to multiply by 2. The result is a shift by 3.
@@ -100,10 +102,7 @@ ao_kalman_err_height(void)
 	else if (speed_distrust > height_distrust)
 		height_distrust = speed_distrust;
 #endif
-	if (height_distrust <= 0)
-		height_distrust = 0;
-
-	if (height_distrust) {
+	if (height_distrust > 0) {
 #ifdef AO_FLIGHT_TEST
 		int	old_ao_error_h = ao_error_h;
 #endif
@@ -113,7 +112,7 @@ ao_kalman_err_height(void)
 #ifdef AO_FLIGHT_TEST
 		if (ao_flight_debug) {
 			printf("over height %g over speed %g distrust: %g height: error %d -> %d\n",
-			       (double) (ao_sample_height - AO_MAX_BARO_HEIGHT),
+			       (double) (ao_sample_alt - AO_MAX_BARO_HEIGHT),
 			       (ao_speed - AO_MS_TO_SPEED(AO_MAX_BARO_SPEED)) / 16.0,
 			       height_distrust / 256.0,
 			       old_ao_error_h, ao_error_h);
