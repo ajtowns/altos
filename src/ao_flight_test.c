@@ -41,6 +41,7 @@ struct ao_adc {
 	uint16_t	tick;		/* tick when the sample was read */
 	int16_t		accel;		/* accelerometer */
 	int16_t		pres;		/* pressure sensor */
+	int16_t		pres_real;	/* unclipped */
 	int16_t		temp;		/* temperature sensor */
 	int16_t		v_batt;		/* battery voltage */
 	int16_t		sense_d;	/* drogue continuity sense */
@@ -61,6 +62,8 @@ struct ao_adc {
  * Above this height, the baro sensor doesn't work
  */
 #define AO_MAX_BARO_HEIGHT	12000
+#define AO_BARO_SATURATE	13000
+#define AO_MIN_BARO_VALUE	ao_altitude_to_pres(AO_BARO_SATURATE)
 
 /*
  * Above this speed, baro measurements are unreliable
@@ -201,6 +204,8 @@ extern uint16_t	ao_sample_tick;
 extern int16_t	ao_sample_height;
 extern int16_t	ao_sample_accel;
 extern int32_t	ao_accel_scale;
+extern int16_t	ao_ground_height;
+extern int16_t	ao_sample_alt;
 
 int ao_sample_prev_tick;
 uint16_t	prev_tick;
@@ -255,7 +260,7 @@ ao_insert(void)
 	ao_adc_ring[ao_adc_head] = ao_adc_static;
 	ao_adc_head = ao_adc_ring_next(ao_adc_head);
 	if (ao_flight_state != ao_flight_startup) {
-		double	height = ao_pres_to_altitude(ao_sample_pres) - ao_ground_height;
+		double	height = ao_pres_to_altitude(ao_adc_static.pres_real) - ao_ground_height;
 		double  accel = ((ao_flight_ground_accel - ao_adc_static.accel) * GRAVITY * 2.0) /
 			(ao_config.accel_minus_g - ao_config.accel_plus_g);
 
@@ -373,6 +378,9 @@ ao_sleep(void *wchan)
 			case 'A':
 				ao_adc_static.tick = tick;
 				ao_adc_static.accel = a;
+				ao_adc_static.pres_real = b;
+				if (b < AO_MIN_BARO_VALUE)
+					b = AO_MIN_BARO_VALUE;
 				ao_adc_static.pres = b;
 				ao_records_read++;
 				ao_insert();
