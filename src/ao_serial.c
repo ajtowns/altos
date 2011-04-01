@@ -119,6 +119,7 @@ ao_serial_set_speed(uint8_t speed)
 	ao_serial_drain();
 	if (speed > AO_SERIAL_SPEED_57600)
 		return;
+	U1UCR |= UxUCR_FLUSH;
 	U1BAUD = ao_serial_speeds[speed].baud;
 	U1GCR = ao_serial_speeds[speed].gcr;
 }
@@ -129,7 +130,8 @@ ao_serial_init(void)
 	/* Set up the USART pin assignment */
 	PERCFG = (PERCFG & ~PERCFG_U1CFG_ALT_MASK) | PERCFG_U1CFG_ALT_2;
 
-	/* ee has already set the P2SEL bits */
+	P2SEL = (P2SEL & ~(P2SEL_PRI3P1_MASK | P2SEL_PRI2P1_MASK)) |
+		(P2SEL_PRI3P1_USART1 | P2SEL_PRI2P1_USART1);
 
 	/* Make the USART pins be controlled by the USART */
 	P1SEL |= (1 << 6) | (1 << 7);
@@ -143,7 +145,7 @@ ao_serial_init(void)
 	/* Reasonable serial parameters */
 	U1UCR = (UxUCR_FLUSH |
 		 UxUCR_FLOW_DISABLE |
-		 UxUCR_D9_ODD_PARITY |
+		 UxUCR_D9_EVEN_PARITY |
 		 UxUCR_BIT9_8_BITS |
 		 UxUCR_PARITY_DISABLE |
 		 UxUCR_SPB_1_STOP_BIT |
