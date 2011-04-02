@@ -4,10 +4,12 @@ macosx/
 fat/
 Manifest.txt
 Manifest-fat.txt
+AltosVersion.java
 libaltosJNI
 classes
 altosui
 altosui-test
+altosui-jdb
 classaltosui.stamp
 Altos-Linux-*.tar.bz2
 Altos-Mac-*.zip
