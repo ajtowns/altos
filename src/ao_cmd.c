@@ -21,7 +21,6 @@ __xdata uint16_t ao_cmd_lex_i;
 __xdata uint32_t ao_cmd_lex_u32;
 __xdata char	ao_cmd_lex_c;
 __xdata enum ao_cmd_status ao_cmd_status;
-static __xdata uint8_t	lex_echo;
 
 #define CMD_LEN	32
 
@@ -41,7 +40,7 @@ static void
 readline(void)
 {
 	__xdata char c;
-	if (lex_echo)
+	if (ao_echo())
 		put_string("> ");
 	cmd_len = 0;
 	for (;;) {
@@ -50,7 +49,7 @@ readline(void)
 		/* backspace/delete */
 		if (c == '\010' || c == '\177') {
 			if (cmd_len != 0) {
-				if (lex_echo)
+				if (ao_echo())
 					put_string("\010 \010");
 				--cmd_len;
 			}
@@ -60,7 +59,7 @@ readline(void)
 		/* ^U */
 		if (c == '\025') {
 			while (cmd_len != 0) {
-				if (lex_echo)
+				if (ao_echo())
 					put_string("\010 \010");
 				--cmd_len;
 			}
@@ -72,18 +71,18 @@ readline(void)
 			c = '\n';
 
 		if (c == '\n') {
-			if (lex_echo)
+			if (ao_echo())
 				putchar('\n');
 			break;
 		}
 
 		if (cmd_len >= CMD_LEN - 2) {
-			if (lex_echo)
+			if (ao_echo())
 				putchar('\007');
 			continue;
 		}
 		cmd_line[cmd_len++] = c;
-		if (lex_echo)
+		if (ao_echo())
 			putchar(c);
 	}
 	cmd_line[cmd_len++] = '\n';
@@ -198,7 +197,8 @@ static void
 echo(void)
 {
 	ao_cmd_hex();
-	lex_echo = ao_cmd_lex_i != 0;
+	if (ao_cmd_status == ao_cmd_success)
+		ao_stdios[ao_cur_stdio].echo = ao_cmd_lex_i != 0;
 }
 
 static void
@@ -272,7 +272,6 @@ ao_cmd(void)
 	__code struct ao_cmds * __xdata cs;
 	void (*__xdata func)(void);
 
-	lex_echo = 1;
 	for (;;) {
 		readline();
 #if HAS_CMD_FILTER

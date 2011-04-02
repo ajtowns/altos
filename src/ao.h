@@ -1178,8 +1178,10 @@ struct ao_stdio {
 	char	(*pollchar)(void);
 	void	(*putchar)(char c) __reentrant;
 	void	(*flush)(void);
+	uint8_t	echo;
 };
 
+extern __xdata struct ao_stdio ao_stdios[];
 extern __data int8_t ao_cur_stdio;
 extern __data int8_t ao_num_stdios;
 
@@ -1187,6 +1189,9 @@ void
 flush(void);
 
 extern __xdata uint8_t ao_stdin_ready;
+
+uint8_t
+ao_echo(void);
 
 void
 ao_add_stdio(char (*pollchar)(void),
