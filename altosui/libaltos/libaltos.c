@@ -56,6 +56,230 @@ altos_strndup (const char *s, size_t n)
 #define altos_strndup strndup
 #endif
 
+#ifdef POSIX_TTY
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <termios.h>
+#include <errno.h>
+
+#define USB_BUF_SIZE	64
+
+struct altos_file {
+	int				fd;
+#ifdef USE_POLL
+	int				pipe[2];
+#else
+	int				out_fd;
+#endif
+	unsigned char			out_data[USB_BUF_SIZE];
+	int				out_used;
+	unsigned char			in_data[USB_BUF_SIZE];
+	int				in_used;
+	int				in_read;
+};
+
+PUBLIC struct altos_file *
+altos_open(struct altos_device *device)
+{
+	struct altos_file	*file = calloc (sizeof (struct altos_file), 1);
+	int			ret;
+	struct termios		term;
+
+	if (!file)
+		return NULL;
+
+	file->fd = open(device->path, O_RDWR | O_NOCTTY);
+	if (file->fd < 0) {
+		perror(device->path);
+		free(file);
+		return NULL;
+	}
+#ifdef USE_POLL
+	pipe(file->pipe);
+#else
+	file->out_fd = open(device->path, O_RDWR | O_NOCTTY);
+	if (file->out_fd < 0) {
+		perror(device->path);
+		close(file->fd);
+		free(file);
+		return NULL;
+	}
+#endif
+	ret = tcgetattr(file->fd, &term);
+	if (ret < 0) {
+		perror("tcgetattr");
+		close(file->fd);
+#ifndef USE_POLL
+		close(file->out_fd);
+#endif
+		free(file);
+		return NULL;
+	}
+	cfmakeraw(&term);
+#ifdef USE_POLL
+	term.c_cc[VMIN] = 1;
+	term.c_cc[VTIME] = 0;
+#else
+	term.c_cc[VMIN] = 0;
+	term.c_cc[VTIME] = 1;
+#endif
+	ret = tcsetattr(file->fd, TCSAFLUSH, &term);
+	if (ret < 0) {
+		perror("tcsetattr");
+		close(file->fd);
+#ifndef USE_POLL
+		close(file->out_fd);
+#endif
+		free(file);
+		return NULL;
+	}
+	return file;
+}
+
+PUBLIC void
+altos_close(struct altos_file *file)
+{
+	if (file->fd != -1) {
+		int	fd = file->fd;
+		file->fd = -1;
+#ifdef USE_POLL
+		write(file->pipe[1], "\r", 1);
+#else
+		close(file->out_fd);
+		file->out_fd = -1;
+#endif
+		close(fd);
+	}
+}
+
+PUBLIC void
+altos_free(struct altos_file *file)
+{
+	altos_close(file);
+	free(file);
+}
+
+PUBLIC int
+altos_flush(struct altos_file *file)
+{
+	if (file->out_used && 0) {
+		printf ("flush \"");
+		fwrite(file->out_data, 1, file->out_used, stdout);
+		printf ("\"\n");
+	}
+	while (file->out_used) {
+		int	ret;
+
+		if (file->fd < 0)
+			return -EBADF;
+#ifdef USE_POLL
+		ret = write (file->fd, file->out_data, file->out_used);
+#else
+		ret = write (file->out_fd, file->out_data, file->out_used);
+#endif
+		if (ret < 0)
+			return -errno;
+		if (ret) {
+			memmove(file->out_data, file->out_data + ret,
+				file->out_used - ret);
+			file->out_used -= ret;
+		}
+	}
+	return 0;
+}
+
+PUBLIC int
+altos_putchar(struct altos_file *file, char c)
+{
+	int	ret;
+
+	if (file->out_used == USB_BUF_SIZE) {
+		ret = altos_flush(file);
+		if (ret) {
+			return ret;
+		}
+	}
+	file->out_data[file->out_used++] = c;
+	ret = 0;
+	if (file->out_used == USB_BUF_SIZE)
+		ret = altos_flush(file);
+	return 0;
+}
+
+#ifdef USE_POLL
+#include <poll.h>
+#endif
+
+static int
+altos_fill(struct altos_file *file, int timeout)
+{
+	int		ret;
+#ifdef USE_POLL
+	struct pollfd	fd[2];
+#endif
+
+	if (timeout == 0)
+		timeout = -1;
+	while (file->in_read == file->in_used) {
+		if (file->fd < 0)
+			return LIBALTOS_ERROR;
+#ifdef USE_POLL
+		fd[0].fd = file->fd;
+		fd[0].events = POLLIN|POLLERR|POLLHUP|POLLNVAL;
+		fd[1].fd = file->pipe[0];
+		fd[1].events = POLLIN;
+		ret = poll(fd, 2, timeout);
+		if (ret < 0) {
+			perror("altos_getchar");
+			return LIBALTOS_ERROR;
+		}
+		if (ret == 0)
+			return LIBALTOS_TIMEOUT;
+
+		if (fd[0].revents & (POLLHUP|POLLERR|POLLNVAL))
+			return LIBALTOS_ERROR;
+		if (fd[0].revents & POLLIN)
+#endif
+		{
+			ret = read(file->fd, file->in_data, USB_BUF_SIZE);
+			if (ret < 0) {
+				perror("altos_getchar");
+				return LIBALTOS_ERROR;
+			}
+			file->in_read = 0;
+			file->in_used = ret;
+#ifndef USE_POLL
+			if (ret == 0 && timeout > 0)
+				return LIBALTOS_TIMEOUT;
+#endif
+		}
+	}
+	if (file->in_used && 0) {
+		printf ("fill \"");
+		fwrite(file->in_data, 1, file->in_used, stdout);
+		printf ("\"\n");
+	}
+	return 0;
+}
+
+PUBLIC int
+altos_getchar(struct altos_file *file, int timeout)
+{
+	int	ret;
+	while (file->in_read == file->in_used) {
+		if (file->fd < 0)
+			return LIBALTOS_ERROR;
+		ret = altos_fill(file, timeout);
+		if (ret)
+			return ret;
+	}
+	return file->in_data[file->in_read++];
+}
+
+#endif /* POSIX_TTY */
+
 /*
  * Scan for Altus Metrum devices by looking through /sys
  */
@@ -68,6 +292,10 @@ altos_strndup (const char *s, size_t n)
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <bluetooth/bluetooth.h>
+#include <bluetooth/hci.h>
+#include <bluetooth/hci_lib.h>
+#include <bluetooth/rfcomm.h>
 
 static char *
 cc_fullname (char *dir, char *file)
@@ -354,6 +582,129 @@ altos_list_finish(struct altos_list *usbdevs)
 	free(usbdevs);
 }
 
+struct altos_bt_list {
+	inquiry_info	*ii;
+	int		sock;
+	int		dev_id;
+	int		rsp;
+	int		num_rsp;
+};
+
+#define INQUIRY_MAX_RSP	255
+#define INQUIRY_LEN	8
+
+struct altos_bt_list *
+altos_bt_list_start(void)
+{
+	struct altos_bt_list	*bt_list;
+
+	bt_list = calloc(1, sizeof (struct altos_bt_list));
+	if (!bt_list)
+		goto no_bt_list;
+
+	bt_list->ii = calloc(INQUIRY_MAX_RSP, sizeof (inquiry_info));
+	if (!bt_list->ii)
+		goto no_ii;
+	bt_list->dev_id = hci_get_route(NULL);
+	if (bt_list->dev_id < 0)
+		goto no_dev_id;
+
+	bt_list->sock = hci_open_dev(bt_list->dev_id);
+	if (bt_list->sock < 0)
+		goto no_sock;
+
+	bt_list->num_rsp = hci_inquiry(bt_list->dev_id,
+				       INQUIRY_LEN,
+				       INQUIRY_MAX_RSP,
+				       NULL,
+				       &bt_list->ii,
+				       IREQ_CACHE_FLUSH);
+	if (bt_list->num_rsp < 0)
+		goto no_rsp;
+
+	bt_list->rsp = 0;
+	return bt_list;
+
+no_rsp:
+	close(bt_list->sock);
+no_sock:
+no_dev_id:
+	free(bt_list->ii);
+no_ii:
+	free(bt_list);
+no_bt_list:
+	return NULL;
+}
+
+int
+altos_bt_list_next(struct altos_bt_list *bt_list,
+		   struct altos_bt_device *device)
+{
+	inquiry_info	*ii;
+
+	if (bt_list->rsp >= bt_list->num_rsp)
+		return 0;
+
+	ii = &bt_list->ii[bt_list->rsp];
+	ba2str(&ii->bdaddr, device->addr);
+	memset(&device->name, '\0', sizeof (device->name));
+	if (hci_read_remote_name(bt_list->sock, &ii->bdaddr,
+				 sizeof (device->name),
+				 device->name, 0) < 0) {
+		strcpy(device->name, "[unknown]");
+	}
+	bt_list->rsp++;
+	return 1;
+}
+
+void
+altos_bt_list_finish(struct altos_bt_list *bt_list)
+{
+	close(bt_list->sock);
+	free(bt_list->ii);
+	free(bt_list);
+}
+
+struct altos_file *
+altos_bt_open(struct altos_bt_device *device)
+{
+	struct sockaddr_rc addr = { 0 };
+	int	s, status;
+	struct altos_file *file;
+
+	file = calloc(1, sizeof (struct altos_file));
+	if (!file)
+		goto no_file;
+	file->fd = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+	if (file->fd < 0)
+		goto no_sock;
+
+	addr.rc_family = AF_BLUETOOTH;
+	addr.rc_channel = 1;
+	str2ba(device->addr, &addr.rc_bdaddr);
+
+	status = connect(file->fd,
+			 (struct sockaddr *)&addr,
+			 sizeof(addr));
+	if (status < 0) {
+		perror("connect");
+		goto no_link;
+	}
+
+#ifdef USE_POLL
+	pipe(file->pipe);
+#else
+	file->out_fd = dup(file->fd);
+#endif
+	return file;
+no_link:
+	close(s);
+no_sock:
+	free(file);
+no_file:
+	return NULL;
+}
+
 #endif
 
 #ifdef DARWIN
@@ -468,229 +819,6 @@ altos_list_finish(struct altos_list *list)
 
 #endif
 
-#ifdef POSIX_TTY
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <termios.h>
-#include <errno.h>
-
-#define USB_BUF_SIZE	64
-
-struct altos_file {
-	int				fd;
-#ifdef USE_POLL
-	int				pipe[2];
-#else
-	int				out_fd;
-#endif
-	unsigned char			out_data[USB_BUF_SIZE];
-	int				out_used;
-	unsigned char			in_data[USB_BUF_SIZE];
-	int				in_used;
-	int				in_read;
-};
-
-PUBLIC struct altos_file *
-altos_open(struct altos_device *device)
-{
-	struct altos_file	*file = calloc (sizeof (struct altos_file), 1);
-	int			ret;
-	struct termios		term;
-
-	if (!file)
-		return NULL;
-
-	file->fd = open(device->path, O_RDWR | O_NOCTTY);
-	if (file->fd < 0) {
-		perror(device->path);
-		free(file);
-		return NULL;
-	}
-#ifdef USE_POLL
-	pipe(file->pipe);
-#else
-	file->out_fd = open(device->path, O_RDWR | O_NOCTTY);
-	if (file->out_fd < 0) {
-		perror(device->path);
-		close(file->fd);
-		free(file);
-		return NULL;
-	}
-#endif
-	ret = tcgetattr(file->fd, &term);
-	if (ret < 0) {
-		perror("tcgetattr");
-		close(file->fd);
-#ifndef USE_POLL
-		close(file->out_fd);
-#endif
-		free(file);
-		return NULL;
-	}
-	cfmakeraw(&term);
-#ifdef USE_POLL
-	term.c_cc[VMIN] = 1;
-	term.c_cc[VTIME] = 0;
-#else
-	term.c_cc[VMIN] = 0;
-	term.c_cc[VTIME] = 1;
-#endif
-	ret = tcsetattr(file->fd, TCSAFLUSH, &term);
-	if (ret < 0) {
-		perror("tcsetattr");
-		close(file->fd);
-#ifndef USE_POLL
-		close(file->out_fd);
-#endif
-		free(file);
-		return NULL;
-	}
-	return file;
-}
-
-PUBLIC void
-altos_close(struct altos_file *file)
-{
-	if (file->fd != -1) {
-		int	fd = file->fd;
-		file->fd = -1;
-#ifdef USE_POLL
-		write(file->pipe[1], "\r", 1);
-#else
-		close(file->out_fd);
-		file->out_fd = -1;
-#endif
-		close(fd);
-	}
-}
-
-PUBLIC void
-altos_free(struct altos_file *file)
-{
-	altos_close(file);
-	free(file);
-}
-
-PUBLIC int
-altos_flush(struct altos_file *file)
-{
-	if (file->out_used && 0) {
-		printf ("flush \"");
-		fwrite(file->out_data, 1, file->out_used, stdout);
-		printf ("\"\n");
-	}
-	while (file->out_used) {
-		int	ret;
-
-		if (file->fd < 0)
-			return -EBADF;
-#ifdef USE_POLL
-		ret = write (file->fd, file->out_data, file->out_used);
-#else
-		ret = write (file->out_fd, file->out_data, file->out_used);
-#endif
-		if (ret < 0)
-			return -errno;
-		if (ret) {
-			memmove(file->out_data, file->out_data + ret,
-				file->out_used - ret);
-			file->out_used -= ret;
-		}
-	}
-	return 0;
-}
-
-PUBLIC int
-altos_putchar(struct altos_file *file, char c)
-{
-	int	ret;
-
-	if (file->out_used == USB_BUF_SIZE) {
-		ret = altos_flush(file);
-		if (ret) {
-			return ret;
-		}
-	}
-	file->out_data[file->out_used++] = c;
-	ret = 0;
-	if (file->out_used == USB_BUF_SIZE)
-		ret = altos_flush(file);
-	return 0;
-}
-
-#ifdef USE_POLL
-#include <poll.h>
-#endif
-
-static int
-altos_fill(struct altos_file *file, int timeout)
-{
-	int		ret;
-#ifdef USE_POLL
-	struct pollfd	fd[2];
-#endif
-
-	if (timeout == 0)
-		timeout = -1;
-	while (file->in_read == file->in_used) {
-		if (file->fd < 0)
-			return LIBALTOS_ERROR;
-#ifdef USE_POLL
-		fd[0].fd = file->fd;
-		fd[0].events = POLLIN|POLLERR|POLLHUP|POLLNVAL;
-		fd[1].fd = file->pipe[0];
-		fd[1].events = POLLIN;
-		ret = poll(fd, 2, timeout);
-		if (ret < 0) {
-			perror("altos_getchar");
-			return LIBALTOS_ERROR;
-		}
-		if (ret == 0)
-			return LIBALTOS_TIMEOUT;
-
-		if (fd[0].revents & (POLLHUP|POLLERR|POLLNVAL))
-			return LIBALTOS_ERROR;
-		if (fd[0].revents & POLLIN)
-#endif
-		{
-			ret = read(file->fd, file->in_data, USB_BUF_SIZE);
-			if (ret < 0) {
-				perror("altos_getchar");
-				return LIBALTOS_ERROR;
-			}
-			file->in_read = 0;
-			file->in_used = ret;
-#ifndef USE_POLL
-			if (ret == 0 && timeout > 0)
-				return LIBALTOS_TIMEOUT;
-#endif
-		}
-	}
-	if (file->in_used && 0) {
-		printf ("fill \"");
-		fwrite(file->in_data, 1, file->in_used, stdout);
-		printf ("\"\n");
-	}
-	return 0;
-}
-
-PUBLIC int
-altos_getchar(struct altos_file *file, int timeout)
-{
-	int	ret;
-	while (file->in_read == file->in_used) {
-		if (file->fd < 0)
-			return LIBALTOS_ERROR;
-		ret = altos_fill(file, timeout);
-		if (ret)
-			return ret;
-	}
-	return file->in_data[file->in_read++];
-}
-
-#endif /* POSIX_TTY */
 
 #ifdef WINDOWS
 

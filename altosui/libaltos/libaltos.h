@@ -58,6 +58,15 @@ struct altos_device {
 	//%mutable;
 };
 
+#define BLUETOOTH_PRODUCT_TELEBT	"TeleBT"
+
+struct altos_bt_device {
+	//%immutable;
+	char				name[256];
+	char				addr[20];
+	//%mutable;
+};
+
 #define LIBALTOS_SUCCESS	0
 #define LIBALTOS_ERROR		-1
 #define LIBALTOS_TIMEOUT	-2
@@ -99,5 +108,17 @@ altos_flush(struct altos_file *file);
 /* Returns < 0 for error or timeout. timeout of 0 == wait forever */
 PUBLIC int
 altos_getchar(struct altos_file *file, int timeout);
+
+PUBLIC struct altos_bt_list *
+altos_bt_list_start(void);
+
+PUBLIC int
+altos_bt_list_next(struct altos_bt_list *list, struct altos_bt_device *device);
+
+PUBLIC void
+altos_bt_list_finish(struct altos_bt_list *list);
+
+PUBLIC struct altos_file *
+altos_bt_open(struct altos_bt_device *device);
 
 #endif /* _LIBALTOS_H_ */

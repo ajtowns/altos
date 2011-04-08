@@ -158,6 +158,7 @@ public class AltosEepromDownload implements Runnable {
 					r = new AltosEepromRecord(Altos.AO_LOG_STATE, tiny_tick, s, 0);
 					if (s == Altos.ao_flight_landed)
 						done = true;
+					state = s;
 					any_valid = true;
 				} else {
 					if (v != 0xffff)

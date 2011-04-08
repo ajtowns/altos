@@ -14,6 +14,8 @@ main ()
 {
 	struct altos_device	device;
 	struct altos_list	*list;
+	struct altos_bt_device	bt_device;
+	struct altos_bt_list	*bt_list;
 
 	altos_init();
 	list = altos_list_start();
@@ -39,5 +41,29 @@ main ()
 		altos_close(file);
 	}
 	altos_list_finish(list);
+	bt_list = altos_bt_list_start();
+	while (altos_bt_list_next(bt_list, &bt_device)) {
+		printf ("%s %s\n", bt_device.name, bt_device.addr);
+		if (strncmp(bt_device.name, "TeleBT", 6) == 0) {
+			struct altos_file	*file;
+
+			int			c;
+			file = altos_bt_open(&bt_device);
+			if (!file) {
+				printf("altos_bt_open failed\n");
+				continue;
+			}
+			altos_puts(file,"v\nc s\n");
+			altos_flush(file);
+			while ((c = altos_getchar(file, 100)) >= 0) {
+				putchar(c);
+			}
+			if (c != LIBALTOS_TIMEOUT)
+				printf("getchar returns %d\n", c);
+			altos_close(file);
+		}
+	}
+	altos_bt_list_finish(bt_list);
 	altos_fini();
+	return 0;
 }

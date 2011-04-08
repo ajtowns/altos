@@ -26,6 +26,7 @@ altosui_JAVA = \
 	AltosDescent.java \
 	AltosDeviceDialog.java \
 	AltosDevice.java \
+	AltosBTDevice.java \
 	AltosDisplayThread.java \
 	AltosEepromChunk.java \
 	AltosEepromDelete.java \
