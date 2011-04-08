@@ -228,6 +228,7 @@
 	#define HAS_ADC			0
 	#define HAS_DBG			1
 	#define HAS_EEPROM		0
+	#define HAS_BTM			1
 	#define DBG_ON_P1 		0
 	#define DBG_ON_P0 		1
 	#define IGNITE_ON_P2		0

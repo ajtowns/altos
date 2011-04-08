@@ -107,6 +107,7 @@ ao_start_scheduler(void);
 #define AO_PANIC_REBOOT		8	/* Reboot failed */
 #define AO_PANIC_FLASH		9	/* Invalid flash part (or wrong blocksize) */
 #define AO_PANIC_USB		10	/* Trying to send USB packet while busy */
+#define AO_PANIC_BT		11	/* Communications with bluetooth device failed */
 
 /* Stop the operating system, beeping and blinking the reason */
 void
@@ -1365,6 +1366,10 @@ void
 ao_packet_slave_init(uint8_t enable);
 
 /* ao_btm.c */
+
+/* Shared by USB, so the USB code calls this function */
+void
+ao_btm_isr(void);
 
 void
 ao_btm_init(void);

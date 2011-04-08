@@ -662,6 +662,14 @@ sfr at 0x8B P2IFG;
 
 #define P0IFG_USB_RESUME	(1 << 7)
 
+sfr at 0x8C PICTL;
+#define PICTL_P2IEN	(1 << 5)
+#define PICTL_P0IENH	(1 << 4)
+#define PICTL_P0IENL	(1 << 3)
+#define PICTL_P2ICON	(1 << 2)
+#define PICTL_P1ICON	(1 << 1)
+#define PICTL_P0ICON	(1 << 0)
+
 /* GPIO pins */
 sfr at 0x80 P0;
 

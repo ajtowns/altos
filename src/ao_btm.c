@@ -18,12 +18,47 @@
 #include "ao.h"
 
 uint8_t			ao_btm_running;
-uint8_t			ao_btm_stdio;
+int8_t			ao_btm_stdio;
 __xdata uint8_t		ao_btm_connected;
 uint8_t			ao_btm_chat;
 
 __xdata char		ao_btm_buffer[1024];
 int			ao_btm_ptr;
+char			ao_btm_dir;
+
+uint8_t			ao_btm_send_chars = 0;
+
+void
+ao_btm_putchar(char c);
+
+static void
+ao_btm_add_char(char c)
+{
+	if (ao_btm_ptr < sizeof (ao_btm_buffer))
+		ao_btm_buffer[ao_btm_ptr++] = c;
+}
+
+static void
+ao_btm_log_char(char c, char dir)
+{
+	if (dir != ao_btm_dir) {
+		ao_btm_add_char(dir);
+		ao_btm_dir = dir;
+	}
+	ao_btm_add_char(c);
+}
+
+static void
+ao_btm_log_out_char(char c)
+{
+	ao_btm_log_char(c, '>');
+}
+
+static void
+ao_btm_log_in_char(char c)
+{
+	ao_btm_log_char(c, '<');
+}
 
 #define AO_BTM_MAX_REPLY	16
 __xdata char		ao_btm_reply[AO_BTM_MAX_REPLY];
@@ -44,10 +79,9 @@ ao_btm_get_line(void)
 	for (;;) {
 
 		while ((c = ao_serial_pollchar()) != AO_READ_AGAIN) {
+			ao_btm_log_in_char(c);
 			if (ao_btm_reply_len < sizeof (ao_btm_reply))
 				ao_btm_reply[ao_btm_reply_len++] = c;
-			if (ao_btm_ptr < sizeof (ao_btm_buffer))
-				ao_btm_buffer[ao_btm_ptr++] = c;
 			if (c == '\r' || c == '\n')
 				goto done;
 		}
@@ -89,20 +123,14 @@ ao_btm_echo(uint8_t echo)
 uint8_t
 ao_cmd_filter(void)
 {
+	if (ao_cur_stdio != ao_btm_stdio)
+		return 0;
 	ao_cmd_lex();
 	while (ao_cmd_lex_c != '\n') {
-		if (ao_match_word("CONNECT")) {
-			ao_btm_connected = 1;
-			ao_btm_echo(1);
-			ao_wakeup(&ao_btm_connected);
+		if (ao_match_word("CONNECT"))
 			return 1;
-		}
-		if (ao_match_word("DISCONNECT")) {
-			ao_btm_connected = 0;
-			ao_btm_echo(0);
-			ao_wakeup(&ao_btm_connected);
+		if (ao_match_word("DISCONNECT"))
 			return 1;
-		}
 		if (ao_match_word("ERROR"))
 			return 1;
 		if (ao_match_word("OK"))
@@ -126,9 +154,23 @@ ao_btm_pollchar(void)
 		return AO_READ_AGAIN;
 	c = ao_serial_pollchar();
 	if (c != AO_READ_AGAIN)
-		if (ao_btm_ptr < sizeof (ao_btm_buffer))
-			ao_btm_buffer[ao_btm_ptr++] = c;
+		ao_btm_log_in_char(c);
 	return c;
+}
+
+void
+ao_btm_putchar(char c)
+{
+	if (!ao_btm_send_chars) {
+		ao_btm_log_out_char(c);
+		ao_serial_putchar(c);
+	}
+}
+
+void
+ao_btm_stdio_putchar(char c) {
+	if (ao_btm_connected)
+		ao_btm_putchar(c);
 }
 
 /*
@@ -140,9 +182,9 @@ ao_btm_wait_reply(void)
 {
 	for (;;) {
 		ao_btm_get_line();
-		if (!strcmp(ao_btm_reply, "OK"))
+		if (!strncmp(ao_btm_reply, "OK", 2))
 			return 1;
-		if (!strcmp(ao_btm_reply, "ERROR"))
+		if (!strncmp(ao_btm_reply, "ERROR", 5))
 			return -1;
 		if (ao_btm_reply[0] == '\0')
 			return 0;
@@ -150,13 +192,50 @@ ao_btm_wait_reply(void)
 }
 
 void
-ao_btm_cmd(__code char *cmd)
+ao_btm_string(__code char *cmd)
 {
-	ao_cur_stdio = ao_btm_stdio;
-	printf(cmd);
-	ao_btm_wait_reply();
+	char	c;
+
+	while (c = *cmd++)
+		ao_btm_putchar(c);
 }
 
+uint8_t
+ao_btm_cmd(__code char *cmd)
+{
+	ao_btm_drain();
+	ao_btm_string(cmd);
+	return ao_btm_wait_reply();
+}
+
+uint8_t
+ao_btm_set_name(void)
+{
+	char	sn[7];
+	char	*s = sn + 7;
+	char	c;
+	int	n;
+	ao_btm_string("ATN=TeleBT-");
+	*--s = '\0';
+	n = ao_serial_number;
+	do {
+		*--s = '0' + n % 10;
+	} while (n /= 10);
+	while ((c = *s++))
+		ao_btm_putchar(c);
+	return ao_btm_wait_reply();
+}
+
+uint8_t
+ao_btm_try_speed(uint8_t speed)
+{
+	ao_serial_set_speed(speed);
+	ao_btm_drain();
+	(void) ao_btm_cmd("\rATE0\rATQ0\r");
+	if (ao_btm_cmd("AT\r") == 1)
+		return 1;
+	return 0;
+}
 /*
  * A thread to initialize the bluetooth device and
  * hang around to blink the LED when connected
@@ -164,30 +243,36 @@ ao_btm_cmd(__code char *cmd)
 void
 ao_btm(void)
 {
-	ao_serial_set_speed(AO_SERIAL_SPEED_19200);
 	ao_add_stdio(ao_btm_pollchar,
-		     ao_serial_putchar,
+		     ao_btm_stdio_putchar,
 		     NULL);
 	ao_btm_stdio = ao_num_stdios - 1;
-	ao_cur_stdio = ao_btm_stdio;
 	ao_btm_echo(0);
-	ao_btm_drain();
-	ao_delay(AO_SEC_TO_TICKS(1));
-	printf("+++");
-	ao_btm_drain();
-	ao_delay(AO_SEC_TO_TICKS(1));
-	printf("\r");
-	ao_btm_drain();
-	ao_btm_cmd("ATQ0\r");
+
+	/*
+	 * The first time we connect, the BTM-180 comes up at 19200 baud.
+	 * After that, it will remember and come up at 57600 baud. So, see
+	 * if it is already running at 57600 baud, and if that doesn't work
+	 * then tell it to switch to 57600 from 19200 baud.
+	 */
+	while (!ao_btm_try_speed(AO_SERIAL_SPEED_57600)) {
+		if (ao_btm_try_speed(AO_SERIAL_SPEED_19200))
+			ao_btm_cmd("ATL4\r");
+		ao_delay(AO_SEC_TO_TICKS(1));
+	}
+
+	/* Disable echo */
 	ao_btm_cmd("ATE0\r");
-	ao_btm_cmd("ATH\r");
-	ao_delay(AO_SEC_TO_TICKS(1));
-	ao_btm_cmd("ATC0\r");
-	ao_btm_cmd("ATL4\r");
-	ao_serial_set_speed(AO_SERIAL_SPEED_57600);
-	ao_btm_drain();
-	printf("ATN=TeleBT-%d\r", ao_serial_number);
-	ao_btm_wait_reply();
+
+	/* Enable flow control */
+	ao_btm_cmd("ATC1\r");
+
+	/* Set the reported name to something we can find on the host */
+	ao_btm_set_name();
+
+	/* Turn off status reporting */
+	ao_btm_cmd("ATQ1\r");
+
 	ao_btm_running = 1;
 	for (;;) {
 		while (!ao_btm_connected && !ao_btm_chat)
@@ -197,9 +282,10 @@ ao_btm(void)
 			while (ao_btm_chat) {
 				char	c;
 				c = ao_serial_pollchar();
-				if (c != AO_READ_AGAIN)
+				if (c != AO_READ_AGAIN) {
+					ao_btm_log_in_char(c);
 					ao_usb_putchar(c);
-				else {
+				} else {
 					ao_usb_flush();
 					ao_sleep(&ao_usart1_rx_fifo);
 				}
@@ -229,7 +315,7 @@ ao_btm_forward(void)
 	ao_usb_flush();
 	while ((c = ao_usb_getchar()) != '~') {
 		if (c == '\n') c = '\r';
-		ao_serial_putchar(c);
+		ao_btm_putchar(c);
 	}
 	ao_btm_chat = 0;
 	while (!ao_btm_running) {
@@ -245,15 +331,56 @@ static void
 ao_btm_dump(void)
 {
 	int i;
+	char c;
 
-	for (i = 0; i < ao_btm_ptr; i++)
-		putchar(ao_btm_buffer[i]);
+	for (i = 0; i < ao_btm_ptr; i++) {
+		c = ao_btm_buffer[i];
+		if (c < ' ' && c != '\n')
+			printf("\\%03o", ((int) c) & 0xff);
+		else
+			putchar(ao_btm_buffer[i]);
+	}
 	putchar('\n');
+}
+
+static void
+ao_btm_speed(void)
+{
+	ao_cmd_decimal();
+	if (ao_cmd_lex_u32 == 57600)
+		ao_serial_set_speed(AO_SERIAL_SPEED_57600);
+	else if (ao_cmd_lex_u32 == 19200)
+		ao_serial_set_speed(AO_SERIAL_SPEED_19200);
+	else
+		ao_cmd_status = ao_cmd_syntax_error;
+}
+
+void
+ao_btm_check_link() __critical
+{
+	if (P2_1) {
+		ao_btm_connected = 0;
+		PICTL |= PICTL_P2ICON;
+	} else {
+		ao_btm_connected = 1;
+		PICTL &= ~PICTL_P2ICON;
+	}
+}
+
+void
+ao_btm_isr(void)
+{
+	if (P2IFG & (1 << 1)) {
+		ao_btm_check_link();
+		ao_wakeup(&ao_btm_connected);
+	}
+	P2IFG = 0;
 }
 
 __code struct ao_cmds ao_btm_cmds[] = {
 	{ ao_btm_forward,	"B\0BTM serial link." },
 	{ ao_btm_dump,		"d\0Dump btm buffer." },
+	{ ao_btm_speed,		"s <19200,57600>\0Set btm serial speed." },
 	{ 0, NULL },
 };
 
@@ -262,6 +389,20 @@ ao_btm_init (void)
 {
 	ao_serial_init();
 	ao_serial_set_speed(AO_SERIAL_SPEED_19200);
+
+	/*
+	 * Configure link status line
+	 */
+
+	/* Set P2_1 to input, pull-down */
+	P2DIR &= ~(1 << 1);
+	P2INP |= P2INP_MDP2_1_TRISTATE;
+
+	/* Enable P2 interrupts */
+	IEN2 |= IEN2_P2IE;
+	ao_btm_check_link();
+	PICTL |= PICTL_P2IEN;
+
 	ao_add_task(&ao_btm_task, ao_btm, "bt");
 	ao_cmd_register(&ao_btm_cmds[0]);
 }
