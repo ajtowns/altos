@@ -81,14 +81,20 @@ public class AltosDevice extends altos_device {
 		return 0x000d;
 	}
 
+	static int usb_product_telebt() {
+		if (load_library())
+			return libaltosConstants.USB_PRODUCT_TELEBT;
+		return 0x000e;
+	}
+
 	public final static int vendor_altusmetrum = usb_vendor_altusmetrum();
 	public final static int product_altusmetrum = usb_product_altusmetrum();
 	public final static int product_telemetrum = usb_product_telemetrum();
 	public final static int product_teledongle = usb_product_teledongle();
 	public final static int product_teleterra = usb_product_teleterra();
+	public final static int product_telebt = usb_product_telebt();
 	public final static int product_altusmetrum_min = usb_product_altusmetrum_min();
 	public final static int product_altusmetrum_max = usb_product_altusmetrum_max();
-
 
 	public final static int product_any = 0x10000;
 	public final static int product_basestation = 0x10000 + 1;
@@ -98,7 +104,7 @@ public class AltosDevice extends altos_device {
 		if (name == null)
 			name = "Altus Metrum";
 		return String.format("%-20.20s %4d %s",
-				     getName(), getSerial(), getPath());
+				     name, getSerial(), getPath());
 	}
 
 	public String toShortString() {
@@ -129,7 +135,9 @@ public class AltosDevice extends altos_device {
 			return true;
 
 		if (want_product == product_basestation)
-			return matchProduct(product_teledongle) || matchProduct(product_teleterra);
+			return matchProduct(product_teledongle) ||
+				matchProduct(product_teleterra) ||
+				matchProduct(product_telebt);
 
 		int have_product = getProduct();
 
