@@ -113,30 +113,4 @@ public class AltosBTDevice extends altos_bt_device {
 
 		return false;
 	}
-
-	static AltosBTDevice[] list(String product) {
-		if (!load_library())
-			return null;
-
-		SWIGTYPE_p_altos_bt_list list = libaltos.altos_bt_list_start();
-
-		ArrayList<AltosBTDevice> device_list = new ArrayList<AltosBTDevice>();
-		if (list != null) {
-			SWIGTYPE_p_altos_file file;
-
-			for (;;) {
-				AltosBTDevice device = new AltosBTDevice();
-				if (libaltos.altos_bt_list_next(list, device) == 0)
-					break;
-				if (device.matchProduct(product))
-					device_list.add(device);
-			}
-			libaltos.altos_bt_list_finish(list);
-		}
-
-		AltosBTDevice[] devices = new AltosBTDevice[device_list.size()];
-		for (int i = 0; i < device_list.size(); i++)
-			devices[i] = device_list.get(i);
-		return devices;
-	}
 }

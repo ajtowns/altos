@@ -198,6 +198,10 @@ public class AltosUI extends JFrame {
 	}
 
 	private void ConnectToDevice() {
+		AltosBTManage	bt_manage;
+
+		bt_manage = new AltosBTManage(AltosBTDevice.bt_product_any, this);
+		bt_manage.list();
 		AltosDevice	device = AltosDeviceDialog.show(AltosUI.this,
 								AltosDevice.product_basestation);
 

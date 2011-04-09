@@ -49,6 +49,8 @@ public class AltosConfigureUI
 
 	JRadioButton	serial_debug;
 
+	JButton		manage_bluetooth;
+
 	/* DocumentListener interface methods */
 	public void changedUpdate(DocumentEvent e) {
 		AltosPreferences.set_callsign(callsign_value.getText());
@@ -199,6 +201,19 @@ public class AltosConfigureUI
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(serial_debug, c);
 
+		manage_bluetooth = new JButton("Manage Bluetooth");
+		manage_bluetooth.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					new AltosBTManage(AltosBTDevice.bt_product_any, owner);
+				}
+			});
+		c.gridx = 1;
+		c.gridy = 6;
+		c.gridwidth = 3;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(manage_bluetooth, c);
+
 		/* And a close button at the bottom */
 		close = new JButton("Close");
 		close.addActionListener(new ActionListener() {
@@ -207,7 +222,7 @@ public class AltosConfigureUI
 				}
 			});
 		c.gridx = 0;
-		c.gridy = 6;
+		c.gridy = 7;
 		c.gridwidth = 3;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
