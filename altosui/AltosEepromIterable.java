@@ -134,8 +134,13 @@ public class AltosEepromIterable extends AltosRecordIterable {
 			eeprom.seen |= seen_sensor;
 			has_accel = true;
 			break;
-		case Altos.AO_LOG_HEIGHT:
-			state.height = (short) record.a;
+		case Altos.AO_LOG_PRESSURE:
+			state.pres = record.b;
+			state.flight_pres = state.pres;
+			if (eeprom.n_pad_samples == 0) {
+				eeprom.n_pad_samples++;
+				state.ground_pres = state.pres;
+			}
 			eeprom.seen |= seen_sensor;
 			break;
 		case Altos.AO_LOG_TEMP_VOLT:

@@ -34,7 +34,7 @@ public class Altos {
 	static final int AO_LOG_GPS_ALT = 'H';
 	static final int AO_LOG_GPS_SAT = 'V';
 	static final int AO_LOG_GPS_DATE = 'Y';
-	static final int AO_LOG_HEIGHT = 'h';
+	static final int AO_LOG_PRESSURE = 'P';
 
 	/* Added for header fields in eeprom files */
 	static final int AO_LOG_CONFIG_VERSION = 1000;

@@ -35,7 +35,7 @@ public class AltosGraphUI extends JFrame
         AltosGraphTime.Element speed =
             new AltosGraphTime.TimeSeries("Speed (m/s)", "Vertical Speed", green) { 
                 public void gotTimeData(double time, AltosDataPoint d) {
-                    if (d.state() < Altos.ao_flight_drogue) {
+		    if (d.state() < Altos.ao_flight_drogue && d.has_accel()) {
                         series.add(time, d.accel_speed());
                     } else {
                         series.add(time, d.baro_speed());

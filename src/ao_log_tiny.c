@@ -44,9 +44,12 @@ static void ao_log_tiny_data(uint16_t d)
 void
 ao_log(void)
 {
-	uint16_t		time;
-	int16_t			delay;
+	uint16_t		last_time;
+	uint16_t		now;
 	enum ao_flight_state	ao_log_tiny_state;
+	int32_t			sum;
+	int16_t			count;
+	uint8_t			ao_log_adc;
 
 	ao_storage_setup();
 
@@ -57,9 +60,19 @@ ao_log(void)
 	while (!ao_log_running)
 		ao_sleep(&ao_log_running);
 
-	time = ao_time();
 	ao_log_tiny_data(ao_flight_number);
+	ao_log_tiny_data(ao_ground_pres);
+	sum = 0;
+	count = 0;
+	ao_log_adc = ao_sample_adc;
+	last_time = ao_time();
 	for (;;) {
+		ao_sleep(DATA_TO_XDATA(&ao_sample_adc));
+		while (ao_log_adc != ao_sample_adc) {
+			sum += ao_adc_ring[ao_log_adc].pres;
+			count++;
+			ao_log_adc = ao_adc_ring_next(ao_log_adc);
+		}
 		if (ao_flight_state != ao_log_tiny_state) {
 			ao_log_tiny_data(ao_flight_state | 0x8000);
 			ao_log_tiny_state = ao_flight_state;
@@ -69,14 +82,16 @@ ao_log(void)
 			if (ao_log_tiny_state == ao_flight_landed)
 				ao_log_stop();
 		}
-		ao_log_tiny_data(ao_height);
-		time += ao_log_tiny_interval;
-		delay = time - ao_time();
-		if (delay > 0)
-			ao_delay(delay);
 		/* Stop logging when told to */
-		while (!ao_log_running)
-			ao_sleep(&ao_log_running);
+		if (!ao_log_running)
+			ao_exit();
+		now = ao_time();
+		if ((int16_t) (now - (last_time + ao_log_tiny_interval)) >= 0 && count) {
+			ao_log_tiny_data(sum / count);
+			sum = 0;
+			count = 0;
+			last_time = now;
+		}
 	}
 }
 
