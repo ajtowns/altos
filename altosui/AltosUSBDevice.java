@@ -43,7 +43,7 @@ public class AltosUSBDevice  extends altos_device implements AltosDevice {
 		return libaltos.altos_open(this);
 	}
 
-	public boolean isAltusMetrum() {
+	private boolean isAltusMetrum() {
 		if (getVendor() != Altos.vendor_altusmetrum)
 			return false;
 		if (getProduct() < Altos.product_altusmetrum_min)

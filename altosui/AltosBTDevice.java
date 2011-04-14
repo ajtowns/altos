@@ -20,36 +20,9 @@ import java.lang.*;
 import java.util.*;
 import libaltosJNI.*;
 
-public class AltosBTDevice extends altos_bt_device {
+public class AltosBTDevice extends altos_bt_device implements AltosDevice {
 
-	static public boolean initialized = false;
-	static public boolean loaded_library = false;
-
-	public static boolean load_library() {
-		if (!initialized) {
-			try {
-				System.loadLibrary("altos");
-				libaltos.altos_init();
-				loaded_library = true;
-			} catch (UnsatisfiedLinkError e) {
-				loaded_library = false;
-			}
-			initialized = true;
-		}
-		return loaded_library;
-	}
-
-	static String bt_product_telebt() {
-		if (load_library())
-			return libaltosConstants.BLUETOOTH_PRODUCT_TELEBT;
-		return "TeleBT";
-	}
-
-	public final static String bt_product_telebt = bt_product_telebt();
-	public final static String bt_product_any = "Any";
-	public final static String bt_product_basestation = "Basestation";
-
-	public String getProduct() {
+	public String getProductName() {
 		String	name = getName();
 		if (name == null)
 			return "Altus Metrum";
@@ -57,6 +30,16 @@ public class AltosBTDevice extends altos_bt_device {
 		if (dash < 0)
 			return name;
 		return name.substring(0,dash);
+	}
+
+	public int getProduct() {
+		if (Altos.bt_product_telebt.equals(getProductName()))
+			return Altos.product_telebt;
+		return 0;
+	}
+
+	public String getPath() {
+		return getAddr();
 	}
 
 	public int getSerial() {
@@ -91,24 +74,28 @@ public class AltosBTDevice extends altos_bt_device {
 
 	}
 
-	public boolean isAltusMetrum() {
-		if (getName().startsWith(bt_product_telebt))
+	public SWIGTYPE_p_altos_file open() {
+		return libaltos.altos_bt_open(this);
+	}
+
+	private boolean isAltusMetrum() {
+		if (getName().startsWith(Altos.bt_product_telebt))
 			return true;
 		return false;
 	}
 
-	public boolean matchProduct(String want_product) {
+	public boolean matchProduct(int want_product) {
 
 		if (!isAltusMetrum())
 			return false;
 
-		if (want_product.equals(bt_product_any))
+		if (want_product == Altos.product_any)
 			return true;
 
-		if (want_product.equals(bt_product_basestation))
-			return matchProduct(bt_product_telebt);
+		if (want_product == Altos.product_basestation)
+			return matchProduct(Altos.product_telebt);
 
-		if (want_product.equals(getProduct()))
+		if (want_product == getProduct())
 			return true;
 
 		return false;

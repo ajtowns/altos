@@ -301,4 +301,12 @@ public class Altos {
 
 	public final static int product_any = 0x10000;
 	public final static int product_basestation = 0x10000 + 1;
+
+	static String bt_product_telebt() {
+		if (load_library())
+			return libaltosConstants.BLUETOOTH_PRODUCT_TELEBT;
+		return "TeleBT";
+	}
+
+	public final static String bt_product_telebt = bt_product_telebt();
 }
