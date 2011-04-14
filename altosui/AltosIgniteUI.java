@@ -275,7 +275,7 @@ public class AltosIgniteUI
 	private boolean open() {
 		command_queue = new LinkedBlockingQueue<String>();
 
-		device = AltosDeviceDialog.show(owner, AltosDevice.product_any);
+		device = AltosDeviceDialog.show(owner, Altos.product_any);
 		if (device != null) {
 			try {
 				AltosIgnite 	ignite = new AltosIgnite(device);

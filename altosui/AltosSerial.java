@@ -304,7 +304,7 @@ public class AltosSerial implements Runnable {
 				throw new AltosSerialInUseException(device);
 			devices_opened.add(device.getPath());
 		}
-		altos = libaltos.altos_open(device);
+		altos = device.open();
 		if (altos == null) {
 			close();
 			throw new FileNotFoundException(device.toShortString());

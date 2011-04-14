@@ -151,7 +151,7 @@ public class AltosFlashUI
 
 		build_dialog();
 
-		debug_dongle = AltosDeviceDialog.show(frame, AltosDevice.product_any);
+		debug_dongle = AltosDeviceDialog.show(frame, Altos.product_any);
 
 		if (debug_dongle == null)
 			return;

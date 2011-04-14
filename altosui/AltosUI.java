@@ -34,7 +34,7 @@ public class AltosUI extends JFrame {
 	public AltosVoice voice = new AltosVoice();
 
 	public static boolean load_library(Frame frame) {
-		if (!AltosDevice.load_library()) {
+		if (!Altos.load_library()) {
 			JOptionPane.showMessageDialog(frame,
 						      String.format("No AltOS library in \"%s\"",
 								    System.getProperty("java.library.path","<undefined>")),
@@ -203,7 +203,7 @@ public class AltosUI extends JFrame {
 		bt_manage = new AltosBTManage(AltosBTDevice.bt_product_any, this);
 		bt_manage.list();
 		AltosDevice	device = AltosDeviceDialog.show(AltosUI.this,
-								AltosDevice.product_basestation);
+								Altos.product_basestation);
 
 		if (device != null)
 			telemetry_window(device);
@@ -401,7 +401,7 @@ public class AltosUI extends JFrame {
 			AltosUI altosui = new AltosUI();
 			altosui.setVisible(true);
 
-			AltosDevice[] devices = AltosDevice.list(AltosDevice.product_basestation);
+			AltosDevice[] devices = AltosUSBDevice.list(Altos.product_basestation);
 			for (int i = 0; i < devices.length; i++)
 				altosui.telemetry_window(devices[i]);
 		}

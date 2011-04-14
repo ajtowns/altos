@@ -37,7 +37,7 @@ public class AltosDeviceDialog extends JDialog implements ActionListener {
 
 		Frame frame = JOptionPane.getFrameForComponent(frameComp);
 		AltosDevice[]	devices;
-		devices = AltosDevice.list(product);
+		devices = AltosUSBDevice.list(product);
 
 		if (devices != null && devices.length > 0) {
 			value = null;

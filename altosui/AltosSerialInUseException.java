@@ -17,12 +17,10 @@
 
 package altosui;
 
-import libaltosJNI.*;
-
 public class AltosSerialInUseException extends Exception {
-	public altos_device	device;
+	public AltosDevice	device;
 
-	public AltosSerialInUseException (altos_device in_device) {
+	public AltosSerialInUseException (AltosDevice in_device) {
 		device = in_device;
 	}
 }

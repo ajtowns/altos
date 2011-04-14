@@ -344,11 +344,11 @@ public class AltosConfig implements ActionListener {
 		version = new string_ref("unknown");
 		product = new string_ref("unknown");
 
-		device = AltosDeviceDialog.show(owner, AltosDevice.product_any);
+		device = AltosDeviceDialog.show(owner, Altos.product_any);
 		if (device != null) {
 			try {
 				serial_line = new AltosSerial(device);
-				if (!device.matchProduct(AltosDevice.product_telemetrum))
+				if (!device.matchProduct(Altos.product_telemetrum))
 					remote = true;
 				try {
 					init_ui();

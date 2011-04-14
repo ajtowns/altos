@@ -172,7 +172,7 @@ public class AltosIgnite {
 		serial = new AltosSerial(device);
 		remote = false;
 
-		if (!device.matchProduct(AltosDevice.product_telemetrum))
+		if (!device.matchProduct(Altos.product_telemetrum))
 			remote = true;
 	}
 }

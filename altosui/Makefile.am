@@ -26,6 +26,7 @@ altosui_JAVA = \
 	AltosDescent.java \
 	AltosDeviceDialog.java \
 	AltosDevice.java \
+	AltosUSBDevice.java \
 	AltosBTDevice.java \
 	AltosBTDeviceIterator.java \
 	AltosBTManage.java \

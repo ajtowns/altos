@@ -21,6 +21,8 @@ import java.awt.*;
 import java.util.*;
 import java.text.*;
 
+import libaltosJNI.*;
+
 public class Altos {
 	/* EEProm command letters */
 	static final int AO_LOG_FLIGHT = 'F';
@@ -222,4 +224,81 @@ public class Altos {
 			input = input.substring(0,dot);
 		return input.concat(extension);
 	}
+
+	static public boolean initialized = false;
+	static public boolean loaded_library = false;
+
+	public static boolean load_library() {
+		if (!initialized) {
+			try {
+				System.loadLibrary("altos");
+				libaltos.altos_init();
+				loaded_library = true;
+			} catch (UnsatisfiedLinkError e) {
+				loaded_library = false;
+			}
+			initialized = true;
+		}
+		return loaded_library;
+	}
+
+	static int usb_vendor_altusmetrum() {
+		if (load_library())
+			return libaltosConstants.USB_VENDOR_ALTUSMETRUM;
+		return 0x000a;
+	}
+
+	static int usb_product_altusmetrum() {
+		if (load_library())
+			return libaltosConstants.USB_PRODUCT_ALTUSMETRUM;
+		return 0x000a;
+	}
+
+	static int usb_product_altusmetrum_min() {
+		if (load_library())
+			return libaltosConstants.USB_PRODUCT_ALTUSMETRUM_MIN;
+		return 0x000a;
+	}
+
+	static int usb_product_altusmetrum_max() {
+		if (load_library())
+			return libaltosConstants.USB_PRODUCT_ALTUSMETRUM_MAX;
+		return 0x000d;
+	}
+
+	static int usb_product_telemetrum() {
+		if (load_library())
+			return libaltosConstants.USB_PRODUCT_TELEMETRUM;
+		return 0x000b;
+	}
+
+	static int usb_product_teledongle() {
+		if (load_library())
+			return libaltosConstants.USB_PRODUCT_TELEDONGLE;
+		return 0x000c;
+	}
+
+	static int usb_product_teleterra() {
+		if (load_library())
+			return libaltosConstants.USB_PRODUCT_TELETERRA;
+		return 0x000d;
+	}
+
+	static int usb_product_telebt() {
+		if (load_library())
+			return libaltosConstants.USB_PRODUCT_TELEBT;
+		return 0x000e;
+	}
+
+	public final static int vendor_altusmetrum = usb_vendor_altusmetrum();
+	public final static int product_altusmetrum = usb_product_altusmetrum();
+	public final static int product_telemetrum = usb_product_telemetrum();
+	public final static int product_teledongle = usb_product_teledongle();
+	public final static int product_teleterra = usb_product_teleterra();
+	public final static int product_telebt = usb_product_telebt();
+	public final static int product_altusmetrum_min = usb_product_altusmetrum_min();
+	public final static int product_altusmetrum_max = usb_product_altusmetrum_max();
+
+	public final static int product_any = 0x10000;
+	public final static int product_basestation = 0x10000 + 1;
 }
