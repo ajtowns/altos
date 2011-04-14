@@ -108,6 +108,7 @@
 	#define IGNITE_ON_P0		1
 	#define PACKET_HAS_MASTER	0
 	#define PACKET_HAS_SLAVE	1
+	#define USE_FAST_ASCENT_LOG	1
 
 	#define AO_LED_GREEN		1
 	#define AO_LED_RED		2
