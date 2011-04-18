@@ -31,9 +31,8 @@ import java.util.concurrent.*;
 import libaltosJNI.*;
 
 public class AltosBTManage extends JDialog implements ActionListener {
-	String	product;
 	LinkedBlockingQueue<AltosBTDevice> found_devices;
-	JFrame frame;
+	Frame frame;
 
 	class DeviceList extends JList implements Iterable<AltosBTDevice> {
 		LinkedList<AltosBTDevice> devices;
@@ -104,7 +103,7 @@ public class AltosBTManage extends JDialog implements ActionListener {
 		public void run () {
 
 			try {
-				AltosBTDeviceIterator	i = new AltosBTDeviceIterator(product);
+				AltosBTDeviceIterator	i = new AltosBTDeviceIterator(Altos.product_any);
 				AltosBTDevice		device;
 
 				while ((device = i.next()) != null) {
@@ -124,9 +123,21 @@ public class AltosBTManage extends JDialog implements ActionListener {
 		}
 	}
 
-	public AltosBTManage(String product, JFrame in_frame) {
+	public static void show(Component frameComp) {
+		Frame	frame = JOptionPane.getFrameForComponent(frameComp);
+		AltosBTManage	dialog;
+
+		dialog = new AltosBTManage(frame);
+		dialog.setVisible(true);
+	}
+
+	public AltosBTManage(Frame in_frame) {
+		super(in_frame, "Manage Bluetooth Devices", true);
+
 		frame = in_frame;
+
 		BTGetVisibleDevices	get_visible_devices = new BTGetVisibleDevices();
+
 		Thread t = new Thread(get_visible_devices);
 		t.start();
 
@@ -182,7 +193,5 @@ public class AltosBTManage extends JDialog implements ActionListener {
 		//Initialize values.
 //		list.setSelectedValue(initial, true);
 		pack();
-		setLocationRelativeTo(frame);
-		setVisible(true);
 	}
 }

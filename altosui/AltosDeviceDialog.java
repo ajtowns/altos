@@ -22,59 +22,55 @@ import java.util.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import libaltosJNI.libaltos;
-import libaltosJNI.altos_device;
-import libaltosJNI.SWIGTYPE_p_altos_file;
-import libaltosJNI.SWIGTYPE_p_altos_list;
+import libaltosJNI.*;
 
 public class AltosDeviceDialog extends JDialog implements ActionListener {
-
-	private static AltosDeviceDialog	dialog;
-	private static AltosDevice		value = null;
-	private JList				list;
 
 	public static AltosDevice show (Component frameComp, int product) {
 
 		Frame frame = JOptionPane.getFrameForComponent(frameComp);
 		AltosDevice[]	devices;
 		devices = AltosUSBDevice.list(product);
+		AltosDeviceDialog	dialog;
 
-		if (devices != null && devices.length > 0) {
-			value = null;
-			dialog = new AltosDeviceDialog(frame, frameComp,
-						       devices,
-						       devices[0]);
-
-			dialog.setVisible(true);
-			return value;
-		} else {
-			/* check for missing altos JNI library, which
-			 * will put up its own error dialog
-			 */
-			if (AltosUI.load_library(frame)) {
-				JOptionPane.showMessageDialog(frame,
-							      "No AltOS devices available",
-							      "No AltOS devices",
-							      JOptionPane.ERROR_MESSAGE);
-			}
-			return null;
-		}
+		dialog = new AltosDeviceDialog(frame, frameComp,
+					       devices);
+		dialog.setVisible(true);
+		return dialog.getValue();
 	}
 
-	private AltosDeviceDialog (Frame frame, Component location,
-				   AltosDevice[] devices,
-				   AltosDevice initial) {
-		super(frame, "Device Selection", true);
+	private AltosDevice	value;
+	private JList		list;
+	private JButton		cancel_button;
+	private JButton		select_button;
+	private JButton		manage_bluetooth_button;
+	private Frame		frame;
 
+	private AltosDevice getValue() {
+		return value;
+	}
+
+	private AltosDeviceDialog (Frame in_frame, Component location,
+				   AltosDevice[] devices) {
+		super(in_frame, "Device Selection", true);
+
+		frame = in_frame;
 		value = null;
 
-		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(this);
+		cancel_button = new JButton("Cancel");
+		cancel_button.setActionCommand("cancel");
+		cancel_button.addActionListener(this);
 
-		final JButton selectButton = new JButton("Select");
-		selectButton.setActionCommand("select");
-		selectButton.addActionListener(this);
-		getRootPane().setDefaultButton(selectButton);
+		manage_bluetooth_button = new JButton("Manage Bluetooth");
+		manage_bluetooth_button.setActionCommand("manage");
+		manage_bluetooth_button.addActionListener(this);
+
+		select_button = new JButton("Select");
+		select_button.setActionCommand("select");
+		select_button.addActionListener(this);
+		if (devices.length == 0)
+			select_button.setEnabled(false);
+		getRootPane().setDefaultButton(select_button);
 
 		list = new JList(devices) {
 				//Subclass JList to workaround bug 4832765, which can cause the
@@ -112,7 +108,7 @@ public class AltosDeviceDialog extends JDialog implements ActionListener {
 		list.addMouseListener(new MouseAdapter() {
 				 public void mouseClicked(MouseEvent e) {
 					 if (e.getClickCount() == 2) {
-						 selectButton.doClick(); //emulate button click
+						 select_button.doClick(); //emulate button click
 					 }
 				 }
 			});
@@ -139,9 +135,11 @@ public class AltosDeviceDialog extends JDialog implements ActionListener {
 		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 		buttonPane.add(Box.createHorizontalGlue());
-		buttonPane.add(cancelButton);
+		buttonPane.add(cancel_button);
 		buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
-		buttonPane.add(selectButton);
+		buttonPane.add(manage_bluetooth_button);
+		buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
+		buttonPane.add(select_button);
 
 		//Put everything together, using the content pane's BorderLayout.
 		Container contentPane = getContentPane();
@@ -149,7 +147,8 @@ public class AltosDeviceDialog extends JDialog implements ActionListener {
 		contentPane.add(buttonPane, BorderLayout.PAGE_END);
 
 		//Initialize values.
-		list.setSelectedValue(initial, true);
+		if (devices != null && devices.length > 0)
+			list.setSelectedValue(devices[0], true);
 		pack();
 		setLocationRelativeTo(location);
 	}
@@ -157,8 +156,12 @@ public class AltosDeviceDialog extends JDialog implements ActionListener {
 	//Handle clicks on the Set and Cancel buttons.
 	public void actionPerformed(ActionEvent e) {
 		if ("select".equals(e.getActionCommand()))
-			AltosDeviceDialog.value = (AltosDevice)(list.getSelectedValue());
-		AltosDeviceDialog.dialog.setVisible(false);
+			value = (AltosDevice)(list.getSelectedValue());
+		if ("manage".equals(e.getActionCommand())) {
+			AltosBTManage.show(frame);
+			return;
+		}
+		setVisible(false);
 	}
 
 }

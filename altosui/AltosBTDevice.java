@@ -62,7 +62,7 @@ public class AltosBTDevice extends altos_bt_device implements AltosDevice {
 		if (name == null)
 			name = "Altus Metrum";
 		return String.format("%-20.20s %4d %s",
-				     getProduct(), getSerial(), getAddr());
+				     getProductName(), getSerial(), getAddr());
 	}
 
 	public String toShortString() {
