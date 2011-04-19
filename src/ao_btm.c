@@ -143,29 +143,16 @@ ao_cmd_filter(void)
 }
 
 /*
- * A wrapper for ao_serial_pollchar that
- * doesn't return any characters while we're
- * initializing the bluetooth device
+ * Delay between command charaters; the BT module
+ * can't keep up with 57600 baud
  */
-char
-ao_btm_pollchar(void)
-{
-	char	c;
-	if (!ao_btm_running)
-		return AO_READ_AGAIN;
-	c = ao_serial_pollchar();
-	if (c != AO_READ_AGAIN)
-		ao_btm_log_in_char(c);
-	return c;
-}
 
 void
 ao_btm_putchar(char c)
 {
 	ao_btm_log_out_char(c);
 	ao_serial_putchar(c);
-	if (!ao_btm_running)
-		ao_delay(1);
+	ao_delay(1);
 }
 
 /*
@@ -270,8 +257,8 @@ ao_btm(void)
 	/* Turn off status reporting */
 	ao_btm_cmd("ATQ1\r");
 
-	ao_btm_stdio = ao_add_stdio(ao_btm_pollchar,
-				    ao_btm_putchar,
+	ao_btm_stdio = ao_add_stdio(ao_serial_pollchar,
+				    ao_serial_putchar,
 				    NULL);
 	ao_btm_echo(0);
 
