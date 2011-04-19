@@ -69,7 +69,7 @@ ao_echo(void)
 	return ao_stdios[ao_cur_stdio].echo;
 }
 
-void
+int8_t
 ao_add_stdio(char (*pollchar)(void),
 	     void (*putchar)(char),
 	     void (*flush)(void)) __reentrant
@@ -80,5 +80,5 @@ ao_add_stdio(char (*pollchar)(void),
 	ao_stdios[ao_num_stdios].putchar = putchar;
 	ao_stdios[ao_num_stdios].flush = flush;
 	ao_stdios[ao_num_stdios].echo = 1;
-	ao_num_stdios++;
+	return ao_num_stdios++;
 }

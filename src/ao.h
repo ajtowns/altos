@@ -1194,7 +1194,7 @@ extern __xdata uint8_t ao_stdin_ready;
 uint8_t
 ao_echo(void);
 
-void
+int8_t
 ao_add_stdio(char (*pollchar)(void),
 	     void (*putchar)(char) __reentrant,
 	     void (*flush)(void)) __reentrant;

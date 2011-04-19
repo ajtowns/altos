@@ -26,8 +26,6 @@ __xdata char		ao_btm_buffer[1024];
 int			ao_btm_ptr;
 char			ao_btm_dir;
 
-uint8_t			ao_btm_send_chars = 0;
-
 void
 ao_btm_putchar(char c);
 
@@ -109,6 +107,9 @@ ao_btm_drain()
 		;
 }
 
+/*
+ * Set the stdio echo for the bluetooth link
+ */
 void
 ao_btm_echo(uint8_t echo)
 {
@@ -138,7 +139,7 @@ ao_cmd_filter(void)
 		ao_cmd_lex();
 	}
 	ao_cmd_status = 0;
-	return !ao_btm_connected;
+	return 0;
 }
 
 /*
@@ -161,16 +162,10 @@ ao_btm_pollchar(void)
 void
 ao_btm_putchar(char c)
 {
-	if (!ao_btm_send_chars) {
-		ao_btm_log_out_char(c);
-		ao_serial_putchar(c);
-	}
-}
-
-void
-ao_btm_stdio_putchar(char c) {
-	if (ao_btm_connected)
-		ao_btm_putchar(c);
+	ao_btm_log_out_char(c);
+	ao_serial_putchar(c);
+	if (!ao_btm_running)
+		ao_delay(1);
 }
 
 /*
@@ -211,12 +206,13 @@ ao_btm_cmd(__code char *cmd)
 uint8_t
 ao_btm_set_name(void)
 {
-	char	sn[7];
-	char	*s = sn + 7;
+	char	sn[8];
+	char	*s = sn + 8;
 	char	c;
 	int	n;
 	ao_btm_string("ATN=TeleBT-");
 	*--s = '\0';
+	*--s = '\r';
 	n = ao_serial_number;
 	do {
 		*--s = '0' + n % 10;
@@ -236,6 +232,7 @@ ao_btm_try_speed(uint8_t speed)
 		return 1;
 	return 0;
 }
+
 /*
  * A thread to initialize the bluetooth device and
  * hang around to blink the LED when connected
@@ -243,12 +240,9 @@ ao_btm_try_speed(uint8_t speed)
 void
 ao_btm(void)
 {
-	ao_add_stdio(ao_btm_pollchar,
-		     ao_btm_stdio_putchar,
-		     NULL);
-	ao_btm_stdio = ao_num_stdios - 1;
-	ao_btm_echo(0);
-
+	/*
+	 * Wait for the bluetooth device to boot
+	 */
 	ao_delay(AO_SEC_TO_TICKS(3));
 
 	/*
@@ -275,6 +269,11 @@ ao_btm(void)
 
 	/* Turn off status reporting */
 	ao_btm_cmd("ATQ1\r");
+
+	ao_btm_stdio = ao_add_stdio(ao_btm_pollchar,
+				    ao_btm_putchar,
+				    NULL);
+	ao_btm_echo(0);
 
 	ao_btm_running = 1;
 	for (;;) {
