@@ -155,15 +155,17 @@ public class AltosEepromDownload implements Runnable {
 				int	s = v ^ 0x8000;
 
 				if (Altos.ao_flight_startup <= s && s <= Altos.ao_flight_invalid) {
-					r = new AltosEepromRecord(Altos.AO_LOG_STATE, tiny_tick, s, 0);
-					if (s == Altos.ao_flight_landed)
+					state = s;
+					r = new AltosEepromRecord(Altos.AO_LOG_STATE, tiny_tick, state, 0);
+					if (state == Altos.ao_flight_landed)
 						done = true;
 					state = s;
 					any_valid = true;
 				} else {
 					if (v != 0xffff)
 						any_valid = true;
-					r = new AltosEepromRecord(Altos.AO_LOG_HEIGHT, tiny_tick, v, 0);
+
+					r = new AltosEepromRecord(Altos.AO_LOG_PRESSURE, tiny_tick, 0, v);
 
 					/*
 					 * The flight software records ascent data every 100ms, and descent

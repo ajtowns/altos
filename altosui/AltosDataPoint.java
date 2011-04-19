@@ -25,5 +25,6 @@ interface AltosDataPoint {
     double battery_voltage();
     double drogue_voltage();
     double main_voltage();
+    boolean has_accel();
 }
 

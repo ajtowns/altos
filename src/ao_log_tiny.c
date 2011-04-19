@@ -19,8 +19,14 @@
 
 static __data uint16_t	ao_log_tiny_interval;
 
-#define AO_LOG_TINY_INTERVAL_ASCENT	AO_MS_TO_TICKS(100)
 #define AO_LOG_TINY_INTERVAL_DEFAULT	AO_MS_TO_TICKS(1000)
+#if USE_FAST_ASCENT_LOG
+#define AO_LOG_TINY_INTERVAL_ASCENT	AO_MS_TO_TICKS(100)
+#define AO_PAD_RING	8
+#else
+#define AO_LOG_TINY_INTERVAL_ASCENT	AO_LOG_TINY_INTERVAL_DEFAULT
+#define AO_PAD_RING	2
+#endif
 
 void
 ao_log_tiny_set_interval(uint16_t ticks)
@@ -28,55 +34,115 @@ ao_log_tiny_set_interval(uint16_t ticks)
 	ao_log_tiny_interval = ticks;
 }
 
-static __xdata uint16_t ao_log_tiny_data_temp;
 
 static void ao_log_tiny_data(uint16_t d)
 {
 	if (ao_log_current_pos >= ao_log_end_pos && ao_log_running)
 		ao_log_stop();
 	if (ao_log_running) {
-		ao_log_tiny_data_temp = (d);
-		ao_storage_write(ao_log_current_pos, &ao_log_tiny_data_temp, 2);
+		ao_storage_write(ao_log_current_pos, DATA_TO_XDATA(&d), 2);
 		ao_log_current_pos += 2;
 	}
+}
+
+static __xdata uint16_t ao_log_pad_ring[AO_PAD_RING];
+static __pdata uint8_t ao_log_pad_ring_pos;
+
+#define ao_pad_ring_next(n)	(((n) + 1) & (AO_PAD_RING - 1))
+
+static void ao_log_tiny_queue(uint16_t d)
+{
+	ao_log_pad_ring[ao_log_pad_ring_pos] = d;
+	ao_log_pad_ring_pos = ao_pad_ring_next(ao_log_pad_ring_pos);
+}
+
+static void ao_log_tiny_start(void)
+{
+	uint8_t		p;
+	uint16_t	d;
+
+	ao_log_tiny_data(ao_flight_number);
+	ao_log_tiny_data(ao_ground_pres);
+	p = ao_log_pad_ring_pos;
+	do {
+		d = ao_log_pad_ring[p];
+		/*
+		 * ignore unwritten slots
+		 */
+		if (d)
+			ao_log_tiny_data(d);
+		p = ao_pad_ring_next(p);
+	} while (p != ao_log_pad_ring_pos);
 }
 
 void
 ao_log(void)
 {
-	uint16_t		time;
-	int16_t			delay;
+	uint16_t		last_time;
+	uint16_t		now;
 	enum ao_flight_state	ao_log_tiny_state;
+	int32_t			sum;
+	int16_t			count;
+	uint8_t			ao_log_adc;
+	uint8_t			ao_log_started = 0;
 
 	ao_storage_setup();
 
 	ao_log_scan();
 
 	ao_log_tiny_state = ao_flight_invalid;
-	ao_log_tiny_interval = AO_LOG_TINY_INTERVAL_DEFAULT;
-	while (!ao_log_running)
-		ao_sleep(&ao_log_running);
-
-	time = ao_time();
-	ao_log_tiny_data(ao_flight_number);
+	ao_log_tiny_interval = AO_LOG_TINY_INTERVAL_ASCENT;
+	sum = 0;
+	count = 0;
+	ao_log_adc = ao_sample_adc;
+	last_time = ao_time();
 	for (;;) {
-		if (ao_flight_state != ao_log_tiny_state) {
-			ao_log_tiny_data(ao_flight_state | 0x8000);
-			ao_log_tiny_state = ao_flight_state;
-			ao_log_tiny_interval = AO_LOG_TINY_INTERVAL_DEFAULT;
-			if (ao_log_tiny_state <= ao_flight_coast)
-				ao_log_tiny_interval = AO_LOG_TINY_INTERVAL_ASCENT;
-			if (ao_log_tiny_state == ao_flight_landed)
-				ao_log_stop();
+
+		/*
+		 * Add in pending sample data
+		 */
+		ao_sleep(DATA_TO_XDATA(&ao_sample_adc));
+		while (ao_log_adc != ao_sample_adc) {
+			sum += ao_adc_ring[ao_log_adc].pres;
+			count++;
+			ao_log_adc = ao_adc_ring_next(ao_log_adc);
 		}
-		ao_log_tiny_data(ao_height);
-		time += ao_log_tiny_interval;
-		delay = time - ao_time();
-		if (delay > 0)
-			ao_delay(delay);
+		if (ao_log_running) {
+			if (!ao_log_started) {
+				ao_log_tiny_start();
+				ao_log_started = 1;
+			}
+			if (ao_flight_state != ao_log_tiny_state) {
+				ao_log_tiny_data(ao_flight_state | 0x8000);
+				ao_log_tiny_state = ao_flight_state;
+				ao_log_tiny_interval = AO_LOG_TINY_INTERVAL_DEFAULT;
+#if AO_LOG_TINY_INTERVAL_ASCENT != AO_LOG_TINY_INTERVAL_DEFAULT
+				if (ao_log_tiny_state <= ao_flight_coast)
+					ao_log_tiny_interval = AO_LOG_TINY_INTERVAL_ASCENT;
+#endif
+				if (ao_log_tiny_state == ao_flight_landed)
+					ao_log_stop();
+			}
+		}
+
 		/* Stop logging when told to */
-		while (!ao_log_running)
-			ao_sleep(&ao_log_running);
+		if (!ao_log_running && ao_log_started)
+			ao_exit();
+
+		/*
+		 * Write out the sample when finished
+		 */
+		now = ao_time();
+		if ((int16_t) (now - (last_time + ao_log_tiny_interval)) >= 0 && count) {
+			count = sum / count;
+			if (ao_log_started)
+				ao_log_tiny_data(count);
+			else
+				ao_log_tiny_queue(count);
+			sum = 0;
+			count = 0;
+			last_time = now;
+		}
 	}
 }
 

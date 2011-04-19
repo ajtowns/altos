@@ -59,6 +59,7 @@ class AltosDataPointReader implements Iterable<AltosDataPoint> {
             public double battery_voltage() { return record.battery_voltage(); }
             public double drogue_voltage() { return record.drogue_voltage(); }
             public double main_voltage() { return record.main_voltage(); }
+	    public boolean has_accel() { return has_accel; }
         };
     }
 
