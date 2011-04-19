@@ -21,41 +21,8 @@ uint8_t			ao_btm_running;
 int8_t			ao_btm_stdio;
 __xdata uint8_t		ao_btm_connected;
 
-__xdata char		ao_btm_buffer[1024];
-int			ao_btm_ptr;
-char			ao_btm_dir;
-
 void
 ao_btm_putchar(char c);
-
-static void
-ao_btm_add_char(char c)
-{
-	if (ao_btm_ptr < sizeof (ao_btm_buffer))
-		ao_btm_buffer[ao_btm_ptr++] = c;
-}
-
-static void
-ao_btm_log_char(char c, char dir)
-{
-	if (dir != ao_btm_dir) {
-		ao_btm_add_char(dir);
-		ao_btm_dir = dir;
-	}
-	ao_btm_add_char(c);
-}
-
-static void
-ao_btm_log_out_char(char c)
-{
-	ao_btm_log_char(c, '>');
-}
-
-static void
-ao_btm_log_in_char(char c)
-{
-	ao_btm_log_char(c, '<');
-}
 
 #define AO_BTM_MAX_REPLY	16
 __xdata char		ao_btm_reply[AO_BTM_MAX_REPLY];
@@ -76,7 +43,6 @@ ao_btm_get_line(void)
 	for (;;) {
 
 		while ((c = ao_serial_pollchar()) != AO_READ_AGAIN) {
-			ao_btm_log_in_char(c);
 			if (ao_btm_reply_len < sizeof (ao_btm_reply))
 				ao_btm_reply[ao_btm_reply_len++] = c;
 			if (c == '\r' || c == '\n')
@@ -149,7 +115,6 @@ ao_cmd_filter(void)
 void
 ao_btm_putchar(char c)
 {
-	ao_btm_log_out_char(c);
 	ao_serial_putchar(c);
 	ao_delay(1);
 }
@@ -274,37 +239,6 @@ ao_btm(void)
 
 __xdata struct ao_task ao_btm_task;
 
-/*
- * Dump everything received from the bluetooth device during startup
- */
-static void
-ao_btm_dump(void)
-{
-	int i;
-	char c;
-
-	for (i = 0; i < ao_btm_ptr; i++) {
-		c = ao_btm_buffer[i];
-		if (c < ' ' && c != '\n')
-			printf("\\%03o", ((int) c) & 0xff);
-		else
-			putchar(ao_btm_buffer[i]);
-	}
-	putchar('\n');
-}
-
-static void
-ao_btm_speed(void)
-{
-	ao_cmd_decimal();
-	if (ao_cmd_lex_u32 == 57600)
-		ao_serial_set_speed(AO_SERIAL_SPEED_57600);
-	else if (ao_cmd_lex_u32 == 19200)
-		ao_serial_set_speed(AO_SERIAL_SPEED_19200);
-	else
-		ao_cmd_status = ao_cmd_syntax_error;
-}
-
 void
 ao_btm_check_link() __critical
 {
@@ -327,12 +261,6 @@ ao_btm_isr(void)
 	P2IFG = 0;
 }
 
-__code struct ao_cmds ao_btm_cmds[] = {
-	{ ao_btm_dump,		"d\0Dump btm buffer." },
-	{ ao_btm_speed,		"s <19200,57600>\0Set btm serial speed." },
-	{ 0, NULL },
-};
-
 void
 ao_btm_init (void)
 {
@@ -353,5 +281,4 @@ ao_btm_init (void)
 	PICTL |= PICTL_P2IEN;
 
 	ao_add_task(&ao_btm_task, ao_btm, "bt");
-	ao_cmd_register(&ao_btm_cmds[0]);
 }
