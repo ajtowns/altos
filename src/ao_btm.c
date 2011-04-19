@@ -20,7 +20,6 @@
 uint8_t			ao_btm_running;
 int8_t			ao_btm_stdio;
 __xdata uint8_t		ao_btm_connected;
-uint8_t			ao_btm_chat;
 
 __xdata char		ao_btm_buffer[1024];
 int			ao_btm_ptr;
@@ -264,23 +263,8 @@ ao_btm(void)
 
 	ao_btm_running = 1;
 	for (;;) {
-		while (!ao_btm_connected && !ao_btm_chat)
+		while (!ao_btm_connected)
 			ao_sleep(&ao_btm_connected);
-		if (ao_btm_chat) {
-			ao_btm_running = 0;
-			while (ao_btm_chat) {
-				char	c;
-				c = ao_serial_pollchar();
-				if (c != AO_READ_AGAIN) {
-					ao_btm_log_in_char(c);
-					ao_usb_putchar(c);
-				} else {
-					ao_usb_flush();
-					ao_sleep(&ao_usart1_rx_fifo);
-				}
-			}
-			ao_btm_running = 1;
-		}
 		while (ao_btm_connected) {
 			ao_led_for(AO_LED_GREEN, AO_MS_TO_TICKS(20));
 			ao_delay(AO_SEC_TO_TICKS(3));
@@ -289,29 +273,6 @@ ao_btm(void)
 }
 
 __xdata struct ao_task ao_btm_task;
-
-/*
- * Connect directly to the bluetooth device, mostly
- * useful for testing
- */
-static void
-ao_btm_forward(void)
-{
-	char c;
-
-	ao_btm_chat = 1;
-	ao_wakeup(&ao_btm_connected);
-	ao_usb_flush();
-	while ((c = ao_usb_getchar()) != '~') {
-		if (c == '\n') c = '\r';
-		ao_btm_putchar(c);
-	}
-	ao_btm_chat = 0;
-	while (!ao_btm_running) {
-		ao_wakeup(&ao_usart1_rx_fifo);
-		ao_delay(AO_MS_TO_TICKS(10));
-	}
-}
 
 /*
  * Dump everything received from the bluetooth device during startup
@@ -367,7 +328,6 @@ ao_btm_isr(void)
 }
 
 __code struct ao_cmds ao_btm_cmds[] = {
-	{ ao_btm_forward,	"B\0BTM serial link." },
 	{ ao_btm_dump,		"d\0Dump btm buffer." },
 	{ ao_btm_speed,		"s <19200,57600>\0Set btm serial speed." },
 	{ 0, NULL },
