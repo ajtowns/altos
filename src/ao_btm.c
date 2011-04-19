@@ -249,6 +249,8 @@ ao_btm(void)
 	ao_btm_stdio = ao_num_stdios - 1;
 	ao_btm_echo(0);
 
+	ao_delay(AO_SEC_TO_TICKS(3));
+
 	/*
 	 * The first time we connect, the BTM-180 comes up at 19200 baud.
 	 * After that, it will remember and come up at 57600 baud. So, see
@@ -256,6 +258,7 @@ ao_btm(void)
 	 * then tell it to switch to 57600 from 19200 baud.
 	 */
 	while (!ao_btm_try_speed(AO_SERIAL_SPEED_57600)) {
+		ao_delay(AO_SEC_TO_TICKS(1));
 		if (ao_btm_try_speed(AO_SERIAL_SPEED_19200))
 			ao_btm_cmd("ATL4\r");
 		ao_delay(AO_SEC_TO_TICKS(1));
