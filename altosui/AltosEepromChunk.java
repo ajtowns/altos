@@ -59,6 +59,7 @@ public class AltosEepromChunk {
 
 		data = new int[chunk_size];
 		address = block * chunk_size;
+		serial_line.flush_input();
 		serial_line.printf("e %x\n", block);
 
 		for (offset = 0; offset < chunk_size; offset += per_line) {

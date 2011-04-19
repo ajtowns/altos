@@ -47,7 +47,8 @@ public class AltosEepromLog {
 	boolean		delete;
 
 	public AltosEepromLog(AltosSerial serial_line, int in_serial,
-			      int in_start_block, int in_end_block)
+			      int in_flight, int in_start_block,
+			      int in_end_block)
 		throws InterruptedException, TimeoutException {
 
 		int		block;
@@ -73,8 +74,8 @@ public class AltosEepromLog {
 			AltosEepromChunk eechunk = new AltosEepromChunk(serial_line, block);
 
 			if (block == in_start_block) {
-				if (eechunk.data(0) != Altos.AO_LOG_FLIGHT) {
-					flight = eechunk.data16(0);
+				if (eechunk.data16(0) == in_flight) {
+					flight = in_flight;
 					has_flight = true;
 					break;
 				}

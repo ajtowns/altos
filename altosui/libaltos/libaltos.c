@@ -698,7 +698,7 @@ altos_bt_open(struct altos_bt_device *device)
 		perror("connect");
 		goto no_link;
 	}
-	sleep(2);
+	sleep(1);
 
 #ifdef USE_POLL
 	pipe(file->pipe);

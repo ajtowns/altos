@@ -114,7 +114,7 @@ public class AltosEepromList extends ArrayList<AltosEepromLog> {
 			 */
 			for (AltosEepromFlight flight : flights) {
 				add(new AltosEepromLog(serial_line, config_data.serial,
-						       flight.start, flight.end));
+						       flight.flight, flight.start, flight.end));
 			}
 		} finally {
 			if (remote)
