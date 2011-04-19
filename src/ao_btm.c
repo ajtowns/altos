@@ -17,12 +17,8 @@
 
 #include "ao.h"
 
-uint8_t			ao_btm_running;
 int8_t			ao_btm_stdio;
 __xdata uint8_t		ao_btm_connected;
-
-void
-ao_btm_putchar(char c);
 
 #define AO_BTM_MAX_REPLY	16
 __xdata char		ao_btm_reply[AO_BTM_MAX_REPLY];
@@ -79,32 +75,6 @@ void
 ao_btm_echo(uint8_t echo)
 {
 	ao_stdios[ao_btm_stdio].echo = echo;
-}
-
-/*
- * A command line pre-processor to detect connect/disconnect messages
- * and update the internal state
- */
-
-uint8_t
-ao_cmd_filter(void)
-{
-	if (ao_cur_stdio != ao_btm_stdio)
-		return 0;
-	ao_cmd_lex();
-	while (ao_cmd_lex_c != '\n') {
-		if (ao_match_word("CONNECT"))
-			return 1;
-		if (ao_match_word("DISCONNECT"))
-			return 1;
-		if (ao_match_word("ERROR"))
-			return 1;
-		if (ao_match_word("OK"))
-			return 1;
-		ao_cmd_lex();
-	}
-	ao_cmd_status = 0;
-	return 0;
 }
 
 /*
@@ -226,7 +196,6 @@ ao_btm(void)
 				    NULL);
 	ao_btm_echo(0);
 
-	ao_btm_running = 1;
 	for (;;) {
 		while (!ao_btm_connected)
 			ao_sleep(&ao_btm_connected);

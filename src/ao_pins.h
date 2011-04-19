@@ -224,7 +224,6 @@
 	#define HAS_BEEP		0
 	#define HAS_SERIAL_1		1
 	#define USE_SERIAL_STDIN	1
-	#define HAS_CMD_FILTER		1
 	#define HAS_ADC			0
 	#define HAS_DBG			1
 	#define HAS_EEPROM		0

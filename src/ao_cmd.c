@@ -274,11 +274,6 @@ ao_cmd(void)
 
 	for (;;) {
 		readline();
-#if HAS_CMD_FILTER
-		if (ao_cmd_filter())
-			continue;
-		cmd_i = 0;
-#endif
 		ao_cmd_lex();
 		ao_cmd_white();
 		c = ao_cmd_lex_c;
