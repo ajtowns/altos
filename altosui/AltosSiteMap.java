@@ -164,8 +164,6 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	}
 
 	public static void prefetchMaps(double lat, double lng, int w, int h) {
-		AltosPreferences.init(null);
-
 		AltosSiteMap asm = new AltosSiteMap(true);
 		asm.centre = asm.getBaseLocation(lat, lng);
 

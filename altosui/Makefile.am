@@ -30,6 +30,7 @@ altosui_JAVA = \
 	AltosBTDevice.java \
 	AltosBTDeviceIterator.java \
 	AltosBTManage.java \
+	AltosBTKnown.java \
 	AltosDisplayThread.java \
 	AltosEepromChunk.java \
 	AltosEepromDelete.java \

@@ -22,6 +22,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.*;
+import javax.swing.event.*;
+import javax.swing.plaf.basic.*;
 import java.io.*;
 import java.util.*;
 import java.text.*;
@@ -30,17 +32,32 @@ import java.util.concurrent.*;
 
 import libaltosJNI.*;
 
-public class AltosBTManage extends JDialog implements ActionListener {
+public class AltosBTManage extends JDialog implements ActionListener, Iterable<AltosBTDevice> {
 	LinkedBlockingQueue<AltosBTDevice> found_devices;
 	Frame frame;
+	LinkedList<ActionListener> listeners;
+	AltosBTKnown	bt_known;
 
 	class DeviceList extends JList implements Iterable<AltosBTDevice> {
 		LinkedList<AltosBTDevice> devices;
 		DefaultListModel	list_model;
 
 		public void add (AltosBTDevice device) {
-			devices.add(device);
-			list_model.addElement(device);
+			if (!devices.contains(device)) {
+				devices.add(device);
+				list_model.addElement(device);
+			}
+		}
+
+		public void remove (AltosBTDevice device) {
+			if (devices.contains(device)) {
+				devices.remove(device);
+				list_model.removeElement(device);
+			}
+		}
+
+		public boolean contains(AltosBTDevice device) {
+			return devices.contains(device);
 		}
 
 		//Subclass JList to workaround bug 4832765, which can cause the
@@ -75,6 +92,14 @@ public class AltosBTManage extends JDialog implements ActionListener {
 			return devices.iterator();
 		}
 
+		public java.util.List<AltosBTDevice> selected_list() {
+			java.util.LinkedList<AltosBTDevice> l = new java.util.LinkedList<AltosBTDevice>();
+			Object[] a = getSelectedValues();
+			for (int i = 0; i < a.length; i++)
+				l.add((AltosBTDevice)a[i]);
+			return l;
+		}
+
 		public DeviceList() {
 			devices = new LinkedList<AltosBTDevice>();
 			list_model = new DefaultListModel();
@@ -87,111 +112,233 @@ public class AltosBTManage extends JDialog implements ActionListener {
 
 	DeviceList	visible_devices;
 
-	DeviceList	selected_devices;
+	DeviceList	known_devices;
+	Thread		bt_thread;
+
+	public Iterator<AltosBTDevice> iterator() {
+		return known_devices.iterator();
+	}
+
+	public void commit() {
+		bt_known.set(this);
+	}
+
+	public void add_known() {
+		for (AltosBTDevice device : visible_devices.selected_list()) {
+			System.out.printf("Add known %s\n", device.toString());
+			known_devices.add(device);
+			visible_devices.remove(device);
+		}
+	}
+
+	public void remove_known() {
+		for (AltosBTDevice device : known_devices.selected_list()) {
+			System.out.printf("Remove known %s\n", device.toString());
+			known_devices.remove(device);
+			visible_devices.add(device);
+		}
+	}
+
+	public void addActionListener(ActionListener l) {
+		listeners.add(l);
+	}
+
+	private void forwardAction(ActionEvent e) {
+		for (ActionListener l : listeners)
+			l.actionPerformed(e);
+	}
 
 	public void actionPerformed(ActionEvent e) {
+		String	command = e.getActionCommand();
+		System.out.printf("manage command %s\n", command);
+		if ("ok".equals(command)) {
+			bt_thread.interrupt();
+			commit();
+			setVisible(false);
+			forwardAction(e);
+		} else if ("cancel".equals(command)) {
+			bt_thread.interrupt();
+			setVisible(false);
+			forwardAction(e);
+		} else if ("select".equals(command)) {
+			add_known();
+		} else if ("deselect".equals(command)) {
+			remove_known();
+		}
 	}
 
 	public void got_visible_device() {
 		while (!found_devices.isEmpty()) {
 			AltosBTDevice	device = found_devices.remove();
-			visible_devices.add(device);
+			if (!known_devices.contains(device))
+				visible_devices.add(device);
 		}
 	}
 
 	class BTGetVisibleDevices implements Runnable {
 		public void run () {
+			for (;;)
+				for (int time = 1; time <= 8; time <<= 1) {
+					AltosBTDeviceIterator	i = new AltosBTDeviceIterator(time);
+					AltosBTDevice		device;
 
-			try {
-				AltosBTDeviceIterator	i = new AltosBTDeviceIterator(Altos.product_any);
-				AltosBTDevice		device;
+					if (Thread.interrupted())
+						return;
+					try {
+						while ((device = i.next()) != null) {
+							Runnable r;
 
-				while ((device = i.next()) != null) {
-					Runnable r;
-
-					found_devices.add(device);
-					r = new Runnable() {
-							public void run() {
-								got_visible_device();
-							}
-						};
-					SwingUtilities.invokeLater(r);
+							if (Thread.interrupted())
+								return;
+							found_devices.add(device);
+							r = new Runnable() {
+									public void run() {
+										got_visible_device();
+									}
+								};
+							SwingUtilities.invokeLater(r);
+						}
+					} catch (Exception e) {
+						System.out.printf("uh-oh, exception %s\n", e.toString());
+					}
 				}
-			} catch (Exception e) {
-				System.out.printf("uh-oh, exception %s\n", e.toString());
-			}
 		}
 	}
 
-	public static void show(Component frameComp) {
+	public static void show(Component frameComp, AltosBTKnown known) {
 		Frame	frame = JOptionPane.getFrameForComponent(frameComp);
 		AltosBTManage	dialog;
 
-		dialog = new AltosBTManage(frame);
+		dialog = new AltosBTManage(frame, known);
 		dialog.setVisible(true);
 	}
 
-	public AltosBTManage(Frame in_frame) {
+	public AltosBTManage(Frame in_frame, AltosBTKnown in_known) {
 		super(in_frame, "Manage Bluetooth Devices", true);
 
 		frame = in_frame;
-
+		bt_known = in_known;
 		BTGetVisibleDevices	get_visible_devices = new BTGetVisibleDevices();
+		bt_thread = new Thread(get_visible_devices);
+		bt_thread.start();
 
-		Thread t = new Thread(get_visible_devices);
-		t.start();
+		listeners = new LinkedList<ActionListener>();
 
 		found_devices = new LinkedBlockingQueue<AltosBTDevice>();
 
-		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(this);
+		Container pane = getContentPane();
+		pane.setLayout(new GridBagLayout());
 
-		final JButton selectButton = new JButton("Select");
-		selectButton.setActionCommand("select");
-		selectButton.addActionListener(this);
-		getRootPane().setDefaultButton(selectButton);
+		GridBagConstraints c = new GridBagConstraints();
+		c.insets = new Insets(4,4,4,4);
 
-		selected_devices = new DeviceList();
-		JScrollPane selected_list_scroller = new JScrollPane(selected_devices);
-		selected_list_scroller.setPreferredSize(new Dimension(400, 80));
-		selected_list_scroller.setAlignmentX(LEFT_ALIGNMENT);
+		/*
+		 * Known devices label and list
+		 */
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		pane.add(new JLabel("Known Devices"), c);
+
+		known_devices = new DeviceList();
+		for (AltosBTDevice device : bt_known)
+			known_devices.add(device);
+
+		JScrollPane known_list_scroller = new JScrollPane(known_devices);
+		known_list_scroller.setPreferredSize(new Dimension(400, 80));
+		known_list_scroller.setAlignmentX(LEFT_ALIGNMENT);
+		c.fill = GridBagConstraints.BOTH;
+		c.anchor = GridBagConstraints.WEST;
+		c.gridx = 0;
+		c.gridy = 1;
+		c.gridwidth = 1;
+		c.gridheight = 2;
+		pane.add(known_list_scroller, c);
+
+		/*
+		 * Visible devices label and list
+		 */
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		c.gridx = 2;
+		c.gridy = 0;
+		c.gridwidth = 1;
+		c.gridheight = 1;
+		pane.add(new JLabel("Visible Devices"), c);
 
 		visible_devices = new DeviceList();
 		JScrollPane visible_list_scroller = new JScrollPane(visible_devices);
 		visible_list_scroller.setPreferredSize(new Dimension(400, 80));
 		visible_list_scroller.setAlignmentX(LEFT_ALIGNMENT);
+		c.fill = GridBagConstraints.BOTH;
+		c.anchor = GridBagConstraints.WEST;
+		c.gridx = 2;
+		c.gridy = 1;
+		c.gridheight = 2;
+		c.gridwidth = 1;
+		pane.add(visible_list_scroller, c);
 
-		//Create a container so that we can add a title around
-		//the scroll pane.  Can't add a title directly to the
-		//scroll pane because its background would be white.
-		//Lay out the label and scroll pane from top to bottom.
-		JPanel listPane = new JPanel();
-		listPane.setLayout(new BoxLayout(listPane, BoxLayout.PAGE_AXIS));
+		/*
+		 * Arrows between the two lists
+		 */
+		BasicArrowButton select_arrow = new BasicArrowButton(SwingConstants.WEST);
+		select_arrow.setActionCommand("select");
+		select_arrow.addActionListener(this);
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.SOUTH;
+		c.gridx = 1;
+		c.gridy = 1;
+		c.gridheight = 1;
+		c.gridwidth = 1;
+		pane.add(select_arrow, c);
 
-		JLabel label = new JLabel("Select Device");
-		label.setLabelFor(selected_devices);
-		listPane.add(label);
-		listPane.add(Box.createRigidArea(new Dimension(0,5)));
-		listPane.add(selected_list_scroller);
-		listPane.add(visible_list_scroller);
-		listPane.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+		BasicArrowButton deselect_arrow = new BasicArrowButton(SwingConstants.EAST);
+		deselect_arrow.setActionCommand("deselect");
+		deselect_arrow.addActionListener(this);
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.NORTH;
+		c.gridx = 1;
+		c.gridy = 2;
+		c.gridheight = 1;
+		c.gridwidth = 1;
+		pane.add(deselect_arrow, c);
 
-		//Lay out the buttons from left to right.
-		JPanel buttonPane = new JPanel();
-		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
-		buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
-		buttonPane.add(Box.createHorizontalGlue());
-		buttonPane.add(cancelButton);
-		buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
-		buttonPane.add(selectButton);
+		JButton cancel_button = new JButton("Cancel");
+		cancel_button.setActionCommand("cancel");
+		cancel_button.addActionListener(this);
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.CENTER;
+		c.gridx = 0;
+		c.gridy = 3;
+		c.gridheight = 1;
+		c.gridwidth = 1;
+		pane.add(cancel_button, c);
 
-		//Put everything together, using the content pane's BorderLayout.
-		Container contentPane = getContentPane();
-		contentPane.add(listPane, BorderLayout.CENTER);
-		contentPane.add(buttonPane, BorderLayout.PAGE_END);
+		JButton ok_button = new JButton("OK");
+		ok_button.setActionCommand("ok");
+		ok_button.addActionListener(this);
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.CENTER;
+		c.gridx = 2;
+		c.gridy = 3;
+		c.gridheight = 1;
+		c.gridwidth = 1;
+		pane.add(ok_button, c);
 
-		//Initialize values.
-//		list.setSelectedValue(initial, true);
+		getRootPane().setDefaultButton(ok_button);
+
 		pack();
+		setLocationRelativeTo(frame);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				bt_thread.interrupt();
+				setVisible(false);
+			}
+		});
 	}
 }

@@ -77,13 +77,13 @@ public class AltosUSBDevice  extends altos_device implements AltosDevice {
 		return false;
 	}
 
-	static AltosUSBDevice[] list(int product) {
+	static java.util.List<AltosDevice> list(int product) {
 		if (!Altos.load_library())
 			return null;
 
 		SWIGTYPE_p_altos_list list = libaltos.altos_list_start();
 
-		ArrayList<AltosUSBDevice> device_list = new ArrayList<AltosUSBDevice>();
+		ArrayList<AltosDevice> device_list = new ArrayList<AltosDevice>();
 		if (list != null) {
 			for (;;) {
 				AltosUSBDevice device = new AltosUSBDevice();
@@ -95,9 +95,6 @@ public class AltosUSBDevice  extends altos_device implements AltosDevice {
 			libaltos.altos_list_finish(list);
 		}
 
-		AltosUSBDevice[] devices = new AltosUSBDevice[device_list.size()];
-		for (int i = 0; i < device_list.size(); i++)
-			devices[i] = device_list.get(i);
-		return devices;
+		return device_list;
 	}
 }

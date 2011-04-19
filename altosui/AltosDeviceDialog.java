@@ -26,36 +26,45 @@ import libaltosJNI.*;
 
 public class AltosDeviceDialog extends JDialog implements ActionListener {
 
-	public static AltosDevice show (Component frameComp, int product) {
-
-		Frame frame = JOptionPane.getFrameForComponent(frameComp);
-		AltosDevice[]	devices;
-		devices = AltosUSBDevice.list(product);
-		AltosDeviceDialog	dialog;
-
-		dialog = new AltosDeviceDialog(frame, frameComp,
-					       devices);
-		dialog.setVisible(true);
-		return dialog.getValue();
-	}
-
 	private AltosDevice	value;
 	private JList		list;
 	private JButton		cancel_button;
 	private JButton		select_button;
 	private JButton		manage_bluetooth_button;
 	private Frame		frame;
+	private int		product;
 
 	private AltosDevice getValue() {
 		return value;
 	}
 
-	private AltosDeviceDialog (Frame in_frame, Component location,
-				   AltosDevice[] devices) {
+	private AltosDevice[] devices() {
+		java.util.List<AltosDevice>	usb_devices = AltosUSBDevice.list(product);
+		java.util.List<AltosDevice>	bt_devices = Altos.bt_known.list(product);
+		AltosDevice[]			devices = new AltosDevice[usb_devices.size() + bt_devices.size()];
+
+		for (int i = 0; i < usb_devices.size(); i++)
+			devices[i] = usb_devices.get(i);
+		int off = usb_devices.size();
+		for (int j = 0; j < bt_devices.size(); j++)
+			devices[off + j] = bt_devices.get(j);
+		return devices;
+	}
+
+	private void update_devices() {
+		AltosDevice[] devices = devices();
+		list.setListData(devices);
+		select_button.setEnabled(devices.length > 0);
+	}
+
+	private AltosDeviceDialog (Frame in_frame, Component location, int in_product) {
 		super(in_frame, "Device Selection", true);
 
+		product = in_product;
 		frame = in_frame;
 		value = null;
+
+		AltosDevice[]	devices = devices();
 
 		cancel_button = new JButton("Cancel");
 		cancel_button.setActionCommand("cancel");
@@ -147,7 +156,7 @@ public class AltosDeviceDialog extends JDialog implements ActionListener {
 		contentPane.add(buttonPane, BorderLayout.PAGE_END);
 
 		//Initialize values.
-		if (devices != null && devices.length > 0)
+		if (devices != null && devices.length != 0)
 			list.setSelectedValue(devices[0], true);
 		pack();
 		setLocationRelativeTo(location);
@@ -158,10 +167,20 @@ public class AltosDeviceDialog extends JDialog implements ActionListener {
 		if ("select".equals(e.getActionCommand()))
 			value = (AltosDevice)(list.getSelectedValue());
 		if ("manage".equals(e.getActionCommand())) {
-			AltosBTManage.show(frame);
+			AltosBTManage.show(frame, Altos.bt_known);
+			update_devices();
 			return;
 		}
 		setVisible(false);
 	}
 
+	public static AltosDevice show (Component frameComp, int product) {
+
+		Frame				frame = JOptionPane.getFrameForComponent(frameComp);
+		AltosDeviceDialog	dialog;
+
+		dialog = new AltosDeviceDialog(frame, frameComp, product);
+		dialog.setVisible(true);
+		return dialog.getValue();
+	}
 }

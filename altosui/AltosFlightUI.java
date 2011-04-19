@@ -122,7 +122,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	JComboBox	telemetries;
 
 	public AltosFlightUI(AltosVoice in_voice, AltosFlightReader in_reader, final int serial) {
-		AltosPreferences.init(this);
+		AltosPreferences.set_component(this);
 
 		voice = in_voice;
 		reader = in_reader;

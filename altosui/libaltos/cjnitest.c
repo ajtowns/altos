@@ -41,7 +41,7 @@ main ()
 		altos_close(file);
 	}
 	altos_list_finish(list);
-	bt_list = altos_bt_list_start();
+	bt_list = altos_bt_list_start(8);
 	while (altos_bt_list_next(bt_list, &bt_device)) {
 		printf ("%s %s\n", bt_device.name, bt_device.addr);
 		if (strncmp(bt_device.name, "TeleBT", 6) == 0) {

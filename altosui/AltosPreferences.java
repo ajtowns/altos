@@ -79,10 +79,8 @@ class AltosPreferences {
 	/* Serial debug */
 	static boolean serial_debug;
 
-	public static void init(Component ui) {
+	public static void init() {
 		preferences = Preferences.userRoot().node("/org/altusmetrum/altosui");
-
-		component = ui;
 
 		/* Initialize logdir from preferences */
 		String logdir_string = preferences.get(logdirPreference, null);
@@ -116,14 +114,23 @@ class AltosPreferences {
 		AltosSerial.set_debug(serial_debug);
 	}
 
+	static { init(); }
+
+	static void set_component(Component in_component) {
+		component = in_component;
+	}
+
 	static void flush_preferences() {
 		try {
 			preferences.flush();
 		} catch (BackingStoreException ee) {
-			JOptionPane.showMessageDialog(component,
-						      preferences.absolutePath(),
-						      "Cannot save prefernces",
-						      JOptionPane.ERROR_MESSAGE);
+			if (component != null)
+				JOptionPane.showMessageDialog(component,
+							      preferences.absolutePath(),
+							      "Cannot save prefernces",
+							      JOptionPane.ERROR_MESSAGE);
+			else
+				System.err.printf("Cannot save preferences\n");
 		}
 	}
 
@@ -261,5 +268,9 @@ class AltosPreferences {
 
 	public static boolean serial_debug() {
 		return serial_debug;
+	}
+
+	public static Preferences bt_devices() {
+		return preferences.node("bt_devices");
 	}
 }

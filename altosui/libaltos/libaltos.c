@@ -591,10 +591,9 @@ struct altos_bt_list {
 };
 
 #define INQUIRY_MAX_RSP	255
-#define INQUIRY_LEN	8
 
 struct altos_bt_list *
-altos_bt_list_start(void)
+altos_bt_list_start(int inquiry_time)
 {
 	struct altos_bt_list	*bt_list;
 
@@ -614,7 +613,7 @@ altos_bt_list_start(void)
 		goto no_sock;
 
 	bt_list->num_rsp = hci_inquiry(bt_list->dev_id,
-				       INQUIRY_LEN,
+				       inquiry_time,
 				       INQUIRY_MAX_RSP,
 				       NULL,
 				       &bt_list->ii,
@@ -663,6 +662,15 @@ altos_bt_list_finish(struct altos_bt_list *bt_list)
 	close(bt_list->sock);
 	free(bt_list->ii);
 	free(bt_list);
+}
+
+void
+altos_bt_fill_in(char *name, char *addr, struct altos_bt_device *device)
+{
+	strncpy(device->name, name, sizeof (device->name));
+	device->name[sizeof(device->name)-1] = '\0';
+	strncpy(device->addr, addr, sizeof (device->addr));
+	device->addr[sizeof(device->addr)-1] = '\0';
 }
 
 struct altos_file *
@@ -768,7 +776,7 @@ get_number(io_object_t object, CFStringRef entry, int *result)
 }
 
 struct altos_list *
-altos_list_start(void)
+altos_list_start(int time)
 {
 	struct altos_list *list = calloc (sizeof (struct altos_list), 1);
 	CFMutableDictionaryRef matching_dictionary = IOServiceMatching("IOUSBDevice");

@@ -204,7 +204,7 @@ public class AltosConfigureUI
 		manage_bluetooth = new JButton("Manage Bluetooth");
 		manage_bluetooth.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					new AltosBTManage(AltosBTDevice.bt_product_any, owner);
+					AltosBTManage.show(owner, Altos.bt_known);
 				}
 			});
 		c.gridx = 1;

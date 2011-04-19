@@ -99,7 +99,7 @@ public class AltosUI extends JFrame {
 		if (imgURL != null)
 			setIconImage(new ImageIcon(imgURL).getImage());
 
-		AltosPreferences.init(this);
+		AltosPreferences.set_component(this);
 
 		pane = getContentPane();
 		gridbag = new GridBagLayout();
@@ -397,9 +397,9 @@ public class AltosUI extends JFrame {
 			AltosUI altosui = new AltosUI();
 			altosui.setVisible(true);
 
-			AltosDevice[] devices = AltosUSBDevice.list(Altos.product_basestation);
-			for (int i = 0; i < devices.length; i++)
-				altosui.telemetry_window(devices[i]);
+			java.util.List<AltosDevice> devices = AltosUSBDevice.list(Altos.product_basestation);
+			for (AltosDevice device : devices)
+				altosui.telemetry_window(device);
 		}
 	}
 }

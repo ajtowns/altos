@@ -21,7 +21,6 @@ import java.util.*;
 import libaltosJNI.*;
 
 public class AltosBTDeviceIterator implements Iterator<AltosBTDevice> {
-	int		product;
 	AltosBTDevice	current;
 	boolean		done;
 	SWIGTYPE_p_altos_bt_list list;
@@ -58,11 +57,9 @@ public class AltosBTDeviceIterator implements Iterator<AltosBTDevice> {
 		throw new UnsupportedOperationException();
 	}
 
-	public AltosBTDeviceIterator(int in_product) {
-		product = in_product;
+	public AltosBTDeviceIterator(int inquiry_time) {
 		done = false;
 		current = null;
-		list = libaltos.altos_bt_list_start();
-		System.out.printf("Iteration of BT list started\n");
+		list = libaltos.altos_bt_list_start(inquiry_time);
 	}
 }

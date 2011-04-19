@@ -110,13 +110,16 @@ PUBLIC int
 altos_getchar(struct altos_file *file, int timeout);
 
 PUBLIC struct altos_bt_list *
-altos_bt_list_start(void);
+altos_bt_list_start(int inquiry_time);
 
 PUBLIC int
 altos_bt_list_next(struct altos_bt_list *list, struct altos_bt_device *device);
 
 PUBLIC void
 altos_bt_list_finish(struct altos_bt_list *list);
+
+PUBLIC void
+altos_bt_fill_in(char *name, char *addr, struct altos_bt_device *device);
 
 PUBLIC struct altos_file *
 altos_bt_open(struct altos_bt_device *device);
