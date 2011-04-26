@@ -241,6 +241,8 @@ public class AltosBTManage extends JDialog implements ActionListener, Iterable<A
 		c.gridy = 0;
 		c.gridwidth = 1;
 		c.gridheight = 1;
+		c.weightx = 0;
+		c.weighty = 0;
 		pane.add(new JLabel("Known Devices"), c);
 
 		known_devices = new DeviceList();
@@ -256,6 +258,8 @@ public class AltosBTManage extends JDialog implements ActionListener, Iterable<A
 		c.gridy = 1;
 		c.gridwidth = 1;
 		c.gridheight = 2;
+		c.weightx = 1;
+		c.weighty = 1;
 		pane.add(known_list_scroller, c);
 
 		/*
@@ -267,6 +271,9 @@ public class AltosBTManage extends JDialog implements ActionListener, Iterable<A
 		c.gridy = 0;
 		c.gridwidth = 1;
 		c.gridheight = 1;
+		c.weightx = 0;
+		c.weighty = 0;
+
 		pane.add(new JLabel("Visible Devices"), c);
 
 		visible_devices = new DeviceList();
@@ -279,6 +286,8 @@ public class AltosBTManage extends JDialog implements ActionListener, Iterable<A
 		c.gridy = 1;
 		c.gridheight = 2;
 		c.gridwidth = 1;
+		c.weightx = 1;
+		c.weighty = 1;
 		pane.add(visible_list_scroller, c);
 
 		/*
@@ -293,6 +302,8 @@ public class AltosBTManage extends JDialog implements ActionListener, Iterable<A
 		c.gridy = 1;
 		c.gridheight = 1;
 		c.gridwidth = 1;
+		c.weightx = 0;
+		c.weighty = 0;
 		pane.add(select_arrow, c);
 
 		BasicArrowButton deselect_arrow = new BasicArrowButton(SwingConstants.EAST);
@@ -304,6 +315,8 @@ public class AltosBTManage extends JDialog implements ActionListener, Iterable<A
 		c.gridy = 2;
 		c.gridheight = 1;
 		c.gridwidth = 1;
+		c.weightx = 0;
+		c.weighty = 0;
 		pane.add(deselect_arrow, c);
 
 		JButton cancel_button = new JButton("Cancel");
@@ -315,6 +328,8 @@ public class AltosBTManage extends JDialog implements ActionListener, Iterable<A
 		c.gridy = 3;
 		c.gridheight = 1;
 		c.gridwidth = 1;
+		c.weightx = 0;
+		c.weighty = 0;
 		pane.add(cancel_button, c);
 
 		JButton ok_button = new JButton("OK");
@@ -326,6 +341,8 @@ public class AltosBTManage extends JDialog implements ActionListener, Iterable<A
 		c.gridy = 3;
 		c.gridheight = 1;
 		c.gridwidth = 1;
+		c.weightx = 0;
+		c.weighty = 0;
 		pane.add(ok_button, c);
 
 		getRootPane().setDefaultButton(ok_button);
