@@ -33,7 +33,6 @@ public class AltosDisplayThread extends Thread {
 	Frame			parent;
 	IdleThread		idle_thread;
 	AltosVoice		voice;
-	String			name;
 	AltosFlightReader	reader;
 	int			crc_errors;
 	AltosFlightDisplay	display;
@@ -57,19 +56,18 @@ public class AltosDisplayThread extends Thread {
 		SwingUtilities.invokeLater(r);
 	}
 
-	void reading_error_internal(String name) {
+	void reading_error_internal() {
 		JOptionPane.showMessageDialog(parent,
-					      String.format("Error reading from \"%s\"", name),
+					      String.format("Error reading from \"%s\"", reader.name),
 					      "Telemetry Read Error",
 					      JOptionPane.ERROR_MESSAGE);
 	}
 
-	void reading_error_safely(String in_name) {
-		final String name = in_name;
+	void reading_error_safely() {
 		Runnable r = new Runnable() {
 				public void run() {
 					try {
-						reading_error_internal(name);
+						reading_error_internal();
 					} catch (Exception ex) {
 					}
 				}
@@ -258,7 +256,7 @@ public class AltosDisplayThread extends Thread {
 		} catch (InterruptedException ee) {
 			interrupted = true;
 		} catch (IOException ie) {
-			reading_error_safely(name);
+			reading_error_safely();
 		} finally {
 			if (!interrupted)
 				idle_thread.report(true);
