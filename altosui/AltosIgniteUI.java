@@ -56,8 +56,27 @@ public class AltosIgniteUI
 
 	class IgniteHandler implements Runnable {
 		AltosIgnite	ignite;
+		JFrame		owner;
+
+		void send_exception(Exception e) {
+			final Exception	f_e = e;
+			Runnable r = new Runnable() {
+					public void run() {
+						ignite_exception(f_e);
+					}
+				};
+			SwingUtilities.invokeLater(r);
+		}
 
 		public void run () {
+			try {
+				ignite = new AltosIgnite(device);
+			} catch (Exception e) {
+				send_exception(e);
+				return;
+			}
+			ignite.set_frame(owner);
+
 			for (;;) {
 				Runnable	r;
 
@@ -87,25 +106,45 @@ public class AltosIgniteUI
 								ignite_reply(f_reply);
 							}
 						};
+					SwingUtilities.invokeLater(r);
 				} catch (Exception e) {
-					final Exception	f_e = e;
-					r = new Runnable() {
-							public void run() {
-								ignite_exception(f_e);
-							}
-						};
+					send_exception(e);
 				}
-				SwingUtilities.invokeLater(r);
 			}
 		}
 
-		public IgniteHandler(AltosIgnite in_ignite) {
-			ignite = in_ignite;
+		public IgniteHandler(JFrame in_owner) {
+			owner = in_owner;
 		}
 	}
 
 	void ignite_exception(Exception e) {
-		abort();
+		if (e instanceof FileNotFoundException) {
+			JOptionPane.showMessageDialog(owner,
+						      String.format("Cannot open device \"%s\"",
+								    device.toShortString()),
+						      "Cannot open target device",
+						      JOptionPane.ERROR_MESSAGE);
+		} else if (e instanceof AltosSerialInUseException) {
+			JOptionPane.showMessageDialog(owner,
+						      String.format("Device \"%s\" already in use",
+								    device.toShortString()),
+						      "Device in use",
+						      JOptionPane.ERROR_MESSAGE);
+		} else if (e instanceof IOException) {
+			IOException ee = (IOException) e;
+			JOptionPane.showMessageDialog(owner,
+						      device.toShortString(),
+						      ee.getLocalizedMessage(),
+						      JOptionPane.ERROR_MESSAGE);
+		} else {
+			JOptionPane.showMessageDialog(owner,
+						      String.format("Connection to \"%s\" failed",
+								    device.toShortString()),
+						      "Connection Failed",
+						      JOptionPane.ERROR_MESSAGE);
+		}
+		close();
 	}
 
 	void ignite_reply(String reply) {
@@ -149,7 +188,7 @@ public class AltosIgniteUI
 		try {
 			command_queue.put(command);
 		} catch (Exception ex) {
-			abort();
+			ignite_exception(ex);
 		}
 	}
 
@@ -192,15 +231,6 @@ public class AltosIgniteUI
 		timer.stop();
 		setVisible(false);
 		dispose();
-	}
-
-	void abort() {
-		close();
-		JOptionPane.showMessageDialog(owner,
-					      String.format("Connection to \"%s\" failed",
-							    device.toShortString()),
-					      "Connection Failed",
-					      JOptionPane.ERROR_MESSAGE);
 	}
 
 	void tick_timer() {
@@ -277,31 +307,10 @@ public class AltosIgniteUI
 
 		device = AltosDeviceDialog.show(owner, Altos.product_any);
 		if (device != null) {
-			try {
-				AltosIgnite 	ignite = new AltosIgnite(device);
-				IgniteHandler	handler = new IgniteHandler(ignite);
+				IgniteHandler	handler = new IgniteHandler(owner);
 				Thread		t = new Thread(handler);
-				ignite.set_frame(owner);
 				t.start();
 				return true;
-			} catch (FileNotFoundException ee) {
-				JOptionPane.showMessageDialog(owner,
-							      String.format("Cannot open device \"%s\"",
-									    device.toShortString()),
-							      "Cannot open target device",
-							      JOptionPane.ERROR_MESSAGE);
-			} catch (AltosSerialInUseException si) {
-				JOptionPane.showMessageDialog(owner,
-							      String.format("Device \"%s\" already in use",
-									    device.toShortString()),
-							      "Device in use",
-							      JOptionPane.ERROR_MESSAGE);
-			} catch (IOException ee) {
-				JOptionPane.showMessageDialog(owner,
-							      device.toShortString(),
-							      ee.getLocalizedMessage(),
-							      JOptionPane.ERROR_MESSAGE);
-			}
 		}
 		return false;
 	}
