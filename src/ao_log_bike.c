@@ -39,14 +39,16 @@ ao_log_data(__xdata struct ao_log_record *log) __reentrant
 	log->csum = 0;
 	log->csum = ao_log_csum((__xdata uint8_t *) log);
 	ao_mutex_get(&ao_log_mutex); {
-		if (ao_log_current_pos >= ao_log_end_pos && ao_log_running)
-			ao_log_stop();
 		if (ao_log_running) {
-			wrote = 1;
-			ao_storage_write(ao_log_current_pos,
-					 log,
-					 sizeof (struct ao_log_record));
-			ao_log_current_pos += sizeof (struct ao_log_record);
+			if (ao_log_current_pos >= ao_log_end_pos) {
+				ao_log_stop();
+			} else {
+				wrote = 1;
+				ao_storage_write(ao_log_current_pos,
+						 log,
+						 sizeof (struct ao_log_record));
+				ao_log_current_pos += sizeof (struct ao_log_record);
+			}
 		}
 	} ao_mutex_put(&ao_log_mutex);
 	return wrote;
@@ -138,4 +140,85 @@ ao_log_flight(uint8_t slot)
 	if (ao_log_dump_check_data() && log.type == AO_LOG_FLIGHT)
 		return log.u.flight.flight;
 	return 0;
+}
+
+static void
+ao_gps_report(void)
+{
+	static __xdata struct ao_log_record	gps_log;
+	static __xdata struct ao_gps_data	gps_data;
+	uint8_t	date_reported = 0;
+
+	for (;;) {
+		ao_sleep(&ao_gps_data);
+		ao_mutex_get(&ao_gps_mutex);
+		memcpy(&gps_data, &ao_gps_data, sizeof (struct ao_gps_data));
+		ao_mutex_put(&ao_gps_mutex);
+
+		if (!(gps_data.flags & AO_GPS_VALID))
+			continue;
+
+		gps_log.tick = ao_gps_tick;
+		gps_log.type = AO_LOG_GPS_TIME;
+		gps_log.u.gps_time.hour = gps_data.hour;
+		gps_log.u.gps_time.minute = gps_data.minute;
+		gps_log.u.gps_time.second = gps_data.second;
+		gps_log.u.gps_time.flags = gps_data.flags;
+		ao_log_data(&gps_log);
+		gps_log.type = AO_LOG_GPS_LAT;
+		gps_log.u.gps_latitude = gps_data.latitude;
+		ao_log_data(&gps_log);
+		gps_log.type = AO_LOG_GPS_LON;
+		gps_log.u.gps_longitude = gps_data.longitude;
+		ao_log_data(&gps_log);
+		gps_log.type = AO_LOG_GPS_ALT;
+		gps_log.u.gps_altitude.altitude = gps_data.altitude;
+		gps_log.u.gps_altitude.unused = 0xffff;
+		ao_log_data(&gps_log);
+		if (!date_reported && (gps_data.flags & AO_GPS_DATE_VALID)) {
+			gps_log.type = AO_LOG_GPS_DATE;
+			gps_log.u.gps_date.year = gps_data.year;
+			gps_log.u.gps_date.month = gps_data.month;
+			gps_log.u.gps_date.day = gps_data.day;
+			gps_log.u.gps_date.extra = 0;
+			date_reported = ao_log_data(&gps_log);
+		}
+	}
+}
+
+static void
+ao_gps_tracking_report(void)
+{
+	static __xdata struct ao_log_record	gps_log;
+	static __xdata struct ao_gps_tracking_data	gps_tracking_data;
+	uint8_t	c, n;
+
+	for (;;) {
+		ao_sleep(&ao_gps_tracking_data);
+		ao_mutex_get(&ao_gps_mutex);
+		gps_log.tick = ao_gps_tick;
+		memcpy(&gps_tracking_data, &ao_gps_tracking_data, sizeof (struct ao_gps_tracking_data));
+		ao_mutex_put(&ao_gps_mutex);
+
+		if (!(n = gps_tracking_data.channels))
+			continue;
+
+		gps_log.type = AO_LOG_GPS_SAT;
+		for (c = 0; c < n; c++)
+			if ((gps_log.u.gps_sat.svid = gps_tracking_data.sats[c].svid))
+			{
+				gps_log.u.gps_sat.c_n = gps_tracking_data.sats[c].c_n_1;
+				ao_log_data(&gps_log);
+			}
+	}
+}
+
+static __xdata struct ao_task ao_gps_report_task;
+static __xdata struct ao_task ao_gps_tracking_report_task;
+
+void
+ao_gps_report_init(void)
+{
+	ao_add_task(&ao_gps_report_task, ao_gps_report, "gps_report");
+	ao_add_task(&ao_gps_tracking_report_task, ao_gps_tracking_report, "gps_tracking_report");
 }

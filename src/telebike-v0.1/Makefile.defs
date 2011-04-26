@@ -1,4 +1,4 @@
-PROG = telebike-v1.1-$(VERSION).ihx
+PROG = telebike-v0.1-$(VERSION).ihx
 
 SRC = \
 	$(TB_BASE_SRC) \

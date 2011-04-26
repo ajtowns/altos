@@ -57,10 +57,21 @@ ao_kalman(void)
 {
 }
 
-void
-ao_flight(void)
+enum ao_bike_state {
+	ao_bike_initial_connect = 0,
+	ao_bike_ride = 1,
+	ao_bike_post_ride = 2,
+};
+static enum ao_bike_state bike_state;
+
+static void
+finish_initial_comms(void)
 {
-	ao_sample_init();
+	/* signal end of initial comms availability by turning off the LED */
+	ao_led_off(AO_LED_RED);
+
+	if (ao_flight_force_idle)
+		return;
 
 #if HAS_USB
 	/* Disable the USB controller in flight mode to save power */
@@ -68,20 +79,25 @@ ao_flight(void)
 #endif
 	/* Disable packet mode in pad state */
 	ao_packet_slave_stop();
+}
 
-	/* signal successful initialization by turning off the LED */
-	ao_led_off(AO_LED_RED);
+static void
+ao_bike(void)
+{
+	ao_sample_init();
 
-	/* start logging data */
-	ao_log_start();
+	bike_state = ao_bike_initial_connect;
+
 
 #if 0
 	/* turn off the ADC capture */
 	ao_timer_set_adc_interval(0);
 #endif
 
-	for (;;) {
+	/* start logging data */
+	ao_log_start();
 
+	for (;;) {
 		/*
 		 * Process ADC samples, just looping
 		 * until the sensors are calibrated.
@@ -89,11 +105,12 @@ ao_flight(void)
 		if (!ao_sample())
 			continue;
 
-#if HAS_GPS
-		/* Record current GPS position by waking up GPS log tasks */
-		ao_wakeup(&ao_gps_data);
-		ao_wakeup(&ao_gps_tracking_data);
-#endif
+		if (bike_state == ao_bike_initial_connect) {
+			if (ao_time() > AO_SEC_TO_TICKS(10)) {
+			    finish_initial_comms();
+			    bike_state = ao_bike_ride;
+			}
+		}
 	}
 }
 
@@ -102,5 +119,5 @@ static __xdata struct ao_task	flight_task;
 void
 ao_flight_init(void)
 {
-	ao_add_task(&flight_task, ao_flight, "flight");
+	ao_add_task(&flight_task, ao_bike, "bike");
 }
