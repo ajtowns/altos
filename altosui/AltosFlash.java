@@ -28,7 +28,7 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class AltosFlash implements Runnable {
+public class AltosFlash {
 	File		file;
 	FileInputStream	input;
 	AltosHexfile	image;
@@ -252,9 +252,7 @@ public class AltosFlash implements Runnable {
 		throw new IOException("Failed to execute program on target");
 	}
 
-	Thread thread;
-
-	public void run() {
+	public void flash() {
 		try {
 			if (!check_rom_config())
 				throw new IOException("Invalid rom config settings");
@@ -333,15 +331,14 @@ public class AltosFlash implements Runnable {
 		}
 	}
 
-	public void flash() {
-		thread = new Thread(this);
-		thread.start();
+	public void close() {
+		if (debug != null)
+			debug.close();
 	}
 
 	synchronized public void abort() {
 		aborted = true;
-		if (debug != null)
-			debug.close();
+		close();
 	}
 
 	public void addActionListener(ActionListener l) {

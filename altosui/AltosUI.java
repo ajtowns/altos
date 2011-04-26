@@ -219,7 +219,7 @@ public class AltosUI extends JFrame {
 	}
 
 	void FlashImage() {
-		new AltosFlashUI(AltosUI.this);
+		AltosFlashUI.show(AltosUI.this);
 	}
 
 	void FireIgniter() {

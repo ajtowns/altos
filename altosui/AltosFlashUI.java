@@ -26,7 +26,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 public class AltosFlashUI
 	extends JDialog
@@ -41,14 +41,24 @@ public class AltosFlashUI
 	JProgressBar	pbar;
 	JButton		cancel;
 
-	File		file;
-	Thread		thread;
 	JFrame		frame;
+
+	// Hex file with rom image
+	File		file;
+
+	// Debug connection
 	AltosDevice	debug_dongle;
+
+	// Desired Rom configuration
+	AltosRomconfig	rom_config;
+
+	// Flash controller
 	AltosFlash	flash;
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == cancel) {
+			if (flash != null)
+				flash.abort();
 			setVisible(false);
 			dispose();
 		} else {
@@ -111,7 +121,7 @@ public class AltosFlashUI
 		c.gridx = 1; c.gridy = 1;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
-		file_value = new JLabel("");
+		file_value = new JLabel(file.toString());
 		pane.add(file_value, c);
 
 		pbar = new JProgressBar();
@@ -144,18 +154,11 @@ public class AltosFlashUI
 		setLocationRelativeTo(frame);
 	}
 
-	public AltosFlashUI(JFrame in_frame) {
-		super(in_frame, "Program Altusmetrum Device", false);
+	void set_serial(int serial_number) {
+		serial_value.setText(String.format("%d", serial_number));
+	}
 
-		frame = in_frame;
-
-		build_dialog();
-
-		debug_dongle = AltosDeviceDialog.show(frame, Altos.product_any);
-
-		if (debug_dongle == null)
-			return;
-
+	boolean select_source_file() {
 		JFileChooser	hexfile_chooser = new JFileChooser();
 
 		File firmwaredir = AltosPreferences.firmwaredir();
@@ -167,46 +170,128 @@ public class AltosFlashUI
 		int returnVal = hexfile_chooser.showOpenDialog(frame);
 
 		if (returnVal != JFileChooser.APPROVE_OPTION)
-			return;
-
+			return false;
 		file = hexfile_chooser.getSelectedFile();
+		if (file == null)
+			return false;
+		AltosPreferences.set_firmwaredir(file.getParentFile());
+		return true;
+	}
 
-		if (file != null)
-			AltosPreferences.set_firmwaredir(file.getParentFile());
+	boolean select_debug_dongle() {
+		debug_dongle = AltosDeviceDialog.show(frame, Altos.product_any);
 
-		try {
-			flash = new AltosFlash(file, debug_dongle);
-			flash.addActionListener(this);
-			AltosRomconfigUI romconfig_ui = new AltosRomconfigUI (frame);
+		if (debug_dongle == null)
+			return false;
+		return true;
+	}
 
-			romconfig_ui.set(flash.romconfig());
-			AltosRomconfig romconfig = romconfig_ui.showDialog();
+	boolean update_rom_config_info(AltosRomconfig existing_config) {
+		AltosRomconfig	new_config;
+		new_config = AltosRomconfigUI.show(frame, existing_config);
+		if (new_config == null)
+			return false;
+		rom_config = new_config;
+		set_serial(rom_config.serial_number);
+		setVisible(true);
+		return true;
+	}
 
-			if (romconfig != null && romconfig.valid()) {
-				flash.set_romconfig(romconfig);
-				serial_value.setText(String.format("%d",
-								   flash.romconfig().serial_number));
-				file_value.setText(file.toString());
-				setVisible(true);
-				flash.flash();
-			}
-		} catch (FileNotFoundException ee) {
+	void exception (Exception e) {
+		if (e instanceof FileNotFoundException) {
 			JOptionPane.showMessageDialog(frame,
 						      "Cannot open image",
 						      file.toString(),
 						      JOptionPane.ERROR_MESSAGE);
-		} catch (AltosSerialInUseException si) {
+		} else if (e instanceof AltosSerialInUseException) {
 			JOptionPane.showMessageDialog(frame,
 						      String.format("Device \"%s\" already in use",
 								    debug_dongle.toShortString()),
 						      "Device in use",
 						      JOptionPane.ERROR_MESSAGE);
-		} catch (IOException e) {
+		} else if (e instanceof IOException) {
 			JOptionPane.showMessageDialog(frame,
 						      e.getMessage(),
 						      file.toString(),
 						      JOptionPane.ERROR_MESSAGE);
-		} catch (InterruptedException ie) {
 		}
+	}
+
+	class flash_task implements Runnable {
+		AltosFlashUI	ui;
+		Thread		t;
+		AltosFlash	flash;
+
+		public void run () {
+			try {
+				flash = new AltosFlash(ui.file, ui.debug_dongle);
+				flash.addActionListener(ui);
+
+				final AltosRomconfig	current_config = flash.romconfig();
+
+				final Semaphore await_rom_config = new Semaphore(0);
+				SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							ui.flash = flash;
+							ui.update_rom_config_info(current_config);
+							System.out.printf("Done updating rom config info\n");
+							await_rom_config.release();
+						}
+					});
+				System.out.printf("Waiting for rom configuration updates\n");
+				await_rom_config.acquire();
+				System.out.printf("Got rom config update\n");
+
+				if (ui.rom_config != null) {
+					System.out.printf("rom_config not null\n");
+					flash.set_romconfig(ui.rom_config);
+					flash.flash();
+				}
+			} catch (Exception ee) {
+				final Exception	e = ee;
+				System.out.printf("exception %s\n", e.toString());
+				SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							ui.exception(e);
+						}
+					});
+			}
+			if (flash != null)
+				flash.close();
+		}
+
+		public flash_task(AltosFlashUI in_ui) {
+			ui = in_ui;
+			t = new Thread(this);
+			t.start();
+		}
+	}
+
+	flash_task	flasher;
+
+	/*
+	 * Execute the steps for flashing
+	 * a device. Note that this returns immediately;
+	 * this dialog is not modal
+	 */
+	void showDialog() {
+		if (!select_debug_dongle())
+			return;
+		if (!select_source_file())
+			return;
+		build_dialog();
+		flash_task	f = new flash_task(this);
+	}
+
+	static void show(JFrame frame) {
+		AltosFlashUI	ui = new AltosFlashUI(frame);
+
+		ui.showDialog();
+	}
+
+	public AltosFlashUI(JFrame in_frame) {
+		super(in_frame, "Program Altusmetrum Device", false);
+
+		frame = in_frame;
 	}
 }

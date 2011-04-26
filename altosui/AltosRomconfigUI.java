@@ -126,6 +126,11 @@ public class AltosRomconfigUI
 		setLocationRelativeTo(owner);
 	}
 
+	public AltosRomconfigUI(JFrame frame, AltosRomconfig config) {
+		this(frame);
+		set(config);
+	}
+
 	boolean	selected;
 
 	/* Listen for events from our buttons */
@@ -182,5 +187,10 @@ public class AltosRomconfigUI
 		if (selected)
 			return romconfig();
 		return null;
+	}
+
+	public static AltosRomconfig show(JFrame frame, AltosRomconfig config) {
+		AltosRomconfigUI ui = new AltosRomconfigUI(frame, config);
+		return ui.showDialog();
 	}
 }
