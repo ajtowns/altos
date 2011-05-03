@@ -29,26 +29,13 @@
 #error Please define HAS_USB
 #endif
 
-/*
- * track min/max data over a long interval to detect
- * resting
- */
-__pdata uint16_t		ao_interval_end;
-__pdata int16_t			ao_interval_min_height;
-__pdata int16_t			ao_interval_max_height;
-
 __xdata uint8_t			ao_flight_force_idle;
 
 /* We also have a clock, which can be used to sanity check things in
  * case of other failures
  */
 
-#define BOOST_TICKS_MAX	AO_SEC_TO_TICKS(15)
-
-/* Landing is detected by getting constant readings from both pressure and accelerometer
- * for a fairly long time (AO_INTERVAL_TICKS)
- */
-#define AO_INTERVAL_TICKS	AO_SEC_TO_TICKS(5)
+#define INITIAL_COMMS_TICKS	AO_SEC_TO_TICKS(10)
 
 #define abs(a)	((a) < 0 ? -(a) : (a))
 
@@ -75,7 +62,7 @@ finish_initial_comms(void)
 
 #if HAS_USB
 	/* Disable the USB controller in flight mode to save power */
-	ao_usb_disable();
+	// ao_usb_disable();
 #endif
 	/* Disable packet mode in pad state */
 	ao_packet_slave_stop();
@@ -94,9 +81,6 @@ ao_bike(void)
 	ao_timer_set_adc_interval(0);
 #endif
 
-	/* start logging data */
-	ao_log_start();
-
 	for (;;) {
 		/*
 		 * Process ADC samples, just looping
@@ -106,9 +90,11 @@ ao_bike(void)
 			continue;
 
 		if (bike_state == ao_bike_initial_connect) {
-			if (ao_time() > AO_SEC_TO_TICKS(10)) {
-			    finish_initial_comms();
-			    bike_state = ao_bike_ride;
+			if (ao_time() > INITIAL_COMMS_TICKS) {
+				finish_initial_comms();
+				bike_state = ao_bike_ride;
+				/* start logging data */
+				ao_log_start();
 			}
 		}
 	}

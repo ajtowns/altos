@@ -395,6 +395,9 @@ ao_usb_pollchar(void) __critical
 		USBINDEX = AO_USB_OUT_EP;
 		USBCSOL &= ~USBCSOL_OUTPKT_RDY;
 	}
+#if HAS_FLIGHT
+	ao_flight_force_idle = TRUE;
+#endif
 	return c;
 }
 
