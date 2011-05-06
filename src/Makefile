@@ -10,7 +10,7 @@ SUBDIRS=\
 	telemetrum-v1.1 telemetrum-v1.0 \
 	teledongle-v0.2 teledongle-v0.1 \
 	telemini-v0.1 telenano-v0.1 \
-	telebt-v0.0 \
+	telebt-v0.0 telebt-v0.1 \
 	telemetrum-v0.1-sky telemetrum-v0.1-sirf \
 	tidongle test
 
