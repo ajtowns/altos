@@ -1,4 +1,4 @@
-altos (0.9.1) unstable; urgency=low
+altos (0.9.1.telemini.1) unstable; urgency=low
 
   [ Keith Packard ]
   * ao-load: fix usage message to note that '=' is required for options
@@ -13,7 +13,7 @@ altos (0.9.1) unstable; urgency=low
   [ Bdale Garbee ]
   * tie bringup scripts to Bdale's bench TeleDongle
 
- -- Bdale Garbee <bdale@gag.com>  Fri, 18 Feb 2011 23:55:58 -0700
+ -- Bdale Garbee <bdale@gag.com>  Fri, 01 Apr 2011 20:02:12 -0600
 
 altos (0.9) unstable; urgency=low
 
