@@ -18,28 +18,13 @@
 #include "ao.h"
 
 void
-main(void)
+ao_log_write_erase(uint8_t pos)
 {
-	ao_clock_init();
+	(void) pos;
+}
 
-	/* Turn on the LED until the system is stable */
-	ao_led_init(LEDS_AVAILABLE);
-	ao_led_on(AO_LED_RED);
-	ao_timer_init();
-	ao_cmd_init();
-#if HAS_EEPROM
-	ao_spi_init();
-	ao_storage_init();
-#endif
-	ao_usb_init();
-	ao_monitor_init(AO_LED_GREEN, TRUE);
-	ao_rssi_init(AO_LED_RED);
-	ao_radio_init();
-	ao_packet_master_init();
-	ao_btm_init();
-#if HAS_DBG
-	ao_dbg_init();
-#endif
-	ao_config_init();
-	ao_start_scheduler();
+uint8_t
+ao_log_present(void)
+{
+	return 0;
 }

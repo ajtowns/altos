@@ -238,7 +238,7 @@ TNANO_BASE_SRC = \
 	$(TNANO_MAIN_SRC)
 
 #
-# Sources for TeleDongle
+# Sources for TeleBluetooth
 #
 
 TBT_MAIN_SRC = \
@@ -254,6 +254,12 @@ TBT_BASE_SRC = \
 	$(BTM_DRIVER_SRC) \
 	$(DBG_SRC) \
 	$(TBT_MAIN_SRC)
+
+TBT_V_0_1_SRC = \
+	$(TBT_BASE_SRC) \
+	$(SPI_DRIVER_SRC) \
+	$(M25_DRIVER_SRC) \
+	ao_log_telem.c
 
 #
 # TI Dongle sources

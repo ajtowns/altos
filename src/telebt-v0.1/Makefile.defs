@@ -1,0 +1,8 @@
+PROG = telebt-v0.1-$(VERSION).ihx
+
+SRC = \
+	$(TBT_V_0_1_SRC)
+
+PRODUCT=TeleBT-v0.1
+PRODUCT_DEF=-DTELEBT_V_0_1
+IDPRODUCT=0x000e
