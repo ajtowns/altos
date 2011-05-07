@@ -26,6 +26,9 @@ main(void)
 	ao_led_init(LEDS_AVAILABLE);
 	ao_led_on(AO_LED_RED);
 	ao_timer_init();
+#if HAS_BEEP
+	ao_beep_init();
+#endif
 	ao_cmd_init();
 #if HAS_EEPROM
 	ao_spi_init();
