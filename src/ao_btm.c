@@ -17,6 +17,21 @@
 
 #include "ao.h"
 
+#if BT_LINK_ON_P2
+#define BT_PICTL_ICON	PICTL_P2ICON
+#define BT_PIFG		P2IFG
+#define BT_PDIR		P2DIR
+#define BT_PINP		P2INP
+#define BT_IEN2_PIE	IEN2_P2IE
+#endif
+#if BT_LINK_ON_P1
+#define BT_PICTL_ICON	PICTL_P1ICON
+#define BT_PIFG		P1IFG
+#define BT_PDIR		P1DIR
+#define BT_PINP		P1INP
+#define BT_IEN2_PIE	IEN2_P1IE
+#endif
+
 int8_t			ao_btm_stdio;
 __xdata uint8_t		ao_btm_connected;
 
@@ -166,6 +181,15 @@ ao_btm(void)
 	 */
 	ao_delay(AO_SEC_TO_TICKS(3));
 
+#if BT_LINK_ON_P1
+	if ((P1DIR & (1 << 6)) == 0)
+		ao_panic(AO_PANIC_BT);
+	if ((P1DIR & (1 << 7)) != 0)
+		ao_panic(AO_PANIC_BT);
+	if ((P0SEL & ((1 << 5) | (1 << 4) | (1 << 3) | (1 << 2))) !=
+	    ((1 << 5) | (1 << 4) | (1 << 3) | (1 << 2)))
+		ao_panic(AO_PANIC_BT);
+#endif
 #if HAS_BEEP
 	ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(200));
 #endif
@@ -211,21 +235,6 @@ ao_btm(void)
 }
 
 __xdata struct ao_task ao_btm_task;
-
-#if BT_LINK_ON_P2
-#define BT_PICTL_ICON	PICTL_P2ICON
-#define BT_PIFG		P2IFG
-#define BT_PDIR		P2DIR
-#define BT_PINP		P2INP
-#define BT_IEN2_PIE	IEN2_P2IE
-#endif
-#if BT_LINK_ON_P1
-#define BT_PICTL_ICON	PICTL_P1ICON
-#define BT_PIFG		P1IFG
-#define BT_PDIR		P1DIR
-#define BT_PINP		P1INP
-#define BT_IEN2_PIE	IEN2_P1IE
-#endif
 
 void
 ao_btm_check_link() __critical
