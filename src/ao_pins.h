@@ -241,6 +241,10 @@
 	#define SPI_CS_ON_P1		1
 	#define SPI_CS_ON_P0		0
 	#define HAS_IGNITE		0
+	#define BT_LINK_ON_P2		1
+	#define BT_LINK_ON_P1		0
+	#define BT_LINK_PIN_INDEX	7
+	#define BT_LINK_PIN		P2_1
 #endif
 
 #if defined(TELEBT_V_0_1)
@@ -272,6 +276,10 @@
 	#define M25_MAX_CHIPS		1
 	#define HAS_ACCEL		0
 	#define HAS_IGNITE		0
+	#define BT_LINK_ON_P2		0
+	#define BT_LINK_ON_P1		1
+	#define BT_LINK_PIN_INDEX	7
+	#define BT_LINK_PIN		P1_7
 #endif
 
 #if DBG_ON_P1

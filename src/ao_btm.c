@@ -208,26 +208,44 @@ ao_btm(void)
 
 __xdata struct ao_task ao_btm_task;
 
+#if BT_LINK_ON_P2
+#define BT_PICTL_ICON	PICTL_P2ICON
+#define BT_PIFG		P2IFG
+#define BT_PDIR		P2DIR
+#define BT_PINP		P2INP
+#define BT_IEN2_PIE	IEN2_P2IE
+#endif
+#if BT_LINK_ON_P1
+#define BT_PICTL_ICON	PICTL_P1ICON
+#define BT_PIFG		P1IFG
+#define BT_PDIR		P1DIR
+#define BT_PINP		P1INP
+#define BT_IEN2_PIE	IEN2_P1IE
+#endif
+
 void
 ao_btm_check_link() __critical
 {
-	if (P2_1) {
+	/* Check the pin and configure the interrupt detector to wait for the
+	 * pin to flip the other way
+	 */
+	if (BT_LINK_PIN) {
 		ao_btm_connected = 0;
-		PICTL |= PICTL_P2ICON;
+		PICTL |= BT_PICTL_ICON;
 	} else {
 		ao_btm_connected = 1;
-		PICTL &= ~PICTL_P2ICON;
+		PICTL &= ~BT_PICTL_ICON;
 	}
 }
 
 void
 ao_btm_isr(void)
 {
-	if (P2IFG & (1 << 1)) {
+	if (BT_PIFG & (1 << BT_LINK_PIN_INDEX)) {
 		ao_btm_check_link();
 		ao_wakeup(&ao_btm_connected);
 	}
-	P2IFG = 0;
+	BT_PIFG = 0;
 }
 
 void
@@ -240,14 +258,26 @@ ao_btm_init (void)
 	 * Configure link status line
 	 */
 
-	/* Set P2_1 to input, pull-down */
-	P2DIR &= ~(1 << 1);
-	P2INP |= P2INP_MDP2_1_TRISTATE;
+	/* Set pin to input */
+	BT_PDIR &= ~(1 << BT_LINK_PIN_INDEX);
 
-	/* Enable P2 interrupts */
-	IEN2 |= IEN2_P2IE;
+	/* Set pin to tri-state */
+	BT_PINP |= (1 << BT_LINK_PIN_INDEX);
+
+	/* Enable interrupts */
+	IEN2 |= BT_IEN2_PIE;
+
+	/* Check current pin state */
 	ao_btm_check_link();
+
+#if BT_LINK_ON_P2
+	/* Eable the pin interrupt */
 	PICTL |= PICTL_P2IEN;
+#endif
+#if BT_LINK_ON_P1
+	/* Enable pin interrupt */
+	P1IEN |= (1 << BT_LINK_PIN_INDEX);
+#endif
 
 	ao_add_task(&ao_btm_task, ao_btm, "bt");
 }
