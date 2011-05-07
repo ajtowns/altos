@@ -257,6 +257,9 @@ ao_btm_isr(void)
 	__interrupt 15
 #endif
 {
+#if BT_LINK_ON_P1
+	P1IF = 0;
+#endif
 	if (BT_PIFG & (1 << BT_LINK_PIN_INDEX)) {
 		ao_btm_check_link();
 		ao_wakeup(&ao_btm_connected);
