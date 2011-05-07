@@ -254,6 +254,15 @@ ao_btm_init (void)
 	ao_serial_init();
 	ao_serial_set_speed(AO_SERIAL_SPEED_19200);
 
+#if BT_LINK_ON_P1
+	/*
+	 * Configure ser reset line
+	 */
+
+	P1_6 = 0;
+	P1DIR |= (1 << 6);
+#endif
+
 	/*
 	 * Configure link status line
 	 */
