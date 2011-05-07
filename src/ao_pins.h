@@ -250,7 +250,7 @@
 #if defined(TELEBT_V_0_1)
 	#define HAS_FLIGHT		0
 	#define HAS_USB			1
-	#define HAS_BEEP		0
+	#define HAS_BEEP		1
 	#define HAS_SERIAL_1		1
 	#define HAS_SERIAL_1_ALT_1	1
 	#define HAS_SERIAL_1_ALT_2	0

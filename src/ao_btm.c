@@ -166,6 +166,10 @@ ao_btm(void)
 	 */
 	ao_delay(AO_SEC_TO_TICKS(3));
 
+#if HAS_BEEP
+	ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(200));
+#endif
+
 	/*
 	 * The first time we connect, the BTM-180 comes up at 19200 baud.
 	 * After that, it will remember and come up at 57600 baud. So, see

@@ -259,6 +259,7 @@ TBT_V_0_1_SRC = \
 	$(TBT_BASE_SRC) \
 	$(SPI_DRIVER_SRC) \
 	$(M25_DRIVER_SRC) \
+	$(BEEP_DRIVER_SRC) \
 	ao_log_telem.c
 
 #
