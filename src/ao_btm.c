@@ -253,6 +253,9 @@ ao_btm_check_link() __critical
 
 void
 ao_btm_isr(void)
+#if BT_LINK_ON_P1
+	__interrupt 15
+#endif
 {
 	if (BT_PIFG & (1 << BT_LINK_PIN_INDEX)) {
 		ao_btm_check_link();

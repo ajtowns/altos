@@ -1367,9 +1367,17 @@ ao_packet_slave_init(uint8_t enable);
 
 /* ao_btm.c */
 
-/* Shared by USB, so the USB code calls this function */
+/* If bt_link is on P2, this interrupt is shared by USB, so the USB
+ * code calls this function. Otherwise, it's a regular ISR.
+ */
+
 void
-ao_btm_isr(void);
+ao_btm_isr(void)
+#if BT_LINK_ON_P1
+	__interrupt 15
+#endif
+	;
+
 
 void
 ao_btm_init(void);

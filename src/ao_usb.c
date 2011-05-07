@@ -59,7 +59,9 @@ ao_usb_isr(void) __interrupt 6
 	if (USBCIF & USBCIF_RSTIF)
 		ao_usb_set_interrupts();
 #if HAS_BTM
+#if BT_LINK_ON_P2
 	ao_btm_isr();
+#endif
 #endif
 }
 
