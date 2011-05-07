@@ -589,6 +589,12 @@ sfr at 0xFD P0DIR;
 sfr at 0xFE P1DIR;
 sfr at 0xFF P2DIR;
 
+#define P2DIR_PRIP0_USART0_USART1	(0 << 6)
+#define P2DIR_PRIP0_USART1_USART0	(1 << 6)
+#define P2DIR_PRIP0_TIMER1_01_USART1	(2 << 6)
+#define P2DIR_PRIP0_TIMER1_2_USART0	(3 << 6)
+#define P2DIR_PRIP0_MASK		(3 << 6)
+
 sfr at 0x8F P0INP;
 
 /* Select between tri-state and pull up/down

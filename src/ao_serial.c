@@ -127,6 +127,18 @@ ao_serial_set_speed(uint8_t speed)
 void
 ao_serial_init(void)
 {
+#if HAS_SERIAL_1_ALT_1
+	/* Set up the USART pin assignment */
+	PERCFG = (PERCFG & ~PERCFG_U1CFG_ALT_MASK) | PERCFG_U1CFG_ALT_1;
+
+	P2DIR = (P2DIR & ~P2DIR_PRIP0_MASK) | P2DIR_PRIP0_USART1_USART0;
+
+	/* Make the USART pins be controlled by the USART */
+	P0SEL |= (1 << 5) | (1 << 4);
+#if HAS_SERIAL_1_HW_FLOW
+	P0SEL |= (1 << 3) | (1 << 2);
+#endif
+#else
 	/* Set up the USART pin assignment */
 	PERCFG = (PERCFG & ~PERCFG_U1CFG_ALT_MASK) | PERCFG_U1CFG_ALT_2;
 
@@ -135,6 +147,8 @@ ao_serial_init(void)
 
 	/* Make the USART pins be controlled by the USART */
 	P1SEL |= (1 << 6) | (1 << 7);
+	P1SEL |= (1 << 5) | (1 << 4);
+#endif
 
 	/* UART mode with receiver enabled */
 	U1CSR = (UxCSR_MODE_UART | UxCSR_RE);
@@ -144,7 +158,11 @@ ao_serial_init(void)
 
 	/* Reasonable serial parameters */
 	U1UCR = (UxUCR_FLUSH |
+#if HAS_SERIAL_1_HW_FLOW
+		 UxUCR_FLOW_ENABLE |
+#else
 		 UxUCR_FLOW_DISABLE |
+#endif
 		 UxUCR_D9_EVEN_PARITY |
 		 UxUCR_BIT9_8_BITS |
 		 UxUCR_PARITY_DISABLE |

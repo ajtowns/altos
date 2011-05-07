@@ -248,6 +248,9 @@
 	#define HAS_USB			1
 	#define HAS_BEEP		0
 	#define HAS_SERIAL_1		1
+	#define HAS_SERIAL_1_ALT_1	1
+	#define HAS_SERIAL_1_ALT_2	0
+	#define HAS_SERIAL_1_HW_FLOW	1
 	#define USE_SERIAL_STDIN	1
 	#define HAS_ADC			0
 	#define HAS_DBG			1
