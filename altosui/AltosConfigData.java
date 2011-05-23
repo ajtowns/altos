@@ -51,6 +51,7 @@ public class AltosConfigData implements Iterable<String> {
 	int	accel_cal_plus, accel_cal_minus;
 	int	radio_calibration;
 	int	flight_log_max;
+	int	ignite_mode;
 
 
 	static String get_string(String line, String label) throws  ParseException {
@@ -96,6 +97,7 @@ public class AltosConfigData implements Iterable<String> {
 			try { radio_channel = get_int(line, "Radio channel:"); } catch (Exception e) {}
 			try { radio_calibration = get_int(line, "Radio cal:"); } catch (Exception e) {}
 			try { flight_log_max = get_int(line, "Max flight log:"); } catch (Exception e) {}
+			try { ignite_mode = get_int(line, "Ignite mode:"); } catch (Exception e) {}
 			try { callsign = get_string(line, "Callsign:"); } catch (Exception e) {}
 			try { version = get_string(line,"software-version"); } catch (Exception e) {}
 			try { product = get_string(line,"product"); } catch (Exception e) {}

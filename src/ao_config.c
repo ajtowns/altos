@@ -27,6 +27,7 @@ __xdata uint8_t ao_config_mutex;
 #define AO_CONFIG_DEFAULT_CALLSIGN	"N0CALL"
 #define AO_CONFIG_DEFAULT_ACCEL_ZERO_G	16000
 #define AO_CONFIG_DEFAULT_APOGEE_DELAY	0
+#define AO_CONFIG_DEFAULT_IGNITE_MODE	AO_IGNITE_MODE_DUAL
 #if USE_INTERNAL_EEPROM
 #define AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX	ao_storage_config
 #else
@@ -75,6 +76,7 @@ _ao_config_get(void)
 		ao_config.apogee_delay = AO_CONFIG_DEFAULT_APOGEE_DELAY;
 		ao_config.radio_cal = ao_radio_cal;
 		ao_config.flight_log_max = AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX;
+		ao_config.ignite_mode = AO_CONFIG_DEFAULT_IGNITE_MODE;
 		ao_config_dirty = 1;
 	}
 	if (ao_config.minor < AO_CONFIG_MINOR) {
@@ -92,6 +94,9 @@ _ao_config_get(void)
 		/* Fixups for minor version 4 */
 		if (ao_config.minor < 4)
 			ao_config.flight_log_max = AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX;
+		/* Fixupes for minor version 5 */
+		if (ao_config.minor < 5)
+			ao_config.ignite_mode = AO_CONFIG_DEFAULT_IGNITE_MODE;
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
@@ -334,6 +339,28 @@ ao_config_log_set(void) __reentrant
 }
 #endif /* HAS_EEPROM */
 
+#if HAS_IGNITE
+void
+ao_config_ignite_mode_show(void) __reentrant
+{
+	printf("Ignite mode: %d\n", ao_config.ignite_mode);
+}
+
+void
+ao_config_ignite_mode_set(void) __reentrant
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	ao_mutex_get(&ao_config_mutex);
+	_ao_config_get();
+	ao_config.ignite_mode = ao_cmd_lex_i;
+	ao_config_dirty = 1;
+	ao_mutex_put(&ao_config_mutex);
+	ao_config_log_show();
+}
+#endif
+
 struct ao_config_var {
 	__code char	*str;
 	void		(*set)(void) __reentrant;
@@ -369,6 +396,10 @@ __code struct ao_config_var ao_config_vars[] = {
 #if HAS_EEPROM
 	{ "l <size>\0Flight log size in kB",
 	  ao_config_log_set,		ao_config_log_show },
+#endif
+#if HAS_IGNITE
+	{ "i <0 dual, 1 apogee, 2 main>\0Set igniter mode",
+	  ao_config_ignite_mode_set,	ao_config_ignite_mode_show },
 #endif
 	{ "s\0Show",
 	  ao_config_show,		ao_config_show },
