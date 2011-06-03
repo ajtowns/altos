@@ -326,6 +326,16 @@ public class AltosTelemetry extends AltosRecord {
 		AltosParse.word(words[i++], "fp:");
 		flight_pres = AltosParse.parse_int(words[i++]);
 
+		/* Old TeleDongle code with kalman-reporting TeleMetrum code */
+		if ((flight_vel & 0xffff0000) == 0x80000000) {
+			speed = ((short) flight_vel) / 16.0;
+			acceleration = flight_accel / 16.0;
+			height = flight_pres;
+			flight_vel = MISSING;
+			flight_pres = MISSING;
+			flight_accel = MISSING;
+		}
+
 		AltosParse.word(words[i++], "gp:");
 		ground_pres = AltosParse.parse_int(words[i++]);
 
