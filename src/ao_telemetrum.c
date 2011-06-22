@@ -57,7 +57,7 @@ main(void)
 	ao_serial_init();
 	ao_gps_init();
 	ao_gps_report_init();
-	ao_telemetry_init();
+	ao_telemetry_orig_init();
 	ao_radio_init();
 	ao_packet_slave_init(TRUE);
 	ao_igniter_init();

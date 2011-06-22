@@ -1079,10 +1079,11 @@ struct ao_telemetry_tiny {
 /*
  * ao_radio_recv tacks on rssi and status bytes
  */
-struct ao_telemetry_recv {
-	struct ao_telemetry	telemetry;
-	int8_t			rssi;
-	uint8_t			status;
+
+struct ao_telemetry_orig_recv {
+	struct ao_telemetry_orig	telemetry_orig;
+	int8_t				rssi;
+	uint8_t				status;
 };
 
 struct ao_telemetry_tiny_recv {
@@ -1104,7 +1105,7 @@ void
 ao_rdf_set(uint8_t rdf);
 
 void
-ao_telemetry_init(void);
+ao_telemetry_orig_init(void);
 
 void
 ao_telemetry_tiny_init(void);
@@ -1160,7 +1161,7 @@ void
 ao_monitor(void);
 
 #define AO_MONITORING_OFF	0
-#define AO_MONITORING_FULL	1
+#define AO_MONITORING_ORIG	1
 #define AO_MONITORING_TINY	2
 
 void

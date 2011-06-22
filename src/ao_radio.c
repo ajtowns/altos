@@ -161,8 +161,6 @@ static __code uint8_t radio_setup[] = {
 	RF_SYNC0_OFF,		0x91,
 
 	/* max packet length */
-	RF_PKTLEN_OFF,		sizeof (struct ao_telemetry),
-
 	RF_PKTCTRL1_OFF,	((1 << PKTCTRL1_PQT_SHIFT)|
 				 PKTCTRL1_APPEND_STATUS|
 				 PKTCTRL1_ADR_CHK_NONE),
@@ -233,7 +231,6 @@ static __code uint8_t fixed_pkt_setup[] = {
 				 (DEVIATION_M << RF_DEVIATN_DEVIATION_M_SHIFT)),
 
 	/* max packet length -- now set inline */
-	// RF_PKTLEN_OFF,		sizeof (struct ao_telemetry),
 	RF_PKTCTRL1_OFF,	((1 << PKTCTRL1_PQT_SHIFT)|
 				 PKTCTRL1_APPEND_STATUS|
 				 PKTCTRL1_ADR_CHK_NONE),

@@ -26,11 +26,12 @@ ao_monitor(void)
 {
 	__xdata char callsign[AO_MAX_CALLSIGN+1];
 	__xdata union {
-		struct ao_telemetry_recv	full;
+		struct ao_telemetry_orig_recv	orig;
 		struct ao_telemetry_tiny_recv	tiny;
 	} u;
 
-#define recv		(u.full)
+#define recv_raw	(u.raw)
+#define recv_orig	(u.orig)
 #define recv_tiny	(u.tiny)
 
 	uint8_t state;
@@ -39,18 +40,19 @@ ao_monitor(void)
 	for (;;) {
 		__critical while (!ao_monitoring)
 			ao_sleep(&ao_monitoring);
-		if (ao_monitoring == AO_MONITORING_FULL) {
-			if (!ao_radio_recv(&recv, sizeof (struct ao_telemetry_recv)))
+		switch (ao_monitoring) {
+		case AO_MONITORING_ORIG:
+			if (!ao_radio_recv(&recv_orig, sizeof (struct ao_telemetry_orig_recv)))
 				continue;
 
-			state = recv.telemetry.flight_state;
+			state = recv_orig.telemetry_orig.flight_state;
 
 			/* Typical RSSI offset for 38.4kBaud at 433 MHz is 74 */
-			rssi = (int16_t) (recv.rssi >> 1) - 74;
-			memcpy(callsign, recv.telemetry.callsign, AO_MAX_CALLSIGN);
+			rssi = (int16_t) (recv_orig.rssi >> 1) - 74;
+			memcpy(callsign, recv_orig.telemetry_orig.callsign, AO_MAX_CALLSIGN);
 			if (state > ao_flight_invalid)
 				state = ao_flight_invalid;
-			if (recv.status & PKT_APPEND_STATUS_1_CRC_OK) {
+			if (recv_orig.status & PKT_APPEND_STATUS_1_CRC_OK) {
 
 				/* General header fields */
 				printf(AO_TELEM_VERSION " %d "
@@ -62,11 +64,11 @@ ao_monitor(void)
 				       AO_TELEM_TICK " %d ",
 				       AO_TELEMETRY_VERSION,
 				       callsign,
-				       recv.telemetry.serial,
-				       recv.telemetry.flight,
+				       recv_orig.telemetry_orig.serial,
+				       recv_orig.telemetry_orig.flight,
 				       rssi,
 				       ao_state_names[state],
-				       recv.telemetry.adc.tick);
+				       recv_orig.telemetry_orig.adc.tick);
 
 				/* Raw sensor values */
 				printf(AO_TELEM_RAW_ACCEL " %d "
@@ -75,48 +77,49 @@ ao_monitor(void)
 				       AO_TELEM_RAW_BATT " %d "
 				       AO_TELEM_RAW_DROGUE " %d "
 				       AO_TELEM_RAW_MAIN " %d ",
-				       recv.telemetry.adc.accel,
-				       recv.telemetry.adc.pres,
-				       recv.telemetry.adc.temp,
-				       recv.telemetry.adc.v_batt,
-				       recv.telemetry.adc.sense_d,
-				       recv.telemetry.adc.sense_m);
+				       recv_orig.telemetry_orig.adc.accel,
+				       recv_orig.telemetry_orig.adc.pres,
+				       recv_orig.telemetry_orig.adc.temp,
+				       recv_orig.telemetry_orig.adc.v_batt,
+				       recv_orig.telemetry_orig.adc.sense_d,
+				       recv_orig.telemetry_orig.adc.sense_m);
 
 				/* Sensor calibration values */
 				printf(AO_TELEM_CAL_ACCEL_GROUND " %d "
 				       AO_TELEM_CAL_BARO_GROUND " %d "
 				       AO_TELEM_CAL_ACCEL_PLUS " %d "
 				       AO_TELEM_CAL_ACCEL_MINUS " %d ",
-				       recv.telemetry.ground_accel,
-				       recv.telemetry.ground_pres,
-				       recv.telemetry.accel_plus_g,
-				       recv.telemetry.accel_minus_g);
+				       recv_orig.telemetry_orig.ground_accel,
+				       recv_orig.telemetry_orig.ground_pres,
+				       recv_orig.telemetry_orig.accel_plus_g,
+				       recv_orig.telemetry_orig.accel_minus_g);
 
-				if (recv.telemetry.u.k.unused == 0x8000) {
+				if (recv_orig.telemetry_orig.u.k.unused == 0x8000) {
 					/* Kalman state values */
 					printf(AO_TELEM_KALMAN_HEIGHT " %d "
 					       AO_TELEM_KALMAN_SPEED " %d "
 					       AO_TELEM_KALMAN_ACCEL " %d ",
-					       recv.telemetry.height,
-					       recv.telemetry.u.k.speed,
-					       recv.telemetry.accel);
+					       recv_orig.telemetry_orig.height,
+					       recv_orig.telemetry_orig.u.k.speed,
+					       recv_orig.telemetry_orig.accel);
 				} else {
 					/* Ad-hoc flight values */
 					printf(AO_TELEM_ADHOC_ACCEL " %d "
 					       AO_TELEM_ADHOC_SPEED " %ld "
 					       AO_TELEM_ADHOC_BARO " %d ",
-					       recv.telemetry.accel,
-					       recv.telemetry.u.flight_vel,
-					       recv.telemetry.height);
+					       recv_orig.telemetry_orig.accel,
+					       recv_orig.telemetry_orig.u.flight_vel,
+					       recv_orig.telemetry_orig.height);
 				}
-				ao_gps_print(&recv.telemetry.gps);
-				ao_gps_tracking_print(&recv.telemetry.gps_tracking);
+				ao_gps_print(&recv_orig.telemetry_orig.gps);
+				ao_gps_tracking_print(&recv_orig.telemetry_orig.gps_tracking);
 				putchar('\n');
 				ao_rssi_set(rssi);
 			} else {
 				printf("CRC INVALID RSSI %3d\n", rssi);
 			}
-		} else {
+			break;
+		case AO_MONITORING_TINY:
 			if (!ao_radio_recv(&recv_tiny, sizeof (struct ao_telemetry_tiny_recv)))
 				continue;
 
@@ -181,6 +184,7 @@ ao_monitor(void)
 			} else {
 				printf("CRC INVALID RSSI %3d\n", rssi);
 			}
+			break;
 		}
 		ao_usb_flush();
 		ao_led_toggle(ao_monitor_led);
