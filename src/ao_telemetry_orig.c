@@ -25,11 +25,11 @@ __xdata uint16_t ao_rdf_time;
 #define AO_RDF_LENGTH_MS	500
 
 void
-ao_telemetry(void)
+ao_telemetry_orig(void)
 {
 	uint16_t	time;
 	int16_t		delay;
-	static __xdata struct ao_telemetry telemetry;
+	static __xdata struct ao_telemetry_orig telemetry;
 
 	ao_config_get();
 	while (!ao_flight_number)
@@ -96,10 +96,10 @@ ao_rdf_set(uint8_t rdf)
 		ao_rdf_time = ao_time();
 }
 
-__xdata struct ao_task	ao_telemetry_task;
+__xdata struct ao_task	ao_telemetry_orig_task;
 
 void
-ao_telemetry_init()
+ao_telemetry_orig_init()
 {
-	ao_add_task(&ao_telemetry_task, ao_telemetry, "telemetry");
+	ao_add_task(&ao_telemetry_orig_task, ao_telemetry_orig, "telemetry_orig");
 }

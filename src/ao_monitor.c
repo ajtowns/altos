@@ -26,6 +26,7 @@ ao_monitor(void)
 {
 	__xdata char callsign[AO_MAX_CALLSIGN+1];
 	__xdata union {
+		struct ao_telemetry_raw_recv	raw;
 		struct ao_telemetry_orig_recv	orig;
 		struct ao_telemetry_tiny_recv	tiny;
 	} u;
@@ -184,6 +185,15 @@ ao_monitor(void)
 			} else {
 				printf("CRC INVALID RSSI %3d\n", rssi);
 			}
+			break;
+		default:
+			if (ao_monitoring > AO_MAX_TELEMETRY)
+				ao_monitoring = AO_MAX_TELEMETRY;
+			if (!ao_radio_recv(&recv_raw, ao_monitoring))
+				continue;
+			for (state = 0; state < ao_monitoring + 1; state++)
+				printf("%02x ", recv_raw.packet[state]);
+			printf("%02x\n", recv_raw.packet[state]);
 			break;
 		}
 		ao_usb_flush();

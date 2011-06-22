@@ -1036,12 +1036,13 @@ void
 ao_gps_report_init(void);
 
 /*
- * ao_telemetry.c
+ * ao_telemetry_orig.c
  */
 
 #define AO_MAX_CALLSIGN			8
+#define AO_MAX_TELEMETRY		128
 
-struct ao_telemetry {
+struct ao_telemetry_orig {
 	uint16_t		serial;
 	uint16_t		flight;
 	uint8_t			flight_state;
@@ -1079,6 +1080,10 @@ struct ao_telemetry_tiny {
 /*
  * ao_radio_recv tacks on rssi and status bytes
  */
+
+struct ao_telemetry_raw_recv {
+	uint8_t			packet[AO_MAX_TELEMETRY + 2];
+};
 
 struct ao_telemetry_orig_recv {
 	struct ao_telemetry_orig	telemetry_orig;
