@@ -36,6 +36,7 @@ ao_monitor(void)
 #define recv_tiny	(u.tiny)
 
 	uint8_t state;
+	uint8_t sum, byte;
 	int16_t rssi;
 
 	for (;;) {
@@ -191,9 +192,14 @@ ao_monitor(void)
 				ao_monitoring = AO_MAX_TELEMETRY;
 			if (!ao_radio_recv(&recv_raw, ao_monitoring))
 				continue;
-			for (state = 0; state < ao_monitoring + 1; state++)
-				printf("%02x ", recv_raw.packet[state]);
-			printf("%02x\n", recv_raw.packet[state]);
+			printf ("TELEM %02x", ao_monitoring+2);
+			sum = 0x5a;
+			for (state = 0; state < ao_monitoring + 2; state++) {
+				byte = recv_raw.packet[state];
+				sum += byte;
+				printf("%02x", byte);
+			}
+			printf("%02x\n", sum);
 			break;
 		}
 		ao_usb_flush();
