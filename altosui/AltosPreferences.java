@@ -216,7 +216,7 @@ class AltosPreferences {
 		if (telemetries.containsKey(serial))
 			return telemetries.get(serial);
 		int telemetry = preferences.getInt(String.format(telemetryPreferenceFormat, serial),
-						   Altos.ao_telemetry_full);
+						   Altos.ao_telemetry_split);
 		telemetries.put(serial, telemetry);
 		return telemetry;
 	}

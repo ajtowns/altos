@@ -95,7 +95,7 @@ public class AltosSerial implements Runnable {
 							}
 							if (debug)
 								System.out.printf("\t\t\t\t\t%s\n", line);
-							if (line.startsWith("VERSION") || line.startsWith("CRC")) {
+							if (line.startsWith("TELEM") || line.startsWith("VERSION") || line.startsWith("CRC")) {
 								for (int e = 0; e < monitors.size(); e++) {
 									LinkedBlockingQueue<AltosLine> q = monitors.get(e);
 									q.put(new AltosLine (line));
@@ -325,11 +325,22 @@ public class AltosSerial implements Runnable {
 		set_callsign(AltosPreferences.callsign());
 	}
 
+	private int telemetry_len() {
+		switch (telemetry) {
+		case 1:
+		default:
+			return Altos.ao_telemetry_legacy_len;
+		case 2:
+			return Altos.ao_telemetry_split_len;
+		}
+	}
+
 	public void set_channel(int in_channel) {
 		channel = in_channel;
 		if (altos != null) {
 			if (monitor_mode)
-				printf("m 0\nc r %d\nm %d\n", channel, telemetry);
+				printf("m 0\nc r %d\nm %x\n",
+				       channel, telemetry_len());
 			else
 				printf("c r %d\n", channel);
 			flush_output();
@@ -340,7 +351,7 @@ public class AltosSerial implements Runnable {
 		telemetry = in_telemetry;
 		if (altos != null) {
 			if (monitor_mode)
-				printf("m 0\nm %d\n", telemetry);
+				printf("m 0\nm %x\n", telemetry_len());
 			flush_output();
 		}
 	}
@@ -349,7 +360,7 @@ public class AltosSerial implements Runnable {
 		monitor_mode = monitor;
 		if (altos != null) {
 			if (monitor)
-				printf("m %d\n", telemetry);
+				printf("m %x\n", telemetry_len());
 			else
 				printf("m 0\n");
 			flush_output();
@@ -393,7 +404,7 @@ public class AltosSerial implements Runnable {
 		line = "";
 		monitor_mode = false;
 		frame = null;
-		telemetry = Altos.ao_telemetry_full;
+		telemetry = Altos.ao_telemetry_split;
 		monitors = new LinkedList<LinkedBlockingQueue<AltosLine>> ();
 		reply_queue = new LinkedBlockingQueue<AltosLine> ();
 		open();

@@ -54,9 +54,10 @@ class AltosLog implements Runnable {
 		}
 	}
 
-	boolean open (AltosTelemetry telem) throws IOException {
+	boolean open (AltosRecord telem) throws IOException {
 		AltosFile	a = new AltosFile(telem);
 
+		System.out.printf("open %s\n", a.toString());
 		log_file = new FileWriter(a, true);
 		if (log_file != null) {
 			while (!pending_queue.isEmpty()) {
@@ -74,18 +75,21 @@ class AltosLog implements Runnable {
 
 	public void run () {
 		try {
+			AltosRecord	previous = null;
 			for (;;) {
 				AltosLine	line = input_queue.take();
 				if (line.line == null)
 					continue;
 				try {
-					AltosTelemetry	telem = new AltosTelemetry(line.line);
+					AltosRecord	telem = AltosTelemetry.parse(line.line, previous);
 					if (telem.serial != serial || telem.flight != flight || log_file == null) {
 						close_log_file();
 						serial = telem.serial;
 						flight = telem.flight;
+						System.out.printf("Opening telem %d %d\n", serial, flight);
 						open(telem);
 					}
+					previous = telem;
 				} catch (ParseException pe) {
 				} catch (AltosCRCException ce) {
 				}

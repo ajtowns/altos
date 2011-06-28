@@ -26,6 +26,7 @@ class AltosTelemetryReader extends AltosFlightReader {
 	AltosDevice	device;
 	AltosSerial	serial;
 	AltosLog	log;
+	AltosRecord	previous;
 
 	LinkedBlockingQueue<AltosLine> telem;
 
@@ -33,7 +34,9 @@ class AltosTelemetryReader extends AltosFlightReader {
 		AltosLine l = telem.take();
 		if (l.line == null)
 			throw new IOException("IO error");
-		return new AltosTelemetry(l.line);
+		AltosRecord	next = AltosTelemetry.parse(l.line, previous);
+		previous = next;
+		return next;
 	}
 
 	void close(boolean interrupted) {
@@ -58,6 +61,7 @@ class AltosTelemetryReader extends AltosFlightReader {
 		serial = new AltosSerial(device);
 		log = new AltosLog(serial);
 		name = device.toShortString();
+		previous = null;
 
 		telem = new LinkedBlockingQueue<AltosLine>();
 		serial.set_radio();

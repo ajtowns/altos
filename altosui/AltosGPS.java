@@ -21,10 +21,6 @@ import java.lang.*;
 import java.text.*;
 
 public class AltosGPS {
-	public class AltosGPSSat {
-		int	svid;
-		int	c_n0;
-	}
 
 	final static int MISSING = AltosRecord.MISSING;
 
@@ -158,9 +154,9 @@ public class AltosGPS {
 			else
 				tracking_channels = AltosParse.parse_int(words[i]);
 			i++;
-			cc_gps_sat = new AltosGPS.AltosGPSSat[tracking_channels];
+			cc_gps_sat = new AltosGPSSat[tracking_channels];
 			for (int chan = 0; chan < tracking_channels; chan++) {
-				cc_gps_sat[chan] = new AltosGPS.AltosGPSSat();
+				cc_gps_sat[chan] = new AltosGPSSat();
 				cc_gps_sat[chan].svid = AltosParse.parse_int(words[i++]);
 				/* Older versions included SiRF status bits */
 				if (version < 2)
@@ -168,7 +164,7 @@ public class AltosGPS {
 				cc_gps_sat[chan].c_n0 = AltosParse.parse_int(words[i++]);
 			}
 		} else
-			cc_gps_sat = new AltosGPS.AltosGPSSat[0];
+			cc_gps_sat = new AltosGPSSat[0];
 	}
 
 	public void set_latitude(int in_lat) {
@@ -201,14 +197,14 @@ public class AltosGPS {
 
 	public void add_sat(int svid, int c_n0) {
 		if (cc_gps_sat == null) {
-			cc_gps_sat = new AltosGPS.AltosGPSSat[1];
+			cc_gps_sat = new AltosGPSSat[1];
 		} else {
-			AltosGPSSat[] new_gps_sat = new AltosGPS.AltosGPSSat[cc_gps_sat.length + 1];
+			AltosGPSSat[] new_gps_sat = new AltosGPSSat[cc_gps_sat.length + 1];
 			for (int i = 0; i < cc_gps_sat.length; i++)
 				new_gps_sat[i] = cc_gps_sat[i];
 			cc_gps_sat = new_gps_sat;
 		}
-		AltosGPS.AltosGPSSat	sat = new AltosGPS.AltosGPSSat();
+		AltosGPSSat	sat = new AltosGPSSat();
 		sat.svid = svid;
 		sat.c_n0 = c_n0;
 		cc_gps_sat[cc_gps_sat.length - 1] = sat;

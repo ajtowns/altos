@@ -25,6 +25,15 @@ import java.io.*;
 public class AltosRecord {
 	final static int	MISSING = 0x7fffffff;
 
+	static final int	seen_flight = 1;
+	static final int	seen_sensor = 2;
+	static final int	seen_temp_volt = 4;
+	static final int	seen_deploy = 8;
+	static final int	seen_gps_time = 16;
+	static final int	seen_gps_lat = 32;
+	static final int	seen_gps_lon = 64;
+	int			seen;
+
 	int	version;
 	String 	callsign;
 	int	serial;
@@ -226,6 +235,7 @@ public class AltosRecord {
 
 	public AltosRecord(AltosRecord old) {
 		version = old.version;
+		seen = old.seen;
 		callsign = old.callsign;
 		serial = old.serial;
 		flight = old.flight;
@@ -254,6 +264,7 @@ public class AltosRecord {
 
 	public AltosRecord() {
 		version = 0;
+		seen = 0;
 		callsign = "N0CALL";
 		serial = 0;
 		flight = 0;

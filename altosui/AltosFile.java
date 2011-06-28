@@ -38,7 +38,7 @@ class AltosFile extends File {
 		     extension);
 	}
 
-	public AltosFile(AltosTelemetry telem) {
+	public AltosFile(AltosRecord telem) {
 		this(telem.serial, telem.flight, "telem");
 	}
 }

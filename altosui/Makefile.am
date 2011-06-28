@@ -51,6 +51,7 @@ altosui_JAVA = \
 	AltosFlightStatus.java \
 	AltosFlightUI.java \
 	AltosGPS.java \
+	AltosGPSSat.java \
 	AltosGreatCircle.java \
 	AltosHexfile.java \
 	Altos.java \
@@ -70,6 +71,11 @@ altosui_JAVA = \
 	AltosRecord.java \
 	AltosRecordIterable.java \
 	AltosTelemetryReader.java \
+	AltosTelemetryRecord.java \
+	AltosTelemetryRecordGeneral.java \
+	AltosTelemetryRecordRaw.java \
+	AltosTelemetryRecordSensor.java \
+	AltosTelemetryRecordLegacy.java \
 	AltosTelemetryMap.java \
 	AltosReplayReader.java \
 	AltosRomconfig.java \

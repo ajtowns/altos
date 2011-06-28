@@ -230,6 +230,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 		case Altos.AO_LOG_SOFTWARE_VERSION:
 			break;
 		}
+		state.seen |= eeprom.seen;
 	}
 
 	LinkedList<AltosRecord> make_list() {

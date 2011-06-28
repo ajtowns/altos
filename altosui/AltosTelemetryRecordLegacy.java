@@ -84,8 +84,7 @@ import java.util.HashMap;
  *
  */
 
-public class AltosTelemetry extends AltosRecord {
-
+public class AltosTelemetryRecordLegacy extends AltosRecord implements AltosTelemetryRecord {
 	/*
 	 * General header fields
 	 *
@@ -233,9 +232,281 @@ public class AltosTelemetry extends AltosRecord {
 	final static String AO_TELEM_SAT_SVID	= "s_v";
 	final static String AO_TELEM_SAT_C_N_0	= "s_c";
 
-	static public AltosRecord parse(String line, AltosRecord previous) throws ParseException, AltosCRCException {
-		AltosTelemetryRecord	r = AltosTelemetryRecordGeneral.parse(line);
+	private void parse_v4(String[] words, int i) throws ParseException {
+		AltosTelemetryMap	map = new AltosTelemetryMap(words, i);
 
-		return r.update_state(previous);
+		callsign = map.get_string(AO_TELEM_CALL, "N0CALL");
+		serial = map.get_int(AO_TELEM_SERIAL, MISSING);
+		flight = map.get_int(AO_TELEM_FLIGHT, MISSING);
+		rssi = map.get_int(AO_TELEM_RSSI, MISSING);
+		state = Altos.state(map.get_string(AO_TELEM_STATE, "invalid"));
+		tick = map.get_int(AO_TELEM_TICK, 0);
+
+		/* raw sensor values */
+		accel = map.get_int(AO_TELEM_RAW_ACCEL, MISSING);
+		pres = map.get_int(AO_TELEM_RAW_BARO, MISSING);
+		temp = map.get_int(AO_TELEM_RAW_THERMO, MISSING);
+		batt = map.get_int(AO_TELEM_RAW_BATT, MISSING);
+		drogue = map.get_int(AO_TELEM_RAW_DROGUE, MISSING);
+		main = map.get_int(AO_TELEM_RAW_MAIN, MISSING);
+
+		/* sensor calibration information */
+		ground_accel = map.get_int(AO_TELEM_CAL_ACCEL_GROUND, MISSING);
+		ground_pres = map.get_int(AO_TELEM_CAL_BARO_GROUND, MISSING);
+		accel_plus_g = map.get_int(AO_TELEM_CAL_ACCEL_PLUS, MISSING);
+		accel_minus_g = map.get_int(AO_TELEM_CAL_ACCEL_MINUS, MISSING);
+
+		/* flight computer values */
+		acceleration = map.get_double(AO_TELEM_KALMAN_ACCEL, MISSING, 1/16.0);
+		speed = map.get_double(AO_TELEM_KALMAN_SPEED, MISSING, 1/16.0);
+		height = map.get_int(AO_TELEM_KALMAN_HEIGHT, MISSING);
+
+		flight_accel = map.get_int(AO_TELEM_ADHOC_ACCEL, MISSING);
+		flight_vel = map.get_int(AO_TELEM_ADHOC_SPEED, MISSING);
+		flight_pres = map.get_int(AO_TELEM_ADHOC_BARO, MISSING);
+
+		if (map.has(AO_TELEM_GPS_STATE))
+			gps = new AltosGPS(map);
+		else
+			gps = null;
+	}
+
+	private void parse_legacy(String[] words, int i) throws ParseException {
+
+		AltosParse.word (words[i++], "CALL");
+		callsign = words[i++];
+
+		AltosParse.word (words[i++], "SERIAL");
+		serial = AltosParse.parse_int(words[i++]);
+
+		if (version >= 2) {
+			AltosParse.word (words[i++], "FLIGHT");
+			flight = AltosParse.parse_int(words[i++]);
+		} else
+			flight = 0;
+
+		AltosParse.word(words[i++], "RSSI");
+		rssi = AltosParse.parse_int(words[i++]);
+
+		/* Older telemetry data had mis-computed RSSI value */
+		if (version <= 2)
+			rssi = (rssi + 74) / 2 - 74;
+
+		AltosParse.word(words[i++], "STATUS");
+		status = AltosParse.parse_hex(words[i++]);
+
+		AltosParse.word(words[i++], "STATE");
+		state = Altos.state(words[i++]);
+
+		tick = AltosParse.parse_int(words[i++]);
+
+		AltosParse.word(words[i++], "a:");
+		accel = AltosParse.parse_int(words[i++]);
+
+		AltosParse.word(words[i++], "p:");
+		pres = AltosParse.parse_int(words[i++]);
+
+		AltosParse.word(words[i++], "t:");
+		temp = AltosParse.parse_int(words[i++]);
+
+		AltosParse.word(words[i++], "v:");
+		batt = AltosParse.parse_int(words[i++]);
+
+		AltosParse.word(words[i++], "d:");
+		drogue = AltosParse.parse_int(words[i++]);
+
+		AltosParse.word(words[i++], "m:");
+		main = AltosParse.parse_int(words[i++]);
+
+		AltosParse.word(words[i++], "fa:");
+		flight_accel = AltosParse.parse_int(words[i++]);
+
+		AltosParse.word(words[i++], "ga:");
+		ground_accel = AltosParse.parse_int(words[i++]);
+
+		AltosParse.word(words[i++], "fv:");
+		flight_vel = AltosParse.parse_int(words[i++]);
+
+		AltosParse.word(words[i++], "fp:");
+		flight_pres = AltosParse.parse_int(words[i++]);
+
+		/* Old TeleDongle code with kalman-reporting TeleMetrum code */
+		if ((flight_vel & 0xffff0000) == 0x80000000) {
+			speed = ((short) flight_vel) / 16.0;
+			acceleration = flight_accel / 16.0;
+			height = flight_pres;
+			flight_vel = MISSING;
+			flight_pres = MISSING;
+			flight_accel = MISSING;
+		}
+
+		AltosParse.word(words[i++], "gp:");
+		ground_pres = AltosParse.parse_int(words[i++]);
+
+		if (version >= 1) {
+			AltosParse.word(words[i++], "a+:");
+			accel_plus_g = AltosParse.parse_int(words[i++]);
+
+			AltosParse.word(words[i++], "a-:");
+			accel_minus_g = AltosParse.parse_int(words[i++]);
+		} else {
+			accel_plus_g = ground_accel;
+			accel_minus_g = ground_accel + 530;
+		}
+
+		gps = new AltosGPS(words, i, version);
+	}
+
+	public AltosTelemetryRecordLegacy(String line) throws ParseException, AltosCRCException {
+		String[] words = line.split("\\s+");
+		int	i = 0;
+
+		if (words[i].equals("CRC") && words[i+1].equals("INVALID")) {
+			i += 2;
+			AltosParse.word(words[i++], "RSSI");
+			rssi = AltosParse.parse_int(words[i++]);
+			throw new AltosCRCException(rssi);
+		}
+		if (words[i].equals("CALL")) {
+			version = 0;
+		} else {
+			AltosParse.word (words[i++], "VERSION");
+			version = AltosParse.parse_int(words[i++]);
+		}
+
+		if (version < 4)
+			parse_legacy(words, i);
+		else
+			parse_v4(words, i);
+	}
+
+	/*
+	 * Given a hex dump of a legacy telemetry line, construct an AltosRecord from that
+	 */
+
+	int[]	bytes;
+
+	private int int8(int i) {
+		return Altos.int8(bytes, i + 1);
+	}
+	private int uint8(int i) {
+		return Altos.uint8(bytes, i + 1);
+	}
+	private int int16(int i) {
+		return Altos.int16(bytes, i + 1);
+	}
+	private int uint16(int i) {
+		return Altos.uint16(bytes, i + 1);
+	}
+	private int uint32(int i) {
+		return Altos.uint32(bytes, i + 1);
+	}
+	private String string(int i, int l) {
+		return Altos.string(bytes, i + 1, l);
+	}
+
+	static final int AO_GPS_NUM_SAT_MASK	= (0xf << 0);
+	static final int AO_GPS_NUM_SAT_SHIFT	= (0);
+
+	static final int AO_GPS_VALID		= (1 << 4);
+	static final int AO_GPS_RUNNING		= (1 << 5);
+	static final int AO_GPS_DATE_VALID	= (1 << 6);
+	static final int AO_GPS_COURSE_VALID	= (1 << 7);
+
+	static class theLock extends Object {
+	}
+	static public theLock lockObject = new theLock();
+	public AltosTelemetryRecordLegacy(int[] in_bytes, int in_rssi, int in_status) {
+		bytes = in_bytes;
+		synchronized(lockObject) {
+		for (int i = 0; i < in_bytes.length - 2; i++) {
+			if ((i % 10) == 0)
+				System.out.printf("%3d:", i);
+			System.out.printf(" %02x", uint8(i));
+			if ((i % 10) == 9 || i == in_bytes.length - 3)
+				System.out.printf("\n");
+		}
+		}
+		version = 4;
+		callsign = string(62, 8);
+		serial = uint16(0);
+		flight = uint16(2);
+		rssi = in_rssi;
+		status = in_status;
+		state = uint8(4);
+		tick = uint16(21);
+		accel = int16(23);
+		pres = int16(25);
+		temp = int16(27);
+		batt = int16(29);
+		drogue = int16(31);
+		main = int16(33);
+		
+		ground_accel = int16(7);
+		ground_pres = int16(15);
+		accel_plus_g = int16(17);
+		accel_minus_g = int16(19);
+
+		if (uint16(11) == 0x8000) {
+			acceleration = int16(5);
+			speed = int16(9);
+			height = int16(13);
+			flight_accel = MISSING;
+			flight_vel = MISSING;
+			flight_pres = MISSING;
+		} else {
+			flight_accel = int16(5);
+			flight_vel = uint32(9);
+			flight_pres = int16(13);
+			acceleration = MISSING;
+			speed = MISSING;
+			height = MISSING;
+		}
+
+		gps = null;
+
+		int gps_flags = uint8(41);
+
+		if ((gps_flags & (AO_GPS_VALID|AO_GPS_RUNNING)) != 0) {
+			gps = new AltosGPS();
+
+			gps.nsat = (gps_flags & AO_GPS_NUM_SAT_MASK);
+			gps.locked = (gps_flags & AO_GPS_VALID) != 0;
+			gps.connected = true;
+			gps.lat = uint32(42) / 1.0e7;
+			gps.lon = uint32(46) / 1.0e7;
+			gps.alt = int16(50);
+			gps.ground_speed = uint16(52) / 100.0;
+			gps.course = uint8(54) * 2;
+			gps.hdop = uint8(55) / 5.0;
+			gps.h_error = uint16(58);
+			gps.v_error = uint16(60);
+
+			int	n_tracking_reported = uint8(70);
+			if (n_tracking_reported > 12)
+				n_tracking_reported = 12;
+			int	n_tracking_actual = 0;
+			for (int i = 0; i < n_tracking_reported; i++) {
+				if (uint8(71 + i*2) != 0)
+					n_tracking_actual++;
+			}
+			if (n_tracking_actual > 0) {
+				gps.cc_gps_sat = new AltosGPSSat[n_tracking_actual];
+
+				n_tracking_actual = 0;
+				for (int i = 0; i < n_tracking_reported; i++) {
+					int	svid = uint8(71 + i*2);
+					int	c_n0 = uint8(72 + i*2);
+					if (svid != 0)
+						gps.cc_gps_sat[n_tracking_actual++] = new AltosGPSSat(svid, c_n0);
+				}
+			}
+		}
+
+		time = 0.0;
+	}
+
+	public AltosRecord update_state(AltosRecord previous) {
+		return this;
 	}
 }

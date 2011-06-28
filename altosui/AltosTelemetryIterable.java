@@ -40,6 +40,7 @@ public class AltosTelemetryIterable extends AltosRecordIterable {
 		int	current_tick = 0;
 		int	boost_tick = 0;
 
+		AltosRecord	previous = null;
 		records = new LinkedList<AltosRecord> ();
 
 		try {
@@ -49,9 +50,10 @@ public class AltosTelemetryIterable extends AltosRecordIterable {
 					break;
 				}
 				try {
-					AltosTelemetry record = new AltosTelemetry(line);
+					AltosRecord record = AltosTelemetry.parse(line, previous);
 					if (record == null)
 						break;
+					previous = record;
 					if (records.isEmpty()) {
 						current_tick = record.tick;
 					} else {

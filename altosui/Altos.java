@@ -20,6 +20,7 @@ package altosui;
 import java.awt.*;
 import java.util.*;
 import java.text.*;
+import java.nio.charset.Charset;
 
 import libaltosJNI.*;
 
@@ -69,8 +70,11 @@ public class Altos {
 
 	/* Telemetry modes */
 	static final int ao_telemetry_off = 0;
-	static final int ao_telemetry_full = 1;
-	static final int ao_telemetry_tiny = 2;
+	static final int ao_telemetry_legacy = 1;
+	static final int ao_telemetry_split = 2;
+
+	static final int ao_telemetry_split_len = 32;
+	static final int ao_telemetry_legacy_len = 95;
 
 	static HashMap<String,Integer>	string_to_state = new HashMap<String,Integer>();
 
@@ -199,6 +203,66 @@ public class Altos {
 		if ('0' <= c && c <= '9')
 			return c - '0';
 		return -1;
+	}
+
+	static int int8(int[] bytes, int i) {
+		return (int) (byte) bytes[i];
+	}
+
+	static int uint8(int[] bytes, int i) {
+		return bytes[i];
+	}
+
+	static int int16(int[] bytes, int i) {
+		return (int) (short) (bytes[i] + (bytes[i+1] << 8));
+	}
+
+	static int uint16(int[] bytes, int i) {
+		return bytes[i] + (bytes[i+1] << 8);
+	}
+
+	static int uint32(int[] bytes, int i) {
+		return bytes[i] +
+			(bytes[i+1] << 8) +
+			(bytes[i+2] << 16) +
+			(bytes[i+3] << 24);
+	}
+
+	static final Charset	unicode_set = Charset.forName("UTF-8");
+
+	static String string(int[] bytes, int s, int l) {
+		byte[]	b = new byte[bytes.length];
+		for (int i = 0; i < l; i++)
+			b[i] = (byte) bytes[s+i];
+		return new String(b, unicode_set);
+	}
+
+	static int hexbyte(String s, int i) {
+		int c0, c1;
+
+		if (s.length() < i + 2)
+			throw new NumberFormatException(String.format("invalid hex \"%s\"", s));
+		c0 = s.charAt(i);
+		if (!Altos.ishex(c0))
+			throw new NumberFormatException(String.format("invalid hex \"%c\"", c0));
+		c1 = s.charAt(i+1);
+		if (!Altos.ishex(c1))
+			throw new NumberFormatException(String.format("invalid hex \"%c\"", c1));
+		return Altos.fromhex(c0) * 16 + Altos.fromhex(c1);
+	}
+
+	static int[] hexbytes(String s) {
+		int	n;
+		int[]	r;
+		int	i;
+
+		if ((s.length() & 1) != 0)
+			throw new NumberFormatException(String.format("invalid line \"%s\"", s));
+		n = s.length() / 2;
+		r = new int[n];
+		for (i = 0; i < n; i++)
+			r[i] = Altos.hexbyte(s, i * 2);
+		return r;
 	}
 
 	static int fromdec(String s) throws NumberFormatException {
