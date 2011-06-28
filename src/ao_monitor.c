@@ -190,9 +190,9 @@ ao_monitor(void)
 		default:
 			if (ao_monitoring > AO_MAX_TELEMETRY)
 				ao_monitoring = AO_MAX_TELEMETRY;
-			if (!ao_radio_recv(&recv_raw, ao_monitoring))
+			if (!ao_radio_recv(&recv_raw, ao_monitoring + 2))
 				continue;
-			printf ("TELEM %02x", ao_monitoring+2);
+			printf ("TELEM %02x", ao_monitoring + 2);
 			sum = 0x5a;
 			for (state = 0; state < ao_monitoring + 2; state++) {
 				byte = recv_raw.packet[state];
