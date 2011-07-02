@@ -2,8 +2,8 @@
 #	http://docbook.sourceforge.net/release/xsl/current/README
 #
 
-HTML=altusmetrum.html altos.html
-PDF=altusmetrum.pdf altos.pdf
+HTML=altusmetrum.html altos.html telemetry.html
+PDF=altusmetrum.pdf altos.pdf telemetry.pdf
 DOC=$(HTML) $(PDF)
 HTMLSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/html/docbook.xsl
 FOSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl
@@ -11,11 +11,13 @@ PDFSTYLE=
 
 .SUFFIXES: .xsl .html .fo .pdf
 
+XSLTFLAGS=--stringparam section.autolabel 1
+
 .xsl.html:
-	xsltproc -o $@ $(HTMLSTYLE) $*.xsl
+	xsltproc $(XSLTFLAGS) -o $@ $(HTMLSTYLE) $*.xsl
 
 .xsl.fo:
-	xsltproc -o $@ $(FOSTYLE) $*.xsl
+	xsltproc $(XSLTFLAGS) -o $@ $(FOSTYLE) $*.xsl
 
 .fo.pdf:
 	fop -fo $*.fo -pdf $@
