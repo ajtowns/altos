@@ -20,7 +20,7 @@
 
 /* Defines which mark this particular AltOS product */
 
-const char ao_version[] = AO_iVersion_STRING;
+const char ao_version[AO_MAX_VERSION] = AO_iVersion_STRING;
 const char ao_manufacturer[] = AO_iManufacturer_STRING;
 const char ao_product[] = AO_iProduct_STRING;
 

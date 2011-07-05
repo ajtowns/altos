@@ -1040,14 +1040,15 @@ ao_gps_report_init(void);
  */
 
 #define AO_MAX_CALLSIGN			8
+#define AO_MAX_VERSION			8
 #define AO_MAX_TELEMETRY		128
 
 struct ao_telemetry_generic {
 	uint16_t	serial;		/* 0 */
 	uint16_t	tick;		/* 2 */
 	uint8_t		type;		/* 4 */
-	uint8_t		payload[19];	/* 5 */
-	/* 24 */
+	uint8_t		payload[27];	/* 5 */
+	/* 32 */
 };
 
 #define AO_TELEMETRY_SENSOR_TELEMETRUM	0x01
@@ -1070,31 +1071,46 @@ struct ao_telemetry_sensor {
 	int16_t         acceleration;   /* 18 m/s² * 16 */
 	int16_t         speed;          /* 20 m/s * 16 */
 	int16_t         height;         /* 22 m */
-	/* 24 */
+
+	int16_t		ground_pres;	/* 24 average pres on pad */
+	int16_t		ground_accel;	/* 26 average accel on pad */
+	int16_t		accel_plus_g;	/* 28 accel calibration at +1g */
+	int16_t		accel_minus_g;	/* 30 accel calibration at -1g */
+	/* 32 */
 };
 
-#define AO_TELEMETRY_CONSTANT		0x10
+#define AO_TELEMETRY_CONFIGURATION	0x04
 
-struct ao_telemetry_constant {
-	uint16_t	serial;		/*  0 */
-	uint16_t	tick;		/*  2 */
-	uint8_t		type;		/*  4 */
-	uint8_t         device;         /*  5 device type */
-	uint16_t        flight;		/*  6 flight number */
-	int16_t		ground_accel;   /*  8 average ground accelerometer (TM only) */
-	int16_t		ground_pres;	/* 10 average ground barometer */
-	int16_t		accel_plus_g;   /* 12 +1g accelerometer calibration value (TM only) */
-	int16_t		accel_minus_g;  /* 14 -1g accelermeter calibration value (TM only) */
-	char		callsign[AO_MAX_CALLSIGN];	/* 16 identity */
-	/* 24 */
+struct ao_telemetry_configuration {
+	uint16_t	serial;				/*  0 */
+	uint16_t	tick;				/*  2 */
+	uint8_t		type;				/*  4 */
+
+	uint8_t         device;         		/*  5 device type */
+	uint16_t        flight;				/*  6 flight number */
+	uint8_t		config_major;			/*  8 Config major version */
+	uint8_t		config_minor;			/*  9 Config minor version */
+	uint16_t	main_deploy;			/* 10 Main deploy alt in meters */
+	uint32_t	flight_log_max;			/* 12 Maximum flight log size in bytes */
+	char		callsign[AO_MAX_CALLSIGN];	/* 16 Radio operator identity */
+	char		version[AO_MAX_VERSION];	/* 24 Software version */
+	/* 32 */
 };
 
-#define AO_TELEMETRY_LOCATION		0x11
+#define AO_TELEMETRY_LOCATION		0x05
+
+#define AO_GPS_MODE_NOT_VALID		'N'
+#define AO_GPS_MODE_AUTONOMOUS		'A'
+#define AO_GPS_MODE_DIFFERENTIAL	'D'
+#define AO_GPS_MODE_ESTIMATED		'E'
+#define AO_GPS_MODE_MANUAL		'M'
+#define AO_GPS_MODE_SIMULATED		'S'
 
 struct ao_telemetry_location {
 	uint16_t	serial;		/*  0 */
 	uint16_t	tick;		/*  2 */
 	uint8_t		type;		/*  4 */
+
 	uint8_t         flags;		/*  5 Number of sats and other flags */
 	int16_t         altitude;	/*  6 GPS reported altitude (m) */
 	int32_t         latitude;	/*  8 latitude (degrees * 10⁷) */
@@ -1105,25 +1121,40 @@ struct ao_telemetry_location {
 	uint8_t         hour;		/* 19 (0-23) */
 	uint8_t         minute;		/* 20 (0-59) */
 	uint8_t         second;		/* 21 (0-59) */
-	uint8_t         hdop;		/* 22 (m * 5) */
-	uint8_t         unused;		/* 23 */
-	/* 24 */
+	uint8_t         pdop;		/* 22 (m * 5) */
+	uint8_t         hdop;		/* 23 (m * 5) */
+	uint8_t         vdop;		/* 24 (m * 5) */
+	uint8_t         mode;		/* 25 */
+	uint16_t	ground_speed;	/* 26 cm/s */
+	uint8_t		course;		/* 28 degrees / 2 */
+	uint8_t		unused[3];	/* 29 */
+	/* 32 */
 };
 
 #define AO_TELEMETRY_SATELLITE		0x12
 
+struct ao_telemetry_satellite_info {
+	uint8_t		svid;
+	uint8_t		c_n_1;
+};
+
 struct ao_telemetry_satellite {
-	uint16_t	serial;		/*  0 */
-	uint16_t	tick;		/*  2 */
-	uint8_t		type;		/*  4 */
-	uint8_t		channels;	/*  5 number of reported sats */
-	uint8_t		sats_0_1[3];	/*  6 reported sats 0 and 1 */
-	uint8_t		sats_2_3[3];
-	uint8_t		sats_4_5[3];
-	uint8_t		sats_6_7[3];
-	uint8_t		sats_8_9[3];
-	uint8_t		sats_10_11[3];
-	/* 24 */
+	uint16_t				serial;		/*  0 */
+	uint16_t				tick;		/*  2 */
+	uint8_t					type;		/*  4 */
+	uint8_t					channels;	/*  5 number of reported sats */
+
+	struct ao_telemetry_satellite_info	sats[12];	/* 6 */
+	uint8_t					unused[2];	/* 30 */
+	/* 32 */
+};
+
+union ao_telemetry_all {
+	struct ao_telemetry_generic		generic;
+	struct ao_telemetry_sensor		sensor;
+	struct ao_telemetry_configuration	configuration;
+	struct ao_telemetry_location		location;
+	struct ao_telemetry_satellite		satellite;
 };
 
 #define AO_SAT_0_SSID(s)	((s)[0] & 0x3f)
@@ -1197,6 +1228,9 @@ ao_telemetry_set_interval(uint16_t interval);
 
 void
 ao_rdf_set(uint8_t rdf);
+
+void
+ao_telemetry_init(void);
 
 void
 ao_telemetry_orig_init(void);
