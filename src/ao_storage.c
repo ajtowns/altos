@@ -166,13 +166,13 @@ ao_storage_info(void) __reentrant
 }
 
 __code struct ao_cmds ao_storage_cmds[] = {
-	{ ao_storage_info, "f\0Show storage info" },
-	{ ao_storage_dump, "e <block>\0Dump a block of flash data" },
+	{ ao_storage_info, "f\0Show storage" },
+	{ ao_storage_dump, "e <block>\0Dump flash" },
 #ifdef HAS_STORAGE_DBG
 	{ ao_storage_store, "w <block> <start> <len> <data> ...\0Write data to flash" },
 #endif
-	{ ao_storage_zap, "z <block>\0Erase flash containing <block>" },
-	{ ao_storage_zapall,"Z <key>\0Erase all logs. <key> is doit with D&I" },
+	{ ao_storage_zap, "z <block>\0Erase <block>" },
+	{ ao_storage_zapall,"Z <key>\0Erase all. <key> is doit with D&I" },
 	{ 0, NULL },
 };
 

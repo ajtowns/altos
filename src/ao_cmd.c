@@ -221,8 +221,6 @@ version(void)
 	printf("software-version %s\n", ao_version);
 }
 
-static const char help_txt[] = "All numbers are in hex";
-
 #define NUM_CMDS	11
 
 static __code struct ao_cmds	*__xdata (ao_cmds[NUM_CMDS]);
@@ -234,7 +232,7 @@ help(void)
 	__xdata uint8_t	cmds;
 	__xdata uint8_t cmd;
 	__code struct ao_cmds * __xdata cs;
-	puts(help_txt);
+
 	for (cmds = 0; cmds < ao_ncmds; cmds++) {
 		cs = ao_cmds[cmds];
 		for (cmd = 0; cs[cmd].func; cmd++)
@@ -302,11 +300,11 @@ ao_cmd(void)
 __xdata struct ao_task ao_cmd_task;
 
 __code struct ao_cmds	ao_base_cmds[] = {
-	{ help,		"?\0Print this message" },
-	{ ao_task_info,	"T\0Show task states" },
-	{ echo,		"E <0 off, 1 on>\0Set command echo mode" },
+	{ help,		"?\0Help" },
+	{ ao_task_info,	"T\0Show tasks" },
+	{ echo,		"E <0 off, 1 on>\0Set echo mode" },
 	{ ao_reboot,	"r eboot\0Reboot" },
-	{ version,	"v\0Show version" },
+	{ version,	"v\0Version" },
 	{ 0,	NULL },
 };
 

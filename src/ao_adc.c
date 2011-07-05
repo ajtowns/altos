@@ -162,7 +162,7 @@ ao_adc_dump(void) __reentrant
 }
 
 __code struct ao_cmds ao_adc_cmds[] = {
-	{ ao_adc_dump,	"a\0Display current ADC values" },
+	{ ao_adc_dump,	"a\0Current ADC" },
 	{ 0, NULL },
 };
 

@@ -165,7 +165,7 @@ ao_ignite_test(void)
 
 __code struct ao_cmds ao_ignite_cmds[] = {
 	{ ao_ignite_manual,	"i <key> {main|drogue}\0Fire igniter. <key> is doit with D&I" },
-	{ ao_ignite_test,	"t\0Test igniter continuity" },
+	{ ao_ignite_test,	"t\0Test igniter" },
 	{ 0,	NULL },
 };
 
