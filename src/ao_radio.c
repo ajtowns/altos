@@ -433,7 +433,9 @@ ao_radio_test(void)
 	mode++;
 	if ((mode & 2) && !radio_on) {
 		ao_set_monitor(0);
+#if PACKET_HAS_SLAVE
 		ao_packet_slave_stop();
+#endif
 		ao_radio_get(0xff);
 		RFST = RFST_STX;
 		radio_on = 1;

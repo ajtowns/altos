@@ -62,9 +62,7 @@ USB_DRIVER_SRC = \
 	ao_usb.c
 
 TELE_COMMON_SRC = \
-	ao_packet.c \
-	ao_packet_slave.c \
-	ao_state.c
+	ao_packet.c
 
 #
 # Receiver code
@@ -73,6 +71,7 @@ TELE_RECEIVER_SRC =\
 	ao_monitor.c \
 	ao_gps_print.c \
 	ao_packet_master.c \
+	ao_state.c \
 	ao_rssi.c
 
 #
@@ -107,6 +106,7 @@ TM_DRIVER_SRC = \
 	ao_adc.c \
 	ao_gps_report.c \
 	ao_ignite.c \
+	ao_packet_slave.c \
 	$(BEEP_DRIVER_SRC) \
 	$(USB_DRIVER_SRC)
 
@@ -160,7 +160,7 @@ TM_TASK_SRC = \
 	ao_log.c \
 	ao_log_big.c \
 	ao_report.c \
-	ao_telemetry_orig.c
+	ao_telemetry.c
 
 TM_MAIN_SRC = \
 	ao_telemetrum.c
@@ -185,6 +185,7 @@ TMINI_DRIVER_SRC = \
 	ao_ignite.c \
 	ao_config.c \
 	ao_storage.c \
+	ao_packet_slave.c \
 	ao_intflash.c
 
 TMINI_TASK_SRC = \
@@ -214,6 +215,7 @@ TNANO_DRIVER_SRC = \
 	ao_adc.c \
 	ao_config.c \
 	ao_storage.c \
+	ao_packet_slave.c \
 	ao_intflash.c
 
 TNANO_TASK_SRC = \
