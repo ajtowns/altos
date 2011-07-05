@@ -30,7 +30,7 @@
 #define AO_GPS_DATE_VALID	(1 << 6)
 #define AO_GPS_COURSE_VALID	(1 << 7)
 
-struct ao_gps_data {
+struct ao_gps_orig {
 	uint8_t			year;
 	uint8_t			month;
 	uint8_t			day;
@@ -58,18 +58,21 @@ struct ao_gps_data {
 #define SIRF_SAT_ACQUISITION_FAILED		(1 << 6)
 #define SIRF_SAT_EPHEMERIS_AVAILABLE		(1 << 7)
 
-struct ao_gps_sat_data {
+struct ao_gps_sat_orig {
 	uint8_t		svid;
-	uint8_t		state;
 	uint8_t		c_n_1;
 };
 
 #define AO_MAX_GPS_TRACKING	12
 
-struct ao_gps_tracking_data {
+struct ao_gps_tracking_orig {
 	uint8_t			channels;
-	struct ao_gps_sat_data	sats[AO_MAX_GPS_TRACKING];
+	struct ao_gps_sat_orig	sats[AO_MAX_GPS_TRACKING];
 };
+
+#define ao_telemetry_location ao_gps_orig
+#define ao_telemetry_satellite ao_gps_tracking_orig
+#define ao_telemetry_satellite_info ao_gps_sat_orig
 
 void
 ao_mutex_get(uint8_t *mutex)

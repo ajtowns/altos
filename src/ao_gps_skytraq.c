@@ -29,13 +29,13 @@ static __xdata uint8_t ao_gps_cksum;
 static __xdata uint8_t ao_gps_error;
 
 __xdata uint16_t ao_gps_tick;
-__xdata struct ao_gps_data	ao_gps_data;
-__xdata struct ao_gps_tracking_data	ao_gps_tracking_data;
+__xdata struct ao_telemetry_location	ao_gps_data;
+__xdata struct ao_telemetry_satellite	ao_gps_tracking_data;
 
 static __xdata uint16_t				ao_gps_next_tick;
-static __xdata struct ao_gps_data		ao_gps_next;
+static __xdata struct ao_telemetry_location	ao_gps_next;
 static __xdata uint8_t				ao_gps_date_flags;
-static __xdata struct ao_gps_tracking_data	ao_gps_tracking_next;
+static __xdata struct ao_telemetry_satellite	ao_gps_tracking_next;
 
 #define STQ_S 0xa0, 0xa1
 #define STQ_E 0x0d, 0x0a
@@ -265,7 +265,7 @@ ao_nmea_gga()
 	if (!ao_gps_error) {
 		ao_mutex_get(&ao_gps_mutex);
 		ao_gps_tick = ao_gps_next_tick;
-		memcpy(&ao_gps_data, &ao_gps_next, sizeof (struct ao_gps_data));
+		memcpy(&ao_gps_data, &ao_gps_next, sizeof (ao_gps_data));
 		ao_mutex_put(&ao_gps_mutex);
 		ao_wakeup(&ao_gps_data);
 	}

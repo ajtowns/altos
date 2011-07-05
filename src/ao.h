@@ -965,80 +965,8 @@ void
 ao_spi_init(void);
 
 /*
- * ao_gps.c
+ * ao_telemetry.c
  */
-
-#define AO_GPS_NUM_SAT_MASK	(0xf << 0)
-#define AO_GPS_NUM_SAT_SHIFT	(0)
-
-#define AO_GPS_VALID		(1 << 4)
-#define AO_GPS_RUNNING		(1 << 5)
-#define AO_GPS_DATE_VALID	(1 << 6)
-#define AO_GPS_COURSE_VALID	(1 << 7)
-
-extern __xdata uint16_t ao_gps_tick;
-
-struct ao_gps_data {
-	uint8_t			year;
-	uint8_t			month;
-	uint8_t			day;
-	uint8_t			hour;
-	uint8_t			minute;
-	uint8_t			second;
-	uint8_t			flags;
-	int32_t			latitude;	/* degrees * 10⁷ */
-	int32_t			longitude;	/* degrees * 10⁷ */
-	int16_t			altitude;	/* m */
-	uint16_t		ground_speed;	/* cm/s */
-	uint8_t			course;		/* degrees / 2 */
-	uint8_t			hdop;		/* * 5 */
-	int16_t			climb_rate;	/* cm/s */
-	uint16_t		h_error;	/* m */
-	uint16_t		v_error;	/* m */
-};
-
-struct ao_gps_sat_data {
-	uint8_t		svid;
-	uint8_t		c_n_1;
-};
-
-#define AO_MAX_GPS_TRACKING	12
-
-struct ao_gps_tracking_data {
-	uint8_t			channels;
-	struct ao_gps_sat_data	sats[AO_MAX_GPS_TRACKING];
-};
-
-extern __xdata uint8_t ao_gps_mutex;
-extern __xdata struct ao_gps_data ao_gps_data;
-extern __xdata struct ao_gps_tracking_data ao_gps_tracking_data;
-
-void
-ao_gps(void);
-
-void
-ao_gps_print(__xdata struct ao_gps_data *gps_data);
-
-void
-ao_gps_tracking_print(__xdata struct ao_gps_tracking_data *gps_tracking_data);
-
-void
-ao_gps_init(void);
-
-/*
- * ao_gps_report.c
- */
-
-void
-ao_gps_report(void);
-
-void
-ao_gps_report_init(void);
-
-/*
- * ao_telemetry_orig.c
- */
-
 #define AO_MAX_CALLSIGN			8
 #define AO_MAX_VERSION			8
 #define AO_MAX_TELEMETRY		128
@@ -1126,12 +1054,13 @@ struct ao_telemetry_location {
 	uint8_t         vdop;		/* 24 (m * 5) */
 	uint8_t         mode;		/* 25 */
 	uint16_t	ground_speed;	/* 26 cm/s */
-	uint8_t		course;		/* 28 degrees / 2 */
-	uint8_t		unused[3];	/* 29 */
+	int16_t		climb_rate;	/* 28 cm/s */
+	uint8_t		course;		/* 30 degrees / 2 */
+	uint8_t		unused[1];	/* 31 */
 	/* 32 */
 };
 
-#define AO_TELEMETRY_SATELLITE		0x12
+#define AO_TELEMETRY_SATELLITE		0x06
 
 struct ao_telemetry_satellite_info {
 	uint8_t		svid;
@@ -1157,10 +1086,79 @@ union ao_telemetry_all {
 	struct ao_telemetry_satellite		satellite;
 };
 
-#define AO_SAT_0_SSID(s)	((s)[0] & 0x3f)
-#define AO_SAT_0_C_N_1(s)	((((s)[0] & 0xc0) >> 2) | ((s)[1] & 0x0f))
-#define AO_SAT_1_SSID(s)	((((s)[1] & 0xf0) >> 2) | ((s)[2] & 0x03))
-#define AO_SAT_1_C_N_1(s)	(((s)[2] & 0xfc) >> 2)
+/*
+ * ao_gps.c
+ */
+
+#define AO_GPS_NUM_SAT_MASK	(0xf << 0)
+#define AO_GPS_NUM_SAT_SHIFT	(0)
+
+#define AO_GPS_VALID		(1 << 4)
+#define AO_GPS_RUNNING		(1 << 5)
+#define AO_GPS_DATE_VALID	(1 << 6)
+#define AO_GPS_COURSE_VALID	(1 << 7)
+
+extern __xdata uint16_t ao_gps_tick;
+extern __xdata uint8_t ao_gps_mutex;
+extern __xdata struct ao_telemetry_location ao_gps_data;
+extern __xdata struct ao_telemetry_satellite ao_gps_tracking_data;
+
+struct ao_gps_orig {
+	uint8_t			year;
+	uint8_t			month;
+	uint8_t			day;
+	uint8_t			hour;
+	uint8_t			minute;
+	uint8_t			second;
+	uint8_t			flags;
+	int32_t			latitude;	/* degrees * 10⁷ */
+	int32_t			longitude;	/* degrees * 10⁷ */
+	int16_t			altitude;	/* m */
+	uint16_t		ground_speed;	/* cm/s */
+	uint8_t			course;		/* degrees / 2 */
+	uint8_t			hdop;		/* * 5 */
+	int16_t			climb_rate;	/* cm/s */
+	uint16_t		h_error;	/* m */
+	uint16_t		v_error;	/* m */
+};
+
+struct ao_gps_sat_orig {
+	uint8_t		svid;
+	uint8_t		c_n_1;
+};
+
+#define AO_MAX_GPS_TRACKING	12
+
+struct ao_gps_tracking_orig {
+	uint8_t			channels;
+	struct ao_gps_sat_orig	sats[AO_MAX_GPS_TRACKING];
+};
+
+void
+ao_gps(void);
+
+void
+ao_gps_print(__xdata struct ao_gps_orig *gps_data);
+
+void
+ao_gps_tracking_print(__xdata struct ao_gps_tracking_orig *gps_tracking_data);
+
+void
+ao_gps_init(void);
+
+/*
+ * ao_gps_report.c
+ */
+
+void
+ao_gps_report(void);
+
+void
+ao_gps_report_init(void);
+
+/*
+ * ao_telemetry_orig.c
+ */
 
 struct ao_telemetry_orig {
 	uint16_t		serial;
@@ -1180,9 +1178,9 @@ struct ao_telemetry_orig {
 	int16_t			accel_plus_g;
 	int16_t			accel_minus_g;
 	struct ao_adc		adc;
-	struct ao_gps_data	gps;
+	struct ao_gps_orig	gps;
 	char			callsign[AO_MAX_CALLSIGN];
-	struct ao_gps_tracking_data	gps_tracking;
+	struct ao_gps_tracking_orig	gps_tracking;
 };
 
 struct ao_telemetry_tiny {

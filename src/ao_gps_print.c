@@ -21,7 +21,7 @@
 #include "ao_telem.h"
 
 void
-ao_gps_print(__xdata struct ao_gps_data *gps_data) __reentrant
+ao_gps_print(__xdata struct ao_gps_orig *gps_data) __reentrant
 {
 	char	state;
 
@@ -77,10 +77,10 @@ ao_gps_print(__xdata struct ao_gps_data *gps_data) __reentrant
 }
 
 void
-ao_gps_tracking_print(__xdata struct ao_gps_tracking_data *gps_tracking_data) __reentrant
+ao_gps_tracking_print(__xdata struct ao_gps_tracking_orig *gps_tracking_data) __reentrant
 {
 	uint8_t	c, n, v;
-	__xdata struct ao_gps_sat_data	*sat;
+	__xdata struct ao_gps_sat_orig	*sat;
 
 	n = gps_tracking_data->channels;
 	if (n == 0)

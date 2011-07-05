@@ -20,14 +20,14 @@
 void
 ao_gps_report(void)
 {
-	static __xdata struct ao_log_record	gps_log;
-	static __xdata struct ao_gps_data	gps_data;
+	static __xdata struct ao_log_record		gps_log;
+	static __xdata struct ao_telemetry_location	gps_data;
 	uint8_t	date_reported = 0;
 
 	for (;;) {
 		ao_sleep(&ao_gps_data);
 		ao_mutex_get(&ao_gps_mutex);
-		memcpy(&gps_data, &ao_gps_data, sizeof (struct ao_gps_data));
+		memcpy(&gps_data, &ao_gps_data, sizeof (ao_gps_data));
 		ao_mutex_put(&ao_gps_mutex);
 
 		if (!(gps_data.flags & AO_GPS_VALID))
@@ -64,15 +64,15 @@ ao_gps_report(void)
 void
 ao_gps_tracking_report(void)
 {
-	static __xdata struct ao_log_record	gps_log;
-	static __xdata struct ao_gps_tracking_data	gps_tracking_data;
+	static __xdata struct ao_log_record		gps_log;
+	static __xdata struct ao_telemetry_satellite	gps_tracking_data;
 	uint8_t	c, n;
 
 	for (;;) {
 		ao_sleep(&ao_gps_tracking_data);
 		ao_mutex_get(&ao_gps_mutex);
 		gps_log.tick = ao_gps_tick;
-		memcpy(&gps_tracking_data, &ao_gps_tracking_data, sizeof (struct ao_gps_tracking_data));
+		memcpy(&gps_tracking_data, &ao_gps_tracking_data, sizeof (ao_gps_tracking_data));
 		ao_mutex_put(&ao_gps_mutex);
 
 		if (!(n = gps_tracking_data.channels))

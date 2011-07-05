@@ -21,8 +21,8 @@
 
 __xdata uint8_t ao_gps_mutex;
 __xdata uint16_t ao_gps_tick;
-__xdata struct ao_gps_data	ao_gps_data;
-__xdata struct ao_gps_tracking_data	ao_gps_tracking_data;
+__xdata struct ao_telemetry_location	ao_gps_data;
+__xdata struct ao_telemetry_satellite	ao_gps_tracking_data;
 
 static const char ao_gps_set_nmea[] = "\r\n$PSRF100,0,57600,8,1,0*37\r\n";
 
@@ -406,6 +406,7 @@ ao_gps(void) __reentrant
 			ao_gps_data.hdop = ao_sirf_data.hdop;
 			ao_gps_data.climb_rate = ao_sirf_data.climb_rate;
 			ao_gps_data.flags |= AO_GPS_COURSE_VALID;
+#if 0
 			if (ao_sirf_data.h_error > 6553500)
 				ao_gps_data.h_error = 65535;
 			else
@@ -414,6 +415,7 @@ ao_gps(void) __reentrant
 				ao_gps_data.v_error = 65535;
 			else
 				ao_gps_data.v_error = ao_sirf_data.v_error / 100;
+#endif
 			ao_mutex_put(&ao_gps_mutex);
 			ao_wakeup(&ao_gps_data);
 			break;

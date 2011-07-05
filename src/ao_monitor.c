@@ -21,32 +21,71 @@
 __xdata uint8_t ao_monitoring;
 __pdata uint8_t ao_monitor_led;
 
-void
-ao_monitor(void)
-{
-	__xdata char callsign[AO_MAX_CALLSIGN+1];
-	__xdata union {
+#define AO_MONITOR_RING	8
+
+__xdata union ao_monitor {
 		struct ao_telemetry_raw_recv	raw;
 		struct ao_telemetry_orig_recv	orig;
 		struct ao_telemetry_tiny_recv	tiny;
-	} u;
+} ao_monitor_ring[AO_MONITOR_RING];
 
-#define recv_raw	(u.raw)
-#define recv_orig	(u.orig)
-#define recv_tiny	(u.tiny)
+#define ao_monitor_ring_next(n)	(((n) + 1) & (AO_MONITOR_RING - 1))
 
+__data uint8_t	ao_monitor_head;
+
+void
+ao_monitor_get(void)
+{
+	uint8_t	size;
+
+	for (;;) {
+		switch (ao_monitoring) {
+		case 0:
+			ao_sleep(&ao_monitoring);
+			continue;
+		case AO_MONITORING_ORIG:
+			size = sizeof (struct ao_telemetry_orig_recv);
+			break;
+		case AO_MONITORING_TINY:
+			size = sizeof (struct ao_telemetry_tiny_recv);
+			break;
+		default:
+			if (ao_monitoring > AO_MAX_TELEMETRY)
+				ao_monitoring = AO_MAX_TELEMETRY;
+			size = ao_monitoring;
+			break;
+		}
+		if (!ao_radio_recv(&ao_monitor_ring[ao_monitor_head], size + 2))
+			continue;
+		ao_monitor_head = ao_monitor_ring_next(ao_monitor_head);
+		ao_wakeup(DATA_TO_XDATA(&ao_monitor_head));
+		ao_led_toggle(ao_monitor_led);
+	}
+}
+
+void
+ao_monitor_put(void)
+{
+	__xdata char callsign[AO_MAX_CALLSIGN+1];
+
+	uint8_t ao_monitor_tail;
 	uint8_t state;
 	uint8_t sum, byte;
 	int16_t rssi;
+	__xdata union ao_monitor	*m;
 
+#define recv_raw	((m->raw))
+#define recv_orig	((m->orig))
+#define recv_tiny	((m->tiny))
+
+	ao_monitor_tail = ao_monitor_head;
 	for (;;) {
-		__critical while (!ao_monitoring)
-			ao_sleep(&ao_monitoring);
+		while (ao_monitor_tail == ao_monitor_head)
+			ao_sleep(DATA_TO_XDATA(&ao_monitor_head));
+		m = &ao_monitor_ring[ao_monitor_tail];
+		ao_monitor_tail = ao_monitor_ring_next(ao_monitor_tail);
 		switch (ao_monitoring) {
 		case AO_MONITORING_ORIG:
-			if (!ao_radio_recv(&recv_orig, sizeof (struct ao_telemetry_orig_recv)))
-				continue;
-
 			state = recv_orig.telemetry_orig.flight_state;
 
 			/* Typical RSSI offset for 38.4kBaud at 433 MHz is 74 */
@@ -122,9 +161,6 @@ ao_monitor(void)
 			}
 			break;
 		case AO_MONITORING_TINY:
-			if (!ao_radio_recv(&recv_tiny, sizeof (struct ao_telemetry_tiny_recv)))
-				continue;
-
 			state = recv_tiny.telemetry_tiny.flight_state;
 
 			/* Typical RSSI offset for 38.4kBaud at 433 MHz is 74 */
@@ -188,10 +224,6 @@ ao_monitor(void)
 			}
 			break;
 		default:
-			if (ao_monitoring > AO_MAX_TELEMETRY)
-				ao_monitoring = AO_MAX_TELEMETRY;
-			if (!ao_radio_recv(&recv_raw, ao_monitoring + 2))
-				continue;
 			printf ("TELEM %02x", ao_monitoring + 2);
 			sum = 0x5a;
 			for (state = 0; state < ao_monitoring + 2; state++) {
@@ -203,11 +235,11 @@ ao_monitor(void)
 			break;
 		}
 		ao_usb_flush();
-		ao_led_toggle(ao_monitor_led);
 	}
 }
 
-__xdata struct ao_task ao_monitor_task;
+__xdata struct ao_task ao_monitor_get_task;
+__xdata struct ao_task ao_monitor_put_task;
 
 void
 ao_set_monitor(uint8_t monitoring)
@@ -236,5 +268,6 @@ ao_monitor_init(uint8_t monitor_led, uint8_t monitoring) __reentrant
 	ao_monitor_led = monitor_led;
 	ao_monitoring = monitoring;
 	ao_cmd_register(&ao_monitor_cmds[0]);
-	ao_add_task(&ao_monitor_task, ao_monitor, "monitor");
+	ao_add_task(&ao_monitor_get_task, ao_monitor_get, "monitor_get");
+	ao_add_task(&ao_monitor_put_task, ao_monitor_put, "monitor_put");
 }
