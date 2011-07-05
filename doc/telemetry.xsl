@@ -184,7 +184,7 @@
 	      <entry>16</entry><entry>int16_t</entry><entry>sense_m</entry><entry>main continuity sense (TM/Tm)</entry>
 	    </row>
 	    <row>
-	      <entry>18</entry><entry>int16_t</entry><entry>accel</entry><entry>m/s² * 16</entry>
+	      <entry>18</entry><entry>int16_t</entry><entry>acceleration</entry><entry>m/s² * 16</entry>
 	    </row>
 	    <row>
 	      <entry>20</entry><entry>int16_t</entry><entry>speed</entry><entry>m/s * 16</entry>
@@ -193,10 +193,10 @@
 	      <entry>22</entry><entry>int16_t</entry><entry>height</entry><entry>m</entry>
 	    </row>
 	    <row>
-	      <entry>24</entry><entry>int16_t</entry><entry>ground_accel</entry><entry>TM</entry>
+	      <entry>24</entry><entry>int16_t</entry><entry>ground_pres</entry><entry>Average barometer reading on ground</entry>
 	    </row>
 	    <row>
-	      <entry>26</entry><entry>int16_t</entry><entry>ground_pres</entry><entry>Average barometer reading on ground</entry>
+	      <entry>26</entry><entry>int16_t</entry><entry>ground_accel</entry><entry>TM</entry>
 	    </row>
 	    <row>
 	      <entry>28</entry><entry>int16_t</entry><entry>accel_plus_g</entry><entry>TM</entry>
