@@ -208,7 +208,7 @@ ao_config_accel_calibrate_auto(char *orientation) __reentrant
 	int32_t		accel_total;
 	uint8_t		cal_adc_ring;
 
-	printf("Orient %s and press a key...", orientation);
+	printf("Orient antenna %s and press a key...", orientation);
 	flush();
 	(void) getchar();
 	puts("\r\n"); flush();
@@ -235,8 +235,8 @@ ao_config_accel_calibrate_set(void) __reentrant
 	if (ao_cmd_status != ao_cmd_success)
 		return;
 	if (ao_cmd_lex_i == 0) {
-		up = ao_config_accel_calibrate_auto("antenna up");
-		down = ao_config_accel_calibrate_auto("antenna down");
+		up = ao_config_accel_calibrate_auto("up");
+		down = ao_config_accel_calibrate_auto("down");
 	} else {
 		up = ao_cmd_lex_i;
 		ao_cmd_decimal();
@@ -245,7 +245,7 @@ ao_config_accel_calibrate_set(void) __reentrant
 		down = ao_cmd_lex_i;
 	}
 	if (up >= down) {
-		printf("Invalid accel calibration: antenna up (%d) should be less than antenna down (%d)\n",
+		printf("Invalid accel: up (%d) down (%d)\n",
 		       up, down);
 		return;
 	}
@@ -336,10 +336,9 @@ ao_config_log_set(void) __reentrant
 #endif /* HAS_EEPROM */
 
 struct ao_config_var {
-	char		cmd;
+	const char	*str;
 	void		(*set)(void) __reentrant;
 	void		(*show)(void) __reentrant;
-	const char	*help;
 };
 
 static void
@@ -353,35 +352,34 @@ ao_config_write(void) __reentrant;
 
 __code struct ao_config_var ao_config_vars[] = {
 #if HAS_ADC
-	{ 'm',	ao_config_main_deploy_set,	ao_config_main_deploy_show,
-		"m <meters>  Set height above launch for main deploy (in meters)" },
-	{ 'd',	ao_config_apogee_delay_set,	ao_config_apogee_delay_show,
-	        "d <delay>   Set apogee igniter delay (in seconds)" },
+	{ "m <meters>\0Main deploy (in meters)",
+	  ao_config_main_deploy_set,	ao_config_main_deploy_show, },
+	{ "d <delay>\0Apogee delay (in seconds)",
+	  ao_config_apogee_delay_set,	ao_config_apogee_delay_show },
 #endif /* HAS_ADC */
-	{ 'r',	ao_config_radio_channel_set,	ao_config_radio_channel_show,
-		"r <channel> Set radio channel (freq = 434.550 + channel * .1)" },
-	{ 'c',	ao_config_callsign_set,		ao_config_callsign_show,
-		"c <call>    Set callsign broadcast in each packet (8 char max)" },
+	{ "r <channel>\0Radio channel (freq = 434.550 + chan * .1)",
+	  ao_config_radio_channel_set,	ao_config_radio_channel_show },
+	{ "c <call>\0Callsign (8 char max)",
+	  ao_config_callsign_set,	ao_config_callsign_show },
 #if HAS_ACCEL
-	{ 'a',	ao_config_accel_calibrate_set,	ao_config_accel_calibrate_show,
-		"a <+g> <-g> Set accelerometer calibration (0 for auto)" },
+	{ "a <+g> <-g>\0Accel calib (0 for auto)",
+	  ao_config_accel_calibrate_set,ao_config_accel_calibrate_show },
 #endif /* HAS_ACCEL */
-	{ 'f',  ao_config_radio_cal_set,  	ao_config_radio_cal_show,
-		"f <cal>     Set radio calibration value (cal = rf/(xtal/2^16))" },
+	{ "f <cal>\0Radio calib (cal = rf/(xtal/2^16))",
+	  ao_config_radio_cal_set,  	ao_config_radio_cal_show },
 #if HAS_EEPROM
-	{ 'l',  ao_config_log_set,		ao_config_log_show,
-		"l <size>    Set flight log size in kB" },
+	{ "l <size>\0Flight log size in kB",
+	  ao_config_log_set,		ao_config_log_show },
 #endif
-	{ 's',	ao_config_show,			ao_config_show,
-		"s           Show current config values" },
+	{ "s\0Show",
+	  ao_config_show,		ao_config_show },
 #if HAS_EEPROM
-	{ 'w',	ao_config_write,		ao_config_write,
-		"w           Write current values to eeprom" },
+	{ "w\0Write to eeprom",
+	  ao_config_write,		ao_config_write },
 #endif
-	{ '?',	ao_config_help,			ao_config_help,
-		"?           Show available config variables" },
-	{ 0,	ao_config_help,	ao_config_help,
-		NULL },
+	{ "?\0Help",
+	  ao_config_help,		ao_config_help },
+	{ 0, 0, 0 }
 };
 
 void
@@ -395,8 +393,8 @@ ao_config_set(void)
 	c = ao_cmd_lex_c;
 	ao_cmd_lex();
 	func = 0;
-	for (cmd = 0; ao_config_vars[cmd].cmd != '\0'; cmd++)
-		if (ao_config_vars[cmd].cmd == c) {
+	for (cmd = 0; ao_config_vars[cmd].str != NULL; cmd++)
+		if (ao_config_vars[cmd].str[0] == c) {
 			func = ao_config_vars[cmd].set;
 			break;
 		}
@@ -410,8 +408,10 @@ static void
 ao_config_help(void) __reentrant
 {
 	uint8_t cmd;
-	for (cmd = 0; ao_config_vars[cmd].cmd != '\0'; cmd++)
-		puts (ao_config_vars[cmd].help);
+	for (cmd = 0; ao_config_vars[cmd].str != NULL; cmd++)
+		printf("%-20s %s\n",
+		       ao_config_vars[cmd].str,
+		       ao_config_vars[cmd].str+1+strlen(ao_config_vars[cmd].str));
 }
 
 static void
@@ -420,7 +420,7 @@ ao_config_show(void) __reentrant
 	uint8_t cmd;
 	printf("Config version: %d.%d\n",
 	       ao_config.major, ao_config.minor);
-	for (cmd = 0; ao_config_vars[cmd].cmd != '\0'; cmd++)
+	for (cmd = 0; ao_config_vars[cmd].str != NULL; cmd++)
 		if (ao_config_vars[cmd].show != ao_config_vars[cmd].set)
 			(*ao_config_vars[cmd].show)();
 }
