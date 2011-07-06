@@ -18,8 +18,8 @@
 #include "ao.h"
 
 __xdata struct ao_config ao_config;
-__xdata uint8_t ao_config_loaded;
-__xdata uint8_t ao_config_dirty;
+__pdata uint8_t ao_config_loaded;
+__pdata uint8_t ao_config_dirty;
 __xdata uint8_t ao_config_mutex;
 
 #define AO_CONFIG_DEFAULT_MAIN_DEPLOY	250
@@ -335,7 +335,7 @@ ao_config_log_set(void) __reentrant
 #endif /* HAS_EEPROM */
 
 struct ao_config_var {
-	const char	*str;
+	__code char	*str;
 	void		(*set)(void) __reentrant;
 	void		(*show)(void) __reentrant;
 };
