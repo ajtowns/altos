@@ -18,15 +18,15 @@
 #include "ao.h"
 #include "ao_product.h"
 
-__xdata uint16_t ao_telemetry_interval;
-__xdata int8_t ao_telemetry_config_max;
-__xdata int8_t ao_telemetry_config_cur;
+static __pdata uint16_t ao_telemetry_interval;
+static __pdata int8_t ao_telemetry_config_max;
+static __pdata int8_t ao_telemetry_config_cur;
 #if HAS_GPS
-__xdata int8_t ao_telemetry_loc_cur;
-__xdata int8_t ao_telemetry_sat_cur;
+static __pdata int8_t ao_telemetry_loc_cur;
+static __pdata int8_t ao_telemetry_sat_cur;
 #endif
-__xdata uint8_t ao_rdf = 0;
-__xdata uint16_t ao_rdf_time;
+static __pdata uint8_t ao_rdf = 0;
+static __pdata uint16_t ao_rdf_time;
 
 #define AO_RDF_INTERVAL_TICKS	AO_SEC_TO_TICKS(5)
 #define AO_RDF_LENGTH_MS	500
@@ -156,7 +156,7 @@ ao_telemetry(void)
 	telemetry.generic.serial = ao_serial_number;
 	for (;;) {
 		while (ao_telemetry_interval == 0)
-			ao_sleep(&ao_telemetry_interval);
+			ao_sleep(&telemetry);
 		time = ao_rdf_time = ao_time();
 		while (ao_telemetry_interval) {
 
@@ -197,7 +197,7 @@ ao_telemetry_set_interval(uint16_t interval)
 	if (ao_telemetry_config_max - 1 > ao_telemetry_sat_cur)
 		ao_telemetry_sat_cur++;
 #endif
-	ao_wakeup(&ao_telemetry_interval);
+	ao_wakeup(&telemetry);
 }
 
 void
