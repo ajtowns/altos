@@ -1018,8 +1018,9 @@ struct ao_telemetry_configuration {
 	uint16_t        flight;				/*  6 flight number */
 	uint8_t		config_major;			/*  8 Config major version */
 	uint8_t		config_minor;			/*  9 Config minor version */
-	uint16_t	main_deploy;			/* 10 Main deploy alt in meters */
-	uint32_t	flight_log_max;			/* 12 Maximum flight log size in bytes */
+	uint16_t	apogee_delay;			/* 10 Apogee deploy delay in seconds */
+	uint16_t	main_deploy;			/* 12 Main deploy alt in meters */
+	uint16_t	flight_log_max;			/* 14 Maximum flight log size in kB */
 	char		callsign[AO_MAX_CALLSIGN];	/* 16 Radio operator identity */
 	char		version[AO_MAX_VERSION];	/* 24 Software version */
 	/* 32 */

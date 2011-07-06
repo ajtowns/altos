@@ -94,8 +94,9 @@ ao_send_configuration(void)
 		telemetry.configuration.flight = ao_flight_number;
 		telemetry.configuration.config_major = AO_CONFIG_MAJOR;
 		telemetry.configuration.config_minor = AO_CONFIG_MINOR;
+		telemetry.configuration.apogee_delay = ao_config.apogee_delay;
 		telemetry.configuration.main_deploy = ao_config.main_deploy;
-		telemetry.configuration.flight_log_max = ao_config.flight_log_max;
+		telemetry.configuration.flight_log_max = ao_config.flight_log_max >> 10;
 		memcpy (telemetry.configuration.callsign,
 			ao_config.callsign,
 			AO_MAX_CALLSIGN);
