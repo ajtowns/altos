@@ -28,18 +28,23 @@ public class AltosGraphUI extends JFrame
         AltosGraphTime.Element height = 
             new AltosGraphTime.TimeSeries("Height (m)", "Height (AGL)", red) {
                 public void gotTimeData(double time, AltosDataPoint d) {
-                    series.add(time, d.height()); 
+			double	height = d.height();
+			if (height != AltosRecord.MISSING)
+				series.add(time, d.height()); 
                 } 
             };
     
         AltosGraphTime.Element speed =
             new AltosGraphTime.TimeSeries("Speed (m/s)", "Vertical Speed", green) { 
                 public void gotTimeData(double time, AltosDataPoint d) {
+		    double	speed;
 		    if (d.state() < Altos.ao_flight_drogue && d.has_accel()) {
-                        series.add(time, d.accel_speed());
+			speed = d.accel_speed();
                     } else {
-                        series.add(time, d.baro_speed());
+			speed = d.baro_speed();
                     }
+		    if (speed != AltosRecord.MISSING)
+			series.add(time, speed);
                 }
             };
     
@@ -48,7 +53,9 @@ public class AltosGraphUI extends JFrame
                     "Axial Acceleration", blue) 
             {
                 public void gotTimeData(double time, AltosDataPoint d) {
-                    series.add(time, d.acceleration());
+		    double acceleration = d.acceleration();
+		    if (acceleration != AltosRecord.MISSING)
+			series.add(time, acceleration);
                 }
             };
     
@@ -57,7 +64,9 @@ public class AltosGraphUI extends JFrame
                     "Board temperature", red) 
             {
                 public void gotTimeData(double time, AltosDataPoint d) {
-                    series.add(time, d.temperature());
+		    double temp = d.temperature();
+		    if (temp != AltosRecord.MISSING)
+			series.add(time, d.temperature());
                 }
             };
     
@@ -65,7 +74,9 @@ public class AltosGraphUI extends JFrame
             new AltosGraphTime.TimeSeries("Voltage (V)", "Drogue Continuity", blue) 
             {
                 public void gotTimeData(double time, AltosDataPoint d) {
-                    series.add(time, d.drogue_voltage());
+		    double v = d.drogue_voltage();
+		    if (v != AltosRecord.MISSING)
+			series.add(time, v);
                 }
             };
     
@@ -73,7 +84,9 @@ public class AltosGraphUI extends JFrame
             new AltosGraphTime.TimeSeries("Voltage (V)", "Main Continuity", green) 
             {
                 public void gotTimeData(double time, AltosDataPoint d) {
-                    series.add(time, d.main_voltage());
+		    double v = d.main_voltage();
+		    if (v != AltosRecord.MISSING)
+			series.add(time, v);
                 }
             };
     
