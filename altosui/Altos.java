@@ -240,9 +240,15 @@ public class Altos {
 			}
 		}
 
+		int i;
+		for (i = l - 1; i >= 0; i--)
+			if (bytes[s+i] != 0)
+				break;
+
+		l = i + 1;
 		byte[]	b = new byte[l];
 
-		for (int i = 0; i < l; i++)
+		for (i = 0; i < l; i++)
 			b[i] = (byte) bytes[s+i];
 		String n = new String(b, unicode_set);
 		return n;
