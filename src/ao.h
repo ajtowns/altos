@@ -395,7 +395,7 @@ ao_match_word(__code char *word);
 
 struct ao_cmds {
 	void		(*func)(void);
-	const char	*help;
+	__code char	*help;
 };
 
 void
