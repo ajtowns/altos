@@ -31,7 +31,7 @@ ao_dbg_send_bits(uint8_t msk, uint8_t val) __reentrant
 void
 ao_dbg_send_byte(uint8_t byte)
 {
-	__xdata uint8_t	b, d;
+	__pdata uint8_t	b, d;
 
 	DBG_PORT |= DBG_DATA;
 	DBG_PORT_DIR |= DBG_DATA;
@@ -49,7 +49,7 @@ ao_dbg_send_byte(uint8_t byte)
 uint8_t
 ao_dbg_recv_byte(void)
 {
-	__xdata uint8_t	byte, b;
+	__pdata uint8_t	byte, b;
 
 	byte = 0;
 	for (b = 0; b < 8; b++) {
@@ -89,12 +89,12 @@ ao_dbg_recv_byte(void)
 #define SFR_DPL1		0x84
 #define SFR_DPH1		0x85
 
-__xdata uint8_t	save_acc;
-__xdata uint8_t save_psw;
-__xdata uint8_t save_dpl0;
-__xdata uint8_t save_dph0;
-__xdata uint8_t save_dpl1;
-__xdata uint8_t save_dph1;
+__pdata uint8_t	save_acc;
+__pdata uint8_t save_psw;
+__pdata uint8_t save_dpl0;
+__pdata uint8_t save_dph0;
+__pdata uint8_t save_dpl1;
+__pdata uint8_t save_dph1;
 
 static uint8_t
 ao_dbg_inst1(uint8_t a) __reentrant
@@ -260,9 +260,9 @@ debug_put(void)
 static void
 debug_get(void)
 {
-	__xdata uint16_t count;
-	__xdata uint16_t i;
-	__xdata uint8_t byte;
+	__pdata uint16_t count;
+	__pdata uint16_t i;
+	__pdata uint8_t byte;
 	ao_cmd_hex();
 	if (ao_cmd_status != ao_cmd_success)
 		return;
@@ -284,7 +284,7 @@ debug_get(void)
 static uint8_t
 getnibble(void)
 {
-	__xdata char	c;
+	__pdata char	c;
 
 	c = getchar();
 	if ('0' <= c && c <= '9')
@@ -300,10 +300,10 @@ getnibble(void)
 static void
 debug_input(void)
 {
-	__xdata uint16_t count;
-	__xdata uint16_t addr;
-	__xdata uint8_t b;
-	__xdata uint8_t	i;
+	__pdata uint16_t count;
+	__pdata uint16_t addr;
+	__pdata uint8_t b;
+	__pdata uint8_t	i;
 
 	ao_cmd_hex();
 	count = ao_cmd_lex_i;
@@ -326,9 +326,9 @@ debug_input(void)
 static void
 debug_output(void)
 {
-	__xdata uint16_t count;
-	__xdata uint16_t addr;
-	__xdata uint8_t b;
+	__pdata uint16_t count;
+	__pdata uint16_t addr;
+	__pdata uint8_t b;
 
 	ao_cmd_hex();
 	count = ao_cmd_lex_i;
