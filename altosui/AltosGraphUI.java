@@ -112,7 +112,9 @@ public class AltosGraphUI extends JFrame
 	    graphs.add( myAltosGraphTime("Summary")
 			.addElement(height)
 			.addElement(speed)
-			.addElement(acceleration) );
+			.addElement(acceleration)
+			.addElement(drogue_voltage)
+			.addElement(main_voltage) );
 
 	    graphs.add( myAltosGraphTime("Summary")
 			.addElement(height)
