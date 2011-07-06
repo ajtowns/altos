@@ -21,10 +21,10 @@
 struct ao_task __xdata ao_usb_task;
 
 static __xdata uint16_t	ao_usb_in_bytes;
-static __xdata uint16_t ao_usb_in_bytes_last;
+static __pdata uint16_t ao_usb_in_bytes_last;
 static __xdata uint16_t	ao_usb_out_bytes;
-static __xdata uint8_t	ao_usb_iif;
-static __xdata uint8_t	ao_usb_running;
+static __pdata uint8_t	ao_usb_iif;
+static __pdata uint8_t	ao_usb_running;
 
 static void
 ao_usb_set_interrupts(void)
@@ -72,20 +72,20 @@ struct ao_usb_setup {
 	uint16_t	length;
 } __xdata ao_usb_setup;
 
-__xdata uint8_t ao_usb_ep0_state;
-uint8_t * __xdata ao_usb_ep0_in_data;
-__xdata uint8_t ao_usb_ep0_in_len;
-__xdata uint8_t	ao_usb_ep0_in_buf[2];
-__xdata uint8_t ao_usb_ep0_out_len;
-__xdata uint8_t *__xdata ao_usb_ep0_out_data;
-__xdata uint8_t ao_usb_configuration;
+__pdata uint8_t ao_usb_ep0_state;
+uint8_t * __pdata ao_usb_ep0_in_data;
+__pdata uint8_t ao_usb_ep0_in_len;
+__pdata uint8_t	ao_usb_ep0_in_buf[2];
+__pdata uint8_t ao_usb_ep0_out_len;
+__xdata uint8_t *__pdata ao_usb_ep0_out_data;
+__pdata uint8_t ao_usb_configuration;
 
 /* Send an IN data packet */
 static void
 ao_usb_ep0_flush(void)
 {
-	__xdata uint8_t this_len;
-	__xdata uint8_t	cs0;
+	__pdata uint8_t this_len;
+	__pdata uint8_t	cs0;
 
 	/* If the IN packet hasn't been picked up, just return */
 	USBINDEX = 0;
@@ -115,9 +115,9 @@ __xdata static struct ao_usb_line_coding ao_usb_line_coding = {115200, 0, 0, 8};
 static void
 ao_usb_get_descriptor(uint16_t value)
 {
-	const uint8_t		*__xdata descriptor;
-	__xdata uint8_t		type = value >> 8;
-	__xdata uint8_t		index = value;
+	__code uint8_t		*__pdata descriptor;
+	__pdata uint8_t		type = value >> 8;
+	__pdata uint8_t		index = value;
 
 	descriptor = ao_usb_descriptors;
 	while (descriptor[0] != 0) {
@@ -138,7 +138,7 @@ ao_usb_get_descriptor(uint16_t value)
 static void
 ao_usb_ep0_fill(void)
 {
-	__xdata uint8_t	len;
+	__pdata uint8_t	len;
 
 	USBINDEX = 0;
 	len = USBCNT0;
@@ -282,7 +282,7 @@ ao_usb_ep0_setup(void)
 static void
 ao_usb_ep0(void)
 {
-	__xdata uint8_t	cs0;
+	__pdata uint8_t	cs0;
 
 	ao_usb_ep0_state = AO_USB_EP0_IDLE;
 	for (;;) {
