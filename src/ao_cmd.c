@@ -110,9 +110,8 @@ putnibble(uint8_t v)
 void
 ao_cmd_put16(uint16_t v)
 {
-	int8_t i;
-	for (i = 3; i >= 0; i--)
-		putnibble((v >> (i << 2)) & 0xf);
+	ao_cmd_put8(v >> 8);
+	ao_cmd_put8(v);
 }
 
 void
@@ -133,18 +132,20 @@ void
 ao_cmd_hex(void)
 {
 	__xdata uint8_t	r = ao_cmd_lex_error;
+	uint8_t	n;
 
 	ao_cmd_lex_i = 0;
 	ao_cmd_white();
 	for(;;) {
 		if ('0' <= ao_cmd_lex_c && ao_cmd_lex_c <= '9')
-			ao_cmd_lex_i = (ao_cmd_lex_i << 4) | (ao_cmd_lex_c - '0');
+			n = (ao_cmd_lex_c - '0');
 		else if ('a' <= ao_cmd_lex_c && ao_cmd_lex_c <= 'f')
-			ao_cmd_lex_i = (ao_cmd_lex_i << 4) | (ao_cmd_lex_c - 'a' + 10);
+			n = (ao_cmd_lex_c - 'a' + 10);
 		else if ('A' <= ao_cmd_lex_c && ao_cmd_lex_c <= 'F')
-			ao_cmd_lex_i = (ao_cmd_lex_i << 4) | (ao_cmd_lex_c - 'A' + 10);
+			n = (ao_cmd_lex_c - 'A' + 10);
 		else
 			break;
+		ao_cmd_lex_i = (ao_cmd_lex_i << 4) | n;
 		r = ao_cmd_success;
 		ao_cmd_lex();
 	}
@@ -265,8 +266,8 @@ ao_cmd_register(__code struct ao_cmds *cmds)
 void
 ao_cmd(void)
 {
-	__xdata char	c;
-	__xdata uint8_t cmd, cmds;
+	char	c;
+	uint8_t cmd, cmds;
 	__code struct ao_cmds * __xdata cs;
 	void (*__xdata func)(void);
 
