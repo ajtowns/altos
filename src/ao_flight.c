@@ -44,7 +44,7 @@ __pdata uint16_t		ao_interval_end;
 __pdata int16_t			ao_interval_min_height;
 __pdata int16_t			ao_interval_max_height;
 
-__xdata uint8_t			ao_flight_force_idle;
+__pdata uint8_t			ao_flight_force_idle;
 
 /* We also have a clock, which can be used to sanity check things in
  * case of other failures
@@ -170,7 +170,6 @@ ao_flight(void)
 #endif
 
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
-				break;
 			}
 			break;
 		case ao_flight_boost:
@@ -194,7 +193,6 @@ ao_flight(void)
 				ao_flight_state = ao_flight_coast;
 #endif
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
-				break;
 			}
 			break;
 #if HAS_ACCEL
@@ -208,7 +206,6 @@ ao_flight(void)
 			{
 				ao_flight_state = ao_flight_coast;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
-				break;
 			}
 			break;
 #endif

@@ -30,7 +30,7 @@ __pdata uint16_t		ao_interval_end;
 __pdata int16_t			ao_interval_min_height;
 __pdata int16_t			ao_interval_max_height;
 
-__xdata uint8_t			ao_flight_force_idle;
+__pdata uint8_t			ao_flight_force_idle;
 
 /* Landing is detected by getting constant readings from both pressure and accelerometer
  * for a fairly long time (AO_INTERVAL_TICKS)
