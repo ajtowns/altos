@@ -18,16 +18,16 @@
 #include "ao.h"
 
 /* Total bytes of available storage */
-__xdata uint32_t	ao_storage_total;
+__pdata uint32_t	ao_storage_total;
 
 /* Block size - device is erased in these units. At least 256 bytes */
-__xdata uint32_t	ao_storage_block;
+__pdata uint32_t	ao_storage_block;
 
 /* Byte offset of config block. Will be ao_storage_block bytes long */
-__xdata uint32_t	ao_storage_config;
+__pdata uint32_t	ao_storage_config;
 
 /* Storage unit size - device reads and writes must be within blocks of this size. Usually 256 bytes. */
-__xdata uint16_t	ao_storage_unit;
+__pdata uint16_t	ao_storage_unit;
 
 /*
  * Each flash chip is arranged in 64kB sectors; the

@@ -464,16 +464,16 @@ ao_mutex_put(__xdata uint8_t *ao_mutex) __reentrant;
  */
 
 /* Total bytes of available storage */
-extern __xdata uint32_t	ao_storage_total;
+extern __pdata uint32_t	ao_storage_total;
 
 /* Block size - device is erased in these units. At least 256 bytes */
-extern __xdata uint32_t	ao_storage_block;
+extern __pdata uint32_t	ao_storage_block;
 
 /* Byte offset of config block. Will be ao_storage_block bytes long */
-extern __xdata uint32_t	ao_storage_config;
+extern __pdata uint32_t	ao_storage_config;
 
 /* Storage unit size - device reads and writes must be within blocks of this size. Usually 256 bytes. */
-extern __xdata uint16_t ao_storage_unit;
+extern __pdata uint16_t ao_storage_unit;
 
 #define AO_STORAGE_ERASE_LOG	(ao_storage_config + AO_CONFIG_MAX_SIZE)
 

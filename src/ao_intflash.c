@@ -47,16 +47,16 @@
 __xdata __at(AO_INTFLASH_LOCATION) uint8_t ao_intflash[AO_INTFLASH_SIZE];
 
 /* Total bytes of available storage */
-__xdata uint32_t	ao_storage_total = sizeof(ao_intflash);
+__pdata uint32_t	ao_storage_total = sizeof(ao_intflash);
 
 /* Block size - device is erased in these units. */
-__xdata uint32_t	ao_storage_block = AO_INTFLASH_BLOCK;
+__pdata uint32_t	ao_storage_block = AO_INTFLASH_BLOCK;
 
 /* Byte offset of config block. Will be ao_storage_block bytes long */
-__xdata uint32_t	ao_storage_config = sizeof(ao_intflash) - AO_INTFLASH_BLOCK;
+__pdata uint32_t	ao_storage_config = sizeof(ao_intflash) - AO_INTFLASH_BLOCK;
 
 /* Storage unit size - device reads and writes must be within blocks of this size. */
-__xdata uint16_t	ao_storage_unit = AO_INTFLASH_BLOCK;
+__pdata uint16_t	ao_storage_unit = AO_INTFLASH_BLOCK;
 
 __xdata static uint8_t  ao_intflash_dma_done;
 static uint8_t ao_intflash_dma;
