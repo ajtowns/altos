@@ -48,26 +48,31 @@ ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *nam
 	 */
 	stack = task->stack;
 
-	*stack++ = ((uint16_t) start);
-	*stack++ = ((uint16_t) start) >> 8;
+	*stack++ = ((uint16_t) start);		/* 0 */
+	*stack++ = ((uint16_t) start) >> 8;	/* 1 */
 
 	/* and the stuff saved by ao_switch */
-	*stack++ = 0;		/* acc */
-	*stack++ = 0x80;	/* IE */
-	*stack++ = 0;		/* DPL */
-	*stack++ = 0;		/* DPH */
-	*stack++ = 0;		/* B */
-	*stack++ = 0;		/* R2 */
-	*stack++ = 0;		/* R3 */
-	*stack++ = 0;		/* R4 */
-	*stack++ = 0;		/* R5 */
-	*stack++ = 0;		/* R6 */
-	*stack++ = 0;		/* R7 */
-	*stack++ = 0;		/* R0 */
-	*stack++ = 0;		/* R1 */
-	*stack++ = 0;		/* PSW */
-	*stack++ = 0;		/* BP */
-	task->stack_count = stack - task->stack;
+	*stack++ = 0;				/* 2 acc */  
+	*stack++ = 0x80;			/* 3 IE */
+
+	/*  4 DPL
+	 *  5 DPH
+	 *  6 B
+	 *  7 R2
+	 *  8 R3
+	 *  9 R4
+	 * 10 R5
+	 * 11 R6
+	 * 12 R7
+	 * 13 R0
+	 * 14 R1
+	 * 15 PSW
+	 * 16 BP
+	 */
+	for (t = 0; t < 13; t++)
+		*stack++ = 0;
+
+	task->stack_count = 17;
 	task->wchan = NULL;
 }
 
