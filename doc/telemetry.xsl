@@ -268,10 +268,15 @@
 	      <entry>9</entry><entry>uint8_t</entry><entry>config_minor</entry><entry>Config minor version</entry>
 	    </row>
 	    <row>
-	      <entry>10</entry><entry>uint16_t</entry><entry>main_deploy</entry><entry>Main deploy alt in meters</entry>
+	      <entry>10</entry><entry>uint16_t</entry><entry>apogee_delay</entry>
+	      <entry>Apogee deploy delay in seconds</entry>
 	    </row>
 	    <row>
-	      <entry>12</entry><entry>uint32_t</entry><entry>flight_log_max</entry><entry>Maximum flight log size (B)</entry>
+	      <entry>12</entry><entry>uint16_t</entry><entry>main_deploy</entry><entry>Main deploy alt in meters</entry>
+	    </row>
+	    <row>
+	      <entry>14</entry><entry>uint16_t</entry><entry>flight_log_max</entry>
+	      <entry>Maximum flight log size (kB)</entry>
 	    </row>
 	    <row>
 	      <entry>16</entry><entry>char</entry><entry>callsign[8]</entry><entry>Radio operator identifier</entry>
@@ -379,10 +384,13 @@
 	      <entry>26</entry><entry>uint16_t</entry><entry>ground_speed</entry><entry>cm/s</entry>
 	    </row>
 	    <row>
-	      <entry>28</entry><entry>uint8_t</entry><entry>course</entry><entry>/ 2</entry>
+	      <entry>28</entry><entry>int16_t</entry><entry>climb_rate</entry><entry>cm/s</entry>
 	    </row>
 	    <row>
-	      <entry>29</entry><entry>uint8_t</entry><entry>unused[3]</entry>
+	      <entry>30</entry><entry>uint8_t</entry><entry>course</entry><entry>/ 2</entry>
+	    </row>
+	    <row>
+	      <entry>31</entry><entry>uint8_t</entry><entry>unused[1]</entry>
 	    </row>
 	    <row>
 	      <entry>32</entry>
