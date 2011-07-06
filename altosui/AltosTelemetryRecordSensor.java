@@ -99,7 +99,6 @@ public class AltosTelemetryRecordSensor extends AltosTelemetryRecordRaw {
 
 		next.seen |= AltosRecord.seen_sensor | AltosRecord.seen_temp_volt;
 
-		System.out.printf("Sensor record update - rssi %d\n", rssi);
 		return next;
 	}
 }
