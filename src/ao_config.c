@@ -116,8 +116,9 @@ void
 ao_config_callsign_set(void) __reentrant
 {
 	uint8_t	c;
-	char callsign[AO_MAX_CALLSIGN + 1];
+	static __xdata char callsign[AO_MAX_CALLSIGN + 1];
 
+	memset(callsign, '\0', sizeof callsign);
 	ao_cmd_white();
 	c = 0;
 	while (ao_cmd_lex_c != '\n') {
@@ -131,8 +132,6 @@ ao_config_callsign_set(void) __reentrant
 		return;
 	ao_mutex_get(&ao_config_mutex);
 	_ao_config_get();
-	while (c < AO_MAX_CALLSIGN + 1)
-		callsign[c++] = '\0';
 	memcpy(&ao_config.callsign, &callsign,
 	       AO_MAX_CALLSIGN + 1);
 	ao_config_dirty = 1;
