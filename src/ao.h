@@ -535,7 +535,7 @@ extern __pdata uint32_t ao_log_current_pos;
 extern __pdata uint32_t ao_log_end_pos;
 extern __pdata uint32_t ao_log_start_pos;
 extern __xdata uint8_t	ao_log_running;
-extern __xdata enum flight_state ao_log_state;
+extern __pdata enum flight_state ao_log_state;
 
 /* required functions from the underlying log system */
 

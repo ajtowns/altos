@@ -60,7 +60,7 @@ ao_log_dump_check_data(void)
 	return 1;
 }
 
-static __xdata uint8_t	ao_log_adc_pos;
+static __data uint8_t	ao_log_adc_pos;
 
 /* a hack to make sure that ao_log_records fill the eeprom block in even units */
 typedef uint8_t check_log_size[1-(256 % sizeof(struct ao_log_record))] ;
@@ -72,7 +72,7 @@ typedef uint8_t check_log_size[1-(256 % sizeof(struct ao_log_record))] ;
 void
 ao_log(void)
 {
-	uint16_t	next_sensor, next_other;
+	__pdata uint16_t	next_sensor, next_other;
 
 	ao_storage_setup();
 

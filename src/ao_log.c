@@ -21,7 +21,7 @@ __pdata uint32_t ao_log_current_pos;
 __pdata uint32_t ao_log_end_pos;
 __pdata uint32_t ao_log_start_pos;
 __xdata uint8_t	ao_log_running;
-__xdata enum flight_state ao_log_state;
+__pdata enum flight_state ao_log_state;
 __xdata uint16_t ao_flight_number;
 
 void
