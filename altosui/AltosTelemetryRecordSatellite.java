@@ -17,27 +17,36 @@
 
 package altosui;
 
-import java.lang.*;
-import java.text.*;
-import java.util.HashMap;
+public class AltosTelemetryRecordSatellite extends AltosTelemetryRecordRaw {
+	int		channels;
+	AltosGPSSat[]	sats;
 
-public class AltosTelemetryRecordGeneral {
+	public AltosTelemetryRecordSatellite(int[] in_bytes) {
+		super(in_bytes);
 
-	static AltosTelemetryRecord parse(String line) throws ParseException, AltosCRCException {
-		AltosTelemetryRecord	r;
-
-		String[] word = line.split("\\s+");
-		int i =0;
-		if (word[i].equals("CRC") && word[i+1].equals("INVALID")) {
-			i += 2;
-			AltosParse.word(word[i++], "RSSI");
-			throw new AltosCRCException(AltosParse.parse_int(word[i++]));
+		channels = uint8(5);
+		if (channels > 12)
+			channels = 12;
+		if (channels == 0)
+			sats = null;
+		else {
+			sats = new AltosGPSSat[channels];
+			for (int i = 0; i < channels; i++) {
+				int	svid =  uint8(6 + i * 2 + 0);
+				int	c_n_1 = uint8(6 + i * 2 + 1);
+				sats[i] = new AltosGPSSat(svid, c_n_1);
+			}
 		}
+	}
 
-		if (word[i].equals("TELEM"))
-			r = AltosTelemetryRecordRaw.parse(word[i+1]);
-		else
-			r = new AltosTelemetryRecordLegacy(line);
-		return r;
+	public AltosRecord update_state(AltosRecord previous) {
+		AltosRecord	next = super.update_state(previous);
+
+		if (next.gps == null)
+			next.gps = new AltosGPS();
+
+		next.gps.cc_gps_sat = sats;
+
+		return next;
 	}
 }

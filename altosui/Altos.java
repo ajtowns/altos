@@ -231,10 +231,21 @@ public class Altos {
 	static final Charset	unicode_set = Charset.forName("UTF-8");
 
 	static String string(int[] bytes, int s, int l) {
-		byte[]	b = new byte[bytes.length];
+		if (s + l > bytes.length) {
+			if (s > bytes.length) {
+				s = bytes.length;
+				l = 0;
+			} else {
+				l = bytes.length - s;
+			}
+		}
+
+		byte[]	b = new byte[l];
+
 		for (int i = 0; i < l; i++)
 			b[i] = (byte) bytes[s+i];
-		return new String(b, unicode_set);
+		String n = new String(b, unicode_set);
+		return n;
 	}
 
 	static int hexbyte(String s, int i) {

@@ -82,7 +82,9 @@ class AltosLog implements Runnable {
 					continue;
 				try {
 					AltosRecord	telem = AltosTelemetry.parse(line.line, previous);
-					if (telem.serial != serial || telem.flight != flight || log_file == null) {
+					if (telem.serial != 0 && telem.flight != 0 &&
+					    (telem.serial != serial || telem.flight != flight || log_file == null))
+					{
 						close_log_file();
 						serial = telem.serial;
 						flight = telem.flight;

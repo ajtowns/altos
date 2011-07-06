@@ -67,6 +67,13 @@ public class AltosRecord {
 
 	double	time;	/* seconds since boost */
 
+	int	device_type;
+	int	config_major;
+	int	config_minor;
+	int	apogee_delay;
+	int	main_deploy;
+	int	flight_log_max;
+	String	firmware_version;
 	/*
 	 * Values for our MP3H6115A pressure sensor
 	 *

@@ -30,9 +30,9 @@ public class AltosTelemetryRecordRaw implements AltosTelemetryRecord {
 	final static int packet_type_TM_sensor = 0x01;
 	final static int packet_type_Tm_sensor = 0x02;
 	final static int packet_type_Tn_sensor = 0x03;
-	final static int packet_type_config = 0x04;
-	final static int packet_type_GPS_location = 0x05;
-	final static int packet_type_GPS_satellites = 0x06;
+	final static int packet_type_configuration = 0x04;
+	final static int packet_type_location = 0x05;
+	final static int packet_type_satellite = 0x06;
 	
 	final static int PKT_APPEND_STATUS_1_CRC_OK		= (1 << 7);
 	final static int PKT_APPEND_STATUS_1_LQI_MASK		= (0x7f);
@@ -43,8 +43,6 @@ public class AltosTelemetryRecordRaw implements AltosTelemetryRecord {
 		for (int i = 1; i < bytes.length - 1; i++)
 			sum += bytes[i];
 		sum &= 0xff;
-		System.out.printf("%d bytes sum 0x%x last byte 0x%x\n",
-				  bytes.length, sum, bytes[bytes.length - 1]);
 		return sum == bytes[bytes.length - 1];
 	}
 
@@ -69,10 +67,6 @@ public class AltosTelemetryRecordRaw implements AltosTelemetryRecord {
 		int	rssi = Altos.int8(bytes, bytes.length - 3) / 2 - 74;
 		int	status = Altos.uint8(bytes, bytes.length - 2);
 
-		System.out.printf ("rssi 0x%x = %d status 0x%x\n",
-				   Altos.uint8(bytes, bytes.length - 3),
-				   rssi, status);
-
 		if ((status & PKT_APPEND_STATUS_1_CRC_OK) == 0)
 			throw new AltosCRCException(rssi);
 
@@ -84,12 +78,22 @@ public class AltosTelemetryRecordRaw implements AltosTelemetryRecord {
 			case packet_type_TM_sensor:
 			case packet_type_Tm_sensor:
 			case packet_type_Tn_sensor:
-				r = new AltosTelemetryRecordSensor(bytes);
+				r = new AltosTelemetryRecordSensor(bytes, rssi);
+				break;
+			case packet_type_configuration:
+				r = new AltosTelemetryRecordConfiguration(bytes);
+				break;
+			case packet_type_location:
+				r = new AltosTelemetryRecordLocation(bytes);
+				break;
+			case packet_type_satellite:
+				r = new AltosTelemetryRecordSatellite(bytes);
 				break;
 			default:
 				r = new AltosTelemetryRecordRaw(bytes);
 				break;
 			}
+			break;
 		case Altos.ao_telemetry_legacy_len + 4:
 			r = new AltosTelemetryRecordLegacy(bytes, rssi, status);
 			break;
@@ -119,6 +123,10 @@ public class AltosTelemetryRecordRaw implements AltosTelemetryRecord {
 		return Altos.uint32(bytes, off + 1);
 	}
 
+	public String string(int off, int l) {
+		return Altos.string(bytes, off + 1, l);
+	}
+
 	public AltosTelemetryRecordRaw(int[] in_bytes) {
 		bytes = in_bytes;
 		serial = uint16(0);
@@ -127,9 +135,13 @@ public class AltosTelemetryRecordRaw implements AltosTelemetryRecord {
 	}
 
 	public AltosRecord update_state(AltosRecord previous) {
+		AltosRecord	next;
 		if (previous != null)
-			return new AltosRecord(previous);
+			next = new AltosRecord(previous);
 		else
-			return new AltosRecord();
+			next = new AltosRecord();
+		next.serial = serial;
+		next.tick = tick;
+		return next;
 	}
 }

@@ -36,7 +36,9 @@ public class AltosTelemetryRecordSensor extends AltosTelemetryRecordRaw {
 	int	accel_plus_g;
 	int	accel_minus_g;
 
-	public AltosTelemetryRecordSensor(int[] in_bytes) {
+	int	rssi;
+
+	public AltosTelemetryRecordSensor(int[] in_bytes, int in_rssi) {
 		super(in_bytes);
 		state         = uint8(5);
 
@@ -51,14 +53,53 @@ public class AltosTelemetryRecordSensor extends AltosTelemetryRecordRaw {
 		speed         = int16(20);
 		height        = int16(22);
 
-		ground_accel  = int16(24);
-		ground_pres   = int16(26);
+		ground_pres   = int16(24);
+		ground_accel  = int16(26);
 		accel_plus_g  = int16(28);
 		accel_minus_g = int16(30);
+
+		rssi	      = in_rssi;
 	}
 
 	public AltosRecord update_state(AltosRecord previous) {
 		AltosRecord	next = super.update_state(previous);
+
+		next.state = state;
+		if (type == packet_type_TM_sensor)
+			next.accel = accel;
+		else
+			next.accel = AltosRecord.MISSING;
+		next.pres = pres;
+		next.temp = temp;
+		next.batt = v_batt;
+		if (type == packet_type_TM_sensor || type == packet_type_Tm_sensor) {
+			next.drogue = sense_d;
+			next.main = sense_m;
+		} else {
+			next.drogue = AltosRecord.MISSING;
+			next.main = AltosRecord.MISSING;
+		}
+
+		next.acceleration = acceleration / 16.0;
+		next.speed = speed / 16.0;
+		next.height = height;
+
+		next.ground_pres = ground_pres;
+		if (type == packet_type_TM_sensor) {
+			next.ground_accel = ground_accel;
+			next.accel_plus_g = accel_plus_g;
+			next.accel_minus_g = accel_minus_g;
+		} else {
+			next.ground_accel = AltosRecord.MISSING;
+			next.accel_plus_g = AltosRecord.MISSING;
+			next.accel_minus_g = AltosRecord.MISSING;
+		}
+
+		next.rssi = rssi;
+
+		next.seen |= AltosRecord.seen_sensor | AltosRecord.seen_temp_volt;
+
+		System.out.printf("Sensor record update - rssi %d\n", rssi);
 		return next;
 	}
 }

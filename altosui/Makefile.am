@@ -75,6 +75,9 @@ altosui_JAVA = \
 	AltosTelemetryRecordGeneral.java \
 	AltosTelemetryRecordRaw.java \
 	AltosTelemetryRecordSensor.java \
+	AltosTelemetryRecordConfiguration.java \
+	AltosTelemetryRecordLocation.java \
+	AltosTelemetryRecordSatellite.java \
 	AltosTelemetryRecordLegacy.java \
 	AltosTelemetryMap.java \
 	AltosReplayReader.java \
