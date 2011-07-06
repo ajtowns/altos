@@ -91,7 +91,7 @@ ao_serial_drain(void) __critical
 		ao_sleep(&ao_usart1_tx_fifo);
 }
 
-static const struct {
+static __code struct {
 	uint8_t	baud;
 	uint8_t	gcr;
 } ao_serial_speeds[] = {
