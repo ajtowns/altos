@@ -17,21 +17,21 @@
 
 #include "ao.h"
 
-__xdata uint16_t ao_cmd_lex_i;
-__xdata uint32_t ao_cmd_lex_u32;
-__xdata char	ao_cmd_lex_c;
-__xdata enum ao_cmd_status ao_cmd_status;
+__pdata uint16_t ao_cmd_lex_i;
+__pdata uint32_t ao_cmd_lex_u32;
+__pdata char	ao_cmd_lex_c;
+__pdata enum ao_cmd_status ao_cmd_status;
 
 #define CMD_LEN	32
 
 static __xdata char	cmd_line[CMD_LEN];
-static __xdata uint8_t	cmd_len;
-static __xdata uint8_t	cmd_i;
+static __pdata uint8_t	cmd_len;
+static __pdata uint8_t	cmd_i;
 
 static void
-put_string(char *s)
+put_string(__code char *s)
 {
-	__xdata char	c;
+	char	c;
 	while (c = *s++)
 		putchar(c);
 }
@@ -39,7 +39,7 @@ put_string(char *s)
 static void
 readline(void)
 {
-	__xdata char c;
+	__pdata char c;
 	if (ao_echo())
 		put_string("> ");
 	cmd_len = 0;
@@ -131,7 +131,7 @@ ao_cmd_white(void)
 void
 ao_cmd_hex(void)
 {
-	__xdata uint8_t	r = ao_cmd_lex_error;
+	__pdata uint8_t	r = ao_cmd_lex_error;
 	uint8_t	n;
 
 	ao_cmd_lex_i = 0;
@@ -156,7 +156,7 @@ ao_cmd_hex(void)
 void
 ao_cmd_decimal(void)
 {
-	__xdata uint8_t	r = ao_cmd_lex_error;
+	__pdata uint8_t	r = ao_cmd_lex_error;
 
 	ao_cmd_lex_u32 = 0;
 	ao_cmd_white();
@@ -225,14 +225,14 @@ version(void)
 #define NUM_CMDS	11
 
 static __code struct ao_cmds	*__xdata (ao_cmds[NUM_CMDS]);
-static __xdata uint8_t		ao_ncmds;
+static __pdata uint8_t		ao_ncmds;
 
 static void
 help(void)
 {
-	__xdata uint8_t	cmds;
-	__xdata uint8_t cmd;
-	__code struct ao_cmds * __xdata cs;
+	register uint8_t cmds;
+	register uint8_t cmd;
+	register __code struct ao_cmds * cs;
 
 	for (cmds = 0; cmds < ao_ncmds; cmds++) {
 		cs = ao_cmds[cmds];

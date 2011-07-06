@@ -367,10 +367,10 @@ enum ao_cmd_status {
 	ao_cmd_syntax_error = 2,
 };
 
-extern __xdata uint16_t ao_cmd_lex_i;
-extern __xdata uint32_t ao_cmd_lex_u32;
-extern __xdata char	ao_cmd_lex_c;
-extern __xdata enum ao_cmd_status ao_cmd_status;
+extern __pdata uint16_t ao_cmd_lex_i;
+extern __pdata uint32_t ao_cmd_lex_u32;
+extern __pdata char	ao_cmd_lex_c;
+extern __pdata enum ao_cmd_status ao_cmd_status;
 
 void
 ao_cmd_lex(void);
