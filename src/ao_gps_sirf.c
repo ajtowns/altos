@@ -20,7 +20,7 @@
 #endif
 
 __xdata uint8_t ao_gps_mutex;
-__xdata uint16_t ao_gps_tick;
+__pdata uint16_t ao_gps_tick;
 __xdata struct ao_telemetry_location	ao_gps_data;
 __xdata struct ao_telemetry_satellite	ao_gps_tracking_data;
 

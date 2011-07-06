@@ -1099,7 +1099,7 @@ union ao_telemetry_all {
 #define AO_GPS_DATE_VALID	(1 << 6)
 #define AO_GPS_COURSE_VALID	(1 << 7)
 
-extern __xdata uint16_t ao_gps_tick;
+extern __pdata uint16_t ao_gps_tick;
 extern __xdata uint8_t ao_gps_mutex;
 extern __xdata struct ao_telemetry_location ao_gps_data;
 extern __xdata struct ao_telemetry_satellite ao_gps_tracking_data;

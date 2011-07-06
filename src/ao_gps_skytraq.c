@@ -21,20 +21,20 @@
 
 #define AO_GPS_LEADER          2
 
-static const char ao_gps_header[] = "GP";
+static __code char ao_gps_header[] = "GP";
 
 __xdata uint8_t ao_gps_mutex;
-static __xdata char ao_gps_char;
-static __xdata uint8_t ao_gps_cksum;
-static __xdata uint8_t ao_gps_error;
+static __pdata char ao_gps_char;
+static __pdata uint8_t ao_gps_cksum;
+static __pdata uint8_t ao_gps_error;
 
-__xdata uint16_t ao_gps_tick;
+__pdata uint16_t ao_gps_tick;
 __xdata struct ao_telemetry_location	ao_gps_data;
 __xdata struct ao_telemetry_satellite	ao_gps_tracking_data;
 
-static __xdata uint16_t				ao_gps_next_tick;
+static __pdata uint16_t				ao_gps_next_tick;
 static __xdata struct ao_telemetry_location	ao_gps_next;
-static __xdata uint8_t				ao_gps_date_flags;
+static __pdata uint8_t				ao_gps_date_flags;
 static __xdata struct ao_telemetry_satellite	ao_gps_tracking_next;
 
 #define STQ_S 0xa0, 0xa1
@@ -49,7 +49,7 @@ static __xdata struct ao_telemetry_satellite	ao_gps_tracking_next;
     STQ_S, 0,15, id, a,b,c,d,e,f,g,h,i,j,k,l,m,n, \
     (id^a^b^c^d^e^f^g^h^i^j^k^l^m^n), STQ_E
 
-static const uint8_t ao_gps_config[] = {
+static __code uint8_t ao_gps_config[] = {
 	SKYTRAQ_MSG_8(0x08, 1, 1, 1, 1, 1, 1, 1, 0), /* configure nmea */
 	/* gga interval */
 	/* gsa interval */
@@ -89,13 +89,13 @@ ao_gps_skip_sep(void)
 		ao_gps_lexchar();
 }
 
-__xdata static uint8_t ao_gps_num_width;
+__pdata static uint8_t ao_gps_num_width;
 
 static int16_t
 ao_gps_decimal(uint8_t max_width)
 {
 	int16_t	v;
-	__xdata uint8_t	neg = 0;
+	__pdata uint8_t	neg = 0;
 
 	ao_gps_skip_sep();
 	if (ao_gps_char == '-') {
@@ -390,15 +390,16 @@ ao_nmea_rmc(void)
 	}
 }
 
-#define ao_skytraq_sendstruct(s) ao_skytraq_sendbytes((s), (s)+sizeof(s))
+#define ao_skytraq_sendstruct(s) ao_skytraq_sendbytes((s), sizeof(s))
 
 static void
-ao_skytraq_sendbytes(const uint8_t *b, const uint8_t *e)
+ao_skytraq_sendbytes(__code uint8_t *b, uint8_t l)
 {
-	while (b != e) {
-		if (*b == 0xa0)
+	while (l--) {
+		uint8_t	c = *b++;
+		if (c == 0xa0)
 			ao_delay(AO_MS_TO_TICKS(500));
-		ao_serial_putchar(*b++);
+		ao_serial_putchar(c);
 	}
 }
 
