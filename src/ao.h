@@ -1311,8 +1311,8 @@ struct ao_stdio {
 };
 
 extern __xdata struct ao_stdio ao_stdios[];
-extern __data int8_t ao_cur_stdio;
-extern __data int8_t ao_num_stdios;
+extern __pdata int8_t ao_cur_stdio;
+extern __pdata int8_t ao_num_stdios;
 
 void
 flush(void);

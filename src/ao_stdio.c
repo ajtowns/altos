@@ -24,8 +24,8 @@
 #define AO_NUM_STDIOS	(HAS_USB + PACKET_HAS_SLAVE + USE_SERIAL_STDIN)
 
 __xdata struct ao_stdio ao_stdios[AO_NUM_STDIOS];
-__data int8_t ao_cur_stdio;
-__data int8_t ao_num_stdios;
+__pdata int8_t ao_cur_stdio;
+__pdata int8_t ao_num_stdios;
 
 void
 putchar(char c)
