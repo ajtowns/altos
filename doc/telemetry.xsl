@@ -705,6 +705,74 @@
     </section>
   </section>
   <section>
+    <title>TeleDongle packet format</title>
+    <para>
+      TeleDongle does not do any interpretation of the packet data,
+      instead it is configured to receive packets of a specified
+      length (32 bytes in this case). For each received packet,
+      TeleDongle produces a single line of text. This line starts with
+      the string "TELEM " and is followed by a list of hexadecimal
+      encoded bytes.
+    </para>
+    <programlisting>TELEM 224f01080b05765e00701f1a1bbeb8d7b60b070605140c000600000000000000003fa988</programlisting>
+    <para>
+      The hexadecimal encoded string of bytes contains a length byte,
+      the packet data, two bytes added by the cc1111 radio receiver
+      hardware and finally a checksum so that the host software can
+      validate that the line was transmitted without any errors.
+    </para>
+    <table>
+      <tgroup cols='4'>
+	<colspec align="center" colwidth="2*" colname="offset"/>
+	<colspec align="center" colwidth="*" colname="name"/>
+	<colspec align="center" colwidth="*" colname="value"/>
+	<colspec align="center" colwidth="5*" colname="description"/>
+	<thead>
+	  <row>
+	    <entry align='center'>Offset</entry>
+	    <entry align='center'>Name</entry>
+	    <entry align='center'>Example</entry>
+	    <entry align='center'>Description</entry>
+	  </row>
+	</thead>
+	<tbody>
+	  <row>
+	    <entry>0</entry>
+	    <entry>length</entry>
+	    <entry>22</entry>
+	    <entry>Total length of data bytes in the line. Note that
+	    this includes the added RSSI and status bytes</entry>
+	  </row>
+	  <row>
+	    <entry>1 ·· length-3</entry>
+	    <entry>packet</entry>
+	    <entry>4f ·· 00</entry>
+	    <entry>Bytes of actual packet data</entry>
+	  </row>
+	  <row>
+	    <entry>length-2</entry>
+	    <entry>rssi</entry>
+	    <entry>3f</entry>
+	    <entry>Received signal strength. dBm = rssi / 2 - 74</entry>
+	  </row>
+	  <row>
+	    <entry>length-1</entry>
+	    <entry>lqi</entry>
+	    <entry>a9</entry>
+	    <entry>Link Quality Indicator and CRC status. Bit 7
+	    is set when the CRC is correct</entry>
+	  </row>
+	  <row>
+	    <entry>length</entry>
+	    <entry>checksum</entry>
+	    <entry>88</entry>
+	    <entry>(0x5a + sum(bytes 1 ·· length-1)) % 256</entry>
+	  </row>
+	</tbody>
+      </tgroup>
+    </table>
+  </section>
+  <section>
     <title>History and Motivation</title>
     <para>
       The original AltoOS telemetry mechanism encoded everything
