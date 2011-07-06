@@ -53,7 +53,6 @@ public class AltosTelemetryIterable extends AltosRecordIterable {
 					AltosRecord record = AltosTelemetry.parse(line, previous);
 					if (record == null)
 						break;
-					previous = record;
 					if (records.isEmpty()) {
 						current_tick = record.tick;
 					} else {
@@ -74,7 +73,9 @@ public class AltosTelemetryIterable extends AltosRecordIterable {
 						has_gps = true;
 					if (record.main != AltosRecord.MISSING)
 						has_ignite = true;
-					records.add(record);
+					if (previous != null && previous.tick != record.tick)
+						records.add(previous);
+					previous = record;
 				} catch (ParseException pe) {
 					System.out.printf("parse exception %s\n", pe.getMessage());
 				} catch (AltosCRCException ce) {
@@ -83,6 +84,9 @@ public class AltosTelemetryIterable extends AltosRecordIterable {
 		} catch (IOException io) {
 			System.out.printf("io exception\n");
 		}
+
+		if (previous != null)
+			records.add(previous);
 
 		/* adjust all tick counts to be relative to boost time */
 		for (AltosRecord r : this)
