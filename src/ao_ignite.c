@@ -58,8 +58,8 @@ enum ao_igniter_status
 ao_igniter_status(enum ao_igniter igniter)
 {
 	__xdata struct ao_adc adc;
-	__xdata int16_t value;
-	__xdata uint8_t request, firing, fired;
+	__pdata int16_t value;
+	__pdata uint8_t request, firing, fired;
 
 	__critical {
 		ao_adc_get(&adc);
@@ -143,7 +143,7 @@ ao_ignite_manual(void)
 	}
 }
 
-static __code char *igniter_status_names[] = {
+static __code char * __code igniter_status_names[] = {
 	"unknown", "ready", "active", "open"
 };
 
