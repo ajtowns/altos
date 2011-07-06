@@ -77,9 +77,15 @@ ao_send_sensor(void)
 	telemetry.sensor.height = ao_height;
 
 	telemetry.sensor.ground_pres = ao_ground_pres;
+#if HAS_ACCEL
 	telemetry.sensor.ground_accel = ao_ground_accel;
 	telemetry.sensor.accel_plus_g = ao_config.accel_plus_g;
 	telemetry.sensor.accel_minus_g = ao_config.accel_minus_g;
+#else
+	telemetry.sensor.ground_accel = 0;
+	telemetry.sensor.accel_plus_g = 0;
+	telemetry.sensor.accel_minus_g = 0;
+#endif
 
 	ao_radio_send(&telemetry, sizeof (telemetry));
 }
