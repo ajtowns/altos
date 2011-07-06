@@ -37,21 +37,21 @@ __data uint8_t		ao_sample_adc;
  * Sensor calibration values
  */
 
-__xdata int16_t		ao_ground_pres;		/* startup pressure */
-__xdata int16_t		ao_ground_height;	/* MSL of ao_ground_pres */
+__pdata int16_t		ao_ground_pres;		/* startup pressure */
+__pdata int16_t		ao_ground_height;	/* MSL of ao_ground_pres */
 
 #if HAS_ACCEL
-__xdata int16_t		ao_ground_accel;	/* startup acceleration */
-__xdata int16_t		ao_accel_2g;		/* factory accel calibration */
-__xdata int32_t		ao_accel_scale;		/* sensor to m/s² conversion */
+__pdata int16_t		ao_ground_accel;	/* startup acceleration */
+__pdata int16_t		ao_accel_2g;		/* factory accel calibration */
+__pdata int32_t		ao_accel_scale;		/* sensor to m/s² conversion */
 #endif
 
-static __xdata uint8_t	ao_preflight;		/* in preflight mode */
+static __pdata uint8_t	ao_preflight;		/* in preflight mode */
 
-static __xdata uint16_t	nsamples;
-__xdata int32_t ao_sample_pres_sum;
+static __pdata uint16_t	nsamples;
+__pdata int32_t ao_sample_pres_sum;
 #if HAS_ACCEL
-__xdata int32_t ao_sample_accel_sum;
+__pdata int32_t ao_sample_accel_sum;
 #endif
 
 static void

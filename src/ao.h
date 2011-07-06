@@ -803,13 +803,13 @@ extern __data uint8_t	ao_sample_adc;		/* Ring position of last processed sample 
 extern __pdata int16_t	ao_sample_accel;	/* most recent accel sensor reading */
 #endif
 
-extern __xdata int16_t	ao_ground_pres;		/* startup pressure */
-extern __xdata int16_t	ao_ground_height;	/* MSL of ao_ground_pres */
+extern __pdata int16_t	ao_ground_pres;		/* startup pressure */
+extern __pdata int16_t	ao_ground_height;	/* MSL of ao_ground_pres */
 
 #if HAS_ACCEL
-extern __xdata int16_t	ao_ground_accel;	/* startup acceleration */
-extern __xdata int16_t 	ao_accel_2g;		/* factory accel calibration */
-extern __xdata int32_t	ao_accel_scale;		/* sensor to m/s² conversion */
+extern __pdata int16_t	ao_ground_accel;	/* startup acceleration */
+extern __pdata int16_t 	ao_accel_2g;		/* factory accel calibration */
+extern __pdata int32_t	ao_accel_scale;		/* sensor to m/s² conversion */
 #endif
 
 void ao_sample_init(void);
