@@ -149,6 +149,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class Apogee extends LaunchStatus {
 		void show (AltosState state, int crc_errors) {
+			show();
 			value.setText(String.format("%4.2f V", state.drogue_sense));
 			lights.set(state.drogue_sense > 3.2);
 		}
@@ -161,6 +162,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class Main extends LaunchStatus {
 		void show (AltosState state, int crc_errors) {
+			show();
 			value.setText(String.format("%4.2f V", state.main_sense));
 			lights.set(state.main_sense > 3.2);
 		}
@@ -259,10 +261,16 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	public void show(AltosState state, int crc_errors) {
 		battery.show(state, crc_errors);
-		apogee.show(state, crc_errors);
-		main.show(state, crc_errors);
+		if (state.drogue_sense == AltosRecord.MISSING)
+			apogee.hide();
+		else
+			apogee.show(state, crc_errors);
+		if (state.main_sense == AltosRecord.MISSING)
+			main.hide();
+		else
+			main.show(state, crc_errors);
 		pad_alt.show(state, crc_errors);
-		if (state.gps != null) {
+		if (state.gps != null && state.gps.connected) {
 			gps_locked.show(state, crc_errors);
 			gps_ready.show(state, crc_errors);
 			pad_lat.show(state, crc_errors);

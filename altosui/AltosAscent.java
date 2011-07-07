@@ -36,6 +36,18 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		JTextField	value;
 		AltosLights	lights;
 
+		void show() {
+			value.setVisible(true);
+			lights.setVisible(true);
+			label.setVisible(true);
+		}
+
+		void hide() {
+			value.setVisible(false);
+			lights.setVisible(false);
+			label.setVisible(false);
+		}
+
 		void show(AltosState state, int crc_errors) {}
 		void reset() {
 			value.setText("");
@@ -136,14 +148,19 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		void reset() {
 			value.setText("");
 			max_value.setText("");
-			max = 0;
+			max = AltosRecord.MISSING;
 		}
 
 		void show(String format, double v) {
-			value.setText(String.format(format, v));
-			if (v > max) {
-				max_value.setText(String.format(format, v));
-				max = v;
+			if (v == AltosRecord.MISSING) {
+				value.setText("Missing");
+				max_value.setText("Missing");
+			} else {
+				value.setText(String.format(format, v));
+				if (v > max || max == AltosRecord.MISSING) {
+					max_value.setText(String.format(format, v));
+					max = v;
+				}
 			}
 		}
 		public AscentValueHold (GridBagLayout layout, int y, String text) {
@@ -233,6 +250,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Apogee extends AscentStatus {
 		void show (AltosState state, int crc_errors) {
+			show();
 			value.setText(String.format("%4.2f V", state.drogue_sense));
 			lights.set(state.drogue_sense > 3.2);
 		}
@@ -245,6 +263,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Main extends AscentStatus {
 		void show (AltosState state, int crc_errors) {
+			show();
 			value.setText(String.format("%4.2f V", state.main_sense));
 			lights.set(state.main_sense > 3.2);
 		}
@@ -296,7 +315,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 	}
 
 	public void show(AltosState state, int crc_errors) {
-		if (state.gps != null) {
+		if (state.gps != null && state.gps.connected) {
 			lat.show(state, crc_errors);
 			lon.show(state, crc_errors);
 		} else {
@@ -304,8 +323,14 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			lon.hide();
 		}
 		height.show(state, crc_errors);
-		main.show(state, crc_errors);
-		apogee.show(state, crc_errors);
+		if (state.main_sense != AltosRecord.MISSING)
+			main.show(state, crc_errors);
+		else
+			main.hide();
+		if (state.drogue_sense != AltosRecord.MISSING)
+			apogee.show(state, crc_errors);
+		else
+			apogee.hide();
 		speed.show(state, crc_errors);
 		accel.show(state, crc_errors);
 	}

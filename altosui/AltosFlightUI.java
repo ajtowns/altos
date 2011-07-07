@@ -156,8 +156,8 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 			// Telemetry format menu
 			telemetries = new JComboBox();
-			telemetries.addItem("Legacy TeleMetrum");
-			telemetries.addItem("Split Telemetry");
+			telemetries.addItem("Original TeleMetrum Telemetry");
+			telemetries.addItem("Standard AltOS Telemetry");
 			int telemetry = 1;
 			telemetry = AltosPreferences.telemetry(serial);
 			if (telemetry > Altos.ao_telemetry_split)

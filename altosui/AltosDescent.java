@@ -258,7 +258,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	class Lat extends DescentValue {
 		void show (AltosState state, int crc_errors) {
-			if (state.gps != null)
+			if (state.gps != null && state.gps.connected)
 				show(pos(state.gps.lat,"N", "S"));
 			else
 				show("???");
@@ -272,7 +272,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	class Lon extends DescentValue {
 		void show (AltosState state, int crc_errors) {
-			if (state.gps != null)
+			if (state.gps != null && state.gps.connected)
 				show(pos(state.gps.lon,"W", "E"));
 			else
 				show("???");
@@ -286,6 +286,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	class Apogee extends DescentStatus {
 		void show (AltosState state, int crc_errors) {
+			show();
 			value.setText(String.format("%4.2f V", state.drogue_sense));
 			lights.set(state.drogue_sense > 3.2);
 		}
@@ -363,7 +364,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	public void show(AltosState state, int crc_errors) {
 		height.show(state, crc_errors);
 		speed.show(state, crc_errors);
-		if (state.gps != null) {
+		if (state.gps != null && state.gps.connected) {
 			bearing.show(state, crc_errors);
 			range.show(state, crc_errors);
 			elevation.show(state, crc_errors);
@@ -376,8 +377,14 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			lat.hide();
 			lon.hide();
 		}
-		main.show(state, crc_errors);
-		apogee.show(state, crc_errors);
+		if (state.main_sense != AltosRecord.MISSING)
+			main.show(state, crc_errors);
+		else
+			main.hide();
+		if (state.drogue_sense != AltosRecord.MISSING)
+			apogee.show(state, crc_errors);
+		else
+			apogee.hide();
 	}
 
 	public AltosDescent() {

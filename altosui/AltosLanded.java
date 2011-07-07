@@ -99,7 +99,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay {
 	class Lat extends LandedValue {
 		void show (AltosState state, int crc_errors) {
 			show();
-			if (state.gps != null)
+			if (state.gps != null && state.gps.connected)
 				value.setText(pos(state.gps.lat,"N", "S"));
 			else
 				value.setText("???");
@@ -114,7 +114,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay {
 	class Lon extends LandedValue {
 		void show (AltosState state, int crc_errors) {
 			show();
-			if (state.gps != null)
+			if (state.gps != null && state.gps.connected)
 				value.setText(pos(state.gps.lon,"E", "W"));
 			else
 				value.setText("???");
@@ -200,7 +200,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay {
 	}
 
 	public void show(AltosState state, int crc_errors) {
-		if (state.gps != null) {
+		if (state.gps != null && state.gps.connected) {
 			bearing.show(state, crc_errors);
 			distance.show(state, crc_errors);
 			lat.show(state, crc_errors);

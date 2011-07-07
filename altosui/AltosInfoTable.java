@@ -107,10 +107,12 @@ public class AltosInfoTable extends JTable {
 		info_add_row(0, "Max Speed", "%8.1f  m/s", state.max_speed);
 		info_add_row(0, "Temperature", "%9.2f °C", state.temperature);
 		info_add_row(0, "Battery", "%9.2f V", state.battery);
-		info_add_row(0, "Drogue", "%9.2f V", state.drogue_sense);
-		info_add_row(0, "Main", "%9.2f V", state.main_sense);
+		if (state.drogue_sense != AltosRecord.MISSING)
+			info_add_row(0, "Drogue", "%9.2f V", state.drogue_sense);
+		if (state.main_sense != AltosRecord.MISSING)
+			info_add_row(0, "Main", "%9.2f V", state.main_sense);
 		info_add_row(0, "Pad altitude", "%6.0f    m", state.ground_altitude);
-		if (state.gps == null) {
+		if (state.gps == null || !state.gps.connected) {
 			info_add_row(1, "GPS", "not available");
 		} else {
 			if (state.gps_ready)
