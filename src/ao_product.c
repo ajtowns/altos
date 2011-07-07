@@ -16,7 +16,7 @@
  */
 
 #include "ao.h"
-#include PRODUCT_DEFS
+#include "ao_product.h"
 
 /* Defines which mark this particular AltOS product */
 
