@@ -324,50 +324,42 @@ public class Altos {
 	}
 
 	static int usb_vendor_altusmetrum() {
-		if (load_library())
-			return libaltosConstants.USB_VENDOR_ALTUSMETRUM;
-		return 0x000a;
+		load_library();
+		return 0xfffe;
 	}
 
 	static int usb_product_altusmetrum() {
-		if (load_library())
-			return libaltosConstants.USB_PRODUCT_ALTUSMETRUM;
+		load_library();
 		return 0x000a;
 	}
 
 	static int usb_product_altusmetrum_min() {
-		if (load_library())
-			return libaltosConstants.USB_PRODUCT_ALTUSMETRUM_MIN;
+		load_library();
 		return 0x000a;
 	}
 
 	static int usb_product_altusmetrum_max() {
-		if (load_library())
-			return libaltosConstants.USB_PRODUCT_ALTUSMETRUM_MAX;
-		return 0x000d;
+		load_library();
+		return 0x0013;
 	}
 
 	static int usb_product_telemetrum() {
-		if (load_library())
-			return libaltosConstants.USB_PRODUCT_TELEMETRUM;
+		load_library();
 		return 0x000b;
 	}
 
 	static int usb_product_teledongle() {
-		if (load_library())
-			return libaltosConstants.USB_PRODUCT_TELEDONGLE;
+		load_library();
 		return 0x000c;
 	}
 
 	static int usb_product_teleterra() {
-		if (load_library())
-			return libaltosConstants.USB_PRODUCT_TELETERRA;
+		load_library();
 		return 0x000d;
 	}
 
 	static int usb_product_telebt() {
-		if (load_library())
-			return libaltosConstants.USB_PRODUCT_TELEBT;
+		load_library();
 		return 0x000e;
 	}
 
@@ -384,8 +376,7 @@ public class Altos {
 	public final static int product_basestation = 0x10000 + 1;
 
 	static String bt_product_telebt() {
-		if (load_library())
-			return libaltosConstants.BLUETOOTH_PRODUCT_TELEBT;
+		load_library();
 		return "TeleBT";
 	}
 
