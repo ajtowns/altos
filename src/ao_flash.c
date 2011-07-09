@@ -43,19 +43,9 @@ __xdata uint8_t ao_flash_mutex;
 	_asm nop _endasm; \
 } while(0)
 
-void ao_flash_cs_low(void)
-{
-	ao_flash_delay();
-	FLASH_CS = 0;
-	ao_flash_delay();
-}
+#define ao_flash_cs_low()	ao_spi_get_bit(FLASH_CS)
 
-void ao_flash_cs_high(void)
-{
-	ao_flash_delay();
-	FLASH_CS = 1;
-	ao_flash_delay();
-}
+#define ao_flash_cs_high()	ao_spi_put_bit(FLASH_CS)
 
 struct ao_flash_instruction {
 	uint8_t	instruction;

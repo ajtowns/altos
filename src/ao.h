@@ -965,6 +965,34 @@ ao_serial_init(void);
  * ao_spi.c
  */
 
+extern __xdata uint8_t	ao_spi_mutex;
+
+#define ao_spi_get_mask(reg,mask) do {\
+	ao_mutex_get(&ao_spi_mutex); \
+	(reg) &= ~(mask); \
+	} while (0)
+
+#define ao_spi_put_mask(reg,mask) do { \
+	(reg) |= (mask); \
+	ao_mutex_put(&ao_spi_mutex); \
+	} while (0)
+
+#define ao_spi_get_bit(bit) do {\
+	ao_mutex_get(&ao_spi_mutex); \
+	(bit) = 0; \
+	} while (0)
+
+#define ao_spi_put_bit(bit) do { \
+	(bit) = 1; \
+	ao_mutex_put(&ao_spi_mutex); \
+	} while (0)
+
+/*
+ * The SPI mutex must be held to call either of these
+ * functions -- this mutex covers the entire SPI operation,
+ * from chip select low to chip select high
+ */
+
 void
 ao_spi_send(void __xdata *block, uint16_t len) __reentrant;
 
@@ -1089,12 +1117,29 @@ struct ao_telemetry_satellite {
 	/* 32 */
 };
 
+#define AO_TELEMETRY_COMPANION		0x07
+
+#define AO_COMPANION_MAX_CHANNELS	12
+
+struct ao_telemetry_companion {
+	uint16_t				serial;		/*  0 */
+	uint16_t				tick;		/*  2 */
+	uint8_t					type;		/*  4 */
+	uint8_t					board_id;	/*  5 */
+
+	uint8_t					update_period;	/*  6 */
+	uint8_t					channels;	/*  7 */
+	uint16_t				companion_data[AO_COMPANION_MAX_CHANNELS];	/*  8 */
+	/* 32 */
+};
+	
 union ao_telemetry_all {
 	struct ao_telemetry_generic		generic;
 	struct ao_telemetry_sensor		sensor;
 	struct ao_telemetry_configuration	configuration;
 	struct ao_telemetry_location		location;
 	struct ao_telemetry_satellite		satellite;
+	struct ao_telemetry_companion		companion;
 };
 
 /*
@@ -1529,8 +1574,33 @@ ao_btm_isr(void)
 #endif
 	;
 
-
 void
 ao_btm_init(void);
+
+/* ao_companion.c */
+
+#define AO_COMPANION_SETUP		1
+#define AO_COMPANION_FETCH		2
+
+struct ao_companion_command {
+	uint8_t		command;
+	uint8_t		flight_state;
+	uint16_t	tick;
+};
+
+struct ao_companion_setup {
+	uint16_t	board_id;
+	uint16_t	board_id_inverse;
+	uint8_t		update_period;
+	uint8_t		channels;
+};
+
+extern __pdata uint8_t				ao_companion_running;
+extern __xdata struct ao_companion_setup	ao_companion_setup;
+extern __xdata uint8_t				ao_companion_mutex;
+extern __xdata uint16_t				ao_companion_data[AO_COMPANION_MAX_CHANNELS];
+
+void
+ao_companion_init(void);
 
 #endif /* _AO_H_ */

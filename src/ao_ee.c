@@ -49,19 +49,9 @@ static __xdata uint8_t ao_ee_mutex;
 	_asm nop _endasm; \
 } while(0)
 
-static void ao_ee_cs_low(void)
-{
-	ao_ee_delay();
-	EE_CS = 0;
-	ao_ee_delay();
-}
+#define ao_ee_cs_low()	ao_spi_get_bit(EE_CS)
 
-static void ao_ee_cs_high(void)
-{
-	ao_ee_delay();
-	EE_CS = 1;
-	ao_ee_delay();
-}
+#define ao_ee_cs_high()	ao_spi_put_bit(EE_CS)
 
 struct ao_ee_instruction {
 	uint8_t	instruction;

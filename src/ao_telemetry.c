@@ -25,6 +25,10 @@ static __pdata int8_t ao_telemetry_config_cur;
 static __pdata int8_t ao_telemetry_loc_cur;
 static __pdata int8_t ao_telemetry_sat_cur;
 #endif
+#if HAS_COMPANION
+static __pdata int8_t ao_telemetry_companion_max;
+static __pdata int8_t ao_telemetry_companion_cur;
+#endif
 static __pdata uint8_t ao_rdf = 0;
 static __pdata uint16_t ao_rdf_time;
 
@@ -149,6 +153,26 @@ ao_send_satellite(void)
 }
 #endif
 
+#if HAS_COMPANION
+static void
+ao_send_companion(void)
+{
+	if (--ao_telemetry_companion_cur <= 0) {
+		telemetry.generic.type = AO_TELEMETRY_COMPANION;
+		telemetry.companion.board_id = ao_companion_setup.board_id;
+		telemetry.companion.update_period = ao_companion_setup.update_period;
+		telemetry.companion.channels = ao_companion_setup.channels;
+		ao_mutex_get(&ao_companion_mutex);
+		memcpy(&telemetry.companion.companion_data,
+		       ao_companion_data,
+		       ao_companion_setup.channels * 2);
+		ao_mutex_put(&ao_companion_mutex);
+		ao_radio_send(&telemetry, sizeof (telemetry));
+		ao_telemetry_companion_cur = ao_telemetry_companion_max;
+	}
+}
+#endif
+
 void
 ao_telemetry(void)
 {
@@ -168,6 +192,10 @@ ao_telemetry(void)
 
 
 			ao_send_sensor();
+#if HAS_COMPANION
+			if (ao_companion_running)
+				ao_send_companion();
+#endif
 			ao_send_configuration();
 #if HAS_GPS
 			ao_send_location();
@@ -193,10 +221,25 @@ void
 ao_telemetry_set_interval(uint16_t interval)
 {
 	ao_telemetry_interval = interval;
+
+#if HAS_COMPANION
+	if (!ao_companion_setup.update_period)
+		ao_companion_setup.update_period = AO_SEC_TO_TICKS(1);
+	ao_telemetry_companion_max = ao_companion_setup.update_period / interval;
+	ao_telemetry_companion_cur = 1;
+#endif
+
 	ao_telemetry_config_max = AO_SEC_TO_TICKS(1) / interval;
+#if HAS_COMPANION
+	ao_telemetry_config_cur = ao_telemetry_companion_cur;
+	if (ao_telemetry_config_max > ao_telemetry_config_cur)
+		ao_telemetry_config_cur++;
+#else
 	ao_telemetry_config_cur = 1;
+#endif
+
 #if HAS_GPS
-	ao_telemetry_loc_cur = 1;
+	ao_telemetry_loc_cur = ao_telemetry_config_cur;
 	if (ao_telemetry_config_max > ao_telemetry_loc_cur)
 		ao_telemetry_loc_cur++;
 	ao_telemetry_sat_cur = ao_telemetry_loc_cur;

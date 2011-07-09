@@ -17,6 +17,10 @@
 
 #include "ao.h"
 
+/* Shared mutex to protect SPI bus, must cover the entire
+ * operation, from CS low to CS high. This means that any SPI
+ * user must protect the SPI bus with this mutex
+ */
 __xdata uint8_t	ao_spi_mutex;
 __xdata uint8_t ao_spi_dma_in_done;
 __xdata uint8_t ao_spi_dma_out_done;
@@ -36,7 +40,6 @@ static __xdata uint8_t ao_spi_const = 0xff;
 void
 ao_spi_send(void __xdata *block, uint16_t len) __reentrant
 {
-	ao_mutex_get(&ao_spi_mutex);
 	ao_dma_set_transfer(ao_spi_dma_in_id,
 			    &U0DBUFXADDR,
 			    &ao_spi_const,
@@ -64,7 +67,6 @@ ao_spi_send(void __xdata *block, uint16_t len) __reentrant
 	ao_dma_trigger(ao_spi_dma_out_id);
 	__critical while (!ao_spi_dma_in_done)
 		ao_sleep(&ao_spi_dma_in_done);
-	ao_mutex_put(&ao_spi_mutex);
 }
 
 /* Receive bytes over SPI.
@@ -76,7 +78,6 @@ ao_spi_send(void __xdata *block, uint16_t len) __reentrant
 void
 ao_spi_recv(void __xdata *block, uint16_t len) __reentrant
 {
-	ao_mutex_get(&ao_spi_mutex);
 	ao_dma_set_transfer(ao_spi_dma_in_id,
 			    &U0DBUFXADDR,
 			    block,
@@ -104,7 +105,6 @@ ao_spi_recv(void __xdata *block, uint16_t len) __reentrant
 	ao_dma_trigger(ao_spi_dma_out_id);
 	__critical while (!ao_spi_dma_in_done)
 		ao_sleep(&ao_spi_dma_in_done);
-	ao_mutex_put(&ao_spi_mutex);
 }
 
 /*

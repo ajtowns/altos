@@ -5,6 +5,7 @@ SRC = \
 	$(SPI_DRIVER_SRC) \
 	$(FLASH_DRIVER_SRC) \
 	$(SKY_DRIVER_SRC) \
+	$(COMPANION_SRC) \
 	$(DBG_SRC)
 
 PRODUCT=TeleMetrum-v1.0

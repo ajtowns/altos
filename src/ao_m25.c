@@ -99,8 +99,8 @@ static __xdata uint8_t ao_m25_mutex;
 
 static __xdata uint8_t	ao_m25_instruction[4];
 
-#define M25_SELECT(cs)			(SPI_CS_PORT &= ~(cs))
-#define M25_DESELECT(cs)		(SPI_CS_PORT |= (cs))
+#define M25_SELECT(cs)		ao_spi_get_mask(SPI_CS_PORT,cs)
+#define M25_DESELECT(cs)	ao_spi_put_mask(SPI_CS_PORT,cs)
 
 #define M25_BLOCK_SHIFT			16
 #define M25_BLOCK			65536L

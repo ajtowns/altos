@@ -36,6 +36,11 @@
 	#define PACKET_HAS_MASTER	0
 	#define PACKET_HAS_SLAVE	1
 
+	#define HAS_COMPANION		1
+	#define COMPANION_CS_ON_P1	1
+	#define COMPANION_CS_MASK	0x4	/* CS1 is P1_2 */
+	#define COMPANION_CS		P1_2
+
 	#define AO_LED_RED		1
 	#define LEDS_AVAILABLE		(AO_LED_RED)
 	#define HAS_EXTERNAL_TEMP	0
@@ -62,6 +67,11 @@
 	#define IGNITE_ON_P0		0
 	#define PACKET_HAS_MASTER	0
 	#define PACKET_HAS_SLAVE	1
+
+	#define HAS_COMPANION		1
+	#define COMPANION_CS_ON_P1	1
+	#define COMPANION_CS_MASK	0x4	/* CS1 is P1_2 */
+	#define COMPANION_CS		P1_2
 
 	#define AO_LED_RED		1
 	#define LEDS_AVAILABLE		(AO_LED_RED)
@@ -327,6 +337,12 @@
 	#define DBG_PORT_DIR	P0DIR
 
 #endif /* DBG_ON_P0 */
+
+#if COMPANION_CS_ON_P1
+	#define COMPANION_CS_PORT	P1
+	#define COMPANION_CS_SEL	P1SEL
+	#define COMPANION_CS_DIR	P1DIR
+#endif
 
 #if SPI_CS_ON_P1
 	#define SPI_CS_PORT	P1

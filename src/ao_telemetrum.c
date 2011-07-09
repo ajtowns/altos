@@ -62,6 +62,9 @@ main(void)
 #if HAS_DBG
 	ao_dbg_init();
 #endif
+#if HAS_COMPANION
+	ao_companion_init();
+#endif
 	ao_config_init();
 	ao_start_scheduler();
 }

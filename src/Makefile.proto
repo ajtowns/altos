@@ -151,6 +151,12 @@ BTM_DRIVER_SRC = \
 	ao_btm.c
 
 #
+# Companion port driver source
+#
+COMPANION_SRC = \
+	ao_companion.c
+
+#
 # Tasks run on TeleMetrum
 #
 TM_TASK_SRC = \
