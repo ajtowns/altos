@@ -40,7 +40,7 @@
 #include <cc1110.h>
 #include <stdint.h>
 
-sfr __at 0xA8 IEN0;		/* Interrupt Enable 0 Register */
+__sfr __at 0xA8 IEN0;		/* Interrupt Enable 0 Register */
 
 sbit __at 0xA8 RFTXRXIE;	/* RF TX/RX done interrupt enable */
 sbit __at 0xA9 ADCIE;		/* ADC interrupt enable */
@@ -60,7 +60,7 @@ sbit __at 0xAF EA;		/* Enable All */
 #define IEN0_ADCIE		(1 << 1)
 #define IEN0_RFTXRXIE		(1 << 0)
 
-sfr __at 0xB8 IEN1;		/* Interrupt Enable 1 Register */
+__sfr __at 0xB8 IEN1;		/* Interrupt Enable 1 Register */
 
 #define IEN1_P0IE		(1 << 5)	/* Port 0 interrupt enable */
 #define IEN1_T4IE		(1 << 4)	/* Timer 4 interrupt enable */
@@ -70,7 +70,7 @@ sfr __at 0xB8 IEN1;		/* Interrupt Enable 1 Register */
 #define IEN1_DMAIE		(1 << 0)	/* DMA transfer interrupt enable */
 
 /* IEN2 */
-sfr __at 0x9A IEN2;		/* Interrupt Enable 2 Register */
+__sfr __at 0x9A IEN2;		/* Interrupt Enable 2 Register */
 
 #define IEN2_WDTIE		(1 << 5)	/* Watchdog timer interrupt enable */
 #define IEN2_P1IE		(1 << 4)	/* Port 1 interrupt enable */
@@ -82,7 +82,7 @@ sfr __at 0x9A IEN2;		/* Interrupt Enable 2 Register */
 #define IEN2_RFIE		(1 << 0)	/* RF general interrupt enable */
 
 /* CLKCON 0xC6 */
-sfr __at 0xC6 CLKCON;		/* Clock Control */
+__sfr __at 0xC6 CLKCON;		/* Clock Control */
 
 #define CLKCON_OSC32K_RC	(1 << 7)
 #define CLKCON_OSC32K_XTAL	(0 << 7)
@@ -126,14 +126,14 @@ sfr __at 0xC6 CLKCON;		/* Clock Control */
 #define SLEEP_MODE_MASK		(3 << 0)
 
 /* PCON 0x87 */
-sfr __at 0x87 PCON;		/* Power Mode Control Register */
+__sfr __at 0x87 PCON;		/* Power Mode Control Register */
 
 #define PCON_IDLE		(1 << 0)
 
 /*
  * TCON
  */
-sfr __at 0x88 TCON;		/* CPU Interrupt Flag 1 */
+__sfr __at 0x88 TCON;		/* CPU Interrupt Flag 1 */
 
 sbit __at 0x8F URX1IF;		/* USART1 RX interrupt flag. Automatically cleared */
 sbit __at 0x8F I2SRXIF;		/* I2S RX interrupt flag. Automatically cleared */
@@ -150,7 +150,7 @@ sbit __at 0x89 RFTXRXIF;	/* RF TX/RX complete interrupt flag. Automatically clea
 /*
  * S0CON
  */
-sfr __at 0x98 S0CON;	/* CPU Interrupt Flag 2 */
+__sfr __at 0x98 S0CON;	/* CPU Interrupt Flag 2 */
 
 sbit __at 0x98 ENCIF_0;	/* AES interrupt 0. */
 sbit __at 0x99 ENCIF_1;	/* AES interrupt 1. */
@@ -161,7 +161,7 @@ sbit __at 0x99 ENCIF_1;	/* AES interrupt 1. */
 /*
  * S1CON
  */
-sfr __at 0x9B S1CON;	/* CPU Interrupt Flag 3 */
+__sfr __at 0x9B S1CON;	/* CPU Interrupt Flag 3 */
 
 #define S1CON_RFIF_1	(1 << 1)
 #define S1CON_RFIF_0	(1 << 0)
@@ -169,7 +169,7 @@ sfr __at 0x9B S1CON;	/* CPU Interrupt Flag 3 */
 /*
  * IRCON
  */
-sfr __at 0xC0 IRCON;	/* CPU Interrupt Flag 4 */
+__sfr __at 0xC0 IRCON;	/* CPU Interrupt Flag 4 */
 
 sbit __at 0xC0 DMAIF;	/* DMA complete interrupt flag */
 sbit __at 0xC1 T1IF;	/* Timer 1 interrupt flag. Automatically cleared */
@@ -190,7 +190,7 @@ sbit __at 0xC7 STIF;	/* Sleep Timer interrupt flag */
 /*
  * IRCON2
  */
-sfr __at 0xE8 IRCON2;	/* CPU Interrupt Flag 5 */
+__sfr __at 0xE8 IRCON2;	/* CPU Interrupt Flag 5 */
 
 sbit __at 0xE8 USBIF;	/* USB interrupt flag (shared with Port2) */
 sbit __at 0xE8 P2IF;	/* Port2 interrupt flag (shared with USB) */
@@ -225,8 +225,8 @@ sbit __at 0xEC WDTIF;	/* Watchdog timer interrupt flag */
  * Priority = (IP1 << 1) | IP0. Higher priority interrupts served first
  */
 
-sfr __at 0xB9 IP1;	/* Interrupt Priority 1 */
-sfr __at 0xA9 IP0;	/* Interrupt Priority 0 */
+__sfr __at 0xB9 IP1;	/* Interrupt Priority 1 */
+__sfr __at 0xA9 IP0;	/* Interrupt Priority 0 */
 
 #define IP1_IPG5	(1 << 5)
 #define IP1_IPG4	(1 << 4)
@@ -286,13 +286,13 @@ sfr __at 0xA9 IP0;	/* Interrupt Priority 0 */
  */
 
 /* Timer count */
-sfr __at 0xCA T3CNT;
-sfr __at 0xEA T4CNT;
+__sfr __at 0xCA T3CNT;
+__sfr __at 0xEA T4CNT;
 
 /* Timer control */
 
-sfr __at 0xCB T3CTL;
-sfr __at 0xEB T4CTL;
+__sfr __at 0xCB T3CTL;
+__sfr __at 0xEB T4CTL;
 
 #define TxCTL_DIV_1		(0 << 5)
 #define TxCTL_DIV_2		(1 << 5)
@@ -312,10 +312,10 @@ sfr __at 0xEB T4CTL;
 
 /* Timer 4 channel 0 compare control */
 
-sfr __at 0xCC T3CCTL0;
-sfr __at 0xCE T3CCTL1;
-sfr __at 0xEC T4CCTL0;
-sfr __at 0xEE T4CCTL1;
+__sfr __at 0xCC T3CCTL0;
+__sfr __at 0xCE T3CCTL1;
+__sfr __at 0xEC T4CCTL0;
+__sfr __at 0xEE T4CCTL1;
 
 #define TxCCTLy_IM			(1 << 6)
 #define TxCCTLy_CMP_SET			(0 << 3)
@@ -328,16 +328,16 @@ sfr __at 0xEE T4CCTL1;
 #define TxCCTLy_CMP_MODE_ENABLE		(1 << 2)
 
 /* Timer compare value */
-sfr __at 0xCD T3CC0;
-sfr __at 0xCF T3CC1;
-sfr __at 0xED T4CC0;
-sfr __at 0xEF T4CC1;
+__sfr __at 0xCD T3CC0;
+__sfr __at 0xCF T3CC1;
+__sfr __at 0xED T4CC0;
+__sfr __at 0xEF T4CC1;
 
 /*
  * Peripheral control
  */
 
-sfr __at 0xf1 PERCFG;
+__sfr __at 0xf1 PERCFG;
 #define PERCFG_T1CFG_ALT_1      (0 << 6)
 #define PERCFG_T1CFG_ALT_2      (1 << 6)
 #define PERCFG_T1CFG_ALT_MASK   (1 << 6)
@@ -442,12 +442,12 @@ __xdata __at (0xde17) volatile uint8_t USBCNTH;
 __xdata __at (0xde20) volatile uint8_t USBFIFO[12];
 
 /* ADC Data register, low and high */
-sfr at 0xBA ADCL;
-sfr at 0xBB ADCH;
+__sfr at 0xBA ADCL;
+__sfr at 0xBB ADCH;
 __xdata __at (0xDFBA) volatile uint16_t ADCXDATA;
 
 /* ADC Control Register 1 */
-sfr at 0xB4 ADCCON1;
+__sfr at 0xB4 ADCCON1;
 
 # define ADCCON1_EOC		(1 << 7)	/* conversion complete */
 # define ADCCON1_ST		(1 << 6)	/* start conversion */
@@ -463,7 +463,7 @@ sfr at 0xB4 ADCCON1;
 # define ADCCON1_RCTRL_CLOCK_LFSR (1 << 2)	/* Clock the LFSR once */
 
 /* ADC Control Register 2 */
-sfr at 0xB5 ADCCON2;
+__sfr at 0xB5 ADCCON2;
 
 # define ADCCON2_SREF_MASK	(3 << 6)	/* reference voltage */
 # define ADCCON2_SREF_1_25V	(0 << 6)	/* internal 1.25V */
@@ -498,7 +498,7 @@ sfr at 0xB5 ADCCON2;
 
 
 /* ADC Control Register 3 */
-sfr at 0xB6 ADCCON3;
+__sfr at 0xB6 ADCCON3;
 
 # define ADCCON3_EREF_MASK	(3 << 6)	/* extra conversion reference */
 # define ADCCON3_EREF_1_25	(0 << 6)	/* internal 1.25V */
@@ -533,13 +533,13 @@ sfr at 0xB6 ADCCON3;
  * ADC configuration register, this selects which
  * GPIO pins are to be used as ADC inputs
  */
-sfr at 0xF2 ADCCFG;
+__sfr at 0xF2 ADCCFG;
 
 /*
  * Watchdog timer
  */
 
-sfr at 0xc9 WDCTL;
+__sfr at 0xc9 WDCTL;
 
 #define WDCTL_CLEAR_FIRST	(0xa << 4)
 #define WDCTL_CLEAR_SECOND	(0x5 << 4)
@@ -556,9 +556,9 @@ sfr at 0xc9 WDCTL;
  * Pin selectors, these set which pins are
  * using their peripheral function
  */
-sfr at 0xF3 P0SEL;
-sfr at 0xF4 P1SEL;
-sfr at 0xF5 P2SEL;
+__sfr at 0xF3 P0SEL;
+__sfr at 0xF4 P1SEL;
+__sfr at 0xF5 P2SEL;
 
 #define P2SEL_PRI3P1_USART0		(0 << 6)
 #define P2SEL_PRI3P1_USART1		(1 << 6)
@@ -585,9 +585,9 @@ sfr at 0xF5 P2SEL;
 /*
  * For pins used as GPIOs, these set which are used as outputs
  */
-sfr at 0xFD P0DIR;
-sfr at 0xFE P1DIR;
-sfr at 0xFF P2DIR;
+__sfr at 0xFD P0DIR;
+__sfr at 0xFE P1DIR;
+__sfr at 0xFF P2DIR;
 
 #define P2DIR_PRIP0_USART0_USART1	(0 << 6)
 #define P2DIR_PRIP0_USART1_USART0	(1 << 6)
@@ -595,7 +595,7 @@ sfr at 0xFF P2DIR;
 #define P2DIR_PRIP0_TIMER1_2_USART0	(3 << 6)
 #define P2DIR_PRIP0_MASK		(3 << 6)
 
-sfr at 0x8F P0INP;
+__sfr at 0x8F P0INP;
 
 /* Select between tri-state and pull up/down
  * for pins P0_0 - P0_7.
@@ -617,7 +617,7 @@ sfr at 0x8F P0INP;
 #define P0INP_MDP0_0_PULL	(0 << 0)
 #define P0INP_MDP0_0_TRISTATE	(1 << 0)
 
-sfr at 0xF6 P1INP;
+__sfr at 0xF6 P1INP;
 
 /* Select between tri-state and pull up/down
  * for pins P1_2 - P1_7. Pins P1_0 and P1_1 are
@@ -636,7 +636,7 @@ sfr at 0xF6 P1INP;
 #define P1INP_MDP1_2_PULL	(0 << 2)
 #define P1INP_MDP1_2_TRISTATE	(1 << 2)
 
-sfr at 0xF7 P2INP;
+__sfr at 0xF7 P2INP;
 /* P2INP has three extra bits which are used to choose
  * between pull-up and pull-down when they are not tri-stated
  */
@@ -662,13 +662,13 @@ sfr at 0xF7 P2INP;
 #define P2INP_MDP2_0_TRISTATE	(1 << 0)
 
 /* GPIO interrupt status flags */
-sfr at 0x89 P0IFG;
-sfr at 0x8A P1IFG;
-sfr at 0x8B P2IFG;
+__sfr at 0x89 P0IFG;
+__sfr at 0x8A P1IFG;
+__sfr at 0x8B P2IFG;
 
 #define P0IFG_USB_RESUME	(1 << 7)
 
-sfr at 0x8C PICTL;
+__sfr at 0x8C PICTL;
 #define PICTL_P2IEN	(1 << 5)
 #define PICTL_P0IENH	(1 << 4)
 #define PICTL_P0IENL	(1 << 3)
@@ -677,7 +677,7 @@ sfr at 0x8C PICTL;
 #define PICTL_P0ICON	(1 << 0)
 
 /* GPIO pins */
-sfr at 0x80 P0;
+__sfr at 0x80 P0;
 
 sbit at 0x80 P0_0;
 sbit at 0x81 P0_1;
@@ -688,7 +688,7 @@ sbit at 0x85 P0_5;
 sbit at 0x86 P0_6;
 sbit at 0x87 P0_7;
 
-sfr at 0x90 P1;
+__sfr at 0x90 P1;
 
 sbit at 0x90 P1_0;
 sbit at 0x91 P1_1;
@@ -699,7 +699,7 @@ sbit at 0x95 P1_5;
 sbit at 0x96 P1_6;
 sbit at 0x97 P1_7;
 
-sfr at 0xa0 P2;
+__sfr at 0xa0 P2;
 
 sbit at 0xa0 P2_0;
 sbit at 0xa1 P2_1;
@@ -794,7 +794,7 @@ struct cc_dma_channel {
  * DMAARM - DMA Channel Arm
  */
 
-sfr at 0xD6 DMAARM;
+__sfr at 0xD6 DMAARM;
 
 # define DMAARM_ABORT			(1 << 7)
 # define DMAARM_DMAARM4			(1 << 4)
@@ -807,7 +807,7 @@ sfr at 0xD6 DMAARM;
  * DMAREQ - DMA Channel Start Request and Status
  */
 
-sfr at 0xD7 DMAREQ;
+__sfr at 0xD7 DMAREQ;
 
 # define DMAREQ_DMAREQ4			(1 << 4)
 # define DMAREQ_DMAREQ3			(1 << 3)
@@ -819,21 +819,21 @@ sfr at 0xD7 DMAREQ;
  * DMA configuration 0 address
  */
 
-sfr at 0xD5 DMA0CFGH;
-sfr at 0xD4 DMA0CFGL;
+__sfr at 0xD5 DMA0CFGH;
+__sfr at 0xD4 DMA0CFGL;
 
 /*
  * DMA configuration 1-4 address
  */
 
-sfr at 0xD3 DMA1CFGH;
-sfr at 0xD2 DMA1CFGL;
+__sfr at 0xD3 DMA1CFGH;
+__sfr at 0xD2 DMA1CFGL;
 
 /*
  * DMAIRQ - DMA Interrupt Flag
  */
 
-sfr at 0xD1 DMAIRQ;
+__sfr at 0xD1 DMAIRQ;
 
 # define DMAIRQ_DMAIF4			(1 << 4)
 # define DMAIRQ_DMAIF3			(1 << 3)
@@ -846,8 +846,8 @@ sfr at 0xD1 DMAIRQ;
  */
 
 /* USART config/status registers */
-sfr at 0x86 U0CSR;
-sfr at 0xF8 U1CSR;
+__sfr at 0x86 U0CSR;
+__sfr at 0xF8 U1CSR;
 
 # define UxCSR_MODE_UART		(1 << 7)
 # define UxCSR_MODE_SPI			(0 << 7)
@@ -861,8 +861,8 @@ sfr at 0xF8 U1CSR;
 # define UxCSR_ACTIVE			(1 << 0)
 
 /* UART configuration registers */
-sfr at 0xc4 U0UCR;
-sfr at 0xfb U1UCR;
+__sfr at 0xc4 U0UCR;
+__sfr at 0xfb U1UCR;
 
 # define UxUCR_FLUSH                    (1 << 7)
 # define UxUCR_FLOW_DISABLE             (0 << 6)
@@ -881,8 +881,8 @@ sfr at 0xfb U1UCR;
 # define UxUCR_START_HIGH               (1 << 0)
 
 /* USART General configuration registers (mostly SPI) */
-sfr at 0xc5 U0GCR;
-sfr at 0xfc U1GCR;
+__sfr at 0xc5 U0GCR;
+__sfr at 0xfc U1GCR;
 
 # define UxGCR_CPOL_NEGATIVE		(0 << 7)
 # define UxGCR_CPOL_POSITIVE		(1 << 7)
@@ -894,18 +894,18 @@ sfr at 0xfc U1GCR;
 # define UxGCR_BAUD_E_SHIFT		0
 
 /* USART data registers */
-sfr at 0xc1 U0DBUF;
+__sfr at 0xc1 U0DBUF;
 __xdata __at (0xDFC1) volatile uint8_t U0DBUFXADDR;
-sfr at 0xf9 U1DBUF;
+__sfr at 0xf9 U1DBUF;
 __xdata __at (0xDFF9) volatile uint8_t U1DBUFXADDR;
 
 /* USART baud rate registers, M value */
-sfr at 0xc2 U0BAUD;
-sfr at 0xfa U1BAUD;
+__sfr at 0xc2 U0BAUD;
+__sfr at 0xfa U1BAUD;
 
 /* Flash controller */
 
-sfr at 0xAE FCTL;
+__sfr at 0xAE FCTL;
 #define FCTL_BUSY		(1 << 7)
 #define FCTL_SWBSY		(1 << 6)
 #define FCTL_CONTRD_ENABLE	(1 << 4)
@@ -913,22 +913,22 @@ sfr at 0xAE FCTL;
 #define FCTL_ERASE		(1 << 0)
 
 /* Flash write data. Write two bytes here */
-sfr at 0xAF FWDATA;
+__sfr at 0xAF FWDATA;
 __xdata __at (0xDFAF) volatile uint8_t FWDATAXADDR;
 
 /* Flash write/erase address */
-sfr at 0xAD FADDRH;
-sfr at 0xAC FADDRL;
+__sfr at 0xAD FADDRH;
+__sfr at 0xAC FADDRL;
 
 /* Flash timing */
-sfr at 0xAB FWT;
+__sfr at 0xAB FWT;
 
 /* Radio */
 
-sfr at 0xD9 RFD;
+__sfr at 0xD9 RFD;
 __xdata at (0xDFD9) volatile uint8_t RFDXADDR;
 
-sfr at 0xE9 RFIF;
+__sfr at 0xE9 RFIF;
 #define RFIF_IM_TXUNF	(1 << 7)
 #define RFIF_IM_RXOVF	(1 << 6)
 #define RFIF_IM_TIMEOUT	(1 << 5)
@@ -938,7 +938,7 @@ sfr at 0xE9 RFIF;
 #define RFIF_IM_CCA	(1 << 1)
 #define RFIF_IM_SFD	(1 << 0)
 
-sfr at 0x91 RFIM;
+__sfr at 0x91 RFIM;
 #define RFIM_IM_TXUNF	(1 << 7)
 #define RFIM_IM_RXOVF	(1 << 6)
 #define RFIM_IM_TIMEOUT	(1 << 5)
@@ -948,7 +948,7 @@ sfr at 0x91 RFIM;
 #define RFIM_IM_CCA	(1 << 1)
 #define RFIM_IM_SFD	(1 << 0)
 
-sfr at 0xE1 RFST;
+__sfr at 0xE1 RFST;
 
 #define RFST_SFSTXON	0x00
 #define RFST_SCAL	0x01

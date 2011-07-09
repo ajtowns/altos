@@ -78,7 +78,7 @@ ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *nam
 
 /* Task switching function. This must not use any stack variables */
 void
-ao_yield(void) _naked
+ao_yield(void) __naked
 {
 
 	/* Save current context */
