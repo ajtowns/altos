@@ -35,6 +35,7 @@ class AltosScanResult {
 	int	flight;
 	int	channel;
 	int	telemetry;
+	
 	boolean	interrupted = false;
 	
 	public String toString() {
@@ -104,12 +105,14 @@ public class AltosScanUI
 	extends JDialog
 	implements ActionListener
 {
-	JFrame				owner;
+	AltosUI				owner;
 	AltosDevice			device;
 	AltosTelemetryReader		reader;
 	private JList			list;
 	private JLabel			channel_label;
 	private JLabel			monitor_label;
+	private	JButton			fake_button;
+	private JButton			cancel_button;
 	private JButton			ok_button;
 	javax.swing.Timer		timer;
 	AltosScanResults		results = new AltosScanResults();
@@ -228,8 +231,26 @@ public class AltosScanUI
 	public void actionPerformed(ActionEvent e) {
 		String cmd = e.getActionCommand();
 
-		if (cmd.equals("close")) {
+		if (cmd.equals("fake")) {
+			results.add(new AltosScanResult("N0CALL", 300, 1, 0, 1));
+		}
+
+		if (cmd.equals("cancel")) {
 			close();
+		}
+
+		if (cmd.equals("ok")) {
+			close();
+			AltosScanResult	r = (AltosScanResult) (list.getSelectedValue());
+			System.out.printf("Selected channel %d telemetry %d\n",
+					  r.channel, r.telemetry);
+			if (device != null) {
+				if (reader != null) {
+					reader.set_telemetry(r.telemetry);
+					reader.set_channel(r.channel);
+					owner.telemetry_window(device);
+				}
+			}
 		}
 	}
 
@@ -266,12 +287,12 @@ public class AltosScanUI
 		return false;
 	}
 
-	public AltosScanUI(JFrame in_owner) {
+	public AltosScanUI(AltosUI in_owner) {
 
 		owner = in_owner;
 
-		if (!open())
-			return;
+//		if (!open())
+//			return;
 
 		Container		pane = getContentPane();
 		GridBagConstraints	c = new GridBagConstraints();
@@ -284,17 +305,6 @@ public class AltosScanUI
 		owner = in_owner;
 
 		pane.setLayout(new GridBagLayout());
-
-		c.fill = GridBagConstraints.NONE;
-		c.anchor = GridBagConstraints.CENTER;
-		c.insets = i;
-		c.weightx = 1;
-		c.weighty = 1;
-
-		c.gridx = 0;
-		c.gridy = 0;
-		c.gridwidth = 3;
-		c.anchor = GridBagConstraints.CENTER;
 
 		list = new JList(results) {
 				//Subclass JList to workaround bug 4832765, which can cause the
@@ -330,13 +340,13 @@ public class AltosScanUI
 		list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		list.setVisibleRowCount(-1);
 
-//		list.addMouseListener(new MouseAdapter() {
-//				 public void mouseClicked(MouseEvent e) {
-//					 if (e.getClickCount() == 2) {
-//						 select_button.doClick(); //emulate button click
-//					 }
-//				 }
-//			});
+		list.addMouseListener(new MouseAdapter() {
+				 public void mouseClicked(MouseEvent e) {
+					 if (e.getClickCount() == 2) {
+						 ok_button.doClick(); //emulate button click
+					 }
+				 }
+			});
 		JScrollPane listScroller = new JScrollPane(list);
 		listScroller.setPreferredSize(new Dimension(400, 80));
 		listScroller.setAlignmentX(LEFT_ALIGNMENT);
@@ -355,11 +365,75 @@ public class AltosScanUI
 		listPane.add(listScroller);
 		listPane.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.CENTER;
+		c.insets = i;
+		c.weightx = 1;
+		c.weighty = 1;
+
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 3;
+		c.anchor = GridBagConstraints.CENTER;
+
 		pane.add(listPane, c);
+
+		fake_button = new JButton("fake");
+		fake_button.addActionListener(this);
+		fake_button.setActionCommand("fake");
+
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.CENTER;
+		c.insets = i;
+		c.weightx = 1;
+		c.weighty = 1;
+
+		c.gridx = 0;
+		c.gridy = 1;
+		c.gridwidth = 1;
+		c.anchor = GridBagConstraints.CENTER;
+
+		pane.add(fake_button, c);
+
+		cancel_button = new JButton("Cancel");
+		cancel_button.addActionListener(this);
+		cancel_button.setActionCommand("cancel");
+
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.CENTER;
+		c.insets = i;
+		c.weightx = 1;
+		c.weighty = 1;
+
+		c.gridx = 1;
+		c.gridy = 1;
+		c.gridwidth = 1;
+		c.anchor = GridBagConstraints.CENTER;
+
+		pane.add(cancel_button, c);
+
+		ok_button = new JButton("OK");
+		ok_button.addActionListener(this);
+		ok_button.setActionCommand("ok");
+
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.CENTER;
+		c.insets = i;
+		c.weightx = 1;
+		c.weighty = 1;
+
+		c.gridx = 2;
+		c.gridy = 1;
+		c.gridwidth = 1;
+		c.anchor = GridBagConstraints.CENTER;
+
+		pane.add(ok_button, c);
 
 		pack();
 		setLocationRelativeTo(owner);
 
 		addWindowListener(new ConfigListener(this));
+
+		setVisible(true);
 	}
 }
