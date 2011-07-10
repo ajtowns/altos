@@ -83,6 +83,7 @@ altosui_JAVA = \
 	AltosReplayReader.java \
 	AltosRomconfig.java \
 	AltosRomconfigUI.java \
+	AltosScanUI.java \
 	AltosSerial.java \
 	AltosSerialInUseException.java \
 	AltosSerialMonitor.java \
