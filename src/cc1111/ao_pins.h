@@ -302,6 +302,35 @@
 	#define HAS_MONITOR		1
 #endif
 
+#if defined(TELELAUNCH_V_0_1)
+	#define HAS_FLIGHT		0
+	#define HAS_USB			1
+	#define HAS_BEEP		1
+	#define HAS_GPS			0
+	#define HAS_SERIAL_1		1
+	#define USE_SERIAL_STDIN	0
+	#define HAS_ADC			1
+	#define HAS_DBG			0
+	#define HAS_EEPROM		1
+	#define USE_INTERNAL_FLASH	0
+	#define DBG_ON_P1 		0
+	#define DBG_ON_P0 		1
+	#define IGNITE_ON_P2		1
+	#define IGNITE_ON_P0		0
+	#define PACKET_HAS_MASTER	0
+	#define PACKET_HAS_SLAVE	1
+	#define AO_LED_RED		2
+	#define AO_LED_GREEN		1
+	#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
+	#define HAS_EXTERNAL_TEMP	1
+	#define HAS_ACCEL_REF		0
+	#define SPI_CS_ON_P1		1
+	#define SPI_CS_ON_P0		0
+	#define HAS_ACCEL		0
+	#define HAS_IGNITE		1
+	#define HAS_MONITOR		0
+#endif
+
 #if DBG_ON_P1
 
 	#define DBG_CLOCK	(1 << 4)	/* mi0 */

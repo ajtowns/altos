@@ -1,0 +1,11 @@
+PROG = telelaunch-v0.1-$(VERSION).ihx
+
+SRC = \
+	$(TLAUNCH_BASE_SRC) \
+	$(SPI_DRIVER_SRC) \
+	$(EE_DRIVER_SRC) \
+	$(DBG_SRC)
+
+PRODUCT=TeleLaunch-v0.1
+PRODUCT_DEF=-DTELELAUNCH_V_0_1
+IDPRODUCT=0x000f
