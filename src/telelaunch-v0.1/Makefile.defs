@@ -4,6 +4,7 @@ SRC = \
 	$(TLAUNCH_BASE_SRC) \
 	$(SPI_DRIVER_SRC) \
 	$(EE_DRIVER_SRC) \
+	ao_launch.c \
 	$(DBG_SRC)
 
 PRODUCT=TeleLaunch-v0.1

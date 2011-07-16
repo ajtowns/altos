@@ -22,6 +22,7 @@
 
 static __xdata uint8_t cmac_key[AO_CMAC_KEY_LEN];
 static __xdata uint8_t cmac_data[AO_CMAC_MAX_LEN + AO_CMAC_KEY_LEN + 2 + AO_CMAC_KEY_LEN];
+static __pdata uint8_t ao_radio_cmac_len;
 
 static uint8_t
 getnibble(void)
@@ -83,6 +84,14 @@ ao_radio_cmac_send(void) __reentrant
 	ao_mutex_put(&ao_aes_mutex);
 	ao_set_monitor(0);
 	ao_radio_send(cmac_data, ao_cmd_lex_i + AO_CMAC_KEY_LEN);
+}
+
+static void
+ao_radio_cmac_recv(void) __reentrant
+{
+	ao_cmd_hex();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
 }
 
 __code struct ao_cmds ao_radio_cmac_cmds[] = {

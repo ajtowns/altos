@@ -1655,4 +1655,8 @@ ao_aes_run(__xdata uint8_t *in,
 void
 ao_aes_init(void);
 
+/* ao_launch.c */
+void
+ao_launch_init(void);
+
 #endif /* _AO_H_ */
