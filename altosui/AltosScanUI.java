@@ -35,12 +35,13 @@ class AltosScanResult {
 	int	flight;
 	int	channel;
 	int	telemetry;
+	static final String[] short_monitor_names = { "Standard", "Original" };
 	
 	boolean	interrupted = false;
 	
 	public String toString() {
-		return String.format("%-9.9s %4d %4d %2d %2d",
-				     callsign, serial, flight, channel, telemetry);
+		return String.format("%-9.9s serial %-4d flight %-4d (channel %-2d telemetry %s)",
+				     callsign, serial, flight, channel, short_monitor_names[telemetry]);
 	}
 
 	public String toShortString() {
@@ -109,20 +110,18 @@ public class AltosScanUI
 	AltosDevice			device;
 	AltosTelemetryReader		reader;
 	private JList			list;
-	private JLabel			channel_label;
-	private JLabel			monitor_label;
-	private	JButton			fake_button;
+	private JLabel			scanning_label;
 	private JButton			cancel_button;
-	private JButton			ok_button;
+	private JButton			monitor_button;
 	javax.swing.Timer		timer;
 	AltosScanResults		results = new AltosScanResults();
 
-	static final int[]		monitors = { Altos.ao_telemetry_split_len,
-						     Altos.ao_telemetry_legacy_len };
+	static final String[]		monitor_names = { "Standard AltOS Telemetry", "Original TeleMetrum Telemetry" };
+	static final int[]		monitors = { 2, 1 };
 	int				monitor;
 	int				channel;
 
-	final static int		timeout = 5 * 1000;
+	final static int		timeout = 1200;
 	TelemetryHandler		handler;
 	Thread				thread;
 
@@ -166,17 +165,21 @@ public class AltosScanUI
 					try {
 						AltosRecord	record = reader.read();
 						if (record == null)
-							break;
+							continue;
 						if ((record.seen & AltosRecord.seen_flight) != 0) {
-							AltosScanResult	result = new AltosScanResult(record.callsign,
+							final AltosScanResult	result = new AltosScanResult(record.callsign,
 												     record.serial,
 												     record.flight,
 												     channel,
 												     monitor);
-							results.add(result);
+							Runnable r = new Runnable() {
+									public void run() {
+										results.add(result);
+									}
+								};
+							SwingUtilities.invokeLater(r);
 						}
 					} catch (ParseException pp) {
-						System.out.printf("Parse error: %d \"%s\"\n", pp.getErrorOffset(), pp.getMessage());
 					} catch (AltosCRCException ce) {
 					}
 				}
@@ -189,24 +192,29 @@ public class AltosScanUI
 		}
 	}
 
-	void set_channel() {
-		reader.serial.set_channel(channel);
-	}
-
-	void set_monitor() {
-		reader.serial.set_telemetry(monitors[monitor]);
+	void set_label() {
+		scanning_label.setText(String.format("Scanning: channel %d %s",
+						     channel,
+						     monitor_names[monitor]));
 	}
 
 	void next() {
+		reader.serial.set_monitor(false);
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException ie){
+		}
 		++channel;
-		if (channel == 10) {
+		if (channel > 9) {
 			channel = 0;
 			++monitor;
 			if (monitor == monitors.length)
 				monitor = 0;
-			set_monitor();
+			reader.serial.set_telemetry(monitors[monitor]);
 		}
-		set_channel();
+		reader.serial.set_channel(channel);
+		set_label();
+		reader.serial.set_monitor(true);
 	}
 
 
@@ -231,24 +239,22 @@ public class AltosScanUI
 	public void actionPerformed(ActionEvent e) {
 		String cmd = e.getActionCommand();
 
-		if (cmd.equals("fake")) {
-			results.add(new AltosScanResult("N0CALL", 300, 1, 0, 1));
-		}
-
-		if (cmd.equals("cancel")) {
+		if (cmd.equals("cancel"))
 			close();
-		}
 
-		if (cmd.equals("ok")) {
+		if (cmd.equals("tick"))
+			tick_timer();
+
+		if (cmd.equals("monitor")) {
 			close();
 			AltosScanResult	r = (AltosScanResult) (list.getSelectedValue());
-			System.out.printf("Selected channel %d telemetry %d\n",
-					  r.channel, r.telemetry);
-			if (device != null) {
-				if (reader != null) {
-					reader.set_telemetry(r.telemetry);
-					reader.set_channel(r.channel);
-					owner.telemetry_window(device);
+			if (r != null) {
+				if (device != null) {
+					if (reader != null) {
+						reader.set_telemetry(monitors[r.telemetry]);
+						reader.set_channel(r.channel);
+						owner.telemetry_window(device);
+					}
 				}
 			}
 		}
@@ -270,20 +276,37 @@ public class AltosScanUI
 	}
 
 	private boolean open() {
-		device = AltosDeviceDialog.show(owner, Altos.product_any);
-		if (device != null) {
-			try {
-				reader = new AltosTelemetryReader(device);
-				set_channel();
-				set_monitor();
-				handler = new TelemetryHandler();
-				thread = new Thread(handler);
-				thread.start();
-				return true;
-			} catch (Exception e) {
-				scan_exception(e);
-			}
+		device = AltosDeviceDialog.show(owner, Altos.product_basestation);
+		if (device == null)
+			return false;
+		try {
+			reader = new AltosTelemetryReader(device);
+			reader.serial.set_channel(channel);
+			reader.serial.set_telemetry(monitors[monitor]);
+			handler = new TelemetryHandler();
+			thread = new Thread(handler);
+			thread.start();
+			return true;
+		} catch (FileNotFoundException ee) {
+			JOptionPane.showMessageDialog(owner,
+						      String.format("Cannot open device \"%s\"",
+								    device.toShortString()),
+						      "Cannot open target device",
+						      JOptionPane.ERROR_MESSAGE);
+		} catch (AltosSerialInUseException si) {
+			JOptionPane.showMessageDialog(owner,
+						      String.format("Device \"%s\" already in use",
+								    device.toShortString()),
+						      "Device in use",
+						      JOptionPane.ERROR_MESSAGE);
+		} catch (IOException ee) {
+			JOptionPane.showMessageDialog(owner,
+						      device.toShortString(),
+						      "Unkonwn I/O error",
+						      JOptionPane.ERROR_MESSAGE);
 		}
+		if (reader != null)
+			reader.close(false);
 		return false;
 	}
 
@@ -291,8 +314,8 @@ public class AltosScanUI
 
 		owner = in_owner;
 
-//		if (!open())
-//			return;
+		if (!open())
+			return;
 
 		Container		pane = getContentPane();
 		GridBagConstraints	c = new GridBagConstraints();
@@ -305,6 +328,23 @@ public class AltosScanUI
 		owner = in_owner;
 
 		pane.setLayout(new GridBagLayout());
+
+		scanning_label = new JLabel("Scanning:");
+		
+		set_label();
+
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.CENTER;
+		c.insets = i;
+		c.weightx = 1;
+		c.weighty = 1;
+
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 2;
+		c.anchor = GridBagConstraints.CENTER;
+
+		pane.add(scanning_label, c);
 
 		list = new JList(results) {
 				//Subclass JList to workaround bug 4832765, which can cause the
@@ -343,7 +383,7 @@ public class AltosScanUI
 		list.addMouseListener(new MouseAdapter() {
 				 public void mouseClicked(MouseEvent e) {
 					 if (e.getClickCount() == 2) {
-						 ok_button.doClick(); //emulate button click
+						 monitor_button.doClick(); //emulate button click
 					 }
 				 }
 			});
@@ -365,24 +405,7 @@ public class AltosScanUI
 		listPane.add(listScroller);
 		listPane.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
-		c.fill = GridBagConstraints.NONE;
-		c.anchor = GridBagConstraints.CENTER;
-		c.insets = i;
-		c.weightx = 1;
-		c.weighty = 1;
-
-		c.gridx = 0;
-		c.gridy = 0;
-		c.gridwidth = 3;
-		c.anchor = GridBagConstraints.CENTER;
-
-		pane.add(listPane, c);
-
-		fake_button = new JButton("fake");
-		fake_button.addActionListener(this);
-		fake_button.setActionCommand("fake");
-
-		c.fill = GridBagConstraints.NONE;
+		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.CENTER;
 		c.insets = i;
 		c.weightx = 1;
@@ -390,10 +413,10 @@ public class AltosScanUI
 
 		c.gridx = 0;
 		c.gridy = 1;
-		c.gridwidth = 1;
+		c.gridwidth = 2;
 		c.anchor = GridBagConstraints.CENTER;
 
-		pane.add(fake_button, c);
+		pane.add(listPane, c);
 
 		cancel_button = new JButton("Cancel");
 		cancel_button.addActionListener(this);
@@ -405,16 +428,16 @@ public class AltosScanUI
 		c.weightx = 1;
 		c.weighty = 1;
 
-		c.gridx = 1;
-		c.gridy = 1;
+		c.gridx = 0;
+		c.gridy = 2;
 		c.gridwidth = 1;
 		c.anchor = GridBagConstraints.CENTER;
 
 		pane.add(cancel_button, c);
 
-		ok_button = new JButton("OK");
-		ok_button.addActionListener(this);
-		ok_button.setActionCommand("ok");
+		monitor_button = new JButton("Monitor");
+		monitor_button.addActionListener(this);
+		monitor_button.setActionCommand("monitor");
 
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
@@ -422,12 +445,12 @@ public class AltosScanUI
 		c.weightx = 1;
 		c.weighty = 1;
 
-		c.gridx = 2;
-		c.gridy = 1;
+		c.gridx = 1;
+		c.gridy = 2;
 		c.gridwidth = 1;
 		c.anchor = GridBagConstraints.CENTER;
 
-		pane.add(ok_button, c);
+		pane.add(monitor_button, c);
 
 		pack();
 		setLocationRelativeTo(owner);
