@@ -768,7 +768,7 @@ struct cc_dma_channel {
 # define DMA_CFG0_TRIGGER_ADC_CH7	28
 # define DMA_CFG0_TRIGGER_I2STX		28
 # define DMA_CFG0_TRIGGER_ENC_DW	29
-# define DMA_CFG0_TRIGGER_DNC_UP	30
+# define DMA_CFG0_TRIGGER_ENC_UP	30
 
 # define DMA_CFG1_SRCINC_MASK		(3 << 6)
 # define DMA_CFG1_SRCINC_0		(0 << 6)
@@ -1302,5 +1302,27 @@ __xdata __at (0xdf3c) uint8_t RF_PKTSTATUS;
 
 __xdata __at (0xdf3d) uint8_t RF_VCO_VC_DAC;
 #define RF_VCO_VC_DAC_OFF	0x3d
+
+/* AES engine */
+
+__sfr at 0xB1 ENCDI;
+__sfr at 0xB2 ENCDO;
+__xdata at (0xDFB1) volatile uint8_t ENCDIXADDR;
+__xdata at (0xDFB2) volatile uint8_t ENCDOXADDR;
+
+__sfr at 0xB3 ENCCCS;
+
+#define ENCCCS_MODE_CBC		(0 << 4)
+#define ENCCCS_MODE_CFB		(1 << 4)
+#define ENCCCS_MODE_OFB		(2 << 4)
+#define ENCCCS_MODE_CTR		(3 << 4)
+#define ENCCCS_MODE_ECB		(4 << 4)
+#define ENCCCS_MODE_CBC_MAC	(5 << 4)
+#define ENCCCS_RDY		(1 << 3)
+#define ENCCCS_CMD_ENCRYPT	(0 << 1)
+#define ENCCCS_CMD_DECRYPT	(1 << 1)
+#define ENCCCS_CMD_LOAD_KEY	(2 << 1)
+#define ENCCCS_CMD_LOAD_IV	(3 << 1)
+#define ENCCCS_START		(1 << 0)
 
 #endif

@@ -1629,4 +1629,30 @@ ao_companion_init(void);
 void
 ao_lcd_init(void);
 
+/* ao_aes.c */
+
+__xdata uint8_t ao_aes_mutex;
+
+enum ao_aes_mode {
+	ao_aes_mode_cbc_mac
+};
+
+#if HAS_AES
+void
+ao_aes_isr(void) __interrupt 4;
+#endif
+
+void
+ao_aes_set_mode(enum ao_aes_mode mode);
+
+void
+ao_aes_set_key(__xdata uint8_t *in);
+
+void
+ao_aes_run(__xdata uint8_t *in,
+	   __xdata uint8_t *out);
+
+void
+ao_aes_init(void);
+
 #endif /* _AO_H_ */
