@@ -150,10 +150,13 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		//System.out.printf("Loading/fetching map %s\n", pngfile);
 		Thread thread = new Thread() {
 			public void run() {
-				ImageIcon res;
-				res = AltosSiteMapCache.fetchAndLoadMap(pngfile, pngurl);
+				final ImageIcon res = AltosSiteMapCache.fetchAndLoadMap(pngfile, pngurl);
 				if (res != null) {
-					tile.loadMap(res);
+					SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								tile.loadMap(res);
+							}
+						});
 				} else {
 					System.out.printf("# Failed to fetch file %s\n", pngfile);
 					System.out.printf(" wget -O '%s' ''\n", pngfile, pngurl);
@@ -161,6 +164,24 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 			}
 		};
 		thread.start();
+	}
+
+	File	pngfile;
+	String	pngurl;
+
+	public int prefetchMap(int x, int y) {
+		LatLng map_latlng = latlng(
+			-centre.x + x*px_size + px_size/2,
+			-centre.y + y*px_size + px_size/2);
+		pngfile = MapFile(map_latlng.lat, map_latlng.lng);
+		pngurl = MapURL(map_latlng.lat, map_latlng.lng);
+		if (pngfile.exists()) {
+			return 1;
+		} else if (AltosSiteMapCache.fetchMap(pngfile, pngurl)) {
+			return 0;
+		} else {
+			return -1;
+		}
 	}
 
 	public static void prefetchMaps(double lat, double lng, int w, int h) {
@@ -172,18 +193,18 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		int dx = -w/2, dy = -h/2;
 		for (int y = dy; y < h+dy; y++) {
 			for (int x = dx; x < w+dx; x++) {
-				LatLng map_latlng = asm.latlng(
-							    -asm.centre.x + x*px_size + px_size/2,
-							    -asm.centre.y + y*px_size + px_size/2);
-				File pngfile = asm.MapFile(map_latlng.lat, map_latlng.lng);
-				String pngurl = asm.MapURL(map_latlng.lat, map_latlng.lng);
-				if (pngfile.exists()) {
-					System.out.printf("Already have %s\n", pngfile);
-				} else if (AltosSiteMapCache.fetchMap(pngfile, pngurl)) {
-					System.out.printf("Fetched map %s\n", pngfile);
-				} else {
-					System.out.printf("# Failed to fetch file %s\n", pngfile);
-					System.out.printf(" wget -O '%s' ''\n", pngfile, pngurl);
+				int r = asm.prefetchMap(x, y);
+				switch (r) {
+				case 1:
+					System.out.printf("Already have %s\n", asm.pngfile);
+					break;
+				case 0:
+					System.out.printf("Fetched map %s\n", asm.pngfile);
+					break;
+				case -1:
+					System.out.printf("# Failed to fetch file %s\n", asm.pngfile);
+					System.out.printf(" wget -O '%s' ''\n", asm.pngfile, asm.pngurl);
+					break;
 				}
 			}
 		}
@@ -224,6 +245,12 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	boolean initialised = false;
 	Point2D.Double last_pt = null;
 	int last_state = -1;
+
+	public void show(double lat, double lon) {
+		initMaps(lat, lon);
+		initialised = true;
+		scrollRocketToVisible(pt(lat, lon));
+	}
 	public void show(final AltosState state, final int crc_errors) {
 		// if insufficient gps data, nothing to update
 		if (!state.gps.locked && state.gps.nsat < 4)
@@ -382,6 +409,6 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 			}
 		}
 		setViewportView(comp);
-		setPreferredSize(new Dimension(500,200));
+		setPreferredSize(new Dimension(500,500));
 	}
 }

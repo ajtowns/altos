@@ -180,6 +180,13 @@ public class AltosUI extends JFrame {
 				}
 			});
 
+		b = addButton(1, 2, "Load Maps");
+		b.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					LoadMaps();
+				}
+			});
+
 		setTitle("AltOS");
 
 		pane.doLayout();
@@ -236,6 +243,10 @@ public class AltosUI extends JFrame {
 
 	void ScanChannels() {
 		new AltosScanUI(AltosUI.this);
+	}
+
+	void LoadMaps() {
+		new AltosSiteMapPreload(AltosUI.this);
 	}
 
 	/*

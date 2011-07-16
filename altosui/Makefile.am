@@ -88,6 +88,7 @@ altosui_JAVA = \
 	AltosSerialInUseException.java \
 	AltosSerialMonitor.java \
 	AltosSiteMap.java \
+	AltosSiteMapPreload.java \
 	AltosSiteMapCache.java \
 	AltosSiteMapTile.java \
 	AltosState.java \
