@@ -57,7 +57,7 @@ public class AltosTelemetryRecordConfiguration extends AltosTelemetryRecordRaw {
 		next.callsign = callsign;
 		next.firmware_version = version;
 
-		next.seen |= AltosRecord.seen_deploy;
+		next.seen |= AltosRecord.seen_deploy | AltosRecord.seen_flight;
 
 		return next;
 	}
