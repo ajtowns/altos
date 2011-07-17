@@ -311,6 +311,9 @@ public class AltosScanUI
 
 		owner = in_owner;
 
+		channel = 0;
+		telemetry = Altos.ao_telemetry_min;
+
 		if (!open())
 			return;
 
@@ -325,9 +328,6 @@ public class AltosScanUI
 		owner = in_owner;
 
 		pane.setLayout(new GridBagLayout());
-
-		channel = 0;
-		telemetry = Altos.ao_telemetry_min;
 
 		scanning_label = new JLabel("Scanning:");
 		
