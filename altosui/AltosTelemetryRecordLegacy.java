@@ -385,24 +385,25 @@ public class AltosTelemetryRecordLegacy extends AltosRecord implements AltosTele
 	 */
 
 	int[]	bytes;
+	int	adjust;
 
 	private int int8(int i) {
-		return Altos.int8(bytes, i + 1);
+		return Altos.int8(bytes, i + 1 + adjust);
 	}
 	private int uint8(int i) {
-		return Altos.uint8(bytes, i + 1);
+		return Altos.uint8(bytes, i + 1 + adjust);
 	}
 	private int int16(int i) {
-		return Altos.int16(bytes, i + 1);
+		return Altos.int16(bytes, i + 1 + adjust);
 	}
 	private int uint16(int i) {
-		return Altos.uint16(bytes, i + 1);
+		return Altos.uint16(bytes, i + 1 + adjust);
 	}
 	private int uint32(int i) {
-		return Altos.uint32(bytes, i + 1);
+		return Altos.uint32(bytes, i + 1 + adjust);
 	}
 	private String string(int i, int l) {
-		return Altos.string(bytes, i + 1, l);
+		return Altos.string(bytes, i + 1 + adjust, l);
 	}
 
 	static final int AO_GPS_NUM_SAT_MASK	= (0xf << 0);
@@ -428,8 +429,13 @@ public class AltosTelemetryRecordLegacy extends AltosRecord implements AltosTele
 		}
 		}
 		version = 4;
-		callsign = string(62, 8);
+		adjust = 0;
 		serial = uint16(0);
+
+		if (bytes.length == Altos.ao_telemetry_0_8_len + 4)
+			adjust = -1;
+		
+		callsign = string(62, 8);
 		flight = uint16(2);
 		rssi = in_rssi;
 		status = in_status;

@@ -156,14 +156,14 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 			// Telemetry format menu
 			telemetries = new JComboBox();
-			telemetries.addItem("Original TeleMetrum Telemetry");
-			telemetries.addItem("Standard AltOS Telemetry");
-			int telemetry = 1;
-			telemetry = AltosPreferences.telemetry(serial);
-			if (telemetry > Altos.ao_telemetry_split)
-				telemetry = Altos.ao_telemetry_split;
+			for (int i = 1; i <= Altos.ao_telemetry_max; i++)
+				telemetries.addItem(Altos.telemetry_name(i));
+			int telemetry = AltosPreferences.telemetry(serial);
+			if (telemetry <= Altos.ao_telemetry_off ||
+			    telemetry > Altos.ao_telemetry_max)
+				telemetry = Altos.ao_telemetry_standard;
 			telemetries.setSelectedIndex(telemetry - 1);
-			telemetries.setMaximumRowCount(2);
+			telemetries.setMaximumRowCount(Altos.ao_telemetry_max);
 			telemetries.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						int telemetry = telemetries.getSelectedIndex() + 1;

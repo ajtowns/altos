@@ -70,11 +70,23 @@ public class Altos {
 
 	/* Telemetry modes */
 	static final int ao_telemetry_off = 0;
-	static final int ao_telemetry_legacy = 1;
-	static final int ao_telemetry_split = 2;
+	static final int ao_telemetry_min = 1;
+	static final int ao_telemetry_standard = 1;
+	static final int ao_telemetry_0_9 = 2;
+	static final int ao_telemetry_0_8 = 3;
+	static final int ao_telemetry_max = 3;
 
-	static final int ao_telemetry_split_len = 32;
-	static final int ao_telemetry_legacy_len = 95;
+	static final String[] ao_telemetry_name = {
+		"Off", "Standard Telemetry", "TeleMetrum v0.9", "TeleMetrum v0.8"
+	};
+
+	static final int ao_telemetry_standard_len = 32;
+	static final int ao_telemetry_0_9_len = 95;
+	static final int ao_telemetry_0_8_len = 94;
+
+	static final int[] ao_telemetry_len = {
+		0, 32, 95, 94
+	};
 
 	static HashMap<String,Integer>	string_to_state = new HashMap<String,Integer>();
 
@@ -103,6 +115,20 @@ public class Altos {
 		map_initialized = true;
 	}
 
+	static int telemetry_len(int telemetry) {
+		if (telemetry <= ao_telemetry_max)
+			return ao_telemetry_len[telemetry];
+		throw new IllegalArgumentException(String.format("Invalid telemetry %d",
+								 telemetry));
+	}
+
+	static String telemetry_name(int telemetry) {
+		if (telemetry <= ao_telemetry_max)
+			return ao_telemetry_name[telemetry];
+		throw new IllegalArgumentException(String.format("Invalid telemetry %d",
+								 telemetry));
+	}
+	
 	static String[] state_to_string = {
 		"startup",
 		"idle",

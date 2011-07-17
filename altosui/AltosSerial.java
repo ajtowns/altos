@@ -326,13 +326,7 @@ public class AltosSerial implements Runnable {
 	}
 
 	private int telemetry_len() {
-		switch (telemetry) {
-		case 1:
-		default:
-			return Altos.ao_telemetry_legacy_len;
-		case 2:
-			return Altos.ao_telemetry_split_len;
-		}
+		return Altos.telemetry_len(telemetry);
 	}
 
 	public void set_channel(int in_channel) {
@@ -404,7 +398,7 @@ public class AltosSerial implements Runnable {
 		line = "";
 		monitor_mode = false;
 		frame = null;
-		telemetry = Altos.ao_telemetry_split;
+		telemetry = Altos.ao_telemetry_standard;
 		monitors = new LinkedList<LinkedBlockingQueue<AltosLine>> ();
 		reply_queue = new LinkedBlockingQueue<AltosLine> ();
 		open();

@@ -35,13 +35,12 @@ class AltosScanResult {
 	int	flight;
 	int	channel;
 	int	telemetry;
-	static final String[] short_monitor_names = { "Standard", "Original" };
 	
 	boolean	interrupted = false;
 	
 	public String toString() {
-		return String.format("%-9.9s serial %-4d flight %-4d (channel %-2d telemetry %s)",
-				     callsign, serial, flight, channel, short_monitor_names[telemetry]);
+		return String.format("%-9.9s serial %-4d flight %-4d (channel %-2d %s)",
+				     callsign, serial, flight, channel, Altos.telemetry_name(telemetry));
 	}
 
 	public String toShortString() {
@@ -116,9 +115,7 @@ public class AltosScanUI
 	javax.swing.Timer		timer;
 	AltosScanResults		results = new AltosScanResults();
 
-	static final String[]		monitor_names = { "Standard AltOS Telemetry", "Original TeleMetrum Telemetry" };
-	static final int[]		monitors = { 2, 1 };
-	int				monitor;
+	int				telemetry;
 	int				channel;
 
 	final static int		timeout = 1200;
@@ -171,7 +168,7 @@ public class AltosScanUI
 												     record.serial,
 												     record.flight,
 												     channel,
-												     monitor);
+												     telemetry);
 							Runnable r = new Runnable() {
 									public void run() {
 										results.add(result);
@@ -195,7 +192,7 @@ public class AltosScanUI
 	void set_label() {
 		scanning_label.setText(String.format("Scanning: channel %d %s",
 						     channel,
-						     monitor_names[monitor]));
+						     Altos.telemetry_name(telemetry)));
 	}
 
 	void next() {
@@ -207,10 +204,10 @@ public class AltosScanUI
 		++channel;
 		if (channel > 9) {
 			channel = 0;
-			++monitor;
-			if (monitor == monitors.length)
-				monitor = 0;
-			reader.serial.set_telemetry(monitors[monitor]);
+			++telemetry;
+			if (telemetry > Altos.ao_telemetry_max)
+				telemetry = Altos.ao_telemetry_min;
+			reader.serial.set_telemetry(telemetry);
 		}
 		reader.serial.set_channel(channel);
 		set_label();
@@ -251,7 +248,7 @@ public class AltosScanUI
 			if (r != null) {
 				if (device != null) {
 					if (reader != null) {
-						reader.set_telemetry(monitors[r.telemetry]);
+						reader.set_telemetry(r.telemetry);
 						reader.set_channel(r.channel);
 						owner.telemetry_window(device);
 					}
@@ -282,7 +279,7 @@ public class AltosScanUI
 		try {
 			reader = new AltosTelemetryReader(device);
 			reader.serial.set_channel(channel);
-			reader.serial.set_telemetry(monitors[monitor]);
+			reader.serial.set_telemetry(telemetry);
 			handler = new TelemetryHandler();
 			thread = new Thread(handler);
 			thread.start();
@@ -328,6 +325,9 @@ public class AltosScanUI
 		owner = in_owner;
 
 		pane.setLayout(new GridBagLayout());
+
+		channel = 0;
+		telemetry = Altos.ao_telemetry_min;
 
 		scanning_label = new JLabel("Scanning:");
 		

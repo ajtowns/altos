@@ -72,7 +72,7 @@ public class AltosTelemetryRecordRaw implements AltosTelemetryRecord {
 
 		/* length, data ..., rssi, status, checksum -- 4 bytes extra */
 		switch (bytes.length) {
-		case Altos.ao_telemetry_split_len + 4:
+		case Altos.ao_telemetry_standard_len + 4:
 			int	type = Altos.uint8(bytes, 4 + 1);
 			switch (type) {
 			case packet_type_TM_sensor:
@@ -94,7 +94,10 @@ public class AltosTelemetryRecordRaw implements AltosTelemetryRecord {
 				break;
 			}
 			break;
-		case Altos.ao_telemetry_legacy_len + 4:
+		case Altos.ao_telemetry_0_9_len + 4:
+			r = new AltosTelemetryRecordLegacy(bytes, rssi, status);
+			break;
+		case Altos.ao_telemetry_0_8_len + 4:
 			r = new AltosTelemetryRecordLegacy(bytes, rssi, status);
 			break;
 		default:
