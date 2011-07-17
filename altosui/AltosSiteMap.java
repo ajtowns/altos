@@ -320,6 +320,16 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		last_state = state.state;
 	}
 
+	public void draw_circle(double lat, double lon) {
+		final Point2D.Double pt = pt(lat, lon);
+
+		for (Point offset : mapTiles.keySet()) {
+			AltosSiteMapTile tile = mapTiles.get(offset);
+			Point2D.Double ref = translatePoint(pt, tileCoordOffset(offset));
+			tile.draw_circle(ref);
+		}
+	}
+
 	private AltosSiteMapTile createTile(Point offset) {
 		AltosSiteMapTile tile = new AltosSiteMapTile(px_size);
 		mapTiles.put(offset, tile);

@@ -312,6 +312,7 @@ public class AltosSiteMapPreload extends JDialog implements ActionListener, Item
 					final double	latitude = lat.get_value();
 					final double	longitude = lon.get_value();
 					map.setBaseLocation(latitude,longitude);
+					map.draw_circle(latitude,longitude);
 					loading = true;
 					bgLoad thread = new bgLoad(map);
 					thread.start();

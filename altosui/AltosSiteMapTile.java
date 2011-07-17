@@ -43,6 +43,10 @@ public class AltosSiteMapTile extends JLayeredPane {
 
 	public void clearMap() {
 		fillLabel(mapLabel, Color.GRAY, px_size);
+		g2d = fillLabel(draw, new Color(127,127,127,0), px_size);
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				     RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.setStroke(new BasicStroke(6, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 	}
 
 	static Color stateColors[] = {
@@ -83,6 +87,13 @@ public class AltosSiteMapTile extends JLayeredPane {
 		}
 
 		repaint();
+	}
+
+	public void draw_circle(Point2D.Double pt) {
+		g2d.setColor(Color.RED);
+		g2d.drawOval((int)pt.x-5, (int)pt.y-5, 10, 10);
+		g2d.drawOval((int)pt.x-20, (int)pt.y-20, 40, 40);
+		g2d.drawOval((int)pt.x-35, (int)pt.y-35, 70, 70);
 	}
 
 	public static Graphics2D fillLabel(JLabel l, Color c, int px_size) {
