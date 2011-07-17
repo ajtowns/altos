@@ -37,7 +37,6 @@ public class AltosSiteMapCache extends JLabel {
 		try {
 			u = new URL(url);
 		} catch (java.net.MalformedURLException e) {
-			System.out.printf("Malformed URL '%s'\n", url);
 			return false;
 		}
 
@@ -58,12 +57,9 @@ public class AltosSiteMapCache extends JLabel {
 			in.close();
 
 			if (offset != contentLength) {
-				System.out.printf("Bad length %d != %d\n",
-						  offset, contentLength);
 				return false;
 			}
 		} catch (IOException e) {
-			System.out.printf("IO exception reading URL\n");
 			return false;
 		}
 
@@ -73,13 +69,11 @@ public class AltosSiteMapCache extends JLabel {
 			out.flush();
 			out.close();
 		} catch (FileNotFoundException e) {
-			System.out.printf("Can't create file\n");
 			return false;
 		} catch (IOException e) {
 			if (file.exists()) {
 				file.delete();
 			}
-			System.out.printf("IO exception writing file\n");
 			return false;
 		}
 		return true;

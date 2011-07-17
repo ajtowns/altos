@@ -145,7 +145,6 @@ public class AltosSiteMapPreload extends JDialog implements ActionListener {
 
 		public updatePbar(int x, int y, String in_s) {
 			n = (x + radius) + (y + radius) * width + 1;
-			System.out.printf("update pbar %d\n", n);
 			s = in_s;
 		}
 
