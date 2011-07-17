@@ -23,6 +23,9 @@ public class AltosGraphUI extends JFrame
     static final private Color green = new Color(31,194,31);
     static final private Color blue = new Color(31,31,194);
     static final private Color black = new Color(31,31,31);
+    static final private Color yellow = new Color(194,194,31);
+    static final private Color cyan = new Color(31,194,194);
+    static final private Color magenta = new Color(194,31,194);
 
     static private class OverallGraphs {
         AltosGraphTime.Element height = 
@@ -71,7 +74,7 @@ public class AltosGraphUI extends JFrame
             };
     
         AltosGraphTime.Element drogue_voltage =
-            new AltosGraphTime.TimeSeries("Voltage (V)", "Drogue Continuity", blue) 
+            new AltosGraphTime.TimeSeries("Voltage (V)", "Drogue Continuity", yellow) 
             {
                 public void gotTimeData(double time, AltosDataPoint d) {
 		    double v = d.drogue_voltage();
@@ -81,7 +84,7 @@ public class AltosGraphUI extends JFrame
             };
     
         AltosGraphTime.Element main_voltage =
-            new AltosGraphTime.TimeSeries("Voltage (V)", "Main Continuity", green) 
+            new AltosGraphTime.TimeSeries("Voltage (V)", "Main Continuity", magenta) 
             {
                 public void gotTimeData(double time, AltosDataPoint d) {
 		    double v = d.main_voltage();
