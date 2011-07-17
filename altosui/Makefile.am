@@ -307,3 +307,6 @@ $(MACOSX_DIST): $(MACOSX_FILES) $(MACOSX_EXTRA)
 $(WINDOWS_DIST): $(WINDOWS_FILES) altos-windows.nsi
 	-rm -f $@
 	makensis -Oaltos-windows.log "-XOutFile $@" "-DVERSION=$(VERSION)" altos-windows.nsi
+
+publish:
+	scp launch-sites.txt gag.com:public_html
