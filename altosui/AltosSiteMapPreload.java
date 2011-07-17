@@ -31,6 +31,8 @@ import java.util.prefs.*;
 import java.lang.Math;
 import java.awt.geom.Point2D;
 import java.awt.geom.Line2D;
+import java.net.URL;
+import java.net.URLConnection;
 
 class AltosMapPos extends Box {
 	AltosUI		owner;
@@ -100,13 +102,14 @@ class AltosMapPos extends Box {
 		label = new JLabel(label_value);
 		hemi = new JComboBox(hemi_names);
 		hemi.setEditable(false);
-		deg = new JTextField("000");
+		deg = new JTextField(5);
+		deg.setMinimumSize(deg.getPreferredSize());
+		deg.setHorizontalAlignment(JTextField.RIGHT);
 		deg_label = new JLabel("°");
-		min = new JTextField("00.0000");
+		min = new JTextField(9);
+		min.setMinimumSize(min.getPreferredSize());
 		min_label = new JLabel("'");
 		set_value(default_value);
-		deg.setMinimumSize(deg.getPreferredSize());
-		min.setMinimumSize(min.getPreferredSize());
 		add(label);
 		add(Box.createRigidArea(new Dimension(5, 0)));
 		add(hemi);
@@ -121,19 +124,111 @@ class AltosMapPos extends Box {
 	}
 }
 
-public class AltosSiteMapPreload extends JDialog implements ActionListener {
+class AltosSite {
+	String	name;
+	double	latitude;
+	double	longitude;
+
+	public String toString() {
+		return name;
+	}
+
+	public AltosSite(String in_name, double in_latitude, double in_longitude) {
+		name = in_name;
+		latitude = in_latitude;
+		longitude = in_longitude;
+	}
+
+	public AltosSite(String line) throws ParseException {
+		String[]	elements = line.split(":");
+
+		if (elements.length < 3)
+			throw new ParseException(String.format("Invalid site line %s", line), 0);
+
+		name = elements[0];
+
+		try {
+			latitude = Double.parseDouble(elements[1]);
+			longitude = Double.parseDouble(elements[2]);
+		} catch (NumberFormatException ne) {
+			throw new ParseException(String.format("Invalid site line %s", line), 0);
+		}
+	}
+}
+
+class AltosSites extends Thread {
+	AltosSiteMapPreload	preload;
+	URL			url;
+	LinkedList<AltosSite>	sites;
+
+	void notify_complete() {
+		SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					preload.set_sites();
+				}
+			});
+	}
+
+	void add(AltosSite site) {
+		sites.add(site);
+	}
+
+	void add(String line) {
+		try {
+			add(new AltosSite(line));
+		} catch (ParseException pe) {
+		}
+	}
+
+	public void run() {
+		try {
+			URLConnection uc = url.openConnection();
+			int length = uc.getContentLength();
+			
+			InputStreamReader in_stream = new InputStreamReader(uc.getInputStream(), Altos.unicode_set);
+			BufferedReader in = new BufferedReader(in_stream);
+
+			for (;;) {
+				String line = in.readLine();
+				if (line == null)
+					break;
+				add(line);
+			}
+		} catch (IOException e) {
+		} finally {
+			notify_complete();
+		}
+	}
+
+	public AltosSites(AltosSiteMapPreload in_preload) {
+		sites = new LinkedList<AltosSite>();
+		preload = in_preload;
+		try {
+			url = new URL("http://gag.com/~keithp/launch-sites.txt");
+		} catch (java.net.MalformedURLException e) {
+			notify_complete();
+		}
+		start();
+	}
+}
+
+public class AltosSiteMapPreload extends JDialog implements ActionListener, ItemListener {
 	AltosUI		owner;
 	AltosSiteMap	map;
 
 	AltosMapPos	lat;
 	AltosMapPos	lon;
 
-	JProgressBar	pbar;
-
 	final static int	radius = 4;
 	final static int	width = (radius * 2 + 1);
 	final static int	height = (radius * 2 + 1);
 
+	JProgressBar	pbar;
+
+	AltosSites	sites;
+	JLabel		site_list_label;
+	JComboBox	site_list;
+		
 	JToggleButton	load_button;
 	boolean		loading;
 	JButton		close_button;
@@ -180,6 +275,27 @@ public class AltosSiteMapPreload extends JDialog implements ActionListener {
 					pngfile = map.initMap(new Point(x,y));
 					SwingUtilities.invokeLater(new updatePbar(x, y, pngfile));
 				}
+			}
+		}
+	}
+
+	public void set_sites() {
+		int	i = 1;
+		for (AltosSite site : sites.sites) {
+			site_list.insertItemAt(site, i);
+			i++;
+		}
+	}
+
+	public void itemStateChanged(ItemEvent e) {
+		int		state = e.getStateChange();
+
+		if (state == ItemEvent.SELECTED) {
+			Object	o = e.getItem();
+			if (o instanceof AltosSite) {
+				AltosSite	site = (AltosSite) o;
+				lat.set_value(site.latitude);
+				lon.set_value(site.longitude);
 			}
 		}
 	}
@@ -249,6 +365,37 @@ public class AltosSiteMapPreload extends JDialog implements ActionListener {
 
 		pane.add(pbar, c);
 
+		site_list_label = new JLabel ("Known Launch Sites:");
+
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.CENTER;
+		c.insets = i;
+		c.weightx = 1;
+		c.weighty = 0;
+
+		c.gridx = 0;
+		c.gridy = 2;
+		c.gridwidth = 1;
+
+		pane.add(site_list_label, c);
+		
+		site_list = new JComboBox(new String[] { "Site List" });
+		site_list.addItemListener(this);
+
+		sites = new AltosSites(this);
+
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.CENTER;
+		c.insets = i;
+		c.weightx = 1;
+		c.weighty = 0;
+
+		c.gridx = 1;
+		c.gridy = 2;
+		c.gridwidth = 1;
+
+		pane.add(site_list, c);
+		
 		lat = new AltosMapPos(owner,
 				      "Latitude:",
 				      lat_hemi_names,
@@ -260,7 +407,7 @@ public class AltosSiteMapPreload extends JDialog implements ActionListener {
 		c.weighty = 0;
 
 		c.gridx = 0;
-		c.gridy = 2;
+		c.gridy = 3;
 		c.gridwidth = 1;
 		c.anchor = GridBagConstraints.CENTER;
 
@@ -278,7 +425,7 @@ public class AltosSiteMapPreload extends JDialog implements ActionListener {
 		c.weighty = 0;
 
 		c.gridx = 1;
-		c.gridy = 2;
+		c.gridy = 3;
 		c.gridwidth = 1;
 		c.anchor = GridBagConstraints.CENTER;
 
@@ -295,7 +442,7 @@ public class AltosSiteMapPreload extends JDialog implements ActionListener {
 		c.weighty = 0;
 
 		c.gridx = 0;
-		c.gridy = 3;
+		c.gridy = 4;
 		c.gridwidth = 1;
 		c.anchor = GridBagConstraints.CENTER;
 
@@ -312,7 +459,7 @@ public class AltosSiteMapPreload extends JDialog implements ActionListener {
 		c.weighty = 0;
 
 		c.gridx = 1;
-		c.gridy = 3;
+		c.gridy = 4;
 		c.gridwidth = 1;
 		c.anchor = GridBagConstraints.CENTER;
 
