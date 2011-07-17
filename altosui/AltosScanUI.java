@@ -280,6 +280,11 @@ public class AltosScanUI
 			reader = new AltosTelemetryReader(device);
 			reader.serial.set_channel(channel);
 			reader.serial.set_telemetry(telemetry);
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException ie) {
+			}
+			reader.flush();
 			handler = new TelemetryHandler();
 			thread = new Thread(handler);
 			thread.start();
