@@ -88,7 +88,6 @@ class AltosLog implements Runnable {
 						close_log_file();
 						serial = telem.serial;
 						flight = telem.flight;
-						System.out.printf("Opening telem %d %d\n", serial, flight);
 						open(telem);
 					}
 					previous = telem;

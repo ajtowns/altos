@@ -35,9 +35,14 @@ public class AltosSiteMapTile extends JLayeredPane {
 	JLabel mapLabel;
 	JLabel draw;
 	Graphics2D g2d;
+	int px_size;
 
 	public void loadMap(ImageIcon icn) {
 		mapLabel.setIcon(icn);
+	}
+
+	public void clearMap() {
+		fillLabel(mapLabel, Color.GRAY, px_size);
 	}
 
 	static Color stateColors[] = {
@@ -90,7 +95,8 @@ public class AltosSiteMapTile extends JLayeredPane {
 		return g;
 	}
 
-	public AltosSiteMapTile(int px_size) {
+	public AltosSiteMapTile(int in_px_size) {
+		px_size = in_px_size;
 		setPreferredSize(new Dimension(px_size, px_size));
 
 		mapLabel = new JLabel();

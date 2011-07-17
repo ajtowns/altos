@@ -39,6 +39,10 @@ class AltosTelemetryReader extends AltosFlightReader {
 		return next;
 	}
 
+	void flush() {
+		telem.clear();
+	}
+
 	void close(boolean interrupted) {
 		serial.remove_monitor(telem);
 		log.close();
