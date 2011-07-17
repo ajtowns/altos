@@ -105,6 +105,8 @@ class AltosMapPos extends Box {
 		min = new JTextField("00.0000");
 		min_label = new JLabel("'");
 		set_value(default_value);
+		deg.setMinimumSize(deg.getPreferredSize());
+		min.setMinimumSize(min.getPreferredSize());
 		add(label);
 		add(Box.createRigidArea(new Dimension(5, 0)));
 		add(hemi);
