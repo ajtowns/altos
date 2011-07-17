@@ -97,6 +97,8 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	int zoom;
 	double scale_x, scale_y;
 
+	int radius;	/* half width/height of tiles to load */
+
 	private Point2D.Double pt(double lat, double lng) {
 		return pt(new LatLng(lat, lng), scale_x, scale_y);
 	}
@@ -144,37 +146,31 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		// nothing
 	}
 
-	private void bgLoadMap(final AltosSiteMapTile tile,
-			       final File pngfile, final String pngurl)
+	private void loadMap(final AltosSiteMapTile tile,
+			     File pngfile, String pngurl)
 	{
-		//System.out.printf("Loading/fetching map %s\n", pngfile);
-		Thread thread = new Thread() {
-			public void run() {
-				final ImageIcon res = AltosSiteMapCache.fetchAndLoadMap(pngfile, pngurl);
-				if (res != null) {
-					SwingUtilities.invokeLater(new Runnable() {
-							public void run() {
-								tile.loadMap(res);
-							}
-						});
-				} else {
-					System.out.printf("# Failed to fetch file %s\n", pngfile);
-					System.out.printf(" wget -O '%s' ''\n", pngfile, pngurl);
-				}
-			}
-		};
-		thread.start();
+		final ImageIcon res = AltosSiteMapCache.fetchAndLoadMap(pngfile, pngurl);
+		if (res != null) {
+			SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						tile.loadMap(res);
+					}
+				});
+		} else {
+			System.out.printf("# Failed to fetch file %s\n", pngfile);
+			System.out.printf(" wget -O '%s' '%s'\n", pngfile, pngurl);
+		}
 	}
 
-	File	pngfile;
-	String	pngurl;
+	File pngfile;
+	String pngurl;
 
 	public int prefetchMap(int x, int y) {
 		LatLng map_latlng = latlng(
 			-centre.x + x*px_size + px_size/2,
 			-centre.y + y*px_size + px_size/2);
-		pngfile = MapFile(map_latlng.lat, map_latlng.lng);
-		pngurl = MapURL(map_latlng.lat, map_latlng.lng);
+		pngfile = MapFile(map_latlng.lat, map_latlng.lng, zoom);
+		pngurl = MapURL(map_latlng.lat, map_latlng.lng, zoom);
 		if (pngfile.exists()) {
 			return 1;
 		} else if (AltosSiteMapCache.fetchMap(pngfile, pngurl)) {
@@ -210,25 +206,41 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		}
 	}
 
-	private void initMap(AltosSiteMapTile tile, Point offset) {
+	public String initMap(Point offset) {
+		AltosSiteMapTile tile = mapTiles.get(offset);
 		Point2D.Double coord = tileCoordOffset(offset);
 
 		LatLng map_latlng = latlng(px_size/2-coord.x, px_size/2-coord.y);
 
-		File pngfile = MapFile(map_latlng.lat, map_latlng.lng);
-		String pngurl = MapURL(map_latlng.lat, map_latlng.lng);
-		bgLoadMap(tile, pngfile, pngurl);
+		File pngfile = MapFile(map_latlng.lat, map_latlng.lng, zoom);
+		String pngurl = MapURL(map_latlng.lat, map_latlng.lng, zoom);
+		loadMap(tile, pngfile, pngurl);
+		return pngfile.toString();
+	}
+
+	public void setBaseLocation(double lat, double lng) {
+		for (Point k : mapTiles.keySet()) {
+			AltosSiteMapTile tile = mapTiles.get(k);
+			tile.clearMap();
+		}
+			
+		centre = getBaseLocation(lat, lng);
+		scrollRocketToVisible(pt(lat,lng));
 	}
 
 	private void initMaps(double lat, double lng) {
-		centre = getBaseLocation(lat, lng);
+		setBaseLocation(lat, lng);
 
-		for (Point k : mapTiles.keySet()) {
-			initMap(mapTiles.get(k), k);
-		}
+		Thread thread = new Thread() {
+				public void run() {
+					for (Point k : mapTiles.keySet())
+						initMap(k);
+				}
+			};
+		thread.start();
 	}
 
-	private File MapFile(double lat, double lng) {
+	private static File MapFile(double lat, double lng, int zoom) {
 		char chlat = lat < 0 ? 'S' : 'N';
 		char chlng = lng < 0 ? 'W' : 'E';
 		if (lat < 0) lat = -lat;
@@ -238,7 +250,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 					      chlat, lat, chlng, lng, zoom));
 	}
 
-	private String MapURL(double lat, double lng) {
+	private static String MapURL(double lat, double lng, int zoom) {
 		return String.format("http://maps.google.com/maps/api/staticmap?center=%.6f,%.6f&zoom=%d&size=%dx%d&sensor=false&maptype=hybrid&format=png32", lat, lng, zoom, px_size, px_size);
 	}
 
@@ -248,7 +260,6 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 
 	public void show(double lat, double lon) {
 		initMaps(lat, lon);
-		initialised = true;
 		scrollRocketToVisible(pt(lat, lon));
 	}
 	public void show(final AltosState state, final int crc_errors) {
@@ -295,7 +306,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 
 			AltosSiteMapTile tile = createTile(offset);
 			tile.show(state, crc_errors, lref, ref);
-			initMap(tile, offset);
+			initMap(offset);
 			finishTileLater(tile, offset);
 		}
 
@@ -325,13 +336,13 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	}
 
 	private void ensureTilesAround(Point base_offset) {
-		for (int x = -1; x <= 1; x++) {
-			for (int y = -1; y <= 1; y++) {
+		for (int x = -radius; x <= radius; x++) {
+			for (int y = -radius; y <= radius; y++) {
 				Point offset = new Point(base_offset.x + x, base_offset.y + y);
 				if (mapTiles.containsKey(offset))
 					continue;
 				AltosSiteMapTile tile = createTile(offset);
-				initMap(tile, offset);
+				initMap(offset);
 				finishTileLater(tile, offset);
 			}
 		}
@@ -396,13 +407,15 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	JComponent comp = new JComponent() { };
 	private GridBagLayout layout = new GridBagLayout();
 
-	public AltosSiteMap() {
+	public AltosSiteMap(int in_radius) {
+		radius = in_radius;
+
 		GrabNDrag scroller = new GrabNDrag(comp);
 
 		comp.setLayout(layout);
 
-		for (int x = -1; x <= 1; x++) {
-			for (int y = -1; y <= 1; y++) {
+		for (int x = -radius; x <= radius; x++) {
+			for (int y = -radius; y <= radius; y++) {
 				Point offset = new Point(x, y);
 				AltosSiteMapTile t = createTile(offset);
 				addTileAt(t, offset);
@@ -410,5 +423,9 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		}
 		setViewportView(comp);
 		setPreferredSize(new Dimension(500,500));
+	}
+
+	public AltosSiteMap() {
+		this(1);
 	}
 }

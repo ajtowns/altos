@@ -33,6 +33,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Line2D;
 
 class AltosMapPos extends Box {
+	AltosUI		owner;
 	JLabel		label;
 	JComboBox	hemi;
 	JTextField	deg;
@@ -58,25 +59,51 @@ class AltosMapPos extends Box {
 
 	public double get_value() throws NumberFormatException {
 		int	h = hemi.getSelectedIndex();
-		double d = Double.parseDouble(deg.getText());
-		double m = Double.parseDouble(min.getText());
-		double v = d + m/60.0;
+		String	d_t = deg.getText();
+		String	m_t = min.getText();
+		double 	d, m, v;
+		try {
+			d = Double.parseDouble(d_t);
+		} catch (NumberFormatException ne) {
+			JOptionPane.showMessageDialog(owner,
+						      String.format("Invalid degrees \"%s\"",
+								    d_t),
+						      "Invalid number",
+						      JOptionPane.ERROR_MESSAGE);
+			throw ne;
+		}
+		try {
+			if (m_t.equals(""))
+				m = 0;
+			else
+				m = Double.parseDouble(m_t);
+		} catch (NumberFormatException ne) {
+			JOptionPane.showMessageDialog(owner,
+						      String.format("Invalid minutes \"%s\"",
+								    m_t),
+						      "Invalid number",
+						      JOptionPane.ERROR_MESSAGE);
+			throw ne;
+		}
+		v = d + m/60.0;
 		if (h == 1)
 			v = -v;
 		return v;
 	}
 
-	public AltosMapPos(String label_value,
+	public AltosMapPos(AltosUI in_owner,
+			   String label_value,
 			   String[] hemi_names,
 			   double default_value) {
 		super(BoxLayout.X_AXIS);
+		owner = in_owner;
 		label = new JLabel(label_value);
 		hemi = new JComboBox(hemi_names);
 		hemi.setEditable(false);
 		deg = new JTextField("000");
-		deg_label = new JLabel("degrees");
+		deg_label = new JLabel("°");
 		min = new JTextField("00.0000");
-		min_label = new JLabel("minutes");
+		min_label = new JLabel("'");
 		set_value(default_value);
 		add(label);
 		add(Box.createRigidArea(new Dimension(5, 0)));
@@ -101,9 +128,9 @@ public class AltosSiteMapPreload extends JDialog implements ActionListener {
 
 	JProgressBar	pbar;
 
-	final static int	width = 9;
-	final static int	height = 9;
-	final static int	tiles = width * height;
+	final static int	radius = 4;
+	final static int	width = (radius * 2 + 1);
+	final static int	height = (radius * 2 + 1);
 
 	JToggleButton	load_button;
 	boolean		loading;
@@ -116,15 +143,21 @@ public class AltosSiteMapPreload extends JDialog implements ActionListener {
 		int		n;
 		String		s;
 
-		public updatePbar(int in_n, String in_s) {
-			n = in_n;
+		public updatePbar(int x, int y, String in_s) {
+			n = (x + radius) + (y + radius) * width + 1;
+			System.out.printf("update pbar %d\n", n);
 			s = in_s;
 		}
 
 		public void run() {
 			pbar.setValue(n);
 			pbar.setString(s);
-			if (n == width * height) {
+			if (n < width * height) {
+				pbar.setValue(n);
+				pbar.setString(s);
+			} else {
+				pbar.setValue(0);
+				pbar.setString("");
 				load_button.setSelected(false);
 				loading = false;
 			}
@@ -140,11 +173,11 @@ public class AltosSiteMapPreload extends JDialog implements ActionListener {
 		}
 
 		public void run() {
-			for (int y = 0; y < height; y++) {
-				for (int x = 0; x < width; x++) {
-					map.prefetchMap(y - height/2, x - width/2);
-					SwingUtilities.invokeLater(new updatePbar(y * height + x + 1,
-										  map.pngfile.toString()));
+			for (int y = -map.radius; y <= map.radius; y++) {
+				for (int x = -map.radius; x <= map.radius; x++) {
+					String	pngfile;
+					pngfile = map.initMap(new Point(x,y));
+					SwingUtilities.invokeLater(new updatePbar(x, y, pngfile));
 				}
 			}
 		}
@@ -158,12 +191,16 @@ public class AltosSiteMapPreload extends JDialog implements ActionListener {
 
 		if (cmd.equals("load")) {
 			if (!loading) {
-				loading = true;
-				final double	latitude = lat.get_value();
-				final double	longitude = lon.get_value();
-				map.show(latitude,longitude);
-				bgLoad thread = new bgLoad(map);
-				thread.start();
+				try {
+					final double	latitude = lat.get_value();
+					final double	longitude = lon.get_value();
+					map.setBaseLocation(latitude,longitude);
+					loading = true;
+					bgLoad thread = new bgLoad(map);
+					thread.start();
+				} catch (NumberFormatException ne) {
+					load_button.setSelected(false);
+				}
 			}
 		}
 	}
@@ -177,7 +214,7 @@ public class AltosSiteMapPreload extends JDialog implements ActionListener {
 
 		pane.setLayout(new GridBagLayout());
 
-		map = new AltosSiteMap();
+		map = new AltosSiteMap(4);
 
 		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.CENTER;
@@ -211,7 +248,8 @@ public class AltosSiteMapPreload extends JDialog implements ActionListener {
 
 		pane.add(pbar, c);
 
-		lat = new AltosMapPos("Latitude:",
+		lat = new AltosMapPos(owner,
+				      "Latitude:",
 				      lat_hemi_names,
 				      37.167833333);
 		c.fill = GridBagConstraints.NONE;
@@ -227,7 +265,8 @@ public class AltosSiteMapPreload extends JDialog implements ActionListener {
 
 		pane.add(lat, c);
 		
-		lon = new AltosMapPos("Longitude:",
+		lon = new AltosMapPos(owner,
+				      "Longitude:",
 				      lon_hemi_names,
 				      -97.73975);
 
