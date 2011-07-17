@@ -414,27 +414,19 @@ public class AltosTelemetryRecordLegacy extends AltosRecord implements AltosTele
 	static final int AO_GPS_DATE_VALID	= (1 << 6);
 	static final int AO_GPS_COURSE_VALID	= (1 << 7);
 
-	static class theLock extends Object {
-	}
-	static public theLock lockObject = new theLock();
 	public AltosTelemetryRecordLegacy(int[] in_bytes, int in_rssi, int in_status) {
 		bytes = in_bytes;
-		synchronized(lockObject) {
-		for (int i = 0; i < in_bytes.length - 2; i++) {
-			if ((i % 10) == 0)
-				System.out.printf("%3d:", i);
-			System.out.printf(" %02x", uint8(i));
-			if ((i % 10) == 9 || i == in_bytes.length - 3)
-				System.out.printf("\n");
-		}
-		}
 		version = 4;
 		adjust = 0;
-		serial = uint16(0);
 
-		if (bytes.length == Altos.ao_telemetry_0_8_len + 4)
+		if (bytes.length == Altos.ao_telemetry_0_8_len + 4) {
+			serial = uint8(0);
 			adjust = -1;
-		
+		} else
+			serial = uint16(0);
+
+		seen = seen_flight | seen_sensor | seen_temp_volt | seen_deploy;
+
 		callsign = string(62, 8);
 		flight = uint16(2);
 		rssi = in_rssi;
@@ -476,6 +468,7 @@ public class AltosTelemetryRecordLegacy extends AltosRecord implements AltosTele
 		if ((gps_flags & (AO_GPS_VALID|AO_GPS_RUNNING)) != 0) {
 			gps = new AltosGPS();
 
+			seen |= seen_gps_time | seen_gps_lat | seen_gps_lon;
 			gps.nsat = (gps_flags & AO_GPS_NUM_SAT_MASK);
 			gps.locked = (gps_flags & AO_GPS_VALID) != 0;
 			gps.connected = true;
