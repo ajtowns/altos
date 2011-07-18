@@ -8,9 +8,12 @@ SIGMA_ACCEL="-M 2 -H 4 -A 4"
 
 nickle kalman.5c -p AO_BOTH -c both -t 0.01 $SIGMA_BOTH
 nickle kalman.5c -p AO_BOTH -c both -t 0.1 $SIGMA_BOTH
+nickle kalman.5c -p AO_BOTH -c both -t 1 $SIGMA_BOTH
 
 nickle kalman.5c -p AO_ACCEL -c accel -t 0.01 $SIGMA_ACCEL
 nickle kalman.5c -p AO_ACCEL -c accel -t 0.1 $SIGMA_ACCEL
+nickle kalman.5c -p AO_ACCEL -c accel -t 1 $SIGMA_ACCEL
 
 nickle kalman.5c -p AO_BARO -c baro -t 0.01 $SIGMA_BARO
 nickle kalman.5c -p AO_BARO -c baro -t 0.1 $SIGMA_BARO
+nickle kalman.5c -p AO_BARO -c baro -t 1 $SIGMA_BARO

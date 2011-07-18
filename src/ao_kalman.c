@@ -31,6 +31,9 @@ static __pdata int32_t		ao_k_accel;
 #define AO_K_STEP_10		to_fix16(0.1)
 #define AO_K_STEP_2_2_10	to_fix16(0.005)
 
+#define AO_K_STEP_1		to_fix16(1)
+#define AO_K_STEP_2_2_1		to_fix16(0.5)
+
 __pdata int16_t			ao_height;
 __pdata int16_t			ao_speed;
 __pdata int16_t			ao_accel;
@@ -47,6 +50,13 @@ static void
 ao_kalman_predict(void)
 {
 #ifdef AO_FLIGHT_TEST
+	if (ao_sample_tick - ao_sample_prev_tick > 50) {
+		ao_k_height += ((int32_t) ao_speed * AO_K_STEP_1 +
+				(int32_t) ao_accel * AO_K_STEP_2_2_1) >> 4;
+		ao_k_speed += (int32_t) ao_accel * AO_K_STEP_1;
+
+		return;
+	}
 	if (ao_sample_tick - ao_sample_prev_tick > 5) {
 		ao_k_height += ((int32_t) ao_speed * AO_K_STEP_10 +
 				(int32_t) ao_accel * AO_K_STEP_2_2_10) >> 4;
@@ -126,6 +136,12 @@ ao_kalman_correct_baro(void)
 {
 	ao_kalman_err_height();
 #ifdef AO_FLIGHT_TEST
+	if (ao_sample_tick - ao_sample_prev_tick > 50) {
+		ao_k_height += (int32_t) AO_BARO_K0_1 * ao_error_h;
+		ao_k_speed  += (int32_t) AO_BARO_K1_1 * ao_error_h;
+		ao_k_accel  += (int32_t) AO_BARO_K2_1 * ao_error_h;
+		return;
+	}
 	if (ao_sample_tick - ao_sample_prev_tick > 5) {
 		ao_k_height += (int32_t) AO_BARO_K0_10 * ao_error_h;
 		ao_k_speed  += (int32_t) AO_BARO_K1_10 * ao_error_h;
@@ -158,6 +174,27 @@ ao_kalman_correct_both(void)
 	ao_kalman_err_accel();
 
 #ifdef AO_FLIGHT_TEST
+	if (ao_sample_tick - ao_sample_prev_tick > 50) {
+		if (ao_flight_debug) {
+			printf ("correct speed %g + (%g * %g) + (%g * %g) = %g\n",
+				ao_k_speed / (65536.0 * 16.0),
+				(double) ao_error_h, AO_BOTH_K10_1 / 65536.0,
+				(double) ao_error_a, AO_BOTH_K11_1 / 65536.0,
+				(ao_k_speed +
+				 (int32_t) AO_BOTH_K10_1 * ao_error_h +
+				 (int32_t) AO_BOTH_K11_1 * ao_error_a) / (65536.0 * 16.0));
+		}
+		ao_k_height +=
+			(int32_t) AO_BOTH_K00_1 * ao_error_h +
+			(int32_t) AO_BOTH_K01_1 * ao_error_a;
+		ao_k_speed +=
+			(int32_t) AO_BOTH_K10_1 * ao_error_h +
+			(int32_t) AO_BOTH_K11_1 * ao_error_a;
+		ao_k_accel +=
+			(int32_t) AO_BOTH_K20_1 * ao_error_h +
+			(int32_t) AO_BOTH_K21_1 * ao_error_a;
+		return;
+	}
 	if (ao_sample_tick - ao_sample_prev_tick > 5) {
 		if (ao_flight_debug) {
 			printf ("correct speed %g + (%g * %g) + (%g * %g) = %g\n",

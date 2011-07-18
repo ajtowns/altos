@@ -298,6 +298,139 @@ ao_insert(void)
 	}
 }
 
+#define AO_MAX_CALLSIGN			8
+#define AO_MAX_VERSION			8
+#define AO_MAX_TELEMETRY		128
+
+struct ao_telemetry_generic {
+	uint16_t	serial;		/* 0 */
+	uint16_t	tick;		/* 2 */
+	uint8_t		type;		/* 4 */
+	uint8_t		payload[27];	/* 5 */
+	/* 32 */
+};
+
+#define AO_TELEMETRY_SENSOR_TELEMETRUM	0x01
+#define AO_TELEMETRY_SENSOR_TELEMINI	0x02
+#define AO_TELEMETRY_SENSOR_TELENANO	0x03
+
+struct ao_telemetry_sensor {
+	uint16_t	serial;		/*  0 */
+	uint16_t	tick;		/*  2 */
+	uint8_t		type;		/*  4 */
+
+	uint8_t         state;          /*  5 flight state */
+	int16_t		accel;		/*  6 accelerometer (TM only) */
+	int16_t		pres;		/*  8 pressure sensor */
+	int16_t		temp;		/* 10 temperature sensor */
+	int16_t		v_batt;		/* 12 battery voltage */
+	int16_t		sense_d;	/* 14 drogue continuity sense (TM/Tm) */
+	int16_t		sense_m;	/* 16 main continuity sense (TM/Tm) */
+
+	int16_t         acceleration;   /* 18 m/s² * 16 */
+	int16_t         speed;          /* 20 m/s * 16 */
+	int16_t         height;         /* 22 m */
+
+	int16_t		ground_pres;	/* 24 average pres on pad */
+	int16_t		ground_accel;	/* 26 average accel on pad */
+	int16_t		accel_plus_g;	/* 28 accel calibration at +1g */
+	int16_t		accel_minus_g;	/* 30 accel calibration at -1g */
+	/* 32 */
+};
+
+#define AO_TELEMETRY_CONFIGURATION	0x04
+
+struct ao_telemetry_configuration {
+	uint16_t	serial;				/*  0 */
+	uint16_t	tick;				/*  2 */
+	uint8_t		type;				/*  4 */
+
+	uint8_t         device;         		/*  5 device type */
+	uint16_t        flight;				/*  6 flight number */
+	uint8_t		config_major;			/*  8 Config major version */
+	uint8_t		config_minor;			/*  9 Config minor version */
+	uint16_t	apogee_delay;			/* 10 Apogee deploy delay in seconds */
+	uint16_t	main_deploy;			/* 12 Main deploy alt in meters */
+	uint16_t	flight_log_max;			/* 14 Maximum flight log size in kB */
+	char		callsign[AO_MAX_CALLSIGN];	/* 16 Radio operator identity */
+	char		version[AO_MAX_VERSION];	/* 24 Software version */
+	/* 32 */
+};
+
+#define AO_TELEMETRY_LOCATION		0x05
+
+#define AO_GPS_MODE_NOT_VALID		'N'
+#define AO_GPS_MODE_AUTONOMOUS		'A'
+#define AO_GPS_MODE_DIFFERENTIAL	'D'
+#define AO_GPS_MODE_ESTIMATED		'E'
+#define AO_GPS_MODE_MANUAL		'M'
+#define AO_GPS_MODE_SIMULATED		'S'
+
+struct ao_telemetry_location {
+	uint16_t	serial;		/*  0 */
+	uint16_t	tick;		/*  2 */
+	uint8_t		type;		/*  4 */
+
+	uint8_t         flags;		/*  5 Number of sats and other flags */
+	int16_t         altitude;	/*  6 GPS reported altitude (m) */
+	int32_t         latitude;	/*  8 latitude (degrees * 10⁷) */
+	int32_t         longitude;	/* 12 longitude (degrees * 10⁷) */
+	uint8_t         year;		/* 16 (- 2000) */
+	uint8_t         month;		/* 17 (1-12) */
+	uint8_t         day;		/* 18 (1-31) */
+	uint8_t         hour;		/* 19 (0-23) */
+	uint8_t         minute;		/* 20 (0-59) */
+	uint8_t         second;		/* 21 (0-59) */
+	uint8_t         pdop;		/* 22 (m * 5) */
+	uint8_t         hdop;		/* 23 (m * 5) */
+	uint8_t         vdop;		/* 24 (m * 5) */
+	uint8_t         mode;		/* 25 */
+	uint16_t	ground_speed;	/* 26 cm/s */
+	int16_t		climb_rate;	/* 28 cm/s */
+	uint8_t		course;		/* 30 degrees / 2 */
+	uint8_t		unused[1];	/* 31 */
+	/* 32 */
+};
+
+#define AO_TELEMETRY_SATELLITE		0x06
+
+struct ao_telemetry_satellite_info {
+	uint8_t		svid;
+	uint8_t		c_n_1;
+};
+
+struct ao_telemetry_satellite {
+	uint16_t				serial;		/*  0 */
+	uint16_t				tick;		/*  2 */
+	uint8_t					type;		/*  4 */
+	uint8_t					channels;	/*  5 number of reported sats */
+
+	struct ao_telemetry_satellite_info	sats[12];	/* 6 */
+	uint8_t					unused[2];	/* 30 */
+	/* 32 */
+};
+
+union ao_telemetry_all {
+	struct ao_telemetry_generic		generic;
+	struct ao_telemetry_sensor		sensor;
+	struct ao_telemetry_configuration	configuration;
+	struct ao_telemetry_location		location;
+	struct ao_telemetry_satellite		satellite;
+};
+
+uint16_t
+uint16(uint8_t *bytes, int off)
+{
+	off++;
+	return (uint16_t) bytes[off] | (((uint16_t) bytes[off+1]) << 8);
+}
+
+int16_t
+int16(uint8_t *bytes, int off)
+{
+	return (int16_t) uint16(bytes, off);
+}
+
 void
 ao_sleep(void *wchan)
 {
@@ -306,6 +439,8 @@ ao_sleep(void *wchan)
 		uint16_t	tick;
 		uint16_t	a, b;
 		int		ret;
+		uint8_t		bytes[1024];
+		union ao_telemetry_all	telem;
 		char		line[1024];
 		char		*saveptr;
 		char		*l;
@@ -342,6 +477,8 @@ ao_sleep(void *wchan)
 				tick = strtoul(words[1], NULL, 16);
 				a = strtoul(words[2], NULL, 16);
 				b = strtoul(words[3], NULL, 16);
+				if (type == 'P')
+					type = 'A';
 			} else if (nword >= 6 && strcmp(words[0], "Accel") == 0) {
 				ao_config.accel_plus_g = atoi(words[3]);
 				ao_config.accel_minus_g = atoi(words[5]);
@@ -357,6 +494,78 @@ ao_sleep(void *wchan)
 					type = 'A';
 					a = atoi(words[12]);
 					b = atoi(words[14]);
+				}
+			} else if (nword == 2 && strcmp(words[0], "TELEM") == 0) {
+				char	*hex = words[1];
+				char	elt[3];
+				int	i, len;
+				uint8_t	sum;
+
+				len = strlen(hex);
+				if (len > sizeof (bytes) * 2) {
+					len = sizeof (bytes)*2;
+					hex[len] = '\0';
+				}
+				for (i = 0; i < len; i += 2) {
+					elt[0] = hex[i];
+					elt[1] = hex[i+1];
+					elt[2] = '\0';
+					bytes[i/2] = (uint8_t) strtol(elt, NULL, 16);
+				}
+				len = i/2;
+				if (bytes[0] != len - 2) {
+					printf ("bad length %d != %d\n", bytes[0], len - 2);
+					continue;
+				}
+				sum = 0x5a;
+				for (i = 1; i < len-1; i++)
+					sum += bytes[i];
+				if (sum != bytes[len-1]) {
+					printf ("bad checksum\n");
+					continue;
+				}
+				if ((bytes[len-2] & 0x80) == 0) {
+					continue;
+				}
+				if (len == 36) {
+					memcpy(&telem, bytes + 1, 32);
+					tick = telem.generic.tick;
+					switch (telem.generic.type) {
+					case AO_TELEMETRY_SENSOR_TELEMETRUM:
+					case AO_TELEMETRY_SENSOR_TELEMINI:
+					case AO_TELEMETRY_SENSOR_TELENANO:
+						if (!ao_flight_started) {
+							ao_flight_ground_accel = telem.sensor.ground_accel;
+							ao_config.accel_plus_g = telem.sensor.accel_plus_g;
+							ao_config.accel_minus_g = telem.sensor.accel_minus_g;
+							ao_flight_started = 1;
+						}
+						type = 'A';
+						a = telem.sensor.accel;
+						b = telem.sensor.pres;
+						break;
+					}
+				} else if (len == 99) {
+					ao_flight_started = 1;
+					tick = uint16(bytes, 21);
+					ao_flight_ground_accel = int16(bytes, 7);
+					ao_config.accel_plus_g = int16(bytes, 17);
+					ao_config.accel_minus_g = int16(bytes, 19);
+					type = 'A';
+					a = int16(bytes, 23);
+					b = int16(bytes, 25);
+				} else if (len == 98) {
+					ao_flight_started = 1;
+					tick = uint16(bytes, 20);
+					ao_flight_ground_accel = int16(bytes, 6);
+					ao_config.accel_plus_g = int16(bytes, 16);
+					ao_config.accel_minus_g = int16(bytes, 18);
+					type = 'A';
+					a = int16(bytes, 22);
+					b = int16(bytes, 24);
+				} else {
+					printf("unknown len %d\n", len);
+					continue;
 				}
 			}
 			if (type != 'F' && !ao_flight_started)
