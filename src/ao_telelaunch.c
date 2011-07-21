@@ -16,39 +16,32 @@
  */
 
 #include "ao.h"
-
-__code uint8_t ao_log_format = AO_LOG_FORMAT_NONE;	/* until we actually log stuff */
+#include "ao_pins.h"
 
 void
 main(void)
 {
 	ao_clock_init();
 
-	/* Turn on the LED until the system is stable */
+	/* Turn on the red LED until the system is stable */
 	ao_led_init(LEDS_AVAILABLE);
 	ao_led_on(AO_LED_RED);
+
 	ao_timer_init();
-#if HAS_BEEP
+	ao_adc_init();
 	ao_beep_init();
-#endif
 	ao_cmd_init();
-#if HAS_EEPROM
 	ao_spi_init();
 	ao_storage_init();
-#endif
 	ao_usb_init();
-	ao_monitor_init(AO_LED_GREEN, TRUE);
-	ao_rssi_init(AO_LED_RED);
 	ao_radio_init();
-	ao_packet_master_init();
-	ao_btm_init();
+	ao_igniter_init();
 #if HAS_DBG
 	ao_dbg_init();
 #endif
-#if HAS_AES
 	ao_aes_init();
 	ao_radio_cmac_init();
-#endif
+	ao_launch_init();
 	ao_config_init();
 	ao_start_scheduler();
 }

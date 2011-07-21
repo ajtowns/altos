@@ -17,6 +17,10 @@
 
 #include "ao.h"
 
+#if !HAS_AES
+#error Must define HAS_AES 1
+#endif
+
 __xdata uint8_t ao_aes_mutex;
 __xdata uint8_t	ao_aes_done;
 __xdata uint8_t	ao_aes_dma_in, ao_aes_dma_out;
@@ -45,19 +49,30 @@ ao_aes_set_key(__xdata uint8_t *in)
 	ao_dma_set_transfer(ao_aes_dma_in,
 			    in,
 			    &ENCDIXADDR,
-			    7,
+			    AO_AES_LEN,
 			    DMA_CFG0_WORDSIZE_8 |
 			    DMA_CFG0_TMODE_SINGLE |
 			    DMA_CFG0_TRIGGER_ENC_DW,
 			    DMA_CFG1_SRCINC_1 |
 			    DMA_CFG1_DESTINC_0 |
 			    DMA_CFG1_PRIORITY_LOW);
+	ao_dma_start(ao_aes_dma_in);
 	ao_aes_done = 0;
 	ENCCCS = ENCCCS_MODE_CBC_MAC |
-		ENCCCS_CMD_LOAD_KEY |
-		ENCCCS_START;
-	while (!ao_aes_done)
+		ENCCCS_CMD_LOAD_KEY;
+	ENCCCS |= ENCCCS_START;
+	__critical while (!ao_aes_done)
 		ao_sleep(&ao_aes_done);
+}
+
+void
+ao_aes_zero_iv(void)
+{
+	uint8_t	b;
+
+	ENCCCS = ENCCCS_MODE_CBC_MAC | ENCCCS_CMD_LOAD_IV | ENCCCS_START;
+	for (b = 0; b < AO_AES_LEN; b++)
+		ENCDI = 0;
 }
 
 void
@@ -69,7 +84,7 @@ ao_aes_run(__xdata uint8_t *in,
 		ao_dma_set_transfer(ao_aes_dma_in,
 				    in,
 				    &ENCDIXADDR,
-				    7,
+				    AO_AES_LEN,
 				    DMA_CFG0_WORDSIZE_8 |
 				    DMA_CFG0_TMODE_SINGLE |
 				    DMA_CFG0_TRIGGER_ENC_DW,
@@ -81,7 +96,7 @@ ao_aes_run(__xdata uint8_t *in,
 		ao_dma_set_transfer(ao_aes_dma_out,
 				    &ENCDOXADDR,
 				    out,
-				    7,
+				    AO_AES_LEN,
 				    DMA_CFG0_WORDSIZE_8 |
 				    DMA_CFG0_TMODE_SINGLE |
 				    DMA_CFG0_TRIGGER_ENC_UP,
@@ -93,24 +108,28 @@ ao_aes_run(__xdata uint8_t *in,
 	case ao_aes_mode_cbc_mac:
 		if (out)
 			b = (ENCCCS_MODE_CBC |
-			     ENCCCS_CMD_ENCRYPT |
-			     ENCCCS_START);
+			     ENCCCS_CMD_ENCRYPT);
 		else
 			b = (ENCCCS_MODE_CBC_MAC |
-			     ENCCCS_CMD_ENCRYPT |
-			     ENCCCS_START);
+			     ENCCCS_CMD_ENCRYPT);
 		break;
 	default:
 		return;
 	}
 	ao_aes_done = 0;
-	ENCCCS = b;
+	if (in)
+		ao_dma_start(ao_aes_dma_in);
 	if (out)
-		while (!ao_aes_dma_out_done)
+		ao_dma_start(ao_aes_dma_out);
+	ENCCCS = b;
+	ENCCCS |= ENCCCS_START;
+	if (out) {
+		__critical while (!ao_aes_dma_out_done)
 			ao_sleep(&ao_aes_dma_out_done);
-	else
-		while (!ao_aes_done)
+	} else {
+		__critical while (!ao_aes_done)
 			ao_sleep(&ao_aes_done);
+	}
 }
 
 void
@@ -118,5 +137,6 @@ ao_aes_init(void)
 {
 	ao_aes_dma_in = ao_dma_alloc(&ao_aes_dma_in_done);
 	ao_aes_dma_out = ao_dma_alloc(&ao_aes_dma_out_done);
+	S0CON = 0;
 	ENCIE = 1;
 }

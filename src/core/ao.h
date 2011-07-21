@@ -1633,6 +1633,10 @@ ao_lcd_init(void);
 
 __xdata uint8_t ao_aes_mutex;
 
+/* AES keys and blocks are 128 bits */
+
+#define AO_AES_LEN	16
+
 enum ao_aes_mode {
 	ao_aes_mode_cbc_mac
 };
@@ -1649,11 +1653,19 @@ void
 ao_aes_set_key(__xdata uint8_t *in);
 
 void
+ao_aes_zero_iv(void);
+
+void
 ao_aes_run(__xdata uint8_t *in,
 	   __xdata uint8_t *out);
 
 void
 ao_aes_init(void);
+
+/* ao_radio_cmac.c */
+
+void
+ao_radio_cmac_init(void);
 
 /* ao_launch.c */
 void
