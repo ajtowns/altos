@@ -19,6 +19,12 @@
 
 __xdata uint16_t ao_launch_ignite;
 
+#if 0
+#define PRINTD(...) printf(__VA_ARGS__)
+#else
+#define PRINTD(...) 
+#endif
+
 static void
 ao_launch_run(void)
 {
@@ -71,19 +77,20 @@ ao_launch(void)
 	ao_led_off(AO_LED_RED);
 	ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(200));
 	for (;;) {
+		flush();
 		if (ao_radio_cmac_recv(&command, sizeof (command), 0) != AO_RADIO_CMAC_OK)
 			continue;
 		
-		printf ("tick %d serial %d cmd %d channel %d\n",
+		PRINTD ("tick %d serial %d cmd %d channel %d\n",
 			command.tick, command.serial, command.cmd, command.channel);
-
-		if (command.serial != ao_serial_number) {
-			printf ("serial number mismatch\n");
-			continue;
-		}
 
 		switch (command.cmd) {
 		case AO_LAUNCH_QUERY:
+			if (command.serial != ao_serial_number) {
+				PRINTD ("serial number mismatch\n");
+				break;
+			}
+
 			if (command.channel == 0) {
 				query.valid = 1;
 				query.arm_status = ao_igniter_status(ao_igniter_drogue);
@@ -94,35 +101,38 @@ ao_launch(void)
 			query.tick = ao_time();
 			query.serial = ao_serial_number;
 			query.channel = command.channel;
-			printf ("query tick %d serial %d channel %d valid %d arm %d igniter %d\n",
+			PRINTD ("query tick %d serial %d channel %d valid %d arm %d igniter %d\n",
 				query.tick, query.serial, query.channel, query.valid, query.arm_status,
 				query.igniter_status);
 			ao_radio_cmac_send(&query, sizeof (query));
 			break;
 		case AO_LAUNCH_ARM:
+			if (command.serial != ao_serial_number) {
+				PRINTD ("serial number mismatch\n");
+				break;
+			}
+
 			if (command.channel != 0)
 				break;
 			time_difference = command.tick - ao_time();
-			printf ("arm tick %d local tick %d\n", command.tick, ao_time());
+			PRINTD ("arm tick %d local tick %d\n", command.tick, ao_time());
 			if (time_difference < 0)
 				time_difference = -time_difference;
 			if (time_difference > 10) {
-				printf ("time difference too large %d\n", time_difference);
+				PRINTD ("time difference too large %d\n", time_difference);
 				break;
 			}
-			printf ("armed\n");
+			PRINTD ("armed\n");
 			ao_launch_armed = 1;
 			ao_launch_arm_time = ao_time();
 			break;
 		case AO_LAUNCH_FIRE:
-			if (command.channel != 0)
-				break;
 			if (!ao_launch_armed) {
-				printf ("not armed\n");
+				PRINTD ("not armed\n");
 				break;
 			}
-			if ((uint16_t) (ao_launch_arm_time - ao_time()) > AO_SEC_TO_TICKS(20)) {
-				printf ("late launch arm_time %d time %d\n",
+			if ((uint16_t) (ao_time() - ao_launch_arm_time) > AO_SEC_TO_TICKS(20)) {
+				PRINTD ("late launch arm_time %d time %d\n",
 					ao_launch_arm_time, ao_time());
 				break;
 			}
@@ -130,10 +140,10 @@ ao_launch(void)
 			if (time_difference < 0)
 				time_difference = -time_difference;
 			if (time_difference > 10) {
-				printf ("time different too large %d\n", time_difference);
+				PRINTD ("time different too large %d\n", time_difference);
 				break;
 			}
-			printf ("ignite\n");
+			PRINTD ("ignite\n");
 			ao_launch_ignite = 1;
 			ao_wakeup(&ao_launch_ignite);
 			break;

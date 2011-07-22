@@ -108,7 +108,7 @@ _ao_config_get(void)
 		if (ao_config.minor < 8)
 			ao_config.radio_enable = TRUE;
 		if (ao_config.minor < 9)
-			memset(&ao_config.aes_key, '\0', AO_AES_LEN);
+			memset(&ao_config.aes_key, 0, AO_AES_LEN);
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}

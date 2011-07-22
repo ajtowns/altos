@@ -227,14 +227,37 @@ radio_cmac_recv_cmd(void) __reentrant
 	ao_mutex_put(&ao_radio_cmac_mutex);
 }
 
+static __xdata struct ao_launch_command	command;
+static __xdata struct ao_launch_query	query;
+
+
+static int8_t
+launch_query(uint16_t serial, uint8_t channel)
+{
+	uint8_t	i;
+	int8_t	r = AO_RADIO_CMAC_OK;
+
+	for (i = 0; i < 10; i++) {
+		printf ("."); flush();
+		command.tick = ao_time();
+		command.serial = serial;
+		command.cmd = AO_LAUNCH_QUERY;
+		command.channel = channel;
+		ao_radio_cmac_send(&command, sizeof (command));
+		r = ao_radio_cmac_recv(&query, sizeof (query), AO_MS_TO_TICKS(500));
+		if (r == AO_RADIO_CMAC_OK)
+			break;
+	}
+	printf("\n"); flush();
+	return r;
+}
+
 static void
 launch_report_cmd(void) __reentrant
 {
-	static __xdata struct ao_launch_command	command;
-	static __xdata struct ao_launch_query	query;
 	uint8_t		channel;
 	uint16_t	serial;
-	uint8_t		i;
+	int8_t		r;
 
 	ao_cmd_decimal();
 	serial = ao_cmd_lex_i;
@@ -242,17 +265,10 @@ launch_report_cmd(void) __reentrant
 	channel = ao_cmd_lex_i;
 	if (ao_cmd_status != ao_cmd_success)
 		return;
-	flush();
-	for (i = 0; i < 10; i++) {
-		printf ("."); flush();
-		command.tick = 0;
-		command.serial = serial;
-		command.cmd = AO_LAUNCH_QUERY;
-		command.channel = channel;
-		ao_radio_cmac_send(&command, sizeof (command));
-		switch (ao_radio_cmac_recv(&query, sizeof (query), AO_MS_TO_TICKS(500))) {
-		case AO_RADIO_CMAC_OK:
-			printf("\n");
+	r = launch_query(serial, channel);
+	switch (r) {
+	case AO_RADIO_CMAC_OK:
+		if (query.valid) {
 			switch (query.arm_status) {
 			case ao_igniter_ready:
 			case ao_igniter_active:
@@ -268,21 +284,70 @@ launch_report_cmd(void) __reentrant
 					printf("igniter bad\n");
 					break;
 				}
+				break;
 			default:
 				printf("Disarmed\n");
 			}
-			return;
-		default:
-			continue;
+		} else {
+			printf("Invalid channel %d\n", channel);
 		}
+		break;
+	default:
+		printf("Error %d\n", r);
+		break;
 	}
-	printf ("Timeout\n");
+}
+
+static void
+launch_fire_cmd(void) __reentrant
+{
+	static __xdata struct ao_launch_command	command;
+	uint8_t		channel;
+	uint16_t	serial;
+	uint8_t		secs;
+	uint8_t		i;
+	int8_t		r;
+	uint16_t	tick_offset;
+
+	ao_cmd_decimal();
+	serial = ao_cmd_lex_i;
+	ao_cmd_decimal();
+	channel = ao_cmd_lex_i;
+	ao_cmd_decimal();
+	secs = ao_cmd_lex_i;
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	tick_offset = ao_time();
+	r = launch_query(serial, channel);
+	tick_offset -= query.tick;
+
+	for (i = 0; i < 4; i++) {
+		printf("arm %d\n", i); flush();
+		command.tick = ao_time() - tick_offset;
+		command.serial = serial;
+		command.cmd = AO_LAUNCH_ARM;
+		command.channel = channel;
+		ao_radio_cmac_send(&command, sizeof (command));
+	}
+	secs = secs * 10 - 5;
+	if (secs > 100)
+		secs = 100;
+	for (i = 0; i < secs; i++) {
+		printf("fire %d\n", i); flush();
+		command.tick = ao_time() - tick_offset;
+		command.serial = serial;
+		command.cmd = AO_LAUNCH_FIRE;
+		command.channel = 0;
+		ao_radio_cmac_send(&command, sizeof (command));
+		ao_delay(AO_MS_TO_TICKS(100));
+	}
 }
 
 static __code struct ao_cmds ao_radio_cmac_cmds[] = {
 	{ radio_cmac_send_cmd,	"s <length>\0Send AES-CMAC packet. Bytes to send follow on next line" },
 	{ radio_cmac_recv_cmd,	"S <length> <timeout>\0Receive AES-CMAC packet. Timeout in ms" },
 	{ launch_report_cmd,    "l <serial> <channel>\0Get remote launch status" },
+	{ launch_fire_cmd,	"f <serial> <channel> <secs>\0Fire remote igniter" },
 	{ 0, NULL },
 };
 
