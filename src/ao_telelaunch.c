@@ -35,7 +35,6 @@ main(void)
 	ao_storage_init();
 	ao_usb_init();
 	ao_radio_init();
-	ao_igniter_init();
 #if HAS_DBG
 	ao_dbg_init();
 #endif

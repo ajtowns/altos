@@ -68,6 +68,10 @@ ao_wakeup(__xdata void *wchan);
 void
 ao_alarm(uint16_t delay);
 
+/* Clear any pending alarm */
+void
+ao_clear_alarm(void);
+
 /* Yield the processor to another task */
 void
 ao_yield(void) ao_arch_naked_declare;
@@ -341,6 +345,12 @@ ao_cmd_put16(uint16_t v);
 
 void
 ao_cmd_white(void);
+
+int8_t
+ao_cmd_hexchar(char c);
+
+void
+ao_cmd_hexbyte(void);
 
 void
 ao_cmd_hex(void);
@@ -1417,6 +1427,14 @@ enum ao_igniter_status {
 	ao_igniter_open,	/* open circuit detected */
 };
 
+struct ao_ignition {
+	uint8_t	request;
+	uint8_t fired;
+	uint8_t firing;
+};
+
+extern __xdata struct ao_ignition ao_ignition[2];
+
 enum ao_igniter_status
 ao_igniter_status(enum ao_igniter igniter);
 
@@ -1431,7 +1449,8 @@ ao_igniter_init(void);
  */
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	8
+#define AO_CONFIG_MINOR	9
+#define AO_AES_LEN 16
 
 struct ao_config {
 	uint8_t		major;
@@ -1448,6 +1467,7 @@ struct ao_config {
 	uint8_t		pad_orientation;	/* minor version 6 */
 	uint32_t	radio_setting;		/* minor version 7 */
 	uint8_t		radio_enable;		/* minor version 8 */
+	uint8_t		aes_key[AO_AES_LEN];	/* minor version 9 */
 };
 
 #define AO_IGNITE_MODE_DUAL		0
@@ -1635,8 +1655,6 @@ __xdata uint8_t ao_aes_mutex;
 
 /* AES keys and blocks are 128 bits */
 
-#define AO_AES_LEN	16
-
 enum ao_aes_mode {
 	ao_aes_mode_cbc_mac
 };
@@ -1664,10 +1682,45 @@ ao_aes_init(void);
 
 /* ao_radio_cmac.c */
 
+int8_t
+ao_radio_cmac_send(__xdata void *packet, uint8_t len) __reentrant;
+
+#define AO_RADIO_CMAC_OK	0
+#define AO_RADIO_CMAC_LEN_ERROR	-1
+#define AO_RADIO_CMAC_CRC_ERROR	-2
+#define AO_RADIO_CMAC_MAC_ERROR	-3
+#define AO_RADIO_CMAC_TIMEOUT	-4
+
+int8_t
+ao_radio_cmac_recv(__xdata void *packet, uint8_t len, uint16_t timeout) __reentrant;
+
 void
 ao_radio_cmac_init(void);
 
 /* ao_launch.c */
+
+struct ao_launch_command {
+	uint16_t	tick;
+	uint16_t	serial;
+	uint8_t		cmd;
+	uint8_t		channel;
+	uint16_t	unused;
+};
+
+#define AO_LAUNCH_QUERY		1
+
+struct ao_launch_query {
+	uint16_t	tick;
+	uint16_t	serial;
+	uint8_t		channel;
+	uint8_t		valid;
+	uint8_t		arm_status;
+	uint8_t		igniter_status;
+};
+
+#define AO_LAUNCH_ARM		2
+#define AO_LAUNCH_FIRE		3
+
 void
 ao_launch_init(void);
 

@@ -74,11 +74,14 @@ _ao_config_get(void)
 	if (ao_config.major != AO_CONFIG_MAJOR) {
 		ao_config.major = AO_CONFIG_MAJOR;
 		ao_config.minor = 0;
+
+		/* Version 0 stuff */
 		ao_config.main_deploy = AO_CONFIG_DEFAULT_MAIN_DEPLOY;
 		ao_config.radio_channel = AO_CONFIG_DEFAULT_RADIO_CHANNEL;
 		memset(&ao_config.callsign, '\0', sizeof (ao_config.callsign));
 		memcpy(&ao_config.callsign, AO_CONFIG_DEFAULT_CALLSIGN,
 		       sizeof(AO_CONFIG_DEFAULT_CALLSIGN) - 1);
+		ao_config_dirty = 1;
 	}
 	if (ao_config.minor < AO_CONFIG_MINOR) {
 		/* Fixups for minor version 1 */
@@ -104,6 +107,8 @@ _ao_config_get(void)
 			ao_config.radio_setting = ao_config.radio_cal;
 		if (ao_config.minor < 8)
 			ao_config.radio_enable = TRUE;
+		if (ao_config.minor < 9)
+			memset(&ao_config.aes_key, '\0', AO_AES_LEN);
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
@@ -414,6 +419,33 @@ ao_config_radio_enable_set(void) __reentrant
 	_ao_config_edit_finish();
 }
 	
+#if HAS_AES
+void
+ao_config_key_show(void) __reentrant
+{
+	uint8_t	i;
+	printf("AES key: ");
+	for (i = 0; i < AO_AES_LEN; i++)
+		printf ("%02x", ao_config.aes_key[i]);
+	printf("\n");
+}
+
+void
+ao_config_key_set(void) __reentrant
+{
+	uint8_t i;
+
+	_ao_config_edit_start();
+	for (i = 0; i < AO_AES_LEN; i++) {
+		ao_cmd_hexbyte();
+		if (ao_cmd_status != ao_cmd_success)
+			break;
+		ao_config.aes_key[i] = ao_cmd_lex_i;
+	}
+	_ao_config_edit_finish();
+}
+#endif
+
 struct ao_config_var {
 	__code char	*str;
 	void		(*set)(void) __reentrant;
@@ -461,6 +493,10 @@ __code struct ao_config_var ao_config_vars[] = {
 #if HAS_ACCEL
 	{ "o <0 antenna up, 1 antenna down>\0Set pad orientation",
 	  ao_config_pad_orientation_set,ao_config_pad_orientation_show },
+#endif
+#if HAS_AES
+	{ "k <32 hex digits>\0Set AES encryption key",
+	  ao_config_key_set, ao_config_key_show },
 #endif
 	{ "s\0Show",
 	  ao_config_show,		0 },

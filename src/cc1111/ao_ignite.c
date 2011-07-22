@@ -39,12 +39,6 @@
 #define AO_IGNITER_FIRE_TIME	AO_MS_TO_TICKS(50)
 #define AO_IGNITER_CHARGE_TIME	AO_MS_TO_TICKS(2000)
 
-struct ao_ignition {
-	uint8_t	request;
-	uint8_t fired;
-	uint8_t firing;
-};
-
 __xdata struct ao_ignition ao_ignition[2];
 
 void

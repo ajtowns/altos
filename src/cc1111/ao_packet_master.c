@@ -80,13 +80,16 @@ ao_packet_master(void)
 	ao_packet_master_time = ao_time();
 	ao_packet_master_delay = AO_PACKET_MASTER_DELAY_SHORT;
 	while (ao_packet_enable) {
+		uint8_t	r;
 		memcpy(ao_tx_packet.callsign, ao_config.callsign, AO_MAX_CALLSIGN);
 		ao_packet_send();
 		if (ao_tx_packet.len)
 			ao_packet_master_busy();
 		ao_packet_master_check_busy();
 		ao_alarm(ao_packet_master_delay);
-		if (ao_packet_recv()) {
+		r = ao_packet_recv();
+		ao_clear_alarm();
+		if (r) {
 			/* if we can transmit data, do so */
 			if (ao_packet_tx_used && ao_tx_packet.len == 0)
 				continue;
@@ -95,6 +98,7 @@ ao_packet_master(void)
 			ao_packet_master_sleeping = 1;
 			ao_alarm(ao_packet_master_delay);
 			ao_sleep(&ao_packet_master_sleeping);
+			ao_clear_alarm();
 			ao_packet_master_sleeping = 0;
 		}
 	}

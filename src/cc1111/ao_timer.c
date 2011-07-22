@@ -31,6 +31,7 @@ ao_delay(uint16_t ticks)
 {
 	ao_alarm(ticks);
 	ao_sleep(&ao_forever);
+	ao_clear_alarm();
 }
 
 #define T1_CLOCK_DIVISOR	8	/* 24e6/8 = 3e6 */

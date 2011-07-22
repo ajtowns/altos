@@ -17,43 +17,183 @@
 
 #include "ao.h"
 
+__xdata uint16_t ao_launch_ignite;
+
+static void
+ao_launch_run(void)
+{
+	for (;;) {
+		while (!ao_launch_ignite)
+			ao_sleep(&ao_launch_ignite);
+		while (ao_launch_ignite) {
+			ao_launch_ignite = 0;
+
+			ao_ignition[ao_igniter_drogue].firing = 1;
+			ao_ignition[ao_igniter_main].firing = 1;
+			AO_IGNITER_DROGUE = 1;
+			ao_delay(AO_MS_TO_TICKS(500));
+			AO_IGNITER_DROGUE = 0;
+			ao_ignition[ao_igniter_drogue].firing = 0;
+			ao_ignition[ao_igniter_main].firing = 0;
+		}
+	}
+}
+
+static void
+ao_launch_status(void)
+{
+	uint8_t	i;
+	for (;;) {
+		ao_delay(AO_SEC_TO_TICKS(1));
+		if (ao_igniter_status(ao_igniter_drogue) == ao_igniter_ready) {
+			if (ao_igniter_status(ao_igniter_main) == ao_igniter_ready) {
+				for (i = 0; i < 5; i++) {
+					ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(50));
+					ao_delay(AO_MS_TO_TICKS(100));
+				}
+			} else {
+				ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(200));
+			}
+		}
+	}
+}
+
+static __pdata uint8_t	ao_launch_armed;
+static __pdata uint16_t	ao_launch_arm_time;
+
 static void
 ao_launch(void)
 {
-	enum	ao_igniter_status	arm_status, ignite_status;
+	static __xdata struct ao_launch_command	command;
+	static __xdata struct ao_launch_query	query;
+	int16_t	time_difference;
 
 	ao_led_off(AO_LED_RED);
 	ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(200));
 	for (;;) {
-		arm_status = ao_igniter_status(ao_igniter_drogue);
+		if (ao_radio_cmac_recv(&command, sizeof (command), 0) != AO_RADIO_CMAC_OK)
+			continue;
+		
+		printf ("tick %d serial %d cmd %d channel %d\n",
+			command.tick, command.serial, command.cmd, command.channel);
 
-		switch (arm_status) {
-		case ao_igniter_unknown:
+		if (command.serial != ao_serial_number) {
+			printf ("serial number mismatch\n");
+			continue;
+		}
+
+		switch (command.cmd) {
+		case AO_LAUNCH_QUERY:
+			if (command.channel == 0) {
+				query.valid = 1;
+				query.arm_status = ao_igniter_status(ao_igniter_drogue);
+				query.igniter_status = ao_igniter_status(ao_igniter_main);
+			} else {
+				query.valid = 0;
+			}
+			query.tick = ao_time();
+			query.serial = ao_serial_number;
+			query.channel = command.channel;
+			printf ("query tick %d serial %d channel %d valid %d arm %d igniter %d\n",
+				query.tick, query.serial, query.channel, query.valid, query.arm_status,
+				query.igniter_status);
+			ao_radio_cmac_send(&query, sizeof (query));
 			break;
-		case ao_igniter_active:
-		case ao_igniter_open:
-			break;
-		case ao_igniter_ready:
-			ignite_status = ao_igniter_status(ao_igniter_main);
-			switch (ignite_status) {
-			case ao_igniter_unknown:
-				/* some kind of failure signal here */
+		case AO_LAUNCH_ARM:
+			if (command.channel != 0)
 				break;
-			case ao_igniter_active:
-				break;
-			case ao_igniter_open:
+			time_difference = command.tick - ao_time();
+			printf ("arm tick %d local tick %d\n", command.tick, ao_time());
+			if (time_difference < 0)
+				time_difference = -time_difference;
+			if (time_difference > 10) {
+				printf ("time difference too large %d\n", time_difference);
 				break;
 			}
+			printf ("armed\n");
+			ao_launch_armed = 1;
+			ao_launch_arm_time = ao_time();
+			break;
+		case AO_LAUNCH_FIRE:
+			if (command.channel != 0)
+				break;
+			if (!ao_launch_armed) {
+				printf ("not armed\n");
+				break;
+			}
+			if ((uint16_t) (ao_launch_arm_time - ao_time()) > AO_SEC_TO_TICKS(20)) {
+				printf ("late launch arm_time %d time %d\n",
+					ao_launch_arm_time, ao_time());
+				break;
+			}
+			time_difference = command.tick - ao_time();
+			if (time_difference < 0)
+				time_difference = -time_difference;
+			if (time_difference > 10) {
+				printf ("time different too large %d\n", time_difference);
+				break;
+			}
+			printf ("ignite\n");
+			ao_launch_ignite = 1;
+			ao_wakeup(&ao_launch_ignite);
 			break;
 		}
-		ao_delay(AO_SEC_TO_TICKS(1));
 	}
 }
 
+void
+ao_launch_test(void)
+{
+	switch (ao_igniter_status(ao_igniter_drogue)) {
+	case ao_igniter_ready:
+	case ao_igniter_active:
+		printf ("Armed: ");
+		switch (ao_igniter_status(ao_igniter_main)) {
+		default:
+			printf("unknown status\n");
+			break;
+		case ao_igniter_ready:
+			printf("igniter good\n");
+			break;
+		case ao_igniter_open:
+			printf("igniter bad\n");
+			break;
+		}
+		break;
+	default:
+		printf("Disarmed\n");
+	}
+}
+
+void
+ao_launch_manual(void)
+{
+	ao_cmd_white();
+	if (!ao_match_word("DoIt"))
+		return;
+	ao_cmd_white();
+	ao_launch_ignite = 1;
+	ao_wakeup(&ao_launch_ignite);
+}
+
 static __xdata struct ao_task ao_launch_task;
+static __xdata struct ao_task ao_launch_ignite_task;
+static __xdata struct ao_task ao_launch_status_task;
+
+__code struct ao_cmds ao_launch_cmds[] = {
+	{ ao_launch_test,	"t\0Test launch continuity" },
+	{ ao_launch_manual,	"i <key>\0Fire igniter. <key> is doit with D&I" },
+	{ 0, NULL }
+};
 
 void
 ao_launch_init(void)
 {
-	ao_add_task(&ao_launch_task, ao_launch, "launch status");
+	AO_IGNITER_DROGUE = 0;
+	AO_IGNITER_MAIN = 0;
+	AO_IGNITER_DIR |= AO_IGNITER_DROGUE_BIT | AO_IGNITER_MAIN_BIT;
+	ao_cmd_register(&ao_launch_cmds[0]);
+	ao_add_task(&ao_launch_task, ao_launch, "launch listener");
+	ao_add_task(&ao_launch_ignite_task, ao_launch_run, "launch igniter");
+	ao_add_task(&ao_launch_status_task, ao_launch_status, "launch status");
 }

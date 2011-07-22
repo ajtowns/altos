@@ -22,7 +22,7 @@ __pdata uint32_t ao_cmd_lex_u32;
 __pdata char	ao_cmd_lex_c;
 __pdata enum ao_cmd_status ao_cmd_status;
 
-#define CMD_LEN	32
+#define CMD_LEN	48
 
 static __xdata char	cmd_line[CMD_LEN];
 static __pdata uint8_t	cmd_len;
@@ -128,22 +128,48 @@ ao_cmd_white(void)
 		ao_cmd_lex();
 }
 
+int8_t
+ao_cmd_hexchar(char c)
+{
+	if ('0' <= c && c <= '9')
+		return (c - '0');
+	if ('a' <= c && c <= 'f')
+		return (c - 'a' + 10);
+	if ('A' <= c && c <= 'F')
+		return (c - 'A' + 10);
+	return -1;
+}
+
+void
+ao_cmd_hexbyte(void)
+{
+	uint8_t i;
+	int8_t	n;
+
+	ao_cmd_lex_i = 0;
+	ao_cmd_white();
+	for (i = 0; i < 2; i++) {
+		n = ao_cmd_hexchar(ao_cmd_lex_c);
+		if (n < 0) {
+			ao_cmd_status = ao_cmd_syntax_error;
+			break;
+		}
+		ao_cmd_lex_i = (ao_cmd_lex_i << 4) | n;
+		ao_cmd_lex();
+	}
+}
+
 void
 ao_cmd_hex(void)
 {
 	__pdata uint8_t	r = ao_cmd_lex_error;
-	uint8_t	n;
+	int8_t	n;
 
 	ao_cmd_lex_i = 0;
 	ao_cmd_white();
 	for(;;) {
-		if ('0' <= ao_cmd_lex_c && ao_cmd_lex_c <= '9')
-			n = (ao_cmd_lex_c - '0');
-		else if ('a' <= ao_cmd_lex_c && ao_cmd_lex_c <= 'f')
-			n = (ao_cmd_lex_c - 'a' + 10);
-		else if ('A' <= ao_cmd_lex_c && ao_cmd_lex_c <= 'F')
-			n = (ao_cmd_lex_c - 'A' + 10);
-		else
+		n = ao_cmd_hexchar(ao_cmd_lex_c);
+		if (n < 0)
 			break;
 		ao_cmd_lex_i = (ao_cmd_lex_i << 4) | n;
 		r = ao_cmd_success;
