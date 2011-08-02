@@ -829,6 +829,7 @@ extern __pdata int16_t			ao_height;	/* meters */
 extern __pdata int16_t			ao_speed;	/* m/s * 16 */
 extern __pdata int16_t			ao_accel;	/* m/s² * 16 */
 extern __pdata int16_t			ao_max_height;	/* max of ao_height */
+extern __pdata int16_t			ao_avg_height;	/* running average of height */
 
 extern __pdata int16_t			ao_error_h;
 extern __pdata int16_t			ao_error_h_sq_avg;

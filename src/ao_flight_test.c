@@ -155,6 +155,7 @@ FILE *emulator_in;
 char *emulator_app;
 char *emulator_name;
 double emulator_error_max = 4;
+double emulator_height_error_max = 20;	/* noise in the baro sensor */
 
 void
 ao_dump_state(void);
@@ -224,12 +225,20 @@ static int	ao_test_max_height;
 static double	ao_test_max_height_time;
 static int	ao_test_main_height;
 static double	ao_test_main_height_time;
+static double	ao_test_landed_time;
+static double	ao_test_landed_height;
+static double	ao_test_landed_time;
+static int	landed_set;
+static double	landed_time;
+static double	landed_height;
 
 void
 ao_test_exit(void)
 {
 	double	drogue_error;
 	double	main_error;
+	double	landed_error;
+	double	landed_time_error;
 
 	if (!ao_test_main_height_time) {
 		ao_test_main_height_time = ao_test_max_height_time;
@@ -237,16 +246,23 @@ ao_test_exit(void)
 	}
 	drogue_error = fabs(ao_test_max_height_time - drogue_time);
 	main_error = fabs(ao_test_main_height_time - main_time);
-	if (drogue_error > emulator_error_max || main_error > emulator_error_max) {
+	landed_error = fabs(ao_test_landed_height - landed_height);
+	landed_time_error = ao_test_landed_time - landed_time;
+	if (drogue_error > emulator_error_max || main_error > emulator_error_max ||
+	    landed_time_error > emulator_error_max || landed_error > emulator_height_error_max) {
 		printf ("%s %s\n",
 			emulator_app, emulator_name);
 		printf ("\tApogee error %g\n", drogue_error);
 		printf ("\tMain error %g\n", main_error);
-		printf ("\tActual: apogee: %d at %7.2f main: %d at %7.2f\n",
+		printf ("\tLanded height error %g\n", landed_error);
+		printf ("\tLanded time error %g\n", landed_time_error);
+		printf ("\tActual: apogee: %d at %7.2f main: %d at %7.2f landed %7.2f at %7.2f\n",
 			ao_test_max_height, ao_test_max_height_time,
-			ao_test_main_height, ao_test_main_height_time);
-		printf ("\tComputed: apogee: %d at %7.2f main: %d at %7.2f\n",
-			drogue_height, drogue_time, main_height, main_time);
+			ao_test_main_height, ao_test_main_height_time,
+			ao_test_landed_height, ao_test_landed_time);
+		printf ("\tComputed: apogee: %d at %7.2f main: %d at %7.2f landed %7.2f at %7.2f\n",
+			drogue_height, drogue_time, main_height, main_time,
+			landed_height, landed_time);
 		exit (1);
 	}
 	exit(0);
@@ -274,14 +290,27 @@ ao_insert(void)
 		if (ao_test_max_height < height) {
 			ao_test_max_height = height;
 			ao_test_max_height_time = time;
+			ao_test_landed_height = height;
+			ao_test_landed_time = time;
 		}
 		if (height > ao_config.main_deploy) {
 			ao_test_main_height_time = time;
 			ao_test_main_height = height;
 		}
 
+		if (ao_test_landed_height > height) {
+			ao_test_landed_height = height;
+			ao_test_landed_time = time;
+		}
+
+		if (ao_flight_state == ao_flight_landed && !landed_set) {
+			landed_set = 1;
+			landed_time = time;
+			landed_height = height;
+		}
+
 		if (!ao_summary) {
-			printf("%7.2f height %g accel %g state %s k_height %g k_speed %g k_accel %g drogue %d main %d error %d\n",
+			printf("%7.2f height %8.2f accel %8.3f state %-8.8s k_height %8.2f k_speed %8.3f k_accel %8.3f avg_height %5d drogue %4d main %4d error %5d\n",
 			       time,
 			       height,
 			       accel,
@@ -289,11 +318,13 @@ ao_insert(void)
 			       ao_k_height / 65536.0,
 			       ao_k_speed / 65536.0 / 16.0,
 			       ao_k_accel / 65536.0 / 16.0,
+			       ao_avg_height,
 			       drogue_height,
 			       main_height,
 			       ao_error_h_sq_avg);
-			if (ao_flight_state == ao_flight_landed)
-				ao_test_exit();
+			
+//			if (ao_flight_state == ao_flight_landed)
+//				ao_test_exit();
 		}
 	}
 }
@@ -494,6 +525,17 @@ ao_sleep(void *wchan)
 					type = 'A';
 					a = atoi(words[12]);
 					b = atoi(words[14]);
+				}
+			} else if (nword == 3 && strcmp(words[0], "BARO") == 0) {
+				tick = strtol(words[1], NULL, 16);
+				a = 16384 - 328;
+				b = strtol(words[2], NULL, 10);
+				type = 'A';
+				if (!ao_flight_started) {
+					ao_flight_ground_accel = 16384 - 328;
+					ao_config.accel_plus_g = 16384 - 328;
+					ao_config.accel_minus_g = 16384 + 328;
+					ao_flight_started = 1;
 				}
 			} else if (nword == 2 && strcmp(words[0], "TELEM") == 0) {
 				char	*hex = words[1];

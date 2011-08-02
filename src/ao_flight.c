@@ -43,7 +43,6 @@ __pdata uint16_t		ao_launch_tick;		/* time of launch detect */
 __pdata uint16_t		ao_interval_end;
 __pdata int16_t			ao_interval_min_height;
 __pdata int16_t			ao_interval_max_height;
-
 __pdata uint8_t			ao_flight_force_idle;
 
 /* We also have a clock, which can be used to sanity check things in
@@ -242,7 +241,7 @@ ao_flight(void)
 				/* initialize interval values */
 				ao_interval_end = ao_sample_tick + AO_INTERVAL_TICKS;
 
-				ao_interval_min_height = ao_interval_max_height = ao_height;
+				ao_interval_min_height = ao_interval_max_height = ao_avg_height;
 
 				/* and enter drogue state */
 				ao_flight_state = ao_flight_drogue;
@@ -279,14 +278,14 @@ ao_flight(void)
 			 * barometer: altitude stable and within 1000m of the launch altitude
 			 */
 
-			if (ao_height < ao_interval_min_height)
-				ao_interval_min_height = ao_height;
-			if (ao_height > ao_interval_max_height)
-				ao_interval_max_height = ao_height;
+			if (ao_avg_height < ao_interval_min_height)
+				ao_interval_min_height = ao_avg_height;
+			if (ao_avg_height > ao_interval_max_height)
+				ao_interval_max_height = ao_avg_height;
 
 			if ((int16_t) (ao_sample_tick - ao_interval_end) >= 0) {
 				if (ao_height < AO_M_TO_HEIGHT(1000) &&
-				    ao_interval_max_height - ao_interval_min_height < AO_M_TO_HEIGHT(5))
+				    ao_interval_max_height - ao_interval_min_height <= AO_M_TO_HEIGHT(2))
 				{
 					ao_flight_state = ao_flight_landed;
 
@@ -295,7 +294,7 @@ ao_flight(void)
 
 					ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 				}
-				ao_interval_min_height = ao_interval_max_height = ao_height;
+				ao_interval_min_height = ao_interval_max_height = ao_avg_height;
 				ao_interval_end = ao_sample_tick + AO_INTERVAL_TICKS;
 			}
 			break;

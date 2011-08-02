@@ -38,6 +38,8 @@ __pdata int16_t			ao_height;
 __pdata int16_t			ao_speed;
 __pdata int16_t			ao_accel;
 __pdata int16_t			ao_max_height;
+static __pdata int32_t		ao_avg_height_scaled;
+__pdata int16_t			ao_avg_height;
 
 __pdata int16_t			ao_error_h;
 __pdata int16_t			ao_error_h_sq_avg;
@@ -275,6 +277,18 @@ ao_kalman(void)
 	ao_accel = from_fix(ao_k_accel);
 	if (ao_height > ao_max_height)
 		ao_max_height = ao_height;
+#ifdef AO_FLIGHT_TEST
+	if (ao_sample_tick - ao_sample_prev_tick > 50) {
+		ao_avg_height = ao_height;
+	} else if (ao_sample_tick - ao_sample_prev_tick > 5) {
+		ao_avg_height_scaled = ao_avg_height_scaled - ao_avg_height + ao_height;
+		ao_avg_height = (ao_avg_height_scaled + 3) >> 2;
+	} else 
+#endif
+	{
+		ao_avg_height_scaled = ao_avg_height_scaled - ao_avg_height + ao_height;
+		ao_avg_height = (ao_avg_height_scaled + 15) >> 5;
+	}
 #ifdef AO_FLIGHT_TEST
 	ao_sample_prev_tick = ao_sample_tick;
 #endif
