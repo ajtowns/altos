@@ -31,17 +31,17 @@ ao_launch_run(void)
 	for (;;) {
 		while (!ao_launch_ignite)
 			ao_sleep(&ao_launch_ignite);
+		ao_ignition[ao_igniter_drogue].firing = 1;
+		ao_ignition[ao_igniter_main].firing = 1;
+		AO_IGNITER_DIR |= AO_IGNITER_DROGUE_BIT | AO_IGNITER_MAIN_BIT;
+		AO_IGNITER_DROGUE = 1;
 		while (ao_launch_ignite) {
 			ao_launch_ignite = 0;
-
-			ao_ignition[ao_igniter_drogue].firing = 1;
-			ao_ignition[ao_igniter_main].firing = 1;
-			AO_IGNITER_DROGUE = 1;
 			ao_delay(AO_MS_TO_TICKS(500));
-			AO_IGNITER_DROGUE = 0;
-			ao_ignition[ao_igniter_drogue].firing = 0;
-			ao_ignition[ao_igniter_main].firing = 0;
 		}
+		AO_IGNITER_DROGUE = 0;
+		ao_ignition[ao_igniter_drogue].firing = 0;
+		ao_ignition[ao_igniter_main].firing = 0;
 	}
 }
 
