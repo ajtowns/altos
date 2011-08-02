@@ -233,16 +233,6 @@ ao_flight(void)
 				/* Turn the RDF beacon back on */
 				ao_rdf_set(1);
 
-				/*
-				 * Start recording min/max height
-				 * to figure out when the rocket has landed
-				 */
-
-				/* initialize interval values */
-				ao_interval_end = ao_sample_tick + AO_INTERVAL_TICKS;
-
-				ao_interval_min_height = ao_interval_max_height = ao_avg_height;
-
 				/* and enter drogue state */
 				ao_flight_state = ao_flight_drogue;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
@@ -266,16 +256,28 @@ ao_flight(void)
 			if (ao_height <= ao_config.main_deploy)
 			{
 				ao_ignite(ao_igniter_main);
+
+				/*
+				 * Start recording min/max height
+				 * to figure out when the rocket has landed
+				 */
+
+				/* initialize interval values */
+				ao_interval_end = ao_sample_tick + AO_INTERVAL_TICKS;
+
+				ao_interval_min_height = ao_interval_max_height = ao_avg_height;
+
 				ao_flight_state = ao_flight_main;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
+			break;
 
 			/* fall through... */
 		case ao_flight_main:
 
-			/* drogue/main to land:
+			/* main to land:
 			 *
-			 * barometer: altitude stable and within 1000m of the launch altitude
+			 * barometer: altitude stable
 			 */
 
 			if (ao_avg_height < ao_interval_min_height)
@@ -284,8 +286,7 @@ ao_flight(void)
 				ao_interval_max_height = ao_avg_height;
 
 			if ((int16_t) (ao_sample_tick - ao_interval_end) >= 0) {
-				if (ao_height < AO_M_TO_HEIGHT(1000) &&
-				    ao_interval_max_height - ao_interval_min_height <= AO_M_TO_HEIGHT(2))
+				if (ao_interval_max_height - ao_interval_min_height <= AO_M_TO_HEIGHT(2))
 				{
 					ao_flight_state = ao_flight_landed;
 
