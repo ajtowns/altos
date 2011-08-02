@@ -58,6 +58,12 @@ class AltosPreferences {
 	/* font size preferences name */
 	final static String fontSizePreference = "FONT-SIZE";
 
+	/* Launcher serial preference name */
+	final static String launcherSerialPreference = "LAUNCHER-SERIAL";
+
+	/* Launcher channel prefernce name */
+	final static String launcherChannelPreference = "LAUNCHER-CHANNEL";
+	
 	/* Default logdir is ~/TeleMetrum */
 	final static String logdirName = "TeleMetrum";
 
@@ -143,6 +149,9 @@ class AltosPreferences {
 			node.put(String.format(description_format, i), frequencies[i].description);
 		}
 	}
+	static int launcher_serial;
+
+	static int launcher_channel;
 
 	public static void init() {
 		preferences = Preferences.userRoot().node("/org/altusmetrum/altosui");
@@ -175,6 +184,10 @@ class AltosPreferences {
 
 		font_size = preferences.getInt(fontSizePreference, Altos.font_size_medium);
 		Altos.set_fonts(font_size);
+
+		launcher_serial = preferences.getInt(launcherSerialPreference, 0);
+
+		launcher_channel = preferences.getInt(launcherChannelPreference, 0);
 
 		String firmwaredir_string = preferences.get(firmwaredirPreference, null);
 		if (firmwaredir_string != null)
@@ -390,6 +403,32 @@ class AltosPreferences {
 		return serial_debug;
 	}
 
+	public static void set_launcher_serial(int new_launcher_serial) {
+		launcher_serial = new_launcher_serial;
+		System.out.printf("set launcher serial to %d\n", new_launcher_serial);
+		synchronized (preferences) {
+			preferences.putInt(launcherSerialPreference, launcher_serial);
+			flush_preferences();
+		}
+	}
+
+	public static int launcher_serial() {
+		return launcher_serial;
+	}
+
+	public static void set_launcher_channel(int new_launcher_channel) {
+		launcher_channel = new_launcher_channel;
+		System.out.printf("set launcher channel to %d\n", new_launcher_channel);
+		synchronized (preferences) {
+			preferences.putInt(launcherChannelPreference, launcher_channel);
+			flush_preferences();
+		}
+	}
+
+	public static int launcher_channel() {
+		return launcher_channel;
+	}
+	
 	public static Preferences bt_devices() {
 		return preferences.node("bt_devices");
 	}
