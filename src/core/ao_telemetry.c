@@ -94,6 +94,30 @@ ao_send_sensor(void)
 	ao_radio_send(&telemetry, sizeof (telemetry));
 }
 
+static uint8_t		ao_baro_sample;
+
+#ifdef AO_SEND_ALL_BARO
+static void
+ao_send_baro(void)
+{
+	uint8_t		sample = ao_sample_adc;
+	uint8_t		samples = (sample - ao_baro_sample) & (AO_ADC_RING - 1);
+
+	if (samples > 12) {
+		ao_baro_sample = (ao_baro_sample + (samples - 12)) & (AO_ADC_RING - 1);
+		samples = 12;
+	}
+	telemetry.generic.tick = ao_adc_ring[sample].tick;
+	telemetry.generic.type = AO_TELEMETRY_BARO;
+	telemetry.baro.samples = samples;
+	for (sample = 0; sample < samples; sample++) {
+		telemetry.baro.baro[sample] = ao_adc_ring[ao_baro_sample].pres;
+		ao_baro_sample = ao_adc_ring_next(ao_baro_sample);
+	}
+	ao_radio_send(&telemetry, sizeof (telemetry));
+}
+#endif
+
 static void
 ao_send_configuration(void)
 {
@@ -193,6 +217,9 @@ ao_telemetry(void)
 		while (ao_telemetry_interval) {
 
 
+#ifdef AO_SEND_ALL_BARO
+			ao_send_baro();
+#endif
 			ao_send_sensor();
 #if HAS_COMPANION
 			if (ao_companion_running)
@@ -203,12 +230,14 @@ ao_telemetry(void)
 			ao_send_location();
 			ao_send_satellite();
 #endif
+#ifndef AO_SEND_ALL_BARO
 			if (ao_rdf &&
 			    (int16_t) (ao_time() - ao_rdf_time) >= 0)
 			{
 				ao_rdf_time = ao_time() + AO_RDF_INTERVAL_TICKS;
 				ao_radio_rdf(AO_RDF_LENGTH_MS);
 			}
+#endif
 			time += ao_telemetry_interval;
 			delay = time - ao_time();
 			if (delay > 0)

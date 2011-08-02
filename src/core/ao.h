@@ -1118,6 +1118,30 @@ struct ao_telemetry_companion {
 	/* 32 */
 };
 	
+/* #define AO_SEND_ALL_BARO */
+
+#define AO_TELEMETRY_BARO		0x80
+
+/*
+ * This packet allows the full sampling rate baro
+ * data to be captured over the RF link so that the
+ * flight software can be tested using 'real' data.
+ *
+ * Along with this telemetry packet, the flight
+ * code is modified to send full-rate telemetry all the time
+ * and never send an RDF tone; this ensure that the full radio
+ * link is available.
+ */
+struct ao_telemetry_baro {
+	uint16_t				serial;		/*  0 */
+	uint16_t				tick;		/*  2 */
+	uint8_t					type;		/*  4 */
+	uint8_t					samples;	/*  5 number samples */
+
+	int16_t					baro[12];	/* 6 samples */
+	/* 32 */
+};
+
 union ao_telemetry_all {
 	struct ao_telemetry_generic		generic;
 	struct ao_telemetry_sensor		sensor;
@@ -1125,6 +1149,7 @@ union ao_telemetry_all {
 	struct ao_telemetry_location		location;
 	struct ao_telemetry_satellite		satellite;
 	struct ao_telemetry_companion		companion;
+	struct ao_telemetry_baro		baro;
 };
 
 /*
@@ -1258,9 +1283,15 @@ struct ao_telemetry_raw_recv {
 
 /* Set delay between telemetry reports (0 to disable) */
 
+#ifdef AO_SEND_ALL_BARO
+#define AO_TELEMETRY_INTERVAL_PAD	AO_MS_TO_TICKS(100)
+#define AO_TELEMETRY_INTERVAL_FLIGHT	AO_MS_TO_TICKS(100)
+#define AO_TELEMETRY_INTERVAL_RECOVER	AO_MS_TO_TICKS(100)
+#else
 #define AO_TELEMETRY_INTERVAL_PAD	AO_MS_TO_TICKS(1000)
 #define AO_TELEMETRY_INTERVAL_FLIGHT	AO_MS_TO_TICKS(100)
 #define AO_TELEMETRY_INTERVAL_RECOVER	AO_MS_TO_TICKS(1000)
+#endif
 
 void
 ao_telemetry_set_interval(uint16_t interval);
