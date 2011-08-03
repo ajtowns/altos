@@ -130,7 +130,7 @@ public class AltosState {
 			time_change = 0;
 		}
 
-		if (state == Altos.ao_flight_pad) {
+		if (state == Altos.ao_flight_pad || state == Altos.ao_flight_idle) {
 
 			/* Track consecutive 'good' gps reports, waiting for 10 of them */
 			if (data.gps != null && data.gps.locked && data.gps.nsat >= 4)

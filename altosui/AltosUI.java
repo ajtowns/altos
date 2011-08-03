@@ -187,6 +187,13 @@ public class AltosUI extends JFrame {
 				}
 			});
 
+		b = addButton(2, 2, "Monitor Idle");
+		b.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					IdleMonitor();
+				}
+			});
+
 		setTitle("AltOS");
 
 		pane.doLayout();
@@ -298,6 +305,13 @@ public class AltosUI extends JFrame {
 
 	private void ConfigureAltosUI() {
 		new AltosConfigureUI(AltosUI.this, voice);
+	}
+
+	private void IdleMonitor() {
+		try {
+			new AltosIdleMonitorUI(this);
+		} catch (Exception e) {
+		}
 	}
 
 	static AltosRecordIterable open_logfile(String filename) {
