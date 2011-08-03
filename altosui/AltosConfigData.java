@@ -85,7 +85,7 @@ public class AltosConfigData implements Iterable<String> {
 		serial_line.printf("c s\nv\n");
 		lines = new LinkedList<String>();
 		for (;;) {
-			String line = serial_line.get_reply(5000);
+			String line = serial_line.get_reply_no_dialog(5000);
 			if (line == null)
 				throw new TimeoutException();
 			if (line.contains("Syntax error"))

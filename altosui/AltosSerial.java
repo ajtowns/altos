@@ -233,17 +233,27 @@ public class AltosSerial implements Runnable {
 		abort = false;
 		timeout_started = false;
 		for (;;) {
+			System.out.printf("timeout %d\n", timeout);
 			AltosLine line = reply_queue.poll(timeout, TimeUnit.MILLISECONDS);
 			if (line != null) {
 				stop_timeout_dialog();
 				--in_reply;
 				return line.line;
 			}
+			System.out.printf("no line remote %b can_cancel %b\n", remote, can_cancel);
 			if (!remote || !can_cancel || check_timeout()) {
 				--in_reply;
 				return null;
 			}
 		}
+	}
+
+	public String get_reply_no_dialog(int timeout) throws InterruptedException, TimeoutException {
+		flush_output();
+		AltosLine line = reply_queue.poll(timeout, TimeUnit.MILLISECONDS);
+		if (line != null)
+			return line.line;
+		return null;
 	}
 
 	public void add_monitor(LinkedBlockingQueue<AltosLine> q) {
