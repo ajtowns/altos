@@ -95,6 +95,15 @@ public class AltosConfigData implements Iterable<String> {
 			try { main_deploy = get_int(line, "Main deploy:"); } catch (Exception e) {}
 			try { apogee_delay = get_int(line, "Apogee delay:"); } catch (Exception e) {}
 			try { radio_channel = get_int(line, "Radio channel:"); } catch (Exception e) {}
+			try {
+				if (line.startsWith("Accel cal")) {
+					String[] bits = line.split("\\s+");
+					if (bits.length >= 6) {
+						accel_cal_plus = Integer.parseInt(bits[3]);
+						accel_cal_minus = Integer.parseInt(bits[5]);
+					}
+				}
+			} catch (Exception e) {}
 			try { radio_calibration = get_int(line, "Radio cal:"); } catch (Exception e) {}
 			try { flight_log_max = get_int(line, "Max flight log:"); } catch (Exception e) {}
 			try { ignite_mode = get_int(line, "Ignite mode:"); } catch (Exception e) {}
