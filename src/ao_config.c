@@ -28,6 +28,7 @@ __xdata uint8_t ao_config_mutex;
 #define AO_CONFIG_DEFAULT_ACCEL_ZERO_G	16000
 #define AO_CONFIG_DEFAULT_APOGEE_DELAY	0
 #define AO_CONFIG_DEFAULT_IGNITE_MODE	AO_IGNITE_MODE_DUAL
+#define AO_CONFIG_DEFAULT_PAD_ORIENTATION	AO_PAD_ORIENTATION_ANTENNA_UP
 #if USE_INTERNAL_EEPROM
 #define AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX	ao_storage_config
 #else
@@ -77,6 +78,7 @@ _ao_config_get(void)
 		ao_config.radio_cal = ao_radio_cal;
 		ao_config.flight_log_max = AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX;
 		ao_config.ignite_mode = AO_CONFIG_DEFAULT_IGNITE_MODE;
+		ao_config.pad_orientation = AO_CONFIG_DEFAULT_PAD_ORIENTATION;
 		ao_config_dirty = 1;
 	}
 	if (ao_config.minor < AO_CONFIG_MINOR) {
@@ -97,6 +99,8 @@ _ao_config_get(void)
 		/* Fixupes for minor version 5 */
 		if (ao_config.minor < 5)
 			ao_config.ignite_mode = AO_CONFIG_DEFAULT_IGNITE_MODE;
+		if (ao_config.minor < 6)
+			ao_config.pad_orientation = AO_CONFIG_DEFAULT_PAD_ORIENTATION;
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
@@ -357,7 +361,36 @@ ao_config_ignite_mode_set(void) __reentrant
 	ao_config.ignite_mode = ao_cmd_lex_i;
 	ao_config_dirty = 1;
 	ao_mutex_put(&ao_config_mutex);
-	ao_config_log_show();
+	ao_config_ignite_mode_show();
+}
+#endif
+
+#if HAS_IGNITE
+void
+ao_config_pad_orientation_show(void) __reentrant
+{
+	printf("Pad orientation: %d\n", ao_config.pad_orientation);
+}
+
+void
+ao_config_pad_orientation_set(void) __reentrant
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	ao_mutex_get(&ao_config_mutex);
+	_ao_config_get();
+	ao_cmd_lex_i &= 1;
+	if (ao_config.pad_orientation != ao_cmd_lex_i) {
+		uint16_t t;
+		t = ao_config.accel_plus_g;
+		ao_config.accel_plus_g = 0x7fff - ao_config.accel_minus_g;
+		ao_config.accel_minus_g = 0x7fff - t;
+	}
+	ao_config.pad_orientation = ao_cmd_lex_i;
+	ao_config_dirty = 1;
+	ao_mutex_put(&ao_config_mutex);
+	ao_config_pad_orientation_show();
 }
 #endif
 
@@ -400,6 +433,10 @@ __code struct ao_config_var ao_config_vars[] = {
 #if HAS_IGNITE
 	{ "i <0 dual, 1 apogee, 2 main>\0Set igniter mode",
 	  ao_config_ignite_mode_set,	ao_config_ignite_mode_show },
+#endif
+#if HAS_ACCEL
+	{ "o <0 antenna up, 1 antenna down>\0Set pad orientation",
+	  ao_config_pad_orientation_set,ao_config_pad_orientation_show },
 #endif
 	{ "s\0Show",
 	  ao_config_show,		ao_config_show },

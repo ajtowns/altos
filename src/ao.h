@@ -1358,7 +1358,7 @@ ao_igniter_init(void);
  */
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	5
+#define AO_CONFIG_MINOR	6
 
 struct ao_config {
 	uint8_t		major;
@@ -1372,11 +1372,15 @@ struct ao_config {
 	uint32_t	radio_cal;		/* minor version 3 */
 	uint32_t	flight_log_max;		/* minor version 4 */
 	uint8_t		ignite_mode;		/* minor version 5 */
+	uint8_t		pad_orientation;	/* minor version 6 */
 };
 
 #define AO_IGNITE_MODE_DUAL		0
 #define AO_IGNITE_MODE_APOGEE		1
 #define AO_IGNITE_MODE_MAIN		2
+
+#define AO_PAD_ORIENTATION_ANTENNA_UP	0
+#define AO_PAD_ORIENTATION_ANTENNA_DOWN	1
 
 extern __xdata struct ao_config ao_config;
 

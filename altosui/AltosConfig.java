@@ -71,6 +71,7 @@ public class AltosConfig implements ActionListener {
 	int_ref		radio_calibration;
 	int_ref		flight_log_max;
 	int_ref		ignite_mode;
+	int_ref		pad_orientation;
 	string_ref	version;
 	string_ref	product;
 	string_ref	callsign;
@@ -132,6 +133,7 @@ public class AltosConfig implements ActionListener {
 		config_ui.set_radio_calibration(radio_calibration.get());
 		config_ui.set_flight_log_max(flight_log_max.get());
 		config_ui.set_ignite_mode(ignite_mode.get());
+		config_ui.set_pad_orientation(pad_orientation.get());
 		config_ui.set_callsign(callsign.get());
 		config_ui.set_clean();
 		config_ui.make_visible();
@@ -139,12 +141,10 @@ public class AltosConfig implements ActionListener {
 
 	void process_line(String line) {
 		if (line == null) {
-			System.out.printf("timeout\n");
 			abort();
 			return;
 		}
 		if (line.equals("done")) {
-			System.out.printf("done\n");
 			if (serial_line != null)
 				update_ui();
 			return;
@@ -156,6 +156,7 @@ public class AltosConfig implements ActionListener {
 		get_int(line, "Radio cal:", radio_calibration);
 		get_int(line, "Max flight log:", flight_log_max);
 		get_int(line, "Ignite mode:", ignite_mode);
+		get_int(line, "Pad orientation:", pad_orientation);
 		get_string(line, "Callsign:", callsign);
 		get_string(line,"software-version", version);
 		get_string(line,"product", product);
@@ -229,6 +230,8 @@ public class AltosConfig implements ActionListener {
 					serial_line.printf("c l %d\n", flight_log_max.get());
 				if (ignite_mode.get() >= 0)
 					serial_line.printf("c i %d\n", ignite_mode.get());
+				if (pad_orientation.get() >= 0)
+					serial_line.printf("c o %d\n", pad_orientation.get());
 				serial_line.printf("c w\n");
 			} catch (InterruptedException ie) {
 			} finally {
@@ -312,6 +315,7 @@ public class AltosConfig implements ActionListener {
 		radio_calibration.set(config_ui.radio_calibration());
 		flight_log_max.set(config_ui.flight_log_max());
 		ignite_mode.set(config_ui.ignite_mode());
+		pad_orientation.set(config_ui.pad_orientation());
 		callsign.set(config_ui.callsign());
 		run_serial_thread(serial_mode_save);
 	}
@@ -347,6 +351,7 @@ public class AltosConfig implements ActionListener {
 		radio_calibration = new int_ref(1186611);
 		flight_log_max = new int_ref(0);
 		ignite_mode = new int_ref(-1);
+		pad_orientation = new int_ref(-1);
 		callsign = new string_ref("N0CALL");
 		version = new string_ref("unknown");
 		product = new string_ref("unknown");

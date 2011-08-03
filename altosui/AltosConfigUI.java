@@ -47,6 +47,7 @@ public class AltosConfigUI
 	JLabel		radio_calibration_label;
 	JLabel		flight_log_max_label;
 	JLabel		ignite_mode_label;
+	JLabel		pad_orientation_label;
 	JLabel		callsign_label;
 
 	public boolean		dirty;
@@ -61,6 +62,7 @@ public class AltosConfigUI
 	JTextField	radio_calibration_value;
 	JComboBox	flight_log_max_value;
 	JComboBox	ignite_mode_value;
+	JComboBox	pad_orientation_value;
 	JTextField	callsign_value;
 
 	JButton		save;
@@ -89,6 +91,11 @@ public class AltosConfigUI
 		"Dual Deploy",
 		"Redundant Apogee",
 		"Redundant Main",
+	};
+
+	static String[] pad_orientation_values = {
+		"Antenna Up",
+		"Antenna Down",
 	};
 
 	static String[] radio_channel_values = new String[10];
@@ -358,9 +365,33 @@ public class AltosConfigUI
 		ignite_mode_value.addItemListener(this);
 		pane.add(ignite_mode_value, c);
 
-		/* Buttons */
+		/* Pad orientation */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 10;
+		c.gridwidth = 4;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
+		c.ipady = 5;
+		pad_orientation_label = new JLabel("Pad Orientation:");
+		pane.add(pad_orientation_label, c);
+
+		c = new GridBagConstraints();
+		c.gridx = 4; c.gridy = 10;
+		c.gridwidth = 4;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		c.ipady = 5;
+		pad_orientation_value = new JComboBox(pad_orientation_values);
+		pad_orientation_value.setEditable(false);
+		pad_orientation_value.addItemListener(this);
+		pane.add(pad_orientation_value, c);
+
+		/* Buttons */
+		c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = 11;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -371,7 +402,7 @@ public class AltosConfigUI
 		save.setActionCommand("Save");
 
 		c = new GridBagConstraints();
-		c.gridx = 2; c.gridy = 10;
+		c.gridx = 2; c.gridy = 11;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
@@ -382,7 +413,7 @@ public class AltosConfigUI
 		reset.setActionCommand("Reset");
 
 		c = new GridBagConstraints();
-		c.gridx = 4; c.gridy = 10;
+		c.gridx = 4; c.gridy = 11;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
@@ -393,7 +424,7 @@ public class AltosConfigUI
 		reboot.setActionCommand("Reboot");
 
 		c = new GridBagConstraints();
-		c.gridx = 6; c.gridy = 10;
+		c.gridx = 6; c.gridy = 11;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_END;
@@ -538,11 +569,26 @@ public class AltosConfigUI
 		} else {
 			ignite_mode_value.setEnabled(true);
 		}
-		ignite_mode_value.setSelectedItem(Integer.toString(new_ignite_mode));
+		ignite_mode_value.setSelectedIndex(new_ignite_mode);
 	}
 
 	public int ignite_mode() {
 		return ignite_mode_value.getSelectedIndex();
+	}
+
+
+	public void set_pad_orientation(int new_pad_orientation) {
+		if (new_pad_orientation < 0) {
+			pad_orientation_value.setEnabled(false);
+			new_pad_orientation = 0;
+		} else {
+			pad_orientation_value.setEnabled(true);
+		}
+		pad_orientation_value.setSelectedIndex(new_pad_orientation);
+	}
+
+	public int pad_orientation() {
+		return pad_orientation_value.getSelectedIndex();
 	}
 
 	public void set_clean() {

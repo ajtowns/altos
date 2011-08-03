@@ -233,7 +233,6 @@ public class AltosSerial implements Runnable {
 		abort = false;
 		timeout_started = false;
 		for (;;) {
-			System.out.printf("timeout %d\n", timeout);
 			AltosLine line = reply_queue.poll(timeout, TimeUnit.MILLISECONDS);
 			if (line != null) {
 				stop_timeout_dialog();

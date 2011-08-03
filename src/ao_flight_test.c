@@ -179,7 +179,11 @@ struct ao_config {
 	uint16_t	main_deploy;
 	int16_t		accel_plus_g;
 	int16_t		accel_minus_g;
+	uint8_t		pad_orientation;
 };
+
+#define AO_PAD_ORIENTATION_ANTENNA_UP	0
+#define AO_PAD_ORIENTATION_ANTENNA_DOWN	1
 
 #define ao_config_get()
 
