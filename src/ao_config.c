@@ -84,6 +84,7 @@ _ao_config_get(void)
 		ao_config.flight_log_max = AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX;
 		ao_config.ignite_mode = AO_CONFIG_DEFAULT_IGNITE_MODE;
 		ao_config.pad_orientation = AO_CONFIG_DEFAULT_PAD_ORIENTATION;
+		ao_config.radio_setting = ao_radio_cal;
 		ao_config_dirty = 1;
 	}
 	if (ao_config.minor < AO_CONFIG_MINOR) {
@@ -106,6 +107,8 @@ _ao_config_get(void)
 			ao_config.ignite_mode = AO_CONFIG_DEFAULT_IGNITE_MODE;
 		if (ao_config.minor < 6)
 			ao_config.pad_orientation = AO_CONFIG_DEFAULT_PAD_ORIENTATION;
+		if (ao_config.minor < 7)
+			ao_config.radio_setting = ao_config.radio_cal;
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
@@ -309,7 +312,7 @@ ao_config_radio_cal_set(void) __reentrant
 		return;
 	ao_mutex_get(&ao_config_mutex);
 	_ao_config_get();
-	ao_config.radio_cal = ao_cmd_lex_u32;
+	ao_config.radio_setting = ao_config.radio_cal = ao_cmd_lex_u32;
 	ao_config_dirty = 1;
 	ao_mutex_put(&ao_config_mutex);
 	ao_config_radio_cal_show();
@@ -399,6 +402,27 @@ ao_config_pad_orientation_set(void) __reentrant
 }
 #endif
 
+void
+ao_config_radio_setting_show(void) __reentrant
+{
+	printf("Radio setting: %ld\n", ao_config.radio_setting);
+}
+
+void
+ao_config_radio_setting_set(void) __reentrant
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	ao_mutex_get(&ao_config_mutex);
+	_ao_config_get();
+	ao_config.radio_setting = ao_cmd_lex_u32;
+	ao_config_dirty = 1;
+	ao_mutex_put(&ao_config_mutex);
+	ao_config_radio_setting_show();
+	ao_radio_recv_abort();
+}
+
 struct ao_config_var {
 	__code char	*str;
 	void		(*set)(void) __reentrant;
@@ -443,6 +467,8 @@ __code struct ao_config_var ao_config_vars[] = {
 	{ "o <0 antenna up, 1 antenna down>\0Set pad orientation",
 	  ao_config_pad_orientation_set,ao_config_pad_orientation_show },
 #endif
+	{ "R <setting>\0Radio freq control (freq = 434.550 * setting/cal)",
+	  ao_config_radio_setting_set,	ao_config_radio_setting_show },
 	{ "s\0Show",
 	  ao_config_show,		ao_config_show },
 #if HAS_EEPROM

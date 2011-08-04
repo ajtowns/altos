@@ -287,9 +287,9 @@ ao_radio_get(uint8_t len)
 	ao_mutex_get(&ao_radio_mutex);
 	ao_radio_idle();
 	RF_CHANNR = ao_config.radio_channel;
-	RF_FREQ2 = (uint8_t) (ao_config.radio_cal >> 16);
-	RF_FREQ1 = (uint8_t) (ao_config.radio_cal >> 8);
-	RF_FREQ0 = (uint8_t) (ao_config.radio_cal);
+	RF_FREQ2 = (uint8_t) (ao_config.radio_setting >> 16);
+	RF_FREQ1 = (uint8_t) (ao_config.radio_setting >> 8);
+	RF_FREQ0 = (uint8_t) (ao_config.radio_setting);
 	RF_PKTLEN = len;
 }
 
