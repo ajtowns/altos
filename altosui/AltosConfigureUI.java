@@ -50,6 +50,7 @@ public class AltosConfigureUI
 	JRadioButton	serial_debug;
 
 	JButton		manage_bluetooth;
+	JButton		manage_frequencies;
 
 	/* DocumentListener interface methods */
 	public void changedUpdate(DocumentEvent e) {
@@ -207,12 +208,25 @@ public class AltosConfigureUI
 					AltosBTManage.show(owner, Altos.bt_known);
 				}
 			});
-		c.gridx = 1;
+		c.gridx = 0;
 		c.gridy = 6;
-		c.gridwidth = 3;
+		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(manage_bluetooth, c);
+
+		manage_frequencies = new JButton("Manage Frequencies");
+		manage_frequencies.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					AltosConfigFreqUI.show(owner);
+				}
+			});
+		c.gridx = 2;
+		c.gridy = 6;
+		c.gridwidth = 2;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(manage_frequencies, c);
 
 		/* And a close button at the bottom */
 		close = new JButton("Close");

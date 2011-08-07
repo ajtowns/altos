@@ -64,6 +64,9 @@ class AltosPreferences {
 	/* Channel (map serial to channel) */
 	static Hashtable<Integer, Integer> channels;
 
+	/* Frequency (map serial to frequency) */
+	static Hashtable<Integer, Double> frequencies;
+
 	/* Telemetry (map serial to telemetry format) */
 	static Hashtable<Integer, Integer> telemetries;
 
@@ -78,6 +81,55 @@ class AltosPreferences {
 
 	/* Serial debug */
 	static boolean serial_debug;
+
+	/* List of frequencies */
+	final static String common_frequencies_node_name = "COMMON-FREQUENCIES";
+	static AltosFrequency[] common_frequencies;
+
+	final static String	frequency_count = "COUNT";
+	final static String	frequency_format = "FREQUENCY-%d";
+	final static String	description_format = "DESCRIPTION-%d";
+
+	static AltosFrequency[] load_common_frequencies() {
+		AltosFrequency[] frequencies = null;
+		boolean	existing = false;
+		try {
+			existing = preferences.nodeExists(common_frequencies_node_name);
+		} catch (BackingStoreException be) {
+			existing = false;
+		}
+		if (existing) {
+			Preferences	node = preferences.node(common_frequencies_node_name);
+			int		count = node.getInt(frequency_count, 0);
+
+			frequencies = new AltosFrequency[count];
+			for (int i = 0; i < count; i++) {
+				double	frequency;
+				String	description;
+
+				frequency = node.getDouble(String.format(frequency_format, i), 0.0);
+				description = node.get(String.format(description_format, i), null);
+				frequencies[i] = new AltosFrequency(frequency, description);
+			}
+		} else {
+			frequencies = new AltosFrequency[10];
+			for (int i = 0; i < 10; i++) {
+				frequencies[i] = new AltosFrequency(434.550 + i * .1,
+									   String.format("Channel %d", i));
+			}
+		}
+		return frequencies;
+	}
+
+	static void save_common_frequencies(AltosFrequency[] frequencies) {
+		Preferences	node = preferences.node(common_frequencies_node_name);
+
+		node.putInt(frequency_count, frequencies.length);
+		for (int i = 0; i < frequencies.length; i++) {
+			node.putDouble(String.format(frequency_format, i), frequencies[i].frequency);
+			node.put(String.format(description_format, i), frequencies[i].description);
+		}
+	}
 
 	public static void init() {
 		preferences = Preferences.userRoot().node("/org/altusmetrum/altosui");
@@ -112,6 +164,8 @@ class AltosPreferences {
 
 		serial_debug = preferences.getBoolean(serialDebugPreference, false);
 		AltosSerial.set_debug(serial_debug);
+
+		common_frequencies = load_common_frequencies();
 	}
 
 	static { init(); }
@@ -272,5 +326,17 @@ class AltosPreferences {
 
 	public static Preferences bt_devices() {
 		return preferences.node("bt_devices");
+	}
+
+	public static AltosFrequency[] common_frequencies() {
+		return common_frequencies;
+	}
+
+	public static void set_common_frequencies(AltosFrequency[] frequencies) {
+		common_frequencies = frequencies;
+		synchronized(preferences) {
+			save_common_frequencies(frequencies);
+			flush_preferences();
+		}
 	}
 }

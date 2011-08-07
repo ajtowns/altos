@@ -16,6 +16,7 @@ altosui_JAVA = \
 	AltosChannelMenu.java \
 	AltosConfig.java \
 	AltosConfigData.java \
+	AltosConfigFreqUI.java \
 	AltosConfigUI.java \
 	AltosConfigureUI.java \
 	AltosConvert.java \
@@ -50,6 +51,7 @@ altosui_JAVA = \
 	AltosFlightReader.java \
 	AltosFlightStatus.java \
 	AltosFlightUI.java \
+	AltosFrequency.java \
 	AltosGPS.java \
 	AltosGPSSat.java \
 	AltosGreatCircle.java \
