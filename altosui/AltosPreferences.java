@@ -34,6 +34,9 @@ class AltosPreferences {
 	/* channel preference name */
 	final static String channelPreferenceFormat = "CHANNEL-%d";
 
+	/* frequency preference name */
+	final static String frequencyPreferenceFormat = "FREQUENCY-%d";
+
 	/* telemetry format preference name */
 	final static String telemetryPreferenceFormat = "TELEMETRY-%d";
 
@@ -60,9 +63,6 @@ class AltosPreferences {
 
 	/* Map directory -- hangs of logdir */
 	static File mapdir;
-
-	/* Channel (map serial to channel) */
-	static Hashtable<Integer, Integer> channels;
 
 	/* Frequency (map serial to frequency) */
 	static Hashtable<Integer, Double> frequencies;
@@ -148,7 +148,7 @@ class AltosPreferences {
 		if (!mapdir.exists())
 			mapdir.mkdirs();
 
-		channels = new Hashtable<Integer,Integer>();
+		frequencies = new Hashtable<Integer, Double>();
 
 		telemetries = new Hashtable<Integer,Integer>();
 
@@ -242,20 +242,24 @@ class AltosPreferences {
 		return mapdir;
 	}
 
-	public static void set_channel(int serial, int new_channel) {
-		channels.put(serial, new_channel);
+	public static void set_frequency(int serial, double new_frequency) {
+		frequencies.put(serial, new_frequency);
 		synchronized (preferences) {
-			preferences.putInt(String.format(channelPreferenceFormat, serial), new_channel);
+			preferences.putDouble(String.format(frequencyPreferenceFormat, serial), new_frequency);
 			flush_preferences();
 		}
 	}
 
-	public static int channel(int serial) {
-		if (channels.containsKey(serial))
-			return channels.get(serial);
-		int channel = preferences.getInt(String.format(channelPreferenceFormat, serial), 0);
-		channels.put(serial, channel);
-		return channel;
+	public static double frequency(int serial) {
+		if (frequencies.containsKey(serial))
+			return frequencies.get(serial);
+		double frequency = preferences.getDouble(String.format(frequencyPreferenceFormat, serial), 0);
+		if (frequency == 0.0) {
+			int channel = preferences.getInt(String.format(channelPreferenceFormat, serial), 0);
+			frequency = AltosConvert.radio_channel_to_frequency(channel);
+		}
+		frequencies.put(serial, frequency);
+		return frequency;
 	}
 
 	public static void set_telemetry(int serial, int new_telemetry) {
@@ -338,5 +342,22 @@ class AltosPreferences {
 			save_common_frequencies(frequencies);
 			flush_preferences();
 		}
+	}
+
+	public static void add_common_frequency(AltosFrequency frequency) {
+		AltosFrequency[]	new_frequencies = new AltosFrequency[common_frequencies.length + 1];
+		int			i;
+
+		for (i = 0; i < common_frequencies.length; i++) {
+			if (frequency.frequency == common_frequencies[i].frequency)
+				return;
+			if (frequency.frequency < common_frequencies[i].frequency)
+				break;
+			new_frequencies[i] = common_frequencies[i];
+		}
+		new_frequencies[i] = frequency;
+		for (; i < common_frequencies.length; i++)
+			new_frequencies[i+1] = common_frequencies[i];
+		set_common_frequencies(new_frequencies);
 	}
 }

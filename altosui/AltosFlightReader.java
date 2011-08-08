@@ -20,6 +20,7 @@ package altosui;
 import java.lang.*;
 import java.text.*;
 import java.io.*;
+import java.util.concurrent.*;
 
 public class AltosFlightReader {
 	String name;
@@ -32,9 +33,13 @@ public class AltosFlightReader {
 
 	void close(boolean interrupted) { }
 
-	void set_channel(int channel) { }
+	void set_frequency(double frequency) throws InterruptedException, TimeoutException { }
+
+	void save_frequency() { }
 
 	void set_telemetry(int telemetry) { }
+
+	void save_telemetry() { }
 
 	void update(AltosState state) throws InterruptedException { }
 }

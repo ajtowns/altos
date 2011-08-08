@@ -52,6 +52,7 @@ altosui_JAVA = \
 	AltosFlightStatus.java \
 	AltosFlightUI.java \
 	AltosFrequency.java \
+	AltosFreqList.java \
 	AltosGPS.java \
 	AltosGPSSat.java \
 	AltosGreatCircle.java \

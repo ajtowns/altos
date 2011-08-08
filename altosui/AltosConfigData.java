@@ -47,6 +47,7 @@ public class AltosConfigData implements Iterable<String> {
 	int	main_deploy;
 	int	apogee_delay;
 	int	radio_channel;
+	int	radio_setting;
 	String	callsign;
 	int	accel_cal_plus, accel_cal_minus;
 	int	radio_calibration;
@@ -85,7 +86,7 @@ public class AltosConfigData implements Iterable<String> {
 		serial_line.printf("c s\nv\n");
 		lines = new LinkedList<String>();
 		for (;;) {
-			String line = serial_line.get_reply_no_dialog(5000);
+			String line = serial_line.get_reply();
 			if (line == null)
 				throw new TimeoutException();
 			if (line.contains("Syntax error"))
@@ -95,6 +96,7 @@ public class AltosConfigData implements Iterable<String> {
 			try { main_deploy = get_int(line, "Main deploy:"); } catch (Exception e) {}
 			try { apogee_delay = get_int(line, "Apogee delay:"); } catch (Exception e) {}
 			try { radio_channel = get_int(line, "Radio channel:"); } catch (Exception e) {}
+			try { radio_setting = get_int(line, "Radio setting:"); } catch (Exception e) {}
 			try {
 				if (line.startsWith("Accel cal")) {
 					String[] bits = line.split("\\s+");

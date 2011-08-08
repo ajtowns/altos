@@ -27,6 +27,9 @@ class AltosTelemetryReader extends AltosFlightReader {
 	AltosSerial	serial;
 	AltosLog	log;
 	AltosRecord	previous;
+	AltosConfigData	config_data;
+	double		frequency;
+	int		telemetry;
 
 	LinkedBlockingQueue<AltosLine> telem;
 
@@ -49,18 +52,26 @@ class AltosTelemetryReader extends AltosFlightReader {
 		serial.close();
 	}
 
-	void set_channel(int channel) {
-		serial.set_channel(channel);
-		AltosPreferences.set_channel(device.getSerial(), channel);
+	public void set_frequency(double in_frequency) throws InterruptedException, TimeoutException {
+		frequency = in_frequency;
+		serial.set_radio_frequency(frequency);
 	}
 
-	void set_telemetry(int telemetry) {
+	void save_frequency() {
+		AltosPreferences.set_frequency(device.getSerial(), frequency);
+	}
+
+	void set_telemetry(int in_telemetry) {
+		telemetry = in_telemetry;
 		serial.set_telemetry(telemetry);
+	}
+
+	void save_telemetry() {
 		AltosPreferences.set_telemetry(device.getSerial(), telemetry);
 	}
 
 	public AltosTelemetryReader (AltosDevice in_device)
-		throws FileNotFoundException, AltosSerialInUseException, IOException {
+		throws FileNotFoundException, AltosSerialInUseException, IOException, InterruptedException, TimeoutException {
 		device = in_device;
 		serial = new AltosSerial(device);
 		log = new AltosLog(serial);
@@ -68,7 +79,11 @@ class AltosTelemetryReader extends AltosFlightReader {
 		previous = null;
 
 		telem = new LinkedBlockingQueue<AltosLine>();
-		serial.set_radio();
+		frequency = AltosPreferences.frequency(device.getSerial());
+		set_frequency(frequency);
+		telemetry = AltosPreferences.telemetry(device.getSerial());
+		set_telemetry(telemetry);
+		serial.set_callsign(AltosPreferences.callsign());
 		serial.add_monitor(telem);
 	}
 }

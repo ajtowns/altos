@@ -26,7 +26,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	AltosVoice		voice;
@@ -118,7 +118,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	}
 
 	Container	bag;
-	JComboBox	channels;
+	AltosFreqList	frequencies;
 	JComboBox	telemetries;
 
 	public AltosFlightUI(AltosVoice in_voice, AltosFlightReader in_reader, final int serial) {
@@ -141,18 +141,25 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		/* Stick channel selector at top of table for telemetry monitoring */
 		if (serial >= 0) {
 			// Channel menu
-			channels = new AltosChannelMenu(AltosPreferences.channel(serial));
-			channels.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					int channel = channels.getSelectedIndex();
-					reader.set_channel(channel);
-				}
+			frequencies = new AltosFreqList(AltosPreferences.frequency(serial));
+			frequencies.set_product("Monitor");
+			frequencies.set_serial(serial);
+			frequencies.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						double frequency = frequencies.frequency();
+						reader.save_frequency();
+						try {
+							reader.set_frequency(frequency);
+						} catch (TimeoutException te) {
+						} catch (InterruptedException ie) {
+						}
+					}
 			});
 			c.gridx = 0;
 			c.gridy = 0;
 			c.insets = new Insets(3, 3, 3, 3);
 			c.anchor = GridBagConstraints.WEST;
-			bag.add (channels, c);
+			bag.add (frequencies, c);
 
 			// Telemetry format menu
 			telemetries = new JComboBox();
@@ -168,6 +175,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 					public void actionPerformed(ActionEvent e) {
 						int telemetry = telemetries.getSelectedIndex() + 1;
 						reader.set_telemetry(telemetry);
+						reader.save_telemetry();
 					}
 				});
 			c.gridx = 1;

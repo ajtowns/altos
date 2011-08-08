@@ -54,11 +54,12 @@ public class AltosSerial implements Runnable {
 	int line_count;
 	boolean monitor_mode;
 	int telemetry;
-	int channel;
+	double frequency;
 	static boolean debug;
 	boolean remote;
 	LinkedList<String> pending_output = new LinkedList<String>();
 	Frame frame;
+	AltosConfigData	config_data;
 
 	static void set_debug(boolean new_debug) {
 		debug = new_debug;
@@ -154,7 +155,7 @@ public class AltosSerial implements Runnable {
 		Object[] options = { "Cancel" };
 
 		JOptionPane	pane = new JOptionPane();
-		pane.setMessage(String.format("Connecting to %s", device.getPath()));
+		pane.setMessage(String.format("Connecting to %s, %7.3f MHz", device.toShortString(), frequency));
 		pane.setOptions(options);
 		pane.setInitialValue(null);
 
@@ -208,20 +209,13 @@ public class AltosSerial implements Runnable {
 		} while (got_some);
 	}
 
-	public String get_reply() throws InterruptedException {
-		if (SwingUtilities.isEventDispatchThread())
-			System.out.printf("Uh-oh, reading serial device from swing thread\n");
-		flush_output();
-		AltosLine line = reply_queue.take();
-		return line.line;
-	}
-
 	int	in_reply;
 
 	public String get_reply(int timeout) throws InterruptedException {
 		boolean	can_cancel = true;
 		++in_reply;
 
+		System.out.printf("get_reply %d\n", timeout);
 		if (SwingUtilities.isEventDispatchThread()) {
 			can_cancel = false;
 			System.out.printf("Uh-oh, reading serial device from swing thread\n");
@@ -239,7 +233,6 @@ public class AltosSerial implements Runnable {
 				--in_reply;
 				return line.line;
 			}
-			System.out.printf("no line remote %b can_cancel %b\n", remote, can_cancel);
 			if (!remote || !can_cancel || check_timeout()) {
 				--in_reply;
 				return null;
@@ -247,8 +240,13 @@ public class AltosSerial implements Runnable {
 		}
 	}
 
+	public String get_reply() throws InterruptedException {
+		return get_reply(5000);
+	}
+
 	public String get_reply_no_dialog(int timeout) throws InterruptedException, TimeoutException {
 		flush_output();
+		System.out.printf("get_reply_no_dialog\n");
 		AltosLine line = reply_queue.poll(timeout, TimeUnit.MILLISECONDS);
 		if (line != null)
 			return line.line;
@@ -267,6 +265,8 @@ public class AltosSerial implements Runnable {
 	}
 
 	public void close() {
+		if (remote)
+			stop_remote();
 		if (in_reply != 0)
 			System.out.printf("Uh-oh. Closing active serial device\n");
 
@@ -328,19 +328,11 @@ public class AltosSerial implements Runnable {
 		flush_output();
 	}
 
-	public void set_radio() {
-		telemetry = AltosPreferences.telemetry(device.getSerial());
-		channel = AltosPreferences.channel(device.getSerial());
-		set_channel(channel);
-		set_callsign(AltosPreferences.callsign());
-	}
-
 	private int telemetry_len() {
 		return Altos.telemetry_len(telemetry);
 	}
 
-	public void set_channel(int in_channel) {
-		channel = in_channel;
+	private void set_channel(int channel) {
 		if (altos != null) {
 			if (monitor_mode)
 				printf("m 0\nc r %d\nm %x\n",
@@ -349,6 +341,33 @@ public class AltosSerial implements Runnable {
 				printf("c r %d\n", channel);
 			flush_output();
 		}
+	}
+
+	private void set_radio_setting(int setting) {
+		if (altos != null) {
+			if (monitor_mode)
+				printf("m 0\nc R %d\nc r 0\nm %x\n",
+				       setting, telemetry_len());
+			else
+				printf("c R %d\nc r 0\n", setting);
+		}
+	}
+
+	public void set_radio_frequency(double frequency,
+					boolean has_setting,
+					int cal) {
+		if (has_setting)
+			set_radio_setting(AltosConvert.radio_frequency_to_setting(frequency, cal));
+		else
+			set_channel(AltosConvert.radio_frequency_to_channel(frequency));
+	}
+
+	public void set_radio_frequency(double in_frequency) throws InterruptedException, TimeoutException {
+		frequency = in_frequency;
+		config_data();
+		set_radio_frequency(frequency,
+				    config_data.radio_setting != 0,
+				    config_data.radio_calibration);
 	}
 
 	public void set_telemetry(int in_telemetry) {
@@ -378,10 +397,19 @@ public class AltosSerial implements Runnable {
 		}
 	}
 
-	public void start_remote() {
+	public AltosConfigData config_data() throws InterruptedException, TimeoutException {
+		if (config_data == null)
+			config_data = new AltosConfigData(this);
+		return config_data;
+	}
+
+	public void start_remote() throws TimeoutException, InterruptedException {
 		if (debug)
 			System.out.printf("start remote\n");
-		set_radio();
+		if (frequency == 0.0)
+			frequency = AltosPreferences.frequency(device.getSerial());
+		set_radio_frequency(frequency);
+		set_callsign(AltosPreferences.callsign());
 		printf("p\nE 0\n");
 		flush_input();
 		remote = true;

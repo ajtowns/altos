@@ -177,9 +177,9 @@ public class AltosConfigFreqUI extends JDialog implements ActionListener {
 			int i;
 			for (i = 0; i < list_model.size(); i++) {
 				AltosFrequency	f = (AltosFrequency) list_model.get(i);
-				if (f.frequency == frequency.frequency)
+				if (frequency.frequency == f.frequency)
 					return;
-				if (f.frequency > frequency.frequency)
+				if (frequency.frequency < f.frequency)
 					break;
 			}
 			list_model.insertElementAt(frequency, i);

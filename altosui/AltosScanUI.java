@@ -33,27 +33,27 @@ class AltosScanResult {
 	String	callsign;
 	int	serial;
 	int	flight;
-	int	channel;
+	double	frequency;
 	int	telemetry;
 	
 	boolean	interrupted = false;
 	
 	public String toString() {
-		return String.format("%-9.9s serial %-4d flight %-4d (channel %-2d %s)",
-				     callsign, serial, flight, channel, Altos.telemetry_name(telemetry));
+		return String.format("%-9.9s serial %-4d flight %-4d (frequency %7.3f %s)",
+				     callsign, serial, flight, frequency, Altos.telemetry_name(telemetry));
 	}
 
 	public String toShortString() {
-		return String.format("%s %d %d %d %d",
-				     callsign, serial, flight, channel, telemetry);
+		return String.format("%s %d %d %7.3f %d",
+				     callsign, serial, flight, frequency, telemetry);
 	}
 
 	public AltosScanResult(String in_callsign, int in_serial,
-			       int in_flight, int in_channel, int in_telemetry) {
+			       int in_flight, double in_frequency, int in_telemetry) {
 		callsign = in_callsign;
 		serial = in_serial;
 		flight = in_flight;
-		channel = in_channel;
+		frequency = in_frequency;
 		telemetry = in_telemetry;
 	}
 
@@ -61,7 +61,7 @@ class AltosScanResult {
 		return (callsign.equals(other.callsign) &&
 			serial == other.serial &&
 			flight == other.flight &&
-			channel == other.channel &&
+			frequency == other.frequency &&
 			telemetry == other.telemetry);
 	}
 }
@@ -107,20 +107,25 @@ public class AltosScanUI
 {
 	AltosUI				owner;
 	AltosDevice			device;
+	AltosConfigData			config_data;
 	AltosTelemetryReader		reader;
 	private JList			list;
 	private JLabel			scanning_label;
+	private JLabel			frequency_label;
+	private JLabel			telemetry_label;
 	private JButton			cancel_button;
 	private JButton			monitor_button;
 	javax.swing.Timer		timer;
 	AltosScanResults		results = new AltosScanResults();
 
 	int				telemetry;
-	int				channel;
+	double				frequency;
 
 	final static int		timeout = 1200;
 	TelemetryHandler		handler;
 	Thread				thread;
+	AltosFrequency[]		frequencies;
+	int				frequency_index;
 
 	void scan_exception(Exception e) {
 		if (e instanceof FileNotFoundException) {
@@ -167,7 +172,7 @@ public class AltosScanUI
 							final AltosScanResult	result = new AltosScanResult(record.callsign,
 												     record.serial,
 												     record.flight,
-												     channel,
+												     frequency,
 												     telemetry);
 							Runnable r = new Runnable() {
 									public void run() {
@@ -190,26 +195,30 @@ public class AltosScanUI
 	}
 
 	void set_label() {
-		scanning_label.setText(String.format("Scanning: channel %d %s",
-						     channel,
-						     Altos.telemetry_name(telemetry)));
+		frequency_label.setText(String.format("Frequency: %s", frequencies[frequency_index].toString()));
+		telemetry_label.setText(String.format("Telemetry: %s", Altos.telemetry_name(telemetry)));
 	}
 
-	void next() {
+	void set_telemetry() {
+		reader.set_telemetry(telemetry);
+	}
+	
+	void set_frequency() throws InterruptedException, TimeoutException {
+		reader.set_frequency(frequencies[frequency_index].frequency);
+	}
+	
+	void next() throws InterruptedException, TimeoutException {
 		reader.serial.set_monitor(false);
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException ie){
-		}
-		++channel;
-		if (channel > 9) {
-			channel = 0;
+		Thread.sleep(100);
+		++frequency_index;
+		if (frequency_index >= frequencies.length) {
+			frequency_index = 0;
 			++telemetry;
 			if (telemetry > Altos.ao_telemetry_max)
 				telemetry = Altos.ao_telemetry_min;
-			reader.serial.set_telemetry(telemetry);
+			set_telemetry();
 		}
-		reader.serial.set_channel(channel);
+		set_frequency();
 		set_label();
 		reader.serial.set_monitor(true);
 	}
@@ -229,31 +238,37 @@ public class AltosScanUI
 		dispose();
 	}
 
-	void tick_timer() {
+	void tick_timer() throws InterruptedException, TimeoutException {
 		next();
 	}
 
 	public void actionPerformed(ActionEvent e) {
 		String cmd = e.getActionCommand();
 
-		if (cmd.equals("cancel"))
-			close();
+		try {
+			if (cmd.equals("cancel"))
+				close();
 
-		if (cmd.equals("tick"))
-			tick_timer();
+			if (cmd.equals("tick"))
+				tick_timer();
 
-		if (cmd.equals("monitor")) {
-			close();
-			AltosScanResult	r = (AltosScanResult) (list.getSelectedValue());
-			if (r != null) {
-				if (device != null) {
-					if (reader != null) {
-						reader.set_telemetry(r.telemetry);
-						reader.set_channel(r.channel);
-						owner.telemetry_window(device);
+			if (cmd.equals("monitor")) {
+				close();
+				AltosScanResult	r = (AltosScanResult) (list.getSelectedValue());
+				if (r != null) {
+					if (device != null) {
+						if (reader != null) {
+							reader.set_telemetry(r.telemetry);
+							reader.set_frequency(r.frequency);
+							owner.telemetry_window(device);
+						}
 					}
 				}
 			}
+		} catch (TimeoutException te) {
+			close();
+		} catch (InterruptedException ie) {
+			close();
 		}
 	}
 
@@ -278,8 +293,8 @@ public class AltosScanUI
 			return false;
 		try {
 			reader = new AltosTelemetryReader(device);
-			reader.serial.set_channel(channel);
-			reader.serial.set_telemetry(telemetry);
+			set_frequency();
+			set_telemetry();
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException ie) {
@@ -306,6 +321,16 @@ public class AltosScanUI
 						      device.toShortString(),
 						      "Unkonwn I/O error",
 						      JOptionPane.ERROR_MESSAGE);
+		} catch (TimeoutException te) {
+			JOptionPane.showMessageDialog(owner,
+						      device.toShortString(),
+						      "Timeout error",
+						      JOptionPane.ERROR_MESSAGE);
+		} catch (InterruptedException ie) {
+			JOptionPane.showMessageDialog(owner,
+						      device.toShortString(),
+						      "Interrupted exception",
+						      JOptionPane.ERROR_MESSAGE);
 		}
 		if (reader != null)
 			reader.close(false);
@@ -316,7 +341,8 @@ public class AltosScanUI
 
 		owner = in_owner;
 
-		channel = 0;
+		frequencies = AltosPreferences.common_frequencies();
+		frequency_index = 0;
 		telemetry = Altos.ao_telemetry_min;
 
 		if (!open())
@@ -335,11 +361,13 @@ public class AltosScanUI
 		pane.setLayout(new GridBagLayout());
 
 		scanning_label = new JLabel("Scanning:");
+		frequency_label = new JLabel("");
+		telemetry_label = new JLabel("");
 		
 		set_label();
 
 		c.fill = GridBagConstraints.NONE;
-		c.anchor = GridBagConstraints.CENTER;
+		c.anchor = GridBagConstraints.WEST;
 		c.insets = i;
 		c.weightx = 1;
 		c.weighty = 1;
@@ -347,9 +375,12 @@ public class AltosScanUI
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridwidth = 2;
-		c.anchor = GridBagConstraints.CENTER;
 
 		pane.add(scanning_label, c);
+		c.gridy = 1;
+		pane.add(frequency_label, c);
+		c.gridy = 2;
+		pane.add(telemetry_label, c);
 
 		list = new JList(results) {
 				//Subclass JList to workaround bug 4832765, which can cause the
@@ -417,7 +448,7 @@ public class AltosScanUI
 		c.weighty = 1;
 
 		c.gridx = 0;
-		c.gridy = 1;
+		c.gridy = 3;
 		c.gridwidth = 2;
 		c.anchor = GridBagConstraints.CENTER;
 
@@ -434,7 +465,7 @@ public class AltosScanUI
 		c.weighty = 1;
 
 		c.gridx = 0;
-		c.gridy = 2;
+		c.gridy = 4;
 		c.gridwidth = 1;
 		c.anchor = GridBagConstraints.CENTER;
 
@@ -451,7 +482,7 @@ public class AltosScanUI
 		c.weighty = 1;
 
 		c.gridx = 1;
-		c.gridy = 2;
+		c.gridy = 4;
 		c.gridwidth = 1;
 		c.anchor = GridBagConstraints.CENTER;
 

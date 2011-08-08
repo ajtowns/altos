@@ -64,6 +64,8 @@ public class AltosConfig implements ActionListener {
 	AltosDevice	device;
 	AltosSerial	serial_line;
 	boolean		remote;
+	AltosConfigData	remote_config_data;
+	double		remote_frequency;
 	int_ref		serial;
 	int_ref		main_deploy;
 	int_ref		apogee_delay;
@@ -72,6 +74,7 @@ public class AltosConfig implements ActionListener {
 	int_ref		flight_log_max;
 	int_ref		ignite_mode;
 	int_ref		pad_orientation;
+	int_ref		radio_setting;
 	string_ref	version;
 	string_ref	product;
 	string_ref	callsign;
@@ -109,7 +112,7 @@ public class AltosConfig implements ActionListener {
 		}
 	}
 
-	void start_serial() throws InterruptedException {
+	void start_serial() throws InterruptedException, TimeoutException {
 		serial_started = true;
 		if (remote)
 			serial_line.start_remote();
@@ -129,12 +132,13 @@ public class AltosConfig implements ActionListener {
 		config_ui.set_version(version.get());
 		config_ui.set_main_deploy(main_deploy.get());
 		config_ui.set_apogee_delay(apogee_delay.get());
-		config_ui.set_radio_channel(radio_channel.get());
+		config_ui.set_radio_frequency(frequency());
 		config_ui.set_radio_calibration(radio_calibration.get());
 		config_ui.set_flight_log_max(flight_log_max.get());
 		config_ui.set_ignite_mode(ignite_mode.get());
 		config_ui.set_pad_orientation(pad_orientation.get());
 		config_ui.set_callsign(callsign.get());
+		config_ui.set_radio_setting(radio_setting.get());
 		config_ui.set_clean();
 		config_ui.make_visible();
 	}
@@ -157,6 +161,7 @@ public class AltosConfig implements ActionListener {
 		get_int(line, "Max flight log:", flight_log_max);
 		get_int(line, "Ignite mode:", ignite_mode);
 		get_int(line, "Pad orientation:", pad_orientation);
+		get_int(line, "Radio setting:", radio_setting);
 		get_string(line, "Callsign:", callsign);
 		get_string(line,"software-version", version);
 		get_string(line,"product", product);
@@ -200,6 +205,7 @@ public class AltosConfig implements ActionListener {
 					}
 				}
 			} catch (InterruptedException ie) {
+			} catch (TimeoutException te) {
 			} finally {
 				try {
 					stop_serial();
@@ -211,16 +217,20 @@ public class AltosConfig implements ActionListener {
 
 		void save_data() {
 			try {
-				int	channel;
+				double frequency = frequency();
+				boolean has_setting = radio_setting.get() != 0;
 				start_serial();
 				serial_line.printf("c m %d\n", main_deploy.get());
 				serial_line.printf("c d %d\n", apogee_delay.get());
-				channel = radio_channel.get();
-				serial_line.printf("c r %d\n", channel);
+				serial_line.set_radio_frequency(frequency,
+								has_setting,
+								radio_calibration.get());
 				if (remote) {
 					serial_line.stop_remote();
-					serial_line.set_channel(channel);
-					AltosPreferences.set_channel(device.getSerial(), channel);
+					serial_line.set_radio_frequency(frequency,
+									has_setting,
+									radio_calibration.get());
+					AltosPreferences.set_frequency(device.getSerial(), frequency);
 					serial_line.start_remote();
 				}
 				if (!remote)
@@ -234,6 +244,7 @@ public class AltosConfig implements ActionListener {
 					serial_line.printf("c o %d\n", pad_orientation.get());
 				serial_line.printf("c w\n");
 			} catch (InterruptedException ie) {
+			} catch (TimeoutException te) {
 			} finally {
 				try {
 					stop_serial();
@@ -248,6 +259,7 @@ public class AltosConfig implements ActionListener {
 				serial_line.printf("r eboot\n");
 				serial_line.flush_output();
 			} catch (InterruptedException ie) {
+			} catch (TimeoutException te) {
 			} finally {
 				try {
 					stop_serial();
@@ -308,11 +320,32 @@ public class AltosConfig implements ActionListener {
 			update_ui();
 	}
 
+	double frequency() {
+		int	setting = radio_setting.get();
+
+		if (setting != 0)
+			return AltosConvert.radio_setting_to_frequency(setting, radio_calibration.get());
+		else
+			return AltosConvert.radio_channel_to_frequency(radio_channel.get());
+	}
+
+	void set_frequency(double freq) {
+		int	setting = radio_setting.get();
+
+		if (setting != 0) {
+			radio_setting.set(AltosConvert.radio_frequency_to_setting(freq,
+										  radio_calibration.get()));
+			radio_channel.set(0);
+		} else {
+			radio_channel.set(AltosConvert.radio_frequency_to_channel(freq));
+		}
+	}
+
 	void save_data() {
 		main_deploy.set(config_ui.main_deploy());
 		apogee_delay.set(config_ui.apogee_delay());
-		radio_channel.set(config_ui.radio_channel());
 		radio_calibration.set(config_ui.radio_calibration());
+		set_frequency(config_ui.radio_frequency());
 		flight_log_max.set(config_ui.flight_log_max());
 		ignite_mode.set(config_ui.ignite_mode());
 		pad_orientation.set(config_ui.pad_orientation());
@@ -348,6 +381,7 @@ public class AltosConfig implements ActionListener {
 		main_deploy = new int_ref(250);
 		apogee_delay = new int_ref(0);
 		radio_channel = new int_ref(0);
+		radio_setting = new int_ref(0);
 		radio_calibration = new int_ref(1186611);
 		flight_log_max = new int_ref(0);
 		ignite_mode = new int_ref(-1);
@@ -360,9 +394,9 @@ public class AltosConfig implements ActionListener {
 		if (device != null) {
 			try {
 				serial_line = new AltosSerial(device);
-				if (!device.matchProduct(Altos.product_telemetrum))
-					remote = true;
 				try {
+					if (!device.matchProduct(Altos.product_telemetrum))
+						remote = true;
 					init_ui();
 				} catch (InterruptedException ie) {
 					abort();

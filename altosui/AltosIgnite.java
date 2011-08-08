@@ -40,7 +40,7 @@ public class AltosIgnite {
 	final static int	Active = 2;
 	final static int	Open = 3;
 
-	private void start_serial() throws InterruptedException {
+	private void start_serial() throws InterruptedException, TimeoutException {
 		serial_started = true;
 		if (remote)
 			serial.start_remote();
@@ -102,22 +102,25 @@ public class AltosIgnite {
 		if (serial == null)
 			return status;
 		string_ref status_name = new string_ref();
-		start_serial();
-		serial.printf("t\n");
-		for (;;) {
-			String line = serial.get_reply(5000);
-			if (line == null)
-				throw new TimeoutException();
-			if (get_string(line, "Igniter: drogue Status: ", status_name))
-				if (igniter == Apogee)
-					status = status(status_name.get());
-			if (get_string(line, "Igniter:   main Status: ", status_name)) {
-				if (igniter == Main)
-					status = status(status_name.get());
-				break;
+		try {
+			start_serial();
+			serial.printf("t\n");
+			for (;;) {
+				String line = serial.get_reply(5000);
+				if (line == null)
+					throw new TimeoutException();
+				if (get_string(line, "Igniter: drogue Status: ", status_name))
+					if (igniter == Apogee)
+						status = status(status_name.get());
+				if (get_string(line, "Igniter:   main Status: ", status_name)) {
+					if (igniter == Main)
+						status = status(status_name.get());
+					break;
+				}
 			}
+		} finally {
+			stop_serial();
 		}
-		stop_serial();
 		return status;
 	}
 
@@ -145,6 +148,7 @@ public class AltosIgnite {
 				break;
 			}
 		} catch (InterruptedException ie) {
+		} catch (TimeoutException te) {
 		} finally {
 			try {
 				stop_serial();
@@ -166,7 +170,8 @@ public class AltosIgnite {
 		serial.set_frame(frame);
 	}
 
-	public AltosIgnite(AltosDevice in_device) throws FileNotFoundException, AltosSerialInUseException {
+	public AltosIgnite(AltosDevice in_device)
+		throws FileNotFoundException, AltosSerialInUseException, TimeoutException, InterruptedException {
 
 		device = in_device;
 		serial = new AltosSerial(device);

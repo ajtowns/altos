@@ -26,7 +26,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 import libaltosJNI.*;
 
@@ -66,6 +66,16 @@ public class AltosUI extends JFrame {
 			JOptionPane.showMessageDialog(AltosUI.this,
 						      device.toShortString(),
 						      "Unkonwn I/O error",
+						      JOptionPane.ERROR_MESSAGE);
+		} catch (TimeoutException te) {
+			JOptionPane.showMessageDialog(this,
+						      device.toShortString(),
+						      "Timeout error",
+						      JOptionPane.ERROR_MESSAGE);
+		} catch (InterruptedException ie) {
+			JOptionPane.showMessageDialog(this,
+						      device.toShortString(),
+						      "Interrupted exception",
 						      JOptionPane.ERROR_MESSAGE);
 		}
 	}

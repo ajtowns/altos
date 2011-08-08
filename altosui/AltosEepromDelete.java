@@ -84,11 +84,11 @@ public class AltosEepromDelete implements Runnable {
 	}
 
 	public void run () {
-		if (remote)
-			serial_line.start_remote();
-
 		success = false;
 		try {
+			if (remote)
+				serial_line.start_remote();
+
 			for (AltosEepromLog log : flights) {
 				if (log.delete) {
 					DeleteLog(log);
@@ -103,11 +103,12 @@ public class AltosEepromDelete implements Runnable {
 			show_error (String.format("Connection to \"%s\" failed",
 						  serial_line.device.toShortString()),
 				    "Connection Failed");
+		} finally {
+			if (remote)
+				serial_line.stop_remote();
+			serial_line.flush_output();
+			serial_line.close();
 		}
-		if (remote)
-			serial_line.stop_remote();
-		serial_line.flush_output();
-		serial_line.close();
 		if (listener != null) {
 			Runnable r = new Runnable() {
 					public void run() {

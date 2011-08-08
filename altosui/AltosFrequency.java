@@ -44,6 +44,12 @@ public class AltosFrequency {
 				     frequency, description);
 	}
 
+	public boolean close(double f) {
+		double	diff = Math.abs(frequency - f);
+
+		return diff < 0.010;
+	}
+
 	public AltosFrequency(double f, String d) {
 		frequency = f;
 		description = d;

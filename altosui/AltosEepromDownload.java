@@ -264,11 +264,11 @@ public class AltosEepromDownload implements Runnable {
 	}
 
 	public void run () {
-		if (remote)
-			serial_line.start_remote();
-
 		try {
 			boolean	failed = false;
+			if (remote)
+				serial_line.start_remote();
+
 			for (AltosEepromLog log : flights) {
 				parse_exception = null;
 				if (log.download) {
@@ -295,11 +295,12 @@ public class AltosEepromDownload implements Runnable {
 						   serial_line.device.toShortString()),
 				     "Connection Failed",
 				     JOptionPane.ERROR_MESSAGE);
+		} finally {
+			if (remote)
+				serial_line.stop_remote();
+			serial_line.flush_output();
 		}
-		if (remote)
-			serial_line.stop_remote();
 		monitor.done();
-		serial_line.flush_output();
 		if (listener != null) {
 			Runnable r = new Runnable() {
 					public void run() {

@@ -43,8 +43,9 @@ public class AltosConfigUI
 	JLabel		serial_label;
 	JLabel		main_deploy_label;
 	JLabel		apogee_delay_label;
-	JLabel		radio_channel_label;
+	JLabel		frequency_label;
 	JLabel		radio_calibration_label;
+	JLabel		radio_frequency_label;
 	JLabel		flight_log_max_label;
 	JLabel		ignite_mode_label;
 	JLabel		pad_orientation_label;
@@ -58,7 +59,7 @@ public class AltosConfigUI
 	JLabel		serial_value;
 	JComboBox	main_deploy_value;
 	JComboBox	apogee_delay_value;
-	JComboBox	radio_channel_value;
+	AltosFreqList	radio_frequency_value;
 	JTextField	radio_calibration_value;
 	JComboBox	flight_log_max_value;
 	JComboBox	ignite_mode_value;
@@ -97,13 +98,6 @@ public class AltosConfigUI
 		"Antenna Up",
 		"Antenna Down",
 	};
-
-	static String[] radio_channel_values = new String[10];
-		{
-			for (int i = 0; i <= 9; i++)
-				radio_channel_values[i] = String.format("Channel %1d (%7.3fMHz)",
-									i, 434.550 + i * 0.1);
-		}
 
 	/* A window listener to catch closing events and tell the config code */
 	class ConfigListener extends WindowAdapter {
@@ -245,7 +239,7 @@ public class AltosConfigUI
 		apogee_delay_value.addItemListener(this);
 		pane.add(apogee_delay_value, c);
 
-		/* Radio channel */
+		/* Frequency */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 5;
 		c.gridwidth = 4;
@@ -253,8 +247,8 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
 		c.ipady = 5;
-		radio_channel_label = new JLabel("Radio Channel:");
-		pane.add(radio_channel_label, c);
+		radio_frequency_label = new JLabel("Frequency:");
+		pane.add(radio_frequency_label, c);
 
 		c = new GridBagConstraints();
 		c.gridx = 4; c.gridy = 5;
@@ -264,10 +258,9 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		radio_channel_value = new JComboBox(radio_channel_values);
-		radio_channel_value.setEditable(false);
-		radio_channel_value.addItemListener(this);
-		pane.add(radio_channel_value, c);
+		radio_frequency_value = new AltosFreqList();
+		radio_frequency_value.addItemListener(this);
+		pane.add(radio_frequency_value, c);
 
 		/* Radio Calibration */
 		c = new GridBagConstraints();
@@ -501,6 +494,7 @@ public class AltosConfigUI
 
 	/* set and get all of the dialog values */
 	public void set_product(String product) {
+		radio_frequency_value.set_product(product);
 		product_value.setText(product);
 	}
 
@@ -509,6 +503,7 @@ public class AltosConfigUI
 	}
 
 	public void set_serial(int serial) {
+		radio_frequency_value.set_serial(serial);
 		serial_value.setText(String.format("%d", serial));
 	}
 
@@ -528,12 +523,32 @@ public class AltosConfigUI
 		return Integer.parseInt(apogee_delay_value.getSelectedItem().toString());
 	}
 
-	public void set_radio_channel(int new_radio_channel) {
-		radio_channel_value.setSelectedIndex(new_radio_channel);
+	public void set_radio_frequency(double new_radio_frequency) {
+		int i;
+		for (i = 0; i < radio_frequency_value.getItemCount(); i++) {
+			AltosFrequency	f = (AltosFrequency) radio_frequency_value.getItemAt(i);
+			
+			if (f.close(new_radio_frequency)) {
+				radio_frequency_value.setSelectedIndex(i);
+				return;
+			}
+		}
+		for (i = 0; i < radio_frequency_value.getItemCount(); i++) {
+			AltosFrequency	f = (AltosFrequency) radio_frequency_value.getItemAt(i);
+			
+			if (new_radio_frequency < f.frequency)
+				break;
+		}
+		String	description = String.format("%s serial %s",
+						    product_value.getText(),
+						    serial_value.getText());
+		AltosFrequency	new_frequency = new AltosFrequency(new_radio_frequency, description);
+		AltosPreferences.add_common_frequency(new_frequency);
+		radio_frequency_value.insertItemAt(new_frequency, i);
 	}
 
-	public int radio_channel() {
-		return radio_channel_value.getSelectedIndex();
+	public double radio_frequency() {
+		return radio_frequency_value.frequency();
 	}
 
 	public void set_radio_calibration(int new_radio_calibration) {
@@ -546,6 +561,9 @@ public class AltosConfigUI
 
 	public void set_callsign(String new_callsign) {
 		callsign_value.setText(new_callsign);
+	}
+
+	public void set_radio_setting(int new_radio_setting) {
 	}
 
 	public String callsign() {

@@ -167,7 +167,7 @@ class AltosIdleMonitor extends Thread {
 	AltosIdleMonitorUI	ui;
 	AltosState		state;
 	boolean			remote;
-	int			channel;
+	double			frequency;
 	AltosState		previous_state;
 	AltosConfigData		config_data;
 	AltosADC		adc;
@@ -178,7 +178,7 @@ class AltosIdleMonitor extends Thread {
 
 		try {
 			if (remote) {
-				set_channel(channel);
+				serial.set_radio_frequency(frequency);
 				serial.start_remote();
 			} else
 				serial.flush_input();
@@ -217,8 +217,8 @@ class AltosIdleMonitor extends Thread {
 		state = new AltosState (record, state);
 	}
 
-	void set_channel(int in_channel) {
-		channel = in_channel;
+	void set_frequency(double in_frequency) {
+		frequency = in_frequency;
 	}
 
 	public void post_state() {
@@ -246,7 +246,7 @@ class AltosIdleMonitor extends Thread {
 	}
 
 	public AltosIdleMonitor(AltosIdleMonitorUI in_ui, AltosDevice in_device, boolean in_remote)
-		throws FileNotFoundException, AltosSerialInUseException {
+		throws FileNotFoundException, AltosSerialInUseException, InterruptedException, TimeoutException {
 		device = in_device;
 		ui = in_ui;
 		serial = new AltosSerial(device);
@@ -299,9 +299,10 @@ public class AltosIdleMonitorUI extends JFrame implements AltosFlightDisplay {
 	}
 
 	Container	bag;
-	JComboBox	channels;
+	AltosFreqList	frequencies;
 
-	public AltosIdleMonitorUI(JFrame in_owner) throws FileNotFoundException, AltosSerialInUseException {
+	public AltosIdleMonitorUI(JFrame in_owner)
+		throws FileNotFoundException, AltosSerialInUseException, TimeoutException, InterruptedException {
 
 		device = AltosDeviceDialog.show(in_owner, Altos.product_any);
 		remote = false;
@@ -320,21 +321,23 @@ public class AltosIdleMonitorUI extends JFrame implements AltosFlightDisplay {
 
 		setTitle(String.format("AltOS %s", device.toShortString()));
 
-		/* Stick channel selector at top of table for telemetry monitoring */
+		/* Stick frequency selector at top of table for telemetry monitoring */
 		if (remote && serial >= 0) {
-			// Channel menu
-			channels = new AltosChannelMenu(AltosPreferences.channel(serial));
-			channels.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					int channel = channels.getSelectedIndex();
-					thread.set_channel(channel);
-				}
+			// Frequency menu
+			frequencies = new AltosFreqList(AltosPreferences.frequency(serial));
+			frequencies.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						double frequency = frequencies.frequency();
+						thread.set_frequency(frequency);
+						AltosPreferences.set_frequency(device.getSerial(),
+									       frequency);
+					}
 			});
 			c.gridx = 0;
 			c.gridy = 0;
 			c.insets = new Insets(3, 3, 3, 3);
 			c.anchor = GridBagConstraints.WEST;
-			bag.add (channels, c);
+			bag.add (frequencies, c);
 		}
 
 
