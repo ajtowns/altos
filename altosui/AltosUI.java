@@ -147,7 +147,7 @@ public class AltosUI extends JFrame {
 						ExportData();
 					}
 				});
-		b = addButton(0, 1, "Configure Altimter");
+		b = addButton(0, 1, "Configure Altimeter");
 		b.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						ConfigureTeleMetrum();
