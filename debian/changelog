@@ -1,4 +1,4 @@
-altos (0.9.1.telemini.1) unstable; urgency=low
+altos (0.9.1) unstable; urgency=low
 
   [ Keith Packard ]
   * ao-load: fix usage message to note that '=' is required for options
