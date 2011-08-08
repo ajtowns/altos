@@ -370,7 +370,7 @@ ao_config_ignite_mode_set(void) __reentrant
 }
 #endif
 
-#if HAS_IGNITE
+#if HAS_ACCEL
 void
 ao_config_pad_orientation_show(void) __reentrant
 {
