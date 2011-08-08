@@ -49,7 +49,8 @@ public class AltosConfigureUI
 
 	JRadioButton	serial_debug;
 
-	JButton		manage_bluetooth;
+// BLUETOOTH
+//	JButton		manage_bluetooth;
 	JButton		manage_frequencies;
 
 	/* DocumentListener interface methods */
@@ -202,18 +203,19 @@ public class AltosConfigureUI
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(serial_debug, c);
 
-		manage_bluetooth = new JButton("Manage Bluetooth");
-		manage_bluetooth.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					AltosBTManage.show(owner, Altos.bt_known);
-				}
-			});
-		c.gridx = 0;
-		c.gridy = 6;
-		c.gridwidth = 2;
-		c.fill = GridBagConstraints.NONE;
-		c.anchor = GridBagConstraints.WEST;
-		pane.add(manage_bluetooth, c);
+// BLUETOOTH
+//		manage_bluetooth = new JButton("Manage Bluetooth");
+//		manage_bluetooth.addActionListener(new ActionListener() {
+//				public void actionPerformed(ActionEvent e) {
+//					AltosBTManage.show(owner, Altos.bt_known);
+//				}
+//			});
+//		c.gridx = 0;
+//		c.gridy = 6;
+//		c.gridwidth = 2;
+//		c.fill = GridBagConstraints.NONE;
+//		c.anchor = GridBagConstraints.WEST;
+//		pane.add(manage_bluetooth, c);
 
 		manage_frequencies = new JButton("Manage Frequencies");
 		manage_frequencies.addActionListener(new ActionListener() {
@@ -221,7 +223,9 @@ public class AltosConfigureUI
 					AltosConfigFreqUI.show(owner);
 				}
 			});
-		c.gridx = 2;
+// BLUETOOTH
+//		c.gridx = 2;
+		c.gridx = 1;
 		c.gridy = 6;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;

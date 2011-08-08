@@ -10,6 +10,12 @@ CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:libaltos:$(FREETTS)/*:/
 
 bin_SCRIPTS=altosui
 
+altosui_BT = \
+	AltosBTDevice.java \
+	AltosBTDeviceIterator.java \
+	AltosBTManage.java \
+	AltosBTKnown.java
+
 altosui_JAVA = \
 	GrabNDrag.java \
 	AltosAscent.java \
@@ -28,10 +34,6 @@ altosui_JAVA = \
 	AltosDeviceDialog.java \
 	AltosDevice.java \
 	AltosUSBDevice.java \
-	AltosBTDevice.java \
-	AltosBTDeviceIterator.java \
-	AltosBTManage.java \
-	AltosBTKnown.java \
 	AltosDisplayThread.java \
 	AltosEepromChunk.java \
 	AltosEepromDelete.java \

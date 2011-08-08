@@ -41,6 +41,7 @@ main ()
 		altos_close(file);
 	}
 	altos_list_finish(list);
+#if HAS_BLUETOOTH
 	bt_list = altos_bt_list_start(8);
 	while (altos_bt_list_next(bt_list, &bt_device)) {
 		printf ("%s %s\n", bt_device.name, bt_device.addr);
@@ -64,6 +65,7 @@ main ()
 		}
 	}
 	altos_bt_list_finish(bt_list);
+#endif
 	altos_fini();
 	return 0;
 }

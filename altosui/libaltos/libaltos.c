@@ -582,6 +582,7 @@ altos_list_finish(struct altos_list *usbdevs)
 	free(usbdevs);
 }
 
+#if HAS_BLUETOOTH
 struct altos_bt_list {
 	inquiry_info	*ii;
 	int		sock;
@@ -713,6 +714,7 @@ no_sock:
 no_file:
 	return NULL;
 }
+#endif /* HAS_BLUETOOTH */
 
 #endif
 

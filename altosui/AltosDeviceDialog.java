@@ -30,7 +30,8 @@ public class AltosDeviceDialog extends JDialog implements ActionListener {
 	private JList		list;
 	private JButton		cancel_button;
 	private JButton		select_button;
-	private JButton		manage_bluetooth_button;
+// BLUETOOTH
+//	private JButton		manage_bluetooth_button;
 	private Frame		frame;
 	private int		product;
 
@@ -40,14 +41,18 @@ public class AltosDeviceDialog extends JDialog implements ActionListener {
 
 	private AltosDevice[] devices() {
 		java.util.List<AltosDevice>	usb_devices = AltosUSBDevice.list(product);
-		java.util.List<AltosDevice>	bt_devices = Altos.bt_known.list(product);
-		AltosDevice[]			devices = new AltosDevice[usb_devices.size() + bt_devices.size()];
+		int				num_devices = usb_devices.size();
+// BLUETOOTH
+//		java.util.List<AltosDevice>	bt_devices = Altos.bt_known.list(product);
+//		num_devices += bt_devices.size();
+		AltosDevice[]			devices = new AltosDevice[num_devices];
 
 		for (int i = 0; i < usb_devices.size(); i++)
 			devices[i] = usb_devices.get(i);
-		int off = usb_devices.size();
-		for (int j = 0; j < bt_devices.size(); j++)
-			devices[off + j] = bt_devices.get(j);
+// BLUETOOTH
+//		int off = usb_devices.size();
+//		for (int j = 0; j < bt_devices.size(); j++)
+//			devices[off + j] = bt_devices.get(j);
 		return devices;
 	}
 
@@ -70,9 +75,10 @@ public class AltosDeviceDialog extends JDialog implements ActionListener {
 		cancel_button.setActionCommand("cancel");
 		cancel_button.addActionListener(this);
 
-		manage_bluetooth_button = new JButton("Manage Bluetooth");
-		manage_bluetooth_button.setActionCommand("manage");
-		manage_bluetooth_button.addActionListener(this);
+// BLUETOOTH
+//		manage_bluetooth_button = new JButton("Manage Bluetooth");
+//		manage_bluetooth_button.setActionCommand("manage");
+//		manage_bluetooth_button.addActionListener(this);
 
 		select_button = new JButton("Select");
 		select_button.setActionCommand("select");
@@ -146,7 +152,8 @@ public class AltosDeviceDialog extends JDialog implements ActionListener {
 		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(cancel_button);
 		buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
-		buttonPane.add(manage_bluetooth_button);
+// BLUETOOTH
+//		buttonPane.add(manage_bluetooth_button);
 		buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
 		buttonPane.add(select_button);
 
@@ -166,11 +173,12 @@ public class AltosDeviceDialog extends JDialog implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if ("select".equals(e.getActionCommand()))
 			value = (AltosDevice)(list.getSelectedValue());
-		if ("manage".equals(e.getActionCommand())) {
-			AltosBTManage.show(frame, Altos.bt_known);
-			update_devices();
-			return;
-		}
+// BLUETOOTH
+//		if ("manage".equals(e.getActionCommand())) {
+//			AltosBTManage.show(frame, Altos.bt_known);
+//			update_devices();
+//			return;
+//		}
 		setVisible(false);
 	}
 
