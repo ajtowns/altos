@@ -1,3 +1,2434 @@
+commit 7c94945690a6ff5cbf872026fd6411a30089c7b1
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 8 07:33:09 2011 -0600
+
+    simplify version in last changelog entry so git-dch is less confused
+
+commit 6d5e5b0be237d5448aa9d15decd6127cf41ca7b2
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 8 07:30:42 2011 -0600
+
+    update version for a Bdale build for use turning on TeleMini v1.0
+
+commit 6492218fc316f8cf6214a577807a8dd0a80a9b6a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 2 19:07:56 2011 -0700
+
+    altos/altosui: Add pad orientation configure option
+    
+    Allow TeleMetrum to be operated with the antenna pointing downwards on
+    the pad. This provides some additional flexibility when designing an
+    ebay.
+    
+    The accelerometer calibration levels are flipped around to match, so
+    no re-calibration should be required.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 11a2bb8e28df7ed87542f2ee726f877971f5d52a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 2 17:41:53 2011 -0700
+
+    altosui: Add idle monitor dialog
+    
+    This monitors a telemetrum device in idle mode, either directly or through a
+    teledongle, allowing the GPS status and batteries to be monitored
+    without resorting to placing the device in pad mode.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3cc2eed6cdafe788a8617ab45c6664077e76411e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 2 18:01:52 2011 -0700
+
+    altosui: Simple timeouts don't work with query data
+    
+    To get the query to come back, it's best to abort and retry the
+    command, other wise the command may have been lost to the previous
+    connection.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 37c41c962ea4631e62307a57d2ce6572b87fd743
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 2 17:41:02 2011 -0700
+
+    altosui: Parse accel cal from 'c s' command
+    
+    These fields weren't used before, so the code to parse them hadn't
+    been written.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 95201e7fe4a6a7ec42321e8dbad3aea3bbf4c840
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 2 17:40:02 2011 -0700
+
+    altosui: Standard text field in flight UI needs more width (now 20)
+    
+    Latitude and longitude take more than 16 characters.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 82e04a0e3a3296288a524ec582785a36fd644331
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 2 02:09:23 2011 -0700
+
+    altos: Require sequencing through 'main' state before landing
+    
+    The old version of the code would permit the flight to go straight
+    from 'drogue' to 'landed' without passing through 'main' at all. This
+    meant that a false landing detection would leave the main charge
+    unfired, potentially causing the airframe to land on drogue alone.
+    
+    Requiring that the flight sequence pass through main ensures that the
+    main charge will get fired at the right time, although if the airframe
+    lands higher than that altitude, it will not go to 'landed' mode ever.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6c55bf35b11ae3ddae152795072d69e98184bac1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 2 01:49:35 2011 -0700
+
+    altos: Reduce height averaging filter time constant
+    
+    Using the longer time constant could lead to false landing detection
+    just after apogee, which is definitely not a good idea.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e19a117b99e8374ca0e8e35948e23bc672ad1a32
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 1 22:33:38 2011 -0700
+
+    altos: Average height values for landing detection
+    
+    Instead of using the direct output of the kalman filter and hoping
+    that is quiet enough to detect landing, filter that with a long
+    exponential decay filter and then check to make sure that doesn't
+    change more than 2m in 5 seconds as a trigger for landing detection.
+    
+    Tested with existing telemetrum flight logs and it correctly detects
+    landing in all cases.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 146a0ab223e8d9b376125d1e59f597f6d7851a9b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jul 17 18:49:55 2011 -0700
+
+    altos: Add ability to read new TELEM files to ao_flight_test
+    
+    Not that telem files are currently very useful as the kalman filter
+    gets completly confused by the variable steps caused by missing data, but...
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6795d353be91df96a571cebc237e6a54a065a380
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jul 17 16:44:10 2011 -0700
+
+    altosui: Change continutity colors to yellow/magenta
+    
+    Makes them stand apart from the accel/speed lines
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7f6cce5749724dbb836aaa27bbeedf977106f6f3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jul 17 16:43:41 2011 -0700
+
+    Add HARA Bragg Farms site
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6796d9e253a808824ba32cdb008da8bf302780fc
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jul 17 15:53:13 2011 -0700
+
+    Fix NCR Pawnee location
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ddef3e4ec1b3ff86b164f83807c34c2a78f73eb8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jul 17 15:45:07 2011 -0700
+
+    altosui: Mark preload site location with red circles (like launch)
+    
+    Just to show where on the map the official launch location is.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1f3f3d575572eff33a2bc7a53d4691e59a428450
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jul 17 15:09:55 2011 -0700
+
+    altosui: Add a bunch more site locations
+    
+    BALLS, Rio Rancho, METRA, QRS Cedar Grove and Hudson Ranch
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fef42e0d9e0a20bdbd32e052749fc63575515e1c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jul 17 11:29:13 2011 -0700
+
+    altosui: Add launch-sites.txt
+    
+    Contains a few of our favorites.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 81cac174c80ee42d9e94c6500da7c4c760c3ce67
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jul 17 11:25:47 2011 -0700
+
+    altosui: Download list of site locations for map preloading
+    
+    The current URL for this is:
+    http://gag.com/~keithp/launch-sites.txt
+    
+    The format is:
+    <site-name>:<lat>:<lon>
+    
+    lat and lon are both in signed decimal degrees.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f7cd8317bf78ece334e1ceb0263b875ca43bbbd2
+Merge: 51796e2 a482d90
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jul 17 08:17:44 2011 -0700
+
+    Merge branch 'preload-maps'
+
+commit 51796e2f1ebce3ee8dc1ac90648381410c1379ee
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon May 23 11:32:29 2011 -0700
+
+    altos, altosui: Add igniter mode (dual, apogee, main)
+    
+    This provides for redundant charges for either apogee or main.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1332ed55192f22525f31574f60fae4c6579e6f7f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jul 17 08:13:15 2011 -0700
+
+    Set version to 0.9.4.4
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a482d904a3f391c3a24df3660acb3f3696aa6766
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sat Jul 16 23:08:49 2011 -0700
+
+    altosui: Make sure degree and minute values are visible (map preload)
+    
+    Set min size to preferred size so that the value remains visible
+    instead of snapping to 0 pixels wide.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1681c57cbbfc5214dbc2a519e54ce9f29ffe3921
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 16 22:43:34 2011 -0700
+
+    altosui: Remove a bunch of sitemap debugging printfs
+    
+    Seems to work, let's get less chatty
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0a4d934f6e2914bfe2d965630543f029a1576c11
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 16 22:34:44 2011 -0700
+
+    altosui: Display full map preload area in view.
+    
+    This involved fixing the map view to support arbitrary sizes, and then
+    exposing a synchronous tile loading API so that the progress bar could
+    be used to show tile loading progress.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit abb8510b97ce9cbbff0275cc31f74780fe1ce138
+Merge: 0929ee3 00e6981
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 16 21:06:37 2011 -0700
+
+    Merge branch 'scan-telemetry' into preload-maps
+
+commit 00e6981c2e0a668864fcf391932855cd8942140c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 16 21:05:06 2011 -0700
+
+    altosui: Flush telemetry lines before starting to watch for scan results
+    
+    This prevents pending telemetry lines from being incorrectly
+    attributed to the wrong channel/telemetry.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0929ee32f753255cbe1474988cb41a5a86d29a0e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 16 17:37:20 2011 -0700
+
+    altosui: Try to avoid resize weirdness with map preloading
+    
+    grid bag + box does some strange stuff, this appears to avoid the
+    worst of the interactions.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 225073fd822f9861a83d65386c29fda9b37bf273
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 16 16:37:40 2011 -0700
+
+    altosui: Add map preloading GUI
+    
+    Provide a way to manually enter latitude and longitude, preview the
+    map area while downloading a 9x9 grid of map tiles to be used when
+    monitoring flights without network access.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit cbd14ba103ee5e3c5eec18e3a4ff13c320b98634
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 16 20:44:51 2011 -0700
+
+    altosui: Set 'seen' bits in legacy telemetry packet reader
+    
+    Otherwise, the 'scan' code won't show detected flight computers.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e905042879147dd86241bf2dcc7437e5a6eb7578
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 16 20:43:57 2011 -0700
+
+    altosui: Initialize channel and telemetry before use in ScanUI
+    
+    Otherwise we try to use telemetry format 0, which means 'no telemetry'.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 941b90a4905e34936d24a25ca90ac04eb6f5a792
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 16 17:38:00 2011 -0700
+
+    altosui: Generalize and centralize telemetry constants, parse v0.8 telemetry
+    
+    Move telemetry constants to Altos class, adding functions to compute
+    names and lengths. Generalize users of these values to use all of the
+    known values.
+    
+    Add support for v0.8 TeleMetrum telemetry
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7ef786276b5d5c7d17c3fe4f36aa41db61a9742f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 16 14:23:08 2011 -0700
+
+    altosui: Finish radio scanning UI
+    
+    Scans all channels and telemetry formats, presenting visible devices
+    in a list. Entries from the list may be selected, in which case a
+    monitor window pops up with the appropriate configuration.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ebcba28b3c09925869b617880d2919e5d0e059f0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 16 14:19:41 2011 -0700
+
+    altosui: Configuration telemetry record includes flight number
+    
+    Mark the reported altos record as including flight information.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d4375bc737655546c2d40f49acdfc2e60ebfea5a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 16 14:19:14 2011 -0700
+
+    altosui: Remove debugging printf from AltosLog
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f32a55ac9a3ebbde2b41782f22491e72258fe05a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 9 19:00:12 2011 -0700
+
+    altosui: Pop up monitor window from scan dialog
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8c20030ea4eb8e068e1ba88e01d07dfbc27bd7db
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 9 18:41:15 2011 -0700
+
+    altosui: Start adding support for scanning radio for available devices
+    
+    This is untested.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7bb11b716ccb6c80701bc3f34ecf9bef97cbbfc9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jul 15 18:53:41 2011 -0700
+
+    Set version to 0.9.4.3 for Bdale 2011-7-16 flights
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0d0cf6f9a1b14a1b66aee3845964cd33d1f035c2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 9 13:09:57 2011 -0700
+
+    altos: new versions of sdcc require __ prefixes for custom keywords
+    
+    Fortunately, 2.9.1 appears to accept either, so we can switch now and
+    prepare for sdcc 3.0.0.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8f80f5705d64469bcfb00ff11aee68364edb271b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 21:38:57 2011 -0700
+
+    altosui: Don't show missing igniter and gps values
+    
+    The new telemetry stuff leaves state.gps always set (but empty), which
+    seems fine, we just need to look at state.gps.connected to see if
+    there's a GPS receiver on board.
+    
+    For TeleNano, we also want to hide the igniter status fields as they
+    won't have any data present.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 80ca066a825646f833ca609190c76c5252118d9a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 21:36:38 2011 -0700
+
+    altosui: Build device constants into .java code
+    
+    This eliminates a depedency on updates to the system helper library,
+    which means we don't have to provide a new library on all platforms
+    just to support a new USB id.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 504ab7ab355652d5d01094c927089029596a0753
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 17:49:01 2011 -0700
+
+    altos: product defines are always in ao_product.h
+    
+    When all products were built in a single directory, each one had a
+    separate version of ao_product.h. Now that they all reside in
+    sub-directories, each directory has its own ao_product.h
+    
+    This change is needed so that other modules in the system can use the
+    product defines; otherwise, ao_product.h was not built at the right time.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 81cf2e833bedbc1ace8fd310e9e94bfb7673d428
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 16:43:17 2011 -0700
+
+    altos: Ensure low-rate telem packets interleave with sensor telem packets
+    
+    To avoid over-committing the radio link, we want to send only
+    one low rate packet after each sensor packet. However, the
+    initializations for this were incorrect, causing the configuration and
+    location packets to be sent at the same time.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5ca6400fd8a360b64d8f96f50d5595a7fd17762d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 16:18:54 2011 -0700
+
+    altos: Remove ao_telemetry_orig.c and ao_telemetry_tiny.c
+    
+    All products use the common ao_telemetry.c code now
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0154d13756bcb09f009981ee5e4bd27fd04b8788
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 16:19:22 2011 -0700
+
+    altos: Switch Tm and Tn to common telemetry code
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b65140a0139075adeddaccf0f4d5c7a75fac4757
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 15:52:25 2011 -0700
+
+    altos: Switch flash drivers __xdata to __pdata
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 038d7b25ba833da4be458409670d3f95e8aaf17b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 15:51:52 2011 -0700
+
+    altos: Switch ao_flight and ao_flight_nano __xdata to __pdata
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3742b36a528f114c3b1873caa4f39581145b76da
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 15:28:01 2011 -0700
+
+    altos: Switch ao_dbg.c __xdata to __pdata
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6903b6464db7eb803de8bf9b897c45431f7a1d63
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 15:27:32 2011 -0700
+
+    altos: Switch ao_config.c __xdata to __pdata
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6893752900385ee51cc4cf75e1b672202de7578a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 15:26:09 2011 -0700
+
+    altos: switch ao_cmd __xdata to __pdata
+    
+    Saves code space
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2ec986f08ce8d4635f4435bb0042b405d93edc40
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 15:45:04 2011 -0700
+
+    altos: Switch const for __code in struct ao_cmds
+    
+    This saves quite a bit of code space when accessing these values.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 355db71f4511adff8abcb2caded61c12fe8b7ee9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 15:41:32 2011 -0700
+
+    altos: Switch ao_usb.c __xdata to __pdata
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 359baab005c274a0841268c615c23b3ffef813cf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 15:41:06 2011 -0700
+
+    altos: Switch ao_telemetry.c __xdata to __pdata
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f2f8ade6994aa3a69fd08f19c4403ceb8cea295d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 15:39:44 2011 -0700
+
+    altos: Switch ao_stdio.c __data to __pdata
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9ba0da9247ea424a7a147aa85daae0d5e6316b81
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 15:38:46 2011 -0700
+
+    altos: Switch ao_serial.c __xdata to __pdata
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 86b41d4c2b8a9fa4507cdb75302e0cedebb103cb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 15:38:29 2011 -0700
+
+    altos: Switch ao_sample.c __xdata to __pdata
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 803bf106caf5d6b5ac12eb00a941647c7325edd1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 15:37:34 2011 -0700
+
+    altos: Switch ao_rssi.c __xdata to __pdata
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 002f167fc2709aaf1a4984aaa0a3519a97749d5f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 15:37:15 2011 -0700
+
+    altos: Switch ao_report.c __xdata to __pdata
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5203ddaac692bfd82a01368da9fb66c25e9e14c1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 15:36:45 2011 -0700
+
+    altos: Switch ao_log.c and ao_log_big.c __xdata to __pdata
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 62267144d189967fcd0724b6dfbdbab3cb6fb414
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 15:33:52 2011 -0700
+
+    altos: Switch ao_ignite and ao_gps_sirf __xdata to __pdata
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 92047ff86c79c2b18ef565a4560b06fe00d6f159
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 15:31:53 2011 -0700
+
+    altos: Switch ao_gps_skytraq and ao_gps_sirf __xdata to __pdata
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 64860be02b3efa6f784a259249cfa6d14545fbd3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 13:49:05 2011 -0700
+
+    altos: Shrink ao_add_task by rolling up a memset loop
+    
+    This has a dramatic effect. By pulling the 'stack' variable into
+    registers it reduces the size of this function from 550 to 231 bytes.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 480b48837db31987b947e4d32248965d4a16be03
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 13:21:25 2011 -0700
+
+    altos: Shrink ao_config_callsign_set
+    
+    Replacing a hand-coded memset with a function call, using static space
+    instead of stack space for an array.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 41c230cac359b4459ca93196d08704b7d35447c7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jul 6 12:38:11 2011 -0700
+
+    altos: Shrink ao_cmd_put16, ao_cmd_hex and ao_cmd
+    
+    No functional changes, just reduces code size.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 481577a29380afe6750ef7c4e928daff837cbc49
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 5 23:38:42 2011 -0700
+
+    altosui: Compress telemetry records marked with the same time
+    
+    Split telemetry transmits multiple packets with the same
+    timestamp. Merge those into a single record when read from a file.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7cfd43663cde5ebdf04e4face076d79ff6329ac3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 5 23:38:28 2011 -0700
+
+    altosui: Remove debug printf.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d0335f83c54df0b23c28d04d34c212a1bdffadd0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 5 23:37:51 2011 -0700
+
+    altosui: Add main/drogue voltages to default graph
+    
+    Until we get a UI for changing the graph elements, lets add a few more
+    potentially useful values.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c1f859170b37864b816eb561318dbfb1cafaeed6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 5 23:37:00 2011 -0700
+
+    altosui: Elide missing values from graphs
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 72575dcb9cfbb5c1ccdb3510b9962a6f60ca3fa3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 5 23:35:50 2011 -0700
+
+    altosui: Elide nul bytes at end of telemetry string values
+    
+    All telemetry fields are fixed length, so any embedded strings are
+    padded with nul bytes.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6ac34f9c8efd464194137ac4ce8228bf9d7d83be
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 5 23:35:02 2011 -0700
+
+    doc: Add section about TeleDongle USB line format
+    
+    Describe the format of the TELEM lines sent over USB from TeleDongle
+    to the host.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit edf6252450e06fd42fa6dde3acd127baa8fa6d36
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 5 21:44:53 2011 -0700
+
+    altos: Adapt to changes in telemetry Configuration packet
+    
+    Apogee delay added. flight_log_max changed to two bytes (in kB now).
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 938949e39aac834a1c0912f8f307f74fe41418cc
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 5 21:42:22 2011 -0700
+
+    doc: Chang Config and Location packets
+    
+    Config packets get apogee delay, and have flight_log_max shrunk to two
+    bytes.
+    
+    Location packets get climb_rate added.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4132ac5896114e5f3d8fb3f219422e8933078cf4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jul 5 21:41:44 2011 -0700
+
+    altosui: Parse remaining standard telemetry packets
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ef3ce687d73c1274ce5368432f4d449b063ce5c0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jul 4 23:39:21 2011 -0700
+
+    altos: Complete new telemetry switchover
+    
+    This involved rewriting the GPS code to use the telemetry structures
+    directly so that a memcpy could be used to transfer the data to the
+    telemetry packets, saving a bunch of code space, along with fixing up
+    the gps testing programs to deal with the structure changes.
+    
+    In addition, the teledongle code needed to have the monitoring code
+    split into separate radio receiver and USB writer threads as the
+    packets are now back-to-back, and hence come too fast to wait for the
+    USB data to be sent to the host after each one.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 359681f23e2f71bc8f4975a4a76ae28c08ecab2e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jul 4 18:09:03 2011 -0700
+
+    altos: Add split telemetry code
+    
+    This sends every packet every time, which isn't correct, but should be
+    useful for testing.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b51e5466f7a125db873edd1fa9bd3881d7e98aad
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jul 4 18:08:19 2011 -0700
+
+    altos: Shrink help text
+    
+    Reduce const space taken by command help text.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9e5e4c1ad82d621ceb7286f72c87eeaf5976f9bf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jul 4 18:06:48 2011 -0700
+
+    altos: Add sat info to GPS report command
+    
+    Plan to use this to report current flight computer state in idle mode.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 06b6f78e22be38a26bfe11ed4d4b659d5b13f00c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jul 4 18:04:49 2011 -0700
+
+    altos: Shrink const space in ao_config
+    
+    Eliminate separate 'cmd' and 'help' struct entries.
+    Use \0 trick in cmd strings to eliminate whitespace.
+    Edit help text.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d3c26e534d8df34cfbf29b70cd1b2692493ce150
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jul 4 18:03:51 2011 -0700
+
+    altos: teledongle does not need ao_packet_slave.c
+    
+    TeleDongle doesn't provide slave interfaces, so remove ao_packet_slave
+    from the TD build
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c763a3f9cf2bf055e9705ce5ff4bc172f445037d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jul 4 18:02:52 2011 -0700
+
+    Version strings must be < 8 bytes long
+    
+    The new telemetry packets include the version string, so make sure its
+    less than 8 characters long
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a08173197d5533ecb395102ed34e751135660d06
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jul 4 18:01:59 2011 -0700
+
+    doc: Fix a few minor telemetry doc mistakes
+    
+    Multiple 'accel' entries in the Sensor packet.
+    Swap ground_accel and ground_pres to group accel cal data
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 98df3ba984acf3b47a09949bbea0f3264f711f5b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Jul 4 14:17:55 2011 -0700
+
+    doc: Complete initial telemetry description
+    
+    Finish describing the contents and modulation scheme for telemetry
+    data.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 06e82bd2c2a5eea153a053e542df9bc3537e9a01
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 2 01:50:33 2011 -0700
+
+    doc: Add telemetry format description
+    
+    Document the telemetry packet contents.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7fd9b8f720add559b262e81d61ededc9df16ca94
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jun 28 01:03:00 2011 -0700
+
+    altosui: Support raw telemetry from TeleDongle
+    
+    Use raw telemetry frames when TeleDongle supports them, this involves
+    parsing the hex dump of the packet instead of having teledongle take
+    the packet apart. Only the legacy format is working at this point; the
+    altos bits for the new split telemetry frames is not written yet.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit cb239b7161feea8646425b1f5788c3c82ae24321
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jun 28 01:01:08 2011 -0700
+
+    altos: ao_radio_recv needs byte count *including* rssi and status
+    
+    That's two more than the actual packet length.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 336224a08327cadc95f6e5b564a4ddc64aaad8f8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jun 24 08:31:51 2011 -0700
+
+    altos: Start adding new telemetry frame definitions
+    
+    These use the initial 24 bytes per frame plan, which will probably get
+    changed to 32 bytes per frame.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5e111fdf1f23203baeeb490ae1b69402ebd513b8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jun 24 08:31:12 2011 -0700
+
+    altos: Add checksum to TELEM output lines
+    
+    Verify the received telemetry lines to protect against OS data loss
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 489a68ba8e3bc360e2e8fc887e4c4b840b5a0dd3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jun 22 12:27:34 2011 -0700
+
+    altos: Add arbitrary telemetry packet monitoring
+    
+    This adds the ability to monitor arbitrary telemetry packets (up to
+    128 bytes), moving the telemetry data parsing up to the host.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0e67b6890dd3a06665239f8dfd2e69266d055e46
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jun 22 12:26:45 2011 -0700
+
+    altos: Rename telemetry to telemetry_orig
+    
+    This makes room to create a new multi-packet telemetry format without
+    changing anything yet.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit dc0b49dcbaa2d0a69e002c151337b6e9fd3060d9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jun 2 23:16:30 2011 -0700
+
+    altosui: Handle old TeleDongle receiving kalman telemetry packets
+    
+    The telemetry packets now send the kalman height/speed/accel values
+    instead of the ad-hoc values. If received by an old TeleDongle box,
+    the speed value will be of the form 0x8000abcd, which will be printed
+    as a 32-bit value by TeleDongle. We only want the abcd part, which is
+    the speed * 16. Detect this automatically and compute the correct
+    values for all three.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4d27e281f81aee88adff3d84085356ec310e4b92
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed May 25 21:38:02 2011 -0600
+
+    Switch version to 0.9.4
+    
+    For Mayhem, so we can tell what version each board is running
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 479bdffa35d0b8d4e48868c8d20f3cb1549521ab
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri May 6 23:55:23 2011 -0700
+
+    Revert "altos: Debugging TBT issues -- check pin configuration after boot"
+    
+    This reverts commit 514348055630edec12224c4b0964240b929759a3.
+    
+    Looks like this was never a problem.
+
+commit 66bdf0e066bc0bb7a326a6c2a9c88b69e5c1be66
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri May 6 23:12:47 2011 -0700
+
+    altos: clear CPU port 1 interrupt flag when handled
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8be559baa979c15e78f8dba7879b383dbe3936d3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri May 6 22:59:15 2011 -0700
+
+    altos: Hook up the P1 ISR for TeleBT v0.1 bt_link line
+    
+    Otherwise, we're heading off into the weeds...
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 23f441b95e55fbee709382b05d325bc021285766
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri May 6 22:49:54 2011 -0700
+
+    altos: Initialize beeper for telebt
+    
+    Needed to get sounds to come out
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 514348055630edec12224c4b0964240b929759a3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri May 6 22:42:58 2011 -0700
+
+    altos: Debugging TBT issues -- check pin configuration after boot
+    
+    Make sure the serial pins are configured as peripherals
+    Make sure the ser_reset and bt_link pins are going the right direction.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 22e3ac0eb014b8255029763ae8180ad3527ba306
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri May 6 22:42:32 2011 -0700
+
+    altos: Add beeper to TBT v0.1
+    
+    It's available, let's use it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6d858b64ee0e8c227c149d2af6d2d634536964f4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri May 6 22:12:31 2011 -0700
+
+    altos: pull TBT v0.1 ser_reset line low
+    
+    This line resets the BT module if held low for three seconds.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3336d0f726afd1d43cf62280940e5fb91dab2e91
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri May 6 21:13:19 2011 -0700
+
+    altos: Fix BT link status pin for real TBT hardware
+    
+    The prototype used P2_1, while the real hardware uses P1_7. Lots of
+    defines to make this work...
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 19bfa3882a2d95fcade256c2d63ad24f794281e5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri May 6 20:33:58 2011 -0700
+
+    altos: Use USART configuration 1 with flow control for TBT
+    
+    It's just wired that way.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d9cc27641fe1778c098b065bf110be7823e6c9f4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri May 6 16:57:38 2011 -0700
+
+    altos: Add telebt-v0.1 to Makefile
+    
+    Doesn't get built without it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c360e5c04e30421e9ea2f7006b7d35aef35f1edd
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri May 6 17:57:17 2011 -0600
+
+    first cut at a telebt turn on script
+
+commit c1760cebd47d0f03808f3204c0fcb1183f754e50
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri May 6 15:44:56 2011 -0700
+
+    altos: Add preliminary telebt v0.1 defines
+    
+    This should make the telebt v0.1 binary that works on the real hardware.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 72a03baa73698fc1213a74320e6253c2380dd8fa
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Apr 25 23:00:42 2011 -0700
+
+    altosui: Fix BT manage dialog so that the device lists resize
+    
+    This makes the device scrolling lists fill any extra space when the
+    window is resized.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e3bf13a38d24e95b16df1e2f01952d10f24cda10
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Apr 25 22:55:08 2011 -0700
+
+    altosui: Move AltosIgniteUI device open out of Swing thread
+    
+    Eliminate more blocking code from the Swing thread.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 109344d54d3fa4f79342fd1ea2a3f4085475e30c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Apr 25 22:28:40 2011 -0700
+
+    altosui: Display reader name (usually the device) when an I/O error occurs
+    
+    Access the reader name directly from the reader object instead of a
+    local variable (which wasn't getting set anyways).
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit aa5caf6310f074109472e6f55d8bd9751fb75c4c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Apr 25 21:26:21 2011 -0700
+
+    altosui: Fix TeleBT name in flight monitor title
+    
+    Was getting the product number, not the product name.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2e7b7b80432bb251ac39efa1fa05d32b5f250e14
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Apr 25 21:17:07 2011 -0700
+
+    altosui: Separate out flash debug code to separate thread
+    
+    This avoids blocking the Swing thread while waiting for the serial
+    device.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 214cd69c0e4a1617ed5cde8fc2f46a4cee6ecced
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 23 22:50:58 2011 -0700
+
+    altos: add telebt-v0.0 Makefile
+    
+    Git doesn't like to add these.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d41edb3384b6336f3482e61b0c9f9400a8b4f519
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 19 15:29:39 2011 -0700
+
+    altosui: Make flight data download work through TeleBT
+    
+    This required flushing input before reading data blocks and adjusting
+    some delays.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 44fb71ca3e5bccd5f601fc5a2d5da7292050b1d6
+Merge: 2ebdb88 c269e26
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 19 14:06:39 2011 -0700
+
+    Merge branch 'telemini' into telebt
+
+commit 2ebdb888f6792de70b3132950a988d49752d264e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 19 14:01:19 2011 -0700
+
+    altosui: Eliminate ao_cmd_filter hook
+    
+    Disabling status messages means we don't need to filter them out of
+    the input stream.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7f5c9986dfa2d130b6c8c14308638cce49391a6e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 19 13:42:30 2011 -0700
+
+    altos: remove BT logging code
+    
+    This was used to debug the serial line startup.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0195ff442c1da5d363dfda3f88f41865d0c6b469
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 19 13:31:10 2011 -0700
+
+    altos: Remove bt debug command
+    
+    This will permit some additional cleanups.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ce7cf0c5ddc5405f6f474f4e20752fc0b02f3ecb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 19 13:27:40 2011 -0700
+
+    altos: Simplify BT communications
+    
+    Eliminate stdio I/O wrappers
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e3d501940718428135e04995dff7fef691c08a20
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 19 13:20:19 2011 -0700
+
+    altos: Solidify BT connections
+    
+    Use delays while sending commands to BT module.
+    Don't use BT for stdio until the module is initialized.
+    Add \r to name setting command
+    Don't require 'connected' signal for command input.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6b5957d5f6f8181da7be98c9bce49a0ec0b4a713
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 19 10:41:28 2011 -0700
+
+    altosui: Wait two seconds after bluetooth connect XXX
+    
+    "something" isn't quite ready to communicate right after the device is
+    connected, so we stick a delay in. There should be a better fix.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8de9d3cbfcd1db7b554fb761296a8de09aafc8c3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 19 10:25:47 2011 -0700
+
+    altos: Add delays to bt startup sequence
+    
+    The BT device takes a few seconds after power-up before it is ready to
+    receive commands.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 17f38e045fcd8ca0224095c0b2b7b098df77a8d8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Apr 19 08:43:40 2011 -0700
+
+    altosui: Use persistent list of bluetooth devices for device dialogs
+    
+    Store a list of known bluetooth devices as preferences. Always include
+    those in device dialogs with an option to go browse for more devices
+    in both the device dialog and the Configure AltosUI dialog.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f249e5926f5fd9f86c41e7f0a414193533d4d8b0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Apr 18 18:16:38 2011 -0500
+
+    altosui: Make bluetooth dialog modal
+    
+    This allows it to be displayed correctly while the device dialog box
+    (also modal) is up.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 84163eee7847a09fe78f8762b28f857d76bf5755
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 14 10:22:30 2011 -0700
+
+    altosui: Make AltosBTDevice implement AltosDevice interface
+    
+    This will allow the use of either USB or BT devices through the
+    AltosDevice interface.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9cdef76c1275b343099d0d01af82d7eadd36a410
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 14 10:12:29 2011 -0700
+
+    altosui: Create abstract AltosDevice class
+    
+    This will wrap either USB or BT devices. The USB device constants have
+    been moved to Altos.java
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5b3f18b38d80aa041b971204bf7a94278bd9584a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 8 19:46:15 2011 -0700
+
+    altosui: Add primitive bluetooth device manager UI.
+    
+    This isn't useful, but does inquire for available bluetooth devices
+    and show them in a list.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c269e263a6accd815ed5d08c0f5a6c3d5b9d3853
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 14 09:38:48 2011 -0700
+
+    altos: Write a few pre-launch samples for Tm/Tn devices
+    
+    Record pre-launch samples in a small ring and flush that to flash when
+    launch is detected. This provides a complete record of the flight,
+    rather than simply starting after launch detect.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a0fb471ce10642fc4a4bd40e4a81f8d6fe7a7c21
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Apr 13 20:27:38 2011 -0700
+
+    altosui: oops - lost state changes when downloading eeprom data.
+    
+    This would cause the reader to just keep reading past the end of the
+    flight.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7f49d694e776819e03b2c708e1c4ee23ba311430
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Apr 9 22:53:12 2011 -0700
+
+    altos/altosui: Log averaged baro sensor data in Tm/Tn
+    
+    Instead of logging the best height guess from the kalman filter, log
+    barometer data. The logged data consists of the average value betwen
+    log points to reduce noise.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8dd455204cf8712fa8c142b0c0517cec1bf5fd0f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 8 10:13:55 2011 -0700
+
+    altosui: Add low-level Bluetooth APIs
+    
+    Adds the JNI functions to query and connect to arbitrary
+    bluetooth devices.
+    
+    Adds Java wrappers to construct a list of proximate bluetooth devices.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit bf1c7df5301a1727e871a8447f835fe75bdce3fc
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 8 10:12:50 2011 -0700
+
+    altosui: Add TeleBT USB device support
+    
+    TeleBT can work just like a TeleDongle over USB.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1a54a58d72147888f783a3caf364479efff4ed9b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Apr 7 22:00:38 2011 -0700
+
+    altos: Use PIO(6) on BTM to monitor BT connection. Fix BTM init.
+    
+    PIo(6) appears to be an active-low indication of the Bluetooth
+    connection status. Hook this up using an interrupt to track the
+    link state instead of using in-band status messages.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f28efe271f9670473249574f6bcf6e160fe58c7b
+Merge: 8db5c52 835ab3a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 1 19:35:22 2011 -0700
+
+    Merge branch 'telemini' into telebt
+
+commit 835ab3a8c2741a09b27de58c37439a193c9919ce
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 1 19:35:00 2011 -0700
+
+    altosui: Add missing AltosTelemetryMap.java file
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8db5c52f1c76a05020e4e0afbe4ea27485ad9f82
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 1 17:26:08 2011 -0700
+
+    altos: Clean up BT serial communcations
+    
+    Disable echo on both ends in command mode to eliminate looping error
+    values.
+    
+    Switch to 57600 baud to improve performance.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a5d60fdb9c969c1516feb76a16001c9688112c4c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 1 17:25:07 2011 -0700
+
+    altos: Make cmd echo per-connection instead of global
+    
+    Allow different connections to use different echo values, permitting
+    the packet link to turn off echo while the USB link still has it on.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4e2c18249e16c98cf5f7dccdf8d3b84bc473863a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 1 16:48:12 2011 -0700
+
+    altos: Clean up serial initialization
+    
+    Flush serial input buffers when switching speeds.
+    Ensure pin configuration is correct.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 92386f2e8419c4df125692cc998eb72ec49bf991
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 1 14:12:56 2011 -0700
+
+    altos: Clean up usage of serial port for stdio
+    
+    Code wanting to use this must invoke ao_add_stdio; that way
+    the link can be configured before command processing starts.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9f8a96a8516e13878b329dbf1da855ed9a3219c4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 1 14:11:44 2011 -0700
+
+    altos: Make ao_serial_drain public
+    
+    Allow external code to discard serial input
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4f243a282f9aeb7433ccb2942850d380a091e603
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 1 14:10:37 2011 -0700
+
+    altos: Remove serial monitor command
+    
+    This takes up space and isn't that useful these days
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 39bde78edc863d9d2ef50a59b8f28ab6274892b4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 1 14:08:37 2011 -0700
+
+    altos: Allow any stdio to be used with packet forwarding
+    
+    There's no reason to restrict packet forwarding to work only from
+    USB.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 01952da35a57ae4da062facb26b3c6d7de29190f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 1 14:07:23 2011 -0700
+
+    altos: Provide for a pre-filter on commands
+    
+    This allows for external code to see each command line before it is
+    processed and potentially skip it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 359ba0d9fc2c5947e6adc98bebcd061069c61e79
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 1 14:04:58 2011 -0700
+
+    altos: expose set of available stdio values
+    
+    This lets external code manipulate which connection to communicate
+    over.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ce18eaa28b1385c962c09459cbc5f20e234d9ad5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Apr 1 14:03:25 2011 -0700
+
+    altos: Add P2SEL_*_MASK defines to cc1111.h
+    
+    These are used to avoid having the code "know" which selections are 1
+    and which are 0 bits.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8e74cf6d1c70a7a17d01c20f6831571245392498
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Mar 31 20:58:14 2011 -0700
+
+    altos: Add initial TeleBT code
+    
+    Prototyping with a TeleMetrum v0.1 board and a serial link to a
+    bluetooth module.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c0971abc02b05d136aea257f3f40ba3b22b1d441
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Mar 31 20:55:18 2011 -0700
+
+    altos: Make ao_flight_test show true height but report saturated height
+    
+    To simulate a saturated baro sensor, clip baro data at a specified
+    altitude. Continue to report the 'true' altitude in the output so that
+    the resulting graphs are useful.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8a14142e7b37031a51409f121b913fe793bf3603
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Mar 31 20:53:12 2011 -0700
+
+    altos: Baro useful ceiling is MSL, not AGL
+    
+    Use MSL instead of AGL for detecting over-range baro sensor values.
+    Always trust baro sensor during descent; it'll get there eventually.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a9dae18a664f70b668159487015e61be7f776926
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Mar 31 20:51:15 2011 -0700
+
+    altos: Reflect ao_flight split in ao_flight_test dependencies
+    
+    Need to rebuild ao_flight_test when any of the flight sources change
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f558cfa1df77c36a459168c1953d0945ee5a7f9f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 30 11:48:03 2011 -0700
+
+    altosui: Only plot acceleration when present in data file
+    
+    Eliminates a bogus axis and data line for devices which do not have an
+    accelerometer.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a9df9fc257eb2d7038d66ac7c2539aae4474bf12
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 30 11:47:07 2011 -0700
+
+    altosui: Parse and export Max flight log value
+    
+    New configuration field might as well get dumped to the .csv files.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 87bff181a95f6bf92c2cec350d331ba6af779e80
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 29 18:11:47 2011 -0700
+
+    altos: Enable logging during nano flights
+    
+    Not having logging wasn't very useful.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 011e37f27b3926a42c8c1a74e0f179bb48829ec7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 29 18:10:46 2011 -0700
+
+    altos: Run RDF beacon after apogee instead of waiting for landing
+    
+    This provides tracking when GPS fails, or on TeleMini.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 08e6bbef2c3529dfd468ef221c526fc9f3ed5b81
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 29 10:08:46 2011 -0700
+
+    altos: ao_sample_preflight was exiting preflight mode immediately
+    
+    Need to stay in pre-flight mode until we've gotten enough sensor data
+    to calibrate things appropriately. The conversion from a unified
+    ao_flight.c file was just broken here.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 56d045040c49728a854741e99545766f3723da5e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 29 09:39:27 2011 -0700
+
+    altosui: Don't display 0000-00-00 for missing flight log dates
+    
+    With Tm/Tn not having GPS to get the current date, it's no longer
+    unusual to have no date for a flight log, so don't show the 0000-00-00
+    piece in that case.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8ade7d99f02df825e70d0a964b4648156101ef78
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 29 09:38:23 2011 -0700
+
+    altosui: Display exception messages from swing thread
+    
+    Flight log management exceptions were getting displayed from the log
+    serial I/O thread instead of the swing thread. That's a bad plan.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2f9be009ef26e3d7539f5932d267d7a8a7bcb7eb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 29 09:37:11 2011 -0700
+
+    altosui: Make deployment testing handle Connecting... dialog
+    
+    Supporting the Connecting... dialog requires moving all serial
+    communication to a separate thread. This was done by creating a worker
+    thread and command queue to communicate between the UI and the serial line.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 573edcd7dfe10ac3251396eae88eece55d82bcb6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Mar 28 23:38:02 2011 -0700
+
+    altosui: Make flight log downloading handle 'Connecting...' dialog
+    
+    This required moving all of the serial communication to a separate
+    thread and making the bulk of the download operation run after that
+    has finished.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c71a145daefb86d2c1297abec68e54bd951e3adf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Mar 28 23:35:05 2011 -0700
+
+    altosui: Clean up packet link connecting dialog
+    
+    Make sure the dialog is destroyed after use (otherwise, it hangs
+    around on the screen sometimes).
+    
+    Switch timeout before showing dialog to 500ms -- that brings the
+    dialog up less often when unnecessary.
+    
+    Use 'timeout_started' boolean to indicate whether the I/O thread has
+    queued the dialog for display and whether it needs to queue a call to
+    close it down.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c6e7e812d67f91c63ba4982f7a899a72584027de
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Mar 28 18:18:50 2011 -0700
+
+    altos: Create custom nano flight code
+    
+    No igniters, just 'pad/drogue/landed' modes (where 'drogue' ==
+    'flying'). A constant 1Hz telemetry and RDF rate.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c754759a2d503633d527da4ebb20eb859cd506fd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Mar 28 17:54:44 2011 -0700
+
+    altos: Split up flight code into separate flight/sample/kalman bits
+    
+    The flight code mashed together data processing, filtering and actual
+    flight managament into one giant pile. Split things up so that we
+    have:
+    
+     ao_sample.c: Sensor data processing. Reads the ring, handles calibration
+     ao_kalman.c: Filter the data to track the accel/speed/height values
+     ao_flight.c: Flight state management, specific to rocketry.
+    
+    The plan is to re-use ao_sample.c and ao_kalman.c for hardware not
+    specifically designed for rocketry, like TeleNano.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 006de838bbb096b9443863a46b8a125b1e6b5600
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Mar 27 00:48:07 2011 -0700
+
+    altosui: Handle serial calls from swing thread
+    
+    Calls from the swing thread cannot be canceled as there's no way to
+    put up the cancel dialog. In this case, simply use the 5 second
+    timeout and fail if no communication occurs within that amount of time.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f23d0f3cbf1fb0c8eab497e266625f6410b69ba3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Mar 27 00:46:19 2011 -0700
+
+    altosui: Tell serial device which frame to use for timeout dialogs
+    
+    For the timeout dialog to appear, a frame must be configured for it to
+    appear near. This patch sends the frame from the eeprom download
+    functions to the serial code. That path doesn't yet work as the eeprom
+    download is still trying to talk to the serial device from the swing
+    event thread, which prevents the cancel dialog from working.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 067b21993e9a97fceadb355e571e5610535336a8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Mar 27 00:13:38 2011 -0700
+
+    altosui: Allow radio channel to be configured over the radio link
+    
+    TeleMini/TeleNano can't be configured via USB, so we need to allow
+    the radio channel to be set over the radio link.
+    
+    This change carefully sets the new radio channel, disables the remote
+    link and then sets the teledongle channel to the new value and brings
+    the link back up.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 91a75279b6d306ba9d068a28c64917d5312122e8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Mar 27 00:12:01 2011 -0700
+
+    altosui: Off-by-one error in telemetry format configuration UI
+    
+    The telemetry format menu uses 0 for full and 1 for tiny, but the
+    telemetry configuration uses 1 for full and 2 for tiny. One direction
+    (config to UI) was right, the other (UI to config) was wrong.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7ce8c9081e703d1405c2595ab9bda0cfa218c6c4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 26 23:38:54 2011 -0700
+
+    altos: full logging must flush pending data before checking state
+    
+    Flight state must be checked only after any pending data have been
+    written to the log as the 'current' flight state is only valid when
+    the pending data values have been processed. This ensures that the
+    'boost' state is not marked until the full ring of data is
+    written. This ensures that the data processing code can find the
+    barometer values from before boost to get an idea of the ground
+    pressure value.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3945d8f986d8f4bd3186a2cbaed5186e49d59839
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 26 23:15:36 2011 -0700
+
+    altos: Variable log rate in full logging code too
+    
+    With the fixed ADC rate used to get better data during flight, the
+    logging code now needs to vary the data storage rate so that descent
+    data is recorded at 10 samples/second while ascent data is recorded at
+    1 sample per second. Having the logging code do this itself eliminates
+    any interaction with the flight code.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 97517ee585462c2d355f23f999fb8d9ebd908ec1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 26 00:01:22 2011 -0700
+
+    altosui: Allow TM config connection to be canceled.
+    
+    This leaves the config UI connection attempt running and pops up a
+    dialog box when it takes 'too long' in the remote case so that users
+    with Tm or Tn devices can bring up the UI, and then boot the Tm/Tn
+    without needing to time things carefully.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2c121f1ef495e8af3eb39210baa40e212b691894
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Mar 25 22:04:09 2011 -0700
+
+    altosui: swing hide/show methods are deprecated
+    
+    I don't know why, but they are, so just replace them with
+    setVisible calls.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b155647472ddfacb07c5ffa832e4d1f4a13ad342
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Mar 25 22:01:18 2011 -0700
+
+    altosui: Remove extra AltosEepromBlock layer
+    
+    This was interposed between the download layer and the eeprom layer to
+    hold a eeprom block full of flight log records. The addition of the tiny
+    log format required reworking the code to hold chunks full of eeprom
+    data without regard to their content, so this content-specific layer
+    didn't seem useful anymore.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 011615d40b3cb1d1c0ab9fa41e139e263a6a51e7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Mar 25 21:34:31 2011 -0700
+
+    altosui: Add support for downloading TeleMini/TeleNano flight logs
+    
+    Splits the eeprom downloading code into eeprom block downloading and
+    separate eeprom data parsing so that the new data logging format can
+    share the data downloading code.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit dea80af81b388cc3d7073444919f4e98b12fa730
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Mar 25 21:29:50 2011 -0700
+
+    altosui: Remove a bunch of debug printfs from the eeprom manager code
+    
+    Just noise on stdout.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7f5b5848ad6ef5c808638a29c3dc0101b56ed11e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Mar 24 08:08:43 2011 +0900
+
+    altosui: Add telemetry format menu and preferences
+    
+    Switches the TeleDongle between full and tiny telemetry packet
+    formats, saving the last used format for each teledongle in the
+    application preferences.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f3e68341f6f5daaf26dd162e4f9a06c29988986a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Mar 24 05:27:57 2011 +0900
+
+    altosui: Add support for telemetry version 4
+    
+    New telemetry format needed to support TeleNano and TeleMini
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1e976a105423f2da1842f70da531c9051ba88a7f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 23 10:42:31 2011 +0900
+
+    Add description to test flights
+
+commit 93040ef4d0bd90ec5ae052f22243cd56adfb300a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 23 10:40:05 2011 +0900
+
+    Add ao_kalman.h to .gitignore
+
+commit 43a94380032300a2e33e1faa1efe93e858e0a2cf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 23 10:37:39 2011 +0900
+
+    altos: Exit flight test at landing. Allow description in test flight list
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 32364c9e0d346e0e5d517e18d4e90b8ff2fa944f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 23 10:33:38 2011 +0900
+
+    altos: Ignore alt error for fast->coast. Allow larger error for baro apogee.
+    
+    With the fixed kalman filter, transitions across mach don't cause
+    bumps in the merged filter.
+    
+    And, with working kalman bits, the signal for broken baro detection is
+    stronger and so we can allow for baro apogee detection in cases where
+    noise occurs close to apogee.
+    
+    Bump the kalman filter to trust the baro less so that the model tracks
+    across mach.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3d2042ccc2d29e4cb8ea39c5c69d07cb7e3daeea
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 22 16:55:08 2011 +0900
+
+    altos: Restore sensible kalman values
+    
+    Now that the kalman code seems to work correctly, restore the sensor
+    errors and model errors to match reality
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7d7b476564a16eda81ab3406f70a21995e1b464e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 22 21:51:52 2011 +0900
+
+    altos: Fix up flight code testing
+    
+    This automates flight code testing by reporting mis-detected apogee or
+    main events.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a80d3836cfce3d4cfa7a71068539415c2dc421cd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 22 21:50:29 2011 +0900
+
+    altos: Missing parens and some bad arithmetic in the kalman code
+    
+    Fixed point computations are a pain.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f30de5766c1eefb18c7d024a2cf10ce02de41071
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 22 21:29:05 2011 +0900
+
+    altos: Add ao_flight_debug code
+    
+    Trace the kalman filter to make sure it's working.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f3053b1f3c85d4fd84b3c6cc87858f433166df34
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 22 17:04:07 2011 +0900
+
+    altos: Clean up some debug stuff in ao_flight.c
+    
+    Remove some spurious printf debugging.
+    Remove an attempt at discovering broken accelerometer code.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6864e06d88a5b908cffa7c4cd2be8969ff46ce4d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 22 16:51:04 2011 +0900
+
+    altos/kalman: Kalman terms can be > 1, use 32-bit fixed point
+    
+    Because speed and acceleration are scaled by 16, it's fairly common
+    for the kalman terms to end up larger than 1. Instead of trying to
+    fuss with 16-bit values and shifts, just use 32-bit values.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c14d6c5ace1d67bd948273ceb7eb6807b29c3806
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 22 08:51:23 2011 +0900
+
+    altos: Compute a 'trust' value for the barometer
+    
+    Instead of making the baro use/don't-use decision binary, use a 'trust
+    value' which slowly migrates from baro+accel to accel-only mode. This
+    eliminates bumps in the data from a rapid shift.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7b009b2efe3af8722c358c304c2243652594e0d5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Mar 22 05:42:51 2011 +0900
+
+    altos: Switch telemetrum over to kalman filter
+    
+    This changes the full telemetry stream to include kalman data instead
+    of the old ad-hoc flight data. It's compatible in that the packet
+    sizes are the same so teledongle can receive either and figure out
+    which it has received.
+    
+    A few plotting and testing tools are added to make validating the new
+    code easier.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 20427ae4965f756aac0cedc5179a1c45b9a781f2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Mar 21 19:59:27 2011 +0900
+
+    altos: Add nickle kalman implementation.
+    
+    This generates the constants needed to implement Kalman filtering in
+    the flight firmware.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ca3f03ef5c09446bebf0f5734f36a0248c457b1d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 19 23:55:39 2011 -0700
+
+    altos: Add .sdcdbrc file for teledongle
+    
+    My sdcdb script uses this to set command line options automatically
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit be838db49d999426a9dd02c0166fe161722f1e61
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 19 23:53:08 2011 -0700
+
+    altos: New telemetry report format (version 4). Supports tiny telemetry.
+    
+    This completely replaces the version 3 format with a much simpler and
+    easier to parse scheme. It's described in detail in ao_telem.h, but
+    the basic idea is that the whole line is split into name/value pairs,
+    separated by whitespace. Every name is unique, and the values are
+    either strings or integers. No extraneous formatting or units are
+    provided.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ad6bb342d237988404fa32540b38c61d6ddc1f0d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 19 23:51:02 2011 -0700
+
+    altos: The kalman code requires a constant sample rate
+    
+    The kalman function can't handle a variable sample rate, so keep the
+    ADC running at full speed for the whole flight instead of slowing it
+    down after apogee.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 31feb7777f73fed61193d3404f457ea1a081fe9c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 19 23:49:41 2011 -0700
+
+    altos: Split telenano main from telemini
+    
+    Eventually, telenano will run different code; prepare for this by
+    creating a telenano-specific main routine.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8950df02382f5f0aea5bac078fdf7134b98c43ed
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 19 23:46:18 2011 -0700
+
+    altos: Split out tiny telemetry from full telemetry
+    
+    The TeleMini and TeleNano boards do not have either GPS or
+    accelermeters, and they also run the kalman filter which produces
+    standard unit measurements for the flight height/speed/accel
+    values. This makes the telemetry significantly
+    different. ao_telemetry_tiny.c sends the required data.
+    
+    Note that TeleNano sends the same telemetry as telemini at this point;
+    there are a couple of values which are not useful, but the overhead of
+    sending them is small enough that the hassle of having three telemetry
+    formats seemed excessive.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5ba75e95c98d3e441a58d6f75d328d579e1997fe
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 19 23:41:44 2011 -0700
+
+    altos: Make telemetry interval more consistent
+    
+    Instead of using a delay between telemetry packets, use a telemetry
+    period and compute an appropriate delay each time. This requires
+    changing the ascent telemetry from a 50ms delay to a 100ms interval,
+    to provide a regular 10 packets-per-second rate. Before, we counted on
+    the telemetry packet taking about 50ms to send so that we would
+    receive about 10 per second.
+    
+    This also eliminates delays during descent for RDF tones -- those will
+    get transmitted in the interval between telemetry packets without
+    interrupting the spacing of those packets.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3f0bc801fd08a613c681504f0d1f9374486a2487
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 19 23:31:20 2011 -0700
+
+    altos: Configure packet size from send/recv parameters.
+    
+    Instead of setting the packet size at configuration time, use the
+    provided packet size to the send/recv functions to configure the
+    radio. This eliminates many configuration calls, leaving us with 'RDF'
+    mode and 'packet' mode, the latter working for telemetry and the
+    bi-directional link.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5c28b9312d90a3a66016abc641c20bcd852d69f8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 19 23:27:15 2011 -0700
+
+    altos: Don't init packet slave on TD. Make slave start optional
+    
+    Oops. TeleDongle was starting the packet slave code, which kinda
+    wrecked its ability to receive telemetry packets. This patch simply
+    removes the packet slave code from teledongle as it cannot be used
+    (yet), it also makes the packet slave code initialization take a
+    parameter which controls whether to start that by default; in the
+    future, perhaps TeleDongle will gain a command to start packet slave mode.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e980b251e5a4d25410710a9aa89ef940e06b0d93
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 19 18:43:52 2011 -0700
+
+    altosui: Add software version to Configure AltosUI dialog
+    
+    Show this somewhere so we can figure out what is installed.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1aeb759c48f475ffaaae787515e080440c8386c3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Mar 19 12:28:08 2011 -0700
+
+    altos: Baro-only boards must not detect launch on accel or speed data
+    
+    The baro sensor generates too much noise to use small changes in
+    computed speed or acceleration to cause a false launch detect.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7a4f6d5ad55637cde97a1e2f247f92df59bc2e14
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Mar 18 21:01:15 2011 -0700
+
+    altos: Write height values to log for nano/mini
+    
+    This is a lot more useful than the old filtered pressure data.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c985bb6a19c710409629f3c095332ba7afcf5248
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Mar 18 20:36:59 2011 -0700
+
+    altos/test: Add scripts to run lots of flights through the code
+    
+    This runs a long list of flights (there's a user-specific path
+    pointing at the flights) and squawks if the baro and dual flight
+    computers don't match.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit dbe915795c66995805b5f37e6eb698cf2c143e61
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Mar 18 20:26:12 2011 -0700
+
+    altos: Fix mini/nano default log size to available flash space
+    
+    Also, remove accel cal code from boards without accel
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5db94e1e230bade966a997aa83165405a9ec9d83
+Merge: 1a8f45e cbb968f
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Mar 18 21:12:39 2011 -0600
+
+    Merge branch 'telemini' of ssh://git.gag.com/scm/git/fw/altos into telemini
+
+commit 1a8f45e7b720d01d3ff0c35ed1caaf8cbe0c3119
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Mar 18 21:12:12 2011 -0600
+
+    fix up script to work and have reasonable texts
+
+commit cbb968f5cf03625d453d84dc535758072a2c04c7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Mar 18 20:07:25 2011 -0700
+
+    altos: Add TeleNano support
+    
+    This just uses the TeleMini bits, which should work fine for now.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 32c51840c792a737019fbc9fe42f2ca073b71827
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Mar 18 19:49:46 2011 -0700
+
+    altos: Tiny logging fixes. Scan at start, stop when land or full.
+    
+    Initialize the flight log for tiny systems by scanning the log area to
+    find the current flight number and log area bounds.
+    
+    Stop logging data when the flight is over, or when the log area is
+    full.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 62eae8a17d870e8ac6937ba23da01a5fbc652c6c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Mar 18 16:53:11 2011 -0700
+
+    altos: Add kalman filters for baro-only boards
+    
+    This adds a baro-only kalman filter to track the state of the rocket,
+    and then uses it to control flight events instead of the existing
+    ad-hoc mechanisms.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c826fab31f8aea25a942b6bb8435d4b04c1bef10
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Mar 17 16:00:10 2011 -0700
+
+    altos: Add tiny logging for TeleMini/TeleNano
+    
+    This splits the logging code into management of the log space within
+    storage and separate code to actually write suitable log entries.  A
+    new log writing module, ao_log_tiny, is added which writes only
+    altimeter data at a fairly low data rate for devices using on-chip
+    storage.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8b546b474b7b6c5b4169b4c1ca09c6f17ebb3ae5
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Fri Mar 11 21:41:01 2011 +1000
+
+    ignore new flight test file
+
+commit 82707a05af0eb2d54f46b58805c95cdf4e5a3703
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 16 20:36:50 2011 -0700
+
+    altos: Internal flash ops block when running from flash
+    
+    The docs say that if you are executing from flash, then the CPU will
+    stall after a flash write or erase command is started until the
+    operation is complete. Take advantage of that to simplify the flash
+    code.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1d8579f973bfe1047ee91f03555e74abdc483e69
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Mar 7 16:31:43 2011 -0800
+
+    altos: oops -- altitude reporting wasn't pausing between signals
+    
+    need to actually alternate the LED/tone with some space so you can
+    count.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d007bccf6cb36d24a9c7c48de7d80759ac6f2e37
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Mar 7 15:57:58 2011 -0800
+
+    ao-load: Make usb descriptor rewriting optional
+    
+    TeleMini and TeleNano don't have USB descriptors to rewrite when
+    loading firmware, so allow them to be missing.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 57d83f51377fb58018f422e42d74f29b86a821d2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Mar 7 15:26:41 2011 -0800
+
+    bringup: Add script for telemini
+    
+    Copied from teledongle with a few obvious changes.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ddd7485f05d0cad8f5b3e1ee9b9a4d2812ea1837
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Mar 7 08:03:11 2011 -0800
+
+    altos: Switch pins around for TeleMini
+    
+    TeleMini has fewer sensors and uses P0 for igniters instead of P2.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f8afc2641c779fc312a42a6358187d8716ebe61a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Mar 6 23:52:11 2011 -0800
+
+    altos: Switch LED usage for TeleMini around
+    
+    We're using the LEDs instead of tones, so make red mean 'low tone',
+    green mean 'middle tone' and both mean 'high tone'.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fc5d014721a7e5a7b22f07eb4ab0bb3c764473fe
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sat Feb 26 16:06:48 2011 +1000
+
+    ao_intflash: Avoid overwriting code
+    
+    Require firmware to specify the end of its codespace in its Makefile,
+    and use this to determine where the start of available flash is. Should
+    give compile time errors if either there's no room left for storage, or
+    if there's not enough room for code.
+
+commit 0e4c55d78852415e79f7318471f4d00c89703b78
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Mar 6 21:03:57 2011 -0800
+
+    altos: Add TeleMini v1.0
+    
+    This adds initial code for the telemini board, a two channel
+    flight computer with digital telemetry and a barometric sensor.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2d41358c80f2eb8b6e98d699149bb941a6671475
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Mar 6 21:00:52 2011 -0800
+
+    altos: Start with packet slave running. Turn off in pad mode.
+    
+    Instead of turning slave mode on in idle mode, start with it running
+    and disable it in pad mode instead. This means packet mode is
+    available in startup mode too.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1e56ed44e562f808addfd76bfb352f981db94094
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Mar 6 21:59:08 2011 -0800
+
+    altos/test: Add baro-only flight test program
+    
+    This builds the flight code in baro-only mode for testing.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e339ffd8bd8b9e3f4758017ba355028000cb612e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Mar 6 21:57:52 2011 -0800
+
+    altos/test: Use ao_convert.c instead of hand-coded pres → alt func
+    
+    Fix up ao_convert.c so that it can be used within the flight test code
+    instead of having a (broken) copy of the code there.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 02611efea0c485d78fad08c696c1f56e868d36b8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Mar 6 20:56:25 2011 -0800
+
+    altos: Make serial, usb, beeper and accelerometer optional components
+    
+    Not all boards will have these, so fix places that use them to deal
+    with that.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fdd15a254c6fab5ba2d02320ba0ceb3e6a56354c
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sat Feb 26 11:48:30 2011 +1000
+
+    ao_intflash: Use internal flash for storage
+    
+    Makes any free pages at end of CC1111's internal flash available via
+    the ao_storage API.
+
+commit 8f1bd11b61d9423c62162f7bbe573fc69fd75269
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 16 14:10:06 2011 -0700
+
+    aoview: remove -s option.
+
+commit 45395c7825184efb835d5b165fa132be20c7f6fe
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 16 14:08:42 2011 -0700
+
+    Bump published version number to 0.9.1
+
+commit 9f3d26cadf37880d2c9223f59271d295b11c4c2a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Mar 16 14:05:13 2011 -0700
+
+    altosui: Missed jcommon.jar in the Mac OS install image
+    
+    This caused graphing to fail on Mac OS X
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6e340c87d3198647cf075ed520a82703b0d59beb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Mar 7 00:26:17 2011 -0800
+
+    altos: Oops. Lost a couple of commands when merging the doc patch
+    
+    I didn't merge this carefully enough and managed to lose the 'f'
+    and 'e' commands, which are kinda useful.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8cdf4fb051c22b35c251d90bc288551f7c2898bf
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Sun Feb 27 11:11:12 2011 +1000
+
+    src/ao_cmd: Shave off bytes from doc strings
+    
+    Switch to using { func, "X args\0Desc" } to specify command, saving
+    a char field by looking at help[0] instead, and reduce help length by
+    doing alignment with printf instead of hardcoded spaces.
+
+commit 2cfe205de4242398e69c9e7c613af0d2a7094686
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Mar 7 00:01:01 2011 -0800
+
+    Revert "src/ao_gps_skytraq.c: Update logging rate to 10Hz"
+    
+    This reverts commit b080e933a65d268aaaec8cfd5f617a13d5babc43.
+    
+    10Hz data isn't any better than 1Hz data; it still doesn't like going
+    upwards rapidly.
+
+commit 249cd3b63d97581b068fff988e0cd7fcd5bf493e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 19 01:06:01 2011 -0800
+
+    altosui: Display eeprom parsing errors to user
+    
+    When reading the eeprom, any parsing errors (most likely bad
+    checksums) indicate some kind of problem with either the hardware or
+    the flight software. Display these to the user and do not erase the
+    flight.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 629a7637871b24fe6d1204aaa7185d84933d4639
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 19 01:04:19 2011 -0800
+
+    altosui: Always read whole eeprom block, even at end of flight
+    
+    Instead of stopping early, continue reading the whole eeprom block so
+    that the extra serial data doesn't end up confusing the next user of
+    the serial line, which may well be reading the next flight.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7ca2cf1b7e03b8453b45b45e313a33ad65da9ad5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 19 01:02:00 2011 -0800
+
+    altosui: Mark empty eeprom records 'invalid', don't generate exception
+    
+    When reading empty eeprom records, mark them as 'invalid', but don't
+    generate an exception as it's normal to read these at the end of the
+    flight log.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 690feb166fd2bc6b6dfc26828f1efe9f5f1c6c0d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Feb 18 23:56:01 2011 -0700
+
+    update changelogs for Debian build
+
 commit 0630e7d6d8cf6abf0fe07f9a6df40ee472cce1ef
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Fri Feb 18 19:54:18 2011 -0700
