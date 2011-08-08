@@ -1,3 +1,33 @@
+commit 4a507898d6de631bb2e8ed4aa3e0933d97222323
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 8 09:34:59 2011 -0600
+
+    rewind changelog for re-build of 0.9.4.5
+
+commit 5082b4998b8a9787e0e2f4d96d912e434aa9b81a
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 8 09:31:18 2011 -0600
+
+    clean up all existing lintian warnings
+
+commit f26c7172a1b2b5344fae6ede562f2da7a56b80e3
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 8 07:54:14 2011 -0600
+
+    build depend on bluetooth dev package
+
+commit 3cad81b0ebb52352c66643a2587e94a2b693a2d2
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 8 07:38:48 2011 -0600
+
+    stop doing automatic tag push during builds
+
+commit ebaad64525119c0fdacf382adc2c99e5df5be23f
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 8 07:37:23 2011 -0600
+
+    update changelogs for Debian build
+
 commit 6f9f75cbfccf975204ab847ca0e9cf86188716c6
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Mon Aug 8 07:35:47 2011 -0600
