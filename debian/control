@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Bdale Garbee <bdale@gag.com>
 Uploaders: Keith Packard <keithp@keithp.com>
 Build-Depends: debhelper (>= 7), autoconf, automake, flite1-dev, gawk, libasound2-dev, libgconf2-dev, libglade2-dev, libgtk2.0-dev, libreadline-dev, libusb-1.0-0-dev, nickle, sdcc, libplplot-dev, xsltproc, fop, docbook-xml, docbook-xsl, libsndfile1-dev, swig, openjdk-6-jdk, freetts, libtool, libjfreechart-java, libbluetooth-dev
-Standards-Version: 3.9.1
+Standards-Version: 3.9.2
 Homepage: http://altusmetrum.org/AltOS
 
 Package: altos
