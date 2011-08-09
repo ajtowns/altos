@@ -217,7 +217,8 @@ public class AltosSerial implements Runnable {
 
 		if (SwingUtilities.isEventDispatchThread()) {
 			can_cancel = false;
-			System.out.printf("Uh-oh, reading serial device from swing thread\n");
+			if (remote)
+				System.out.printf("Uh-oh, reading remote serial device from swing thread\n");
 		}
 		flush_output();
 		if (remote && can_cancel) {
