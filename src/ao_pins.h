@@ -97,7 +97,7 @@
 	#define HAS_IGNITE		0
 #endif
 
-#if defined(TELEMINI_V_0_1)
+#if defined(TELEMINI_V_1_0)
 	#define HAS_FLIGHT		1
 	#define HAS_USB			0
 	#define HAS_BEEP		0

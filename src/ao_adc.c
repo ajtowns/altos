@@ -84,7 +84,7 @@ ao_adc_isr(void) __interrupt 1
 #if IGNITE_ON_P0
 	/* TeleMini readings */
 	a = (uint8_t __xdata *) (&ao_adc_ring[ao_adc_head].pres);
-#ifdef TELEMINI_V_0_1
+#ifdef TELEMINI_V_1_0
 	switch (sequence) {
 	case 0:
 		/* pressure */

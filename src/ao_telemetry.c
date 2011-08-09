@@ -35,7 +35,7 @@ static __pdata uint16_t ao_rdf_time;
 #define AO_TELEMETRY_SENSOR	AO_TELEMETRY_SENSOR_TELEMETRUM
 #endif
 
-#if defined(TELEMINI_V_0_1)
+#if defined(TELEMINI_V_1_0)
 #define AO_TELEMETRY_SENSOR	AO_TELEMETRY_SENSOR_TELEMINI
 #endif
 
