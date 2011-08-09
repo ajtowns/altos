@@ -115,6 +115,7 @@ public class AltosScanUI
 	private JLabel			telemetry_label;
 	private JButton			cancel_button;
 	private JButton			monitor_button;
+	private JCheckBox[]		telemetry_boxes;
 	javax.swing.Timer		timer;
 	AltosScanResults		results = new AltosScanResults();
 
@@ -210,11 +211,15 @@ public class AltosScanUI
 		reader.serial.set_monitor(false);
 		Thread.sleep(100);
 		++frequency_index;
-		if (frequency_index >= frequencies.length) {
+		if (frequency_index >= frequencies.length ||
+		    !telemetry_boxes[telemetry - Altos.ao_telemetry_min].isSelected())
+		{
 			frequency_index = 0;
-			++telemetry;
-			if (telemetry > Altos.ao_telemetry_max)
-				telemetry = Altos.ao_telemetry_min;
+			do {
+				++telemetry;
+				if (telemetry > Altos.ao_telemetry_max)
+					telemetry = Altos.ao_telemetry_min;
+			} while (!telemetry_boxes[telemetry - Altos.ao_telemetry_min].isSelected());
 			set_telemetry();
 		}
 		set_frequency();
@@ -250,6 +255,21 @@ public class AltosScanUI
 
 			if (cmd.equals("tick"))
 				tick_timer();
+
+			if (cmd.equals("telemetry")) {
+				int k;
+				int scanning_telemetry = 0;
+				for (k = Altos.ao_telemetry_min; k <= Altos.ao_telemetry_max; k++) {
+					int j = k - Altos.ao_telemetry_min;
+					if (telemetry_boxes[j].isSelected())
+						scanning_telemetry |= (1 << k);
+				}
+				if (scanning_telemetry == 0) {
+					scanning_telemetry |= (1 << Altos.ao_telemetry_standard);
+					telemetry_boxes[Altos.ao_telemetry_standard - Altos.ao_telemetry_min].setSelected(true);
+				}
+				AltosPreferences.set_scanning_telemetry(scanning_telemetry);
+			}
 
 			if (cmd.equals("monitor")) {
 				close();
@@ -382,6 +402,20 @@ public class AltosScanUI
 		c.gridy = 2;
 		pane.add(telemetry_label, c);
 
+		int	scanning_telemetry = AltosPreferences.scanning_telemetry();
+		telemetry_boxes = new JCheckBox[Altos.ao_telemetry_max - Altos.ao_telemetry_min + 1];
+		for (int k = Altos.ao_telemetry_min; k <= Altos.ao_telemetry_max; k++) {
+			int j = k - Altos.ao_telemetry_min;
+			telemetry_boxes[j] = new JCheckBox(Altos.ao_telemetry_name[k]);
+			c.gridy = 3 + j;
+			pane.add(telemetry_boxes[j], c);
+			telemetry_boxes[j].setActionCommand("telemetry");
+			telemetry_boxes[j].addActionListener(this);
+			telemetry_boxes[j].setSelected((scanning_telemetry & (1 << k)) != 0);
+		}
+
+		int	y_offset = 3 + (Altos.ao_telemetry_max - Altos.ao_telemetry_min + 1);
+				
 		list = new JList(results) {
 				//Subclass JList to workaround bug 4832765, which can cause the
 				//scroll pane to not let the user easily scroll up to the beginning
@@ -448,7 +482,7 @@ public class AltosScanUI
 		c.weighty = 1;
 
 		c.gridx = 0;
-		c.gridy = 3;
+		c.gridy = y_offset;
 		c.gridwidth = 2;
 		c.anchor = GridBagConstraints.CENTER;
 
@@ -465,7 +499,7 @@ public class AltosScanUI
 		c.weighty = 1;
 
 		c.gridx = 0;
-		c.gridy = 4;
+		c.gridy = y_offset + 1;
 		c.gridwidth = 1;
 		c.anchor = GridBagConstraints.CENTER;
 
@@ -482,7 +516,7 @@ public class AltosScanUI
 		c.weighty = 1;
 
 		c.gridx = 1;
-		c.gridy = 4;
+		c.gridy = y_offset + 1;
 		c.gridwidth = 1;
 		c.anchor = GridBagConstraints.CENTER;
 

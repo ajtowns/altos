@@ -52,6 +52,9 @@ class AltosPreferences {
 	/* serial debug preference name */
 	final static String serialDebugPreference = "SERIAL-DEBUG";
 
+	/* scanning telemetry preferences name */
+	final static String scanningTelemetryPreference = "SCANNING-TELEMETRY";
+
 	/* Default logdir is ~/TeleMetrum */
 	final static String logdirName = "TeleMetrum";
 
@@ -81,6 +84,9 @@ class AltosPreferences {
 
 	/* Serial debug */
 	static boolean serial_debug;
+
+	/* Scanning telemetry */
+	static int scanning_telemetry;
 
 	/* List of frequencies */
 	final static String common_frequencies_node_name = "COMMON-FREQUENCIES";
@@ -155,6 +161,8 @@ class AltosPreferences {
 		voice = preferences.getBoolean(voicePreference, true);
 
 		callsign = preferences.get(callsignPreference,"N0CALL");
+
+		scanning_telemetry = preferences.getInt(scanningTelemetryPreference,(1 << Altos.ao_telemetry_standard));
 
 		String firmwaredir_string = preferences.get(firmwaredirPreference, null);
 		if (firmwaredir_string != null)
@@ -277,6 +285,18 @@ class AltosPreferences {
 						   Altos.ao_telemetry_standard);
 		telemetries.put(serial, telemetry);
 		return telemetry;
+	}
+
+	public static void set_scanning_telemetry(int new_scanning_telemetry) {
+		scanning_telemetry = new_scanning_telemetry;
+		synchronized (preferences) {
+			preferences.putInt(scanningTelemetryPreference, scanning_telemetry);
+			flush_preferences();
+		}
+	}
+
+	public static int scanning_telemetry() {
+		return scanning_telemetry;
 	}
 
 	public static void set_voice(boolean new_voice) {
