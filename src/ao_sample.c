@@ -139,7 +139,7 @@ ao_sample(void)
 		 *
 		 *                      ao_sample_accel       32767
 		 *                    = ------------ *  ------------
-		 *                         32737        ao_accel_ref
+		 *                         32767        ao_accel_ref
 		 *
 		 * Multiply through by 32767:
 		 *
