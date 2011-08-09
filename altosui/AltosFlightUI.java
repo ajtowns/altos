@@ -147,12 +147,12 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 			frequencies.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						double frequency = frequencies.frequency();
-						reader.save_frequency();
 						try {
 							reader.set_frequency(frequency);
 						} catch (TimeoutException te) {
 						} catch (InterruptedException ie) {
 						}
+						reader.save_frequency();
 					}
 			});
 			c.gridx = 0;
