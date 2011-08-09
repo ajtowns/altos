@@ -30,17 +30,17 @@ import java.util.prefs.*;
 import java.util.concurrent.*;
 
 class AltosScanResult {
-	String	callsign;
-	int	serial;
-	int	flight;
-	double	frequency;
-	int	telemetry;
+	String		callsign;
+	int		serial;
+	int		flight;
+	AltosFrequency	frequency;
+	int		telemetry;
 	
 	boolean	interrupted = false;
 	
 	public String toString() {
-		return String.format("%-9.9s serial %-4d flight %-4d (frequency %7.3f %s)",
-				     callsign, serial, flight, frequency, Altos.telemetry_name(telemetry));
+		return String.format("%-9.9s serial %-4d flight %-4d (%s %s)",
+				     callsign, serial, flight, frequency.toShortString(), Altos.telemetry_name(telemetry));
 	}
 
 	public String toShortString() {
@@ -49,7 +49,7 @@ class AltosScanResult {
 	}
 
 	public AltosScanResult(String in_callsign, int in_serial,
-			       int in_flight, double in_frequency, int in_telemetry) {
+			       int in_flight, AltosFrequency in_frequency, int in_telemetry) {
 		callsign = in_callsign;
 		serial = in_serial;
 		flight = in_flight;
@@ -61,7 +61,7 @@ class AltosScanResult {
 		return (callsign.equals(other.callsign) &&
 			serial == other.serial &&
 			flight == other.flight &&
-			frequency == other.frequency &&
+			frequency.frequency == other.frequency.frequency &&
 			telemetry == other.telemetry);
 	}
 }
@@ -119,7 +119,6 @@ public class AltosScanUI
 	AltosScanResults		results = new AltosScanResults();
 
 	int				telemetry;
-	double				frequency;
 
 	final static int		timeout = 1200;
 	TelemetryHandler		handler;
@@ -172,7 +171,7 @@ public class AltosScanUI
 							final AltosScanResult	result = new AltosScanResult(record.callsign,
 												     record.serial,
 												     record.flight,
-												     frequency,
+												     frequencies[frequency_index],
 												     telemetry);
 							Runnable r = new Runnable() {
 									public void run() {
@@ -259,7 +258,8 @@ public class AltosScanUI
 					if (device != null) {
 						if (reader != null) {
 							reader.set_telemetry(r.telemetry);
-							reader.set_frequency(r.frequency);
+							reader.set_frequency(r.frequency.frequency);
+							reader.save_frequency();
 							owner.telemetry_window(device);
 						}
 					}
