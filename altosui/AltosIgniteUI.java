@@ -43,6 +43,7 @@ public class AltosIgniteUI
 	JToggleButton	arm;
 	JButton		fire;
 	javax.swing.Timer	timer;
+	JButton		close;
 
 	int		apogee_status;
 	int		main_status;
@@ -401,6 +402,16 @@ public class AltosIgniteUI
 		pane.add(fire, c);
 		fire.addActionListener(this);
 		fire.setActionCommand("fire");
+
+		c.gridx = 0;
+		c.gridy = 4;
+		c.gridwidth = 2;
+		c.anchor = GridBagConstraints.CENTER;
+		close = new JButton ("Close");
+		pane.add(close, c);
+		close.addActionListener(this);
+		close.setActionCommand("close");
+			
 
 		pack();
 		setLocationRelativeTo(owner);
