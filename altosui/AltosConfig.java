@@ -132,13 +132,12 @@ public class AltosConfig implements ActionListener {
 		config_ui.set_version(version.get());
 		config_ui.set_main_deploy(main_deploy.get());
 		config_ui.set_apogee_delay(apogee_delay.get());
-		config_ui.set_radio_frequency(frequency());
 		config_ui.set_radio_calibration(radio_calibration.get());
+		config_ui.set_radio_frequency(frequency());
 		config_ui.set_flight_log_max(flight_log_max.get());
 		config_ui.set_ignite_mode(ignite_mode.get());
 		config_ui.set_pad_orientation(pad_orientation.get());
 		config_ui.set_callsign(callsign.get());
-		config_ui.set_radio_setting(radio_setting.get());
 		config_ui.set_clean();
 		config_ui.make_visible();
 	}
@@ -218,10 +217,12 @@ public class AltosConfig implements ActionListener {
 		void save_data() {
 			try {
 				double frequency = frequency();
-				boolean has_setting = radio_setting.get() != 0;
+				boolean has_setting = radio_setting.get() > 0;
 				start_serial();
 				serial_line.printf("c m %d\n", main_deploy.get());
 				serial_line.printf("c d %d\n", apogee_delay.get());
+				if (!remote)
+					serial_line.printf("c f %d\n", radio_calibration.get());
 				serial_line.set_radio_frequency(frequency,
 								has_setting,
 								radio_calibration.get());
@@ -233,8 +234,6 @@ public class AltosConfig implements ActionListener {
 					AltosPreferences.set_frequency(device.getSerial(), frequency);
 					serial_line.start_remote();
 				}
-				if (!remote)
-					serial_line.printf("c f %d\n", radio_calibration.get());
 				serial_line.printf("c c %s\n", callsign.get());
 				if (flight_log_max.get() != 0)
 					serial_line.printf("c l %d\n", flight_log_max.get());
@@ -321,18 +320,17 @@ public class AltosConfig implements ActionListener {
 	}
 
 	double frequency() {
-		int	setting = radio_setting.get();
-
-		if (setting != 0)
-			return AltosConvert.radio_setting_to_frequency(setting, radio_calibration.get());
-		else
-			return AltosConvert.radio_channel_to_frequency(radio_channel.get());
+		System.out.printf("setting %d channel %d calibration %d\n",
+				  radio_setting.get(), radio_channel.get(), radio_calibration.get());
+		return AltosConvert.radio_to_frequency(radio_setting.get(),
+						       radio_calibration.get(),
+						       radio_channel.get());
 	}
 
 	void set_frequency(double freq) {
 		int	setting = radio_setting.get();
 
-		if (setting != 0) {
+		if (setting > 0) {
 			radio_setting.set(AltosConvert.radio_frequency_to_setting(freq,
 										  radio_calibration.get()));
 			radio_channel.set(0);
