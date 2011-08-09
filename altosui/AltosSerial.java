@@ -215,7 +215,6 @@ public class AltosSerial implements Runnable {
 		boolean	can_cancel = true;
 		++in_reply;
 
-		System.out.printf("get_reply %d\n", timeout);
 		if (SwingUtilities.isEventDispatchThread()) {
 			can_cancel = false;
 			System.out.printf("Uh-oh, reading serial device from swing thread\n");
@@ -246,7 +245,6 @@ public class AltosSerial implements Runnable {
 
 	public String get_reply_no_dialog(int timeout) throws InterruptedException, TimeoutException {
 		flush_output();
-		System.out.printf("get_reply_no_dialog\n");
 		AltosLine line = reply_queue.poll(timeout, TimeUnit.MILLISECONDS);
 		if (line != null)
 			return line.line;
