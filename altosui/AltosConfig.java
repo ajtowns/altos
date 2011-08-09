@@ -320,8 +320,6 @@ public class AltosConfig implements ActionListener {
 	}
 
 	double frequency() {
-		System.out.printf("setting %d channel %d calibration %d\n",
-				  radio_setting.get(), radio_channel.get(), radio_calibration.get());
 		return AltosConvert.radio_to_frequency(radio_setting.get(),
 						       radio_calibration.get(),
 						       radio_channel.get());
