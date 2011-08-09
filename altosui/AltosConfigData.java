@@ -85,6 +85,7 @@ public class AltosConfigData implements Iterable<String> {
 	public AltosConfigData(AltosSerial serial_line) throws InterruptedException, TimeoutException {
 		serial_line.printf("c s\nv\n");
 		lines = new LinkedList<String>();
+		radio_setting = 0;
 		for (;;) {
 			String line = serial_line.get_reply();
 			if (line == null)

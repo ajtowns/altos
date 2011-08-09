@@ -563,9 +563,6 @@ public class AltosConfigUI
 		callsign_value.setText(new_callsign);
 	}
 
-	public void set_radio_setting(int new_radio_setting) {
-	}
-
 	public String callsign() {
 		return callsign_value.getText();
 	}
