@@ -27,7 +27,6 @@ class AltosTelemetryReader extends AltosFlightReader {
 	AltosSerial	serial;
 	AltosLog	log;
 	AltosRecord	previous;
-	AltosConfigData	config_data;
 	double		frequency;
 	int		telemetry;
 
