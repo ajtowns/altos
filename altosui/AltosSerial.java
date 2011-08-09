@@ -348,6 +348,7 @@ public class AltosSerial implements Runnable {
 				       setting, telemetry_len());
 			else
 				printf("c R %d\nc r 0\n", setting);
+			flush_output();
 		}
 	}
 
