@@ -77,14 +77,16 @@ public class AltosFlightStatsTable extends JComponent {
 			       String.format("%5.0f m/s", stats.max_speed),
 			       String.format("%5.0f ft/s", stats.max_speed * 100 / 2.54 / 12),
 			       String.format("Mach %5.3f", stats.max_speed / 343.0));
-		new FlightStat(layout, y++, "Maximum acceleration",
-			       String.format("%5.0f m/s²", stats.max_acceleration),
-			       String.format("%5.0f ft/s²", stats.max_acceleration * 100 / 2.54 /12),
-			       String.format("%5.2f G", stats.max_acceleration / 9.80665));
-		new FlightStat(layout, y++, "Average boost acceleration",
-			       String.format("%5.0f m/s²", stats.state_accel[Altos.ao_flight_boost]),
-			       String.format("%5.0f ft/s²", stats.state_accel[Altos.ao_flight_boost] * 100 / 2.54 /12),
-			       String.format("%5.2f G", stats.state_accel[Altos.ao_flight_boost] / 9.80665));
+		if (stats.max_acceleration != AltosRecord.MISSING) {
+			new FlightStat(layout, y++, "Maximum acceleration",
+				       String.format("%5.0f m/s²", stats.max_acceleration),
+				       String.format("%5.0f ft/s²", stats.max_acceleration * 100 / 2.54 /12),
+				       String.format("%5.2f G", stats.max_acceleration / 9.80665));
+			new FlightStat(layout, y++, "Average boost acceleration",
+				       String.format("%5.0f m/s²", stats.state_accel[Altos.ao_flight_boost]),
+				       String.format("%5.0f ft/s²", stats.state_accel[Altos.ao_flight_boost] * 100 / 2.54 /12),
+				       String.format("%5.2f G", stats.state_accel[Altos.ao_flight_boost] / 9.80665));
+		}
 		new FlightStat(layout, y++, "Drogue descent rate",
 			       String.format("%5.0f m/s", stats.state_baro_speed[Altos.ao_flight_drogue]),
 			       String.format("%5.0f ft/s", stats.state_baro_speed[Altos.ao_flight_drogue] * 100 / 2.54 / 12));

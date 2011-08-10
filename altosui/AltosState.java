@@ -49,6 +49,7 @@ public class AltosState {
 	double	max_height;
 	double	max_acceleration;
 	double	max_speed;
+	double	max_baro_speed;
 
 	AltosGPS	gps;
 
@@ -105,6 +106,7 @@ public class AltosState {
 			max_height = prev_state.max_height;
 			max_acceleration = prev_state.max_acceleration;
 			max_speed = prev_state.max_speed;
+			max_baro_speed = prev_state.max_baro_speed;
 
 			/* make sure the clock is monotonic */
 			while (tick < prev_state.tick)
@@ -171,6 +173,8 @@ public class AltosState {
 			max_acceleration = acceleration;
 		if (ascent && speed > max_speed)
 			max_speed = speed;
+		if (ascent && baro_speed > max_baro_speed)
+			max_baro_speed = baro_speed;
 
 		if (height > max_height)
 			max_height = height;

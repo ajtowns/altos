@@ -67,7 +67,10 @@ public class AltosFlightStats {
 					if (state_end[state.state] < state.time)
 						state_end[state.state] = state.time;
 					max_height = state.max_height;
-					max_speed = state.max_speed;
+					if (state.max_speed != 0)
+						max_speed = state.max_speed;
+					else
+						max_speed = state.max_baro_speed;
 					max_acceleration = state.max_acceleration;
 				}
 			} catch (ParseException pp) {
