@@ -213,31 +213,38 @@ public class AltosSerial implements Runnable {
 
 	public String get_reply(int timeout) throws InterruptedException {
 		boolean	can_cancel = true;
-		++in_reply;
+		String	reply = null;
 
-		if (SwingUtilities.isEventDispatchThread()) {
-			can_cancel = false;
-			if (remote)
-				System.out.printf("Uh-oh, reading remote serial device from swing thread\n");
-		}
-		flush_output();
-		if (remote && can_cancel) {
-			timeout = 500;
-		}
-		abort = false;
-		timeout_started = false;
-		for (;;) {
-			AltosLine line = reply_queue.poll(timeout, TimeUnit.MILLISECONDS);
-			if (line != null) {
-				stop_timeout_dialog();
-				--in_reply;
-				return line.line;
+		try {
+			++in_reply;
+
+			if (SwingUtilities.isEventDispatchThread()) {
+				can_cancel = false;
+				if (remote)
+					System.out.printf("Uh-oh, reading remote serial device from swing thread\n");
 			}
-			if (!remote || !can_cancel || check_timeout()) {
-				--in_reply;
-				return null;
+			flush_output();
+			if (remote && can_cancel) {
+				timeout = 500;
 			}
+			abort = false;
+			timeout_started = false;
+			for (;;) {
+				AltosLine line = reply_queue.poll(timeout, TimeUnit.MILLISECONDS);
+				if (line != null) {
+					stop_timeout_dialog();
+					reply = line.line;
+					break;
+				}
+				if (!remote || !can_cancel || check_timeout()) {
+					reply = null;
+					break;
+				}
+			}
+		} finally {
+			--in_reply;
 		}
+		return reply;
 	}
 
 	public String get_reply() throws InterruptedException {
