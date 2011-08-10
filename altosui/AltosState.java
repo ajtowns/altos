@@ -28,6 +28,7 @@ public class AltosState {
 
 	long  	report_time;
 
+	double	time;
 	double	time_change;
 	int	tick;
 
@@ -129,6 +130,8 @@ public class AltosState {
 			baro_speed = 0;
 			time_change = 0;
 		}
+
+		time = tick / 100.0;
 
 		if (state == Altos.ao_flight_pad || state == Altos.ao_flight_idle) {
 

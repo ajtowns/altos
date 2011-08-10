@@ -13,6 +13,7 @@ abstract class AltosGraph {
     public String filename;
     public abstract void addData(AltosDataPoint d);
     public abstract JFreeChart createChart();
+    public String title;
     public void toPNG() throws java.io.IOException { toPNG(300, 500); }
     public void toPNG(int width, int height)
         throws java.io.IOException

@@ -142,6 +142,19 @@ public class Altos {
 		"invalid",
 	};
 
+	static String[] state_to_string_capital = {
+		"Startup",
+		"Idle",
+		"Pad",
+		"Boost",
+		"Fast",
+		"Coast",
+		"Drogue",
+		"Main",
+		"Landed",
+		"Invalid",
+	};
+
 	static public int state(String state) {
 		if (!map_initialized)
 			initialize_map();

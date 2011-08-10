@@ -7,8 +7,11 @@ package altosui;
 import java.io.*;
 import java.util.ArrayList;
 
-import javax.swing.JFrame;
-import java.awt.Color;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.*;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
@@ -19,6 +22,8 @@ import org.jfree.ui.RefineryUtilities;
 
 public class AltosGraphUI extends JFrame 
 {
+    JTabbedPane	pane;
+
     static final private Color red = new Color(194,31,31);
     static final private Color green = new Color(31,194,31);
     static final private Color blue = new Color(31,31,194);
@@ -173,7 +178,7 @@ public class AltosGraphUI extends JFrame
         }
     }
 
-	public AltosGraphUI(AltosRecordIterable records) {
+    public AltosGraphUI(AltosRecordIterable records) throws InterruptedException, IOException {
 		super("Altos Graph");
 
 		AltosDataPointReader reader = new AltosDataPointReader (records);
@@ -181,25 +186,32 @@ public class AltosGraphUI extends JFrame
 			return;
         
 		if (reader.has_accel)
-			init(reader, 0);
+		    init(reader, records, 0);
 		else
-			init(reader, 1);
+		    init(reader, records, 1);
 	}
 
-    public AltosGraphUI(AltosDataPointReader data, int which)
-    {
-        super("Altos Graph");
-        init(data, which);
-    }
+//    public AltosGraphUI(AltosDataPointReader data, int which)
+    //  {
+//        super("Altos Graph");
+//        init(data, which);
+//    }
 
-    private void init(AltosDataPointReader data, int which) {
+    private void init(AltosDataPointReader data, AltosRecordIterable records, int which) throws InterruptedException, IOException {
+	pane = new JTabbedPane();
+
         AltosGraph graph = createGraph(data, which);
 
         JFreeChart chart = graph.createChart();
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setMouseWheelEnabled(true);
         chartPanel.setPreferredSize(new java.awt.Dimension(800, 500));
-        setContentPane(chartPanel);
+        pane.add(graph.title, chartPanel);
+
+	AltosFlightStatsTable stats = new AltosFlightStatsTable(new AltosFlightStats(records));
+	pane.add("Flight Statistics", stats);
+
+	setContentPane (pane);
 
         pack();
 

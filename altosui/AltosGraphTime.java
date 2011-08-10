@@ -132,7 +132,6 @@ class AltosGraphTime extends AltosGraph {
     private Integer serial = null;
     private Integer flight = null; 
 
-    private String title;
     private ArrayList<Element> elements;
     private HashMap<String,Integer> axes;
     private HashMap<Element,Integer> datasets;
