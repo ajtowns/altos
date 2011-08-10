@@ -160,7 +160,10 @@ FIRMWARE_TM_1_0=$(top_srcdir)/src/telemetrum-v1.0-$(VERSION).ihx
 FIRMWARE_TM_1_1=$(top_srcdir)/src/telemetrum-v1.1-$(VERSION).ihx
 FIRMWARE_TM=$(FIRMWARE_TM_1_0) $(FIRMWARE_TM_1_1)
 
-FIRMWARE=$(FIRMWARE_TM) $(FIRMWARE_TD)
+FIRMWARE_TELEMINI_1_0=$(top_srcdir)/src/telemini-v1.0-$(VERSION).ihx
+FIRMWARE_TELEMINI=$(FIRMWARE_TELEMINI_1_0)
+
+FIRMWARE=$(FIRMWARE_TM) $(FIRMWARE_TELEMINI) $(FIRMWARE_TD) 
 
 ALTUSMETRUM_DOC=$(top_srcdir)/doc/altusmetrum.pdf
 ALTOS_DOC=$(top_srcdir)/doc/altos.pdf
