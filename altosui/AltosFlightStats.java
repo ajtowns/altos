@@ -85,11 +85,11 @@ public class AltosFlightStats {
 		}
 	}
 
-	public AltosFlightStats(AltosRecordIterable iterable, String filename) throws InterruptedException, IOException {
-		this(new AltosReplayReader(iterable.iterator(), filename));
+	public AltosFlightStats(AltosRecordIterable iterable, File file) throws InterruptedException, IOException {
+		this(new AltosReplayReader(iterable.iterator(), file));
 	}
 
 	public AltosFlightStats(AltosRecordIterable iterable) throws InterruptedException, IOException {
-		this(iterable, "");
+		this(iterable, new File(""));
 	}
 }

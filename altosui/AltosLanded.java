@@ -28,7 +28,7 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class AltosLanded extends JComponent implements AltosFlightDisplay {
+public class AltosLanded extends JComponent implements AltosFlightDisplay, ActionListener {
 	GridBagLayout	layout;
 	Font		label_font;
 	Font		value_font;
@@ -214,10 +214,50 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay {
 		height.show(state, crc_errors);
 		speed.show(state, crc_errors);
 		accel.show(state, crc_errors);
+		if (reader.backing_file() != null)
+			graph.setEnabled(true);
 	}
 
-	public AltosLanded() {
+	JButton	graph;
+	AltosFlightReader reader;
+
+	public void actionPerformed(ActionEvent e) {
+		String	cmd = e.getActionCommand();
+
+		if (cmd.equals("graph")) {
+			File	file = reader.backing_file();
+			if (file != null) {
+				String	filename = file.getName();
+				try {
+					AltosRecordIterable records = null;
+					if (filename.endsWith("eeprom")) {
+						FileInputStream in = new FileInputStream(file);
+						records = new AltosEepromIterable(in);
+					} else if (filename.endsWith("telem")) {
+						FileInputStream in = new FileInputStream(file);
+						records = new AltosTelemetryIterable(in);
+					} else {
+						throw new FileNotFoundException();
+					}
+					try {
+						new AltosGraphUI(records);
+					} catch (InterruptedException ie) {
+					} catch (IOException ie) {
+					}
+				} catch (FileNotFoundException fe) {
+					JOptionPane.showMessageDialog(null,
+								      filename,
+								      "Cannot open file",
+								      JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		}
+	}
+
+	public AltosLanded(AltosFlightReader in_reader) {
 		layout = new GridBagLayout();
+
+		reader = in_reader;
 
 		label_font = new Font("Dialog", Font.PLAIN, 22);
 		value_font = new Font("Monospaced", Font.PLAIN, 22);
@@ -231,5 +271,20 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay {
 		height = new Height(layout, 4);
 		speed = new Speed(layout, 5);
 		accel = new Accel(layout, 6);
+
+		graph = new JButton ("Graph Flight");
+		graph.setActionCommand("graph");
+		graph.addActionListener(this);
+		graph.setEnabled(false);
+
+		GridBagConstraints	c = new GridBagConstraints();
+
+		c.gridx = 0; c.gridy = 7;
+		c.insets = new Insets(10, 10, 10, 10);
+		c.anchor = GridBagConstraints.WEST;
+		c.weightx = 0;
+		c.weighty = 0;
+		c.fill = GridBagConstraints.VERTICAL;
+		add(graph, c);
 	}
 }

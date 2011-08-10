@@ -210,7 +210,7 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		descent = new AltosDescent();
 		pane.add("Descent", descent);
 
-		landed = new AltosLanded();
+		landed = new AltosLanded(reader);
 		pane.add("Landed", landed);
 
 		flightInfo = new AltosInfoTable();

@@ -276,7 +276,7 @@ public class AltosUI extends JFrame {
 		AltosRecordIterable iterable = chooser.runDialog();
 		if (iterable != null) {
 			AltosFlightReader reader = new AltosReplayReader(iterable.iterator(),
-									 chooser.filename());
+									 chooser.file());
 			new AltosFlightUI(voice, reader);
 		}
 	}
@@ -310,7 +310,11 @@ public class AltosUI extends JFrame {
 		AltosRecordIterable record_reader = chooser.runDialog();
 		if (record_reader == null)
 			return;
-		new AltosGraphUI(record_reader);
+		try {
+			new AltosGraphUI(record_reader);
+		} catch (InterruptedException ie) {
+		} catch (IOException ie) {
+		}
 	}
 
 	private void ConfigureAltosUI() {
@@ -427,7 +431,7 @@ public class AltosUI extends JFrame {
 			} else {
 				recs = new AltosTelemetryIterable(in);
 			}
-			reader = new AltosReplayReader(recs.iterator(), filename);
+			reader = new AltosReplayReader(recs.iterator(), new File(filename));
 			AltosFlightUI flight_ui = new AltosFlightUI(new AltosVoice(), reader);
 			flight_ui.set_exit_on_close();
 			return;

@@ -34,6 +34,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class AltosReplayReader extends AltosFlightReader {
 	Iterator<AltosRecord>	iterator;
+	File	file;
 
 	public AltosRecord read() {
 		if (iterator.hasNext())
@@ -50,8 +51,11 @@ public class AltosReplayReader extends AltosFlightReader {
 			Thread.sleep((int) (Math.min(state.time_change,10) * 1000));
 	}
 
-	public AltosReplayReader(Iterator<AltosRecord> in_iterator, String in_name) {
+	public File backing_file() { return file; }
+
+	public AltosReplayReader(Iterator<AltosRecord> in_iterator, File in_file) {
 		iterator = in_iterator;
-		name = in_name;
+		file = in_file;
+		name = file.getName();
 	}
 }

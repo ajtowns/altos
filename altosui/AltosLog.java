@@ -35,6 +35,7 @@ class AltosLog implements Runnable {
 	int				flight;
 	FileWriter			log_file;
 	Thread				log_thread;
+	AltosFile			file;
 
 	private void close_log_file() {
 		if (log_file != null) {
@@ -54,6 +55,10 @@ class AltosLog implements Runnable {
 		}
 	}
 
+	File file() {
+		return file;
+	}
+
 	boolean open (AltosRecord telem) throws IOException {
 		AltosFile	a = new AltosFile(telem);
 
@@ -69,6 +74,7 @@ class AltosLog implements Runnable {
 				}
 			}
 			log_file.flush();
+			file = a;
 		}
 		return log_file != null;
 	}
