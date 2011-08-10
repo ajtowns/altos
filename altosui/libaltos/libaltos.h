@@ -34,22 +34,6 @@
 # define PUBLIC
 #endif
 
-#define HAS_BLUETOOTH	0
-
-#define USB_VENDOR_FSF			0xfffe
-#define USB_VENDOR_ALTUSMETRUM		USB_VENDOR_FSF
-#define USB_PRODUCT_ALTUSMETRUM		0x000a
-#define USB_PRODUCT_TELEMETRUM		0x000b
-#define USB_PRODUCT_TELEDONGLE		0x000c
-#define USB_PRODUCT_TELETERRA		0x000d
-#define USB_PRODUCT_TELEBT		0x000e
-#define USB_PRODUCT_ALTUSMETRUM_MIN	0x000a
-#define USB_PRODUCT_ALTUSMETRUM_MAX	0x0013
-
-#define USB_IS_ALTUSMETRUM(v,p)	((v) == USB_VENDOR_ALTUSMETRUM && \
-		(USB_PRODUCT_ALTUSMETRUM_MIN <= (p) && \
-		 (p) <= USB_PRODUCT_ALTUSMETRUM_MAX))
-
 struct altos_device {
 	//%immutable;
 	int				vendor;
@@ -59,8 +43,6 @@ struct altos_device {
 	char				path[256];
 	//%mutable;
 };
-
-#define BLUETOOTH_PRODUCT_TELEBT	"TeleBT"
 
 struct altos_bt_device {
 	//%immutable;
@@ -111,6 +93,7 @@ altos_flush(struct altos_file *file);
 PUBLIC int
 altos_getchar(struct altos_file *file, int timeout);
 
+// #define HAS_BLUETOOTH 1
 #if HAS_BLUETOOTH
 
 PUBLIC struct altos_bt_list *
