@@ -69,10 +69,14 @@ class AltosDataPointReader implements Iterable<AltosDataPoint> {
                 throw new UnsupportedOperationException(); 
             }
             public boolean hasNext() {
+		if (record != null && record.state == Altos.ao_flight_landed)
+		    return false;
                 return iter.hasNext();
             }
             public AltosDataPoint next() {
-                read_next_record();
+		do {
+		    read_next_record();
+		} while (record.time < -1.0 && hasNext());
                 return current_dp();
             }
         };
