@@ -80,6 +80,8 @@ public class Altos {
 		"Off", "Standard Telemetry", "TeleMetrum v0.9", "TeleMetrum v0.8"
 	};
 
+	static final String launch_sites_url = "http://www.altusmetrum.org/AltOS/launch-sites.txt";
+
 	static final int ao_telemetry_standard_len = 32;
 	static final int ao_telemetry_0_9_len = 95;
 	static final int ao_telemetry_0_8_len = 94;

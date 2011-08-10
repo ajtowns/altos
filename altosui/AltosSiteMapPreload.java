@@ -204,7 +204,7 @@ class AltosSites extends Thread {
 		sites = new LinkedList<AltosSite>();
 		preload = in_preload;
 		try {
-			url = new URL("http://gag.com/~keithp/launch-sites.txt");
+			url = new URL(Altos.launch_sites_url);
 		} catch (java.net.MalformedURLException e) {
 			notify_complete();
 		}
