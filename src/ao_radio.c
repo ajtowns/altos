@@ -432,7 +432,9 @@ ao_radio_test(void)
 	}
 	mode++;
 	if ((mode & 2) && !radio_on) {
+#if HAS_MONITOR
 		ao_set_monitor(0);
+#endif
 #if PACKET_HAS_SLAVE
 		ao_packet_slave_stop();
 #endif

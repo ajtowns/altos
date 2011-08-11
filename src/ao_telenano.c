@@ -18,13 +18,6 @@
 #include "ao.h"
 #include "ao_pins.h"
 
-/* stub so as telemini doesn't have monitor mode */
-void
-ao_set_monitor(uint8_t monitoring)
-{
-	(void) monitoring;
-}
-
 void
 main(void)
 {

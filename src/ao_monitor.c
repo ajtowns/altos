@@ -18,6 +18,10 @@
 #include "ao.h"
 #include "ao_telem.h"
 
+#if !HAS_MONITOR
+#error Must define HAS_MONITOR to 1
+#endif
+
 __xdata uint8_t ao_monitoring;
 __pdata uint8_t ao_monitor_led;
 

@@ -109,7 +109,9 @@ ao_packet_forward(void) __reentrant
 	ao_cmd_white();
 
 	flush();
+#if HAS_MONITOR
 	ao_set_monitor(0);
+#endif
 	ao_add_task(&ao_packet_task, ao_packet_master, "master");
 	ao_add_task(&ao_packet_echo_task, ao_packet_echo, "echo");
 	while ((c = getchar()) != '~') {

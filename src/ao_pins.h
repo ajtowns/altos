@@ -42,6 +42,7 @@
 	#define HAS_ACCEL_REF		0
 	#define HAS_ACCEL		1
 	#define HAS_IGNITE		1
+	#define HAS_MONITOR		0
 #endif
 
 #if defined(TELEMETRUM_V_1_1)
@@ -72,6 +73,7 @@
 	#define M25_MAX_CHIPS		1
 	#define HAS_ACCEL		1
 	#define HAS_IGNITE		1
+	#define HAS_MONITOR		0
 #endif
 
 #if defined(TELEDONGLE_V_0_2)
@@ -95,6 +97,7 @@
 	#define SPI_CS_ON_P1		1
 	#define SPI_CS_ON_P0		0
 	#define HAS_IGNITE		0
+	#define HAS_MONITOR		1
 #endif
 
 #if defined(TELEMINI_V_1_0)
@@ -120,6 +123,7 @@
 	#define HAS_EXTERNAL_TEMP	0
 	#define HAS_ACCEL		0
 	#define HAS_IGNITE		1
+	#define HAS_MONITOR		0
 #endif
 
 #if defined(TELENANO_V_0_1)
@@ -144,6 +148,7 @@
 	#define HAS_EXTERNAL_TEMP	0
 	#define HAS_ACCEL		0
 	#define HAS_IGNITE		0
+	#define HAS_MONITOR		0
 #endif
 
 #if defined(TELEMETRUM_V_0_1)
@@ -172,6 +177,7 @@
 	#define SPI_CS_ON_P0		0
 	#define HAS_ACCEL		1
 	#define HAS_IGNITE		1
+	#define HAS_MONITOR		0
 #endif
 
 #if defined(TELEDONGLE_V_0_1)
@@ -195,6 +201,7 @@
 	#define SPI_CS_ON_P1		0
 	#define SPI_CS_ON_P0		1
 	#define HAS_IGNITE		0
+	#define HAS_MONITOR		1
 #endif
 
 #if defined(TIDONGLE)
@@ -217,6 +224,7 @@
 	#define SPI_CS_ON_P1		0
 	#define SPI_CS_ON_P0		1
 	#define HAS_IGNITE		0
+	#define HAS_MONITOR		1
 #endif
 
 #if defined(TELEBT_V_0_0)
@@ -245,6 +253,7 @@
 	#define BT_LINK_ON_P1		0
 	#define BT_LINK_PIN_INDEX	7
 	#define BT_LINK_PIN		P2_1
+	#define HAS_MONITOR		1
 #endif
 
 #if defined(TELEBT_V_0_1)
@@ -280,6 +289,7 @@
 	#define BT_LINK_ON_P1		1
 	#define BT_LINK_PIN_INDEX	7
 	#define BT_LINK_PIN		P1_7
+	#define HAS_MONITOR		1
 #endif
 
 #if DBG_ON_P1
@@ -376,4 +386,7 @@
 #error Please define PACKET_HAS_SLAVE
 #endif
 
+#ifndef HAS_MONITOR
+#error Please define HAS_MONITOR
+#endif
 #endif /* _AO_PINS_H_ */
