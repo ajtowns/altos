@@ -92,6 +92,7 @@ Section "Documentation"
 
 	File "../doc/altusmetrum.pdf"
 	File "../doc/altos.pdf"
+	File "../doc/telemetry.pdf"
 	File "../doc/telemetrum-outline.pdf"
 SectionEnd
 
