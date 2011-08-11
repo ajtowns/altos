@@ -1447,9 +1447,14 @@ NAR #88757, TRA #12200
 	  your neighbor's RV) to receive the RDF signal.
 	</para>
         <para>
-          Finally, the maximum height, speed and acceleration reported
+          The maximum height, speed and acceleration reported
           during the flight are displayed for your admiring observers.
         </para>
+	<para>
+	  To get more detailed information about the flight, you can
+	  click on the 'Graph Flight' button which will bring up a
+	  graph window for the current flight.
+	</para>
       </section>
       <section>
         <title>Site Map</title>
@@ -1539,9 +1544,14 @@ NAR #88757, TRA #12200
         flash memory.
       </para>
       <para>
-        Once a flight record is selected, the acceleration (blue),
-        velocity (green) and altitude (red) of the flight are plotted and
-        displayed, measured in metric units.
+        Once a flight record is selected, a window with two tabs is
+        opened. The first tab contains a graph with acceleration
+        (blue), velocity (green) and altitude (red) of the flight are
+        plotted and displayed, measured in metric units. The
+        apogee(yellow) and main(magenta) igniter voltages are also
+        displayed; high voltages indicate continuity, low voltages
+        indicate open circuits. The second tab contains some basic
+	flight statistics.
       </para>
       <para>
         The graph can be zoomed into a particular area by clicking and
