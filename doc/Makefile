@@ -6,7 +6,10 @@ RELNOTES=\
 	release-notes-0.7.1.html \
 	release-notes-0.8.html \
 	release-notes-0.9.html \
-	release-notes-0.9.2.html
+	release-notes-0.9.2.html \
+	release-notes-1.0.html
+
+RELNOTES_XSL=$(RELNOTES:.html=.xsl)
 HTML=altusmetrum.html altos.html telemetry.html $(RELNOTES)
 PDF=altusmetrum.pdf altos.pdf telemetry.pdf
 DOC=$(HTML) $(PDF)
@@ -44,6 +47,9 @@ clean:
 
 distclean:
 	rm -f $(HTML) $(PDF) *.fo
+
+altusmetrum.html: $(RELNOTES_XSL)
+altusmetrum.fo: $(RELNOTES_XSL)
 
 indent:		altusmetrum.xsl
 	xmlindent -i 2 < altusmetrum.xsl > altusmetrum.new
