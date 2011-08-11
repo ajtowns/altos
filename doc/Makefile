@@ -2,7 +2,12 @@
 #	http://docbook.sourceforge.net/release/xsl/current/README
 #
 
-HTML=altusmetrum.html altos.html telemetry.html
+RELNOTES=\
+	release-notes-0.7.1.html \
+	release-notes-0.8.html \
+	release-notes-0.9.html \
+	release-notes-0.9.2.html
+HTML=altusmetrum.html altos.html telemetry.html $(RELNOTES)
 PDF=altusmetrum.pdf altos.pdf telemetry.pdf
 DOC=$(HTML) $(PDF)
 HTMLSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/html/docbook.xsl
@@ -11,7 +16,7 @@ PDFSTYLE=
 
 .SUFFIXES: .xsl .html .fo .pdf
 
-XSLTFLAGS=--stringparam section.autolabel 1
+XSLTFLAGS=--stringparam section.autolabel 1 --xinclude
 
 .xsl.html:
 	xsltproc $(XSLTFLAGS) -o $@ $(HTMLSTYLE) $*.xsl
