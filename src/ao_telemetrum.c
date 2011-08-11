@@ -28,8 +28,13 @@ ao_set_monitor(uint8_t monitoring)
 void
 main(void)
 {
-	ao_clock_init();
+	/*
+	 * Reduce the transient on the ignite pins at startup by
+	 * pulling the pins low as soon as possible at power up
+	 */
+	ao_ignite_set_pins();
 
+	ao_clock_init();
 
 	/* Turn on the red LED until the system is stable */
 	ao_led_init(LEDS_AVAILABLE);

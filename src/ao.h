@@ -1351,6 +1351,9 @@ enum ao_igniter_status
 ao_igniter_status(enum ao_igniter igniter);
 
 void
+ao_ignite_set_pins(void);
+
+void
 ao_igniter_init(void);
 
 /*

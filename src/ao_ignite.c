@@ -202,11 +202,17 @@ __code struct ao_cmds ao_ignite_cmds[] = {
 __xdata struct ao_task ao_igniter_task;
 
 void
-ao_igniter_init(void)
+ao_ignite_set_pins(void)
 {
 	AO_IGNITER_DROGUE = 0;
 	AO_IGNITER_MAIN = 0;
 	AO_IGNITER_DIR |= AO_IGNITER_DROGUE_BIT | AO_IGNITER_MAIN_BIT;
+}
+
+void
+ao_igniter_init(void)
+{
+	ao_ignite_set_pins();
 	ao_cmd_register(&ao_ignite_cmds[0]);
 	ao_add_task(&ao_igniter_task, ao_igniter, "igniter");
 }
