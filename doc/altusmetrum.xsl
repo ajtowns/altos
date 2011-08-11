@@ -1730,6 +1730,67 @@ NAR #88757, TRA #12200
 	   before a subsequent flight or it will not log any data.
 	</para>
       </section>
+      <section>
+        <title>Ignite Mode</title>
+	<para>
+	  TeleMetrum and TeleMini provide two igniter channels as they
+	  were originally designed as dual-deploy flight
+	  computers. This configuration parameter allows the two
+	  channels to be used in different configurations.
+	</para>
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      Dual Deploy. This is the usual mode of operation; the
+	      'apogee' channel is fired at apogee and the 'main'
+	      channel at the height above ground specified by the
+	      'Main Deploy Altitude' during descent.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Redundant Apogee. This fires both channels at
+	      apogee, the 'apogee' channel first followed after a two second
+	      delay by the 'main' channel.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Redundant Main. This fires both channels at the
+	      height above ground specified by the Main Deploy
+	      Altitude setting during descent. The 'apogee'
+	      channel is fired first, followed after a two second
+	      delay by the 'main' channel.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </section>
+      <section>
+        <title>Pad Orientation</title>
+	<para>
+	  Because it includes an accelerometer, TeleMetrum is
+	  sensitive to the orientation of the board. By default, it
+	  expects the antenna end to point forward. This parameter
+	  allows that default to be changed, permitting the board to
+	  be mounted with the antenna pointing aft instead.
+	</para>
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      Antenna Up. In this mode, the antenna end of the
+	      TeleMetrum board must point forward, in line with the
+	      expected flight path.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Antenna Down. In this mode, the antenna end of the
+	      TeleMetrum board must point aft, in line with the
+	      expected flight path.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </section>
     </section>
     <section>
       <title>Configure AltosUI</title>
