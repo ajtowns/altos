@@ -79,6 +79,7 @@ ao_companion(void)
 		ao_delay(ao_companion_setup.update_period);
 		ao_companion_get_data();
 	}
+	ao_exit();
 }
 
 void
