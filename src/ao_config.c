@@ -71,21 +71,11 @@ _ao_config_get(void)
 #endif
 	if (ao_config.major != AO_CONFIG_MAJOR) {
 		ao_config.major = AO_CONFIG_MAJOR;
-		ao_config.minor = AO_CONFIG_MINOR;
+		ao_config.minor = 0;
 		ao_config.main_deploy = AO_CONFIG_DEFAULT_MAIN_DEPLOY;
 		ao_config.radio_channel = AO_CONFIG_DEFAULT_RADIO_CHANNEL;
-		ao_config.accel_plus_g = 0;
-		ao_config.accel_minus_g = 0;
-		memset(&ao_config.callsign, '\0', sizeof (ao_config.callsign));
 		memcpy(&ao_config.callsign, AO_CONFIG_DEFAULT_CALLSIGN,
 		       sizeof(AO_CONFIG_DEFAULT_CALLSIGN) - 1);
-		ao_config.apogee_delay = AO_CONFIG_DEFAULT_APOGEE_DELAY;
-		ao_config.radio_cal = ao_radio_cal;
-		ao_config.flight_log_max = AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX;
-		ao_config.ignite_mode = AO_CONFIG_DEFAULT_IGNITE_MODE;
-		ao_config.pad_orientation = AO_CONFIG_DEFAULT_PAD_ORIENTATION;
-		ao_config.radio_setting = ao_radio_cal;
-		ao_config_dirty = 1;
 	}
 	if (ao_config.minor < AO_CONFIG_MINOR) {
 		/* Fixups for minor version 1 */
@@ -159,12 +149,8 @@ ao_config_callsign_set(void) __reentrant
 void
 ao_config_radio_channel_show(void) __reentrant
 {
-	uint32_t	freq = 434550L + ao_config.radio_channel * 100L;
-	uint16_t	mhz = freq / 1000L;
-	uint16_t	khz = freq % 1000L;
-
-	printf("Radio channel: %d (%d.%03dMHz)\n",
-	       ao_config.radio_channel, mhz, khz);
+	printf("Radio channel: %d\n",
+	       ao_config.radio_channel);
 }
 
 void
@@ -187,9 +173,8 @@ ao_config_radio_channel_set(void) __reentrant
 void
 ao_config_main_deploy_show(void) __reentrant
 {
-	printf("Main deploy: %d meters (%d feet)\n",
-	       ao_config.main_deploy,
-	       (int16_t) ((int32_t) ao_config.main_deploy * 328 / 100));
+	printf("Main deploy: %d meters\n",
+	       ao_config.main_deploy);
 }
 
 void
