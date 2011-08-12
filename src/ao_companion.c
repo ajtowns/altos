@@ -53,9 +53,8 @@ ao_companion_get_setup(void)
 	ao_companion_send_command(AO_COMPANION_SETUP);
 	ao_spi_recv(&ao_companion_setup, sizeof (ao_companion_setup));
 	COMPANION_DESELECT();
-	if (ao_companion_setup.board_id != ~ao_companion_setup.board_id)
-		return 0;
-	return 1;
+	return (ao_companion_setup.board_id ==
+		~ao_companion_setup.board_id_inverse);
 }
 
 static void
@@ -72,10 +71,8 @@ ao_companion_get_data(void)
 void
 ao_companion(void)
 {
-	if (!ao_companion_get_setup())
-		ao_exit();
-	ao_companion_running = 1;
-	for (;;) {
+	ao_companion_running = ao_companion_get_setup();
+	while (ao_companion_running) {
 		ao_delay(ao_companion_setup.update_period);
 		ao_companion_get_data();
 	}
