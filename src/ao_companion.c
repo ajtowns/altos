@@ -85,6 +85,15 @@ ao_companion(void)
 void
 ao_companion_status(void) __reentrant
 {
+	uint8_t	i;
+	printf("Companion running: %d\n", ao_companion_running);
+	printf("device: %d\n", ao_companion_setup.board_id);
+	printf("update period: %d\n", ao_companion_setup.update_period);
+	printf("channels: %d\n", ao_companion_setup.channels);
+	printf("data:");
+	for(i = 0; i < ao_companion_setup.channels; i++)
+		printf(" %5u", ao_companion_data[i]);
+	printf("\n");
 }
 
 __code struct ao_cmds ao_companion_cmds[] = {
@@ -102,6 +111,5 @@ ao_companion_init(void)
 	COMPANION_CS_SEL &= ~COMPANION_CS_MASK;	/* set CS pins as GPIO */
 
 	ao_cmd_register(&ao_companion_cmds[0]);
-
 	ao_add_task(&ao_companion_task, ao_companion, "companion");
 }
