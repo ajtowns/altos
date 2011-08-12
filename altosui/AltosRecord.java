@@ -32,6 +32,7 @@ public class AltosRecord {
 	static final int	seen_gps_time = 16;
 	static final int	seen_gps_lat = 32;
 	static final int	seen_gps_lon = 64;
+	static final int	seen_companion = 128;
 	int			seen;
 
 	int	version;
@@ -74,6 +75,8 @@ public class AltosRecord {
 	int	main_deploy;
 	int	flight_log_max;
 	String	firmware_version;
+
+	AltosRecordCompanion companion;
 	/*
 	 * Values for our MP3H6115A pressure sensor
 	 *
@@ -267,6 +270,7 @@ public class AltosRecord {
 		speed = old.speed;
 		height = old.height;
 		gps = new AltosGPS(old.gps);
+		companion = old.companion;
 	}
 
 	public AltosRecord() {
@@ -296,5 +300,6 @@ public class AltosRecord {
 		speed = MISSING;
 		height = MISSING;
 		gps = new AltosGPS();
+		companion = null;
 	}
 }

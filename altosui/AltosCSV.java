@@ -31,9 +31,9 @@ public class AltosCSV implements AltosWriter {
 	LinkedList<AltosRecord>	pad_records;
 	AltosState		state;
 
-	static final int ALTOS_CSV_VERSION = 2;
+	static final int ALTOS_CSV_VERSION = 3;
 
-	/* Version 2 format:
+	/* Version 3 format:
 	 *
 	 * General info
 	 *	version number
@@ -81,6 +81,13 @@ public class AltosCSV implements AltosWriter {
 	 *
 	 * GPS Sat data
 	 *	C/N0 data for all 32 valid SDIDs
+	 *
+	 * Companion data
+	 *	companion_id (1-255. 10 is TeleScience)
+	 *	time of last companion data (seconds since boost)
+	 *	update_period (0.1-2.55 minimum telemetry interval)
+	 *	channels (0-12)
+	 *	channel data for all 12 possible channels
 	 */
 
 	void write_general_header() {
@@ -179,13 +186,41 @@ public class AltosCSV implements AltosWriter {
 		}
 	}
 
-	void write_header(boolean gps) {
+	void write_companion_header() {
+		out.printf("companion_id,companion_time,companion_update,companion_channels");
+		for (int i = 0; i < 12; i++)
+			out.printf(",companion_%02d", i);
+	}
+
+	void write_companion(AltosRecord record) {
+		AltosRecordCompanion companion = record.companion;
+
+		int	channels_written = 0;
+		if (companion == null) {
+			out.printf("0,0,0,0");
+		} else {
+			out.printf("%3d,%5.2f,%5.2f,%2d",
+				   companion.board_id,
+				   (companion.tick - boost_tick) / 100.0,
+				   companion.update_period / 100.0,
+				   companion.channels);
+			for (; channels_written < companion.channels; channels_written++)
+				out.printf(",%5d", companion.companion_data[channels_written]);
+		}
+		for (; channels_written < 12; channels_written++)
+			out.printf(",0");
+	}
+
+	void write_header(boolean gps, boolean companion) {
 		out.printf("#"); write_general_header();
 		out.printf(","); write_flight_header();
 		out.printf(","); write_basic_header();
 		if (gps) {
 			out.printf(","); write_gps_header();
 			out.printf(","); write_gps_sat_header();
+		}
+		if (companion) {
+			out.printf(","); write_companion_header();
 		}
 		out.printf ("\n");
 	}
@@ -200,6 +235,10 @@ public class AltosCSV implements AltosWriter {
 			write_gps(record); out.printf(",");
 			write_gps_sat(record);
 		}
+		if (record.companion != null) {
+			out.printf(",");
+			write_companion(record);
+		}
 		out.printf ("\n");
 	}
 
@@ -210,8 +249,10 @@ public class AltosCSV implements AltosWriter {
 	}
 
 	public void write(AltosRecord record) {
+		if (record.state == Altos.ao_flight_startup)
+			return;
 		if (!header_written) {
-			write_header(record.gps != null);
+			write_header(record.gps != null, record.companion != null);
 			header_written = true;
 		}
 		if (!seen_boost) {

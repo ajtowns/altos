@@ -20,6 +20,7 @@ altosui_JAVA = \
 	GrabNDrag.java \
 	AltosAscent.java \
 	AltosChannelMenu.java \
+	AltosCompanionInfo.java \
 	AltosConfig.java \
 	AltosConfigData.java \
 	AltosConfigFreqUI.java \
@@ -77,6 +78,7 @@ altosui_JAVA = \
 	AltosPreferences.java \
 	AltosReader.java \
 	AltosRecord.java \
+	AltosRecordCompanion.java \
 	AltosRecordIterable.java \
 	AltosTelemetryReader.java \
 	AltosTelemetryRecord.java \
@@ -86,6 +88,7 @@ altosui_JAVA = \
 	AltosTelemetryRecordConfiguration.java \
 	AltosTelemetryRecordLocation.java \
 	AltosTelemetryRecordSatellite.java \
+	AltosTelemetryRecordCompanion.java \
 	AltosTelemetryRecordLegacy.java \
 	AltosTelemetryMap.java \
 	AltosReplayReader.java \

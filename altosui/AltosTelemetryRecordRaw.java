@@ -33,6 +33,7 @@ public class AltosTelemetryRecordRaw implements AltosTelemetryRecord {
 	final static int packet_type_configuration = 0x04;
 	final static int packet_type_location = 0x05;
 	final static int packet_type_satellite = 0x06;
+	final static int packet_type_companion = 0x07;
 	
 	final static int PKT_APPEND_STATUS_1_CRC_OK		= (1 << 7);
 	final static int PKT_APPEND_STATUS_1_LQI_MASK		= (0x7f);
@@ -89,6 +90,9 @@ public class AltosTelemetryRecordRaw implements AltosTelemetryRecord {
 			case packet_type_satellite:
 				r = new AltosTelemetryRecordSatellite(bytes);
 				break;
+			case packet_type_companion:
+				r = new AltosTelemetryRecordCompanion(bytes);
+				break;
 			default:
 				r = new AltosTelemetryRecordRaw(bytes);
 				break;
@@ -139,9 +143,11 @@ public class AltosTelemetryRecordRaw implements AltosTelemetryRecord {
 
 	public AltosRecord update_state(AltosRecord previous) {
 		AltosRecord	next;
-		if (previous != null)
+		if (previous != null) {
 			next = new AltosRecord(previous);
-		else
+			while (tick < previous.tick)
+				tick += 65536;
+		} else
 			next = new AltosRecord();
 		next.serial = serial;
 		next.tick = tick;

@@ -39,8 +39,10 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 	AltosAscent	ascent;
 	AltosDescent	descent;
 	AltosLanded	landed;
+	AltosCompanionInfo	companion;
 	AltosSiteMap    sitemap;
 	boolean		has_map;
+	boolean		has_companion;
 
 	private AltosFlightStatus flightStatus;
 	private AltosInfoTable flightInfo;
@@ -96,7 +98,20 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		}
 		flightStatus.show(state, crc_errors);
 		flightInfo.show(state, crc_errors);
-		if (state.gps != null) {
+
+		if (state.data.companion != null) {
+			if (!has_companion) {
+				pane.add("Companion", companion);
+				has_companion= true;
+			}
+			companion.show(state, crc_errors);
+		} else {
+			if (has_companion) {
+				pane.remove(companion);
+				has_companion = false;
+			}
+		}
+		if (state.gps != null && state.gps.connected) {
 			if (!has_map) {
 				pane.add("Site Map", sitemap);
 				has_map = true;
@@ -215,6 +230,9 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 
 		flightInfo = new AltosInfoTable();
 		pane.add("Table", new JScrollPane(flightInfo));
+
+		companion = new AltosCompanionInfo();
+		has_companion = false;
 
 		sitemap = new AltosSiteMap();
 		has_map = false;

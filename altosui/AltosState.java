@@ -73,7 +73,6 @@ public class AltosState {
 	int	speak_tick;
 	double	speak_altitude;
 
-
 	void init (AltosRecord cur, AltosState prev_state) {
 		int		i;
 		AltosRecord prev;
