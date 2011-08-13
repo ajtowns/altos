@@ -17,6 +17,8 @@
 
 #include "ao.h"
 
+__code uint8_t ao_log_format = AO_LOG_FORMAT_NONE;	/* until we actually log stuff */
+
 void
 main(void)
 {

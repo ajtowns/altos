@@ -51,6 +51,7 @@ public class Altos {
 	static final int AO_LOG_MANUFACTURER = 2000;
 	static final int AO_LOG_PRODUCT = 2001;
 	static final int AO_LOG_SERIAL_NUMBER = 2002;
+	static final int AO_LOG_LOG_FORMAT = 2003;
 	static final int AO_LOG_SOFTWARE_VERSION = 9999;
 
 	/* Added to flag invalid records */
@@ -176,6 +177,13 @@ public class Altos {
 	static final int AO_GPS_DATE_VALID = (1 << 6);
 	static final int AO_GPS_NUM_SAT_SHIFT = 0;
 	static final int AO_GPS_NUM_SAT_MASK = 0xf;
+
+	static final int AO_LOG_FORMAT_UNKNOWN = 0;
+	static final int AO_LOG_FORMAT_FULL = 1;
+	static final int AO_LOG_FORMAT_TINY = 2;
+	static final int AO_LOG_FORMAT_TELEMETRY = 3;
+	static final int AO_LOG_FORMAT_TELESCIENCE = 4;
+	static final int AO_LOG_FORMAT_NONE = 127;
 
 	static boolean isspace(int c) {
 		switch (c) {
@@ -404,12 +412,36 @@ public class Altos {
 		return 0x000e;
 	}
 
+	static int usb_product_telelaunch() {
+		load_library();
+		return 0x000f;
+	}
+
+	static int usb_product_telelco() {
+		load_library();
+		return 0x0010;
+	}
+
+	static int usb_product_telescience() {
+		load_library();
+		return 0x0011;
+	}
+
+	static int usb_product_telepyro() {
+		load_library();
+		return 0x0012;
+	}
+
 	public final static int vendor_altusmetrum = usb_vendor_altusmetrum();
 	public final static int product_altusmetrum = usb_product_altusmetrum();
 	public final static int product_telemetrum = usb_product_telemetrum();
 	public final static int product_teledongle = usb_product_teledongle();
 	public final static int product_teleterra = usb_product_teleterra();
 	public final static int product_telebt = usb_product_telebt();
+	public final static int product_telelaunch = usb_product_telelaunch();
+	public final static int product_tele10 = usb_product_telelco();
+	public final static int product_telescience = usb_product_telescience();
+	public final static int product_telepyro = usb_product_telepyro();
 	public final static int product_altusmetrum_min = usb_product_altusmetrum_min();
 	public final static int product_altusmetrum_max = usb_product_altusmetrum_max();
 

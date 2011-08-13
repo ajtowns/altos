@@ -36,6 +36,7 @@ public class AltosConfigData implements Iterable<String> {
 	String	manufacturer;
 	String	product;
 	String	version;
+	int	log_format;
 	int	serial;
 
 	/* Strings returned */
@@ -94,6 +95,7 @@ public class AltosConfigData implements Iterable<String> {
 				continue;
 			lines.add(line);
 			try { serial = get_int(line, "serial-number"); } catch (Exception e) {}
+			try { log_format = get_int(line, "log-format"); } catch (Exception e) {}
 			try { main_deploy = get_int(line, "Main deploy:"); } catch (Exception e) {}
 			try { apogee_delay = get_int(line, "Apogee delay:"); } catch (Exception e) {}
 			try { radio_channel = get_int(line, "Radio channel:"); } catch (Exception e) {}

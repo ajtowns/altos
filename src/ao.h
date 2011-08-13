@@ -539,6 +539,15 @@ extern __pdata enum flight_state ao_log_state;
 
 /* required functions from the underlying log system */
 
+#define AO_LOG_FORMAT_UNKNOWN		0	/* unknown; altosui will have to guess */
+#define AO_LOG_FORMAT_FULL		1	/* 8 byte typed log records */
+#define AO_LOG_FORMAT_TINY		2	/* two byte state/baro records */
+#define AO_LOG_FORMAT_TELEMETRY		3	/* 32 byte ao_telemetry records */
+#define AO_LOG_FORMAT_TELESCIENCE	4	/* 32 byte typed telescience records */
+#define AO_LOG_FORMAT_NONE		127	/* No log at all */
+
+extern __code uint8_t ao_log_format;
+
 /* Return the flight number from the given log slot, 0 if none */
 uint16_t
 ao_log_flight(uint8_t slot);

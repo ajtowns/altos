@@ -67,6 +67,7 @@ public class AltosConfig implements ActionListener {
 	AltosConfigData	remote_config_data;
 	double		remote_frequency;
 	int_ref		serial;
+	int_ref		log_format;
 	int_ref		main_deploy;
 	int_ref		apogee_delay;
 	int_ref		radio_channel;
@@ -153,6 +154,7 @@ public class AltosConfig implements ActionListener {
 			return;
 		}
 		get_int(line, "serial-number", serial);
+		get_int(line, "log-format", log_format);
 		get_int(line, "Main deploy:", main_deploy);
 		get_int(line, "Apogee delay:", apogee_delay);
 		get_int(line, "Radio channel:", radio_channel);
@@ -374,6 +376,7 @@ public class AltosConfig implements ActionListener {
 		owner = given_owner;
 
 		serial = new int_ref(0);
+		log_format = new int_ref(Altos.AO_LOG_FORMAT_UNKNOWN);
 		main_deploy = new int_ref(250);
 		apogee_delay = new int_ref(0);
 		radio_channel = new int_ref(0);

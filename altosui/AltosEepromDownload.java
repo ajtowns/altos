@@ -89,9 +89,6 @@ public class AltosEepromDownload implements Runnable {
 		}
 	}
 
-	static final int	log_full = 1;
-	static final int	log_tiny = 2;
-
 	boolean			done;
 	int			state;
 
@@ -186,7 +183,7 @@ public class AltosEepromDownload implements Runnable {
 
 	void CaptureLog(AltosEepromLog log) throws IOException, InterruptedException, TimeoutException {
 		int			block, state_block = 0;
-		int			log_style = 0;
+		int			log_format = flights.config_data.log_format;
 
 		state = 0;
 		done = false;
@@ -215,21 +212,24 @@ public class AltosEepromDownload implements Runnable {
 			AltosEepromChunk	eechunk = new AltosEepromChunk(serial_line, block);
 
 			/*
-			 * Figure out what kind of data is there
+			 * Guess what kind of data is there if the device
+			 * didn't tell us
 			 */
 
-			if (block == log.start_block) {
-				if (eechunk.data(0) == Altos.AO_LOG_FLIGHT)
-					log_style = log_full;
-				else
-					log_style = log_tiny;
+			if (log_format == Altos.AO_LOG_FORMAT_UNKNOWN) {
+				if (block == log.start_block) {
+					if (eechunk.data(0) == Altos.AO_LOG_FLIGHT)
+						log_format = Altos.AO_LOG_FORMAT_FULL;
+					else
+						log_format = Altos.AO_LOG_FORMAT_TINY;
+				}
 			}
 
-			switch (log_style) {
-			case log_full:
+			switch (log_format) {
+			case Altos.AO_LOG_FORMAT_FULL:
 				CaptureFull(eechunk);
 				break;
-			case log_tiny:
+			case Altos.AO_LOG_FORMAT_TINY:
 				CaptureTiny(eechunk);
 				break;
 			}

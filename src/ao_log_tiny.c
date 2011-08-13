@@ -28,6 +28,8 @@ static __data uint16_t	ao_log_tiny_interval;
 #define AO_PAD_RING	2
 #endif
 
+__code uint8_t ao_log_format = AO_LOG_FORMAT_TINY;
+
 void
 ao_log_tiny_set_interval(uint16_t ticks)
 {

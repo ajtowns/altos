@@ -143,6 +143,9 @@ public class AltosEepromRecord {
 				} else if (tokens[0].equals("serial-number")) {
 					cmd = Altos.AO_LOG_SERIAL_NUMBER;
 					a = Integer.parseInt(tokens[1]);
+				} else if (tokens[0].equals("log-format")) {
+					cmd = Altos.AO_LOG_LOG_FORMAT;
+					a = Integer.parseInt(tokens[1]);
 				} else if (tokens[0].equals("software-version")) {
 					cmd = Altos.AO_LOG_SOFTWARE_VERSION;
 					data = tokens[1];

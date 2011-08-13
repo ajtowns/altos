@@ -24,6 +24,8 @@ __xdata uint8_t	ao_log_running;
 __pdata enum flight_state ao_log_state;
 __xdata uint16_t ao_flight_number;
 
+__code uint8_t ao_log_format = AO_LOG_FORMAT_FULL;
+
 void
 ao_log_flush(void)
 {
