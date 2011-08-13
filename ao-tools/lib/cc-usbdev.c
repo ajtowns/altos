@@ -223,7 +223,7 @@ cc_usbdevs_scan(void)
 		if (dev->idVendor == 0xfffe && dev->tty) {
 			if (devs->dev)
 				devs->dev = realloc(devs->dev,
-						    devs->ndev + 1 * sizeof (struct usbdev *));
+						    (devs->ndev + 1) * sizeof (struct usbdev *));
 			else
 				devs->dev = malloc (sizeof (struct usbdev *));
 			devs->dev[devs->ndev++] = dev;
