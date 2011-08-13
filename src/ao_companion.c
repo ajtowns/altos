@@ -68,13 +68,24 @@ ao_companion_get_data(void)
 	COMPANION_DESELECT();
 }
 
+static void
+ao_companion_notify(void)
+{
+	COMPANION_SELECT();
+	ao_companion_send_command(AO_COMPANION_NOTIFY);
+	COMPANION_DESELECT();
+}
+
 void
 ao_companion(void)
 {
 	ao_companion_running = ao_companion_get_setup();
 	while (ao_companion_running) {
-		ao_delay(ao_companion_setup.update_period);
-		ao_companion_get_data();
+		ao_alarm(ao_companion_setup.update_period);
+		if (ao_sleep(DATA_TO_XDATA(&ao_flight_state)))
+			ao_companion_get_data();
+		else
+			ao_companion_notify();
 	}
 	ao_exit();
 }
