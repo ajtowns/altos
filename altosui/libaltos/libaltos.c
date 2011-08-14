@@ -559,7 +559,7 @@ altos_list_start(void)
 		if (USB_IS_ALTUSMETRUM(dev->idVendor, dev->idProduct)) {
 			if (devs->dev)
 				devs->dev = realloc(devs->dev,
-						    devs->ndev + 1 * sizeof (struct usbdev *));
+						    (devs->ndev + 1) * sizeof (struct usbdev *));
 			else
 				devs->dev = malloc (sizeof (struct usbdev *));
 			devs->dev[devs->ndev++] = dev;
