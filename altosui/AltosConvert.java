@@ -220,4 +220,24 @@ public class AltosConvert {
 	static double radio_channel_to_frequency(int channel) {
 		return 434.550 + channel * 0.100;
 	}
+
+	static int[] ParseHex(String line) {
+		String[] tokens = line.split("\\s+");
+		int[] array = new int[tokens.length];
+
+		for (int i = 0; i < tokens.length; i++)
+			try {
+				array[i] = Integer.parseInt(tokens[i], 16);
+			} catch (NumberFormatException ne) {
+				return null;
+			}
+		return array;
+	}
+
+	static int checksum(int[] data, int start, int length) {
+		int	csum = 0x5a;
+		for (int i = 0; i < length; i++)
+			csum += data[i + start];
+		return csum & 0xff;
+	}
 }

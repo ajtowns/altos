@@ -52,6 +52,13 @@ public class AltosEepromChunk {
 		return data[offset] | (data[offset + 1] << 8);
 	}
 
+	boolean erased(int start, int len) {
+		for (int i = 0; i < len; i++)
+			if (data[start+i] != 0xff)
+				return false;
+		return true;
+	}
+
 	public AltosEepromChunk(AltosSerial serial_line, int block)
 		throws TimeoutException, InterruptedException {
 

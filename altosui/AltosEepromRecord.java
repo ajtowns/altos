@@ -40,42 +40,18 @@ public class AltosEepromRecord {
 
 	static final int	record_length = 8;
 
-	int[] ParseHex(String line) {
-		String[] tokens = line.split("\\s+");
-		int[] array = new int[tokens.length];
-
-		for (int i = 0; i < tokens.length; i++)
-			try {
-				array[i] = Integer.parseInt(tokens[i], 16);
-			} catch (NumberFormatException ne) {
-				return null;
-			}
-		return array;
-	}
-
-	int checksum(int[] data, int start) {
-		int	csum = 0x5a;
-		for (int i = 0; i < record_length; i++)
-			csum += data[i + start];
-		return csum & 0xff;
-	}
-
 	public AltosEepromRecord (AltosEepromChunk chunk, int start) throws ParseException {
 
 		cmd = chunk.data(start);
 		tick_valid = true;
 
-		int i;
-		for (i = 0; i < record_length; i++)
-			if (chunk.data[start + i] != 0xff)
-				break;
-		if (i != 8) {
-			if (checksum(chunk.data, start) != 0)
+		tick_valid = !chunk.erased(start, record_length);
+		if (tick_valid) {
+			if (AltosConvert.checksum(chunk.data, start, record_length) != 0)
 				throw new ParseException(String.format("invalid checksum at 0x%x",
 								       chunk.address + start), 0);
 		} else {
 			cmd = Altos.AO_LOG_INVALID;
-			tick_valid = false;
 		}
 
 		tick = chunk.data16(start + 2);
