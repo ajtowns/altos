@@ -46,7 +46,8 @@ public class AltosEepromLog {
 	boolean		download;
 	boolean		delete;
 
-	public AltosEepromLog(AltosSerial serial_line, int in_serial,
+	public AltosEepromLog(AltosConfigData config_data,
+			      AltosSerial serial_line,
 			      int in_flight, int in_start_block,
 			      int in_end_block)
 		throws InterruptedException, TimeoutException {
@@ -54,51 +55,55 @@ public class AltosEepromLog {
 		int		block;
 		boolean		has_date = false;
 
+		flight = in_flight;
+		if (flight != 0)
+			has_flight = true;
 		start_block = in_start_block;
 		end_block = in_end_block;
-		serial = in_serial;
+		serial = config_data.serial;
 
 		/*
 		 * By default, request that every log be downloaded but not deleted
 		 */
 		download = true;
 		delete = false;
+
 		/*
-		 * Only look in the first two blocks so that this
-		 * process doesn't take a long time
+		 * Look in TeleMetrum log data for date
 		 */
-		if (in_end_block > in_start_block + 2)
-			in_end_block = in_start_block + 2;
+		if (config_data.log_format == Altos.AO_LOG_FORMAT_UNKNOWN ||
+		    config_data.log_format == Altos.AO_LOG_FORMAT_FULL)
+		{
+			/*
+			 * Only look in the first two blocks so that this
+			 * process doesn't take a long time
+			 */
+			if (in_end_block > in_start_block + 2)
+				in_end_block = in_start_block + 2;
 
-		for (block = in_start_block; block < in_end_block; block++) {
-			AltosEepromChunk eechunk = new AltosEepromChunk(serial_line, block);
+			for (block = in_start_block; block < in_end_block; block++) {
+				AltosEepromChunk eechunk = new AltosEepromChunk(serial_line, block);
 
-			if (block == in_start_block) {
-				if (eechunk.data16(0) == in_flight) {
-					flight = in_flight;
-					has_flight = true;
+				for (int i = 0; i < eechunk.chunk_size; i += AltosEepromRecord.record_length) {
+					try {
+						AltosEepromRecord r = new AltosEepromRecord(eechunk, i);
+
+						if (r.cmd == Altos.AO_LOG_FLIGHT) {
+							flight = r.b;
+							has_flight = true;
+						}
+						if (r.cmd == Altos.AO_LOG_GPS_DATE) {
+							year = 2000 + (r.a & 0xff);
+							month = (r.a >> 8) & 0xff;
+							day = (r.b & 0xff);
+							has_date = true;
+						}
+					} catch (ParseException pe) {
+					}
+				}
+				if (has_date && has_flight)
 					break;
-				}
 			}
-			for (int i = 0; i < eechunk.chunk_size; i += AltosEepromRecord.record_length) {
-				try {
-					AltosEepromRecord r = new AltosEepromRecord(eechunk, i);
-
-					if (r.cmd == Altos.AO_LOG_FLIGHT) {
-						flight = r.b;
-						has_flight = true;
-					}
-					if (r.cmd == Altos.AO_LOG_GPS_DATE) {
-						year = 2000 + (r.a & 0xff);
-						month = (r.a >> 8) & 0xff;
-						day = (r.b & 0xff);
-						has_date = true;
-					}
-				} catch (ParseException pe) {
-				}
-			}
-			if (has_date && has_flight)
-				break;
 		}
 	}
 }

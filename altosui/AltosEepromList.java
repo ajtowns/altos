@@ -67,7 +67,7 @@ public class AltosEepromList extends ArrayList<AltosEepromLog> {
 
 			ArrayList<AltosEepromFlight> flights = new ArrayList<AltosEepromFlight>();
 
-			if (config_data.flight_log_max != 0) {
+			if (config_data.flight_log_max != 0 || config_data.log_format != 0) {
 
 				/* Devices with newer firmware will support the 'l'
 				 * command which will list the region of storage
@@ -113,7 +113,7 @@ public class AltosEepromList extends ArrayList<AltosEepromLog> {
 			 * firmware, this will also extract the flight number.
 			 */
 			for (AltosEepromFlight flight : flights) {
-				add(new AltosEepromLog(serial_line, config_data.serial,
+				add(new AltosEepromLog(config_data, serial_line,
 						       flight.flight, flight.start, flight.end));
 			}
 		} finally {

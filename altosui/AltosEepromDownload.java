@@ -39,6 +39,7 @@ public class AltosEepromDownload implements Runnable {
 	AltosEepromMonitor	monitor;
 
 	int			flight;
+	int			serial;
 	int			year, month, day;
 	boolean			want_file;
 	FileWriter		eeprom_file;
@@ -48,6 +49,7 @@ public class AltosEepromDownload implements Runnable {
 	ActionListener		listener;
 	boolean			success;
 	ParseException		parse_exception;
+	String			extension;
 
 	private void FlushPending() throws IOException {
 		for (String s : flights.config_data) {
@@ -64,10 +66,13 @@ public class AltosEepromDownload implements Runnable {
 			return;
 		if (force || (flight != 0 && want_file)) {
 			AltosFile		eeprom_name;
+
+			if (extension == null)
+				extension = "data";
 			if (year != 0 && month != 0 && day != 0)
-				eeprom_name = new AltosFile(year, month, day, flights.config_data.serial, flight, "eeprom");
+				eeprom_name = new AltosFile(year, month, day, serial, flight, extension);
 			else
-				eeprom_name = new AltosFile(flights.config_data.serial, flight, "eeprom");
+				eeprom_name = new AltosFile(serial, flight, extension);
 
 			eeprom_file = new FileWriter(eeprom_name);
 			if (eeprom_file != null) {
@@ -89,18 +94,29 @@ public class AltosEepromDownload implements Runnable {
 		}
 	}
 
+	void set_serial(int in_serial) {
+		serial = in_serial;
+		monitor.set_serial(serial);
+	}
+
+	void set_flight(int in_flight) {
+		flight = in_flight;
+		monitor.set_flight(flight);
+	}
+		
 	boolean			done;
 	int			state;
 
 	void CaptureFull(AltosEepromChunk eechunk) throws IOException {
 		boolean	any_valid = false;
+
+		extension = "eeprom";
+		set_serial(flights.config_data.serial);
 		for (int i = 0; i < eechunk.chunk_size && !done; i += AltosEepromRecord.record_length) {
 			try {
 				AltosEepromRecord r = new AltosEepromRecord(eechunk, i);
-				if (r.cmd == Altos.AO_LOG_FLIGHT) {
-					flight = r.b;
-					monitor.set_flight(flight);
-				}
+				if (r.cmd == Altos.AO_LOG_FLIGHT)
+					set_flight(r.b);
 
 				/* Monitor state transitions to update display */
 				if (r.cmd == Altos.AO_LOG_STATE && r.a <= Altos.ao_flight_landed) {
@@ -137,6 +153,8 @@ public class AltosEepromDownload implements Runnable {
 	void CaptureTiny (AltosEepromChunk eechunk) throws IOException {
 		boolean any_valid = false;
 
+		extension = "eeprom";
+		set_serial(flights.config_data.serial);
 		for (int i = 0; i < eechunk.data.length && !done; i += 2) {
 			int			v = eechunk.data16(i);
 			AltosEepromRecord	r;
@@ -144,8 +162,7 @@ public class AltosEepromDownload implements Runnable {
 			if (i == 0 && start) {
 				tiny_tick = 0;
 				start = false;
-				flight = v;
-				monitor.set_flight(flight);
+				set_flight(v);
 				r = new AltosEepromRecord(Altos.AO_LOG_FLIGHT, tiny_tick, 0, v);
 				any_valid = true;
 			} else {
@@ -181,6 +198,56 @@ public class AltosEepromDownload implements Runnable {
 			done = true;
 	}
 
+	void LogTeleScience(AltosEepromTeleScience r) throws IOException {
+		if (r.type != Altos.AO_LOG_INVALID) {
+			String log_line = String.format("%c %4x %4x %d %5d %5d %5d %5d %5d %5d %5d %5d %5d %5d %5d %5d\n",
+							r.type, r.tick, r.tm_tick, r.tm_state,
+							r.data[0], r.data[1], r.data[2], r.data[3], 
+							r.data[4], r.data[5], r.data[6], r.data[7], 
+							r.data[8], r.data[9], r.data[10], r.data[11]);
+			if (eeprom_file != null)
+				eeprom_file.write(log_line);
+			else
+				eeprom_pending.add(log_line);
+		}
+	}
+	
+	boolean	telescience_start;
+
+	void CaptureTeleScience (AltosEepromChunk eechunk) throws IOException {
+		boolean	any_valid = false;
+
+		extension = "science";
+		for (int i = 0; i < eechunk.chunk_size && !done; i += AltosEepromTeleScience.record_length) {
+			try {
+				AltosEepromTeleScience r = new AltosEepromTeleScience(eechunk, i);
+				if (r.type == AltosEepromTeleScience.AO_LOG_TELESCIENCE_START) {
+					if (telescience_start) {
+						done = true;
+						break;
+					}
+					set_serial(r.data[0]);
+					set_flight(r.data[1]);
+					telescience_start = true;
+				} else {
+					if (!telescience_start)
+						break;
+				}
+				state = r.tm_state;
+				want_file =true;
+				any_valid = true;
+				LogTeleScience(r);
+			} catch (ParseException pe) {
+				if (parse_exception == null)
+					parse_exception = pe;
+			}
+		}
+
+		CheckFile(false);
+		if (!any_valid)
+			done = true;
+	}
+
 	void CaptureLog(AltosEepromLog log) throws IOException, InterruptedException, TimeoutException {
 		int			block, state_block = 0;
 		int			log_format = flights.config_data.log_format;
@@ -202,7 +269,6 @@ public class AltosEepromDownload implements Runnable {
 		eeprom_pending = new LinkedList<String>();
 
 		/* Set serial number in the monitor dialog window */
-		monitor.set_serial(flights.config_data.serial);
 		/* Now scan the eeprom, reading blocks of data and converting to .eeprom file form */
 
 		state = 0; state_block = log.start_block;
@@ -227,10 +293,20 @@ public class AltosEepromDownload implements Runnable {
 
 			switch (log_format) {
 			case Altos.AO_LOG_FORMAT_FULL:
+				extension = "eeprom";
 				CaptureFull(eechunk);
 				break;
 			case Altos.AO_LOG_FORMAT_TINY:
+				extension = "eeprom";
 				CaptureTiny(eechunk);
+				break;
+//			case Altos.AO_LOG_FORMAT_TELEMETRY:
+//				extension = "telem";
+//				CaptureTelemetry(eechunk);
+//				break;
+			case Altos.AO_LOG_FORMAT_TELESCIENCE:
+				extension = "science";
+				CaptureTeleScience(eechunk);
 				break;
 			}
 		}
@@ -290,6 +366,7 @@ public class AltosEepromDownload implements Runnable {
 				     serial_line.device.toShortString(),
 				     JOptionPane.ERROR_MESSAGE);
 		} catch (InterruptedException ie) {
+			System.out.printf("download interrupted\n");
 		} catch (TimeoutException te) {
 			show_message(String.format("Connection to \"%s\" failed",
 						   serial_line.device.toShortString()),
