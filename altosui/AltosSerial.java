@@ -353,10 +353,10 @@ public class AltosSerial implements Runnable {
 	private void set_radio_setting(int setting) {
 		if (altos != null) {
 			if (monitor_mode)
-				printf("m 0\nc R %d\nc r 0\nm %x\n",
+				printf("m 0\nc R %d\nm %x\n",
 				       setting, telemetry_len());
 			else
-				printf("c R %d\nc r 0\n", setting);
+				printf("c R %d\n", setting);
 			flush_output();
 		}
 	}
@@ -364,6 +364,8 @@ public class AltosSerial implements Runnable {
 	public void set_radio_frequency(double frequency,
 					boolean has_setting,
 					int cal) {
+		if (debug)
+			System.out.printf("set_radio_frequency %7.3f %b %d\n", frequency, has_setting, cal);
 		if (has_setting)
 			set_radio_setting(AltosConvert.radio_frequency_to_setting(frequency, cal));
 		else
@@ -413,7 +415,7 @@ public class AltosSerial implements Runnable {
 
 	public void start_remote() throws TimeoutException, InterruptedException {
 		if (debug)
-			System.out.printf("start remote\n");
+			System.out.printf("start remote %7.3f\n", frequency);
 		if (frequency == 0.0)
 			frequency = AltosPreferences.frequency(device.getSerial());
 		set_radio_frequency(frequency);
