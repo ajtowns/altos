@@ -82,7 +82,7 @@ public class AltosEepromLog {
 				in_end_block = in_start_block + 2;
 
 			for (block = in_start_block; block < in_end_block; block++) {
-				AltosEepromChunk eechunk = new AltosEepromChunk(serial_line, block);
+				AltosEepromChunk eechunk = new AltosEepromChunk(serial_line, block, block == in_start_block);
 
 				for (int i = 0; i < eechunk.chunk_size; i += AltosEepromRecord.record_length) {
 					try {

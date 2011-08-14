@@ -59,14 +59,15 @@ public class AltosEepromChunk {
 		return true;
 	}
 
-	public AltosEepromChunk(AltosSerial serial_line, int block)
+	public AltosEepromChunk(AltosSerial serial_line, int block, boolean flush)
 		throws TimeoutException, InterruptedException {
 
 		int	offset;
 
 		data = new int[chunk_size];
 		address = block * chunk_size;
-		serial_line.flush_input();
+		if (flush)
+			serial_line.flush_input();
 		serial_line.printf("e %x\n", block);
 
 		for (offset = 0; offset < chunk_size; offset += per_line) {
