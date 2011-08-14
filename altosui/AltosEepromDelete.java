@@ -42,7 +42,7 @@ public class AltosEepromDelete implements Runnable {
 	private void DeleteLog (AltosEepromLog log)
 		throws IOException, InterruptedException, TimeoutException {
 
-		if (flights.config_data.flight_log_max != 0) {
+		if (flights.config_data.flight_log_max != 0 || flights.config_data.log_format != 0) {
 
 			/* Devices with newer firmware can erase the
 			 * flash blocks containing each flight
