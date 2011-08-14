@@ -402,6 +402,7 @@ ao_config_radio_setting_set(void) __reentrant
 	ao_mutex_get(&ao_config_mutex);
 	_ao_config_get();
 	ao_config.radio_setting = ao_cmd_lex_u32;
+	ao_config.radio_channel = 0;
 	ao_config_dirty = 1;
 	ao_mutex_put(&ao_config_mutex);
 	ao_config_radio_setting_show();
