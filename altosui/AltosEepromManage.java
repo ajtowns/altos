@@ -206,7 +206,7 @@ public class AltosEepromManage implements ActionListener {
 		if (device != null) {
 			try {
 				serial_line = new AltosSerial(device);
-				if (!device.matchProduct(Altos.product_telemetrum))
+				if (device.matchProduct(Altos.product_basestation))
 					remote = true;
 
 				serial_line.set_frame(frame);
