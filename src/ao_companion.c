@@ -81,7 +81,14 @@ ao_companion_notify(void)
 void
 ao_companion(void)
 {
-	ao_companion_running = ao_companion_get_setup();
+	uint8_t	i;
+	while (!ao_flight_number)
+		ao_sleep(&ao_flight_number);
+	for (i = 0; i < 10; i++) {
+		ao_delay(AO_SEC_TO_TICKS(1));
+		if ((ao_companion_running = ao_companion_get_setup()))
+		    break;
+	}
 	while (ao_companion_running) {
 		ao_alarm(ao_companion_setup.update_period);
 		if (ao_sleep(DATA_TO_XDATA(&ao_flight_state)))
