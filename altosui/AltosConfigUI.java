@@ -577,6 +577,18 @@ public class AltosConfigUI
 		return Integer.parseInt(flight_log_max_value.getSelectedItem().toString());
 	}
 
+	public void set_flight_log_max_limit(int flight_log_max_limit) {
+		boolean	any_added = false;
+		flight_log_max_value.removeAllItems();
+		for (int i = 0; i < flight_log_max_values.length; i++) {
+			if (Integer.parseInt(flight_log_max_values[i]) < flight_log_max_limit){
+				flight_log_max_value.addItem(flight_log_max_values[i]);
+				any_added = true;
+			}
+		}
+		flight_log_max_value.addItem(String.format("%d", flight_log_max_limit));
+	}
+
 	public void set_ignite_mode(int new_ignite_mode) {
 		if (new_ignite_mode < 0) {
 			ignite_mode_value.setEnabled(false);
@@ -588,7 +600,10 @@ public class AltosConfigUI
 	}
 
 	public int ignite_mode() {
-		return ignite_mode_value.getSelectedIndex();
+		if (ignite_mode_value.isEnabled())
+			return ignite_mode_value.getSelectedIndex();
+		else
+			return -1;
 	}
 
 
@@ -603,7 +618,10 @@ public class AltosConfigUI
 	}
 
 	public int pad_orientation() {
-		return pad_orientation_value.getSelectedIndex();
+		if (pad_orientation_value.isEnabled())
+			return pad_orientation_value.getSelectedIndex();
+		else
+			return -1;
 	}
 
 	public void set_clean() {

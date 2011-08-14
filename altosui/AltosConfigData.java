@@ -54,7 +54,8 @@ public class AltosConfigData implements Iterable<String> {
 	int	radio_calibration;
 	int	flight_log_max;
 	int	ignite_mode;
-
+	int	storage_size;
+	int	storage_erase_unit;
 
 	static String get_string(String line, String label) throws  ParseException {
 		if (line.startsWith(label)) {
@@ -84,7 +85,7 @@ public class AltosConfigData implements Iterable<String> {
 	}
 
 	public AltosConfigData(AltosSerial serial_line) throws InterruptedException, TimeoutException {
-		serial_line.printf("c s\nv\n");
+		serial_line.printf("c s\nf\nv\n");
 		lines = new LinkedList<String>();
 		radio_setting = 0;
 		for (;;) {
@@ -115,6 +116,9 @@ public class AltosConfigData implements Iterable<String> {
 			try { callsign = get_string(line, "Callsign:"); } catch (Exception e) {}
 			try { version = get_string(line,"software-version"); } catch (Exception e) {}
 			try { product = get_string(line,"product"); } catch (Exception e) {}
+
+			try { storage_size = get_int(line, "Storage size:"); } catch (Exception e) {}
+			try { storage_erase_unit = get_int(line, "Storage erase unit"); } catch (Exception e) {}
 
 			/* signals the end of the version info */
 			if (line.startsWith("software-version"))

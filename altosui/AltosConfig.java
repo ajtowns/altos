@@ -76,6 +76,8 @@ public class AltosConfig implements ActionListener {
 	int_ref		ignite_mode;
 	int_ref		pad_orientation;
 	int_ref		radio_setting;
+	int_ref		storage_size;
+	int_ref		storage_erase_unit;
 	string_ref	version;
 	string_ref	product;
 	string_ref	callsign;
@@ -127,6 +129,15 @@ public class AltosConfig implements ActionListener {
 			serial_line.stop_remote();
 	}
 
+	int log_limit() {
+		if (storage_size.get() > 0 && storage_erase_unit.get() > 0) {
+			int	log_limit = storage_size.get() - storage_erase_unit.get();
+			if (log_limit > 0)
+				return log_limit / 1024;
+		}
+		return 1024;
+	}
+
 	void update_ui() {
 		config_ui.set_serial(serial.get());
 		config_ui.set_product(product.get());
@@ -135,6 +146,7 @@ public class AltosConfig implements ActionListener {
 		config_ui.set_apogee_delay(apogee_delay.get());
 		config_ui.set_radio_calibration(radio_calibration.get());
 		config_ui.set_radio_frequency(frequency());
+		config_ui.set_flight_log_max_limit(log_limit());
 		config_ui.set_flight_log_max(flight_log_max.get());
 		config_ui.set_ignite_mode(ignite_mode.get());
 		config_ui.set_pad_orientation(pad_orientation.get());
@@ -163,6 +175,8 @@ public class AltosConfig implements ActionListener {
 		get_int(line, "Ignite mode:", ignite_mode);
 		get_int(line, "Pad orientation:", pad_orientation);
 		get_int(line, "Radio setting:", radio_setting);
+		get_int(line, "Storage size:", storage_size);
+		get_int(line, "Storage erase unit:", storage_erase_unit);
 		get_string(line, "Callsign:", callsign);
 		get_string(line,"software-version", version);
 		get_string(line,"product", product);
@@ -192,7 +206,7 @@ public class AltosConfig implements ActionListener {
 		void get_data() {
 			try {
 				config.start_serial();
-				config.serial_line.printf("c s\nv\n");
+				config.serial_line.printf("c s\nf\nv\n");
 				for (;;) {
 					try {
 						String line = config.serial_line.get_reply(5000);
@@ -230,9 +244,7 @@ public class AltosConfig implements ActionListener {
 								radio_calibration.get());
 				if (remote) {
 					serial_line.stop_remote();
-					serial_line.set_radio_frequency(frequency,
-									has_setting,
-									radio_calibration.get());
+					serial_line.set_radio_frequency(frequency);
 					AltosPreferences.set_frequency(device.getSerial(), frequency);
 					serial_line.start_remote();
 				}
@@ -340,13 +352,27 @@ public class AltosConfig implements ActionListener {
 	}
 
 	void save_data() {
+
+		/* bounds check stuff */
+		if (config_ui.flight_log_max() > log_limit()) {
+			JOptionPane.showMessageDialog(owner,
+						      String.format("Requested flight log, %dk, is larger than the available space, %dk.\n",
+								    config_ui.flight_log_max(),
+								    log_limit()),
+						      "Maximum Flight Log Too Large",
+						      JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
 		main_deploy.set(config_ui.main_deploy());
 		apogee_delay.set(config_ui.apogee_delay());
 		radio_calibration.set(config_ui.radio_calibration());
 		set_frequency(config_ui.radio_frequency());
 		flight_log_max.set(config_ui.flight_log_max());
-		ignite_mode.set(config_ui.ignite_mode());
-		pad_orientation.set(config_ui.pad_orientation());
+		if (ignite_mode.get() >= 0)
+			ignite_mode.set(config_ui.ignite_mode());
+		if (pad_orientation.get() >= 0)
+			pad_orientation.set(config_ui.pad_orientation());
 		callsign.set(config_ui.callsign());
 		run_serial_thread(serial_mode_save);
 	}
@@ -385,6 +411,8 @@ public class AltosConfig implements ActionListener {
 		flight_log_max = new int_ref(0);
 		ignite_mode = new int_ref(-1);
 		pad_orientation = new int_ref(-1);
+		storage_size = new int_ref(-1);
+		storage_erase_unit = new int_ref(-1);
 		callsign = new string_ref("N0CALL");
 		version = new string_ref("unknown");
 		product = new string_ref("unknown");
