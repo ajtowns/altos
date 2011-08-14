@@ -1415,7 +1415,7 @@ ao_igniter_init(void);
  */
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	6
+#define AO_CONFIG_MINOR	7
 
 struct ao_config {
 	uint8_t		major;
