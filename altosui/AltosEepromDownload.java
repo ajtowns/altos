@@ -373,8 +373,12 @@ public class AltosEepromDownload implements Runnable {
 				     "Connection Failed",
 				     JOptionPane.ERROR_MESSAGE);
 		} finally {
-			if (remote)
-				serial_line.stop_remote();
+			if (remote) {
+				try {
+					serial_line.stop_remote();
+				} catch (InterruptedException ie) {
+				}
+			}
 			serial_line.flush_output();
 		}
 		monitor.done();

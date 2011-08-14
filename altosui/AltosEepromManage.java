@@ -44,7 +44,10 @@ public class AltosEepromManage implements ActionListener {
 
 	public void finish() {
 		if (serial_line != null) {
-			serial_line.flush_input();
+			try {
+				serial_line.flush_input();
+			} catch (InterruptedException ie) {
+			}
 			serial_line.close();
 			serial_line = null;
 		}

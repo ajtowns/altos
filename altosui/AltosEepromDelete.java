@@ -104,10 +104,14 @@ public class AltosEepromDelete implements Runnable {
 						  serial_line.device.toShortString()),
 				    "Connection Failed");
 		} finally {
-			if (remote)
-				serial_line.stop_remote();
-			serial_line.flush_output();
-			serial_line.close();
+			try {
+				if (remote)
+					serial_line.stop_remote();
+			} catch (InterruptedException ie) {
+			} finally {
+				serial_line.flush_output();
+				serial_line.close();
+			}
 		}
 		if (listener != null) {
 			Runnable r = new Runnable() {

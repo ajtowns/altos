@@ -62,7 +62,10 @@ public class AltosDebug extends AltosSerial {
 	void ensure_debug_mode() {
 		if (!debug_mode) {
 			printf("D\n");
-			flush_input();
+			try {
+				flush_input();
+			} catch (InterruptedException ie) {
+			}
 			debug_mode = true;
 		}
 	}

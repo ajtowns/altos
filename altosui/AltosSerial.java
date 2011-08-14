@@ -187,7 +187,7 @@ public class AltosSerial implements Runnable {
 		return abort;
 	}
 
-	public void flush_input() {
+	public void flush_input() throws InterruptedException {
 		flush_output();
 		boolean	got_some;
 
@@ -195,10 +195,7 @@ public class AltosSerial implements Runnable {
 		if (remote)
 			timeout = 500;
 		do {
-			try {
-				Thread.sleep(timeout);
-			} catch (InterruptedException ie) {
-			}
+			Thread.sleep(timeout);
 			got_some = !reply_queue.isEmpty();
 			synchronized(this) {
 				if (!"VERSION".startsWith(line) &&
@@ -271,8 +268,12 @@ public class AltosSerial implements Runnable {
 	}
 
 	public void close() {
-		if (remote)
-			stop_remote();
+		if (remote) {
+			try {
+				stop_remote();
+			} catch (InterruptedException ie) {
+			}
+		}
 		if (in_reply != 0)
 			System.out.printf("Uh-oh. Closing active serial device\n");
 
@@ -422,7 +423,7 @@ public class AltosSerial implements Runnable {
 		remote = true;
 	}
 
-	public void stop_remote() {
+	public void stop_remote() throws InterruptedException {
 		if (debug)
 			System.out.printf("stop remote\n");
 		try {
