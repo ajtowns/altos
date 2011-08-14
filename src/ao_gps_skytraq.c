@@ -24,7 +24,7 @@
 static __code char ao_gps_header[] = "GP";
 
 __xdata uint8_t ao_gps_mutex;
-static __pdata char ao_gps_char;
+static __data char ao_gps_char;
 static __pdata uint8_t ao_gps_cksum;
 static __pdata uint8_t ao_gps_error;
 
@@ -238,14 +238,14 @@ ao_nmea_gga()
 	ao_gps_next.flags |= i;
 
 	ao_gps_lexchar();
-	ao_gps_next.hdop = ao_gps_decimal(0xff);
-	if (ao_gps_next.hdop <= 50) {
-		ao_gps_next.hdop = (uint8_t) 5 * ao_gps_next.hdop;
+	i = ao_gps_decimal(0xff);
+	if (i <= 50) {
+		i = (uint8_t) 5 * i;
 		if (ao_gps_char == '.')
-			ao_gps_next.hdop = (ao_gps_next.hdop +
-					    ((uint8_t) ao_gps_decimal(1) >> 1));
+			i = (i + ((uint8_t) ao_gps_decimal(1) >> 1));
 	} else
-		ao_gps_next.hdop = 255;
+		i = 255;
+	ao_gps_next.hdop = i;
 	ao_gps_skip_field();
 
 	ao_gps_next.altitude = ao_gps_decimal(0xff);
