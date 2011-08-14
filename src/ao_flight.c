@@ -54,7 +54,7 @@ __pdata uint8_t			ao_flight_force_idle;
 /* Landing is detected by getting constant readings from both pressure and accelerometer
  * for a fairly long time (AO_INTERVAL_TICKS)
  */
-#define AO_INTERVAL_TICKS	AO_SEC_TO_TICKS(5)
+#define AO_INTERVAL_TICKS	AO_SEC_TO_TICKS(10)
 
 #define abs(a)	((a) < 0 ? -(a) : (a))
 
@@ -286,7 +286,7 @@ ao_flight(void)
 				ao_interval_max_height = ao_avg_height;
 
 			if ((int16_t) (ao_sample_tick - ao_interval_end) >= 0) {
-				if (ao_interval_max_height - ao_interval_min_height <= AO_M_TO_HEIGHT(2))
+				if (ao_interval_max_height - ao_interval_min_height <= AO_M_TO_HEIGHT(4))
 				{
 					ao_flight_state = ao_flight_landed;
 

@@ -277,7 +277,7 @@ ao_kalman(void)
 	ao_accel = from_fix(ao_k_accel);
 	if (ao_height > ao_max_height)
 		ao_max_height = ao_height;
-	ao_avg_height_scaled = ao_avg_height_scaled - ao_avg_height + ao_height;
+	ao_avg_height_scaled = ao_avg_height_scaled - ao_avg_height + ao_sample_height;
 #ifdef AO_FLIGHT_TEST
 	if (ao_sample_tick - ao_sample_prev_tick > 50)
 		ao_avg_height = (ao_avg_height_scaled + 1) >> 1;
