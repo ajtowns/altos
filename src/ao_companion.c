@@ -43,6 +43,8 @@ ao_companion_send_command(uint8_t command)
 	ao_companion_command.command = command;
 	ao_companion_command.flight_state = ao_flight_state;
 	ao_companion_command.tick = ao_time();
+	ao_companion_command.serial = ao_serial_number;
+	ao_companion_command.flight = ao_flight_number;
 	ao_spi_send(&ao_companion_command, sizeof (ao_companion_command));
 }
 

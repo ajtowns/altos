@@ -1587,6 +1587,8 @@ struct ao_companion_command {
 	uint8_t		command;
 	uint8_t		flight_state;
 	uint16_t	tick;
+	uint16_t	serial;
+	uint16_t	flight;
 };
 
 struct ao_companion_setup {
