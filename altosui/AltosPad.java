@@ -173,6 +173,29 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	Main main;
 
+	class LoggingReady extends LaunchStatus {
+		void show (AltosState state, int crc_errors) {
+			show();
+			System.out.printf("flight %d state %d\n", state.data.flight, state.data.state);
+			if (state.data.flight != 0) {
+				if (state.data.state <= Altos.ao_flight_pad)
+					value.setText("Ready to record");
+				else if (state.data.state < Altos.ao_flight_landed)
+					value.setText("Recording data");
+				else
+					value.setText("Recorded data");
+			}
+			else
+				value.setText("Storage full");
+			lights.set(state.data.flight != 0);
+		}
+		public LoggingReady (GridBagLayout layout, int y) {
+			super(layout, y, "On-board Data Logging");
+		}
+	}
+
+	LoggingReady logging_ready;
+
 	class GPSLocked extends LaunchStatus {
 		void show (AltosState state, int crc_errors) {
 			show();
@@ -252,6 +275,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		battery.reset();
 		apogee.reset();
 		main.reset();
+		logging_ready.reset();
 		gps_locked.reset();
 		gps_ready.reset();
 		pad_lat.reset();
@@ -269,6 +293,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			main.hide();
 		else
 			main.show(state, crc_errors);
+		logging_ready.show(state, crc_errors);
 		pad_alt.show(state, crc_errors);
 		if (state.gps != null && state.gps.connected) {
 			gps_locked.show(state, crc_errors);
@@ -301,10 +326,11 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		battery = new Battery(layout, 0);
 		apogee = new Apogee(layout, 1);
 		main = new Main(layout, 2);
-		gps_locked = new GPSLocked(layout, 3);
-		gps_ready = new GPSReady(layout, 4);
-		pad_lat = new PadLat(layout, 5);
-		pad_lon = new PadLon(layout, 6);
-		pad_alt = new PadAlt(layout, 7);
+		logging_ready = new LoggingReady(layout, 3);
+		gps_locked = new GPSLocked(layout, 4);
+		gps_ready = new GPSReady(layout, 5);
+		pad_lat = new PadLat(layout, 6);
+		pad_lon = new PadLon(layout, 7);
+		pad_alt = new PadAlt(layout, 8);
 	}
 }
