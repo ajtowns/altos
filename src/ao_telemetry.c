@@ -180,6 +180,8 @@ ao_telemetry(void)
 	int16_t		delay;
 
 	ao_config_get();
+	if (!ao_config.radio_enable)
+		ao_exit();
 	while (!ao_flight_number)
 		ao_sleep(&ao_flight_number);
 

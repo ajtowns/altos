@@ -1415,7 +1415,7 @@ ao_igniter_init(void);
  */
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	7
+#define AO_CONFIG_MINOR	8
 
 struct ao_config {
 	uint8_t		major;
@@ -1431,6 +1431,7 @@ struct ao_config {
 	uint8_t		ignite_mode;		/* minor version 5 */
 	uint8_t		pad_orientation;	/* minor version 6 */
 	uint32_t	radio_setting;		/* minor version 7 */
+	uint8_t		radio_enable;		/* minor version 8 */
 };
 
 #define AO_IGNITE_MODE_DUAL		0
