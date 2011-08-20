@@ -573,6 +573,10 @@ public class AltosConfigUI
 		flight_log_max_value.setSelectedItem(Integer.toString(new_flight_log_max));
 	}
 
+	public void set_flight_log_max_enabled(boolean enable) {
+		flight_log_max_value.setEnabled(enable);
+	}
+
 	public int flight_log_max() {
 		return Integer.parseInt(flight_log_max_value.getSelectedItem().toString());
 	}
