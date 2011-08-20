@@ -176,7 +176,6 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	class LoggingReady extends LaunchStatus {
 		void show (AltosState state, int crc_errors) {
 			show();
-			System.out.printf("flight %d state %d\n", state.data.flight, state.data.state);
 			if (state.data.flight != 0) {
 				if (state.data.state <= Altos.ao_flight_pad)
 					value.setText("Ready to record");
