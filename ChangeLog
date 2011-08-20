@@ -1,3 +1,710 @@
+commit ef7f60df841f1eb22b9cec0d7f68cf2c003d6b30
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 14 00:00:54 2011 -0700
+
+    altosui: Respect storage limits in flight log max config
+    
+    Compute the maximum flight log using the data returned from the 'f'
+    command (total storage and erase block size). Limit menu to choices
+    which fall within this limit, complain if the user asks for too big a value.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 746d6a472a20243a8c0eacc8edf8e81e0641bc17
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 14 00:00:07 2011 -0700
+
+    altosui: don't set channel when using radio setting
+    
+    altos now sets the radio back to channel 0 when the radio setting is
+    changed.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 709485f20fb039f8dd087c8491c5f5a76718ae53
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 13 23:58:03 2011 -0700
+
+    altos: use raw height while waiting for landing
+    
+    This avoids any noise introduced by the kalman filter, making landing
+    detection much more reliable. This patch also changes the interval to
+    10s so that the height bounds can be increased to 4m.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit aa71c2cdcb417eba2a2d30792ece9a47b8b3fc82
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 13 23:56:55 2011 -0700
+
+    altos: Reset radio channel to zero when using radio setting
+    
+    Otherwise, it's hard to set the frequency over the radio link.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7f74761051f2a5ab45b82c4dd79a8569376bbe2e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 13 23:56:06 2011 -0700
+
+    altos: Correct AO_CONFIG_MINOR from 6 to 7
+    
+    Forgot to bump this when adding radio setting.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 924d56a4d2d8b16530cd378b18cfc5d6e08420ed
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 13 21:10:15 2011 -0700
+
+    altos: AltosSerial.flush_input shouldn't discard Interrupted exceptions
+    
+    The eeprom download code wants to interrupt serial communication so
+    that it can stop downloading stuff in the middle of a run. Make
+    flush_input pass the exception along instead of discarding it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit dcd15032eec45f3fdd003050710ebd5b85052662
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 13 21:09:19 2011 -0700
+
+    altosui: Eliminate inter-chunk flush_input calls
+    
+    Once the serial line is nicely synchronized, we don't need to flush
+    input between chunks. This speeds up eeprom downloading quite a bit.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3ba7b6196f68078f4ed4538c4e7fe30699dfe908
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 13 21:05:46 2011 -0700
+
+    altosui: Devices with log-format can also delete flights
+    
+    Any device with either flight-log-max or log-format can delete flights.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 03e201e1acc8742399054e4ad36b533120ea1612
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 13 18:39:35 2011 -0700
+
+    altosui: Add support for TeleScience eeprom download
+    
+    Using the existing eeprom methods, fetch and save TeleScience eeprom
+    data, storing to a filename generated from the serial/flight from the
+    TM connected to the TS board.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5a3e96bef31959a287b8696778d7d8cf911a7dc4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 13 18:36:18 2011 -0700
+
+    altosui: Clean up eeprom parsing a bit
+    
+    Export basic parsing and checksum functions for shared use.
+    Create 'erased' function to check a chunk of eeprom data for data.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b0ec30de37aa822ba66d25ceaa8cf8dc967b4371
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 13 18:31:08 2011 -0700
+
+    altos: wait 10s for companion to boot
+    
+    In case the companion is delayed while booting, retry the setup 10
+    times with a 1s delay between tries.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 41e5be32819d305c8268e6f992be91411ea13435
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 13 18:30:00 2011 -0700
+
+    altos: Send serial/flight to companion board
+    
+    Lets the companion log them for later matching with TeleMetrum log
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fa7dd04741bf3fd9cedc59ed3b45b69ef9312609
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Aug 12 21:41:25 2011 -0700
+
+    altos: Send SPI message at flight state changes
+    
+    Get the companion board starting its data logging as soon as possible
+    after boost starts.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c7f540330c040c521f9d7626009a406e704a5e41
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Aug 12 14:58:34 2011 -0700
+
+    altosui: Add companion support to the flight UI and CSV conversion
+    
+    Shows the companion data in a new tab. Also put companion data into
+    CSV file.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 18369c58e62bc64b969a7cf8be3103aa33c6d4aa
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Aug 12 06:29:13 2011 -0700
+
+    altos: Check for companion init packet validity was busted
+    
+    Was using board_id == ~board_id instead of board_id ==
+    ~board_id_inverse.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit aa642cf55c43188e9a21198d828d7ea90ff54280
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Aug 12 05:42:05 2011 -0700
+
+    altos: add the 'L' command to show the status of a linked companion board
+    
+    This prints out whether there is a board connected, along with the
+    various values fetched from it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f87f0787fa5aa528674f3f4919eb22646c87c25a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Aug 12 05:41:15 2011 -0700
+
+    altos: Make sure companion task exits cleanly when done
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ebe2ffb29944abc4d6a35889c7b5f3d9f2871077
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Aug 12 05:38:16 2011 -0700
+
+    altos: Put SPI in slower mode when talking to companion board
+    
+    The AVR CPU on the other side just can't go very fast. This reduces
+    the SPI clock by a factor of 16, just under 200kHz. As the companion
+    commands are reasonably short, this shouldn't have a huge effect on
+    overall SPI utilization.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 30abbdc7ffcfc809b4a3fc31486fe968161ea225
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Jul 9 16:59:16 2011 -0700
+
+    altos: Add SPI-based companion board support
+    
+    This sends current flight state information and retrieves companion
+    data to include in telemetry.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 578c4b17b8f62f2727654ebda78ee139f9fe13fa
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 13 18:38:38 2011 -0700
+
+    altos: Don't try to use non-basestations for remote eeprom download
+    
+    Companion boards may also have eeprom data to fetch; don't try to use
+    them as a radio.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit bf06af154e232d4caa1585a1d6d5279a075292e4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Aug 12 21:43:56 2011 -0700
+
+    altos/altosui: Report log format in the version command
+    
+    This will make it easier to figure out what the contents of the flash
+    should look like from altosui; the current 'guessing' mechanism will
+    not scale to many more formats.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c2f2f519dbc8ce233ab36222088c1be6b1362f01
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 13 18:28:38 2011 -0700
+
+    altos: re-write a bit of GPS parsing code to reduce size
+    
+    Use a local variable while computing hdop.
+    Place the next incoming character in data instead of pdata.
+    
+    Saved a surprising amount of memory.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7bcf25606cd5892d58295649f3d475d284494ee8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Aug 12 05:26:09 2011 -0700
+
+    altos: shrink text space from ao_config.c
+    
+    Eliminate redundant config initializers by setting minor to zero and
+    letting upgrade code handle all of the new values.
+    
+    Stop computing (fake) frequency when showing radio channel
+    Stop computing feet when showing main deploy height
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 313d740b5284b24f1cc7a1ba5779136b55d49ebe
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 13 18:33:07 2011 -0700
+
+    libaltos: Mis-allocated device list in libaltos
+    
+    Would overrun mis-allocated array, causing chaos.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3b87dd6f46922cf5f98deb2dffa2148c4244e48e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 13 15:00:14 2011 -0700
+
+    ao-tools: ao-list was crashing with more than 3 devices connected
+    
+    the list of devices was getting realloced for each new device, but
+    that realloc was too small.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 640422c028a2be898aa3a9048a0f6fad2e43dd8d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 11 16:11:34 2011 -0700
+
+    altos: remove monitor disable stubs from altimeter code
+    
+    Monitor mode in the ground-station boards must be disabled when the
+    radio is going to be used for another purpose, or the radio parameters
+    changed. That places monitor-mode disable calls in other parts of the
+    system which are shared with the altimeter code.
+    
+    Elide the ao_set_monitor calls for builds which do not include any
+    monitoring code.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1d13460412046c53f36466193329caaa657bb278
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 11 15:59:47 2011 -0700
+
+    altos: Apply igniter boot pulse-width reduction to telemini
+    
+    TeleMini needs the same fix as TeleMetrum to reduce startup igniter
+    pulses.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b520c32bcddabd42c07ceafa827694a3ae23a76f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 11 15:57:58 2011 -0700
+
+    altos: Pull igniter pins low as soon as possible at boot time
+    
+    This reduces the pulse width on the igniter circuit caused by the
+    default cc1111 pin configuration at powerup time.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 566b16e67be38c6425e616a5c38d641c4e1a9b12
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 10 22:43:26 2011 -0700
+
+    doc: Add 1.0 release notes.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a07b07d48f71b9a11e73a82db075cc57bad0c09f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 10 22:14:32 2011 -0700
+
+    doc: Add release notes, include them in altusmetrum doc. Shuffle altusmetrum
+    
+    This adds release notes and includes them in the main altusmetrum doc
+    as well as making stand-alone html available for inclusion in the website.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5aa3e49f794ba5ed2680016f3dca47d67ae99836
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 10 18:32:05 2011 -0700
+
+    doc: Add telemetry docs to debian/linux/mac/windows packages
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7283deaa91e752acc45018ef2ea2f560b09af354
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 10 18:22:16 2011 -0700
+
+    doc: Describe 'stats' tab in Graph UI, 'Graph Flight' button.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 21837e0026c87635abf4baf2c6c574a7b274f449
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 10 18:14:10 2011 -0700
+
+    doc: Document Ignite Mode and Pad Orientation configuration options
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 967c9d5ee691f87bf0d1e49ba055eb366e513e6a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 10 17:43:58 2011 -0700
+
+    doc: Update altusmetrum.xsl for v1.0 software and TeleMini
+    
+    Add TeleMini references and sections as appropriate, update AltosUI
+    docs to describe new bits.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit be65308182363ca87db69db530297933324f3806
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 10 16:01:25 2011 -0700
+
+    Bump version to 0.9.6.0
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9f5623c8c32a38eaeb63fa74ab370025ac015d52
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 10 15:00:44 2011 -0700
+
+    altosui: Move launch-sites.txt file to altusmetrum.org
+    
+    The official URL is now:
+    
+    	http://www.altusmetrum.org/AltOS/launch-sites.txt
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4962bcf1ce15c21a946ea718bd676b901f0f2bd0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 10 14:35:21 2011 -0700
+
+    altosui: Plot reasonable data from Tm files
+    
+    Don't plot acceleration based on baro data.
+    Display baro speed if accel speed isn't available.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 01b9352eb8ca0e4e2d023ce973c4e863cdcc0c51
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 10 14:34:39 2011 -0700
+
+    altosui: Prune telemetry file graphs to just the flight
+    
+    Remove data earlier than 1 second before boost and data after landing.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9e1487b1a5db0afd1d23c86d82c60b1c1a62aab0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 10 14:08:21 2011 -0700
+
+    altosui: Add a 'Graph Flight' button to the 'landed'  tab
+    
+    This lets you see the results of a flight as soon as the rocket lands
+    using the telemetry data.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6ac604d11de44cd824f09e4b467264a2b74be7bd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 10 13:35:26 2011 -0700
+
+    Altosui: Add flight statistics tab to graph window
+    
+    Provide basic flight stats alongside the flight graph.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 94d9a2c36fabdf24d6a0b985851e95e4eb181fd9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 9 18:28:19 2011 -0700
+
+    altosui: Ship TeleMini v1.0 firmware with fat blobs
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a680ce61bdcffeacb7f0e4dcef71a03cb7cfe07d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 9 18:27:19 2011 -0700
+
+    altosui: Ensure serial code tracks reply nesting correctly
+    
+    Trap any exceptional return conditions from 'get_reply' to make sure
+    in_reply gets decremented.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 12bfa6cc42e3689f09abae2bd2584cbacf2aa2e0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 9 18:26:07 2011 -0700
+
+    altosui: Don't export product defs from libaltos
+    
+    As we add new products, that would change the ABI generated for java,
+    invaliding old library versions sitting around for windows and mac.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 81ad44d4b6d9ad2f6b91d0906e8543da82da424f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 9 14:26:43 2011 -0700
+
+    altos: Switch telemini from v0.1 to v1.0
+    
+    TeleMini production boards are firmware compatible with the v0.1
+    design, so instead of creating another product, just rename the
+    existing one.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f3985ef8bc69bcec13ce155567a8ed7c5c6051cb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 20:41:34 2011 -0700
+
+    altosui: Add close button to 'fire' dialog
+    
+    Easier to hit than the tiny close box in the frame.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit cbf54a826d12c49b1b1996be247869d5ff4e2236
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 20:38:44 2011 -0700
+
+    altosui: Make set of telemetries to use while scanning configurable
+    
+    with a preference to remember across application runs.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7146311d9df541e075b4450cf9656a9aa7ffdd93
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 20:38:14 2011 -0700
+
+    altosui: Reading serial from swing thread only bad if remote
+    
+    Make the warning on this condition based on whether the link is remote.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2662c577a895c96fce7b2bf815b9e752d2dfbde6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 18:53:59 2011 -0700
+
+    altosui: Remove unused AltosConfigData from AltosTelemetryReader
+    
+    Now that AltosSerial manages this data, it's not needed here.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 13eacb49de4312509c3a729a31dcda4d601f8a8b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 18:53:27 2011 -0700
+
+    altosui: Flush radio setting to serial device
+    
+    When changing frequencies, make sure the device hears about it.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 97cf285d041062ae473c2823438b81c8fffe7f67
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 18:53:03 2011 -0700
+
+    altosui: Remove debugging printfs from AltosSerial
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 364102d29ff4de0c252774f26417587fa88b7467
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 18:52:11 2011 -0700
+
+    altosui: Show AltosFrequency in scan results
+    
+    Include frequency and description instead of just frequency.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d4cc16e111229b02d1081e2693ace0b33f662498
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 18:51:16 2011 -0700
+
+    altosui: Save frequency after setting it in AltosFlightUI
+    
+    Otherwise we'll just save the old frequency.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 81bb6f42d8b859195ea5a35806c42d98ba82e8e1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 18:49:45 2011 -0700
+
+    altosui: Have single radio_to_frequency function
+    
+    This takes all three radio params (setting, cal, channel) and computes
+    the current frequency.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c8c01684fa011acf3bbe5c3ebbc84aa8e8457a5e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 18:47:36 2011 -0700
+
+    altosui: A few misc cleanups.
+    
+    Initialize radio_setting as it won't be set for older devices ever.
+    Remove unused set_radio_frequency function from AltosConfigUI.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit dd383b86b9a13d7af2d6b07f4fb85ccc666ed898
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 18:45:36 2011 -0700
+
+    altosui: Must set radio calibration before radio setting
+    
+    Setting the radio calibration erases any previous radio setting as
+    the radio calibration change invalidates any previously computed radio
+    setting for a specific frequency.
+    
+    Hence, the radio setting must be configured *after* the radio
+    calibration value lest it be ignored.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 40544dbfe09c64f7764a5f0686415805611fab25
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 17:46:04 2011 -0700
+
+    altos: minor type in comment about accel correction
+    
+    Kurt Roeckx found a typo in the equations describing how the
+    accelerometer is corrected by the 5V reference measurement.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a315b200cd0da1a964f5395cd59660be1b49672b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 12:31:48 2011 -0700
+
+    altosui: Pull out BlueTooth support
+    
+    This leaves the code in place, but commented out so that it isn't used
+    until we've got a bluetooth device ready for use.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a65daf94e8fe3e22f770ef76d9104c3dd11d0330
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 12:25:30 2011 -0700
+
+    altosui: altimeter is not spelled altimter
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 84ba927f503f81543dec286c4881be30bb5e60c5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 02:05:28 2011 -0700
+
+    Set version to 0.9.5.0
+    
+    Make the frequency-based systems distinct
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0e3e4f9c1e6a6bf972514f12c9d622258aa2aec2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 01:47:29 2011 -0700
+
+    altosui: Convert from channels to frequencies
+    
+    Major areas:
+    
+     * Preferences are stored as frequencies instead
+       of channels
+    
+     * Serial configuration is done using frequencies
+    
+     * UI is presented with frequency lists
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f03ca0ab8799bfa5100eaa2577cfd7b9c37d05bf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 7 14:52:29 2011 -0700
+
+    altosui: Add dialogs to configure 'common' frequencies
+    
+    These are stored in preferences, but not yet hooked up to the TM/TD
+    configure dialogs
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ba5dc35388d28c5769eaabc970c4d4b8c2c2ff9c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 3 23:07:53 2011 -0700
+
+    altos: Add ability to set arbitrary radio frequency
+    
+    This adds a separate config parameter to control the raw radio
+    frequency setting, allowing the user to select an arbitrary frequency
+    instead of being forced to choose one of the 10 pre-defined 'channels'.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e1e5c9b3e24670e9f58c6f7389eafb3338efdb40
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 12:08:45 2011 -0700
+
+    altos: Remove pad_orientation functions from non-accel devices
+    
+    Anything without an accelerometer can't detect pad orientation.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7207a95823dc2a27906759528dd88256cb20679f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 12:04:00 2011 -0700
+
+    altosui: Change button to 'Configure Altimeter'
+    
+    Now that we've got more than one model.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 30670732ca3f5a34025ab4bc4c69afa45637b4d6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 8 11:58:23 2011 -0700
+
+    altos: Correct flight log max on Tm to 5k
+    
+    Was using the wrong #define name to check for Tm/Tn devices that use
+    internal flash for data storage.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a67c16958df8e60b131b01e00fd5bca590af0e7d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 8 09:38:53 2011 -0600
+
+    update changelogs for Debian build
+
 commit 4a507898d6de631bb2e8ed4aa3e0933d97222323
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Mon Aug 8 09:34:59 2011 -0600

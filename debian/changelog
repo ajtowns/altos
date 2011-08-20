@@ -1,3 +1,74 @@
+altos (0.9.6.0) unstable; urgency=low
+
+  [ Keith Packard ]
+  * altos: Correct flight log max on Tm to 5k
+  * altosui: Change button to 'Configure Altimeter'
+  * altos: Remove pad_orientation functions from non-accel devices
+  * altos: Add ability to set arbitrary radio frequency
+  * altosui: Add dialogs to configure 'common' frequencies
+  * altosui: Convert from channels to frequencies
+  * Set version to 0.9.5.0
+  * altosui: altimeter is not spelled altimter
+  * altosui: Pull out BlueTooth support
+  * altos: minor type in comment about accel correction
+  * altosui: Must set radio calibration before radio setting
+  * altosui: A few misc cleanups.
+  * altosui: Have single radio_to_frequency function
+  * altosui: Save frequency after setting it in AltosFlightUI
+  * altosui: Show AltosFrequency in scan results
+  * altosui: Remove debugging printfs from AltosSerial
+  * altosui: Flush radio setting to serial device
+  * altosui: Remove unused AltosConfigData from AltosTelemetryReader
+  * altosui: Reading serial from swing thread only bad if remote
+  * altosui: Make set of telemetries to use while scanning configurable
+  * altosui: Add close button to 'fire' dialog
+  * altos: Switch telemini from v0.1 to v1.0
+  * altosui: Don't export product defs from libaltos
+  * altosui: Ensure serial code tracks reply nesting correctly
+  * altosui: Ship TeleMini v1.0 firmware with fat blobs
+  * Altosui: Add flight statistics tab to graph window
+  * altosui: Add a 'Graph Flight' button to the 'landed'  tab
+  * altosui: Prune telemetry file graphs to just the flight
+  * altosui: Plot reasonable data from Tm files
+  * altosui: Move launch-sites.txt file to altusmetrum.org
+  * Bump version to 0.9.6.0
+  * doc: Update altusmetrum.xsl for v1.0 software and TeleMini
+  * doc: Document Ignite Mode and Pad Orientation configuration options
+  * doc: Describe 'stats' tab in Graph UI, 'Graph Flight' button.
+  * doc: Add telemetry docs to debian/linux/mac/windows packages
+  * doc: Add release notes, include them in altusmetrum doc. Shuffle altusmetrum
+  * doc: Add 1.0 release notes.
+  * altos: Pull igniter pins low as soon as possible at boot time
+  * altos: Apply igniter boot pulse-width reduction to telemini
+  * altos: remove monitor disable stubs from altimeter code
+  * ao-tools: ao-list was crashing with more than 3 devices connected
+  * libaltos: Mis-allocated device list in libaltos
+  * altos: shrink text space from ao_config.c
+  * altos: re-write a bit of GPS parsing code to reduce size
+  * altos/altosui: Report log format in the version command
+  * altos: Don't try to use non-basestations for remote eeprom download
+  * altos: Add SPI-based companion board support
+  * altos: Put SPI in slower mode when talking to companion board
+  * altos: Make sure companion task exits cleanly when done
+  * altos: add the 'L' command to show the status of a linked companion board
+  * altos: Check for companion init packet validity was busted
+  * altosui: Add companion support to the flight UI and CSV conversion
+  * altos: Send SPI message at flight state changes
+  * altos: Send serial/flight to companion board
+  * altos: wait 10s for companion to boot
+  * altosui: Clean up eeprom parsing a bit
+  * altosui: Add support for TeleScience eeprom download
+  * altosui: Devices with log-format can also delete flights
+  * altosui: Eliminate inter-chunk flush_input calls
+  * altos: AltosSerial.flush_input shouldn't discard Interrupted exceptions
+  * altos: Correct AO_CONFIG_MINOR from 6 to 7
+  * altos: Reset radio channel to zero when using radio setting
+  * altos: use raw height while waiting for landing
+  * altosui: don't set channel when using radio setting
+  * altosui: Respect storage limits in flight log max config
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 19 Aug 2011 22:47:25 -0600
+
 altos (0.9.4.5) unstable; urgency=low
 
   [ Keith Packard ]
