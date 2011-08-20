@@ -1,3 +1,9 @@
+commit 605627d03eeb9f34026a84134992ad061b5b3946
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 19 22:47:50 2011 -0600
+
+    update changelogs for Debian build
+
 commit ef7f60df841f1eb22b9cec0d7f68cf2c003d6b30
 Author: Keith Packard <keithp@keithp.com>
 Date:   Sun Aug 14 00:00:54 2011 -0700
