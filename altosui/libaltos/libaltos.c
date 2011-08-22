@@ -882,7 +882,7 @@ altos_list_start(void)
 	list->dev_info = SetupDiGetClassDevs(NULL, "USB", NULL,
 					     DIGCF_ALLCLASSES|DIGCF_PRESENT);
 	if (list->dev_info == INVALID_HANDLE_VALUE) {
-		printf("SetupDiGetClassDevs failed %d\n", GetLastError());
+		printf("SetupDiGetClassDevs failed %ld\n", GetLastError());
 		free(list);
 		return NULL;
 	}
@@ -894,13 +894,13 @@ PUBLIC int
 altos_list_next(struct altos_list *list, struct altos_device *device)
 {
 	SP_DEVINFO_DATA dev_info_data;
-	char		port[128];
+	BYTE		port[128];
 	DWORD		port_len;
 	char		friendlyname[256];
-	char		symbolic[256];
+	BYTE		symbolic[256];
 	DWORD		symbolic_len;
 	HKEY		dev_key;
-	int		vid, pid;
+	unsigned int	vid, pid;
 	int		serial;
 	HRESULT 	result;
 	DWORD		friendlyname_type;
@@ -931,11 +931,11 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 			continue;
 		}
 		vid = pid = serial = 0;
-		sscanf(symbolic + sizeof("\\??\\USB#VID_") - 1,
+		sscanf((char *) symbolic + sizeof("\\??\\USB#VID_") - 1,
 		       "%04X", &vid);
-		sscanf(symbolic + sizeof("\\??\\USB#VID_XXXX&PID_") - 1,
+		sscanf((char *) symbolic + sizeof("\\??\\USB#VID_XXXX&PID_") - 1,
 		       "%04X", &pid);
-		sscanf(symbolic + sizeof("\\??\\USB#VID_XXXX&PID_XXXX#") - 1,
+		sscanf((char *) symbolic + sizeof("\\??\\USB#VID_XXXX&PID_XXXX#") - 1,
 		       "%d", &serial);
 		if (!USB_IS_ALTUSMETRUM(vid, pid)) {
 			RegCloseKey(dev_key);
@@ -971,12 +971,12 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 		device->serial = serial;
 		strcpy(device->name, friendlyname);
 
-		strcpy(device->path, port);
+		strcpy(device->path, (char *) port);
 		return 1;
 	}
 	result = GetLastError();
 	if (result != ERROR_NO_MORE_ITEMS)
-		printf ("SetupDiEnumDeviceInfo failed error %d\n", result);
+		printf ("SetupDiEnumDeviceInfo failed error %d\n", (int) result);
 	return 0;
 }
 
@@ -1059,10 +1059,10 @@ altos_fill(struct altos_file *file, int timeout)
 PUBLIC int
 altos_flush(struct altos_file *file)
 {
-	DWORD	put;
-	char	*data = file->out_data;
-	char	used = file->out_used;
-	DWORD	ret;
+	DWORD		put;
+	unsigned char	*data = file->out_data;
+	int		used = file->out_used;
+	DWORD		ret;
 
 	while (used) {
 		if (!WriteFile(file->handle, data, used, &put, &file->ov_write)) {
@@ -1150,7 +1150,7 @@ altos_free(struct altos_file *file)
 	free(file);
 }
 
-int
+PUBLIC int
 altos_putchar(struct altos_file *file, char c)
 {
 	int	ret;
@@ -1166,7 +1166,7 @@ altos_putchar(struct altos_file *file, char c)
 	return LIBALTOS_SUCCESS;
 }
 
-int
+PUBLIC int
 altos_getchar(struct altos_file *file, int timeout)
 {
 	int	ret;
