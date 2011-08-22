@@ -37,5 +37,18 @@ classlibaltos.stamp: $(SWIG_FILE)
 	$(JAVAC) -d . $(AM_JAVACFLAGS) $(JAVACFLAGS) *.java && \
 	touch classlibaltos.stamp
 
+MINGCC32=i686-w64-mingw32-gcc
+MINGCC64=x86_64-w64-mingw32-gcc
+MINGFLAGS=-Wall -DWINDOWS -DBUILD_DLL -I$(JVM_INCLUDE)
+MINGLIBS=-lsetupapi
+
+fat: altos.dll altos64.dll
+
+altos.dll: $(libaltos_la_SOURCES)
+	$(MINGCC32) -o $@ $(MINGFLAGS) -shared $(libaltos_la_SOURCES) $(MINGLIBS)
+
+altos64.dll: $(libaltos_la_SOURCES)
+	$(MINGCC64) -o $@ $(MINGFLAGS) -shared $(libaltos_la_SOURCES) $(MINGLIBS)
+
 clean-local:
-	-rm -rf libaltosJNI *.class *.java classlibaltos.stamp $(SWIG_FILE) libaltos_wrap.c
+	-rm -rf libaltosJNI *.class *.java classlibaltos.stamp $(SWIG_FILE) libaltos_wrap.c altos.dll altos64.dll

@@ -366,7 +366,13 @@ public class Altos {
 				libaltos.altos_init();
 				loaded_library = true;
 			} catch (UnsatisfiedLinkError e) {
-				loaded_library = false;
+				try {
+					System.loadLibrary("altos64");
+					libaltos.altos_init();
+					loaded_library = true;
+				} catch (UnsatisfiedLinkError e2) {
+					loaded_library = false;
+				}
 			}
 			initialized = true;
 		}

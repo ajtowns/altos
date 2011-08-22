@@ -191,7 +191,7 @@ LINUX_EXTRA=altosui-fat
 MACOSX_FILES=$(FAT_FILES) libaltos.dylib
 MACOSX_EXTRA=$(FIRMWARE)
 
-WINDOWS_FILES=$(FAT_FILES) altos.dll $(top_srcdir)/telemetrum.inf $(WINDOWS_ICON)
+WINDOWS_FILES=$(FAT_FILES) altos.dll altos64.dll $(top_srcdir)/telemetrum.inf $(WINDOWS_ICON)
 
 all-local: classes/altosui $(JAR) altosui altosui-test altosui-jdb
 
@@ -282,9 +282,23 @@ libaltos.dylib:
 	-rm -f "$@"
 	$(LN_S) libaltos/"$@" .
 
-altos.dll:
+altos.dll: libaltos/altos.dll
 	-rm -f "$@"
 	$(LN_S) libaltos/"$@" .
+
+altos64.dll: libaltos/altos64.dll
+	-rm -f "$@"
+	$(LN_S) libaltos/"$@" .
+
+libaltos/altos.dll: build-altos-dll
+
+libaltos/altos64.dll: build-altos64-dll
+
+build-altos-dll:
+	+cd libaltos && make altos.dll
+
+build-altos64-dll:
+	+cd libaltos && make altos64.dll
 
 $(FREETTS_CLASS):
 	-rm -f "$@"
