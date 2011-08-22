@@ -364,93 +364,151 @@ public class AltosUI extends JFrame {
 		}
 	}
 
+	static final int process_none = 0;
 	static final int process_csv = 1;
 	static final int process_kml = 2;
+	static final int process_graph = 3;
+	static final int process_replay = 4;
 
-	static void process_file(String input, int process) {
+	static void process_csv(String input) {
 		AltosRecordIterable iterable = open_logfile(input);
 		if (iterable == null)
 			return;
-		if (process == 0)
-			process = process_csv;
-		if ((process & process_csv) != 0) {
-			String output = Altos.replace_extension(input,".csv");
-			System.out.printf("Processing \"%s\" to \"%s\"\n", input, output);
-			if (input.equals(output)) {
-				System.out.printf("Not processing '%s'\n", input);
-			} else {
-				AltosWriter writer = open_csv("/dev/stdout");
-				if (writer != null) {
-					writer.write(iterable);
-					writer.close();
-				}
-			}
-		}
-		if ((process & process_kml) != 0) {
-			String output = Altos.replace_extension(input,".kml");
-			System.out.printf("Processing \"%s\" to \"%s\"\n", input, output);
-			if (input.equals(output)) {
-				System.out.printf("Not processing '%s'\n", input);
-			} else {
-				AltosWriter writer = open_kml(output);
-				if (writer == null)
-					return;
-				writer.write(iterable);
-				writer.close();
-			}
+
+		String output = Altos.replace_extension(input,".csv");
+		System.out.printf("Processing \"%s\" to \"%s\"\n", input, output);
+		if (input.equals(output)) {
+			System.out.printf("Not processing '%s'\n", input);
+		} else {
+			AltosWriter writer = open_csv(output);
+			if (writer == null)
+				return;
+			writer.write(iterable);
+			writer.close();
 		}
 	}
 
-	public static void main(final String[] args) {
-		int	process = 0;
-		/* Handle batch-mode */
-        if (args.length == 1 && args[0].equals("--help")) {
+	static void process_kml(String input) {
+		AltosRecordIterable iterable = open_logfile(input);
+		if (iterable == null)
+			return;
+
+		String output = Altos.replace_extension(input,".kml");
+		System.out.printf("Processing \"%s\" to \"%s\"\n", input, output);
+		if (input.equals(output)) {
+			System.out.printf("Not processing '%s'\n", input);
+		} else {
+			AltosWriter writer = open_kml(output);
+			if (writer == null)
+				return;
+			writer.write(iterable);
+			writer.close();
+		}
+	}
+
+	static void process_replay(String filename) {
+		FileInputStream in;
+		try {
+			in = new FileInputStream(filename);
+		} catch (Exception e) {
+			System.out.printf("Failed to open file '%s'\n", filename);
+			return;
+		}
+		AltosRecordIterable recs;
+		AltosReplayReader reader;
+		if (filename.endsWith("eeprom")) {
+			recs = new AltosEepromIterable(in);
+		} else {
+			recs = new AltosTelemetryIterable(in);
+		}
+		reader = new AltosReplayReader(recs.iterator(), new File(filename));
+		AltosFlightUI flight_ui = new AltosFlightUI(new AltosVoice(), reader);
+		flight_ui.set_exit_on_close();
+	}
+
+	static void process_graph(String filename) {
+		FileInputStream in;
+		try {
+			in = new FileInputStream(filename);
+		} catch (Exception e) {
+			System.out.printf("Failed to open file '%s'\n", filename);
+			return;
+		}
+		AltosRecordIterable recs;
+		if (filename.endsWith("eeprom")) {
+			recs = new AltosEepromIterable(in);
+		} else {
+			recs = new AltosTelemetryIterable(in);
+		}
+		try {
+			new AltosGraphUI(recs);
+		} catch (InterruptedException ie) {
+		} catch (IOException ie) {
+		}
+	}
+	
+	public static void help(int code) {
 		System.out.printf("Usage: altosui [OPTION]... [FILE]...\n");
 		System.out.printf("  Options:\n");
 		System.out.printf("    --fetchmaps <lat> <lon>\tpre-fetch maps for site map view\n");
 		System.out.printf("    --replay <filename>\t\trelive the glory of past flights \n");
+		System.out.printf("    --graph <filename>\t\tgraph a flight\n");
 		System.out.printf("    --csv\tgenerate comma separated output for spreadsheets, etc\n");
 		System.out.printf("    --kml\tgenerate KML output for use with Google Earth\n");
-        } else if (args.length == 3 && args[0].equals("--fetchmaps")) {
-            double lat = Double.parseDouble(args[1]);
-            double lon = Double.parseDouble(args[2]);
-            AltosSiteMap.prefetchMaps(lat, lon, 5, 5);
-        } else if (args.length == 2 && args[0].equals("--replay")) {
-			String filename = args[1];
-			FileInputStream in;
-			try {
-				in = new FileInputStream(filename);
-			} catch (Exception e) {
-				System.out.printf("Failed to open file '%s'\n", filename);
-				return;
-			}
-			AltosRecordIterable recs;
-			AltosReplayReader reader;
-			if (filename.endsWith("eeprom")) {
-				recs = new AltosEepromIterable(in);
-			} else {
-				recs = new AltosTelemetryIterable(in);
-			}
-			reader = new AltosReplayReader(recs.iterator(), new File(filename));
-			AltosFlightUI flight_ui = new AltosFlightUI(new AltosVoice(), reader);
-			flight_ui.set_exit_on_close();
-			return;
-		} else if (args.length > 0) {
-			for (int i = 0; i < args.length; i++) {
-				if (args[i].equals("--kml"))
-					process |= process_kml;
-				else if (args[i].equals("--csv"))
-					process |= process_csv;
-				else
-					process_file(args[i], process);
-			}
-		} else {
+		System.exit(code);
+	}
+	
+	public static void main(final String[] args) {
+		/* Handle batch-mode */
+		if (args.length == 0) {
 			AltosUI altosui = new AltosUI();
 			altosui.setVisible(true);
 
 			java.util.List<AltosDevice> devices = AltosUSBDevice.list(Altos.product_basestation);
 			for (AltosDevice device : devices)
 				altosui.telemetry_window(device);
+		} else {
+			int process = process_none;
+			for (int i = 0; i < args.length; i++) {
+				if (args[i].equals("--help"))
+					help(0);
+				else if (args[i].equals("--fetchmaps")) {
+					if (args.length < i + 3) {
+						help(1);
+					} else {
+						double lat = Double.parseDouble(args[i+1]);
+						double lon = Double.parseDouble(args[i+2]);
+						AltosSiteMap.prefetchMaps(lat, lon, 5, 5);
+						i += 2;
+					}
+				} else if (args[i].equals("--replay"))
+					process = process_replay;
+				else if (args[i].equals("--kml"))
+					process = process_kml;
+				else if (args[i].equals("--csv"))
+					process = process_csv;
+				else if (args[i].equals("--graph"))
+					process = process_graph;
+				else if (args[i].startsWith("--"))
+					help(1);
+				else {
+					switch (process) {
+					case process_none:
+					case process_graph:
+						process_graph(args[i]);
+						break;
+					case process_replay:
+						process_replay(args[i]);
+						break;
+					case process_kml:
+						process_kml(args[i]);
+						break;
+					case process_csv:
+						process_csv(args[i]);
+						break;
+					}
+				}
+			}
 		}
 	}
 }

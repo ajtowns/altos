@@ -112,6 +112,7 @@ public class Altos {
 		string_to_state.put("fast", ao_flight_fast);
 		string_to_state.put("coast", ao_flight_coast);
 		string_to_state.put("drogue", ao_flight_drogue);
+		string_to_state.put("apogee", ao_flight_coast);
 		string_to_state.put("main", ao_flight_main);
 		string_to_state.put("landed", ao_flight_landed);
 		string_to_state.put("invalid", ao_flight_invalid);

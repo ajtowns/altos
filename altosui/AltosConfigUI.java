@@ -46,6 +46,7 @@ public class AltosConfigUI
 	JLabel		frequency_label;
 	JLabel		radio_calibration_label;
 	JLabel		radio_frequency_label;
+	JLabel		radio_enable_label;
 	JLabel		flight_log_max_label;
 	JLabel		ignite_mode_label;
 	JLabel		pad_orientation_label;
@@ -61,6 +62,7 @@ public class AltosConfigUI
 	JComboBox	apogee_delay_value;
 	AltosFreqList	radio_frequency_value;
 	JTextField	radio_calibration_value;
+	JRadioButton	radio_enable_value;
 	JComboBox	flight_log_max_value;
 	JComboBox	ignite_mode_value;
 	JComboBox	pad_orientation_value;
@@ -287,9 +289,32 @@ public class AltosConfigUI
 			radio_calibration_value.setEnabled(false);
 		pane.add(radio_calibration_value, c);
 
-		/* Callsign */
+		/* Radio Enable */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 7;
+		c.gridwidth = 4;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
+		c.ipady = 5;
+		radio_enable_label = new JLabel("Telemetry/RDF Enable:");
+		pane.add(radio_enable_label, c);
+
+		c = new GridBagConstraints();
+		c.gridx = 4; c.gridy = 7;
+		c.gridwidth = 4;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		c.ipady = 5;
+		radio_enable_value = new JRadioButton("Enabled");
+		radio_enable_value.addItemListener(this);
+		pane.add(radio_enable_value, c);
+
+		/* Callsign */
+		c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = 8;
 		c.gridwidth = 4;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -299,7 +324,7 @@ public class AltosConfigUI
 		pane.add(callsign_label, c);
 
 		c = new GridBagConstraints();
-		c.gridx = 4; c.gridy = 7;
+		c.gridx = 4; c.gridy = 8;
 		c.gridwidth = 4;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
@@ -312,7 +337,7 @@ public class AltosConfigUI
 
 		/* Flight log max */
 		c = new GridBagConstraints();
-		c.gridx = 0; c.gridy = 8;
+		c.gridx = 0; c.gridy = 9;
 		c.gridwidth = 4;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -322,7 +347,7 @@ public class AltosConfigUI
 		pane.add(flight_log_max_label, c);
 
 		c = new GridBagConstraints();
-		c.gridx = 4; c.gridy = 8;
+		c.gridx = 4; c.gridy = 9;
 		c.gridwidth = 4;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
@@ -336,7 +361,7 @@ public class AltosConfigUI
 
 		/* Ignite mode */
 		c = new GridBagConstraints();
-		c.gridx = 0; c.gridy = 9;
+		c.gridx = 0; c.gridy = 10;
 		c.gridwidth = 4;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -346,7 +371,7 @@ public class AltosConfigUI
 		pane.add(ignite_mode_label, c);
 
 		c = new GridBagConstraints();
-		c.gridx = 4; c.gridy = 9;
+		c.gridx = 4; c.gridy = 10;
 		c.gridwidth = 4;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
@@ -360,7 +385,7 @@ public class AltosConfigUI
 
 		/* Pad orientation */
 		c = new GridBagConstraints();
-		c.gridx = 0; c.gridy = 10;
+		c.gridx = 0; c.gridy = 11;
 		c.gridwidth = 4;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -370,7 +395,7 @@ public class AltosConfigUI
 		pane.add(pad_orientation_label, c);
 
 		c = new GridBagConstraints();
-		c.gridx = 4; c.gridy = 10;
+		c.gridx = 4; c.gridy = 11;
 		c.gridwidth = 4;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
@@ -384,7 +409,7 @@ public class AltosConfigUI
 
 		/* Buttons */
 		c = new GridBagConstraints();
-		c.gridx = 0; c.gridy = 11;
+		c.gridx = 0; c.gridy = 12;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -395,7 +420,7 @@ public class AltosConfigUI
 		save.setActionCommand("Save");
 
 		c = new GridBagConstraints();
-		c.gridx = 2; c.gridy = 11;
+		c.gridx = 2; c.gridy = 12;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
@@ -406,7 +431,7 @@ public class AltosConfigUI
 		reset.setActionCommand("Reset");
 
 		c = new GridBagConstraints();
-		c.gridx = 4; c.gridy = 11;
+		c.gridx = 4; c.gridy = 12;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
@@ -417,7 +442,7 @@ public class AltosConfigUI
 		reboot.setActionCommand("Reboot");
 
 		c = new GridBagConstraints();
-		c.gridx = 6; c.gridy = 11;
+		c.gridx = 6; c.gridy = 12;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_END;
@@ -559,6 +584,22 @@ public class AltosConfigUI
 		return Integer.parseInt(radio_calibration_value.getText());
 	}
 
+	public void set_radio_enable(int new_radio_enable) {
+		if (new_radio_enable >= 0)
+			radio_enable_value.setSelected(new_radio_enable > 0);
+		else {
+			radio_enable_value.setSelected(true);
+			radio_enable_value.setEnabled(false);
+		}
+	}
+
+	public int radio_enable() {
+		if (radio_enable_value.isEnabled())
+			return radio_enable_value.isSelected() ? 1 : 0;
+		else
+			return -1;
+	}
+
 	public void set_callsign(String new_callsign) {
 		callsign_value.setText(new_callsign);
 	}
@@ -571,6 +612,10 @@ public class AltosConfigUI
 		if (new_flight_log_max == 0)
 			flight_log_max_value.setEnabled(false);
 		flight_log_max_value.setSelectedItem(Integer.toString(new_flight_log_max));
+	}
+
+	public void set_flight_log_max_enabled(boolean enable) {
+		flight_log_max_value.setEnabled(enable);
 	}
 
 	public int flight_log_max() {

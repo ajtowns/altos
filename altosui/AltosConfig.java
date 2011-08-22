@@ -78,6 +78,8 @@ public class AltosConfig implements ActionListener {
 	int_ref		radio_setting;
 	int_ref		storage_size;
 	int_ref		storage_erase_unit;
+	int_ref		stored_flight;
+	int_ref		radio_enable;
 	string_ref	version;
 	string_ref	product;
 	string_ref	callsign;
@@ -146,6 +148,8 @@ public class AltosConfig implements ActionListener {
 		config_ui.set_apogee_delay(apogee_delay.get());
 		config_ui.set_radio_calibration(radio_calibration.get());
 		config_ui.set_radio_frequency(frequency());
+		config_ui.set_flight_log_max_enabled(stored_flight.get() < 0);
+		config_ui.set_radio_enable(radio_enable.get());
 		config_ui.set_flight_log_max_limit(log_limit());
 		config_ui.set_flight_log_max(flight_log_max.get());
 		config_ui.set_ignite_mode(ignite_mode.get());
@@ -175,8 +179,10 @@ public class AltosConfig implements ActionListener {
 		get_int(line, "Ignite mode:", ignite_mode);
 		get_int(line, "Pad orientation:", pad_orientation);
 		get_int(line, "Radio setting:", radio_setting);
+		get_int(line, "Radio enable:", radio_enable);
 		get_int(line, "Storage size:", storage_size);
 		get_int(line, "Storage erase unit:", storage_erase_unit);
+		get_int(line, "flight", stored_flight);
 		get_string(line, "Callsign:", callsign);
 		get_string(line,"software-version", version);
 		get_string(line,"product", product);
@@ -206,7 +212,8 @@ public class AltosConfig implements ActionListener {
 		void get_data() {
 			try {
 				config.start_serial();
-				config.serial_line.printf("c s\nf\nv\n");
+				stored_flight.set(-1);
+				config.serial_line.printf("c s\nf\nl\nv\n");
 				for (;;) {
 					try {
 						String line = config.serial_line.get_reply(5000);
@@ -251,6 +258,8 @@ public class AltosConfig implements ActionListener {
 				serial_line.printf("c c %s\n", callsign.get());
 				if (flight_log_max.get() != 0)
 					serial_line.printf("c l %d\n", flight_log_max.get());
+				if (radio_enable.get() >= 0)
+					serial_line.printf("c e %d\n", radio_enable.get());
 				if (ignite_mode.get() >= 0)
 					serial_line.printf("c i %d\n", ignite_mode.get());
 				if (pad_orientation.get() >= 0)
@@ -369,6 +378,8 @@ public class AltosConfig implements ActionListener {
 		radio_calibration.set(config_ui.radio_calibration());
 		set_frequency(config_ui.radio_frequency());
 		flight_log_max.set(config_ui.flight_log_max());
+		if (radio_enable.get() >= 0)
+			radio_enable.set(config_ui.radio_enable());
 		if (ignite_mode.get() >= 0)
 			ignite_mode.set(config_ui.ignite_mode());
 		if (pad_orientation.get() >= 0)
@@ -408,11 +419,13 @@ public class AltosConfig implements ActionListener {
 		radio_channel = new int_ref(0);
 		radio_setting = new int_ref(0);
 		radio_calibration = new int_ref(1186611);
+		radio_enable = new int_ref(-1);
 		flight_log_max = new int_ref(0);
 		ignite_mode = new int_ref(-1);
 		pad_orientation = new int_ref(-1);
 		storage_size = new int_ref(-1);
 		storage_erase_unit = new int_ref(-1);
+		stored_flight = new int_ref(-1);
 		callsign = new string_ref("N0CALL");
 		version = new string_ref("unknown");
 		product = new string_ref("unknown");

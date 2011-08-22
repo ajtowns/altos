@@ -99,17 +99,32 @@ _ao_config_get(void)
 			ao_config.pad_orientation = AO_CONFIG_DEFAULT_PAD_ORIENTATION;
 		if (ao_config.minor < 7)
 			ao_config.radio_setting = ao_config.radio_cal;
+		if (ao_config.minor < 8)
+			ao_config.radio_enable = TRUE;
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
 	ao_config_loaded = 1;
 }
 
-void
-ao_config_get(void)
+static void
+_ao_config_edit_start(void)
 {
 	ao_mutex_get(&ao_config_mutex);
 	_ao_config_get();
+}
+
+static void
+_ao_config_edit_finish(void)
+{
+	ao_config_dirty = 1;
+	ao_mutex_put(&ao_config_mutex);
+}
+
+void
+ao_config_get(void)
+{
+	_ao_config_edit_start();
 	ao_mutex_put(&ao_config_mutex);
 }
 
@@ -137,13 +152,10 @@ ao_config_callsign_set(void) __reentrant
 	}
 	if (ao_cmd_status != ao_cmd_success)
 		return;
-	ao_mutex_get(&ao_config_mutex);
-	_ao_config_get();
+	_ao_config_edit_start();
 	memcpy(&ao_config.callsign, &callsign,
 	       AO_MAX_CALLSIGN + 1);
-	ao_config_dirty = 1;
-	ao_mutex_put(&ao_config_mutex);
-	ao_config_callsign_show();
+	_ao_config_edit_finish();
 }
 
 void
@@ -159,12 +171,9 @@ ao_config_radio_channel_set(void) __reentrant
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
 		return;
-	ao_mutex_get(&ao_config_mutex);
-	_ao_config_get();
+	_ao_config_edit_start();
 	ao_config.radio_channel = ao_cmd_lex_i;
-	ao_config_dirty = 1;
-	ao_mutex_put(&ao_config_mutex);
-	ao_config_radio_channel_show();
+	_ao_config_edit_finish();
 	ao_radio_recv_abort();
 }
 
@@ -183,12 +192,9 @@ ao_config_main_deploy_set(void) __reentrant
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
 		return;
-	ao_mutex_get(&ao_config_mutex);
-	_ao_config_get();
+	_ao_config_edit_start();
 	ao_config.main_deploy = ao_cmd_lex_i;
-	ao_config_dirty = 1;
-	ao_mutex_put(&ao_config_mutex);
-	ao_config_main_deploy_show();
+	_ao_config_edit_finish();
 }
 
 #if HAS_ACCEL
@@ -250,13 +256,10 @@ ao_config_accel_calibrate_set(void) __reentrant
 		       up, down);
 		return;
 	}
-	ao_mutex_get(&ao_config_mutex);
-	_ao_config_get();
+	_ao_config_edit_start();
 	ao_config.accel_plus_g = up;
 	ao_config.accel_minus_g = down;
-	ao_config_dirty = 1;
-	ao_mutex_put(&ao_config_mutex);
-	ao_config_accel_calibrate_show();
+	_ao_config_edit_finish();
 }
 #endif /* HAS_ACCEL */
 
@@ -273,12 +276,9 @@ ao_config_apogee_delay_set(void) __reentrant
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
 		return;
-	ao_mutex_get(&ao_config_mutex);
-	_ao_config_get();
+	_ao_config_edit_start();
 	ao_config.apogee_delay = ao_cmd_lex_i;
-	ao_config_dirty = 1;
-	ao_mutex_put(&ao_config_mutex);
-	ao_config_apogee_delay_show();
+	_ao_config_edit_finish();
 }
 
 #endif /* HAS_ADC */
@@ -295,12 +295,9 @@ ao_config_radio_cal_set(void) __reentrant
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
 		return;
-	ao_mutex_get(&ao_config_mutex);
-	_ao_config_get();
+	_ao_config_edit_start();
 	ao_config.radio_setting = ao_config.radio_cal = ao_cmd_lex_u32;
-	ao_config_dirty = 1;
-	ao_mutex_put(&ao_config_mutex);
-	ao_config_radio_cal_show();
+	_ao_config_edit_finish();
 }
 
 #if HAS_EEPROM
@@ -326,12 +323,9 @@ ao_config_log_set(void) __reentrant
 	else if (ao_cmd_lex_i > config)
 		printf("Flight log max %d kB\n", config);
 	else {
-		ao_mutex_get(&ao_config_mutex);
-		_ao_config_get();
+		_ao_config_edit_start();
 		ao_config.flight_log_max = (uint32_t) ao_cmd_lex_i << 10;
-		ao_config_dirty = 1;
-		ao_mutex_put(&ao_config_mutex);
-		ao_config_log_show();
+		_ao_config_edit_finish();
 	}
 }
 #endif /* HAS_EEPROM */
@@ -349,12 +343,9 @@ ao_config_ignite_mode_set(void) __reentrant
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
 		return;
-	ao_mutex_get(&ao_config_mutex);
-	_ao_config_get();
+	_ao_config_edit_start();
 	ao_config.ignite_mode = ao_cmd_lex_i;
-	ao_config_dirty = 1;
-	ao_mutex_put(&ao_config_mutex);
-	ao_config_ignite_mode_show();
+	_ao_config_edit_finish();
 }
 #endif
 
@@ -371,8 +362,7 @@ ao_config_pad_orientation_set(void) __reentrant
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
 		return;
-	ao_mutex_get(&ao_config_mutex);
-	_ao_config_get();
+	_ao_config_edit_start();
 	ao_cmd_lex_i &= 1;
 	if (ao_config.pad_orientation != ao_cmd_lex_i) {
 		uint16_t t;
@@ -381,9 +371,7 @@ ao_config_pad_orientation_set(void) __reentrant
 		ao_config.accel_minus_g = 0x7fff - t;
 	}
 	ao_config.pad_orientation = ao_cmd_lex_i;
-	ao_config_dirty = 1;
-	ao_mutex_put(&ao_config_mutex);
-	ao_config_pad_orientation_show();
+	_ao_config_edit_finish();
 }
 #endif
 
@@ -399,16 +387,30 @@ ao_config_radio_setting_set(void) __reentrant
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
 		return;
-	ao_mutex_get(&ao_config_mutex);
-	_ao_config_get();
+	_ao_config_edit_start();
 	ao_config.radio_setting = ao_cmd_lex_u32;
 	ao_config.radio_channel = 0;
-	ao_config_dirty = 1;
-	ao_mutex_put(&ao_config_mutex);
-	ao_config_radio_setting_show();
+	_ao_config_edit_finish();
 	ao_radio_recv_abort();
 }
 
+void
+ao_config_radio_enable_show(void) __reentrant
+{
+	printf("Radio enable: %d\n", ao_config.radio_enable);
+}
+
+void
+ao_config_radio_enable_set(void) __reentrant
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	_ao_config_edit_start();
+	ao_config.radio_enable = ao_cmd_lex_i;
+	_ao_config_edit_finish();
+}
+	
 struct ao_config_var {
 	__code char	*str;
 	void		(*set)(void) __reentrant;
@@ -435,6 +437,10 @@ __code struct ao_config_var ao_config_vars[] = {
 	  ao_config_radio_channel_set,	ao_config_radio_channel_show },
 	{ "c <call>\0Callsign (8 char max)",
 	  ao_config_callsign_set,	ao_config_callsign_show },
+	{ "R <setting>\0Radio freq control (freq = 434.550 * setting/cal)",
+	  ao_config_radio_setting_set,	ao_config_radio_setting_show },
+	{ "e <0 disable, 1 enable>\0Enable telemetry and RDF",
+	  ao_config_radio_enable_set, ao_config_radio_enable_show },
 #if HAS_ACCEL
 	{ "a <+g> <-g>\0Accel calib (0 for auto)",
 	  ao_config_accel_calibrate_set,ao_config_accel_calibrate_show },
@@ -453,16 +459,14 @@ __code struct ao_config_var ao_config_vars[] = {
 	{ "o <0 antenna up, 1 antenna down>\0Set pad orientation",
 	  ao_config_pad_orientation_set,ao_config_pad_orientation_show },
 #endif
-	{ "R <setting>\0Radio freq control (freq = 434.550 * setting/cal)",
-	  ao_config_radio_setting_set,	ao_config_radio_setting_show },
 	{ "s\0Show",
-	  ao_config_show,		ao_config_show },
+	  ao_config_show,		0 },
 #if HAS_EEPROM
 	{ "w\0Write to eeprom",
-	  ao_config_write,		ao_config_write },
+	  ao_config_write,		0 },
 #endif
 	{ "?\0Help",
-	  ao_config_help,		ao_config_help },
+	  ao_config_help,		0 },
 	{ 0, 0, 0 }
 };
 
@@ -479,13 +483,10 @@ ao_config_set(void)
 	func = 0;
 	for (cmd = 0; ao_config_vars[cmd].str != NULL; cmd++)
 		if (ao_config_vars[cmd].str[0] == c) {
-			func = ao_config_vars[cmd].set;
-			break;
+			(*ao_config_vars[cmd].set)();
+			return;
 		}
-	if (func)
-		(*func)();
-	else
-		ao_cmd_status = ao_cmd_syntax_error;
+	ao_cmd_status = ao_cmd_syntax_error;
 }
 
 static void
@@ -505,7 +506,7 @@ ao_config_show(void) __reentrant
 	printf("Config version: %d.%d\n",
 	       ao_config.major, ao_config.minor);
 	for (cmd = 0; ao_config_vars[cmd].str != NULL; cmd++)
-		if (ao_config_vars[cmd].show != ao_config_vars[cmd].set)
+		if (ao_config_vars[cmd].show)
 			(*ao_config_vars[cmd].show)();
 }
 
