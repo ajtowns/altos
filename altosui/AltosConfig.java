@@ -148,7 +148,17 @@ public class AltosConfig implements ActionListener {
 		config_ui.set_apogee_delay(apogee_delay.get());
 		config_ui.set_radio_calibration(radio_calibration.get());
 		config_ui.set_radio_frequency(frequency());
-		config_ui.set_flight_log_max_enabled(stored_flight.get() < 0);
+		boolean max_enabled = true;
+		switch (log_format.get()) {
+		case Altos.AO_LOG_FORMAT_TINY:
+			max_enabled = false;
+			break;
+		default:
+			if (stored_flight.get() >= 0)
+				max_enabled = false;
+			break;
+		}
+		config_ui.set_flight_log_max_enabled(max_enabled);
 		config_ui.set_radio_enable(radio_enable.get());
 		config_ui.set_flight_log_max_limit(log_limit());
 		config_ui.set_flight_log_max(flight_log_max.get());
