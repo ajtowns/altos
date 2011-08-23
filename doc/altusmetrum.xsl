@@ -1811,6 +1811,220 @@ NAR #88757, TRA #12200
     </section>
   </chapter>
   <chapter>
+    <title>Altimeter Installation Recommendations</title>
+    <para>
+      Building high-power rockets that fly safely is hard enough. Mix
+      in some sophisticated electronics and a bunch of radio energy
+      and oftentimes you find few perfect solutions. This chapter
+      contains some suggestions about how to install AltusMetrum
+      products into the rocket airframe, including how to safely and
+      reliably mix a variety of electronics into the same airframe.
+    </para>
+    <section>
+      <title>Mounting the Altimeter</title>
+      <para>
+	The first consideration is to ensure that the altimeter is
+	securely fastened to the airframe. For TeleMetrum, we use
+	nylon standoffs and nylon screws; they're good to at least 50G
+	and cannot cause any electrical issues on the board. For
+	TeleMini, we usually cut small pieces of 1/16" balsa to fit
+	under the screw holes, and then take 2x56 nylon screws and
+	screw them through the TeleMini mounting holes, through the
+	balsa and into the underlying material.
+      </para>
+      <orderedlist inheritnum='inherit' numeration='arabic'>
+	<listitem>
+	  Make sure TeleMetrum is aligned precisely along the axis of
+	  acceleration so that the accelerometer can accurately
+	  capture data during the flight.
+	</listitem>
+	<listitem>
+	  Watch for any metal touching components on the
+	  board. Shorting out connections on the bottom of the board
+	  can cause the altimeter to fail during flight.
+	</listitem>
+      </orderedlist>
+    </section>
+    <section>
+      <title>Dealing with the Antenna</title>
+      <para>
+	The antenna supplied is just a piece of solid, insulated,
+	wire. If it gets damaged or broken, it can be easily
+	replaced. It should be kept straight and not cut; bending or
+	cutting it will change the resonant frequency and/or
+	impedence, making it a less efficient radiator and thus
+	reducing the range of the telemetry signal.
+      </para>
+      <para>
+	Keeping metal away from the antenna will provide better range
+	and a more even radiation pattern. In most rockets, it's not
+	entirely possible to isolate the antenna from metal
+	components; there are often bolts, all-thread and wires from other
+	electronics to contend with. Just be aware that the more stuff
+	like this around the antenna, the lower the range.
+      </para>
+      <para>
+	Make sure the antenna is not inside a tube made or covered
+	with conducting material. Carbon fibre is the most common
+	culprit here -- CF is a good conductor and will effectively
+	shield the antenna, dramatically reducing signal strength and
+	range. Metalic flake paint is another effective shielding
+	material which is to be avoided around any antennas.
+      </para>
+      <para>
+	If the ebay is large enough, it can be convenient to simply
+	mount the altimeter at one end and stretch the antenna out
+	inside. Taping the antenna to the sled can keep it straight
+	under acceleration. If there are metal rods, keep the
+	antenna as far away as possible.
+      </para>
+      <para>
+	For a shorter ebay, it's quite practical to have the antenna
+	run through a bulkhead and into an adjacent bay. Drill a small
+	hole in the bulkhead, pass the antenna wire through it and
+	then seal it up with glue or clay. We've also used acrylic
+	tubing to create a cavity for the antenna wire. This works a
+	bit better in that the antenna is known to stay straight and
+	not get folded by recovery components in the bay. Angle the
+	tubing towards the side wall of the rocket and it ends up
+	consuming very little space.
+      </para>
+      <para>
+	If you need to place the antenna at a distance from the
+	altimeter, you can replace the antenna with an edge-mounted
+	SMA connector, and then run 50Ω coax from the board to the
+	antenna. Building a remote antenna is beyond the scope of this
+	manual.
+      </para>
+    </section>
+    <section>
+      <title>Preserving GPS Reception</title>
+      <para>
+	The GPS antenna and receiver in TeleMetrum are highly
+	sensitive and normally have no trouble tracking enough
+	satellites to provide accurate position information for
+	recovering the rocket. However, there are many ways to
+	attenuate the GPS signal.
+      <orderedlist inheritnum='inherit' numeration='arabic'>
+	<listitem>
+	  Conductive tubing or coatings. Carbon fiber and metal
+	  tubing, or metalic paint will all dramatically attenuate the
+	  GPS signal. We've never heard of anyone successfully
+	  receiving GPS from inside these materials.
+	</listitem>
+	<listitem>
+	  Metal components near the GPS patch antenna. These will
+	  de-tune the patch antenna, changing the resonant frequency
+	  away from the L1 carrier and reduce the effectiveness of the
+	  antenna. You can place as much stuff as you like beneath the
+	  antenna as that's covered with a ground plane. But, keep
+	  wires and metal out from above the patch antenna.
+	</listitem>
+      </orderedlist>
+      </para>
+    </section>
+    <section>
+      <title>Radio Frequency Interference</title>
+      <para>
+	Any altimeter will generate RFI; the digital circuits use
+	high-frequency clocks that spray radio interference across a
+	wide band. Altusmetrum altimeters generate intentional radio
+	signals as well, increasing the amount of RF energy around the board.
+      </para>
+      <para>
+	Rocketry altimeters also use precise sensors measuring air
+	pressure and acceleration. Tiny changes in voltage can cause
+	these sensor readings to vary by a huge amount. When the
+	sensors start mis-reporting data, the altimeter can either
+	fire the igniters at the wrong time, or not fire them at all.
+      </para>
+      <para>
+	Voltages are induced when radio frequency energy is
+	transmitted from one circuit to another. Here are things that
+	increase the induced voltage and current:
+      </para>
+      <itemizedlist>
+	<listitem>
+	  Keep wires from different circuits apart. Moving circuits
+	  further apart will reduce RFI.
+	</listitem>
+	<listitem>
+	  Avoid parallel wires from different circuits. The longer two
+	  wires run parallel to one another, the larger the amount of
+	  transferred energy. Cross wires at right angles to reduce
+	  RFI.
+	</listitem>
+	<listitem>
+	  Twist wires from the same circuits. Two wires the same
+	  distance from the transmitter will get the same amount of
+	  induced energy which will then cancel out. Any time you have
+	  a wire pair running together, twist the pair together to
+	  even out distances and reduce RFI. For altimeters, this
+	  includes battery leads, switch hookups and igniter
+	  circuits.
+	</listitem>
+	<listitem>
+	  Avoid resonant lengths. Know what frequencies are present
+	  in the environment and avoid having wire lengths near a
+	  natural resonant length. Altusmetrum products transmit on the
+	  70cm amateur band, so you should avoid lengths that are a
+	  simple ratio of that length; essentially any multiple of 1/4
+	  of the wavelength (17.5cm).
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>The Barometric Sensor</title>
+      <para>
+	Altusmetrum altimeters measure altitude with a barometric
+	sensor, essentially measuring the amount of air above the
+	rocket to figure out how high it is. A large number of
+	measurements are taken as the altimeter initializes itself to
+	figure out the pad altitude. Subsequent measurements are then
+	used to compute the height above the pad.
+      </para>
+      <para>
+	To accurately measure atmospheric pressure, the ebay
+	containing the altimeter must be vented outside the
+	airframe. The vent must be placed in a region of linear
+	airflow, smooth and not in an area of increasing or decreasing
+	pressure.
+      </para>
+      <para>
+	The barometric sensor in the altimeter is quite sensitive to
+	chemical damage from the products of APCP or BP combustion, so
+	make sure the ebay is carefully sealed from any compartment
+	which contains ejection charges or motors.
+      </para>
+    </section>
+    <section>
+      <title>Ground Testing</title>
+      <para>
+	The most important aspect of any installation is careful
+	ground testing. Bringing an airframe up to the LCO table which
+	hasn't been ground tested can lead to delays or ejection
+	charges firing on the pad, or, even worse, a recovery system
+	failure.
+      </para>
+      <para>
+	Do a 'full systems' test that includes wiring up all igniters
+	without any BP and turning on all of the electronics in flight
+	mode. This will catch any mistakes in wiring and any residual
+	RFI issues that might accidentally fire igniters at the wrong
+	time. Let the airframe sit for several minutes, checking for
+	adequate telemetry signal strength and GPS lock.
+      </para>
+      <para>
+	Ground test the ejection charges. Prepare the rocket for
+	flight, loading ejection charges and igniters. Completely
+	assemble the airframe and then use the 'Fire Igniters'
+	interface through a TeleDongle to command each charge to
+	fire. Make sure the charge is sufficient to robustly separate
+	the airframe and deploy the recovery system.
+      </para>
+    </section>
+  </chapter>
+  <chapter>
     <title>Hardware Specifications</title>
     <section>
       <title>TeleMetrum Specifications</title>
