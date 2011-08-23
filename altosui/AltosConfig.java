@@ -223,10 +223,31 @@ public class AltosConfig implements ActionListener {
 			SwingUtilities.invokeLater(r);
 		}
 
+		void reset_data() {
+			serial.set(0);
+			log_format.set(Altos.AO_LOG_FORMAT_UNKNOWN);
+			main_deploy.set(250);
+			apogee_delay.set(0);
+			radio_channel.set(0);
+			radio_setting.set(0);
+			radio_calibration.set(1186611);
+			radio_enable.set(-1);
+			flight_log_max.set(0);
+			ignite_mode.set(-1);
+			pad_orientation.set(-1);
+			storage_size.set(-1);
+			storage_erase_unit.set(-1);
+			stored_flight.set(-1);
+			callsign.set("N0CALL");
+			version.set("unknown");
+			product.set("unknown");
+		}
+
 		void get_data() {
 			try {
 				config.start_serial();
-				stored_flight.set(-1);
+				reset_data();
+
 				config.serial_line.printf("c s\nf\nl\nv\n");
 				for (;;) {
 					try {
