@@ -311,7 +311,7 @@ public class AltosUI extends JFrame {
 		if (record_reader == null)
 			return;
 		try {
-			new AltosGraphUI(record_reader);
+			new AltosGraphUI(record_reader, chooser.filename());
 		} catch (InterruptedException ie) {
 		} catch (IOException ie) {
 		}

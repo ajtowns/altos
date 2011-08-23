@@ -178,8 +178,8 @@ public class AltosGraphUI extends JFrame
         }
     }
 
-    public AltosGraphUI(AltosRecordIterable records) throws InterruptedException, IOException {
-		super("Altos Graph");
+	public AltosGraphUI(AltosRecordIterable records, String name) throws InterruptedException, IOException {
+		super(String.format("Altos Graph %s", name));
 
 		AltosDataPointReader reader = new AltosDataPointReader (records);
 		if (reader == null)

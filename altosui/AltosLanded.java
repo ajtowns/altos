@@ -240,7 +240,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 						throw new FileNotFoundException();
 					}
 					try {
-						new AltosGraphUI(records);
+						new AltosGraphUI(records, filename);
 					} catch (InterruptedException ie) {
 					} catch (IOException ie) {
 					}
