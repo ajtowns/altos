@@ -794,8 +794,8 @@ get_number(io_object_t object, CFStringRef entry, int *result)
 	return 0;
 }
 
-struct altos_list *
-altos_list_start(int time)
+PUBLIC struct altos_list *
+altos_list_start(void)
 {
 	struct altos_list *list = calloc (sizeof (struct altos_list), 1);
 	CFMutableDictionaryRef matching_dictionary = IOServiceMatching("IOUSBDevice");
@@ -810,7 +810,7 @@ altos_list_start(int time)
 	return list;
 }
 
-int
+PUBLIC int
 altos_list_next(struct altos_list *list, struct altos_device *device)
 {
 	io_object_t object;
@@ -837,7 +837,7 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 	}
 }
 
-void
+PUBLIC void
 altos_list_finish(struct altos_list *list)
 {
 	IOObjectRelease (list->iterator);
