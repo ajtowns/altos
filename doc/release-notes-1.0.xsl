@@ -26,6 +26,13 @@
 	the antenna to point aft, to aid installation in some airframes.
       </listitem>
       <listitem>
+	Ability to disable telemetry. For airframes where an antenna
+	just isn't possible, or where radio transmissions might cause
+	trouble with other electronics, there's a configuration option
+	to disable all telemetry. Note that the board will still
+	enable packet mode in idle mode.
+      </listitem>
+      <listitem>
 	Arbitrary frequency selection. The radios in Altus Metrum
 	devices can be programmed to a wide range of frequencies, so
 	instead of limiting devices to 10 pre-selected 'channels', the
