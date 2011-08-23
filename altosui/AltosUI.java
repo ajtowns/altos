@@ -369,6 +369,7 @@ public class AltosUI extends JFrame {
 	static final int process_kml = 2;
 	static final int process_graph = 3;
 	static final int process_replay = 4;
+	static final int process_summary = 5;
 
 	static void process_csv(String input) {
 		AltosRecordIterable iterable = open_logfile(input);
@@ -406,13 +407,13 @@ public class AltosUI extends JFrame {
 		}
 	}
 
-	static void process_replay(String filename) {
+	static AltosRecordIterable record_iterable_file(String filename) {
 		FileInputStream in;
 		try {
 			in = new FileInputStream(filename);
 		} catch (Exception e) {
 			System.out.printf("Failed to open file '%s'\n", filename);
-			return;
+			return null;
 		}
 		AltosRecordIterable recs;
 		AltosReplayReader reader;
@@ -421,32 +422,74 @@ public class AltosUI extends JFrame {
 		} else {
 			recs = new AltosTelemetryIterable(in);
 		}
-		reader = new AltosReplayReader(recs.iterator(), new File(filename));
+		return recs;
+	}
+
+	static AltosReplayReader replay_file(String filename) {
+		AltosRecordIterable recs = record_iterable_file(filename);
+		if (recs == null)
+			return null;
+		return new AltosReplayReader(recs.iterator(), new File(filename));
+	}
+
+	static void process_replay(String filename) {
+		AltosReplayReader reader = replay_file(filename);
 		AltosFlightUI flight_ui = new AltosFlightUI(new AltosVoice(), reader);
 		flight_ui.set_exit_on_close();
 	}
 
 	static void process_graph(String filename) {
-		FileInputStream in;
-		try {
-			in = new FileInputStream(filename);
-		} catch (Exception e) {
-			System.out.printf("Failed to open file '%s'\n", filename);
+		AltosRecordIterable recs = record_iterable_file(filename);
+		if (recs == null)
 			return;
-		}
-		AltosRecordIterable recs;
-		if (filename.endsWith("eeprom")) {
-			recs = new AltosEepromIterable(in);
-		} else {
-			recs = new AltosTelemetryIterable(in);
-		}
 		try {
-			new AltosGraphUI(recs);
+			new AltosGraphUI(recs, filename);
 		} catch (InterruptedException ie) {
 		} catch (IOException ie) {
 		}
 	}
 	
+	static void process_summary(String filename) {
+		AltosReplayReader reader = replay_file(filename);
+		try {
+			AltosFlightStats stats = new AltosFlightStats(reader);
+			if (stats.serial > 0)
+				System.out.printf("Serial:       %5d\n", stats.serial);
+			if (stats.flight > 0)
+				System.out.printf("Flight:       %5d\n", stats.flight);
+			if (stats.year > 0)
+				System.out.printf("Date:    %04d-%02d-%02d\n",
+						  stats.year, stats.month, stats.day);
+			if (stats.hour > 0)
+				System.out.printf("Time:      %02d:%02d:%02d UTC\n",
+						  stats.hour, stats.minute, stats.second);
+			System.out.printf("Max height:  %6.0f m    %6.0f ft\n",
+					  stats.max_height,
+					  AltosConvert.meters_to_feet(stats.max_height));
+			System.out.printf("Max speed:   %6.0f m/s  %6.0f ft/s  %6.4f Mach\n",
+					  stats.max_speed,
+					  AltosConvert.meters_to_feet(stats.max_speed),
+					  AltosConvert.meters_to_mach(stats.max_speed));
+			if (stats.max_acceleration != AltosRecord.MISSING) {
+				System.out.printf("Max accel:   %6.0f m/s² %6.0f ft/s² %6.2f g\n",
+						  stats.max_acceleration,
+						  AltosConvert.meters_to_feet(stats.max_acceleration),
+						  AltosConvert.meters_to_g(stats.max_acceleration));
+			}
+			System.out.printf("Drogue rate: %6.0f m/s  %6.0f ft/s\n",
+					  stats.state_baro_speed[Altos.ao_flight_drogue],
+					  AltosConvert.meters_to_feet(stats.state_baro_speed[Altos.ao_flight_drogue]));
+			System.out.printf("Main rate:   %6.0f m/s  %6.0f ft/s\n",
+					  stats.state_baro_speed[Altos.ao_flight_main],
+					  AltosConvert.meters_to_feet(stats.state_baro_speed[Altos.ao_flight_main]));
+			System.out.printf("Flight time: %6.0f s\n",
+					  stats.state_end[Altos.ao_flight_main] -
+					  stats.state_start[Altos.ao_flight_boost]);
+		} catch (InterruptedException ie) {
+		} catch (IOException ie) {
+		}
+	}
+
 	public static void help(int code) {
 		System.out.printf("Usage: altosui [OPTION]... [FILE]...\n");
 		System.out.printf("  Options:\n");
@@ -489,6 +532,8 @@ public class AltosUI extends JFrame {
 					process = process_csv;
 				else if (args[i].equals("--graph"))
 					process = process_graph;
+				else if (args[i].equals("--summary"))
+					process = process_summary;
 				else if (args[i].startsWith("--"))
 					help(1);
 				else {
@@ -505,6 +550,9 @@ public class AltosUI extends JFrame {
 						break;
 					case process_csv:
 						process_csv(args[i]);
+						break;
+					case process_summary:
+						process_summary(args[i]);
 						break;
 					}
 				}
