@@ -70,29 +70,37 @@ public class AltosFlightStatsTable extends JComponent {
 
 		setLayout(layout);
 		int y = 0;
+		new FlightStat(layout, y++, "Serial", String.format("%d", stats.serial));
+		new FlightStat(layout, y++, "Flight", String.format("%d", stats.flight));
+		if (stats.year > 0)
+			new FlightStat(layout, y++, "Date",
+				       String.format("%04d-%02d-%02d", stats.year, stats.month, stats.day));
+		if (stats.hour > 0)
+			new FlightStat(layout, y++, "Time",
+				       String.format("%02d:%02d:%02d UTC", stats.hour, stats.minute, stats.second));
 		new FlightStat(layout, y++, "Maximum height",
 			       String.format("%5.0f m", stats.max_height),
-			       String.format("%5.0f ft", stats.max_height * 100 / 2.54 / 12));
+			       String.format("%5.0f ft", AltosConvert.meters_to_feet(stats.max_height)));
 		new FlightStat(layout, y++, "Maximum speed",
 			       String.format("%5.0f m/s", stats.max_speed),
-			       String.format("%5.0f ft/s", stats.max_speed * 100 / 2.54 / 12),
-			       String.format("Mach %5.3f", stats.max_speed / 343.0));
+			       String.format("%5.0f ft/s", AltosConvert.meters_to_feet(stats.max_speed)),
+			       String.format("Mach %5.3f", AltosConvert.meters_to_mach(stats.max_speed)));
 		if (stats.max_acceleration != AltosRecord.MISSING) {
 			new FlightStat(layout, y++, "Maximum acceleration",
 				       String.format("%5.0f m/s²", stats.max_acceleration),
-				       String.format("%5.0f ft/s²", stats.max_acceleration * 100 / 2.54 /12),
-				       String.format("%5.2f G", stats.max_acceleration / 9.80665));
+				       String.format("%5.0f ft/s²", AltosConvert.meters_to_feet(stats.max_acceleration)),
+				       String.format("%5.2f G", AltosConvert.meters_to_g(stats.max_acceleration)));
 			new FlightStat(layout, y++, "Average boost acceleration",
 				       String.format("%5.0f m/s²", stats.state_accel[Altos.ao_flight_boost]),
-				       String.format("%5.0f ft/s²", stats.state_accel[Altos.ao_flight_boost] * 100 / 2.54 /12),
-				       String.format("%5.2f G", stats.state_accel[Altos.ao_flight_boost] / 9.80665));
+				       String.format("%5.0f ft/s²", AltosConvert.meters_to_feet(stats.state_accel[Altos.ao_flight_boost])),
+				       String.format("%5.2f G", AltosConvert.meters_to_g(stats.state_accel[Altos.ao_flight_boost])));
 		}
 		new FlightStat(layout, y++, "Drogue descent rate",
 			       String.format("%5.0f m/s", stats.state_baro_speed[Altos.ao_flight_drogue]),
-			       String.format("%5.0f ft/s", stats.state_baro_speed[Altos.ao_flight_drogue] * 100 / 2.54 / 12));
+			       String.format("%5.0f ft/s", AltosConvert.meters_to_feet(stats.state_baro_speed[Altos.ao_flight_drogue])));
 		new FlightStat(layout, y++, "Main descent rate",
 			       String.format("%5.0f m/s", stats.state_baro_speed[Altos.ao_flight_main]),
-			       String.format("%5.0f ft/s", stats.state_baro_speed[Altos.ao_flight_main] * 100 / 2.54 / 12));
+			       String.format("%5.0f ft/s", AltosConvert.meters_to_feet(stats.state_baro_speed[Altos.ao_flight_main])));
 		for (int s = Altos.ao_flight_boost; s <= Altos.ao_flight_main; s++) {
 			new FlightStat(layout, y++, String.format("%s time", Altos.state_to_string_capital[s]),
 				       String.format("%6.2f s", stats.state_end[s] - stats.state_start[s]));
