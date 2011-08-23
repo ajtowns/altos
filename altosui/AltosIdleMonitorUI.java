@@ -193,7 +193,7 @@ class AltosIdleMonitor extends Thread {
 		record.version = 0;
 		record.callsign = config_data.callsign;
 		record.serial = config_data.serial;
-		record.flight = 0;
+		record.flight = config_data.log_available() > 0 ? 255 : 0;
 		record.rssi = 0;
 		record.status = 0;
 		record.state = Altos.ao_flight_idle;

@@ -54,6 +54,7 @@ public class AltosConfigData implements Iterable<String> {
 	int	radio_calibration;
 	int	flight_log_max;
 	int	ignite_mode;
+	int	stored_flight;
 	int	storage_size;
 	int	storage_erase_unit;
 
@@ -84,10 +85,29 @@ public class AltosConfigData implements Iterable<String> {
 		return lines.iterator();
 	}
 
+	public int log_available() {
+		switch (log_format) {
+		case Altos.AO_LOG_FORMAT_TINY:
+			if (stored_flight == 0)
+				return 1;
+			return 0;
+		default:
+			if (flight_log_max <= 0)
+				return 1;
+			int	log_space = storage_size - storage_erase_unit;
+			int	log_used = stored_flight * flight_log_max;
+
+			if (log_used >= log_space)
+				return 0;
+			return (log_space - log_used) / flight_log_max;
+		}
+	}
+
 	public AltosConfigData(AltosSerial serial_line) throws InterruptedException, TimeoutException {
-		serial_line.printf("c s\nf\nv\n");
+		serial_line.printf("c s\nf\nl\nv\n");
 		lines = new LinkedList<String>();
 		radio_setting = 0;
+		stored_flight = 0;
 		for (;;) {
 			String line = serial_line.get_reply();
 			if (line == null)
@@ -117,6 +137,7 @@ public class AltosConfigData implements Iterable<String> {
 			try { version = get_string(line,"software-version"); } catch (Exception e) {}
 			try { product = get_string(line,"product"); } catch (Exception e) {}
 
+			try { get_int(line, "flight"); stored_flight++; }  catch (Exception e) {}
 			try { storage_size = get_int(line, "Storage size:"); } catch (Exception e) {}
 			try { storage_erase_unit = get_int(line, "Storage erase unit"); } catch (Exception e) {}
 
