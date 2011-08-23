@@ -234,6 +234,18 @@ public class AltosConvert {
 		return array;
 	}
 
+	static double meters_to_feet(double meters) {
+		return meters * (100 / (2.54 * 12));
+	}
+
+	static double meters_to_mach(double meters) {
+		return meters / 343;		/* something close to mach at usual rocket sites */
+	}
+
+	static double meters_to_g(double meters) {
+		return meters / 9.80665;
+	}
+
 	static int checksum(int[] data, int start, int length) {
 		int	csum = 0x5a;
 		for (int i = 0; i < length; i++)
