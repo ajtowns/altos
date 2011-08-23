@@ -174,7 +174,7 @@ public class AltosConfig implements ActionListener {
 			abort();
 			return;
 		}
-		if (line.equals("done")) {
+		if (line.equals("all finished")) {
 			if (serial_line != null)
 				update_ui();
 			return;
@@ -244,7 +244,7 @@ public class AltosConfig implements ActionListener {
 				} catch (InterruptedException ie) {
 				}
 			}
-			callback("done");
+			callback("all finished");
 		}
 
 		void save_data() {
