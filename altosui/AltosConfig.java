@@ -85,6 +85,7 @@ public class AltosConfig implements ActionListener {
 	string_ref	callsign;
 	AltosConfigUI	config_ui;
 	boolean		serial_started;
+	boolean		made_visible;
 
 	boolean get_int(String line, String label, int_ref x) {
 		if (line.startsWith(label)) {
@@ -166,7 +167,10 @@ public class AltosConfig implements ActionListener {
 		config_ui.set_pad_orientation(pad_orientation.get());
 		config_ui.set_callsign(callsign.get());
 		config_ui.set_clean();
-		config_ui.make_visible();
+		if (!made_visible) {
+			made_visible = true;
+			config_ui.make_visible();
+		}
 	}
 
 	void process_line(String line) {
