@@ -38,6 +38,10 @@ public class AltosFlightStats {
 	int[]		state_count = new int[Altos.ao_flight_invalid + 1];
 	double[]	state_start = new double[Altos.ao_flight_invalid + 1];
 	double[]	state_end = new double[Altos.ao_flight_invalid + 1];
+	int		serial;
+	int		flight;
+	int		year, month, day;
+	int		hour, minute, second;
 
 	public AltosFlightStats(AltosFlightReader reader) throws InterruptedException, IOException {
 		AltosState	state = null;
@@ -45,19 +49,37 @@ public class AltosFlightStats {
 		double		boost_time = -1;
 		double		start_time;
 
+		year = month = day = -1;
+		hour = minute = second = -1;
+		serial = flight = -1;
 		for (;;) {
 			try {
 				AltosRecord	record = reader.read();
 				if (record == null)
 					break;
+				if (serial < 0)
+					serial = record.serial;
+				if ((record.seen & AltosRecord.seen_flight) != 0 && flight < 0)
+					flight = record.flight;
 				new_state = new AltosState(record, state);
 				if (state == null) {
 					start_time = new_state.time;
 				}
 				state = new_state;
 				if (0 <= state.state && state.state < Altos.ao_flight_invalid) {
-					if (boost_time == -1 && state.state >= Altos.ao_flight_boost)
-						boost_time = state.time;
+					if (state.state >= Altos.ao_flight_boost) {
+						if (boost_time == -1)
+							boost_time = state.time;
+						if (state.gps != null && state.gps.locked &&
+						    year < 0) {
+							year = state.gps.year;
+							month = state.gps.month;
+							day = state.gps.day;
+							hour = state.gps.hour;
+							minute = state.gps.minute;
+							second = state.gps.second;
+						}
+					}
 					state_accel[state.state] += state.acceleration;
 					state_speed[state.state] += state.speed;
 					state_baro_speed[state.state] += state.baro_speed;
