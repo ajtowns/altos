@@ -123,50 +123,56 @@ public class AltosUI extends JFrame {
 						ConnectToDevice();
 					}
 				});
+		b.setToolTipText("Connect to TeleDongle and monitor telemetry");
 		b = addButton(1, 0, "Save Flight Data");
 		b.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						SaveFlightData();
 					}
 				});
+		b.setToolTipText("Download and/or delete flight data from an altimeter");
 		b = addButton(2, 0, "Replay Flight");
 		b.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						Replay();
 					}
 				});
+		b.setToolTipText("Watch an old flight in real-time");
 		b = addButton(3, 0, "Graph Data");
 		b.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						GraphData();
 					}
 				});
+		b.setToolTipText("Present flight data in a graph and table of statistics");
 		b = addButton(4, 0, "Export Data");
 		b.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						ExportData();
 					}
 				});
+		b.setToolTipText("Convert flight data for a spreadsheet or GoogleEarth");
 		b = addButton(0, 1, "Configure Altimeter");
 		b.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						ConfigureTeleMetrum();
 					}
 				});
-
+		b.setToolTipText("Set flight, storage and communication parameters");
 		b = addButton(1, 1, "Configure AltosUI");
 		b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					ConfigureAltosUI();
 				}
 			});
-
+		b.setToolTipText("Global AltosUI settings");
 		b = addButton(2, 1, "Flash Image");
 		b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					FlashImage();
 				}
 			});
+		b.setToolTipText("Replace the firmware in any AltusMetrum product");
 
 		b = addButton(3, 1, "Fire Igniter");
 		b.addActionListener(new ActionListener() {
@@ -174,35 +180,35 @@ public class AltosUI extends JFrame {
 					FireIgniter();
 				}
 			});
-
+		b.setToolTipText("Remote control of igniters for deployment testing");
 		b = addButton(4, 1, "Quit");
 		b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					System.exit(0);
 				}
 			});
-
-
+		b.setToolTipText("Close all active windows and terminate AltosUI");
 		b = addButton(0, 2, "Scan Channels");
 		b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					ScanChannels();
 				}
 			});
-
+		b.setToolTipText("Find what channel an altimeter is sending telemetry on");
 		b = addButton(1, 2, "Load Maps");
 		b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					LoadMaps();
 				}
 			});
-
+		b.setToolTipText("Download satellite images for off-line flight monitoring");
 		b = addButton(2, 2, "Monitor Idle");
 		b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					IdleMonitor();
 				}
 			});
+		b.setToolTipText("Check flight readiness of altimeter in idle mode");
 
 		setTitle("AltOS");
 
