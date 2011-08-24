@@ -1,3 +1,15 @@
+commit 99316a17a9642a207c45610e7cc1c33c2600ece0
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 23 21:33:53 2011 -0600
+
+    rewind changelog to 0.9.6.0 for rebuild
+
+commit 192881b7cae49af375cc2b8b7305c937079ee724
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 23 20:11:01 2011 -0600
+
+    update changelogs for Debian build
+
 commit fc7e46b1215ea2b4cc138ed77d8eaa122369b15f
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Tue Aug 23 20:10:14 2011 -0600
