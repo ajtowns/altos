@@ -36,7 +36,7 @@ public class AltosTelemetryRecordCompanion extends AltosTelemetryRecordRaw {
 		companion.tick		= tick;
 		companion.board_id      = uint8(5);
 		companion.update_period = uint8(6+off);
-		for (int i = 0; i < channels; i++)
+		for (int i = 0; i < companion.companion_data.length; i++)
 			companion.companion_data[i] = uint16(8 + off + i * 2);
 	}
 
