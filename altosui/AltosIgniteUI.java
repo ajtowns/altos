@@ -341,8 +341,8 @@ public class AltosIgniteUI
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
 		c.insets = i;
-		c.weightx = 1;
-		c.weighty = 1;
+		c.weightx = 0;
+		c.weighty = 0;
 
 		c.gridx = 0;
 		c.gridy = 0;
@@ -412,7 +412,6 @@ public class AltosIgniteUI
 		close.addActionListener(this);
 		close.setActionCommand("close");
 			
-
 		pack();
 		setLocationRelativeTo(owner);
 

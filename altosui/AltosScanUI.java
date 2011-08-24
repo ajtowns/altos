@@ -386,7 +386,7 @@ public class AltosScanUI
 		
 		set_label();
 
-		c.fill = GridBagConstraints.NONE;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = i;
 		c.weightx = 1;
