@@ -172,7 +172,10 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 			});
 			c.gridx = 0;
 			c.gridy = 0;
+			c.weightx = 0;
+			c.weighty = 0;
 			c.insets = new Insets(3, 3, 3, 3);
+			c.fill = GridBagConstraints.NONE;
 			c.anchor = GridBagConstraints.WEST;
 			bag.add (frequencies, c);
 
@@ -186,6 +189,8 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 				telemetry = Altos.ao_telemetry_standard;
 			telemetries.setSelectedIndex(telemetry - 1);
 			telemetries.setMaximumRowCount(Altos.ao_telemetry_max);
+			telemetries.setPreferredSize(null);
+			telemetries.revalidate();
 			telemetries.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						int telemetry = telemetries.getSelectedIndex() + 1;
@@ -195,6 +200,8 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 				});
 			c.gridx = 1;
 			c.gridy = 0;
+			c.weightx = 0;
+			c.weighty = 0;
 			c.fill = GridBagConstraints.NONE;
 			c.anchor = GridBagConstraints.WEST;
 			bag.add (telemetries, c);

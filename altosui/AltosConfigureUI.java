@@ -125,6 +125,7 @@ public class AltosConfigureUI
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(enable_voice, c);
+		enable_voice.setToolTipText("Enable/Disable all audio in-flight announcements");
 
 		c.gridx = 2;
 		c.gridy = 2;
@@ -139,6 +140,7 @@ public class AltosConfigureUI
 				}
 			});
 		pane.add(test_voice, c);
+		test_voice.setToolTipText("Play a stock audio clip to check volume");
 
 		/* Log directory settings */
 		c.gridx = 0;
@@ -161,6 +163,7 @@ public class AltosConfigureUI
 		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(configure_log, c);
+		configure_log.setToolTipText("Which directory flight logs are stored in");
 
 		/* Callsign setting */
 		c.gridx = 0;
@@ -178,6 +181,7 @@ public class AltosConfigureUI
 		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(callsign_value, c);
+		callsign_value.setToolTipText("Callsign sent in packet mode");
 
 		/* Serial debug setting */
 		c.gridx = 0;
@@ -195,6 +199,7 @@ public class AltosConfigureUI
 					AltosPreferences.set_serial_debug(enabled);
 				}
 			});
+		serial_debug.setToolTipText("Enable/Disable USB I/O getting sent to the console");
 
 		c.gridx = 1;
 		c.gridy = 5;
@@ -223,6 +228,7 @@ public class AltosConfigureUI
 					AltosConfigFreqUI.show(owner);
 				}
 			});
+		manage_frequencies.setToolTipText("Configure which values are shown in frequency menus");
 // BLUETOOTH
 //		c.gridx = 2;
 		c.gridx = 1;

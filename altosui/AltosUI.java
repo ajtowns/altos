@@ -508,6 +508,10 @@ public class AltosUI extends JFrame {
 	}
 	
 	public static void main(final String[] args) {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+		}
 		/* Handle batch-mode */
 		if (args.length == 0) {
 			AltosUI altosui = new AltosUI();

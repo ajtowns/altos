@@ -95,20 +95,6 @@ if test "x$GCC" = "xyes"; then
 fi
 AC_SUBST(WARN_CFLAGS)
 
-AC_CHECK_HEADERS(flite/flite.h,HAVE_FLITE_H=yes,HAVE_FLITE_H=no)
-AC_CHECK_LIB(flite, flite_init,HAVE_LIBFLITE=yes,HAVE_LIBFLITE=no,-lasound -lm)
-
-if test "x$HAVE_FLITE_H" = "xyes" -a "x$HAVE_LIBFLITE" = "xyes"; then
-	AC_DEFINE(HAVE_FLITE,1,[Define if the flite library is usable])
-	AC_SUBST(FLITE_LIBS,"-lflite_cmu_us_kal16 -lflite_usenglish -lflite_cmulex -lflite -lasound -lm")
-	AC_SUBST(FLITE_INCS,-Iflite)
-	save_LIBS="$LIBS"
-	LIBS="$LIBS $FLITE_LIBS"
-	AC_CHECK_FUNCS([register_cmu_us_kal16 register_cmu_us_kal],break)
-	LIBS="$save_LIBS"
-fi
-AM_CONDITIONAL(USE_FLITE,test "x$HAVE_FLITE_H" = "xyes" -a "x$HAVE_LIBFLITE" = "xyes")
-
 AC_CHECK_PROG([HAVE_SDCC], [sdcc], yes, no)
 if test "x$HAVE_SDCC" = "xno"; then
 	AC_MSG_ERROR([Please install sdcc to build AltOs])
@@ -121,15 +107,7 @@ fi
 
 AC_CHECK_LIB(readline, readline)
 
-PKG_CHECK_MODULES([GNOME], [gtk+-2.0 libglade-2.0 gconf-2.0])
-
 PKG_CHECK_MODULES([LIBUSB], [libusb-1.0])
-
-PKG_CHECK_MODULES([ALSA], [alsa])
-
-PKG_CHECK_MODULES([PLPLOT], [plplotd])
-
-PKG_CHECK_MODULES([SNDFILE], [sndfile])
 
 AC_OUTPUT([
 Makefile
@@ -140,13 +118,10 @@ ao-tools/Makefile
 ao-tools/lib/Makefile
 ao-tools/ao-rawload/Makefile
 ao-tools/ao-dbg/Makefile
-ao-tools/ao-dumplog/Makefile
 ao-tools/ao-bitbang/Makefile
 ao-tools/ao-eeprom/Makefile
 ao-tools/ao-list/Makefile
 ao-tools/ao-load/Makefile
-ao-tools/ao-postflight/Makefile
-ao-tools/ao-view/Makefile
 ao-utils/Makefile
 src/Version
 ])
