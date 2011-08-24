@@ -3,7 +3,7 @@ Section: otherosfs
 Priority: extra
 Maintainer: Bdale Garbee <bdale@gag.com>
 Uploaders: Keith Packard <keithp@keithp.com>
-Build-Depends: debhelper (>= 7), autoconf, automake, gawk, libreadline-dev, libusb-1.0-0-dev, nickle, sdcc, xsltproc, fop, docbook-xml, docbook-xsl, swig, openjdk-6-jdk, freetts, libtool, libjfreechart-java, libbluetooth-dev
+Build-Depends: debhelper (>= 7), autoconf, automake, gawk, libreadline-dev, libusb-1.0-0-dev, nickle, sdcc, xsltproc, fop, docbook-xml, docbook-xsl, swig, openjdk-6-jdk, freetts, libtool, libjfreechart-java, libbluetooth-dev, pkg-config
 Standards-Version: 3.9.2
 Homepage: http://altusmetrum.org/AltOS
 
