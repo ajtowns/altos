@@ -1,3 +1,269 @@
+commit fc7e46b1215ea2b4cc138ed77d8eaa122369b15f
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 23 20:10:14 2011 -0600
+
+    turn off auto-tagging during Debian build
+
+commit 998adccc1c4f8f6c44833bbf4a52d9441748b996
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 23 18:56:07 2011 -0700
+
+    altosui: add tool-tips to the button box.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 754b9591574c12ddd6e4ab590c6a5f3806b80213
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 23 13:29:23 2011 -0700
+
+    libaltos: fix Mac OS X function signatures
+    
+    altos_list_start was declared to take a (int time) parameter for some reason.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fa6df3fa21e8f09e70371e6c6cc7827a533b4fe6
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 22 23:35:28 2011 -0700
+
+    altosui: Update mac os X library
+    
+    This has been tested on 32-bit OS X and it works; dunno about
+    64-bit.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 955989147f90a4fd22c1375d1b41425dae4e7dd1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 22 23:34:55 2011 -0700
+
+    altosui: Reset all config data on 'reset' command
+    
+    This lets you switch altimeters without getting any stale data.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d249da3fb064754753bd20cd2ca1e5ffcce294ca
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 22 23:33:52 2011 -0700
+
+    altosui: Only 'show' config dialog once
+    
+    Otherwise, the dialog jumps back to the initial position each time the
+    data is updated.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e9254c3472e42d93181674b2c3cd80fe6eea696e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 22 23:32:36 2011 -0700
+
+    altosui: fix 'magic' string to signal end of config data
+    
+    Was using "done", which happens to be displayed by the 'l'
+    command. Switch to 'all finished' which doesn't appear in the config
+    data output. Yes, this method is a kludge.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4aebe65b089e4b825a5ae238b81e2181bd88175a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 22 23:31:54 2011 -0700
+
+    altosui: Can't configure flight log max on TeleMini
+    
+    It's only got space for one flight.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3a84e8e0cc86481c301f4335843a0e1a94bad5c0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 22 23:12:30 2011 -0700
+
+    altosui: Make monitor-idle display correct 'On-board data logging' status
+    
+    Count number of stored flights and see if there's space for another
+    one.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit afe6aba9cb91e93234ffee2a22eee40f848ddedd
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 22 18:25:34 2011 -0700
+
+    altosui: Add --summary option to dump flight stats to stdout
+    
+    useful for quickly capturing sense of a flight.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4e2fd7ae76c23aa8da1390ebcbd8f45276cd7a32
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 22 18:24:54 2011 -0700
+
+    altosui: Show filename in AltosGraph window
+    
+    Makes it easier to tell multiple windows apart
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f4ea46dc205454411c224ada7805f813989efd4a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 22 18:23:41 2011 -0700
+
+    altosui: Add date/time/serial/flight to flight stats tab
+    
+    And switch to using the AltosConvert units conversions functions.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b4c71ba56c471720c72853057d0a527825a78fa0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 22 18:22:21 2011 -0700
+
+    altosui: Capture date/time/serial/flight in AltosFlightStats
+    
+    Time is the time when boost was detected.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5ef731bd87c6d2a71a4edcc69a218eaf1aa7c465
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 22 18:21:35 2011 -0700
+
+    altosui: Add a few simple unit conversions
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b83d8eca433ed5796835f6a09271f50c7f27cc81
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 22 17:18:02 2011 -0700
+
+    doc: Add Installation Recommendations chapter
+    
+    Document installation suggestions, including mounting, RFI, antenna
+    issues and ground testing.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a0f62b8569c5535a2598cfb6ab52db79f0a52f92
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Aug 22 17:17:43 2011 -0700
+
+    doc: Add note about telemetry disable mode to 1.0 release notes
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 393d231b9689cd1c358600ee76e0e808f89670c8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 21 22:52:45 2011 -0700
+
+    altosui: Attempt to make both 32- and 64-bit windows DLLs
+    
+    We'll see if they work...
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d5bd40847b17c32405dfba864a2a5a3b19aa7e85
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 21 22:12:53 2011 -0700
+
+    altosui/windows: Fix a bunch of windows compiler warnings.
+    
+    Some of these may have actually been serious -- a write length was
+    getting stored in a signed char...
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2353d83be15b398754c2564f95374c6ea0f8de92
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 21 22:12:04 2011 -0700
+
+    altos-fat/windows: Check and install Java 1.6 as needed
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a08826292ebd802a1ff2effccac3b96fd061c47d
+Merge: 3366cfe 55be3db
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Mon Aug 22 16:08:55 2011 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 55be3db2e31fe97e7f351e3c490b8bc4cf7192b2
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 21 19:18:54 2011 -0700
+
+    altosui: Clean up command line processing. Add --graph
+    
+    Make the command line processing a bit less ad-hoc, track 'mode' of
+    processing and deal with all files on the command line.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6823ad5e48fc0a19791d96f886b5689f88c4311b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 18 18:02:02 2011 -0700
+
+    altos/altosui: Add ability to disable telemetry/rdf completely
+    
+    This turns off the telemetry system so that it never transmits telemetry
+    or RDF tones. In idle mode, it will still accept packet mode connections.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit a08e7ac8bd3840b699c9a1ffc6b1e115b2b84bad
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 20 11:35:55 2011 -0700
+
+    Bump version to 0.9.7
+    
+    Bdale is flying 0.9.6 at chili blaster, make sure later firmware gets
+    a later version number.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f2b0900f8b83fcb3085f3d042ffd961ffd758d5d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 20 11:28:53 2011 -0700
+
+    altos: Merge common config code in ao_config.c
+    
+    This shuffles code around in ao_config.c to share some common code
+    segments for starting and committing config changes.
+    
+    This also stops printing out changes as they are made which aren't
+    needed by the UI code.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 67f28c58db0deca8f8050d33e97ad96017f4baaa
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 20 11:19:57 2011 -0700
+
+    altosui: Disable 'max flight log' config when there are stored flights
+    
+    When flights are stored in flash, the maximum flight log value cannot
+    be changed as the flight data might need to be moved around in
+    memory. Check for this case by looking for stored flights and
+    disabling the combo box when storage is not empty.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit fcff63baf8fde1174571a2c7c860099e19dbf629
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Aug 20 10:43:28 2011 -0700
+
+    altosui: remove debug printf in pad pane
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3366cfe6145f64cdb04654854d5390c671a288e3
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Sat Aug 20 09:28:04 2011 -0600
+
+    update changelogs for Debian build
+
 commit 787e4305a05e344c018abb872f788749203690d7
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Sat Aug 20 09:24:29 2011 -0600
@@ -9,6 +275,45 @@ Author: Bdale Garbee <bdale@gag.com>
 Date:   Fri Aug 19 22:47:50 2011 -0600
 
     update changelogs for Debian build
+
+commit 048b3eb45169e572f33c68ff152b89db9ef97d31
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 14 21:11:41 2011 -0700
+
+    altosui: Add 'On-board Data Logging' indicator to pad tab
+    
+    This shows whether the on-board data memory is full, or is ready to
+    record the flight. This is indicated in the telemetry stream by a
+    flight number of '0'.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit adb7d345963ab9981c49c7cc68c6b4d7156dce46
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 14 21:09:42 2011 -0700
+
+    altosui: Ancient log files used 'apogee' for 'coast' state
+    
+    2009-07-18-serial-004-flight-000 says 'apogee' for the apogee-detect
+    phase of the flight; map this to coast so that this flight replays
+    correctly (although the log terminates at apogee...)
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4f64d66295a8f76680af8cfda4650aa4c4f8576d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Aug 14 19:19:50 2011 -0700
+
+    altos: Lost change that reported flight 0 when log memory was full
+    
+    commit 52ac83fedbfd380d14d4df2e79992bbdfba3552a added coded to check
+    for a full flight log and complain with a special tone.
+    
+    It also reported flight 0 over telemetry, and that part of the patch
+    got lost when moving to the new telemetry format. This patch
+    resurrects that piece.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
 
 commit ef7f60df841f1eb22b9cec0d7f68cf2c003d6b30
 Author: Keith Packard <keithp@keithp.com>
