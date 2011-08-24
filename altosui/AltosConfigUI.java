@@ -116,6 +116,63 @@ public class AltosConfigUI
 		}
 	}
 
+	boolean is_telemini() {
+		String	product = product_value.getText();
+		return product != null && product.startsWith("TeleMini");
+	}
+
+	boolean is_telemetrum() {
+		String	product = product_value.getText();
+		return product != null && product.startsWith("TeleMetrum");
+	}
+
+	void set_radio_calibration_tool_tip() {
+		if (radio_calibration_value.isEnabled())
+			radio_calibration_value.setToolTipText("Tune radio output to match desired frequency");
+		else
+			radio_calibration_value.setToolTipText("Cannot tune radio while connected over packet mode");
+	}
+
+	void set_radio_enable_tool_tip() {
+		if (radio_enable_value.isEnabled())
+			radio_enable_value.setToolTipText("Enable/Disable telemetry and RDF transmissions");
+		else
+			radio_enable_value.setToolTipText("Firmware version does not support disabling radio");
+	}
+
+	void set_flight_log_max_tool_tip() {
+		if (flight_log_max_value.isEnabled())
+			flight_log_max_value.setToolTipText("Size reserved for each flight log (in kB)");
+		else {
+			if (is_telemetrum())
+				flight_log_max_value.setToolTipText("Cannot set max value with flight logs in memory");
+			else if (is_telemini())
+				flight_log_max_value.setToolTipText("TeleMini stores only one flight");
+			else
+				flight_log_max_value.setToolTipText("Cannot set max flight log value");
+		}
+	}
+
+	void set_ignite_mode_tool_tip() {
+		if (ignite_mode_value.isEnabled())
+			ignite_mode_value.setToolTipText("Select when igniters will be fired");
+		else
+			ignite_mode_value.setToolTipText("Older firmware could not select ignite mode");
+	}
+
+	void set_pad_orientation_tool_tip() {
+		if (pad_orientation_value.isEnabled())
+			pad_orientation_value.setToolTipText("How will TeleMetrum be mounted in the airframe");
+		else {
+			if (is_telemetrum())
+				pad_orientation_value.setToolTipText("Older TeleMetrum firmware must fly antenna forward");
+			else if (is_telemini())
+				pad_orientation_value.setToolTipText("TeleMini doesn't care how it is mounted");
+			else
+				pad_orientation_value.setToolTipText("Can't select orientation");
+		}
+	}
+
 	/* Build the UI using a grid bag */
 	public AltosConfigUI(JFrame in_owner, boolean remote) {
 		super (in_owner, "Configure TeleMetrum", false);
@@ -216,6 +273,7 @@ public class AltosConfigUI
 		main_deploy_value.setEditable(true);
 		main_deploy_value.addItemListener(this);
 		pane.add(main_deploy_value, c);
+		main_deploy_value.setToolTipText("Height above pad altitude to fire main charge");
 
 		/* Apogee delay */
 		c = new GridBagConstraints();
@@ -240,6 +298,7 @@ public class AltosConfigUI
 		apogee_delay_value.setEditable(true);
 		apogee_delay_value.addItemListener(this);
 		pane.add(apogee_delay_value, c);
+		apogee_delay_value.setToolTipText("Delay after apogee before charge fires");
 
 		/* Frequency */
 		c = new GridBagConstraints();
@@ -263,6 +322,7 @@ public class AltosConfigUI
 		radio_frequency_value = new AltosFreqList();
 		radio_frequency_value.addItemListener(this);
 		pane.add(radio_frequency_value, c);
+		radio_frequency_value.setToolTipText("Telemetry, RDF and packet frequency");
 
 		/* Radio Calibration */
 		c = new GridBagConstraints();
@@ -288,6 +348,7 @@ public class AltosConfigUI
 		if (remote)
 			radio_calibration_value.setEnabled(false);
 		pane.add(radio_calibration_value, c);
+		set_radio_calibration_tool_tip();
 
 		/* Radio Enable */
 		c = new GridBagConstraints();
@@ -311,6 +372,7 @@ public class AltosConfigUI
 		radio_enable_value = new JRadioButton("Enabled");
 		radio_enable_value.addItemListener(this);
 		pane.add(radio_enable_value, c);
+		set_radio_enable_tool_tip();
 
 		/* Callsign */
 		c = new GridBagConstraints();
@@ -334,6 +396,7 @@ public class AltosConfigUI
 		callsign_value = new JTextField(AltosPreferences.callsign());
 		callsign_value.getDocument().addDocumentListener(this);
 		pane.add(callsign_value, c);
+		callsign_value.setToolTipText("Callsign reported in telemetry data");
 
 		/* Flight log max */
 		c = new GridBagConstraints();
@@ -358,6 +421,7 @@ public class AltosConfigUI
 		flight_log_max_value.setEditable(true);
 		flight_log_max_value.addItemListener(this);
 		pane.add(flight_log_max_value, c);
+		set_flight_log_max_tool_tip();
 
 		/* Ignite mode */
 		c = new GridBagConstraints();
@@ -382,6 +446,7 @@ public class AltosConfigUI
 		ignite_mode_value.setEditable(false);
 		ignite_mode_value.addItemListener(this);
 		pane.add(ignite_mode_value, c);
+		set_ignite_mode_tool_tip();
 
 		/* Pad orientation */
 		c = new GridBagConstraints();
@@ -406,6 +471,7 @@ public class AltosConfigUI
 		pad_orientation_value.setEditable(false);
 		pad_orientation_value.addItemListener(this);
 		pane.add(pad_orientation_value, c);
+		set_pad_orientation_tool_tip();
 
 		/* Buttons */
 		c = new GridBagConstraints();
@@ -521,6 +587,8 @@ public class AltosConfigUI
 	public void set_product(String product) {
 		radio_frequency_value.set_product(product);
 		product_value.setText(product);
+		set_pad_orientation_tool_tip();
+		set_flight_log_max_tool_tip();
 	}
 
 	public void set_version(String version) {
@@ -585,12 +653,14 @@ public class AltosConfigUI
 	}
 
 	public void set_radio_enable(int new_radio_enable) {
-		if (new_radio_enable >= 0)
+		if (new_radio_enable >= 0) {
 			radio_enable_value.setSelected(new_radio_enable > 0);
-		else {
+			radio_enable_value.setEnabled(true);
+		} else {
 			radio_enable_value.setSelected(true);
 			radio_enable_value.setEnabled(false);
 		}
+		set_radio_enable_tool_tip();
 	}
 
 	public int radio_enable() {
@@ -612,10 +682,12 @@ public class AltosConfigUI
 		if (new_flight_log_max == 0)
 			flight_log_max_value.setEnabled(false);
 		flight_log_max_value.setSelectedItem(Integer.toString(new_flight_log_max));
+		set_flight_log_max_tool_tip();
 	}
 
 	public void set_flight_log_max_enabled(boolean enable) {
 		flight_log_max_value.setEnabled(enable);
+		set_flight_log_max_tool_tip();
 	}
 
 	public int flight_log_max() {
@@ -642,6 +714,7 @@ public class AltosConfigUI
 			ignite_mode_value.setEnabled(true);
 		}
 		ignite_mode_value.setSelectedIndex(new_ignite_mode);
+		set_ignite_mode_tool_tip();
 	}
 
 	public int ignite_mode() {
@@ -660,6 +733,7 @@ public class AltosConfigUI
 			pad_orientation_value.setEnabled(true);
 		}
 		pad_orientation_value.setSelectedIndex(new_pad_orientation);
+		set_pad_orientation_tool_tip();
 	}
 
 	public int pad_orientation() {
