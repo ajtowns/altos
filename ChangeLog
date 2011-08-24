@@ -1,3 +1,21 @@
+commit 1d286dab223e6c44a25180f944ccb5ba8ed9d5f5
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 01:51:54 2011 -0600
+
+    prepare for another rebuild
+
+commit 82634eae16f9691a6c70a48d0858a399814631f2
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 01:50:56 2011 -0600
+
+    add pkg-config to the build deps
+
+commit cf2823cab40aa450375c108bae8ed6b051fbefe5
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 01:45:28 2011 -0600
+
+    update changelogs for Debian build
+
 commit bf6f00693c394f885d3378415dc7c8a1815a31ed
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed Aug 24 01:43:59 2011 -0600
