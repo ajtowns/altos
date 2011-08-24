@@ -1,39 +1,3 @@
-altos (0.9.6.0+32+gfc7e46b) unstable; urgency=low
-
-  [ Keith Packard ]
-  * altos: Lost change that reported flight 0 when log memory was full
-  * altosui: Ancient log files used 'apogee' for 'coast' state
-  * altosui: Add 'On-board Data Logging' indicator to pad tab
-  * altosui: remove debug printf in pad pane
-  * altosui: Disable 'max flight log' config when there are stored flights
-  * altos: Merge common config code in ao_config.c
-  * Bump version to 0.9.7
-  * altos/altosui: Add ability to disable telemetry/rdf completely
-  * altosui: Clean up command line processing. Add --graph
-  * altos-fat/windows: Check and install Java 1.6 as needed
-  * altosui/windows: Fix a bunch of windows compiler warnings.
-  * altosui: Attempt to make both 32- and 64-bit windows DLLs
-  * doc: Add note about telemetry disable mode to 1.0 release notes
-  * doc: Add Installation Recommendations chapter
-  * altosui: Add a few simple unit conversions
-  * altosui: Capture date/time/serial/flight in AltosFlightStats
-  * altosui: Add date/time/serial/flight to flight stats tab
-  * altosui: Show filename in AltosGraph window
-  * altosui: Add --summary option to dump flight stats to stdout
-  * altosui: Make monitor-idle display correct 'On-board data logging' status
-  * altosui: Can't configure flight log max on TeleMini
-  * altosui: fix 'magic' string to signal end of config data
-  * altosui: Only 'show' config dialog once
-  * altosui: Reset all config data on 'reset' command
-  * altosui: Update mac os X library
-  * libaltos: fix Mac OS X function signatures
-  * altosui: add tool-tips to the button box.
-
-  [ Bdale Garbee ]
-  * turn off auto-tagging during Debian build
-
- -- Bdale Garbee <bdale@gag.com>  Tue, 23 Aug 2011 20:10:38 -0600
-
 altos (0.9.6.0) unstable; urgency=low
 
   [ Keith Packard ]
