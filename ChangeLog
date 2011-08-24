@@ -1,3 +1,70 @@
+commit bf6f00693c394f885d3378415dc7c8a1815a31ed
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 01:43:59 2011 -0600
+
+    roll changelog back in prep for another test build
+
+commit 06aee245eb74e839e50226fa2ddb967c3977fe7c
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 01:41:53 2011 -0600
+
+    another test round
+
+commit 4d94e8f9f807a0bbeab0cdead011e74eeca1d1b6
+Merge: 4b5369d 3b0a9a1
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 01:38:58 2011 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 3b0a9a1c87390747492bfef435ac8e0829ec748f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 24 00:29:36 2011 -0700
+
+    altosui: Try to get dialogs to look a little better
+    
+    grid bag constraints are not my friend.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2165e82327faaada23f0503b8e49b80f938b746c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 24 00:09:51 2011 -0700
+
+    altosui: Add tool-tips to config dialogs
+    
+    Provides more information about the various settings, and, when
+    they're disabled, tells the user why.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 63808e0392f43633f92fee137d968e969dd364c9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 23 23:20:00 2011 -0700
+
+    Remove stale tools (ao-dumplog, ao-postflight, ao-view)
+    
+    These tools have all been supplanted by altosui at this point, and
+    keeping them around increases the build dependencies by quite a lot.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 186dfc7c72aa7eba281f29f917088e49e44c2ddc
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Aug 23 22:51:57 2011 -0700
+
+    altosui: Use system look&feel
+    
+    Turn on the 'be less ugly bit'
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4b5369dc3da2fc8441eeacbf094537b0cf52240d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Aug 23 21:37:17 2011 -0600
+
+    update changelogs for Debian build
+
 commit 99316a17a9642a207c45610e7cc1c33c2600ece0
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Tue Aug 23 21:33:53 2011 -0600
