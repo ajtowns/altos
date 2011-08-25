@@ -319,8 +319,8 @@ NAR #88757, TRA #12200
       </para>
       <para>
         In flight or "pad" mode, the altimeter engages the flight
-        state machine, goes into transmit-only mode on the RF link
-        sending telemetry, and waits for launch to be detected.
+        state machine, goes into transmit-only mode to
+        send telemetry, and waits for launch to be detected.
         Flight mode is indicated by an "di-dah-dah-dit" ("P" for pad)
         on the beeper or lights, followed by beeps or flashes
         indicating the state of the pyrotechnic igniter continuity.
@@ -336,10 +336,10 @@ NAR #88757, TRA #12200
         If idle mode is entered, you will hear an audible "di-dit" or see 
         two short flashes ("I" for idle), and the flight state machine is 
         disengaged, thus no ejection charges will fire.  The altimeters also 
-        listen on the RF link when in idle mode for requests sent via 
+        listen for the radio link when in idle mode for requests sent via 
         TeleDongle.  Commands can be issued to a TeleMetrum in idle mode 
         over either
-        USB or the RF link equivalently. TeleMini only has the RF link.
+        USB or the radio link equivalently. TeleMini only has the radio link.
         Idle mode is useful for configuring the altimeter, for extracting data
         from the on-board storage chip after flight, and for ground testing
         pyro charges.
@@ -349,7 +349,7 @@ NAR #88757, TRA #12200
         very large air-frames, is that you can power the board up while the 
         rocket is horizontal, such that it comes up in idle mode.  Then you can
         raise the air-frame to launch position, and issue a 'reset' command 
-	via TeleDongle over the RF link to cause the altimeter to reboot and 
+	via TeleDongle over the radio link to cause the altimeter to reboot and 
         come up in flight mode.  This is much safer than standing on the top 
         step of a rickety step-ladder or hanging off the side of a launch 
         tower with a screw-driver trying to turn on your avionics before 
@@ -475,7 +475,7 @@ NAR #88757, TRA #12200
       <para>
         An important aspect of preparing a rocket using electronic deployment
         for flight is ground testing the recovery system.  Thanks
-        to the bi-directional RF link central to the Altus Metrum system,
+        to the bi-directional radio link central to the Altus Metrum system,
         this can be accomplished in a TeleMetrum or TeleMini equipped rocket 
         with less work than you may be accustomed to with other systems.  It 
         can even be fun!
@@ -500,16 +500,16 @@ NAR #88757, TRA #12200
         link.
       </para>
       <para>
-        By design, the altimeter firmware listens for an RF connection when
+        By design, the altimeter firmware listens for the radio link when
         it's in "idle mode", which
-        allows us to use the RF link to configure the rocket, do things like
+        allows us to use the radio link to configure the rocket, do things like
         ejection tests, and extract data after a flight without having to
         crack open the air-frame.  However, when the board is in "flight
         mode", the altimeter only
         transmits and doesn't listen at all.  That's because we want to put
         ultimate priority on event detection and getting telemetry out of
-        the rocket and out over
-        the RF link in case the rocket crashes and we aren't able to extract
+        the rocket through
+        the radio in case the rocket crashes and we aren't able to extract
         data later...
       </para>
       <para>
@@ -535,7 +535,7 @@ NAR #88757, TRA #12200
         simple.  Even on our baro-only TeleMini board, the use of a Kalman 
         filter means there is no need to set a "mach delay".  The few 
         configurable parameters can all be set using AltosUI over USB or
-        or RF link via TeleDongle.
+        or radio link via TeleDongle.
       </para>
       <section>
         <title>Radio Frequencies</title>
@@ -684,7 +684,7 @@ NAR #88757, TRA #12200
         <para>
          In the unlikely event an accel cal that goes badly, it is possible
          that TeleMetrum may always come up in 'pad mode' and as such not be
-         listening to either the USB or radio interfaces.  If that happens,
+         listening to either the USB or radio link.  If that happens,
          there is a special hook in the firmware to force the board back
          in to 'idle mode' so you can re-do the cal.  To use this hook, you
          just need to ground the SPI clock pin at power-on.  This pin is
@@ -832,7 +832,7 @@ NAR #88757, TRA #12200
         </listitem>
         <listitem>
           Confirm that the TeleMini board seems to have updated OK, which you
-          can do by configuring it over the RF link through the TeleDongle, or
+          can do by configuring it over the radio link through the TeleDongle, or
 	  letting it come up in "flight" mode and listening for telemetry.
         </listitem>
         <listitem>
@@ -1743,7 +1743,7 @@ NAR #88757, TRA #12200
 	  for Linux which can perform most of the same tasks.
         </para>
         <para>
-          After the flight, you can use the RF link to extract the more detailed data
+          After the flight, you can use the radio link to extract the more detailed data
           logged in either TeleMetrum or TeleMini devices, or you can use a mini USB cable to plug into the
           TeleMetrum board directly.  Pulling out the data without having to open up
           the rocket is pretty cool!  A USB cable is also how you charge the Li-Po
@@ -1799,7 +1799,7 @@ NAR #88757, TRA #12200
         <title>Data Analysis</title>
         <para>
           Our software makes it easy to log the data from each flight, both the
-          telemetry received over the RF link during the flight itself, and the more
+          telemetry received during the flight itself, and the more
           complete data log recorded in the flash memory on the altimeter
           board.  Once this data is on your computer, our post-flight tools make it
           easy to quickly get to the numbers everyone wants, like apogee altitude,
@@ -2208,7 +2208,7 @@ NAR #88757, TRA #12200
         but is easily changed using the menus in AltosUI. The files that
         are written end in '.telem'. The after-flight
         data-dumped files will end in .eeprom and represent continuous data
-        unlike the RF-linked .telem files that are subject to losses
+        unlike the .telem files that are subject to losses
         along the RF data path.
         See the above instructions on what and how to save the eeprom stored
         data after physically retrieving your altimeter.  Make sure to save
@@ -2296,7 +2296,7 @@ NAR #88757, TRA #12200
     </para>
     <para>
       A fun thing to do at the launch site and something you can do while
-      learning how to use these units is to play with the RF-link access
+      learning how to use these units is to play with the radio link access
       between an altimeter and the TeleDongle.  Be aware that you *must* create
       some physical separation between the devices, otherwise the link will
       not function due to signal overload in the receivers in each device.
@@ -2311,14 +2311,14 @@ NAR #88757, TRA #12200
     </para>
     <para>
       You can access an altimeter in idle mode from the TeleDongle's USB
-      connection using the RF link
+      connection using the radio link
       by issuing a 'p' command to the TeleDongle. Practice connecting and
       disconnecting ('~~' while using 'cu') from the altimeter.  If
       you cannot escape out of the "p" command, (by using a '~~' when in
       CU) then it is likely that your kernel has issues.  Try a newer version.
     </para>
     <para>
-      Using this RF link allows you to configure the altimeter, test
+      Using this radio link allows you to configure the altimeter, test
       fire e-matches and igniters from the flight line, check pyro-match
       continuity and so forth. You can leave the unit turned on while it
       is in 'idle mode' and then place the
