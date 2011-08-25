@@ -37,11 +37,12 @@
     <revhistory>
       <revision>
         <revnumber>1.0</revnumber>
-        <date>10 August 2011</date>
+        <date>24 August 2011</date>
 	<revremark>
 	  Updated for software version 1.0.  Note that 1.0 represents a
-	  telemetry format change, meaning both ends of a link (TeleMetrum/TeleMini and
-	  TeleDongle) must be updated or communications will fail.
+	  telemetry format change, meaning both ends of a link 
+	  (TeleMetrum/TeleMini and TeleDongle) must be updated or 
+          communications will fail.
 	</revremark>
       </revision>
       <revision>
@@ -64,17 +65,17 @@
     <para>
       Thanks to Bob Finch, W9YA, NAR 12965, TRA 12350 for writing "The
       Mere-Mortals Quick Start/Usage Guide to the Altus Metrum Starter
-      Kit" which has turned into the Getting Started chapter in this
-      book. Bob was one of our first customers for a production
-      TeleMetrum, and the enthusiasm that led to his contribution of
-      this section is immensely gratifying and highly appreciated!
+      Kit" which formed the basis of the original Getting Started chapter 
+      in this book.  Bob was one of our first customers for a production
+      TeleMetrum, and his continued enthusiasm and contributions
+      are immensely gratifying and highly appreciated!
     </para>
     <para>
-      And thanks to Anthony (AJ) Towns for contributing the
-      AltosUI graphing and site map code and documentation. Free
-      software means that our customers and friends can become our
+      And thanks to Anthony (AJ) Towns for major contributions including
+      the AltosUI graphing and site map code and associated documentation. 
+      Free software means that our customers and friends can become our
       collaborators, and we certainly appreciate this level of
-      contribution.
+      contribution!
     </para>
     <para>
       Have fun using these products, and we hope to meet all of you
@@ -110,8 +111,9 @@ NAR #88757, TRA #12200
       13mm by 38mm (½ inch by 1½ inches) and can fit easily in an 18mm air-frame.
     </para>
     <para>
-      Complementing TeleMetrum and TeleMini is TeleDongle, a USB to RF interface for
-      communicating with the altimeters.  Combined with your choice of antenna and
+      Complementing TeleMetrum and TeleMini is TeleDongle, a USB to RF 
+      interface for communicating with the altimeters.  Combined with your 
+      choice of antenna and
       notebook computer, TeleDongle and our associated user interface software
       form a complete ground station capable of logging and displaying in-flight
       telemetry, aiding rocket recovery, then processing and archiving flight
@@ -168,12 +170,12 @@ NAR #88757, TRA #12200
       ugly bugs in some earlier versions.
     </para>
     <para>
-      Next you should obtain and install the AltOS utilities.  These include
+      Next you should obtain and install the AltOS software.  These include
       the AltosUI ground station program, current firmware images for
-      TeleMetrum, TeleMini and TeleDongle, and a number of standalone utilities that
-      are rarely needed.  Pre-built binary packages are available for Debian
-      Linux, Microsoft Windows, and recent MacOSX versions.  Full source code
-      and build instructions for some other Linux variants are also available.
+      TeleMetrum, TeleMini and TeleDongle, and a number of standalone 
+      utilities that are rarely needed.  Pre-built binary packages are 
+      available for Linux, Microsoft Windows, and recent MacOSX versions.  
+      Full source code and build instructions are also available.
       The latest version may always be downloaded from
       <ulink url="http://altusmetrum.org/AltOS"/>.
     </para>
@@ -419,28 +421,28 @@ NAR #88757, TRA #12200
         data later...
       </para>
       <para>
-        We don't use a 'normal packet radio' mode because they're just too
-        inefficient.  The GFSK modulation we use is just FSK with the
+        We don't use a 'normal packet radio' mode like APRS because they're 
+        just too inefficient.  The GFSK modulation we use is FSK with the
         base-band pulses passed through a
         Gaussian filter before they go into the modulator to limit the
         transmitted bandwidth.  When combined with the hardware forward error
         correction support in the cc1111 chip, this allows us to have a very
-        robust 38.4 kilobit data link with only 10 milliwatts of transmit power,
-        a whip antenna in the rocket, and a hand-held Yagi on the ground.  We've
-        had flights to above 21k feet AGL with good reception, and calculations
-        suggest we should be good to well over 40k feet AGL with a 5-element yagi on
-        the ground.  We hope to fly boards to higher altitudes soon, and would
-        of course appreciate customer feedback on performance in higher
-        altitude flights!
+        robust 38.4 kilobit data link with only 10 milliwatts of transmit 
+        power, a whip antenna in the rocket, and a hand-held Yagi on the 
+        ground.  We've had flights to above 21k feet AGL with great reception, 
+        and calculations suggest we should be good to well over 40k feet AGL 
+        with a 5-element yagi on the ground.  We hope to fly boards to higher 
+        altitudes over time, and would of course appreciate customer feedback 
+        on performance in higher altitude flights!
       </para>
     </section>
     <section>
       <title>Configurable Parameters</title>
       <para>
         Configuring an Altus Metrum altimeter for flight is very
-        simple. Through the use of a Kalman filter, there is no need
-        to set a "mach delay" .  The few configurable parameters can
-        all be set using a simple terminal program over the USB port
+        simple.  Even on our baro-only TeleMini board, the use of a Kalman 
+        filter means there is no need to set a "mach delay".  The few 
+        configurable parameters can all be set using AltosUI over USB or
         or RF link via TeleDongle.
       </para>
       <section>
@@ -448,8 +450,8 @@ NAR #88757, TRA #12200
         <para>
 	  The Altus Metrum boards support frequencies in the 70cm
 	  band. By default, the configuration interface provides a
-	  list of 10 common frequencies -- 100kHz channels starting at
-	  434.550MHz. However, you can configure the firmware to use
+	  list of 10 common frequencies in 100kHz channels starting at
+	  434.550MHz.  However, the firmware supports use of
 	  any 50kHz multiple within the 70cm band. At any given
 	  launch, we highly recommend coordinating who will use each
 	  frequency and when to avoid interference.  And of course, both
