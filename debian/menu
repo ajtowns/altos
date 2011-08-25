@@ -1,6 +1,6 @@
 ?package(altos): \
 	needs="X11" \
 	section="Applications/Viewers" \
-	title="ao-view" \
-	command="/usr/bin/ao-view" \
+	title="AltOS UI" \
+	command="/usr/bin/altosui" \
 	icon="/usr/share/pixmaps/altusmetrum.xpm"
