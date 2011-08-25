@@ -30,6 +30,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class AltosAscent extends JComponent implements AltosFlightDisplay {
 	GridBagLayout	layout;
+	JLabel			cur, max;
 
 	public class AscentStatus {
 		JLabel		label;
@@ -52,6 +53,11 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		void reset() {
 			value.setText("");
 			lights.set(false);
+		}
+
+		void set_font() {
+			label.setFont(Altos.label_font);
+			value.setFont(Altos.value_font);
 		}
 
 		public AscentStatus (GridBagLayout layout, int y, String text) {
@@ -109,6 +115,11 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			label.setVisible(false);
 			value.setVisible(false);
 		}
+		void set_font() {
+			label.setFont(Altos.label_font);
+			value.setFont(Altos.value_font);
+		}
+
 		public AscentValue (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
 			c.weighty = 1;
@@ -149,6 +160,12 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			value.setText("");
 			max_value.setText("");
 			max = AltosRecord.MISSING;
+		}
+
+		void set_font() {
+			label.setFont(Altos.label_font);
+			value.setFont(Altos.value_font);
+			max_value.setFont(Altos.value_font);
 		}
 
 		void show(String format, double v) {
@@ -314,6 +331,18 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		accel.reset();
 	}
 
+	public void set_font() {
+		cur.setFont(Altos.label_font);
+		max.setFont(Altos.label_font);
+		lat.set_font();
+		lon.set_font();
+		main.set_font();
+		apogee.set_font();
+		height.set_font();
+		speed.set_font();
+		accel.set_font();
+	}
+
 	public void show(AltosState state, int crc_errors) {
 		if (state.gps != null && state.gps.connected) {
 			lat.show(state, crc_errors);
@@ -337,7 +366,6 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	public void labels(GridBagLayout layout, int y) {
 		GridBagConstraints	c;
-		JLabel			cur, max;
 
 		cur = new JLabel("Current");
 		cur.setFont(Altos.label_font);

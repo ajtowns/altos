@@ -1,7 +1,7 @@
 !addplugindir Instdrv/NSIS/Plugins
 ; Definitions for Java 1.6 Detection
 !define JRE_VERSION "1.6"
-!define JRE_URL "http://javadl.sun.com/webapps/download/AutoDL?BundleId=18714&/jre-6u5-windows-i586-p.exe"
+!define JRE_URL "http://javadl.sun.com/webapps/download/AutoDL?BundleId=52247&/jre-6u27-windows-i586-p.exe"
 !define PRODUCT_NAME "Altus Metrum Windows Software"
 
 Name "Altus Metrum Installer"
@@ -23,7 +23,7 @@ ShowInstDetails Show
 ComponentText "Altus Metrum Software and Driver Installer"
 
 Function GetJRE
-        MessageBox MB_OK "${PRODUCT_NAME} uses Java ${JRE_VERSION}, it will now \
+        MessageBox MB_OK "${PRODUCT_NAME} uses Java ${JRE_VERSION} 32-bit, it will now \
                          be downloaded and installed"
 
         StrCpy $2 "$TEMP\Java Runtime Environment.exe"

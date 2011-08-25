@@ -31,25 +31,26 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class AltosCompanionInfo extends JTable {
 	private AltosFlightInfoTableModel model;
 
-	private Font infoLabelFont = new Font("SansSerif", Font.PLAIN, 14);
-	private Font infoValueFont = new Font("Monospaced", Font.PLAIN, 14);
-
 	static final int info_columns = 2;
 	static final int info_rows = 17;
 
 	int desired_row_height() {
-		FontMetrics	infoValueMetrics = getFontMetrics(infoValueFont);
+		FontMetrics	infoValueMetrics = getFontMetrics(Altos.table_value_font);
 		return (infoValueMetrics.getHeight() + infoValueMetrics.getLeading()) * 18 / 10;
+	}
+
+	public void set_font() {
+		setFont(Altos.table_value_font);
+		setRowHeight(desired_row_height());
+		doLayout();
 	}
 
 	public AltosCompanionInfo() {
 		super(new AltosFlightInfoTableModel(info_rows, info_columns));
 		model = (AltosFlightInfoTableModel) getModel();
-		setFont(infoValueFont);
 		setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
 		setShowGrid(true);
-		setRowHeight(desired_row_height());
-		doLayout();
+		set_font();
 	}
 
 	public Dimension getPreferredScrollableViewportSize() {

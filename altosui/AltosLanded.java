@@ -30,8 +30,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class AltosLanded extends JComponent implements AltosFlightDisplay, ActionListener {
 	GridBagLayout	layout;
-	Font		label_font;
-	Font		value_font;
 
 	public class LandedValue {
 		JLabel		label;
@@ -45,6 +43,11 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 		void show() {
 			label.setVisible(true);
 			value.setVisible(true);
+		}
+
+		public void set_font() {
+			label.setFont(Altos.label_font);
+			value.setFont(Altos.value_font);
 		}
 
 		void hide() {
@@ -63,7 +66,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 			c.weighty = 1;
 
 			label = new JLabel(text);
-			label.setFont(label_font);
+			label.setFont(Altos.label_font);
 			label.setHorizontalAlignment(SwingConstants.LEFT);
 			c.gridx = 0; c.gridy = y;
 			c.insets = new Insets(10, 10, 10, 10);
@@ -74,7 +77,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 			add(label);
 
 			value = new JTextField(Altos.text_width);
-			value.setFont(value_font);
+			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 1; c.gridy = y;
 			c.anchor = GridBagConstraints.WEST;
@@ -199,6 +202,16 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 		accel.reset();
 	}
 
+	public void set_font() {
+		lat.set_font();
+		lon.set_font();
+		bearing.set_font();
+		distance.set_font();
+		height.set_font();
+		speed.set_font();
+		accel.set_font();
+	}
+
 	public void show(AltosState state, int crc_errors) {
 		if (state.gps != null && state.gps.connected) {
 			bearing.show(state, crc_errors);
@@ -259,8 +272,6 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 
 		reader = in_reader;
 
-		label_font = new Font("Dialog", Font.PLAIN, 22);
-		value_font = new Font("Monospaced", Font.PLAIN, 22);
 		setLayout(layout);
 
 		/* Elements in descent display */

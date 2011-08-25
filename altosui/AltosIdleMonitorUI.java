@@ -284,6 +284,11 @@ public class AltosIdleMonitorUI extends JFrame implements AltosFlightDisplay {
 		flightInfo.clear();
 	}
 
+	public void set_font() {
+		pad.set_font();
+		flightInfo.set_font();
+	}
+
 	public void show(AltosState state, int crc_errors) {
 		try {
 			pad.show(state, crc_errors);

@@ -146,6 +146,10 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		// nothing
 	}
 
+	public void set_font() {
+		// nothing
+	}
+
 	private void loadMap(final AltosSiteMapTile tile,
 			     File pngfile, String pngurl)
 	{

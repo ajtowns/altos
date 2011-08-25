@@ -54,6 +54,11 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			lights.setVisible(false);
 		}
 
+		public void set_font() {
+			label.setFont(Altos.label_font);
+			value.setFont(Altos.value_font);
+		}
+
 		public LaunchStatus (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
 			c.weighty = 1;
@@ -103,6 +108,11 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		void hide() {
 			label.setVisible(false);
 			value.setVisible(false);
+		}
+
+		public void set_font() {
+			label.setFont(Altos.label_font);
+			value.setFont(Altos.value_font);
 		}
 
 		void reset() {
@@ -282,6 +292,18 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		pad_alt.reset();
 	}
 
+	public void set_font() {
+		battery.set_font();
+		apogee.set_font();
+		main.set_font();
+		logging_ready.set_font();
+		gps_locked.set_font();
+		gps_ready.set_font();
+		pad_lat.set_font();
+		pad_lon.set_font();
+		pad_alt.set_font();
+	}
+	
 	public void show(AltosState state, int crc_errors) {
 		battery.show(state, crc_errors);
 		if (state.drogue_sense == AltosRecord.MISSING)

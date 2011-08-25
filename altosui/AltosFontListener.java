@@ -1,5 +1,5 @@
 /*
- * Copyright © 2010 Keith Packard <keithp@keithp.com>
+ * Copyright © 2011 Keith Packard <keithp@keithp.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,6 @@
 
 package altosui;
 
-public interface AltosFlightDisplay {
-	void reset();
-
-	void show(AltosState state, int crc_errors);
-
-	void set_font();
+public interface AltosFontListener {
+	void font_size_changed(int font_size);
 }

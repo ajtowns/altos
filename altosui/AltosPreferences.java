@@ -55,6 +55,9 @@ class AltosPreferences {
 	/* scanning telemetry preferences name */
 	final static String scanningTelemetryPreference = "SCANNING-TELEMETRY";
 
+	/* font size preferences name */
+	final static String fontSizePreference = "FONT-SIZE";
+
 	/* Default logdir is ~/TeleMetrum */
 	final static String logdirName = "TeleMetrum";
 
@@ -87,6 +90,10 @@ class AltosPreferences {
 
 	/* Scanning telemetry */
 	static int scanning_telemetry;
+
+	static LinkedList<AltosFontListener> font_listeners;
+
+	static int font_size = Altos.font_size_medium;
 
 	/* List of frequencies */
 	final static String common_frequencies_node_name = "COMMON-FREQUENCIES";
@@ -163,6 +170,11 @@ class AltosPreferences {
 		callsign = preferences.get(callsignPreference,"N0CALL");
 
 		scanning_telemetry = preferences.getInt(scanningTelemetryPreference,(1 << Altos.ao_telemetry_standard));
+
+		font_listeners = new LinkedList<AltosFontListener>();
+
+		font_size = preferences.getInt(fontSizePreference, Altos.font_size_medium);
+		Altos.set_fonts(font_size);
 
 		String firmwaredir_string = preferences.get(firmwaredirPreference, null);
 		if (firmwaredir_string != null)
@@ -333,6 +345,36 @@ class AltosPreferences {
 
 	public static File firmwaredir() {
 		return firmwaredir;
+	}
+
+	public static int font_size() {
+		return font_size;
+	}
+
+	static void set_fonts() {
+	}
+
+	public static void set_font_size(int new_font_size) {
+		font_size = new_font_size;
+		synchronized (preferences) {
+			preferences.putInt(fontSizePreference, font_size);
+			flush_preferences();
+			Altos.set_fonts(font_size);
+			for (AltosFontListener l : font_listeners)
+				l.font_size_changed(font_size);
+		}
+	}
+
+	public static void register_font_listener(AltosFontListener l) {
+		synchronized (preferences) {
+			font_listeners.add(l);
+		}
+	}
+
+	public static void unregister_font_listener(AltosFontListener l) {
+		synchronized (preferences) {
+			font_listeners.remove(l);
+		}
 	}
 
 	public static void set_serial_debug(boolean new_serial_debug) {
