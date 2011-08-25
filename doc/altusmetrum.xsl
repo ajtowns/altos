@@ -608,94 +608,6 @@ NAR #88757, TRA #12200
         </para>
       </section>
     </section>
-    <section>
-      <title>Calibration</title>
-      <para>
-        There are only two calibrations required for a TeleMetrum board, and
-        only one for TeleDongle and TeleMini.
-      </para>
-      <section>
-        <title>Radio Frequency</title>
-        <para>
-          The radio frequency is synthesized from a clock based on the 48 MHz
-          crystal on the board.  The actual frequency of this oscillator must be
-          measured to generate a calibration constant.  While our GFSK modulation
-          bandwidth is wide enough to allow boards to communicate even when
-          their oscillators are not on exactly the same frequency, performance
-          is best when they are closely matched.
-          Radio frequency calibration requires a calibrated frequency counter.
-          Fortunately, once set, the variation in frequency due to aging and
-          temperature changes is small enough that re-calibration by customers
-          should generally not be required.
-        </para>
-        <para>
-          To calibrate the radio frequency, connect the UHF antenna port to a
-          frequency counter, set the board to 434.550MHz, and use the 'C'
-          command to generate a CW carrier.  Wait for the transmitter temperature
-          to stabilize and the frequency to settle down.
-          Then, divide 434.550 MHz by the
-          measured frequency and multiply by the current radio cal value show
-          in the 'c s' command.  For an unprogrammed board, the default value
-          is 1186611.  Take the resulting integer and program it using the 'c f'
-          command.  Testing with the 'C' command again should show a carrier
-          within a few tens of Hertz of the intended frequency.
-          As with all 'c' sub-commands, follow this with a 'c w' to write the
-          change to the parameter block in the on-board DataFlash chip.
-        </para>
-	<para>
-	  when the radio calibration value is changed, the radio
-	  frequency value is reset to the same value, so you'll need
-	  to recompute and reset the radio frequency value using the
-	  new radio calibration value.
-	</para>
-      </section>
-      <section>
-        <title>TeleMetrum Accelerometer</title>
-        <para>
-          The TeleMetrum accelerometer we use has its own 5 volt power supply and
-          the output must be passed through a resistive voltage divider to match
-          the input of our 3.3 volt ADC.  This means that unlike the barometric
-          sensor, the output of the acceleration sensor is not ratio-metric to
-          the ADC converter, and calibration is required.  We also support the
-          use of any of several accelerometers from a Freescale family that
-          includes at least +/- 40g, 50g, 100g, and 200g parts.  Using gravity,
-          a simple 2-point calibration yields acceptable results capturing both
-          the different sensitivities and ranges of the different accelerometer
-          parts and any variation in power supply voltages or resistor values
-          in the divider network.
-        </para>
-        <para>
-          To calibrate the acceleration sensor, use the 'c a 0' command.  You
-          will be prompted to orient the board vertically with the UHF antenna
-          up and press a key, then to orient the board vertically with the
-          UHF antenna down and press a key.
-          As with all 'c' sub-commands, follow this with a 'c w' to write the
-          change to the parameter block in the on-board DataFlash chip.
-        </para>
-        <para>
-          The +1g and -1g calibration points are included in each telemetry
-          frame and are part of the header extracted by ao-dumplog after flight.
-          Note that we always store and return raw ADC samples for each
-          sensor... nothing is permanently "lost" or "damaged" if the
-          calibration is poor.
-        </para>
-        <para>
-         In the unlikely event an accel cal that goes badly, it is possible
-         that TeleMetrum may always come up in 'pad mode' and as such not be
-         listening to either the USB or radio link.  If that happens,
-         there is a special hook in the firmware to force the board back
-         in to 'idle mode' so you can re-do the cal.  To use this hook, you
-         just need to ground the SPI clock pin at power-on.  This pin is
-         available as pin 2 on the 8-pin companion connector, and pin 1 is
-         ground.  So either carefully install a fine-gauge wire jumper
-         between the two pins closest to the index hole end of the 8-pin
-         connector, or plug in the programming cable to the 8-pin connector
-         and use a small screwdriver or similar to short the two pins closest
-         to the index post on the 4-pin end of the programming cable, and
-         power up the board.  It should come up in 'idle mode' (two beeps).
-        </para>
-      </section>
-    </section>
 
   </chapter>
   <chapter>
@@ -1325,10 +1237,10 @@ NAR #88757, TRA #12200
       <section>
         <title>Callsign</title>
         <para>
-          This value is used in command packet mode and is transmitted
-          in each packet sent from TeleDongle and received from
-          TeleMetrum. It is not used in telemetry mode as that transmits
-          packets only from TeleMetrum to TeleDongle. Configure this
+          This value is transmitted in each command packet sent from 
+	  TeleDongle and received from an altimeter.  It is not used in 
+	  telemetry mode, as the callsign configured in the altimeter board
+	  is included in all telemetry packets.  Configure this
           with the AltosUI operators call sign as needed to comply with
           your local radio regulations.
         </para>
@@ -2376,6 +2288,111 @@ NAR #88757, TRA #12200
       flight data and I am sure you will enjoy what it has to say to you
       once you enable the voice output!
     </para>
+  </appendix>
+  <appendix>
+      <title>Calibration</title>
+      <para>
+        There are only two calibrations required for a TeleMetrum board, and
+        only one for TeleDongle and TeleMini.  All boards are shipped from
+        the factory pre-calibrated, but the procedures are documented here
+	in case they are ever needed.  Re-calibration is not supported by
+	AltosUI, you must connect to the board with a serial terminal program
+	and interact directly with the on-board command interpreter to effect
+	calibration.
+      </para>
+      <section>
+        <title>Radio Frequency</title>
+        <para>
+          The radio frequency is synthesized from a clock based on the 48 MHz
+          crystal on the board.  The actual frequency of this oscillator 
+          must be measured to generate a calibration constant.  While our 
+          GFSK modulation
+          bandwidth is wide enough to allow boards to communicate even when
+          their oscillators are not on exactly the same frequency, performance
+          is best when they are closely matched.
+          Radio frequency calibration requires a calibrated frequency counter.
+          Fortunately, once set, the variation in frequency due to aging and
+          temperature changes is small enough that re-calibration by customers
+          should generally not be required.
+        </para>
+        <para>
+          To calibrate the radio frequency, connect the UHF antenna port to a
+          frequency counter, set the board to 434.550MHz, and use the 'C'
+          command in the on-board command interpreter to generate a CW 
+          carrier.  For TeleMetrum, this is best done over USB.  For TeleMini,
+	  note that the only way to escape the 'C' command is via power cycle
+	  since the board will no longer be listening for commands once it
+	  starts generating a CW carrier.
+	</para>
+	<para>
+	  Wait for the transmitter temperature to stabilize and the frequency 
+          to settle down.  Then, divide 434.550 MHz by the
+          measured frequency and multiply by the current radio cal value show
+          in the 'c s' command.  For an unprogrammed board, the default value
+          is 1186611.  Take the resulting integer and program it using the 'c f'
+          command.  Testing with the 'C' command again should show a carrier
+          within a few tens of Hertz of the intended frequency.
+          As with all 'c' sub-commands, follow this with a 'c w' to write the
+          change to the parameter block in the on-board DataFlash chip.
+        </para>
+	<para>
+	  Note that any time you re-do the radio frequency calibration, the
+	  radio frequency is reset to the default 434.550 Mhz.  If you want
+	  to use another frequency, you will have to set that again after
+	  calibration is completed.
+	</para>
+      </section>
+      <section>
+        <title>TeleMetrum Accelerometer</title>
+        <para>
+          The TeleMetrum accelerometer we use has its own 5 volt power 
+	  supply and
+          the output must be passed through a resistive voltage divider to match
+          the input of our 3.3 volt ADC.  This means that unlike the barometric
+          sensor, the output of the acceleration sensor is not ratio-metric to
+          the ADC converter, and calibration is required.  Explicitly 
+	  calibrating the accelerometers also allows us to load any device
+	  from a Freescale family that includes at least +/- 40g, 50g, 100g, 
+	  and 200g parts.  Using gravity,
+          a simple 2-point calibration yields acceptable results capturing both
+          the different sensitivities and ranges of the different accelerometer
+          parts and any variation in power supply voltages or resistor values
+          in the divider network.
+        </para>
+        <para>
+          To calibrate the acceleration sensor, use the 'c a 0' command.  You
+          will be prompted to orient the board vertically with the UHF antenna
+          up and press a key, then to orient the board vertically with the
+          UHF antenna down and press a key.  Note that the accuracy of this
+	  calibration depends primarily on how perfectly vertical and still
+	  the board is held during the cal process.  As with all 'c' 
+	  sub-commands, follow this with a 'c w' to write the
+          change to the parameter block in the on-board DataFlash chip.
+        </para>
+        <para>
+          The +1g and -1g calibration points are included in each telemetry
+          frame and are part of the header stored in onboard flash to be
+	  downloaded after flight.  We always store and return raw ADC 
+	  samples for each sensor... so nothing is permanently "lost" or 
+	  "damaged" if the calibration is poor.
+        </para>
+        <para>
+         In the unlikely event an accel cal goes badly, it is possible
+         that TeleMetrum may always come up in 'pad mode' and as such not be
+         listening to either the USB or radio link.  If that happens,
+         there is a special hook in the firmware to force the board back
+         in to 'idle mode' so you can re-do the cal.  To use this hook, you
+         just need to ground the SPI clock pin at power-on.  This pin is
+         available as pin 2 on the 8-pin companion connector, and pin 1 is
+         ground.  So either carefully install a fine-gauge wire jumper
+         between the two pins closest to the index hole end of the 8-pin
+         connector, or plug in the programming cable to the 8-pin connector
+         and use a small screwdriver or similar to short the two pins closest
+         to the index post on the 4-pin end of the programming cable, and
+         power up the board.  It should come up in 'idle mode' (two beeps),
+	 allowing a re-cal.
+        </para>
+      </section>
   </appendix>
   <appendix
       xmlns:xi="http://www.w3.org/2001/XInclude">
