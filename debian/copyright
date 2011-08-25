@@ -10,8 +10,23 @@ Upstream Authors:
 
 Copyright:
 
-    Copyright © 2009-2011 Keith Packard <keithp@keithp.com>
+    The overall AltOS package is
 
+        Copyright © 2009-2011 Keith Packard <keithp@keithp.com>
+
+    Significant contributions include
+
+        Copyright © 2009-2011 Bdale Garbee <bdale@gag.com>
+        Copyright © 2009-2011 Anthony Towns <aj@erisian.com.au>
+
+    Some files incorporated from other projects carry other copyrights:
+
+        Copyright © 2001, 2002, 2003 Jan Kiszka (Jan.Kiszka@web.de)
+	Copyright © 1991-1995 Paul J Turner, Portland, OR
+	Copyright © 1996-2000 Grace Development Team
+	Copyright © 1984, 1987, 1989, 1995 Stephen L. Moshier
+	Copyright © 2003 Maarten Brock, sourceforge.brock@dse.nl
+ 
 License:
 
     This program is free software; you can redistribute it and/or modify
