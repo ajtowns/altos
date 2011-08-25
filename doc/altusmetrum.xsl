@@ -1106,12 +1106,13 @@ NAR #88757, TRA #12200
         afar, as if it were directly connected to the computer.
       </para>
       <para>
-        Any operation which can be performed with TeleMetrum
-        can either be done with TeleMetrum directly connected to
-        the computer via the USB cable, or through the packet
-        link. Simply select the appropriate TeleDongle device when
-        the list of devices is presented and AltosUI will use packet
-        command mode.
+        Any operation which can be performed with TeleMetrum can
+        either be done with TeleMetrum directly connected to the
+        computer via the USB cable, or through the packet
+        link. TeleMini doesn't provide a USB connector and so it can
+        only be controlled through the packet link.  Select the
+        appropriate TeleDongle device when the list of devices is
+        presented and AltosUI will use packet command mode.
       </para>
       <para>
 	One oddity in the current interface is how AltosUI selects the
@@ -1170,7 +1171,12 @@ NAR #88757, TRA #12200
 	TeleMini listens for a command packet for five seconds after
 	first being turned on, if it doesn't hear anything, it enters
 	'pad' mode, ready for flight and will no longer listen for
-	command packets.
+	command packets. The easiest way to connect to TeleMini is to
+	initiate the command and select the TeleDongle device. At this
+	point, the TeleDongle will be attempting to communicate with
+	the TeleMini. Now turn TeleMini on, and it should immediately
+	start communicating with the TeleDongle and the desired
+	operation can be performed.
       </para>
       <para>
         When packet command mode is enabled, you can monitor the link
