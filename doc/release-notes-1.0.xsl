@@ -30,7 +30,7 @@
 	just isn't possible, or where radio transmissions might cause
 	trouble with other electronics, there's a configuration option
 	to disable all telemetry. Note that the board will still
-	enable packet mode in idle mode.
+	enable the radio link in idle mode.
       </listitem>
       <listitem>
 	Arbitrary frequency selection. The radios in Altus Metrum
