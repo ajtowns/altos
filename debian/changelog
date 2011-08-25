@@ -1,3 +1,123 @@
+altos (1.0) unstable; urgency=low
+
+  [ Keith Packard ]
+  * altos: Lost change that reported flight 0 when log memory was full
+  * altosui: Ancient log files used 'apogee' for 'coast' state
+  * altosui: Add 'On-board Data Logging' indicator to pad tab
+
+  [ Bdale Garbee ]
+  * update changelogs for Debian build
+  * update changelogs for Debian build
+
+  [ Keith Packard ]
+  * altosui: remove debug printf in pad pane
+  * altosui: Disable 'max flight log' config when there are stored flights
+  * altos: Merge common config code in ao_config.c
+  * Bump version to 0.9.7
+  * altos/altosui: Add ability to disable telemetry/rdf completely
+  * altosui: Clean up command line processing. Add --graph
+  * altos-fat/windows: Check and install Java 1.6 as needed
+  * altosui/windows: Fix a bunch of windows compiler warnings.
+  * altosui: Attempt to make both 32- and 64-bit windows DLLs
+  * doc: Add note about telemetry disable mode to 1.0 release notes
+  * doc: Add Installation Recommendations chapter
+  * altosui: Add a few simple unit conversions
+  * altosui: Capture date/time/serial/flight in AltosFlightStats
+  * altosui: Add date/time/serial/flight to flight stats tab
+  * altosui: Show filename in AltosGraph window
+  * altosui: Add --summary option to dump flight stats to stdout
+  * altosui: Make monitor-idle display correct 'On-board data logging' status
+  * altosui: Can't configure flight log max on TeleMini
+  * altosui: fix 'magic' string to signal end of config data
+  * altosui: Only 'show' config dialog once
+  * altosui: Reset all config data on 'reset' command
+  * altosui: Update mac os X library
+  * libaltos: fix Mac OS X function signatures
+  * altosui: add tool-tips to the button box.
+
+  [ Bdale Garbee ]
+  * turn off auto-tagging during Debian build
+  * update changelogs for Debian build
+  * rewind changelog to 0.9.6.0 for rebuild
+  * update changelogs for Debian build
+
+  [ Keith Packard ]
+  * altosui: Use system look&feel
+  * Remove stale tools (ao-dumplog, ao-postflight, ao-view)
+  * altosui: Add tool-tips to config dialogs
+  * altosui: Try to get dialogs to look a little better
+
+  [ Bdale Garbee ]
+  * another test round
+  * roll changelog back in prep for another test build
+  * update changelogs for Debian build
+  * add pkg-config to the build deps
+  * prepare for another rebuild
+  * update changelogs for Debian build
+
+  [ Keith Packard ]
+  * altosui: Don't trust companion telemetry record 'channels' count
+  * altosui: Make flight monitor font size configurable
+  * altos/windows: Get latest JRE 1.6 version (Version 6 update 27)
+
+  [ Bdale Garbee ]
+  * doc tweaks through chap 3
+
+  [ Keith Packard ]
+  * doc: Spelling corrections in altusmetrum.xsl
+  * doc: Document pad-mode 'on-board data logging' indicator
+
+  [ Bdale Garbee ]
+  * more doc tweaking
+
+  [ Keith Packard ]
+  * doc: Describe packet command mode a bit better.
+  * doc: Move Packet Command Mode section to System Operations chapter
+
+  [ Bdale Garbee ]
+  * more doc tweaks
+  * more tweaks
+
+  [ Keith Packard ]
+  * doc: use 'radio link' to refer to packet command mode
+
+  [ Bdale Garbee ]
+  * more tweaking
+
+  [ Keith Packard ]
+  * doc: Move updating device firmware section to separate chapter
+  * doc: Updating Firmware is now a separate chapter
+
+  [ Bdale Garbee ]
+  * more changes
+
+  [ Keith Packard ]
+  * doc: Move the remaining command-mode descriptions to the appendix
+
+  [ Bdale Garbee ]
+  * tweak tweak tweak
+
+  [ Keith Packard ]
+  * doc: Describe max flight log, ignite mode and pad orientation
+  * doc: Remove duplicate documentation about max flight log
+
+  [ Bdale Garbee ]
+  * more tweaks
+  * prepare to release
+  * don't deliver sources.list fragment in official Debian packages
+  * changes in preparation for upload to Debian
+  * ao-view is no longer included in the altos package, so have the 
+    old-style Debian menu entry point to altosui instead
+  * rewind packaging changelog to last tagged version
+  * update desktop file for consistency with package section
+  * we need a main category in the desktop file
+  * really, I mean it, no longer deliver the sources.list fragment
+  * add a postinst to remove sources.list.d fragment delivered by old 
+    private versions of this package, no longer needed once we have 
+    official packages
+
+ -- Bdale Garbee <bdale@gag.com>  Thu, 25 Aug 2011 02:22:21 -0600
+
 altos (0.9.6.0) unstable; urgency=low
 
   [ Keith Packard ]

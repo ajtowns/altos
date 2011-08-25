@@ -1,3 +1,303 @@
+commit 41998645c04a2ee856dec272b40c2dc5913291d3
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 25 02:16:17 2011 -0600
+
+    add a postinst to remove sources.list.d fragment delivered by old private
+    versions of this package, no longer needed once we have official packages
+
+commit d65e4f6b0a8ba8f67c8a916f2e8be0ec5c75f47d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 25 02:05:49 2011 -0600
+
+    really, I mean it, no longer deliver the sources.list fragment
+
+commit 0579bd5de9e7686d227a16951dd520439ca5472b
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 25 01:55:32 2011 -0600
+
+    we need a main category in the desktop file
+
+commit 3ec03792adebbeadc9c0d4985c6f51877e8ab969
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 25 01:48:11 2011 -0600
+
+    update desktop file for consistency with package section
+
+commit 0b1d5b678f0e36fbe09d4d3babffb77f857f098d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 25 01:37:31 2011 -0600
+
+    rewind packaging changelog to last tagged version
+
+commit f0891fc2e4fa4fd6dd5c2bfc74e4514de986a295
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 25 01:35:18 2011 -0600
+
+    ao-view is no longer included in the altos package, so have the old-style
+    Debian menu entry point to altosui instead
+
+commit a7ee1049519bf46b3864666999249876009fc3bf
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 25 01:35:06 2011 -0600
+
+    changes in preparation for upload to Debian
+
+commit 2992184f7a032c95e22023080fbc26443ed786f5
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 25 01:30:36 2011 -0600
+
+    don't deliver sources.list fragment in official Debian packages
+
+commit 3fc92a529dae410a41038cce38c6a44f5e58bd1f
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 25 01:11:47 2011 -0600
+
+    prepare to release
+
+commit 73abe19acf709c00f5352ec12e8cd6edae1d1963
+Merge: 1bd781d 5158493
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 25 00:34:49 2011 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+    
+    Conflicts:
+    	doc/altusmetrum.xsl
+
+commit 1bd781da934c738e0c9294197c7eb622b0710a9a
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 25 00:32:47 2011 -0600
+
+    more tweaks
+
+commit 5158493c8df527e7527057c719c75248609eb3dc
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 24 23:21:02 2011 -0700
+
+    doc: Remove duplicate documentation about max flight log
+    
+    This was described in detail in both the System Operation and AltosUI
+    chapters. Remove the duplicate from the AltosUI chapter.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e268798dc260311f5f0167909481b41c9d27fc1c
+Merge: 458f816 242344d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 24 23:06:44 2011 -0700
+
+    Merge remote-tracking branch 'origin/master'
+
+commit 458f816ad23fd6784757b13b244057d4be64260e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 24 23:06:01 2011 -0700
+
+    doc: Describe max flight log, ignite mode and pad orientation
+    
+    These describe what these configuration parmaeters do, not how to set them.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 242344d3e32e7c7cd9270d708555923fa888e4d8
+Merge: 5c1cf74 94a1b22
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 23:51:38 2011 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+    
+    Conflicts:
+    	doc/altusmetrum.xsl
+
+commit 5c1cf7492b82e63a9db9d0238ecbcd2b59486893
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 23:50:31 2011 -0600
+
+    tweak tweak tweak
+
+commit 94a1b220bbfbb64b9772f3ee64a8e9d353d65e94
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 24 22:29:56 2011 -0700
+
+    doc: Move the remaining command-mode descriptions to the appendix
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit edfb553bb4fa5b0c7c6c658505b2a99d05fb13bf
+Merge: c74ab82 ec96f11
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 23:23:56 2011 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit c74ab82a7b7a6ad6f79129a9ef5954270e7e8f11
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 23:23:45 2011 -0600
+
+    more changes
+
+commit ec96f11666f9cbd98e16caeccd5d399978bde81b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 24 22:20:29 2011 -0700
+
+    doc: Updating Firmware is now a separate chapter
+    
+    The Flash Image paragraph references it, change the reference wording.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 11099fab63d32f53d0f2e04a7ab04392e39b5963
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 24 22:18:29 2011 -0700
+
+    doc: Move updating device firmware section to separate chapter
+    
+    This isn't central to operation of the devices, so move it out to a
+    separate chapter
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 50769fbbeaaf61111d363411e0ef0b2868681cf4
+Merge: 425fa99 d92c173
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 23:15:20 2011 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 425fa995aeaccc1ec9ecf011f185b4406df61541
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 23:15:15 2011 -0600
+
+    more tweaking
+
+commit d92c173615a5fb0278ff6878595bed3f8d813e03
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 24 22:12:39 2011 -0700
+
+    doc: use 'radio link' to refer to packet command mode
+    
+    Make sure 'radio link' doesn't refer to telemetry and eliminate use of
+    'RF link' and other similar but not identical phrases.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 65ca6f0d7c96432413868274b2cfdea4b76683e4
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 23:03:23 2011 -0600
+
+    more tweaks
+
+commit 09981cd024297fd4ef093c7468de2b9d5f3c2691
+Merge: a476e76 03c8b27
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 22:42:39 2011 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit a476e76622b6fa70bf7c8883d2a2a64a382fbd78
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 22:42:33 2011 -0600
+
+    more doc tweaks
+
+commit 03c8b2702a45a12c4748cd1ec801d720c816d9e9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 24 21:39:48 2011 -0700
+
+    doc: Move Packet Command Mode section to System Operations chapter
+    
+    It makes far more sense here.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 221157af586c6fd7368ee858a390f38bc5ed50f5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 24 21:31:05 2011 -0700
+
+    doc: Describe packet command mode a bit better.
+    
+    Include comments about TeleMini in the introduction, and then explain
+    a bit better what the best method of reliably initiating packet
+    command mode are (start operation, then boot telemini).
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d4e1aa92b6ce2f3e4c51029595d1d44a7f2f14a0
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 22:27:35 2011 -0600
+
+    more doc tweaking
+
+commit 6eff8d5831dde8e690586cd2a97ddf1595cd2674
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 24 20:59:28 2011 -0700
+
+    doc: Document pad-mode 'on-board data logging' indicator
+    
+    There wasn't any documentation for this field in the 'Launch Pad' tab.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ca0879ba6e5295b4fa790705f742eb647a462ea0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 24 20:42:09 2011 -0700
+
+    doc: Spelling corrections in altusmetrum.xsl
+    
+    Lots of minor spelling errors.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 963649aa064acfe75d2ff4babd9a0d35dc254e86
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 21:39:21 2011 -0600
+
+    doc tweaks through chap 3
+
+commit 3d88e0493ab446d7c7011786390d30618a72d045
+Merge: 02d6545 5a9972d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 21:26:26 2011 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 5a9972d41a87d4204c6c93cacf14e2962cc1c59c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 24 20:22:29 2011 -0700
+
+    altos/windows: Get latest JRE 1.6 version (Version 6 update 27)
+    
+    No reason to download stale java bits.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit cbfbaabb39f9f7709d00cf3dc63cc1bc7563062e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 24 19:13:03 2011 -0700
+
+    altosui: Make flight monitor font size configurable
+    
+    Tiny netbooks aren't tall enough for the 'usual' font size, so provide
+    a smaller option. Then provide a bigger option, just because.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9849883a754a73b861dd7be530753ff5c2abb499
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Aug 24 01:48:28 2011 -0700
+
+    altosui: Don't trust companion telemetry record 'channels' count
+    
+    It can be bogus, allowing the code to walk off the end of the
+    allocated data array.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 02d65453225a3807e61b2ac6e2a26da31a05bd45
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Aug 24 01:53:02 2011 -0600
+
+    update changelogs for Debian build
+
 commit 1d286dab223e6c44a25180f944ccb5ba8ed9d5f5
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed Aug 24 01:51:54 2011 -0600
