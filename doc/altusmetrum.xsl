@@ -548,19 +548,6 @@ NAR #88757, TRA #12200
 	  altimeter and TeleDongle must be configured to the same
 	  frequency to successfully communicate with each other.
         </para>
-        <para>
-          To set the radio frequency, use the 'c R' command to specify the
-	  radio transceiver configuration parameter. This parameter is computed
-	  using the desired frequency, 'F', the radio calibration parameter, 'C' (showed by the 'c s' command) and
-	  the standard calibration reference frequency, 'S', (normally 434.550MHz):
-	  <programlisting>
-	    R = F / S * C
-	  </programlisting>
-	  Round the result to the nearest integer value.
-          As with all 'c' sub-commands, follow this with a 'c w' to write the
-          change to the parameter block in the on-board flash on
-          your altimeter board if you want the change to stay in place across reboots.
-        </para>
       </section>
       <section>
         <title>Apogee Delay</title>
@@ -573,20 +560,14 @@ NAR #88757, TRA #12200
           primary and backup pyrotechnic charges do not fire simultaneously.
         </para>
         <para>
-          To set the apogee delay, use the 'c d' command.
-          As with all 'c' sub-commands, follow this with a 'c w' to write the
-          change to the parameter block in the on-board DataFlash chip.
-        </para>
-        <para>
-          Please note that the Altus Metrum apogee detection algorithm
-          fires exactly at apogee.  If you are also flying an
-          altimeter like the PerfectFlite MAWD, which only supports
-          selecting 0 or 1 seconds of apogee delay, you may wish to
-          set the MAWD to 0 seconds delay and set the TeleMetrum to
-          fire your backup 2 or 3 seconds later to avoid any chance of
-          both charges firing simultaneously.  We've flown several
-          air-frames this way quite happily, including Keith's
-          successful L3 cert.
+          The Altus Metrum apogee detection algorithm fires exactly at
+          apogee.  If you are also flying an altimeter like the
+          PerfectFlite MAWD, which only supports selecting 0 or 1
+          seconds of apogee delay, you may wish to set the MAWD to 0
+          seconds delay and set the TeleMetrum to fire your backup 2
+          or 3 seconds later to avoid any chance of both charges
+          firing simultaneously.  We've flown several air-frames this
+          way quite happily, including Keith's successful L3 cert.
         </para>
       </section>
       <section>
@@ -600,11 +581,6 @@ NAR #88757, TRA #12200
           deployment elevation for the backup altimeter to be something lower
           than the primary so that both pyrotechnic charges don't fire
           simultaneously.
-        </para>
-        <para>
-          To set the main deployment altitude, use the 'c m' command.
-          As with all 'c' sub-commands, follow this with a 'c w' to write the
-          change to the parameter block in the on-board DataFlash chip.
         </para>
       </section>
     </section>
@@ -628,22 +604,8 @@ NAR #88757, TRA #12200
           temperature changes is small enough that re-calibration by customers
           should generally not be required.
         </para>
-        <para>
-          To calibrate the radio frequency, connect the UHF antenna port to a
-          frequency counter, set the board to 434.550MHz, and use the 'C'
-          command to generate a CW carrier.  Wait for the transmitter temperature
-          to stabilize and the frequency to settle down.
-          Then, divide 434.550 MHz by the
-          measured frequency and multiply by the current radio cal value show
-          in the 'c s' command.  For an unprogrammed board, the default value
-          is 1186611.  Take the resulting integer and program it using the 'c f'
-          command.  Testing with the 'C' command again should show a carrier
-          within a few tens of Hertz of the intended frequency.
-          As with all 'c' sub-commands, follow this with a 'c w' to write the
-          change to the parameter block in the on-board DataFlash chip.
-        </para>
 	<para>
-	  when the radio calibration value is changed, the radio
+	  When the radio calibration value is changed, the radio
 	  frequency value is reset to the same value, so you'll need
 	  to recompute and reset the radio frequency value using the
 	  new radio calibration value.
@@ -2287,6 +2249,43 @@ NAR #88757, TRA #12200
       Verify you can connect and disconnect from the units while in your
       terminal program by sending the escape-disconnect mentioned above.
     </para>
+        <para>
+          To set the radio frequency, use the 'c R' command to specify the
+	  radio transceiver configuration parameter. This parameter is computed
+	  using the desired frequency, 'F', the radio calibration parameter, 'C' (showed by the 'c s' command) and
+	  the standard calibration reference frequency, 'S', (normally 434.550MHz):
+	  <programlisting>
+	    R = F / S * C
+	  </programlisting>
+	  Round the result to the nearest integer value.
+          As with all 'c' sub-commands, follow this with a 'c w' to write the
+          change to the parameter block in the on-board flash on
+          your altimeter board if you want the change to stay in place across reboots.
+        </para>
+        <para>
+          To set the apogee delay, use the 'c d' command.
+          As with all 'c' sub-commands, follow this with a 'c w' to write the
+          change to the parameter block in the on-board DataFlash chip.
+        </para>
+        <para>
+          To set the main deployment altitude, use the 'c m' command.
+          As with all 'c' sub-commands, follow this with a 'c w' to write the
+          change to the parameter block in the on-board DataFlash chip.
+        </para>
+        <para>
+          To calibrate the radio frequency, connect the UHF antenna port to a
+          frequency counter, set the board to 434.550MHz, and use the 'C'
+          command to generate a CW carrier.  Wait for the transmitter temperature
+          to stabilize and the frequency to settle down.
+          Then, divide 434.550 MHz by the
+          measured frequency and multiply by the current radio cal value show
+          in the 'c s' command.  For an unprogrammed board, the default value
+          is 1186611.  Take the resulting integer and program it using the 'c f'
+          command.  Testing with the 'C' command again should show a carrier
+          within a few tens of Hertz of the intended frequency.
+          As with all 'c' sub-commands, follow this with a 'c w' to write the
+          change to the parameter block in the on-board DataFlash chip.
+        </para>
     <para>
       Note that the 'reboot' command, which is very useful on the altimeters,
       will likely just cause problems with the dongle.  The *correct* way
@@ -2353,7 +2352,7 @@ NAR #88757, TRA #12200
       strength providing an indication of the direction from receiver to rocket.
     </para>
     <para>
-      TeleMetrum also provides GPS trekking data, which can further simplify
+      TeleMetrum also provides GPS tracking data, which can further simplify
       locating the rocket once it has landed. (The last good GPS data
       received before touch-down will be on the data screen of 'ao-view'.)
     </para>
