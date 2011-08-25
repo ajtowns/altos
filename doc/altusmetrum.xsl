@@ -536,7 +536,7 @@ NAR #88757, TRA #12200
         or radio link via TeleDongle.
       </para>
       <section>
-        <title>Radio Frequencies</title>
+        <title>Radio Frequency</title>
         <para>
 	  Altus Metrum boards support radio frequencies in the 70cm
 	  band. By default, the configuration interface provides a
@@ -582,6 +582,79 @@ NAR #88757, TRA #12200
           than the primary so that both pyrotechnic charges don't fire
           simultaneously.
         </para>
+      </section>
+      <section>
+	<title>Maximum Flight Log</title>
+	<para>
+	  TeleMetrum version 1.1 has 2MB of on-board flash storage,
+	  enough to hold over 40 minutes of data at full data rate
+	  (100 samples/second). TeleMetrum 1.0 has 1MB of on-board
+	  storage. As data are stored at a reduced rate during
+	  descent, there's plenty of space to store many flights worth
+	  of data.
+	</para>
+	<para>
+	  The on-board flash is partitioned into separate flight logs,
+	  each of a fixed maximum size. Increase the maximum size of
+	  each log and you reduce the number of flights that can be
+	  stored. Decrease the size and TeleMetrum can store more
+	  flights.
+	</para>
+	<para>
+	  All of the configuration data is also stored in the flash
+	  memory, which consumes 64kB on TeleMetrum v1.1 and 256B on
+	  TeleMetrum v1.0. This configuration space is not available
+	  for storing flight log data.
+	</para>
+	<para>
+	  To compute the amount of space needed for a single flight,
+	  you can multiply the expected ascent time (in seconds) by
+	  800, multiply the expected descent time (in seconds) by 80
+	  and add the two together. That will slightly under-estimate
+	  the storage (in bytes) needed for the flight. For instance,
+	  a flight spending 20 seconds in ascent and 150 seconds in
+	  descent will take about (20 * 800) + (150 * 80) = 28000
+	  bytes of storage. You could store dozens of these flights in
+	  the on-board flash.
+	</para>
+	<para>
+	  The default size, 192kB, allows for 10 flights of storage on
+	  TeleMetrum v1.1 and 5 flights on TeleMetrum v1.0. This
+	  ensures that you won't need to erase the memory before
+	  flying each time while still allowing more than sufficient
+	  storage for each flight.
+	</para>
+      </section>
+      <section>
+	<title>Ignite Mode</title>
+	<para>
+	  Instead of firing one charge at apogee and another charge at
+	  a fixed height above the ground, you can configure the
+	  altimeter to fire both at apogee or both during
+	  descent. This was added to support an airframe that has two
+	  TeleMetrum computers, one in the fin can and one in the
+	  nose.
+	</para>
+	<para>
+	  Providing the ability to use both igniters for apogee or
+	  main allows some level of redundancy without needing two
+	  flight computers.  In Redundant Apogee or Redundant Main
+	  mode, the two charges will be fired two seconds apart.
+	</para>
+      </section>
+      <section>
+	<title>Pad Orientation</title>
+	<para>
+	  TeleMetrum measures acceleration along the axis of the
+	  board. Which way the board is oriented affects the sign of
+	  the acceleration value. Instead of trying to guess which way
+	  the board is mounted in the air frame, TeleMetrum must be
+	  explicitly configured for either Antenna Up or Antenna
+	  Down. The default, Antenna Up, expects the end of the
+	  TeleMetrum board connected to the 70cm antenna to be nearest
+	  the nose of the rocket, with the end containing the screw
+	  terminals nearest the tail.
+	</para>
       </section>
     </section>
     <section>
