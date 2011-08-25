@@ -651,7 +651,7 @@ NAR #88757, TRA #12200
             you know how strong a signal TeleDongle is receiving. The
             radio inside TeleDongle operates down to about -99dBm;
             weaker signals may not be receivable. The packet link uses
-            error correction and detection techniques which prevent
+            error detection and correction techniques which prevent
             incorrect data from being reported.
           </para>
         </listitem>
@@ -662,8 +662,8 @@ NAR #88757, TRA #12200
         They're arranged in 'flight order' so that as the flight
         progresses, the selected tab automatically switches to display
         data relevant to the current state of the flight. You can select
-        other tabs at any time. The final 'table' tab contains all of
-        the telemetry data in one place.
+        other tabs at any time. The final 'table' tab displays all of
+        the raw telemetry values in one place in a spreadsheet-like format.
       </para>
       <section>
         <title>Launch Pad</title>
@@ -774,7 +774,9 @@ NAR #88757, TRA #12200
         <para>
           To monitor whether the apogee charge operated correctly, the
           current descent rate is reported along with the current
-          height. Good descent rates generally range from 15-30m/s.
+          height. Good descent rates vary based on the choice of recovery
+	  components, but generally range from 15-30m/s on drogue and should
+	  be below 10m/s when under the main parachute in a dual-deploy flight.
         </para>
         <para>
           For TeleMetrum altimeters, you can locate the rocket in the sky
@@ -789,14 +791,17 @@ NAR #88757, TRA #12200
         <para>
           Finally, the igniter voltages are reported in this tab as
           well, both to monitor the main charge as well as to see what
-          the status of the apogee charge is.
+          the status of the apogee charge is.  Note that some commercial
+	  e-matches are designed to retain continuity even after being
+	  fired, and will continue to show as green or return from red to
+	  green after firing.
         </para>
       </section>
       <section>
         <title>Landed</title>
         <para>
           Once the rocket is on the ground, attention switches to
-          recovery. While the radio signal is generally lost once the
+          recovery. While the radio signal is often lost once the
           rocket is on the ground, the last reported GPS position is
           generally within a short distance of the actual landing location.
         </para>
@@ -804,20 +809,24 @@ NAR #88757, TRA #12200
           The last reported GPS position is reported both by
           latitude and longitude as well as a bearing and distance from
           the launch pad. The distance should give you a good idea of
-          whether you'll want to walk or hitch a ride. Take the reported
+          whether to walk or hitch a ride.  Take the reported
           latitude and longitude and enter them into your hand-held GPS
           unit and have that compute a track to the landing location.
         </para>
 	<para>
 	  Both TeleMini and TeleMetrum will continue to transmit RDF
 	  tones after landing, allowing you to locate the rocket by
-	  following the radio signal. You may need to get away from
-	  the clutter of the flight line, or even get up on a hill (or
-	  your neighbor's RV) to receive the RDF signal.
+	  following the radio signal if necessary. You may need to get 
+	  away from the clutter of the flight line, or even get up on 
+	  a hill (or your neighbor's RV roof) to receive the RDF signal.
 	</para>
         <para>
           The maximum height, speed and acceleration reported
           during the flight are displayed for your admiring observers.
+	  The accuracy of these immediate values depends on the quality
+	  of your radio link and how many packets were received.  
+	  Recovering the on-board data after flight will likely yield
+	  more precise results.
         </para>
 	<para>
 	  To get more detailed information about the flight, you can
@@ -828,7 +837,7 @@ NAR #88757, TRA #12200
       <section>
         <title>Site Map</title>
         <para>
-          When the TeleMetrum gets a GPS fix, the Site Map tab will map
+          When the TeleMetrum has a GPS fix, the Site Map tab will map
           the rocket's position to make it easier for you to locate the
           rocket, both while it is in the air, and when it has landed. The
           rocket's state is indicated by color: white for pad, red for
@@ -842,7 +851,7 @@ NAR #88757, TRA #12200
         </para>
         <para>
           Images are fetched automatically via the Google Maps Static API,
-          and are cached for reuse. If map images cannot be downloaded,
+          and cached on disk for reuse. If map images cannot be downloaded,
           the rocket's path will be traced on a dark gray background
           instead.
         </para>
@@ -856,7 +865,7 @@ NAR #88757, TRA #12200
       <title>Save Flight Data</title>
       <para>
         The altimeter records flight data to its internal flash memory.
-        The TeleMetrum data is recorded at a much higher rate than the telemetry
+        TeleMetrum data is recorded at a much higher rate than the telemetry
         system can handle, and is not subject to radio drop-outs. As
         such, it provides a more complete and precise record of the
         flight. The 'Save Flight Data' button allows you to read the
@@ -869,9 +878,9 @@ NAR #88757, TRA #12200
         connected TeleMetrum and TeleDongle devices. If you select a
         TeleMetrum device, the flight data will be downloaded from that
         device directly. If you select a TeleDongle device, flight data
-        will be downloaded from a TeleMetrum or TeleMini device connected via the
-        packet command link to the specified TeleDongle. See the chapter
-        on Packet Command Mode for more information about this.
+        will be downloaded from an altimeter over radio link via the 
+	specified TeleDongle. See the chapter on Controlling An Altimeter 
+	Over The Radio Link for more information.
       </para>
       <para>
 	After the device has been selected, a dialog showing the
@@ -879,10 +888,10 @@ NAR #88757, TRA #12200
 	select which flights to download and which to delete. With
 	version 0.9 or newer firmware, you must erase flights in order
 	for the space they consume to be reused by another
-	flight. This prevents you from accidentally losing flight data
+	flight. This prevents accidentally losing flight data
 	if you neglect to download data before flying again. Note that
 	if there is no more space available in the device, then no
-	data will be recorded for a flight.
+	data will be recorded during the next flight.
       </para>
       <para>
         The file name for each flight log is computed automatically
@@ -915,8 +924,8 @@ NAR #88757, TRA #12200
       <para>
         Once a flight record is selected, a window with two tabs is
         opened. The first tab contains a graph with acceleration
-        (blue), velocity (green) and altitude (red) of the flight are
-        plotted and displayed, measured in metric units. The
+        (blue), velocity (green) and altitude (red) of the flight,
+        measured in metric units. The
         apogee(yellow) and main(magenta) igniter voltages are also
         displayed; high voltages indicate continuity, low voltages
         indicate open circuits. The second tab contains some basic
@@ -933,14 +942,15 @@ NAR #88757, TRA #12200
       <para>
         Note that telemetry files will generally produce poor graphs
         due to the lower sampling rate and missed telemetry packets.
-        Use saved flight data for graphing where possible.
+        Use saved flight data in .eeprom files for graphing where possible.
       </para>
     </section>
     <section>
       <title>Export Data</title>
       <para>
         This tool takes the raw data files and makes them available for
-        external analysis. When you select this button, you are prompted to select a flight
+        external analysis. When you select this button, you are prompted to 
+	select a flight
         data file (either .eeprom or .telem will do, remember that
         .eeprom files contain higher resolution and more continuous
         data). Next, a second dialog appears which is used to select
@@ -956,7 +966,7 @@ NAR #88757, TRA #12200
           configuration information from the altimeter, then
           there is a single header line which labels all of the
           fields. All of these lines start with a '#' character which
-          most tools can be configured to skip over.
+          many tools can be configured to skip over.
         </para>
         <para>
           The remaining lines of the file contain the data, with each
@@ -969,10 +979,9 @@ NAR #88757, TRA #12200
       <section>
         <title>Keyhole Markup Language (for Google Earth)</title>
         <para>
-          This is the format used by
-          Googleearth to provide an overlay within that
-          application. With this, you can use Googleearth to see the
-          whole flight path in 3D.
+          This is the format used by Google Earth to provide an overlay 
+	  within that application. With this, you can use Google Earth to 
+	  see the whole flight path in 3D.
         </para>
       </section>
     </section>
@@ -981,9 +990,7 @@ NAR #88757, TRA #12200
       <para>
         Select this button and then select either a TeleMetrum or
         TeleDongle Device from the list provided. Selecting a TeleDongle
-        device will use Packet Command Mode to configure a remote
-        altimeter. Learn how to use this in the Packet Command
-        Mode chapter.
+        device will use the radio link to configure a remote altimeter. 
       </para>
       <para>
         The first few lines of the dialog provide information about the
@@ -1012,7 +1019,8 @@ NAR #88757, TRA #12200
           <para>
             Reboot. This reboots the device. Use this to
             switch from idle to pad mode by rebooting once the rocket is
-            oriented for flight.
+            oriented for flight, or to confirm changes you think you saved 
+	    are really saved.
           </para>
         </listitem>
         <listitem>
@@ -1041,7 +1049,7 @@ NAR #88757, TRA #12200
         <para>
           When flying redundant electronics, it's often important to
           ensure that multiple apogee charges don't fire at precisely
-          the same time as that can over pressurize the apogee deployment
+          the same time, as that can over pressurize the apogee deployment
           bay and cause a structural failure of the air-frame. The Apogee
           Delay parameter tells the flight computer to fire the apogee
           charge a certain number of seconds after apogee has been
@@ -1063,9 +1071,11 @@ NAR #88757, TRA #12200
         <para>
           The radios in every Altus Metrum device are calibrated at the
           factory to ensure that they transmit and receive on the
-          specified frequency. You can adjust that
-          calibration by changing this value. To change the TeleDongle's
-          calibration, you must reprogram the unit completely.
+          specified frequency.  If you need to you can adjust the calibration 
+	  by changing this value.  Do not do this without understanding what
+	  the value means, read the appendix on calibration and/or the source
+	  code for more information.  To change a TeleDongle's calibration, 
+	  you must reprogram the unit completely.
         </para>
       </section>
       <section>
@@ -1095,8 +1105,8 @@ NAR #88757, TRA #12200
 	  The default, 192kB, will store over 200 seconds of data at
 	  the ascent rate, or over 2000 seconds of data at the descent
 	  rate. That's plenty for most flights. This leaves enough
-	  storage for five flights in a 1MB system, or 10 flights in a
-	  2MB system.
+	  storage for five flights in 1MB systems, or 10 flights in 2MB 
+	  systems.
 	</para>
 	<para>
 	  The configuration block takes the last available block of
@@ -1106,7 +1116,7 @@ NAR #88757, TRA #12200
 	<para>
 	   TeleMini has 5kB of on-board storage, which is plenty for a
 	   single flight. Make sure you download and delete the data
-	   before a subsequent flight or it will not log any data.
+	   before subsequent flights, or TeleMini will not log any data.
 	</para>
       </section>
       <section>
@@ -1483,8 +1493,7 @@ NAR #88757, TRA #12200
         <para>
           In the future, we intend to offer "companion boards" for the rocket that will
           plug in to TeleMetrum to collect additional data, provide more pyro channels,
-          and so forth.  A reference design for a companion board will be documented
-          soon, and will be compatible with open source Arduino programming tools.
+          and so forth.  
         </para>
         <para>
           We are also working on the design of a hand-held ground terminal that will
@@ -1619,7 +1628,7 @@ NAR #88757, TRA #12200
       <para>
 	Any altimeter will generate RFI; the digital circuits use
 	high-frequency clocks that spray radio interference across a
-	wide band. Altusmetrum altimeters generate intentional radio
+	wide band. Altus Metrum altimeters generate intentional radio
 	signals as well, increasing the amount of RF energy around the board.
       </para>
       <para>
@@ -1632,7 +1641,7 @@ NAR #88757, TRA #12200
       <para>
 	Voltages are induced when radio frequency energy is
 	transmitted from one circuit to another. Here are things that
-	increase the induced voltage and current:
+	influence the induced voltage and current:
       </para>
       <itemizedlist>
 	<listitem>
@@ -1678,8 +1687,8 @@ NAR #88757, TRA #12200
 	To accurately measure atmospheric pressure, the ebay
 	containing the altimeter must be vented outside the
 	air-frame. The vent must be placed in a region of linear
-	airflow, smooth and not in an area of increasing or decreasing
-	pressure.
+	airflow, have smooth edges, and away from areas of increasing or 
+	decreasing pressure.
       </para>
       <para>
 	The barometric sensor in the altimeter is quite sensitive to
@@ -1703,7 +1712,9 @@ NAR #88757, TRA #12200
 	mode. This will catch any mistakes in wiring and any residual
 	RFI issues that might accidentally fire igniters at the wrong
 	time. Let the air-frame sit for several minutes, checking for
-	adequate telemetry signal strength and GPS lock.
+	adequate telemetry signal strength and GPS lock.  If any igniters
+	fire unexpectedly, find and resolve the issue before loading any
+	BP charges!
       </para>
       <para>
 	Ground test the ejection charges. Prepare the rocket for
@@ -1718,11 +1729,11 @@ NAR #88757, TRA #12200
   <chapter>
     <title>Updating Device Firmware</title>
     <para>
-      The big conceptual thing to realize is that you have to use a
+      The big concept to understand is that you have to use a
       TeleDongle as a programmer to update a TeleMetrum or TeleMini,
       and a TeleMetrum or other TeleDongle to program the TeleDongle
       Due to limited memory resources in the cc1111, we don't support
-      programming directly over USB.
+      programming directly over USB. 
     </para>
     <para>
       You may wish to begin by ensuring you have current firmware images.
