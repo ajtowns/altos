@@ -1,4 +1,3 @@
-etc/apt/sources.list.d
 usr/bin
 usr/lib/altos
 usr/share/altos/themes
