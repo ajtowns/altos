@@ -445,10 +445,10 @@ NAR #88757, TRA #12200
         close the window before performing other desired radio operations.
       </para>
       <para>
-        TeleMetrum only enables packet command mode in 'idle' mode, so
+        TeleMetrum only enables radio commanding in 'idle' mode, so
         make sure you have TeleMetrum lying horizontally when you turn
         it on. Otherwise, TeleMetrum will start in 'pad' mode ready for
-        flight and will not be listening for command packets from TeleDongle.
+        flight, and will not be listening for command packets from TeleDongle.
       </para>
       <para>
 	TeleMini listens for a command packet for five seconds after
@@ -462,12 +462,10 @@ NAR #88757, TRA #12200
 	operation can be performed.
       </para>
       <para>
-        When packet command mode is enabled, you can monitor the link
-        by watching the lights on the
-        devices. The red LED will flash each time they
-        transmit a packet while the green LED will light up
-        on TeleDongle while it is waiting to receive a packet from
-	the altimeter.
+        You can monitor the operation of the radio link by watching the 
+        lights on the devices. The red LED will flash each time a packet
+        is tramsitted, while the green LED will light up on TeleDongle when 
+        it is waiting to receive a packet from the altimeter.
       </para>
     </section>
     <section>
@@ -540,13 +538,13 @@ NAR #88757, TRA #12200
       <section>
         <title>Radio Frequencies</title>
         <para>
-	  The Altus Metrum boards support frequencies in the 70cm
+	  Altus Metrum boards support radio frequencies in the 70cm
 	  band. By default, the configuration interface provides a
-	  list of 10 common frequencies in 100kHz channels starting at
+	  list of 10 "standard" frequencies in 100kHz channels starting at
 	  434.550MHz.  However, the firmware supports use of
 	  any 50kHz multiple within the 70cm band. At any given
-	  launch, we highly recommend coordinating who will use each
-	  frequency and when to avoid interference.  And of course, both
+	  launch, we highly recommend coordinating when and by whom each
+	  frequency will be used to avoid interference.  And of course, both
 	  altimeter and TeleDongle must be configured to the same
 	  frequency to successfully communicate with each other.
         </para>
