@@ -1370,7 +1370,7 @@ NAR #88757, TRA #12200
         This reprograms any Altus Metrum device by using a TeleMetrum
         or TeleDongle as a programming dongle. Please read the
         directions for flashing devices in the Updating Device
-        Firmware section above
+        Firmware chapter below.
       </para>
       <para>
         Once you have the programmer and target devices connected,
