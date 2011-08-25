@@ -536,7 +536,7 @@ NAR #88757, TRA #12200
         or radio link via TeleDongle.
       </para>
       <section>
-        <title>Radio Frequencies</title>
+        <title>Radio Frequency</title>
         <para>
 	  Altus Metrum boards support radio frequencies in the 70cm
 	  band. By default, the configuration interface provides a
@@ -582,6 +582,90 @@ NAR #88757, TRA #12200
           than the primary so that both pyrotechnic charges don't fire
           simultaneously.
         </para>
+      </section>
+      <section>
+	<title>Maximum Flight Log</title>
+	<para>
+	  TeleMetrum version 1.1 has 2MB of on-board flash storage,
+	  enough to hold over 40 minutes of data at full data rate
+	  (100 samples/second). TeleMetrum 1.0 has 1MB of on-board
+	  storage. As data are stored at a reduced rate during descent
+	  (10 samples/second), there's plenty of space to store many
+	  flights worth of data.
+	</para>
+	<para>
+	  The on-board flash is partitioned into separate flight logs,
+	  each of a fixed maximum size. Increase the maximum size of
+	  each log and you reduce the number of flights that can be
+	  stored. Decrease the size and TeleMetrum can store more
+	  flights.
+	</para>
+	<para>
+	  All of the configuration data is also stored in the flash
+	  memory, which consumes 64kB on TeleMetrum v1.1 and 256B on
+	  TeleMetrum v1.0. This configuration space is not available
+	  for storing flight log data.
+	</para>
+	<para>
+	  To compute the amount of space needed for a single flight,
+	  you can multiply the expected ascent time (in seconds) by
+	  800, multiply the expected descent time (in seconds) by 80
+	  and add the two together. That will slightly under-estimate
+	  the storage (in bytes) needed for the flight. For instance,
+	  a flight spending 20 seconds in ascent and 150 seconds in
+	  descent will take about (20 * 800) + (150 * 80) = 28000
+	  bytes of storage. You could store dozens of these flights in
+	  the on-board flash.
+	</para>
+	<para>
+	  The default size, 192kB, allows for 10 flights of storage on
+	  TeleMetrum v1.1 and 5 flights on TeleMetrum v1.0. This
+	  ensures that you won't need to erase the memory before
+	  flying each time while still allowing more than sufficient
+	  storage for each flight.
+	</para>
+	<para>
+	  As TeleMini does not contain an accelerometer, it stores
+	  data at 10 samples per second during ascent and one sample
+	  per second during descent. Each sample is a two byte reading
+	  from the barometer. These are stored in 5kB of
+	  on-chip flash memory which can hold 256 seconds at the
+	  ascent rate or 2560 seconds at the descent rate. Because of
+	  the limited storage, TeleMini cannot hold data for more than
+	  one flight, and so must be erased after each flight or it
+	  will not capture data for subsequent flights.
+	</para>
+      </section>
+      <section>
+	<title>Ignite Mode</title>
+	<para>
+	  Instead of firing one charge at apogee and another charge at
+	  a fixed height above the ground, you can configure the
+	  altimeter to fire both at apogee or both during
+	  descent. This was added to support an airframe that has two
+	  TeleMetrum computers, one in the fin can and one in the
+	  nose.
+	</para>
+	<para>
+	  Providing the ability to use both igniters for apogee or
+	  main allows some level of redundancy without needing two
+	  flight computers.  In Redundant Apogee or Redundant Main
+	  mode, the two charges will be fired two seconds apart.
+	</para>
+      </section>
+      <section>
+	<title>Pad Orientation</title>
+	<para>
+	  TeleMetrum measures acceleration along the axis of the
+	  board. Which way the board is oriented affects the sign of
+	  the acceleration value. Instead of trying to guess which way
+	  the board is mounted in the air frame, TeleMetrum must be
+	  explicitly configured for either Antenna Up or Antenna
+	  Down. The default, Antenna Up, expects the end of the
+	  TeleMetrum board connected to the 70cm antenna to be nearest
+	  the nose of the rocket, with the end containing the screw
+	  terminals nearest the tail.
+	</para>
       </section>
     </section>
 
@@ -1092,31 +1176,6 @@ NAR #88757, TRA #12200
           log. The available space will be divided into chunks of this
           size. A smaller value will allow more flights to be stored,
           a larger value will record data from longer flights.
-	</para>
-	<para>
-	  During ascent, TeleMetrum records barometer and
-	  accelerometer values 100 times per second, other analog
-	  information (voltages and temperature) 6 times per second
-	  and GPS data once per second. During descent, the non-GPS
-	  data is recorded 1/10th as often. Each barometer +
-	  accelerometer record takes 8 bytes.
-	</para>
-	<para>
-	  The default, 192kB, will store over 200 seconds of data at
-	  the ascent rate, or over 2000 seconds of data at the descent
-	  rate. That's plenty for most flights. This leaves enough
-	  storage for five flights in 1MB systems, or 10 flights in 2MB 
-	  systems.
-	</para>
-	<para>
-	  The configuration block takes the last available block of
-	  memory, on v1.0 boards that's just 256 bytes. However, the
-	  flash part on the v1.1 boards uses 64kB for each block.
-        </para>
-	<para>
-	   TeleMini has 5kB of on-board storage, which is plenty for a
-	   single flight. Make sure you download and delete the data
-	   before subsequent flights, or TeleMini will not log any data.
 	</para>
       </section>
       <section>
