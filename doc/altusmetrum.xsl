@@ -953,6 +953,21 @@ NAR #88757, TRA #12200
                 required for a 'GO' status.
               </para>
             </listitem>
+	    <listitem>
+	      <para>
+		On-board Data Logging. This indicates whether there is
+		space remaining on-board to store flight data for the
+		upcoming flight. If you've downloaded data, but failed
+		to erase flights, there may not be any space
+		left. TeleMetrum can store multiple flights, depending
+		on the configured maximum flight log size. TeleMini
+		stores only a single flight, so it will need to be
+		downloaded and erased after each flight to capture
+		data. This only affects on-board flight logging; the
+		altimeter will still transmit telemetry and fire
+		ejection charges at the proper times.
+	      </para>
+	    </listitem>
             <listitem>
               <para>
                 GPS Locked. For a TeleMetrum device, this indicates whether the GPS receiver is
