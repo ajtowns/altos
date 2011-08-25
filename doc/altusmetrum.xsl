@@ -696,229 +696,6 @@ NAR #88757, TRA #12200
         </para>
       </section>
     </section>
-  <section>
-    <title>Updating Device Firmware</title>
-    <para>
-      The big conceptual thing to realize is that you have to use a
-      TeleDongle as a programmer to update a TeleMetrum or TeleMini,
-      and a TeleMetrum or other TeleDongle to program the TeleDongle
-      Due to limited memory resources in the cc1111, we don't support
-      programming directly over USB.
-    </para>
-    <para>
-      You may wish to begin by ensuring you have current firmware images.
-      These are distributed as part of the AltOS software bundle that
-      also includes the AltosUI ground station program.  Newer ground
-      station versions typically work fine with older firmware versions,
-      so you don't need to update your devices just to try out new
-      software features.  You can always download the most recent
-      version from <ulink url="http://www.altusmetrum.org/AltOS/"/>.
-    </para>
-    <para>
-      We recommend updating the altimeter first, before updating TeleDongle.
-    </para>
-    <section>
-      <title>Updating TeleMetrum Firmware</title>
-      <orderedlist inheritnum='inherit' numeration='arabic'>
-        <listitem>
-          Find the 'programming cable' that you got as part of the starter
-          kit, that has a red 8-pin MicroMaTch connector on one end and a
-          red 4-pin MicroMaTch connector on the other end.
-        </listitem>
-        <listitem>
-          Take the 2 screws out of the TeleDongle case to get access
-          to the circuit board.
-        </listitem>
-        <listitem>
-          Plug the 8-pin end of the programming cable to the
-          matching connector on the TeleDongle, and the 4-pin end to the
-          matching connector on the TeleMetrum.
-	  Note that each MicroMaTch connector has an alignment pin that
-	  goes through a hole in the PC board when you have the cable
-	  oriented correctly.
-        </listitem>
-        <listitem>
-          Attach a battery to the TeleMetrum board.
-        </listitem>
-        <listitem>
-          Plug the TeleDongle into your computer's USB port, and power
-          up the TeleMetrum.
-        </listitem>
-        <listitem>
-          Run AltosUI, and select 'Flash Image' from the File menu.
-        </listitem>
-        <listitem>
-          Pick the TeleDongle device from the list, identifying it as the
-          programming device.
-        </listitem>
-        <listitem>
-          Select the image you want put on the TeleMetrum, which should have a
-          name in the form telemetrum-v1.1-1.0.0.ihx.  It should be visible
-	in the default directory, if not you may have to poke around
-	your system to find it.
-        </listitem>
-        <listitem>
-          Make sure the configuration parameters are reasonable
-          looking. If the serial number and/or RF configuration
-          values aren't right, you'll need to change them.
-        </listitem>
-        <listitem>
-          Hit the 'OK' button and the software should proceed to flash
-          the TeleMetrum with new firmware, showing a progress bar.
-        </listitem>
-        <listitem>
-          Confirm that the TeleMetrum board seems to have updated OK, which you
-          can do by plugging in to it over USB and using a terminal program
-          to connect to the board and issue the 'v' command to check
-          the version, etc.
-        </listitem>
-        <listitem>
-          If something goes wrong, give it another try.
-        </listitem>
-      </orderedlist>
-    </section>
-    <section>
-      <title>Updating TeleMini Firmware</title>
-      <orderedlist inheritnum='inherit' numeration='arabic'>
-        <listitem>
-	  You'll need a special 'programming cable' to reprogram the
-	  TeleMini. It's available on the Altus Metrum web store, or
-	  you can make your own using an 8-pin MicroMaTch connector on
-	  one end and a set of four pins on the other.
-        </listitem>
-        <listitem>
-          Take the 2 screws out of the TeleDongle case to get access
-          to the circuit board.
-        </listitem>
-        <listitem>
-          Plug the 8-pin end of the programming cable to the matching
-          connector on the TeleDongle, and the 4-pins into the holes
-          in the TeleMini circuit board.  Note that the MicroMaTch
-          connector has an alignment pin that goes through a hole in
-          the PC board when you have the cable oriented correctly, and
-          that pin 1 on the TeleMini board is marked with a square pad
-          while the other pins have round pads.
-        </listitem>
-        <listitem>
-          Attach a battery to the TeleMini board.
-        </listitem>
-        <listitem>
-          Plug the TeleDongle into your computer's USB port, and power
-          up the TeleMini
-        </listitem>
-        <listitem>
-          Run AltosUI, and select 'Flash Image' from the File menu.
-        </listitem>
-        <listitem>
-          Pick the TeleDongle device from the list, identifying it as the
-          programming device.
-        </listitem>
-        <listitem>
-          Select the image you want put on the TeleMini, which should have a
-          name in the form telemini-v1.0-1.0.0.ihx.  It should be visible
-	in the default directory, if not you may have to poke around
-	your system to find it.
-        </listitem>
-        <listitem>
-          Make sure the configuration parameters are reasonable
-          looking. If the serial number and/or RF configuration
-          values aren't right, you'll need to change them.
-        </listitem>
-        <listitem>
-          Hit the 'OK' button and the software should proceed to flash
-          the TeleMini with new firmware, showing a progress bar.
-        </listitem>
-        <listitem>
-          Confirm that the TeleMini board seems to have updated OK, which you
-          can do by configuring it over the radio link through the TeleDongle, or
-	  letting it come up in "flight" mode and listening for telemetry.
-        </listitem>
-        <listitem>
-          If something goes wrong, give it another try.
-        </listitem>
-      </orderedlist>
-    </section>
-    <section>
-      <title>Updating TeleDongle Firmware</title>
-      <para>
-        Updating TeleDongle's firmware is just like updating TeleMetrum or TeleMini
-	firmware, but you use either a TeleMetrum or another TeleDongle as the programmer.
-	</para>
-      <orderedlist inheritnum='inherit' numeration='arabic'>
-        <listitem>
-          Find the 'programming cable' that you got as part of the starter
-          kit, that has a red 8-pin MicroMaTch connector on one end and a
-          red 4-pin MicroMaTch connector on the other end.
-        </listitem>
-        <listitem>
-	  Find the USB cable that you got as part of the starter kit, and
-	  plug the "mini" end in to the mating connector on TeleMetrum or TeleDongle.
-        </listitem>
-        <listitem>
-          Take the 2 screws out of the TeleDongle case to get access
-          to the circuit board.
-        </listitem>
-        <listitem>
-          Plug the 8-pin end of the programming cable to the
-          matching connector on the programmer, and the 4-pin end to the
-          matching connector on the TeleDongle.
-	  Note that each MicroMaTch connector has an alignment pin that
-	  goes through a hole in the PC board when you have the cable
-	  oriented correctly.
-        </listitem>
-        <listitem>
-          Attach a battery to the TeleMetrum board if you're using one.
-        </listitem>
-        <listitem>
-          Plug both the programmer and the TeleDongle into your computer's USB
-	  ports, and power up the programmer.
-        </listitem>
-        <listitem>
-          Run AltosUI, and select 'Flash Image' from the File menu.
-        </listitem>
-        <listitem>
-          Pick the programmer device from the list, identifying it as the
-          programming device.
-        </listitem>
-        <listitem>
-          Select the image you want put on the TeleDongle, which should have a
-          name in the form teledongle-v0.2-1.0.0.ihx.  It should be visible
-	in the default directory, if not you may have to poke around
-	your system to find it.
-        </listitem>
-        <listitem>
-          Make sure the configuration parameters are reasonable
-          looking. If the serial number and/or RF configuration
-          values aren't right, you'll need to change them.  The TeleDongle
-	  serial number is on the "bottom" of the circuit board, and can
-	  usually be read through the translucent blue plastic case without
-	  needing to remove the board from the case.
-        </listitem>
-        <listitem>
-          Hit the 'OK' button and the software should proceed to flash
-          the TeleDongle with new firmware, showing a progress bar.
-        </listitem>
-        <listitem>
-          Confirm that the TeleDongle board seems to have updated OK, which you
-          can do by plugging in to it over USB and using a terminal program
-          to connect to the board and issue the 'v' command to check
-          the version, etc.  Once you're happy, remove the programming cable
-	  and put the cover back on the TeleDongle.
-        </listitem>
-        <listitem>
-          If something goes wrong, give it another try.
-        </listitem>
-      </orderedlist>
-      <para>
-        Be careful removing the programming cable from the locking 8-pin
-        connector on TeleMetrum.  You'll need a fingernail or perhaps a thin
-        screwdriver or knife blade to gently pry the locking ears out
-        slightly to extract the connector.  We used a locking connector on
-        TeleMetrum to help ensure that the cabling to companion boards
-        used in a rocket don't ever come loose accidentally in flight.
-      </para>
-    </section>
-  </section>
 
   </chapter>
   <chapter>
@@ -1591,7 +1368,7 @@ NAR #88757, TRA #12200
         This reprograms any Altus Metrum device by using a TeleMetrum
         or TeleDongle as a programming dongle. Please read the
         directions for flashing devices in the Updating Device
-        Firmware section above
+        Firmware chapter below.
       </para>
       <para>
         Once you have the programmer and target devices connected,
@@ -2047,6 +1824,229 @@ NAR #88757, TRA #12200
 	interface through a TeleDongle to command each charge to
 	fire. Make sure the charge is sufficient to robustly separate
 	the air-frame and deploy the recovery system.
+      </para>
+    </section>
+  </chapter>
+  <chapter>
+    <title>Updating Device Firmware</title>
+    <para>
+      The big conceptual thing to realize is that you have to use a
+      TeleDongle as a programmer to update a TeleMetrum or TeleMini,
+      and a TeleMetrum or other TeleDongle to program the TeleDongle
+      Due to limited memory resources in the cc1111, we don't support
+      programming directly over USB.
+    </para>
+    <para>
+      You may wish to begin by ensuring you have current firmware images.
+      These are distributed as part of the AltOS software bundle that
+      also includes the AltosUI ground station program.  Newer ground
+      station versions typically work fine with older firmware versions,
+      so you don't need to update your devices just to try out new
+      software features.  You can always download the most recent
+      version from <ulink url="http://www.altusmetrum.org/AltOS/"/>.
+    </para>
+    <para>
+      We recommend updating the altimeter first, before updating TeleDongle.
+    </para>
+    <section>
+      <title>Updating TeleMetrum Firmware</title>
+      <orderedlist inheritnum='inherit' numeration='arabic'>
+        <listitem>
+          Find the 'programming cable' that you got as part of the starter
+          kit, that has a red 8-pin MicroMaTch connector on one end and a
+          red 4-pin MicroMaTch connector on the other end.
+        </listitem>
+        <listitem>
+          Take the 2 screws out of the TeleDongle case to get access
+          to the circuit board.
+        </listitem>
+        <listitem>
+          Plug the 8-pin end of the programming cable to the
+          matching connector on the TeleDongle, and the 4-pin end to the
+          matching connector on the TeleMetrum.
+	  Note that each MicroMaTch connector has an alignment pin that
+	  goes through a hole in the PC board when you have the cable
+	  oriented correctly.
+        </listitem>
+        <listitem>
+          Attach a battery to the TeleMetrum board.
+        </listitem>
+        <listitem>
+          Plug the TeleDongle into your computer's USB port, and power
+          up the TeleMetrum.
+        </listitem>
+        <listitem>
+          Run AltosUI, and select 'Flash Image' from the File menu.
+        </listitem>
+        <listitem>
+          Pick the TeleDongle device from the list, identifying it as the
+          programming device.
+        </listitem>
+        <listitem>
+          Select the image you want put on the TeleMetrum, which should have a
+          name in the form telemetrum-v1.1-1.0.0.ihx.  It should be visible
+	in the default directory, if not you may have to poke around
+	your system to find it.
+        </listitem>
+        <listitem>
+          Make sure the configuration parameters are reasonable
+          looking. If the serial number and/or RF configuration
+          values aren't right, you'll need to change them.
+        </listitem>
+        <listitem>
+          Hit the 'OK' button and the software should proceed to flash
+          the TeleMetrum with new firmware, showing a progress bar.
+        </listitem>
+        <listitem>
+          Confirm that the TeleMetrum board seems to have updated OK, which you
+          can do by plugging in to it over USB and using a terminal program
+          to connect to the board and issue the 'v' command to check
+          the version, etc.
+        </listitem>
+        <listitem>
+          If something goes wrong, give it another try.
+        </listitem>
+      </orderedlist>
+    </section>
+    <section>
+      <title>Updating TeleMini Firmware</title>
+      <orderedlist inheritnum='inherit' numeration='arabic'>
+        <listitem>
+	  You'll need a special 'programming cable' to reprogram the
+	  TeleMini. It's available on the Altus Metrum web store, or
+	  you can make your own using an 8-pin MicroMaTch connector on
+	  one end and a set of four pins on the other.
+        </listitem>
+        <listitem>
+          Take the 2 screws out of the TeleDongle case to get access
+          to the circuit board.
+        </listitem>
+        <listitem>
+          Plug the 8-pin end of the programming cable to the matching
+          connector on the TeleDongle, and the 4-pins into the holes
+          in the TeleMini circuit board.  Note that the MicroMaTch
+          connector has an alignment pin that goes through a hole in
+          the PC board when you have the cable oriented correctly, and
+          that pin 1 on the TeleMini board is marked with a square pad
+          while the other pins have round pads.
+        </listitem>
+        <listitem>
+          Attach a battery to the TeleMini board.
+        </listitem>
+        <listitem>
+          Plug the TeleDongle into your computer's USB port, and power
+          up the TeleMini
+        </listitem>
+        <listitem>
+          Run AltosUI, and select 'Flash Image' from the File menu.
+        </listitem>
+        <listitem>
+          Pick the TeleDongle device from the list, identifying it as the
+          programming device.
+        </listitem>
+        <listitem>
+          Select the image you want put on the TeleMini, which should have a
+          name in the form telemini-v1.0-1.0.0.ihx.  It should be visible
+	in the default directory, if not you may have to poke around
+	your system to find it.
+        </listitem>
+        <listitem>
+          Make sure the configuration parameters are reasonable
+          looking. If the serial number and/or RF configuration
+          values aren't right, you'll need to change them.
+        </listitem>
+        <listitem>
+          Hit the 'OK' button and the software should proceed to flash
+          the TeleMini with new firmware, showing a progress bar.
+        </listitem>
+        <listitem>
+          Confirm that the TeleMini board seems to have updated OK, which you
+          can do by configuring it over the radio link through the TeleDongle, or
+	  letting it come up in "flight" mode and listening for telemetry.
+        </listitem>
+        <listitem>
+          If something goes wrong, give it another try.
+        </listitem>
+      </orderedlist>
+    </section>
+    <section>
+      <title>Updating TeleDongle Firmware</title>
+      <para>
+        Updating TeleDongle's firmware is just like updating TeleMetrum or TeleMini
+	firmware, but you use either a TeleMetrum or another TeleDongle as the programmer.
+	</para>
+      <orderedlist inheritnum='inherit' numeration='arabic'>
+        <listitem>
+          Find the 'programming cable' that you got as part of the starter
+          kit, that has a red 8-pin MicroMaTch connector on one end and a
+          red 4-pin MicroMaTch connector on the other end.
+        </listitem>
+        <listitem>
+	  Find the USB cable that you got as part of the starter kit, and
+	  plug the "mini" end in to the mating connector on TeleMetrum or TeleDongle.
+        </listitem>
+        <listitem>
+          Take the 2 screws out of the TeleDongle case to get access
+          to the circuit board.
+        </listitem>
+        <listitem>
+          Plug the 8-pin end of the programming cable to the
+          matching connector on the programmer, and the 4-pin end to the
+          matching connector on the TeleDongle.
+	  Note that each MicroMaTch connector has an alignment pin that
+	  goes through a hole in the PC board when you have the cable
+	  oriented correctly.
+        </listitem>
+        <listitem>
+          Attach a battery to the TeleMetrum board if you're using one.
+        </listitem>
+        <listitem>
+          Plug both the programmer and the TeleDongle into your computer's USB
+	  ports, and power up the programmer.
+        </listitem>
+        <listitem>
+          Run AltosUI, and select 'Flash Image' from the File menu.
+        </listitem>
+        <listitem>
+          Pick the programmer device from the list, identifying it as the
+          programming device.
+        </listitem>
+        <listitem>
+          Select the image you want put on the TeleDongle, which should have a
+          name in the form teledongle-v0.2-1.0.0.ihx.  It should be visible
+	in the default directory, if not you may have to poke around
+	your system to find it.
+        </listitem>
+        <listitem>
+          Make sure the configuration parameters are reasonable
+          looking. If the serial number and/or RF configuration
+          values aren't right, you'll need to change them.  The TeleDongle
+	  serial number is on the "bottom" of the circuit board, and can
+	  usually be read through the translucent blue plastic case without
+	  needing to remove the board from the case.
+        </listitem>
+        <listitem>
+          Hit the 'OK' button and the software should proceed to flash
+          the TeleDongle with new firmware, showing a progress bar.
+        </listitem>
+        <listitem>
+          Confirm that the TeleDongle board seems to have updated OK, which you
+          can do by plugging in to it over USB and using a terminal program
+          to connect to the board and issue the 'v' command to check
+          the version, etc.  Once you're happy, remove the programming cable
+	  and put the cover back on the TeleDongle.
+        </listitem>
+        <listitem>
+          If something goes wrong, give it another try.
+        </listitem>
+      </orderedlist>
+      <para>
+        Be careful removing the programming cable from the locking 8-pin
+        connector on TeleMetrum.  You'll need a fingernail or perhaps a thin
+        screwdriver or knife blade to gently pry the locking ears out
+        slightly to extract the connector.  We used a locking connector on
+        TeleMetrum to help ensure that the cabling to companion boards
+        used in a rocket don't ever come loose accidentally in flight.
       </para>
     </section>
   </chapter>
