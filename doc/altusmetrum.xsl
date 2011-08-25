@@ -589,9 +589,9 @@ NAR #88757, TRA #12200
 	  TeleMetrum version 1.1 has 2MB of on-board flash storage,
 	  enough to hold over 40 minutes of data at full data rate
 	  (100 samples/second). TeleMetrum 1.0 has 1MB of on-board
-	  storage. As data are stored at a reduced rate during
-	  descent, there's plenty of space to store many flights worth
-	  of data.
+	  storage. As data are stored at a reduced rate during descent
+	  (10 samples/second), there's plenty of space to store many
+	  flights worth of data.
 	</para>
 	<para>
 	  The on-board flash is partitioned into separate flight logs,
@@ -623,6 +623,17 @@ NAR #88757, TRA #12200
 	  ensures that you won't need to erase the memory before
 	  flying each time while still allowing more than sufficient
 	  storage for each flight.
+	</para>
+	<para>
+	  As TeleMini does not contain an accelerometer, it stores
+	  data at 10 samples per second during ascent and one sample
+	  per second during descent. Each sample is a two byte reading
+	  from the barometer. These are stored in 5kB of
+	  on-chip flash memory which can hold 256 seconds at the
+	  ascent rate or 2560 seconds at the descent rate. Because of
+	  the limited storage, TeleMini cannot hold data for more than
+	  one flight, and so must be erased after each flight or it
+	  will not capture data for subsequent flights.
 	</para>
       </section>
       <section>
@@ -1155,31 +1166,6 @@ NAR #88757, TRA #12200
           log. The available space will be divided into chunks of this
           size. A smaller value will allow more flights to be stored,
           a larger value will record data from longer flights.
-	</para>
-	<para>
-	  During ascent, TeleMetrum records barometer and
-	  accelerometer values 100 times per second, other analog
-	  information (voltages and temperature) 6 times per second
-	  and GPS data once per second. During descent, the non-GPS
-	  data is recorded 1/10th as often. Each barometer +
-	  accelerometer record takes 8 bytes.
-	</para>
-	<para>
-	  The default, 192kB, will store over 200 seconds of data at
-	  the ascent rate, or over 2000 seconds of data at the descent
-	  rate. That's plenty for most flights. This leaves enough
-	  storage for five flights in a 1MB system, or 10 flights in a
-	  2MB system.
-	</para>
-	<para>
-	  The configuration block takes the last available block of
-	  memory, on v1.0 boards that's just 256 bytes. However, the
-	  flash part on the v1.1 boards uses 64kB for each block.
-        </para>
-	<para>
-	   TeleMini has 5kB of on-board storage, which is plenty for a
-	   single flight. Make sure you download and delete the data
-	   before a subsequent flight or it will not log any data.
 	</para>
       </section>
       <section>
