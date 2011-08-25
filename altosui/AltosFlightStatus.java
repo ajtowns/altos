@@ -40,6 +40,12 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 		void reset() {
 			value.setText("");
 		}
+
+		void set_font() {
+			label.setFont(Altos.status_font);
+			value.setFont(Altos.status_font);
+		}
+
 		public FlightValue (GridBagLayout layout, int x, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
 			c.insets = new Insets(5, 5, 5, 5);
@@ -125,6 +131,14 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 		flight.reset();
 		flight_state.reset();
 		rssi.reset();
+	}
+
+	public void set_font () {
+		call.set_font();
+		serial.set_font();
+		flight.set_font();
+		flight_state.set_font();
+		rssi.set_font();
 	}
 
 	public void show (AltosState state, int crc_errors) {

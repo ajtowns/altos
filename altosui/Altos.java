@@ -97,9 +97,45 @@ public class Altos {
 
 	static final int tab_elt_pad = 5;
 
-	static final Font label_font = new Font("Dialog", Font.PLAIN, 22);
-	static final Font value_font = new Font("Monospaced", Font.PLAIN, 22);
-	static final Font status_font = new Font("SansSerif", Font.BOLD, 24);
+	static Font label_font;
+	static Font value_font;
+	static Font status_font;
+	static Font table_label_font;
+	static Font table_value_font;
+
+	final static int font_size_small = 1;
+	final static int font_size_medium = 2;
+	final static int font_size_large = 3;
+
+	static void set_fonts(int size) {
+		int	brief_size;
+		int	table_size;
+		int	status_size;
+
+		switch (size) {
+		case font_size_small:
+			brief_size = 16;
+			status_size = 18;
+			table_size = 11;
+			break;
+		default:
+		case font_size_medium:
+			brief_size = 22;
+			status_size = 24;
+			table_size = 14;
+			break;
+		case font_size_large:
+			brief_size = 26;
+			status_size = 30;
+			table_size = 17;
+			break;
+		}
+		label_font = new Font("Dialog", Font.PLAIN, brief_size);
+		value_font = new Font("Monospaced", Font.PLAIN, brief_size);
+		status_font = new Font("SansSerif", Font.BOLD, status_size);
+		table_label_font = new Font("SansSerif", Font.PLAIN, table_size);
+		table_value_font = new Font("Monospaced", Font.PLAIN, table_size);
+	}
 
 	static final int text_width = 20;
 

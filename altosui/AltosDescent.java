@@ -55,6 +55,11 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			lights.set(false);
 		}
 
+		void set_font() {
+			label.setFont(Altos.label_font);
+			value.setFont(Altos.value_font);
+		}
+
 		public DescentStatus (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
 			c.weighty = 1;
@@ -121,6 +126,11 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			value.setText(v);
 		}
 
+		void set_font() {
+			label.setFont(Altos.label_font);
+			value.setFont(Altos.value_font);
+		}
+
 		public DescentValue (GridBagLayout layout, int x, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
 			c.weighty = 1;
@@ -167,6 +177,12 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			label.setVisible(false);
 			value1.setVisible(false);
 			value2.setVisible(false);
+		}
+
+		void set_font() {
+			label.setFont(Altos.label_font);
+			value1.setFont(Altos.value_font);
+			value2.setFont(Altos.value_font);
 		}
 
 		abstract void show(AltosState state, int crc_errors);
@@ -359,6 +375,18 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		elevation.reset();
 		main.reset();
 		apogee.reset();
+	}
+
+	public void set_font() {
+		lat.set_font();
+		lon.set_font();
+		height.set_font();
+		speed.set_font();
+		bearing.set_font();
+		range.set_font();
+		elevation.set_font();
+		main.set_font();
+		apogee.set_font();
 	}
 
 	public void show(AltosState state, int crc_errors) {

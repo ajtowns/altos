@@ -47,11 +47,16 @@ public class AltosConfigureUI
 	JLabel		callsign_label;
 	JTextField	callsign_value;
 
+	JLabel		font_size_label;
+	JComboBox	font_size_value;
+
 	JRadioButton	serial_debug;
 
 // BLUETOOTH
 //	JButton		manage_bluetooth;
 	JButton		manage_frequencies;
+
+	final static String[] font_size_names = { "Small", "Medium", "Large" };
 
 	/* DocumentListener interface methods */
 	public void changedUpdate(DocumentEvent e) {
@@ -73,6 +78,8 @@ public class AltosConfigureUI
 
 		Insets insets = new Insets(4, 4, 4, 4);
 
+		int row = 0;
+
 		owner = in_owner;
 		voice = in_voice;
 		pane = getContentPane();
@@ -85,14 +92,14 @@ public class AltosConfigureUI
 
 		/* Nice label at the top */
 		c.gridx = 0;
-		c.gridy = 0;
+		c.gridy = row++;
 		c.gridwidth = 3;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
 		pane.add(new JLabel ("Configure AltOS UI"), c);
 
 		c.gridx = 0;
-		c.gridy = 1;
+		c.gridy = row++;
 		c.gridwidth = 3;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
@@ -100,7 +107,7 @@ public class AltosConfigureUI
 
 		/* Voice settings */
 		c.gridx = 0;
-		c.gridy = 2;
+		c.gridy = row;
 		c.gridwidth = 1;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.WEST;
@@ -119,7 +126,7 @@ public class AltosConfigureUI
 				}
 			});
 		c.gridx = 1;
-		c.gridy = 2;
+		c.gridy = row;
 		c.gridwidth = 1;
 		c.weightx = 1;
 		c.fill = GridBagConstraints.NONE;
@@ -128,7 +135,7 @@ public class AltosConfigureUI
 		enable_voice.setToolTipText("Enable/Disable all audio in-flight announcements");
 
 		c.gridx = 2;
-		c.gridy = 2;
+		c.gridy = row++;
 		c.gridwidth = 1;
 		c.weightx = 1;
 		c.fill = GridBagConstraints.NONE;
@@ -144,7 +151,7 @@ public class AltosConfigureUI
 
 		/* Log directory settings */
 		c.gridx = 0;
-		c.gridy = 3;
+		c.gridy = row;
 		c.gridwidth = 1;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.WEST;
@@ -158,7 +165,7 @@ public class AltosConfigureUI
 				}
 			});
 		c.gridx = 1;
-		c.gridy = 3;
+		c.gridy = row++;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.WEST;
@@ -167,7 +174,7 @@ public class AltosConfigureUI
 
 		/* Callsign setting */
 		c.gridx = 0;
-		c.gridy = 4;
+		c.gridy = row;
 		c.gridwidth = 1;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.WEST;
@@ -176,16 +183,42 @@ public class AltosConfigureUI
 		callsign_value = new JTextField(AltosPreferences.callsign());
 		callsign_value.getDocument().addDocumentListener(this);
 		c.gridx = 1;
-		c.gridy = 4;
+		c.gridy = row++;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(callsign_value, c);
 		callsign_value.setToolTipText("Callsign sent in packet mode");
 
+		/* Font size setting */
+		c.gridx = 0;
+		c.gridy = row;
+		c.gridwidth = 1;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(new JLabel("Font size"), c);
+
+		font_size_value = new JComboBox(font_size_names);
+		int font_size = AltosPreferences.font_size();
+		font_size_value.setSelectedIndex(font_size - Altos.font_size_small);
+		font_size_value.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					int	size = font_size_value.getSelectedIndex() + Altos.font_size_small;
+
+					AltosPreferences.set_font_size(size);
+				}
+			});
+		c.gridx = 1;
+		c.gridy = row++;
+		c.gridwidth = 2;
+		c.fill = GridBagConstraints.BOTH;
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(font_size_value, c);
+		font_size_value.setToolTipText("Font size used in telemetry window");
+
 		/* Serial debug setting */
 		c.gridx = 0;
-		c.gridy = 5;
+		c.gridy = row;
 		c.gridwidth = 1;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.WEST;
@@ -202,7 +235,7 @@ public class AltosConfigureUI
 		serial_debug.setToolTipText("Enable/Disable USB I/O getting sent to the console");
 
 		c.gridx = 1;
-		c.gridy = 5;
+		c.gridy = row++;
 		c.gridwidth = 3;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.WEST;
@@ -216,7 +249,7 @@ public class AltosConfigureUI
 //				}
 //			});
 //		c.gridx = 0;
-//		c.gridy = 6;
+//		c.gridy = row++;
 //		c.gridwidth = 2;
 //		c.fill = GridBagConstraints.NONE;
 //		c.anchor = GridBagConstraints.WEST;
@@ -232,7 +265,7 @@ public class AltosConfigureUI
 // BLUETOOTH
 //		c.gridx = 2;
 		c.gridx = 1;
-		c.gridy = 6;
+		c.gridy = row++;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.WEST;
@@ -246,7 +279,7 @@ public class AltosConfigureUI
 				}
 			});
 		c.gridx = 0;
-		c.gridy = 7;
+		c.gridy = row++;
 		c.gridwidth = 3;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;

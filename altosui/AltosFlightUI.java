@@ -28,7 +28,7 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.*;
 
-public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
+public class AltosFlightUI extends JFrame implements AltosFlightDisplay, AltosFontListener {
 	AltosVoice		voice;
 	AltosFlightReader	reader;
 	AltosDisplayThread	thread;
@@ -81,6 +81,21 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		landed.reset();
 		flightInfo.clear();
 		sitemap.reset();
+	}
+
+	public void set_font() {
+		pad.set_font();
+		ascent.set_font();
+		descent.set_font();
+		landed.set_font();
+		flightStatus.set_font();
+		flightInfo.set_font();
+		sitemap.set_font();
+		companion.set_font();
+	}
+
+	public void font_size_changed(int font_size) {
+		set_font();
 	}
 
 	public void show(AltosState state, int crc_errors) {
@@ -254,12 +269,16 @@ public class AltosFlightUI extends JFrame implements AltosFlightDisplay {
 		bag.add(pane, c);
 
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+		AltosPreferences.register_font_listener(this);
+
 		addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosing(WindowEvent e) {
 					disconnect();
 					setVisible(false);
 					dispose();
+					AltosPreferences.unregister_font_listener(AltosFlightUI.this);
 					if (exit_on_close)
 						System.exit(0);
 				}

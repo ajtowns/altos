@@ -1538,6 +1538,13 @@ NAR #88757, TRA #12200
         </para>
       </section>
       <section>
+	<title>Font Size</title>
+	<para>
+	  Selects the set of fonts used in the flight monitor
+	  window. Choose between the small, medium and large sets.
+	</para>
+      </section>
+      <section>
         <title>Serial Debug</title>
         <para>
           This causes all communication with a connected device to be
