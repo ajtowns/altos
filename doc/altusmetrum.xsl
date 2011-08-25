@@ -66,7 +66,7 @@
       Thanks to Bob Finch, W9YA, NAR 12965, TRA 12350 for writing "The
       Mere-Mortals Quick Start/Usage Guide to the Altus Metrum Starter
       Kit" which formed the basis of the original Getting Started chapter 
-      in this book.  Bob was one of our first customers for a production
+      in this manual.  Bob was one of our first customers for a production
       TeleMetrum, and his continued enthusiasm and contributions
       are immensely gratifying and highly appreciated!
     </para>
@@ -186,7 +186,7 @@ NAR #88757, TRA #12200
     <para>
       All Altus Metrum products are sophisticated electronic devices.  
       When handled gently and properly installed in an air-frame, they
-      will deliver impressive results.  However, like all electronic 
+      will deliver impressive results.  However, as with all electronic 
       devices, there are some precautions you must take.
     </para>
     <para>
@@ -393,23 +393,21 @@ NAR #88757, TRA #12200
         either be done with TeleMetrum directly connected to the
         computer via the USB cable, or through the radio
         link. TeleMini doesn't provide a USB connector and so it is
-        always controlled through the radio link.  Select the
-        appropriate TeleDongle device when the list of devices is
-        presented and AltosUI will interact with an altimter over the
-        radio link.
+        always communicated with over radio.  Select the appropriate 
+        TeleDongle device when the list of devices is presented and 
+        AltosUI will interact with an altimeter over the radio link.
       </para>
       <para>
 	One oddity in the current interface is how AltosUI selects the
-	frequency for packet mode communications. Instead of providing
+	frequency for radio communications. Instead of providing
 	an interface to specifically configure the frequency, it uses
 	whatever frequency was most recently selected for the target
 	TeleDongle device in Monitor Flight mode. If you haven't ever
 	used that mode with the TeleDongle in question, select the
-	Monitor Flight button from the top level UI, pick the
-	appropriate TeleDongle device. Once the flight monitoring
+	Monitor Flight button from the top level UI, and pick the
+	appropriate TeleDongle device.  Once the flight monitoring
 	window is open, select the desired frequency and then close it
-	down again. All Packet Command Mode operations will now use
-	that frequency.
+	down again. All radio communications will now use that frequency.
       </para>
       <itemizedlist>
         <listitem>
@@ -440,10 +438,11 @@ NAR #88757, TRA #12200
         </listitem>
       </itemizedlist>
       <para>
-        Packet command mode uses the same RF frequencies as telemetry
-        mode. Configure the desired TeleDongle frequency using the
-        flight monitor window frequency selector and then close that
-        window before performing the desired operation.
+        Operation over the radio link for configuring an altimeter, ground
+        testing igniters, and so forth uses the same RF frequencies as flight
+        telemetry.  To configure the desired TeleDongle frequency, select
+        the monitor flight tab, then use the frequency selector and 
+        close the window before performing other desired radio operations.
       </para>
       <para>
         TeleMetrum only enables packet command mode in 'idle' mode, so
