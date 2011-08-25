@@ -99,7 +99,7 @@ NAR #88757, TRA #12200
       future as you wish!
     </para>
     <para>
-      The first device created for our community is TeleMetrum, a dual
+      The first device created for our community was TeleMetrum, a dual
       deploy altimeter with fully integrated GPS and radio telemetry
       as standard features, and a "companion interface" that will
       support optional capabilities in the future.
@@ -152,8 +152,8 @@ NAR #88757, TRA #12200
     </para>
     <para>
       The TeleMini battery can be charged by disconnecting it from the
-      TeleMini board and plugging it into the battery charger board,
-      and connecting that via a USB cable to a laptop or other USB
+      TeleMini board and plugging it into a standalone battery charger 
+      board, and connecting that via a USB cable to a laptop or other USB
       power source
     </para>
     <para>
@@ -161,9 +161,11 @@ NAR #88757, TRA #12200
       RF interface.  If you plug it in to your Mac or Linux computer it should
       "just work", showing up as a serial port device.  Windows systems need
       driver information that is part of the AltOS download to know that the
-      existing USB modem driver will work.  If you are using Linux and are
-      having problems, try moving to a fresher kernel (2.6.33 or newer), as
-      the USB serial driver had ugly bugs in some earlier versions.
+      existing USB modem driver will work.  We therefore recommend installing
+      our software before plugging in TeleDongle if you are using a Windows
+      computer.  If you are using Linux and are having problems, try moving 
+      to a fresher kernel (2.6.33 or newer), as the USB serial driver had 
+      ugly bugs in some earlier versions.
     </para>
     <para>
       Next you should obtain and install the AltOS utilities.  These include
@@ -179,10 +181,10 @@ NAR #88757, TRA #12200
   <chapter>
     <title>Handling Precautions</title>
     <para>
-      All Altus Metrum products are sophisticated electronic device.  When handled gently and
-      properly installed in an airframe, theywill deliver impressive results.
-      However, like all electronic devices, there are some precautions you
-      must take.
+      All Altus Metrum products are sophisticated electronic devices.  
+      When handled gently and properly installed in an airframe, they
+      will deliver impressive results.  However, like all electronic 
+      devices, there are some precautions you must take.
     </para>
     <para>
       The Lithium Polymer rechargeable batteries have an
@@ -197,23 +199,30 @@ NAR #88757, TRA #12200
       strapping them down, for example.
     </para>
     <para>
-      The barometric sensor is sensitive to sunlight.  In normal
-      mounting situations, it and all of the other surface mount components
+      The barometric sensors used on both TeleMetrum and TeleMini are 
+      sensitive to sunlight.  In normal TeleMetrum mounting situations, it 
+      and all of the other surface mount components
       are "down" towards whatever the underlying mounting surface is, so
       this is not normally a problem.  Please consider this, though, when
       designing an installation, for example, in an airframe with a
-      see-through plastic payload bay.
+      see-through plastic payload bay.  It is particularly important to
+      consider this with TeleMini, both because the baro sensor is on the
+      "top" of the board, and because many model rockets with payload bays
+      use clear plastic for the payload bay!  Replacing these with an opaque
+      cardboard tube, painting them, or wrapping them with a layer of masking
+      tape are all reasonable approaches to keep the sensor out of direct
+      sunlight.
     </para>
     <para>
-      The barometric sensor sampling port must be able to
-      "breathe",
+      The barometric sensor sampling port must be able to "breathe",
       both by not being covered by foam or tape or other materials that might
-      directly block the hole on the top of the sensor, but also by having a
+      directly block the hole on the top of the sensor, and also by having a
       suitable static vent to outside air.
     </para>
     <para>
-      As with all other rocketry electronics, Altus Metrum altimeters must be protected
-      from exposure to corrosive motor exhaust and ejection charge gasses.
+      As with all other rocketry electronics, Altus Metrum altimeters must 
+      be protected from exposure to corrosive motor exhaust and ejection 
+      charge gasses.
     </para>
   </chapter>
   <chapter>
