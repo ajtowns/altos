@@ -108,7 +108,8 @@ NAR #88757, TRA #12200
     <para>
       The newest device is TeleMini, a dual deploy altimeter with
       radio telemetry and radio direction finding. This device is only
-      13mm by 38mm (½ inch by 1½ inches) and can fit easily in an 18mm air-frame.
+      13mm by 38mm (½ inch by 1½ inches) and can fit easily in an 18mm 
+      air-frame.
     </para>
     <para>
       Complementing TeleMetrum and TeleMini is TeleDongle, a USB to RF 
@@ -379,10 +380,9 @@ NAR #88757, TRA #12200
       </para>
     </section>
     <section>
-      <title>Packet Command Mode</title>
-      <subtitle>Controlling An Altimeter Over The Radio Link</subtitle>
+      <title>Controlling An Altimeter Over The Radio Link</title>
       <para>
-        One of the unique features of the Altus Metrum environment is
+        One of the unique features of the Altus Metrum system is
         the ability to create a two way command link between TeleDongle
         and an altimeter using the digital radio transceivers built into
         each device. This allows you to interact with the altimeter from
@@ -391,11 +391,12 @@ NAR #88757, TRA #12200
       <para>
         Any operation which can be performed with TeleMetrum can
         either be done with TeleMetrum directly connected to the
-        computer via the USB cable, or through the packet
+        computer via the USB cable, or through the radio
         link. TeleMini doesn't provide a USB connector and so it is
-        always controlled through the packet link.  Select the
+        always controlled through the radio link.  Select the
         appropriate TeleDongle device when the list of devices is
-        presented and AltosUI will use packet command mode.
+        presented and AltosUI will interact with an altimter over the
+        radio link.
       </para>
       <para>
 	One oddity in the current interface is how AltosUI selects the
