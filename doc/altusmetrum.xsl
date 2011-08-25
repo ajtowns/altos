@@ -231,57 +231,56 @@ NAR #88757, TRA #12200
       TeleMetrum is a 1 inch by 2.75 inch circuit board.  It was designed to
       fit inside coupler for 29mm air-frame tubing, but using it in a tube that
       small in diameter may require some creativity in mounting and wiring
-      to succeed!  The default 1/4
-      wave UHF wire antenna attached to the center of the nose-cone end of
-      the board is about 7 inches long, and wiring for a power switch and
+      to succeed!  The presence of an accelerometer means TeleMetrum should
+      be aligned along the flight axis of the airframe, and by default the 1/4
+      wave UHF wire antenna should be on the nose-cone end of the board.  The
+      antenna wire is about 7 inches long, and wiring for a power switch and
       the e-matches for apogee and main ejection charges depart from the
-      fin can end of the board.  Given all this, an ideal "simple" avionics
+      fin can end of the board, meaning an ideal "simple" avionics
       bay for TeleMetrum should have at least 10 inches of interior length.
     </para>
     <para>
       TeleMini is a 0.5 inch by 1.5 inch circuit board.   It was designed to
       fit inside an 18mm air-frame tube, but using it in a tube that
       small in diameter may require some creativity in mounting and wiring
-      to succeed!  The default 1/4
-      wave UHF wire antenna attached to the center of the nose-cone end of
+      to succeed!  Since there is no accelerometer, TeleMini can be mounted
+      in any convenient orientation.  The default 1/4
+      wave UHF wire antenna attached to the center of one end of
       the board is about 7 inches long, and wiring for a power switch and
       the e-matches for apogee and main ejection charges depart from the
-      fin can end of the board.  Given all this, an ideal "simple" avionics
+      other end of the board, meaning an ideal "simple" avionics
       bay for TeleMini should have at least 9 inches of interior length.
     </para>
     <para>
-      A typical TeleMetrum or TeleMini installation using the on-board devices and
-      default wire UHF antenna involves attaching only a suitable
-      Lithium Polymer battery, a single pole switch for power on/off, and
-      two pairs of wires connecting e-matches for the apogee and main ejection
-      charges.
+      A typical TeleMetrum or TeleMini installation involves attaching 
+      only a suitable Lithium Polymer battery, a single pole switch for 
+      power on/off, and two pairs of wires connecting e-matches for the 
+      apogee and main ejection charges.
     </para>
     <para>
       By default, we use the unregulated output of the Li-Po battery directly
       to fire ejection charges.  This works marvelously with standard
       low-current e-matches like the J-Tek from MJG Technologies, and with
-      Quest Q2G2 igniters.  However, if you
-      want or need to use a separate pyro battery, check out the "External Pyro Battery"
-      section in this manual for instructions on how to wire that up. The
-      altimeters are designed to work with an external pyro battery of up to 15V.
+      Quest Q2G2 igniters.  However, if you want or need to use a separate 
+      pyro battery, check out the "External Pyro Battery" section in this 
+      manual for instructions on how to wire that up. The altimeters are 
+      designed to work with an external pyro battery of no more than 15 volts.
     </para>
     <para>
       Ejection charges are wired directly to the screw terminal block
-      at the aft end of the altimeter.  This is very similar to what
-      most other altimeter vendors provide and so may be the most
-      familiar option.  You'll need a very small straight blade
-      screwdriver to connect and disconnect the board in this case,
-      such as you might find in a jeweler's screwdriver set.
+      at the aft end of the altimeter.  You'll need a very small straight 
+      blade screwdriver for these screws, such as you might find in a 
+      jeweler's screwdriver set.
     </para>
     <para>
       TeleMetrum also uses the screw terminal block for the power
       switch leads. On TeleMini, the power switch leads are soldered
-      directly to the board and can be connected directly to the switch.
+      directly to the board and can be connected directly to a switch.
     </para>
     <para>
       For most air-frames, the integrated antennas are more than
-      adequate However, if you are installing in a carbon-fiber
-      electronics bay which is opaque to RF signals, you may need to
+      adequate.   However, if you are installing in a carbon-fiber or
+      metal electronics bay which is opaque to RF signals, you may need to
       use off-board external antennas instead.  In this case, you can
       order an altimeter with an SMA connector for the UHF antenna
       connection, and, on TeleMetrum, you can unplug the integrated GPS
@@ -303,7 +302,8 @@ NAR #88757, TRA #12200
         TeleMetrum assumes it's on a rail or rod being prepared for
         launch, so the firmware chooses flight mode.  However, if the
         rocket is more or less horizontal, the firmware instead enters
-        idle mode. For TeleMini, "idle" mode is selected when the
+        idle mode.  Since TeleMini doesn't have an accelerometer we can
+        use to determine orientation, "idle" mode is selected when the
         board receives a command packet within the first five seconds
         of operation; if no packet is received, the board enters
         "flight" mode.
@@ -311,8 +311,8 @@ NAR #88757, TRA #12200
       <para>
         At power on, you will hear three beeps or see three flashes
         ("S" in Morse code for start up) and then a pause while
-        the altimeter completes initialization and self tests, and decides which
-        mode to enter next.
+        the altimeter completes initialization and self test, and decides 
+	which mode to enter next.
       </para>
       <para>
         In flight or "pad" mode, the altimeter engages the flight
@@ -330,44 +330,43 @@ NAR #88757, TRA #12200
         flights, do what makes sense.
       </para>
       <para>
-        In idle mode, you will hear an audible "di-dit" or see two short flashes ("I" for idle), and
-        the normal flight state machine is disengaged, thus
-        no ejection charges will fire.  The altimeters also listen on the RF
-        link when in idle mode for packet mode requests sent from TeleDongle.
-        Commands can be issued to a TeleMetrum in idle mode over either
-        USB or the RF link equivalently. TeleMini uses only the RF link.
+        If idle mode is entered, you will hear an audible "di-dit" or see 
+        two short flashes ("I" for idle), and the flight state machine is 
+        disengaged, thus no ejection charges will fire.  The altimeters also 
+        listen on the RF link when in idle mode for requests sent via 
+        TeleDongle.  Commands can be issued to a TeleMetrum in idle mode 
+        over either
+        USB or the RF link equivalently. TeleMini only has the RF link.
         Idle mode is useful for configuring the altimeter, for extracting data
         from the on-board storage chip after flight, and for ground testing
         pyro charges.
       </para>
       <para>
-        One "neat trick" of particular value when the altimeter is used with very
-        large air-frames, is that you can power the board up while the rocket
-        is horizontal, such that it comes up in idle mode.  Then you can
-        raise the air-frame to launch position, use a TeleDongle to open
-        a packet connection, and issue a 'reset' command which will cause
-        the altimeter to reboot and come up in
-        flight mode.  This is much safer than standing on the top step of a
-        rickety step-ladder or hanging off the side of a launch tower with
-        a screw-driver trying to turn on your avionics before installing
-        igniters!
+        One "neat trick" of particular value when TeleMetrum is used with 
+        very large air-frames, is that you can power the board up while the 
+        rocket is horizontal, such that it comes up in idle mode.  Then you can
+        raise the air-frame to launch position, and issue a 'reset' command 
+	via TeleDongle over the RF link to cause the altimeter to reboot and 
+        come up in flight mode.  This is much safer than standing on the top 
+        step of a rickety step-ladder or hanging off the side of a launch 
+        tower with a screw-driver trying to turn on your avionics before 
+        installing igniters!
       </para>
     </section>
     <section>
       <title>GPS </title>
       <para>
-        TeleMetrum includes a complete GPS receiver.  See a later section for
-        a brief explanation of how GPS works that will help you understand
-        the information in the telemetry stream.  The bottom line is that
-        the TeleMetrum GPS receiver needs to lock onto at least four
-        satellites to obtain a solid 3 dimensional position fix and know
-        what time it is!
+        TeleMetrum includes a complete GPS receiver.  A complete explanation 
+        of how GPS works is beyond the scope of this manual, but the bottom 
+        line is that the TeleMetrum GPS receiver needs to lock onto at least 
+        four satellites to obtain a solid 3 dimensional position fix and know
+        what time it is.
       </para>
       <para>
-        TeleMetrum provides backup power to the GPS chip any time a Li-Po
+        TeleMetrum provides backup power to the GPS chip any time a 
         battery is connected.  This allows the receiver to "warm start" on
-        the launch rail much faster than if every power-on were a "cold start"
-        for the GPS receiver.  In typical operations, powering up TeleMetrum
+        the launch rail much faster than if every power-on were a GPS 
+	"cold start".  In typical operations, powering up TeleMetrum
         on the flight line in idle mode while performing final air-frame
         preparation will be sufficient to allow the GPS receiver to cold
         start and acquire lock.  Then the board can be powered down during
@@ -383,29 +382,19 @@ NAR #88757, TRA #12200
         An important aspect of preparing a rocket using electronic deployment
         for flight is ground testing the recovery system.  Thanks
         to the bi-directional RF link central to the Altus Metrum system,
-        this can be accomplished in a TeleMetrum- or TeleMini- equipped rocket without as
-        much work as you may be accustomed to with other systems.  It can
-        even be fun!
+        this can be accomplished in a TeleMetrum or TeleMini equipped rocket 
+        with less work than you may be accustomed to with other systems.  It 
+        can even be fun!
       </para>
       <para>
         Just prep the rocket for flight, then power up the altimeter
         in "idle" mode (placing air-frame horizontal for TeleMetrum or
-        starting the RF packet connection for TeleMini).  This will cause the
-        firmware to go into "idle" mode, in which the normal flight
+        selected the Configure Altimeter tab for TeleMini).  This will cause 
+        the firmware to go into "idle" mode, in which the normal flight
         state machine is disabled and charges will not fire without
-        manual command.  Then, establish an RF packet connection from
-        a TeleDongle-equipped computer using the P command from a safe
-        distance.  You can now command the altimeter to fire the apogee
-        or main charges to complete your testing.
-      </para>
-      <para>
-        In order to reduce the chance of accidental firing of pyrotechnic
-        charges, the command to fire a charge is intentionally somewhat
-        difficult to type, and the built-in help is slightly cryptic to
-        prevent accidental echoing of characters from the help text back at
-        the board from firing a charge.  The command to fire the apogee
-        drogue charge is 'i DoIt drogue' and the command to fire the main
-        charge is 'i DoIt main'.
+        manual command.  You can now command the altimeter to fire the apogee
+        or main charges from a safe distance using your computer and 
+        TeleDongle and the Fire Igniter tab to complete ejection testing.
       </para>
     </section>
     <section>
@@ -2332,6 +2321,15 @@ NAR #88757, TRA #12200
       procedures mentioned above and THEN connect to the TeleDongle from
       inside 'ao-view'. If this doesn't work, disconnect from the
       TeleDongle, unplug it, and try again after plugging it back in.
+    </para>
+    <para>
+      In order to reduce the chance of accidental firing of pyrotechnic
+      charges, the command to fire a charge is intentionally somewhat
+      difficult to type, and the built-in help is slightly cryptic to
+      prevent accidental echoing of characters from the help text back at
+      the board from firing a charge.  The command to fire the apogee
+      drogue charge is 'i DoIt drogue' and the command to fire the main
+      charge is 'i DoIt main'.
     </para>
     <para>
       On TeleMetrum, the GPS will eventually find enough satellites, lock in on them,
