@@ -379,6 +379,98 @@ NAR #88757, TRA #12200
       </para>
     </section>
     <section>
+      <title>Packet Command Mode</title>
+      <subtitle>Controlling An Altimeter Over The Radio Link</subtitle>
+      <para>
+        One of the unique features of the Altus Metrum environment is
+        the ability to create a two way command link between TeleDongle
+        and an altimeter using the digital radio transceivers built into
+        each device. This allows you to interact with the altimeter from
+        afar, as if it were directly connected to the computer.
+      </para>
+      <para>
+        Any operation which can be performed with TeleMetrum can
+        either be done with TeleMetrum directly connected to the
+        computer via the USB cable, or through the packet
+        link. TeleMini doesn't provide a USB connector and so it is
+        always controlled through the packet link.  Select the
+        appropriate TeleDongle device when the list of devices is
+        presented and AltosUI will use packet command mode.
+      </para>
+      <para>
+	One oddity in the current interface is how AltosUI selects the
+	frequency for packet mode communications. Instead of providing
+	an interface to specifically configure the frequency, it uses
+	whatever frequency was most recently selected for the target
+	TeleDongle device in Monitor Flight mode. If you haven't ever
+	used that mode with the TeleDongle in question, select the
+	Monitor Flight button from the top level UI, pick the
+	appropriate TeleDongle device. Once the flight monitoring
+	window is open, select the desired frequency and then close it
+	down again. All Packet Command Mode operations will now use
+	that frequency.
+      </para>
+      <itemizedlist>
+        <listitem>
+          <para>
+            Save Flight Data—Recover flight data from the rocket without
+            opening it up.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Configure altimeter apogee delays or main deploy heights
+            to respond to changing launch conditions. You can also
+            'reboot' the altimeter. Use this to remotely enable the
+            flight computer by turning TeleMetrum on in "idle" mode,
+            then once the air-frame is oriented for launch, you can
+            reboot the altimeter and have it restart in pad mode
+            without having to climb the scary ladder.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Fire Igniters—Test your deployment charges without snaking
+            wires out through holes in the air-frame. Simply assembly the
+            rocket as if for flight with the apogee and main charges
+            loaded, then remotely command the altimeter to fire the
+            igniters.
+          </para>
+        </listitem>
+      </itemizedlist>
+      <para>
+        Packet command mode uses the same RF frequencies as telemetry
+        mode. Configure the desired TeleDongle frequency using the
+        flight monitor window frequency selector and then close that
+        window before performing the desired operation.
+      </para>
+      <para>
+        TeleMetrum only enables packet command mode in 'idle' mode, so
+        make sure you have TeleMetrum lying horizontally when you turn
+        it on. Otherwise, TeleMetrum will start in 'pad' mode ready for
+        flight and will not be listening for command packets from TeleDongle.
+      </para>
+      <para>
+	TeleMini listens for a command packet for five seconds after
+	first being turned on, if it doesn't hear anything, it enters
+	'pad' mode, ready for flight and will no longer listen for
+	command packets. The easiest way to connect to TeleMini is to
+	initiate the command and select the TeleDongle device. At this
+	point, the TeleDongle will be attempting to communicate with
+	the TeleMini. Now turn TeleMini on, and it should immediately
+	start communicating with the TeleDongle and the desired
+	operation can be performed.
+      </para>
+      <para>
+        When packet command mode is enabled, you can monitor the link
+        by watching the lights on the
+        devices. The red LED will flash each time they
+        transmit a packet while the green LED will light up
+        on TeleDongle while it is waiting to receive a packet from
+	the altimeter.
+      </para>
+    </section>
+    <section>
       <title>Ground Testing </title>
       <para>
         An important aspect of preparing a rocket using electronic deployment
@@ -1096,92 +1188,6 @@ NAR #88757, TRA #12200
 	  before you leave home; check out the 'Preload Maps' section below.
 	</para>
       </section>
-    </section>
-    <section>
-      <title>Packet Command Mode</title>
-      <subtitle>Controlling An Altimeter Over The Radio Link</subtitle>
-      <para>
-        One of the unique features of the Altus Metrum environment is
-        the ability to create a two way command link between TeleDongle
-        and an altimeter using the digital radio transceivers built into
-        each device. This allows you to interact with the altimeter from
-        afar, as if it were directly connected to the computer.
-      </para>
-      <para>
-        Any operation which can be performed with TeleMetrum
-        can either be done with TeleMetrum directly connected to
-        the computer via the USB cable, or through the packet
-        link. Simply select the appropriate TeleDongle device when
-        the list of devices is presented and AltosUI will use packet
-        command mode.
-      </para>
-      <para>
-	One oddity in the current interface is how AltosUI selects the
-	frequency for packet mode communications. Instead of providing
-	an interface to specifically configure the frequency, it uses
-	whatever frequency was most recently selected for the target
-	TeleDongle device in Monitor Flight mode. If you haven't ever
-	used that mode with the TeleDongle in question, select the
-	Monitor Flight button from the top level UI, pick the
-	appropriate TeleDongle device. Once the flight monitoring
-	window is open, select the desired frequency and then close it
-	down again. All Packet Command Mode operations will now use
-	that frequency.
-      </para>
-      <itemizedlist>
-        <listitem>
-          <para>
-            Save Flight Data—Recover flight data from the rocket without
-            opening it up.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            Configure altimeter apogee delays or main deploy heights
-            to respond to changing launch conditions. You can also
-            'reboot' the altimeter. Use this to remotely enable the
-            flight computer by turning TeleMetrum on in "idle" mode,
-            then once the air-frame is oriented for launch, you can
-            reboot the altimeter and have it restart in pad mode
-            without having to climb the scary ladder.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            Fire Igniters—Test your deployment charges without snaking
-            wires out through holes in the air-frame. Simply assembly the
-            rocket as if for flight with the apogee and main charges
-            loaded, then remotely command the altimeter to fire the
-            igniters.
-          </para>
-        </listitem>
-      </itemizedlist>
-      <para>
-        Packet command mode uses the same RF frequencies as telemetry
-        mode. Configure the desired TeleDongle frequency using the
-        flight monitor window frequency selector and then close that
-        window before performing the desired operation.
-      </para>
-      <para>
-        TeleMetrum only enables packet command mode in 'idle' mode, so
-        make sure you have TeleMetrum lying horizontally when you turn
-        it on. Otherwise, TeleMetrum will start in 'pad' mode ready for
-        flight and will not be listening for command packets from TeleDongle.
-      </para>
-      <para>
-	TeleMini listens for a command packet for five seconds after
-	first being turned on, if it doesn't hear anything, it enters
-	'pad' mode, ready for flight and will no longer listen for
-	command packets.
-      </para>
-      <para>
-        When packet command mode is enabled, you can monitor the link
-        by watching the lights on the
-        devices. The red LED will flash each time they
-        transmit a packet while the green LED will light up
-        on TeleDongle while it is waiting to receive a packet from
-	the altimeter.
-      </para>
     </section>
     <section>
       <title>Save Flight Data</title>
