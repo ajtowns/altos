@@ -93,7 +93,7 @@ all: ../$(PROG)
 
 ../$(PROG): $(REL) Makefile
 	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(REL) && cp $(PROG) $(PMAP) ..
-	$(call quiet,CHECK_STACK) ../core/ao.h $(PMEM)
+	$(call quiet,CHECK_STACK) ../cc1111/ao_arch.h $(PMEM)
 
 ao_product.h: ao-make-product.5c ../Version
 	$(call quiet,NICKLE,$<) $< -m altusmetrum.org -i $(IDPRODUCT) -p $(PRODUCT) -v $(VERSION) > $@

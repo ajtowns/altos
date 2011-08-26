@@ -22,21 +22,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <stddef.h>
-#include <ao_arch.h>
 #include "ao_pins.h"
+#include <ao_arch.h>
 
 #define TRUE 1
 #define FALSE 0
 
 /* Convert a __data pointer into an __xdata pointer */
-#define DATA_TO_XDATA(a)	((void __xdata *) ((uint8_t) (a) | 0xff00))
-
-/* Stack runs from above the allocated __data space to 0xfe, which avoids
- * writing to 0xff as that triggers the stack overflow indicator
- */
-#define AO_STACK_START	0x90
-#define AO_STACK_END	0xfe
-#define AO_STACK_SIZE	(AO_STACK_END - AO_STACK_START + 1)
+#ifndef DATA_TO_XDATA
+#define DATA_TO_XDATA(a)	(a)
+#endif
 
 /* An AltOS task */
 struct ao_task {
@@ -75,7 +70,7 @@ ao_alarm(uint16_t delay);
 
 /* Yield the processor to another task */
 void
-ao_yield(void) __naked;
+ao_yield(void) ao_arch_naked_declare;
 
 /* Add a task to the run queue */
 void
@@ -136,7 +131,7 @@ ao_timer_set_adc_interval(uint8_t interval) __critical;
 
 /* Timer interrupt */
 void
-ao_timer_isr(void) __interrupt 9;
+ao_timer_isr(void) ao_arch_interrupt(9);
 
 /* Initialize the timer */
 void
@@ -159,19 +154,7 @@ struct ao_adc {
 	int16_t		sense_m;	/* main continuity sense */
 };
 
-#ifndef HAS_ADC
-#error Please define HAS_ADC
-#endif
-
 #if HAS_ADC
-
-#if HAS_ACCEL
-#ifndef HAS_ACCEL_REF
-#error Please define HAS_ACCEL_REF
-#endif
-#else
-#define HAS_ACCEL_REF 0
-#endif
 
 /*
  * ao_adc.c
@@ -207,7 +190,7 @@ ao_adc_get(__xdata struct ao_adc *packet);
 /* The A/D interrupt handler */
 
 void
-ao_adc_isr(void) __interrupt 1;
+ao_adc_isr(void) ao_arch_interrupt(1);
 
 /* Initialize the A/D converter */
 void
@@ -299,25 +282,6 @@ void
 ao_led_init(uint8_t enable);
 
 /*
- * ao_romconfig.c
- */
-
-#define AO_ROMCONFIG_VERSION	2
-
-extern __code __at (0x00a0) uint16_t ao_romconfig_version;
-extern __code __at (0x00a2) uint16_t ao_romconfig_check;
-extern __code __at (0x00a4) uint16_t ao_serial_number;
-extern __code __at (0x00a6) uint32_t ao_radio_cal;
-
-#ifndef HAS_USB
-#error Please define HAS_USB
-#endif
-
-#if HAS_USB
-extern __code __at (0x00aa) uint8_t ao_usb_descriptors [];
-#endif
-
-/*
  * ao_usb.c
  */
 
@@ -342,7 +306,7 @@ ao_usb_flush(void);
 #if HAS_USB
 /* USB interrupt handler */
 void
-ao_usb_isr(void) __interrupt 6;
+ao_usb_isr(void) ao_arch_interrupt(6);
 #endif
 
 /* Enable the USB controller */
@@ -446,7 +410,7 @@ ao_dma_abort(uint8_t id);
 
 /* DMA interrupt routine */
 void
-ao_dma_isr(void) __interrupt 8;
+ao_dma_isr(void) ao_arch_interrupt(8);
 
 /*
  * ao_mutex.c
@@ -927,10 +891,10 @@ ao_dbg_init(void);
 #endif
 
 void
-ao_serial_rx1_isr(void) __interrupt 3;
+ao_serial_rx1_isr(void) ao_arch_interrupt(3);
 
 void
-ao_serial_tx1_isr(void) __interrupt 14;
+ao_serial_tx1_isr(void) ao_arch_interrupt(14);
 
 char
 ao_serial_getchar(void) __critical;
@@ -1251,14 +1215,6 @@ struct ao_telemetry_tiny {
 	char			callsign[AO_MAX_CALLSIGN];
 };
 
-/*
- * ao_radio_recv tacks on rssi and status bytes
- */
-
-struct ao_telemetry_raw_recv {
-	uint8_t			packet[AO_MAX_TELEMETRY + 2];
-};
-
 struct ao_telemetry_orig_recv {
 	struct ao_telemetry_orig	telemetry_orig;
 	int8_t				rssi;
@@ -1269,6 +1225,14 @@ struct ao_telemetry_tiny_recv {
 	struct ao_telemetry_tiny	telemetry_tiny;
 	int8_t				rssi;
 	uint8_t				status;
+};
+
+/*
+ * ao_radio_recv tacks on rssi and status bytes
+ */
+
+struct ao_telemetry_raw_recv {
+	uint8_t			packet[AO_MAX_TELEMETRY + 2];
 };
 
 /* Set delay between telemetry reports (0 to disable) */
@@ -1302,7 +1266,7 @@ extern __xdata uint8_t ao_radio_done;
 extern __xdata uint8_t ao_radio_mutex;
 
 void
-ao_radio_general_isr(void) __interrupt 16;
+ao_radio_general_isr(void) ao_arch_interrupt(16);
 
 void
 ao_radio_get(uint8_t len);

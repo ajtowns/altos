@@ -405,4 +405,21 @@
 #ifndef HAS_MONITOR
 #error Please define HAS_MONITOR
 #endif
+
+#ifndef HAS_ADC
+#error Please define HAS_ADC
+#endif
+
+#if HAS_ADC
+
+#if HAS_ACCEL
+#ifndef HAS_ACCEL_REF
+#error Please define HAS_ACCEL_REF
+#endif
+#else
+#define HAS_ACCEL_REF 0
+#endif
+
+#endif /* HAS_ADC */
+
 #endif /* _AO_PINS_H_ */

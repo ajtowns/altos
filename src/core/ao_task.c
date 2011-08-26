@@ -27,7 +27,6 @@ __xdata struct ao_task *__data ao_cur_task;
 void
 ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *name) __reentrant
 {
-	uint8_t	__xdata *stack;
 	uint8_t task_id;
 	uint8_t t;
 	if (ao_num_tasks == AO_NUM_TASKS)
@@ -42,70 +41,19 @@ ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *nam
 	ao_tasks[ao_num_tasks++] = task;
 	task->task_id = task_id;
 	task->name = name;
+	task->wchan = NULL;
 	/*
 	 * Construct a stack frame so that it will 'return'
 	 * to the start of the task
 	 */
-	stack = task->stack;
-
-	*stack++ = ((uint16_t) start);		/* 0 */
-	*stack++ = ((uint16_t) start) >> 8;	/* 1 */
-
-	/* and the stuff saved by ao_switch */
-	*stack++ = 0;				/* 2 acc */  
-	*stack++ = 0x80;			/* 3 IE */
-
-	/*  4 DPL
-	 *  5 DPH
-	 *  6 B
-	 *  7 R2
-	 *  8 R3
-	 *  9 R4
-	 * 10 R5
-	 * 11 R6
-	 * 12 R7
-	 * 13 R0
-	 * 14 R1
-	 * 15 PSW
-	 * 16 BP
-	 */
-	for (t = 0; t < 13; t++)
-		*stack++ = 0;
-
-	task->stack_count = 17;
-	task->wchan = NULL;
+	ao_arch_init_stack(task, start);
 }
 
 /* Task switching function. This must not use any stack variables */
 void
-ao_yield(void) __naked
+ao_yield(void) ao_arch_naked_define
 {
-
-	/* Save current context */
-	_asm
-		/* Push ACC first, as when restoring the context it must be restored
-		 * last (it is used to set the IE register). */
-		push	ACC
-		/* Store the IE register then enable interrupts. */
-		push	_IEN0
-		setb	_EA
-		push	DPL
-		push	DPH
-		push	b
-		push	ar2
-		push	ar3
-		push	ar4
-		push	ar5
-		push	ar6
-		push	ar7
-		push	ar0
-		push	ar1
-		push	PSW
-	_endasm;
-	PSW = 0;
-	_asm
-		push	_bp
-	_endasm;
+	ao_arch_save_context();
 
 	if (ao_cur_task_index == AO_NO_TASK_INDEX)
 		ao_cur_task_index = ao_num_tasks-1;

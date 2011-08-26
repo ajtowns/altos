@@ -33,7 +33,7 @@ ao_panic_delay(uint8_t n)
 	while (n--)
 		while (--j)
 			while (--i)
-				_asm nop _endasm;
+				ao_arch_nop();
 }
 
 void
