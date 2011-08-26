@@ -10,6 +10,8 @@ These are Bdale's notes on how to do a release.
 
 		at this point, we have Debian packages
 
+	git tag debian/<version>
+
 	make distclean
 
 	./autogen.sh --with-fat-dir=/home/bdale/web/altusmetrum/AltOS/releases
@@ -29,8 +31,10 @@ These are Bdale's notes on how to do a release.
 		this pushes fresh documents to the web site
 
 	sudo debian/rules clean
+	git push
+	git push --tags
 
-		leave the build tree in an unclutterd state
+		push commits and leave the build tree in an uncluttered state
 
 Testing before a release
 
