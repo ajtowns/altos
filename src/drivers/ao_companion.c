@@ -30,7 +30,7 @@
 #define COMPANION_SELECT()	do { ao_spi_get_bit(COMPANION_CS); ao_spi_slow(); } while (0)
 #define COMPANION_DESELECT()	do { ao_spi_fast(); ao_spi_put_bit(COMPANION_CS); } while (0)
 
-static __xdata struct ao_companion_command	ao_companion_command;
+__xdata struct ao_companion_command		ao_companion_command;
 __xdata struct ao_companion_setup		ao_companion_setup;
 
 __xdata uint16_t	ao_companion_data[AO_COMPANION_MAX_CHANNELS];

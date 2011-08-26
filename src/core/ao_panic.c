@@ -24,6 +24,10 @@
 #if !HAS_BEEP
 #define ao_beep(x)
 #endif
+#if !LEDS_AVAILABLE
+#define ao_led_on(x)
+#define ao_led_off(x)
+#endif
 
 static void
 ao_panic_delay(uint8_t n)

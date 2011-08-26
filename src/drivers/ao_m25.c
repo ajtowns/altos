@@ -376,5 +376,7 @@ ao_storage_device_init(void)
 	/* Set up chip select wires */
 	SPI_CS_PORT |= M25_CS_MASK;	/* raise all CS pins */
 	SPI_CS_DIR |= M25_CS_MASK;	/* set CS pins as outputs */
+#ifdef SPI_CS_SEL
 	SPI_CS_SEL &= ~M25_CS_MASK;	/* set CS pins as GPIO */
+#endif
 }

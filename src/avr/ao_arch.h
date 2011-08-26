@@ -145,5 +145,14 @@ extern uint8_t	ao_cpu_sleep_disable;
 
 #define ao_arch_critical(b) do { cli(); b; sei(); } while (0)
 
+#define AO_TELESCIENCE_NUM_ADC	12
+
+struct ao_adc {
+	uint16_t	tick;		/* tick when the sample was read */
+	uint16_t	adc[AO_TELESCIENCE_NUM_ADC];	/* samples */
+};
+
+#define AO_ADC_RING	16
+
 #endif /* _AO_ARCH_H_ */
 

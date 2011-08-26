@@ -144,15 +144,6 @@ ao_clock_init(void);
 /*
  * One set of samples read from the A/D converter or telemetry
  */
-struct ao_adc {
-	uint16_t	tick;		/* tick when the sample was read */
-	int16_t		accel;		/* accelerometer */
-	int16_t		pres;		/* pressure sensor */
-	int16_t		temp;		/* temperature sensor */
-	int16_t		v_batt;		/* battery voltage */
-	int16_t		sense_d;	/* drogue continuity sense */
-	int16_t		sense_m;	/* main continuity sense */
-};
 
 #if HAS_ADC
 
@@ -160,7 +151,6 @@ struct ao_adc {
  * ao_adc.c
  */
 
-#define AO_ADC_RING	32
 #define ao_adc_ring_next(n)	(((n) + 1) & (AO_ADC_RING - 1))
 #define ao_adc_ring_prev(n)	(((n) - 1) & (AO_ADC_RING - 1))
 
@@ -504,6 +494,23 @@ extern __pdata uint32_t ao_log_end_pos;
 extern __pdata uint32_t ao_log_start_pos;
 extern __xdata uint8_t	ao_log_running;
 extern __pdata enum flight_state ao_log_state;
+
+#define AO_LOG_TELESCIENCE_START	((uint8_t) 's')
+#define AO_LOG_TELESCIENCE_DATA		((uint8_t) 'd')
+
+#define AO_LOG_TELESCIENCE_NUM_ADC	12
+
+struct ao_log_telescience {
+	uint8_t		type;
+	uint8_t		csum;
+	uint16_t	tick;
+	uint16_t	tm_tick;
+	uint8_t		tm_state;
+	uint8_t		unused;
+	uint16_t	adc[AO_LOG_TELESCIENCE_NUM_ADC];
+};
+
+extern struct ao_log_telescience ao_log_store;
 
 /* required functions from the underlying log system */
 
@@ -969,6 +976,16 @@ ao_spi_recv(void __xdata *block, uint16_t len) __reentrant;
 
 void
 ao_spi_init(void);
+
+/*
+ * ao_spi_slave.c
+ */
+
+void
+ao_spi_slave_debug(void);
+
+void
+ao_spi_slave_init(void);
 
 /*
  * ao_telemetry.c
@@ -1568,8 +1585,9 @@ struct ao_companion_setup {
 };
 
 extern __pdata uint8_t				ao_companion_running;
-extern __xdata struct ao_companion_setup	ao_companion_setup;
 extern __xdata uint8_t				ao_companion_mutex;
+extern __xdata struct ao_companion_command	ao_companion_command;
+extern __xdata struct ao_companion_setup	ao_companion_setup;
 extern __xdata uint16_t				ao_companion_data[AO_COMPANION_MAX_CHANNELS];
 
 void

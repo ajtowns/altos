@@ -1,0 +1,9 @@
+#!/bin/sh
+nm "$@" |
+grep ' N _end' |
+awk '{ iram = strtonum("0x" $1) % 0x10000;
+if ( iram > 0xaff) {
+	printf ("%d bytes of ram more than %d available\n", iram, 0xaff);
+	exit(1);
+} else
+	exit(0); }'
