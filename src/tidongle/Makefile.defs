@@ -1,9 +1,0 @@
-PROG = tidongle-$(VERSION).ihx
-
-SRC = \
-	$(TI_SRC)
-
-PRODUCT=TIDongle
-
-PRODUCT_DEF=-DTIDONGLE
-IDPRODUCT=0x000a

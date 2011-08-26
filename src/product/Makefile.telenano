@@ -1,6 +1,8 @@
 #
-# TIDongle build file
+# TeleNano build file
 #
+# Define TELENANO_VER and TELENANO_DEF and then
+# include this file
 
 vpath %.c ..:../core:../cc1111:../drivers:../product
 vpath %.h ..:../core:../cc1111:../drivers:../product
@@ -19,31 +21,36 @@ INC = \
 CORE_SRC = \
 	ao_cmd.c \
 	ao_config.c \
-	ao_gps_print.c \
-	ao_monitor.c \
+	ao_convert.c \
+	ao_flight_nano.c \
+	ao_kalman.c \
+	ao_log.c \
+	ao_log_tiny.c \
 	ao_mutex.c \
 	ao_panic.c \
-	ao_rssi.c \
-	ao_state.c \
+	ao_report.c \
+	ao_sample.c \
 	ao_stdio.c \
-	ao_task.c
+	ao_storage.c \
+	ao_task.c \
+	ao_telemetry.c
 
 CC1111_SRC = \
-	ao_dbg.c \
+	ao_adc.c \
 	ao_dma.c \
+	ao_intflash.c \
 	ao_led.c \
 	ao_packet.c \
-	ao_packet_master.c \
+	ao_packet_slave.c \
 	ao_radio.c \
 	ao_romconfig.c \
 	ao_timer.c \
-	ao_usb.c \
 	_bp.c
 
 DRIVER_SRC =
 
 PRODUCT_SRC = \
-	ao_tidongle.c
+	ao_telenano.c
 
 SRC = \
 	$(CORE_SRC) \
@@ -51,10 +58,11 @@ SRC = \
 	$(DRIVER_SRC) \
 	$(PRODUCT_SRC)
 
-PROG = tidongle-$(VERSION).ihx
-PRODUCT=TIDongle
-PRODUCT_DEF=-DTIDONGLE
+PROG = telenano-v$(TELENANO_VER)-$(VERSION).ihx
+PRODUCT=TeleNano-v$(TELENANO_VER)
+PRODUCT_DEF=-DTELENANO_V_$(TELENANO_DEF)
 IDPRODUCT=0x000a
+CODESIZE=0x6700
 
 include ../cc1111/Makefile.cc1111
 
@@ -89,4 +97,3 @@ clean:
 install:
 
 uninstall:
-

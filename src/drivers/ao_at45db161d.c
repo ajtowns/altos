@@ -16,7 +16,7 @@
  */
 
 #include "ao.h"
-#include "at45db161d.h"
+#include "ao_at45db161d.h"
 
 /* Total bytes of available storage */
 __pdata uint32_t	ao_storage_total;

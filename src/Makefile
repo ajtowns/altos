@@ -2,7 +2,13 @@
 # AltOS build
 #
 #
-CC=sdcc
+
+vpath make-altitude util
+vpath make-kalman util
+vpath kalman.5c kalman
+vpath kalman_filter.5c kalman
+vpath load_csv.5c kalman
+vpath matrix.5c kalman
 
 include Version
 
@@ -14,7 +20,7 @@ SUBDIRS=\
 	telemetrum-v0.1-sky telemetrum-v0.1-sirf \
 	tidongle test
 
-all: all-recursive
+all: all-local all-recursive
 
 RECURSIVE_TARGETS = all-recursive clean-recursive install-recursive
 
@@ -27,8 +33,21 @@ $(RECURSIVE_TARGETS):
 
 distclean:	clean
 
-clean: clean-recursive
+clean: clean-local clean-recursive
 
 install: install-recursive
 
 uninstall:
+
+all-recursive: all-local
+
+all-local: altitude.h ao_kalman.h
+
+altitude.h: make-altitude
+	nickle $< > $@
+
+ao_kalman.h: make-kalman kalman.5c kalman_filter.5c load_csv.5c matrix.5c
+	sh $< kalman > $@
+
+clean-local:
+	rm -f altitude.h ao_kalman.h

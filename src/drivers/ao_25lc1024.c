@@ -16,7 +16,7 @@
  */
 
 #include "ao.h"
-#include "25lc1024.h"
+#include "ao_25lc1024.h"
 
 #define EE_BLOCK_SIZE	((uint16_t) (256))
 #define EE_BLOCK_SHIFT	8

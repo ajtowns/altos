@@ -1,0 +1,27 @@
+CC=sdcc
+
+CFLAGS=--model-small --debug --opt-code-speed -DCODESIZE=$(CODESIZE)
+
+CFLAGS += $(PRODUCT_DEF) -I. -I.. -I../core -I../cc1111 -I../driver -I../product
+
+CODESIZE ?= 0x8000
+
+LDFLAGS=--out-fmt-ihx --code-loc 0x0000 --code-size $(CODESIZE) \
+	--xram-loc 0xf000 --xram-size 0xda2 --iram-size 0xff
+
+REL=$(SRC:.c=.rel) ao_product.rel
+ADB=$(REL:.rel=.adb)
+ASM=$(REL:.rel=.asm)
+LNK=$(REL:.rel=.lnk)
+LST=$(REL:.rel=.lst)
+RST=$(REL:.rel=.rst)
+SYM=$(REL:.rel=.sym)
+
+PCDB=$(PROG:.ihx=.cdb)
+PLNK=$(PROG:.ihx=.lnk)
+PMAP=$(PROG:.ihx=.map)
+PMEM=$(PROG:.ihx=.mem)
+PAOM=$(PROG:.ihx=)
+
+%.rel : %.c $(INC)
+	$(call quiet,CC,$(PRODUCT_DEF)) $(CFLAGS) -c -o$@ $<

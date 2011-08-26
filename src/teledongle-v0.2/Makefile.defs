@@ -1,9 +1,0 @@
-PROG = teledongle-v0.2-$(VERSION).ihx
-
-SRC = \
-	$(TD_SRC) \
-	$(DBG_SRC)
-
-PRODUCT=TeleDongle-v0.2
-PRODUCT_DEF=-DTELEDONGLE_V_0_2
-IDPRODUCT=0x000c

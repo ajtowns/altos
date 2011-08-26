@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd ../kalman
+cd $1 >&/dev/null
 
 SIGMA_BOTH="-M 2 -H 6 -A 2"
 SIGMA_BARO="-M 2 -H 6 -A 2"

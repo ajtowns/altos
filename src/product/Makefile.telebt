@@ -1,6 +1,8 @@
 #
-# TIDongle build file
+# TeleBT build file
 #
+# Define TELEBT_VER, TELEBT_DEF, TELEBT_INC and TELEBT_SRC
+# and include this file
 
 vpath %.c ..:../core:../cc1111:../drivers:../product
 vpath %.h ..:../core:../cc1111:../drivers:../product
@@ -14,7 +16,8 @@ INC = \
 	ao.h \
 	ao_pins.h \
 	cc1111.h \
-	ao_product.h
+	ao_product.h \
+	$(TELEBT_INC)
 
 CORE_SRC = \
 	ao_cmd.c \
@@ -36,25 +39,28 @@ CC1111_SRC = \
 	ao_packet_master.c \
 	ao_radio.c \
 	ao_romconfig.c \
+	ao_serial.c \
 	ao_timer.c \
 	ao_usb.c \
 	_bp.c
 
-DRIVER_SRC =
+DRIVER_SRC = \
+	ao_btm.c
 
 PRODUCT_SRC = \
-	ao_tidongle.c
+	ao_telebt.c
 
 SRC = \
 	$(CORE_SRC) \
 	$(CC1111_SRC) \
 	$(DRIVER_SRC) \
-	$(PRODUCT_SRC)
+	$(PRODUCT_SRC) \
+	$(TELEBT_SRC)
 
-PROG = tidongle-$(VERSION).ihx
-PRODUCT=TIDongle
-PRODUCT_DEF=-DTIDONGLE
-IDPRODUCT=0x000a
+PROG = telebt-v$(TELEBT_VER)-$(VERSION).ihx
+PRODUCT=TeleBT-v$(TELEBT_VER)
+PRODUCT_DEF=-DTELEBT_V_$(TELEBT_DEF)
+IDPRODUCT=0x000e
 
 include ../cc1111/Makefile.cc1111
 
@@ -89,4 +95,3 @@ clean:
 install:
 
 uninstall:
-

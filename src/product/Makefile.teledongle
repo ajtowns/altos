@@ -1,6 +1,11 @@
 #
-# TIDongle build file
+# TeleDongle build file
 #
+# The various teledongle versions differ only
+# in minor pin variations
+# so the per-board makefiles simply define
+# TD_VER, TD_DEF and include
+# this file
 
 vpath %.c ..:../core:../cc1111:../drivers:../product
 vpath %.h ..:../core:../cc1111:../drivers:../product
@@ -43,7 +48,7 @@ CC1111_SRC = \
 DRIVER_SRC =
 
 PRODUCT_SRC = \
-	ao_tidongle.c
+	ao_teledongle.c
 
 SRC = \
 	$(CORE_SRC) \
@@ -51,10 +56,10 @@ SRC = \
 	$(DRIVER_SRC) \
 	$(PRODUCT_SRC)
 
-PROG = tidongle-$(VERSION).ihx
-PRODUCT=TIDongle
-PRODUCT_DEF=-DTIDONGLE
-IDPRODUCT=0x000a
+PROG = teledongle-v$(TD_VER)-$(VERSION).ihx
+PRODUCT=TeleDongle-v$(TD_VER)
+PRODUCT_DEF=-DTELEDONGLE_V_$(TD_DEF)
+IDPRODUCT=0x000c
 
 include ../cc1111/Makefile.cc1111
 
@@ -89,4 +94,3 @@ clean:
 install:
 
 uninstall:
-
