@@ -1,3 +1,22 @@
+altos (1.0.1) unstable; urgency=low
+
+  [ Bdale Garbee ]
+  * use multimaint-merge to make Debian changelogs less ugly
+  * update TeleMini turnon script now that we've made a stable firmware release
+  * moving git-buildpackage config into .git/ since it is fairly specific to 
+    Bdale's build environment, and doesn't need to be in the source package
+  * get ready for a 1.0.1 release
+  * update changelogs for Debian build
+  * fix telemini firmware path name
+  * ignore generated log file
+  * roll release notes version from 1.0 to 1.0.1
+  * roll back packaging changelog for rebuild
+
+  [ Keith Packard ]
+  * altos: Clear callsign on initial config load
+
+ -- Bdale Garbee <bdale@gag.com>  Fri, 26 Aug 2011 10:39:29 -0600
+
 altos (1.0) unstable; urgency=low
 
   [ Keith Packard ]

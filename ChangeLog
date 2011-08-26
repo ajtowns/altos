@@ -1,3 +1,33 @@
+commit bc399d97a8424a5262f66a03e3bc403f793bb337
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 26 10:38:44 2011 -0600
+
+    roll back packaging changelog for rebuild
+
+commit 13e6e799070a1469cbc2ff990379ee520b8f0e6a
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 26 10:29:58 2011 -0600
+
+    roll release notes version from 1.0 to 1.0.1
+
+commit 1d15c841ad276127edae0345bd316c30731fffbf
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 26 10:24:35 2011 -0600
+
+    ignore generated log file
+
+commit 58a74c3c3dcd01509224326cffeb67a3e809e4e6
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 26 10:07:15 2011 -0600
+
+    fix telemini firmware path name
+
+commit 0a92eb2fa6b213533691288d8f99d72b80312983
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 26 09:43:06 2011 -0600
+
+    update changelogs for Debian build
+
 commit 3cea033ec928c21b9f7b810898ed3c3cc536d2ce
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Fri Aug 26 09:41:46 2011 -0600
