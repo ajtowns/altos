@@ -4,7 +4,7 @@
 
 <article>
   <para>
-    Version 1.0 is a major release, adding support for the TeleMini
+    Version 1.0.1 is a major release, adding support for the TeleMini
     device and lots of new AltosUI features
   </para>
   <para>
