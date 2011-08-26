@@ -1,3 +1,54 @@
+commit 3cea033ec928c21b9f7b810898ed3c3cc536d2ce
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 26 09:41:46 2011 -0600
+
+    get ready for a 1.0.1 release
+
+commit 674231773256bacd7acb4b5718c47412e47b813f
+Merge: 08e3d54 3bfe8df
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 26 09:37:01 2011 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 08e3d54bacf8b38a7c33e420a0bc19bcc7acedd4
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 26 09:35:54 2011 -0600
+
+    moving git-buildpackage config into .git/ since it is fairly specific to
+    Bdale's build environment, and doesn't need to be in the source package
+
+commit 3bfe8df44b575ca430ffaa051e20faa955a06c03
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Aug 25 18:02:45 2011 -0700
+
+    altos: Clear callsign on initial config load
+    
+    Before being written the first time, ao_config will get set to 0xff
+    when the config storage is read. This leaves the tail of the callsign
+    filled with invalid bytes. Zero the whole thing before loading the
+    default callsign to make sure any extra bytes are set correctly.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 93ecaf7f18f8f4c15953c2e80dc9e1b20d04fdfa
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 25 15:46:30 2011 -0600
+
+    update TeleMini turnon script now that we've made a stable firmware release
+
+commit c3314dae2d3df82e188daf6ba8520cce833592c6
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 25 03:36:25 2011 -0600
+
+    use multimaint-merge to make Debian changelogs less ugly
+
+commit f9d87de0e2681c2ec5753f4fffef0e61a3a9e144
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Aug 25 02:22:53 2011 -0600
+
+    update changelogs for Debian build
+
 commit 41998645c04a2ee856dec272b40c2dc5913291d3
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Thu Aug 25 02:16:17 2011 -0600
