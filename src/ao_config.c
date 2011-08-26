@@ -74,6 +74,7 @@ _ao_config_get(void)
 		ao_config.minor = 0;
 		ao_config.main_deploy = AO_CONFIG_DEFAULT_MAIN_DEPLOY;
 		ao_config.radio_channel = AO_CONFIG_DEFAULT_RADIO_CHANNEL;
+		memset(&ao_config.callsign, '\0', sizeof (ao_config.callsign));
 		memcpy(&ao_config.callsign, AO_CONFIG_DEFAULT_CALLSIGN,
 		       sizeof(AO_CONFIG_DEFAULT_CALLSIGN) - 1);
 	}
