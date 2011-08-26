@@ -17,50 +17,51 @@
 
 #include "ao.h"
 
-#ifndef HAS_BEEP
-#error Please define HAS_BEEP
-#endif
+__pdata uint8_t ao_led_enable;
 
-#if !HAS_BEEP
-#define ao_beep(x)
-#endif
+#define LED_PORT	PORTB
+#define LED_DDR		DDRB
 
-static void
-ao_panic_delay(uint8_t n)
+void
+ao_led_on(uint8_t colors)
 {
-	uint8_t	i = 0, j = 0;
-
-	while (n--)
-		while (--j)
-			while (--i)
-				ao_arch_nop();
+	LED_PORT |= (colors & ao_led_enable);
 }
 
 void
-ao_panic(uint8_t reason)
+ao_led_off(uint8_t colors)
 {
-	uint8_t	n;
+	LED_PORT &= ~(colors & ao_led_enable);
+}
 
-	__critical for (;;) {
-		ao_panic_delay(20);
-		for (n = 0; n < 5; n++) {
-			ao_led_on(AO_LED_RED);
-			ao_beep(AO_BEEP_HIGH);
-			ao_panic_delay(1);
-			ao_led_off(AO_LED_RED);
-			ao_beep(AO_BEEP_LOW);
-			ao_panic_delay(1);
-		}
-		ao_beep(AO_BEEP_OFF);
-		ao_panic_delay(2);
+void
+ao_led_set(uint8_t colors)
+{
+	LED_PORT = (LED_PORT & ~(ao_led_enable)) | (colors & ao_led_enable);
+}
 
-		for (n = 0; n < reason; n++) {
-			ao_led_on(AO_LED_RED);
-			ao_beep(AO_BEEP_MID);
-			ao_panic_delay(10);
-			ao_led_off(AO_LED_RED);
-			ao_beep(AO_BEEP_OFF);
-			ao_panic_delay(10);
-		}
+void
+ao_led_toggle(uint8_t colors)
+{
+	LED_PORT ^= (colors & ao_led_enable);
+}
+
+void
+ao_led_for(uint8_t colors, uint16_t ticks) __reentrant
+{
+	ao_led_on(colors);
+	ao_delay(ticks);
+	ao_led_off(colors);
+}
+
+void
+ao_led_init(uint8_t enable)
+{
+	ao_led_enable = enable;
+	if ((LED_DDR & enable)) {
+		printf ("oops! restarted\n");
+		ao_panic(AO_PANIC_REBOOT);
 	}
+	LED_PORT &= ~enable;
+	LED_DDR |= enable;
 }

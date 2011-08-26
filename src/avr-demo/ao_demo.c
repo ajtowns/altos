@@ -17,36 +17,36 @@
 
 #include "ao.h"
 
-int
-stdio_put(char c, FILE *stream)
-{
-	if (ao_cur_task && ao_num_stdios)
-		putchar(c);
-	else
-	{
-		if (c == '\n')
-			stdio_put('\r', stream);
-		loop_until_bit_is_set(UCSR1A, UDRE1);
-		UDR1 = c;
-	}
-
-	return 0;
-}
-
-int
-stdio_get(FILE *stream)
-{
-	return (int) getchar() & 0xff;
-}
-
-static FILE mystdout = FDEV_SETUP_STREAM(stdio_put, NULL, _FDEV_SETUP_WRITE);
-
-static FILE mystdin = FDEV_SETUP_STREAM(NULL, stdio_get, _FDEV_SETUP_READ);
+struct ao_task demo_task;
 
 void
-ao_avr_stdio_init(void)
+ao_demo(void)
 {
-	stdout = &mystdout;
-	stdin = &mystdin;
-	printf("%d stdios registered\n", ao_num_stdios);
+	for (;;) {
+		ao_led_toggle(AO_LED_RED);
+		printf ("hello %d\n", ao_time());
+		ao_delay(AO_MS_TO_TICKS(200));
+	}
+}
+
+int
+main(void)
+{
+	ao_clock_init();
+
+	ao_serial_init();
+
+	ao_led_init(LEDS_AVAILABLE);
+	ao_avr_stdio_init();
+	printf ("stdio initialized\n");
+//	ao_debug_init();
+	ao_timer_init();
+	ao_cmd_init();
+	ao_usb_init();
+	ao_lcd_init();
+
+//	ao_add_task(&demo_task, ao_demo, "demo");
+	/* Turn on the LED until the system is stable */
+	ao_start_scheduler();
+	return 0;
 }

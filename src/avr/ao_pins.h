@@ -22,10 +22,36 @@
 	#define AO_LED_RED		(1<<7)
 	#define LEDS_AVAILABLE		(AO_LED_RED)
 	#define USE_SERIAL_STDIN	1
-	#define HAS_USB			0
+	#define HAS_USB			1
 	#define PACKET_HAS_SLAVE	0
 	#define HAS_SERIAL_1		1
+	#define TEENSY			1
+	#define AVR_VCC_5V	       	1
+	#define AVR_VCC_3V3		0
+	#define AVR_CLOCK		16000000UL
 	#define HAS_BEEP		0
+#endif
+
+#ifdef TELESCIENCE
+	#define LEDS_AVAILABLE		0
+	#define HAS_USB			1
+	#define HAS_LOG			1
+	#define TEENSY			0
+	#define USE_SERIAL_STDIN	1
+	#define HAS_SERIAL_1		1
+	#define HAS_USB			1
+	#define HAS_ADC			1
+	#define PACKET_HAS_SLAVE	0
+	#define HAS_BEEP		0
+
+	#define AVR_VCC_5V	       	0
+	#define AVR_VCC_3V3		1
+	#define AVR_CLOCK		8000000UL
+
+	#define SPI_CS_PORT		PORTE
+	#define SPI_CS_DIR		DDRE
+	#define M25_CS_MASK		(1 << PORTE6)
+	#define M25_MAX_CHIPS		1
 #endif
 
 #endif /* _AO_PINS_H_ */

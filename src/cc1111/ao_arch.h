@@ -62,9 +62,8 @@ extern __code __at (0x00a6) uint32_t ao_radio_cal;
 #error Please define HAS_USB
 #endif
 
-#if HAS_USB
-extern __code __at (0x00aa) uint8_t ao_usb_descriptors [];
-#endif
+#define ao_arch_task_members\
+	uint8_t	stack_count;		/* amount of saved stack */
 
 /* Initialize stack */
 #define ao_arch_init_stack(task, start) {			\
@@ -100,32 +99,97 @@ extern __code __at (0x00aa) uint8_t ao_usb_descriptors [];
   
 /* Save current context */
 
-#define ao_arch_save_context() \
-	_asm \
-		/* Push ACC first, as when restoring the context it must be restored \
-		 * last (it is used to set the IE register). */ \
-		push	ACC \
-		/* Store the IE register then enable interrupts. */ \
-		push	_IEN0 \
-		setb	_EA \
-		push	DPL \
-		push	DPH \
-		push	b \
-		push	ar2 \
-		push	ar3 \
-		push	ar4 \
-		push	ar5 \
-		push	ar6 \
-		push	ar7 \
-		push	ar0 \
-		push	ar1 \
-		push	PSW \
-	_endasm; \
-	PSW = 0; \
-	_asm \
-		push	_bp \
+#define ao_arch_save_regs()						\
+	_asm								\
+	/* Push ACC first, as when restoring the context it must be restored \
+	 * last (it is used to set the IE register). */			\
+	push	ACC							\
+	/* Store the IE register then enable interrupts. */		\
+	push	_IEN0							\
+	setb	_EA							\
+	push	DPL							\
+	push	DPH							\
+	push	b							\
+	push	ar2							\
+	push	ar3							\
+	push	ar4							\
+	push	ar5							\
+	push	ar6							\
+	push	ar7							\
+	push	ar0							\
+	push	ar1							\
+	push	PSW							\
+	_endasm;							\
+	PSW = 0;							\
+	_asm								\
+	push	_bp							\
 	_endasm
 
+#define ao_arch_save_stack() { 						\
+		uint8_t stack_len;					\
+		__data uint8_t *stack_ptr;				\
+		__xdata uint8_t *save_ptr;				\
+		/* Save the current stack */				\
+		stack_len = SP - (AO_STACK_START - 1);			\
+		ao_cur_task->stack_count = stack_len;			\
+		stack_ptr = (uint8_t __data *) AO_STACK_START;		\
+		save_ptr = (uint8_t __xdata *) ao_cur_task->stack;	\
+		do							\
+			*save_ptr++ = *stack_ptr++;			\
+		while (--stack_len);					\
+	}
 
+#define ao_arch_isr_stack()						\
+	/* Empty the stack; might as well let interrupts have the whole thing */ \
+	(SP = AO_STACK_START - 1)
+
+#define ao_arch_cpu_idle()	(PCON = PCON_IDLE)
+
+#define ao_arch_restore_stack() {					\
+		uint8_t stack_len;					\
+		__data uint8_t *stack_ptr;				\
+		__xdata uint8_t *save_ptr;				\
+									\
+		/* Restore the old stack */				\
+		stack_len = ao_cur_task->stack_count;			\
+		SP = AO_STACK_START - 1 + stack_len;			\
+									\
+		stack_ptr = (uint8_t __data *) AO_STACK_START;		\
+		save_ptr = (uint8_t __xdata *) ao_cur_task->stack;	\
+		do							\
+			*stack_ptr++ = *save_ptr++;			\
+		while (--stack_len);					\
+									\
+		_asm							\
+		pop		_bp					\
+		pop		PSW					\
+		pop		ar1					\
+		pop		ar0					\
+		pop		ar7					\
+		pop		ar6					\
+		pop		ar5					\
+		pop		ar4					\
+		pop		ar3					\
+		pop		ar2					\
+		pop		b					\
+		pop		DPH					\
+		pop		DPL					\
+		/* The next byte of the stack is the IE register.  Only the global \
+		   enable bit forms part of the task context.  Pop off the IE then set \
+		   the global enable bit to match that of the stored IE register. */ \
+		pop		ACC					\
+		JB		ACC.7,0098$				\
+		CLR		_EA					\
+		LJMP	0099$						\
+		0098$:							\
+			SETB		_EA				\
+		0099$:							\
+		/* Finally pop off the ACC, which was the first register saved. */ \
+		pop		ACC					\
+		ret							\
+		_endasm;						\
+}
+
+#define ao_arch_critical(b) __critical { b }
 
 #endif /* _AO_ARCH_H_ */

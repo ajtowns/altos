@@ -17,36 +17,4 @@
 
 #include "ao.h"
 
-int
-stdio_put(char c, FILE *stream)
-{
-	if (ao_cur_task && ao_num_stdios)
-		putchar(c);
-	else
-	{
-		if (c == '\n')
-			stdio_put('\r', stream);
-		loop_until_bit_is_set(UCSR1A, UDRE1);
-		UDR1 = c;
-	}
-
-	return 0;
-}
-
-int
-stdio_get(FILE *stream)
-{
-	return (int) getchar() & 0xff;
-}
-
-static FILE mystdout = FDEV_SETUP_STREAM(stdio_put, NULL, _FDEV_SETUP_WRITE);
-
-static FILE mystdin = FDEV_SETUP_STREAM(NULL, stdio_get, _FDEV_SETUP_READ);
-
-void
-ao_avr_stdio_init(void)
-{
-	stdout = &mystdout;
-	stdin = &mystdin;
-	printf("%d stdios registered\n", ao_num_stdios);
-}
+const uint16_t ao_serial_number = 0;

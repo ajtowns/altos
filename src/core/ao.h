@@ -37,9 +37,9 @@
 struct ao_task {
 	__xdata void *wchan;		/* current wait channel (NULL if running) */
 	uint16_t alarm;			/* abort ao_sleep time */
-	uint8_t	stack_count;		/* amount of saved stack */
 	uint8_t task_id;		/* unique id */
 	__code char *name;		/* task name */
+	ao_arch_task_members		/* any architecture-specific fields */
 	uint8_t	stack[AO_STACK_SIZE];	/* saved stack */
 };
 
@@ -320,6 +320,10 @@ ao_usb_disable(void);
 /* Initialize the USB system */
 void
 ao_usb_init(void);
+
+#if HAS_USB
+extern __code __at (0x00aa) uint8_t ao_usb_descriptors [];
+#endif
 
 /*
  * ao_cmd.c
@@ -1570,5 +1574,10 @@ extern __xdata uint16_t				ao_companion_data[AO_COMPANION_MAX_CHANNELS];
 
 void
 ao_companion_init(void);
+
+/* ao_lcd.c */
+  
+void
+ao_lcd_init(void);
 
 #endif /* _AO_H_ */

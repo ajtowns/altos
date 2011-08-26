@@ -2,7 +2,7 @@
 # AltOS build
 #
 #
-vpath % ..:../core:../product:../driver
+vpath % ..:../core:../product:../drivers:../avr
 vpath make-altitude ..
 vpath make-kalman ..
 vpath kalman.5c ../kalman
@@ -38,12 +38,15 @@ ALTOS_SRC = \
 	ao_mutex.c \
 	ao_panic.c \
 	ao_product.c \
+	ao_romconfig.c \
 	ao_serial_avr.c \
 	ao_avr_stdio.c \
 	ao_stdio.c \
 	ao_task.c \
 	ao_timer.c \
-	ao_led.c
+	ao_led.c \
+	ao_usb_avr.c \
+	ao_lcd.c
 
 PRODUCT=AvrDemo-v0.0
 MCU=atmega32u4
