@@ -26,6 +26,10 @@ These are Bdale's notes on how to do a release.
 
 		this pushes fresh documents to the web site
 
+	sudo debian/rules clean
+
+		leave the build tree in an unclutterd state
+
 Testing before a release
 
 	To verify that a build works, the following need to be checked
