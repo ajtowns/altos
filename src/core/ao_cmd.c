@@ -32,7 +32,7 @@ static void
 put_string(__code char *s)
 {
 	char	c;
-	while (c = *s++)
+	while ((c = *s++))
 		putchar(c);
 }
 
@@ -188,13 +188,6 @@ ao_match_word(__code char *word)
 }
 
 static void
-eol(void)
-{
-	while (ao_cmd_lex_c != '\n')
-		ao_cmd_lex();
-}
-
-static void
 echo(void)
 {
 	ao_cmd_hex();
@@ -208,8 +201,7 @@ ao_reboot(void)
 	ao_cmd_white();
 	if (!ao_match_word("eboot"))
 		return;
-	WDCTL = WDCTL_EN | WDCTL_MODE_WATCHDOG | WDCTL_INT_64;
-	ao_delay(AO_SEC_TO_TICKS(2));
+	ao_arch_reboot();
 	ao_panic(AO_PANIC_REBOOT);
 }
 
@@ -254,6 +246,7 @@ report(void)
 	case ao_cmd_syntax_error:
 		puts("Syntax error");
 		ao_cmd_status = 0;
+	default:
 		break;
 	}
 }

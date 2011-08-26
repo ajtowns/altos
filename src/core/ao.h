@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stddef.h>
-#include "cc1111.h"
+#include <ao_arch.h>
 #include "ao_pins.h"
 
 #define TRUE 1
