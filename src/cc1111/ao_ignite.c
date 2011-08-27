@@ -17,28 +17,6 @@
 
 #include "ao.h"
 
-#if IGNITE_ON_P2
-#define AO_IGNITER_DROGUE	P2_3
-#define AO_IGNITER_MAIN		P2_4
-#define AO_IGNITER_DIR		P2DIR
-#define AO_IGNITER_DROGUE_BIT	(1 << 3)
-#define AO_IGNITER_MAIN_BIT	(1 << 4)
-#endif
-
-#if IGNITE_ON_P0
-#define AO_IGNITER_DROGUE	P0_5
-#define AO_IGNITER_MAIN		P0_4
-#define AO_IGNITER_DIR		P0DIR
-#define AO_IGNITER_DROGUE_BIT	(1 << 5)
-#define AO_IGNITER_MAIN_BIT	(1 << 4)
-#endif
-
-/* test these values with real igniters */
-#define AO_IGNITER_OPEN		1000
-#define AO_IGNITER_CLOSED	7000
-#define AO_IGNITER_FIRE_TIME	AO_MS_TO_TICKS(50)
-#define AO_IGNITER_CHARGE_TIME	AO_MS_TO_TICKS(2000)
-
 __xdata struct ao_ignition ao_ignition[2];
 
 void

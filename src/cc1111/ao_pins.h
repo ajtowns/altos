@@ -27,6 +27,7 @@
 	#define HAS_ADC			1
 	#define USE_SERIAL_STDIN	0
 	#define HAS_EEPROM		1
+	#define HAS_LOG			1
 	#define USE_INTERNAL_FLASH	0
 	#define HAS_DBG			1
 	#define DBG_ON_P1 		1
@@ -59,6 +60,7 @@
 	#define USE_SERIAL_STDIN	0
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1
+	#define HAS_LOG			1
 	#define USE_INTERNAL_FLASH	0
 	#define HAS_DBG			1
 	#define DBG_ON_P1 		1
@@ -95,6 +97,7 @@
 	#define HAS_ADC			0
 	#define HAS_DBG			1
 	#define HAS_EEPROM		0
+	#define HAS_LOG			0
 	#define DBG_ON_P1		1
 	#define DBG_ON_P0 		0
 	#define IGNITE_ON_P2		0
@@ -120,6 +123,7 @@
 	#define USE_SERIAL_STDIN	0
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1
+	#define HAS_LOG			1
 	#define USE_INTERNAL_FLASH	1
 	#define HAS_DBG			0
 	#define IGNITE_ON_P2		0
@@ -146,6 +150,7 @@
 	#define USE_SERIAL_STDIN	0
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1
+	#define HAS_LOG			1
 	#define USE_INTERNAL_FLASH	1
 	#define HAS_DBG			0
 	#define IGNITE_ON_P2		0
@@ -172,6 +177,7 @@
 	#define HAS_ADC			1
 	#define HAS_DBG			0
 	#define HAS_EEPROM		1
+	#define HAS_LOG			1
 	#define USE_INTERNAL_FLASH	0
 	#define DBG_ON_P1 		0
 	#define DBG_ON_P0 		1
@@ -200,6 +206,7 @@
 	#define HAS_ADC			0
 	#define HAS_DBG			0
 	#define HAS_EEPROM		0
+	#define HAS_LOG			0
 	#define DBG_ON_P1		0
 	#define DBG_ON_P0 		1
 	#define IGNITE_ON_P2		0
@@ -225,6 +232,7 @@
 	#define HAS_ADC			0
 	#define HAS_DBG			1
 	#define HAS_EEPROM		0
+	#define HAS_LOG			0
 	#define DBG_ON_P1		0
 	#define DBG_ON_P0		1
 	#define IGNITE_ON_P2		0
@@ -249,6 +257,7 @@
 	#define HAS_ADC			0
 	#define HAS_DBG			1
 	#define HAS_EEPROM		0
+	#define HAS_LOG			0
 	#define HAS_BTM			1
 	#define DBG_ON_P1 		0
 	#define DBG_ON_P0 		1
@@ -282,6 +291,7 @@
 	#define HAS_ADC			0
 	#define HAS_DBG			1
 	#define HAS_EEPROM		1
+	#define HAS_LOG			1
 	#define USE_INTERNAL_FLASH	0
 	#define HAS_BTM			1
 	#define DBG_ON_P1 		1
@@ -317,7 +327,8 @@
 	#define HAS_ADC			1
 	#define HAS_DBG			0
 	#define HAS_EEPROM		1
-	#define USE_INTERNAL_FLASH	0
+	#define HAS_LOG			0
+	#define USE_INTERNAL_FLASH	1
 	#define DBG_ON_P1 		0
 	#define DBG_ON_P0 		1
 	#define IGNITE_ON_P2		1
@@ -415,6 +426,10 @@
 #error Please define HAS_EEPROM
 #endif
 
+#ifndef HAS_LOG
+#error Please define HAS_LOG
+#endif
+
 #if HAS_EEPROM
 #ifndef USE_INTERNAL_FLASH
 #error Please define USE_INTERNAL_FLASH
@@ -456,5 +471,27 @@
 #endif
 
 #endif /* HAS_ADC */
+
+#if IGNITE_ON_P2
+#define AO_IGNITER_DROGUE	P2_3
+#define AO_IGNITER_MAIN		P2_4
+#define AO_IGNITER_DIR		P2DIR
+#define AO_IGNITER_DROGUE_BIT	(1 << 3)
+#define AO_IGNITER_MAIN_BIT	(1 << 4)
+#endif
+
+#if IGNITE_ON_P0
+#define AO_IGNITER_DROGUE	P0_5
+#define AO_IGNITER_MAIN		P0_4
+#define AO_IGNITER_DIR		P0DIR
+#define AO_IGNITER_DROGUE_BIT	(1 << 5)
+#define AO_IGNITER_MAIN_BIT	(1 << 4)
+#endif
+
+/* test these values with real igniters */
+#define AO_IGNITER_OPEN		1000
+#define AO_IGNITER_CLOSED	7000
+#define AO_IGNITER_FIRE_TIME	AO_MS_TO_TICKS(50)
+#define AO_IGNITER_CHARGE_TIME	AO_MS_TO_TICKS(2000)
 
 #endif /* _AO_PINS_H_ */
