@@ -22,23 +22,26 @@ CORE_SRC = \
 	ao_cmd.c \
 	ao_config.c \
 	ao_convert.c \
+	ao_launch.c \
 	ao_mutex.c \
 	ao_panic.c \
 	ao_stdio.c \
 	ao_storage.c \
-	ao_task.c \
-	ao_sample.c
+	ao_task.c
 
 CC1111_SRC = \
 	ao_adc.c \
+	ao_aes.c \
 	ao_beep.c \
 	ao_dbg.c \
 	ao_dma.c \
 	ao_ignite.c \
+	ao_intflash.c \
 	ao_led.c \
 	ao_packet.c \
 	ao_packet_slave.c \
 	ao_radio.c \
+	ao_radio_cmac.c \
 	ao_romconfig.c \
 	ao_serial.c \
 	ao_spi.c \
@@ -61,6 +64,7 @@ PROG = telelaunch-v$(TELELAUNCH_VER)-$(VERSION).ihx
 PRODUCT=TeleLaunch-v$(TELELAUNCH_VER)
 PRODUCT_DEF=-DTELELAUNCH_V_$(TELELAUNCH_DEF)
 IDPRODUCT=0x000f
+CODESIZE=0x6700
 
 include ../cc1111/Makefile.cc1111
 
