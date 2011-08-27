@@ -308,7 +308,7 @@ ao_config_radio_cal_set(void) __reentrant
 	_ao_config_edit_finish();
 }
 
-#if HAS_EEPROM && HAS_FLIGHT
+#if HAS_LOG
 void
 ao_config_log_show(void) __reentrant
 {
@@ -336,7 +336,7 @@ ao_config_log_set(void) __reentrant
 		_ao_config_edit_finish();
 	}
 }
-#endif /* HAS_EEPROM && HAS_FLIGHT */
+#endif /* HAS_LOG */
 
 #if HAS_IGNITE
 void
@@ -482,7 +482,7 @@ __code struct ao_config_var ao_config_vars[] = {
 #endif /* HAS_ACCEL */
 	{ "f <cal>\0Radio calib (cal = rf/(xtal/2^16))",
 	  ao_config_radio_cal_set,  	ao_config_radio_cal_show },
-#if HAS_EEPROM && HAS_FLIGHT
+#if HAS_LOG
 	{ "l <size>\0Flight log size in kB",
 	  ao_config_log_set,		ao_config_log_show },
 #endif
