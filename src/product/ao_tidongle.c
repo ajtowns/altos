@@ -34,6 +34,8 @@ main(void)
 	ao_rssi_init(AO_LED_RED);
 	ao_radio_init();
 	ao_dbg_init();
+	ao_aes_init();
+	ao_radio_cmac_init();
 	ao_config_init();
 	/* Bring up the USB link */
 	P1DIR |= 1;
