@@ -37,9 +37,9 @@
 struct ao_task {
 	__xdata void *wchan;		/* current wait channel (NULL if running) */
 	uint16_t alarm;			/* abort ao_sleep time */
+	ao_arch_task_members		/* any architecture-specific fields */
 	uint8_t task_id;		/* unique id */
 	__code char *name;		/* task name */
-	ao_arch_task_members		/* any architecture-specific fields */
 	uint8_t	stack[AO_STACK_SIZE];	/* saved stack */
 };
 
