@@ -42,6 +42,9 @@ main(void)
 	ao_radio_init();
 	ao_packet_master_init();
 	ao_btm_init();
+#if HAS_LOG
+	ao_log_single_init();
+#endif
 #if HAS_DBG
 	ao_dbg_init();
 #endif

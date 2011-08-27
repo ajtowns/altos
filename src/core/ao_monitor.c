@@ -25,15 +25,7 @@
 __xdata uint8_t ao_monitoring;
 __pdata uint8_t ao_monitor_led;
 
-#define AO_MONITOR_RING	8
-
-__xdata union ao_monitor {
-		struct ao_telemetry_raw_recv	raw;
-		struct ao_telemetry_orig_recv	orig;
-		struct ao_telemetry_tiny_recv	tiny;
-} ao_monitor_ring[AO_MONITOR_RING];
-
-#define ao_monitor_ring_next(n)	(((n) + 1) & (AO_MONITOR_RING - 1))
+__xdata union ao_monitor ao_monitor_ring[AO_MONITOR_RING];
 
 __data uint8_t	ao_monitor_head;
 

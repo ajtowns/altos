@@ -33,7 +33,7 @@ main(void)
 	ao_storage_init();
 	ao_usb_init();
 	ao_adc_init();
-	ao_log_init();
+	ao_log_single_init();
 	ao_start_scheduler();
 	return 0;
 }

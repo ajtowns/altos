@@ -10,6 +10,7 @@ TELEBT_INC = \
 
 TELEBT_SRC = \
 	ao_beep.c \
+	ao_log_single.c \
 	ao_log_telem.c \
 	ao_spi.c \
 	ao_storage.c \

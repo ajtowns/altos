@@ -46,6 +46,7 @@ ALTOS_SRC = \
 	ao_usb_avr.c \
 	ao_adc_avr.c \
 	ao_spi_slave.c \
+	ao_log_single.c \
 	ao_log_telescience.c \
 	$(TELESCIENCE_STORAGE)
 

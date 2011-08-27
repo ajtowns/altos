@@ -74,9 +74,9 @@ static uint8_t ao_spi_slave_recv(void)
 		return 0;
 	}
 
-	ao_log_store.tm_tick = ao_companion_command.tick;
-	if (ao_log_store.tm_state != ao_companion_command.flight_state) {
-		ao_log_store.tm_state = ao_companion_command.flight_state;
+	ao_log_single_write_data.telescience.tm_tick = ao_companion_command.tick;
+	if (ao_log_single_write_data.telescience.tm_state != ao_companion_command.flight_state) {
+		ao_log_single_write_data.telescience.tm_state = ao_companion_command.flight_state;
 		return 1;
 	}
 	return 0;
@@ -93,11 +93,11 @@ ISR(PCINT0_vect)
 			cli();
 			changed = ao_spi_slave_recv();
 			sei();
-			if (changed && ao_flight_boost <= ao_log_store.tm_state) {
-				if (ao_log_store.tm_state < ao_flight_landed)
-					ao_log_start();
+			if (changed && ao_flight_boost <= ao_log_single_write_data.telescience.tm_state) {
+				if (ao_log_single_write_data.telescience.tm_state < ao_flight_landed)
+					ao_log_single_start();
 				else
-					ao_log_stop();
+					ao_log_single_stop();
 			}
 		}
 	} else {

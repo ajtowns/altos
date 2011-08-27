@@ -505,23 +505,6 @@ extern __pdata uint32_t ao_log_start_pos;
 extern __xdata uint8_t	ao_log_running;
 extern __pdata enum flight_state ao_log_state;
 
-#define AO_LOG_TELESCIENCE_START	((uint8_t) 's')
-#define AO_LOG_TELESCIENCE_DATA		((uint8_t) 'd')
-
-#define AO_LOG_TELESCIENCE_NUM_ADC	12
-
-struct ao_log_telescience {
-	uint8_t		type;
-	uint8_t		csum;
-	uint16_t	tick;
-	uint16_t	tm_tick;
-	uint8_t		tm_state;
-	uint8_t		unused;
-	uint16_t	adc[AO_LOG_TELESCIENCE_NUM_ADC];
-};
-
-extern struct ao_log_telescience ao_log_store;
-
 /* required functions from the underlying log system */
 
 #define AO_LOG_FORMAT_UNKNOWN		0	/* unknown; altosui will have to guess */
@@ -1365,6 +1348,20 @@ ao_radio_init(void);
 
 extern const char const * const ao_state_names[];
 
+#define AO_MONITOR_RING	8
+
+union ao_monitor {
+		struct ao_telemetry_raw_recv	raw;
+		struct ao_telemetry_orig_recv	orig;
+		struct ao_telemetry_tiny_recv	tiny;
+};
+
+extern __xdata union ao_monitor ao_monitor_ring[AO_MONITOR_RING];
+
+#define ao_monitor_ring_next(n)	(((n) + 1) & (AO_MONITOR_RING - 1))
+
+extern __data uint8_t ao_monitor_head;
+
 void
 ao_monitor(void);
 
@@ -1723,5 +1720,71 @@ struct ao_launch_query {
 
 void
 ao_launch_init(void);
+
+/*
+ * ao_log_single.c
+ */
+
+#define AO_LOG_TELESCIENCE_START	((uint8_t) 's')
+#define AO_LOG_TELESCIENCE_DATA		((uint8_t) 'd')
+
+#define AO_LOG_TELESCIENCE_NUM_ADC	12
+
+struct ao_log_telescience {
+	uint8_t		type;
+	uint8_t		csum;
+	uint16_t	tick;
+	uint16_t	tm_tick;
+	uint8_t		tm_state;
+	uint8_t		unused;
+	uint16_t	adc[AO_LOG_TELESCIENCE_NUM_ADC];
+};
+
+#define AO_LOG_SINGLE_SIZE		32
+
+union ao_log_single {
+	struct ao_log_telescience	telescience;
+	union ao_telemetry_all		telemetry;
+	uint8_t				bytes[AO_LOG_SINGLE_SIZE];
+};
+
+extern __xdata union ao_log_single	ao_log_single_write_data;
+extern __xdata union ao_log_single	ao_log_single_read_data;
+
+void
+ao_log_single_extra_query(void);
+
+void
+ao_log_single_list(void);
+
+void
+ao_log_single_main(void);
+
+uint8_t
+ao_log_single_write(void);
+
+uint8_t
+ao_log_single_read(uint32_t pos);
+
+void
+ao_log_single_start(void);
+
+void
+ao_log_single_stop(void);
+
+void
+ao_log_single_restart(void);
+
+void
+ao_log_single_set(void);
+
+void
+ao_log_single_delete(void);
+
+void
+ao_log_single_init(void);
+
+void
+ao_log_single(void);
 
 #endif /* _AO_H_ */
