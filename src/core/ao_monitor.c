@@ -228,6 +228,10 @@ ao_monitor_put(void)
 				printf("%02x", byte);
 			}
 			printf("%02x\n", sum);
+			if (recv_raw.packet[ao_monitoring + 1] & PKT_APPEND_STATUS_1_CRC_OK) {
+				rssi = ((int16_t) recv_raw.packet[ao_monitoring] >> 1) - 74;
+				ao_rssi_set(rssi);
+			}
 			break;
 		}
 		ao_usb_flush();
