@@ -151,7 +151,9 @@ ao_monitor_put(void)
 				ao_gps_print(&recv_orig.telemetry_orig.gps);
 				ao_gps_tracking_print(&recv_orig.telemetry_orig.gps_tracking);
 				putchar('\n');
+#if HAS_RSSI
 				ao_rssi_set(rssi);
+#endif
 			} else {
 				printf("CRC INVALID RSSI %3d\n", rssi);
 			}
@@ -214,7 +216,9 @@ ao_monitor_put(void)
 				       recv_tiny.telemetry_tiny.flight_vel,
 				       recv_tiny.telemetry_tiny.flight_pres);
 #endif
+#if HAS_RSSI
 				ao_rssi_set(rssi);
+#endif
 			} else {
 				printf("CRC INVALID RSSI %3d\n", rssi);
 			}
@@ -228,10 +232,12 @@ ao_monitor_put(void)
 				printf("%02x", byte);
 			}
 			printf("%02x\n", sum);
+#if HAS_RSSI
 			if (recv_raw.packet[ao_monitoring + 1] & PKT_APPEND_STATUS_1_CRC_OK) {
 				rssi = ((int16_t) recv_raw.packet[ao_monitoring] >> 1) - 74;
 				ao_rssi_set(rssi);
 			}
+#endif
 			break;
 		}
 		ao_usb_flush();

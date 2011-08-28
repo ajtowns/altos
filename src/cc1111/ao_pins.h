@@ -111,6 +111,7 @@
 	#define SPI_CS_ON_P0		0
 	#define HAS_IGNITE		0
 	#define HAS_MONITOR		1
+	#define HAS_RSSI		1
 	#define HAS_AES			1
 #endif
 
@@ -220,6 +221,7 @@
 	#define SPI_CS_ON_P0		1
 	#define HAS_IGNITE		0
 	#define HAS_MONITOR		1
+	#define HAS_RSSI		1
 	#define HAS_AES			1
 #endif
 
@@ -245,6 +247,7 @@
 	#define SPI_CS_ON_P0		1
 	#define HAS_IGNITE		0
 	#define HAS_MONITOR		1
+	#define HAS_RSSI		1
 	#define HAS_AES			1
 #endif
 
@@ -276,6 +279,7 @@
 	#define BT_LINK_PIN_INDEX	7
 	#define BT_LINK_PIN		P2_1
 	#define HAS_MONITOR		1
+	#define HAS_RSSI		0
 	#define HAS_AES			1
 #endif
 
@@ -314,6 +318,7 @@
 	#define BT_LINK_PIN_INDEX	7
 	#define BT_LINK_PIN		P1_7
 	#define HAS_MONITOR		1
+	#define HAS_RSSI		0
 	#define HAS_AES			1
 #endif
 
@@ -454,6 +459,12 @@
 
 #ifndef HAS_MONITOR
 #error Please define HAS_MONITOR
+#endif
+
+#if HAS_MONITOR
+#ifndef HAS_RSSI
+#error Please define HAS_RSSI
+#endif
 #endif
 
 #ifndef HAS_ADC
