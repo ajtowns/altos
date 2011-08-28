@@ -39,6 +39,13 @@ public class AltosUSBDevice  extends altos_device implements AltosDevice {
 
 	}
 
+	public String getErrorString() {
+		altos_error	error = new altos_error();
+
+		libaltos.altos_get_last_error(error);
+		return String.format("%s (%d)", error.getString(), error.getCode());
+	}
+
 	public SWIGTYPE_p_altos_file open() {
 		return libaltos.altos_open(this);
 	}

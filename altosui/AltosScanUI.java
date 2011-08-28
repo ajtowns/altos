@@ -130,8 +130,7 @@ public class AltosScanUI
 	void scan_exception(Exception e) {
 		if (e instanceof FileNotFoundException) {
 			JOptionPane.showMessageDialog(owner,
-						      String.format("Cannot open device \"%s\"",
-								    device.toShortString()),
+						      ((FileNotFoundException) e).getMessage(),
 						      "Cannot open target device",
 						      JOptionPane.ERROR_MESSAGE);
 		} else if (e instanceof AltosSerialInUseException) {
@@ -326,8 +325,7 @@ public class AltosScanUI
 			return true;
 		} catch (FileNotFoundException ee) {
 			JOptionPane.showMessageDialog(owner,
-						      String.format("Cannot open device \"%s\"",
-								    device.toShortString()),
+						      ee.getMessage(),
 						      "Cannot open target device",
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (AltosSerialInUseException si) {

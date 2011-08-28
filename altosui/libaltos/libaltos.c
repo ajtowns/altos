@@ -49,6 +49,22 @@ altos_fini(void)
 {
 }
 
+static struct altos_error last_error;
+
+static void
+altos_set_last_error(int code, char *string)
+{
+	last_error.code = code;
+	strncpy(last_error.string, string, sizeof (last_error.string) -1);
+	last_error.string[sizeof(last_error.string)-1] = '\0';
+}
+
+PUBLIC void
+altos_get_last_error(struct altos_error *error)
+{
+	*error = last_error;
+}
+
 #ifdef DARWIN
 
 #undef USE_POLL
@@ -96,6 +112,12 @@ struct altos_file {
 	int				in_read;
 };
 
+static void
+altos_set_last_posix_error(void)
+{
+	altos_set_last_error(errno, strerror(errno));
+}
+
 PUBLIC struct altos_file *
 altos_open(struct altos_device *device)
 {
@@ -103,12 +125,18 @@ altos_open(struct altos_device *device)
 	int			ret;
 	struct termios		term;
 
-	if (!file)
+	if (!file) {
+		altos_set_last_posix_error();
 		return NULL;
+	}
+
+//	altos_set_last_error(12, "yeah yeah, failed again");
+//	free(file);
+//	return NULL;
 
 	file->fd = open(device->path, O_RDWR | O_NOCTTY);
 	if (file->fd < 0) {
-		perror(device->path);
+		altos_set_last_posix_error();
 		free(file);
 		return NULL;
 	}
@@ -117,7 +145,7 @@ altos_open(struct altos_device *device)
 #else
 	file->out_fd = open(device->path, O_RDWR | O_NOCTTY);
 	if (file->out_fd < 0) {
-		perror(device->path);
+		altos_set_last_posix_error();
 		close(file->fd);
 		free(file);
 		return NULL;
@@ -125,7 +153,7 @@ altos_open(struct altos_device *device)
 #endif
 	ret = tcgetattr(file->fd, &term);
 	if (ret < 0) {
-		perror("tcgetattr");
+		altos_set_last_posix_error();
 		close(file->fd);
 #ifndef USE_POLL
 		close(file->out_fd);
@@ -143,7 +171,7 @@ altos_open(struct altos_device *device)
 #endif
 	ret = tcsetattr(file->fd, TCSAFLUSH, &term);
 	if (ret < 0) {
-		perror("tcsetattr");
+		altos_set_last_posix_error();
 		close(file->fd);
 #ifndef USE_POLL
 		close(file->out_fd);
@@ -195,8 +223,10 @@ altos_flush(struct altos_file *file)
 #else
 		ret = write (file->out_fd, file->out_data, file->out_used);
 #endif
-		if (ret < 0)
+		if (ret < 0) {
+			altos_set_last_posix_error();
 			return -errno;
+		}
 		if (ret) {
 			memmove(file->out_data, file->out_data + ret,
 				file->out_used - ret);
@@ -248,7 +278,7 @@ altos_fill(struct altos_file *file, int timeout)
 		fd[1].events = POLLIN;
 		ret = poll(fd, 2, timeout);
 		if (ret < 0) {
-			perror("altos_getchar");
+			altos_set_last_posix_error();
 			return LIBALTOS_ERROR;
 		}
 		if (ret == 0)
@@ -261,7 +291,7 @@ altos_fill(struct altos_file *file, int timeout)
 		{
 			ret = read(file->fd, file->in_data, USB_BUF_SIZE);
 			if (ret < 0) {
-				perror("altos_getchar");
+				altos_set_last_posix_error();
 				return LIBALTOS_ERROR;
 			}
 			file->in_read = 0;
@@ -700,8 +730,10 @@ altos_bt_open(struct altos_bt_device *device)
 	if (!file)
 		goto no_file;
 	file->fd = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
-	if (file->fd < 0)
+	if (file->fd < 0) {
+		altos_set_last_posix_error();
 		goto no_sock;
+	}
 
 	addr.rc_family = AF_BLUETOOTH;
 	addr.rc_channel = 1;
@@ -711,7 +743,7 @@ altos_bt_open(struct altos_bt_device *device)
 			 (struct sockaddr *)&addr,
 			 sizeof(addr));
 	if (status < 0) {
-		perror("connect");
+		altos_set_last_posix_error();
 		goto no_link;
 	}
 	sleep(1);
@@ -912,6 +944,21 @@ struct altos_file {
 	OVERLAPPED			ov_write;
 };
 
+static void
+altos_set_last_windows_error(void)
+{
+	DWORD	error = GetLastError();
+	TCHAR	message[1024];
+	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
+		      0,
+		      error,
+		      0,
+		      message,
+		      sizeof (message) / sizeof (TCHAR),
+		      NULL);
+	altos_set_last_error(error, message);
+}
+
 PUBLIC struct altos_list *
 altos_list_start(void)
 {
@@ -922,7 +969,7 @@ altos_list_start(void)
 	list->dev_info = SetupDiGetClassDevs(NULL, "USB", NULL,
 					     DIGCF_ALLCLASSES|DIGCF_PRESENT);
 	if (list->dev_info == INVALID_HANDLE_VALUE) {
-		printf("SetupDiGetClassDevs failed %ld\n", GetLastError());
+		altos_set_last_windows_error();
 		free(list);
 		return NULL;
 	}
@@ -956,6 +1003,7 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 					       DICS_FLAG_GLOBAL, 0, DIREG_DEV,
 					       KEY_READ);
 		if (dev_key == INVALID_HANDLE_VALUE) {
+			altos_set_last_windows_error();
 			printf("cannot open device registry key\n");
 			continue;
 		}
@@ -966,6 +1014,7 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 		result = RegQueryValueEx(dev_key, "SymbolicName", NULL, NULL,
 					 symbolic, &symbolic_len);
 		if (result != 0) {
+			altos_set_last_windows_error();
 			printf("cannot find SymbolicName value\n");
 			RegCloseKey(dev_key);
 			continue;
@@ -988,6 +1037,7 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 					 port, &port_len);
 		RegCloseKey(dev_key);
 		if (result != 0) {
+			altos_set_last_windows_error();
 			printf("failed to get PortName\n");
 			continue;
 		}
@@ -1003,6 +1053,7 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 						     sizeof(friendlyname),
 						     &friendlyname_len))
 		{
+			altos_set_last_windows_error();
 			printf("Failed to get friendlyname\n");
 			continue;
 		}
@@ -1015,8 +1066,10 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 		return 1;
 	}
 	result = GetLastError();
-	if (result != ERROR_NO_MORE_ITEMS)
+	if (result != ERROR_NO_MORE_ITEMS) {
+		altos_set_last_windows_error();
 		printf ("SetupDiEnumDeviceInfo failed error %d\n", (int) result);
+	}
 	return 0;
 }
 
@@ -1035,8 +1088,10 @@ altos_queue_read(struct altos_file *file)
 		return LIBALTOS_SUCCESS;
 
 	if (!ReadFile(file->handle, file->in_data, USB_BUF_SIZE, &got, &file->ov_read)) {
-		if (GetLastError() != ERROR_IO_PENDING)
+		if (GetLastError() != ERROR_IO_PENDING) {
+			altos_set_last_windows_error();
 			return LIBALTOS_ERROR;
+		}
 		file->pend_read = TRUE;
 	} else {
 		file->pend_read = FALSE;
@@ -1061,8 +1116,10 @@ altos_wait_read(struct altos_file *file, int timeout)
 	ret = WaitForSingleObject(file->ov_read.hEvent, timeout);
 	switch (ret) {
 	case WAIT_OBJECT_0:
-		if (!GetOverlappedResult(file->handle, &file->ov_read, &got, FALSE))
+		if (!GetOverlappedResult(file->handle, &file->ov_read, &got, FALSE)) {
+			altos_set_last_windows_error();
 			return LIBALTOS_ERROR;
+		}
 		file->pend_read = FALSE;
 		file->in_read = 0;
 		file->in_used = got;
@@ -1106,15 +1163,20 @@ altos_flush(struct altos_file *file)
 
 	while (used) {
 		if (!WriteFile(file->handle, data, used, &put, &file->ov_write)) {
-			if (GetLastError() != ERROR_IO_PENDING)
+			if (GetLastError() != ERROR_IO_PENDING) {
+				altos_set_last_windows_error();
 				return LIBALTOS_ERROR;
+			}
 			ret = WaitForSingleObject(file->ov_write.hEvent, INFINITE);
 			switch (ret) {
 			case WAIT_OBJECT_0:
-				if (!GetOverlappedResult(file->handle, &file->ov_write, &put, FALSE))
+				if (!GetOverlappedResult(file->handle, &file->ov_write, &put, FALSE)) {
+					altos_set_last_windows_error();
 					return LIBALTOS_ERROR;
+				}
 				break;
 			default:
+				altos_set_last_windows_error();
 				return LIBALTOS_ERROR;
 			}
 		}
@@ -1142,6 +1204,7 @@ altos_open(struct altos_device *device)
 				  0, NULL, OPEN_EXISTING,
 				  FILE_FLAG_OVERLAPPED, NULL);
 	if (file->handle == INVALID_HANDLE_VALUE) {
+		altos_set_last_windows_error();
 		free(file);
 		return NULL;
 	}
@@ -1157,6 +1220,7 @@ altos_open(struct altos_device *device)
 
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
 	if (!GetCommState(file->handle, &dcbSerialParams)) {
+		altos_set_last_windows_error();
 		CloseHandle(file->handle);
 		free(file);
 		return NULL;
@@ -1166,6 +1230,7 @@ altos_open(struct altos_device *device)
 	dcbSerialParams.StopBits = ONESTOPBIT;
 	dcbSerialParams.Parity = NOPARITY;
 	if (!SetCommState(file->handle, &dcbSerialParams)) {
+		altos_set_last_windows_error();
 		CloseHandle(file->handle);
 		free(file);
 		return NULL;

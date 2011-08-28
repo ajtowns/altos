@@ -200,8 +200,8 @@ public class AltosFlashUI
 	void exception (Exception e) {
 		if (e instanceof FileNotFoundException) {
 			JOptionPane.showMessageDialog(frame,
-						      "Cannot open image",
-						      file.toString(),
+						      ((FileNotFoundException) e).getMessage(),
+						      "Cannot open file",
 						      JOptionPane.ERROR_MESSAGE);
 		} else if (e instanceof AltosSerialInUseException) {
 			JOptionPane.showMessageDialog(frame,

@@ -480,8 +480,7 @@ public class AltosConfig implements ActionListener {
 				}
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(owner,
-							      String.format("Cannot open device \"%s\"",
-									    device.toShortString()),
+							      ee.getMessage(),
 							      "Cannot open target device",
 							      JOptionPane.ERROR_MESSAGE);
 			} catch (AltosSerialInUseException si) {

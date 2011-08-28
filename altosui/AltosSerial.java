@@ -323,8 +323,10 @@ public class AltosSerial implements Runnable {
 		}
 		altos = device.open();
 		if (altos == null) {
+			final String	message = device.getErrorString();
 			close();
-			throw new FileNotFoundException(device.toShortString());
+			throw new FileNotFoundException(String.format("%s (%s)",
+								      device.toShortString(), message));
 		}
 		if (debug)
 			System.out.printf("Open %s\n", device.getPath());

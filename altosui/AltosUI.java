@@ -52,8 +52,7 @@ public class AltosUI extends JFrame {
 				new AltosFlightUI(voice, reader, device.getSerial());
 		} catch (FileNotFoundException ee) {
 			JOptionPane.showMessageDialog(AltosUI.this,
-						      String.format("Cannot open device \"%s\"",
-								    device.toShortString()),
+						      ee.getMessage(),
 						      "Cannot open target device",
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (AltosSerialInUseException si) {
@@ -356,7 +355,7 @@ public class AltosUI extends JFrame {
 			else
 				return new AltosTelemetryIterable(in);
 		} catch (FileNotFoundException fe) {
-			System.out.printf("Cannot open '%s'\n", filename);
+			System.out.printf("%s\n", fe.getMessage());
 			return null;
 		}
 	}
@@ -366,7 +365,7 @@ public class AltosUI extends JFrame {
 		try {
 			return new AltosCSV(file);
 		} catch (FileNotFoundException fe) {
-			System.out.printf("Cannot open '%s'\n", filename);
+			System.out.printf("%s\n", fe.getMessage());
 			return null;
 		}
 	}
@@ -376,7 +375,7 @@ public class AltosUI extends JFrame {
 		try {
 			return new AltosKML(file);
 		} catch (FileNotFoundException fe) {
-			System.out.printf("Cannot open '%s'\n", filename);
+			System.out.printf("%s\n", fe.getMessage());
 			return null;
 		}
 	}

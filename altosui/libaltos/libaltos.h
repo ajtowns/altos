@@ -51,6 +51,11 @@ struct altos_bt_device {
 	//%mutable;
 };
 
+struct altos_error {
+	int				code;
+	char				string[1024];
+};
+
 #define LIBALTOS_SUCCESS	0
 #define LIBALTOS_ERROR		-1
 #define LIBALTOS_TIMEOUT	-2
@@ -61,6 +66,9 @@ altos_init(void);
 
 PUBLIC void
 altos_fini(void);
+
+PUBLIC void
+altos_get_last_error(struct altos_error *error);
 
 PUBLIC struct altos_list *
 altos_list_start(void);

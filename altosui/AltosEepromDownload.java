@@ -248,6 +248,10 @@ public class AltosEepromDownload implements Runnable {
 			done = true;
 	}
 
+	void CaptureTelemetry(AltosEepromChunk eechunk) throws IOException {
+		
+	}
+
 	void CaptureLog(AltosEepromLog log) throws IOException, InterruptedException, TimeoutException {
 		int			block, state_block = 0;
 		int			log_format = flights.config_data.log_format;
@@ -300,10 +304,10 @@ public class AltosEepromDownload implements Runnable {
 				extension = "eeprom";
 				CaptureTiny(eechunk);
 				break;
-//			case Altos.AO_LOG_FORMAT_TELEMETRY:
-//				extension = "telem";
-//				CaptureTelemetry(eechunk);
-//				break;
+			case Altos.AO_LOG_FORMAT_TELEMETRY:
+				extension = "telem";
+				CaptureTelemetry(eechunk);
+				break;
 			case Altos.AO_LOG_FORMAT_TELESCIENCE:
 				extension = "science";
 				CaptureTeleScience(eechunk);

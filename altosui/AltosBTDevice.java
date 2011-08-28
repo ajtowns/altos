@@ -42,6 +42,13 @@ public class AltosBTDevice extends altos_bt_device implements AltosDevice {
 		return getAddr();
 	}
 
+	public String getErrorString() {
+		altos_error	error = new altos_error();
+
+		libaltos.altos_get_last_error(error);
+		return String.format("%s (%d)", error.getString(), error.getCode());
+	}
+
 	public int getSerial() {
 		String name = getName();
 		if (name == null)

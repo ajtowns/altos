@@ -250,7 +250,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 						FileInputStream in = new FileInputStream(file);
 						records = new AltosTelemetryIterable(in);
 					} else {
-						throw new FileNotFoundException();
+						throw new FileNotFoundException(filename);
 					}
 					try {
 						new AltosGraphUI(records, filename);
@@ -259,7 +259,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 					}
 				} catch (FileNotFoundException fe) {
 					JOptionPane.showMessageDialog(null,
-								      filename,
+								      fe.getMessage(),
 								      "Cannot open file",
 								      JOptionPane.ERROR_MESSAGE);
 				}

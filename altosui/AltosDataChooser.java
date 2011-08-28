@@ -61,7 +61,7 @@ public class AltosDataChooser extends JFileChooser {
 				}
 			} catch (FileNotFoundException fe) {
 				JOptionPane.showMessageDialog(frame,
-							      filename,
+							      fe.getMessage(),
 							      "Cannot open file",
 							      JOptionPane.ERROR_MESSAGE);
 			}

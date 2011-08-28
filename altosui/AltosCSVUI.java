@@ -99,7 +99,7 @@ public class AltosCSVUI
 				writer.close();
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(frame,
-							      file.getName(),
+							      ee.getMessage(),
 							      "Cannot open file",
 							      JOptionPane.ERROR_MESSAGE);
 			}

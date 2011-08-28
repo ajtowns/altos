@@ -26,5 +26,6 @@ public interface AltosDevice {
 	public abstract int getSerial();
 	public abstract String getPath();
 	public abstract boolean matchProduct(int product);
+	public abstract String getErrorString();
 	public SWIGTYPE_p_altos_file open();
 }

@@ -164,8 +164,7 @@ public class AltosLaunchUI
 	void launch_exception(Exception e) {
 		if (e instanceof FileNotFoundException) {
 			JOptionPane.showMessageDialog(owner,
-						      String.format("Cannot open device \"%s\"",
-								    device.toShortString()),
+						      ((FileNotFoundException) e).getMessage(),
 						      "Cannot open target device",
 						      JOptionPane.ERROR_MESSAGE);
 		} else if (e instanceof AltosSerialInUseException) {
