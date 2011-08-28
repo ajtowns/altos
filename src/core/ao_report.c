@@ -109,7 +109,7 @@ ao_report_altitude(void)
 	}
 }
 
-#if HAS_IGNITE
+#if HAS_IGNITE_REPORT
 static uint8_t
 ao_report_igniter_ready(enum ao_igniter igniter)
 {
@@ -133,6 +133,7 @@ ao_report_continuity(void) __reentrant
 			low(AO_MS_TO_TICKS(20));
 		}
 	}
+#if HAS_LOG
 	if (ao_log_full()) {
 		pause(AO_MS_TO_TICKS(100));
 		c = 2;
@@ -143,6 +144,7 @@ ao_report_continuity(void) __reentrant
 			mid(AO_MS_TO_TICKS(100));
 		}
 	}
+#endif
 	c = 50;
 	while (c-- && ao_flight_state == ao_flight_pad)
 		pause(AO_MS_TO_TICKS(100));
@@ -157,7 +159,7 @@ ao_report(void)
 		if (ao_flight_state == ao_flight_landed)
 			ao_report_altitude();
 		ao_report_beep();
-#if HAS_IGNITE
+#if HAS_IGNITE_REPORT
 		if (ao_flight_state == ao_flight_idle)
 			ao_report_continuity();
 		while (ao_flight_state == ao_flight_pad)

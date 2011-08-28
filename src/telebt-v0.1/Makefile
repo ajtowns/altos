@@ -12,6 +12,7 @@ TELEBT_SRC = \
 	ao_beep.c \
 	ao_log_single.c \
 	ao_log_telem.c \
+	ao_report.c \
 	ao_spi.c \
 	ao_storage.c \
 	ao_m25.c

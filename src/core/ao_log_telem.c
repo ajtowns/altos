@@ -22,6 +22,7 @@ __code uint8_t ao_log_format = AO_LOG_FORMAT_TELEMETRY;
 static __data uint8_t			ao_log_monitor_pos;
 __pdata enum ao_flight_state		ao_flight_state;
 __pdata int16_t				ao_max_height;	/* max of ao_height */
+__pdata int16_t				sense_d, sense_m;
 
 static void
 ao_log_telem_track() {
@@ -29,6 +30,9 @@ ao_log_telem_track() {
 		switch (ao_log_single_write_data.telemetry.generic.type) {
 		case AO_TELEMETRY_SENSOR_TELEMETRUM:
 		case AO_TELEMETRY_SENSOR_TELEMINI:
+			sense_d = ao_log_single_write_data.telemetry.sensor.sense_d;
+			sense_m = ao_log_single_write_data.telemetry.sensor.sense_m;
+			/* fall through ... */
 		case AO_TELEMETRY_SENSOR_TELENANO:
 			if (ao_log_single_write_data.telemetry.sensor.height > ao_max_height) {
 				ao_max_height = ao_log_single_write_data.telemetry.sensor.height;
@@ -42,6 +46,31 @@ ao_log_telem_track() {
 		}
 	}
 }
+
+enum ao_igniter_status
+ao_igniter_status(enum ao_igniter igniter)
+{
+	int16_t	value;
+
+	switch (igniter) {
+	case ao_igniter_drogue:
+		value = sense_d;
+		break;
+	case ao_igniter_main:
+		value = sense_m;
+		break;
+	default:
+		value = 0;
+		break;
+	}
+	if (value < AO_IGNITER_OPEN)
+		return ao_igniter_open;
+	else if (value > AO_IGNITER_CLOSED)
+		return ao_igniter_ready;
+	else
+		return ao_igniter_unknown;
+}
+
 void
 ao_log_single(void)
 {

@@ -38,7 +38,9 @@ main(void)
 #endif
 	ao_usb_init();
 	ao_monitor_init(AO_LED_RED, sizeof (union ao_telemetry_all));
+#if HAS_LOG
 	ao_report_init();
+#endif
 	ao_radio_init();
 	ao_packet_master_init();
 	ao_btm_init();

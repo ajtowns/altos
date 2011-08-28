@@ -274,6 +274,7 @@
 	#define SPI_CS_ON_P1		1
 	#define SPI_CS_ON_P0		0
 	#define HAS_IGNITE		0
+	#define HAS_IGNITE_REPORT	1
 	#define BT_LINK_ON_P2		1
 	#define BT_LINK_ON_P1		0
 	#define BT_LINK_PIN_INDEX	7
@@ -313,6 +314,7 @@
 	#define M25_MAX_CHIPS		1
 	#define HAS_ACCEL		0
 	#define HAS_IGNITE		0
+	#define HAS_IGNITE_REPORT	1
 	#define BT_LINK_ON_P2		0
 	#define BT_LINK_ON_P1		1
 	#define BT_LINK_PIN_INDEX	7
@@ -447,6 +449,10 @@
 
 #ifndef HAS_IGNITE
 #error Please define HAS_IGNITE
+#endif
+
+#if HAS_IGNITE
+#define HAS_IGNITE_REPORT 1
 #endif
 
 #ifndef PACKET_HAS_MASTER
