@@ -1,3 +1,21 @@
+commit 93b8f40bb451c9ec152490d1f431ab18f8ecb7d1
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 26 10:52:55 2011 -0600
+
+    more release process doc updates
+
+commit 9451ae5e4ea6ecfa512ba93197351682d4d043dc
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 26 10:51:18 2011 -0600
+
+    update release process docs
+
+commit 01aee9ebe517ed657692e0a39a31ae0ddfb5b8b0
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Aug 26 10:39:45 2011 -0600
+
+    update changelogs for Debian build
+
 commit bc399d97a8424a5262f66a03e3bc403f793bb337
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Fri Aug 26 10:38:44 2011 -0600
