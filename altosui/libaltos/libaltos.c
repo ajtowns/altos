@@ -598,7 +598,6 @@ altos_list_finish(struct altos_list *usbdevs)
 	free(usbdevs);
 }
 
-#if HAS_BLUETOOTH
 struct altos_bt_list {
 	inquiry_info	*ii;
 	int		sock;
@@ -730,7 +729,6 @@ no_sock:
 no_file:
 	return NULL;
 }
-#endif /* HAS_BLUETOOTH */
 
 #endif
 
@@ -842,6 +840,48 @@ altos_list_finish(struct altos_list *list)
 {
 	IOObjectRelease (list->iterator);
 	free(list);
+}
+
+struct altos_bt_list {
+	int		sock;
+	int		dev_id;
+	int		rsp;
+	int		num_rsp;
+};
+
+#define INQUIRY_MAX_RSP	255
+
+struct altos_bt_list *
+altos_bt_list_start(int inquiry_time)
+{
+	return NULL;
+}
+
+int
+altos_bt_list_next(struct altos_bt_list *bt_list,
+		   struct altos_bt_device *device)
+{
+	return 0;
+}
+
+void
+altos_bt_list_finish(struct altos_bt_list *bt_list)
+{
+}
+
+void
+altos_bt_fill_in(char *name, char *addr, struct altos_bt_device *device)
+{
+	strncpy(device->name, name, sizeof (device->name));
+	device->name[sizeof(device->name)-1] = '\0';
+	strncpy(device->addr, addr, sizeof (device->addr));
+	device->addr[sizeof(device->addr)-1] = '\0';
+}
+
+struct altos_file *
+altos_bt_open(struct altos_bt_device *device)
+{
+	return NULL;
 }
 
 #endif
@@ -1178,6 +1218,40 @@ altos_getchar(struct altos_file *file, int timeout)
 			return ret;
 	}
 	return file->in_data[file->in_read++];
+}
+
+struct altos_bt_list *
+altos_bt_list_start(int inquiry_time)
+{
+	return NULL;
+}
+
+int
+altos_bt_list_next(struct altos_bt_list *bt_list,
+		   struct altos_bt_device *device)
+{
+	return 0;
+}
+
+void
+altos_bt_list_finish(struct altos_bt_list *bt_list)
+{
+	free(bt_list);
+}
+
+void
+altos_bt_fill_in(char *name, char *addr, struct altos_bt_device *device)
+{
+	strncpy(device->name, name, sizeof (device->name));
+	device->name[sizeof(device->name)-1] = '\0';
+	strncpy(device->addr, addr, sizeof (device->addr));
+	device->addr[sizeof(device->addr)-1] = '\0';
+}
+
+struct altos_file *
+altos_bt_open(struct altos_bt_device *device)
+{
+	return NULL;
 }
 
 #endif

@@ -52,8 +52,7 @@ public class AltosConfigureUI
 
 	JRadioButton	serial_debug;
 
-// BLUETOOTH
-//	JButton		manage_bluetooth;
+	JButton		manage_bluetooth;
 	JButton		manage_frequencies;
 
 	final static String[] font_size_names = { "Small", "Medium", "Large" };
@@ -241,19 +240,18 @@ public class AltosConfigureUI
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(serial_debug, c);
 
-// BLUETOOTH
-//		manage_bluetooth = new JButton("Manage Bluetooth");
-//		manage_bluetooth.addActionListener(new ActionListener() {
-//				public void actionPerformed(ActionEvent e) {
-//					AltosBTManage.show(owner, Altos.bt_known);
-//				}
-//			});
-//		c.gridx = 0;
-//		c.gridy = row++;
-//		c.gridwidth = 2;
-//		c.fill = GridBagConstraints.NONE;
-//		c.anchor = GridBagConstraints.WEST;
-//		pane.add(manage_bluetooth, c);
+		manage_bluetooth = new JButton("Manage Bluetooth");
+		manage_bluetooth.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					AltosBTManage.show(owner, Altos.bt_known);
+				}
+			});
+		c.gridx = 0;
+		c.gridy = row;
+		c.gridwidth = 2;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(manage_bluetooth, c);
 
 		manage_frequencies = new JButton("Manage Frequencies");
 		manage_frequencies.addActionListener(new ActionListener() {
@@ -262,9 +260,8 @@ public class AltosConfigureUI
 				}
 			});
 		manage_frequencies.setToolTipText("Configure which values are shown in frequency menus");
-// BLUETOOTH
-//		c.gridx = 2;
-		c.gridx = 1;
+		c.gridx = 2;
+		c.gridx = 2;
 		c.gridy = row++;
 		c.gridwidth = 2;
 		c.fill = GridBagConstraints.NONE;

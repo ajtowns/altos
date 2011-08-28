@@ -498,5 +498,5 @@ public class Altos {
 
 	public final static String bt_product_telebt = bt_product_telebt();
 
-//	public static AltosBTKnown bt_known = new AltosBTKnown();
+	public static AltosBTKnown bt_known = new AltosBTKnown();
 }

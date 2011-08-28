@@ -118,7 +118,8 @@ altosui_JAVA = \
 	AltosGraphUI.java \
 	AltosDataChooser.java \
 	AltosVersion.java \
-	AltosVoice.java
+	AltosVoice.java \
+	$(altosui_BT)
 
 JFREECHART_CLASS= \
     jfreechart.jar

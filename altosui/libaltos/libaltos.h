@@ -93,9 +93,6 @@ altos_flush(struct altos_file *file);
 PUBLIC int
 altos_getchar(struct altos_file *file, int timeout);
 
-// #define HAS_BLUETOOTH 1
-#if HAS_BLUETOOTH
-
 PUBLIC struct altos_bt_list *
 altos_bt_list_start(int inquiry_time);
 
@@ -110,7 +107,5 @@ altos_bt_fill_in(char *name, char *addr, struct altos_bt_device *device);
 
 PUBLIC struct altos_file *
 altos_bt_open(struct altos_bt_device *device);
-
-#endif
 
 #endif /* _LIBALTOS_H_ */
