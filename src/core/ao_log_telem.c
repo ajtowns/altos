@@ -31,6 +31,7 @@ ao_log_single(void)
 	 */
 	ao_delay(AO_SEC_TO_TICKS(2));
 
+	ao_log_running = 1;
 	ao_log_single_restart();
 	for (;;) {
 		while (!ao_log_running)
@@ -46,7 +47,7 @@ ao_log_single(void)
 				ao_log_single_write();
 				ao_log_monitor_pos = ao_monitor_ring_next(ao_log_monitor_pos);
 			}
-			/* Wait for more ADC data to arrive */
+			/* Wait for more telemetry data to arrive */
 			ao_sleep(DATA_TO_XDATA(&ao_monitor_head));
 		}
 	}
