@@ -55,7 +55,15 @@ ao_monitor_get(void)
 			continue;
 		ao_monitor_head = ao_monitor_ring_next(ao_monitor_head);
 		ao_wakeup(DATA_TO_XDATA(&ao_monitor_head));
-		ao_led_toggle(ao_monitor_led);
+	}
+}
+
+void
+ao_monitor_blink(void)
+{
+	for (;;) {
+		ao_sleep(DATA_TO_XDATA(&ao_monitor_head));
+		ao_led_for(ao_monitor_led, AO_MS_TO_TICKS(100));
 	}
 }
 
@@ -246,6 +254,7 @@ ao_monitor_put(void)
 
 __xdata struct ao_task ao_monitor_get_task;
 __xdata struct ao_task ao_monitor_put_task;
+__xdata struct ao_task ao_monitor_blink_task;
 
 void
 ao_set_monitor(uint8_t monitoring)
@@ -276,4 +285,6 @@ ao_monitor_init(uint8_t monitor_led, uint8_t monitoring) __reentrant
 	ao_cmd_register(&ao_monitor_cmds[0]);
 	ao_add_task(&ao_monitor_get_task, ao_monitor_get, "monitor_get");
 	ao_add_task(&ao_monitor_put_task, ao_monitor_put, "monitor_put");
+	if (ao_monitor_led)
+		ao_add_task(&ao_monitor_blink_task, ao_monitor_blink, "monitor_blink");
 }
