@@ -19,8 +19,29 @@
 
 __code uint8_t ao_log_format = AO_LOG_FORMAT_TELEMETRY;
 
-static __data uint8_t	ao_log_monitor_pos;
+static __data uint8_t			ao_log_monitor_pos;
+__pdata enum ao_flight_state		ao_flight_state;
+__pdata int16_t				ao_max_height;	/* max of ao_height */
 
+static void
+ao_log_telem_track() {
+	if (ao_monitoring == sizeof (union ao_telemetry_all)) {
+		switch (ao_log_single_write_data.telemetry.generic.type) {
+		case AO_TELEMETRY_SENSOR_TELEMETRUM:
+		case AO_TELEMETRY_SENSOR_TELEMINI:
+		case AO_TELEMETRY_SENSOR_TELENANO:
+			if (ao_log_single_write_data.telemetry.sensor.height > ao_max_height) {
+				ao_max_height = ao_log_single_write_data.telemetry.sensor.height;
+			}
+			if (ao_log_single_write_data.telemetry.sensor.state != ao_flight_state) {
+				ao_flight_state = ao_log_single_write_data.telemetry.sensor.state;
+				if (ao_flight_state == ao_flight_pad)
+					ao_max_height = 0;
+				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
+			}
+		}
+	}
+}
 void
 ao_log_single(void)
 {
@@ -33,6 +54,7 @@ ao_log_single(void)
 
 	ao_log_running = 1;
 	ao_log_single_restart();
+	ao_flight_state = ao_flight_startup;
 	for (;;) {
 		while (!ao_log_running)
 			ao_sleep(&ao_log_running);
@@ -46,6 +68,7 @@ ao_log_single(void)
 				       AO_LOG_SINGLE_SIZE);
 				ao_log_single_write();
 				ao_log_monitor_pos = ao_monitor_ring_next(ao_log_monitor_pos);
+				ao_log_telem_track();
 			}
 			/* Wait for more telemetry data to arrive */
 			ao_sleep(DATA_TO_XDATA(&ao_monitor_head));

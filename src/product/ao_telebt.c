@@ -37,7 +37,8 @@ main(void)
 	ao_storage_init();
 #endif
 	ao_usb_init();
-	ao_monitor_init(AO_LED_RED, TRUE);
+	ao_monitor_init(AO_LED_RED, sizeof (union ao_telemetry_all));
+	ao_report_init();
 	ao_radio_init();
 	ao_packet_master_init();
 	ao_btm_init();

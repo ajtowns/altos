@@ -22,7 +22,7 @@
 #error Must define HAS_MONITOR to 1
 #endif
 
-__xdata uint8_t ao_monitoring;
+__data uint8_t ao_monitoring;
 __pdata uint8_t ao_monitor_led;
 
 __xdata union ao_monitor ao_monitor_ring[AO_MONITOR_RING];
@@ -37,7 +37,7 @@ ao_monitor_get(void)
 	for (;;) {
 		switch (ao_monitoring) {
 		case 0:
-			ao_sleep(&ao_monitoring);
+			ao_sleep(DATA_TO_XDATA(&ao_monitoring));
 			continue;
 		case AO_MONITORING_ORIG:
 			size = sizeof (struct ao_telemetry_orig_recv);
@@ -262,7 +262,7 @@ ao_set_monitor(uint8_t monitoring)
 	if (ao_monitoring)
 		ao_radio_recv_abort();
 	ao_monitoring = monitoring;
-	ao_wakeup(&ao_monitoring);
+	ao_wakeup(DATA_TO_XDATA(&ao_monitoring));
 }
 
 static void
