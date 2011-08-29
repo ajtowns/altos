@@ -1436,6 +1436,8 @@ extern __xdata struct ao_ignition ao_ignition[2];
 enum ao_igniter_status
 ao_igniter_status(enum ao_igniter igniter);
 
+extern __pdata uint8_t ao_igniter_present;
+
 void
 ao_ignite_set_pins(void);
 

@@ -119,7 +119,13 @@ ao_report_igniter_ready(enum ao_igniter igniter)
 static void
 ao_report_continuity(void) __reentrant
 {
-	uint8_t	c = (ao_report_igniter_ready(ao_igniter_drogue) |
+	uint8_t	c;
+
+#if !HAS_IGNITE
+	if (!ao_igniter_present)
+		return;
+#endif
+	c = (ao_report_igniter_ready(ao_igniter_drogue) |
 		     (ao_report_igniter_ready(ao_igniter_main) << 1));
 	if (c) {
 		while (c--) {
@@ -145,9 +151,6 @@ ao_report_continuity(void) __reentrant
 		}
 	}
 #endif
-	c = 50;
-	while (c-- && ao_flight_state == ao_flight_pad)
-		pause(AO_MS_TO_TICKS(100));
 }
 #endif
 
@@ -162,8 +165,13 @@ ao_report(void)
 #if HAS_IGNITE_REPORT
 		if (ao_flight_state == ao_flight_idle)
 			ao_report_continuity();
-		while (ao_flight_state == ao_flight_pad)
+		while (ao_flight_state == ao_flight_pad) {
+			uint8_t	c;
 			ao_report_continuity();
+			c = 50;
+			while (c-- && ao_flight_state == ao_flight_pad)
+				pause(AO_MS_TO_TICKS(100));
+		}
 #endif
 		__critical {
 			while (ao_report_state == ao_flight_state)
