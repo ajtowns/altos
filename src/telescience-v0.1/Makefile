@@ -33,6 +33,7 @@ TELESCIENCE_STORAGE= \
 	ao_storage.c \
 
 ALTOS_SRC = \
+	ao_clock.c \
 	ao_cmd.c \
 	ao_mutex.c \
 	ao_panic.c \
