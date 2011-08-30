@@ -2480,7 +2480,7 @@ NAR #88757, TRA #12200
   <appendix
       xmlns:xi="http://www.w3.org/2001/XInclude">
     <title>Release Notes</title>
-    <xi:include	href="release-notes-1.0.xsl"  xpointer="xpointer(/article/*)"/>
+    <xi:include	href="release-notes-1.0.1.xsl"  xpointer="xpointer(/article/*)"/>
     <xi:include	href="release-notes-0.9.2.xsl"  xpointer="xpointer(/article/*)"/>
     <xi:include	href="release-notes-0.9.xsl"  xpointer="xpointer(/article/*)"/>
     <xi:include	href="release-notes-0.8.xsl"  xpointer="xpointer(/article/*)"/>
