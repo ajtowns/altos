@@ -61,4 +61,28 @@
 	#define SPI_SLAVE_PIN_2_5	0
 #endif
 
+#ifdef TELEPYRO
+	#define LEDS_AVAILABLE		0
+	#define HAS_USB			1
+	#define HAS_LOG			0
+	#define TEENSY			0
+	#define USE_SERIAL_STDIN	1
+	#define HAS_SERIAL_1		1
+	#define HAS_USB			1
+	#define HAS_ADC			1
+	#define PACKET_HAS_SLAVE	0
+	#define HAS_BEEP		0
+
+	#define AVR_VCC_5V	       	0
+	#define AVR_VCC_3V3		1
+	#define AVR_CLOCK		8000000UL
+
+	#define SPI_SLAVE_CS_PORT	PORTB
+	#define SPI_SLAVE_CS_PIN	PINB
+	#define SPI_SLAVE_CS_PIN_NO	PINB0
+
+	#define SPI_SLAVE_PIN_0_3	1
+	#define SPI_SLAVE_PIN_2_5	0
+#endif
+
 #endif /* _AO_PINS_H_ */

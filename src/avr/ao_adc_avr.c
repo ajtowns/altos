@@ -20,6 +20,7 @@
 volatile __xdata struct ao_adc	ao_adc_ring[AO_ADC_RING];
 volatile __data uint8_t		ao_adc_head;
 
+#ifdef TELESCIENCE
 const uint8_t	adc_channels[AO_LOG_TELESCIENCE_NUM_ADC] = {
 	0x00,
 	0x01,
@@ -34,6 +35,22 @@ const uint8_t	adc_channels[AO_LOG_TELESCIENCE_NUM_ADC] = {
 	0x24,
 	0x25,
 };
+#endif
+
+#ifdef TELEPYRO
+const uint8_t	adc_channels[AO_TELEPYRO_NUM_ADC] = {
+	0x00,	/* ADC0  v_batt */
+	0x04,	/* ADC4  sense_a */
+	0x05,	/* ADC5  sense_b */
+	0x06,	/* ADC6  sense_c */
+	0x07,	/* ADC7  sense_d */
+	0x23,	/* ADC11 sense_e */
+	0x22,	/* ADC10 sense_f */
+	0x21,	/* ADC9 sense_g */
+};
+#endif
+
+#define NUM_ADC	(sizeof (adc_channels) / sizeof (adc_channels[0]))
 
 static uint8_t	ao_adc_channel;
 
@@ -75,7 +92,7 @@ ISR(ADC_vect)
 	value = ADCL;
 	value |= (ADCH << 8);
 	ao_adc_ring[ao_adc_head].adc[ao_adc_channel] = value;
-	if (++ao_adc_channel < AO_TELESCIENCE_NUM_ADC)
+	if (++ao_adc_channel < NUM_ADC)
 		ao_adc_start();
 	else {
 		ADCSRA = ADCSRA_INIT;
@@ -108,7 +125,7 @@ ao_adc_dump(void) __reentrant
 	uint8_t i;
 	ao_adc_get(&packet);
 	printf("tick: %5u",  packet.tick);
-	for (i = 0; i < AO_TELESCIENCE_NUM_ADC; i++)
+	for (i = 0; i < NUM_ADC; i++)
 		printf (" %2d: %5u", i, packet.adc[i]);
 	printf ("\n");
 }

@@ -19,7 +19,7 @@ SUBDIRS=\
 	telebt-v0.0 telebt-v0.1 \
 	telemetrum-v0.1-sky telemetrum-v0.1-sirf \
 	telelaunch-v0.1 \
-	tidongle test telescience-v0.1
+	tidongle test telescience-v0.1 telepyro-v0.1
 
 all: all-local all-recursive
 

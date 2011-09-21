@@ -1811,4 +1811,10 @@ ao_log_single_init(void);
 void
 ao_log_single(void);
 
+/*
+ * ao_pyro_slave.c
+ */
+
+#define AO_TELEPYRO_NUM_ADC	9
+
 #endif /* _AO_H_ */
