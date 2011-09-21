@@ -48,7 +48,7 @@ altitude.h: make-altitude
 	nickle $< > $@
 
 ao_kalman.h: make-kalman kalman.5c kalman_filter.5c load_csv.5c matrix.5c
-	sh $< kalman > $@
+	bash $< kalman > $@
 
 clean-local:
 	rm -f altitude.h ao_kalman.h
