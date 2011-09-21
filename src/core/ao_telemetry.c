@@ -235,7 +235,7 @@ ao_telemetry(void)
 			    (int16_t) (ao_time() - ao_rdf_time) >= 0)
 			{
 				ao_rdf_time = ao_time() + AO_RDF_INTERVAL_TICKS;
-				ao_radio_rdf(AO_RDF_LENGTH_MS);
+				ao_radio_rdf(AO_MS_TO_RDF_LEN(AO_RDF_LENGTH_MS));
 			}
 #endif
 			time += ao_telemetry_interval;

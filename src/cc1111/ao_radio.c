@@ -367,21 +367,9 @@ ao_radio_recv_abort(void)
 __xdata ao_radio_rdf_value = 0x55;
 
 void
-ao_radio_rdf(int ms)
+ao_radio_rdf(uint8_t pkt_len)
 {
 	uint8_t i;
-	uint8_t pkt_len;
-
-	/*
-	 * Compute the packet length as follows:
-	 *
-	 * 2000 bps (for a 1kHz tone)
-	 * so, for 'ms' milliseconds, we need
-	 * 2 * ms bits, or ms / 4 bytes
-	 */
-	if (ms > (255 * 4))
-		ms = 255 * 4;
-	pkt_len = ms >> 2;
 
 	ao_radio_abort = 0;
 	ao_radio_get(pkt_len);
