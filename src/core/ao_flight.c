@@ -34,7 +34,7 @@
 /* Main flight thread. */
 
 __pdata enum ao_flight_state	ao_flight_state;	/* current flight state */
-__pdata uint16_t		ao_launch_tick;		/* time of launch detect */
+__pdata uint16_t		ao_boost_tick;		/* time of launch detect */
 
 /*
  * track min/max data over a long interval to detect
@@ -151,7 +151,7 @@ ao_flight(void)
 				)
 			{
 				ao_flight_state = ao_flight_boost;
-				ao_launch_tick = ao_sample_tick;
+				ao_boost_tick = ao_sample_tick;
 
 				/* start logging data */
 				ao_log_start();
@@ -184,7 +184,7 @@ ao_flight(void)
 			 * (15 seconds) has past.
 			 */
 			if ((ao_accel < AO_MSS_TO_ACCEL(-2.5) && ao_height > AO_M_TO_HEIGHT(100)) ||
-			    (int16_t) (ao_sample_tick - ao_launch_tick) > BOOST_TICKS_MAX)
+			    (int16_t) (ao_sample_tick - ao_boost_tick) > BOOST_TICKS_MAX)
 			{
 #if HAS_ACCEL
 				ao_flight_state = ao_flight_fast;
@@ -205,7 +205,8 @@ ao_flight(void)
 			{
 				ao_flight_state = ao_flight_coast;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
-			}
+			} else
+				goto check_re_boost;
 			break;
 #endif
 		case ao_flight_coast:
@@ -237,6 +238,16 @@ ao_flight(void)
 				ao_flight_state = ao_flight_drogue;
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
+#if HAS_ACCEL
+			else {
+			check_re_boost:
+				if (ao_accel > AO_MSS_TO_ACCEL(20)) {
+					ao_boost_tick = ao_sample_tick;
+					ao_flight_state = ao_flight_boost;
+					ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
+				}
+			}
+#endif
 
 			break;
 		case ao_flight_drogue:
