@@ -47,6 +47,7 @@ const uint8_t	adc_channels[AO_TELEPYRO_NUM_ADC] = {
 	0x23,	/* ADC11 sense_e */
 	0x22,	/* ADC10 sense_f */
 	0x21,	/* ADC9 sense_g */
+	0x20,	/* ADC8 sense_h */
 };
 #endif
 
