@@ -974,11 +974,22 @@ ao_spi_init(void);
  * ao_spi_slave.c
  */
 
+uint8_t
+ao_spi_read(uint8_t *buf, uint8_t len);
+
 void
-ao_spi_slave_debug(void);
+ao_spi_write(uint8_t *buf, uint8_t len);
 
 void
 ao_spi_slave_init(void);
+
+/* This must be defined by the product; it will get called when chip
+ * select goes low, at which point it should use ao_spi_read and
+ * ao_spi_write to deal with the request
+ */
+
+void
+ao_spi_slave(void);
 
 /*
  * ao_telemetry.c

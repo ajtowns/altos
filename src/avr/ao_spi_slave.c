@@ -16,18 +16,8 @@
  */
 
 #include "ao.h"
-#include "ao_product.h"
 
-struct ao_companion_command	ao_companion_command;
-
-static const struct ao_companion_setup	ao_telescience_setup = {
-	.board_id 		= AO_idProduct_NUMBER,
-	.board_id_inverse	= ~AO_idProduct_NUMBER,
-	.update_period		= 50,
-	.channels		= AO_LOG_TELESCIENCE_NUM_ADC,
-};
-
-static uint8_t
+uint8_t
 ao_spi_read(uint8_t *buf, uint8_t len)
 {
 	while (len--) {
@@ -39,7 +29,7 @@ ao_spi_read(uint8_t *buf, uint8_t len)
 	return 1;
 }
 
-static void
+void
 ao_spi_write(uint8_t *buf, uint8_t len)
 {
 	while (len--) {
@@ -52,66 +42,38 @@ ao_spi_write(uint8_t *buf, uint8_t len)
 	(void) SPDR;
 }
 
-static uint8_t ao_spi_slave_recv(void)
-{
-	if (!ao_spi_read((uint8_t *) &ao_companion_command,
-			 sizeof (ao_companion_command)))
-		return 0;
-
-	/* Figure out the outbound data */
-	switch (ao_companion_command.command) {
-	case AO_COMPANION_SETUP:
-		ao_spi_write((uint8_t *) &ao_telescience_setup,
-			     sizeof (ao_telescience_setup));
-		break;
-	case AO_COMPANION_FETCH:
-		ao_spi_write((uint8_t *) &ao_adc_ring[ao_adc_ring_prev(ao_adc_head)].adc,
-			     AO_LOG_TELESCIENCE_NUM_ADC * sizeof (uint16_t));
-		break;
-	case AO_COMPANION_NOTIFY:
-		break;
-	default:
-		return 0;
-	}
-
-	ao_log_single_write_data.telescience.tm_tick = ao_companion_command.tick;
-	if (ao_log_single_write_data.telescience.tm_state != ao_companion_command.flight_state) {
-		ao_log_single_write_data.telescience.tm_state = ao_companion_command.flight_state;
-		return 1;
-	}
-	return 0;
-}
-
 static uint8_t ao_spi_slave_running;
 
 ISR(PCINT0_vect)
 {
-	if ((PINB & (1 << PINB0)) == 0) {
+	cli();
+#if SPI_SLAVE_PIN_0_3
+	if ((PINB & (1 << PORTB0)) == 0)
+#endif
+#if SPI_SLAVE_PIN_2_5
+	if ((PINB & (1 << PORTB2)) == 0)
+#endif
+	{
 		if (!ao_spi_slave_running) {
-			uint8_t	changed;
 			ao_spi_slave_running = 1;
-			cli();
-			changed = ao_spi_slave_recv();
-			sei();
-			if (changed && ao_flight_boost <= ao_log_single_write_data.telescience.tm_state) {
-				if (ao_log_single_write_data.telescience.tm_state < ao_flight_landed)
-					ao_log_single_start();
-				else
-					ao_log_single_stop();
-			}
+			ao_spi_slave();
 		}
 	} else {
 		ao_spi_slave_running = 0;
 	}
-}
-
-void ao_spi_slave_debug(void) {
-	printf ("slave running %d\n", ao_spi_slave_running);
+	sei();
 }
 
 void
 ao_spi_slave_init(void)
 {
+	/* We'd like to have a pull-up on SS so that disconnecting the
+	 * TM would cause any SPI transaction to abort. However, when
+	 * I tried that, SPI transactions would spontaneously abort,
+	 * making me assume that we needed a less aggressive pull-up
+	 * than is offered inside the AVR
+	 */
+#if SPI_SLAVE_PIN_0_3
 	PCMSK0 |= (1 << PCINT0);	/* Enable PCINT0 pin change */
 	PCICR |= (1 << PCIE0);		/* Enable pin change interrupt */
 
@@ -121,17 +83,28 @@ ao_spi_slave_init(void)
 		(0 << 1) |		/* SCK, input */
 		(0 << 0));		/* SS, input */
 
-	/* We'd like to have a pull-up on SS so that disconnecting the
-	 * TM would cause any SPI transaction to abort. However, when
-	 * I tried that, SPI transactions would spontaneously abort,
-	 * making me assume that we needed a less aggressive pull-up
-	 * than is offered inside the AVR
-	 */
 	PORTB = ((PORTB & 0xf0) |
 		 (1 << 3) |		/* MISO, output */
 		 (0 << 2) |		/* MOSI, no pull-up */
 		 (0 << 1) |		/* SCK, no pull-up */
 		 (0 << 0));		/* SS, no pull-up */
+#endif
+#if SPI_SLAVE_PIN_2_5
+	PCMSK0 |= (1 << PCINT2);	/* Enable PCINT2 pin change */
+	PCICR |= (1 << PCIE0);		/* Enable pin change interrupt */
+
+	DDRB = ((DDRB & 0xf0) |
+		(0 << 5) |		/* SCK, input */
+		(1 << 4) |		/* MISO, output */
+		(0 << 3) |		/* MOSI, input */
+		(0 << 2));		/* SS, input */
+
+	PORTB = ((PORTB & 0xf0) |
+		 (0 << 5) |		/* SCK, no pull-up */
+		 (1 << 4) |		/* MISO, output */
+		 (0 << 3) |		/* MOSI, no pull-up */
+		 (0 << 2));		/* SS, no pull-up */
+#endif	
 
 	SPCR = (0 << SPIE) |		/* Disable SPI interrupts */
 		(1 << SPE) |		/* Enable SPI */

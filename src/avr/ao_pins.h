@@ -52,6 +52,13 @@
 	#define SPI_CS_DIR		DDRE
 	#define M25_CS_MASK		(1 << PORTE6)
 	#define M25_MAX_CHIPS		1
+
+	#define SPI_SLAVE_CS_PORT	PORTB
+	#define SPI_SLAVE_CS_PIN	PINB
+	#define SPI_SLAVE_CS_PIN_NO	PINB0
+
+	#define SPI_SLAVE_PIN_0_3	1
+	#define SPI_SLAVE_PIN_2_5	0
 #endif
 
 #endif /* _AO_PINS_H_ */

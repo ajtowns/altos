@@ -46,6 +46,7 @@ ALTOS_SRC = \
 	ao_romconfig.c \
 	ao_usb_avr.c \
 	ao_adc_avr.c \
+	ao_science_slave.c \
 	ao_spi_slave.c \
 	ao_log_single.c \
 	ao_log_telescience.c \
