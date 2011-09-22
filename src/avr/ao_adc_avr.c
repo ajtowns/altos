@@ -66,7 +66,7 @@ static uint8_t	ao_adc_channel;
 
 #define ADCSRB_INIT	((0 << ADHSM) |		/* No high-speed mode */ \
 			 (0 << ACME) |		/* Some comparitor thing */ \
-			 (2 << ADTS0))		/* Free running mode (don't care) */
+			 (0 << ADTS0))		/* Free running mode (don't care) */
 
 static void
 ao_adc_start(void)
@@ -136,6 +136,15 @@ ao_adc_dump(void) __reentrant
 	printf("tick: %5u",  packet.tick);
 	for (i = 0; i < NUM_ADC; i++)
 		printf (" %2d: %5u", i, packet.adc[i]);
+
+
+	ADMUX = 0x60;
+	ADCSRB = 0x00;
+	ADCSRA = 0xc6;
+	while (ADCSRA & 0x40)
+		;
+	printf ("ADCL:  %02x\n", ADCL);
+	printf ("ADCH:  %02x\n", ADCH);
 	printf ("\n");
 }
 
