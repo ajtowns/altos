@@ -125,6 +125,14 @@ ao_adc_dump(void) __reentrant
 	static __xdata struct ao_adc	packet;
 	uint8_t i;
 	ao_adc_get(&packet);
+	printf("ADMUX:  %02x\n", ADMUX);
+	printf("ADCSRA: %02x\n", ADCSRA);
+	printf("ADCSRB: %02x\n", ADCSRB);
+	printf("DIDR0:  %02x\n", DIDR0);
+	printf("DIDR2:  %02x\n", DIDR2);
+	printf("PORTF:  %02x\n", PORTF);
+	printf("DDRF:   %02x\n", DDRF);
+	printf("PINF:   %02x\n", PINF);
 	printf("tick: %5u",  packet.tick);
 	for (i = 0; i < NUM_ADC; i++)
 		printf (" %2d: %5u", i, packet.adc[i]);
