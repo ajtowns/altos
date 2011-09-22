@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd $1 >&/dev/null
+cd $1 2> /dev/null 1>&2
 
 SIGMA_BOTH="-M 2 -H 6 -A 2"
 SIGMA_BARO="-M 2 -H 6 -A 2"
