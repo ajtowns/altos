@@ -125,6 +125,7 @@ ao_adc_dump(void) __reentrant
 	static __xdata struct ao_adc	packet;
 	uint8_t i;
 	ao_adc_get(&packet);
+#ifdef TELEPYRO
 	printf("ADMUX:  %02x\n", ADMUX);
 	printf("ADCSRA: %02x\n", ADCSRA);
 	printf("ADCSRB: %02x\n", ADCSRB);
@@ -133,11 +134,13 @@ ao_adc_dump(void) __reentrant
 	printf("PORTF:  %02x\n", PORTF);
 	printf("DDRF:   %02x\n", DDRF);
 	printf("PINF:   %02x\n", PINF);
+#endif
 	printf("tick: %5u",  packet.tick);
 	for (i = 0; i < NUM_ADC; i++)
 		printf (" %2d: %5u", i, packet.adc[i]);
 
 
+#ifdef TELEPYRO
 	ADMUX = 0x60;
 	ADCSRB = 0x00;
 	ADCSRA = 0xc6;
@@ -146,6 +149,7 @@ ao_adc_dump(void) __reentrant
 	printf ("ADCL:  %02x\n", ADCL);
 	printf ("ADCH:  %02x\n", ADCH);
 	printf ("\n");
+#endif
 }
 
 __code struct ao_cmds ao_adc_cmds[] = {
