@@ -208,6 +208,13 @@ ao_reboot(void)
 	ao_cmd_white();
 	if (!ao_match_word("eboot"))
 		return;
+
+	/* Delay waiting for the packet master to be turned off
+	 * so that we don't end up back in idle mode because we
+	 * received a packet after boot.
+	 */
+	flush();
+	ao_delay(AO_SEC_TO_TICKS(1));
 	WDCTL = WDCTL_EN | WDCTL_MODE_WATCHDOG | WDCTL_INT_64;
 	ao_delay(AO_SEC_TO_TICKS(2));
 	ao_panic(AO_PANIC_REBOOT);
