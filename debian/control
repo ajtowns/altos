@@ -11,7 +11,7 @@ Vcs-Browser: http://git.gag.com/?p=fw/altos
 
 Package: altos
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, default-jre | java2-runtime, freetts, nickle
+Depends: ${shlibs:Depends}, ${misc:Depends}, default-jre | java2-runtime, freetts, nickle, libjfreechart-java
 Suggests: slim | gdm
 Replaces: altusmetrum-themes, slim-altusmetrum
 Conflicts: altusmetrum-themes, slim-altusmetrum
