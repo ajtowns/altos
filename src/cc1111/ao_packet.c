@@ -68,6 +68,15 @@ ao_packet_recv(void)
 	if (!(ao_rx_packet.status & PKT_APPEND_STATUS_1_CRC_OK))
 		return 0;
 
+	/* Accept packets with matching call signs, or any packet if
+	 * our callsign hasn't been configured
+	 */
+	if (ao_xmemcmp(ao_rx_packet.packet.callsign,
+		       ao_config.callsign,
+		       AO_MAX_CALLSIGN) != 0 &&
+	    ao_xmemcmp(ao_config.callsign, CODE_TO_XDATA("N0CALL"), 7) != 0)
+		return 0;
+
 	/* SYN packets carry no data */
 	if (ao_rx_packet.packet.len == AO_PACKET_SYN) {
 		rx_seq = ao_rx_packet.packet.seq;
