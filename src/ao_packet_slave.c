@@ -37,8 +37,10 @@ ao_packet_slave(void)
 void
 ao_packet_slave_start(void)
 {
-	ao_packet_enable = 1;
-	ao_add_task(&ao_packet_task, ao_packet_slave, "slave");
+	if (!ao_packet_enable) {
+		ao_packet_enable = 1;
+		ao_add_task(&ao_packet_task, ao_packet_slave, "slave");
+	}
 }
 
 void
