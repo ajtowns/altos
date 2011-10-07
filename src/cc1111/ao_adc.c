@@ -46,7 +46,7 @@ ao_adc_get(__xdata struct ao_adc *packet)
 #else
 	uint8_t	i = ao_adc_ring_prev(ao_adc_head);
 #endif
-	memcpy(packet, &ao_adc_ring[i], sizeof (struct ao_adc));
+	ao_xmemcpy(packet, &ao_adc_ring[i], sizeof (struct ao_adc));
 }
 
 void

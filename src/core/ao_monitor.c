@@ -94,7 +94,7 @@ ao_monitor_put(void)
 
 			/* Typical RSSI offset for 38.4kBaud at 433 MHz is 74 */
 			rssi = (int16_t) (recv_orig.rssi >> 1) - 74;
-			memcpy(callsign, recv_orig.telemetry_orig.callsign, AO_MAX_CALLSIGN);
+			ao_xmemcpy(callsign, recv_orig.telemetry_orig.callsign, AO_MAX_CALLSIGN);
 			if (state > ao_flight_invalid)
 				state = ao_flight_invalid;
 			if (recv_orig.status & PKT_APPEND_STATUS_1_CRC_OK) {
@@ -171,7 +171,7 @@ ao_monitor_put(void)
 
 			/* Typical RSSI offset for 38.4kBaud at 433 MHz is 74 */
 			rssi = (int16_t) (recv_tiny.rssi >> 1) - 74;
-			memcpy(callsign, recv_tiny.telemetry_tiny.callsign, AO_MAX_CALLSIGN);
+			ao_xmemcpy(callsign, recv_tiny.telemetry_tiny.callsign, AO_MAX_CALLSIGN);
 			if (state > ao_flight_invalid)
 				state = ao_flight_invalid;
 			if (recv_tiny.status & PKT_APPEND_STATUS_1_CRC_OK) {

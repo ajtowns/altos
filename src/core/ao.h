@@ -1817,4 +1817,10 @@ ao_log_single(void);
 
 #define AO_TELEPYRO_NUM_ADC	9
 
+#ifndef ao_xmemcpy
+#define ao_xmemcpy(d,s,c) memcpy(d,s,c)
+#define ao_xmemset(d,v,c) memset(d,v,c)
+#define ao_xmemcmp(d,s,c) memcmp(d,s,c)
+#endif
+
 #endif /* _AO_H_ */

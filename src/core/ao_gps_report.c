@@ -27,7 +27,7 @@ ao_gps_report(void)
 	for (;;) {
 		ao_sleep(&ao_gps_data);
 		ao_mutex_get(&ao_gps_mutex);
-		memcpy(&gps_data, &ao_gps_data, sizeof (ao_gps_data));
+		ao_xmemcpy(&gps_data, &ao_gps_data, sizeof (ao_gps_data));
 		ao_mutex_put(&ao_gps_mutex);
 
 		if (!(gps_data.flags & AO_GPS_VALID))
@@ -72,7 +72,7 @@ ao_gps_tracking_report(void)
 		ao_sleep(&ao_gps_tracking_data);
 		ao_mutex_get(&ao_gps_mutex);
 		gps_log.tick = ao_gps_tick;
-		memcpy(&gps_tracking_data, &ao_gps_tracking_data, sizeof (ao_gps_tracking_data));
+		ao_xmemcpy(&gps_tracking_data, &ao_gps_tracking_data, sizeof (ao_gps_tracking_data));
 		ao_mutex_put(&ao_gps_mutex);
 
 		if (!(n = gps_tracking_data.channels))

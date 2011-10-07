@@ -167,7 +167,7 @@ ao_storage_device_write(uint32_t pos, __xdata void *buf, uint16_t len) __reentra
 			ao_ee_flush_internal();
 			ao_ee_block = block;
 		}
-		memcpy(ao_ee_data + (uint16_t) (pos & 0xff), buf, len);
+		ao_xmemcpy(ao_ee_data + (uint16_t) (pos & 0xff), buf, len);
 		ao_ee_block_dirty = 1;
 	} ao_mutex_put(&ao_ee_mutex);
 	return 1;
@@ -181,7 +181,7 @@ ao_storage_device_read(uint32_t pos, __xdata void *buf, uint16_t len) __reentran
 	/* Transfer the data */
 	ao_mutex_get(&ao_ee_mutex); {
 		ao_ee_fill(block);
-		memcpy(buf, ao_ee_data + (uint16_t) (pos & 0xff), len);
+		ao_xmemcpy(buf, ao_ee_data + (uint16_t) (pos & 0xff), len);
 	} ao_mutex_put(&ao_ee_mutex);
 	return 1;
 }
@@ -200,7 +200,7 @@ ao_storage_erase(uint32_t pos) __reentrant
 	ao_mutex_get(&ao_ee_mutex); {
 		ao_ee_flush_internal();
 		ao_ee_block = (uint16_t) (pos >> EE_BLOCK_SHIFT);
-		memset(ao_ee_data, 0xff, EE_BLOCK_SIZE);
+		ao_xmemset(ao_ee_data, 0xff, EE_BLOCK_SIZE);
 		ao_ee_block_dirty = 1;
 	} ao_mutex_put(&ao_ee_mutex);
 	return 1;

@@ -204,4 +204,21 @@ struct ao_adc {
 
 #define AO_ADC_RING	32
 
+/* ao_string.c */
+
+void
+_ao_xmemcpy(__xdata uint8_t *dst, __xdata uint8_t *src, uint8_t count);
+
+#define ao_xmemcpy(d,s,c) _ao_xmemcpy((__xdata uint8_t *) (d), (__xdata uint8_t *) (s), (c))
+
+void
+_ao_xmemset(__xdata uint8_t *dst, uint8_t value, uint8_t count);
+
+#define ao_xmemset(d,v,c) _ao_xmemset((__xdata uint8_t *) (d), (v), (c))
+
+int8_t
+_ao_xmemcmp(__xdata uint8_t *a, __xdata uint8_t *b, uint8_t count);
+
+#define ao_xmemcmp(d,s,c) _ao_xmemcmp((__xdata uint8_t *) (d), (__xdata uint8_t *) (s), (c))
+
 #endif /* _AO_ARCH_H_ */

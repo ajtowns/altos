@@ -180,7 +180,7 @@ ao_storage_device_read(uint32_t pos, __xdata void *d, uint16_t len) __reentrant
 {
 	if (pos >= ao_storage_total || pos + len > ao_storage_total)
 		return 0;
-	memcpy(d, ao_intflash+pos, len);
+	ao_xmemcpy(d, ao_intflash+pos, len);
 	return 1;
 }
 

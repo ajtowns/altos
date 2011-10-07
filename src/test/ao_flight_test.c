@@ -173,6 +173,10 @@ struct ao_cmds {
 	const char	*help;
 };
 
+#define ao_xmemcpy(d,s,c) memcpy(d,s,c)
+#define ao_xmemset(d,v,c) memset(d,v,c)
+#define ao_xmemcmp(d,s,c) memcmp(d,s,c)
+
 #include "ao_convert.c"
 
 struct ao_config {
@@ -542,7 +546,7 @@ ao_sleep(void *wchan)
 					ao_flight_started = 1;
 				}
 			} else if (nword == 2 && strcmp(words[0], "TELEM") == 0) {
-				char	*hex = words[1];
+				__xdata char	*hex = words[1];
 				char	elt[3];
 				int	i, len;
 				uint8_t	sum;
@@ -574,7 +578,7 @@ ao_sleep(void *wchan)
 					continue;
 				}
 				if (len == 36) {
-					memcpy(&telem, bytes + 1, 32);
+					ao_xmemcpy(&telem, bytes + 1, 32);
 					tick = telem.generic.tick;
 					switch (telem.generic.type) {
 					case AO_TELEMETRY_SENSOR_TELEMETRUM:

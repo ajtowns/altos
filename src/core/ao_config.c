@@ -78,8 +78,8 @@ _ao_config_get(void)
 		/* Version 0 stuff */
 		ao_config.main_deploy = AO_CONFIG_DEFAULT_MAIN_DEPLOY;
 		ao_config.radio_channel = AO_CONFIG_DEFAULT_RADIO_CHANNEL;
-		memset(&ao_config.callsign, '\0', sizeof (ao_config.callsign));
-		memcpy(&ao_config.callsign, AO_CONFIG_DEFAULT_CALLSIGN,
+		ao_xmemset(&ao_config.callsign, '\0', sizeof (ao_config.callsign));
+		ao_xmemcpy(&ao_config.callsign, AO_CONFIG_DEFAULT_CALLSIGN,
 		       sizeof(AO_CONFIG_DEFAULT_CALLSIGN) - 1);
 		ao_config_dirty = 1;
 	}
@@ -148,7 +148,7 @@ ao_config_callsign_set(void) __reentrant
 	uint8_t	c;
 	static __xdata char callsign[AO_MAX_CALLSIGN + 1];
 
-	memset(callsign, '\0', sizeof callsign);
+	ao_xmemset(callsign, '\0', sizeof callsign);
 	ao_cmd_white();
 	c = 0;
 	while (ao_cmd_lex_c != '\n') {
@@ -161,7 +161,7 @@ ao_config_callsign_set(void) __reentrant
 	if (ao_cmd_status != ao_cmd_success)
 		return;
 	_ao_config_edit_start();
-	memcpy(&ao_config.callsign, &callsign,
+	ao_xmemcpy(&ao_config.callsign, &callsign,
 	       AO_MAX_CALLSIGN + 1);
 	_ao_config_edit_finish();
 }
@@ -535,7 +535,8 @@ ao_config_help(void) __reentrant
 	for (cmd = 0; ao_config_vars[cmd].str != NULL; cmd++)
 		printf("%-20s %s\n",
 		       ao_config_vars[cmd].str,
-		       ao_config_vars[cmd].str+1+strlen(ao_config_vars[cmd].str));
+		       ao_config_vars[cmd].str+1+
+		       strlen(ao_config_vars[cmd].str));
 }
 
 static void

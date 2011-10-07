@@ -131,10 +131,10 @@ ao_send_configuration(void)
 		telemetry.configuration.apogee_delay = ao_config.apogee_delay;
 		telemetry.configuration.main_deploy = ao_config.main_deploy;
 		telemetry.configuration.flight_log_max = ao_config.flight_log_max >> 10;
-		memcpy (telemetry.configuration.callsign,
+		ao_xmemcpy (telemetry.configuration.callsign,
 			ao_config.callsign,
 			AO_MAX_CALLSIGN);
-		memcpy (telemetry.configuration.version,
+		ao_xmemcpy (telemetry.configuration.version,
 			ao_version,
 			AO_MAX_VERSION);
 		ao_radio_send(&telemetry, sizeof (telemetry));
@@ -150,7 +150,7 @@ ao_send_location(void)
 	{
 		telemetry.generic.type = AO_TELEMETRY_LOCATION;
 		ao_mutex_get(&ao_gps_mutex);
-		memcpy(&telemetry.location.flags,
+		ao_xmemcpy(&telemetry.location.flags,
 		       &ao_gps_data.flags,
 		       26);
 		ao_mutex_put(&ao_gps_mutex);
@@ -167,7 +167,7 @@ ao_send_satellite(void)
 		telemetry.generic.type = AO_TELEMETRY_SATELLITE;
 		ao_mutex_get(&ao_gps_mutex);
 		telemetry.satellite.channels = ao_gps_tracking_data.channels;
-		memcpy(&telemetry.satellite.sats,
+		ao_xmemcpy(&telemetry.satellite.sats,
 		       &ao_gps_tracking_data.sats,
 		       AO_MAX_GPS_TRACKING * sizeof (struct ao_telemetry_satellite_info));
 		ao_mutex_put(&ao_gps_mutex);
@@ -187,7 +187,7 @@ ao_send_companion(void)
 		telemetry.companion.update_period = ao_companion_setup.update_period;
 		telemetry.companion.channels = ao_companion_setup.channels;
 		ao_mutex_get(&ao_companion_mutex);
-		memcpy(&telemetry.companion.companion_data,
+		ao_xmemcpy(&telemetry.companion.companion_data,
 		       ao_companion_data,
 		       ao_companion_setup.channels * 2);
 		ao_mutex_put(&ao_companion_mutex);

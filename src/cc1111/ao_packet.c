@@ -35,7 +35,7 @@ ao_packet_send(void)
 	ao_led_on(AO_LED_RED);
 	/* If any tx data is pending then copy it into the tx packet */
 	if (ao_packet_tx_used && ao_tx_packet.len == 0) {
-		memcpy(&ao_tx_packet.d, tx_data, ao_packet_tx_used);
+		ao_xmemcpy(&ao_tx_packet.d, tx_data, ao_packet_tx_used);
 		ao_tx_packet.len = ao_packet_tx_used;
 		ao_tx_packet.seq++;
 		ao_packet_tx_used = 0;
@@ -80,7 +80,7 @@ ao_packet_recv(void)
 			/* Copy data to the receive data buffer and set up the
 			 * offsets
 			 */
-			memcpy(rx_data, ao_rx_packet.packet.d, ao_rx_packet.packet.len);
+			ao_xmemcpy(rx_data, ao_rx_packet.packet.d, ao_rx_packet.packet.len);
 			ao_packet_rx_used = 0;
 			ao_packet_rx_len = ao_rx_packet.packet.len;
 

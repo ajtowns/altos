@@ -45,6 +45,7 @@ CC1111_SRC = \
 	ao_romconfig.c \
 	ao_serial.c \
 	ao_spi.c \
+	ao_string.c \
 	ao_timer.c \
 	ao_usb.c \
 	_bp.c

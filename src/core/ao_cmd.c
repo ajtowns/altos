@@ -265,8 +265,8 @@ help(void)
 		cs = ao_cmds[cmds];
 		for (cmd = 0; cs[cmd].func; cmd++)
 			printf("%-45s %s\n",
-				cs[cmd].help,
-				cs[cmd].help+1+strlen(cs[cmd].help));
+			       cs[cmd].help,
+			       cs[cmd].help+1+strlen(cs[cmd].help));
 	}
 }
 
