@@ -4,12 +4,13 @@ These are Bdale's notes on how to do a release.
 
 	git tag -a <version>
 
-	git-buildpackage --git-ignore-new
+	- make sure checked-out tree is "clean" so git won't complain
 
-		use --git-ignore-new so trash in checked-out tree doesn't
-		cause the build to fail!
+	git-buildpackage
 
 		at this point, we have Debian packages
+
+	git tag debian/<version>
 
 	make distclean
 
@@ -18,6 +19,9 @@ These are Bdale's notes on how to do a release.
 
 		this pushes packages for each platform to web site
 
+	- copy the relevant release notes file from doc/ to 
+	    /home/bdale/web/altusmetrum/AltOS/releases/<rev>
+
 	- go edit ~/web/altusmetrum/AltOS/releases/<rev>.mdwn to include
 	  release date and explicit ref to dir contents so the AltOS page
 	  shows versioned links, commit and push
@@ -25,6 +29,12 @@ These are Bdale's notes on how to do a release.
 	(cd doc ; make publish)
 
 		this pushes fresh documents to the web site
+
+	sudo debian/rules clean
+	git push
+	git push --tags
+
+		push commits and leave the build tree in an uncluttered state
 
 Testing before a release
 
