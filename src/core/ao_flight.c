@@ -91,6 +91,8 @@ ao_flight(void)
 				 */
 				ao_flight_state = ao_flight_invalid;
 
+				/* Turn on packet system in invalid mode on TeleMetrum */
+				ao_packet_slave_start();
 			} else
 #endif
 				if (!ao_flight_force_idle
@@ -108,8 +110,10 @@ ao_flight(void)
 				ao_usb_disable();
 #endif
 
-				/* Disable packet mode in pad state */
+#if !HAS_ACCEL
+				/* Disable packet mode in pad state on TeleMini */
 				ao_packet_slave_stop();
+#endif
 
 				/* Turn on telemetry system */
 				ao_rdf_set(1);
@@ -121,6 +125,11 @@ ao_flight(void)
 				/* Set idle mode */
  				ao_flight_state = ao_flight_idle;
  
+#if HAS_ACCEL
+				/* Turn on packet system in idle mode on TeleMetrum */
+				ao_packet_slave_start();
+#endif
+
 				/* signal successful initialization by turning off the LED */
 				ao_led_off(AO_LED_RED);
 			}

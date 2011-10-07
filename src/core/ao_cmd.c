@@ -227,6 +227,12 @@ ao_reboot(void)
 	ao_cmd_white();
 	if (!ao_match_word("eboot"))
 		return;
+	/* Delay waiting for the packet master to be turned off
+	 * so that we don't end up back in idle mode because we
+	 * received a packet after boot.
+	 */
+	flush();
+	ao_delay(AO_SEC_TO_TICKS(1));
 	ao_arch_reboot();
 	ao_panic(AO_PANIC_REBOOT);
 }
