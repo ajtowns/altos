@@ -287,7 +287,7 @@ ao_rdf_set(uint8_t rdf)
 	if (rdf == 0)
 		ao_radio_rdf_abort();
 	else
-		ao_rdf_time = ao_time();
+		ao_rdf_time = ao_time() + AO_RDF_INTERVAL_TICKS;
 }
 
 __xdata struct ao_task	ao_telemetry_task;
