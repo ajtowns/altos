@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include "cc-telemetry.h"
 
 char *
 cc_fullname (char *dir, char *file);

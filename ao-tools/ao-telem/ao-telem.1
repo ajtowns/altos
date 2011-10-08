@@ -1,0 +1,61 @@
+.\"
+.\" Copyright © 2009 Keith Packard <keithp@keithp.com>
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+.\"
+.\"
+.TH AO-TELEM 1 "ao-telem" ""
+.SH NAME
+ao-telem \- Analyse a flight log (either telemetry or eeprom)
+.SH SYNOPSIS
+.B "ao-telem"
+[\-s <summary-file>]
+[\--summary=<summary-file>]
+[\-d <detail-file>]
+[\--detail=<detail-file>]
+[\-r <raw-file>]
+[\--raw=<raw-file>]
+[\-p <plot-file>]
+[\--plot=<plot-file>]
+[\-g <gps-file]
+[\--gps=<gps-file]
+[\-k <kml-file]
+[\--kml=<kml-file]
+{flight.eeprom|flight.telem}
+.SH DESCRIPTION
+.I ao-telem
+reads the specified flight log and produces several different kinds of
+output.
+.IP Summary
+By default, summary information is shown on stdout. With the --summary
+option, it can be redirected to a file.
+.IP Detail
+When requested with the --detail option, a filtered version of the
+flight position, speed and acceleration are written to the specified
+file.
+.IP Raw
+The --raw option writes the unfiltered, but converted acceleration
+and height data to the specified file.
+.IP Plot
+The --plot option writes plots of height, speed and acceleration to
+the specified file in .svg format
+.IP GPS
+The --gps option writes the recorded GPS data to the specified file in
+three columns.
+.IP KML
+The --kml option writes the recorded GPS data to the specified file in
+Keyhole Markup Language format, which can be displayed in Googleearth.
+.SH AUTHOR
+Keith Packard

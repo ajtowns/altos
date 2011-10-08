@@ -32,6 +32,8 @@ libao_tools_a_SOURCES = \
 	cc-bitbang.h \
 	cc-logfile.c \
 	cc-telem.c \
+	cc-telemetry.c \
+	cc-telemetry.h \
 	cp-usb-async.c \
 	cp-usb-async.h \
 	i0.c \
