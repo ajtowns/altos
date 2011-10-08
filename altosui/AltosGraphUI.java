@@ -109,6 +109,8 @@ public class AltosGraphUI extends JFrame
         protected AltosGraphTime myAltosGraphTime(String suffix) {
             return (new AltosGraphTime("Overall " + suffix))
                 .addElement(e_boost)
+		.addElement(e_fast)
+		.addElement(e_coast)
                 .addElement(e_drogue)
                 .addElement(e_main)
                 .addElement(e_landed);
@@ -238,8 +240,8 @@ public class AltosGraphUI extends JFrame
     {
         ArrayList<AltosGraph> graph = new ArrayList<AltosGraph>();
         graph.addAll((new OverallGraphs()).graphs());
-        graph.addAll((new AscentGraphs()).graphs());
-        graph.addAll((new DescentGraphs()).graphs());
+//        graph.addAll((new AscentGraphs()).graphs());
+//        graph.addAll((new DescentGraphs()).graphs());
 
         if (which > 0) {
             if (which >= graph.size()) {

@@ -4,6 +4,11 @@
 
 package altosui;
 
+import java.lang.*;
+import java.io.*;
+import java.util.concurrent.*;
+import java.util.*;
+import java.text.*;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -98,9 +103,10 @@ class AltosGraphTime extends AltosGraph {
     }
 
     static class StateMarker implements Element {
-        private double val = Double.NaN;
+	private LinkedList<Double> times = new LinkedList<Double>();
         private String name;
         private int state;
+	private int prev_state = Altos.ao_flight_startup;
 
         StateMarker(int state, String name) {
             this.state = state;
@@ -109,22 +115,19 @@ class AltosGraphTime extends AltosGraph {
 
         public void attachGraph(AltosGraphTime g) { return; }
         public void gotTimeData(double time, AltosDataPoint d) {
-            if (Double.isNaN(val) || time < val) {
-                if (d.state() == state) {
-                    val = time;
-                }
-            }
+	    if (prev_state != state && d.state() == state)
+		times.add(time);
+	    prev_state = d.state();
         }
 
         public void addToPlot(AltosGraphTime g, XYPlot plot) {
-            if (Double.isNaN(val))
-                return;
-
-            ValueMarker m = new ValueMarker(val);
-            m.setLabel(name);
-            m.setLabelAnchor(RectangleAnchor.TOP_RIGHT);
-            m.setLabelTextAnchor(TextAnchor.TOP_LEFT);
-            plot.addDomainMarker(m);
+	    for (double time : times) {
+		ValueMarker m = new ValueMarker(time);
+		m.setLabel(name);
+		m.setLabelAnchor(RectangleAnchor.TOP_RIGHT);
+		m.setLabelTextAnchor(TextAnchor.TOP_LEFT);
+		plot.addDomainMarker(m);
+	    }
         }
     }
 
