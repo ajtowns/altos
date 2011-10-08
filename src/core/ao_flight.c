@@ -40,9 +40,11 @@ __pdata uint16_t		ao_boost_tick;		/* time of launch detect */
  * track min/max data over a long interval to detect
  * resting
  */
-__pdata uint16_t		ao_interval_end;
-__pdata int16_t			ao_interval_min_height;
-__pdata int16_t			ao_interval_max_height;
+static __data uint16_t		ao_interval_end;
+static __data int16_t		ao_interval_min_height;
+static __data int16_t		ao_interval_max_height;
+static __data int16_t		ao_coast_avg_accel;
+
 __pdata uint8_t			ao_flight_force_idle;
 
 /* We also have a clock, which can be used to sanity check things in
@@ -197,6 +199,7 @@ ao_flight(void)
 			{
 #if HAS_ACCEL
 				ao_flight_state = ao_flight_fast;
+				ao_coast_avg_accel = ao_accel;
 #else
 				ao_flight_state = ao_flight_coast;
 #endif
@@ -250,7 +253,8 @@ ao_flight(void)
 #if HAS_ACCEL
 			else {
 			check_re_boost:
-				if (ao_accel > AO_MSS_TO_ACCEL(20)) {
+				ao_coast_avg_accel = ao_coast_avg_accel - (ao_coast_avg_accel >> 6) + (ao_accel >> 6);
+				if (ao_coast_avg_accel > AO_MSS_TO_ACCEL(20)) {
 					ao_boost_tick = ao_sample_tick;
 					ao_flight_state = ao_flight_boost;
 					ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
