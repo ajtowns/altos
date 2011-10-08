@@ -35,6 +35,7 @@ public class AltosState {
 	int	state;
 	boolean	landed;
 	boolean	ascent;	/* going up? */
+	boolean boost;	/* under power */
 
 	double	ground_altitude;
 	double	height;
@@ -166,13 +167,14 @@ public class AltosState {
 
 		ascent = (Altos.ao_flight_boost <= state &&
 			  state <= Altos.ao_flight_coast);
+		boost = (Altos.ao_flight_boost == state);
 
-		/* Only look at accelerometer data on the way up */
-		if (ascent && acceleration > max_acceleration)
+		/* Only look at accelerometer data under boost */
+		if (boost && acceleration > max_acceleration)
 			max_acceleration = acceleration;
-		if (ascent && speed > max_speed)
+		if (boost && speed > max_speed)
 			max_speed = speed;
-		if (ascent && baro_speed > max_baro_speed)
+		if (boost && baro_speed > max_baro_speed)
 			max_baro_speed = baro_speed;
 
 		if (height > max_height)

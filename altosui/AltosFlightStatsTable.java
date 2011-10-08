@@ -86,7 +86,7 @@ public class AltosFlightStatsTable extends JComponent {
 			       String.format("%5.0f ft/s", AltosConvert.meters_to_feet(stats.max_speed)),
 			       String.format("Mach %5.3f", AltosConvert.meters_to_mach(stats.max_speed)));
 		if (stats.max_acceleration != AltosRecord.MISSING) {
-			new FlightStat(layout, y++, "Maximum acceleration",
+			new FlightStat(layout, y++, "Maximum boost acceleration",
 				       String.format("%5.0f m/s²", stats.max_acceleration),
 				       String.format("%5.0f ft/s²", AltosConvert.meters_to_feet(stats.max_acceleration)),
 				       String.format("%5.2f G", AltosConvert.meters_to_g(stats.max_acceleration)));
