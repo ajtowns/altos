@@ -22,7 +22,7 @@ import java.util.*;
 import java.text.*;
 
 public class AltosTelemetryIterable extends AltosRecordIterable {
-	LinkedList<AltosRecord>	records;
+	TreeSet<AltosRecord>	records;
 
 	public Iterator<AltosRecord> iterator () {
 		return records.iterator();
@@ -41,7 +41,7 @@ public class AltosTelemetryIterable extends AltosRecordIterable {
 		int	boost_tick = 0;
 
 		AltosRecord	previous = null;
-		records = new LinkedList<AltosRecord> ();
+		records = new TreeSet<AltosRecord> ();
 
 		try {
 			for (;;) {
@@ -56,8 +56,8 @@ public class AltosTelemetryIterable extends AltosRecordIterable {
 					if (records.isEmpty()) {
 						current_tick = record.tick;
 					} else {
-						int tick = record.tick | (current_tick & ~ 0xffff);
-						if (tick < current_tick - 0x1000)
+						int tick = record.tick;
+						while (tick < current_tick - 0x1000)
 							tick += 0x10000;
 						current_tick = tick;
 						record.tick = current_tick;

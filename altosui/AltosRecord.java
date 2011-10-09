@@ -22,7 +22,7 @@ import java.text.*;
 import java.util.HashMap;
 import java.io.*;
 
-public class AltosRecord {
+public class AltosRecord implements Comparable <AltosRecord> {
 	final static int	MISSING = 0x7fffffff;
 
 	static final int	seen_flight = 1;
@@ -241,6 +241,10 @@ public class AltosRecord {
 			line = line + (char) c;
 		}
 		return null;
+	}
+
+	public int compareTo(AltosRecord o) {
+		return tick - o.tick;
 	}
 
 	public AltosRecord(AltosRecord old) {

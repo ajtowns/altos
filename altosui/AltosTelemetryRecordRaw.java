@@ -143,11 +143,9 @@ public class AltosTelemetryRecordRaw implements AltosTelemetryRecord {
 
 	public AltosRecord update_state(AltosRecord previous) {
 		AltosRecord	next;
-		if (previous != null) {
+		if (previous != null)
 			next = new AltosRecord(previous);
-			while (tick < previous.tick)
-				tick += 65536;
-		} else
+		else
 			next = new AltosRecord();
 		next.serial = serial;
 		next.tick = tick;
