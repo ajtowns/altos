@@ -240,8 +240,11 @@ ao_telemetry(void)
 #endif
 			time += ao_telemetry_interval;
 			delay = time - ao_time();
-			if (delay > 0)
-				ao_delay(delay);
+			if (delay > 0) {
+				ao_alarm(delay);
+				ao_sleep(&telemetry);
+				ao_clear_alarm();
+			}
 			else
 				time = ao_time();
 		}
