@@ -47,7 +47,7 @@ public class AltosFlightStats {
 		AltosState	state = null;
 		AltosState	new_state = null;
 		double		boost_time = -1;
-		double		start_time;
+		double		end_time = 0;
 
 		year = month = day = -1;
 		hour = minute = second = -1;
@@ -62,9 +62,7 @@ public class AltosFlightStats {
 				if ((record.seen & AltosRecord.seen_flight) != 0 && flight < 0)
 					flight = record.flight;
 				new_state = new AltosState(record, state);
-				if (state == null) {
-					start_time = new_state.time;
-				}
+				end_time = new_state.time;
 				state = new_state;
 				if (0 <= state.state && state.state < Altos.ao_flight_invalid) {
 					if (state.state >= Altos.ao_flight_boost) {
@@ -107,6 +105,10 @@ public class AltosFlightStats {
 				state_baro_speed[s] /= state_count[s];
 				state_accel[s] /= state_count[s];
 			}
+			if (state_start[s] == 0)
+				state_start[s] = end_time;
+			if (state_end[s] == 0)
+				state_end[s] = end_time;
 		}
 	}
 
