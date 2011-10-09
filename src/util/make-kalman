@@ -5,10 +5,31 @@ cd $1 2> /dev/null 1>&2
 SIGMA_BOTH="-M 2 -H 6 -A 2"
 SIGMA_BARO="-M 2 -H 6 -A 2"
 SIGMA_ACCEL="-M 2 -H 4 -A 4"
+SIGMA_BOTH_NOISY_ACCEL="-M 2 -H 6 -A 3"
+
+echo '#if NOISY_ACCEL'
+echo
+echo '/* TeleMetrum v1.0 boards have noisy accelerometer values'
+echo ' * increase the sigma value for accel data to compensate.'
+echo ' * This improves the accuracy of apogee detection.'
+echo ' */'
+echo
+
+nickle kalman.5c -p AO_BOTH -c both -t 0.01 $SIGMA_BOTH_NOISY_ACCEL
+nickle kalman.5c -p AO_BOTH -c both -t 0.1 $SIGMA_BOTH_NOISY_ACCEL
+nickle kalman.5c -p AO_BOTH -c both -t 1 $SIGMA_BOTH_NOISY_ACCEL
+
+echo '#endif'
+echo
+echo '#ifndef AO_BOTH_K00_100'
+echo
 
 nickle kalman.5c -p AO_BOTH -c both -t 0.01 $SIGMA_BOTH
 nickle kalman.5c -p AO_BOTH -c both -t 0.1 $SIGMA_BOTH
 nickle kalman.5c -p AO_BOTH -c both -t 1 $SIGMA_BOTH
+
+echo '#endif'
+echo
 
 nickle kalman.5c -p AO_ACCEL -c accel -t 0.01 $SIGMA_ACCEL
 nickle kalman.5c -p AO_ACCEL -c accel -t 0.1 $SIGMA_ACCEL
@@ -17,3 +38,4 @@ nickle kalman.5c -p AO_ACCEL -c accel -t 1 $SIGMA_ACCEL
 nickle kalman.5c -p AO_BARO -c baro -t 0.01 $SIGMA_BARO
 nickle kalman.5c -p AO_BARO -c baro -t 0.1 $SIGMA_BARO
 nickle kalman.5c -p AO_BARO -c baro -t 1 $SIGMA_BARO
+

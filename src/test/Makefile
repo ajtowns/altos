@@ -1,6 +1,8 @@
-vpath % ..:../core:../drivers
+vpath % ..:../core:../drivers:../util
 
-PROGS=ao_flight_test ao_flight_test_baro ao_flight_test_accel ao_gps_test ao_gps_test_skytraq ao_convert_test
+PROGS=ao_flight_test ao_flight_test_baro ao_flight_test_accel ao_flight_test_noisy_accel ao_gps_test ao_gps_test_skytraq ao_convert_test
+
+KALMAN=make-kalman 
 
 CFLAGS=-I.. -I. -I../core -I../drivers -O0 -g
 
@@ -13,6 +15,9 @@ install:
 
 ao_flight_test: ao_flight_test.c ao_host.h ao_flight.c ao_sample.c ao_kalman.c altitude.h ao_kalman.h
 	cc $(CFLAGS) -o $@ $<
+
+ao_flight_test_noisy_accel: ao_flight_test.c ao_host.h ao_flight.c ao_sample.c ao_kalman.c altitude.h ao_kalman.h
+	cc -DNOISY_ACCEL=1 $(CFLAGS) -o $@ $<
 
 ao_flight_test_baro: ao_flight_test.c ao_host.h ao_flight.c  ao_sample.c ao_kalman.c altitude.h ao_kalman.h
 	cc $(CFLAGS) -o $@ -DHAS_ACCEL=0 ao_flight_test.c
@@ -28,3 +33,6 @@ ao_gps_test_skytraq: ao_gps_test_skytraq.c ao_gps_skytraq.c ao_gps_print.c ao_ho
 
 ao_convert_test: ao_convert_test.c ao_convert.c altitude.h
 	cc $(CFLAGS) -o $@ $<
+
+ao_kalman.h: $(KALMAN)
+	(cd .. && make ao_kalman.h)

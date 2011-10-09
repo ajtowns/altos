@@ -36,6 +36,7 @@
 	#define IGNITE_ON_P0		0
 	#define PACKET_HAS_MASTER	0
 	#define PACKET_HAS_SLAVE	1
+	#define NOISY_ACCEL		1
 
 	#define HAS_COMPANION		1
 	#define COMPANION_CS_ON_P1	1
