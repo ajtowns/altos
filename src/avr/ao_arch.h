@@ -143,7 +143,7 @@ extern uint8_t	ao_cpu_sleep_disable;
 		asm("ret");						\
 	} while(0)
 
-#define ao_arch_critical(b) do { cli(); b; sei(); } while (0)
+#define ao_arch_critical(b) do { cli(); do { b } while (0); sei(); } while (0)
 
 #define AO_TELESCIENCE_NUM_ADC	12
 
