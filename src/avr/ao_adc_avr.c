@@ -138,6 +138,7 @@ ao_adc_dump(void) __reentrant
 	printf("tick: %5u",  packet.tick);
 	for (i = 0; i < NUM_ADC; i++)
 		printf (" %2d: %5u", i, packet.adc[i]);
+	printf("\n");
 
 
 #ifdef TELEPYRO
