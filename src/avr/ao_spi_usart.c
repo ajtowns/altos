@@ -33,14 +33,12 @@ ao_spi_send(void __xdata *block, uint16_t len) __reentrant
 {
 	uint8_t	*d = block;
 
-	ao_mutex_get(&ao_spi_mutex);
 	while (len--) {
 		while (!(UCSR1A & (1 << UDRE1)));
 		UDR1 = *d++;
 		while (!(UCSR1A & (1 << RXC1)));
 		(void) UDR1;
 	}
-	ao_mutex_put(&ao_spi_mutex);
 }
 
 /* Receive bytes over SPI.
@@ -54,14 +52,12 @@ ao_spi_recv(void __xdata *block, uint16_t len) __reentrant
 {
 	uint8_t	*d = block;
 
-	ao_mutex_get(&ao_spi_mutex);
 	while (len--) {
 		while (!(UCSR1A & (1 << UDRE1)));
 		UDR1 = 0;
 		while (!(UCSR1A & (1 << RXC1)));
 		*d++ = UDR1;
 	}
-	ao_mutex_put(&ao_spi_mutex);
 }
 
 /*
