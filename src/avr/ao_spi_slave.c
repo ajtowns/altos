@@ -87,7 +87,7 @@ ao_spi_slave_init(void)
 		 (1 << 3) |		/* MISO, output */
 		 (0 << 2) |		/* MOSI, no pull-up */
 		 (0 << 1) |		/* SCK, no pull-up */
-		 (0 << 0));		/* SS, no pull-up */
+		 (1 << 0));		/* SS, pull-up */
 #endif
 #if SPI_SLAVE_PIN_2_5
 	PCMSK0 |= (1 << PCINT2);	/* Enable PCINT2 pin change */
@@ -103,7 +103,7 @@ ao_spi_slave_init(void)
 		 (0 << 5) |		/* SCK, no pull-up */
 		 (1 << 4) |		/* MISO, output */
 		 (0 << 3) |		/* MOSI, no pull-up */
-		 (0 << 2));		/* SS, no pull-up */
+		 (1 << 2));		/* SS, pull-up */
 #endif	
 
 	SPCR = (0 << SPIE) |		/* Disable SPI interrupts */
