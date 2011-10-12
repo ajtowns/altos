@@ -303,9 +303,6 @@ ao_usb_ep0_setup(void)
 			}
 			break;
 		case AO_USB_RECIP_INTERFACE:
-#ifndef AVR
-			#pragma disable_warning 110
-#endif
 			debug ("Interface setup packet\n");
 			switch(ao_usb_setup.request) {
 			case AO_USB_REQ_GET_STATUS:

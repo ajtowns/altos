@@ -29,19 +29,19 @@ static const struct ao_companion_setup	ao_telepyro_setup = {
 
 void ao_spi_slave(void)
 {
-	if (!ao_spi_read((uint8_t *) &ao_companion_command,
-			 sizeof (ao_companion_command)))
+	if (!ao_spi_slave_recv((uint8_t *) &ao_companion_command,
+			       sizeof (ao_companion_command)))
 		return;
 
 	/* Figure out the outbound data */
 	switch (ao_companion_command.command) {
 	case AO_COMPANION_SETUP:
-		ao_spi_write((uint8_t *) &ao_telepyro_setup,
-			     sizeof (ao_telepyro_setup));
+		ao_spi_slave_send((uint8_t *) &ao_telepyro_setup,
+				  sizeof (ao_telepyro_setup));
 		break;
 	case AO_COMPANION_FETCH:
-		ao_spi_write((uint8_t *) &ao_adc_ring[ao_adc_ring_prev(ao_adc_head)].adc,
-			     AO_TELEPYRO_NUM_ADC * sizeof (uint16_t));
+		ao_spi_slave_send((uint8_t *) &ao_adc_ring[ao_adc_ring_prev(ao_adc_head)].adc,
+				  AO_TELEPYRO_NUM_ADC * sizeof (uint16_t));
 		break;
 	case AO_COMPANION_NOTIFY:
 		break;
