@@ -20,9 +20,9 @@ endif
 
 INC = \
 	ao.h \
+	ao_arch.h \
 	ao_usb.h \
-	ao_pins.h \
-	altitude.h
+	ao_pins.h
 
 #
 # Common AltOS sources
@@ -30,7 +30,11 @@ INC = \
 TELESCIENCE_STORAGE= \
 	ao_m25.c \
 	ao_spi_usart.c \
-	ao_storage.c \
+	ao_storage.c
+
+TELESCIENCE_LOG= \
+	ao_log_single.c \
+	ao_log_telescience.c
 
 ALTOS_SRC = \
 	ao_clock.c \
@@ -48,9 +52,8 @@ ALTOS_SRC = \
 	ao_adc_avr.c \
 	ao_science_slave.c \
 	ao_spi_slave.c \
-	ao_log_single.c \
-	ao_log_telescience.c \
-	$(TELESCIENCE_STORAGE)
+	$(TELESCIENCE_STORAGE)\
+	$(TELESCIENCE_LOG)
 
 PRODUCT=TeleScience-v0.1
 MCU=atmega32u4
@@ -90,9 +93,6 @@ $(PROG).hex: $(PROG)
 load: $(PROG).hex
 	$(LOADCMD) $(LOADARG)$(PROG).hex
 
-../altitude.h: make-altitude
-	nickle $< > $@
-
 ao_product.h: ao-make-product.5c ../Version
 	$(call quiet,NICKLE,$<) $< -m altusmetrum.org -i $(IDPRODUCT) -p $(PRODUCT) -v $(VERSION) > $@
 
@@ -109,4 +109,4 @@ install:
 
 uninstall:
 
-$(OBJ): ao.h ao_product.h ao_usb.h
+$(OBJ): ao_product.h $(INC)
