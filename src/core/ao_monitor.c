@@ -22,6 +22,10 @@
 #error Must define HAS_MONITOR to 1
 #endif
 
+#ifndef LEGACY_MONITOR
+#error Must define LEGACY_MONITOR
+#endif
+
 __data uint8_t ao_monitoring;
 __pdata uint8_t ao_monitor_led;
 
@@ -39,12 +43,14 @@ ao_monitor_get(void)
 		case 0:
 			ao_sleep(DATA_TO_XDATA(&ao_monitoring));
 			continue;
+#if LEGACY_MONITOR
 		case AO_MONITORING_ORIG:
 			size = sizeof (struct ao_telemetry_orig_recv);
 			break;
 		case AO_MONITORING_TINY:
 			size = sizeof (struct ao_telemetry_tiny_recv);
 			break;
+#endif
 		default:
 			if (ao_monitoring > AO_MAX_TELEMETRY)
 				ao_monitoring = AO_MAX_TELEMETRY;
@@ -70,12 +76,13 @@ ao_monitor_blink(void)
 void
 ao_monitor_put(void)
 {
+#if LEGACY_MONITOR
 	__xdata char callsign[AO_MAX_CALLSIGN+1];
-
+	int16_t rssi;
+#endif
 	uint8_t ao_monitor_tail;
 	uint8_t state;
 	uint8_t sum, byte;
-	int16_t rssi;
 	__xdata union ao_monitor	*m;
 
 #define recv_raw	((m->raw))
@@ -89,6 +96,7 @@ ao_monitor_put(void)
 		m = &ao_monitor_ring[ao_monitor_tail];
 		ao_monitor_tail = ao_monitor_ring_next(ao_monitor_tail);
 		switch (ao_monitoring) {
+#if LEGACY_MONITOR
 		case AO_MONITORING_ORIG:
 			state = recv_orig.telemetry_orig.flight_state;
 
@@ -231,6 +239,7 @@ ao_monitor_put(void)
 				printf("CRC INVALID RSSI %3d\n", rssi);
 			}
 			break;
+#endif /* LEGACY_MONITOR */
 		default:
 			printf ("TELEM %02x", ao_monitoring + 2);
 			sum = 0x5a;

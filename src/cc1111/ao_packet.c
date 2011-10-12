@@ -32,7 +32,9 @@ __xdata uint8_t ao_packet_master_sleeping;
 void
 ao_packet_send(void)
 {
+#ifdef AO_LED_RED
 	ao_led_on(AO_LED_RED);
+#endif
 	/* If any tx data is pending then copy it into the tx packet */
 	if (ao_packet_tx_used && ao_tx_packet.len == 0) {
 		ao_xmemcpy(&ao_tx_packet.d, tx_data, ao_packet_tx_used);
@@ -42,7 +44,9 @@ ao_packet_send(void)
 		ao_wakeup(&tx_data);
 	}
 	ao_radio_send(&ao_tx_packet, sizeof (ao_tx_packet));
+#ifdef AO_LED_RED
 	ao_led_off(AO_LED_RED);
+#endif
 }
 
 uint8_t

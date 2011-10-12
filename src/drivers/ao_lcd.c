@@ -17,100 +17,9 @@
 
 #include "ao.h"
 
-#define LCD_PORT	PORTB
-#define LCD_DDR		DDRB
-
-#define PIN_RS		4
-#define PIN_E		5
-#define PIN_RW		6
-
-void
-ao_lcd_set_bits(uint8_t bits)
-{
-#if 0
-	printf("\tLCD data %x RS %d R/W %d E %d\n",
-	       bits & 0xf,
-	       (bits & (1 << PIN_RS)) ? 1 : 0,
-	       (bits & (1 << PIN_RW)) ? 1 : 0,
-	       (bits & (1 << PIN_E)) ? 1 : 0);
-#endif
-	LCD_PORT = bits;
-#if 0
-	ao_delay(1);
-	if (bits & (1 << PIN_RW))
-		printf("\tLCD input %x\n", PINB);
-#endif
-}
-
-uint8_t
-ao_lcd_get_nibble(uint8_t rs)
-{
-	uint8_t	data = (rs ? (1 << PIN_RS) : 0) | (1 << PIN_RW);
-	uint8_t n;
-
-	DDRB = (1 << PIN_RS) | (1 << PIN_E) | (1 << PIN_RW);
-	ao_lcd_set_bits(data);
-	ao_lcd_set_bits(data | (1 << PIN_E));
-	n = PINB & 0xf;
-	ao_lcd_set_bits(data);
-	return n;
-}
-
-uint8_t
-ao_lcd_get_status(void)
-{
-	uint8_t	high, low;
-	uint8_t data;
-
-	high = ao_lcd_get_nibble(0);
-	low = ao_lcd_get_nibble(0);
-	data = (high << 4) | low;
-	printf ("\tLCD status %02x\n", data);
-	return data;
-}
-
-uint8_t
-ao_lcd_get_data(void)
-{
-	uint8_t	high, low;
-	uint8_t data;
-
-	high = ao_lcd_get_nibble(1);
-	low = ao_lcd_get_nibble(1);
-	data = (high << 4) | low;
-	printf ("\tLCD data %02x\n", data);
-	return data;
-}
-
-void
-ao_lcd_wait_idle(void)
-{
-	uint8_t	status;
-	uint8_t	count = 0;
-
-	do {
-		status = ao_lcd_get_status();
-		count++;
-		if (count > 100) {
-			printf("idle timeout\n");
-			break;
-		}
-	} while (0);	/* status & 0x80); */
-}
-
-void
-ao_lcd_send_nibble(uint8_t rs, uint8_t data)
-{
-	data = (data & 0xf) | (rs ? (1 << PIN_RS) : 0);
-	DDRB = (0xf) | (1 << PIN_RS) | (1 << PIN_E) | (1 << PIN_RW);
-	ao_lcd_set_bits(data);
-	ao_lcd_set_bits(data | (1 << PIN_E));
-	ao_lcd_set_bits(data);
-}
-
 static uint16_t	ao_lcd_time = 3;
 
-void
+static void
 ao_lcd_delay(void)
 {
 	volatile uint16_t	count;
@@ -119,34 +28,34 @@ ao_lcd_delay(void)
 		;
 }
 
-void
-ao_lcd_send_ins(uint8_t data)
+static void
+ao_lcd_send_ins(uint8_t ins)
 {
-//	printf("send ins %02x\n", data);
+//	printf("send ins %02x\n", ins);
 //	ao_lcd_wait_idle();
 //	ao_delay(1);
 	ao_lcd_delay();
-	ao_lcd_send_nibble(0, data >> 4);
-	ao_lcd_send_nibble(0, data & 0xf);
+	ao_lcd_port_put_nibble(0, ins >> 4);
+	ao_lcd_port_put_nibble(0, ins & 0xf);
 }
 
 void
-ao_lcd_send_data(uint8_t data)
+ao_lcd_put_byte(uint8_t c)
 {
-//	printf ("send data %02x\n", data);
+//	printf ("send data %02x\n", c);
 //	ao_lcd_wait_idle();
 	ao_lcd_delay();
-	ao_lcd_send_nibble(1, data >> 4);
-	ao_lcd_send_nibble(1, data & 0x0f);
+	ao_lcd_port_put_nibble(1, c >> 4);
+	ao_lcd_port_put_nibble(1, c & 0x0f);
 }
 
 void
-ao_lcd_send_string(char *string)
+ao_lcd_putstring(char *string)
 {
-	uint8_t	c;
+	char	c;
 
 	while ((c = (uint8_t) *string++))
-		ao_lcd_send_data(c);
+		ao_lcd_put_byte((uint8_t) c);
 }
 
 #define AO_LCD_POWER_CONTROL	0x54
@@ -168,13 +77,20 @@ ao_lcd_clear(void)
 }
 
 void
+ao_lcd_goto(uint8_t addr)
+{
+	ao_lcd_send_ins(0x80 | addr);
+	ao_lcd_send_ins(0x04 | 0x02);
+}
+
+void
 ao_lcd_start(void)
 {
 	/* get to 4bit mode */
-	ao_lcd_send_nibble(0, 0x3);
-	ao_lcd_send_nibble(0, 0x3);
-	ao_lcd_send_nibble(0, 0x3);
-	ao_lcd_send_nibble(0, 0x2);
+	ao_lcd_port_put_nibble(0, 0x3);
+	ao_lcd_port_put_nibble(0, 0x3);
+	ao_lcd_port_put_nibble(0, 0x3);
+	ao_lcd_port_put_nibble(0, 0x2);
 
 	/* function set */
 	ao_lcd_send_ins(0x28);
@@ -199,7 +115,6 @@ ao_lcd_start(void)
 
 	/* Clear */
 	ao_lcd_clear();
-
 }
 
 void
@@ -229,7 +144,7 @@ void
 ao_lcd_string(void)
 {
 	uint8_t	col = 0;
-	uint8_t	c;
+	char	c;
 
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
@@ -244,12 +159,12 @@ ao_lcd_string(void)
 			ao_cmd_lex();
 			c |= ao_cmd_hex_nibble();
 		}
-		ao_lcd_send_data(c);
+		ao_lcd_put_byte(c);
 		ao_cmd_lex();
 		col++;
 	}
 	while (col < 16) {
-		ao_lcd_send_data(' ');
+		ao_lcd_put_byte(' ');
 		col++;
 	}
 }
@@ -275,7 +190,6 @@ __code struct ao_cmds ao_lcd_cmds[] = {
 void
 ao_lcd_init(void)
 {
-	DDRB = (1 << PIN_RS) | (1 << PIN_E) | (1 << PIN_RW);
-	PORTB = 0;
+	ao_lcd_port_init();
 	ao_cmd_register(&ao_lcd_cmds[0]);
 }

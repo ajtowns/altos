@@ -1668,7 +1668,35 @@ ao_companion_init(void);
 /* ao_lcd.c */
   
 void
+ao_lcd_putchar(uint8_t data);
+
+void
+ao_lcd_putstring(char *string);
+
+void
+ao_lcd_contrast_set(uint8_t contrast);
+
+void
+ao_lcd_clear(void);
+
+#define AO_LCD_ADDR(row,col)	((row << 6) | (col))
+
+void
+ao_lcd_goto(uint8_t addr);
+
+void
+ao_lcd_start(void);
+
+void
 ao_lcd_init(void);
+
+/* ao_lcd_port.c */
+
+void
+ao_lcd_port_put_nibble(uint8_t rs, uint8_t data);
+
+void
+ao_lcd_port_init(void);
 
 /* ao_aes.c */
 
