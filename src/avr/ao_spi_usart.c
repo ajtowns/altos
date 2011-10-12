@@ -43,15 +43,17 @@ ao_spi_send(void __xdata *block, uint16_t len) __reentrant
 
 /* Receive bytes over SPI.
  *
- * This sets up tow DMA engines, one reading the data and another
- * writing constant values to the SPI transmitter as that is what
- * clocks the data coming in.
+ * Poll, sending zeros and reading data back
  */
 void
 ao_spi_recv(void __xdata *block, uint16_t len) __reentrant
 {
 	uint8_t	*d = block;
 
+	/* Clear any pending data */
+	while (UCSR1A & (1 << RXC1))
+		(void) UDR1;
+	
 	while (len--) {
 		while (!(UCSR1A & (1 << UDRE1)));
 		UDR1 = 0;
