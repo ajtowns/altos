@@ -103,7 +103,7 @@ ao_storage_dump(void) __reentrant
 	}
 }
 
-#if 0
+#if HAS_STORAGE_DEBUG
 
 /* not enough space for this today
  */
@@ -160,6 +160,7 @@ ao_storage_zapall(void) __reentrant
 void
 ao_storage_info(void) __reentrant
 {
+	ao_storage_setup();
 	printf("Storage size: %ld\n", ao_storage_total);
 	printf("Storage erase unit: %ld\n", ao_storage_block);
 	ao_storage_device_info();
@@ -168,7 +169,7 @@ ao_storage_info(void) __reentrant
 __code struct ao_cmds ao_storage_cmds[] = {
 	{ ao_storage_info, "f\0Show storage" },
 	{ ao_storage_dump, "e <block>\0Dump flash" },
-#ifdef HAS_STORAGE_DBG
+#if HAS_STORAGE_DEBUG
 	{ ao_storage_store, "w <block> <start> <len> <data> ...\0Write data to flash" },
 #endif
 	{ ao_storage_zap, "z <block>\0Erase <block>" },
