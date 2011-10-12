@@ -49,6 +49,7 @@ void ao_spi_slave(void)
 		return;
 	}
 
+#if HAS_LOG
 	ao_log_single_write_data.telescience.tm_tick = ao_companion_command.tick;
 	if (ao_log_single_write_data.telescience.tm_state != ao_companion_command.flight_state) {
 		ao_log_single_write_data.telescience.tm_state = ao_companion_command.flight_state;
@@ -59,4 +60,5 @@ void ao_spi_slave(void)
 				ao_log_single_stop();
 		}
 	}
+#endif
 }
