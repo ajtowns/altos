@@ -42,7 +42,7 @@
 	#define HAS_ADC			1
 	#define PACKET_HAS_SLAVE	0
 	#define HAS_BEEP		0
-	#define HAS_STORAGE_DEBUG	1
+	#define HAS_STORAGE_DEBUG	0
 
 	#define AVR_VCC_5V	       	0
 	#define AVR_VCC_3V3		1
