@@ -1,7 +1,7 @@
 CC=sdcc
 DEBUG=--debug
 
-CFLAGS=--model-small --debug -I../src
+CFLAGS=--model-small --debug -I../src/core -I../src/cc1111
 
 LDFLAGS=--out-fmt-ihx --code-loc 0xf000 --xram-loc 0xf400 --xram-size 1024 --iram-size 0xff
 
