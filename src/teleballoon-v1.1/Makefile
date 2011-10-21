@@ -1,0 +1,122 @@
+#
+# TeleBalloon build file
+#
+# The various telemetrum versions differ only
+# in which flash and GPS drivers are included,
+# so the per-board makefiles simply define
+# TM_VER, TM_DEF, TM_INC and TM_SRC and include
+# this file
+
+TELEBALLOON_VER=1.1
+TELEBALLOON_DEF=1_1
+
+TELEBALLOON_INC =
+
+TELEBALLOON_SRC = \
+	ao_companion.c \
+	ao_gps_skytraq.c \
+	ao_m25.c
+
+vpath %.c ..:../core:../cc1111:../drivers:../product:.
+vpath %.h ..:../core:../cc1111:../drivers:../product:.
+vpath ao-make-product.5c ../util
+
+ifndef VERSION
+include ../Version
+endif
+
+INC = \
+	ao.h \
+	ao_pins.h \
+	cc1111.h \
+	altitude.h \
+	ao_kalman.h \
+	ao_product.h \
+	$(TELEBALLOON_INC)
+
+CORE_SRC = \
+	ao_cmd.c \
+	ao_config.c \
+	ao_convert.c \
+	ao_gps_report.c \
+	ao_mutex.c \
+	ao_panic.c \
+	ao_stdio.c \
+	ao_storage.c \
+	ao_task.c \
+	ao_balloon.c \
+	ao_sample.c \
+	ao_kalman.c \
+	ao_log.c \
+	ao_log_big.c \
+	ao_report.c \
+	ao_telemetry.c
+
+CC1111_SRC = \
+	ao_adc.c \
+	ao_beep.c \
+	ao_dbg.c \
+	ao_dma.c \
+	ao_led.c \
+	ao_packet.c \
+	ao_packet_slave.c \
+	ao_radio.c \
+	ao_romconfig.c \
+	ao_serial.c \
+	ao_string.c \
+	ao_spi.c \
+	ao_timer.c \
+	ao_usb.c \
+	_bp.c
+
+DRIVER_SRC = \
+	$(TELEBALLOON_SRC)
+
+PRODUCT_SRC = \
+	ao_teleballoon.c
+
+SRC = \
+	$(CORE_SRC) \
+	$(CC1111_SRC) \
+	$(DRIVER_SRC) \
+	$(PRODUCT_SRC)
+
+PROG = teleballoon-v$(TELEBALLOON_VER)-$(VERSION).ihx
+PRODUCT=TeleBalloon-v$(TELEBALLOON_VER)
+PRODUCT_DEF=-DTELEBALLOON_V_$(TELEBALLOON_DEF)
+IDPRODUCT=0x000b
+
+include ../cc1111/Makefile.cc1111
+
+NICKLE=nickle
+CHECK_STACK=sh ../util/check-stack
+
+V=0
+# The user has explicitly enabled quiet compilation.
+ifeq ($(V),0)
+quiet = @printf "  $1 $2 $@\n"; $($1)
+endif
+# Otherwise, print the full command line.
+quiet ?= $($1)
+
+all: ../$(PROG)
+
+../$(PROG): $(REL) Makefile
+	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(REL) && cp $(PROG) $(PMAP) ..
+	$(call quiet,CHECK_STACK) ../cc1111/ao_arch.h $(PMEM)
+
+ao_product.h: ao-make-product.5c ../Version
+	$(call quiet,NICKLE,$<) $< -m altusmetrum.org -i $(IDPRODUCT) -p $(PRODUCT) -v $(VERSION) > $@
+
+distclean:	clean
+
+clean:
+	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
+	rm -f $(PROG) $(PCDB) $(PLNK) $(PMAP) $(PMEM) $(PAOM)
+	rm -f ao_product.h
+	rm -f ../$(PROG) ../$(PMAP)
+
+install:
+
+uninstall:
+

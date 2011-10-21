@@ -35,7 +35,7 @@ static __pdata uint16_t ao_rdf_time;
 #define AO_RDF_INTERVAL_TICKS	AO_SEC_TO_TICKS(5)
 #define AO_RDF_LENGTH_MS	500
 
-#if defined(TELEMETRUM_V_0_1) || defined(TELEMETRUM_V_0_2) || defined(TELEMETRUM_V_1_0) || defined(TELEMETRUM_V_1_1)
+#if defined(TELEMETRUM_V_0_1) || defined(TELEMETRUM_V_0_2) || defined(TELEMETRUM_V_1_0) || defined(TELEMETRUM_V_1_1) || defined(TELEBALLOON_V_1_1)
 #define AO_TELEMETRY_SENSOR	AO_TELEMETRY_SENSOR_TELEMETRUM
 #endif
 

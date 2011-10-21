@@ -65,9 +65,11 @@ static __data uint8_t	ao_log_adc_pos;
 /* a hack to make sure that ao_log_records fill the eeprom block in even units */
 typedef uint8_t check_log_size[1-(256 % sizeof(struct ao_log_record))] ;
 
+#ifndef AO_SENSOR_INTERVAL_ASCENT
 #define AO_SENSOR_INTERVAL_ASCENT	1
 #define AO_SENSOR_INTERVAL_DESCENT	10
 #define AO_OTHER_INTERVAL		32
+#endif
 
 void
 ao_log(void)
