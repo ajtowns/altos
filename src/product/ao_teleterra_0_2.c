@@ -32,5 +32,6 @@ main(void)
 	ao_monitor_init(0, TRUE);
 	ao_radio_init();
 	ao_config_init();
+	ao_lcd_init();
 	ao_start_scheduler();
 }
