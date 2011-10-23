@@ -33,6 +33,7 @@ CORE_SRC = \
 
 CC1111_SRC = \
 	ao_beep.c \
+	ao_button.c \
 	ao_dbg.c \
 	ao_dma.c \
 	ao_led.c \
@@ -54,7 +55,8 @@ DRIVER_SRC = \
 	ao_gps_skytraq.c
 
 PRODUCT_SRC = \
-	ao_teleterra_0_2.c
+	ao_teleterra_0_2.c \
+	ao_terraui.c
 
 SRC = \
 	$(CORE_SRC) \

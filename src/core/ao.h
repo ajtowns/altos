@@ -1851,4 +1851,11 @@ ao_log_single(void);
 #define ao_xmemcmp(d,s,c) memcmp(d,s,c)
 #endif
 
+/*
+ * ao_terraui.c
+ */
+
+void
+ao_terraui_init(void);
+
 #endif /* _AO_H_ */

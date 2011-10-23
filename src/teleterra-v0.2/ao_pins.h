@@ -53,6 +53,10 @@
 	#define SPI_CS_ON_P0		0
 	#define M25_CS_MASK		0x04
 	#define M25_MAX_CHIPS		1
+
+	#define HAS_P2_ISR		1
+	#define HAS_BUTTON_P0		1
+	#define HAS_BUTTON_P2		1
 #endif
 
 #if DBG_ON_P1

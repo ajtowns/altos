@@ -62,6 +62,9 @@ ao_usb_isr(void) __interrupt 6
 	ao_btm_isr();
 #endif
 #endif
+#if HAS_P2_ISR
+	ao_p2_isr();
+#endif
 }
 
 struct ao_usb_setup {

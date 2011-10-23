@@ -204,6 +204,21 @@ struct ao_adc {
 
 #define AO_ADC_RING	32
 
+/* ao_button.c */
+void
+ao_p2_isr(void);
+
+void
+ao_button_init(void);
+
+#if HAS_BUTTON_P0
+void
+ao_p0_isr(void) ao_arch_interrupt(13);
+#endif
+
+char
+ao_button_get(void) __critical;
+
 /* ao_string.c */
 
 void
