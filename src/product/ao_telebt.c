@@ -37,7 +37,7 @@ main(void)
 	ao_storage_init();
 #endif
 	ao_usb_init();
-	ao_monitor_init(AO_LED_RED, sizeof (union ao_telemetry_all));
+	ao_monitor_init(AO_LED_RED, TRUE);
 #if HAS_LOG
 	ao_report_init();
 #endif

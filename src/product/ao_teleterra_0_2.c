@@ -26,10 +26,14 @@ main(void)
 	ao_timer_init();
 	ao_beep_init();
 	ao_cmd_init();
+	ao_spi_init();
+	ao_storage_init();
 	ao_usb_init();
 	ao_serial_init();
 	ao_gps_init();
 	ao_monitor_init(0, TRUE);
+	ao_report_init();
+	ao_log_single_init();
 	ao_radio_init();
 	ao_config_init();
 	ao_lcd_init();

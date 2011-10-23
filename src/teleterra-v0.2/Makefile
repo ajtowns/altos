@@ -24,6 +24,7 @@ CORE_SRC = \
 	ao_log_telem.c \
 	ao_mutex.c \
 	ao_panic.c \
+	ao_report.c \
 	ao_rssi.c \
 	ao_state.c \
 	ao_stdio.c \
