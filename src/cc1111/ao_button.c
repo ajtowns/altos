@@ -76,11 +76,11 @@ ao_button_init(void)
 	 * Set P0 interrupts to falling edge
 	 */
 	
-	PICTL |= PICTL_P2IEN | PICTL_P0IENH | PICTL_P2ICON | PICTL_P0ICON;
-
 	/* Enable interrupts for P0 inputs */
 	IEN1 |= IEN1_P0IE;
 
 	/* Enable interrupts for P2 inputs */
 	IEN2 |= IEN2_P2IE;
+
+	PICTL |= PICTL_P2IEN | PICTL_P0IENH | PICTL_P2ICON | PICTL_P0ICON;
 }
