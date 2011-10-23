@@ -32,6 +32,7 @@ CORE_SRC = \
 	ao_task.c
 
 CC1111_SRC = \
+	ao_battery.c \
 	ao_beep.c \
 	ao_button.c \
 	ao_dbg.c \

@@ -38,5 +38,6 @@ main(void)
 	ao_config_init();
 	ao_lcd_init();
 	ao_terraui_init();
+	ao_battery_init();
 	ao_start_scheduler();
 }

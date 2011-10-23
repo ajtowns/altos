@@ -1858,4 +1858,19 @@ ao_log_single(void);
 void
 ao_terraui_init(void);
 
+/*
+ * ao_battery.c
+ */
+
+#ifdef BATTERY_PIN
+void
+ao_battery_isr(void) ao_arch_interrupt(1);
+
+uint16_t
+ao_battery_get(void);
+
+void
+ao_battery_init(void);
+#endif /* BATTERY_PIN */
+
 #endif /* _AO_H_ */

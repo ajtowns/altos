@@ -57,6 +57,8 @@
 	#define HAS_P2_ISR		1
 	#define HAS_BUTTON_P0		1
 	#define HAS_BUTTON_P2		1
+
+	#define BATTERY_PIN		5
 #endif
 
 #if DBG_ON_P1
