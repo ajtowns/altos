@@ -36,7 +36,7 @@ ao_battery_get(void)
 		ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | BATTERY_PIN;
 		ao_sleep(DATA_TO_XDATA(&ao_battery_value));
 		);
-	return (uint16_t) ((int32_t) ao_battery_value.v * (int32_t) 3333 >> 15);
+	return (uint16_t) ((int32_t) ao_battery_value.v * (int32_t) 4950 >> 15);
 }
 
 static void
