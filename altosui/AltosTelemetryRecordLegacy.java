@@ -265,8 +265,10 @@ public class AltosTelemetryRecordLegacy extends AltosRecord implements AltosTele
 		flight_vel = map.get_int(AO_TELEM_ADHOC_SPEED, MISSING);
 		flight_pres = map.get_int(AO_TELEM_ADHOC_BARO, MISSING);
 
-		if (map.has(AO_TELEM_GPS_STATE))
+		if (map.has(AO_TELEM_GPS_STATE)) {
 			gps = new AltosGPS(map);
+			new_gps = true;
+		}
 		else
 			gps = null;
 	}
@@ -355,6 +357,7 @@ public class AltosTelemetryRecordLegacy extends AltosRecord implements AltosTele
 		}
 
 		gps = new AltosGPS(words, i, version);
+		new_gps = true;
 	}
 
 	public AltosTelemetryRecordLegacy(String line) throws ParseException, AltosCRCException {
@@ -467,6 +470,7 @@ public class AltosTelemetryRecordLegacy extends AltosRecord implements AltosTele
 
 		if ((gps_flags & (AO_GPS_VALID|AO_GPS_RUNNING)) != 0) {
 			gps = new AltosGPS();
+			new_gps = true;
 
 			seen |= seen_gps_time | seen_gps_lat | seen_gps_lon;
 			gps.nsat = (gps_flags & AO_GPS_NUM_SAT_MASK);

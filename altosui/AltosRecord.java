@@ -65,6 +65,7 @@ public class AltosRecord implements Comparable <AltosRecord> {
 	int	flight_pres;
 
 	AltosGPS	gps;
+	boolean		new_gps;
 
 	double	time;	/* seconds since boost */
 
@@ -274,6 +275,7 @@ public class AltosRecord implements Comparable <AltosRecord> {
 		speed = old.speed;
 		height = old.height;
 		gps = new AltosGPS(old.gps);
+		new_gps = false;
 		companion = old.companion;
 	}
 
@@ -304,6 +306,7 @@ public class AltosRecord implements Comparable <AltosRecord> {
 		speed = MISSING;
 		height = MISSING;
 		gps = new AltosGPS();
+		new_gps = false;
 		companion = null;
 	}
 }

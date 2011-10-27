@@ -135,7 +135,7 @@ public class AltosState {
 
 		time = tick / 100.0;
 
-		if (state == Altos.ao_flight_pad || state == Altos.ao_flight_idle) {
+		if (cur.new_gps && (state == Altos.ao_flight_pad || state == Altos.ao_flight_idle)) {
 
 			/* Track consecutive 'good' gps reports, waiting for 10 of them */
 			if (data.gps != null && data.gps.locked && data.gps.nsat >= 4)
