@@ -145,20 +145,26 @@ static int16_t mag(int32_t d)
 	return d;
 }
 
-static uint32_t
+static int32_t
 dist(int32_t d)
 {
-	int32_t	m;
+	__pdata uint32_t m;
+	uint8_t neg = 0;
 
-	if (d < 0)
+	if (d < 0) {
 		d = -d;
+		neg = 1;
+	}
 
-	m = 1000000;
+	m = 10000000;
 	while (d >= (2147483647 / 111198)) {
 		d /= 10;
 		m /= 10;
 	}
-	return (d * 111198) / m;
+	d = (d * 111198) / m;
+	if (neg)
+		d = -d;
+	return d;
 }
 
 static __code uint8_t cos_table[] = {
@@ -295,22 +301,25 @@ int16_t ao_atan2(int32_t dy, int32_t dx) __reentrant
 	}
 
 	if (dy > dx) {
-		int	t;
+		int32_t	t;
 
 		t = dy; dy = dx; dx = t;
 		a = a + m * 90;
 		m = -m;
 	}
 
-	r = ((dy << 8) + (dx >> 1)) / dx;
+	dy = dy << 8;
+	dy = (dy + (dx >> 1)) / dx;
+	r = dy;
 	for (t = 0; t < 44; t++)
 		if (tan_table[t] >= r)
 			break;
 	return t * m + a;
 }
 
-static __pdata uint32_t	lon_dist, lat_dist;
+static __pdata int32_t	lon_dist, lat_dist;
 static __pdata uint32_t	ground_dist, range;
+static __pdata uint8_t dist_in_km;
 static __pdata int16_t bearing, elevation;
 
 static void
@@ -320,22 +329,45 @@ ao_terraui_lat_dist(void)
 }
 
 static void
-ao_terraui_lon_dist(void)
+ao_terraui_lon_dist(void) __reentrant
 {
 	uint8_t	c = cos_table[ao_gps_data.latitude >> 24];
-	lon_dist = dist(ao_tel_location.longitude - ao_gps_data.longitude);
-	if (c)
-		lon_dist = ((uint32_t) lon_dist * c) >> 8;
+	lon_dist = ao_tel_location.longitude;
+
+	/* check if it's shorter to go the other way around */
+	if ((int16_t) (lon_dist >> 24) < (int16_t) (ao_gps_data.longitude >> 24) - (int16_t) (1800000000 >> 24))
+		lon_dist += 3600000000ul;
+	lon_dist = dist(lon_dist - ao_gps_data.longitude);
+	if (c) {
+		if (lon_dist & 0x7f800000)
+			lon_dist = (lon_dist >> 8) * c;
+		else
+			lon_dist = (lon_dist * (int16_t) c) >> 8;
+	}
 }
+
+static int32_t sqr(int32_t x) { return x * x; }
 
 static void
 ao_terraui_compute(void)
 {
+	uint16_t	h = ao_tel_sensor.height;
+
 	ao_terraui_lat_dist();
 	ao_terraui_lon_dist();
-	ground_dist = ao_sqrt (lat_dist * lat_dist + lon_dist * lon_dist);
+	if (lat_dist > 32767 || lon_dist > 32767) {
+		dist_in_km = 1;
+		ground_dist = sqr(lat_dist/1000) + sqr(lon_dist/1000);
+		h = h/1000;
+	} else {
+		dist_in_km = 0;
+		ground_dist = sqr(lat_dist) + sqr(lon_dist);
+	}
+	ground_dist = ao_sqrt (ground_dist);
 	range = ao_sqrt(ground_dist * ground_dist + ao_tel_sensor.height * ao_tel_sensor.height);
-	bearing = ao_atan2(lat_dist, lon_dist);
+	bearing = ao_atan2(lon_dist, lat_dist);
+	if (bearing < 0)
+		bearing += 360;
 	elevation = ao_atan2(ao_tel_sensor.height, ground_dist);
 }
 
@@ -349,6 +381,21 @@ ao_terraui_descent(void)
 	ao_terraui_line(AO_LCD_ADDR(0,0));
 	sprintf(ao_lcd_line, "H:%5d S:%5d%c",
 		ao_tel_sensor.height, ao_tel_sensor.speed >> 4,
+		ao_progress[ao_telem_progress]);
+	ao_terraui_line(AO_LCD_ADDR(1,0));
+}
+
+static void
+ao_terraui_recover(void)
+{
+	ao_terraui_compute();
+	sprintf(ao_lcd_line, "\007 %4d  \005 %3d  %c",
+		bearing, elevation,
+		ao_terraui_state());
+	ao_terraui_line(AO_LCD_ADDR(0,0));
+	sprintf(ao_lcd_line, "R%5ld%cRSSI%4d%c",
+		ground_dist, dist_in_km ? 'k' : ' ',
+		ao_tel_rssi,
 		ao_progress[ao_telem_progress]);
 	ao_terraui_line(AO_LCD_ADDR(1,0));
 }
@@ -404,6 +451,7 @@ enum ao_page {
 	ao_page_pad,
 	ao_page_ascent,
 	ao_page_descent,
+	ao_page_recover,
 	ao_page_remote,
 	ao_page_local,
 };
@@ -428,6 +476,9 @@ ao_terraui(void)
 			break;
 		case ao_page_descent:
 			ao_terraui_descent();
+			break;
+		case ao_page_recover:
+			ao_terraui_recover();
 			break;
 		case ao_page_remote:
 			ao_terraui_remote();
