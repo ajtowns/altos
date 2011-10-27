@@ -1,0 +1,23 @@
+#!/bin/sh
+
+for i in "$@"; do
+./ao_flight_test_noisy_accel "$i" > run-out.noisy
+
+gnuplot << EOF
+set ylabel "altitude (m)"
+set y2label "velocity (m/s), acceleration(m/s²)"
+set xlabel "time (s)"
+set xtics border out nomirror
+set ytics border out nomirror
+set y2tics border out nomirror
+set title "$i"
+plot "run-out.noisy" using 1:3 with lines lw 2 lt 1 axes x1y1 title "raw height",\
+"run-out.noisy" using 1:5 with lines lw 2 lt 2 axes x1y2 title "raw accel",\
+"run-out.noisy" using 1:9 with lines lt 3 axes x1y1 title "noisy height",\
+"run-out.noisy" using 1:11 with lines lt 4 axes x1y2 title "noisy speed",\
+"run-out.noisy" using 1:13 with lines lt 5 axes x1y2 title "noisy accel",\
+"run-out.noisy" using 1:17 with lines lt 6 axes x1y1 title "noisy drogue",\
+"run-out.noisy" using 1:19 with lines lt 7 axes x1y1 title "noisy main"
+pause mouse close
+EOF
+done
