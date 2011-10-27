@@ -26,6 +26,10 @@
 #error Must define LEGACY_MONITOR
 #endif
 
+#ifndef HAS_MONITOR_PUT
+#define HAS_MONIOTOR_PUT 1
+#endif
+
 __data uint8_t ao_monitoring;
 __pdata uint8_t ao_monitor_led;
 
@@ -73,6 +77,7 @@ ao_monitor_blink(void)
 	}
 }
 
+#if HAS_MONITOR_PUT
 void
 ao_monitor_put(void)
 {
@@ -260,9 +265,10 @@ ao_monitor_put(void)
 		ao_usb_flush();
 	}
 }
+__xdata struct ao_task ao_monitor_put_task;
+#endif
 
 __xdata struct ao_task ao_monitor_get_task;
-__xdata struct ao_task ao_monitor_put_task;
 __xdata struct ao_task ao_monitor_blink_task;
 
 void
@@ -293,7 +299,9 @@ ao_monitor_init(uint8_t monitor_led, uint8_t monitoring) __reentrant
 	ao_monitoring = monitoring;
 	ao_cmd_register(&ao_monitor_cmds[0]);
 	ao_add_task(&ao_monitor_get_task, ao_monitor_get, "monitor_get");
+#if HAS_MONITOR_PUT
 	ao_add_task(&ao_monitor_put_task, ao_monitor_put, "monitor_put");
+#endif
 	if (ao_monitor_led)
 		ao_add_task(&ao_monitor_blink_task, ao_monitor_blink, "monitor_blink");
 }

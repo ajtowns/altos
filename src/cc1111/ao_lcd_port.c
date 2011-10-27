@@ -17,15 +17,24 @@
 
 #include "ao.h"
 
+static void
+ao_lcd_port_delay(void)
+{
+	uint8_t	i;
+
+	for (i = 0; i < 100; i++)
+		ao_arch_nop();
+}
+
 void
 ao_lcd_port_put_nibble(uint8_t rs, uint8_t nibble)
 {
 	P0 = (P0 & 0xf0) | (nibble & 0x0f);
 	P1_1 = rs;
 	P1_0 = 1;
-	ao_delay(1);
+	ao_lcd_port_delay();
 	P1_0 = 0;
-	ao_delay(1);
+	ao_lcd_port_delay();
 }
 
 void

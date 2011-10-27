@@ -45,6 +45,7 @@
 	#define HAS_ACCEL		0
 	#define HAS_IGNITE		0
 	#define HAS_MONITOR		1
+	#define HAS_MONITOR_PUT		0
 	#define LEGACY_MONITOR		0
 	#define HAS_RSSI		0
 	#define HAS_AES			0
@@ -54,11 +55,18 @@
 	#define M25_CS_MASK		0x04
 	#define M25_MAX_CHIPS		1
 
-	#define HAS_P2_ISR		1
-	#define HAS_BUTTON_P0		1
-	#define HAS_BUTTON_P2		1
+	#define HAS_BUTTON     		1
+	#define BUTTON_1_REG		0
+	#define BUTTON_1_MASK		(1 << 4)	/* P0_4 */
+
+	#define BUTTON_2_REG		2
+	#define BUTTON_2_MASK		(1 << 3)	/* P2_3 */
+
+	#define BUTTON_3_REG		2
+	#define BUTTON_3_MASK		(1 << 4)	/* P2_4 */
 
 	#define BATTERY_PIN		5
+	
 #endif
 
 #if DBG_ON_P1

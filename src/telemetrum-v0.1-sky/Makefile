@@ -4,6 +4,7 @@
 
 TM_VER=0.1
 TM_DEF=0_1
+TM_EXTRA=-sky
 
 TM_INC = \
 	ao_25lc1024.h

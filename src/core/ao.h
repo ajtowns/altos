@@ -996,7 +996,11 @@ ao_spi_slave(void);
  */
 #define AO_MAX_CALLSIGN			8
 #define AO_MAX_VERSION			8
+#if LEGACY_MONITOR
 #define AO_MAX_TELEMETRY		128
+#else
+#define AO_MAX_TELEMETRY		32
+#endif
 
 struct ao_telemetry_generic {
 	uint16_t	serial;		/* 0 */
@@ -1154,6 +1158,12 @@ union ao_telemetry_all {
 	struct ao_telemetry_satellite		satellite;
 	struct ao_telemetry_companion		companion;
 	struct ao_telemetry_baro		baro;
+};
+
+struct ao_telemetry_all_recv {
+	union ao_telemetry_all		telemetry;
+	int8_t				rssi;
+	uint8_t				status;
 };
 
 /*
@@ -1372,9 +1382,10 @@ extern const char const * const ao_state_names[];
 #define AO_MONITOR_RING	8
 
 union ao_monitor {
-		struct ao_telemetry_raw_recv	raw;
-		struct ao_telemetry_orig_recv	orig;
-		struct ao_telemetry_tiny_recv	tiny;
+	struct ao_telemetry_raw_recv	raw;
+	struct ao_telemetry_all_recv	all;
+	struct ao_telemetry_orig_recv	orig;
+	struct ao_telemetry_tiny_recv	tiny;
 };
 
 extern __xdata union ao_monitor ao_monitor_ring[AO_MONITOR_RING];
@@ -1872,5 +1883,12 @@ ao_battery_get(void);
 void
 ao_battery_init(void);
 #endif /* BATTERY_PIN */
+
+/*
+ * ao_sqrt.c
+ */
+
+uint32_t
+ao_sqrt(uint32_t op);
 
 #endif /* _AO_H_ */

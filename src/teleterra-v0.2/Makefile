@@ -26,6 +26,7 @@ CORE_SRC = \
 	ao_panic.c \
 	ao_report.c \
 	ao_rssi.c \
+	ao_sqrt.c \
 	ao_state.c \
 	ao_stdio.c \
 	ao_storage.c \

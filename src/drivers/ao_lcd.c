@@ -19,6 +19,8 @@
 
 static uint16_t	ao_lcd_time = 3;
 
+static __xdata uint8_t	ao_lcd_mutex;
+
 static void
 ao_lcd_delay(void)
 {
@@ -39,7 +41,7 @@ ao_lcd_send_ins(uint8_t ins)
 	ao_lcd_port_put_nibble(0, ins & 0xf);
 }
 
-void
+static void
 ao_lcd_put_byte(uint8_t c)
 {
 //	printf ("send data %02x\n", c);
@@ -54,8 +56,10 @@ ao_lcd_putstring(char *string)
 {
 	char	c;
 
+	ao_mutex_get(&ao_lcd_mutex);
 	while ((c = (uint8_t) *string++))
 		ao_lcd_put_byte((uint8_t) c);
+	ao_mutex_put(&ao_lcd_mutex);
 }
 
 #define AO_LCD_POWER_CONTROL	0x54
@@ -63,24 +67,30 @@ ao_lcd_putstring(char *string)
 void
 ao_lcd_contrast_set(uint8_t contrast)
 {
+	ao_mutex_get(&ao_lcd_mutex);
 	ao_lcd_send_ins(AO_LCD_POWER_CONTROL | ((contrast >> 4) & 0x3));
 	ao_lcd_send_ins(0x70 | (contrast & 0xf));
+	ao_mutex_put(&ao_lcd_mutex);
 }
 
 void
 ao_lcd_clear(void)
 {
+	ao_mutex_get(&ao_lcd_mutex);
 	ao_lcd_send_ins(0x01);
 	ao_delay(1);
 	/* Entry mode */
 	ao_lcd_send_ins(0x04 | 0x02);
+	ao_mutex_put(&ao_lcd_mutex);
 }
 
 void
 ao_lcd_goto(uint8_t addr)
 {
+	ao_mutex_get(&ao_lcd_mutex);
 	ao_lcd_send_ins(0x80 | addr);
 	ao_lcd_send_ins(0x04 | 0x02);
+	ao_mutex_put(&ao_lcd_mutex);
 }
 
 void

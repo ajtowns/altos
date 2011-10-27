@@ -1,5 +1,5 @@
 /*
- * Copyright © 2009 Keith Packard <keithp@keithp.com>
+ * Copyright © 2011 Keith Packard <keithp@keithp.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,30 +15,32 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#define AO_NO_ADC_ISR 1
 #include "ao.h"
 
-void
-main(void)
-{
-	ao_clock_init();
+/* Adapted from int_sqrt.c in the linux kernel, which is licensed GPLv2 */
+/**
+ * int_sqrt - rough approximation to sqrt
+ * @x: integer of which to calculate the sqrt
+ *
+ * A very rough approximation to the sqrt() function.
+ */
 
-	ao_timer_init();
-	ao_beep_init();
-	ao_cmd_init();
-	ao_spi_init();
-	ao_storage_init();
-	ao_usb_init();
-	ao_serial_init();
-	ao_gps_init();
-	ao_monitor_init(0, sizeof (struct ao_telemetry_generic));
-	ao_report_init();
-	ao_log_single_init();
-	ao_radio_init();
-	ao_config_init();
-	ao_lcd_init();
-	ao_terraui_init();
-	ao_button_init();
-	ao_battery_init();
-	ao_start_scheduler();
+uint32_t
+ao_sqrt(uint32_t op)
+{
+	uint32_t	res = 0;
+	uint32_t	one = 1UL << (sizeof (one) * 8 - 2);
+
+	while (one > op)
+		one >>= 2;
+
+	while (one != 0) {
+		if (op >= res + one) {
+			op = op - (res + one);
+			res = res +  2 * one;
+		}
+		res /= 2;
+		one /= 4;
+	}
+	return res;
 }
