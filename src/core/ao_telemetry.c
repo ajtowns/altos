@@ -132,11 +132,11 @@ ao_send_configuration(void)
 		telemetry.configuration.main_deploy = ao_config.main_deploy;
 		telemetry.configuration.flight_log_max = ao_config.flight_log_max >> 10;
 		ao_xmemcpy (telemetry.configuration.callsign,
-			ao_config.callsign,
-			AO_MAX_CALLSIGN);
+			    ao_config.callsign,
+			    AO_MAX_CALLSIGN);
 		ao_xmemcpy (telemetry.configuration.version,
-			ao_version,
-			AO_MAX_VERSION);
+			    CODE_TO_XDATA(ao_version),
+			    AO_MAX_VERSION);
 		ao_radio_send(&telemetry, sizeof (telemetry));
 		ao_telemetry_config_cur = ao_telemetry_config_max;
 	}

@@ -18,26 +18,33 @@
 #include "ao.h"
 
 void
-_ao_xmemcpy(__xdata uint8_t *dst, __xdata uint8_t *src, uint8_t count)
+_ao_xmemcpy(__xdata void *dst, __xdata void *src, uint8_t count)
 {
-	while (count--)
-		*dst++ = *src++;
+	while (count--) {
+		*(__xdata uint8_t *) dst = *(__xdata uint8_t *) src;
+		dst = (__xdata uint8_t *) dst + 1;
+		src = (__xdata uint8_t *) src + 1;
+	}
 }
 
 void
-_ao_xmemset(__xdata uint8_t *dst, uint8_t v, uint8_t count)
+_ao_xmemset(__xdata void *dst, uint8_t v, uint8_t count)
 {
-	while (count--)
-		*dst++ = v;
+	while (count--) {
+		*(__xdata uint8_t *) dst = v;
+		dst = (__xdata uint8_t *) dst + 1;
+	}
 }
 
 int8_t
-_ao_xmemcmp(__xdata uint8_t *a, __xdata uint8_t *b, uint8_t count)
+_ao_xmemcmp(__xdata void *a, __xdata void *b, uint8_t count)
 {
 	while (count--) {
-		int8_t	d = *a++ - *b++;
+		int8_t	d = *(__xdata int8_t *) a - *(__xdata int8_t *) b;
 		if (d)
 			return d;
+		a = (__xdata int8_t *) a + 1;
+		b = (__xdata int8_t *) b + 1;
 	}
 	return 0;
 }

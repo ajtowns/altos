@@ -27,6 +27,12 @@
 /* Convert a __data pointer into an __xdata pointer */
 #define DATA_TO_XDATA(a)	((void __xdata *) ((uint8_t) (a) | 0xff00))
 
+/* Code and xdata use the same address space */
+#define CODE_TO_XDATA(a)	((__xdata void *) ((uint16_t) (a)))
+
+/* Pdata lives at the start of xdata */
+#define PDATA_TO_XDATA(a)	((void __xdata *) ((uint8_t) (a) | 0xf000))
+
 /* Stack runs from above the allocated __data space to 0xfe, which avoids
  * writing to 0xff as that triggers the stack overflow indicator
  */
@@ -228,18 +234,18 @@ ao_button_get(void) __critical;
 /* ao_string.c */
 
 void
-_ao_xmemcpy(__xdata uint8_t *dst, __xdata uint8_t *src, uint8_t count);
+_ao_xmemcpy(__xdata void *dst, __xdata void *src, uint8_t count);
 
-#define ao_xmemcpy(d,s,c) _ao_xmemcpy((__xdata uint8_t *) (d), (__xdata uint8_t *) (s), (c))
+#define ao_xmemcpy(d,s,c) _ao_xmemcpy(d,s,c)
 
 void
-_ao_xmemset(__xdata uint8_t *dst, uint8_t value, uint8_t count);
+_ao_xmemset(__xdata void *dst, uint8_t value, uint8_t count);
 
-#define ao_xmemset(d,v,c) _ao_xmemset((__xdata uint8_t *) (d), (v), (c))
+#define ao_xmemset(d,v,c) _ao_xmemset(d,v,c)
 
 int8_t
-_ao_xmemcmp(__xdata uint8_t *a, __xdata uint8_t *b, uint8_t count);
+_ao_xmemcmp(__xdata void *a, __xdata void *b, uint8_t count);
 
-#define ao_xmemcmp(d,s,c) _ao_xmemcmp((__xdata uint8_t *) (d), (__xdata uint8_t *) (s), (c))
+#define ao_xmemcmp(d,s,c) _ao_xmemcmp((d), (s), (c))
 
 #endif /* _AO_ARCH_H_ */

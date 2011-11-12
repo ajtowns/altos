@@ -32,6 +32,12 @@
 #ifndef DATA_TO_XDATA
 #define DATA_TO_XDATA(a)	(a)
 #endif
+#ifndef PDATA_TO_XDATA
+#define PDATA_TO_XDATA(a)	(a)
+#endif
+#ifndef CODE_TO_XDATA
+#define CODE_TO_XDATA(a)	(a)
+#endif
 
 /* An AltOS task */
 struct ao_task {
