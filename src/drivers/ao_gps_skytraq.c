@@ -25,17 +25,17 @@ static __code char ao_gps_header[] = "GP";
 
 __xdata uint8_t ao_gps_mutex;
 static __data char ao_gps_char;
-static __pdata uint8_t ao_gps_cksum;
-static __pdata uint8_t ao_gps_error;
+static __data uint8_t ao_gps_cksum;
+static __data uint8_t ao_gps_error;
 
 __pdata uint16_t ao_gps_tick;
 __xdata struct ao_telemetry_location	ao_gps_data;
 __xdata struct ao_telemetry_satellite	ao_gps_tracking_data;
 
 static __pdata uint16_t				ao_gps_next_tick;
-static __xdata struct ao_telemetry_location	ao_gps_next;
+static __pdata struct ao_telemetry_location	ao_gps_next;
 static __pdata uint8_t				ao_gps_date_flags;
-static __xdata struct ao_telemetry_satellite	ao_gps_tracking_next;
+static __pdata struct ao_telemetry_satellite	ao_gps_tracking_next;
 
 #define STQ_S 0xa0, 0xa1
 #define STQ_E 0x0d, 0x0a
@@ -68,34 +68,41 @@ static __code uint8_t ao_gps_config[] = {
 static void
 ao_gps_lexchar(void)
 {
+	char c;
 	if (ao_gps_error)
-		ao_gps_char = '\n';
+		c = '\n';
 	else
-		ao_gps_char = ao_serial_getchar();
-	ao_gps_cksum ^= ao_gps_char;
+		c = ao_serial_getchar();
+	ao_gps_cksum ^= c;
+	ao_gps_char = c;
 }
 
 void
 ao_gps_skip_field(void)
 {
-	while (ao_gps_char != ',' && ao_gps_char != '*' && ao_gps_char != '\n')
+	for (;;) {
+		char c = ao_gps_char;
+		if (c == ',' || c == '*' || c == '\n')
+			break;
 		ao_gps_lexchar();
+	}
 }
 
 void
 ao_gps_skip_sep(void)
 {
-	if (ao_gps_char == ',' || ao_gps_char == '.' || ao_gps_char == '*')
+	char c = ao_gps_char;
+	if (c == ',' || c == '.' || c == '*')
 		ao_gps_lexchar();
 }
 
-__pdata static uint8_t ao_gps_num_width;
+__data static uint8_t ao_gps_num_width;
 
 static int16_t
 ao_gps_decimal(uint8_t max_width)
 {
 	int16_t	v;
-	__pdata uint8_t	neg = 0;
+	uint8_t	neg = 0;
 
 	ao_gps_skip_sep();
 	if (ao_gps_char == '-') {
@@ -105,9 +112,10 @@ ao_gps_decimal(uint8_t max_width)
 	v = 0;
 	ao_gps_num_width = 0;
 	while (ao_gps_num_width < max_width) {
-		if (ao_gps_char < '0' || '9' < ao_gps_char)
+		uint8_t c = ao_gps_char;
+		if (c < (uint8_t) '0' || (uint8_t) '9' < c)
 			break;
-		v = v * (int16_t) 10 + ao_gps_char - '0';
+		v = v * 10 + (uint8_t) (c - (uint8_t) '0');
 		ao_gps_num_width++;
 		ao_gps_lexchar();
 	}
@@ -117,23 +125,25 @@ ao_gps_decimal(uint8_t max_width)
 }
 
 static uint8_t
-ao_gps_hex(uint8_t max_width)
+ao_gps_hex(void)
 {
-	uint8_t	v, d;
+	uint8_t	v;
 
 	ao_gps_skip_sep();
 	v = 0;
 	ao_gps_num_width = 0;
-	while (ao_gps_num_width < max_width) {
-		if ('0' <= ao_gps_char && ao_gps_char <= '9')
-			d = ao_gps_char - '0';
-		else if ('A' <= ao_gps_char && ao_gps_char <= 'F')
-			d = ao_gps_char - 'A' + 10;
-		else if ('a' <= ao_gps_char && ao_gps_char <= 'f')
-			d = ao_gps_char - 'a' + 10;
+	while (ao_gps_num_width < 2) {
+		uint8_t c = ao_gps_char;
+		uint8_t	d;
+		if ((uint8_t) '0' <= c && c <= (uint8_t) '9')
+			d = - '0';
+		else if ((uint8_t) 'A' <= c && c <= (uint8_t) 'F')
+			d = - 'A' + 10;
+		else if ((uint8_t) 'a' <= c && c <= (uint8_t) 'f')
+			d = - 'a' + 10;
 		else
 			break;
-		v = (v << 4) | d;
+		v = (v << 4) | (c + d);
 		ao_gps_num_width++;
 		ao_gps_lexchar();
 	}
@@ -258,7 +268,7 @@ ao_nmea_gga()
 	}
 	if (ao_gps_char == '*') {
 		uint8_t cksum = ao_gps_cksum ^ '*';
-		if (cksum != ao_gps_hex(2))
+		if (cksum != ao_gps_hex())
 			ao_gps_error = 1;
 	} else
 		ao_gps_error = 1;
@@ -318,7 +328,7 @@ ao_nmea_gsv(void)
 	}
 	if (ao_gps_char == '*') {
 		uint8_t cksum = ao_gps_cksum ^ '*';
-		if (cksum != ao_gps_hex(2))
+		if (cksum != ao_gps_hex())
 			ao_gps_error = 1;
 	}
 	else
@@ -378,7 +388,7 @@ ao_nmea_rmc(void)
 	}
 	if (ao_gps_char == '*') {
 		uint8_t cksum = ao_gps_cksum ^ '*';
-		if (cksum != ao_gps_hex(2))
+		if (cksum != ao_gps_hex())
 			ao_gps_error = 1;
 	} else
 		ao_gps_error = 1;
