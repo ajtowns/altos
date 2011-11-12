@@ -19,6 +19,7 @@ package altosui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.*;
@@ -28,9 +29,51 @@ import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
+import javax.swing.plaf.basic.*;
+
+class DelegatingRenderer implements ListCellRenderer {
+
+	// ...
+	public static void install(JComboBox comboBox) {
+		DelegatingRenderer renderer = new DelegatingRenderer(comboBox);
+		renderer.initialise();
+		comboBox.setRenderer(renderer);
+	}
+
+	// ...
+	private final JComboBox comboBox;
+
+	// ...
+	private ListCellRenderer delegate;
+
+	// ...
+	private DelegatingRenderer(JComboBox comboBox) {
+		this.comboBox = comboBox;
+	}
+
+	// ...
+	private void initialise() {
+		delegate = new JComboBox().getRenderer();
+		comboBox.addPropertyChangeListener("UI", new PropertyChangeListener() {
+
+				public void propertyChange(PropertyChangeEvent evt) {
+					delegate = new JComboBox().getRenderer();
+				}
+			});
+	}
+
+	// ...
+	public Component getListCellRendererComponent(JList list,
+						      Object value, int index, boolean isSelected, boolean cellHasFocus) {
+
+		return delegate.getListCellRendererComponent(list,
+							     ((UIManager.LookAndFeelInfo) value).getName(),
+							     index, isSelected, cellHasFocus);
+	}
+}
 
 public class AltosConfigureUI
-	extends JDialog
+	extends AltosDialog
 	implements DocumentListener
 {
 	JFrame		owner;
@@ -49,6 +92,9 @@ public class AltosConfigureUI
 
 	JLabel		font_size_label;
 	JComboBox	font_size_value;
+
+	JLabel		look_and_feel_label;
+	JComboBox	look_and_feel_value;
 
 	JRadioButton	serial_debug;
 
@@ -214,6 +260,60 @@ public class AltosConfigureUI
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(font_size_value, c);
 		font_size_value.setToolTipText("Font size used in telemetry window");
+
+		/* Look & Feel setting */
+		c.gridx = 0;
+		c.gridy = row;
+		c.gridwidth = 1;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(new JLabel("Look & feel"), c);
+
+		class LookAndFeelRenderer extends BasicComboBoxRenderer implements ListCellRenderer {
+
+			public LookAndFeelRenderer() {
+				super();
+			}
+
+			public Component getListCellRendererComponent(
+				JList list,
+				Object value,
+				int index,
+				boolean isSelected,
+				boolean cellHasFocus)
+			{
+				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				setText(((UIManager.LookAndFeelInfo) value).getName());
+				return this;
+			}
+		}
+
+		final UIManager.LookAndFeelInfo[] look_and_feels = UIManager.getInstalledLookAndFeels();
+
+		System.out.printf("look_and_feels %d\n", look_and_feels.length);
+		look_and_feel_value = new JComboBox(look_and_feels);
+
+		DelegatingRenderer.install(look_and_feel_value);
+
+		String look_and_feel  = AltosPreferences.look_and_feel();
+		for (int i = 0; i < look_and_feels.length; i++)
+			if (look_and_feel.equals(look_and_feels[i].getClassName()))
+				look_and_feel_value.setSelectedIndex(i);
+
+		look_and_feel_value.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					int	id = look_and_feel_value.getSelectedIndex();
+
+					AltosPreferences.set_look_and_feel(look_and_feels[id].getClassName());
+				}
+			});
+		c.gridx = 1;
+		c.gridy = row++;
+		c.gridwidth = 2;
+		c.fill = GridBagConstraints.BOTH;
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(look_and_feel_value, c);
+		look_and_feel_value.setToolTipText("Look&feel used for new windows");
 
 		/* Serial debug setting */
 		c.gridx = 0;

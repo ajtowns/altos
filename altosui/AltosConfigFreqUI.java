@@ -30,7 +30,7 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.*;
 
-class AltosEditFreqUI extends JDialog implements ActionListener {
+class AltosEditFreqUI extends AltosDialog implements ActionListener {
 	Frame		frame;
 	JTextField	frequency;
 	JTextField	description;
@@ -165,7 +165,7 @@ class AltosEditFreqUI extends JDialog implements ActionListener {
 	}
 }
 
-public class AltosConfigFreqUI extends JDialog implements ActionListener {
+public class AltosConfigFreqUI extends AltosDialog implements ActionListener {
 
 	Frame frame;
 	LinkedList<ActionListener> listeners;

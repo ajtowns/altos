@@ -61,9 +61,12 @@ class AltosPreferences {
 	/* Launcher serial preference name */
 	final static String launcherSerialPreference = "LAUNCHER-SERIAL";
 
-	/* Launcher channel prefernce name */
+	/* Launcher channel preference name */
 	final static String launcherChannelPreference = "LAUNCHER-CHANNEL";
 	
+	/* Look&Feel preference name */
+	final static String lookAndFeelPreference = "LOOK-AND-FEEL";
+
 	/* Default logdir is ~/TeleMetrum */
 	final static String logdirName = "TeleMetrum";
 
@@ -100,6 +103,10 @@ class AltosPreferences {
 	static LinkedList<AltosFontListener> font_listeners;
 
 	static int font_size = Altos.font_size_medium;
+
+	static LinkedList<AltosUIListener> ui_listeners;
+
+	static String look_and_feel = null;
 
 	/* List of frequencies */
 	final static String common_frequencies_node_name = "COMMON-FREQUENCIES";
@@ -199,6 +206,10 @@ class AltosPreferences {
 		AltosSerial.set_debug(serial_debug);
 
 		common_frequencies = load_common_frequencies();
+
+		look_and_feel = preferences.get(lookAndFeelPreference, UIManager.getSystemLookAndFeelClassName());
+
+		ui_listeners = new LinkedList<AltosUIListener>();
 	}
 
 	static { init(); }
@@ -390,6 +401,35 @@ class AltosPreferences {
 		}
 	}
 
+	public static void set_look_and_feel(String new_look_and_feel) {
+		look_and_feel = new_look_and_feel;
+		try {
+			UIManager.setLookAndFeel(look_and_feel);
+		} catch (Exception e) {
+		}
+		synchronized(preferences) {
+			preferences.put(lookAndFeelPreference, look_and_feel);
+			flush_preferences();
+			for (AltosUIListener l : ui_listeners)
+				l.ui_changed(look_and_feel);
+		}
+	}
+
+	public static String look_and_feel() {
+		return look_and_feel;
+	}
+
+	public static void register_ui_listener(AltosUIListener l) {
+		synchronized(preferences) {
+			ui_listeners.add(l);
+		}
+	}
+
+	public static void unregister_ui_listener(AltosUIListener l) {
+		synchronized (preferences) {
+			ui_listeners.remove(l);
+		}
+	}
 	public static void set_serial_debug(boolean new_serial_debug) {
 		serial_debug = new_serial_debug;
 		AltosSerial.set_debug(serial_debug);

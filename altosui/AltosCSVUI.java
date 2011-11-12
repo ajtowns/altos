@@ -29,7 +29,7 @@ import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class AltosCSVUI
-	extends JDialog
+	extends AltosDialog
 	implements ActionListener
 {
 	JFileChooser		csv_chooser;

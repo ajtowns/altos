@@ -20,7 +20,7 @@ import org.jfree.chart.axis.AxisLocation;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
-public class AltosGraphUI extends JFrame 
+public class AltosGraphUI extends AltosFrame 
 {
     JTabbedPane	pane;
 

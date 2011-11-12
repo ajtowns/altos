@@ -212,7 +212,7 @@ class AltosSites extends Thread {
 	}
 }
 
-public class AltosSiteMapPreload extends JDialog implements ActionListener, ItemListener {
+public class AltosSiteMapPreload extends AltosDialog implements ActionListener, ItemListener {
 	AltosUI		owner;
 	AltosSiteMap	map;
 

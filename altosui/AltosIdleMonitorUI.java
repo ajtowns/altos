@@ -255,7 +255,7 @@ class AltosIdleMonitor extends Thread {
 	}
 }
 
-public class AltosIdleMonitorUI extends JFrame implements AltosFlightDisplay {
+public class AltosIdleMonitorUI extends AltosFrame implements AltosFlightDisplay, AltosFontListener {
 	AltosDevice		device;
 	JTabbedPane		pane;
 	AltosPad		pad;
@@ -287,6 +287,10 @@ public class AltosIdleMonitorUI extends JFrame implements AltosFlightDisplay {
 	public void set_font() {
 		pad.set_font();
 		flightInfo.set_font();
+	}
+
+	public void font_size_changed(int font_size) {
+		set_font();
 	}
 
 	public void show(AltosState state, int crc_errors) {
@@ -377,12 +381,16 @@ public class AltosIdleMonitorUI extends JFrame implements AltosFlightDisplay {
 		bag.add(pane, c);
 
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+		AltosPreferences.register_font_listener(this);
+
 		addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosing(WindowEvent e) {
 					disconnect();
 					setVisible(false);
 					dispose();
+					AltosPreferences.unregister_font_listener(AltosIdleMonitorUI.this);
 				}
 			});
 

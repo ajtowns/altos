@@ -29,7 +29,7 @@ import java.util.prefs.*;
 import java.util.concurrent.*;
 
 public class AltosFlashUI
-	extends JDialog
+	extends AltosDialog
 	implements ActionListener
 {
 	Container	pane;

@@ -32,7 +32,7 @@ import java.util.concurrent.*;
 
 import libaltosJNI.*;
 
-public class AltosBTManage extends JDialog implements ActionListener, Iterable<AltosBTDevice> {
+public class AltosBTManage extends AltosDialog implements ActionListener, Iterable<AltosBTDevice> {
 	LinkedBlockingQueue<AltosBTDevice> found_devices;
 	Frame frame;
 	LinkedList<ActionListener> listeners;

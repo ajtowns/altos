@@ -24,7 +24,7 @@ import java.awt.*;
 import java.awt.event.*;
 import libaltosJNI.*;
 
-public class AltosDeviceDialog extends JDialog implements ActionListener {
+public class AltosDeviceDialog extends AltosDialog implements ActionListener {
 
 	private AltosDevice	value;
 	private JList		list;

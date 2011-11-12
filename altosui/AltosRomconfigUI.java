@@ -29,7 +29,7 @@ import java.text.*;
 import java.util.prefs.*;
 
 public class AltosRomconfigUI
-	extends JDialog
+	extends AltosDialog
 	implements ActionListener
 {
 	Container	pane;

@@ -28,7 +28,7 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.*;
 
-public class AltosFlightUI extends JFrame implements AltosFlightDisplay, AltosFontListener {
+public class AltosFlightUI extends AltosFrame implements AltosFlightDisplay, AltosFontListener {
 	AltosVoice		voice;
 	AltosFlightReader	reader;
 	AltosDisplayThread	thread;

@@ -110,6 +110,9 @@ altosui_JAVA = \
 	AltosTelemetry.java \
 	AltosTelemetryIterable.java \
 	AltosUI.java \
+	AltosUIListener.java \
+	AltosFrame.java \
+	AltosDialog.java \
 	AltosWriter.java \
 	AltosDataPointReader.java \
 	AltosDataPoint.java \

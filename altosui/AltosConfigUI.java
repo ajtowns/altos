@@ -32,7 +32,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import libaltosJNI.*;
 
 public class AltosConfigUI
-	extends JDialog
+	extends AltosDialog
 	implements ActionListener, ItemListener, DocumentListener
 {
 

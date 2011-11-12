@@ -102,7 +102,7 @@ class AltosScanResults extends LinkedList<AltosScanResult> implements ListModel 
 }
 
 public class AltosScanUI
-	extends JDialog
+	extends AltosDialog
 	implements ActionListener
 {
 	AltosUI				owner;

@@ -30,7 +30,7 @@ import java.util.concurrent.*;
 
 import libaltosJNI.*;
 
-public class AltosUI extends JFrame {
+public class AltosUI extends AltosFrame {
 	public AltosVoice voice = new AltosVoice();
 
 	public static boolean load_library(Frame frame) {
@@ -519,7 +519,7 @@ public class AltosUI extends JFrame {
 	
 	public static void main(final String[] args) {
 		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			UIManager.setLookAndFeel(AltosPreferences.look_and_feel());
 		} catch (Exception e) {
 		}
 		/* Handle batch-mode */

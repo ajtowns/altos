@@ -28,7 +28,7 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class AltosEepromMonitor extends JDialog {
+public class AltosEepromMonitor extends AltosDialog {
 
 	Container	pane;
 	Box		box;

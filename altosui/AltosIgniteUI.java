@@ -30,7 +30,7 @@ import java.util.prefs.*;
 import java.util.concurrent.*;
 
 public class AltosIgniteUI
-	extends JDialog
+	extends AltosDialog
 	implements ActionListener
 {
 	AltosDevice	device;
