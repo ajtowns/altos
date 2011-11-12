@@ -153,13 +153,15 @@ ao_gps_hex(void)
 static int32_t
 ao_gps_parse_pos(uint8_t deg_width) __reentrant
 {
-	int32_t	d;
-	int32_t	m;
-	int32_t	f;
+	static __pdata uint16_t	d;
+	static __pdata uint8_t	m;
+	static __pdata uint16_t	f;
+	char c;
 
 	d = ao_gps_decimal(deg_width);
 	m = ao_gps_decimal(2);
-	if (ao_gps_char == '.') {
+	c = ao_gps_char;
+	if (c == '.') {
 		f = ao_gps_decimal(4);
 		while (ao_gps_num_width < 4) {
 			f *= 10;
@@ -167,17 +169,14 @@ ao_gps_parse_pos(uint8_t deg_width) __reentrant
 		}
 	} else {
 		f = 0;
-		if (ao_gps_char != ',')
+		if (c != ',')
 			ao_gps_error = 1;
 	}
-	d = d * 10000000l;
-	m = m * 10000l + f;
-	d = d + m * 50 / 3;
-	return d;
+	return d * 10000000l + (m * 10000l + f) * 50 / 3;
 }
 
 static uint8_t
-ao_gps_parse_flag(char no_c, char yes_c) __reentrant
+ao_gps_parse_flag(char no_c, char yes_c)
 {
 	uint8_t	ret = 0;
 	ao_gps_skip_sep();
