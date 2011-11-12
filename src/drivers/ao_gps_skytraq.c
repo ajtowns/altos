@@ -191,7 +191,27 @@ ao_gps_parse_flag(char no_c, char yes_c)
 }
 
 static void
-ao_nmea_gga()
+ao_nmea_finish(void)
+{
+	char c;
+	/* Skip remaining fields */
+	for (;;) {
+		c = ao_gps_char;
+		if (c == '*' || c == '\n' || c == '\r')
+			break;
+		ao_gps_lexchar();
+		ao_gps_skip_field();
+	}
+	if (c == '*') {
+		uint8_t cksum = ao_gps_cksum ^ '*';
+		if (cksum != ao_gps_hex())
+			ao_gps_error = 1;
+	} else
+		ao_gps_error = 1;
+}
+
+static void
+ao_nmea_gga(void)
 {
 	uint8_t	i;
 
@@ -260,17 +280,8 @@ ao_nmea_gga()
 	ao_gps_next.altitude = ao_gps_decimal(0xff);
 	ao_gps_skip_field();	/* skip any fractional portion */
 
-	/* Skip remaining fields */
-	while (ao_gps_char != '*' && ao_gps_char != '\n' && ao_gps_char != '\r') {
-		ao_gps_lexchar();
-		ao_gps_skip_field();
-	}
-	if (ao_gps_char == '*') {
-		uint8_t cksum = ao_gps_cksum ^ '*';
-		if (cksum != ao_gps_hex())
-			ao_gps_error = 1;
-	} else
-		ao_gps_error = 1;
+	ao_nmea_finish();
+
 	if (!ao_gps_error) {
 		ao_mutex_get(&ao_gps_mutex);
 		ao_gps_tick = ao_gps_next_tick;
@@ -325,13 +336,9 @@ ao_nmea_gsv(void)
 				ao_gps_tracking_next.channels = i + 1;
 		}
 	}
-	if (ao_gps_char == '*') {
-		uint8_t cksum = ao_gps_cksum ^ '*';
-		if (cksum != ao_gps_hex())
-			ao_gps_error = 1;
-	}
-	else
-		ao_gps_error = 1;
+
+	ao_nmea_finish();
+
 	if (ao_gps_error)
 		ao_gps_tracking_next.channels = 0;
 	else if (done) {
@@ -380,17 +387,9 @@ ao_nmea_rmc(void)
 	a = ao_gps_decimal(2);
 	c = ao_gps_decimal(2);
 	i = ao_gps_decimal(2);
-	/* Skip remaining fields */
-	while (ao_gps_char != '*' && ao_gps_char != '\n' && ao_gps_char != '\r') {
-		ao_gps_lexchar();
-		ao_gps_skip_field();
-	}
-	if (ao_gps_char == '*') {
-		uint8_t cksum = ao_gps_cksum ^ '*';
-		if (cksum != ao_gps_hex())
-			ao_gps_error = 1;
-	} else
-		ao_gps_error = 1;
+
+	ao_nmea_finish();
+
 	if (!ao_gps_error) {
 		ao_gps_next.year = i;
 		ao_gps_next.month = c;
