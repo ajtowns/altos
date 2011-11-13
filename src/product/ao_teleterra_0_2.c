@@ -35,7 +35,9 @@ main(void)
 	ao_report_init();
 	ao_log_single_init();
 	ao_radio_init();
+	ao_packet_master_init();
 	ao_config_init();
+	ao_dbg_init();
 	ao_lcd_init();
 	ao_terraui_init();
 	ao_button_init();
