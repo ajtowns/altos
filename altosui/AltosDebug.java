@@ -163,7 +163,11 @@ public class AltosDebug extends AltosSerial {
 		int i = 0;
 		byte[] data = new byte[length];
 		while (i < length) {
-			String line = get_reply().trim();
+			String line = get_reply();
+
+			if (line == null)
+				throw new IOException("Timeout in read_bytes");
+			line = line.trim();
 			String tokens[] = line.split("\\s+");
 			for (int j = 0; j < tokens.length; j++) {
 				if (!Altos.ishex(tokens[j]) ||
@@ -172,7 +176,12 @@ public class AltosDebug extends AltosSerial {
 						String.format
 						("Invalid read_bytes reply \"%s\"", line));
 				try {
-					data[i + j] = (byte) Integer.parseInt(tokens[j], 16);
+					if (i + j >= length)
+						throw new IOException(
+							String.format
+							("Invalid read_bytes reply \"%s\"", line));
+					else
+						data[i + j] = (byte) Integer.parseInt(tokens[j], 16);
 				} catch (NumberFormatException ne) {
 					throw new IOException(
 						String.format

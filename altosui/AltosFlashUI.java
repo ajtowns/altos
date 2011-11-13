@@ -247,7 +247,7 @@ public class AltosFlashUI
 					flash.set_romconfig(ui.rom_config);
 					flash.flash();
 				}
-			} catch (Exception ee) {
+			} catch (InterruptedException ee) {
 				final Exception	e = ee;
 				System.out.printf("exception %s\n", e.toString());
 				SwingUtilities.invokeLater(new Runnable() {
@@ -255,9 +255,26 @@ public class AltosFlashUI
 							ui.exception(e);
 						}
 					});
+			} catch (IOException ee) {
+				final Exception	e = ee;
+				System.out.printf("exception %s\n", e.toString());
+				SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							ui.exception(e);
+						}
+					});
+			} catch (AltosSerialInUseException ee) {
+				final Exception	e = ee;
+				System.out.printf("exception %s\n", e.toString());
+				SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							ui.exception(e);
+						}
+					});
+			} finally {
+				if (flash != null)
+					flash.close();
 			}
-			if (flash != null)
-				flash.close();
 		}
 
 		public flash_task(AltosFlashUI in_ui) {
