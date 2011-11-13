@@ -19,10 +19,6 @@
 #include "ao.h"
 #endif
 
-#define AO_GPS_LEADER          2
-
-static __code char ao_gps_header[] = "GP";
-
 __xdata uint8_t ao_gps_mutex;
 static __data char ao_gps_char;
 static __data uint8_t ao_gps_cksum;
@@ -50,7 +46,7 @@ static __pdata struct ao_telemetry_satellite	ao_gps_tracking_next;
     (id^a^b^c^d^e^f^g^h^i^j^k^l^m^n), STQ_E
 
 static __code uint8_t ao_gps_config[] = {
-	SKYTRAQ_MSG_8(0x08, 1, 1, 1, 1, 1, 1, 1, 0), /* configure nmea */
+	SKYTRAQ_MSG_8(0x08, 1, 0, 1, 0, 1, 0, 0, 0), /* configure nmea */
 	/* gga interval */
 	/* gsa interval */
 	/* gsv interval */
@@ -418,11 +414,12 @@ ao_gps_nmea_parse(void)
 	ao_gps_cksum = 0;
 	ao_gps_error = 0;
 
-	for (a = 0; a < AO_GPS_LEADER; a++) {
-		ao_gps_lexchar();
-		if (ao_gps_char != ao_gps_header[a])
-			return;
-	}
+	ao_gps_lexchar();
+	if (ao_gps_char != 'G')
+		return;
+	ao_gps_lexchar();
+	if (ao_gps_char != 'P')
+		return;
 
 	ao_gps_lexchar();
 	a = ao_gps_char;
@@ -459,7 +456,6 @@ ao_gps(void) __reentrant
 		if (ao_serial_getchar() == '$') {
 			ao_gps_nmea_parse();
 		}
-
 	}
 }
 
