@@ -74,6 +74,22 @@ ao_lcd_contrast_set(uint8_t contrast)
 }
 
 void
+ao_lcd_cursor_on(void)
+{
+	ao_mutex_get(&ao_lcd_mutex);
+	ao_lcd_send_ins(0x08 | 0x04 | 0x02 | 0x01);
+	ao_mutex_put(&ao_lcd_mutex);
+}
+
+void
+ao_lcd_cursor_off(void)
+{
+	ao_mutex_get(&ao_lcd_mutex);
+	ao_lcd_send_ins(0x08 | 0x04);
+	ao_mutex_put(&ao_lcd_mutex);
+}
+
+void
 ao_lcd_clear(void)
 {
 	ao_mutex_get(&ao_lcd_mutex);

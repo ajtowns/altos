@@ -1719,6 +1719,12 @@ ao_lcd_contrast_set(uint8_t contrast);
 void
 ao_lcd_clear(void);
 
+void
+ao_lcd_cursor_on(void);
+
+void
+ao_lcd_cursor_off(void);
+
 #define AO_LCD_ADDR(row,col)	((row << 6) | (col))
 
 void
