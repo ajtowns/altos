@@ -99,14 +99,10 @@ ao_report_altitude(void)
 		agl /= 10;
 	} while (agl);
 
-	for (;;) {
-		ao_report_beep();
-		i = ndigits;
-		do
-			ao_report_digit(digits[--i]);
-		while (i != 0);
-		pause(AO_SEC_TO_TICKS(5));
-	}
+	i = ndigits;
+	do
+		ao_report_digit(digits[--i]);
+	while (i != 0);
 }
 
 #if HAS_IGNITE_REPORT
@@ -159,9 +155,14 @@ ao_report(void)
 {
 	ao_report_state = ao_flight_state;
 	for(;;) {
-		if (ao_flight_state == ao_flight_landed)
-			ao_report_altitude();
 		ao_report_beep();
+		if (ao_flight_state == ao_flight_landed) {
+			ao_report_altitude();
+#if HAS_FLIGHT
+			ao_delay(AO_SEC_TO_TICKS(5));
+			continue;
+#endif
+		}
 #if HAS_IGNITE_REPORT
 		if (ao_flight_state == ao_flight_idle)
 			ao_report_continuity();
@@ -173,11 +174,10 @@ ao_report(void)
 				pause(AO_MS_TO_TICKS(100));
 		}
 #endif
-		__critical {
-			while (ao_report_state == ao_flight_state)
-				ao_sleep(DATA_TO_XDATA(&ao_flight_state));
-			ao_report_state = ao_flight_state;
-		}
+
+		while (ao_report_state == ao_flight_state)
+			ao_sleep(DATA_TO_XDATA(&ao_flight_state));
+		ao_report_state = ao_flight_state;
 	}
 }
 
