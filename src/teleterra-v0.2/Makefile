@@ -25,9 +25,7 @@ CORE_SRC = \
 	ao_mutex.c \
 	ao_panic.c \
 	ao_report.c \
-	ao_rssi.c \
 	ao_sqrt.c \
-	ao_state.c \
 	ao_stdio.c \
 	ao_storage.c \
 	ao_task.c
@@ -38,7 +36,6 @@ CC1111_SRC = \
 	ao_button.c \
 	ao_dbg.c \
 	ao_dma.c \
-	ao_led.c \
 	ao_packet.c \
 	ao_packet_master.c \
 	ao_radio.c \
@@ -90,7 +87,7 @@ all: ../$(PROG)
 
 ../$(PROG): $(REL) Makefile
 	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(REL) && cp $(PROG) $(PMAP) ..
-	$(call quiet,CHECK_STACK) ../cc1111/ao_arch.h $(PMEM)
+	$(call quiet,CHECK_STACK) ../cc1111/ao_arch.h $(PMEM) || rm $@
 
 ao_product.h: ao-make-product.5c ../Version
 	$(call quiet,NICKLE,$<) $< -m altusmetrum.org -i $(IDPRODUCT) -p $(PRODUCT) -v $(VERSION) > $@

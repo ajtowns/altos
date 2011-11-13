@@ -4,10 +4,16 @@ MEM=$2
 
 HEADER_STACK=`awk '/#define AO_STACK_START/ {print strtonum($3)}' $HEADER`
 MEM_STACK=`awk '/Stack starts at/ {print strtonum ($4)}' $MEM`
+XRAM_END=`awk '/EXTERNAL RAM/ { print strtonum ($4)}' $MEM`
 
 if [ "$HEADER_STACK" -lt "$MEM_STACK" ]; then
         echo $MEM_STACK | awk '{ printf ("Set AO_STACK_START to at least 0x%x\n", $1); }'
 	exit 1
-else
-	exit 0
 fi
+if [ "$XRAM_END" -ge 65024 ]; then
+    echo $XRAM_END | awk '{ printf ("Uses too much XRAM, 0x%x >= 0x%x\n", $1, 65024); }'
+    exit 1
+fi
+
+exit 0
+
