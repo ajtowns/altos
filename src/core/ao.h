@@ -1406,13 +1406,18 @@ ao_monitor(void);
 
 #define AO_MONITORING_OFF	0
 #define AO_MONITORING_ORIG	1
-#define AO_MONITORING_TINY	2
 
 void
-ao_set_monitor(uint8_t monitoring);
+ao_monitor_set(uint8_t monitoring);
 
 void
-ao_monitor_init(uint8_t led, uint8_t monitoring) __reentrant;
+ao_monitor_disable(void);
+
+void
+ao_monitor_enable(void);
+
+void
+ao_monitor_init(void) __reentrant;
 
 /*
  * ao_stdio.c

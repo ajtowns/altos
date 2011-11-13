@@ -28,7 +28,7 @@ main(void)
 	ao_timer_init();
 	ao_cmd_init();
 	ao_usb_init();
-	ao_monitor_init(AO_LED_GREEN, TRUE);
+	ao_monitor_init();
 	ao_rssi_init(AO_LED_RED);
 	ao_radio_init();
 	ao_packet_master_init();

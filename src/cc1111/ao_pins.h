@@ -107,6 +107,7 @@
 	#define PACKET_HAS_SLAVE	0
 	#define AO_LED_RED		1
 	#define AO_LED_GREEN		2
+	#define AO_MONITOR_LED		AO_LED_GREEN
 	#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
 	#define SPI_CS_ON_P1		1
 	#define SPI_CS_ON_P0		0
@@ -218,6 +219,7 @@
 	#define PACKET_HAS_SLAVE	0
 	#define AO_LED_RED		2
 	#define AO_LED_GREEN		1
+	#define AO_MONITOR_LED		AO_LED_GREEN
 	#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
 	#define SPI_CS_ON_P1		0
 	#define SPI_CS_ON_P0		1
@@ -245,6 +247,7 @@
 	#define PACKET_HAS_MASTER	1
 	#define PACKET_HAS_SLAVE	0
 	#define AO_LED_RED		2
+	#define AO_MONITOR_LED		AO_LED_RED
 	#define LEDS_AVAILABLE		(AO_LED_RED)
 	#define SPI_CS_ON_P1		0
 	#define SPI_CS_ON_P0		1
@@ -274,6 +277,7 @@
 	#define PACKET_HAS_SLAVE	0
 	#define AO_LED_RED		2
 	#define AO_LED_GREEN		1
+	#define AO_MONITOR_LED		AO_LED_RED
 	#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
 	#define SPI_CS_ON_P1		1
 	#define SPI_CS_ON_P0		0
@@ -312,6 +316,7 @@
 	#define PACKET_HAS_SLAVE	0
 	#define AO_LED_RED		1
 	#define AO_LED_GREEN		2
+	#define AO_MONITOR_LED		AO_LED_RED
 	#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
 	#define SPI_CS_ON_P1		1
 	#define SPI_CS_ON_P0		0

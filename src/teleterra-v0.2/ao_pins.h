@@ -39,13 +39,14 @@
 
 	#define HAS_COMPANION		0
 
+	#define AO_MONITOR_LED		0
 	#define LEDS_AVAILABLE		0
 	#define HAS_EXTERNAL_TEMP	0
 	#define HAS_ACCEL_REF		0
 	#define HAS_ACCEL		0
 	#define HAS_IGNITE		0
 	#define HAS_MONITOR		1
-	#define HAS_MONITOR_PUT		0
+	#define HAS_MONITOR_PUT		1
 	#define LEGACY_MONITOR		0
 	#define HAS_RSSI		0
 	#define HAS_AES			0

@@ -30,12 +30,34 @@
 #define HAS_MONIOTOR_PUT 1
 #endif
 
+#ifndef AO_MONITOR_LED
+#error Must define AO_MONITOR_LED
+#endif
+
 __data uint8_t ao_monitoring;
-__pdata uint8_t ao_monitor_led;
+static __data uint8_t ao_monitor_disabled;
+static __data uint8_t ao_internal_monitoring;
+static __data uint8_t ao_external_monitoring;
 
 __xdata union ao_monitor ao_monitor_ring[AO_MONITOR_RING];
 
 __data uint8_t	ao_monitor_head;
+
+static void
+_ao_monitor_adjust(void)
+{
+	if (ao_monitoring)
+		ao_radio_recv_abort();
+	if (ao_monitor_disabled)
+		ao_monitoring = 0;
+	else {
+		if (ao_external_monitoring)
+			ao_monitoring = ao_external_monitoring;
+		else
+			ao_monitoring = ao_internal_monitoring;
+	}
+	ao_wakeup(DATA_TO_XDATA(&ao_monitoring));
+}
 
 void
 ao_monitor_get(void)
@@ -51,9 +73,6 @@ ao_monitor_get(void)
 		case AO_MONITORING_ORIG:
 			size = sizeof (struct ao_telemetry_orig_recv);
 			break;
-		case AO_MONITORING_TINY:
-			size = sizeof (struct ao_telemetry_tiny_recv);
-			break;
 #endif
 		default:
 			if (ao_monitoring > AO_MAX_TELEMETRY)
@@ -68,16 +87,21 @@ ao_monitor_get(void)
 	}
 }
 
+#if AO_MONITOR_LED
+__xdata struct ao_task ao_monitor_blink_task;
+
 void
 ao_monitor_blink(void)
 {
 	for (;;) {
 		ao_sleep(DATA_TO_XDATA(&ao_monitor_head));
-		ao_led_for(ao_monitor_led, AO_MS_TO_TICKS(100));
+		ao_led_for(AO_MONITOR_LED, AO_MS_TO_TICKS(100));
 	}
 }
+#endif
 
 #if HAS_MONITOR_PUT
+
 void
 ao_monitor_put(void)
 {
@@ -96,11 +120,15 @@ ao_monitor_put(void)
 
 	ao_monitor_tail = ao_monitor_head;
 	for (;;) {
-		while (ao_monitor_tail == ao_monitor_head)
+		while (!ao_external_monitoring)
+			ao_sleep(DATA_TO_XDATA(&ao_external_monitoring));
+		while (ao_monitor_tail == ao_monitor_head && ao_external_monitoring)
 			ao_sleep(DATA_TO_XDATA(&ao_monitor_head));
 		m = &ao_monitor_ring[ao_monitor_tail];
 		ao_monitor_tail = ao_monitor_ring_next(ao_monitor_tail);
 		switch (ao_monitoring) {
+		case 0:
+			break;
 #if LEGACY_MONITOR
 		case AO_MONITORING_ORIG:
 			state = recv_orig.telemetry_orig.flight_state;
@@ -179,71 +207,6 @@ ao_monitor_put(void)
 				printf("CRC INVALID RSSI %3d\n", rssi);
 			}
 			break;
-		case AO_MONITORING_TINY:
-			state = recv_tiny.telemetry_tiny.flight_state;
-
-			/* Typical RSSI offset for 38.4kBaud at 433 MHz is 74 */
-			rssi = (int16_t) (recv_tiny.rssi >> 1) - 74;
-			ao_xmemcpy(callsign, recv_tiny.telemetry_tiny.callsign, AO_MAX_CALLSIGN);
-			if (state > ao_flight_invalid)
-				state = ao_flight_invalid;
-			if (recv_tiny.status & PKT_APPEND_STATUS_1_CRC_OK) {
-				/* General header fields */
-				printf(AO_TELEM_VERSION " %d "
-				       AO_TELEM_CALL " %s "
-				       AO_TELEM_SERIAL " %d "
-				       AO_TELEM_FLIGHT " %d "
-				       AO_TELEM_RSSI " %d "
-				       AO_TELEM_STATE " %s "
-				       AO_TELEM_TICK " %d ",
-				       AO_TELEMETRY_VERSION,
-				       callsign,
-				       recv_tiny.telemetry_tiny.serial,
-				       recv_tiny.telemetry_tiny.flight,
-				       rssi,
-				       ao_state_names[state],
-				       recv_tiny.telemetry_tiny.adc.tick);
-
-				/* Raw sensor values */
-				printf(AO_TELEM_RAW_BARO " %d "
-				       AO_TELEM_RAW_THERMO " %d "
-				       AO_TELEM_RAW_BATT " %d "
-				       AO_TELEM_RAW_DROGUE " %d "
-				       AO_TELEM_RAW_MAIN " %d ",
-				       recv_tiny.telemetry_tiny.adc.pres,
-				       recv_tiny.telemetry_tiny.adc.temp,
-				       recv_tiny.telemetry_tiny.adc.v_batt,
-				       recv_tiny.telemetry_tiny.adc.sense_d,
-				       recv_tiny.telemetry_tiny.adc.sense_m);
-
-				/* Sensor calibration values */
-				printf(AO_TELEM_CAL_BARO_GROUND " %d ",
-				       recv_tiny.telemetry_tiny.ground_pres);
-
-#if 1
-				/* Kalman state values */
-				printf(AO_TELEM_KALMAN_HEIGHT " %d "
-				       AO_TELEM_KALMAN_SPEED " %d "
-				       AO_TELEM_KALMAN_ACCEL " %d\n",
-				       recv_tiny.telemetry_tiny.height,
-				       recv_tiny.telemetry_tiny.speed,
-				       recv_tiny.telemetry_tiny.accel);
-#else
-				/* Ad-hoc flight values */
-				printf(AO_TELEM_ADHOC_ACCEL " %d "
-				       AO_TELEM_ADHOC_SPEED " %ld "
-				       AO_TELEM_ADHOC_BARO " %d\n",
-				       recv_tiny.telemetry_tiny.flight_accel,
-				       recv_tiny.telemetry_tiny.flight_vel,
-				       recv_tiny.telemetry_tiny.flight_pres);
-#endif
-#if HAS_RSSI
-				ao_rssi_set(rssi);
-#endif
-			} else {
-				printf("CRC INVALID RSSI %3d\n", rssi);
-			}
-			break;
 #endif /* LEGACY_MONITOR */
 		default:
 			printf ("TELEM %02x", ao_monitoring + 2);
@@ -265,43 +228,59 @@ ao_monitor_put(void)
 		ao_usb_flush();
 	}
 }
+
 __xdata struct ao_task ao_monitor_put_task;
 #endif
 
 __xdata struct ao_task ao_monitor_get_task;
-__xdata struct ao_task ao_monitor_blink_task;
 
 void
-ao_set_monitor(uint8_t monitoring)
+ao_monitor_set(uint8_t monitoring)
 {
-	if (ao_monitoring)
-		ao_radio_recv_abort();
-	ao_monitoring = monitoring;
-	ao_wakeup(DATA_TO_XDATA(&ao_monitoring));
+	ao_internal_monitoring = monitoring;
+	_ao_monitor_adjust();
 }
 
+void
+ao_monitor_disable(void)
+{
+	++ao_monitor_disabled;
+	_ao_monitor_adjust();
+}
+
+void
+ao_monitor_enable(void)
+{
+	--ao_monitor_disabled;
+	_ao_monitor_adjust();
+}
+
+#if HAS_MONITOR_PUT
 static void
 set_monitor(void)
 {
 	ao_cmd_hex();
-	ao_set_monitor(ao_cmd_lex_i);
+	ao_external_monitoring = ao_cmd_lex_i;
+	ao_wakeup(DATA_TO_XDATA(&ao_external_monitoring));
+	ao_wakeup(DATA_TO_XDATA(&ao_monitor_head));
+	_ao_monitor_adjust();
 }
 
 __code struct ao_cmds ao_monitor_cmds[] = {
-	{ set_monitor,	"m <0 off, 1 full, 2 tiny>\0Enable/disable radio monitoring" },
+	{ set_monitor,	"m <0 off, 1 old, 20 std>\0Enable/disable radio monitoring" },
 	{ 0,	NULL },
 };
+#endif
 
 void
-ao_monitor_init(uint8_t monitor_led, uint8_t monitoring) __reentrant
+ao_monitor_init(void) __reentrant
 {
-	ao_monitor_led = monitor_led;
-	ao_monitoring = monitoring;
-	ao_cmd_register(&ao_monitor_cmds[0]);
-	ao_add_task(&ao_monitor_get_task, ao_monitor_get, "monitor_get");
 #if HAS_MONITOR_PUT
+	ao_cmd_register(&ao_monitor_cmds[0]);
 	ao_add_task(&ao_monitor_put_task, ao_monitor_put, "monitor_put");
 #endif
-	if (ao_monitor_led)
-		ao_add_task(&ao_monitor_blink_task, ao_monitor_blink, "monitor_blink");
+	ao_add_task(&ao_monitor_get_task, ao_monitor_get, "monitor_get");
+#if AO_MONITOR_LED
+	ao_add_task(&ao_monitor_blink_task, ao_monitor_blink, "monitor_blink");
+#endif
 }

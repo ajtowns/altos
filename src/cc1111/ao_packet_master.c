@@ -114,7 +114,7 @@ ao_packet_forward(void) __reentrant
 
 	flush();
 #if HAS_MONITOR
-	ao_set_monitor(0);
+	ao_monitor_disable();
 #endif
 	ao_add_task(&ao_packet_task, ao_packet_master, "master");
 	ao_add_task(&ao_packet_echo_task, ao_packet_echo, "echo");
@@ -132,6 +132,9 @@ ao_packet_forward(void) __reentrant
 		ao_wakeup(&ao_stdin_ready);
 		ao_delay(AO_MS_TO_TICKS(10));
 	}
+#if HAS_MONITOR
+	ao_monitor_enable();
+#endif
 }
 
 

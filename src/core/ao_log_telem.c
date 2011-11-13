@@ -90,6 +90,8 @@ ao_log_single(void)
 	ao_log_running = 1;
 	ao_log_single_restart();
 	ao_flight_state = ao_flight_startup;
+	ao_monitor_set(sizeof(struct ao_telemetry_generic));
+
 	for (;;) {
 		while (!ao_log_running)
 			ao_sleep(&ao_log_running);

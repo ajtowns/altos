@@ -31,7 +31,7 @@ main(void)
 	ao_usb_init();
 	ao_serial_init();
 	ao_gps_init();
-	ao_monitor_init(0, sizeof (struct ao_telemetry_generic));
+	ao_monitor_init();
 	ao_report_init();
 	ao_log_single_init();
 	ao_radio_init();

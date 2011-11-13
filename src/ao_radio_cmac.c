@@ -78,7 +78,7 @@ radio_cmac_send(uint8_t len) __reentrant
 	ao_config_get();
 
 #if HAS_MONITOR
-	ao_set_monitor(0);
+	ao_monitor_set(0);
 #endif
 
 	ao_mutex_get(&ao_aes_mutex);
@@ -107,7 +107,7 @@ radio_cmac_recv(uint8_t len, uint16_t timeout) __reentrant
 
 	len = round_len(len);
 #if HAS_MONITOR
-	ao_set_monitor(0);
+	ao_monitor_set(0);
 #endif
 	if (timeout)
 		ao_alarm(timeout);
