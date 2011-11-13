@@ -36,11 +36,17 @@ static __code struct {
 
 #define NUM_BUTTONS	((sizeof ao_buttons) / sizeof (ao_buttons[0]))
 
+static __xdata uint16_t ao_button_tick[NUM_BUTTONS];
+
 static void
 ao_button_insert(char n)
 {
-	ao_fifo_insert(ao_button_fifo, n);
-	ao_wakeup(&ao_button_fifo);
+	uint16_t	now = ao_time();
+	if ((now - ao_button_tick[n]) > 20) {
+		ao_button_tick[n] = now;
+		ao_fifo_insert(ao_button_fifo, n);
+		ao_wakeup(&ao_button_fifo);
+	}
 }
 
 static void
@@ -75,6 +81,15 @@ ao_button_get(void) __critical
 			return 0;
 	ao_fifo_remove(ao_button_fifo, b);
 	return b;
+}
+
+void
+ao_button_clear(void) __critical
+{
+	char b;
+
+	while (!ao_fifo_empty(ao_button_fifo))
+		ao_fifo_remove(ao_button_fifo, b);
 }
 
 void

@@ -231,6 +231,9 @@ ao_button_init(void);
 char
 ao_button_get(void) __critical;
 
+void
+ao_button_clear(void) __critical;
+
 /* ao_string.c */
 
 void
