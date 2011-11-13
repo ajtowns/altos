@@ -36,6 +36,7 @@
 	#define IGNITE_ON_P0		0
 	#define PACKET_HAS_MASTER	1
 	#define PACKET_HAS_SLAVE	0
+	#define HAS_RADIO_CHANNELS	1
 
 	#define HAS_COMPANION		0
 
@@ -65,6 +66,8 @@
 
 	#define BUTTON_3_REG		2
 	#define BUTTON_3_MASK		(1 << 4)	/* P2_4 */
+
+	#define HAS_P2_ISR		1
 
 	#define BATTERY_PIN		5
 	

@@ -89,6 +89,15 @@ static uint8_t	ao_telem_progress;
 static uint8_t	ao_gps_progress;
 
 static void
+ao_terraui_startup(void)
+{
+	sprintf(ao_lcd_line, "%-16.16s", ao_product);
+	ao_terraui_line(AO_LCD_ADDR(0,0));
+	sprintf(ao_lcd_line, "%-8.8s %5u  ", ao_version, ao_serial_number);
+	ao_terraui_line(AO_LCD_ADDR(1,0));
+}
+
+static void
 ao_terraui_info(void)
 {
 	sprintf(ao_lcd_line, "S %4d %7.7s %c",
@@ -441,76 +450,85 @@ ao_terraui_local(void) __reentrant
 }
 
 static void
-ao_terraui_config(void)
+ao_terraui_config(void) __reentrant
 {
+	uint8_t		chan;
+	uint32_t	kHz;
+	uint16_t	MHz;
+	uint16_t	frac;
 	
+
+	for (chan = 0; chan < AO_NUM_CHANNELS; chan++)
+		if (ao_config.radio_channels[chan].radio_setting == ao_config.radio_setting)
+			break;
+	if (chan == AO_NUM_CHANNELS)
+		chan = 0;
+	kHz = ao_config.radio_channels[chan].kHz;
+	MHz = kHz / 1000;
+	frac = kHz % 1000;
+	sprintf(ao_lcd_line, "%2d: %-10.10s  ", chan, ao_config.radio_channels[chan].name);
+	ao_terraui_line(AO_LCD_ADDR(0,0));
+	sprintf(ao_lcd_line, "%-8.8s %3d.%03d", ao_config.callsign, MHz, frac);
+	ao_terraui_line(AO_LCD_ADDR(1,0));
+	ao_lcd_goto(AO_LCD_ADDR(0,1));
+	ao_lcd_cursor_on();
 }
 
-enum ao_page {
-	ao_page_info,
-	ao_page_pad,
-	ao_page_ascent,
-	ao_page_descent,
-	ao_page_recover,
-	ao_page_remote,
-	ao_page_local,
+static __code void (*__code ao_terraui_page[])(void) = {
+	ao_terraui_startup,
+	ao_terraui_info,
+	ao_terraui_pad,
+	ao_terraui_ascent,
+	ao_terraui_descent,
+	ao_terraui_recover,
+	ao_terraui_remote,
+	ao_terraui_local,
+	ao_terraui_config,
 };
+
+#define NUM_PAGE	(sizeof (ao_terraui_page)/sizeof (ao_terraui_page[0]))
+
+__pdata uint8_t ao_current_page = 0;
+__pdata uint8_t ao_shown_about = 3;
 
 static void
 ao_terraui(void)
 {
-	enum ao_page	cur_page = ao_page_info;
-
 	ao_lcd_start();
+
+	ao_delay(AO_MS_TO_TICKS(100));
+	ao_button_clear();
+
 	for (;;) {
 		char	b;
-		switch (cur_page) {
-		case ao_page_info:
-			ao_terraui_info();
-			break;
-		case ao_page_pad:
-			ao_terraui_pad();
-			break;
-		case ao_page_ascent:
-			ao_terraui_ascent();
-			break;
-		case ao_page_descent:
-			ao_terraui_descent();
-			break;
-		case ao_page_recover:
-			ao_terraui_recover();
-			break;
-		case ao_page_remote:
-			ao_terraui_remote();
-			break;
-		case ao_page_local:
-			ao_terraui_local();
-			break;
-		}
-
+		ao_terraui_page[ao_current_page]();
 		ao_alarm(AO_SEC_TO_TICKS(1));
 		b = ao_button_get();
 		ao_clear_alarm();
 
+		if (b > 0) {
+			ao_beep_for(AO_BEEP_HIGH, AO_MS_TO_TICKS(10));
+			ao_shown_about = 0;
+		}
+		
 		switch (b) {
 		case 0:
+			if (ao_shown_about) {
+				if (--ao_shown_about == 0)
+					ao_current_page = 2;
+			}
 			break;
 		case 1:
-			if (cur_page == ao_page_local)
-				cur_page = ao_page_info;
-			else
-				cur_page++;
-			ao_beep_for(AO_BEEP_HIGH, AO_MS_TO_TICKS(50));
+			ao_current_page++;
+			if (ao_current_page >= NUM_PAGE)
+				ao_current_page = 0;
 			break;
 		case 2:
-			ao_beep_for(AO_BEEP_LOW, AO_MS_TO_TICKS(200));
 			break;
 		case 3:
-			if (cur_page == ao_page_info)
-				cur_page = ao_page_local;
-			else
-				cur_page--;
-			ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(50));
+			if (ao_current_page == 0)
+				ao_current_page = NUM_PAGE;
+			ao_current_page--;
 			break;
 		}
 	}
@@ -524,6 +542,7 @@ ao_terramonitor(void)
 	uint8_t	monitor;
 
 	monitor = ao_monitor_head;
+	ao_monitor_set(sizeof (struct ao_telemetry_generic));
 	for (monitor = ao_monitor_head;;
 	     monitor = ao_monitor_ring_next(monitor))
 	{
