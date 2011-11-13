@@ -46,6 +46,10 @@ ao_dma_alloc(__xdata uint8_t *done)
 		DMAIRQ = 0;
 		DMAIF = 0;
 		IEN1 |= IEN1_DMAIE;
+		DMA0CFGH = ((uint16_t) (&ao_dma_config[0])) >> 8;
+		DMA0CFGL = ((uint16_t) (&ao_dma_config[0]));
+		DMA1CFGH = ((uint16_t) (&ao_dma_config[1])) >> 8;
+		DMA1CFGL = ((uint16_t) (&ao_dma_config[1]));
 	}
 
 	return id;
@@ -69,13 +73,6 @@ ao_dma_set_transfer(uint8_t id,
 	ao_dma_config[id].len_low = count;
 	ao_dma_config[id].cfg0 = cfg0;
 	ao_dma_config[id].cfg1 = cfg1 | DMA_CFG1_IRQMASK;
-	if (id == 0) {
-		DMA0CFGH = ((uint16_t) (&ao_dma_config[0])) >> 8;
-		DMA0CFGL = ((uint16_t) (&ao_dma_config[0]));
-	} else {
-		DMA1CFGH = ((uint16_t) (&ao_dma_config[1])) >> 8;
-		DMA1CFGL = ((uint16_t) (&ao_dma_config[1]));
-	}
 }
 
 #define nop()	_asm nop _endasm;
@@ -85,9 +82,11 @@ ao_dma_start(uint8_t id)
 {
 	uint8_t	mask = (1 << id);
 	DMAIRQ &= ~mask;
-	DMAARM = 0x80 | mask;
-	nop(); nop(); nop(); nop();
-	nop(); nop(); nop(); nop();
+	if (DMAARM & mask) {
+		DMAARM = 0x80 | mask;
+		nop(); nop(); nop(); nop();
+		nop(); nop(); nop(); nop();
+	}
 	*(ao_dma_done[id]) = 0;
 	DMAARM = mask;
 	nop(); nop(); nop(); nop();
