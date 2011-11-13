@@ -121,10 +121,16 @@ ao_cmd_put8(uint8_t v)
 	putnibble(v & 0xf);
 }
 
+uint8_t
+ao_cmd_is_white(void)
+{
+	return ao_cmd_lex_c == ' ' || ao_cmd_lex_c == '\t';
+}
+
 void
 ao_cmd_white(void)
 {
-	while (ao_cmd_lex_c == ' ' || ao_cmd_lex_c == '\t')
+	while (ao_cmd_is_white())
 		ao_cmd_lex();
 }
 

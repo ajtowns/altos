@@ -349,6 +349,9 @@ ao_cmd_put8(uint8_t v);
 void
 ao_cmd_put16(uint16_t v);
 
+uint8_t
+ao_cmd_is_white(void);
+
 void
 ao_cmd_white(void);
 
