@@ -199,6 +199,7 @@
 	#define HAS_ACCEL		1
 	#define HAS_IGNITE		1
 	#define HAS_MONITOR		0
+	#define AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX	((uint32_t) 127 * (uint32_t) 1024)
 #endif
 
 #if defined(TELEDONGLE_V_0_1)

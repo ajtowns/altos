@@ -34,10 +34,12 @@ __xdata uint8_t ao_config_mutex;
 #error Please define USE_INTERNAL_FLASH
 #endif
 #endif
+#ifndef AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX
 #if USE_INTERNAL_FLASH
 #define AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX	ao_storage_config
 #else
 #define AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX	((uint32_t) 192 * (uint32_t) 1024)
+#endif
 #endif
 
 #if HAS_EEPROM
