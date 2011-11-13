@@ -28,7 +28,7 @@ __xdata uint8_t ao_spi_dma_out_done;
 uint8_t	ao_spi_dma_out_id;
 uint8_t ao_spi_dma_in_id;
 
-static __xdata uint8_t ao_spi_const = 0xff;
+static __xdata uint8_t ao_spi_const;
 
 /* Send bytes over SPI.
  *
@@ -88,6 +88,8 @@ ao_spi_recv(void __xdata *block, uint16_t len) __reentrant
 			    DMA_CFG1_SRCINC_0 |
 			    DMA_CFG1_DESTINC_1 |
 			    DMA_CFG1_PRIORITY_NORMAL);
+
+	ao_spi_const = 0xff;
 
 	ao_dma_set_transfer(ao_spi_dma_out_id,
 			    &ao_spi_const,
