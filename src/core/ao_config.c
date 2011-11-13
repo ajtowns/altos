@@ -111,6 +111,15 @@ _ao_config_get(void)
 			ao_config.radio_enable = TRUE;
 		if (ao_config.minor < 9)
 			memset(&ao_config.aes_key, 0, AO_AES_LEN);
+#if HAS_RADIO_CHANNELS
+		if (ao_config.minor < 10) {
+			ao_xmemset(&ao_config.radio_channels, '\0', sizeof (ao_config.radio_channels));
+			ao_xmemcpy(&ao_config.radio_channels[0].name[0],
+				   CODE_TO_XDATA("Channel 0"), sizeof("Channel 0"));
+			ao_config.radio_channels[0].kHz = 434550;
+			ao_config.radio_channels[0].radio_setting = ao_config.radio_cal;
+		}
+#endif				   
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
@@ -448,6 +457,53 @@ ao_config_key_set(void) __reentrant
 }
 #endif
 
+#if HAS_RADIO_CHANNELS
+void
+ao_config_radio_config_show(void) __reentrant
+{
+	uint8_t	i;
+	for (i = 0; i < AO_NUM_CHANNELS; i++)
+		if (ao_config.radio_channels[i].name[0]) {
+			printf("%2d %-16.16s %ld %ld\n",
+			       i,
+			       ao_config.radio_channels[i].name,
+			       ao_config.radio_channels[i].kHz,
+			       ao_config.radio_channels[i].radio_setting);
+		}
+}
+
+void
+ao_config_radio_config_set(void) __reentrant
+{
+	__xdata struct ao_radio_channel * ch;
+	uint8_t i;
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	if ((uint8_t) ao_cmd_lex_i >= AO_NUM_CHANNELS) {
+		ao_cmd_status = ao_cmd_syntax_error;
+		return;
+	}
+	ch = &ao_config.radio_channels[(uint8_t) ao_cmd_lex_i];
+	_ao_config_edit_start();
+	ao_cmd_white();
+	i = 0;
+	while (ao_cmd_lex_c != '/' && ao_cmd_lex_c != '\n' && i < AO_CHANNEL_NAME_LEN) {
+		ch->name[i++] = ao_cmd_lex_c;
+		ao_cmd_lex();
+	}
+	if (i < AO_CHANNEL_NAME_LEN) {
+		ch->name[i] = '\0';
+		ao_cmd_lex();
+	}
+	ao_cmd_decimal();
+	ch->kHz = ao_cmd_lex_u32;
+	ao_cmd_decimal();
+	ch->radio_setting = ao_cmd_lex_u32;
+	_ao_config_edit_finish();
+}
+#endif
+
 struct ao_config_var {
 	__code char	*str;
 	void		(*set)(void) __reentrant;
@@ -499,6 +555,10 @@ __code struct ao_config_var ao_config_vars[] = {
 #if HAS_AES
 	{ "k <32 hex digits>\0Set AES encryption key",
 	  ao_config_key_set, ao_config_key_show },
+#endif
+#if HAS_RADIO_CHANNELS
+	{ "C <n> <name>/<freq> <radio>\0Set radio chan config",
+	  ao_config_radio_config_set,ao_config_radio_config_show },
 #endif
 	{ "s\0Show",
 	  ao_config_show,		0 },
