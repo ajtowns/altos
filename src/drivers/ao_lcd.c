@@ -144,78 +144,7 @@ ao_lcd_start(void)
 }
 
 void
-ao_lcd_contrast(void)
-{
-	ao_cmd_hex();
-	if (ao_cmd_status == ao_cmd_success) {
-		printf("setting contrast to %02x\n", ao_cmd_lex_i);
-		ao_lcd_contrast_set(ao_cmd_lex_i & 0x3f);
-	}
-}
-
-static uint8_t
-ao_cmd_hex_nibble(void)
-{
-	if ('0' <= ao_cmd_lex_c && ao_cmd_lex_c <= '9')
-		return ao_cmd_lex_c - '0';
-	if ('a' <= ao_cmd_lex_c && ao_cmd_lex_c <= 'f')
-		return ao_cmd_lex_c - ('a' - 10);
-	if ('A' <= ao_cmd_lex_c && ao_cmd_lex_c <= 'F')
-		return ao_cmd_lex_c - ('A' - 10);
-	ao_cmd_status = ao_cmd_syntax_error;
-	return 0;
-}
-
-void
-ao_lcd_string(void)
-{
-	uint8_t	col = 0;
-	char	c;
-
-	ao_cmd_decimal();
-	if (ao_cmd_status != ao_cmd_success)
-		return;
-	ao_lcd_send_ins(0x80 | (ao_cmd_lex_i ? 0x40 : 0x00));
-	ao_cmd_white();
-	while (ao_cmd_lex_c != '\n') {
-		c = ao_cmd_lex_c;
-		if (c == '\\') {
-			ao_cmd_lex();
-			c = ao_cmd_hex_nibble() << 4;
-			ao_cmd_lex();
-			c |= ao_cmd_hex_nibble();
-		}
-		ao_lcd_put_byte(c);
-		ao_cmd_lex();
-		col++;
-	}
-	while (col < 16) {
-		ao_lcd_put_byte(' ');
-		col++;
-	}
-}
-
-void
-ao_lcd_delay_set(void)
-{
-	ao_cmd_decimal();
-	if (ao_cmd_status == ao_cmd_success) {
-		printf("setting LCD delay to %d\n", ao_cmd_lex_i);
-		ao_lcd_time = ao_cmd_lex_i;
-	}
-}
-
-__code struct ao_cmds ao_lcd_cmds[] = {
-	{ ao_lcd_start, "S\0Start LCD" },
-	{ ao_lcd_contrast, "C <contrast>\0Set LCD contrast" },
-	{ ao_lcd_string, "s <line> <string>\0Send string to LCD" },
-	{ ao_lcd_delay_set, "t <delay>\0Set LCD delay" },
-	{ 0, NULL },
-};
-
-void
 ao_lcd_init(void)
 {
 	ao_lcd_port_init();
-	ao_cmd_register(&ao_lcd_cmds[0]);
 }
