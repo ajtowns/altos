@@ -182,6 +182,11 @@ ao_sample(void)
 		if (ao_config.pad_orientation != AO_PAD_ORIENTATION_ANTENNA_UP)
 			ao_sample_accel = 0x7fff - ao_sample_accel;
 		ao_adc->accel = ao_sample_accel;
+#else
+		if (ao_config.pad_orientation != AO_PAD_ORIENTATION_ANTENNA_UP) {
+			ao_sample_accel = 0x7fff - ao_sample_accel;
+			ao_adc->accel = ao_sample_accel;
+		}
 #endif
 #endif
 
