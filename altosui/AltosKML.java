@@ -73,7 +73,7 @@ public class AltosKML implements AltosWriter {
 		"      <coordinates>\n";
 
 	static final String kml_coord_fmt =
-	"        %12.7f, %12.7f, %12.7f <!-- alt %12.7f time %12.7f sats %d -->\n";
+	"        %.7f,%.7f,%.7f <!-- alt %12.7f time %12.7f sats %d -->\n";
 
 	static final String kml_placemark_end =
 		"      </coordinates>\n" +
