@@ -586,7 +586,7 @@ NAR #88757, TRA #12200
       <section>
 	<title>Maximum Flight Log</title>
 	<para>
-	  TeleMetrum version 1.1 has 2MB of on-board flash storage,
+	  TeleMetrum version 1.1 and 1.2 have 2MB of on-board flash storage,
 	  enough to hold over 40 minutes of data at full data rate
 	  (100 samples/second). TeleMetrum 1.0 has 1MB of on-board
 	  storage. As data are stored at a reduced rate during descent
@@ -602,7 +602,7 @@ NAR #88757, TRA #12200
 	</para>
 	<para>
 	  All of the configuration data is also stored in the flash
-	  memory, which consumes 64kB on TeleMetrum v1.1 and 256B on
+	  memory, which consumes 64kB on TeleMetrum v1.1/v1.2 and 256B on
 	  TeleMetrum v1.0. This configuration space is not available
 	  for storing flight log data.
 	</para>
@@ -619,7 +619,7 @@ NAR #88757, TRA #12200
 	</para>
 	<para>
 	  The default size, 192kB, allows for 10 flights of storage on
-	  TeleMetrum v1.1 and 5 flights on TeleMetrum v1.0. This
+	  TeleMetrum v1.1/v1.2 and 5 flights on TeleMetrum v1.0. This
 	  ensures that you won't need to erase the memory before
 	  flying each time while still allowing more than sufficient
 	  storage for each flight.
@@ -1842,7 +1842,7 @@ NAR #88757, TRA #12200
         </listitem>
         <listitem>
           Select the image you want put on the TeleMetrum, which should have a
-          name in the form telemetrum-v1.1-1.0.0.ihx.  It should be visible
+          name in the form telemetrum-v1.2-1.0.0.ihx.  It should be visible
 	in the default directory, if not you may have to poke around
 	your system to find it.
         </listitem>

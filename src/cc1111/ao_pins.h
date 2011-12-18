@@ -89,6 +89,43 @@
 	#define HAS_MONITOR		0
 #endif
 
+#if defined(TELEMETRUM_V_1_2)
+	#define HAS_FLIGHT		1
+	#define HAS_USB			1
+	#define HAS_BEEP		1
+	#define HAS_GPS			1
+	#define HAS_SERIAL_1		1
+	#define USE_SERIAL_STDIN	0
+	#define HAS_ADC			1
+	#define HAS_EEPROM		1
+	#define HAS_LOG			1
+	#define USE_INTERNAL_FLASH	0
+	#define HAS_DBG			1
+	#define DBG_ON_P1 		1
+	#define DBG_ON_P0 		0
+	#define IGNITE_ON_P2		1
+	#define IGNITE_ON_P0		0
+	#define PACKET_HAS_MASTER	0
+	#define PACKET_HAS_SLAVE	1
+
+	#define HAS_COMPANION		1
+	#define COMPANION_CS_ON_P1	1
+	#define COMPANION_CS_MASK	0x4	/* CS1 is P1_2 */
+	#define COMPANION_CS		P1_2
+
+	#define AO_LED_RED		1
+	#define LEDS_AVAILABLE		(AO_LED_RED)
+	#define HAS_EXTERNAL_TEMP	0
+	#define HAS_ACCEL_REF		1
+	#define SPI_CS_ON_P1		1
+	#define SPI_CS_ON_P0		0
+	#define M25_CS_MASK		0x02	/* CS0 is P1_1 */
+	#define M25_MAX_CHIPS		1
+	#define HAS_ACCEL		1
+	#define HAS_IGNITE		1
+	#define HAS_MONITOR		0
+#endif
+
 #if defined(TELEDONGLE_V_0_2)
 	#define HAS_FLIGHT		0
 	#define HAS_USB			1
