@@ -37,8 +37,8 @@
 	#define DBG_ON_P0 		0
 	#define IGNITE_ON_P2		0
 	#define IGNITE_ON_P0		0
-	#define PACKET_HAS_MASTER	1
-	#define PACKET_HAS_SLAVE	0
+	#define PACKET_HAS_MASTER	0
+	#define PACKET_HAS_SLAVE	1
 	#define AO_LED_RED		1
 	#define AO_LED_GREEN		2
 	#define AO_MONITOR_LED		AO_LED_RED

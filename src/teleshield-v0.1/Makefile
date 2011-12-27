@@ -49,7 +49,7 @@ CC1111_SRC = \
 	ao_led.c \
 	ao_intflash.c \
 	ao_packet.c \
-	ao_packet_master.c \
+	ao_packet_slave.c \
 	ao_radio.c \
 	ao_romconfig.c \
 	ao_serial.c \
