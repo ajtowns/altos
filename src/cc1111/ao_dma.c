@@ -75,7 +75,7 @@ ao_dma_set_transfer(uint8_t id,
 	ao_dma_config[id].cfg1 = cfg1 | DMA_CFG1_IRQMASK;
 }
 
-#define nop()	_asm nop _endasm;
+#define nop()	__asm nop __endasm;
 
 void
 ao_dma_start(uint8_t id)

@@ -22,10 +22,10 @@ static void
 ao_dbg_send_bits(uint8_t msk, uint8_t val) __reentrant
 {
 	DBG_PORT = (DBG_PORT & ~msk) | (val & msk);
-	_asm
+	__asm
 		nop
 		nop
-	_endasm;
+	__endasm;
 }
 
 void
@@ -187,7 +187,7 @@ ao_dbg_long_delay(void)
 	uint8_t	n;
 
 	for (n = 0; n < 20; n++)
-		_asm nop _endasm;
+		__asm nop __endasm;
 }
 
 #define AO_RESET_LOW_DELAY	AO_MS_TO_TICKS(100)
