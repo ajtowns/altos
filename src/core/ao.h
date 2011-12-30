@@ -376,7 +376,7 @@ struct ao_cmds {
 };
 
 void
-ao_cmd_register(__code struct ao_cmds *cmds);
+ao_cmd_register(const __code struct ao_cmds *cmds);
 
 void
 ao_cmd_init(void);
@@ -1352,10 +1352,10 @@ void
 ao_radio_set_packet(void);
 
 void
-ao_radio_send(__xdata void *data, uint8_t size) __reentrant;
+ao_radio_send(__xdata void *d, uint8_t size) __reentrant;
 
 uint8_t
-ao_radio_recv(__xdata void *data, uint8_t size) __reentrant;
+ao_radio_recv(__xdata void *d, uint8_t size) __reentrant;
 
 void
 ao_radio_recv_abort(void);
@@ -1708,7 +1708,7 @@ ao_companion_init(void);
 /* ao_lcd.c */
   
 void
-ao_lcd_putchar(uint8_t data);
+ao_lcd_putchar(uint8_t d);
 
 void
 ao_lcd_putstring(char *string);
@@ -1739,14 +1739,14 @@ ao_lcd_init(void);
 /* ao_lcd_port.c */
 
 void
-ao_lcd_port_put_nibble(uint8_t rs, uint8_t data);
+ao_lcd_port_put_nibble(uint8_t rs, uint8_t d);
 
 void
 ao_lcd_port_init(void);
 
 /* ao_aes.c */
 
-__xdata uint8_t ao_aes_mutex;
+extern __xdata uint8_t ao_aes_mutex;
 
 /* AES keys and blocks are 128 bits */
 

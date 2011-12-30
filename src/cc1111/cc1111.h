@@ -42,14 +42,14 @@
 
 __sfr __at 0xA8 IEN0;		/* Interrupt Enable 0 Register */
 
-sbit __at 0xA8 RFTXRXIE;	/* RF TX/RX done interrupt enable */
-sbit __at 0xA9 ADCIE;		/* ADC interrupt enable */
-sbit __at 0xAA URX0IE;		/* USART0 RX interrupt enable */
-sbit __at 0xAB URX1IE;		/* USART1 RX interrupt enable (shared with I2S RX) */
-sbit __at 0xAB I2SRXIE;		/* I2S RX interrupt enable (shared with USART1 RX) */
-sbit __at 0xAC ENCIE;		/* AES encryption/decryption interrupt enable */
-sbit __at 0xAD STIE;		/* Sleep Timer interrupt enable */
-sbit __at 0xAF EA;		/* Enable All */
+__sbit __at 0xA8 RFTXRXIE;	/* RF TX/RX done interrupt enable */
+__sbit __at 0xA9 ADCIE;		/* ADC interrupt enable */
+__sbit __at 0xAA URX0IE;		/* USART0 RX interrupt enable */
+__sbit __at 0xAB URX1IE;		/* USART1 RX interrupt enable (shared with I2S RX) */
+__sbit __at 0xAB I2SRXIE;		/* I2S RX interrupt enable (shared with USART1 RX) */
+__sbit __at 0xAC ENCIE;		/* AES encryption/decryption interrupt enable */
+__sbit __at 0xAD STIE;		/* Sleep Timer interrupt enable */
+__sbit __at 0xAF EA;		/* Enable All */
 
 #define IEN0_EA			(1 << 7)
 #define IEN0_STIE		(1 << 5)
@@ -135,11 +135,11 @@ __sfr __at 0x87 PCON;		/* Power Mode Control Register */
  */
 __sfr __at 0x88 TCON;		/* CPU Interrupt Flag 1 */
 
-sbit __at 0x8F URX1IF;		/* USART1 RX interrupt flag. Automatically cleared */
-sbit __at 0x8F I2SRXIF;		/* I2S RX interrupt flag. Automatically cleared */
-sbit __at 0x8D ADCIF;		/* ADC interrupt flag. Automatically cleared */
-sbit __at 0x8B URX0IF;		/* USART0 RX interrupt flag. Automatically cleared */
-sbit __at 0x89 RFTXRXIF;	/* RF TX/RX complete interrupt flag. Automatically cleared */
+__sbit __at 0x8F URX1IF;		/* USART1 RX interrupt flag. Automatically cleared */
+__sbit __at 0x8F I2SRXIF;		/* I2S RX interrupt flag. Automatically cleared */
+__sbit __at 0x8D ADCIF;		/* ADC interrupt flag. Automatically cleared */
+__sbit __at 0x8B URX0IF;		/* USART0 RX interrupt flag. Automatically cleared */
+__sbit __at 0x89 RFTXRXIF;	/* RF TX/RX complete interrupt flag. Automatically cleared */
 
 #define TCON_URX1IF	(1 << 7)
 #define TCON_I2SRXIF	(1 << 7)
@@ -152,8 +152,8 @@ sbit __at 0x89 RFTXRXIF;	/* RF TX/RX complete interrupt flag. Automatically clea
  */
 __sfr __at 0x98 S0CON;	/* CPU Interrupt Flag 2 */
 
-sbit __at 0x98 ENCIF_0;	/* AES interrupt 0. */
-sbit __at 0x99 ENCIF_1;	/* AES interrupt 1. */
+__sbit __at 0x98 ENCIF_0;	/* AES interrupt 0. */
+__sbit __at 0x99 ENCIF_1;	/* AES interrupt 1. */
 
 #define S0CON_ENCIF_1	(1 << 1)
 #define S0CON_ENCIF_0	(1 << 0)
@@ -171,13 +171,13 @@ __sfr __at 0x9B S1CON;	/* CPU Interrupt Flag 3 */
  */
 __sfr __at 0xC0 IRCON;	/* CPU Interrupt Flag 4 */
 
-sbit __at 0xC0 DMAIF;	/* DMA complete interrupt flag */
-sbit __at 0xC1 T1IF;	/* Timer 1 interrupt flag. Automatically cleared */
-sbit __at 0xC2 T2IF;	/* Timer 2 interrupt flag. Automatically cleared */
-sbit __at 0xC3 T3IF;	/* Timer 3 interrupt flag. Automatically cleared */
-sbit __at 0xC4 T4IF;	/* Timer 4 interrupt flag. Automatically cleared */
-sbit __at 0xC5 P0IF;	/* Port0 interrupt flag */
-sbit __at 0xC7 STIF;	/* Sleep Timer interrupt flag */
+__sbit __at 0xC0 DMAIF;	/* DMA complete interrupt flag */
+__sbit __at 0xC1 T1IF;	/* Timer 1 interrupt flag. Automatically cleared */
+__sbit __at 0xC2 T2IF;	/* Timer 2 interrupt flag. Automatically cleared */
+__sbit __at 0xC3 T3IF;	/* Timer 3 interrupt flag. Automatically cleared */
+__sbit __at 0xC4 T4IF;	/* Timer 4 interrupt flag. Automatically cleared */
+__sbit __at 0xC5 P0IF;	/* Port0 interrupt flag */
+__sbit __at 0xC7 STIF;	/* Sleep Timer interrupt flag */
 
 #define IRCON_DMAIF	(1 << 0)	/* DMA complete interrupt flag */
 #define IRCON_T1IF	(1 << 1)	/* Timer 1 interrupt flag. Automatically cleared */
@@ -192,13 +192,13 @@ sbit __at 0xC7 STIF;	/* Sleep Timer interrupt flag */
  */
 __sfr __at 0xE8 IRCON2;	/* CPU Interrupt Flag 5 */
 
-sbit __at 0xE8 USBIF;	/* USB interrupt flag (shared with Port2) */
-sbit __at 0xE8 P2IF;	/* Port2 interrupt flag (shared with USB) */
-sbit __at 0xE9 UTX0IF;	/* USART0 TX interrupt flag */
-sbit __at 0xEA UTX1IF;	/* USART1 TX interrupt flag (shared with I2S TX) */
-sbit __at 0xEA I2STXIF;	/* I2S TX interrupt flag (shared with USART1 TX) */
-sbit __at 0xEB P1IF;	/* Port1 interrupt flag */
-sbit __at 0xEC WDTIF;	/* Watchdog timer interrupt flag */
+__sbit __at 0xE8 USBIF;	/* USB interrupt flag (shared with Port2) */
+__sbit __at 0xE8 P2IF;	/* Port2 interrupt flag (shared with USB) */
+__sbit __at 0xE9 UTX0IF;	/* USART0 TX interrupt flag */
+__sbit __at 0xEA UTX1IF;	/* USART1 TX interrupt flag (shared with I2S TX) */
+__sbit __at 0xEA I2STXIF;	/* I2S TX interrupt flag (shared with USART1 TX) */
+__sbit __at 0xEB P1IF;	/* Port1 interrupt flag */
+__sbit __at 0xEC WDTIF;	/* Watchdog timer interrupt flag */
 
 #define IRCON2_USBIF	(1 << 0)	/* USB interrupt flag (shared with Port2) */
 #define IRCON2_P2IF	(1 << 0)	/* Port2 interrupt flag (shared with USB) */
@@ -679,33 +679,33 @@ __sfr __at 0x8C PICTL;
 /* GPIO pins */
 __sfr __at 0x80 P0;
 
-sbit __at 0x80 P0_0;
-sbit __at 0x81 P0_1;
-sbit __at 0x82 P0_2;
-sbit __at 0x83 P0_3;
-sbit __at 0x84 P0_4;
-sbit __at 0x85 P0_5;
-sbit __at 0x86 P0_6;
-sbit __at 0x87 P0_7;
+__sbit __at 0x80 P0_0;
+__sbit __at 0x81 P0_1;
+__sbit __at 0x82 P0_2;
+__sbit __at 0x83 P0_3;
+__sbit __at 0x84 P0_4;
+__sbit __at 0x85 P0_5;
+__sbit __at 0x86 P0_6;
+__sbit __at 0x87 P0_7;
 
 __sfr __at 0x90 P1;
 
-sbit __at 0x90 P1_0;
-sbit __at 0x91 P1_1;
-sbit __at 0x92 P1_2;
-sbit __at 0x93 P1_3;
-sbit __at 0x94 P1_4;
-sbit __at 0x95 P1_5;
-sbit __at 0x96 P1_6;
-sbit __at 0x97 P1_7;
+__sbit __at 0x90 P1_0;
+__sbit __at 0x91 P1_1;
+__sbit __at 0x92 P1_2;
+__sbit __at 0x93 P1_3;
+__sbit __at 0x94 P1_4;
+__sbit __at 0x95 P1_5;
+__sbit __at 0x96 P1_6;
+__sbit __at 0x97 P1_7;
 
 __sfr __at 0xa0 P2;
 
-sbit __at 0xa0 P2_0;
-sbit __at 0xa1 P2_1;
-sbit __at 0xa2 P2_2;
-sbit __at 0xa3 P2_3;
-sbit __at 0xa4 P2_4;
+__sbit __at 0xa0 P2_0;
+__sbit __at 0xa1 P2_1;
+__sbit __at 0xa2 P2_2;
+__sbit __at 0xa3 P2_3;
+__sbit __at 0xa4 P2_4;
 
 /* DMA controller */
 struct cc_dma_channel {

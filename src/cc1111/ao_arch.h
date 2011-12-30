@@ -45,7 +45,7 @@
 	ao_delay(AO_SEC_TO_TICKS(2));				\
 	} while (0)
 	
-#define ao_arch_nop()	_asm nop _endasm
+#define ao_arch_nop()	__asm nop __endasm
 #define ao_arch_interrupt(n)	__interrupt n
 
 #define ao_arch_naked_declare	__naked
@@ -106,7 +106,7 @@ extern __code __at (0x00a6) uint32_t ao_radio_cal;
 /* Save current context */
 
 #define ao_arch_save_regs()						\
-	_asm								\
+	__asm								\
 	/* Push ACC first, as when restoring the context it must be restored \
 	 * last (it is used to set the IE register). */			\
 	push	ACC							\
@@ -125,11 +125,11 @@ extern __code __at (0x00a6) uint32_t ao_radio_cal;
 	push	ar0							\
 	push	ar1							\
 	push	PSW							\
-	_endasm;							\
+	__endasm;							\
 	PSW = 0;							\
-	_asm								\
+	__asm								\
 	push	_bp							\
-	_endasm
+	__endasm
 
 #define ao_arch_save_stack() { 						\
 		uint8_t stack_len;					\
@@ -166,7 +166,7 @@ extern __code __at (0x00a6) uint32_t ao_radio_cal;
 			*stack_ptr++ = *save_ptr++;			\
 		while (--stack_len);					\
 									\
-		_asm							\
+		__asm							\
 		pop		_bp					\
 		pop		PSW					\
 		pop		ar1					\
@@ -193,7 +193,7 @@ extern __code __at (0x00a6) uint32_t ao_radio_cal;
 		/* Finally pop off the ACC, which was the first register saved. */ \
 		pop		ACC					\
 		ret							\
-		_endasm;						\
+		__endasm;						\
 }
 
 #define ao_arch_critical(b) __critical { b }
