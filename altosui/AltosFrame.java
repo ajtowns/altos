@@ -32,7 +32,7 @@ import libaltosJNI.*;
 
 class AltosFrameListener extends WindowAdapter {
 	public void windowClosing (WindowEvent e) {
-		AltosPreferences.unregister_ui_listener((AltosFrame) e.getWindow());
+		AltosUIPreferences.unregister_ui_listener((AltosFrame) e.getWindow());
 	}
 }
 
@@ -44,13 +44,13 @@ public class AltosFrame extends JFrame implements AltosUIListener {
 	}
 
 	public AltosFrame() {
-		AltosPreferences.register_ui_listener(this);
+		AltosUIPreferences.register_ui_listener(this);
 		addWindowListener(new AltosFrameListener());
 	}
 
 	public AltosFrame(String name) {
 		super(name);
-		AltosPreferences.register_ui_listener(this);
+		AltosUIPreferences.register_ui_listener(this);
 		addWindowListener(new AltosFrameListener());
 	}
 }

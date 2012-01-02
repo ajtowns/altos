@@ -52,7 +52,7 @@ public class AltosFreqList extends JComboBox {
 		}
 		String	description = String.format("%s serial %d", product, serial);
 		AltosFrequency	frequency = new AltosFrequency(new_frequency, description);
-		AltosPreferences.add_common_frequency(frequency);
+		AltosUIPreferences.add_common_frequency(frequency);
 		insertItemAt(frequency, i);
 		setMaximumRowCount(getItemCount());
 	}
@@ -73,7 +73,7 @@ public class AltosFreqList extends JComboBox {
 	}
 
 	public AltosFreqList () {
-		super(AltosPreferences.common_frequencies());
+		super(AltosUIPreferences.common_frequencies());
 		setMaximumRowCount(getItemCount());
 		setEditable(false);
 		product = "Unknown";

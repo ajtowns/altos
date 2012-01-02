@@ -438,9 +438,9 @@ public class AltosSerial implements Runnable {
 		if (debug)
 			System.out.printf("start remote %7.3f\n", frequency);
 		if (frequency == 0.0)
-			frequency = AltosPreferences.frequency(device.getSerial());
+			frequency = AltosUIPreferences.frequency(device.getSerial());
 		set_radio_frequency(frequency);
-		set_callsign(AltosPreferences.callsign());
+		set_callsign(AltosUIPreferences.callsign());
 		printf("p\nE 0\n");
 		flush_input();
 		remote = true;

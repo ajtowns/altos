@@ -32,7 +32,7 @@ import libaltosJNI.*;
 
 class AltosDialogListener extends WindowAdapter {
 	public void windowClosing (WindowEvent e) {
-		AltosPreferences.unregister_ui_listener((AltosDialog) e.getWindow());
+		AltosUIPreferences.unregister_ui_listener((AltosDialog) e.getWindow());
 	}
 }
 
@@ -44,19 +44,19 @@ public class AltosDialog extends JDialog implements AltosUIListener {
 	}
 
 	public AltosDialog() {
-		AltosPreferences.register_ui_listener(this);
+		AltosUIPreferences.register_ui_listener(this);
 		addWindowListener(new AltosDialogListener());
 	}
 
 	public AltosDialog(Frame frame, String label, boolean modal) {
 		super(frame, label, modal);
-		AltosPreferences.register_ui_listener(this);
+		AltosUIPreferences.register_ui_listener(this);
 		addWindowListener(new AltosDialogListener());
 	}
 
 	public AltosDialog(Frame frame, boolean modal) {
 		super(frame, modal);
-		AltosPreferences.register_ui_listener(this);
+		AltosUIPreferences.register_ui_listener(this);
 		addWindowListener(new AltosDialogListener());
 	}
 }

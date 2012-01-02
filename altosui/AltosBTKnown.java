@@ -23,7 +23,7 @@ import java.util.prefs.*;
 
 public class AltosBTKnown implements Iterable<AltosBTDevice> {
 	LinkedList<AltosBTDevice>	devices = new LinkedList<AltosBTDevice>();
-	Preferences			bt_pref = AltosPreferences.bt_devices();
+	Preferences			bt_pref = AltosUIPreferences.bt_devices();
 
 	private String get_address(String name) {
 		return bt_pref.get(name, "");
@@ -57,7 +57,7 @@ public class AltosBTKnown implements Iterable<AltosBTDevice> {
 	}
 
 	private void flush() {
-		AltosPreferences.flush_preferences();
+		AltosUIPreferences.flush_preferences();
 	}
 
 	public void set(Iterable<AltosBTDevice> new_devices) {
@@ -91,7 +91,7 @@ public class AltosBTKnown implements Iterable<AltosBTDevice> {
 
 	public AltosBTKnown() {
 		devices = new LinkedList<AltosBTDevice>();
-		bt_pref = AltosPreferences.bt_devices();
+		bt_pref = AltosUIPreferences.bt_devices();
 		load();
 	}
 }

@@ -342,12 +342,12 @@ public class AltosIdleMonitorUI extends AltosFrame implements AltosFlightDisplay
 		/* Stick frequency selector at top of table for telemetry monitoring */
 		if (remote && serial >= 0) {
 			// Frequency menu
-			frequencies = new AltosFreqList(AltosPreferences.frequency(serial));
+			frequencies = new AltosFreqList(AltosUIPreferences.frequency(serial));
 			frequencies.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						double frequency = frequencies.frequency();
 						thread.set_frequency(frequency);
-						AltosPreferences.set_frequency(device.getSerial(),
+						AltosUIPreferences.set_frequency(device.getSerial(),
 									       frequency);
 					}
 			});
@@ -391,7 +391,7 @@ public class AltosIdleMonitorUI extends AltosFrame implements AltosFlightDisplay
 
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-		AltosPreferences.register_font_listener(this);
+		AltosUIPreferences.register_font_listener(this);
 
 		addWindowListener(new WindowAdapter() {
 				@Override
@@ -399,7 +399,7 @@ public class AltosIdleMonitorUI extends AltosFrame implements AltosFlightDisplay
 					disconnect();
 					setVisible(false);
 					dispose();
-					AltosPreferences.unregister_font_listener(AltosIdleMonitorUI.this);
+					AltosUIPreferences.unregister_font_listener(AltosIdleMonitorUI.this);
 				}
 			});
 

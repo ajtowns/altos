@@ -267,7 +267,7 @@ public class AltosScanUI
 					scanning_telemetry |= (1 << Altos.ao_telemetry_standard);
 					telemetry_boxes[Altos.ao_telemetry_standard - Altos.ao_telemetry_min].setSelected(true);
 				}
-				AltosPreferences.set_scanning_telemetry(scanning_telemetry);
+				AltosUIPreferences.set_scanning_telemetry(scanning_telemetry);
 			}
 
 			if (cmd.equals("monitor")) {
@@ -359,7 +359,7 @@ public class AltosScanUI
 
 		owner = in_owner;
 
-		frequencies = AltosPreferences.common_frequencies();
+		frequencies = AltosUIPreferences.common_frequencies();
 		frequency_index = 0;
 		telemetry = Altos.ao_telemetry_min;
 
@@ -400,7 +400,7 @@ public class AltosScanUI
 		c.gridy = 2;
 		pane.add(telemetry_label, c);
 
-		int	scanning_telemetry = AltosPreferences.scanning_telemetry();
+		int	scanning_telemetry = AltosUIPreferences.scanning_telemetry();
 		telemetry_boxes = new JCheckBox[Altos.ao_telemetry_max - Altos.ao_telemetry_min + 1];
 		for (int k = Altos.ao_telemetry_min; k <= Altos.ao_telemetry_max; k++) {
 			int j = k - Altos.ao_telemetry_min;

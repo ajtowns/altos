@@ -65,7 +65,7 @@ public class AltosVoice implements Runnable {
 	}
 
 	public void speak(String s) {
-		if (AltosPreferences.voice())
+		if (AltosUIPreferences.voice())
 			speak_always(s);
 	}
 

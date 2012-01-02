@@ -299,7 +299,7 @@ public class AltosConfig implements ActionListener {
 				if (remote) {
 					serial_line.stop_remote();
 					serial_line.set_radio_frequency(frequency);
-					AltosPreferences.set_frequency(device.getSerial(), frequency);
+					AltosUIPreferences.set_frequency(device.getSerial(), frequency);
 					serial_line.start_remote();
 				}
 				serial_line.printf("c c %s\n", callsign.get());

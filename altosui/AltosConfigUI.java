@@ -434,7 +434,7 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		callsign_value = new JTextField(AltosPreferences.callsign());
+		callsign_value = new JTextField(AltosUIPreferences.callsign());
 		callsign_value.getDocument().addDocumentListener(this);
 		pane.add(callsign_value, c);
 		callsign_value.setToolTipText("Callsign reported in telemetry data");
@@ -689,7 +689,7 @@ public class AltosConfigUI
 						    product_value.getText(),
 						    serial_value.getText());
 		AltosFrequency	new_frequency = new AltosFrequency(new_radio_frequency, description);
-		AltosPreferences.add_common_frequency(new_frequency);
+		AltosUIPreferences.add_common_frequency(new_frequency);
 		radio_frequency_value.insertItemAt(new_frequency, i);
 		radio_frequency_value.setSelectedIndex(i);
 	}

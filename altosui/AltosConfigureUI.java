@@ -105,7 +105,7 @@ public class AltosConfigureUI
 
 	/* DocumentListener interface methods */
 	public void changedUpdate(DocumentEvent e) {
-		AltosPreferences.set_callsign(callsign_value.getText());
+		AltosUIPreferences.set_callsign(callsign_value.getText());
 	}
 
 	public void insertUpdate(DocumentEvent e) {
@@ -158,12 +158,12 @@ public class AltosConfigureUI
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(new JLabel("Voice"), c);
 
-		enable_voice = new JRadioButton("Enable", AltosPreferences.voice());
+		enable_voice = new JRadioButton("Enable", AltosUIPreferences.voice());
 		enable_voice.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					JRadioButton item = (JRadioButton) e.getSource();
 					boolean enabled = item.isSelected();
-					AltosPreferences.set_voice(enabled);
+					AltosUIPreferences.set_voice(enabled);
 					if (enabled)
 						voice.speak_always("Enable voice.");
 					else
@@ -202,11 +202,11 @@ public class AltosConfigureUI
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(new JLabel("Log Directory"), c);
 
-		configure_log = new JButton(AltosPreferences.logdir().getPath());
+		configure_log = new JButton(AltosUIPreferences.logdir().getPath());
 		configure_log.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					AltosPreferences.ConfigureLog();
-					configure_log.setText(AltosPreferences.logdir().getPath());
+					AltosUIPreferences.ConfigureLog();
+					configure_log.setText(AltosUIPreferences.logdir().getPath());
 				}
 			});
 		c.gridx = 1;
@@ -225,7 +225,7 @@ public class AltosConfigureUI
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(new JLabel("Callsign"), c);
 
-		callsign_value = new JTextField(AltosPreferences.callsign());
+		callsign_value = new JTextField(AltosUIPreferences.callsign());
 		callsign_value.getDocument().addDocumentListener(this);
 		c.gridx = 1;
 		c.gridy = row++;
@@ -244,13 +244,13 @@ public class AltosConfigureUI
 		pane.add(new JLabel("Font size"), c);
 
 		font_size_value = new JComboBox(font_size_names);
-		int font_size = AltosPreferences.font_size();
+		int font_size = AltosUIPreferences.font_size();
 		font_size_value.setSelectedIndex(font_size - Altos.font_size_small);
 		font_size_value.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					int	size = font_size_value.getSelectedIndex() + Altos.font_size_small;
 
-					AltosPreferences.set_font_size(size);
+					AltosUIPreferences.set_font_size(size);
 				}
 			});
 		c.gridx = 1;
@@ -295,7 +295,7 @@ public class AltosConfigureUI
 
 		DelegatingRenderer.install(look_and_feel_value);
 
-		String look_and_feel  = AltosPreferences.look_and_feel();
+		String look_and_feel  = AltosUIPreferences.look_and_feel();
 		for (int i = 0; i < look_and_feels.length; i++)
 			if (look_and_feel.equals(look_and_feels[i].getClassName()))
 				look_and_feel_value.setSelectedIndex(i);
@@ -304,7 +304,7 @@ public class AltosConfigureUI
 				public void actionPerformed(ActionEvent e) {
 					int	id = look_and_feel_value.getSelectedIndex();
 
-					AltosPreferences.set_look_and_feel(look_and_feels[id].getClassName());
+					AltosUIPreferences.set_look_and_feel(look_and_feels[id].getClassName());
 				}
 			});
 		c.gridx = 1;
@@ -323,12 +323,12 @@ public class AltosConfigureUI
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(new JLabel("Serial Debug"), c);
 
-		serial_debug = new JRadioButton("Enable", AltosPreferences.serial_debug());
+		serial_debug = new JRadioButton("Enable", AltosUIPreferences.serial_debug());
 		serial_debug.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					JRadioButton item = (JRadioButton) e.getSource();
 					boolean enabled = item.isSelected();
-					AltosPreferences.set_serial_debug(enabled);
+					AltosUIPreferences.set_serial_debug(enabled);
 				}
 			});
 		serial_debug.setToolTipText("Enable/Disable USB I/O getting sent to the console");

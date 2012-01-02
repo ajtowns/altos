@@ -246,7 +246,7 @@ public class AltosConfigFreqUI extends AltosDialog implements ActionListener {
 	FrequencyList	frequencies;
 
 	void save_frequencies() {
-		AltosPreferences.set_common_frequencies(frequencies.frequencies());
+		AltosUIPreferences.set_common_frequencies(frequencies.frequencies());
 	}
 
 	JButton	add, edit, remove;
@@ -411,7 +411,7 @@ public class AltosConfigFreqUI extends AltosDialog implements ActionListener {
 		Frame	frame = JOptionPane.getFrameForComponent(frameComp);
 		AltosConfigFreqUI	dialog;
 
-		dialog = new AltosConfigFreqUI(frame, AltosPreferences.common_frequencies());
+		dialog = new AltosConfigFreqUI(frame, AltosUIPreferences.common_frequencies());
 		dialog.setVisible(true);
 	}
 

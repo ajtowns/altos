@@ -159,7 +159,7 @@ public class AltosFlightUI extends AltosFrame implements AltosFlightDisplay, Alt
 	ActionListener	show_timer;
 
 	public AltosFlightUI(AltosVoice in_voice, AltosFlightReader in_reader, final int serial) {
-		AltosPreferences.set_component(this);
+		AltosUIPreferences.set_component(this);
 
 		voice = in_voice;
 		reader = in_reader;
@@ -178,7 +178,7 @@ public class AltosFlightUI extends AltosFrame implements AltosFlightDisplay, Alt
 		/* Stick channel selector at top of table for telemetry monitoring */
 		if (serial >= 0) {
 			// Channel menu
-			frequencies = new AltosFreqList(AltosPreferences.frequency(serial));
+			frequencies = new AltosFreqList(AltosUIPreferences.frequency(serial));
 			frequencies.set_product("Monitor");
 			frequencies.set_serial(serial);
 			frequencies.addActionListener(new ActionListener() {
@@ -298,7 +298,7 @@ public class AltosFlightUI extends AltosFrame implements AltosFlightDisplay, Alt
 
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-		AltosPreferences.register_font_listener(this);
+		AltosUIPreferences.register_font_listener(this);
 
 		addWindowListener(new WindowAdapter() {
 				@Override
@@ -306,7 +306,7 @@ public class AltosFlightUI extends AltosFrame implements AltosFlightDisplay, Alt
 					disconnect();
 					setVisible(false);
 					dispose();
-					AltosPreferences.unregister_font_listener(AltosFlightUI.this);
+					AltosUIPreferences.unregister_font_listener(AltosFlightUI.this);
 					if (exit_on_close)
 						System.exit(0);
 				}

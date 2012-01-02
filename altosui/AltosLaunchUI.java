@@ -316,7 +316,7 @@ public class AltosLaunchUI
 	void set_serial() {
 		try {
 			launcher_serial = Integer.parseInt(launcher_serial_text.getText());
-			AltosPreferences.set_launcher_serial(launcher_serial);
+			AltosUIPreferences.set_launcher_serial(launcher_serial);
 			send_command("set_remote");
 		} catch (NumberFormatException ne) {
 			launcher_serial_text.setText(String.format("%d", launcher_serial));
@@ -326,7 +326,7 @@ public class AltosLaunchUI
 	void set_channel() {
 		try {
 			launcher_channel = Integer.parseInt(launcher_channel_text.getText());
-			AltosPreferences.set_launcher_serial(launcher_channel);
+			AltosUIPreferences.set_launcher_serial(launcher_channel);
 			send_command("set_remote");
 		} catch (NumberFormatException ne) {
 			launcher_channel_text.setText(String.format("%d", launcher_channel));
@@ -388,8 +388,8 @@ public class AltosLaunchUI
 
 	public AltosLaunchUI(JFrame in_owner) {
 
-		launcher_channel = AltosPreferences.launcher_channel();
-		launcher_serial = AltosPreferences.launcher_serial();
+		launcher_channel = AltosUIPreferences.launcher_channel();
+		launcher_serial = AltosUIPreferences.launcher_serial();
 		owner = in_owner;
 		armed_status = AltosLaunch.Unknown;
 		igniter_status = AltosLaunch.Unknown;

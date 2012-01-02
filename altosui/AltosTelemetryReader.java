@@ -84,7 +84,7 @@ class AltosTelemetryReader extends AltosFlightReader {
 	}
 
 	void save_frequency() {
-		AltosPreferences.set_frequency(device.getSerial(), frequency);
+		AltosUIPreferences.set_frequency(device.getSerial(), frequency);
 	}
 
 	void set_telemetry(int in_telemetry) {
@@ -93,7 +93,7 @@ class AltosTelemetryReader extends AltosFlightReader {
 	}
 
 	void save_telemetry() {
-		AltosPreferences.set_telemetry(device.getSerial(), telemetry);
+		AltosUIPreferences.set_telemetry(device.getSerial(), telemetry);
 	}
 
 	File backing_file() {
@@ -109,11 +109,11 @@ class AltosTelemetryReader extends AltosFlightReader {
 		previous = null;
 
 		telem = new LinkedBlockingQueue<AltosLine>();
-		frequency = AltosPreferences.frequency(device.getSerial());
+		frequency = AltosUIPreferences.frequency(device.getSerial());
 		set_frequency(frequency);
-		telemetry = AltosPreferences.telemetry(device.getSerial());
+		telemetry = AltosUIPreferences.telemetry(device.getSerial());
 		set_telemetry(telemetry);
-		serial.set_callsign(AltosPreferences.callsign());
+		serial.set_callsign(AltosUIPreferences.callsign());
 		serial.add_monitor(telem);
 	}
 }

@@ -26,7 +26,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 
 class AltosPreferences {
-	static Preferences preferences;
+	public static Preferences preferences;
 
 	/* logdir preference name */
 	final static String logdirPreference = "LOGDIR";
@@ -55,23 +55,14 @@ class AltosPreferences {
 	/* scanning telemetry preferences name */
 	final static String scanningTelemetryPreference = "SCANNING-TELEMETRY";
 
-	/* font size preferences name */
-	final static String fontSizePreference = "FONT-SIZE";
-
 	/* Launcher serial preference name */
 	final static String launcherSerialPreference = "LAUNCHER-SERIAL";
 
 	/* Launcher channel preference name */
 	final static String launcherChannelPreference = "LAUNCHER-CHANNEL";
 	
-	/* Look&Feel preference name */
-	final static String lookAndFeelPreference = "LOOK-AND-FEEL";
-
 	/* Default logdir is ~/TeleMetrum */
 	final static String logdirName = "TeleMetrum";
-
-	/* UI Component to pop dialogs up */
-	static Component component;
 
 	/* Log directory */
 	static File logdir;
@@ -99,14 +90,6 @@ class AltosPreferences {
 
 	/* Scanning telemetry */
 	static int scanning_telemetry;
-
-	static LinkedList<AltosFontListener> font_listeners;
-
-	static int font_size = Altos.font_size_medium;
-
-	static LinkedList<AltosUIListener> ui_listeners;
-
-	static String look_and_feel = null;
 
 	/* List of frequencies */
 	final static String common_frequencies_node_name = "COMMON-FREQUENCIES";
@@ -187,11 +170,6 @@ class AltosPreferences {
 
 		scanning_telemetry = preferences.getInt(scanningTelemetryPreference,(1 << Altos.ao_telemetry_standard));
 
-		font_listeners = new LinkedList<AltosFontListener>();
-
-		font_size = preferences.getInt(fontSizePreference, Altos.font_size_medium);
-		Altos.set_fonts(font_size);
-
 		launcher_serial = preferences.getInt(launcherSerialPreference, 0);
 
 		launcher_channel = preferences.getInt(launcherChannelPreference, 0);
@@ -207,27 +185,22 @@ class AltosPreferences {
 
 		common_frequencies = load_common_frequencies();
 
-		look_and_feel = preferences.get(lookAndFeelPreference, UIManager.getSystemLookAndFeelClassName());
-
-		ui_listeners = new LinkedList<AltosUIListener>();
 	}
 
 	static { init(); }
-
-	static void set_component(Component in_component) {
-		component = in_component;
-	}
 
 	static void flush_preferences() {
 		try {
 			preferences.flush();
 		} catch (BackingStoreException ee) {
+/*
 			if (component != null)
 				JOptionPane.showMessageDialog(component,
 							      preferences.absolutePath(),
 							      "Cannot save prefernces",
 							      JOptionPane.ERROR_MESSAGE);
 			else
+*/
 				System.err.printf("Cannot save preferences\n");
 		}
 	}
@@ -240,41 +213,6 @@ class AltosPreferences {
 		synchronized (preferences) {
 			preferences.put(logdirPreference, logdir.getPath());
 			flush_preferences();
-		}
-	}
-
-	private static boolean check_dir(File dir) {
-		if (!dir.exists()) {
-			if (!dir.mkdirs()) {
-				JOptionPane.showMessageDialog(component,
-							      dir.getName(),
-							      "Cannot create directory",
-							      JOptionPane.ERROR_MESSAGE);
-				return false;
-			}
-		} else if (!dir.isDirectory()) {
-			JOptionPane.showMessageDialog(component,
-						      dir.getName(),
-						      "Is not a directory",
-						      JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
-		return true;
-	}
-
-	/* Configure the log directory. This is where all telemetry and eeprom files
-	 * will be written to, and where replay will look for telemetry files
-	 */
-	public static void ConfigureLog() {
-		JFileChooser	logdir_chooser = new JFileChooser(logdir.getParentFile());
-
-		logdir_chooser.setDialogTitle("Configure Data Logging Directory");
-		logdir_chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-		if (logdir_chooser.showDialog(component, "Select Directory") == JFileChooser.APPROVE_OPTION) {
-			File dir = logdir_chooser.getSelectedFile();
-			if (check_dir(dir))
-				set_logdir(dir);
 		}
 	}
 
@@ -371,65 +309,6 @@ class AltosPreferences {
 		return firmwaredir;
 	}
 
-	public static int font_size() {
-		return font_size;
-	}
-
-	static void set_fonts() {
-	}
-
-	public static void set_font_size(int new_font_size) {
-		font_size = new_font_size;
-		synchronized (preferences) {
-			preferences.putInt(fontSizePreference, font_size);
-			flush_preferences();
-			Altos.set_fonts(font_size);
-			for (AltosFontListener l : font_listeners)
-				l.font_size_changed(font_size);
-		}
-	}
-
-	public static void register_font_listener(AltosFontListener l) {
-		synchronized (preferences) {
-			font_listeners.add(l);
-		}
-	}
-
-	public static void unregister_font_listener(AltosFontListener l) {
-		synchronized (preferences) {
-			font_listeners.remove(l);
-		}
-	}
-
-	public static void set_look_and_feel(String new_look_and_feel) {
-		look_and_feel = new_look_and_feel;
-		try {
-			UIManager.setLookAndFeel(look_and_feel);
-		} catch (Exception e) {
-		}
-		synchronized(preferences) {
-			preferences.put(lookAndFeelPreference, look_and_feel);
-			flush_preferences();
-			for (AltosUIListener l : ui_listeners)
-				l.ui_changed(look_and_feel);
-		}
-	}
-
-	public static String look_and_feel() {
-		return look_and_feel;
-	}
-
-	public static void register_ui_listener(AltosUIListener l) {
-		synchronized(preferences) {
-			ui_listeners.add(l);
-		}
-	}
-
-	public static void unregister_ui_listener(AltosUIListener l) {
-		synchronized (preferences) {
-			ui_listeners.remove(l);
-		}
-	}
 	public static void set_serial_debug(boolean new_serial_debug) {
 		serial_debug = new_serial_debug;
 		AltosSerial.set_debug(serial_debug);

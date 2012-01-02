@@ -161,7 +161,7 @@ public class AltosFlashUI
 	boolean select_source_file() {
 		JFileChooser	hexfile_chooser = new JFileChooser();
 
-		File firmwaredir = AltosPreferences.firmwaredir();
+		File firmwaredir = AltosUIPreferences.firmwaredir();
 		if (firmwaredir != null)
 			hexfile_chooser.setCurrentDirectory(firmwaredir);
 
@@ -174,7 +174,7 @@ public class AltosFlashUI
 		file = hexfile_chooser.getSelectedFile();
 		if (file == null)
 			return false;
-		AltosPreferences.set_firmwaredir(file.getParentFile());
+		AltosUIPreferences.set_firmwaredir(file.getParentFile());
 		return true;
 	}
 
