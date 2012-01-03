@@ -11,12 +11,14 @@ AltosLibdir = $(datadir)/java
 
 AltosLib_JAVA = \
 	$(SRC)/AltosLib.java \
+	$(SRC)/AltosConfigData.java \
 	$(SRC)/AltosConvert.java \
 	$(SRC)/AltosCRCException.java \
 	$(SRC)/AltosFrequency.java \
 	$(SRC)/AltosGPS.java \
 	$(SRC)/AltosGPSSat.java \
 	$(SRC)/AltosLine.java \
+	$(SRC)/AltosLink.java \
 	$(SRC)/AltosParse.java \
 	$(SRC)/AltosPreferences.java \
 	$(SRC)/AltosRecordCompanion.java \

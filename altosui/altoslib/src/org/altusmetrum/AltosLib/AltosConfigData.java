@@ -17,19 +17,12 @@
 
 package altosui;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
 import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.*;
 import org.altusmetrum.AltosLib.*;
-
-import libaltosJNI.*;
 
 public class AltosConfigData implements Iterable<String> {
 
@@ -138,14 +131,14 @@ public class AltosConfigData implements Iterable<String> {
 		return 0;
 	}
 
-	public AltosConfigData(AltosSerial serial_line) throws InterruptedException, TimeoutException {
-		serial_line.printf("c s\np\nf\nl\nv\n");
+	public AltosConfigData(AltosLink link) throws InterruptedException, TimeoutException {
+		link.printf("c s\np\nf\nl\nv\n");
 		lines = new LinkedList<String>();
 		radio_setting = 0;
 		radio_frequency = 0;
 		stored_flight = 0;
 		for (;;) {
-			String line = serial_line.get_reply();
+			String line = link.get_reply();
 			if (line == null)
 				throw new TimeoutException();
 			if (line.contains("Syntax error"))
