@@ -90,7 +90,6 @@ altosui_JAVA = \
 	AltosSiteMapPreload.java \
 	AltosSiteMapCache.java \
 	AltosSiteMapTile.java \
-	AltosState.java \
 	AltosTelemetryReader.java \
 	AltosUI.java \
 	AltosUIListener.java \

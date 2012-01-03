@@ -30,6 +30,7 @@ AltosLib_JAVA = \
 	$(SRC)/AltosRecordCompanion.java \
 	$(SRC)/AltosRecordIterable.java \
 	$(SRC)/AltosRecord.java \
+	$(SRC)/AltosState.java \
 	$(SRC)/AltosTelemetry.java \
 	$(SRC)/AltosTelemetryIterable.java \
 	$(SRC)/AltosTelemetryMap.java \

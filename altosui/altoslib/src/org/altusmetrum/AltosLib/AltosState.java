@@ -19,67 +19,61 @@
  * Track flight state from telemetry or eeprom data stream
  */
 
-package altosui;
-
-import org.altusmetrum.AltosLib.*;
+package org.altusmetrum.AltosLib;
 
 public class AltosState {
-	AltosRecord data;
+	public AltosRecord data;
 
 	/* derived data */
 
-	long  	report_time;
+	public long  	report_time;
 
-	double	time;
-	double	time_change;
-	int	tick;
+	public double	time;
+	public double	time_change;
+	public int	tick;
 
-	int	state;
-	boolean	landed;
-	boolean	ascent;	/* going up? */
-	boolean boost;	/* under power */
+	public int	state;
+	public boolean	landed;
+	public boolean	ascent;	/* going up? */
+	public boolean boost;	/* under power */
 
-	double	ground_altitude;
-	double	height;
-	double	speed;
-	double	acceleration;
-	double	battery;
-	double	temperature;
-	double	main_sense;
-	double	drogue_sense;
-	double	baro_speed;
+	public double	ground_altitude;
+	public double	height;
+	public double	speed;
+	public double	acceleration;
+	public double	battery;
+	public double	temperature;
+	public double	main_sense;
+	public double	drogue_sense;
+	public double	baro_speed;
 
-	double	max_height;
-	double	max_acceleration;
-	double	max_speed;
-	double	max_baro_speed;
+	public double	max_height;
+	public double	max_acceleration;
+	public double	max_speed;
+	public double	max_baro_speed;
 
-	AltosGPS	gps;
+	public AltosGPS	gps;
 
-	AltosIMU	imu;
-	AltosMag	mag;
+	public AltosIMU	imu;
+	public AltosMag	mag;
 
-	double	pad_lat;
-	double	pad_lon;
-	double	pad_alt;
+	public static final int MIN_PAD_SAMPLES = 10;
 
-	static final int MIN_PAD_SAMPLES = 10;
+	public int	npad;
+	public int	ngps;
+	public int	gps_waiting;
+	public boolean	gps_ready;
 
-	int	npad;
-	int	ngps;
-	int	gps_waiting;
-	boolean	gps_ready;
+	public AltosGreatCircle from_pad;
+	public double	elevation;	/* from pad */
+	public double	range;		/* total distance */
 
-	AltosGreatCircle from_pad;
-	double	elevation;	/* from pad */
-	double	range;		/* total distance */
+	public double	gps_height;
 
-	double	gps_height;
+	public int	speak_tick;
+	public double	speak_altitude;
 
-	int	speak_tick;
-	double	speak_altitude;
-
-	void init (AltosRecord cur, AltosState prev_state) {
+	public void init (AltosRecord cur, AltosState prev_state) {
 		int		i;
 		AltosRecord prev;
 
@@ -142,7 +136,7 @@ public class AltosState {
 
 		time = tick / 100.0;
 
-		if (cur.new_gps && (state == Altos.ao_flight_pad || state == Altos.ao_flight_idle)) {
+		if (cur.new_gps && (state == AltosLib.ao_flight_pad || state == AltosLib.ao_flight_idle)) {
 
 			/* Track consecutive 'good' gps reports, waiting for 10 of them */
 			if (data.gps != null && data.gps.locked && data.gps.nsat >= 4)
@@ -172,9 +166,9 @@ public class AltosState {
 
 		gps_ready = gps_waiting == 0;
 
-		ascent = (Altos.ao_flight_boost <= state &&
-			  state <= Altos.ao_flight_coast);
-		boost = (Altos.ao_flight_boost == state);
+		ascent = (AltosLib.ao_flight_boost <= state &&
+			  state <= AltosLib.ao_flight_coast);
+		boost = (AltosLib.ao_flight_boost == state);
 
 		/* Only look at accelerometer data under boost */
 		if (boost && acceleration > max_acceleration)
