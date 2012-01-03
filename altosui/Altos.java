@@ -24,20 +24,9 @@ import java.nio.charset.Charset;
 
 import libaltosJNI.*;
 
-public class Altos {
-	/* EEProm command letters */
-	static final int AO_LOG_FLIGHT = 'F';
-	static final int AO_LOG_SENSOR = 'A';
-	static final int AO_LOG_TEMP_VOLT = 'T';
-	static final int AO_LOG_DEPLOY = 'D';
-	static final int AO_LOG_STATE = 'S';
-	static final int AO_LOG_GPS_TIME = 'G';
-	static final int AO_LOG_GPS_LAT = 'N';
-	static final int AO_LOG_GPS_LON = 'W';
-	static final int AO_LOG_GPS_ALT = 'H';
-	static final int AO_LOG_GPS_SAT = 'V';
-	static final int AO_LOG_GPS_DATE = 'Y';
-	static final int AO_LOG_PRESSURE = 'P';
+import org.altusmetrum.AltosLib.*;
+
+public class Altos extends AltosLib {
 
 	/* Added for header fields in eeprom files */
 	static final int AO_LOG_CONFIG_VERSION = 1000;
@@ -107,7 +96,6 @@ public class Altos {
 	static boolean map_initialized = false;
 
 	static final int tab_elt_pad = 5;
-
 	static Font label_font;
 	static Font value_font;
 	static Font status_font;

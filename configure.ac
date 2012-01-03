@@ -113,6 +113,7 @@ AC_OUTPUT([
 Makefile
 altosui/Makefile
 altosui/AltosVersion.java
+altosui/altoslib/Makefile
 altosui/libaltos/Makefile
 ao-tools/Makefile
 ao-tools/lib/Makefile
