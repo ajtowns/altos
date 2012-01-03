@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
 
 import java.io.*;
 import java.util.*;
@@ -82,7 +82,7 @@ public class AltosConfigData implements Iterable<String> {
 
 	public int log_available() {
 		switch (log_format) {
-		case Altos.AO_LOG_FORMAT_TINY:
+		case AltosLib.AO_LOG_FORMAT_TINY:
 			if (stored_flight == 0)
 				return 1;
 			return 0;

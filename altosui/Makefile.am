@@ -22,7 +22,6 @@ altosui_JAVA = \
 	AltosChannelMenu.java \
 	AltosCompanionInfo.java \
 	AltosConfig.java \
-	AltosConfigData.java \
 	AltosConfigFreqUI.java \
 	AltosConfigUI.java \
 	AltosConfigureUI.java \
