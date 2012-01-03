@@ -18,6 +18,7 @@ AltosLib_JAVA = \
 	$(SRC)/AltosEepromIterable.java \
 	$(SRC)/AltosEepromLog.java \
 	$(SRC)/AltosEepromRecord.java \
+	$(SRC)/AltosEepromTeleScience.java \
 	$(SRC)/AltosFrequency.java \
 	$(SRC)/AltosGPS.java \
 	$(SRC)/AltosGPSSat.java \

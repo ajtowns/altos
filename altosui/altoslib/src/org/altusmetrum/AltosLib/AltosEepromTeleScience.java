@@ -15,33 +15,27 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
 import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.*;
-import org.altusmetrum.AltosLib.*;
 
 public class AltosEepromTeleScience {
-	int	type;
-	int	tick;
-	int	tm_state;
-	int	tm_tick;
-	int[]	data;
-	boolean	valid;
+	public int	type;
+	public int	tick;
+	public int	tm_state;
+	public int	tm_tick;
+	public int[]	data;
+	public boolean	valid;
 
-	static final int AO_LOG_TELESCIENCE_START = 's';
-	static final int AO_LOG_TELESCIENCE_DATA = 'd';
+	public static final int AO_LOG_TELESCIENCE_START = 's';
+	public static final int AO_LOG_TELESCIENCE_DATA = 'd';
 
 	static final int	max_data = 12;
-	static final int	record_length = 32;
+	public static final int	record_length = 32;
 
 	public AltosEepromTeleScience (AltosEepromChunk chunk, int start) throws ParseException {
 		type = chunk.data(start);
@@ -52,7 +46,7 @@ public class AltosEepromTeleScience {
 				throw new ParseException(String.format("invalid checksum at 0x%x",
 								       chunk.address + start), 0);
 		} else {
-			type = Altos.AO_LOG_INVALID;
+			type = AltosLib.AO_LOG_INVALID;
 		}
 
 		tick = chunk.data16(start+2);
