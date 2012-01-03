@@ -15,36 +15,35 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
 
 import java.lang.*;
 import java.text.*;
 import java.io.*;
 import java.util.concurrent.*;
-import org.altusmetrum.AltosLib.*;
 
 public class AltosFlightReader {
-	String name;
+	public String name;
 
-	int serial;
+	public int serial;
 
-	void init() { }
+	public void init() { }
 
-	AltosRecord read() throws InterruptedException, ParseException, AltosCRCException, IOException { return null; }
+	public AltosRecord read() throws InterruptedException, ParseException, AltosCRCException, IOException { return null; }
 
-	void close(boolean interrupted) { }
+	public void close(boolean interrupted) { }
 
-	void set_frequency(double frequency) throws InterruptedException, TimeoutException { }
+	public void set_frequency(double frequency) throws InterruptedException, TimeoutException { }
 
-	void save_frequency() { }
+	public void save_frequency() { }
 
-	void set_telemetry(int telemetry) { }
+	public void set_telemetry(int telemetry) { }
 
-	void save_telemetry() { }
+	public void save_telemetry() { }
 
-	void update(AltosState state) throws InterruptedException { }
+	public void update(AltosState state) throws InterruptedException { }
 
-	boolean supports_telemetry(int telemetry) { return false; }
+	public boolean supports_telemetry(int telemetry) { return false; }
 
-	File backing_file() { return null; }
+	public File backing_file() { return null; }
 }

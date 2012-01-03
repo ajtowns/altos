@@ -24,6 +24,8 @@ import java.util.*;
 import java.text.*;
 
 public abstract class AltosLink {
+	public abstract void print(String data);
+	public abstract void close();
 
 	public static boolean debug = false;
 	public static void set_debug(boolean in_debug) { debug = in_debug; }
@@ -42,8 +44,6 @@ public abstract class AltosLink {
 		if (monitors.isEmpty())
 			set_monitor(false);
 	}
-
-	public abstract void print(String data);
 
 	public void printf(String format, Object ... arguments) {
 		String	line = String.format(format, arguments);
@@ -207,6 +207,7 @@ public abstract class AltosLink {
 
 	public boolean remote;
 	public int serial;
+	public String name;
 
 	public void start_remote() throws TimeoutException, InterruptedException {
 		if (debug)

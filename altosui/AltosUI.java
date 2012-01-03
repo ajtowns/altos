@@ -48,7 +48,7 @@ public class AltosUI extends AltosFrame {
 
 	void telemetry_window(AltosDevice device) {
 		try {
-			AltosFlightReader reader = new AltosTelemetryReader(device);
+			AltosFlightReader reader = new AltosTelemetryReader(new AltosSerial(device));
 			if (reader != null)
 				new AltosFlightUI(voice, reader, device.getSerial());
 		} catch (FileNotFoundException ee) {

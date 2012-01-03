@@ -15,17 +15,16 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib; 
 
 import java.lang.*;
 import java.io.File;
 import java.util.*;
-import org.altusmetrum.AltosLib.*;
 
-class AltosFile extends File {
+public class AltosFile extends File {
 
 	public AltosFile(int year, int month, int day, int serial, int flight, String extension) {
-		super (AltosUIPreferences.logdir(),
+		super (AltosPreferences.logdir(),
 		       String.format("%04d-%02d-%02d-serial-%03d-flight-%03d.%s",
 				     year, month, day, serial, flight, extension));
 	}

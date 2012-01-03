@@ -15,19 +15,13 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
 import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
-import org.altusmetrum.AltosLib.*;
 
 /*
  * Open an existing telemetry file and replay it in realtime
@@ -46,9 +40,9 @@ public class AltosReplayReader extends AltosFlightReader {
 	public void close (boolean interrupted) {
 	}
 
-	void update(AltosState state) throws InterruptedException {
+	public void update(AltosState state) throws InterruptedException {
 		/* Make it run in realtime after the rocket leaves the pad */
-		if (state.state > Altos.ao_flight_pad)
+		if (state.state > AltosLib.ao_flight_pad)
 			Thread.sleep((int) (Math.min(state.time_change,10) * 1000));
 	}
 

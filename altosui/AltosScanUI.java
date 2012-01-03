@@ -208,7 +208,7 @@ public class AltosScanUI
 	}
 	
 	void next() throws InterruptedException, TimeoutException {
-		reader.serial.set_monitor(false);
+		reader.set_monitor(false);
 		Thread.sleep(100);
 		++frequency_index;
 		if (frequency_index >= frequencies.length ||
@@ -224,7 +224,7 @@ public class AltosScanUI
 		}
 		set_frequency();
 		set_label();
-		reader.serial.set_monitor(true);
+		reader.set_monitor(true);
 	}
 
 
@@ -312,7 +312,7 @@ public class AltosScanUI
 		if (device == null)
 			return false;
 		try {
-			reader = new AltosTelemetryReader(device);
+			reader = new AltosTelemetryReader(new AltosSerial(device));
 			set_frequency();
 			set_telemetry();
 			try {

@@ -15,14 +15,13 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
 
 import java.io.*;
 import java.lang.*;
 import java.util.*;
 import java.text.ParseException;
 import java.util.concurrent.LinkedBlockingQueue;
-import org.altusmetrum.AltosLib.*;
 
 /*
  * This creates a thread to capture telemetry data and write it to
@@ -114,10 +113,10 @@ class AltosLog implements Runnable {
 		close();
 	}
 
-	public AltosLog (AltosSerial s) {
+	public AltosLog (AltosLink link) {
 		pending_queue = new LinkedBlockingQueue<String> ();
 		input_queue = new LinkedBlockingQueue<AltosLine> ();
-		s.add_monitor(input_queue);
+		link.add_monitor(input_queue);
 		serial = -1;
 		flight = -1;
 		log_file = null;

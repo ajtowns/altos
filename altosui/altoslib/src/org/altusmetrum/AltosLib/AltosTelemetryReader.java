@@ -15,17 +15,15 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
 
 import java.lang.*;
 import java.text.*;
 import java.io.*;
 import java.util.concurrent.*;
-import org.altusmetrum.AltosLib.*;
 
-class AltosTelemetryReader extends AltosFlightReader {
-	AltosDevice	device;
-	AltosSerial	serial;
+public class AltosTelemetryReader extends AltosFlightReader {
+	AltosLink	link;
 	AltosLog	log;
 	AltosRecord	previous;
 	double		frequency;
@@ -33,7 +31,7 @@ class AltosTelemetryReader extends AltosFlightReader {
 
 	LinkedBlockingQueue<AltosLine> telem;
 
-	AltosRecord read() throws InterruptedException, ParseException, AltosCRCException, IOException {
+	public AltosRecord read() throws InterruptedException, ParseException, AltosCRCException, IOException {
 		AltosLine l = telem.take();
 		if (l.line == null)
 			throw new IOException("IO error");
@@ -42,19 +40,19 @@ class AltosTelemetryReader extends AltosFlightReader {
 		return next;
 	}
 
-	void flush() {
+	public void flush() {
 		telem.clear();
 	}
 
-	void close(boolean interrupted) {
-		serial.remove_monitor(telem);
+	public void close(boolean interrupted) {
+		link.remove_monitor(telem);
 		log.close();
-		serial.close();
+		link.close();
 	}
 
 	public void set_frequency(double in_frequency) throws InterruptedException, TimeoutException {
 		frequency = in_frequency;
-		serial.set_radio_frequency(frequency);
+		link.set_radio_frequency(frequency);
 	}
 
 	public boolean supports_telemetry(int telemetry) {
@@ -84,37 +82,37 @@ class AltosTelemetryReader extends AltosFlightReader {
 		}
 	}
 
-	void save_frequency() {
-		AltosPreferences.set_frequency(device.getSerial(), frequency);
+	public void save_frequency() {
+		AltosPreferences.set_frequency(link.serial, frequency);
 	}
 
-	void set_telemetry(int in_telemetry) {
+	public void set_telemetry(int in_telemetry) {
 		telemetry = in_telemetry;
-		serial.set_telemetry(telemetry);
+		link.set_telemetry(telemetry);
 	}
 
-	void save_telemetry() {
-		AltosPreferences.set_telemetry(device.getSerial(), telemetry);
+	public void save_telemetry() {
+		AltosPreferences.set_telemetry(link.serial, telemetry);
 	}
 
-	File backing_file() {
+	public void set_monitor(boolean monitor) {
+		link.set_monitor(monitor);
+	}
+
+	public File backing_file() {
 		return log.file();
 	}
 
-	public AltosTelemetryReader (AltosDevice in_device)
-		throws FileNotFoundException, AltosSerialInUseException, IOException, InterruptedException, TimeoutException {
-		device = in_device;
-		serial = new AltosSerial(device);
-		log = new AltosLog(serial);
-		name = device.toShortString();
+	public AltosTelemetryReader (AltosLink in_link)
+		throws IOException, InterruptedException, TimeoutException {
+		log = new AltosLog(link);
+		name = link.name;
 		previous = null;
-
 		telem = new LinkedBlockingQueue<AltosLine>();
-		frequency = AltosPreferences.frequency(device.getSerial());
+		frequency = AltosPreferences.frequency(link.serial);
 		set_frequency(frequency);
-		telemetry = AltosPreferences.telemetry(device.getSerial());
+		telemetry = AltosPreferences.telemetry(link.serial);
 		set_telemetry(telemetry);
-		serial.set_callsign(AltosUIPreferences.callsign());
-		serial.add_monitor(telem);
+		link.add_monitor(telem);
 	}
 }

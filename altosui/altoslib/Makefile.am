@@ -19,21 +19,26 @@ AltosLib_JAVA = \
 	$(SRC)/AltosEepromLog.java \
 	$(SRC)/AltosEepromRecord.java \
 	$(SRC)/AltosEepromTeleScience.java \
+	$(SRC)/AltosFile.java \
+	$(SRC)/AltosFlightReader.java \
 	$(SRC)/AltosFrequency.java \
 	$(SRC)/AltosGPS.java \
 	$(SRC)/AltosGPSSat.java \
 	$(SRC)/AltosGreatCircle.java \
 	$(SRC)/AltosLine.java \
 	$(SRC)/AltosLink.java \
+	$(SRC)/AltosLog.java \
 	$(SRC)/AltosParse.java \
 	$(SRC)/AltosPreferences.java \
 	$(SRC)/AltosRecordCompanion.java \
 	$(SRC)/AltosRecordIterable.java \
 	$(SRC)/AltosRecord.java \
+	$(SRC)/AltosReplayReader.java \
 	$(SRC)/AltosState.java \
 	$(SRC)/AltosTelemetry.java \
 	$(SRC)/AltosTelemetryIterable.java \
 	$(SRC)/AltosTelemetryMap.java \
+	$(SRC)/AltosTelemetryReader.java \
 	$(SRC)/AltosTelemetryRecordCompanion.java \
 	$(SRC)/AltosTelemetryRecordConfiguration.java \
 	$(SRC)/AltosTelemetryRecordGeneral.java \

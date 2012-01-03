@@ -396,6 +396,7 @@ public class AltosSerial extends AltosLink implements Runnable {
 		device = in_device;
 		frame = null;
 		serial = device.getSerial();
+		name = device.toShortString();
 		open();
 	}
 }

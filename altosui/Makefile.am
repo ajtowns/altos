@@ -49,12 +49,10 @@ altosui_JAVA = \
 	AltosIMU.java \
 	AltosMag.java \
 	AltosEepromSelect.java \
-	AltosFile.java \
 	AltosFlash.java \
 	AltosFlashUI.java \
 	AltosFlightDisplay.java \
 	AltosFlightInfoTableModel.java \
-	AltosFlightReader.java \
 	AltosFlightStats.java \
 	AltosFlightStatsTable.java \
 	AltosFlightStatus.java \
@@ -74,12 +72,9 @@ altosui_JAVA = \
 	AltosLanded.java \
 	AltosLed.java \
 	AltosLights.java \
-	AltosLog.java \
 	AltosPad.java \
 	AltosUIPreferences.java \
 	AltosReader.java \
-	AltosTelemetryReader.java \
-	AltosReplayReader.java \
 	AltosRomconfig.java \
 	AltosRomconfigUI.java \
 	AltosScanUI.java \
@@ -90,7 +85,6 @@ altosui_JAVA = \
 	AltosSiteMapPreload.java \
 	AltosSiteMapCache.java \
 	AltosSiteMapTile.java \
-	AltosTelemetryReader.java \
 	AltosUI.java \
 	AltosUIListener.java \
 	AltosFrame.java \
