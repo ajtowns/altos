@@ -74,13 +74,11 @@ altosui_JAVA = \
 	AltosLights.java \
 	AltosPad.java \
 	AltosUIPreferences.java \
-	AltosReader.java \
 	AltosRomconfig.java \
 	AltosRomconfigUI.java \
 	AltosScanUI.java \
 	AltosSerial.java \
 	AltosSerialInUseException.java \
-	AltosSerialMonitor.java \
 	AltosSiteMap.java \
 	AltosSiteMapPreload.java \
 	AltosSiteMapCache.java \
