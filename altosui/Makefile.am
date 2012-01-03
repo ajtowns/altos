@@ -247,11 +247,11 @@ $(FATJAR): classaltosui.stamp Manifest-fat.txt $(ALTOSLIB_CLASS) $(FREETTS_CLASS
 
 Manifest.txt: Makefile
 	echo 'Main-Class: altosui.AltosUI' > $@
-	echo "Class-Path: altoslib.jar $(FREETTS)/freetts.jar $(JFREECHART)/jfreechart.jar $(JCOMMON)/jcommon.jar" >> $@
+	echo "Class-Path: AltosLib.jar $(FREETTS)/freetts.jar $(JFREECHART)/jfreechart.jar $(JCOMMON)/jcommon.jar" >> $@
 
 Manifest-fat.txt:
 	echo 'Main-Class: altosui.AltosUI' > $@
-	echo "Class-Path: altoslib.jar freetts.jar jfreechart.jar jcommon.jar" >> $@
+	echo "Class-Path: AltosLib.jar freetts.jar jfreechart.jar jcommon.jar" >> $@
 
 altosui: Makefile
 	echo "#!/bin/sh" > $@

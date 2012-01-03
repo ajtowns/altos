@@ -58,7 +58,7 @@ public class AltosUIPreferences extends AltosPreferences {
 
 		ui_listeners = new LinkedList<AltosUIListener>();
 		serial_debug = preferences.getBoolean(serialDebugPreference, false);
-		AltosSerial.set_debug(serial_debug);
+		AltosLink.set_debug(serial_debug);
 	}
 
 	static { init(); }
@@ -162,7 +162,7 @@ public class AltosUIPreferences extends AltosPreferences {
 	}
 	public static void set_serial_debug(boolean new_serial_debug) {
 		serial_debug = new_serial_debug;
-		AltosSerial.set_debug(serial_debug);
+		AltosLink.set_debug(serial_debug);
 		synchronized (preferences) {
 			preferences.putBoolean(serialDebugPreference, serial_debug);
 			flush_preferences();
