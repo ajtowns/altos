@@ -15,7 +15,8 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
+
 import java.io.*;
 import java.util.*;
 import java.text.*;
@@ -25,81 +26,78 @@ import java.awt.Component;
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 
-class AltosPreferences {
+public class AltosPreferences {
 	public static Preferences preferences;
 
 	/* logdir preference name */
-	final static String logdirPreference = "LOGDIR";
+	public final static String logdirPreference = "LOGDIR";
 
 	/* channel preference name */
-	final static String channelPreferenceFormat = "CHANNEL-%d";
+	public final static String channelPreferenceFormat = "CHANNEL-%d";
 
 	/* frequency preference name */
-	final static String frequencyPreferenceFormat = "FREQUENCY-%d";
+	public final static String frequencyPreferenceFormat = "FREQUENCY-%d";
 
 	/* telemetry format preference name */
-	final static String telemetryPreferenceFormat = "TELEMETRY-%d";
+	public final static String telemetryPreferenceFormat = "TELEMETRY-%d";
 
 	/* voice preference name */
-	final static String voicePreference = "VOICE";
+	public final static String voicePreference = "VOICE";
 
 	/* callsign preference name */
-	final static String callsignPreference = "CALLSIGN";
+	public final static String callsignPreference = "CALLSIGN";
 
 	/* firmware directory preference name */
-	final static String firmwaredirPreference = "FIRMWARE";
+	public final static String firmwaredirPreference = "FIRMWARE";
 
 	/* serial debug preference name */
-	final static String serialDebugPreference = "SERIAL-DEBUG";
+	public final static String serialDebugPreference = "SERIAL-DEBUG";
 
 	/* scanning telemetry preferences name */
-	final static String scanningTelemetryPreference = "SCANNING-TELEMETRY";
+	public final static String scanningTelemetryPreference = "SCANNING-TELEMETRY";
 
 	/* Launcher serial preference name */
-	final static String launcherSerialPreference = "LAUNCHER-SERIAL";
+	public final static String launcherSerialPreference = "LAUNCHER-SERIAL";
 
 	/* Launcher channel preference name */
-	final static String launcherChannelPreference = "LAUNCHER-CHANNEL";
+	public final static String launcherChannelPreference = "LAUNCHER-CHANNEL";
 	
 	/* Default logdir is ~/TeleMetrum */
-	final static String logdirName = "TeleMetrum";
+	public final static String logdirName = "TeleMetrum";
 
 	/* Log directory */
-	static File logdir;
+	public static File logdir;
 
 	/* Map directory -- hangs of logdir */
-	static File mapdir;
+	public static File mapdir;
 
 	/* Frequency (map serial to frequency) */
-	static Hashtable<Integer, Double> frequencies;
+	public static Hashtable<Integer, Double> frequencies;
 
 	/* Telemetry (map serial to telemetry format) */
-	static Hashtable<Integer, Integer> telemetries;
+	public static Hashtable<Integer, Integer> telemetries;
 
 	/* Voice preference */
-	static boolean voice;
+	public static boolean voice;
 
 	/* Callsign preference */
-	static String callsign;
+	public static String callsign;
 
 	/* Firmware directory */
-	static File firmwaredir;
-
-	/* Serial debug */
-	static boolean serial_debug;
+	public static File firmwaredir;
 
 	/* Scanning telemetry */
-	static int scanning_telemetry;
+	public static int scanning_telemetry;
 
 	/* List of frequencies */
-	final static String common_frequencies_node_name = "COMMON-FREQUENCIES";
-	static AltosFrequency[] common_frequencies;
+	public final static String common_frequencies_node_name = "COMMON-FREQUENCIES";
+	public static AltosFrequency[] common_frequencies;
 
-	final static String	frequency_count = "COUNT";
-	final static String	frequency_format = "FREQUENCY-%d";
-	final static String	description_format = "DESCRIPTION-%d";
+	public final static String	frequency_count = "COUNT";
+	public final static String	frequency_format = "FREQUENCY-%d";
+	public final static String	description_format = "DESCRIPTION-%d";
 
-	static AltosFrequency[] load_common_frequencies() {
+	public static AltosFrequency[] load_common_frequencies() {
 		AltosFrequency[] frequencies = null;
 		boolean	existing = false;
 		try {
@@ -130,7 +128,7 @@ class AltosPreferences {
 		return frequencies;
 	}
 
-	static void save_common_frequencies(AltosFrequency[] frequencies) {
+	public static void save_common_frequencies(AltosFrequency[] frequencies) {
 		Preferences	node = preferences.node(common_frequencies_node_name);
 
 		node.putInt(frequency_count, frequencies.length);
@@ -139,9 +137,9 @@ class AltosPreferences {
 			node.put(String.format(description_format, i), frequencies[i].description);
 		}
 	}
-	static int launcher_serial;
+	public static int launcher_serial;
 
-	static int launcher_channel;
+	public static int launcher_channel;
 
 	public static void init() {
 		preferences = Preferences.userRoot().node("/org/altusmetrum/altosui");
@@ -168,7 +166,7 @@ class AltosPreferences {
 
 		callsign = preferences.get(callsignPreference,"N0CALL");
 
-		scanning_telemetry = preferences.getInt(scanningTelemetryPreference,(1 << Altos.ao_telemetry_standard));
+		scanning_telemetry = preferences.getInt(scanningTelemetryPreference,(1 << AltosLib.ao_telemetry_standard));
 
 		launcher_serial = preferences.getInt(launcherSerialPreference, 0);
 
@@ -180,16 +178,13 @@ class AltosPreferences {
 		else
 			firmwaredir = null;
 
-		serial_debug = preferences.getBoolean(serialDebugPreference, false);
-		AltosSerial.set_debug(serial_debug);
-
 		common_frequencies = load_common_frequencies();
 
 	}
 
 	static { init(); }
 
-	static void flush_preferences() {
+	public static void flush_preferences() {
 		try {
 			preferences.flush();
 		} catch (BackingStoreException ee) {
@@ -256,7 +251,7 @@ class AltosPreferences {
 		if (telemetries.containsKey(serial))
 			return telemetries.get(serial);
 		int telemetry = preferences.getInt(String.format(telemetryPreferenceFormat, serial),
-						   Altos.ao_telemetry_standard);
+						   AltosLib.ao_telemetry_standard);
 		telemetries.put(serial, telemetry);
 		return telemetry;
 	}
@@ -307,19 +302,6 @@ class AltosPreferences {
 
 	public static File firmwaredir() {
 		return firmwaredir;
-	}
-
-	public static void set_serial_debug(boolean new_serial_debug) {
-		serial_debug = new_serial_debug;
-		AltosSerial.set_debug(serial_debug);
-		synchronized (preferences) {
-			preferences.putBoolean(serialDebugPreference, serial_debug);
-			flush_preferences();
-		}
-	}
-
-	public static boolean serial_debug() {
-		return serial_debug;
 	}
 
 	public static void set_launcher_serial(int new_launcher_serial) {

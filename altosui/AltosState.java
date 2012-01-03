@@ -21,6 +21,8 @@
 
 package altosui;
 
+import org.altusmetrum.AltosLib.*;
+
 public class AltosState {
 	AltosRecord data;
 

@@ -21,6 +21,8 @@ import java.lang.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
+import org.altusmetrum.AltosLib.*;
+
 
 public interface AltosWriter {
 

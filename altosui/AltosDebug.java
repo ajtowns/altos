@@ -21,6 +21,7 @@ import java.lang.*;
 import java.io.*;
 import java.util.concurrent.*;
 import java.util.*;
+import org.altusmetrum.AltosLib.*;
 
 import libaltosJNI.*;
 

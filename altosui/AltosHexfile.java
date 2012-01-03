@@ -23,6 +23,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.LinkedList;
 import java.util.Iterator;
 import java.util.Arrays;
+import org.altusmetrum.AltosLib.*;
 
 class HexFileInputStream extends PushbackInputStream {
 	public int line;

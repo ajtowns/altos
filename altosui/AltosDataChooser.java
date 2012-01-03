@@ -26,6 +26,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
+import org.altusmetrum.AltosLib.*;
 
 public class AltosDataChooser extends JFileChooser {
 	JFrame	frame;

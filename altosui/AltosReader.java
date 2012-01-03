@@ -20,6 +20,7 @@ package altosui;
 import java.io.*;
 import java.util.*;
 import java.text.*;
+import org.altusmetrum.AltosLib.*;
 
 public class AltosReader {
 	public AltosRecord read() throws IOException, ParseException { return null; }

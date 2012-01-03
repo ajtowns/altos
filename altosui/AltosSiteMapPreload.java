@@ -33,6 +33,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Line2D;
 import java.net.URL;
 import java.net.URLConnection;
+import org.altusmetrum.AltosLib.*;
 
 class AltosMapPos extends Box {
 	AltosUI		owner;

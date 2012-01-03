@@ -41,27 +41,27 @@ public class AltosConvert {
 	 *   in Joules/(kilogram-Kelvin).
 	 */
 
-	static final double GRAVITATIONAL_ACCELERATION = -9.80665;
-	static final double AIR_GAS_CONSTANT		= 287.053;
-	static final double NUMBER_OF_LAYERS		= 7;
-	static final double MAXIMUM_ALTITUDE		= 84852.0;
-	static final double MINIMUM_PRESSURE		= 0.3734;
-	static final double LAYER0_BASE_TEMPERATURE	= 288.15;
-	static final double LAYER0_BASE_PRESSURE	= 101325;
+	public static final double GRAVITATIONAL_ACCELERATION = -9.80665;
+	public static final double AIR_GAS_CONSTANT		= 287.053;
+	public static final double NUMBER_OF_LAYERS		= 7;
+	public static final double MAXIMUM_ALTITUDE		= 84852.0;
+	public static final double MINIMUM_PRESSURE		= 0.3734;
+	public static final double LAYER0_BASE_TEMPERATURE	= 288.15;
+	public static final double LAYER0_BASE_PRESSURE	= 101325;
 
 	/* lapse rate and base altitude for each layer in the atmosphere */
-	static final double[] lapse_rate = {
+	public static final double[] lapse_rate = {
 		-0.0065, 0.0, 0.001, 0.0028, 0.0, -0.0028, -0.002
 	};
 
-	static final int[] base_altitude = {
+	public static final int[] base_altitude = {
 		0, 11000, 20000, 32000, 47000, 51000, 71000
 	};
 
 	/* outputs atmospheric pressure associated with the given altitude.
 	 * altitudes are measured with respect to the mean sea level
 	 */
-	static double
+	public static double
 	altitude_to_pressure(double altitude)
 	{
 		double base_temperature = LAYER0_BASE_TEMPERATURE;
@@ -114,7 +114,7 @@ public class AltosConvert {
 
 /* outputs the altitude associated with the given pressure. the altitude
    returned is measured with respect to the mean sea level */
-	static double
+	public static double
 	pressure_to_altitude(double pressure)
 	{
 
@@ -178,19 +178,19 @@ public class AltosConvert {
 		return altitude;
 	}
 
-	static double
+	public static double
 	cc_battery_to_voltage(double battery)
 	{
 		return battery / 32767.0 * 5.0;
 	}
 
-	static double
+	public static double
 	cc_ignitor_to_voltage(double ignite)
 	{
 		return ignite / 32767 * 15.0;
 	}
 
-	static double radio_to_frequency(int freq, int setting, int cal, int channel) {
+	public static double radio_to_frequency(int freq, int setting, int cal, int channel) {
 		double	f;
 
 		if (freq > 0)
@@ -205,13 +205,13 @@ public class AltosConvert {
 		return f + channel * 0.100;
 	}
 
-	static int radio_frequency_to_setting(double frequency, int cal) {
+	public static int radio_frequency_to_setting(double frequency, int cal) {
 		double	set = frequency / 434.550 * cal;
 
 		return (int) Math.floor (set + 0.5);
 	}
 
-	static int radio_frequency_to_channel(double frequency) {
+	public static int radio_frequency_to_channel(double frequency) {
 		int	channel = (int) Math.floor ((frequency - 434.550) / 0.100 + 0.5);
 
 		if (channel < 0)
@@ -221,11 +221,11 @@ public class AltosConvert {
 		return channel;
 	}
 
-	static double radio_channel_to_frequency(int channel) {
+	public static double radio_channel_to_frequency(int channel) {
 		return 434.550 + channel * 0.100;
 	}
 
-	static int[] ParseHex(String line) {
+	public static int[] ParseHex(String line) {
 		String[] tokens = line.split("\\s+");
 		int[] array = new int[tokens.length];
 
@@ -238,19 +238,19 @@ public class AltosConvert {
 		return array;
 	}
 
-	static double meters_to_feet(double meters) {
+	public static double meters_to_feet(double meters) {
 		return meters * (100 / (2.54 * 12));
 	}
 
-	static double meters_to_mach(double meters) {
+	public static double meters_to_mach(double meters) {
 		return meters / 343;		/* something close to mach at usual rocket sites */
 	}
 
-	static double meters_to_g(double meters) {
+	public static double meters_to_g(double meters) {
 		return meters / 9.80665;
 	}
 
-	static int checksum(int[] data, int start, int length) {
+	public static int checksum(int[] data, int start, int length) {
 		int	csum = 0x5a;
 		for (int i = 0; i < length; i++)
 			csum += data[i + start];

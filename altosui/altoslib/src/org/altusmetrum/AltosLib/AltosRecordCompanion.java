@@ -18,14 +18,14 @@
 package org.altusmetrum.AltosLib;
 
 public class AltosRecordCompanion {
-	final static int	board_id_telescience = 0x0a;
-	final static int	MAX_CHANNELS = 12;
+	public final static int	board_id_telescience = 0x0a;
+	public final static int	MAX_CHANNELS = 12;
 
-	int	tick;
-	int	board_id;
-	int	update_period;
-	int	channels;
-	int[]	companion_data;
+	public int	tick;
+	public int	board_id;
+	public int	update_period;
+	public int	channels;
+	public int[]	companion_data;
 
 	public AltosRecordCompanion(int in_channels) {
 		channels = in_channels;

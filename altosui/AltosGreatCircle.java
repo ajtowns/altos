@@ -18,6 +18,7 @@
 package altosui;
 
 import java.lang.Math;
+import org.altusmetrum.AltosLib.*;
 
 public class AltosGreatCircle {
 	double	distance;

@@ -29,6 +29,7 @@ import java.text.*;
 import java.util.prefs.*;
 import java.net.URL;
 import java.net.URLConnection;
+import org.altusmetrum.AltosLib.*;
 
 public class AltosSiteMapCache extends JLabel {
 	public static boolean fetchMap(File file, String url) {

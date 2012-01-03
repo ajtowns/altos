@@ -27,6 +27,7 @@ import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.altusmetrum.AltosLib.*;
 
 public class AltosPad extends JComponent implements AltosFlightDisplay {
 	GridBagLayout	layout;

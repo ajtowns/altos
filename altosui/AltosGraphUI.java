@@ -12,6 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.*;
+import org.altusmetrum.AltosLib.*;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;

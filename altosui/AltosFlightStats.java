@@ -27,6 +27,7 @@ import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.*;
+import org.altusmetrum.AltosLib.*;
 
 public class AltosFlightStats {
 	double		max_height;

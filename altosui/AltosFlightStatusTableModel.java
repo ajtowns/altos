@@ -27,6 +27,7 @@ import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.altusmetrum.AltosLib.*;
 
 public class AltosFlightStatusTableModel extends AbstractTableModel {
 	private String[] columnNames = {"Height (m)", "State", "RSSI (dBm)", "Speed (m/s)" };

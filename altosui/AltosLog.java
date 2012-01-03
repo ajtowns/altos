@@ -22,6 +22,7 @@ import java.lang.*;
 import java.util.*;
 import java.text.ParseException;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.altusmetrum.AltosLib.*;
 
 /*
  * This creates a thread to capture telemetry data and write it to

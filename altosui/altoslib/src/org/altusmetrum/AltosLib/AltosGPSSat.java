@@ -18,8 +18,8 @@
 package org.altusmetrum.AltosLib;
 
 public class AltosGPSSat {
-	int	svid;
-	int	c_n0;
+	public int	svid;
+	public int	c_n0;
 
 	public AltosGPSSat(int s, int c) {
 		svid = s;

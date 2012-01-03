@@ -25,10 +25,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.awt.Component;
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
+import org.altusmetrum.AltosLib.*;
 
-/* import org.altusmetrum.AltosLib.*; */
-
-class AltosUIPreferences extends AltosPreferences {
+public class AltosUIPreferences extends AltosPreferences {
 
 	/* font size preferences name */
 	final static String fontSizePreference = "FONT-SIZE";
@@ -47,6 +46,9 @@ class AltosUIPreferences extends AltosPreferences {
 
 	static String look_and_feel = null;
 
+	/* Serial debug */
+	static boolean serial_debug;
+
 	public static void init() {
 		font_listeners = new LinkedList<AltosFontListener>();
 
@@ -55,6 +57,8 @@ class AltosUIPreferences extends AltosPreferences {
 		look_and_feel = preferences.get(lookAndFeelPreference, UIManager.getSystemLookAndFeelClassName());
 
 		ui_listeners = new LinkedList<AltosUIListener>();
+		serial_debug = preferences.getBoolean(serialDebugPreference, false);
+		AltosSerial.set_debug(serial_debug);
 	}
 
 	static { init(); }
@@ -156,4 +160,17 @@ class AltosUIPreferences extends AltosPreferences {
 			ui_listeners.remove(l);
 		}
 	}
+	public static void set_serial_debug(boolean new_serial_debug) {
+		serial_debug = new_serial_debug;
+		AltosSerial.set_debug(serial_debug);
+		synchronized (preferences) {
+			preferences.putBoolean(serialDebugPreference, serial_debug);
+			flush_preferences();
+		}
+	}
+
+	public static boolean serial_debug() {
+		return serial_debug;
+	}
+
 }

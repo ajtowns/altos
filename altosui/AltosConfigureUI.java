@@ -30,6 +30,7 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import javax.swing.plaf.basic.*;
+import org.altusmetrum.AltosLib.*;
 
 class DelegatingRenderer implements ListCellRenderer {
 

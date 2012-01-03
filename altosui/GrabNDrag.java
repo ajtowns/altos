@@ -27,6 +27,7 @@ import javax.swing.table.*;
 import java.io.*;
 import java.util.*;
 import java.text.*;
+import org.altusmetrum.AltosLib.*;
 
 class GrabNDrag extends MouseInputAdapter {
 	private JComponent scroll;

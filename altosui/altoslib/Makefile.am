@@ -18,11 +18,12 @@ AltosLib_JAVA = \
 	$(SRC)/AltosGPSSat.java \
 	$(SRC)/AltosLine.java \
 	$(SRC)/AltosParse.java \
+	$(SRC)/AltosPreferences.java \
 	$(SRC)/AltosRecordCompanion.java \
 	$(SRC)/AltosRecordIterable.java \
 	$(SRC)/AltosRecord.java \
-	$(SRC)/AltosTelemetryIterable.java \
 	$(SRC)/AltosTelemetry.java \
+	$(SRC)/AltosTelemetryIterable.java \
 	$(SRC)/AltosTelemetryMap.java \
 	$(SRC)/AltosTelemetryRecordCompanion.java \
 	$(SRC)/AltosTelemetryRecordConfiguration.java \

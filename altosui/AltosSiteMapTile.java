@@ -30,6 +30,7 @@ import java.util.prefs.*;
 import java.lang.Math;
 import java.awt.geom.Point2D;
 import java.awt.geom.Line2D;
+import org.altusmetrum.AltosLib.*;
 
 public class AltosSiteMapTile extends JLayeredPane {
 	JLabel mapLabel;

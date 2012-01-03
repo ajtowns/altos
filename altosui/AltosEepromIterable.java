@@ -27,6 +27,7 @@ import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.altusmetrum.AltosLib.*;
 
 /*
  * AltosRecords with an index field so they can be sorted by tick while preserving

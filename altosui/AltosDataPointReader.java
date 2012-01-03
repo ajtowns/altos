@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.lang.UnsupportedOperationException;
 import java.util.NoSuchElementException;
 import java.util.Iterator;
+import org.altusmetrum.AltosLib.*;
 
 class AltosDataPointReader implements Iterable<AltosDataPoint> {
     Iterator<AltosRecord> iter;

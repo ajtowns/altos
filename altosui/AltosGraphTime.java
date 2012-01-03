@@ -12,6 +12,7 @@ import java.text.*;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.altusmetrum.AltosLib.*;
 
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;

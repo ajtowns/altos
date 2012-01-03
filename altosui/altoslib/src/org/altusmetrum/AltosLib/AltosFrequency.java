@@ -22,8 +22,8 @@ import java.util.*;
 import java.text.*;
 
 public class AltosFrequency {
-	double	frequency;
-	String	description;
+	public double	frequency;
+	public String	description;
 
 	public String toString() {
 		return String.format("%7.3f MHz %-20s",

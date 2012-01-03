@@ -21,6 +21,7 @@ import java.lang.*;
 import java.text.*;
 import java.io.*;
 import java.util.concurrent.*;
+import org.altusmetrum.AltosLib.*;
 
 public class AltosFlightReader {
 	String name;

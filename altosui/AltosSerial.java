@@ -31,6 +31,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.*;
+import org.altusmetrum.AltosLib.*;
 
 import libaltosJNI.*;
 

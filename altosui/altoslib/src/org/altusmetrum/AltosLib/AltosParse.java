@@ -21,11 +21,11 @@ import java.text.*;
 import java.lang.*;
 
 public class AltosParse {
-	static boolean isdigit(char c) {
+	public static boolean isdigit(char c) {
 		return '0' <= c && c <= '9';
 	}
 
-	static int parse_int(String v) throws ParseException {
+	public static int parse_int(String v) throws ParseException {
 		try {
 			return AltosLib.fromdec(v);
 		} catch (NumberFormatException e) {
@@ -33,7 +33,7 @@ public class AltosParse {
 		}
 	}
 
-	static int parse_hex(String v) throws ParseException {
+	public static int parse_hex(String v) throws ParseException {
 		try {
 			return AltosLib.fromhex(v);
 		} catch (NumberFormatException e) {
@@ -41,7 +41,7 @@ public class AltosParse {
 		}
 	}
 
-	static double parse_double(String v) throws ParseException {
+	public static double parse_double(String v) throws ParseException {
 		try {
 			return Double.parseDouble(v);
 		} catch (NumberFormatException e) {
@@ -49,7 +49,7 @@ public class AltosParse {
 		}
 	}
 
-	static double parse_coord(String coord) throws ParseException {
+	public static double parse_coord(String coord) throws ParseException {
 		String[]	dsf = coord.split("\\D+");
 
 		if (dsf.length != 3) {
@@ -65,13 +65,13 @@ public class AltosParse {
 		return r;
 	}
 
-	static String strip_suffix(String v, String suffix) {
+	public static String strip_suffix(String v, String suffix) {
 		if (v.endsWith(suffix))
 			return v.substring(0, v.length() - suffix.length());
 		return v;
 	}
 
-	static void word(String v, String m) throws ParseException {
+	public static void word(String v, String m) throws ParseException {
 		if (!v.equals(m)) {
 			throw new ParseException("error matching '" + v + "' '" + m + "'", 0);
 		}

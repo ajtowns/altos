@@ -22,32 +22,32 @@ import java.text.*;
 
 public class AltosGPS {
 
-	final static int MISSING = AltosRecord.MISSING;
+	public final static int MISSING = AltosRecord.MISSING;
 
-	int	nsat;
-	boolean	locked;
-	boolean	connected;
-	double	lat;		/* degrees (+N -S) */
-	double	lon;		/* degrees (+E -W) */
-	int	alt;		/* m */
-	int	year;
-	int	month;
-	int	day;
-	int	hour;
-	int	minute;
-	int	second;
+	public int	nsat;
+	public boolean	locked;
+	public boolean	connected;
+	public double	lat;		/* degrees (+N -S) */
+	public double	lon;		/* degrees (+E -W) */
+	public int	alt;		/* m */
+	public int	year;
+	public int	month;
+	public int	day;
+	public int	hour;
+	public int	minute;
+	public int	second;
 
-	double	ground_speed;	/* m/s */
-	int	course;		/* degrees */
-	double	climb_rate;	/* m/s */
-	double	hdop;		/* unitless */
-	double	vdop;		/* unitless */
-	int	h_error;	/* m */
-	int	v_error;	/* m */
+	public double	ground_speed;	/* m/s */
+	public int	course;		/* degrees */
+	public double	climb_rate;	/* m/s */
+	public double	hdop;		/* unitless */
+	public double	vdop;		/* unitless */
+	public int	h_error;	/* m */
+	public int	v_error;	/* m */
 
-	AltosGPSSat[] cc_gps_sat;	/* tracking data */
+	public AltosGPSSat[] cc_gps_sat;	/* tracking data */
 
-	void ParseGPSDate(String date) throws ParseException {
+	public void ParseGPSDate(String date) throws ParseException {
 		String[] ymd = date.split("-");
 		if (ymd.length != 3)
 			throw new ParseException("error parsing GPS date " + date + " got " + ymd.length, 0);
@@ -56,7 +56,7 @@ public class AltosGPS {
 		day = AltosParse.parse_int(ymd[2]);
 	}
 
-	void ParseGPSTime(String time) throws ParseException {
+	public void ParseGPSTime(String time) throws ParseException {
 		String[] hms = time.split(":");
 		if (hms.length != 3)
 			throw new ParseException("Error parsing GPS time " + time + " got " + hms.length, 0);
@@ -65,7 +65,7 @@ public class AltosGPS {
 		second = AltosParse.parse_int(hms[2]);
 	}
 
-	void ClearGPSTime() {
+	public void ClearGPSTime() {
 		year = month = day = 0;
 		hour = minute = second = 0;
 	}

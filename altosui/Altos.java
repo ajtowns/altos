@@ -96,6 +96,7 @@ public class Altos extends AltosLib {
 	static boolean map_initialized = false;
 
 	static final int tab_elt_pad = 5;
+
 	static Font label_font;
 	static Font value_font;
 	static Font status_font;

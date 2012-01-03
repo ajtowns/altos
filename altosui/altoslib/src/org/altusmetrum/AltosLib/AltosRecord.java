@@ -23,64 +23,66 @@ import java.util.HashMap;
 import java.io.*;
 
 public class AltosRecord implements Comparable <AltosRecord> {
-	final static int	MISSING = 0x7fffffff;
+	public final static int	MISSING = 0x7fffffff;
 
-	static final int	seen_flight = 1;
-	static final int	seen_sensor = 2;
-	static final int	seen_temp_volt = 4;
-	static final int	seen_deploy = 8;
-	static final int	seen_gps_time = 16;
-	static final int	seen_gps_lat = 32;
-	static final int	seen_gps_lon = 64;
-	static final int	seen_companion = 128;
-	int			seen;
+	public static final int	seen_flight = 1;
+	public static final int	seen_sensor = 2;
+	public static final int	seen_temp_volt = 4;
+	public static final int	seen_deploy = 8;
+	public static final int	seen_gps_time = 16;
+	public static final int	seen_gps_lat = 32;
+	public static final int	seen_gps_lon = 64;
+	public static final int	seen_companion = 128;
+	public int			seen;
 
-	int	version;
-	String 	callsign;
-	int	serial;
-	int	flight;
-	int	rssi;
-	int	status;
-	int	state;
-	int	tick;
+	public int	version;
+	public String 	callsign;
+	public int	serial;
+	public int	flight;
+	public int	rssi;
+	public int	status;
+	public int	state;
+	public int	tick;
 
-	int	accel;
-	int	pres;
-	int	temp;
-	int	batt;
-	int	drogue;
-	int	main;
+	public int	accel;
+	public int	pres;
+	public int	temp;
+	public int	batt;
+	public int	drogue;
+	public int	main;
 
-	int	ground_accel;
-	int	ground_pres;
-	int	accel_plus_g;
-	int	accel_minus_g;
+	public int	ground_accel;
+	public int	ground_pres;
+	public int	accel_plus_g;
+	public int	accel_minus_g;
 
-	double	acceleration;
-	double	speed;
-	double	height;
+	public double	acceleration;
+	public double	speed;
+	public double	height;
 
-	int	flight_accel;
-	int	flight_vel;
-	int	flight_pres;
+	public int	flight_accel;
+	public int	flight_vel;
+	public int	flight_pres;
 
-	AltosGPS	gps;
-	boolean		new_gps;
+	public AltosGPS	gps;
+	public boolean		new_gps;
 
-	AltosIMU	imu;
-	AltosMag	mag;
+	public AltosIMU	imu;
+	public AltosMag	mag;
 
-	double	time;	/* seconds since boost */
+	public double	time;	/* seconds since boost */
 
-	int	device_type;
-	int	config_major;
-	int	config_minor;
-	int	apogee_delay;
-	int	main_deploy;
-	int	flight_log_max;
-	String	firmware_version;
+	public int	device_type;
+	public int	config_major;
+	public int	config_minor;
+	public int	apogee_delay;
+	public int	main_deploy;
+	public int	flight_log_max;
+	public String	firmware_version;
 
-	AltosRecordCompanion companion;
+	public AltosRecordCompanion companion;
+
+>>>>>>> 5a249bc... altosui: Complete split out of separate java library
 	/*
 	 * Values for our MP3H6115A pressure sensor
 	 *
@@ -95,10 +97,10 @@ public class AltosRecord implements Comparable <AltosRecord> {
 	 * 2.82V * 2047 / 3.3 counts/V = 1749 counts/115 kPa
 	 */
 
-	static final double counts_per_kPa = 27 * 2047 / 3300;
-	static final double counts_at_101_3kPa = 1674.0;
+	public static final double counts_per_kPa = 27 * 2047 / 3300;
+	public static final double counts_at_101_3kPa = 1674.0;
 
-	static double
+	public static double
 	barometer_to_pressure(double count)
 	{
 		return ((count / 16.0) / 2047.0 + 0.095) / 0.009 * 1000.0;
@@ -193,7 +195,7 @@ public class AltosRecord implements Comparable <AltosRecord> {
 	 *      = (value - 19791.268) / 32768 * 1.25 / 0.00247
 	 */
 
-	static double
+	public static double
 	thermometer_to_temperature(double thermo)
 	{
 		return (thermo - 19791.268) / 32728.0 * 1.25 / 0.00247;
@@ -205,7 +207,7 @@ public class AltosRecord implements Comparable <AltosRecord> {
 		return thermometer_to_temperature(temp);
 	}
 
-	double accel_counts_per_mss() {
+	public double accel_counts_per_mss() {
 		double	counts_per_g = Math.abs(accel_minus_g - accel_plus_g) / 2;
 
 		return counts_per_g / 9.80665;

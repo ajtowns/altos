@@ -20,6 +20,7 @@ package altosui;
 import java.lang.*;
 import java.io.File;
 import java.util.*;
+import org.altusmetrum.AltosLib.*;
 
 class AltosFile extends File {
 

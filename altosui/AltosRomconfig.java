@@ -17,6 +17,7 @@
 
 package altosui;
 import java.io.*;
+import org.altusmetrum.AltosLib.*;
 
 public class AltosRomconfig {
 	public boolean	valid;

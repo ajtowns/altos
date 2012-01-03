@@ -8,6 +8,7 @@ import java.io.*;
 
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartUtilities;
+import org.altusmetrum.AltosLib.*;
 
 abstract class AltosGraph {
     public String filename;

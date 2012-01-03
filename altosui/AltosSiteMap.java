@@ -32,6 +32,7 @@ import java.lang.Math;
 import java.awt.geom.Point2D;
 import java.awt.geom.Line2D;
 import java.util.concurrent.*;
+import org.altusmetrum.AltosLib.*;
 
 public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	// preferred vertical step in a tile in naut. miles
