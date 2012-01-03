@@ -15,13 +15,12 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
 
 import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.concurrent.*;
-import org.altusmetrum.AltosLib.*;
 
 public class AltosEepromChunk {
 
@@ -65,7 +64,7 @@ public class AltosEepromChunk {
 		return true;
 	}
 
-	public AltosEepromChunk(AltosSerial serial_line, int block, boolean flush)
+	public AltosEepromChunk(AltosLink link, int block, boolean flush)
 		throws TimeoutException, InterruptedException {
 
 		int	offset;
@@ -73,12 +72,12 @@ public class AltosEepromChunk {
 		data = new int[chunk_size];
 		address = block * chunk_size;
 		if (flush)
-			serial_line.flush_input();
-		serial_line.printf("e %x\n", block);
+			link.flush_input();
+		link.printf("e %x\n", block);
 
 		for (offset = 0; offset < chunk_size; offset += per_line) {
 			try {
-				String	line = serial_line.get_reply(5000);
+				String	line = link.get_reply(5000);
 
 				if (line == null)
 					throw new TimeoutException();

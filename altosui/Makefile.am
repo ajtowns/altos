@@ -37,7 +37,6 @@ altosui_JAVA = \
 	AltosDevice.java \
 	AltosUSBDevice.java \
 	AltosDisplayThread.java \
-	AltosEepromChunk.java \
 	AltosEepromDelete.java \
 	AltosEepromDownload.java \
 	AltosEepromList.java \
@@ -265,7 +264,7 @@ altosui: Makefile
 
 altosui-test: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java -cp ":altoslib/*:$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="libaltos/.libs" -jar altosui.jar "$$@"' >> $@
+	echo 'exec java -cp "./*:$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="libaltos/.libs" -jar altosui.jar "$$@"' >> $@
 	chmod +x $@
 
 altosui-jdb: Makefile

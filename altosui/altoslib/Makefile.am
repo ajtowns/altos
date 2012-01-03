@@ -14,6 +14,7 @@ AltosLib_JAVA = \
 	$(SRC)/AltosConfigData.java \
 	$(SRC)/AltosConvert.java \
 	$(SRC)/AltosCRCException.java \
+	$(SRC)/AltosEepromChunk.java \
 	$(SRC)/AltosFrequency.java \
 	$(SRC)/AltosGPS.java \
 	$(SRC)/AltosGPSSat.java \
@@ -44,13 +45,11 @@ all-local: $(JAR)
 clean-local:
 	-rm -rf bin $(JAR)
 
-altosuidir=$(datadir)/java
-
-install-altosuiJAVA: $(JAR)
+install-AltosLibJAVA: $(JAR)
 	@$(NORMAL_INSTALL)
-	test -z "$(altosuidir)" || $(MKDIR_P) "$(DESTDIR)$(altosuidir)"
-	echo " $(INSTALL_DATA)" "$<" "'$(DESTDIR)$(altosuidir)/$(JAR)"; \
-	$(INSTALL_DATA) "$<" "$(DESTDIR)$(altosuidir)"
+	test -z "$(AltosLibdir)" || $(MKDIR_P) "$(DESTDIR)$(AltosLibdir)"
+	echo " $(INSTALL_DATA)" "$<" "'$(DESTDIR)$(AltosLibdir)/$(JAR)"; \
+	$(INSTALL_DATA) "$<" "$(DESTDIR)$(AltosLibdir)"
 
 bin:
 	mkdir -p bin

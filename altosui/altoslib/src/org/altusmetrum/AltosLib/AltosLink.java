@@ -23,4 +23,6 @@ public interface AltosLink {
 	public String get_reply() throws InterruptedException;
 
 	public String get_reply(int timeout) throws InterruptedException;
+
+	public void flush_input() throws InterruptedException;
 }
