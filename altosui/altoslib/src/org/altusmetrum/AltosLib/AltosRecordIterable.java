@@ -17,16 +17,8 @@
 
 package org.altusmetrum.AltosLib;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
 import java.io.*;
 import java.util.*;
-import java.text.*;
-import java.util.prefs.*;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class AltosRecordIterable implements Iterable<AltosRecord> {
 	public abstract Iterator<AltosRecord> iterator();
