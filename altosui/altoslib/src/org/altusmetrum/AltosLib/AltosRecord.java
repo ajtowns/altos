@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
 
 import java.lang.*;
 import java.text.*;
@@ -229,7 +229,7 @@ public class AltosRecord implements Comparable <AltosRecord> {
 	}
 
 	public String state() {
-		return Altos.state_name(state);
+		return AltosLib.state_name(state);
 	}
 
 	public static String gets(FileInputStream s) throws IOException {
@@ -292,7 +292,7 @@ public class AltosRecord implements Comparable <AltosRecord> {
 		flight = 0;
 		rssi = 0;
 		status = 0;
-		state = Altos.ao_flight_startup;
+		state = AltosLib.ao_flight_startup;
 		tick = 0;
 		accel = MISSING;
 		pres = MISSING;

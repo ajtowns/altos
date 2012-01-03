@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
 
 import java.lang.*;
 import java.text.*;
@@ -30,27 +30,27 @@ public class AltosTelemetryRecordRaw extends AltosTelemetryRecord {
 	long	received_time;
 
 	public int int8(int off) {
-		return Altos.int8(bytes, off + 1);
+		return AltosLib.int8(bytes, off + 1);
 	}
 
 	public int uint8(int off) {
-		return Altos.uint8(bytes, off + 1);
+		return AltosLib.uint8(bytes, off + 1);
 	}
 
 	public int int16(int off) {
-		return Altos.int16(bytes, off + 1);
+		return AltosLib.int16(bytes, off + 1);
 	}
 
 	public int uint16(int off) {
-		return Altos.uint16(bytes, off + 1);
+		return AltosLib.uint16(bytes, off + 1);
 	}
 
 	public int uint32(int off) {
-		return Altos.uint32(bytes, off + 1);
+		return AltosLib.uint32(bytes, off + 1);
 	}
 
 	public String string(int off, int l) {
-		return Altos.string(bytes, off + 1, l);
+		return AltosLib.string(bytes, off + 1, l);
 	}
 
 	public AltosTelemetryRecordRaw(int[] in_bytes) {

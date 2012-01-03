@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
 
 import java.text.*;
 import java.lang.*;
@@ -27,7 +27,7 @@ public class AltosParse {
 
 	static int parse_int(String v) throws ParseException {
 		try {
-			return Altos.fromdec(v);
+			return AltosLib.fromdec(v);
 		} catch (NumberFormatException e) {
 			throw new ParseException("error parsing int " + v, 0);
 		}
@@ -35,7 +35,7 @@ public class AltosParse {
 
 	static int parse_hex(String v) throws ParseException {
 		try {
-			return Altos.fromhex(v);
+			return AltosLib.fromhex(v);
 		} catch (NumberFormatException e) {
 			throw new ParseException("error parsing hex " + v, 0);
 		}

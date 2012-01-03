@@ -15,9 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
-import java.lang.*;
-import java.text.*;
+package org.altusmetrum.AltosLib;
 
 public abstract class AltosTelemetryRecord {
 

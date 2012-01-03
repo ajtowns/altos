@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
 
 import java.io.*;
 import java.util.*;
@@ -62,7 +62,7 @@ public class AltosTelemetryIterable extends AltosRecordIterable {
 						current_tick = tick;
 						record.tick = current_tick;
 					}
-					if (!saw_boost && record.state >= Altos.ao_flight_boost)
+					if (!saw_boost && record.state >= AltosLib.ao_flight_boost)
 					{
 						saw_boost = true;
 						boost_tick = record.tick;

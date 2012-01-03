@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
 
 import java.lang.*;
 import java.text.*;
@@ -395,22 +395,22 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 	int	adjust;
 
 	private int int8(int i) {
-		return Altos.int8(bytes, i + 1 + adjust);
+		return AltosLib.int8(bytes, i + 1 + adjust);
 	}
 	private int uint8(int i) {
-		return Altos.uint8(bytes, i + 1 + adjust);
+		return AltosLib.uint8(bytes, i + 1 + adjust);
 	}
 	private int int16(int i) {
-		return Altos.int16(bytes, i + 1 + adjust);
+		return AltosLib.int16(bytes, i + 1 + adjust);
 	}
 	private int uint16(int i) {
-		return Altos.uint16(bytes, i + 1 + adjust);
+		return AltosLib.uint16(bytes, i + 1 + adjust);
 	}
 	private int uint32(int i) {
-		return Altos.uint32(bytes, i + 1 + adjust);
+		return AltosLib.uint32(bytes, i + 1 + adjust);
 	}
 	private String string(int i, int l) {
-		return Altos.string(bytes, i + 1 + adjust, l);
+		return AltosLib.string(bytes, i + 1 + adjust, l);
 	}
 
 	static final int AO_GPS_NUM_SAT_MASK	= (0xf << 0);
@@ -428,7 +428,7 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 		record.version = 4;
 		adjust = 0;
 
-		if (bytes.length == Altos.ao_telemetry_0_8_len + 4) {
+		if (bytes.length == AltosLib.ao_telemetry_0_8_len + 4) {
 			record.serial = uint8(0);
 			adjust = -1;
 		} else
