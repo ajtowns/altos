@@ -16,6 +16,7 @@ AltosLib_JAVA = \
 	$(SRC)/AltosCRCException.java \
 	$(SRC)/AltosEepromChunk.java \
 	$(SRC)/AltosEepromIterable.java \
+	$(SRC)/AltosEepromLog.java \
 	$(SRC)/AltosEepromRecord.java \
 	$(SRC)/AltosFrequency.java \
 	$(SRC)/AltosGPS.java \

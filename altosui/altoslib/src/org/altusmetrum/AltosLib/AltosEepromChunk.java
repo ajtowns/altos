@@ -24,8 +24,8 @@ import java.util.concurrent.*;
 
 public class AltosEepromChunk {
 
-	static final int	chunk_size = 256;
-	static final int	per_line = 8;
+	public static final int	chunk_size = 256;
+	public static final int	per_line = 8;
 
 	public int		data[];
 	public int		address;
@@ -44,20 +44,20 @@ public class AltosEepromChunk {
 		return array;
 	}
 
-	int data(int offset) {
+	public int data(int offset) {
 		return data[offset];
 	}
 
-	int data16(int offset) {
+	public int data16(int offset) {
 		return data[offset] | (data[offset + 1] << 8);
 	}
 
-	int data32(int offset) {
+	public int data32(int offset) {
 		return data[offset] | (data[offset + 1] << 8) |
 			(data[offset+2] << 16) | (data[offset+3] << 24);
 	}
 
-	boolean erased(int start, int len) {
+	public boolean erased(int start, int len) {
 		for (int i = 0; i < len; i++)
 			if (data[start+i] != 0xff)
 				return false;

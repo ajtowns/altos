@@ -15,39 +15,31 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
 import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.*;
-import org.altusmetrum.AltosLib.*;
-
-import libaltosJNI.*;
 
 /*
  * Extract a bit of information from an eeprom-stored flight log.
  */
 
 public class AltosEepromLog {
-	int		serial;
-	boolean		has_flight;
-	int		flight;
-	int		start_block;
-	int		end_block;
+	public int		serial;
+	public boolean		has_flight;
+	public int		flight;
+	public int		start_block;
+	public int		end_block;
 
-	int		year, month, day;
+	public int		year, month, day;
 
-	boolean		selected;
+	public boolean		selected;
 
 	public AltosEepromLog(AltosConfigData config_data,
-			      AltosSerial serial_line,
+			      AltosLink link,
 			      int in_flight, int in_start_block,
 			      int in_end_block)
 		throws InterruptedException, TimeoutException {
@@ -70,8 +62,8 @@ public class AltosEepromLog {
 		/*
 		 * Look in TeleMetrum log data for date
 		 */
-		if (config_data.log_format == Altos.AO_LOG_FORMAT_UNKNOWN ||
-		    config_data.log_format == Altos.AO_LOG_FORMAT_FULL)
+		if (config_data.log_format == AltosLib.AO_LOG_FORMAT_UNKNOWN ||
+		    config_data.log_format == AltosLib.AO_LOG_FORMAT_FULL)
 		{
 			/*
 			 * Only look in the first two blocks so that this
@@ -81,17 +73,17 @@ public class AltosEepromLog {
 				in_end_block = in_start_block + 2;
 
 			for (block = in_start_block; block < in_end_block; block++) {
-				AltosEepromChunk eechunk = new AltosEepromChunk(serial_line, block, block == in_start_block);
+				AltosEepromChunk eechunk = new AltosEepromChunk(link, block, block == in_start_block);
 
 				for (int i = 0; i < eechunk.chunk_size; i += AltosEepromRecord.record_length) {
 					try {
 						AltosEepromRecord r = new AltosEepromRecord(eechunk, i);
 
-						if (r.cmd == Altos.AO_LOG_FLIGHT) {
+						if (r.cmd == AltosLib.AO_LOG_FLIGHT) {
 							flight = r.b;
 							has_flight = true;
 						}
-						if (r.cmd == Altos.AO_LOG_GPS_DATE) {
+						if (r.cmd == AltosLib.AO_LOG_GPS_DATE) {
 							year = 2000 + (r.a & 0xff);
 							month = (r.a >> 8) & 0xff;
 							day = (r.b & 0xff);

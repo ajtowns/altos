@@ -27,33 +27,33 @@ import org.altusmetrum.AltosLib.*;
 public class AltosConfigData implements Iterable<String> {
 
 	/* Version information */
-	String	manufacturer;
-	String	product;
-	String	version;
-	int	log_format;
-	int	serial;
+	public String	manufacturer;
+	public String	product;
+	public String	version;
+	public int	log_format;
+	public int	serial;
 
 	/* Strings returned */
-	LinkedList<String>	lines;
+	public LinkedList<String>	lines;
 
 	/* Config information */
-	int	config_major;
-	int	config_minor;
-	int	main_deploy;
-	int	apogee_delay;
-	int	radio_channel;
-	int	radio_setting;
-	int	radio_frequency;
-	String	callsign;
-	int	accel_cal_plus, accel_cal_minus;
-	int	radio_calibration;
-	int	flight_log_max;
-	int	ignite_mode;
-	int	stored_flight;
-	int	storage_size;
-	int	storage_erase_unit;
+	public int	config_major;
+	public int	config_minor;
+	public int	main_deploy;
+	public int	apogee_delay;
+	public int	radio_channel;
+	public int	radio_setting;
+	public int	radio_frequency;
+	public String	callsign;
+	public int	accel_cal_plus, accel_cal_minus;
+	public int	radio_calibration;
+	public int	flight_log_max;
+	public int	ignite_mode;
+	public int	stored_flight;
+	public int	storage_size;
+	public int	storage_erase_unit;
 
-	static String get_string(String line, String label) throws  ParseException {
+	public static String get_string(String line, String label) throws  ParseException {
 		if (line.startsWith(label)) {
 			String	quoted = line.substring(label.length()).trim();
 
@@ -66,7 +66,7 @@ public class AltosConfigData implements Iterable<String> {
 		throw new ParseException("mismatch", 0);
 	}
 
-	static int get_int(String line, String label) throws NumberFormatException, ParseException {
+	public static int get_int(String line, String label) throws NumberFormatException, ParseException {
 		if (line.startsWith(label)) {
 			String tail = line.substring(label.length()).trim();
 			String[] tokens = tail.split("\\s+");

@@ -31,7 +31,7 @@ public class AltosEepromRecord {
 	public String	data;
 	public boolean	tick_valid;
 
-	static final int	record_length = 8;
+	public static final int	record_length = 8;
 
 	public AltosEepromRecord (AltosEepromChunk chunk, int start) throws ParseException {
 
