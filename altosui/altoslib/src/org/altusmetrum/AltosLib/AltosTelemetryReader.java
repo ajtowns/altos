@@ -105,6 +105,7 @@ public class AltosTelemetryReader extends AltosFlightReader {
 
 	public AltosTelemetryReader (AltosLink in_link)
 		throws IOException, InterruptedException, TimeoutException {
+		link = in_link;
 		log = new AltosLog(link);
 		name = link.name;
 		previous = null;
