@@ -22,6 +22,7 @@ AltosLib_JAVA = \
 	$(SRC)/AltosFrequency.java \
 	$(SRC)/AltosGPS.java \
 	$(SRC)/AltosGPSSat.java \
+	$(SRC)/AltosGreatCircle.java \
 	$(SRC)/AltosLine.java \
 	$(SRC)/AltosLink.java \
 	$(SRC)/AltosParse.java \

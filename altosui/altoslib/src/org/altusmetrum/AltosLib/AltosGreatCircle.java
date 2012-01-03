@@ -15,44 +15,44 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
 
 import java.lang.Math;
-import org.altusmetrum.AltosLib.*;
 
 public class AltosGreatCircle {
-	double	distance;
-	double	bearing;
+	public double	distance;
+	public double	bearing;
 
 	double sqr(double a) { return a * a; }
 
 	static final double rad = Math.PI / 180;
 	static final double earth_radius = 6371.2 * 1000;	/* in meters */
 
-    static int BEARING_LONG = 0;
-    static int BEARING_SHORT = 1;
-    static int BEARING_VOICE = 2;
-    String bearing_words(int length) {
-        String [][] bearing_string = {
-          {
-            "North", "North North East", "North East", "East North East",
-            "East", "East South East", "South East", "South South East",
-            "South", "South South West", "South West", "West South West",
-            "West", "West North West", "North West", "North North West"
-          }, {
-            "N", "NNE", "NE", "ENE",
-            "E", "ESE", "SE", "SSE",
-            "S", "SSW", "SW", "WSW",
-            "W", "WNW", "NW", "NNW"
-          }, {
-            "north", "nor nor east", "north east", "east nor east",
-            "east", "east sow east", "south east", "sow sow east",
-            "south", "sow sow west", "south west", "west sow west",
-            "west", "west nor west", "north west", "nor nor west "
-          }
-        };
-        return bearing_string[length][(int)((bearing / 90 * 8 + 1) / 2)%16];
-    }
+	public static final int BEARING_LONG = 0;
+	public static final int BEARING_SHORT = 1;
+	public static final int BEARING_VOICE = 2;
+
+	public String bearing_words(int length) {
+		String [][] bearing_string = {
+			{
+				"North", "North North East", "North East", "East North East",
+				"East", "East South East", "South East", "South South East",
+				"South", "South South West", "South West", "West South West",
+				"West", "West North West", "North West", "North North West"
+			}, {
+				"N", "NNE", "NE", "ENE",
+				"E", "ESE", "SE", "SSE",
+				"S", "SSW", "SW", "WSW",
+				"W", "WNW", "NW", "NNW"
+			}, {
+				"north", "nor nor east", "north east", "east nor east",
+				"east", "east sow east", "south east", "sow sow east",
+				"south", "sow sow west", "south west", "west sow west",
+				"west", "west nor west", "north west", "nor nor west "
+			}
+		};
+		return bearing_string[length][(int)((bearing / 90 * 8 + 1) / 2)%16];
+	}
 
 	public AltosGreatCircle (double start_lat, double start_lon,
 				 double end_lat, double end_lon)
