@@ -94,9 +94,9 @@ ao_serial0_set_speed(uint8_t speed)
 	ao_serial0_drain();
 	if (speed > AO_SERIAL_SPEED_57600)
 		return;
-	U1UCR |= UxUCR_FLUSH;
-	U1BAUD = ao_serial_speeds[speed].baud;
-	U1GCR = ao_serial_speeds[speed].gcr;
+	U0UCR |= UxUCR_FLUSH;
+	U0BAUD = ao_serial_speeds[speed].baud;
+	U0GCR = ao_serial_speeds[speed].gcr;
 }
 
 void
