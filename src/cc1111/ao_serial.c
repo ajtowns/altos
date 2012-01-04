@@ -91,10 +91,7 @@ ao_serial_drain(void) __critical
 		ao_sleep(&ao_usart1_tx_fifo);
 }
 
-static __code struct {
-	uint8_t	baud;
-	uint8_t	gcr;
-} ao_serial_speeds[] = {
+const __code struct ao_serial_speed ao_serial_speeds[] = {
 	/* [AO_SERIAL_SPEED_4800] = */ {
 		/* .baud = */ 163,
 		/* .gcr  = */ (7 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB

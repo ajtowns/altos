@@ -27,6 +27,10 @@
 	#define HAS_SERIAL_1_ALT_2	0
 	#define HAS_SERIAL_1_HW_FLOW	1
 	#define USE_SERIAL_STDIN	1
+	#define HAS_SERIAL_0		1
+	#define HAS_SERIAL_0_ALT_1	0
+	#define HAS_SERIAL_0_ALT_2	1
+	#define HAS_SERIAL_0_HW_FLOW	0
 	#define HAS_ADC			0
 	#define HAS_DBG			1
 	#define HAS_EEPROM		0
@@ -213,5 +217,9 @@
 #define AO_IGNITER_CLOSED	7000
 #define AO_IGNITER_FIRE_TIME	AO_MS_TO_TICKS(50)
 #define AO_IGNITER_CHARGE_TIME	AO_MS_TO_TICKS(2000)
+
+void
+ao_ardu_serial_init (void);
+
 
 #endif /* _AO_PINS_H_ */

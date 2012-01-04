@@ -938,6 +938,35 @@ void
 ao_serial_init(void);
 #endif
 
+#ifndef HAS_SERIAL_0
+#define HAS_SERIAL_0 0
+#endif
+
+#if HAS_SERIAL_0
+void
+ao_serial0_rx0_isr(void) ao_arch_interrupt(2);
+
+void
+ao_serial0_tx0_isr(void) ao_arch_interrupt(7);
+
+char
+ao_serial0_getchar(void) __critical;
+
+void
+ao_serial0_putchar(char c) __critical;
+
+void
+ao_serial0_drain(void) __critical;
+
+void
+ao_serial0_set_speed(uint8_t speed);
+
+void
+ao_serial0_init(void);
+
+#endif
+
+
 /*
  * ao_spi.c
  */

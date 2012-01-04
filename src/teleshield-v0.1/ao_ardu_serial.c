@@ -17,33 +17,22 @@
 
 #include "ao.h"
 
-__code uint8_t ao_log_format = AO_LOG_FORMAT_NONE;	/* until we actually log stuff */
+static void
+ao_ardu_serial_recv(void)
+{
+	char	c;
+
+	for (;;) {
+		c = ao_serial0_getchar();
+		putchar (c);
+	}
+}
+
+static __xdata struct ao_task ao_ardu_serial_recv_task;
 
 void
-main(void)
+ao_ardu_serial_init (void)
 {
-	ao_clock_init();
-
-	/* Turn on the LED until the system is stable */
-	ao_led_init(LEDS_AVAILABLE);
-	ao_led_on(AO_LED_RED);
-	ao_timer_init();
-	ao_cmd_init();
-	ao_spi_init();
-	ao_storage_init();
-	ao_usb_init();
-	ao_monitor_init();
-	ao_radio_init();
-	ao_packet_slave_init(1);
-	ao_btm_init();
-#if HAS_DBG
-	ao_dbg_init();
-#endif
-#if HAS_AES
-	ao_aes_init();
-	ao_radio_cmac_init();
-#endif
-	ao_ardu_serial_init();
-	ao_config_init();
-	ao_start_scheduler();
+	ao_serial0_init();
+	ao_add_task(&ao_ardu_serial_recv_task, ao_ardu_serial_recv, "recv");
 }

@@ -251,4 +251,11 @@ _ao_xmemcmp(__xdata void *a, __xdata void *b, uint8_t count);
 
 #define ao_xmemcmp(d,s,c) _ao_xmemcmp((d), (s), (c))
 
+struct ao_serial_speed {
+	uint8_t	baud;
+	uint8_t	gcr;
+};
+
+extern const __code struct ao_serial_speed ao_serial_speeds[];
+
 #endif /* _AO_ARCH_H_ */
