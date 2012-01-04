@@ -20,7 +20,7 @@ SUBDIRS=\
 	telemetrum-v0.1-sky telemetrum-v0.1-sirf \
 	telelaunch-v0.1 \
 	tidongle test telescience-v0.1 telepyro-v0.1 \
-	teleterra-v0.2
+	teleterra-v0.2 teleshield-v0.1
 
 all: all-local all-recursive
 
