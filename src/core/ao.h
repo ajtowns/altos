@@ -943,6 +943,10 @@ ao_serial_init(void);
 #endif
 
 #if HAS_SERIAL_0
+
+extern volatile __xdata struct ao_fifo	ao_usart0_rx_fifo;
+extern volatile __xdata struct ao_fifo	ao_usart0_tx_fifo;
+
 void
 ao_serial0_rx0_isr(void) ao_arch_interrupt(2);
 

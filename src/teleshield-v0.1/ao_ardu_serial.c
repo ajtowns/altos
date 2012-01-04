@@ -23,6 +23,8 @@ ao_ardu_serial_recv(void)
 	char	c;
 
 	for (;;) {
+		if (ao_fifo_empty(ao_usart0_rx_fifo))
+			flush();
 		c = ao_serial0_getchar();
 		putchar (c);
 	}
