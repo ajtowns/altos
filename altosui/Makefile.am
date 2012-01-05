@@ -1,4 +1,4 @@
-SUBDIRS=libaltos altoslib
+SUBDIRS=libaltos
 JAVAROOT=classes
 AM_JAVACFLAGS=-encoding UTF-8 -Xlint:deprecation
 
@@ -6,7 +6,7 @@ man_MANS=altosui.1
 
 altoslibdir=$(libdir)/altos
 
-CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:altoslib/bin:libaltos:$(FREETTS)/*:/usr/share/java/*"
+CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../altoslib/*:libaltos:$(FREETTS)/*:/usr/share/java/*"
 
 bin_SCRIPTS=altosui
 
@@ -287,9 +287,9 @@ build-altos64-dll:
 
 $(ALTOSLIB_CLASS):
 	-rm -f "$@"
-	$(LN_S) altoslib/"$@" .
+	$(LN_S) ../altoslib/"$@" .
 
-$(FREETTS_CLASS):
+$(FREETTS_CLASS): ../altoslib/"$@"
 	-rm -f "$@"
 	$(LN_S) "$(FREETTS)"/"$@" .
 

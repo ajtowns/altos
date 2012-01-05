@@ -111,9 +111,9 @@ PKG_CHECK_MODULES([LIBUSB], [libusb-1.0])
 
 AC_OUTPUT([
 Makefile
+altoslib/Makefile
 altosui/Makefile
 altosui/AltosVersion.java
-altosui/altoslib/Makefile
 altosui/libaltos/Makefile
 ao-tools/Makefile
 ao-tools/lib/Makefile
