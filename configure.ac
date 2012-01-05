@@ -70,6 +70,33 @@ fi
 
 AC_SUBST(JVM_INCLUDE)
 
+AC_ARG_WITH(android, AS_HELP_STRING([--with-android=PATH],
+	[Set android SDK path (default searches in a variety of places)]),
+	[ANDROID_SDK=$withval], [ANDROID_SDK=auto])
+
+echo ANDROID_SDK set to $ANDROID_SDK
+
+if test "x$ANDROID_SDK" = "xauto"; then
+	AC_MSG_CHECKING([Android SDK files])
+	for sdk in ../android/android-sdk-linux ../android/android-sdk ../android-sdk ../android-sdk-linux; do
+		if test "x$ANDROID_SDK" = "xauto"; then
+			SDK="$sdk"
+			if test -f "$SDK/SDK Readme.txt"; then
+				ANDROID_SDK=`readlink -m "$SDK"`
+			fi
+		fi
+	done
+	if test "x$ANDROID_SDK" = "xauto"; then
+		AC_MSG_NOTICE([no Android SDK found])
+		ANDROID_SDK=no
+	fi
+	AC_MSG_RESULT([$ANDROID_SDK])
+fi
+
+AM_CONDITIONAL([ANDROID], [test x$ANDROID_SDK != xno])
+
+AC_SUBST(ANDROID_SDK)
+
 AC_ARG_WITH(fat-dir, AS_HELP_STRING([--with-fat-dir=PATH],
 	    [Set the directory to install the 'fat' distribution files to (defaults to not installing)]),
 	    [FATDIR=$withval], [FATDIR=none])
@@ -115,6 +142,7 @@ altoslib/Makefile
 altosui/Makefile
 altosui/AltosVersion.java
 altosui/libaltos/Makefile
+altosdroid/Makefile
 ao-tools/Makefile
 ao-tools/lib/Makefile
 ao-tools/ao-rawload/Makefile
