@@ -15,7 +15,7 @@
 -->
 
 <resources>
-    <string name="app_name">Bluetooth Chat</string>
+    <string name="app_name">AltosDroid</string>
 
     <!--  BluetoothChat -->
     <string name="send">Send</string>
