@@ -259,7 +259,7 @@ altosui-jdb: Makefile
 	echo 'exec jdb -classpath "classes:libaltos:$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="libaltos/.libs" altosui/AltosUI "$$@"' >> $@
 	chmod +x $@
 
-libaltos.so:
+libaltos.so: build-libaltos
 	-rm -f "$@"
 	$(LN_S) libaltos/.libs/"$@" .
 
@@ -275,10 +275,14 @@ altos64.dll: libaltos/altos64.dll
 	-rm -f "$@"
 	$(LN_S) libaltos/"$@" .
 
+libaltos/.libs/libaltos.so: build-libaltos
+
 libaltos/altos.dll: build-altos-dll
 
 libaltos/altos64.dll: build-altos64-dll
 
+build-libaltos:
+	+cd libaltos && make libaltos.la
 build-altos-dll:
 	+cd libaltos && make altos.dll
 
@@ -289,7 +293,7 @@ $(ALTOSLIB_CLASS):
 	-rm -f "$@"
 	$(LN_S) ../altoslib/"$@" .
 
-$(FREETTS_CLASS): ../altoslib/"$@"
+$(FREETTS_CLASS):
 	-rm -f "$@"
 	$(LN_S) "$(FREETTS)"/"$@" .
 
