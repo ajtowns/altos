@@ -18,32 +18,31 @@ else
 	exit 1
 fi
 
-echo "TeleMetrum v1.2 Turn-On and Calibration Program"
-echo "Copyright 2010 by Bdale Garbee.  Released under GPL v2"
+echo "TeleShield v0.1 Turn-On and Calibration Program"
+echo "Copyright 2012 by Bdale Garbee.  Released under GPL v2"
 echo
 echo "Expectations:"
-echo "\tTeleMetrum v1.2 powered from USB"
+echo "\tTeleShield v0.1 powered from USB"
 echo "\t\twith TeleDongle (on /dev/ttyACM0) cabled to debug header"
-echo "\t\twith coax from UHF to frequency counter"
+echo "\t\twith coax from SMA to frequency counter"
 echo
-echo -n "TeleMetrum serial number: "
+echo -n "TeleShield serial number: "
 read SERIAL
 
 echo $RAWLOAD
 
-$RAWLOAD --device 100 -r ao_led_blink.ihx
-echo "the red LED should be blinking"
+$RAWLOAD -D 100 -r ao_led_blink.ihx
+echo "LEDs should be blinking"
 sleep 5
 
-$RAWLOAD --device 100 -r ao_radio_xmit.ihx
+$RAWLOAD -D 100 -r ao_radio_xmit.ihx
 echo -n "Generating RF carrier.  Please enter measured frequency: "
 read FREQ
 
 CAL_VALUE=`nickle -e "floor(434.55 / $FREQ * 1186611 + 0.5)"`
 
 echo "Programming flash with cal value " $CAL_VALUE
-$AOLOAD --device 100 --cal $CAL_VALUE \
-	/usr/share/altos/stable/telemetrum-v1.2*.ihx $SERIAL
+$AOLOAD -D 100 --cal $CAL_VALUE /home/bdale/debian/altos/src/teleshield-v0.1/*.ihx $SERIAL
 
 echo "Serial number "$SERIAL" programmed with RF cal value "$CAL_VALUE
 echo "Unplug and replug USB, cu to the board, confirm freq and record power"
