@@ -10,8 +10,8 @@ RELNOTES=\
 	release-notes-1.0.1.html
 
 RELNOTES_XSL=$(RELNOTES:.html=.xsl)
-HTML=altusmetrum.html altos.html telemetry.html $(RELNOTES)
-PDF=altusmetrum.pdf altos.pdf telemetry.pdf
+HTML=altusmetrum.html altos.html telemetry.html companion.html $(RELNOTES)
+PDF=altusmetrum.pdf altos.pdf telemetry.pdf companion.pdf
 DOC=$(HTML) $(PDF)
 HTMLSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/html/docbook.xsl
 FOSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl
