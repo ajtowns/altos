@@ -143,6 +143,7 @@ altosui/Makefile
 altosui/AltosVersion.java
 altosui/libaltos/Makefile
 altosdroid/Makefile
+altosdroid/local.properties
 ao-tools/Makefile
 ao-tools/lib/Makefile
 ao-tools/ao-rawload/Makefile
