@@ -78,7 +78,7 @@ echo ANDROID_SDK set to $ANDROID_SDK
 
 if test "x$ANDROID_SDK" = "xauto"; then
 	AC_MSG_CHECKING([Android SDK files])
-	for sdk in ../android/android-sdk-linux ../android/android-sdk ../android-sdk ../android-sdk-linux; do
+	for sdk in ../android/android-sdk-linux ../android/android-sdk ../android-sdk ../android-sdk-linux $HOME/android; do
 		if test "x$ANDROID_SDK" = "xauto"; then
 			SDK="$sdk"
 			if test -f "$SDK/SDK Readme.txt"; then
