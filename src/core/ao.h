@@ -917,7 +917,7 @@ char
 ao_serial_pollchar(void) __critical;
 
 void
-ao_serial_set_stdin(uint8_t stdin);
+ao_serial_set_stdin(uint8_t in);
 #endif
 
 void
