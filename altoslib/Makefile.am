@@ -4,7 +4,7 @@ JAVAROOT=bin
 
 CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH="bin:$(FREETTS)/*:/usr/share/java/*"
 
-SRC=src/org/altusmetrum/AltosLib
+SRC=.
 BIN=bin/org/altusmetrum/AltosLib
 
 AltosLibdir = $(datadir)/java
