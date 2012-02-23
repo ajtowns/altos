@@ -23,6 +23,12 @@ SRC=\
 
 all: $(all_target)
 
+ALTOSLIB=bin/classes/AltosLib.jar
+
+$(ALTOSLIB):
+	mkdir -p bin/classes
+	cd bin/classes && ln -s ../../../altoslib/AltosLib.jar .
+
 if ANDROID
 install-release: bin/AltosDroid-release.apk
 	$(ADB) install -r bin/AltosDroid-release.apk
@@ -30,10 +36,10 @@ install-release: bin/AltosDroid-release.apk
 install-debug: bin/AltosDroid-debug.apk
 	$(ADB) install -r bin/AltosDroid-debug.apk
 
-bin/AltosDroid-debug.apk: $(SRC)
+bin/AltosDroid-debug.apk: $(SRC) $(ALTOSLIB)
 	ant debug
 
-bin/AltosDroid-release.apk: $(SRC)
+bin/AltosDroid-release.apk: $(SRC) $(ALTOSLIB)
 	ant release
 endif
 

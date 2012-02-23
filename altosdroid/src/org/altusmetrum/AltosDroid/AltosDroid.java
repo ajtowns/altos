@@ -39,6 +39,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.altusmetrum.AltosDroid.R;
+import org.altusmetrum.AltosLib.*;
 
 /**
  * This is the main Activity that displays the current chat session.
@@ -47,6 +48,8 @@ public class AltosDroid extends Activity {
     // Debugging
     private static final String TAG = "BluetoothChat";
     private static final boolean D = true;
+
+    private static final AltosLine q = new AltosLine();
 
     // Message types sent from the BluetoothChatService Handler
     public static final int MESSAGE_STATE_CHANGE = 1;
