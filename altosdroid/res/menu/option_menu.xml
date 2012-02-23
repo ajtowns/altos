@@ -14,6 +14,12 @@
      limitations under the License.
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/telemetry_service_control"
+          android:icon="@android:drawable/ic_menu_manage"
+          android:title="@string/telemetry_service_control" />
+    <item android:id="@+id/telemetry_service_bind"
+          android:icon="@android:drawable/ic_menu_rotate"
+          android:title="@string/telemetry_service_bind" />
     <item android:id="@+id/secure_connect_scan"
           android:icon="@android:drawable/ic_menu_search"
           android:title="@string/secure_connect" />

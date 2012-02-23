@@ -339,6 +339,14 @@ public class AltosDroid extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent serverIntent = null;
         switch (item.getItemId()) {
+        case R.id.telemetry_service_control:
+            serverIntent = new Intent(this, TelemetryServiceActivities.Controller.class);
+            startActivity(serverIntent);
+            return true;
+        case R.id.telemetry_service_bind:
+            serverIntent = new Intent(this, TelemetryServiceActivities.Binding.class);
+            startActivity(serverIntent);
+            return true;
         case R.id.secure_connect_scan:
             // Launch the DeviceListActivity to see devices and do scan
             serverIntent = new Intent(this, DeviceListActivity.class);

@@ -18,6 +18,8 @@ SRC_DIR=src/org/altusmetrum/AltosDroid
 
 SRC=\
 	$(SRC_DIR)/AltosDroid.java \
+	$(SRC_DIR)/TelemetryService.java \
+	$(SRC_DIR)/TelemetryServiceActivities.java \
 	$(SRC_DIR)/BluetoothChatService.java \
 	$(SRC_DIR)/DeviceListActivity.java
 
