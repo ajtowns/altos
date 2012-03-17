@@ -250,13 +250,46 @@ serial_string(char *string)
 		outbyte(c);
 }
 
+volatile uint16_t	tick_count;
+
+void
+stm_tim6_isr(void)
+{
+	if (stm_tim6.sr & (1 << STM_TIM67_SR_UIF)) {
+		stm_tim6.sr = 0;
+		++tick_count;
+	}
+}
+
+#define TIMER_10kHz	(STM_APB1 / 10000)
+
 void
 set_timer6(void)
 {
+	stm_nvic_set_enable(STM_ISR_TIM6_POS);
+	stm_nvic_set_priority(STM_ISR_TIM6_POS, 1);
+
 	/* Turn on timer 6 */
 	stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_TIM6EN);
 
-	
+	stm_tim6.psc = TIMER_10kHz;
+	stm_tim6.arr = 100;
+	stm_tim6.cnt = 0;
+
+	/* Enable update interrupt */
+	stm_tim6.dier = (1 << STM_TIM67_DIER_UIE);
+
+	/* Poke timer to reload values */
+	stm_tim6.egr |= (1 << STM_TIM67_EGR_UG);
+
+	stm_tim6.cr2 = (STM_TIM67_CR2_MMS_RESET << STM_TIM67_CR2_MMS);
+
+	/* And turn it on */
+	stm_tim6.cr1 = ((0 << STM_TIM67_CR1_ARPE) |
+			(0 << STM_TIM67_CR1_OPM) |
+			(1 << STM_TIM67_CR1_URS) |
+			(0 << STM_TIM67_CR1_UDIS) |
+			(1 << STM_TIM67_CR1_CEN));
 }
 
 void
@@ -273,7 +306,7 @@ main (void)
 		printf ("hello, ");
 		delay();
 		stm_gpiob.odr = (1 << 6);
-		printf ("world\n");
+		printf ("world %d\n", tick_count);
 		delay();
 	}
 }
@@ -285,22 +318,3 @@ delay(void)
 	for (i = 0; i < 1000000; i++)
 		__asm__ __volatile__ ("nop\n\t":::"memory");
 }
-
-static int x = 7;
-
-extern char __stack__;
-extern char __text_start__, __text_end__;
-extern char __data_start__, __data_end__;
-extern char __bss_start__, __bss_end__;
-
-void start(void) {
-	memcpy(&__data_start__, &__text_end__, &__data_end__ - &__data_start__);
-	memset(&__bss_start__, '\0', &__bss_end__ - &__bss_start__);
-	main();
-}
-
-__attribute__ ((section(".interrupt")))
-static const void *interrupt[] = {
-	&__stack__,
-	start,
-};
