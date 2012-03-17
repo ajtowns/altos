@@ -655,7 +655,20 @@ isr(usb_fs_wkup)
 isr(tim6)
 isr(tim7)
 
+#define STM_ISR_TIM9_POS	25
+#define STM_ISR_TIM10_POS	26
+#define STM_ISR_TIM11_POS	27
+#define STM_ISR_TIM2_POS	28
+#define STM_ISR_TIM3_POS	29
+#define STM_ISR_TIM4_POS	30
+
+#define STM_ISR_SPI1_POS	35
+#define STM_ISR_SPI2_POS	36
+#define STM_ISR_USART1_POS	37
+#define STM_ISR_USART2_POS	38
+#define STM_ISR_USART3_POS	39
 #define STM_ISR_TIM6_POS	43
+#define STM_ISR_TIM7_POS	44
 
 #undef isr
 

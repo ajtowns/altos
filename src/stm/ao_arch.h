@@ -124,6 +124,10 @@ struct ao_adc {
 	uint16_t	adc[AO_ARM_NUM_ADC];	/* samples */
 };
 
+/*
+ * For now, we're running at a weird frequency
+ */
+#define STM_APB1	(16000000 * 6 / 4)
 
 #endif /* _AO_ARCH_H_ */
 
