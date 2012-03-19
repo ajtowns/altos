@@ -3,8 +3,8 @@
 #
 #
 vpath % ..:../core:../product:../drivers:../stm
-vpath make-altitude ..
-vpath make-kalman ..
+vpath make-altitude ../util
+vpath make-kalman ../util
 vpath kalman.5c ../kalman
 vpath kalman_filter.5c ../kalman
 vpath load_csv.5c ../kalman
@@ -24,6 +24,7 @@ endif
 
 INC = \
 	ao.h \
+	ao_arch.h \
 	ao_pins.h \
 	altitude.h \
 	ao_kalman.h
@@ -48,7 +49,7 @@ PRODUCT_DEF=-DSTM_DEMO
 IDPRODUCT=0x000a
 CPU=cortex-m3
 CFLAGS = $(PRODUCT_DEF) -I. -I../stm -I../core -I..
-CFLAGS += -g -std=gnu99 -O0 -mlittle-endian -mcpu=cortex-m3 -mthumb -ffreestanding -nostdlib -I../stm $(CINC)
+CFLAGS += -g -std=gnu99 -Os -mlittle-endian -mcpu=cortex-m3 -mthumb -ffreestanding -nostdlib -I../stm $(CINC)
 
 NICKLE=nickle
 
@@ -76,6 +77,8 @@ $(PROG): Makefile $(OBJ)
 
 ../altitude.h: make-altitude
 	nickle $< > $@
+
+$(OBJ): $(INC)
 
 ao_product.h: ao-make-product.5c ../Version
 	$(call quiet,NICKLE,$<) $< -m altusmetrum.org -i $(IDPRODUCT) -p $(PRODUCT) -v $(VERSION) > $@

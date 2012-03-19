@@ -70,31 +70,44 @@ extern const uint16_t ao_serial_number;
 		uint32_t	a = (uint32_t) start; 			\
 		int		i;					\
 									\
+		/* APSR */						\
+		ARM_PUSH32(sp, 0);					\
+									\
+		/* PRIMASK with interrupts enabled */			\
+		ARM_PUSH32(sp, 0);					\
+									\
 		/* Return address (goes into LR) */			\
 		ARM_PUSH32(sp, a);					\
 									\
-		/* Clear register values  */				\
+		/* Clear register values r0-r12 */			\
 		i = 13;							\
 		while (i--)						\
 			ARM_PUSH32(sp, 0);				\
 									\
-		/* APSR */						\
-		ARM_PUSH32(sp, 0);					\
 		task->sp = sp;						\
 } while (0);
 	
-#define ao_arch_save_regs() do {					\
+#define ao_arch_save_regs() 	do {					\
+		uint32_t	apsr;					\
+		uint32_t	primask;				\
+									\
+		/* Save APSR */						\
+		asm("mrs %0,apsr" : "=&r" (apsr));			\
+		asm("push {%0}" : : "r" (apsr));			\
+									\
+		/* Save PRIMASK */ 					\
+		asm("mrs %0,primask" : "=&r" (primask));		\
+		asm("push {%0}" : : "r" (primask));			\
+									\
+		/* Save general registers */				\
 		asm("push {r0-r12,lr}\n");				\
-		cli();							\
-		asm("mrs r0,apsr" "\n\t" "push {r0}");			\
-		sei();							\
 	} while (0)
 
 #define ao_arch_save_stack() do {					\
-		uint32_t	sp;					\
+		uint32_t	*sp;					\
 		asm("mov %0,sp" : "=&r" (sp) );				\
-		ao_cur_task->sp = (uint32_t *) (sp);			\
-		if ((uint8_t *) ao_cur_task->sp < ao_cur_task->stack)	\
+		ao_cur_task->sp = (sp);					\
+		if ((uint8_t *) sp < ao_cur_task->stack)		\
 			ao_panic (AO_PANIC_STACK);			\
 	} while (0)
 
@@ -106,11 +119,25 @@ extern const uint16_t ao_serial_number;
 
 #define ao_arch_restore_stack() do { \
 		uint32_t	sp;					\
+		uint32_t	primask;				\
+		uint32_t	apsr;					\
 		sp = (uint32_t) ao_cur_task->sp;			\
-		cli();							\
+									\
+		/* Switch stacks */					\
 		asm("mov sp, %0" : : "r" (sp) );			\
-		asm("pop {r0}" "\n\t" "msr apsr,r0");			\
+									\
+		/* Restore general registers */				\
 		asm("pop {r0-r12,lr}\n");				\
+									\
+		/* Restore PRIMASK */					\
+		asm("pop {%0}" : "=&r" (primask) );			\
+		asm("msr primask,%0" : : "r" (primask) );		\
+									\
+		/* Restore APSR */					\
+		asm("pop {%0}" : "=&r" (apsr) );			\
+		asm("msr apsr,%0" : : "r" (apsr) );			\
+									\
+		/* Return to calling function */			\
 		asm("bx lr");						\
 	} while(0)
 
