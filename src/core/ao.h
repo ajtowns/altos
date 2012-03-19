@@ -113,6 +113,7 @@ ao_start_scheduler(void);
 #define AO_PANIC_FLASH		9	/* Invalid flash part (or wrong blocksize) */
 #define AO_PANIC_USB		10	/* Trying to send USB packet while busy */
 #define AO_PANIC_BT		11	/* Communications with bluetooth device failed */
+#define AO_PANIC_STACK		12	/* Stack overflow */
 
 /* Stop the operating system, beeping and blinking the reason */
 void
