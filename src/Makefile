@@ -13,6 +13,7 @@ vpath matrix.5c kalman
 include Version
 
 SUBDIRS=\
+	stm-bringup stm-demo \
 	telemetrum-v1.2 telemetrum-v1.1 telemetrum-v1.0 \
 	teledongle-v0.2 teledongle-v0.1 \
 	telemini-v1.0 telenano-v0.1 \

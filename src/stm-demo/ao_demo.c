@@ -42,8 +42,9 @@ main(void)
 	
 	ao_serial_init();
 	ao_timer_init();
-	ao_cmd_init();
+//	ao_cmd_init();
 	
-	ao_demo();
+	ao_add_task(&demo_task, ao_demo, "demo");
+	ao_start_scheduler();
 	return 0;
 }

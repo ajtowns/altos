@@ -51,19 +51,20 @@ ao_serial_tx1_start(void)
 void stm_usart1_isr(void)
 {
 	uint32_t	sr;
-	cli();
+
 	sr = stm_usart1.sr;
 	stm_usart1.sr = 0;
-	sei();
+
 	if (sr & (1 << STM_USART_SR_RXNE)) {
+		char c = stm_usart1.dr;
 		if (!ao_fifo_full(ao_usart1_rx_fifo))
-			ao_fifo_insert(ao_usart1_rx_fifo, stm_usart1.dr);
+			ao_fifo_insert(ao_usart1_rx_fifo, c);
 		ao_wakeup(&ao_usart1_rx_fifo);
 #if USE_SERIAL_STDIN
 		ao_wakeup(&ao_stdin_ready);
 #endif
 	}
-	if (sr & (1 << STM_USART_SR_TXE)) {
+	if (sr & (1 << STM_USART_SR_TC)) {
 		ao_serial_tx1_started = 0;
 		ao_serial_tx1_start();
 		ao_wakeup(&ao_usart1_tx_fifo);
@@ -174,8 +175,8 @@ ao_serial_init(void)
 			  (0 << STM_USART_CR1_PCE) |
 			  (0 << STM_USART_CR1_PS) |
 			  (0 << STM_USART_CR1_PEIE) |
-			  (1 << STM_USART_CR1_TXEIE) |
-			  (0 << STM_USART_CR1_TCIE) |
+			  (0 << STM_USART_CR1_TXEIE) |
+			  (1 << STM_USART_CR1_TCIE) |
 			  (1 << STM_USART_CR1_RXNEIE) |
 			  (0 << STM_USART_CR1_IDLEIE) |
 			  (1 << STM_USART_CR1_TE) |
@@ -210,12 +211,10 @@ ao_serial_init(void)
 	ao_serial_set_speed(AO_SERIAL_SPEED_9600);
 
 	printf ("serial initialized\n");
-#if 0
 #if USE_SERIAL_STDIN
 	ao_add_stdio(ao_serial_pollchar,
 		     ao_serial_putchar,
 		     NULL);
-#endif
 #endif
 
 	stm_nvic_set_enable(STM_ISR_USART1_POS);

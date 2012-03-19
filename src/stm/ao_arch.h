@@ -25,7 +25,7 @@
  * STM32L definitions and code fragments for AltOS
  */
 
-#define AO_STACK_SIZE	256
+#define AO_STACK_SIZE	1024
 
 /* Various definitions to make GCC look more like SDCC */
 
@@ -67,29 +67,26 @@ extern const uint16_t ao_serial_number;
 
 #define ao_arch_init_stack(task, start) do {				\
 		uint32_t	*sp = (uint32_t *) (task->stack + AO_STACK_SIZE); \
-		uint16_t	a = (uint16_t) start; 			\
+		uint32_t	a = (uint32_t) start; 			\
 		int		i;					\
 									\
-		/* Return address */					\
+		/* Return address (goes into LR) */			\
 		ARM_PUSH32(sp, a);					\
-									\
-		/* Invalid link register */				\
-		ARM_PUSH32(sp, 0xffffffff);				\
 									\
 		/* Clear register values  */				\
 		i = 13;							\
 		while (i--)						\
 			ARM_PUSH32(sp, 0);				\
 									\
-		/* PSR with interrupts enabled */			\
-		ARM_PUSH32(sp, 0x01000000);				\
+		/* APSR */						\
+		ARM_PUSH32(sp, 0);					\
 		task->sp = sp;						\
 } while (0);
 	
 #define ao_arch_save_regs() do {					\
 		asm("push {r0-r12,lr}\n");				\
 		cli();							\
-		asm("mrs r0,psr" "\n\t" "push {r0}");			\
+		asm("mrs r0,apsr" "\n\t" "push {r0}");			\
 		sei();							\
 	} while (0)
 
@@ -97,6 +94,8 @@ extern const uint16_t ao_serial_number;
 		uint32_t	sp;					\
 		asm("mov %0,sp" : "=&r" (sp) );				\
 		ao_cur_task->sp = (uint32_t *) (sp);			\
+		if ((uint8_t *) ao_cur_task->sp < ao_cur_task->stack)	\
+			ao_panic (AO_PANIC_STACK);			\
 	} while (0)
 
 #define ao_arch_isr_stack()	/* nothing */
@@ -110,7 +109,7 @@ extern const uint16_t ao_serial_number;
 		sp = (uint32_t) ao_cur_task->sp;			\
 		cli();							\
 		asm("mov sp, %0" : : "r" (sp) );			\
-		asm("pop {r0}" "\n\t" "msr psr,r0");			\
+		asm("pop {r0}" "\n\t" "msr apsr,r0");			\
 		asm("pop {r0-r12,lr}\n");				\
 		asm("bx lr");						\
 	} while(0)

@@ -48,13 +48,16 @@ ao_debug_out(char c);
 
 void stm_tim6_isr(void)
 {
-	++ao_tick_count;
+	if (stm_tim6.sr & (1 << STM_TIM67_SR_UIF)) {
+		stm_tim6.sr = 0;
+		++ao_tick_count;
 #if HAS_ADC
-	if (++ao_adc_count == ao_adc_interval) {
-		ao_adc_count = 0;
-		ao_adc_poll();
-	}
+		if (++ao_adc_count == ao_adc_interval) {
+			ao_adc_count = 0;
+			ao_adc_poll();
+		}
 #endif
+	}
 }
 
 #if HAS_ADC

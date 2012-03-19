@@ -24,4 +24,6 @@
 #define HAS_BEEP		0
 #define PACKET_HAS_SLAVE	0
 
+#define LOW_LEVEL_DEBUG		1
+
 #endif /* _AO_PINS_H_ */
