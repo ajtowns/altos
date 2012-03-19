@@ -30,6 +30,15 @@ __pdata int8_t ao_num_stdios;
 void
 putchar(char c)
 {
+#if LOW_LEVEL_DEBUG
+	if (!ao_cur_task) {
+		extern void ao_debug_out(char c);
+		if (c == '\n')
+			ao_debug_out('\r');
+		ao_debug_out(c);
+		return;
+	}
+#endif
 	if (c == '\n')
 		(*ao_stdios[ao_cur_stdio].putchar)('\r');
 	(*ao_stdios[ao_cur_stdio].putchar)(c);
