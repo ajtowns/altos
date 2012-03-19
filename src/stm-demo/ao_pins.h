@@ -26,4 +26,15 @@
 
 #define LOW_LEVEL_DEBUG		1
 
+#define LED_PORT_ENABLE		STM_RCC_AHBENR_GPIOBEN
+#define LED_PORT		stm_gpiob
+#define LED_PIN_GREEN		7
+#define LED_PIN_BLUE		6
+#define AO_LED_GREEN		(1 << LED_PIN_GREEN)
+#define AO_LED_BLUE		(1 << LED_PIN_BLUE)
+
+#define AO_LED_RED		AO_LED_BLUE	/* a patent lie */
+
+#define LEDS_AVAILABLE		(AO_LED_BLUE | AO_LED_GREEN)
+
 #endif /* _AO_PINS_H_ */

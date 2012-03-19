@@ -19,30 +19,28 @@
 
 __pdata uint8_t ao_led_enable;
 
-#define LED_PORT	STM_GPIOD
-
 void
 ao_led_on(uint8_t colors)
 {
-	LED_PORT->odr |= (colors & ao_led_enable);
+	LED_PORT.odr |= (colors & ao_led_enable);
 }
 
 void
 ao_led_off(uint8_t colors)
 {
-	LED_PORT->odr &= ~(colors & ao_led_enable);
+	LED_PORT.odr &= ~(colors & ao_led_enable);
 }
 
 void
 ao_led_set(uint8_t colors)
 {
-	LED_PORT->odr = (LED_PORT->odr & ~(ao_led_enable)) | (colors & ao_led_enable);
+	LED_PORT.odr = (LED_PORT.odr & ~(ao_led_enable)) | (colors & ao_led_enable);
 }
 
 void
 ao_led_toggle(uint8_t colors)
 {
-	LED_PORT->odr ^= (colors & ao_led_enable);
+	LED_PORT.odr ^= (colors & ao_led_enable);
 }
 
 void
@@ -58,12 +56,13 @@ ao_led_init(uint8_t enable)
 {
 	int	bit;
 
+	stm_rcc.ahbenr |= (1 << LED_PORT_ENABLE);
 	ao_led_enable = enable;
-	LED_PORT->odr &= ~enable;
+	LED_PORT.odr &= ~enable;
 	for (bit = 0; bit < 16; bit++) {
 		if (enable & (1 << bit)) {
-			stm_moder_set(LED_PORT, bit, STM_MODER_OUTPUT);
-			stm_otyper_set(LED_PORT, bit, STM_OTYPER_PUSH_PULL);
+			stm_moder_set(&LED_PORT, bit, STM_MODER_OUTPUT);
+			stm_otyper_set(&LED_PORT, bit, STM_OTYPER_PUSH_PULL);
 		}
 	}
 }

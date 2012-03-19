@@ -22,9 +22,13 @@ struct ao_task demo_task;
 void
 ao_demo(void)
 {
-	int	i = 0;
 	for (;;) {
-		printf ("hello %d\n", i++);
+		ao_led_on(AO_LED_BLUE);
+		ao_delay(AO_MS_TO_TICKS(500));
+		ao_led_off(AO_LED_BLUE);
+		ao_led_on(AO_LED_GREEN);
+		ao_delay(AO_MS_TO_TICKS(500));
+		ao_led_off(AO_LED_GREEN);
 	}
 }
 
@@ -42,9 +46,10 @@ main(void)
 	
 	ao_serial_init();
 	ao_timer_init();
-//	ao_cmd_init();
-	
+	ao_cmd_init();
+	ao_led_init(LEDS_AVAILABLE);
 	ao_add_task(&demo_task, ao_demo, "demo");
+	
 	ao_start_scheduler();
 	return 0;
 }
