@@ -105,7 +105,6 @@ extern uint8_t	ao_cpu_sleep_disable;
 		asm("push r14" "\n\t" "push r13" "\n\t" "push r12" "\n\t" "push r11" "\n\t" "push r10"); \
 		asm("push r9" "\n\t" "push r8" "\n\t" "push r7" "\n\t" "push r6" "\n\t" "push r5"); \
 		asm("push r4" "\n\t" "push r3" "\n\t" "push r2" "\n\t" "push r1" "\n\t" "push r0"); \
-		cli();							\
 		asm("in r0, __SREG__" "\n\t" "push r0");		\
 		sei();							\
 	} while (0)
