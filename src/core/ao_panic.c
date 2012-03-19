@@ -45,6 +45,10 @@ ao_panic(uint8_t reason)
 {
 	uint8_t	n;
 
+#if LOW_LEVEL_DEBUG
+	ao_cur_task = NULL;
+	printf ("panic %d\n", reason);
+#endif
 	__critical for (;;) {
 		ao_panic_delay(20);
 		for (n = 0; n < 5; n++) {
