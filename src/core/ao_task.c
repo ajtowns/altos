@@ -164,7 +164,7 @@ ao_task_info(void)
 		task = ao_tasks[i];
 		printf("%12s: wchan %04x\n",
 		       task->name,
-		       (int16_t) task->wchan);
+		       (int) task->wchan);
 	}
 }
 
