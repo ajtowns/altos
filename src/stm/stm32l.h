@@ -174,6 +174,8 @@ struct stm_usart {
 };
 
 extern struct stm_usart	stm_usart1;
+extern struct stm_usart stm_usart2;
+extern struct stm_usart stm_usart3;
 
 #define STM_USART_SR_CTS	(9)	/* CTS flag */
 #define STM_USART_SR_LBD	(8)	/* LIN break detection flag */
