@@ -24,16 +24,6 @@ struct ao_stm_usart {
 	uint8_t			tx_started;
 };
 
-#if HAS_SERIAL_1
-struct ao_stm_usart ao_stm_usart1;
-#endif
-#if HAS_SERIAL_2
-struct ao_stm_usart ao_stm_usart2;
-#endif
-#if HAS_SERIAL_3
-struct ao_stm_usart ao_stm_usart3;
-#endif
-
 void
 ao_debug_out(char c)
 {
@@ -42,14 +32,6 @@ ao_debug_out(char c)
 	while (!(stm_usart1.sr & (1 << STM_USART_SR_TXE)));
 	stm_usart1.dr = c;
 }
-
-#if 0
-void
-outbyte(char c)
-{
-	putchar(c);
-}
-#endif
 
 static void
 ao_usart_tx_start(struct ao_stm_usart *usart)
@@ -83,16 +65,6 @@ ao_usart_isr(struct ao_stm_usart *usart, int stdin)
 		ao_wakeup(&usart->tx_fifo);
 	}
 }
-
-#if HAS_SERIAL_1
-void stm_usart1_isr(void) { ao_usart_isr(&ao_stm_usart1, USE_SERIAL_STDIN); }
-#endif
-#if HAS_SERIAL_2
-void stm_usart2_isr(void) { ao_usart_isr(&ao_stm_usart2, 0); }
-#endif
-#if HAS_SERIAL_3
-void stm_usart3_isr(void) { ao_usart_isr(&ao_stm_usart3, 0); }
-#endif
 
 char
 ao_usart_getchar(struct ao_stm_usart *usart)
@@ -210,6 +182,19 @@ ao_usart_init(struct ao_stm_usart *usart)
 	/* Pick a 9600 baud rate */
 	ao_usart_set_speed(usart, AO_SERIAL_SPEED_9600);
 }
+
+#if HAS_SERIAL_1
+struct ao_stm_usart ao_stm_usart1;
+void stm_usart1_isr(void) { ao_usart_isr(&ao_stm_usart1, USE_SERIAL_STDIN); }
+#endif
+#if HAS_SERIAL_2
+struct ao_stm_usart ao_stm_usart2;
+void stm_usart2_isr(void) { ao_usart_isr(&ao_stm_usart2, 0); }
+#endif
+#if HAS_SERIAL_3
+struct ao_stm_usart ao_stm_usart3;
+void stm_usart3_isr(void) { ao_usart_isr(&ao_stm_usart3, 0); }
+#endif
 
 void
 ao_serial_init(void)
