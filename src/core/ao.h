@@ -258,29 +258,33 @@ ao_beep_init(void);
 
 #define AO_LED_NONE	0
 
+#ifndef AO_LED_TYPE
+#define AO_LED_TYPE uint8_t
+#endif
+
 /* Turn on the specified LEDs */
 void
-ao_led_on(uint8_t colors);
+ao_led_on(AO_LED_TYPE colors);
 
 /* Turn off the specified LEDs */
 void
-ao_led_off(uint8_t colors);
+ao_led_off(AO_LED_TYPE colors);
 
 /* Set all of the LEDs to the specified state */
 void
-ao_led_set(uint8_t colors);
+ao_led_set(AO_LED_TYPE colors);
 
 /* Toggle the specified LEDs */
 void
-ao_led_toggle(uint8_t colors);
+ao_led_toggle(AO_LED_TYPE colors);
 
 /* Turn on the specified LEDs for the indicated interval */
 void
-ao_led_for(uint8_t colors, uint16_t ticks) __reentrant;
+ao_led_for(AO_LED_TYPE colors, uint16_t ticks) __reentrant;
 
 /* Initialize the LEDs */
 void
-ao_led_init(uint8_t enable);
+ao_led_init(AO_LED_TYPE enable);
 
 /*
  * ao_usb.c
