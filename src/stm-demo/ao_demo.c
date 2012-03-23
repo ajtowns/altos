@@ -19,16 +19,27 @@
 
 struct ao_task demo_task;
 
+static inline int min(int a, int b) { return a < b ? a : b; }
+
 void
 ao_demo(void)
 {
+	char	message[] = "Hello, Mike & Bdale --- ";
+	char	part[7];
+	int	i = 0;
+	int	len = sizeof(message) - 1;
+	int	first, second;
+
+	part[6] = '\0';
 	for (;;) {
-		ao_led_on(AO_LED_BLUE);
-		ao_delay(AO_MS_TO_TICKS(500));
-		ao_led_off(AO_LED_BLUE);
-		ao_led_on(AO_LED_GREEN);
-		ao_delay(AO_MS_TO_TICKS(500));
-		ao_led_off(AO_LED_GREEN);
+		ao_delay(AO_MS_TO_TICKS(150));
+		first = min(6, len - i);
+		second = 6 - first;
+		memcpy(part, message + i, first);
+		memcpy(part + first, message, second);
+		ao_lcd_font_string(part);
+		if (++i >= len)
+			i = 0;
 	}
 }
 
@@ -47,10 +58,9 @@ main(void)
 	ao_serial_init();
 	ao_timer_init();
 	ao_cmd_init();
-//	ao_led_init(LEDS_AVAILABLE);
 	ao_lcd_stm_init();
 	ao_lcd_font_init();
-//	ao_add_task(&demo_task, ao_demo, "demo");
+	ao_add_task(&demo_task, ao_demo, "demo");
 	
 	ao_start_scheduler();
 	return 0;

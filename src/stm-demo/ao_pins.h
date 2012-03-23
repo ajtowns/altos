@@ -19,9 +19,21 @@
 #define _AO_PINS_H_
 
 #define HAS_SERIAL_1		1
+#define USE_SERIAL_1_STDIN	1
+#define SERIAL_1_PB6_PB7	1
+#define SERIAL_1_PA9_PA10	0
+
 #define HAS_SERIAL_2		0
+#define USE_SERIAL_2_STDIN	1
+#define SERIAL_2_PA2_PA3	0
+#define SERIAL_2_PD5_PD6	1
+
 #define HAS_SERIAL_3		0
-#define USE_SERIAL_STDIN	1
+#define USE_SERIAL_3_STDIN	1
+#define SERIAL_3_PB10_PB11	0
+#define SERIAL_3_PC10_PC11	0
+#define SERIAL_3_PD8_PD9	1
+
 #define HAS_USB			0
 #define HAS_BEEP		0
 #define PACKET_HAS_SLAVE	0
