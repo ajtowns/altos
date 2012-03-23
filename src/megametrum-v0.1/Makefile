@@ -21,6 +21,7 @@ ALTOS_SRC = \
 	ao_product.c \
 	ao_romconfig.c \
 	ao_cmd.c \
+	ao_config.c \
 	ao_task.c \
 	ao_led.c \
 	ao_stdio.c \
@@ -28,7 +29,8 @@ ALTOS_SRC = \
 	ao_timer.c \
 	ao_mutex.c \
 	ao_serial_stm.c \
-	ao_gps_skytraq.c
+	ao_gps_skytraq.c \
+	ao_cc1120.c
 
 PRODUCT=MegaMetrum-v0.1
 PRODUCT_DEF=-DMEGAMETRUM

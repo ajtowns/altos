@@ -27,6 +27,8 @@ main(void)
 	ao_led_on(AO_LED_GREEN);
 	ao_timer_init();
 	ao_cmd_init();
+	ao_gps_init();
+	ao_config_init();
 	
 	ao_start_scheduler();
 	return 0;

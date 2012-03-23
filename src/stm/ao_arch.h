@@ -201,5 +201,7 @@ ao_serial3_pollchar(void);
 void
 ao_serial3_set_speed(uint8_t speed);
 
+extern uint32_t	ao_radio_cal;
+
 #endif /* _AO_ARCH_H_ */
 
