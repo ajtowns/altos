@@ -19,6 +19,18 @@
 #include "ao.h"
 #endif
 
+#ifndef ao_gps_getchar
+#define ao_gps_getchar	ao_serial_getchar
+#endif
+
+#ifndef ao_gps_putchar
+#define ao_gps_putchar	ao_serial_putchar
+#endif
+
+#ifndef ao_gps_set_speed
+#define ao_gps_set_speed	ao_serial_set_speed
+#endif
+
 __xdata uint8_t ao_gps_mutex;
 static __data char ao_gps_char;
 static __data uint8_t ao_gps_cksum;
@@ -68,7 +80,7 @@ ao_gps_lexchar(void)
 	if (ao_gps_error)
 		c = '\n';
 	else
-		c = ao_serial_getchar();
+		c = ao_gps_getchar();
 	ao_gps_cksum ^= c;
 	ao_gps_char = c;
 }
@@ -402,7 +414,7 @@ ao_skytraq_sendbytes(__code uint8_t *b, uint8_t l)
 		uint8_t	c = *b++;
 		if (c == 0xa0)
 			ao_delay(AO_MS_TO_TICKS(500));
-		ao_serial_putchar(c);
+		ao_gps_putchar(c);
 	}
 }
 
@@ -444,7 +456,7 @@ ao_gps_nmea_parse(void)
 void
 ao_gps(void) __reentrant
 {
-	ao_serial_set_speed(AO_SERIAL_SPEED_9600);
+	ao_gps_set_speed(AO_SERIAL_SPEED_9600);
 
 	/* give skytraq time to boot in case of cold start */
 	ao_delay(AO_MS_TO_TICKS(2000));
@@ -453,7 +465,7 @@ ao_gps(void) __reentrant
 
 	for (;;) {
 		/* Locate the begining of the next record */
-		if (ao_serial_getchar() == '$') {
+		if (ao_gps_getchar() == '$') {
 			ao_gps_nmea_parse();
 		}
 	}
