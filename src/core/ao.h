@@ -899,7 +899,7 @@ ao_dbg_init(void);
 #error Please define HAS_SERIAL_1
 #endif
 
-#if HAS_SERIAL_1
+#if HAS_SERIAL_1 | HAS_SERIAL_2 | HAS_SERIAL_3
 #ifndef USE_SERIAL_STDIN
 #error Please define USE_SERIAL_STDIN
 #endif
