@@ -1,0 +1,33 @@
+vpath % ../stm:../product:../drivers:../core:../util:../kalman:..
+vpath make-altitude ../util
+vpath make-kalman ../util
+vpath kalman.5c ../kalman
+vpath kalman_filter.5c ../kalman
+vpath load_csv.5c ../kalman
+vpath matrix.5c ../kalman
+vpath ao-make-product.5c ../util
+
+CC=arm-none-eabi-gcc
+SAT=$(HOME)/sat
+SAT_CLIB=$(SAT)/lib/pdclib.a
+SAT_CFLAGS=-I$(SAT)/include
+
+ifndef VERSION
+include ../Version
+endif
+
+AO_CFLAGS=-I. -I../stm -I../core -I..
+STM_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m3 -mthumb -ffreestanding -nostdlib $(AO_CFLAGS) $(SAT_CFLAGS)
+
+NICKLE=nickle
+
+V=0
+# The user has explicitly enabled quiet compilation.
+ifeq ($(V),0)
+quiet = @printf "  $1 $2 $@\n"; $($1)
+endif
+# Otherwise, print the full command line.
+quiet ?= $($1)
+
+.c.o:
+	$(call quiet,CC) -c $(CFLAGS) -o $@ $<
