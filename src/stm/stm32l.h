@@ -133,6 +133,10 @@ stm_pupdr_get(struct stm_gpio *gpio, int pin) {
 
 static inline void
 stm_afr_set(struct stm_gpio *gpio, int pin, uint32_t value) {
+	/*
+	 * Set alternate pin mode too
+	 */
+	stm_moder_set(gpio, pin, STM_MODER_ALTERNATE);
 	if (pin < 8)
 		gpio->afrl = ((gpio->afrl &
 			       ~(STM_AFR_MASK << STM_AFR_SHIFT(pin))) |
