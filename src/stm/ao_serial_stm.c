@@ -184,35 +184,111 @@ ao_usart_init(struct ao_stm_usart *usart)
 }
 
 #if HAS_SERIAL_1
+
 struct ao_stm_usart ao_stm_usart1;
-void stm_usart1_isr(void) { ao_usart_isr(&ao_stm_usart1, USE_SERIAL_STDIN); }
-#endif
+
+void stm_usart1_isr(void) { ao_usart_isr(&ao_stm_usart1, USE_SERIAL_1_STDIN); }
+
+#if USE_SERIAL_1_STDIN
+char
+ao_serial1_getchar(void)
+{
+	return ao_usart_getchar(&ao_stm_usart1);
+}
+
+void
+ao_serial1_putchar(char c)
+{
+	ao_usart_putchar(&ao_stm_usart1, c);
+}
+
+char
+ao_serial1_pollchar(void)
+{
+	return ao_usart_pollchar(&ao_stm_usart1);
+}
+#endif	/* USE_SERIAL_1_STDIN */
+#endif	/* HAS_SERIAL_1 */
+
 #if HAS_SERIAL_2
+
 struct ao_stm_usart ao_stm_usart2;
-void stm_usart2_isr(void) { ao_usart_isr(&ao_stm_usart2, 0); }
-#endif
+
+void stm_usart2_isr(void) { ao_usart_isr(&ao_stm_usart2, USE_SERIAL_2_STDIN); }
+
+#if USE_SERIAL_2_STDIN
+char
+ao_serial2_getchar(void)
+{
+	return ao_usart_getchar(&ao_stm_usart2);
+}
+
+void
+ao_serial2_putchar(char c)
+{
+	ao_usart_putchar(&ao_stm_usart2, c);
+}
+
+char
+ao_serial2_pollchar(void)
+{
+	return ao_usart_pollchar(&ao_stm_usart2);
+}
+#endif	/* USE_SERIAL_2_STDIN */
+#endif	/* HAS_SERIAL_2 */
+
 #if HAS_SERIAL_3
+
 struct ao_stm_usart ao_stm_usart3;
-void stm_usart3_isr(void) { ao_usart_isr(&ao_stm_usart3, 0); }
-#endif
+
+void stm_usart3_isr(void) { ao_usart_isr(&ao_stm_usart3, USE_SERIAL_3_STDIN); }
+
+#if USE_SERIAL_3_STDIN
+char
+ao_serial3_getchar(void)
+{
+	return ao_usart_getchar(&ao_stm_usart3);
+}
+
+void
+ao_serial3_putchar(char c)
+{
+	ao_usart_putchar(&ao_stm_usart3, c);
+}
+
+char
+ao_serial3_pollchar(void)
+{
+	return ao_usart_pollchar(&ao_stm_usart2);
+}
+#endif	/* USE_SERIAL_3_STDIN */
+#endif	/* HAS_SERIAL_3 */
 
 void
 ao_serial_init(void)
 {
-#ifdef HAS_SERIAL_1
+#if HAS_SERIAL_1
 	/*
 	 *	TX	RX
 	 *	PA9	PA10
 	 *	PB6	PB7	*
 	 */
 
+#if SERIAL_1_PA9_PA10
+	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOAEN);
+
+	stm_afr_set(&stm_gpioa, 9, STM_AFR_AF7);
+	stm_afr_set(&stm_gpioa, 10, STM_AFR_AF7);
+#else
+#if SERIAL_1_PB6_PB7
 	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOBEN);
 
-	stm_moder_set(&stm_gpiob, 6, STM_MODER_ALTERNATE);
-	stm_moder_set(&stm_gpiob, 7, STM_MODER_ALTERNATE);
 	stm_afr_set(&stm_gpiob, 6, STM_AFR_AF7);
 	stm_afr_set(&stm_gpiob, 7, STM_AFR_AF7);
-	
+#else
+#error "No SERIAL_1 port configuration specified"
+#endif
+#endif
 	/* Enable USART */
 	stm_rcc.apb2enr |= (1 << STM_RCC_APB2ENR_USART1EN);
 	ao_stm_usart1.reg = &stm_usart1;
@@ -221,9 +297,9 @@ ao_serial_init(void)
 
 	stm_nvic_set_enable(STM_ISR_USART1_POS);
 	stm_nvic_set_priority(STM_ISR_USART1_POS, 4);
-#if USE_SERIAL_STDIN
-	ao_add_stdio(ao_serial_pollchar,
-		     ao_serial_putchar,
+#if USE_SERIAL_1_STDIN
+	ao_add_stdio(ao_serial1_pollchar,
+		     ao_serial1_putchar,
 		     NULL);
 #endif
 #endif
@@ -235,21 +311,34 @@ ao_serial_init(void)
 	 *	PD5	PD6
 	 */
 
+#if SERIAL_2_PA2_PA3
 	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOAEN);
 
-	stm_moder_set(&stm_gpioa, 2, STM_MODER_ALTERNATE);
-	stm_moder_set(&stm_gpioa, 3, STM_MODER_ALTERNATE);
 	stm_afr_set(&stm_gpioa, 2, STM_AFR_AF7);
 	stm_afr_set(&stm_gpioa, 3, STM_AFR_AF7);
-	
+#else
+#if SERIAL_2_PD5_PD6
+	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIODEN);
+
+	stm_afr_set(&stm_gpiod, 5, STM_AFR_AF7);
+	stm_afr_set(&stm_gpiod, 6, STM_AFR_AF7);
+#else
+#error "No SERIAL_2 port configuration specified"
+#endif	
+#endif
 	/* Enable USART */
 	stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_USART2EN);
-	ao_usart_init(&stm_usart1);
 
 	ao_stm_usart2.reg = &stm_usart2;
+	ao_usart_init(&ao_stm_usart2);
 
 	stm_nvic_set_enable(STM_ISR_USART2_POS);
 	stm_nvic_set_priority(STM_ISR_USART2_POS, 4);
+#if USE_SERIAL_2_STDIN
+	ao_add_stdio(ao_serial2_pollchar,
+		     ao_serial2_putchar,
+		     NULL);
+#endif
 #endif
 
 #if HAS_SERIAL_3
@@ -259,44 +348,43 @@ ao_serial_init(void)
 	 *	PC10	PC11
 	 *	PD8	PD9
 	 */
+#if SERIAL_3_PB10_PB11
 	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOBEN);
 
-	stm_moder_set(&stm_gpiob, 10, STM_MODER_ALTERNATE);
-	stm_moder_set(&stm_gpiob, 11, STM_MODER_ALTERNATE);
 	stm_afr_set(&stm_gpiob, 10, STM_AFR_AF7);
 	stm_afr_set(&stm_gpiob, 11, STM_AFR_AF7);
+#else
+#if SERIAL_3_PC10_PC11
+	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOCEN);
+
+	stm_afr_set(&stm_gpioc, 10, STM_AFR_AF7);
+	stm_afr_set(&stm_gpioc, 11, STM_AFR_AF7);
+#else
+#if SERIAL_3_PD8_PD9
+	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIODEN);
+
+	stm_afr_set(&stm_gpiod, 8, STM_AFR_AF7);
+	stm_afr_set(&stm_gpiod, 9, STM_AFR_AF7);
+#else
+#error "No SERIAL_3 port configuration specified"
+#endif
+#endif
+#endif
 	
 	/* Enable USART */
 	stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_USART3EN);
-	ao_usart_init(&stm_usart1);
 
 	ao_stm_usart3.reg = &stm_usart3;
+	ao_usart_init(&ao_stm_usart3);
 
 	stm_nvic_set_enable(STM_ISR_USART3_POS);
 	stm_nvic_set_priority(STM_ISR_USART3_POS, 4);
+#if USE_SERIAL_3_STDIN
+	ao_add_stdio(ao_serial3_pollchar,
+		     ao_serial3_putchar,
+		     NULL);
+#endif
 #endif
 }
-
-#if HAS_SERIAL_1
-char
-ao_serial_getchar(void)
-{
-	return ao_usart_getchar(&ao_stm_usart1);
-}
-
-#if USE_SERIAL_STDIN
-char
-ao_serial_pollchar(void)
-{
-	return ao_usart_pollchar(&ao_stm_usart1);
-}
-#endif
-
-void
-ao_serial_putchar(char c)
-{
-	ao_usart_putchar(&ao_stm_usart1, c);
-}
-#endif /* HAS_SERIAL_1 */
 
 
