@@ -17,34 +17,34 @@
 
 #include "ao.h"
 
-__pdata uint8_t ao_led_enable;
+__pdata uint16_t ao_led_enable;
 
 void
-ao_led_on(uint8_t colors)
+ao_led_on(uint16_t colors)
 {
 	LED_PORT.odr |= (colors & ao_led_enable);
 }
 
 void
-ao_led_off(uint8_t colors)
+ao_led_off(uint16_t colors)
 {
 	LED_PORT.odr &= ~(colors & ao_led_enable);
 }
 
 void
-ao_led_set(uint8_t colors)
+ao_led_set(uint16_t colors)
 {
 	LED_PORT.odr = (LED_PORT.odr & ~(ao_led_enable)) | (colors & ao_led_enable);
 }
 
 void
-ao_led_toggle(uint8_t colors)
+ao_led_toggle(uint16_t colors)
 {
 	LED_PORT.odr ^= (colors & ao_led_enable);
 }
 
 void
-ao_led_for(uint8_t colors, uint16_t ticks) __reentrant
+ao_led_for(uint16_t colors, uint16_t ticks) __reentrant
 {
 	ao_led_on(colors);
 	ao_delay(ticks);
@@ -52,7 +52,7 @@ ao_led_for(uint8_t colors, uint16_t ticks) __reentrant
 }
 
 void
-ao_led_init(uint8_t enable)
+ao_led_init(uint16_t enable)
 {
 	int	bit;
 

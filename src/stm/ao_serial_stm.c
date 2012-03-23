@@ -189,7 +189,6 @@ struct ao_stm_usart ao_stm_usart1;
 
 void stm_usart1_isr(void) { ao_usart_isr(&ao_stm_usart1, USE_SERIAL_1_STDIN); }
 
-#if USE_SERIAL_1_STDIN
 char
 ao_serial1_getchar(void)
 {
@@ -207,7 +206,12 @@ ao_serial1_pollchar(void)
 {
 	return ao_usart_pollchar(&ao_stm_usart1);
 }
-#endif	/* USE_SERIAL_1_STDIN */
+
+void
+ao_serial1_set_speed(uint8_t speed)
+{
+	ao_usart_set_speed(&ao_stm_usart1, speed);
+}
 #endif	/* HAS_SERIAL_1 */
 
 #if HAS_SERIAL_2
@@ -216,7 +220,6 @@ struct ao_stm_usart ao_stm_usart2;
 
 void stm_usart2_isr(void) { ao_usart_isr(&ao_stm_usart2, USE_SERIAL_2_STDIN); }
 
-#if USE_SERIAL_2_STDIN
 char
 ao_serial2_getchar(void)
 {
@@ -234,7 +237,12 @@ ao_serial2_pollchar(void)
 {
 	return ao_usart_pollchar(&ao_stm_usart2);
 }
-#endif	/* USE_SERIAL_2_STDIN */
+
+void
+ao_serial2_set_speed(uint8_t speed)
+{
+	ao_usart_set_speed(&ao_stm_usart2, speed);
+}
 #endif	/* HAS_SERIAL_2 */
 
 #if HAS_SERIAL_3
@@ -243,7 +251,6 @@ struct ao_stm_usart ao_stm_usart3;
 
 void stm_usart3_isr(void) { ao_usart_isr(&ao_stm_usart3, USE_SERIAL_3_STDIN); }
 
-#if USE_SERIAL_3_STDIN
 char
 ao_serial3_getchar(void)
 {
@@ -259,9 +266,14 @@ ao_serial3_putchar(char c)
 char
 ao_serial3_pollchar(void)
 {
-	return ao_usart_pollchar(&ao_stm_usart2);
+	return ao_usart_pollchar(&ao_stm_usart3);
 }
-#endif	/* USE_SERIAL_3_STDIN */
+
+void
+ao_serial3_set_speed(uint8_t speed)
+{
+	ao_usart_set_speed(&ao_stm_usart3, speed);
+}
 #endif	/* HAS_SERIAL_3 */
 
 void

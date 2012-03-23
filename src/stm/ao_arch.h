@@ -27,6 +27,8 @@
 
 #define AO_STACK_SIZE	1024
 
+#define AO_LED_TYPE	uint16_t
+
 /* Various definitions to make GCC look more like SDCC */
 
 #define ao_arch_naked_declare	__attribute__((naked))
@@ -162,6 +164,42 @@ void ao_lcd_font_init(void);
 void ao_lcd_font_string(char *s);
 
 #define USE_SERIAL_STDIN	(USE_SERIAL_1_STDIN + USE_SERIAL_2_STDIN + USE_SERIAL_3_STDIN)
+
+char
+ao_serial1_getchar(void);
+
+void
+ao_serial1_putchar(char c);
+
+char
+ao_serial1_pollchar(void);
+
+void
+ao_serial1_set_speed(uint8_t speed);
+
+char
+ao_serial2_getchar(void);
+
+void
+ao_serial2_putchar(char c);
+
+char
+ao_serial2_pollchar(void);
+
+void
+ao_serial2_set_speed(uint8_t speed);
+
+char
+ao_serial3_getchar(void);
+
+void
+ao_serial3_putchar(char c);
+
+char
+ao_serial3_pollchar(void);
+
+void
+ao_serial3_set_speed(uint8_t speed);
 
 #endif /* _AO_ARCH_H_ */
 
