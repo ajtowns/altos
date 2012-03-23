@@ -36,8 +36,8 @@ SECTIONS {
 
 	.text : {
 		*(.interrupt)	/* Interrupt vectors */
-		*(.text)	/* Executable code */
-		*(.rodata)	/* Constants */
+		*(.text*)	/* Executable code */
+		*(.rodata*)	/* Constants */
 	} > rom
 
 	.ARM.exidx : {
