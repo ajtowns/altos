@@ -426,6 +426,30 @@ extern struct stm_rcc stm_rcc;
 #define STM_RCC_APB1ENR_TIM3EN		(1)
 #define STM_RCC_APB1ENR_TIM2EN		(0)
 
+#define STM_RCC_CSR_LPWRRSTF		(31)
+#define STM_RCC_CSR_WWDGRSTF		(30)
+#define STM_RCC_CSR_IWDGRSTF		(29)
+#define STM_RCC_CSR_SFTRSTF		(28)
+#define STM_RCC_CSR_PORRSTF		(27)
+#define STM_RCC_CSR_PINRSTF		(26)
+#define STM_RCC_CSR_OBLRSTF		(25)
+#define STM_RCC_CSR_RMVF		(24)
+#define STM_RCC_CSR_RTFRST		(23)
+#define STM_RCC_CSR_RTCEN		(22)
+#define STM_RCC_CSR_RTCSEL		(16)
+
+#define  STM_RCC_CSR_RTCSEL_NONE		0
+#define  STM_RCC_CSR_RTCSEL_LSE			1
+#define  STM_RCC_CSR_RTCSEL_LSI			2
+#define  STM_RCC_CSR_RTCSEL_HSE			3
+#define  STM_RCC_CSR_RTCSEL_MASK		3
+
+#define STM_RCC_CSR_LSEBYP		(10)
+#define STM_RCC_CSR_LSERDY		(9)
+#define STM_RCC_CSR_LSEON		(8)
+#define STM_RCC_CSR_LSIRDY		(1)
+#define STM_RCC_CSR_LSION		(0)
+
 struct stm_pwr {
 	vuint32_t	cr;
 	vuint32_t	csr;
@@ -509,6 +533,115 @@ extern struct stm_tim67 stm_tim6;
 #define STM_TIM67_SR_UIF	(0)
 
 #define STM_TIM67_EGR_UG	(0)
+
+struct stm_lcd {
+	vuint32_t	cr;
+	vuint32_t	fcr;
+	vuint32_t	sr;
+	vuint32_t	clr;
+	uint32_t	unused_0x10;
+	vuint32_t	ram[8*2];
+};
+
+extern struct stm_lcd stm_lcd;
+
+#define STM_LCD_CR_MUX_SEG		(7)
+
+#define STM_LCD_CR_BIAS			(5)
+#define  STM_LCD_CR_BIAS_1_4		0
+#define  STM_LCD_CR_BIAS_1_2		1
+#define  STM_LCD_CR_BIAS_1_3		2
+#define  STM_LCD_CR_BIAS_MASK		3
+
+#define STM_LCD_CR_DUTY			(2)
+#define  STM_LCD_CR_DUTY_STATIC		0
+#define  STM_LCD_CR_DUTY_1_2		1
+#define  STM_LCD_CR_DUTY_1_3		2
+#define  STM_LCD_CR_DUTY_1_4		3
+#define  STM_LCD_CR_DUTY_1_8		4
+#define  STM_LCD_CR_DUTY_MASK		7
+
+#define STM_LCD_CR_VSEL			(1)
+#define STM_LCD_CR_LCDEN		(0)
+
+#define STM_LCD_FCR_PS			(22)
+#define  STM_LCD_FCR_PS_1		0x0
+#define  STM_LCD_FCR_PS_2		0x1
+#define  STM_LCD_FCR_PS_4		0x2
+#define  STM_LCD_FCR_PS_8		0x3
+#define  STM_LCD_FCR_PS_16		0x4
+#define  STM_LCD_FCR_PS_32		0x5
+#define  STM_LCD_FCR_PS_64		0x6
+#define  STM_LCD_FCR_PS_128		0x7
+#define  STM_LCD_FCR_PS_256		0x8
+#define  STM_LCD_FCR_PS_512		0x9
+#define  STM_LCD_FCR_PS_1024		0xa
+#define  STM_LCD_FCR_PS_2048		0xb
+#define  STM_LCD_FCR_PS_4096		0xc
+#define  STM_LCD_FCR_PS_8192		0xd
+#define  STM_LCD_FCR_PS_16384		0xe
+#define  STM_LCD_FCR_PS_32768		0xf
+#define  STM_LCD_FCR_PS_MASK		0xf
+
+#define STM_LCD_FCR_DIV			(18)
+#define STM_LCD_FCR_DIV_16		0x0
+#define STM_LCD_FCR_DIV_17		0x1
+#define STM_LCD_FCR_DIV_18		0x2
+#define STM_LCD_FCR_DIV_19		0x3
+#define STM_LCD_FCR_DIV_20		0x4
+#define STM_LCD_FCR_DIV_21		0x5
+#define STM_LCD_FCR_DIV_22		0x6
+#define STM_LCD_FCR_DIV_23		0x7
+#define STM_LCD_FCR_DIV_24		0x8
+#define STM_LCD_FCR_DIV_25		0x9
+#define STM_LCD_FCR_DIV_26		0xa
+#define STM_LCD_FCR_DIV_27		0xb
+#define STM_LCD_FCR_DIV_28		0xc
+#define STM_LCD_FCR_DIV_29		0xd
+#define STM_LCD_FCR_DIV_30		0xe
+#define STM_LCD_FCR_DIV_31		0xf
+#define STM_LCD_FCR_DIV_MASK		0xf
+
+#define STM_LCD_FCR_BLINK		(16)
+#define  STM_LCD_FCR_BLINK_DISABLE		0
+#define  STM_LCD_FCR_BLINK_SEG0_COM0		1
+#define  STM_LCD_FCR_BLINK_SEG0_COMALL		2
+#define  STM_LCD_FCR_BLINK_SEGALL_COMALL	3
+#define  STM_LCD_FCR_BLINK_MASK			3
+
+#define STM_LCD_FCR_BLINKF		(13)
+#define  STM_LCD_FCR_BLINKF_8			0
+#define  STM_LCD_FCR_BLINKF_16			1
+#define  STM_LCD_FCR_BLINKF_32			2
+#define  STM_LCD_FCR_BLINKF_64			3
+#define  STM_LCD_FCR_BLINKF_128			4
+#define  STM_LCD_FCR_BLINKF_256			5
+#define  STM_LCD_FCR_BLINKF_512			6
+#define  STM_LCD_FCR_BLINKF_1024		7
+#define  STM_LCD_FCR_BLINKF_MASK		7
+
+#define STM_LCD_FCR_CC			(10)
+#define  STM_LCD_FCR_CC_MASK			7
+
+#define STM_LCD_FCR_DEAD		(7)
+#define  STM_LCD_FCR_DEAD_MASK			7
+
+#define STM_LCD_FCR_PON			(4)
+#define  STM_LCD_FCR_PON_MASK			7
+
+#define STM_LCD_FCR_UDDIE		(3)
+#define STM_LCD_FCR_SOFIE		(1)
+#define STM_LCD_FCR_HD			(0)
+
+#define STM_LCD_SR_FCRSF		(5)
+#define STM_LCD_SR_RDY			(4)
+#define STM_LCD_SR_UDD			(3)
+#define STM_LCD_SR_UDR			(2)
+#define STM_LCD_SR_SOF			(1)
+#define STM_LCD_SR_ENS			(0)
+
+#define STM_LCD_CLR_UDDC		(3)
+#define STM_LCD_CLR_SOFC		(1)
 
 struct stm_nvic {
 	vuint32_t	iser[3];	/* 0x000 */
