@@ -99,3 +99,30 @@ ao_lcd_font_string(char *s) {
 	while (pos < 6)
 		ao_lcd_font_char(pos++, ' ', 0);
 }
+
+static void
+ao_lcd_font_text(void)
+{
+	char	string[20];
+	uint8_t	c = 0;
+	ao_cmd_white();
+	while (ao_cmd_lex_c != '\n' && c < sizeof (string) - 1) {
+		string[c++] = ao_cmd_lex_c;
+		ao_cmd_lex();
+	}
+	string[c++] = '\0';
+	ao_lcd_font_string(string);
+	stm_lcd.sr = (1 << STM_LCD_SR_UDR);
+}
+
+const struct ao_cmds ao_lcd_font_cmds[] = {
+	{ ao_lcd_font_text,	"t <string>\0Write <string> to LCD" },
+	{ 0, NULL }
+};
+
+void
+ao_lcd_font_init(void)
+{
+	ao_cmd_register(ao_lcd_font_cmds);
+}
+	

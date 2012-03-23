@@ -157,6 +157,8 @@ struct ao_adc {
 
 void ao_lcd_stm_init(void);
 
+void ao_lcd_font_init(void);
+
 void ao_lcd_font_string(char *s);
 
 #endif /* _AO_ARCH_H_ */

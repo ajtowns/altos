@@ -268,25 +268,10 @@ ao_lcd_stm_clear(void)
 	stm_lcd.sr = (1 << STM_LCD_SR_UDR);
 }
 
-static void
-ao_lcd_stm_text(void)
-{
-	char	string[7];
-	uint8_t	c = 0;
-	ao_cmd_white();
-	while (ao_cmd_lex_c != '\n' && c < sizeof (string)) {
-		string[c++] = ao_cmd_lex_c;
-		ao_cmd_lex();
-	}
-	string[c++] = '\0';
-	ao_lcd_font_string(string);
-	stm_lcd.sr = (1 << STM_LCD_SR_UDR);
-}
 
 const struct ao_cmds ao_lcd_stm_cmds[] = {
 	{ ao_lcd_stm_seg_set,	"s <com> <seg> <value>\0Set LCD segment" },
 	{ ao_lcd_stm_clear,	"C\0Clear LCD" },
-	{ ao_lcd_stm_text,	"t <string>\0Write <string> to LCD" },
 	{ 0, NULL },
 };
 
