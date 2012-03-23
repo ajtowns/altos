@@ -203,20 +203,21 @@ ao_serial_init(void)
 	/*
 	 *	TX	RX
 	 *	PA9	PA10
-	 *	PB6	PB7
+	 *	PB6	PB7	*
 	 */
 
-	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOAEN);
+	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOBEN);
 
-	stm_moder_set(&stm_gpioa, 9, STM_MODER_ALTERNATE);
-	stm_moder_set(&stm_gpioa, 10, STM_MODER_ALTERNATE);
-	stm_afr_set(&stm_gpioa, 9, STM_AFR_AF7);
-	stm_afr_set(&stm_gpioa, 10, STM_AFR_AF7);
+	stm_moder_set(&stm_gpiob, 6, STM_MODER_ALTERNATE);
+	stm_moder_set(&stm_gpiob, 7, STM_MODER_ALTERNATE);
+	stm_afr_set(&stm_gpiob, 6, STM_AFR_AF7);
+	stm_afr_set(&stm_gpiob, 7, STM_AFR_AF7);
 	
 	/* Enable USART */
 	stm_rcc.apb2enr |= (1 << STM_RCC_APB2ENR_USART1EN);
-
 	ao_stm_usart1.reg = &stm_usart1;
+
+	ao_usart_init(&ao_stm_usart1);
 
 	stm_nvic_set_enable(STM_ISR_USART1_POS);
 	stm_nvic_set_priority(STM_ISR_USART1_POS, 4);
@@ -243,6 +244,7 @@ ao_serial_init(void)
 	
 	/* Enable USART */
 	stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_USART2EN);
+	ao_usart_init(&stm_usart1);
 
 	ao_stm_usart2.reg = &stm_usart2;
 
@@ -266,6 +268,7 @@ ao_serial_init(void)
 	
 	/* Enable USART */
 	stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_USART3EN);
+	ao_usart_init(&stm_usart1);
 
 	ao_stm_usart3.reg = &stm_usart3;
 
