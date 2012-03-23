@@ -98,6 +98,7 @@ ao_lcd_font_string(char *s) {
 	}
 	while (pos < 6)
 		ao_lcd_font_char(pos++, ' ', 0);
+	stm_lcd.sr = (1 << STM_LCD_SR_UDR);
 }
 
 static void
@@ -112,7 +113,6 @@ ao_lcd_font_text(void)
 	}
 	string[c++] = '\0';
 	ao_lcd_font_string(string);
-	stm_lcd.sr = (1 << STM_LCD_SR_UDR);
 }
 
 const struct ao_cmds ao_lcd_font_cmds[] = {
