@@ -47,8 +47,9 @@ main(void)
 	ao_serial_init();
 	ao_timer_init();
 	ao_cmd_init();
-	ao_led_init(LEDS_AVAILABLE);
-	ao_add_task(&demo_task, ao_demo, "demo");
+//	ao_led_init(LEDS_AVAILABLE);
+	ao_lcd_stm_init();
+//	ao_add_task(&demo_task, ao_demo, "demo");
 	
 	ao_start_scheduler();
 	return 0;

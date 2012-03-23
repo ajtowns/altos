@@ -1,0 +1,174 @@
+#!/usr/bin/env nickle
+#
+# Parse a 14-segment font file
+# and construct the bitmasks for each
+# character. Output is in the same
+# format as the input:
+# 	[5] = 0x1212,
+# /*
+# CHAR 37 '%'
+# 	       
+# 	|    / 
+# 	|   /  
+# 	       
+# 	  /   |
+# 	 /    |
+# 	       
+# */
+#
+# Note that there can only be tabs before the glyph image
+# as spaces are significant in the image itself.
+#
+
+typedef struct {
+	int		c;
+	bool[14]	bits;
+} glyph;
+
+exception done();
+
+glyph read_glyph(file f) {
+	int	c;
+
+	for (;;) {
+		if (File::end(f))
+			raise done();
+		string	l = File::fgets(f);
+		if (File::sscanf(l, "CHAR %d", &c) == 1)
+			break;
+	}
+
+	string strip_tab(string x) {
+		int i = 0;
+		while (i < String::length(x) && x[i] == '\t')
+			i++;
+		string n = String::substr(x, i, String::length(x) - i);
+		while (String::length(n) < 7)
+			n = n + " ";
+		return n;
+	}
+
+	string[7] lines = { [i] = strip_tab(File::fgets(f)) };
+
+	glyph	g = { .c = c };
+
+	g.bits[0] = lines[0][1] == '-';
+
+	g.bits[1] = lines[1][0] == '|';
+	g.bits[2] = lines[1][1] == '\\';
+	g.bits[3] = lines[1][3] == '|';
+	g.bits[4] = lines[1][5] == '/';
+	g.bits[5] = lines[1][6] == '|';
+
+	g.bits[6] = lines[3][1] == '-';
+	g.bits[7] = lines[3][4] == '-';
+
+	g.bits[8] = lines[5][0] == '|';
+	g.bits[9] = lines[5][1] == '/';
+	g.bits[10] = lines[5][3] == '|';
+	g.bits[11] = lines[5][5] == '\\';
+	g.bits[12] = lines[5][6] == '|';
+
+	g.bits[13] = lines[6][1] == '-';
+	return g;
+}
+
+string[*] glyph_image(glyph g) {
+	int[7][7] chars = { { ' ' ... } ... };
+
+	if (g.bits[0])
+		for (int c = 1; c < 6; c++)
+			chars[0][c] = '-';
+
+	if (g.bits[1])
+		for (int r = 1; r < 3; r++)
+			chars[r][0] = '|';
+	if (g.bits[2])
+		for (int p = 1; p < 3; p++)
+			chars[p][p] = '\\';
+	if (g.bits[3])
+		for (int p = 1; p < 3; p++)
+			chars[p][3] = '|';
+	if (g.bits[4])
+		for (int p = 1; p < 3; p++)
+			chars[p][6-p] = '/';
+	if (g.bits[5])
+		for (int p = 1; p < 3; p++)
+			chars[p][6] = '|';
+
+	if (g.bits[6])
+		for (int p = 1; p < 3; p++)
+			chars[3][p] = '-';
+	if (g.bits[7])
+		for (int p = 4; p < 6; p++)
+			chars[3][p] = '-';
+
+	if (g.bits[8])
+		for (int r = 4; r < 6; r++)
+			chars[r][0] = '|';
+	if (g.bits[9])
+		for (int p = 4; p < 6; p++)
+			chars[p][6-p] = '/';
+	if (g.bits[10])
+		for (int p = 4; p < 6; p++)
+			chars[p][3] = '|';
+	if (g.bits[11])
+		for (int p = 4; p < 6; p++)
+			chars[p][p] = '\\';
+	if (g.bits[12])
+		for (int p = 4; p < 6; p++)
+			chars[p][6] = '|';
+
+	if (g.bits[13])
+		for (int c = 1; c < 6; c++)
+			chars[6][c] = '-';
+		
+	return (string[7]) { [i] = String::new(chars[i]) };
+
+}
+
+int glyph_value(glyph g) {
+	int	v = 0;
+
+	for (int b = 0; b < 14; b++)
+		if (g.bits[b])
+			v |= (1 << b);
+	return v;
+}
+
+void write_glyph(file f, glyph g) {
+	File::fprintf (f, "CHAR %d '%s'\n", g.c, g.c == 127 ? "DEL" : String::new(g.c));
+	string[7] lines = glyph_image(g);
+	for (int i = 0; i < 7; i++)
+		File::fprintf (f, "\t%s\n", lines[i]);
+}
+
+autoload Sort;
+
+glyph[*] read_font(file f) {
+	glyph[128 - 32] font = { [i] = read_glyph(f) };
+
+	Sort::qsort(&font, bool func (glyph a, glyph b) = (a.c > b.c));
+	return font;
+}
+
+glyph[*] font;
+void init () {
+	twixt (file f = File::open("ao_lcd_font.h", "r"); File::close(f)) {
+		font = read_font(f);
+	}
+}
+
+void dump() {
+	twixt(file f = File::open("ao_lcd_font.h.new", "w"); File::close(f)) {
+		for (int i = 0; i < dim(font); i++) {
+			File::fprintf (f, "\t[%d] = 0x%04x,\n", i, glyph_value(font[i]));
+			File::fprintf (f, "/*\n");
+			write_glyph(f, font[i]);
+			File::fprintf (f, "*/\n\n");
+		}
+	}
+}
+
+init();
+dump();

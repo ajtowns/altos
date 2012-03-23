@@ -19,8 +19,8 @@
 #define _AO_PINS_H_
 
 #define HAS_SERIAL_1		1
-#define HAS_SERIAL_2		1
-#define HAS_SERIAL_3		1
+#define HAS_SERIAL_2		0
+#define HAS_SERIAL_3		0
 #define USE_SERIAL_STDIN	1
 #define HAS_USB			0
 #define HAS_BEEP		0
@@ -38,5 +38,60 @@
 #define AO_LED_RED		AO_LED_BLUE	/* a patent lie */
 
 #define LEDS_AVAILABLE		(AO_LED_BLUE | AO_LED_GREEN)
+
+#define AO_LCD_STM_SEG_ENABLED_0 (		\
+		(1 << 0) | /* PA1 */		\
+		(1 << 1) | /* PA2 */		\
+		(1 << 2) | /* PA3 */		\
+		(0 << 3) | /* PA6 */		\
+		(0 << 4) | /* PA7 */		\
+		(0 << 5) | /* PB0 */		\
+		(0 << 6) | /* PB1 */		\
+		(1 << 7) | /* PB3 */		\
+		(1 << 8) | /* PB4 */		\
+		(1 << 9) | /* PB5 */		\
+		(1 << 10) | /* PB10 */		\
+		(1 << 11) | /* PB11 */		\
+		(1 << 12) | /* PB12 */		\
+		(1 << 13) | /* PB13 */		\
+		(1 << 14) | /* PB14 */		\
+		(1 << 15) | /* PB15 */		\
+		(1 << 16) | /* PB8 */		\
+		(1 << 17) | /* PA15 */		\
+		(1 << 18) | /* PC0 */		\
+		(1 << 19) | /* PC1 */		\
+		(1 << 20) | /* PC2 */		\
+		(1 << 21) | /* PC3 */		\
+		(0 << 22) | /* PC4 */		\
+		(0 << 23) | /* PC5 */		\
+		(1 << 24) | /* PC6 */		\
+		(1 << 25) | /* PC7 */		\
+		(1 << 26) | /* PC8 */		\
+		(1 << 27) | /* PC9 */		\
+		(1 << 28) | /* PC10 or PD8 */	\
+		(1 << 29) | /* PC11 or PD9 */	\
+		(0 << 30) | /* PC12 or PD10 */	\
+		(0 << 31))  /* PD2 or PD11 */
+
+#define AO_LCD_STM_SEG_ENABLED_1 (		\
+		(0 << 0) | /* PD12 */		\
+		(0 << 1) | /* PD13 */		\
+		(0 << 2) | /* PD14 */		\
+		(0 << 3) | /* PD15 */		\
+		(0 << 4) | /* PE0 */		\
+		(0 << 5) | /* PE1 */		\
+		(0 << 6) | /* PE2 */		\
+		(0 << 7))  /* PE3 */
+
+#define AO_LCD_STM_COM_ENABLED (		\
+		(1 << 0) | /* PA8 */		\
+		(1 << 1) | /* PA9 */		\
+		(1 << 2) | /* PA10 */		\
+		(1 << 3) | /* PB9 */		\
+		(0 << 4) | /* PC10 */		\
+		(0 << 5) | /* PC11 */		\
+		(0 << 6)) /* PC12 */
+
+#define AO_LCD_28_ON_C	1
 
 #endif /* _AO_PINS_H_ */

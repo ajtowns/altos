@@ -155,5 +155,9 @@ struct ao_adc {
  */
 #define STM_APB1	(16000000 * 6 / 4)
 
+void ao_lcd_stm_init(void);
+
+void ao_lcd_font_string(char *s);
+
 #endif /* _AO_ARCH_H_ */
 

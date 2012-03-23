@@ -42,14 +42,16 @@ ALTOS_SRC = \
 	ao_stdio.c \
 	ao_panic.c \
 	ao_timer.c \
-	ao_serial_stm.c
+	ao_serial_stm.c \
+	ao_lcd_stm.c \
+	ao_lcd_font.c
 
 PRODUCT=StmDemo-v0.0
 PRODUCT_DEF=-DSTM_DEMO
 IDPRODUCT=0x000a
 CPU=cortex-m3
 CFLAGS = $(PRODUCT_DEF) -I. -I../stm -I../core -I..
-CFLAGS += -g -std=gnu99 -Os -mlittle-endian -mcpu=cortex-m3 -mthumb -ffreestanding -nostdlib -I../stm $(CINC)
+CFLAGS += -g -std=gnu99 -O0 -mlittle-endian -mcpu=cortex-m3 -mthumb -ffreestanding -nostdlib -I../stm $(CINC)
 
 NICKLE=nickle
 
