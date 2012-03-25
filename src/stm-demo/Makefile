@@ -9,8 +9,6 @@ INC = \
 	ao.h \
 	ao_arch.h \
 	ao_pins.h \
-	altitude.h \
-	ao_kalman.h \
 	ao_product.h
 
 #
@@ -48,16 +46,10 @@ LDFLAGS=-L../stm -Wl,-Taltos.ld
 $(PROG): Makefile $(OBJ)
 	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(OBJ) $(SAT_CLIB) -lgcc
 
-../altitude.h: make-altitude
-	nickle $< > $@
-
-$(OBJ): $(INC)
-
 ao_product.h: ao-make-product.5c ../Version
 	$(call quiet,NICKLE,$<) $< -m altusmetrum.org -i $(IDPRODUCT) -p $(PRODUCT) -v $(VERSION) > $@
 
-ao_product.rel: ao_product.c ao_product.h
-	$(call quiet,CC) -c $(CFLAGS) -D PRODUCT_DEFS='\"ao_product.h\"' -o$@ $<
+$(OBJ): $(INC)
 
 distclean:	clean
 
