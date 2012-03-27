@@ -1539,7 +1539,6 @@ ao_igniter_init(void);
 struct ao_radio_channel {
 	char		name[AO_CHANNEL_NAME_LEN];
 	uint32_t	kHz;
-	uint32_t	radio_setting;
 };
 #endif
 
@@ -1559,6 +1558,7 @@ struct ao_config {
 	uint32_t	radio_setting;		/* minor version 7 */
 	uint8_t		radio_enable;		/* minor version 8 */
 	uint8_t		aes_key[AO_AES_LEN];	/* minor version 9 */
+	uint32_t	frequency;		/* minor version 10 */
 #if HAS_RADIO_CHANNELS
 	struct ao_radio_channel	radio_channels[AO_NUM_CHANNELS];	/* minor version 10 */
 #endif
@@ -1958,5 +1958,11 @@ ao_battery_init(void);
 
 uint32_t
 ao_sqrt(uint32_t op);
+
+/*
+ * ao_freq.c
+ */
+
+int32_t ao_freq_to_set(int32_t freq, int32_t cal);
 
 #endif /* _AO_H_ */

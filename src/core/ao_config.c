@@ -65,6 +65,12 @@ ao_config_put(void)
 #endif
 
 static void
+ao_config_set_radio(void)
+{
+	ao_config.radio_setting = ao_freq_to_set(ao_config.frequency, ao_config.radio_cal);
+}
+
+static void
 _ao_config_get(void)
 {
 	if (ao_config_loaded)
@@ -105,24 +111,23 @@ _ao_config_get(void)
 			ao_config.ignite_mode = AO_CONFIG_DEFAULT_IGNITE_MODE;
 		if (ao_config.minor < 6)
 			ao_config.pad_orientation = AO_CONFIG_DEFAULT_PAD_ORIENTATION;
-		if (ao_config.minor < 7)
-			ao_config.radio_setting = ao_config.radio_cal;
 		if (ao_config.minor < 8)
 			ao_config.radio_enable = TRUE;
 		if (ao_config.minor < 9)
 			memset(&ao_config.aes_key, 0, AO_AES_LEN);
-#if HAS_RADIO_CHANNELS
 		if (ao_config.minor < 10) {
+			ao_config.frequency = 434550;
+#if HAS_RADIO_CHANNELS
 			ao_xmemset(&ao_config.radio_channels, '\0', sizeof (ao_config.radio_channels));
 			ao_xmemcpy(&ao_config.radio_channels[0].name[0],
 				   CODE_TO_XDATA("Channel 0"), sizeof("Channel 0"));
 			ao_config.radio_channels[0].kHz = 434550;
-			ao_config.radio_channels[0].radio_setting = ao_config.radio_cal;
-		}
 #endif				   
+		}
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
+	ao_config_set_radio();
 	ao_config_loaded = 1;
 }
 
@@ -192,6 +197,26 @@ ao_config_radio_channel_set(void) __reentrant
 		return;
 	_ao_config_edit_start();
 	ao_config.radio_channel = ao_cmd_lex_i;
+	_ao_config_edit_finish();
+	ao_radio_recv_abort();
+}
+
+void
+ao_config_frequency_show(void) __reentrant
+{
+	printf("Frequency: %ld\n",
+	       ao_config.frequency);
+}
+
+void
+ao_config_frequency_set(void) __reentrant
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	_ao_config_edit_start();
+	ao_config.frequency = ao_cmd_lex_u32;
+	ao_config_set_radio();
 	_ao_config_edit_finish();
 	ao_radio_recv_abort();
 }
@@ -315,7 +340,8 @@ ao_config_radio_cal_set(void) __reentrant
 	if (ao_cmd_status != ao_cmd_success)
 		return;
 	_ao_config_edit_start();
-	ao_config.radio_setting = ao_config.radio_cal = ao_cmd_lex_u32;
+	ao_config.radio_cal = ao_cmd_lex_u32;
+	ao_config_set_radio();
 	_ao_config_edit_finish();
 }
 
@@ -395,25 +421,6 @@ ao_config_pad_orientation_set(void) __reentrant
 #endif
 
 void
-ao_config_radio_setting_show(void) __reentrant
-{
-	printf("Radio setting: %ld\n", ao_config.radio_setting);
-}
-
-void
-ao_config_radio_setting_set(void) __reentrant
-{
-	ao_cmd_decimal();
-	if (ao_cmd_status != ao_cmd_success)
-		return;
-	_ao_config_edit_start();
-	ao_config.radio_setting = ao_cmd_lex_u32;
-	ao_config.radio_channel = 0;
-	_ao_config_edit_finish();
-	ao_radio_recv_abort();
-}
-
-void
 ao_config_radio_enable_show(void) __reentrant
 {
 	printf("Radio enable: %d\n", ao_config.radio_enable);
@@ -464,11 +471,10 @@ ao_config_radio_config_show(void) __reentrant
 	uint8_t	i;
 	for (i = 0; i < AO_NUM_CHANNELS; i++)
 		if (ao_config.radio_channels[i].name[0]) {
-			printf("%2d %-16.16s %ld %ld\n",
+			printf("%2d %-16.16s %ld\n",
 			       i,
 			       ao_config.radio_channels[i].name,
-			       ao_config.radio_channels[i].kHz,
-			       ao_config.radio_channels[i].radio_setting);
+			       ao_config.radio_channels[i].kHz);
 		}
 }
 
@@ -498,8 +504,6 @@ ao_config_radio_config_set(void) __reentrant
 	}
 	ao_cmd_decimal();
 	ch->kHz = ao_cmd_lex_u32;
-	ao_cmd_decimal();
-	ch->radio_setting = ao_cmd_lex_u32;
 	_ao_config_edit_finish();
 }
 #endif
@@ -528,10 +532,10 @@ __code struct ao_config_var ao_config_vars[] = {
 #endif /* HAS_ADC */
 	{ "r <channel>\0Radio channel (freq = 434.550 + chan * .1)",
 	  ao_config_radio_channel_set,	ao_config_radio_channel_show },
+	{ "F <freq>\0Frequency (kHz)",
+	  ao_config_frequency_set, ao_config_frequency_show },
 	{ "c <call>\0Callsign (8 char max)",
 	  ao_config_callsign_set,	ao_config_callsign_show },
-	{ "R <setting>\0Radio freq control (freq = 434.550 * setting/cal)",
-	  ao_config_radio_setting_set,	ao_config_radio_setting_show },
 	{ "e <0 disable, 1 enable>\0Enable telemetry and RDF",
 	  ao_config_radio_enable_set, ao_config_radio_enable_show },
 #if HAS_ACCEL

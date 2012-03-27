@@ -26,7 +26,8 @@ CORE_SRC = \
 	ao_rssi.c \
 	ao_state.c \
 	ao_stdio.c \
-	ao_task.c
+	ao_task.c \
+	ao_freq.c
 
 CC1111_SRC = \
 	ao_aes.c \

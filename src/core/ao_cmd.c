@@ -263,9 +263,9 @@ static __pdata uint8_t		ao_ncmds;
 static void
 help(void)
 {
-	register uint8_t cmds;
-	register uint8_t cmd;
-	register __code struct ao_cmds * cs;
+	__pdata uint8_t cmds;
+	__pdata uint8_t cmd;
+	__code struct ao_cmds * __pdata cs;
 
 	for (cmds = 0; cmds < ao_ncmds; cmds++) {
 		cs = ao_cmds[cmds];

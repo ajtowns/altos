@@ -459,7 +459,7 @@ ao_terraui_config(void) __reentrant
 	
 
 	for (chan = 0; chan < AO_NUM_CHANNELS; chan++)
-		if (ao_config.radio_channels[chan].radio_setting == ao_config.radio_setting)
+		if (ao_config.radio_channels[chan].kHz == ao_config.frequency)
 			break;
 	if (chan == AO_NUM_CHANNELS)
 		chan = 0;

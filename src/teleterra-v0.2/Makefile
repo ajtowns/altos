@@ -28,7 +28,8 @@ CORE_SRC = \
 	ao_sqrt.c \
 	ao_stdio.c \
 	ao_storage.c \
-	ao_task.c
+	ao_task.c \
+	ao_freq.c
 
 CC1111_SRC = \
 	ao_battery.c \

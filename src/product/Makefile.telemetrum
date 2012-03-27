@@ -40,7 +40,8 @@ CORE_SRC = \
 	ao_log.c \
 	ao_log_big.c \
 	ao_report.c \
-	ao_telemetry.c
+	ao_telemetry.c \
+	ao_freq.c
 
 CC1111_SRC = \
 	ao_adc.c \
