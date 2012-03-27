@@ -638,6 +638,7 @@ public class AltosConfigUI
 		AltosFrequency	new_frequency = new AltosFrequency(new_radio_frequency, description);
 		AltosPreferences.add_common_frequency(new_frequency);
 		radio_frequency_value.insertItemAt(new_frequency, i);
+		radio_frequency_value.setSelectedIndex(i);
 	}
 
 	public double radio_frequency() {

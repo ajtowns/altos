@@ -49,6 +49,7 @@ public class AltosConfigData implements Iterable<String> {
 	int	apogee_delay;
 	int	radio_channel;
 	int	radio_setting;
+	int	radio_frequency;
 	String	callsign;
 	int	accel_cal_plus, accel_cal_minus;
 	int	radio_calibration;
@@ -107,6 +108,7 @@ public class AltosConfigData implements Iterable<String> {
 		serial_line.printf("c s\nf\nl\nv\n");
 		lines = new LinkedList<String>();
 		radio_setting = 0;
+		radio_frequency = 0;
 		stored_flight = 0;
 		for (;;) {
 			String line = serial_line.get_reply();
@@ -121,6 +123,7 @@ public class AltosConfigData implements Iterable<String> {
 			try { apogee_delay = get_int(line, "Apogee delay:"); } catch (Exception e) {}
 			try { radio_channel = get_int(line, "Radio channel:"); } catch (Exception e) {}
 			try { radio_setting = get_int(line, "Radio setting:"); } catch (Exception e) {}
+			try { radio_frequency = get_int(line, "Frequency:"); } catch (Exception e) {}
 			try {
 				if (line.startsWith("Accel cal")) {
 					String[] bits = line.split("\\s+");

@@ -35,7 +35,7 @@ public class AltosFrequency {
 	String	description;
 
 	public String toString() {
-		return String.format("%7.3f MHz %-20.20s",
+		return String.format("%7.3f MHz %-20s",
 				     frequency, description);
 	}
 

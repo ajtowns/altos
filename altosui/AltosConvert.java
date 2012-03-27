@@ -190,14 +190,18 @@ public class AltosConvert {
 		return ignite / 32767 * 15.0;
 	}
 
-	static double radio_to_frequency(int setting, int cal, int channel) {
+	static double radio_to_frequency(int freq, int setting, int cal, int channel) {
 		double	f;
 
-		if (setting <= 0)
-			setting = cal;
-		f = 434.550 * setting / cal;
-		/* Round to nearest 50KHz */
-		f = Math.floor (20.0 * f + 0.5) / 20.0;
+		if (freq > 0)
+			f = freq / 1000.0;
+		else {
+			if (setting <= 0)
+				setting = cal;
+			f = 434.550 * setting / cal;
+			/* Round to nearest 50KHz */
+			f = Math.floor (20.0 * f + 0.5) / 20.0;
+		}
 		return f + channel * 0.100;
 	}
 

@@ -363,12 +363,26 @@ public class AltosSerial implements Runnable {
 		}
 	}
 
+	private void set_radio_freq(int frequency) {
+		if (altos != null) {
+			if (monitor_mode)
+				printf("m 0\nc F %d\nm %x\n",
+				       frequency, telemetry_len());
+			else
+				printf("c F %d\n", frequency);
+			flush_output();
+		}
+	}
+
 	public void set_radio_frequency(double frequency,
+					boolean has_frequency,
 					boolean has_setting,
 					int cal) {
 		if (debug)
-			System.out.printf("set_radio_frequency %7.3f %b %d\n", frequency, has_setting, cal);
-		if (has_setting)
+			System.out.printf("set_radio_frequency %7.3f (freq %b) (set %b) %d\n", frequency, has_frequency, has_setting, cal);
+		if (has_frequency)
+			set_radio_freq((int) Math.floor (frequency * 1000));
+		else if (has_setting)
 			set_radio_setting(AltosConvert.radio_frequency_to_setting(frequency, cal));
 		else
 			set_channel(AltosConvert.radio_frequency_to_channel(frequency));
@@ -378,6 +392,7 @@ public class AltosSerial implements Runnable {
 		frequency = in_frequency;
 		config_data();
 		set_radio_frequency(frequency,
+				    config_data.radio_frequency != 0,
 				    config_data.radio_setting != 0,
 				    config_data.radio_calibration);
 	}

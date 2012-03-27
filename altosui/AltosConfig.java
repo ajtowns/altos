@@ -76,6 +76,7 @@ public class AltosConfig implements ActionListener {
 	int_ref		ignite_mode;
 	int_ref		pad_orientation;
 	int_ref		radio_setting;
+	int_ref		radio_frequency;
 	int_ref		storage_size;
 	int_ref		storage_erase_unit;
 	int_ref		stored_flight;
@@ -193,6 +194,7 @@ public class AltosConfig implements ActionListener {
 		get_int(line, "Ignite mode:", ignite_mode);
 		get_int(line, "Pad orientation:", pad_orientation);
 		get_int(line, "Radio setting:", radio_setting);
+		get_int(line, "Frequency:", radio_frequency);
 		get_int(line, "Radio enable:", radio_enable);
 		get_int(line, "Storage size:", storage_size);
 		get_int(line, "Storage erase unit:", storage_erase_unit);
@@ -230,6 +232,7 @@ public class AltosConfig implements ActionListener {
 			apogee_delay.set(0);
 			radio_channel.set(0);
 			radio_setting.set(0);
+			radio_frequency.set(0);
 			radio_calibration.set(1186611);
 			radio_enable.set(-1);
 			flight_log_max.set(0);
@@ -275,6 +278,7 @@ public class AltosConfig implements ActionListener {
 		void save_data() {
 			try {
 				double frequency = frequency();
+				boolean has_frequency = radio_frequency.get() > 0;
 				boolean has_setting = radio_setting.get() > 0;
 				start_serial();
 				serial_line.printf("c m %d\n", main_deploy.get());
@@ -282,6 +286,7 @@ public class AltosConfig implements ActionListener {
 				if (!remote)
 					serial_line.printf("c f %d\n", radio_calibration.get());
 				serial_line.set_radio_frequency(frequency,
+								has_frequency,
 								has_setting,
 								radio_calibration.get());
 				if (remote) {
@@ -378,15 +383,19 @@ public class AltosConfig implements ActionListener {
 	}
 
 	double frequency() {
-		return AltosConvert.radio_to_frequency(radio_setting.get(),
+		return AltosConvert.radio_to_frequency(radio_frequency.get(),
+						       radio_setting.get(),
 						       radio_calibration.get(),
 						       radio_channel.get());
 	}
 
 	void set_frequency(double freq) {
+		int	frequency = radio_frequency.get();
 		int	setting = radio_setting.get();
 
-		if (setting > 0) {
+		if (frequency > 0) {
+			radio_frequency.set((int) Math.floor (freq * 1000 + 0.5));
+		} else if (setting > 0) {
 			radio_setting.set(AltosConvert.radio_frequency_to_setting(freq,
 										  radio_calibration.get()));
 			radio_channel.set(0);
@@ -453,6 +462,7 @@ public class AltosConfig implements ActionListener {
 		apogee_delay = new int_ref(0);
 		radio_channel = new int_ref(0);
 		radio_setting = new int_ref(0);
+		radio_frequency = new int_ref(0);
 		radio_calibration = new int_ref(1186611);
 		radio_enable = new int_ref(-1);
 		flight_log_max = new int_ref(0);
