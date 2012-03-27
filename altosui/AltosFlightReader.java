@@ -43,5 +43,7 @@ public class AltosFlightReader {
 
 	void update(AltosState state) throws InterruptedException { }
 
+	boolean supports_telemetry(int telemetry) { return false; }
+
 	File backing_file() { return null; }
 }

@@ -169,6 +169,7 @@ public class AltosFlightUI extends AltosFrame implements AltosFlightDisplay, Alt
 	Container	bag;
 	AltosFreqList	frequencies;
 	JComboBox	telemetries;
+	JLabel		telemetry;
 
 	ActionListener	show_timer;
 
@@ -216,32 +217,53 @@ public class AltosFlightUI extends AltosFrame implements AltosFlightDisplay, Alt
 			bag.add (frequencies, c);
 
 			// Telemetry format menu
-			telemetries = new JComboBox();
-			for (int i = 1; i <= Altos.ao_telemetry_max; i++)
-				telemetries.addItem(Altos.telemetry_name(i));
-			int telemetry = AltosPreferences.telemetry(serial);
-			if (telemetry <= Altos.ao_telemetry_off ||
-			    telemetry > Altos.ao_telemetry_max)
-				telemetry = Altos.ao_telemetry_standard;
-			telemetries.setSelectedIndex(telemetry - 1);
-			telemetries.setMaximumRowCount(Altos.ao_telemetry_max);
-			telemetries.setPreferredSize(null);
-			telemetries.revalidate();
-			telemetries.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						int telemetry = telemetries.getSelectedIndex() + 1;
-						reader.set_telemetry(telemetry);
-						reader.save_telemetry();
-					}
-				});
-			c.gridx = 1;
-			c.gridy = 0;
-			c.weightx = 0;
-			c.weighty = 0;
-			c.fill = GridBagConstraints.NONE;
-			c.anchor = GridBagConstraints.WEST;
-			bag.add (telemetries, c);
-			c.insets = new Insets(0, 0, 0, 0);
+			if (reader.supports_telemetry(Altos.ao_telemetry_standard)) {
+				telemetries = new JComboBox();
+				for (int i = 1; i <= Altos.ao_telemetry_max; i++) 
+					telemetries.addItem(Altos.telemetry_name(i));
+				int telemetry = AltosPreferences.telemetry(serial);
+				if (telemetry <= Altos.ao_telemetry_off ||
+				    telemetry > Altos.ao_telemetry_max)
+					telemetry = Altos.ao_telemetry_standard;
+				telemetries.setSelectedIndex(telemetry - 1);
+				telemetries.setMaximumRowCount(Altos.ao_telemetry_max);
+				telemetries.setPreferredSize(null);
+				telemetries.revalidate();
+				telemetries.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							int telemetry = telemetries.getSelectedIndex() + 1;
+							reader.set_telemetry(telemetry);
+							reader.save_telemetry();
+						}
+					});
+				c.gridx = 1;
+				c.gridy = 0;
+				c.weightx = 0;
+				c.weighty = 0;
+				c.fill = GridBagConstraints.NONE;
+				c.anchor = GridBagConstraints.WEST;
+				bag.add (telemetries, c);
+				c.insets = new Insets(0, 0, 0, 0);
+			} else {
+				String	version;
+
+				if (reader.supports_telemetry(Altos.ao_telemetry_0_9))
+					version = "Telemetry: 0.9";
+				else if (reader.supports_telemetry(Altos.ao_telemetry_0_8))
+					version = "Telemetry: 0.8";
+				else
+					version = "Telemetry: None";
+
+				telemetry = new JLabel(version);
+				c.gridx = 1;
+				c.gridy = 0;
+				c.weightx = 0;
+				c.weighty = 0;
+				c.fill = GridBagConstraints.NONE;
+				c.anchor = GridBagConstraints.WEST;
+				bag.add (telemetry, c);
+				c.insets = new Insets(0, 0, 0, 0);
+			}
 		}
 
 		/* Flight status is always visible */

@@ -104,6 +104,39 @@ public class AltosConfigData implements Iterable<String> {
 		}
 	}
 
+	int[] parse_version(String v) {
+		String[] parts = v.split("\\.");
+		int r[] = new int[parts.length];
+
+		for (int i = 0; i < parts.length; i++) {
+			try {
+				r[i] = Altos.fromdec(parts[i]);
+			} catch (NumberFormatException n) {
+				r[i] = 0;
+			}
+		}
+
+		return r;
+	}
+	
+	public int compare_version(String other) {
+		int[]	me = parse_version(version);
+		int[]	them = parse_version(other);
+
+		int	l = Math.min(me.length, them.length);
+
+		for (int i = 0; i < l; i++) {
+			int	d = me[i] - them[i];
+			if (d != 0)
+				return d;
+		}
+		if (me.length > l)
+			return 1;
+		if (them.length > l)
+			return -1;
+		return 0;
+	}
+
 	public AltosConfigData(AltosSerial serial_line) throws InterruptedException, TimeoutException {
 		serial_line.printf("c s\nf\nl\nv\n");
 		lines = new LinkedList<String>();
