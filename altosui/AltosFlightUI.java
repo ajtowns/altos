@@ -28,6 +28,21 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.*;
 
+class AltosFlightStatusUpdate implements ActionListener {
+
+	public AltosState	saved_state;
+	AltosFlightStatus	flightStatus;
+
+	public void actionPerformed (ActionEvent e) {
+		if (saved_state != null)
+			flightStatus.show(saved_state, 0);
+	}
+
+	public AltosFlightStatusUpdate (AltosFlightStatus in_flightStatus) {
+		flightStatus = in_flightStatus;
+	}
+}
+
 public class AltosFlightUI extends AltosFrame implements AltosFlightDisplay, AltosFontListener {
 	AltosVoice		voice;
 	AltosFlightReader	reader;
@@ -98,7 +113,11 @@ public class AltosFlightUI extends AltosFrame implements AltosFlightDisplay, Alt
 		set_font();
 	}
 
+
+	AltosFlightStatusUpdate	status_update;
+
 	public void show(AltosState state, int crc_errors) {
+		status_update.saved_state = state;
 		JComponent tab = which_tab(state);
 		try {
 		pad.show(state, crc_errors);
@@ -150,6 +169,8 @@ public class AltosFlightUI extends AltosFrame implements AltosFlightDisplay, Alt
 	Container	bag;
 	AltosFreqList	frequencies;
 	JComboBox	telemetries;
+
+	ActionListener	show_timer;
 
 	public AltosFlightUI(AltosVoice in_voice, AltosFlightReader in_reader, final int serial) {
 		AltosPreferences.set_component(this);
@@ -288,6 +309,10 @@ public class AltosFlightUI extends AltosFrame implements AltosFlightDisplay, Alt
 		setVisible(true);
 
 		thread = new AltosDisplayThread(this, voice, this, reader);
+
+		status_update = new AltosFlightStatusUpdate(flightStatus);
+
+		new javax.swing.Timer(100, status_update).start();
 
 		thread.start();
 	}

@@ -119,11 +119,23 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 			value.setText(String.format("%d", state.data.rssi));
 		}
 		public RSSI (GridBagLayout layout, int x) {
-			super (layout, x, "RSSI (dBm)");
+			super (layout, x, "RSSI");
 		}
 	}
 
 	RSSI rssi;
+
+	class LastPacket extends FlightValue {
+		void show(AltosState state, int crc_errors) {
+			long secs = (System.currentTimeMillis() - state.report_time + 500) / 1000;
+			value.setText(String.format("%d", secs));
+		}
+		public LastPacket(GridBagLayout layout, int x) {
+			super (layout, x, "Age");
+		}
+	}
+
+	LastPacket last_packet;
 
 	public void reset () {
 		call.reset();
@@ -131,6 +143,7 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 		flight.reset();
 		flight_state.reset();
 		rssi.reset();
+		last_packet.reset();
 	}
 
 	public void set_font () {
@@ -139,6 +152,7 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 		flight.set_font();
 		flight_state.set_font();
 		rssi.set_font();
+		last_packet.set_font();
 	}
 
 	public void show (AltosState state, int crc_errors) {
@@ -147,6 +161,7 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 		flight.show(state, crc_errors);
 		flight_state.show(state, crc_errors);
 		rssi.show(state, crc_errors);
+		last_packet.show(state, crc_errors);
 	}
 
 	public int height() {
@@ -164,5 +179,6 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 		flight = new Flight(layout, 2);
 		flight_state = new FlightState(layout, 3);
 		rssi = new RSSI(layout, 4);
+		last_packet = new LastPacket(layout, 5);
 	}
 }
