@@ -31,6 +31,7 @@ import java.util.prefs.*;
 import java.lang.Math;
 import java.awt.geom.Point2D;
 import java.awt.geom.Line2D;
+import java.util.concurrent.*;
 
 public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	// preferred vertical step in a tile in naut. miles
@@ -110,7 +111,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		return latlng(pt, scale_x, scale_y);
 	}
 
-	HashMap<Point,AltosSiteMapTile> mapTiles = new HashMap<Point,AltosSiteMapTile>();
+	ConcurrentHashMap<Point,AltosSiteMapTile> mapTiles = new ConcurrentHashMap<Point,AltosSiteMapTile>();
 	Point2D.Double centre;
 
 	private Point2D.Double tileCoordOffset(Point p) {
