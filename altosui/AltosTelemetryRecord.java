@@ -16,8 +16,113 @@
  */
 
 package altosui;
+import java.lang.*;
+import java.text.*;
 
-public interface AltosTelemetryRecord {
+public abstract class AltosTelemetryRecord {
 
-	public AltosRecord update_state(AltosRecord previous);
+	long	received_time;
+	abstract public AltosRecord update_state(AltosRecord previous);
+
+	static boolean cksum(int[] bytes) {
+		int	sum = 0x5a;
+		for (int i = 1; i < bytes.length - 1; i++)
+			sum += bytes[i];
+		sum &= 0xff;
+		return sum == bytes[bytes.length - 1];
+	}
+
+	final static int PKT_APPEND_STATUS_1_CRC_OK		= (1 << 7);
+	final static int PKT_APPEND_STATUS_1_LQI_MASK		= (0x7f);
+	final static int PKT_APPEND_STATUS_1_LQI_SHIFT		= 0;
+
+	final static int packet_type_TM_sensor = 0x01;
+	final static int packet_type_Tm_sensor = 0x02;
+	final static int packet_type_Tn_sensor = 0x03;
+	final static int packet_type_configuration = 0x04;
+	final static int packet_type_location = 0x05;
+	final static int packet_type_satellite = 0x06;
+	final static int packet_type_companion = 0x07;
+	
+	static AltosTelemetryRecord parse_hex(String hex)  throws ParseException, AltosCRCException {
+		AltosTelemetryRecord	r;
+
+		int[] bytes;
+		try {
+			bytes = Altos.hexbytes(hex);
+		} catch (NumberFormatException ne) {
+			throw new ParseException(ne.getMessage(), 0);
+		}
+
+		/* one for length, one for checksum */
+		if (bytes[0] != bytes.length - 2)
+			throw new ParseException(String.format("invalid length %d != %d\n",
+							       bytes[0],
+							       bytes.length - 2), 0);
+		if (!cksum(bytes))
+			throw new ParseException(String.format("invalid line \"%s\"", hex), 0);
+
+		int	rssi = Altos.int8(bytes, bytes.length - 3) / 2 - 74;
+		int	status = Altos.uint8(bytes, bytes.length - 2);
+
+		if ((status & PKT_APPEND_STATUS_1_CRC_OK) == 0)
+			throw new AltosCRCException(rssi);
+
+		/* length, data ..., rssi, status, checksum -- 4 bytes extra */
+		switch (bytes.length) {
+		case Altos.ao_telemetry_standard_len + 4:
+			int	type = Altos.uint8(bytes, 4 + 1);
+			switch (type) {
+			case packet_type_TM_sensor:
+			case packet_type_Tm_sensor:
+			case packet_type_Tn_sensor:
+				r = new AltosTelemetryRecordSensor(bytes, rssi);
+				break;
+			case packet_type_configuration:
+				r = new AltosTelemetryRecordConfiguration(bytes);
+				break;
+			case packet_type_location:
+				r = new AltosTelemetryRecordLocation(bytes);
+				break;
+			case packet_type_satellite:
+				r = new AltosTelemetryRecordSatellite(bytes);
+				break;
+			case packet_type_companion:
+				r = new AltosTelemetryRecordCompanion(bytes);
+				break;
+			default:
+				r = new AltosTelemetryRecordRaw(bytes);
+				break;
+			}
+			break;
+		case Altos.ao_telemetry_0_9_len + 4:
+			r = new AltosTelemetryRecordLegacy(bytes, rssi, status);
+			break;
+		case Altos.ao_telemetry_0_8_len + 4:
+			r = new AltosTelemetryRecordLegacy(bytes, rssi, status);
+			break;
+		default:
+			throw new ParseException(String.format("Invalid packet length %d", bytes.length), 0);
+		}
+		r.received_time = System.currentTimeMillis();
+		return r;
+	}
+
+	public static AltosTelemetryRecord parse(String line) throws ParseException, AltosCRCException {
+		AltosTelemetryRecord	r;
+
+		String[] word = line.split("\\s+");
+		int i =0;
+		if (word[i].equals("CRC") && word[i+1].equals("INVALID")) {
+			i += 2;
+			AltosParse.word(word[i++], "RSSI");
+			throw new AltosCRCException(AltosParse.parse_int(word[i++]));
+		}
+
+		if (word[i].equals("TELEM"))
+			r = parse_hex(word[i+1]);
+		else
+			r = new AltosTelemetryRecordLegacy(line);
+		return r;
+	}
 }

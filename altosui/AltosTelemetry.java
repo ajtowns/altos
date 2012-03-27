@@ -234,7 +234,7 @@ public class AltosTelemetry extends AltosRecord {
 	final static String AO_TELEM_SAT_C_N_0	= "s_c";
 
 	static public AltosRecord parse(String line, AltosRecord previous) throws ParseException, AltosCRCException {
-		AltosTelemetryRecord	r = AltosTelemetryRecordGeneral.parse(line);
+		AltosTelemetryRecord	r = AltosTelemetryRecord.parse(line);
 
 		return r.update_state(previous);
 	}

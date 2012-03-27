@@ -86,7 +86,6 @@ altosui_JAVA = \
 	AltosRecordIterable.java \
 	AltosTelemetryReader.java \
 	AltosTelemetryRecord.java \
-	AltosTelemetryRecordGeneral.java \
 	AltosTelemetryRecordRaw.java \
 	AltosTelemetryRecordSensor.java \
 	AltosTelemetryRecordConfiguration.java \

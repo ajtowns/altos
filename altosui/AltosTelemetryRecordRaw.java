@@ -21,94 +21,13 @@ import java.lang.*;
 import java.text.*;
 import java.util.HashMap;
 
-public class AltosTelemetryRecordRaw implements AltosTelemetryRecord {
+public class AltosTelemetryRecordRaw extends AltosTelemetryRecord {
 	int[]	bytes;
 	int	serial;
 	int	tick;
 	int	type;
 
-	final static int packet_type_TM_sensor = 0x01;
-	final static int packet_type_Tm_sensor = 0x02;
-	final static int packet_type_Tn_sensor = 0x03;
-	final static int packet_type_configuration = 0x04;
-	final static int packet_type_location = 0x05;
-	final static int packet_type_satellite = 0x06;
-	final static int packet_type_companion = 0x07;
-	
-	final static int PKT_APPEND_STATUS_1_CRC_OK		= (1 << 7);
-	final static int PKT_APPEND_STATUS_1_LQI_MASK		= (0x7f);
-	final static int PKT_APPEND_STATUS_1_LQI_SHIFT		= 0;
-
-	static boolean cksum(int[] bytes) {
-		int	sum = 0x5a;
-		for (int i = 1; i < bytes.length - 1; i++)
-			sum += bytes[i];
-		sum &= 0xff;
-		return sum == bytes[bytes.length - 1];
-	}
-
-	public static AltosTelemetryRecord parse (String hex) throws ParseException, AltosCRCException {
-		AltosTelemetryRecord	r;
-
-		int[] bytes;
-		try {
-			bytes = Altos.hexbytes(hex);
-		} catch (NumberFormatException ne) {
-			throw new ParseException(ne.getMessage(), 0);
-		}
-
-		/* one for length, one for checksum */
-		if (bytes[0] != bytes.length - 2)
-			throw new ParseException(String.format("invalid length %d != %d\n",
-							       bytes[0],
-							       bytes.length - 2), 0);
-		if (!cksum(bytes))
-			throw new ParseException(String.format("invalid line \"%s\"", hex), 0);
-
-		int	rssi = Altos.int8(bytes, bytes.length - 3) / 2 - 74;
-		int	status = Altos.uint8(bytes, bytes.length - 2);
-
-		if ((status & PKT_APPEND_STATUS_1_CRC_OK) == 0)
-			throw new AltosCRCException(rssi);
-
-		/* length, data ..., rssi, status, checksum -- 4 bytes extra */
-		switch (bytes.length) {
-		case Altos.ao_telemetry_standard_len + 4:
-			int	type = Altos.uint8(bytes, 4 + 1);
-			switch (type) {
-			case packet_type_TM_sensor:
-			case packet_type_Tm_sensor:
-			case packet_type_Tn_sensor:
-				r = new AltosTelemetryRecordSensor(bytes, rssi);
-				break;
-			case packet_type_configuration:
-				r = new AltosTelemetryRecordConfiguration(bytes);
-				break;
-			case packet_type_location:
-				r = new AltosTelemetryRecordLocation(bytes);
-				break;
-			case packet_type_satellite:
-				r = new AltosTelemetryRecordSatellite(bytes);
-				break;
-			case packet_type_companion:
-				r = new AltosTelemetryRecordCompanion(bytes);
-				break;
-			default:
-				r = new AltosTelemetryRecordRaw(bytes);
-				break;
-			}
-			break;
-		case Altos.ao_telemetry_0_9_len + 4:
-			r = new AltosTelemetryRecordLegacy(bytes, rssi, status);
-			break;
-		case Altos.ao_telemetry_0_8_len + 4:
-			r = new AltosTelemetryRecordLegacy(bytes, rssi, status);
-			break;
-		default:
-			throw new ParseException(String.format("Invalid packet length %d", bytes.length), 0);
-		}
-		return r;
-	}
+	long	received_time;
 
 	public int int8(int off) {
 		return Altos.int8(bytes, off + 1);
@@ -150,5 +69,9 @@ public class AltosTelemetryRecordRaw implements AltosTelemetryRecord {
 		next.serial = serial;
 		next.tick = tick;
 		return next;
+	}
+
+	public long received_time() {
+		return received_time;
 	}
 }
