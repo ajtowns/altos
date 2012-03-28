@@ -423,22 +423,26 @@ public class AltosUI extends AltosFrame {
 		}
 	}
 
-	static AltosRecordIterable record_iterable_file(String filename) {
+	static AltosRecordIterable record_iterable(File file) {
 		FileInputStream in;
 		try {
-			in = new FileInputStream(filename);
+			in = new FileInputStream(file);
 		} catch (Exception e) {
-			System.out.printf("Failed to open file '%s'\n", filename);
+			System.out.printf("Failed to open file '%s'\n", file);
 			return null;
 		}
 		AltosRecordIterable recs;
 		AltosReplayReader reader;
-		if (filename.endsWith("eeprom")) {
+		if (file.getName().endsWith("eeprom")) {
 			recs = new AltosEepromIterable(in);
 		} else {
 			recs = new AltosTelemetryIterable(in);
 		}
 		return recs;
+	}
+
+	static AltosRecordIterable record_iterable_file(String filename) {
+		return record_iterable (new File(filename));
 	}
 
 	static AltosReplayReader replay_file(String filename) {
@@ -466,9 +470,9 @@ public class AltosUI extends AltosFrame {
 	}
 	
 	static void process_summary(String filename) {
-		AltosReplayReader reader = replay_file(filename);
+		AltosRecordIterable iterable = record_iterable_file(filename);
 		try {
-			AltosFlightStats stats = new AltosFlightStats(reader);
+			AltosFlightStats stats = new AltosFlightStats(iterable);
 			if (stats.serial > 0)
 				System.out.printf("Serial:       %5d\n", stats.serial);
 			if (stats.flight > 0)

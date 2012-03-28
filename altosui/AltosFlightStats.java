@@ -43,60 +43,88 @@ public class AltosFlightStats {
 	int		year, month, day;
 	int		hour, minute, second;
 
-	public AltosFlightStats(AltosFlightReader reader) throws InterruptedException, IOException {
+	double landed_time(AltosRecordIterable iterable) {
+		AltosState	state = null;
+		for (AltosRecord record : iterable) {
+			state = new AltosState(record, state);
+
+			if (state.state == Altos.ao_flight_landed)
+				break;
+		}
+
+		double	landed_height = state.height;
+
+		state = null;
+
+		boolean	above = true;
+
+		double	landed_time = -1000;
+
+		for (AltosRecord record : iterable) {
+			state = new AltosState(record, state);
+
+			if (state.height > landed_height + 10) {
+				above = true;
+			} else {
+				if (above && state.height < landed_height + 2) {
+					above = false;
+					landed_time = state.time;
+				}
+			}
+		}
+		if (landed_time == -1000)
+			landed_time = state.time;
+		return landed_time;
+	}
+
+	public AltosFlightStats(AltosRecordIterable iterable) throws InterruptedException, IOException {
 		AltosState	state = null;
 		AltosState	new_state = null;
 		double		boost_time = -1;
 		double		end_time = 0;
+		double		landed_time = landed_time(iterable);
 
 		year = month = day = -1;
 		hour = minute = second = -1;
 		serial = flight = -1;
-		for (;;) {
-			try {
-				AltosRecord	record = reader.read();
-				if (record == null)
-					break;
-				if (serial < 0)
-					serial = record.serial;
-				if ((record.seen & AltosRecord.seen_flight) != 0 && flight < 0)
-					flight = record.flight;
-				new_state = new AltosState(record, state);
-				end_time = new_state.time;
-				state = new_state;
-				if (0 <= state.state && state.state < Altos.ao_flight_invalid) {
-					if (state.state >= Altos.ao_flight_boost) {
-						if (boost_time == -1)
-							boost_time = state.time;
-						if (state.gps != null && state.gps.locked &&
-						    year < 0) {
-							year = state.gps.year;
-							month = state.gps.month;
-							day = state.gps.day;
-							hour = state.gps.hour;
-							minute = state.gps.minute;
-							second = state.gps.second;
-						}
+		for (AltosRecord record : iterable) {
+			if (serial < 0)
+				serial = record.serial;
+			if ((record.seen & AltosRecord.seen_flight) != 0 && flight < 0)
+				flight = record.flight;
+			new_state = new AltosState(record, state);
+			end_time = new_state.time;
+			state = new_state;
+			if (0 <= state.state && state.state < Altos.ao_flight_invalid) {
+				if (state.state >= Altos.ao_flight_boost) {
+					if (boost_time == -1)
+						boost_time = state.time;
+					if (state.gps != null && state.gps.locked &&
+					    year < 0) {
+						year = state.gps.year;
+						month = state.gps.month;
+						day = state.gps.day;
+						hour = state.gps.hour;
+						minute = state.gps.minute;
+						second = state.gps.second;
 					}
-					state_accel[state.state] += state.acceleration;
-					state_speed[state.state] += state.speed;
-					state_baro_speed[state.state] += state.baro_speed;
-					state_count[state.state]++;
-					if (state_start[state.state] == 0.0)
-						state_start[state.state] = state.time;
-					if (state_end[state.state] < state.time)
-						state_end[state.state] = state.time;
-					max_height = state.max_height;
-					if (state.max_speed != 0)
-						max_speed = state.max_speed;
-					else
-						max_speed = state.max_baro_speed;
-					max_acceleration = state.max_acceleration;
 				}
-			} catch (ParseException pp) {
-				System.out.printf("Parse error: %d \"%s\"\n", pp.getErrorOffset(), pp.getMessage());
-			} catch (AltosCRCException ce) {
-
+				if (state.time >= landed_time)
+					state.state = Altos.ao_flight_landed;
+				state_accel[state.state] += state.acceleration;
+				state_speed[state.state] += state.speed;
+				state_baro_speed[state.state] += state.baro_speed;
+				state_count[state.state]++;
+				if (state_start[state.state] == 0.0)
+					state_start[state.state] = state.time;
+				if (state_end[state.state] < state.time)
+					state_end[state.state] = state.time;
+				max_height = state.max_height;
+				if (state.max_speed != 0)
+					max_speed = state.max_speed;
+				else
+					max_speed = state.max_baro_speed;
+				max_acceleration = state.max_acceleration;
 			}
 		}
 		for (int s = Altos.ao_flight_startup; s <= Altos.ao_flight_landed; s++) {
@@ -110,13 +138,5 @@ public class AltosFlightStats {
 			if (state_end[s] == 0)
 				state_end[s] = end_time;
 		}
-	}
-
-	public AltosFlightStats(AltosRecordIterable iterable, File file) throws InterruptedException, IOException {
-		this(new AltosReplayReader(iterable.iterator(), file));
-	}
-
-	public AltosFlightStats(AltosRecordIterable iterable) throws InterruptedException, IOException {
-		this(iterable, new File(""));
 	}
 }
