@@ -91,7 +91,7 @@ _ao_config_get(void)
 		       sizeof(AO_CONFIG_DEFAULT_CALLSIGN) - 1);
 		ao_config_dirty = 1;
 	}
-	if (ao_config.minor < AO_CONFIG_MINOR) {
+	if (ao_config.minor != AO_CONFIG_MINOR) {
 		/* Fixups for minor version 1 */
 		if (ao_config.minor < 1)
 			ao_config.apogee_delay = AO_CONFIG_DEFAULT_APOGEE_DELAY;
