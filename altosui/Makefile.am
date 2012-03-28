@@ -26,6 +26,8 @@ altosui_JAVA = \
 	AltosConfigFreqUI.java \
 	AltosConfigUI.java \
 	AltosConfigureUI.java \
+	AltosConfigTD.java \
+	AltosConfigTDUI.java \
 	AltosConvert.java \
 	AltosCRCException.java \
 	AltosCSV.java \

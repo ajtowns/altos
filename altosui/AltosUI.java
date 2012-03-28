@@ -165,7 +165,15 @@ public class AltosUI extends AltosFrame {
 				}
 			});
 		b.setToolTipText("Global AltosUI settings");
-		b = addButton(2, 1, "Flash Image");
+
+		b = addButton(2, 1, "Configure Ground Station");
+		b.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ConfigureTeleDongle();
+				}
+			});
+
+		b = addButton(3, 1, "Flash Image");
 		b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					FlashImage();
@@ -173,20 +181,13 @@ public class AltosUI extends AltosFrame {
 			});
 		b.setToolTipText("Replace the firmware in any AltusMetrum product");
 
-		b = addButton(3, 1, "Fire Igniter");
+		b = addButton(4, 1, "Fire Igniter");
 		b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					FireIgniter();
 				}
 			});
 		b.setToolTipText("Remote control of igniters for deployment testing");
-		b = addButton(4, 1, "Quit");
-		b.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					System.exit(0);
-				}
-			});
-		b.setToolTipText("Close all active windows and terminate AltosUI");
 		b = addButton(0, 2, "Scan Channels");
 		b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -215,6 +216,14 @@ public class AltosUI extends AltosFrame {
 					LaunchController();
 				}
 			});
+
+		b = addButton(4, 2, "Quit");
+		b.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					System.exit(0);
+				}
+			});
+		b.setToolTipText("Close all active windows and terminate AltosUI");
 
 		setTitle("AltOS");
 
@@ -260,6 +269,10 @@ public class AltosUI extends AltosFrame {
 
 	void ConfigureTeleMetrum() {
 		new AltosConfig(AltosUI.this);
+	}
+
+	void ConfigureTeleDongle() {
+		new AltosConfigTD(AltosUI.this);
 	}
 
 	void FlashImage() {
