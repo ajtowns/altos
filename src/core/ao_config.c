@@ -609,6 +609,7 @@ static void
 ao_config_show(void) __reentrant
 {
 	uint8_t cmd;
+	ao_config_get();
 	printf("Config version: %d.%d\n",
 	       ao_config.major, ao_config.minor);
 	for (cmd = 0; ao_config_vars[cmd].str != NULL; cmd++)
