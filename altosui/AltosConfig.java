@@ -194,7 +194,9 @@ public class AltosConfig implements ActionListener {
 		get_int(line, "Ignite mode:", ignite_mode);
 		get_int(line, "Pad orientation:", pad_orientation);
 		get_int(line, "Radio setting:", radio_setting);
-		get_int(line, "Frequency:", radio_frequency);
+		if (get_int(line, "Frequency:", radio_frequency))
+			if (radio_frequency.get() < 0)
+				radio_frequency.set(434550);
 		get_int(line, "Radio enable:", radio_enable);
 		get_int(line, "Storage size:", storage_size);
 		get_int(line, "Storage erase unit:", storage_erase_unit);

@@ -156,7 +156,11 @@ public class AltosConfigData implements Iterable<String> {
 			try { apogee_delay = get_int(line, "Apogee delay:"); } catch (Exception e) {}
 			try { radio_channel = get_int(line, "Radio channel:"); } catch (Exception e) {}
 			try { radio_setting = get_int(line, "Radio setting:"); } catch (Exception e) {}
-			try { radio_frequency = get_int(line, "Frequency:"); } catch (Exception e) {}
+			try {
+				radio_frequency = get_int(line, "Frequency:");
+				if (radio_frequency < 0)
+					radio_frequency = 434550;
+			} catch (Exception e) {}
 			try {
 				if (line.startsWith("Accel cal")) {
 					String[] bits = line.split("\\s+");

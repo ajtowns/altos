@@ -708,6 +708,8 @@ public class AltosConfigUI
 	}
 
 	public void set_ignite_mode(int new_ignite_mode) {
+		if (new_ignite_mode >= ignite_mode_values.length)
+			new_ignite_mode = 0;
 		if (new_ignite_mode < 0) {
 			ignite_mode_value.setEnabled(false);
 			new_ignite_mode = 0;
@@ -727,6 +729,8 @@ public class AltosConfigUI
 
 
 	public void set_pad_orientation(int new_pad_orientation) {
+		if (new_pad_orientation >= pad_orientation_values.length)
+			new_pad_orientation = 0;
 		if (new_pad_orientation < 0) {
 			pad_orientation_value.setEnabled(false);
 			new_pad_orientation = 0;
