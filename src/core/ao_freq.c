@@ -30,20 +30,18 @@ int32_t ao_freq_to_set(int32_t freq, int32_t cal) {
 	uint8_t	neg = 0;
 	__pdata int32_t	error = -434550 / 2;
 
-	freq -= 434550;
-	if (freq < 0) {
+	if ((freq -= 434550) < 0) {
 		neg = 1;
 		freq = -freq;
 	}
 	for (;;) {
-		if (freq == 0 && error <= 0)
-			break;
 		if (error > 0) {
 			error -= 434550;
 			set++;
 		} else {
 			error += cal;
-			freq--;
+			if (--freq < 0)
+				break;
 		}
 	}
 	if (neg)
