@@ -210,12 +210,12 @@ public class AltosUI extends AltosFrame {
 			});
 		b.setToolTipText("Check flight readiness of altimeter in idle mode");
 
-		b = addButton(3, 2, "Launch Controller");
-		b.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					LaunchController();
-				}
-			});
+//		b = addButton(3, 2, "Launch Controller");
+//		b.addActionListener(new ActionListener() {
+//				public void actionPerformed(ActionEvent e) {
+//					LaunchController();
+//				}
+//			});
 
 		b = addButton(4, 2, "Quit");
 		b.addActionListener(new ActionListener() {
