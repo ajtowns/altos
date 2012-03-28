@@ -380,6 +380,8 @@ public class AltosSerial implements Runnable {
 					int cal) {
 		if (debug)
 			System.out.printf("set_radio_frequency %7.3f (freq %b) (set %b) %d\n", frequency, has_frequency, has_setting, cal);
+		if (frequency == 0)
+			return;
 		if (has_frequency)
 			set_radio_freq((int) Math.floor (frequency * 1000));
 		else if (has_setting)
@@ -390,6 +392,8 @@ public class AltosSerial implements Runnable {
 
 	public void set_radio_frequency(double in_frequency) throws InterruptedException, TimeoutException {
 		frequency = in_frequency;
+		if (frequency == 0.0)
+			frequency = AltosPreferences.frequency(device.getSerial());
 		config_data();
 		set_radio_frequency(frequency,
 				    config_data.radio_frequency != 0,
