@@ -55,7 +55,7 @@ public class AltosSerial implements Runnable {
 	boolean monitor_mode;
 	int telemetry;
 	double frequency;
-	static boolean debug;
+	public static boolean debug;
 	boolean remote;
 	LinkedList<String> pending_output = new LinkedList<String>();
 	Frame frame;

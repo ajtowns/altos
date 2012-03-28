@@ -90,7 +90,9 @@ class AltosADC {
 }
 
 class AltosGPSQuery extends AltosGPS {
-	public AltosGPSQuery (AltosSerial serial) throws TimeoutException, InterruptedException {
+	public AltosGPSQuery (AltosSerial serial, AltosConfigData config_data)
+		throws TimeoutException, InterruptedException {
+		boolean says_done = config_data.compare_version("1.0") >= 0;
 		serial.printf("g\n");
 		for (;;) {
 			String line = serial.get_reply_no_dialog(5000);
@@ -140,6 +142,8 @@ class AltosGPSQuery extends AltosGPS {
 				int status = Integer.decode(bits[1]);
 				connected = (status & Altos.AO_GPS_RUNNING) != 0;
 				locked = (status & Altos.AO_GPS_VALID) != 0;
+				if (!says_done)
+					break;
 				continue;
 			}
 			if (line.startsWith("Sats:")) {
@@ -184,7 +188,7 @@ class AltosIdleMonitor extends Thread {
 				serial.flush_input();
 			config_data = new AltosConfigData(serial);
 			adc = new AltosADC(serial);
-			gps = new AltosGPSQuery(serial);
+			gps = new AltosGPSQuery(serial, config_data);
 		} finally {
 			if (remote)
 				serial.stop_remote();
@@ -237,6 +241,8 @@ class AltosIdleMonitor extends Thread {
 					update_state();
 					post_state();
 				} catch (TimeoutException te) {
+					if (AltosSerial.debug)
+						System.out.printf ("monitor idle data timeout\n");
 				}
 				Thread.sleep(1000);
 			}
