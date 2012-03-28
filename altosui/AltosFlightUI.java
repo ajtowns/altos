@@ -28,21 +28,6 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.*;
 
-class AltosFlightStatusUpdate implements ActionListener {
-
-	public AltosState	saved_state;
-	AltosFlightStatus	flightStatus;
-
-	public void actionPerformed (ActionEvent e) {
-		if (saved_state != null)
-			flightStatus.show(saved_state, 0);
-	}
-
-	public AltosFlightStatusUpdate (AltosFlightStatus in_flightStatus) {
-		flightStatus = in_flightStatus;
-	}
-}
-
 public class AltosFlightUI extends AltosFrame implements AltosFlightDisplay, AltosFontListener {
 	AltosVoice		voice;
 	AltosFlightReader	reader;

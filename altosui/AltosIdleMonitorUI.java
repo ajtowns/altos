@@ -293,7 +293,10 @@ public class AltosIdleMonitorUI extends AltosFrame implements AltosFlightDisplay
 		set_font();
 	}
 
+	AltosFlightStatusUpdate	status_update;
+
 	public void show(AltosState state, int crc_errors) {
+		status_update.saved_state = state;
 		try {
 			pad.show(state, crc_errors);
 			flightStatus.show(state, crc_errors);
@@ -398,6 +401,10 @@ public class AltosIdleMonitorUI extends AltosFrame implements AltosFlightDisplay
 		setVisible(true);
 
 		thread = new AltosIdleMonitor(this, device, remote);
+
+		status_update = new AltosFlightStatusUpdate(flightStatus);
+
+		new javax.swing.Timer(100, status_update).start();
 
 		thread.start();
 	}
