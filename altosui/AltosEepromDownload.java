@@ -351,7 +351,7 @@ public class AltosEepromDownload implements Runnable {
 
 			for (AltosEepromLog log : flights) {
 				parse_exception = null;
-				if (log.download) {
+				if (log.selected) {
 					monitor.reset();
 					CaptureLog(log);
 				}

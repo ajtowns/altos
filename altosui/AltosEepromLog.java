@@ -43,8 +43,7 @@ public class AltosEepromLog {
 
 	int		year, month, day;
 
-	boolean		download;
-	boolean		delete;
+	boolean		selected;
 
 	public AltosEepromLog(AltosConfigData config_data,
 			      AltosSerial serial_line,
@@ -63,10 +62,9 @@ public class AltosEepromLog {
 		serial = config_data.serial;
 
 		/*
-		 * By default, request that every log be downloaded but not deleted
+		 * Select all flights for download
 		 */
-		download = true;
-		delete = false;
+		selected = true;
 
 		/*
 		 * Look in TeleMetrum log data for date

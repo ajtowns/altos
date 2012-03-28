@@ -31,15 +31,11 @@ import libaltosJNI.SWIGTYPE_p_altos_list;
 class AltosEepromItem implements ActionListener {
 	AltosEepromLog	log;
 	JLabel		label;
-	JCheckBox	download;
+	JCheckBox	action;
 	JCheckBox	delete;
 
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == download) {
-			log.download = download.isSelected();
-		} else if (e.getSource() == delete) {
-			log.delete = delete.isSelected();
-		}
+		log.selected = action.isSelected();
 	}
 
 	public AltosEepromItem(AltosEepromLog in_log) {
@@ -54,11 +50,8 @@ class AltosEepromItem implements ActionListener {
 
 		label = new JLabel(text);
 
-		download = new JCheckBox("", log.download);
-		download.addActionListener(this);
-
-		delete = new JCheckBox("", log.delete);
-		delete.addActionListener(this);
+		action = new JCheckBox("", log.selected);
+		action.addActionListener(this);
 	}
 }
 
@@ -86,7 +79,8 @@ public class AltosEepromSelect extends AltosDialog implements ActionListener {
 	}
 
 	public AltosEepromSelect (JFrame in_frame,
-				  AltosEepromList flights) {
+				  AltosEepromList flights,
+				  String action) {
 
 		super(in_frame, String.format("Flight list for serial %d", flights.config_data.serial), true);
 		frame = in_frame;
@@ -95,7 +89,7 @@ public class AltosEepromSelect extends AltosDialog implements ActionListener {
 		Container contentPane = getContentPane();
 
 		/* First, we create a pane containing the dialog's header/title */
-		JLabel	selectLabel = new JLabel("Select flights to download and/or delete", SwingConstants.CENTER);
+		JLabel	selectLabel = new JLabel(String.format ("Select flights to %s", action), SwingConstants.CENTER);
 
 		JPanel	labelPane = new JPanel();
 		labelPane.setLayout(new BoxLayout(labelPane, BoxLayout.X_AXIS));
@@ -132,18 +126,8 @@ public class AltosEepromSelect extends AltosDialog implements ActionListener {
 		c.weightx = 0.5;
 		c.anchor = GridBagConstraints.CENTER;
 		c.insets = i;
-		JLabel downloadHeaderLabel = new JLabel("Download");
+		JLabel downloadHeaderLabel = new JLabel(action);
 		flightPane.add(downloadHeaderLabel, c);
-
-		/* Delete Header */
-		c = new GridBagConstraints();
-		c.gridx = 2; c.gridy = 0;
-		c.fill = GridBagConstraints.NONE;
-		c.weightx = 0.5;
-		c.anchor = GridBagConstraints.CENTER;
-		c.insets = i;
-		JLabel deleteHeaderLabel = new JLabel("Delete");
-		flightPane.add(deleteHeaderLabel, c);
 
 		/* Add the flights to the GridBag */
 		AltosEepromItem item;
@@ -163,23 +147,14 @@ public class AltosEepromSelect extends AltosDialog implements ActionListener {
 			c.insets = i;
 			flightPane.add(item.label, c);
 
-			/* Add a download checkbox for the flight */
+			/* Add action checkbox for the flight */
 			c = new GridBagConstraints();
 			c.gridx = 1; c.gridy = itemNumber;
 			c.fill = GridBagConstraints.NONE;
 			c.weightx = 0.5;
 			c.anchor = GridBagConstraints.CENTER;
 			c.insets = i;
-			flightPane.add(item.download, c);
-
-			/* Add a delete checkbox for the flight */
-			c = new GridBagConstraints();
-			c.gridx = 2; c.gridy = itemNumber;
-			c.fill = GridBagConstraints.NONE;
-			c.weightx = 0.5;
-			c.anchor = GridBagConstraints.CENTER;
-			c.insets = i;
-			flightPane.add(item.delete, c);
+			flightPane.add(item.action, c);
 
 			itemNumber++;
 		}

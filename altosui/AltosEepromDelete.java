@@ -90,7 +90,7 @@ public class AltosEepromDelete implements Runnable {
 				serial_line.start_remote();
 
 			for (AltosEepromLog log : flights) {
-				if (log.delete) {
+				if (log.selected) {
 					DeleteLog(log);
 				}
 			}

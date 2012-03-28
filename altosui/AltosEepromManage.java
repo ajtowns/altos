@@ -39,8 +39,6 @@ public class AltosEepromManage implements ActionListener {
 	AltosEepromList		flights;
 	AltosEepromDownload	download;
 	AltosEepromDelete	delete;
-	boolean			any_download;
-	boolean			any_delete;
 
 	public void finish() {
 		if (serial_line != null) {
@@ -57,7 +55,7 @@ public class AltosEepromManage implements ActionListener {
 		String	result = "";
 
 		for (AltosEepromLog flight : flights) {
-			if (flight.delete) {
+			if (flight.selected) {
 				if (result.equals(""))
 					result = String.format("%d", flight.flight);
 				else
@@ -67,18 +65,38 @@ public class AltosEepromManage implements ActionListener {
 		return result;
 	}
 
+	public boolean download_done() {
+		AltosEepromSelect	select = new AltosEepromSelect(frame, flights, "Delete");
+
+		if (select.run()) {
+			boolean any_selected = false;
+			for (AltosEepromLog flight : flights)
+				any_selected = any_selected || flight.selected;
+			if (any_selected) {
+				delete = new AltosEepromDelete(frame,
+							       serial_line,
+							       remote,
+							       flights);
+				delete.addActionListener(this);
+				/*
+				 * Start flight log delete
+				 */
+
+				delete.start();
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public void actionPerformed(ActionEvent e) {
 		String	cmd = e.getActionCommand();
 		boolean	success = e.getID() != 0;
 		boolean running = false;
 
 		if (cmd.equals("download")) {
-			if (success) {
-				if (any_delete) {
-					delete.start();
-					running = true;
-				}
-			}
+			if (success)
+				running = download_done();
 		} else if (cmd.equals("delete")) {
 			if (success) {
 				JOptionPane.showMessageDialog(frame,
@@ -104,40 +122,26 @@ public class AltosEepromManage implements ActionListener {
 							      serial_line.device.toShortString(),
 							      JOptionPane.INFORMATION_MESSAGE);
 			} else {
-				AltosEepromSelect	select = new AltosEepromSelect(frame, flights);
+				AltosEepromSelect	select = new AltosEepromSelect(frame, flights, "Download");
 
 				if (select.run()) {
-					for (AltosEepromLog flight : flights) {
-						any_download = any_download || flight.download;
-						any_delete = any_delete || flight.delete;
-					}
-					if (any_download) {
+					boolean any_selected = false;
+					for (AltosEepromLog flight : flights)
+						any_selected = any_selected || flight.selected;
+					if (any_selected) {
 						download = new AltosEepromDownload(frame,
 										   serial_line,
 										   remote,
 										   flights);
 						download.addActionListener(this);
-					}
+						/*
+						 * Start flight log download
+						 */
 
-					if (any_delete) {
-						delete = new AltosEepromDelete(frame,
-									       serial_line,
-									       remote,
-									       flights);
-						delete.addActionListener(this);
-					}
-
-					/*
-					 * Start flight log download
-					 */
-
-					if (any_download) {
 						download.start();
 						running = true;
-					}
-					else if (any_delete) {
-						delete.start();
-						running = true;
+					} else {
+						running = download_done();
 					}
 				}
 			}
@@ -203,8 +207,6 @@ public class AltosEepromManage implements ActionListener {
 		device = AltosDeviceDialog.show(frame, Altos.product_any);
 
 		remote = false;
-		any_download = false;
-		any_delete = false;
 
 		if (device != null) {
 			try {
