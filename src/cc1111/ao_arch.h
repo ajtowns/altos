@@ -258,4 +258,40 @@ struct ao_serial_speed {
 
 extern const __code struct ao_serial_speed ao_serial_speeds[];
 
+/*
+ * ao_dma.c
+ */
+
+/* Allocate a DMA channel. the 'done' parameter will be set when the
+ * dma is finished and will be used to wakeup any waiters
+ */
+
+uint8_t
+ao_dma_alloc(__xdata uint8_t * done);
+
+/* Setup a DMA channel */
+void
+ao_dma_set_transfer(uint8_t id,
+		    void __xdata *srcaddr,
+		    void __xdata *dstaddr,
+		    uint16_t count,
+		    uint8_t cfg0,
+		    uint8_t cfg1);
+
+/* Start a DMA channel */
+void
+ao_dma_start(uint8_t id);
+
+/* Manually trigger a DMA channel */
+void
+ao_dma_trigger(uint8_t id);
+
+/* Abort a running DMA transfer */
+void
+ao_dma_abort(uint8_t id);
+
+/* DMA interrupt routine */
+void
+ao_dma_isr(void) ao_arch_interrupt(8);
+
 #endif /* _AO_ARCH_H_ */
