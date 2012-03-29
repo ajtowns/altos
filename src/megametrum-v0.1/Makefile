@@ -30,7 +30,8 @@ ALTOS_SRC = \
 	ao_mutex.c \
 	ao_serial_stm.c \
 	ao_gps_skytraq.c \
-	ao_cc1120.c
+	ao_cc1120.c \
+	ao_freq.c
 
 PRODUCT=MegaMetrum-v0.1
 PRODUCT_DEF=-DMEGAMETRUM
@@ -38,7 +39,7 @@ IDPRODUCT=0x000a
 
 CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) -Os -g
 
-PROG=megametrum-v0.1
+PROG=megametrum-v0.1-$(VERSION).ihx
 
 SRC=$(ALTOS_SRC) ao_megametrum.c
 OBJ=$(SRC:.c=.o)
