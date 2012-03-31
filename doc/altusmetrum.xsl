@@ -258,7 +258,8 @@ NAR #88757, TRA #12200
       A typical TeleMetrum or TeleMini installation involves attaching 
       only a suitable Lithium Polymer battery, a single pole switch for 
       power on/off, and two pairs of wires connecting e-matches for the 
-      apogee and main ejection charges.
+      apogee and main ejection charges.  All Altus Metrum products are 
+      designed for use with single-cell batteries with 3.7 volts nominal.
     </para>
     <para>
       By default, we use the unregulated output of the Li-Po battery directly
@@ -1447,8 +1448,9 @@ NAR #88757, TRA #12200
         <para>
           In the rocket itself, you just need a <ulink url="http://www.altusmetrum.org/TeleMetrum/">TeleMetrum</ulink> or
 	  <ulink url="http://www.altusmetrum.org/TeleMini/">TeleMini</ulink> board and
-          a Li-Po rechargeable battery.  An 860mAh battery weighs less than a 9V
-          alkaline battery, and will run a TeleMetrum for hours.
+          a single-cell, 3.7 volt nominal Li-Po rechargeable battery.  An 
+	  850mAh battery weighs less than a 9V alkaline battery, and will 
+	  run a TeleMetrum for hours.
 	  A 110mAh battery weighs less than a triple A battery and will run a TeleMetrum for
 	  a few hours, or a TeleMini for much (much) longer.
         </para>
