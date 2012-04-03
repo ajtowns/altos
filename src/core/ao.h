@@ -941,47 +941,6 @@ ao_serial0_init(void);
 
 
 /*
- * ao_spi.c
- */
-
-extern __xdata uint8_t	ao_spi_mutex;
-
-#define ao_spi_get_mask(reg,mask) do {\
-	ao_mutex_get(&ao_spi_mutex); \
-	(reg) &= ~(mask); \
-	} while (0)
-
-#define ao_spi_put_mask(reg,mask) do { \
-	(reg) |= (mask); \
-	ao_mutex_put(&ao_spi_mutex); \
-	} while (0)
-
-#define ao_spi_get_bit(bit) do {\
-	ao_mutex_get(&ao_spi_mutex); \
-	(bit) = 0; \
-	} while (0)
-
-#define ao_spi_put_bit(bit) do { \
-	(bit) = 1; \
-	ao_mutex_put(&ao_spi_mutex); \
-	} while (0)
-
-/*
- * The SPI mutex must be held to call either of these
- * functions -- this mutex covers the entire SPI operation,
- * from chip select low to chip select high
- */
-
-void
-ao_spi_send(void __xdata *block, uint16_t len) __reentrant;
-
-void
-ao_spi_recv(void __xdata *block, uint16_t len) __reentrant;
-
-void
-ao_spi_init(void);
-
-/*
  * ao_spi_slave.c
  */
 
@@ -1933,5 +1892,7 @@ ao_sqrt(uint32_t op);
  */
 
 int32_t ao_freq_to_set(int32_t freq, int32_t cal);
+
+#include <ao_arch_funcs.h>
 
 #endif /* _AO_H_ */
