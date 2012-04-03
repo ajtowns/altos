@@ -134,7 +134,7 @@ ao_usart_set_speed(struct ao_stm_usart *usart, uint8_t speed)
 {
 	if (speed > AO_SERIAL_SPEED_57600)
 		return;
-	stm_usart1.brr = ao_usart_speeds[speed].brr;
+	usart->reg->brr = ao_usart_speeds[speed].brr;
 }
 
 void
@@ -303,8 +303,8 @@ ao_serial_init(void)
 #endif
 	/* Enable USART */
 	stm_rcc.apb2enr |= (1 << STM_RCC_APB2ENR_USART1EN);
-	ao_stm_usart1.reg = &stm_usart1;
 
+	ao_stm_usart1.reg = &stm_usart1;
 	ao_usart_init(&ao_stm_usart1);
 
 	stm_nvic_set_enable(STM_ISR_USART1_POS);
@@ -382,7 +382,6 @@ ao_serial_init(void)
 #endif
 #endif
 #endif
-	
 	/* Enable USART */
 	stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_USART3EN);
 
