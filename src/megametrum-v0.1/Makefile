@@ -39,7 +39,7 @@ IDPRODUCT=0x000a
 
 CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) -Os -g
 
-PROG=megametrum-v0.1-$(VERSION).ihx
+PROG=megametrum-v0.1-$(VERSION).elf
 
 SRC=$(ALTOS_SRC) ao_megametrum.c
 OBJ=$(SRC:.c=.o)
