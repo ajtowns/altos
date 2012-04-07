@@ -159,6 +159,17 @@ stm_afr_get(struct stm_gpio *gpio, int pin) {
 	}
 }
 
+static inline void
+stm_gpio_set(struct stm_gpio *gpio, int pin, uint8_t value) {
+	/* Use the bit set/reset register to do this atomically */
+	gpio->bsrr = ((uint32_t) (value ^ 1) << (pin + 16)) | ((uint32_t) value << pin);
+}
+
+static inline uint8_t
+stm_gpio_isset(struct stm_gpio *gpio, int pin) {
+	return (gpio->idr >> pin) & 1;
+}
+
 extern struct stm_gpio stm_gpioa;
 extern struct stm_gpio stm_gpiob;
 extern struct stm_gpio stm_gpioc;
@@ -237,11 +248,6 @@ extern struct stm_usart stm_usart3;
 #define STM_USART_CR3_IRLP	(2)	/* IrDA low-power */
 #define STM_USART_CR3_IREN	(1)	/* IrDA mode enable */
 #define STM_USART_CR3_EIE	(0)	/* Error interrupt enable */
-
-struct stm_spi {
-};
-
-extern struct stm_spi stm_spi1;
 
 struct stm_tim {
 };
@@ -841,5 +847,169 @@ isr(tim7)
 #define STM_ISR_USB_FS_WKUP_POS		42
 #define STM_ISR_TIM6_POS		43
 #define STM_ISR_TIM7_POS		44
+
+struct stm_dma_channel {
+	vuint32_t	ccr;
+	vuint32_t	cndtr;
+	vuint32_t	cpar;
+	vuint32_t	cmar;
+	vuint32_t	reserved;
+};
+
+#define STM_NUM_DMA	7
+
+struct stm_dma {
+	vuint32_t		isr;
+	vuint32_t		ifcr;
+	struct stm_dma_channel	channel[STM_NUM_DMA];
+};
+
+extern struct stm_dma stm_dma;
+
+/* DMA channels go from 1 to 7, instead of 0 to 6 (sigh)
+ */
+
+#define STM_DMA_INDEX(channel)		((channel) - 1)
+
+#define STM_DMA_ISR(index)		((index) << 2)
+#define STM_DMA_ISR_MASK			0xf
+#define STM_DMA_ISR_TEIF			3
+#define STM_DMA_ISR_HTIF			2
+#define STM_DMA_ISR_TCIF			1
+#define STM_DMA_ISR_GIF				0
+
+#define STM_DMA_IFCR(index)		((index) << 2)
+#define STM_DMA_IFCR_MASK			0xf
+#define STM_DMA_IFCR_CTEIF      		3
+#define STM_DMA_IFCR_CHTIF			2
+#define STM_DMA_IFCR_CTCIF			1
+#define STM_DMA_IFCR_CGIF			0
+
+#define STM_DMA_CCR_MEM2MEM		(14)
+
+#define STM_DMA_CCR_PL			(12)
+#define  STM_DMA_CCR_PL_LOW			(0)
+#define  STM_DMA_CCR_PL_MEDIUM			(1)
+#define  STM_DMA_CCR_PL_HIGH			(2)
+#define  STM_DMA_CCR_PL_VERY_HIGH		(3)
+#define  STM_DMA_CCR_PL_MASK			(3)
+
+#define STM_DMA_CCR_MSIZE		(10)
+#define  STM_DMA_CCR_MSIZE_8			(0)
+#define  STM_DMA_CCR_MSIZE_16			(1)
+#define  STM_DMA_CCR_MSIZE_32			(2)
+#define  STM_DMA_CCR_MSIZE_MASK			(3)
+
+#define STM_DMA_CCR_PSIZE		(8)
+#define  STM_DMA_CCR_PSIZE_8			(0)
+#define  STM_DMA_CCR_PSIZE_16			(1)
+#define  STM_DMA_CCR_PSIZE_32			(2)
+#define  STM_DMA_CCR_PSIZE_MASK			(3)
+
+#define STM_DMA_CCR_MINC		(7)
+#define STM_DMA_CCR_PINC		(6)
+#define STM_DMA_CCR_CIRC		(5)
+#define STM_DMA_CCR_DIR			(4)
+#define  STM_DMA_CCR_DIR_PER_TO_MEM		0
+#define  STM_DMA_CCR_DIR_MEM_TO_PER		1
+#define STM_DMA_CCR_TEIE		(3)
+#define STM_DMA_CCR_HTIE		(2)
+#define STM_DMA_CCR_TCIE		(1)
+#define STM_DMA_CCR_EN			(0)
+
+#define STM_DMA_CHANNEL_ADC1		1
+#define STM_DMA_CHANNEL_SPI1_RX		2
+#define STM_DMA_CHANNEL_SPI1_TX		3
+#define STM_DMA_CHANNEL_SPI2_RX		4
+#define STM_DMA_CHANNEL_SPI2_TX		5
+#define STM_DMA_CHANNEL_USART3_TX	2
+#define STM_DMA_CHANNEL_USART3_RX	3
+#define STM_DMA_CHANNEL_USART1_TX	4
+#define STM_DMA_CHANNEL_USART1_RX	5
+#define STM_DMA_CHANNEL_USART2_RX	6
+#define STM_DMA_CHANNEL_USART2_TX	7
+#define STM_DMA_CHANNEL_I2C2_TX		4
+#define STM_DMA_CHANNEL_I2C2_RX		5
+#define STM_DMA_CHANNEL_I2C1_RX		6
+#define STM_DMA_CHANNEL_I2C1_TX		7
+#define STM_DMA_CHANNEL_TIM2_CH3	1
+#define STM_DMA_CHANNEL_TIM2_UP		2
+#define STM_DMA_CHANNEL_TIM2_CH1	5
+#define STM_DMA_CHANNEL_TIM2_CH2	7
+#define STM_DMA_CHANNEL_TIM2_CH4	7
+#define STM_DMA_CHANNEL_TIM3_CH3	2
+#define STM_DMA_CHANNEL_TIM3_CH4	3
+#define STM_DMA_CHANNEL_TIM3_UP		3
+#define STM_DMA_CHANNEL_TIM3_CH1	6
+#define STM_DMA_CHANNEL_TIM3_TRIG	6
+#define STM_DMA_CHANNEL_TIM4_CH1	1
+#define STM_DMA_CHANNEL_TIM4_CH2	4
+#define STM_DMA_CHANNEL_TIM4_CH3	5
+#define STM_DMA_CHANNEL_TIM4_UP		7
+#define STM_DMA_CHANNEL_TIM6_UP_DA	2
+#define STM_DMA_CHANNEL_C_CHANNEL1	2
+#define STM_DMA_CHANNEL_TIM7_UP_DA	3
+#define STM_DMA_CHANNEL_C_CHANNEL2	3
+
+/*
+ * Only spi channel 1 and 2 can use DMA
+ */
+#define STM_NUM_SPI	2
+
+struct stm_spi {
+	vuint32_t	cr1;
+	vuint32_t	cr2;
+	vuint32_t	sr;
+	vuint32_t	dr;
+	vuint32_t	crcpr;
+	vuint32_t	rxcrcr;
+	vuint32_t	txcrcr;
+};
+
+extern struct stm_spi stm_spi1, stm_spi2, stm_spi3;
+
+/* SPI channels go from 1 to 3, instead of 0 to 2 (sigh)
+ */
+
+#define STM_SPI_INDEX(channel)		((channel) - 1)
+
+#define STM_SPI_CR1_BIDIMODE		15
+#define STM_SPI_CR1_BIDIOE		14
+#define STM_SPI_CR1_CRCEN		13
+#define STM_SPI_CR1_CRCNEXT		12
+#define STM_SPI_CR1_DFF			11
+#define STM_SPI_CR1_RXONLY		10
+#define STM_SPI_CR1_SSM			9
+#define STM_SPI_CR1_SSI			8
+#define STM_SPI_CR1_LSBFIRST		7
+#define STM_SPI_CR1_SPE			6
+#define STM_SPI_CR1_BR			3
+#define  STM_SPI_CR1_BR_PCLK_2			0
+#define  STM_SPI_CR1_BR_PCLK_4			1
+#define  STM_SPI_CR1_BR_PCLK_8			2
+#define  STM_SPI_CR1_BR_PCLK_16			3
+#define  STM_SPI_CR1_BR_PCLK_32			4
+#define  STM_SPI_CR1_BR_PCLK_64			5
+#define  STM_SPI_CR1_BR_PCLK_128		6
+#define  STM_SPI_CR1_BR_PCLK_256		7
+#define  STM_SPI_CR1_BR_MASK			7
+
+#define STM_SPI_CR1_MSTR		2
+#define STM_SPI_CR1_CPOL		1
+#define STM_SPI_CR1_CPHA		0
+
+#define STM_SPI_CR2_TXEIE	7
+#define STM_SPI_CR2_RXNEIE	6
+#define STM_SPI_CR2_ERRIE	5
+#define STM_SPI_CR2_SSOE	2
+#define STM_SPI_CR2_TXDMAEN	1
+#define STM_SPI_CR2_RXDMAEN	0
+
+#define STM_SPI_SR_BSY		7
+#define STM_SPI_SR_OVR		6
+#define STM_SPI_SR_MODF		5
+#define STM_SPI_SR_CRCERR	4
+#define STM_SPI_SR_TXE		1
+#define STM_SPI_SR_RXNE		0
 
 #endif /* _STM32L_H_ */

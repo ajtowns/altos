@@ -34,6 +34,11 @@
 #define SERIAL_3_PC10_PC11	0
 #define SERIAL_3_PD8_PD9	1
 
+#define HAS_SPI_1		1
+#define SPI_1_PB3_PB4_PB5	1
+
+#define HAS_SPI_2		0
+
 #define HAS_USB			0
 #define HAS_BEEP		0
 #define PACKET_HAS_SLAVE	0

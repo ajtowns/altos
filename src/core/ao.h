@@ -114,6 +114,7 @@ ao_start_scheduler(void);
 #define AO_PANIC_USB		10	/* Trying to send USB packet while busy */
 #define AO_PANIC_BT		11	/* Communications with bluetooth device failed */
 #define AO_PANIC_STACK		12	/* Stack overflow */
+#define AO_PANIC_SPI		13	/* SPI communication failure */
 
 /* Stop the operating system, beeping and blinking the reason */
 void
@@ -1894,5 +1895,11 @@ ao_sqrt(uint32_t op);
 int32_t ao_freq_to_set(int32_t freq, int32_t cal);
 
 #include <ao_arch_funcs.h>
+
+/*
+ * ao_ms5607.c
+ */
+
+void ao_ms5607_init(void);
 
 #endif /* _AO_H_ */

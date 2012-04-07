@@ -26,7 +26,10 @@ ALTOS_SRC = \
 	ao_timer.c \
 	ao_serial_stm.c \
 	ao_lcd_stm.c \
-	ao_lcd_font.c
+	ao_lcd_font.c \
+	ao_mutex.c \
+	ao_dma_stm.c \
+	ao_spi_stm.c 
 
 PRODUCT=StmDemo-v0.0
 PRODUCT_DEF=-DSTM_DEMO

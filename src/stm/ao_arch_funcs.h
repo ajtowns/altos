@@ -18,6 +18,8 @@
 #ifndef _AO_ARCH_FUNCS_H_
 #define _AO_ARCH_FUNCS_H_
 
+/* ao_spi_stm.c
+ */
 extern uint8_t	ao_spi_mutex[STM_NUM_SPI];
 
 static inline void ao_spi_get(uint8_t spi_index) { ao_mutex_get(&ao_spi_mutex[spi_index]); }
@@ -30,6 +32,30 @@ void
 ao_spi_recv(void *block, uint16_t len, uint8_t spi_index);
 
 void
-ao_spi_init(uint8_t spi_index);
+ao_spi_init(void);
+
+/* ao_dma_stm.c
+ */
+
+extern uint8_t ao_dma_done[STM_NUM_DMA];
+
+void
+ao_dma_set_transfer(uint8_t 		index,
+		    volatile void	*peripheral,
+		    void		*memory,
+		    uint16_t		count,
+		    uint32_t		ccr);
+
+void
+ao_dma_start(uint8_t index);
+
+void
+ao_dma_done_transfer(uint8_t index);
+
+void
+ao_dma_abort(uint8_t index);
+
+void
+ao_dma_init(void);
 
 #endif /* _AO_ARCH_FUNCS_H_ */

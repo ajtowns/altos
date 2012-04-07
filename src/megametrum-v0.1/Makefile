@@ -31,13 +31,16 @@ ALTOS_SRC = \
 	ao_serial_stm.c \
 	ao_gps_skytraq.c \
 	ao_cc1120.c \
-	ao_freq.c
+	ao_freq.c \
+	ao_dma_stm.c \
+	ao_spi_stm.c \
+	ao_ms5607.c
 
 PRODUCT=MegaMetrum-v0.1
 PRODUCT_DEF=-DMEGAMETRUM
 IDPRODUCT=0x000a
 
-CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) -Os -g
+CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) -O0 -g
 
 PROG=megametrum-v0.1-$(VERSION).elf
 
