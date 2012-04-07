@@ -113,8 +113,10 @@ _ao_config_get(void)
 			ao_config.pad_orientation = AO_CONFIG_DEFAULT_PAD_ORIENTATION;
 		if (ao_config.minor < 8)
 			ao_config.radio_enable = TRUE;
+#if HAS_AES
 		if (ao_config.minor < 9)
-			memset(&ao_config.aes_key, 0, AO_AES_LEN);
+			ao_xmemset(&ao_config.aes_key, '\0', AO_AES_LEN);
+#endif
 		if (ao_config.minor < 10) {
 			ao_config.frequency = 434550;
 #if HAS_RADIO_CHANNELS
@@ -525,12 +527,12 @@ ao_config_write(void) __reentrant;
 
 __code struct ao_config_var ao_config_vars[] = {
 #if HAS_ADC
-	{ "m <meters>\0Main deploy (in meters)",
+	{ "m <meters>\0Main deploy (m)",
 	  ao_config_main_deploy_set,	ao_config_main_deploy_show, },
-	{ "d <delay>\0Apogee delay (in seconds)",
+	{ "d <delay>\0Apogee delay (s)",
 	  ao_config_apogee_delay_set,	ao_config_apogee_delay_show },
 #endif /* HAS_ADC */
-	{ "r <channel>\0Radio channel (freq = 434.550 + chan * .1)",
+	{ "r <channel>\0Radio channel",
 	  ao_config_radio_channel_set,	ao_config_radio_channel_show },
 	{ "F <freq>\0Frequency (kHz)",
 	  ao_config_frequency_set, ao_config_frequency_show },
@@ -545,7 +547,7 @@ __code struct ao_config_var ao_config_vars[] = {
 	{ "f <cal>\0Radio calib (cal = rf/(xtal/2^16))",
 	  ao_config_radio_cal_set,  	ao_config_radio_cal_show },
 #if HAS_LOG
-	{ "l <size>\0Flight log size in kB",
+	{ "l <size>\0Flight log size (kB)",
 	  ao_config_log_set,		ao_config_log_show },
 #endif
 #if HAS_IGNITE
@@ -637,7 +639,7 @@ ao_config_write(void) __reentrant
 #endif
 
 __code struct ao_cmds ao_config_cmds[] = {
-	{ ao_config_set,	"c <var> <value>\0Set config variable (? for help, s to show)" },
+	{ ao_config_set,	"c <var> <value>\0Set config (? for help, s to show)" },
 	{ 0, NULL },
 };
 
