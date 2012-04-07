@@ -25,10 +25,15 @@
  * frequency, and updating the radio setting along the way
  */
 
-int32_t ao_freq_to_set(int32_t freq, int32_t cal) {
-	__pdata int32_t	set = 0;
-	uint8_t	neg = 0;
-	__pdata int32_t	error = -434550 / 2;
+int32_t ao_freq_to_set(int32_t freq, int32_t cal) __reentrant
+{
+	static __pdata int32_t	set;
+	static __pdata uint8_t	neg;
+	static __pdata int32_t	error;
+
+	set = 0;
+	neg = 0;
+	error = -434550 / 2;
 
 	if ((freq -= 434550) < 0) {
 		neg = 1;

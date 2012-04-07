@@ -1892,7 +1892,7 @@ ao_sqrt(uint32_t op);
  * ao_freq.c
  */
 
-int32_t ao_freq_to_set(int32_t freq, int32_t cal);
+int32_t ao_freq_to_set(int32_t freq, int32_t cal) __reentrant;
 
 #include <ao_arch_funcs.h>
 
