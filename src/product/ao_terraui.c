@@ -98,13 +98,19 @@ ao_terraui_startup(void)
 }
 
 static void
-ao_terraui_info(void)
+ao_terraui_info_firstline(void)
 {
 	sprintf(ao_lcd_line, "S %4d %7.7s %c",
 		ao_tel_sensor.serial,
 		ao_tel_config.callsign,
 		ao_terraui_state());
 	ao_terraui_line(AO_LCD_ADDR(0,0));
+}
+	
+static void
+ao_terraui_info(void)
+{
+	ao_terraui_info_firstline();
 	sprintf(ao_lcd_line, "F %4d RSSI%4d%c",
 		ao_tel_config.flight,
 		ao_tel_rssi,
@@ -449,29 +455,55 @@ ao_terraui_local(void) __reentrant
 	ao_terraui_line(AO_LCD_ADDR(1,0));
 }
 
+static __pdata uint8_t ao_set_freq;
+static __pdata uint32_t ao_set_freq_orig;
+
 static void
-ao_terraui_config(void) __reentrant
+ao_terraui_freq(void) __reentrant
 {
-	uint8_t		chan;
-	uint32_t	kHz;
 	uint16_t	MHz;
 	uint16_t	frac;
 	
-
-	for (chan = 0; chan < AO_NUM_CHANNELS; chan++)
-		if (ao_config.radio_channels[chan].kHz == ao_config.frequency)
-			break;
-	if (chan == AO_NUM_CHANNELS)
-		chan = 0;
-	kHz = ao_config.radio_channels[chan].kHz;
-	MHz = kHz / 1000;
-	frac = kHz % 1000;
-	sprintf(ao_lcd_line, "%2d: %-10.10s  ", chan, ao_config.radio_channels[chan].name);
-	ao_terraui_line(AO_LCD_ADDR(0,0));
-	sprintf(ao_lcd_line, "%-8.8s %3d.%03d", ao_config.callsign, MHz, frac);
+	MHz = ao_config.frequency / 1000;
+	frac = ao_config.frequency % 1000;
+	ao_terraui_info_firstline();
+	sprintf(ao_lcd_line, "Freq: %3d.%03d MHz", MHz, frac);
 	ao_terraui_line(AO_LCD_ADDR(1,0));
-	ao_lcd_goto(AO_LCD_ADDR(0,1));
+	ao_lcd_goto(AO_LCD_ADDR(1,11));
+}
+
+static void
+ao_terraui_freq_start(void)
+{
+	ao_set_freq = 1;
+	ao_set_freq_orig = ao_config.frequency;
 	ao_lcd_cursor_on();
+}
+
+static void
+ao_terraui_freq_button(char b) {
+
+	switch (b) {
+	case 0:
+		return;
+	case 1:
+		if (ao_config.frequency > 430000)
+			ao_config.frequency -= 100;
+		break;
+	case 2:
+		ao_set_freq = 0;
+		ao_lcd_cursor_off();
+		if (ao_set_freq_orig != ao_config.frequency)
+			ao_config_put();
+		return;
+	case 3:
+		if (ao_config.frequency < 438000)
+			ao_config.frequency += 100;
+		break;
+
+	}
+	ao_config_set_radio();
+	ao_radio_recv_abort();
 }
 
 static __code void (*__code ao_terraui_page[])(void) = {
@@ -483,13 +515,12 @@ static __code void (*__code ao_terraui_page[])(void) = {
 	ao_terraui_recover,
 	ao_terraui_remote,
 	ao_terraui_local,
-	ao_terraui_config,
 };
 
 #define NUM_PAGE	(sizeof (ao_terraui_page)/sizeof (ao_terraui_page[0]))
 
-__pdata uint8_t ao_current_page = 0;
-__pdata uint8_t ao_shown_about = 3;
+static __pdata uint8_t ao_current_page = 0;
+static __pdata uint8_t ao_shown_about = 3;
 
 static void
 ao_terraui(void)
@@ -501,7 +532,12 @@ ao_terraui(void)
 
 	for (;;) {
 		char	b;
-		ao_terraui_page[ao_current_page]();
+
+		if (ao_set_freq)
+			ao_terraui_freq();
+		else
+			ao_terraui_page[ao_current_page]();
+
 		ao_alarm(AO_SEC_TO_TICKS(1));
 		b = ao_button_get();
 		ao_clear_alarm();
@@ -511,6 +547,10 @@ ao_terraui(void)
 			ao_shown_about = 0;
 		}
 		
+		if (ao_set_freq) {
+			ao_terraui_freq_button(b);
+			continue;
+		}
 		switch (b) {
 		case 0:
 			if (ao_shown_about) {
@@ -524,6 +564,7 @@ ao_terraui(void)
 				ao_current_page = 0;
 			break;
 		case 2:
+			ao_terraui_freq_start();
 			break;
 		case 3:
 			if (ao_current_page == 0)
