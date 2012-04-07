@@ -47,6 +47,7 @@ ao_spi_send(void *block, uint16_t len, uint8_t spi_index)
 	uint8_t	mosi_dma_index = ao_spi_stm_info[spi_index].mosi_dma_index;
 	uint8_t	miso_dma_index = ao_spi_stm_info[spi_index].miso_dma_index;
 
+	/* Set up the transmit DMA to deliver data */
 	ao_dma_set_transfer(mosi_dma_index,
 			    &stm_spi->dr,
 			    block,
@@ -59,8 +60,14 @@ ao_spi_send(void *block, uint16_t len, uint8_t spi_index)
 			    (0 << STM_DMA_CCR_PINC) |
 			    (0 << STM_DMA_CCR_CIRC) |
 			    (STM_DMA_CCR_DIR_MEM_TO_PER << STM_DMA_CCR_DIR));
-	/* Clear any stale data */
+
+	/* Clear RXNE */
 	(void) stm_spi->dr;
+
+	/* Set up the receive DMA -- when this is done, we know the SPI unit
+	 * is idle. Without this, we'd have to poll waiting for the BSY bit to
+	 * be cleared
+	 */
 	ao_dma_set_transfer(miso_dma_index,
 			    &stm_spi->dr,
 			    &spi_dev_null,
@@ -93,19 +100,10 @@ void
 ao_spi_recv(void *block, uint16_t len, uint8_t spi_index)
 {
 	struct stm_spi *stm_spi = ao_spi_stm_info[spi_index].stm_spi;
-#if 0
-	uint8_t *d = block;
-
-	while (len--) {
-		stm_spi->dr = 0xff;
-		while (!(stm_spi->sr & (1 << STM_SPI_SR_RXNE)));
-		*d++ = stm_spi->dr;
-	}
-	while (stm_spi->sr & (1 << STM_SPI_SR_BSY));
-#else
 	uint8_t	mosi_dma_index = ao_spi_stm_info[spi_index].mosi_dma_index;
 	uint8_t	miso_dma_index = ao_spi_stm_info[spi_index].miso_dma_index;
 
+	/* Set up transmit DMA to make the SPI hardware actually run */
 	ao_dma_set_transfer(mosi_dma_index,
 			    &stm_spi->dr,
 			    &spi_dev_null,
@@ -118,8 +116,11 @@ ao_spi_recv(void *block, uint16_t len, uint8_t spi_index)
 			    (0 << STM_DMA_CCR_PINC) |
 			    (0 << STM_DMA_CCR_CIRC) |
 			    (STM_DMA_CCR_DIR_MEM_TO_PER << STM_DMA_CCR_DIR));
-	/* Clear any stale data */
+
+	/* Clear RXNE */
 	(void) stm_spi->dr;
+
+	/* Set up the receive DMA to capture data */
 	ao_dma_set_transfer(miso_dma_index,
 			    &stm_spi->dr,
 			    block,
@@ -132,6 +133,7 @@ ao_spi_recv(void *block, uint16_t len, uint8_t spi_index)
 			    (0 << STM_DMA_CCR_PINC) |
 			    (0 << STM_DMA_CCR_CIRC) |
 			    (STM_DMA_CCR_DIR_PER_TO_MEM << STM_DMA_CCR_DIR));
+
 	stm_spi->cr2 = ((0 << STM_SPI_CR2_TXEIE) |
 			(0 << STM_SPI_CR2_RXNEIE) |
 			(0 << STM_SPI_CR2_ERRIE) |
@@ -140,13 +142,46 @@ ao_spi_recv(void *block, uint16_t len, uint8_t spi_index)
 			(1 << STM_SPI_CR2_RXDMAEN));
 	ao_dma_start(miso_dma_index);
 	ao_dma_start(mosi_dma_index);
+
+	/* Wait until the SPI unit is done */
 	ao_arch_critical(
 		while (!ao_dma_done[miso_dma_index])
 			ao_sleep(&ao_dma_done[miso_dma_index]);
 		);
+
 	ao_dma_done_transfer(mosi_dma_index);
 	ao_dma_done_transfer(miso_dma_index);
-#endif
+}
+
+void
+ao_spi_get(uint8_t spi_index)
+{
+	struct stm_spi	*stm_spi = ao_spi_stm_info[spi_index].stm_spi;
+
+	ao_mutex_get(&ao_spi_mutex[spi_index]);
+	stm_spi->cr1 = ((0 << STM_SPI_CR1_BIDIMODE) |			/* Three wire mode */
+			(0 << STM_SPI_CR1_BIDIOE) |
+			(0 << STM_SPI_CR1_CRCEN) |			/* CRC disabled */
+			(0 << STM_SPI_CR1_CRCNEXT) |
+			(0 << STM_SPI_CR1_DFF) |
+			(0 << STM_SPI_CR1_RXONLY) |
+			(1 << STM_SPI_CR1_SSM) |        		/* Software SS handling */
+			(1 << STM_SPI_CR1_SSI) |			/*  ... */
+			(0 << STM_SPI_CR1_LSBFIRST) |			/* Little endian */
+			(1 << STM_SPI_CR1_SPE) |			/* Enable SPI unit */
+			(STM_SPI_CR1_BR_PCLK_4 << STM_SPI_CR1_BR) |	/* baud rate to pclk/4 */
+			(1 << STM_SPI_CR1_MSTR) |
+			(0 << STM_SPI_CR1_CPOL) |			/* Format 0 */
+			(0 << STM_SPI_CR1_CPHA));
+}
+
+void
+ao_spi_put(uint8_t spi_index)
+{
+	struct stm_spi	*stm_spi = ao_spi_stm_info[spi_index].stm_spi;
+
+	stm_spi->cr1 = 0;
+	ao_mutex_put(&ao_spi_mutex[spi_index]);
 }
 
 static void
@@ -156,20 +191,6 @@ ao_spi_channel_init(uint8_t spi_index)
 
 	stm_spi->cr1 = 0;
 	(void) stm_spi->sr;
-	stm_spi->cr1 = ((0 << STM_SPI_CR1_BIDIMODE) |
-			(0 << STM_SPI_CR1_BIDIOE) |
-			(0 << STM_SPI_CR1_CRCEN) |
-			(0 << STM_SPI_CR1_CRCNEXT) |
-			(0 << STM_SPI_CR1_DFF) |
-			(0 << STM_SPI_CR1_RXONLY) |
-			(1 << STM_SPI_CR1_SSM) |
-			(1 << STM_SPI_CR1_SSI) |
-			(0 << STM_SPI_CR1_LSBFIRST) |
-			(1 << STM_SPI_CR1_SPE) |
-			(STM_SPI_CR1_BR_PCLK_4 << STM_SPI_CR1_BR) |
-			(1 << STM_SPI_CR1_MSTR) |
-			(0 << STM_SPI_CR1_CPOL) |
-			(0 << STM_SPI_CR1_CPHA));
 	stm_spi->cr2 = ((0 << STM_SPI_CR2_TXEIE) |
 			(0 << STM_SPI_CR2_RXNEIE) |
 			(0 << STM_SPI_CR2_ERRIE) |

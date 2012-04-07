@@ -22,8 +22,11 @@
  */
 extern uint8_t	ao_spi_mutex[STM_NUM_SPI];
 
-static inline void ao_spi_get(uint8_t spi_index) { ao_mutex_get(&ao_spi_mutex[spi_index]); }
-static inline void ao_spi_put(uint8_t spi_index) { ao_mutex_put(&ao_spi_mutex[spi_index]); }
+void
+ao_spi_get(uint8_t spi_index);
+
+void
+ao_spi_put(uint8_t spi_index);
 
 void
 ao_spi_send(void *block, uint16_t len, uint8_t spi_index);
