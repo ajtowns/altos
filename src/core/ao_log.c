@@ -264,7 +264,7 @@ ao_log_delete(void) __reentrant
 }
 
 __code struct ao_cmds ao_log_cmds[] = {
-	{ ao_log_list,	"l\0List flight logs" },
+	{ ao_log_list,	"l\0List logs" },
 	{ ao_log_delete,	"d <flight-number>\0Delete flight" },
 	{ 0,	NULL },
 };

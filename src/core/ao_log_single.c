@@ -180,9 +180,9 @@ ao_log_single_query(void)
 }
 
 const struct ao_cmds ao_log_single_cmds[] = {
-	{ ao_log_single_set,	"L <0 off, 1 on>\0Set logging mode" },
-	{ ao_log_single_list,	"l\0List stored flight logs" },
-	{ ao_log_single_delete, "d 1\0Delete all stored flights" },
+	{ ao_log_single_set,	"L <0 off, 1 on>\0Set logging" },
+	{ ao_log_single_list,	"l\0List stored logs" },
+	{ ao_log_single_delete, "d 1\0Delete all stored logs" },
 	{ ao_log_single_query, "q\0Query log status" },
 	{ 0,	NULL },
 };
