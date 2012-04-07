@@ -40,3 +40,7 @@ clean:
 	rm -rf *.bin
 
 .PHONY: all clean
+
+install:
+
+uninstall:
