@@ -300,7 +300,7 @@ ao_cmd_register(__code struct ao_cmds *cmds)
 void
 ao_cmd(void)
 {
-	char	c;
+	__pdata char	c;
 	uint8_t cmd, cmds;
 	__code struct ao_cmds * __xdata cs;
 	void (*__xdata func)(void);
@@ -336,8 +336,8 @@ __xdata struct ao_task ao_cmd_task;
 
 __code struct ao_cmds	ao_base_cmds[] = {
 	{ help,		"?\0Help" },
-	{ ao_task_info,	"T\0Show tasks" },
-	{ echo,		"E <0 off, 1 on>\0Set echo mode" },
+	{ ao_task_info,	"T\0Tasks" },
+	{ echo,		"E <0 off, 1 on>\0Echo" },
 	{ ao_reboot,	"r eboot\0Reboot" },
 	{ version,	"v\0Version" },
 	{ 0,	NULL },
