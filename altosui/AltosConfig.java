@@ -397,6 +397,7 @@ public class AltosConfig implements ActionListener {
 
 		if (frequency > 0) {
 			radio_frequency.set((int) Math.floor (freq * 1000 + 0.5));
+			radio_channel.set(0);
 		} else if (setting > 0) {
 			radio_setting.set(AltosConvert.radio_frequency_to_setting(freq,
 										  radio_calibration.get()));
