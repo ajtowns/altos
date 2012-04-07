@@ -21,6 +21,7 @@
 #include <stdint.h>
 
 typedef volatile uint32_t	vuint32_t;
+typedef volatile void *		vvoid_t;
 
 struct stm_gpio {
 	vuint32_t	moder;
@@ -851,8 +852,8 @@ isr(tim7)
 struct stm_dma_channel {
 	vuint32_t	ccr;
 	vuint32_t	cndtr;
-	vuint32_t	cpar;
-	vuint32_t	cmar;
+	vvoid_t		cpar;
+	vvoid_t		cmar;
 	vuint32_t	reserved;
 };
 
