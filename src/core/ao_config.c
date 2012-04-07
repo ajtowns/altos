@@ -218,6 +218,7 @@ ao_config_frequency_set(void) __reentrant
 		return;
 	_ao_config_edit_start();
 	ao_config.frequency = ao_cmd_lex_u32;
+	ao_config.radio_channel = 0;
 	ao_config_set_radio();
 	_ao_config_edit_finish();
 	ao_radio_recv_abort();
