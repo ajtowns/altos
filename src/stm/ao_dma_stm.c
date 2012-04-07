@@ -27,6 +27,7 @@ uint8_t ao_dma_done[NUM_DMA];
 
 static struct ao_dma_config ao_dma_config[NUM_DMA];
 static uint8_t ao_dma_mutex[NUM_DMA];
+static uint8_t ao_dma_active;
 
 static void
 ao_dma_isr(uint8_t index) {
@@ -58,10 +59,12 @@ ao_dma_set_transfer(uint8_t 		index,
 		    uint32_t		ccr)
 {
 	ao_mutex_get(&ao_dma_mutex[index]);
+	if (ao_dma_active++ == 0)
+		stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_DMA1EN);
 	stm_dma.channel[index].ccr = ccr | (1 << STM_DMA_CCR_TCIE);
 	stm_dma.channel[index].cndtr = count;
-	stm_dma.channel[index].cpar = (uint32_t) peripheral;
-	stm_dma.channel[index].cmar = (uint32_t) memory;
+	stm_dma.channel[index].cpar = peripheral;
+	stm_dma.channel[index].cmar = memory;
 }
 
 void
@@ -75,6 +78,8 @@ void
 ao_dma_done_transfer(uint8_t index)
 {
 	stm_dma.channel[index].ccr &= ~(1 << STM_DMA_CCR_EN);
+	if (--ao_dma_active == 0)
+		stm_rcc.ahbenr &= ~(1 << STM_RCC_AHBENR_DMA1EN);
 	ao_mutex_put(&ao_dma_mutex[index]);
 }
 
@@ -88,8 +93,6 @@ void
 ao_dma_init(void)
 {
 	int	index;
-
-	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_DMA1EN);
 
 	for (index = 0; index < STM_NUM_DMA; index++) {
 		stm_nvic_set_enable(STM_ISR_DMA1_CHANNEL1_POS + index);
