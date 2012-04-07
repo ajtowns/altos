@@ -64,7 +64,7 @@ ao_config_put(void)
 }
 #endif
 
-static void
+void
 ao_config_set_radio(void)
 {
 	ao_config.radio_setting = ao_freq_to_set(ao_config.frequency, ao_config.radio_cal);

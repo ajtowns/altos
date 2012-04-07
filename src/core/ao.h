@@ -1511,6 +1511,9 @@ void
 ao_config_put(void);
 
 void
+ao_config_set_radio(void);
+
+void
 ao_config_init(void);
 
 /*
