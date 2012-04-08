@@ -111,10 +111,29 @@ ao_spi_read(void) {
 	}
 }
 
+
+
+static void
+ao_temp (void)
+{
+	struct ao_adc	adc;
+	int temp;
+
+	ao_adc_get(&adc);
+
+	/*
+	 * r = (110 - 25) / (ts_cal_hot - ts_cal_cold)
+	 * 25 + (110 - 25) * (temp - ts_cal_cold) / (ts_cal_hot - ts_cal_cold)
+	 */
+	temp = 25 + (110 - 25) * (adc.temp - stm_temp_cal.ts_cal_cold) / (stm_temp_cal.ts_cal_hot - stm_temp_cal.ts_cal_cold);
+	printf ("temp: %d\n", temp);
+}
+
 __code struct ao_cmds ao_demo_cmds[] = {
 	{ ao_dma_test,	"D\0DMA test" },
 	{ ao_spi_write, "W\0SPI write" },
 	{ ao_spi_read, "R\0SPI read" },
+	{ ao_temp, "t\0Show temp" },
 	{ 0, NULL }
 };
 

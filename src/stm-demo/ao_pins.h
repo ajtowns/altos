@@ -119,6 +119,7 @@ struct ao_adc {
 	uint16_t		tick;
 	int16_t			idd;
 	int16_t			temp;
+	int16_t			vref;
 };
 
 #define AO_ADC_IDD		4
@@ -127,13 +128,15 @@ struct ao_adc {
 
 #define AO_ADC_RCC_AHBENR	((1 << STM_RCC_AHBENR_GPIOAEN))
 #define AO_ADC_TEMP		16
+#define AO_ADC_VREF		17
 
 #define HAS_ADC_TEMP		1
 
-#define AO_NUM_ADC		2
+#define AO_NUM_ADC		3
 
 #define AO_ADC_SQ1		AO_ADC_IDD
 #define AO_ADC_SQ2		AO_ADC_TEMP
+#define AO_ADC_SQ3		AO_ADC_VREF
 	
 
 #endif /* _AO_PINS_H_ */
