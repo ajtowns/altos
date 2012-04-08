@@ -28,11 +28,11 @@ static uint8_t			ao_adc_ready;
 				 (0 << STM_ADC_CR2_JWSTART) |		\
 				 (STM_ADC_CR2_JEXTEN_DISABLE << STM_ADC_CR2_JEXTEN) | \
 				 (0 << STM_ADC_CR2_JEXTSEL) |		\
-				 (1 << STM_ADC_CR2_ALIGN) |		\
+				 (0 << STM_ADC_CR2_ALIGN) |		\
 				 (0 << STM_ADC_CR2_EOCS) |		\
 				 (1 << STM_ADC_CR2_DDS) |		\
 				 (1 << STM_ADC_CR2_DMA) |		\
-				 (STM_ADC_CR2_DELS_NONE << STM_ADC_CR2_DELS) | \
+				 (STM_ADC_CR2_DELS_UNTIL_READ << STM_ADC_CR2_DELS) | \
 				 (0 << STM_ADC_CR2_CONT) |		\
 				 (1 << STM_ADC_CR2_ADON))
 
@@ -168,10 +168,10 @@ ao_adc_init(void)
 		       (0 << STM_ADC_CR1_EOCIE ) |
 		       (0 << STM_ADC_CR1_AWDCH ));
 
-	/* 4 cycle sample time for everyone */
-	stm_adc.smpr1 = 0;
-	stm_adc.smpr2 = 0;
-	stm_adc.smpr3 = 0;
+	/* 384 cycle sample time for everyone */
+	stm_adc.smpr1 = 0x3ffff;
+	stm_adc.smpr2 = 0x3fffffff;
+	stm_adc.smpr3 = 0x3fffffff;
 
 	stm_adc.sqr1 = ((AO_NUM_ADC - 1) << 20);
 	stm_adc.sqr2 = 0;
