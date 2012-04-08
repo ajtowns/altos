@@ -99,6 +99,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 		double	ground_pres;
 		int	gps_tick;
 		int	boost_tick;
+		int	sensor_tick;
 
 		EepromState() {
 			seen = 0;
@@ -128,10 +129,13 @@ public class AltosEepromIterable extends AltosRecordIterable {
 				state.flight_pres = state.ground_pres;
 			} else {
 				state.flight_pres = (state.flight_pres * 15 + state.pres) / 16;
-				state.flight_accel = (state.flight_accel * 15 + state.accel) / 16;
-				state.flight_vel += (state.accel_plus_g - state.accel);
 			}
+			state.flight_accel = (state.flight_accel * 15 + state.accel) / 16;
+			if ((eeprom.seen & seen_sensor) == 0)
+				eeprom.sensor_tick = record.tick - 1;
+			state.flight_vel += (state.accel_plus_g - state.accel) * (record.tick - eeprom.sensor_tick);
 			eeprom.seen |= seen_sensor;
+			eeprom.sensor_tick = record.tick;
 			has_accel = true;
 			break;
 		case Altos.AO_LOG_PRESSURE:
