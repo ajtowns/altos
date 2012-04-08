@@ -45,3 +45,6 @@ stm_tim3   = 0x40000400;
 stm_tim2   = 0x40000000;
 
 stm_nvic   = 0xe000e100;
+
+/* calibration data in system memory */
+stm_temp_cal = 0x1ff80078;

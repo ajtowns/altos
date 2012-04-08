@@ -1152,4 +1152,16 @@ extern struct stm_adc stm_adc;
 #define  STM_ADC_CCR_ADCPRE_HSI_4	2
 #define  STM_ADC_CCR_ADCPRE_MASK	3
 
+struct stm_temp_cal {
+	uint16_t	vref;
+	uint16_t	ts_cal_cold;
+	uint16_t	reserved;
+	uint16_t	ts_cal_hot;
+};
+
+extern struct stm_temp_cal	stm_temp_cal;
+
+#define stm_temp_cal_cold	25
+#define stm_temp_cal_hot	110
+
 #endif /* _STM32L_H_ */
