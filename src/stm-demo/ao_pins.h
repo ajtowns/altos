@@ -111,4 +111,29 @@
 
 #define AO_LCD_28_ON_C	1
 
+#define HAS_ADC			1
+
+#define AO_ADC_RING		32
+
+struct ao_adc {
+	uint16_t		tick;
+	int16_t			idd;
+	int16_t			temp;
+};
+
+#define AO_ADC_IDD		4
+#define AO_ADC_PIN0_PORT	stm_gpioa
+#define AO_ADC_PIN0_PIN		4
+
+#define AO_ADC_RCC_AHBENR	((1 << STM_RCC_AHBENR_GPIOAEN))
+#define AO_ADC_TEMP		16
+
+#define HAS_ADC_TEMP		1
+
+#define AO_NUM_ADC		2
+
+#define AO_ADC_SQ1		AO_ADC_IDD
+#define AO_ADC_SQ2		AO_ADC_TEMP
+	
+
 #endif /* _AO_PINS_H_ */

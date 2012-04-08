@@ -51,13 +51,15 @@ void _exit () { }
 void _read () { }
 void _fstat() { }
 
+#define AO_DMA_TEST_INDEX	STM_DMA_INDEX(4)
+
 static void
 ao_dma_test(void) {
 	static char	src[20] = "hello, world";
 	static char	dst[20];
 	
 	dst[0] = '\0';
-	ao_dma_set_transfer(STM_DMA_INDEX(1), dst, src, 13,
+	ao_dma_set_transfer(AO_DMA_TEST_INDEX, dst, src, 13,
 			    (1 << STM_DMA_CCR_MEM2MEM) |
 			    (STM_DMA_CCR_PL_LOW << STM_DMA_CCR_PL) |
 			    (STM_DMA_CCR_MSIZE_8 << STM_DMA_CCR_MSIZE) |
@@ -66,11 +68,12 @@ ao_dma_test(void) {
 			    (1 << STM_DMA_CCR_PINC) |
 			    (0 << STM_DMA_CCR_CIRC) |
 			    (STM_DMA_CCR_DIR_MEM_TO_PER << STM_DMA_CCR_DIR));
-	ao_dma_start(STM_DMA_INDEX(1));
-	cli();
-	while (!ao_dma_done[STM_DMA_INDEX(1)])
-		ao_sleep(&ao_dma_done[STM_DMA_INDEX(1)]);
-	sei();
+	ao_dma_start(AO_DMA_TEST_INDEX);
+	ao_arch_critical(
+		while (!ao_dma_done[AO_DMA_TEST_INDEX])
+			ao_sleep(&ao_dma_done[AO_DMA_TEST_INDEX]);
+		);
+	ao_dma_done_transfer(AO_DMA_TEST_INDEX);
 	printf ("copied %s\n", dst);
 }
 
@@ -128,13 +131,12 @@ main(void)
 //	ao_lcd_font_init();
 	ao_spi_init();
 
+	ao_timer_set_adc_interval(100);
+
+	ao_adc_init();
+
 	ao_cmd_register(&ao_demo_cmds[0]);
 	
-	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOCEN);
-	stm_gpio_set(&stm_gpioc, 12, 1);
-	stm_moder_set(&stm_gpioc, 12, STM_MODER_OUTPUT);
-	stm_otyper_set(&stm_gpioc, 12, STM_OTYPER_PUSH_PULL);
-
 	ao_start_scheduler();
 	return 0;
 }

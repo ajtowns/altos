@@ -29,13 +29,14 @@ ALTOS_SRC = \
 	ao_lcd_font.c \
 	ao_mutex.c \
 	ao_dma_stm.c \
-	ao_spi_stm.c 
+	ao_spi_stm.c \
+	ao_adc_stm.c
 
 PRODUCT=StmDemo-v0.0
 PRODUCT_DEF=-DSTM_DEMO
 IDPRODUCT=0x000a
 
-CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) -g -Os
+CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) -g -O0
 
 PROG=stm-demo
 
