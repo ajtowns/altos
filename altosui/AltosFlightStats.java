@@ -77,10 +77,30 @@ public class AltosFlightStats {
 		return landed_time;
 	}
 
+	double boost_time(AltosRecordIterable iterable) {
+		double boost_time = -1000;
+
+		AltosState state = null;
+
+		for (AltosRecord record : iterable) {
+			state = new AltosState(record, state);
+			
+			if (state.acceleration < 1)
+				boost_time = state.time;
+			if (state.state >= Altos.ao_flight_boost)
+				break;
+		}
+		if (boost_time == -1000)
+			boost_time = state.time;
+		System.out.printf ("boost time %f instead of %f\n", boost_time, state.time);
+		return boost_time;
+	}
+
+
 	public AltosFlightStats(AltosRecordIterable iterable) throws InterruptedException, IOException {
 		AltosState	state = null;
 		AltosState	new_state = null;
-		double		boost_time = -1;
+		double		boost_time = boost_time(iterable);
 		double		end_time = 0;
 		double		landed_time = landed_time(iterable);
 
@@ -95,10 +115,12 @@ public class AltosFlightStats {
 			new_state = new AltosState(record, state);
 			end_time = new_state.time;
 			state = new_state;
+			if (state.time >= boost_time && state.state < Altos.ao_flight_boost)
+				state.state = Altos.ao_flight_boost;
+			if (state.time >= landed_time && state.state < Altos.ao_flight_landed)
+				state.state = Altos.ao_flight_landed;
 			if (0 <= state.state && state.state < Altos.ao_flight_invalid) {
 				if (state.state >= Altos.ao_flight_boost) {
-					if (boost_time == -1)
-						boost_time = state.time;
 					if (state.gps != null && state.gps.locked &&
 					    year < 0) {
 						year = state.gps.year;
@@ -109,8 +131,6 @@ public class AltosFlightStats {
 						second = state.gps.second;
 					}
 				}
-				if (state.time >= landed_time)
-					state.state = Altos.ao_flight_landed;
 				state_accel[state.state] += state.acceleration;
 				state_speed[state.state] += state.speed;
 				state_baro_speed[state.state] += state.baro_speed;
