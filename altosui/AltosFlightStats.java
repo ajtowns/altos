@@ -92,7 +92,6 @@ public class AltosFlightStats {
 		}
 		if (boost_time == -1000)
 			boost_time = state.time;
-		System.out.printf ("boost time %f instead of %f\n", boost_time, state.time);
 		return boost_time;
 	}
 
