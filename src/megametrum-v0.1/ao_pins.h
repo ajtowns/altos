@@ -69,4 +69,86 @@
 
 #define LEDS_AVAILABLE		(AO_LED_RED | AO_LED_GREEN)
 
+#define HAS_ADC			1
+
+#define AO_ADC_RING		32
+#define AO_ADC_NUM_SENSE	6
+
+struct ao_adc {
+	uint16_t		tick;
+	int16_t			sense[AO_ADC_NUM_SENSE];
+	int16_t			v_batt;
+	int16_t			v_pbatt;
+	int16_t			temp;
+};
+
+#define AO_ADC_SENSE_A		0
+#define AO_ADC_SENSE_A_PORT	stm_gpioa
+#define AO_ADC_SENSE_A_PIN	0
+
+#define AO_ADC_SENSE_B		1
+#define AO_ADC_SENSE_B_PORT	stm_gpioa
+#define AO_ADC_SENSE_B_PIN	1
+
+#define AO_ADC_SENSE_C		2
+#define AO_ADC_SENSE_C_PORT	stm_gpioa
+#define AO_ADC_SENSE_C_PIN	2
+
+#define AO_ADC_SENSE_D		3
+#define AO_ADC_SENSE_D_PORT	stm_gpioa
+#define AO_ADC_SENSE_D_PIN	3
+
+#define AO_ADC_SENSE_E		4
+#define AO_ADC_SENSE_E_PORT	stm_gpioa
+#define AO_ADC_SENSE_E_PIN	4
+
+#define AO_ADC_SENSE_F		22
+#define AO_ADC_SENSE_F_PORT	stm_gpioe
+#define AO_ADC_SENSE_F_PIN	7
+
+#define AO_ADC_V_BATT		8
+#define AO_ADC_V_BATT_PORT	stm_gpiob
+#define AO_ADC_V_BATT_PIN	0
+
+#define AO_ADC_V_PBATT		9
+#define AO_ADC_V_PBATT_PORT	stm_gpiob
+#define AO_ADC_V_PBATT_PIN	1
+
+#define AO_ADC_TEMP		16
+
+#define AO_ADC_RCC_AHBENR	((1 << STM_RCC_AHBENR_GPIOAEN) | \
+				 (1 << STM_RCC_AHBENR_GPIOEEN) | \
+				 (1 << STM_RCC_AHBENR_GPIOBEN))
+
+#define AO_NUM_ADC_PIN		(AO_ADC_NUM_SENSE + 2)
+
+#define AO_ADC_PIN0_PORT	AO_ADC_SENSE_A_PORT
+#define AO_ADC_PIN0_PIN		AO_ADC_SENSE_A_PIN
+#define AO_ADC_PIN1_PORT	AO_ADC_SENSE_B_PORT
+#define AO_ADC_PIN1_PIN		AO_ADC_SENSE_B_PIN
+#define AO_ADC_PIN2_PORT	AO_ADC_SENSE_C_PORT
+#define AO_ADC_PIN2_PIN		AO_ADC_SENSE_C_PIN
+#define AO_ADC_PIN3_PORT	AO_ADC_SENSE_D_PORT
+#define AO_ADC_PIN3_PIN		AO_ADC_SENSE_D_PIN
+#define AO_ADC_PIN4_PORT	AO_ADC_SENSE_E_PORT
+#define AO_ADC_PIN4_PIN		AO_ADC_SENSE_E_PIN
+#define AO_ADC_PIN5_PORT	AO_ADC_SENSE_F_PORT
+#define AO_ADC_PIN5_PIN		AO_ADC_SENSE_F_PIN
+#define AO_ADC_PIN6_PORT	AO_ADC_V_BATT_PORT
+#define AO_ADC_PIN6_PIN		AO_ADC_V_BATT_PIN
+#define AO_ADC_PIN7_PORT	AO_ADC_V_PBATT_PORT
+#define AO_ADC_PIN7_PIN		AO_ADC_V_PBATT_PIN
+
+#define AO_NUM_ADC	       	(AO_ADC_NUM_SENSE + 3)
+
+#define AO_ADC_SQ1		AO_ADC_SENSE_A
+#define AO_ADC_SQ2		AO_ADC_SENSE_B
+#define AO_ADC_SQ3		AO_ADC_SENSE_C
+#define AO_ADC_SQ4		AO_ADC_SENSE_D
+#define AO_ADC_SQ5		AO_ADC_SENSE_E
+#define AO_ADC_SQ6		AO_ADC_SENSE_F
+#define AO_ADC_SQ7		AO_ADC_V_BATT
+#define AO_ADC_SQ8		AO_ADC_V_PBATT
+#define AO_ADC_SQ9		AO_ADC_TEMP
+
 #endif /* _AO_PINS_H_ */

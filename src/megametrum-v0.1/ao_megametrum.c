@@ -32,6 +32,7 @@ main(void)
 	ao_dma_init();
 	ao_spi_init();
 	ao_ms5607_init();
+	ao_adc_init();
 	
 	ao_start_scheduler();
 	return 0;

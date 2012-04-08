@@ -34,7 +34,8 @@ ALTOS_SRC = \
 	ao_freq.c \
 	ao_dma_stm.c \
 	ao_spi_stm.c \
-	ao_ms5607.c
+	ao_ms5607.c \
+	ao_adc_stm.c
 
 PRODUCT=MegaMetrum-v0.1
 PRODUCT_DEF=-DMEGAMETRUM
