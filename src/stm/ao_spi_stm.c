@@ -229,9 +229,6 @@ ao_spi_init(void)
 	stm_rcc.apb2enr |= (1 << STM_RCC_APB2ENR_SPI1EN);
 
 	ao_spi_channel_init(0);
-
-	stm_nvic_set_enable(STM_ISR_SPI1_POS);
-	stm_nvic_set_priority(STM_ISR_SPI1_POS, 3);
 #endif
 
 #if HAS_SPI_2
@@ -254,8 +251,5 @@ ao_spi_init(void)
 	stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_SPI2EN);
 
 	ao_spi_channel_init(1);
-
-	stm_nvic_set_enable(STM_ISR_SPI2_POS);
-	stm_nvic_set_priority(STM_ISR_SPI2_POS, 3);
 #endif
 }
