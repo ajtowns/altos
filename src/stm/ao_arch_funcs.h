@@ -50,6 +50,9 @@ ao_dma_set_transfer(uint8_t 		index,
 		    uint32_t		ccr);
 
 void
+ao_dma_set_isr(uint8_t index, void (*isr)(void));
+
+void
 ao_dma_start(uint8_t index);
 
 void

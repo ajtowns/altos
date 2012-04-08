@@ -145,13 +145,6 @@ extern const uint16_t ao_serial_number;
 
 #define ao_arch_critical(b) do { cli(); do { b } while (0); sei(); } while (0)
 
-#define AO_ARM_NUM_ADC	12
-
-struct ao_adc {
-	uint16_t	tick;			/* tick when the sample was read */
-	uint16_t	adc[AO_ARM_NUM_ADC];	/* samples */
-};
-
 /*
  * For now, we're running at a weird frequency
  */
@@ -202,6 +195,9 @@ void
 ao_serial3_set_speed(uint8_t speed);
 
 extern uint32_t	ao_radio_cal;
+
+void
+ao_adc_init();
 
 #endif /* _AO_ARCH_H_ */
 

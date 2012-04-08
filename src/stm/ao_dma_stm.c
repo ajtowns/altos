@@ -20,7 +20,7 @@
 #define NUM_DMA	7
 
 struct ao_dma_config {
-	uint32_t	isr;
+	void		(*isr)(void);
 };
 
 uint8_t ao_dma_done[NUM_DMA];
@@ -37,10 +37,12 @@ ao_dma_isr(uint8_t index) {
 
 	/* Ack them */
 	stm_dma.ifcr = isr;
-	isr >>= STM_DMA_ISR(index);
-	ao_dma_config[index].isr |= isr;
-	ao_dma_done[index] = 1;
-	ao_wakeup(&ao_dma_done[index]);
+	if (ao_dma_config[index].isr)
+		(*ao_dma_config[index].isr)();
+	else {
+		ao_dma_done[index] = 1;
+		ao_wakeup(&ao_dma_done[index]);
+	}
 }
 
 void stm_dma1_channel1_isr(void) { ao_dma_isr(STM_DMA_INDEX(1)); }
@@ -59,12 +61,21 @@ ao_dma_set_transfer(uint8_t 		index,
 		    uint32_t		ccr)
 {
 	ao_mutex_get(&ao_dma_mutex[index]);
-	if (ao_dma_active++ == 0)
-		stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_DMA1EN);
+	ao_arch_critical(
+		if (ao_dma_active++ == 0)
+			stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_DMA1EN);
+		);
 	stm_dma.channel[index].ccr = ccr | (1 << STM_DMA_CCR_TCIE);
 	stm_dma.channel[index].cndtr = count;
 	stm_dma.channel[index].cpar = peripheral;
 	stm_dma.channel[index].cmar = memory;
+	ao_dma_config[index].isr = NULL;
+}
+
+void
+ao_dma_set_isr(uint8_t index, void (*isr)(void))
+{
+	ao_dma_config[index].isr = isr;
 }
 
 void
@@ -78,8 +89,10 @@ void
 ao_dma_done_transfer(uint8_t index)
 {
 	stm_dma.channel[index].ccr &= ~(1 << STM_DMA_CCR_EN);
-	if (--ao_dma_active == 0)
-		stm_rcc.ahbenr &= ~(1 << STM_RCC_AHBENR_DMA1EN);
+	ao_arch_critical(
+		if (--ao_dma_active == 0)
+			stm_rcc.ahbenr &= ~(1 << STM_RCC_AHBENR_DMA1EN);
+		);
 	ao_mutex_put(&ao_dma_mutex[index]);
 }
 
