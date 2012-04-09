@@ -55,6 +55,7 @@ ao_ms5607_reset(void) {
 	cmd = AO_MS5607_RESET;
 	ao_ms5607_start();
 	ao_spi_send(&cmd, 1, AO_MS5607_SPI_INDEX);
+	ao_delay(AO_MS_TO_TICKS(100));
 	ao_ms5607_stop();
 }
 
@@ -63,12 +64,15 @@ ao_ms5607_prom_read(uint8_t addr)
 {
 	uint8_t	cmd = AO_MS5607_PROM_READ(addr);
 	uint8_t d[2];
+	uint16_t v;
 
 	ao_ms5607_start();
 	ao_spi_send(&cmd, 1, AO_MS5607_SPI_INDEX);
 	ao_spi_recv(d, 2, AO_MS5607_SPI_INDEX);
 	ao_ms5607_stop();
-	return ((uint16_t) d[0] << 8) | (uint16_t) d[1];
+	v = ((uint16_t) d[0] << 8) | (uint16_t) d[1];
+//	printf ("ms5607_prom_read recv %02x %02x -> %04x\n", d[0], d[1], v);
+	return v;
 }
 
 static void
@@ -80,6 +84,14 @@ ao_ms5607_init_chip(void) {
 
 	for (addr = 0; addr <= 7; addr++)
 		prom[addr] = ao_ms5607_prom_read(addr);
+	printf ("reserved: %d\n", ms5607_prom.reserved);
+	printf ("sens:     %d\n", ms5607_prom.sens);
+	printf ("off:      %d\n", ms5607_prom.off);
+	printf ("tcs:      %d\n", ms5607_prom.tcs);
+	printf ("tco:      %d\n", ms5607_prom.tco);
+	printf ("tref:     %d\n", ms5607_prom.tref);
+	printf ("tempsens: %d\n", ms5607_prom.tempsens);
+	printf ("crc:      %d\n", ms5607_prom.crc);
 }
 
 static uint32_t
@@ -91,7 +103,7 @@ ao_ms5607_convert(uint8_t cmd) {
 	ao_spi_send(&cmd, 1, AO_MS5607_SPI_INDEX);
 	ao_ms5607_stop();
 
-	ao_delay(AO_MS_TO_TICKS(200));
+	ao_delay(AO_MS_TO_TICKS(10));
 
 	ao_ms5607_start();
 	read = AO_MS5607_ADC_READ;
@@ -106,28 +118,19 @@ static void
 ao_ms5607_dump(void)
 {
 	uint8_t	addr;
-	uint32_t d1, d2;
+	uint32_t D1, D2;
 	int32_t	dT;
 	int32_t TEMP;
 	int64_t OFF;
 	int64_t SENS;
 	int32_t P;
 
-	ao_ms5607_init_chip();
-	printf ("reserved: %d\n", ms5607_prom.reserved);
-	printf ("sens:     %d\n", ms5607_prom.sens);
-	printf ("off:      %d\n", ms5607_prom.off);
-	printf ("tcs:      %d\n", ms5607_prom.tcs);
-	printf ("tco:      %d\n", ms5607_prom.tco);
-	printf ("tref:     %d\n", ms5607_prom.tref);
-	printf ("tempsens: %d\n", ms5607_prom.tempsens);
-	printf ("crc:      %d\n", ms5607_prom.crc);
-	d1 =  ao_ms5607_convert(AO_MS5607_CONVERT_D1_4096);
-	printf ("Conversion D1: %d\n", d1);
-	d2 =  ao_ms5607_convert(AO_MS5607_CONVERT_D2_4096);
-	printf ("Conversion D2: %d\n", d2);
+	D2 =  ao_ms5607_convert(AO_MS5607_CONVERT_D2_4096);
+	printf ("Conversion D2: %d\n", D2);
+	D1 =  ao_ms5607_convert(AO_MS5607_CONVERT_D1_4096);
+	printf ("Conversion D1: %d\n", D1);
 
-	dT = d2 - ((int32_t) ms5607_prom.tref << 8);
+	dT = D2 - ((int32_t) ms5607_prom.tref << 8);
 	
 	TEMP = 2000 + (((int64_t) dT * ms5607_prom.tempsens) >> 23);
 
@@ -142,13 +145,14 @@ ao_ms5607_dump(void)
 		int64_t SENS2 = 2 * (int64_t) TEMPM * (int64_t) TEMPM;
 	}
 
-	P = ((((int64_t) d1 * SENS) >> 21) - OFF) >> 15;
+	P = ((((int64_t) D1 * SENS) >> 21) - OFF) >> 15;
 	
-	printf ("Temperature: %d", TEMP);
+	printf ("Temperature: %d\n", TEMP);
 	printf ("Pressure %d\n", P);
 }
 
 __code struct ao_cmds ao_ms5607_cmds[] = {
+	{ ao_ms5607_init_chip,	"i\0Init MS5607" },
 	{ ao_ms5607_dump,	"p\0Display MS5607 data" },
 	{ 0, NULL },
 };
