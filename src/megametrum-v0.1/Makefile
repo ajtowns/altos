@@ -8,6 +8,7 @@ include ../stm/Makefile.defs
 INC = \
 	ao.h \
 	ao_arch.h \
+	ao_arch_funcs.h \
 	ao_pins.h \
 	altitude.h \
 	ao_kalman.h \
@@ -41,7 +42,7 @@ PRODUCT=MegaMetrum-v0.1
 PRODUCT_DEF=-DMEGAMETRUM
 IDPRODUCT=0x000a
 
-CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) -O0 -g
+CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) -Os -g
 
 PROG=megametrum-v0.1-$(VERSION).elf
 
