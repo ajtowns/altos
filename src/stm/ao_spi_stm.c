@@ -167,9 +167,9 @@ ao_spi_get(uint8_t spi_index)
 			(0 << STM_SPI_CR1_RXONLY) |
 			(1 << STM_SPI_CR1_SSM) |        		/* Software SS handling */
 			(1 << STM_SPI_CR1_SSI) |			/*  ... */
-			(0 << STM_SPI_CR1_LSBFIRST) |			/* Little endian */
+			(0 << STM_SPI_CR1_LSBFIRST) |			/* Big endian */
 			(1 << STM_SPI_CR1_SPE) |			/* Enable SPI unit */
-			(STM_SPI_CR1_BR_PCLK_4 << STM_SPI_CR1_BR) |	/* baud rate to pclk/4 */
+			(STM_SPI_CR1_BR_PCLK_16 << STM_SPI_CR1_BR) |	/* baud rate to pclk/4 */
 			(1 << STM_SPI_CR1_MSTR) |
 			(0 << STM_SPI_CR1_CPOL) |			/* Format 0 */
 			(0 << STM_SPI_CR1_CPHA));
