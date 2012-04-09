@@ -67,4 +67,24 @@ ao_dma_alloc(uint8_t index);
 void
 ao_dma_init(void);
 
+/* ao_i2c_stm.c */
+
+void
+ao_i2c_get(uint8_t i2c_index);
+
+uint8_t
+ao_i2c_start(uint8_t i2c_index, uint16_t address);
+
+void
+ao_i2c_put(uint8_t i2c_index);
+
+void
+ao_i2c_send(void *block, uint16_t len, uint8_t i2c_index);
+
+void
+ao_i2c_recv(void *block, uint16_t len, uint8_t i2c_index);
+
+void
+ao_i2c_init(void);
+
 #endif /* _AO_ARCH_FUNCS_H_ */
