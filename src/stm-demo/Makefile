@@ -8,6 +8,7 @@ include ../stm/Makefile.defs
 INC = \
 	ao.h \
 	ao_arch.h \
+	ao_arch_funcs.h \
 	ao_pins.h \
 	ao_product.h
 
@@ -30,7 +31,8 @@ ALTOS_SRC = \
 	ao_mutex.c \
 	ao_dma_stm.c \
 	ao_spi_stm.c \
-	ao_adc_stm.c
+	ao_adc_stm.c \
+	ao_i2c_stm.c
 
 PRODUCT=StmDemo-v0.0
 PRODUCT_DEF=-DSTM_DEMO

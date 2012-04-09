@@ -138,5 +138,11 @@ struct ao_adc {
 #define AO_ADC_SQ2		AO_ADC_TEMP
 #define AO_ADC_SQ3		AO_ADC_VREF
 	
+#define HAS_I2C_1		1
+#define I2C_1_PB6_PB7		0
+#define I2C_1_PB8_PB9		1
+
+#define HAS_I2C_2		0
+#define I2C_2_PB10_PB11		0
 
 #endif /* _AO_PINS_H_ */

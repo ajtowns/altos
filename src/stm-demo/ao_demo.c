@@ -111,7 +111,26 @@ ao_spi_read(void) {
 	}
 }
 
+static void
+ao_i2c_write(void) {
+	unsigned char	data[] = { 0x55, 0xaa, 0xff, 0x00 };
+	int i;
 
+	for (i = 0; i < 10; i++) {
+		ao_i2c_get(0);
+		if (ao_i2c_start(0, 0x55))
+			ao_i2c_send(data, 4, 0);
+		else {
+			printf ("i2c start failed\n");
+			ao_i2c_put(0);
+			break;
+		}
+		ao_i2c_put(0);
+		printf(".");
+		flush();
+		ao_delay(100);
+	}
+}
 
 static void
 ao_temp (void)
@@ -133,6 +152,7 @@ __code struct ao_cmds ao_demo_cmds[] = {
 	{ ao_dma_test,	"D\0DMA test" },
 	{ ao_spi_write, "W\0SPI write" },
 	{ ao_spi_read, "R\0SPI read" },
+	{ ao_i2c_write, "i\0I2C write" },
 	{ ao_temp, "t\0Show temp" },
 	{ 0, NULL }
 };
@@ -149,6 +169,7 @@ main(void)
 //	ao_lcd_stm_init();
 //	ao_lcd_font_init();
 	ao_spi_init();
+	ao_i2c_init();
 
 	ao_timer_set_adc_interval(100);
 
