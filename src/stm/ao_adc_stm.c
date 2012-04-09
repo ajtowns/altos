@@ -221,5 +221,7 @@ ao_adc_init(void)
 	/* Clear any stale status bits */
 	stm_adc.sr = 0;
 	ao_adc_ready = 1;
+
+	ao_dma_alloc(STM_DMA_INDEX(STM_DMA_CHANNEL_ADC1));
 	ao_cmd_register(&ao_adc_cmds[0]);
 }

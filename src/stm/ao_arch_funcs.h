@@ -62,6 +62,9 @@ void
 ao_dma_abort(uint8_t index);
 
 void
+ao_dma_alloc(uint8_t index);
+
+void
 ao_dma_init(void);
 
 #endif /* _AO_ARCH_FUNCS_H_ */

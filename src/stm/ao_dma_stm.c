@@ -26,6 +26,7 @@ struct ao_dma_config {
 uint8_t ao_dma_done[NUM_DMA];
 
 static struct ao_dma_config ao_dma_config[NUM_DMA];
+static uint8_t ao_dma_allocated[NUM_DMA];
 static uint8_t ao_dma_mutex[NUM_DMA];
 static uint8_t ao_dma_active;
 
@@ -60,7 +61,12 @@ ao_dma_set_transfer(uint8_t 		index,
 		    uint16_t		count,
 		    uint32_t		ccr)
 {
-	ao_mutex_get(&ao_dma_mutex[index]);
+	if (ao_dma_allocated[index]) {
+		if (ao_dma_mutex[index])
+			ao_panic(AO_PANIC_DMA);
+		ao_dma_mutex[index] = 1;
+	} else
+		ao_mutex_get(&ao_dma_mutex[index]);
 	ao_arch_critical(
 		if (ao_dma_active++ == 0)
 			stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_DMA1EN);
@@ -93,13 +99,24 @@ ao_dma_done_transfer(uint8_t index)
 		if (--ao_dma_active == 0)
 			stm_rcc.ahbenr &= ~(1 << STM_RCC_AHBENR_DMA1EN);
 		);
-	ao_mutex_put(&ao_dma_mutex[index]);
+	if (ao_dma_allocated[index])
+		ao_dma_mutex[index] = 0;
+	else
+		ao_mutex_put(&ao_dma_mutex[index]);
 }
 
 void
 ao_dma_abort(uint8_t index)
 {
 	stm_dma.channel[index].ccr &= ~(1 << STM_DMA_CCR_EN);
+}
+
+void
+ao_dma_alloc(uint8_t index)
+{
+	if (ao_dma_allocated[index])
+		ao_panic(AO_PANIC_DMA);
+	ao_dma_allocated[index] = 1;
 }
 
 void
@@ -110,6 +127,8 @@ ao_dma_init(void)
 	for (index = 0; index < STM_NUM_DMA; index++) {
 		stm_nvic_set_enable(STM_ISR_DMA1_CHANNEL1_POS + index);
 		stm_nvic_set_priority(STM_ISR_DMA1_CHANNEL1_POS + index, 4);
+		ao_dma_allocated[index] = 0;
+		ao_dma_mutex[index] = 0;
 	}
 	
 }
