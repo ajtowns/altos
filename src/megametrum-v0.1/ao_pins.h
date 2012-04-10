@@ -18,6 +18,29 @@
 #ifndef _AO_PINS_H_
 #define _AO_PINS_H_
 
+/* 8MHz High speed external crystal */
+#define AO_HSE			8000000
+
+/* PLLVCO = 96MHz (so that USB will work*/
+#define AO_PLLMUL		12
+#define AO_RCC_CFGR_PLLMUL	(STM_RCC_CFGR_PLLMUL_12)
+
+/* SYSCLK = 32MHz (no need to go faster than CPU) */
+#define AO_PLLDIV		3
+#define AO_RCC_CFGR_PLLDIV	(STM_RCC_CFGR_PLLDIV_3)
+
+/* HCLK = 32MHz (CPU clock) */
+#define AO_AHB_PRESCALER	1
+#define AO_RCC_CFGR_HPRE_DIV	STM_RCC_CFGR_HPRE_DIV_1
+
+/* Run APB1 at 16MHz (HCLK/2) */
+#define AO_APB1_PRESCALER	2
+#define AO_RCC_CFGR_PPRE1_DIV	STM_RCC_CFGR_PPRE2_DIV_2
+
+/* Run APB2 at 16MHz (HCLK/2) */
+#define AO_APB2_PRESCALER	2
+#define AO_RCC_CFGR_PPRE2_DIV	STM_RCC_CFGR_PPRE2_DIV_2
+
 #define HAS_SERIAL_1		1
 #define USE_SERIAL_1_STDIN	1
 #define SERIAL_1_PB6_PB7	0

@@ -303,6 +303,9 @@ struct stm_rcc {
 
 extern struct stm_rcc stm_rcc;
 
+/* Nominal high speed internal oscillator frequency is 16MHz */
+#define STM_HSI_FREQ		16000000
+
 #define STM_RCC_CR_RTCPRE	(29)
 #define  STM_RCC_CR_RTCPRE_HSE_DIV_2	0
 #define  STM_RCC_CR_RTCPRE_HSE_DIV_4	1

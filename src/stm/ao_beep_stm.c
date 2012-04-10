@@ -41,7 +41,7 @@ ao_beep(uint8_t beep)
 
 		/* Set prescaler to match cc1111 clocks
 		 */
-		stm_tim3.psc = STM_APB1 / 750000;
+		stm_tim3.psc = AO_TIM23467_CLK / 750000;
 
 		/* 1. Select the counter clock (internal, external, prescaler).
 		 *

@@ -148,7 +148,30 @@ extern const uint16_t ao_serial_number;
 /*
  * For now, we're running at a weird frequency
  */
-#define STM_APB1	(16000000 * 6 / 4)
+
+#if AO_HSE
+#define AO_PLLSRC	AO_HSE
+#else
+#define AO_PLLSRC	STM_HSI_FREQ
+#endif
+
+#define AO_PLLVCO	(AO_PLLSRC * AO_PLLMUL)
+#define AO_SYSCLK	(AO_PLLVCO / AO_PLLDIV)
+#define AO_HCLK		(AO_SYSCLK / AO_AHB_PRESCALER)
+#define AO_PCLK1	(AO_HCLK / AO_APB1_PRESCALER)
+#define AO_PCLK2	(AO_HCLK / AO_APB2_PRESCALER)
+
+#if AO_APB1_PRESCALER == 1
+#define AO_TIM23467_CLK		AO_PCLK1
+#else
+#define AO_TIM23467_CLK		(2 * AO_PCLK1)
+#endif
+
+#if AO_APB2_PRESCALER == 1
+#define AO_TIM91011_CLK		AO_PCLK2
+#else
+#define AO_TIM91011_CLK		(2 * AO_PCLK2)
+#endif
 
 void ao_lcd_stm_init(void);
 

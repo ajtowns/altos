@@ -116,16 +116,16 @@ static const struct {
 	uint32_t brr;
 } ao_usart_speeds[] = {
 	[AO_SERIAL_SPEED_4800] = {
-		STM_APB1 / 4800
+		AO_PCLK1 / 4800
 	},
 	[AO_SERIAL_SPEED_9600] = {
-		STM_APB1 / 9600
+		AO_PCLK1 / 9600
 	},
 	[AO_SERIAL_SPEED_19200] = {
-		STM_APB1 / 19200
+		AO_PCLK1 / 19200
 	},
 	[AO_SERIAL_SPEED_57600] = {
-		STM_APB1 / 57600
+		AO_PCLK1 / 57600
 	},
 };
 
