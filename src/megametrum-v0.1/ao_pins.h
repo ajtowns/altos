@@ -174,4 +174,12 @@ struct ao_adc {
 #define AO_ADC_SQ8		AO_ADC_V_PBATT
 #define AO_ADC_SQ9		AO_ADC_TEMP
 
+/*
+ * Pressure sensor settings
+ */
+#define AO_MS5607_CS_GPIO	stm_gpioc
+#define AO_MS5607_CS		4
+#define AO_MS5607_CS_MASK	(1 << AO_MS5607_CS)
+#define AO_MS5607_SPI_INDEX	(STM_SPI_INDEX(1))
+
 #endif /* _AO_PINS_H_ */
