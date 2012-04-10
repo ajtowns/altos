@@ -18,11 +18,6 @@
 #include <ao.h>
 #include "ao_ms5607.h"
 
-#define AO_MS5607_CS_GPIO	stm_gpioc
-#define AO_MS5607_CS		4
-#define AO_MS5607_CS_MASK	(1 << AO_MS5607_CS)
-#define AO_MS5607_SPI_INDEX	(STM_SPI_INDEX(1))
-
 struct ms5607_prom {
 	uint16_t	reserved;
 	uint16_t	sens;
@@ -55,7 +50,7 @@ ao_ms5607_reset(void) {
 	cmd = AO_MS5607_RESET;
 	ao_ms5607_start();
 	ao_spi_send(&cmd, 1, AO_MS5607_SPI_INDEX);
-	ao_delay(AO_MS_TO_TICKS(100));
+	ao_delay(AO_MS_TO_TICKS(10));
 	ao_ms5607_stop();
 }
 
@@ -70,28 +65,27 @@ ao_ms5607_prom_read(uint8_t addr)
 	ao_spi_send(&cmd, 1, AO_MS5607_SPI_INDEX);
 	ao_spi_recv(d, 2, AO_MS5607_SPI_INDEX);
 	ao_ms5607_stop();
-	v = ((uint16_t) d[0] << 8) | (uint16_t) d[1];
-//	printf ("ms5607_prom_read recv %02x %02x -> %04x\n", d[0], d[1], v);
-	return v;
+	return ((uint16_t) d[0] << 8) | (uint16_t) d[1];
 }
 
 static void
 ao_ms5607_init_chip(void) {
 	uint8_t		addr;
 	uint16_t	*prom;
+
 	ao_ms5607_reset();
 	prom = &ms5607_prom.reserved;
 
 	for (addr = 0; addr <= 7; addr++)
 		prom[addr] = ao_ms5607_prom_read(addr);
-	printf ("reserved: %d\n", ms5607_prom.reserved);
-	printf ("sens:     %d\n", ms5607_prom.sens);
-	printf ("off:      %d\n", ms5607_prom.off);
-	printf ("tcs:      %d\n", ms5607_prom.tcs);
-	printf ("tco:      %d\n", ms5607_prom.tco);
-	printf ("tref:     %d\n", ms5607_prom.tref);
-	printf ("tempsens: %d\n", ms5607_prom.tempsens);
-	printf ("crc:      %d\n", ms5607_prom.crc);
+	printf ("reserved: 0x%x\n", ms5607_prom.reserved);
+	printf ("sens:     0x%x\n", ms5607_prom.sens);
+	printf ("off:      0x%x\n", ms5607_prom.off);
+	printf ("tcs:      0x%x\n", ms5607_prom.tcs);
+	printf ("tco:      0x%x\n", ms5607_prom.tco);
+	printf ("tref:     0x%x\n", ms5607_prom.tref);
+	printf ("tempsens: 0x%x\n", ms5607_prom.tempsens);
+	printf ("crc:      0x%x\n", ms5607_prom.crc);
 }
 
 static uint32_t
@@ -103,7 +97,7 @@ ao_ms5607_convert(uint8_t cmd) {
 	ao_spi_send(&cmd, 1, AO_MS5607_SPI_INDEX);
 	ao_ms5607_stop();
 
-	ao_delay(AO_MS_TO_TICKS(10));
+	ao_delay(AO_MS_TO_TICKS(20));
 
 	ao_ms5607_start();
 	read = AO_MS5607_ADC_READ;
