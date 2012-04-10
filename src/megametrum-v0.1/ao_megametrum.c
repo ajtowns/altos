@@ -20,7 +20,11 @@
 void
 beep(void)
 {
-	ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(2000));
+	ao_beep(AO_BEEP_MID);
+	printf ("Hit a character to stop..."); flush();
+	getchar();
+	putchar('\n');
+	ao_beep(0);
 }
 
 const struct ao_cmds ao_mm_cmds[] = {
