@@ -182,4 +182,13 @@ struct ao_adc {
 #define AO_MS5607_CS_MASK	(1 << AO_MS5607_CS)
 #define AO_MS5607_SPI_INDEX	(STM_SPI_INDEX(1))
 
+/*
+ * SPI Flash memory
+ */
+
+#define M25_MAX_CHIPS		1
+#define AO_M25_SPI_CS_PORT	stm_gpiod
+#define AO_M25_SPI_CS_MASK	(1 << 3)
+#define AO_M25_SPI_BUS		STM_SPI_INDEX(2)
+
 #endif /* _AO_PINS_H_ */

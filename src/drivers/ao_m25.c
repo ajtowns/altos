@@ -99,8 +99,8 @@ static __xdata uint8_t ao_m25_mutex;
 
 static __xdata uint8_t	ao_m25_instruction[4];
 
-#define M25_SELECT(cs)		ao_spi_get_mask(SPI_CS_PORT,cs)
-#define M25_DESELECT(cs)	ao_spi_put_mask(SPI_CS_PORT,cs)
+#define M25_SELECT(cs)		ao_spi_get_mask(AO_M25_SPI_CS_PORT,cs,AO_M25_SPI_BUS)
+#define M25_DESELECT(cs)	ao_spi_put_mask(AO_M25_SPI_CS_PORT,cs,AO_M25_SPI_BUS)
 
 #define M25_BLOCK_SHIFT			16
 #define M25_BLOCK			65536L
@@ -116,9 +116,9 @@ ao_m25_wait_wip(uint8_t cs)
 	if (ao_m25_wip & cs) {
 		M25_SELECT(cs);
 		ao_m25_instruction[0] = M25_RDSR;
-		ao_spi_send(ao_m25_instruction, 1);
+		ao_spi_send(ao_m25_instruction, 1, AO_M25_SPI_BUS);
 		do {
-			ao_spi_recv(ao_m25_instruction, 1);
+			ao_spi_recv(ao_m25_instruction, 1, AO_M25_SPI_BUS);
 		} while (ao_m25_instruction[0] & M25_STATUS_WIP);
 		M25_DESELECT(cs);
 		ao_m25_wip &= ~cs;
@@ -135,7 +135,7 @@ ao_m25_write_enable(uint8_t cs)
 {
 	M25_SELECT(cs);
 	ao_m25_instruction[0] = M25_WREN;
-	ao_spi_send(&ao_m25_instruction, 1);
+	ao_spi_send(&ao_m25_instruction, 1, AO_M25_SPI_BUS);
 	M25_DESELECT(cs);
 	ao_m25_wip |= cs;
 }
@@ -150,8 +150,8 @@ ao_m25_read_capacity(uint8_t cs)
 	uint8_t	capacity;
 	M25_SELECT(cs);
 	ao_m25_instruction[0] = M25_RDID;
-	ao_spi_send(ao_m25_instruction, 1);
-	ao_spi_recv(ao_m25_instruction, M25_RDID_LEN);
+	ao_spi_send(ao_m25_instruction, 1, AO_M25_SPI_BUS);
+	ao_spi_recv(ao_m25_instruction, M25_RDID_LEN, AO_M25_SPI_BUS);
 	M25_DESELECT(cs);
 
 	/* Check to see if the chip is present */
@@ -183,7 +183,7 @@ ao_m25_set_address(uint32_t pos)
 
 	chip = ao_m25_pin[chip];
 #else
-	chip = M25_CS_MASK;
+	chip = AO_M25_SPI_CS_MASK;
 #endif
 	ao_m25_wait_wip(chip);
 
@@ -210,7 +210,7 @@ ao_m25_scan(void)
 #if M25_MAX_CHIPS > 1
 	ao_m25_numchips = 0;
 	for (pin = 1; pin != 0; pin <<= 1) {
-		if (M25_CS_MASK & pin) {
+		if (AO_M25_SPI_CS_MASK & pin) {
 			size = ao_m25_read_capacity(pin);
 			if (size != 0) {
 				ao_m25_size[ao_m25_numchips] = size;
@@ -221,7 +221,7 @@ ao_m25_scan(void)
 		}
 	}
 #else
-	ao_m25_total = ao_m25_read_capacity(M25_CS_MASK);
+	ao_m25_total = ao_m25_read_capacity(AO_M25_SPI_CS_MASK);
 #endif
 	if (!ao_m25_total)
 		return 0;
@@ -253,7 +253,7 @@ ao_storage_erase(uint32_t pos) __reentrant
 
 	ao_m25_instruction[0] = M25_SE;
 	M25_SELECT(cs);
-	ao_spi_send(ao_m25_instruction, 4);
+	ao_spi_send(ao_m25_instruction, 4, AO_M25_SPI_BUS);
 	M25_DESELECT(cs);
 	ao_m25_wip |= cs;
 
@@ -280,8 +280,8 @@ ao_storage_device_write(uint32_t pos, __xdata void *d, uint16_t len) __reentrant
 
 	ao_m25_instruction[0] = M25_PP;
 	M25_SELECT(cs);
-	ao_spi_send(ao_m25_instruction, 4);
-	ao_spi_send(d, len);
+	ao_spi_send(ao_m25_instruction, 4, AO_M25_SPI_BUS);
+	ao_spi_send(d, len, AO_M25_SPI_BUS);
 	M25_DESELECT(cs);
 
 	ao_mutex_put(&ao_m25_mutex);
@@ -306,8 +306,8 @@ ao_storage_device_read(uint32_t pos, __xdata void *d, uint16_t len) __reentrant
 	/* No need to use the FAST_READ as we're running at only 8MHz */
 	ao_m25_instruction[0] = M25_READ;
 	M25_SELECT(cs);
-	ao_spi_send(ao_m25_instruction, 4);
-	ao_spi_recv(d, len);
+	ao_spi_send(ao_m25_instruction, 4, AO_M25_SPI_BUS);
+	ao_spi_recv(d, len, AO_M25_SPI_BUS);
 	M25_DESELECT(cs);
 
 	ao_mutex_put(&ao_m25_mutex);
@@ -350,14 +350,14 @@ ao_storage_device_info(void) __reentrant
 
 	printf ("Available chips:\n");
 	for (cs = 1; cs != 0; cs <<= 1) {
-		if ((M25_CS_MASK & cs) == 0)
+		if ((AO_M25_SPI_CS_MASK & cs) == 0)
 			continue;
 
 		ao_mutex_get(&ao_m25_mutex);
 		M25_SELECT(cs);
 		ao_m25_instruction[0] = M25_RDID;
-		ao_spi_send(ao_m25_instruction, 1);
-		ao_spi_recv(ao_m25_instruction, M25_RDID_LEN);
+		ao_spi_send(ao_m25_instruction, 1, AO_M25_SPI_BUS);
+		ao_spi_recv(ao_m25_instruction, M25_RDID_LEN, AO_M25_SPI_BUS);
 		M25_DESELECT(cs);
 
 		printf ("Select %02x manf %02x type %02x cap %02x uid %02x\n",
@@ -373,10 +373,5 @@ ao_storage_device_info(void) __reentrant
 void
 ao_storage_device_init(void)
 {
-	/* Set up chip select wires */
-	SPI_CS_PORT |= M25_CS_MASK;	/* raise all CS pins */
-	SPI_CS_DIR |= M25_CS_MASK;	/* set CS pins as outputs */
-#ifdef SPI_CS_SEL
-	SPI_CS_SEL &= ~M25_CS_MASK;	/* set CS pins as GPIO */
-#endif
+	ao_spi_init_cs (AO_M25_SPI_CS_PORT, AO_M25_SPI_CS_MASK);
 }

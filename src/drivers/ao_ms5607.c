@@ -155,8 +155,5 @@ void
 ao_ms5607_init(void)
 {
 	ao_cmd_register(&ao_ms5607_cmds[0]);
-
-	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOCEN);
-	stm_gpio_set(&AO_MS5607_CS_GPIO, AO_MS5607_CS, 1);
-	stm_moder_set(&AO_MS5607_CS_GPIO, AO_MS5607_CS, STM_MODER_OUTPUT);
+	ao_spi_init_cs(AO_MS5607_CS_GPIO, (1 << AO_MS5607_CS));
 }

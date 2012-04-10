@@ -82,7 +82,7 @@
 	#define HAS_ACCEL_REF		1
 	#define SPI_CS_ON_P1		1
 	#define SPI_CS_ON_P0		0
-	#define M25_CS_MASK		0x02	/* CS0 is P1_1 */
+	#define AO_M25_SPI_CS_MASK	0x02	/* CS0 is P1_1 */
 	#define M25_MAX_CHIPS		1
 	#define HAS_ACCEL		1
 	#define HAS_IGNITE		1
@@ -119,7 +119,7 @@
 	#define HAS_ACCEL_REF		1
 	#define SPI_CS_ON_P1		1
 	#define SPI_CS_ON_P0		0
-	#define M25_CS_MASK		0x02	/* CS0 is P1_1 */
+	#define AO_M25_SPI_CS_MASK	0x02	/* CS0 is P1_1 */
 	#define M25_MAX_CHIPS		1
 	#define HAS_ACCEL		1
 	#define HAS_IGNITE		1
@@ -358,7 +358,7 @@
 	#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
 	#define SPI_CS_ON_P1		1
 	#define SPI_CS_ON_P0		0
-	#define M25_CS_MASK		0x04	/* CS0 is P1_2 */
+	#define AO_M25_SPI_CS_MASK	0x04	/* CS0 is P1_2 */
 	#define M25_MAX_CHIPS		1
 	#define HAS_ACCEL		0
 	#define HAS_IGNITE		0
@@ -457,6 +457,8 @@
 	#define SPI_CS_SEL	P0SEL
 	#define SPI_CS_DIR	P0DIR
 #endif
+
+#define AO_M25_SPI_CS_PORT	SPI_CS_PORT
 
 #ifndef IGNITE_ON_P2
 #error Please define IGNITE_ON_P2

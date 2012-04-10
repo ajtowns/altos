@@ -49,9 +49,9 @@ static __xdata uint8_t ao_ee_mutex;
 	_asm nop _endasm; \
 } while(0)
 
-#define ao_ee_cs_low()	ao_spi_get_bit(EE_CS)
+#define ao_ee_cs_low()	ao_spi_get_bit(EE_CS, AO_EE_SPI_BUS)
 
-#define ao_ee_cs_high()	ao_spi_put_bit(EE_CS)
+#define ao_ee_cs_high()	ao_spi_put_bit(EE_CS, AO_EE_SPI_BUS)
 
 struct ao_ee_instruction {
 	uint8_t	instruction;
@@ -63,7 +63,7 @@ ao_ee_write_enable(void)
 {
 	ao_ee_cs_low();
 	ao_ee_instruction.instruction = EE_WREN;
-	ao_spi_send(&ao_ee_instruction, 1);
+	ao_spi_send(&ao_ee_instruction, 1, AO_EE_SPI_BUS);
 	ao_ee_cs_high();
 }
 
@@ -72,8 +72,8 @@ ao_ee_rdsr(void)
 {
 	ao_ee_cs_low();
 	ao_ee_instruction.instruction = EE_RDSR;
-	ao_spi_send(&ao_ee_instruction, 1);
-	ao_spi_recv(&ao_ee_instruction, 1);
+	ao_spi_send(&ao_ee_instruction, 1, AO_EE_SPI_BUS);
+	ao_spi_recv(&ao_ee_instruction, 1, AO_EE_SPI_BUS);
 	ao_ee_cs_high();
 	return ao_ee_instruction.instruction;
 }
@@ -84,7 +84,7 @@ ao_ee_wrsr(uint8_t status)
 	ao_ee_cs_low();
 	ao_ee_instruction.instruction = EE_WRSR;
 	ao_ee_instruction.address[0] = status;
-	ao_spi_send(&ao_ee_instruction, 2);
+	ao_spi_send(&ao_ee_instruction, 2, AO_EE_SPI_BUS);
 	ao_ee_cs_high();
 }
 
@@ -111,8 +111,8 @@ ao_ee_write_block(void)
 	ao_ee_instruction.address[0] = ao_ee_block >> 8;
 	ao_ee_instruction.address[1] = ao_ee_block;
 	ao_ee_instruction.address[2] = 0;
-	ao_spi_send(&ao_ee_instruction, 4);
-	ao_spi_send(ao_ee_data, EE_BLOCK_SIZE);
+	ao_spi_send(&ao_ee_instruction, 4, AO_EE_SPI_BUS);
+	ao_spi_send(ao_ee_data, EE_BLOCK_SIZE, AO_EE_SPI_BUS);
 	ao_ee_cs_high();
 	for (;;) {
 		uint8_t	status = ao_ee_rdsr();
@@ -130,8 +130,8 @@ ao_ee_read_block(void)
 	ao_ee_instruction.address[0] = ao_ee_block >> 8;
 	ao_ee_instruction.address[1] = ao_ee_block;
 	ao_ee_instruction.address[2] = 0;
-	ao_spi_send(&ao_ee_instruction, 4);
-	ao_spi_recv(ao_ee_data, EE_BLOCK_SIZE);
+	ao_spi_send(&ao_ee_instruction, 4, AO_EE_SPI_BUS);
+	ao_spi_recv(ao_ee_data, EE_BLOCK_SIZE, AO_EE_SPI_BUS);
 	ao_ee_cs_high();
 }
 

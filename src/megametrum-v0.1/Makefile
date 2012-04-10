@@ -38,7 +38,9 @@ ALTOS_SRC = \
 	ao_spi_stm.c \
 	ao_ms5607.c \
 	ao_adc_stm.c \
-	ao_beep_stm.c
+	ao_beep_stm.c \
+	ao_storage.c \
+	ao_m25.c
 
 PRODUCT=MegaMetrum-v0.1
 PRODUCT_DEF=-DMEGAMETRUM

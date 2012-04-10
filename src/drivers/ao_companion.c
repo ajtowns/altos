@@ -27,8 +27,8 @@
 				UxGCR_ORDER_MSB |		\
 				(17 << UxGCR_BAUD_E_SHIFT)))
 
-#define COMPANION_SELECT()	do { ao_spi_get_bit(COMPANION_CS); ao_spi_slow(); } while (0)
-#define COMPANION_DESELECT()	do { ao_spi_fast(); ao_spi_put_bit(COMPANION_CS); } while (0)
+#define COMPANION_SELECT()	do { ao_spi_get_bit(COMPANION_CS, AO_COMPANION_BUS); ao_spi_slow(); } while (0)
+#define COMPANION_DESELECT()	do { ao_spi_fast(); ao_spi_put_bit(COMPANION_CS, AO_COMPANION_BUS); } while (0)
 
 __xdata struct ao_companion_command		ao_companion_command;
 __xdata struct ao_companion_setup		ao_companion_setup;
@@ -45,7 +45,7 @@ ao_companion_send_command(uint8_t command)
 	ao_companion_command.tick = ao_time();
 	ao_companion_command.serial = ao_serial_number;
 	ao_companion_command.flight = ao_flight_number;
-	ao_spi_send(&ao_companion_command, sizeof (ao_companion_command));
+	ao_spi_send(&ao_companion_command, sizeof (ao_companion_command), AO_COMPANION_SPI_BUS);
 }
 
 static uint8_t
@@ -53,7 +53,7 @@ ao_companion_get_setup(void)
 {
 	COMPANION_SELECT();
 	ao_companion_send_command(AO_COMPANION_SETUP);
-	ao_spi_recv(&ao_companion_setup, sizeof (ao_companion_setup));
+	ao_spi_recv(&ao_companion_setup, sizeof (ao_companion_setup), AO_COMPANION_SPI_BUS);
 	COMPANION_DESELECT();
 	return (ao_companion_setup.board_id ==
 		~ao_companion_setup.board_id_inverse);
@@ -65,7 +65,7 @@ ao_companion_get_data(void)
 	COMPANION_SELECT();
 	ao_companion_send_command(AO_COMPANION_FETCH);
 	ao_mutex_get(&ao_companion_mutex);
-	ao_spi_recv(&ao_companion_data, ao_companion_setup.channels * 2);
+	ao_spi_recv(&ao_companion_data, ao_companion_setup.channels * 2, AO_COMPANION_SPI_BUS);
 	ao_mutex_put(&ao_companion_mutex);
 	COMPANION_DESELECT();
 }

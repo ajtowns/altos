@@ -85,4 +85,7 @@
 	#define SPI_SLAVE_PIN_2_5	0
 #endif
 
+#define AO_M25_SPI_CS_PORT	SPI_CS_PORT
+#define AO_M25_SPI_CS_MASK	M25_CS_MASK
+
 #endif /* _AO_PINS_H_ */

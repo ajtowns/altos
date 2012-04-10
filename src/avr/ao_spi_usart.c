@@ -29,7 +29,7 @@ __xdata uint8_t	ao_spi_mutex;
  * so using interrupts would take way too long
  */
 void
-ao_spi_send(void __xdata *block, uint16_t len) __reentrant
+ao_spi_send_bus(void __xdata *block, uint16_t len) __reentrant
 {
 	uint8_t	*d = block;
 
@@ -46,7 +46,7 @@ ao_spi_send(void __xdata *block, uint16_t len) __reentrant
  * Poll, sending zeros and reading data back
  */
 void
-ao_spi_recv(void __xdata *block, uint16_t len) __reentrant
+ao_spi_recv_bus(void __xdata *block, uint16_t len) __reentrant
 {
 	uint8_t	*d = block;
 

@@ -38,7 +38,7 @@ static __xdata uint8_t ao_spi_const;
  * completion one byte before the transfer is actually complete
  */
 void
-ao_spi_send(void __xdata *block, uint16_t len) __reentrant
+ao_spi_send_bus(void __xdata *block, uint16_t len) __reentrant
 {
 	ao_dma_set_transfer(ao_spi_dma_in_id,
 			    &U0DBUFXADDR,
@@ -76,7 +76,7 @@ ao_spi_send(void __xdata *block, uint16_t len) __reentrant
  * clocks the data coming in.
  */
 void
-ao_spi_recv(void __xdata *block, uint16_t len) __reentrant
+ao_spi_recv_bus(void __xdata *block, uint16_t len) __reentrant
 {
 	ao_dma_set_transfer(ao_spi_dma_in_id,
 			    &U0DBUFXADDR,

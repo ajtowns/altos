@@ -43,9 +43,9 @@ __xdata uint8_t ao_flash_mutex;
 	_asm nop _endasm; \
 } while(0)
 
-#define ao_flash_cs_low()	ao_spi_get_bit(FLASH_CS)
+#define ao_flash_cs_low()	ao_spi_get_bit(FLASH_CS, AO_FLASH_SPI_BUS)
 
-#define ao_flash_cs_high()	ao_spi_put_bit(FLASH_CS)
+#define ao_flash_cs_high()	ao_spi_put_bit(FLASH_CS, AO_FLASH_SPI_BUS)
 
 struct ao_flash_instruction {
 	uint8_t	instruction;
@@ -60,7 +60,7 @@ ao_flash_set_pagesize_512(void)
 	ao_flash_instruction.address[0] = FLASH_SET_512_BYTE_0;
 	ao_flash_instruction.address[1] = FLASH_SET_512_BYTE_1;
 	ao_flash_instruction.address[2] = FLASH_SET_512_BYTE_2;
-	ao_spi_send(&ao_flash_instruction, 4);
+	ao_spi_send(&ao_flash_instruction, 4, AO_FLASH_SPI_BUS);
 	ao_flash_cs_high();
 }
 
@@ -70,8 +70,8 @@ ao_flash_read_status(void)
 {
 	ao_flash_cs_low();
 	ao_flash_instruction.instruction = FLASH_READ_STATUS;
-	ao_spi_send(&ao_flash_instruction, 1);
-	ao_spi_recv(&ao_flash_instruction, 1);
+	ao_spi_send(&ao_flash_instruction, 1, AO_FLASH_SPI_BUS);
+	ao_spi_recv(&ao_flash_instruction, 1, AO_FLASH_SPI_BUS);
 	ao_flash_cs_high();
 	return ao_flash_instruction.instruction;
 }
@@ -190,8 +190,8 @@ ao_flash_write_block(void)
 	ao_flash_instruction.address[0] = ao_flash_block >> (16 - ao_flash_block_shift);
 	ao_flash_instruction.address[1] = ao_flash_block << (ao_flash_block_shift - 8);
 	ao_flash_instruction.address[2] = 0;
-	ao_spi_send(&ao_flash_instruction, 4);
-	ao_spi_send(ao_flash_data, ao_storage_block);
+	ao_spi_send(&ao_flash_instruction, 4, AO_FLASH_SPI_BUS);
+	ao_spi_send(ao_flash_data, ao_storage_block, AO_FLASH_SPI_BUS);
 	ao_flash_cs_high();
 	ao_flash_write_pending = 1;
 }
@@ -208,8 +208,8 @@ ao_flash_read_block(void)
 	ao_flash_instruction.address[0] = ao_flash_block >> (16 - ao_flash_block_shift);
 	ao_flash_instruction.address[1] = ao_flash_block << (ao_flash_block_shift - 8);
 	ao_flash_instruction.address[2] = 0;
-	ao_spi_send(&ao_flash_instruction, 4);
-	ao_spi_recv(ao_flash_data, ao_flash_block_size);
+	ao_spi_send(&ao_flash_instruction, 4, AO_FLASH_SPI_BUS);
+	ao_spi_recv(ao_flash_data, ao_flash_block_size, AO_FLASH_SPI_BUS);
 	ao_flash_cs_high();
 }
 
