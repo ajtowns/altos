@@ -17,6 +17,17 @@
 
 #include "ao.h"
 
+void
+beep(void)
+{
+	ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(2000));
+}
+
+const struct ao_cmds ao_mm_cmds[] = {
+	{ beep, "b\0Beep" },
+	{ 0, NULL },
+};
+
 int
 main(void)
 {
@@ -32,8 +43,10 @@ main(void)
 	ao_dma_init();
 	ao_spi_init();
 	ao_ms5607_init();
+	ao_beep_init();
 	ao_adc_init();
 	
+	ao_cmd_register(&ao_mm_cmds[0]);
 	ao_start_scheduler();
 	return 0;
 }
