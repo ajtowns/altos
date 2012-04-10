@@ -33,6 +33,6 @@
 #define AO_MS5607_CONVERT_D2_4096	0x58
 
 #define AO_MS5607_ADC_READ		0x00
-#define AO_MS5607_PROM_READ(ad)		0xA0 | ((ad) << 1)
+#define AO_MS5607_PROM_READ(ad)		(0xA0 | ((ad) << 1))
 
 #endif /* _AO_MS5607_H_ */
