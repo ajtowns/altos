@@ -85,7 +85,6 @@ _ao_config_get(void)
 
 		/* Version 0 stuff */
 		ao_config.main_deploy = AO_CONFIG_DEFAULT_MAIN_DEPLOY;
-		ao_config.radio_channel = AO_CONFIG_DEFAULT_RADIO_CHANNEL;
 		ao_xmemset(&ao_config.callsign, '\0', sizeof (ao_config.callsign));
 		ao_xmemcpy(&ao_config.callsign, CODE_TO_XDATA(AO_CONFIG_DEFAULT_CALLSIGN),
 		       sizeof(AO_CONFIG_DEFAULT_CALLSIGN) - 1);
@@ -113,19 +112,12 @@ _ao_config_get(void)
 			ao_config.pad_orientation = AO_CONFIG_DEFAULT_PAD_ORIENTATION;
 		if (ao_config.minor < 8)
 			ao_config.radio_enable = TRUE;
-#if HAS_AES
 		if (ao_config.minor < 9)
 			ao_xmemset(&ao_config.aes_key, '\0', AO_AES_LEN);
-#endif
-		if (ao_config.minor < 10) {
+		if (ao_config.minor < 10)
 			ao_config.frequency = 434550;
-#if HAS_RADIO_CHANNELS
-			ao_xmemset(&ao_config.radio_channels, '\0', sizeof (ao_config.radio_channels));
-			ao_xmemcpy(&ao_config.radio_channels[0].name[0],
-				   CODE_TO_XDATA("Channel 0"), sizeof("Channel 0"));
-			ao_config.radio_channels[0].kHz = 434550;
-#endif				   
-		}
+		if (ao_config.minor < 11)
+			ao_config.apogee_lockout = 0;
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
@@ -185,25 +177,6 @@ ao_config_callsign_set(void) __reentrant
 }
 
 void
-ao_config_radio_channel_show(void) __reentrant
-{
-	printf("Radio channel: %d\n",
-	       ao_config.radio_channel);
-}
-
-void
-ao_config_radio_channel_set(void) __reentrant
-{
-	ao_cmd_decimal();
-	if (ao_cmd_status != ao_cmd_success)
-		return;
-	_ao_config_edit_start();
-	ao_config.radio_channel = ao_cmd_lex_i;
-	_ao_config_edit_finish();
-	ao_radio_recv_abort();
-}
-
-void
 ao_config_frequency_show(void) __reentrant
 {
 	printf("Frequency: %ld\n",
@@ -218,13 +191,12 @@ ao_config_frequency_set(void) __reentrant
 		return;
 	_ao_config_edit_start();
 	ao_config.frequency = ao_cmd_lex_u32;
-	ao_config.radio_channel = 0;
 	ao_config_set_radio();
 	_ao_config_edit_finish();
 	ao_radio_recv_abort();
 }
 
-#if HAS_ADC
+#if HAS_FLIGHT
 
 void
 ao_config_main_deploy_show(void) __reentrant
@@ -328,7 +300,25 @@ ao_config_apogee_delay_set(void) __reentrant
 	_ao_config_edit_finish();
 }
 
-#endif /* HAS_ADC */
+void
+ao_config_apogee_lockout_show(void) __reentrant
+{
+	printf ("Apogee lockout: %d seconds\n",
+		ao_config.apogee_lockout);
+}
+
+void
+ao_config_apogee_lockout_set(void) __reentrant
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	_ao_config_edit_start();
+	ao_config.apogee_lockout = ao_cmd_lex_i;
+	_ao_config_edit_finish();
+}
+
+#endif /* HAS_FLIGHT */
 
 void
 ao_config_radio_cal_show(void) __reentrant
@@ -467,50 +457,6 @@ ao_config_key_set(void) __reentrant
 }
 #endif
 
-#if HAS_RADIO_CHANNELS
-void
-ao_config_radio_config_show(void) __reentrant
-{
-	uint8_t	i;
-	for (i = 0; i < AO_NUM_CHANNELS; i++)
-		if (ao_config.radio_channels[i].name[0]) {
-			printf("%2d %-16.16s %ld\n",
-			       i,
-			       ao_config.radio_channels[i].name,
-			       ao_config.radio_channels[i].kHz);
-		}
-}
-
-void
-ao_config_radio_config_set(void) __reentrant
-{
-	__xdata struct ao_radio_channel * ch;
-	uint8_t i;
-	ao_cmd_decimal();
-	if (ao_cmd_status != ao_cmd_success)
-		return;
-	if ((uint8_t) ao_cmd_lex_i >= AO_NUM_CHANNELS) {
-		ao_cmd_status = ao_cmd_syntax_error;
-		return;
-	}
-	ch = &ao_config.radio_channels[(uint8_t) ao_cmd_lex_i];
-	_ao_config_edit_start();
-	ao_cmd_white();
-	i = 0;
-	while (ao_cmd_lex_c != '/' && ao_cmd_lex_c != '\n' && i < AO_CHANNEL_NAME_LEN) {
-		ch->name[i++] = ao_cmd_lex_c;
-		ao_cmd_lex();
-	}
-	if (i < AO_CHANNEL_NAME_LEN) {
-		ch->name[i] = '\0';
-		ao_cmd_lex();
-	}
-	ao_cmd_decimal();
-	ch->kHz = ao_cmd_lex_u32;
-	_ao_config_edit_finish();
-}
-#endif
-
 struct ao_config_var {
 	__code char	*str;
 	void		(*set)(void) __reentrant;
@@ -527,14 +473,14 @@ static void
 ao_config_write(void) __reentrant;
 
 __code struct ao_config_var ao_config_vars[] = {
-#if HAS_ADC
+#if HAS_FLIGHT
 	{ "m <meters>\0Main deploy (m)",
 	  ao_config_main_deploy_set,	ao_config_main_deploy_show, },
 	{ "d <delay>\0Apogee delay (s)",
 	  ao_config_apogee_delay_set,	ao_config_apogee_delay_show },
-#endif /* HAS_ADC */
-	{ "r <channel>\0Radio channel",
-	  ao_config_radio_channel_set,	ao_config_radio_channel_show },
+	{ "L <seconds>\0Apogee detect lockout (s)",
+	  ao_config_apogee_lockout_set, ao_config_apogee_lockout_show, },
+#endif /* HAS_FLIGHT */
 	{ "F <freq>\0Frequency (kHz)",
 	  ao_config_frequency_set, ao_config_frequency_show },
 	{ "c <call>\0Callsign (8 char max)",
@@ -562,10 +508,6 @@ __code struct ao_config_var ao_config_vars[] = {
 #if HAS_AES
 	{ "k <32 hex digits>\0Set AES encryption key",
 	  ao_config_key_set, ao_config_key_show },
-#endif
-#if HAS_RADIO_CHANNELS
-	{ "C <n> <name>/<freq> <radio>\0Set radio chan config",
-	  ao_config_radio_config_set,ao_config_radio_config_show },
 #endif
 	{ "s\0Show",
 	  ao_config_show,		0 },

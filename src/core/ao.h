@@ -1457,26 +1457,16 @@ ao_igniter_init(void);
  */
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	10
+#define AO_CONFIG_MINOR	11
+
 #define AO_AES_LEN 16
-
-#if HAS_RADIO_CHANNELS
-#define AO_CHANNEL_NAME_LEN	10
-
-#define AO_NUM_CHANNELS		10
-
-struct ao_radio_channel {
-	char		name[AO_CHANNEL_NAME_LEN];
-	uint32_t	kHz;
-};
-#endif
 
 struct ao_config {
 	uint8_t		major;
 	uint8_t		minor;
 	uint16_t	main_deploy;
 	int16_t		accel_plus_g;		/* changed for minor version 2 */
-	uint8_t		radio_channel;
+	uint8_t		_legacy_radio_channel;
 	char		callsign[AO_MAX_CALLSIGN + 1];
 	uint8_t		apogee_delay;		/* minor version 1 */
 	int16_t		accel_minus_g;		/* minor version 2 */
@@ -1488,9 +1478,7 @@ struct ao_config {
 	uint8_t		radio_enable;		/* minor version 8 */
 	uint8_t		aes_key[AO_AES_LEN];	/* minor version 9 */
 	uint32_t	frequency;		/* minor version 10 */
-#if HAS_RADIO_CHANNELS
-	struct ao_radio_channel	radio_channels[AO_NUM_CHANNELS];	/* minor version 10 */
-#endif
+	uint16_t	apogee_lockout;		/* minor version 11 */
 };
 
 #define AO_IGNITE_MODE_DUAL		0
