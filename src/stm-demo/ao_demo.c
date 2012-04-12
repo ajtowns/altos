@@ -174,6 +174,7 @@ main(void)
 	ao_timer_set_adc_interval(100);
 
 	ao_adc_init();
+	ao_usb_init();
 
 	ao_cmd_register(&ao_demo_cmds[0]);
 	

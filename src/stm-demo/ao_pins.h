@@ -18,22 +18,29 @@
 #ifndef _AO_PINS_H_
 #define _AO_PINS_H_
 
-/* No external crystal */
-#define AO_HSE		0
+/* Bridge SB17 on the board and use the MCO from the other chip */
+#define AO_HSE		8000000
+#define AO_HSE_BYPASS		1
 
+/* PLLVCO = 96MHz (so that USB will work) */
+#define AO_PLLMUL		12
+#define AO_RCC_CFGR_PLLMUL	(STM_RCC_CFGR_PLLMUL_12)
+
+/* SYSCLK = 32MHz */
+#define AO_PLLDIV		3
+#define AO_RCC_CFGR_PLLDIV	(STM_RCC_CFGR_PLLDIV_3)
+
+/* HCLK = 32MHZ (CPU clock) */
 #define AO_AHB_PRESCALER	1
 #define AO_RCC_CFGR_HPRE_DIV	STM_RCC_CFGR_HPRE_DIV_1
 
-#define AO_APB1_PRESCALER	2
-#define AO_RCC_CFGR_PPRE1_DIV	STM_RCC_CFGR_PPRE2_DIV_2
+/* Run APB1 at HCLK/1 */
+#define AO_APB1_PRESCALER	1
+#define AO_RCC_CFGR_PPRE1_DIV	STM_RCC_CFGR_PPRE2_DIV_1
 
-#define AO_APB2_PRESCALER	2
-#define AO_RCC_CFGR_PPRE2_DIV	STM_RCC_CFGR_PPRE2_DIV_2
-
-#define AO_PLLMUL		6
-#define AO_PLLDIV		4
-#define AO_RCC_CFGR_PLLMUL	(STM_RCC_CFGR_PLLMUL_6)
-#define AO_RCC_CFGR_PLLDIV	(STM_RCC_CFGR_PLLDIV_4)
+/* Run APB2 at HCLK/1 */
+#define AO_APB2_PRESCALER      	1
+#define AO_RCC_CFGR_PPRE2_DIV	STM_RCC_CFGR_PPRE2_DIV_1
 
 #define HAS_SERIAL_1		1
 #define USE_SERIAL_1_STDIN	1
@@ -56,7 +63,7 @@
 
 #define HAS_SPI_2		0
 
-#define HAS_USB			0
+#define HAS_USB			1
 #define HAS_BEEP		0
 #define PACKET_HAS_SLAVE	0
 
