@@ -106,6 +106,53 @@ ao_clock_init(void)
 	uint32_t	cfgr;
 	uint32_t	cr;
 	
+	/* Switch to MSI while messing about */
+	stm_rcc.cr |= (1 << STM_RCC_CR_MSION);
+	while (!(stm_rcc.cr & (1 << STM_RCC_CR_MSIRDY)))
+		asm("nop");
+
+	/* reset SW, HPRE, PPRE1, PPRE2, MCOSEL and MCOPRE */
+	stm_rcc.cfgr &= (uint32_t)0x88FFC00C;
+
+	/* reset HSION, HSEON, CSSON and PLLON bits */
+	stm_rcc.cr &= 0xeefefffe;
+	
+	/* reset PLLSRC, PLLMUL and PLLDIV bits */
+	stm_rcc.cfgr &= 0xff02ffff;
+	
+	/* Disable all interrupts */
+	stm_rcc.cir = 0;
+
+#if AO_HSE
+#if AO_HSE_BYPASS
+	stm_rcc.cr |= (1 << STM_RCC_CR_HSEBYP);
+#else
+	stm_rcc.cr &= ~(1 << STM_RCC_CR_HSEBYP);
+#endif
+	/* Enable HSE clock */
+	stm_rcc.cr |= (1 << STM_RCC_CR_HSEON);
+	while (!(stm_rcc.cr & (1 << STM_RCC_CR_HSERDY)))
+		asm("nop");
+
+#define STM_RCC_CFGR_SWS_TARGET_CLOCK		(STM_RCC_CFGR_SWS_HSE << STM_RCC_CFGR_SWS)
+#define STM_RCC_CFGR_SW_TARGET_CLOCK		(STM_RCC_CFGR_SW_HSE)
+#define STM_PLLSRC				AO_HSE
+#define STM_RCC_CFGR_PLLSRC_TARGET_CLOCK	(1 << STM_RCC_CFGR_PLLSRC)
+#else
+#define STM_HSI 				16000000
+#define STM_RCC_CFGR_SWS_TARGET_CLOCK		(STM_RCC_CFGR_SWS_HSI << STM_RCC_CFGR_SWS)
+#define STM_RCC_CFGR_SW_TARGET_CLOCK		(STM_RCC_CFGR_SW_HSI)
+#define STM_PLLSRC				STM_HSI
+#define STM_RCC_CFGR_PLLSRC_TARGET_CLOCK	(0 << STM_RCC_CFGR_PLLSRC)
+#endif
+
+#if !AO_HSE || HAS_ADC
+	/* Enable HSI RC clock 16MHz */
+	stm_rcc.cr |= (1 << STM_RCC_CR_HSION);
+	while (!(stm_rcc.cr & (1 << STM_RCC_CR_HSIRDY)))
+		asm("nop");
+#endif
+
 	/* Set flash latency to tolerate 32MHz SYSCLK  -> 1 wait state */
 
 	/* Enable 64-bit access and prefetch */
@@ -116,6 +163,24 @@ ao_clock_init(void)
 	/* (haven't managed to run the CPU at 32MHz yet, it's at 16MHz) */
 	stm_flash.acr |= (1 << STM_FLASH_ACR_LATENCY);
 
+	/* Enable power interface clock */
+	stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_PWREN);
+
+	/* Set voltage range to 1.8V */
+
+	/* poll VOSF bit in PWR_CSR. Wait until it is reset to 0 */
+	while ((stm_pwr.csr & (1 << STM_PWR_CSR_VOSF)) != 0)
+		asm("nop");
+
+	/* Configure voltage scaling range */
+	cr = stm_pwr.cr;
+	cr &= ~(STM_PWR_CR_VOS_MASK << STM_PWR_CR_VOS);
+	cr |= (STM_PWR_CR_VOS_1_8 << STM_PWR_CR_VOS);
+	stm_pwr.cr = cr;
+
+	/* poll VOSF bit in PWR_CSR. Wait until it is reset to 0 */
+	while ((stm_pwr.csr & (1 << STM_PWR_CSR_VOSF)) != 0)
+		asm("nop");
 
 	/* HCLK to 16MHz -> AHB prescaler = /1 */
 	cfgr = stm_rcc.cfgr;
@@ -137,65 +202,6 @@ ao_clock_init(void)
 	cfgr &= ~(STM_RCC_CFGR_PPRE2_MASK << STM_RCC_CFGR_PPRE2);
 	cfgr |= (AO_RCC_CFGR_PPRE2_DIV << STM_RCC_CFGR_PPRE2);
 	stm_rcc.cfgr = cfgr;
-
-	/* Enable power interface clock */
-	stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_PWREN);
-
-
-	/* Set voltage range to 1.8V */
-
-	/* poll VOSF bit in PWR_CSR. Wait until it is reset to 0 */
-	while ((stm_pwr.csr & (1 << STM_PWR_CSR_VOSF)) != 0)
-		asm("nop");
-
-	/* Configure voltage scaling range */
-	cr = stm_pwr.cr;
-	cr &= ~(STM_PWR_CR_VOS_MASK << STM_PWR_CR_VOS);
-	cr |= (STM_PWR_CR_VOS_1_8 << STM_PWR_CR_VOS);
-	stm_pwr.cr = cr;
-
-	/* poll VOSF bit in PWR_CSR. Wait until it is reset to 0 */
-	while ((stm_pwr.csr & (1 << STM_PWR_CSR_VOSF)) != 0)
-		asm("nop");
-
-#if AO_HSE
-	/* Enable HSE clock */
-	if (!(stm_rcc.cr & (1 << STM_RCC_CR_HSERDY))) {
-		stm_rcc.cr |= (1 << STM_RCC_CR_HSEON);
-		while (!(stm_rcc.cr & (1 << STM_RCC_CR_HSERDY)))
-			asm("nop");
-	}
-#define STM_RCC_CFGR_SWS_TARGET_CLOCK		(STM_RCC_CFGR_SWS_HSE << STM_RCC_CFGR_SWS)
-#define STM_RCC_CFGR_SW_TARGET_CLOCK		(STM_RCC_CFGR_SW_HSE)
-#define STM_PLLSRC				AO_HSE
-#define STM_RCC_CFGR_PLLSRC_TARGET_CLOCK	(1 << STM_RCC_CFGR_PLLSRC)
-#else
-#define STM_HSI 				16000000
-#define STM_RCC_CFGR_SWS_TARGET_CLOCK		(STM_RCC_CFGR_SWS_HSI << STM_RCC_CFGR_SWS)
-#define STM_RCC_CFGR_SW_TARGET_CLOCK		(STM_RCC_CFGR_SW_HSI)
-#define STM_PLLSRC				STM_HSI
-#define STM_RCC_CFGR_PLLSRC_TARGET_CLOCK	(0 << STM_RCC_CFGR_PLLSRC)
-#endif
-
-#if !AO_HSE || HAS_ADC
-	/* Enable HSI RC clock 16MHz */
-	if (!(stm_rcc.cr & (1 << STM_RCC_CR_HSIRDY))) {
-		stm_rcc.cr |= (1 << STM_RCC_CR_HSION);
-		while (!(stm_rcc.cr & (1 << STM_RCC_CR_HSIRDY)))
-			asm("nop");
-	}
-#endif
-	/* Switch to direct high speed clock for SYSCLK */
-	if ((stm_rcc.cfgr & (STM_RCC_CFGR_SWS_MASK << STM_RCC_CFGR_SWS)) !=
-	    STM_RCC_CFGR_SWS_TARGET_CLOCK) {
-		cfgr = stm_rcc.cfgr;
-		cfgr &= ~(STM_RCC_CFGR_SW_MASK << STM_RCC_CFGR_SW);
-		cfgr |= STM_RCC_CFGR_SW_TARGET_CLOCK;
-		stm_rcc.cfgr = cfgr;
-		while ((stm_rcc.cfgr & (STM_RCC_CFGR_SWS_MASK << STM_RCC_CFGR_SWS)) !=
-		       STM_RCC_CFGR_SWS_TARGET_CLOCK);
-			asm("nop");
-	}
 
 	/* Disable the PLL */
 	stm_rcc.cr &= ~(1 << STM_RCC_CR_PLLON);
@@ -237,4 +243,31 @@ ao_clock_init(void)
 		if (part == val)
 			break;
 	}
+
+#if 0
+	stm_rcc.apb2rstr = 0xffff;
+	stm_rcc.apb1rstr = 0xffff;
+	stm_rcc.ahbrstr = 0x3f;
+	stm_rcc.ahbenr = (1 << STM_RCC_AHBENR_FLITFEN);
+	stm_rcc.apb2enr = 0;
+	stm_rcc.apb1enr = 0;
+	stm_rcc.ahbrstr = 0;
+	stm_rcc.apb1rstr = 0;
+	stm_rcc.apb2rstr = 0;
+#endif
+
+	/* Clear reset flags */
+	stm_rcc.csr |= (1 << STM_RCC_CSR_RMVF);
+
+
+	/* Output SYSCLK on PA8 for measurments */
+
+	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOAEN);
+	
+	stm_afr_set(&stm_gpioa, 8, STM_AFR_AF0);
+	stm_moder_set(&stm_gpioa, 8, STM_MODER_ALTERNATE);
+	stm_ospeedr_set(&stm_gpioa, 8, STM_OSPEEDR_40MHz);
+
+	stm_rcc.cfgr |= (STM_RCC_CFGR_MCOPRE_DIV_1 << STM_RCC_CFGR_MCOPRE);
+	stm_rcc.cfgr |= (STM_RCC_CFGR_MCOSEL_HSE << STM_RCC_CFGR_MCOSEL);
 }
