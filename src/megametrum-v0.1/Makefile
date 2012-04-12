@@ -40,7 +40,8 @@ ALTOS_SRC = \
 	ao_adc_stm.c \
 	ao_beep_stm.c \
 	ao_storage.c \
-	ao_m25.c
+	ao_m25.c \
+	ao_usb_stm.c
 
 PRODUCT=MegaMetrum-v0.1
 PRODUCT_DEF=-DMEGAMETRUM
@@ -65,9 +66,6 @@ $(OBJ): $(INC)
 
 ao_product.h: ao-make-product.5c ../Version
 	$(call quiet,NICKLE,$<) $< -m altusmetrum.org -i $(IDPRODUCT) -p $(PRODUCT) -v $(VERSION) > $@
-
-ao_product.rel: ao_product.c ao_product.h
-	$(call quiet,CC) -c $(CFLAGS) -D PRODUCT_DEFS='\"ao_product.h\"' -o$@ $<
 
 distclean:	clean
 

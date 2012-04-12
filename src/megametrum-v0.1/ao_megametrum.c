@@ -50,6 +50,7 @@ main(void)
 	ao_beep_init();
 	ao_adc_init();
 	ao_storage_init();
+	ao_usb_init();
 	
 	ao_cmd_register(&ao_mm_cmds[0]);
 	ao_start_scheduler();

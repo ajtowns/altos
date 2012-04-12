@@ -21,7 +21,7 @@
 /* 8MHz High speed external crystal */
 #define AO_HSE			8000000
 
-/* PLLVCO = 96MHz (so that USB will work*/
+/* PLLVCO = 96MHz (so that USB will work) */
 #define AO_PLLMUL		12
 #define AO_RCC_CFGR_PLLMUL	(STM_RCC_CFGR_PLLMUL_12)
 
@@ -61,8 +61,8 @@
 #define ao_gps_putchar		ao_serial3_putchar
 #define ao_gps_set_speed	ao_serial3_set_speed
 
-#define HAS_USB			0
-#define HAS_BEEP		0
+#define HAS_USB			1
+#define HAS_BEEP		1
 
 #define HAS_SPI_1		1
 #define SPI_1_PA5_PA6_PA7	1
