@@ -42,7 +42,9 @@
 #define __interrupt(n)
 #define __at(n)
 
-#define ao_arch_reboot()	/* XXX */
+#define CORTEX_M3_AIRCR		((uint32_t *) 0xe000ed0c)
+
+#define ao_arch_reboot()	(*((uint32_t *) 0xe000ed0c) = 0x05fa0004)
 
 #define ao_arch_nop()		asm("nop")
 
