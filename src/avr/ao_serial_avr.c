@@ -17,8 +17,8 @@
 
 #include "ao.h"
 
-__xdata struct ao_fifo	ao_usart1_rx_fifo;
-__xdata struct ao_fifo	ao_usart1_tx_fifo;
+__xdata struct ao_fifo	ao_serial1_rx_fifo;
+__xdata struct ao_fifo	ao_serial1_tx_fifo;
 
 void
 ao_debug_out(char c)
@@ -31,10 +31,10 @@ ao_debug_out(char c)
 
 ISR(USART1_RX_vect)
 {
-	if (!ao_fifo_full(ao_usart1_rx_fifo))
-		ao_fifo_insert(ao_usart1_rx_fifo, UDR1);
-	ao_wakeup(&ao_usart1_rx_fifo);
-#if USE_SERIAL_STDIN
+	if (!ao_fifo_full(ao_serial1_rx_fifo))
+		ao_fifo_insert(ao_serial1_rx_fifo, UDR1);
+	ao_wakeup(&ao_serial1_rx_fifo);
+#if USE_SERIAL_1_STDIN
 	ao_wakeup(&ao_stdin_ready);
 #endif
 }
@@ -42,68 +42,68 @@ ISR(USART1_RX_vect)
 static __xdata uint8_t ao_serial_tx1_started;
 
 static void
-ao_serial_tx1_start(void)
+ao_serial1_tx_start(void)
 {
-	if (!ao_fifo_empty(ao_usart1_tx_fifo) &&
+	if (!ao_fifo_empty(ao_serial1_tx_fifo) &&
 	    !ao_serial_tx1_started)
 	{
 		ao_serial_tx1_started = 1;
-		ao_fifo_remove(ao_usart1_tx_fifo, UDR1);
+		ao_fifo_remove(ao_serial1_tx_fifo, UDR1);
 	}
 }
 
 ISR(USART1_UDRE_vect)
 {
-	ao_serial_tx1_started = 0;
-	ao_serial_tx1_start();
-	ao_wakeup(&ao_usart1_tx_fifo);
+	ao_serial1_tx_started = 0;
+	ao_serial1_tx_start();
+	ao_wakeup(&ao_serial1_tx_fifo);
 }
 
 char
-ao_serial_getchar(void) __critical
+ao_serial1_getchar(void) __critical
 {
 	char	c;
 	cli();
-	while (ao_fifo_empty(ao_usart1_rx_fifo))
-		ao_sleep(&ao_usart1_rx_fifo);
-	ao_fifo_remove(ao_usart1_rx_fifo, c);
+	while (ao_fifo_empty(ao_serial1_rx_fifo))
+		ao_sleep(&ao_serial1_rx_fifo);
+	ao_fifo_remove(ao_serial1_rx_fifo, c);
 	sei();
 	return c;
 }
 
-#if USE_SERIAL_STDIN
+#if USE_SERIAL_1_STDIN
 char
-ao_serial_pollchar(void) __critical
+ao_serial1_pollchar(void) __critical
 {
 	char	c;
 	cli();
-	if (ao_fifo_empty(ao_usart1_rx_fifo)) {
+	if (ao_fifo_empty(ao_serial1_rx_fifo)) {
 		sei();
 		return AO_READ_AGAIN;
 	}
-	ao_fifo_remove(ao_usart1_rx_fifo,c);
+	ao_fifo_remove(ao_serial1_rx_fifo,c);
 	sei();
 	return c;
 }
 #endif
 
 void
-ao_serial_putchar(char c) __critical
+ao_serial1_putchar(char c) __critical
 {
 	cli();
-	while (ao_fifo_full(ao_usart1_tx_fifo))
-		ao_sleep(&ao_usart1_tx_fifo);
-	ao_fifo_insert(ao_usart1_tx_fifo, c);
+	while (ao_fifo_full(ao_serial1_tx_fifo))
+		ao_sleep(&ao_serial1_tx_fifo);
+	ao_fifo_insert(ao_serial1_tx_fifo, c);
 	ao_serial_tx1_start();
 	sei();
 }
 
 void
-ao_serial_drain(void) __critical
+ao_serial1_drain(void) __critical
 {
 	cli();
-	while (!ao_fifo_empty(ao_usart1_tx_fifo))
-		ao_sleep(&ao_usart1_tx_fifo);
+	while (!ao_fifo_empty(ao_serial1_tx_fifo))
+		ao_sleep(&ao_serial1_tx_fifo);
 	sei();
 }
 
@@ -125,7 +125,7 @@ static const struct {
 };
 
 void
-ao_serial_set_speed(uint8_t speed)
+ao_serial1_set_speed(uint8_t speed)
 {
 	ao_serial_drain();
 	if (speed > AO_SERIAL_SPEED_57600)
@@ -154,9 +154,9 @@ ao_serial_init(void)
 		  (1 << TXEN1) |	/* Enable transmitter */
 		  (1 << RXCIE1) |	/* Enable receive interrupts */
 		  (1 << UDRIE1));	/* Enable transmit empty interrupts */
-#if USE_SERIAL_STDIN
-	ao_add_stdio(ao_serial_pollchar,
-		     ao_serial_putchar,
+#if USE_SERIAL_1_STDIN
+	ao_add_stdio(ao_serial1_pollchar,
+		     ao_serial1_putchar,
 		     NULL);
 #endif
 }

@@ -124,7 +124,13 @@ static __xdata struct sirf_measured_tracker_data	ao_sirf_tracker_data;
 static __pdata uint16_t ao_sirf_cksum;
 static __pdata uint16_t ao_sirf_len;
 
-#define ao_sirf_byte()	((uint8_t) ao_serial_getchar())
+#ifndef ao_sirf_getchar
+#define ao_sirf_getchar		ao_serial1_getchar
+#define ao_sirf_putchar		ao_serial1_putchar
+#define ao_sirf_set_speed	ao_serial1_set_speed
+#endif
+
+#define ao_sirf_byte()	((uint8_t) ao_sirf_getchar())
 
 static uint8_t data_byte(void)
 {
@@ -283,15 +289,15 @@ static void
 ao_gps_setup(void) __reentrant
 {
 	uint8_t	i, k;
-	ao_serial_set_speed(AO_SERIAL_SPEED_4800);
+	ao_sirf_set_speed(AO_SERIAL_SPEED_4800);
 	for (i = 0; i < 64; i++)
-		ao_serial_putchar(0x00);
+		ao_sirf_putchar(0x00);
 	for (k = 0; k < 3; k++)
 		for (i = 0; i < sizeof (ao_gps_set_nmea); i++)
-			ao_serial_putchar(ao_gps_set_nmea[i]);
-	ao_serial_set_speed(AO_SERIAL_SPEED_57600);
+			ao_sirf_putchar(ao_gps_set_nmea[i]);
+	ao_sirf_set_speed(AO_SERIAL_SPEED_57600);
 	for (i = 0; i < 64; i++)
-		ao_serial_putchar(0x00);
+		ao_sirf_putchar(0x00);
 }
 
 static const char ao_gps_set_message_rate[] = {
@@ -307,16 +313,16 @@ ao_sirf_set_message_rate(uint8_t msg, uint8_t rate) __reentrant
 	uint8_t		i;
 
 	for (i = 0; i < sizeof (ao_gps_set_message_rate); i++)
-		ao_serial_putchar(ao_gps_set_message_rate[i]);
-	ao_serial_putchar(msg);
-	ao_serial_putchar(rate);
+		ao_sirf_putchar(ao_gps_set_message_rate[i]);
+	ao_sirf_putchar(msg);
+	ao_sirf_putchar(rate);
 	cksum = 0xa6 + msg + rate;
 	for (i = 0; i < 4; i++)
-		ao_serial_putchar(0);
-	ao_serial_putchar((cksum >> 8) & 0x7f);
-	ao_serial_putchar(cksum & 0xff);
-	ao_serial_putchar(0xb0);
-	ao_serial_putchar(0xb3);
+		ao_sirf_putchar(0);
+	ao_sirf_putchar((cksum >> 8) & 0x7f);
+	ao_sirf_putchar(cksum & 0xff);
+	ao_sirf_putchar(0xb0);
+	ao_sirf_putchar(0xb3);
 }
 
 static const uint8_t sirf_disable[] = {
@@ -338,7 +344,7 @@ ao_gps(void) __reentrant
 	for (k = 0; k < 5; k++)
 	{
 		for (i = 0; i < sizeof (ao_gps_config); i++)
-			ao_serial_putchar(ao_gps_config[i]);
+			ao_sirf_putchar(ao_gps_config[i]);
 		for (i = 0; i < sizeof (sirf_disable); i++)
 			ao_sirf_set_message_rate(sirf_disable[i], 0);
 		ao_sirf_set_message_rate(41, 1);

@@ -54,7 +54,6 @@ CC1111_SRC = \
 	ao_radio.c \
 	ao_romconfig.c \
 	ao_serial.c \
-	ao_serial0.c \
 	ao_string.c \
 	ao_timer.c \
 	ao_usb.c \

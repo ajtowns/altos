@@ -26,14 +26,14 @@
 	#define HAS_SERIAL_1_ALT_1	1
 	#define HAS_SERIAL_1_ALT_2	0
 	#define HAS_SERIAL_1_HW_FLOW	1
-	#define USE_SERIAL_STDIN	1
+	#define USE_SERIAL_1_STDIN	1
 	#define HAS_SERIAL_0		1
 	#define HAS_SERIAL_0_ALT_1	0
 	#define HAS_SERIAL_0_ALT_2	1
 	#define HAS_SERIAL_0_HW_FLOW	0
 	#define HAS_ADC			0
 	#define HAS_DBG			1
-	#define HAS_EEPROM		0
+	#define HAS_EEPROM		1
 	#define HAS_LOG			0
 	#define USE_INTERNAL_FLASH	1
 	#define HAS_BTM			1
@@ -126,10 +126,6 @@
 
 #ifndef HAS_SERIAL_1
 #error Please define HAS_SERIAL_1
-#endif
-
-#ifndef USE_SERIAL_STDIN
-#error Please define USE_SERIAL_STDIN
 #endif
 
 #ifndef HAS_ADC

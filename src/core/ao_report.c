@@ -16,6 +16,8 @@
  */
 
 #include "ao.h"
+#include <ao_flight.h>
+#include <ao_sample.h>
 
 #define BIT(i,x)    	   ((x) ? (1 << (i)) : 0)
 #define MORSE1(a)          (1 | BIT(3,a))

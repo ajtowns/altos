@@ -23,7 +23,7 @@ ao_ardu_serial_recv(void)
 	char	c;
 
 	for (;;) {
-		if (ao_fifo_empty(ao_usart0_rx_fifo))
+		if (ao_fifo_empty(ao_serial0_rx_fifo))
 			flush();
 		c = ao_serial0_getchar();
 		putchar (c);
@@ -35,6 +35,5 @@ static __xdata struct ao_task ao_ardu_serial_recv_task;
 void
 ao_ardu_serial_init (void)
 {
-	ao_serial0_init();
 	ao_add_task(&ao_ardu_serial_recv_task, ao_ardu_serial_recv, "recv");
 }

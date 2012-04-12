@@ -261,15 +261,15 @@ ao_usb_ep0_setup(void)
 		break;
 	case AO_USB_TYPE_CLASS:
 		switch (ao_usb_setup.request) {
-		case SET_LINE_CODING:
+		case AO_USB_SET_LINE_CODING:
 			ao_usb_ep0_out_len = 7;
 			ao_usb_ep0_out_data = (__xdata uint8_t *) &ao_usb_line_coding;
 			break;
-		case GET_LINE_CODING:
+		case AO_USB_GET_LINE_CODING:
 			ao_usb_ep0_in_len = 7;
 			ao_usb_ep0_in_data = (uint8_t *) &ao_usb_line_coding;
 			break;
-		case SET_CONTROL_LINE_STATE:
+		case AO_USB_SET_CONTROL_LINE_STATE:
 			break;
 		}
 		break;

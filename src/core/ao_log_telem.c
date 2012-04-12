@@ -15,7 +15,9 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "ao.h"
+#include <ao.h>
+#include <ao_flight.h>
+#include <ao_sample.h>
 
 __code uint8_t ao_log_format = AO_LOG_FORMAT_TELEMETRY;
 

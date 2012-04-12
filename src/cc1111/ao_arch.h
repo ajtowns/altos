@@ -294,4 +294,34 @@ ao_dma_abort(uint8_t id);
 void
 ao_dma_isr(void) ao_arch_interrupt(8);
 
+/* ao_adc.c */
+
+#if HAS_ADC
+/* The A/D interrupt handler */
+void
+ao_adc_isr(void) ao_arch_interrupt(1);
+#endif
+
+#if HAS_USB
+/* USB interrupt handler */
+void
+ao_usb_isr(void) ao_arch_interrupt(6);
+#endif
+
+#if HAS_SERIAL_0
+void
+ao_serial0_rx_isr(void) ao_arch_interrupt(2);
+
+void
+ao_serial0_tx_isr(void) ao_arch_interrupt(7);
+#endif
+
+#if HAS_SERIAL_1
+void
+ao_serial1_rx_isr(void) ao_arch_interrupt(3);
+
+void
+ao_serial1_tx_isr(void) ao_arch_interrupt(14);
+#endif
+
 #endif /* _AO_ARCH_H_ */

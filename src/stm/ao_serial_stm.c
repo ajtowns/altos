@@ -249,7 +249,7 @@ ao_serial2_set_speed(uint8_t speed)
 
 struct ao_stm_usart ao_stm_usart3;
 
-void stm_usart3_isr(void) { ao_usart_isr(&ao_stm_usart3, USE_SERIAL_3_STDIN); }
+void stm_usart3_isr(void) { ao_usart_isr(&ao_stm_usart3, USE_SERIAL_2_STDIN); }
 
 char
 ao_serial3_getchar(void)

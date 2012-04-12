@@ -70,26 +70,26 @@ __code __at(0x00aa) uint8_t ao_usb_descriptors [] =
 
 	/* Header functional descriptor */
 	0x05,
-	CS_INTERFACE,
+	AO_USB_CS_INTERFACE,
 	0x00,			/*  bDescriptor SubType Header */
 	LE_WORD(0x0110),	/*  CDC version 1.1 */
 
 	/* Call management functional descriptor */
 	0x05,
-	CS_INTERFACE,
+	AO_USB_CS_INTERFACE,
 	0x01,			/* bDescriptor SubType Call Management */
 	0x01,			/* bmCapabilities = device handles call management */
 	0x01,			/* bDataInterface call management interface number */
 
 	/* ACM functional descriptor */
 	0x04,
-	CS_INTERFACE,
+	AO_USB_CS_INTERFACE,
 	0x02,			/* bDescriptor SubType Abstract Control Management */
 	0x02,			/* bmCapabilities = D1 (Set_line_Coding, Set_Control_Line_State, Get_Line_Coding and Serial_State) */
 
 	/* Union functional descriptor */
 	0x05,
-	CS_INTERFACE,
+	AO_USB_CS_INTERFACE,
 	0x06,			/* bDescriptor SubType Union Functional descriptor */
 	0x00,			/* bMasterInterface */
 	0x01,			/* bSlaveInterface0 */

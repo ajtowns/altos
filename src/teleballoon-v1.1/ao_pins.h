@@ -30,7 +30,6 @@
 	#define HAS_BEEP		1
 	#define HAS_GPS			1
 	#define HAS_SERIAL_1		1
-	#define USE_SERIAL_STDIN	0
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1
 	#define HAS_LOG			1
@@ -125,10 +124,6 @@
 
 #ifndef HAS_SERIAL_1
 #error Please define HAS_SERIAL_1
-#endif
-
-#ifndef USE_SERIAL_STDIN
-#error Please define USE_SERIAL_STDIN
 #endif
 
 #ifndef HAS_ADC

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2009 Keith Packard <keithp@keithp.com>
+ * Copyright © 2012 Keith Packard <keithp@keithp.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,42 @@
 
 #ifndef _AO_USB_H_
 #define _AO_USB_H_
+
+/*
+ * ao_usb.c
+ */
+
+/* Put one character to the USB output queue */
+void
+ao_usb_putchar(char c);
+
+/* Get one character from the USB input queue */
+char
+ao_usb_getchar(void);
+
+/* Poll for a charcter on the USB input queue.
+ * returns AO_READ_AGAIN if none are available
+ */
+char
+ao_usb_pollchar(void);
+
+/* Flush the USB output queue */
+void
+ao_usb_flush(void);
+
+/* Enable the USB controller */
+void
+ao_usb_enable(void);
+
+/* Disable the USB controller */
+void
+ao_usb_disable(void);
+
+/* Initialize the USB system */
+void
+ao_usb_init(void);
+
+extern __code __at (0x00aa) uint8_t ao_usb_descriptors [];
 
 #define AO_USB_SETUP_DIR_MASK	(0x01 << 7)
 #define AO_USB_SETUP_TYPE_MASK	(0x03 << 5)
@@ -61,15 +97,15 @@
 #define AO_USB_GET_DESC_INDEX(x)	((x)&0xFF)
 
 #define AO_USB_CONTROL_EP	0
+#define AO_USB_CONTROL_SIZE	32
+
 #define AO_USB_INT_EP		1
+#define AO_USB_INT_SIZE		8
+
 #define AO_USB_OUT_EP		4
 #define AO_USB_IN_EP		5
-#define AO_USB_CONTROL_SIZE	32
 /*
- * Double buffer IN and OUT EPs, so each
- * gets half of the available space
- *
- * Ah, but USB bulk packets can only come in 8, 16, 32 and 64
+ * USB bulk packets can only come in 8, 16, 32 and 64
  * byte sizes, so we'll use 64 for everything
  */
 #define AO_USB_IN_SIZE		64
@@ -82,12 +118,12 @@
 #define LE_WORD(x)    ((x)&0xFF),((uint8_t) (((uint16_t) (x))>>8))
 
 /* CDC definitions */
-#define CS_INTERFACE      0x24
-#define CS_ENDPOINT       0x25
+#define AO_USB_CS_INTERFACE      	0x24
+#define AO_USB_CS_ENDPOINT       	0x25
 
-#define SET_LINE_CODING         0x20
-#define GET_LINE_CODING         0x21
-#define SET_CONTROL_LINE_STATE  0x22
+#define AO_USB_SET_LINE_CODING		0x20
+#define AO_USB_GET_LINE_CODING		0x21
+#define AO_USB_SET_CONTROL_LINE_STATE	0x22
 
 /* Data structure for GET_LINE_CODING / SET_LINE_CODING class requests */
 struct ao_usb_line_coding {

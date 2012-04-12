@@ -21,7 +21,7 @@
 #ifdef AVR_DEMO
 	#define AO_LED_RED		(1<<7)
 	#define LEDS_AVAILABLE		(AO_LED_RED)
-	#define USE_SERIAL_STDIN	1
+	#define USE_SERIAL_1_STDIN	1
 	#define HAS_USB			1
 	#define PACKET_HAS_SLAVE	0
 	#define HAS_SERIAL_1		1
@@ -37,11 +37,11 @@
 	#define HAS_USB			1
 	#define HAS_LOG			1
 	#define TEENSY			0
-	#define USE_SERIAL_STDIN	0
 	#define HAS_SERIAL_1		0
 	#define HAS_ADC			1
 	#define PACKET_HAS_SLAVE	0
 	#define HAS_BEEP		0
+	#define HAS_EEPROM		1
 	#define HAS_STORAGE_DEBUG	0
 
 	#define AVR_VCC_5V	       	0
@@ -66,7 +66,7 @@
 	#define HAS_USB			1
 	#define HAS_LOG			0
 	#define TEENSY			0
-	#define USE_SERIAL_STDIN	1
+	#define USE_SERIAL_1_STDIN	1
 	#define HAS_SERIAL_1		1
 	#define HAS_USB			1
 	#define HAS_ADC			1
@@ -87,5 +87,14 @@
 
 #define AO_M25_SPI_CS_PORT	SPI_CS_PORT
 #define AO_M25_SPI_CS_MASK	M25_CS_MASK
+
+#define AO_TELESCIENCE_NUM_ADC	12
+
+struct ao_adc {
+	uint16_t	tick;		/* tick when the sample was read */
+	uint16_t	adc[AO_TELESCIENCE_NUM_ADC];	/* samples */
+};
+
+#define AO_ADC_RING	16
 
 #endif /* _AO_PINS_H_ */

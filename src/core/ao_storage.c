@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "ao.h"
+#include <ao.h>
 
 uint8_t
 ao_storage_read(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant

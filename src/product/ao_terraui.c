@@ -16,6 +16,7 @@
  */
 
 #include "ao.h"
+#include <ao_flight.h>
 #include <math.h>
 
 static __xdata struct ao_telemetry_sensor		ao_tel_sensor;

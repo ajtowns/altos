@@ -17,6 +17,13 @@
 
 #include "ao.h"
 
+#ifndef ao_serial_btm_getchar
+#define ao_serial_btm_putchar	ao_serial1_putchar
+#define ao_serial_btm_pollchar	ao_serial1_pollchar
+#define ao_serial_btm_set_speed ao_serial1_set_speed
+#define ao_serial_btm_drain	ao_serial1_drain
+#endif
+
 int8_t			ao_btm_stdio;
 __xdata uint8_t		ao_btm_connected;
 
@@ -80,9 +87,9 @@ ao_btm_speed(void)
 {
 	ao_cmd_decimal();
 	if (ao_cmd_lex_u32 == 57600)
-		ao_serial_set_speed(AO_SERIAL_SPEED_57600);
+		ao_serial_btm_set_speed(AO_SERIAL_SPEED_57600);
 	else if (ao_cmd_lex_u32 == 19200)
-		ao_serial_set_speed(AO_SERIAL_SPEED_19200);
+		ao_serial_btm_set_speed(AO_SERIAL_SPEED_19200);
 	else
 		ao_cmd_status = ao_cmd_syntax_error;
 }
@@ -104,8 +111,6 @@ __code struct ao_cmds ao_btm_cmds[] = {
 #define AO_BTM_MAX_REPLY	16
 __xdata char		ao_btm_reply[AO_BTM_MAX_REPLY];
 
-extern volatile __xdata struct ao_fifo	ao_usart1_rx_fifo;
-
 /*
  * Read a line of data from the serial port, truncating
  * it after a few characters.
@@ -119,7 +124,7 @@ ao_btm_get_line(void)
 
 	for (;;) {
 
-		while ((c = ao_serial_pollchar()) != AO_READ_AGAIN) {
+		while ((c = ao_serial_btm_pollchar()) != AO_READ_AGAIN) {
 			ao_btm_log_in_char(c);
 			if (ao_btm_reply_len < sizeof (ao_btm_reply))
 				ao_btm_reply[ao_btm_reply_len++] = c;
@@ -128,7 +133,7 @@ ao_btm_get_line(void)
 		}
 		for (c = 0; c < 10; c++) {
 			ao_delay(AO_MS_TO_TICKS(10));
-			if (!ao_fifo_empty(ao_usart1_rx_fifo))
+			if (!ao_fifo_empty(ao_serial1_rx_fifo))
 				break;
 		}
 		if (c == 10)
@@ -168,7 +173,7 @@ void
 ao_btm_putchar(char c)
 {
 	ao_btm_log_out_char(c);
-	ao_serial_putchar(c);
+	ao_serial_btm_putchar(c);
 	ao_delay(1);
 }
 
@@ -229,8 +234,8 @@ ao_btm_set_name(void)
 uint8_t
 ao_btm_try_speed(uint8_t speed)
 {
-	ao_serial_set_speed(speed);
-	ao_btm_drain();
+	ao_serial_btm_set_speed(speed);
+	ao_serial_btm_drain();
 	(void) ao_btm_cmd("\rATE0\rATQ0\r");
 	if (ao_btm_cmd("AT\r") == 1)
 		return 1;
@@ -274,8 +279,8 @@ ao_btm(void)
 	/* Turn off status reporting */
 	ao_btm_cmd("ATQ1\r");
 
-	ao_btm_stdio = ao_add_stdio(ao_serial_pollchar,
-				    ao_serial_putchar,
+	ao_btm_stdio = ao_add_stdio(ao_serial_btm_pollchar,
+				    ao_serial_btm_putchar,
 				    NULL);
 	ao_btm_echo(0);
 
@@ -341,7 +346,8 @@ void
 ao_btm_init (void)
 {
 	ao_serial_init();
-	ao_serial_set_speed(AO_SERIAL_SPEED_19200);
+
+	ao_serial_btm_set_speed(AO_SERIAL_SPEED_19200);
 
 #if BT_LINK_ON_P1
 	/*

@@ -17,7 +17,9 @@
 
 #include "ao.h"
 
+#if 0
 __code uint8_t ao_log_format = AO_LOG_FORMAT_NONE;	/* until we actually log stuff */
+#endif
 
 void
 main(void)
@@ -43,6 +45,7 @@ main(void)
 	ao_aes_init();
 	ao_radio_cmac_init();
 #endif
+	ao_serial_init();
 	ao_ardu_serial_init();
 	ao_config_init();
 	ao_start_scheduler();

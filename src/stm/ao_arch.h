@@ -181,8 +181,6 @@ void ao_lcd_font_init(void);
 
 void ao_lcd_font_string(char *s);
 
-#define USE_SERIAL_STDIN	(USE_SERIAL_1_STDIN + USE_SERIAL_2_STDIN + USE_SERIAL_3_STDIN)
-
 char
 ao_serial1_getchar(void);
 

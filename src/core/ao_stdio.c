@@ -21,6 +21,12 @@
  * Basic I/O functions to support SDCC stdio package
  */
 
+#ifdef SERIAL_STDIN_PORT
+#define USE_SERIAL_STDIN 1
+#else
+#define USE_SERIAL_STDIN 0
+#endif
+
 #define AO_NUM_STDIOS	(HAS_USB + PACKET_HAS_SLAVE + USE_SERIAL_STDIN)
 
 __xdata struct ao_stdio ao_stdios[AO_NUM_STDIOS];

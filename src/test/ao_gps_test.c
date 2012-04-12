@@ -317,7 +317,7 @@ static uint8_t	sirf_in_message[4096];
 static int	sirf_in_len;
 
 char
-ao_serial_getchar(void)
+ao_serial1_getchar(void)
 {
 	char	c;
 	uint8_t	uc;
@@ -351,7 +351,7 @@ ao_serial_getchar(void)
 
 
 void
-ao_serial_putchar(char c)
+ao_serial1_putchar(char c)
 {
 	int	i;
 	uint8_t	uc = (uint8_t) c;
@@ -388,7 +388,7 @@ ao_serial_putchar(char c)
 #define AO_SERIAL_SPEED_57600	1
 
 static void
-ao_serial_set_speed(uint8_t speed)
+ao_serial1_set_speed(uint8_t speed)
 {
 	int	fd = ao_gps_fd;
 	struct termios	termios;

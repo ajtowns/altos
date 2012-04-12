@@ -20,15 +20,15 @@
 #endif
 
 #ifndef ao_gps_getchar
-#define ao_gps_getchar	ao_serial_getchar
+#define ao_gps_getchar	ao_serial1_getchar
 #endif
 
 #ifndef ao_gps_putchar
-#define ao_gps_putchar	ao_serial_putchar
+#define ao_gps_putchar	ao_serial1_putchar
 #endif
 
 #ifndef ao_gps_set_speed
-#define ao_gps_set_speed	ao_serial_set_speed
+#define ao_gps_set_speed	ao_serial1_set_speed
 #endif
 
 __xdata uint8_t ao_gps_mutex;
