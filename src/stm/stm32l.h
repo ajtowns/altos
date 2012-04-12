@@ -289,7 +289,7 @@ struct stm_rcc {
 
 	vuint32_t	ahbrstr;
 	vuint32_t	apb2rstr;
-	vuint32_t	abp1rstr;
+	vuint32_t	apb1rstr;
 	vuint32_t	ahbenr;
 
 	vuint32_t	apb2enr;
@@ -851,6 +851,25 @@ isr(tim7)
 #define STM_ISR_USB_FS_WKUP_POS		42
 #define STM_ISR_TIM6_POS		43
 #define STM_ISR_TIM7_POS		44
+
+struct stm_syscfg {
+	vuint32_t	memrmp;
+	vuint32_t	pmc;
+	vuint32_t	exticr1;
+	vuint32_t	exticr2;
+	vuint32_t	exticr3;
+	vuint32_t	exticr4;
+};
+
+extern struct stm_syscfg stm_syscfg;
+
+#define STM_SYSCFG_MEMRMP_MEM_MODE	0
+#define  STM_SYSCFG_MEMRMP_MEM_MODE_MAIN_FLASH		0
+#define  STM_SYSCFG_MEMRMP_MEM_MODE_SYSTEM_FLASH	1
+#define  STM_SYSCFG_MEMRMP_MEM_MODE_SRAM		3
+#define  STM_SYSCFG_MEMRMP_MEM_MODE_MASK		3
+
+#define STM_SYSCFG_PMC_USB_PU		0
 
 struct stm_dma_channel {
 	vuint32_t	ccr;
@@ -1457,5 +1476,117 @@ extern struct stm_tim234 stm_tim2, stm_tim3, stm_tim4;
 #define STM_TIM234_CCER_CC1NP	3
 #define STM_TIM234_CCER_CC1P	1
 #define STM_TIM234_CCER_CC1E	0
+
+struct stm_usb {
+	vuint32_t	epr[8];
+	uint8_t		reserved_20[0x40 - 0x20];
+	vuint32_t	cntr;
+	vuint32_t	istr;
+	vuint32_t	fnr;
+	vuint32_t	daddr;
+	vuint32_t	btable;
+};
+
+#define STM_USB_EPR_CTR_RX	15
+#define  STM_USB_EPR_CTR_RX_WRITE_INVARIANT		1
+#define STM_USB_EPR_DTOG_RX	14
+#define STM_USB_EPR_DTOG_RX_WRITE_INVARIANT		0
+#define STM_USB_EPR_STAT_RX	12
+#define  STM_USB_EPR_STAT_RX_DISABLED			0
+#define  STM_USB_EPR_STAT_RX_STALL			1
+#define  STM_USB_EPR_STAT_RX_NAK			2
+#define  STM_USB_EPR_STAT_RX_VALID			3
+#define  STM_USB_EPR_STAT_RX_MASK			3
+#define  STM_USB_EPR_STAT_RX_WRITE_INVARIANT		0
+#define STM_USB_EPR_SETUP	11
+#define STM_USB_EPR_EP_TYPE	9
+#define  STM_USB_EPR_EP_TYPE_BULK			0
+#define  STM_USB_EPR_EP_TYPE_CONTROL			1
+#define  STM_USB_EPR_EP_TYPE_ISO			2
+#define  STM_USB_EPR_EP_TYPE_INTERRUPT			3
+#define  STM_USB_EPR_EP_TYPE_MASK			3
+#define STM_USB_EPR_EP_KIND	8
+#define  STM_USB_EPR_EP_KIND_DBL_BUF			1	/* Bulk */
+#define  STM_USB_EPR_EP_KIND_STATUS_OUT			1	/* Control */
+#define STM_USB_EPR_CTR_TX	7
+#define  STM_USB_CTR_TX_WRITE_INVARIANT			1
+#define STM_USB_EPR_DTOG_TX	6
+#define  STM_USB_EPR_DTOG_TX_WRITE_INVARIANT		0
+#define STM_USB_EPR_STAT_TX	4
+#define  STM_USB_EPR_STAT_TX_DISABLED			0
+#define  STM_USB_EPR_STAT_TX_STALL			1
+#define  STM_USB_EPR_STAT_TX_NAK			2
+#define  STM_USB_EPR_STAT_TX_VALID			3
+#define  STM_USB_EPR_STAT_TX_WRITE_INVARIANT		0
+#define  STM_USB_EPR_STAT_TX_MASK			3
+#define STM_USB_EPR_EA		0
+#define  STM_USB_EPR_EA_MASK				0xf
+
+#define STM_USB_CNTR_CTRM	15
+#define STM_USB_CNTR_PMAOVRM	14
+#define STM_USB_CNTR_ERRM	13
+#define STM_USB_CNTR_WKUPM	12
+#define STM_USB_CNTR_SUSPM	11
+#define STM_USB_CNTR_RESETM	10
+#define STM_USB_CNTR_SOFM	9
+#define STM_USB_CNTR_ESOFM	8
+#define STM_USB_CNTR_RESUME	4
+#define STM_USB_CNTR_FSUSP	3
+#define STM_USB_CNTR_LP_MODE	2
+#define STM_USB_CNTR_PDWN	1
+#define STM_USB_CNTR_FRES	0
+
+#define STM_USB_ISTR_CTR	15
+#define STM_USB_ISTR_PMAOVR	14
+#define STM_USB_ISTR_ERR	13
+#define STM_USB_ISTR_WKUP	12
+#define STM_USB_ISTR_SUSP	11
+#define STM_USB_ISTR_RESET	10
+#define STM_USB_ISTR_SOF	9
+#define STM_USB_ISTR_ESOF	8
+#define STM_USB_ISTR_DIR	4
+#define STM_USB_ISTR_EP_ID	0
+#define  STM_USB_ISTR_EP_ID_MASK		0xf
+
+#define STM_USB_FNR_RXDP	15
+#define STM_USB_FNR_RXDM	14
+#define STM_USB_FNR_LCK		13
+#define STM_USB_FNR_LSOF	11
+#define  STM_USB_FNR_LSOF_MASK			0x3
+#define STM_USB_FNR_FN		0
+#define  STM_USB_FNR_FN_MASK			0x7ff
+
+#define STM_USB_DADDR_EF	7
+#define STM_USB_DADDR_ADD	0
+#define  STM_USB_DADDR_ADD_MASK			0x7f
+
+extern struct stm_usb stm_usb;
+
+union stm_usb_bdt {
+	struct {
+		vuint32_t	addr_tx;
+		vuint32_t	count_tx;
+		vuint32_t	addr_rx;
+		vuint32_t	count_rx;
+	} single;
+	struct {
+		vuint32_t	addr;
+		vuint32_t	count;
+	} double_tx[2];
+	struct {
+		vuint32_t	addr;
+		vuint32_t	count;
+	} double_rx[2];
+};
+
+#define STM_USB_BDT_COUNT_RX_BL_SIZE	15
+#define STM_USB_BDT_COUNT_RX_NUM_BLOCK	10
+#define  STM_USB_BDT_COUNT_RX_NUM_BLOCK_MASK	0x1f
+#define STM_USB_BDT_COUNT_RX_COUNT_RX	0
+#define  STM_USB_BDT_COUNT_RX_COUNT_RX_MASK	0x1ff
+
+#define STM_USB_BDT_SIZE	8
+
+extern uint8_t stm_usb_sram[];
 
 #endif /* _STM32L_H_ */
