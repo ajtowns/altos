@@ -15,8 +15,9 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "ao.h"
-#include "ao_product.h"
+#include <ao.h>
+#include <ao_product.h>
+#include <ao_companion.h>
 
 struct ao_companion_command	ao_companion_command;
 

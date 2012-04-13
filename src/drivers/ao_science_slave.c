@@ -18,6 +18,7 @@
 #include "ao.h"
 #include "ao_product.h"
 #include "ao_flight.h"
+#include "ao_companion.h"
 
 struct ao_companion_command	ao_companion_command;
 

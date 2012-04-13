@@ -17,6 +17,8 @@
 
 #include "ao.h"
 #include "ao_product.h"
+#include "ao_log.h"
+#include "ao_companion.h"
 
 static uint8_t	ao_log_adc_pos;
 

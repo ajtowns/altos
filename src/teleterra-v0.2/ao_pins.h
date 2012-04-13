@@ -25,6 +25,7 @@
 	#define HAS_GPS			1
 	#define HAS_SERIAL_1		1
 	#define HAS_ADC			0
+	#define HAS_LCD			1
 	#define HAS_EEPROM		1
 	#define HAS_LOG			1
 	#define USE_INTERNAL_FLASH	0

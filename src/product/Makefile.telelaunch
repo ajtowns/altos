@@ -39,8 +39,6 @@ CC1111_SRC = \
 	ao_ignite.c \
 	ao_intflash.c \
 	ao_led.c \
-	ao_packet.c \
-	ao_packet_slave.c \
 	ao_radio.c \
 	ao_radio_cmac.c \
 	ao_romconfig.c \

@@ -900,200 +900,25 @@ struct ao_fifo {
 #define ao_fifo_full(f)		((((f).insert + 1) & (AO_FIFO_SIZE-1)) == (f).remove)
 #define ao_fifo_empty(f)	((f).insert == (f).remove)
 
-/*
- * ao_packet.c
- *
- * Packet-based command interface
- */
-
-#define AO_PACKET_MAX		64
-#define AO_PACKET_SYN		(uint8_t) 0xff
-
-struct ao_packet {
-	uint8_t		addr;
-	uint8_t		len;
-	uint8_t		seq;
-	uint8_t		ack;
-	uint8_t		d[AO_PACKET_MAX];
-	uint8_t		callsign[AO_MAX_CALLSIGN];
-};
-
-struct ao_packet_recv {
-	struct ao_packet	packet;
-	int8_t			rssi;
-	uint8_t			status;
-};
-
-extern __xdata struct ao_packet_recv ao_rx_packet;
-extern __xdata struct ao_packet ao_tx_packet;
-extern __xdata struct ao_task	ao_packet_task;
-extern __xdata uint8_t ao_packet_enable;
-extern __xdata uint8_t ao_packet_master_sleeping;
-extern __pdata uint8_t ao_packet_rx_len, ao_packet_rx_used, ao_packet_tx_used;
-
-void
-ao_packet_send(void);
-
-uint8_t
-ao_packet_recv(void);
-
-void
-ao_packet_flush(void);
-
-void
-ao_packet_putchar(char c) __reentrant;
-
-char
-ao_packet_pollchar(void) __critical;
-
-/* ao_packet_master.c */
-
-void
-ao_packet_master_init(void);
-
-/* ao_packet_slave.c */
-
-void
-ao_packet_slave_start(void);
-
-void
-ao_packet_slave_stop(void);
-
-void
-ao_packet_slave_init(uint8_t enable);
-
-/* ao_btm.c */
-
-/* If bt_link is on P2, this interrupt is shared by USB, so the USB
- * code calls this function. Otherwise, it's a regular ISR.
- */
-
-void
-ao_btm_isr(void)
-#if BT_LINK_ON_P1
-	__interrupt 15
+#if PACKET_HAS_MASTER || PACKET_HAS_SLAVE
+#include <ao_packet.h>
 #endif
-	;
 
-void
-ao_btm_init(void);
+#if HAS_BTM
+#include <ao_btm.h>
+#endif
 
-/* ao_companion.c */
+#if HAS_COMPANION
+#include <ao_companion.h>
+#endif
 
-#define AO_COMPANION_SETUP		1
-#define AO_COMPANION_FETCH		2
-#define AO_COMPANION_NOTIFY		3
-
-struct ao_companion_command {
-	uint8_t		command;
-	uint8_t		flight_state;
-	uint16_t	tick;
-	uint16_t	serial;
-	uint16_t	flight;
-};
-
-struct ao_companion_setup {
-	uint16_t	board_id;
-	uint16_t	board_id_inverse;
-	uint8_t		update_period;
-	uint8_t		channels;
-};
-
-extern __pdata uint8_t				ao_companion_running;
-extern __xdata uint8_t				ao_companion_mutex;
-extern __xdata struct ao_companion_command	ao_companion_command;
-extern __xdata struct ao_companion_setup	ao_companion_setup;
-extern __xdata uint16_t				ao_companion_data[AO_COMPANION_MAX_CHANNELS];
-
-void
-ao_companion_init(void);
-
-/* ao_lcd.c */
-  
-void
-ao_lcd_putchar(uint8_t d);
-
-void
-ao_lcd_putstring(char *string);
-
-void
-ao_lcd_contrast_set(uint8_t contrast);
-
-void
-ao_lcd_clear(void);
-
-void
-ao_lcd_cursor_on(void);
-
-void
-ao_lcd_cursor_off(void);
-
-#define AO_LCD_ADDR(row,col)	((row << 6) | (col))
-
-void
-ao_lcd_goto(uint8_t addr);
-
-void
-ao_lcd_start(void);
-
-void
-ao_lcd_init(void);
-
-/* ao_lcd_port.c */
-
-void
-ao_lcd_port_put_nibble(uint8_t rs, uint8_t d);
-
-void
-ao_lcd_port_init(void);
-
-/* ao_aes.c */
-
-extern __xdata uint8_t ao_aes_mutex;
-
-/* AES keys and blocks are 128 bits */
-
-enum ao_aes_mode {
-	ao_aes_mode_cbc_mac
-};
+#if HAS_LCD
+#include <ao_lcd.h>
+#endif
 
 #if HAS_AES
-void
-ao_aes_isr(void) __interrupt 4;
+#include <ao_aes.h>
 #endif
-
-void
-ao_aes_set_mode(enum ao_aes_mode mode);
-
-void
-ao_aes_set_key(__xdata uint8_t *in);
-
-void
-ao_aes_zero_iv(void);
-
-void
-ao_aes_run(__xdata uint8_t *in,
-	   __xdata uint8_t *out);
-
-void
-ao_aes_init(void);
-
-/* ao_radio_cmac.c */
-
-int8_t
-ao_radio_cmac_send(__xdata void *packet, uint8_t len) __reentrant;
-
-#define AO_RADIO_CMAC_OK	0
-#define AO_RADIO_CMAC_LEN_ERROR	-1
-#define AO_RADIO_CMAC_CRC_ERROR	-2
-#define AO_RADIO_CMAC_MAC_ERROR	-3
-#define AO_RADIO_CMAC_TIMEOUT	-4
-
-int8_t
-ao_radio_cmac_recv(__xdata void *packet, uint8_t len, uint16_t timeout) __reentrant;
-
-void
-ao_radio_cmac_init(void);
 
 /* ao_launch.c */
 
