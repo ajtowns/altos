@@ -100,7 +100,7 @@ __code __at(0x00aa) uint8_t ao_usb_descriptors [] =
 	AO_USB_INT_EP|0x80,	/* bEndpointAddress */
 	0x03,			/* bmAttributes = intr */
 	LE_WORD(8),		/* wMaxPacketSize */
-	0x0A,			/* bInterval */
+	0xff,			/* bInterval */
 
 	/* Data class interface descriptor */
 	0x09,
