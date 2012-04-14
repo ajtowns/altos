@@ -144,6 +144,8 @@ public class AltosConfigTD implements ActionListener {
 		get_int(line, "Radio channel:", radio_channel);
 		if (get_int(line, "Radio cal:", radio_calibration))
 			System.out.printf("got radio cal %d\n", radio_calibration.get());
+		if (get_int(line, "Frequency:", radio_frequency))
+			System.out.printf("got radio freq %d\n", radio_frequency.get());
 		get_int(line, "Radio setting:", radio_setting);
 		get_string(line,"software-version", version);
 		get_string(line,"product", product);
