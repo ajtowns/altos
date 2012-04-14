@@ -21,6 +21,7 @@
 
 #define USB_DEBUG 	0
 #define USB_DEBUG_DATA	0
+#define USB_ECHO	0
 
 #if USB_DEBUG
 #define debug(format, args...)	printf(format, ## args);
@@ -45,34 +46,68 @@ struct ao_usb_setup {
 } ao_usb_setup;
 
 static uint8_t 	ao_usb_ep0_state;
-static const uint8_t * ao_usb_ep0_in_data;
-static uint8_t 	ao_usb_ep0_in_len;
-static uint8_t	ao_usb_ep0_in_pending;
-static uint8_t	ao_usb_ep0_in_buf[2];
-static uint8_t 	ao_usb_ep0_out_len;
-static uint8_t *ao_usb_ep0_out_data;
-static union stm_usb_bdt	*ao_usb_bdt;
-static uint16_t	ao_usb_sram_addr;
-static uint8_t	ao_usb_tx_buffer[AO_USB_IN_SIZE];
-static uint8_t	ao_usb_tx_count;
-static uint8_t	ao_usb_rx_buffer[AO_USB_OUT_SIZE];
-static uint8_t	ao_usb_rx_count, ao_usb_rx_pos;
 
-#define AO_USB_INT_EPR	1
-#define AO_USB_OUT_EPR	2
-#define AO_USB_IN_EPR	3
+/* Pending EP0 IN data */
+static const uint8_t	*ao_usb_ep0_in_data;	/* Remaining data */
+static uint8_t 		ao_usb_ep0_in_len;	/* Remaining amount */
+
+/* Temp buffer for smaller EP0 in data */
+static uint8_t	ao_usb_ep0_in_buf[2];
+
+/* Pending EP0 OUT data */
+static uint8_t *ao_usb_ep0_out_data;
+static uint8_t 	ao_usb_ep0_out_len;
 
 /*
- * Pointers into the USB packet buffer area
+ * Objects allocated in special USB memory
  */
+
+/* Buffer description tables */
+static union stm_usb_bdt	*ao_usb_bdt;
+/* USB address of end of allocated storage */
+static uint16_t	ao_usb_sram_addr;
+
+/* Pointer to ep0 tx/rx buffers in USB memory */
 static uint32_t	*ao_usb_ep0_tx_buffer;
 static uint32_t	*ao_usb_ep0_rx_buffer;
 
+/* Pointer to bulk data tx/rx buffers in USB memory */
 static uint32_t	*ao_usb_in_tx_buffer;
 static uint32_t	*ao_usb_out_rx_buffer;
 
+/* System ram shadow of USB buffer; writing individual bytes is
+ * too much of a pain (sigh) */
+static uint8_t	ao_usb_tx_buffer[AO_USB_IN_SIZE];
+static uint8_t	ao_usb_tx_count;
+
+static uint8_t	ao_usb_rx_buffer[AO_USB_OUT_SIZE];
+static uint8_t	ao_usb_rx_count, ao_usb_rx_pos;
+
+/*
+ * End point register indices
+ */
+
+#define AO_USB_CONTROL_EPR	0
+#define AO_USB_INT_EPR		1
+#define AO_USB_OUT_EPR		2
+#define AO_USB_IN_EPR		3
+
+/* Marks when we don't need to send an IN packet.
+ * This happens only when the last IN packet is not full,
+ * otherwise the host will expect to keep seeing packets.
+ * Send a zero-length packet as required
+ */
 static uint8_t	ao_usb_in_flushed;
+
+/* Marks when we have delivered an IN packet to the hardware
+ * and it has not been received yet. ao_sleep on this address
+ * to wait for it to be delivered.
+ */
 static uint8_t	ao_usb_in_pending;
+
+/* Marks when an OUT packet has been received by the hardware
+ * but not pulled to the shadow buffer.
+ */
 static uint8_t	ao_usb_out_avail;
 static uint8_t	ao_usb_running;
 static uint8_t	ao_usb_configuration;
@@ -140,8 +175,102 @@ ao_usb_set_address(uint8_t address)
 }
 
 /*
+ * Write these values to preserve register contents under HW changes
+ */
+
+#define STM_USB_EPR_INVARIANT	((1 << STM_USB_EPR_CTR_RX) |		\
+				 (STM_USB_EPR_DTOG_RX_WRITE_INVARIANT << STM_USB_EPR_DTOG_RX) | \
+				 (STM_USB_EPR_STAT_RX_WRITE_INVARIANT << STM_USB_EPR_STAT_RX) | \
+				 (1 << STM_USB_EPR_CTR_TX) |		\
+				 (STM_USB_EPR_DTOG_TX_WRITE_INVARIANT << STM_USB_EPR_DTOG_TX) |	\
+				 (STM_USB_EPR_STAT_TX_WRITE_INVARIANT << STM_USB_EPR_STAT_TX))
+
+#define STM_USB_EPR_INVARIANT_MASK	((1 << STM_USB_EPR_CTR_RX) |	\
+					 (STM_USB_EPR_DTOG_RX_MASK << STM_USB_EPR_DTOG_RX) | \
+					 (STM_USB_EPR_STAT_RX_MASK << STM_USB_EPR_STAT_RX) | \
+					 (1 << STM_USB_EPR_CTR_TX) |	\
+					 (STM_USB_EPR_DTOG_TX_MASK << STM_USB_EPR_DTOG_TX) | \
+					 (STM_USB_EPR_STAT_TX_MASK << STM_USB_EPR_STAT_TX))
+
+/*
+ * These bits are purely under sw control, so preserve them in the
+ * register by re-writing what was read
+ */
+#define STM_USB_EPR_PRESERVE_MASK	((STM_USB_EPR_EP_TYPE_MASK << STM_USB_EPR_EP_TYPE) | \
+					 (1 << STM_USB_EPR_EP_KIND) |	\
+					 (STM_USB_EPR_EA_MASK << STM_USB_EPR_EA))
+
+/*
+ * Set the state of the specified endpoint register to a new
+ * value. This is tricky because the bits toggle where the new
+ * value is one, and we need to write invariant values in other
+ * spots of the register. This hardware is strange...
+ */
+static void
+_ao_usb_set_stat_tx(int ep, uint32_t stat_tx)
+{
+	uint32_t	epr_write, epr_old;
+
+	epr_old = epr_write = stm_usb.epr[ep];
+	epr_write &= STM_USB_EPR_PRESERVE_MASK;
+	epr_write |= STM_USB_EPR_INVARIANT;
+	epr_write |= set_toggle(epr_old,
+			      STM_USB_EPR_STAT_TX_MASK << STM_USB_EPR_STAT_TX,
+			      stat_tx << STM_USB_EPR_STAT_TX);
+	stm_usb.epr[ep] = epr_write;
+}
+
+static void
+ao_usb_set_stat_tx(int ep, uint32_t stat_tx)
+{
+	cli();
+	_ao_usb_set_stat_tx(ep, stat_tx);
+	sei();
+}
+
+static void
+ao_usb_set_stat_rx(int ep, uint32_t stat_rx) {
+	uint32_t	epr_write, epr_old;
+
+	cli();
+	epr_write = epr_old = stm_usb.epr[ep];
+	epr_write &= STM_USB_EPR_PRESERVE_MASK;
+	epr_write |= STM_USB_EPR_INVARIANT;
+	epr_write |= set_toggle(epr_old,
+			      STM_USB_EPR_STAT_RX_MASK << STM_USB_EPR_STAT_RX,
+			      stat_rx << STM_USB_EPR_STAT_RX);
+	stm_usb.epr[ep] = epr_write;
+	sei();
+}
+
+/*
  * Set just endpoint 0, for use during startup
  */
+
+static void
+ao_usb_init_ep(uint8_t ep, uint32_t addr, uint32_t type, uint32_t stat_rx, uint32_t stat_tx)
+{
+	uint32_t		epr;
+	cli();
+	epr = stm_usb.epr[ep];
+	epr = ((0 << STM_USB_EPR_CTR_RX) |
+	       (epr & (1 << STM_USB_EPR_DTOG_RX)) |
+	       set_toggle(epr,
+			  (STM_USB_EPR_STAT_RX_MASK << STM_USB_EPR_STAT_RX),
+			  (stat_rx << STM_USB_EPR_STAT_RX)) |
+	       (type << STM_USB_EPR_EP_TYPE) |
+	       (0 << STM_USB_EPR_EP_KIND) |
+	       (0 << STM_USB_EPR_CTR_TX) |
+	       (epr & (1 << STM_USB_EPR_DTOG_TX)) |
+	       set_toggle(epr,
+			  (STM_USB_EPR_STAT_TX_MASK << STM_USB_EPR_STAT_TX),
+			  (stat_tx << STM_USB_EPR_STAT_TX)) |
+	       (addr << STM_USB_EPR_EA));
+	stm_usb.epr[ep] = epr;
+	sei();
+	debug ("writing epr[%d] 0x%08x wrote 0x%08x\n",
+	       ep, epr, stm_usb.epr[ep]);
+}
 
 static void
 ao_usb_set_ep0(void)
@@ -170,44 +299,17 @@ ao_usb_set_ep0(void)
 	ao_usb_ep0_rx_buffer = ao_usb_packet_buffer_addr(ao_usb_sram_addr);
 	ao_usb_sram_addr += AO_USB_CONTROL_SIZE;
 
-	cli();
-	epr = stm_usb.epr[0];
-	epr = ((STM_USB_EPR_CTR_RX_WRITE_INVARIANT << STM_USB_EPR_CTR_RX) |
-	       (STM_USB_EPR_DTOG_RX_WRITE_INVARIANT << STM_USB_EPR_DTOG_RX) |
-	       set_toggle(epr,
-			  (STM_USB_EPR_STAT_RX_MASK << STM_USB_EPR_STAT_RX),
-			  (STM_USB_EPR_STAT_RX_VALID << STM_USB_EPR_STAT_RX)) |
-	       (STM_USB_EPR_EP_TYPE_CONTROL << STM_USB_EPR_EP_TYPE) |
-	       (0 << STM_USB_EPR_EP_KIND) |
-	       (STM_USB_CTR_TX_WRITE_INVARIANT << STM_USB_EPR_CTR_TX) |
-	       (STM_USB_EPR_DTOG_TX_WRITE_INVARIANT << STM_USB_EPR_DTOG_TX) |
-	       set_toggle(epr,
-			  (STM_USB_EPR_STAT_TX_MASK << STM_USB_EPR_STAT_TX),
-			  (STM_USB_EPR_STAT_TX_NAK << STM_USB_EPR_STAT_TX)) |
-	       (AO_USB_CONTROL_EP << STM_USB_EPR_EA));
-	stm_usb.epr[0] = epr;
-	sei();
-	debug ("epr 0 now %x\n", stm_usb.epr[0]);
+	ao_usb_init_ep(AO_USB_CONTROL_EPR, AO_USB_CONTROL_EP,
+		       STM_USB_EPR_EP_TYPE_CONTROL,
+		       STM_USB_EPR_STAT_RX_VALID,
+		       STM_USB_EPR_STAT_TX_NAK);
 
 	/* Clear all of the other endpoints */
 	for (e = 1; e < 8; e++) {
-		cli();
-		epr = stm_usb.epr[e];
-		epr = ((STM_USB_EPR_CTR_RX_WRITE_INVARIANT << STM_USB_EPR_CTR_RX) |
-		       (STM_USB_EPR_DTOG_RX_WRITE_INVARIANT << STM_USB_EPR_DTOG_RX) |
-		       set_toggle(epr,
-				  (STM_USB_EPR_STAT_RX_MASK << STM_USB_EPR_STAT_RX),
-				  (STM_USB_EPR_STAT_RX_DISABLED << STM_USB_EPR_STAT_RX)) |
-		       (STM_USB_EPR_EP_TYPE_CONTROL << STM_USB_EPR_EP_TYPE) |
-		       (0 << STM_USB_EPR_EP_KIND) |
-		       (STM_USB_CTR_TX_WRITE_INVARIANT << STM_USB_EPR_CTR_TX) |
-		       (STM_USB_EPR_DTOG_TX_WRITE_INVARIANT << STM_USB_EPR_DTOG_TX) |
-		       set_toggle(epr,
-				  (STM_USB_EPR_STAT_TX_MASK << STM_USB_EPR_STAT_TX),
-				  (STM_USB_EPR_STAT_TX_DISABLED << STM_USB_EPR_STAT_TX)) |
-		       (0 << STM_USB_EPR_EA));
-		stm_usb.epr[e] = epr;
-		sei();
+		ao_usb_init_ep(e, 0,
+			       STM_USB_EPR_EP_TYPE_CONTROL,
+			       STM_USB_EPR_STAT_RX_DISABLED,
+			       STM_USB_EPR_STAT_TX_DISABLED);
 	}
 
 	ao_usb_set_address(0);
@@ -226,26 +328,12 @@ ao_usb_set_configuration(void)
 	ao_usb_in_tx_buffer = ao_usb_packet_buffer_addr(ao_usb_sram_addr);
 	ao_usb_sram_addr += AO_USB_INT_SIZE;
 
-	cli();
-	epr = stm_usb.epr[AO_USB_INT_EPR];
-	epr = ((0 << STM_USB_EPR_CTR_RX) |
-	       (epr & (1 << STM_USB_EPR_DTOG_RX)) |
-	       set_toggle(epr,
-			  (STM_USB_EPR_STAT_RX_MASK << STM_USB_EPR_STAT_RX),
-			  (STM_USB_EPR_STAT_RX_DISABLED << STM_USB_EPR_STAT_RX)) |
-	       (STM_USB_EPR_EP_TYPE_CONTROL << STM_USB_EPR_EP_TYPE) |
-	       (0 << STM_USB_EPR_EP_KIND) |
-	       (0 << STM_USB_EPR_CTR_TX) |
-	       (epr & (1 << STM_USB_EPR_DTOG_TX)) |
-	       set_toggle(epr,
-			  (STM_USB_EPR_STAT_TX_MASK << STM_USB_EPR_STAT_TX),
-			  (STM_USB_EPR_STAT_TX_NAK << STM_USB_EPR_STAT_TX)) |
-	       (AO_USB_INT_EP << STM_USB_EPR_EA));
-	stm_usb.epr[AO_USB_INT_EPR] = epr;
-	sei();
-	debug ("writing epr[%d] 0x%08x wrote 0x%08x\n",
-	       AO_USB_INT_EPR, epr, stm_usb.epr[AO_USB_INT_EPR]);
-
+	ao_usb_init_ep(AO_USB_INT_EPR,
+		       AO_USB_INT_EP,
+		       STM_USB_EPR_EP_TYPE_INTERRUPT,
+		       STM_USB_EPR_STAT_RX_DISABLED,
+		       STM_USB_EPR_STAT_TX_NAK);
+	
 	/* Set up the OUT end point */
 	ao_usb_bdt[AO_USB_OUT_EPR].single.addr_rx = ao_usb_sram_addr;
 	ao_usb_bdt[AO_USB_OUT_EPR].single.count_rx = ((1 << STM_USB_BDT_COUNT_RX_BL_SIZE) |
@@ -253,25 +341,11 @@ ao_usb_set_configuration(void)
 	ao_usb_out_rx_buffer = ao_usb_packet_buffer_addr(ao_usb_sram_addr);
 	ao_usb_sram_addr += AO_USB_OUT_SIZE;
 
-	cli();
-	epr = stm_usb.epr[AO_USB_OUT_EPR];
-	epr = ((0 << STM_USB_EPR_CTR_RX) |
-	       (epr & (1 <<  STM_USB_EPR_DTOG_RX)) |
-	       set_toggle(epr,
-			  (STM_USB_EPR_STAT_RX_MASK << STM_USB_EPR_STAT_RX),
-			  (STM_USB_EPR_STAT_RX_VALID << STM_USB_EPR_STAT_RX)) |
-	       (STM_USB_EPR_EP_TYPE_CONTROL << STM_USB_EPR_EP_TYPE) |
-	       (0 << STM_USB_EPR_EP_KIND) |
-	       (0 << STM_USB_EPR_CTR_TX) |
-	       (epr & (1 << STM_USB_EPR_DTOG_TX)) |
-	       set_toggle(epr,
-			  (STM_USB_EPR_STAT_TX_MASK << STM_USB_EPR_STAT_TX),
-			  (STM_USB_EPR_STAT_TX_DISABLED << STM_USB_EPR_STAT_TX)) |
-	       (AO_USB_OUT_EP << STM_USB_EPR_EA));
-	stm_usb.epr[AO_USB_OUT_EPR] = epr;
-	sei();
-	debug ("writing epr[%d] 0x%08x wrote 0x%08x\n",
-	       AO_USB_OUT_EPR, epr, stm_usb.epr[AO_USB_OUT_EPR]);
+	ao_usb_init_ep(AO_USB_OUT_EPR,
+		       AO_USB_OUT_EP,
+		       STM_USB_EPR_EP_TYPE_BULK,
+		       STM_USB_EPR_STAT_RX_VALID,
+		       STM_USB_EPR_STAT_TX_DISABLED);
 	
 	/* Set up the IN end point */
 	ao_usb_bdt[AO_USB_IN_EPR].single.addr_tx = ao_usb_sram_addr;
@@ -279,58 +353,20 @@ ao_usb_set_configuration(void)
 	ao_usb_in_tx_buffer = ao_usb_packet_buffer_addr(ao_usb_sram_addr);
 	ao_usb_sram_addr += AO_USB_IN_SIZE;
 
-	cli();
-	epr = stm_usb.epr[AO_USB_IN_EPR];
-	epr = ((0 << STM_USB_EPR_CTR_RX) |
-	       (epr & (1 << STM_USB_EPR_DTOG_RX)) |
-	       set_toggle(epr,
-			  (STM_USB_EPR_STAT_RX_MASK << STM_USB_EPR_STAT_RX),
-			  (STM_USB_EPR_STAT_RX_DISABLED << STM_USB_EPR_STAT_RX)) |
-	       (STM_USB_EPR_EP_TYPE_CONTROL << STM_USB_EPR_EP_TYPE) |
-	       (0 << STM_USB_EPR_EP_KIND) |
-	       (0 << STM_USB_EPR_CTR_TX) |
-	       (epr & (1 << STM_USB_EPR_DTOG_TX)) |
-	       set_toggle(epr,
-			  (STM_USB_EPR_STAT_TX_MASK << STM_USB_EPR_STAT_TX),
-			  (STM_USB_EPR_STAT_TX_NAK << STM_USB_EPR_STAT_TX)) |
-	       (AO_USB_IN_EP << STM_USB_EPR_EA));
-	stm_usb.epr[AO_USB_IN_EPR] = epr;
-	sei();
-	debug ("writing epr[%d] 0x%08x wrote 0x%08x\n",
-	       AO_USB_IN_EPR, epr, stm_usb.epr[AO_USB_IN_EPR]);
+	ao_usb_init_ep(AO_USB_IN_EPR,
+		       AO_USB_IN_EP,
+		       STM_USB_EPR_EP_TYPE_BULK,
+		       STM_USB_EPR_STAT_RX_DISABLED,
+		       STM_USB_EPR_STAT_TX_NAK);
+
 	ao_usb_running = 1;
 }
 
 static uint16_t	control_count;
+static uint16_t int_count;
 static uint16_t	in_count;
 static uint16_t	out_count;
 static uint16_t	reset_count;
-
-/*
- * Write these values to preserve register contents under HW changes
- */
-
-#define STM_USB_EPR_INVARIANT	((1 << STM_USB_EPR_CTR_RX) |		\
-				 (STM_USB_EPR_DTOG_RX_WRITE_INVARIANT << STM_USB_EPR_DTOG_RX) | \
-				 (STM_USB_EPR_STAT_RX_WRITE_INVARIANT << STM_USB_EPR_STAT_RX) | \
-				 (1 << STM_USB_EPR_CTR_TX) |		\
-				 (STM_USB_EPR_DTOG_TX_WRITE_INVARIANT << STM_USB_EPR_DTOG_TX) |	\
-				 (STM_USB_EPR_STAT_TX_WRITE_INVARIANT << STM_USB_EPR_STAT_TX))
-
-#define STM_USB_EPR_INVARIANT_MASK	((1 << STM_USB_EPR_CTR_RX) |	\
-					 (STM_USB_EPR_DTOG_RX_MASK << STM_USB_EPR_DTOG_RX) | \
-					 (STM_USB_EPR_STAT_RX_MASK << STM_USB_EPR_STAT_RX) | \
-					 (1 << STM_USB_EPR_CTR_TX) |	\
-					 (STM_USB_EPR_DTOG_TX_MASK << STM_USB_EPR_DTOG_TX) | \
-					 (STM_USB_EPR_STAT_TX_MASK << STM_USB_EPR_STAT_TX))
-
-/*
- * These bits are purely under sw control, so preserve them in the
- * register by re-writing what was read
- */
-#define STM_USB_EPR_PRESERVE_MASK	((STM_USB_EPR_EP_TYPE_MASK << STM_USB_EPR_EP_TYPE) | \
-					 (1 << STM_USB_EPR_EP_KIND) |	\
-					 (STM_USB_EPR_EA_MASK << STM_USB_EPR_EA))
 
 void
 stm_usb_lp_isr(void)
@@ -379,6 +415,11 @@ stm_usb_lp_isr(void)
 				ao_wakeup(&ao_usb_in_pending);
 			}
 			break;
+		case AO_USB_INT_EPR:
+			++int_count;
+			if (ao_usb_epr_ctr_tx(epr))
+				_ao_usb_set_stat_tx(AO_USB_INT_EPR, STM_USB_EPR_STAT_TX_NAK);
+			break;
 		}
 		return;
 	}
@@ -392,52 +433,10 @@ stm_usb_lp_isr(void)
 }
 
 void
-stm_usb_hp_isr(void)
-{
-	stm_usb_lp_isr();
-}
-
-void
 stm_usb_fs_wkup(void)
 {
 	/* USB wakeup, just clear the bit for now */
 	stm_usb.istr &= ~(1 << STM_USB_ISTR_WKUP);
-}
-
-static struct ao_usb_line_coding ao_usb_line_coding = {115200, 0, 0, 8};
-
-/* Walk through the list of descriptors and find a match
- */
-static void
-ao_usb_get_descriptor(uint16_t value)
-{
-	const uint8_t		*descriptor;
-	uint8_t		type = value >> 8;
-	uint8_t		index = value;
-
-	descriptor = ao_usb_descriptors;
-	while (descriptor[0] != 0) {
-		if (descriptor[1] == type && index-- == 0) {
-			if (type == AO_USB_DESC_CONFIGURATION)
-				ao_usb_ep0_in_len = descriptor[2];
-			else
-				ao_usb_ep0_in_len = descriptor[0];
-			ao_usb_ep0_in_data = descriptor;
-			break;
-		}
-		descriptor += descriptor[0];
-	}
-}
-
-static void
-ao_usb_ep0_set_in_pending(uint8_t in_pending)
-{
-	ao_usb_ep0_in_pending = in_pending;
-
-#if 0
-	if (in_pending)
-		ueienx_0 = ((1 << RXSTPE) | (1 << RXOUTE) | (1 << TXINE));	/* Enable IN interrupt */
-#endif
 }
 
 /* The USB memory holds 16 bit values on 32 bit boundaries
@@ -525,28 +524,6 @@ ao_usb_read(uint8_t *dst, uint32_t *base, uint16_t offset, uint16_t bytes)
 	}
 }
 
-static inline void
-ao_usb_set_stat_tx(int ep, uint32_t stat_tx) {
-	uint32_t	epr_write, epr_old, epr_new, epr_want;
-
-	cli();
-	epr_write = epr_old = stm_usb.epr[ep];
-	epr_write &= STM_USB_EPR_PRESERVE_MASK;
-	epr_write |= STM_USB_EPR_INVARIANT;
-	epr_write |= set_toggle(epr_old,
-			      STM_USB_EPR_STAT_TX_MASK << STM_USB_EPR_STAT_TX,
-			      stat_tx << STM_USB_EPR_STAT_TX);
-	stm_usb.epr[ep] = epr_write;
-	epr_new = stm_usb.epr[ep];
-	sei();
-	epr_want = (epr_old & ~(STM_USB_EPR_STAT_TX_MASK << STM_USB_EPR_STAT_TX)) |
-		(stat_tx << STM_USB_EPR_STAT_TX);
-	if (epr_new != epr_want) {
-		debug ("**** set_stat_tx to %x. old %08x want %08x write %08x new %08x\n",
-		       stat_tx, epr_old, epr_want, epr_write, epr_new);
-	}
-}
-
 /* Send an IN data packet */
 static void
 ao_usb_ep0_flush(void)
@@ -556,52 +533,27 @@ ao_usb_ep0_flush(void)
 	/* Check to see if the endpoint is still busy */
 	if (ao_usb_epr_stat_tx(stm_usb.epr[0]) == STM_USB_EPR_STAT_TX_VALID) {
 		debug("EP0 not accepting IN data\n");
-		ao_usb_ep0_set_in_pending(1);
-	} else {
-		this_len = ao_usb_ep0_in_len;
-		if (this_len > AO_USB_CONTROL_SIZE)
-			this_len = AO_USB_CONTROL_SIZE;
-
-		ao_usb_ep0_in_len -= this_len;
-
-		/* Set IN interrupt enable */
-		if (ao_usb_ep0_in_len == 0 && this_len != AO_USB_CONTROL_SIZE)
-			ao_usb_ep0_set_in_pending(0);
-		else
-			ao_usb_ep0_set_in_pending(1);
-
-		debug_data ("Flush EP0 len %d:", this_len);
-		ao_usb_write(ao_usb_ep0_in_data, ao_usb_ep0_tx_buffer, 0, this_len);
-		debug_data ("\n");
-		ao_usb_ep0_in_data += this_len;
-
-		/* Mark the endpoint as TX valid to send the packet */
-		ao_usb_bdt[0].single.count_tx = this_len;
-		ao_usb_set_stat_tx(0, STM_USB_EPR_STAT_TX_VALID);
-		debug ("queue tx. epr 0 now %08x\n", stm_usb.epr[0]);
+		return;
 	}
-}
 
-static inline void
-ao_usb_set_stat_rx(int ep, uint32_t stat_rx) {
-	uint32_t	epr_write, epr_old, epr_new, epr_want;
+	this_len = ao_usb_ep0_in_len;
+	if (this_len > AO_USB_CONTROL_SIZE)
+		this_len = AO_USB_CONTROL_SIZE;
 
-	cli();
-	epr_write = epr_old = stm_usb.epr[ep];
-	epr_write &= STM_USB_EPR_PRESERVE_MASK;
-	epr_write |= STM_USB_EPR_INVARIANT;
-	epr_write |= set_toggle(epr_old,
-			      STM_USB_EPR_STAT_RX_MASK << STM_USB_EPR_STAT_RX,
-			      stat_rx << STM_USB_EPR_STAT_RX);
-	stm_usb.epr[ep] = epr_write;
-	epr_new = stm_usb.epr[ep];
-	sei();
-	epr_want = (epr_old & ~(STM_USB_EPR_STAT_RX_MASK << STM_USB_EPR_STAT_RX)) |
-		(stat_rx << STM_USB_EPR_STAT_RX);
-	if (epr_new != epr_want) {
-		debug ("**** set_stat_rx to %x. old %08x want %08x write %08x new %08x\n",
-		       stat_rx, epr_old, epr_want, epr_write, epr_new);
-	}
+	if (this_len < AO_USB_CONTROL_SIZE)
+		ao_usb_ep0_state = AO_USB_EP0_IDLE;
+
+	ao_usb_ep0_in_len -= this_len;
+
+	debug_data ("Flush EP0 len %d:", this_len);
+	ao_usb_write(ao_usb_ep0_in_data, ao_usb_ep0_tx_buffer, 0, this_len);
+	debug_data ("\n");
+	ao_usb_ep0_in_data += this_len;
+
+	/* Mark the endpoint as TX valid to send the packet */
+	ao_usb_bdt[AO_USB_CONTROL_EPR].single.count_tx = this_len;
+	ao_usb_set_stat_tx(AO_USB_CONTROL_EPR, STM_USB_EPR_STAT_TX_VALID);
+	debug ("queue tx. epr 0 now %08x\n", stm_usb.epr[AO_USB_CONTROL_EPR]);
 }
 
 /* Read data from the ep0 OUT fifo */
@@ -624,39 +576,87 @@ ao_usb_ep0_fill(void)
 	ao_usb_set_stat_rx(0, STM_USB_EPR_STAT_RX_VALID);
 }
 
-void
-ao_usb_ep0_queue_byte(uint8_t a)
+static void
+ao_usb_ep0_in_reset(void)
 {
-	ao_usb_ep0_in_buf[ao_usb_ep0_in_len++] = a;
+	ao_usb_ep0_in_data = ao_usb_ep0_in_buf;
+	ao_usb_ep0_in_len = 0;
+}
+
+static void
+ao_usb_ep0_in_queue_byte(uint8_t a)
+{
+	if (ao_usb_ep0_in_len < sizeof (ao_usb_ep0_in_buf))
+		ao_usb_ep0_in_buf[ao_usb_ep0_in_len++] = a;
+}
+
+static void
+ao_usb_ep0_in_set(const uint8_t *data, uint8_t len)
+{
+	ao_usb_ep0_in_data = data;
+	ao_usb_ep0_in_len = len;
+}
+
+static void
+ao_usb_ep0_out_set(uint8_t *data, uint8_t len)
+{
+	ao_usb_ep0_out_data = data;
+	ao_usb_ep0_out_len = len;
+}
+
+static void
+ao_usb_ep0_in_start(uint8_t max)
+{
+	/* Don't send more than asked for */
+	if (ao_usb_ep0_in_len > max)
+		ao_usb_ep0_in_len = max;
+	ao_usb_ep0_flush();
+}
+
+static struct ao_usb_line_coding ao_usb_line_coding = {115200, 0, 0, 8};
+
+/* Walk through the list of descriptors and find a match
+ */
+static void
+ao_usb_get_descriptor(uint16_t value)
+{
+	const uint8_t		*descriptor;
+	uint8_t		type = value >> 8;
+	uint8_t		index = value;
+
+	descriptor = ao_usb_descriptors;
+	while (descriptor[0] != 0) {
+		if (descriptor[1] == type && index-- == 0) {
+			uint8_t	len;
+			if (type == AO_USB_DESC_CONFIGURATION)
+				len = descriptor[2];
+			else
+				len = descriptor[0];
+			ao_usb_ep0_in_set(descriptor, len);
+			break;
+		}
+		descriptor += descriptor[0];
+	}
 }
 
 static void
 ao_usb_ep0_setup(void)
 {
 	/* Pull the setup packet out of the fifo */
-	ao_usb_ep0_out_data = (uint8_t *) &ao_usb_setup;
-	ao_usb_ep0_out_len = 8;
+	ao_usb_ep0_out_set((uint8_t *) &ao_usb_setup, 8);
 	ao_usb_ep0_fill();
 	if (ao_usb_ep0_out_len != 0) {
 		debug ("invalid setup packet length\n");
 		return;
 	}
 
-	/* Figure out how to ACK the setup packet */
-	if (ao_usb_setup.dir_type_recip & AO_USB_DIR_IN) {
-		if (ao_usb_setup.length)
-			ao_usb_ep0_state = AO_USB_EP0_DATA_IN;
-		else
-			ao_usb_ep0_state = AO_USB_EP0_IDLE;
-	} else {
-		if (ao_usb_setup.length)
-			ao_usb_ep0_state = AO_USB_EP0_DATA_OUT;
-		else
-			ao_usb_ep0_state = AO_USB_EP0_IDLE;
-	}
+	if ((ao_usb_setup.dir_type_recip & AO_USB_DIR_IN) || ao_usb_setup.length == 0)
+		ao_usb_ep0_state = AO_USB_EP0_DATA_IN;
+	else
+		ao_usb_ep0_state = AO_USB_EP0_DATA_OUT;
 
-	ao_usb_ep0_in_data = ao_usb_ep0_in_buf;
-	ao_usb_ep0_in_len = 0;
+	ao_usb_ep0_in_reset();
+
 	switch(ao_usb_setup.dir_type_recip & AO_USB_SETUP_TYPE_MASK) {
 	case AO_USB_TYPE_STANDARD:
 		debug ("Standard setup packet\n");
@@ -666,8 +666,8 @@ ao_usb_ep0_setup(void)
 			switch(ao_usb_setup.request) {
 			case AO_USB_REQ_GET_STATUS:
 				debug ("get status\n");
-				ao_usb_ep0_queue_byte(0);
-				ao_usb_ep0_queue_byte(0);
+				ao_usb_ep0_in_queue_byte(0);
+				ao_usb_ep0_in_queue_byte(0);
 				break;
 			case AO_USB_REQ_SET_ADDRESS:
 				debug ("set address %d\n", ao_usb_setup.value);
@@ -680,7 +680,7 @@ ao_usb_ep0_setup(void)
 				break;
 			case AO_USB_REQ_GET_CONFIGURATION:
 				debug ("get configuration %d\n", ao_usb_configuration);
-				ao_usb_ep0_queue_byte(ao_usb_configuration);
+				ao_usb_ep0_in_queue_byte(ao_usb_configuration);
 				break;
 			case AO_USB_REQ_SET_CONFIGURATION:
 				ao_usb_configuration = ao_usb_setup.value;
@@ -693,11 +693,11 @@ ao_usb_ep0_setup(void)
 			debug ("Interface setup packet\n");
 			switch(ao_usb_setup.request) {
 			case AO_USB_REQ_GET_STATUS:
-				ao_usb_ep0_queue_byte(0);
-				ao_usb_ep0_queue_byte(0);
+				ao_usb_ep0_in_queue_byte(0);
+				ao_usb_ep0_in_queue_byte(0);
 				break;
 			case AO_USB_REQ_GET_INTERFACE:
-				ao_usb_ep0_queue_byte(0);
+				ao_usb_ep0_in_queue_byte(0);
 				break;
 			case AO_USB_REQ_SET_INTERFACE:
 				break;
@@ -707,8 +707,8 @@ ao_usb_ep0_setup(void)
 			debug ("Endpoint setup packet\n");
 			switch(ao_usb_setup.request) {
 			case AO_USB_REQ_GET_STATUS:
-				ao_usb_ep0_queue_byte(0);
-				ao_usb_ep0_queue_byte(0);
+				ao_usb_ep0_in_queue_byte(0);
+				ao_usb_ep0_in_queue_byte(0);
 				break;
 			}
 			break;
@@ -719,24 +719,23 @@ ao_usb_ep0_setup(void)
 		switch (ao_usb_setup.request) {
 		case AO_USB_SET_LINE_CODING:
 			debug ("set line coding\n");
-			ao_usb_ep0_out_len = 7;
-			ao_usb_ep0_out_data = (uint8_t *) &ao_usb_line_coding;
+			ao_usb_ep0_out_set((uint8_t *) &ao_usb_line_coding, 7);
 			break;
 		case AO_USB_GET_LINE_CODING:
 			debug ("get line coding\n");
-			ao_usb_ep0_in_len = 7;
-			ao_usb_ep0_in_data = (uint8_t *) &ao_usb_line_coding;
+			ao_usb_ep0_in_set((const uint8_t *) &ao_usb_line_coding, 7);
 			break;
 		case AO_USB_SET_CONTROL_LINE_STATE:
 			break;
 		}
 		break;
 	}
-	if (ao_usb_ep0_state != AO_USB_EP0_DATA_OUT) {
-		if (ao_usb_setup.length < ao_usb_ep0_in_len)
-			ao_usb_ep0_in_len = ao_usb_setup.length;
-		ao_usb_ep0_flush();
-	}
+
+	/* If we're not waiting to receive data from the host,
+	 * queue an IN response
+	 */
+	if (ao_usb_ep0_state == AO_USB_EP0_DATA_IN)
+		ao_usb_ep0_in_start(ao_usb_setup.length);
 }
 
 /* End point 0 receives all of the control messages. */
@@ -766,16 +765,24 @@ ao_usb_ep0(void)
 		}
 		if (receive & AO_USB_EP0_GOT_RX_DATA) {
 			debug ("\tgot rx data\n");
-			ao_usb_ep0_fill();
-			ao_usb_ep0_set_in_pending(1);
+			if (ao_usb_ep0_state == AO_USB_EP0_DATA_OUT) {
+				ao_usb_ep0_fill();
+				if (ao_usb_ep0_out_len == 0) {
+					ao_usb_ep0_state = AO_USB_EP0_DATA_IN;
+					ao_usb_ep0_in_start(0);
+				}
+			}
 		}
 		if (receive & AO_USB_EP0_GOT_TX_ACK) {
 			debug ("\tgot tx ack\n");
-			ao_usb_ep0_flush();
-			if (ao_usb_address_pending) {
+
+			/* Wait until the IN packet is received from addr 0
+			 * before assigning our local address
+			 */
+			if (ao_usb_address_pending)
 				ao_usb_set_address(ao_usb_address);
-				ao_usb_set_configuration();
-			}
+			if (ao_usb_ep0_state == AO_USB_EP0_DATA_IN)
+				ao_usb_ep0_flush();
 		}
 	}
 }
@@ -982,7 +989,7 @@ ao_usb_enable(void)
 	stm_syscfg.pmc |= (1 << STM_SYSCFG_PMC_USB_PU);
 }
 
-#if USB_DEBUG
+#if USB_ECHO
 struct ao_task ao_usb_echo_task;
 
 static void
@@ -1001,8 +1008,8 @@ ao_usb_echo(void)
 static void
 ao_usb_irq(void)
 {
-	printf ("control: %d out: %d in: %d reset: %d\n",
-		control_count, out_count, in_count, reset_count);
+	printf ("control: %d out: %d in: %d int: %d reset: %d\n",
+		control_count, out_count, in_count, int_count, reset_count);
 }
 
 __code struct ao_cmds ao_usb_cmds[] = {
@@ -1017,11 +1024,11 @@ ao_usb_init(void)
 
 	debug ("ao_usb_init\n");
 	ao_add_task(&ao_usb_task, ao_usb_ep0, "usb");
-#if USB_DEBUG
+#if USB_ECHO
 	ao_add_task(&ao_usb_echo_task, ao_usb_echo, "usb echo");
 #endif
 	ao_cmd_register(&ao_usb_cmds[0]);
-#if !USB_DEBUG
+#if !USB_ECHO
 	ao_add_stdio(ao_usb_pollchar, ao_usb_putchar, ao_usb_flush);
 #endif
 }
