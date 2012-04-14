@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-DIR=~/src/cc1111/flights
+DIR=~/misc/rockets/flights
 
 bad_baro=0
 bad_full=0
@@ -8,15 +8,15 @@ while read flight description; do
     if ./ao_flight_test_baro -s $DIR/$flight; then
 	:
     else
-	((bad_baro++))
+	: $((bad_baro++))
     fi
     if ./ao_flight_test -s $DIR/$flight; then
 	:
     else
-	((bad_full++))
+	: $((bad_full++))
     fi
 done < test-flights
 echo baro errors $bad_baro
 echo full errors $bad_full
-((bad = bad_baro + bad_full))
+: $((bad = bad_baro + bad_full))
 exit $bad
