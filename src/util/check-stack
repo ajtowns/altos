@@ -6,7 +6,6 @@ HEADER_STACK=`awk '/#define AO_STACK_START/ {print strtonum($3)}' $HEADER`
 MEM_STACK=`awk '/Stack starts at/ {print strtonum ($4)}' $MEM`
 XRAM_END=`awk '/EXTERNAL RAM/ { print strtonum ($4)}' $MEM`
 FLASH_END=`awk '/ROM\/EPROM\/FLASH/ { print strtonum ($3)}' $MEM`
-echo FLASH_END $FLASH_END
 
 if [ "$HEADER_STACK" -lt "$MEM_STACK" ]; then
         echo $MEM_STACK | awk '{ printf ("Set AO_STACK_START to at least 0x%x\n", $1); }'
