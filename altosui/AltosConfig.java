@@ -70,6 +70,7 @@ public class AltosConfig implements ActionListener {
 	int_ref		log_format;
 	int_ref		main_deploy;
 	int_ref		apogee_delay;
+	int_ref		apogee_lockout;
 	int_ref		radio_channel;
 	int_ref		radio_calibration;
 	int_ref		flight_log_max;
@@ -148,6 +149,7 @@ public class AltosConfig implements ActionListener {
 		config_ui.set_version(version.get());
 		config_ui.set_main_deploy(main_deploy.get());
 		config_ui.set_apogee_delay(apogee_delay.get());
+		config_ui.set_apogee_lockout(apogee_lockout.get());
 		config_ui.set_radio_calibration(radio_calibration.get());
 		config_ui.set_radio_frequency(frequency());
 		boolean max_enabled = true;
@@ -188,6 +190,7 @@ public class AltosConfig implements ActionListener {
 		get_int(line, "log-format", log_format);
 		get_int(line, "Main deploy:", main_deploy);
 		get_int(line, "Apogee delay:", apogee_delay);
+		get_int(line, "Apogee lockout:", apogee_lockout);
 		get_int(line, "Radio channel:", radio_channel);
 		get_int(line, "Radio cal:", radio_calibration);
 		get_int(line, "Max flight log:", flight_log_max);
@@ -232,6 +235,7 @@ public class AltosConfig implements ActionListener {
 			log_format.set(Altos.AO_LOG_FORMAT_UNKNOWN);
 			main_deploy.set(250);
 			apogee_delay.set(0);
+			apogee_lockout.set(0);
 			radio_channel.set(0);
 			radio_setting.set(0);
 			radio_frequency.set(0);
@@ -285,6 +289,7 @@ public class AltosConfig implements ActionListener {
 				start_serial();
 				serial_line.printf("c m %d\n", main_deploy.get());
 				serial_line.printf("c d %d\n", apogee_delay.get());
+				serial_line.printf("c L %d\n", apogee_lockout.get());
 				if (!remote)
 					serial_line.printf("c f %d\n", radio_calibration.get());
 				serial_line.set_radio_frequency(frequency,
@@ -422,6 +427,7 @@ public class AltosConfig implements ActionListener {
 
 		main_deploy.set(config_ui.main_deploy());
 		apogee_delay.set(config_ui.apogee_delay());
+		apogee_lockout.set(config_ui.apogee_lockout());
 		radio_calibration.set(config_ui.radio_calibration());
 		set_frequency(config_ui.radio_frequency());
 		flight_log_max.set(config_ui.flight_log_max());
@@ -463,6 +469,7 @@ public class AltosConfig implements ActionListener {
 		log_format = new int_ref(Altos.AO_LOG_FORMAT_UNKNOWN);
 		main_deploy = new int_ref(250);
 		apogee_delay = new int_ref(0);
+		apogee_lockout = new int_ref(0);
 		radio_channel = new int_ref(0);
 		radio_setting = new int_ref(0);
 		radio_frequency = new int_ref(0);
