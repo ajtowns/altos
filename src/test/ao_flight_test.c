@@ -184,6 +184,7 @@ struct ao_config {
 	int16_t		accel_plus_g;
 	int16_t		accel_minus_g;
 	uint8_t		pad_orientation;
+	uint16_t	apogee_lockout;
 };
 
 #define AO_PAD_ORIENTATION_ANTENNA_UP	0
@@ -523,6 +524,9 @@ ao_sleep(void *wchan)
 				ao_config.accel_minus_g = atoi(words[5]);
 			} else if (nword >= 4 && strcmp(words[0], "Main") == 0) {
 				ao_config.main_deploy = atoi(words[2]);
+			} else if (nword >= 3 && strcmp(words[0], "Apogee") == 0 &&
+				   strcmp(words[1], "lockout:") == 0) {
+				ao_config.apogee_lockout = atoi(words[2]);
 			} else if (nword >= 36 && strcmp(words[0], "CALL") == 0) {
 				tick = atoi(words[10]);
 				if (!ao_flight_started) {

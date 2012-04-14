@@ -223,6 +223,17 @@ ao_flight(void)
 #endif
 		case ao_flight_coast:
 
+			/*
+			 * By customer request - allow the user
+			 * to lock out apogee detection for a specified
+			 * number of seconds.
+			 */
+			if (ao_config.apogee_lockout) {
+				if ((ao_sample_tick - ao_boost_tick) <
+				    AO_SEC_TO_TICKS(ao_config.apogee_lockout))
+					break;
+			}
+
 			/* apogee detect: coast to drogue deploy:
 			 *
 			 * speed: < 0
