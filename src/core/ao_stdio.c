@@ -21,11 +21,47 @@
  * Basic I/O functions to support SDCC stdio package
  */
 
-#ifdef SERIAL_STDIN_PORT
-#define USE_SERIAL_STDIN 1
-#else
-#define USE_SERIAL_STDIN 0
+#ifndef USE_SERIAL_0_STDIN
+#define USE_SERIAL_0_STDIN	0
 #endif
+#ifndef USE_SERIAL_1_STDIN
+#define USE_SERIAL_1_STDIN	0
+#endif
+#ifndef USE_SERIAL_2_STDIN
+#define USE_SERIAL_2_STDIN	0
+#endif
+#ifndef USE_SERIAL_3_STDIN
+#define USE_SERIAL_3_STDIN	0
+#endif
+#ifndef USE_SERIAL_4_STDIN
+#define USE_SERIAL_4_STDIN	0
+#endif
+#ifndef USE_SERIAL_5_STDIN
+#define USE_SERIAL_5_STDIN	0
+#endif
+#ifndef USE_SERIAL_6_STDIN
+#define USE_SERIAL_6_STDIN	0
+#endif
+#ifndef USE_SERIAL_7_STDIN
+#define USE_SERIAL_7_STDIN	0
+#endif
+#ifndef USE_SERIAL_8_STDIN
+#define USE_SERIAL_8_STDIN	0
+#endif
+#ifndef USE_SERIAL_9_STDIN
+#define USE_SERIAL_9_STDIN	0
+#endif
+
+#define USE_SERIAL_STDIN (USE_SERIAL_0_STDIN +	\
+			  USE_SERIAL_1_STDIN |	\
+			  USE_SERIAL_2_STDIN |	\
+			  USE_SERIAL_3_STDIN |	\
+			  USE_SERIAL_4_STDIN |	\
+			  USE_SERIAL_5_STDIN |	\
+			  USE_SERIAL_6_STDIN |	\
+			  USE_SERIAL_7_STDIN |	\
+			  USE_SERIAL_8_STDIN |	\
+			  USE_SERIAL_9_STDIN)
 
 #define AO_NUM_STDIOS	(HAS_USB + PACKET_HAS_SLAVE + USE_SERIAL_STDIN)
 
