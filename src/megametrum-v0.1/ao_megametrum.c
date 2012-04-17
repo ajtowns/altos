@@ -15,7 +15,8 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "ao.h"
+#include <ao.h>
+#include <ao_exti.h>
 
 void
 beep(void)
@@ -51,6 +52,8 @@ main(void)
 	ao_adc_init();
 	ao_storage_init();
 	ao_usb_init();
+	ao_exti_init();
+	ao_radio_init();
 	
 	ao_cmd_register(&ao_mm_cmds[0]);
 	ao_start_scheduler();

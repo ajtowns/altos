@@ -16,7 +16,7 @@ ifndef VERSION
 include ../Version
 endif
 
-AO_CFLAGS=-I. -I../stm -I../core -I..
+AO_CFLAGS=-I. -I../stm -I../core -I../drivers -I..
 STM_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m3 -mthumb -ffreestanding -nostdlib $(AO_CFLAGS) $(SAT_CFLAGS)
 
 LDFLAGS=-L../stm -Wl,-Taltos.ld

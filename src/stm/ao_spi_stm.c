@@ -97,6 +97,62 @@ ao_spi_send(void *block, uint16_t len, uint8_t spi_index)
 }
 
 void
+ao_spi_send_fixed(uint8_t value, uint16_t len, uint8_t spi_index)
+{
+	struct stm_spi *stm_spi = ao_spi_stm_info[spi_index].stm_spi;
+	uint8_t	mosi_dma_index = ao_spi_stm_info[spi_index].mosi_dma_index;
+	uint8_t	miso_dma_index = ao_spi_stm_info[spi_index].miso_dma_index;
+
+	/* Set up the transmit DMA to deliver data */
+	ao_dma_set_transfer(mosi_dma_index,
+			    &stm_spi->dr,
+			    &value,
+			    len,
+			    (0 << STM_DMA_CCR_MEM2MEM) |
+			    (STM_DMA_CCR_PL_MEDIUM << STM_DMA_CCR_PL) |
+			    (STM_DMA_CCR_MSIZE_8 << STM_DMA_CCR_MSIZE) |
+			    (STM_DMA_CCR_PSIZE_8 << STM_DMA_CCR_PSIZE) |
+			    (0 << STM_DMA_CCR_MINC) |
+			    (0 << STM_DMA_CCR_PINC) |
+			    (0 << STM_DMA_CCR_CIRC) |
+			    (STM_DMA_CCR_DIR_MEM_TO_PER << STM_DMA_CCR_DIR));
+
+	/* Clear RXNE */
+	(void) stm_spi->dr;
+
+	/* Set up the receive DMA -- when this is done, we know the SPI unit
+	 * is idle. Without this, we'd have to poll waiting for the BSY bit to
+	 * be cleared
+	 */
+	ao_dma_set_transfer(miso_dma_index,
+			    &stm_spi->dr,
+			    &spi_dev_null,
+			    len,
+			    (0 << STM_DMA_CCR_MEM2MEM) |
+			    (STM_DMA_CCR_PL_MEDIUM << STM_DMA_CCR_PL) |
+			    (STM_DMA_CCR_MSIZE_8 << STM_DMA_CCR_MSIZE) |
+			    (STM_DMA_CCR_PSIZE_8 << STM_DMA_CCR_PSIZE) |
+			    (0 << STM_DMA_CCR_MINC) |
+			    (0 << STM_DMA_CCR_PINC) |
+			    (0 << STM_DMA_CCR_CIRC) |
+			    (STM_DMA_CCR_DIR_PER_TO_MEM << STM_DMA_CCR_DIR));
+	stm_spi->cr2 = ((0 << STM_SPI_CR2_TXEIE) |
+			(0 << STM_SPI_CR2_RXNEIE) |
+			(0 << STM_SPI_CR2_ERRIE) |
+			(0 << STM_SPI_CR2_SSOE) |
+			(1 << STM_SPI_CR2_TXDMAEN) |
+			(1 << STM_SPI_CR2_RXDMAEN));
+	ao_dma_start(miso_dma_index);
+	ao_dma_start(mosi_dma_index);
+	ao_arch_critical(
+		while (!ao_dma_done[miso_dma_index])
+			ao_sleep(&ao_dma_done[miso_dma_index]);
+		);
+	ao_dma_done_transfer(mosi_dma_index);
+	ao_dma_done_transfer(miso_dma_index);
+}
+
+void
 ao_spi_recv(void *block, uint16_t len, uint8_t spi_index)
 {
 	struct stm_spi *stm_spi = ao_spi_stm_info[spi_index].stm_spi;
@@ -124,6 +180,63 @@ ao_spi_recv(void *block, uint16_t len, uint8_t spi_index)
 	ao_dma_set_transfer(miso_dma_index,
 			    &stm_spi->dr,
 			    block,
+			    len,
+			    (0 << STM_DMA_CCR_MEM2MEM) |
+			    (STM_DMA_CCR_PL_MEDIUM << STM_DMA_CCR_PL) |
+			    (STM_DMA_CCR_MSIZE_8 << STM_DMA_CCR_MSIZE) |
+			    (STM_DMA_CCR_PSIZE_8 << STM_DMA_CCR_PSIZE) |
+			    (1 << STM_DMA_CCR_MINC) |
+			    (0 << STM_DMA_CCR_PINC) |
+			    (0 << STM_DMA_CCR_CIRC) |
+			    (STM_DMA_CCR_DIR_PER_TO_MEM << STM_DMA_CCR_DIR));
+
+	stm_spi->cr2 = ((0 << STM_SPI_CR2_TXEIE) |
+			(0 << STM_SPI_CR2_RXNEIE) |
+			(0 << STM_SPI_CR2_ERRIE) |
+			(0 << STM_SPI_CR2_SSOE) |
+			(1 << STM_SPI_CR2_TXDMAEN) |
+			(1 << STM_SPI_CR2_RXDMAEN));
+	ao_dma_start(miso_dma_index);
+	ao_dma_start(mosi_dma_index);
+
+	/* Wait until the SPI unit is done */
+	ao_arch_critical(
+		while (!ao_dma_done[miso_dma_index])
+			ao_sleep(&ao_dma_done[miso_dma_index]);
+		);
+
+	ao_dma_done_transfer(mosi_dma_index);
+	ao_dma_done_transfer(miso_dma_index);
+}
+
+void
+ao_spi_duplex(void *out, void *in, uint16_t len, uint8_t spi_index)
+{
+	struct stm_spi *stm_spi = ao_spi_stm_info[spi_index].stm_spi;
+	uint8_t	mosi_dma_index = ao_spi_stm_info[spi_index].mosi_dma_index;
+	uint8_t	miso_dma_index = ao_spi_stm_info[spi_index].miso_dma_index;
+
+	/* Set up transmit DMA to send data */
+	ao_dma_set_transfer(mosi_dma_index,
+			    &stm_spi->dr,
+			    out,
+			    len,
+			    (0 << STM_DMA_CCR_MEM2MEM) |
+			    (STM_DMA_CCR_PL_MEDIUM << STM_DMA_CCR_PL) |
+			    (STM_DMA_CCR_MSIZE_8 << STM_DMA_CCR_MSIZE) |
+			    (STM_DMA_CCR_PSIZE_8 << STM_DMA_CCR_PSIZE) |
+			    (1 << STM_DMA_CCR_MINC) |
+			    (0 << STM_DMA_CCR_PINC) |
+			    (0 << STM_DMA_CCR_CIRC) |
+			    (STM_DMA_CCR_DIR_MEM_TO_PER << STM_DMA_CCR_DIR));
+
+	/* Clear RXNE */
+	(void) stm_spi->dr;
+
+	/* Set up the receive DMA to capture data */
+	ao_dma_set_transfer(miso_dma_index,
+			    &stm_spi->dr,
+			    in,
 			    len,
 			    (0 << STM_DMA_CCR_MEM2MEM) |
 			    (STM_DMA_CCR_PL_MEDIUM << STM_DMA_CCR_PL) |

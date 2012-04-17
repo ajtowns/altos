@@ -101,13 +101,13 @@ stm_ospeedr_get(struct stm_gpio *gpio, int pin) {
 #define STM_PUPDR_RESERVED		3
 
 static inline void
-stm_pupdr_set(struct stm_gpio *gpio, int pin, vuint32_t value) {
+stm_pupdr_set(struct stm_gpio *gpio, int pin, uint32_t value) {
 	gpio->pupdr = ((gpio->pupdr &
 			~(STM_PUPDR_MASK << STM_PUPDR_SHIFT(pin))) |
 		       value << STM_PUPDR_SHIFT(pin));
 }
 	
-static inline vuint32_t
+static inline uint32_t
 stm_pupdr_get(struct stm_gpio *gpio, int pin) {
 	return (gpio->pupdr >> STM_PUPDR_SHIFT(pin)) & STM_PUPDR_MASK;
 }
@@ -1588,5 +1588,17 @@ union stm_usb_bdt {
 #define STM_USB_BDT_SIZE	8
 
 extern uint8_t stm_usb_sram[];
+
+struct stm_exti {
+	vuint32_t	imr;
+	vuint32_t	emr;
+	vuint32_t	rtsr;
+	vuint32_t	ftsr;
+
+	vuint32_t	swier;
+	vuint32_t	pr;
+};
+
+extern struct stm_exti stm_exti;
 
 #endif /* _STM32L_H_ */

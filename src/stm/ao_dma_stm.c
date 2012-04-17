@@ -109,6 +109,7 @@ void
 ao_dma_abort(uint8_t index)
 {
 	stm_dma.channel[index].ccr &= ~(1 << STM_DMA_CCR_EN);
+	ao_wakeup(&ao_dma_done[index]);
 }
 
 void

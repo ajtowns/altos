@@ -32,7 +32,13 @@ void
 ao_spi_send(void *block, uint16_t len, uint8_t spi_index);
 
 void
+ao_spi_send_fixed(uint8_t value, uint16_t len, uint8_t spi_index);
+
+void
 ao_spi_recv(void *block, uint16_t len, uint8_t spi_index);
+
+void
+ao_spi_duplex(void *out, void *in, uint16_t len, uint8_t spi_index);
 
 void
 ao_spi_init(void);
@@ -47,7 +53,7 @@ ao_spi_init(void);
 		ao_spi_put(bus);		\
 	} while (0)
 
-#define ao_stm_enable_port(port) do {					\
+#define ao_enable_port(port) do {					\
 		if (&(port) == &stm_gpioa)				\
 			stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOAEN); \
 		else if (&(port) == &stm_gpiob)				\
@@ -61,29 +67,29 @@ ao_spi_init(void);
 	} while (0)
 
 
-#define ao_stm_enable_cs(port,bit) do {				\
+#define ao_enable_cs(port,bit) do {				\
 		stm_gpio_set(&(port), bit, 1);			\
 		stm_moder_set(&(port), bit, STM_MODER_OUTPUT);	\
 	} while (0)
 
 #define ao_spi_init_cs(port, mask) do {				\
-		ao_stm_enable_port(port);			\
-		if (mask & 0x0001) ao_stm_enable_cs(port, 0);	\
-		if (mask & 0x0002) ao_stm_enable_cs(port, 1);	\
-		if (mask & 0x0004) ao_stm_enable_cs(port, 2);	\
-		if (mask & 0x0008) ao_stm_enable_cs(port, 3);	\
-		if (mask & 0x0010) ao_stm_enable_cs(port, 4);	\
-		if (mask & 0x0020) ao_stm_enable_cs(port, 5);	\
-		if (mask & 0x0040) ao_stm_enable_cs(port, 6);	\
-		if (mask & 0x0080) ao_stm_enable_cs(port, 7);	\
-		if (mask & 0x0100) ao_stm_enable_cs(port, 8);	\
-		if (mask & 0x0200) ao_stm_enable_cs(port, 9);	\
-		if (mask & 0x0400) ao_stm_enable_cs(port, 10);	\
-		if (mask & 0x0800) ao_stm_enable_cs(port, 11);	\
-		if (mask & 0x1000) ao_stm_enable_cs(port, 12);	\
-		if (mask & 0x2000) ao_stm_enable_cs(port, 13);	\
-		if (mask & 0x4000) ao_stm_enable_cs(port, 14);	\
-		if (mask & 0x8000) ao_stm_enable_cs(port, 15);	\
+		ao_enable_port(port);				\
+		if ((mask) & 0x0001) ao_enable_cs(port, 0);	\
+		if ((mask) & 0x0002) ao_enable_cs(port, 1);	\
+		if ((mask) & 0x0004) ao_enable_cs(port, 2);	\
+		if ((mask) & 0x0008) ao_enable_cs(port, 3);	\
+		if ((mask) & 0x0010) ao_enable_cs(port, 4);	\
+		if ((mask) & 0x0020) ao_enable_cs(port, 5);	\
+		if ((mask) & 0x0040) ao_enable_cs(port, 6);	\
+		if ((mask) & 0x0080) ao_enable_cs(port, 7);	\
+		if ((mask) & 0x0100) ao_enable_cs(port, 8);	\
+		if ((mask) & 0x0200) ao_enable_cs(port, 9);	\
+		if ((mask) & 0x0400) ao_enable_cs(port, 10);\
+		if ((mask) & 0x0800) ao_enable_cs(port, 11);\
+		if ((mask) & 0x1000) ao_enable_cs(port, 12);\
+		if ((mask) & 0x2000) ao_enable_cs(port, 13);\
+		if ((mask) & 0x4000) ao_enable_cs(port, 14);\
+		if ((mask) & 0x8000) ao_enable_cs(port, 15);\
 	} while (0)
 
 /* ao_dma_stm.c

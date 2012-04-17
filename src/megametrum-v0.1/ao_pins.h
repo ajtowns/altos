@@ -193,4 +193,17 @@ struct ao_adc {
 #define AO_M25_SPI_CS_MASK	(1 << 3)
 #define AO_M25_SPI_BUS		STM_SPI_INDEX(2)
 
+/*
+ * Radio (cc1120)
+ */
+
+#define AO_CC1120_SPI_CS_PORT	stm_gpioc
+#define AO_CC1120_SPI_CS_PIN	5
+#define AO_CC1120_SPI_BUS	STM_SPI_INDEX(2)
+
+#define AO_CC1120_INT_PORT	stm_gpioc
+#define AO_CC1120_INT_PIN	14
+
+#define AO_CC1120_INT_GPIO	2
+
 #endif /* _AO_PINS_H_ */
