@@ -29,10 +29,16 @@
 		<key>JVMVersion</key>
 		<string>1.5+</string>
 		<key>ClassPath</key>
-			<array>
+		<array>
 			<string>$JAVAROOT/altosui.jar</string>
 			<string>$JAVAROOT/freetts.jar</string>
-			</array>
+		</array>
+		<key>VMOptions</key>
+		<array>
+		  <string>-Xms512M</string>
+		  <string>-Xmx512M</string>
+		  <string>-Dosgi.clean=true</string>
+		</array>
 	</dict>
 </dict>
 </plist>
