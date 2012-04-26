@@ -135,11 +135,21 @@ ao_i2c_start(uint8_t index, uint16_t addr)
 }
 
 void
+ao_i2c_stop(uint8_t index)
+{
+	struct stm_i2c	*stm_i2c = ao_i2c_stm_info[index].stm_i2c;
+	
+	ao_i2c_state[index] = I2C_IDLE;
+	stm_i2c->cr1 = AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_STOP);
+}
+
+void
 ao_i2c_send(void *block, uint16_t len, uint8_t index)
 {
 	struct stm_i2c	*stm_i2c = ao_i2c_stm_info[index].stm_i2c;
 	uint8_t		tx_dma_index = ao_i2c_stm_info[index].tx_dma_index;
 
+	stm_i2c->cr2 &= ~(1 << STM_I2C_CR2_LAST);
 	ao_dma_set_transfer(tx_dma_index,
 			    &stm_i2c->dr,
 			    block,
@@ -159,6 +169,34 @@ ao_i2c_send(void *block, uint16_t len, uint8_t index)
 			ao_sleep(&ao_dma_done[tx_dma_index]);
 		);
 	ao_dma_done_transfer(tx_dma_index);
+}
+
+void
+ao_i2c_recv(void *block, uint16_t len, uint8_t index)
+{
+	struct stm_i2c	*stm_i2c = ao_i2c_stm_info[index].stm_i2c;
+	uint8_t		rx_dma_index = ao_i2c_stm_info[index].rx_dma_index;
+
+	stm_i2c->cr2 |= (1 << STM_I2C_CR2_LAST);
+	ao_dma_set_transfer(rx_dma_index,
+			    &stm_i2c->dr,
+			    block,
+			    len,
+			    (0 << STM_DMA_CCR_MEM2MEM) |
+			    (STM_DMA_CCR_PL_MEDIUM << STM_DMA_CCR_PL) |
+			    (STM_DMA_CCR_MSIZE_8 << STM_DMA_CCR_MSIZE) |
+			    (STM_DMA_CCR_PSIZE_8 << STM_DMA_CCR_PSIZE) |
+			    (1 << STM_DMA_CCR_MINC) |
+			    (0 << STM_DMA_CCR_PINC) |
+			    (0 << STM_DMA_CCR_CIRC) |
+			    (STM_DMA_CCR_DIR_PER_TO_MEM << STM_DMA_CCR_DIR));
+			   
+	ao_dma_start(rx_dma_index);
+	cli();
+	while (!ao_dma_done[rx_dma_index])
+		ao_sleep(&ao_dma_done[rx_dma_index]);
+	sei();
+	ao_dma_done_transfer(rx_dma_index);
 }
 
 void

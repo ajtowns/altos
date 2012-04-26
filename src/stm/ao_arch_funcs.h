@@ -131,6 +131,9 @@ uint8_t
 ao_i2c_start(uint8_t i2c_index, uint16_t address);
 
 void
+ao_i2c_stop(uint8_t i2c_index);
+
+void
 ao_i2c_put(uint8_t i2c_index);
 
 void
