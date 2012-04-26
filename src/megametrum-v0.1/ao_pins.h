@@ -42,7 +42,7 @@
 #define AO_RCC_CFGR_PPRE2_DIV	STM_RCC_CFGR_PPRE2_DIV_2
 
 #define HAS_SERIAL_1		1
-#define USE_SERIAL_1_STDIN	1
+#define USE_SERIAL_1_STDIN	0
 #define SERIAL_1_PB6_PB7	0
 #define SERIAL_1_PA9_PA10	1
 
@@ -205,5 +205,21 @@ struct ao_adc {
 #define AO_CC1120_INT_PIN	14
 
 #define AO_CC1120_INT_GPIO	2
+
+/*
+ * Mag sensor (hmc5883)
+ */
+
+#define AO_HMC5883_INT_PORT	stm_gpioc
+#define AO_HMC5883_INT_PIN	12
+#define AO_HMC5883_I2C_INDEX	STM_SPI_INDEX(1)
+
+/*
+ * mpu6000
+ */
+
+#define AO_MPU6000_INT_PORT	stm_gpioc
+#define AO_MPU6000_INT_PIN	13
+#define AO_MPU6000_I2C_INDEX	STM_SPI_INDEX(1)
 
 #endif /* _AO_PINS_H_ */

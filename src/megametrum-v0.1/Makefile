@@ -13,7 +13,10 @@ INC = \
 	altitude.h \
 	ao_kalman.h \
 	ao_product.h \
-	ao_ms5607.h
+	ao_ms5607.h \
+	ao_hmc5883.h \
+	ao_mpu6000.h \
+	stm32l.h
 
 #
 # Common AltOS sources
@@ -44,13 +47,16 @@ ALTOS_SRC = \
 	ao_usb_stm.c \
 	ao_exti_stm.c \
 	ao_packet.c \
-	ao_packet_slave.c
+	ao_packet_slave.c \
+	ao_i2c_stm.c \
+	ao_hmc5883.c \
+	ao_mpu6000.c
 
 PRODUCT=MegaMetrum-v0.1
 PRODUCT_DEF=-DMEGAMETRUM
 IDPRODUCT=0x000a
 
-CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) -Os -g
+CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) -O0 -g
 
 PROG=megametrum-v0.1-$(VERSION).elf
 
