@@ -53,8 +53,7 @@ static __xdata union ao_telemetry_all	telemetry;
 static void
 ao_send_sensor(void)
 {
-	uint8_t		sample;
-	sample = ao_sample_adc;
+	uint8_t		sample = ao_adc_ring_prev(ao_sample_adc);
 			
 	telemetry.generic.tick = ao_adc_ring[sample].tick;
 	telemetry.generic.type = AO_TELEMETRY_SENSOR;
