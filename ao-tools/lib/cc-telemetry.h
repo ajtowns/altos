@@ -29,7 +29,9 @@ struct ao_telemetry_generic {
 	uint16_t	tick;		/* 2 */
 	uint8_t		type;		/* 4 */
 	uint8_t		payload[27];	/* 5 */
-	/* 32 */
+	uint8_t		rssi;		/* 32 */
+	uint8_t		status;		/* 33 */
+	/* 34 */
 };
 
 #define AO_TELEMETRY_SENSOR_TELEMETRUM	0x01
