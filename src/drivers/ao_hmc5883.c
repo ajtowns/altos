@@ -48,13 +48,10 @@ ao_hmc5883_write(uint8_t addr, uint8_t *data, uint8_t len)
 {
 	ao_i2c_get(AO_HMC5883_I2C_INDEX);
 	ao_i2c_start(AO_HMC5883_I2C_INDEX, HMC5883_ADDR_WRITE);
-	ao_i2c_send(&addr, 1, AO_HMC5883_I2C_INDEX);
+	ao_i2c_send(&addr, 1, AO_HMC5883_I2C_INDEX, FALSE);
 	ao_hmc5883_addr_reg = addr;
-	if (len) {
-		ao_i2c_send(data, len, AO_HMC5883_I2C_INDEX);
-		ao_hmc5883_update_addr(len);
-	}
-	ao_i2c_stop(AO_HMC5883_I2C_INDEX);
+	ao_i2c_send(data, len, AO_HMC5883_I2C_INDEX, TRUE);
+	ao_hmc5883_update_addr(len);
 	ao_i2c_put(AO_HMC5883_I2C_INDEX);
 }
 
@@ -64,15 +61,12 @@ ao_hmc5883_read(uint8_t addr, uint8_t *data, uint8_t len)
 	ao_i2c_get(AO_HMC5883_I2C_INDEX);
 	if (addr != ao_hmc5883_addr_reg) {
 		ao_i2c_start(AO_HMC5883_I2C_INDEX, HMC5883_ADDR_WRITE);
-		ao_i2c_send(&addr, 1, AO_HMC5883_I2C_INDEX);
+		ao_i2c_send(&addr, 1, AO_HMC5883_I2C_INDEX, FALSE);
 		ao_hmc5883_addr_reg = addr;
 	}
 	ao_i2c_start(AO_HMC5883_I2C_INDEX, HMC5883_ADDR_READ);
-	if (len) {
-		ao_i2c_recv(data, len, AO_HMC5883_I2C_INDEX);
-		ao_hmc5883_update_addr(len);
-	}
-	ao_i2c_stop(AO_HMC5883_I2C_INDEX);
+	ao_i2c_recv(data, len, AO_HMC5883_I2C_INDEX, TRUE);
+	ao_hmc5883_update_addr(len);
 	ao_i2c_put(AO_HMC5883_I2C_INDEX);
 }
 
@@ -92,7 +86,7 @@ ao_hmc5883_setup(void)
 
 	ao_i2c_get(AO_HMC5883_I2C_INDEX);
 	present = ao_i2c_start(AO_HMC5883_I2C_INDEX, HMC5883_ADDR_READ);
-	ao_i2c_stop(AO_HMC5883_I2C_INDEX);
+	ao_i2c_recv(NULL, 0, AO_HMC5883_I2C_INDEX, TRUE);
 	ao_i2c_put(AO_HMC5883_I2C_INDEX);
 	if (!present)
 		return 0;
@@ -109,7 +103,7 @@ ao_hmc5883_show(void)
 	{
 		ao_i2c_get(AO_HMC5883_I2C_INDEX);
 		data = ao_i2c_start(AO_HMC5883_I2C_INDEX, addr << 1);
-		ao_i2c_stop(AO_HMC5883_I2C_INDEX);
+		ao_i2c_recv(NULL, 0, AO_HMC5883_I2C_INDEX, TRUE);
 		ao_i2c_put(AO_HMC5883_I2C_INDEX);
 		if (data)
 			printf("address %02x responds\n", addr << 1);

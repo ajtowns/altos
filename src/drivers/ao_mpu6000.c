@@ -35,10 +35,8 @@ ao_mpu6000_write(uint8_t addr, uint8_t *data, uint8_t len)
 {
 	ao_i2c_get(AO_MPU6000_I2C_INDEX);
 	ao_i2c_start(AO_MPU6000_I2C_INDEX, MPU6000_ADDR_WRITE);
-	ao_i2c_send(&addr, 1, AO_MPU6000_I2C_INDEX);
-	if (len)
-		ao_i2c_send(data, len, AO_MPU6000_I2C_INDEX);
-	ao_i2c_stop(AO_MPU6000_I2C_INDEX);
+	ao_i2c_send(&addr, 1, AO_MPU6000_I2C_INDEX, FALSE);
+	ao_i2c_send(data, len, AO_MPU6000_I2C_INDEX, TRUE);
 	ao_i2c_put(AO_MPU6000_I2C_INDEX);
 }
 
@@ -47,11 +45,9 @@ ao_mpu6000_read(uint8_t addr, uint8_t *data, uint8_t len)
 {
 	ao_i2c_get(AO_MPU6000_I2C_INDEX);
 	ao_i2c_start(AO_MPU6000_I2C_INDEX, MPU6000_ADDR_WRITE);
-	ao_i2c_send(&addr, 1, AO_MPU6000_I2C_INDEX);
+	ao_i2c_send(&addr, 1, AO_MPU6000_I2C_INDEX, FALSE);
 	ao_i2c_start(AO_MPU6000_I2C_INDEX, MPU6000_ADDR_READ);
-	if (len)
-		ao_i2c_recv(data, len, AO_MPU6000_I2C_INDEX);
-	ao_i2c_stop(AO_MPU6000_I2C_INDEX);
+	ao_i2c_recv(data, len, AO_MPU6000_I2C_INDEX, TRUE);
 	ao_i2c_put(AO_MPU6000_I2C_INDEX);
 }
 
@@ -78,9 +74,11 @@ ao_mpu6000_show(void)
 
 	ao_mpu6000_read(MPU6000_WHO_AM_I, data, 1);
 	printf ("mpu6000 WHO_AM_I: %02x\n", data[0]);
-	ao_mpu6000_read(MPU6000_ACCEL_XOUT_H, data, 1);
+#if 0
+	ao_mpu6000_read(MPU6000_ACCEL_XOUT_H, data, 14);
 	for (i = 0; i < 14; i++)
 		printf ("reg %02x: %02x\n", i + MPU6000_ACCEL_XOUT_H, data[i]);
+#endif
 }
 
 static const struct ao_cmds ao_mpu6000_cmds[] = {
