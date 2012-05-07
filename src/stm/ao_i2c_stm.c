@@ -91,21 +91,13 @@ ao_i2c_ev_isr(uint8_t index)
 		stm_i2c->cr2 &= ~(1 << STM_I2C_CR2_ITEVTEN);
 		ao_wakeup(&ao_i2c_state[index]);
 	}
-#if 0
 	if (sr1 & (1 << STM_I2C_SR1_RXNE)) {
 		if (ao_i2c_recv_len[index]) {			
-			switch (--ao_i2c_recv_len[index]) {
-			case 0:
-				ao_wakeup(&ao_i2c_recv_len[index]);
-				break;
-			case 1:
-				stm_i2c->cr1 &= ~(1 << STM_I2C_CR1_ACK);
-				break;
-			}
 			*(ao_i2c_recv_data[index]++) = stm_i2c->dr;
+			if (!--ao_i2c_recv_len[index])
+				ao_wakeup(&ao_i2c_recv_len[index]);
 		}
 	}
-#endif
 }
 
 void stm_i2c1_ev_isr(void) { ao_i2c_ev_isr(0); }
@@ -144,89 +136,50 @@ ao_i2c_put(uint8_t index)
 	ao_mutex_put(&ao_i2c_mutex[index]);
 }
 
+#define I2C_DEBUG	0
+#if I2C_DEBUG
+#define DBG(x...)	printf(x)
+#else
+#define DBG(x...)	
+#endif
+
 static inline uint32_t in_sr1(char *where, struct stm_i2c *stm_i2c) {
 	uint32_t	sr1 = stm_i2c->sr1;
-	printf("%s: sr1: %x\n", where, sr1); flush();
+	DBG("%s: sr1: %x\n", where, sr1); flush();
 	return sr1;
 }
 
 static inline uint32_t in_sr2(char *where, struct stm_i2c *stm_i2c) {
 	uint32_t	sr2 = stm_i2c->sr2;
-	printf("%s: sr2: %x\n", where, sr2); flush();
+	DBG("%s: sr2: %x\n", where, sr2); flush();
 	return sr2;
 }
 
 static inline void out_cr1(char *where, struct stm_i2c *stm_i2c, uint32_t cr1) {
-	printf("%s: cr1: %x\n", where, cr1); flush();
+	DBG("%s: cr1: %x\n", where, cr1); flush();
 	stm_i2c->cr1 = cr1;
 }
 
 static inline uint32_t in_cr1(char *where, struct stm_i2c *stm_i2c) {
 	uint32_t	cr1 = stm_i2c->cr1;
-	printf("%s: cr1: %x\n", where, cr1); flush();
+	DBG("%s: cr1: %x\n", where, cr1); flush();
 	return cr1;
 }
 
 static inline void out_cr2(char *where, struct stm_i2c *stm_i2c, uint32_t cr2) {
-	printf("%s: cr2: %x\n", where, cr2); flush();
+	DBG("%s: cr2: %x\n", where, cr2); flush();
 	stm_i2c->cr2 = cr2;
 }
 
 static inline uint32_t in_dr(char *where, struct stm_i2c *stm_i2c) {
 	uint32_t	dr = stm_i2c->dr;
-	printf("%s: dr: %x\n", where, dr); flush();
+	DBG("%s: dr: %x\n", where, dr); flush();
 	return dr;
 }
 
 static inline void out_dr(char *where, struct stm_i2c *stm_i2c, uint32_t dr) {
-	printf("%s: dr: %x\n", where, dr); flush();
+	DBG("%s: dr: %x\n", where, dr); flush();
 	stm_i2c->dr = dr;
-}
-
-uint8_t
-ao_i2c_check_status(char *where, uint8_t index, uint32_t sr1_want, uint32_t sr2_want)
-{
-	struct stm_i2c	*stm_i2c = ao_i2c_stm_info[index].stm_i2c;
-	uint32_t	sr1_got, sr2_got;
-
-	if (sr1_want) {
-		sr1_got = in_sr1(where, stm_i2c);
-		if ((sr1_got & sr1_want) != sr1_want) {
-			printf ("%s: sr1 wanted %x got %x\n", where, sr1_want, sr1_got);
-			return FALSE;
-		}
-	}
-	if (sr2_want) {
-		sr2_got = in_sr2(where, stm_i2c);
-		if ((sr2_got & sr2_want) != sr2_want) {
-			printf ("%s: sr1 wanted %x got %x\n",
-				where, sr2_want, sr2_got);
-			return FALSE;
-		}
-	}
-	printf ("%s: got sr1 %x and sr2 %x\n", where, sr1_want, sr2_want);
-	return TRUE;
-}
-
-static uint8_t
-ao_i2c_check_idle(uint8_t index)
-{
-	struct stm_i2c	*stm_i2c = ao_i2c_stm_info[index].stm_i2c;
-	uint32_t	s = 0;
-	int		t;
-	
-	for (t = 0; t < I2C_TIMEOUT; t++) {
-		if (!ao_i2c_check_status("check idle", index,
-					 0,
-					 (1 << STM_I2C_SR2_BUSY)))
-		{
-			break;
-		}
-		ao_yield();
-	}
-	if (t == I2C_TIMEOUT)
-		return FALSE;
-	return TRUE;
 }
 
 uint8_t
@@ -236,53 +189,9 @@ ao_i2c_start(uint8_t index, uint16_t addr)
 	uint32_t	sr1, sr2;
 	int		t;
 
-#if 0
-	if (!ao_i2c_check_idle(index)) {
-		printf ("i2c busy\n");
-		return FALSE;
-	}
-#endif
-		
 	ao_i2c_state[index] = I2C_IDLE;
 	ao_i2c_addr[index] = addr;
-#if 0
-	out_cr2("start", stm_i2c, AO_STM_I2C_CR2);
-	out_cr1("start", stm_i2c, AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_START));
-	for (t = 0; t < I2C_TIMEOUT; t++) {
-		if (ao_i2c_check_status("waiting for start",
-					index,
-					(1 << STM_I2C_SR1_SB),
-					(1 << STM_I2C_SR2_BUSY) |
-					(1 << STM_I2C_SR2_MSL)))
-			break;
-		ao_yield();
-	}
-	if (t == I2C_TIMEOUT) {
-		printf ("No start mode\n");
-		return FALSE;
-	}
-	out_dr("address", stm_i2c, addr);
-	if (addr & 1) {
-		sr1 = (1 << STM_I2C_SR1_ADDR);
-		sr2 = (1 << STM_I2C_SR2_BUSY) | (1 << STM_I2C_SR2_MSL);
-	} else {
-		sr1 = (1 << STM_I2C_SR1_TXE) | (1 << STM_I2C_SR1_ADDR);
-		sr2 = (1 << STM_I2C_SR2_TRA) | (1 << STM_I2C_SR2_BUSY) | (1 << STM_I2C_SR2_MSL);
-	}
-		
-	for (t = 0; t < I2C_TIMEOUT; t++) {
-		if (ao_i2c_check_status("waiting for addr",
-					index,
-					sr1, sr2))
-			break;
-		ao_yield();
-	}
-	if (t == I2C_TIMEOUT) {
-		printf ("Set addr failed\n");
-		return FALSE;
-	}
-	ao_i2c_state[index] = I2C_RUNNING;
-#else
+	printf ("start sr1: %x\n", stm_i2c->sr1);
 	out_cr2("start", stm_i2c, AO_STM_I2C_CR2);
 	out_cr1("start", stm_i2c,
 		AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_START));
@@ -295,7 +204,6 @@ ao_i2c_start(uint8_t index, uint16_t addr)
 			break;
 	sei();
 	ao_clear_alarm();
-#endif
 	return ao_i2c_state[index] == I2C_RUNNING;
 }
 
@@ -324,20 +232,6 @@ ao_i2c_send(void *block, uint16_t len, uint8_t index, uint8_t stop)
 	uint32_t	sr1;
 	int		t;
 
-#if 0
-	while (len--) {
-		for (t = 0; t < I2C_TIMEOUT; t++) {
-			if (ao_i2c_check_status("send", index,
-						(1 << STM_I2C_SR1_TXE),
-						0))
-				break;
-			ao_yield();
-		}
-		if (t == I2C_TIMEOUT)
-			return FALSE;
-		out_dr("send", stm_i2c, *b++);
-	}
-#else
 	uint8_t		tx_dma_index = ao_i2c_stm_info[index].tx_dma_index;
 
 	/* Clear any pending ADDR bit */
@@ -372,7 +266,6 @@ ao_i2c_send(void *block, uint16_t len, uint8_t index, uint8_t stop)
 			break;
 	out_cr2("send disable isr", stm_i2c, AO_STM_I2C_CR2);
 	sei();
-#endif
 	if (stop)
 		ao_i2c_stop(index);
 	return TRUE;
@@ -402,46 +295,66 @@ ao_i2c_recv(void *block, uint16_t len, uint8_t index, uint8_t stop)
 	struct stm_i2c	*stm_i2c = ao_i2c_stm_info[index].stm_i2c;
 	uint8_t		*b = block;
 	int		t;
+	uint8_t		ret = TRUE;
 
-	switch (len) {
-	case 0:
+	if (len == 0)
 		return TRUE;
-	case 1:
+	if (len == 1) {
+		ao_i2c_recv_data[index] = block;
+		ao_i2c_recv_len[index] = 1;
 		out_cr1("setup recv 1", stm_i2c, AO_STM_I2C_CR1);
+
 		/* Clear any pending ADDR bit */
 		in_sr2("clear addr", stm_i2c);
-		out_cr1("setup recv 1", stm_i2c, AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_STOP));
-		break;
-	case 2:
-		/* Clear any pending ADDR bit */
-		out_cr1("setup recv 2", stm_i2c, AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_POS));
-		if (in_sr1("clear addr", stm_i2c) & (1 << STM_I2C_SR1_ADDR))
-			in_sr2("clear addr", stm_i2c);
-		out_cr1("setup recv 1", stm_i2c, AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_STOP));
-		break;
-	default:
-//		out_cr1("setup recv 2", stm_i2c, AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_ACK) | (1 << STM_I2C_CR1_POS));
-		out_cr1("setup recv 2", stm_i2c, AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_ACK));
-		/* Clear any pending ADDR bit */
-		if (in_sr1("clear addr", stm_i2c) & (1 << STM_I2C_SR1_ADDR))
-			in_sr2("clear addr", stm_i2c);
-		break;
-	}
 
-	while (len--) {
-		for (t = 0; t < I2C_TIMEOUT; t++) {
-			if (in_sr1("recv", stm_i2c) & (1 << STM_I2C_SR1_RXNE))
+		/* Enable interrupts to transfer the byte */
+		out_cr2("setup recv 1", stm_i2c,
+			AO_STM_I2C_CR2 |
+			(1 << STM_I2C_CR2_ITEVTEN) |
+			(1 << STM_I2C_CR2_ITERREN) |
+			(1 << STM_I2C_CR2_ITBUFEN));
+		if (stop)
+			out_cr1("setup recv 1", stm_i2c, AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_STOP));
+
+		ao_alarm(1);
+		cli();
+		while (ao_i2c_recv_len[index])
+			if (ao_sleep(&ao_i2c_recv_len[index]))
 				break;
-			ao_yield();
-		}
-		if (t == I2C_TIMEOUT)
-			return FALSE;
-		*b++ = in_dr("recv", stm_i2c);
-		if (len == 2 && stop) {
-			out_cr1("clear ack", stm_i2c,
-//				AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_STOP) | (1 << STM_I2C_CR1_POS));
-				AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_STOP));
-		}
+		sei();
+		ret = ao_i2c_recv_len[index] == 0;
+		ao_clear_alarm();
+	} else {
+		uint8_t		rx_dma_index = ao_i2c_stm_info[index].rx_dma_index;
+		ao_dma_set_transfer(rx_dma_index,
+				    &stm_i2c->dr,
+				    block,
+				    len,
+				    (0 << STM_DMA_CCR_MEM2MEM) |
+				    (STM_DMA_CCR_PL_MEDIUM << STM_DMA_CCR_PL) |
+				    (STM_DMA_CCR_MSIZE_8 << STM_DMA_CCR_MSIZE) |
+				    (STM_DMA_CCR_PSIZE_8 << STM_DMA_CCR_PSIZE) |
+				    (1 << STM_DMA_CCR_MINC) |
+				    (0 << STM_DMA_CCR_PINC) |
+				    (0 << STM_DMA_CCR_CIRC) |
+				    (STM_DMA_CCR_DIR_PER_TO_MEM << STM_DMA_CCR_DIR));
+		out_cr1("recv > 1", stm_i2c, AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_ACK));
+		out_cr2("recv > 1", stm_i2c, AO_STM_I2C_CR2 |
+			(1 << STM_I2C_CR2_DMAEN) | (1 << STM_I2C_CR2_LAST));
+		/* Clear any pending ADDR bit */
+		in_sr2("clear addr", stm_i2c);
+
+		ao_dma_start(rx_dma_index);
+		ao_alarm(len);
+		cli();
+		while (!ao_dma_done[rx_dma_index])
+			if (ao_sleep(&ao_dma_done[rx_dma_index]))
+				break;
+		sei();
+		ao_clear_alarm();
+		ret = ao_dma_done[rx_dma_index];
+		ao_dma_done_transfer(rx_dma_index);
+		out_cr1("stop recv > 1", stm_i2c, AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_STOP));
 	}
 	if (stop) {
 		for (t = 0; t < I2C_TIMEOUT; t++) {
@@ -452,36 +365,7 @@ ao_i2c_recv(void *block, uint16_t len, uint8_t index, uint8_t stop)
 		if (t == I2C_TIMEOUT)
 			return FALSE;
 	}
-
-#if 0
-	uint8_t		rx_dma_index = ao_i2c_stm_info[index].rx_dma_index;
-	ao_dma_set_transfer(rx_dma_index,
-			    &stm_i2c->dr,
-			    block,
-			    len,
-			    (0 << STM_DMA_CCR_MEM2MEM) |
-			    (STM_DMA_CCR_PL_MEDIUM << STM_DMA_CCR_PL) |
-			    (STM_DMA_CCR_MSIZE_8 << STM_DMA_CCR_MSIZE) |
-			    (STM_DMA_CCR_PSIZE_8 << STM_DMA_CCR_PSIZE) |
-			    (1 << STM_DMA_CCR_MINC) |
-			    (0 << STM_DMA_CCR_PINC) |
-			    (0 << STM_DMA_CCR_CIRC) |
-			    (STM_DMA_CCR_DIR_PER_TO_MEM << STM_DMA_CCR_DIR));
-	if (len >= 2) {
-		stm_i2c->cr1 = AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_ACK) | (1 << STM_I2C_CR1_POS);
-		stm_i2c->cr2 = AO_STM_I2C_CR2;
-	} else {
-		stm_i2c->cr1 = AO_STM_I2C_CR1;
-		stm_i2c->cr2 = AO_STM_I2C_CR2 | (1 << STM_I2C_CR2_LAST);
-	}
-			   
-	ao_dma_start(rx_dma_index);
-	cli();
-	while (!ao_dma_done[rx_dma_index])
-		ao_sleep(&ao_dma_done[rx_dma_index]);
-	sei();
-	ao_dma_done_transfer(rx_dma_index);
-#endif
+	return ret;
 }
 
 void
