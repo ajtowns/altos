@@ -191,7 +191,6 @@ ao_i2c_start(uint8_t index, uint16_t addr)
 
 	ao_i2c_state[index] = I2C_IDLE;
 	ao_i2c_addr[index] = addr;
-	printf ("start sr1: %x\n", stm_i2c->sr1);
 	out_cr2("start", stm_i2c, AO_STM_I2C_CR2);
 	out_cr1("start", stm_i2c,
 		AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_START));
@@ -208,20 +207,17 @@ ao_i2c_start(uint8_t index, uint16_t addr)
 }
 
 static void
-ao_i2c_stop(uint8_t index)
+ao_i2c_wait_stop(uint8_t index)
 {
 	struct stm_i2c	*stm_i2c = ao_i2c_stm_info[index].stm_i2c;
-	
-	ao_i2c_state[index] = I2C_IDLE;
-	out_cr2("enable isr", stm_i2c,
-		AO_STM_I2C_CR2 | (1 << STM_I2C_CR2_ITEVTEN) | (1 << STM_I2C_CR2_ITERREN));
-	ev_count = 0;
-	out_cr1("stop", stm_i2c, AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_STOP));
+	int	t;
 
-	/* XXX check to see if there is an interrupt here */
-	while (in_cr1("stop", stm_i2c) & (1 << STM_I2C_CR1_STOP))
+	for (t = 0; t < I2C_TIMEOUT; t++) {
+		if (!(in_cr1("wait stop", stm_i2c) & (1 << STM_I2C_CR1_STOP)))
+			break;
 		ao_yield();
-	printf ("ev_count in stop: %d\n", ev_count);
+	}
+	ao_i2c_state[index] = I2C_IDLE;
 }
 
 uint8_t
@@ -266,8 +262,10 @@ ao_i2c_send(void *block, uint16_t len, uint8_t index, uint8_t stop)
 			break;
 	out_cr2("send disable isr", stm_i2c, AO_STM_I2C_CR2);
 	sei();
-	if (stop)
-		ao_i2c_stop(index);
+	if (stop) {
+		out_cr1("stop", stm_i2c, AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_STOP));
+		ao_i2c_wait_stop(index);
+	}
 	return TRUE;
 }
 
@@ -356,15 +354,8 @@ ao_i2c_recv(void *block, uint16_t len, uint8_t index, uint8_t stop)
 		ao_dma_done_transfer(rx_dma_index);
 		out_cr1("stop recv > 1", stm_i2c, AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_STOP));
 	}
-	if (stop) {
-		for (t = 0; t < I2C_TIMEOUT; t++) {
-			if (!(in_cr1("recv stop", stm_i2c) & (1 << STM_I2C_CR1_STOP)))
-				break;
-			ao_yield();
-		}
-		if (t == I2C_TIMEOUT)
-			return FALSE;
-	}
+	if (stop)
+		ao_i2c_wait_stop(index);
 	return ret;
 }
 
