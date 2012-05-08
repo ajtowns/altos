@@ -19,13 +19,15 @@
 #include <ao_cc1120.h>
 #include <ao_exti.h>
 
-uint8_t	ao_radio_done;
+uint8_t ao_radio_wake;
 uint8_t ao_radio_mutex;
 uint8_t ao_radio_abort;
 
 #define CC1120_DEBUG	1
 
 uint32_t	ao_radio_cal = 1186611;
+
+#define FOSC	32000000
 
 #define ao_radio_select()	ao_spi_get_mask(AO_CC1120_SPI_CS_PORT,(1 << AO_CC1120_SPI_CS_PIN),AO_CC1120_SPI_BUS)
 #define ao_radio_deselect()	ao_spi_put_mask(AO_CC1120_SPI_CS_PORT,(1 << AO_CC1120_SPI_CS_PIN),AO_CC1120_SPI_BUS)
@@ -41,7 +43,7 @@ ao_radio_reg_read(uint16_t addr)
 	uint8_t	d;
 
 #if CC1120_DEBUG
-	printf("ao_radio_reg_read (%04x): ", addr); flush();
+	printf("\t\tao_radio_reg_read (%04x): ", addr); flush();
 #endif
 	if (CC1120_IS_EXTENDED(addr)) {
 		data[0] = ((1 << CC1120_READ)  |
@@ -72,7 +74,7 @@ ao_radio_reg_write(uint16_t addr, uint8_t value)
 	uint8_t	d;
 
 #if CC1120_DEBUG
-	printf("ao_radio_reg_write (%04x): %02x\n", addr, value);
+	printf("\t\tao_radio_reg_write (%04x): %02x\n", addr, value);
 #endif
 	if (CC1120_IS_EXTENDED(addr)) {
 		data[0] = ((1 << CC1120_READ)  |
@@ -97,9 +99,15 @@ ao_radio_strobe(uint8_t addr)
 {
 	uint8_t	in;
 
+#if CC1120_DEBUG
+	printf("\t\tao_radio_strobe (%02x): ", addr); flush();
+#endif
 	ao_radio_select();
 	ao_radio_duplex(&addr, &in, 1);
 	ao_radio_deselect();
+#if CC1120_DEBUG
+	printf("%02x\n", in);
+#endif
 	return in;
 }
 
@@ -141,10 +149,12 @@ ao_radio_fifo_write_fixed(uint8_t data, uint8_t len)
 			CC1120_FIFO);
 	uint8_t status;
 
+	printf ("num tx bytes: %d\n", ao_radio_reg_read(CC1120_NUM_TXBYTES));
 	ao_radio_select();
 	ao_radio_duplex(&addr, &status, 1);
 	ao_radio_spi_send_fixed(data, len);
 	ao_radio_deselect();
+	printf ("num tx bytes: %d\n", ao_radio_reg_read(CC1120_NUM_TXBYTES));
 	return status;
 }
 
@@ -158,32 +168,116 @@ void
 ao_radio_recv_abort(void)
 {
 	ao_radio_abort = 1;
-	ao_wakeup(&ao_radio_done);
+	ao_wakeup(&ao_radio_wake);
 }
 
 #define ao_radio_rdf_value 0x55
 
-static const uint16_t	rdf_setup[] = {
+/*
+ * RDF deviation is 5kHz
+ *
+ *	fdev = fosc >> 24 * (256 + dev_m) << dev_e
+ *
+ *     	32e6Hz / (2 ** 24) * (256 + 71) * (2 ** 3) = 4989
+ */
+
+#define RDF_DEV_E	3
+#define RDF_DEV_M	71
+#define RDF_PACKET_LEN	50
+
+/*
+ * For our RDF beacon, set the symbol rate to 2kBaud (for a 1kHz tone)
+ *
+ *              (2**20 - DATARATE_M) * 2 ** DATARATE_E
+ *	Rdata = -------------------------------------- * fosc
+ *		             2 ** 39
+ *
+ *	DATARATE_M = 511705
+ *	DATARATE_E = 6
+ *
+ * To make the tone last for 200ms, we need 2000 * .2 = 400 bits or 50 bytes
+ */
+#define RDF_DRATE_E	6
+#define RDF_DRATE_M	511705
+#define RDF_PACKET_LEN	50
+
+static const uint16_t rdf_setup[] = {
+	CC1120_DEVIATION_M,	RDF_DEV_M,
+	CC1120_MODCFG_DEV_E,	((CC1120_MODCFG_DEV_E_MODEM_MODE_NORMAL << CC1120_MODCFG_DEV_E_MODEM_MODE) |
+				 (CC1120_MODCFG_DEV_E_MOD_FORMAT_2_GFSK << CC1120_MODCFG_DEV_E_MOD_FORMAT) |
+				 (RDF_DEV_E << CC1120_MODCFG_DEV_E_DEV_E)),
+	CC1120_DRATE2,		((RDF_DRATE_E << CC1120_DRATE2_DATARATE_E) |
+				 (((RDF_DRATE_M >> 16) & CC1120_DRATE2_DATARATE_M_19_16_MASK) << CC1120_DRATE2_DATARATE_M_19_16)),
+	CC1120_DRATE1,		((RDF_DRATE_M >> 8) & 0xff),
+	CC1120_DRATE0,		((RDF_DRATE_M >> 0) & 0xff),
+	CC1120_PKT_CFG2,	((CC1120_PKT_CFG2_CCA_MODE_ALWAYS_CLEAR << CC1120_PKT_CFG2_CCA_MODE) |
+				 (CC1120_PKT_CFG2_PKT_FORMAT_NORMAL << CC1120_PKT_CFG2_PKT_FORMAT)),
+	CC1120_PKT_CFG1,	((0 << CC1120_PKT_CFG1_WHITE_DATA) |
+				 (CC1120_PKT_CFG1_ADDR_CHECK_CFG_NONE << CC1120_PKT_CFG1_ADDR_CHECK_CFG) |
+				 (CC1120_PKT_CFG1_CRC_CFG_DISABLED << CC1120_PKT_CFG1_CRC_CFG) |
+				 (0 << CC1120_PKT_CFG1_APPEND_STATUS)),
 };
+
+#define int_pin(w)	printf("\t%s: %d\n", \
+			       w,\
+			       (AO_CC1120_INT_PORT.idr >> AO_CC1120_INT_PIN) & 1)
+
+static uint8_t
+ao_radio_marc_status(void)
+{
+	return ao_radio_reg_read(CC1120_MARC_STATUS1);
+}
+
+static uint8_t
+ao_radio_tx_done(void)
+{
+	return ao_radio_marc_status() == CC1120_MARC_STATUS1_TX_FINISHED;
+}
+
+static uint8_t
+ao_radio_rx_done(void)
+{
+	return ao_radio_marc_status() == CC1120_MARC_STATUS1_RX_FINISHED;
+}
 
 void
 ao_radio_rdf(uint8_t len)
 {
 	int i;
 
-	ao_radio_abort = 0;
 	ao_radio_get(len);
-	ao_radio_done = 0;
+	ao_radio_abort = 0;
 	for (i = 0; i < sizeof (rdf_setup) / sizeof (rdf_setup[0]); i += 2)
 		ao_radio_reg_write(rdf_setup[i], rdf_setup[i+1]);
-	ao_radio_fifo_write_fixed(ao_radio_rdf_value, len);
+	ao_radio_reg_write(CC1120_PKT_LEN, len);
+	int_pin ("Before CFG");
 	ao_radio_reg_write(CC1120_IOCFG2, CC1120_IOCFG_GPIO_CFG_RX0TX1_CFG);
-	ao_exti_enable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
+	int_pin ("After CFG");
 	ao_radio_strobe(CC1120_STX);
+	ao_exti_enable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
+	int_pin ("After strobe");
+	ao_delay(AO_MS_TO_TICKS(100));
+	ao_radio_fifo_write_fixed(ao_radio_rdf_value, len);
+	int_pin ("After delay");
 	cli();
-	while (!ao_radio_done)
-		ao_sleep(&ao_radio_done);
+	for (i = 0; i < 20; i++) {
+#if CC1120_DEBUG
+		ao_delay(AO_MS_TO_TICKS(50));
+		int_pin ("Waited");
+		printf ("Status %02x num_tx_bytes %d marc status %x\n",
+			ao_radio_status(),
+			ao_radio_reg_read(CC1120_NUM_TXBYTES),
+			ao_radio_marc_status());
+#else
+		ao_sleep(&ao_radio_wake);
+#endif
+	}
 	sei();
+	printf ("num_tx_bytes %d marc status %x\n",
+		ao_radio_reg_read(CC1120_NUM_TXBYTES),
+		ao_radio_marc_status());
+	if (!ao_radio_tx_done())
+		ao_radio_idle();
 	ao_radio_set_packet();
 	ao_radio_put();
 }
@@ -191,6 +285,8 @@ ao_radio_rdf(uint8_t len)
 void
 ao_radio_rdf_abort(void)
 {
+	ao_radio_abort = 1;
+	ao_wakeup(&ao_radio_wake);
 }
 
 static void
@@ -213,6 +309,14 @@ ao_radio_test(void)
 #endif
 		ao_radio_get(0xff);
 		ao_radio_strobe(CC1120_STX);
+#if CC1120_DEBUG
+		{ int t; 
+			for (t = 0; t < 10; t++) {
+				printf ("status: %02x\n", ao_radio_status());
+				ao_delay(AO_MS_TO_TICKS(100));
+			}
+		}
+#endif
 		radio_on = 1;
 	}
 	if (mode == 3) {
@@ -233,15 +337,23 @@ ao_radio_test(void)
 void
 ao_radio_send(void *d, uint8_t size)
 {
+	uint8_t	marc_status;
+
 	ao_radio_get(size);
-	ao_radio_done = 0;
+	ao_radio_wake = 0;
 	ao_radio_fifo_write(d, size);
-	ao_radio_reg_write(CC1120_IOCFG2, CC1120_IOCFG_GPIO_CFG_RX0TX1_CFG);
 	ao_exti_enable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
 	ao_radio_strobe(CC1120_STX);
 	cli();
-	while (!ao_radio_done)
-		ao_sleep(&ao_radio_done);
+	for (;;) {
+		if (ao_radio_wake) {
+			marc_status = ao_radio_marc_status();
+			if (marc_status != CC1120_MARC_STATUS1_NO_FAILURE)
+				break;
+			ao_radio_wake = 0;
+		}
+		ao_sleep(&ao_radio_wake);
+	}
 	sei();
 	ao_radio_put();
 }
@@ -249,23 +361,73 @@ ao_radio_send(void *d, uint8_t size)
 uint8_t
 ao_radio_recv(__xdata void *d, uint8_t size)
 {
+	uint8_t	marc_status = CC1120_MARC_STATUS1_NO_FAILURE;
+
 	/* configure interrupt pin */
 	ao_radio_get(size);
-	ao_radio_done = 0;
-	ao_radio_reg_write(CC1120_IOCFG2, CC1120_IOCFG_GPIO_CFG_RXFIFO_THR_PKT);
+	ao_radio_wake = 0;
 	ao_exti_enable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
 	ao_radio_strobe(CC1120_SRX);
 	cli();
-	while (!ao_radio_done && !ao_radio_abort)
-		ao_sleep(&ao_radio_done);
+	for (;;) {
+		if (ao_radio_abort)
+			break;
+		if (ao_radio_wake) {
+			marc_status = ao_radio_marc_status();
+			if (marc_status != CC1120_MARC_STATUS1_NO_FAILURE)
+				break;
+			ao_radio_wake = 0;
+		}
+		ao_sleep(&ao_radio_wake);
+	}
 	sei();
-	if (ao_radio_done)
+	if (marc_status != CC1120_MARC_STATUS1_RX_FINISHED)
 		ao_radio_fifo_read(d, size);
 	ao_radio_put();
-	return 0;
+	return marc_status == CC1120_MARC_STATUS1_RX_FINISHED;
 }
 
+/*
+ * Packet deviation is 20.5kHz
+ *
+ *	fdev = fosc >> 24 * (256 + dev_m) << dev_e
+ *
+ *     	32e6Hz / (2 ** 24) * (256 + 80) * (2 ** 5) = 20508Hz
+ */
+
+#define PACKET_DEV_E	5
+#define PACKET_DEV_M	80
+
+/*
+ * For our packet data, set the symbol rate to 38360 Baud
+ *
+ *              (2**20 - DATARATE_M) * 2 ** DATARATE_E
+ *	Rdata = -------------------------------------- * fosc
+ *		             2 ** 39
+ *
+ *	DATARATE_M = 405002
+ *	DATARATE_E = 10
+ *
+ * To make the tone last for 200ms, we need 2000 * .2 = 400 bits or 50 bytes
+ */
+#define PACKET_DRATE_E	10
+#define PACKET_DRATE_M	405002
+
 static const uint16_t packet_setup[] = {
+	CC1120_DEVIATION_M,	PACKET_DEV_M,
+	CC1120_MODCFG_DEV_E,	((CC1120_MODCFG_DEV_E_MODEM_MODE_NORMAL << CC1120_MODCFG_DEV_E_MODEM_MODE) |
+				 (CC1120_MODCFG_DEV_E_MOD_FORMAT_2_GFSK << CC1120_MODCFG_DEV_E_MOD_FORMAT) |
+				 (PACKET_DEV_E << CC1120_MODCFG_DEV_E_DEV_E)),
+	CC1120_DRATE2,		((PACKET_DRATE_E << CC1120_DRATE2_DATARATE_E) |
+				 (((PACKET_DRATE_M >> 16) & CC1120_DRATE2_DATARATE_M_19_16_MASK) << CC1120_DRATE2_DATARATE_M_19_16)),
+	CC1120_DRATE1,		((PACKET_DRATE_M >> 8) & 0xff),
+	CC1120_DRATE0,		((PACKET_DRATE_M >> 0) & 0xff),
+	CC1120_PKT_CFG2,	((CC1120_PKT_CFG2_CCA_MODE_ALWAYS_CLEAR << CC1120_PKT_CFG2_CCA_MODE) |
+				 (CC1120_PKT_CFG2_PKT_FORMAT_NORMAL << CC1120_PKT_CFG2_PKT_FORMAT)),
+	CC1120_PKT_CFG1,	((1 << CC1120_PKT_CFG1_WHITE_DATA) |
+				 (CC1120_PKT_CFG1_ADDR_CHECK_CFG_NONE << CC1120_PKT_CFG1_ADDR_CHECK_CFG) |
+				 (CC1120_PKT_CFG1_CRC_CFG_DISABLED << CC1120_PKT_CFG1_CRC_CFG) |
+				 (1 << CC1120_PKT_CFG1_APPEND_STATUS)),
 };
 
 void
@@ -285,6 +447,8 @@ ao_radio_idle(void)
 		if ((state >> CC1120_STATUS_STATE) == CC1120_STATUS_STATE_IDLE)
 			break;
 	}
+	ao_radio_strobe(CC1120_SFTX);
+	ao_radio_strobe(CC1120_SFRX);
 }
 
 static const uint16_t radio_setup[] = {
@@ -297,8 +461,8 @@ static void
 ao_radio_isr(void)
 {
 	ao_exti_disable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
-	ao_radio_done = 1;
-	ao_wakeup(&ao_radio_done);
+	ao_radio_wake = 1;
+	ao_wakeup(&ao_radio_wake);
 }
 
 static void
@@ -306,15 +470,17 @@ ao_radio_setup(void)
 {
 	int	i;
 
+	ao_radio_strobe(CC1120_SRES);
+
 	for (i = 0; i < sizeof (radio_setup) / sizeof (radio_setup[0]); i += 2)
 		ao_radio_reg_write(radio_setup[i], radio_setup[i+1]);
 
-	/* Disable GPIO2 pin (radio_int) */
-	ao_radio_reg_write(CC1120_IOCFG2, CC1120_IOCFG_GPIO_CFG_HIGHZ);
+	/* Enable marc status interrupt on gpio 2 pin */
+	ao_radio_reg_write(CC1120_IOCFG2, CC1120_IOCFG_GPIO_CFG_MARC_MCU_WAKEUP);
 
 	/* Enable the EXTI interrupt for the appropriate pin */
 	ao_enable_port(AO_CC1120_INT_PORT);
-	ao_exti_setup(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN, AO_EXTI_MODE_RISING, ao_radio_isr);
+	ao_exti_setup(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN, AO_EXTI_MODE_FALLING, ao_radio_isr);
 
 	ao_radio_set_packet();
 	ao_radio_configured = 1;
@@ -534,17 +700,24 @@ static void ao_radio_show(void) {
 	printf ("Status:   %02x\n", status);
 	printf ("CHIP_RDY: %d\n", (status >> CC1120_STATUS_CHIP_RDY) & 1);
 	printf ("STATE:    %s\n", cc1120_state_name[(status >> CC1120_STATUS_STATE) & CC1120_STATUS_STATE_MASK]);
+	printf ("MARC:     %02x\n", ao_radio_marc_status());
 
 	for (i = 0; i < AO_NUM_CC1120_REG; i++)
 		printf ("\t%02x %-20.20s\n", ao_radio_reg_read(ao_cc1120_reg[i].addr), ao_cc1120_reg[i].name);
 	ao_radio_put();
 }
+
+static void ao_radio_beep(void) {
+	ao_radio_rdf(120);
+}
+
 #endif
 
 static const struct ao_cmds ao_radio_cmds[] = {
 	{ ao_radio_test,	"C <1 start, 0 stop, none both>\0Radio carrier test" },
 #if CC1120_DEBUG
 	{ ao_radio_show,	"R\0Show CC1120 status" },
+	{ ao_radio_beep,	"B\0Emit an RDF beacon" },
 #endif
 	{ 0, NULL }
 };

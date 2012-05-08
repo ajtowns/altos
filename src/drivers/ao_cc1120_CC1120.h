@@ -21,15 +21,16 @@
  *
  ***************************************************************/
 
-
         CC1120_SYNC3,                          0x93,       /* Sync Word Configuration [31:24] */
         CC1120_SYNC2,                          0x0b,       /* Sync Word Configuration [23:16] */
         CC1120_SYNC1,                          0x51,       /* Sync Word Configuration [15:8] */
         CC1120_SYNC0,                          0xde,       /* Sync Word Configuration [7:0] */
         CC1120_SYNC_CFG1,                      0x08,       /* Sync Word Detection Configuration */
         CC1120_SYNC_CFG0,                      0x17,       /* Sync Word Length Configuration */
+#if 0
         CC1120_DEVIATION_M,                    0x50,       /* Frequency Deviation Configuration */
         CC1120_MODCFG_DEV_E,                   0x0d,       /* Modulation Format and Frequency Deviation Configuration */
+#endif
         CC1120_DCFILT_CFG,                     0x1c,       /* Digital DC Removal Configuration */
         CC1120_PREAMBLE_CFG1,                  0x18,       /* Preamble Length Configuration */
         CC1120_PREAMBLE_CFG0,                  0x2a,       /*  */
@@ -38,9 +39,11 @@
         CC1120_CHAN_BW,                        0x02,       /* Channel Filter Configuration */
         CC1120_MDMCFG1,                        0x46,       /* General Modem Parameter Configuration */
         CC1120_MDMCFG0,                        0x05,       /* General Modem Parameter Configuration */
+#if 0
         CC1120_DRATE2,                         0x93,       /* Data Rate Configuration Exponent and Mantissa [19:16] */
         CC1120_DRATE1,                         0xa4,       /* Data Rate Configuration Mantissa [15:8] */
         CC1120_DRATE0,                         0x00,       /* Data Rate Configuration Mantissa [7:0] */
+#endif
         CC1120_AGC_REF,                        0x20,       /* AGC Reference Level Configuration */
         CC1120_AGC_CS_THR,                     0x19,       /* Carrier Sense Threshold Configuration */
         CC1120_AGC_GAIN_ADJUST,                0x00,       /* RSSI Offset Configuration */
@@ -50,14 +53,21 @@
         CC1120_AGC_CFG0,                       0xcf,       /* AGC Configuration */
         CC1120_FIFO_CFG,                       0x00,       /* FIFO Configuration */
         CC1120_DEV_ADDR,                       0x00,       /* Device Address Configuration */
-        CC1120_SETTLING_CFG,                   0x03,       /* Frequency Synthesizer Calibration and Settling Configuration */
-        CC1120_FS_CFG,                         0x14,       /* Frequency Synthesizer Configuration */
+        CC1120_SETTLING_CFG,                          	   /* Frequency Synthesizer Calibration and Settling Configuration */
+		(CC1120_SETTLING_CFG_FS_AUTOCAL_IDLE_TO_ON << CC1120_SETTLING_CFG_FS_AUTOCAL) |
+		(CC1120_SETTLING_CFG_LOCK_TIME_50_20 << CC1120_SETTLING_CFG_LOCK_TIME) |
+		(CC1120_SETTLING_CFG_FSREG_TIME_60 << CC1120_SETTLING_CFG_FSREG_TIME),
+        CC1120_FS_CFG,                                	   /* Frequency Synthesizer Configuration */
+		(1 << CC1120_FS_CFG_LOCK_EN) |
+		(CC1120_FS_CFG_FSD_BANDSELECT_410_480 << CC1120_FS_CFG_FSD_BANDSELECT),
         CC1120_WOR_CFG1,                       0x08,       /* eWOR Configuration, Reg 1 */
         CC1120_WOR_CFG0,                       0x21,       /* eWOR Configuration, Reg 0 */
         CC1120_WOR_EVENT0_MSB,                 0x00,       /* Event 0 Configuration */
         CC1120_WOR_EVENT0_LSB,                 0x00,       /* Event 0 Configuration */
+#if 0
         CC1120_PKT_CFG2,                       0x04,       /* Packet Configuration, Reg 2 */
         CC1120_PKT_CFG1,                       0x45,       /* Packet Configuration, Reg 1 */
+#endif
         CC1120_PKT_CFG0,                       0x20,       /* Packet Configuration, Reg 0 */
         CC1120_RFEND_CFG1,                     0x0f,       /* RFEND Configuration, Reg 1 */
         CC1120_RFEND_CFG0,                     0x00,       /* RFEND Configuration, Reg 0 */
