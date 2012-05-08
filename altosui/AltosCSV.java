@@ -31,9 +31,9 @@ public class AltosCSV implements AltosWriter {
 	LinkedList<AltosRecord>	pad_records;
 	AltosState		state;
 
-	static final int ALTOS_CSV_VERSION = 3;
+	static final int ALTOS_CSV_VERSION = 4;
 
-	/* Version 3 format:
+	/* Version 4 format:
 	 *
 	 * General info
 	 *	version number
@@ -41,6 +41,7 @@ public class AltosCSV implements AltosWriter {
 	 *	flight number
 	 *	callsign
 	 *	time (seconds since boost)
+	 *	clock (tick count / 100)
 	 *	rssi
 	 *	link quality
 	 *
@@ -91,13 +92,13 @@ public class AltosCSV implements AltosWriter {
 	 */
 
 	void write_general_header() {
-		out.printf("version,serial,flight,call,time,rssi,lqi");
+		out.printf("version,serial,flight,call,time,clock,rssi,lqi");
 	}
 
 	void write_general(AltosRecord record) {
-		out.printf("%s, %d, %d, %s, %8.2f, %4d, %3d",
+		out.printf("%s, %d, %d, %s, %8.2f, %8.2f, %4d, %3d",
 			   ALTOS_CSV_VERSION, record.serial, record.flight, record.callsign,
-			   (double) record.time,
+			   (double) record.time, (double) record.tick / 100.0,
 			   record.rssi,
 			   record.status & 0x7f);
 	}
