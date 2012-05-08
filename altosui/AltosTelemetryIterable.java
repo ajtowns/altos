@@ -88,6 +88,15 @@ public class AltosTelemetryIterable extends AltosRecordIterable {
 		if (previous != null)
 			records.add(previous);
 
+		/* Adjust all tick counts to match expected eeprom values,
+		 * which starts with a 16-bit tick count 16 samples before boost
+		 */
+
+		int tick_adjust = (boost_tick - 16) & 0xffff0000;
+		for (AltosRecord r : this)
+			r.tick -= tick_adjust;
+		boost_tick -= tick_adjust;
+
 		/* adjust all tick counts to be relative to boost time */
 		for (AltosRecord r : this)
 			r.time = (r.tick - boost_tick) / 100.0;
