@@ -73,11 +73,13 @@ ao_mpu6000_sample(struct ao_mpu6000_sample *sample)
 	int		i = sizeof (*sample) / 2;
 
 	ao_mpu6000_read(MPU6000_ACCEL_XOUT_H, sample, sizeof (*sample));
-	/* byte swap (sigh) */
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+	/* byte swap */
 	while (i--) {
 		uint16_t	t = *d;
 		*d++ = (t >> 8) | (t << 8);
 	}
+#endif
 }
 
 #define G	981	/* in cm/s² */
