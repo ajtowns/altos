@@ -35,4 +35,26 @@
 #define AO_MS5607_ADC_READ		0x00
 #define AO_MS5607_PROM_READ(ad)		(0xA0 | ((ad) << 1))
 
+struct ms5607_prom {
+	uint16_t	reserved;
+	uint16_t	sens;
+	uint16_t	off;
+	uint16_t	tcs;
+	uint16_t	tco;
+	uint16_t	tref;
+	uint16_t	tempsens;
+	uint16_t	crc;
+};
+
+struct ao_ms5607_sample {
+	int32_t	temp;
+	int32_t	pres;
+};
+
+void
+ao_ms5607_init(void);
+
+void
+ao_ms5607_sample(struct ao_ms5607_sample *sample);
+
 #endif /* _AO_MS5607_H_ */

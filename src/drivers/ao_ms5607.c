@@ -18,18 +18,8 @@
 #include <ao.h>
 #include "ao_ms5607.h"
 
-struct ms5607_prom {
-	uint16_t	reserved;
-	uint16_t	sens;
-	uint16_t	off;
-	uint16_t	tcs;
-	uint16_t	tco;
-	uint16_t	tref;
-	uint16_t	tempsens;
-	uint16_t	crc;
-};
-
 static struct ms5607_prom ms5607_prom;
+static uint8_t		  ms5607_configured;
 
 static void
 ao_ms5607_start(void) {
@@ -54,38 +44,68 @@ ao_ms5607_reset(void) {
 	ao_ms5607_stop();
 }
 
-static uint16_t
-ao_ms5607_prom_read(uint8_t addr)
+static uint8_t
+ao_ms5607_crc(uint8_t *prom)
 {
-	uint8_t	cmd = AO_MS5607_PROM_READ(addr);
-	uint8_t d[2];
-	uint16_t v;
+	uint8_t		crc_byte = prom[15];
+	uint8_t 	cnt;
+	uint16_t	n_rem = 0;
+	uint16_t	crc_read;
+	uint8_t		n_bit;
 
-	ao_ms5607_start();
-	ao_spi_send(&cmd, 1, AO_MS5607_SPI_INDEX);
-	ao_spi_recv(d, 2, AO_MS5607_SPI_INDEX);
-	ao_ms5607_stop();
-	return ((uint16_t) d[0] << 8) | (uint16_t) d[1];
+	prom[15] = 0;
+	for (cnt = 0; cnt < 16; cnt++) {
+		n_rem ^= prom[cnt];
+		for (n_bit = 8; n_bit > 0; n_bit--) {
+			if (n_rem & 0x8000)
+				n_rem = (n_rem << 1) ^ 0x3000;
+			else
+				n_rem = (n_rem << 1);
+		}
+	}
+	n_rem = (n_rem >> 12) & 0xf;
+	prom[15] = crc_byte;
+	return n_rem;
 }
 
 static void
-ao_ms5607_init_chip(void) {
+ao_ms5607_prom_read(struct ms5607_prom *prom)
+{
 	uint8_t		addr;
-	uint16_t	*prom;
+	uint8_t		crc;
+	uint16_t	*r;
 
+	r = (uint16_t *) prom;
+	for (addr = 0; addr < 8; addr++) {
+		uint8_t	cmd = AO_MS5607_PROM_READ(addr);
+		ao_ms5607_start();
+		ao_spi_send(&cmd, 1, AO_MS5607_SPI_INDEX);
+		ao_spi_recv(r, 2, AO_MS5607_SPI_INDEX);
+		ao_ms5607_stop();
+		r++;
+	}
+	crc = ao_ms5607_crc((uint8_t *) prom);
+	if (crc != (((uint8_t *) prom)[15] & 0xf))
+		printf ("MS5607 PROM CRC error (computed %x actual %x)\n", crc, (((uint8_t *) prom)[15] & 0xf));
+
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+	/* Byte swap */
+	r = (uint16_t *) prom;
+	for (addr = 0; addr < 8; addr++) {
+		uint16_t	t = *r;
+		*r++ = (t << 8) | (t >> 8);
+	}
+#endif
+}
+
+static void
+ao_ms5607_setup(void)
+{
+	if (ms5607_configured)
+		return;
+	ms5607_configured = 1;
 	ao_ms5607_reset();
-	prom = &ms5607_prom.reserved;
-
-	for (addr = 0; addr <= 7; addr++)
-		prom[addr] = ao_ms5607_prom_read(addr);
-	printf ("reserved: 0x%x\n", ms5607_prom.reserved);
-	printf ("sens:     0x%x\n", ms5607_prom.sens);
-	printf ("off:      0x%x\n", ms5607_prom.off);
-	printf ("tcs:      0x%x\n", ms5607_prom.tcs);
-	printf ("tco:      0x%x\n", ms5607_prom.tco);
-	printf ("tref:     0x%x\n", ms5607_prom.tref);
-	printf ("tempsens: 0x%x\n", ms5607_prom.tempsens);
-	printf ("crc:      0x%x\n", ms5607_prom.crc);
+	ao_ms5607_prom_read(&ms5607_prom);
 }
 
 static uint32_t
@@ -108,8 +128,8 @@ ao_ms5607_convert(uint8_t cmd) {
 	return ((uint32_t) reply[0] << 16) | ((uint32_t) reply[1] << 8) | (uint32_t) reply[2];
 }
 
-static void
-ao_ms5607_dump(void)
+void
+ao_ms5607_sample(struct ao_ms5607_sample *sample)
 {
 	uint8_t	addr;
 	uint32_t D1, D2;
@@ -118,6 +138,8 @@ ao_ms5607_dump(void)
 	int64_t OFF;
 	int64_t SENS;
 	int32_t P;
+
+	ao_ms5607_setup();
 
 	D2 =  ao_ms5607_convert(AO_MS5607_CONVERT_D2_4096);
 	printf ("Conversion D2: %d\n", D2);
@@ -137,16 +159,33 @@ ao_ms5607_dump(void)
 		int32_t TEMPM = TEMP - 2000;
 		int64_t OFF2 = (61 * (int64_t) TEMPM * (int64_t) TEMPM) >> 4;
 		int64_t SENS2 = 2 * (int64_t) TEMPM * (int64_t) TEMPM;
+		if (TEMP < 1500) {
+			int32_t TEMPP = TEMP + 1500;
+			int64_t TEMPP2 = TEMPP * TEMPP;
+			OFF2 = OFF2 + 15 * TEMPP2;
+			SENS2 = SENS2 + 8 * TEMPP2;
+		}
+		TEMP -= T2;
+		OFF -= OFF2;
+		SENS -= SENS2;
 	}
 
 	P = ((((int64_t) D1 * SENS) >> 21) - OFF) >> 15;
-	
-	printf ("Temperature: %d\n", TEMP);
-	printf ("Pressure %d\n", P);
+	sample->temp = TEMP;
+	sample->pres = P;
+}
+
+static void
+ao_ms5607_dump(void)
+{
+	struct ao_ms5607_sample	sample;
+
+	ao_ms5607_sample(&sample);
+	printf ("Temperature: %d\n", sample.temp);
+	printf ("Pressure %d\n", sample.pres);
 }
 
 __code struct ao_cmds ao_ms5607_cmds[] = {
-	{ ao_ms5607_init_chip,	"i\0Init MS5607" },
 	{ ao_ms5607_dump,	"p\0Display MS5607 data" },
 	{ 0, NULL },
 };
@@ -154,6 +193,7 @@ __code struct ao_cmds ao_ms5607_cmds[] = {
 void
 ao_ms5607_init(void)
 {
+	ms5607_configured = 0;
 	ao_cmd_register(&ao_ms5607_cmds[0]);
 	ao_spi_init_cs(AO_MS5607_CS_GPIO, (1 << AO_MS5607_CS));
 }
