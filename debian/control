@@ -3,8 +3,8 @@ Section: electronics
 Priority: optional
 Maintainer: Bdale Garbee <bdale@gag.com>
 Uploaders: Keith Packard <keithp@keithp.com>
-Build-Depends: debhelper (>= 7), autoconf, automake, gawk, libreadline-dev, libusb-1.0-0-dev, nickle, sdcc, xsltproc, fop, docbook-xml, docbook-xsl, swig, openjdk-6-jdk, freetts, libtool, libjfreechart-java, libbluetooth-dev, pkg-config
-Standards-Version: 3.9.2
+Build-Depends: debhelper (>= 7), autoconf, automake, gawk, libreadline-dev, libusb-1.0-0-dev, nickle, sdcc, xsltproc, fop, docbook-xml, docbook-xsl, swig, default-jdk, freetts, libtool, libjfreechart-java, libbluetooth-dev, pkg-config
+Standards-Version: 3.9.3
 Homepage: http://altusmetrum.org/AltOS
 Vcs-Git: git://git.gag.com/fw/altos
 Vcs-Browser: http://git.gag.com/?p=fw/altos
