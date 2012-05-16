@@ -105,7 +105,7 @@ ao_dma_set_transfer(uint8_t 		index,
 		    uint32_t		ccr);
 
 void
-ao_dma_set_isr(uint8_t index, void (*isr)(void));
+ao_dma_set_isr(uint8_t index, void (*isr)(int index));
 
 void
 ao_dma_start(uint8_t index);
@@ -131,16 +131,13 @@ uint8_t
 ao_i2c_start(uint8_t i2c_index, uint16_t address);
 
 void
-ao_i2c_stop(uint8_t i2c_index);
-
-void
 ao_i2c_put(uint8_t i2c_index);
 
-void
-ao_i2c_send(void *block, uint16_t len, uint8_t i2c_index);
+uint8_t
+ao_i2c_send(void *block, uint16_t len, uint8_t i2c_index, uint8_t stop);
 
-void
-ao_i2c_recv(void *block, uint16_t len, uint8_t i2c_index);
+uint8_t
+ao_i2c_recv(void *block, uint16_t len, uint8_t i2c_index, uint8_t stop);
 
 void
 ao_i2c_init(void);

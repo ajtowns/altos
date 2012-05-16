@@ -34,6 +34,8 @@ static void usage(char *program)
 	exit(1);
 }
 
+#define bool(b)	((b) ? "true" : "false")
+
 int
 main (int argc, char **argv)
 {
@@ -63,21 +65,28 @@ main (int argc, char **argv)
 			serial = 0;
 		while (fgets(line, sizeof (line), file)) {
 			union ao_telemetry_all telem;
-			char call[AO_MAX_CALLSIGN+1];
+ 			char call[AO_MAX_CALLSIGN+1];
 			char version[AO_MAX_VERSION+1];
 
 			if (cc_telemetry_parse(line, &telem)) {
-				printf ("serial %5d tick %5d type %3d ",
-					telem.generic.serial, telem.generic.tick, telem.generic.type);
+				int rssi = (int8_t) telem.generic.rssi / 2 - 74;
+
+				printf ("serial %5d rssi %d status %02x tick %5d type %3d ",
+					telem.generic.serial, rssi, telem.generic.status,
+					telem.generic.tick, telem.generic.type);
+				if ((telem.generic.status & (1 << 7)) == 0) {
+					printf ("CRC error\n");
+					continue;
+				}
 				switch (telem.generic.type) {
 				case AO_TELEMETRY_SENSOR_TELEMETRUM:
 				case AO_TELEMETRY_SENSOR_TELEMINI:
 				case AO_TELEMETRY_SENSOR_TELENANO:
 					printf ("state %1d accel %5d pres %5d ",
 						telem.sensor.state, telem.sensor.accel, telem.sensor.pres);
-					printf ("accel %5d speed %5d height %5d ",
-						telem.sensor.acceleration,
-						telem.sensor.speed,
+					printf ("accel %6.2f speed %6.2f height %5d ",
+						telem.sensor.acceleration / 16.0,
+						telem.sensor.speed / 16.0,
 						telem.sensor.height);
 					printf ("ground_pres %5d ground_accel %5d accel_plus %5d accel_minus %5d\n",
 						telem.sensor.ground_pres,
@@ -99,6 +108,49 @@ main (int argc, char **argv)
 						telem.configuration.main_deploy,
 						telem.configuration.flight_log_max);
 					printf (" call %8s version %8s\n", call, version);
+					break;
+				case AO_TELEMETRY_LOCATION:
+					printf ("sats %d flags %s%s%s%s",
+						telem.location.flags & 0xf,
+						(telem.location.flags & (1 << 4)) ? "valid" : "invalid",
+						(telem.location.flags & (1 << 5)) ? ",running" : "",
+						(telem.location.flags & (1 << 6)) ? ",date" : "",
+						(telem.location.flags & (1 << 7)) ? ",course" : "");
+					printf (" alt %5d lat %12.7f lon %12.7f",
+						telem.location.altitude,
+						telem.location.latitude / 1e7,
+						telem.location.longitude / 1e7);
+					if ((telem.location.flags & (1 << 6)) != 0) {
+						printf (" year %2d month %2d day %2d",
+							telem.location.year,
+							telem.location.month,
+							telem.location.day);
+						printf (" hour %2d minute %2d second %2d",
+							telem.location.hour,
+							telem.location.minute,
+							telem.location.second);
+					}
+					printf (" pdop %3.1f hdop %3.1f vdop %3.1f mode %d",
+						telem.location.pdop / 5.0,
+						telem.location.hdop / 5.0,
+						telem.location.vdop / 5.0,
+						telem.location.mode);
+					if ((telem.location.flags & (1 << 7)) != 0)
+						printf (" ground_speed %6.2f climb_rate %6.2f course %d",
+							telem.location.ground_speed / 100.0,
+							telem.location.climb_rate / 100.0,
+							telem.location.course * 2);
+					printf ("\n");
+					break;
+				case AO_TELEMETRY_SATELLITE:
+					printf ("sats %d", telem.satellite.channels);
+					for (c = 0; c < 12 && c < telem.satellite.channels; c++) {
+						printf (" sat %d svid %d c_n_1 %d",
+							c,
+							telem.satellite.sats[c].svid,
+							telem.satellite.sats[c].c_n_1);
+					}
+					printf ("\n");
 					break;
 				default:
 					printf("\n");

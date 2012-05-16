@@ -20,7 +20,7 @@
 #define NUM_DMA	7
 
 struct ao_dma_config {
-	void		(*isr)(void);
+	void		(*isr)(int index);
 };
 
 uint8_t ao_dma_done[NUM_DMA];
@@ -39,7 +39,7 @@ ao_dma_isr(uint8_t index) {
 	/* Ack them */
 	stm_dma.ifcr = isr;
 	if (ao_dma_config[index].isr)
-		(*ao_dma_config[index].isr)();
+		(*ao_dma_config[index].isr)(index);
 	else {
 		ao_dma_done[index] = 1;
 		ao_wakeup(&ao_dma_done[index]);
@@ -79,7 +79,7 @@ ao_dma_set_transfer(uint8_t 		index,
 }
 
 void
-ao_dma_set_isr(uint8_t index, void (*isr)(void))
+ao_dma_set_isr(uint8_t index, void (*isr)(int))
 {
 	ao_dma_config[index].isr = isr;
 }

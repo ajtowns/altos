@@ -41,7 +41,7 @@ static uint8_t			ao_adc_ready;
  *
  * Mark time in ring, shut down DMA engine
  */
-static void ao_adc_done(void)
+static void ao_adc_done(int index)
 {
 	ao_adc_ring[ao_adc_head].tick = ao_time();
 	ao_adc_head = ao_adc_ring_next(ao_adc_head);

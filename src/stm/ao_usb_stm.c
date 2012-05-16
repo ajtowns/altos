@@ -937,7 +937,7 @@ ao_usb_disable(void)
 void
 ao_usb_enable(void)
 {
-	uint16_t	tick;
+	int	t;
 
 	/* Enable SYSCFG */
 	stm_rcc.apb2enr |= (1 << STM_RCC_APB2ENR_SYSCFGEN);
@@ -985,6 +985,8 @@ ao_usb_enable(void)
 			(0 << STM_USB_CNTR_PDWN) |
 			(0 << STM_USB_CNTR_FRES));
 
+	for (t = 0; t < 1000; t++)
+		ao_arch_nop();
 	/* Enable USB pull-up */
 	stm_syscfg.pmc |= (1 << STM_SYSCFG_PMC_USB_PU);
 }

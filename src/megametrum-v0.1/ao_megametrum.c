@@ -17,6 +17,7 @@
 
 #include <ao.h>
 #include <ao_hmc5883.h>
+#include <ao_mpu6000.h>
 #include <ao_exti.h>
 
 void

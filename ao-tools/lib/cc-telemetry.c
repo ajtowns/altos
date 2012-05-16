@@ -57,6 +57,6 @@ cc_telemetry_parse(const char *input_line, union ao_telemetry_all *telemetry)
 	}
 	if (hex[0] != 34)
 		return FALSE;
-	memcpy(telemetry, hex+1, 32);
+	memcpy(telemetry, hex+1, 34);
 	return TRUE;
 }
