@@ -182,6 +182,9 @@ struct ao_adc {
 #define AO_MS5607_CS_GPIO	stm_gpioc
 #define AO_MS5607_CS		4
 #define AO_MS5607_CS_MASK	(1 << AO_MS5607_CS)
+#define AO_MS5607_MISO_GPIO	stm_gpioa
+#define AO_MS5607_MISO		6
+#define AO_MS5607_MISO_MASK	(1 << AO_MS5607_MISO)
 #define AO_MS5607_SPI_INDEX	(STM_SPI_INDEX(1))
 
 /*
@@ -212,7 +215,7 @@ struct ao_adc {
 
 #define AO_HMC5883_INT_PORT	stm_gpioc
 #define AO_HMC5883_INT_PIN	12
-#define AO_HMC5883_I2C_INDEX	STM_SPI_INDEX(1)
+#define AO_HMC5883_I2C_INDEX	STM_I2C_INDEX(1)
 
 /*
  * mpu6000
@@ -220,6 +223,6 @@ struct ao_adc {
 
 #define AO_MPU6000_INT_PORT	stm_gpioc
 #define AO_MPU6000_INT_PIN	13
-#define AO_MPU6000_I2C_INDEX	STM_SPI_INDEX(1)
+#define AO_MPU6000_I2C_INDEX	STM_I2C_INDEX(1)
 
 #endif /* _AO_PINS_H_ */

@@ -16,10 +16,11 @@
  */
 
 #include <ao.h>
+#include <ao_exti.h>
 #include "ao_ms5607.h"
 
-static struct ms5607_prom ms5607_prom;
-static uint8_t		  ms5607_configured;
+static struct ao_ms5607_prom	ms5607_prom;
+static uint8_t	  		ms5607_configured;
 
 static void
 ao_ms5607_start(void) {
@@ -69,7 +70,7 @@ ao_ms5607_crc(uint8_t *prom)
 }
 
 static void
-ao_ms5607_prom_read(struct ms5607_prom *prom)
+ao_ms5607_prom_read(struct ao_ms5607_prom *prom)
 {
 	uint8_t		addr;
 	uint8_t		crc;
@@ -85,8 +86,12 @@ ao_ms5607_prom_read(struct ms5607_prom *prom)
 		r++;
 	}
 	crc = ao_ms5607_crc((uint8_t *) prom);
-	if (crc != (((uint8_t *) prom)[15] & 0xf))
-		printf ("MS5607 PROM CRC error (computed %x actual %x)\n", crc, (((uint8_t *) prom)[15] & 0xf));
+	if (crc != (((uint8_t *) prom)[15] & 0xf)) {
+		printf ("MS5607 PROM CRC error (computed %x actual %x)\n",
+			crc, (((uint8_t *) prom)[15] & 0xf));
+		flush();
+		ao_panic(AO_PANIC_SELF_TEST);
+	}
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 	/* Byte swap */
@@ -108,16 +113,32 @@ ao_ms5607_setup(void)
 	ao_ms5607_prom_read(&ms5607_prom);
 }
 
+static uint8_t	ao_ms5607_done;
+
+static void
+ao_ms5607_isr(void)
+{
+	ao_ms5607_done = 1;
+	ao_wakeup(&ao_ms5607_done);
+}
+
 static uint32_t
-ao_ms5607_convert(uint8_t cmd) {
+ao_ms5607_get_sample(uint8_t cmd) {
 	uint8_t	reply[3];
 	uint8_t read;
+	uint16_t now;
+
+	ao_ms5607_done = 0;
 
 	ao_ms5607_start();
 	ao_spi_send(&cmd, 1, AO_MS5607_SPI_INDEX);
+	ao_exti_enable(&AO_MS5607_MISO_GPIO, AO_MS5607_MISO);
+	cli();
+	while (!ao_ms5607_done)
+		ao_sleep(&ao_ms5607_done);
+	sei();
+	ao_exti_disable(&AO_MS5607_MISO_GPIO, AO_MS5607_MISO);
 	ao_ms5607_stop();
-
-	ao_delay(AO_MS_TO_TICKS(20));
 
 	ao_ms5607_start();
 	read = AO_MS5607_ADC_READ;
@@ -131,22 +152,21 @@ ao_ms5607_convert(uint8_t cmd) {
 void
 ao_ms5607_sample(struct ao_ms5607_sample *sample)
 {
+	sample->pres = ao_ms5607_get_sample(AO_MS5607_CONVERT_D1_2048);
+	sample->temp = ao_ms5607_get_sample(AO_MS5607_CONVERT_D2_2048);
+}
+
+void
+ao_ms5607_convert(struct ao_ms5607_sample *sample, struct ao_ms5607_value *value)
+{
 	uint8_t	addr;
-	uint32_t D1, D2;
 	int32_t	dT;
 	int32_t TEMP;
 	int64_t OFF;
 	int64_t SENS;
 	int32_t P;
 
-	ao_ms5607_setup();
-
-	D2 =  ao_ms5607_convert(AO_MS5607_CONVERT_D2_4096);
-	printf ("Conversion D2: %d\n", D2);
-	D1 =  ao_ms5607_convert(AO_MS5607_CONVERT_D1_4096);
-	printf ("Conversion D1: %d\n", D1);
-
-	dT = D2 - ((int32_t) ms5607_prom.tref << 8);
+	dT = sample->temp - ((int32_t) ms5607_prom.tref << 8);
 	
 	TEMP = 2000 + (((int64_t) dT * ms5607_prom.tempsens) >> 23);
 
@@ -170,19 +190,49 @@ ao_ms5607_sample(struct ao_ms5607_sample *sample)
 		SENS -= SENS2;
 	}
 
-	P = ((((int64_t) D1 * SENS) >> 21) - OFF) >> 15;
-	sample->temp = TEMP;
-	sample->pres = P;
+	value->pres = ((((int64_t) sample->pres * SENS) >> 21) - OFF) >> 15;
+	value->temp = TEMP;
 }
+
+struct ao_ms5607_sample	ao_ms5607_current;
+
+static void
+ao_ms5607(void)
+{
+	ao_ms5607_setup();
+	for (;;)
+	{
+		struct ao_ms5607_sample	ao_ms5607_next;
+		ao_ms5607_sample(&ao_ms5607_next);
+		ao_arch_critical(
+			ao_ms5607_current = ao_ms5607_next;
+			);
+		ao_delay(0);
+	}
+}
+
+__xdata struct ao_task ao_ms5607_task;
 
 static void
 ao_ms5607_dump(void)
 {
 	struct ao_ms5607_sample	sample;
+	struct ao_ms5607_value value;
 
-	ao_ms5607_sample(&sample);
-	printf ("Temperature: %d\n", sample.temp);
-	printf ("Pressure %d\n", sample.pres);
+	printf ("ms5607 reserved: %u\n", ms5607_prom.reserved);
+	printf ("ms5607 sens: %u\n", ms5607_prom.sens);
+	printf ("ms5607 off: %u\n", ms5607_prom.off);
+	printf ("ms5607 tcs: %u\n", ms5607_prom.tcs);
+	printf ("ms5607 tco: %u\n", ms5607_prom.tco);
+	printf ("ms5607 tref: %u\n", ms5607_prom.tref);
+	printf ("ms5607 tempsens: %u\n", ms5607_prom.tempsens);
+	printf ("ms5607 crc: %u\n", ms5607_prom.crc);
+
+	sample = ao_ms5607_current;
+	ao_ms5607_convert(&sample, &value);
+	printf ("Pressure:    %8u %8d\n", sample.pres, value.pres);
+	printf ("Temperature: %8u %8d\n", sample.temp, value.temp);
+	printf ("Altitude: %ld\n", ao_pa_to_altitude(value.pres));
 }
 
 __code struct ao_cmds ao_ms5607_cmds[] = {
@@ -196,4 +246,22 @@ ao_ms5607_init(void)
 	ms5607_configured = 0;
 	ao_cmd_register(&ao_ms5607_cmds[0]);
 	ao_spi_init_cs(AO_MS5607_CS_GPIO, (1 << AO_MS5607_CS));
+
+	ao_add_task(&ao_ms5607_task, ao_ms5607, "ms5607");
+
+	/* Configure the MISO pin as an interrupt; when the
+	 * conversion is complete, the MS5607 will raise this
+	 * pin as a signal
+	 */
+	ao_exti_setup(&AO_MS5607_MISO_GPIO,
+		      AO_MS5607_MISO,
+		      AO_EXTI_MODE_RISING,
+		      ao_ms5607_isr);
+
+	/* Reset the pin from INPUT to ALTERNATE so that SPI works
+	 * This needs an abstraction at some point...
+	 */
+	stm_moder_set(&AO_MS5607_MISO_GPIO,
+		      AO_MS5607_MISO,
+		      STM_MODER_ALTERNATE);
 }

@@ -35,7 +35,7 @@
 #define AO_MS5607_ADC_READ		0x00
 #define AO_MS5607_PROM_READ(ad)		(0xA0 | ((ad) << 1))
 
-struct ms5607_prom {
+struct ao_ms5607_prom {
 	uint16_t	reserved;
 	uint16_t	sens;
 	uint16_t	off;
@@ -47,8 +47,15 @@ struct ms5607_prom {
 };
 
 struct ao_ms5607_sample {
-	int32_t	temp;
-	int32_t	pres;
+	uint32_t	pres;	/* raw 24 bit sensor */
+	uint32_t	temp;	/* raw 24 bit sensor */
+};
+
+extern struct ao_ms5607_sample ao_ms5607_current;
+
+struct ao_ms5607_value {
+	int32_t		pres;	/* in Pa * 10 */
+	int32_t		temp;	/* in °C * 100 */
 };
 
 void
@@ -56,5 +63,11 @@ ao_ms5607_init(void);
 
 void
 ao_ms5607_sample(struct ao_ms5607_sample *sample);
+
+void
+ao_ms5607_convert(struct ao_ms5607_sample *sample, struct ao_ms5607_value *value);
+
+void
+ao_ms5607_get_prom(struct ao_ms5607_prom *prom);
 
 #endif /* _AO_MS5607_H_ */

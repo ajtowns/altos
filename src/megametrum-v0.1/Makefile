@@ -50,7 +50,8 @@ ALTOS_SRC = \
 	ao_packet_slave.c \
 	ao_i2c_stm.c \
 	ao_hmc5883.c \
-	ao_mpu6000.c
+	ao_mpu6000.c \
+	ao_convert_pa.c
 
 PRODUCT=MegaMetrum-v0.1
 PRODUCT_DEF=-DMEGAMETRUM
