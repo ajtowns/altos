@@ -147,9 +147,9 @@ ao_mpu6000_setup(void)
 	
 	ao_mpu6000_reg_write(MPU6000_PWR_MGMT_1,
 			     (1 << MPU6000_PWR_MGMT_1_DEVICE_RESET));
-	while (ao_mpu6000_reg_read(MPU6000_PWR_MGMT_1) &
-	       (1 << MPU6000_PWR_MGMT_1_DEVICE_RESET))
-		ao_yield();
+
+	/* Wait for it to reset. If we talk too quickly, it appears to get confused */
+	ao_delay(AO_MS_TO_TICKS(100));
 
 	/* Reset signal conditioning */
 	ao_mpu6000_reg_write(MPU6000_USER_CONTROL,
@@ -245,14 +245,31 @@ ao_mpu6000_setup(void)
 	ao_mpu6000_configured = 1;
 }
 
+struct ao_mpu6000_sample ao_mpu6000_current;
+
+static void
+ao_mpu6000(void)
+{
+	ao_mpu6000_setup();
+	for (;;)
+	{
+		struct ao_mpu6000_sample ao_mpu6000_next;
+		ao_mpu6000_sample(&ao_mpu6000_next);
+		ao_arch_critical(
+			ao_mpu6000_current = ao_mpu6000_next;
+			);
+		ao_delay(0);
+	}
+}
+
+static struct ao_task ao_mpu6000_task;
 
 static void
 ao_mpu6000_show(void)
 {
 	struct ao_mpu6000_sample	sample;
 
-	ao_mpu6000_setup();
-	ao_mpu6000_sample(&sample);
+	sample = ao_mpu6000_current;
 	printf ("Accel: %7d %7d %7d Gyro: %7d %7d %7d\n",
 		ao_mpu6000_accel(sample.accel_x),
 		ao_mpu6000_accel(sample.accel_y),
@@ -272,5 +289,6 @@ ao_mpu6000_init(void)
 {
 	ao_mpu6000_configured = 0;
 
+	ao_add_task(&ao_mpu6000_task, ao_mpu6000, "mpu6000");
 	ao_cmd_register(&ao_mpu6000_cmds[0]);
 }
