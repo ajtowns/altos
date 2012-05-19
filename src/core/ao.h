@@ -282,6 +282,18 @@ ao_altitude_to_pres(int16_t alt) __reentrant;
 int16_t
 ao_temp_to_dC(int16_t temp) __reentrant;
 
+/*
+ * ao_convert_pa.c
+ *
+ * Convert between pressure in Pa and altitude in meters
+ */
+
+int32_t
+ao_pa_to_altitude(int32_t pa);
+
+int32_t
+ao_altitude_to_pa(int32_t alt);
+
 #if HAS_DBG
 #include <ao_dbg.h>
 #endif
