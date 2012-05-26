@@ -18,13 +18,11 @@
 #ifndef _AO_ADC_H_
 #define _AO_ADC_H_
 
-
-
 /*
  * One set of samples read from the A/D converter or telemetry
  */
 
-
+#if AO_ADC_RING
 /*
  * ao_adc.c
  */
@@ -41,6 +39,7 @@ extern volatile __xdata struct ao_adc	ao_adc_ring[AO_ADC_RING];
 extern volatile __data uint8_t		ao_adc_head;
 #if HAS_ACCEL_REF
 extern volatile __xdata uint16_t	ao_accel_ref[AO_ADC_RING];
+#endif
 #endif
 
 /* Trigger a conversion sequence (called from the timer interrupt) */

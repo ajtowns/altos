@@ -17,9 +17,12 @@
 
 #ifndef AO_FLIGHT_TEST
 #include "ao.h"
+#include "ao_flight.h"
 #endif
 
+#include "ao_sample.h"
 #include "ao_kalman.h"
+
 
 static __pdata int32_t		ao_k_height;
 static __pdata int32_t		ao_k_speed;

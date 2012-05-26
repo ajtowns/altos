@@ -16,10 +16,17 @@
  */
 
 #include <ao.h>
+#include <ao_data.h>
+#if HAS_MPU6000
+#include <ao_mpu6000.h>
+#endif
+#if HAS_MS5607
+#include <ao_ms5607.h>
+#endif
 
+volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
+volatile __data uint8_t		ao_data_head;
 
-volatile __xdata struct ao_adc	ao_adc_ring[AO_ADC_RING];
-volatile __data uint8_t		ao_adc_head;
 static uint8_t			ao_adc_ready;
 
 #define AO_ADC_CR2_VAL		((0 << STM_ADC_CR2_SWSTART) |		\
@@ -43,9 +50,15 @@ static uint8_t			ao_adc_ready;
  */
 static void ao_adc_done(int index)
 {
-	ao_adc_ring[ao_adc_head].tick = ao_time();
-	ao_adc_head = ao_adc_ring_next(ao_adc_head);
-	ao_wakeup((void *) &ao_adc_head);
+	ao_data_ring[ao_data_head].adc.tick = ao_time();
+#if HAS_MPU6000
+	ao_data_ring[ao_data_head].mpu6000 = ao_mpu6000_current;
+#endif
+#if HAS_MS5607
+	ao_data_ring[ao_data_head].ms5607 = ao_ms5607_current;
+#endif	
+	ao_data_head = ao_data_ring_next(ao_data_head);
+	ao_wakeup((void *) &ao_data_head);
 	ao_dma_done_transfer(STM_DMA_INDEX(STM_DMA_CHANNEL_ADC1));
 	ao_adc_ready = 1;
 }
@@ -62,7 +75,7 @@ ao_adc_poll(void)
 	stm_adc.sr = 0;
 	ao_dma_set_transfer(STM_DMA_INDEX(STM_DMA_CHANNEL_ADC1),
 			    &stm_adc.dr,
-			    (void *) (&ao_adc_ring[ao_adc_head].tick + 1),
+			    (void *) (&ao_data_ring[ao_data_head].tick + 1),
 			    AO_NUM_ADC,
 			    (0 << STM_DMA_CCR_MEM2MEM) |
 			    (STM_DMA_CCR_PL_HIGH << STM_DMA_CCR_PL) |
@@ -84,20 +97,27 @@ ao_adc_poll(void)
 void
 ao_adc_get(__xdata struct ao_adc *packet)
 {
-	uint8_t	i = ao_adc_ring_prev(ao_adc_head);
-	memcpy(packet, (void *) &ao_adc_ring[i], sizeof (struct ao_adc));
+	uint8_t	i = ao_data_ring_prev(ao_data_head);
+	memcpy(packet, (void *) &ao_data_ring[i].adc, sizeof (struct ao_adc));
+}
+
+void
+ao_data_get(__xdata struct ao_data *packet)
+{
+	uint8_t	i = ao_data_ring_prev(ao_data_head);
+	memcpy(packet, (void *) &ao_data_ring[i], sizeof (struct ao_data));
 }
 
 static void
 ao_adc_dump(void) __reentrant
 {
-	struct ao_adc	packet;
+	struct ao_data	packet;
 	int16_t *d;
 	uint8_t i;
 
-	ao_adc_get(&packet);
+	ao_data_get(&packet);
 	printf("tick: %5u",  packet.tick);
-	d = (int16_t *) (&packet.tick + 1);
+	d = (int16_t *) (&packet.adc);
 	for (i = 0; i < AO_NUM_ADC; i++)
 		printf (" %2d: %5d", i, d[i]);
 	printf("\n");

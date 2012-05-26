@@ -18,6 +18,7 @@
 #include <ao.h>
 #include <ao_hmc5883.h>
 #include <ao_mpu6000.h>
+#include <ao_log.h>
 #include <ao_exti.h>
 
 void
@@ -46,7 +47,6 @@ main(void)
 	ao_timer_init();
 	ao_cmd_init();
 	ao_gps_init();
-	ao_config_init();
 	ao_dma_init();
 	ao_spi_init();
 	ao_ms5607_init();
@@ -55,10 +55,14 @@ main(void)
 	ao_storage_init();
 	ao_usb_init();
 	ao_exti_init();
-	ao_radio_init();
+//	ao_radio_init();
 	ao_i2c_init();
 	ao_hmc5883_init();
 	ao_mpu6000_init();
+	ao_flight_init();
+	ao_log_init();
+	ao_report_init();
+	ao_config_init();
 	
 	ao_cmd_register(&ao_mm_cmds[0]);
 	ao_start_scheduler();

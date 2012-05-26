@@ -9,6 +9,8 @@ INC = \
 	ao.h \
 	ao_arch.h \
 	ao_arch_funcs.h \
+	ao_data.h \
+	ao_sample.h \
 	ao_pins.h \
 	altitude.h \
 	ao_kalman.h \
@@ -21,6 +23,11 @@ INC = \
 #
 # Common AltOS sources
 #
+
+#	ao_cc1120.c \
+#	ao_packet.c \
+#	ao_packet_slave.c \
+
 ALTOS_SRC = \
 	ao_interrupt.c \
 	ao_product.c \
@@ -35,7 +42,6 @@ ALTOS_SRC = \
 	ao_mutex.c \
 	ao_serial_stm.c \
 	ao_gps_skytraq.c \
-	ao_cc1120.c \
 	ao_freq.c \
 	ao_dma_stm.c \
 	ao_spi_stm.c \
@@ -46,12 +52,17 @@ ALTOS_SRC = \
 	ao_m25.c \
 	ao_usb_stm.c \
 	ao_exti_stm.c \
-	ao_packet.c \
-	ao_packet_slave.c \
+	ao_report.c \
 	ao_i2c_stm.c \
 	ao_hmc5883.c \
 	ao_mpu6000.c \
-	ao_convert_pa.c
+	ao_convert_pa.c \
+	ao_log.c \
+	ao_log_mega.c \
+	ao_sample_mm.c \
+	ao_kalman.c \
+	ao_flight_mm.c
+
 
 PRODUCT=MegaMetrum-v0.1
 PRODUCT_DEF=-DMEGAMETRUM

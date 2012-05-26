@@ -94,9 +94,12 @@
 
 #define LEDS_AVAILABLE		(AO_LED_RED | AO_LED_GREEN)
 
+#define HAS_GPS			1
+#define HAS_FLIGHT		1
 #define HAS_ADC			1
+#define HAS_ACCEL		1
 
-#define AO_ADC_RING		32
+#define AO_DATA_RING		32
 #define AO_ADC_NUM_SENSE	6
 
 struct ao_adc {
@@ -179,6 +182,7 @@ struct ao_adc {
 /*
  * Pressure sensor settings
  */
+#define HAS_MS5607		1
 #define AO_MS5607_CS_GPIO	stm_gpioc
 #define AO_MS5607_CS		4
 #define AO_MS5607_CS_MASK	(1 << AO_MS5607_CS)
@@ -221,6 +225,7 @@ struct ao_adc {
  * mpu6000
  */
 
+#define HAS_MPU6000		1	
 #define AO_MPU6000_INT_PORT	stm_gpioc
 #define AO_MPU6000_INT_PIN	13
 #define AO_MPU6000_I2C_INDEX	STM_I2C_INDEX(1)

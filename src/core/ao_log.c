@@ -16,12 +16,13 @@
  */
 
 #include "ao.h"
+#include <ao_log.h>
 
 __pdata uint32_t ao_log_current_pos;
 __pdata uint32_t ao_log_end_pos;
 __pdata uint32_t ao_log_start_pos;
 __xdata uint8_t	ao_log_running;
-__pdata enum flight_state ao_log_state;
+__pdata enum ao_flight_state ao_log_state;
 __xdata uint16_t ao_flight_number;
 
 __code uint8_t ao_log_format = AO_LOG_FORMAT_FULL;

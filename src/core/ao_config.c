@@ -16,6 +16,9 @@
  */
 
 #include "ao.h"
+#include "ao_log.h"
+#include <ao_sample.h>
+#include <ao_data.h>
 
 __xdata struct ao_config ao_config;
 __pdata uint8_t ao_config_loaded;
@@ -64,11 +67,13 @@ ao_config_put(void)
 }
 #endif
 
+#if HAS_RADIO
 void
 ao_config_set_radio(void)
 {
 	ao_config.radio_setting = ao_freq_to_set(ao_config.frequency, ao_config.radio_cal);
 }
+#endif /* HAS_RADIO */
 
 static void
 _ao_config_get(void)
@@ -100,8 +105,10 @@ _ao_config_get(void)
 			ao_config.accel_minus_g = 0;
 		}
 		/* Fixups for minor version 3 */
+#if HAS_RADIO
 		if (ao_config.minor < 3)
 			ao_config.radio_cal = ao_radio_cal;
+#endif
 		/* Fixups for minor version 4 */
 		if (ao_config.minor < 4)
 			ao_config.flight_log_max = AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX;
@@ -121,7 +128,9 @@ _ao_config_get(void)
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
+#if HAS_RADIO
 	ao_config_set_radio();
+#endif
 	ao_config_loaded = 1;
 }
 
@@ -176,6 +185,7 @@ ao_config_callsign_set(void) __reentrant
 	_ao_config_edit_finish();
 }
 
+#if HAS_RADIO
 void
 ao_config_frequency_show(void) __reentrant
 {
@@ -195,6 +205,7 @@ ao_config_frequency_set(void) __reentrant
 	_ao_config_edit_finish();
 	ao_radio_recv_abort();
 }
+#endif
 
 #if HAS_FLIGHT
 
@@ -232,7 +243,7 @@ ao_config_accel_calibrate_auto(char *orientation) __reentrant
 {
 	uint16_t	i;
 	int32_t		accel_total;
-	uint8_t		cal_adc_ring;
+	uint8_t		cal_data_ring;
 
 	printf("Orient antenna %s and press a key...", orientation);
 	flush();
@@ -241,12 +252,14 @@ ao_config_accel_calibrate_auto(char *orientation) __reentrant
 	puts("Calibrating..."); flush();
 	i = ACCEL_CALIBRATE_SAMPLES;
 	accel_total = 0;
-	cal_adc_ring = ao_sample_adc;
+	cal_data_ring = ao_sample_data;
 	while (i) {
-		ao_sleep(DATA_TO_XDATA(&ao_sample_adc));
-		while (i && cal_adc_ring != ao_sample_adc) {
-			accel_total += (int32_t) ao_adc_ring[cal_adc_ring].accel;
-			cal_adc_ring = ao_adc_ring_next(cal_adc_ring);
+		ao_sleep(DATA_TO_XDATA(&ao_sample_data));
+		while (i && cal_data_ring != ao_sample_data) {
+			int16_t	accel = ao_data_accel(&ao_data_ring[cal_data_ring]);
+			printf ("accel %d\n", accel);
+			accel_total += (int32_t) ao_data_accel(&ao_data_ring[cal_data_ring]);
+			cal_data_ring = ao_data_ring_next(cal_data_ring);
 			i--;
 		}
 	}
@@ -320,6 +333,7 @@ ao_config_apogee_lockout_set(void) __reentrant
 
 #endif /* HAS_FLIGHT */
 
+#if HAS_RADIO
 void
 ao_config_radio_cal_show(void) __reentrant
 {
@@ -337,6 +351,7 @@ ao_config_radio_cal_set(void) __reentrant
 	ao_config_set_radio();
 	_ao_config_edit_finish();
 }
+#endif
 
 #if HAS_LOG
 void
@@ -413,6 +428,7 @@ ao_config_pad_orientation_set(void) __reentrant
 }
 #endif
 
+#if HAS_RADIO
 void
 ao_config_radio_enable_show(void) __reentrant
 {
@@ -429,6 +445,7 @@ ao_config_radio_enable_set(void) __reentrant
 	ao_config.radio_enable = ao_cmd_lex_i;
 	_ao_config_edit_finish();
 }
+#endif /* HAS_RADIO */
 	
 #if HAS_AES
 void
@@ -481,18 +498,22 @@ __code struct ao_config_var ao_config_vars[] = {
 	{ "L <seconds>\0Apogee detect lockout (s)",
 	  ao_config_apogee_lockout_set, ao_config_apogee_lockout_show, },
 #endif /* HAS_FLIGHT */
+#if HAS_RADIO
 	{ "F <freq>\0Frequency (kHz)",
 	  ao_config_frequency_set, ao_config_frequency_show },
 	{ "c <call>\0Callsign (8 char max)",
 	  ao_config_callsign_set,	ao_config_callsign_show },
 	{ "e <0 disable, 1 enable>\0Enable telemetry and RDF",
 	  ao_config_radio_enable_set, ao_config_radio_enable_show },
+#endif /* HAS_RADIO */
 #if HAS_ACCEL
 	{ "a <+g> <-g>\0Accel calib (0 for auto)",
 	  ao_config_accel_calibrate_set,ao_config_accel_calibrate_show },
 #endif /* HAS_ACCEL */
+#if HAS_RADIO
 	{ "f <cal>\0Radio calib (cal = rf/(xtal/2^16))",
 	  ao_config_radio_cal_set,  	ao_config_radio_cal_show },
+#endif /* HAS_RADIO */
 #if HAS_LOG
 	{ "l <size>\0Flight log size (kB)",
 	  ao_config_log_set,		ao_config_log_show },

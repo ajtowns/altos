@@ -18,6 +18,8 @@
 #ifndef _AO_LOG_H_
 #define _AO_LOG_H_
 
+#include <ao_flight.h>
+
 /*
  * ao_log.c
  */
@@ -32,7 +34,7 @@ extern __pdata uint32_t ao_log_current_pos;
 extern __pdata uint32_t ao_log_end_pos;
 extern __pdata uint32_t ao_log_start_pos;
 extern __xdata uint8_t	ao_log_running;
-extern __pdata enum flight_state ao_log_state;
+extern __pdata enum ao_flight_state ao_log_state;
 
 /* required functions from the underlying log system */
 
@@ -41,6 +43,7 @@ extern __pdata enum flight_state ao_log_state;
 #define AO_LOG_FORMAT_TINY		2	/* two byte state/baro records */
 #define AO_LOG_FORMAT_TELEMETRY		3	/* 32 byte ao_telemetry records */
 #define AO_LOG_FORMAT_TELESCIENCE	4	/* 32 byte typed telescience records */
+#define AO_LOG_FORMAT_MEGAMETRUM	5	/* 32 byte typed megametrum records */
 #define AO_LOG_FORMAT_NONE		127	/* No log at all */
 
 extern __code uint8_t ao_log_format;
@@ -189,8 +192,65 @@ struct ao_log_record {
 	} u;
 };
 
+struct ao_log_mega {
+	char			type;			/* 0 */
+	uint8_t			csum;			/* 1 */
+	uint16_t		tick;			/* 2 */
+	union {						/* 4 */
+		struct {
+			uint16_t	flight;		/* 4 */
+			int16_t		ground_accel;	/* 6 */
+			uint32_t	ground_pres;	/* 8 */
+			uint32_t	ground_temp;	/* 12 */
+		} flight;				/* 16 */
+		struct {
+			uint16_t	state;
+			uint16_t	reason;
+		} state;
+		struct {
+			uint32_t	pres;		/* 4 */
+			uint32_t	temp;		/* 8 */
+			int16_t		accel_x;	/* 12 */
+			int16_t		accel_y;	/* 14 */
+			int16_t		accel_z;	/* 16 */
+			int16_t		gyro_x;		/* 18 */
+			int16_t		gyro_y;		/* 20 */
+			int16_t		gyro_z;		/* 22 */
+		} sensor;	/* 24 */
+		struct {
+			int16_t		v_batt;		/* 4 */
+			int16_t		v_pbatt;	/* 8 */
+			int16_t		n_sense;	/* 10 */
+			int16_t		sense[10];	/* 12 */
+		} volt;					/* 32 */
+		struct {
+			int32_t		latitude;	/* 4 */
+			int32_t		longitude;	/* 8 */
+			int16_t		altitude;	/* 12 */
+			uint8_t		hour;		/* 14 */
+			uint8_t		minute;		/* 15 */
+			uint8_t		second;		/* 16 */
+			uint8_t		flags;		/* 17 */
+			uint8_t		year;		/* 18 */
+			uint8_t		month;		/* 19 */
+			uint8_t		day;		/* 20 */
+			uint8_t		pad;		/* 21 */
+		} gps;	/* 22 */
+		struct {
+			uint16_t	channels;	/* 4 */
+			struct {
+				uint8_t	svid;
+				uint8_t c_n;
+			} sats[12];			/* 6 */
+		} gps_sat;				/* 30 */
+	} u;
+};
+
 /* Write a record to the eeprom log */
 uint8_t
 ao_log_data(__xdata struct ao_log_record *log) __reentrant;
+
+uint8_t
+ao_log_mega(__xdata struct ao_log_mega *log) __reentrant;
 
 #endif /* _AO_LOG_H_ */
