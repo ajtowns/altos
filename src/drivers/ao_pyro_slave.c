@@ -41,7 +41,7 @@ void ao_spi_slave(void)
 				  sizeof (ao_telepyro_setup));
 		break;
 	case AO_COMPANION_FETCH:
-		ao_spi_slave_send((uint8_t *) &ao_adc_ring[ao_adc_ring_prev(ao_adc_head)].adc,
+		ao_spi_slave_send((uint8_t *) &ao_data_ring[ao_data_ring_prev(ao_data_head)].adc.adc,
 				  AO_TELEPYRO_NUM_ADC * sizeof (uint16_t));
 		break;
 	case AO_COMPANION_NOTIFY:
