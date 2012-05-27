@@ -96,7 +96,7 @@ typedef int16_t accel_t;
 
 typedef int16_t accel_t;
 #define ao_data_accel(packet)			((packet)->adc.accel)
-#define ao_data_set_accel(packet, accel)	((packet)->adc.accel = (accel))
+#define ao_data_set_accel(packet, a)		((packet)->adc.accel = (a))
 #define ao_data_accel_invert(a)			(0x7fff -(a))
 
 /*

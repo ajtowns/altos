@@ -53,23 +53,23 @@ static __xdata union ao_telemetry_all	telemetry;
 static void
 ao_send_sensor(void)
 {
-	uint8_t		sample = ao_adc_ring_prev(ao_sample_adc);
+	uint8_t		sample = ao_data_ring_prev(ao_sample_data);
 			
-	telemetry.generic.tick = ao_adc_ring[sample].tick;
+	telemetry.generic.tick = ao_data_ring[sample].tick;
 	telemetry.generic.type = AO_TELEMETRY_SENSOR;
 
 	telemetry.sensor.state = ao_flight_state;
 #if HAS_ACCEL
-	telemetry.sensor.accel = ao_adc_ring[sample].accel;
+	telemetry.sensor.accel = ao_data_ring[sample].adc.accel;
 #else
 	telemetry.sensor.accel = 0;
 #endif
-	telemetry.sensor.pres = ao_adc_ring[sample].pres;
-	telemetry.sensor.temp = ao_adc_ring[sample].temp;
-	telemetry.sensor.v_batt = ao_adc_ring[sample].v_batt;
+	telemetry.sensor.pres = ao_data_ring[sample].adc.pres;
+	telemetry.sensor.temp = ao_data_ring[sample].adc.temp;
+	telemetry.sensor.v_batt = ao_data_ring[sample].adc.v_batt;
 #if HAS_IGNITE
-	telemetry.sensor.sense_d = ao_adc_ring[sample].sense_d;
-	telemetry.sensor.sense_m = ao_adc_ring[sample].sense_m;
+	telemetry.sensor.sense_d = ao_data_ring[sample].adc.sense_d;
+	telemetry.sensor.sense_m = ao_data_ring[sample].adc.sense_m;
 #else
 	telemetry.sensor.sense_d = 0;
 	telemetry.sensor.sense_m = 0;
@@ -99,19 +99,19 @@ static uint8_t		ao_baro_sample;
 static void
 ao_send_baro(void)
 {
-	uint8_t		sample = ao_sample_adc;
-	uint8_t		samples = (sample - ao_baro_sample) & (AO_ADC_RING - 1);
+	uint8_t		sample = ao_sample_data;
+	uint8_t		samples = (sample - ao_baro_sample) & (AO_DATA_RING - 1);
 
 	if (samples > 12) {
-		ao_baro_sample = (ao_baro_sample + (samples - 12)) & (AO_ADC_RING - 1);
+		ao_baro_sample = (ao_baro_sample + (samples - 12)) & (AO_DATA_RING - 1);
 		samples = 12;
 	}
-	telemetry.generic.tick = ao_adc_ring[sample].tick;
+	telemetry.generic.tick = ao_data_ring[sample].tick;
 	telemetry.generic.type = AO_TELEMETRY_BARO;
 	telemetry.baro.samples = samples;
 	for (sample = 0; sample < samples; sample++) {
-		telemetry.baro.baro[sample] = ao_adc_ring[ao_baro_sample].pres;
-		ao_baro_sample = ao_adc_ring_next(ao_baro_sample);
+		telemetry.baro.baro[sample] = ao_data_ring[ao_baro_sample].adc.pres;
+		ao_baro_sample = ao_data_ring_next(ao_baro_sample);
 	}
 	ao_radio_send(&telemetry, sizeof (telemetry));
 }

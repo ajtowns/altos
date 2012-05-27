@@ -16,13 +16,9 @@
  */
 
 #include "ao.h"
-#include "ao_pins.h"
 
-volatile __xdata struct ao_adc	ao_adc_ring[AO_ADC_RING];
-#if HAS_ACCEL_REF
-volatile __xdata uint16_t 	ao_accel_ref[AO_ADC_RING];
-#endif
-volatile __data uint8_t		ao_adc_head;
+volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
+volatile __data uint8_t		ao_data_head;
 
 void
 ao_adc_poll(void)
@@ -39,14 +35,14 @@ ao_adc_poll(void)
 }
 
 void
-ao_adc_get(__xdata struct ao_adc *packet)
+ao_data_get(__xdata struct ao_data *packet)
 {
 #if HAS_FLIGHT
-	uint8_t	i = ao_adc_ring_prev(ao_sample_adc);
+	uint8_t	i = ao_data_ring_prev(ao_sample_data);
 #else
-	uint8_t	i = ao_adc_ring_prev(ao_adc_head);
+	uint8_t	i = ao_data_ring_prev(ao_data_head);
 #endif
-	ao_xmemcpy(packet, &ao_adc_ring[i], sizeof (struct ao_adc));
+	ao_xmemcpy(packet, (void __xdata *) &ao_data_ring[i], sizeof (struct ao_data));
 }
 
 void
@@ -60,14 +56,14 @@ ao_adc_isr(void) __interrupt 1
 	/* TeleMetrum readings */
 #if HAS_ACCEL_REF
 	if (sequence == 2) {
-		a = (uint8_t __xdata *) (&ao_accel_ref[ao_adc_head]);
+		a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].accel_ref);
 		sequence = 0;
 	} else
 #endif
 	{
 		if (sequence == ADCCON3_ECH_TEMP)
 			sequence = 2;
-		a = (uint8_t __xdata *) (&ao_adc_ring[ao_adc_head].accel + sequence);
+		a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.accel + sequence);
 		sequence++;
 	}
 #define GOT_ADC
@@ -87,7 +83,7 @@ ao_adc_isr(void) __interrupt 1
 
 #if IGNITE_ON_P0
 	/* TeleMini readings */
-	a = (uint8_t __xdata *) (&ao_adc_ring[ao_adc_head].pres);
+	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].pres);
 #ifdef TELEMINI_V_1_0
 	switch (sequence) {
 	case 0:
@@ -149,20 +145,20 @@ ao_adc_isr(void) __interrupt 1
 
 	else {
 		/* record this conversion series */
-		ao_adc_ring[ao_adc_head].tick = ao_time();
-		ao_adc_head = ao_adc_ring_next(ao_adc_head);
-		ao_wakeup(DATA_TO_XDATA(&ao_adc_head));
+		ao_data_ring[ao_data_head].tick = ao_time();
+		ao_data_head = ao_data_ring_next(ao_data_head);
+		ao_wakeup(DATA_TO_XDATA(&ao_data_head));
 	}
 }
 
 static void
 ao_adc_dump(void) __reentrant
 {
-	static __xdata struct ao_adc	packet;
-	ao_adc_get(&packet);
+	static __xdata struct ao_data	packet;
+	ao_data_get(&packet);
 	printf("tick: %5u accel: %5d pres: %5d temp: %5d batt: %5d drogue: %5d main: %5d\n",
-	       packet.tick, packet.accel, packet.pres, packet.temp,
-	       packet.v_batt, packet.sense_d, packet.sense_m);
+	       packet.tick, packet.adc.accel, packet.adc.pres, packet.adc.temp,
+	       packet.adc.v_batt, packet.adc.sense_d, packet.adc.sense_m);
 }
 
 __code struct ao_cmds ao_adc_cmds[] = {

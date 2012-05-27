@@ -104,14 +104,22 @@ ao_adc_poll(void)
 void
 ao_adc_get(__xdata struct ao_adc *packet)
 {
+#if HAS_FLIGHT
+	uint8_t	i = ao_data_ring_prev(ao_sample_data);
+#else
 	uint8_t	i = ao_data_ring_prev(ao_data_head);
+#endif
 	memcpy(packet, (void *) &ao_data_ring[i].adc, sizeof (struct ao_adc));
 }
 
 void
 ao_data_get(__xdata struct ao_data *packet)
 {
+#if HAS_FLIGHT
+	uint8_t	i = ao_data_ring_prev(ao_sample_data);
+#else
 	uint8_t	i = ao_data_ring_prev(ao_data_head);
+#endif
 	memcpy(packet, (void *) &ao_data_ring[i], sizeof (struct ao_data));
 }
 

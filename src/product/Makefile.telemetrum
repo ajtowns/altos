@@ -34,8 +34,8 @@ CORE_SRC = \
 	ao_stdio.c \
 	ao_storage.c \
 	ao_task.c \
-	ao_flight.c \
-	ao_sample.c \
+	ao_flight_mm.c \
+	ao_sample_mm.c \
 	ao_kalman.c \
 	ao_log.c \
 	ao_log_big.c \

@@ -16,6 +16,7 @@
  */
 
 #include "ao.h"
+#include <ao_data.h>
 
 __xdata struct ao_ignition ao_ignition[2];
 
@@ -29,12 +30,12 @@ ao_ignite(enum ao_igniter igniter) __critical
 enum ao_igniter_status
 ao_igniter_status(enum ao_igniter igniter)
 {
-	__xdata struct ao_adc adc;
+	__xdata struct ao_data packet;
 	__pdata int16_t value;
 	__pdata uint8_t request, firing, fired;
 
 	__critical {
-		ao_adc_get(&adc);
+		ao_data_get(&packet);
 		request = ao_ignition[igniter].request;
 		fired = ao_ignition[igniter].fired;
 		firing = ao_ignition[igniter].firing;
@@ -45,10 +46,10 @@ ao_igniter_status(enum ao_igniter igniter)
 	value = (AO_IGNITER_CLOSED>>1);
 	switch (igniter) {
 	case ao_igniter_drogue:
-		value = adc.sense_d;
+		value = packet.adc.sense_d;
 		break;
 	case ao_igniter_main:
-		value = adc.sense_m;
+		value = packet.adc.sense_m;
 		break;
 	}
 	if (value < AO_IGNITER_OPEN)

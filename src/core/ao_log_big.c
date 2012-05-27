@@ -60,7 +60,7 @@ ao_log_dump_check_data(void)
 	return 1;
 }
 
-static __data uint8_t	ao_log_adc_pos;
+static __data uint8_t	ao_log_data_pos;
 
 /* a hack to make sure that ao_log_records fill the eeprom block in even units */
 typedef uint8_t check_log_size[1-(256 % sizeof(struct ao_log_record))] ;
@@ -94,17 +94,17 @@ ao_log(void)
 	/* Write the whole contents of the ring to the log
 	 * when starting up.
 	 */
-	ao_log_adc_pos = ao_adc_ring_next(ao_sample_adc);
-	next_other = next_sensor = ao_adc_ring[ao_log_adc_pos].tick;
+	ao_log_data_pos = ao_data_ring_next(ao_sample_data);
+	next_other = next_sensor = ao_data_ring[ao_log_data_pos].tick;
 	ao_log_state = ao_flight_startup;
 	for (;;) {
 		/* Write samples to EEPROM */
-		while (ao_log_adc_pos != ao_sample_adc) {
-			log.tick = ao_adc_ring[ao_log_adc_pos].tick;
+		while (ao_log_data_pos != ao_sample_data) {
+			log.tick = ao_data_ring[ao_log_data_pos].tick;
 			if ((int16_t) (log.tick - next_sensor) >= 0) {
 				log.type = AO_LOG_SENSOR;
-				log.u.sensor.accel = ao_adc_ring[ao_log_adc_pos].accel;
-				log.u.sensor.pres = ao_adc_ring[ao_log_adc_pos].pres;
+				log.u.sensor.accel = ao_data_ring[ao_log_data_pos].adc.accel;
+				log.u.sensor.pres = ao_data_ring[ao_log_data_pos].adc.pres;
 				ao_log_data(&log);
 				if (ao_log_state <= ao_flight_coast)
 					next_sensor = log.tick + AO_SENSOR_INTERVAL_ASCENT;
@@ -113,16 +113,16 @@ ao_log(void)
 			}
 			if ((int16_t) (log.tick - next_other) >= 0) {
 				log.type = AO_LOG_TEMP_VOLT;
-				log.u.temp_volt.temp = ao_adc_ring[ao_log_adc_pos].temp;
-				log.u.temp_volt.v_batt = ao_adc_ring[ao_log_adc_pos].v_batt;
+				log.u.temp_volt.temp = ao_data_ring[ao_log_data_pos].adc.temp;
+				log.u.temp_volt.v_batt = ao_data_ring[ao_log_data_pos].adc.v_batt;
 				ao_log_data(&log);
 				log.type = AO_LOG_DEPLOY;
-				log.u.deploy.drogue = ao_adc_ring[ao_log_adc_pos].sense_d;
-				log.u.deploy.main = ao_adc_ring[ao_log_adc_pos].sense_m;
+				log.u.deploy.drogue = ao_data_ring[ao_log_data_pos].adc.sense_d;
+				log.u.deploy.main = ao_data_ring[ao_log_data_pos].adc.sense_m;
 				ao_log_data(&log);
 				next_other = log.tick + AO_OTHER_INTERVAL;
 			}
-			ao_log_adc_pos = ao_adc_ring_next(ao_log_adc_pos);
+			ao_log_data_pos = ao_data_ring_next(ao_log_data_pos);
 		}
 		/* Write state change to EEPROM */
 		if (ao_flight_state != ao_log_state) {

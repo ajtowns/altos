@@ -199,7 +199,6 @@ extern __code __at (0x00a6) uint32_t ao_radio_cal;
 #define ao_arch_critical(b) __critical { b }
 
 struct ao_adc {
-	uint16_t	tick;		/* tick when the sample was read */
 	int16_t		accel;		/* accelerometer */
 	int16_t		pres;		/* pressure sensor */
 	int16_t		temp;		/* temperature sensor */
@@ -208,7 +207,7 @@ struct ao_adc {
 	int16_t		sense_m;	/* main continuity sense */
 };
 
-#define AO_ADC_RING	32
+#define AO_DATA_RING	32
 
 /* ao_button.c */
 #ifdef HAS_BUTTON

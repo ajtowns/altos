@@ -18,29 +18,7 @@
 #ifndef _AO_ADC_H_
 #define _AO_ADC_H_
 
-/*
- * One set of samples read from the A/D converter or telemetry
- */
-
-#if AO_ADC_RING
-/*
- * ao_adc.c
- */
-
-#define ao_adc_ring_next(n)	(((n) + 1) & (AO_ADC_RING - 1))
-#define ao_adc_ring_prev(n)	(((n) - 1) & (AO_ADC_RING - 1))
-
-
-/*
- * A/D data is stored in a ring, with the next sample to be written
- * at ao_adc_head
- */
-extern volatile __xdata struct ao_adc	ao_adc_ring[AO_ADC_RING];
-extern volatile __data uint8_t		ao_adc_head;
-#if HAS_ACCEL_REF
-extern volatile __xdata uint16_t	ao_accel_ref[AO_ADC_RING];
-#endif
-#endif
+#include <ao_data.h>
 
 /* Trigger a conversion sequence (called from the timer interrupt) */
 void
@@ -50,9 +28,9 @@ ao_adc_poll(void);
 void
 ao_adc_sleep(void);
 
-/* Get a copy of the last complete A/D sample set */
+/* Get a copy of the last complete sample set */
 void
-ao_adc_get(__xdata struct ao_adc *packet);
+ao_data_get(__xdata struct ao_data *packet);
 
 /* Initialize the A/D converter */
 void
