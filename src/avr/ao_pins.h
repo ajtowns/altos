@@ -91,10 +91,9 @@
 #define AO_TELESCIENCE_NUM_ADC	12
 
 struct ao_adc {
-	uint16_t	tick;		/* tick when the sample was read */
 	uint16_t	adc[AO_TELESCIENCE_NUM_ADC];	/* samples */
 };
 
-#define AO_ADC_RING	16
+#define AO_DATA_RING	16
 
 #endif /* _AO_PINS_H_ */

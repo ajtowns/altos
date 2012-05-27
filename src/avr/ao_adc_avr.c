@@ -17,8 +17,8 @@
 
 #include "ao.h"
 
-volatile __xdata struct ao_adc	ao_adc_ring[AO_ADC_RING];
-volatile __data uint8_t		ao_adc_head;
+volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
+volatile __data uint8_t		ao_data_head;
 
 #ifdef TELESCIENCE
 const uint8_t	adc_channels[AO_LOG_TELESCIENCE_NUM_ADC] = {
@@ -92,14 +92,14 @@ ISR(ADC_vect)
 	/* Must read ADCL first or the value there will be lost */
 	value = ADCL;
 	value |= (ADCH << 8);
-	ao_adc_ring[ao_adc_head].adc[ao_adc_channel] = value;
+	ao_data_ring[ao_data_head].adc.adc[ao_adc_channel] = value;
 	if (++ao_adc_channel < NUM_ADC)
 		ao_adc_start();
 	else {
 		ADCSRA = ADCSRA_INIT;
-		ao_adc_ring[ao_adc_head].tick = ao_time();
-		ao_adc_head = ao_adc_ring_next(ao_adc_head);
-		ao_wakeup((void *) &ao_adc_head);
+		ao_data_ring[ao_data_head].tick = ao_time();
+		ao_data_head = ao_data_ring_next(ao_data_head);
+		ao_wakeup((void *) &ao_data_head);
 		ao_cpu_sleep_disable = 0;
 	}
 }
@@ -113,18 +113,18 @@ ao_adc_poll(void)
 }
 
 void
-ao_adc_get(__xdata struct ao_adc *packet)
+ao_data_get(__xdata struct ao_data *packet)
 {
-	uint8_t	i = ao_adc_ring_prev(ao_adc_head);
-	memcpy(packet, (void *) &ao_adc_ring[i], sizeof (struct ao_adc));
+	uint8_t	i = ao_data_ring_prev(ao_data_head);
+	memcpy(packet, (void *) &ao_data_ring[i], sizeof (struct ao_data));
 }
 
 static void
 ao_adc_dump(void) __reentrant
 {
-	static __xdata struct ao_adc	packet;
+	static __xdata struct ao_data	packet;
 	uint8_t i;
-	ao_adc_get(&packet);
+	ao_data_get(&packet);
 #ifdef TELEPYRO
 	printf("ADMUX:  %02x\n", ADMUX);
 	printf("ADCSRA: %02x\n", ADCSRA);
@@ -137,7 +137,7 @@ ao_adc_dump(void) __reentrant
 #endif
 	printf("tick: %5u",  packet.tick);
 	for (i = 0; i < NUM_ADC; i++)
-		printf (" %2d: %5u", i, packet.adc[i]);
+		printf (" %2d: %5u", i, packet.adc.adc[i]);
 	printf("\n");
 
 

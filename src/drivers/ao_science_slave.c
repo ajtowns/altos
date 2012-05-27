@@ -42,7 +42,7 @@ void ao_spi_slave(void)
 				  sizeof (ao_telescience_setup));
 		break;
 	case AO_COMPANION_FETCH:
-		ao_spi_slave_send((uint8_t *) &ao_adc_ring[ao_adc_ring_prev(ao_adc_head)].adc,
+		ao_spi_slave_send((uint8_t *) &ao_data_ring[ao_data_ring_prev(ao_data_head)].adc,
 				  AO_LOG_TELESCIENCE_NUM_ADC * sizeof (uint16_t));
 		break;
 	case AO_COMPANION_NOTIFY:

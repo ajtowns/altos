@@ -13,10 +13,10 @@ clean:
 
 install:
 
-ao_flight_test: ao_flight_test.c ao_host.h ao_flight.c ao_sample.c ao_kalman.c altitude.h ao_kalman.h
+ao_flight_test: ao_flight_test.c ao_host.h ao_flight_mm.c ao_sample_mm.c ao_kalman.c altitude.h ao_kalman.h
 	cc $(CFLAGS) -o $@ $<
 
-ao_flight_test_noisy_accel: ao_flight_test.c ao_host.h ao_flight.c ao_sample.c ao_kalman.c altitude.h ao_kalman.h
+ao_flight_test_noisy_accel: ao_flight_test.c ao_host.h ao_flight_mm.c ao_sample_mm.c ao_kalman.c altitude.h ao_kalman.h
 	cc -DNOISY_ACCEL=1 $(CFLAGS) -o $@ $<
 
 ao_flight_test_baro: ao_flight_test.c ao_host.h ao_flight.c  ao_sample.c ao_kalman.c altitude.h ao_kalman.h

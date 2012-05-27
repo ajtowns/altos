@@ -20,7 +20,7 @@
 #include "ao_log.h"
 #include "ao_companion.h"
 
-static uint8_t	ao_log_adc_pos;
+static uint8_t	ao_log_data_pos;
 
 __code uint8_t ao_log_format = AO_LOG_FORMAT_TELESCIENCE;
 
@@ -62,20 +62,20 @@ ao_log_single(void)
 		/* Write the whole contents of the ring to the log
 		 * when starting up.
 		 */
-		ao_log_adc_pos = ao_adc_ring_next(ao_adc_head);
+		ao_log_data_pos = ao_data_ring_next(ao_data_head);
 		ao_log_single_write_data.telescience.type = AO_LOG_TELESCIENCE_DATA;
 		while (ao_log_running) {
 			/* Write samples to EEPROM */
-			while (ao_log_adc_pos != ao_adc_head) {
-				ao_log_single_write_data.telescience.tick = ao_adc_ring[ao_log_adc_pos].tick;
-				memcpy(&ao_log_single_write_data.telescience.adc, (void *) ao_adc_ring[ao_log_adc_pos].adc,
+			while (ao_log_data_pos != ao_data_head) {
+				ao_log_single_write_data.telescience.tick = ao_data_ring[ao_log_data_pos].tick;
+				memcpy(&ao_log_single_write_data.telescience.adc, (void *) ao_data_ring[ao_log_data_pos].adc.adc,
 				       AO_LOG_TELESCIENCE_NUM_ADC * sizeof (uint16_t));
 				ao_log_telescience_csum();
 				ao_log_single_write();
-				ao_log_adc_pos = ao_adc_ring_next(ao_log_adc_pos);
+				ao_log_data_pos = ao_data_ring_next(ao_log_data_pos);
 			}
 			/* Wait for more ADC data to arrive */
-			ao_sleep((void *) &ao_adc_head);
+			ao_sleep((void *) &ao_data_head);
 		}
 		memset(&ao_log_single_write_data.telescience.adc, '\0', sizeof (ao_log_single_write_data.telescience.adc));
 	}

@@ -26,9 +26,10 @@
 
 #define AO_HERTZ	100
 
-#define AO_ADC_RING	64
-#define ao_adc_ring_next(n)	(((n) + 1) & (AO_ADC_RING - 1))
-#define ao_adc_ring_prev(n)	(((n) - 1) & (AO_ADC_RING - 1))
+#define HAS_ADC 1
+#define AO_DATA_RING	64
+#define ao_data_ring_next(n)	(((n) + 1) & (AO_DATA_RING - 1))
+#define ao_data_ring_prev(n)	(((n) - 1) & (AO_DATA_RING - 1))
 
 #define AO_M_TO_HEIGHT(m)	((int16_t) (m))
 #define AO_MS_TO_SPEED(ms)	((int16_t) ((ms) * 16))
@@ -38,7 +39,6 @@
  * One set of samples read from the A/D converter
  */
 struct ao_adc {
-	uint16_t	tick;		/* tick when the sample was read */
 	int16_t		accel;		/* accelerometer */
 	int16_t		pres;		/* pressure sensor */
 	int16_t		pres_real;	/* unclipped */
@@ -53,6 +53,8 @@ struct ao_adc {
 #define __xdata
 #define __code
 #define __reentrant
+
+#include <ao_data.h>
 
 #define to_fix16(x) ((int16_t) ((x) * 65536.0 + 0.5))
 #define to_fix32(x) ((int32_t) ((x) * 65536.0 + 0.5))
@@ -90,8 +92,8 @@ extern enum ao_flight_state ao_flight_state;
 #define FALSE 0
 #define TRUE 1
 
-struct ao_adc ao_adc_ring[AO_ADC_RING];
-uint8_t ao_adc_head;
+volatile struct ao_data ao_data_ring[AO_DATA_RING];
+volatile uint8_t ao_data_head;
 int	ao_summary = 0;
 
 #define ao_led_on(l)
@@ -110,7 +112,7 @@ enum ao_igniter {
 	ao_igniter_main = 1
 };
 
-struct ao_adc ao_adc_static;
+struct ao_data ao_data_static;
 
 int	drogue_height;
 double	drogue_time;
@@ -124,7 +126,7 @@ static int32_t	ao_k_height;
 void
 ao_ignite(enum ao_igniter igniter)
 {
-	double time = (double) (ao_adc_static.tick + tick_offset) / 100;
+	double time = (double) (ao_data_static.tick + tick_offset) / 100;
 
 	if (igniter == ao_igniter_drogue) {
 		drogue_time = time;
@@ -221,8 +223,8 @@ int ao_sample_prev_tick;
 uint16_t	prev_tick;
 
 #include "ao_kalman.c"
-#include "ao_sample.c"
-#include "ao_flight.c"
+#include "ao_sample_mm.c"
+#include "ao_flight_mm.c"
 
 #define to_double(f)	((f) / 65536.0)
 
@@ -282,19 +284,19 @@ ao_insert(void)
 {
 	double	time;
 
-	ao_adc_ring[ao_adc_head] = ao_adc_static;
-	ao_adc_head = ao_adc_ring_next(ao_adc_head);
+	ao_data_ring[ao_data_head] = ao_data_static;
+	ao_data_head = ao_data_ring_next(ao_data_head);
 	if (ao_flight_state != ao_flight_startup) {
-		double	height = ao_pres_to_altitude(ao_adc_static.pres_real) - ao_ground_height;
-		double  accel = ((ao_flight_ground_accel - ao_adc_static.accel) * GRAVITY * 2.0) /
+		double	height = ao_pres_to_altitude(ao_data_static.adc.pres_real) - ao_ground_height;
+		double  accel = ((ao_flight_ground_accel - ao_data_static.adc.accel) * GRAVITY * 2.0) /
 			(ao_config.accel_minus_g - ao_config.accel_plus_g);
 
 		if (!tick_offset)
-			tick_offset = -ao_adc_static.tick;
-		if ((prev_tick - ao_adc_static.tick) > 0x400)
+			tick_offset = -ao_data_static.tick;
+		if ((prev_tick - ao_data_static.tick) > 0x400)
 			tick_offset += 65536;
-		prev_tick = ao_adc_static.tick;
-		time = (double) (ao_adc_static.tick + tick_offset) / 100;
+		prev_tick = ao_data_static.tick;
+		time = (double) (ao_data_static.tick + tick_offset) / 100;
 
 		if (ao_test_max_height < height) {
 			ao_test_max_height = height;
@@ -474,7 +476,7 @@ int16(uint8_t *bytes, int off)
 void
 ao_sleep(void *wchan)
 {
-	if (wchan == &ao_adc_head) {
+	if (wchan == &ao_data_head) {
 		char		type;
 		uint16_t	tick;
 		uint16_t	a, b;
@@ -490,7 +492,7 @@ ao_sleep(void *wchan)
 		for (;;) {
 			if (ao_records_read > 2 && ao_flight_state == ao_flight_startup)
 			{
-				ao_adc_static.accel = ao_flight_ground_accel;
+				ao_data_static.adc.accel = ao_flight_ground_accel;
 				ao_insert();
 				return;
 			}
@@ -501,7 +503,7 @@ ao_sleep(void *wchan)
 						printf ("no more data, exiting simulation\n");
 					ao_test_exit();
 				}
-				ao_adc_static.tick += 10;
+				ao_data_static.tick += 10;
 				ao_insert();
 				return;
 			}
@@ -639,19 +641,19 @@ ao_sleep(void *wchan)
 			case 'S':
 				break;
 			case 'A':
-				ao_adc_static.tick = tick;
-				ao_adc_static.accel = a;
-				ao_adc_static.pres_real = b;
+				ao_data_static.tick = tick;
+				ao_data_static.adc.accel = a;
+				ao_data_static.adc.pres_real = b;
 				if (b < AO_MIN_BARO_VALUE)
 					b = AO_MIN_BARO_VALUE;
-				ao_adc_static.pres = b;
+				ao_data_static.adc.pres = b;
 				ao_records_read++;
 				ao_insert();
 				return;
 			case 'T':
-				ao_adc_static.tick = tick;
-				ao_adc_static.temp = a;
-				ao_adc_static.v_batt = b;
+				ao_data_static.tick = tick;
+				ao_data_static.adc.temp = a;
+				ao_data_static.adc.v_batt = b;
 				break;
 			case 'D':
 			case 'G':
