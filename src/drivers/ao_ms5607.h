@@ -51,6 +51,7 @@ struct ao_ms5607_sample {
 	uint32_t	temp;	/* raw 24 bit sensor */
 };
 
+extern uint8_t ao_ms5607_valid;
 extern struct ao_ms5607_sample ao_ms5607_current;
 
 struct ao_ms5607_value {

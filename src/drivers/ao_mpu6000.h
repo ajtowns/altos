@@ -156,6 +156,7 @@ struct ao_mpu6000_sample {
 };
 
 extern struct ao_mpu6000_sample ao_mpu6000_current;
+extern uint8_t ao_mpu6000_valid;
 
 void
 ao_mpu6000_init(void);

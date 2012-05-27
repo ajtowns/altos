@@ -246,6 +246,7 @@ ao_mpu6000_setup(void)
 }
 
 struct ao_mpu6000_sample ao_mpu6000_current;
+uint8_t ao_mpu6000_valid;
 
 static void
 ao_mpu6000(void)
@@ -257,6 +258,7 @@ ao_mpu6000(void)
 		ao_mpu6000_sample(&ao_mpu6000_next);
 		ao_arch_critical(
 			ao_mpu6000_current = ao_mpu6000_next;
+			ao_mpu6000_valid = 1;
 			);
 		ao_delay(0);
 	}
@@ -288,6 +290,7 @@ void
 ao_mpu6000_init(void)
 {
 	ao_mpu6000_configured = 0;
+	ao_mpu6000_valid = 0;
 
 	ao_add_task(&ao_mpu6000_task, ao_mpu6000, "mpu6000");
 	ao_cmd_register(&ao_mpu6000_cmds[0]);

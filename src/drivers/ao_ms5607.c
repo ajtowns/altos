@@ -195,6 +195,7 @@ ao_ms5607_convert(struct ao_ms5607_sample *sample, struct ao_ms5607_value *value
 }
 
 struct ao_ms5607_sample	ao_ms5607_current;
+uint8_t ao_ms5607_valid;
 
 static void
 ao_ms5607(void)
@@ -206,6 +207,7 @@ ao_ms5607(void)
 		ao_ms5607_sample(&ao_ms5607_next);
 		ao_arch_critical(
 			ao_ms5607_current = ao_ms5607_next;
+			ao_ms5607_valid = 1;
 			);
 		ao_delay(0);
 	}
@@ -244,6 +246,7 @@ void
 ao_ms5607_init(void)
 {
 	ms5607_configured = 0;
+	ao_ms5607_valid = 0;
 	ao_cmd_register(&ao_ms5607_cmds[0]);
 	ao_spi_init_cs(AO_MS5607_CS_GPIO, (1 << AO_MS5607_CS));
 
