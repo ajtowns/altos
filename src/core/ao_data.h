@@ -183,7 +183,7 @@ typedef int16_t accel_t;
 #define ao_data_accel_sample(packet) \
 	((uint16_t) ((((uint32_t) (packet)->adc.accel << 16) / ((packet)->accel_ref << 1))) >> 1)
 #else
-#define ao_data_accel(packet) ((packet)->adc.accel)
+#define ao_data_accel_sample(packet) ((packet)->adc.accel)
 #endif /* HAS_ACCEL_REF */
 
 #endif	/* else some other pressure sensor */
