@@ -83,7 +83,7 @@ ao_adc_isr(void) __interrupt 1
 
 #if IGNITE_ON_P0
 	/* TeleMini readings */
-	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].pres);
+	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.pres);
 #ifdef TELEMINI_V_1_0
 	switch (sequence) {
 	case 0:

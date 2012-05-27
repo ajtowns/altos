@@ -85,7 +85,7 @@ ao_log(void)
 	enum ao_flight_state	ao_log_tiny_state;
 	int32_t			sum;
 	int16_t			count;
-	uint8_t			ao_log_adc;
+	uint8_t			ao_log_data;
 	uint8_t			ao_log_started = 0;
 
 	ao_storage_setup();
@@ -96,18 +96,18 @@ ao_log(void)
 	ao_log_tiny_interval = AO_LOG_TINY_INTERVAL_ASCENT;
 	sum = 0;
 	count = 0;
-	ao_log_adc = ao_sample_adc;
+	ao_log_data = ao_sample_data;
 	last_time = ao_time();
 	for (;;) {
 
 		/*
 		 * Add in pending sample data
 		 */
-		ao_sleep(DATA_TO_XDATA(&ao_sample_adc));
-		while (ao_log_adc != ao_sample_adc) {
-			sum += ao_adc_ring[ao_log_adc].pres;
+		ao_sleep(DATA_TO_XDATA(&ao_sample_data));
+		while (ao_log_data != ao_sample_data) {
+			sum += ao_data_ring[ao_log_data].adc.pres;
 			count++;
-			ao_log_adc = ao_adc_ring_next(ao_log_adc);
+			ao_log_data = ao_data_ring_next(ao_log_data);
 		}
 		if (ao_log_running) {
 			if (!ao_log_started) {
