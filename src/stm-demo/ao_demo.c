@@ -119,7 +119,7 @@ ao_i2c_write(void) {
 	for (i = 0; i < 10; i++) {
 		ao_i2c_get(0);
 		if (ao_i2c_start(0, 0x55))
-			ao_i2c_send(data, 4, 0);
+			ao_i2c_send(data, 4, 0, TRUE);
 		else {
 			printf ("i2c start failed\n");
 			ao_i2c_put(0);
@@ -135,16 +135,16 @@ ao_i2c_write(void) {
 static void
 ao_temp (void)
 {
-	struct ao_adc	adc;
+	struct ao_data	packet;
 	int temp;
 
-	ao_adc_get(&adc);
+	ao_data_get(&packet);
 
 	/*
 	 * r = (110 - 25) / (ts_cal_hot - ts_cal_cold)
 	 * 25 + (110 - 25) * (temp - ts_cal_cold) / (ts_cal_hot - ts_cal_cold)
 	 */
-	temp = 25 + (110 - 25) * (adc.temp - stm_temp_cal.ts_cal_cold) / (stm_temp_cal.ts_cal_hot - stm_temp_cal.ts_cal_cold);
+	temp = 25 + (110 - 25) * (packet.adc.temp - stm_temp_cal.ts_cal_cold) / (stm_temp_cal.ts_cal_hot - stm_temp_cal.ts_cal_cold);
 	printf ("temp: %d\n", temp);
 }
 

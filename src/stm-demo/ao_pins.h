@@ -156,6 +156,7 @@ struct ao_adc {
 
 #define HAS_ADC_TEMP		1
 
+#define AO_DATA_RING		32
 #define AO_NUM_ADC		3
 
 #define AO_ADC_SQ1		AO_ADC_IDD
