@@ -103,7 +103,6 @@
 #define AO_ADC_NUM_SENSE	6
 
 struct ao_adc {
-	uint16_t		tick;
 	int16_t			sense[AO_ADC_NUM_SENSE];
 	int16_t			v_batt;
 	int16_t			v_pbatt;

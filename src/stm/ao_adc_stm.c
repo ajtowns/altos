@@ -50,7 +50,7 @@ static uint8_t			ao_adc_ready;
  */
 static void ao_adc_done(int index)
 {
-	ao_data_ring[ao_data_head].adc.tick = ao_time();
+	ao_data_ring[ao_data_head].tick = ao_time();
 #if HAS_MPU6000
 	ao_data_ring[ao_data_head].mpu6000 = ao_mpu6000_current;
 #endif
