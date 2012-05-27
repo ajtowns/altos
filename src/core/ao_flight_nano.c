@@ -27,8 +27,8 @@ __pdata uint16_t		ao_launch_tick;		/* time of launch detect */
  * resting
  */
 __pdata uint16_t		ao_interval_end;
-__pdata int16_t			ao_interval_min_height;
-__pdata int16_t			ao_interval_max_height;
+__pdata alt_t			ao_interval_min_height;
+__pdata alt_t			ao_interval_max_height;
 
 __pdata uint8_t			ao_flight_force_idle;
 

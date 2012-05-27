@@ -29,7 +29,7 @@ CORE_SRC = \
 	ao_mutex.c \
 	ao_panic.c \
 	ao_report.c \
-	ao_sample.c \
+	ao_sample_mm.c \
 	ao_stdio.c \
 	ao_storage.c \
 	ao_task.c \
