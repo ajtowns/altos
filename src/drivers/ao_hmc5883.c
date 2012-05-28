@@ -19,39 +19,18 @@
 #include <ao_hmc5883.h>
 #include <ao_exti.h>
 
-static uint8_t	ao_hmc5883_wake;
 static uint8_t	ao_hmc5883_configured;
 
 static void
-ao_hmc5883_isr(void)
+ao_hmc5883_reg_write(uint8_t addr, uint8_t data)
 {
-	ao_exti_disable(&AO_HMC5883_INT_PORT, AO_HMC5883_INT_PIN);
-	ao_hmc5883_wake = 1;
-	ao_wakeup(&ao_hmc5883_wake);
-}
+	uint8_t	d[2];
 
-static uint8_t	ao_hmc5883_addr_reg;
-
-static void
-ao_hmc5883_update_addr (uint8_t len)
-{
-	ao_hmc5883_addr_reg += len;
-	if (ao_hmc5883_addr_reg == 9)
-		ao_hmc5883_addr_reg = 3;
-	else if (ao_hmc5883_addr_reg > 12)
-		ao_hmc5883_addr_reg = 0;
-		    
-}
-
-static void
-ao_hmc5883_write(uint8_t addr, uint8_t *data, uint8_t len)
-{
+	d[0] = addr;
+	d[1] = data;
 	ao_i2c_get(AO_HMC5883_I2C_INDEX);
 	ao_i2c_start(AO_HMC5883_I2C_INDEX, HMC5883_ADDR_WRITE);
-	ao_i2c_send(&addr, 1, AO_HMC5883_I2C_INDEX, FALSE);
-	ao_hmc5883_addr_reg = addr;
-	ao_i2c_send(data, len, AO_HMC5883_I2C_INDEX, TRUE);
-	ao_hmc5883_update_addr(len);
+	ao_i2c_send(d, 2, AO_HMC5883_I2C_INDEX, TRUE);
 	ao_i2c_put(AO_HMC5883_I2C_INDEX);
 }
 
@@ -59,15 +38,45 @@ static void
 ao_hmc5883_read(uint8_t addr, uint8_t *data, uint8_t len)
 {
 	ao_i2c_get(AO_HMC5883_I2C_INDEX);
-	if (addr != ao_hmc5883_addr_reg) {
-		ao_i2c_start(AO_HMC5883_I2C_INDEX, HMC5883_ADDR_WRITE);
-		ao_i2c_send(&addr, 1, AO_HMC5883_I2C_INDEX, FALSE);
-		ao_hmc5883_addr_reg = addr;
-	}
+	ao_i2c_start(AO_HMC5883_I2C_INDEX, HMC5883_ADDR_WRITE);
+	ao_i2c_send(&addr, 1, AO_HMC5883_I2C_INDEX, FALSE);
 	ao_i2c_start(AO_HMC5883_I2C_INDEX, HMC5883_ADDR_READ);
 	ao_i2c_recv(data, len, AO_HMC5883_I2C_INDEX, TRUE);
-	ao_hmc5883_update_addr(len);
 	ao_i2c_put(AO_HMC5883_I2C_INDEX);
+}
+
+static uint8_t ao_hmc5883_done;
+
+static void
+ao_hmc5883_isr(void)
+{
+	ao_exti_disable(&AO_HMC5883_INT_PORT, AO_HMC5883_INT_PIN);
+	ao_hmc5883_done = 1;
+	ao_wakeup(&ao_hmc5883_done);
+}
+
+void
+ao_hmc5883_sample(struct ao_hmc5883_sample *sample)
+{
+	uint16_t	*d = (uint16_t *) sample;
+	int		i = sizeof (*sample) / 2;
+	uint8_t		single = HMC5883_MODE_SINGLE;
+
+	ao_hmc5883_done = 0;
+	ao_exti_enable(&AO_HMC5883_INT_PORT, AO_HMC5883_INT_PIN);
+	ao_hmc5883_reg_write(HMC5883_MODE, HMC5883_MODE_SINGLE);
+	cli();
+	while (!ao_hmc5883_done)
+		ao_sleep(&ao_hmc5883_done);
+	sei();
+	ao_hmc5883_read(HMC5883_X_MSB, (uint8_t *) sample, sizeof (struct ao_hmc5883_sample));
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+	/* byte swap */
+	while (i--) {
+		uint16_t	t = *d;
+		*d++ = (t >> 8) | (t << 8);
+	}
+#endif
 }
 
 static uint8_t
@@ -81,8 +90,6 @@ ao_hmc5883_setup(void)
 	ao_enable_port(AO_HMC5883_INT_PORT);
 	ao_exti_setup(&AO_HMC5883_INT_PORT, AO_HMC5883_INT_PIN,
 		      AO_EXTI_MODE_FALLING, ao_hmc5883_isr);
-
-	ao_hmc5883_addr_reg = 0xff;
 
 	ao_i2c_get(AO_HMC5883_I2C_INDEX);
 	present = ao_i2c_start(AO_HMC5883_I2C_INDEX, HMC5883_ADDR_READ);
@@ -98,25 +105,21 @@ static void
 ao_hmc5883_show(void)
 {
 	uint8_t	addr, data;
+	struct ao_hmc5883_sample sample;
 
-	for (addr = 0x00; addr <= 0x7f; addr++)
-	{
-		ao_i2c_get(AO_HMC5883_I2C_INDEX);
-		data = ao_i2c_start(AO_HMC5883_I2C_INDEX, addr << 1);
-		ao_i2c_recv(NULL, 0, AO_HMC5883_I2C_INDEX, TRUE);
-		ao_i2c_put(AO_HMC5883_I2C_INDEX);
-		if (data)
-			printf("address %02x responds\n", addr << 1);
-	}
 	if (!ao_hmc5883_setup()) {
 		printf("hmc5883 not present\n");
 		return;
 	}
+#if 0
 	for (addr = 0; addr <= 12; addr++) {
 		ao_hmc5883_read(addr, &data, 1);
 		printf ("hmc5883 register %2d: %02x\n",
 			addr, data);
 	}
+#endif
+	ao_hmc5883_sample(&sample);
+	printf ("X: %d Y: %d Z: %d\n", sample.x, sample.y, sample.z);
 }
 
 static const struct ao_cmds ao_hmc5883_cmds[] = {
@@ -128,6 +131,11 @@ void
 ao_hmc5883_init(void)
 {
 	ao_hmc5883_configured = 0;
+
+	ao_exti_setup(&AO_HMC5883_INT_PORT,
+		      AO_HMC5883_INT_PIN,
+		      AO_EXTI_MODE_FALLING,
+		      ao_hmc5883_isr);
 
 	ao_cmd_register(&ao_hmc5883_cmds[0]);
 }

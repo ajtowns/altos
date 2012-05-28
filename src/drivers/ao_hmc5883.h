@@ -24,6 +24,9 @@
 #define HMC5883_CONFIG_A	0
 #define HMC5883_CONFIG_B	1
 #define HMC5883_MODE		2
+#define  HMC5883_MODE_CONTINUOUS	0
+#define  HMC5883_MODE_SINGLE		1
+#define  HMC5883_MODE_IDLE		2
 #define HMC5883_X_MSB		3
 #define HMC5883_X_LSB		4
 #define HMC5883_Y_MSB		5
@@ -34,6 +37,10 @@
 #define HMC5883_ID_A		10
 #define HMC5883_ID_B		11
 #define HMC5883_ID_C		12
+
+struct ao_hmc5883_sample {
+	int16_t		x, y, z;
+};
 
 void
 ao_hmc5883_init(void);
