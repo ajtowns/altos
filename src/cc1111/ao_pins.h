@@ -18,6 +18,8 @@
 #ifndef _AO_PINS_H_
 #define _AO_PINS_H_
 
+#define HAS_RADIO	1
+
 #if defined(TELEMETRUM_V_1_0)
 	#define HAS_FLIGHT		1
 	#define HAS_USB			1
