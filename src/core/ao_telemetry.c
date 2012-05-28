@@ -53,23 +53,23 @@ static __xdata union ao_telemetry_all	telemetry;
 static void
 ao_send_sensor(void)
 {
-	uint8_t		sample = ao_data_ring_prev(ao_sample_data);
+	__xdata	struct ao_data *packet = &ao_data_ring[ao_data_ring_prev(ao_sample_data)];
 			
-	telemetry.generic.tick = ao_data_ring[sample].tick;
+	telemetry.generic.tick = packet->tick;
 	telemetry.generic.type = AO_TELEMETRY_SENSOR;
 
 	telemetry.sensor.state = ao_flight_state;
 #if HAS_ACCEL
-	telemetry.sensor.accel = ao_data_ring[sample].adc.accel;
+	telemetry.sensor.accel = packet->adc.accel;
 #else
 	telemetry.sensor.accel = 0;
 #endif
-	telemetry.sensor.pres = ao_data_ring[sample].adc.pres;
-	telemetry.sensor.temp = ao_data_ring[sample].adc.temp;
-	telemetry.sensor.v_batt = ao_data_ring[sample].adc.v_batt;
+	telemetry.sensor.pres = packet->adc.pres;
+	telemetry.sensor.temp = packet->adc.temp;
+	telemetry.sensor.v_batt = packet->adc.v_batt;
 #if HAS_IGNITE
-	telemetry.sensor.sense_d = ao_data_ring[sample].adc.sense_d;
-	telemetry.sensor.sense_m = ao_data_ring[sample].adc.sense_m;
+	telemetry.sensor.sense_d = packet->adc.sense_d;
+	telemetry.sensor.sense_m = packet->adc.sense_m;
 #else
 	telemetry.sensor.sense_d = 0;
 	telemetry.sensor.sense_m = 0;
