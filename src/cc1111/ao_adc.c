@@ -52,7 +52,7 @@ ao_adc_isr(void) __interrupt 1
 	uint8_t	__xdata *a;
 
 	sequence = (ADCCON2 & ADCCON2_SCH_MASK) >> ADCCON2_SCH_SHIFT;
-#if IGNITE_ON_P2
+#if TELEMETRUM_V_0_1 || TELEMETRUM_V_0_2 || TELEMETRUM_V_1_0 || TELEMETRUM_V_1_1 || TELEMETRUM_V_1_2 || TELELAUNCH_V_0_1
 	/* TeleMetrum readings */
 #if HAS_ACCEL_REF
 	if (sequence == 2) {
@@ -81,10 +81,10 @@ ao_adc_isr(void) __interrupt 1
 	}
 #endif
 
-#if IGNITE_ON_P0
+#if TELEMINI_V_1_0 || TELENANO_V_0_1
 	/* TeleMini readings */
 	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.pres);
-#ifdef TELEMINI_V_1_0
+#if TELEMINI_V_1_0
 	switch (sequence) {
 	case 0:
 		/* pressure */
@@ -138,7 +138,8 @@ ao_adc_isr(void) __interrupt 1
 		/* Start next conversion */
 		ADCCON3 = sequence;
 	}
-#endif
+#endif /* telemini || telenano */
+
 #ifndef GOT_ADC
 #error No known ADC configuration set
 #endif
