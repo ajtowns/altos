@@ -21,6 +21,7 @@
 #ifdef TELETERRA_V_0_2
 	#define HAS_FLIGHT		0
 	#define HAS_USB			1
+	#define HAS_RADIO		1
 	#define HAS_BEEP		1
 	#define HAS_GPS			1
 	#define HAS_SERIAL_1		1
