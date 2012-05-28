@@ -256,8 +256,6 @@ ao_config_accel_calibrate_auto(char *orientation) __reentrant
 	while (i) {
 		ao_sleep(DATA_TO_XDATA(&ao_sample_data));
 		while (i && cal_data_ring != ao_sample_data) {
-			int16_t	accel = ao_data_accel(&ao_data_ring[cal_data_ring]);
-			printf ("accel %d\n", accel);
 			accel_total += (int32_t) ao_data_accel(&ao_data_ring[cal_data_ring]);
 			cal_data_ring = ao_data_ring_next(cal_data_ring);
 			i--;
