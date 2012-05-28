@@ -250,10 +250,9 @@ ao_i2c_send(void *block, uint16_t len, uint8_t index, uint8_t stop)
 	ao_alarm(1 + len);
 	cli();
 	while (!ao_dma_done[tx_dma_index])
-		if (ao_sleep(&ao_dma_done[tx_dma_index])) {
-			printf ("send timeout\n");
+		if (ao_sleep(&ao_dma_done[tx_dma_index]))
 			break;
-		}
+	ao_clear_alarm();
 	ao_dma_done_transfer(tx_dma_index);
 	out_cr2("send enable isr", stm_i2c,
 		AO_STM_I2C_CR2 | (1 << STM_I2C_CR2_ITEVTEN) | (1 << STM_I2C_CR2_ITERREN));
