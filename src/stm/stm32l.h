@@ -855,10 +855,7 @@ isr(tim7)
 struct stm_syscfg {
 	vuint32_t	memrmp;
 	vuint32_t	pmc;
-	vuint32_t	exticr1;
-	vuint32_t	exticr2;
-	vuint32_t	exticr3;
-	vuint32_t	exticr4;
+	vuint32_t	exticr[4];
 };
 
 extern struct stm_syscfg stm_syscfg;
@@ -870,6 +867,34 @@ extern struct stm_syscfg stm_syscfg;
 #define  STM_SYSCFG_MEMRMP_MEM_MODE_MASK		3
 
 #define STM_SYSCFG_PMC_USB_PU		0
+
+#define STM_SYSCFG_EXTICR_PA		0
+#define STM_SYSCFG_EXTICR_PB		1
+#define STM_SYSCFG_EXTICR_PC		2
+#define STM_SYSCFG_EXTICR_PD		3
+#define STM_SYSCFG_EXTICR_PE		4
+#define STM_SYSCFG_EXTICR_PH		5
+
+static inline void
+stm_exticr_set(struct stm_gpio *gpio, int pin) {
+	uint8_t	reg = pin >> 2;
+	uint8_t	shift = (pin & 3) << 2;
+	uint8_t	val = 0;
+
+	if (gpio == &stm_gpioa)
+		val = STM_SYSCFG_EXTICR_PA;
+	else if (gpio == &stm_gpiob)
+		val = STM_SYSCFG_EXTICR_PB;
+	else if (gpio == &stm_gpioc)
+		val = STM_SYSCFG_EXTICR_PC;
+	else if (gpio == &stm_gpiod)
+		val = STM_SYSCFG_EXTICR_PD;
+	else if (gpio == &stm_gpioe)
+		val = STM_SYSCFG_EXTICR_PE;
+
+	stm_syscfg.exticr[reg] = (stm_syscfg.exticr[reg] & ~(0xf << shift)) | val << shift;
+}
+
 
 struct stm_dma_channel {
 	vuint32_t	ccr;

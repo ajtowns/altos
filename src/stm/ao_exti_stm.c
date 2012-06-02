@@ -51,8 +51,12 @@ ao_exti_setup (struct stm_gpio *gpio, uint8_t pin, uint8_t mode, void (*callback
 	uint32_t	mask = 1 << pin;
 	uint32_t	pupdr;
 	uint8_t		irq;
-	
+
 	ao_exti_callback[pin] = callback;
+
+	/* configure gpio to interrupt routing */
+	stm_exticr_set(gpio, pin);
+
 	/* configure pin as input, setting selected pull-up/down mode */
 	stm_moder_set(gpio, pin, STM_MODER_INPUT);
 	switch (mode & (AO_EXTI_MODE_PULL_UP|AO_EXTI_MODE_PULL_DOWN)) {
