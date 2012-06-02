@@ -75,11 +75,14 @@ ao_exti_setup (struct stm_gpio *gpio, uint8_t pin, uint8_t mode, void (*callback
 
 	/* Set interrupt mask and rising/falling mode */
 	stm_exti.imr &= ~mask;
-	stm_exti.rtsr |= mask;
 	if (mode & AO_EXTI_MODE_RISING)
 		stm_exti.rtsr |= mask;
+	else
+		stm_exti.rtsr &= ~mask;
 	if (mode & AO_EXTI_MODE_FALLING)
 		stm_exti.ftsr |= mask;
+	else
+		stm_exti.ftsr &= ~mask;
 
 	if (pin <= 4)
 		irq = STM_ISR_EXTI0_POS + pin;
@@ -93,12 +96,16 @@ ao_exti_setup (struct stm_gpio *gpio, uint8_t pin, uint8_t mode, void (*callback
 
 void
 ao_exti_enable(struct stm_gpio *gpio, uint8_t pin) {
+	uint32_t	mask = (1 << pin);
+	stm_exti.pr = mask;
 	stm_exti.imr |= (1 << pin);
 }
 
 void
 ao_exti_disable(struct stm_gpio *gpio, uint8_t pin) {
-	stm_exti.imr &= ~(1 << pin);
+	uint32_t	mask = (1 << pin);
+	stm_exti.imr &= ~mask;
+	stm_exti.pr = mask;
 }
 
 void
