@@ -98,6 +98,7 @@
 #define HAS_FLIGHT		1
 #define HAS_ADC			1
 #define HAS_ACCEL		1
+#define HAS_ACCEL_REF		1
 #define HAS_LOG			1
 
 #define AO_DATA_RING		32
@@ -107,6 +108,8 @@ struct ao_adc {
 	int16_t			sense[AO_ADC_NUM_SENSE];
 	int16_t			v_batt;
 	int16_t			v_pbatt;
+	int16_t			accel_ref;
+	int16_t			accel;
 	int16_t			temp;
 };
 
@@ -142,13 +145,22 @@ struct ao_adc {
 #define AO_ADC_V_PBATT_PORT	stm_gpiob
 #define AO_ADC_V_PBATT_PIN	1
 
+#define AO_ADC_ACCEL_REF	10
+#define AO_ADC_ACCEL_REF_PORT	stm_gpioc
+#define AO_ADC_ACCEL_REF_PIN	0
+
+#define AO_ADC_ACCEL		11
+#define AO_ADC_ACCEL_PORT	stm_gpioc
+#define AO_ADC_ACCEL_PIN	1
+
 #define AO_ADC_TEMP		16
 
 #define AO_ADC_RCC_AHBENR	((1 << STM_RCC_AHBENR_GPIOAEN) | \
 				 (1 << STM_RCC_AHBENR_GPIOEEN) | \
-				 (1 << STM_RCC_AHBENR_GPIOBEN))
+				 (1 << STM_RCC_AHBENR_GPIOBEN) | \
+				 (1 << STM_RCC_AHBENR_GPIOCEN))
 
-#define AO_NUM_ADC_PIN		(AO_ADC_NUM_SENSE + 2)
+#define AO_NUM_ADC_PIN		(AO_ADC_NUM_SENSE + 4)
 
 #define AO_ADC_PIN0_PORT	AO_ADC_SENSE_A_PORT
 #define AO_ADC_PIN0_PIN		AO_ADC_SENSE_A_PIN
@@ -166,8 +178,12 @@ struct ao_adc {
 #define AO_ADC_PIN6_PIN		AO_ADC_V_BATT_PIN
 #define AO_ADC_PIN7_PORT	AO_ADC_V_PBATT_PORT
 #define AO_ADC_PIN7_PIN		AO_ADC_V_PBATT_PIN
+#define AO_ADC_PIN8_PORT	AO_ADC_ACCEL_REF_PORT
+#define AO_ADC_PIN8_PIN		AO_ADC_ACCEL_REF_PIN
+#define AO_ADC_PIN9_PORT	AO_ADC_ACCEL_PORT
+#define AO_ADC_PIN9_PIN		AO_ADC_ACCEL_PIN
 
-#define AO_NUM_ADC	       	(AO_ADC_NUM_SENSE + 3)
+#define AO_NUM_ADC	       	(AO_ADC_NUM_SENSE + 5)
 
 #define AO_ADC_SQ1		AO_ADC_SENSE_A
 #define AO_ADC_SQ2		AO_ADC_SENSE_B
@@ -177,7 +193,9 @@ struct ao_adc {
 #define AO_ADC_SQ6		AO_ADC_SENSE_F
 #define AO_ADC_SQ7		AO_ADC_V_BATT
 #define AO_ADC_SQ8		AO_ADC_V_PBATT
-#define AO_ADC_SQ9		AO_ADC_TEMP
+#define AO_ADC_SQ9		AO_ADC_ACCEL_REF
+#define AO_ADC_SQ10		AO_ADC_ACCEL
+#define AO_ADC_SQ11		AO_ADC_TEMP
 
 /*
  * Pressure sensor settings
@@ -229,5 +247,7 @@ struct ao_adc {
 #define AO_MPU6000_INT_PORT	stm_gpioc
 #define AO_MPU6000_INT_PIN	13
 #define AO_MPU6000_I2C_INDEX	STM_I2C_INDEX(1)
+
+#define HAS_HIGHG_ACCEL		1
 
 #endif /* _AO_PINS_H_ */

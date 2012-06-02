@@ -82,7 +82,7 @@ ao_adc_poll(void)
 	stm_adc.sr = 0;
 	ao_dma_set_transfer(STM_DMA_INDEX(STM_DMA_CHANNEL_ADC1),
 			    &stm_adc.dr,
-			    (void *) (&ao_data_ring[ao_data_head].tick + 1),
+			    (void *) (&ao_data_ring[ao_data_head].adc),
 			    AO_NUM_ADC,
 			    (0 << STM_DMA_CCR_MEM2MEM) |
 			    (STM_DMA_CCR_PL_HIGH << STM_DMA_CCR_PL) |
@@ -180,6 +180,15 @@ ao_adc_init(void)
 #ifdef AO_ADC_PIN9_PORT
 	stm_moder_set(&AO_ADC_PIN9_PORT, AO_ADC_PIN9_PIN, STM_MODER_ANALOG);
 #endif
+#ifdef AO_ADC_PIN10_PORT
+	stm_moder_set(&AO_ADC_PIN10_PORT, AO_ADC_PIN10_PIN, STM_MODER_ANALOG);
+#endif
+#ifdef AO_ADC_PIN11_PORT
+	stm_moder_set(&AO_ADC_PIN11_PORT, AO_ADC_PIN11_PIN, STM_MODER_ANALOG);
+#endif
+#ifdef AO_ADC_PIN12_PORT
+	stm_moder_set(&AO_ADC_PIN12_PORT, AO_ADC_PIN12_PIN, STM_MODER_ANALOG);
+#endif
 
 	stm_rcc.apb2enr |= (1 << STM_RCC_APB2ENR_ADC1EN);
 
@@ -240,7 +249,19 @@ ao_adc_init(void)
 #if AO_NUM_ADC > 8
 	stm_adc.sqr4 |= (AO_ADC_SQ9 << 10);
 #endif
-
+#if AO_NUM_ADC > 9
+	stm_adc.sqr4 |= (AO_ADC_SQ10 << 15);
+#endif
+#if AO_NUM_ADC > 10
+	stm_adc.sqr4 |= (AO_ADC_SQ11 << 20);
+#endif
+#if AO_NUM_ADC > 11
+	stm_adc.sqr4 |= (AO_ADC_SQ12 << 25);
+#endif
+#if AO_NUM_ADC > 12
+#error "need to finish stm_adc.sqr settings"
+#endif
+	
 	/* Turn ADC on */
 	stm_adc.cr2 = AO_ADC_CR2_VAL;
 

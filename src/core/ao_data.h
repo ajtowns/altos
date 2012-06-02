@@ -31,9 +31,6 @@ struct ao_data {
 #if HAS_ADC
 	struct ao_adc			adc;
 #endif
-#if HAS_ACCEL_REF
-	uint16_t			accel_ref;
-#endif
 #if HAS_MS5607
 	struct ao_ms5607_sample		ms5607;
 #endif
@@ -82,7 +79,7 @@ typedef int16_t alt_t;
  * ao_data_accel_invert	- flip rocket ends for positive acceleration
  */
 
-#if HAS_MPU6000
+#if HAS_MPU6000 && !HAS_HIGHG_ACCEL
 
 typedef int16_t accel_t;
 
@@ -181,7 +178,7 @@ typedef int16_t accel_t;
  */
 #if HAS_ACCEL_REF
 #define ao_data_accel_sample(packet) \
-	((uint16_t) ((((uint32_t) (packet)->adc.accel << 16) / ((packet)->accel_ref << 1))) >> 1)
+	((uint16_t) ((((uint32_t) (packet)->adc.accel << 16) / ((packet)->adc.accel_ref << 1))) >> 1)
 #else
 #define ao_data_accel_sample(packet) ((packet)->adc.accel)
 #endif /* HAS_ACCEL_REF */

@@ -56,7 +56,7 @@ ao_adc_isr(void) __interrupt 1
 	/* TeleMetrum readings */
 #if HAS_ACCEL_REF
 	if (sequence == 2) {
-		a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].accel_ref);
+		a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.accel_ref);
 		sequence = 0;
 	} else
 #endif
