@@ -52,6 +52,17 @@ public class Altos {
 	static final int AO_LOG_PRODUCT = 2001;
 	static final int AO_LOG_SERIAL_NUMBER = 2002;
 	static final int AO_LOG_LOG_FORMAT = 2003;
+
+	/* Added for header fields in megametrum files */
+	static final int AO_LOG_BARO_RESERVED = 3000;
+	static final int AO_LOG_BARO_SENS = 3001;
+	static final int AO_LOG_BARO_OFF = 3002;
+	static final int AO_LOG_BARO_TCS = 3004;
+	static final int AO_LOG_BARO_TCO = 3005;
+	static final int AO_LOG_BARO_TREF = 3006;
+	static final int AO_LOG_BARO_TEMPSENS = 3007;
+	static final int AO_LOG_BARO_CRC = 3008;
+
 	static final int AO_LOG_SOFTWARE_VERSION = 9999;
 
 	/* Added to flag invalid records */
@@ -220,6 +231,7 @@ public class Altos {
 	static final int AO_LOG_FORMAT_TINY = 2;
 	static final int AO_LOG_FORMAT_TELEMETRY = 3;
 	static final int AO_LOG_FORMAT_TELESCIENCE = 4;
+	static final int AO_LOG_FORMAT_MEGAMETRUM = 5;
 	static final int AO_LOG_FORMAT_NONE = 127;
 
 	static boolean isspace(int c) {

@@ -67,6 +67,9 @@ public class AltosRecord implements Comparable <AltosRecord> {
 	AltosGPS	gps;
 	boolean		new_gps;
 
+	AltosIMU	imu;
+	AltosMag	mag;
+
 	double	time;	/* seconds since boost */
 
 	int	device_type;
@@ -277,6 +280,8 @@ public class AltosRecord implements Comparable <AltosRecord> {
 		gps = new AltosGPS(old.gps);
 		new_gps = false;
 		companion = old.companion;
+		imu = old.imu;
+		mag = old.mag;
 	}
 
 	public AltosRecord() {

@@ -52,6 +52,11 @@ public class AltosEepromChunk {
 		return data[offset] | (data[offset + 1] << 8);
 	}
 
+	int data32(int offset) {
+		return data[offset] | (data[offset + 1] << 8) |
+			(data[offset+2] << 16) | (data[offset+3] << 24);
+	}
+
 	boolean erased(int start, int len) {
 		for (int i = 0; i < len; i++)
 			if (data[start+i] != 0xff)

@@ -32,11 +32,11 @@ import java.util.concurrent.LinkedBlockingQueue;
  * AltosRecords with an index field so they can be sorted by tick while preserving
  * the original ordering for elements with matching ticks
  */
-class AltosOrderedRecord extends AltosEepromRecord implements Comparable<AltosOrderedRecord> {
+class AltosOrderedMegaRecord extends AltosEepromMega implements Comparable<AltosOrderedMegaRecord> {
 
 	public int	index;
 
-	public AltosOrderedRecord(String line, int in_index, int prev_tick, boolean prev_tick_valid)
+	public AltosOrderedMegaRecord(String line, int in_index, int prev_tick, boolean prev_tick_valid)
 		throws ParseException {
 		super(line);
 		if (prev_tick_valid) {
@@ -52,8 +52,10 @@ class AltosOrderedRecord extends AltosEepromRecord implements Comparable<AltosOr
 		index = in_index;
 	}
 
-	public AltosOrderedRecord(int in_cmd, int in_tick, int in_a, int in_b, int in_index) {
-		super(in_cmd, in_tick, in_a, in_b);
+	public AltosOrderedMegaRecord(int in_cmd, int in_tick, int in_a, int in_b, int in_index) {
+		super(in_cmd, in_tick);
+		a = in_a;
+		b = in_b;
 		index = in_index;
 	}
 
@@ -62,7 +64,7 @@ class AltosOrderedRecord extends AltosEepromRecord implements Comparable<AltosOr
 				     cmd, index, tick, a, b);
 	}
 
-	public int compareTo(AltosOrderedRecord o) {
+	public int compareTo(AltosOrderedMegaRecord o) {
 		int	tick_diff = tick - o.tick;
 		if (tick_diff != 0)
 			return tick_diff;
@@ -70,7 +72,7 @@ class AltosOrderedRecord extends AltosEepromRecord implements Comparable<AltosOr
 	}
 }
 
-public class AltosEepromIterable extends AltosRecordIterable {
+public class AltosEepromMegaIterable extends AltosRecordIterable {
 
 	static final int	seen_flight = 1;
 	static final int	seen_sensor = 2;
@@ -86,10 +88,12 @@ public class AltosEepromIterable extends AltosRecordIterable {
 	boolean			has_gps;
 	boolean			has_ignite;
 
-	AltosEepromRecord	flight_record;
-	AltosEepromRecord	gps_date_record;
+	AltosEepromMega	flight_record;
+	AltosEepromMega	gps_date_record;
 
-	TreeSet<AltosOrderedRecord>	records;
+	TreeSet<AltosOrderedMegaRecord>	records;
+
+	AltosMs5607		baro;
 
 	LinkedList<AltosRecord>	list;
 
@@ -109,19 +113,33 @@ public class AltosEepromIterable extends AltosRecordIterable {
 		}
 	}
 
-	void update_state(AltosRecord state, AltosEepromRecord record, EepromState eeprom) {
+	void update_state(AltosRecord state, AltosEepromMega record, EepromState eeprom) {
 		state.tick = record.tick;
 		switch (record.cmd) {
 		case Altos.AO_LOG_FLIGHT:
 			eeprom.seen |= seen_flight;
-			state.ground_accel = record.a;
-			state.flight_accel = record.a;
-			state.flight = record.b;
+			state.ground_accel = record.ground_accel();
+			state.flight_accel = record.ground_accel();
+			state.ground_pres = baro.set(record.ground_pres(), record.ground_temp());
+			state.flight_pres = state.ground_pres;
+			state.flight = record.data16(0);
 			eeprom.boost_tick = record.tick;
 			break;
 		case Altos.AO_LOG_SENSOR:
-			state.accel = record.a;
-			state.pres = record.b;
+			state.accel = record.accel();
+			state.pres = baro.set(record.pres(), record.temp());
+			state.temp = baro.cc;
+			state.imu = new AltosIMU();
+			state.imu.accel_x = record.accel_x();
+			state.imu.accel_y = record.accel_y();
+			state.imu.accel_z = record.accel_z();
+			state.imu.gyro_x = record.gyro_x();
+			state.imu.gyro_y = record.gyro_y();
+			state.imu.gyro_z = record.gyro_z();
+			state.mag = new AltosMag();
+			state.mag.x = record.mag_x();
+			state.mag.y = record.mag_y();
+			state.mag.z = record.mag_z();
 			if (state.state < Altos.ao_flight_boost) {
 				eeprom.n_pad_samples++;
 				eeprom.ground_pres += state.pres;
@@ -148,8 +166,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 			eeprom.seen |= seen_sensor;
 			break;
 		case Altos.AO_LOG_TEMP_VOLT:
-			state.temp = record.a;
-			state.batt = record.b;
+			state.batt = record.v_batt();
 			eeprom.seen |= seen_temp_volt;
 			break;
 		case Altos.AO_LOG_DEPLOY:
@@ -159,7 +176,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 			has_ignite = true;
 			break;
 		case Altos.AO_LOG_STATE:
-			state.state = record.a;
+			state.state = record.state();
 			break;
 		case Altos.AO_LOG_GPS_TIME:
 			eeprom.gps_tick = state.tick;
@@ -234,14 +251,38 @@ public class AltosEepromIterable extends AltosRecordIterable {
 			break;
 		case Altos.AO_LOG_SOFTWARE_VERSION:
 			break;
+		case Altos.AO_LOG_BARO_RESERVED:
+			baro.reserved = record.a;
+			break;
+		case Altos.AO_LOG_BARO_SENS:
+			baro.sens =record.a;
+			break;
+		case Altos.AO_LOG_BARO_OFF:
+			baro.off =record.a;
+			break;
+		case Altos.AO_LOG_BARO_TCS:
+			baro.tcs =record.a;
+			break;
+		case Altos.AO_LOG_BARO_TCO:
+			baro.tco =record.a;
+			break;
+		case Altos.AO_LOG_BARO_TREF:
+			baro.tref =record.a;
+			break;
+		case Altos.AO_LOG_BARO_TEMPSENS:
+			baro.tempsens =record.a;
+			break;
+		case Altos.AO_LOG_BARO_CRC:
+			baro.crc =record.a;
+			break;
 		}
 		state.seen |= eeprom.seen;
 	}
 
 	LinkedList<AltosRecord> make_list() {
 		LinkedList<AltosRecord>		list = new LinkedList<AltosRecord>();
-		Iterator<AltosOrderedRecord>	iterator = records.iterator();
-		AltosOrderedRecord		record = null;
+		Iterator<AltosOrderedMegaRecord>	iterator = records.iterator();
+		AltosOrderedMegaRecord		record = null;
 		AltosRecord			state = new AltosRecord();
 		boolean				last_reported = false;
 		EepromState			eeprom = new EepromState();
@@ -268,7 +309,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 		AltosRecord r = new AltosRecord(state);
 		r.time = (r.tick - eeprom.boost_tick) / 100.0;
 		list.add(r);
-	return list;
+		return list;
 	}
 
 	public Iterator<AltosRecord> iterator() {
@@ -282,10 +323,10 @@ public class AltosEepromIterable extends AltosRecordIterable {
 	public boolean has_ignite() { return has_ignite; }
 
 	public void write_comments(PrintStream out) {
-		Iterator<AltosOrderedRecord>	iterator = records.iterator();
+		Iterator<AltosOrderedMegaRecord>	iterator = records.iterator();
 		out.printf("# Comments\n");
 		while (iterator.hasNext()) {
-			AltosOrderedRecord	record = iterator.next();
+			AltosOrderedMegaRecord	record = iterator.next();
 			switch (record.cmd) {
 			case Altos.AO_LOG_CONFIG_VERSION:
 				out.printf("# Config version: %s\n", record.data);
@@ -356,7 +397,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 	 * missing time, rewrite the missing time values with the good
 	 * ones, assuming that the difference between them is 'diff' seconds
 	 */
-	void update_time(AltosOrderedRecord good, AltosOrderedRecord bad) {
+	void update_time(AltosOrderedMegaRecord good, AltosOrderedMegaRecord bad) {
 
 		int diff = (bad.tick - good.tick + 50) / 100;
 
@@ -392,10 +433,12 @@ public class AltosEepromIterable extends AltosRecordIterable {
 	 * matching the first packet out of the GPS unit but not
 	 * written until the final GPS packet has been received.
 	 */
-	public AltosEepromIterable (FileInputStream input) {
-		records = new TreeSet<AltosOrderedRecord>();
+	public AltosEepromMegaIterable (FileInputStream input) {
+		records = new TreeSet<AltosOrderedMegaRecord>();
 
-		AltosOrderedRecord last_gps_time = null;
+		AltosOrderedMegaRecord last_gps_time = null;
+
+		baro = new AltosMs5607();
 
 		int index = 0;
 		int prev_tick = 0;
@@ -407,7 +450,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 				String line = AltosRecord.gets(input);
 				if (line == null)
 					break;
-				AltosOrderedRecord record = new AltosOrderedRecord(line, index++, prev_tick, prev_tick_valid);
+				AltosOrderedMegaRecord record = new AltosOrderedMegaRecord(line, index++, prev_tick, prev_tick_valid);
 				if (record == null)
 					break;
 				if (record.cmd == Altos.AO_LOG_INVALID)
@@ -435,9 +478,9 @@ public class AltosEepromIterable extends AltosRecordIterable {
 				if (record.cmd == Altos.AO_LOG_GPS_TIME) {
 					last_gps_time = record;
 					if (missing_time) {
-						Iterator<AltosOrderedRecord> iterator = records.iterator();
+						Iterator<AltosOrderedMegaRecord> iterator = records.iterator();
 						while (iterator.hasNext()) {
-							AltosOrderedRecord old = iterator.next();
+							AltosOrderedMegaRecord old = iterator.next();
 							if (old.cmd == Altos.AO_LOG_GPS_TIME &&
 							    old.a == -1 && old.b == -1)
 							{
@@ -450,7 +493,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 
 				if (record.cmd == Altos.AO_LOG_GPS_LAT) {
 					if (last_gps_time == null || last_gps_time.tick != record.tick) {
-						AltosOrderedRecord add_gps_time = new AltosOrderedRecord(Altos.AO_LOG_GPS_TIME,
+						AltosOrderedMegaRecord add_gps_time = new AltosOrderedMegaRecord(Altos.AO_LOG_GPS_TIME,
 													 record.tick,
 													 -1, -1, index-1);
 						if (last_gps_time != null)

@@ -56,6 +56,9 @@ public class AltosDataChooser extends JFileChooser {
 				} else if (filename.endsWith("telem")) {
 					FileInputStream in = new FileInputStream(file);
 					return new AltosTelemetryIterable(in);
+				} else if (filename.endsWith("mega")) {
+					FileInputStream in = new FileInputStream(file);
+					return new AltosEepromMegaIterable(in);
 				} else {
 					throw new FileNotFoundException();
 				}

@@ -248,6 +248,64 @@ public class AltosEepromDownload implements Runnable {
 			done = true;
 	}
 
+	void LogMega(AltosEepromMega r) throws IOException {
+		if (r.cmd != Altos.AO_LOG_INVALID) {
+			String log_line = String.format("%c %4x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x\n",
+							r.cmd, r.tick,
+							r.data8[0], r.data8[1], r.data8[2], r.data8[3],
+							r.data8[4], r.data8[5], r.data8[6], r.data8[7],
+							r.data8[8], r.data8[9], r.data8[10], r.data8[11],
+							r.data8[12], r.data8[13], r.data8[14], r.data8[15],
+							r.data8[16], r.data8[17], r.data8[18], r.data8[19],
+							r.data8[20], r.data8[21], r.data8[22], r.data8[23],
+							r.data8[24], r.data8[25], r.data8[26], r.data8[27]);
+			if (eeprom_file != null)
+				eeprom_file.write(log_line);
+			else
+				eeprom_pending.add(log_line);
+		}
+	}
+
+	void CaptureMega(AltosEepromChunk eechunk) throws IOException {
+		boolean any_valid = false;
+
+		extension = "mega";
+		set_serial(flights.config_data.serial);
+		for (int i = 0; i < eechunk.chunk_size && !done; i += AltosEepromMega.record_length) {
+			try {
+				AltosEepromMega r = new AltosEepromMega(eechunk, i);
+				if (r.cmd == Altos.AO_LOG_FLIGHT)
+					set_flight(r.data16(0));
+
+				/* Monitor state transitions to update display */
+				if (r.cmd == Altos.AO_LOG_STATE && r.data16(0) <= Altos.ao_flight_landed) {
+					state = r.data16(0);
+					if (state > Altos.ao_flight_pad)
+						want_file = true;
+				}
+
+				if (r.cmd == Altos.AO_LOG_GPS_TIME) {
+					year = 2000 + r.data8(14);
+					month = r.data8(15);
+					day = r.data8(14);
+					want_file = true;
+				}
+
+				if (r.cmd == Altos.AO_LOG_STATE && r.data16(0) == Altos.ao_flight_landed)
+					done = true;
+				any_valid = true;
+				LogMega(r);
+			} catch (ParseException pe) {
+				if (parse_exception == null)
+					parse_exception = pe;
+			}
+		}
+		if (!any_valid)
+			done = true;
+
+		CheckFile(false);
+	}
+	
 	void CaptureTelemetry(AltosEepromChunk eechunk) throws IOException {
 		
 	}
@@ -260,9 +318,11 @@ public class AltosEepromDownload implements Runnable {
 		done = false;
 		start = true;
 
-		if (flights.config_data.serial == 0)
-			throw new IOException("no serial number found");
+//		if (flights.config_data.serial == 0)
+//			throw new IOException("no serial number found");
 
+		log_format = 5;
+		System.out.printf ("log format: %d\n", log_format);
 		/* Reset per-capture variables */
 		flight = 0;
 		year = 0;
@@ -312,6 +372,9 @@ public class AltosEepromDownload implements Runnable {
 				extension = "science";
 				CaptureTeleScience(eechunk);
 				break;
+			case Altos.AO_LOG_FORMAT_MEGAMETRUM:
+				extension = "mega";
+				CaptureMega(eechunk);
 			}
 		}
 		CheckFile(true);

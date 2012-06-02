@@ -31,7 +31,7 @@ public class AltosCSV implements AltosWriter {
 	LinkedList<AltosRecord>	pad_records;
 	AltosState		state;
 
-	static final int ALTOS_CSV_VERSION = 4;
+	static final int ALTOS_CSV_VERSION = 5;
 
 	/* Version 4 format:
 	 *
@@ -60,6 +60,17 @@ public class AltosCSV implements AltosWriter {
 	 *	battery (V)
 	 *	drogue (V)
 	 *	main (V)
+	 *
+	 * Advanced sensors (if available)
+	 *	accel_x (m/s²)
+	 *	accel_y (m/s²)
+	 *	accel_z (m/s²)
+	 *	gyro_x (d/s)
+	 *	gyro_y (d/s)
+	 *	gyro_z (d/s)
+	 *	mag_x (g)
+	 *	mag_y (g)
+	 *	mag_z (g)
 	 *
 	 * GPS data (if available)
 	 *	connected (1/0)
@@ -127,6 +138,24 @@ public class AltosCSV implements AltosWriter {
 			   record.battery_voltage(),
 			   record.drogue_voltage(),
 			   record.main_voltage());
+	}
+
+	void write_advanced_header() {
+		out.printf("accel_x,accel_y,accel_z,gyro_x,gyro_y,gyro_z");
+	}
+
+	void write_advanced(AltosRecord record) {
+		AltosIMU	imu = record.imu;
+		AltosMag	mag = record.mag;
+
+		if (imu == null)
+			imu = new AltosIMU();
+		if (mag == null)
+			mag = new AltosMag();
+		out.printf("%d,%d,%d,%d,%d,%d,%d,%d,%d",
+			   imu.accel_x, imu.accel_y, imu.accel_z,
+			   imu.gyro_x, imu.gyro_y, imu.gyro_z,
+			   mag.x, mag.y, mag.z);
 	}
 
 	void write_gps_header() {
@@ -212,10 +241,12 @@ public class AltosCSV implements AltosWriter {
 			out.printf(",0");
 	}
 
-	void write_header(boolean gps, boolean companion) {
+	void write_header(boolean advanced, boolean gps, boolean companion) {
 		out.printf("#"); write_general_header();
 		out.printf(","); write_flight_header();
 		out.printf(","); write_basic_header();
+		if (advanced)
+			out.printf(","); write_advanced_header();
 		if (gps) {
 			out.printf(","); write_gps_header();
 			out.printf(","); write_gps_sat_header();
@@ -230,7 +261,9 @@ public class AltosCSV implements AltosWriter {
 		state = new AltosState(record, state);
 		write_general(record); out.printf(",");
 		write_flight(record); out.printf(",");
-		write_basic(record);
+		write_basic(record); out.printf(",");
+		if (record.imu != null || record.mag != null)
+			write_advanced(record);
 		if (record.gps != null) {
 			out.printf(",");
 			write_gps(record); out.printf(",");
@@ -253,7 +286,8 @@ public class AltosCSV implements AltosWriter {
 		if (record.state == Altos.ao_flight_startup)
 			return;
 		if (!header_written) {
-			write_header(record.gps != null, record.companion != null);
+			write_header(record.imu != null || record.mag != null,
+				     record.gps != null, record.companion != null);
 			header_written = true;
 		}
 		if (!seen_boost) {

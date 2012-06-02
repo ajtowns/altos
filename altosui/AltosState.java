@@ -54,6 +54,9 @@ public class AltosState {
 
 	AltosGPS	gps;
 
+	AltosIMU	imu;
+	AltosMag	mag;
+
 	double	pad_lat;
 	double	pad_lon;
 	double	pad_alt;
@@ -107,6 +110,8 @@ public class AltosState {
 			max_acceleration = prev_state.max_acceleration;
 			max_speed = prev_state.max_speed;
 			max_baro_speed = prev_state.max_baro_speed;
+			imu = prev_state.imu;
+			mag = prev_state.mag;
 
 			/* make sure the clock is monotonic */
 			while (tick < prev_state.tick)

@@ -62,8 +62,8 @@ public class AltosEepromList extends ArrayList<AltosEepromLog> {
 			if (remote)
 				serial_line.start_remote();
 			config_data = new AltosConfigData (serial_line);
-			if (config_data.serial == 0)
-				throw new IOException("no serial number found");
+//			if (config_data.serial == 0)
+//				throw new IOException("no serial number found");
 
 			ArrayList<AltosEepromFlight> flights = new ArrayList<AltosEepromFlight>();
 

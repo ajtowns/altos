@@ -365,6 +365,8 @@ public class AltosUI extends AltosFrame {
 			in = new FileInputStream(file);
 			if (filename.endsWith("eeprom"))
 				return new AltosEepromIterable(in);
+			else if (filename.endsWith("mega"))
+				return new AltosEepromMegaIterable(in);
 			else
 				return new AltosTelemetryIterable(in);
 		} catch (FileNotFoundException fe) {
