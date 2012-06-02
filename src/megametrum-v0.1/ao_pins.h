@@ -98,6 +98,7 @@
 #define HAS_FLIGHT		1
 #define HAS_ADC			1
 #define HAS_ACCEL		1
+#define HAS_LOG			1
 
 #define AO_DATA_RING		32
 #define AO_ADC_NUM_SENSE	6
