@@ -216,13 +216,17 @@ struct ao_log_mega {
 			int16_t		gyro_x;		/* 18 */
 			int16_t		gyro_y;		/* 20 */
 			int16_t		gyro_z;		/* 22 */
-		} sensor;	/* 24 */
+			int16_t		mag_x;		/* 24 */
+			int16_t		mag_y;		/* 26 */
+			int16_t		mag_z;		/* 28 */
+			int16_t		accel;		/* 30 */
+		} sensor;	/* 32 */
 		struct {
 			int16_t		v_batt;		/* 4 */
-			int16_t		v_pbatt;	/* 8 */
-			int16_t		n_sense;	/* 10 */
-			int16_t		sense[10];	/* 12 */
-		} volt;					/* 32 */
+			int16_t		v_pbatt;	/* 6 */
+			int16_t		n_sense;	/* 8 */
+			int16_t		sense[10];	/* 10 */
+		} volt;					/* 30 */
 		struct {
 			int32_t		latitude;	/* 4 */
 			int32_t		longitude;	/* 8 */
