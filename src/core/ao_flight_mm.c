@@ -108,7 +108,7 @@ ao_flight(void)
  			{
 				/* Set pad mode - we can fly! */
 				ao_flight_state = ao_flight_pad;
-#if HAS_USB
+#if HAS_USB && HAS_RADIO
 				/* Disable the USB controller in flight mode
 				 * to save power
 				 */
@@ -352,11 +352,59 @@ ao_flight(void)
 	}
 }
 
+#if !HAS_RADIO
+static inline int int_part(int16_t i)	{ return i >> 4; }
+static inline int frac_part(int16_t i)	{ return ((i & 0xf) * 100 + 8) / 16; }
+
+static void
+ao_flight_dump(void)
+{
+	int16_t	accel;
+
+	accel = ((ao_ground_accel - ao_sample_accel) * ao_accel_scale) >> 16;
+
+	printf ("sample:\n");
+	printf ("  tick        %d\n", ao_sample_tick);
+	printf ("  raw pres    %d\n", ao_sample_pres);
+#if HAS_ACCEL
+	printf ("  raw accel   %d\n", ao_sample_accel);
+#endif
+	printf ("  ground pres %d\n", ao_ground_pres);
+#if HAS_ACCEL
+	printf ("  raw accel   %d\n", ao_sample_accel);
+	printf ("  groundaccel %d\n", ao_ground_accel);
+	printf ("  accel_2g    %d\n", ao_accel_2g);
+#endif
+
+	printf ("  alt         %d\n", ao_sample_alt);
+	printf ("  height      %d\n", ao_sample_height);
+	printf ("  accel       %d.%02d\n", int_part(accel), frac_part(accel));
+
+
+	printf ("kalman:\n");
+	printf ("  height      %d\n", ao_height);
+	printf ("  speed       %d.%02d\n", int_part(ao_speed), frac_part(ao_speed));
+	printf ("  accel       %d.%02d\n", int_part(ao_accel), frac_part(ao_accel));
+	printf ("  max_height  %d\n", ao_max_height);
+	printf ("  avg_height  %d\n", ao_avg_height);
+	printf ("  error_h     %d\n", ao_error_h);
+	printf ("  error_avg   %d\n", ao_error_h_sq_avg);
+}
+
+__code struct ao_cmds ao_flight_cmds[] = {
+	{ ao_flight_dump, 	"F\0Dump flight status" },
+	{ 0, NULL },
+};
+#endif
+
 static __xdata struct ao_task	flight_task;
 
 void
 ao_flight_init(void)
 {
 	ao_flight_state = ao_flight_startup;
+#if !HAS_RADIO
+	ao_cmd_register(&ao_flight_cmds[0]);
+#endif
 	ao_add_task(&flight_task, ao_flight, "flight");
 }
