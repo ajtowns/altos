@@ -362,8 +362,12 @@ void
 ao_i2c_channel_init(uint8_t index)
 {
 	struct stm_i2c	*stm_i2c = ao_i2c_stm_info[index].stm_i2c;
+	int i;
 
 	/* Turn I2C off while configuring */
+	stm_i2c->cr1 = (1 << STM_I2C_CR1_SWRST);
+	for (i = 0; i < 100; i++)
+		asm("nop");
 	stm_i2c->cr1 = 0;
 	stm_i2c->cr2 = AO_STM_I2C_CR2;
 
