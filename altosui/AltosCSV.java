@@ -152,7 +152,7 @@ public class AltosCSV implements AltosWriter {
 			imu = new AltosIMU();
 		if (mag == null)
 			mag = new AltosMag();
-		out.printf("%d,%d,%d,%d,%d,%d,%d,%d,%d",
+		out.printf("%6d,%6d,%6d,%6d,%6d,%6d,%6d,%6d,%6d",
 			   imu.accel_x, imu.accel_y, imu.accel_z,
 			   imu.gyro_x, imu.gyro_y, imu.gyro_z,
 			   mag.x, mag.y, mag.z);
