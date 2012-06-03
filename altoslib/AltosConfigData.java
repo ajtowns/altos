@@ -104,7 +104,7 @@ public class AltosConfigData implements Iterable<String> {
 
 		for (int i = 0; i < parts.length; i++) {
 			try {
-				r[i] = Altos.fromdec(parts[i]);
+				r[i] = AltosLib.fromdec(parts[i]);
 			} catch (NumberFormatException n) {
 				r[i] = 0;
 			}

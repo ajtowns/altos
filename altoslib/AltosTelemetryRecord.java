@@ -16,6 +16,7 @@
  */
 
 package org.altusmetrum.AltosLib;
+import java.text.*;
 
 public abstract class AltosTelemetryRecord {
 
@@ -47,7 +48,7 @@ public abstract class AltosTelemetryRecord {
 
 		int[] bytes;
 		try {
-			bytes = Altos.hexbytes(hex);
+			bytes = AltosLib.hexbytes(hex);
 		} catch (NumberFormatException ne) {
 			throw new ParseException(ne.getMessage(), 0);
 		}
@@ -60,16 +61,16 @@ public abstract class AltosTelemetryRecord {
 		if (!cksum(bytes))
 			throw new ParseException(String.format("invalid line \"%s\"", hex), 0);
 
-		int	rssi = Altos.int8(bytes, bytes.length - 3) / 2 - 74;
-		int	status = Altos.uint8(bytes, bytes.length - 2);
+		int	rssi = AltosLib.int8(bytes, bytes.length - 3) / 2 - 74;
+		int	status = AltosLib.uint8(bytes, bytes.length - 2);
 
 		if ((status & PKT_APPEND_STATUS_1_CRC_OK) == 0)
 			throw new AltosCRCException(rssi);
 
 		/* length, data ..., rssi, status, checksum -- 4 bytes extra */
 		switch (bytes.length) {
-		case Altos.ao_telemetry_standard_len + 4:
-			int	type = Altos.uint8(bytes, 4 + 1);
+		case AltosLib.ao_telemetry_standard_len + 4:
+			int	type = AltosLib.uint8(bytes, 4 + 1);
 			switch (type) {
 			case packet_type_TM_sensor:
 			case packet_type_Tm_sensor:
@@ -93,10 +94,10 @@ public abstract class AltosTelemetryRecord {
 				break;
 			}
 			break;
-		case Altos.ao_telemetry_0_9_len + 4:
+		case AltosLib.ao_telemetry_0_9_len + 4:
 			r = new AltosTelemetryRecordLegacy(bytes, rssi, status);
 			break;
-		case Altos.ao_telemetry_0_8_len + 4:
+		case AltosLib.ao_telemetry_0_8_len + 4:
 			r = new AltosTelemetryRecordLegacy(bytes, rssi, status);
 			break;
 		default:

@@ -70,6 +70,8 @@ public class AltosState {
 
 	public double	gps_height;
 
+	public double pad_lat, pad_lon, pad_alt;
+
 	public int	speak_tick;
 	public double	speak_altitude;
 

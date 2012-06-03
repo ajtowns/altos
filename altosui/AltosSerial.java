@@ -264,7 +264,6 @@ public class AltosSerial extends AltosLink implements Runnable {
 		flush_output();
 	}
 
-<<<<<<< HEAD
 	private int telemetry_len() {
 		return Altos.telemetry_len(telemetry);
 	}
@@ -386,8 +385,6 @@ public class AltosSerial extends AltosLink implements Runnable {
 		remote = false;
 	}
 
-=======
->>>>>>> bc5e669... altosui: Pull most of AltosSerial into AltosLink
 	public void set_frame(Frame in_frame) {
 		frame = in_frame;
 	}

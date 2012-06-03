@@ -50,6 +50,17 @@ public class AltosLib {
 	public static final int AO_LOG_PRODUCT = 2001;
 	public static final int AO_LOG_SERIAL_NUMBER = 2002;
 	public static final int AO_LOG_LOG_FORMAT = 2003;
+
+	/* Added for header fields in megametrum files */
+	public static final int AO_LOG_BARO_RESERVED = 3000;
+	public static final int AO_LOG_BARO_SENS = 3001;
+	public static final int AO_LOG_BARO_OFF = 3002;
+	public static final int AO_LOG_BARO_TCS = 3004;
+	public static final int AO_LOG_BARO_TCO = 3005;
+	public static final int AO_LOG_BARO_TREF = 3006;
+	public static final int AO_LOG_BARO_TEMPSENS = 3007;
+	public static final int AO_LOG_BARO_CRC = 3008;
+
 	public static final int AO_LOG_SOFTWARE_VERSION = 9999;
 
 	/* Added to flag invalid records */

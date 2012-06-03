@@ -59,19 +59,19 @@ public class AltosTelemetryReader extends AltosFlightReader {
 
 		try {
 			/* Version 1.0 or later firmware supports all telemetry formats */
-			if (serial.config_data().compare_version("1.0") >= 0)
+			if (link.config_data().compare_version("1.0") >= 0)
 				return true;
 
 			/* Version 0.9 firmware only supports 0.9 telemetry */
-			if (serial.config_data().compare_version("0.9") >= 0) {
-				if (telemetry == Altos.ao_telemetry_0_9)
+			if (link.config_data().compare_version("0.9") >= 0) {
+				if (telemetry == AltosLib.ao_telemetry_0_9)
 					return true;
 				else
 					return false;
 			}
 
 			/* Version 0.8 firmware only supports 0.8 telemetry */
-			if (telemetry == Altos.ao_telemetry_0_8)
+			if (telemetry == AltosLib.ao_telemetry_0_8)
 				return true;
 			else
 				return false;

@@ -82,7 +82,6 @@ public class AltosRecord implements Comparable <AltosRecord> {
 
 	public AltosRecordCompanion companion;
 
->>>>>>> 5a249bc... altosui: Complete split out of separate java library
 	/*
 	 * Values for our MP3H6115A pressure sensor
 	 *

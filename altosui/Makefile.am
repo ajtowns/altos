@@ -27,8 +27,6 @@ altosui_JAVA = \
 	AltosConfigureUI.java \
 	AltosConfigTD.java \
 	AltosConfigTDUI.java \
-	AltosConvert.java \
-	AltosCRCException.java \
 	AltosCSV.java \
 	AltosCSVUI.java \
 	AltosDebug.java \
@@ -42,7 +40,6 @@ altosui_JAVA = \
 	AltosEepromList.java \
 	AltosEepromManage.java \
 	AltosEepromMonitor.java \
-	AltosEepromTeleScience.java \
 	AltosEepromMega.java \
 	AltosEepromMegaIterable.java \
 	AltosEepromSelect.java \

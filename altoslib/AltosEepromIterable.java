@@ -318,28 +318,28 @@ public class AltosEepromIterable extends AltosRecordIterable {
 			case AltosLib.AO_LOG_SOFTWARE_VERSION:
 				out.printf ("# Software version: %s\n", record.data);
 				break;
-			case Altos.AO_LOG_BARO_RESERVED:
+			case AltosLib.AO_LOG_BARO_RESERVED:
 				out.printf ("# Baro reserved: %d\n", record.a);
 				break;
-			case Altos.AO_LOG_BARO_SENS:
+			case AltosLib.AO_LOG_BARO_SENS:
 				out.printf ("# Baro sens: %d\n", record.a);
 				break;
-			case Altos.AO_LOG_BARO_OFF:
+			case AltosLib.AO_LOG_BARO_OFF:
 				out.printf ("# Baro off: %d\n", record.a);
 				break;
-			case Altos.AO_LOG_BARO_TCS:
+			case AltosLib.AO_LOG_BARO_TCS:
 				out.printf ("# Baro tcs: %d\n", record.a);
 				break;
-			case Altos.AO_LOG_BARO_TCO:
+			case AltosLib.AO_LOG_BARO_TCO:
 				out.printf ("# Baro tco: %d\n", record.a);
 				break;
-			case Altos.AO_LOG_BARO_TREF:
+			case AltosLib.AO_LOG_BARO_TREF:
 				out.printf ("# Baro tref: %d\n", record.a);
 				break;
-			case Altos.AO_LOG_BARO_TEMPSENS:
+			case AltosLib.AO_LOG_BARO_TEMPSENS:
 				out.printf ("# Baro tempsens: %d\n", record.a);
 				break;
-			case Altos.AO_LOG_BARO_CRC:
+			case AltosLib.AO_LOG_BARO_CRC:
 				out.printf ("# Baro crc: %d\n", record.a);
 				break;
 			}

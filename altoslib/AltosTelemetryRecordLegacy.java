@@ -241,7 +241,7 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 		record.serial = map.get_int(AO_TELEM_SERIAL, AltosRecord.MISSING);
 		record.flight = map.get_int(AO_TELEM_FLIGHT, AltosRecord.MISSING);
 		record.rssi = map.get_int(AO_TELEM_RSSI, AltosRecord.MISSING);
-		record.state = Altos.state(map.get_string(AO_TELEM_STATE, "invalid"));
+		record.state = AltosLib.state(map.get_string(AO_TELEM_STATE, "invalid"));
 		record.tick = map.get_int(AO_TELEM_TICK, 0);
 
 		/* raw sensor values */
@@ -300,7 +300,7 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 		record.status = AltosParse.parse_hex(words[i++]);
 
 		AltosParse.word(words[i++], "STATE");
-		record.state = Altos.state(words[i++]);
+		record.state = AltosLib.state(words[i++]);
 
 		record.tick = AltosParse.parse_int(words[i++]);
 
