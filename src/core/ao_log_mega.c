@@ -120,6 +120,10 @@ ao_log(void)
 				log.u.sensor.gyro_x = ao_data_ring[ao_log_data_pos].mpu6000.gyro_x;
 				log.u.sensor.gyro_y = ao_data_ring[ao_log_data_pos].mpu6000.gyro_y;
 				log.u.sensor.gyro_z = ao_data_ring[ao_log_data_pos].mpu6000.gyro_z;
+				log.u.sensor.mag_x = ao_data_ring[ao_log_data_pos].hmc5883.x;
+				log.u.sensor.mag_y = ao_data_ring[ao_log_data_pos].hmc5883.y;
+				log.u.sensor.mag_z = ao_data_ring[ao_log_data_pos].hmc5883.z;
+				log.u.sensor.accel = ao_data_ring[ao_log_data_pos].adc.accel;
 				ao_log_mega(&log);
 				if (ao_log_state <= ao_flight_coast)
 					next_sensor = log.tick + AO_SENSOR_INTERVAL_ASCENT;

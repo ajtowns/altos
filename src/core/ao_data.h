@@ -26,6 +26,10 @@
 #include <ao_mpu6000.h>
 #endif
 
+#if HAS_HMC5883
+#include <ao_hmc5883.h>
+#endif
+
 struct ao_data {
 	uint16_t			tick;
 #if HAS_ADC
@@ -36,6 +40,9 @@ struct ao_data {
 #endif
 #if HAS_MPU6000
 	struct ao_mpu6000_sample	mpu6000;
+#endif
+#if HAS_HMC5883
+	struct ao_hmc5883_sample	hmc5883;
 #endif
 };
 

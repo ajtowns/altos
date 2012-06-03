@@ -75,9 +75,13 @@
 #define HMC5883_ID_B		11
 #define HMC5883_ID_C		12
 
+extern uint8_t	ao_hmc5883_valid;
+
 struct ao_hmc5883_sample {
 	int16_t		x, y, z;
 };
+
+extern struct ao_hmc5883_sample ao_hmc5883_current;
 
 void
 ao_hmc5883_init(void);

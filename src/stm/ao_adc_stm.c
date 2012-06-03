@@ -62,6 +62,11 @@ static void ao_adc_done(int index)
 		step = 0;
 	ao_data_ring[ao_data_head].ms5607 = ao_ms5607_current;
 #endif	
+#if HAS_HMC5883
+	if (!ao_hmc5883_valid)
+		step = 0;
+	ao_data_ring[ao_data_head].hmc5883 = ao_hmc5883_current;
+#endif
 	if (step) {
 		ao_data_head = ao_data_ring_next(ao_data_head);
 		ao_wakeup((void *) &ao_data_head);

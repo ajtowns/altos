@@ -19,6 +19,8 @@
 #include <ao_hmc5883.h>
 #include <ao_exti.h>
 
+uint8_t	ao_hmc5883_valid;
+
 static uint8_t	ao_hmc5883_configured;
 
 static uint8_t	ao_hmc5883_addr;
@@ -57,7 +59,7 @@ static void
 ao_hmc5883_isr(void)
 {
 	ao_exti_disable(&AO_HMC5883_INT_PORT, AO_HMC5883_INT_PIN);
-	++ao_hmc5883_done;
+	ao_hmc5883_done = 1;
 	ao_wakeup(&ao_hmc5883_done);
 }
 
@@ -77,8 +79,6 @@ ao_hmc5883_sample(struct ao_hmc5883_sample *sample)
 		ao_sleep(&ao_hmc5883_done);
 	sei();
 
-	printf ("done %d\n", ao_hmc5883_done);
-
 	ao_hmc5883_read(HMC5883_X_MSB, (uint8_t *) sample, sizeof (struct ao_hmc5883_sample));
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 	/* byte swap */
@@ -94,6 +94,7 @@ ao_hmc5883_setup(void)
 {
 	uint8_t d;
 	uint8_t	present;
+
 	if (ao_hmc5883_configured)
 		return 1;
 
@@ -103,7 +104,7 @@ ao_hmc5883_setup(void)
 	ao_i2c_put(AO_HMC5883_I2C_INDEX);
 
 	if (!present)
-		return 0;
+		ao_panic(AO_PANIC_SELF_TEST);
 
 	ao_hmc5883_reg_write(HMC5883_CONFIG_A,
 			     (HMC5883_CONFIG_A_MA_8 << HMC5883_CONFIG_A_MA) |
@@ -117,24 +118,32 @@ ao_hmc5883_setup(void)
 	return 1;
 }
 
+struct ao_hmc5883_sample ao_hmc5883_current;
+
+static void
+ao_hmc5883(void)
+{
+	ao_hmc5883_setup();
+	for (;;) {
+		struct ao_hmc5883_sample ao_hmc5883_next;
+
+		ao_hmc5883_sample(&ao_hmc5883_next);
+		ao_arch_critical(
+			ao_hmc5883_current = ao_hmc5883_next;
+			ao_hmc5883_valid = 1;
+			);
+		ao_delay(0);
+	}
+}
+
+static struct ao_task ao_hmc5883_task;
+
 static void
 ao_hmc5883_show(void)
 {
-	uint8_t	addr, data;
-	struct ao_hmc5883_sample sample;
+	struct ao_hmc5883_sample	sample;
 
-	if (!ao_hmc5883_setup()) {
-		printf("hmc5883 not present\n");
-		return;
-	}
-#if 0
-	for (addr = 0; addr <= 12; addr++) {
-		ao_hmc5883_read(addr, &data, 1);
-		printf ("hmc5883 register %2d: %02x\n",
-			addr, data);
-	}
-#endif
-	ao_hmc5883_sample(&sample);
+	sample = ao_hmc5883_current;
 	printf ("X: %d Y: %d Z: %d\n", sample.x, sample.y, sample.z);
 }
 
@@ -147,6 +156,7 @@ void
 ao_hmc5883_init(void)
 {
 	ao_hmc5883_configured = 0;
+	ao_hmc5883_valid = 0;
 
 	ao_enable_port(AO_HMC5883_INT_PORT);
 	ao_exti_setup(&AO_HMC5883_INT_PORT,
@@ -154,5 +164,6 @@ ao_hmc5883_init(void)
 		      AO_EXTI_MODE_FALLING | AO_EXTI_MODE_PULL_UP,
 		      ao_hmc5883_isr);
 
+	ao_add_task(&ao_hmc5883_task, ao_hmc5883, "hmc5883");
 	ao_cmd_register(&ao_hmc5883_cmds[0]);
 }
