@@ -15,15 +15,11 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package altoslib;
 
-public class AltosIMU {
-	int		accel_x;
-	int		accel_y;
-	int		accel_z;
-
-	int		gyro_x;
-	int		gyro_y;
-	int		gyro_z;
+public class AltosMag {
+	public int		x;
+	public int		y;
+	public int		z;
 }
 	

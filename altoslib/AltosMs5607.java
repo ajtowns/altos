@@ -15,20 +15,20 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package altoslib;
 
 public class AltosMs5607 {
-	int	reserved;
-	int	sens;
-	int	off;
-	int	tcs;
-	int	tco;
-	int	tref;
-	int	tempsens;
-	int	crc;
+	public int	reserved;
+	public int	sens;
+	public int	off;
+	public int	tcs;
+	public int	tco;
+	public int	tref;
+	public int	tempsens;
+	public int	crc;
 
-	int		raw_pres;
-	int		raw_temp;
+	public int	raw_pres;
+	public int	raw_temp;
 	public int	pa;
 	public int	cc;
 

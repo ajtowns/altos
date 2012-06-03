@@ -45,9 +45,6 @@ altosui_JAVA = \
 	AltosEepromTeleScience.java \
 	AltosEepromMega.java \
 	AltosEepromMegaIterable.java \
-	AltosMs5607.java \
-	AltosIMU.java \
-	AltosMag.java \
 	AltosEepromSelect.java \
 	AltosFlash.java \
 	AltosFlashUI.java \
