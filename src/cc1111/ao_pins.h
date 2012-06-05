@@ -150,7 +150,7 @@
 	#define HAS_MONITOR		1
 	#define LEGACY_MONITOR		1
 	#define HAS_RSSI		1
-	#define HAS_AES			1
+	#define HAS_AES			0
 #endif
 
 #if defined(TELEMINI_V_1_0)
@@ -259,7 +259,7 @@
 	#define HAS_MONITOR		1
 	#define LEGACY_MONITOR		1
 	#define HAS_RSSI		1
-	#define HAS_AES			1
+	#define HAS_AES			0
 #endif
 
 #if defined(TIDONGLE)
@@ -286,7 +286,7 @@
 	#define HAS_MONITOR		1
 	#define LEGACY_MONITOR		1
 	#define HAS_RSSI		1
-	#define HAS_AES			1
+	#define HAS_AES			0
 #endif
 
 #if defined(TELEBT_V_0_0)
@@ -322,7 +322,7 @@
 	#define HAS_MONITOR		1
 	#define LEGACY_MONITOR		1
 	#define HAS_RSSI		0
-	#define HAS_AES			1
+	#define HAS_AES			0
 #endif
 
 #if defined(TELEBT_V_0_1)
@@ -365,7 +365,7 @@
 	#define HAS_MONITOR		1
 	#define LEGACY_MONITOR		1
 	#define HAS_RSSI		0
-	#define HAS_AES			1
+	#define HAS_AES			0
 #endif
 
 #if defined(TELELAUNCH_V_0_1)

@@ -30,14 +30,12 @@ CORE_SRC = \
 	ao_freq.c
 
 CC1111_SRC = \
-	ao_aes.c \
 	ao_dbg.c \
 	ao_dma.c \
 	ao_led.c \
 	ao_packet.c \
 	ao_packet_master.c \
 	ao_radio.c \
-	ao_radio_cmac.c \
 	ao_romconfig.c \
 	ao_string.c \
 	ao_timer.c \
