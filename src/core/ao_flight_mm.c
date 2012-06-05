@@ -359,9 +359,11 @@ static inline int frac_part(int16_t i)	{ return ((i & 0xf) * 100 + 8) / 16; }
 static void
 ao_flight_dump(void)
 {
+#if HAS_ACCEL
 	int16_t	accel;
 
 	accel = ((ao_ground_accel - ao_sample_accel) * ao_accel_scale) >> 16;
+#endif
 
 	printf ("sample:\n");
 	printf ("  tick        %d\n", ao_sample_tick);
@@ -378,7 +380,9 @@ ao_flight_dump(void)
 
 	printf ("  alt         %d\n", ao_sample_alt);
 	printf ("  height      %d\n", ao_sample_height);
+#if HAS_ACCEL
 	printf ("  accel       %d.%02d\n", int_part(accel), frac_part(accel));
+#endif
 
 
 	printf ("kalman:\n");
