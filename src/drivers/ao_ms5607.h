@@ -63,6 +63,9 @@ void
 ao_ms5607_init(void);
 
 void
+ao_ms5607_info(void);
+
+void
 ao_ms5607_sample(struct ao_ms5607_sample *sample);
 
 void

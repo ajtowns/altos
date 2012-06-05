@@ -215,12 +215,9 @@ ao_ms5607(void)
 
 __xdata struct ao_task ao_ms5607_task;
 
-static void
-ao_ms5607_dump(void)
+void
+ao_ms5607_info(void)
 {
-	struct ao_ms5607_sample	sample;
-	struct ao_ms5607_value value;
-
 	printf ("ms5607 reserved: %u\n", ms5607_prom.reserved);
 	printf ("ms5607 sens: %u\n", ms5607_prom.sens);
 	printf ("ms5607 off: %u\n", ms5607_prom.off);
@@ -229,6 +226,13 @@ ao_ms5607_dump(void)
 	printf ("ms5607 tref: %u\n", ms5607_prom.tref);
 	printf ("ms5607 tempsens: %u\n", ms5607_prom.tempsens);
 	printf ("ms5607 crc: %u\n", ms5607_prom.crc);
+}
+
+static void
+ao_ms5607_dump(void)
+{
+	struct ao_ms5607_sample	sample;
+	struct ao_ms5607_value value;
 
 	sample = ao_ms5607_current;
 	ao_ms5607_convert(&sample, &value);
@@ -238,7 +242,7 @@ ao_ms5607_dump(void)
 }
 
 __code struct ao_cmds ao_ms5607_cmds[] = {
-	{ ao_ms5607_dump,	"p\0Display MS5607 data" },
+	{ ao_ms5607_dump,	"B\0Display MS5607 data" },
 	{ 0, NULL },
 };
 
