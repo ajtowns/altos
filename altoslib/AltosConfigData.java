@@ -132,7 +132,7 @@ public class AltosConfigData implements Iterable<String> {
 	}
 
 	public AltosConfigData(AltosLink link) throws InterruptedException, TimeoutException {
-		link.printf("c s\np\nf\nl\nv\n");
+		link.printf("c s\nf\nl\nv\n");
 		lines = new LinkedList<String>();
 		radio_setting = 0;
 		radio_frequency = 0;
