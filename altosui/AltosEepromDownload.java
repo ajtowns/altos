@@ -357,23 +357,23 @@ public class AltosEepromDownload implements Runnable {
 			}
 
 			switch (log_format) {
-			case Altos.AO_LOG_FORMAT_FULL:
+			case AltosLib.AO_LOG_FORMAT_FULL:
 				extension = "eeprom";
 				CaptureFull(eechunk);
 				break;
-			case Altos.AO_LOG_FORMAT_TINY:
+			case AltosLib.AO_LOG_FORMAT_TINY:
 				extension = "eeprom";
 				CaptureTiny(eechunk);
 				break;
-			case Altos.AO_LOG_FORMAT_TELEMETRY:
+			case AltosLib.AO_LOG_FORMAT_TELEMETRY:
 				extension = "telem";
 				CaptureTelemetry(eechunk);
 				break;
-			case Altos.AO_LOG_FORMAT_TELESCIENCE:
+			case AltosLib.AO_LOG_FORMAT_TELESCIENCE:
 				extension = "science";
 				CaptureTeleScience(eechunk);
 				break;
-			case Altos.AO_LOG_FORMAT_MEGAMETRUM:
+			case AltosLib.AO_LOG_FORMAT_MEGAMETRUM:
 				extension = "mega";
 				CaptureMega(eechunk);
 			}
