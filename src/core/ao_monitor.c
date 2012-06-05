@@ -17,6 +17,7 @@
 
 #include "ao.h"
 #include "ao_telem.h"
+#include "ao_flight.h"
 
 #if !HAS_MONITOR
 #error Must define HAS_MONITOR to 1
@@ -27,7 +28,7 @@
 #endif
 
 #ifndef HAS_MONITOR_PUT
-#define HAS_MONIOTOR_PUT 1
+#define HAS_MONITOR_PUT 1
 #endif
 
 #ifndef AO_MONITOR_LED
