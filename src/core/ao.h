@@ -574,6 +574,16 @@ ao_gps_report_init(void);
  * ao_telemetry_orig.c
  */
 
+struct ao_adc_orig {
+	uint16_t	tick;		/* tick when the sample was read */
+	int16_t		accel;		/* accelerometer */
+	int16_t		pres;		/* pressure sensor */
+	int16_t		temp;		/* temperature sensor */
+	int16_t		v_batt;		/* battery voltage */
+	int16_t		sense_d;	/* drogue continuity sense */
+	int16_t		sense_m;	/* main continuity sense */
+};
+
 struct ao_telemetry_orig {
 	uint16_t		serial;
 	uint16_t		flight;
@@ -591,7 +601,7 @@ struct ao_telemetry_orig {
 	int16_t			ground_pres;
 	int16_t			accel_plus_g;
 	int16_t			accel_minus_g;
-	struct ao_adc		adc;
+	struct ao_adc_orig	adc;
 	struct ao_gps_orig	gps;
 	char			callsign[AO_MAX_CALLSIGN];
 	struct ao_gps_tracking_orig	gps_tracking;
