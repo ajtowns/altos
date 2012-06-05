@@ -17,6 +17,8 @@ AltosLib_JAVA = \
 	$(SRC)/AltosEepromChunk.java \
 	$(SRC)/AltosEepromIterable.java \
 	$(SRC)/AltosEepromLog.java \
+	$(SRC)/AltosEepromMega.java \
+	$(SRC)/AltosEepromMegaIterable.java \
 	$(SRC)/AltosEepromRecord.java \
 	$(SRC)/AltosEepromTeleScience.java \
 	$(SRC)/AltosFile.java \

@@ -30,6 +30,8 @@ import java.util.concurrent.*;
 
 import libaltosJNI.*;
 
+import org.altusmetrum.AltosLib.*;
+
 public class AltosConfigTD implements ActionListener {
 
 	class int_ref {

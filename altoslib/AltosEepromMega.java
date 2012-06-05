@@ -15,13 +15,8 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
 import java.io.*;
 import java.util.*;
 import java.text.*;
@@ -33,11 +28,11 @@ public class AltosEepromMega {
 	public int	tick;
 	public boolean	valid;
 	public String	data;
-	int		a, b;
+	public int	a, b;
 
 	public int	data8[];
 
-	static final int	record_length = 32;
+	public static final int	record_length = 32;
 	static final int	header_length = 4;
 	static final int	data_length = record_length - header_length;
 
@@ -97,7 +92,7 @@ public class AltosEepromMega {
 				throw new ParseException(String.format("invalid checksum at 0x%x",
 								       chunk.address + start), 0);
 		} else {
-			cmd = Altos.AO_LOG_INVALID;
+			cmd = AltosLib.AO_LOG_INVALID;
 		}
 
 		tick = chunk.data16(start+2);
@@ -112,7 +107,7 @@ public class AltosEepromMega {
 		tick = 0;
 
 		if (line == null) {
-			cmd = Altos.AO_LOG_INVALID;
+			cmd = AltosLib.AO_LOG_INVALID;
 			line = "";
 		} else {
 			try {
@@ -120,7 +115,7 @@ public class AltosEepromMega {
 
 				if (tokens[0].length() == 1) {
 					if (tokens.length != 2 + data_length) {
-						cmd = Altos.AO_LOG_INVALID;
+						cmd = AltosLib.AO_LOG_INVALID;
 						data = line;
 					} else {
 						cmd = tokens[0].codePointAt(0);
@@ -131,80 +126,80 @@ public class AltosEepromMega {
 							data8[i] = Integer.parseInt(tokens[2 + i],16);
 					}
 				} else if (tokens[0].equals("Config") && tokens[1].equals("version:")) {
-					cmd = Altos.AO_LOG_CONFIG_VERSION;
+					cmd = AltosLib.AO_LOG_CONFIG_VERSION;
 					data = tokens[2];
 				} else if (tokens[0].equals("Main") && tokens[1].equals("deploy:")) {
-					cmd = Altos.AO_LOG_MAIN_DEPLOY;
+					cmd = AltosLib.AO_LOG_MAIN_DEPLOY;
 					a = Integer.parseInt(tokens[2]);
 				} else if (tokens[0].equals("Apogee") && tokens[1].equals("delay:")) {
-					cmd = Altos.AO_LOG_APOGEE_DELAY;
+					cmd = AltosLib.AO_LOG_APOGEE_DELAY;
 					a = Integer.parseInt(tokens[2]);
 				} else if (tokens[0].equals("Radio") && tokens[1].equals("channel:")) {
-					cmd = Altos.AO_LOG_RADIO_CHANNEL;
+					cmd = AltosLib.AO_LOG_RADIO_CHANNEL;
 					a = Integer.parseInt(tokens[2]);
 				} else if (tokens[0].equals("Callsign:")) {
-					cmd = Altos.AO_LOG_CALLSIGN;
+					cmd = AltosLib.AO_LOG_CALLSIGN;
 					data = tokens[1].replaceAll("\"","");
 				} else if (tokens[0].equals("Accel") && tokens[1].equals("cal")) {
-					cmd = Altos.AO_LOG_ACCEL_CAL;
+					cmd = AltosLib.AO_LOG_ACCEL_CAL;
 					a = Integer.parseInt(tokens[3]);
 					b = Integer.parseInt(tokens[5]);
 				} else if (tokens[0].equals("Radio") && tokens[1].equals("cal:")) {
-					cmd = Altos.AO_LOG_RADIO_CAL;
+					cmd = AltosLib.AO_LOG_RADIO_CAL;
 					a = Integer.parseInt(tokens[2]);
 				} else if (tokens[0].equals("Max") && tokens[1].equals("flight") && tokens[2].equals("log:")) {
-					cmd = Altos.AO_LOG_MAX_FLIGHT_LOG;
+					cmd = AltosLib.AO_LOG_MAX_FLIGHT_LOG;
 					a = Integer.parseInt(tokens[3]);
 				} else if (tokens[0].equals("manufacturer")) {
-					cmd = Altos.AO_LOG_MANUFACTURER;
+					cmd = AltosLib.AO_LOG_MANUFACTURER;
 					data = tokens[1];
 				} else if (tokens[0].equals("product")) {
-					cmd = Altos.AO_LOG_PRODUCT;
+					cmd = AltosLib.AO_LOG_PRODUCT;
 					data = tokens[1];
 				} else if (tokens[0].equals("serial-number")) {
-					cmd = Altos.AO_LOG_SERIAL_NUMBER;
+					cmd = AltosLib.AO_LOG_SERIAL_NUMBER;
 					a = Integer.parseInt(tokens[1]);
 				} else if (tokens[0].equals("log-format")) {
-					cmd = Altos.AO_LOG_LOG_FORMAT;
+					cmd = AltosLib.AO_LOG_LOG_FORMAT;
 					a = Integer.parseInt(tokens[1]);
 				} else if (tokens[0].equals("software-version")) {
-					cmd = Altos.AO_LOG_SOFTWARE_VERSION;
+					cmd = AltosLib.AO_LOG_SOFTWARE_VERSION;
 					data = tokens[1];
 				} else if (tokens[0].equals("ms5607")) {
 					if (tokens[1].equals("reserved:")) {
-						cmd = Altos.AO_LOG_BARO_RESERVED;
+						cmd = AltosLib.AO_LOG_BARO_RESERVED;
 						a = Integer.parseInt(tokens[2]);
 					} else if (tokens[1].equals("sens:")) {
-						cmd = Altos.AO_LOG_BARO_SENS;
+						cmd = AltosLib.AO_LOG_BARO_SENS;
 						a = Integer.parseInt(tokens[2]);
 					} else if (tokens[1].equals("off:")) {
-						cmd = Altos.AO_LOG_BARO_OFF;
+						cmd = AltosLib.AO_LOG_BARO_OFF;
 						a = Integer.parseInt(tokens[2]);
 					} else if (tokens[1].equals("tcs:")) {
-						cmd = Altos.AO_LOG_BARO_TCS;
+						cmd = AltosLib.AO_LOG_BARO_TCS;
 						a = Integer.parseInt(tokens[2]);
 					} else if (tokens[1].equals("tco:")) {
-						cmd = Altos.AO_LOG_BARO_TCO;
+						cmd = AltosLib.AO_LOG_BARO_TCO;
 						a = Integer.parseInt(tokens[2]);
 					} else if (tokens[1].equals("tref:")) {
-						cmd = Altos.AO_LOG_BARO_TREF;
+						cmd = AltosLib.AO_LOG_BARO_TREF;
 						a = Integer.parseInt(tokens[2]);
 					} else if (tokens[1].equals("tempsens:")) {
-						cmd = Altos.AO_LOG_BARO_TEMPSENS;
+						cmd = AltosLib.AO_LOG_BARO_TEMPSENS;
 						a = Integer.parseInt(tokens[2]);
 					} else if (tokens[1].equals("crc:")) {
-						cmd = Altos.AO_LOG_BARO_CRC;
+						cmd = AltosLib.AO_LOG_BARO_CRC;
 						a = Integer.parseInt(tokens[2]);
 					} else {
-						cmd = Altos.AO_LOG_INVALID;
+						cmd = AltosLib.AO_LOG_INVALID;
 						data = line;
 					}
 				} else {
-					cmd = Altos.AO_LOG_INVALID;
+					cmd = AltosLib.AO_LOG_INVALID;
 					data = line;
 				}
 			} catch (NumberFormatException ne) {
-				cmd = Altos.AO_LOG_INVALID;
+				cmd = AltosLib.AO_LOG_INVALID;
 				data = line;
 			}
 		}

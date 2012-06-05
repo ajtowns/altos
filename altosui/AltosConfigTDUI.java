@@ -31,6 +31,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import libaltosJNI.*;
 
+import org.altusmetrum.AltosLib.*;
+
 public class AltosConfigTDUI
 	extends AltosDialog
 	implements ActionListener, ItemListener, DocumentListener

@@ -72,62 +72,6 @@ public class Altos extends AltosLib {
 
 	static final int text_width = 20;
 
-	static void initialize_map()
-	{
-		string_to_state.put("startup", ao_flight_startup);
-		string_to_state.put("idle", ao_flight_idle);
-		string_to_state.put("pad", ao_flight_pad);
-		string_to_state.put("boost", ao_flight_boost);
-		string_to_state.put("fast", ao_flight_fast);
-		string_to_state.put("coast", ao_flight_coast);
-		string_to_state.put("drogue", ao_flight_drogue);
-		string_to_state.put("apogee", ao_flight_coast);
-		string_to_state.put("main", ao_flight_main);
-		string_to_state.put("landed", ao_flight_landed);
-		string_to_state.put("invalid", ao_flight_invalid);
-		map_initialized = true;
-	}
-
-	static int telemetry_len(int telemetry) {
-		if (telemetry <= ao_telemetry_max)
-			return ao_telemetry_len[telemetry];
-		throw new IllegalArgumentException(String.format("Invalid telemetry %d",
-								 telemetry));
-	}
-
-	static String telemetry_name(int telemetry) {
-		if (telemetry <= ao_telemetry_max)
-			return ao_telemetry_name[telemetry];
-		throw new IllegalArgumentException(String.format("Invalid telemetry %d",
-								 telemetry));
-	}
-	
-	static String[] state_to_string = {
-		"startup",
-		"idle",
-		"pad",
-		"boost",
-		"fast",
-		"coast",
-		"drogue",
-		"main",
-		"landed",
-		"invalid",
-	};
-
-	static String[] state_to_string_capital = {
-		"Startup",
-		"Idle",
-		"Pad",
-		"Boost",
-		"Fast",
-		"Coast",
-		"Drogue",
-		"Main",
-		"Landed",
-		"Invalid",
-	};
-
 	static public int state(String state) {
 		if (!map_initialized)
 			initialize_map();

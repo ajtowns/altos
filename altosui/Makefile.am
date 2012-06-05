@@ -40,8 +40,6 @@ altosui_JAVA = \
 	AltosEepromList.java \
 	AltosEepromManage.java \
 	AltosEepromMonitor.java \
-	AltosEepromMega.java \
-	AltosEepromMegaIterable.java \
 	AltosEepromSelect.java \
 	AltosFlash.java \
 	AltosFlashUI.java \

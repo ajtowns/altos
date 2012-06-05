@@ -141,6 +141,31 @@ public abstract class AltosLink {
 		return AltosLib.telemetry_len(telemetry);
 	}
 
+	private void set_radio_freq(int frequency) {
+		if (monitor_mode)
+			printf("m 0\nc F %d\nm %x\n",
+			       frequency, telemetry_len());
+		else
+			printf("c F %d\n", frequency);
+		flush_output();
+	}
+
+	public void set_radio_frequency(double frequency,
+					boolean has_frequency,
+					boolean has_setting,
+					int cal) {
+		if (debug)
+			System.out.printf("set_radio_frequency %7.3f (freq %b) (set %b) %d\n", frequency, has_frequency, has_setting, cal);
+		if (frequency == 0)
+			return;
+		if (has_frequency)
+			set_radio_freq((int) Math.floor (frequency * 1000));
+		else if (has_setting)
+			set_radio_setting(AltosConvert.radio_frequency_to_setting(frequency, cal));
+		else
+			set_channel(AltosConvert.radio_frequency_to_channel(frequency));
+	}
+
 	public void set_telemetry(int in_telemetry) {
 		telemetry = in_telemetry;
 		if (monitor_mode)
