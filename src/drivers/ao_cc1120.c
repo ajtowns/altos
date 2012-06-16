@@ -406,17 +406,16 @@ ao_radio_recv(__xdata void *d, uint8_t size)
 /*
  * For our packet data, set the symbol rate to 38360 Baud
  *
- *              (2**20 - DATARATE_M) * 2 ** DATARATE_E
+ *              (2**20 + DATARATE_M) * 2 ** DATARATE_E
  *	Rdata = -------------------------------------- * fosc
  *		             2 ** 39
  *
- *	DATARATE_M = 405002
- *	DATARATE_E = 10
  *
- * To make the tone last for 200ms, we need 2000 * .2 = 400 bits or 50 bytes
+ *	DATARATE_M = 239914
+ *	DATARATE_E = 9
  */
-#define PACKET_DRATE_E	10
-#define PACKET_DRATE_M	405002
+#define PACKET_DRATE_E	9
+#define PACKET_DRATE_M	239914
 
 static const uint16_t packet_setup[] = {
 	CC1120_DEVIATION_M,	PACKET_DEV_M,
@@ -433,6 +432,11 @@ static const uint16_t packet_setup[] = {
 				 (CC1120_PKT_CFG1_ADDR_CHECK_CFG_NONE << CC1120_PKT_CFG1_ADDR_CHECK_CFG) |
 				 (CC1120_PKT_CFG1_CRC_CFG_DISABLED << CC1120_PKT_CFG1_CRC_CFG) |
 				 (1 << CC1120_PKT_CFG1_APPEND_STATUS)),
+	CC1120_PKT_CFG0,	((0 << CC1120_PKT_CFG0_RESERVED7) |
+				 (CC1120_PKT_CFG0_LENGTH_CONFIG_FIXED << CC1120_PKT_CFG0_LENGTH_CONFIG) |
+				 (0 << CC1120_PKT_CFG0_PKG_BIT_LEN) |
+				 (0 << CC1120_PKT_CFG0_UART_MODE_EN) |
+				 (0 << CC1120_PKT_CFG0_UART_SWAP_EN)),
 };
 
 void
