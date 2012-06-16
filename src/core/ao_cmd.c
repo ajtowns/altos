@@ -258,7 +258,9 @@ version(void)
 	printf("software-version %s\n", ao_version);
 }
 
+#ifndef NUM_CMDS
 #define NUM_CMDS	11
+#endif
 
 static __code struct ao_cmds	*__xdata (ao_cmds[NUM_CMDS]);
 static __pdata uint8_t		ao_ncmds;
