@@ -68,7 +68,7 @@
         CC1120_PKT_CFG2,                       0x04,       /* Packet Configuration, Reg 2 */
         CC1120_PKT_CFG1,                       0x45,       /* Packet Configuration, Reg 1 */
 #endif
-        CC1120_PKT_CFG0,                       0x20,       /* Packet Configuration, Reg 0 */
+        CC1120_PKT_CFG0,                       0x00,       /* Packet Configuration, Reg 0 */
         CC1120_RFEND_CFG1,                     0x0f,       /* RFEND Configuration, Reg 1 */
         CC1120_RFEND_CFG0,                     0x00,       /* RFEND Configuration, Reg 0 */
         CC1120_PA_CFG2,                        0x3f,       /* Power Amplifier Configuration, Reg 2 */
@@ -87,9 +87,6 @@
         CC1120_RCCAL_OFFSET,                   0x00,       /* RC Oscillator Calibration Clock Offset */
         CC1120_FREQOFF1,                       0x00,       /* Frequency Offset (MSB) */
         CC1120_FREQOFF0,                       0x00,       /* Frequency Offset (LSB) */
-        CC1120_FREQ2,                          0x6c,       /* Frequency Configuration [23:16] */
-        CC1120_FREQ1,                          0xa3,       /* Frequency Configuration [15:8] */
-        CC1120_FREQ0,                          0x33,       /* Frequency Configuration [7:0] */
         CC1120_IF_ADC2,                        0x02,       /* Analog to Digital Converter Configuration, Reg 2 */
         CC1120_IF_ADC1,                        0xa6,       /* Analog to Digital Converter Configuration, Reg 1 */
         CC1120_IF_ADC0,                        0x04,       /* Analog to Digital Converter Configuration, Reg 0 */

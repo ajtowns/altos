@@ -24,7 +24,6 @@ INC = \
 # Common AltOS sources
 #
 
-#	ao_cc1120.c \
 #	ao_packet.c \
 #	ao_packet_slave.c \
 
@@ -45,6 +44,7 @@ ALTOS_SRC = \
 	ao_freq.c \
 	ao_dma_stm.c \
 	ao_spi_stm.c \
+	ao_cc1120.c \
 	ao_ms5607.c \
 	ao_adc_stm.c \
 	ao_beep_stm.c \

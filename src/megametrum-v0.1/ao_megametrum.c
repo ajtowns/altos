@@ -21,21 +21,6 @@
 #include <ao_log.h>
 #include <ao_exti.h>
 
-void
-beep(void)
-{
-	ao_beep(AO_BEEP_MID);
-	printf ("Hit a character to stop..."); flush();
-	getchar();
-	putchar('\n');
-	ao_beep(0);
-}
-
-const struct ao_cmds ao_mm_cmds[] = {
-	{ beep, "b\0Beep" },
-	{ 0, NULL },
-};
-
 int
 main(void)
 {
@@ -55,7 +40,7 @@ main(void)
 	ao_storage_init();
 	ao_usb_init();
 	ao_exti_init();
-//	ao_radio_init();
+	ao_radio_init();
 	ao_i2c_init();
 	ao_hmc5883_init();
 	ao_mpu6000_init();
@@ -64,7 +49,6 @@ main(void)
 	ao_report_init();
 	ao_config_init();
 	
-	ao_cmd_register(&ao_mm_cmds[0]);
 	ao_start_scheduler();
 	return 0;
 }

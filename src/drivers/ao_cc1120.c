@@ -106,7 +106,7 @@ ao_radio_strobe(uint8_t addr)
 	ao_radio_duplex(&addr, &in, 1);
 	ao_radio_deselect();
 #if CC1120_DEBUG
-	printf("%02x\n", in);
+	printf("%02x\n", in); flush();
 #endif
 	return in;
 }
@@ -254,15 +254,33 @@ ao_radio_rdf(uint8_t len)
 	ao_radio_abort = 0;
 	for (i = 0; i < sizeof (rdf_setup) / sizeof (rdf_setup[0]); i += 2)
 		ao_radio_reg_write(rdf_setup[i], rdf_setup[i+1]);
-	ao_radio_reg_write(CC1120_PKT_LEN, len);
+
+#if 0
 	int_pin ("Before CFG");
 	ao_radio_reg_write(CC1120_IOCFG2, CC1120_IOCFG_GPIO_CFG_RX0TX1_CFG);
 	int_pin ("After CFG");
+#endif
+
+	ao_radio_fifo_write_fixed(ao_radio_rdf_value, len);
+
+	ao_radio_reg_write(CC1120_PKT_LEN, len);
+
+	printf ("packet length: %d\n", ao_radio_reg_read(CC1120_PKT_LEN));
+
 	ao_radio_strobe(CC1120_STX);
+
+	for (i = 0; i < 20; i++) {
+		printf ("%d ", i); flush();
+		printf ("Status %02x ", ao_radio_status()); flush();
+		printf ("num_tx_bytes %d ", ao_radio_reg_read(CC1120_NUM_TXBYTES)); flush();
+		printf ("marc status %x\n", ao_radio_marc_status()); flush();
+		ao_delay(AO_MS_TO_TICKS(50));
+	}
+
+#if 0
 	ao_exti_enable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
 	int_pin ("After strobe");
 	ao_delay(AO_MS_TO_TICKS(100));
-	ao_radio_fifo_write_fixed(ao_radio_rdf_value, len);
 	int_pin ("After delay");
 	cli();
 	for (i = 0; i < 20; i++) {
@@ -278,11 +296,14 @@ ao_radio_rdf(uint8_t len)
 #endif
 	}
 	sei();
+#endif
 	printf ("num_tx_bytes %d marc status %x\n",
 		ao_radio_reg_read(CC1120_NUM_TXBYTES),
 		ao_radio_marc_status());
+#if 0
 	if (!ao_radio_tx_done())
 		ao_radio_idle();
+#endif
 	ao_radio_set_packet();
 	ao_radio_put();
 }
@@ -488,8 +509,8 @@ ao_radio_setup(void)
 	ao_radio_reg_write(CC1120_IOCFG2, CC1120_IOCFG_GPIO_CFG_MARC_MCU_WAKEUP);
 
 	/* Enable the EXTI interrupt for the appropriate pin */
-	ao_enable_port(AO_CC1120_INT_PORT);
-	ao_exti_setup(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN, AO_EXTI_MODE_FALLING, ao_radio_isr);
+//	ao_enable_port(AO_CC1120_INT_PORT);
+//	ao_exti_setup(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN, AO_EXTI_MODE_FALLING, ao_radio_isr);
 
 	ao_radio_set_packet();
 	ao_radio_configured = 1;

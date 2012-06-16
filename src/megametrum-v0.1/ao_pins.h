@@ -65,6 +65,7 @@
 #define USE_INTERNAL_FLASH	0
 #define HAS_USB			1
 #define HAS_BEEP		1
+#define HAS_RADIO		1
 
 #define HAS_SPI_1		1
 #define SPI_1_PA5_PA6_PA7	1
@@ -74,6 +75,10 @@
 #define HAS_SPI_2		1
 #define SPI_2_PB13_PB14_PB15	1
 #define SPI_2_PD1_PD3_PD4	0
+#define SPI_2_GPIO		stm_gpiob
+#define SPI_2_SCK		13
+#define SPI_2_MISO		14
+#define SPI_2_MOSI		15
 
 #define HAS_I2C_1		1
 #define I2C_1_PB8_PB9		1
@@ -81,7 +86,7 @@
 #define HAS_I2C_2		1
 #define I2C_2_PB10_PB11		1
 
-#define PACKET_HAS_SLAVE	1
+#define PACKET_HAS_SLAVE	0
 
 #define LOW_LEVEL_DEBUG		1
 
@@ -250,5 +255,7 @@ struct ao_adc {
 #define AO_MPU6000_I2C_INDEX	STM_I2C_INDEX(1)
 
 #define HAS_HIGHG_ACCEL		1
+
+#define NUM_CMDS		16
 
 #endif /* _AO_PINS_H_ */
