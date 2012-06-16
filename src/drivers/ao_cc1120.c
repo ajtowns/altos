@@ -197,8 +197,8 @@ ao_radio_recv_abort(void)
  *
  * To make the tone last for 200ms, we need 2000 * .2 = 400 bits or 50 bytes
  */
-#define RDF_DRATE_E	6
-#define RDF_DRATE_M	511705
+#define RDF_DRATE_E	5
+#define RDF_DRATE_M	25166
 #define RDF_PACKET_LEN	50
 
 static const uint16_t rdf_setup[] = {
@@ -216,6 +216,11 @@ static const uint16_t rdf_setup[] = {
 				 (CC1120_PKT_CFG1_ADDR_CHECK_CFG_NONE << CC1120_PKT_CFG1_ADDR_CHECK_CFG) |
 				 (CC1120_PKT_CFG1_CRC_CFG_DISABLED << CC1120_PKT_CFG1_CRC_CFG) |
 				 (0 << CC1120_PKT_CFG1_APPEND_STATUS)),
+	CC1120_PKT_CFG0,	((0 << CC1120_PKT_CFG0_RESERVED7) |
+				 (CC1120_PKT_CFG0_LENGTH_CONFIG_FIXED << CC1120_PKT_CFG0_LENGTH_CONFIG) |
+				 (0 << CC1120_PKT_CFG0_PKG_BIT_LEN) |
+				 (0 << CC1120_PKT_CFG0_UART_MODE_EN) |
+				 (0 << CC1120_PKT_CFG0_UART_SWAP_EN)),
 };
 
 #define int_pin(w)	printf("\t%s: %d\n", \
