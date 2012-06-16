@@ -94,7 +94,7 @@ ao_flight(void)
 				 */
 				ao_flight_state = ao_flight_invalid;
 
-#if HAS_RADIO
+#if HAS_RADIO && PACKET_HAS_SLAVE
 				/* Turn on packet system in invalid mode on TeleMetrum */
 				ao_packet_slave_start();
 #endif
@@ -120,7 +120,7 @@ ao_flight(void)
 				ao_packet_slave_stop();
 #endif
 
-#if HAS_RADIO
+#if HAS_RADIO && !defined (MEGAMETRUM)
 				/* Turn on telemetry system */
 				ao_rdf_set(1);
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_PAD);
@@ -131,7 +131,7 @@ ao_flight(void)
 				/* Set idle mode */
  				ao_flight_state = ao_flight_idle;
  
-#if HAS_ACCEL && HAS_RADIO
+#if HAS_ACCEL && HAS_RADIO && PACKET_HAS_SLAVE
 				/* Turn on packet system in idle mode on TeleMetrum */
 				ao_packet_slave_start();
 #endif
@@ -171,7 +171,7 @@ ao_flight(void)
 				/* start logging data */
 				ao_log_start();
 
-#if HAS_RADIO
+#if HAS_RADIO && !defined(MEGAMETRUM)
 				/* Increase telemetry rate */
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_FLIGHT);
 
@@ -259,7 +259,7 @@ ao_flight(void)
 				ao_ignite(ao_igniter_drogue);
 #endif
 
-#if HAS_RADIO
+#if HAS_RADIO && !defined(MEGAMETRUM)
 				/* slow down the telemetry system */
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_RECOVER);
 
