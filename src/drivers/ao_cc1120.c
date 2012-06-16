@@ -25,7 +25,7 @@ uint8_t ao_radio_abort;
 
 #define CC1120_DEBUG	1
 
-uint32_t	ao_radio_cal = 1186611;
+uint32_t	ao_radio_cal = 0x6ca333;
 
 #define FOSC	32000000
 
@@ -492,6 +492,9 @@ ao_radio_get(uint8_t len)
 	ao_mutex_get(&ao_radio_mutex);
 	if (!ao_radio_configured)
 		ao_radio_setup();
+	ao_radio_reg_write(CC1120_FREQ2, ao_config.radio_setting >> 16);
+	ao_radio_reg_write(CC1120_FREQ1, ao_config.radio_setting >> 8);
+	ao_radio_reg_write(CC1120_FREQ0, ao_config.radio_setting);
 	ao_radio_reg_write(CC1120_PKT_LEN, len);
 }
 
