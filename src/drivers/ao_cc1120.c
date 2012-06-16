@@ -77,13 +77,13 @@ ao_radio_reg_write(uint16_t addr, uint8_t value)
 	printf("\t\tao_radio_reg_write (%04x): %02x\n", addr, value);
 #endif
 	if (CC1120_IS_EXTENDED(addr)) {
-		data[0] = ((1 << CC1120_READ)  |
+		data[0] = ((0 << CC1120_READ)  |
 			   (0 << CC1120_BURST) |
 			   CC1120_EXTENDED);
 		data[1] = addr;
 		d = 2;
 	} else {
-		data[0] = ((1 << CC1120_READ)  |
+		data[0] = ((0 << CC1120_READ)  |
 			   (0 << CC1120_BURST) |
 			   addr);
 		d = 1;
