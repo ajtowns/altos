@@ -725,7 +725,7 @@ static const struct ao_cmds ao_radio_cmds[] = {
 	{ ao_radio_test,	"C <1 start, 0 stop, none both>\0Radio carrier test" },
 #if CC1120_DEBUG
 	{ ao_radio_show,	"R\0Show CC1120 status" },
-	{ ao_radio_beep,	"B\0Emit an RDF beacon" },
+	{ ao_radio_beep,	"b\0Emit an RDF beacon" },
 #endif
 	{ 0, NULL }
 };
