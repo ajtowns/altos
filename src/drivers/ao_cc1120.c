@@ -733,8 +733,18 @@ static const struct ao_cmds ao_radio_cmds[] = {
 void
 ao_radio_init(void)
 {
+	int	i;
+
 	ao_radio_configured = 0;
 	ao_spi_init_cs (AO_CC1120_SPI_CS_PORT, (1 << AO_CC1120_SPI_CS_PIN));
 
+	AO_CC1120_SPI_CS_PORT.bsrr = ((uint32_t) (1 << AO_CC1120_SPI_CS_PIN));
+	for (i = 0; i < 10000; i++) {
+		if ((SPI_2_GPIO.idr & (1 << SPI_2_MISO)) == 0)
+			break;
+	}
+	AO_CC1120_SPI_CS_PORT.bsrr = (1 << AO_CC1120_SPI_CS_PIN);
+	if (i == 10000)
+		ao_panic(AO_PANIC_SELF_TEST);
 	ao_cmd_register(&ao_radio_cmds[0]);
 }
