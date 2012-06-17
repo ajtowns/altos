@@ -81,7 +81,6 @@ _ao_config_get(void)
 	if (ao_config_loaded)
 		return;
 #if HAS_EEPROM
-	ao_storage_setup();
 	ao_storage_read(ao_storage_config, &ao_config, sizeof (ao_config));
 #endif
 	if (ao_config.major != AO_CONFIG_MAJOR) {
