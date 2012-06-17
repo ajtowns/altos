@@ -106,14 +106,22 @@ public class AltosTelemetryReader extends AltosFlightReader {
 	public AltosTelemetryReader (AltosLink in_link)
 		throws IOException, InterruptedException, TimeoutException {
 		link = in_link;
-		log = new AltosLog(link);
-		name = link.name;
-		previous = null;
-		telem = new LinkedBlockingQueue<AltosLine>();
-		frequency = AltosPreferences.frequency(link.serial);
-		set_frequency(frequency);
-		telemetry = AltosPreferences.telemetry(link.serial);
-		set_telemetry(telemetry);
-		link.add_monitor(telem);
+		try {
+			log = new AltosLog(link);
+			name = link.name;
+			previous = null;
+			telem = new LinkedBlockingQueue<AltosLine>();
+			frequency = AltosPreferences.frequency(link.serial);
+			set_frequency(frequency);
+			telemetry = AltosPreferences.telemetry(link.serial);
+			set_telemetry(telemetry);
+			link.add_monitor(telem);
+		} catch (TimeoutException e) {
+			close(true);
+			throw(e);
+		} catch (InterruptedException e) {
+			close(true);
+			throw(e);
+		}
 	}
 }
