@@ -103,9 +103,7 @@ ao_yield(void) ao_arch_naked_define
 uint8_t
 ao_sleep(__xdata void *wchan)
 {
-	ao_arch_critical(
-		ao_cur_task->wchan = wchan;
-		);
+	ao_cur_task->wchan = wchan;
 	ao_yield();
 	if (ao_cur_task->wchan) {
 		ao_cur_task->wchan = NULL;
