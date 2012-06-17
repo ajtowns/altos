@@ -24,6 +24,7 @@ uint8_t ao_radio_mutex;
 uint8_t ao_radio_abort;
 
 #define CC1120_DEBUG	1
+#define CC1120_TRACE	0
 
 uint32_t	ao_radio_cal = 0x6ca333;
 
@@ -42,7 +43,7 @@ ao_radio_reg_read(uint16_t addr)
 	uint8_t	data[2];
 	uint8_t	d;
 
-#if CC1120_DEBUG
+#if CC1120_TRACE
 	printf("\t\tao_radio_reg_read (%04x): ", addr); flush();
 #endif
 	if (CC1120_IS_EXTENDED(addr)) {
@@ -61,7 +62,7 @@ ao_radio_reg_read(uint16_t addr)
 	ao_radio_spi_send(data, d);
 	ao_radio_spi_recv(data, 1);
 	ao_radio_deselect();
-#if CC1120_DEBUG
+#if CC1120_TRACE
 	printf (" %02x\n", data[0]);
 #endif
 	return data[0];
@@ -73,7 +74,7 @@ ao_radio_reg_write(uint16_t addr, uint8_t value)
 	uint8_t	data[3];
 	uint8_t	d;
 
-#if CC1120_DEBUG
+#if CC1120_TRACE
 	printf("\t\tao_radio_reg_write (%04x): %02x\n", addr, value);
 #endif
 	if (CC1120_IS_EXTENDED(addr)) {
@@ -99,13 +100,13 @@ ao_radio_strobe(uint8_t addr)
 {
 	uint8_t	in;
 
-#if CC1120_DEBUG
+#if CC1120_TRACE
 	printf("\t\tao_radio_strobe (%02x): ", addr); flush();
 #endif
 	ao_radio_select();
 	ao_radio_duplex(&addr, &in, 1);
 	ao_radio_deselect();
-#if CC1120_DEBUG
+#if CC1120_TRACE
 	printf("%02x\n", in); flush();
 #endif
 	return in;
@@ -149,12 +150,10 @@ ao_radio_fifo_write_fixed(uint8_t data, uint8_t len)
 			CC1120_FIFO);
 	uint8_t status;
 
-	printf ("num tx bytes: %d\n", ao_radio_reg_read(CC1120_NUM_TXBYTES));
 	ao_radio_select();
 	ao_radio_duplex(&addr, &status, 1);
 	ao_radio_spi_send_fixed(data, len);
 	ao_radio_deselect();
-	printf ("num tx bytes: %d\n", ao_radio_reg_read(CC1120_NUM_TXBYTES));
 	return status;
 }
 
@@ -223,10 +222,6 @@ static const uint16_t rdf_setup[] = {
 				 (0 << CC1120_PKT_CFG0_UART_SWAP_EN)),
 };
 
-#define int_pin(w)	printf("\t%s: %d\n", \
-			       w,\
-			       (AO_CC1120_INT_PORT.idr >> AO_CC1120_INT_PIN) & 1)
-
 static uint8_t
 ao_radio_marc_status(void)
 {
@@ -252,58 +247,27 @@ ao_radio_rdf(uint8_t len)
 
 	ao_radio_get(len);
 	ao_radio_abort = 0;
+	ao_radio_wake = 0;
 	for (i = 0; i < sizeof (rdf_setup) / sizeof (rdf_setup[0]); i += 2)
 		ao_radio_reg_write(rdf_setup[i], rdf_setup[i+1]);
 
-#if 0
-	int_pin ("Before CFG");
 	ao_radio_reg_write(CC1120_IOCFG2, CC1120_IOCFG_GPIO_CFG_RX0TX1_CFG);
-	int_pin ("After CFG");
-#endif
 
 	ao_radio_fifo_write_fixed(ao_radio_rdf_value, len);
 
 	ao_radio_reg_write(CC1120_PKT_LEN, len);
 
-	printf ("packet length: %d\n", ao_radio_reg_read(CC1120_PKT_LEN));
+	ao_exti_enable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
 
 	ao_radio_strobe(CC1120_STX);
 
-	for (i = 0; i < 20; i++) {
-		printf ("%d ", i); flush();
-		printf ("Status %02x ", ao_radio_status()); flush();
-		printf ("num_tx_bytes %d ", ao_radio_reg_read(CC1120_NUM_TXBYTES)); flush();
-		printf ("marc status %x\n", ao_radio_marc_status()); flush();
-		ao_delay(AO_MS_TO_TICKS(50));
-	}
-
-#if 0
-	ao_exti_enable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
-	int_pin ("After strobe");
-	ao_delay(AO_MS_TO_TICKS(100));
-	int_pin ("After delay");
 	cli();
-	for (i = 0; i < 20; i++) {
-#if CC1120_DEBUG
-		ao_delay(AO_MS_TO_TICKS(50));
-		int_pin ("Waited");
-		printf ("Status %02x num_tx_bytes %d marc status %x\n",
-			ao_radio_status(),
-			ao_radio_reg_read(CC1120_NUM_TXBYTES),
-			ao_radio_marc_status());
-#else
+	while (!ao_radio_wake && !ao_radio_abort)
 		ao_sleep(&ao_radio_wake);
-#endif
-	}
+
 	sei();
-#endif
-	printf ("num_tx_bytes %d marc status %x\n",
-		ao_radio_reg_read(CC1120_NUM_TXBYTES),
-		ao_radio_marc_status());
-#if 0
 	if (!ao_radio_tx_done())
 		ao_radio_idle();
-#endif
 	ao_radio_set_packet();
 	ao_radio_put();
 }
@@ -335,7 +299,7 @@ ao_radio_test(void)
 #endif
 		ao_radio_get(0xff);
 		ao_radio_strobe(CC1120_STX);
-#if CC1120_DEBUG
+#if CC1120_TRACE
 		{ int t; 
 			for (t = 0; t < 10; t++) {
 				printf ("status: %02x\n", ao_radio_status());
@@ -508,11 +472,10 @@ ao_radio_setup(void)
 	/* Enable marc status interrupt on gpio 2 pin */
 	ao_radio_reg_write(CC1120_IOCFG2, CC1120_IOCFG_GPIO_CFG_MARC_MCU_WAKEUP);
 
-	/* Enable the EXTI interrupt for the appropriate pin */
-//	ao_enable_port(AO_CC1120_INT_PORT);
-//	ao_exti_setup(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN, AO_EXTI_MODE_FALLING, ao_radio_isr);
-
 	ao_radio_set_packet();
+
+	ao_config_get();
+
 	ao_radio_configured = 1;
 }
 
@@ -741,7 +704,7 @@ static void ao_radio_show(void) {
 }
 
 static void ao_radio_beep(void) {
-	ao_radio_rdf(120);
+	ao_radio_rdf(RDF_PACKET_LEN);
 }
 
 #endif
@@ -771,5 +734,10 @@ ao_radio_init(void)
 	AO_CC1120_SPI_CS_PORT.bsrr = (1 << AO_CC1120_SPI_CS_PIN);
 	if (i == 10000)
 		ao_panic(AO_PANIC_SELF_TEST);
+
+	/* Enable the EXTI interrupt for the appropriate pin */
+	ao_enable_port(AO_CC1120_INT_PORT);
+	ao_exti_setup(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN, AO_EXTI_MODE_FALLING, ao_radio_isr);
+
 	ao_cmd_register(&ao_radio_cmds[0]);
 }
