@@ -71,7 +71,8 @@
         CC1120_PKT_CFG0,                       0x00,       /* Packet Configuration, Reg 0 */
         CC1120_RFEND_CFG1,                     0x0f,       /* RFEND Configuration, Reg 1 */
         CC1120_RFEND_CFG0,                     0x00,       /* RFEND Configuration, Reg 0 */
-        CC1120_PA_CFG2,                        0x3f,       /* Power Amplifier Configuration, Reg 2 */
+	//        CC1120_PA_CFG2,                        0x3f,       /* Power Amplifier Configuration, Reg 2 */
+	CC1120_PA_CFG2,                        0x23,       /* Power Amplifier Configuration, Reg 2 */
         CC1120_PA_CFG1,                        0x56,       /* Power Amplifier Configuration, Reg 1 */
         CC1120_PA_CFG0,                        0x7b,       /* Power Amplifier Configuration, Reg 0 */
         CC1120_PKT_LEN,                        0xff,       /* Packet Length Configuration */
