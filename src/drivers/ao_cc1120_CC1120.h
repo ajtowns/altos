@@ -21,29 +21,27 @@
  *
  ***************************************************************/
 
-        CC1120_SYNC3,                          0x93,       /* Sync Word Configuration [31:24] */
-        CC1120_SYNC2,                          0x0b,       /* Sync Word Configuration [23:16] */
-        CC1120_SYNC1,                          0x51,       /* Sync Word Configuration [15:8] */
-        CC1120_SYNC0,                          0xde,       /* Sync Word Configuration [7:0] */
+        CC1120_SYNC3,                          0xD3,       /* Sync Word Configuration [31:24] */
+        CC1120_SYNC2,                          0x91,       /* Sync Word Configuration [23:16] */
+        CC1120_SYNC1,                          0xD3,       /* Sync Word Configuration [15:8] */
+        CC1120_SYNC0,                          0x91,       /* Sync Word Configuration [7:0] */
+
         CC1120_SYNC_CFG1,                      0x08,       /* Sync Word Detection Configuration */
-        CC1120_SYNC_CFG0,                      0x17,       /* Sync Word Length Configuration */
-#if 0
-        CC1120_DEVIATION_M,                    0x50,       /* Frequency Deviation Configuration */
-        CC1120_MODCFG_DEV_E,                   0x0d,       /* Modulation Format and Frequency Deviation Configuration */
-#endif
+        CC1120_SYNC_CFG0,
+		(CC1120_SYNC_CFG0_SYNC_MODE_16_BITS << CC1120_SYNC_CFG0_SYNC_MODE) |
+		(CC1120_SYNC_CFG0_SYNC_NUM_ERROR_2 << CC1120_SYNC_CFG0_SYNC_NUM_ERROR),
         CC1120_DCFILT_CFG,                     0x1c,       /* Digital DC Removal Configuration */
-        CC1120_PREAMBLE_CFG1,                  0x18,       /* Preamble Length Configuration */
+        CC1120_PREAMBLE_CFG1,                         	   /* Preamble Length Configuration */
+		(CC1120_PREAMBLE_CFG1_NUM_PREAMBLE_4_BYTES << CC1120_PREAMBLE_CFG1_NUM_PREAMBLE) |
+		(CC1120_PREAMBLE_CFG1_PREAMBLE_WORD_AA << CC1120_PREAMBLE_CFG1_PREAMBLE_WORD),
         CC1120_PREAMBLE_CFG0,                  0x2a,       /*  */
         CC1120_FREQ_IF_CFG,                    0x40,       /* RX Mixer Frequency Configuration */
         CC1120_IQIC,                           0x46,       /* Digital Image Channel Compensation Configuration */
         CC1120_CHAN_BW,                        0x02,       /* Channel Filter Configuration */
+
         CC1120_MDMCFG1,                        0x46,       /* General Modem Parameter Configuration */
         CC1120_MDMCFG0,                        0x05,       /* General Modem Parameter Configuration */
-#if 0
-        CC1120_DRATE2,                         0x93,       /* Data Rate Configuration Exponent and Mantissa [19:16] */
-        CC1120_DRATE1,                         0xa4,       /* Data Rate Configuration Mantissa [15:8] */
-        CC1120_DRATE0,                         0x00,       /* Data Rate Configuration Mantissa [7:0] */
-#endif
+
         CC1120_AGC_REF,                        0x20,       /* AGC Reference Level Configuration */
         CC1120_AGC_CS_THR,                     0x19,       /* Carrier Sense Threshold Configuration */
         CC1120_AGC_GAIN_ADJUST,                0x00,       /* RSSI Offset Configuration */

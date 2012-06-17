@@ -6,6 +6,7 @@
 vpath make-altitude util
 vpath make-altitude-pa util
 vpath make-kalman util
+vpath make-whiten util
 vpath kalman.5c kalman
 vpath kalman_filter.5c kalman
 vpath load_csv.5c kalman
@@ -46,7 +47,7 @@ uninstall:
 
 all-recursive: all-local
 
-all-local: altitude.h altitude-pa.h ao_kalman.h
+all-local: altitude.h altitude-pa.h ao_kalman.h ao_whiten.h
 
 altitude.h: make-altitude
 	nickle $< > $@
@@ -56,6 +57,9 @@ altitude-pa.h: make-altitude-pa
 
 ao_kalman.h: make-kalman kalman.5c kalman_filter.5c load_csv.5c matrix.5c
 	bash $< kalman > $@
+
+ao_whiten.h: make-whiten
+	nickle $< > $@
 
 clean-local:
 	rm -f altitude.h ao_kalman.h

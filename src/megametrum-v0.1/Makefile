@@ -18,6 +18,8 @@ INC = \
 	ao_ms5607.h \
 	ao_hmc5883.h \
 	ao_mpu6000.h \
+	ao_cc1120_CC1120.h \
+	ao_whiten.h \
 	stm32l.h
 
 #
@@ -45,6 +47,7 @@ ALTOS_SRC = \
 	ao_dma_stm.c \
 	ao_spi_stm.c \
 	ao_cc1120.c \
+	ao_fec_tx.c \
 	ao_ms5607.c \
 	ao_adc_stm.c \
 	ao_beep_stm.c \

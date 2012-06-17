@@ -18,6 +18,7 @@
 #include <ao.h>
 #include <ao_cc1120.h>
 #include <ao_exti.h>
+#include <ao_fec.h>
 
 uint8_t ao_radio_wake;
 uint8_t ao_radio_mutex;
@@ -240,26 +241,27 @@ ao_radio_rx_done(void)
 	return ao_radio_marc_status() == CC1120_MARC_STATUS1_RX_FINISHED;
 }
 
+static void
+ao_radio_start_tx(void)
+{
+	ao_radio_reg_write(CC1120_IOCFG2, CC1120_IOCFG_GPIO_CFG_RX0TX1_CFG);
+	ao_exti_enable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
+	ao_radio_strobe(CC1120_STX);
+}
+
 void
 ao_radio_rdf(uint8_t len)
 {
 	int i;
 
 	ao_radio_get(len);
-	ao_radio_abort = 0;
 	ao_radio_wake = 0;
 	for (i = 0; i < sizeof (rdf_setup) / sizeof (rdf_setup[0]); i += 2)
 		ao_radio_reg_write(rdf_setup[i], rdf_setup[i+1]);
 
-	ao_radio_reg_write(CC1120_IOCFG2, CC1120_IOCFG_GPIO_CFG_RX0TX1_CFG);
-
 	ao_radio_fifo_write_fixed(ao_radio_rdf_value, len);
 
-	ao_radio_reg_write(CC1120_PKT_LEN, len);
-
-	ao_exti_enable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
-
-	ao_radio_strobe(CC1120_STX);
+	ao_radio_start_tx();
 
 	cli();
 	while (!ao_radio_wake && !ao_radio_abort)
@@ -327,24 +329,45 @@ ao_radio_test(void)
 void
 ao_radio_send(void *d, uint8_t size)
 {
-	uint8_t	marc_status;
+	uint8_t		marc_status;
+	static uint8_t	prepare[128];
+	uint8_t		prepare_len;
+	static uint8_t	encode[256];
+	uint8_t		encode_len;
+	static uint8_t	interleave[256];
+	uint8_t		interleave_len;
 
+	ao_fec_dump_bytes(d, size, "Input");
+
+#if 1
+	prepare_len = ao_fec_prepare(d, size, prepare);
+	ao_fec_dump_bytes(prepare, prepare_len, "Prepare");
+
+	ao_fec_whiten(prepare, prepare_len, prepare);
+	ao_fec_dump_bytes(prepare, prepare_len, "Whiten");
+
+	encode_len = ao_fec_encode(prepare, prepare_len, encode);
+	ao_fec_dump_bytes(encode, encode_len, "Encode");
+
+	interleave_len = ao_fec_interleave(encode, encode_len, interleave);
+	ao_fec_dump_bytes(interleave, interleave_len, "Interleave");
+	ao_radio_get(interleave_len);
+	ao_radio_fifo_write(interleave, interleave_len);
+#else
 	ao_radio_get(size);
-	ao_radio_wake = 0;
 	ao_radio_fifo_write(d, size);
-	ao_exti_enable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
-	ao_radio_strobe(CC1120_STX);
+#endif
+
+	ao_radio_wake = 0;
+
+	ao_radio_start_tx();
+
 	cli();
-	for (;;) {
-		if (ao_radio_wake) {
-			marc_status = ao_radio_marc_status();
-			if (marc_status != CC1120_MARC_STATUS1_NO_FAILURE)
-				break;
-			ao_radio_wake = 0;
-		}
+	while (!ao_radio_wake && !ao_radio_abort)
 		ao_sleep(&ao_radio_wake);
-	}
 	sei();
+	if (!ao_radio_tx_done())
+		ao_radio_idle();
 	ao_radio_put();
 }
 
@@ -361,6 +384,7 @@ ao_radio_recv(__xdata void *d, uint8_t size)
 	cli();
 	for (;;) {
 		if (ao_radio_abort)
+
 			break;
 		if (ao_radio_wake) {
 			marc_status = ao_radio_marc_status();
@@ -413,7 +437,7 @@ static const uint16_t packet_setup[] = {
 	CC1120_DRATE0,		((PACKET_DRATE_M >> 0) & 0xff),
 	CC1120_PKT_CFG2,	((CC1120_PKT_CFG2_CCA_MODE_ALWAYS_CLEAR << CC1120_PKT_CFG2_CCA_MODE) |
 				 (CC1120_PKT_CFG2_PKT_FORMAT_NORMAL << CC1120_PKT_CFG2_PKT_FORMAT)),
-	CC1120_PKT_CFG1,	((1 << CC1120_PKT_CFG1_WHITE_DATA) |
+	CC1120_PKT_CFG1,	((0 << CC1120_PKT_CFG1_WHITE_DATA) |
 				 (CC1120_PKT_CFG1_ADDR_CHECK_CFG_NONE << CC1120_PKT_CFG1_ADDR_CHECK_CFG) |
 				 (CC1120_PKT_CFG1_CRC_CFG_DISABLED << CC1120_PKT_CFG1_CRC_CFG) |
 				 (1 << CC1120_PKT_CFG1_APPEND_STATUS)),
@@ -468,9 +492,6 @@ ao_radio_setup(void)
 
 	for (i = 0; i < sizeof (radio_setup) / sizeof (radio_setup[0]); i += 2)
 		ao_radio_reg_write(radio_setup[i], radio_setup[i+1]);
-
-	/* Enable marc status interrupt on gpio 2 pin */
-	ao_radio_reg_write(CC1120_IOCFG2, CC1120_IOCFG_GPIO_CFG_MARC_MCU_WAKEUP);
 
 	ao_radio_set_packet();
 
@@ -707,6 +728,21 @@ static void ao_radio_beep(void) {
 	ao_radio_rdf(RDF_PACKET_LEN);
 }
 
+static void ao_radio_packet(void) {
+	static uint8_t packet[] = {
+#if 1
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+#else
+		3, 1, 2, 3
+#endif
+	};
+
+	ao_radio_send(packet, sizeof (packet));
+}
+
 #endif
 
 static const struct ao_cmds ao_radio_cmds[] = {
@@ -714,6 +750,7 @@ static const struct ao_cmds ao_radio_cmds[] = {
 #if CC1120_DEBUG
 	{ ao_radio_show,	"R\0Show CC1120 status" },
 	{ ao_radio_beep,	"b\0Emit an RDF beacon" },
+	{ ao_radio_packet,	"p\0Send a test packet" },
 #endif
 	{ 0, NULL }
 };
