@@ -82,6 +82,7 @@ main (int argc, char **argv)
 				case AO_TELEMETRY_SENSOR_TELEMETRUM:
 				case AO_TELEMETRY_SENSOR_TELEMINI:
 				case AO_TELEMETRY_SENSOR_TELENANO:
+				case AO_TELEMETRY_SENSOR_MEGAMETRUM:
 					printf ("state %1d accel %5d pres %5d ",
 						telem.sensor.state, telem.sensor.accel, telem.sensor.pres);
 					printf ("accel %6.2f speed %6.2f height %5d ",
