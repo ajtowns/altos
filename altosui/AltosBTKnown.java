@@ -94,4 +94,12 @@ public class AltosBTKnown implements Iterable<AltosBTDevice> {
 		bt_pref = AltosUIPreferences.bt_devices();
 		load();
 	}
+
+	static AltosBTKnown	known;
+
+	static public AltosBTKnown bt_known() {
+		if (known == null)
+			known = new AltosBTKnown();
+		return known;
+	}
 }

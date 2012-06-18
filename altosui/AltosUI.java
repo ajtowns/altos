@@ -538,6 +538,7 @@ public class AltosUI extends AltosFrame {
 	}
 	
 	public static void main(final String[] args) {
+		load_library(null);
 		try {
 			UIManager.setLookAndFeel(AltosUIPreferences.look_and_feel());
 		} catch (Exception e) {

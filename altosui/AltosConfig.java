@@ -491,7 +491,7 @@ public class AltosConfig implements ActionListener {
 			try {
 				serial_line = new AltosSerial(device);
 				try {
-					if (!device.matchProduct(Altos.product_telemetrum))
+					if (!device.matchProduct(Altos.product_altimeter))
 						remote = true;
 					init_ui();
 				} catch (InterruptedException ie) {

@@ -116,6 +116,7 @@ public class AltosBTDevice extends altos_bt_device implements AltosDevice {
 	}
 
 	public AltosBTDevice(String name, String addr) {
+		Altos.load_library();
 		libaltos.altos_bt_fill_in(name, addr,this);
 	}
 

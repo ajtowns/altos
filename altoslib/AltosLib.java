@@ -78,6 +78,30 @@ public class AltosLib {
 	public static final int ao_flight_landed = 8;
 	public static final int ao_flight_invalid = 9;
 
+	/* USB product IDs */
+	public final static int vendor_altusmetrum = 0xfffe;
+
+	public final static int product_altusmetrum = 0x000a;
+	public final static int product_telemetrum = 0x000b;
+	public final static int product_teledongle = 0x000c;
+	public final static int product_teleterra = 0x000d;
+	public final static int product_telebt = 0x000e;
+	public final static int product_telelaunch = 0x000f;
+	public final static int product_telelco = 0x0010;
+	public final static int product_telescience = 0x0011;
+	public final static int product_telepyro =0x0012;
+	public final static int product_megametrum = 0x0023;
+	public final static int product_megadongle = 0x0024;
+	public final static int product_altusmetrum_min = 0x000a;
+	public final static int product_altusmetrum_max = 0x0024;
+
+	public final static int product_any = 0x10000;
+	public final static int product_basestation = 0x10000 + 1;
+	public final static int product_altimeter = 0x10000 + 2;
+
+	/* Bluetooth "identifier" (bluetooth sucks) */
+	public final static String bt_product_telebt = "TeleBT";
+
 	/* Telemetry modes */
 	public static final int ao_telemetry_off = 0;
 	public static final int ao_telemetry_min = 1;

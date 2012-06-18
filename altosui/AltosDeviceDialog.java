@@ -41,7 +41,7 @@ public class AltosDeviceDialog extends AltosDialog implements ActionListener {
 	private AltosDevice[] devices() {
 		java.util.List<AltosDevice>	usb_devices = AltosUSBDevice.list(product);
 		int				num_devices = usb_devices.size();
-		java.util.List<AltosDevice>	bt_devices = Altos.bt_known.list(product);
+		java.util.List<AltosDevice>	bt_devices = AltosBTKnown.bt_known().list(product);
 		num_devices += bt_devices.size();
 		AltosDevice[]			devices = new AltosDevice[num_devices];
 
@@ -169,7 +169,7 @@ public class AltosDeviceDialog extends AltosDialog implements ActionListener {
 		if ("select".equals(e.getActionCommand()))
 			value = (AltosDevice)(list.getSelectedValue());
 		if ("manage".equals(e.getActionCommand())) {
-			AltosBTManage.show(frame, Altos.bt_known);
+			AltosBTManage.show(frame, AltosBTKnown.bt_known());
 			update_devices();
 			return;
 		}
