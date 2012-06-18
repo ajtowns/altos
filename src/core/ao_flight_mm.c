@@ -32,6 +32,10 @@
 #error Please define HAS_USB
 #endif
 
+#ifndef HAS_TELEMETRY
+#define HAS_TELEMETRY	HAS_RADIO
+#endif
+
 /* Main flight thread. */
 
 __pdata enum ao_flight_state	ao_flight_state;	/* current flight state */
@@ -83,7 +87,7 @@ ao_flight(void)
 			 *  - pad mode if we're upright,
 			 *  - idle mode otherwise
 			 */
-#if HAS_ACCEL
+#if HAS_ACCEL && 0
 			if (ao_config.accel_plus_g == 0 ||
 			    ao_config.accel_minus_g == 0 ||
 			    ao_ground_accel < ao_config.accel_plus_g - ACCEL_NOSE_UP ||
@@ -101,14 +105,14 @@ ao_flight(void)
 			} else
 #endif
 				if (!ao_flight_force_idle
-#if HAS_ACCEL
+#if HAS_ACCEL && 0
 				    && ao_ground_accel < ao_config.accel_plus_g + ACCEL_NOSE_UP
 #endif
 					)
  			{
 				/* Set pad mode - we can fly! */
 				ao_flight_state = ao_flight_pad;
-#if HAS_USB && HAS_RADIO
+#if HAS_USB && HAS_RADIO && 0
 				/* Disable the USB controller in flight mode
 				 * to save power
 				 */
@@ -120,7 +124,7 @@ ao_flight(void)
 				ao_packet_slave_stop();
 #endif
 
-#if HAS_RADIO && !defined (MEGAMETRUM)
+#if HAS_TELEMETRY
 				/* Turn on telemetry system */
 				ao_rdf_set(1);
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_PAD);
@@ -171,7 +175,7 @@ ao_flight(void)
 				/* start logging data */
 				ao_log_start();
 
-#if HAS_RADIO && !defined(MEGAMETRUM)
+#if HAS_TELEMETRY
 				/* Increase telemetry rate */
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_FLIGHT);
 
@@ -259,7 +263,7 @@ ao_flight(void)
 				ao_ignite(ao_igniter_drogue);
 #endif
 
-#if HAS_RADIO && !defined(MEGAMETRUM)
+#if HAS_TELEMETRY
 				/* slow down the telemetry system */
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_RECOVER);
 

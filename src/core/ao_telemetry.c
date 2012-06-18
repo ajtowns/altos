@@ -35,6 +35,10 @@ static __pdata uint16_t ao_rdf_time;
 #define AO_RDF_INTERVAL_TICKS	AO_SEC_TO_TICKS(5)
 #define AO_RDF_LENGTH_MS	500
 
+#if defined(MEGAMETRUM)
+#define AO_TELEMETRY_SENSOR	AO_TELEMETRY_SENSOR_MEGAMETRUM
+#endif
+
 #if defined(TELEMETRUM_V_0_1) || defined(TELEMETRUM_V_0_2) || defined(TELEMETRUM_V_1_0) || defined(TELEMETRUM_V_1_1) || defined(TELEBALLOON_V_1_1) || defined(TELEMETRUM_V_1_2)
 #define AO_TELEMETRY_SENSOR	AO_TELEMETRY_SENSOR_TELEMETRUM
 #endif
@@ -53,7 +57,7 @@ static __xdata union ao_telemetry_all	telemetry;
 static void
 ao_send_sensor(void)
 {
-	__xdata	struct ao_data *packet = &ao_data_ring[ao_data_ring_prev(ao_sample_data)];
+	__xdata	struct ao_data *packet = (__xdata struct ao_data *) &ao_data_ring[ao_data_ring_prev(ao_sample_data)];
 			
 	telemetry.generic.tick = packet->tick;
 	telemetry.generic.type = AO_TELEMETRY_SENSOR;
@@ -64,7 +68,7 @@ ao_send_sensor(void)
 #else
 	telemetry.sensor.accel = 0;
 #endif
-	telemetry.sensor.pres = packet->adc.pres;
+	telemetry.sensor.pres = ao_data_pres(packet);
 	telemetry.sensor.temp = packet->adc.temp;
 	telemetry.sensor.v_batt = packet->adc.v_batt;
 #if HAS_IGNITE

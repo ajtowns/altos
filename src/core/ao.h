@@ -347,6 +347,7 @@ struct ao_telemetry_generic {
 #define AO_TELEMETRY_SENSOR_TELEMETRUM	0x01
 #define AO_TELEMETRY_SENSOR_TELEMINI	0x02
 #define AO_TELEMETRY_SENSOR_TELENANO	0x03
+#define AO_TELEMETRY_SENSOR_MEGAMETRUM	0x08
 
 struct ao_telemetry_sensor {
 	uint16_t	serial;		/*  0 */

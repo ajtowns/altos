@@ -47,6 +47,7 @@ main(void)
 	ao_flight_init();
 	ao_log_init();
 	ao_report_init();
+	ao_telemetry_init();
 	ao_config_init();
 	
 	ao_start_scheduler();

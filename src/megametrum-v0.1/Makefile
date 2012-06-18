@@ -64,12 +64,13 @@ ALTOS_SRC = \
 	ao_log_mega.c \
 	ao_sample_mm.c \
 	ao_kalman.c \
-	ao_flight_mm.c
+	ao_flight_mm.c \
+	ao_telemetry.c
 
 
 PRODUCT=MegaMetrum-v0.1
 PRODUCT_DEF=-DMEGAMETRUM
-IDPRODUCT=0x000a
+IDPRODUCT=0x0023
 
 CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) -Os -g
 
