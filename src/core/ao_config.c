@@ -81,6 +81,11 @@ _ao_config_get(void)
 	if (ao_config_loaded)
 		return;
 #if HAS_EEPROM
+	/* Yes, I know ao_storage_read calls ao_storage_setup,
+	 * but ao_storage_setup *also* sets ao_storage_config, which we
+	 * need before calling ao_storage_read here
+	 */
+	ao_storage_setup();
 	ao_storage_read(ao_storage_config, &ao_config, sizeof (ao_config));
 #endif
 	if (ao_config.major != AO_CONFIG_MAJOR) {
