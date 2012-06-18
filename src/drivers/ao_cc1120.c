@@ -27,6 +27,12 @@ uint8_t ao_radio_abort;
 #define CC1120_DEBUG	1
 #define CC1120_TRACE	0
 
+#if CC1120_TRACE
+#define fec_dump_bytes(b,l,n) ao_fec_dump_bytes(b,l,n)
+#else
+#define fec_dump_bytes(b,l,n)
+#endif
+
 uint32_t	ao_radio_cal = 0x6ca333;
 
 #define FOSC	32000000
@@ -330,33 +336,29 @@ void
 ao_radio_send(void *d, uint8_t size)
 {
 	uint8_t		marc_status;
-	static uint8_t	prepare[128];
+	uint8_t		prepare[size + AO_FEC_PREPARE_EXTRA];
 	uint8_t		prepare_len;
-	static uint8_t	encode[256];
+	uint8_t		encode[sizeof(prepare) * 2];
 	uint8_t		encode_len;
-	static uint8_t	interleave[256];
+	uint8_t		interleave[sizeof(encode)];
 	uint8_t		interleave_len;
 
-	ao_fec_dump_bytes(d, size, "Input");
+	fec_dump_bytes(d, size, "Input");
 
-#if 1
 	prepare_len = ao_fec_prepare(d, size, prepare);
-	ao_fec_dump_bytes(prepare, prepare_len, "Prepare");
+	fec_dump_bytes(prepare, prepare_len, "Prepare");
 
 	ao_fec_whiten(prepare, prepare_len, prepare);
-	ao_fec_dump_bytes(prepare, prepare_len, "Whiten");
+	fec_dump_bytes(prepare, prepare_len, "Whiten");
 
 	encode_len = ao_fec_encode(prepare, prepare_len, encode);
-	ao_fec_dump_bytes(encode, encode_len, "Encode");
+	fec_dump_bytes(encode, encode_len, "Encode");
 
 	interleave_len = ao_fec_interleave(encode, encode_len, interleave);
-	ao_fec_dump_bytes(interleave, interleave_len, "Interleave");
+	fec_dump_bytes(interleave, interleave_len, "Interleave");
+
 	ao_radio_get(interleave_len);
 	ao_radio_fifo_write(interleave, interleave_len);
-#else
-	ao_radio_get(size);
-	ao_radio_fifo_write(d, size);
-#endif
 
 	ao_radio_wake = 0;
 
