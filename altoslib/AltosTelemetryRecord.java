@@ -43,6 +43,7 @@ public abstract class AltosTelemetryRecord {
 	final static int packet_type_satellite = 0x06;
 	final static int packet_type_companion = 0x07;
 	final static int packet_type_MM_sensor = 0x08;
+	final static int packet_type_MM_data = 0x09;
 	
 	static AltosTelemetryRecord parse_hex(String hex)  throws ParseException, AltosCRCException {
 		AltosTelemetryRecord	r;
@@ -76,7 +77,6 @@ public abstract class AltosTelemetryRecord {
 			case packet_type_TM_sensor:
 			case packet_type_Tm_sensor:
 			case packet_type_Tn_sensor:
-			case packet_type_MM_sensor:
 				r = new AltosTelemetryRecordSensor(bytes, rssi);
 				break;
 			case packet_type_configuration:
@@ -90,6 +90,12 @@ public abstract class AltosTelemetryRecord {
 				break;
 			case packet_type_companion:
 				r = new AltosTelemetryRecordCompanion(bytes);
+				break;
+			case packet_type_MM_sensor:
+				r = new AltosTelemetryRecordMegaSensor(bytes, rssi);
+				break;
+			case packet_type_MM_data:
+				r = new AltosTelemetryRecordMegaData(bytes);
 				break;
 			default:
 				r = new AltosTelemetryRecordRaw(bytes);

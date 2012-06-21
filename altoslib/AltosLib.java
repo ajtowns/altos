@@ -20,6 +20,7 @@ package org.altusmetrum.AltosLib;
 import java.awt.*;
 import java.util.*;
 import java.text.*;
+import java.io.*;
 import java.nio.charset.Charset;
 
 public class AltosLib {
@@ -304,6 +305,10 @@ public class AltosLib {
 			(bytes[i+3] << 24);
 	}
 
+	public static int int32(int[] bytes, int i) {
+		return (int) uint32(bytes, i);
+	}
+
 	public static final Charset	unicode_set = Charset.forName("UTF-8");
 
 	public static String string(int[] bytes, int s, int l) {
@@ -373,6 +378,21 @@ public class AltosLib {
 				v = v * 10 + fromdec(c);
 		}
 		return v * sign;
+	}
+
+	public static String gets(FileInputStream s) throws IOException {
+		int c;
+		String	line = "";
+
+		while ((c = s.read()) != -1) {
+			if (c == '\r')
+				continue;
+			if (c == '\n') {
+				return line;
+			}
+			line = line + (char) c;
+		}
+		return null;
 	}
 
 	public static String replace_extension(String input, String extension) {

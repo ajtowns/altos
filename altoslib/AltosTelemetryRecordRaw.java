@@ -49,6 +49,10 @@ public class AltosTelemetryRecordRaw extends AltosTelemetryRecord {
 		return AltosLib.uint32(bytes, off + 1);
 	}
 
+	public int int32(int off) {
+		return AltosLib.int32(bytes, off + 1);
+	}
+
 	public String string(int off, int l) {
 		return AltosLib.string(bytes, off + 1, l);
 	}
@@ -63,7 +67,7 @@ public class AltosTelemetryRecordRaw extends AltosTelemetryRecord {
 	public AltosRecord update_state(AltosRecord previous) {
 		AltosRecord	next;
 		if (previous != null)
-			next = new AltosRecord(previous);
+			next = previous.clone();
 		else
 			next = new AltosRecord();
 		next.serial = serial;

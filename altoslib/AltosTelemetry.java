@@ -84,7 +84,7 @@ import java.util.HashMap;
  *
  */
 
-public class AltosTelemetry extends AltosRecord {
+public abstract class AltosTelemetry extends AltosRecord {
 
 	/*
 	 * General header fields

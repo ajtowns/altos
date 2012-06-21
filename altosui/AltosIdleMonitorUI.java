@@ -204,17 +204,18 @@ class AltosIdleMonitor extends Thread {
 		record.state = Altos.ao_flight_idle;
 
 		record.tick = adc.tick;
-		record.accel = adc.accel;
-		record.pres = adc.pres;
-		record.batt = adc.batt;
-		record.temp = adc.temp;
-		record.drogue = adc.drogue;
-		record.main = adc.main;
 
-		record.ground_accel = record.accel;
-		record.ground_pres = record.pres;
-		record.accel_plus_g = config_data.accel_cal_plus;
-		record.accel_minus_g = config_data.accel_cal_minus;
+//		record.accel = adc.accel;
+//		record.pres = adc.pres;
+//		record.batt = adc.batt;
+//		record.temp = adc.temp;
+//		record.drogue = adc.drogue;
+//		record.main = adc.main;
+
+//		record.ground_accel = record.accel;
+//		record.ground_pres = record.pres;
+//		record.accel_plus_g = config_data.accel_cal_plus;
+//		record.accel_minus_g = config_data.accel_cal_minus;
 		record.acceleration = 0;
 		record.speed = 0;
 		record.height = 0;

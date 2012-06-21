@@ -146,8 +146,8 @@ public class AltosCSV implements AltosWriter {
 	}
 
 	void write_advanced(AltosRecord record) {
-		AltosIMU	imu = record.imu;
-		AltosMag	mag = record.mag;
+		AltosIMU	imu = record.imu();
+		AltosMag	mag = record.mag();
 
 		if (imu == null)
 			imu = new AltosIMU();
@@ -263,7 +263,7 @@ public class AltosCSV implements AltosWriter {
 		write_general(record); out.printf(",");
 		write_flight(record); out.printf(",");
 		write_basic(record); out.printf(",");
-		if (record.imu != null || record.mag != null)
+		if (record.imu() != null || record.mag() != null)
 			write_advanced(record);
 		if (record.gps != null) {
 			out.printf(",");
@@ -287,7 +287,7 @@ public class AltosCSV implements AltosWriter {
 		if (record.state == Altos.ao_flight_startup)
 			return;
 		if (!header_written) {
-			write_header(record.imu != null || record.mag != null,
+			write_header(record.imu() != null || record.mag() != null,
 				     record.gps != null, record.companion != null);
 			header_written = true;
 		}

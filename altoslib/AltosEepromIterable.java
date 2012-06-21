@@ -104,7 +104,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 		}
 	}
 
-	void update_state(AltosRecord state, AltosEepromRecord record, EepromState eeprom) {
+	void update_state(AltosRecordTM state, AltosEepromRecord record, EepromState eeprom) {
 		state.tick = record.tick;
 		switch (record.cmd) {
 		case AltosLib.AO_LOG_FLIGHT:
@@ -237,7 +237,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 		LinkedList<AltosRecord>		list = new LinkedList<AltosRecord>();
 		Iterator<AltosOrderedRecord>	iterator = records.iterator();
 		AltosOrderedRecord		record = null;
-		AltosRecord			state = new AltosRecord();
+		AltosRecordTM			state = new AltosRecordTM();
 		boolean				last_reported = false;
 		EepromState			eeprom = new EepromState();
 
@@ -254,13 +254,13 @@ public class AltosEepromIterable extends AltosRecordIterable {
 		while (iterator.hasNext()) {
 			record = iterator.next();
 			if ((eeprom.seen & seen_basic) == seen_basic && record.tick != state.tick) {
-				AltosRecord r = new AltosRecord(state);
+				AltosRecordTM r = state.clone();
 				r.time = (r.tick - eeprom.boost_tick) / 100.0;
 				list.add(r);
 			}
 			update_state(state, record, eeprom);
 		}
-		AltosRecord r = new AltosRecord(state);
+		AltosRecordTM r = state.clone();
 		r.time = (r.tick - eeprom.boost_tick) / 100.0;
 		list.add(r);
 	return list;
@@ -399,7 +399,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 
 		try {
 			for (;;) {
-				String line = AltosRecord.gets(input);
+				String line = AltosLib.gets(input);
 				if (line == null)
 					break;
 				AltosOrderedRecord record = new AltosOrderedRecord(line, index++, prev_tick, prev_tick_valid);

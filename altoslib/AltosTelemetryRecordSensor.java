@@ -61,8 +61,14 @@ public class AltosTelemetryRecordSensor extends AltosTelemetryRecordRaw {
 		rssi	      = in_rssi;
 	}
 
-	public AltosRecord update_state(AltosRecord previous) {
-		AltosRecord	next = super.update_state(previous);
+	public AltosRecord update_state(AltosRecord prev) {
+		AltosRecord	n = super.update_state(prev);
+
+		AltosRecordTM	next;
+		if (!(n instanceof AltosRecordTM))
+			next = new AltosRecordTM(n);
+		else
+			next = (AltosRecordTM) n;
 
 		next.state = state;
 		if (type == packet_type_TM_sensor)

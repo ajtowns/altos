@@ -73,4 +73,11 @@ public class AltosMs5607 {
 		convert();
 		return pa;
 	}
+
+	public AltosMs5607() {
+		raw_pres = AltosRecord.MISSING;
+		raw_temp = AltosRecord.MISSING;
+		pa = AltosRecord.MISSING;
+		cc = AltosRecord.MISSING;
+	}
 }

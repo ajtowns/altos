@@ -232,7 +232,7 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 	final static String AO_TELEM_SAT_SVID	= "s_v";
 	final static String AO_TELEM_SAT_C_N_0	= "s_c";
 
-	AltosRecord	record;
+	AltosRecordTM	record;
 
 	private void parse_v4(String[] words, int i) throws ParseException {
 		AltosTelemetryMap	map = new AltosTelemetryMap(words, i);
@@ -366,7 +366,7 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 		String[] words = line.split("\\s+");
 		int	i = 0;
 
-		record = new AltosRecord();
+		record = new AltosRecordTM();
 
 		if (words[i].equals("CRC") && words[i+1].equals("INVALID")) {
 			i += 2;
@@ -388,7 +388,7 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 	}
 
 	/*
-	 * Given a hex dump of a legacy telemetry line, construct an AltosRecord from that
+	 * Given a hex dump of a legacy telemetry line, construct an AltosRecordTM from that
 	 */
 
 	int[]	bytes;
@@ -422,7 +422,7 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 	static final int AO_GPS_COURSE_VALID	= (1 << 7);
 
 	public AltosTelemetryRecordLegacy(int[] in_bytes, int in_rssi, int in_status) {
-		record = new AltosRecord();
+		record = new AltosRecordTM();
 
 		bytes = in_bytes;
 		record.version = 4;

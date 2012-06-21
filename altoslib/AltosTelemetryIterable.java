@@ -45,7 +45,7 @@ public class AltosTelemetryIterable extends AltosRecordIterable {
 
 		try {
 			for (;;) {
-				String line = AltosRecord.gets(input);
+				String line = AltosLib.gets(input);
 				if (line == null) {
 					break;
 				}
@@ -67,11 +67,11 @@ public class AltosTelemetryIterable extends AltosRecordIterable {
 						saw_boost = true;
 						boost_tick = record.tick;
 					}
-					if (record.accel != AltosRecord.MISSING)
+					if (record.acceleration() != AltosRecord.MISSING)
 						has_accel = true;
 					if (record.gps != null)
 						has_gps = true;
-					if (record.main != AltosRecord.MISSING)
+					if (record.main_voltage() != AltosRecord.MISSING)
 						has_ignite = true;
 					if (previous != null && previous.tick != record.tick)
 						records.add(previous);

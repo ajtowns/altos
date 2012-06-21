@@ -35,6 +35,8 @@ AltosLib_JAVA = \
 	$(SRC)/AltosRecordCompanion.java \
 	$(SRC)/AltosRecordIterable.java \
 	$(SRC)/AltosRecord.java \
+	$(SRC)/AltosRecordTM.java \
+	$(SRC)/AltosRecordMM.java \
 	$(SRC)/AltosReplayReader.java \
 	$(SRC)/AltosState.java \
 	$(SRC)/AltosTelemetry.java \
@@ -50,6 +52,8 @@ AltosLib_JAVA = \
 	$(SRC)/AltosTelemetryRecordRaw.java \
 	$(SRC)/AltosTelemetryRecordSatellite.java \
 	$(SRC)/AltosTelemetryRecordSensor.java \
+	$(SRC)/AltosTelemetryRecordMegaSensor.java \
+	$(SRC)/AltosTelemetryRecordMegaData.java \
 	$(SRC)/AltosMs5607.java \
 	$(SRC)/AltosIMU.java \
 	$(SRC)/AltosMag.java

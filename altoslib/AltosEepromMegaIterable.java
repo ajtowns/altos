@@ -108,7 +108,7 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 		}
 	}
 
-	void update_state(AltosRecord state, AltosEepromMega record, EepromState eeprom) {
+	void update_state(AltosRecordMM state, AltosEepromMega record, EepromState eeprom) {
 		state.tick = record.tick;
 		switch (record.cmd) {
 		case AltosLib.AO_LOG_FLIGHT:
@@ -122,7 +122,8 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 			break;
 		case AltosLib.AO_LOG_SENSOR:
 			state.accel = record.accel();
-			state.pres = baro.set(record.pres(), record.temp());
+			baro.set(record.pres(), record.temp());
+			state.pres = baro.pa;
 			state.temp = baro.cc;
 			state.imu = new AltosIMU();
 			state.imu.accel_x = record.accel_x();
@@ -161,15 +162,20 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 			eeprom.seen |= seen_sensor;
 			break;
 		case AltosLib.AO_LOG_TEMP_VOLT:
-			state.batt = record.v_batt();
+			state.v_batt = record.v_batt();
+			state.v_pyro = record.v_pbatt();
+			for (int i = 0; i < AltosRecordMM.num_sense; i++)
+				state.sense[i] = record.sense(i);
 			eeprom.seen |= seen_temp_volt;
 			break;
-		case AltosLib.AO_LOG_DEPLOY:
-			state.drogue = record.a;
-			state.main = record.b;
-			eeprom.seen |= seen_deploy;
-			has_ignite = true;
-			break;
+//
+//		case AltosLib.AO_LOG_DEPLOY:
+//			state.drogue = record.a;
+//			state.main = record.b;
+//			eeprom.seen |= seen_deploy;
+//			has_ignite = true;
+//			break;
+
 		case AltosLib.AO_LOG_STATE:
 			state.state = record.state();
 			break;
@@ -278,7 +284,7 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 		LinkedList<AltosRecord>		list = new LinkedList<AltosRecord>();
 		Iterator<AltosOrderedMegaRecord>	iterator = records.iterator();
 		AltosOrderedMegaRecord		record = null;
-		AltosRecord			state = new AltosRecord();
+		AltosRecordMM			state = new AltosRecordMM();
 		boolean				last_reported = false;
 		EepromState			eeprom = new EepromState();
 
@@ -295,13 +301,13 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 		while (iterator.hasNext()) {
 			record = iterator.next();
 			if ((eeprom.seen & seen_basic) == seen_basic && record.tick != state.tick) {
-				AltosRecord r = new AltosRecord(state);
+				AltosRecordMM r = state.clone();
 				r.time = (r.tick - eeprom.boost_tick) / 100.0;
 				list.add(r);
 			}
 			update_state(state, record, eeprom);
 		}
-		AltosRecord r = new AltosRecord(state);
+		AltosRecordMM r = state.clone();
 		r.time = (r.tick - eeprom.boost_tick) / 100.0;
 		list.add(r);
 		return list;
@@ -442,7 +448,7 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 
 		try {
 			for (;;) {
-				String line = AltosRecord.gets(input);
+				String line = AltosLib.gets(input);
 				if (line == null)
 					break;
 				AltosOrderedMegaRecord record = new AltosOrderedMegaRecord(line, index++, prev_tick, prev_tick_valid);
