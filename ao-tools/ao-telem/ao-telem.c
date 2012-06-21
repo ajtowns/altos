@@ -82,7 +82,6 @@ main (int argc, char **argv)
 				case AO_TELEMETRY_SENSOR_TELEMETRUM:
 				case AO_TELEMETRY_SENSOR_TELEMINI:
 				case AO_TELEMETRY_SENSOR_TELENANO:
-				case AO_TELEMETRY_SENSOR_MEGAMETRUM:
 					printf ("state %1d accel %5d pres %5d ",
 						telem.sensor.state, telem.sensor.accel, telem.sensor.pres);
 					printf ("accel %6.2f speed %6.2f height %5d ",
@@ -152,6 +151,43 @@ main (int argc, char **argv)
 							telem.satellite.sats[c].c_n_1);
 					}
 					printf ("\n");
+					break;
+				case AO_TELEMETRY_MEGA_SENSOR:
+					printf ("accel %5d pres %9d temp %5d accel_x %5d accel_y %5d accel_z %5d gyro_x %5d gyro_y %5d gyro_z %5d mag_x %5d mag_y %5d mag_z %5d\n",
+						telem.mega_sensor.accel,
+						telem.mega_sensor.pres,
+						telem.mega_sensor.temp,
+						telem.mega_sensor.accel_x,
+						telem.mega_sensor.accel_y,
+						telem.mega_sensor.accel_z,
+						telem.mega_sensor.gyro_x,
+						telem.mega_sensor.gyro_y,
+						telem.mega_sensor.gyro_z,
+						telem.mega_sensor.mag_x,
+						telem.mega_sensor.mag_y,
+						telem.mega_sensor.mag_z);
+					break;
+				case AO_TELEMETRY_MEGA_DATA:
+					printf ("state %1d v_batt %5d v_pyro %5d ",
+						telem.mega_data.state,
+						telem.mega_data.v_batt,
+						telem.mega_data.v_pyro);
+					for (c = 0; c < 6; c++)
+						printf ("s%1d %5d ", c,
+							telem.mega_data.sense[c] |
+							(telem.mega_data.sense[c] << 8));
+					
+					printf ("ground_pres %5d ground_accel %5d accel_plus %5d accel_minus %5d ",
+						telem.mega_data.ground_pres,
+						telem.mega_data.ground_accel,
+						telem.mega_data.accel_plus_g,
+						telem.mega_data.accel_minus_g);
+
+					printf ("accel %6.2f speed %6.2f height %5d\n",
+						telem.mega_data.acceleration / 16.0,
+						telem.mega_data.speed / 16.0,
+						telem.mega_data.height);
+
 					break;
 				default:
 					printf("\n");
