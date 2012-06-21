@@ -101,11 +101,14 @@ ao_sample(void)
 		/* Capture a sample */
 		ao_data = (struct ao_data *) &ao_data_ring[ao_sample_data];
 		ao_sample_tick = ao_data->tick;
+
+		ao_data_pres_cook(ao_data);
 		ao_sample_pres = ao_data_pres(ao_data);
 		ao_sample_alt = pres_to_altitude(ao_sample_pres);
 		ao_sample_height = ao_sample_alt - ao_ground_height;
+
 #if HAS_ACCEL
-		ao_sample_accel = ao_data_accel_sample(ao_data);
+		ao_sample_accel = ao_data_accel_cook(ao_data);
 		if (ao_config.pad_orientation != AO_PAD_ORIENTATION_ANTENNA_UP)
 			ao_sample_accel = ao_data_accel_invert(ao_sample_accel);
 		ao_data_set_accel(ao_data, ao_sample_accel);

@@ -60,7 +60,7 @@ static void ao_adc_done(int index)
 #if HAS_MS5607
 	if (!ao_ms5607_valid)
 		step = 0;
-	ao_data_ring[ao_data_head].ms5607 = ao_ms5607_current;
+	ao_data_ring[ao_data_head].ms5607_raw = ao_ms5607_current;
 #endif	
 #if HAS_HMC5883
 	if (!ao_hmc5883_valid)

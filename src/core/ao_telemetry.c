@@ -19,16 +19,6 @@
 #include "ao_product.h"
 
 static __pdata uint16_t ao_telemetry_interval;
-static __pdata int8_t ao_telemetry_config_max;
-static __pdata int8_t ao_telemetry_config_cur;
-#if HAS_GPS
-static __pdata int8_t ao_telemetry_loc_cur;
-static __pdata int8_t ao_telemetry_sat_cur;
-#endif
-#if HAS_COMPANION
-static __pdata int8_t ao_telemetry_companion_max;
-static __pdata int8_t ao_telemetry_companion_cur;
-#endif
 static __pdata uint8_t ao_rdf = 0;
 static __pdata uint16_t ao_rdf_time;
 
@@ -36,7 +26,7 @@ static __pdata uint16_t ao_rdf_time;
 #define AO_RDF_LENGTH_MS	500
 
 #if defined(MEGAMETRUM)
-#define AO_TELEMETRY_SENSOR	AO_TELEMETRY_SENSOR_MEGAMETRUM
+#define AO_SEND_MEGA	1
 #endif
 
 #if defined(TELEMETRUM_V_0_1) || defined(TELEMETRUM_V_0_2) || defined(TELEMETRUM_V_1_0) || defined(TELEMETRUM_V_1_1) || defined(TELEBALLOON_V_1_1) || defined(TELEMETRUM_V_1_2)
@@ -53,6 +43,7 @@ static __pdata uint16_t ao_rdf_time;
 
 static __xdata union ao_telemetry_all	telemetry;
 
+#if defined AO_TELEMETRY_SENSOR
 /* Send sensor packet */
 static void
 ao_send_sensor(void)
@@ -96,10 +87,78 @@ ao_send_sensor(void)
 
 	ao_radio_send(&telemetry, sizeof (telemetry));
 }
+#endif
 
-static uint8_t		ao_baro_sample;
+
+#ifdef AO_SEND_MEGA
+/* Send mega sensor packet */
+static void
+ao_send_mega_sensor(void)
+{
+	__xdata	struct ao_data *packet = (__xdata struct ao_data *) &ao_data_ring[ao_data_ring_prev(ao_sample_data)];
+			
+	telemetry.generic.tick = packet->tick;
+	telemetry.generic.type = AO_TELEMETRY_MEGA_SENSOR;
+
+	telemetry.mega_sensor.accel = ao_data_accel(packet);
+	telemetry.mega_sensor.pres = ao_data_pres(packet);
+	telemetry.mega_sensor.temp = ao_data_temp(packet);
+
+	telemetry.mega_sensor.accel_x = packet->mpu6000.accel_x;
+	telemetry.mega_sensor.accel_y = packet->mpu6000.accel_y;
+	telemetry.mega_sensor.accel_z = packet->mpu6000.accel_z;
+
+	telemetry.mega_sensor.gyro_x = packet->mpu6000.gyro_x;
+	telemetry.mega_sensor.gyro_y = packet->mpu6000.gyro_y;
+	telemetry.mega_sensor.gyro_z = packet->mpu6000.gyro_z;
+
+	telemetry.mega_sensor.mag_x = packet->hmc5883.x;
+	telemetry.mega_sensor.mag_y = packet->hmc5883.y;
+	telemetry.mega_sensor.mag_z = packet->hmc5883.z;
+
+	ao_radio_send(&telemetry, sizeof (telemetry));
+}
+
+static __pdata int8_t ao_telemetry_mega_data_max;
+static __pdata int8_t ao_telemetry_mega_data_cur;
+
+/* Send mega data packet */
+static void
+ao_send_mega_data(void)
+{
+	if (--ao_telemetry_mega_data_cur <= 0) {
+		__xdata	struct ao_data *packet = (__xdata struct ao_data *) &ao_data_ring[ao_data_ring_prev(ao_sample_data)];
+		uint8_t	i;
+
+		telemetry.generic.tick = packet->tick;
+		telemetry.generic.type = AO_TELEMETRY_MEGA_DATA;
+
+		telemetry.mega_data.state = ao_flight_state;
+		telemetry.mega_data.v_batt = packet->adc.v_batt;
+		telemetry.mega_data.v_pyro = packet->adc.v_pbatt;
+
+		/* XXX figure out right shift value; 4 might suffice */
+		for (i = 0; i < AO_ADC_NUM_SENSE; i++)
+			telemetry.mega_data.sense[i] = packet->adc.sense[i] >> 8;
+
+		telemetry.mega_data.ground_pres = ao_ground_pres;
+		telemetry.mega_data.ground_accel = ao_ground_accel;
+		telemetry.mega_data.accel_plus_g = ao_config.accel_plus_g;
+		telemetry.mega_data.accel_minus_g = ao_config.accel_minus_g;
+
+		telemetry.mega_data.acceleration = ao_accel;
+		telemetry.mega_data.speed = ao_speed;
+		telemetry.mega_data.height = ao_height;
+
+		ao_radio_send(&telemetry, sizeof (telemetry));
+		ao_telemetry_mega_data_cur = ao_telemetry_mega_data_max;
+	}
+}
+#endif /* AO_SEND_MEGA */
 
 #ifdef AO_SEND_ALL_BARO
+static uint8_t		ao_baro_sample;
+
 static void
 ao_send_baro(void)
 {
@@ -120,6 +179,9 @@ ao_send_baro(void)
 	ao_radio_send(&telemetry, sizeof (telemetry));
 }
 #endif
+
+static __pdata int8_t ao_telemetry_config_max;
+static __pdata int8_t ao_telemetry_config_cur;
 
 static void
 ao_send_configuration(void)
@@ -146,6 +208,10 @@ ao_send_configuration(void)
 }
 
 #if HAS_GPS
+
+static __pdata int8_t ao_telemetry_loc_cur;
+static __pdata int8_t ao_telemetry_sat_cur;
+
 static void
 ao_send_location(void)
 {
@@ -181,6 +247,10 @@ ao_send_satellite(void)
 #endif
 
 #if HAS_COMPANION
+
+static __pdata int8_t ao_telemetry_companion_max;
+static __pdata int8_t ao_telemetry_companion_cur;
+
 static void
 ao_send_companion(void)
 {
@@ -223,7 +293,13 @@ ao_telemetry(void)
 #ifdef AO_SEND_ALL_BARO
 			ao_send_baro();
 #endif
+#ifdef AO_SEND_MEGA
+			ao_send_mega_sensor();
+			ao_send_mega_data();
+#else
 			ao_send_sensor();
+#endif
+
 #if HAS_COMPANION
 			if (ao_companion_running)
 				ao_send_companion();
@@ -257,31 +333,42 @@ ao_telemetry(void)
 void
 ao_telemetry_set_interval(uint16_t interval)
 {
+	uint8_t	cur = 0;
 	ao_telemetry_interval = interval;
+	
+#if AO_SEND_MEGA
+	if (interval > 1)
+		ao_telemetry_mega_data_max = 1;
+	else
+		ao_telemetry_mega_data_max = 2;
+	if (ao_telemetry_mega_data_max > cur)
+		cur++;
+	ao_telemetry_mega_data_cur = cur;
+#endif
 
 #if HAS_COMPANION
 	if (!ao_companion_setup.update_period)
 		ao_companion_setup.update_period = AO_SEC_TO_TICKS(1);
 	ao_telemetry_companion_max = ao_companion_setup.update_period / interval;
-	ao_telemetry_companion_cur = 1;
+	if (ao_telemetry_companion_max > cur)
+		cur++;
+	ao_telemetry_companion_cur = cur;
 #endif
 
 	ao_telemetry_config_max = AO_SEC_TO_TICKS(1) / interval;
 #if HAS_COMPANION
-	ao_telemetry_config_cur = ao_telemetry_companion_cur;
-	if (ao_telemetry_config_max > ao_telemetry_config_cur)
-		ao_telemetry_config_cur++;
-#else
-	ao_telemetry_config_cur = 1;
+	if (ao_telemetry_config_max > cur)
+		cur++;
+	ao_telemetry_config_cur = cur;
 #endif
 
 #if HAS_GPS
-	ao_telemetry_loc_cur = ao_telemetry_config_cur;
-	if (ao_telemetry_config_max > ao_telemetry_loc_cur)
-		ao_telemetry_loc_cur++;
-	ao_telemetry_sat_cur = ao_telemetry_loc_cur;
-	if (ao_telemetry_config_max > ao_telemetry_sat_cur)
-		ao_telemetry_sat_cur++;
+	if (ao_telemetry_config_max > cur)
+		cur++;
+	ao_telemetry_loc_cur = cur;
+	if (ao_telemetry_config_max > cur)
+		cur++;
+	ao_telemetry_sat_cur = cur;
 #endif
 	ao_wakeup(&telemetry);
 }

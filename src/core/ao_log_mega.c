@@ -112,8 +112,8 @@ ao_log(void)
 			log.tick = ao_data_ring[ao_log_data_pos].tick;
 			if ((int16_t) (log.tick - next_sensor) >= 0) {
 				log.type = AO_LOG_SENSOR;
-				log.u.sensor.pres = ao_data_ring[ao_log_data_pos].ms5607.pres;
-				log.u.sensor.temp = ao_data_ring[ao_log_data_pos].ms5607.temp;
+				log.u.sensor.pres = ao_data_ring[ao_log_data_pos].ms5607_raw.pres;
+				log.u.sensor.temp = ao_data_ring[ao_log_data_pos].ms5607_raw.temp;
 				log.u.sensor.accel_x = ao_data_ring[ao_log_data_pos].mpu6000.accel_x;
 				log.u.sensor.accel_y = ao_data_ring[ao_log_data_pos].mpu6000.accel_y;
 				log.u.sensor.accel_z = ao_data_ring[ao_log_data_pos].mpu6000.accel_z;

@@ -36,7 +36,8 @@ struct ao_data {
 	struct ao_adc			adc;
 #endif
 #if HAS_MS5607
-	struct ao_ms5607_sample		ms5607;
+	struct ao_ms5607_sample		ms5607_raw;
+	struct ao_ms5607_value		ms5607_cooked;
 #endif
 #if HAS_MPU6000
 	struct ao_mpu6000_sample	mpu6000;
@@ -57,25 +58,24 @@ extern volatile __data uint8_t		ao_data_head;
 typedef int32_t	pres_t;
 typedef int32_t alt_t;
 
-static inline pres_t ao_data_pres(struct ao_data *packet)
-{
-	struct ao_ms5607_value	value;
+#define ao_data_pres_cook(packet)	ao_ms5607_convert(&packet->ms5607_raw, &packet->ms5607_cooked)
 
-	ao_ms5607_convert(&packet->ms5607, &value);
-	return value.pres;
-}
+#define ao_data_pres(packet)	((packet)->ms5607_cooked.pres)
+#define ao_data_temp(packet)	((packet)->ms5607_cooked.temp)
 
 #define pres_to_altitude(p)	ao_pa_to_altitude(p)
 
-#else
+#else /* HAS_MS5607 */
 
 typedef int16_t pres_t;
 typedef int16_t alt_t;
 
 #define ao_data_pres(packet)	((packet)->adc.pres)
+#define ao_data_temp(packet)	((packet)->adc.temp)
 #define pres_to_altitude(p)	ao_pres_to_altitude(p)
+#define ao_data_pres_cook(p)
 
-#endif
+#endif /* else HAS_MS5607 */
 
 /*
  * Need a few macros to pull data from the sensors:
@@ -92,11 +92,11 @@ typedef int16_t accel_t;
 
 /* MPU6000 is hooked up so that positive y is positive acceleration */
 #define ao_data_accel(packet)			((packet)->mpu6000.accel_y)
-#define ao_data_accel_sample(packet)		(-ao_data_accel(packet))
+#define ao_data_accel_cook(packet)		(-(packet)->mpu6000.accel_y)
 #define ao_data_set_accel(packet, accel)	((packet)->mpu6000.accel_y = (accel))
 #define ao_data_accel_invert(a)			(-(a))
 
-#else
+#else /* HAS_MPU6000 && !HAS_HIGHG_ACCEL */
 
 typedef int16_t accel_t;
 #define ao_data_accel(packet)			((packet)->adc.accel)
@@ -183,13 +183,18 @@ typedef int16_t accel_t;
  * provides 11 bits of data, we haven't actually lost any precision,
  * just dropped a bit of noise off the low end.
  */
+
 #if HAS_ACCEL_REF
-#define ao_data_accel_sample(packet) \
+
+#define ao_data_accel_cook(packet) \
 	((uint16_t) ((((uint32_t) (packet)->adc.accel << 16) / ((packet)->adc.accel_ref << 1))) >> 1)
+
 #else
-#define ao_data_accel_sample(packet) ((packet)->adc.accel)
+
+#define ao_data_accel_cook(packet) ((packet)->adc.accel)
+
 #endif /* HAS_ACCEL_REF */
 
-#endif	/* else some other pressure sensor */
+#endif	/* else some other accel sensor */
 
 #endif /* _AO_DATA_H_ */
