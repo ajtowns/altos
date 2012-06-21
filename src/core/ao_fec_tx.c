@@ -93,10 +93,15 @@ ao_fec_whiten(uint8_t *in, uint8_t len, uint8_t *out)
 }
 
 static const uint8_t ao_fec_encode_table[16] = {
-	0, 3, 1, 2,
-	3, 0, 2, 1,
-	3, 0, 2, 1,
-	0, 3, 1, 2
+/* next 0  1	  state */
+	0, 3,	/* 000 */
+	1, 2,	/* 001 */
+	3, 0,	/* 010 */
+	2, 1,	/* 011 */
+	3, 0,	/* 100 */
+	2, 1,	/* 101 */
+	0, 3,	/* 110 */
+	1, 2	/* 111 */
 };
 
 uint8_t
