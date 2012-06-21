@@ -328,10 +328,14 @@ ao_lcd_stm_init(void)
 		}
 	}
 
+	/* Disable the LCD */
+	stm_lcd.cr = 0;
+
 	/* duty cycle 1/3, radio 352, frame rate about 33Hz */
-	stm_lcd.fcr = ((STM_LCD_FCR_PS_1 << STM_LCD_FCR_PS) |
-		       (STM_LCD_FCR_DIV_31 << STM_LCD_FCR_DIV) |
+	stm_lcd.fcr = ((STM_LCD_FCR_PS_16 << STM_LCD_FCR_PS) |
+		       (STM_LCD_FCR_DIV_20 << STM_LCD_FCR_DIV) |
 		       (4 << STM_LCD_FCR_CC) |
+		       (0 << STM_LCD_FCR_DEAD) |
 		       (4 << STM_LCD_FCR_PON) |
 		       (0 << STM_LCD_FCR_UDDIE) |
 		       (0 << STM_LCD_FCR_SOFIE) |
@@ -343,8 +347,8 @@ ao_lcd_stm_init(void)
 	/* Program desired BIAS in LCD_CR */
 	/* Enable mux seg */
 	/* Internal voltage source */
-	stm_lcd.cr = ((STM_LCD_CR_DUTY_1_4 << STM_LCD_CR_DUTY) |
-		      (STM_LCD_CR_BIAS_1_3 << STM_LCD_CR_BIAS) |
+	stm_lcd.cr = ((STM_LCD_CR_DUTY_STATIC << STM_LCD_CR_DUTY) |
+		      (STM_LCD_CR_BIAS_1_2 << STM_LCD_CR_BIAS) |
 		      (0 << STM_LCD_CR_VSEL) |
 		      (1 << STM_LCD_CR_MUX_SEG));
 
