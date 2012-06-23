@@ -4,7 +4,7 @@ PROGS=ao_flight_test ao_flight_test_baro ao_flight_test_accel ao_flight_test_noi
 
 KALMAN=make-kalman 
 
-CFLAGS=-I.. -I. -I../core -I../drivers -O0 -g
+CFLAGS=-I.. -I. -I../core -I../drivers -O0 -g -Wall
 
 all: $(PROGS)
 

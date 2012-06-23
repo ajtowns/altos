@@ -77,7 +77,6 @@ ao_encode(uint8_t *input, int input_len, uint8_t *output)
 {
 	uint8_t		prepare[PREPARE_LEN(input_len)];
 	uint8_t		encode[ENCODE_LEN(input_len)];
-	uint8_t		interleave[INTERLEAVE_LEN(input_len)];
 	uint8_t		prepare_len;
 	uint8_t		encode_len;
 	uint8_t		interleave_len;
@@ -159,6 +158,7 @@ ao_decode(uint8_t *bytes, int bytes_len, uint8_t *bits)
 	bits_len = ao_fec_decode(bytes, bytes_len, bits);
 
 	ao_fec_dump_bytes(bits, bits_len, "Decode");
+	return bits_len;
 }
 
 int
@@ -182,9 +182,11 @@ main(int argc, char **argv)
 	transmit_len = ao_radio(encode, encode_len, transmit);
 
 	/* apply gaussian noise to test viterbi code against errors */
-	receive_len = ao_fuzz(transmit, transmit_len, receive, 0x80);
+	receive_len = ao_fuzz(transmit, transmit_len, receive, 0x70);
 
 	decode_len = ao_decode(receive, receive_len, decode);
+
+	return decode_len >= sizeof(original);
 }
 
 
