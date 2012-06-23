@@ -57,4 +57,13 @@ ao_fec_encode(uint8_t *in, uint8_t len, uint8_t *out);
 uint8_t
 ao_fec_interleave(uint8_t *in, uint8_t len, uint8_t *out);
 
+
+/*
+ * Decode data. 'in' is one byte per bit, soft decision
+ * 'out' must be len/8 bytes long
+ */
+
+uint8_t
+ao_fec_decode(uint8_t *in, int in_len, uint8_t *out);
+
 #endif /* _AO_FEC_H_ */

@@ -40,5 +40,5 @@ ao_convert_pa_test: ao_convert_pa_test.c ao_convert_pa.c altitude-pa.h
 ao_kalman.h: $(KALMAN)
 	(cd .. && make ao_kalman.h)
 
-ao_fec_tx_test: ao_fec_tx_test.c ao_fec_tx.c
-	cc $(CFLAGS) -o $@ ao_fec_tx_test.c ../drivers/ao_fec_tx.c
+ao_fec_tx_test: ao_fec_tx_test.c ao_fec_tx.c ao_viterbi.c
+	cc $(CFLAGS) -o $@ ao_fec_tx_test.c ../core/ao_fec_tx.c ../core/ao_viterbi.c -lm
