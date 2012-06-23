@@ -120,9 +120,9 @@ ao_fec_decode(uint8_t *in, uint16_t len, uint8_t *out)
 		p = n;
 
 		/* A loop is needed to handle the last output byte. It
-		 * won't have a full NUM_HIST bits of future data to
-		 * perform full error correction, but we might as well
-		 * give the best possible answer anyways.
+		 * won't have any bits of future data to perform full
+		 * error correction, but we might as well give the
+		 * best possible answer anyways.
 		 */
 		while ((b - o) >= (8 + NUM_HIST) || (i + 2 >= len && b > o)) {
 
