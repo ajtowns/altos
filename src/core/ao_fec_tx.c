@@ -83,7 +83,7 @@ static const uint8_t whiten[] = {
 #include "ao_whiten.h"
 };
 
-uint8_t
+void
 ao_fec_whiten(uint8_t *in, uint8_t len, uint8_t *out)
 {
 	const uint8_t	*w = whiten;

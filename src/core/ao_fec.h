@@ -42,7 +42,7 @@ ao_fec_prepare(uint8_t *in, uint8_t len, uint8_t *out);
  * must be 'len' bytes long. 'out' and 'in' can be
  * the same array
  */
-uint8_t
+void
 ao_fec_whiten(uint8_t *in, uint8_t len, uint8_t *out);
 
 /*
@@ -57,13 +57,12 @@ ao_fec_encode(uint8_t *in, uint8_t len, uint8_t *out);
 uint8_t
 ao_fec_interleave(uint8_t *in, uint8_t len, uint8_t *out);
 
-
 /*
  * Decode data. 'in' is one byte per bit, soft decision
  * 'out' must be len/8 bytes long
  */
 
 uint8_t
-ao_fec_decode(uint8_t *in, int in_len, uint8_t *out);
+ao_fec_decode(uint8_t *in, uint16_t in_len, uint8_t *out);
 
 #endif /* _AO_FEC_H_ */
