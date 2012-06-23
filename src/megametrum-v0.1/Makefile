@@ -48,6 +48,7 @@ ALTOS_SRC = \
 	ao_spi_stm.c \
 	ao_cc1120.c \
 	ao_fec_tx.c \
+	ao_viterbi.c \
 	ao_ms5607.c \
 	ao_adc_stm.c \
 	ao_beep_stm.c \
