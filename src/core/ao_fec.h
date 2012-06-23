@@ -24,11 +24,21 @@
 #define AO_FEC_TRELLIS_TERMINATOR	0x0b
 #define AO_FEC_PREPARE_EXTRA		4
 
+extern const uint8_t ao_fec_whiten_table[];
+
 void
-ao_fec_dump_bytes(uint8_t *bytes, uint8_t len, char *name);
+ao_fec_dump_bytes(uint8_t *bytes, uint16_t len, char *name);
 
 uint16_t
 ao_fec_crc(uint8_t *bytes, uint8_t len);
+
+/*
+ * 'len' is the length of the original data; 'bytes'
+ * must  be four bytes longer than that, and the first
+ * two after 'len' must be the received crc
+ */
+uint8_t
+ao_fec_check_crc(uint8_t *bytes, uint8_t len);
 
 /*
  * Append CRC and terminator bytes, returns resulting length.
@@ -46,16 +56,10 @@ void
 ao_fec_whiten(uint8_t *in, uint8_t len, uint8_t *out);
 
 /*
- * Encode data. 'out' must be len*2 bytes long
+ * Encode and interleave data. 'out' must be len*2 bytes long
  */
 uint8_t
 ao_fec_encode(uint8_t *in, uint8_t len, uint8_t *out);
-
-/*
- * Interleave data. 'out' must be 'len' bytes long
- */
-uint8_t
-ao_fec_interleave(uint8_t *in, uint8_t len, uint8_t *out);
 
 /*
  * Decode data. 'in' is one byte per bit, soft decision
@@ -64,5 +68,11 @@ ao_fec_interleave(uint8_t *in, uint8_t len, uint8_t *out);
 
 uint8_t
 ao_fec_decode(uint8_t *in, uint16_t in_len, uint8_t *out);
+
+/*
+ * Interleave data packed in bytes. 'out' must be 'len' bytes long.
+ */
+uint16_t
+ao_fec_interleave_bytes(uint8_t *in, uint16_t len, uint8_t *out);
 
 #endif /* _AO_FEC_H_ */

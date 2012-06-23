@@ -1,6 +1,6 @@
 vpath % ..:../core:../drivers:../util
 
-PROGS=ao_flight_test ao_flight_test_baro ao_flight_test_accel ao_flight_test_noisy_accel ao_gps_test ao_gps_test_skytraq ao_convert_test ao_convert_pa_test ao_fec_tx_test
+PROGS=ao_flight_test ao_flight_test_baro ao_flight_test_accel ao_flight_test_noisy_accel ao_gps_test ao_gps_test_skytraq ao_convert_test ao_convert_pa_test ao_fec_test
 
 KALMAN=make-kalman 
 
@@ -40,5 +40,5 @@ ao_convert_pa_test: ao_convert_pa_test.c ao_convert_pa.c altitude-pa.h
 ao_kalman.h: $(KALMAN)
 	(cd .. && make ao_kalman.h)
 
-ao_fec_tx_test: ao_fec_tx_test.c ao_fec_tx.c ao_viterbi.c
-	cc $(CFLAGS) -o $@ ao_fec_tx_test.c ../core/ao_fec_tx.c ../core/ao_viterbi.c -lm
+ao_fec_test: ao_fec_test.c ao_fec_tx.c ao_viterbi.c
+	cc $(CFLAGS) -o $@ ao_fec_test.c ../core/ao_fec_tx.c ../core/ao_viterbi.c -lm

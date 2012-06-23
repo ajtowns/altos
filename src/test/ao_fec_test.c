@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #ifndef RANDOM_MAX
 #define RANDOM_MAX 0x7fffffff
@@ -70,54 +71,20 @@ gaussian_random(double mean, double dev)
 
 #define PREPARE_LEN(input_len)		((input_len) + AO_FEC_PREPARE_EXTRA)
 #define ENCODE_LEN(input_len)		(PREPARE_LEN(input_len) * 2)
-#define INTERLEAVE_LEN(input_len)	ENCODE_LEN(input_len)
+#define DECODE_LEN(input_len)		((input_len) + AO_FEC_PREPARE_EXTRA)
+#define EXPAND_LEN(input_len)		(ENCODE_LEN(input_len) * 8)
 
 static int
-ao_encode(uint8_t *input, int input_len, uint8_t *output)
+ao_expand(uint8_t *bits, int bits_len, uint8_t *bytes)
 {
-	uint8_t		prepare[PREPARE_LEN(input_len)];
-	uint8_t		encode[ENCODE_LEN(input_len)];
-	uint8_t		prepare_len;
-	uint8_t		encode_len;
-	uint8_t		interleave_len;
-
-	ao_fec_dump_bytes(input, input_len, "Input");
-
-	prepare_len = ao_fec_prepare(input, input_len, prepare);
-
-	ao_fec_dump_bytes(prepare, prepare_len, "Prepare");
-	
-	encode_len = ao_fec_encode(prepare, prepare_len, encode);
-
-	ao_fec_dump_bytes(encode, encode_len, "Encode");
-	
-	interleave_len = ao_fec_interleave(encode, encode_len, output);
-
-	ao_fec_dump_bytes(output, interleave_len, "Interleave");
-
-	return interleave_len;
-}
-
-#define RADIO_LEN(input_len)	(INTERLEAVE_LEN(input_len) * 8)
-
-static int
-ao_radio(uint8_t *bits, int bits_len, uint8_t *bytes)
-{
-	uint8_t	b, *bytes_orig = bytes;
-	uint8_t	interleave[bits_len];
 	int	i, bit;
-
-	ao_fec_interleave(bits, bits_len, interleave);
-
-	ao_fec_dump_bytes(interleave, bits_len, "De-interleave");
+	uint8_t	b;
 
 	for (i = 0; i < bits_len; i++) {
-		b = interleave[i];
+		b = bits[i];
 		for (bit = 7; bit >= 0; bit--)
 			*bytes++ = ((b >> bit) & 1) * 0xff;
 	}
-
-	ao_fec_dump_bytes(bytes_orig, bits_len * 8, "Bytes");
 
 	return bits_len * 8;
 }
@@ -144,49 +111,88 @@ ao_fuzz (uint8_t *in, int in_len, uint8_t *out, double dev)
 		}
 		out[i] = byte;
 	}
-
-	printf ("Introduced %d errors\n", errors);
-	ao_fec_dump_bytes(out, in_len, "Fuzz");
-	return in_len;
+	return errors;
 }
 
-static int
-ao_decode(uint8_t *bytes, int bytes_len, uint8_t *bits)
+static uint8_t
+ao_random_data(uint8_t	*out, uint8_t out_len)
 {
-	int	bits_len;
+	uint8_t	len = random() % (out_len + 1);
+	uint8_t	i;
+	
+	for (i = 0; i < len; i++)
+		out[i] = random();
+	return len;
+}	
 
-	bits_len = ao_fec_decode(bytes, bytes_len, bits);
-
-	ao_fec_dump_bytes(bits, bits_len, "Decode");
-	return bits_len;
-}
 
 int
 main(int argc, char **argv)
 {
-	uint8_t		original[4] = { 3, 1, 2, 3 };
-	uint8_t		encode[INTERLEAVE_LEN(sizeof(original))];
+	int		trial;
+
+	uint8_t		original[120];
+	uint8_t		original_len;
+
+	uint8_t		encode[ENCODE_LEN(sizeof(original))];
 	int		encode_len;
 
-	uint8_t		transmit[RADIO_LEN(sizeof(original))];
+	uint8_t		transmit[EXPAND_LEN(sizeof(original))];
 	int		transmit_len;
 
-	uint8_t		receive[RADIO_LEN(sizeof(original))];
-	int		receive_len;
+	uint8_t		receive[EXPAND_LEN(sizeof(original))];
+	int		receive_len, receive_errors;
 
-	uint8_t		decode[INTERLEAVE_LEN(sizeof(original))];
+	uint8_t		decode[DECODE_LEN(sizeof(original))];
 	int		decode_len;
 
-	encode_len = ao_encode(original, sizeof(original), encode);
+	int		errors = 0;
+	int		error;
 
-	transmit_len = ao_radio(encode, encode_len, transmit);
+	srandom(0);
+	for (trial = 0; trial < 10000; trial++) {
 
-	/* apply gaussian noise to test viterbi code against errors */
-	receive_len = ao_fuzz(transmit, transmit_len, receive, 0x70);
+		/* Compute some random data */
+		original_len = ao_random_data(original, sizeof(original));
 
-	decode_len = ao_decode(receive, receive_len, decode);
+		/* Encode it */
+		encode_len = ao_fec_encode(original, original_len, encode);
 
-	return decode_len >= sizeof(original);
+		/* Expand from 1-bit-per-symbol to 1-byte-per-symbol */
+		transmit_len = ao_expand(encode, encode_len, transmit);
+
+		/* Add gaussian noise to the signal */
+		receive_errors = ao_fuzz(transmit, transmit_len, receive, 0x30);
+		receive_len = transmit_len;
+		
+		/* Decode it */
+		decode_len = ao_fec_decode(receive, receive_len, decode);
+
+		/* Check to see if we received the right data */
+		error = 0;
+
+		if (decode_len < original_len + 2) {
+			printf ("len mis-match\n");
+			error++;
+		}
+
+		if (!ao_fec_check_crc(decode, original_len)) {
+			printf ("crc mis-match\n");
+			error++;
+		}
+
+		if (memcmp(original, decode, original_len) != 0) {
+			printf ("data mis-match\n");
+			error++;
+		}
+		if (error) {
+			printf ("Errors: %d\n", receive_errors);
+			ao_fec_dump_bytes(original, original_len, "Input");
+			ao_fec_dump_bytes(decode, original_len, "Decode");
+			errors += error;
+		}
+	}
+	return errors;
 }
 
 
