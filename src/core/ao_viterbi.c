@@ -23,20 +23,20 @@
  * 'len' is output byte length
  */
 
-static const uint8_t ao_fec_encode_table[16] = {
-/* next 0  1	  state */
-	0, 3,	/* 000 */
-	1, 2,	/* 001 */
-	3, 0,	/* 010 */
-	2, 1,	/* 011 */
-	3, 0,	/* 100 */
-	2, 1,	/* 101 */
-	0, 3,	/* 110 */
-	1, 2	/* 111 */
-};
-
 struct ao_soft_sym {
 	uint8_t	a, b;
+};
+
+static const struct ao_soft_sym ao_fec_decode_table[16] = {
+/* next        0              1	         state */
+	{ 0x00, 0x00 }, { 0xff, 0xff },	/* 000 */
+	{ 0x00, 0xff }, { 0xff, 0x00 },	/* 001 */
+	{ 0xff, 0xff }, { 0x00, 0x00 },	/* 010 */
+	{ 0xff, 0x00 }, { 0x00, 0xff },	/* 011 */
+	{ 0xff, 0xff }, { 0x00, 0x00 },	/* 100 */
+	{ 0xff, 0x00 }, { 0x00, 0xff },	/* 101 */
+	{ 0x00, 0x00 }, { 0xff, 0xff },	/* 110 */
+	{ 0x00, 0xff }, { 0xff, 0x00 }	/* 111 */
 };
 
 struct ao_soft_sym
@@ -57,71 +57,71 @@ ao_next_state(uint8_t state, uint8_t bit)
 
 static inline abs(int x) { return x < 0 ? -x : x; }
 
-int
+static inline uint16_t
 ao_cost(struct ao_soft_sym a, struct ao_soft_sym b)
 {
 	return abs(a.a - b.a) + abs(a.b - b.b);
 }
 
+#define NUM_STATE	8
+
 uint8_t
 ao_fec_decode(uint8_t *in, int len, uint8_t *out)
 {
-	int	cost[len/2 + 1][8];
-	uint8_t	prev[len/2 + 1][8];
-	int	c;
-	int	i, b;
-	uint8_t	state = 0, min_state;
-	uint8_t	bits[len/2];
+	uint16_t	cost[2][NUM_STATE];
+	uint8_t		prev[len/2 + 1][NUM_STATE];
+	int		c;
+	int		i, b;
+	uint8_t		p, n;
+	uint8_t		state = 0, min_state;
+	uint8_t		bits[len/2];
 
-	for (c = 0; c < 8; c++)
-		cost[0][c] = 10000;
+	p = 0;
+	for (c = 0; c < NUM_STATE; c++)
+		cost[0][c] = 0xffff;
 	cost[0][0] = 0;
 
 	for (i = 0; i < len; i += 2) {
 		b = i/2;
+		n = p ^ 1;
 		struct ao_soft_sym s = { .a = in[i], .b = in[i+1] };
 
-		for (state = 0; state < 8; state++)
-			cost[b+1][state] = 10000;
+		for (state = 0; state < NUM_STATE; state++)
+			cost[n][state] = 0xffff;
 
-		for (state = 0; state < 8; state++) {
-			struct ao_soft_sym zero = ao_soft_sym(ao_fec_encode_table[state * 2 + 0]);
-			struct ao_soft_sym one = ao_soft_sym(ao_fec_encode_table[state * 2 + 1]);
+		for (state = 0; state < NUM_STATE; state++) {
+			int	zero_cost = ao_cost(s, ao_fec_decode_table[state * 2 + 0]);
+			int	one_cost = ao_cost(s, ao_fec_decode_table[state * 2 + 1]);
+
 			uint8_t	zero_state = ao_next_state(state, 0);
 			uint8_t	one_state = ao_next_state(state, 1);
-			int	zero_cost = ao_cost(s, zero);
-			int	one_cost = ao_cost(s, one);
 
-#if 0
-			printf ("saw %02x %02x expected %02x %02x (%d) or %02x %02x (%d)\n",
-				s.a, s.b, zero.a, zero.b, zero_cost, one.a, one.b, one_cost);
-#endif
-			zero_cost += cost[b][state];
-			one_cost += cost[b][state];
-			if (zero_cost < cost[b+1][zero_state]) {
+			zero_cost += cost[p][state];
+			one_cost += cost[p][state];
+			if (zero_cost < cost[n][zero_state]) {
 				prev[b+1][zero_state] = state;
-				cost[b+1][zero_state] = zero_cost;
+				cost[n][zero_state] = zero_cost;
 			}
 
-			if (one_cost < cost[b+1][one_state]) {
+			if (one_cost < cost[n][one_state]) {
 				prev[b+1][one_state] = state;
-				cost[b+1][one_state] = one_cost;
+				cost[n][one_state] = one_cost;
 			}
 		}
 
 		printf ("bit %3d symbol %2x %2x:", i/2, s.a, s.b);
-		for (state = 0; state < 8; state++) {
-			printf (" %5d", cost[b+1][state]);
+		for (state = 0; state < NUM_STATE; state++) {
+			printf (" %5d", cost[n][state]);
 		}
 		printf ("\n");
+		p = n;
 	}
 
-	b = len / 2;
-	c = cost[b][0];
+	c = cost[p][0];
 	min_state = 0;
-	for (state = 1; state < 8; state++) {
-		if (cost[b][state] < c) {
-			c = cost[b][state];
+	for (state = 1; state < NUM_STATE; state++) {
+		if (cost[p][state] < c) {
+			c = cost[p][state];
 			min_state = state;
 		}
 	}
