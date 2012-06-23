@@ -49,18 +49,18 @@ ao_soft_sym(uint8_t bits)
 	return s;
 }
 
-uint8_t
+static inline uint8_t
 ao_next_state(uint8_t state, uint8_t bit)
 {
 	return ((state << 1) | bit) & 0x7;
 }
 
-static inline abs(int x) { return x < 0 ? -x : x; }
+static inline uint16_t ao_abs(int16_t x) { return x < 0 ? -x : x; }
 
 static inline uint16_t
 ao_cost(struct ao_soft_sym a, struct ao_soft_sym b)
 {
-	return abs(a.a - b.a) + abs(a.b - b.b);
+	return ao_abs(a.a - b.a) + ao_abs(a.b - b.b);
 }
 
 #define NUM_STATE	8
@@ -68,19 +68,23 @@ ao_cost(struct ao_soft_sym a, struct ao_soft_sym b)
 uint8_t
 ao_fec_decode(uint8_t *in, int len, uint8_t *out)
 {
-	uint16_t	cost[2][NUM_STATE];
+	uint16_t	cost[2][NUM_STATE], min_cost;
 	uint8_t		prev[len/2 + 1][NUM_STATE];
-	int		c;
-	int		i, b;
+	uint16_t	prev_bits[2][NUM_STATE];
+	int		i, b, dump;
 	uint8_t		p, n;
 	uint8_t		state = 0, min_state;
-	uint8_t		bits[len/2];
 
 	p = 0;
-	for (c = 0; c < NUM_STATE; c++)
-		cost[0][c] = 0xffff;
+	for (state = 0; state < NUM_STATE; state++) {
+		cost[0][state] = 0xffff;
+		prev_bits[0][state] = 0;
+	}
 	cost[0][0] = 0;
 
+	min_state = 0;
+	min_cost = 0;
+	dump = 0;
 	for (i = 0; i < len; i += 2) {
 		b = i/2;
 		n = p ^ 1;
@@ -101,43 +105,49 @@ ao_fec_decode(uint8_t *in, int len, uint8_t *out)
 			if (zero_cost < cost[n][zero_state]) {
 				prev[b+1][zero_state] = state;
 				cost[n][zero_state] = zero_cost;
+				prev_bits[n][zero_state] = (prev_bits[p][state] << 1) | (state & 1);
 			}
 
 			if (one_cost < cost[n][one_state]) {
 				prev[b+1][one_state] = state;
 				cost[n][one_state] = one_cost;
+				prev_bits[n][one_state] = (prev_bits[p][state] << 1) | (state & 1);
 			}
 		}
 
+#if 0
 		printf ("bit %3d symbol %2x %2x:", i/2, s.a, s.b);
 		for (state = 0; state < NUM_STATE; state++) {
-			printf (" %5d", cost[n][state]);
+			printf (" %5d(%04x)", cost[n][state], prev_bits[n][state]);
 		}
 		printf ("\n");
+#endif
 		p = n;
-	}
 
-	c = cost[p][0];
-	min_state = 0;
-	for (state = 1; state < NUM_STATE; state++) {
-		if (cost[p][state] < c) {
-			c = cost[p][state];
-			min_state = state;
+		b++;
+		if ((b - dump) > 16 || i + 2 >= len) {
+			uint8_t	dist = b - (dump + 9);
+			uint8_t	rev;
+			min_cost = cost[p][0];
+			min_state = 0;
+			for (state = 1; state < NUM_STATE; state++) {
+				if (cost[p][state] < min_cost) {
+					min_cost = cost[p][state];
+					min_state = state;
+				}
+			}
+			for (rev = 0; rev < dist; rev++) {
+				min_state = prev[b][min_state];
+				b--;
+			}
+#if 0
+			printf ("\tbit %3d min_cost %5d old bit %3d old_state %x bits %02x\n",
+				i/2, min_cost, b-1, min_state, (prev_bits[p][min_state] >> dist) & 0xff);
+#endif
+			out[dump/8] = prev_bits[p][min_state] >> dist;
+			dump = b - 1;
 		}
-	}
 
-	for (b = len/2; b > 0; b--) {
-		bits[b-1] = min_state & 1;
-		min_state = prev[b][min_state];
-	}
-
-	for (i = 0; i < len/2; i += 8) {
-		uint8_t	byte;
-
-		byte = 0;
-		for (b = 0; b < 8; b++)
-			byte = (byte << 1) | bits[i + b];
-		out[i/8] = byte;
 	}
 	return len/16;
 }
