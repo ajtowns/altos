@@ -19,6 +19,7 @@
 #include <ao_cc1120.h>
 #include <ao_exti.h>
 #include <ao_fec.h>
+#include <ao_packet.h>
 
 uint8_t ao_radio_wake;
 uint8_t ao_radio_mutex;
@@ -101,6 +102,35 @@ ao_radio_reg_write(uint16_t addr, uint8_t value)
 	ao_radio_spi_send(data, d+1);
 	ao_radio_deselect();
 }
+
+static void
+ao_radio_burst_read_start (uint16_t addr)
+{
+	uint8_t data[2];
+	uint8_t d;
+
+	if (CC1120_IS_EXTENDED(addr)) {
+		data[0] = ((1 << CC1120_READ)  |
+			   (1 << CC1120_BURST) |
+			   CC1120_EXTENDED);
+		data[1] = addr;
+		d = 2;
+	} else {
+		data[0] = ((1 << CC1120_READ)  |
+			   (1 << CC1120_BURST) |
+			   addr);
+		d = 1;
+	}
+	ao_radio_select();
+	ao_radio_spi_send(data, d);
+}
+
+static void
+ao_radio_burst_read_stop (void)
+{
+	ao_radio_deselect();
+}
+
 
 static uint8_t
 ao_radio_strobe(uint8_t addr)
@@ -248,9 +278,18 @@ ao_radio_rx_done(void)
 }
 
 static void
+ao_radio_tx_isr(void)
+{
+	ao_exti_disable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
+	ao_radio_wake = 1;
+	ao_wakeup(&ao_radio_wake);
+}
+
+static void
 ao_radio_start_tx(void)
 {
 	ao_radio_reg_write(CC1120_IOCFG2, CC1120_IOCFG_GPIO_CFG_RX0TX1_CFG);
+	ao_exti_set_callback(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN, ao_radio_tx_isr);
 	ao_exti_enable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
 	ao_radio_strobe(CC1120_STX);
 }
@@ -336,29 +375,13 @@ void
 ao_radio_send(void *d, uint8_t size)
 {
 	uint8_t		marc_status;
-	uint8_t		prepare[size + AO_FEC_PREPARE_EXTRA];
-	uint8_t		prepare_len;
-	uint8_t		encode[sizeof(prepare) * 2];
+	uint8_t		encode[size + AO_FEC_PREPARE_EXTRA];
 	uint8_t		encode_len;
-	uint8_t		interleave[sizeof(encode)];
-	uint8_t		interleave_len;
 
-	fec_dump_bytes(d, size, "Input");
+	encode_len = ao_fec_encode(d, size, encode);
 
-	prepare_len = ao_fec_prepare(d, size, prepare);
-	fec_dump_bytes(prepare, prepare_len, "Prepare");
-
-	ao_fec_whiten(prepare, prepare_len, prepare);
-	fec_dump_bytes(prepare, prepare_len, "Whiten");
-
-	encode_len = ao_fec_encode(prepare, prepare_len, encode);
-	fec_dump_bytes(encode, encode_len, "Encode");
-
-	interleave_len = ao_fec_interleave(encode, encode_len, interleave);
-	fec_dump_bytes(interleave, interleave_len, "Interleave");
-
-	ao_radio_get(interleave_len);
-	ao_radio_fifo_write(interleave, interleave_len);
+	ao_radio_get(encode_len);
+	ao_radio_fifo_write(encode, encode_len);
 
 	ao_radio_wake = 0;
 
@@ -373,34 +396,92 @@ ao_radio_send(void *d, uint8_t size)
 	ao_radio_put();
 }
 
+#define AO_RADIO_MAX_RECV	90
+
+static uint8_t	rx_data[2048];
+static uint16_t	rx_data_count;
+static uint16_t rx_data_cur;
+static uint8_t	rx_started;
+
+static void
+ao_radio_rx_isr(void)
+{
+	if (rx_started) {
+		rx_data[rx_data_cur++] = stm_spi2.dr;
+		if (rx_data_cur >= rx_data_count) {
+			ao_exti_disable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
+			ao_radio_wake = 1;
+			ao_wakeup(&ao_radio_wake);
+		}
+	} else {
+		(void) stm_spi2.dr;
+		rx_started = 1;
+	}
+	stm_spi2.dr = 0x00;
+}
+
 uint8_t
 ao_radio_recv(__xdata void *d, uint8_t size)
 {
-	uint8_t	marc_status = CC1120_MARC_STATUS1_NO_FAILURE;
+	uint8_t		len = ((size - 2) + 4) * 2;	/* two bytes for status */
+	uint16_t	i;
+
+	rx_data_count = sizeof (rx_data);
+	rx_data_cur = 0;
+	rx_started = 0;
+
+	printf ("len %d rx_data_count %d\n", len, rx_data_count);
 
 	/* configure interrupt pin */
-	ao_radio_get(size);
+	ao_radio_get(len);
 	ao_radio_wake = 0;
-	ao_exti_enable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
-	ao_radio_strobe(CC1120_SRX);
-	cli();
-	for (;;) {
-		if (ao_radio_abort)
+	ao_radio_abort = 0;
 
-			break;
-		if (ao_radio_wake) {
-			marc_status = ao_radio_marc_status();
-			if (marc_status != CC1120_MARC_STATUS1_NO_FAILURE)
-				break;
-			ao_radio_wake = 0;
-		}
+	ao_radio_reg_write(CC1120_PKT_CFG2,
+			   (CC1120_PKT_CFG2_CCA_MODE_ALWAYS_CLEAR << CC1120_PKT_CFG2_CCA_MODE) |
+			   (CC1120_PKT_CFG2_PKT_FORMAT_SYNCHRONOUS_SERIAL << CC1120_PKT_CFG2_PKT_FORMAT));
+
+	ao_radio_reg_write(CC1120_EXT_CTRL, 0);
+
+	ao_radio_reg_write(CC1120_IOCFG2, CC1120_IOCFG_GPIO_CFG_CLKEN_SOFT);
+
+	stm_spi2.cr2 = 0;
+
+	/* clear any RXNE */
+	(void) stm_spi2.dr;
+
+	ao_exti_set_callback(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN, ao_radio_rx_isr);
+	ao_exti_enable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
+
+	ao_radio_strobe(CC1120_SRX);
+
+	ao_radio_burst_read_start(CC1120_SOFT_RX_DATA_OUT);
+#if 1
+	cli();
+	while (!ao_radio_wake && !ao_radio_abort)
 		ao_sleep(&ao_radio_wake);
-	}
 	sei();
-	if (marc_status != CC1120_MARC_STATUS1_RX_FINISHED)
-		ao_radio_fifo_read(d, size);
+
+#else
+	printf ("Hit a character to stop..."); flush();
+	getchar();
+	putchar('\n');
+	ao_exti_disable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
+#endif
+	ao_radio_burst_read_stop();
+
+	ao_radio_strobe(CC1120_SIDLE);
+
 	ao_radio_put();
-	return marc_status == CC1120_MARC_STATUS1_RX_FINISHED;
+
+	printf ("Received data:");
+	for (i = 0; i < rx_data_cur; i++) {
+		if ((i & 15) == 0)
+			printf ("\n");
+		printf (" %02x", rx_data[i]);
+	}
+	printf ("\n");
+	return 1;
 }
 
 /*
@@ -477,13 +558,6 @@ static const uint16_t radio_setup[] = {
 
 static uint8_t	ao_radio_configured = 0;
 
-static void
-ao_radio_isr(void)
-{
-	ao_exti_disable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
-	ao_radio_wake = 1;
-	ao_wakeup(&ao_radio_wake);
-}
 
 static void
 ao_radio_setup(void)
@@ -745,6 +819,12 @@ static void ao_radio_packet(void) {
 	ao_radio_send(packet, sizeof (packet));
 }
 
+void
+ao_radio_test_recv()
+{
+	ao_radio_recv(0, 34);
+}
+
 #endif
 
 static const struct ao_cmds ao_radio_cmds[] = {
@@ -753,6 +833,7 @@ static const struct ao_cmds ao_radio_cmds[] = {
 	{ ao_radio_show,	"R\0Show CC1120 status" },
 	{ ao_radio_beep,	"b\0Emit an RDF beacon" },
 	{ ao_radio_packet,	"p\0Send a test packet" },
+	{ ao_radio_test_recv,	"q\0Recv a test packet" },
 #endif
 	{ 0, NULL }
 };
@@ -776,7 +857,7 @@ ao_radio_init(void)
 
 	/* Enable the EXTI interrupt for the appropriate pin */
 	ao_enable_port(AO_CC1120_INT_PORT);
-	ao_exti_setup(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN, AO_EXTI_MODE_FALLING, ao_radio_isr);
+	ao_exti_setup(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN, AO_EXTI_MODE_FALLING, ao_radio_tx_isr);
 
 	ao_cmd_register(&ao_radio_cmds[0]);
 }

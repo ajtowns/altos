@@ -55,16 +55,19 @@ struct ao_soft_sym {
 #define NUM_HIST	8
 #define MOD_HIST(b)	((b) & 7)
 
+#define V_0		0xc0
+#define V_1		0x40
+
 static const struct ao_soft_sym ao_fec_decode_table[NUM_STATE][2] = {
 /* next        0              1	         state */
-	{ { 0x00, 0x00 }, { 0xff, 0xff } } ,	/* 000 */
-	{ { 0x00, 0xff }, { 0xff, 0x00 } },	/* 001 */
-	{ { 0xff, 0xff }, { 0x00, 0x00 } },	/* 010 */
-	{ { 0xff, 0x00 }, { 0x00, 0xff } },	/* 011 */
-	{ { 0xff, 0xff }, { 0x00, 0x00 } },	/* 100 */
-	{ { 0xff, 0x00 }, { 0x00, 0xff } },	/* 101 */
-	{ { 0x00, 0x00 }, { 0xff, 0xff } },	/* 110 */
-	{ { 0x00, 0xff }, { 0xff, 0x00 } }	/* 111 */
+	{ { V_0, V_0 }, { V_1, V_1 } } ,	/* 000 */
+	{ { V_0, V_1 }, { V_1, V_0 } },	/* 001 */
+	{ { V_1, V_1 }, { V_0, V_0 } },	/* 010 */
+	{ { V_1, V_0 }, { V_0, V_1 } },	/* 011 */
+	{ { V_1, V_1 }, { V_0, V_0 } },	/* 100 */
+	{ { V_1, V_0 }, { V_0, V_1 } },	/* 101 */
+	{ { V_0, V_0 }, { V_1, V_1 } },	/* 110 */
+	{ { V_0, V_1 }, { V_1, V_0 } }	/* 111 */
 };
 
 static inline uint8_t

@@ -44,9 +44,9 @@ main(void)
 	ao_i2c_init();
 	ao_hmc5883_init();
 	ao_mpu6000_init();
-	ao_flight_init();
-	ao_log_init();
-	ao_report_init();
+//	ao_flight_init();
+//	ao_log_init();
+//	ao_report_init();
 	ao_telemetry_init();
 	ao_config_init();
 	
