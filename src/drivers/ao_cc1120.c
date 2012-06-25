@@ -400,6 +400,7 @@ ao_radio_send(void *d, uint8_t size)
 
 static uint8_t	rx_data[2048];
 static uint16_t	rx_data_count;
+static uint16_t	rx_data_consumed;
 static uint16_t rx_data_cur;
 static uint8_t	rx_ignore;
 
@@ -408,9 +409,9 @@ ao_radio_rx_isr(void)
 {
 	if (rx_ignore == 0) {
 		rx_data[rx_data_cur++] = stm_spi2.dr;
-		if (rx_data_cur >= rx_data_count) {
+		if (rx_data_cur >= rx_data_count)
 			ao_exti_disable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
-			ao_radio_wake = 1;
+		if (rx_data_cur - rx_data_consumed >= AO_FEC_DECODE_BLOCK) {
 			ao_wakeup(&ao_radio_wake);
 		}
 	} else {
@@ -418,6 +419,19 @@ ao_radio_rx_isr(void)
 		--rx_ignore;
 	}
 	stm_spi2.dr = 0x00;
+}
+
+static uint16_t
+ao_radio_rx_wait(void)
+{
+	cli();
+	while (rx_data_cur - rx_data_consumed < AO_FEC_DECODE_BLOCK &&
+	       !ao_radio_abort)
+		ao_sleep(&ao_radio_wake);
+	sei();
+	if (ao_radio_abort)
+		return 0;
+	return AO_FEC_DECODE_BLOCK;
 }
 
 uint8_t
@@ -433,6 +447,7 @@ ao_radio_recv(__xdata void *d, uint8_t size)
 	len *= 2;			/* 1/2 rate convolution */
 	rx_data_count = len * 8;	/* bytes to bits */
 	rx_data_cur = 0;
+	rx_data_consumed = 0;
 	rx_ignore = 2;
 
 	printf ("len %d rx_data_count %d\n", len, rx_data_count);
@@ -461,10 +476,9 @@ ao_radio_recv(__xdata void *d, uint8_t size)
 	ao_radio_strobe(CC1120_SRX);
 
 	ao_radio_burst_read_start(CC1120_SOFT_RX_DATA_OUT);
-	cli();
-	while (!ao_radio_wake && !ao_radio_abort)
-		ao_sleep(&ao_radio_wake);
-	sei();
+
+	ao_fec_decode(rx_data, rx_data_count, d, size + 2, ao_radio_rx_wait);
+
 	ao_radio_burst_read_stop();
 
 	/* Convert from 'real' rssi to cc1111-style values */
@@ -477,7 +491,7 @@ ao_radio_recv(__xdata void *d, uint8_t size)
 
 	/* Construct final packet */
 
-	ao_fec_decode(rx_data, rx_data_cur, d, size + 2);
+	ao_fec_decode(rx_data, rx_data_cur, d, size + 2, 0);
 
 	if (ao_fec_check_crc(d, size))
 		((uint8_t *) d)[size + 1] = 0x80;

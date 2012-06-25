@@ -91,7 +91,7 @@ ao_cost(struct ao_soft_sym a, struct ao_soft_sym b)
  */
 
 uint8_t
-ao_fec_decode(uint8_t *in, uint16_t len, uint8_t *out, uint8_t out_len)
+ao_fec_decode(uint8_t *in, uint16_t len, uint8_t *out, uint8_t out_len, uint16_t (*callback)())
 {
 	static uint16_t	cost[2][NUM_STATE];		/* path cost */
 	static uint16_t	bits[2][NUM_STATE];		/* save bits to quickly output them */
@@ -105,6 +105,7 @@ ao_fec_decode(uint8_t *in, uint16_t len, uint8_t *out, uint8_t out_len)
 	const uint8_t	*whiten = ao_fec_whiten_table;
 	uint16_t	interleave;			/* input byte array index */
 	struct ao_soft_sym	s;			/* input symbol pair */
+	uint16_t	avail;
 
 	p = 0;
 	for (state = 0; state < NUM_STATE; state++) {
@@ -113,10 +114,21 @@ ao_fec_decode(uint8_t *in, uint16_t len, uint8_t *out, uint8_t out_len)
 	}
 	cost[0][0] = 0;
 
+	if (callback)
+		avail = 0;
+	else
+		avail = len;
+
 	o = 0;
 	for (i = 0; i < len; i += 2) {
 		b = i/2;
 		n = p ^ 1;
+
+		if (!avail) {
+			avail = callback();
+			if (!avail)
+				break;
+		}
 
 		/* Fetch one pair of input bytes, de-interleaving
 		 * the input.

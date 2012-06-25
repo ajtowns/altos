@@ -266,7 +266,7 @@ ao_real_packet(void)
 	int off;
 
 	for (off = 0; off < sizeof (real_packet) - 576;  off++) {
-		decode_len = ao_fec_decode(real_packet+off, 576, decode);
+		decode_len = ao_fec_decode(real_packet+off, 576, decode, 34, NULL);
 
 		if (ao_fec_check_crc(decode, 32)) {
 			printf ("match at %d\n", off);
@@ -317,7 +317,7 @@ main(int argc, char **argv)
 		receive_len = transmit_len;
 		
 		/* Decode it */
-		decode_len = ao_fec_decode(receive, receive_len, decode);
+		decode_len = ao_fec_decode(receive, receive_len, decode, original_len + 2, NULL);
 
 		/* Check to see if we received the right data */
 		error = 0;

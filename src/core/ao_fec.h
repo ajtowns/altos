@@ -66,8 +66,10 @@ ao_fec_encode(uint8_t *in, uint8_t len, uint8_t *out);
  * 'out' must be len/8 bytes long
  */
 
+#define AO_FEC_DECODE_BLOCK	(8 * 32)	/* callback must return multiples of this many bits */
+
 uint8_t
-ao_fec_decode(uint8_t *in, uint16_t in_len, uint8_t *out, uint8_t out_len);
+ao_fec_decode(uint8_t *in, uint16_t in_len, uint8_t *out, uint8_t out_len, uint16_t (*callback)());
 
 /*
  * Interleave data packed in bytes. 'out' must be 'len' bytes long.
