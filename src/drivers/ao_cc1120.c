@@ -401,12 +401,12 @@ ao_radio_send(void *d, uint8_t size)
 static uint8_t	rx_data[2048];
 static uint16_t	rx_data_count;
 static uint16_t rx_data_cur;
-static uint8_t	rx_started;
+static uint8_t	rx_ignore;
 
 static void
 ao_radio_rx_isr(void)
 {
-	if (rx_started) {
+	if (rx_ignore == 0) {
 		rx_data[rx_data_cur++] = stm_spi2.dr;
 		if (rx_data_cur >= rx_data_count) {
 			ao_exti_disable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
@@ -415,7 +415,7 @@ ao_radio_rx_isr(void)
 		}
 	} else {
 		(void) stm_spi2.dr;
-		rx_started = 1;
+		--rx_ignore;
 	}
 	stm_spi2.dr = 0x00;
 }
@@ -423,12 +423,17 @@ ao_radio_rx_isr(void)
 uint8_t
 ao_radio_recv(__xdata void *d, uint8_t size)
 {
-	uint8_t		len = ((size - 2) + 4) * 2;	/* two bytes for status */
+	uint8_t		len;
 	uint16_t	i;
+	uint8_t		rssi;
 
-	rx_data_count = sizeof (rx_data);
+	size -= 2;			/* status bytes */
+	len = size + 2;			/* CRC bytes */
+	len += 1 + ~(len & 1);		/* 1 or two pad bytes */
+	len *= 2;			/* 1/2 rate convolution */
+	rx_data_count = len * 8;	/* bytes to bits */
 	rx_data_cur = 0;
-	rx_started = 0;
+	rx_ignore = 2;
 
 	printf ("len %d rx_data_count %d\n", len, rx_data_count);
 
@@ -456,31 +461,31 @@ ao_radio_recv(__xdata void *d, uint8_t size)
 	ao_radio_strobe(CC1120_SRX);
 
 	ao_radio_burst_read_start(CC1120_SOFT_RX_DATA_OUT);
-#if 1
 	cli();
 	while (!ao_radio_wake && !ao_radio_abort)
 		ao_sleep(&ao_radio_wake);
 	sei();
-
-#else
-	printf ("Hit a character to stop..."); flush();
-	getchar();
-	putchar('\n');
-	ao_exti_disable(&AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
-#endif
 	ao_radio_burst_read_stop();
+
+	/* Convert from 'real' rssi to cc1111-style values */
+
+	rssi = (((int8_t) ao_radio_reg_read(CC1120_RSSI1)) + 74) * 2;
 
 	ao_radio_strobe(CC1120_SIDLE);
 
 	ao_radio_put();
 
-	printf ("Received data:");
-	for (i = 0; i < rx_data_cur; i++) {
-		if ((i & 15) == 0)
-			printf ("\n");
-		printf (" %02x", rx_data[i]);
-	}
-	printf ("\n");
+	/* Construct final packet */
+
+	ao_fec_decode(rx_data, rx_data_cur, d, size + 2);
+
+	if (ao_fec_check_crc(d, size))
+		((uint8_t *) d)[size + 1] = 0x80;
+	else
+		((uint8_t *) d)[size + 1] = 0x00;
+
+	((uint8_t *) d)[size] = (uint8_t) rssi;
+
 	return 1;
 }
 

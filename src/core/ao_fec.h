@@ -67,7 +67,7 @@ ao_fec_encode(uint8_t *in, uint8_t len, uint8_t *out);
  */
 
 uint8_t
-ao_fec_decode(uint8_t *in, uint16_t in_len, uint8_t *out);
+ao_fec_decode(uint8_t *in, uint16_t in_len, uint8_t *out, uint8_t out_len);
 
 /*
  * Interleave data packed in bytes. 'out' must be 'len' bytes long.

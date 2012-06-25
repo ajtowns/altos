@@ -91,7 +91,7 @@ ao_cost(struct ao_soft_sym a, struct ao_soft_sym b)
  */
 
 uint8_t
-ao_fec_decode(uint8_t *in, uint16_t len, uint8_t *out)
+ao_fec_decode(uint8_t *in, uint16_t len, uint8_t *out, uint8_t out_len)
 {
 	static uint16_t	cost[2][NUM_STATE];		/* path cost */
 	static uint16_t	bits[2][NUM_STATE];		/* save bits to quickly output them */
@@ -203,7 +203,10 @@ ao_fec_decode(uint8_t *in, uint16_t len, uint8_t *out)
 			printf ("\tbit %3d min_cost %5d old bit %3d old_state %x bits %02x whiten %0x\n",
 				i/2, min_cost, o + 8, min_state, (bits[p][min_state] >> dist) & 0xff, *whiten);
 #endif
-			*out++ = (bits[p][min_state] >> dist) ^ *whiten++;
+			if (out_len) {
+				*out++ = (bits[p][min_state] >> dist) ^ *whiten++;
+				--out_len;
+			}
 			o += 8;
 		}
 	}
