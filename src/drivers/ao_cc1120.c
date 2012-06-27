@@ -29,12 +29,6 @@ uint8_t ao_radio_in_recv;
 #define CC1120_DEBUG	AO_FEC_DEBUG
 #define CC1120_TRACE	0
 
-#if CC1120_TRACE
-#define fec_dump_bytes(b,l,n) ao_fec_dump_bytes(b,l,n)
-#else
-#define fec_dump_bytes(b,l,n)
-#endif
-
 const uint32_t	ao_radio_cal = 0x6ca333;
 
 #define FOSC	32000000
@@ -582,12 +576,12 @@ ao_radio_send(const void *d, uint8_t size)
 
 #define AO_RADIO_MAX_RECV	90
 
-uint8_t	rx_data[(AO_RADIO_MAX_RECV + 4) * 2 * 8];
-uint16_t	rx_data_count;
-uint16_t	rx_data_consumed;
-uint16_t rx_data_cur;
-uint8_t	rx_ignore;
-uint8_t	rx_waiting;
+static uint8_t	rx_data[(AO_RADIO_MAX_RECV + 4) * 2 * 8];
+static uint16_t	rx_data_count;
+static uint16_t	rx_data_consumed;
+static uint16_t rx_data_cur;
+static uint8_t	rx_ignore;
+static uint8_t	rx_waiting;
 
 #if AO_PROFILE
 static uint32_t	rx_start_tick, rx_packet_tick, rx_done_tick, rx_last_done_tick;
