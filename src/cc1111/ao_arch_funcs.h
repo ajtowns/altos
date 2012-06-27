@@ -31,14 +31,14 @@ extern __xdata uint8_t	ao_spi_mutex;
 	ao_mutex_put(&ao_spi_mutex); \
 	} while (0)
 
-#define ao_spi_get_bit(bit,bus) do {    \
-	ao_mutex_get(&ao_spi_mutex); \
-	(bit) = 0; \
+#define ao_spi_get_bit(reg,bit,pin,bus) do {	\
+		ao_mutex_get(&ao_spi_mutex);	\
+		pin = 0;			\
 	} while (0)
 
-#define ao_spi_put_bit(bit,bus) do {		\
-	(bit) = 1; \
-	ao_mutex_put(&ao_spi_mutex); \
+#define ao_spi_put_bit(reg,bit,pin,bus) do {	\
+		pin = 1;			\
+		ao_mutex_put(&ao_spi_mutex);	\
 	} while (0)
 
 
@@ -65,3 +65,15 @@ ao_spi_init(void);
 		SPI_CS_DIR |= mask;		\
 		SPI_CS_SEL &= ~mask;		\
 	} while (0)
+
+#define cc1111_enable_output(port,dir,sel,mask,v) do { \
+	port = port & ~(mask) | v; \
+	dir |= mask; \
+	sel &= ~mask; \
+} while (0)
+
+#define disable_unreachable	_Pragma("disable_warning 126")
+
+#define token_paster(x,y)	x ## y
+#define token_evaluator(x,y)	token_paster(x,y)
+#define ao_enable_output(port,pin,v) cc1111_enable_output(port,token_evaluator(port,DIR), token_evaluator(port,SEL), 1 << pin, 1 << v)

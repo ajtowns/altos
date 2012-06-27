@@ -70,7 +70,7 @@
 #define LOW_LEVEL_DEBUG		1
 
 #define LED_PORT_ENABLE		STM_RCC_AHBENR_GPIOBEN
-#define LED_PORT		stm_gpiob
+#define LED_PORT		(&stm_gpiob)
 #define LED_PIN_GREEN		7
 #define LED_PIN_BLUE		6
 #define AO_LED_GREEN		(1 << LED_PIN_GREEN)
@@ -147,7 +147,7 @@ struct ao_adc {
 };
 
 #define AO_ADC_IDD		4
-#define AO_ADC_PIN0_PORT	stm_gpioa
+#define AO_ADC_PIN0_PORT	(&stm_gpioa)
 #define AO_ADC_PIN0_PIN		4
 
 #define AO_ADC_RCC_AHBENR	((1 << STM_RCC_AHBENR_GPIOAEN))

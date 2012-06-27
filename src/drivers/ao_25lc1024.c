@@ -38,8 +38,9 @@ __pdata uint16_t	ao_storage_unit;
  * Using SPI on USART 0, with P1_2 as the chip select
  */
 
+#define EE_CS_PORT	P1
 #define EE_CS		P1_2
-#define EE_CS_INDEX	2
+#define EE_CS_PIN	2
 
 static __xdata uint8_t ao_ee_mutex;
 
@@ -49,9 +50,9 @@ static __xdata uint8_t ao_ee_mutex;
 	_asm nop _endasm; \
 } while(0)
 
-#define ao_ee_cs_low()	ao_spi_get_bit(EE_CS, AO_EE_SPI_BUS)
+#define ao_ee_cs_low()	ao_spi_get_bit(EE_CS_PORT, EE_CS_PIN, EE_CS, AO_EE_SPI_BUS)
 
-#define ao_ee_cs_high()	ao_spi_put_bit(EE_CS, AO_EE_SPI_BUS)
+#define ao_ee_cs_high()	ao_spi_put_bit(EE_CS_PORT, EE_CS_PIN, EE_CS, AO_EE_SPI_BUS)
 
 struct ao_ee_instruction {
 	uint8_t	instruction;
@@ -235,7 +236,5 @@ void
 ao_storage_device_init(void)
 {
 	/* set up CS */
-	EE_CS = 1;
-	P1DIR |= (1 << EE_CS_INDEX);
-	P1SEL &= ~(1 << EE_CS_INDEX);
+	ao_enable_output(EE_CS_PORT, EE_CS_PIN,1);
 }

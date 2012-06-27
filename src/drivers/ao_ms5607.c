@@ -25,12 +25,12 @@ static uint8_t	  		ms5607_configured;
 static void
 ao_ms5607_start(void) {
 	ao_spi_get(AO_MS5607_SPI_INDEX);
-	stm_gpio_set(&AO_MS5607_CS_GPIO, AO_MS5607_CS, 0);
+	stm_gpio_set(AO_MS5607_CS_GPIO, AO_MS5607_CS, 0);
 }
 
 static void
 ao_ms5607_stop(void) {
-	stm_gpio_set(&AO_MS5607_CS_GPIO, AO_MS5607_CS, 1);
+	stm_gpio_set(AO_MS5607_CS_GPIO, AO_MS5607_CS, 1);
 	ao_spi_put(AO_MS5607_SPI_INDEX);
 }
 
@@ -132,12 +132,12 @@ ao_ms5607_get_sample(uint8_t cmd) {
 
 	ao_ms5607_start();
 	ao_spi_send(&cmd, 1, AO_MS5607_SPI_INDEX);
-	ao_exti_enable(&AO_MS5607_MISO_GPIO, AO_MS5607_MISO);
+	ao_exti_enable(AO_MS5607_MISO_GPIO, AO_MS5607_MISO);
 	cli();
 	while (!ao_ms5607_done)
 		ao_sleep(&ao_ms5607_done);
 	sei();
-	ao_exti_disable(&AO_MS5607_MISO_GPIO, AO_MS5607_MISO);
+	ao_exti_disable(AO_MS5607_MISO_GPIO, AO_MS5607_MISO);
 	ao_ms5607_stop();
 
 	ao_ms5607_start();
@@ -203,7 +203,7 @@ ao_ms5607(void)
 	ao_ms5607_setup();
 	for (;;)
 	{
-		struct ao_ms5607_sample	ao_ms5607_next;
+		static struct ao_ms5607_sample	ao_ms5607_next;
 		ao_ms5607_sample(&ao_ms5607_next);
 		ao_arch_critical(
 			ao_ms5607_current = ao_ms5607_next;
@@ -260,7 +260,7 @@ ao_ms5607_init(void)
 	 * conversion is complete, the MS5607 will raise this
 	 * pin as a signal
 	 */
-	ao_exti_setup(&AO_MS5607_MISO_GPIO,
+	ao_exti_setup(AO_MS5607_MISO_GPIO,
 		      AO_MS5607_MISO,
 		      AO_EXTI_MODE_RISING,
 		      ao_ms5607_isr);
@@ -268,7 +268,7 @@ ao_ms5607_init(void)
 	/* Reset the pin from INPUT to ALTERNATE so that SPI works
 	 * This needs an abstraction at some point...
 	 */
-	stm_moder_set(&AO_MS5607_MISO_GPIO,
+	stm_moder_set(AO_MS5607_MISO_GPIO,
 		      AO_MS5607_MISO,
 		      STM_MODER_ALTERNATE);
 }

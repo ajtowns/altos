@@ -40,36 +40,54 @@ ao_spi_recv(void *block, uint16_t len, uint8_t spi_index);
 void
 ao_spi_duplex(void *out, void *in, uint16_t len, uint8_t spi_index);
 
+#define AO_SPI_SPEED_FAST	STM_SPI_CR1_BR_PCLK_16
+#define AO_SPI_SPEED_200kHz	STM_SPI_CR1_BR_PCLK_256
+
+extern uint16_t	ao_spi_speed[STM_NUM_SPI];
+
+#define ao_spi_slow(bus)	(ao_spi_speed[bus] = AO_SPI_SPEED_200kHz)
+
+#define ao_spi_fast(bus)	(ao_spi_speed[bus] = AO_SPI_SPEED_FAST)
+
 void
 ao_spi_init(void);
 
 #define ao_spi_get_mask(reg,mask,bus) do {		\
 		ao_spi_get(bus);			\
-		(reg).bsrr = ((uint32_t) mask) << 16;	\
+		(reg)->bsrr = ((uint32_t) mask) << 16;	\
 	} while (0)
 
 #define ao_spi_put_mask(reg,mask,bus) do {	\
-		(reg).bsrr = mask;		\
+		(reg)->bsrr = mask;		\
 		ao_spi_put(bus);		\
 	} while (0)
 
+#define ao_spi_get_bit(reg,bit,pin,bus) ao_spi_get_mask(reg,(1<<bit),bus)
+#define ao_spi_put_bit(reg,bit,pin,bus) ao_spi_put_mask(reg,(1<<bit),bus)
+
 #define ao_enable_port(port) do {					\
-		if (&(port) == &stm_gpioa)				\
+		if ((port) == &stm_gpioa)				\
 			stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOAEN); \
-		else if (&(port) == &stm_gpiob)				\
+		else if ((port) == &stm_gpiob)				\
 			stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOBEN); \
-		else if (&(port) == &stm_gpioc)				\
+		else if ((port) == &stm_gpioc)				\
 			stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOCEN); \
-		else if (&(port) == &stm_gpiod)				\
+		else if ((port) == &stm_gpiod)				\
 			stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIODEN); \
-		else if (&(port) == &stm_gpioe)				\
+		else if ((port) == &stm_gpioe)				\
 			stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOEEN); \
 	} while (0)
 
 
+#define ao_enable_output(port,pin,v) do {			\
+		ao_enable_port(port);				\
+		stm_gpio_set(port, pin, v);			\
+		stm_moder_set(port, pin, STM_MODER_OUTPUT);	\
+	} while (0)
+
 #define ao_enable_cs(port,bit) do {				\
-		stm_gpio_set(&(port), bit, 1);			\
-		stm_moder_set(&(port), bit, STM_MODER_OUTPUT);	\
+		stm_gpio_set((port), bit, 1);			\
+		stm_moder_set((port), bit, STM_MODER_OUTPUT);	\
 	} while (0)
 
 #define ao_spi_init_cs(port, mask) do {				\

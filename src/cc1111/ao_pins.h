@@ -41,8 +41,9 @@
 
 	#define HAS_COMPANION		1
 	#define COMPANION_CS_ON_P1	1
-	#define COMPANION_CS_MASK	0x4	/* CS1 is P1_2 */
-	#define COMPANION_CS		P1_2
+	#define AO_COMPANION_CS_PORT	P1
+	#define AO_COMPANION_CS_PIN	2
+	#define AO_COMPANION_CS		P1_2
 
 	#define AO_LED_RED		1
 	#define LEDS_AVAILABLE		(AO_LED_RED)
@@ -72,9 +73,9 @@
 	#define PACKET_HAS_SLAVE	1
 
 	#define HAS_COMPANION		1
-	#define COMPANION_CS_ON_P1	1
-	#define COMPANION_CS_MASK	0x4	/* CS1 is P1_2 */
-	#define COMPANION_CS		P1_2
+	#define AO_COMPANION_CS_PORT	P1
+	#define AO_COMPANION_CS_PIN	2
+	#define AO_COMPANION_CS		P1_2
 
 	#define AO_LED_RED		1
 	#define LEDS_AVAILABLE		(AO_LED_RED)
@@ -108,9 +109,9 @@
 	#define PACKET_HAS_SLAVE	1
 
 	#define HAS_COMPANION		1
-	#define COMPANION_CS_ON_P1	1
-	#define COMPANION_CS_MASK	0x4	/* CS1 is P1_2 */
-	#define COMPANION_CS		P1_2
+	#define AO_COMPANION_CS_PORT	P1
+	#define AO_COMPANION_CS_PIN	2
+	#define AO_COMPANION_CS		P1_2
 
 	#define AO_LED_RED		1
 	#define LEDS_AVAILABLE		(AO_LED_RED)
@@ -527,20 +528,30 @@
 #endif /* HAS_ADC */
 
 #if IGNITE_ON_P2
+#define AO_IGNITER_PORT		P2
+#define AO_IGNITER_DROGUE_PORT	AO_IGNITER_PORT
 #define AO_IGNITER_DROGUE	P2_3
 #define AO_IGNITER_MAIN		P2_4
 #define AO_IGNITER_DIR		P2DIR
 #define AO_IGNITER_DROGUE_BIT	(1 << 3)
 #define AO_IGNITER_MAIN_BIT	(1 << 4)
+#define AO_IGNITER_DROGUE_PIN	3
+#define AO_IGNITER_MAIN_PIN	4
 #endif
 
 #if IGNITE_ON_P0
+#define AO_IGNITER_PORT		P0
 #define AO_IGNITER_DROGUE	P0_5
 #define AO_IGNITER_MAIN		P0_4
 #define AO_IGNITER_DIR		P0DIR
 #define AO_IGNITER_DROGUE_BIT	(1 << 5)
 #define AO_IGNITER_MAIN_BIT	(1 << 4)
+#define AO_IGNITER_DROGUE_PIN	5
+#define AO_IGNITER_MAIN_PIN	4
 #endif
+
+#define AO_IGNITER_DROGUE_PORT	AO_IGNITER_PORT
+#define AO_IGNITER_MAIN_PORT	AO_IGNITER_PORT
 
 /* test these values with real igniters */
 #define AO_IGNITER_OPEN		1000

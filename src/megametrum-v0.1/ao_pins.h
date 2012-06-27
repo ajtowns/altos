@@ -76,7 +76,7 @@
 #define HAS_SPI_2		1
 #define SPI_2_PB13_PB14_PB15	1
 #define SPI_2_PD1_PD3_PD4	0
-#define SPI_2_GPIO		stm_gpiob
+#define SPI_2_GPIO		(&stm_gpiob)
 #define SPI_2_SCK		13
 #define SPI_2_MISO		14
 #define SPI_2_MOSI		15
@@ -87,12 +87,13 @@
 #define HAS_I2C_2		1
 #define I2C_2_PB10_PB11		1
 
-#define PACKET_HAS_SLAVE	0
+#define PACKET_HAS_SLAVE	1
+#define PACKET_HAS_MASTER	0
 
-#define LOW_LEVEL_DEBUG		1
+#define LOW_LEVEL_DEBUG		0
 
 #define LED_PORT_ENABLE		STM_RCC_AHBENR_GPIOCEN
-#define LED_PORT		stm_gpioc
+#define LED_PORT		(&stm_gpioc)
 #define LED_PIN_RED		8
 #define LED_PIN_GREEN		9
 #define AO_LED_RED		(1 << LED_PIN_RED)
@@ -107,6 +108,48 @@
 #define HAS_ACCEL_REF		1
 #define HAS_LOG			1
 
+/*
+ * Igniter
+ */
+
+#define HAS_IGNITE		1
+#define HAS_IGNITE_REPORT	1
+
+#define AO_SENSE_DROGUE(p)	((p)->adc.sense[0])
+#define AO_SENSE_MAIN(p)	((p)->adc.sense[1])
+#define AO_IGNITER_CLOSED	400
+#define AO_IGNITER_OPEN		60
+
+#define AO_IGNITER_PORT_A	(&stm_gpiod)
+#define AO_IGNITER_PIN_A	6
+
+#define AO_IGNITER_PORT_B	(&stm_gpiod)
+#define AO_IGNITER_PIN_B	7
+
+#define AO_IGNITER_PORT_C	(&stm_gpiob)
+#define AO_IGNITER_PIN_C	5
+
+#define AO_IGNITER_PORT_D	(&stm_gpioe)
+#define AO_IGNITER_PIN_D	4
+
+#define AO_IGNITER_PORT_E	(&stm_gpioe)
+#define AO_IGNITER_PIN_E	6
+
+#define AO_IGNITER_PORT_F	(&stm_gpioe)
+#define AO_IGNITER_PIN_F	5
+
+#define AO_IGNITER_DROGUE_PORT	AO_IGNITER_PORT_A
+#define AO_IGNITER_DROGUE_PIN	AO_IGNITER_PIN_A
+
+#define AO_IGNITER_MAIN_PORT	AO_IGNITER_PORT_B
+#define AO_IGNITER_MAIN_PIN	AO_IGNITER_PIN_B
+
+#define AO_IGNITER_SET_DROGUE(v)	stm_gpio_set(AO_IGNITER_DROGUE_PORT, AO_IGNITER_DROGUE_PIN, v)
+#define AO_IGNITER_SET_MAIN(v)		stm_gpio_set(AO_IGNITER_MAIN_PORT, AO_IGNITER_MAIN_PIN, v)
+
+/*
+ * ADC
+ */
 #define AO_DATA_RING		32
 #define AO_ADC_NUM_SENSE	6
 
@@ -120,43 +163,43 @@ struct ao_adc {
 };
 
 #define AO_ADC_SENSE_A		0
-#define AO_ADC_SENSE_A_PORT	stm_gpioa
+#define AO_ADC_SENSE_A_PORT	(&stm_gpioa)
 #define AO_ADC_SENSE_A_PIN	0
 
 #define AO_ADC_SENSE_B		1
-#define AO_ADC_SENSE_B_PORT	stm_gpioa
+#define AO_ADC_SENSE_B_PORT	(&stm_gpioa)
 #define AO_ADC_SENSE_B_PIN	1
 
 #define AO_ADC_SENSE_C		2
-#define AO_ADC_SENSE_C_PORT	stm_gpioa
+#define AO_ADC_SENSE_C_PORT	(&stm_gpioa)
 #define AO_ADC_SENSE_C_PIN	2
 
 #define AO_ADC_SENSE_D		3
-#define AO_ADC_SENSE_D_PORT	stm_gpioa
+#define AO_ADC_SENSE_D_PORT	(&stm_gpioa)
 #define AO_ADC_SENSE_D_PIN	3
 
 #define AO_ADC_SENSE_E		4
-#define AO_ADC_SENSE_E_PORT	stm_gpioa
+#define AO_ADC_SENSE_E_PORT	(&stm_gpioa)
 #define AO_ADC_SENSE_E_PIN	4
 
 #define AO_ADC_SENSE_F		22
-#define AO_ADC_SENSE_F_PORT	stm_gpioe
+#define AO_ADC_SENSE_F_PORT	(&stm_gpioe)
 #define AO_ADC_SENSE_F_PIN	7
 
 #define AO_ADC_V_BATT		8
-#define AO_ADC_V_BATT_PORT	stm_gpiob
+#define AO_ADC_V_BATT_PORT	(&stm_gpiob)
 #define AO_ADC_V_BATT_PIN	0
 
 #define AO_ADC_V_PBATT		9
-#define AO_ADC_V_PBATT_PORT	stm_gpiob
+#define AO_ADC_V_PBATT_PORT	(&stm_gpiob)
 #define AO_ADC_V_PBATT_PIN	1
 
 #define AO_ADC_ACCEL_REF	10
-#define AO_ADC_ACCEL_REF_PORT	stm_gpioc
+#define AO_ADC_ACCEL_REF_PORT	(&stm_gpioc)
 #define AO_ADC_ACCEL_REF_PIN	0
 
 #define AO_ADC_ACCEL		11
-#define AO_ADC_ACCEL_PORT	stm_gpioc
+#define AO_ADC_ACCEL_PORT	(&stm_gpioc)
 #define AO_ADC_ACCEL_PIN	1
 
 #define AO_ADC_TEMP		16
@@ -207,10 +250,10 @@ struct ao_adc {
  * Pressure sensor settings
  */
 #define HAS_MS5607		1
-#define AO_MS5607_CS_GPIO	stm_gpioc
+#define AO_MS5607_CS_GPIO	(&stm_gpioc)
 #define AO_MS5607_CS		4
 #define AO_MS5607_CS_MASK	(1 << AO_MS5607_CS)
-#define AO_MS5607_MISO_GPIO	stm_gpioa
+#define AO_MS5607_MISO_GPIO	(&stm_gpioa)
 #define AO_MS5607_MISO		6
 #define AO_MS5607_MISO_MASK	(1 << AO_MS5607_MISO)
 #define AO_MS5607_SPI_INDEX	(STM_SPI_INDEX(1))
@@ -220,7 +263,7 @@ struct ao_adc {
  */
 
 #define M25_MAX_CHIPS		1
-#define AO_M25_SPI_CS_PORT	stm_gpiod
+#define AO_M25_SPI_CS_PORT	(&stm_gpiod)
 #define AO_M25_SPI_CS_MASK	(1 << 3)
 #define AO_M25_SPI_BUS		STM_SPI_INDEX(2)
 
@@ -228,21 +271,23 @@ struct ao_adc {
  * Radio (cc1120)
  */
 
-#define AO_CC1120_SPI_CS_PORT	stm_gpioc
+#define AO_FEC_DEBUG		1
+#define AO_CC1120_SPI_CS_PORT	(&stm_gpioc)
 #define AO_CC1120_SPI_CS_PIN	5
 #define AO_CC1120_SPI_BUS	STM_SPI_INDEX(2)
 
-#define AO_CC1120_INT_PORT	stm_gpioc
+#define AO_CC1120_INT_PORT	(&stm_gpioc)
 #define AO_CC1120_INT_PIN	14
 
 #define AO_CC1120_INT_GPIO	2
+#define HAS_BOOT_RADIO		1
 
 /*
  * Mag sensor (hmc5883)
  */
 
 #define HAS_HMC5883		1
-#define AO_HMC5883_INT_PORT	stm_gpioc
+#define AO_HMC5883_INT_PORT	(&stm_gpioc)
 #define AO_HMC5883_INT_PIN	12
 #define AO_HMC5883_I2C_INDEX	STM_I2C_INDEX(1)
 
@@ -251,12 +296,36 @@ struct ao_adc {
  */
 
 #define HAS_MPU6000		1	
-#define AO_MPU6000_INT_PORT	stm_gpioc
+#define AO_MPU6000_INT_PORT	(&stm_gpioc)
 #define AO_MPU6000_INT_PIN	13
 #define AO_MPU6000_I2C_INDEX	STM_I2C_INDEX(1)
 
 #define HAS_HIGHG_ACCEL		0
 
 #define NUM_CMDS		16
+
+/*
+ * Companion
+ */
+
+#define AO_COMPANION_CS_PORT	(&stm_gpiod)
+#define AO_COMPANION_CS_PIN	(0)
+#define AO_COMPANION_SPI_BUS	STM_SPI_INDEX(2)
+
+/*
+ * Monitor
+ */
+
+#define HAS_MONITOR		0
+#define LEGACY_MONITOR		0
+#define HAS_MONITOR_PUT		1
+#define AO_MONITOR_LED		0
+#define HAS_RSSI		0
+
+/*
+ * Profiling Viterbi decoding
+ */
+
+#define AO_PROFILE	       	0
 
 #endif /* _AO_PINS_H_ */

@@ -22,25 +22,28 @@ __pdata uint16_t ao_led_enable;
 void
 ao_led_on(uint16_t colors)
 {
-	LED_PORT.odr |= (colors & ao_led_enable);
+	LED_PORT->bsrr = (colors & ao_led_enable);
 }
 
 void
 ao_led_off(uint16_t colors)
 {
-	LED_PORT.odr &= ~(colors & ao_led_enable);
+	LED_PORT->bsrr = (uint32_t) (colors & ao_led_enable) << 16;
 }
 
 void
 ao_led_set(uint16_t colors)
 {
-	LED_PORT.odr = (LED_PORT.odr & ~(ao_led_enable)) | (colors & ao_led_enable);
+	uint16_t	on = colors & ao_led_enable;
+	uint16_t	off = ~colors & ao_led_enable;
+
+	LED_PORT->bsrr = off << 16 | on;
 }
 
 void
 ao_led_toggle(uint16_t colors)
 {
-	LED_PORT.odr ^= (colors & ao_led_enable);
+	LED_PORT->odr ^= (colors & ao_led_enable);
 }
 
 void
@@ -58,11 +61,11 @@ ao_led_init(uint16_t enable)
 
 	stm_rcc.ahbenr |= (1 << LED_PORT_ENABLE);
 	ao_led_enable = enable;
-	LED_PORT.odr &= ~enable;
+	LED_PORT->odr &= ~enable;
 	for (bit = 0; bit < 16; bit++) {
 		if (enable & (1 << bit)) {
-			stm_moder_set(&LED_PORT, bit, STM_MODER_OUTPUT);
-			stm_otyper_set(&LED_PORT, bit, STM_OTYPER_PUSH_PULL);
+			stm_moder_set(LED_PORT, bit, STM_MODER_OUTPUT);
+			stm_otyper_set(LED_PORT, bit, STM_OTYPER_PUSH_PULL);
 		}
 	}
 }

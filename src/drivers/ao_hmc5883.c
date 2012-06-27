@@ -58,7 +58,7 @@ static uint8_t ao_hmc5883_done;
 static void
 ao_hmc5883_isr(void)
 {
-	ao_exti_disable(&AO_HMC5883_INT_PORT, AO_HMC5883_INT_PIN);
+	ao_exti_disable(AO_HMC5883_INT_PORT, AO_HMC5883_INT_PIN);
 	ao_hmc5883_done = 1;
 	ao_wakeup(&ao_hmc5883_done);
 }
@@ -71,7 +71,7 @@ ao_hmc5883_sample(struct ao_hmc5883_sample *sample)
 	uint8_t		single = HMC5883_MODE_SINGLE;
 
 	ao_hmc5883_done = 0;
-	ao_exti_enable(&AO_HMC5883_INT_PORT, AO_HMC5883_INT_PIN);
+	ao_exti_enable(AO_HMC5883_INT_PORT, AO_HMC5883_INT_PIN);
 	ao_hmc5883_reg_write(HMC5883_MODE, HMC5883_MODE_SINGLE);
 
 	cli();
@@ -159,7 +159,7 @@ ao_hmc5883_init(void)
 	ao_hmc5883_valid = 0;
 
 	ao_enable_port(AO_HMC5883_INT_PORT);
-	ao_exti_setup(&AO_HMC5883_INT_PORT,
+	ao_exti_setup(AO_HMC5883_INT_PORT,
 		      AO_HMC5883_INT_PIN,
 		      AO_EXTI_MODE_FALLING | AO_EXTI_MODE_PULL_UP,
 		      ao_hmc5883_isr);

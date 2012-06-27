@@ -15,20 +15,36 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "ao.h"
+#include <ao.h>
+#include <ao_companion.h>
 
-#define ao_spi_slow() (U0GCR = (UxGCR_CPOL_NEGATIVE | 		\
-				UxGCR_CPHA_FIRST_EDGE |		\
-				UxGCR_ORDER_MSB |		\
-				(13 << UxGCR_BAUD_E_SHIFT)))
+#ifndef ao_spi_slow
+#define ao_spi_slow(bus) (U0GCR = (UxGCR_CPOL_NEGATIVE |	\
+				   UxGCR_CPHA_FIRST_EDGE |	\
+				   UxGCR_ORDER_MSB |		\
+				   (13 << UxGCR_BAUD_E_SHIFT)))
 
-#define ao_spi_fast() (U0GCR = (UxGCR_CPOL_NEGATIVE | 		\
-				UxGCR_CPHA_FIRST_EDGE |		\
-				UxGCR_ORDER_MSB |		\
-				(17 << UxGCR_BAUD_E_SHIFT)))
+#define ao_spi_fast(bus) (U0GCR = (UxGCR_CPOL_NEGATIVE |	\
+				   UxGCR_CPHA_FIRST_EDGE |	\
+				   UxGCR_ORDER_MSB |		\
+				   (17 << UxGCR_BAUD_E_SHIFT)))
+#endif
 
-#define COMPANION_SELECT()	do { ao_spi_get_bit(COMPANION_CS, AO_COMPANION_BUS); ao_spi_slow(); } while (0)
-#define COMPANION_DESELECT()	do { ao_spi_fast(); ao_spi_put_bit(COMPANION_CS, AO_COMPANION_BUS); } while (0)
+#define COMPANION_SELECT()	do {			\
+		ao_spi_get_bit(AO_COMPANION_CS_PORT,	\
+			       AO_COMPANION_CS_PIN,	\
+			       AO_COMPANION_CS,		\
+			       AO_COMPANION_SPI_BUS);	\
+		ao_spi_slow(AO_COMPANION_SPI_BUS);	\
+	} while (0)
+
+#define COMPANION_DESELECT()	do {			\
+		ao_spi_fast(AO_COMPANION_SPI_BUS);	\
+		ao_spi_put_bit(AO_COMPANION_CS_PORT,	\
+			       AO_COMPANION_CS_PIN,	\
+			       AO_COMPANION_CS,		\
+			       AO_COMPANION_SPI_BUS);	\
+	} while (0)
 
 __xdata struct ao_companion_command		ao_companion_command;
 __xdata struct ao_companion_setup		ao_companion_setup;
@@ -123,10 +139,7 @@ static __xdata struct ao_task ao_companion_task;
 void
 ao_companion_init(void)
 {
-	COMPANION_CS_PORT |= COMPANION_CS_MASK;	/* raise all CS pins */
-	COMPANION_CS_DIR |= COMPANION_CS_MASK;	/* set CS pins as outputs */
-	COMPANION_CS_SEL &= ~COMPANION_CS_MASK;	/* set CS pins as GPIO */
-
+	ao_enable_output(AO_COMPANION_CS_PORT, AO_COMPANION_CS_PIN, 1);
 	ao_cmd_register(&ao_companion_cmds[0]);
 	ao_add_task(&ao_companion_task, ao_companion, "companion");
 }

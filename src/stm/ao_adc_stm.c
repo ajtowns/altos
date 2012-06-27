@@ -156,43 +156,43 @@ ao_adc_init(void)
 #endif
 
 #ifdef AO_ADC_PIN0_PORT
-	stm_moder_set(&AO_ADC_PIN0_PORT, AO_ADC_PIN0_PIN, STM_MODER_ANALOG);
+	stm_moder_set(AO_ADC_PIN0_PORT, AO_ADC_PIN0_PIN, STM_MODER_ANALOG);
 #endif
 #ifdef AO_ADC_PIN1_PORT
-	stm_moder_set(&AO_ADC_PIN1_PORT, AO_ADC_PIN1_PIN, STM_MODER_ANALOG);
+	stm_moder_set(AO_ADC_PIN1_PORT, AO_ADC_PIN1_PIN, STM_MODER_ANALOG);
 #endif
 #ifdef AO_ADC_PIN2_PORT
-	stm_moder_set(&AO_ADC_PIN2_PORT, AO_ADC_PIN2_PIN, STM_MODER_ANALOG);
+	stm_moder_set(AO_ADC_PIN2_PORT, AO_ADC_PIN2_PIN, STM_MODER_ANALOG);
 #endif
 #ifdef AO_ADC_PIN3_PORT
-	stm_moder_set(&AO_ADC_PIN3_PORT, AO_ADC_PIN3_PIN, STM_MODER_ANALOG);
+	stm_moder_set(AO_ADC_PIN3_PORT, AO_ADC_PIN3_PIN, STM_MODER_ANALOG);
 #endif
 #ifdef AO_ADC_PIN4_PORT
-	stm_moder_set(&AO_ADC_PIN4_PORT, AO_ADC_PIN4_PIN, STM_MODER_ANALOG);
+	stm_moder_set(AO_ADC_PIN4_PORT, AO_ADC_PIN4_PIN, STM_MODER_ANALOG);
 #endif
 #ifdef AO_ADC_PIN5_PORT
-	stm_moder_set(&AO_ADC_PIN5_PORT, AO_ADC_PIN5_PIN, STM_MODER_ANALOG);
+	stm_moder_set(AO_ADC_PIN5_PORT, AO_ADC_PIN5_PIN, STM_MODER_ANALOG);
 #endif
 #ifdef AO_ADC_PIN6_PORT
-	stm_moder_set(&AO_ADC_PIN6_PORT, AO_ADC_PIN6_PIN, STM_MODER_ANALOG);
+	stm_moder_set(AO_ADC_PIN6_PORT, AO_ADC_PIN6_PIN, STM_MODER_ANALOG);
 #endif
 #ifdef AO_ADC_PIN7_PORT
-	stm_moder_set(&AO_ADC_PIN7_PORT, AO_ADC_PIN7_PIN, STM_MODER_ANALOG);
+	stm_moder_set(AO_ADC_PIN7_PORT, AO_ADC_PIN7_PIN, STM_MODER_ANALOG);
 #endif
 #ifdef AO_ADC_PIN8_PORT
-	stm_moder_set(&AO_ADC_PIN8_PORT, AO_ADC_PIN8_PIN, STM_MODER_ANALOG);
+	stm_moder_set(AO_ADC_PIN8_PORT, AO_ADC_PIN8_PIN, STM_MODER_ANALOG);
 #endif
 #ifdef AO_ADC_PIN9_PORT
-	stm_moder_set(&AO_ADC_PIN9_PORT, AO_ADC_PIN9_PIN, STM_MODER_ANALOG);
+	stm_moder_set(AO_ADC_PIN9_PORT, AO_ADC_PIN9_PIN, STM_MODER_ANALOG);
 #endif
 #ifdef AO_ADC_PIN10_PORT
-	stm_moder_set(&AO_ADC_PIN10_PORT, AO_ADC_PIN10_PIN, STM_MODER_ANALOG);
+	stm_moder_set(AO_ADC_PIN10_PORT, AO_ADC_PIN10_PIN, STM_MODER_ANALOG);
 #endif
 #ifdef AO_ADC_PIN11_PORT
-	stm_moder_set(&AO_ADC_PIN11_PORT, AO_ADC_PIN11_PIN, STM_MODER_ANALOG);
+	stm_moder_set(AO_ADC_PIN11_PORT, AO_ADC_PIN11_PIN, STM_MODER_ANALOG);
 #endif
 #ifdef AO_ADC_PIN12_PORT
-	stm_moder_set(&AO_ADC_PIN12_PORT, AO_ADC_PIN12_PIN, STM_MODER_ANALOG);
+	stm_moder_set(AO_ADC_PIN12_PORT, AO_ADC_PIN12_PIN, STM_MODER_ANALOG);
 #endif
 
 	stm_rcc.apb2enr |= (1 << STM_RCC_APB2ENR_ADC1EN);
@@ -281,8 +281,10 @@ ao_adc_init(void)
 #endif
 	/* Clear any stale status bits */
 	stm_adc.sr = 0;
-	ao_adc_ready = 1;
 
 	ao_dma_alloc(STM_DMA_INDEX(STM_DMA_CHANNEL_ADC1));
+
 	ao_cmd_register(&ao_adc_cmds[0]);
+
+	ao_adc_ready = 1;
 }
