@@ -103,6 +103,13 @@ ao_monitor_blink(void)
 
 #if HAS_MONITOR_PUT
 
+static const char xdigit[16] = {
+	'0', '1', '2', '3', '4', '5', '6', '7',
+	'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+};
+
+#define hex(c) do { putchar(xdigit[(c) >> 4]); putchar(xdigit[(c)&0xf]); } while (0)
+
 void
 ao_monitor_put(void)
 {
@@ -210,14 +217,27 @@ ao_monitor_put(void)
 			break;
 #endif /* LEGACY_MONITOR */
 		default:
-			printf ("TELEM %02x", ao_monitoring + 2);
+#if AO_PROFILE
+		{
+			extern uint32_t	ao_rx_start_tick, ao_rx_packet_tick, ao_rx_done_tick, ao_rx_last_done_tick;
+			extern uint32_t ao_fec_decode_start, ao_fec_decode_end;
+
+			printf ("between packet: %d\n", ao_rx_start_tick - ao_rx_last_done_tick);
+			printf ("receive start delay: %d\n", ao_rx_packet_tick - ao_rx_start_tick);
+			printf ("decode time: %d\n", ao_fec_decode_end - ao_fec_decode_start);
+			printf ("rx cleanup: %d\n", ao_rx_done_tick - ao_fec_decode_end);
+		}
+#endif
+			printf("TELEM ");
+			hex((uint8_t) (ao_monitoring + 2));
 			sum = 0x5a;
 			for (state = 0; state < ao_monitoring + 2; state++) {
 				byte = recv_raw.packet[state];
 				sum += byte;
-				printf("%02x", byte);
+				hex(byte);
 			}
-			printf("%02x\n", sum);
+			hex(sum);
+			putchar ('\n');
 #if HAS_RSSI
 			if (recv_raw.packet[ao_monitoring + 1] & PKT_APPEND_STATUS_1_CRC_OK) {
 				rssi = ((int16_t) recv_raw.packet[ao_monitoring] >> 1) - 74;
