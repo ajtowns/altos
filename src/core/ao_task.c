@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "ao.h"
+#include <ao.h>
 
 #define AO_NO_TASK_INDEX	0xff
 
@@ -26,6 +26,20 @@ __xdata struct ao_task *__data ao_cur_task;
 
 #ifdef ao_arch_task_globals
 ao_arch_task_globals
+#endif
+
+#define AO_CHECK_STACK	0
+
+#if AO_CHECK_STACK
+static uint8_t	in_yield;
+
+static inline void ao_check_stack(void) {
+	uint8_t	q;
+	if (!in_yield && ao_cur_task && &q < &ao_cur_task->stack[0])
+		ao_panic(AO_PANIC_STACK);
+}
+#else
+#define ao_check_stack()
 #endif
 
 void
@@ -68,6 +82,9 @@ ao_yield(void) ao_arch_naked_define
 
 	ao_arch_isr_stack();
 
+#if CHECK_STACK
+	in_yield = 1;
+#endif
 	/* Find a task to run. If there isn't any runnable task,
 	 * this loop will run forever, which is just fine
 	 */
@@ -97,6 +114,10 @@ ao_yield(void) ao_arch_naked_define
 			}
 		}
 	}
+#if CHECK_STACK
+	cli();
+	in_yield = 0;
+#endif
 	ao_arch_restore_stack();
 }
 
@@ -117,6 +138,7 @@ ao_wakeup(__xdata void *wchan)
 {
 	uint8_t	i;
 
+	ao_check_stack();
 	for (i = 0; i < ao_num_tasks; i++)
 		if (ao_tasks[i]->wchan == wchan)
 			ao_tasks[i]->wchan = NULL;
