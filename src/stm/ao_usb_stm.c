@@ -792,10 +792,10 @@ static void
 ao_usb_in_send(void)
 {
 	debug ("send %d\n", ao_usb_tx_count);
+	ao_usb_in_pending = 1;
 	ao_usb_write(ao_usb_tx_buffer, ao_usb_in_tx_buffer, 0, ao_usb_tx_count);
 	ao_usb_bdt[AO_USB_IN_EPR].single.count_tx = ao_usb_tx_count;
 	ao_usb_set_stat_tx(AO_USB_IN_EPR, STM_USB_EPR_STAT_TX_VALID);
-	ao_usb_in_pending = 1;
 	ao_usb_tx_count = 0;
 }
 
@@ -848,12 +848,12 @@ ao_usb_putchar(char c) __critical __reentrant
 
 	ao_usb_in_wait();
 
+	ao_usb_in_flushed = 0;
 	ao_usb_tx_buffer[ao_usb_tx_count++] = (uint8_t) c;
 
 	/* Send the packet when full */
 	if (ao_usb_tx_count == AO_USB_IN_SIZE)
 		ao_usb_in_send();
-	ao_usb_in_flushed = 0;
 }
 
 static void
