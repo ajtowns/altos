@@ -136,6 +136,15 @@ ao_i2c_put(uint8_t index)
 	ao_mutex_put(&ao_i2c_mutex[index]);
 }
 
+static inline void
+ao_i2c_delay(void)
+{
+	uint8_t i;
+
+	for (i = 0; i < 10; i++)
+		ao_arch_nop();
+}
+
 #define I2C_DEBUG	0
 #if I2C_DEBUG
 #define DBG(x...)	printf(x)
@@ -194,6 +203,7 @@ ao_i2c_start(uint8_t index, uint16_t addr)
 	out_cr2("start", stm_i2c, AO_STM_I2C_CR2);
 	out_cr1("start", stm_i2c,
 		AO_STM_I2C_CR1 | (1 << STM_I2C_CR1_START));
+	ao_i2c_delay();
 	out_cr2("start", stm_i2c,
 		AO_STM_I2C_CR2 | (1 << STM_I2C_CR2_ITEVTEN) | (1 << STM_I2C_CR2_ITERREN));
 	ao_alarm(1);
@@ -429,4 +439,3 @@ ao_i2c_init(void)
 	stm_nvic_set_priority(STM_ISR_I2C2_ER_POS, 3);
 #endif
 }
-
