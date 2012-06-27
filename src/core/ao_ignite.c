@@ -27,6 +27,11 @@ ao_ignite(enum ao_igniter igniter) __critical
 	ao_wakeup(&ao_ignition);
 }
 
+#ifndef AO_SENSE_DROGUE
+#define AO_SENSE_DROGUE(p)	((p)->adc.sense_d)
+#define AO_SENSE_MAIN(p)	((p)->adc.sense_m)
+#endif
+
 enum ao_igniter_status
 ao_igniter_status(enum ao_igniter igniter)
 {
@@ -46,10 +51,10 @@ ao_igniter_status(enum ao_igniter igniter)
 	value = (AO_IGNITER_CLOSED>>1);
 	switch (igniter) {
 	case ao_igniter_drogue:
-		value = packet.adc.sense_d;
+		value = AO_SENSE_DROGUE(&packet);
 		break;
 	case ao_igniter_main:
-		value = packet.adc.sense_m;
+		value = AO_SENSE_MAIN(&packet);
 		break;
 	}
 	if (value < AO_IGNITER_OPEN)
@@ -60,6 +65,19 @@ ao_igniter_status(enum ao_igniter igniter)
 		return ao_igniter_unknown;
 }
 
+#ifndef AO_IGNITER_SET_DROGUE
+#define AO_IGNITER_SET_DROGUE(v)	AO_IGNITER_DROGUE = (v)
+#define AO_IGNITER_SET_MAIN(v)		AO_IGNITER_MAIN = (v)
+#endif
+
+#ifndef AO_IGNITER_FIRE_TIME
+#define AO_IGNITER_FIRE_TIME		AO_MS_TO_TICKS(50)
+#endif
+
+#ifndef AO_IGNITER_CHARGE_TIME
+#define AO_IGNITER_CHARGE_TIME		AO_MS_TO_TICKS(2000)
+#endif
+
 void
 ao_igniter_fire(enum ao_igniter igniter) __critical
 {
@@ -69,40 +87,40 @@ ao_igniter_fire(enum ao_igniter igniter) __critical
 	case AO_IGNITE_MODE_DUAL:
 		switch (igniter) {
 		case ao_igniter_drogue:
-			AO_IGNITER_DROGUE = 1;
+			AO_IGNITER_SET_DROGUE(1);
 			ao_delay(AO_IGNITER_FIRE_TIME);
-			AO_IGNITER_DROGUE = 0;
+			AO_IGNITER_SET_DROGUE(0);
 			break;
 		case ao_igniter_main:
-			AO_IGNITER_MAIN = 1;
+			AO_IGNITER_SET_MAIN(1);
 			ao_delay(AO_IGNITER_FIRE_TIME);
-			AO_IGNITER_MAIN = 0;
+			AO_IGNITER_SET_MAIN(0);
 			break;
 		}
 		break;
 	case AO_IGNITE_MODE_APOGEE:
 		switch (igniter) {
 		case ao_igniter_drogue:
-			AO_IGNITER_DROGUE = 1;
+			AO_IGNITER_SET_DROGUE(1);
 			ao_delay(AO_IGNITER_FIRE_TIME);
-			AO_IGNITER_DROGUE = 0;
+			AO_IGNITER_SET_DROGUE(0);
 			ao_delay(AO_IGNITER_CHARGE_TIME);
-			AO_IGNITER_MAIN = 1;
+			AO_IGNITER_SET_MAIN(1);
 			ao_delay(AO_IGNITER_FIRE_TIME);
-			AO_IGNITER_MAIN = 0;
+			AO_IGNITER_SET_MAIN(0);
 			break;
 		}
 		break;
 	case AO_IGNITE_MODE_MAIN:
 		switch (igniter) {
 		case ao_igniter_main:
-			AO_IGNITER_DROGUE = 1;
+			AO_IGNITER_SET_DROGUE(1);
 			ao_delay(AO_IGNITER_FIRE_TIME);
-			AO_IGNITER_DROGUE = 0;
+			AO_IGNITER_SET_DROGUE(0);
 			ao_delay(AO_IGNITER_CHARGE_TIME);
-			AO_IGNITER_MAIN = 1;
+			AO_IGNITER_SET_MAIN(1);
 			ao_delay(AO_IGNITER_FIRE_TIME);
-			AO_IGNITER_MAIN = 0;
+			AO_IGNITER_SET_MAIN(0);
 			break;
 		}
 		break;
@@ -114,7 +132,7 @@ ao_igniter_fire(enum ao_igniter igniter) __critical
 void
 ao_igniter(void)
 {
-	__xdata enum ao_ignter igniter;
+	__xdata enum ao_igniter igniter;
 
 	ao_config_get();
 	for (;;) {
@@ -179,9 +197,8 @@ __xdata struct ao_task ao_igniter_task;
 void
 ao_ignite_set_pins(void)
 {
-	AO_IGNITER_DROGUE = 0;
-	AO_IGNITER_MAIN = 0;
-	AO_IGNITER_DIR |= AO_IGNITER_DROGUE_BIT | AO_IGNITER_MAIN_BIT;
+	ao_enable_output(AO_IGNITER_DROGUE_PORT, AO_IGNITER_DROGUE_PIN, 0);
+	ao_enable_output(AO_IGNITER_MAIN_PORT, AO_IGNITER_MAIN_PIN, 0);
 }
 
 void
