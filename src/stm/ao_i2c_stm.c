@@ -167,9 +167,10 @@ ao_i2c_start(uint8_t index, uint16_t addr)
 		if (!(stm_i2c->cr1 & (1 << STM_I2C_CR1_START)))
 			break;
 	}
-	stm_i2c->cr2 = AO_STM_I2C_CR2 | (1 << STM_I2C_CR2_ITEVTEN) | (1 << STM_I2C_CR2_ITERREN);
 	ao_alarm(AO_MS_TO_TICKS(250));
 	cli();
+	stm_i2c->cr2 = AO_STM_I2C_CR2 | (1 << STM_I2C_CR2_ITEVTEN) | (1 << STM_I2C_CR2_ITERREN);
+	ao_i2c_ev_isr(index);
 	while (ao_i2c_state[index] == I2C_IDLE)
 		if (ao_sleep(&ao_i2c_state[index]))
 			break;
@@ -192,6 +193,19 @@ ao_i2c_wait_stop(uint8_t index)
 	ao_i2c_state[index] = I2C_IDLE;
 }
 
+static void
+ao_i2c_wait_addr(uint8_t index)
+{
+	struct stm_i2c	*stm_i2c = ao_i2c_stm_info[index].stm_i2c;
+	int	t;
+
+	for (t = 0; t < I2C_TIMEOUT; t++)
+		if (!(stm_i2c->sr1 & (1 << STM_I2C_SR1_ADDR)))
+			break;
+	if (t)
+		printf ("wait_addr %d\n", t);
+}
+
 uint8_t
 ao_i2c_send(void *block, uint16_t len, uint8_t index, uint8_t stop)
 {
@@ -199,9 +213,11 @@ ao_i2c_send(void *block, uint16_t len, uint8_t index, uint8_t stop)
 	uint8_t		*b = block;
 	uint32_t	sr1;
 	uint8_t		tx_dma_index = ao_i2c_stm_info[index].tx_dma_index;
+	int		t;
 
 	/* Clear any pending ADDR bit */
 	(void) stm_i2c->sr2;
+	ao_i2c_wait_addr(index);
 	stm_i2c->cr2 = AO_STM_I2C_CR2 | (1 << STM_I2C_CR2_DMAEN);
 	ao_dma_set_transfer(tx_dma_index,
 			    &stm_i2c->dr,
@@ -272,6 +288,7 @@ ao_i2c_recv(void *block, uint16_t len, uint8_t index, uint8_t stop)
 
 		/* Clear any pending ADDR bit */
 		stm_i2c->sr2;
+		ao_i2c_wait_addr(index);
 
 		/* Enable interrupts to transfer the byte */
 		stm_i2c->cr2 = (AO_STM_I2C_CR2 |
@@ -308,6 +325,7 @@ ao_i2c_recv(void *block, uint16_t len, uint8_t index, uint8_t stop)
 			(1 << STM_I2C_CR2_DMAEN) | (1 << STM_I2C_CR2_LAST);
 		/* Clear any pending ADDR bit */
 		(void) stm_i2c->sr2;
+		ao_i2c_wait_addr(index);
 
 		ao_dma_start(rx_dma_index);
 		ao_alarm(len);
@@ -346,10 +364,11 @@ ao_i2c_channel_init(uint8_t index)
 	stm_i2c->sr1 = 0;
 	stm_i2c->sr2 = 0;
 
-	stm_i2c->ccr = ((1 << STM_I2C_CCR_FS) |
+	stm_i2c->ccr = ((0 << STM_I2C_CCR_FS) |
 			(0 << STM_I2C_CCR_DUTY) |
-			(20 << STM_I2C_CCR_CCR));
-	
+			(80 << STM_I2C_CCR_CCR));
+
+	stm_i2c->trise = 17;
 
 	stm_i2c->cr1 = AO_STM_I2C_CR1;
 }
