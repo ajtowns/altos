@@ -87,7 +87,7 @@ void
 ao_timer_init(void)
 {
 	stm_nvic_set_enable(STM_ISR_TIM6_POS);
-	stm_nvic_set_priority(STM_ISR_TIM6_POS, 1);
+	stm_nvic_set_priority(STM_ISR_TIM6_POS, AO_STM_NVIC_CLOCK_PRIORITY);
 
 	/* Turn on timer 6 */
 	stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_TIM6EN);

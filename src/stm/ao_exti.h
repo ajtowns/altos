@@ -22,6 +22,9 @@
 #define AO_EXTI_MODE_FALLING	2
 #define AO_EXTI_MODE_PULL_UP	4
 #define AO_EXTI_MODE_PULL_DOWN	8
+#define AO_EXTI_PRIORITY_LOW	16
+#define AO_EXTI_PRIORITY_MED	0
+#define AO_EXTI_PRIORITY_HIGH	32
 
 void
 ao_exti_setup(struct stm_gpio *gpio, uint8_t pin, uint8_t mode, void (*callback)());

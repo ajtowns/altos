@@ -26,11 +26,28 @@
 
 extern const uint8_t ao_fec_whiten_table[];
 
+#if AO_FEC_DEBUG
 void
-ao_fec_dump_bytes(uint8_t *bytes, uint16_t len, char *name);
+ao_fec_dump_bytes(const uint8_t *bytes, uint16_t len, const char *name);
+#endif
+
+static uint16_t inline
+ao_fec_crc_byte(uint8_t byte, uint16_t crc)
+{
+	uint8_t	bit;
+
+	for (bit = 0; bit < 8; bit++) {
+		if (((crc & 0x8000) >> 8) ^ (byte & 0x80))
+			crc = (crc << 1) ^ 0x8005;
+		else
+			crc = (crc << 1);
+		byte <<= 1;
+	}
+	return crc;
+}
 
 uint16_t
-ao_fec_crc(uint8_t *bytes, uint8_t len);
+ao_fec_crc(const uint8_t *bytes, uint8_t len);
 
 /*
  * 'len' is the length of the original data; 'bytes'
@@ -38,38 +55,23 @@ ao_fec_crc(uint8_t *bytes, uint8_t len);
  * two after 'len' must be the received crc
  */
 uint8_t
-ao_fec_check_crc(uint8_t *bytes, uint8_t len);
+ao_fec_check_crc(const uint8_t *bytes, uint8_t len);
 
 /*
- * Append CRC and terminator bytes, returns resulting length.
- * 'out' must be at least len + AO_FEC_PREPARE_EXTRA bytes long
+ * Compute CRC, whiten, convolve and interleave data. 'out' must be (len + 4) * 2 bytes long
  */
 uint8_t
-ao_fec_prepare(uint8_t *in, uint8_t len, uint8_t *out);
-
-/*
- * Whiten data using the cc1111 PN9 sequence. 'out'
- * must be 'len' bytes long. 'out' and 'in' can be
- * the same array
- */
-void
-ao_fec_whiten(uint8_t *in, uint8_t len, uint8_t *out);
-
-/*
- * Encode and interleave data. 'out' must be len*2 bytes long
- */
-uint8_t
-ao_fec_encode(uint8_t *in, uint8_t len, uint8_t *out);
+ao_fec_encode(const uint8_t *in, uint8_t len, uint8_t *out);
 
 /*
  * Decode data. 'in' is one byte per bit, soft decision
  * 'out' must be len/8 bytes long
  */
 
-#define AO_FEC_DECODE_BLOCK	(8 * 32)	/* callback must return multiples of this many bits */
+#define AO_FEC_DECODE_BLOCK	(32)	/* callback must return multiples of this many bits */
 
 uint8_t
-ao_fec_decode(uint8_t *in, uint16_t in_len, uint8_t *out, uint8_t out_len, uint16_t (*callback)());
+ao_fec_decode(const uint8_t *in, uint16_t in_len, uint8_t *out, uint8_t out_len, uint16_t (*callback)());
 
 /*
  * Interleave data packed in bytes. 'out' must be 'len' bytes long.

@@ -18,8 +18,9 @@
 #include <ao_fec.h>
 #include <stdio.h>
 
+#if AO_FEC_DEBUG
 void
-ao_fec_dump_bytes(uint8_t *bytes, uint16_t len, char *name)
+ao_fec_dump_bytes(const uint8_t *bytes, uint16_t len, const char *name)
 {
 	uint16_t	i;
 
@@ -31,29 +32,15 @@ ao_fec_dump_bytes(uint8_t *bytes, uint16_t len, char *name)
 	}
 	printf ("\n");
 }
-
-static uint16_t inline
-crc_byte(uint8_t byte, uint16_t crc)
-{
-	uint8_t	bit;
-
-	for (bit = 0; bit < 8; bit++) {
-		if (((crc & 0x8000) >> 8) ^ (byte & 0x80))
-			crc = (crc << 1) ^ 0x8005;
-		else
-			crc = (crc << 1);
-		byte <<= 1;
-	}
-	return crc;
-}
+#endif
 
 uint16_t
-ao_fec_crc(uint8_t *bytes, uint8_t len)
+ao_fec_crc(const uint8_t *bytes, uint8_t len)
 {
 	uint16_t	crc = AO_FEC_CRC_INIT;
 
 	while (len--)
-		crc = crc_byte(*bytes++, crc);
+		crc = ao_fec_crc_byte(*bytes++, crc);
 	return crc;
 }
 
@@ -63,7 +50,7 @@ ao_fec_crc(uint8_t *bytes, uint8_t len)
  */
 
 uint8_t
-ao_fec_check_crc(uint8_t *bytes, uint8_t len)
+ao_fec_check_crc(const uint8_t *bytes, uint8_t len)
 {
 	uint16_t	computed_crc = ao_fec_crc(bytes, len);
 	uint16_t	received_crc = (bytes[len] << 8) | (bytes[len+1]);
@@ -71,8 +58,11 @@ ao_fec_check_crc(uint8_t *bytes, uint8_t len)
 	return computed_crc == received_crc;
 }
 
-uint8_t
-ao_fec_prepare(uint8_t *in, uint8_t len, uint8_t *extra)
+/*
+ * Compute CRC and trellis-terminator/interleave-pad bytes
+ */
+static uint8_t
+ao_fec_prepare(const uint8_t *in, uint8_t len, uint8_t *extra)
 {
 	uint16_t	crc = ao_fec_crc (in, len);
 	uint8_t		i = 0;
@@ -93,40 +83,6 @@ const uint8_t ao_fec_whiten_table[] = {
 #include "ao_whiten.h"
 };
 
-#if 0
-void
-ao_fec_whiten(uint8_t *in, uint8_t len, uint8_t *out)
-{
-	const uint8_t	*w = ao_fec_whiten_table;
-
-	while (len--)
-		*out++ = *in++ ^ *w++;
-}
-
-/*
- * Unused as interleaving is now built in to ao_fec_encode
- */
-
-static void
-ao_fec_interleave(uint8_t *d, uint8_t len)
-{
-	uint8_t	i, j;
-
-	for (i = 0; i < len; i += 4) {
-		uint32_t	interleaved = 0;
-
-		for (j = 0; j < 4 * 4; j++) {
-			interleaved <<= 2;
-			interleaved |= (d[i + (~j & 0x3)] >> (2 * ((j & 0xc) >> 2))) & 0x03;
-		}
-		d[i+0] = interleaved >> 24;
-		d[i+1] = interleaved >> 16;
-		d[i+2] = interleaved >> 8;
-		d[i+3] = interleaved;
-	}
-}
-#endif
-
 static const uint8_t ao_fec_encode_table[16] = {
 /* next 0  1	  state */
 	0, 3,	/* 000 */
@@ -140,7 +96,7 @@ static const uint8_t ao_fec_encode_table[16] = {
 };
 
 uint8_t
-ao_fec_encode(uint8_t *in, uint8_t len, uint8_t *out)
+ao_fec_encode(const uint8_t *in, uint8_t len, uint8_t *out)
 {
 	uint8_t		extra[AO_FEC_PREPARE_EXTRA];
 	uint8_t 	extra_len;

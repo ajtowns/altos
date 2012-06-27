@@ -74,6 +74,12 @@ gaussian_random(double mean, double dev)
 #define DECODE_LEN(input_len)		((input_len) + AO_FEC_PREPARE_EXTRA)
 #define EXPAND_LEN(input_len)		(ENCODE_LEN(input_len) * 8)
 
+static uint8_t ao_bit(uint8_t b) {
+	if (b)
+		return 0x00;
+	return 0xff;
+}
+
 static int
 ao_expand(uint8_t *bits, int bits_len, uint8_t *bytes)
 {
@@ -83,7 +89,7 @@ ao_expand(uint8_t *bits, int bits_len, uint8_t *bytes)
 	for (i = 0; i < bits_len; i++) {
 		b = bits[i];
 		for (bit = 7; bit >= 0; bit--)
-			*bytes++ = ((b >> bit) & 1) * 0xff;
+			*bytes++ = ao_bit ((b >> bit) & 1);
 	}
 
 	return bits_len * 8;
@@ -127,7 +133,7 @@ ao_random_data(uint8_t	*out, uint8_t out_len)
 
 
 static uint8_t real_packet[] = {
- 0x00, 0x40, 0x38, 0xcd, 0x38, 0x3d, 0x34, 0xca, 0x31, 0xc3, 0xc1, 0xc6, 0x35, 0xcc, 0x3a, 0x3c,
+ 0x40, 0x38, 0xcd, 0x38, 0x3d, 0x34, 0xca, 0x31, 0xc3, 0xc1, 0xc6, 0x35, 0xcc, 0x3a, 0x3c,
  0x3c, 0x3d, 0x3c, 0x37, 0xc5, 0xc1, 0xc0, 0xc1, 0xc1, 0xc3, 0xc0, 0xc1, 0xc6, 0x38, 0x3b, 0xc6,
  0xc0, 0xc6, 0x32, 0xc9, 0xc9, 0x34, 0xcf, 0x35, 0xcf, 0x3a, 0x3b, 0xc6, 0xc7, 0x35, 0xcf, 0x36,
  0xce, 0x37, 0xc8, 0xc8, 0x3a, 0x3c, 0xc9, 0xc8, 0x3a, 0x3c, 0xcc, 0x32, 0xcd, 0x32, 0xce, 0x32,
@@ -258,22 +264,24 @@ static uint8_t real_packet[] = {
 };
 
 
-void
+int
 ao_real_packet(void)
 {
 	uint8_t	decode[64];
 	uint8_t	decode_len;
-	int off;
+	int ok = 0;
 
-	for (off = 0; off < sizeof (real_packet) - 576;  off++) {
-		decode_len = ao_fec_decode(real_packet+off, 576, decode, 34, NULL);
+	decode_len = ao_fec_decode(real_packet, 576, decode, 34, NULL);
 
-		if (ao_fec_check_crc(decode, 32)) {
-			printf ("match at %d\n", off);
+	if (decode[32] == 0 && decode[33] == 0) {
+		printf ("match\n");
 
-			ao_fec_dump_bytes(decode, decode_len, "Decode");
-		}
+		ao_fec_dump_bytes(decode, decode_len, "Decode");
+		ok = 1;
+	} else {
+		printf ("actual packet crc error\n");
 	}
+	return ok;
 }
 
 int
@@ -299,9 +307,11 @@ main(int argc, char **argv)
 	int		errors = 0;
 	int		error;
 
-	ao_real_packet(); exit(0);
+	if (!ao_real_packet())
+		errors++;
+
 	srandom(0);
-	for (trial = 0; trial < 10000; trial++) {
+	for (trial = 0; trial < 100000; trial++) {
 
 		/* Compute some random data */
 		original_len = ao_random_data(original, sizeof(original));
@@ -313,7 +323,7 @@ main(int argc, char **argv)
 		transmit_len = ao_expand(encode, encode_len, transmit);
 
 		/* Add gaussian noise to the signal */
-		receive_errors = ao_fuzz(transmit, transmit_len, receive, 0x30);
+		receive_errors = ao_fuzz(transmit, transmit_len, receive, 0x38);
 		receive_len = transmit_len;
 		
 		/* Decode it */
@@ -327,7 +337,7 @@ main(int argc, char **argv)
 			error++;
 		}
 
-		if (!ao_fec_check_crc(decode, original_len)) {
+		if (decode[original_len] != 0 || decode[original_len+1] != 0) {
 			printf ("crc mis-match\n");
 			error++;
 		}
@@ -343,6 +353,7 @@ main(int argc, char **argv)
 			errors += error;
 		}
 	}
+	printf ("%d packets coded\n", trial);
 	return errors;
 }
 

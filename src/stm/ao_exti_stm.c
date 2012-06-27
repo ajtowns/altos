@@ -20,37 +20,50 @@
 
 static void	(*ao_exti_callback[16])(void);
 
-static void
-ao_exti_isr(void) {
-	uint32_t	pending = stm_exti.pr;
-	uint8_t		pin;
+uint32_t	ao_last_exti;
 
-	/* Clear pending interrupts */
+static void ao_exti_one_isr(uint8_t pin) {
+	uint32_t	pending = (ao_last_exti = stm_exti.pr) & (1 << pin);
+
 	stm_exti.pr = pending;
-	for (pin = 0; pin < 16 && pending; pin++) {
-		uint32_t	mask = (1 << pin);
-
-		if (pending & mask) {
-			pending &= ~mask;
-			if (ao_exti_callback[pin])
-				(*ao_exti_callback[pin])();
-		}
-	}
+	if (pending && ao_exti_callback[pin])
+		(*ao_exti_callback[pin])();
 }
 
-void stm_exti0_isr(void) { ao_exti_isr(); }
-void stm_exti1_isr(void) { ao_exti_isr(); }
-void stm_exti2_isr(void) { ao_exti_isr(); }
-void stm_exti3_isr(void) { ao_exti_isr(); }
-void stm_exti4_isr(void) { ao_exti_isr(); }
-void stm_exti9_5_isr(void) { ao_exti_isr(); }
-void stm_exti15_10_isr(void) { ao_exti_isr(); }
+static void ao_exti_range_isr(uint8_t first, uint8_t last, uint16_t mask) {
+	uint16_t	pending = (ao_last_exti = stm_exti.pr) & mask;
+	uint8_t		pin;
+	static uint16_t	last_mask;
+	static uint8_t	last_pin;
+
+	if (pending == last_mask) {
+		stm_exti.pr = last_mask;
+		(*ao_exti_callback[last_pin])();
+		return;
+	}
+	stm_exti.pr = pending;
+	for (pin = first; pin <= last; pin++)
+		if ((pending & ((uint32_t) 1 << pin)) && ao_exti_callback[pin]) {
+			last_mask = (1 << pin);
+			last_pin = pin;
+			(*ao_exti_callback[pin])();
+		}
+}
+
+void stm_exti0_isr(void) { ao_exti_one_isr(0); }
+void stm_exti1_isr(void) { ao_exti_one_isr(1); }
+void stm_exti2_isr(void) { ao_exti_one_isr(2); }
+void stm_exti3_isr(void) { ao_exti_one_isr(3); }
+void stm_exti4_isr(void) { ao_exti_one_isr(4); }
+void stm_exti9_5_isr(void) { ao_exti_range_isr(5, 9, 0x3e0); }
+void stm_exti15_10_isr(void) { ao_exti_range_isr(10, 15, 0xfc00); }
 
 void
 ao_exti_setup (struct stm_gpio *gpio, uint8_t pin, uint8_t mode, void (*callback)(void)) {
 	uint32_t	mask = 1 << pin;
 	uint32_t	pupdr;
 	uint8_t		irq;
+	uint8_t		prio;
 
 	ao_exti_callback[pin] = callback;
 
@@ -90,7 +103,15 @@ ao_exti_setup (struct stm_gpio *gpio, uint8_t pin, uint8_t mode, void (*callback
 		irq = STM_ISR_EXTI9_5_POS;
 	else
 		irq = STM_ISR_EXTI15_10_POS;
-	stm_nvic_set_priority(irq, 10);
+
+	/* Set priority */
+	prio = AO_STM_NVIC_MED_PRIORITY;
+	if (mode & AO_EXTI_PRIORITY_LOW)
+		prio = AO_STM_NVIC_LOW_PRIORITY;
+	else if (mode & AO_EXTI_PRIORITY_HIGH)
+		prio = AO_STM_NVIC_HIGH_PRIORITY;
+
+	stm_nvic_set_priority(irq, prio);
 	stm_nvic_set_enable(irq);
 }
 
@@ -116,10 +137,10 @@ ao_exti_disable(struct stm_gpio *gpio, uint8_t pin) {
 void
 ao_exti_init(void)
 {
-	stm_nvic_set_priority(STM_ISR_EXTI1_POS, 10);
-	stm_nvic_set_priority(STM_ISR_EXTI2_POS, 10);
-	stm_nvic_set_priority(STM_ISR_EXTI3_POS, 10);
-	stm_nvic_set_priority(STM_ISR_EXTI4_POS, 10);
-	stm_nvic_set_priority(STM_ISR_EXTI9_5_POS, 10);
-	stm_nvic_set_priority(STM_ISR_EXTI15_10_POS, 10);
+	stm_nvic_set_priority(STM_ISR_EXTI1_POS, AO_STM_NVIC_MED_PRIORITY);
+	stm_nvic_set_priority(STM_ISR_EXTI2_POS, AO_STM_NVIC_MED_PRIORITY);
+	stm_nvic_set_priority(STM_ISR_EXTI3_POS, AO_STM_NVIC_MED_PRIORITY);
+	stm_nvic_set_priority(STM_ISR_EXTI4_POS, AO_STM_NVIC_MED_PRIORITY);
+	stm_nvic_set_priority(STM_ISR_EXTI9_5_POS, AO_STM_NVIC_MED_PRIORITY);
+	stm_nvic_set_priority(STM_ISR_EXTI15_10_POS, AO_STM_NVIC_MED_PRIORITY);
 }

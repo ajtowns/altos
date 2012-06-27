@@ -25,7 +25,7 @@
  * STM32L definitions and code fragments for AltOS
  */
 
-#define AO_STACK_SIZE	1024
+#define AO_STACK_SIZE	512
 
 #define AO_LED_TYPE	uint16_t
 
@@ -111,14 +111,22 @@ extern const uint16_t ao_serial_number;
 		uint32_t	*sp;					\
 		asm("mov %0,sp" : "=&r" (sp) );				\
 		ao_cur_task->sp = (sp);					\
-		if ((uint8_t *) sp < ao_cur_task->stack)		\
+		if ((uint8_t *) sp < &ao_cur_task->stack[0])		\
 			ao_panic (AO_PANIC_STACK);			\
 	} while (0)
 
-#define ao_arch_isr_stack()	/* nothing */
+#if 0
+#define ao_arch_isr_stack() do {				\
+		uint32_t	*sp = (uint32_t *) 0x20004000;	\
+		asm("mov %0,sp" : "=&r" (sp) );			\
+	} while (0)
+#else
+#define ao_arch_isr_stack()
+#endif
+
 
 #define ao_arch_cpu_idle() do {			\
-		asm("wfi");			\
+		asm("wfi");		\
 	} while (0)
 
 #define ao_arch_restore_stack() do { \
@@ -173,6 +181,11 @@ extern const uint16_t ao_serial_number;
 #define AO_TIM91011_CLK		(2 * AO_PCLK2)
 #endif
 
+#define AO_STM_NVIC_HIGH_PRIORITY	4
+#define AO_STM_NVIC_CLOCK_PRIORITY	6
+#define AO_STM_NVIC_MED_PRIORITY	8
+#define AO_STM_NVIC_LOW_PRIORITY	10
+
 void ao_lcd_stm_init(void);
 
 void ao_lcd_font_init(void);
@@ -215,7 +228,7 @@ ao_serial3_pollchar(void);
 void
 ao_serial3_set_speed(uint8_t speed);
 
-extern uint32_t	ao_radio_cal;
+extern const uint32_t	ao_radio_cal;
 
 void
 ao_adc_init();

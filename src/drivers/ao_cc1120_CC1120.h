@@ -26,7 +26,9 @@
         CC1120_SYNC1,                          0xD3,       /* Sync Word Configuration [15:8] */
         CC1120_SYNC0,                          0x91,       /* Sync Word Configuration [7:0] */
 
-        CC1120_SYNC_CFG1,                      0x08,       /* Sync Word Detection Configuration */
+        CC1120_SYNC_CFG1,				   /* Sync Word Detection Configuration */
+		(CC1120_SYNC_CFG1_DEM_CFG_PQT_GATING_ENABLED << CC1120_SYNC_CFG1_DEM_CFG) |
+		(0x07 << CC1120_SYNC_CFG1_SYNC_THR),
         CC1120_SYNC_CFG0,
 		(CC1120_SYNC_CFG0_SYNC_MODE_16_BITS << CC1120_SYNC_CFG0_SYNC_MODE) |
 		(CC1120_SYNC_CFG0_SYNC_NUM_ERROR_2 << CC1120_SYNC_CFG0_SYNC_NUM_ERROR),
@@ -34,12 +36,21 @@
         CC1120_PREAMBLE_CFG1,                         	   /* Preamble Length Configuration */
 		(CC1120_PREAMBLE_CFG1_NUM_PREAMBLE_4_BYTES << CC1120_PREAMBLE_CFG1_NUM_PREAMBLE) |
 		(CC1120_PREAMBLE_CFG1_PREAMBLE_WORD_AA << CC1120_PREAMBLE_CFG1_PREAMBLE_WORD),
-        CC1120_PREAMBLE_CFG0,                  0x2a,       /*  */
+        CC1120_PREAMBLE_CFG0,
+		(1 << CC1120_PREAMBLE_CFG0_PQT_EN) |
+		(0x6 << CC1120_PREAMBLE_CFG0_PQT),
         CC1120_FREQ_IF_CFG,                    0x40,       /* RX Mixer Frequency Configuration */
         CC1120_IQIC,                           0x46,       /* Digital Image Channel Compensation Configuration */
         CC1120_CHAN_BW,                        0x02,       /* Channel Filter Configuration */
 
-        CC1120_MDMCFG1,                        0x46,       /* General Modem Parameter Configuration */
+        CC1120_MDMCFG1,                     		   /* General Modem Parameter Configuration */
+		(0 << CC1120_MDMCFG1_CARRIER_SENSE_GATE) |
+		(1 << CC1120_MDMCFG1_FIFO_EN) |
+		(0 << CC1120_MDMCFG1_MANCHESTER_EN) |
+		(0 << CC1120_MDMCFG1_INVERT_DATA_EN) |
+		(0 << CC1120_MDMCFG1_COLLISION_DETECT_EN) |
+		(CC1120_MDMCFG1_DVGA_GAIN_9 << CC1120_MDMCFG1_DVGA_GAIN) |
+		(0 << CC1120_MDMCFG1_SINGLE_ADC_EN),
         CC1120_MDMCFG0,                        0x05,       /* General Modem Parameter Configuration */
 
         CC1120_AGC_REF,                        0x20,       /* AGC Reference Level Configuration */
@@ -49,7 +60,9 @@
         CC1120_AGC_CFG2,                       0x20,       /* AGC Configuration */
         CC1120_AGC_CFG1,                       0xa9,       /* AGC Configuration */
         CC1120_AGC_CFG0,                       0xcf,       /* AGC Configuration */
-        CC1120_FIFO_CFG,                       0x00,       /* FIFO Configuration */
+        CC1120_FIFO_CFG,		       		   /* FIFO Configuration */
+		(0 << CC1120_FIFO_CFG_CRC_AUTOFLUSH) |
+		(0x40 << CC1120_FIFO_CFG_FIFO_THR),
         CC1120_DEV_ADDR,                       0x00,       /* Device Address Configuration */
         CC1120_SETTLING_CFG,                          	   /* Frequency Synthesizer Calibration and Settling Configuration */
 		(CC1120_SETTLING_CFG_FS_AUTOCAL_IDLE_TO_ON << CC1120_SETTLING_CFG_FS_AUTOCAL) |
@@ -65,12 +78,12 @@
 #if 0
         CC1120_PKT_CFG2,                       0x04,       /* Packet Configuration, Reg 2 */
         CC1120_PKT_CFG1,                       0x45,       /* Packet Configuration, Reg 1 */
-#endif
         CC1120_PKT_CFG0,                       0x00,       /* Packet Configuration, Reg 0 */
+#endif
         CC1120_RFEND_CFG1,                     0x0f,       /* RFEND Configuration, Reg 1 */
         CC1120_RFEND_CFG0,                     0x00,       /* RFEND Configuration, Reg 0 */
 	//        CC1120_PA_CFG2,                        0x3f,       /* Power Amplifier Configuration, Reg 2 */
-	CC1120_PA_CFG2,                        0x23,       /* Power Amplifier Configuration, Reg 2 */
+	CC1120_PA_CFG2,                        0x04,       /* Power Amplifier Configuration, Reg 2 */
         CC1120_PA_CFG1,                        0x56,       /* Power Amplifier Configuration, Reg 1 */
         CC1120_PA_CFG0,                        0x7b,       /* Power Amplifier Configuration, Reg 0 */
         CC1120_PKT_LEN,                        0xff,       /* Packet Length Configuration */
@@ -80,7 +93,7 @@
         CC1120_MARC_SPARE,                     0x00,       /* MARC Spare */
         CC1120_ECG_CFG,                        0x00,       /* External Clock Frequency Configuration */
         CC1120_SOFT_TX_DATA_CFG,               0x00,       /* Soft TX Data Configuration */
-        CC1120_EXT_CTRL,                       0x01,       /* External Control Configuration */
+        CC1120_EXT_CTRL,                       0x00,       /* External Control Configuration */
         CC1120_RCCAL_FINE,                     0x00,       /* RC Oscillator Calibration (fine) */
         CC1120_RCCAL_COARSE,                   0x00,       /* RC Oscillator Calibration (coarse) */
         CC1120_RCCAL_OFFSET,                   0x00,       /* RC Oscillator Calibration Clock Offset */
