@@ -99,7 +99,18 @@ static __xdata uint8_t ao_m25_mutex;
 
 static __xdata uint8_t	ao_m25_instruction[4];
 
-#define M25_SELECT(cs)		ao_spi_get_mask(AO_M25_SPI_CS_PORT,cs,AO_M25_SPI_BUS)
+#if HAS_BOOT_RADIO
+extern uint8_t ao_radio_in_recv;
+
+static void ao_boot_radio(void) {
+	if (ao_radio_in_recv)
+		ao_radio_recv_abort();
+}
+#else
+#define ao_boot_radio()
+#endif
+
+#define M25_SELECT(cs)		do { ao_boot_radio(); ao_spi_get_mask(AO_M25_SPI_CS_PORT,cs,AO_M25_SPI_BUS); } while (0)
 #define M25_DESELECT(cs)	ao_spi_put_mask(AO_M25_SPI_CS_PORT,cs,AO_M25_SPI_BUS)
 
 #define M25_BLOCK_SHIFT			16
