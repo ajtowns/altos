@@ -505,15 +505,7 @@ void
 ao_radio_general_isr(void) ao_arch_interrupt(16);
 
 void
-ao_radio_get(uint8_t len);
-
-#define ao_radio_put() ao_mutex_put(&ao_radio_mutex)
-
-void
-ao_radio_set_packet(void);
-
-void
-ao_radio_send(__xdata void *d, uint8_t size) __reentrant;
+ao_radio_send(const __xdata void *d, uint8_t size) __reentrant;
 
 uint8_t
 ao_radio_recv(__xdata void *d, uint8_t size) __reentrant;
@@ -536,9 +528,6 @@ ao_radio_rdf(uint8_t pkt_len);
 
 void
 ao_radio_rdf_abort(void);
-
-void
-ao_radio_idle(void);
 
 void
 ao_radio_init(void);

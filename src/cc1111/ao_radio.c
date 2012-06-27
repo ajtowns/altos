@@ -260,7 +260,7 @@ ao_radio_general_isr(void) __interrupt 16
 	}
 }
 
-void
+static void
 ao_radio_set_packet(void)
 {
 	uint8_t	i;
@@ -268,7 +268,7 @@ ao_radio_set_packet(void)
 		RF[fixed_pkt_setup[i]] = fixed_pkt_setup[i+1];
 }
 
-void
+static void
 ao_radio_idle(void)
 {
 	if (RF_MARCSTATE != RF_MARCSTATE_IDLE)
@@ -280,7 +280,9 @@ ao_radio_idle(void)
 	}
 }
 
-void
+#define ao_radio_put() ao_mutex_put(&ao_radio_mutex)
+
+static void
 ao_radio_get(uint8_t len)
 {
 	ao_config_get();
