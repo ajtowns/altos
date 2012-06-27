@@ -166,6 +166,15 @@ public abstract class AltosLink {
 			set_channel(AltosConvert.radio_frequency_to_channel(frequency));
 	}
 
+	public void set_radio_frequency(double in_frequency) throws InterruptedException, TimeoutException {
+		frequency = in_frequency;
+		config_data();
+		set_radio_frequency(frequency,
+				    config_data.radio_frequency != 0,
+				    config_data.radio_setting != 0,
+				    config_data.radio_calibration);
+	}
+
 	public void set_telemetry(int in_telemetry) {
 		telemetry = in_telemetry;
 		if (monitor_mode)
@@ -200,29 +209,10 @@ public abstract class AltosLink {
 		flush_output();
 	}
 
-	public void set_radio_frequency(double frequency,
-					boolean has_setting,
-					int cal) {
-		if (debug)
-			System.out.printf("set_radio_frequency %7.3f %b %d\n", frequency, has_setting, cal);
-		if (has_setting)
-			set_radio_setting(AltosConvert.radio_frequency_to_setting(frequency, cal));
-		else
-			set_channel(AltosConvert.radio_frequency_to_channel(frequency));
-	}
-
 	public AltosConfigData config_data() throws InterruptedException, TimeoutException {
 		if (config_data == null)
 			config_data = new AltosConfigData(this);
 		return config_data;
-	}
-
-	public void set_radio_frequency(double in_frequency) throws InterruptedException, TimeoutException {
-		frequency = in_frequency;
-		config_data();
-		set_radio_frequency(frequency,
-				    config_data.radio_setting != 0,
-				    config_data.radio_calibration);
 	}
 
 	public void set_callsign(String callsign) {
