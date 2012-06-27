@@ -1255,7 +1255,7 @@ extern struct stm_i2c stm_i2c1, stm_i2c2;
 #define  STM_I2C_CR2_FREQ_8_MHZ		8
 #define  STM_I2C_CR2_FREQ_16_MHZ	16
 #define  STM_I2C_CR2_FREQ_32_MHZ	32
-#define  STM_I2C_CR2_FREQ_MASK		0x3f;
+#define  STM_I2C_CR2_FREQ_MASK		0x3f
 
 #define STM_I2C_SR1_SMBALERT	15
 #define STM_I2C_SR1_TIMEOUT	14
