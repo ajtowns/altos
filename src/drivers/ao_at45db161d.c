@@ -43,7 +43,7 @@ __xdata uint8_t ao_flash_mutex;
 	_asm nop _endasm; \
 } while(0)
 
-#define ao_flash_cs_low()	ao_spi_get_bit(FLASH_CS_PORT, FLASH_CS_PIN, FLASH_CS, AO_FLASH_SPI_BUS)
+#define ao_flash_cs_low()	ao_spi_get_bit(FLASH_CS_PORT, FLASH_CS_PIN, FLASH_CS, AO_FLASH_SPI_BUS, AO_SPI_SPEED_FAST)
 
 #define ao_flash_cs_high()	ao_spi_put_bit(FLASH_CS_PORT, FLASH_CS_PIN, FLASH_CS, AO_FLASH_SPI_BUS)
 

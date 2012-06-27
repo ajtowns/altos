@@ -24,7 +24,7 @@ static uint8_t	  		ms5607_configured;
 
 static void
 ao_ms5607_start(void) {
-	ao_spi_get(AO_MS5607_SPI_INDEX);
+	ao_spi_get(AO_MS5607_SPI_INDEX,AO_SPI_SPEED_FAST);
 	stm_gpio_set(AO_MS5607_CS_GPIO, AO_MS5607_CS, 0);
 }
 

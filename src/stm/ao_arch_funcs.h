@@ -22,8 +22,12 @@
  */
 extern uint8_t	ao_spi_mutex[STM_NUM_SPI];
 
+#define AO_SPI_SPEED_FAST	STM_SPI_CR1_BR_PCLK_4
+#define AO_SPI_SPEED_1MHz	STM_SPI_CR1_BR_PCLK_16
+#define AO_SPI_SPEED_200kHz	STM_SPI_CR1_BR_PCLK_256
+
 void
-ao_spi_get(uint8_t spi_index);
+ao_spi_get(uint8_t spi_index, uint32_t speed);
 
 void
 ao_spi_put(uint8_t spi_index);
@@ -40,20 +44,13 @@ ao_spi_recv(void *block, uint16_t len, uint8_t spi_index);
 void
 ao_spi_duplex(void *out, void *in, uint16_t len, uint8_t spi_index);
 
-#define AO_SPI_SPEED_FAST	STM_SPI_CR1_BR_PCLK_16
-#define AO_SPI_SPEED_200kHz	STM_SPI_CR1_BR_PCLK_256
-
 extern uint16_t	ao_spi_speed[STM_NUM_SPI];
-
-#define ao_spi_slow(bus)	(ao_spi_speed[bus] = AO_SPI_SPEED_200kHz)
-
-#define ao_spi_fast(bus)	(ao_spi_speed[bus] = AO_SPI_SPEED_FAST)
 
 void
 ao_spi_init(void);
 
-#define ao_spi_get_mask(reg,mask,bus) do {		\
-		ao_spi_get(bus);			\
+#define ao_spi_get_mask(reg,mask,bus, speed) do {		\
+		ao_spi_get(bus, speed);				\
 		(reg)->bsrr = ((uint32_t) mask) << 16;	\
 	} while (0)
 
@@ -62,7 +59,7 @@ ao_spi_init(void);
 		ao_spi_put(bus);		\
 	} while (0)
 
-#define ao_spi_get_bit(reg,bit,pin,bus) ao_spi_get_mask(reg,(1<<bit),bus)
+#define ao_spi_get_bit(reg,bit,pin,bus,speed) ao_spi_get_mask(reg,(1<<bit),bus,speed)
 #define ao_spi_put_bit(reg,bit,pin,bus) ao_spi_put_mask(reg,(1<<bit),bus)
 
 #define ao_enable_port(port) do {					\

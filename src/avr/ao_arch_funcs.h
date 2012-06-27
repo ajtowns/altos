@@ -21,7 +21,7 @@
 
 extern __xdata uint8_t	ao_spi_mutex;
 
-#define ao_spi_get_mask(reg,mask,bus) do {	\
+#define ao_spi_get_mask(reg,mask,bus,speed) do {	\
 		ao_mutex_get(&ao_spi_mutex);	\
 		(reg) &= ~(mask);		\
 	} while (0)
@@ -31,13 +31,13 @@ extern __xdata uint8_t	ao_spi_mutex;
 		ao_mutex_put(&ao_spi_mutex);	\
 	} while (0)
 
-#define ao_spi_get_bit(bit) do {		\
+#define ao_spi_get_bit(reg,bit,pin,bus,speed) do {	\
 		ao_mutex_get(&ao_spi_mutex);	\
-		(bit) = 0;			\
+		(pin) = 0;			\
 	} while (0)
 
-#define ao_spi_put_bit(bit) do {		\
-		(bit) = 1;			\
+#define ao_spi_put_bit(reg,bit,pin,bus) do {	\
+		(pin) = 1;			\
 		ao_mutex_put(&ao_spi_mutex);	\
 	} while (0)
 

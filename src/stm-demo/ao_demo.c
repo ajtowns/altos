@@ -83,7 +83,7 @@ ao_spi_write(void) {
 	int i;
 
 	for (i = 0; i < 10; i++) {
-		ao_spi_get(0);
+		ao_spi_get(0, AO_SPI_SPEED_FAST);
 		stm_gpio_set(&stm_gpioc, 12, 0);
 		ao_spi_send(data, 4, 0);
 		stm_gpio_set(&stm_gpioc, 12, 1);
@@ -100,7 +100,7 @@ ao_spi_read(void) {
 	int i;
 
 	for (i = 0; i < 10; i++) {
-		ao_spi_get(0);
+		ao_spi_get(0, AO_SPI_SPEED_FAST);
 		stm_gpio_set(&stm_gpioc, 12, 0);
 		ao_spi_recv(data, 4, 0);
 		stm_gpio_set(&stm_gpioc, 12, 1);

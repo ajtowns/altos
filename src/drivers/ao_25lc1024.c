@@ -50,7 +50,7 @@ static __xdata uint8_t ao_ee_mutex;
 	_asm nop _endasm; \
 } while(0)
 
-#define ao_ee_cs_low()	ao_spi_get_bit(EE_CS_PORT, EE_CS_PIN, EE_CS, AO_EE_SPI_BUS)
+#define ao_ee_cs_low()	ao_spi_get_bit(EE_CS_PORT, EE_CS_PIN, EE_CS, AO_EE_SPI_BUS, AO_SPI_SPEED_FAST)
 
 #define ao_ee_cs_high()	ao_spi_put_bit(EE_CS_PORT, EE_CS_PIN, EE_CS, AO_EE_SPI_BUS)
 

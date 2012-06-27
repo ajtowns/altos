@@ -24,7 +24,6 @@ struct ao_spi_stm_info {
 };
 
 uint8_t		ao_spi_mutex[STM_NUM_SPI];
-uint16_t	ao_spi_speed[STM_NUM_SPI];
 
 static const struct ao_spi_stm_info ao_spi_stm_info[STM_NUM_SPI] = {
 	{
@@ -268,7 +267,7 @@ ao_spi_duplex(void *out, void *in, uint16_t len, uint8_t spi_index)
 }
 
 void
-ao_spi_get(uint8_t spi_index)
+ao_spi_get(uint8_t spi_index, uint32_t speed)
 {
 	struct stm_spi	*stm_spi = ao_spi_stm_info[spi_index].stm_spi;
 
@@ -283,7 +282,7 @@ ao_spi_get(uint8_t spi_index)
 			(1 << STM_SPI_CR1_SSI) |			/*  ... */
 			(0 << STM_SPI_CR1_LSBFIRST) |			/* Big endian */
 			(1 << STM_SPI_CR1_SPE) |			/* Enable SPI unit */
-			(ao_spi_speed[spi_index] << STM_SPI_CR1_BR) |	/* baud rate to pclk/4 */
+			(speed << STM_SPI_CR1_BR) |	/* baud rate to pclk/4 */
 			(1 << STM_SPI_CR1_MSTR) |
 			(0 << STM_SPI_CR1_CPOL) |			/* Format 0 */
 			(0 << STM_SPI_CR1_CPHA));
@@ -311,7 +310,6 @@ ao_spi_channel_init(uint8_t spi_index)
 			(0 << STM_SPI_CR2_SSOE) |
 			(0 << STM_SPI_CR2_TXDMAEN) |
 			(0 << STM_SPI_CR2_RXDMAEN));
-	ao_spi_speed[spi_index] = AO_SPI_SPEED_FAST;
 }
 
 void

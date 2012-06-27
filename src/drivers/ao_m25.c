@@ -110,7 +110,7 @@ static void ao_boot_radio(void) {
 #define ao_boot_radio()
 #endif
 
-#define M25_SELECT(cs)		do { ao_boot_radio(); ao_spi_get_mask(AO_M25_SPI_CS_PORT,cs,AO_M25_SPI_BUS); } while (0)
+#define M25_SELECT(cs)		do { ao_boot_radio(); ao_spi_get_mask(AO_M25_SPI_CS_PORT,cs,AO_M25_SPI_BUS, AO_SPI_SPEED_FAST); } while (0)
 #define M25_DESELECT(cs)	ao_spi_put_mask(AO_M25_SPI_CS_PORT,cs,AO_M25_SPI_BUS)
 
 #define M25_BLOCK_SHIFT			16
