@@ -19,6 +19,7 @@ INC = \
 	ao_hmc5883.h \
 	ao_mpu6000.h \
 	ao_cc1120_CC1120.h \
+	ao_profile.h \
 	ao_whiten.h \
 	stm32l.h
 
@@ -43,6 +44,8 @@ ALTOS_SRC = \
 	ao_mutex.c \
 	ao_serial_stm.c \
 	ao_gps_skytraq.c \
+	ao_gps_report_mega.c \
+	ao_ignite.c \
 	ao_freq.c \
 	ao_dma_stm.c \
 	ao_spi_stm.c \
@@ -66,7 +69,10 @@ ALTOS_SRC = \
 	ao_sample_mm.c \
 	ao_kalman.c \
 	ao_flight_mm.c \
-	ao_telemetry.c
+	ao_telemetry.c \
+	ao_packet_slave.c \
+	ao_packet.c \
+	ao_companion.c
 
 
 PRODUCT=MegaMetrum-v0.1
