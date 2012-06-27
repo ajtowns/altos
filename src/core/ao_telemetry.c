@@ -333,7 +333,7 @@ ao_telemetry(void)
 void
 ao_telemetry_set_interval(uint16_t interval)
 {
-	uint8_t	cur = 0;
+	int8_t	cur = 0;
 	ao_telemetry_interval = interval;
 	
 #if AO_SEND_MEGA
