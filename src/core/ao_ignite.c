@@ -81,7 +81,9 @@ ao_igniter_status(enum ao_igniter igniter)
 void
 ao_igniter_fire(enum ao_igniter igniter) __critical
 {
+#ifndef MEGAMETRUM
 	ao_mutex_get(&ao_radio_mutex);
+#endif
 	ao_ignition[igniter].firing = 1;
 	switch(ao_config.ignite_mode) {
 	case AO_IGNITE_MODE_DUAL:
@@ -126,7 +128,9 @@ ao_igniter_fire(enum ao_igniter igniter) __critical
 		break;
 	}
 	ao_ignition[igniter].firing = 0;
+#ifndef MEGAMETRUM
 	ao_mutex_put(&ao_radio_mutex);
+#endif
 }
 
 void
