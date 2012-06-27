@@ -87,7 +87,7 @@ ao_flight(void)
 			 *  - pad mode if we're upright,
 			 *  - idle mode otherwise
 			 */
-#if HAS_ACCEL && 0
+#if HAS_ACCEL
 			if (ao_config.accel_plus_g == 0 ||
 			    ao_config.accel_minus_g == 0 ||
 			    ao_ground_accel < ao_config.accel_plus_g - ACCEL_NOSE_UP ||
@@ -105,14 +105,14 @@ ao_flight(void)
 			} else
 #endif
 				if (!ao_flight_force_idle
-#if HAS_ACCEL && 0
+#if HAS_ACCEL
 				    && ao_ground_accel < ao_config.accel_plus_g + ACCEL_NOSE_UP
 #endif
 					)
  			{
 				/* Set pad mode - we can fly! */
 				ao_flight_state = ao_flight_pad;
-#if HAS_USB && HAS_RADIO && 0
+#if HAS_USB && HAS_RADIO
 				/* Disable the USB controller in flight mode
 				 * to save power
 				 */
