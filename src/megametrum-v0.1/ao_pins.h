@@ -271,7 +271,7 @@ struct ao_adc {
  * Radio (cc1120)
  */
 
-#define AO_FEC_DEBUG		1
+#define AO_FEC_DEBUG		0
 #define AO_CC1120_SPI_CS_PORT	(&stm_gpioc)
 #define AO_CC1120_SPI_CS_PIN	5
 #define AO_CC1120_SPI_BUS	STM_SPI_INDEX(2)
