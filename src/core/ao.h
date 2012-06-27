@@ -397,6 +397,16 @@ void
 ao_gps_report_init(void);
 
 /*
+ * ao_gps_report_mega.c
+ */
+
+void
+ao_gps_report_mega(void);
+
+void
+ao_gps_report_mega_init(void);
+
+/*
  * ao_telemetry_orig.c
  */
 
