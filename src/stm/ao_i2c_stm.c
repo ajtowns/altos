@@ -147,47 +147,47 @@ ao_i2c_delay(void)
 
 #define I2C_DEBUG	0
 #if I2C_DEBUG
-#define DBG(x...)	printf(x)
+#define DBG(x...)	do { printf(x); flush(); } while (0)
 #else
-#define DBG(x...)	
+#define DBG(x...)
 #endif
 
 static inline uint32_t in_sr1(char *where, struct stm_i2c *stm_i2c) {
 	uint32_t	sr1 = stm_i2c->sr1;
-	DBG("%s: sr1: %x\n", where, sr1); flush();
+	DBG("%s: sr1: %x\n", where, sr1);
 	return sr1;
 }
 
 static inline uint32_t in_sr2(char *where, struct stm_i2c *stm_i2c) {
 	uint32_t	sr2 = stm_i2c->sr2;
-	DBG("%s: sr2: %x\n", where, sr2); flush();
+	DBG("%s: sr2: %x\n", where, sr2);
 	return sr2;
 }
 
 static inline void out_cr1(char *where, struct stm_i2c *stm_i2c, uint32_t cr1) {
-	DBG("%s: cr1: %x\n", where, cr1); flush();
+	DBG("%s: cr1: %x\n", where, cr1);
 	stm_i2c->cr1 = cr1;
 }
 
 static inline uint32_t in_cr1(char *where, struct stm_i2c *stm_i2c) {
 	uint32_t	cr1 = stm_i2c->cr1;
-	DBG("%s: cr1: %x\n", where, cr1); flush();
+	DBG("%s: cr1: %x\n", where, cr1);
 	return cr1;
 }
 
 static inline void out_cr2(char *where, struct stm_i2c *stm_i2c, uint32_t cr2) {
-	DBG("%s: cr2: %x\n", where, cr2); flush();
+	DBG("%s: cr2: %x\n", where, cr2);
 	stm_i2c->cr2 = cr2;
 }
 
 static inline uint32_t in_dr(char *where, struct stm_i2c *stm_i2c) {
 	uint32_t	dr = stm_i2c->dr;
-	DBG("%s: dr: %x\n", where, dr); flush();
+	DBG("%s: dr: %x\n", where, dr);
 	return dr;
 }
 
 static inline void out_dr(char *where, struct stm_i2c *stm_i2c, uint32_t dr) {
-	DBG("%s: dr: %x\n", where, dr); flush();
+	DBG("%s: dr: %x\n", where, dr);
 	stm_i2c->dr = dr;
 }
 
@@ -236,8 +236,6 @@ ao_i2c_send(void *block, uint16_t len, uint8_t index, uint8_t stop)
 	struct stm_i2c	*stm_i2c = ao_i2c_stm_info[index].stm_i2c;
 	uint8_t		*b = block;
 	uint32_t	sr1;
-	int		t;
-
 	uint8_t		tx_dma_index = ao_i2c_stm_info[index].tx_dma_index;
 
 	/* Clear any pending ADDR bit */
