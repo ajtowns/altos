@@ -1331,6 +1331,8 @@ extern struct stm_tim234 stm_tim2, stm_tim3, stm_tim4;
 #define  STM_TIM234_CR1_CMS_CENTER_3	3
 #define  STM_TIM234_CR1_CMS_MASK	3
 #define STM_TIM234_CR1_DIR	4
+#define  STM_TIM234_CR1_DIR_UP		0
+#define  STM_TIM234_CR1_DIR_DOWN	1
 #define STM_TIM234_CR1_OPM	3
 #define STM_TIM234_CR1_URS	2
 #define STM_TIM234_CR1_UDIS	1
@@ -1377,10 +1379,10 @@ extern struct stm_tim234 stm_tim2, stm_tim3, stm_tim4;
 #define  STM_TIM234_SMCR_ETF_MASK		15
 #define STM_TIM234_SMCR_MSM	7
 #define STM_TIM234_SMCR_TS	4
-#define  STM_TIM234_SMCR_TS_TR0			0
-#define  STM_TIM234_SMCR_TS_TR1			1
-#define  STM_TIM234_SMCR_TS_TR2			2
-#define  STM_TIM234_SMCR_TS_TR3			3
+#define  STM_TIM234_SMCR_TS_ITR0		0
+#define  STM_TIM234_SMCR_TS_ITR1		1
+#define  STM_TIM234_SMCR_TS_ITR2		2
+#define  STM_TIM234_SMCR_TS_ITR3		3
 #define  STM_TIM234_SMCR_TS_TI1F_ED		4
 #define  STM_TIM234_SMCR_TS_TI1FP1		5
 #define  STM_TIM234_SMCR_TS_TI2FP2		6
