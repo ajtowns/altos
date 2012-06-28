@@ -65,10 +65,8 @@ ao_packet_recv(void)
 	/* Check to see if we got a valid packet */
 	if (!dma_done)
 		return 0;
-#ifdef PKT_APPEND_STATUS_1_CRC_OK
-	if (!(ao_rx_packet.status & PKT_APPEND_STATUS_1_CRC_OK))
+	if (!(ao_rx_packet.status & AO_RADIO_STATUS_CRC_OK))
 		return 0;
-#endif
 
 	/* Accept packets with matching call signs, or any packet if
 	 * our callsign hasn't been configured

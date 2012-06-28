@@ -211,6 +211,7 @@ ao_fec_decode(const uint8_t *in, uint16_t len, uint8_t *out, uint8_t out_len, ui
 			int8_t		dist = b - (o + 8);	/* distance to last ready-for-writing bit */
 			uint32_t	min_cost;		/* lowest cost */
 			uint8_t		min_state;		/* lowest cost state */
+			uint8_t		byte;
 
 			/* Find the best fit at the current point
 			 * of the decode.
@@ -238,24 +239,27 @@ ao_fec_decode(const uint8_t *in, uint16_t len, uint8_t *out, uint8_t out_len, ui
 			printf ("\tbit %3d min_cost %5d old bit %3d old_state %x bits %02x whiten %0x\n",
 				i/2, min_cost, o + 8, min_state, (bits[p][min_state] >> dist) & 0xff, *whiten);
 #endif
-			if (out_len) {
-				uint8_t	byte = (bits[p][min_state] >> dist) ^ *whiten++;
+			byte = (bits[p][min_state] >> dist) ^ *whiten++;
+			*out++ = byte;
+			if (out_len > 2)
+				crc = ao_fec_crc_byte(byte, crc);
 
-				if (out_len > 2) {
-					crc = ao_fec_crc_byte(byte, crc);
-					*out++ = byte;
-				} else {
-					*out++ = byte ^ (crc >> 8);
-					crc <<= 8;
-				}
-				--out_len;
+			if (!--out_len) {
+				if ((out[-2] == (uint8_t) (crc >> 8)) &&
+				    out[-1] == (uint8_t) crc)
+					out[-1] = AO_FEC_DECODE_CRC_OK;
+				else
+					out[-1] = 0;
+				out[-2] = 0;
+				goto done;
 			}
 			o += 8;
 		}
 	}
+done:
 #if AO_PROFILE
 	ao_fec_decode_start = start_tick;
 	ao_fec_decode_end = ao_profile_tick();
 #endif
-	return len/16;
+	return 1;
 }

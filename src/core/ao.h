@@ -511,6 +511,13 @@ extern __xdata uint8_t ao_radio_dma_done;
 extern __xdata uint8_t ao_radio_done;
 extern __xdata uint8_t ao_radio_mutex;
 
+#ifdef PKT_APPEND_STATUS_1_CRC_OK
+#define AO_RADIO_STATUS_CRC_OK	PKT_APPEND_STATUS_1_CRC_OK
+#else
+#include <ao_fec.h>
+#define AO_RADIO_STATUS_CRC_OK	AO_FEC_DECODE_CRC_OK
+#endif
+
 void
 ao_radio_general_isr(void) ao_arch_interrupt(16);
 

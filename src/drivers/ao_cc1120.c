@@ -690,12 +690,7 @@ ao_radio_recv(__xdata void *d, uint8_t size)
 
 	ao_radio_put();
 
-	/* Construct final packet */
-
-	if (ret && ((uint8_t *) d)[size] == 0 && ((uint8_t *)d)[size+1] == 0)
-		((uint8_t *) d)[size + 1] = 0x80;
-	else
-		((uint8_t *) d)[size + 1] = 0x00;
+	/* Store the received RSSI value; the crc-OK byte is already done */
 
 	((uint8_t *) d)[size] = (uint8_t) rssi;
 

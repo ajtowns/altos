@@ -268,18 +268,17 @@ int
 ao_real_packet(void)
 {
 	uint8_t	decode[64];
-	uint8_t	decode_len;
-	int ok = 0;
+	int	ok;
 
-	decode_len = ao_fec_decode(real_packet, 576, decode, 34, NULL);
+	ok = ao_fec_decode(real_packet, 576, decode, 34, NULL);
 
-	if (decode[32] == 0 && decode[33] == 0) {
+	if (ok && decode[33] == AO_FEC_DECODE_CRC_OK) {
 		printf ("match\n");
 
-		ao_fec_dump_bytes(decode, decode_len, "Decode");
-		ok = 1;
+		ao_fec_dump_bytes(decode, 34, "Decode");
 	} else {
 		printf ("actual packet crc error\n");
+		ok = 0;
 	}
 	return ok;
 }
@@ -302,7 +301,7 @@ main(int argc, char **argv)
 	int		receive_len, receive_errors;
 
 	uint8_t		decode[DECODE_LEN(sizeof(original))];
-	int		decode_len;
+	int		decode_ok;
 
 	int		errors = 0;
 	int		error;
@@ -327,17 +326,17 @@ main(int argc, char **argv)
 		receive_len = transmit_len;
 		
 		/* Decode it */
-		decode_len = ao_fec_decode(receive, receive_len, decode, original_len + 2, NULL);
+		decode_ok = ao_fec_decode(receive, receive_len, decode, original_len + 2, NULL);
 
 		/* Check to see if we received the right data */
 		error = 0;
 
-		if (decode_len < original_len + 2) {
-			printf ("len mis-match\n");
+		if (!decode_ok) {
+			printf ("decode failed\n");
 			error++;
 		}
 
-		if (decode[original_len] != 0 || decode[original_len+1] != 0) {
+		if (decode[original_len +1] != AO_FEC_DECODE_CRC_OK) {
 			printf ("crc mis-match\n");
 			error++;
 		}
