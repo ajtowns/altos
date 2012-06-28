@@ -63,6 +63,8 @@ ao_hmc5883_isr(void)
 	ao_wakeup(&ao_hmc5883_done);
 }
 
+static uint32_t	ao_hmc5883_missed_irq;
+
 void
 ao_hmc5883_sample(struct ao_hmc5883_sample *sample)
 {
@@ -74,10 +76,13 @@ ao_hmc5883_sample(struct ao_hmc5883_sample *sample)
 	ao_exti_enable(AO_HMC5883_INT_PORT, AO_HMC5883_INT_PIN);
 	ao_hmc5883_reg_write(HMC5883_MODE, HMC5883_MODE_SINGLE);
 
+	ao_alarm(AO_MS_TO_TICKS(10));
 	cli();
 	while (!ao_hmc5883_done)
-		ao_sleep(&ao_hmc5883_done);
+		if (ao_sleep(&ao_hmc5883_done))
+			++ao_hmc5883_missed_irq;
 	sei();
+	ao_clear_alarm();
 
 	ao_hmc5883_read(HMC5883_X_MSB, (uint8_t *) sample, sizeof (struct ao_hmc5883_sample));
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -144,7 +149,8 @@ ao_hmc5883_show(void)
 	struct ao_hmc5883_sample	sample;
 
 	sample = ao_hmc5883_current;
-	printf ("X: %d Y: %d Z: %d\n", sample.x, sample.y, sample.z);
+	printf ("X: %d Y: %d Z: %d missed irq: %lu\n",
+		sample.x, sample.y, sample.z, ao_hmc5883_missed_irq);
 }
 
 static const struct ao_cmds ao_hmc5883_cmds[] = {
