@@ -161,30 +161,42 @@ ao_fec_decode(const uint8_t *in, uint16_t len, uint8_t *out, uint8_t out_len, ui
 			cost[n][state] = 0x7fffffff;
 
 		/* Compute path costs and accumulate output bit path
-		 * for each state and encoded bit value
+		 * for each state and encoded bit value. Unrolling
+		 * this loop is worth about > 30% performance boost.
+		 * Decoding 76-byte remote access packets is reduced
+		 * from 14.700ms to 9.3ms
 		 */
-		for (state = 0; state < NUM_STATE; state++) {
-			uint32_t	bitcost = ((uint32_t) (s0 ^ ao_fec_decode_table[(state<<1)]) +
-						   (uint32_t) (s1 ^ ao_fec_decode_table[(state<<1)+1]));
-			{
-				uint32_t	cost0 = cost[p][state] + bitcost;
-				uint8_t		state0 = ao_next_state(state, 0);
-
-				if (cost0 < cost[n][state0]) {
-					cost[n][state0] = cost0;
-					bits[n][state0] = (bits[p][state] << 1) | (state & 1);
-				}
-			}
-			{
-				uint32_t	cost1 = cost[p][state] + 510 - bitcost;
-				uint8_t		state1 = ao_next_state(state, 1);
-
-				if (cost1 < cost[n][state1]) {
-					cost[n][state1] = cost1;
-					bits[n][state1] = (bits[p][state] << 1) | (state & 1);
-				}
-			}
+#define DO_STATE(state) {						\
+			uint32_t	bitcost = ((uint32_t) (s0 ^ ao_fec_decode_table[(state<<1)]) + \
+						   (uint32_t) (s1 ^ ao_fec_decode_table[(state<<1)+1])); \
+			{						\
+				uint32_t	cost0 = cost[p][state] + bitcost; \
+				uint8_t		state0 = ao_next_state(state, 0); \
+									\
+				if (cost0 < cost[n][state0]) {		\
+					cost[n][state0] = cost0;	\
+					bits[n][state0] = (bits[p][state] << 1) | (state & 1); \
+				}					\
+			}						\
+			{						\
+				uint32_t	cost1 = cost[p][state] + 510 - bitcost; \
+				uint8_t		state1 = ao_next_state(state, 1); \
+									\
+				if (cost1 < cost[n][state1]) {		\
+					cost[n][state1] = cost1;	\
+					bits[n][state1] = (bits[p][state] << 1) | (state & 1); \
+				}					\
+			}						\
 		}
+
+		DO_STATE(0);
+		DO_STATE(1);
+		DO_STATE(2);
+		DO_STATE(3);
+		DO_STATE(4);
+		DO_STATE(5);
+		DO_STATE(6);
+		DO_STATE(7);
 
 #if 0
 		printf ("bit %3d symbol %2x %2x:", i/2, s0, s1);
