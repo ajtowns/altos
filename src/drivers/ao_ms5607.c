@@ -118,6 +118,7 @@ static uint8_t	ao_ms5607_done;
 static void
 ao_ms5607_isr(void)
 {
+	ao_exti_disable(AO_MS5607_MISO_GPIO, AO_MS5607_MISO);
 	ao_ms5607_done = 1;
 	ao_wakeup(&ao_ms5607_done);
 }
@@ -137,7 +138,6 @@ ao_ms5607_get_sample(uint8_t cmd) {
 	while (!ao_ms5607_done)
 		ao_sleep(&ao_ms5607_done);
 	sei();
-	ao_exti_disable(AO_MS5607_MISO_GPIO, AO_MS5607_MISO);
 	ao_ms5607_stop();
 
 	ao_ms5607_start();
