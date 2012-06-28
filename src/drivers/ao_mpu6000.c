@@ -102,16 +102,12 @@ ao_mpu6000_accel_check(int16_t normal, int16_t test, char *which)
 	int16_t	diff = test - normal;
 
 	if (diff < MPU6000_ST_ACCEL(16) / 2) {
-		printf ("%s accel self test value too small (normal %d, test %d)\n",
-			which, normal, test);
-		return FALSE;
+		return 1;
 	}
 	if (diff > MPU6000_ST_ACCEL(16) * 2) {
-		printf ("%s accel self test value too large (normal %d, test %d)\n",
-			which, normal, test);
-		return FALSE;
+		return 1;
 	}
-	return TRUE;
+	return 0;
 }
 
 static uint8_t
@@ -122,23 +118,19 @@ ao_mpu6000_gyro_check(int16_t normal, int16_t test, char *which)
 	if (diff < 0)
 		diff = -diff;
 	if (diff < MPU6000_ST_GYRO(2000) / 2) {
-		printf ("%s gyro self test value too small (normal %d, test %d)\n",
-			which, normal, test);
-		return FALSE;
+		return 1;
 	}
 	if (diff > MPU6000_ST_GYRO(2000) * 2) {
-		printf ("%s gyro self test value too large (normal %d, test %d)\n",
-			which, normal, test);
-		return FALSE;
+		return 1;
 	}
-	return TRUE;
+	return 0;
 }
 
 static void
 ao_mpu6000_setup(void)
 {
 	struct ao_mpu6000_sample	normal_mode, test_mode;
-	int				t;
+	int				errors =0;
 
 	if (ao_mpu6000_configured)
 		return;
@@ -224,13 +216,16 @@ ao_mpu6000_setup(void)
 	ao_delay(AO_MS_TO_TICKS(10));
 	ao_mpu6000_sample(&normal_mode);
 	
-	ao_mpu6000_accel_check(normal_mode.accel_x, test_mode.accel_x, "x");
-	ao_mpu6000_accel_check(normal_mode.accel_y, test_mode.accel_y, "y");
-	ao_mpu6000_accel_check(normal_mode.accel_z, test_mode.accel_z, "z");
+	errors += ao_mpu6000_accel_check(normal_mode.accel_x, test_mode.accel_x, "x");
+	errors += ao_mpu6000_accel_check(normal_mode.accel_y, test_mode.accel_y, "y");
+	errors += ao_mpu6000_accel_check(normal_mode.accel_z, test_mode.accel_z, "z");
 
-	ao_mpu6000_gyro_check(normal_mode.gyro_x, test_mode.gyro_x, "x");
-	ao_mpu6000_gyro_check(normal_mode.gyro_y, test_mode.gyro_y, "y");
-	ao_mpu6000_gyro_check(normal_mode.gyro_z, test_mode.gyro_z, "z");
+	errors += ao_mpu6000_gyro_check(normal_mode.gyro_x, test_mode.gyro_x, "x");
+	errors += ao_mpu6000_gyro_check(normal_mode.gyro_y, test_mode.gyro_y, "y");
+	errors += ao_mpu6000_gyro_check(normal_mode.gyro_z, test_mode.gyro_z, "z");
+
+	if (errors)
+		ao_panic(AO_PANIC_SELF_TEST);
 
 	/* Filter to about 100Hz, which also sets the gyro rate to 1000Hz */
 	ao_mpu6000_reg_write(MPU6000_CONFIG,
@@ -271,14 +266,16 @@ ao_mpu6000_show(void)
 {
 	struct ao_mpu6000_sample	sample;
 
-	sample = ao_mpu6000_current;
+	ao_arch_critical(
+		sample = ao_mpu6000_current;
+		);
 	printf ("Accel: %7d %7d %7d Gyro: %7d %7d %7d\n",
-		ao_mpu6000_accel(sample.accel_x),
-		ao_mpu6000_accel(sample.accel_y),
-		ao_mpu6000_accel(sample.accel_z),
-		ao_mpu6000_gyro(sample.gyro_x),
-		ao_mpu6000_gyro(sample.gyro_y),
-		ao_mpu6000_gyro(sample.gyro_z));
+		sample.accel_x,
+		sample.accel_y,
+		sample.accel_z,
+		sample.gyro_x,
+		sample.gyro_y,
+		sample.gyro_z);
 }
 
 static const struct ao_cmds ao_mpu6000_cmds[] = {
