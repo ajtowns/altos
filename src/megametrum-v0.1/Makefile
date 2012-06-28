@@ -27,8 +27,7 @@ INC = \
 # Common AltOS sources
 #
 
-#	ao_packet.c \
-#	ao_packet_slave.c \
+#PROFILE=ao_profile.c
 
 ALTOS_SRC = \
 	ao_interrupt.c \
@@ -72,8 +71,8 @@ ALTOS_SRC = \
 	ao_telemetry.c \
 	ao_packet_slave.c \
 	ao_packet.c \
-	ao_companion.c
-
+	ao_companion.c \
+	$(PROFILE)
 
 PRODUCT=MegaMetrum-v0.1
 PRODUCT_DEF=-DMEGAMETRUM

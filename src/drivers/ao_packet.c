@@ -61,6 +61,18 @@ ao_packet_recv(void)
 #ifdef AO_LED_GREEN
 	ao_led_off(AO_LED_GREEN);
 #endif
+#if AO_PROFILE
+		{
+			extern uint32_t	ao_rx_start_tick, ao_rx_packet_tick, ao_rx_done_tick, ao_rx_last_done_tick;
+			extern uint32_t ao_fec_decode_start, ao_fec_decode_end;
+
+			printf ("between packet: %d\n", ao_rx_start_tick - ao_rx_last_done_tick);
+			printf ("receive start delay: %d\n", ao_rx_packet_tick - ao_rx_start_tick);
+			printf ("decode time: %d\n", ao_fec_decode_end - ao_fec_decode_start);
+			printf ("rx cleanup: %d\n\n", ao_rx_done_tick - ao_fec_decode_end);
+			flush();
+		}
+#endif
 
 	/* Check to see if we got a valid packet */
 	if (!dma_done)

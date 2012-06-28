@@ -63,6 +63,9 @@ main(void)
 	ao_companion_init();
 
 	ao_config_init();
+#if AO_PROFILE
+	ao_profile_init();
+#endif
 	
 	ao_start_scheduler();
 	return 0;

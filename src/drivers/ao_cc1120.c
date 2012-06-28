@@ -605,8 +605,10 @@ ao_radio_rx_isr(void)
 			rx_data[rx_data_cur++] = d;
 		if (rx_waiting && rx_data_cur - rx_data_consumed >= AO_FEC_DECODE_BLOCK) {
 #if AO_PROFILE
-			if (rx_data_consumed == 0)
+			if (!rx_packet_tick)
 				rx_packet_tick = ao_profile_tick();
+			if (rx_data_cur < rx_data_count)
+				return;
 #endif
 			rx_waiting = 0;
 			ao_wakeup(&ao_radio_wake);
@@ -630,6 +632,9 @@ ao_radio_rx_wait(void)
 	if (ao_radio_abort)
 		return 0;
 	rx_data_consumed += AO_FEC_DECODE_BLOCK;
+#if AO_PROFILE
+	return rx_data_cur - rx_data_consumed;
+#endif
 	return AO_FEC_DECODE_BLOCK;
 }
 
@@ -649,6 +654,7 @@ ao_radio_recv(__xdata void *d, uint8_t size)
 	}
 #if AO_PROFILE
 	rx_start_tick = ao_profile_tick();
+	rx_packet_tick = 0;
 #endif
 	len = size + 2;			/* CRC bytes */
 	len += 1 + ~(len & 1);		/* 1 or two pad bytes */
