@@ -104,6 +104,7 @@ ao_send_mega_sensor(void)
 	telemetry.mega_sensor.pres = ao_data_pres(packet);
 	telemetry.mega_sensor.temp = ao_data_temp(packet);
 
+#if HAS_MPU6000
 	telemetry.mega_sensor.accel_x = packet->mpu6000.accel_x;
 	telemetry.mega_sensor.accel_y = packet->mpu6000.accel_y;
 	telemetry.mega_sensor.accel_z = packet->mpu6000.accel_z;
@@ -111,10 +112,13 @@ ao_send_mega_sensor(void)
 	telemetry.mega_sensor.gyro_x = packet->mpu6000.gyro_x;
 	telemetry.mega_sensor.gyro_y = packet->mpu6000.gyro_y;
 	telemetry.mega_sensor.gyro_z = packet->mpu6000.gyro_z;
+#endif
 
+#if HAS_HMC5883
 	telemetry.mega_sensor.mag_x = packet->hmc5883.x;
 	telemetry.mega_sensor.mag_y = packet->hmc5883.y;
 	telemetry.mega_sensor.mag_z = packet->hmc5883.z;
+#endif
 
 	ao_radio_send(&telemetry, sizeof (telemetry));
 }

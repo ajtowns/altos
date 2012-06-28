@@ -112,18 +112,24 @@ ao_log(void)
 			log.tick = ao_data_ring[ao_log_data_pos].tick;
 			if ((int16_t) (log.tick - next_sensor) >= 0) {
 				log.type = AO_LOG_SENSOR;
+#if HAS_MS5607
 				log.u.sensor.pres = ao_data_ring[ao_log_data_pos].ms5607_raw.pres;
 				log.u.sensor.temp = ao_data_ring[ao_log_data_pos].ms5607_raw.temp;
+#endif
+#if HAS_MPU6000
 				log.u.sensor.accel_x = ao_data_ring[ao_log_data_pos].mpu6000.accel_x;
 				log.u.sensor.accel_y = ao_data_ring[ao_log_data_pos].mpu6000.accel_y;
 				log.u.sensor.accel_z = ao_data_ring[ao_log_data_pos].mpu6000.accel_z;
 				log.u.sensor.gyro_x = ao_data_ring[ao_log_data_pos].mpu6000.gyro_x;
 				log.u.sensor.gyro_y = ao_data_ring[ao_log_data_pos].mpu6000.gyro_y;
 				log.u.sensor.gyro_z = ao_data_ring[ao_log_data_pos].mpu6000.gyro_z;
+#endif
+#if HAS_HMC5883
 				log.u.sensor.mag_x = ao_data_ring[ao_log_data_pos].hmc5883.x;
 				log.u.sensor.mag_y = ao_data_ring[ao_log_data_pos].hmc5883.y;
 				log.u.sensor.mag_z = ao_data_ring[ao_log_data_pos].hmc5883.z;
-				log.u.sensor.accel = ao_data_ring[ao_log_data_pos].adc.accel;
+#endif
+				log.u.sensor.accel = ao_data_accel(&ao_data_ring[ao_log_data_pos]);
 				ao_log_mega(&log);
 				if (ao_log_state <= ao_flight_coast)
 					next_sensor = log.tick + AO_SENSOR_INTERVAL_ASCENT;

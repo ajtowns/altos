@@ -43,9 +43,15 @@ main(void)
 	ao_beep_init();
 	ao_cmd_init();
 
+#if HAS_MS5607
 	ao_ms5607_init();
+#endif
+#if HAS_HMC5883
 	ao_hmc5883_init();
+#endif
+#if HAS_MPU6000
 	ao_mpu6000_init();
+#endif
 
 	ao_storage_init();
 	
