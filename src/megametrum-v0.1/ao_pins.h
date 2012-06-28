@@ -286,7 +286,7 @@ struct ao_adc {
  * Mag sensor (hmc5883)
  */
 
-#define HAS_HMC5883		1
+#define HAS_HMC5883		0
 #define AO_HMC5883_INT_PORT	(&stm_gpioc)
 #define AO_HMC5883_INT_PIN	12
 #define AO_HMC5883_I2C_INDEX	STM_I2C_INDEX(1)

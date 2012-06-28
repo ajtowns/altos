@@ -29,6 +29,8 @@ INC = \
 
 #PROFILE=ao_profile.c
 
+#	ao_hmc5883.c
+
 ALTOS_SRC = \
 	ao_interrupt.c \
 	ao_product.c \
@@ -60,7 +62,6 @@ ALTOS_SRC = \
 	ao_exti_stm.c \
 	ao_report.c \
 	ao_i2c_stm.c \
-	ao_hmc5883.c \
 	ao_mpu6000.c \
 	ao_convert_pa.c \
 	ao_log.c \
