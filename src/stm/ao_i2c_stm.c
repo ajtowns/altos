@@ -23,6 +23,8 @@ struct ao_i2c_stm_info {
 	struct stm_i2c	*stm_i2c;
 };
 
+#define I2C_FAST	1
+
 #define I2C_TIMEOUT	100
 
 #define I2C_IDLE	0
@@ -32,6 +34,33 @@ struct ao_i2c_stm_info {
 static uint8_t	ao_i2c_state[STM_NUM_I2C];
 static uint16_t	ao_i2c_addr[STM_NUM_I2C];
 uint8_t 	ao_i2c_mutex[STM_NUM_I2C];
+
+# define I2C_HIGH_SLOW	5000	/* ns, 100kHz clock */
+#ifdef MEGAMETRUM
+# define I2C_HIGH_FAST	2000	/* ns, 167kHz clock */
+#else
+# define I2C_HIGH_FAST	1000	/* ns, 333kHz clock */
+#endif
+
+# define I2C_RISE_SLOW	500	/* ns */
+# define I2C_RISE_FAST	100	/* ns */
+
+/* Clock period in ns */
+#define CYCLES(period)	(((period) * (AO_PCLK1 / 1000)) / 1000000)
+
+#define max(a,b)	((a) > (b) ? (a) : (b))
+#define I2C_CCR_HIGH_SLOW	max(4,CYCLES(I2C_HIGH_SLOW))
+#define I2C_CCR_HIGH_FAST	max(4,CYCLES(I2C_HIGH_FAST))
+#define I2C_TRISE_SLOW		(CYCLES(I2C_RISE_SLOW) + 1)
+#define I2C_TRISE_FAST		(CYCLES(I2C_RISE_FAST) + 1)
+
+#if I2C_FAST
+#define I2C_TRISE	I2C_TRISE_FAST
+#define I2C_CCR_HIGH	I2C_CCR_HIGH_FAST
+#else
+#define I2C_TRISE	I2C_TRISE_SLOW
+#define I2C_CCR_HIGH	I2C_CCR_HIGH_SLOW
+#endif
 
 #if AO_PCLK1 == 2000000
 # define AO_STM_I2C_CR2_FREQ	STM_I2C_CR2_FREQ_2_MHZ
@@ -364,13 +393,21 @@ ao_i2c_channel_init(uint8_t index)
 	stm_i2c->sr1 = 0;
 	stm_i2c->sr2 = 0;
 
-	stm_i2c->ccr = ((0 << STM_I2C_CCR_FS) |
+	stm_i2c->ccr = ((I2C_FAST << STM_I2C_CCR_FS) |
 			(0 << STM_I2C_CCR_DUTY) |
-			(80 << STM_I2C_CCR_CCR));
+			(I2C_CCR_HIGH << STM_I2C_CCR_CCR));
 
-	stm_i2c->trise = 17;
+	stm_i2c->trise = I2C_TRISE;
 
 	stm_i2c->cr1 = AO_STM_I2C_CR1;
+}
+
+static inline void
+i2c_pin_set(struct stm_gpio *gpio, int pin)
+{
+	stm_afr_set(gpio, pin, STM_AFR_AF4);
+	stm_ospeedr_set(gpio, pin, STM_OSPEEDR_400kHz);
+	stm_pupdr_set(gpio, pin, STM_PUPDR_PULL_UP);
 }
 
 void
@@ -380,12 +417,12 @@ ao_i2c_init(void)
 	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOBEN);
 #if HAS_I2C_1
 # if I2C_1_PB6_PB7
-	stm_afr_set(&stm_gpiob, 6, STM_AFR_AF4);
-	stm_afr_set(&stm_gpiob, 7, STM_AFR_AF4);
+	i2c_pin_set(&stm_gpiob, 6);
+	i2c_pin_set(&stm_gpiob, 7);
 # else
 #  if I2C_1_PB8_PB9
-	stm_afr_set(&stm_gpiob, 8, STM_AFR_AF4);
-	stm_afr_set(&stm_gpiob, 9, STM_AFR_AF4);
+	i2c_pin_set(&stm_gpiob, 8);
+	i2c_pin_set(&stm_gpiob, 9);
 #  else
 #   error "No I2C_1 port configuration specified"
 #  endif
@@ -395,15 +432,15 @@ ao_i2c_init(void)
 	ao_i2c_channel_init(0);
 
 	stm_nvic_set_enable(STM_ISR_I2C1_EV_POS);
-	stm_nvic_set_priority(STM_ISR_I2C1_EV_POS, 3);
+	stm_nvic_set_priority(STM_ISR_I2C1_EV_POS, AO_STM_NVIC_MED_PRIORITY);
 	stm_nvic_set_enable(STM_ISR_I2C1_ER_POS);
-	stm_nvic_set_priority(STM_ISR_I2C1_ER_POS, 3);
+	stm_nvic_set_priority(STM_ISR_I2C1_ER_POS, AO_STM_NVIC_MED_PRIORITY);
 #endif
 
 #if HAS_I2C_2
 # if I2C_2_PB10_PB11
-	stm_afr_set(&stm_gpiob, 10, STM_AFR_AF4);
-	stm_afr_set(&stm_gpiob, 11, STM_AFR_AF4);
+	i2c_pin_set(&stm_gpiob, 10);
+	i2c_pin_set(&stm_gpiob, 11);
 # else
 #  error "No I2C_2 port configuration specified"
 # endif
@@ -411,8 +448,8 @@ ao_i2c_init(void)
 	ao_i2c_channel_init(1);
 
 	stm_nvic_set_enable(STM_ISR_I2C2_EV_POS);
-	stm_nvic_set_priority(STM_ISR_I2C2_EV_POS, 3);
+	stm_nvic_set_priority(STM_ISR_I2C2_EV_POS, AO_STM_NVIC_MED_PRIORITY);
 	stm_nvic_set_enable(STM_ISR_I2C2_ER_POS);
-	stm_nvic_set_priority(STM_ISR_I2C2_ER_POS, 3);
+	stm_nvic_set_priority(STM_ISR_I2C2_ER_POS, AO_STM_NVIC_MED_PRIORITY);
 #endif
 }
