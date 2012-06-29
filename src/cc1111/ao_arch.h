@@ -206,7 +206,7 @@ struct ao_adc {
 	int16_t		sense_d;	/* drogue continuity sense */
 	int16_t		sense_m;	/* main continuity sense */
 #if HAS_ACCEL_REF
-	int16_t		accel_ref;	/* acceleration reference */
+	uint16_t	accel_ref;	/* acceleration reference */
 #endif
 };
 
