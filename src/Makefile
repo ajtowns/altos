@@ -15,8 +15,6 @@ vpath matrix.5c kalman
 include Version
 
 SUBDIRS=\
-	megametrum-v0.1 \
-	stm-bringup stm-demo \
 	telemetrum-v1.2 telemetrum-v1.1 telemetrum-v1.0 \
 	teledongle-v0.2 teledongle-v0.1 \
 	telemini-v1.0 telenano-v0.1 \
@@ -25,6 +23,10 @@ SUBDIRS=\
 	telelaunch-v0.1 \
 	tidongle test telescience-v0.1 telepyro-v0.1 \
 	teleterra-v0.2 teleshield-v0.1
+
+ifneq ($(shell which arm-none-eabi-gcc),)
+	SUBDIRS += megametrum-v0.1 stm-bringup stm-demo 
+endif
 
 all: all-local all-recursive
 
