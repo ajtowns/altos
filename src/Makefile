@@ -1,7 +1,6 @@
 #
 # AltOS build
 #
-#
 
 vpath make-altitude util
 vpath make-altitude-pa util
@@ -14,15 +13,20 @@ vpath matrix.5c kalman
 
 include Version
 
-SUBDIRS=\
+ifneq ($(shell which sdcc),)
+	SUBDIRS+=\
 	telemetrum-v1.2 telemetrum-v1.1 telemetrum-v1.0 \
 	teledongle-v0.2 teledongle-v0.1 \
 	telemini-v1.0 telenano-v0.1 \
 	telebt-v0.0 telebt-v0.1 \
 	telemetrum-v0.1-sky telemetrum-v0.1-sirf \
-	telelaunch-v0.1 \
-	tidongle test telescience-v0.1 telepyro-v0.1 \
+	telelaunch-v0.1 tidongle test \
 	teleterra-v0.2 teleshield-v0.1
+endif
+
+ifneq ($(shell which avr-gcc),)
+	SUBDIRS += telescience-v0.1 telepyro-v0.1
+endif
 
 ifneq ($(shell which arm-none-eabi-gcc),)
 	SUBDIRS += megametrum-v0.1 stm-bringup stm-demo 
