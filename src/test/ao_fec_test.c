@@ -283,6 +283,11 @@ ao_real_packet(void)
 	return ok;
 }
 
+#define EXPECT_DECODE_FAIL	0
+#define EXPECT_CRC_MISMATCH	6386
+#define EXPECT_DATA_MISMATCH	0
+#define NOISE_AMOUNT		0x50
+
 int
 main(int argc, char **argv)
 {
@@ -298,13 +303,15 @@ main(int argc, char **argv)
 	int		transmit_len;
 
 	uint8_t		receive[EXPAND_LEN(sizeof(original))];
-	int		receive_len, receive_errors;
+	int		receive_len;
 
 	uint8_t		decode[DECODE_LEN(sizeof(original))];
 	int		decode_ok;
 
 	int		errors = 0;
-	int		error;
+	int		decode_fail = 0;
+	int		crc_mismatch = 0;
+	int		data_mismatch = 0;
 
 	if (!ao_real_packet())
 		errors++;
@@ -322,37 +329,38 @@ main(int argc, char **argv)
 		transmit_len = ao_expand(encode, encode_len, transmit);
 
 		/* Add gaussian noise to the signal */
-		receive_errors = ao_fuzz(transmit, transmit_len, receive, 0x38);
+		(void) ao_fuzz(transmit, transmit_len, receive, NOISE_AMOUNT);
 		receive_len = transmit_len;
 		
 		/* Decode it */
 		decode_ok = ao_fec_decode(receive, receive_len, decode, original_len + 2, NULL);
 
 		/* Check to see if we received the right data */
-		error = 0;
 
-		if (!decode_ok) {
-			printf ("decode failed\n");
-			error++;
-		}
-
-		if (decode[original_len +1] != AO_FEC_DECODE_CRC_OK) {
-			printf ("crc mis-match\n");
-			error++;
-		}
-
-		if (memcmp(original, decode, original_len) != 0) {
-			printf ("data mis-match\n");
-			error++;
-		}
-		if (error) {
-			printf ("Errors: %d\n", receive_errors);
-			ao_fec_dump_bytes(original, original_len, "Input");
-			ao_fec_dump_bytes(decode, original_len, "Decode");
-			errors += error;
-		}
+		if (!decode_ok)
+			decode_fail++;
+		else if (decode[original_len +1] != AO_FEC_DECODE_CRC_OK)
+			crc_mismatch++;
+		else if (memcmp(original, decode, original_len) != 0)
+			data_mismatch++;
 	}
+
+
 	printf ("%d packets coded\n", trial);
+	printf ("decode_fail %d crc_mismatch %d data_mismatch %d\n",
+		decode_fail, crc_mismatch, data_mismatch);
+	if (decode_fail != EXPECT_DECODE_FAIL) {
+		printf ("expected %d decode failures\n", EXPECT_DECODE_FAIL);
+		errors++;
+	}
+	if (crc_mismatch != EXPECT_CRC_MISMATCH) {
+		printf ("expected %d crc mismatch\n", EXPECT_CRC_MISMATCH);
+		errors++;
+	}
+	if (data_mismatch != EXPECT_DATA_MISMATCH) {
+		printf ("expected %d data mismatch\n", EXPECT_DATA_MISMATCH);
+		errors++;
+	}
 	return errors;
 }
 
