@@ -326,6 +326,8 @@ struct ao_adc {
  * Profiling Viterbi decoding
  */
 
+#ifndef AO_PROFILE
 #define AO_PROFILE	       	0
+#endif
 
 #endif /* _AO_PINS_H_ */

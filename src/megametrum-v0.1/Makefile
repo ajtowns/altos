@@ -28,6 +28,7 @@ INC = \
 #
 
 #PROFILE=ao_profile.c
+#PROFILE_DEF=-DAO_PROFILE=1
 
 #	ao_hmc5883.c
 
@@ -79,7 +80,7 @@ PRODUCT=MegaMetrum-v0.1
 PRODUCT_DEF=-DMEGAMETRUM
 IDPRODUCT=0x0023
 
-CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) -Os -g
+CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) $(PROFILE_DEF) -Os -g
 
 PROG=megametrum-v0.1-$(VERSION).elf
 
