@@ -62,7 +62,9 @@ static inline uint16_t ao_interleave_index(uint16_t i) {
 }
 
 #define NUM_STATE	8
-#define NUM_HIST	8
+#define NUM_HIST	24
+
+typedef uint32_t	bits_t;
 
 #define V_0		0xff
 #define V_1		0x00
@@ -97,7 +99,7 @@ uint8_t
 ao_fec_decode(const uint8_t *in, uint16_t len, uint8_t *out, uint8_t out_len, uint16_t (*callback)())
 {
 	static uint32_t	cost[2][NUM_STATE];		/* path cost */
-	static uint16_t	bits[2][NUM_STATE];		/* save bits to quickly output them */
+	static bits_t	bits[2][NUM_STATE];		/* save bits to quickly output them */
 
 	uint16_t	i;				/* input byte index */
 	uint16_t	b;				/* encoded symbol index (bytes/2) */
@@ -154,54 +156,93 @@ ao_fec_decode(const uint8_t *in, uint16_t len, uint8_t *out, uint8_t out_len, ui
 
 		avail -= 2;
 
-		/* Reset next costs to 'impossibly high' values so that
-		 * the first path through this state is cheaper than this
-		 */
-		for (state = 0; state < NUM_STATE; state++)
-			cost[n][state] = 0x7fffffff;
-
 		/* Compute path costs and accumulate output bit path
 		 * for each state and encoded bit value. Unrolling
 		 * this loop is worth about > 30% performance boost.
 		 * Decoding 76-byte remote access packets is reduced
-		 * from 14.700ms to 9.3ms
+		 * from 14.700ms to 9.3ms. Redoing the loop to
+		 * directly compare the two pasts for each future state
+		 * reduces this down to 5.7ms
 		 */
+
+		/* Ok, of course this is tricky, it's optimized.
+		 *
+		 * First, it's important to realize that we have 8
+		 * states representing the combinations of the three
+		 * most recent bits from the encoder. Flipping any
+		 * of these three bits flips both output bits.
+		 *
+		 * 'state<<1' represents the target state for a new
+		 * bit value of 0. '(state<<1)+1' represents the
+		 * target state for a new bit value of 1.
+		 *
+		 * 'state' is the previous state with an oldest bit
+		 * value of 0. 'state + 4' is the previous state with
+		 * an oldest bit value of 1. These two states will
+		 * either lead to 'state<<1' or '(state<<1)+1', depending
+		 * on whether the next encoded bit was a zero or a one.
+		 *
+		 * m0 and m1 are the cost of coming to 'state<<1' from
+		 * one of the two possible previous states 'state' and
+		 * 'state + 4'.
+		 *
+		 * Because we know the expected values of each
+		 * received bit are flipped between these two previous
+		 * states:
+		 * 
+		 * 	bitcost(state+4) = 510 - bitcost(state)
+		 *
+		 * With those two total costs in hand, we then pick
+		 * the lower as the cost of the 'state<<1', and compute
+		 * the path of bits leading to that state.
+		 *
+		 * Then, do the same for '(state<<1) + 1'. This time,
+		 * instead of computing the m0 and m1 values from
+		 * scratch, because the only difference is that we're
+		 * expecting a one bit instead of a zero bit, we just
+		 * flip the bitcost values around to match the
+		 * expected transmitted bits with some tricky
+		 * arithmetic which is equivalent to:
+		 *
+		 *	m0 = cost[p][state] + (510 - bitcost);
+		 *	m1 = cost[p][state+4] + bitcost
+		 *
+		 * Then, the lowest cost and bit trace of the new state
+		 * is saved.
+		 */
+
 #define DO_STATE(state) {						\
-			uint32_t	bitcost = ((uint32_t) (s0 ^ ao_fec_decode_table[(state<<1)]) + \
-						   (uint32_t) (s1 ^ ao_fec_decode_table[(state<<1)+1])); \
-			{						\
-				uint32_t	cost0 = cost[p][state] + bitcost; \
-				uint8_t		state0 = ao_next_state(state, 0); \
+			uint32_t	bitcost;			\
 									\
-				if (cost0 < cost[n][state0]) {		\
-					cost[n][state0] = cost0;	\
-					bits[n][state0] = (bits[p][state] << 1) | (state & 1); \
-				}					\
-			}						\
-			{						\
-				uint32_t	cost1 = cost[p][state] + 510 - bitcost; \
-				uint8_t		state1 = ao_next_state(state, 1); \
+			uint32_t	m0;				\
+			uint32_t	m1;				\
+			uint32_t	bit;				\
 									\
-				if (cost1 < cost[n][state1]) {		\
-					cost[n][state1] = cost1;	\
-					bits[n][state1] = (bits[p][state] << 1) | (state & 1); \
-				}					\
-			}						\
+			bitcost = ((uint32_t) (s0 ^ ao_fec_decode_table[(state<<1)]) + \
+				   (uint32_t) (s1 ^ ao_fec_decode_table[(state<<1)|1])); \
+									\
+			m0 = cost[p][state] + bitcost;			\
+			m1 = cost[p][state+4] + (510 - bitcost);	\
+			bit = m0 > m1;					\
+			cost[n][state<<1] = bit ? m1 : m0;		\
+			bits[n][state<<1] = (bits[p][state + (bit<<2)] << 1) | (state&1); \
+									\
+			m0 -= (bitcost+bitcost-510);			\
+			m1 += (bitcost+bitcost-510);			\
+			bit = m0 > m1;					\
+			cost[n][(state<<1)+1] = bit ? m1 : m0;		\
+			bits[n][(state<<1)+1] = (bits[p][state + (bit<<2)] << 1) | (state&1); \
 		}
 
 		DO_STATE(0);
 		DO_STATE(1);
 		DO_STATE(2);
 		DO_STATE(3);
-		DO_STATE(4);
-		DO_STATE(5);
-		DO_STATE(6);
-		DO_STATE(7);
 
 #if 0
 		printf ("bit %3d symbol %2x %2x:", i/2, s0, s1);
 		for (state = 0; state < NUM_STATE; state++) {
-			printf (" %5d(%04x)", cost[n][state], bits[n][state]);
+			printf (" %8u(%08x)", cost[n][state], bits[n][state]);
 		}
 		printf ("\n");
 #endif
