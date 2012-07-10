@@ -100,6 +100,7 @@ ao_fuzz (uint8_t *in, int in_len, uint8_t *out, double dev)
 {
 	int	i;
 	int	errors = 0;
+	int	s;
 	
 	for (i = 0; i < in_len; i++) {
 		double	error = gaussian_random(0, dev);
@@ -115,6 +116,24 @@ ao_fuzz (uint8_t *in, int in_len, uint8_t *out, double dev)
 			else
 				byte -= error;
 		}
+
+		/* abcd efgh	8
+		 * abcd efga	7
+		 * abcd efab	6
+		 * abcd eabc	5
+		 * abcd abcd	4
+		 * abca bcab	3
+		 * abab abab	2
+		 * aaaa aaaa	1
+		 */
+
+#define SAVE		8
+#define SAVE_MASK	(((1 << SAVE) - 1) << (8 - SAVE))
+
+		byte &= SAVE_MASK;
+		for (s = SAVE; s < 8; s += SAVE)
+			byte |= byte >> s;
+
 		out[i] = byte;
 	}
 	return errors;
