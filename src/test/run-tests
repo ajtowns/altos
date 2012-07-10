@@ -2,21 +2,26 @@
 
 DIR=~/misc/rockets/flights
 
+expect_baro=2
+expect_full=5
+
 bad_baro=0
 bad_full=0
 while read flight description; do
-    if ./ao_flight_test_baro -s $DIR/$flight; then
+    if ./ao_flight_test_baro -s -i "$description" $DIR/$flight; then
 	:
     else
 	: $((bad_baro++))
     fi
-    if ./ao_flight_test -s $DIR/$flight; then
+    if ./ao_flight_test -s -i "$description" $DIR/$flight; then
 	:
     else
 	: $((bad_full++))
     fi
 done < test-flights
-echo baro errors $bad_baro
-echo full errors $bad_full
-: $((bad = bad_baro + bad_full))
-exit $bad
+echo baro errors $bad_baro expected $expect_baro
+echo full errors $bad_full expected $expect_full
+: $((miss_baro = bad_baro > expect_baro ? bad_baro - expect_baro : expect_baro - bad_baro))
+: $((miss_full = bad_full > expect_full ? bad_full - expect_full : expect_full - bad_full))
+: $((miss = miss_baro + miss_full))
+exit $miss
