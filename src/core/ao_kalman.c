@@ -172,6 +172,7 @@ ao_kalman_err_accel(void)
 	ao_error_a = (accel - ao_k_accel) >> 16;
 }
 
+#ifndef FORCE_ACCEL
 static void
 ao_kalman_correct_both(void)
 {
@@ -242,7 +243,8 @@ ao_kalman_correct_both(void)
 		(int32_t) AO_BOTH_K21_100 * ao_error_a;
 }
 
-#ifdef FORCE_ACCEL
+#else
+
 static void
 ao_kalman_correct_accel(void)
 {
@@ -258,7 +260,8 @@ ao_kalman_correct_accel(void)
 	ao_k_speed  += (int32_t) AO_ACCEL_K1_100 * ao_error_a;
 	ao_k_accel  += (int32_t) AO_ACCEL_K2_100 * ao_error_a;
 }
-#endif
+
+#endif /* else FORCE_ACCEL */
 #endif /* HAS_ACCEL */
 
 void

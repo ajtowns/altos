@@ -48,7 +48,9 @@ __pdata uint16_t		ao_boost_tick;		/* time of launch detect */
 static __data uint16_t		ao_interval_end;
 static __data int16_t		ao_interval_min_height;
 static __data int16_t		ao_interval_max_height;
+#if HAS_ACCEL
 static __data int16_t		ao_coast_avg_accel;
+#endif
 
 __pdata uint8_t			ao_flight_force_idle;
 
@@ -350,7 +352,7 @@ ao_flight(void)
 				ao_interval_end = ao_sample_tick + AO_INTERVAL_TICKS;
 			}
 			break;
-		case ao_flight_landed:
+		default:
 			break;
 		}
 	}
