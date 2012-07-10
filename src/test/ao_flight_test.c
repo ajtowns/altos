@@ -141,7 +141,7 @@ struct ao_task {
 	int dummy;
 };
 
-#define ao_add_task(t,f,n)
+#define ao_add_task(t,f,n) ((void) (t))
 
 #define ao_log_start()
 #define ao_log_stop()
@@ -156,6 +156,7 @@ int	ao_flight_debug;
 FILE *emulator_in;
 char *emulator_app;
 char *emulator_name;
+char *emulator_info;
 double emulator_error_max = 4;
 double emulator_height_error_max = 20;	/* noise in the baro sensor */
 
@@ -199,6 +200,7 @@ struct ao_config ao_config;
 #define DATA_TO_XDATA(x) (x)
 
 #define HAS_FLIGHT 1
+#define HAS_IGNITE 1
 #define HAS_ADC 1
 #define HAS_USB 1
 #define HAS_GPS 1
@@ -223,8 +225,8 @@ int ao_sample_prev_tick;
 uint16_t	prev_tick;
 
 #include "ao_kalman.c"
-#include "ao_sample_mm.c"
-#include "ao_flight_mm.c"
+#include "ao_sample.c"
+#include "ao_flight.c"
 
 #define to_double(f)	((f) / 65536.0)
 
@@ -259,10 +261,11 @@ ao_test_exit(void)
 	main_error = fabs(ao_test_main_height_time - main_time);
 	landed_error = fabs(ao_test_landed_height - landed_height);
 	landed_time_error = ao_test_landed_time - landed_time;
-	if (drogue_error > emulator_error_max || main_error > emulator_error_max ||
-	    landed_time_error > emulator_error_max || landed_error > emulator_height_error_max) {
+	if (drogue_error > emulator_error_max || main_error > emulator_error_max) {
 		printf ("%s %s\n",
 			emulator_app, emulator_name);
+		if (emulator_info)
+			printf ("\t%s\n", emulator_info);
 		printf ("\tApogee error %g\n", drogue_error);
 		printf ("\tMain error %g\n", main_error);
 		printf ("\tLanded height error %g\n", landed_error);
@@ -477,10 +480,9 @@ void
 ao_sleep(void *wchan)
 {
 	if (wchan == &ao_data_head) {
-		char		type;
-		uint16_t	tick;
-		uint16_t	a, b;
-		int		ret;
+		char		type = 0;
+		uint16_t	tick = 0;
+		uint16_t	a = 0, b = 0;
 		uint8_t		bytes[1024];
 		union ao_telemetry_all	telem;
 		char		line[1024];
@@ -676,13 +678,15 @@ ao_dump_state(void)
 static const struct option options[] = {
 	{ .name = "summary", .has_arg = 0, .val = 's' },
 	{ .name = "debug", .has_arg = 0, .val = 'd' },
+	{ .name = "info", .has_arg = 1, .val = 'i' },
 	{ 0, 0, 0, 0},
 };
 
-void run_flight_fixed(char *name, FILE *f, int summary)
+void run_flight_fixed(char *name, FILE *f, int summary, char *info)
 {
 	emulator_name = name;
 	emulator_in = f;
+	emulator_info = info;
 	ao_summary = summary;
 	ao_flight_init();
 	ao_flight();
@@ -694,13 +698,14 @@ main (int argc, char **argv)
 	int	summary = 0;
 	int	c;
 	int	i;
+	char	*info = NULL;
 
 #if HAS_ACCEL
 	emulator_app="full";
 #else
 	emulator_app="baro";
 #endif
-	while ((c = getopt_long(argc, argv, "sd", options, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "sdi:", options, NULL)) != -1) {
 		switch (c) {
 		case 's':
 			summary = 1;
@@ -708,11 +713,14 @@ main (int argc, char **argv)
 		case 'd':
 			ao_flight_debug = 1;
 			break;
+		case 'i':
+			info = optarg;
+			break;
 		}
 	}
 
 	if (optind == argc)
-		run_flight_fixed("<stdin>", stdin, summary);
+		run_flight_fixed("<stdin>", stdin, summary, info);
 	else
 		for (i = optind; i < argc; i++) {
 			FILE	*f = fopen(argv[i], "r");
@@ -720,7 +728,8 @@ main (int argc, char **argv)
 				perror(argv[i]);
 				continue;
 			}
-			run_flight_fixed(argv[i], f, summary);
+			run_flight_fixed(argv[i], f, summary, info);
 			fclose(f);
 		}
+	exit(0);
 }

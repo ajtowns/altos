@@ -67,9 +67,9 @@ ALTOS_SRC = \
 	ao_convert_pa.c \
 	ao_log.c \
 	ao_log_mega.c \
-	ao_sample_mm.c \
+	ao_sample.c \
 	ao_kalman.c \
-	ao_flight_mm.c \
+	ao_flight.c \
 	ao_telemetry.c \
 	ao_packet_slave.c \
 	ao_packet.c \

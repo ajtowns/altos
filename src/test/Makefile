@@ -4,7 +4,7 @@ PROGS=ao_flight_test ao_flight_test_baro ao_flight_test_accel ao_flight_test_noi
 
 KALMAN=make-kalman 
 
-CFLAGS=-I.. -I. -I../core -I../drivers -O0 -g -Wall
+CFLAGS=-I.. -I. -I../core -I../drivers -O3 -g -Wall
 
 all: $(PROGS)
 
@@ -13,10 +13,10 @@ clean:
 
 install:
 
-ao_flight_test: ao_flight_test.c ao_host.h ao_flight_mm.c ao_sample_mm.c ao_kalman.c altitude.h ao_kalman.h
+ao_flight_test: ao_flight_test.c ao_host.h ao_flight.c ao_sample.c ao_kalman.c altitude.h ao_kalman.h
 	cc $(CFLAGS) -o $@ $<
 
-ao_flight_test_noisy_accel: ao_flight_test.c ao_host.h ao_flight_mm.c ao_sample_mm.c ao_kalman.c altitude.h ao_kalman.h
+ao_flight_test_noisy_accel: ao_flight_test.c ao_host.h ao_flight.c ao_sample.c ao_kalman.c altitude.h ao_kalman.h
 	cc -DNOISY_ACCEL=1 $(CFLAGS) -o $@ $<
 
 ao_flight_test_baro: ao_flight_test.c ao_host.h ao_flight.c  ao_sample.c ao_kalman.c altitude.h ao_kalman.h
@@ -42,3 +42,6 @@ ao_kalman.h: $(KALMAN)
 
 ao_fec_test: ao_fec_test.c ao_fec_tx.c ao_fec_rx.c
 	cc $(CFLAGS) -DAO_FEC_DEBUG=1 -o $@ ao_fec_test.c ../core/ao_fec_tx.c ../core/ao_fec_rx.c -lm
+
+check: ao_fec_test ao_flight_test ao_flight_test_baro run-tests
+	./ao_fec_test && ./run-tests
