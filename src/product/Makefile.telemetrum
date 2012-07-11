@@ -75,7 +75,8 @@ SRC = \
 	$(DRIVER_SRC) \
 	$(PRODUCT_SRC)
 
-PROG = telemetrum-v$(TM_VER)-$(VERSION)$(TM_EXTRA).ihx
+PROGNAME = telemetrum-v$(TM_VER)$(TM_EXTRA)
+PROG = $(PROGNAME)-$(VERSION).ihx
 PRODUCT=TeleMetrum-v$(TM_VER)
 PRODUCT_DEF=-DTELEMETRUM_V_$(TM_DEF)
 IDPRODUCT=0x000b
@@ -104,11 +105,7 @@ ao_product.h: ao-make-product.5c ../Version
 
 distclean:	clean
 
-clean:
-	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
-	rm -f $(PROG) $(PCDB) $(PLNK) $(PMAP) $(PMEM) $(PAOM)
-	rm -f ao_product.h
-	rm -f ../$(PROG) ../$(PMAP)
+clean: clean-cc1111
 
 install:
 

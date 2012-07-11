@@ -63,7 +63,8 @@ SRC = \
 	$(DRIVER_SRC) \
 	$(PRODUCT_SRC)
 
-PROG = telemini-v$(TELEMINI_VER)-$(VERSION).ihx
+PROGNAME = telemini-v$(TELEMINI_VER)
+PROG = $(PROGNAME)-$(VERSION).ihx
 PRODUCT=TeleMini-v$(TELEMINI_VER)
 PRODUCT_DEF=-DTELEMINI_V_$(TELEMINI_DEF)
 IDPRODUCT=0x000a
@@ -93,11 +94,7 @@ ao_product.h: ao-make-product.5c ../Version
 
 distclean:	clean
 
-clean:
-	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
-	rm -f $(PROG) $(PCDB) $(PLNK) $(PMAP) $(PMEM) $(PAOM)
-	rm -f ao_product.h
-	rm -f ../$(PROG) ../$(PMAP)
+clean: clean-cc1111
 
 install:
 

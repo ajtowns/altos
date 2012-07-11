@@ -61,7 +61,7 @@ $(OBJ): $(INC)
 distclean:	clean
 
 clean:
-	rm -f $(OBJ)
+	rm -f *.o $(PROG)
 	rm -f ao_product.h
 
 install:

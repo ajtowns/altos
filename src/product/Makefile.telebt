@@ -60,7 +60,8 @@ SRC = \
 	$(PRODUCT_SRC) \
 	$(TELEBT_SRC)
 
-PROG = telebt-v$(TELEBT_VER)-$(VERSION).ihx
+PROGNAME = telebt-v$(TELEBT_VER)
+PROG = $(PROGNAME)-$(VERSION).ihx
 PRODUCT=TeleBT-v$(TELEBT_VER)
 PRODUCT_DEF=-DTELEBT_V_$(TELEBT_DEF)
 IDPRODUCT=0x000e
@@ -78,9 +79,9 @@ endif
 # Otherwise, print the full command line.
 quiet ?= $($1)
 
-all: ../$(PROG)
+all: $(PROG)
 
-../$(PROG): $(REL) Makefile
+$(PROG): $(REL) Makefile
 	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(REL) && cp $(PROG) $(PMAP) ..
 	$(call quiet,CHECK_STACK) ../cc1111/ao_arch.h $(PMEM) || rm $@
 
@@ -89,11 +90,7 @@ ao_product.h: ao-make-product.5c ../Version
 
 distclean:	clean
 
-clean:
-	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
-	rm -f $(PROG) $(PCDB) $(PLNK) $(PMAP) $(PMEM) $(PAOM)
-	rm -f ao_product.h
-	rm -f ../$(PROG) ../$(PMAP)
+clean: clean-cc1111
 
 install:
 

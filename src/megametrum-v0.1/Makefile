@@ -82,7 +82,8 @@ IDPRODUCT=0x0023
 
 CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) $(PROFILE_DEF) -Os -g
 
-PROG=megametrum-v0.1-$(VERSION).elf
+PROGNAME=megametrum-v0.1
+PROG=$(PROGNAME)-$(VERSION).elf
 
 SRC=$(ALTOS_SRC) ao_megametrum.c
 OBJ=$(SRC:.c=.o)
@@ -103,7 +104,7 @@ ao_product.h: ao-make-product.5c ../Version
 distclean:	clean
 
 clean:
-	rm -f $(OBJ)
+	rm -f *.o $(PROGNAME)-*.elf
 	rm -f ao_product.h
 
 install:

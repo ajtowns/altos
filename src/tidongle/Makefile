@@ -53,7 +53,8 @@ SRC = \
 	$(DRIVER_SRC) \
 	$(PRODUCT_SRC)
 
-PROG = tidongle-$(VERSION).ihx
+PROGNAME = tidongle
+PROG = $(PROGNAME)-$(VERSION).ihx
 PRODUCT=TIDongle
 PRODUCT_DEF=-DTIDONGLE
 IDPRODUCT=0x000a
@@ -82,11 +83,7 @@ ao_product.h: ao-make-product.5c ../Version
 
 distclean:	clean
 
-clean:
-	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
-	rm -f $(PROG) $(PCDB) $(PLNK) $(PMAP) $(PMEM) $(PAOM)
-	rm -f ao_product.h
-	rm -f ../$(PROG) ../$(PMAP)
+clean: clean-cc1111
 
 install:
 

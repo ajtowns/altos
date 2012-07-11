@@ -9,7 +9,7 @@ CFLAGS=-I.. -I. -I../core -I../drivers -O3 -g -Wall
 all: $(PROGS)
 
 clean:
-	rm -f $(PROGS)
+	rm -f $(PROGS) run-out.baro run-out.full
 
 install:
 

@@ -81,7 +81,8 @@ SRC = \
 	$(DRIVER_SRC) \
 	$(PRODUCT_SRC)
 
-PROG = teleballoon-v$(TELEBALLOON_VER)-$(VERSION).ihx
+PROGNAME = teleballoon-v$(TELEBALLOON_VER)
+PROG = $(PROGNAME)-$(VERSION).ihx
 PRODUCT=TeleBalloon-v$(TELEBALLOON_VER)
 PRODUCT_DEF=-DTELEBALLOON_V_$(TELEBALLOON_DEF)
 IDPRODUCT=0x000b
@@ -99,9 +100,9 @@ endif
 # Otherwise, print the full command line.
 quiet ?= $($1)
 
-all: ../$(PROG)
+all: $(PROG)
 
-../$(PROG): $(REL) Makefile
+$(PROG): $(REL) Makefile
 	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(REL) && cp $(PROG) $(PMAP) ..
 	$(call quiet,CHECK_STACK) ../cc1111/ao_arch.h $(PMEM) || rm $@
 
@@ -110,11 +111,7 @@ ao_product.h: ao-make-product.5c ../Version
 
 distclean:	clean
 
-clean:
-	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
-	rm -f $(PROG) $(PCDB) $(PLNK) $(PMAP) $(PMEM) $(PAOM)
-	rm -f ao_product.h
-	rm -f ../$(PROG) ../$(PMAP)
+clean: clean-cc1111
 
 install:
 

@@ -72,7 +72,8 @@ SRC = \
 	$(DRIVER_SRC) \
 	$(PRODUCT_SRC)
 
-PROG = teleshield-v$(TELESHIELD_VER)-$(VERSION).ihx
+PROGNAME = teleshield-v$(TELESHIELD_VER)
+PROG = $(PROGNAME)-$(VERSION).ihx
 PRODUCT=TeleShield-v$(TELESHIELD_VER)
 PRODUCT_DEF=-DTELESHIELD_V_$(TELESHIELD_DEF)
 IDPRODUCT=0x0013
@@ -102,11 +103,7 @@ ao_product.h: ao-make-product.5c ../Version
 
 distclean:	clean
 
-clean:
-	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
-	rm -f $(PROG) $(PCDB) $(PLNK) $(PMAP) $(PMEM) $(PAOM)
-	rm -f ao_product.h
-	rm -f ../$(PROG) ../$(PMAP)
+clean: clean-cc1111
 
 install:
 

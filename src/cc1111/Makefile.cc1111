@@ -25,3 +25,11 @@ PAOM=$(PROG:.ihx=)
 
 %.rel : %.c $(INC)
 	$(call quiet,CC,$(PRODUCT_DEF)) $(CFLAGS) -c -o$@ $<
+
+all:
+
+clean-cc1111:
+	rm -f *.adb *.asm *.lnk *.lst *.rel *.rst *.sym
+	rm -f $(PROGNAME)-*
+	rm -f ao_product.h
+	rm -f ../$(PROGNAME)-*

@@ -66,7 +66,8 @@ SRC = \
 
 TELETERRA_VER=0.2
 TELETERRA_DEF=0_2
-PROG = teleterra-v$(TELETERRA_VER)-$(VERSION).ihx
+PROGNAME = teleterra-v$(TELETERRA_VER)
+PROG = $(PROGNAME)-$(VERSION).ihx
 PRODUCT=TeleTerra-v$(TELETERRA_VER)
 PRODUCT_DEF=-DTELETERRA_V_$(TELETERRA_DEF)
 IDPRODUCT=0x000d
@@ -95,11 +96,7 @@ ao_product.h: ao-make-product.5c ../Version
 
 distclean:	clean
 
-clean:
-	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
-	rm -f $(PROG) $(PCDB) $(PLNK) $(PMAP) $(PMEM) $(PAOM)
-	rm -f ao_product.h
-	rm -f ../$(PROG) ../$(PMAP)
+clean: clean-cc1111
 
 install:
 

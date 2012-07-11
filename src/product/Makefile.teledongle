@@ -60,7 +60,8 @@ SRC = \
 	$(DRIVER_SRC) \
 	$(PRODUCT_SRC)
 
-PROG = teledongle-v$(TD_VER)-$(VERSION).ihx
+PROGNAME = teledongle-v$(TD_VER)
+PROG = $(PROGNAME)-$(VERSION).ihx
 PRODUCT=TeleDongle-v$(TD_VER)
 PRODUCT_DEF=-DTELEDONGLE_V_$(TD_DEF)
 IDPRODUCT=0x000c
@@ -89,11 +90,7 @@ ao_product.h: ao-make-product.5c ../Version
 
 distclean:	clean
 
-clean:
-	rm -f $(ADB) $(ASM) $(LNK) $(LST) $(REL) $(RST) $(SYM)
-	rm -f $(PROG) $(PCDB) $(PLNK) $(PMAP) $(PMEM) $(PAOM)
-	rm -f ao_product.h
-	rm -f ../$(PROG) ../$(PMAP)
+clean: clean-cc1111
 
 install:
 
