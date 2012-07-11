@@ -141,6 +141,7 @@ Makefile
 altoslib/Makefile
 altosui/Makefile
 altosui/AltosVersion.java
+altosui/Info.plist
 altosui/libaltos/Makefile
 altosdroid/Makefile
 altosdroid/local.properties

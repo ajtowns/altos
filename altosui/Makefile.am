@@ -165,7 +165,8 @@ FAT_FILES=$(FATJAR) $(ALTOSLIB_CLASS) $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCO
 LINUX_FILES=$(FAT_FILES) libaltos.so $(FIRMWARE) $(DOC)
 LINUX_EXTRA=altosui-fat
 
-MACOSX_FILES=$(FAT_FILES) libaltos.dylib
+MACOSX_INFO_PLIST=Info.plist
+MACOSX_FILES=$(FAT_FILES) libaltos.dylib $(MACOSX_INFO_PLIST)
 MACOSX_EXTRA=$(FIRMWARE)
 
 WINDOWS_FILES=$(FAT_FILES) altos.dll altos64.dll $(top_srcdir)/telemetrum.inf $(WINDOWS_ICON)
@@ -311,6 +312,7 @@ $(MACOSX_DIST): $(MACOSX_FILES) $(MACOSX_EXTRA)
 	-rm -rf macosx
 	mkdir macosx
 	cp -a AltosUI.app macosx/
+	cp -p Info.plist macosx/AltosUI.app/Contents
 	mkdir -p macosx/AltOS macosx/AltosUI.app/Contents/Resources/Java
 	cp -p $(FATJAR) macosx/AltosUI.app/Contents/Resources/Java/altosui.jar
 	cp -p libaltos.dylib macosx/AltosUI.app/Contents/Resources/Java

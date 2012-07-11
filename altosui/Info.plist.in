@@ -3,9 +3,9 @@
 <plist version="0.9">
 <dict>
 	<key>CFBundleName</key>
-	<string>altosui</string>
+	<string>AltosUI</string>
 	<key>CFBundleVersion</key>
-	<string>100.0</string>
+	<string>@VERSION@</string>
 	<key>CFBundleAllowMixedLocalizations</key>
 	<string>true</string>
 	<key>CFBundleExecutable</key>
@@ -14,10 +14,12 @@
 	<string>English</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>CFBundleIdentifier</key>
+	<string>org.altusmetrum.altosui</string>
 	<key>CFBundleSignature</key>
-	<string>????</string>
+	<string>Altu</string>
 	<key>CFBundleGetInfoString</key>
-	<string>AltOS UI version 0.7</string>
+	<string>AltOS UI version @VERSION@</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleIconFile</key>
