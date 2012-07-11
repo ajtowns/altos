@@ -137,10 +137,15 @@ ao_packet_forward(void) __reentrant
 #endif
 }
 
-
+static void
+ao_packet_signal(void)
+{
+	printf ("RSSI: %d\n", AO_RSSI_FROM_RADIO(ao_packet_last_rssi));
+}
 
 __code struct ao_cmds ao_packet_master_cmds[] = {
 	{ ao_packet_forward,	"p\0Remote packet link." },
+	{ ao_packet_signal,	"s\0Report signal strength." },
 	{ 0,	NULL },
 };
 

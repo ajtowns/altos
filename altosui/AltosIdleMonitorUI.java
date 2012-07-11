@@ -178,8 +178,23 @@ class AltosIdleMonitor extends Thread {
 	AltosADC		adc;
 	AltosGPS		gps;
 
+	int AltosRSSI() throws TimeoutException, InterruptedException {
+		serial.printf("s\n");
+		String line = serial.get_reply_no_dialog(5000);
+		if (line == null)
+			throw new TimeoutException();
+		String[] items = line.split("\\s+");
+		if (items.length < 2)
+			return 0;
+		if (!items[0].equals("RSSI:"))
+			return 0;
+		int rssi = Integer.parseInt(items[1]);
+		return rssi;
+	}
+
 	void update_state() throws InterruptedException, TimeoutException {
-		AltosRecord	record = new AltosRecord();
+		AltosRecordTM	record = new AltosRecordTM();
+		int		rssi;
 
 		try {
 			if (remote) {
@@ -191,31 +206,34 @@ class AltosIdleMonitor extends Thread {
 			adc = new AltosADC(serial);
 			gps = new AltosGPSQuery(serial, config_data);
 		} finally {
-			if (remote)
+			if (remote) {
 				serial.stop_remote();
+				rssi = AltosRSSI();
+			} else
+				rssi = 0;
 		}
 
 		record.version = 0;
 		record.callsign = config_data.callsign;
 		record.serial = config_data.serial;
 		record.flight = config_data.log_available() > 0 ? 255 : 0;
-		record.rssi = 0;
+		record.rssi = rssi;
 		record.status = 0;
 		record.state = Altos.ao_flight_idle;
 
 		record.tick = adc.tick;
 
-//		record.accel = adc.accel;
-//		record.pres = adc.pres;
-//		record.batt = adc.batt;
-//		record.temp = adc.temp;
-//		record.drogue = adc.drogue;
-//		record.main = adc.main;
+		record.accel = adc.accel;
+		record.pres = adc.pres;
+		record.batt = adc.batt;
+		record.temp = adc.temp;
+		record.drogue = adc.drogue;
+		record.main = adc.main;
 
-//		record.ground_accel = record.accel;
-//		record.ground_pres = record.pres;
-//		record.accel_plus_g = config_data.accel_cal_plus;
-//		record.accel_minus_g = config_data.accel_cal_minus;
+		record.ground_accel = record.accel;
+		record.ground_pres = record.pres;
+		record.accel_plus_g = config_data.accel_cal_plus;
+		record.accel_minus_g = config_data.accel_cal_minus;
 		record.acceleration = 0;
 		record.speed = 0;
 		record.height = 0;
