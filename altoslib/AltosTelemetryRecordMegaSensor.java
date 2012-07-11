@@ -57,7 +57,6 @@ public class AltosTelemetryRecordMegaSensor extends AltosTelemetryRecordRaw {
 		mag_z	      = int16(30);
 
 		rssi	      = in_rssi;
-		System.out.printf ("telem record accel: %d\n", accel);
 	}
 
 	public AltosRecord update_state(AltosRecord previous) {
@@ -65,14 +64,11 @@ public class AltosTelemetryRecordMegaSensor extends AltosTelemetryRecordRaw {
 
 		AltosRecordMM	next;
 		if (!(n instanceof AltosRecordMM)) {
-			System.out.printf("sensor making MM\n");
 			next = new AltosRecordMM(n);
 		} else {
-			System.out.printf("sensor has MM\n");
 			next = (AltosRecordMM) n;
 		}
 
-		System.out.printf("telem update_state accel: %d\n", accel);
 		next.accel = accel;
 		next.pres = pres;
 		next.temp = temp;

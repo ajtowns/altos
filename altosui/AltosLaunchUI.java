@@ -336,7 +336,6 @@ public class AltosLaunchUI
 
 	public void actionPerformed(ActionEvent e) {
 		String cmd = e.getActionCommand();
-		System.out.printf("cmd %s\n", cmd);
 		if (cmd.equals("armed") || cmd.equals("igniter")) {
 			stop_arm_timer();
 		}

@@ -126,7 +126,6 @@ public class AltosBTManage extends AltosDialog implements ActionListener, Iterab
 
 	public void add_known() {
 		for (AltosBTDevice device : visible_devices.selected_list()) {
-			System.out.printf("Add known %s\n", device.toString());
 			known_devices.add(device);
 			visible_devices.remove(device);
 		}
@@ -134,7 +133,6 @@ public class AltosBTManage extends AltosDialog implements ActionListener, Iterab
 
 	public void remove_known() {
 		for (AltosBTDevice device : known_devices.selected_list()) {
-			System.out.printf("Remove known %s\n", device.toString());
 			known_devices.remove(device);
 			visible_devices.add(device);
 		}
@@ -151,7 +149,6 @@ public class AltosBTManage extends AltosDialog implements ActionListener, Iterab
 
 	public void actionPerformed(ActionEvent e) {
 		String	command = e.getActionCommand();
-		System.out.printf("manage command %s\n", command);
 		if ("ok".equals(command)) {
 			bt_thread.interrupt();
 			commit();

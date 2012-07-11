@@ -62,7 +62,6 @@ class AltosLog implements Runnable {
 	boolean open (AltosRecord telem) throws IOException {
 		AltosFile	a = new AltosFile(telem);
 
-		System.out.printf("open %s\n", a.toString());
 		log_file = new FileWriter(a, true);
 		if (log_file != null) {
 			while (!pending_queue.isEmpty()) {

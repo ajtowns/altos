@@ -291,7 +291,6 @@ public class AltosConfigureUI
 
 		final UIManager.LookAndFeelInfo[] look_and_feels = UIManager.getInstalledLookAndFeels();
 
-		System.out.printf("look_and_feels %d\n", look_and_feels.length);
 		look_and_feel_value = new JComboBox(look_and_feels);
 
 		DelegatingRenderer.install(look_and_feel_value);

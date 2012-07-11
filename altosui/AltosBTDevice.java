@@ -87,7 +87,6 @@ public class AltosBTDevice extends altos_bt_device implements AltosDevice {
 
 	public boolean matchProduct(int want_product) {
 
-		System.out.printf("matchProduct %s %d\n", toString(), want_product);
 //		if (!isAltusMetrum())
 //			return false;
 
@@ -107,7 +106,6 @@ public class AltosBTDevice extends altos_bt_device implements AltosDevice {
 		if (!(o instanceof AltosBTDevice))
 			return false;
 		AltosBTDevice other = (AltosBTDevice) o;
-		System.out.printf("AltosBTDevice equals %s == %s\n", toString(), other.toString());
 		return getName().equals(other.getName()) && getAddr().equals(other.getAddr());
 	}
 

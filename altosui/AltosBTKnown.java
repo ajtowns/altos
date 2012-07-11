@@ -31,7 +31,6 @@ public class AltosBTKnown implements Iterable<AltosBTDevice> {
 
 	private void set_address(String name, String addr) {
 		bt_pref.put(name, addr);
-		System.out.printf("saving known %s %s\n", name, addr);
 	}
 
 	private void remove(String name) {
@@ -44,7 +43,6 @@ public class AltosBTKnown implements Iterable<AltosBTDevice> {
 			for (int i = 0; i < names.length; i++) {
 				String	name = names[i];
 				String	addr = get_address(name);
-				System.out.printf("Known device %s %s\n", name, addr);
 				devices.add(new AltosBTDevice(name, addr));
 			}
 		} catch (BackingStoreException be) {

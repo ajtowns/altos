@@ -65,10 +65,8 @@ public class AltosTelemetryRecordMegaData extends AltosTelemetryRecordRaw {
 
 		AltosRecordMM	next;
 		if (!(n instanceof AltosRecordMM)) {
-			System.out.printf("data making record MM\n");
 			next = new AltosRecordMM(n);
 		} else {
-			System.out.printf ("data already has MM\n");
 			next = (AltosRecordMM) n;
 		}
 

@@ -26,7 +26,6 @@ public class AltosBTDeviceIterator implements Iterator<AltosBTDevice> {
 	SWIGTYPE_p_altos_bt_list list;
 
 	public boolean hasNext() {
-		System.out.printf ("BT has next?\n");
 		if (list == null)
 			return false;
 		if (current != null)
@@ -35,7 +34,6 @@ public class AltosBTDeviceIterator implements Iterator<AltosBTDevice> {
 			return false;
 		current = new AltosBTDevice();
 		while (libaltos.altos_bt_list_next(list, current) != 0) {
-			System.out.printf("Got BT device %s\n", current.toString());
 //			if (current.matchProduct(product))
 				return true;
 		}

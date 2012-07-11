@@ -306,7 +306,6 @@ public class AltosPreferences {
 
 	public static void set_launcher_serial(int new_launcher_serial) {
 		launcher_serial = new_launcher_serial;
-		System.out.printf("set launcher serial to %d\n", new_launcher_serial);
 		synchronized (preferences) {
 			preferences.putInt(launcherSerialPreference, launcher_serial);
 			flush_preferences();
@@ -319,7 +318,6 @@ public class AltosPreferences {
 
 	public static void set_launcher_channel(int new_launcher_channel) {
 		launcher_channel = new_launcher_channel;
-		System.out.printf("set launcher channel to %d\n", new_launcher_channel);
 		synchronized (preferences) {
 			preferences.putInt(launcherChannelPreference, launcher_channel);
 			flush_preferences();

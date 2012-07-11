@@ -98,8 +98,6 @@ public class AltosRecordMM extends AltosRecord {
 	}
 
 	public double acceleration() {
-		System.out.printf("MM record acceleration %g ground_accel %d accel %d accel_minus_g %d accel_plus_g %d\n",
-				  acceleration, ground_accel, accel, accel_minus_g, accel_plus_g);
 		if (acceleration != MISSING)
 			return acceleration;
 

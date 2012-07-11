@@ -235,22 +235,17 @@ public class AltosFlashUI
 						public void run() {
 							ui.flash = flash;
 							ui.update_rom_config_info(current_config);
-							System.out.printf("Done updating rom config info\n");
 							await_rom_config.release();
 						}
 					});
-				System.out.printf("Waiting for rom configuration updates\n");
 				await_rom_config.acquire();
-				System.out.printf("Got rom config update\n");
 
 				if (ui.rom_config != null) {
-					System.out.printf("rom_config not null\n");
 					flash.set_romconfig(ui.rom_config);
 					flash.flash();
 				}
 			} catch (InterruptedException ee) {
 				final Exception	e = ee;
-				System.out.printf("exception %s\n", e.toString());
 				SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
 							ui.exception(e);
@@ -258,7 +253,6 @@ public class AltosFlashUI
 					});
 			} catch (IOException ee) {
 				final Exception	e = ee;
-				System.out.printf("exception %s\n", e.toString());
 				SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
 							ui.exception(e);
@@ -266,7 +260,6 @@ public class AltosFlashUI
 					});
 			} catch (AltosSerialInUseException ee) {
 				final Exception	e = ee;
-				System.out.printf("exception %s\n", e.toString());
 				SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
 							ui.exception(e);
