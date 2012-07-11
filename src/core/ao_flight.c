@@ -114,7 +114,7 @@ ao_flight(void)
  			{
 				/* Set pad mode - we can fly! */
 				ao_flight_state = ao_flight_pad;
-#if HAS_USB && HAS_RADIO
+#if HAS_USB && HAS_RADIO && !HAS_FLIGHT_DEBUG
 				/* Disable the USB controller in flight mode
 				 * to save power
 				 */
@@ -358,7 +358,7 @@ ao_flight(void)
 	}
 }
 
-#if !HAS_RADIO
+#if HAS_FLIGHT_DEBUG
 static inline int int_part(int16_t i)	{ return i >> 4; }
 static inline int frac_part(int16_t i)	{ return ((i & 0xf) * 100 + 8) / 16; }
 
@@ -378,6 +378,7 @@ ao_flight_dump(void)
 	printf ("  raw accel   %d\n", ao_sample_accel);
 #endif
 	printf ("  ground pres %d\n", ao_ground_pres);
+	printf ("  ground alt  %d\n", ao_ground_height);
 #if HAS_ACCEL
 	printf ("  raw accel   %d\n", ao_sample_accel);
 	printf ("  groundaccel %d\n", ao_ground_accel);
@@ -413,7 +414,7 @@ void
 ao_flight_init(void)
 {
 	ao_flight_state = ao_flight_startup;
-#if !HAS_RADIO
+#if HAS_FLIGHT_DEBUG
 	ao_cmd_register(&ao_flight_cmds[0]);
 #endif
 	ao_add_task(&flight_task, ao_flight, "flight");
