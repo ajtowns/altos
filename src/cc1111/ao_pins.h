@@ -163,6 +163,7 @@
 	#define HAS_ADC			1
 	#define HAS_EEPROM		1
 	#define HAS_LOG			1
+	#define HAS_FORCE_FREQ		1
 	#define USE_INTERNAL_FLASH	1
 	#define HAS_DBG			0
 	#define IGNITE_ON_P2		0

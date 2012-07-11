@@ -682,6 +682,13 @@ ao_igniter_init(void);
  * ao_config.c
  */
 
+#if HAS_FORCE_FREQ
+/*
+ * Set this to force the frequency to 434.550MHz
+ */
+extern __xdata uint8_t ao_force_freq;
+#endif
+
 #define AO_CONFIG_MAJOR	1
 #define AO_CONFIG_MINOR	11
 

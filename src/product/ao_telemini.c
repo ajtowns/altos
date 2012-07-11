@@ -18,6 +18,8 @@
 #include "ao.h"
 #include "ao_pins.h"
 
+__xdata uint8_t ao_force_freq;
+
 void
 main(void)
 {
@@ -32,6 +34,17 @@ main(void)
 	/* Turn on the red LED until the system is stable */
 	ao_led_init(LEDS_AVAILABLE);
 	ao_led_on(AO_LED_RED);
+
+	/* A hack -- look at the debug clock pin, if it's sitting at
+	 *  ground, then we force the computer to idle mode instead of
+	 *  flight mode
+	 */
+	if (P2_2 == 0) {
+		ao_flight_force_idle = 1;
+		ao_force_freq = 1;
+		while (P2_2 == 0)
+			;
+	}
 
 	ao_timer_init();
 	ao_adc_init();

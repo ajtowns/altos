@@ -135,6 +135,10 @@ _ao_config_get(void)
 		ao_config_dirty = 1;
 	}
 #if HAS_RADIO
+#if HAS_FORCE_FREQ
+	if (ao_force_freq)
+		ao_config.frequency = 434550;
+#endif
 	ao_config_set_radio();
 #endif
 	ao_config_loaded = 1;
