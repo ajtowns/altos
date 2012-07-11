@@ -126,6 +126,7 @@ Section "Documentation"
 	File "../doc/altos.pdf"
 	File "../doc/telemetry.pdf"
 	File "../doc/telemetrum-outline.pdf"
+	File "../doc/megametrum-outline.pdf"
 SectionEnd
 
 Section "Uninstaller"
