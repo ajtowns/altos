@@ -141,8 +141,7 @@ ao_monitor_put(void)
 		case AO_MONITORING_ORIG:
 			state = recv_orig.telemetry_orig.flight_state;
 
-			/* Typical RSSI offset for 38.4kBaud at 433 MHz is 74 */
-			rssi = (int16_t) (recv_orig.rssi >> 1) - 74;
+			rssi = (int16_t) AO_RSSI_FROM_RADIO(recv_orig.rssi);
 			ao_xmemcpy(callsign, recv_orig.telemetry_orig.callsign, AO_MAX_CALLSIGN);
 			if (state > ao_flight_invalid)
 				state = ao_flight_invalid;
@@ -240,7 +239,7 @@ ao_monitor_put(void)
 			putchar ('\n');
 #if HAS_RSSI
 			if (recv_raw.packet[ao_monitoring + 1] & PKT_APPEND_STATUS_1_CRC_OK) {
-				rssi = ((int16_t) recv_raw.packet[ao_monitoring] >> 1) - 74;
+				rssi = AO_RSSI_FROM_RADIO(recv_raw.packet[ao_monitoring]);
 				ao_rssi_set(rssi);
 			}
 #endif

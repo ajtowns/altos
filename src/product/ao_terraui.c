@@ -594,7 +594,7 @@ ao_terramonitor(void)
 			continue;
 		if (!(ao_monitor_ring[monitor].all.status & PKT_APPEND_STATUS_1_CRC_OK))
 			continue;
-		ao_tel_rssi = (ao_monitor_ring[monitor].all.rssi >> 1) - 74;
+		ao_tel_rssi = AO_RSSI_FROM_RADIO(ao_monitor_ring[monitor].all.rssi);
 		switch (ao_monitor_ring[monitor].all.telemetry.generic.type) {
 		case AO_TELEMETRY_SENSOR_TELEMETRUM:
 		case AO_TELEMETRY_SENSOR_TELEMINI:

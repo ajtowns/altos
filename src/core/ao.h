@@ -487,6 +487,12 @@ struct ao_telemetry_tiny_recv {
 	uint8_t				status;
 };
 
+/* Unfortunately, we've exposed the CC1111 rssi units as the 'usual' method
+ * for reporting RSSI. So, now we use these values everywhere
+ */
+#define AO_RSSI_FROM_RADIO(radio)	((int16_t) ((int8_t) (radio) >> 1) - 74)
+#define AO_RADIO_FROM_RSSI(rssi)	(((int8_t) (rssi) + 74) << 1)
+
 /*
  * ao_radio_recv tacks on rssi and status bytes
  */

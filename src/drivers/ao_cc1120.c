@@ -729,7 +729,7 @@ ao_radio_recv(__xdata void *d, uint8_t size)
 
 	/* Convert from 'real' rssi to cc1111-style values */
 
-	rssi = (((int8_t) ao_radio_reg_read(CC1120_RSSI1)) + 74) * 2;
+	rssi = AO_RADIO_FROM_RSSI(ao_radio_reg_read(CC1120_RSSI1));
 
 	ao_radio_put();
 
@@ -998,7 +998,7 @@ ao_radio_test_recv()
 			printf ("CRC OK");
 		else
 			printf ("CRC BAD");
-		printf (" RSSI %d", (int16_t) ((int8_t) bytes[32] >> 1) - 74);
+		printf (" RSSI %d", AO_RSSI_FROM_RADIO(bytes[32]));
 		for (b = 0; b < 32; b++)
 			printf (" %02x", bytes[b]);
 		printf ("\n");
