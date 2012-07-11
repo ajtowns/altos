@@ -264,6 +264,26 @@ ao_cmd_filter(void);
  * ao_report.c
  */
 
+#define AO_RDF_INTERVAL_TICKS	AO_SEC_TO_TICKS(5)
+#define AO_RDF_LENGTH_MS	500
+#define AO_RDF_CONTINUITY_MS	32
+#define AO_RDF_CONTINUITY_PAUSE	96
+#define AO_RDF_CONTINUITY_TOTAL	((AO_RDF_CONTINUITY_PAUSE + AO_RDF_CONTINUITY_MS) * 3 + AO_RDF_CONTINUITY_PAUSE)
+
+/* This assumes that we're generating a 1kHz tone, which
+ * modulates the carrier at 2kbps, or 250kBps
+ */
+#define AO_MS_TO_RDF_LEN(ms) ((ms) / 4)
+
+#define AO_RADIO_RDF_LEN	AO_MS_TO_RDF_LEN(AO_RDF_LENGTH_MS)
+#define AO_RADIO_CONT_TONE_LEN	AO_MS_TO_RDF_LEN(AO_RDF_CONTINUITY_MS)
+#define AO_RADIO_CONT_PAUSE_LEN	AO_MS_TO_RDF_LEN(AO_RDF_CONTINUITY_PAUSE)
+#define AO_RADIO_CONT_TOTAL_LEN	AO_MS_TO_RDF_LEN(AO_RDF_CONTINUITY_TOTAL)
+
+/* returns a value 0-3 to indicate igniter continuity */
+uint8_t
+ao_report_igniter(void);
+
 void
 ao_report_init(void);
 
@@ -538,10 +558,11 @@ ao_radio_recv_abort(void);
  * 2 * ms bits, or ms / 4 bytes
  */
 
-#define AO_MS_TO_RDF_LEN(ms) ((ms) > 255 * 4 ? 255 : ((ms) >> 2))
+void
+ao_radio_rdf(void);
 
 void
-ao_radio_rdf(uint8_t pkt_len);
+ao_radio_continuity(uint8_t c);
 
 void
 ao_radio_rdf_abort(void);

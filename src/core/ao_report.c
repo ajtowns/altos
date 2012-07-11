@@ -114,6 +114,13 @@ ao_report_igniter_ready(enum ao_igniter igniter)
 	return ao_igniter_status(igniter) == ao_igniter_ready ? 1 : 0;
 }
 
+uint8_t
+ao_report_igniter(void)
+{
+	return (ao_report_igniter_ready(ao_igniter_drogue) |
+		     (ao_report_igniter_ready(ao_igniter_main) << 1));
+}
+
 static void
 ao_report_continuity(void) __reentrant
 {
@@ -123,8 +130,7 @@ ao_report_continuity(void) __reentrant
 	if (!ao_igniter_present)
 		return;
 #endif
-	c = (ao_report_igniter_ready(ao_igniter_drogue) |
-		     (ao_report_igniter_ready(ao_igniter_main) << 1));
+	c = ao_report_igniter();
 	if (c) {
 		while (c--) {
 			high(AO_MS_TO_TICKS(25));

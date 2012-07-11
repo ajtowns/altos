@@ -200,7 +200,7 @@ static __code uint8_t rdf_setup[] = {
 	RF_MDMCFG3_OFF,		(RDF_DRATE_M << RF_MDMCFG3_DRATE_M_SHIFT),
 	RF_MDMCFG2_OFF,		(RF_MDMCFG2_DEM_DCFILT_OFF |
 				 RF_MDMCFG2_MOD_FORMAT_GFSK |
-				 RF_MDMCFG2_SYNC_MODE_15_16_THRES),
+				 RF_MDMCFG2_SYNC_MODE_NONE),
 	RF_MDMCFG1_OFF,		(RF_MDMCFG1_FEC_DIS |
 				 RF_MDMCFG1_NUM_PREAMBLE_2 |
 				 (2 << RF_MDMCFG1_CHANSPC_E_SHIFT)),
@@ -366,29 +366,22 @@ ao_radio_recv_abort(void)
 	ao_wakeup(&ao_radio_dma_done);
 }
 
-__xdata ao_radio_rdf_value = 0x55;
+__code ao_radio_rdf_value = 0x55;
 
-void
-ao_radio_rdf(uint8_t pkt_len)
+static void
+ao_radio_rdf_start(void)
 {
 	uint8_t i;
-
 	ao_radio_abort = 0;
-	ao_radio_get(pkt_len);
+	ao_radio_get(AO_RADIO_RDF_LEN);
 	ao_radio_done = 0;
 	for (i = 0; i < sizeof (rdf_setup); i += 2)
 		RF[rdf_setup[i]] = rdf_setup[i+1];
+}
 
-	ao_dma_set_transfer(ao_radio_dma,
-			    &ao_radio_rdf_value,
-			    &RFDXADDR,
-			    pkt_len,
-			    DMA_CFG0_WORDSIZE_8 |
-			    DMA_CFG0_TMODE_SINGLE |
-			    DMA_CFG0_TRIGGER_RADIO,
-			    DMA_CFG1_SRCINC_0 |
-			    DMA_CFG1_DESTINC_0 |
-			    DMA_CFG1_PRIORITY_HIGH);
+static void
+ao_radio_rdf_run(void)
+{
 	ao_dma_start(ao_radio_dma);
 	RFST = RFST_STX;
 	__critical while (!ao_radio_done && !ao_radio_abort)
@@ -399,6 +392,70 @@ ao_radio_rdf(uint8_t pkt_len)
 	}
 	ao_radio_set_packet();
 	ao_radio_put();
+}
+
+void
+ao_radio_rdf(void)
+{
+	ao_radio_rdf_start();
+
+	ao_dma_set_transfer(ao_radio_dma,
+			    CODE_TO_XDATA(&ao_radio_rdf_value),
+			    &RFDXADDR,
+			    AO_RADIO_RDF_LEN,
+			    DMA_CFG0_WORDSIZE_8 |
+			    DMA_CFG0_TMODE_SINGLE |
+			    DMA_CFG0_TRIGGER_RADIO,
+			    DMA_CFG1_SRCINC_0 |
+			    DMA_CFG1_DESTINC_0 |
+			    DMA_CFG1_PRIORITY_HIGH);
+	ao_radio_rdf_run();
+}
+
+#define PA	0x00
+#define BE	0x55
+
+#define CONT_PAUSE_8	PA, PA, PA, PA, PA, PA, PA, PA
+#define CONT_PAUSE_16	CONT_PAUSE_8, CONT_PAUSE_8
+#define CONT_PAUSE_24	CONT_PAUSE_16, CONT_PAUSE_8
+
+#define CONT_BEEP_8	BE, BE, BE, BE, BE, BE, BE, BE
+
+#if AO_RADIO_CONT_PAUSE_LEN == 24
+#define CONT_PAUSE	CONT_PAUSE_24
+#endif
+
+#if AO_RADIO_CONT_TONE_LEN == 8
+#define CONT_BEEP		CONT_BEEP_8
+#define CONT_PAUSE_SHORT	CONT_PAUSE_8
+#endif
+
+#define CONT_ADDR(c)	CODE_TO_XDATA(&ao_radio_cont[(3-(c)) * (AO_RADIO_CONT_PAUSE_LEN + AO_RADIO_CONT_TONE_LEN)])
+
+__code uint8_t ao_radio_cont[] = {
+	CONT_PAUSE, CONT_BEEP,
+	CONT_PAUSE, CONT_BEEP,
+	CONT_PAUSE, CONT_BEEP,
+	CONT_PAUSE, CONT_PAUSE_SHORT,
+	CONT_PAUSE, CONT_PAUSE_SHORT,
+	CONT_PAUSE,
+};
+
+void
+ao_radio_continuity(uint8_t c)
+{
+	ao_radio_rdf_start();
+	ao_dma_set_transfer(ao_radio_dma,
+			    CONT_ADDR(c),
+			    &RFDXADDR,
+			    AO_RADIO_CONT_TOTAL_LEN,
+			    DMA_CFG0_WORDSIZE_8 |
+			    DMA_CFG0_TMODE_SINGLE |
+			    DMA_CFG0_TRIGGER_RADIO,
+			    DMA_CFG1_SRCINC_1 |
+			    DMA_CFG1_DESTINC_0 |
+			    DMA_CFG1_PRIORITY_HIGH);
+	ao_radio_rdf_run();
 }
 
 void

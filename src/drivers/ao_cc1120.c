@@ -160,7 +160,7 @@ ao_radio_fifo_read(uint8_t *data, uint8_t len)
 }
 
 static uint8_t
-ao_radio_fifo_write(uint8_t *data, uint8_t len)
+ao_radio_fifo_write_start(void)
 {
 	uint8_t	addr = ((0 << CC1120_READ)  |
 			(1 << CC1120_BURST) |
@@ -169,24 +169,28 @@ ao_radio_fifo_write(uint8_t *data, uint8_t len)
 
 	ao_radio_select();
 	ao_radio_duplex(&addr, &status, 1);
-	ao_radio_spi_send(data, len);
+	return status;
+}
+
+static inline uint8_t ao_radio_fifo_write_stop(uint8_t status) {
 	ao_radio_deselect();
 	return status;
 }
 
 static uint8_t
+ao_radio_fifo_write(uint8_t *data, uint8_t len)
+{
+	uint8_t	status = ao_radio_fifo_write_start();
+	ao_radio_spi_send(data, len);
+	return ao_radio_fifo_write_stop(status);
+}
+
+static uint8_t
 ao_radio_fifo_write_fixed(uint8_t data, uint8_t len)
 {
-	uint8_t	addr = ((0 << CC1120_READ)  |
-			(1 << CC1120_BURST) |
-			CC1120_FIFO);
-	uint8_t status;
-
-	ao_radio_select();
-	ao_radio_duplex(&addr, &status, 1);
+	uint8_t status = ao_radio_fifo_write_start();
 	ao_radio_spi_send_fixed(data, len);
-	ao_radio_deselect();
-	return status;
+	return ao_radio_fifo_write_stop(status);
 }
 
 static uint8_t
@@ -446,19 +450,20 @@ ao_radio_get(uint8_t len)
 
 #define ao_radio_put()	ao_mutex_put(&ao_radio_mutex)
 
-void
-ao_radio_rdf(uint8_t len)
+static void
+ao_rdf_start(uint8_t len)
 {
-	int i;
-
 	ao_radio_abort = 0;
 	ao_radio_get(len);
 
 	ao_radio_set_mode(AO_RADIO_MODE_RDF);
 	ao_radio_wake = 0;
 
-	ao_radio_fifo_write_fixed(ao_radio_rdf_value, len);
+}
 
+static void
+ao_rdf_run(void)
+{
 	ao_radio_start_tx();
 
 	cli();
@@ -468,6 +473,38 @@ ao_radio_rdf(uint8_t len)
 	if (!ao_radio_wake)
 		ao_radio_idle();
 	ao_radio_put();
+}
+
+void
+ao_radio_rdf(void)
+{
+	ao_rdf_start(AO_RADIO_RDF_LEN);
+
+	ao_radio_fifo_write_fixed(ao_radio_rdf_value, AO_RADIO_RDF_LEN);
+
+	ao_rdf_run();
+}
+
+void
+ao_radio_continuity(uint8_t c)
+{
+	uint8_t	i;
+	uint8_t status;
+
+	ao_rdf_start(AO_RADIO_CONT_TOTAL_LEN);
+
+	status = ao_radio_fifo_write_start();
+	for (i = 0; i < 3; i++) {
+		ao_radio_spi_send_fixed(0x00, AO_RADIO_CONT_PAUSE_LEN);
+		if (i < c)
+			ao_radio_spi_send_fixed(ao_radio_rdf_value, AO_RADIO_CONT_TONE_LEN);
+		else
+			ao_radio_spi_send_fixed(0x00, AO_RADIO_CONT_TONE_LEN);
+	}
+	ao_radio_spi_send_fixed(0x00, AO_RADIO_CONT_PAUSE_LEN);
+	status = ao_radio_fifo_write_stop(status);
+	(void) status;
+	ao_rdf_run();
 }
 
 void

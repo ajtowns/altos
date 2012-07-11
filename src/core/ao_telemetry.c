@@ -22,9 +22,6 @@ static __pdata uint16_t ao_telemetry_interval;
 static __pdata uint8_t ao_rdf = 0;
 static __pdata uint16_t ao_rdf_time;
 
-#define AO_RDF_INTERVAL_TICKS	AO_SEC_TO_TICKS(5)
-#define AO_RDF_LENGTH_MS	500
-
 #if defined(MEGAMETRUM)
 #define AO_SEND_MEGA	1
 #endif
@@ -317,8 +314,16 @@ ao_telemetry(void)
 			if (ao_rdf &&
 			    (int16_t) (ao_time() - ao_rdf_time) >= 0)
 			{
+#if HAS_IGNITE_REPORT
+				uint8_t	c;
+#endif
 				ao_rdf_time = ao_time() + AO_RDF_INTERVAL_TICKS;
-				ao_radio_rdf(AO_MS_TO_RDF_LEN(AO_RDF_LENGTH_MS));
+#if HAS_IGNITE_REPORT
+				if (ao_flight_state == ao_flight_pad && (c = ao_report_igniter()))
+					ao_radio_continuity(c);
+				else
+#endif
+					ao_radio_rdf();
 			}
 #endif
 			time += ao_telemetry_interval;
@@ -330,6 +335,7 @@ ao_telemetry(void)
 			}
 			else
 				time = ao_time();
+		bottom:	;
 		}
 	}
 }
