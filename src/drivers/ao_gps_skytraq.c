@@ -480,7 +480,7 @@ gps_dump(void) __reentrant
 	ao_mutex_get(&ao_gps_mutex);
 	printf ("Date: %02d/%02d/%02d\n", ao_gps_data.year, ao_gps_data.month, ao_gps_data.day);
 	printf ("Time: %02d:%02d:%02d\n", ao_gps_data.hour, ao_gps_data.minute, ao_gps_data.second);
-	printf ("Lat/Lon: %ld %ld\n", ao_gps_data.latitude, ao_gps_data.longitude);
+	printf ("Lat/Lon: %ld %ld\n", (long) ao_gps_data.latitude, (long) ao_gps_data.longitude);
 	printf ("Alt: %d\n", ao_gps_data.altitude);
 	printf ("Flags: 0x%x\n", ao_gps_data.flags);
 	printf ("Sats: %d", ao_gps_tracking_data.channels);

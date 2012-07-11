@@ -40,8 +40,8 @@ ao_gps_print(__xdata struct ao_gps_orig *gps_data) __reentrant
 	printf(AO_TELEM_GPS_LATITUDE " %ld "
 	       AO_TELEM_GPS_LONGITUDE " %ld "
 	       AO_TELEM_GPS_ALTITUDE " %d ",
-	       gps_data->latitude,
-	       gps_data->longitude,
+	       (long) gps_data->latitude,
+	       (long) gps_data->longitude,
 	       gps_data->altitude);
 
 	if (gps_data->flags & AO_GPS_DATE_VALID)

@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <fcntl.h>
 #define AO_GPS_NUM_SAT_MASK	(0xf << 0)
 #define AO_GPS_NUM_SAT_SHIFT	(0)
@@ -220,6 +221,8 @@ check_sirf_message(char *from, uint8_t *msg, int len)
 		get_u16(h_v_error);
 
 
+		(void) mag_var;
+		(void) id;
 		printf ("Geodetic Navigation Data (41):\n");
 		printf ("\tNav valid %04x\n", nav_valid);
 		printf ("\tNav type %04x\n", nav_type);
@@ -257,6 +260,7 @@ check_sirf_message(char *from, uint8_t *msg, int len)
 		get_u32(gps_tow);
 		get_u8(channels);
 
+		(void) id;
 		printf ("Measured Tracker Data (4):\n");
 		printf ("GPS week: %d\n", gps_week);
 		printf ("GPS time of week: %d\n", gps_tow);
@@ -368,10 +372,11 @@ ao_serial1_putchar(char c)
 		i = write(ao_gps_fd, &c, 1);
 		if (i == 1) {
 			if ((uint8_t) c == 0xb3 || c == '\r') {
-				static const struct timespec delay = {
+/*				static const struct timespec delay = {
 					.tv_sec = 0,
 					.tv_nsec = 100 * 1000 * 1000
 				};
+*/
 				tcdrain(ao_gps_fd);
 //				nanosleep(&delay, NULL);
 			}
