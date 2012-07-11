@@ -78,6 +78,8 @@ ao_config_set_radio(void)
 static void
 _ao_config_get(void)
 {
+	uint8_t	minor;
+
 	if (ao_config_loaded)
 		return;
 #if HAS_EEPROM
@@ -97,37 +99,37 @@ _ao_config_get(void)
 		ao_xmemset(&ao_config.callsign, '\0', sizeof (ao_config.callsign));
 		ao_xmemcpy(&ao_config.callsign, CODE_TO_XDATA(AO_CONFIG_DEFAULT_CALLSIGN),
 		       sizeof(AO_CONFIG_DEFAULT_CALLSIGN) - 1);
-		ao_config_dirty = 1;
 	}
-	if (ao_config.minor != AO_CONFIG_MINOR) {
+	minor = ao_config.minor;
+	if (minor != AO_CONFIG_MINOR) {
 		/* Fixups for minor version 1 */
-		if (ao_config.minor < 1)
+		if (minor < 1)
 			ao_config.apogee_delay = AO_CONFIG_DEFAULT_APOGEE_DELAY;
 		/* Fixups for minor version 2 */
-		if (ao_config.minor < 2) {
+		if (minor < 2) {
 			ao_config.accel_plus_g = 0;
 			ao_config.accel_minus_g = 0;
 		}
 		/* Fixups for minor version 3 */
 #if HAS_RADIO
-		if (ao_config.minor < 3)
+		if (minor < 3)
 			ao_config.radio_cal = ao_radio_cal;
 #endif
 		/* Fixups for minor version 4 */
-		if (ao_config.minor < 4)
+		if (minor < 4)
 			ao_config.flight_log_max = AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX;
 		/* Fixupes for minor version 5 */
-		if (ao_config.minor < 5)
+		if (minor < 5)
 			ao_config.ignite_mode = AO_CONFIG_DEFAULT_IGNITE_MODE;
-		if (ao_config.minor < 6)
+		if (minor < 6)
 			ao_config.pad_orientation = AO_CONFIG_DEFAULT_PAD_ORIENTATION;
-		if (ao_config.minor < 8)
+		if (minor < 8)
 			ao_config.radio_enable = TRUE;
-		if (ao_config.minor < 9)
+		if (minor < 9)
 			ao_xmemset(&ao_config.aes_key, '\0', AO_AES_LEN);
-		if (ao_config.minor < 10)
+		if (minor < 10)
 			ao_config.frequency = 434550;
-		if (ao_config.minor < 11)
+		if (minor < 11)
 			ao_config.apogee_lockout = 0;
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;

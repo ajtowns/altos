@@ -17,14 +17,15 @@
 
 #include <stdint.h>
 #define AO_CONVERT_TEST
+#define AO_NEED_ALTITUDE_TO_PRES 1
 #include "ao_host.h"
 #include "ao_convert.c"
 
 #define STEP	1
 
-static inline i_abs(int i) { return i < 0 ? -i : i; }
+static inline int i_abs(int i) { return i < 0 ? -i : i; }
 
-main ()
+int main (int argc, char **argv)
 {
 	int	i;
 	int16_t p_to_a, p_to_a_to_p;

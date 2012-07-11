@@ -41,6 +41,7 @@ ao_pres_to_altitude(int16_t pres) __reentrant
 		(int32_t) altitude_table[o+1] * part + (ALT_FRAC_SCALE >> 1)) >> ALT_FRAC_BITS;
 }
 
+#if AO_NEED_ALTITUDE_TO_PRES
 int16_t
 ao_altitude_to_pres(int16_t alt) __reentrant
 {
@@ -66,7 +67,9 @@ ao_altitude_to_pres(int16_t alt) __reentrant
 		pres = 0;
 	return (int16_t) pres;
 }
+#endif
 
+#if 0
 int16_t
 ao_temp_to_dC(int16_t temp) __reentrant
 {
@@ -83,3 +86,4 @@ ao_temp_to_dC(int16_t temp) __reentrant
 	ret = ((temp - 19791) * 1012L) >> 16;
 	return ret;
 }
+#endif

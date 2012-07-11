@@ -180,6 +180,7 @@ struct ao_cmds {
 #define ao_xmemset(d,v,c) memset(d,v,c)
 #define ao_xmemcmp(d,s,c) memcmp(d,s,c)
 
+#define AO_NEED_ALTITUDE_TO_PRES 1
 #include "ao_convert.c"
 
 struct ao_config {

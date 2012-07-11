@@ -37,9 +37,15 @@ put_string(__code char *s)
 }
 
 static void
+backspace(void)
+{
+	put_string ("\010 \010");
+}
+
+static void
 readline(void)
 {
-	__pdata char c;
+	char c;
 	if (ao_echo())
 		put_string("> ");
 	cmd_len = 0;
@@ -50,7 +56,7 @@ readline(void)
 		if (c == '\010' || c == '\177') {
 			if (cmd_len != 0) {
 				if (ao_echo())
-					put_string("\010 \010");
+					backspace();
 				--cmd_len;
 			}
 			continue;
@@ -60,7 +66,7 @@ readline(void)
 		if (c == '\025') {
 			while (cmd_len != 0) {
 				if (ao_echo())
-					put_string("\010 \010");
+					backspace();
 				--cmd_len;
 			}
 			continue;
@@ -76,11 +82,8 @@ readline(void)
 			break;
 		}
 
-		if (cmd_len >= CMD_LEN - 2) {
-			if (ao_echo())
-				putchar('\007');
+		if (cmd_len >= CMD_LEN - 2)
 			continue;
-		}
 		cmd_line[cmd_len++] = c;
 		if (ao_echo())
 			putchar(c);
@@ -271,13 +274,12 @@ help(void)
 	__pdata uint8_t cmds;
 	__pdata uint8_t cmd;
 	__code struct ao_cmds * __pdata cs;
+	const char *h;
 
 	for (cmds = 0; cmds < ao_ncmds; cmds++) {
 		cs = ao_cmds[cmds];
-		for (cmd = 0; cs[cmd].func; cmd++)
-			printf("%-45s %s\n",
-			       cs[cmd].help,
-			       cs[cmd].help+1+strlen(cs[cmd].help));
+		for (cmd = 0; (h = cs[cmd].help); cmd++)
+			printf("%-45s %s\n", h, h + 1 + strlen(h));
 	}
 }
 
