@@ -62,6 +62,29 @@ __pdata int32_t ao_sample_accel_sum;
 #endif
 
 static void
+ao_sample_preflight_add(void)
+{
+#if HAS_ACCEL
+	ao_sample_accel_sum += ao_sample_accel;
+#endif
+	ao_sample_pres_sum += ao_sample_pres;
+	++nsamples;
+}
+
+static void
+ao_sample_preflight_set(void)
+{
+#if HAS_ACCEL
+	ao_ground_accel = ao_sample_accel_sum >> 9;
+	ao_sample_accel_sum = 0;
+#endif
+	ao_ground_pres = ao_sample_pres_sum >> 9;
+	ao_ground_height = pres_to_altitude(ao_ground_pres);
+	nsamples = 0;
+	ao_sample_pres_sum = 0;
+}
+
+static void
 ao_sample_preflight(void)
 {
 	/* startup state:
@@ -70,29 +93,38 @@ ao_sample_preflight(void)
 	 * data and average them to find the resting values
 	 */
 	if (nsamples < 512) {
-#if HAS_ACCEL
-		ao_sample_accel_sum += ao_sample_accel;
-#endif
-		ao_sample_pres_sum += ao_sample_pres;
-		++nsamples;
+		ao_sample_preflight_add();
 	} else {
-		ao_config_get();
 #if HAS_ACCEL
-		ao_ground_accel = ao_sample_accel_sum >> 9;
 		ao_accel_2g = ao_config.accel_minus_g - ao_config.accel_plus_g;
 		ao_accel_scale = to_fix32(GRAVITY * 2 * 16) / ao_accel_2g;
 #endif
-		ao_ground_pres = ao_sample_pres_sum >> 9;
-		ao_ground_height = pres_to_altitude(ao_ground_pres);
+		ao_sample_preflight_set();
 		ao_preflight = FALSE;
 	}
 }
 
+/*
+ * While in pad mode, constantly update the ground state by
+ * re-averaging the data.  This tracks changes in orientation, which
+ * might be caused by adjustments to the rocket on the pad and
+ * pressure, which might be caused by changes in the weather.
+ */
+
+static void
+ao_sample_preflight_update(void)
+{
+	if (nsamples < 512)
+		ao_sample_preflight_add();
+	else if (nsamples < 1024)
+		++nsamples;
+	else
+		ao_sample_preflight_set();
+}
 
 uint8_t
 ao_sample(void)
 {
-	ao_config_get();
 	ao_wakeup(DATA_TO_XDATA(&ao_sample_data));
 	ao_sleep((void *) DATA_TO_XDATA(&ao_data_head));
 	while (ao_sample_data != ao_data_head) {
@@ -116,8 +148,11 @@ ao_sample(void)
 
 		if (ao_preflight)
 			ao_sample_preflight();
-		else
+		else {
+			if (ao_flight_state < ao_flight_boost)
+				ao_sample_preflight_update();
 			ao_kalman();
+		}
 		ao_sample_data = ao_data_ring_next(ao_sample_data);
 	}
 	return !ao_preflight;
@@ -126,6 +161,7 @@ ao_sample(void)
 void
 ao_sample_init(void)
 {
+	ao_config_get();
 	nsamples = 0;
 	ao_sample_pres_sum = 0;
 	ao_sample_pres = 0;
