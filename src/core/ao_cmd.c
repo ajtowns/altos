@@ -278,8 +278,10 @@ help(void)
 
 	for (cmds = 0; cmds < ao_ncmds; cmds++) {
 		cs = ao_cmds[cmds];
-		for (cmd = 0; (h = cs[cmd].help); cmd++)
+		for (cmd = 0; cs[cmd].func; cmd++) {
+			h = cs[cmd].help;
 			printf("%-45s %s\n", h, h + 1 + strlen(h));
+		}
 	}
 }
 
