@@ -102,21 +102,7 @@ public class AltosSerial extends AltosLink implements Runnable {
 		}
 	}
 
-	boolean		abort;
 	JDialog		timeout_dialog;
-	boolean	timeout_started = false;
-
-	private void stop_timeout_dialog() {
-		if (timeout_started) {
-			timeout_started = false;
-			Runnable r = new Runnable() {
-					public void run() {
-						timeout_dialog.setVisible(false);
-					}
-				};
-			SwingUtilities.invokeLater(r);
-		}
-	}
 
 	private void start_timeout_dialog_internal() {
 
@@ -135,69 +121,42 @@ public class AltosSerial extends AltosLink implements Runnable {
 		if (o == null)
 			return;
 		if (options[0].equals(o))
-			abort = true;
+			reply_abort = true;
 		timeout_dialog.dispose();
 		timeout_dialog = null;
 	}
 
-	private boolean check_timeout() {
-		if (!timeout_started && frame != null) {
-			if (!SwingUtilities.isEventDispatchThread()) {
-				timeout_started = true;
-				Runnable r = new Runnable() {
-						public void run() {
-							start_timeout_dialog_internal();
-						}
-					};
-				SwingUtilities.invokeLater(r);
-			}
-		}
-		return abort;
+	/*
+	 * These are required by the AltosLink implementation
+	 */
+
+	public boolean can_cancel_reply() {
+		/*
+		 * Can cancel any replies not called from the dispatch thread
+		 */
+		return !SwingUtilities.isEventDispatchThread();
 	}
 
-	public void flush_input() throws InterruptedException {
-		if (remote)
-			flush_input(500);
-		else
-			flush_input(100);
+	public boolean show_reply_timeout() {
+		if (!SwingUtilities.isEventDispatchThread() && frame != null) {
+			Runnable r = new Runnable() {
+					public void run() {
+						start_timeout_dialog_internal();
+					}
+				};
+			SwingUtilities.invokeLater(r);
+			return true;
+		}
+		return false;
 	}
 
-	int	in_reply;
-
-	public String get_reply(int timeout) throws InterruptedException {
-		boolean	can_cancel = true;
-		String	reply = null;
-
-		try {
-			++in_reply;
-
-			if (SwingUtilities.isEventDispatchThread()) {
-				can_cancel = false;
-				if (remote)
-					System.out.printf("Uh-oh, reading remote serial device from swing thread\n");
-			}
-			flush_output();
-			if (remote && can_cancel) {
-				timeout = 500;
-			}
-			abort = false;
-			timeout_started = false;
-			for (;;) {
-				AltosLine line = reply_queue.poll(timeout, TimeUnit.MILLISECONDS);
-				if (line != null) {
-					stop_timeout_dialog();
-					reply = line.line;
-					break;
+	public void hide_reply_timeout() {
+		Runnable r = new Runnable() {
+				public void run() {
+					timeout_dialog.setVisible(false);
 				}
-				if (!remote || !can_cancel || check_timeout()) {
-					reply = null;
-					break;
-				}
-			}
-		} finally {
-			--in_reply;
-		}
-		return reply;
+			};
+		SwingUtilities.invokeLater(r);
 	}
 
 	public void close() {

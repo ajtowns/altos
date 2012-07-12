@@ -60,16 +60,66 @@ public abstract class AltosLink {
 		return null;
 	}
 
-	public String get_reply(int timeout) throws InterruptedException {
-		try {
-			return get_reply_no_dialog(timeout);
-		} catch (TimeoutException te) {
-			return null;
+	public String get_reply() throws InterruptedException {
+		return get_reply(5000);
+	}
+
+		
+	public abstract boolean can_cancel_reply();
+	public abstract boolean show_reply_timeout();
+	public abstract void hide_reply_timeout();
+
+	public boolean	reply_abort;
+	public int	in_reply;
+
+	boolean		reply_timeout_shown = false;
+
+	private boolean check_reply_timeout() {
+		if (!reply_timeout_shown)
+			reply_timeout_shown = show_reply_timeout();
+		return reply_abort;
+	}
+
+	private void cleanup_reply_timeout() {
+		if (reply_timeout_shown) {
+			reply_timeout_shown = false;
+			hide_reply_timeout();
 		}
 	}
 
-	public String get_reply() throws InterruptedException {
-		return get_reply(5000);
+
+	public String get_reply(int timeout) throws InterruptedException {
+		boolean	can_cancel = can_cancel_reply();
+		String	reply = null;
+
+		if (!can_cancel && remote)
+			System.out.printf("Uh-oh, reading remote serial device from swing thread\n");
+
+		if (remote && can_cancel)
+			timeout = 500;
+		try {
+			++in_reply;
+
+			flush_output();
+
+			reply_abort = false;
+			reply_timeout_shown = false;
+			for (;;) {
+				AltosLine line = reply_queue.poll(timeout, TimeUnit.MILLISECONDS);
+				if (line != null) {
+					cleanup_reply_timeout();
+					reply = line.line;
+					break;
+				}
+				if (!remote || !can_cancel || check_reply_timeout()) {
+					reply = null;
+					break;
+				}
+			}
+		} finally {
+			--in_reply;
+		}
+		return reply;
 	}
 
 	public void add_telem(AltosLine line) throws InterruptedException {
@@ -124,7 +174,10 @@ public abstract class AltosLink {
 
 
 	public void flush_input() throws InterruptedException {
-		flush_input(100);
+		if (remote)
+			flush_input(500);
+		else
+			flush_input(100);
 	}
 
 
