@@ -131,6 +131,10 @@ _ao_config_get(void)
 			ao_config.frequency = 434550;
 		if (minor < 11)
 			ao_config.apogee_lockout = 0;
+#if AO_PYRO_NUM
+		if (minor < 12)
+			memset(&ao_config.pyro, '\0', sizeof (ao_config.pyro));
+#endif
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
@@ -144,14 +148,14 @@ _ao_config_get(void)
 	ao_config_loaded = 1;
 }
 
-static void
+void
 _ao_config_edit_start(void)
 {
 	ao_mutex_get(&ao_config_mutex);
 	_ao_config_get();
 }
 
-static void
+void
 _ao_config_edit_finish(void)
 {
 	ao_config_dirty = 1;
@@ -537,6 +541,10 @@ __code struct ao_config_var ao_config_vars[] = {
 #if HAS_AES
 	{ "k <32 hex digits>\0Set AES encryption key",
 	  ao_config_key_set, ao_config_key_show },
+#endif
+#if AO_PYRO_NUM
+	{ "P <n,?>\0Configure pyro channels",
+	  ao_pyro_set, ao_pyro_show },
 #endif
 	{ "s\0Show",
 	  ao_config_show,		0 },

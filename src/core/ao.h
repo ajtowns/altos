@@ -688,6 +688,10 @@ ao_igniter_init(void);
  * ao_config.c
  */
 
+#if AO_PYRO_NUM
+#include <ao_pyro.h>
+#endif
+
 #if HAS_FORCE_FREQ
 /*
  * Set this to force the frequency to 434.550MHz
@@ -696,7 +700,7 @@ extern __xdata uint8_t ao_force_freq;
 #endif
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	11
+#define AO_CONFIG_MINOR	12
 
 #define AO_AES_LEN 16
 
@@ -718,6 +722,9 @@ struct ao_config {
 	uint8_t		aes_key[AO_AES_LEN];	/* minor version 9 */
 	uint32_t	frequency;		/* minor version 10 */
 	uint16_t	apogee_lockout;		/* minor version 11 */
+#if AO_PYRO_NUM
+	struct ao_pyro	pyro[AO_PYRO_NUM];	/* minor version 12 */
+#endif
 };
 
 #define AO_IGNITE_MODE_DUAL		0
@@ -730,6 +737,12 @@ struct ao_config {
 extern __xdata struct ao_config ao_config;
 
 #define AO_CONFIG_MAX_SIZE	128
+
+void
+_ao_config_edit_start(void);
+
+void
+_ao_config_edit_finish(void);
 
 void
 ao_config_get(void);
