@@ -19,8 +19,6 @@ MEMORY {
 	ram (rwx) : ORIGIN = 0x20000000, LENGTH = 16K
 }
 
-C_STACK_SIZE = 512;
-
 INCLUDE registers.ld
 
 SECTIONS {
@@ -59,7 +57,7 @@ SECTIONS {
 		__bss_end__ = .;
 	} >ram
 
-	PROVIDE(__stack__ = . + C_STACK_SIZE);
+	PROVIDE(__stack__ = ORIGIN(ram) + LENGTH(ram));
 	PROVIDE(end = .);
 
 }

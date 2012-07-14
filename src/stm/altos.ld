@@ -23,7 +23,6 @@ MEMORY {
 INCLUDE registers.ld
 
 EXTERN (stm_interrupt_vector)
-C_STACK_SIZE = 512;
 
 SECTIONS {
 	. = ORIGIN(rom);
@@ -62,7 +61,7 @@ SECTIONS {
 		__bss_end__ = .;
 	} >ram
 
-	PROVIDE(__stack__ = . + C_STACK_SIZE);
+	PROVIDE(__stack__ = ORIGIN(ram) + LENGTH(ram));
 	PROVIDE(end = .);
 
 }
