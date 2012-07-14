@@ -131,7 +131,7 @@ static __xdata struct ao_task ao_companion_task;
 void
 ao_companion_init(void)
 {
-	ao_enable_output(AO_COMPANION_CS_PORT, AO_COMPANION_CS_PIN, 1);
+	ao_enable_output(AO_COMPANION_CS_PORT, AO_COMPANION_CS_PIN, AO_COMPANION_CS, 1);
 	ao_cmd_register(&ao_companion_cmds[0]);
 	ao_add_task(&ao_companion_task, ao_companion, "companion");
 }

@@ -236,5 +236,5 @@ void
 ao_storage_device_init(void)
 {
 	/* set up CS */
-	ao_enable_output(EE_CS_PORT, EE_CS_PIN,1);
+	ao_enable_output(EE_CS_PORT, EE_CS_PIN, EE_CS, 1);
 }

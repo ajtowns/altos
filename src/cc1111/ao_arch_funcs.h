@@ -77,14 +77,14 @@ ao_spi_init(void);
 		SPI_CS_SEL &= ~mask;		\
 	} while (0)
 
-#define cc1111_enable_output(port,dir,sel,mask,v) do { \
-	port = port & ~(mask) | v; \
-	dir |= mask; \
-	sel &= ~mask; \
-} while (0)
+#define cc1111_enable_output(port,dir,sel,pin,bit,v) do {	\
+		pin = v;					\
+		dir |= (1 << bit);				\
+		sel &= ~(1 << bit);				\
+	} while (0)
 
 #define disable_unreachable	_Pragma("disable_warning 126")
 
 #define token_paster(x,y)	x ## y
 #define token_evaluator(x,y)	token_paster(x,y)
-#define ao_enable_output(port,pin,v) cc1111_enable_output(port,token_evaluator(port,DIR), token_evaluator(port,SEL), 1 << pin, 1 << v)
+#define ao_enable_output(port,bit,pin,v) cc1111_enable_output(port,token_evaluator(port,DIR), token_evaluator(port,SEL), pin, bit, v)

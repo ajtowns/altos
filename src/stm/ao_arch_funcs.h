@@ -76,12 +76,12 @@ ao_spi_init(void);
 	} while (0)
 
 
-#define ao_gpio_set(port, pin, v) stm_gpio_set(port, pin, v)
+#define ao_gpio_set(port, bit, pin, v) stm_gpio_set(port, bit, v)
 
-#define ao_enable_output(port,pin,v) do {			\
+#define ao_enable_output(port,bit,pin,v) do {			\
 		ao_enable_port(port);				\
-		ao_gpio_set(port, pin, v);			\
-		stm_moder_set(port, pin, STM_MODER_OUTPUT);	\
+		ao_gpio_set(port, bit, pin, v);			\
+		stm_moder_set(port, bit, STM_MODER_OUTPUT);\
 	} while (0)
 
 #define ao_enable_cs(port,bit) do {				\

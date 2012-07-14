@@ -102,16 +102,18 @@ ao_pyro_ready(struct ao_pyro *pyro)
 			/* handled separately */
 			continue;
 			
+		case ao_pyro_none:
+			break;
 		}
 		return FALSE;
 	}
 	return TRUE;
 }
 
-#define ao_pyro_fire_port(port, pin) do {		\
-		ao_gpio_set(port, pin, 1);	\
+#define ao_pyro_fire_port(port, bit, pin) do {	\
+		ao_gpio_set(port, bit, pin, 1);	\
 		ao_delay(AO_MS_TO_TICKS(50));	\
-		ao_gpio_set(port, pin, 0);	\
+		ao_gpio_set(port, bit, pin, 0);	\
 	} while (0)
 	
 
@@ -120,28 +122,28 @@ ao_pyro_fire(uint8_t p)
 {
 	switch (p) {
 #if AO_PYRO_NUM > 0
-	case 0: ao_pyro_fire_port(AO_PYRO_PORT_0, AO_PYRO_PIN_0); break;
+	case 0: ao_pyro_fire_port(AO_PYRO_PORT_0, AO_PYRO_PIN_0, AO_PYRO_0); break;
 #endif
 #if AO_PYRO_NUM > 1
-	case 1: ao_pyro_fire_port(AO_PYRO_PORT_1, AO_PYRO_PIN_1); break;
+	case 1: ao_pyro_fire_port(AO_PYRO_PORT_1, AO_PYRO_PIN_1, AO_PYRO_1); break;
 #endif
 #if AO_PYRO_NUM > 2
-	case 2: ao_pyro_fire_port(AO_PYRO_PORT_2, AO_PYRO_PIN_2); break;
+	case 2: ao_pyro_fire_port(AO_PYRO_PORT_2, AO_PYRO_PIN_2, AO_PYRO_2); break;
 #endif
 #if AO_PYRO_NUM > 3
-	case 3: ao_pyro_fire_port(AO_PYRO_PORT_3, AO_PYRO_PIN_3); break;
+	case 3: ao_pyro_fire_port(AO_PYRO_PORT_3, AO_PYRO_PIN_3, AO_PYRO_3); break;
 #endif
 #if AO_PYRO_NUM > 4
-	case 4: ao_pyro_fire_port(AO_PYRO_PORT_4, AO_PYRO_PIN_4); break;
+	case 4: ao_pyro_fire_port(AO_PYRO_PORT_4, AO_PYRO_PIN_4, AO_PYRO_4); break;
 #endif
 #if AO_PYRO_NUM > 5
-	case 5: ao_pyro_fire_port(AO_PYRO_PORT_5, AO_PYRO_PIN_5); break;
+	case 5: ao_pyro_fire_port(AO_PYRO_PORT_5, AO_PYRO_PIN_5, AO_PYRO_5); break;
 #endif
 #if AO_PYRO_NUM > 6
-	case 6: ao_pyro_fire_port(AO_PYRO_PORT_6, AO_PYRO_PIN_6); break;
+	case 6: ao_pyro_fire_port(AO_PYRO_PORT_6, AO_PYRO_PIN_6, AO_PYRO_6); break;
 #endif
 #if AO_PYRO_NUM > 7
-	case 7: ao_pyro_fire_port(AO_PYRO_PORT_7, AO_PYRO_PIN_7); break;
+	case 7: ao_pyro_fire_port(AO_PYRO_PORT_7, AO_PYRO_PIN_7, AO_PYRO_7); break;
 #endif
 	default: break;
 	}
@@ -291,7 +293,6 @@ void
 ao_pyro_set(void)
 {
 	uint8_t	p;
-	struct ao_pyro *pyro;
 	struct ao_pyro pyro_tmp;
 	char	name[AO_PYRO_NAME_LEN];
 	uint8_t	c;
@@ -351,28 +352,28 @@ void
 ao_pyro_init(void)
 {
 #if AO_PYRO_NUM > 0
-	ao_enable_output(AO_PYRO_PORT_0, AO_PYRO_PIN_0, 0);
+	ao_enable_output(AO_PYRO_PORT_0, AO_PYRO_PIN_0, AO_PYRO_0, 0);
 #endif
 #if AO_PYRO_NUM > 1
-	ao_enable_output(AO_PYRO_PORT_1, AO_PYRO_PIN_1, 0);
+	ao_enable_output(AO_PYRO_PORT_1, AO_PYRO_PIN_1, AO_PYRO_1, 0);
 #endif
 #if AO_PYRO_NUM > 2
-	ao_enable_output(AO_PYRO_PORT_2, AO_PYRO_PIN_2, 0);
+	ao_enable_output(AO_PYRO_PORT_2, AO_PYRO_PIN_2, AO_PYRO_2, 0);
 #endif
 #if AO_PYRO_NUM > 3
-	ao_enable_output(AO_PYRO_PORT_3, AO_PYRO_PIN_3, 0);
+	ao_enable_output(AO_PYRO_PORT_3, AO_PYRO_PIN_3, AO_PYRO_3, 0);
 #endif
 #if AO_PYRO_NUM > 4
-	ao_enable_output(AO_PYRO_PORT_4, AO_PYRO_PIN_4, 0);
+	ao_enable_output(AO_PYRO_PORT_4, AO_PYRO_PIN_4, AO_PYRO_4, 0);
 #endif
 #if AO_PYRO_NUM > 5
-	ao_enable_output(AO_PYRO_PORT_5, AO_PYRO_PIN_5, 0);
+	ao_enable_output(AO_PYRO_PORT_5, AO_PYRO_PIN_5, AO_PYRO_5, 0);
 #endif
 #if AO_PYRO_NUM > 6
-	ao_enable_output(AO_PYRO_PORT_6, AO_PYRO_PIN_6, 0);
+	ao_enable_output(AO_PYRO_PORT_6, AO_PYRO_PIN_6, AO_PYRO_6, 0);
 #endif
 #if AO_PYRO_NUM > 7
-	ao_enable_output(AO_PYRO_PORT_7, AO_PYRO_PIN_7, 0);
+	ao_enable_output(AO_PYRO_PORT_7, AO_PYRO_PIN_7, AO_PYRO_7, 0);
 #endif
 	ao_add_task(&ao_pyro_task, ao_pyro, "pyro");
 }

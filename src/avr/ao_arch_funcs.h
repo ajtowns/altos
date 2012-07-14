@@ -41,11 +41,28 @@ extern __xdata uint8_t	ao_spi_mutex;
 		ao_mutex_put(&ao_spi_mutex);	\
 	} while (0)
 
+
+#define ao_gpio_token_paster(x,y)		x ## y
+#define ao_gpio_token_evaluator(x,y)	ao_gpio_token_paster(x,y)
+
+#define ao_gpio_set(port, bit, pin, v) do {				\
+		if (v)							\
+			(ao_gpio_token_evaluator(PORT,port)) |= (1 << bit); \
+		else							\
+			(ao_gpio_token_evaluator(PORT,port)) &= ~(1 << bit); \
+	} while (0)
+
 /*
  * The SPI mutex must be held to call either of these
  * functions -- this mutex covers the entire SPI operation,
  * from chip select low to chip select high
  */
+
+#define ao_enable_output(port, bit, pin, v) do {			\
+		ao_gpio_set(port, bit, pin, v);				\
+		ao_gpio_token_evaluator(DDR,port) |= (1 << bit);	\
+	} while (0)
+
 
 void
 ao_spi_send_bus(void __xdata *block, uint16_t len) __reentrant;
