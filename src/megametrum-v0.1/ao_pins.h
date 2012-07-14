@@ -120,29 +120,26 @@
 #define AO_IGNITER_CLOSED	400
 #define AO_IGNITER_OPEN		60
 
-#define AO_IGNITER_PORT_A	(&stm_gpiod)
-#define AO_IGNITER_PIN_A	6
+#define AO_IGNITER_DROGUE_PORT	(&stm_gpiod)
+#define AO_IGNITER_DROGUE_PIN	6
 
-#define AO_IGNITER_PORT_B	(&stm_gpiod)
-#define AO_IGNITER_PIN_B	7
+#define AO_IGNITER_MAIN_PORT	(&stm_gpiod)
+#define AO_IGNITER_MAIN_PIN	7
 
-#define AO_IGNITER_PORT_C	(&stm_gpiob)
-#define AO_IGNITER_PIN_C	5
+#define AO_PYRO_PORT_0	(&stm_gpiob)
+#define AO_PYRO_PIN_0	5
 
-#define AO_IGNITER_PORT_D	(&stm_gpioe)
-#define AO_IGNITER_PIN_D	4
+#define AO_PYRO_PORT_1	(&stm_gpioe)
+#define AO_PYRO_PIN_1	4
 
-#define AO_IGNITER_PORT_E	(&stm_gpioe)
-#define AO_IGNITER_PIN_E	6
+#define AO_PYRO_PORT_2	(&stm_gpioe)
+#define AO_PYRO_PIN_2	6
 
-#define AO_IGNITER_PORT_F	(&stm_gpioe)
-#define AO_IGNITER_PIN_F	5
+#define AO_PYRO_PORT_3	(&stm_gpioe)
+#define AO_PYRO_PIN_3	5
 
-#define AO_IGNITER_DROGUE_PORT	AO_IGNITER_PORT_A
-#define AO_IGNITER_DROGUE_PIN	AO_IGNITER_PIN_A
-
-#define AO_IGNITER_MAIN_PORT	AO_IGNITER_PORT_B
-#define AO_IGNITER_MAIN_PIN	AO_IGNITER_PIN_B
+/* Number of general purpose pyro channels available */
+#define AO_PYRO_NUM	4
 
 #define AO_IGNITER_SET_DROGUE(v)	stm_gpio_set(AO_IGNITER_DROGUE_PORT, AO_IGNITER_DROGUE_PIN, v)
 #define AO_IGNITER_SET_MAIN(v)		stm_gpio_set(AO_IGNITER_MAIN_PORT, AO_IGNITER_MAIN_PIN, v)

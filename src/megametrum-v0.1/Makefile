@@ -74,6 +74,7 @@ ALTOS_SRC = \
 	ao_packet_slave.c \
 	ao_packet.c \
 	ao_companion.c \
+	ao_pyro.c \
 	$(PROFILE)
 
 PRODUCT=MegaMetrum-v0.1

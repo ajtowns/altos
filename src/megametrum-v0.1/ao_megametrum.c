@@ -23,6 +23,7 @@
 #include <ao_packet.h>
 #include <ao_companion.h>
 #include <ao_profile.h>
+#include <ao_pyro.h>
 
 int
 main(void)
@@ -67,6 +68,7 @@ main(void)
 	ao_packet_slave_init(FALSE);
 	ao_igniter_init();
 	ao_companion_init();
+	ao_pyro_init();
 
 	ao_config_init();
 #if AO_PROFILE
