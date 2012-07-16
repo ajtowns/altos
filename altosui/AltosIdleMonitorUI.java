@@ -84,6 +84,7 @@ class AltosADC {
 					i += 2;
 					continue;
 				}
+				i++;
 			}
 			break;
 		}
