@@ -66,14 +66,16 @@ ao_pyro_ready(struct ao_pyro *pyro)
 				continue;
 			break;
 
+#if HAS_ORIENT
 		case ao_pyro_orient_less:
-//			if (ao_orient <= pyro->orient_less)
+			if (ao_orient <= pyro->orient_less)
 				continue;
 			break;
 		case ao_pyro_orient_greater:
-//			if (ao_orient >= pyro->orient_greater)
+			if (ao_orient >= pyro->orient_greater)
 				continue;
 			break;
+#endif
 
 		case ao_pyro_time_less:
 			if ((int16_t) (ao_time() - ao_boost_tick) <= pyro->time_less)
@@ -102,8 +104,8 @@ ao_pyro_ready(struct ao_pyro *pyro)
 			/* handled separately */
 			continue;
 			
-		case ao_pyro_none:
-			break;
+		default:
+			continue;
 		}
 		return FALSE;
 	}
@@ -234,7 +236,7 @@ const struct {
 	{ "h<",	ao_pyro_height_less,	offsetof(struct ao_pyro, height_less), HELP("height less (m)") },
 	{ "h>",	ao_pyro_height_greater,	offsetof(struct ao_pyro, height_greater), HELP("height greater (m)") },
 
-#if 0
+#if HAS_ORIENT
 	{ "o<",	ao_pyro_orient_less,	offsetof(struct ao_pyro, orient_less), HELP("orient less (deg)") },
 	{ "o>",	ao_pyro_orient_greater,	offsetof(struct ao_pyro, orient_greater), HELP("orient greater (deg)")  },
 #endif
@@ -281,6 +283,7 @@ ao_pyro_show(void)
 	uint8_t 	v;
 	struct ao_pyro	*pyro;
 
+	printf ("Pyro-count: %d\n", AO_PYRO_NUM);
 	for (p = 0; p < AO_PYRO_NUM; p++) {
 		printf ("Pyro %2d: ", p);
 		pyro = &ao_config.pyro[p];
