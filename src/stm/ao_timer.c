@@ -17,7 +17,7 @@
 
 #include "ao.h"
 
-static volatile __data uint16_t ao_tick_count;
+volatile __data uint16_t ao_tick_count;
 
 uint16_t ao_time(void)
 {
