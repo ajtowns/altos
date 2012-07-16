@@ -2,7 +2,7 @@
 # AltOS build
 #
 #
-vpath % ..:../core:../product:../drivers:../avr
+vpath % .:..:../core:../product:../drivers:../avr
 vpath ao-make-product.5c ../util
 
 MCU=atmega32u4
@@ -23,7 +23,8 @@ INC = \
 	ao_usb.h \
 	ao_pins.h \
 	ao_arch.h \
-	ao_arch_funcs.h
+	ao_arch_funcs.h \
+	ao_product.h
 
 ALTOS_SRC = \
 	ao_clock.c \
