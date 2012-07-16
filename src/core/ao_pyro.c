@@ -103,7 +103,7 @@ ao_pyro_ready(struct ao_pyro *pyro)
 		case ao_pyro_delay:
 			/* handled separately */
 			continue;
-			
+
 		default:
 			continue;
 		}
@@ -117,7 +117,7 @@ ao_pyro_ready(struct ao_pyro *pyro)
 		ao_delay(AO_MS_TO_TICKS(50));	\
 		ao_gpio_set(port, bit, pin, 0);	\
 	} while (0)
-	
+
 
 static void
 ao_pyro_fire(uint8_t p)
@@ -246,7 +246,7 @@ const struct {
 
 	{ "A", ao_pyro_ascending,	NO_VALUE, HELP("ascending") },
 	{ "D", ao_pyro_descending,	NO_VALUE, HELP("descending") },
-	
+
 	{ "m", ao_pyro_after_motor,	offsetof(struct ao_pyro, motor), HELP("after motor") },
 
 	{ "d", ao_pyro_delay,		offsetof(struct ao_pyro, delay), HELP("delay before firing (s * 100)") },
@@ -275,7 +275,7 @@ ao_pyro_help(void)
 	}
 }
 #endif
-	      
+
 void
 ao_pyro_show(void)
 {
@@ -340,7 +340,7 @@ ao_pyro_set(void)
 		ao_cmd_white();
 		if (ao_cmd_lex_c == '\n')
 			break;
-		
+
 		for (c = 0; c < AO_PYRO_NAME_LEN - 1; c++) {
 			if (ao_cmd_is_white())
 				break;
@@ -370,6 +370,25 @@ ao_pyro_set(void)
 	_ao_config_edit_finish();
 }
 
+static void
+ao_pyro_manual(void)
+{
+	ao_cmd_white();
+	if (!ao_match_word("DoIt"))
+		return;
+	ao_cmd_white();
+	ao_cmd_decimal();
+	if (ao_cmd_lex_i < 0 || AO_PYRO_NUM <= ao_cmd_lex_i)
+		return;
+	ao_pyro_fire(ao_cmd_lex_i);
+
+}
+
+const struct ao_cmds ao_pyro_cmds[] = {
+	{ ao_pyro_manual,	"P DoIt <n>\0Fire igniter" },
+	{ 0, NULL }
+};
+
 void
 ao_pyro_init(void)
 {
@@ -397,5 +416,6 @@ ao_pyro_init(void)
 #if AO_PYRO_NUM > 7
 	ao_enable_output(AO_PYRO_PORT_7, AO_PYRO_PIN_7, AO_PYRO_7, 0);
 #endif
+	ao_cmd_register(&ao_pyro_cmds[0]);
 	ao_add_task(&ao_pyro_task, ao_pyro, "pyro");
 }
