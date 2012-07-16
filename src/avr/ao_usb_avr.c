@@ -658,18 +658,6 @@ ao_usb_echo(void)
 }
 #endif
 
-static void
-ao_usb_irq(void)
-{
-	printf ("control: %d out: %d in: %d\n",
-		control_count, out_count, in_count);
-}
-
-__code struct ao_cmds ao_usb_cmds[] = {
-	{ ao_usb_irq, "i\0Show USB interrupt counts" },
-	{ 0, NULL }
-};
-
 void
 ao_usb_init(void)
 {
@@ -680,6 +668,5 @@ ao_usb_init(void)
 #if USB_DEBUG
 	ao_add_task(&ao_usb_echo_task, ao_usb_echo, "usb echo");
 #endif
-	ao_cmd_register(&ao_usb_cmds[0]);
 	ao_add_stdio(ao_usb_pollchar, ao_usb_putchar, ao_usb_flush);
 }
