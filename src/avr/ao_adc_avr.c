@@ -125,42 +125,21 @@ ao_adc_dump(void) __reentrant
 	static __xdata struct ao_data	packet;
 	uint8_t i;
 	ao_data_get(&packet);
-#ifdef TELEPYRO
-	printf("ADMUX:  %02x\n", ADMUX);
-	printf("ADCSRA: %02x\n", ADCSRA);
-	printf("ADCSRB: %02x\n", ADCSRB);
-	printf("DIDR0:  %02x\n", DIDR0);
-	printf("DIDR2:  %02x\n", DIDR2);
-	printf("PORTF:  %02x\n", PORTF);
-	printf("DDRF:   %02x\n", DDRF);
-	printf("PINF:   %02x\n", PINF);
-#endif
 	printf("tick: %5u",  packet.tick);
 	for (i = 0; i < NUM_ADC; i++)
 		printf (" %2d: %5u", i, packet.adc.adc[i]);
 	printf("\n");
-
-
-#ifdef TELEPYRO
-	ADMUX = 0x60;
-	ADCSRB = 0x00;
-	ADCSRA = 0xc6;
-	while (ADCSRA & 0x40)
-		;
-	printf ("ADCL:  %02x\n", ADCL);
-	printf ("ADCH:  %02x\n", ADCH);
-	printf ("\n");
-#endif
 }
 
 __code struct ao_cmds ao_adc_cmds[] = {
-	{ ao_adc_dump,	"a\0Display current ADC values" },
+	{ ao_adc_dump,	"a\0ADC" },
 	{ 0, NULL },
 };
 
 void
 ao_adc_init(void)
 {
+	PRR0 &= ~(1 << PRADC);
 	DIDR0 = 0xf3;
 	DIDR2 = 0x3f;
 	ADCSRB = ADCSRB_INIT;
