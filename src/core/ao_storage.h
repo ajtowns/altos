@@ -23,14 +23,20 @@
  * drivers
  */
 
+#ifndef ao_storage_pos_t
+#define ao_storage_pos_t uint32_t
+#endif
+
+typedef ao_storage_pos_t ao_pos_t;
+
 /* Total bytes of available storage */
-extern __pdata uint32_t	ao_storage_total;
+extern __pdata ao_pos_t	ao_storage_total;
 
 /* Block size - device is erased in these units. At least 256 bytes */
-extern __pdata uint32_t	ao_storage_block;
+extern __pdata ao_pos_t	ao_storage_block;
 
 /* Byte offset of config block. Will be ao_storage_block bytes long */
-extern __pdata uint32_t	ao_storage_config;
+extern __pdata ao_pos_t	ao_storage_config;
 
 /* Storage unit size - device reads and writes must be within blocks of this size. Usually 256 bytes. */
 extern __pdata uint16_t ao_storage_unit;
@@ -43,15 +49,15 @@ ao_storage_setup(void) __reentrant;
 
 /* Write data. Returns 0 on failure, 1 on success */
 uint8_t
-ao_storage_write(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant;
+ao_storage_write(ao_pos_t pos, __xdata void *buf, uint16_t len) __reentrant;
 
 /* Read data. Returns 0 on failure, 1 on success */
 uint8_t
-ao_storage_read(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant;
+ao_storage_read(ao_pos_t pos, __xdata void *buf, uint16_t len) __reentrant;
 
 /* Erase a block of storage. This always clears ao_storage_block bytes */
 uint8_t
-ao_storage_erase(uint32_t pos) __reentrant;
+ao_storage_erase(ao_pos_t pos) __reentrant;
 
 /* Flush any pending writes to stable storage */
 void
@@ -67,11 +73,11 @@ ao_storage_init(void);
 
 /* Read data within a storage unit */
 uint8_t
-ao_storage_device_read(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant;
+ao_storage_device_read(ao_pos_t pos, __xdata void *buf, uint16_t len) __reentrant;
 
 /* Write data within a storage unit */
 uint8_t
-ao_storage_device_write(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant;
+ao_storage_device_write(ao_pos_t pos, __xdata void *buf, uint16_t len) __reentrant;
 
 /* Initialize low-level device bits */
 void

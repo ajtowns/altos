@@ -18,7 +18,7 @@
 #include <ao.h>
 
 uint8_t
-ao_storage_read(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant
+ao_storage_read(ao_pos_t pos, __xdata void *buf, uint16_t len) __reentrant
 {
 	uint16_t this_len;
 	uint16_t this_off;
@@ -48,7 +48,7 @@ ao_storage_read(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant
 }
 
 uint8_t
-ao_storage_write(uint32_t pos, __xdata void *buf, uint16_t len) __reentrant
+ao_storage_write(ao_pos_t pos, __xdata void *buf, uint16_t len) __reentrant
 {
 	uint16_t this_len;
 	uint16_t this_off;
@@ -161,8 +161,8 @@ void
 ao_storage_info(void) __reentrant
 {
 	ao_storage_setup();
-	printf("Storage size: %ld\n", ao_storage_total);
-	printf("Storage erase unit: %ld\n", ao_storage_block);
+	printf("Storage size: %ld\n", (long) ao_storage_total);
+	printf("Storage erase unit: %ld\n", (long) ao_storage_block);
 	ao_storage_device_info();
 }
 
