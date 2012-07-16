@@ -48,5 +48,4 @@ ao_avr_stdio_init(void)
 {
 	stdout = &mystdout;
 	stdin = &mystdin;
-	printf("%d stdios registered\n", ao_num_stdios);
 }
