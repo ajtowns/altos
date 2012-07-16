@@ -59,6 +59,8 @@
 
 	#define SPI_SLAVE_PIN_0_3	1
 	#define SPI_SLAVE_PIN_2_5	0
+
+	#define IS_COMPANION		1
 #endif
 
 #ifdef TELEPYRO
@@ -77,6 +79,7 @@
 	#define DISABLE_HELP		1
 	#define HAS_STORAGE_DEBUG	0
 	#define IS_COMPANION		1
+	#define HAS_ORIENT		0
 	#define ao_storage_pos_t	uint16_t
 
 	#define AVR_VCC_5V	       	0
@@ -89,6 +92,33 @@
 
 	#define SPI_SLAVE_PIN_0_3	1
 	#define SPI_SLAVE_PIN_2_5	0
+
+	#define AO_PYRO_NUM		8
+
+	#define AO_PYRO_PORT_0	B
+	#define AO_PYRO_PIN_0	5
+
+	#define AO_PYRO_PORT_1	B
+	#define AO_PYRO_PIN_1	6
+
+	#define AO_PYRO_PORT_2	B
+	#define AO_PYRO_PIN_2	7
+
+	#define AO_PYRO_PORT_3	C
+	#define AO_PYRO_PIN_3	6
+
+	#define AO_PYRO_PORT_4	C
+	#define AO_PYRO_PIN_4	7
+
+	#define AO_PYRO_PORT_5	D
+	#define AO_PYRO_PIN_5	5
+
+	#define AO_PYRO_PORT_6	D
+	#define AO_PYRO_PIN_6	3
+
+	#define AO_PYRO_PORT_7	D
+	#define AO_PYRO_PIN_7	2
+
 #endif
 
 #define AO_M25_SPI_CS_PORT	SPI_CS_PORT

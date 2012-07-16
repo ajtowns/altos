@@ -20,6 +20,15 @@
 #include <ao_sample.h>
 #include <ao_flight.h>
 
+#if IS_COMPANION
+#include <ao_companion.h>
+#define ao_accel ao_companion_command.accel
+#define ao_speed ao_companion_command.speed
+#define ao_height ao_companion_command.height
+#define ao_flight_state ao_companion_command.flight_state
+#define ao_motor_number ao_companion_command.motor_number
+#endif
+
 #define ao_lowbit(x)	((x) & (-x))
 
 /*
@@ -152,6 +161,8 @@ ao_pyro_fire(uint8_t p)
 	ao_delay(AO_MS_TO_TICKS(50));
 }
 
+uint8_t	ao_pyro_wakeup;
+
 static void
 ao_pyro(void)
 {
@@ -163,7 +174,9 @@ ao_pyro(void)
 		ao_sleep(&ao_flight_state);
 
 	for (;;) {
-		ao_delay(AO_MS_TO_TICKS(100));
+		ao_alarm(AO_MS_TO_TICKS(100));
+		ao_sleep(&ao_pyro_wakeup);
+		ao_clear_alarm();
 		for (p = 0; p < AO_PYRO_NUM; p++) {
 			pyro = &ao_config.pyro[p];
 

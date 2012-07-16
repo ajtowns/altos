@@ -31,6 +31,9 @@ main(void)
 	ao_spi_slave_init();
 	ao_usb_init();
 	ao_adc_init();
+	ao_storage_init();
+	ao_config_init();
+	ao_pyro_init();
 	ao_start_scheduler();
 	return 0;
 }

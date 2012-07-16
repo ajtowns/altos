@@ -18,6 +18,8 @@
 #include <ao.h>
 #include <ao_product.h>
 #include <ao_companion.h>
+#include <ao_flight.h>
+#include <ao_pyro.h>
 
 struct ao_companion_command	ao_companion_command;
 
@@ -27,6 +29,11 @@ static const struct ao_companion_setup	ao_telepyro_setup = {
 	.update_period		= 50,
 	.channels		= AO_TELEPYRO_NUM_ADC,
 };
+
+struct ao_config ao_config;
+
+extern volatile __data uint16_t ao_tick_count;
+uint16_t ao_boost_tick;
 
 void ao_spi_slave(void)
 {
@@ -45,6 +52,10 @@ void ao_spi_slave(void)
 				  AO_TELEPYRO_NUM_ADC * sizeof (uint16_t));
 		break;
 	case AO_COMPANION_NOTIFY:
+		/* Can't use ao_time because we have interrupts suspended */
+		if (ao_companion_command.flight_state < ao_flight_boost && ao_companion_command.flight_state >= ao_flight_boost)
+			ao_boost_tick = ao_tick_count;
+		ao_wakeup(&ao_pyro_wakeup);
 		break;
 	default:
 		return;

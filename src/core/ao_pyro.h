@@ -57,6 +57,8 @@ struct ao_pyro {
 	uint8_t			fired;
 };
 
+extern uint8_t	ao_pyro_wakeup;
+
 void
 ao_pyro_set(void);
 
