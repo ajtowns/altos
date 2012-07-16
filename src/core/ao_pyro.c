@@ -207,34 +207,48 @@ __xdata struct ao_task ao_pyro_task;
 
 #define AO_PYRO_NAME_LEN	3
 
+#if !DISABLE_HELP
+#define ENABLE_HELP 1
+#endif
+
+#if ENABLE_HELP
+#define HELP(s)	(s)
+#else
+#define HELP(s)
+#endif
+
 const struct {
 	char			name[AO_PYRO_NAME_LEN];
 	enum ao_pyro_flag	flag;
 	uint8_t			offset;
+#if ENABLE_HELP
 	char			*help;
+#endif
 } ao_pyro_values[] = {
-	{ "a<",	ao_pyro_accel_less,	offsetof(struct ao_pyro, accel_less), "accel less (m/ss * 16)" },
-	{ "a>",	ao_pyro_accel_greater,	offsetof(struct ao_pyro, accel_greater), "accel greater (m/ss * 16)" },
+	{ "a<",	ao_pyro_accel_less,	offsetof(struct ao_pyro, accel_less), HELP("accel less (m/ss * 16)") },
+	{ "a>",	ao_pyro_accel_greater,	offsetof(struct ao_pyro, accel_greater), HELP("accel greater (m/ss * 16)") },
 
-	{ "s<",	ao_pyro_speed_less,	offsetof(struct ao_pyro, speed_less), "speed less (m/s * 16)" },
-	{ "s>",	ao_pyro_speed_greater,	offsetof(struct ao_pyro, speed_greater), "speed greater (m/s * 16)" },
+	{ "s<",	ao_pyro_speed_less,	offsetof(struct ao_pyro, speed_less), HELP("speed less (m/s * 16)") },
+	{ "s>",	ao_pyro_speed_greater,	offsetof(struct ao_pyro, speed_greater), HELP("speed greater (m/s * 16)") },
 
-	{ "h<",	ao_pyro_height_less,	offsetof(struct ao_pyro, height_less), "height less (m)" },
-	{ "h>",	ao_pyro_height_greater,	offsetof(struct ao_pyro, height_greater), "height greater (m)" },
+	{ "h<",	ao_pyro_height_less,	offsetof(struct ao_pyro, height_less), HELP("height less (m)") },
+	{ "h>",	ao_pyro_height_greater,	offsetof(struct ao_pyro, height_greater), HELP("height greater (m)") },
 
-	{ "o<",	ao_pyro_orient_less,	offsetof(struct ao_pyro, orient_less), "orient less (deg)" },
-	{ "o>",	ao_pyro_orient_greater,	offsetof(struct ao_pyro, orient_greater), "orient greater (deg)"  },
+#if 0
+	{ "o<",	ao_pyro_orient_less,	offsetof(struct ao_pyro, orient_less), HELP("orient less (deg)") },
+	{ "o>",	ao_pyro_orient_greater,	offsetof(struct ao_pyro, orient_greater), HELP("orient greater (deg)")  },
+#endif
 
-	{ "t<",	ao_pyro_time_less,	offsetof(struct ao_pyro, time_less), "time less (s * 100)" },
-	{ "t>",	ao_pyro_time_greater,	offsetof(struct ao_pyro, time_greater), "time greater (s * 100)"  },
+	{ "t<",	ao_pyro_time_less,	offsetof(struct ao_pyro, time_less), HELP("time less (s * 100)") },
+	{ "t>",	ao_pyro_time_greater,	offsetof(struct ao_pyro, time_greater), HELP("time greater (s * 100)")  },
 
-	{ "A", ao_pyro_ascending,	NO_VALUE, "ascending" },
-	{ "D", ao_pyro_descending,	NO_VALUE, "descending" },
+	{ "A", ao_pyro_ascending,	NO_VALUE, HELP("ascending") },
+	{ "D", ao_pyro_descending,	NO_VALUE, HELP("descending") },
 	
-	{ "m", ao_pyro_after_motor,	offsetof(struct ao_pyro, motor), "after motor" },
+	{ "m", ao_pyro_after_motor,	offsetof(struct ao_pyro, motor), HELP("after motor") },
 
-	{ "d", ao_pyro_delay,		offsetof(struct ao_pyro, delay), "delay before firing (s * 100)" },
-	{ "", ao_pyro_none,		NO_VALUE, NULL },
+	{ "d", ao_pyro_delay,		offsetof(struct ao_pyro, delay), HELP("delay before firing (s * 100)") },
+	{ "", ao_pyro_none,		NO_VALUE, HELP(NULL) },
 };
 
 static void
@@ -244,6 +258,7 @@ ao_pyro_print_name(uint8_t v)
 	printf ("%s%s", s, "   " + strlen(s));
 }
 
+#if ENABLE_HELP
 static void
 ao_pyro_help(void)
 {
@@ -257,6 +272,7 @@ ao_pyro_help(void)
 		printf ("%s\n", ao_pyro_values[v].help);
 	}
 }
+#endif
 	      
 void
 ao_pyro_show(void)
@@ -299,11 +315,14 @@ ao_pyro_set(void)
 	uint8_t	v;
 
 	ao_cmd_white();
+
+#if ENABLE_HELP
 	switch (ao_cmd_lex_c) {
 	case '?':
 		ao_pyro_help();
 		return;
 	}
+#endif
 
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
