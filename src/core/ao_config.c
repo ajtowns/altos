@@ -562,12 +562,10 @@ ao_config_set(void)
 {
 	char	c;
 	uint8_t cmd;
-	void (*__xdata func)(void) __reentrant;
 
 	ao_cmd_white();
 	c = ao_cmd_lex_c;
 	ao_cmd_lex();
-	func = 0;
 	for (cmd = 0; ao_config_vars[cmd].str != NULL; cmd++)
 		if (ao_config_vars[cmd].str[0] == c) {
 			(*ao_config_vars[cmd].set)();
