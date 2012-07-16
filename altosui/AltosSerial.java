@@ -53,46 +53,8 @@ public class AltosSerial extends AltosLink implements Runnable {
 	int line_count;
 	Frame frame;
 
-	public void run () {
-		int c;
-		byte[] line_bytes = null;
-		int line_count = 0;
-
-		try {
-			for (;;) {
-				c = libaltos.altos_getchar(altos, 0);
-				if (Thread.interrupted())
-					break;
-				if (c == libaltosConstants.LIBALTOS_ERROR) {
-					add_telem (new AltosLine());
-					add_reply (new AltosLine());
-					break;
-				}
-				if (c == libaltosConstants.LIBALTOS_TIMEOUT)
-					continue;
-				if (c == '\r')
-					continue;
-				synchronized(this) {
-					if (c == '\n') {
-						if (line_count != 0) {
-							add_bytes(line_bytes, line_count);
-							line_count = 0;
-						}
-					} else {
-						if (line_bytes == null) {
-							line_bytes = new byte[256];
-						} else if (line_count == line_bytes.length) {
-							byte[] new_line_bytes = new byte[line_count * 2];
-							System.arraycopy(line_bytes, 0, new_line_bytes, 0, line_count);
-							line_bytes = new_line_bytes;
-						}
-						line_bytes[line_count] = (byte) c;
-						line_count++;
-					}
-				}
-			}
-		} catch (InterruptedException e) {
-		}
+	public int getchar() {
+		return libaltos.altos_getchar(altos, 0);
 	}
 
 	public void flush_output() {

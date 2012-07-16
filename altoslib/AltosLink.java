@@ -24,6 +24,11 @@ import java.util.*;
 import java.text.*;
 
 public abstract class AltosLink {
+
+	public final static int ERROR = -1;
+	public final static int TIMEOUT = -2;
+
+	public abstract int getchar();
 	public abstract void print(String data);
 	public abstract void close();
 
@@ -87,6 +92,48 @@ public abstract class AltosLink {
 		}
 	}
 
+
+	public void run () {
+		int c;
+		byte[] line_bytes = null;
+		int line_count = 0;
+
+		try {
+			for (;;) {
+				c = getchar();
+				if (Thread.interrupted())
+					break;
+				if (c == ERROR) {
+					add_telem (new AltosLine());
+					add_reply (new AltosLine());
+					break;
+				}
+				if (c == TIMEOUT)
+					continue;
+				if (c == '\r')
+					continue;
+				synchronized(this) {
+					if (c == '\n') {
+						if (line_count != 0) {
+							add_bytes(line_bytes, line_count);
+							line_count = 0;
+						}
+					} else {
+						if (line_bytes == null) {
+							line_bytes = new byte[256];
+						} else if (line_count == line_bytes.length) {
+							byte[] new_line_bytes = new byte[line_count * 2];
+							System.arraycopy(line_bytes, 0, new_line_bytes, 0, line_count);
+							line_bytes = new_line_bytes;
+						}
+						line_bytes[line_count] = (byte) c;
+						line_count++;
+					}
+				}
+			}
+		} catch (InterruptedException e) {
+		}
+	}
 
 	public String get_reply(int timeout) throws InterruptedException {
 		boolean	can_cancel = can_cancel_reply();
