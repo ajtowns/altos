@@ -53,6 +53,10 @@ ao_companion_send_command(uint8_t command)
 	ao_companion_command.tick = ao_time();
 	ao_companion_command.serial = ao_serial_number;
 	ao_companion_command.flight = ao_flight_number;
+	ao_companion_command.accel = ao_accel;
+	ao_companion_command.speed = ao_speed;
+	ao_companion_command.height = ao_height;
+	ao_companion_command.motor_number = ao_motor_number;
 	ao_spi_send(&ao_companion_command, sizeof (ao_companion_command), AO_COMPANION_SPI_BUS);
 }
 

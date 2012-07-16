@@ -30,6 +30,10 @@ struct ao_companion_command {
 	uint16_t	tick;
 	uint16_t	serial;
 	uint16_t	flight;
+	int16_t		accel;
+	int16_t		speed;
+	int16_t		height;
+	int16_t		motor_number;
 };
 
 struct ao_companion_setup {

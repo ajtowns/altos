@@ -40,9 +40,7 @@
 
 __pdata enum ao_flight_state	ao_flight_state;	/* current flight state */
 __pdata uint16_t		ao_boost_tick;		/* time of launch detect */
-#if AO_PYRO_NUM
 __pdata uint16_t		ao_motor_number;	/* number of motors burned so far */
-#endif
 
 /*
  * track min/max data over a long interval to detect
@@ -218,9 +216,7 @@ ao_flight(void)
 #else
 				ao_flight_state = ao_flight_coast;
 #endif
-#if AO_PYRO_NUM
 				++ao_motor_number;
-#endif
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			break;
