@@ -72,6 +72,12 @@
 	#define HAS_ADC			1
 	#define PACKET_HAS_SLAVE	0
 	#define HAS_BEEP		0
+	#define HAS_EEPROM		1
+	#define USE_INTERNAL_FLASH	1
+	#define DISABLE_HELP		1
+	#define HAS_STORAGE_DEBUG	0
+	#define IS_COMPANION		1
+	#define ao_storage_pos_t	uint16_t
 
 	#define AVR_VCC_5V	       	0
 	#define AVR_VCC_3V3		1

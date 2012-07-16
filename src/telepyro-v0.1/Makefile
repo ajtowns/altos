@@ -22,7 +22,8 @@ INC = \
 	ao.h \
 	ao_usb.h \
 	ao_pins.h \
-	altitude.h
+	ao_arch.h \
+	ao_arch_funcs.h
 
 ALTOS_SRC = \
 	ao_clock.c \
@@ -39,14 +40,18 @@ ALTOS_SRC = \
 	ao_usb_avr.c \
 	ao_adc_avr.c \
 	ao_pyro_slave.c \
-	ao_spi_slave.c
+	ao_spi_slave.c \
+	ao_eeprom_avr.c \
+	ao_storage.c \
+	ao_config.c \
+	ao_pyro.c
 
 PRODUCT=TelePyro-v0.1
 MCU=atmega32u4
 PRODUCT_DEF=-DTELEPYRO
 IDPRODUCT=0x0011
 CFLAGS = $(PRODUCT_DEF) -I. -I../avr -I../core -I..
-CFLAGS += -g -mmcu=$(MCU) -Wall -Wstrict-prototypes -O3 -mcall-prologues -DAVR
+CFLAGS += -mmcu=$(MCU) -Wall -Wstrict-prototypes -O3 -mcall-prologues -DAVR
 
 NICKLE=nickle
 
@@ -79,9 +84,6 @@ $(PROG).hex: $(PROG)
 load: $(PROG).hex
 	$(LOADCMD) $(LOADARG)$(PROG).hex
 
-../altitude.h: make-altitude
-	nickle $< > $@
-
 ao_product.h: ao-make-product.5c ../Version
 	$(call quiet,NICKLE,$<) $< -m altusmetrum.org -i $(IDPRODUCT) -p $(PRODUCT) -v $(VERSION) > $@
 
@@ -100,4 +102,4 @@ install:
 
 uninstall:
 
-$(OBJ): ao.h ao_product.h ao_usb.h
+$(OBJ): $(INC)
