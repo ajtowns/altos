@@ -67,7 +67,11 @@ extern void putchar(char c);
 extern char getchar(void);
 extern void ao_avr_stdio_init(void);
 
-extern const uint16_t ao_serial_number;
+#define AO_ROMCONFIG_VERSION	2
+
+#define AO_ROMCONFIG_SYMBOL(a) const
+
+extern AO_ROMCONFIG_SYMBOL(0) uint16_t ao_serial_number;
 
 #define AVR_PUSH8(stack, val)	(*((stack)--) = (val))
 

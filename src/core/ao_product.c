@@ -29,7 +29,7 @@ const char ao_product[] = AO_iProduct_STRING;
 #if HAS_USB
 #include "ao_usb.h"
 /* USB descriptors in one giant block of bytes */
-__code __at(0x00aa) uint8_t ao_usb_descriptors [] =
+AO_ROMCONFIG_SYMBOL(0x00aa) uint8_t ao_usb_descriptors [] =
 {
 	/* Device descriptor */
 	0x12,

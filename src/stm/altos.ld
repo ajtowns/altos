@@ -25,18 +25,22 @@ INCLUDE registers.ld
 EXTERN (stm_interrupt_vector)
 
 SECTIONS {
-	. = ORIGIN(rom);
-
 	/*
 	 * Rom contents
 	 */
 
-	__text_start__ = .;
-
-	.text : {
+	.text ORIGIN(rom) : {
+		__text_start__ = .;
 		*(.interrupt)	/* Interrupt vectors */
+
+		. = ORIGIN(rom) + 0x100;
+
+		ao_romconfig.o(.romconfig*)
+		ao_product.o(.romconfig*)
+
 		*(.text*)	/* Executable code */
 		*(.rodata*)	/* Constants */
+
 	} > rom
 
 	.ARM.exidx : {
@@ -44,12 +48,10 @@ SECTIONS {
 		__text_end__ = .;
 	} > rom
 
-	. = ORIGIN(ram);
-	__data_start__ = .;
-
 	/* Data -- relocated to RAM, but written to ROM
 	 */
-	.data : AT (ADDR(.ARM.exidx) + SIZEOF (.ARM.exidx)) {
+	.data ORIGIN(ram) : AT (ADDR(.ARM.exidx) + SIZEOF (.ARM.exidx)) {
+		__data_start__ = .;
 		*(.data)	/* initialized data */
 		__data_end__ = .;
 		__bss_start__ = .;
@@ -63,7 +65,6 @@ SECTIONS {
 
 	PROVIDE(__stack__ = ORIGIN(ram) + LENGTH(ram));
 	PROVIDE(end = .);
-
 }
 
 ENTRY(start);

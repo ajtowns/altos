@@ -59,10 +59,12 @@
 
 #define AO_ROMCONFIG_VERSION	2
 
-extern __code __at (0x00a0) uint16_t ao_romconfig_version;
-extern __code __at (0x00a2) uint16_t ao_romconfig_check;
-extern __code __at (0x00a4) uint16_t ao_serial_number;
-extern __code __at (0x00a6) uint32_t ao_radio_cal;
+#define AO_ROMCONFIG_SYMBOL(a) __code __at(a)
+
+extern AO_ROMCONFIG_SYMBOL(0x00a0) uint16_t ao_romconfig_version;
+extern AO_ROMCONFIG_SYMBOL(0x00a2) uint16_t ao_romconfig_check;
+extern AO_ROMCONFIG_SYMBOL(0x00a4) uint16_t ao_serial_number;
+extern AO_ROMCONFIG_SYMBOL(0x00a6) uint32_t ao_radio_cal;
 
 #ifndef HAS_USB
 #error Please define HAS_USB

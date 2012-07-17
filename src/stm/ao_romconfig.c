@@ -17,4 +17,9 @@
 
 #include "ao.h"
 
-const uint16_t ao_serial_number = 58;
+AO_ROMCONFIG_SYMBOL (0) uint16_t ao_romconfig_version = AO_ROMCONFIG_VERSION;
+AO_ROMCONFIG_SYMBOL (0) uint16_t ao_romconfig_check = ~AO_ROMCONFIG_VERSION;
+AO_ROMCONFIG_SYMBOL (0) uint16_t ao_serial_number = 0;
+#ifdef AO_RADIO_CAL_DEFAULT
+AO_ROMCONFIG_SYMBOL (0) uint32_t ao_radio_cal = AO_RADIO_CAL_DEFAULT;
+#endif

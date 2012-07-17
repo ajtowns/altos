@@ -268,6 +268,10 @@ struct ao_adc {
  * Radio (cc1120)
  */
 
+/* gets pretty close to 434.550 */
+
+#define AO_RADIO_CAL_DEFAULT 	0x6ca333
+
 #define AO_FEC_DEBUG		0
 #define AO_CC1120_SPI_CS_PORT	(&stm_gpioc)
 #define AO_CC1120_SPI_CS_PIN	5

@@ -17,4 +17,4 @@
 
 #include "ao.h"
 
-const uint16_t ao_serial_number = 0;
+AO_ROMCONFIG_SYMBOL (0) uint16_t ao_serial_number = 0;

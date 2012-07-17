@@ -197,7 +197,7 @@ main (int argc, char **argv)
 
 	serial = strtoul(serial_string, NULL, 0);
 	if (!serial)
-(argv[0]);
+		usage(argv[0]);
 
 	serial_int[0] = serial & 0xff;
 	serial_int[1] = (serial >> 8) & 0xff;

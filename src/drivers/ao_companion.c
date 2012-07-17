@@ -68,7 +68,7 @@ ao_companion_get_setup(void)
 	ao_spi_recv(&ao_companion_setup, sizeof (ao_companion_setup), AO_COMPANION_SPI_BUS);
 	COMPANION_DESELECT();
 	return (ao_companion_setup.board_id ==
-		~ao_companion_setup.board_id_inverse);
+		(uint16_t) ~ao_companion_setup.board_id_inverse);
 }
 
 static void
@@ -116,6 +116,8 @@ ao_companion_status(void) __reentrant
 {
 	uint8_t	i;
 	printf("Companion running: %d\n", ao_companion_running);
+	if (!ao_companion_running)
+		return;
 	printf("device: %d\n", ao_companion_setup.board_id);
 	printf("update period: %d\n", ao_companion_setup.update_period);
 	printf("channels: %d\n", ao_companion_setup.channels);

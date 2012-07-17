@@ -29,7 +29,7 @@ uint8_t ao_radio_in_recv;
 #define CC1120_DEBUG	AO_FEC_DEBUG
 #define CC1120_TRACE	0
 
-const uint32_t	ao_radio_cal = 0x6ca333;
+extern const uint32_t	ao_radio_cal;
 
 #define FOSC	32000000
 
