@@ -1,5 +1,5 @@
 /*
- * Copyright © 2011 Keith Packard <keithp@keithp.com>
+ * Copyright © 2012 Robert D. Garbee <robert@gag.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,27 +15,4 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "ao.h"
-#include "ao_pwmin.h"
-
-int
-main(void)
-{
-	ao_clock_init();
-
-	PORTE |= (1 << 6);
-	DDRE |= (1 << 6);
-
-	ao_avr_stdio_init();
-	ao_timer_init();
-	ao_cmd_init();
-	ao_spi_init();
-	ao_spi_slave_init();
-	ao_storage_init();
-	ao_usb_init();
-	ao_adc_init();
-	ao_log_single_init();
-	ao_pwmin_init();
-	ao_start_scheduler();
-	return 0;
-}
+void ao_pwmin_init(void);

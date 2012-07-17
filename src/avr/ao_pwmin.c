@@ -1,5 +1,5 @@
 /*
- * Copyright © 2011 Keith Packard <keithp@keithp.com>
+ * Copyright © 2012 Robert D. Garbee <robert@gag.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,24 +18,37 @@
 #include "ao.h"
 #include "ao_pwmin.h"
 
-int
-main(void)
+/* 
+ * This code implements a PWM input using ICP3.  
+ *
+ * The initial use is to measure wind speed in the ULA/Ball summer intern 
+ * project payload developed at Challenger Middle School.  
+ */
+
+static void
+ao_pwmin_display(void) __reentrant
 {
-	ao_clock_init();
+	uint8_t lo = TCNT1L; 
+	uint8_t hi = TCNT1H;
+	uint16_t value = (hi <<8) | lo;
 
-	PORTE |= (1 << 6);
-	DDRE |= (1 << 6);
+	/* now display the value we read */
+	printf("timer 1: %5u",  value);
 
-	ao_avr_stdio_init();
-	ao_timer_init();
-	ao_cmd_init();
-	ao_spi_init();
-	ao_spi_slave_init();
-	ao_storage_init();
-	ao_usb_init();
-	ao_adc_init();
-	ao_log_single_init();
-	ao_pwmin_init();
-	ao_start_scheduler();
-	return 0;
 }
+
+__code struct ao_cmds ao_pwmin_cmds[] = {
+	{ ao_pwmin_display,	"p\0PWM input" },
+	{ 0, NULL },
+};
+
+void
+ao_pwmin_init(void)
+{
+	/* do hardware setup here */
+		/* set the spike filter bit in the TCCR3B register */
+
+	ao_cmd_register(&ao_pwmin_cmds[0]);
+}
+
+
