@@ -1,0 +1,61 @@
+.\"
+.\" Copyright © 2009 Keith Packard <keithp@keithp.com>
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+.\"
+.\"
+.TH AO-LOAD 1 "ao-stmload" ""
+.SH NAME
+ao-stmload \- flash a program to an STM32-based AltOS device
+.SH SYNOPSIS
+.B "ao-stmload"
+[\-D \fI/dev/sgX\fP]
+[\--device \fI/dev/sgX\fP]
+[\--cal \fIradio-calibration\fP]
+[\--serial \fserial-number\fP]
+\fIfile.elf\fP
+.SH DESCRIPTION
+.I ao-stmload
+loads the specified .elf file into the target device flash memory,
+using either existing serial number and radio calibration values or
+taking either of those from the command line.
+.SH OPTIONS
+.TP
+\-D /dev/sgX | --device /dev/sgX
+This targets an STlinkV1 connection rather than STlinkV2
+.TP
+\-s serial-number | --serial serial-number
+This programs the device serial number into the image. If no serial
+number is specified, then the existing serial number, if any, will be
+read from the device.
+.TP
+\-c radio-calibration | --cal radio-calibration This programs the
+radio calibration value into the image for hardware which doesn't have
+any eeprom storage for this value. If no calibration value is
+specified, an existing calibration value will be used. The value here
+can be computed given the current radio calibration value, the
+measured frequency and the desired frequency:
+.IP
+	cal' = cal * (desired/measured)
+.IP
+The default calibration value is 7119667.
+.SH USAGE
+.I ao-stmload
+reads the specified .elf file into memory, edits the image to
+customize it using the specified serial number and radio calibration
+values. It then connects to the debug dongle and writes the program to
+the target device flash memory.
+.SH AUTHOR
+Keith Packard
