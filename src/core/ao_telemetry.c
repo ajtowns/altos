@@ -138,9 +138,9 @@ ao_send_mega_data(void)
 		telemetry.mega_data.v_batt = packet->adc.v_batt;
 		telemetry.mega_data.v_pyro = packet->adc.v_pbatt;
 
-		/* XXX figure out right shift value; 4 might suffice */
+		/* ADC range is 0-4095, so shift by four to save the high 8 bits */
 		for (i = 0; i < AO_ADC_NUM_SENSE; i++)
-			telemetry.mega_data.sense[i] = packet->adc.sense[i] >> 8;
+			telemetry.mega_data.sense[i] = packet->adc.sense[i] >> 4;
 
 		telemetry.mega_data.ground_pres = ao_ground_pres;
 		telemetry.mega_data.ground_accel = ao_ground_accel;
