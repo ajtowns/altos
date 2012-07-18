@@ -27,6 +27,8 @@ AltosLib_JAVA = \
 	$(SRC)/AltosGPS.java \
 	$(SRC)/AltosGPSSat.java \
 	$(SRC)/AltosGreatCircle.java \
+	$(SRC)/AltosIdleMonitor.java \
+	$(SRC)/AltosIdleMonitorListener.java \
 	$(SRC)/AltosLine.java \
 	$(SRC)/AltosLink.java \
 	$(SRC)/AltosLog.java \
