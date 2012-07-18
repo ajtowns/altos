@@ -132,6 +132,8 @@ ao_monitor_put(void)
 			ao_sleep(DATA_TO_XDATA(&ao_external_monitoring));
 		while (ao_monitor_tail == ao_monitor_head && ao_external_monitoring)
 			ao_sleep(DATA_TO_XDATA(&ao_monitor_head));
+		if (!ao_external_monitoring)
+			continue;
 		m = &ao_monitor_ring[ao_monitor_tail];
 		ao_monitor_tail = ao_monitor_ring_next(ao_monitor_tail);
 		switch (ao_monitoring) {
