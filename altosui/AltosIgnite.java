@@ -110,12 +110,23 @@ public class AltosIgnite {
 				String line = serial.get_reply(5000);
 				if (line == null)
 					throw new TimeoutException();
-				if (get_string(line, "Igniter: drogue Status: ", status_name))
+				String[] items = line.split("\\s+");
+
+				if (items.length < 4)
+					continue;
+
+				if (!items[0].equals("Igniter:"))
+					continue;
+
+				if (!items[2].equals("Status:"))
+					continue;
+
+				if (items[1].equals("drogue")) {
 					if (igniter == Apogee)
-						status = status(status_name.get());
-				if (get_string(line, "Igniter:   main Status: ", status_name)) {
+						status = status(items[3]);
+				} else if (items[1].equals("main")) {
 					if (igniter == Main)
-						status = status(status_name.get());
+						status = status(items[3]);
 					break;
 				}
 			}

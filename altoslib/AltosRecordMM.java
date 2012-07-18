@@ -47,7 +47,7 @@ public class AltosRecordMM extends AltosRecord {
 
 	public double raw_pressure() {
 		if (pres != MISSING)
-			return pres / 100.0;
+			return pres;
 		return MISSING;
 	}
 
@@ -57,19 +57,19 @@ public class AltosRecordMM extends AltosRecord {
 
 	public double ground_pressure() {
 		if (ground_pres != MISSING)
-			return ground_pres / 100.0;
+			return ground_pres;
 		return MISSING;
 	}
 
 	public double battery_voltage() {
 		if (v_batt != MISSING)
-			return 3.3 * adc(v_batt) * 27.0 / (15.0 + 27.0);
+			return 3.3 * adc(v_batt) * (15.0 + 27.0) / 27.0;
 		return MISSING;
 	}
 
 	static double pyro(int raw) {
 		if (raw != MISSING)
-			return 3.3 * adc(raw) * 27.0 / (100.0 + 27.0);
+			return 3.3 * adc(raw) * (100.0 + 27.0) / 27.0;
 		return MISSING;
 	}
 

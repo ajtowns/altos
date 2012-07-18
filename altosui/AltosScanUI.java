@@ -59,11 +59,21 @@ class AltosScanResult {
 	}
 
 	public boolean equals(AltosScanResult other) {
-		return (callsign.equals(other.callsign) &&
-			serial == other.serial &&
-			flight == other.flight &&
+		return (serial == other.serial &&
 			frequency.frequency == other.frequency.frequency &&
 			telemetry == other.telemetry);
+	}
+
+	public boolean up_to_date(AltosScanResult other) {
+		if (flight == 0 && other.flight != 0) {
+			flight = other.flight;
+			return false;
+		}
+		if (callsign.equals("N0CALL") && !other.callsign.equals("N0CALL")) {
+			callsign = other.callsign;
+			return false;
+		}
+		return true;
 	}
 }
 
@@ -71,17 +81,28 @@ class AltosScanResults extends LinkedList<AltosScanResult> implements ListModel 
 	
 	LinkedList<ListDataListener>	listeners = new LinkedList<ListDataListener>();
 
-	public boolean add(AltosScanResult r) {
-		for (AltosScanResult old : this)
-			if (old.equals(r))
-				return true;
-
-		super.add(r);
-		ListDataEvent	de = new ListDataEvent(this,
-						       ListDataEvent.INTERVAL_ADDED,
-						       this.size() - 2, this.size() - 1);
+	void changed(ListDataEvent de) {
 		for (ListDataListener l : listeners)
 			l.contentsChanged(de);
+	}
+
+	public boolean add(AltosScanResult r) {
+		int i = 0;
+		for (AltosScanResult old : this) {
+			if (old.equals(r)) {
+				if (!old.up_to_date(r))
+					changed (new ListDataEvent(this,
+								   ListDataEvent.CONTENTS_CHANGED,
+								   i, i));
+				return true;
+			}
+			i++;
+		}
+
+		super.add(r);
+		changed(new ListDataEvent(this,
+					  ListDataEvent.INTERVAL_ADDED,
+					  this.size() - 2, this.size() - 1));
 		return true;
 	}
 
@@ -205,6 +226,7 @@ public class AltosScanUI
 	
 	void set_frequency() throws InterruptedException, TimeoutException {
 		reader.set_frequency(frequencies[frequency_index].frequency);
+		reader.reset();
 	}
 	
 	void next() throws InterruptedException, TimeoutException {

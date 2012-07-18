@@ -160,7 +160,8 @@ public class AltosState {
 				}
 				ngps++;
 			}
-		}
+		} else
+			pad_alt = ground_altitude;
 
 		gps_waiting = MIN_PAD_SAMPLES - npad;
 		if (gps_waiting < 0)
@@ -173,14 +174,14 @@ public class AltosState {
 		boost = (AltosLib.ao_flight_boost == state);
 
 		/* Only look at accelerometer data under boost */
-		if (boost && acceleration > max_acceleration)
+		if (boost && acceleration > max_acceleration && acceleration != AltosRecord.MISSING)
 			max_acceleration = acceleration;
-		if (boost && speed > max_speed)
+		if (boost && speed > max_speed && speed != AltosRecord.MISSING)
 			max_speed = speed;
-		if (boost && baro_speed > max_baro_speed)
+		if (boost && baro_speed > max_baro_speed && baro_speed != AltosRecord.MISSING)
 			max_baro_speed = baro_speed;
 
-		if (height > max_height)
+		if (height > max_height && height != AltosRecord.MISSING)
 			max_height = height;
 		if (data.gps != null) {
 			if (gps == null || !gps.locked || data.gps.locked)
