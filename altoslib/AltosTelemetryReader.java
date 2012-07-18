@@ -44,6 +44,11 @@ public class AltosTelemetryReader extends AltosFlightReader {
 		telem.clear();
 	}
 
+	public void reset() {
+		previous = null;
+		flush();
+	}
+
 	public void close(boolean interrupted) {
 		link.remove_monitor(telem);
 		log.close();

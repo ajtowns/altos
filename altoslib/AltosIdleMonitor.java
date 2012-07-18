@@ -162,8 +162,6 @@ class AltosSensorMM {
 				}
 				i++;
 			}
-			for (int i = 0; i < sense.length; i++)
-				System.out.printf("sense[%d]: %d\n", i, sense[i]);
 			break;
 		}
 	}
