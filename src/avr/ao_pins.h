@@ -47,6 +47,7 @@
 	#define AVR_VCC_5V	       	0
 	#define AVR_VCC_3V3		1
 	#define AVR_CLOCK		8000000UL
+	#define HAS_ICP3_COUNT		1
 
 	#define SPI_CS_PORT		PORTE
 	#define SPI_CS_DIR		DDRE
@@ -81,6 +82,7 @@
 	#define IS_COMPANION		1
 	#define HAS_ORIENT		0
 	#define ao_storage_pos_t	uint16_t
+	#define HAS_ICP3_COUNT		0
 
 	#define AVR_VCC_5V	       	0
 	#define AVR_VCC_3V3		1

@@ -96,7 +96,7 @@ ao_product.o: ao_product.c ao_product.h
 distclean:	clean
 
 clean:
-	rm -f $(OBJ)
+	rm -f $(OBJ) $(PROG) $(PROG).hex
 	rm -f ao_product.h
 
 install:
