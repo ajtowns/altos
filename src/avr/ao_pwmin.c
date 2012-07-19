@@ -25,20 +25,40 @@
  * project payload developed at Challenger Middle School.  
  */
 
-volatile __data uint16_t ao_icp3_count;
+volatile __data uint16_t ao_icp3_count = 0;
+volatile __data uint16_t ao_icp3_last = 0;
+
+uint16_t ao_icp3(void)
+{
+	uint16_t	v;
+	ao_arch_critical(
+		v = ao_icp3_count;
+		);
+	return v;
+}
 
 static void
 ao_pwmin_display(void) __reentrant
 {
 	/* display the most recent value */
-	printf("icp 3: %5u\n", ao_icp3_count);
+	printf("icp 3: %5u\n", ao_icp3());
 
 }
+
+
 ISR(TIMER3_CAPT_vect)
 {
+	
 	uint8_t lo = ICR3L; 
 	uint8_t hi = ICR3H;
-	ao_icp3_count = (hi <<8) | lo;
+	uint16_t ao_icp3_this = (hi <<8) | lo;
+	
+	/* handling counter rollovers */
+	if (ao_icp3_this >= ao_icp3_last)
+		ao_icp3_count = ao_icp3_this - ao_icp3_last;
+	else 
+		ao_icp3_count = ao_icp3_this + (65536 - ao_icp3_last);
+	ao_icp3_last = ao_icp3_this;
 }
 
 __code struct ao_cmds ao_pwmin_cmds[] = {
@@ -56,7 +76,7 @@ ao_pwmin_init(void)
                   (0 << ICES3) |        /* input capture on falling edge (don't care) */
                   (0 << WGM33) |        /* normal mode, OCR3A */
                   (0 << WGM32) |        /* normal mode, OCR3A */
-                  (4 << CS30));         /* clk/256 from prescaler */
+                  (3 << CS30));         /* clk/64 from prescaler */
 
     	
 
