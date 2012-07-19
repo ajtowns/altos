@@ -133,6 +133,12 @@ public class AltosKML implements AltosWriter {
 
 		if (gps == null)
 			return;
+		if ((record.seen & (AltosRecord.seen_flight)) == 0)
+			return;
+		if ((record.seen & (AltosRecord.seen_gps_lat)) == 0)
+			return;
+		if ((record.seen & (AltosRecord.seen_gps_lon)) == 0)
+			return;
 		if (!started) {
 			start(record);
 			started = true;
