@@ -15,46 +15,39 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.AltosLib;
 
 import java.io.*;
 import java.util.concurrent.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
-import javax.swing.event.*;
-import org.altusmetrum.AltosLib.*;
 
 public class AltosIgnite {
-	AltosDevice	device;
-	AltosSerial	serial;
+	AltosLink	link;
 	boolean		remote;
-	boolean		serial_started;
-	final static int	None = 0;
-	final static int	Apogee = 1;
-	final static int	Main = 2;
+	boolean		link_started;
 
-	final static int	Unknown = 0;
-	final static int	Ready = 1;
-	final static int	Active = 2;
-	final static int	Open = 3;
+	public final static int	None = 0;
+	public final static int	Apogee = 1;
+	public final static int	Main = 2;
 
-	private void start_serial() throws InterruptedException, TimeoutException {
-		serial_started = true;
+	public final static int	Unknown = 0;
+	public final static int	Ready = 1;
+	public final static int	Active = 2;
+	public final static int	Open = 3;
+
+	private void start_link() throws InterruptedException, TimeoutException {
+		link_started = true;
 		if (remote)
-			serial.start_remote();
+			link.start_remote();
 	}
 
-	private void stop_serial() throws InterruptedException {
-		if (!serial_started)
+	private void stop_link() throws InterruptedException {
+		if (!link_started)
 			return;
-		serial_started = false;
-		if (serial == null)
+		link_started = false;
+		if (link == null)
 			return;
 		if (remote)
-			serial.stop_remote();
+			link.stop_remote();
 	}
 
 	class string_ref {
@@ -100,14 +93,14 @@ public class AltosIgnite {
 
 	public int status(int igniter) throws InterruptedException, TimeoutException {
 		int status = Unknown;
-		if (serial == null)
+		if (link == null)
 			return status;
 		string_ref status_name = new string_ref();
 		try {
-			start_serial();
-			serial.printf("t\n");
+			start_link();
+			link.printf("t\n");
 			for (;;) {
-				String line = serial.get_reply(5000);
+				String line = link.get_reply(5000);
 				if (line == null)
 					throw new TimeoutException();
 				String[] items = line.split("\\s+");
@@ -131,7 +124,7 @@ public class AltosIgnite {
 				}
 			}
 		} finally {
-			stop_serial();
+			stop_link();
 		}
 		return status;
 	}
@@ -147,23 +140,23 @@ public class AltosIgnite {
 	}
 
 	public void fire(int igniter) {
-		if (serial == null)
+		if (link == null)
 			return;
 		try {
-			start_serial();
+			start_link();
 			switch (igniter) {
 			case Main:
-				serial.printf("i DoIt main\n");
+				link.printf("i DoIt main\n");
 				break;
 			case Apogee:
-				serial.printf("i DoIt drogue\n");
+				link.printf("i DoIt drogue\n");
 				break;
 			}
 		} catch (InterruptedException ie) {
 		} catch (TimeoutException te) {
 		} finally {
 			try {
-				stop_serial();
+				stop_link();
 			} catch (InterruptedException ie) {
 			}
 		}
@@ -171,25 +164,17 @@ public class AltosIgnite {
 
 	public void close() {
 		try {
-			stop_serial();
+			stop_link();
 		} catch (InterruptedException ie) {
 		}
-		serial.close();
-		serial = null;
+		link.close();
+		link = null;
 	}
 
-	public void set_frame(Frame frame) {
-		serial.set_frame(frame);
-	}
+	public AltosIgnite(AltosLink in_link, boolean in_remote)
+		throws FileNotFoundException, TimeoutException, InterruptedException {
 
-	public AltosIgnite(AltosDevice in_device)
-		throws FileNotFoundException, AltosSerialInUseException, TimeoutException, InterruptedException {
-
-		device = in_device;
-		serial = new AltosSerial(device);
-		remote = false;
-
-		if (!device.matchProduct(Altos.product_altimeter))
-			remote = true;
+		link = in_link;
+		remote = in_remote;
 	}
 }

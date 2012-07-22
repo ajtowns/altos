@@ -72,12 +72,15 @@ public class AltosIgniteUI
 
 		public void run () {
 			try {
-				ignite = new AltosIgnite(device);
+				AltosSerial	serial = new AltosSerial(device);
+				serial.set_frame(owner);
+				ignite = new AltosIgnite(serial,
+							 !device.matchProduct(Altos.product_altimeter));
+
 			} catch (Exception e) {
 				send_exception(e);
 				return;
 			}
-			ignite.set_frame(owner);
 
 			for (;;) {
 				Runnable	r;

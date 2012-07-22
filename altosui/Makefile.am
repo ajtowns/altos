@@ -55,7 +55,6 @@ altosui_JAVA = \
 	AltosHexfile.java \
 	Altos.java \
 	AltosIdleMonitorUI.java \
-	AltosIgnite.java \
 	AltosIgniteUI.java \
 	AltosLaunch.java \
 	AltosLaunchUI.java \
