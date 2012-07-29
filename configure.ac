@@ -160,6 +160,7 @@ ao-tools/ao-list/Makefile
 ao-tools/ao-load/Makefile
 ao-tools/ao-telem/Makefile
 ao-tools/ao-stmload/Makefile
+ao-tools/ao-send-telem/Makefile
 ao-utils/Makefile
 src/Version
 ])

@@ -43,6 +43,7 @@ CC1111_SRC = \
 	ao_packet.c \
 	ao_packet_master.c \
 	ao_radio.c \
+	ao_send_packet.c \
 	ao_romconfig.c \
 	ao_string.c \
 	ao_timer.c \

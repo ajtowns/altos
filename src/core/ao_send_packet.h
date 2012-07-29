@@ -1,5 +1,5 @@
 /*
- * Copyright © 2009 Keith Packard <keithp@keithp.com>
+ * Copyright © 2012 Keith Packard <keithp@keithp.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,28 +15,10 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "ao.h"
-#include <ao_send_packet.h>
+#ifndef _AO_SEND_PACKET_H_
+#define _AO_SEND_PACKET_H_
 
 void
-main(void)
-{
-	ao_clock_init();
+ao_send_packet_init(void);
 
-	/* Turn on the LED until the system is stable */
-	ao_led_init(LEDS_AVAILABLE);
-	ao_led_on(AO_LED_RED);
-	ao_timer_init();
-	ao_cmd_init();
-	ao_usb_init();
-	ao_monitor_init();
-	ao_rssi_init(AO_LED_RED);
-	ao_radio_init();
-	ao_packet_master_init();
-	ao_send_packet_init();
-#if HAS_DBG
-	ao_dbg_init();
-#endif
-	ao_config_init();
-	ao_start_scheduler();
-}
+#endif /* _AO_SEND_PACKET_H_ */
