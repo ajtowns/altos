@@ -29,8 +29,10 @@ enum ao_aes_mode {
 };
 
 #if HAS_AES
+#ifdef SDCC
 void
 ao_aes_isr(void) __interrupt 4;
+#endif
 #endif
 
 void
