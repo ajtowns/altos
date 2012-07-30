@@ -21,7 +21,8 @@ ifneq ($(shell which sdcc),)
 	telebt-v0.0 telebt-v0.1 \
 	telemetrum-v0.1-sky telemetrum-v0.1-sirf \
 	telelaunch-v0.1 tidongle test \
-	teleterra-v0.2 teleshield-v0.1
+	teleterra-v0.2 teleshield-v0.1 \
+	telefire-v0.1
 endif
 
 ifneq ($(shell which avr-gcc),)

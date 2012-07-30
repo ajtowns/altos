@@ -16,6 +16,7 @@
  */
 
 #include <ao.h>
+#include <ao_storage.h>
 
 uint8_t
 ao_storage_read(ao_pos_t pos, __xdata void *buf, uint16_t len) __reentrant
