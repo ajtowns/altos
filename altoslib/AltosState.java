@@ -38,6 +38,7 @@ public class AltosState {
 	public boolean boost;	/* under power */
 
 	public double	ground_altitude;
+	public double	altitude;
 	public double	height;
 	public double	speed;
 	public double	acceleration;
@@ -82,6 +83,7 @@ public class AltosState {
 		data = cur;
 
 		ground_altitude = data.ground_altitude();
+		altitude = data.raw_altitude();
 		height = data.filtered_height();
 
 		report_time = System.currentTimeMillis();

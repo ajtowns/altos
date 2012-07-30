@@ -54,13 +54,19 @@ public class AltosSerial extends AltosLink implements Runnable {
 	Frame frame;
 
 	public int getchar() {
+		if (altos == null)
+			return ERROR;
 		return libaltos.altos_getchar(altos, 0);
 	}
 
 	public void flush_output() {
 		super.flush_output();
 		if (altos != null) {
-			libaltos.altos_flush(altos);
+			if (libaltos.altos_flush(altos) != 0) {
+				libaltos.altos_close(altos);
+				altos = null;
+				abort_reply();
+			}
 		}
 	}
 
@@ -155,7 +161,11 @@ public class AltosSerial extends AltosLink implements Runnable {
 
 	private void putc(char c) {
 		if (altos != null)
-			libaltos.altos_putchar(altos, c);
+			if (libaltos.altos_putchar(altos, c) != 0) {
+				libaltos.altos_close(altos);
+				altos = null;
+				abort_reply();
+			}
 	}
 
 	public void print(String data) {

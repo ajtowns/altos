@@ -101,15 +101,23 @@ public abstract class AltosLink {
 		try {
 			for (;;) {
 				c = getchar();
-				if (Thread.interrupted())
+				if (Thread.interrupted()) {
+					if (debug)
+						System.out.printf("INTERRUPTED\n");
 					break;
+				}
 				if (c == ERROR) {
+					if (debug)
+						System.out.printf("ERROR\n");
 					add_telem (new AltosLine());
 					add_reply (new AltosLine());
 					break;
 				}
-				if (c == TIMEOUT)
+				if (c == TIMEOUT) {
+					if (debug)
+						System.out.printf("TIMEOUT\n");
 					continue;
+				}
 				if (c == '\r')
 					continue;
 				synchronized(this) {
@@ -178,6 +186,14 @@ public abstract class AltosLink {
 
 	public void add_reply(AltosLine line) throws InterruptedException {
 		reply_queue.put (line);
+	}
+
+	public void abort_reply() {
+		try {
+			add_telem (new AltosLine());
+			add_reply (new AltosLine());
+		} catch (InterruptedException e) {
+		}
 	}
 
 	public void add_string(String line) throws InterruptedException {

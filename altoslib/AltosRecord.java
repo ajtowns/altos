@@ -127,7 +127,7 @@ public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 
 		double	p = filtered_pressure();
 		if (p == MISSING)
-			return MISSING;
+			return raw_altitude();
 		return AltosConvert.pressure_to_altitude(p);
 	}
 
