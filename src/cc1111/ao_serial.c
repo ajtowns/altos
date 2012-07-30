@@ -236,9 +236,9 @@ ao_serial_init(void)
 		(P2SEL_PRI3P1_USART0 | P2SEL_PRI0P1_USART0);
 
 	/* Make the USART pins be controlled by the USART */
-	P1SEL |= (1 << 2) | (1 << 3);
-#if HAS_SERIAL_0_HW_FLOW
 	P1SEL |= (1 << 5) | (1 << 4);
+#if HAS_SERIAL_0_HW_FLOW
+	P1SEL |= (1 << 3) | (1 << 2);
 #endif
 #endif
 
