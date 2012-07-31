@@ -5,6 +5,7 @@ fat/
 Manifest.txt
 Manifest-fat.txt
 AltosVersion.java
+Info.plist
 libaltosJNI
 classes
 altosui
