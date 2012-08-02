@@ -27,6 +27,7 @@
         android:layout_weight="1"
         android:gravity="bottom"
         android:scrollbars="vertical"
+        android:textSize="7dp"
         android:typeface="monospace" />
 
     <LinearLayout
