@@ -21,12 +21,12 @@
     <string name="send">Send</string>
     <string name="not_connected">You are not connected to a device</string>
     <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Chat.</string>
-    <string name="title_connecting">connecting...</string>
+    <string name="title_connecting">connecting…</string>
     <string name="title_connected_to">connected: </string>
     <string name="title_not_connected">not connected</string>
 
     <!--  DeviceListActivity -->
-    <string name="scanning">scanning for devices...</string>
+    <string name="scanning">scanning for devices…</string>
     <string name="select_device">select a device to connect</string>
     <string name="none_paired">No devices have been paired</string>
     <string name="none_found">No devices found</string>
@@ -35,19 +35,15 @@
     <string name="button_scan">Scan for devices</string>
 
     <!-- Options Menu -->
-    <string name="secure_connect">Connect a device - Secure</string>
-    <string name="insecure_connect">Connect a device - Insecure</string>
-    <string name="discoverable">Make discoverable</string>
+    <string name="connect_device">Connect a device</string>
+    <string name="telemetry_service_control">Control Service</string>
+    <string name="telemetry_service_bind">(Un)Bind Service</string>
 
     <!-- Service -->
     <string name="telemetry_service_label">AltOS Telemetry Service</string>
     <string name="telemetry_service_started">Telemetry Service Started</string>
     <string name="telemetry_service_stopped">Telemetry Service Stopped</string>
 
-
-
-    <string name="telemetry_service_control">Start/Stop Service</string>
-    <string name="telemetry_service_bind">Bind/Unbind Service</string>
 
     <string name="activity_telemetry_service_controller">App/Service/Local Service Controller</string>
     <string name="telemetry_service_controller">This demonstrates how you can implement persistent services that
