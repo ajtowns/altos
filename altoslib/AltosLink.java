@@ -23,7 +23,7 @@ import java.util.concurrent.*;
 import java.util.*;
 import java.text.*;
 
-public abstract class AltosLink {
+public abstract class AltosLink implements Runnable {
 
 	public final static int ERROR = -1;
 	public final static int TIMEOUT = -2;

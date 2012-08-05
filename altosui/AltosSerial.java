@@ -41,7 +41,7 @@ import libaltosJNI.*;
  * threads.
  */
 
-public class AltosSerial extends AltosLink implements Runnable {
+public class AltosSerial extends AltosLink  {
 
 	static java.util.List<String> devices_opened = Collections.synchronizedList(new LinkedList<String>());
 
