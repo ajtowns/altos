@@ -17,6 +17,25 @@
 
 #include "ao.h"
 
+const __code struct ao_serial_speed ao_serial_speeds[] = {
+	/* [AO_SERIAL_SPEED_4800] = */ {
+		/* .baud = */ 163,
+		/* .gcr  = */ (7 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
+	},
+	/* [AO_SERIAL_SPEED_9600] = */ {
+		/* .baud = */ 163,
+		/* .gcr  = */ (8 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
+	},
+	/* [AO_SERIAL_SPEED_19200] = */ {
+		/* .baud = */ 163,
+		/* .gcr  = */ (9 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
+	},
+	/* [AO_SERIAL_SPEED_57600] = */ {
+		/* .baud = */ 59,
+		/* .gcr =  */ (11 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
+	},
+};
+
 #if HAS_SERIAL_0
 
 volatile __xdata struct ao_fifo	ao_serial0_rx_fifo;
@@ -180,25 +199,6 @@ ao_serial1_drain(void) __critical
 	while (!ao_fifo_empty(ao_serial1_tx_fifo))
 		ao_sleep(&ao_serial1_tx_fifo);
 }
-
-const __code struct ao_serial_speed ao_serial_speeds[] = {
-	/* [AO_SERIAL_SPEED_4800] = */ {
-		/* .baud = */ 163,
-		/* .gcr  = */ (7 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
-	},
-	/* [AO_SERIAL_SPEED_9600] = */ {
-		/* .baud = */ 163,
-		/* .gcr  = */ (8 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
-	},
-	/* [AO_SERIAL_SPEED_19200] = */ {
-		/* .baud = */ 163,
-		/* .gcr  = */ (9 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
-	},
-	/* [AO_SERIAL_SPEED_57600] = */ {
-		/* .baud = */ 59,
-		/* .gcr =  */ (11 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
-	},
-};
 
 void
 ao_serial1_set_speed(uint8_t speed)
