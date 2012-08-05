@@ -33,3 +33,6 @@ clean-cc1111:
 	rm -f $(PROGNAME)-*
 	rm -f ao_product.h
 	rm -f ../$(PROGNAME)-*
+
+../ao_kalman.h:
+	+(cd .. && make ao_kalman.h)
