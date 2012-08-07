@@ -139,7 +139,9 @@ PKG_CHECK_MODULES([LIBUSB], [libusb-1.0])
 AC_CHECK_HEADERS(libelf.h libelf/libelf.h, [break])
 AC_CHECK_HEADERS(gelf.h libelf/gelf.h, [break])
 
-PKG_CHECK_MODULES([LIBSTLINK], [stlink])
+PKG_CHECK_MODULES([LIBSTLINK], [stlink], [HAVE_STLINK=yes], [HAVE_STLINK=no])
+
+AM_CONDITIONAL([LIBSTLINK], [test x$HAVE_STLINK != xno])
 
 AC_OUTPUT([
 Makefile
