@@ -167,7 +167,7 @@ stm_gpio_set(struct stm_gpio *gpio, int pin, uint8_t value) {
 }
 
 static inline uint8_t
-stm_gpio_isset(struct stm_gpio *gpio, int pin) {
+stm_gpio_get(struct stm_gpio *gpio, int pin) {
 	return (gpio->idr >> pin) & 1;
 }
 
@@ -280,6 +280,30 @@ extern struct stm_flash	stm_flash;
 #define STM_FLASH_ACR_ACC64	(2)
 #define STM_FLASH_ACR_PRFEN	(1)
 #define STM_FLASH_ACR_LATENCY	(0)
+
+#define STM_FLASH_PECR_OBL_LAUNCH	18
+#define STM_FLASH_PECR_ERRIE		17
+#define STM_FLASH_PECR_EOPIE		16
+#define STM_FLASH_PECR_FPRG		10
+#define STM_FLASH_PECR_ERASE		9
+#define STM_FLASH_PECR_FTDW		8
+#define STM_FLASH_PECR_DATA		4
+#define STM_FLASH_PECR_PROG		3
+#define STM_FLASH_PECR_OPTLOCK		2
+#define STM_FLASH_PECR_PRGLOCK		1
+#define STM_FLASH_PECR_PELOCK		0
+
+#define STM_FLASH_SR_OPTVERR		11
+#define STM_FLASH_SR_SIZERR		10
+#define STM_FLASH_SR_PGAERR		9
+#define STM_FLASH_SR_WRPERR		8
+#define STM_FLASH_SR_READY		3
+#define STM_FLASH_SR_ENDHV		2
+#define STM_FLASH_SR_EOP		1
+#define STM_FLASH_SR_BSY		0
+
+#define STM_FLASH_PEKEYR_PEKEY1	0x89ABCDEF
+#define STM_FLASH_PEKEYR_PEKEY2 0x02030405
 
 struct stm_rcc {
 	vuint32_t	cr;

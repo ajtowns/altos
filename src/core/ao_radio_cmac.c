@@ -121,7 +121,7 @@ radio_cmac_recv(uint8_t len, uint16_t timeout) __reentrant
 	}
 
 	ao_radio_cmac_rssi = (int16_t) (((int8_t) cmac_data[len + AO_CMAC_KEY_LEN]) >> 1) - 74;
-	if (!(cmac_data[len + AO_CMAC_KEY_LEN +1] & PKT_APPEND_STATUS_1_CRC_OK))
+	if (!(cmac_data[len + AO_CMAC_KEY_LEN +1] & AO_RADIO_STATUS_CRC_OK))
 		return AO_RADIO_CMAC_CRC_ERROR;
 
 	ao_config_get();
@@ -233,9 +233,9 @@ radio_cmac_recv_cmd(void) __reentrant
 
 static __xdata struct ao_launch_command	command;
 static __xdata struct ao_launch_query	query;
-static pdata uint16_t	launch_serial;
-static pdata uint8_t	launch_channel;
-static pdata uint16_t	tick_offset;
+static __pdata uint16_t	launch_serial;
+static __pdata uint8_t	launch_channel;
+static __pdata uint16_t	tick_offset;
 
 static void
 launch_args(void) __reentrant

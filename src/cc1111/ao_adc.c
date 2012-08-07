@@ -140,6 +140,15 @@ ao_adc_isr(void) __interrupt 1
 	}
 #endif /* telemini || telenano */
 
+#ifdef TELEFIRE_V_0_1
+	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.sense[0] + sequence);
+	a[0] = ADCL;
+	a[1] = ADCH;
+	if (sequence < 5)
+		ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | (sequence + 1);
+#define GOT_ADC
+#endif /* TELEFIRE_V_0_1 */
+
 #ifndef GOT_ADC
 #error No known ADC configuration set
 #endif
@@ -157,9 +166,13 @@ ao_adc_dump(void) __reentrant
 {
 	static __xdata struct ao_data	packet;
 	ao_data_get(&packet);
+#ifndef AO_ADC_DUMP
 	printf("tick: %5u accel: %5d pres: %5d temp: %5d batt: %5d drogue: %5d main: %5d\n",
 	       packet.tick, packet.adc.accel, packet.adc.pres, packet.adc.temp,
 	       packet.adc.v_batt, packet.adc.sense_d, packet.adc.sense_m);
+#else
+	AO_ADC_DUMP(&packet);
+#endif
 }
 
 __code struct ao_cmds ao_adc_cmds[] = {
@@ -170,6 +183,11 @@ __code struct ao_cmds ao_adc_cmds[] = {
 void
 ao_adc_init(void)
 {
+#ifdef AO_ADC_PINS
+	ADCCFG = AO_ADC_PINS;
+
+#else
+
 #if IGNITE_ON_P2
 	/* TeleMetrum configuration */
 	ADCCFG = ((1 << 0) |	/* acceleration */
@@ -189,6 +207,8 @@ ao_adc_init(void)
 		  (1 << 2) |	/* main sense */
 		  (1 << 3));	/* battery voltage */
 #endif
+
+#endif /* else AO_ADC_PINS */
 
 	/* enable interrupts */
 	ADCIF = 0;

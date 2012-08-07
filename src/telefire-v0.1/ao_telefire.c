@@ -15,33 +15,27 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#ifndef _AO_EXTI_H_
-#define _AO_EXTI_H_
-
-#define AO_EXTI_MODE_RISING	1
-#define AO_EXTI_MODE_FALLING	2
-#define AO_EXTI_MODE_PULL_UP	4
-#define AO_EXTI_MODE_PULL_DOWN	8
-#define AO_EXTI_PRIORITY_LOW	16
-#define AO_EXTI_PRIORITY_MED	0
-#define AO_EXTI_PRIORITY_HIGH	32
+#include "ao.h"
+#include "ao_pins.h"
 
 void
-ao_exti_setup(struct stm_gpio *gpio, uint8_t pin, uint8_t mode, void (*callback)());
+main(void)
+{
+	ao_clock_init();
 
-void
-ao_exti_set_mode(struct stm_gpio *gpio, uint8_t pin, uint8_t mode);
+	ao_led_init(LEDS_AVAILABLE);
 
-void
-ao_exti_set_callback(struct stm_gpio *gpio, uint8_t pin, void (*callback)());
-
-void
-ao_exti_enable(struct stm_gpio *gpio, uint8_t pin);
-
-void
-ao_exti_disable(struct stm_gpio *gpio, uint8_t pin);
-
-void
-ao_exti_init(void);
-
-#endif /* _AO_EXTI_H_ */
+	ao_timer_init();
+	ao_adc_init();
+	ao_beep_init();
+	ao_cmd_init();
+	ao_spi_init();
+	ao_storage_init();
+	ao_usb_init();
+	ao_radio_init();
+	ao_aes_init();
+	ao_radio_cmac_init();
+	ao_pad_init();
+	ao_config_init();
+	ao_start_scheduler();
+}

@@ -1,4 +1,4 @@
-vpath % ../stm:../product:../drivers:../core:../util:../kalman:..
+vpath % ../stm:../product:../drivers:../core:../util:../kalman:../aes:..
 vpath make-altitude ../util
 vpath make-kalman ../util
 vpath kalman.5c ../kalman

@@ -15,33 +15,16 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#ifndef _AO_EXTI_H_
-#define _AO_EXTI_H_
+#ifndef _AO_QUADRATURE_H_
+#define _AO_QUADRATURE_H_
 
-#define AO_EXTI_MODE_RISING	1
-#define AO_EXTI_MODE_FALLING	2
-#define AO_EXTI_MODE_PULL_UP	4
-#define AO_EXTI_MODE_PULL_DOWN	8
-#define AO_EXTI_PRIORITY_LOW	16
-#define AO_EXTI_PRIORITY_MED	0
-#define AO_EXTI_PRIORITY_HIGH	32
+int32_t
+ao_quadrature_wait(uint8_t q);
+
+int32_t
+ao_quadrature_poll(uint8_t q);
 
 void
-ao_exti_setup(struct stm_gpio *gpio, uint8_t pin, uint8_t mode, void (*callback)());
+ao_quadrature_init(void);
 
-void
-ao_exti_set_mode(struct stm_gpio *gpio, uint8_t pin, uint8_t mode);
-
-void
-ao_exti_set_callback(struct stm_gpio *gpio, uint8_t pin, void (*callback)());
-
-void
-ao_exti_enable(struct stm_gpio *gpio, uint8_t pin);
-
-void
-ao_exti_disable(struct stm_gpio *gpio, uint8_t pin);
-
-void
-ao_exti_init(void);
-
-#endif /* _AO_EXTI_H_ */
+#endif /* _AO_QUADRATURE_H_ */

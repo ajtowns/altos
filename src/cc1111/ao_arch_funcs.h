@@ -88,3 +88,4 @@ ao_spi_init(void);
 #define token_paster(x,y)	x ## y
 #define token_evaluator(x,y)	token_paster(x,y)
 #define ao_enable_output(port,bit,pin,v) cc1111_enable_output(port,token_evaluator(port,DIR), token_evaluator(port,SEL), pin, bit, v)
+#define ao_gpio_set(port, bit, pin, v) ((pin) = (v))

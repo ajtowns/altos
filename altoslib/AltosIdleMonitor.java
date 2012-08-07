@@ -23,16 +23,10 @@ import java.text.*;
 import java.util.prefs.*;
 import java.util.concurrent.*;
 
-class AltosSensorTM {
-	int	tick;
-	int	accel;
-	int	pres;
-	int	temp;
-	int	batt;
-	int	drogue;
-	int	main;
+class AltosSensorTM extends AltosRecordTM {
 
-	public AltosSensorTM(AltosLink link) throws InterruptedException, TimeoutException {
+	public AltosSensorTM(AltosLink link, AltosConfigData config_data) throws InterruptedException, TimeoutException {
+		super();
 		link.printf("a\n");
 		for (;;) {
 			String line = link.get_reply_no_dialog(5000);
@@ -82,6 +76,10 @@ class AltosSensorTM {
 			}
 			break;
 		}
+		ground_accel = config_data.accel_cal_plus;
+		ground_pres = pres;
+		accel_plus_g = config_data.accel_cal_plus;
+		accel_minus_g = config_data.accel_cal_minus;
 	}
 }
 
@@ -253,7 +251,7 @@ class AltosGPSQuery extends AltosGPS {
 			if (line.startsWith("Date:")) {
 				if (bits.length < 2)
 					continue;
-				String[] d = bits[1].split(":");
+				String[] d = bits[1].split("/");
 				if (d.length < 3)
 					continue;
 				year = Integer.parseInt(d[0]) + 2000;
@@ -264,7 +262,7 @@ class AltosGPSQuery extends AltosGPS {
 			if (line.startsWith("Time:")) {
 				if (bits.length < 2)
 					continue;
-				String[] d = bits[1].split("/");
+				String[] d = bits[1].split(":");
 				if (d.length < 3)
 					continue;
 				hour = Integer.parseInt(d[0]);
@@ -339,8 +337,7 @@ public class AltosIdleMonitor extends Thread {
 	}
 
 	void update_state() throws InterruptedException, TimeoutException {
-		AltosRecord	record;
-		int		rssi;
+		AltosRecord	record = null;
 
 		try {
 			if (remote) {
@@ -350,20 +347,7 @@ public class AltosIdleMonitor extends Thread {
 				link.flush_input();
 			config_data = new AltosConfigData(link);
 			if (config_data.product.startsWith("TeleMetrum")) {
-				AltosRecordTM record_tm = new AltosRecordTM();
-				AltosSensorTM sensor = new AltosSensorTM(link);
-				record_tm.accel = sensor.accel;
-				record_tm.pres = sensor.pres;
-				record_tm.batt = sensor.batt;
-				record_tm.temp = sensor.temp;
-				record_tm.drogue = sensor.drogue;
-				record_tm.main = sensor.main;
-				record_tm.ground_accel = record_tm.accel;
-				record_tm.ground_pres = record_tm.pres;
-				record_tm.accel_plus_g = config_data.accel_cal_plus;
-				record_tm.accel_minus_g = config_data.accel_cal_minus;
-				record_tm.tick = sensor.tick;
-				record = record_tm;
+				record = new AltosSensorTM(link, config_data);
 			} else if (config_data.product.startsWith("MegaMetrum")) {
 				AltosRecordMM record_mm = new AltosRecordMM();
 				AltosSensorMM sensor = new AltosSensorMM(link);
@@ -390,24 +374,27 @@ public class AltosIdleMonitor extends Thread {
 				record = new AltosRecord();
 
 			gps = new AltosGPSQuery(link, config_data);
+
+			record.version = 0;
+			record.callsign = config_data.callsign;
+			record.serial = config_data.serial;
+			record.flight = config_data.log_available() > 0 ? 255 : 0;
+			record.status = 0;
+			record.state = AltosLib.ao_flight_idle;
+			record.gps = gps;
+			record.new_gps = true;
+			state = new AltosState (record, state);
 		} finally {
 			if (remote) {
 				link.stop_remote();
-				rssi = AltosRSSI();
-			} else
-				rssi = 0;
+				if (record != null)
+					record.rssi = AltosRSSI();
+			} else {
+				if (record != null)
+					record.rssi = 0;
+			}
 		}
 
-		record.version = 0;
-		record.callsign = config_data.callsign;
-		record.serial = config_data.serial;
-		record.flight = config_data.log_available() > 0 ? 255 : 0;
-		record.rssi = rssi;
-		record.status = 0;
-		record.state = AltosLib.ao_flight_idle;
-
-		record.gps = gps;
-		state = new AltosState (record, state);
 	}
 
 	public void set_frequency(double in_frequency) {

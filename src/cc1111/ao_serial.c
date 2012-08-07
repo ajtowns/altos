@@ -17,6 +17,25 @@
 
 #include "ao.h"
 
+const __code struct ao_serial_speed ao_serial_speeds[] = {
+	/* [AO_SERIAL_SPEED_4800] = */ {
+		/* .baud = */ 163,
+		/* .gcr  = */ (7 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
+	},
+	/* [AO_SERIAL_SPEED_9600] = */ {
+		/* .baud = */ 163,
+		/* .gcr  = */ (8 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
+	},
+	/* [AO_SERIAL_SPEED_19200] = */ {
+		/* .baud = */ 163,
+		/* .gcr  = */ (9 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
+	},
+	/* [AO_SERIAL_SPEED_57600] = */ {
+		/* .baud = */ 59,
+		/* .gcr =  */ (11 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
+	},
+};
+
 #if HAS_SERIAL_0
 
 volatile __xdata struct ao_fifo	ao_serial0_rx_fifo;
@@ -116,7 +135,7 @@ ao_serial1_rx_isr(void) __interrupt 3
 	if (!ao_fifo_full(ao_serial1_rx_fifo))
 		ao_fifo_insert(ao_serial1_rx_fifo, U1DBUF);
 	ao_wakeup(&ao_serial1_rx_fifo);
-#if USE_SERIAL1_STDIN
+#if USE_SERIAL_1_STDIN
 	ao_wakeup(&ao_stdin_ready);
 #endif
 }
@@ -181,25 +200,6 @@ ao_serial1_drain(void) __critical
 		ao_sleep(&ao_serial1_tx_fifo);
 }
 
-const __code struct ao_serial_speed ao_serial_speeds[] = {
-	/* [AO_SERIAL_SPEED_4800] = */ {
-		/* .baud = */ 163,
-		/* .gcr  = */ (7 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
-	},
-	/* [AO_SERIAL_SPEED_9600] = */ {
-		/* .baud = */ 163,
-		/* .gcr  = */ (8 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
-	},
-	/* [AO_SERIAL_SPEED_19200] = */ {
-		/* .baud = */ 163,
-		/* .gcr  = */ (9 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
-	},
-	/* [AO_SERIAL_SPEED_57600] = */ {
-		/* .baud = */ 59,
-		/* .gcr =  */ (11 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
-	},
-};
-
 void
 ao_serial1_set_speed(uint8_t speed)
 {
@@ -236,9 +236,9 @@ ao_serial_init(void)
 		(P2SEL_PRI3P1_USART0 | P2SEL_PRI0P1_USART0);
 
 	/* Make the USART pins be controlled by the USART */
-	P1SEL |= (1 << 2) | (1 << 3);
-#if HAS_SERIAL_0_HW_FLOW
 	P1SEL |= (1 << 5) | (1 << 4);
+#if HAS_SERIAL_0_HW_FLOW
+	P1SEL |= (1 << 3) | (1 << 2);
 #endif
 #endif
 
@@ -292,7 +292,9 @@ ao_serial_init(void)
 
 	/* Make the USART pins be controlled by the USART */
 	P1SEL |= (1 << 6) | (1 << 7);
+#if HAS_SERIAL_1_HW_FLOW
 	P1SEL |= (1 << 5) | (1 << 4);
+#endif
 #endif
 
 	/* UART mode with receiver enabled */
