@@ -17,7 +17,9 @@
 
 #include "ao.h"
 #include <ao_exti.h>
+#include <ao_event.h>
 #include <ao_quadrature.h>
+#include <ao_button.h>
 
 struct ao_task demo_task;
 
@@ -150,12 +152,29 @@ ao_temp (void)
 	printf ("temp: %d\n", temp);
 }
 
+static void
+ao_event(void)
+{
+	struct ao_event	event;
+
+	for (;;) {
+		flush();
+		ao_event_get(&event);
+		printf ("type %1d unit %1d tick %5u value %ld\n",
+			event.type, event.unit, event.tick, event.value);
+		if (event.value == 100)
+			break;
+	}
+
+}
+
 __code struct ao_cmds ao_demo_cmds[] = {
 	{ ao_dma_test,	"D\0DMA test" },
 	{ ao_spi_write, "W\0SPI write" },
 	{ ao_spi_read, "R\0SPI read" },
 	{ ao_i2c_write, "i\0I2C write" },
 	{ ao_temp, "t\0Show temp" },
+	{ ao_event, "e\0Monitor event queue" },
 	{ 0, NULL }
 };
 
@@ -174,6 +193,7 @@ main(void)
 	ao_i2c_init();
 	ao_exti_init();
 	ao_quadrature_init();
+	ao_button_init();
 
 	ao_timer_set_adc_interval(100);
 

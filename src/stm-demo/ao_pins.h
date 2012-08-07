@@ -170,6 +170,8 @@ struct ao_adc {
 #define HAS_I2C_2		0
 #define I2C_2_PB10_PB11		0
 
+#define AO_EVENT		1
+
 #define AO_QUADRATURE_COUNT	2
 #define AO_QUADRATURE_MODE	AO_EXTI_MODE_PULL_UP
 
@@ -180,5 +182,17 @@ struct ao_adc {
 #define AO_QUADRATURE_1_PORT	&stm_gpioc
 #define AO_QUADRATURE_1_A	3
 #define AO_QUADRATURE_1_B	2
+
+#define AO_BUTTON_COUNT		2
+#define AO_BUTTON_MODE		AO_EXTI_MODE_PULL_UP
+
+#define AO_BUTTON_0_PORT	&stm_gpioc
+#define AO_BUTTON_0		6
+
+#define AO_BUTTON_1_PORT	&stm_gpioc
+#define AO_BUTTON_1		7
+
+#define AO_TICK_TYPE		uint32_t
+#define AO_TICK_SIGNED		int32_t
 
 #endif /* _AO_PINS_H_ */

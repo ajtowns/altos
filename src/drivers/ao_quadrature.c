@@ -18,6 +18,12 @@
 #include <ao.h>
 #include <ao_quadrature.h>
 #include <ao_exti.h>
+#if AO_EVENT
+#include <ao_event.h>
+#define ao_quadrature_queue(q)	ao_event_put_isr(AO_EVENT_QUADRATURE, q, ao_quadrature_count[q])
+#else
+#define ao_quadrature_queue(q)
+#endif
 
 __xdata int32_t ao_quadrature_count[AO_QUADRATURE_COUNT];
 
@@ -59,6 +65,7 @@ ao_quadrature_isr(void)
 		default:
 			continue;
 		}
+		ao_quadrature_queue(q);
 		ao_wakeup(&ao_quadrature_count[q]);
 	}
 }
