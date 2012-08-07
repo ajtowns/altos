@@ -182,6 +182,7 @@ main (int argc, char **argv)
 			break;
 		case 'R':
 			realtime = 1;
+			break;
 		default:
 			usage(argv[0]);
 			break;
