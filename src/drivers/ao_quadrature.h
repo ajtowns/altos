@@ -19,10 +19,10 @@
 #define _AO_QUADRATURE_H_
 
 int32_t
-ao_quadrature_wait(void);
+ao_quadrature_wait(uint8_t q);
 
 int32_t
-ao_quadrature_poll(void);
+ao_quadrature_poll(uint8_t q);
 
 void
 ao_quadrature_init(void);

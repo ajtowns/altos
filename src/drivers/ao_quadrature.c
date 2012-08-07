@@ -19,46 +19,63 @@
 #include <ao_quadrature.h>
 #include <ao_exti.h>
 
-__xdata int32_t ao_quadrature_count;
+__xdata int32_t ao_quadrature_count[AO_QUADRATURE_COUNT];
 
-static uint8_t	ao_quadrature_state;
+static uint8_t	ao_quadrature_state[AO_QUADRATURE_COUNT];
 
 #define BIT(a,b)	((a) | ((b) << 1))
 #define STATE(old_a, old_b, new_a, new_b)	(((BIT(old_a, old_b) << 2) | BIT(new_a, new_b)))
 
+#define port(q)	AO_QUADRATURE_ ## q ## _PORT
+#define bita(q) AO_QUADRATURE_ ## q ## _A
+#define bitb(q) AO_QUADRATURE_ ## q ## _B
+
+#define ao_quadrature_update(q) do {					\
+		ao_quadrature_state[q] = ((ao_quadrature_state[q] & 3) << 2); \
+		ao_quadrature_state[q] |= ao_gpio_get(port(q), bita(q), 0); \
+		ao_quadrature_state[q] |= ao_gpio_get(port(q), bitb(q), 0) << 1; \
+	} while (0)
+	
+
 static void
 ao_quadrature_isr(void)
 {
-	ao_quadrature_state = ((ao_quadrature_state & 3) << 2);
-	ao_quadrature_state |= ao_gpio_get(AO_QUADRATURE_PORT, AO_QUADRATURE_A, AO_QUADRATURE_A_PIN);
-	ao_quadrature_state |= ao_gpio_get(AO_QUADRATURE_PORT, AO_QUADRATURE_B, AO_QUADRATURE_B_PIN) << 1;
+	uint8_t	q;
+#if AO_QUADRATURE_COUNT > 0
+	ao_quadrature_update(0);
+#endif
+#if AO_QUADRATURE_COUNT > 1
+	ao_quadrature_update(1);
+#endif
 
-	switch (ao_quadrature_state) {
-	case STATE(0, 1, 0, 0):
-		ao_quadrature_count++;
-		break;
-	case STATE(1, 0, 0, 0):
-		ao_quadrature_count--;
-		break;
-	default:
-		return;
+	for (q = 0; q < AO_QUADRATURE_COUNT; q++) {
+		switch (ao_quadrature_state[q]) {
+		case STATE(0, 1, 0, 0):
+			ao_quadrature_count[q]++;
+			break;
+		case STATE(1, 0, 0, 0):
+			ao_quadrature_count[q]--;
+			break;
+		default:
+			continue;
+		}
+		ao_wakeup(&ao_quadrature_count[q]);
 	}
-	ao_wakeup(&ao_quadrature_count);
 }
 
 int32_t
-ao_quadrature_poll(void)
+ao_quadrature_poll(uint8_t q)
 {
 	int32_t	ret;
-	ao_arch_critical(ret = ao_quadrature_count;);
+	ao_arch_critical(ret = ao_quadrature_count[q];);
 	return ret;
 }
 
 int32_t
-ao_quadrature_wait(void)
+ao_quadrature_wait(uint8_t q)
 {
-	ao_sleep(&ao_quadrature_count);
-	return ao_quadrature_poll();
+	ao_sleep(&ao_quadrature_count[q]);
+	return ao_quadrature_poll(q);
 }
 
 static void
@@ -68,7 +85,7 @@ ao_quadrature_test(void)
 	for (;;) {
 		int32_t	c;
 		flush();
-		c = ao_quadrature_wait();
+		c = ao_quadrature_wait(0);
 		printf ("new count %6d\n", c);
 		if (c == 100)
 			break;
@@ -99,19 +116,28 @@ static const struct ao_cmds ao_quadrature_cmds[] = {
 	{ 0, NULL }
 };
 
+#define init(q) do {							\
+		ao_enable_port(port(q));				\
+									\
+		ao_exti_setup(port(q), bita(q),				\
+			      AO_QUADRATURE_MODE|AO_EXTI_MODE_FALLING|AO_EXTI_MODE_RISING|AO_EXTI_PRIORITY_MED, \
+			      ao_quadrature_isr);			\
+		ao_exti_enable(port(q), bita(q));			\
+									\
+		ao_exti_setup(port(q), bitb(q),				\
+			      AO_QUADRATURE_MODE|AO_EXTI_MODE_FALLING|AO_EXTI_MODE_RISING|AO_EXTI_PRIORITY_MED, \
+			      ao_quadrature_isr);			\
+		ao_exti_enable(port(q), bitb(q));			\
+	} while (0)
+
 void
 ao_quadrature_init(void)
 {
-	ao_quadrature_count = 0;
-
-	ao_enable_port(AO_QUADRATURE_PORT);
-	ao_exti_setup(AO_QUADRATURE_PORT, AO_QUADRATURE_A,
-		      AO_EXTI_MODE_PULL_UP|AO_EXTI_MODE_FALLING|AO_EXTI_MODE_RISING|AO_EXTI_PRIORITY_MED,
-		      ao_quadrature_isr);
-	ao_exti_enable(AO_QUADRATURE_PORT, AO_QUADRATURE_A);
-	ao_exti_setup(AO_QUADRATURE_PORT, AO_QUADRATURE_B,
-		      AO_EXTI_MODE_PULL_UP|AO_EXTI_MODE_FALLING|AO_EXTI_MODE_RISING|AO_EXTI_PRIORITY_MED,
-		      ao_quadrature_isr);
-	ao_exti_enable(AO_QUADRATURE_PORT, AO_QUADRATURE_B);
+#if AO_QUADRATURE_COUNT > 0
+	init(0);
+#endif
+#if AO_QUADRATURE_COUNT > 1
+	init(1);
+#endif
 	ao_cmd_register(&ao_quadrature_cmds[0]);
 }
