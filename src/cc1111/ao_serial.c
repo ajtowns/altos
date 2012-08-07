@@ -135,7 +135,7 @@ ao_serial1_rx_isr(void) __interrupt 3
 	if (!ao_fifo_full(ao_serial1_rx_fifo))
 		ao_fifo_insert(ao_serial1_rx_fifo, U1DBUF);
 	ao_wakeup(&ao_serial1_rx_fifo);
-#if USE_SERIAL1_STDIN
+#if USE_SERIAL_1_STDIN
 	ao_wakeup(&ao_stdin_ready);
 #endif
 }
@@ -292,7 +292,9 @@ ao_serial_init(void)
 
 	/* Make the USART pins be controlled by the USART */
 	P1SEL |= (1 << 6) | (1 << 7);
+#if HAS_SERIAL_1_HW_FLOW
 	P1SEL |= (1 << 5) | (1 << 4);
+#endif
 #endif
 
 	/* UART mode with receiver enabled */
