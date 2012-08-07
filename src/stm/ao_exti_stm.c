@@ -116,6 +116,20 @@ ao_exti_setup (struct stm_gpio *gpio, uint8_t pin, uint8_t mode, void (*callback
 }
 
 void
+ao_exti_set_mode(struct stm_gpio *gpio, uint8_t pin, uint8_t mode) {
+	uint32_t	mask = 1 << pin;
+	
+	if (mode & AO_EXTI_MODE_RISING)
+		stm_exti.rtsr |= mask;
+	else
+		stm_exti.rtsr &= ~mask;
+	if (mode & AO_EXTI_MODE_FALLING)
+		stm_exti.ftsr |= mask;
+	else
+		stm_exti.ftsr &= ~mask;
+}
+
+void
 ao_exti_set_callback(struct stm_gpio *gpio, uint8_t pin, void (*callback)()) {
 	ao_exti_callback[pin] = callback;
 }

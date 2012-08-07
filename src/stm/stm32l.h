@@ -167,7 +167,7 @@ stm_gpio_set(struct stm_gpio *gpio, int pin, uint8_t value) {
 }
 
 static inline uint8_t
-stm_gpio_isset(struct stm_gpio *gpio, int pin) {
+stm_gpio_get(struct stm_gpio *gpio, int pin) {
 	return (gpio->idr >> pin) & 1;
 }
 

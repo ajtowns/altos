@@ -78,10 +78,23 @@ ao_spi_init(void);
 
 #define ao_gpio_set(port, bit, pin, v) stm_gpio_set(port, bit, v)
 
+#define ao_gpio_get(port, bit, pin) stm_gpio_get(port, bit)
+
 #define ao_enable_output(port,bit,pin,v) do {			\
 		ao_enable_port(port);				\
 		ao_gpio_set(port, bit, pin, v);			\
 		stm_moder_set(port, bit, STM_MODER_OUTPUT);\
+	} while (0)
+
+#define ao_enable_input(port,bit,mode) do {				\
+		ao_enable_port(port);					\
+		stm_moder_set(port, bit, STM_MODER_INPUT);		\
+		if (mode == AO_EXTI_MODE_PULL_UP)			\
+			stm_pupdr_set(port, bit, STM_PUPDR_PULL_UP);	\
+		else if (mode == AO_EXTI_MODE_PULL_DOWN)		\
+			stm_pupdr_set(port, bit, STM_PUPDR_PULL_DOWN);	\
+		else							\
+			stm_pupdr_set(port, bit, STM_PUPDR_NONE);	\
 	} while (0)
 
 #define ao_enable_cs(port,bit) do {				\

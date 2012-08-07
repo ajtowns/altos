@@ -30,6 +30,9 @@ void
 ao_exti_setup(struct stm_gpio *gpio, uint8_t pin, uint8_t mode, void (*callback)());
 
 void
+ao_exti_set_mode(struct stm_gpio *gpio, uint8_t pin, uint8_t mode);
+
+void
 ao_exti_set_callback(struct stm_gpio *gpio, uint8_t pin, void (*callback)());
 
 void
