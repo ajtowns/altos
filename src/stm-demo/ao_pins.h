@@ -171,7 +171,7 @@ struct ao_adc {
 #define I2C_2_PB10_PB11		0
 
 #define AO_QUADRATURE_PORT	&stm_gpioc
-#define AO_QUADRATURE_A		0
-#define AO_QUADRATURE_B		1
+#define AO_QUADRATURE_A		1
+#define AO_QUADRATURE_B		0
 
 #endif /* _AO_PINS_H_ */

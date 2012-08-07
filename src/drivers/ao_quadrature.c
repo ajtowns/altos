@@ -21,23 +21,29 @@
 
 __xdata int32_t ao_quadrature_count;
 
-static uint8_t	wait_clear;
+static uint8_t	ao_quadrature_state;
+
+#define BIT(a,b)	((a) | ((b) << 1))
+#define STATE(old_a, old_b, new_a, new_b)	(((BIT(old_a, old_b) << 2) | BIT(new_a, new_b)))
 
 static void
 ao_quadrature_isr(void)
 {
-	if (wait_clear) {
-		wait_clear = 0;
-		ao_exti_set_mode(AO_QUADRATURE_PORT, AO_QUADRATURE_A, AO_EXTI_MODE_RISING);
-	} else {
-		wait_clear = 1;
-		ao_exti_set_mode(AO_QUADRATURE_PORT, AO_QUADRATURE_A, AO_EXTI_MODE_FALLING);
-		if (ao_gpio_get(AO_QUADRATURE_PORT, AO_QUADRATURE_B, AO_QUADRATURE_B_PIN))
-			ao_quadrature_count++;
-		else
-			ao_quadrature_count--;
-		ao_wakeup(&ao_quadrature_count);
+	ao_quadrature_state = ((ao_quadrature_state & 3) << 2);
+	ao_quadrature_state |= ao_gpio_get(AO_QUADRATURE_PORT, AO_QUADRATURE_A, AO_QUADRATURE_A_PIN);
+	ao_quadrature_state |= ao_gpio_get(AO_QUADRATURE_PORT, AO_QUADRATURE_B, AO_QUADRATURE_B_PIN) << 1;
+
+	switch (ao_quadrature_state) {
+	case STATE(0, 1, 0, 0):
+		ao_quadrature_count++;
+		break;
+	case STATE(1, 0, 0, 0):
+		ao_quadrature_count--;
+		break;
+	default:
+		return;
 	}
+	ao_wakeup(&ao_quadrature_count);
 }
 
 int32_t
@@ -58,17 +64,17 @@ ao_quadrature_wait(void)
 static void
 ao_quadrature_test(void)
 {
-#if 0
+#if 1
 	for (;;) {
 		int32_t	c;
-		printf ("waiting...\n");
 		flush();
 		c = ao_quadrature_wait();
-		printf ("new count %d\n", c);
-		if (ao_stdin_ready)
+		printf ("new count %6d\n", c);
+		if (c == 100)
 			break;
 	}
 #endif
+#if 0
 	uint8_t	a, old_a, b, old_b;
 
 	old_a = 2; old_b = 2;
@@ -76,7 +82,7 @@ ao_quadrature_test(void)
 		a = ao_gpio_get(AO_QUADRATURE_PORT, AO_QUADRATURE_A, AO_QUADRATURE_A_PIN);
 		b = ao_gpio_get(AO_QUADRATURE_PORT, AO_QUADRATURE_B, AO_QUADRATURE_B_PIN);
 		if (a != old_a || b != old_b) {
-			printf ("A %d B %d\n", a, b);
+			printf ("A %d B %d count %ld\n", a, b, ao_quadrature_count);
 			flush();
 			ao_yield();
 			old_a = a;
@@ -85,7 +91,7 @@ ao_quadrature_test(void)
 		if (ao_stdin_ready)
 			break;
 	}
-		
+#endif		
 }
 
 static const struct ao_cmds ao_quadrature_cmds[] = {
@@ -100,9 +106,12 @@ ao_quadrature_init(void)
 
 	ao_enable_port(AO_QUADRATURE_PORT);
 	ao_exti_setup(AO_QUADRATURE_PORT, AO_QUADRATURE_A,
-		      AO_EXTI_MODE_PULL_UP|AO_EXTI_MODE_FALLING|AO_EXTI_PRIORITY_MED,
+		      AO_EXTI_MODE_PULL_UP|AO_EXTI_MODE_FALLING|AO_EXTI_MODE_RISING|AO_EXTI_PRIORITY_MED,
 		      ao_quadrature_isr);
 	ao_exti_enable(AO_QUADRATURE_PORT, AO_QUADRATURE_A);
-	ao_enable_input(AO_QUADRATURE_PORT, AO_QUADRATURE_B, AO_EXTI_MODE_PULL_UP);
+	ao_exti_setup(AO_QUADRATURE_PORT, AO_QUADRATURE_B,
+		      AO_EXTI_MODE_PULL_UP|AO_EXTI_MODE_FALLING|AO_EXTI_MODE_RISING|AO_EXTI_PRIORITY_MED,
+		      ao_quadrature_isr);
+	ao_exti_enable(AO_QUADRATURE_PORT, AO_QUADRATURE_B);
 	ao_cmd_register(&ao_quadrature_cmds[0]);
 }
