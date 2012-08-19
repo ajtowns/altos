@@ -1,6 +1,7 @@
 !addplugindir Instdrv/NSIS/Plugins
 ; Definitions for Java 1.6 Detection
 !define JRE_VERSION "1.6"
+!define JRE_ALTERNATE "1.7"
 !define JRE_URL "http://javadl.sun.com/webapps/download/AutoDL?BundleId=52247&/jre-6u27-windows-i586-p.exe"
 !define PRODUCT_NAME "Altus Metrum Windows Software"
 
@@ -41,6 +42,8 @@ Function DetectJRE
   ReadRegStr $2 HKLM "SOFTWARE\JavaSoft\Java Runtime Environment" \
              "CurrentVersion"
   StrCmp $2 ${JRE_VERSION} done
+
+  StrCmp $2 ${JRE_ALTERNATE} done
 
   Call GetJRE
 
