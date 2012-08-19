@@ -18,6 +18,7 @@
 #include <ao.h>
 #include <ao_hmc5883.h>
 #include <ao_mpu6000.h>
+#include <ao_mma655x.h>
 #include <ao_log.h>
 #include <ao_exti.h>
 #include <ao_packet.h>
@@ -52,6 +53,9 @@ main(void)
 #endif
 #if HAS_MPU6000
 	ao_mpu6000_init();
+#endif
+#if HAS_MMA655X
+	ao_mma655x_init();
 #endif
 
 	ao_storage_init();
