@@ -134,11 +134,18 @@ ao_ms5607_get_sample(uint8_t cmd) {
 	ao_ms5607_start();
 	ao_spi_send(&cmd, 1, AO_MS5607_SPI_INDEX);
 	ao_exti_enable(AO_MS5607_MISO_GPIO, AO_MS5607_MISO);
+#if AO_MS5607_PRIVATE_PINS
+	ao_spi_put(AO_MS5607_SPI_INDEX);
+#endif
 	cli();
 	while (!ao_ms5607_done)
 		ao_sleep(&ao_ms5607_done);
 	sei();
+#if AO_MS5607_PRIVATE_PINS
+	stm_gpio_set(AO_MS5607_CS_GPIO, AO_MS5607_CS, 1);
+#else
 	ao_ms5607_stop();
+#endif
 
 	ao_ms5607_start();
 	read = AO_MS5607_ADC_READ;
