@@ -118,12 +118,33 @@ ao_spi_recv_bus(void __xdata *block, uint16_t len) __reentrant
 }
 
 /*
- * Initialize USART0 for SPI using config alt 2
+ * USART0 SPI config alt 2	 (using this one)
  *
  * 	MO	P1_5
  * 	MI	P1_4
  * 	CLK	P1_3
  *	CSS	P1_2
+ *
+ * USART0 SPI config alt 1
+ * 
+ *	MO	P0_3
+ *	MI	P0_2
+ *	CLK	P0_5
+ *	SS	P0_4
+ *
+ * USART1 SPI config alt 2
+ *
+ *	MO	P1_6
+ *	MI	P1_7
+ *	CLK	P1_5
+ *	SS	P1_4
+ *
+ * USART1 SPI config alt 1
+ *
+ *	MO	P0_4
+ *	MI	P0_5
+ *	CLK	P0_3
+ *	SS	P0_2
  *
  * Chip select is the responsibility of the caller in master mode
  */
