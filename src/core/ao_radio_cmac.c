@@ -159,8 +159,14 @@ ao_radio_cmac_send(__xdata void *packet, uint8_t len) __reentrant
 	if (len > AO_CMAC_MAX_LEN)
 		return AO_RADIO_CMAC_LEN_ERROR;
 	ao_mutex_get(&ao_radio_cmac_mutex);
-	memcpy(cmac_data, packet, len);
+	ao_xmemcpy(cmac_data, packet, len);
+#if AO_LED_TX
+	ao_led_on(AO_LED_TX);
+#endif
 	radio_cmac_send(len);
+#if AO_LED_TX
+	ao_led_off(AO_LED_TX);
+#endif
 	ao_mutex_put(&ao_radio_cmac_mutex);
 	return AO_RADIO_CMAC_OK;
 }
@@ -172,9 +178,15 @@ ao_radio_cmac_recv(__xdata void *packet, uint8_t len, uint16_t timeout) __reentr
 	if (len > AO_CMAC_MAX_LEN)
 		return AO_RADIO_CMAC_LEN_ERROR;
 	ao_mutex_get(&ao_radio_cmac_mutex);
+#if AO_LED_RX
+	ao_led_on(AO_LED_RX);
+#endif
 	i = radio_cmac_recv(len, timeout);
+#if AO_LED_RX
+	ao_led_off(AO_LED_RX);
+#endif
 	if (i == AO_RADIO_CMAC_OK)
-		memcpy(packet, cmac_data, len);
+		ao_xmemcpy(packet, cmac_data, len);
 	ao_mutex_put(&ao_radio_cmac_mutex);
 	return i;
 }
