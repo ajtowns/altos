@@ -16,6 +16,9 @@
  */
 
 #include "ao.h"
+#if HAS_PAD
+#include <ao_pad.h>
+#endif
 
 /* Values from SmartRF® Studio for:
  *
@@ -485,6 +488,9 @@ ao_radio_test(void)
 #if PACKET_HAS_SLAVE
 		ao_packet_slave_stop();
 #endif
+#if HAS_PAD
+		ao_pad_disable();
+#endif
 		ao_radio_get(0xff);
 		RFST = RFST_STX;
 		radio_on = 1;
@@ -500,6 +506,9 @@ ao_radio_test(void)
 		radio_on = 0;
 #if HAS_MONITOR
 		ao_monitor_enable();
+#endif
+#if HAS_PAD
+		ao_pad_enable();
 #endif
 	}
 }

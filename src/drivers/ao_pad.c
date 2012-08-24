@@ -71,6 +71,23 @@ ao_pad_status(void)
 static __pdata uint8_t	ao_pad_armed;
 static __pdata uint16_t	ao_pad_arm_time;
 static __pdata uint8_t	ao_pad_box;
+static __xdata uint8_t	ao_pad_disabled;
+
+void
+ao_pad_disable(void)
+{
+	if (!ao_pad_disabled) {
+		ao_pad_disabled = 1;
+		ao_radio_recv_abort();
+	}
+}
+
+void
+ao_pad_enable(void)
+{
+	ao_pad_disabled = 0;
+	ao_wakeup (&ao_pad_disabled);
+}
 
 static void
 ao_pad(void)
@@ -85,6 +102,8 @@ ao_pad(void)
 	ao_pad_box = ao_74hc497_read();
 	for (;;) {
 		flush();
+		while (ao_pad_disabled)
+			ao_sleep(&ao_pad_disabled);
 		if (ao_radio_cmac_recv(&command, sizeof (command), 0) != AO_RADIO_CMAC_OK)
 			continue;
 		

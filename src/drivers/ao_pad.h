@@ -64,4 +64,10 @@ struct ao_pad_query {
 void
 ao_pad_init(void);
 
+void
+ao_pad_disable(void);
+
+void
+ao_pad_enable(void);
+
 #endif /* _AO_PAD_H_ */
