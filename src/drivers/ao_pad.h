@@ -50,7 +50,7 @@ struct ao_pad_query {
  */
 #define AO_PAD_FIRE		3
 
-#define AO_PAD_FIRE_TIME	AO_MS_TO_TICKS(200)
+#define AO_PAD_FIRE_TIME	AO_MS_TO_TICKS(1000)
 
 #define AO_PAD_ARM_STATUS_DISARMED	0
 #define AO_PAD_ARM_STATUS_ARMED		1

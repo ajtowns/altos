@@ -51,20 +51,48 @@ ao_pad_run(void)
 static void
 ao_pad_status(void)
 {
+	uint8_t			c;
+	uint8_t			sample;
+	__pdata uint8_t			prev = 0, cur = 0;
+	__pdata uint8_t			beeping = 0;
+	__xdata struct ao_data	*packet;
+
+	sample = ao_data_head;
 	for (;;) {
-		ao_delay(AO_SEC_TO_TICKS(1));
-#if 0
-		if (ao_igniter_status(ao_igniter_drogue) == ao_igniter_ready) {
-			if (ao_igniter_status(ao_igniter_main) == ao_igniter_ready) {
-				for (i = 0; i < 5; i++) {
-					ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(50));
-					ao_delay(AO_MS_TO_TICKS(100));
-				}
-			} else {
-				ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(200));
+		__pdata int16_t			pyro;
+		ao_arch_critical(
+			while (sample == ao_data_head)
+				ao_sleep((void *) DATA_TO_XDATA(&ao_data_head));
+			);
+
+		packet = &ao_data_ring[sample];
+		sample = ao_data_ring_next(sample);
+
+		pyro = packet->adc.pyro;
+
+#define VOLTS_TO_PYRO(x) ((int16_t) ((x) * 27.0 / 127.0 / 3.3 * 32767.0))
+
+		cur = 0;
+		if (pyro > VOLTS_TO_PYRO(4)) {
+			for (c = 0; c < AO_PAD_NUM; c++) {
+				int16_t		sense = packet->adc.sense[c];
+
+				if (sense >= pyro / 4 * 3)
+					cur |= AO_LED_CONTINUITY(c);
 			}
 		}
-#endif
+		if (cur != prev) {
+			ao_led_set_mask(cur, AO_LED_CONTINUITY_MASK);
+			prev = cur;
+		}
+
+		if (pyro > VOLTS_TO_PYRO(9) && sample == 0) {
+			beeping = 1;
+			ao_beep(AO_BEEP_HIGH);
+		} else if (beeping) {
+			beeping = 0;
+			ao_beep(0);
+		}
 	}
 }
 
@@ -97,9 +125,10 @@ ao_pad(void)
 	int16_t	time_difference;
 	uint8_t	c;
 
-	ao_led_off(AO_LED_RED);
 	ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(200));
 	ao_pad_box = ao_74hc497_read();
+	ao_led_set(0);
+	ao_led_on(AO_LED_POWER);
 	for (;;) {
 		flush();
 		while (ao_pad_disabled)
@@ -209,8 +238,10 @@ ao_pad_manual(void)
 	ao_cmd_white();
 	if (!ao_match_word("DoIt"))
 		return;
-	ao_cmd_white();
-	ao_pad_ignite = 1;
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	ao_pad_ignite = 1 << ao_cmd_lex_i;
 	ao_wakeup(&ao_pad_ignite);
 }
 
@@ -220,7 +251,7 @@ static __xdata struct ao_task ao_pad_status_task;
 
 __code struct ao_cmds ao_pad_cmds[] = {
 	{ ao_pad_test,	"t\0Test pad continuity" },
-	{ ao_pad_manual,	"i <key>\0Fire igniter. <key> is doit with D&I" },
+	{ ao_pad_manual,	"i <key> <n>\0Fire igniter. <key> is doit with D&I" },
 	{ 0, NULL }
 };
 
