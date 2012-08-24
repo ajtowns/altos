@@ -40,6 +40,10 @@ ao_led_off(AO_LED_TYPE colors);
 void
 ao_led_set(AO_LED_TYPE colors);
 
+/* Set all LEDs in 'mask' to the specified state */
+void
+ao_led_set_mask(uint8_t colors, uint8_t mask);
+
 /* Toggle the specified LEDs */
 void
 ao_led_toggle(AO_LED_TYPE colors);

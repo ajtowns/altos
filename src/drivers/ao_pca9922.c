@@ -57,6 +57,13 @@ ao_led_set(uint8_t colors)
 }
 
 void
+ao_led_set_mask(uint8_t colors, uint8_t mask)
+{
+	ao_led_state = (ao_led_state & ~mask) | (colors & mask);
+	ao_led_apply();
+}
+
+void
 ao_led_toggle(uint8_t colors)
 {
 	ao_led_state ^= colors;
@@ -74,5 +81,6 @@ ao_led_for(uint8_t colors, uint16_t ticks) __reentrant
 void
 ao_led_init(uint8_t enable)
 {
+	(void) enable;
 	ao_enable_output(AO_PCA9922_CS_PORT, AO_PCA9922_CS_PIN, AO_PCA9922_CS, 1);
 }
