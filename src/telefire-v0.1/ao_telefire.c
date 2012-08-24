@@ -15,8 +15,9 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "ao.h"
-#include "ao_pins.h"
+#include <ao.h>
+#include <ao_pad.h>
+#include <ao_74hc497.h>
 
 void
 main(void)
@@ -30,11 +31,11 @@ main(void)
 	ao_beep_init();
 	ao_cmd_init();
 	ao_spi_init();
+	ao_74hc497_init();
 	ao_storage_init();
 	ao_usb_init();
 	ao_radio_init();
-	ao_aes_init();
-	ao_radio_cmac_init();
+//	ao_aes_init();
 	ao_pad_init();
 	ao_config_init();
 	ao_start_scheduler();

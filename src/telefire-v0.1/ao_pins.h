@@ -29,6 +29,7 @@
 #define HAS_DBG			0
 #define HAS_EEPROM		1
 #define HAS_LOG			0
+#define HAS_PAD			1
 #define USE_INTERNAL_FLASH	1
 #define DBG_ON_P1 		0
 #define IGNITE_ON_P2		0
@@ -36,8 +37,17 @@
 #define IGNITE_ON_P0		0
 #define PACKET_HAS_MASTER	0
 #define PACKET_HAS_SLAVE	0
-#define AO_LED_RED		2
-#define AO_LED_GREEN		1
+
+#define AO_LED_CONTINUITY(c)	(1 << (c))
+#define AO_LED_CONTINUITY_MASK	(0xf)
+#define AO_LED_RX		0x10
+#define AO_LED_TX		0x20
+#define AO_LED_ARMED		0x40
+#define AO_LED_POWER		0x80
+
+#define AO_LED_RED		AO_LED_TX
+#define AO_LED_GREEN		AO_LED_RX
+
 #define LEDS_AVAILABLE		(0xff)
 #define HAS_EXTERNAL_TEMP	0
 #define HAS_ACCEL_REF		0
@@ -47,6 +57,13 @@
 #define SPI_CS_PORT	P1
 #define SPI_CS_SEL	P1SEL
 #define SPI_CS_DIR	P1DIR
+
+#define SPI_CONST	0x00
+
+#define HAS_SPI_0		0
+#define HAS_SPI_1		1
+#define SPI_1_ALT_1		0
+#define SPI_1_ALT_2		1
 
 #define AO_74HC497_CS_PORT	P1
 #define AO_74HC497_CS_PIN	4
@@ -82,6 +99,7 @@ struct ao_adc {
 
 #define AO_ADC_DUMP(p)							\
 	printf ("tick: %5u 0: %5d 1: %5d 2: %5d 3: %5d pyro: %5d batt %5d\n", \
+		(p)->tick,						\
 		(p)->adc.sense[0],					\
 		(p)->adc.sense[1],					\
 		(p)->adc.sense[2],					\

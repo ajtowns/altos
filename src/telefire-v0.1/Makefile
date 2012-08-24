@@ -18,6 +18,7 @@ INC = \
 	ao_pins.h \
 	ao_arch.h \
 	ao_arch_funcs.h \
+	ao_pad.h \
 	cc1111.h \
 	ao_product.h
 
