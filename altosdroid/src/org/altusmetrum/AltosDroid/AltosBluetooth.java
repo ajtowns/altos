@@ -127,13 +127,16 @@ public class AltosBluetooth extends AltosLink {
 	}
 
 	private void connection_failed() {
+		if (D) Log.i(TAG, "Bluetooth Connection failed!");
 	}
 	
 	public void print(String data) {
 		byte[] bytes = data.getBytes();
 		try {
+			if (D) Log.i(TAG, "Entering print();");
 			wait_connected();
 			output.write(bytes);
+			if (D) Log.i(TAG, "Writing bytes: '" + data + "'");
 		} catch (IOException e) {
 			connection_failed();
 		} catch (InterruptedException e) {
