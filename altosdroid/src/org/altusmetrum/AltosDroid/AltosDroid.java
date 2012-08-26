@@ -330,6 +330,7 @@ public class AltosDroid extends Activity {
 				Toast.makeText(this, R.string.bt_not_enabled, Toast.LENGTH_SHORT).show();
 				finish();
 			}
+			break;
 		}
 	}
 
