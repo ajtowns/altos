@@ -21,14 +21,11 @@ package org.altusmetrum.AltosDroid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
+import java.util.UUID;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 import org.altusmetrum.AltosLib.*;
@@ -52,35 +49,22 @@ public class AltosBluetooth extends AltosLink {
 	private OutputStream		output;
 
 	private class ConnectThread extends Thread {
-		private final BluetoothDevice mmDevice;
-		private String mSocketType;
-		BluetoothSocket tmp_socket;
+		private final UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-		public ConnectThread(BluetoothDevice device, boolean secure) {
-			mmDevice = device;
-			mSocketType = secure ? "Secure" : "Insecure";
+		public ConnectThread(BluetoothDevice device) {
+			BluetoothSocket tmp_socket = null;
 
-			// Get a BluetoothSocket for a connection with the
-			// given BluetoothDevice
 			try {
-				if (secure) {
-					Method m = device.getClass().getMethod("createRfcommSocket", new Class[] {int.class});
-					tmp_socket = (BluetoothSocket) m.invoke(device, 2);
-					// tmp = device.createRfcommSocket(2);
-				} else {
-					Method m = device.getClass().getMethod("createInsecureRfcommSocket", new Class[] {int.class});
-					tmp_socket = (BluetoothSocket) m.invoke(device, 2);
-					// tmp = device.createInsecureRfcommSocket(2);
-				}
-			} catch (Exception e) {
-				Log.e(TAG, "Socket Type: " + mSocketType + "create() failed", e);
+				tmp_socket = device.createInsecureRfcommSocketToServiceRecord(SPP_UUID);
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			socket = tmp_socket;
 		}
 
 		public void run() {
-			Log.i(TAG, "BEGIN connect_thread SocketType:" + mSocketType);
-			setName("ConnectThread" + mSocketType);
+			if (D) Log.i(TAG, "BEGIN ConnectThread");
+			setName("ConnectThread");
 
 			// Always cancel discovery because it will slow down a connection
 			adapter.cancelDiscovery();
@@ -89,14 +73,13 @@ public class AltosBluetooth extends AltosLink {
 			try {
 				// This is a blocking call and will only return on a
 				// successful connection or an exception
-				tmp_socket.connect();
+				socket.connect();
 			} catch (IOException e) {
 				// Close the socket
 				try {
-					tmp_socket.close();
+					socket.close();
 				} catch (IOException e2) {
-					Log.e(TAG, "unable to close() " + mSocketType +
-					      " socket during connection failure", e2);
+					if (D) Log.e(TAG, "unable to close() socket during connection failure", e2);
 				}
 				connection_failed();
 				return;
@@ -104,25 +87,26 @@ public class AltosBluetooth extends AltosLink {
 
 			try {
 				synchronized (AltosBluetooth.this) {
-					input = tmp_socket.getInputStream();
-					output = tmp_socket.getOutputStream();
-					socket = tmp_socket;
+					input = socket.getInputStream();
+					output = socket.getOutputStream();
+
 					// Reset the ConnectThread because we're done
 					AltosBluetooth.this.notify();
 					connect_thread = null;
+					if (D) Log.i(TAG, "Completed connect");
 				}
 			} catch (Exception e) {
-				Log.e(TAG, "Failed to finish connection", e);
+				if (D) Log.e(TAG, "Failed to finish connection", e);
 				e.printStackTrace();
 			}
 		}
 
 		public void cancel() {
 			try {
-				if (tmp_socket != null)
-					tmp_socket.close();
+				if (socket != null)
+					socket.close();
 			} catch (IOException e) {
-				Log.e(TAG, "close() of connect " + mSocketType + " socket failed", e);
+				if (D) Log.e(TAG, "close() of connect socket failed", e);
 			}
 		}
 	}
