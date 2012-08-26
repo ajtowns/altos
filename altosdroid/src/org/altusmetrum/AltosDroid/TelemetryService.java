@@ -81,6 +81,11 @@ public class TelemetryService extends Service {
 			switch (msg.what) {
 			case MSG_REGISTER_CLIENT:
 				s.mClients.add(msg.replyTo);
+				try {
+					msg.replyTo.send(Message.obtain(null, AltosDroid.MSG_STATE_CHANGE, s.state, -1));
+				} catch (RemoteException e) {
+					s.mClients.remove(msg.replyTo);
+				}
 				if (D) Log.d(TAG, "Client bound to service");
 				break;
 			case MSG_UNREGISTER_CLIENT:
