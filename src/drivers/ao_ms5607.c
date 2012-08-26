@@ -19,6 +19,8 @@
 #include <ao_exti.h>
 #include "ao_ms5607.h"
 
+#if HAS_MS5607
+
 static struct ao_ms5607_prom	ms5607_prom;
 static uint8_t	  		ms5607_configured;
 
@@ -201,22 +203,17 @@ ao_ms5607_convert(struct ao_ms5607_sample *sample, struct ao_ms5607_value *value
 	value->temp = TEMP;
 }
 
-struct ao_ms5607_sample	ao_ms5607_current;
-uint8_t ao_ms5607_valid;
-
 static void
 ao_ms5607(void)
 {
 	ao_ms5607_setup();
 	for (;;)
 	{
-		static struct ao_ms5607_sample	ao_ms5607_next;
-		ao_ms5607_sample(&ao_ms5607_next);
+		ao_ms5607_sample((struct ao_ms5607_sample *) &ao_data_ring[ao_data_head].ms5607_raw);
 		ao_arch_critical(
-			ao_ms5607_current = ao_ms5607_next;
-			ao_ms5607_valid = 1;
+			AO_DATA_PRESENT(AO_DATA_MS5607);
+			AO_DATA_WAIT();
 			);
-		ao_delay(0);
 	}
 }
 
@@ -238,13 +235,13 @@ ao_ms5607_info(void)
 static void
 ao_ms5607_dump(void)
 {
-	struct ao_ms5607_sample	sample;
+	struct ao_data	sample;
 	struct ao_ms5607_value value;
 
-	sample = ao_ms5607_current;
-	ao_ms5607_convert(&sample, &value);
-	printf ("Pressure:    %8u %8d\n", sample.pres, value.pres);
-	printf ("Temperature: %8u %8d\n", sample.temp, value.temp);
+	ao_data_get(&sample);
+	ao_ms5607_convert(&sample.ms5607_raw, &value);
+	printf ("Pressure:    %8u %8d\n", sample.ms5607_raw.pres, value.pres);
+	printf ("Temperature: %8u %8d\n", sample.ms5607_raw.temp, value.temp);
 	printf ("Altitude: %ld\n", ao_pa_to_altitude(value.pres));
 }
 
@@ -257,7 +254,6 @@ void
 ao_ms5607_init(void)
 {
 	ms5607_configured = 0;
-	ao_ms5607_valid = 0;
 	ao_cmd_register(&ao_ms5607_cmds[0]);
 	ao_spi_init_cs(AO_MS5607_CS_GPIO, (1 << AO_MS5607_CS));
 
@@ -279,3 +275,5 @@ ao_ms5607_init(void)
 		      AO_MS5607_MISO,
 		      STM_MODER_ALTERNATE);
 }
+
+#endif

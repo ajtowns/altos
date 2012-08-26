@@ -34,6 +34,14 @@ GND	3	7
 JTMS	4	8
 NRST	5	2
 
+TL debug connector:
+
+	TL	ST
+GND	1	3
+NRST	2	5
+SWDIO	3	4
+SWCLK	4	2
+
 MegaAccel:
 
 Jumpers

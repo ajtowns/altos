@@ -309,7 +309,7 @@ struct ao_adc {
  * mma655x
  */
 
-#define HAS_MMA655X		1
+#define HAS_MMA655X		0
 #define AO_MMA655X_SPI_INDEX	AO_SPI_1_PA5_PA6_PA7
 #define AO_MMA655X_CS_GPIO	(&stm_gpiod)
 #define AO_MMA655X_CS		4

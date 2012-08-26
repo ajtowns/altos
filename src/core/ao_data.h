@@ -18,17 +18,41 @@
 #ifndef _AO_DATA_H_
 #define _AO_DATA_H_
 
+#if HAS_ADC
+#define AO_DATA_ADC	(1 << 0)
+#else
+#define AO_DATA_ADC	0
+#endif
+
 #if HAS_MS5607
 #include <ao_ms5607.h>
+#define AO_DATA_MS5607	(1 << 1)
+#else
+#define AO_DATA_MS5607	(1 << 1)
 #endif
 
 #if HAS_MPU6000
 #include <ao_mpu6000.h>
+#define AO_DATA_MPU6000	(1 << 2)
+#else
+#define AO_DATA_MPU6000	0
 #endif
 
 #if HAS_HMC5883
 #include <ao_hmc5883.h>
+#define AO_DATA_HMC5883	(1 << 3)
+#else
+#define AO_DATA_HMC5883	0
 #endif
+
+#if HAS_MMA655X
+#include <ao_mma655x.h>
+#define AO_DATA_MMA655X (1 << 4)
+#else
+#define AO_DATA_MMA655X 0
+#endif
+
+#define AO_DATA_ALL	(AO_DATA_ADC|AO_DATA_MS5607|AO_DATA_MPU6000|AO_DATA_HMC5883|AO_DATA_MMA655X)
 
 struct ao_data {
 	uint16_t			tick;
@@ -45,6 +69,9 @@ struct ao_data {
 #if HAS_HMC5883
 	struct ao_hmc5883_sample	hmc5883;
 #endif
+#if HAS_MMA655X
+	uint16_t			mma655x;
+#endif
 };
 
 #define ao_data_ring_next(n)	(((n) + 1) & (AO_DATA_RING - 1))
@@ -52,6 +79,29 @@ struct ao_data {
 
 extern volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
 extern volatile __data uint8_t		ao_data_head;
+extern volatile __data uint8_t		ao_data_present;
+extern volatile __data uint8_t		ao_data_count;
+
+/*
+ * Mark a section of data as ready, check for data complete
+ */
+#define AO_DATA_PRESENT(bit)	do {					\
+		if ((ao_data_present |= (bit)) == AO_DATA_ALL) {	\
+			ao_data_ring[ao_data_head].tick = ao_tick_count; \
+			ao_data_head = ao_data_ring_next(ao_data_head); \
+			ao_data_present = 0;				\
+			ao_wakeup((void *) &ao_data_head);		\
+		}							\
+	} while (0);
+
+/*
+ * Wait for data to be completed by looking at the
+ * indicated bit
+ */
+#define AO_DATA_WAIT() do {				\
+		ao_sleep((void *) &ao_data_count);	\
+	} while (0)
+
 
 #if HAS_MS5607
 

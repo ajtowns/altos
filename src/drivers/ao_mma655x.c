@@ -18,8 +18,9 @@
 #include <ao.h>
 #include <ao_mma655x.h>
 
+#if HAS_MMA655X
+
 static uint8_t	mma655x_configured;
-uint8_t		ao_mma655x_valid;
 
 static void
 ao_mma655x_start(void) {
@@ -197,14 +198,30 @@ __code struct ao_cmds ao_mma655x_cmds[] = {
 	{ 0, NULL },
 };
 
+static void
+ao_mma655x(void)
+{
+	ao_mma655x_setup();
+	for (;;) {
+		ao_data_ring[ao_data_head].mma655x = ao_mma655x_value();
+		ao_arch_critical(
+			AO_DATA_PRESENT(AO_DATA_MMA655X);
+			AO_DATA_WAIT();
+			);
+	}
+}
+
+static __xdata struct ao_task ao_mma655x_task;
+
 void
 ao_mma655x_init(void)
 {
 	mma655x_configured = 0;
-	ao_mma655x_valid = 0;
 
 	ao_cmd_register(&ao_mma655x_cmds[0]);
 	ao_spi_init_cs(AO_MMA655X_CS_GPIO, (1 << AO_MMA655X_CS));
 
-//	ao_add_task(&ao_mma655x_task, ao_mma655x, "mma655x");
+	ao_add_task(&ao_mma655x_task, ao_mma655x, "mma655x");
 }
+
+#endif

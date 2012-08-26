@@ -240,22 +240,17 @@ ao_mpu6000_setup(void)
 	ao_mpu6000_configured = 1;
 }
 
-struct ao_mpu6000_sample ao_mpu6000_current;
-uint8_t ao_mpu6000_valid;
-
 static void
 ao_mpu6000(void)
 {
 	ao_mpu6000_setup();
 	for (;;)
 	{
-		struct ao_mpu6000_sample ao_mpu6000_next;
-		ao_mpu6000_sample(&ao_mpu6000_next);
+		ao_mpu6000_sample((struct ao_mpu6000_sample *) &ao_data_ring[ao_data_head].mpu6000);
 		ao_arch_critical(
-			ao_mpu6000_current = ao_mpu6000_next;
-			ao_mpu6000_valid = 1;
+			AO_DATA_PRESENT(AO_DATA_MPU6000);
+			AO_DATA_WAIT();
 			);
-		ao_delay(0);
 	}
 }
 
@@ -264,18 +259,16 @@ static struct ao_task ao_mpu6000_task;
 static void
 ao_mpu6000_show(void)
 {
-	struct ao_mpu6000_sample	sample;
+	struct ao_data	sample;
 
-	ao_arch_critical(
-		sample = ao_mpu6000_current;
-		);
+	ao_data_get(&sample);
 	printf ("Accel: %7d %7d %7d Gyro: %7d %7d %7d\n",
-		sample.accel_x,
-		sample.accel_y,
-		sample.accel_z,
-		sample.gyro_x,
-		sample.gyro_y,
-		sample.gyro_z);
+		sample.mpu6000.accel_x,
+		sample.mpu6000.accel_y,
+		sample.mpu6000.accel_z,
+		sample.mpu6000.gyro_x,
+		sample.mpu6000.gyro_y,
+		sample.mpu6000.gyro_z);
 }
 
 static const struct ao_cmds ao_mpu6000_cmds[] = {
@@ -287,7 +280,6 @@ void
 ao_mpu6000_init(void)
 {
 	ao_mpu6000_configured = 0;
-	ao_mpu6000_valid = 0;
 
 	ao_add_task(&ao_mpu6000_task, ao_mpu6000, "mpu6000");
 	ao_cmd_register(&ao_mpu6000_cmds[0]);

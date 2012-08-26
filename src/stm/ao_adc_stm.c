@@ -17,15 +17,6 @@
 
 #include <ao.h>
 #include <ao_data.h>
-#if HAS_MPU6000
-#include <ao_mpu6000.h>
-#endif
-#if HAS_MS5607
-#include <ao_ms5607.h>
-#endif
-
-volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
-volatile __data uint8_t		ao_data_head;
 
 static uint8_t			ao_adc_ready;
 
@@ -50,27 +41,7 @@ static uint8_t			ao_adc_ready;
  */
 static void ao_adc_done(int index)
 {
-	uint8_t	step = 1;
-	ao_data_ring[ao_data_head].tick = ao_time();
-#if HAS_MPU6000
-	if (!ao_mpu6000_valid)
-		step = 0;
-	ao_data_ring[ao_data_head].mpu6000 = ao_mpu6000_current;
-#endif
-#if HAS_MS5607
-	if (!ao_ms5607_valid)
-		step = 0;
-	ao_data_ring[ao_data_head].ms5607_raw = ao_ms5607_current;
-#endif	
-#if HAS_HMC5883
-	if (!ao_hmc5883_valid)
-		step = 0;
-	ao_data_ring[ao_data_head].hmc5883 = ao_hmc5883_current;
-#endif
-	if (step) {
-		ao_data_head = ao_data_ring_next(ao_data_head);
-		ao_wakeup((void *) &ao_data_head);
-	}
+	AO_DATA_PRESENT(AO_DATA_ADC);
 	ao_dma_done_transfer(STM_DMA_INDEX(STM_DMA_CHANNEL_ADC1));
 	ao_adc_ready = 1;
 }
@@ -115,17 +86,6 @@ ao_adc_get(__xdata struct ao_adc *packet)
 	uint8_t	i = ao_data_ring_prev(ao_data_head);
 #endif
 	memcpy(packet, (void *) &ao_data_ring[i].adc, sizeof (struct ao_adc));
-}
-
-void
-ao_data_get(__xdata struct ao_data *packet)
-{
-#if HAS_FLIGHT
-	uint8_t	i = ao_data_ring_prev(ao_sample_data);
-#else
-	uint8_t	i = ao_data_ring_prev(ao_data_head);
-#endif
-	memcpy(packet, (void *) &ao_data_ring[i], sizeof (struct ao_data));
 }
 
 static void

@@ -56,8 +56,10 @@ ALTOS_SRC = \
 	ao_cc1120.c \
 	ao_fec_tx.c \
 	ao_fec_rx.c \
+	ao_data.c \
 	ao_ms5607.c \
 	ao_mma655x.c \
+	ao_hmc5883.c \
 	ao_adc_stm.c \
 	ao_beep_stm.c \
 	ao_storage.c \
