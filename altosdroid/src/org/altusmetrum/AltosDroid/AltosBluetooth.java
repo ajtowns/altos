@@ -152,7 +152,7 @@ public class AltosBluetooth extends AltosLink {
 	private void connection_failed() {
 		if (D) Log.e(TAG, "Bluetooth Socket IO failed!");
 	}
-	
+
 	public void print(String data) {
 		byte[] bytes = data.getBytes();
 		if (D) Log.i(TAG, "print(): begin");
@@ -180,7 +180,7 @@ public class AltosBluetooth extends AltosLink {
 		}
 		return AltosLink.ERROR;
 	}
-			
+
 	public void close() {
 		if (D) Log.i(TAG, "close(): begin");
 		synchronized(this) {
