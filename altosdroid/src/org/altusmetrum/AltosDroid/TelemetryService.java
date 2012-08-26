@@ -113,8 +113,10 @@ public class TelemetryService extends Service {
 	}
 
 	private void stopAltosBluetooth() {
+		if (D) Log.i(TAG, "Stopping BT");
 		setState(STATE_READY);
 		if (mAltosBluetooth != null) {
+			if (D) Log.i(TAG, "Closing AltosBluetooth");
 			mAltosBluetooth.close();
 			mAltosBluetooth = null;
 		}
@@ -122,6 +124,7 @@ public class TelemetryService extends Service {
 	}
 
 	private void startAltosBluetooth(BluetoothDevice d) {
+			if (D) Log.i(TAG, "Connecting to " + d.getName());
 			mAltosBluetooth = new AltosBluetooth(d, mHandler);
 			setState(STATE_CONNECTING);
 	}

@@ -76,7 +76,7 @@ public class AltosBluetooth extends AltosLink {
 		}
 
 		public void run() {
-			if (D) Log.i(TAG, "BEGIN ConnectThread");
+			if (D) Log.i(TAG, "ConnectThread: BEGIN");
 			setName("ConnectThread");
 
 			// Always cancel discovery because it will slow down a connection
@@ -123,28 +123,31 @@ public class AltosBluetooth extends AltosLink {
 				if (socket != null)
 					socket.close();
 			} catch (IOException e) {
-				if (D) Log.e(TAG, "close() of connect socket failed", e);
+				if (D) Log.e(TAG, "ConnectThread: close() of connect socket failed", e);
 			}
 		}
 	}
 
 	private synchronized void wait_connected() throws InterruptedException {
+		if (D) Log.i(TAG, "wait_connected(): begin");
 		if (input == null) {
+			if (D) Log.i(TAG, "wait_connected(): waiting");
 			wait();
+			if (D) Log.i(TAG, "wait_connected(): wait ended..");
 		}
 	}
 
 	private void connection_failed() {
-		if (D) Log.i(TAG, "Bluetooth Connection failed!");
+		if (D) Log.e(TAG, "Bluetooth Socket IO failed!");
 	}
 	
 	public void print(String data) {
 		byte[] bytes = data.getBytes();
+		if (D) Log.i(TAG, "print(): begin");
 		try {
-			if (D) Log.i(TAG, "Entering print();");
 			wait_connected();
 			output.write(bytes);
-			if (D) Log.i(TAG, "Writing bytes: '" + data + "'");
+			if (D) Log.i(TAG, "print(): Wrote bytes: '" + data.replace('\n', '\\') + "'");
 		} catch (IOException e) {
 			connection_failed();
 		} catch (InterruptedException e) {
@@ -153,8 +156,10 @@ public class AltosBluetooth extends AltosLink {
 	}
 
 	public int getchar() {
+		if (D) Log.i(TAG, "getchar(): begin");
 		try {
 			wait_connected();
+			if (D) Log.i(TAG, "getchar(): proceeding");
 			return input.read();
 		} catch (IOException e) {
 			connection_failed();
@@ -165,14 +170,21 @@ public class AltosBluetooth extends AltosLink {
 	}
 			
 	public void close() {
+		if (D) Log.i(TAG, "close(): begin");
 		synchronized(this) {
+			if (D) Log.i(TAG, "close(): synched");
+
 			if (connect_thread != null) {
+				if (D) Log.i(TAG, "close(): stopping connect_thread");
 				connect_thread.cancel();
 				connect_thread = null;
 			}
 			if (input_thread != null) {
+				if (D) Log.i(TAG, "close(): stopping input_thread");
 				try {
+					if (D) Log.i(TAG, "close(): input_thread.interrupt().....");
 					input_thread.interrupt();
+					if (D) Log.i(TAG, "close(): input_thread.join().....");
 					input_thread.join();
 				} catch (Exception e) {}
 				input_thread = null;
