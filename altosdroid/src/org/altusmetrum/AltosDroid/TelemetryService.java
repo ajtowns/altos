@@ -49,6 +49,11 @@ public class TelemetryService extends Service {
 	static final int MSG_UNREGISTER_CLIENT = 2;
 	static final int MSG_CONNECT_TELEBT    = 3;
 
+	public static final int STATE_NONE       = 0;
+	public static final int STATE_READY      = 1;
+	public static final int STATE_CONNECTING = 2;
+	public static final int STATE_CONNECTED  = 3;
+
 	// Unique Identification Number for the Notification.
 	// We use it on Notification start, and to cancel it.
 	private int NOTIFICATION = R.string.telemetry_service_label;
