@@ -28,13 +28,28 @@ ao_74hc497_read(void)
 {
 	static __xdata state;
 	ao_spi_get_bit(AO_74HC497_CS_PORT, AO_74HC497_CS_PIN, AO_74HC497_CS, AO_74HC497_SPI_BUS, AO_SPI_SPEED_FAST);
-	ao_spi_send(&state, 1, AO_74HC497_SPI_BUS);
+	ao_spi_recv(&state, 1, AO_74HC497_SPI_BUS);
 	ao_spi_put_bit(AO_74HC497_CS_PORT, AO_74HC497_CS_PIN, AO_74HC497_CS, AO_74HC497_SPI_BUS);
 	return state;
 }
+
+static void
+ao_74hc497_cmd(void)
+{
+	uint8_t	v;
+
+	v = ao_74hc497_read();
+	printf ("Switches: 0x%02x\n", v);
+}
+
+static const struct ao_cmds ao_74hc497_cmds[] = {
+	{ ao_74hc497_cmd, "L\0Show 74hc497" },
+	{ 0, NULL }
+};
 
 void
 ao_74hc497_init(void)
 {
 	ao_enable_output(AO_74HC497_CS_PORT, AO_74HC497_CS_PIN, AO_74HC497_CS, 1);
+	ao_cmd_register(&ao_74hc497_cmds[0]);
 }
