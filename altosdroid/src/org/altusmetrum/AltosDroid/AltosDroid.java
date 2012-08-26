@@ -77,7 +77,7 @@ public class AltosDroid extends Activity {
 
 	private boolean mIsBound;
 	Messenger mService = null;
-	final Messenger mMessenger = new Messenger(new IncomingHandler());
+	final Messenger mMessenger = new Messenger(new IncomingHandler(this));
 
 	// Name of the connected device
 	private String mConnectedDeviceName = null;
