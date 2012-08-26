@@ -22,7 +22,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.os.Binder;
+//import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -38,16 +38,6 @@ public class TelemetryService extends Service {
 	private static final String TAG = "TelemetryService";
 	private static final boolean D = true;
 
-    /**
-     * Class for clients to access.  Because we know this service always
-     * runs in the same process as its clients, we don't need to deal with
-     * IPC.
-     */
-    public class TelemetryBinder extends Binder {
-        TelemetryService getService() {
-            return TelemetryService.this;
-        }
-    }
 	// Unique Identification Number for the Notification.
 	// We use it on Notification start, and to cancel it.
 	private int NOTIFICATION = R.string.telemetry_service_label;
@@ -106,11 +96,7 @@ public class TelemetryService extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {
-        return mBinder;
 	}
 
-    // This is the object that receives interactions from clients.  See
-    // RemoteService for a more complete example.
-    private final IBinder mBinder = new TelemetryBinder();
 
 }
