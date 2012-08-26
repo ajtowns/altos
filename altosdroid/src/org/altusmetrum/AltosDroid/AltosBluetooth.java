@@ -26,6 +26,7 @@ import java.util.UUID;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.os.Handler;
 import android.util.Log;
 
 import org.altusmetrum.AltosLib.*;
@@ -39,6 +40,8 @@ public class AltosBluetooth extends AltosLink {
 	private ConnectThread    connect_thread = null;
 	private Thread           input_thread   = null;
 
+	private Handler          handler;
+
 	private BluetoothAdapter adapter;
 	private BluetoothDevice  device;
 	private BluetoothSocket  socket;
@@ -46,9 +49,10 @@ public class AltosBluetooth extends AltosLink {
 	private OutputStream     output;
 
 	// Constructor
-	public AltosBluetooth(BluetoothDevice in_device) {
+	public AltosBluetooth(BluetoothDevice in_device, Handler in_handler) {
 		adapter = BluetoothAdapter.getDefaultAdapter();
 		device = in_device;
+		handler = in_handler;
 
 		connect_thread = new ConnectThread(device);
 		connect_thread.start();

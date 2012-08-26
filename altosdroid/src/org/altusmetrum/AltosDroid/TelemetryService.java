@@ -61,7 +61,8 @@ public class TelemetryService extends Service {
 	//private NotificationManager mNM;
 
 	ArrayList<Messenger> mClients = new ArrayList<Messenger>(); // Keeps track of all current registered clients.
-	final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
+	final Handler   mHandler   = new IncomingHandler(this);
+	final Messenger mMessenger = new Messenger(mHandler); // Target we publish for clients to send messages to IncomingHandler.
 
 	// Name of the connected device
 	private String mConnectedDeviceName = null;
@@ -93,6 +94,7 @@ public class TelemetryService extends Service {
 			case MSG_CONNECTED:
 				if (D) Log.d(TAG, "Connected to device");
 				s.setState(STATE_CONNECTED);
+				s.mAltosBluetooth.add_monitor(s.telem);
 				break;
 			default:
 				super.handleMessage(msg);
@@ -110,8 +112,7 @@ public class TelemetryService extends Service {
 	}
 
 	private void startAltosBluetooth(BluetoothDevice d) {
-		mAltosBluetooth = new AltosBluetooth(d);
-		mAltosBluetooth.add_monitor(telem);
+			mAltosBluetooth = new AltosBluetooth(d, mHandler);
 			setState(STATE_CONNECTING);
 	}
 
