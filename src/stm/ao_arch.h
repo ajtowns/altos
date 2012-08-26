@@ -25,9 +25,13 @@
  * STM32L definitions and code fragments for AltOS
  */
 
-#define AO_STACK_SIZE	668
+#define AO_STACK_SIZE	512
 
 #define AO_LED_TYPE	uint16_t
+
+#ifndef AO_TICK_TYPE
+#define AO_TICK_TYPE	uint16_t
+#endif
 
 /* Various definitions to make GCC look more like SDCC */
 
