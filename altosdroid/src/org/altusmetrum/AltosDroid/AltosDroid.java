@@ -343,7 +343,7 @@ public class AltosDroid extends Activity {
 			//Message msg = Message.obtain(null, TelemetryService.MSG_CONNECT_TELEBT);
 			//msg.obj = device;
 			//mService.send(msg);
-			mService.send(Message.obtain(null, TelemetryService.MSG_CONNECT_TELEBT, device));
+			mService.send(Message.obtain(null, TelemetryService.MSG_CONNECT, device));
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
