@@ -38,30 +38,8 @@
                   android:configChanges="orientation|keyboardHidden" />
 
 
-        <!-- Service Samples -->
-
         <service android:name=".TelemetryService" />
 
-        <activity android:name=".TelemetryServiceActivities$Controller"
-                android:label="@string/activity_telemetry_service_controller"
-                android:launchMode="singleTop">
-<!--
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.SAMPLE_CODE" />
-            </intent-filter>
--->
-        </activity>
-
-        <activity android:name="TelemetryServiceActivities$Binding"
-                android:label="@string/activity_telemetry_service_binding">
-<!--
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.SAMPLE_CODE" />
-            </intent-filter>
--->
-        </activity>
 
     </application>
 </manifest>

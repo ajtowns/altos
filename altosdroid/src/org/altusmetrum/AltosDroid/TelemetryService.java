@@ -67,7 +67,7 @@ public class TelemetryService extends Service {
 
 		// The PendingIntent to launch our activity if the user selects this notification
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, TelemetryServiceActivities.Controller.class), 0);
+				new Intent(this, AltosDroid.class), 0);
 
 		// Set the info for the views that show in the notification panel.
 		notification.setLatestEventInfo(this, getText(R.string.telemetry_service_label), text, contentIntent);
