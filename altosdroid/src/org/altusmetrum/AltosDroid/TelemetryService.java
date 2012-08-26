@@ -26,7 +26,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
-//import android.os.Binder;
 import android.os.IBinder;
 import android.os.Handler;
 import android.os.Message;
