@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import android.app.Notification;
-import android.app.NotificationManager;
+//import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothDevice;
@@ -57,7 +57,7 @@ public class TelemetryService extends Service {
 	// Unique Identification Number for the Notification.
 	// We use it on Notification start, and to cancel it.
 	private int NOTIFICATION = R.string.telemetry_service_label;
-	private NotificationManager mNM;
+	//private NotificationManager mNM;
 
 	ArrayList<Messenger> mClients = new ArrayList<Messenger>(); // Keeps track of all current registered clients.
 	final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
@@ -111,7 +111,7 @@ public class TelemetryService extends Service {
 	@Override
 	public void onCreate() {
 		// Create a reference to the NotificationManager so that we can update our notifcation text later
-		mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+		//mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 	}
 
 	@Override
