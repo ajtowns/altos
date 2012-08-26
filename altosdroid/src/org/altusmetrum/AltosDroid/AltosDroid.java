@@ -26,16 +26,16 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.KeyEvent;
+//import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
+//import android.view.View;
 import android.view.Window;
-import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
-import android.widget.EditText;
+//import android.view.View.OnClickListener;
+//import android.view.inputmethod.EditorInfo;
+//import android.widget.Button;
+//import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.altusmetrum.AltosDroid.R;
@@ -61,8 +61,6 @@ public class AltosDroid extends Activity {
     public static final String TOAST = "toast";
 
 
-    private EditText mOutEditText;
-    private Button mSendButton;
 
 	// Intent request codes
 	private static final int REQUEST_CONNECT_DEVICE = 1;
@@ -71,6 +69,8 @@ public class AltosDroid extends Activity {
 	// Layout Views
 	private TextView mTitle;
 	private TextView mSerialView;
+	//private EditText mOutEditText;
+	//private Button mSendButton;
 	// Name of the connected device
 	private String mConnectedDeviceName = null;
 	// Local Bluetooth adapter
