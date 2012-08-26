@@ -47,7 +47,8 @@ public class TelemetryService extends Service {
 
 	static final int MSG_REGISTER_CLIENT   = 1;
 	static final int MSG_UNREGISTER_CLIENT = 2;
-	static final int MSG_CONNECT_TELEBT    = 3;
+	static final int MSG_CONNECT           = 3;
+	static final int MSG_CONNECTED         = 4;
 
 	public static final int STATE_NONE       = 0;
 	public static final int STATE_READY      = 1;
@@ -85,9 +86,12 @@ public class TelemetryService extends Service {
 				s.mClients.remove(msg.replyTo);
 				if (D) Log.d(TAG, "Client unbound from service");
 				break;
-			case MSG_CONNECT_TELEBT:
+			case MSG_CONNECT:
 				if (D) Log.d(TAG, "Connect command received");
 				s.startAltosBluetooth((BluetoothDevice) msg.obj);
+				break;
+			case MSG_CONNECTED:
+				if (D) Log.d(TAG, "Connected to device");
 				break;
 			default:
 				super.handleMessage(msg);
