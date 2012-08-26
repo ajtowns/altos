@@ -34,11 +34,6 @@ import org.altusmetrum.AltosDroid.R;
 
 
 public class TelemetryService extends Service {
-    private NotificationManager mNM;
-
-    // Unique Identification Number for the Notification.
-    // We use it on Notification start, and to cancel it.
-    private int NOTIFICATION = R.string.telemetry_service_label;
 
     /**
      * Class for clients to access.  Because we know this service always
@@ -50,53 +45,59 @@ public class TelemetryService extends Service {
             return TelemetryService.this;
         }
     }
+	// Unique Identification Number for the Notification.
+	// We use it on Notification start, and to cancel it.
+	private int NOTIFICATION = R.string.telemetry_service_label;
+	private NotificationManager mNM;
 
-    @Override
+	@Override
     public void onCreate() {
-        // Create a reference to the NotificationManager so that we can update our notifcation text later
-        mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-    }
+		// Create a reference to the NotificationManager so that we can update our notifcation text later
+		mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+	}
 
-    @Override
+	@Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("TelemetryService", "Received start id " + startId + ": " + intent);
+		Log.i("TelemetryService", "Received start id " + startId + ": " + intent);
 
-        CharSequence text = getText(R.string.telemetry_service_started);
+		CharSequence text = getText(R.string.telemetry_service_started);
 
-        // Create notification to be displayed while the service runs
-        Notification notification = new Notification(R.drawable.am_status_c, text, 0);
+		// Create notification to be displayed while the service runs
+		Notification notification = new Notification(R.drawable.am_status_c, text, 0);
 
-        // The PendingIntent to launch our activity if the user selects this notification
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+		// The PendingIntent to launch our activity if the user selects this notification
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, TelemetryServiceActivities.Controller.class), 0);
 
-        // Set the info for the views that show in the notification panel.
-        notification.setLatestEventInfo(this, getText(R.string.telemetry_service_label), text, contentIntent);
+		// Set the info for the views that show in the notification panel.
+		notification.setLatestEventInfo(this, getText(R.string.telemetry_service_label), text, contentIntent);
 
-        // Set the notification to be in the "Ongoing" section.
-        notification.flags |= Notification.FLAG_ONGOING_EVENT;
+		// Set the notification to be in the "Ongoing" section.
+		notification.flags |= Notification.FLAG_ONGOING_EVENT;
 
-        // Move us into the foreground.
-        startForeground(NOTIFICATION, notification);
+		// Move us into the foreground.
+		startForeground(NOTIFICATION, notification);
 
-        // We want this service to continue running until it is explicitly
-        // stopped, so return sticky.
-        return START_STICKY;
-    }
+		// We want this service to continue running until it is explicitly
+		// stopped, so return sticky.
+		return START_STICKY;
+	}
 
-    @Override
+	@Override
     public void onDestroy() {
-        // Demote us from the foreground, and cancel the persistent notification.
-        stopForeground(true);
 
-        // Tell the user we stopped.
-        Toast.makeText(this, R.string.telemetry_service_stopped, Toast.LENGTH_SHORT).show();
-    }
 
-    @Override
+		// Demote us from the foreground, and cancel the persistent notification.
+		stopForeground(true);
+
+		// Tell the user we stopped.
+		Toast.makeText(this, R.string.telemetry_service_stopped, Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
     public IBinder onBind(Intent intent) {
         return mBinder;
-    }
+	}
 
     // This is the object that receives interactions from clients.  See
     // RemoteService for a more complete example.
