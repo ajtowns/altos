@@ -17,13 +17,14 @@
 <resources>
     <string name="app_name">AltosDroid</string>
 
-    <!--  BluetoothChat -->
-    <string name="send">Send</string>
-    <string name="not_connected">You are not connected to a device</string>
-    <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Chat.</string>
+    <!--  AltosDroid -->
+    <string name="bt_not_enabled">Bluetooth was not enabled.</string>
     <string name="title_connecting">connecting…</string>
     <string name="title_connected_to">connected: </string>
     <string name="title_not_connected">not connected</string>
+
+    <!-- Options Menu -->
+    <string name="connect_device">Connect a device</string>
 
     <!--  DeviceListActivity -->
     <string name="scanning">scanning for devices…</string>
@@ -33,9 +34,6 @@
     <string name="title_paired_devices">Paired Devices</string>
     <string name="title_other_devices">Other Available Devices</string>
     <string name="button_scan">Scan for devices</string>
-
-    <!-- Options Menu -->
-    <string name="connect_device">Connect a device</string>
 
     <!-- Service -->
     <string name="telemetry_service_label">AltosDroid Telemetry Service</string>

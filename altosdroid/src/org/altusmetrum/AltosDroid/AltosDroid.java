@@ -327,7 +327,7 @@ public class AltosDroid extends Activity {
 				// User did not enable Bluetooth or an error occured
 				Log.d(TAG, "BT not enabled");
 				stopService(new Intent(AltosDroid.this, TelemetryService.class));
-				Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, R.string.bt_not_enabled, Toast.LENGTH_SHORT).show();
 				finish();
 			}
 		}
