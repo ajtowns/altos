@@ -64,10 +64,6 @@ public class AltosDroid extends Activity {
     private EditText mOutEditText;
     private Button mSendButton;
 
-    // String buffer for outgoing messages
-    private StringBuffer mOutStringBuffer;
-    // Member object for the chat services
-    private BluetoothChatService mChatService = null;
 	// Intent request codes
 	private static final int REQUEST_CONNECT_DEVICE = 1;
 	private static final int REQUEST_ENABLE_BT      = 2;
@@ -115,7 +111,7 @@ public class AltosDroid extends Activity {
 			Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
 		} else {
-            if (mChatService == null) setupChat();
+			//if (mChatService == null) setupChat();
 		}
 	}
 
@@ -127,13 +123,13 @@ public class AltosDroid extends Activity {
 		// Performing this check in onResume() covers the case in which BT was
 		// not enabled during onStart(), so we were paused to enable it...
 		// onResume() will be called when ACTION_REQUEST_ENABLE activity returns.
-        if (mChatService != null) {
-            // Only if the state is STATE_NONE, do we know that we haven't started already
-            if (mChatService.getState() == BluetoothChatService.STATE_NONE) {
-              // Start the Bluetooth chat services
-              mChatService.start();
-            }
-        }
+		//if (mChatService != null) {
+			// Only if the state is STATE_NONE, do we know that we haven't started already
+			//if (mChatService.getState() == BluetoothChatService.STATE_NONE) {
+			// Start the Bluetooth chat services
+			//mChatService.start();
+			//}
+		//}
 	}
 
 	@Override
@@ -151,13 +147,12 @@ public class AltosDroid extends Activity {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-        // Stop the Bluetooth chat services
-        if (mChatService != null) mChatService.stop();
 		if(D) Log.e(TAG, "--- ON DESTROY ---");
 	}
 
 
 
+/*
 	private void setupChat() {
 		Log.d(TAG, "setupChat()");
 
@@ -187,6 +182,7 @@ public class AltosDroid extends Activity {
 		// Initialize the buffer for outgoing messages
 		mOutStringBuffer = new StringBuffer("");
 	}
+*/
 
 	/**
 	 * Sends a message.
@@ -228,54 +224,6 @@ public class AltosDroid extends Activity {
 	};
 	*/
 
-    // The Handler that gets information back from the BluetoothChatService
-    private final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-            case MESSAGE_STATE_CHANGE:
-                if(D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
-                switch (msg.arg1) {
-                case BluetoothChatService.STATE_CONNECTED:
-                    mTitle.setText(R.string.title_connected_to);
-                    mTitle.append(mConnectedDeviceName);
-                    mSerialView.setText("");
-                    break;
-                case BluetoothChatService.STATE_CONNECTING:
-                    mTitle.setText(R.string.title_connecting);
-                    break;
-                case BluetoothChatService.STATE_READY:
-                case BluetoothChatService.STATE_NONE:
-                    mTitle.setText(R.string.title_not_connected);
-                    break;
-                }
-                break;
-            case MESSAGE_WRITE:
-                byte[] writeBuf = (byte[]) msg.obj;
-                // construct a string from the buffer
-                String writeMessage = new String(writeBuf);
-                mSerialView.append(writeMessage + '\n');
-                break;
-            case MESSAGE_READ:
-                byte[] readBuf = (byte[]) msg.obj;
-                // construct a string from the valid bytes in the buffer
-                String readMessage = new String(readBuf, 0, msg.arg1);
-                mSerialView.append(readMessage);
-                break;
-            case MESSAGE_DEVICE_NAME:
-                // save the connected device's name
-                mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-                Toast.makeText(getApplicationContext(), "Connected to "
-                               + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
-                break;
-            case MESSAGE_TOAST:
-                Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST),
-                               Toast.LENGTH_SHORT).show();
-                break;
-            }
-        }
-    };
-
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(D) Log.d(TAG, "onActivityResult " + resultCode);
 		switch (requestCode) {
@@ -289,7 +237,7 @@ public class AltosDroid extends Activity {
 			// When the request to enable Bluetooth returns
 			if (resultCode == Activity.RESULT_OK) {
 				// Bluetooth is now enabled, so set up a chat session
-                setupChat();
+				//setupChat();
 			} else {
 				// User did not enable Bluetooth or an error occured
 				Log.d(TAG, "BT not enabled");
@@ -306,7 +254,6 @@ public class AltosDroid extends Activity {
 		// Get the BLuetoothDevice object
 		BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
 		// Attempt to connect to the device
-        mChatService.connect(device);
 	}
 
 
