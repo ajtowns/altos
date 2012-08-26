@@ -27,10 +27,12 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -54,6 +56,10 @@ public class TelemetryService extends Service {
 	public static final int STATE_READY      = 1;
 	public static final int STATE_CONNECTING = 2;
 	public static final int STATE_CONNECTED  = 3;
+
+	// Key names received from the TelemetryService Handler
+	public static final String KEY_DEVNAME = "key_devname";
+	public static final String KEY_TOAST   = "key_toast";
 
 	// Unique Identification Number for the Notification.
 	// We use it on Notification start, and to cancel it.
@@ -98,6 +104,12 @@ public class TelemetryService extends Service {
 				break;
 			case MSG_CONNECTED:
 				if (D) Log.d(TAG, "Connected to device");
+				s.mConnectedDeviceName = msg.getData().getString(KEY_DEVNAME);
+				Message m = Message.obtain(null, AltosDroid.MSG_DEVNAME);
+				Bundle b = new Bundle();
+				b.putString(AltosDroid.KEY_DEVNAME, s.mConnectedDeviceName);
+				m.setData(b);
+				s.sendMessageToClients(m);
 				s.setState(STATE_CONNECTED);
 				s.mAltosBluetooth.add_monitor(s.telem);
 				break;
