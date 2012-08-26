@@ -44,6 +44,15 @@ public class AltosBluetooth extends AltosLink {
 	private InputStream      input;
 	private OutputStream     output;
 
+	// Constructor
+	public AltosBluetooth(BluetoothDevice in_device) {
+		adapter = BluetoothAdapter.getDefaultAdapter();
+
+
+		connect_thread = new ConnectThread(device);
+		connect_thread.start();
+	}
+
 	private class ConnectThread extends Thread {
 		private final UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
@@ -156,9 +165,4 @@ public class AltosBluetooth extends AltosLink {
 	public boolean show_reply_timeout() { return true; }
 	public void hide_reply_timeout()    { }
 
-	public AltosBluetooth(BluetoothDevice device) {
-		adapter = BluetoothAdapter.getDefaultAdapter();
-		connect_thread = new ConnectThread(device, true);
-		connect_thread.start();
-	}
 }
