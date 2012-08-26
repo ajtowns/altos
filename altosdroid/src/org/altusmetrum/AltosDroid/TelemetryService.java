@@ -141,9 +141,14 @@ public class TelemetryService extends Service {
 	}
 
 	private void startAltosBluetooth(BluetoothDevice d) {
+		if (mAltosBluetooth == null) {
 			if (D) Log.i(TAG, "Connecting to " + d.getName());
 			mAltosBluetooth = new AltosBluetooth(d, mHandler);
 			setState(STATE_CONNECTING);
+		} else {
+			stopAltosBluetooth();
+			mHandler.sendMessageDelayed(Message.obtain(null, MSG_CONNECT, d), 1000);
+		}
 	}
 
 	private synchronized void setState(int s) {
