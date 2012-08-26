@@ -48,7 +48,7 @@ public class AltosBluetooth extends AltosLink {
 	// Constructor
 	public AltosBluetooth(BluetoothDevice in_device) {
 		adapter = BluetoothAdapter.getDefaultAdapter();
-
+		device = in_device;
 
 		connect_thread = new ConnectThread(device);
 		connect_thread.start();
