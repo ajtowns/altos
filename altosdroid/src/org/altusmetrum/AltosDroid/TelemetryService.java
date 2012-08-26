@@ -36,10 +36,6 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 
-// Need the following import to get access to the app resources, since this
-// class is in a sub-package.
-//import org.altusmetrum.AltosDroid.R;
-
 import org.altusmetrum.AltosLib.*;
 
 public class TelemetryService extends Service {
