@@ -80,8 +80,8 @@ public class AltosDroid extends Activity {
 	// Local Bluetooth adapter
 	private BluetoothAdapter mBluetoothAdapter = null;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if(D) Log.e(TAG, "+++ ON CREATE +++");
 
@@ -97,16 +97,17 @@ public class AltosDroid extends Activity {
 		mTitle.setText(R.string.app_name);
 		mTitle = (TextView) findViewById(R.id.title_right_text);
 
-        // If the adapter is null, then Bluetooth is not supported
+		// If the adapter is null, then Bluetooth is not supported
 		if (mBluetoothAdapter == null) {
 			Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
 			finish();
 			return;
 		}
-    }
 
-    @Override
-    public void onStart() {
+	}
+
+	@Override
+	public void onStart() {
 		super.onStart();
 		if(D) Log.e(TAG, "++ ON START ++");
 
@@ -116,10 +117,10 @@ public class AltosDroid extends Activity {
 		} else {
             if (mChatService == null) setupChat();
 		}
-    }
+	}
 
-    @Override
-    public synchronized void onResume() {
+	@Override
+	public synchronized void onResume() {
 		super.onResume();
 		if(D) Log.e(TAG, "+ ON RESUME +");
 
@@ -133,31 +134,31 @@ public class AltosDroid extends Activity {
               mChatService.start();
             }
         }
-    }
+	}
 
-    @Override
-    public synchronized void onPause() {
+	@Override
+	public synchronized void onPause() {
 		super.onPause();
 		if(D) Log.e(TAG, "- ON PAUSE -");
-    }
+	}
 
-    @Override
-    public void onStop() {
+	@Override
+	public void onStop() {
 		super.onStop();
 		if(D) Log.e(TAG, "-- ON STOP --");
-    }
+	}
 
-    @Override
-    public void onDestroy() {
+	@Override
+	public void onDestroy() {
 		super.onDestroy();
         // Stop the Bluetooth chat services
         if (mChatService != null) mChatService.stop();
 		if(D) Log.e(TAG, "--- ON DESTROY ---");
-    }
+	}
 
 
 
-    private void setupChat() {
+	private void setupChat() {
 		Log.d(TAG, "setupChat()");
 
         mSerialView = (TextView) findViewById(R.id.in);
@@ -173,10 +174,10 @@ public class AltosDroid extends Activity {
 		mSendButton = (Button) findViewById(R.id.button_send);
 		mSendButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-                // Send a message using content of the edit text widget
+				// Send a message using content of the edit text widget
 				TextView view = (TextView) findViewById(R.id.edit_text_out);
 				String message = view.getText().toString();
-                sendMessage(message);
+				sendMessage(message);
 			}
 		});
 
@@ -185,14 +186,14 @@ public class AltosDroid extends Activity {
 
 		// Initialize the buffer for outgoing messages
 		mOutStringBuffer = new StringBuffer("");
-    }
+	}
 
-    /**
+	/**
 	 * Sends a message.
 	 * @param message  A string of text to send.
 	 */
 	/*
-    private void sendMessage(String message) {
+	private void sendMessage(String message) {
 		// Check that we're actually connected before trying anything
 		if (mChatService.getState() != BluetoothChatService.STATE_CONNECTED) {
 			Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
@@ -212,8 +213,8 @@ public class AltosDroid extends Activity {
 	}
 
 
-    // The action listener for the EditText widget, to listen for the return key
-    private TextView.OnEditorActionListener mWriteListener =
+	// The action listener for the EditText widget, to listen for the return key
+	private TextView.OnEditorActionListener mWriteListener =
 		new TextView.OnEditorActionListener() {
 		public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
 			// If the action is a key-up event on the return key, send the message
@@ -222,9 +223,10 @@ public class AltosDroid extends Activity {
 				sendMessage(message);
 			}
 			if(D) Log.i(TAG, "END onEditorAction");
-            return true;
-        }
-    };
+			return true;
+		}
+	};
+	*/
 
     // The Handler that gets information back from the BluetoothChatService
     private final Handler mHandler = new Handler() {
@@ -274,7 +276,7 @@ public class AltosDroid extends Activity {
         }
     };
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(D) Log.d(TAG, "onActivityResult " + resultCode);
 		switch (requestCode) {
 		case REQUEST_CONNECT_DEVICE:
@@ -296,26 +298,27 @@ public class AltosDroid extends Activity {
 				finish();
 			}
 		}
-    }
+	}
 
-    private void connectDevice(Intent data) {
+	private void connectDevice(Intent data) {
 		// Get the device MAC address
 		String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
 		// Get the BLuetoothDevice object
 		BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
 		// Attempt to connect to the device
         mChatService.connect(device);
-    }
+	}
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.option_menu, menu);
 		return true;
-    }
+	}
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
 		Intent serverIntent = null;
 		switch (item.getItemId()) {
         case R.id.telemetry_service_control:
@@ -333,6 +336,6 @@ public class AltosDroid extends Activity {
 			return true;
 		}
 		return false;
-    }
+	}
 
 }

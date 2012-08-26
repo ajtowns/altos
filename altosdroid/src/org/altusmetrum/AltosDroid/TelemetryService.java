@@ -51,13 +51,13 @@ public class TelemetryService extends Service {
 	private NotificationManager mNM;
 
 	@Override
-    public void onCreate() {
+	public void onCreate() {
 		// Create a reference to the NotificationManager so that we can update our notifcation text later
 		mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 	}
 
 	@Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.i("TelemetryService", "Received start id " + startId + ": " + intent);
 
 		CharSequence text = getText(R.string.telemetry_service_started);
@@ -84,7 +84,7 @@ public class TelemetryService extends Service {
 	}
 
 	@Override
-    public void onDestroy() {
+	public void onDestroy() {
 
 
 		// Demote us from the foreground, and cancel the persistent notification.
@@ -95,7 +95,7 @@ public class TelemetryService extends Service {
 	}
 
 	@Override
-    public IBinder onBind(Intent intent) {
+	public IBinder onBind(Intent intent) {
         return mBinder;
 	}
 
