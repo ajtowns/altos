@@ -36,17 +36,13 @@ public class AltosBluetooth extends AltosLink {
 	private static final String TAG = "AltosBluetooth";
 	private static final boolean D = true;
 
-	/**
-	 * This thread runs while attempting to make an outgoing connection
-	 * with a device. It runs straight through; the connection either
-	 * succeeds or fails.
-	 */
+	private ConnectThread    connect_thread = null;
 
-	private BluetoothAdapter	adapter;
-	private ConnectThread		connect_thread;
-	private BluetoothSocket		socket;
-	private InputStream		input;
-	private OutputStream		output;
+	private BluetoothAdapter adapter;
+	private BluetoothDevice  device;
+	private BluetoothSocket  socket;
+	private InputStream      input;
+	private OutputStream     output;
 
 	private class ConnectThread extends Thread {
 		private final UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
