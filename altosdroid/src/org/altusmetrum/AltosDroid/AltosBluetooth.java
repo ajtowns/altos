@@ -149,20 +149,12 @@ public class AltosBluetooth extends AltosLink {
 		}
 	}
 
-	public void flush_output() {
-		super.flush_output();
-		/* any local work needed to flush bluetooth? */
-	}
 
-	public boolean can_cancel_reply() {
-		return false;
-	}
-	public boolean show_reply_timeout() {
-		return true;
-	}
-		
-	public void hide_reply_timeout() {
-	}
+	//public void flush_output() { super.flush_output(); }
+
+	public boolean can_cancel_reply()   { return false; }
+	public boolean show_reply_timeout() { return true; }
+	public void hide_reply_timeout()    { }
 
 	public AltosBluetooth(BluetoothDevice device) {
 		adapter = BluetoothAdapter.getDefaultAdapter();
