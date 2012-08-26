@@ -93,6 +93,11 @@ public class AltosDroid extends Activity {
 		mTitle.setText(R.string.app_name);
 		mTitle = (TextView) findViewById(R.id.title_right_text);
 
+		mSerialView = (TextView) findViewById(R.id.in);
+		mSerialView.setMovementMethod(new ScrollingMovementMethod());
+		mSerialView.setClickable(false);
+		mSerialView.setLongClickable(false);
+
 		// If the adapter is null, then Bluetooth is not supported
 		if (mBluetoothAdapter == null) {
 			Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
@@ -155,11 +160,6 @@ public class AltosDroid extends Activity {
 /*
 	private void setupChat() {
 		Log.d(TAG, "setupChat()");
-
-        mSerialView = (TextView) findViewById(R.id.in);
-        mSerialView.setMovementMethod(new ScrollingMovementMethod());
-        mSerialView.setClickable(false);
-        mSerialView.setLongClickable(false);
 
 		// Initialize the compose field with a listener for the return key
 		mOutEditText = (EditText) findViewById(R.id.edit_text_out);
