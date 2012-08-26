@@ -37,6 +37,7 @@ public class AltosBluetooth extends AltosLink {
 	private static final boolean D = true;
 
 	private ConnectThread    connect_thread = null;
+	private Thread           input_thread   = null;
 
 	private BluetoothAdapter adapter;
 	private BluetoothDevice  device;
@@ -51,6 +52,9 @@ public class AltosBluetooth extends AltosLink {
 
 		connect_thread = new ConnectThread(device);
 		connect_thread.start();
+
+		input_thread = new Thread(this);
+		input_thread.start();
 	}
 
 	private class ConnectThread extends Thread {
@@ -154,6 +158,13 @@ public class AltosBluetooth extends AltosLink {
 			if (connect_thread != null) {
 				connect_thread.cancel();
 				connect_thread = null;
+			}
+			if (input_thread != null) {
+				try {
+					input_thread.interrupt();
+					input_thread.join();
+				} catch (Exception e) {}
+				input_thread = null;
 			}
 		}
 	}
