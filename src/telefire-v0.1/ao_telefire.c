@@ -35,7 +35,7 @@ main(void)
 	ao_storage_init();
 	ao_usb_init();
 	ao_radio_init();
-//	ao_aes_init();
+	ao_aes_init();
 	ao_pad_init();
 	ao_config_init();
 	ao_start_scheduler();

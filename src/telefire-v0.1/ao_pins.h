@@ -53,6 +53,7 @@
 #define HAS_ACCEL_REF		0
 #define SPI_CS_ON_P1		1
 #define HAS_AES			1
+#define DMA_SHARE_AES_RADIO	1
 
 #define SPI_CS_PORT	P1
 #define SPI_CS_SEL	P1SEL
