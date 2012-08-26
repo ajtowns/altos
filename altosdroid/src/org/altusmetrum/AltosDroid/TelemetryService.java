@@ -112,6 +112,8 @@ public class TelemetryService extends Service {
 	public void onCreate() {
 		// Create a reference to the NotificationManager so that we can update our notifcation text later
 		//mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+
+		telem = new LinkedBlockingQueue<AltosLine>();
 	}
 
 	@Override
