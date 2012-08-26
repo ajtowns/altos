@@ -102,6 +102,16 @@ public class TelemetryService extends Service {
 		}
 	}
 
+	private void sendMessageToClients(Message m) {
+		for (int i=mClients.size()-1; i>=0; i--) {
+			try {
+				mClients.get(i).send(m);
+			} catch (RemoteException e) {
+				mClients.remove(i);
+			}
+		}
+	}
+
 	private void stopAltosBluetooth() {
 		setState(STATE_READY);
 		if (mAltosBluetooth != null) {
