@@ -31,6 +31,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 //import android.view.KeyEvent;
@@ -84,6 +86,8 @@ public class AltosDroid extends Activity {
 	// Local Bluetooth adapter
 	private BluetoothAdapter mBluetoothAdapter = null;
 
+	private TextToSpeech tts;
+	private boolean tts_enabled = false;
 
 	// The Handler that gets information back from the Telemetry Service
 	static class IncomingHandler extends Handler {
@@ -183,6 +187,14 @@ public class AltosDroid extends Activity {
 			return;
 		}
 
+		// Enable Text to Speech
+		tts = new TextToSpeech(this, new OnInitListener() {
+			public void onInit(int status) {
+				if (status == TextToSpeech.SUCCESS) tts_enabled = true;
+				if (tts_enabled) tts.speak("AltosDroid ready", TextToSpeech.QUEUE_ADD, null );
+			}
+		});
+
 		// Start Telemetry Service
 		startService(new Intent(AltosDroid.this, TelemetryService.class));
 
@@ -236,6 +248,8 @@ public class AltosDroid extends Activity {
 		super.onDestroy();
 
 		doUnbindService();
+
+		if (tts != null) tts.shutdown();
 
 		if(D) Log.e(TAG, "--- ON DESTROY ---");
 	}
