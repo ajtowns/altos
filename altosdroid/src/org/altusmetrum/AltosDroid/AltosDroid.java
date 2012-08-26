@@ -54,18 +54,15 @@ public class AltosDroid extends Activity {
 	private static final String TAG = "AltosDroid";
 	private static final boolean D = true;
 
-    // Message types sent from the BluetoothChatService Handler
-    public static final int MESSAGE_STATE_CHANGE = 1;
-    public static final int MESSAGE_READ = 2;
-    public static final int MESSAGE_WRITE = 3;
-    public static final int MESSAGE_DEVICE_NAME = 4;
-    public static final int MESSAGE_TOAST = 5;
+	// Message types sent from the TelemetryService Handler
+	public static final int MSG_STATE_CHANGE    = 1;
+	public static final int MSG_DEVNAME         = 2;
+	public static final int MSG_INCOMING_TELEM  = 3;
+	public static final int MSG_TOAST           = 4;
 
-    // Key names received from the BluetoothChatService Handler
-    public static final String DEVICE_NAME = "device_name";
-    public static final String TOAST = "toast";
-
-
+	// Key names received from the TelemetryService Handler
+	public static final String KEY_DEVNAME = "key_devname";
+	public static final String KEY_TOAST   = "key_toast";
 
 	// Intent request codes
 	private static final int REQUEST_CONNECT_DEVICE = 1;
@@ -79,18 +76,69 @@ public class AltosDroid extends Activity {
 
 	private boolean mIsBound;
 	Messenger mService = null;
+	final Messenger mMessenger = new Messenger(new IncomingHandler());
 
 	// Name of the connected device
 	private String mConnectedDeviceName = null;
 	// Local Bluetooth adapter
 	private BluetoothAdapter mBluetoothAdapter = null;
 
+
+	// The Handler that gets information back from the Telemetry Service
+	class IncomingHandler extends Handler {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case MSG_STATE_CHANGE:
+				if(D) Log.i(TAG, "MSG_STATE_CHANGE: " + msg.arg1);
+				switch (msg.arg1) {
+				case TelemetryService.STATE_CONNECTED:
+					mTitle.setText(R.string.title_connected_to);
+					mTitle.append(mConnectedDeviceName);
+					mSerialView.setText("");
+					break;
+				case TelemetryService.STATE_CONNECTING:
+					mTitle.setText(R.string.title_connecting);
+					break;
+				case TelemetryService.STATE_READY:
+				case TelemetryService.STATE_NONE:
+					mTitle.setText(R.string.title_not_connected);
+					break;
+				}
+				break;
+			case MSG_INCOMING_TELEM:
+				byte[] buf = (byte[]) msg.obj;
+				// construct a string from the buffer
+				String telem = new String(buf);
+				mSerialView.append(telem);
+				break;
+			case MSG_DEVNAME:
+				// save the connected device's name
+				mConnectedDeviceName = msg.getData().getString(KEY_DEVNAME);
+				Toast.makeText(getApplicationContext(), "Connected to "
+							+ mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+				break;
+			case MSG_TOAST:
+				Toast.makeText(
+						getApplicationContext(),
+						msg.getData().getString(KEY_TOAST),
+						Toast.LENGTH_SHORT).show();
+				break;
+			}
+		}
 	};
 
 
 	private ServiceConnection mConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName className, IBinder service) {
 			mService = new Messenger(service);
+			try {
+				Message msg = Message.obtain(null, TelemetryService.MSG_REGISTER_CLIENT);
+				msg.replyTo = mMessenger;
+				mService.send(msg);
+			} catch (RemoteException e) {
+				// In this case the service has crashed before we could even do anything with it
+			}
 		}
 
 		public void onServiceDisconnected(ComponentName className) {
@@ -286,6 +334,14 @@ public class AltosDroid extends Activity {
 		// Get the BLuetoothDevice object
 		BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
 		// Attempt to connect to the device
+		try {
+			//Message msg = Message.obtain(null, TelemetryService.MSG_CONNECT_TELEBT);
+			//msg.obj = device;
+			//mService.send(msg);
+			mService.send(Message.obtain(null, TelemetryService.MSG_CONNECT_TELEBT, device));
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
 	}
 
 
@@ -318,6 +374,15 @@ public class AltosDroid extends Activity {
 	void doUnbindService() {
 		if (mIsBound) {
 			// If we have received the service, and hence registered with it, then now is the time to unregister.
+			if (mService != null) {
+				try {
+					Message msg = Message.obtain(null, TelemetryService.MSG_UNREGISTER_CLIENT);
+					msg.replyTo = mMessenger;
+					mService.send(msg);
+				} catch (RemoteException e) {
+					// There is nothing special we need to do if the service has crashed.
+				}
+			}
 			// Detach our existing connection.
 			unbindService(mConnection);
 			mIsBound = false;
