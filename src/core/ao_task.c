@@ -82,39 +82,36 @@ ao_yield(void) ao_arch_naked_define
 
 	ao_arch_isr_stack();
 
-#if CHECK_STACK
+#if AO_CHECK_STACK
 	in_yield = 1;
 #endif
 	/* Find a task to run. If there isn't any runnable task,
 	 * this loop will run forever, which is just fine
 	 */
 	{
-		__pdata uint8_t	ao_next_task_index = ao_cur_task_index;
+		__pdata uint8_t	ao_last_task_index = ao_cur_task_index;
 		for (;;) {
-			++ao_next_task_index;
-			if (ao_next_task_index == ao_num_tasks)
-				ao_next_task_index = 0;
+			++ao_cur_task_index;
+			if (ao_cur_task_index == ao_num_tasks)
+				ao_cur_task_index = 0;
 
-			ao_cur_task = ao_tasks[ao_next_task_index];
-			if (ao_cur_task->wchan == NULL) {
-				ao_cur_task_index = ao_next_task_index;
+			ao_cur_task = ao_tasks[ao_cur_task_index];
+
+			/* Check for ready task */
+			if (ao_cur_task->wchan == NULL)
 				break;
-			}
 
 			/* Check if the alarm is set for a time which has passed */
 			if (ao_cur_task->alarm &&
-			    (int16_t) (ao_time() - ao_cur_task->alarm) >= 0) {
-				ao_cur_task_index = ao_next_task_index;
+			    (int16_t) (ao_time() - ao_cur_task->alarm) >= 0)
 				break;
-			}
 
 			/* Enter lower power mode when there isn't anything to do */
-			if (ao_next_task_index == ao_cur_task_index) {
+			if (ao_cur_task_index == ao_last_task_index)
 				ao_arch_cpu_idle();
-			}
 		}
 	}
-#if CHECK_STACK
+#if AO_CHECK_STACK
 	cli();
 	in_yield = 0;
 #endif
@@ -177,7 +174,7 @@ ao_exit(void)
 void
 ao_task_info(void)
 {
-	uint8_t	i;
+	uint8_t		i;
 	__xdata struct ao_task *task;
 
 	for (i = 0; i < ao_num_tasks; i++) {
