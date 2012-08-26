@@ -66,7 +66,7 @@ public class TelemetryService extends Service {
 	// Name of the connected device
 	private String mConnectedDeviceName = null;
 	private AltosBluetooth mAltosBluetooth = null;
-
+	private int state = STATE_NONE;
 	LinkedBlockingQueue<AltosLine> telem;
 
 	// Handler of incoming messages from clients.
@@ -92,6 +92,7 @@ public class TelemetryService extends Service {
 				break;
 			case MSG_CONNECTED:
 				if (D) Log.d(TAG, "Connected to device");
+				s.setState(STATE_CONNECTED);
 				break;
 			default:
 				super.handleMessage(msg);
@@ -100,6 +101,7 @@ public class TelemetryService extends Service {
 	}
 
 	private void stopAltosBluetooth() {
+		setState(STATE_READY);
 		if (mAltosBluetooth != null) {
 			mAltosBluetooth.close();
 			mAltosBluetooth = null;
@@ -110,6 +112,14 @@ public class TelemetryService extends Service {
 	private void startAltosBluetooth(BluetoothDevice d) {
 		mAltosBluetooth = new AltosBluetooth(d);
 		mAltosBluetooth.add_monitor(telem);
+			setState(STATE_CONNECTING);
+	}
+
+	private synchronized void setState(int s) {
+		if (D) Log.d(TAG, "setState() " + state + " -> " + s);
+		state = s;
+
+		sendMessageToClients(Message.obtain(null, AltosDroid.MSG_STATE_CHANGE, state, -1));
 	}
 
 	@Override
@@ -118,6 +128,7 @@ public class TelemetryService extends Service {
 		//mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
 		telem = new LinkedBlockingQueue<AltosLine>();
+		setState(STATE_READY);
 	}
 
 	@Override
