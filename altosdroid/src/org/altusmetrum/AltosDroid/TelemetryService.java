@@ -29,11 +29,14 @@ import android.widget.Toast;
 
 // Need the following import to get access to the app resources, since this
 // class is in a sub-package.
-import org.altusmetrum.AltosDroid.R;
+//import org.altusmetrum.AltosDroid.R;
 
-
+import org.altusmetrum.AltosLib.*;
 
 public class TelemetryService extends Service {
+
+	private static final String TAG = "TelemetryService";
+	private static final boolean D = true;
 
     /**
      * Class for clients to access.  Because we know this service always
@@ -49,6 +52,13 @@ public class TelemetryService extends Service {
 	// We use it on Notification start, and to cancel it.
 	private int NOTIFICATION = R.string.telemetry_service_label;
 	private NotificationManager mNM;
+
+
+	// Name of the connected device
+	private String mConnectedDeviceName = null;
+	private AltosBluetooth mAltosBluetooth = null;
+
+	LinkedBlockingQueue<AltosLine> telem;
 
 	@Override
 	public void onCreate() {
