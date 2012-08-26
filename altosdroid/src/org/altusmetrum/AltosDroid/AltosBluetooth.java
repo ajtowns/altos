@@ -1,5 +1,6 @@
 /*
  * Copyright © 2011 Keith Packard <keithp@keithp.com>
+ * Copyright © 2012 Mike Beattie <mike@ethernal.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
