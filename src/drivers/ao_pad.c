@@ -19,15 +19,16 @@
 #include <ao_pad.h>
 #include <ao_74hc497.h>
 
-__xdata uint8_t ao_pad_ignite;
-
-#define ao_pad_igniter_status(c)	AO_PAD_IGNITER_STATUS_UNKNOWN
-#define ao_pad_arm_status()		AO_PAD_ARM_STATUS_UNKNOWN
+static __xdata uint8_t ao_pad_ignite;
+static __xdata struct ao_pad_command	command;
+static __xdata struct ao_pad_query	query;
 
 #if 0
 #define PRINTD(...) printf(__VA_ARGS__)
+#define FLUSHD()    flush()
 #else
 #define PRINTD(...) 
+#define FLUSHD()    
 #endif
 
 static void
@@ -49,12 +50,12 @@ ao_pad_run(void)
 }
 
 static void
-ao_pad_status(void)
+ao_pad_monitor(void)
 {
 	uint8_t			c;
 	uint8_t			sample;
-	__pdata uint8_t			prev = 0, cur = 0;
-	__pdata uint8_t			beeping = 0;
+	__pdata uint8_t		prev = 0, cur = 0;
+	__pdata uint8_t		beeping = 0;
 	__xdata struct ao_data	*packet;
 
 	sample = ao_data_head;
@@ -73,13 +74,45 @@ ao_pad_status(void)
 #define VOLTS_TO_PYRO(x) ((int16_t) ((x) * 27.0 / 127.0 / 3.3 * 32767.0))
 
 		cur = 0;
-		if (pyro > VOLTS_TO_PYRO(4)) {
-			for (c = 0; c < AO_PAD_NUM; c++) {
-				int16_t		sense = packet->adc.sense[c];
+		if (pyro > VOLTS_TO_PYRO(4))
+			query.arm_status = AO_PAD_ARM_STATUS_ARMED;
+		else if (pyro < VOLTS_TO_PYRO(1))
+			query.arm_status = AO_PAD_ARM_STATUS_DISARMED;
+		else
+			query.arm_status = AO_PAD_ARM_STATUS_UNKNOWN;
 
-				if (sense >= pyro / 4 * 3)
+		for (c = 0; c < AO_PAD_NUM; c++) {
+			int16_t		sense = packet->adc.sense[c];
+			uint8_t	status = AO_PAD_IGNITER_STATUS_UNKNOWN;
+
+			if (query.arm_status == AO_PAD_ARM_STATUS_ARMED) {
+				/*
+				 *	pyro is run through a divider, so pyro = v_pyro * 27 / 127 ~= v_pyro / 20
+				 *	v_pyro = pyro * 127 / 27
+				 *
+				 *		v_pyro \
+				 *	100k		igniter
+				 *		output /	
+				 *	100k           \
+				 *		sense   relay
+				 *	27k            / 
+				 *		gnd ---   
+				 *
+				 *	If the relay is closed, then sense will be 0
+				 *	If no igniter is present, then sense will be v_pyro * 27k/227k = pyro * 127 / 227 ~= pyro/2
+				 *	If igniter is present, then sense will be v_pyro * 27k/127k ~= v_pyro / 20 = pyro
+				 */
+
+				if (sense <= pyro / 8)
+					status = AO_PAD_IGNITER_STATUS_NO_IGNITER_RELAY_CLOSED;
+				else if (pyro / 8 * 3 <= sense && sense <= pyro / 8 * 5)
+					status = AO_PAD_IGNITER_STATUS_NO_IGNITER_RELAY_OPEN;
+				else if (pyro / 8 * 7 <= sense) {
+					status = AO_PAD_IGNITER_STATUS_GOOD_IGNITER_RELAY_OPEN;
 					cur |= AO_LED_CONTINUITY(c);
+				}
 			}
+			query.igniter_status[c] = status;
 		}
 		if (cur != prev) {
 			ao_led_set_mask(cur, AO_LED_CONTINUITY_MASK);
@@ -120,17 +153,14 @@ ao_pad_enable(void)
 static void
 ao_pad(void)
 {
-	static __xdata struct ao_pad_command	command;
-	static __xdata struct ao_pad_query	query;
 	int16_t	time_difference;
-	uint8_t	c;
 
 	ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(200));
 	ao_pad_box = ao_74hc497_read();
 	ao_led_set(0);
 	ao_led_on(AO_LED_POWER);
 	for (;;) {
-		flush();
+		FLUSHD();
 		while (ao_pad_disabled)
 			ao_sleep(&ao_pad_disabled);
 		if (ao_radio_cmac_recv(&command, sizeof (command), 0) != AO_RADIO_CMAC_OK)
@@ -173,9 +203,6 @@ ao_pad(void)
 			query.box = ao_pad_box;
 			query.channels = AO_PAD_ALL_PINS;
 			query.armed = ao_pad_armed;
-			query.arm_status = ao_pad_arm_status();
-			for (c = 0; c < AO_PAD_NUM; c++)
-				query.igniter_status[c] = ao_pad_igniter_status(c);
 			PRINTD ("query tick %d serial %d channel %d valid %d arm %d igniter %d\n",
 				query.tick, query.serial, query.channel, query.valid, query.arm_status,
 				query.igniter_status);
@@ -209,27 +236,30 @@ ao_pad(void)
 void
 ao_pad_test(void)
 {
-#if 0
-	switch (ao_igniter_status(ao_igniter_drogue)) {
-	case ao_igniter_ready:
-	case ao_igniter_active:
-		printf ("Armed: ");
-		switch (ao_igniter_status(ao_igniter_main)) {
-		default:
-			printf("unknown status\n");
-			break;
-		case ao_igniter_ready:
-			printf("igniter good\n");
-			break;
-		case ao_igniter_open:
-			printf("igniter bad\n");
-			break;
-		}
+	uint8_t	c;
+
+	printf ("Arm switch: ");
+	switch (query.arm_status) {
+	case AO_PAD_ARM_STATUS_ARMED:
+		printf ("Armed\n");
 		break;
-	default:
-		printf("Disarmed\n");
+	case AO_PAD_ARM_STATUS_DISARMED:
+		printf ("Disarmed\n");
+		break;
+	case AO_PAD_ARM_STATUS_UNKNOWN:
+		printf ("Unknown\n");
+		break;
 	}
-#endif
+
+	for (c = 0; c < AO_PAD_NUM; c++) {
+		printf ("Pad %d: ");
+		switch (query.igniter_status[c]) {
+		case AO_PAD_IGNITER_STATUS_NO_IGNITER_RELAY_CLOSED:	printf ("No igniter. Relay closed\n"); break;
+		case AO_PAD_IGNITER_STATUS_NO_IGNITER_RELAY_OPEN:	printf ("No igniter. Relay open\n"); break;
+		case AO_PAD_IGNITER_STATUS_GOOD_IGNITER_RELAY_OPEN:	printf ("Good igniter. Relay open\n"); break;
+		case AO_PAD_IGNITER_STATUS_UNKNOWN:			printf ("Unknown\n"); break;
+		}
+	}
 }
 
 void
@@ -247,7 +277,7 @@ ao_pad_manual(void)
 
 static __xdata struct ao_task ao_pad_task;
 static __xdata struct ao_task ao_pad_ignite_task;
-static __xdata struct ao_task ao_pad_status_task;
+static __xdata struct ao_task ao_pad_monitor_task;
 
 __code struct ao_cmds ao_pad_cmds[] = {
 	{ ao_pad_test,	"t\0Test pad continuity" },
@@ -273,5 +303,5 @@ ao_pad_init(void)
 	ao_cmd_register(&ao_pad_cmds[0]);
 	ao_add_task(&ao_pad_task, ao_pad, "pad listener");
 	ao_add_task(&ao_pad_ignite_task, ao_pad_run, "pad igniter");
-	ao_add_task(&ao_pad_status_task, ao_pad_status, "pad status");
+	ao_add_task(&ao_pad_monitor_task, ao_pad_monitor, "pad monitor");
 }
