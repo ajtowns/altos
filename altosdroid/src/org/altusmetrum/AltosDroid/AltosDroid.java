@@ -21,9 +21,15 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.Context;
+import android.content.ComponentName;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 //import android.view.KeyEvent;
@@ -70,10 +76,29 @@ public class AltosDroid extends Activity {
 	private TextView mSerialView;
 	//private EditText mOutEditText;
 	//private Button mSendButton;
+
+	private boolean mIsBound;
+	Messenger mService = null;
+
 	// Name of the connected device
 	private String mConnectedDeviceName = null;
 	// Local Bluetooth adapter
 	private BluetoothAdapter mBluetoothAdapter = null;
+
+	};
+
+
+	private ServiceConnection mConnection = new ServiceConnection() {
+		public void onServiceConnected(ComponentName className, IBinder service) {
+			mService = new Messenger(service);
+		}
+
+		public void onServiceDisconnected(ComponentName className) {
+			// This is called when the connection with the service has been unexpectedly disconnected - process crashed.
+			mService = null;
+		}
+	};
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -105,6 +130,10 @@ public class AltosDroid extends Activity {
 			return;
 		}
 
+		// Start Telemetry Service
+		startService(new Intent(AltosDroid.this, TelemetryService.class));
+
+		doBindService();
 	}
 
 	@Override
@@ -152,6 +181,9 @@ public class AltosDroid extends Activity {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+
+		doUnbindService();
+
 		if(D) Log.e(TAG, "--- ON DESTROY ---");
 	}
 
@@ -275,6 +307,21 @@ public class AltosDroid extends Activity {
 			return true;
 		}
 		return false;
+	}
+
+
+	void doBindService() {
+		bindService(new Intent(this, TelemetryService.class), mConnection, Context.BIND_AUTO_CREATE);
+		mIsBound = true;
+	}
+
+	void doUnbindService() {
+		if (mIsBound) {
+			// If we have received the service, and hence registered with it, then now is the time to unregister.
+			// Detach our existing connection.
+			unbindService(mConnection);
+			mIsBound = false;
+		}
 	}
 
 }
