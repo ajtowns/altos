@@ -17,6 +17,7 @@
 
 package org.altusmetrum.AltosDroid;
 
+import java.lang.ref.WeakReference;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -85,24 +86,28 @@ public class AltosDroid extends Activity {
 
 
 	// The Handler that gets information back from the Telemetry Service
-	class IncomingHandler extends Handler {
+	static class IncomingHandler extends Handler {
+		private final WeakReference<AltosDroid> mAltosDroid;
+		IncomingHandler(AltosDroid ad) { mAltosDroid = new WeakReference<AltosDroid>(ad); }
+
 		@Override
 		public void handleMessage(Message msg) {
+			AltosDroid ad = mAltosDroid.get();
 			switch (msg.what) {
 			case MSG_STATE_CHANGE:
 				if(D) Log.i(TAG, "MSG_STATE_CHANGE: " + msg.arg1);
 				switch (msg.arg1) {
 				case TelemetryService.STATE_CONNECTED:
-					mTitle.setText(R.string.title_connected_to);
-					mTitle.append(mConnectedDeviceName);
-					mSerialView.setText("");
+					ad.mTitle.setText(R.string.title_connected_to);
+					ad.mTitle.append(ad.mConnectedDeviceName);
+					ad.mSerialView.setText("");
 					break;
 				case TelemetryService.STATE_CONNECTING:
-					mTitle.setText(R.string.title_connecting);
+					ad.mTitle.setText(R.string.title_connecting);
 					break;
 				case TelemetryService.STATE_READY:
 				case TelemetryService.STATE_NONE:
-					mTitle.setText(R.string.title_not_connected);
+					ad.mTitle.setText(R.string.title_not_connected);
 					break;
 				}
 				break;
@@ -110,17 +115,17 @@ public class AltosDroid extends Activity {
 				byte[] buf = (byte[]) msg.obj;
 				// construct a string from the buffer
 				String telem = new String(buf);
-				mSerialView.append(telem);
+				ad.mSerialView.append(telem);
 				break;
 			case MSG_DEVNAME:
 				// save the connected device's name
-				mConnectedDeviceName = msg.getData().getString(KEY_DEVNAME);
-				Toast.makeText(getApplicationContext(), "Connected to "
-							+ mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+				ad.mConnectedDeviceName = msg.getData().getString(KEY_DEVNAME);
+				Toast.makeText(ad.getApplicationContext(), "Connected to "
+							+ ad.mConnectedDeviceName, Toast.LENGTH_SHORT).show();
 				break;
 			case MSG_TOAST:
 				Toast.makeText(
-						getApplicationContext(),
+						ad.getApplicationContext(),
 						msg.getData().getString(KEY_TOAST),
 						Toast.LENGTH_SHORT).show();
 				break;

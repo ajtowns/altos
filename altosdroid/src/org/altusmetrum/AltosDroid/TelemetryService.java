@@ -17,6 +17,7 @@
 
 package org.altusmetrum.AltosDroid;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -68,22 +69,25 @@ public class TelemetryService extends Service {
 	LinkedBlockingQueue<AltosLine> telem;
 
 	// Handler of incoming messages from clients.
-	class IncomingHandler extends Handler {
+	static class IncomingHandler extends Handler {
+		private final WeakReference<TelemetryService> service;
+		IncomingHandler(TelemetryService s) { service = new WeakReference<TelemetryService>(s); }
+
 		@Override
 		public void handleMessage(Message msg) {
+			TelemetryService s = service.get();
 			switch (msg.what) {
 			case MSG_REGISTER_CLIENT:
-				mClients.add(msg.replyTo);
+				s.mClients.add(msg.replyTo);
 				if (D) Log.d(TAG, "Client bound to service");
 				break;
 			case MSG_UNREGISTER_CLIENT:
-				mClients.remove(msg.replyTo);
+				s.mClients.remove(msg.replyTo);
 				if (D) Log.d(TAG, "Client unbound from service");
 				break;
 			case MSG_CONNECT_TELEBT:
 				if (D) Log.d(TAG, "Connect command received");
-				TeleBT_stop();
-				TeleBT_start((BluetoothDevice) msg.obj);
+				s.startAltosBluetooth((BluetoothDevice) msg.obj);
 				break;
 			default:
 				super.handleMessage(msg);
@@ -91,7 +95,7 @@ public class TelemetryService extends Service {
 		}
 	}
 
-	private void TeleBT_stop() {
+	private void stopAltosBluetooth() {
 		if (mAltosBluetooth != null) {
 			mAltosBluetooth.close();
 			mAltosBluetooth = null;
@@ -99,7 +103,7 @@ public class TelemetryService extends Service {
 		telem.clear();
 	}
 
-	private void TeleBT_start(BluetoothDevice d) {
+	private void startAltosBluetooth(BluetoothDevice d) {
 		mAltosBluetooth = new AltosBluetooth(d);
 		mAltosBluetooth.add_monitor(telem);
 	}
@@ -141,7 +145,7 @@ public class TelemetryService extends Service {
 	public void onDestroy() {
 
 		// Stop the bluetooth Comms threads
-		TeleBT_stop();
+		stopAltosBluetooth();
 
 		// Demote us from the foreground, and cancel the persistent notification.
 		stopForeground(true);
