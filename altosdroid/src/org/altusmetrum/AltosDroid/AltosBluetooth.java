@@ -99,6 +99,10 @@ public class AltosBluetooth extends AltosLink {
 					input = socket.getInputStream();
 					output = socket.getOutputStream();
 
+					// Configure the newly connected device for telemetry
+					print("~\nE 0\n");
+					set_monitor(false);
+
 					// Reset the ConnectThread because we're done
 					AltosBluetooth.this.notify();
 					connect_thread = null;
