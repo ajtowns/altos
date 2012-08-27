@@ -47,6 +47,8 @@ public class TelemetryService extends Service {
 	static final int MSG_UNREGISTER_CLIENT = 2;
 	static final int MSG_CONNECT           = 3;
 	static final int MSG_CONNECTED         = 4;
+	static final int MSG_CONNECT_FAILED    = 5;
+	static final int MSG_DISCONNECTED      = 6;
 
 	public static final int STATE_NONE       = 0;
 	public static final int STATE_READY      = 1;
@@ -100,6 +102,14 @@ public class TelemetryService extends Service {
 				s.sendMessageToClients(Message.obtain(null, AltosDroid.MSG_DEVNAME, s.device.getName()));
 				s.setState(STATE_CONNECTED);
 				s.mAltosBluetooth.add_monitor(s.telem);
+				break;
+			case MSG_CONNECT_FAILED:
+				if (D) Log.d(TAG, "Connection failed... retrying");
+				s.startAltosBluetooth();
+				break;
+			case MSG_DISCONNECTED:
+				if (D) Log.d(TAG, "Disconnected from " + s.device.getName());
+				s.stopAltosBluetooth();
 				break;
 			default:
 				super.handleMessage(msg);

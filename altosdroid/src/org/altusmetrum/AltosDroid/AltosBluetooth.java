@@ -103,6 +103,7 @@ public class AltosBluetooth extends AltosLink {
 					input = null;
 					output = null;
 					AltosBluetooth.this.notifyAll();
+					handler.obtainMessage(TelemetryService.MSG_CONNECT_FAILED).sendToTarget();
 					if (D) Log.e(TAG, "ConnectThread: Failed to establish connection");
 					return;
 				}
@@ -147,6 +148,7 @@ public class AltosBluetooth extends AltosLink {
 
 	private void connection_failed() {
 		if (D) Log.e(TAG, "Bluetooth Socket IO failed!");
+		handler.obtainMessage(TelemetryService.MSG_DISCONNECTED).sendToTarget();
 	}
 
 	public void print(String data) {
