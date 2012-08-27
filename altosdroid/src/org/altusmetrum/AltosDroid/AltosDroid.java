@@ -63,10 +63,6 @@ public class AltosDroid extends Activity {
 	public static final int MSG_INCOMING_TELEM  = 3;
 	public static final int MSG_TOAST           = 4;
 
-	// Key names received from the TelemetryService Handler
-	public static final String KEY_DEVNAME = "key_devname";
-	public static final String KEY_TOAST   = "key_toast";
-
 	// Intent request codes
 	private static final int REQUEST_CONNECT_DEVICE = 1;
 	private static final int REQUEST_ENABLE_BT      = 2;
@@ -131,7 +127,7 @@ public class AltosDroid extends Activity {
 			case MSG_TOAST:
 				Toast.makeText(
 						ad.getApplicationContext(),
-						msg.getData().getString(KEY_TOAST),
+						(String) msg.obj,
 						Toast.LENGTH_SHORT).show();
 				break;
 			}
