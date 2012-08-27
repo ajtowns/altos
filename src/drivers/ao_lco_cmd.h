@@ -15,10 +15,10 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#ifndef _AO_LCO_H_
-#define _AO_LCO_H_
+#ifndef _AO_LCO_CMD_H_
+#define _AO_LCO_CMD_H_
 
 void
-ao_lco_init(void);
+ao_lco_cmd_init(void);
 
-#endif /* _AO_LCO_H_ */
+#endif /* _AO_LCO_CMD_H_ */
