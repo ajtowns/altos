@@ -53,10 +53,6 @@ public class TelemetryService extends Service {
 	public static final int STATE_CONNECTING = 2;
 	public static final int STATE_CONNECTED  = 3;
 
-	// Key names received from the TelemetryService Handler
-	public static final String KEY_DEVNAME = "key_devname";
-	public static final String KEY_TOAST   = "key_toast";
-
 	// Unique Identification Number for the Notification.
 	// We use it on Notification start, and to cancel it.
 	private int NOTIFICATION = R.string.telemetry_service_label;
