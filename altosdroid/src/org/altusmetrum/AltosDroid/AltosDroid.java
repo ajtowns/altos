@@ -123,8 +123,9 @@ public class AltosDroid extends Activity {
 				break;
 			case MSG_DEVNAME:
 				// save the connected device's name
-				ad.mConnectedDeviceName = msg.getData().getString(KEY_DEVNAME);
-				Toast.makeText(ad.getApplicationContext(), "Connected to "
+				ad.mConnectedDeviceName = (String) msg.obj;
+				if (ad.mConnectedDeviceName != null)
+					Toast.makeText(ad.getApplicationContext(), "Connected to "
 							+ ad.mConnectedDeviceName, Toast.LENGTH_SHORT).show();
 				break;
 			case MSG_TOAST:

@@ -26,9 +26,9 @@ import java.util.UUID;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.os.Bundle;
+//import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
+//import android.os.Message;
 import android.util.Log;
 
 import org.altusmetrum.AltosLib.*;
@@ -116,11 +116,7 @@ public class AltosBluetooth extends AltosLink {
 
 				// Send the device name back to the Telemetry Service
 				name = device.getName();
-				Message msg = handler.obtainMessage(TelemetryService.MSG_CONNECTED);
-				Bundle b  = new Bundle();
-				b.putString(TelemetryService.KEY_DEVNAME, name);
-				msg.setData(b);
-				handler.sendMessage(msg);
+				handler.obtainMessage(TelemetryService.MSG_CONNECTED).sendToTarget();
 
 				// Notify other waiting threads, now that we're connected
 				AltosBluetooth.this.notifyAll();

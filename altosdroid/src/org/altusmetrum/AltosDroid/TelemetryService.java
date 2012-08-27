@@ -27,7 +27,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
-import android.os.Bundle;
+//import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Handler;
 import android.os.Message;
@@ -67,6 +67,7 @@ public class TelemetryService extends Service {
 	final Messenger mMessenger = new Messenger(mHandler); // Target we publish for clients to send messages to IncomingHandler.
 
 	// Name of the connected device
+	private BluetoothDevice device = null;
 	private String mConnectedDeviceName = null;
 	private AltosBluetooth mAltosBluetooth = null;
 	private int state = STATE_NONE;
@@ -96,16 +97,13 @@ public class TelemetryService extends Service {
 				break;
 			case MSG_CONNECT:
 				if (D) Log.d(TAG, "Connect command received");
-				s.startAltosBluetooth((BluetoothDevice) msg.obj);
+				s.device = (BluetoothDevice) msg.obj;
+				s.startAltosBluetooth();
 				break;
 			case MSG_CONNECTED:
 				if (D) Log.d(TAG, "Connected to device");
-				s.mConnectedDeviceName = msg.getData().getString(KEY_DEVNAME);
-				Message m = Message.obtain(null, AltosDroid.MSG_DEVNAME);
-				Bundle b = new Bundle();
-				b.putString(AltosDroid.KEY_DEVNAME, s.mConnectedDeviceName);
-				m.setData(b);
-				s.sendMessageToClients(m);
+				s.mConnectedDeviceName = s.device.getName();
+				s.sendMessageToClients(Message.obtain(null, AltosDroid.MSG_DEVNAME, s.mConnectedDeviceName));
 				s.setState(STATE_CONNECTED);
 				s.mAltosBluetooth.add_monitor(s.telem);
 				break;
@@ -133,17 +131,19 @@ public class TelemetryService extends Service {
 			mAltosBluetooth.close();
 			mAltosBluetooth = null;
 		}
+		mConnectedDeviceName = null;
+		device = null;
 		telem.clear();
 	}
 
-	private void startAltosBluetooth(BluetoothDevice d) {
+	private void startAltosBluetooth() {
 		if (mAltosBluetooth == null) {
-			if (D) Log.i(TAG, "Connecting to " + d.getName());
-			mAltosBluetooth = new AltosBluetooth(d, mHandler);
+			if (D) Log.i(TAG, "Connecting to " + device.getName());
+			mAltosBluetooth = new AltosBluetooth(device, mHandler);
 			setState(STATE_CONNECTING);
 		} else {
 			stopAltosBluetooth();
-			mHandler.sendMessageDelayed(Message.obtain(null, MSG_CONNECT, d), 1000);
+			mHandler.sendMessageDelayed(Message.obtain(null, MSG_CONNECT, device), 1000);
 		}
 	}
 
