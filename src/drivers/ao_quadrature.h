@@ -18,6 +18,8 @@
 #ifndef _AO_QUADRATURE_H_
 #define _AO_QUADRATURE_H_
 
+extern __xdata int32_t ao_quadrature_count[AO_QUADRATURE_COUNT];
+
 int32_t
 ao_quadrature_wait(uint8_t q);
 

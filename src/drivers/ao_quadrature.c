@@ -88,38 +88,22 @@ ao_quadrature_wait(uint8_t q)
 static void
 ao_quadrature_test(void)
 {
-#if 1
+	uint8_t	q;
+
+	ao_cmd_decimal();
+	q = ao_cmd_lex_i;
 	for (;;) {
 		int32_t	c;
 		flush();
-		c = ao_quadrature_wait(0);
+		c = ao_quadrature_wait(q);
 		printf ("new count %6d\n", c);
 		if (c == 100)
 			break;
 	}
-#endif
-#if 0
-	uint8_t	a, old_a, b, old_b;
-
-	old_a = 2; old_b = 2;
-	for (;;) {
-		a = ao_gpio_get(AO_QUADRATURE_PORT, AO_QUADRATURE_A, AO_QUADRATURE_A_PIN);
-		b = ao_gpio_get(AO_QUADRATURE_PORT, AO_QUADRATURE_B, AO_QUADRATURE_B_PIN);
-		if (a != old_a || b != old_b) {
-			printf ("A %d B %d count %ld\n", a, b, ao_quadrature_count);
-			flush();
-			ao_yield();
-			old_a = a;
-			old_b = b;
-		}
-		if (ao_stdin_ready)
-			break;
-	}
-#endif		
 }
 
 static const struct ao_cmds ao_quadrature_cmds[] = {
-	{ ao_quadrature_test,	"q\0Test quadrature" },
+	{ ao_quadrature_test,	"q <unit>\0Test quadrature" },
 	{ 0, NULL }
 };
 
