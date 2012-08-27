@@ -16,6 +16,7 @@
  */
 
 #include <ao.h>
+#include <ao_lcd_stm.h>
 
 struct ao_lcd_segment {
 	uint8_t	reg;
@@ -88,7 +89,7 @@ static inline int ao_lcd_stm_com_enabled(int com) {
 		(1 << 31))
 
 #else
-#define AO_LCD_STM_GPIOC_28_C_SEGS	0
+#define AO_LCD_STM_GPIOC_28_SEGS	0
 
 #define AO_LCD_STM_GPIOD_28_SEGS	(	\
 		(1 << 28) |			\
@@ -227,6 +228,21 @@ static const struct ao_lcd_segment coms[] = {
 #define NSEG	(sizeof segs/sizeof segs[0])
 #define NCOM	(sizeof coms/sizeof coms[0])
 
+static uint8_t	ao_lcd_update_active;
+
+void
+stm_lcd_isr(void)
+{
+	if (stm_lcd.sr & (1 << STM_LCD_SR_UDD)) {
+		stm_lcd.clr = (1 << STM_LCD_CLR_UDDC);
+		if (ao_lcd_update_active) {
+			ao_lcd_update_active = 0;
+			ao_wakeup(&ao_lcd_update_active);
+		}
+	}
+}
+
+
 static void
 ao_lcd_stm_fcr_sync(void)
 {
@@ -234,6 +250,45 @@ ao_lcd_stm_fcr_sync(void)
 		asm("nop");
 }
 
+void
+ao_lcd_flush(void)
+{
+	cli();
+	ao_lcd_update_active = 1;
+	stm_lcd.sr = (1 << STM_LCD_SR_UDR);
+	while (ao_lcd_update_active)
+		ao_sleep(&ao_lcd_update_active);
+	sei();
+}
+
+void
+ao_lcd_clear(void)
+{
+	uint8_t	i;
+
+	for (i = 0; i < sizeof (stm_lcd.ram) / 4; i++)
+		stm_lcd.ram[i] = 0;
+	ao_lcd_flush();
+}
+
+void
+ao_lcd_set(uint8_t digit, uint8_t segment, uint8_t value)
+{
+	uint8_t	n;
+
+	if (digit >= NCOM)
+		digit = NCOM-1;
+	if (segment >= NSEG)
+		segment = NSEG-1;
+
+	n = (segment >> 5) & 1;
+	if (value)
+		stm_lcd.ram[digit * 2 + n] |= (1 << (segment & 0x1f));
+	else
+		stm_lcd.ram[digit * 2 + n] &= ~(1 << (segment & 0x1f));
+}
+
+#if 0
 static void
 ao_lcd_stm_seg_set(void)
 {
@@ -246,34 +301,16 @@ ao_lcd_stm_seg_set(void)
 	ao_cmd_decimal();
 	val = ao_cmd_lex_i;
 	printf ("com: %d seg: %d val: %d\n", com, seg, val);
-	n = (seg >> 5) & 1;
-	if (com >= NCOM)
-		com = NCOM-1;
-	if (seg >= NSEG)
-		seg = NSEG-1;
-	if (val)
-		stm_lcd.ram[com * 2 + n] |= (1 << (seg & 0x1f));
-	else
-		stm_lcd.ram[com * 2 + n] &= ~(1 << (seg & 0x1f));
-	stm_lcd.sr = (1 << STM_LCD_SR_UDR);
+	ao_lcd_set(com, seg, val);
+	ao_lcd_flush();
 }
 
-static void
-ao_lcd_stm_clear(void)
-{
-	int	i;
-
-	for (i = 0; i < sizeof (stm_lcd.ram) / 4; i++)
-		stm_lcd.ram[i] = 0;
-	stm_lcd.sr = (1 << STM_LCD_SR_UDR);
-}
-
-
-const struct ao_cmds ao_lcd_stm_cmds[] = {
+static const struct ao_cmds ao_lcd_stm_cmds[] = {
 	{ ao_lcd_stm_seg_set,	"s <com> <seg> <value>\0Set LCD segment" },
-	{ ao_lcd_stm_clear,	"C\0Clear LCD" },
+	{ ao_lcd_clear,		"C\0Clear LCD" },
 	{ 0, NULL },
 };
+#endif
 
 void
 ao_lcd_stm_init(void)
@@ -332,14 +369,14 @@ ao_lcd_stm_init(void)
 	stm_lcd.cr = 0;
 
 	/* duty cycle 1/3, radio 352, frame rate about 33Hz */
-	stm_lcd.fcr = ((STM_LCD_FCR_PS_16 << STM_LCD_FCR_PS) |
+	stm_lcd.fcr = ((STM_LCD_FCR_PS_8 << STM_LCD_FCR_PS) |
 		       (STM_LCD_FCR_DIV_20 << STM_LCD_FCR_DIV) |
-		       (4 << STM_LCD_FCR_CC) |
+		       (7 << STM_LCD_FCR_CC) |
 		       (0 << STM_LCD_FCR_DEAD) |
-		       (4 << STM_LCD_FCR_PON) |
-		       (0 << STM_LCD_FCR_UDDIE) |
+		       (1 << STM_LCD_FCR_PON) |
+		       (1 << STM_LCD_FCR_UDDIE) |
 		       (0 << STM_LCD_FCR_SOFIE) |
-		       (0 << STM_LCD_FCR_HD));
+		       (1 << STM_LCD_FCR_HD));
 
 	ao_lcd_stm_fcr_sync();
 
@@ -347,10 +384,10 @@ ao_lcd_stm_init(void)
 	/* Program desired BIAS in LCD_CR */
 	/* Enable mux seg */
 	/* Internal voltage source */
-	stm_lcd.cr = ((STM_LCD_CR_DUTY_STATIC << STM_LCD_CR_DUTY) |
+	stm_lcd.cr = ((AO_LCD_DUTY << STM_LCD_CR_DUTY) |
 		      (STM_LCD_CR_BIAS_1_2 << STM_LCD_CR_BIAS) |
 		      (0 << STM_LCD_CR_VSEL) |
-		      (1 << STM_LCD_CR_MUX_SEG));
+		      (0 << STM_LCD_CR_MUX_SEG));
 
 	ao_lcd_stm_fcr_sync();
 
@@ -362,12 +399,6 @@ ao_lcd_stm_init(void)
 
 	/* Load initial data into LCD_RAM and set the
 	 * UDR bit in the LCD_SR register */
-	for (r = 0; r < NCOM; r++) {
-		stm_lcd.ram[r*2] = 0;
-		stm_lcd.ram[r*2 + 1] = 0;
-	}
-
-	stm_lcd.sr = (1 << STM_LCD_SR_UDR);
 
 	/* Program desired frame rate (PS and DIV bits in LCD_FCR) */
 
@@ -376,7 +407,11 @@ ao_lcd_stm_init(void)
 	/* Program optional features (BLINK, BLINKF, PON, DEAD, HD) */
 
 	/* Program the required interrupts */
+	stm_nvic_set_enable(STM_ISR_LCD_POS);
+	stm_nvic_set_priority(STM_ISR_LCD_POS, AO_STM_NVIC_LOW_PRIORITY);
 
 	/* All done */
+#if 0
 	ao_cmd_register(ao_lcd_stm_cmds);
+#endif
 }
