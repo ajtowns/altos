@@ -31,6 +31,7 @@
 
 #ifndef AO_TICK_TYPE
 #define AO_TICK_TYPE	uint16_t
+#define AO_TICK_SIGNED	int16_t
 #endif
 
 /* Various definitions to make GCC look more like SDCC */
