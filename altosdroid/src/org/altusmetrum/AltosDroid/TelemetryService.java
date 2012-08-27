@@ -68,7 +68,6 @@ public class TelemetryService extends Service {
 
 	// Name of the connected device
 	private BluetoothDevice device = null;
-	private String mConnectedDeviceName = null;
 	private AltosBluetooth mAltosBluetooth = null;
 	private int state = STATE_NONE;
 	LinkedBlockingQueue<AltosLine> telem;
@@ -102,8 +101,7 @@ public class TelemetryService extends Service {
 				break;
 			case MSG_CONNECTED:
 				if (D) Log.d(TAG, "Connected to device");
-				s.mConnectedDeviceName = s.device.getName();
-				s.sendMessageToClients(Message.obtain(null, AltosDroid.MSG_DEVNAME, s.mConnectedDeviceName));
+				s.sendMessageToClients(Message.obtain(null, AltosDroid.MSG_DEVNAME, s.device.getName()));
 				s.setState(STATE_CONNECTED);
 				s.mAltosBluetooth.add_monitor(s.telem);
 				break;
@@ -131,7 +129,6 @@ public class TelemetryService extends Service {
 			mAltosBluetooth.close();
 			mAltosBluetooth = null;
 		}
-		mConnectedDeviceName = null;
 		device = null;
 		telem.clear();
 	}
