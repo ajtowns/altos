@@ -470,8 +470,44 @@ ao_radio_rdf_abort(void)
 
 
 /* Output carrier */
+
+static __xdata	ao_radio_test_on;
+
 void
-ao_radio_test(void)
+ao_radio_test(uint8_t on)
+{
+	if (on) {
+		if (!ao_radio_test_on) {
+#if HAS_MONITOR
+			ao_monitor_disable();
+#endif
+#if PACKET_HAS_SLAVE
+			ao_packet_slave_stop();
+#endif
+#if HAS_PAD
+			ao_pad_disable();
+#endif
+			ao_radio_get(0xff);
+			RFST = RFST_STX;
+			ao_radio_test_on = 1;
+		}
+	} else  {
+		if (ao_radio_test_on) {
+			ao_radio_idle();
+			ao_radio_put();
+			ao_radio_test_on = 0;
+#if HAS_MONITOR
+			ao_monitor_enable();
+#endif
+#if HAS_PAD
+			ao_pad_enable();
+#endif
+		}
+	}
+}
+
+static void
+ao_radio_test_cmd(void)
 {
 	uint8_t	mode = 2;
 	static __xdata radio_on;
@@ -481,40 +517,19 @@ ao_radio_test(void)
 		mode = (uint8_t) ao_cmd_lex_u32;
 	}
 	mode++;
-	if ((mode & 2) && !radio_on) {
-#if HAS_MONITOR
-		ao_monitor_disable();
-#endif
-#if PACKET_HAS_SLAVE
-		ao_packet_slave_stop();
-#endif
-#if HAS_PAD
-		ao_pad_disable();
-#endif
-		ao_radio_get(0xff);
-		RFST = RFST_STX;
-		radio_on = 1;
-	}
+	if ((mode & 2))
+		ao_radio_test(1);
 	if (mode == 3) {
 		printf ("Hit a character to stop..."); flush();
 		getchar();
 		putchar('\n');
 	}
-	if ((mode & 1) && radio_on) {
-		ao_radio_idle();
-		ao_radio_put();
-		radio_on = 0;
-#if HAS_MONITOR
-		ao_monitor_enable();
-#endif
-#if HAS_PAD
-		ao_pad_enable();
-#endif
-	}
+	if ((mode & 1))
+		ao_radio_test(0);
 }
 
 __code struct ao_cmds ao_radio_cmds[] = {
-	{ ao_radio_test,	"C <1 start, 0 stop, none both>\0Radio carrier test" },
+	{ ao_radio_test_cmd,	"C <1 start, 0 stop, none both>\0Radio carrier test" },
 	{ 0,	NULL },
 };
 

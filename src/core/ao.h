@@ -543,9 +543,6 @@ ao_telemetry_tiny_init(void);
  */
 
 extern __xdata uint8_t	ao_radio_dma;
-extern __xdata uint8_t ao_radio_dma_done;
-extern __xdata uint8_t ao_radio_done;
-extern __xdata uint8_t ao_radio_mutex;
 
 #ifdef PKT_APPEND_STATUS_1_CRC_OK
 #define AO_RADIO_STATUS_CRC_OK	PKT_APPEND_STATUS_1_CRC_OK
@@ -565,6 +562,9 @@ ao_radio_recv(__xdata void *d, uint8_t size) __reentrant;
 
 void
 ao_radio_recv_abort(void);
+
+void
+ao_radio_test(uint8_t on);
 
 /*
  * Compute the packet length as follows:

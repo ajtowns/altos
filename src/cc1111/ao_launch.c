@@ -15,7 +15,8 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "ao.h"
+#include <ao.h>
+#include <ao_radio_cmac.h>
 
 __xdata uint16_t ao_launch_ignite;
 

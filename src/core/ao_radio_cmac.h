@@ -15,40 +15,29 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#ifndef _AO_AES_H_
-#define _AO_AES_H_
+#ifndef _AO_RADIO_CMAC_H_
+#define _AO_RADIO_CMAC_H_
 
-/* ao_aes.c */
+#include <ao_aes.h>
 
-extern __xdata uint8_t ao_aes_mutex;
+#define AO_CMAC_KEY_LEN		AO_AES_LEN
+#define AO_CMAC_MAX_LEN		(128 - AO_CMAC_KEY_LEN)
 
-/* AES keys and blocks are 128 bits */
+extern __pdata int8_t ao_radio_cmac_rssi;
 
-enum ao_aes_mode {
-	ao_aes_mode_cbc_mac
-};
+int8_t
+ao_radio_cmac_send(__xdata void *packet, uint8_t len) __reentrant;
 
-#if HAS_AES
-#ifdef SDCC
-void
-ao_aes_isr(void) __interrupt 4;
-#endif
-#endif
+#define AO_RADIO_CMAC_OK	0
+#define AO_RADIO_CMAC_LEN_ERROR	-1
+#define AO_RADIO_CMAC_CRC_ERROR	-2
+#define AO_RADIO_CMAC_MAC_ERROR	-3
+#define AO_RADIO_CMAC_TIMEOUT	-4
 
-void
-ao_aes_set_mode(enum ao_aes_mode mode);
-
-void
-ao_aes_set_key(__xdata uint8_t *in);
+int8_t
+ao_radio_cmac_recv(__xdata void *packet, uint8_t len, uint16_t timeout) __reentrant;
 
 void
-ao_aes_zero_iv(void);
+ao_radio_cmac_init(void);
 
-void
-ao_aes_run(__xdata uint8_t *in,
-	   __xdata uint8_t *out);
-
-void
-ao_aes_init(void);
-
-#endif /* _AO_AES_H_ */
+#endif /* _AO_RADIO_CMAC_H_ */

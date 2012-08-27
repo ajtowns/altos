@@ -18,6 +18,7 @@
 #include <ao.h>
 #include <ao_pad.h>
 #include <ao_74hc497.h>
+#include <ao_radio_cmac.h>
 
 static __xdata uint8_t ao_pad_ignite;
 static __xdata struct ao_pad_command	command;
