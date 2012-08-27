@@ -135,6 +135,8 @@
 
 #define AO_LCD_28_ON_C	1
 
+#define AO_LCD_DUTY	STM_LCD_CR_DUTY_STATIC
+
 #define HAS_ADC			1
 
 #define AO_ADC_RING		32
