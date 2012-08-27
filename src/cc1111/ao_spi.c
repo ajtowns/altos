@@ -204,6 +204,7 @@ ao_spi_recv_bus(void __xdata *block, uint16_t len) __reentrant
 
 	ao_spi_const = SPI_CONST;
 
+#if !AO_SPI_SLAVE
 	ao_dma_set_transfer(ao_spi_dma_out_id,
 			    &ao_spi_const,
 			    &SPI_BUF,
@@ -214,10 +215,13 @@ ao_spi_recv_bus(void __xdata *block, uint16_t len) __reentrant
 			    DMA_CFG1_SRCINC_0 |
 			    DMA_CFG1_DESTINC_0 |
 			    DMA_CFG1_PRIORITY_NORMAL);
+#endif
 
 	ao_dma_start(ao_spi_dma_in_id);
+#if !AO_SPI_SLAVE
 	ao_dma_start(ao_spi_dma_out_id);
 	ao_dma_trigger(ao_spi_dma_out_id);
+#endif
 	__critical while (!ao_spi_dma_in_done)
 		ao_sleep(&ao_spi_dma_in_done);
 }
