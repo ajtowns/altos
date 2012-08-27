@@ -22,7 +22,8 @@ ifneq ($(shell which sdcc),)
 	telemetrum-v0.1-sky telemetrum-v0.1-sirf \
 	telelaunch-v0.1 tidongle test \
 	teleterra-v0.2 teleshield-v0.1 \
-	telefire-v0.1
+	telefire-v0.1 \
+	spiradio-v0.1
 endif
 
 ifneq ($(shell which avr-gcc),)
@@ -30,7 +31,7 @@ ifneq ($(shell which avr-gcc),)
 endif
 
 ifneq ($(shell which arm-none-eabi-gcc),)
-	SUBDIRS += megametrum-v0.1 stm-bringup stm-demo 
+	SUBDIRS += megametrum-v0.1 stm-bringup stm-demo telelco-v0.1
 endif
 
 all: all-local all-recursive
