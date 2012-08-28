@@ -151,10 +151,4 @@ ao_exti_disable(struct stm_gpio *gpio, uint8_t pin) {
 void
 ao_exti_init(void)
 {
-	stm_nvic_set_priority(STM_ISR_EXTI1_POS, AO_STM_NVIC_MED_PRIORITY);
-	stm_nvic_set_priority(STM_ISR_EXTI2_POS, AO_STM_NVIC_MED_PRIORITY);
-	stm_nvic_set_priority(STM_ISR_EXTI3_POS, AO_STM_NVIC_MED_PRIORITY);
-	stm_nvic_set_priority(STM_ISR_EXTI4_POS, AO_STM_NVIC_MED_PRIORITY);
-	stm_nvic_set_priority(STM_ISR_EXTI9_5_POS, AO_STM_NVIC_MED_PRIORITY);
-	stm_nvic_set_priority(STM_ISR_EXTI15_10_POS, AO_STM_NVIC_MED_PRIORITY);
 }
