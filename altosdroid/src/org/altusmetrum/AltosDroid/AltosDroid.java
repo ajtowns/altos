@@ -55,10 +55,7 @@ public class AltosDroid extends Activity {
 
 	// Message types received by our Handler
 	public static final int MSG_STATE_CHANGE    = 1;
-	public static final int MSG_DEVNAME         = 2;
-	public static final int MSG_TOAST           = 3;
-	public static final int MSG_DEVCONFIG       = 4;
-	public static final int MSG_TELEMETRY       = 5;
+	public static final int MSG_TELEMETRY       = 2;
 
 	// Intent request codes
 	private static final int REQUEST_CONNECT_DEVICE = 1;
@@ -112,25 +109,11 @@ public class AltosDroid extends Activity {
 					break;
 				}
 				break;
-			case MSG_DEVCONFIG:
 			case MSG_TELEMETRY:
 				//byte[] buf = (byte[]) msg.obj;
 				// construct a string from the buffer
 				//String telem = new String(buf);
 				//ad.mSerialView.append(telem);
-				break;
-			case MSG_DEVNAME:
-				// save the connected device's name
-				ad.mConnectedDeviceName = (String) msg.obj;
-				if (ad.mConnectedDeviceName != null)
-					Toast.makeText(ad.getApplicationContext(), "Connected to "
-							+ ad.mConnectedDeviceName, Toast.LENGTH_SHORT).show();
-				break;
-			case MSG_TOAST:
-				Toast.makeText(
-						ad.getApplicationContext(),
-						(String) msg.obj,
-						Toast.LENGTH_SHORT).show();
 				break;
 			}
 		}
