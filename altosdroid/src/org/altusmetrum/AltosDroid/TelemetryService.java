@@ -110,8 +110,11 @@ public class TelemetryService extends Service {
 				s.startAltosBluetooth();
 				break;
 			case MSG_DISCONNECTED:
-				if (D) Log.d(TAG, "Disconnected from " + s.device.getName());
-				s.stopAltosBluetooth();
+				// Only do the following if we haven't been shutdown elsewhere..
+				if (s.device != null) {
+					if (D) Log.d(TAG, "Disconnected from " + s.device.getName());
+					s.stopAltosBluetooth();
+				}
 				break;
 			case MSG_TELEMETRY:
 				s.sendMessageToClients(Message.obtain(null, AltosDroid.MSG_TELEMETRY, msg.obj));
