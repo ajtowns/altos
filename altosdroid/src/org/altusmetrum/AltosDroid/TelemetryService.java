@@ -19,7 +19,6 @@ package org.altusmetrum.AltosDroid;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import android.app.Notification;
 //import android.app.NotificationManager;
@@ -36,7 +35,7 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.altusmetrum.AltosLib.*;
+//import org.altusmetrum.AltosLib.*;
 
 public class TelemetryService extends Service {
 
@@ -49,6 +48,7 @@ public class TelemetryService extends Service {
 	static final int MSG_CONNECTED         = 4;
 	static final int MSG_CONNECT_FAILED    = 5;
 	static final int MSG_DISCONNECTED      = 6;
+	static final int MSG_TELEMETRY         = 7;
 
 	public static final int STATE_NONE       = 0;
 	public static final int STATE_READY      = 1;
@@ -67,8 +67,9 @@ public class TelemetryService extends Service {
 	// Name of the connected device
 	private BluetoothDevice device = null;
 	private AltosBluetooth mAltosBluetooth = null;
+	private TelemetryReader mTelemetryReader = null;
+
 	private int state = STATE_NONE;
-	LinkedBlockingQueue<AltosLine> telem;
 
 	// Handler of incoming messages from clients.
 	static class IncomingHandler extends Handler {
@@ -101,7 +102,6 @@ public class TelemetryService extends Service {
 			case MSG_CONNECTED:
 				if (D) Log.d(TAG, "Connected to device");
 				s.connected();
-				s.mAltosBluetooth.add_monitor(s.telem);
 				break;
 			case MSG_CONNECT_FAILED:
 				if (D) Log.d(TAG, "Connection failed... retrying");
@@ -110,6 +110,9 @@ public class TelemetryService extends Service {
 			case MSG_DISCONNECTED:
 				if (D) Log.d(TAG, "Disconnected from " + s.device.getName());
 				s.stopAltosBluetooth();
+				break;
+			case MSG_TELEMETRY:
+				s.sendMessageToClients(Message.obtain(null, AltosDroid.MSG_TELEMETRY, msg.obj));
 				break;
 			default:
 				super.handleMessage(msg);
@@ -130,13 +133,20 @@ public class TelemetryService extends Service {
 	private void stopAltosBluetooth() {
 		if (D) Log.i(TAG, "Stopping BT");
 		setState(STATE_READY);
+		if (mTelemetryReader != null) {
+			mTelemetryReader.interrupt();
+			try {
+				mTelemetryReader.join();
+			} catch (InterruptedException e) {
+			}
+			mTelemetryReader = null;
+		}
 		if (mAltosBluetooth != null) {
 			if (D) Log.i(TAG, "Closing AltosBluetooth");
 			mAltosBluetooth.close();
 			mAltosBluetooth = null;
 		}
 		device = null;
-		telem.clear();
 	}
 
 	private void startAltosBluetooth() {
@@ -160,6 +170,8 @@ public class TelemetryService extends Service {
 	private void connected() {
 		sendMessageToClients(Message.obtain(null, AltosDroid.MSG_DEVNAME, device.getName()));
 		setState(STATE_CONNECTED);
+		mTelemetryReader = new TelemetryReader(mAltosBluetooth, mHandler);
+		mTelemetryReader.start();
 	}
 
 
@@ -168,7 +180,6 @@ public class TelemetryService extends Service {
 		// Create a reference to the NotificationManager so that we can update our notifcation text later
 		//mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
-		telem = new LinkedBlockingQueue<AltosLine>();
 		setState(STATE_READY);
 	}
 
