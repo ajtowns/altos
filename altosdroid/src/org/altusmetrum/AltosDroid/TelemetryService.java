@@ -36,7 +36,7 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 
-//import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.AltosLib.*;
 
 public class TelemetryService extends Service {
 
@@ -68,6 +68,7 @@ public class TelemetryService extends Service {
 	// Name of the connected device
 	private BluetoothDevice device           = null;
 	private AltosBluetooth  mAltosBluetooth  = null;
+	private AltosConfigData mConfigData      = null;
 	private TelemetryReader mTelemetryReader = null;
 
 	// internally track state of bluetooth connection
@@ -85,8 +86,9 @@ public class TelemetryService extends Service {
 			case MSG_REGISTER_CLIENT:
 				s.mClients.add(msg.replyTo);
 				try {
-					msg.replyTo.send(Message.obtain(null, AltosDroid.MSG_DEVNAME, s.device.getName()));
-					msg.replyTo.send(Message.obtain(null, AltosDroid.MSG_STATE_CHANGE, s.state, -1));
+					// Now we try to send the freshly connected UI any relavant information about what
+					// we're talking to - Basically state and Config Data.
+					msg.replyTo.send(Message.obtain(null, AltosDroid.MSG_STATE_CHANGE, s.state, -1, s.mConfigData));
 				} catch (RemoteException e) {
 					s.mClients.remove(msg.replyTo);
 				}
@@ -153,6 +155,7 @@ public class TelemetryService extends Service {
 			mAltosBluetooth = null;
 		}
 		device = null;
+		mConfigData = null;
 	}
 
 	private void startAltosBluetooth() {
@@ -176,17 +179,26 @@ public class TelemetryService extends Service {
 		if (D) Log.d(TAG, "setState(): " + state + " -> " + s);
 		state = s;
 
-		sendMessageToClients(Message.obtain(null, AltosDroid.MSG_STATE_CHANGE, state, -1));
+		// This shouldn't be required - mConfigData should be null for any non-connected
+		// state, but to be safe and to reduce message size
+		AltosConfigData acd = (state == STATE_CONNECTED) ? mConfigData : null;
+
+		sendMessageToClients(Message.obtain(null, AltosDroid.MSG_STATE_CHANGE, state, -1, acd));
 	}
 
 	private void connected() {
-		sendMessageToClients(Message.obtain(null, AltosDroid.MSG_DEVNAME, device.getName()));
-		setState(STATE_CONNECTED);
 		try {
-			sendMessageToClients(Message.obtain(null, AltosDroid.MSG_DEVCONFIG, mAltosBluetooth.config_data()));
+			mConfigData = mAltosBluetooth.config_data();
 		} catch (InterruptedException e) {
 		} catch (TimeoutException e) {
+			// If this timed out, then we really want to retry it, but
+			// probably safer to just retry the connection from scratch.
+			mHandler.obtainMessage(MSG_CONNECT_FAILED).sendToTarget();
+			return;
 		}
+
+		setState(STATE_CONNECTED);
+
 		mTelemetryReader = new TelemetryReader(mAltosBluetooth, mHandler);
 		mTelemetryReader.start();
 	}

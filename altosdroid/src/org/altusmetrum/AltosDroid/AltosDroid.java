@@ -43,6 +43,8 @@ import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.altusmetrum.AltosLib.*;
+
 /**
  * This is the main Activity that displays the current chat session.
  */
@@ -71,8 +73,8 @@ public class AltosDroid extends Activity {
 	private Messenger mService = null;
 	final Messenger mMessenger = new Messenger(new IncomingHandler(this));
 
-	// Name of the connected device
-	private String mConnectedDeviceName = null;
+	// TeleBT Config data
+	private AltosConfigData mConfigData = null;
 	// Local Bluetooth adapter
 	private BluetoothAdapter mBluetoothAdapter = null;
 
@@ -93,16 +95,20 @@ public class AltosDroid extends Activity {
 				if(D) Log.d(TAG, "MSG_STATE_CHANGE: " + msg.arg1);
 				switch (msg.arg1) {
 				case TelemetryService.STATE_CONNECTED:
+					ad.mConfigData = (AltosConfigData) msg.obj;
+					String str = String.format(" %s S/N: %d", ad.mConfigData.product, ad.mConfigData.serial);
 					ad.mTitle.setText(R.string.title_connected_to);
-					ad.mTitle.append(ad.mConnectedDeviceName);
-					ad.mSerialView.setText("");
+					ad.mTitle.append(str);
+					Toast.makeText(ad.getApplicationContext(), "Connected to " + str, Toast.LENGTH_SHORT).show();
 					break;
 				case TelemetryService.STATE_CONNECTING:
 					ad.mTitle.setText(R.string.title_connecting);
 					break;
 				case TelemetryService.STATE_READY:
 				case TelemetryService.STATE_NONE:
+					ad.mConfigData = null;
 					ad.mTitle.setText(R.string.title_not_connected);
+					ad.mSerialView.setText("");
 					break;
 				}
 				break;
