@@ -70,6 +70,7 @@ public class TelemetryService extends Service {
 	private AltosBluetooth mAltosBluetooth = null;
 	private TelemetryReader mTelemetryReader = null;
 
+	// internally track state of bluetooth connection
 	private int state = STATE_NONE;
 
 	// Handler of incoming messages from clients.

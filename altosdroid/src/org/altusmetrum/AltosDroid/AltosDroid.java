@@ -18,6 +18,7 @@
 package org.altusmetrum.AltosDroid;
 
 import java.lang.ref.WeakReference;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -47,7 +48,7 @@ import android.view.Window;
 //import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.altusmetrum.AltosDroid.R;
+//import org.altusmetrum.AltosDroid.R;
 
 /**
  * This is the main Activity that displays the current chat session.
