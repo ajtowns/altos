@@ -100,8 +100,7 @@ public class TelemetryService extends Service {
 				break;
 			case MSG_CONNECTED:
 				if (D) Log.d(TAG, "Connected to device");
-				s.sendMessageToClients(Message.obtain(null, AltosDroid.MSG_DEVNAME, s.device.getName()));
-				s.setState(STATE_CONNECTED);
+				s.connected();
 				s.mAltosBluetooth.add_monitor(s.telem);
 				break;
 			case MSG_CONNECT_FAILED:
@@ -157,6 +156,12 @@ public class TelemetryService extends Service {
 
 		sendMessageToClients(Message.obtain(null, AltosDroid.MSG_STATE_CHANGE, state, -1));
 	}
+
+	private void connected() {
+		sendMessageToClients(Message.obtain(null, AltosDroid.MSG_DEVNAME, device.getName()));
+		setState(STATE_CONNECTED);
+	}
+
 
 	@Override
 	public void onCreate() {
