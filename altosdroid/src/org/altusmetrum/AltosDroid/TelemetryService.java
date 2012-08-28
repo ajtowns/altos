@@ -66,8 +66,8 @@ public class TelemetryService extends Service {
 	final Messenger mMessenger = new Messenger(mHandler); // Target we publish for clients to send messages to IncomingHandler.
 
 	// Name of the connected device
-	private BluetoothDevice device = null;
-	private AltosBluetooth mAltosBluetooth = null;
+	private BluetoothDevice device           = null;
+	private AltosBluetooth  mAltosBluetooth  = null;
 	private TelemetryReader mTelemetryReader = null;
 
 	// internally track state of bluetooth connection
