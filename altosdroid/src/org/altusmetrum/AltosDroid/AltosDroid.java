@@ -202,10 +202,6 @@ public class AltosDroid extends Activity {
 			}
 		});
 
-		// Start Telemetry Service
-		startService(new Intent(AltosDroid.this, TelemetryService.class));
-
-		doBindService();
 	}
 
 	@Override
@@ -217,13 +213,17 @@ public class AltosDroid extends Activity {
 			Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
 		}
+
+		// Start Telemetry Service
+		startService(new Intent(AltosDroid.this, TelemetryService.class));
+
+		doBindService();
 	}
 
 	@Override
 	public synchronized void onResume() {
 		super.onResume();
 		if(D) Log.e(TAG, "+ ON RESUME +");
-
 	}
 
 	@Override
@@ -236,17 +236,16 @@ public class AltosDroid extends Activity {
 	public void onStop() {
 		super.onStop();
 		if(D) Log.e(TAG, "-- ON STOP --");
+
+		doUnbindService();
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-
-		doUnbindService();
+		if(D) Log.e(TAG, "--- ON DESTROY ---");
 
 		if (tts != null) tts.shutdown();
-
-		if(D) Log.e(TAG, "--- ON DESTROY ---");
 	}
 
 
