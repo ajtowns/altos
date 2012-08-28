@@ -20,6 +20,8 @@ package org.altusmetrum.AltosDroid;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.concurrent.TimeoutException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.Notification;
 //import android.app.NotificationManager;
@@ -60,6 +62,9 @@ public class TelemetryService extends Service {
 	// We use it on Notification start, and to cancel it.
 	private int NOTIFICATION = R.string.telemetry_service_label;
 	//private NotificationManager mNM;
+
+	// Timer - we wake up every now and then to decide if the service should stop
+	private Timer timer = new Timer();
 
 	ArrayList<Messenger> mClients = new ArrayList<Messenger>(); // Keeps track of all current registered clients.
 	final Handler   mHandler   = new IncomingHandler(this);
@@ -204,12 +209,28 @@ public class TelemetryService extends Service {
 	}
 
 
+	private void onTimerTick() {
+		if (D) Log.d(TAG, "Timer wakeup");
+		try {
+			if (mClients.size() <= 0 && state != STATE_CONNECTED) {
+				stopSelf();
+			}
+		} catch (Throwable t) {
+			Log.e(TAG, "Timer failed: ", t);
+		}
+	}
+
+
 	@Override
 	public void onCreate() {
 		// Create a reference to the NotificationManager so that we can update our notifcation text later
 		//mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
 		setState(STATE_READY);
+
+		// Start our timer - first event in 10 seconds, then every 10 seconds after that.
+		timer.scheduleAtFixedRate(new TimerTask(){ public void run() {onTimerTick();}}, 10000L, 10000L);
+
 	}
 
 	@Override
@@ -247,6 +268,9 @@ public class TelemetryService extends Service {
 
 		// Demote us from the foreground, and cancel the persistent notification.
 		stopForeground(true);
+
+		// Stop our timer
+		if (timer != null) {timer.cancel();}
 
 		// Tell the user we stopped.
 		Toast.makeText(this, R.string.telemetry_service_stopped, Toast.LENGTH_SHORT).show();
