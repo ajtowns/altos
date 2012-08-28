@@ -133,9 +133,10 @@ public class TelemetryService extends Service {
 	}
 
 	private void stopAltosBluetooth() {
-		if (D) Log.i(TAG, "Stopping BT");
+		if (D) Log.d(TAG, "stopAltosBluetooth(): begin");
 		setState(STATE_READY);
 		if (mTelemetryReader != null) {
+			if (D) Log.d(TAG, "stopAltosBluetooth(): stopping TelemetryReader");
 			mTelemetryReader.interrupt();
 			try {
 				mTelemetryReader.join();
@@ -144,7 +145,7 @@ public class TelemetryService extends Service {
 			mTelemetryReader = null;
 		}
 		if (mAltosBluetooth != null) {
-			if (D) Log.i(TAG, "Closing AltosBluetooth");
+			if (D) Log.d(TAG, "stopAltosBluetooth(): stopping AltosBluetooth");
 			mAltosBluetooth.close();
 			mAltosBluetooth = null;
 		}
@@ -153,7 +154,7 @@ public class TelemetryService extends Service {
 
 	private void startAltosBluetooth() {
 		if (mAltosBluetooth == null) {
-			if (D) Log.i(TAG, "Connecting to " + device.getName());
+			if (D) Log.d(TAG, String.format("startAltosBluetooth(): Connecting to %s (%s)", device.getName(), device.getAddress()));
 			mAltosBluetooth = new AltosBluetooth(device, mHandler);
 			setState(STATE_CONNECTING);
 		} else {
@@ -163,7 +164,7 @@ public class TelemetryService extends Service {
 	}
 
 	private synchronized void setState(int s) {
-		if (D) Log.d(TAG, "setState() " + state + " -> " + s);
+		if (D) Log.d(TAG, "setState(): " + state + " -> " + s);
 		state = s;
 
 		sendMessageToClients(Message.obtain(null, AltosDroid.MSG_STATE_CHANGE, state, -1));

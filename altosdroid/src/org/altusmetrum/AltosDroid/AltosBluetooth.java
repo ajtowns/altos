@@ -78,7 +78,7 @@ public class AltosBluetooth extends AltosLink {
 		}
 
 		public void run() {
-			if (D) Log.i(TAG, "ConnectThread: BEGIN");
+			if (D) Log.d(TAG, "ConnectThread: BEGIN");
 			setName("ConnectThread");
 
 			// Always cancel discovery because it will slow down a connection
@@ -122,7 +122,7 @@ public class AltosBluetooth extends AltosLink {
 				// Notify other waiting threads, now that we're connected
 				AltosBluetooth.this.notifyAll();
 
-				if (D) Log.i(TAG, "ConnectThread: Connect completed");
+				if (D) Log.d(TAG, "ConnectThread: Connect completed");
 			}
 		}
 
@@ -137,27 +137,24 @@ public class AltosBluetooth extends AltosLink {
 	}
 
 	private synchronized void wait_connected() throws InterruptedException, IOException {
-		if (D) Log.i(TAG, "wait_connected(): begin");
 		if (input == null) {
-			if (D) Log.i(TAG, "wait_connected(): waiting");
 			wait();
-			if (D) Log.i(TAG, "wait_connected(): wait ended..");
 			if (input == null) throw new IOException();
 		}
 	}
 
 	private void connection_failed() {
-		if (D) Log.e(TAG, "Bluetooth Socket IO failed!");
+		if (D) Log.e(TAG, "Connection lost during I/O");
 		handler.obtainMessage(TelemetryService.MSG_DISCONNECTED).sendToTarget();
 	}
 
 	public void print(String data) {
 		byte[] bytes = data.getBytes();
-		if (D) Log.i(TAG, "print(): begin");
+		if (D) Log.d(TAG, "print(): begin");
 		try {
 			wait_connected();
 			output.write(bytes);
-			if (D) Log.i(TAG, "print(): Wrote bytes: '" + data.replace('\n', '\\') + "'");
+			if (D) Log.d(TAG, "print(): Wrote bytes: '" + data.replace('\n', '\\') + "'");
 		} catch (IOException e) {
 			connection_failed();
 		} catch (InterruptedException e) {
@@ -166,10 +163,8 @@ public class AltosBluetooth extends AltosLink {
 	}
 
 	public int getchar() {
-		if (D) Log.i(TAG, "getchar(): begin");
 		try {
 			wait_connected();
-			if (D) Log.i(TAG, "getchar(): proceeding");
 			return input.read();
 		} catch (IOException e) {
 			connection_failed();
@@ -180,27 +175,27 @@ public class AltosBluetooth extends AltosLink {
 	}
 
 	public void close() {
-		if (D) Log.i(TAG, "close(): begin");
+		if (D) Log.d(TAG, "close(): begin");
 		synchronized(this) {
-			if (D) Log.i(TAG, "close(): synched");
+			if (D) Log.d(TAG, "close(): synched");
 
 			if (connect_thread != null) {
-				if (D) Log.i(TAG, "close(): stopping connect_thread");
+				if (D) Log.d(TAG, "close(): stopping connect_thread");
 				connect_thread.cancel();
 				connect_thread = null;
 			}
-			if (D) Log.i(TAG, "close(): Closing socket");
+			if (D) Log.d(TAG, "close(): Closing socket");
 			try {
 				socket.close();
 			} catch (IOException e) {
 				if (D) Log.e(TAG, "close(): unable to close() socket");
 			}
 			if (input_thread != null) {
-				if (D) Log.i(TAG, "close(): stopping input_thread");
+				if (D) Log.d(TAG, "close(): stopping input_thread");
 				try {
-					if (D) Log.i(TAG, "close(): input_thread.interrupt().....");
+					if (D) Log.d(TAG, "close(): input_thread.interrupt().....");
 					input_thread.interrupt();
-					if (D) Log.i(TAG, "close(): input_thread.join().....");
+					if (D) Log.d(TAG, "close(): input_thread.join().....");
 					input_thread.join();
 				} catch (Exception e) {}
 				input_thread = null;
@@ -214,6 +209,7 @@ public class AltosBluetooth extends AltosLink {
 
 	//public void flush_output() { super.flush_output(); }
 
+	// Stubs of required methods when extending AltosLink
 	public boolean can_cancel_reply()   { return false; }
 	public boolean show_reply_timeout() { return true; }
 	public void hide_reply_timeout()    { }
