@@ -19,6 +19,7 @@ package org.altusmetrum.AltosDroid;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.concurrent.TimeoutException;
 
 import android.app.Notification;
 //import android.app.NotificationManager;
@@ -170,6 +171,11 @@ public class TelemetryService extends Service {
 	private void connected() {
 		sendMessageToClients(Message.obtain(null, AltosDroid.MSG_DEVNAME, device.getName()));
 		setState(STATE_CONNECTED);
+		try {
+			sendMessageToClients(Message.obtain(null, AltosDroid.MSG_DEVCONFIG, mAltosBluetooth.config_data()));
+		} catch (InterruptedException e) {
+		} catch (TimeoutException e) {
+		}
 		mTelemetryReader = new TelemetryReader(mAltosBluetooth, mHandler);
 		mTelemetryReader.start();
 	}
