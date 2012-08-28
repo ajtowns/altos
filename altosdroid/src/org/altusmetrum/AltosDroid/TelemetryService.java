@@ -161,8 +161,14 @@ public class TelemetryService extends Service {
 			mAltosBluetooth = new AltosBluetooth(device, mHandler);
 			setState(STATE_CONNECTING);
 		} else {
+			// This is a bit of a hack - if it appears we're still connected, we treat this as a restart.
+			// So, to give a suitable delay to teardown/bringup, we just schedule a resend of a message
+			// to ourselves in a few seconds time that will ultimately call this method again.
+			// ... then we tear down the existing connection.
+			// We do it this way around so that we don't lose a reference to the device when this method
+			// is called on reception of MSG_CONNECT_FAILED in the handler above.
+			mHandler.sendMessageDelayed(Message.obtain(null, MSG_CONNECT, device), 3000);
 			stopAltosBluetooth();
-			mHandler.sendMessageDelayed(Message.obtain(null, MSG_CONNECT, device), 1000);
 		}
 	}
 
