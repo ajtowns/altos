@@ -207,6 +207,13 @@ public class AltosBluetooth extends AltosLink {
 	}
 
 
+	// We override this method so that we can add some debugging. Not 100% elegant, but more useful
+	// than debugging one char at a time above in getchar()!
+	public void add_reply(AltosLine line) throws InterruptedException {
+		if (D) Log.d(TAG, String.format("Got REPLY: %s", line.line));
+		super.add_reply(line);
+	}
+
 	//public void flush_output() { super.flush_output(); }
 
 	// Stubs of required methods when extending AltosLink
