@@ -97,6 +97,8 @@ public class AltosDroid extends Activity {
 					ad.mTitle.setText(R.string.title_connected_to);
 					ad.mTitle.append(str);
 					Toast.makeText(ad.getApplicationContext(), "Connected to " + str, Toast.LENGTH_SHORT).show();
+					//TEST!
+					ad.mSerialView.setText(Dumper.dump(ad.mConfigData));
 					break;
 				case TelemetryService.STATE_CONNECTING:
 					ad.mTitle.setText(R.string.title_connecting);
@@ -110,10 +112,8 @@ public class AltosDroid extends Activity {
 				}
 				break;
 			case MSG_TELEMETRY:
-				//byte[] buf = (byte[]) msg.obj;
-				// construct a string from the buffer
-				//String telem = new String(buf);
-				//ad.mSerialView.append(telem);
+				// TEST!
+				ad.mSerialView.setText(Dumper.dump(msg.obj));
 				break;
 			}
 		}
