@@ -139,6 +139,30 @@ public class AltosDroid extends Activity {
 	};
 
 
+	void doBindService() {
+		bindService(new Intent(this, TelemetryService.class), mConnection, Context.BIND_AUTO_CREATE);
+		mIsBound = true;
+	}
+
+	void doUnbindService() {
+		if (mIsBound) {
+			// If we have received the service, and hence registered with it, then now is the time to unregister.
+			if (mService != null) {
+				try {
+					Message msg = Message.obtain(null, TelemetryService.MSG_UNREGISTER_CLIENT);
+					msg.replyTo = mMessenger;
+					mService.send(msg);
+				} catch (RemoteException e) {
+					// There is nothing special we need to do if the service has crashed.
+				}
+			}
+			// Detach our existing connection.
+			unbindService(mConnection);
+			mIsBound = false;
+		}
+	}
+
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -284,30 +308,6 @@ public class AltosDroid extends Activity {
 			return true;
 		}
 		return false;
-	}
-
-
-	void doBindService() {
-		bindService(new Intent(this, TelemetryService.class), mConnection, Context.BIND_AUTO_CREATE);
-		mIsBound = true;
-	}
-
-	void doUnbindService() {
-		if (mIsBound) {
-			// If we have received the service, and hence registered with it, then now is the time to unregister.
-			if (mService != null) {
-				try {
-					Message msg = Message.obtain(null, TelemetryService.MSG_UNREGISTER_CLIENT);
-					msg.replyTo = mMessenger;
-					mService.send(msg);
-				} catch (RemoteException e) {
-					// There is nothing special we need to do if the service has crashed.
-				}
-			}
-			// Detach our existing connection.
-			unbindService(mConnection);
-			mIsBound = false;
-		}
 	}
 
 }
