@@ -143,7 +143,7 @@ public class AltosBluetooth extends AltosLink {
 		}
 	}
 
-	private void connection_failed() {
+	private void connection_lost() {
 		if (D) Log.e(TAG, "Connection lost during I/O");
 		handler.obtainMessage(TelemetryService.MSG_DISCONNECTED).sendToTarget();
 	}
@@ -156,9 +156,9 @@ public class AltosBluetooth extends AltosLink {
 			output.write(bytes);
 			if (D) Log.d(TAG, "print(): Wrote bytes: '" + data.replace('\n', '\\') + "'");
 		} catch (IOException e) {
-			connection_failed();
+			connection_lost();
 		} catch (InterruptedException e) {
-			connection_failed();
+			connection_lost();
 		}
 	}
 
@@ -167,9 +167,9 @@ public class AltosBluetooth extends AltosLink {
 			wait_connected();
 			return input.read();
 		} catch (IOException e) {
-			connection_failed();
+			connection_lost();
 		} catch (java.lang.InterruptedException e) {
-			connection_failed();
+			connection_lost();
 		}
 		return AltosLink.ERROR;
 	}
