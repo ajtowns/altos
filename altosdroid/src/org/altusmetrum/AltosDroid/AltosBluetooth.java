@@ -59,8 +59,6 @@ public class AltosBluetooth extends AltosLink {
 		connect_thread = new ConnectThread(device);
 		connect_thread.start();
 
-		input_thread = new Thread(this);
-		input_thread.start();
 	}
 
 	private class ConnectThread extends Thread {
@@ -108,19 +106,21 @@ public class AltosBluetooth extends AltosLink {
 					return;
 				}
 
+				input_thread = new Thread(AltosBluetooth.this);
+				input_thread.start();
+
 				// Configure the newly connected device for telemetry
 				print("~\nE 0\n");
 				set_monitor(false);
 
-				// Reset the ConnectThread because we're done
-				connect_thread = null;
-
-				// Send the device name back to the Telemetry Service
-				name = device.getName();
+				// Let TelemetryService know we're connected
 				handler.obtainMessage(TelemetryService.MSG_CONNECTED).sendToTarget();
 
 				// Notify other waiting threads, now that we're connected
 				AltosBluetooth.this.notifyAll();
+
+				// Reset the ConnectThread because we're done
+				connect_thread = null;
 
 				if (D) Log.d(TAG, "ConnectThread: Connect completed");
 			}
