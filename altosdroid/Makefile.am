@@ -24,9 +24,10 @@ ALTOSLIB=$(EXT_LIBDIR)/$(ALTOSLIB_JAR)
 SRC=\
 	$(SRC_DIR)/AltosDroid.java \
 	$(SRC_DIR)/TelemetryService.java \
-	$(SRC_DIR)/TelemetryServiceActivities.java \
-	$(SRC_DIR)/BluetoothChatService.java \
-	$(SRC_DIR)/DeviceListActivity.java
+	$(SRC_DIR)/TelemetryReader.java \
+	$(SRC_DIR)/AltosBluetooth.java \
+	$(SRC_DIR)/DeviceListActivity.java \
+	$(SRC_DIR)/Dumper.java
 
 all: $(all_target)
 
