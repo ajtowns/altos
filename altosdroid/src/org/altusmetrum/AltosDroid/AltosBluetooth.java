@@ -1,5 +1,6 @@
 /*
- * Copyright Â© 2011 Keith Packard <keithp@keithp.com>
+ * Copyright © 2011 Keith Packard <keithp@keithp.com>
+ * Copyright © 2012 Mike Beattie <mike@ethernal.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +21,14 @@ package org.altusmetrum.AltosDroid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
+import java.util.UUID;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
-import android.os.Bundle;
+//import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
+//import android.os.Message;
 import android.util.Log;
 
 import org.altusmetrum.AltosLib.*;
@@ -38,112 +39,126 @@ public class AltosBluetooth extends AltosLink {
 	private static final String TAG = "AltosBluetooth";
 	private static final boolean D = true;
 
-	/**
-	 * This thread runs while attempting to make an outgoing connection
-	 * with a device. It runs straight through; the connection either
-	 * succeeds or fails.
-	 */
+	private ConnectThread    connect_thread = null;
+	private Thread           input_thread   = null;
 
-	private BluetoothAdapter	adapter;
-	private ConnectThread		connect_thread;
-	private BluetoothSocket		socket;
-	private InputStream		input;
-	private OutputStream		output;
+	private Handler          handler;
+
+	private BluetoothAdapter adapter;
+	private BluetoothDevice  device;
+	private BluetoothSocket  socket;
+	private InputStream      input;
+	private OutputStream     output;
+
+	// Constructor
+	public AltosBluetooth(BluetoothDevice in_device, Handler in_handler) {
+		adapter = BluetoothAdapter.getDefaultAdapter();
+		device = in_device;
+		handler = in_handler;
+
+		connect_thread = new ConnectThread(device);
+		connect_thread.start();
+
+	}
 
 	private class ConnectThread extends Thread {
-		private final BluetoothDevice mmDevice;
-		private String mSocketType;
-		BluetoothSocket tmp_socket;
+		private final UUID SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-		public ConnectThread(BluetoothDevice device, boolean secure) {
-			mmDevice = device;
-			mSocketType = secure ? "Secure" : "Insecure";
+		public ConnectThread(BluetoothDevice device) {
+			BluetoothSocket tmp_socket = null;
 
-			// Get a BluetoothSocket for a connection with the
-			// given BluetoothDevice
 			try {
-				if (secure) {
-					Method m = device.getClass().getMethod("createRfcommSocket", new Class[] {int.class});
-					tmp_socket = (BluetoothSocket) m.invoke(device, 2);
-					// tmp = device.createRfcommSocket(2);
-				} else {
-					Method m = device.getClass().getMethod("createInsecureRfcommSocket", new Class[] {int.class});
-					tmp_socket = (BluetoothSocket) m.invoke(device, 2);
-					// tmp = device.createInsecureRfcommSocket(2);
-				}
-			} catch (Exception e) {
-				Log.e(TAG, "Socket Type: " + mSocketType + "create() failed", e);
+				tmp_socket = device.createInsecureRfcommSocketToServiceRecord(SPP_UUID);
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			socket = tmp_socket;
 		}
 
 		public void run() {
-			Log.i(TAG, "BEGIN connect_thread SocketType:" + mSocketType);
-			setName("ConnectThread" + mSocketType);
+			if (D) Log.d(TAG, "ConnectThread: BEGIN");
+			setName("ConnectThread");
 
 			// Always cancel discovery because it will slow down a connection
 			adapter.cancelDiscovery();
 
-			// Make a connection to the BluetoothSocket
-			try {
-				// This is a blocking call and will only return on a
-				// successful connection or an exception
-				tmp_socket.connect();
-			} catch (IOException e) {
-				// Close the socket
+			synchronized (AltosBluetooth.this) {
+				// Make a connection to the BluetoothSocket
 				try {
-					tmp_socket.close();
-				} catch (IOException e2) {
-					Log.e(TAG, "unable to close() " + mSocketType +
-					      " socket during connection failure", e2);
-				}
-				connection_failed();
-				return;
-			}
+					// This is a blocking call and will only return on a
+					// successful connection or an exception
+					socket.connect();
 
-			try {
-				synchronized (AltosBluetooth.this) {
-					input = tmp_socket.getInputStream();
-					output = tmp_socket.getOutputStream();
-					socket = tmp_socket;
-					// Reset the ConnectThread because we're done
-					AltosBluetooth.this.notify();
-					connect_thread = null;
+					input = socket.getInputStream();
+					output = socket.getOutputStream();
+				} catch (IOException e) {
+					// Close the socket
+					try {
+						socket.close();
+					} catch (IOException e2) {
+						if (D) Log.e(TAG, "ConnectThread: Failed to close() socket after failed connection");
+					}
+					input = null;
+					output = null;
+					AltosBluetooth.this.notifyAll();
+					handler.obtainMessage(TelemetryService.MSG_CONNECT_FAILED).sendToTarget();
+					if (D) Log.e(TAG, "ConnectThread: Failed to establish connection");
+					return;
 				}
-			} catch (Exception e) {
-				Log.e(TAG, "Failed to finish connection", e);
-				e.printStackTrace();
+
+				input_thread = new Thread(AltosBluetooth.this);
+				input_thread.start();
+
+				// Configure the newly connected device for telemetry
+				print("~\nE 0\n");
+				set_monitor(false);
+
+				// Let TelemetryService know we're connected
+				handler.obtainMessage(TelemetryService.MSG_CONNECTED).sendToTarget();
+
+				// Notify other waiting threads, now that we're connected
+				AltosBluetooth.this.notifyAll();
+
+				// Reset the ConnectThread because we're done
+				connect_thread = null;
+
+				if (D) Log.d(TAG, "ConnectThread: Connect completed");
 			}
 		}
 
 		public void cancel() {
 			try {
-				if (tmp_socket != null)
-					tmp_socket.close();
+				if (socket != null)
+					socket.close();
 			} catch (IOException e) {
-				Log.e(TAG, "close() of connect " + mSocketType + " socket failed", e);
+				if (D) Log.e(TAG, "ConnectThread: close() of connect socket failed", e);
 			}
 		}
 	}
 
-	private synchronized void wait_connected() throws InterruptedException {
+	private synchronized void wait_connected() throws InterruptedException, IOException {
 		if (input == null) {
 			wait();
+			if (input == null) throw new IOException();
 		}
 	}
 
-	private void connection_failed() {
+	private void connection_lost() {
+		if (D) Log.e(TAG, "Connection lost during I/O");
+		handler.obtainMessage(TelemetryService.MSG_DISCONNECTED).sendToTarget();
 	}
-	
+
 	public void print(String data) {
 		byte[] bytes = data.getBytes();
+		if (D) Log.d(TAG, "print(): begin");
 		try {
 			wait_connected();
 			output.write(bytes);
+			if (D) Log.d(TAG, "print(): Wrote bytes: '" + data.replace('\n', '\\') + "'");
 		} catch (IOException e) {
-			connection_failed();
+			connection_lost();
 		} catch (InterruptedException e) {
-			connection_failed();
+			connection_lost();
 		}
 	}
 
@@ -152,40 +167,58 @@ public class AltosBluetooth extends AltosLink {
 			wait_connected();
 			return input.read();
 		} catch (IOException e) {
-			connection_failed();
+			connection_lost();
 		} catch (java.lang.InterruptedException e) {
-			connection_failed();
+			connection_lost();
 		}
 		return AltosLink.ERROR;
 	}
-			
+
 	public void close() {
+		if (D) Log.d(TAG, "close(): begin");
 		synchronized(this) {
+			if (D) Log.d(TAG, "close(): synched");
+
 			if (connect_thread != null) {
+				if (D) Log.d(TAG, "close(): stopping connect_thread");
 				connect_thread.cancel();
 				connect_thread = null;
 			}
+			if (D) Log.d(TAG, "close(): Closing socket");
+			try {
+				socket.close();
+			} catch (IOException e) {
+				if (D) Log.e(TAG, "close(): unable to close() socket");
+			}
+			if (input_thread != null) {
+				if (D) Log.d(TAG, "close(): stopping input_thread");
+				try {
+					if (D) Log.d(TAG, "close(): input_thread.interrupt().....");
+					input_thread.interrupt();
+					if (D) Log.d(TAG, "close(): input_thread.join().....");
+					input_thread.join();
+				} catch (Exception e) {}
+				input_thread = null;
+			}
+			input = null;
+			output = null;
+			notifyAll();
 		}
 	}
 
-	public void flush_output() {
-		super.flush_output();
-		/* any local work needed to flush bluetooth? */
+
+	// We override this method so that we can add some debugging. Not 100% elegant, but more useful
+	// than debugging one char at a time above in getchar()!
+	public void add_reply(AltosLine line) throws InterruptedException {
+		if (D) Log.d(TAG, String.format("Got REPLY: %s", line.line));
+		super.add_reply(line);
 	}
 
-	public boolean can_cancel_reply() {
-		return false;
-	}
-	public boolean show_reply_timeout() {
-		return true;
-	}
-		
-	public void hide_reply_timeout() {
-	}
+	//public void flush_output() { super.flush_output(); }
 
-	public AltosBluetooth(BluetoothDevice device) {
-		adapter = BluetoothAdapter.getDefaultAdapter();
-		connect_thread = new ConnectThread(device, true);
-		connect_thread.start();
-	}
+	// Stubs of required methods when extending AltosLink
+	public boolean can_cancel_reply()   { return false; }
+	public boolean show_reply_timeout() { return true; }
+	public void hide_reply_timeout()    { }
+
 }

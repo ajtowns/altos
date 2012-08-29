@@ -17,13 +17,14 @@
 <resources>
     <string name="app_name">AltosDroid</string>
 
-    <!--  BluetoothChat -->
-    <string name="send">Send</string>
-    <string name="not_connected">You are not connected to a device</string>
-    <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Chat.</string>
+    <!--  AltosDroid -->
+    <string name="bt_not_enabled">Bluetooth was not enabled.</string>
     <string name="title_connecting">connecting…</string>
     <string name="title_connected_to">connected: </string>
     <string name="title_not_connected">not connected</string>
+
+    <!-- Options Menu -->
+    <string name="connect_device">Connect a device</string>
 
     <!--  DeviceListActivity -->
     <string name="scanning">scanning for devices…</string>
@@ -34,33 +35,29 @@
     <string name="title_other_devices">Other Available Devices</string>
     <string name="button_scan">Scan for devices</string>
 
-    <!-- Options Menu -->
-    <string name="connect_device">Connect a device</string>
-    <string name="telemetry_service_control">Control Service</string>
-    <string name="telemetry_service_bind">(Un)Bind Service</string>
-
-
-
     <!-- Service -->
     <string name="telemetry_service_label">AltosDroid Telemetry Service</string>
     <string name="telemetry_service_started">Telemetry Service Started</string>
     <string name="telemetry_service_stopped">Telemetry Service Stopped</string>
 
-    <!-- Service control activity - temporary! -->
-    <string name="activity_telemetry_service_controller">Telemetry Service Controller</string>
-    <string name="telemetry_service_controller">Use the following buttons to start and stop the Telemetry
-        service.</string>
-    <string name="start_service">Start Service</string>
-    <string name="stop_service">Stop Service</string>
 
-    <string name="activity_telemetry_service_binding">Telemetry Service Binding</string>
-    <string name="telemetry_service_binding">This demonstrates how you can connect with a persistent
-        service.  Notice how it automatically starts for you, and play around with the
-        interaction between this and Local Service Controller.</string>
-    <string name="bind_service">Bind Service</string>
-    <string name="unbind_service">Unbind Service</string>
+	<!-- UI fields -->
+    <string name="callsign_label">Callsign</string>
+    <string name="state_label">State</string>
+    <string name="speed_label">Speed</string>
+    <string name="speed_units">m/s</string>
+    <string name="accel_label">Acceleration</string>
+    <string name="accel_units">m/s²</string>
+    <string name="range_label">Range</string>
+    <string name="range_units">m</string>
+    <string name="altitude_label">Altitude</string>
+    <string name="altitude_units">m</string>
+    <string name="azimuth_label">Azimuth</string>
+    <string name="azimuth_units">°</string>
+    <string name="bearing_label">Bearing</string>
+    <string name="bearing_units">°</string>
+    <string name="latitude_label">Latitude</string>
+    <string name="longitude_label">Longitude</string>
 
-    <string name="telemetry_service_connected">Connected to local service</string>
-    <string name="telemetry_service_disconnected">Disconnected from local service</string>
 
 </resources>

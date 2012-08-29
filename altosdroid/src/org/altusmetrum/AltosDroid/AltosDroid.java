@@ -1,339 +1,362 @@
 /*
- * Copyright (C) 2009 The Android Open Source Project
+ * Copyright © 2012 Mike Beattie <mike@ethernal.org>
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
 package org.altusmetrum.AltosDroid;
+
+import java.lang.ref.WeakReference;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.Context;
+import android.content.ComponentName;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
-import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import org.altusmetrum.AltosDroid.R;
+
 import org.altusmetrum.AltosLib.*;
 
 /**
  * This is the main Activity that displays the current chat session.
  */
 public class AltosDroid extends Activity {
-    // Debugging
-    private static final String TAG = "AltosDroid";
-    private static final boolean D = true;
+	// Debugging
+	private static final String TAG = "AltosDroid";
+	private static final boolean D = true;
 
-    // Message types sent from the BluetoothChatService Handler
-    public static final int MESSAGE_STATE_CHANGE = 1;
-    public static final int MESSAGE_READ = 2;
-    public static final int MESSAGE_WRITE = 3;
-    public static final int MESSAGE_DEVICE_NAME = 4;
-    public static final int MESSAGE_TOAST = 5;
+	// Message types received by our Handler
+	public static final int MSG_STATE_CHANGE    = 1;
+	public static final int MSG_TELEMETRY       = 2;
 
-    // Key names received from the BluetoothChatService Handler
-    public static final String DEVICE_NAME = "device_name";
-    public static final String TOAST = "toast";
+	// Intent request codes
+	private static final int REQUEST_CONNECT_DEVICE = 1;
+	private static final int REQUEST_ENABLE_BT      = 2;
 
-    // Intent request codes
-    private static final int REQUEST_CONNECT_DEVICE = 1;
-    private static final int REQUEST_ENABLE_BT      = 2;
+	// Layout Views
+	private TextView mTitle;
+	private TextView mSerialView;
+	private TextView mCallsignView;
+	private TextView mStateView;
+	private TextView mSpeedView;
+	private TextView mAccelView;
+	private TextView mRangeView;
+	private TextView mAltitudeView;
+	private TextView mAzimuthView;
+	private TextView mBearingView;
+	private TextView mLatitudeView;
+	private TextView mLongitudeView;
 
-    // Layout Views
-    private TextView mTitle;
-    private TextView mSerialView;
-    private EditText mOutEditText;
-    private Button mSendButton;
+	// Service
+	private boolean mIsBound   = false;
+	private Messenger mService = null;
+	final Messenger mMessenger = new Messenger(new IncomingHandler(this));
 
-    // Name of the connected device
-    private String mConnectedDeviceName = null;
-    // String buffer for outgoing messages
-    private StringBuffer mOutStringBuffer;
-    // Local Bluetooth adapter
-    private BluetoothAdapter mBluetoothAdapter = null;
-    // Member object for the chat services
-    private BluetoothChatService mChatService = null;
+	// TeleBT Config data
+	private AltosConfigData mConfigData = null;
+	// Local Bluetooth adapter
+	private BluetoothAdapter mBluetoothAdapter = null;
 
+	// Text to Speech
+	private TextToSpeech tts    = null;
+	private boolean tts_enabled = false;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if(D) Log.e(TAG, "+++ ON CREATE +++");
+	// The Handler that gets information back from the Telemetry Service
+	static class IncomingHandler extends Handler {
+		private final WeakReference<AltosDroid> mAltosDroid;
+		IncomingHandler(AltosDroid ad) { mAltosDroid = new WeakReference<AltosDroid>(ad); }
 
-        // Set up the window layout
-        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-        setContentView(R.layout.main);
-        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_title);
-
-        // Set up the custom title
-        mTitle = (TextView) findViewById(R.id.title_left_text);
-        mTitle.setText(R.string.app_name);
-        mTitle = (TextView) findViewById(R.id.title_right_text);
-
-        // Get local Bluetooth adapter
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-        // If the adapter is null, then Bluetooth is not supported
-        if (mBluetoothAdapter == null) {
-            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        if(D) Log.e(TAG, "++ ON START ++");
-
-        // If BT is not on, request that it be enabled.
-        // setupChat() will then be called during onActivityResult
-        if (!mBluetoothAdapter.isEnabled()) {
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-        // Otherwise, setup the chat session
-        } else {
-            if (mChatService == null) setupChat();
-        }
-    }
-
-    @Override
-    public synchronized void onResume() {
-        super.onResume();
-        if(D) Log.e(TAG, "+ ON RESUME +");
-
-        // Performing this check in onResume() covers the case in which BT was
-        // not enabled during onStart(), so we were paused to enable it...
-        // onResume() will be called when ACTION_REQUEST_ENABLE activity returns.
-        if (mChatService != null) {
-            // Only if the state is STATE_NONE, do we know that we haven't started already
-            if (mChatService.getState() == BluetoothChatService.STATE_NONE) {
-              // Start the Bluetooth chat services
-              mChatService.start();
-            }
-        }
-    }
-
-    @Override
-    public synchronized void onPause() {
-        super.onPause();
-        if(D) Log.e(TAG, "- ON PAUSE -");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if(D) Log.e(TAG, "-- ON STOP --");
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        // Stop the Bluetooth chat services
-        if (mChatService != null) mChatService.stop();
-        if(D) Log.e(TAG, "--- ON DESTROY ---");
-    }
+		@Override
+		public void handleMessage(Message msg) {
+			AltosDroid ad = mAltosDroid.get();
+			switch (msg.what) {
+			case MSG_STATE_CHANGE:
+				if(D) Log.d(TAG, "MSG_STATE_CHANGE: " + msg.arg1);
+				switch (msg.arg1) {
+				case TelemetryService.STATE_CONNECTED:
+					ad.mConfigData = (AltosConfigData) msg.obj;
+					String str = String.format(" %s S/N: %d", ad.mConfigData.product, ad.mConfigData.serial);
+					ad.mTitle.setText(R.string.title_connected_to);
+					ad.mTitle.append(str);
+					Toast.makeText(ad.getApplicationContext(), "Connected to " + str, Toast.LENGTH_SHORT).show();
+					//TEST!
+					ad.mSerialView.setText(Dumper.dump(ad.mConfigData));
+					break;
+				case TelemetryService.STATE_CONNECTING:
+					ad.mTitle.setText(R.string.title_connecting);
+					break;
+				case TelemetryService.STATE_READY:
+				case TelemetryService.STATE_NONE:
+					ad.mConfigData = null;
+					ad.mTitle.setText(R.string.title_not_connected);
+					ad.mSerialView.setText("");
+					break;
+				}
+				break;
+			case MSG_TELEMETRY:
+				ad.update_ui((AltosState) msg.obj);
+				// TEST!
+				ad.mSerialView.setText(Dumper.dump(msg.obj));
+				break;
+			}
+		}
+	};
 
 
+	private ServiceConnection mConnection = new ServiceConnection() {
+		public void onServiceConnected(ComponentName className, IBinder service) {
+			mService = new Messenger(service);
+			try {
+				Message msg = Message.obtain(null, TelemetryService.MSG_REGISTER_CLIENT);
+				msg.replyTo = mMessenger;
+				mService.send(msg);
+			} catch (RemoteException e) {
+				// In this case the service has crashed before we could even do anything with it
+			}
+		}
 
-    private void setupChat() {
-        Log.d(TAG, "setupChat()");
+		public void onServiceDisconnected(ComponentName className) {
+			// This is called when the connection with the service has been unexpectedly disconnected - process crashed.
+			mService = null;
+		}
+	};
 
-        mSerialView = (TextView) findViewById(R.id.in);
-        mSerialView.setMovementMethod(new ScrollingMovementMethod());
-        mSerialView.setClickable(false);
-        mSerialView.setLongClickable(false);
 
-        // Initialize the compose field with a listener for the return key
-        mOutEditText = (EditText) findViewById(R.id.edit_text_out);
-        mOutEditText.setOnEditorActionListener(mWriteListener);
+	void doBindService() {
+		bindService(new Intent(this, TelemetryService.class), mConnection, Context.BIND_AUTO_CREATE);
+		mIsBound = true;
+	}
 
-        // Initialize the send button with a listener that for click events
-        mSendButton = (Button) findViewById(R.id.button_send);
-        mSendButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                // Send a message using content of the edit text widget
-                TextView view = (TextView) findViewById(R.id.edit_text_out);
-                String message = view.getText().toString();
-                sendMessage(message);
-            }
-        });
+	void doUnbindService() {
+		if (mIsBound) {
+			// If we have received the service, and hence registered with it, then now is the time to unregister.
+			if (mService != null) {
+				try {
+					Message msg = Message.obtain(null, TelemetryService.MSG_UNREGISTER_CLIENT);
+					msg.replyTo = mMessenger;
+					mService.send(msg);
+				} catch (RemoteException e) {
+					// There is nothing special we need to do if the service has crashed.
+				}
+			}
+			// Detach our existing connection.
+			unbindService(mConnection);
+			mIsBound = false;
+		}
+	}
 
-        // Initialize the BluetoothChatService to perform bluetooth connections
-        mChatService = new BluetoothChatService(this, mHandler);
+	void update_ui(AltosState state) {
+		mCallsignView.setText(state.data.callsign);
+		mStateView.setText(state.data.state());
+		double speed = state.speed;
+		if (!state.ascent)
+			speed = state.baro_speed;
+		mSpeedView.setText(String.format("%6.0f", speed));
+		mAccelView.setText(String.format("%6.0f", state.acceleration));
+		mRangeView.setText(String.format("%6.0f", state.range));
+		mAltitudeView.setText(String.format("%6.0f", state.height));
+		mAzimuthView.setText(String.format("%3.0f", state.elevation));
+		if (state.from_pad != null)
+			mBearingView.setText(String.format("%3.0f", state.from_pad.bearing));
+		mLatitudeView.setText(pos(state.gps.lat, "N", "S"));
+		mLongitudeView.setText(pos(state.gps.lon, "W", "E"));
+	}
 
-        // Initialize the buffer for outgoing messages
-        mOutStringBuffer = new StringBuffer("");
-    }
+	String pos(double p, String pos, String neg) {
+		String	h = pos;
+		if (p < 0) {
+			h = neg;
+			p = -p;
+		}
+		int deg = (int) Math.floor(p);
+		double min = (p - Math.floor(p)) * 60.0;
+		return String.format("%s %d° %9.6f", h, deg, min);
+	}
 
-    /**
-     * Sends a message.
-     * @param message  A string of text to send.
-     */
-    private void sendMessage(String message) {
-        // Check that we're actually connected before trying anything
-        if (mChatService.getState() != BluetoothChatService.STATE_CONNECTED) {
-            Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
-            return;
-        }
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		if(D) Log.e(TAG, "+++ ON CREATE +++");
 
-        // Check that there's actually something to send
-        if (message.length() > 0) {
-            // Get the message bytes and tell the BluetoothChatService to write
-            byte[] send = message.getBytes();
-            mChatService.write(send);
+		// Set up the window layout
+		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+		//setContentView(R.layout.main);
+		setContentView(R.layout.altosdroid);
+		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_title);
 
-            // Reset out string buffer to zero and clear the edit text field
-            mOutStringBuffer.setLength(0);
-            mOutEditText.setText(mOutStringBuffer);
-        }
-    }
+		// Set up the custom title
+		mTitle = (TextView) findViewById(R.id.title_left_text);
+		mTitle.setText(R.string.app_name);
+		mTitle = (TextView) findViewById(R.id.title_right_text);
 
-    // The action listener for the EditText widget, to listen for the return key
-    private TextView.OnEditorActionListener mWriteListener =
-        new TextView.OnEditorActionListener() {
-        public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-            // If the action is a key-up event on the return key, send the message
-            if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_UP) {
-                String message = view.getText().toString();
-                sendMessage(message);
-            }
-            if(D) Log.i(TAG, "END onEditorAction");
-            return true;
-        }
-    };
+		// Set up the temporary Text View
+		mSerialView = (TextView) findViewById(R.id.text);
+		mSerialView.setMovementMethod(new ScrollingMovementMethod());
+		mSerialView.setClickable(false);
+		mSerialView.setLongClickable(false);
 
-    // The Handler that gets information back from the BluetoothChatService
-    private final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-            case MESSAGE_STATE_CHANGE:
-                if(D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
-                switch (msg.arg1) {
-                case BluetoothChatService.STATE_CONNECTED:
-                    mTitle.setText(R.string.title_connected_to);
-                    mTitle.append(mConnectedDeviceName);
-                    mSerialView.setText("");
-                    break;
-                case BluetoothChatService.STATE_CONNECTING:
-                    mTitle.setText(R.string.title_connecting);
-                    break;
-                case BluetoothChatService.STATE_READY:
-                case BluetoothChatService.STATE_NONE:
-                    mTitle.setText(R.string.title_not_connected);
-                    break;
-                }
-                break;
-            case MESSAGE_WRITE:
-                byte[] writeBuf = (byte[]) msg.obj;
-                // construct a string from the buffer
-                String writeMessage = new String(writeBuf);
-                mSerialView.append(writeMessage + '\n');
-                break;
-            case MESSAGE_READ:
-                byte[] readBuf = (byte[]) msg.obj;
-                // construct a string from the valid bytes in the buffer
-                String readMessage = new String(readBuf, 0, msg.arg1);
-                mSerialView.append(readMessage);
-                break;
-            case MESSAGE_DEVICE_NAME:
-                // save the connected device's name
-                mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-                Toast.makeText(getApplicationContext(), "Connected to "
-                               + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
-                break;
-            case MESSAGE_TOAST:
-                Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST),
-                               Toast.LENGTH_SHORT).show();
-                break;
-            }
-        }
-    };
+		mCallsignView  = (TextView) findViewById(R.id.callsign_value);
+		mStateView     = (TextView) findViewById(R.id.state_value);
+		mSpeedView     = (TextView) findViewById(R.id.speed_value);
+		mAccelView     = (TextView) findViewById(R.id.accel_value);
+		mRangeView     = (TextView) findViewById(R.id.range_value);
+		mAltitudeView  = (TextView) findViewById(R.id.altitude_value);
+		mAzimuthView   = (TextView) findViewById(R.id.azimuth_value);
+		mBearingView   = (TextView) findViewById(R.id.bearing_value);
+		mLatitudeView  = (TextView) findViewById(R.id.latitude_value);
+		mLongitudeView = (TextView) findViewById(R.id.longitude_value);
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(D) Log.d(TAG, "onActivityResult " + resultCode);
-        switch (requestCode) {
-        case REQUEST_CONNECT_DEVICE:
-            // When DeviceListActivity returns with a device to connect to
-            if (resultCode == Activity.RESULT_OK) {
-                connectDevice(data);
-            }
-            break;
-        case REQUEST_ENABLE_BT:
-            // When the request to enable Bluetooth returns
-            if (resultCode == Activity.RESULT_OK) {
-                // Bluetooth is now enabled, so set up a chat session
-                setupChat();
-            } else {
-                // User did not enable Bluetooth or an error occured
-                Log.d(TAG, "BT not enabled");
-                Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
-                finish();
-            }
-        }
-    }
+		// Get local Bluetooth adapter
+		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-    private void connectDevice(Intent data) {
-        // Get the device MAC address
-        String address = data.getExtras()
-            .getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-        // Get the BLuetoothDevice object
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-        // Attempt to connect to the device
-        mChatService.connect(device);
-    }
+		// If the adapter is null, then Bluetooth is not supported
+		if (mBluetoothAdapter == null) {
+			Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+			finish();
+			return;
+		}
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.option_menu, menu);
-        return true;
-    }
+		// Enable Text to Speech
+		tts = new TextToSpeech(this, new OnInitListener() {
+			public void onInit(int status) {
+				if (status == TextToSpeech.SUCCESS) tts_enabled = true;
+				if (tts_enabled) tts.speak("AltosDroid ready", TextToSpeech.QUEUE_ADD, null );
+			}
+		});
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Intent serverIntent = null;
-        switch (item.getItemId()) {
-        case R.id.telemetry_service_control:
-            serverIntent = new Intent(this, TelemetryServiceActivities.Controller.class);
-            startActivity(serverIntent);
-            return true;
-        case R.id.telemetry_service_bind:
-            serverIntent = new Intent(this, TelemetryServiceActivities.Binding.class);
-            startActivity(serverIntent);
-            return true;
-        case R.id.connect_scan:
-            // Launch the DeviceListActivity to see devices and do scan
-            serverIntent = new Intent(this, DeviceListActivity.class);
-            startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
-            return true;
-        }
-        return false;
-    }
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		if(D) Log.e(TAG, "++ ON START ++");
+
+		if (!mBluetoothAdapter.isEnabled()) {
+			Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+			startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+		}
+
+		// Start Telemetry Service
+		startService(new Intent(AltosDroid.this, TelemetryService.class));
+
+		doBindService();
+	}
+
+	@Override
+	public synchronized void onResume() {
+		super.onResume();
+		if(D) Log.e(TAG, "+ ON RESUME +");
+	}
+
+	@Override
+	public synchronized void onPause() {
+		super.onPause();
+		if(D) Log.e(TAG, "- ON PAUSE -");
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		if(D) Log.e(TAG, "-- ON STOP --");
+
+		doUnbindService();
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if(D) Log.e(TAG, "--- ON DESTROY ---");
+
+		if (tts != null) tts.shutdown();
+	}
+
+
+
+
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if(D) Log.d(TAG, "onActivityResult " + resultCode);
+		switch (requestCode) {
+		case REQUEST_CONNECT_DEVICE:
+			// When DeviceListActivity returns with a device to connect to
+			if (resultCode == Activity.RESULT_OK) {
+				connectDevice(data);
+			}
+			break;
+		case REQUEST_ENABLE_BT:
+			// When the request to enable Bluetooth returns
+			if (resultCode == Activity.RESULT_OK) {
+				// Bluetooth is now enabled, so set up a chat session
+				//setupChat();
+			} else {
+				// User did not enable Bluetooth or an error occured
+				Log.e(TAG, "BT not enabled");
+				stopService(new Intent(AltosDroid.this, TelemetryService.class));
+				Toast.makeText(this, R.string.bt_not_enabled, Toast.LENGTH_SHORT).show();
+				finish();
+			}
+			break;
+		}
+	}
+
+	private void connectDevice(Intent data) {
+		// Get the device MAC address
+		String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+		// Get the BLuetoothDevice object
+		BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+		// Attempt to connect to the device
+		try {
+			if (D) Log.d(TAG, "Connecting to " + device.getName());
+			mService.send(Message.obtain(null, TelemetryService.MSG_CONNECT, device));
+		} catch (RemoteException e) {
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.option_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent serverIntent = null;
+		switch (item.getItemId()) {
+		case R.id.connect_scan:
+			// Launch the DeviceListActivity to see devices and do scan
+			serverIntent = new Intent(this, DeviceListActivity.class);
+			startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+			return true;
+		}
+		return false;
+	}
 
 }
