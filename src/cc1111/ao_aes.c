@@ -135,12 +135,12 @@ ao_aes_run(__xdata uint8_t *in,
 void
 ao_aes_init(void)
 {
-	ao_aes_dma_in = ao_dma_alloc(&ao_aes_dma_in_done);
 #if DMA_SHARE_AES_RADIO
-	ao_aes_dma_out = ao_radio_dma;
+	ao_aes_dma_in = ao_radio_dma;
 #else
-	ao_aes_dma_out = ao_dma_alloc(&ao_aes_dma_out_done);
+	ao_aes_dma_in = ao_dma_alloc(&ao_aes_dma_in_done);
 #endif
+	ao_aes_dma_out = ao_dma_alloc(&ao_aes_dma_out_done);
 	S0CON = 0;
 	ENCIE = 1;
 }
