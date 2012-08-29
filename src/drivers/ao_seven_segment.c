@@ -192,6 +192,7 @@ ao_seven_segment_clear(void)
 }
 
 
+#if 0
 static void
 ao_seven_segment_show(void)
 {
@@ -208,9 +209,12 @@ static const struct ao_cmds ao_seven_segment_cmds[] = {
 	{ ao_seven_segment_show,	"S <digit> <value>\0Set LCD digit" },
 	{ 0, NULL },
 };
+#endif
 
 void
 ao_seven_segment_init(void)
 {
+#if 0
 	ao_cmd_register(ao_seven_segment_cmds);
+#endif
 }
