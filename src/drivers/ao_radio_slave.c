@@ -23,54 +23,69 @@ static __xdata struct ao_radio_spi_reply ao_radio_spi_reply;
 
 static __xdata struct ao_radio_spi_request ao_radio_spi_request;
 
-static __xdata uint8_t	ao_radio_spi_recv_request;
-static __xdata uint8_t	ao_radio_spi_recv_len;
-static __xdata uint16_t	ao_radio_spi_recv_timeout;
+static __xdata uint8_t	slave_state;
 
 static void
-ao_radio_slave_signal(void)
+ao_radio_slave_low(void)
 {
+	uint16_t	i;
+
+	if (slave_state != 1)
+		ao_panic(1);
+	ao_led_toggle(AO_LED_GREEN);
 	ao_gpio_set(AO_RADIO_SLAVE_INT_PORT, AO_RADIO_SLAVE_INT_BIT, AO_RADIO_SLAVE_INT_PIN, 0);
-	ao_arch_nop();
-	ao_arch_nop();
-	ao_arch_nop();
+	for (i = 0; i < 1000; i++)
+		ao_arch_nop();
+	slave_state = 0;
+}
+
+static void
+ao_radio_slave_high(void)
+{
+	if (slave_state != 0)
+		ao_panic(2);
+	ao_led_toggle(AO_LED_RED);
 	ao_gpio_set(AO_RADIO_SLAVE_INT_PORT, AO_RADIO_SLAVE_INT_BIT, AO_RADIO_SLAVE_INT_PIN, 1);
+	slave_state = 1;
 }
 
 static void
 ao_radio_slave_spi(void)
 {
-	uint8_t	need_signal = 0;
-
 	ao_spi_get_slave(AO_RADIO_SLAVE_BUS);
 	for (;;) {
 		ao_spi_recv(&ao_radio_spi_request,
 			    (2 << 13) | sizeof (ao_radio_spi_request),
 			    AO_RADIO_SLAVE_BUS);
-		if (need_signal) {
-			ao_radio_slave_signal();
-			need_signal = 0;
-		}
+		ao_radio_slave_high();
 		ao_spi_recv_wait();
 		switch (ao_radio_spi_request.request) {
 		case AO_RADIO_SPI_RECV:
-		case AO_RADIO_SPI_CMAC_RECV:
+
+			/* XXX monitor CS to interrupt the receive */
+
 			ao_config.radio_setting = ao_radio_spi_request.setting;
-			ao_radio_spi_recv_request = ao_radio_spi_request.request;
-			ao_radio_spi_recv_len = ao_radio_spi_request.recv_len;
-			ao_radio_spi_recv_timeout = ao_radio_spi_request.timeout;
-			ao_wakeup(&ao_radio_spi_recv_len);
-			continue;
-		case AO_RADIO_SPI_RECV_FETCH:
+			ao_radio_spi_reply.status = ao_radio_recv(&ao_radio_spi_reply.payload,
+								  ao_radio_spi_request.recv_len);
+			ao_radio_spi_reply.rssi = 0;
 			ao_spi_send(&ao_radio_spi_reply,
-				    ao_radio_spi_request.recv_len,
+				    AO_RADIO_SPI_REPLY_HEADER_LEN + ao_radio_spi_request.recv_len,
 				    AO_RADIO_SLAVE_BUS);
-			ao_radio_slave_signal();
+			ao_radio_slave_low();
 			ao_spi_send_wait();
 			continue;
-		case AO_RADIO_SPI_RECV_ABORT:
-			ao_radio_recv_abort();
-			break;
+		case AO_RADIO_SPI_CMAC_RECV:
+			ao_config.radio_setting = ao_radio_spi_request.setting;
+			ao_radio_spi_reply.status = ao_radio_cmac_recv(&ao_radio_spi_reply.payload,
+								       ao_radio_spi_request.recv_len,
+								       ao_radio_spi_request.timeout);
+			ao_radio_spi_reply.rssi = ao_radio_cmac_rssi;
+			ao_spi_send(&ao_radio_spi_reply,
+				    AO_RADIO_SPI_REPLY_HEADER_LEN + ao_radio_spi_request.recv_len,
+				    AO_RADIO_SLAVE_BUS);
+			ao_radio_slave_low();
+			ao_spi_send_wait();
+			continue;
 		case AO_RADIO_SPI_SEND:
 			ao_config.radio_setting = ao_radio_spi_request.setting;
 			ao_radio_send(&ao_radio_spi_request.payload,
@@ -96,38 +111,15 @@ ao_radio_slave_spi(void)
 			ao_radio_test(0);
 			break;
 		}
-		need_signal = 1;
-	}
-}
-
-static void
-ao_radio_slave_recv(void)
-{
-	uint8_t	len;
-	for (;;) {
-		while (!ao_radio_spi_recv_len)
-			ao_sleep(&ao_radio_spi_recv_len);
-		len = ao_radio_spi_recv_len;
-		ao_radio_spi_recv_len = 0;
-		if (ao_radio_spi_recv_request == AO_RADIO_SPI_RECV) {
-			ao_radio_spi_reply.status = ao_radio_recv(&ao_radio_spi_reply.payload, len);
-			ao_radio_spi_reply.rssi = 0;
-		} else {
-			ao_radio_spi_reply.status = ao_radio_cmac_recv(&ao_radio_spi_reply.payload, len,
-								       ao_radio_spi_recv_timeout);
-			ao_radio_spi_reply.rssi = ao_radio_cmac_rssi;
-		}
-		ao_radio_slave_signal();
+		ao_radio_slave_low();
 	}
 }
 
 static __xdata struct ao_task ao_radio_slave_spi_task;
-static __xdata struct ao_task ao_radio_slave_recv_task;
 
 void
 ao_radio_slave_init(void)
 {
 	ao_add_task(&ao_radio_slave_spi_task, ao_radio_slave_spi, "radio_spi");
-	ao_add_task(&ao_radio_slave_recv_task, ao_radio_slave_recv, "radio_recv");
-	ao_enable_output(AO_RADIO_SLAVE_INT_PORT, AO_RADIO_SLAVE_INT_BIT, AO_RADIO_SLAVE_INT_PIN, 1);
+	ao_enable_output(AO_RADIO_SLAVE_INT_PORT, AO_RADIO_SLAVE_INT_BIT, AO_RADIO_SLAVE_INT_PIN, 0);
 }

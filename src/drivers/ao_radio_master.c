@@ -22,13 +22,16 @@
 
 static __xdata struct ao_radio_spi_reply	ao_radio_spi_reply;
 static __xdata struct ao_radio_spi_request	ao_radio_spi_request;
-static volatile __xdata uint8_t			ao_radio_done = 1;
+static volatile __xdata uint8_t			ao_radio_wait_mode;
+static volatile __xdata uint8_t			ao_radio_done = 0;
+static volatile __xdata uint8_t			ao_radio_ready = 1;
 static __xdata uint8_t				ao_radio_mutex;
+static __xdata uint8_t				ao_radio_aes_seq;
 
 __xdata int8_t					ao_radio_cmac_rssi;
 
 #if 0
-#define PRINTD(...) do { printf ("\r%s: ", __func__); printf(__VA_ARGS__); flush(); } while(0)
+#define PRINTD(...) do { printf ("\r%5u %s: ", ao_tick_count, __func__); printf(__VA_ARGS__); flush(); } while(0)
 #else
 #define PRINTD(...) 
 #endif
@@ -36,24 +39,18 @@ __xdata int8_t					ao_radio_cmac_rssi;
 static void
 ao_radio_isr(void)
 {
-	ao_exti_disable(AO_RADIO_INT_PORT, AO_RADIO_INT_PIN);
-	ao_radio_done = 1;
-	ao_wakeup((void *) &ao_radio_done);
-}
-
-static void
-ao_radio_master_delay(void)
-{
-//	uint16_t	i;
-//	for (i = 0; i < 1000; i++)
-//		ao_arch_nop();
-	ao_delay(1);
+	if (ao_gpio_get(AO_RADIO_INT_PORT, AO_RADIO_INT_PIN, AO_RADIO_INT)) {
+		ao_radio_ready = 1;
+		ao_wakeup((void *) &ao_radio_ready);
+	} else {
+		ao_radio_done = 1;
+		ao_wakeup((void *) &ao_radio_done);
+	}
 }
 
 static void
 ao_radio_master_start(void)
 {
-	ao_radio_master_delay();
 	ao_spi_get_bit(AO_RADIO_CS_PORT, AO_RADIO_CS_PIN, AO_RADIO_CS,
 		       AO_RADIO_SPI_BUS,
 		       AO_SPI_SPEED_200kHz);
@@ -64,32 +61,50 @@ ao_radio_master_stop(void)
 {
 	ao_spi_put_bit(AO_RADIO_CS_PORT, AO_RADIO_CS_PIN, AO_RADIO_CS,
 		       AO_RADIO_SPI_BUS);
-//	ao_delay(1);
 }
 
 static uint8_t
 ao_radio_master_send(void)
 {
-	if (!ao_radio_done)
-		printf ("radio not done in ao_radio_master_send\n");
+	uint8_t	ret;
+
 	PRINTD("send %d\n", ao_radio_spi_request.len);
 	ao_radio_done = 0;
-	ao_exti_enable(AO_RADIO_INT_PORT, AO_RADIO_INT_PIN);
+
+	/* Wait for radio chip to be ready for a command
+	 */
+
+	PRINTD("Waiting radio ready\n");
+	cli();
+	ao_radio_ready = ao_gpio_get(AO_RADIO_INT_PORT,
+				     AO_RADIO_INT_PIN, AO_RADIO_INT);
+	ret = 0;
+	while (!ao_radio_ready) {
+		ret = ao_sleep((void *) &ao_radio_ready);
+		if (ret)
+			break;
+	}
+	sei();
+	if (ret)
+		return 0;
+
+	PRINTD("radio_ready %d radio_done %d\n", ao_radio_ready, ao_radio_done);
+
+	/* Send the command
+	 */
+	ao_radio_wait_mode = 0;
 	ao_radio_master_start();
 	ao_spi_send(&ao_radio_spi_request,
 		    ao_radio_spi_request.len,
 		    AO_RADIO_SPI_BUS);
 	ao_radio_master_stop();
+	PRINTD("waiting for send done %d\n", ao_radio_done);
 	cli();
 	while (!ao_radio_done)
-		if (ao_sleep((void *) &ao_radio_done)) {
-			printf ("ao_radio_master awoken\n");
+		if (ao_sleep((void *) &ao_radio_done))
 			break;
-		}
 	sei();
-	PRINTD ("sent, radio done %d\n", ao_radio_done);
-	if (!ao_radio_done)
-		printf ("radio didn't finish after ao_radio_master_send\n");
+	PRINTD ("sent, radio done %d isr_0 %d isr_1 %d\n", ao_radio_done, isr_0_count, isr_1_count);
 	return ao_radio_done;
 }
 
@@ -112,15 +127,6 @@ ao_radio_put(void)
 static void
 ao_radio_get_data(__xdata void *d, uint8_t size)
 {
-	uint8_t	ret;
-
-	PRINTD ("send fetch req\n");
-	ao_radio_spi_request.len = AO_RADIO_SPI_REQUEST_HEADER_LEN;
-	ao_radio_spi_request.request = AO_RADIO_SPI_RECV_FETCH;
-	ao_radio_spi_request.recv_len = size;
-	ret = ao_radio_master_send();
-	PRINTD ("fetch req sent %d\n", ret);
-
 	PRINTD ("fetch\n");
 	ao_radio_master_start();
 	ao_spi_recv(&ao_radio_spi_reply,
@@ -167,21 +173,17 @@ ao_radio_recv(__xdata void *d, uint8_t size)
 		return 0;
 	}
 	ao_radio_get_data(d, size);
-
 	recv = ao_radio_spi_reply.status;
-
 	ao_radio_put();
 
 	return recv;
 }
 
-int8_t
-ao_radio_cmac_send(__xdata void *packet, uint8_t len) __reentrant
+static void
+ao_radio_cmac_set_key(void)
 {
-	if (len > AO_CMAC_MAX_LEN)
-		return AO_RADIO_CMAC_LEN_ERROR;
-
-	PRINTD ("cmac_send: send %d\n", len);
+	if (ao_radio_aes_seq == ao_config_aes_seq)
+		return;
 	/* Set the key.
 	 */
 	PRINTD ("set key\n");
@@ -190,6 +192,18 @@ ao_radio_cmac_send(__xdata void *packet, uint8_t len) __reentrant
 	ao_radio_master_send();
 	ao_radio_put();
 	PRINTD ("key set\n");
+	ao_radio_aes_seq = ao_config_aes_seq;
+}
+
+int8_t
+ao_radio_cmac_send(__xdata void *packet, uint8_t len) __reentrant
+{
+	if (len > AO_CMAC_MAX_LEN)
+		return AO_RADIO_CMAC_LEN_ERROR;
+
+	ao_radio_cmac_set_key();
+
+	PRINTD ("cmac_send: send %d\n", len);
 
 	/* Send the data
 	 */
@@ -212,21 +226,14 @@ ao_radio_cmac_recv(__xdata void *packet, uint8_t len, uint16_t timeout) __reentr
 	if (len > AO_CMAC_MAX_LEN)
 		return AO_RADIO_CMAC_LEN_ERROR;
 
-	/* Set the key.
-	 */
-	PRINTD ("setting key\n");
-	ao_radio_get(AO_RADIO_SPI_CMAC_KEY, AO_AES_LEN);
-	ao_radio_spi_request.timeout = timeout;
-	ao_xmemcpy(&ao_radio_spi_request.payload, &ao_config.aes_key, AO_AES_LEN);
-	recv = ao_radio_master_send();
-	ao_radio_put();
-	PRINTD ("key set: %d\n", recv);
+	ao_radio_cmac_set_key();
 
 	/* Recv the data
 	 */
 	PRINTD ("queuing recv\n");
 	ao_radio_get(AO_RADIO_SPI_CMAC_RECV, 0);
 	ao_radio_spi_request.recv_len = len;
+	ao_radio_spi_request.timeout = timeout;
 	recv = ao_radio_master_send();
 	PRINTD ("recv queued: %d\n", recv);
 	if (!recv) {
@@ -300,7 +307,8 @@ ao_radio_init(void)
 	ao_enable_port(AO_RADIO_INT_PORT);
 	ao_exti_setup(AO_RADIO_INT_PORT,
 		      AO_RADIO_INT_PIN,
-		      AO_EXTI_MODE_FALLING,
+		      AO_EXTI_MODE_RISING|AO_EXTI_MODE_FALLING,
 		      ao_radio_isr);
+	ao_exti_enable(AO_RADIO_INT_PORT, AO_RADIO_INT_PIN);
 	ao_cmd_register(&ao_radio_cmds[0]);
 }
