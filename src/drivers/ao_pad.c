@@ -207,9 +207,13 @@ ao_pad(void)
 			query.box = ao_pad_box;
 			query.channels = AO_PAD_ALL_PINS;
 			query.armed = ao_pad_armed;
-			PRINTD ("query tick %d box %d channels %02x arm %d arm_status %d igniter %d\n",
+			PRINTD ("query tick %d box %d channels %02x arm %d arm_status %d igniter %d,%d,%d,%d\n",
 				query.tick, query.box, query.channels, query.armed,
-				query.arm_status, query.igniter_status);
+				query.arm_status,
+				query.igniter_status[0],
+				query.igniter_status[1],
+				query.igniter_status[2],
+				query.igniter_status[3]);
 			ao_radio_cmac_send(&query, sizeof (query));
 			break;
 		case AO_LAUNCH_FIRE:
