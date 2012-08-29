@@ -718,6 +718,8 @@ extern __xdata uint8_t ao_force_freq;
 
 #define AO_AES_LEN 16
 
+extern __xdata uint8_t ao_config_aes_seq;
+
 struct ao_config {
 	uint8_t		major;
 	uint8_t		minor;

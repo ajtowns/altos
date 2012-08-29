@@ -463,6 +463,9 @@ ao_config_radio_enable_set(void) __reentrant
 #endif /* HAS_RADIO */
 	
 #if HAS_AES
+
+__xdata uint8_t	ao_config_aes_seq = 1;
+
 void
 ao_config_key_show(void) __reentrant
 {
@@ -485,6 +488,7 @@ ao_config_key_set(void) __reentrant
 			break;
 		ao_config.aes_key[i] = ao_cmd_lex_i;
 	}
+	++ao_config_aes_seq;
 	_ao_config_edit_finish();
 }
 #endif
