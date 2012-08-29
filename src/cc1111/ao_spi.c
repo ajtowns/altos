@@ -171,16 +171,20 @@ ao_spi_send_bus(void __xdata *block, uint16_t len) __reentrant
 #endif
 	ao_dma_start(ao_spi_dma_out_id);
 	ao_dma_trigger(ao_spi_dma_out_id);
-#if AO_SPI_SLAVE
-	__critical while (!ao_spi_dma_out_done)
-			   ao_sleep(&ao_spi_dma_out_done);
-#else
+#if !AO_SPI_SLAVE
 	__critical while (!ao_spi_dma_in_done)
 		ao_sleep(&ao_spi_dma_in_done);
 #endif
 }
 
-
+#if AO_SPI_SLAVE
+void
+ao_spi_send_wait(void)
+{
+	__critical while (!ao_spi_dma_out_done)
+		ao_sleep(&ao_spi_dma_out_done);
+}
+#endif
 
 /* Receive bytes over SPI.
  *
@@ -221,11 +225,19 @@ ao_spi_recv_bus(void __xdata *block, uint16_t len) __reentrant
 #if !AO_SPI_SLAVE
 	ao_dma_start(ao_spi_dma_out_id);
 	ao_dma_trigger(ao_spi_dma_out_id);
+	__critical while (!ao_spi_dma_in_done)
+		ao_sleep(&ao_spi_dma_in_done);
 #endif
+}
+
+#if AO_SPI_SLAVE
+void
+ao_spi_recv_wait(void)
+{
 	__critical while (!ao_spi_dma_in_done)
 		ao_sleep(&ao_spi_dma_in_done);
 }
-
+#endif
 
 void
 ao_spi_init(void)

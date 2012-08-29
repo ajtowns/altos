@@ -22,25 +22,41 @@
 
 static __xdata struct ao_radio_spi_reply	ao_radio_spi_reply;
 static __xdata struct ao_radio_spi_request	ao_radio_spi_request;
-static __xdata uint8_t				ao_radio_done;
+static volatile __xdata uint8_t			ao_radio_done = 1;
 static __xdata uint8_t				ao_radio_mutex;
 
 __xdata int8_t					ao_radio_cmac_rssi;
+
+#if 0
+#define PRINTD(...) do { printf ("\r%s: ", __func__); printf(__VA_ARGS__); flush(); } while(0)
+#else
+#define PRINTD(...) 
+#endif
 
 static void
 ao_radio_isr(void)
 {
 	ao_exti_disable(AO_RADIO_INT_PORT, AO_RADIO_INT_PIN);
 	ao_radio_done = 1;
-	ao_wakeup(&ao_radio_done);
+	ao_wakeup((void *) &ao_radio_done);
+}
+
+static void
+ao_radio_master_delay(void)
+{
+//	uint16_t	i;
+//	for (i = 0; i < 1000; i++)
+//		ao_arch_nop();
+	ao_delay(1);
 }
 
 static void
 ao_radio_master_start(void)
 {
+	ao_radio_master_delay();
 	ao_spi_get_bit(AO_RADIO_CS_PORT, AO_RADIO_CS_PIN, AO_RADIO_CS,
 		       AO_RADIO_SPI_BUS,
-		       AO_SPI_SPEED_1MHz);
+		       AO_SPI_SPEED_200kHz);
 }
 
 static void
@@ -48,12 +64,15 @@ ao_radio_master_stop(void)
 {
 	ao_spi_put_bit(AO_RADIO_CS_PORT, AO_RADIO_CS_PIN, AO_RADIO_CS,
 		       AO_RADIO_SPI_BUS);
+//	ao_delay(1);
 }
-
 
 static uint8_t
 ao_radio_master_send(void)
 {
+	if (!ao_radio_done)
+		printf ("radio not done in ao_radio_master_send\n");
+	PRINTD("send %d\n", ao_radio_spi_request.len);
 	ao_radio_done = 0;
 	ao_exti_enable(AO_RADIO_INT_PORT, AO_RADIO_INT_PIN);
 	ao_radio_master_start();
@@ -63,20 +82,15 @@ ao_radio_master_send(void)
 	ao_radio_master_stop();
 	cli();
 	while (!ao_radio_done)
-		if (ao_sleep(&ao_radio_done))
+		if (ao_sleep((void *) &ao_radio_done)) {
+			printf ("ao_radio_master awoken\n");
 			break;
+		}
 	sei();
+	PRINTD ("sent, radio done %d\n", ao_radio_done);
+	if (!ao_radio_done)
+		printf ("radio didn't finish after ao_radio_master_send\n");
 	return ao_radio_done;
-}
-
-static void
-ao_radio_master_recv(uint16_t len)
-{
-	ao_radio_master_start();
-	ao_spi_recv(&ao_radio_spi_reply,
-		    len,
-		    AO_RADIO_SPI_BUS);
-	ao_radio_master_stop();
 }
 
 static void
@@ -98,12 +112,23 @@ ao_radio_put(void)
 static void
 ao_radio_get_data(__xdata void *d, uint8_t size)
 {
+	uint8_t	ret;
+
+	PRINTD ("send fetch req\n");
+	ao_radio_spi_request.len = AO_RADIO_SPI_REQUEST_HEADER_LEN;
+	ao_radio_spi_request.request = AO_RADIO_SPI_RECV_FETCH;
+	ao_radio_spi_request.recv_len = size;
+	ret = ao_radio_master_send();
+	PRINTD ("fetch req sent %d\n", ret);
+
+	PRINTD ("fetch\n");
 	ao_radio_master_start();
 	ao_spi_recv(&ao_radio_spi_reply,
 		    AO_RADIO_SPI_REPLY_HEADER_LEN + size,
 		    AO_RADIO_SPI_BUS);
 	ao_radio_master_stop();
 	ao_xmemcpy(d, ao_radio_spi_reply.payload, size);
+	PRINTD ("fetched %d\n", size);
 }
 
 void
@@ -142,8 +167,11 @@ ao_radio_recv(__xdata void *d, uint8_t size)
 		return 0;
 	}
 	ao_radio_get_data(d, size);
+
 	recv = ao_radio_spi_reply.status;
+
 	ao_radio_put();
+
 	return recv;
 }
 
@@ -153,20 +181,25 @@ ao_radio_cmac_send(__xdata void *packet, uint8_t len) __reentrant
 	if (len > AO_CMAC_MAX_LEN)
 		return AO_RADIO_CMAC_LEN_ERROR;
 
+	PRINTD ("cmac_send: send %d\n", len);
 	/* Set the key.
 	 */
+	PRINTD ("set key\n");
 	ao_radio_get(AO_RADIO_SPI_CMAC_KEY, AO_AES_LEN);
 	ao_xmemcpy(&ao_radio_spi_request.payload, &ao_config.aes_key, AO_AES_LEN);
 	ao_radio_master_send();
 	ao_radio_put();
+	PRINTD ("key set\n");
 
 	/* Send the data
 	 */
 	
+	PRINTD ("sending packet\n");
 	ao_radio_get(AO_RADIO_SPI_CMAC_SEND, len);
 	ao_xmemcpy(&ao_radio_spi_request.payload, packet, len);
 	ao_radio_master_send();
 	ao_radio_put();
+	PRINTD ("packet sent\n");
 	return AO_RADIO_CMAC_OK;
 }
 
@@ -174,33 +207,40 @@ int8_t
 ao_radio_cmac_recv(__xdata void *packet, uint8_t len, uint16_t timeout) __reentrant
 {
 	int8_t	ret;
-	uint8_t	recv;
+	int8_t	recv;
 
 	if (len > AO_CMAC_MAX_LEN)
 		return AO_RADIO_CMAC_LEN_ERROR;
 
 	/* Set the key.
 	 */
+	PRINTD ("setting key\n");
 	ao_radio_get(AO_RADIO_SPI_CMAC_KEY, AO_AES_LEN);
 	ao_radio_spi_request.timeout = timeout;
 	ao_xmemcpy(&ao_radio_spi_request.payload, &ao_config.aes_key, AO_AES_LEN);
-	ao_radio_master_send();
+	recv = ao_radio_master_send();
 	ao_radio_put();
+	PRINTD ("key set: %d\n", recv);
 
 	/* Recv the data
 	 */
-	
+	PRINTD ("queuing recv\n");
 	ao_radio_get(AO_RADIO_SPI_CMAC_RECV, 0);
 	ao_radio_spi_request.recv_len = len;
 	recv = ao_radio_master_send();
+	PRINTD ("recv queued: %d\n", recv);
 	if (!recv) {
 		ao_radio_put();
 		ao_radio_recv_abort();
 		return AO_RADIO_CMAC_TIMEOUT;
 	}
+
+	PRINTD ("fetching data\n");
 	ao_radio_get_data(packet, len);
 	recv = ao_radio_spi_reply.status;
+	ao_radio_cmac_rssi = ao_radio_spi_reply.rssi;
 	ao_radio_put();
+	PRINTD ("data fetched: %d %d\n", recv, ao_radio_cmac_rssi);
 	return recv;
 }
 

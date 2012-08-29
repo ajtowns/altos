@@ -34,17 +34,24 @@ ao_radio_slave_signal(void)
 	ao_arch_nop();
 	ao_arch_nop();
 	ao_arch_nop();
-	ao_gpio_set(AO_RADIO_SLAVE_INT_PORT, AO_RADIO_SLAVE_INT_BIT, AO_RADIO_SLAVE_INT_PIN, 0);
+	ao_gpio_set(AO_RADIO_SLAVE_INT_PORT, AO_RADIO_SLAVE_INT_BIT, AO_RADIO_SLAVE_INT_PIN, 1);
 }
 
 static void
 ao_radio_slave_spi(void)
 {
+	uint8_t	need_signal = 0;
+
+	ao_spi_get_slave(AO_RADIO_SLAVE_BUS);
 	for (;;) {
-		ao_spi_get_slave(AO_RADIO_SLAVE_BUS);
-		ao_spi_recv(&ao_radio_spi_request, (2 << 13) | sizeof (ao_radio_spi_request), AO_RADIO_SLAVE_BUS);
-		ao_spi_put_slave(AO_RADIO_SLAVE_BUS);
-		ao_led_for(AO_LED_RED, AO_MS_TO_TICKS(1000));
+		ao_spi_recv(&ao_radio_spi_request,
+			    (2 << 13) | sizeof (ao_radio_spi_request),
+			    AO_RADIO_SLAVE_BUS);
+		if (need_signal) {
+			ao_radio_slave_signal();
+			need_signal = 0;
+		}
+		ao_spi_recv_wait();
 		switch (ao_radio_spi_request.request) {
 		case AO_RADIO_SPI_RECV:
 		case AO_RADIO_SPI_CMAC_RECV:
@@ -53,44 +60,43 @@ ao_radio_slave_spi(void)
 			ao_radio_spi_recv_len = ao_radio_spi_request.recv_len;
 			ao_radio_spi_recv_timeout = ao_radio_spi_request.timeout;
 			ao_wakeup(&ao_radio_spi_recv_len);
-			break;
+			continue;
 		case AO_RADIO_SPI_RECV_FETCH:
-			ao_spi_get_slave(AO_RADIO_SLAVE_BUS);
 			ao_spi_send(&ao_radio_spi_reply,
-				    ao_radio_spi_request.recv_len + AO_RADIO_SPI_REPLY_HEADER_LEN,
+				    ao_radio_spi_request.recv_len,
 				    AO_RADIO_SLAVE_BUS);
-			ao_spi_put_slave(AO_RADIO_SLAVE_BUS);
-			break;
+			ao_radio_slave_signal();
+			ao_spi_send_wait();
+			continue;
 		case AO_RADIO_SPI_RECV_ABORT:
 			ao_radio_recv_abort();
 			break;
 		case AO_RADIO_SPI_SEND:
 			ao_config.radio_setting = ao_radio_spi_request.setting;
-			ao_radio_send(&ao_radio_spi_request.payload, ao_radio_spi_request.len - AO_RADIO_SPI_REQUEST_HEADER_LEN);
-			ao_radio_slave_signal();
+			ao_radio_send(&ao_radio_spi_request.payload,
+				      ao_radio_spi_request.len - AO_RADIO_SPI_REQUEST_HEADER_LEN);
 			break;
 
 		case AO_RADIO_SPI_CMAC_SEND:
 			ao_config.radio_setting = ao_radio_spi_request.setting;
-			ao_radio_cmac_send(&ao_radio_spi_request.payload, ao_radio_spi_request.len - AO_RADIO_SPI_REQUEST_HEADER_LEN);
-			ao_radio_slave_signal();
+			ao_radio_cmac_send(&ao_radio_spi_request.payload,
+					   ao_radio_spi_request.len - AO_RADIO_SPI_REQUEST_HEADER_LEN);
 			break;
 			
 		case AO_RADIO_SPI_CMAC_KEY:
 			ao_xmemcpy(&ao_config.aes_key, ao_radio_spi_request.payload, AO_AES_LEN);
-			ao_radio_slave_signal();
 			break;
 
 		case AO_RADIO_SPI_TEST_ON:
+			ao_config.radio_setting = ao_radio_spi_request.setting;
 			ao_radio_test(1);
-			ao_radio_slave_signal();
 			break;
 
 		case AO_RADIO_SPI_TEST_OFF:
 			ao_radio_test(0);
-			ao_radio_slave_signal();
 			break;
 		}
+		need_signal = 1;
 	}
 }
 

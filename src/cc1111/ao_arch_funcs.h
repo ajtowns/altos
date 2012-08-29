@@ -77,6 +77,14 @@ ao_spi_recv_bus(void __xdata *block, uint16_t len) __reentrant;
 #define ao_spi_send(block, len, bus) ao_spi_send_bus(block, len)
 #define ao_spi_recv(block, len, bus) ao_spi_recv_bus(block, len)
 
+#if AO_SPI_SLAVE
+void
+ao_spi_send_wait(void);
+
+void
+ao_spi_recv_wait(void);
+#endif
+
 void
 ao_spi_init(void);
 
