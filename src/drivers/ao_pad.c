@@ -24,7 +24,7 @@ static __xdata uint8_t ao_pad_ignite;
 static __xdata struct ao_pad_command	command;
 static __xdata struct ao_pad_query	query;
 
-#if 0
+#if 1
 #define PRINTD(...) printf(__VA_ARGS__)
 #define FLUSHD()    flush()
 #else
@@ -155,20 +155,23 @@ static void
 ao_pad(void)
 {
 	int16_t	time_difference;
+	int8_t	ret;
 
 	ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(200));
-	ao_pad_box = ao_74hc497_read();
+	ao_pad_box = 0;
 	ao_led_set(0);
 	ao_led_on(AO_LED_POWER);
 	for (;;) {
 		FLUSHD();
 		while (ao_pad_disabled)
 			ao_sleep(&ao_pad_disabled);
-		if (ao_radio_cmac_recv(&command, sizeof (command), 0) != AO_RADIO_CMAC_OK)
+		ret = ao_radio_cmac_recv(&command, sizeof (command), 0);
+		PRINTD ("cmac_recv %d\n", ret);
+		if (ret != AO_RADIO_CMAC_OK)
 			continue;
 		
-		PRINTD ("tick %d serial %d cmd %d channel %d\n",
-			command.tick, command.serial, command.cmd, command.channel);
+		PRINTD ("tick %d box %d cmd %d channels %02x\n",
+			command.tick, command.box, command.cmd, command.channels);
 
 		switch (command.cmd) {
 		case AO_LAUNCH_ARM:
@@ -204,9 +207,9 @@ ao_pad(void)
 			query.box = ao_pad_box;
 			query.channels = AO_PAD_ALL_PINS;
 			query.armed = ao_pad_armed;
-			PRINTD ("query tick %d serial %d channel %d valid %d arm %d igniter %d\n",
-				query.tick, query.serial, query.channel, query.valid, query.arm_status,
-				query.igniter_status);
+			PRINTD ("query tick %d box %d channels %02x arm %d arm_status %d igniter %d\n",
+				query.tick, query.box, query.channels, query.armed,
+				query.arm_status, query.igniter_status);
 			ao_radio_cmac_send(&query, sizeof (query));
 			break;
 		case AO_LAUNCH_FIRE:
