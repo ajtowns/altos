@@ -18,6 +18,7 @@
 #include <ao.h>
 #include <ao_pad.h>
 #include <ao_74hc497.h>
+#include <ao_radio_cmac_cmd.h>
 
 void
 main(void)
@@ -37,6 +38,7 @@ main(void)
 	ao_radio_init();
 	ao_aes_init();
 	ao_pad_init();
+//	ao_radio_cmac_cmd_init();
 	ao_config_init();
 	ao_start_scheduler();
 }
