@@ -64,6 +64,16 @@ public class AltosDroid extends Activity {
 	// Layout Views
 	private TextView mTitle;
 	private TextView mSerialView;
+	private TextView mCallsignView;
+	private TextView mStateView;
+	private TextView mSpeedView;
+	private TextView mAccelView;
+	private TextView mRangeView;
+	private TextView mAltitudeView;
+	private TextView mAzimuthView;
+	private TextView mBearingView;
+	private TextView mLatitudeView;
+	private TextView mLongitudeView;
 
 	// Service
 	private boolean mIsBound   = false;
@@ -112,6 +122,7 @@ public class AltosDroid extends Activity {
 				}
 				break;
 			case MSG_TELEMETRY:
+				ad.update_ui((AltosState) msg.obj);
 				// TEST!
 				ad.mSerialView.setText(Dumper.dump(msg.obj));
 				break;
@@ -162,6 +173,33 @@ public class AltosDroid extends Activity {
 		}
 	}
 
+	void update_ui(AltosState state) {
+		mCallsignView.setText(state.data.callsign);
+		mStateView.setText(state.data.state());
+		double speed = state.speed;
+		if (!state.ascent)
+			speed = state.baro_speed;
+		mSpeedView.setText(String.format("%6.0f", speed));
+		mAccelView.setText(String.format("%6.0f", state.acceleration));
+		mRangeView.setText(String.format("%6.0f", state.range));
+		mAltitudeView.setText(String.format("%6.0f", state.height));
+		mAzimuthView.setText(String.format("%3.0f", state.elevation));
+		if (state.from_pad != null)
+			mBearingView.setText(String.format("%3.0f", state.from_pad.bearing));
+		mLatitudeView.setText(pos(state.gps.lat, "N", "S"));
+		mLongitudeView.setText(pos(state.gps.lon, "W", "E"));
+	}
+
+	String pos(double p, String pos, String neg) {
+		String	h = pos;
+		if (p < 0) {
+			h = neg;
+			p = -p;
+		}
+		int deg = (int) Math.floor(p);
+		double min = (p - Math.floor(p)) * 60.0;
+		return String.format("%s %d° %9.6f", h, deg, min);
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -170,7 +208,8 @@ public class AltosDroid extends Activity {
 
 		// Set up the window layout
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-		setContentView(R.layout.main);
+		//setContentView(R.layout.main);
+		setContentView(R.layout.altosdroid);
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_title);
 
 		// Set up the custom title
@@ -179,10 +218,21 @@ public class AltosDroid extends Activity {
 		mTitle = (TextView) findViewById(R.id.title_right_text);
 
 		// Set up the temporary Text View
-		mSerialView = (TextView) findViewById(R.id.in);
+		mSerialView = (TextView) findViewById(R.id.text);
 		mSerialView.setMovementMethod(new ScrollingMovementMethod());
 		mSerialView.setClickable(false);
 		mSerialView.setLongClickable(false);
+
+		mCallsignView  = (TextView) findViewById(R.id.callsign_value);
+		mStateView     = (TextView) findViewById(R.id.state_value);
+		mSpeedView     = (TextView) findViewById(R.id.speed_value);
+		mAccelView     = (TextView) findViewById(R.id.accel_value);
+		mRangeView     = (TextView) findViewById(R.id.range_value);
+		mAltitudeView  = (TextView) findViewById(R.id.altitude_value);
+		mAzimuthView   = (TextView) findViewById(R.id.azimuth_value);
+		mBearingView   = (TextView) findViewById(R.id.bearing_value);
+		mLatitudeView  = (TextView) findViewById(R.id.latitude_value);
+		mLongitudeView = (TextView) findViewById(R.id.longitude_value);
 
 		// Get local Bluetooth adapter
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();

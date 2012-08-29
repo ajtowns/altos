@@ -41,4 +41,23 @@
     <string name="telemetry_service_stopped">Telemetry Service Stopped</string>
 
 
+	<!-- UI fields -->
+    <string name="callsign_label">Callsign</string>
+    <string name="state_label">State</string>
+    <string name="speed_label">Speed</string>
+    <string name="speed_units">m/s</string>
+    <string name="accel_label">Acceleration</string>
+    <string name="accel_units">m/s²</string>
+    <string name="range_label">Range</string>
+    <string name="range_units">m</string>
+    <string name="altitude_label">Altitude</string>
+    <string name="altitude_units">m</string>
+    <string name="azimuth_label">Azimuth</string>
+    <string name="azimuth_units">°</string>
+    <string name="bearing_label">Bearing</string>
+    <string name="bearing_units">°</string>
+    <string name="latitude_label">Latitude</string>
+    <string name="longitude_label">Longitude</string>
+
+
 </resources>
