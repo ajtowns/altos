@@ -16,22 +16,23 @@
  */
 
 #include <ao.h>
+#include <ao_pad.h>
 #include <ao_lco_cmd.h>
 #include <ao_radio_cmac.h>
 
-static __xdata struct ao_launch_command	command;
-static __xdata struct ao_launch_query	query;
-static __pdata uint16_t	launch_serial;
-static __pdata uint8_t	launch_channel;
+static __xdata struct ao_pad_command	command;
+static __xdata struct ao_pad_query	query;
+static __pdata uint16_t	launch_box;
+static __pdata uint8_t	launch_channels;
 static __pdata uint16_t	tick_offset;
 
 static void
 launch_args(void) __reentrant
 {
 	ao_cmd_decimal();
-	launch_serial = ao_cmd_lex_i;
-	ao_cmd_decimal();
-	launch_channel = ao_cmd_lex_i;
+	launch_box = ao_cmd_lex_i;
+	ao_cmd_hex();
+	launch_channels = ao_cmd_lex_i;
 }
 
 static int8_t
@@ -44,9 +45,9 @@ launch_query(void)
 	for (i = 0; i < 10; i++) {
 		printf ("."); flush();
 		command.tick = ao_time();
-		command.serial = launch_serial;
+		command.box = launch_box;
 		command.cmd = AO_LAUNCH_QUERY;
-		command.channel = launch_channel;
+		command.channels = launch_channels;
 		ao_radio_cmac_send(&command, sizeof (command));
 		r = ao_radio_cmac_recv(&query, sizeof (query), AO_MS_TO_TICKS(500));
 		if (r == AO_RADIO_CMAC_OK)
@@ -61,6 +62,7 @@ static void
 launch_report_cmd(void) __reentrant
 {
 	int8_t		r;
+	uint8_t		c;
 
 	launch_args();
 	if (ao_cmd_status != ao_cmd_success)
@@ -68,28 +70,32 @@ launch_report_cmd(void) __reentrant
 	r = launch_query();
 	switch (r) {
 	case AO_RADIO_CMAC_OK:
-		if (query.valid) {
-			switch (query.arm_status) {
-			case ao_igniter_ready:
-			case ao_igniter_active:
-				printf ("Armed: ");
-				break;
-			default:
-				printf("Disarmed: ");
+		switch (query.arm_status) {
+		case ao_igniter_ready:
+		case ao_igniter_active:
+			printf ("Armed: ");
+			break;
+		default:
+			printf("Disarmed: ");
+		}
+		for (c = 0; c < AO_PAD_MAX_CHANNELS; c++) {
+			if (query.channels & (1 << c)) {
+				printf (" pad %d ", c);
+				switch (query.igniter_status[c]) {
+				default:
+					printf("unknown, ");
+					break;
+				case AO_PAD_IGNITER_STATUS_NO_IGNITER_RELAY_OPEN:
+					printf("bad-open, ");
+					break;
+				case AO_PAD_IGNITER_STATUS_GOOD_IGNITER_RELAY_OPEN:
+					printf("good-igniter, ");
+					break;
+				case AO_PAD_IGNITER_STATUS_NO_IGNITER_RELAY_CLOSED:
+					printf("bad-closed, ");
+					break;
+				}
 			}
-			switch (query.igniter_status) {
-			default:
-				printf("unknown\n");
-				break;
-			case ao_igniter_ready:
-				printf("igniter good\n");
-				break;
-			case ao_igniter_open:
-				printf("igniter bad\n");
-				break;
-			}
-		} else {
-			printf("Invalid channel %d\n", launch_channel);
 		}
 		printf("Rssi: %d\n", ao_radio_cmac_rssi);
 		break;
@@ -103,9 +109,9 @@ static void
 launch_arm(void) __reentrant
 {
 	command.tick = ao_time() - tick_offset;
-	command.serial = launch_serial;
+	command.box = launch_box;
 	command.cmd = AO_LAUNCH_ARM;
-	command.channel = launch_channel;
+	command.channels = launch_channels;
 	ao_radio_cmac_send(&command, sizeof (command));
 }
 
@@ -113,16 +119,16 @@ static void
 launch_ignite(void) __reentrant
 {
 	command.tick = ao_time() - tick_offset;
-	command.serial = launch_serial;
+	command.box = launch_box;
 	command.cmd = AO_LAUNCH_FIRE;
-	command.channel = 0;
+	command.channels = 0;
 	ao_radio_cmac_send(&command, sizeof (command));
 }
 
 static void
 launch_fire_cmd(void) __reentrant
 {
-	static __xdata struct ao_launch_command	command;
+	static __xdata struct ao_pad_command	command;
 	uint8_t		secs;
 	uint8_t		i;
 	int8_t		r;
@@ -178,10 +184,10 @@ launch_ignite_cmd(void) __reentrant
 }
 
 static __code struct ao_cmds ao_lco_cmds[] = {
-	{ launch_report_cmd,    "l <serial> <channel>\0Get remote launch status" },
-	{ launch_fire_cmd,	"f <serial> <channel> <secs>\0Fire remote igniter" },
-	{ launch_arm_cmd,	"a <serial> <channel>\0Arm remote igniter" },
-	{ launch_ignite_cmd,	"i <serial> <channel>\0Pulse remote igniter" },
+	{ launch_report_cmd,    "l <box> <channel>\0Get remote launch status" },
+	{ launch_fire_cmd,	"F <box> <channel> <secs>\0Fire remote igniter" },
+	{ launch_arm_cmd,	"a <box> <channel>\0Arm remote igniter" },
+	{ launch_ignite_cmd,	"i <box> <channel>\0Pulse remote igniter" },
 	{ 0, NULL },
 };
 
