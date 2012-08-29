@@ -112,10 +112,17 @@ struct load {
 	uint8_t		buf[0];
 };
 
+uint32_t round4(uint32_t a) {
+	return (a + 3) & ~3;
+}
+
 struct load *
 new_load (uint32_t addr, uint32_t len)
 {
-	struct load *new = calloc (1, sizeof (struct load) + len);
+	struct load *new;
+
+	len = round4(len);
+	new = calloc (1, sizeof (struct load) + len);
 	if (!new)
 		abort();
 
