@@ -16,6 +16,7 @@
  */
 
 #include "ao.h"
+#include <ao_send_packet.h>
 
 void
 main(void)
@@ -32,6 +33,7 @@ main(void)
 	ao_rssi_init(AO_LED_RED);
 	ao_radio_init();
 	ao_packet_master_init();
+	ao_send_packet_init();
 #if HAS_DBG
 	ao_dbg_init();
 #endif

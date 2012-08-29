@@ -515,7 +515,7 @@ ao_radio_rdf_abort(void)
 }
 
 static void
-ao_radio_test(void)
+ao_radio_test_cmd(void)
 {
 	uint8_t	mode = 2;
 	uint8_t radio_on;
@@ -1008,7 +1008,7 @@ ao_radio_test_recv()
 #endif
 
 static const struct ao_cmds ao_radio_cmds[] = {
-	{ ao_radio_test,	"C <1 start, 0 stop, none both>\0Radio carrier test" },
+	{ ao_radio_test_cmd,	"C <1 start, 0 stop, none both>\0Radio carrier test" },
 #if CC1120_DEBUG
 	{ ao_radio_show,	"R\0Show CC1120 status" },
 	{ ao_radio_beep,	"b\0Emit an RDF beacon" },

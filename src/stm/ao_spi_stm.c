@@ -23,7 +23,8 @@ struct ao_spi_stm_info {
 	struct stm_spi *stm_spi;
 };
 
-uint8_t		ao_spi_mutex[STM_NUM_SPI];
+static uint8_t		ao_spi_mutex[STM_NUM_SPI];
+static uint8_t		ao_spi_config[STM_NUM_SPI];
 
 static const struct ao_spi_stm_info ao_spi_stm_info[STM_NUM_SPI] = {
 	{
@@ -43,9 +44,9 @@ static uint8_t	spi_dev_null;
 void
 ao_spi_send(void *block, uint16_t len, uint8_t spi_index)
 {
-	struct stm_spi *stm_spi = ao_spi_stm_info[spi_index].stm_spi;
-	uint8_t	mosi_dma_index = ao_spi_stm_info[spi_index].mosi_dma_index;
-	uint8_t	miso_dma_index = ao_spi_stm_info[spi_index].miso_dma_index;
+	struct stm_spi *stm_spi = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].stm_spi;
+	uint8_t	mosi_dma_index = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].mosi_dma_index;
+	uint8_t	miso_dma_index = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].miso_dma_index;
 
 	/* Set up the transmit DMA to deliver data */
 	ao_dma_set_transfer(mosi_dma_index,
@@ -99,9 +100,9 @@ ao_spi_send(void *block, uint16_t len, uint8_t spi_index)
 void
 ao_spi_send_fixed(uint8_t value, uint16_t len, uint8_t spi_index)
 {
-	struct stm_spi *stm_spi = ao_spi_stm_info[spi_index].stm_spi;
-	uint8_t	mosi_dma_index = ao_spi_stm_info[spi_index].mosi_dma_index;
-	uint8_t	miso_dma_index = ao_spi_stm_info[spi_index].miso_dma_index;
+	struct stm_spi *stm_spi = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].stm_spi;
+	uint8_t	mosi_dma_index = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].mosi_dma_index;
+	uint8_t	miso_dma_index = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].miso_dma_index;
 
 	/* Set up the transmit DMA to deliver data */
 	ao_dma_set_transfer(mosi_dma_index,
@@ -155,9 +156,9 @@ ao_spi_send_fixed(uint8_t value, uint16_t len, uint8_t spi_index)
 void
 ao_spi_recv(void *block, uint16_t len, uint8_t spi_index)
 {
-	struct stm_spi *stm_spi = ao_spi_stm_info[spi_index].stm_spi;
-	uint8_t	mosi_dma_index = ao_spi_stm_info[spi_index].mosi_dma_index;
-	uint8_t	miso_dma_index = ao_spi_stm_info[spi_index].miso_dma_index;
+	struct stm_spi *stm_spi = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].stm_spi;
+	uint8_t	mosi_dma_index = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].mosi_dma_index;
+	uint8_t	miso_dma_index = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].miso_dma_index;
 
 	/* Set up transmit DMA to make the SPI hardware actually run */
 	ao_dma_set_transfer(mosi_dma_index,
@@ -212,9 +213,9 @@ ao_spi_recv(void *block, uint16_t len, uint8_t spi_index)
 void
 ao_spi_duplex(void *out, void *in, uint16_t len, uint8_t spi_index)
 {
-	struct stm_spi *stm_spi = ao_spi_stm_info[spi_index].stm_spi;
-	uint8_t	mosi_dma_index = ao_spi_stm_info[spi_index].mosi_dma_index;
-	uint8_t	miso_dma_index = ao_spi_stm_info[spi_index].miso_dma_index;
+	struct stm_spi *stm_spi = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].stm_spi;
+	uint8_t	mosi_dma_index = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].mosi_dma_index;
+	uint8_t	miso_dma_index = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].miso_dma_index;
 
 	/* Set up transmit DMA to send data */
 	ao_dma_set_transfer(mosi_dma_index,
@@ -269,9 +270,94 @@ ao_spi_duplex(void *out, void *in, uint16_t len, uint8_t spi_index)
 void
 ao_spi_get(uint8_t spi_index, uint32_t speed)
 {
-	struct stm_spi	*stm_spi = ao_spi_stm_info[spi_index].stm_spi;
+	struct stm_spi	*stm_spi = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].stm_spi;
+	uint8_t		config = AO_SPI_CONFIG(spi_index);
 
-	ao_mutex_get(&ao_spi_mutex[spi_index]);
+	ao_mutex_get(&ao_spi_mutex[AO_SPI_INDEX(spi_index)]);
+	if (config != ao_spi_config[AO_SPI_INDEX(spi_index)]) {
+		
+		/* Disable current config
+		 */
+		switch (AO_SPI_INDEX(spi_index)) {
+		case STM_SPI_INDEX(1):
+			switch (ao_spi_config[AO_SPI_INDEX(spi_index)]) {
+			case AO_SPI_1_CONFIG_PA5_PA6_PA7:
+				stm_gpio_set(&stm_gpioa, 5, 0);
+				stm_moder_set(&stm_gpioa, 5, STM_MODER_OUTPUT);
+				stm_moder_set(&stm_gpioa, 6, STM_MODER_INPUT);
+				stm_moder_set(&stm_gpioa, 7, STM_MODER_OUTPUT);
+				break;
+			case AO_SPI_1_CONFIG_PB3_PB4_PB5:
+				stm_gpio_set(&stm_gpiob, 3, 0);
+				stm_moder_set(&stm_gpiob, 3, STM_MODER_OUTPUT);
+				stm_moder_set(&stm_gpiob, 4, STM_MODER_INPUT);
+				stm_moder_set(&stm_gpiob, 5, STM_MODER_OUTPUT);
+				break;
+			case AO_SPI_1_CONFIG_PE13_PE14_PE15:
+				stm_gpio_set(&stm_gpioe, 13, 0);
+				stm_moder_set(&stm_gpioe, 13, STM_MODER_OUTPUT);
+				stm_moder_set(&stm_gpioe, 14, STM_MODER_INPUT);
+				stm_moder_set(&stm_gpioe, 15, STM_MODER_OUTPUT);
+				break;
+			}
+			break;
+		case STM_SPI_INDEX(2):
+			switch (ao_spi_config[AO_SPI_INDEX(spi_index)]) {
+			case AO_SPI_2_CONFIG_PB13_PB14_PB15:
+				stm_gpio_set(&stm_gpiob, 13, 0);
+				stm_moder_set(&stm_gpiob, 13, STM_MODER_OUTPUT);
+				stm_moder_set(&stm_gpiob, 14, STM_MODER_INPUT);
+				stm_moder_set(&stm_gpiob, 15, STM_MODER_OUTPUT);
+				break;
+			case AO_SPI_2_CONFIG_PD1_PD3_PD4:
+				stm_gpio_set(&stm_gpiod, 1, 0);
+				stm_moder_set(&stm_gpiod, 1, STM_MODER_OUTPUT);
+				stm_moder_set(&stm_gpiod, 3, STM_MODER_INPUT);
+				stm_moder_set(&stm_gpiod, 4, STM_MODER_OUTPUT);
+				break;
+			}
+			break;
+		}
+
+		/* Enable new config
+		 */
+		switch (AO_SPI_INDEX(spi_index)) {
+		case 0:
+			switch (AO_SPI_CONFIG(spi_index)) {
+			case AO_SPI_1_CONFIG_PA5_PA6_PA7:
+				stm_afr_set(&stm_gpioa, 5, STM_AFR_AF5);
+				stm_afr_set(&stm_gpioa, 6, STM_AFR_AF5);
+				stm_afr_set(&stm_gpioa, 7, STM_AFR_AF5);
+				break;
+			case AO_SPI_1_CONFIG_PB3_PB4_PB5:
+				stm_afr_set(&stm_gpiob, 3, STM_AFR_AF5);
+				stm_afr_set(&stm_gpiob, 4, STM_AFR_AF5);
+				stm_afr_set(&stm_gpiob, 5, STM_AFR_AF5);
+				break;
+			case AO_SPI_1_CONFIG_PE13_PE14_PE15:
+				stm_afr_set(&stm_gpioe, 13, STM_AFR_AF5);
+				stm_afr_set(&stm_gpioe, 14, STM_AFR_AF5);
+				stm_afr_set(&stm_gpioe, 15, STM_AFR_AF5);
+				break;
+			}
+			break;
+		case 1:
+			switch (AO_SPI_CONFIG(spi_index)) {
+			case AO_SPI_2_CONFIG_PB13_PB14_PB15:
+				stm_afr_set(&stm_gpiob, 13, STM_AFR_AF5);
+				stm_afr_set(&stm_gpiob, 14, STM_AFR_AF5);
+				stm_afr_set(&stm_gpiob, 15, STM_AFR_AF5);
+				break;
+			case AO_SPI_2_CONFIG_PD1_PD3_PD4:
+				stm_afr_set(&stm_gpiod, 1, STM_AFR_AF5);
+				stm_afr_set(&stm_gpiod, 3, STM_AFR_AF5);
+				stm_afr_set(&stm_gpiod, 4, STM_AFR_AF5);
+				break;
+			}
+			break;
+		}
+		ao_spi_config[AO_SPI_INDEX(spi_index)] = AO_SPI_CONFIG(spi_index);
+	}
 	stm_spi->cr1 = ((0 << STM_SPI_CR1_BIDIMODE) |			/* Three wire mode */
 			(0 << STM_SPI_CR1_BIDIOE) |
 			(0 << STM_SPI_CR1_CRCEN) |			/* CRC disabled */
@@ -291,16 +377,16 @@ ao_spi_get(uint8_t spi_index, uint32_t speed)
 void
 ao_spi_put(uint8_t spi_index)
 {
-	struct stm_spi	*stm_spi = ao_spi_stm_info[spi_index].stm_spi;
+	struct stm_spi	*stm_spi = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].stm_spi;
 
 	stm_spi->cr1 = 0;
-	ao_mutex_put(&ao_spi_mutex[spi_index]);
+	ao_mutex_put(&ao_spi_mutex[AO_SPI_INDEX(spi_index)]);
 }
 
 static void
 ao_spi_channel_init(uint8_t spi_index)
 {
-	struct stm_spi	*stm_spi = ao_spi_stm_info[spi_index].stm_spi;
+	struct stm_spi	*stm_spi = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].stm_spi;
 
 	stm_spi->cr1 = 0;
 	(void) stm_spi->sr;
@@ -318,50 +404,28 @@ ao_spi_init(void)
 #if HAS_SPI_1
 # if SPI_1_PA5_PA6_PA7
 	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOAEN);
-	stm_afr_set(&stm_gpioa, 5, STM_AFR_AF5);
-	stm_afr_set(&stm_gpioa, 6, STM_AFR_AF5);
-	stm_afr_set(&stm_gpioa, 7, STM_AFR_AF5);
-# else
-#  if SPI_1_PB3_PB4_PB5
-	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOBEN);
-	stm_afr_set(&stm_gpiob, 3, STM_AFR_AF5);
-	stm_afr_set(&stm_gpiob, 4, STM_AFR_AF5);
-	stm_afr_set(&stm_gpiob, 5, STM_AFR_AF5);
-#  else
-#   if SPI_1_PE13_PE14_PE15
-	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOEEN);
-	stm_afr_set(&stm_gpioe, 13, STM_AFR_AF5);
-	stm_afr_set(&stm_gpioe, 14, STM_AFR_AF5);
-	stm_afr_set(&stm_gpioe, 15, STM_AFR_AF5);
-#   else
-#    error "No SPI_1 port configuration specified"
-#   endif
-#  endif
 # endif
-
+# if SPI_1_PB3_PB4_PB5
+	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOBEN);
+# endif
+# if SPI_1_PE13_PE14_PE15
+	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOEEN);
+# endif
 	stm_rcc.apb2enr |= (1 << STM_RCC_APB2ENR_SPI1EN);
-
+	ao_spi_config[0] = AO_SPI_CONFIG_NONE;
 	ao_spi_channel_init(0);
 #endif
 
 #if HAS_SPI_2
 # if SPI_2_PB13_PB14_PB15
 	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOBEN);
-	stm_afr_set(&stm_gpiob, 13, STM_AFR_AF5);
-	stm_afr_set(&stm_gpiob, 14, STM_AFR_AF5);
-	stm_afr_set(&stm_gpiob, 15, STM_AFR_AF5);
-# else
-#  if SPI_2_PPD1_PD3_PD4
+# endif
+# if SPI_2_PD1_PD3_PD4
 	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIODEN);
-	stm_afr_set(&stm_gpiod, 1, STM_AFR_AF5);
-	stm_afr_set(&stm_gpiod, 3, STM_AFR_AF5);
-	stm_afr_set(&stm_gpiod, 4, STM_AFR_AF5);
-#  else
-#   error "No SPI_2 port configuration specified"
-#  endif
 # endif
 
 	stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_SPI2EN);
+	ao_spi_config[1] = AO_SPI_CONFIG_NONE;
 
 	ao_spi_channel_init(1);
 #endif

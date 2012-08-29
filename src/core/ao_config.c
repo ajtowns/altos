@@ -17,8 +17,11 @@
 
 #include "ao.h"
 #include "ao_log.h"
+#include <ao_storage.h>
+#if HAS_FLIGHT
 #include <ao_sample.h>
 #include <ao_data.h>
+#endif
 
 __xdata struct ao_config ao_config;
 __pdata uint8_t ao_config_loaded;

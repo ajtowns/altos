@@ -29,6 +29,7 @@ AltosLib_JAVA = \
 	$(SRC)/AltosGreatCircle.java \
 	$(SRC)/AltosIdleMonitor.java \
 	$(SRC)/AltosIdleMonitorListener.java \
+	$(SRC)/AltosIgnite.java \
 	$(SRC)/AltosLine.java \
 	$(SRC)/AltosLink.java \
 	$(SRC)/AltosLog.java \

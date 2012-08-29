@@ -40,18 +40,38 @@ public class AltosInfoTable extends JTable {
 		return (infoValueMetrics.getHeight() + infoValueMetrics.getLeading()) * 18 / 10;
 	}
 
+	int text_width(String t) {
+		FontMetrics	infoValueMetrics = getFontMetrics(Altos.table_value_font);
+
+		return infoValueMetrics.stringWidth(t);
+	}
+
+	void set_layout() {
+		setRowHeight(desired_row_height());
+		for (int i = 0; i < info_columns * 2; i++)
+		{
+			TableColumn column = getColumnModel().getColumn(i);
+
+			if ((i & 1) == 0)
+				column.setPreferredWidth(text_width(" Satellites Visible "));
+			else
+				column.setPreferredWidth(text_width(" 179°59.99999' "));
+		}
+	}
+
 	public AltosInfoTable() {
 		super(new AltosFlightInfoTableModel(info_rows, info_columns));
 		model = (AltosFlightInfoTableModel) getModel();
 		setFont(Altos.table_value_font);
 		setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
 		setShowGrid(true);
-		setRowHeight(desired_row_height());
+		set_layout();
 		doLayout();
 	}
 
 	public void set_font() {
 		setFont(Altos.table_value_font);
+		set_layout();
 		doLayout();
 	}
 
@@ -95,13 +115,8 @@ public class AltosInfoTable extends JTable {
 		if (state == null)
 			return;
 		info_reset();
-		info_add_row(0, "Rocket state", "%s", state.data.state());
-		info_add_row(0, "Callsign", "%s", state.data.callsign);
-		info_add_row(0, "Rocket serial", "%6d", state.data.serial);
-		info_add_row(0, "Rocket flight", "%6d", state.data.flight);
-
-		info_add_row(0, "RSSI", "%6d    dBm", state.data.rssi);
-		info_add_row(0, "CRC Errors", "%6d", crc_errors);
+		info_add_row(0, "Altitude", "%6.0f    m", state.altitude);
+		info_add_row(0, "Pad altitude", "%6.0f    m", state.ground_altitude);
 		info_add_row(0, "Height", "%6.0f    m", state.height);
 		info_add_row(0, "Max height", "%6.0f    m", state.max_height);
 		info_add_row(0, "Acceleration", "%8.1f  m/s²", state.acceleration);
@@ -114,7 +129,8 @@ public class AltosInfoTable extends JTable {
 			info_add_row(0, "Drogue", "%9.2f V", state.drogue_sense);
 		if (state.main_sense != AltosRecord.MISSING)
 			info_add_row(0, "Main", "%9.2f V", state.main_sense);
-		info_add_row(0, "Pad altitude", "%6.0f    m", state.ground_altitude);
+		info_add_row(0, "CRC Errors", "%6d", crc_errors);
+
 		if (state.gps == null || !state.gps.connected) {
 			info_add_row(1, "GPS", "not available");
 		} else {

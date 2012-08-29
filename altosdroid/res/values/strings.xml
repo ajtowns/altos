@@ -21,12 +21,12 @@
     <string name="send">Send</string>
     <string name="not_connected">You are not connected to a device</string>
     <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Chat.</string>
-    <string name="title_connecting">connecting...</string>
+    <string name="title_connecting">connecting…</string>
     <string name="title_connected_to">connected: </string>
     <string name="title_not_connected">not connected</string>
 
     <!--  DeviceListActivity -->
-    <string name="scanning">scanning for devices...</string>
+    <string name="scanning">scanning for devices…</string>
     <string name="select_device">select a device to connect</string>
     <string name="none_paired">No devices have been paired</string>
     <string name="none_found">No devices found</string>
@@ -35,32 +35,31 @@
     <string name="button_scan">Scan for devices</string>
 
     <!-- Options Menu -->
-    <string name="secure_connect">Connect a device - Secure</string>
-    <string name="insecure_connect">Connect a device - Insecure</string>
-    <string name="discoverable">Make discoverable</string>
+    <string name="connect_device">Connect a device</string>
+    <string name="telemetry_service_control">Control Service</string>
+    <string name="telemetry_service_bind">(Un)Bind Service</string>
+
+
 
     <!-- Service -->
-    <string name="telemetry_service_label">AltOS Telemetry Service</string>
+    <string name="telemetry_service_label">AltosDroid Telemetry Service</string>
     <string name="telemetry_service_started">Telemetry Service Started</string>
     <string name="telemetry_service_stopped">Telemetry Service Stopped</string>
 
-
-
-    <string name="telemetry_service_control">Start/Stop Service</string>
-    <string name="telemetry_service_bind">Bind/Unbind Service</string>
-
-    <string name="activity_telemetry_service_controller">App/Service/Local Service Controller</string>
-    <string name="telemetry_service_controller">This demonstrates how you can implement persistent services that
-        may be started and stopped as desired.</string>
+    <!-- Service control activity - temporary! -->
+    <string name="activity_telemetry_service_controller">Telemetry Service Controller</string>
+    <string name="telemetry_service_controller">Use the following buttons to start and stop the Telemetry
+        service.</string>
     <string name="start_service">Start Service</string>
     <string name="stop_service">Stop Service</string>
 
-    <string name="activity_telemetry_service_binding">App/Service/Local Service Binding</string>
+    <string name="activity_telemetry_service_binding">Telemetry Service Binding</string>
     <string name="telemetry_service_binding">This demonstrates how you can connect with a persistent
         service.  Notice how it automatically starts for you, and play around with the
         interaction between this and Local Service Controller.</string>
     <string name="bind_service">Bind Service</string>
     <string name="unbind_service">Unbind Service</string>
+
     <string name="telemetry_service_connected">Connected to local service</string>
     <string name="telemetry_service_disconnected">Disconnected from local service</string>
 

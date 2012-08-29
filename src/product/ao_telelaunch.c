@@ -39,7 +39,6 @@ main(void)
 	ao_dbg_init();
 #endif
 	ao_aes_init();
-	ao_radio_cmac_init();
 	ao_launch_init();
 	ao_config_init();
 	ao_start_scheduler();

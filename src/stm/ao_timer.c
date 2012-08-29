@@ -17,7 +17,7 @@
 
 #include "ao.h"
 
-volatile __data uint16_t ao_tick_count;
+volatile __data AO_TICK_TYPE ao_tick_count;
 
 uint16_t ao_time(void)
 {
@@ -37,9 +37,9 @@ ao_delay(uint16_t ticks)
 	ao_sleep(&ao_forever);
 }
 
-#if HAS_ADC
-volatile __data uint8_t	ao_adc_interval = 1;
-volatile __data uint8_t	ao_adc_count;
+#if AO_DATA_ALL
+volatile __data uint8_t	ao_data_interval = 1;
+volatile __data uint8_t	ao_data_count;
 #endif
 
 void
@@ -51,10 +51,13 @@ void stm_tim6_isr(void)
 	if (stm_tim6.sr & (1 << STM_TIM67_SR_UIF)) {
 		stm_tim6.sr = 0;
 		++ao_tick_count;
-#if HAS_ADC
-		if (++ao_adc_count == ao_adc_interval) {
-			ao_adc_count = 0;
+#if AO_DATA_ALL
+		if (++ao_data_count == ao_data_interval) {
+			ao_data_count = 0;
 			ao_adc_poll();
+#if (AO_DATA_ALL & ~(AO_DATA_ADC))
+			ao_wakeup((void *) &ao_data_count);
+#endif
 		}
 #endif
 	}
@@ -64,8 +67,8 @@ void stm_tim6_isr(void)
 void
 ao_timer_set_adc_interval(uint8_t interval) __critical
 {
-	ao_adc_interval = interval;
-	ao_adc_count = 0;
+	ao_data_interval = interval;
+	ao_data_count = 0;
 }
 #endif
 

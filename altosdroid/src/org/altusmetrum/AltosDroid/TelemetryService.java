@@ -37,7 +37,7 @@ public class TelemetryService extends Service {
 
     // Unique Identification Number for the Notification.
     // We use it on Notification start, and to cancel it.
-    private int NOTIFICATION = R.string.telemetry_service_started;
+    private int NOTIFICATION = R.string.telemetry_service_label;
 
     /**
      * Class for clients to access.  Because we know this service always
@@ -52,15 +52,32 @@ public class TelemetryService extends Service {
 
     @Override
     public void onCreate() {
+        // Create a reference to the NotificationManager so that we can update our notifcation text later
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-
-        // Display a notification about us starting.  We put an icon in the status bar.
-        showNotification();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i("TelemetryService", "Received start id " + startId + ": " + intent);
+
+        CharSequence text = getText(R.string.telemetry_service_started);
+
+        // Create notification to be displayed while the service runs
+        Notification notification = new Notification(R.drawable.am_status_c, text, 0);
+
+        // The PendingIntent to launch our activity if the user selects this notification
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, TelemetryServiceActivities.Controller.class), 0);
+
+        // Set the info for the views that show in the notification panel.
+        notification.setLatestEventInfo(this, getText(R.string.telemetry_service_label), text, contentIntent);
+
+        // Set the notification to be in the "Ongoing" section.
+        notification.flags |= Notification.FLAG_ONGOING_EVENT;
+
+        // Move us into the foreground.
+        startForeground(NOTIFICATION, notification);
+
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
         return START_STICKY;
@@ -68,8 +85,8 @@ public class TelemetryService extends Service {
 
     @Override
     public void onDestroy() {
-        // Cancel the persistent notification.
-        mNM.cancel(NOTIFICATION);
+        // Demote us from the foreground, and cancel the persistent notification.
+        stopForeground(true);
 
         // Tell the user we stopped.
         Toast.makeText(this, R.string.telemetry_service_stopped, Toast.LENGTH_SHORT).show();
@@ -84,26 +101,4 @@ public class TelemetryService extends Service {
     // RemoteService for a more complete example.
     private final IBinder mBinder = new TelemetryBinder();
 
-    /**
-     * Show a notification while this service is running.
-     */
-    private void showNotification() {
-        // In this sample, we'll use the same text for the ticker and the expanded notification
-        CharSequence text = getText(R.string.telemetry_service_started);
-
-        // Set the icon, scrolling text and timestamp
-        Notification notification = new Notification(R.drawable.am_status, text,
-                System.currentTimeMillis());
-
-        // The PendingIntent to launch our activity if the user selects this notification
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, TelemetryServiceActivities.Controller.class), 0);
-
-        // Set the info for the views that show in the notification panel.
-        notification.setLatestEventInfo(this, getText(R.string.telemetry_service_label),
-                       text, contentIntent);
-
-        // Send the notification.
-        mNM.notify(NOTIFICATION, notification);
-    }
 }

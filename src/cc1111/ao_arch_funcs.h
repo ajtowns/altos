@@ -29,6 +29,15 @@ extern __xdata uint8_t	ao_spi_mutex;
 					  UxGCR_ORDER_MSB |		\
 					  ((speed) << UxGCR_BAUD_E_SHIFT)))
 
+#define ao_spi_get_slave(bus) do {			\
+		ao_mutex_get(&ao_spi_mutex);		\
+		ao_spi_set_speed(AO_SPI_SPEED_FAST);	\
+	} while (0)
+
+#define ao_spi_put_slave(bus) do {		\
+		ao_mutex_put(&ao_spi_mutex);	\
+	} while (0)
+
 #define ao_spi_get_mask(reg,mask,bus,speed) do {	\
 		ao_mutex_get(&ao_spi_mutex);		\
 		ao_spi_set_speed(speed);		\
@@ -88,3 +97,4 @@ ao_spi_init(void);
 #define token_paster(x,y)	x ## y
 #define token_evaluator(x,y)	token_paster(x,y)
 #define ao_enable_output(port,bit,pin,v) cc1111_enable_output(port,token_evaluator(port,DIR), token_evaluator(port,SEL), pin, bit, v)
+#define ao_gpio_set(port, bit, pin, v) ((pin) = (v))

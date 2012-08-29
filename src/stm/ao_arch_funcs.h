@@ -20,11 +20,36 @@
 
 /* ao_spi_stm.c
  */
-extern uint8_t	ao_spi_mutex[STM_NUM_SPI];
 
 #define AO_SPI_SPEED_FAST	STM_SPI_CR1_BR_PCLK_4
 #define AO_SPI_SPEED_1MHz	STM_SPI_CR1_BR_PCLK_16
 #define AO_SPI_SPEED_200kHz	STM_SPI_CR1_BR_PCLK_256
+
+#define AO_SPI_CONFIG_1		0x00
+#define AO_SPI_1_CONFIG_PA5_PA6_PA7	AO_SPI_CONFIG_1
+#define AO_SPI_2_CONFIG_PB13_PB14_PB15	AO_SPI_CONFIG_1
+
+#define AO_SPI_CONFIG_2		0x04
+#define AO_SPI_1_CONFIG_PB3_PB4_PB5	AO_SPI_CONFIG_2
+#define AO_SPI_2_CONFIG_PD1_PD3_PD4	AO_SPI_CONFIG_2
+
+#define AO_SPI_CONFIG_3		0x08
+#define AO_SPI_1_CONFIG_PE13_PE14_PE15	AO_SPI_CONFIG_3
+
+#define AO_SPI_CONFIG_NONE	0x0c
+
+#define AO_SPI_INDEX_MASK	0x01
+#define AO_SPI_CONFIG_MASK	0x0c
+
+#define AO_SPI_1_PA5_PA6_PA7	(STM_SPI_INDEX(1) | AO_SPI_1_CONFIG_PA5_PA6_PA7)
+#define AO_SPI_1_PB3_PB4_PB5	(STM_SPI_INDEX(1) | AO_SPI_1_CONFIG_PB3_PB4_PB5)
+#define AO_SPI_1_PE13_PE14_PE15	(STM_SPI_INDEX(1) | AO_SPI_1_CONFIG_PE13_PE14_PE15)
+
+#define AO_SPI_2_PB13_PB14_PB15	(STM_SPI_INDEX(2) | AO_SPI_2_CONFIG_PB13_PB14_PB15)
+#define AO_SPI_2_PD1_PD3_PD4	(STM_SPI_INDEX(2) | AO_SPI_2_CONFIG_PD1_PD3_PD4)
+
+#define AO_SPI_INDEX(id)	((id) & AO_SPI_INDEX_MASK)
+#define AO_SPI_CONFIG(id)	((id) & AO_SPI_CONFIG_MASK)
 
 void
 ao_spi_get(uint8_t spi_index, uint32_t speed);
@@ -78,10 +103,23 @@ ao_spi_init(void);
 
 #define ao_gpio_set(port, bit, pin, v) stm_gpio_set(port, bit, v)
 
+#define ao_gpio_get(port, bit, pin) stm_gpio_get(port, bit)
+
 #define ao_enable_output(port,bit,pin,v) do {			\
 		ao_enable_port(port);				\
 		ao_gpio_set(port, bit, pin, v);			\
 		stm_moder_set(port, bit, STM_MODER_OUTPUT);\
+	} while (0)
+
+#define ao_enable_input(port,bit,mode) do {				\
+		ao_enable_port(port);					\
+		stm_moder_set(port, bit, STM_MODER_INPUT);		\
+		if (mode == AO_EXTI_MODE_PULL_UP)			\
+			stm_pupdr_set(port, bit, STM_PUPDR_PULL_UP);	\
+		else if (mode == AO_EXTI_MODE_PULL_DOWN)		\
+			stm_pupdr_set(port, bit, STM_PUPDR_PULL_DOWN);	\
+		else							\
+			stm_pupdr_set(port, bit, STM_PUPDR_NONE);	\
 	} while (0)
 
 #define ao_enable_cs(port,bit) do {				\

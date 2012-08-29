@@ -200,18 +200,6 @@ extern AO_ROMCONFIG_SYMBOL(0x00a6) uint32_t ao_radio_cal;
 
 #define ao_arch_critical(b) __critical { b }
 
-struct ao_adc {
-	int16_t		accel;		/* accelerometer */
-	int16_t		pres;		/* pressure sensor */
-	int16_t		temp;		/* temperature sensor */
-	int16_t		v_batt;		/* battery voltage */
-	int16_t		sense_d;	/* drogue continuity sense */
-	int16_t		sense_m;	/* main continuity sense */
-#if HAS_ACCEL_REF
-	uint16_t	accel_ref;	/* acceleration reference */
-#endif
-};
-
 #define AO_DATA_RING	32
 
 /* ao_button.c */

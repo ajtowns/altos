@@ -29,8 +29,10 @@ enum ao_aes_mode {
 };
 
 #if HAS_AES
+#ifdef SDCC
 void
 ao_aes_isr(void) __interrupt 4;
+#endif
 #endif
 
 void
@@ -48,22 +50,5 @@ ao_aes_run(__xdata uint8_t *in,
 
 void
 ao_aes_init(void);
-
-/* ao_radio_cmac.c */
-
-int8_t
-ao_radio_cmac_send(__xdata void *packet, uint8_t len) __reentrant;
-
-#define AO_RADIO_CMAC_OK	0
-#define AO_RADIO_CMAC_LEN_ERROR	-1
-#define AO_RADIO_CMAC_CRC_ERROR	-2
-#define AO_RADIO_CMAC_MAC_ERROR	-3
-#define AO_RADIO_CMAC_TIMEOUT	-4
-
-int8_t
-ao_radio_cmac_recv(__xdata void *packet, uint8_t len, uint16_t timeout) __reentrant;
-
-void
-ao_radio_cmac_init(void);
 
 #endif /* _AO_AES_H_ */

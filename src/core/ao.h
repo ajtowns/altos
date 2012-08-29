@@ -125,7 +125,12 @@ ao_panic(uint8_t reason);
  * ao_timer.c
  */
 
-extern volatile __data uint16_t ao_tick_count;
+#ifndef AO_TICK_TYPE
+#define AO_TICK_TYPE	uint16_t
+#define AO_TICK_SIGNED	int16_t
+#endif
+
+extern volatile __data AO_TICK_TYPE ao_tick_count;
 
 /* Our timer runs at 100Hz */
 #define AO_HERTZ		100
@@ -432,6 +437,7 @@ ao_gps_report_mega_init(void);
  * ao_telemetry_orig.c
  */
 
+#if LEGACY_MONITOR
 struct ao_adc_orig {
 	uint16_t	tick;		/* tick when the sample was read */
 	int16_t		accel;		/* accelerometer */
@@ -489,6 +495,8 @@ struct ao_telemetry_tiny_recv {
 	uint8_t				status;
 };
 
+#endif /* LEGACY_MONITOR */
+
 /* Unfortunately, we've exposed the CC1111 rssi units as the 'usual' method
  * for reporting RSSI. So, now we use these values everywhere
  */
@@ -535,9 +543,6 @@ ao_telemetry_tiny_init(void);
  */
 
 extern __xdata uint8_t	ao_radio_dma;
-extern __xdata uint8_t ao_radio_dma_done;
-extern __xdata uint8_t ao_radio_done;
-extern __xdata uint8_t ao_radio_mutex;
 
 #ifdef PKT_APPEND_STATUS_1_CRC_OK
 #define AO_RADIO_STATUS_CRC_OK	PKT_APPEND_STATUS_1_CRC_OK
@@ -557,6 +562,9 @@ ao_radio_recv(__xdata void *d, uint8_t size) __reentrant;
 
 void
 ao_radio_recv_abort(void);
+
+void
+ao_radio_test(uint8_t on);
 
 /*
  * Compute the packet length as follows:
@@ -581,6 +589,8 @@ ao_radio_init(void);
 /*
  * ao_monitor.c
  */
+
+#if HAS_MONITOR
 
 extern const char const * const ao_state_names[];
 
@@ -617,6 +627,8 @@ ao_monitor_enable(void);
 
 void
 ao_monitor_init(void) __reentrant;
+
+#endif
 
 /*
  * ao_stdio.c

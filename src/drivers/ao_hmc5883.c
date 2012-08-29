@@ -19,7 +19,7 @@
 #include <ao_hmc5883.h>
 #include <ao_exti.h>
 
-uint8_t	ao_hmc5883_valid;
+#if HAS_HMC5883
 
 static uint8_t	ao_hmc5883_configured;
 
@@ -123,21 +123,16 @@ ao_hmc5883_setup(void)
 	return 1;
 }
 
-struct ao_hmc5883_sample ao_hmc5883_current;
-
 static void
 ao_hmc5883(void)
 {
 	ao_hmc5883_setup();
 	for (;;) {
-		struct ao_hmc5883_sample ao_hmc5883_next;
-
-		ao_hmc5883_sample(&ao_hmc5883_next);
+		ao_hmc5883_sample((struct ao_hmc5883_sample *) &ao_data_ring[ao_data_head].hmc5883);
 		ao_arch_critical(
-			ao_hmc5883_current = ao_hmc5883_next;
-			ao_hmc5883_valid = 1;
+			AO_DATA_PRESENT(AO_DATA_HMC5883);
+			AO_DATA_WAIT();
 			);
-		ao_delay(0);
 	}
 }
 
@@ -146,11 +141,10 @@ static struct ao_task ao_hmc5883_task;
 static void
 ao_hmc5883_show(void)
 {
-	struct ao_hmc5883_sample	sample;
-
-	sample = ao_hmc5883_current;
+	struct ao_data	sample;
+	ao_data_get(&sample);
 	printf ("X: %d Y: %d Z: %d missed irq: %lu\n",
-		sample.x, sample.y, sample.z, ao_hmc5883_missed_irq);
+		sample.hmc5883.x, sample.hmc5883.y, sample.hmc5883.z, ao_hmc5883_missed_irq);
 }
 
 static const struct ao_cmds ao_hmc5883_cmds[] = {
@@ -162,7 +156,6 @@ void
 ao_hmc5883_init(void)
 {
 	ao_hmc5883_configured = 0;
-	ao_hmc5883_valid = 0;
 
 	ao_enable_port(AO_HMC5883_INT_PORT);
 	ao_exti_setup(AO_HMC5883_INT_PORT,
@@ -173,3 +166,5 @@ ao_hmc5883_init(void)
 	ao_add_task(&ao_hmc5883_task, ao_hmc5883, "hmc5883");
 	ao_cmd_register(&ao_hmc5883_cmds[0]);
 }
+
+#endif

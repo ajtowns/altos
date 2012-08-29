@@ -177,14 +177,14 @@ public class AltosRecordTM extends AltosRecord {
 		drogue = MISSING;
 		main = MISSING;
 
-		flight_accel = 0;
-		flight_vel = 0;
-		flight_pres = 0;
+		flight_accel = MISSING;
+		flight_vel = MISSING;
+		flight_pres = MISSING;
 
-		ground_accel = 0;
-		ground_pres = 0;
-		accel_plus_g = 0;
-		accel_minus_g = 0;
+		ground_accel = MISSING;
+		ground_pres = MISSING;
+		accel_plus_g = MISSING;
+		accel_minus_g = MISSING;
 	}
 
 	public AltosRecordTM(AltosRecord old) {

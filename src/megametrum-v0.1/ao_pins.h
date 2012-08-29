@@ -69,13 +69,14 @@
 #define HAS_TELEMETRY		1
 
 #define HAS_SPI_1		1
-#define SPI_1_PA5_PA6_PA7	1
+#define SPI_1_PA5_PA6_PA7	1	/* Barometer */
 #define SPI_1_PB3_PB4_PB5	0
-#define SPI_1_PE13_PE14_PE15	0
+#define SPI_1_PE13_PE14_PE15	1	/* Accelerometer */
 
 #define HAS_SPI_2		1
-#define SPI_2_PB13_PB14_PB15	1
+#define SPI_2_PB13_PB14_PB15	1	/* Flash, Companion */
 #define SPI_2_PD1_PD3_PD4	0
+
 #define SPI_2_GPIO		(&stm_gpiob)
 #define SPI_2_SCK		13
 #define SPI_2_MISO		14
@@ -247,13 +248,14 @@ struct ao_adc {
  * Pressure sensor settings
  */
 #define HAS_MS5607		1
+#define AO_MS5607_PRIVATE_PINS	1
 #define AO_MS5607_CS_GPIO	(&stm_gpioc)
 #define AO_MS5607_CS		4
 #define AO_MS5607_CS_MASK	(1 << AO_MS5607_CS)
 #define AO_MS5607_MISO_GPIO	(&stm_gpioa)
 #define AO_MS5607_MISO		6
 #define AO_MS5607_MISO_MASK	(1 << AO_MS5607_MISO)
-#define AO_MS5607_SPI_INDEX	(STM_SPI_INDEX(1))
+#define AO_MS5607_SPI_INDEX	AO_SPI_1_PA5_PA6_PA7
 
 /*
  * SPI Flash memory
@@ -262,7 +264,7 @@ struct ao_adc {
 #define M25_MAX_CHIPS		1
 #define AO_M25_SPI_CS_PORT	(&stm_gpiod)
 #define AO_M25_SPI_CS_MASK	(1 << 3)
-#define AO_M25_SPI_BUS		STM_SPI_INDEX(2)
+#define AO_M25_SPI_BUS		AO_SPI_2_PB13_PB14_PB15
 
 /*
  * Radio (cc1120)
@@ -275,7 +277,7 @@ struct ao_adc {
 #define AO_FEC_DEBUG		0
 #define AO_CC1120_SPI_CS_PORT	(&stm_gpioc)
 #define AO_CC1120_SPI_CS_PIN	5
-#define AO_CC1120_SPI_BUS	STM_SPI_INDEX(2)
+#define AO_CC1120_SPI_BUS	AO_SPI_2_PB13_PB14_PB15
 
 #define AO_CC1120_INT_PORT	(&stm_gpioc)
 #define AO_CC1120_INT_PIN	14
@@ -303,6 +305,15 @@ struct ao_adc {
 
 #define HAS_HIGHG_ACCEL		0
 
+/*
+ * mma655x
+ */
+
+#define HAS_MMA655X		0
+#define AO_MMA655X_SPI_INDEX	AO_SPI_1_PA5_PA6_PA7
+#define AO_MMA655X_CS_GPIO	(&stm_gpiod)
+#define AO_MMA655X_CS		4
+
 #define NUM_CMDS		16
 
 /*
@@ -311,7 +322,7 @@ struct ao_adc {
 
 #define AO_COMPANION_CS_PORT	(&stm_gpiod)
 #define AO_COMPANION_CS_PIN	(0)
-#define AO_COMPANION_SPI_BUS	STM_SPI_INDEX(2)
+#define AO_COMPANION_SPI_BUS	AO_SPI_2_PB13_PB14_PB15
 
 /*
  * Monitor

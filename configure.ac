@@ -136,6 +136,13 @@ AC_CHECK_LIB(readline, readline)
 
 PKG_CHECK_MODULES([LIBUSB], [libusb-1.0])
 
+AC_CHECK_HEADERS(libelf.h libelf/libelf.h, [break])
+AC_CHECK_HEADERS(gelf.h libelf/gelf.h, [break])
+
+PKG_CHECK_MODULES([LIBSTLINK], [stlink], [HAVE_STLINK=yes], [HAVE_STLINK=no])
+
+AM_CONDITIONAL([LIBSTLINK], [test x$HAVE_STLINK != xno])
+
 AC_OUTPUT([
 Makefile
 altoslib/Makefile
@@ -155,6 +162,7 @@ ao-tools/ao-list/Makefile
 ao-tools/ao-load/Makefile
 ao-tools/ao-telem/Makefile
 ao-tools/ao-stmload/Makefile
+ao-tools/ao-send-telem/Makefile
 ao-utils/Makefile
 src/Version
 ])

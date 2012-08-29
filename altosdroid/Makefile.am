@@ -15,6 +15,11 @@ APKBUILDER=$(SDK)/tools/apkbuilder
 ZIPALIGN=$(SDK)/tools/zipalign
 
 SRC_DIR=src/org/altusmetrum/AltosDroid
+EXT_LIBDIR=libs
+ALTOSLIB_SRCDIR=../altoslib
+ALTOSLIB_JAR=AltosLib.jar
+
+ALTOSLIB=$(EXT_LIBDIR)/$(ALTOSLIB_JAR)
 
 SRC=\
 	$(SRC_DIR)/AltosDroid.java \
@@ -25,11 +30,9 @@ SRC=\
 
 all: $(all_target)
 
-ALTOSLIB=bin/classes/AltosLib.jar
-
-$(ALTOSLIB):
-	mkdir -p bin/classes
-	cd bin/classes && ln -s ../../../altoslib/AltosLib.jar .
+$(ALTOSLIB): $(ALTOSLIB_SRCDIR)/$(ALTOSLIB_JAR)
+	mkdir -p $(EXT_LIBDIR)
+	cd $(EXT_LIBDIR) && ln -s $(shell echo $(EXT_LIBDIR) | sed 's|[^/]\+|..|g')/$(ALTOSLIB_SRCDIR)/$(ALTOSLIB_JAR) .
 
 if ANDROID
 install-release: bin/AltosDroid-release.apk

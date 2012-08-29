@@ -32,8 +32,13 @@ ALTOS_SRC = \
 	ao_dma_stm.c \
 	ao_spi_stm.c \
 	ao_adc_stm.c \
+	ao_data.c \
 	ao_i2c_stm.c \
-	ao_usb_stm.c
+	ao_usb_stm.c \
+	ao_exti_stm.c \
+	ao_event.c \
+	ao_quadrature.c \
+	ao_button.c
 
 PRODUCT=StmDemo-v0.0
 PRODUCT_DEF=-DSTM_DEMO

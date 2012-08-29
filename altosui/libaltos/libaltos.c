@@ -221,7 +221,7 @@ altos_flush(struct altos_file *file)
 #endif
 		if (ret < 0) {
 			altos_set_last_posix_error();
-			return -errno;
+			return -last_error.code;
 		}
 		if (ret) {
 			memmove(file->out_data, file->out_data + ret,
@@ -247,7 +247,7 @@ altos_putchar(struct altos_file *file, char c)
 	ret = 0;
 	if (file->out_used == USB_BUF_SIZE)
 		ret = altos_flush(file);
-	return 0;
+	return ret;
 }
 
 #ifdef USE_POLL
