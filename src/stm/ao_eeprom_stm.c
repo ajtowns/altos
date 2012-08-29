@@ -83,18 +83,29 @@ ao_intflash_lock(void)
 }
 
 static void
-ao_intflash_write32(uint16_t pos, uint32_t w)
+ao_intflash_wait(void)
 {
-	uint32_t	*addr;
-
-	addr = (uint32_t *) (stm_eeprom + pos);
-
-	/* Write a word to a valid address in the data EEPROM */
-	*addr = w;
-
 	/* Wait for the flash unit to go idle */
 	while (stm_flash.sr & (1 << STM_FLASH_SR_BSY))
 		;
+}
+
+static void
+ao_intflash_write32(uint16_t pos, uint32_t w)
+{
+	volatile uint32_t	*addr;
+
+	addr = (uint32_t *) (stm_eeprom + pos);
+
+	/* Erase previous word */
+	*addr = 0;
+	ao_intflash_wait();
+
+	if (w) {
+		/* Write a word to a valid address in the data EEPROM */
+		*addr = w;
+		ao_intflash_wait();
+	}
 }
 
 static void
@@ -182,6 +193,7 @@ ao_storage_setup(void)
 void
 ao_storage_device_info(void) __reentrant
 {
+	uint8_t	i;
 	printf ("Using internal flash\n");
 }
 
