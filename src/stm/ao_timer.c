@@ -28,15 +28,6 @@ uint16_t ao_time(void)
 	return v;
 }
 
-static __xdata uint8_t ao_forever;
-
-void
-ao_delay(uint16_t ticks)
-{
-	ao_alarm(ticks);
-	ao_sleep(&ao_forever);
-}
-
 #if AO_DATA_ALL
 volatile __data uint8_t	ao_data_interval = 1;
 volatile __data uint8_t	ao_data_count;

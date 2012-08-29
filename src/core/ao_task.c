@@ -125,6 +125,7 @@ ao_sleep(__xdata void *wchan)
 	ao_yield();
 	if (ao_cur_task->wchan) {
 		ao_cur_task->wchan = NULL;
+		ao_cur_task->alarm = 0;
 		return 1;
 	}
 	return 0;
@@ -155,6 +156,16 @@ void
 ao_clear_alarm(void)
 {
 	ao_cur_task->alarm = 0;
+}
+
+static __xdata uint8_t ao_forever;
+
+void
+ao_delay(uint16_t ticks)
+{
+	ao_alarm(ticks);
+	ao_sleep(&ao_forever);
+	ao_clear_alarm();
 }
 
 void

@@ -28,15 +28,6 @@ uint16_t ao_time(void)
 	return v;
 }
 
-static __xdata uint8_t ao_forever;
-
-void
-ao_delay(uint16_t ticks)
-{
-	ao_alarm(ticks);
-	ao_sleep(&ao_forever);
-}
-
 #define T1_CLOCK_DIVISOR	8	/* 24e6/8 = 3e6 */
 #define T1_SAMPLE_TIME		30000	/* 3e6/30000 = 100 */
 
