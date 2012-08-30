@@ -32,8 +32,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.speech.tts.TextToSpeech;
-import android.speech.tts.TextToSpeech.OnInitListener;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -93,8 +91,7 @@ public class AltosDroid extends Activity {
 	private BluetoothAdapter mBluetoothAdapter = null;
 
 	// Text to Speech
-	private TextToSpeech tts    = null;
-	private boolean tts_enabled = false;
+	private AltosVoice mAltosVoice = null;
 
 	// The Handler that gets information back from the Telemetry Service
 	static class IncomingHandler extends Handler {
@@ -114,6 +111,7 @@ public class AltosDroid extends Activity {
 					ad.mTitle.setText(R.string.title_connected_to);
 					ad.mTitle.append(str);
 					Toast.makeText(ad.getApplicationContext(), "Connected to " + str, Toast.LENGTH_SHORT).show();
+					ad.mAltosVoice.speak("Connected");
 					//TEST!
 					ad.mTextView.setText(Dumper.dump(ad.mConfigData));
 					break;
@@ -198,6 +196,8 @@ public class AltosDroid extends Activity {
 			mBearingView.setText(String.format("%3.0f°", state.from_pad.bearing));
 		mLatitudeView.setText(pos(state.gps.lat, "N", "S"));
 		mLongitudeView.setText(pos(state.gps.lon, "W", "E"));
+
+		mAltosVoice.tell(state);
 	}
 
 	String pos(double p, String pos, String neg) {
@@ -257,14 +257,7 @@ public class AltosDroid extends Activity {
 		mLatitudeView  = (TextView) findViewById(R.id.latitude_value);
 		mLongitudeView = (TextView) findViewById(R.id.longitude_value);
 
-		// Enable Text to Speech
-		tts = new TextToSpeech(this, new OnInitListener() {
-			public void onInit(int status) {
-				if (status == TextToSpeech.SUCCESS) tts_enabled = true;
-				if (tts_enabled) tts.speak("AltosDroid ready", TextToSpeech.QUEUE_ADD, null );
-			}
-		});
-
+		mAltosVoice = new AltosVoice(this);
 	}
 
 	@Override
@@ -308,7 +301,7 @@ public class AltosDroid extends Activity {
 		super.onDestroy();
 		if(D) Log.e(TAG, "--- ON DESTROY ---");
 
-		if (tts != null) tts.shutdown();
+		mAltosVoice.stop();
 	}
 
 
