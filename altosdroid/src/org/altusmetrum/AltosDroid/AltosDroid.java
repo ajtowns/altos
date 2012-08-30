@@ -216,6 +216,16 @@ public class AltosDroid extends Activity {
 		super.onCreate(savedInstanceState);
 		if(D) Log.e(TAG, "+++ ON CREATE +++");
 
+		// Get local Bluetooth adapter
+		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+		// If the adapter is null, then Bluetooth is not supported
+		if (mBluetoothAdapter == null) {
+			Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+			finish();
+			return;
+		}
+
 		// Set up the window layout
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		//setContentView(R.layout.main);
@@ -246,16 +256,6 @@ public class AltosDroid extends Activity {
 		mBearingView   = (TextView) findViewById(R.id.bearing_value);
 		mLatitudeView  = (TextView) findViewById(R.id.latitude_value);
 		mLongitudeView = (TextView) findViewById(R.id.longitude_value);
-
-		// Get local Bluetooth adapter
-		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-		// If the adapter is null, then Bluetooth is not supported
-		if (mBluetoothAdapter == null) {
-			Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
-			finish();
-			return;
-		}
 
 		// Enable Text to Speech
 		tts = new TextToSpeech(this, new OnInitListener() {
