@@ -24,7 +24,7 @@ static __xdata uint8_t ao_pad_ignite;
 static __xdata struct ao_pad_command	command;
 static __xdata struct ao_pad_query	query;
 
-#if 1
+#if 0
 #define PRINTD(...) printf(__VA_ARGS__)
 #define FLUSHD()    flush()
 #else
