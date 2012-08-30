@@ -198,7 +198,7 @@ public class AltosDroid extends Activity {
 		}
 		int deg = (int) Math.floor(p);
 		double min = (p - Math.floor(p)) * 60.0;
-		return String.format("%s %d° %9.6f", h, deg, min);
+		return String.format("%d° %9.6f\" %s", deg, min, h);
 	}
 
 	@Override
