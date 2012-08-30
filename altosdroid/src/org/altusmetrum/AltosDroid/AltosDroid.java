@@ -32,8 +32,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.speech.tts.TextToSpeech;
-import android.speech.tts.TextToSpeech.OnInitListener;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -63,17 +61,24 @@ public class AltosDroid extends Activity {
 
 	// Layout Views
 	private TextView mTitle;
-	private TextView mSerialView;
+
+	// Flight state values
 	private TextView mCallsignView;
+	private TextView mRSSIView;
+	private TextView mSerialView;
+	private TextView mFlightView;
 	private TextView mStateView;
 	private TextView mSpeedView;
 	private TextView mAccelView;
 	private TextView mRangeView;
-	private TextView mAltitudeView;
-	private TextView mAzimuthView;
+	private TextView mHeightView;
+	private TextView mElevationView;
 	private TextView mBearingView;
 	private TextView mLatitudeView;
 	private TextView mLongitudeView;
+
+	// Generic field for extras at the bottom
+	private TextView mTextView;
 
 	// Service
 	private boolean mIsBound   = false;
@@ -86,8 +91,7 @@ public class AltosDroid extends Activity {
 	private BluetoothAdapter mBluetoothAdapter = null;
 
 	// Text to Speech
-	private TextToSpeech tts    = null;
-	private boolean tts_enabled = false;
+	private AltosVoice mAltosVoice = null;
 
 	// The Handler that gets information back from the Telemetry Service
 	static class IncomingHandler extends Handler {
@@ -107,8 +111,9 @@ public class AltosDroid extends Activity {
 					ad.mTitle.setText(R.string.title_connected_to);
 					ad.mTitle.append(str);
 					Toast.makeText(ad.getApplicationContext(), "Connected to " + str, Toast.LENGTH_SHORT).show();
+					ad.mAltosVoice.speak("Connected");
 					//TEST!
-					ad.mSerialView.setText(Dumper.dump(ad.mConfigData));
+					ad.mTextView.setText(Dumper.dump(ad.mConfigData));
 					break;
 				case TelemetryService.STATE_CONNECTING:
 					ad.mTitle.setText(R.string.title_connecting);
@@ -117,14 +122,14 @@ public class AltosDroid extends Activity {
 				case TelemetryService.STATE_NONE:
 					ad.mConfigData = null;
 					ad.mTitle.setText(R.string.title_not_connected);
-					ad.mSerialView.setText("");
+					ad.mTextView.setText("");
 					break;
 				}
 				break;
 			case MSG_TELEMETRY:
 				ad.update_ui((AltosState) msg.obj);
 				// TEST!
-				ad.mSerialView.setText(Dumper.dump(msg.obj));
+				ad.mTextView.setText(Dumper.dump(msg.obj));
 				break;
 			}
 		}
@@ -175,19 +180,24 @@ public class AltosDroid extends Activity {
 
 	void update_ui(AltosState state) {
 		mCallsignView.setText(state.data.callsign);
+		mRSSIView.setText(String.format("%d", state.data.rssi));
+		mSerialView.setText(String.format("%d", state.data.serial));
+		mFlightView.setText(String.format("%d", state.data.flight));
 		mStateView.setText(state.data.state());
 		double speed = state.speed;
 		if (!state.ascent)
 			speed = state.baro_speed;
-		mSpeedView.setText(String.format("%6.0f", speed));
-		mAccelView.setText(String.format("%6.0f", state.acceleration));
-		mRangeView.setText(String.format("%6.0f", state.range));
-		mAltitudeView.setText(String.format("%6.0f", state.height));
-		mAzimuthView.setText(String.format("%3.0f", state.elevation));
+		mSpeedView.setText(String.format("%6.0f m/s", speed));
+		mAccelView.setText(String.format("%6.0f m/s²", state.acceleration));
+		mRangeView.setText(String.format("%6.0f m", state.range));
+		mHeightView.setText(String.format("%6.0f m", state.height));
+		mElevationView.setText(String.format("%3.0f°", state.elevation));
 		if (state.from_pad != null)
-			mBearingView.setText(String.format("%3.0f", state.from_pad.bearing));
+			mBearingView.setText(String.format("%3.0f°", state.from_pad.bearing));
 		mLatitudeView.setText(pos(state.gps.lat, "N", "S"));
 		mLongitudeView.setText(pos(state.gps.lon, "W", "E"));
+
+		mAltosVoice.tell(state);
 	}
 
 	String pos(double p, String pos, String neg) {
@@ -198,13 +208,23 @@ public class AltosDroid extends Activity {
 		}
 		int deg = (int) Math.floor(p);
 		double min = (p - Math.floor(p)) * 60.0;
-		return String.format("%s %d° %9.6f", h, deg, min);
+		return String.format("%d° %9.6f\" %s", deg, min, h);
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		if(D) Log.e(TAG, "+++ ON CREATE +++");
+
+		// Get local Bluetooth adapter
+		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+		// If the adapter is null, then Bluetooth is not supported
+		if (mBluetoothAdapter == null) {
+			Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+			finish();
+			return;
+		}
 
 		// Set up the window layout
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
@@ -218,40 +238,26 @@ public class AltosDroid extends Activity {
 		mTitle = (TextView) findViewById(R.id.title_right_text);
 
 		// Set up the temporary Text View
-		mSerialView = (TextView) findViewById(R.id.text);
-		mSerialView.setMovementMethod(new ScrollingMovementMethod());
-		mSerialView.setClickable(false);
-		mSerialView.setLongClickable(false);
+		mTextView = (TextView) findViewById(R.id.text);
+		mTextView.setMovementMethod(new ScrollingMovementMethod());
+		mTextView.setClickable(false);
+		mTextView.setLongClickable(false);
 
 		mCallsignView  = (TextView) findViewById(R.id.callsign_value);
+		mRSSIView      = (TextView) findViewById(R.id.rssi_value);
+		mSerialView    = (TextView) findViewById(R.id.serial_value);
+		mFlightView    = (TextView) findViewById(R.id.flight_value);
 		mStateView     = (TextView) findViewById(R.id.state_value);
 		mSpeedView     = (TextView) findViewById(R.id.speed_value);
 		mAccelView     = (TextView) findViewById(R.id.accel_value);
 		mRangeView     = (TextView) findViewById(R.id.range_value);
-		mAltitudeView  = (TextView) findViewById(R.id.altitude_value);
-		mAzimuthView   = (TextView) findViewById(R.id.azimuth_value);
+		mHeightView    = (TextView) findViewById(R.id.height_value);
+		mElevationView = (TextView) findViewById(R.id.elevation_value);
 		mBearingView   = (TextView) findViewById(R.id.bearing_value);
 		mLatitudeView  = (TextView) findViewById(R.id.latitude_value);
 		mLongitudeView = (TextView) findViewById(R.id.longitude_value);
 
-		// Get local Bluetooth adapter
-		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-		// If the adapter is null, then Bluetooth is not supported
-		if (mBluetoothAdapter == null) {
-			Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
-			finish();
-			return;
-		}
-
-		// Enable Text to Speech
-		tts = new TextToSpeech(this, new OnInitListener() {
-			public void onInit(int status) {
-				if (status == TextToSpeech.SUCCESS) tts_enabled = true;
-				if (tts_enabled) tts.speak("AltosDroid ready", TextToSpeech.QUEUE_ADD, null );
-			}
-		});
-
+		mAltosVoice = new AltosVoice(this);
 	}
 
 	@Override
@@ -295,7 +301,7 @@ public class AltosDroid extends Activity {
 		super.onDestroy();
 		if(D) Log.e(TAG, "--- ON DESTROY ---");
 
-		if (tts != null) tts.shutdown();
+		mAltosVoice.stop();
 	}
 
 
