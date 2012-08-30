@@ -179,13 +179,13 @@ public class AltosDroid extends Activity {
 		double speed = state.speed;
 		if (!state.ascent)
 			speed = state.baro_speed;
-		mSpeedView.setText(String.format("%6.0f", speed));
-		mAccelView.setText(String.format("%6.0f", state.acceleration));
-		mRangeView.setText(String.format("%6.0f", state.range));
-		mAltitudeView.setText(String.format("%6.0f", state.height));
-		mAzimuthView.setText(String.format("%3.0f", state.elevation));
+		mSpeedView.setText(String.format("%6.0f m/s", speed));
+		mAccelView.setText(String.format("%6.0f m/s²", state.acceleration));
+		mRangeView.setText(String.format("%6.0f m", state.range));
+		mAltitudeView.setText(String.format("%6.0f m", state.height));
+		mAzimuthView.setText(String.format("%3.0f°", state.elevation));
 		if (state.from_pad != null)
-			mBearingView.setText(String.format("%3.0f", state.from_pad.bearing));
+			mBearingView.setText(String.format("%3.0f°", state.from_pad.bearing));
 		mLatitudeView.setText(pos(state.gps.lat, "N", "S"));
 		mLongitudeView.setText(pos(state.gps.lon, "W", "E"));
 	}

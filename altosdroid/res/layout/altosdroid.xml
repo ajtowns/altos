@@ -92,22 +92,10 @@
                 android:id="@+id/speed_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/speed_label"
-                android:layout_toLeftOf="@+id/speed_units"
-                android:text=""
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <TextView
-                android:id="@+id/speed_units"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBaseline="@id/speed_value"
                 android:layout_alignParentRight="true"
                 android:layout_below="@id/speed_label"
-                android:gravity="right"
-                android:paddingLeft="10dip"
-                android:text="@string/speed_units"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:text=""
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
         </RelativeLayout>
 
@@ -129,22 +117,11 @@
                 android:id="@+id/accel_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
                 android:layout_below="@+id/accel_label"
-                android:layout_toLeftOf="@+id/accel_units"
                 android:text=""
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
-            <TextView
-                android:id="@+id/accel_units"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBaseline="@+id/accel_value"
-                android:layout_alignParentRight="true"
-                android:layout_below="@+id/accel_label"
-                android:gravity="right"
-                android:paddingLeft="10dip"
-                android:text="@string/accel_units"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -165,22 +142,10 @@
                 android:id="@+id/range_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/range_label"
-                android:layout_toLeftOf="@+id/range_units"
-                android:text=""
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <TextView
-                android:id="@+id/range_units"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBaseline="@+id/range_value"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/range_label"
-                android:gravity="right"
-                android:paddingLeft="10dip"
-                android:text="@string/range_units"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:text=""
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
         </RelativeLayout>
 
@@ -203,21 +168,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/altitude_label"
-                android:layout_toLeftOf="@+id/altitude_units"
+                android:layout_alignParentRight="true"
                 android:text=""
                 android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <TextView
-                android:id="@+id/altitude_units"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBaseline="@+id/altitude_value"
-                android:layout_alignParentRight="true"
-                android:layout_below="@+id/altitude_label"
-                android:gravity="right"
-                android:paddingLeft="10dip"
-                android:text="@string/altitude_units"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -239,20 +192,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/azimuth_label"
-                android:layout_toLeftOf="@+id/azimuth_units"
+                android:layout_alignParentRight="true"
                 android:text=""
                 android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <TextView
-                android:id="@+id/azimuth_units"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_below="@+id/azimuth_label"
-                android:gravity="right"
-                android:paddingLeft="10dip"
-                android:text="@string/azimuth_units"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -260,7 +202,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_below="@+id/altitude_container"
+            android:layout_below="@+id/range_container"
             android:layout_toRightOf="@+id/strut" >
 
             <TextView
@@ -273,21 +215,11 @@
                 android:id="@+id/bearing_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
                 android:layout_below="@+id/bearing_label"
-                android:layout_toLeftOf="@+id/bearing_units"
                 android:text=""
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
-            <TextView
-                android:id="@+id/bearing_units"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_below="@+id/bearing_label"
-                android:gravity="right"
-                android:paddingLeft="10dip"
-                android:text="@string/bearing_units"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
         </RelativeLayout>
 
         <RelativeLayout
