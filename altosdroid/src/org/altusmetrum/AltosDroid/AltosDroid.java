@@ -63,7 +63,8 @@ public class AltosDroid extends Activity {
 
 	// Layout Views
 	private TextView mTitle;
-	private TextView mSerialView;
+
+	// Flight state values
 	private TextView mCallsignView;
 	private TextView mStateView;
 	private TextView mSpeedView;
@@ -74,6 +75,9 @@ public class AltosDroid extends Activity {
 	private TextView mBearingView;
 	private TextView mLatitudeView;
 	private TextView mLongitudeView;
+
+	// Generic field for extras at the bottom
+	private TextView mTextView;
 
 	// Service
 	private boolean mIsBound   = false;
@@ -108,7 +112,7 @@ public class AltosDroid extends Activity {
 					ad.mTitle.append(str);
 					Toast.makeText(ad.getApplicationContext(), "Connected to " + str, Toast.LENGTH_SHORT).show();
 					//TEST!
-					ad.mSerialView.setText(Dumper.dump(ad.mConfigData));
+					ad.mTextView.setText(Dumper.dump(ad.mConfigData));
 					break;
 				case TelemetryService.STATE_CONNECTING:
 					ad.mTitle.setText(R.string.title_connecting);
@@ -117,14 +121,14 @@ public class AltosDroid extends Activity {
 				case TelemetryService.STATE_NONE:
 					ad.mConfigData = null;
 					ad.mTitle.setText(R.string.title_not_connected);
-					ad.mSerialView.setText("");
+					ad.mTextView.setText("");
 					break;
 				}
 				break;
 			case MSG_TELEMETRY:
 				ad.update_ui((AltosState) msg.obj);
 				// TEST!
-				ad.mSerialView.setText(Dumper.dump(msg.obj));
+				ad.mTextView.setText(Dumper.dump(msg.obj));
 				break;
 			}
 		}
@@ -218,10 +222,10 @@ public class AltosDroid extends Activity {
 		mTitle = (TextView) findViewById(R.id.title_right_text);
 
 		// Set up the temporary Text View
-		mSerialView = (TextView) findViewById(R.id.text);
-		mSerialView.setMovementMethod(new ScrollingMovementMethod());
-		mSerialView.setClickable(false);
-		mSerialView.setLongClickable(false);
+		mTextView = (TextView) findViewById(R.id.text);
+		mTextView.setMovementMethod(new ScrollingMovementMethod());
+		mTextView.setClickable(false);
+		mTextView.setLongClickable(false);
 
 		mCallsignView  = (TextView) findViewById(R.id.callsign_value);
 		mStateView     = (TextView) findViewById(R.id.state_value);
