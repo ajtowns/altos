@@ -14,7 +14,6 @@ INC = \
 	ao_sample.h \
 	ao_pins.h \
 	ao_product.h \
-	ao_cc_spi.h \
 	ao_seven_segment.h \
 	ao_lco.h \
 	ao_lco_cmd.h \
