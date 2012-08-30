@@ -43,6 +43,9 @@
 
 	<!-- UI fields -->
     <string name="callsign_label">Callsign</string>
+    <string name="serial_label">Serial no.</string>
+    <string name="flight_label">Flight no.</string>
+    <string name="rssi_label">RSSI</string>
     <string name="state_label">State</string>
     <string name="speed_label">Speed</string>
     <string name="accel_label">Acceleration</string>

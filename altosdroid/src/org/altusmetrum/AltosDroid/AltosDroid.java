@@ -66,6 +66,9 @@ public class AltosDroid extends Activity {
 
 	// Flight state values
 	private TextView mCallsignView;
+	private TextView mRSSIView;
+	private TextView mSerialView;
+	private TextView mFlightView;
 	private TextView mStateView;
 	private TextView mSpeedView;
 	private TextView mAccelView;
@@ -179,6 +182,9 @@ public class AltosDroid extends Activity {
 
 	void update_ui(AltosState state) {
 		mCallsignView.setText(state.data.callsign);
+		mRSSIView.setText(String.format("%d", state.data.rssi));
+		mSerialView.setText(String.format("%d", state.data.serial));
+		mFlightView.setText(String.format("%d", state.data.flight));
 		mStateView.setText(state.data.state());
 		double speed = state.speed;
 		if (!state.ascent)
@@ -228,6 +234,9 @@ public class AltosDroid extends Activity {
 		mTextView.setLongClickable(false);
 
 		mCallsignView  = (TextView) findViewById(R.id.callsign_value);
+		mRSSIView      = (TextView) findViewById(R.id.rssi_value);
+		mSerialView    = (TextView) findViewById(R.id.serial_value);
+		mFlightView    = (TextView) findViewById(R.id.flight_value);
 		mStateView     = (TextView) findViewById(R.id.state_value);
 		mSpeedView     = (TextView) findViewById(R.id.speed_value);
 		mAccelView     = (TextView) findViewById(R.id.accel_value);
