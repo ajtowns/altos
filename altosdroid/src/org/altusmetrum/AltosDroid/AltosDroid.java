@@ -69,8 +69,8 @@ public class AltosDroid extends Activity {
 	private TextView mSpeedView;
 	private TextView mAccelView;
 	private TextView mRangeView;
-	private TextView mAltitudeView;
-	private TextView mAzimuthView;
+	private TextView mHeightView;
+	private TextView mElevationView;
 	private TextView mBearingView;
 	private TextView mLatitudeView;
 	private TextView mLongitudeView;
@@ -182,8 +182,8 @@ public class AltosDroid extends Activity {
 		mSpeedView.setText(String.format("%6.0f m/s", speed));
 		mAccelView.setText(String.format("%6.0f m/s²", state.acceleration));
 		mRangeView.setText(String.format("%6.0f m", state.range));
-		mAltitudeView.setText(String.format("%6.0f m", state.height));
-		mAzimuthView.setText(String.format("%3.0f°", state.elevation));
+		mHeightView.setText(String.format("%6.0f m", state.height));
+		mElevationView.setText(String.format("%3.0f°", state.elevation));
 		if (state.from_pad != null)
 			mBearingView.setText(String.format("%3.0f°", state.from_pad.bearing));
 		mLatitudeView.setText(pos(state.gps.lat, "N", "S"));
@@ -228,8 +228,8 @@ public class AltosDroid extends Activity {
 		mSpeedView     = (TextView) findViewById(R.id.speed_value);
 		mAccelView     = (TextView) findViewById(R.id.accel_value);
 		mRangeView     = (TextView) findViewById(R.id.range_value);
-		mAltitudeView  = (TextView) findViewById(R.id.altitude_value);
-		mAzimuthView   = (TextView) findViewById(R.id.azimuth_value);
+		mHeightView    = (TextView) findViewById(R.id.height_value);
+		mElevationView = (TextView) findViewById(R.id.elevation_value);
 		mBearingView   = (TextView) findViewById(R.id.bearing_value);
 		mLatitudeView  = (TextView) findViewById(R.id.latitude_value);
 		mLongitudeView = (TextView) findViewById(R.id.longitude_value);

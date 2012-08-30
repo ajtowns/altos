@@ -47,8 +47,8 @@
     <string name="speed_label">Speed</string>
     <string name="accel_label">Acceleration</string>
     <string name="range_label">Range</string>
-    <string name="altitude_label">Altitude</string>
-    <string name="azimuth_label">Azimuth</string>
+    <string name="height_label">Height</string>
+    <string name="elevation_label">Elevation</string>
     <string name="bearing_label">Bearing</string>
     <string name="latitude_label">Latitude</string>
     <string name="longitude_label">Longitude</string>

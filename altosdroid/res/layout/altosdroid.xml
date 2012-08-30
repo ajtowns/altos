@@ -150,7 +150,7 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/altitude_container"
+            android:id="@+id/height_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -158,23 +158,23 @@
             android:layout_toRightOf="@id/strut" >
 
             <TextView
-                android:id="@+id/altitude_label"
+                android:id="@+id/height_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/altitude_label" />
+                android:text="@string/height_label" />
 
             <TextView
-                android:id="@+id/altitude_value"
+                android:id="@+id/height_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/altitude_label"
                 android:layout_alignParentRight="true"
+                android:layout_below="@+id/height_label"
                 android:text=""
                 android:textAppearance="?android:attr/textAppearanceLarge" />
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/azimuth_container"
+            android:id="@+id/elevation_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
@@ -182,17 +182,17 @@
             android:layout_toLeftOf="@id/strut" >
 
             <TextView
-                android:id="@+id/azimuth_label"
+                android:id="@+id/elevation_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/azimuth_label" />
+                android:text="@string/elevation_label" />
 
             <TextView
-                android:id="@+id/azimuth_value"
+                android:id="@+id/elevation_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/azimuth_label"
                 android:layout_alignParentRight="true"
+                android:layout_below="@+id/elevation_label"
                 android:text=""
                 android:textAppearance="?android:attr/textAppearanceLarge" />
         </RelativeLayout>
@@ -226,7 +226,7 @@
             android:id="@+id/latitude_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/azimuth_container" >
+            android:layout_below="@+id/elevation_container" >
 
             <TextView
                 android:id="@+id/latitude_label"
