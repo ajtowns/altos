@@ -355,7 +355,10 @@ public class AltosDroid extends Activity {
 	}
 
 	void setFrequency(double freq) {
-		
+		try {
+			mService.send(Message.obtain(null, TelemetryService.MSG_SETFREQUENCY, freq));
+		} catch (RemoteException e) {
+		}
 	}
 
 	void setFrequency(String freq) {
@@ -399,6 +402,7 @@ public class AltosDroid extends Activity {
 						 }
 					 });
 			AlertDialog alert = builder.create();
+			alert.show();
 			return true;
 		}
 		return false;

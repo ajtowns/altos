@@ -18,6 +18,6 @@
           android:icon="@android:drawable/ic_menu_search"
           android:title="@string/connect_device" />
     <item android:id="@+id/select_freq"
-          android:icon="@android:drawable/ic_menu_search"
+          android:icon="@android:drawable/ic_menu_preferences"
           android:title="@string/select_freq" />
 </menu>
