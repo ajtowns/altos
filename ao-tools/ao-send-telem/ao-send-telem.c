@@ -199,7 +199,7 @@ main (int argc, char **argv)
 		exit (1);
 
 	cc_usb_printf(cc, "m 0\n");
-	cc_usb_printf(cc, "F %d\n", freq);
+	cc_usb_printf(cc, "c F %d\n", freq);
 	for (i = optind; i < argc; i++) {
 		file = fopen(argv[i], "r");
 		if (!file) {
