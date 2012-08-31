@@ -17,4 +17,7 @@
     <item android:id="@+id/connect_scan"
           android:icon="@android:drawable/ic_menu_search"
           android:title="@string/connect_device" />
+    <item android:id="@+id/select_freq"
+          android:icon="@android:drawable/ic_menu_search"
+          android:title="@string/select_freq" />
 </menu>
