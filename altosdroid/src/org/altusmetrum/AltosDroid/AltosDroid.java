@@ -363,7 +363,7 @@ public class AltosDroid extends Activity {
 
 	void setFrequency(String freq) {
 		try {
-			setFrequency (Double.parseDouble(freq.split(" ")[0]));
+			setFrequency (Double.parseDouble(freq.substring(11, 17)));
 		} catch (NumberFormatException e) {
 		}
 	}
@@ -381,16 +381,16 @@ public class AltosDroid extends Activity {
 			// Set the TBT radio frequency
 
 			final String[] frequencies = {
-				"434.550 (Channel 0)",
-				"434.650 (Channel 1)",
-				"434.750 (Channel 2)",
-				"434.850 (Channel 3)",
-				"434.950 (Channel 4)",
-				"435.050 (Channel 5)",
-				"435.150 (Channel 6)",
-				"435.250 (Channel 7)",
-				"435.350 (Channel 8)",
-				"435.450 (Channel 9)"
+				"Channel 0 (434.550MHz)",
+				"Channel 1 (434.650MHz)",
+				"Channel 2 (434.750MHz)",
+				"Channel 3 (434.850MHz)",
+				"Channel 4 (434.950MHz)",
+				"Channel 5 (435.050MHz)",
+				"Channel 6 (435.150MHz)",
+				"Channel 7 (435.250MHz)",
+				"Channel 8 (435.350MHz)",
+				"Channel 9 (435.450MHz)"
 			};
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
