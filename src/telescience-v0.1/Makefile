@@ -53,7 +53,6 @@ ALTOS_SRC = \
 	ao_adc_avr.c \
 	ao_science_slave.c \
 	ao_spi_slave.c \
-	ao_pwmin.c \
 	$(TELESCIENCE_STORAGE)\
 	$(TELESCIENCE_LOG)
 
