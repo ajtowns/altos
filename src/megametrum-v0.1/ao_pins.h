@@ -77,10 +77,10 @@
 #define SPI_2_PB13_PB14_PB15	1	/* Flash, Companion */
 #define SPI_2_PD1_PD3_PD4	0
 
-#define SPI_2_GPIO		(&stm_gpiob)
-#define SPI_2_SCK		13
-#define SPI_2_MISO		14
-#define SPI_2_MOSI		15
+#define SPI_2_PORT		(&stm_gpiob)
+#define SPI_2_SCK_PIN		13
+#define SPI_2_MISO_PIN		14
+#define SPI_2_MOSI_PIN		15
 
 #define HAS_I2C_1		1
 #define I2C_1_PB8_PB9		1
@@ -249,11 +249,11 @@ struct ao_adc {
  */
 #define HAS_MS5607		1
 #define AO_MS5607_PRIVATE_PINS	1
-#define AO_MS5607_CS_GPIO	(&stm_gpioc)
-#define AO_MS5607_CS		4
+#define AO_MS5607_CS_PORT	(&stm_gpioc)
+#define AO_MS5607_CS_PIN	4
 #define AO_MS5607_CS_MASK	(1 << AO_MS5607_CS)
-#define AO_MS5607_MISO_GPIO	(&stm_gpioa)
-#define AO_MS5607_MISO		6
+#define AO_MS5607_MISO_PORT	(&stm_gpioa)
+#define AO_MS5607_MISO_PIN	6
 #define AO_MS5607_MISO_MASK	(1 << AO_MS5607_MISO)
 #define AO_MS5607_SPI_INDEX	AO_SPI_1_PA5_PA6_PA7
 
@@ -309,10 +309,10 @@ struct ao_adc {
  * mma655x
  */
 
-#define HAS_MMA655X		0
-#define AO_MMA655X_SPI_INDEX	AO_SPI_1_PA5_PA6_PA7
-#define AO_MMA655X_CS_GPIO	(&stm_gpiod)
-#define AO_MMA655X_CS		4
+#define HAS_MMA655X		1
+#define AO_MMA655X_SPI_INDEX	AO_SPI_1_PE13_PE14_PE15
+#define AO_MMA655X_CS_PORT	(&stm_gpiod)
+#define AO_MMA655X_CS_PIN	4
 
 #define NUM_CMDS		16
 
