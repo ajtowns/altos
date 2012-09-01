@@ -170,6 +170,7 @@ public class AltosConfigData implements Iterable<String> {
 			try { callsign = get_string(line, "Callsign:"); } catch (Exception e) {}
 			try { version = get_string(line,"software-version"); } catch (Exception e) {}
 			try { product = get_string(line,"product"); } catch (Exception e) {}
+			try { manufacturer = get_string(line,"manufacturer"); } catch (Exception e) {}
 
 			try { get_int(line, "flight"); stored_flight++; }  catch (Exception e) {}
 			try { storage_size = get_int(line, "Storage size:"); } catch (Exception e) {}

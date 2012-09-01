@@ -25,6 +25,7 @@
 
     <!-- Options Menu -->
     <string name="connect_device">Connect a device</string>
+    <string name="select_freq">Select radio frequency</string>
 
     <!--  DeviceListActivity -->
     <string name="scanning">scanning for devices…</string>

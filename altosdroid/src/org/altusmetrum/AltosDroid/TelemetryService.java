@@ -52,6 +52,7 @@ public class TelemetryService extends Service {
 	static final int MSG_CONNECT_FAILED    = 5;
 	static final int MSG_DISCONNECTED      = 6;
 	static final int MSG_TELEMETRY         = 7;
+	static final int MSG_SETFREQUENCY      = 8;
 
 	public static final int STATE_NONE       = 0;
 	public static final int STATE_READY      = 1;
@@ -125,6 +126,15 @@ public class TelemetryService extends Service {
 				break;
 			case MSG_TELEMETRY:
 				s.sendMessageToClients(Message.obtain(null, AltosDroid.MSG_TELEMETRY, msg.obj));
+				break;
+			case MSG_SETFREQUENCY:
+				if (s.state == STATE_CONNECTED) {
+					try {
+						s.mAltosBluetooth.set_radio_frequency((Double) msg.obj);
+					} catch (InterruptedException e) {
+					} catch (TimeoutException e) {
+					}
+				}
 				break;
 			default:
 				super.handleMessage(msg);

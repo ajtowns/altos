@@ -1,5 +1,5 @@
 /*
- * Copyright © 2012 Mike Beattie <mike@ethernal.org>
+ * Copyright Â© 2012 Mike Beattie <mike@ethernal.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.Context;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
+import android.content.DialogInterface;
 import android.os.IBinder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,6 +41,7 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.app.AlertDialog;
 
 import org.altusmetrum.AltosLib.*;
 
@@ -188,12 +190,12 @@ public class AltosDroid extends Activity {
 		if (!state.ascent)
 			speed = state.baro_speed;
 		mSpeedView.setText(String.format("%6.0f m/s", speed));
-		mAccelView.setText(String.format("%6.0f m/s²", state.acceleration));
+		mAccelView.setText(String.format("%6.0f m/sÂ²", state.acceleration));
 		mRangeView.setText(String.format("%6.0f m", state.range));
 		mHeightView.setText(String.format("%6.0f m", state.height));
-		mElevationView.setText(String.format("%3.0f°", state.elevation));
+		mElevationView.setText(String.format("%3.0fÂ°", state.elevation));
 		if (state.from_pad != null)
-			mBearingView.setText(String.format("%3.0f°", state.from_pad.bearing));
+			mBearingView.setText(String.format("%3.0fÂ°", state.from_pad.bearing));
 		mLatitudeView.setText(pos(state.gps.lat, "N", "S"));
 		mLongitudeView.setText(pos(state.gps.lon, "W", "E"));
 
@@ -208,7 +210,7 @@ public class AltosDroid extends Activity {
 		}
 		int deg = (int) Math.floor(p);
 		double min = (p - Math.floor(p)) * 60.0;
-		return String.format("%d° %9.6f\" %s", deg, min, h);
+		return String.format("%dÂ° %9.6f\" %s", deg, min, h);
 	}
 
 	@Override
@@ -352,6 +354,20 @@ public class AltosDroid extends Activity {
 		return true;
 	}
 
+	void setFrequency(double freq) {
+		try {
+			mService.send(Message.obtain(null, TelemetryService.MSG_SETFREQUENCY, freq));
+		} catch (RemoteException e) {
+		}
+	}
+
+	void setFrequency(String freq) {
+		try {
+			setFrequency (Double.parseDouble(freq.substring(11, 17)));
+		} catch (NumberFormatException e) {
+		}
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		Intent serverIntent = null;
@@ -360,6 +376,33 @@ public class AltosDroid extends Activity {
 			// Launch the DeviceListActivity to see devices and do scan
 			serverIntent = new Intent(this, DeviceListActivity.class);
 			startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+			return true;
+		case R.id.select_freq:
+			// Set the TBT radio frequency
+
+			final String[] frequencies = {
+				"Channel 0 (434.550MHz)",
+				"Channel 1 (434.650MHz)",
+				"Channel 2 (434.750MHz)",
+				"Channel 3 (434.850MHz)",
+				"Channel 4 (434.950MHz)",
+				"Channel 5 (435.050MHz)",
+				"Channel 6 (435.150MHz)",
+				"Channel 7 (435.250MHz)",
+				"Channel 8 (435.350MHz)",
+				"Channel 9 (435.450MHz)"
+			};
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle("Pick a frequency");
+			builder.setItems(frequencies,
+					 new DialogInterface.OnClickListener() {
+						 public void onClick(DialogInterface dialog, int item) {
+							 setFrequency(frequencies[item]);
+						 }
+					 });
+			AlertDialog alert = builder.create();
+			alert.show();
 			return true;
 		}
 		return false;
