@@ -25,20 +25,27 @@
  * project payload developed at Challenger Middle School.  
  */
 
-volatile __data uint16_t ao_icp3_count;
+volatile __data uint16_t ao_tick3_count;
 
 static void
 ao_pwmin_display(void) __reentrant
 {
-	/* display the most recent value */
-	printf("icp 3: %5u\n", ao_icp3_count);
+	uint8_t lo = TCNT1L; 
+	uint8_t hi = TCNT1H;
+	uint16_t value = (hi <<8) | lo;
+
+	uint8_t lo3 = TCNT3L; 
+	uint8_t hi3 = TCNT3H;
+	uint16_t value3 = (hi3 <<8) | lo3;
+
+	/* now display the value we read */
+	printf("timer 1: %5u %2x %2x\n", value, hi, lo);
+	printf("timer 3: %5u %2x %2x\n", value3, hi3, lo3);
 
 }
-ISR(TIMER3_CAPT_vect)
+ISR(TIMER3_COMPA_vect)
 {
-	uint8_t lo = ICR3L; 
-	uint8_t hi = ICR3H;
-	ao_icp3_count = (hi <<8) | lo;
+        ++ao_tick3_count;
 }
 
 __code struct ao_cmds ao_pwmin_cmds[] = {
@@ -52,15 +59,15 @@ ao_pwmin_init(void)
 	/* do hardware setup here */
 	TCCR3A = ((0 << WGM31) |        /* normal mode, OCR3A */
                   (0 << WGM30));        /* normal mode, OCR3A */
-        TCCR3B = ((1 << ICNC3) |        /* input capture noise canceler on */
+        TCCR3B = ((0 << ICNC3) |        /* no input capture noise canceler */
                   (0 << ICES3) |        /* input capture on falling edge (don't care) */
                   (0 << WGM33) |        /* normal mode, OCR3A */
                   (0 << WGM32) |        /* normal mode, OCR3A */
                   (4 << CS30));         /* clk/256 from prescaler */
 
-    	
+        OCR3A = 1250;                   /* 8MHz clock */
 
-        TIMSK3 = (1 << ICIE3);         /* Interrupt on input compare */
+        TIMSK3 = (1 << OCIE3A);         /* Interrupt on compare match */
 
 		/* set the spike filter bit in the TCCR3B register */
 
