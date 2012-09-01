@@ -27,12 +27,12 @@ static uint8_t	  		ms5607_configured;
 static void
 ao_ms5607_start(void) {
 	ao_spi_get(AO_MS5607_SPI_INDEX,AO_SPI_SPEED_FAST);
-	stm_gpio_set(AO_MS5607_CS_GPIO, AO_MS5607_CS, 0);
+	stm_gpio_set(AO_MS5607_CS_PORT, AO_MS5607_CS_PIN, 0);
 }
 
 static void
 ao_ms5607_stop(void) {
-	stm_gpio_set(AO_MS5607_CS_GPIO, AO_MS5607_CS, 1);
+	stm_gpio_set(AO_MS5607_CS_PORT, AO_MS5607_CS_PIN, 1);
 	ao_spi_put(AO_MS5607_SPI_INDEX);
 }
 
@@ -92,7 +92,7 @@ ao_ms5607_prom_read(struct ao_ms5607_prom *prom)
 		printf ("MS5607 PROM CRC error (computed %x actual %x)\n",
 			crc, (((uint8_t *) prom)[15] & 0xf));
 		flush();
-		ao_panic(AO_PANIC_SELF_TEST);
+//		ao_panic(AO_PANIC_SELF_TEST_MS5607);
 	}
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -120,7 +120,7 @@ static uint8_t	ao_ms5607_done;
 static void
 ao_ms5607_isr(void)
 {
-	ao_exti_disable(AO_MS5607_MISO_GPIO, AO_MS5607_MISO);
+	ao_exti_disable(AO_MS5607_MISO_PORT, AO_MS5607_MISO_PIN);
 	ao_ms5607_done = 1;
 	ao_wakeup(&ao_ms5607_done);
 }
@@ -135,7 +135,7 @@ ao_ms5607_get_sample(uint8_t cmd) {
 
 	ao_ms5607_start();
 	ao_spi_send(&cmd, 1, AO_MS5607_SPI_INDEX);
-	ao_exti_enable(AO_MS5607_MISO_GPIO, AO_MS5607_MISO);
+	ao_exti_enable(AO_MS5607_MISO_PORT, AO_MS5607_MISO_PIN);
 #if AO_MS5607_PRIVATE_PINS
 	ao_spi_put(AO_MS5607_SPI_INDEX);
 #endif
@@ -144,7 +144,7 @@ ao_ms5607_get_sample(uint8_t cmd) {
 		ao_sleep(&ao_ms5607_done);
 	sei();
 #if AO_MS5607_PRIVATE_PINS
-	stm_gpio_set(AO_MS5607_CS_GPIO, AO_MS5607_CS, 1);
+	stm_gpio_set(AO_MS5607_CS_PORT, AO_MS5607_CS_PIN, 1);
 #else
 	ao_ms5607_stop();
 #endif
@@ -235,13 +235,14 @@ ao_ms5607_info(void)
 static void
 ao_ms5607_dump(void)
 {
-	struct ao_data	sample;
+	struct ao_ms5607_sample sample;
 	struct ao_ms5607_value value;
 
-	ao_data_get(&sample);
-	ao_ms5607_convert(&sample.ms5607_raw, &value);
-	printf ("Pressure:    %8u %8d\n", sample.ms5607_raw.pres, value.pres);
-	printf ("Temperature: %8u %8d\n", sample.ms5607_raw.temp, value.temp);
+	ao_ms5607_setup();
+	ao_ms5607_sample(&sample);
+	ao_ms5607_convert(&sample, &value);
+	printf ("Pressure:    %8u %8d\n", sample.pres, value.pres);
+	printf ("Temperature: %8u %8d\n", sample.temp, value.temp);
 	printf ("Altitude: %ld\n", ao_pa_to_altitude(value.pres));
 }
 
@@ -255,24 +256,24 @@ ao_ms5607_init(void)
 {
 	ms5607_configured = 0;
 	ao_cmd_register(&ao_ms5607_cmds[0]);
-	ao_spi_init_cs(AO_MS5607_CS_GPIO, (1 << AO_MS5607_CS));
+	ao_spi_init_cs(AO_MS5607_CS_PORT, (1 << AO_MS5607_CS_PIN));
 
-	ao_add_task(&ao_ms5607_task, ao_ms5607, "ms5607");
+//	ao_add_task(&ao_ms5607_task, ao_ms5607, "ms5607");
 
 	/* Configure the MISO pin as an interrupt; when the
 	 * conversion is complete, the MS5607 will raise this
 	 * pin as a signal
 	 */
-	ao_exti_setup(AO_MS5607_MISO_GPIO,
-		      AO_MS5607_MISO,
+	ao_exti_setup(AO_MS5607_MISO_PORT,
+		      AO_MS5607_MISO_PIN,
 		      AO_EXTI_MODE_RISING,
 		      ao_ms5607_isr);
 
 	/* Reset the pin from INPUT to ALTERNATE so that SPI works
 	 * This needs an abstraction at some point...
 	 */
-	stm_moder_set(AO_MS5607_MISO_GPIO,
-		      AO_MS5607_MISO,
+	stm_moder_set(AO_MS5607_MISO_PORT,
+		      AO_MS5607_MISO_PIN,
 		      STM_MODER_ALTERNATE);
 }
 

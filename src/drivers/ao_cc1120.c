@@ -1028,12 +1028,12 @@ ao_radio_init(void)
 
 	AO_CC1120_SPI_CS_PORT->bsrr = ((uint32_t) (1 << AO_CC1120_SPI_CS_PIN));
 	for (i = 0; i < 10000; i++) {
-		if ((SPI_2_GPIO->idr & (1 << SPI_2_MISO)) == 0)
+		if ((SPI_2_PORT->idr & (1 << SPI_2_MISO_PIN)) == 0)
 			break;
 	}
 	AO_CC1120_SPI_CS_PORT->bsrr = (1 << AO_CC1120_SPI_CS_PIN);
 	if (i == 10000)
-		ao_panic(AO_PANIC_SELF_TEST);
+		ao_panic(AO_PANIC_SELF_TEST_CC1120);
 
 	/* Enable the EXTI interrupt for the appropriate pin */
 	ao_enable_port(AO_CC1120_INT_PORT);

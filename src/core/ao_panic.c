@@ -65,7 +65,15 @@ ao_panic(uint8_t reason)
 #ifdef SDCC
 #pragma disable_warning 126
 #endif
-		for (n = 0; n < reason; n++) {
+		if (reason & 0x40) {
+			ao_led_on(AO_LED_RED);
+			ao_beep(AO_BEEP_HIGH);
+			ao_panic_delay(40);
+			ao_led_off(AO_LED_RED);
+			ao_beep(AO_BEEP_OFF);
+			ao_panic_delay(10);
+		}
+		for (n = 0; n < (reason & 0x3f); n++) {
 			ao_led_on(AO_LED_RED);
 			ao_beep(AO_BEEP_MID);
 			ao_panic_delay(10);

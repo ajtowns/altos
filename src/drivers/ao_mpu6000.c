@@ -225,7 +225,7 @@ ao_mpu6000_setup(void)
 	errors += ao_mpu6000_gyro_check(normal_mode.gyro_z, test_mode.gyro_z, "z");
 
 	if (errors)
-		ao_panic(AO_PANIC_SELF_TEST);
+		ao_panic(AO_PANIC_SELF_TEST_MPU6000);
 
 	/* Filter to about 100Hz, which also sets the gyro rate to 1000Hz */
 	ao_mpu6000_reg_write(MPU6000_CONFIG,

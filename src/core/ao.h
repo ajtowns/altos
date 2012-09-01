@@ -115,7 +115,10 @@ ao_start_scheduler(void);
 #define AO_PANIC_BT		11	/* Communications with bluetooth device failed */
 #define AO_PANIC_STACK		12	/* Stack overflow */
 #define AO_PANIC_SPI		13	/* SPI communication failure */
-#define AO_PANIC_SELF_TEST	14	/* Self test failure */
+#define AO_PANIC_SELF_TEST_CC1120	0x40 | 1	/* Self test failure */
+#define AO_PANIC_SELF_TEST_HMC5883	0x40 | 2	/* Self test failure */
+#define AO_PANIC_SELF_TEST_MPU6000	0x40 | 3	/* Self test failure */
+#define AO_PANIC_SELF_TEST_MS5607	0x40 | 4	/* Self test failure */
 
 /* Stop the operating system, beeping and blinking the reason */
 void
