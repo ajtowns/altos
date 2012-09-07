@@ -174,24 +174,26 @@ public class AltosGPS {
 		lon = in_lon / 10.0e7;
 	}
 
-	public void set_time(int hour, int minute, int second) {
-		hour = hour;
-		minute = minute;
-		second = second;
+	public void set_time(int in_hour, int in_minute, int in_second) {
+		hour = in_hour;
+		minute = in_minute;
+		second = in_second;
 	}
 
-	public void set_date(int year, int month, int day) {
-		year = year;
-		month = month;
-		day = day;
+	public void set_date(int in_year, int in_month, int in_day) {
+		year = in_year;
+		month = in_month;
+		day = in_day;
 	}
 
-	public void set_flags(int flags) {
-		flags = flags;
+	/*
+	public void set_flags(int in_flags) {
+		flags = in_flags;
 	}
+	*/
 
-	public void set_altitude(int altitude) {
-		altitude = altitude;
+	public void set_altitude(int in_altitude) {
+		alt = in_altitude;
 	}
 
 	public void add_sat(int svid, int c_n0) {
