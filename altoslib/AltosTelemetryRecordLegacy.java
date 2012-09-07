@@ -392,9 +392,11 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 	int[]	bytes;
 	int	adjust;
 
+	/*
 	private int int8(int i) {
 		return AltosLib.int8(bytes, i + 1 + adjust);
 	}
+	*/
 	private int uint8(int i) {
 		return AltosLib.uint8(bytes, i + 1 + adjust);
 	}
