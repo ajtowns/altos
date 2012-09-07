@@ -19,68 +19,6 @@ package org.altusmetrum.AltosLib;
 
 import java.util.concurrent.*;
 
-class AltosADCTM {
-	int	tick;
-	int	accel;
-	int	pres;
-	int	temp;
-	int	batt;
-	int	drogue;
-	int	main;
-
-	public AltosADCTM(AltosLink link) throws InterruptedException, TimeoutException {
-		link.printf("a\n");
-		for (;;) {
-			String line = link.get_reply_no_dialog(5000);
-			if (line == null) {
-				throw new TimeoutException();
-			}
-			if (!line.startsWith("tick:"))
-				continue;
-			String[] items = line.split("\\s+");
-			for (int i = 0; i < items.length;) {
-				if (items[i].equals("tick:")) {
-					tick = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("accel:")) {
-					accel = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("pres:")) {
-					pres = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("temp:")) {
-					temp = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("batt:")) {
-					batt = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("drogue:")) {
-					drogue = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("main:")) {
-					main = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				i++;
-			}
-			break;
-		}
-	}
-}
-
 class AltosGPSQuery extends AltosGPS {
 	public AltosGPSQuery (AltosLink link, AltosConfigData config_data)
 		throws TimeoutException, InterruptedException {
