@@ -283,7 +283,7 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 		Iterator<AltosOrderedMegaRecord>	iterator = records.iterator();
 		AltosOrderedMegaRecord		record = null;
 		AltosRecordMM			state = new AltosRecordMM();
-		boolean				last_reported = false;
+		//boolean				last_reported = false;
 		EepromState			eeprom = new EepromState();
 
 		state.state = AltosLib.ao_flight_pad;

@@ -95,7 +95,7 @@ public class AltosIgnite {
 		int status = Unknown;
 		if (link == null)
 			return status;
-		string_ref status_name = new string_ref();
+		//string_ref status_name = new string_ref();
 		try {
 			start_link();
 			link.printf("t\n");

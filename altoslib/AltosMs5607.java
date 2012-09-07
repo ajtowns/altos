@@ -37,7 +37,7 @@ public class AltosMs5607 {
 		int TEMP;
 		long OFF;
 		long SENS;
-		int P;
+		//int P;
 
 		dT = raw_temp - ((int) tref << 8);
 	

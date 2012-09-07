@@ -236,7 +236,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 		Iterator<AltosOrderedRecord>	iterator = records.iterator();
 		AltosOrderedRecord		record = null;
 		AltosRecordTM			state = new AltosRecordTM();
-		boolean				last_reported = false;
+		//boolean				last_reported = false;
 		EepromState			eeprom = new EepromState();
 
 		state.state = AltosLib.ao_flight_pad;
