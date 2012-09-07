@@ -450,8 +450,6 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 				if (line == null)
 					break;
 				AltosOrderedMegaRecord record = new AltosOrderedMegaRecord(line, index++, prev_tick, prev_tick_valid);
-				if (record == null)
-					break;
 				if (record.cmd == AltosLib.AO_LOG_INVALID)
 					continue;
 				prev_tick = record.tick;

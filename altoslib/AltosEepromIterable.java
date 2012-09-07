@@ -401,8 +401,6 @@ public class AltosEepromIterable extends AltosRecordIterable {
 				if (line == null)
 					break;
 				AltosOrderedRecord record = new AltosOrderedRecord(line, index++, prev_tick, prev_tick_valid);
-				if (record == null)
-					break;
 				if (record.cmd == AltosLib.AO_LOG_INVALID)
 					continue;
 				prev_tick = record.tick;
