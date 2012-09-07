@@ -17,11 +17,6 @@
 
 package org.altusmetrum.AltosLib;
 
-import java.lang.*;
-import java.text.*;
-import java.util.HashMap;
-import java.io.*;
-
 public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 
 	public static final int	seen_flight = 1;

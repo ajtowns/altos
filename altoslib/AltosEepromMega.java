@@ -17,11 +17,7 @@
 
 package org.altusmetrum.AltosLib;
 
-import java.io.*;
-import java.util.*;
 import java.text.*;
-import java.util.prefs.*;
-import java.util.concurrent.*;
 
 public class AltosEepromMega {
 	public int	cmd;

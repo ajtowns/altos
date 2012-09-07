@@ -18,7 +18,6 @@
 package org.altusmetrum.AltosLib;
 
 import java.text.*;
-import java.lang.*;
 
 public class AltosParse {
 	public static boolean isdigit(char c) {

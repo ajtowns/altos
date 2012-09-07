@@ -17,10 +17,7 @@
 
 package org.altusmetrum.AltosLib;
 
-import java.io.*;
-import java.util.*;
 import java.text.*;
-import java.util.prefs.*;
 import java.util.concurrent.*;
 
 /*
