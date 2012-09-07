@@ -32,7 +32,6 @@ ao_radio_slave_low(void)
 
 	if (slave_state != 1)
 		ao_panic(1);
-	ao_led_toggle(AO_LED_GREEN);
 	ao_gpio_set(AO_RADIO_SLAVE_INT_PORT, AO_RADIO_SLAVE_INT_BIT, AO_RADIO_SLAVE_INT_PIN, 0);
 	for (i = 0; i < 1000; i++)
 		ao_arch_nop();
@@ -44,7 +43,6 @@ ao_radio_slave_high(void)
 {
 	if (slave_state != 0)
 		ao_panic(2);
-	ao_led_toggle(AO_LED_RED);
 	ao_gpio_set(AO_RADIO_SLAVE_INT_PORT, AO_RADIO_SLAVE_INT_BIT, AO_RADIO_SLAVE_INT_PIN, 1);
 	slave_state = 1;
 }
@@ -65,8 +63,10 @@ ao_radio_slave_spi(void)
 			/* XXX monitor CS to interrupt the receive */
 
 			ao_config.radio_setting = ao_radio_spi_request.setting;
+			ao_led_on(AO_LED_RX);
 			ao_radio_spi_reply.status = ao_radio_recv(&ao_radio_spi_reply.payload,
 								  ao_radio_spi_request.recv_len);
+			ao_led_off(AO_LED_RX);
 			ao_radio_spi_reply.rssi = 0;
 			ao_spi_send(&ao_radio_spi_reply,
 				    AO_RADIO_SPI_REPLY_HEADER_LEN + ao_radio_spi_request.recv_len,
@@ -76,9 +76,11 @@ ao_radio_slave_spi(void)
 			continue;
 		case AO_RADIO_SPI_CMAC_RECV:
 			ao_config.radio_setting = ao_radio_spi_request.setting;
+			ao_led_on(AO_LED_RX);
 			ao_radio_spi_reply.status = ao_radio_cmac_recv(&ao_radio_spi_reply.payload,
 								       ao_radio_spi_request.recv_len,
 								       ao_radio_spi_request.timeout);
+			ao_led_off(AO_LED_RX);
 			ao_radio_spi_reply.rssi = ao_radio_cmac_rssi;
 			ao_spi_send(&ao_radio_spi_reply,
 				    AO_RADIO_SPI_REPLY_HEADER_LEN + ao_radio_spi_request.recv_len,
@@ -88,14 +90,18 @@ ao_radio_slave_spi(void)
 			continue;
 		case AO_RADIO_SPI_SEND:
 			ao_config.radio_setting = ao_radio_spi_request.setting;
+			ao_led_on(AO_LED_TX);
 			ao_radio_send(&ao_radio_spi_request.payload,
 				      ao_radio_spi_request.len - AO_RADIO_SPI_REQUEST_HEADER_LEN);
+			ao_led_off(AO_LED_TX);
 			break;
 
 		case AO_RADIO_SPI_CMAC_SEND:
 			ao_config.radio_setting = ao_radio_spi_request.setting;
+			ao_led_on(AO_LED_TX);
 			ao_radio_cmac_send(&ao_radio_spi_request.payload,
 					   ao_radio_spi_request.len - AO_RADIO_SPI_REQUEST_HEADER_LEN);
+			ao_led_off(AO_LED_TX);
 			break;
 			
 		case AO_RADIO_SPI_CMAC_KEY:
