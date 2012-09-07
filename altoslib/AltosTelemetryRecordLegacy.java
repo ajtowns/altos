@@ -476,7 +476,7 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 			record.gps = new AltosGPS();
 			record.new_gps = true;
 
-			record.seen |= record.seen_gps_time | record.seen_gps_lat | record.seen_gps_lon;
+			record.seen |= AltosRecord.seen_gps_time | AltosRecord.seen_gps_lat | AltosRecord.seen_gps_lon;
 			record.gps.nsat = (gps_flags & AO_GPS_NUM_SAT_MASK);
 			record.gps.locked = (gps_flags & AO_GPS_VALID) != 0;
 			record.gps.connected = true;
