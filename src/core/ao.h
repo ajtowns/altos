@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stddef.h>
-#include "ao_pins.h"
+#include <ao_pins.h>
 #include <ao_arch.h>
 
 #define TRUE 1
@@ -981,12 +981,12 @@ ao_sqrt(uint32_t op);
 
 int32_t ao_freq_to_set(int32_t freq, int32_t cal) __reentrant;
 
-#include <ao_arch_funcs.h>
-
 /*
  * ao_ms5607.c
  */
 
 void ao_ms5607_init(void);
+
+#include <ao_arch_funcs.h>
 
 #endif /* _AO_H_ */
