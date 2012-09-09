@@ -134,10 +134,12 @@ ao_sample(void)
 		ao_data = (struct ao_data *) &ao_data_ring[ao_sample_data];
 		ao_sample_tick = ao_data->tick;
 
+#if HAS_BARO
 		ao_data_pres_cook(ao_data);
 		ao_sample_pres = ao_data_pres(ao_data);
 		ao_sample_alt = pres_to_altitude(ao_sample_pres);
 		ao_sample_height = ao_sample_alt - ao_ground_height;
+#endif
 
 #if HAS_ACCEL
 		ao_sample_accel = ao_data_accel_cook(ao_data);

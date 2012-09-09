@@ -69,7 +69,11 @@
 /*
  * Above this height, the baro sensor doesn't work
  */
+#if HAS_MS5607
+#define AO_MAX_BARO_HEIGHT	30000
+#else
 #define AO_MAX_BARO_HEIGHT	12000
+#endif
 
 /*
  * Above this speed, baro measurements are unreliable
@@ -90,20 +94,19 @@
 #define AO_MSS_TO_ACCEL(mss)	((int16_t) ((mss) * 16))
 
 extern __pdata uint16_t	ao_sample_tick;		/* time of last data */
-extern __pdata pres_t	ao_sample_pres;		/* most recent pressure sensor reading */
-extern __pdata alt_t	ao_sample_alt;		/* MSL of ao_sample_pres */
-extern __pdata alt_t	ao_sample_height;	/* AGL of ao_sample_pres */
 extern __data uint8_t	ao_sample_adc;		/* Ring position of last processed sample */
 extern __data uint8_t	ao_sample_data;		/* Ring position of last processed sample */
 
-#if HAS_ACCEL
-extern __pdata accel_t	ao_sample_accel;	/* most recent accel sensor reading */
-#endif
-
+#if HAS_BARO
+extern __pdata pres_t	ao_sample_pres;		/* most recent pressure sensor reading */
+extern __pdata alt_t	ao_sample_alt;		/* MSL of ao_sample_pres */
+extern __pdata alt_t	ao_sample_height;	/* AGL of ao_sample_pres */
 extern __pdata pres_t	ao_ground_pres;		/* startup pressure */
 extern __pdata alt_t	ao_ground_height;	/* MSL of ao_ground_pres */
+#endif
 
 #if HAS_ACCEL
+extern __pdata accel_t	ao_sample_accel;	/* most recent accel sensor reading */
 extern __pdata accel_t	ao_ground_accel;	/* startup acceleration */
 extern __pdata accel_t 	ao_accel_2g;		/* factory accel calibration */
 extern __pdata int32_t	ao_accel_scale;		/* sensor to m/s² conversion */

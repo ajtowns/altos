@@ -54,6 +54,15 @@ struct ao_adc {
 #define __code
 #define __reentrant
 
+#define HAS_FLIGHT 1
+#define HAS_IGNITE 1
+#define HAS_USB 1
+#define HAS_GPS 1
+#ifndef HAS_ACCEL
+#define HAS_ACCEL 1
+#define HAS_ACCEL_REF 0
+#endif
+
 #include <ao_data.h>
 
 #define to_fix16(x) ((int16_t) ((x) * 65536.0 + 0.5))
@@ -200,24 +209,17 @@ struct ao_config ao_config;
 
 #define DATA_TO_XDATA(x) (x)
 
-#define HAS_FLIGHT 1
-#define HAS_IGNITE 1
-#define HAS_ADC 1
-#define HAS_USB 1
-#define HAS_GPS 1
-#ifndef HAS_ACCEL
-#define HAS_ACCEL 1
-#define HAS_ACCEL_REF 0
-#endif
 
 #define GRAVITY 9.80665
 extern int16_t ao_ground_accel, ao_flight_accel;
 extern int16_t ao_accel_2g;
 
+typedef int16_t	accel_t;
+
 extern uint16_t	ao_sample_tick;
 
 extern int16_t	ao_sample_height;
-extern int16_t	ao_sample_accel;
+extern accel_t	ao_sample_accel;
 extern int32_t	ao_accel_scale;
 extern int16_t	ao_ground_height;
 extern int16_t	ao_sample_alt;

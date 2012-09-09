@@ -95,15 +95,19 @@ extern volatile __data uint8_t		ao_data_count;
 	} while (0);
 
 /*
- * Wait for data to be completed by looking at the
- * indicated bit
+ * Wait until it is time to write a sensor sample; this is
+ * signaled by the timer tick
  */
 #define AO_DATA_WAIT() do {				\
 		ao_sleep((void *) &ao_data_count);	\
 	} while (0)
 
+#if !HAS_BARO && HAS_MS5607
 
-#if HAS_MS5607
+/* Either an MS5607 or an MS5611 hooked to a SPI port
+ */
+
+#define HAS_BARO	1
 
 typedef int32_t	pres_t;
 typedef int32_t alt_t;
@@ -115,7 +119,11 @@ typedef int32_t alt_t;
 
 #define pres_to_altitude(p)	ao_pa_to_altitude(p)
 
-#else /* HAS_MS5607 */
+#endif
+
+#if !HAS_BARO && HAS_ADC
+
+#define HAS_BARO	1
 
 typedef int16_t pres_t;
 typedef int16_t alt_t;
@@ -125,7 +133,7 @@ typedef int16_t alt_t;
 #define pres_to_altitude(p)	ao_pres_to_altitude(p)
 #define ao_data_pres_cook(p)
 
-#endif /* else HAS_MS5607 */
+#endif
 
 /*
  * Need a few macros to pull data from the sensors:
@@ -136,17 +144,12 @@ typedef int16_t alt_t;
  * ao_data_accel_invert	- flip rocket ends for positive acceleration
  */
 
-#if HAS_MPU6000 && !HAS_HIGHG_ACCEL
+#if HAS_ACCEL
 
-typedef int16_t accel_t;
-
-/* MPU6000 is hooked up so that positive y is positive acceleration */
-#define ao_data_accel(packet)			((packet)->mpu6000.accel_y)
-#define ao_data_accel_cook(packet)		(-(packet)->mpu6000.accel_y)
-#define ao_data_set_accel(packet, accel)	((packet)->mpu6000.accel_y = (accel))
-#define ao_data_accel_invert(a)			(-(a))
-
-#else /* HAS_MPU6000 && !HAS_HIGHG_ACCEL */
+/* This section is for an analog accelerometer hooked to one of the ADC pins. As
+ * those are 5V parts, this also requires that the 5V supply be hooked to to anothe ADC
+ * pin so that the both can be measured to correct for changes between the 3.3V and 5V rails
+ */
 
 typedef int16_t accel_t;
 #define ao_data_accel(packet)			((packet)->adc.accel)
@@ -245,6 +248,35 @@ typedef int16_t accel_t;
 
 #endif /* HAS_ACCEL_REF */
 
-#endif	/* else some other accel sensor */
+#endif	/* HAS_ACCEL */
+
+#if !HAS_ACCEL && HAS_MMA655X
+
+#define HAS_ACCEL	1
+
+typedef int16_t accel_t;
+
+/* MMA655X is hooked up so that positive values represent negative acceleration */
+
+#define ao_data_accel(packet)			((packet)->mma655x)
+#define ao_data_accel_cook(packet)		((packet)->mma655x)
+#define ao_data_set_accel(packet, accel)	((packet)->mma655x = (accel))
+#define ao_data_accel_invert(accel)		(4095 - (accel))
+
+#endif
+
+#if !HAS_ACCEL && HAS_MPU6000
+
+#define HAS_ACCEL	1
+
+typedef int16_t accel_t;
+
+/* MPU6000 is hooked up so that positive y is positive acceleration */
+#define ao_data_accel(packet)			((packet)->mpu6000.accel_y)
+#define ao_data_accel_cook(packet)		(-(packet)->mpu6000.accel_y)
+#define ao_data_set_accel(packet, accel)	((packet)->mpu6000.accel_y = (accel))
+#define ao_data_accel_invert(a)			(-(a))
+
+#endif
 
 #endif /* _AO_DATA_H_ */
