@@ -224,8 +224,10 @@ main (int argc, char **argv)
 					last_tick = telem.generic.tick;
 					send_telem(cc, &telem);
 				} else {
+					enum ao_flight_state state = packet_state(&telem);
 					add_telem(&telem);
-					if (packet_state(&telem) > ao_flight_pad) {
+					if (ao_flight_pad < state && state < ao_flight_landed) {
+						printf ("started\n");
 						started = 1;
 						last_tick = send_queued(cc, realtime);
 					}
