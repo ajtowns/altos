@@ -336,7 +336,7 @@ public class AltosEepromDownload implements Runnable {
 
 		state = 0; state_block = log.start_block;
 		for (block = log.start_block; !done && block < log.end_block; block++) {
-			monitor.set_value(Altos.state_to_string[state], state, block - state_block);
+			monitor.set_value(AltosLib.state_name(state), state, block - state_block);
 
 			AltosEepromChunk	eechunk = new AltosEepromChunk(serial_line, block, block == log.start_block);
 
