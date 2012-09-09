@@ -25,14 +25,21 @@ AltosLib_JAVA = \
 	$(SRC)/AltosFlightReader.java \
 	$(SRC)/AltosFrequency.java \
 	$(SRC)/AltosGPS.java \
+	$(SRC)/AltosGPSQuery.java \
 	$(SRC)/AltosGPSSat.java \
 	$(SRC)/AltosGreatCircle.java \
 	$(SRC)/AltosIdleMonitor.java \
 	$(SRC)/AltosIdleMonitorListener.java \
 	$(SRC)/AltosIgnite.java \
+	$(SRC)/AltosIMU.java \
+	$(SRC)/AltosIMUQuery.java \
 	$(SRC)/AltosLine.java \
 	$(SRC)/AltosLink.java \
 	$(SRC)/AltosLog.java \
+	$(SRC)/AltosMs5607.java \
+	$(SRC)/AltosMs5607Query.java \
+	$(SRC)/AltosOrderedRecord.java \
+	$(SRC)/AltosOrderedMegaRecord.java \
 	$(SRC)/AltosParse.java \
 	$(SRC)/AltosPreferences.java \
 	$(SRC)/AltosRecordCompanion.java \
@@ -41,6 +48,8 @@ AltosLib_JAVA = \
 	$(SRC)/AltosRecordTM.java \
 	$(SRC)/AltosRecordMM.java \
 	$(SRC)/AltosReplayReader.java \
+	$(SRC)/AltosSensorMM.java \
+	$(SRC)/AltosSensorTM.java \
 	$(SRC)/AltosState.java \
 	$(SRC)/AltosTelemetry.java \
 	$(SRC)/AltosTelemetryIterable.java \
