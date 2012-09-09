@@ -23,10 +23,17 @@
 static __xdata uint8_t ao_pad_ignite;
 static __xdata struct ao_pad_command	command;
 static __xdata struct ao_pad_query	query;
+static __pdata uint8_t	ao_pad_armed;
+static __pdata uint16_t	ao_pad_arm_time;
+static __pdata uint8_t	ao_pad_box;
+static __xdata uint8_t	ao_pad_disabled;
 
-#if 0
-#define PRINTD(...) printf(__VA_ARGS__)
-#define FLUSHD()    flush()
+#define DEBUG	1
+
+#if DEBUG
+static __pdata uint8_t	ao_pad_debug;
+#define PRINTD(...) (ao_pad_debug ? (printf(__VA_ARGS__), 0) : 0)
+#define FLUSHD()    (ao_pad_debug ? (flush(), 0) : 0)
 #else
 #define PRINTD(...) 
 #define FLUSHD()    
@@ -50,6 +57,8 @@ ao_pad_run(void)
 	}
 }
 
+#define AO_PAD_ARM_BEEP_INTERVAL	200
+
 static void
 ao_pad_monitor(void)
 {
@@ -58,6 +67,7 @@ ao_pad_monitor(void)
 	__pdata uint8_t		prev = 0, cur = 0;
 	__pdata uint8_t		beeping = 0;
 	__xdata struct ao_data	*packet;
+	__pdata uint16_t	arm_beep_time = 0;
 
 	sample = ao_data_head;
 	for (;;) {
@@ -75,65 +85,79 @@ ao_pad_monitor(void)
 #define VOLTS_TO_PYRO(x) ((int16_t) ((x) * 27.0 / 127.0 / 3.3 * 32767.0))
 
 		cur = 0;
-		if (pyro > VOLTS_TO_PYRO(4))
+		if (pyro > VOLTS_TO_PYRO(10)) {
 			query.arm_status = AO_PAD_ARM_STATUS_ARMED;
-		else if (pyro < VOLTS_TO_PYRO(1))
+			cur |= AO_LED_ARMED;
+		} else if (pyro < VOLTS_TO_PYRO(5)) {
 			query.arm_status = AO_PAD_ARM_STATUS_DISARMED;
-		else
+			arm_beep_time = 0;
+		} else {
+			if ((ao_time() % 100) < 50)
+				cur |= AO_LED_ARMED;
 			query.arm_status = AO_PAD_ARM_STATUS_UNKNOWN;
+			arm_beep_time = 0;
+		}
 
 		for (c = 0; c < AO_PAD_NUM; c++) {
 			int16_t		sense = packet->adc.sense[c];
 			uint8_t	status = AO_PAD_IGNITER_STATUS_UNKNOWN;
 
-			if (query.arm_status == AO_PAD_ARM_STATUS_ARMED) {
-				/*
-				 *	pyro is run through a divider, so pyro = v_pyro * 27 / 127 ~= v_pyro / 20
-				 *	v_pyro = pyro * 127 / 27
-				 *
-				 *		v_pyro \
-				 *	100k		igniter
-				 *		output /	
-				 *	100k           \
-				 *		sense   relay
-				 *	27k            / 
-				 *		gnd ---   
-				 *
-				 *	If the relay is closed, then sense will be 0
-				 *	If no igniter is present, then sense will be v_pyro * 27k/227k = pyro * 127 / 227 ~= pyro/2
-				 *	If igniter is present, then sense will be v_pyro * 27k/127k ~= v_pyro / 20 = pyro
-				 */
+			/*
+			 *	pyro is run through a divider, so pyro = v_pyro * 27 / 127 ~= v_pyro / 20
+			 *	v_pyro = pyro * 127 / 27
+			 *
+			 *		v_pyro \
+			 *	100k		igniter
+			 *		output /	
+			 *	100k           \
+			 *		sense   relay
+			 *	27k            / 
+			 *		gnd ---   
+			 *
+			 *	If the relay is closed, then sense will be 0
+			 *	If no igniter is present, then sense will be v_pyro * 27k/227k = pyro * 127 / 227 ~= pyro/2
+			 *	If igniter is present, then sense will be v_pyro * 27k/127k ~= v_pyro / 20 = pyro
+			 */
 
-				if (sense <= pyro / 8)
-					status = AO_PAD_IGNITER_STATUS_NO_IGNITER_RELAY_CLOSED;
-				else if (pyro / 8 * 3 <= sense && sense <= pyro / 8 * 5)
-					status = AO_PAD_IGNITER_STATUS_NO_IGNITER_RELAY_OPEN;
-				else if (pyro / 8 * 7 <= sense) {
-					status = AO_PAD_IGNITER_STATUS_GOOD_IGNITER_RELAY_OPEN;
+			if (sense <= pyro / 8) {
+				status = AO_PAD_IGNITER_STATUS_NO_IGNITER_RELAY_CLOSED;
+				if ((ao_time() % 100) < 50)
 					cur |= AO_LED_CONTINUITY(c);
-				}
+			}
+			else if (pyro / 8 * 3 <= sense && sense <= pyro / 8 * 5)
+				status = AO_PAD_IGNITER_STATUS_NO_IGNITER_RELAY_OPEN;
+			else if (pyro / 8 * 7 <= sense) {
+				status = AO_PAD_IGNITER_STATUS_GOOD_IGNITER_RELAY_OPEN;
+				cur |= AO_LED_CONTINUITY(c);
 			}
 			query.igniter_status[c] = status;
 		}
 		if (cur != prev) {
-			ao_led_set_mask(cur, AO_LED_CONTINUITY_MASK);
+			PRINTD("change leds from %02x to %02x mask %02x\n",
+			       prev, cur, AO_LED_CONTINUITY_MASK|AO_LED_ARMED);
+			ao_led_set_mask(cur, AO_LED_CONTINUITY_MASK | AO_LED_ARMED);
 			prev = cur;
 		}
 
-		if (pyro > VOLTS_TO_PYRO(9) && sample == 0) {
+		if (ao_pad_armed) {
+			if (sample & 2)
+				ao_beep(AO_BEEP_HIGH);
+			else
+				ao_beep(AO_BEEP_LOW);
 			beeping = 1;
-			ao_beep(AO_BEEP_HIGH);
+		} else if (query.arm_status == AO_PAD_ARM_STATUS_ARMED && !beeping) {
+			if (arm_beep_time == 0) {
+				arm_beep_time = AO_PAD_ARM_BEEP_INTERVAL;
+				beeping = 1;
+				ao_beep(AO_BEEP_HIGH);
+			}
+			--arm_beep_time;
 		} else if (beeping) {
 			beeping = 0;
 			ao_beep(0);
 		}
 	}
 }
-
-static __pdata uint8_t	ao_pad_armed;
-static __pdata uint16_t	ao_pad_arm_time;
-static __pdata uint8_t	ao_pad_box;
-static __xdata uint8_t	ao_pad_disabled;
 
 void
 ao_pad_disable(void)
@@ -172,6 +196,9 @@ ao_pad(void)
 		
 		PRINTD ("tick %d box %d cmd %d channels %02x\n",
 			command.tick, command.box, command.cmd, command.channels);
+
+		if (ao_pad_armed && (int16_t) (ao_time() - ao_pad_arm_time) > AO_PAD_ARM_TIME)
+			ao_pad_armed = 0;
 
 		switch (command.cmd) {
 		case AO_LAUNCH_ARM:
@@ -235,6 +262,7 @@ ao_pad(void)
 			}
 			PRINTD ("ignite\n");
 			ao_pad_ignite = ao_pad_armed;
+			ao_pad_arm_time = ao_time();
 			ao_wakeup(&ao_pad_ignite);
 			break;
 		}
@@ -287,9 +315,22 @@ static __xdata struct ao_task ao_pad_task;
 static __xdata struct ao_task ao_pad_ignite_task;
 static __xdata struct ao_task ao_pad_monitor_task;
 
+#if DEBUG
+void
+ao_pad_set_debug(void)
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status == ao_cmd_success)
+		ao_pad_debug = ao_cmd_lex_i != 0;
+}
+#endif
+
 __code struct ao_cmds ao_pad_cmds[] = {
 	{ ao_pad_test,	"t\0Test pad continuity" },
 	{ ao_pad_manual,	"i <key> <n>\0Fire igniter. <key> is doit with D&I" },
+#if DEBUG
+	{ ao_pad_set_debug,	"D <0 off, 1 on>\0Debug" },
+#endif
 	{ 0, NULL }
 };
 
