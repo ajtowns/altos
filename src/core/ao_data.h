@@ -28,7 +28,7 @@
 #include <ao_ms5607.h>
 #define AO_DATA_MS5607	(1 << 1)
 #else
-#define AO_DATA_MS5607	(1 << 1)
+#define AO_DATA_MS5607	0
 #endif
 
 #if HAS_MPU6000
