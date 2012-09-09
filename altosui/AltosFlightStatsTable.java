@@ -103,7 +103,7 @@ public class AltosFlightStatsTable extends JComponent {
 			       String.format("%5.0f m/s", stats.state_baro_speed[Altos.ao_flight_main]),
 			       String.format("%5.0f ft/s", AltosConvert.meters_to_feet(stats.state_baro_speed[Altos.ao_flight_main])));
 		for (int s = Altos.ao_flight_boost; s <= Altos.ao_flight_main; s++) {
-			new FlightStat(layout, y++, String.format("%s time", Altos.state_to_string_capital[s]),
+			new FlightStat(layout, y++, String.format("%s time", AltosLib.state_name_capital(s)),
 				       String.format("%6.2f s", stats.state_end[s] - stats.state_start[s]));
 		}
 		new FlightStat(layout, y++, "Flight Time",

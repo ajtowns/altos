@@ -111,7 +111,7 @@ public class AltosLib {
 	public static final int ao_telemetry_0_8 = 3;
 	public static final int ao_telemetry_max = 3;
 
-	public static final String[] ao_telemetry_name = {
+	private static final String[] ao_telemetry_name = {
 		"Off", "Standard Telemetry", "TeleMetrum v0.9", "TeleMetrum v0.8"
 	};
 
@@ -121,13 +121,13 @@ public class AltosLib {
 	public static final int ao_telemetry_0_9_len = 95;
 	public static final int ao_telemetry_0_8_len = 94;
 
-	public static final int[] ao_telemetry_len = {
+	private static final int[] ao_telemetry_len = {
 		0, 32, 95, 94
 	};
 
-	public static HashMap<String,Integer>	string_to_state = new HashMap<String,Integer>();
+	private static HashMap<String,Integer>	string_to_state = new HashMap<String,Integer>();
 
-	public static boolean map_initialized = false;
+	private static boolean map_initialized = false;
 
 	public static void initialize_map()
 	{
@@ -159,7 +159,7 @@ public class AltosLib {
 								 telemetry));
 	}
 	
-	public static String[] state_to_string = {
+	private static String[] state_to_string = {
 		"startup",
 		"idle",
 		"pad",
@@ -172,7 +172,7 @@ public class AltosLib {
 		"invalid",
 	};
 
-	public static String[] state_to_string_capital = {
+	private static String[] state_to_string_capital = {
 		"Startup",
 		"Idle",
 		"Pad",
@@ -197,6 +197,12 @@ public class AltosLib {
 		if (state < 0 || state_to_string.length <= state)
 			return "invalid";
 		return state_to_string[state];
+	}
+
+	public static String state_name_capital(int state) {
+		if (state < 0 || state_to_string.length <= state)
+			return "invalid";
+		return state_to_string_capital[state];
 	}
 
 	public static final int AO_GPS_VALID = (1 << 4);

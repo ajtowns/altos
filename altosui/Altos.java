@@ -72,20 +72,6 @@ public class Altos extends AltosLib {
 
 	static final int text_width = 20;
 
-	static public int state(String state) {
-		if (!map_initialized)
-			initialize_map();
-		if (string_to_state.containsKey(state))
-			return string_to_state.get(state);
-		return ao_flight_invalid;
-	}
-
-	static public String state_name(int state) {
-		if (state < 0 || state_to_string.length <= state)
-			return "invalid";
-		return state_to_string[state];
-	}
-
 	static public boolean initialized = false;
 	static public boolean loaded_library = false;
 

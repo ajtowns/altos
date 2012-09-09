@@ -427,7 +427,7 @@ public class AltosScanUI
 		telemetry_boxes = new JCheckBox[Altos.ao_telemetry_max - Altos.ao_telemetry_min + 1];
 		for (int k = Altos.ao_telemetry_min; k <= Altos.ao_telemetry_max; k++) {
 			int j = k - Altos.ao_telemetry_min;
-			telemetry_boxes[j] = new JCheckBox(Altos.ao_telemetry_name[k]);
+			telemetry_boxes[j] = new JCheckBox(AltosLib.telemetry_name(k));
 			c.gridy = 3 + j;
 			pane.add(telemetry_boxes[j], c);
 			telemetry_boxes[j].setActionCommand("telemetry");
