@@ -64,6 +64,7 @@ public class AltosIgnite {
 		}
 	}
 
+	/*
 	private boolean get_string(String line, String label, string_ref s) {
 		if (line.startsWith(label)) {
 			String	quoted = line.substring(label.length()).trim();
@@ -78,6 +79,7 @@ public class AltosIgnite {
 			return false;
 		}
 	}
+	*/
 
 	private int status(String status_name) {
 		if (status_name.equals("unknown"))
@@ -95,7 +97,7 @@ public class AltosIgnite {
 		int status = Unknown;
 		if (link == null)
 			return status;
-		string_ref status_name = new string_ref();
+		//string_ref status_name = new string_ref();
 		try {
 			start_link();
 			link.printf("t\n");

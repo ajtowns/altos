@@ -77,8 +77,8 @@ public class AltosState {
 	public double	speak_altitude;
 
 	public void init (AltosRecord cur, AltosState prev_state) {
-		int		i;
-		AltosRecord prev;
+		//int		i;
+		//AltosRecord prev;
 
 		data = cur;
 

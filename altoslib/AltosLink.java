@@ -17,11 +17,9 @@
 
 package org.altusmetrum.AltosLib;
 
-import java.lang.*;
 import java.io.*;
 import java.util.concurrent.*;
 import java.util.*;
-import java.text.*;
 
 public abstract class AltosLink implements Runnable {
 

@@ -17,10 +17,7 @@
 
 package org.altusmetrum.AltosLib;
 
-import java.io.*;
-import java.util.*;
 import java.text.*;
-import java.util.prefs.*;
 import java.util.concurrent.*;
 
 /*
@@ -75,7 +72,7 @@ public class AltosEepromLog {
 			for (block = in_start_block; block < in_end_block; block++) {
 				AltosEepromChunk eechunk = new AltosEepromChunk(link, block, block == in_start_block);
 
-				for (int i = 0; i < eechunk.chunk_size; i += AltosEepromRecord.record_length) {
+				for (int i = 0; i < AltosEepromChunk.chunk_size; i += AltosEepromRecord.record_length) {
 					try {
 						AltosEepromRecord r = new AltosEepromRecord(eechunk, i);
 

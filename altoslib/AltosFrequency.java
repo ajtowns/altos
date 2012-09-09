@@ -17,10 +17,6 @@
 
 package org.altusmetrum.AltosLib;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-
 public class AltosFrequency {
 	public double	frequency;
 	public String	description;

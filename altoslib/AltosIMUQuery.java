@@ -17,6 +17,30 @@
 
 package org.altusmetrum.AltosLib;
 
-public interface AltosIdleMonitorListener {
-	public void update(AltosState state);
+import java.util.concurrent.TimeoutException;
+
+class AltosIMUQuery extends AltosIMU {
+
+	public AltosIMUQuery (AltosLink link) throws InterruptedException, TimeoutException {
+		link.printf("I\n");
+		for (;;) {
+			String line = link.get_reply_no_dialog(5000);
+			if (line == null) {
+				throw new TimeoutException();
+			}
+			if (!line.startsWith("Accel:"))
+				continue;
+			String[] items = line.split("\\s+");
+			if (items.length >= 8) {
+				accel_x = Integer.parseInt(items[1]);
+				accel_y = Integer.parseInt(items[2]);
+				accel_z = Integer.parseInt(items[3]);
+				gyro_x = Integer.parseInt(items[5]);
+				gyro_y = Integer.parseInt(items[6]);
+				gyro_z = Integer.parseInt(items[7]);
+			}
+			break;
+		}
+	}
 }
+

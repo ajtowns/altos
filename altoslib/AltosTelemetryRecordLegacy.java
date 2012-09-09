@@ -17,9 +17,7 @@
 
 package org.altusmetrum.AltosLib;
 
-import java.lang.*;
 import java.text.*;
-import java.util.HashMap;
 
 /*
  * Telemetry data contents
@@ -394,9 +392,11 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 	int[]	bytes;
 	int	adjust;
 
+	/*
 	private int int8(int i) {
 		return AltosLib.int8(bytes, i + 1 + adjust);
 	}
+	*/
 	private int uint8(int i) {
 		return AltosLib.uint8(bytes, i + 1 + adjust);
 	}
@@ -478,7 +478,7 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 			record.gps = new AltosGPS();
 			record.new_gps = true;
 
-			record.seen |= record.seen_gps_time | record.seen_gps_lat | record.seen_gps_lon;
+			record.seen |= AltosRecord.seen_gps_time | AltosRecord.seen_gps_lat | AltosRecord.seen_gps_lon;
 			record.gps.nsat = (gps_flags & AO_GPS_NUM_SAT_MASK);
 			record.gps.locked = (gps_flags & AO_GPS_VALID) != 0;
 			record.gps.connected = true;

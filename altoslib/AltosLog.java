@@ -18,8 +18,6 @@
 package org.altusmetrum.AltosLib;
 
 import java.io.*;
-import java.lang.*;
-import java.util.*;
 import java.text.ParseException;
 import java.util.concurrent.LinkedBlockingQueue;
 

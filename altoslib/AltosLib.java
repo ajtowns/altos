@@ -17,9 +17,7 @@
 
 package org.altusmetrum.AltosLib;
 
-import java.awt.*;
 import java.util.*;
-import java.text.*;
 import java.io.*;
 import java.nio.charset.Charset;
 
