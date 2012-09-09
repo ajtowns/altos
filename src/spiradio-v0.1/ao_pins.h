@@ -41,9 +41,10 @@
 #define DBG_ON_P1 		0
 #define PACKET_HAS_MASTER	0
 #define PACKET_HAS_SLAVE	0
-#define AO_LED_RED		1
-#define AO_LED_GREEN		2
-#define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
+#define AO_LED_TX		1
+#define AO_LED_RX		2
+#define AO_LED_RED		AO_LED_TX
+#define LEDS_AVAILABLE		(AO_LED_TX|AO_LED_RX)
 #define HAS_EXTERNAL_TEMP	0
 #define HAS_ACCEL_REF		0
 #define SPI_CS_ON_P1		1
