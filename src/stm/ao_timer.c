@@ -87,7 +87,7 @@ ao_timer_init(void)
 	stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_TIM6EN);
 
 	stm_tim6.psc = TIMER_10kHz;
-	stm_tim6.arr = 100;
+	stm_tim6.arr = 99;
 	stm_tim6.cnt = 0;
 
 	/* Enable update interrupt */
