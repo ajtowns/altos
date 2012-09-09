@@ -23,8 +23,11 @@
 #include <ao_lco_func.h>
 #include <ao_radio_cmac.h>
 
-#if 1
-#define PRINTD(...) do { printf ("\r%5u %s: ", ao_tick_count, __func__); printf(__VA_ARGS__); flush(); } while(0)
+#define DEBUG	1
+
+#if DEBUG
+static uint8_t	ao_lco_debug;
+#define PRINTD(...) do { if (!ao_lco_debug) break; printf ("\r%5u %s: ", ao_tick_count, __func__); printf(__VA_ARGS__); flush(); } while(0)
 #else
 #define PRINTD(...) 
 #endif
@@ -33,8 +36,7 @@
 #define AO_LCO_BOX_DIGIT_1	1
 #define AO_LCO_BOX_DIGIT_10	2
 
-#define AO_NUM_BOX		10
-
+static uint8_t	ao_lco_min_box, ao_lco_max_box;
 static uint8_t	ao_lco_mutex;
 static uint8_t	ao_lco_pad;
 static uint8_t	ao_lco_box;
@@ -45,7 +47,7 @@ static uint8_t	ao_lco_valid;
 static void
 ao_lco_set_pad(void)
 {
-	ao_seven_segment_set(AO_LCO_PAD_DIGIT, ao_lco_pad);
+	ao_seven_segment_set(AO_LCO_PAD_DIGIT, ao_lco_pad + 1);
 }
 
 static void
@@ -55,11 +57,27 @@ ao_lco_set_box(void)
 	ao_seven_segment_set(AO_LCO_BOX_DIGIT_10, ao_lco_box / 10);
 }
 
+#define MASK_SIZE(n)	(((n) + 7) >> 3)
+#define MASK_ID(n)	((n) >> 3)
+#define MASK_SHIFT(n)	((n) & 7)
+
+static uint8_t	ao_lco_box_mask[MASK_SIZE(AO_PAD_MAX_BOXES)];
+
+static uint8_t
+ao_lco_box_present(uint8_t box)
+{
+	if (box >= AO_PAD_MAX_BOXES)
+		return 0;
+	return (ao_lco_box_mask[MASK_ID(box)] >> MASK_SHIFT(box)) & 1;
+}
+
 static void
 ao_lco_input(void)
 {
 	static struct ao_event	event;
+	int8_t	dir;
 
+	ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(200));
 	ao_lco_set_pad();
 	ao_lco_set_box();
 	for (;;) {
@@ -72,19 +90,23 @@ ao_lco_input(void)
 			case AO_QUADRATURE_PAD:
 				if (!ao_lco_armed) {
 					ao_lco_pad = event.value & 3;
-					ao_lco_valid = 0;
 					ao_quadrature_count[AO_QUADRATURE_PAD] = ao_lco_pad;
 					ao_lco_set_pad();
 				}
 				break;
 			case AO_QUADRATURE_BOX:
 				if (!ao_lco_armed) {
+					if (event.value == ao_lco_box)
+						break;
+					dir = (event.value - ao_lco_box) > 0 ? 1 : -1;
 					ao_lco_box = event.value;
-					ao_lco_valid = 0;
-					while (ao_lco_box >= AO_NUM_BOX)
-						ao_lco_box -= AO_NUM_BOX;
-					while (ao_lco_box < 0)
-						ao_lco_box += AO_NUM_BOX;
+					while (!ao_lco_box_present(ao_lco_box)) {
+						ao_lco_box += dir;
+						if (ao_lco_box > ao_lco_max_box)
+							ao_lco_box = ao_lco_min_box;
+						else if (ao_lco_box < ao_lco_min_box)
+							ao_lco_box = ao_lco_min_box;
+					}
 					ao_quadrature_count[AO_QUADRATURE_PAD] = ao_lco_box;
 					ao_lco_set_box();
 				}
@@ -140,18 +162,17 @@ static AO_LED_TYPE	continuity_led[AO_LED_CONTINUITY_NUM] = {
 
 static uint16_t	ao_lco_tick_offset;
 
+static struct ao_pad_query	ao_pad_query;
+
 static void
 ao_lco_update(void)
 {
 	int8_t			r;
 	uint8_t			c;
-	struct ao_pad_query	query;
 
-	r = ao_lco_query(ao_lco_box, &query, &ao_lco_tick_offset);
-	if (r != AO_RADIO_CMAC_OK) {
-		PRINTD("lco_query return %d\n", r);
-		return;
-	}
+	r = ao_lco_query(ao_lco_box, &ao_pad_query, &ao_lco_tick_offset);
+	if (r == AO_RADIO_CMAC_OK)
+		ao_lco_valid = 1;
 
 #if 0
 	PRINTD("lco_query success arm_status %d i0 %d i1 %d i2 %d i3 %d\n",
@@ -162,48 +183,78 @@ ao_lco_update(void)
 	       query.igniter_status[3]);
 #endif
 
-	ao_lco_valid = 1;
-	if (query.arm_status)
-		ao_led_on(AO_LED_REMOTE_ARM);
-	else
-		ao_led_off(AO_LED_REMOTE_ARM);
-	for (c = 0; c < AO_LED_CONTINUITY_NUM; c++) {
-		uint8_t	status;
-
-		if (query.channels & (1 << c))
-			status = query.igniter_status[c];
-		else
-			status = AO_PAD_IGNITER_STATUS_NO_IGNITER_RELAY_OPEN;
-		if (status == AO_PAD_IGNITER_STATUS_GOOD_IGNITER_RELAY_OPEN)
-			ao_led_on(continuity_led[c]);
-		else
-			ao_led_off(continuity_led[c]);
-	}
+	ao_wakeup(&ao_pad_query);
 }
 
 static void
-ao_lco_monitor(void)
+ao_lco_box_set_present(uint8_t box)
 {
-	uint16_t		delay;
+	if (box >= AO_PAD_MAX_BOXES)
+		return;
+	ao_lco_box_mask[MASK_ID(box)] |= 1 << MASK_SHIFT(box);
+}
+
+static void
+ao_lco_search(void)
+{
+	uint16_t	tick_offset;
+	int8_t		r;
+
+	ao_lco_min_box = 0xff;
+	ao_lco_max_box = 0x00;
+	for (ao_lco_box = 0; ao_lco_box < AO_PAD_MAX_BOXES; ao_lco_box++) {
+		ao_lco_set_box();
+		r = ao_lco_query(ao_lco_box, &ao_pad_query, &ao_lco_tick_offset);
+		if (r == AO_RADIO_CMAC_OK) {
+			if (ao_lco_box < ao_lco_min_box)
+				ao_lco_min_box = ao_lco_box;
+			if (ao_lco_box > ao_lco_max_box)
+				ao_lco_max_box = ao_lco_box;
+			ao_lco_box_set_present(ao_lco_box);
+		}
+	}
+	ao_lco_box = ao_lco_min_box;
+	ao_lco_pad = 0;
+}
+
+static void
+ao_lco_igniter_status(void)
+{
+	uint8_t		c;
+	uint16_t	delay;
 
 	for (;;) {
-		if (ao_lco_armed && ao_lco_firing) {
-			PRINTD("Firing box %d pad %d: valid %d\n",
-			       ao_lco_box, ao_lco_pad, ao_lco_valid);
-			if (!ao_lco_valid)
-				ao_lco_update();
-			if (ao_lco_valid)
-				ao_lco_ignite(ao_lco_box, ao_lco_pad, ao_lco_tick_offset);
-		} else {
-			ao_lco_update();
+//		ao_alarm(delay);
+		ao_sleep(&ao_pad_query);
+//		ao_clear_alarm();
+		if (!ao_lco_valid) {
+			ao_led_on(AO_LED_RED);
+			ao_led_off(AO_LED_GREEN);
+			continue;
 		}
-		if (ao_lco_armed && ao_lco_firing)
-			delay = AO_MS_TO_TICKS(100);
+		PRINTD("RSSI %d\n", ao_radio_cmac_rssi);
+		if (ao_radio_cmac_rssi < -70)
+			ao_led_on(AO_LED_RED|AO_LED_GREEN);
+		else {
+			ao_led_on(AO_LED_GREEN);
+			ao_led_off(AO_LED_RED);
+		}
+		if (ao_pad_query.arm_status)
+			ao_led_on(AO_LED_REMOTE_ARM);
 		else
-			delay = AO_SEC_TO_TICKS(1);
-		ao_alarm(delay);
-		ao_sleep(&ao_lco_armed);
-		ao_clear_alarm();
+			ao_led_off(AO_LED_REMOTE_ARM);
+		for (c = 0; c < AO_LED_CONTINUITY_NUM; c++) {
+			uint8_t	status;
+
+			if (ao_pad_query.channels & (1 << c))
+				status = ao_pad_query.igniter_status[c];
+			else
+				status = AO_PAD_IGNITER_STATUS_NO_IGNITER_RELAY_OPEN;
+			if (status == AO_PAD_IGNITER_STATUS_GOOD_IGNITER_RELAY_OPEN)
+				ao_led_on(continuity_led[c]);
+			else
+				ao_led_off(continuity_led[c]);
+		}
 	}
 }
 
@@ -221,11 +272,68 @@ ao_lco_arm_warn(void)
 static struct ao_task ao_lco_input_task;
 static struct ao_task ao_lco_monitor_task;
 static struct ao_task ao_lco_arm_warn_task;
+static struct ao_task ao_lco_igniter_status_task;
+
+static void
+ao_lco_monitor(void)
+{
+	uint16_t		delay;
+
+	ao_lco_search();
+	ao_add_task(&ao_lco_input_task, ao_lco_input, "lco input");
+	ao_add_task(&ao_lco_arm_warn_task, ao_lco_arm_warn, "lco arm warn");
+	ao_add_task(&ao_lco_igniter_status_task, ao_lco_igniter_status, "lco igniter status");
+	for (;;) {
+		PRINTD("monitor armed %d firing %d offset %d\n",
+		       ao_lco_armed, ao_lco_firing, ao_lco_tick_offset);
+
+		if (ao_lco_armed && ao_lco_firing) {
+			PRINTD("Firing box %d pad %d: valid %d\n",
+			       ao_lco_box, ao_lco_pad, ao_lco_valid);
+			if (!ao_lco_valid)
+				ao_lco_update();
+			if (ao_lco_valid)
+				ao_lco_ignite(ao_lco_box, 1 << ao_lco_pad, ao_lco_tick_offset);
+		} else if (ao_lco_armed) {
+			PRINTD("Arming box %d pad %d\n",
+			       ao_lco_box, ao_lco_pad);
+			if (!ao_lco_valid)
+				ao_lco_update();
+			ao_lco_arm(ao_lco_box, 1 << ao_lco_pad, ao_lco_tick_offset);
+			ao_lco_update();
+		} else {
+			ao_lco_update();
+		}
+		if (ao_lco_armed && ao_lco_firing)
+			delay = AO_MS_TO_TICKS(100);
+		else
+			delay = AO_SEC_TO_TICKS(1);
+		ao_alarm(delay);
+		ao_sleep(&ao_lco_armed);
+		ao_clear_alarm();
+	}
+}
+
+#if DEBUG
+void
+ao_lco_set_debug(void)
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status == ao_cmd_success)
+		ao_lco_debug = ao_cmd_lex_i != 0;
+}
+
+__code struct ao_cmds ao_lco_cmds[] = {
+	{ ao_lco_set_debug,	"D <0 off, 1 on>\0Debug" },
+	{ 0, NULL }
+};
+#endif
 
 void
 ao_lco_init(void)
 {
-	ao_add_task(&ao_lco_input_task, ao_lco_input, "lco input");
 	ao_add_task(&ao_lco_monitor_task, ao_lco_monitor, "lco monitor");
-	ao_add_task(&ao_lco_arm_warn_task, ao_lco_arm_warn, "lco arm warn");
+#if DEBUG
+	ao_cmd_register(&ao_lco_cmds[0]);
+#endif
 }

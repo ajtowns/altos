@@ -19,6 +19,7 @@
 #define _AO_PAD_H_
 
 #define AO_PAD_MAX_CHANNELS	8
+#define AO_PAD_MAX_BOXES	100
 
 struct ao_pad_command {
 	uint16_t	tick;
@@ -41,16 +42,17 @@ struct ao_pad_query {
 	uint8_t		igniter_status[AO_PAD_MAX_CHANNELS];	/* status for each igniter */
 };
 
-/* Set current armed pads, report back status
+/* Arm pads for 3 seconds, no report
  */
-  
 #define AO_PAD_ARM		2
+
+#define AO_PAD_ARM_TIME		AO_SEC_TO_TICKS(3)
 
 /* Fire current armed pads for 200ms, no report
  */
 #define AO_PAD_FIRE		3
 
-#define AO_PAD_FIRE_TIME	AO_MS_TO_TICKS(250)
+#define AO_PAD_FIRE_TIME	AO_MS_TO_TICKS(200)
 
 #define AO_PAD_ARM_STATUS_DISARMED	0
 #define AO_PAD_ARM_STATUS_ARMED		1
