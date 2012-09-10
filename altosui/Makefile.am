@@ -112,11 +112,9 @@ LIBALTOS= \
 	libaltos.dylib \
 	altos.dll
 
-# tmarble: test comment for change of package name
-# from altosui to AltosUI
-JAR=altosui.jar
+JAR=AltosUI.jar
 
-FATJAR=altosui-fat.jar
+FATJAR=AltosUI-fat.jar
 
 # Icons
 ICONDIR=$(top_srcdir)/icon
@@ -172,7 +170,7 @@ MACOSX_EXTRA=$(FIRMWARE)
 
 WINDOWS_FILES=$(FAT_FILES) altos.dll altos64.dll $(top_srcdir)/telemetrum.inf $(WINDOWS_ICON)
 
-all-local: classes/altosui $(JAR) altosui altosui-test altosui-jdb
+all-local: classes/AltosUI $(JAR) altosui altosui-test altosui-jdb
 
 clean-local:
 	-rm -rf classes $(JAR) $(FATJAR) \
@@ -209,43 +207,43 @@ endif
 
 altosuidir=$(datadir)/java
 
-install-altosuiJAVA: altosui.jar
+install-altosuiJAVA: AltosUI.jar
 	@$(NORMAL_INSTALL)
 	test -z "$(altosuidir)" || $(MKDIR_P) "$(DESTDIR)$(altosuidir)"
-	echo " $(INSTALL_DATA)" "$<" "'$(DESTDIR)$(altosuidir)/altosui.jar'"; \
+	echo " $(INSTALL_DATA)" "$<" "'$(DESTDIR)$(altosuidir)/AltosUI.jar'"; \
 	$(INSTALL_DATA) "$<" "$(DESTDIR)$(altosuidir)"
 
-classes/altosui:
-	mkdir -p classes/altosui
+classes/AltosUI:
+	mkdir -p classes/AltosUI
 
 $(JAR): classaltosui.stamp Manifest.txt $(JAVA_ICON) $(ALTOSLIB_CLASS)
 	jar cfm $@ Manifest.txt \
 		$(ICONJAR) \
-		-C classes altosui \
+		-C classes AltosUI \
 		-C libaltos libaltosJNI
 
 $(FATJAR): classaltosui.stamp Manifest-fat.txt $(ALTOSLIB_CLASS) $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) $(JAVA_ICON)
 	jar cfm $@ Manifest-fat.txt \
 		$(ICONJAR) \
-		-C classes altosui \
+		-C classes AltosUI \
 		-C libaltos libaltosJNI
 
 Manifest.txt: Makefile
-	echo 'Main-Class: altosui.AltosUI' > $@
+	echo 'Main-Class: AltosUI.AltosUI' > $@
 	echo "Class-Path: AltosLib.jar $(FREETTS)/freetts.jar $(JFREECHART)/jfreechart.jar $(JCOMMON)/jcommon.jar" >> $@
 
 Manifest-fat.txt:
-	echo 'Main-Class: altosui.AltosUI' > $@
+	echo 'Main-Class: AltosUI.AltosUI' > $@
 	echo "Class-Path: AltosLib.jar freetts.jar jfreechart.jar jcommon.jar" >> $@
 
 altosui: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java  -cp "$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="$(altoslibdir)" -jar "$(altosuidir)/altosui.jar" "$$@"' >> $@
+	echo 'exec java  -cp "$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="$(altoslibdir)" -jar "$(altosuidir)/AltosUI.jar" "$$@"' >> $@
 	chmod +x $@
 
 altosui-test: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java -cp "./*:$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="libaltos/.libs" -jar altosui.jar "$$@"' >> $@
+	echo 'exec java -cp "./*:$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="libaltos/.libs" -jar AltosUI.jar "$$@"' >> $@
 	chmod +x $@
 
 altosui-jdb: Makefile
