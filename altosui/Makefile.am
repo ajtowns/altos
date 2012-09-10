@@ -112,6 +112,8 @@ LIBALTOS= \
 	libaltos.dylib \
 	altos.dll
 
+# tmarble: test comment for change of package name
+# from altosui to AltosUI
 JAR=altosui.jar
 
 FATJAR=altosui-fat.jar
