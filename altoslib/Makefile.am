@@ -68,7 +68,12 @@ AltosLib_JAVA = \
 	$(SRC)/AltosTelemetryRecordMegaData.java \
 	$(SRC)/AltosMs5607.java \
 	$(SRC)/AltosIMU.java \
-	$(SRC)/AltosMag.java
+	$(SRC)/AltosMag.java \
+	$(SRC)/AltosUnits.java \
+	$(SRC)/AltosDistance.java \
+	$(SRC)/AltosHeight.java \
+	$(SRC)/AltosSpeed.java \
+	$(SRC)/AltosAccel.java
 
 JAR=AltosLib.jar
 

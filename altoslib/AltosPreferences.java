@@ -93,6 +93,10 @@ public class AltosPreferences {
 	public final static String	frequency_format = "FREQUENCY-%d";
 	public final static String	description_format = "DESCRIPTION-%d";
 
+	/* Units preference */
+
+	public final static String	unitsPreference = "IMPERIAL-UNITS";
+
 	public static AltosFrequency[] load_common_frequencies() {
 		AltosFrequency[] frequencies = null;
 		boolean	existing = false;
@@ -176,6 +180,7 @@ public class AltosPreferences {
 
 		common_frequencies = load_common_frequencies();
 
+		AltosConvert.imperial_units = preferences.getBoolean(unitsPreference, false);
 	}
 
 	static { init(); }
@@ -355,5 +360,17 @@ public class AltosPreferences {
 		for (; i < common_frequencies.length; i++)
 			new_frequencies[i+1] = common_frequencies[i];
 		set_common_frequencies(new_frequencies);
+	}
+
+	public static boolean imperial_units() {
+		return AltosConvert.imperial_units;
+	}
+
+	public static void set_imperial_units(boolean imperial_units) {
+		AltosConvert.imperial_units = imperial_units;
+		synchronized (preferences) {
+			preferences.putBoolean(unitsPreference, imperial_units);
+			flush_preferences();
+		}
 	}
 }

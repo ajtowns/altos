@@ -242,12 +242,40 @@ public class AltosConvert {
 		return meters * (100 / (2.54 * 12));
 	}
 
+	public static double meters_to_miles(double meters) {
+		return meters_to_feet(meters) / 5280;
+	}
+
+	public static double meters_to_mph(double mps) {
+		return meters_to_miles(mps) * 3600;
+ 	}
+
 	public static double meters_to_mach(double meters) {
 		return meters / 343;		/* something close to mach at usual rocket sites */
 	}
 
 	public static double meters_to_g(double meters) {
 		return meters / 9.80665;
+	}
+
+	public static boolean imperial_units = false;
+
+	public static AltosDistance distance = new AltosDistance();
+
+	public static AltosHeight height = new AltosHeight();
+
+	public static AltosSpeed speed = new AltosSpeed();
+
+	public static AltosAccel accel = new AltosAccel();
+
+	public static String show_gs(String format, double a) {
+		a = meters_to_g(a);
+		format = format.concat(" g");
+		return String.format(format, a);
+	}
+
+	public static String say_gs(double a) {
+		return String.format("%6.0 gees", meters_to_g(a));
 	}
 
 	public static int checksum(int[] data, int start, int length) {
