@@ -169,14 +169,14 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			max_value.setFont(Altos.value_font);
 		}
 
-		void show(String format, double v) {
+		void show(AltosUnits units, double v) {
 			if (v == AltosRecord.MISSING) {
 				value.setText("Missing");
 				max_value.setText("Missing");
 			} else {
-				value.setText(String.format(format, v));
+				value.setText(units.show(8, v));
 				if (v > max || max == AltosRecord.MISSING) {
-					max_value.setText(String.format(format, v));
+					max_value.setText(units.show(8, v));
 					max = v;
 				}
 			}
@@ -221,7 +221,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Height extends AscentValueHold {
 		void show (AltosState state, int crc_errors) {
-			show("%6.0f m", state.height);
+			show(AltosConvert.height, state.height);
 		}
 		public Height (GridBagLayout layout, int y) {
 			super (layout, y, "Height");
@@ -235,7 +235,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			double speed = state.speed;
 			if (!state.ascent)
 				speed = state.baro_speed;
-			show("%6.0f m/s", speed);
+			show(AltosConvert.speed, speed);
 		}
 		public Speed (GridBagLayout layout, int y) {
 			super (layout, y, "Speed");
@@ -246,7 +246,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Accel extends AscentValueHold {
 		void show (AltosState state, int crc_errors) {
-			show("%6.0f m/s²", state.acceleration);
+			show(AltosConvert.accel, state.acceleration);
 		}
 		public Accel (GridBagLayout layout, int y) {
 			super (layout, y, "Acceleration");

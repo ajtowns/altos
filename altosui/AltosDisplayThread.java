@@ -102,15 +102,15 @@ public class AltosDisplayThread extends Thread {
 			    state.state < Altos.ao_flight_landed &&
 			    state.range >= 0)
 			{
-				voice.speak("Height %d, bearing %s %d, elevation %d, range %d.\n",
-					    (int) (state.height + 0.5),
-                        state.from_pad.bearing_words(
-                            AltosGreatCircle.BEARING_VOICE),
+				voice.speak("Height %s, bearing %s %d, elevation %d, range %s.\n",
+					    AltosConvert.height.say(state.height),
+					    state.from_pad.bearing_words(
+						    AltosGreatCircle.BEARING_VOICE),
 					    (int) (state.from_pad.bearing + 0.5),
 					    (int) (state.elevation + 0.5),
-					    (int) (state.range + 0.5));
+					    AltosConvert.distance.say(state.range));
 			} else if (state.state > Altos.ao_flight_pad) {
-				voice.speak("%d meters", (int) (state.height + 0.5));
+				voice.speak(AltosConvert.height.say_units(state.height));
 			} else {
 				reported_landing = 0;
 			}
@@ -129,9 +129,9 @@ public class AltosDisplayThread extends Thread {
 				else
 					voice.speak("rocket may have crashed");
 				if (state.from_pad != null)
-					voice.speak("Bearing %d degrees, range %d meters.",
+					voice.speak("Bearing %d degrees, range %s.",
 						    (int) (state.from_pad.bearing + 0.5),
-						    (int) (state.from_pad.distance + 0.5));
+						    AltosConvert.distance.say_units(state.from_pad.distance));
 				++reported_landing;
 				if (state.state != Altos.ao_flight_landed) {
 					state.state = Altos.ao_flight_landed;
@@ -202,13 +202,13 @@ public class AltosDisplayThread extends Thread {
 			voice.speak(state.data.state());
 			if ((old_state == null || old_state.state <= Altos.ao_flight_boost) &&
 			    state.state > Altos.ao_flight_boost) {
-				voice.speak("max speed: %d meters per second.",
-					    (int) (state.max_speed + 0.5));
+				voice.speak("max speed: %s.",
+					    AltosConvert.speed.say_units(state.max_speed + 0.5));
 				ret = true;
 			} else if ((old_state == null || old_state.state < Altos.ao_flight_drogue) &&
 				   state.state >= Altos.ao_flight_drogue) {
-				voice.speak("max height: %d meters.",
-					    (int) (state.max_height + 0.5));
+				voice.speak("max height: %s.",
+					    AltosConvert.height.say_units(state.max_height + 0.5));
 				ret = true;
 			}
 		}

@@ -30,7 +30,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.altusmetrum.AltosLib.*;
 
 public class AltosFlightStatusTableModel extends AbstractTableModel {
-	private String[] columnNames = {"Height (m)", "State", "RSSI (dBm)", "Speed (m/s)" };
+	private String[] columnNames = {
+		String.format("Height (%s)", AltosConvert.show_distance_units()),
+		"State",
+		"RSSI (dBm)",
+		String.format("Speed (%s)", AltosConvert.show_speed_unit())
+	};
 	private Object[] data = { 0, "idle", 0, 0 };
 
 	public int getColumnCount() { return columnNames.length; }
@@ -51,12 +56,12 @@ public class AltosFlightStatusTableModel extends AbstractTableModel {
 	}
 
 	public void set(AltosState state) {
-		setValueAt(String.format("%1.0f", state.height), 0);
+		setValueAt(String.format("%1.0f", AltosConvert.distance(state.height), 0);
 		setValueAt(state.data.state(), 1);
 		setValueAt(state.data.rssi, 2);
 		double speed = state.baro_speed;
 		if (state.ascent)
 			speed = state.speed;
-		setValueAt(String.format("%1.0f", speed), 3);
+		setValueAt(String.format("%1.0f", AltosConvert.speed(speed)), 3);
 	}
 }

@@ -119,6 +119,10 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			value.setVisible(false);
 		}
 
+		void show(AltosUnits units, double v) {
+			value.setText(units.show(8, v));
+		}
+
 		void show(String format, double v) {
 			value.setText(String.format(format, v));
 		}
@@ -239,7 +243,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	class Height extends DescentValue {
 		void show (AltosState state, int crc_errors) {
-			show("%6.0f m", state.height);
+			show(AltosConvert.height, state.height);
 		}
 		public Height (GridBagLayout layout, int x, int y) {
 			super (layout, x, y, "Height");
@@ -253,7 +257,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			double speed = state.speed;
 			if (!state.ascent)
 				speed = state.baro_speed;
-			show("%6.0f m/s", speed);
+			show(AltosConvert.speed, speed);
 		}
 		public Speed (GridBagLayout layout, int x, int y) {
 			super (layout, x, y, "Speed");
@@ -346,7 +350,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	class Range extends DescentValue {
 		void show (AltosState state, int crc_errors) {
-			show("%6.0f m", state.range);
+			show(AltosConvert.distance, state.range);
 		}
 		public Range (GridBagLayout layout, int x, int y) {
 			super (layout, x, y, "Range");

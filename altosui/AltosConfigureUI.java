@@ -91,6 +91,8 @@ public class AltosConfigureUI
 	JLabel		callsign_label;
 	JTextField	callsign_value;
 
+	JRadioButton	imperial_units;
+
 	JLabel		font_size_label;
 	JComboBox	font_size_value;
 
@@ -235,6 +237,31 @@ public class AltosConfigureUI
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(callsign_value, c);
 		callsign_value.setToolTipText("Callsign sent in packet mode");
+
+		/* Imperial units setting */
+		c.gridx = 0;
+		c.gridy = row;
+		c.gridwidth = 1;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(new JLabel("Imperial Units"), c);
+
+		imperial_units = new JRadioButton("Enable", AltosUIPreferences.serial_debug());
+		imperial_units.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					JRadioButton item = (JRadioButton) e.getSource();
+					boolean enabled = item.isSelected();
+					AltosUIPreferences.set_imperial_units(enabled);
+				}
+			});
+		imperial_units.setToolTipText("Use Imperial units instead of metric");
+
+		c.gridx = 1;
+		c.gridy = row++;
+		c.gridwidth = 3;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(imperial_units, c);
 
 		/* Font size setting */
 		c.gridx = 0;
