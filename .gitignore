@@ -1,3 +1,4 @@
+*~
 *.a
 *.adb
 *.asm
@@ -41,7 +42,6 @@ autom4te.cache
 config.*
 config.h
 config.h.in
-config.h.in~
 config.log
 config.status
 build-stamp
