@@ -35,16 +35,16 @@ public class AltosGraphUI extends AltosFrame
 
     static private class OverallGraphs {
         AltosGraphTime.Element height = 
-            new AltosGraphTime.TimeSeries("Height (m)", "Height (AGL)", red) {
+		new AltosGraphTime.TimeSeries(String.format("Height (%s)", AltosConvert.height.show_units()), "Height (AGL)", red) {
                 public void gotTimeData(double time, AltosDataPoint d) {
 			double	height = d.height();
 			if (height != AltosRecord.MISSING)
-				series.add(time, d.height()); 
+				series.add(time, AltosConvert.height.value(height));
                 } 
             };
     
         AltosGraphTime.Element speed =
-            new AltosGraphTime.TimeSeries("Speed (m/s)", "Vertical Speed", green) { 
+		new AltosGraphTime.TimeSeries(String.format("Speed (%s)", AltosConvert.speed.show_units()), "Vertical Speed", green) { 
                 public void gotTimeData(double time, AltosDataPoint d) {
 		    double	speed;
 		    if (d.state() < Altos.ao_flight_drogue && d.has_accel()) {
@@ -53,18 +53,19 @@ public class AltosGraphUI extends AltosFrame
 			speed = d.baro_speed();
                     }
 		    if (speed != AltosRecord.MISSING)
-			series.add(time, speed);
+			    series.add(time, AltosConvert.speed.value(speed));
                 }
             };
     
         AltosGraphTime.Element acceleration =
-            new AltosGraphTime.TimeSeries("Acceleration (m/s\u00B2)", 
-                    "Axial Acceleration", blue) 
+		new AltosGraphTime.TimeSeries(String.format("Acceleration (%s)",
+							    AltosConvert.accel.show_units()),
+					      "Axial Acceleration", blue)
             {
                 public void gotTimeData(double time, AltosDataPoint d) {
 		    double acceleration = d.acceleration();
 		    if (acceleration != AltosRecord.MISSING)
-			series.add(time, acceleration);
+			    series.add(time, AltosConvert.accel.value(acceleration));
                 }
             };
     
