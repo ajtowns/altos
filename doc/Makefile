@@ -7,7 +7,8 @@ RELNOTES=\
 	release-notes-0.8.html \
 	release-notes-0.9.html \
 	release-notes-0.9.2.html \
-	release-notes-1.0.1.html
+	release-notes-1.0.1.html \
+	release-notes-1.1.html
 
 RELNOTES_XSL=$(RELNOTES:.html=.xsl)
 HTML=altusmetrum.html altos.html telemetry.html companion.html $(RELNOTES)
