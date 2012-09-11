@@ -6,9 +6,7 @@ man_MANS=altosui.1
 
 altoslibdir=$(libdir)/altos
 
-# tmarble: attempt to use specific build deps
-# CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../altoslib/*:libaltos:$(FREETTS)/*:/usr/share/java/*"
-CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../altoslib/*:libaltos:/usr/share/java/jcommon.jar:/usr/share/java/jfreechart.jar:/usr/share/java/freetts.jar"
+CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../altoslib/*:libaltos::$(JFREECHART)/jfreechart.jar:$(FREETTS)/freetts.jar"
 
 bin_SCRIPTS=altosui
 
