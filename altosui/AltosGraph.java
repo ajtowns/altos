@@ -2,7 +2,7 @@
 // Copyright (c) 2010 Anthony Towns
 // GPL v2 or later
 
-package altosui;
+package AltosUI;
 
 import java.io.*;
 

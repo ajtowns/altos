@@ -19,7 +19,7 @@
  * Deal with TeleDongle on a serial port
  */
 
-package altosui;
+package AltosUI;
 
 import java.lang.*;
 import java.io.*;

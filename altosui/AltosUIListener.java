@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package AltosUI;
 
 public interface AltosUIListener {
 	public void ui_changed(String look_and_feel);
