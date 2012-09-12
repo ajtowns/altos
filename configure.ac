@@ -72,7 +72,7 @@ AC_SUBST(JVM_INCLUDE)
 
 AC_ARG_WITH(android, AS_HELP_STRING([--with-android=PATH],
 	[Set android SDK path (default searches in a variety of places)]),
-	[ANDROID_SDK=$withval], [ANDROID_SDK=auto])
+	[ANDROID_SDK=$withval], [ANDROID_SDK=${ANDROID_SDK:-auto}])
 
 echo ANDROID_SDK set to $ANDROID_SDK
 
