@@ -119,14 +119,25 @@ FATJAR=altosui-fat.jar
 # Icons
 ICONDIR=$(top_srcdir)/icon
 
-JAVA_ICON=$(ICONDIR)/altus-metrum-16x16.jpg
+JAVA_ICONS=\
+	$(ICONDIR)/altus-metrum-16.png \
+	$(ICONDIR)/altus-metrum-32.png \
+	$(ICONDIR)/altus-metrum-48.png \
+	$(ICONDIR)/altus-metrum-64.png \
+	$(ICONDIR)/altus-metrum-128.png \
+	$(ICONDIR)/altus-metrum-256.png
 
 ICONS=	$(ICONDIR)/redled.png $(ICONDIR)/redoff.png \
 	$(ICONDIR)/greenled.png $(ICONDIR)/greenoff.png \
 	$(ICONDIR)/grayled.png $(ICONDIR)/grayoff.png
 
 # icon base names for jar
-ICONJAR= -C $(ICONDIR) altus-metrum-16x16.jpg \
+ICONJAR= -C $(ICONDIR) altus-metrum-16.png \
+	-C $(ICONDIR) altus-metrum-32.png \
+	-C $(ICONDIR) altus-metrum-48.png \
+	-C $(ICONDIR) altus-metrum-64.png \
+	-C $(ICONDIR) altus-metrum-128.png \
+	-C $(ICONDIR) altus-metrum-256.png \
 	-C $(ICONDIR) redled.png -C $(ICONDIR) redoff.png \
 	-C $(ICONDIR) greenled.png -C $(ICONDIR) greenoff.png \
 	-C $(ICONDIR) grayon.png -C $(ICONDIR) grayled.png
@@ -216,13 +227,13 @@ install-altosuiJAVA: altosui.jar
 classes/altosui:
 	mkdir -p classes/altosui
 
-$(JAR): classaltosui.stamp Manifest.txt $(JAVA_ICON) $(ALTOSLIB_CLASS)
+$(JAR): classaltosui.stamp Manifest.txt $(JAVA_ICONS) $(ALTOSLIB_CLASS)
 	jar cfm $@ Manifest.txt \
 		$(ICONJAR) \
 		-C classes altosui \
 		-C libaltos libaltosJNI
 
-$(FATJAR): classaltosui.stamp Manifest-fat.txt $(ALTOSLIB_CLASS) $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) $(JAVA_ICON)
+$(FATJAR): classaltosui.stamp Manifest-fat.txt $(ALTOSLIB_CLASS) $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) $(JAVA_ICONS)
 	jar cfm $@ Manifest-fat.txt \
 		$(ICONJAR) \
 		-C classes altosui \

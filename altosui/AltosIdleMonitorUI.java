@@ -106,10 +106,6 @@ public class AltosIdleMonitorUI extends AltosFrame implements AltosFlightDisplay
 
 		GridBagConstraints c = new GridBagConstraints();
 
-		java.net.URL imgURL = AltosUI.class.getResource("/altus-metrum-16x16.jpg");
-		if (imgURL != null)
-			setIconImage(new ImageIcon(imgURL).getImage());
-
 		setTitle(String.format("AltOS %s", device.toShortString()));
 
 		/* Stick frequency selector at top of table for telemetry monitoring */

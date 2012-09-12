@@ -44,14 +44,37 @@ public class AltosFrame extends JFrame implements AltosUIListener {
 		this.pack();
 	}
 
+	static final String[] icon_names = {
+		"/altus-metrum-16.png",
+		"/altus-metrum-32.png",
+		"/altus-metrum-48.png",
+		"/altus-metrum-64.png",
+		"/altus-metrum-128.png",
+		"/altus-metrum-256.png"
+	};
+
+	public void set_icon() {
+		ArrayList<Image> icons = new ArrayList<Image>();
+		
+		for (int i = 0; i < icon_names.length; i++) {
+			java.net.URL imgURL = AltosUI.class.getResource(icon_names[i]);
+			if (imgURL != null)
+				icons.add(new ImageIcon(imgURL).getImage());
+		}
+
+		setIconImages(icons);
+	}
+			
 	public AltosFrame() {
 		AltosUIPreferences.register_ui_listener(this);
 		addWindowListener(new AltosFrameListener());
+		set_icon();
 	}
 
 	public AltosFrame(String name) {
 		super(name);
 		AltosUIPreferences.register_ui_listener(this);
 		addWindowListener(new AltosFrameListener());
+		set_icon();
 	}
 }

@@ -170,10 +170,6 @@ public class AltosFlightUI extends AltosFrame implements AltosFlightDisplay, Alt
 
 		GridBagConstraints c = new GridBagConstraints();
 
-		java.net.URL imgURL = AltosUI.class.getResource("/altus-metrum-16x16.jpg");
-		if (imgURL != null)
-			setIconImage(new ImageIcon(imgURL).getImage());
-
 		setTitle(String.format("AltOS %s", reader.name));
 
 		/* Stick channel selector at top of table for telemetry monitoring */
