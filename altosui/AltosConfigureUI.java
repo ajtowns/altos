@@ -246,7 +246,7 @@ public class AltosConfigureUI
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(new JLabel("Imperial Units"), c);
 
-		imperial_units = new JRadioButton("Enable", AltosUIPreferences.serial_debug());
+		imperial_units = new JRadioButton("Enable", AltosUIPreferences.imperial_units());
 		imperial_units.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					JRadioButton item = (JRadioButton) e.getSource();
