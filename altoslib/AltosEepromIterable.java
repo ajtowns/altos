@@ -200,6 +200,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 		state.state = AltosLib.ao_flight_pad;
 		state.accel_plus_g = 15758;
 		state.accel_minus_g = 16294;
+		state.flight_vel = 0;
 
 		/* Pull in static data from the flight and gps_date records */
 		if (flight_record != null)
