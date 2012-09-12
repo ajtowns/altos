@@ -230,25 +230,25 @@ $(FATJAR): classaltosui.stamp Manifest-fat.txt $(ALTOSLIB_CLASS) $(FREETTS_CLASS
 
 Manifest.txt: Makefile
 	echo 'Main-Class: altosui.AltosUI' > $@
-	echo "Class-Path: AltosLib.jar $(FREETTS)/freetts.jar $(JFREECHART)/jfreechart.jar $(JCOMMON)/jcommon.jar" >> $@
+	echo "Class-Path: AltosLib.jar $(FREETTS)/freetts.jar $(JCOMMON)/jcommon.jar $(JFREECHART)/jfreechart.jar" >> $@
 
 Manifest-fat.txt:
 	echo 'Main-Class: altosui.AltosUI' > $@
-	echo "Class-Path: AltosLib.jar freetts.jar jfreechart.jar jcommon.jar" >> $@
+	echo "Class-Path: AltosLib.jar freetts.jar jcommon.jar jfreechart.jar" >> $@
 
 altosui: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java  -cp "$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="$(altoslibdir)" -jar "$(altosuidir)/altosui.jar" "$$@"' >> $@
+	echo 'exec java  -cp "$(FREETTS)/freetts.jar:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="$(altoslibdir)" -jar "$(altosuidir)/altosui.jar" "$$@"' >> $@
 	chmod +x $@
 
 altosui-test: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java -cp "./*:$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="libaltos/.libs" -jar altosui.jar "$$@"' >> $@
+	echo 'exec java -cp "./*:$(FREETTS)/freetts.jar:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="libaltos/.libs" -jar altosui.jar "$$@"' >> $@
 	chmod +x $@
 
 altosui-jdb: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec jdb -classpath "classes:libaltos:$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="libaltos/.libs" altosui/AltosUI "$$@"' >> $@
+	echo 'exec jdb -classpath "classes:libaltos:$(FREETTS)/freetts.jar:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="libaltos/.libs" altosui/AltosUI "$$@"' >> $@
 	chmod +x $@
 
 libaltos.so: build-libaltos
