@@ -44,6 +44,8 @@ public class AltosDistance extends AltosUnits {
 	}
 
 	int say_fraction() {
-		return 1;
+		if (AltosConvert.imperial_units)
+			return 1;
+		return 0;
 	}
 }
