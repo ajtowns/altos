@@ -102,15 +102,17 @@ public class AltosUIPreferences extends AltosPreferences {
 		}
 	}
 	public static int font_size() {
-		return font_size;
+		synchronized (preferences) {
+			return font_size;
+		}
 	}
 
 	static void set_fonts() {
 	}
 
 	public static void set_font_size(int new_font_size) {
-		font_size = new_font_size;
 		synchronized (preferences) {
+			font_size = new_font_size;
 			preferences.putInt(fontSizePreference, font_size);
 			flush_preferences();
 			Altos.set_fonts(font_size);
@@ -132,12 +134,12 @@ public class AltosUIPreferences extends AltosPreferences {
 	}
 
 	public static void set_look_and_feel(String new_look_and_feel) {
-		look_and_feel = new_look_and_feel;
 		try {
-			UIManager.setLookAndFeel(look_and_feel);
+			UIManager.setLookAndFeel(new_look_and_feel);
 		} catch (Exception e) {
 		}
 		synchronized(preferences) {
+			look_and_feel = new_look_and_feel;
 			preferences.put(lookAndFeelPreference, look_and_feel);
 			flush_preferences();
 			for (AltosUIListener l : ui_listeners)
@@ -146,7 +148,9 @@ public class AltosUIPreferences extends AltosPreferences {
 	}
 
 	public static String look_and_feel() {
-		return look_and_feel;
+		synchronized (preferences) {
+			return look_and_feel;
+		}
 	}
 
 	public static void register_ui_listener(AltosUIListener l) {
@@ -161,16 +165,18 @@ public class AltosUIPreferences extends AltosPreferences {
 		}
 	}
 	public static void set_serial_debug(boolean new_serial_debug) {
-		serial_debug = new_serial_debug;
-		AltosLink.set_debug(serial_debug);
+		AltosLink.set_debug(new_serial_debug);
 		synchronized (preferences) {
+			serial_debug = new_serial_debug;
 			preferences.putBoolean(serialDebugPreference, serial_debug);
 			flush_preferences();
 		}
 	}
 
 	public static boolean serial_debug() {
-		return serial_debug;
+		synchronized (preferences) {
+			return serial_debug;
+		}
 	}
 
 }

@@ -202,173 +202,200 @@ public class AltosPreferences {
 	}
 
 	public static void set_logdir(File new_logdir) {
-		logdir = new_logdir;
-		mapdir = new File(logdir, "maps");
-		if (!mapdir.exists())
-			mapdir.mkdirs();
 		synchronized (preferences) {
+			logdir = new_logdir;
+			mapdir = new File(logdir, "maps");
+			if (!mapdir.exists())
+				mapdir.mkdirs();
 			preferences.put(logdirPreference, logdir.getPath());
 			flush_preferences();
 		}
 	}
 
 	public static File logdir() {
-		return logdir;
+		synchronized (preferences) {
+			return logdir;
+		}
 	}
 
 	public static File mapdir() {
-		return mapdir;
+		synchronized (preferences) {
+			return mapdir;
+		}
 	}
 
 	public static void set_frequency(int serial, double new_frequency) {
-		frequencies.put(serial, new_frequency);
 		synchronized (preferences) {
+			frequencies.put(serial, new_frequency);
 			preferences.putDouble(String.format(frequencyPreferenceFormat, serial), new_frequency);
 			flush_preferences();
 		}
 	}
 
 	public static double frequency(int serial) {
-		if (frequencies.containsKey(serial))
-			return frequencies.get(serial);
-		double frequency = preferences.getDouble(String.format(frequencyPreferenceFormat, serial), 0);
-		if (frequency == 0.0) {
-			int channel = preferences.getInt(String.format(channelPreferenceFormat, serial), 0);
-			frequency = AltosConvert.radio_channel_to_frequency(channel);
+		synchronized (preferences) {
+			if (frequencies.containsKey(serial))
+				return frequencies.get(serial);
+			double frequency = preferences.getDouble(String.format(frequencyPreferenceFormat, serial), 0);
+			if (frequency == 0.0) {
+				int channel = preferences.getInt(String.format(channelPreferenceFormat, serial), 0);
+				frequency = AltosConvert.radio_channel_to_frequency(channel);
+			}
+			frequencies.put(serial, frequency);
+			return frequency;
 		}
-		frequencies.put(serial, frequency);
-		return frequency;
 	}
 
 	public static void set_telemetry(int serial, int new_telemetry) {
-		telemetries.put(serial, new_telemetry);
 		synchronized (preferences) {
+			telemetries.put(serial, new_telemetry);
 			preferences.putInt(String.format(telemetryPreferenceFormat, serial), new_telemetry);
 			flush_preferences();
 		}
 	}
 
 	public static int telemetry(int serial) {
-		if (telemetries.containsKey(serial))
-			return telemetries.get(serial);
-		int telemetry = preferences.getInt(String.format(telemetryPreferenceFormat, serial),
-						   AltosLib.ao_telemetry_standard);
-		telemetries.put(serial, telemetry);
-		return telemetry;
+		synchronized (preferences) {
+			if (telemetries.containsKey(serial))
+				return telemetries.get(serial);
+			int telemetry = preferences.getInt(String.format(telemetryPreferenceFormat, serial),
+							   AltosLib.ao_telemetry_standard);
+			telemetries.put(serial, telemetry);
+			return telemetry;
+		}
 	}
 
 	public static void set_scanning_telemetry(int new_scanning_telemetry) {
-		scanning_telemetry = new_scanning_telemetry;
 		synchronized (preferences) {
+			scanning_telemetry = new_scanning_telemetry;
 			preferences.putInt(scanningTelemetryPreference, scanning_telemetry);
 			flush_preferences();
 		}
 	}
 
 	public static int scanning_telemetry() {
-		return scanning_telemetry;
+		synchronized (preferences) {
+			return scanning_telemetry;
+		}
 	}
 
 	public static void set_voice(boolean new_voice) {
-		voice = new_voice;
 		synchronized (preferences) {
+			voice = new_voice;
 			preferences.putBoolean(voicePreference, voice);
 			flush_preferences();
 		}
 	}
 
 	public static boolean voice() {
-		return voice;
+		synchronized (preferences) {
+			return voice;
+		}
 	}
 
 	public static void set_callsign(String new_callsign) {
-		callsign = new_callsign;
 		synchronized(preferences) {
+			callsign = new_callsign;
 			preferences.put(callsignPreference, callsign);
 			flush_preferences();
 		}
 	}
 
 	public static String callsign() {
-		return callsign;
+		synchronized(preferences) {
+			return callsign;
+		}
 	}
 
 	public static void set_firmwaredir(File new_firmwaredir) {
-		firmwaredir = new_firmwaredir;
 		synchronized (preferences) {
+			firmwaredir = new_firmwaredir;
 			preferences.put(firmwaredirPreference, firmwaredir.getPath());
 			flush_preferences();
 		}
 	}
 
 	public static File firmwaredir() {
-		return firmwaredir;
+		synchronized (preferences) {
+			return firmwaredir;
+		}
 	}
 
 	public static void set_launcher_serial(int new_launcher_serial) {
-		launcher_serial = new_launcher_serial;
 		synchronized (preferences) {
+			launcher_serial = new_launcher_serial;
 			preferences.putInt(launcherSerialPreference, launcher_serial);
 			flush_preferences();
 		}
 	}
 
 	public static int launcher_serial() {
-		return launcher_serial;
+		synchronized (preferences) {
+			return launcher_serial;
+		}
 	}
 
 	public static void set_launcher_channel(int new_launcher_channel) {
-		launcher_channel = new_launcher_channel;
 		synchronized (preferences) {
+			launcher_channel = new_launcher_channel;
 			preferences.putInt(launcherChannelPreference, launcher_channel);
 			flush_preferences();
 		}
 	}
 
 	public static int launcher_channel() {
-		return launcher_channel;
+		synchronized (preferences) {
+			return launcher_channel;
+		}
 	}
 	
 	public static Preferences bt_devices() {
-		return preferences.node("bt_devices");
+		synchronized (preferences) {
+			return preferences.node("bt_devices");
+		}
 	}
 
 	public static AltosFrequency[] common_frequencies() {
-		return common_frequencies;
+		synchronized (preferences) {
+			return common_frequencies;
+		}
 	}
 
 	public static void set_common_frequencies(AltosFrequency[] frequencies) {
-		common_frequencies = frequencies;
 		synchronized(preferences) {
+			common_frequencies = frequencies;
 			save_common_frequencies(frequencies);
 			flush_preferences();
 		}
 	}
 
 	public static void add_common_frequency(AltosFrequency frequency) {
-		AltosFrequency[]	new_frequencies = new AltosFrequency[common_frequencies.length + 1];
+		AltosFrequency[]	old_frequencies = common_frequencies();
+		AltosFrequency[]	new_frequencies = new AltosFrequency[old_frequencies.length + 1];
 		int			i;
 
-		for (i = 0; i < common_frequencies.length; i++) {
-			if (frequency.frequency == common_frequencies[i].frequency)
+		for (i = 0; i < old_frequencies.length; i++) {
+			if (frequency.frequency == old_frequencies[i].frequency)
 				return;
-			if (frequency.frequency < common_frequencies[i].frequency)
+			if (frequency.frequency < old_frequencies[i].frequency)
 				break;
-			new_frequencies[i] = common_frequencies[i];
+			new_frequencies[i] = old_frequencies[i];
 		}
 		new_frequencies[i] = frequency;
-		for (; i < common_frequencies.length; i++)
-			new_frequencies[i+1] = common_frequencies[i];
+		for (; i < old_frequencies.length; i++)
+			new_frequencies[i+1] = old_frequencies[i];
 		set_common_frequencies(new_frequencies);
 	}
 
 	public static boolean imperial_units() {
-		return AltosConvert.imperial_units;
+		synchronized(preferences) {
+			return AltosConvert.imperial_units;
+		}
 	}
 
 	public static void set_imperial_units(boolean imperial_units) {
-		AltosConvert.imperial_units = imperial_units;
 		synchronized (preferences) {
+			AltosConvert.imperial_units = imperial_units;
 			preferences.putBoolean(unitsPreference, imperial_units);
 			flush_preferences();
 		}
