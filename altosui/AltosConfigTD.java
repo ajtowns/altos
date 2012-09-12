@@ -74,7 +74,6 @@ public class AltosConfigTD implements ActionListener {
 	string_ref	version;
 	string_ref	product;
 	AltosConfigTDUI	config_ui;
-	boolean		serial_started;
 	boolean		made_visible;
 
 	boolean get_int(String line, String label, int_ref x) {
@@ -108,17 +107,7 @@ public class AltosConfigTD implements ActionListener {
 		}
 	}
 
-	void start_serial() throws InterruptedException, TimeoutException {
-		serial_started = true;
-	}
-
-	void stop_serial() throws InterruptedException {
-		if (!serial_started)
-			return;
-		serial_started = false;
-	}
-
-	void update_ui() {
+	synchronized void update_ui() {
 		config_ui.set_serial(serial.get());
 		config_ui.set_product(product.get());
 		config_ui.set_version(version.get());
@@ -131,7 +120,7 @@ public class AltosConfigTD implements ActionListener {
 		}
 	}
 
-	void process_line(String line) {
+	void finish_input(String line) {
 		if (line == null) {
 			abort();
 			return;
@@ -141,14 +130,60 @@ public class AltosConfigTD implements ActionListener {
 				update_ui();
 			return;
 		}
-		get_string(line, "Config version", config_version);
-		get_int(line, "serial-number", serial);
-		get_int(line, "Radio channel:", radio_channel);
-		get_int(line, "Radio cal:", radio_calibration);
-		get_int(line, "Frequency:", radio_frequency);
-		get_int(line, "Radio setting:", radio_setting);
-		get_string(line,"software-version", version);
-		get_string(line,"product", product);
+	}
+
+	synchronized void process_line(String line) {
+		if (line == null || line.equals("all finished")) {
+			final String last_line = line;
+			Runnable r = new Runnable() {
+					public void run() {
+						finish_input(last_line);
+					}
+				};
+			SwingUtilities.invokeLater(r);
+		} else {
+			get_string(line, "Config version", config_version);
+			get_int(line, "serial-number", serial);
+			get_int(line, "Radio channel:", radio_channel);
+			get_int(line, "Radio cal:", radio_calibration);
+			get_int(line, "Frequency:", radio_frequency);
+			get_int(line, "Radio setting:", radio_setting);
+			get_string(line,"software-version", version);
+			get_string(line,"product", product);
+		}
+	}
+
+	synchronized void reset_data() {
+		serial.set(0);
+		radio_channel.set(0);
+		radio_setting.set(0);
+		radio_frequency.set(0);
+		radio_calibration.set(1186611);
+		config_version.set("0.0");
+		version.set("unknown");
+		product.set("unknown");
+	}
+
+	synchronized double frequency() {
+		return AltosConvert.radio_to_frequency(radio_frequency.get(),
+						       radio_setting.get(),
+						       radio_calibration.get(),
+						       radio_channel.get());
+	}
+
+	synchronized void set_frequency(double freq) {
+		int	frequency = radio_frequency.get();
+		int	setting = radio_setting.get();
+
+		if (frequency > 0) {
+			radio_frequency.set((int) Math.floor (freq * 1000 + 0.5));
+		} else if (setting > 0) {
+			radio_setting.set(AltosConvert.radio_frequency_to_setting(freq,
+										  radio_calibration.get()));
+			radio_channel.set(0);
+		} else {
+			radio_channel.set(AltosConvert.radio_frequency_to_channel(freq));
+		}
 	}
 
 	final static int	serial_mode_read = 0;
@@ -159,45 +194,18 @@ public class AltosConfigTD implements ActionListener {
 		AltosConfigTD	config;
 		int		serial_mode;
 
-		void process_line(String line) {
-			config.process_line(line);
-		}
-		void callback(String in_line) {
-			final String line = in_line;
-			Runnable r = new Runnable() {
-					public void run() {
-						process_line(line);
-					}
-				};
-			SwingUtilities.invokeLater(r);
-		}
-
-		void reset_data() {
-			serial.set(0);
-			radio_channel.set(0);
-			radio_setting.set(0);
-			radio_frequency.set(0);
-			radio_calibration.set(1186611);
-			config_version.set("0.0");
-			version.set("unknown");
-			product.set("unknown");
-		}
-
 		void get_data() {
 			try {
 				boolean	been_there = false;
-				config.start_serial();
-				reset_data();
+				config.reset_data();
 
 				for (;;) {
-					config.serial_line.printf("c s\nf\nl\nv\n");
+					config.serial_line.printf("c s\nf\nv\n");
 					for (;;) {
 						try {
 							String line = config.serial_line.get_reply(5000);
-							if (line == null)
-								stop_serial();
-							callback(line);
-							if (line.startsWith("software-version"))
+							config.process_line(line);
+							if (line != null && line.startsWith("software-version"))
 								break;
 						} catch (Exception e) {
 							break;
@@ -212,17 +220,13 @@ public class AltosConfigTD implements ActionListener {
 					config.serial_line.flush_input();
 				}
 			} catch (InterruptedException ie) {
-			} catch (TimeoutException te) {
-			} finally {
-				try {
-					stop_serial();
-				} catch (InterruptedException ie) {
-				}
 			}
-			double	pref_frequency = AltosPreferences.frequency(serial.get());
-			if (pref_frequency != 0)
-				radio_frequency.set((int) Math.floor (pref_frequency * 1000 + 0.5));
-			callback("all finished");
+			/*
+			 * This makes sure the displayed frequency respects the limits that the
+			 * available firmware version might place on the actual frequency
+			 */
+			config.set_frequency(AltosPreferences.frequency(serial.get()));
+			config.process_line("all finished");
 		}
 
 		void save_data() {
@@ -280,31 +284,9 @@ public class AltosConfigTD implements ActionListener {
 			update_ui();
 	}
 
-	double frequency() {
-		return AltosConvert.radio_to_frequency(radio_frequency.get(),
-						       radio_setting.get(),
-						       radio_calibration.get(),
-						       radio_channel.get());
-	}
-
-	void set_frequency(double freq) {
-		int	frequency = radio_frequency.get();
-		int	setting = radio_setting.get();
-
-		if (frequency > 0) {
-			radio_frequency.set((int) Math.floor (freq * 1000 + 0.5));
-		} else if (setting > 0) {
-			radio_setting.set(AltosConvert.radio_frequency_to_setting(freq,
-										  radio_calibration.get()));
-			radio_channel.set(0);
-		} else {
-			radio_channel.set(AltosConvert.radio_frequency_to_channel(freq));
-		}
-	}
-
 	void save_data() {
-
-		set_frequency(config_ui.radio_frequency());
+		double	freq = config_ui.radio_frequency();
+		set_frequency(freq);
 		run_serial_thread(serial_mode_save);
 	}
 
