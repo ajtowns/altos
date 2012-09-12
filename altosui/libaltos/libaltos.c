@@ -941,7 +941,7 @@ struct altos_file {
 };
 
 static void
-altos_set_last_windows_error(void)
+_altos_set_last_windows_error(char *file, int line)
 {
 	DWORD	error = GetLastError();
 	TCHAR	message[1024];
@@ -952,8 +952,12 @@ altos_set_last_windows_error(void)
 		      message,
 		      sizeof (message) / sizeof (TCHAR),
 		      NULL);
+	if (error != ERROR_SUCCESS)
+		printf ("%s:%d %s\n", file, line, message);
 	altos_set_last_error(error, message);
 }
+
+#define altos_set_last_windows_error() _altos_set_last_windows_error(__FILE__, __LINE__)
 
 PUBLIC struct altos_list *
 altos_list_start(void)
@@ -1161,6 +1165,7 @@ altos_flush(struct altos_file *file)
 		if (!WriteFile(file->handle, data, used, &put, &file->ov_write)) {
 			if (GetLastError() != ERROR_IO_PENDING) {
 				altos_set_last_windows_error();
+				printf ("\tflush write error\n");
 				return LIBALTOS_ERROR;
 			}
 			ret = WaitForSingleObject(file->ov_write.hEvent, INFINITE);
@@ -1168,11 +1173,13 @@ altos_flush(struct altos_file *file)
 			case WAIT_OBJECT_0:
 				if (!GetOverlappedResult(file->handle, &file->ov_write, &put, FALSE)) {
 					altos_set_last_windows_error();
+					printf ("\tflush result error\n");
 					return LIBALTOS_ERROR;
 				}
 				break;
 			default:
 				altos_set_last_windows_error();
+				printf ("\tflush wait error\n");
 				return LIBALTOS_ERROR;
 			}
 		}
@@ -1188,7 +1195,6 @@ altos_open(struct altos_device *device)
 {
 	struct altos_file	*file = calloc (1, sizeof (struct altos_file));
 	char	full_name[64];
-	DCB dcbSerialParams = {0};
 	COMMTIMEOUTS timeouts;
 
 	if (!file)
@@ -1201,6 +1207,7 @@ altos_open(struct altos_device *device)
 				  FILE_FLAG_OVERLAPPED, NULL);
 	if (file->handle == INVALID_HANDLE_VALUE) {
 		altos_set_last_windows_error();
+		printf ("cannot open %s\n", full_name);
 		free(file);
 		return NULL;
 	}
@@ -1214,24 +1221,6 @@ altos_open(struct altos_device *device)
 	timeouts.WriteTotalTimeoutConstant = 0;
 	SetCommTimeouts(file->handle, &timeouts);
 
-	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-	if (!GetCommState(file->handle, &dcbSerialParams)) {
-		altos_set_last_windows_error();
-		CloseHandle(file->handle);
-		free(file);
-		return NULL;
-	}
-	dcbSerialParams.BaudRate = CBR_9600;
-	dcbSerialParams.ByteSize = 8;
-	dcbSerialParams.StopBits = ONESTOPBIT;
-	dcbSerialParams.Parity = NOPARITY;
-	if (!SetCommState(file->handle, &dcbSerialParams)) {
-		altos_set_last_windows_error();
-		CloseHandle(file->handle);
-		free(file);
-		return NULL;
-	}
-
 	return file;
 }
 
@@ -1241,6 +1230,10 @@ altos_close(struct altos_file *file)
 	if (file->handle != INVALID_HANDLE_VALUE) {
 		CloseHandle(file->handle);
 		file->handle = INVALID_HANDLE_VALUE;
+		SetEvent(file->ov_read.hEvent);
+		SetEvent(file->ov_write.hEvent);
+		CloseHandle(file->ov_read.hEvent);
+		CloseHandle(file->ov_write.hEvent);
 	}
 }
 
