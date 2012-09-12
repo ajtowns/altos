@@ -88,6 +88,7 @@ Section "AltosUI Application"
 	SetOutPath $INSTDIR
 
 	File "altosui-fat.jar"
+	File "AltosLib.jar"
 	File "cmudict04.jar"
 	File "cmulex.jar"
 	File "cmu_time_awb.jar"
@@ -157,6 +158,9 @@ Section "Uninstall"
 	Delete "$INSTDIR\*.*"
 	RMDir "$INSTDIR"
 
+	; Remove .inf file
+	Delete "$WINDIR\Inf\telemetrum.inf"
+
 	; Remove devices
 	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} AltusMetrumSerial
 	InstDrv::DeleteOemInfFiles /NOUNLOAD
@@ -165,4 +169,5 @@ Section "Uninstall"
 	; Remove shortcuts, if any
 	Delete "$SMPROGRAMS\AltusMetrum.lnk"
 	Delete "$DESKTOP\AltusMetrum.lnk"
+	
 SectionEnd
