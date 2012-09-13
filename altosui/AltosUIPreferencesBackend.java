@@ -74,7 +74,10 @@ public class AltosUIPreferencesBackend implements AltosPreferencesBackend {
 	}
 
 	public String[] keys() {
-		return _preferences.keys();
+		try {
+			return _preferences.keys();
+		} catch (BackingStoreException be) {
+		}
 	}
 
 	public void remove(String key) {
