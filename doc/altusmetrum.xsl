@@ -22,7 +22,7 @@
       <surname>Towns</surname>
     </author>
     <copyright>
-      <year>2011</year>
+      <year>2012</year>
       <holder>Bdale Garbee and Keith Packard</holder>
     </copyright>
     <legalnotice>
@@ -35,6 +35,14 @@
       </para>
     </legalnotice>
     <revhistory>
+      <revision>
+	<revnumber>1.1</revnumber>
+	<date>13 September 2012</date>
+	<revremark>
+	  Updated for software version 1.1. Version 1.1 has new
+	  features but is otherwise compatible with version 1.0.
+	</revremark>
+      </revision>
       <revision>
         <revnumber>1.0</revnumber>
         <date>24 August 2011</date>
