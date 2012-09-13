@@ -45,8 +45,8 @@ public class AltosUIPreferences extends AltosPreferences {
 	/* Serial debug */
 	static boolean serial_debug;
 
-	public static void init(AltosUIPreferencesBackend in_backend) {
-		AltosPreferences.init(in_backend);
+	public static void init() {
+		AltosPreferences.init(new AltosUIPreferencesBackend());
 
 		font_listeners = new LinkedList<AltosFontListener>();
 
@@ -58,6 +58,8 @@ public class AltosUIPreferences extends AltosPreferences {
 		serial_debug = backend.getBoolean(serialDebugPreference, false);
 		AltosLink.set_debug(serial_debug);
 	}
+
+	static { init(); }
 
 	static void set_component(Component in_component) {
 		component = in_component;
