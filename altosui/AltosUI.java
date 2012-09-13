@@ -98,6 +98,7 @@ public class AltosUI extends AltosFrame {
 
 		load_library(null);
 
+		AltosUIPreferences.init(new AltosUIPreferencesBackend());
 		AltosUIPreferences.set_component(this);
 
 		pane = getContentPane();

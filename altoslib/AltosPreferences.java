@@ -137,8 +137,8 @@ public class AltosPreferences {
 
 	public static int launcher_channel;
 
-	public static void init() {
-		//preferences = Preferences.userRoot().node("/org/altusmetrum/altosui");
+	public static void init(AltosPreferencesBackend in_backend) {
+		backend = in_backend;
 
 		/* Initialize logdir from preferences */
 		String logdir_string = backend.getString(logdirPreference, null);
@@ -178,8 +178,6 @@ public class AltosPreferences {
 
 		AltosConvert.imperial_units = backend.getBoolean(unitsPreference, false);
 	}
-
-	static { init(); }
 
 	public static void flush_preferences() {
 		backend.flush();
