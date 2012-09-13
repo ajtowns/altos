@@ -105,10 +105,6 @@ public class AltosUI extends AltosFrame {
 
 		load_library(null);
 
-		java.net.URL imgURL = AltosUI.class.getResource("/altus-metrum-16x16.jpg");
-		if (imgURL != null)
-			setIconImage(new ImageIcon(imgURL).getImage());
-
 		AltosUIPreferences.set_component(this);
 
 		pane = getContentPane();

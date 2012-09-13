@@ -119,14 +119,25 @@ FATJAR=altosui-fat.jar
 # Icons
 ICONDIR=$(top_srcdir)/icon
 
-JAVA_ICON=$(ICONDIR)/altus-metrum-16x16.jpg
+JAVA_ICONS=\
+	$(ICONDIR)/altus-metrum-16.png \
+	$(ICONDIR)/altus-metrum-32.png \
+	$(ICONDIR)/altus-metrum-48.png \
+	$(ICONDIR)/altus-metrum-64.png \
+	$(ICONDIR)/altus-metrum-128.png \
+	$(ICONDIR)/altus-metrum-256.png
 
 ICONS=	$(ICONDIR)/redled.png $(ICONDIR)/redoff.png \
 	$(ICONDIR)/greenled.png $(ICONDIR)/greenoff.png \
 	$(ICONDIR)/grayled.png $(ICONDIR)/grayoff.png
 
 # icon base names for jar
-ICONJAR= -C $(ICONDIR) altus-metrum-16x16.jpg \
+ICONJAR= -C $(ICONDIR) altus-metrum-16.png \
+	-C $(ICONDIR) altus-metrum-32.png \
+	-C $(ICONDIR) altus-metrum-48.png \
+	-C $(ICONDIR) altus-metrum-64.png \
+	-C $(ICONDIR) altus-metrum-128.png \
+	-C $(ICONDIR) altus-metrum-256.png \
 	-C $(ICONDIR) redled.png -C $(ICONDIR) redoff.png \
 	-C $(ICONDIR) greenled.png -C $(ICONDIR) greenoff.png \
 	-C $(ICONDIR) grayon.png -C $(ICONDIR) grayled.png
@@ -216,13 +227,13 @@ install-altosuiJAVA: altosui.jar
 classes/altosui:
 	mkdir -p classes/altosui
 
-$(JAR): classaltosui.stamp Manifest.txt $(JAVA_ICON) $(ALTOSLIB_CLASS)
+$(JAR): classaltosui.stamp Manifest.txt $(JAVA_ICONS) $(ALTOSLIB_CLASS)
 	jar cfm $@ Manifest.txt \
 		$(ICONJAR) \
 		-C classes altosui \
 		-C libaltos libaltosJNI
 
-$(FATJAR): classaltosui.stamp Manifest-fat.txt $(ALTOSLIB_CLASS) $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) $(JAVA_ICON)
+$(FATJAR): classaltosui.stamp Manifest-fat.txt $(ALTOSLIB_CLASS) $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) $(JAVA_ICONS)
 	jar cfm $@ Manifest-fat.txt \
 		$(ICONJAR) \
 		-C classes altosui \
@@ -230,25 +241,25 @@ $(FATJAR): classaltosui.stamp Manifest-fat.txt $(ALTOSLIB_CLASS) $(FREETTS_CLASS
 
 Manifest.txt: Makefile
 	echo 'Main-Class: altosui.AltosUI' > $@
-	echo "Class-Path: AltosLib.jar $(FREETTS)/freetts.jar $(JFREECHART)/jfreechart.jar $(JCOMMON)/jcommon.jar" >> $@
+	echo "Class-Path: AltosLib.jar $(FREETTS)/freetts.jar $(JCOMMON)/jcommon.jar $(JFREECHART)/jfreechart.jar" >> $@
 
 Manifest-fat.txt:
 	echo 'Main-Class: altosui.AltosUI' > $@
-	echo "Class-Path: AltosLib.jar freetts.jar jfreechart.jar jcommon.jar" >> $@
+	echo "Class-Path: AltosLib.jar freetts.jar jcommon.jar jfreechart.jar" >> $@
 
 altosui: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java  -cp "$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="$(altoslibdir)" -jar "$(altosuidir)/altosui.jar" "$$@"' >> $@
+	echo 'exec java  -cp "$(FREETTS)/freetts.jar:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="$(altoslibdir)" -jar "$(altosuidir)/altosui.jar" "$$@"' >> $@
 	chmod +x $@
 
 altosui-test: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java -cp "./*:$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="libaltos/.libs" -jar altosui.jar "$$@"' >> $@
+	echo 'exec java -cp "./*:$(FREETTS)/freetts.jar:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="libaltos/.libs" -jar altosui.jar "$$@"' >> $@
 	chmod +x $@
 
 altosui-jdb: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec jdb -classpath "classes:libaltos:$(FREETTS)/*:$(JFREECHART)/*:$(JCOMMON)/*" -Djava.library.path="libaltos/.libs" altosui/AltosUI "$$@"' >> $@
+	echo 'exec jdb -classpath "classes:libaltos:$(FREETTS)/freetts.jar:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="libaltos/.libs" altosui/AltosUI "$$@"' >> $@
 	chmod +x $@
 
 libaltos.so: build-libaltos

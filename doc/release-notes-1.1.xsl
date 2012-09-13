@@ -67,6 +67,11 @@
 	reasonable values, or the value can be set by hand.
       </listitem>
       <listitem>
+	Changed how flight data are downloaded. Now there's an initial
+	dialog asking which flights to download, and after that
+	finishes, a second dialog comes up asking which flights to delete.
+      </listitem>
+      <listitem>
 	Re-compute time spent in each state for the flight graph; this
 	figures out the actual boost and landing times instead of
 	using the conservative values provide by the flight

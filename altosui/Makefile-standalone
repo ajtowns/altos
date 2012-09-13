@@ -44,7 +44,14 @@ CLASSFILES=\
 	AltosRomconfigUI.class \
 	AltosVoice.class
 
-JAVA_ICON=../icon/altus-metrum-16x16.jpg
+JAVA_ICONS=\
+	../icon/altus-metrum-16.png \
+	../icon/altus-metrum-32.png \
+	../icon/altus-metrum-48.png \
+	../icon/altus-metrum-64.png \
+	../icon/altus-metrum-128.png \
+	../icon/altus-metrum-256.png
+
 WINDOWS_ICON=../icon/altus-metrum.ico
 
 # where altosui.jar gets installed
@@ -109,7 +116,7 @@ classes/libaltosJNI:
 
 classes/images:
 	mkdir -p classes/images
-	ln -sf ../$(JAVA_ICON) classes/images
+	ln -sf ../$(JAVA_ICONS) classes/images
 
 altosui:
 	echo "#!/bin/sh" > $@
@@ -123,11 +130,11 @@ fat/altosui:
 	echo 'exec java -Djava.library.path="$$DIR" -jar "$$DIR"/altosui.jar' >> $@
 	chmod +x $@
 
-fat/altosui.jar: $(CLASSFILES) $(JAVA_ICON) fat/classes/Manifest.txt
+fat/altosui.jar: $(CLASSFILES) $(JAVA_ICONS) fat/classes/Manifest.txt
 	mkdir -p fat/classes
 	test -L fat/classes/altosui || ln -sf ../.. fat/classes/altosui
 	mkdir -p fat/classes/images
-	cp $(JAVA_ICON) fat/classes/images
+	cp $(JAVA_ICONS) fat/classes/images
 	test -L fat/classes/libaltosJNI || ln -sf ../../libaltos/libaltosJNI fat/classes/libaltosJNI
 	cd ./fat/classes && jar cfm ../../$@ Manifest.txt images/* altosui/*.class libaltosJNI/*.class
 
