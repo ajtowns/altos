@@ -41,6 +41,10 @@ These are Bdale's notes on how to do a release.
 	- copy the relevant release notes file from doc/ to 
 	    /home/bdale/web/altusmetrum/AltOS/releases/<rev>
 
+	- make sure that doc/altusmetrum.xsl has the right copyright year,
+	  and add release to the revision history at the front (release notes
+	  will be pulled in automatically)
+
 	- go edit ~/web/altusmetrum/AltOS/releases/<rev>.mdwn to include
 	  release date and explicit ref to dir contents so the AltOS page
 	  shows versioned links, commit and push
