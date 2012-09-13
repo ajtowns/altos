@@ -46,7 +46,7 @@ public class AltosUIPreferences extends AltosPreferences {
 	static boolean serial_debug;
 
 	public static void init(AltosUIPreferencesBackend in_backend) {
-		super(in_backend);
+		AltosPreferences.init(in_backend);
 
 		font_listeners = new LinkedList<AltosFontListener>();
 

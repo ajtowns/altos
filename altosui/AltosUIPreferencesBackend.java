@@ -34,7 +34,7 @@ public class AltosUIPreferencesBackend implements AltosPreferencesBackend {
 	}
 
 	public String  getString(String key, String def) {
-		return _preferences.get(key, def)
+		return _preferences.get(key, def);
 	}
 	public void    putString(String key, String value) {
 		_preferences.put(key, value);
