@@ -168,7 +168,7 @@ public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 		speed = old.speed;
 		height = old.height;
 		gps = new AltosGPS(old.gps);
-		new_gps = false;
+		new_gps = old.new_gps;
 		companion = old.companion;
 	}
 

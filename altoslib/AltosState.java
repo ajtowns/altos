@@ -165,6 +165,8 @@ public class AltosState {
 		} else
 			pad_alt = ground_altitude;
 
+		data.new_gps = false;
+
 		gps_waiting = MIN_PAD_SAMPLES - npad;
 		if (gps_waiting < 0)
 			gps_waiting = 0;
