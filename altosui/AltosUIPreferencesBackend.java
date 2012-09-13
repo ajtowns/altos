@@ -73,6 +73,14 @@ public class AltosUIPreferencesBackend implements AltosPreferencesBackend {
 		return new AltosUIPreferencesBackend(_preferences.node(key));
 	}
 
+	public String[] keys() {
+		return _preferences.keys();
+	}
+
+	public void remove(String key) {
+		_preferences.remove(key);
+	}
+
 	public void    flush() {
 		try {
 			_preferences.flush();

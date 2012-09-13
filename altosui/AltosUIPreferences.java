@@ -98,7 +98,7 @@ public class AltosUIPreferences extends AltosPreferences {
 		}
 	}
 	public static int font_size() {
-		synchronized (preferences) {
+		synchronized (backend) {
 			return font_size;
 		}
 	}
@@ -144,7 +144,7 @@ public class AltosUIPreferences extends AltosPreferences {
 	}
 
 	public static String look_and_feel() {
-		synchronized (preferences) {
+		synchronized (backend) {
 			return look_and_feel;
 		}
 	}
@@ -170,7 +170,7 @@ public class AltosUIPreferences extends AltosPreferences {
 	}
 
 	public static boolean serial_debug() {
-		synchronized (preferences) {
+		synchronized (backend) {
 			return serial_debug;
 		}
 	}
