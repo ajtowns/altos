@@ -399,39 +399,43 @@ public class AltosUI extends AltosFrame {
 	static final int process_replay = 4;
 	static final int process_summary = 5;
 
-	static void process_csv(String input) {
+	static boolean process_csv(String input) {
 		AltosRecordIterable iterable = open_logfile(input);
 		if (iterable == null)
-			return;
+			return false;
 
 		String output = Altos.replace_extension(input,".csv");
 		System.out.printf("Processing \"%s\" to \"%s\"\n", input, output);
 		if (input.equals(output)) {
 			System.out.printf("Not processing '%s'\n", input);
+			return false;
 		} else {
 			AltosWriter writer = open_csv(output);
 			if (writer == null)
-				return;
+				return false;
 			writer.write(iterable);
 			writer.close();
 		}
+		return true;
 	}
 
-	static void process_kml(String input) {
+	static boolean process_kml(String input) {
 		AltosRecordIterable iterable = open_logfile(input);
 		if (iterable == null)
-			return;
+			return false;
 
 		String output = Altos.replace_extension(input,".kml");
 		System.out.printf("Processing \"%s\" to \"%s\"\n", input, output);
 		if (input.equals(output)) {
 			System.out.printf("Not processing '%s'\n", input);
+			return false;
 		} else {
 			AltosWriter writer = open_kml(output);
 			if (writer == null)
-				return;
+				return false;
 			writer.write(iterable);
 			writer.close();
+			return true;
 		}
 	}
 
@@ -464,25 +468,32 @@ public class AltosUI extends AltosFrame {
 		return new AltosReplayReader(recs.iterator(), new File(filename));
 	}
 
-	static void process_replay(String filename) {
+	static boolean process_replay(String filename) {
 		AltosReplayReader reader = replay_file(filename);
+		if (reader == null)
+			return false;
 		AltosFlightUI flight_ui = new AltosFlightUI(new AltosVoice(), reader);
 		flight_ui.set_exit_on_close();
+		return true;
 	}
 
-	static void process_graph(String filename) {
+	static boolean process_graph(String filename) {
 		AltosRecordIterable recs = record_iterable_file(filename);
 		if (recs == null)
-			return;
+			return false;
 		try {
 			new AltosGraphUI(recs, filename);
+			return true;
 		} catch (InterruptedException ie) {
 		} catch (IOException ie) {
 		}
+		return false;
 	}
 	
-	static void process_summary(String filename) {
+	static boolean process_summary(String filename) {
 		AltosRecordIterable iterable = record_iterable_file(filename);
+		if (iterable == null)
+			return false;
 		try {
 			AltosFlightStats stats = new AltosFlightStats(iterable);
 			if (stats.serial > 0)
@@ -517,9 +528,11 @@ public class AltosUI extends AltosFrame {
 			System.out.printf("Flight time: %6.0f s\n",
 					  stats.state_end[Altos.ao_flight_main] -
 					  stats.state_start[Altos.ao_flight_boost]);
+			return true;
 		} catch (InterruptedException ie) {
 		} catch (IOException ie) {
 		}
+		return false;
 	}
 
 	public static void help(int code) {
@@ -534,6 +547,7 @@ public class AltosUI extends AltosFrame {
 	}
 	
 	public static void main(final String[] args) {
+		int	errors = 0;
 		load_library(null);
 		try {
 			UIManager.setLookAndFeel(AltosUIPreferences.look_and_feel());
@@ -577,23 +591,30 @@ public class AltosUI extends AltosFrame {
 					switch (process) {
 					case process_none:
 					case process_graph:
-						process_graph(args[i]);
+						if (!process_graph(args[i]))
+							++errors;
 						break;
 					case process_replay:
-						process_replay(args[i]);
+						if (!process_replay(args[i]))
+							++errors;
 						break;
 					case process_kml:
-						process_kml(args[i]);
+						if (!process_kml(args[i]))
+							++errors;
 						break;
 					case process_csv:
-						process_csv(args[i]);
+						if (!process_csv(args[i]))
+							++errors;
 						break;
 					case process_summary:
-						process_summary(args[i]);
+						if (!process_summary(args[i]))
+							++errors;
 						break;
 					}
 				}
 			}
 		}
+		if (errors != 0)
+			System.exit(errors);
 	}
 }
