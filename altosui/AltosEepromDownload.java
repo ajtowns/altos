@@ -134,7 +134,8 @@ public class AltosEepromDownload implements Runnable {
 				}
 				if (r.cmd == Altos.AO_LOG_STATE && r.a == Altos.ao_flight_landed)
 					done = true;
-				any_valid = true;
+				if (r.cmd != AltosLib.AO_LOG_INVALID)
+					any_valid = true;
 				Log(r);
 			} catch (ParseException pe) {
 				if (parse_exception == null)
