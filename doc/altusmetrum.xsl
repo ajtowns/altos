@@ -1292,6 +1292,16 @@ NAR #88757, TRA #12200
         </para>
       </section>
       <section>
+	<title>Imperial Units</title>
+	<para>
+	  This switches between metric units (meters) and imperial
+	  units (feet and miles). This affects the display of values
+	  use during flight monitoring, data graphing and all of the
+	  voice announcements. It does not change the units used when
+	  exporting to CSV files, those are always produced in metric units.
+	</para>
+      </section>
+      <section>
 	<title>Font Size</title>
 	<para>
 	  Selects the set of fonts used in the flight monitor
@@ -1318,6 +1328,73 @@ NAR #88757, TRA #12200
 	  settings of any devices, it only changes the set of
 	  frequencies shown in the menus.
 	</para>
+      </section>
+    </section>
+    <section>
+      <title>Configure Groundstation</title>
+      <para>
+        Select this button and then select a TeleDongle Device from the list provided.
+      </para>
+      <para>
+        The first few lines of the dialog provide information about the
+        connected device, including the product name,
+        software version and hardware serial number. Below that are the
+        individual configuration entries.
+      </para>
+      <para>
+	Note that the TeleDongle itself doesn't save any configuration
+	data, the settings here are recorded on the local machine in
+	the Java preferences database. Moving the TeleDongle to
+	another machine, or using a different user account on the same
+	machine will cause settings made here to have no effect.
+      </para>
+      <para>
+        At the bottom of the dialog, there are three buttons:
+      </para>
+      <itemizedlist>
+        <listitem>
+          <para>
+            Save. This writes any changes to the
+            local Java preferences file. If you don't
+            press this button, any changes you make will be lost.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Reset. This resets the dialog to the most recently saved values,
+            erasing any changes you have made.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Close. This closes the dialog. Any unsaved changes will be
+            lost.
+          </para>
+        </listitem>
+      </itemizedlist>
+      <para>
+        The rest of the dialog contains the parameters to be configured.
+      </para>
+      <section>
+        <title>Frequency</title>
+        <para>
+          This configures the frequency to use for both telemetry and
+          packet command mode. Set this before starting any operation
+          involving packet command mode so that it will use the right
+          frequency. Telemetry monitoring mode also provides a menu to
+          change the frequency, and that menu also sets the same Java
+          preference value used here.
+        </para>
+      </section>
+      <section>
+        <title>Radio Calibration</title>
+        <para>
+          The radios in every Altus Metrum device are calibrated at the
+          factory to ensure that they transmit and receive on the
+          specified frequency.  To change a TeleDongle's calibration, 
+	  you must reprogram the unit completely, so this entry simply
+	  shows the current value and doesn't allow any changes.
+        </para>
       </section>
     </section>
     <section>
