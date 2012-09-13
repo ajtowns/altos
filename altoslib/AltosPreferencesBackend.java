@@ -34,5 +34,8 @@ public interface AltosPreferencesBackend {
 	public boolean nodeExists(String key);
 	public AltosPreferencesBackend node(String key);
 
+	public String[] keys();
+	public void    remove(String key);
+
 	public void    flush();
 }

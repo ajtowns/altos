@@ -17,7 +17,7 @@
 
 package altosui;
 import java.util.*;
-import java.util.prefs.*;
+import org.altusmetrum.AltosLib.*;
 
 public class AltosBTKnown implements Iterable<AltosBTDevice> {
 	LinkedList<AltosBTDevice>	devices = new LinkedList<AltosBTDevice>();
@@ -43,7 +43,6 @@ public class AltosBTKnown implements Iterable<AltosBTDevice> {
 				String	addr = get_address(name);
 				devices.add(new AltosBTDevice(name, addr));
 			}
-		} catch (BackingStoreException be) {
 		} catch (IllegalStateException ie) {
 		}
 	}
