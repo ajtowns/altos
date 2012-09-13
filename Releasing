@@ -34,7 +34,7 @@ These are Bdale's notes on how to do a release.
 	make distclean
 
 	./autogen.sh --with-fat-dir=/home/bdale/web/altusmetrum/AltOS/releases
-	make fat
+	make && make fat
 
 		this pushes packages for each platform to web site
 
