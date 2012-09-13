@@ -42,6 +42,7 @@ AltosLib_JAVA = \
 	$(SRC)/AltosOrderedMegaRecord.java \
 	$(SRC)/AltosParse.java \
 	$(SRC)/AltosPreferences.java \
+	$(SRC)/AltosPreferencesBackend.java \
 	$(SRC)/AltosRecordCompanion.java \
 	$(SRC)/AltosRecordIterable.java \
 	$(SRC)/AltosRecord.java \
