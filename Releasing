@@ -1,16 +1,35 @@
 These are Bdale's notes on how to do a release.
 
-	update the version in configure.ac and commit
+	git checkout master
+	- update the version in configure.ac
+        git log > ChangeLog
+	git commit -a
+	- make absolutely sure checked-out tree is "clean" 
+	- if this is an x.y release, then:
+		git checkout -b branch-<version>
+		git tag -a <version>
+	- if this is an x.y.z release, then:
+		git checkout branch-<version>		# the x.y parts only
+		git merge master
+		git tag -a <version>			# full x.y.z version
 
-	git tag -a <version>
+	- edit .git/gbp.conf to use branch-<version> as upstream if needed
 
-	- make sure checked-out tree is "clean" so git won't complain
+	git checkout debian
+	git merge branch-<version>
 
-	git-buildpackage
+	- verify debian/changelog is "clean" ending in last release version
+	- craft a suitable debian/changelog entry, possibly using:
+	git-dch --release --new-version=<version>-1 --multimaint-merge
 
-		at this point, we have Debian packages
+        git commit -n debian/changelog -m "update changelog for Debian build"
 
+	git-buildpackage --git-no-pristine-tar 
+	pristine-tar commit ../build-area/altos/altos_<version>.orig.tar.gz
 	git tag debian/<version>
+
+	- at this point we have packages in ~/debian/build-area/altos, now
+	  we move on to the non-Debian part of the release process
 
 	make distclean
 
