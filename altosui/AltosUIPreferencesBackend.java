@@ -77,6 +77,7 @@ public class AltosUIPreferencesBackend implements AltosPreferencesBackend {
 		try {
 			return _preferences.keys();
 		} catch (BackingStoreException be) {
+			return null;
 		}
 	}
 
