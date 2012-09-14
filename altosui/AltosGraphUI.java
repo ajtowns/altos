@@ -143,7 +143,8 @@ public class AltosGraphUI extends AltosFrame
             return graphs;
         }
     }
-    
+
+    /*
     static private class AscentGraphs extends OverallGraphs {
         protected AltosGraphTime myAltosGraphTime(String suffix) {
             return (new AltosGraphTime("Ascent " + suffix) {
@@ -158,7 +159,9 @@ public class AltosGraphUI extends AltosFrame
               .addElement(e_coast);
         }
     }
-    
+    */
+
+    /*
     static private class DescentGraphs extends OverallGraphs {
         protected AltosGraphTime myAltosGraphTime(String suffix) {
             return (new AltosGraphTime("Descent " + suffix) {
@@ -173,6 +176,7 @@ public class AltosGraphUI extends AltosFrame
             // ((XYGraph)graph[8]).ymin = new Double(-50);
         }
     }
+    */
 
 	public AltosGraphUI(AltosRecordIterable records, String name) throws InterruptedException, IOException {
 		super(String.format("Altos Graph %s", name));

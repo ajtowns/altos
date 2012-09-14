@@ -22,7 +22,6 @@ import java.awt.event.*;
 import java.beans.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.plaf.basic.*;
 
 class DelegatingRenderer implements ListCellRenderer {
 
@@ -289,6 +288,7 @@ public class AltosConfigureUI
 		c.anchor = GridBagConstraints.WEST;
 		pane.add(new JLabel("Look & feel"), c);
 
+		/*
 		class LookAndFeelRenderer extends BasicComboBoxRenderer implements ListCellRenderer {
 
 			public LookAndFeelRenderer() {
@@ -307,6 +307,7 @@ public class AltosConfigureUI
 				return this;
 			}
 		}
+		*/
 
 		final UIManager.LookAndFeelInfo[] look_and_feels = UIManager.getInstalledLookAndFeels();
 
