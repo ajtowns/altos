@@ -106,6 +106,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 			break;
 		case AltosLib.AO_LOG_GPS_TIME:
 			eeprom.gps_tick = state.tick;
+			eeprom.seen |= AltosRecord.seen_gps_time;
 			AltosGPS old = state.gps;
 			state.gps = new AltosGPS();
 
@@ -128,10 +129,12 @@ public class AltosEepromIterable extends AltosRecordIterable {
 			has_gps = true;
 			break;
 		case AltosLib.AO_LOG_GPS_LAT:
+			eeprom.seen |= AltosRecord.seen_gps_lat;
 			int lat32 = record.a | (record.b << 16);
 			state.gps.lat = (double) lat32 / 1e7;
 			break;
 		case AltosLib.AO_LOG_GPS_LON:
+			eeprom.seen |= AltosRecord.seen_gps_lon;
 			int lon32 = record.a | (record.b << 16);
 			state.gps.lon = (double) lon32 / 1e7;
 			break;
