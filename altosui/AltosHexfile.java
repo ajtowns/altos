@@ -44,7 +44,7 @@ class HexFileInputStream extends PushbackInputStream {
 	}
 }
 
-class HexRecord implements Comparable {
+class HexRecord implements Comparable<Object> {
 	public int	address;
 	public int	type;
 	public byte	checksum;
