@@ -337,11 +337,6 @@ public class AltosConfigTD implements ActionListener {
 									    device.toShortString()),
 							      "Device in use",
 							      JOptionPane.ERROR_MESSAGE);
-			} catch (IOException ee) {
-				JOptionPane.showMessageDialog(owner,
-							      device.toShortString(),
-							      ee.getLocalizedMessage(),
-							      JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
