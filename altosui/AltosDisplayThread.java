@@ -222,7 +222,7 @@ public class AltosDisplayThread extends Thread {
 
 	public void run() {
 		boolean		interrupted = false;
-		String		line;
+		//String		line;
 		AltosState	state = null;
 		AltosState	old_state = null;
 		boolean		told;

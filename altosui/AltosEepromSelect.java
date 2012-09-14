@@ -51,7 +51,7 @@ class AltosEepromItem implements ActionListener {
 }
 
 public class AltosEepromSelect extends AltosDialog implements ActionListener {
-	private JList			list;
+	//private JList			list;
 	private JFrame			frame;
 	JButton				ok;
 	JButton				cancel;

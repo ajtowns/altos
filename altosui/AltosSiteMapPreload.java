@@ -176,7 +176,7 @@ class AltosSites extends Thread {
 	public void run() {
 		try {
 			URLConnection uc = url.openConnection();
-			int length = uc.getContentLength();
+			//int length = uc.getContentLength();
 			
 			InputStreamReader in_stream = new InputStreamReader(uc.getInputStream(), Altos.unicode_set);
 			BufferedReader in = new BufferedReader(in_stream);

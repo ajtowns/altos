@@ -85,9 +85,9 @@ public class AltosInfoTable extends JTable {
 	}
 
 	void info_add_deg(int col, String name, double v, int pos, int neg) {
-		int	c = pos;
+		//int	c = pos;
 		if (v < 0) {
-			c = neg;
+			//c = neg;
 			v = -v;
 		}
 		double	deg = Math.floor(v);
@@ -184,7 +184,7 @@ public class AltosInfoTable extends JTable {
 				       state.gps.hour,
 				       state.gps.minute,
 				       state.gps.second);
-			int	nsat_vis = 0;
+			//int	nsat_vis = 0;
 			int	c;
 
 			if (state.gps.cc_gps_sat == null)

@@ -87,7 +87,7 @@ public class AltosUI extends AltosFrame {
 		c.weighty = 1;
 		b = new JButton(label);
 
-		Dimension ps = b.getPreferredSize();
+		//Dimension ps = b.getPreferredSize();
 
 		gridbag.setConstraints(b, c);
 		add(b, c);
@@ -441,7 +441,7 @@ public class AltosUI extends AltosFrame {
 			return null;
 		}
 		AltosRecordIterable recs;
-		AltosReplayReader reader;
+		//AltosReplayReader reader;
 		if (file.getName().endsWith("eeprom")) {
 			recs = new AltosEepromIterable(in);
 		} else {

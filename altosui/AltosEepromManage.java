@@ -153,7 +153,7 @@ public class AltosEepromManage implements ActionListener {
 						      ee.getLocalizedMessage(),
 						      JOptionPane.ERROR_MESSAGE);
 		} else if (e instanceof TimeoutException) {
-			TimeoutException te = (TimeoutException) e;
+			//TimeoutException te = (TimeoutException) e;
 			JOptionPane.showMessageDialog(frame,
 						      String.format("Communications failed with \"%s\"",
 								    device.toShortString()),
@@ -194,7 +194,7 @@ public class AltosEepromManage implements ActionListener {
 
 	public AltosEepromManage(JFrame given_frame) {
 
-		boolean	running = false;
+		//boolean	running = false;
 
 		frame = given_frame;
 		device = AltosDeviceDialog.show(frame, Altos.product_any);

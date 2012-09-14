@@ -22,9 +22,9 @@ public class AltosGraphUI extends AltosFrame
     static final private Color red = new Color(194,31,31);
     static final private Color green = new Color(31,194,31);
     static final private Color blue = new Color(31,31,194);
-    static final private Color black = new Color(31,31,31);
+    //static final private Color black = new Color(31,31,31);
     static final private Color yellow = new Color(194,194,31);
-    static final private Color cyan = new Color(31,194,194);
+    //static final private Color cyan = new Color(31,194,194);
     static final private Color magenta = new Color(194,31,194);
 
     static private class OverallGraphs {
@@ -94,7 +94,7 @@ public class AltosGraphUI extends AltosFrame
                 }
             };
     
-        AltosGraphTime.Element e_pad    = new AltosGraphTime.StateMarker(Altos.ao_flight_pad, "Pad");
+        //AltosGraphTime.Element e_pad    = new AltosGraphTime.StateMarker(Altos.ao_flight_pad, "Pad");
         AltosGraphTime.Element e_boost  = new AltosGraphTime.StateMarker(Altos.ao_flight_boost, "Boost");
         AltosGraphTime.Element e_fast   = new AltosGraphTime.StateMarker(Altos.ao_flight_fast, "Fast");
         AltosGraphTime.Element e_coast  = new AltosGraphTime.StateMarker(Altos.ao_flight_coast, "Coast");
@@ -223,11 +223,13 @@ public class AltosGraphUI extends AltosFrame
         return createGraphsWhich(data, which).get(0);
     }
 
+    /*
     private static ArrayList<AltosGraph> createGraphs(
             Iterable<AltosDataPoint> data)
     {
         return createGraphsWhich(data, -1);
     }
+    */
 
     private static ArrayList<AltosGraph> createGraphsWhich(
             Iterable<AltosDataPoint> data, int which)
