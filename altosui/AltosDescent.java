@@ -315,6 +315,19 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	Lon lon;
 
+	class Distance extends DescentValue {
+		void show(AltosState state, int crc_errors) {
+			show(AltosConvert.distance, state.from_pad.distance);
+		}
+
+		public Distance (GridBagLayout layout, int x, int y) {
+			super(layout, x, y, "Ground Distance");
+		}
+	}
+
+	Distance distance;
+		
+
 	class Apogee extends DescentStatus {
 		void show (AltosState state, int crc_errors) {
 			show("%4.2f V", state.drogue_sense);
@@ -385,6 +398,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		speed.reset();
 		bearing.reset();
 		range.reset();
+		distance.reset();
 		elevation.reset();
 		main.reset();
 		apogee.reset();
@@ -397,6 +411,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		speed.set_font();
 		bearing.set_font();
 		range.set_font();
+		distance.set_font();
 		elevation.set_font();
 		main.set_font();
 		apogee.set_font();
@@ -408,12 +423,14 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		if (state.gps != null && state.gps.connected) {
 			bearing.show(state, crc_errors);
 			range.show(state, crc_errors);
+			distance.show(state, crc_errors);
 			elevation.show(state, crc_errors);
 			lat.show(state, crc_errors);
 			lon.show(state, crc_errors);
 		} else {
 			bearing.hide();
 			range.hide();
+			distance.hide();
 			elevation.hide();
 			lat.hide();
 			lon.hide();
@@ -439,10 +456,11 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		elevation = new Elevation(layout, 0, 1);
 		range = new Range(layout, 2, 1);
 		bearing = new Bearing(layout, 0, 2);
-		lat = new Lat(layout, 0, 3);
-		lon = new Lon(layout, 2, 3);
+		distance = new Distance(layout, 0, 3);
+		lat = new Lat(layout, 0, 4);
+		lon = new Lon(layout, 2, 4);
 
-		apogee = new Apogee(layout, 4);
-		main = new Main(layout, 5);
+		apogee = new Apogee(layout, 5);
+		main = new Main(layout, 6);
 	}
 }
