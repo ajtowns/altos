@@ -107,7 +107,7 @@ public class AltosEepromDownload implements Runnable {
 
 		extension = "eeprom";
 		set_serial(flights.config_data.serial);
-		for (int i = 0; i < eechunk.chunk_size && !done; i += AltosEepromRecord.record_length) {
+		for (int i = 0; i < AltosEepromChunk.chunk_size && !done; i += AltosEepromRecord.record_length) {
 			try {
 				AltosEepromRecord r = new AltosEepromRecord(eechunk, i);
 				if (r.cmd == Altos.AO_LOG_FLIGHT)
@@ -214,7 +214,7 @@ public class AltosEepromDownload implements Runnable {
 		boolean	any_valid = false;
 
 		extension = "science";
-		for (int i = 0; i < eechunk.chunk_size && !done; i += AltosEepromTeleScience.record_length) {
+		for (int i = 0; i < AltosEepromChunk.chunk_size && !done; i += AltosEepromTeleScience.record_length) {
 			try {
 				AltosEepromTeleScience r = new AltosEepromTeleScience(eechunk, i);
 				if (r.type == AltosEepromTeleScience.AO_LOG_TELESCIENCE_START) {
@@ -267,7 +267,7 @@ public class AltosEepromDownload implements Runnable {
 
 		extension = "mega";
 		set_serial(flights.config_data.serial);
-		for (int i = 0; i < eechunk.chunk_size && !done; i += AltosEepromMega.record_length) {
+		for (int i = 0; i < AltosEepromChunk.chunk_size && !done; i += AltosEepromMega.record_length) {
 			try {
 				AltosEepromMega r = new AltosEepromMega(eechunk, i);
 				if (r.cmd == Altos.AO_LOG_FLIGHT)
