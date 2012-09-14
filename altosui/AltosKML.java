@@ -131,8 +131,12 @@ public class AltosKML implements AltosWriter {
 	public void write(AltosRecord record) {
 		AltosGPS	gps = record.gps;
 
-		if (gps == null)
+		if (gps == null) {
+			System.out.printf ("no gps\n");
 			return;
+		}
+
+		System.out.printf ("seen %x\n", record.seen);
 		if ((record.seen & (AltosRecord.seen_flight)) == 0)
 			return;
 		if ((record.seen & (AltosRecord.seen_gps_lat)) == 0)

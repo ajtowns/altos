@@ -46,6 +46,19 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 			value.setVisible(true);
 		}
 
+		void show(String s) {
+			show();
+			value.setText(s);
+		}
+		
+		void show(AltosUnits units, double v) {
+			show(units.show(8, v));
+		}
+
+		void show(String format, double v) {
+			show(String.format(format, v));
+		}
+
 		public void set_font() {
 			label.setFont(Altos.label_font);
 			value.setFont(Altos.value_font);
@@ -55,12 +68,6 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 			label.setVisible(false);
 			value.setVisible(false);
 		}
-
-		void show(String format, double v) {
-			show();
-			value.setText(String.format(format, v));
-		}
-
 
 		public LandedValue (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
@@ -102,11 +109,10 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 
 	class Lat extends LandedValue {
 		void show (AltosState state, int crc_errors) {
-			show();
 			if (state.gps != null && state.gps.connected)
-				value.setText(pos(state.gps.lat,"N", "S"));
+				show(pos(state.gps.lat,"N", "S"));
 			else
-				value.setText("???");
+				show("???");
 		}
 		public Lat (GridBagLayout layout, int y) {
 			super (layout, y, "Latitude");
@@ -119,9 +125,9 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 		void show (AltosState state, int crc_errors) {
 			show();
 			if (state.gps != null && state.gps.connected)
-				value.setText(pos(state.gps.lon,"E", "W"));
+				show(pos(state.gps.lon,"E", "W"));
 			else
-				value.setText("???");
+				show("???");
 		}
 		public Lon (GridBagLayout layout, int y) {
 			super (layout, y, "Longitude");
@@ -136,7 +142,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 			if (state.from_pad != null)
 				show("%3.0f°", state.from_pad.bearing);
 			else
-				value.setText("???");
+				show("???");
 		}
 		public Bearing (GridBagLayout layout, int y) {
 			super (layout, y, "Bearing");
@@ -149,9 +155,9 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 		void show (AltosState state, int crc_errors) {
 			show();
 			if (state.from_pad != null)
-				show("%6.0f m", state.from_pad.distance);
+				show(AltosConvert.distance, state.from_pad.distance);
 			else
-				value.setText("???");
+				show("???");
 		}
 		public Distance (GridBagLayout layout, int y) {
 			super (layout, y, "Distance");
@@ -162,7 +168,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 
 	class Height extends LandedValue {
 		void show (AltosState state, int crc_errors) {
-			show("%6.0f m", state.max_height);
+			show(AltosConvert.height, state.max_height);
 		}
 		public Height (GridBagLayout layout, int y) {
 			super (layout, y, "Maximum Height");
@@ -173,7 +179,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 
 	class Speed extends LandedValue {
 		void show (AltosState state, int crc_errors) {
-			show("%6.0f m/s", state.max_speed);
+			show(AltosConvert.speed, state.max_speed);
 		}
 		public Speed (GridBagLayout layout, int y) {
 			super (layout, y, "Maximum Speed");
@@ -184,7 +190,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 
 	class Accel extends LandedValue {
 		void show (AltosState state, int crc_errors) {
-			show("%6.0f m/s²", state.max_acceleration);
+			show(AltosConvert.accel, state.max_acceleration);
 		}
 		public Accel (GridBagLayout layout, int y) {
 			super (layout, y, "Maximum Acceleration");

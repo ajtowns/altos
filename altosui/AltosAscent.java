@@ -51,6 +51,20 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		}
 
 		void show(AltosState state, int crc_errors) {}
+
+		void show(String s) {
+			show();
+			value.setText(s);
+		}
+		
+		void show(AltosUnits units, double v) {
+			show(units.show(8, v));
+		}
+
+		void show(String format, double v) {
+			show(String.format(format, v));
+		}
+
 		void reset() {
 			value.setText("");
 			lights.set(false);
@@ -110,6 +124,19 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		void show() {
 			label.setVisible(true);
 			value.setVisible(true);
+		}
+
+		void show(String s) {
+			show();
+			value.setText(s);
+		}
+		
+		void show(AltosUnits units, double v) {
+			show(units.show(8, v));
+		}
+
+		void show(String format, double v) {
+			show(String.format(format, v));
 		}
 
 		void hide() {
@@ -268,8 +295,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Apogee extends AscentStatus {
 		void show (AltosState state, int crc_errors) {
-			show();
-			value.setText(String.format("%4.2f V", state.drogue_sense));
+			show("%4.2f V", state.drogue_sense);
 			lights.set(state.drogue_sense > 3.2);
 		}
 		public Apogee (GridBagLayout layout, int y) {
@@ -281,8 +307,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Main extends AscentStatus {
 		void show (AltosState state, int crc_errors) {
-			show();
-			value.setText(String.format("%4.2f V", state.main_sense));
+			show("%4.2f V", state.main_sense);
 			lights.set(state.main_sense > 3.2);
 		}
 		public Main (GridBagLayout layout, int y) {
@@ -294,11 +319,10 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Lat extends AscentValue {
 		void show (AltosState state, int crc_errors) {
-			show();
 			if (state.gps != null)
-				value.setText(pos(state.gps.lat,"N", "S"));
+				show(pos(state.gps.lat,"N", "S"));
 			else
-				value.setText("???");
+				show("???");
 		}
 		public Lat (GridBagLayout layout, int y) {
 			super (layout, y, "Latitude");
@@ -309,11 +333,10 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Lon extends AscentValue {
 		void show (AltosState state, int crc_errors) {
-			show();
 			if (state.gps != null)
-				value.setText(pos(state.gps.lon,"E", "W"));
+				show(pos(state.gps.lon,"E", "W"));
 			else
-				value.setText("???");
+				show("???");
 		}
 		public Lon (GridBagLayout layout, int y) {
 			super (layout, y, "Longitude");

@@ -45,6 +45,15 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			lights.setVisible(true);
 		}
 
+		void show(String s) {
+			show();
+			value.setText(s);
+		}
+
+		void show(String format, double value) {
+			show(String.format(format, value));
+		}
+
 		void hide() {
 			label.setVisible(false);
 			value.setVisible(false);
@@ -119,16 +128,17 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			value.setVisible(false);
 		}
 
+		void show(String v) {
+			show();
+			value.setText(v);
+		}
+
 		void show(AltosUnits units, double v) {
-			value.setText(units.show(8, v));
+			show(units.show(8, v));
 		}
 
 		void show(String format, double v) {
-			value.setText(String.format(format, v));
-		}
-
-		void show(String v) {
-			value.setText(v);
+			show(String.format(format, v));
 		}
 
 		void set_font() {
@@ -307,8 +317,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	class Apogee extends DescentStatus {
 		void show (AltosState state, int crc_errors) {
-			show();
-			value.setText(String.format("%4.2f V", state.drogue_sense));
+			show("%4.2f V", state.drogue_sense);
 			lights.set(state.drogue_sense > 3.2);
 		}
 		public Apogee (GridBagLayout layout, int y) {
@@ -320,8 +329,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	class Main extends DescentStatus {
 		void show (AltosState state, int crc_errors) {
-			show();
-			value.setText(String.format("%4.2f V", state.main_sense));
+			show("%4.2f V", state.main_sense);
 			lights.set(state.main_sense > 3.2);
 		}
 		public Main (GridBagLayout layout, int y) {
