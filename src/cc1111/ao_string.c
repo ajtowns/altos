@@ -18,7 +18,7 @@
 #include "ao.h"
 
 void
-_ao_xmemcpy(__xdata void *dst, __xdata void *src, uint8_t count)
+_ao_xmemcpy(__xdata void *dst, __xdata void *src, uint16_t count)
 {
 	while (count--) {
 		*(__xdata uint8_t *) dst = *(__xdata uint8_t *) src;
@@ -28,7 +28,7 @@ _ao_xmemcpy(__xdata void *dst, __xdata void *src, uint8_t count)
 }
 
 void
-_ao_xmemset(__xdata void *dst, uint8_t v, uint8_t count)
+_ao_xmemset(__xdata void *dst, uint8_t v, uint16_t count)
 {
 	while (count--) {
 		*(__xdata uint8_t *) dst = v;
@@ -37,7 +37,7 @@ _ao_xmemset(__xdata void *dst, uint8_t v, uint8_t count)
 }
 
 int8_t
-_ao_xmemcmp(__xdata void *a, __xdata void *b, uint8_t count)
+_ao_xmemcmp(__xdata void *a, __xdata void *b, uint16_t count)
 {
 	while (count--) {
 		int8_t	d = *(__xdata int8_t *) a - *(__xdata int8_t *) b;

@@ -229,17 +229,17 @@ ao_button_clear(void) __critical;
 /* ao_string.c */
 
 void
-_ao_xmemcpy(__xdata void *dst, __xdata void *src, uint8_t count);
+_ao_xmemcpy(__xdata void *dst, __xdata void *src, uint16_t count);
 
 #define ao_xmemcpy(d,s,c) _ao_xmemcpy(d,s,c)
 
 void
-_ao_xmemset(__xdata void *dst, uint8_t value, uint8_t count);
+_ao_xmemset(__xdata void *dst, uint8_t value, uint16_t count);
 
 #define ao_xmemset(d,v,c) _ao_xmemset(d,v,c)
 
 int8_t
-_ao_xmemcmp(__xdata void *a, __xdata void *b, uint8_t count);
+_ao_xmemcmp(__xdata void *a, __xdata void *b, uint16_t count);
 
 #define ao_xmemcmp(d,s,c) _ao_xmemcmp((d), (s), (c))
 
