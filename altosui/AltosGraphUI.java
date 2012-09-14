@@ -182,8 +182,6 @@ public class AltosGraphUI extends AltosFrame
 		super(String.format("Altos Graph %s", name));
 
 		AltosDataPointReader reader = new AltosDataPointReader (records);
-		if (reader == null)
-			return;
         
 		if (reader.has_accel)
 		    init(reader, records, 0);

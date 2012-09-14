@@ -145,6 +145,7 @@ public class AltosInfoTable extends JTable {
 			info_add_row(1, "GPS height", "%6.0f", state.gps_height);
 
 			/* The SkyTraq GPS doesn't report these values */
+			/*
 			if (false) {
 				info_add_row(1, "GPS ground speed", "%8.1f m/s %3d°",
 					     state.gps.ground_speed,
@@ -154,6 +155,8 @@ public class AltosInfoTable extends JTable {
 				info_add_row(1, "GPS error", "%6d m(h)%3d m(v)",
 					     state.gps.h_error, state.gps.v_error);
 			}
+			*/
+
 			info_add_row(1, "GPS hdop", "%8.1f", state.gps.hdop);
 
 			if (state.npad > 0) {
