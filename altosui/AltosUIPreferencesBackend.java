@@ -17,7 +17,6 @@
 
 package altosui;
 
-import java.text.*;
 import java.util.prefs.*;
 import org.altusmetrum.AltosLib.*;
 
