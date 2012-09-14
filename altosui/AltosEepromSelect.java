@@ -17,16 +17,10 @@
 
 package altosui;
 
-import java.lang.*;
-import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
-import libaltosJNI.libaltos;
-import libaltosJNI.altos_device;
-import libaltosJNI.SWIGTYPE_p_altos_file;
-import libaltosJNI.SWIGTYPE_p_altos_list;
 import org.altusmetrum.AltosLib.*;
 
 class AltosEepromItem implements ActionListener {

@@ -4,8 +4,6 @@
 
 package altosui;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.lang.UnsupportedOperationException;
 import java.util.NoSuchElementException;
 import java.util.Iterator;

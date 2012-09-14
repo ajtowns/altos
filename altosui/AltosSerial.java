@@ -21,16 +21,10 @@
 
 package altosui;
 
-import java.lang.*;
 import java.io.*;
-import java.util.concurrent.*;
 import java.util.*;
-import java.text.*;
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
 import org.altusmetrum.AltosLib.*;
 
 import libaltosJNI.*;

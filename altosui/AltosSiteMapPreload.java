@@ -18,22 +18,14 @@
 package altosui;
 
 import java.awt.*;
-import java.awt.image.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.event.MouseInputAdapter;
-import javax.imageio.ImageIO;
-import javax.swing.table.*;
 import java.io.*;
 import java.util.*;
 import java.text.*;
-import java.util.prefs.*;
 import java.lang.Math;
-import java.awt.geom.Point2D;
-import java.awt.geom.Line2D;
 import java.net.URL;
 import java.net.URLConnection;
-import org.altusmetrum.AltosLib.*;
 
 class AltosMapPos extends Box {
 	AltosUI		owner;

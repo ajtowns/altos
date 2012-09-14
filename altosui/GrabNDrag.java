@@ -18,16 +18,9 @@
 package altosui;
 
 import java.awt.*;
-import java.awt.image.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
-import javax.imageio.ImageIO;
-import javax.swing.table.*;
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import org.altusmetrum.AltosLib.*;
 
 class GrabNDrag extends MouseInputAdapter {
 	private JComponent scroll;

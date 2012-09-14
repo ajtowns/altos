@@ -19,12 +19,8 @@ package altosui;
 
 import java.io.*;
 import java.util.*;
-import java.text.*;
-import java.util.prefs.*;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.awt.Component;
 import javax.swing.*;
-import javax.swing.filechooser.FileSystemView;
 import org.altusmetrum.AltosLib.*;
 
 public class AltosUIPreferences extends AltosPreferences {

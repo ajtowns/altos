@@ -16,8 +16,6 @@
  */
 
 package altosui;
-import java.lang.*;
-import java.util.*;
 import libaltosJNI.*;
 
 public class AltosBTDevice extends altos_bt_device implements AltosDevice {
