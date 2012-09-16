@@ -45,6 +45,42 @@ public class AltosIdleMonitor extends Thread {
 		return rssi;
 	}
 
+	boolean has_sensor_tm(AltosConfigData config_data) {
+		return config_data.product.startsWith("TeleMetrum") || config_data.product.startsWith("TeleMini");
+	}
+
+	boolean has_sensor_mm(AltosConfigData config_data) {
+		return config_data.product.startsWith("MegaMetrum");
+	}
+
+	boolean has_gps(AltosConfigData config_data) {
+		return config_data.product.startsWith("TeleMetrum") || config_data.product.startsWith("MegaMetrum");
+	}
+
+	AltosRecord sensor_mm(AltosConfigData config_data) throws InterruptedException, TimeoutException {
+		AltosRecordMM record_mm = new AltosRecordMM();
+		AltosSensorMM sensor = new AltosSensorMM(link);
+		AltosMs5607 ms5607 = new AltosMs5607Query(link);
+		AltosIMU imu = new AltosIMUQuery(link);
+
+		record_mm.accel_plus_g = config_data.accel_cal_plus;
+		record_mm.accel_minus_g = config_data.accel_cal_minus;
+
+		record_mm.ground_accel = sensor.accel;
+		record_mm.accel = sensor.accel;
+		record_mm.ground_pres = ms5607.pa;
+		record_mm.pres = ms5607.pa;
+		record_mm.temp = ms5607.cc;
+
+		record_mm.v_batt = sensor.v_batt;
+		record_mm.v_pyro = sensor.v_pyro;
+		record_mm.sense = sensor.sense;
+
+		record_mm.imu = imu;
+
+		return record_mm;
+	}
+
 	void update_state() throws InterruptedException, TimeoutException {
 		AltosRecord	record = null;
 
@@ -55,34 +91,16 @@ public class AltosIdleMonitor extends Thread {
 			} else
 				link.flush_input();
 			config_data = new AltosConfigData(link);
-			if (config_data.product.startsWith("TeleMetrum")) {
+
+			if (has_sensor_tm(config_data))
 				record = new AltosSensorTM(link, config_data);
-			} else if (config_data.product.startsWith("MegaMetrum")) {
-				AltosRecordMM record_mm = new AltosRecordMM();
-				AltosSensorMM sensor = new AltosSensorMM(link);
-				AltosMs5607 ms5607 = new AltosMs5607Query(link);
-				AltosIMU imu = new AltosIMUQuery(link);
-
-				record_mm.accel_plus_g = config_data.accel_cal_plus;
-				record_mm.accel_minus_g = config_data.accel_cal_minus;
-
-				record_mm.ground_accel = sensor.accel;
-				record_mm.accel = sensor.accel;
-				record_mm.ground_pres = ms5607.pa;
-				record_mm.pres = ms5607.pa;
-				record_mm.temp = ms5607.cc;
-
-				record_mm.v_batt = sensor.v_batt;
-				record_mm.v_pyro = sensor.v_pyro;
-				record_mm.sense = sensor.sense;
-
-				record_mm.imu = imu;
-
-				record = record_mm;
-			} else
+			else if (has_sensor_mm(config_data))
+				record = sensor_mm(config_data);
+			else
 				record = new AltosRecord();
 
-			gps = new AltosGPSQuery(link, config_data);
+			if (has_gps(config_data))
+				gps = new AltosGPSQuery(link, config_data);
 
 			record.version = 0;
 			record.callsign = config_data.callsign;
