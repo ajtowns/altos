@@ -17,19 +17,11 @@
 
 package altosui;
 
-import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
 import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.util.prefs.*;
 import java.util.concurrent.*;
 import org.altusmetrum.AltosLib.*;
-
-import libaltosJNI.*;
 
 public class AltosEepromManage implements ActionListener {
 
@@ -161,7 +153,7 @@ public class AltosEepromManage implements ActionListener {
 						      ee.getLocalizedMessage(),
 						      JOptionPane.ERROR_MESSAGE);
 		} else if (e instanceof TimeoutException) {
-			TimeoutException te = (TimeoutException) e;
+			//TimeoutException te = (TimeoutException) e;
 			JOptionPane.showMessageDialog(frame,
 						      String.format("Communications failed with \"%s\"",
 								    device.toShortString()),
@@ -202,7 +194,7 @@ public class AltosEepromManage implements ActionListener {
 
 	public AltosEepromManage(JFrame given_frame) {
 
-		boolean	running = false;
+		//boolean	running = false;
 
 		frame = given_frame;
 		device = AltosDeviceDialog.show(frame, Altos.product_any);

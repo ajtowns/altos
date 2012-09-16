@@ -20,17 +20,8 @@ package altosui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
 import javax.swing.event.*;
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.util.prefs.*;
-import java.util.concurrent.LinkedBlockingQueue;
 import org.altusmetrum.AltosLib.*;
-
-import libaltosJNI.*;
 
 public class AltosConfigUI
 	extends AltosDialog
@@ -750,12 +741,12 @@ public class AltosConfigUI
 	}
 
 	public void set_flight_log_max_limit(int flight_log_max_limit) {
-		boolean	any_added = false;
+		//boolean	any_added = false;
 		flight_log_max_value.removeAllItems();
 		for (int i = 0; i < flight_log_max_values.length; i++) {
 			if (Integer.parseInt(flight_log_max_values[i]) < flight_log_max_limit){
 				flight_log_max_value.addItem(flight_log_max_values[i]);
-				any_added = true;
+				//any_added = true;
 			}
 		}
 		flight_log_max_value.addItem(String.format("%d", flight_log_max_limit));

@@ -18,15 +18,9 @@
 package altosui;
 
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
 import java.io.*;
-import java.util.*;
 import java.text.*;
-import java.util.prefs.*;
-import java.util.concurrent.LinkedBlockingQueue;
 import org.altusmetrum.AltosLib.*;
 
 public class AltosDisplayThread extends Thread {
@@ -228,7 +222,7 @@ public class AltosDisplayThread extends Thread {
 
 	public void run() {
 		boolean		interrupted = false;
-		String		line;
+		//String		line;
 		AltosState	state = null;
 		AltosState	old_state = null;
 		boolean		told;

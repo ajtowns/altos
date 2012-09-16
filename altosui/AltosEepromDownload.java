@@ -17,19 +17,13 @@
 
 package altosui;
 
-import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
 import java.io.*;
 import java.util.*;
 import java.text.*;
-import java.util.prefs.*;
 import java.util.concurrent.*;
 import org.altusmetrum.AltosLib.*;
-
-import libaltosJNI.*;
 
 public class AltosEepromDownload implements Runnable {
 
@@ -113,7 +107,7 @@ public class AltosEepromDownload implements Runnable {
 
 		extension = "eeprom";
 		set_serial(flights.config_data.serial);
-		for (int i = 0; i < eechunk.chunk_size && !done; i += AltosEepromRecord.record_length) {
+		for (int i = 0; i < AltosEepromChunk.chunk_size && !done; i += AltosEepromRecord.record_length) {
 			try {
 				AltosEepromRecord r = new AltosEepromRecord(eechunk, i);
 				if (r.cmd == Altos.AO_LOG_FLIGHT)
@@ -220,7 +214,7 @@ public class AltosEepromDownload implements Runnable {
 		boolean	any_valid = false;
 
 		extension = "science";
-		for (int i = 0; i < eechunk.chunk_size && !done; i += AltosEepromTeleScience.record_length) {
+		for (int i = 0; i < AltosEepromChunk.chunk_size && !done; i += AltosEepromTeleScience.record_length) {
 			try {
 				AltosEepromTeleScience r = new AltosEepromTeleScience(eechunk, i);
 				if (r.type == AltosEepromTeleScience.AO_LOG_TELESCIENCE_START) {
@@ -273,7 +267,7 @@ public class AltosEepromDownload implements Runnable {
 
 		extension = "mega";
 		set_serial(flights.config_data.serial);
-		for (int i = 0; i < eechunk.chunk_size && !done; i += AltosEepromMega.record_length) {
+		for (int i = 0; i < AltosEepromChunk.chunk_size && !done; i += AltosEepromMega.record_length) {
 			try {
 				AltosEepromMega r = new AltosEepromMega(eechunk, i);
 				if (r.cmd == Altos.AO_LOG_FLIGHT)

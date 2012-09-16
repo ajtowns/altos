@@ -17,13 +17,9 @@
 
 package altosui;
 
-import java.lang.*;
 import java.io.*;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.LinkedList;
-import java.util.Iterator;
 import java.util.Arrays;
-import org.altusmetrum.AltosLib.*;
 
 class HexFileInputStream extends PushbackInputStream {
 	public int line;
@@ -48,7 +44,7 @@ class HexFileInputStream extends PushbackInputStream {
 	}
 }
 
-class HexRecord implements Comparable {
+class HexRecord implements Comparable<Object> {
 	public int	address;
 	public int	type;
 	public byte	checksum;

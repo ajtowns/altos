@@ -17,19 +17,11 @@
 
 package altosui;
 
-import java.awt.*;
-import java.awt.image.*;
-import java.awt.event.*;
 import javax.swing.*;
 import javax.imageio.ImageIO;
-import javax.swing.table.*;
 import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.util.prefs.*;
 import java.net.URL;
 import java.net.URLConnection;
-import org.altusmetrum.AltosLib.*;
 
 public class AltosSiteMapCache extends JLabel {
 	public static boolean fetchMap(File file, String url) {

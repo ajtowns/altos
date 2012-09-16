@@ -8,17 +8,11 @@ import java.io.*;
 import java.util.ArrayList;
 
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
 import org.altusmetrum.AltosLib.*;
 
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.AxisLocation;
-import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
 public class AltosGraphUI extends AltosFrame 
@@ -28,9 +22,9 @@ public class AltosGraphUI extends AltosFrame
     static final private Color red = new Color(194,31,31);
     static final private Color green = new Color(31,194,31);
     static final private Color blue = new Color(31,31,194);
-    static final private Color black = new Color(31,31,31);
+    //static final private Color black = new Color(31,31,31);
     static final private Color yellow = new Color(194,194,31);
-    static final private Color cyan = new Color(31,194,194);
+    //static final private Color cyan = new Color(31,194,194);
     static final private Color magenta = new Color(194,31,194);
 
     static private class OverallGraphs {
@@ -100,7 +94,7 @@ public class AltosGraphUI extends AltosFrame
                 }
             };
     
-        AltosGraphTime.Element e_pad    = new AltosGraphTime.StateMarker(Altos.ao_flight_pad, "Pad");
+        //AltosGraphTime.Element e_pad    = new AltosGraphTime.StateMarker(Altos.ao_flight_pad, "Pad");
         AltosGraphTime.Element e_boost  = new AltosGraphTime.StateMarker(Altos.ao_flight_boost, "Boost");
         AltosGraphTime.Element e_fast   = new AltosGraphTime.StateMarker(Altos.ao_flight_fast, "Fast");
         AltosGraphTime.Element e_coast  = new AltosGraphTime.StateMarker(Altos.ao_flight_coast, "Coast");
@@ -149,7 +143,8 @@ public class AltosGraphUI extends AltosFrame
             return graphs;
         }
     }
-    
+
+    /*
     static private class AscentGraphs extends OverallGraphs {
         protected AltosGraphTime myAltosGraphTime(String suffix) {
             return (new AltosGraphTime("Ascent " + suffix) {
@@ -164,7 +159,9 @@ public class AltosGraphUI extends AltosFrame
               .addElement(e_coast);
         }
     }
-    
+    */
+
+    /*
     static private class DescentGraphs extends OverallGraphs {
         protected AltosGraphTime myAltosGraphTime(String suffix) {
             return (new AltosGraphTime("Descent " + suffix) {
@@ -179,13 +176,12 @@ public class AltosGraphUI extends AltosFrame
             // ((XYGraph)graph[8]).ymin = new Double(-50);
         }
     }
+    */
 
 	public AltosGraphUI(AltosRecordIterable records, String name) throws InterruptedException, IOException {
 		super(String.format("Altos Graph %s", name));
 
 		AltosDataPointReader reader = new AltosDataPointReader (records);
-		if (reader == null)
-			return;
         
 		if (reader.has_accel)
 		    init(reader, records, 0);
@@ -229,11 +225,13 @@ public class AltosGraphUI extends AltosFrame
         return createGraphsWhich(data, which).get(0);
     }
 
+    /*
     private static ArrayList<AltosGraph> createGraphs(
             Iterable<AltosDataPoint> data)
     {
         return createGraphsWhich(data, -1);
     }
+    */
 
     private static ArrayList<AltosGraph> createGraphsWhich(
             Iterable<AltosDataPoint> data, int which)

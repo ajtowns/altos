@@ -20,12 +20,6 @@ package altosui;
 import java.io.*;
 import java.util.concurrent.*;
 import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
-import javax.swing.event.*;
-import org.altusmetrum.AltosLib.*;
 
 public class AltosLaunch {
 	AltosDevice	device;

@@ -16,21 +16,19 @@
  */
 
 package altosui;
-import java.lang.*;
 import java.util.*;
-import libaltosJNI.*;
-import java.util.prefs.*;
+import org.altusmetrum.AltosLib.*;
 
 public class AltosBTKnown implements Iterable<AltosBTDevice> {
 	LinkedList<AltosBTDevice>	devices = new LinkedList<AltosBTDevice>();
-	Preferences			bt_pref = AltosUIPreferences.bt_devices();
+	AltosPreferencesBackend		bt_pref = AltosUIPreferences.bt_devices();
 
 	private String get_address(String name) {
-		return bt_pref.get(name, "");
+		return bt_pref.getString(name, "");
 	}
 
 	private void set_address(String name, String addr) {
-		bt_pref.put(name, addr);
+		bt_pref.putString(name, addr);
 	}
 
 	private void remove(String name) {
@@ -45,7 +43,6 @@ public class AltosBTKnown implements Iterable<AltosBTDevice> {
 				String	addr = get_address(name);
 				devices.add(new AltosBTDevice(name, addr));
 			}
-		} catch (BackingStoreException be) {
 		} catch (IllegalStateException ie) {
 		}
 	}
