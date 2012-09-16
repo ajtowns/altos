@@ -87,6 +87,9 @@ public class AltosDroid extends Activity {
 	private Messenger mService = null;
 	final Messenger mMessenger = new Messenger(new IncomingHandler(this));
 
+	// Preferences
+	private AltosDroidPreferences prefs = null;
+
 	// TeleBT Config data
 	private AltosConfigData mConfigData = null;
 	// Local Bluetooth adapter
@@ -227,6 +230,10 @@ public class AltosDroid extends Activity {
 			finish();
 			return;
 		}
+
+		// Initialise preferences
+		prefs = new AltosDroidPreferences(this);
+		AltosPreferences.init(prefs);
 
 		// Set up the window layout
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
