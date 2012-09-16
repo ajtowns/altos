@@ -1,3 +1,331 @@
+commit 0cd443d5e55b2c3b97ecf53389ff76bc4bc6018f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 16 12:38:33 2012 -0700
+
+    Add release notes for version 1.1.1
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit cb48dd0b03b445437f751028e8383610b65b0a68
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 16 02:39:25 2012 -0700
+
+    altos: Fix telemini sdcdb init file
+    
+    Set the driver source path for the debugger
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3520bbf1ed6461d1ce7af001c529563a3cffa3c9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Sep 16 00:58:20 2012 -0700
+
+    altosui: Gather Tm sensor data in Monitor Idle mode
+    
+    Tm is pretty much the same as TM for the analog sensors, it's just
+    missing the accelerometr. Use the same code for constructing an
+    AltosRecord for it
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 31f5a02654cbf172beed25f4c518dfb7be8c714e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 14 16:56:04 2012 -0700
+
+    altos: Need to use 16-bit counts for ao_xmem functions
+    
+    Trying to use 8-bit counts is a nice optimization which fails when the
+    count is larger than 255, as is the case with clearing the flash block
+    in the AT45 driver. This bug resulted in the inability to erase
+    flights on TeleMetrum v1.0 boards.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b898cf0a2abf2b0478d5afc5aca030c6b4c8bd0b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 14 12:59:31 2012 -0700
+
+    altosui: Show over-ground-distance in Descent tab
+    
+    Helps to know where the rocket might land.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f36f73b2d02b72201683cf5795851034bbd6f28e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 14 12:58:54 2012 -0700
+
+    altosui: Remove debugging from KML export
+    
+    Left in from testing the Eeprom export bug
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 97ab77d548964115e4b41ad5952194fcd1455c96
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 14 11:13:02 2012 -0700
+
+    altosui: Fix Landed tab units
+    
+    And clean up the whole flight value reporting code base. It would be
+    nice to create a separate class to make this easier; at present
+    there's a bunch of customization embedded in how values are presented
+    in each tab.
+    
+    Reported by: Bdale Garbee <bdale@gag.com>
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 43e646657502f6162fa02f37fd2bd5aa3e29a1a8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 14 11:08:57 2012 -0700
+
+    altoslib: Update GPS seen_values in AltosEepromIterable
+    
+    Otherwise, KML export won't ever get GPS data to write.
+    
+    Reported by: Bob Brown <prefect@kloudbusters.org>
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7b6dd9105ba36aa11d6d0ee6e0823965b9beffb9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Sep 14 11:08:19 2012 -0700
+
+    altoslib: Remove duplicate seen_ values in AltosEepromIterable
+    
+    These are defined in AltosRecord; duplicating them is not a good plan
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit eefcfa94f360f8c5a7233370d4178525bccbb22f
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 13 16:13:42 2012 -0600
+
+    add note about checking doc copyright date and revision history to Releasing
+
+commit 2441090f26c3df66a6ce48d64e64384ce9e5ef82
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 13 15:12:33 2012 -0700
+
+    doc: Add revision history for 1.1. Update copyright date
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 320d90c376dccfe1599505e3b485df8d46e34bb3
+Merge: 9a7d643 2e6c6a6
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 13 15:36:37 2012 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 2e6c6a6c15a7cff9f20b70a4cf58697da1302f01
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Sep 13 00:35:27 2012 -0700
+
+    doc: Document imperial units and groundstation configuration
+    
+    What it says on the tin.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9a7d6431777ce3377b788ddac6cb9fadd53c039c
+Merge: 2439f53 9728b20
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Sep 13 00:58:30 2012 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 9728b20a4ad9576ac1022dc9a5771f5a3eb92b3d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 12 23:56:18 2012 -0700
+
+    altosui: Exit with an error status when file processing fails
+    
+    If the user provides any files on the command line, and if processing
+    them fails in some way, exit immediately with an error indication.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0564f9b13d4e3050b0a45fc1c4f710ab2b1f9d81
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 12 22:40:57 2012 -0700
+
+    altosui: Leave new_gps indication until gps value is used
+    
+    During replay, AltosState may not see a new GPS value as soon as it
+    lands in the state field as additional records with the same timestamp
+    may come in after the GPS record.
+    
+    Instead of resetting the new_gps indication when the new record is
+    created, wait until the new_gps indication is seen by the AltosState
+    update code and have that clear the new_gps indication.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7e237920abb582d7ceb3e1925b11a848575ac68a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 12 21:32:25 2012 -0700
+
+    altosui: Stop downloading eeprom data on a block full of invalid data
+    
+    When no valid records are found within an eeprom block, we assume that
+    no more data will be found within the entire storage area.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2439f53ea21c84f7c510dc191dde025ada24281f
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Sep 12 21:50:25 2012 -0600
+
+    document workaround for 'make fat' not building altoslib
+
+commit 07d9ba938f2742da1bce5d8df55cbc236207a981
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Sep 12 19:50:07 2012 -0600
+
+    update Releasing for non-native versioning and builds on debian branch
+
+commit fe009534ce6846b6db96cac8f6c2d53ba8010d91
+Merge: 69d42b2 8ee29fe
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Sep 12 19:49:51 2012 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 8ee29fe48771dd22a0c5428761ee53a728495d11
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 12 16:07:41 2012 -0700
+
+    altosui: Serialize data access in TD config code
+    
+    Setting the values was being done in the UI thread instead of the
+    Serial thread, which left the serial thread with uninitialized values
+    when it went to update the displayed value for the current
+    frequency. All fixed now.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 19e35de47157923670b1864ce7b04f8d82f3bdea
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 12 16:06:59 2012 -0700
+
+    altosui: Lock access to preferences data
+    
+    These are accessed by several different threads, so keep things sane
+    by just holding locks across all access.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1b5340c2b75c500011355c4889da443c4b9c4891
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 12 13:07:01 2012 -0700
+
+    altosui: Add multi-sized icons to all windows
+    
+    This lets the window system pick a better size for presentation
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3e4fc0b3953655eb720372d9b4274cd4bca19556
+Author: Tom Marble <tmarble@info9.net>
+Date:   Wed Sep 12 10:05:42 2012 -0500
+
+    Reference specific dependent jars in the AltosUI launchers
+
+commit f0f4f907042e12815284abe1b63ae2d4a5a2d598
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 12 02:30:59 2012 -0700
+
+    doc: Mention changes to flight data download UI
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 42bbe15512533f2d958b8219a02fbd256593092a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Sep 12 02:26:32 2012 -0700
+
+    altosui: Initialize flight velocity to zero when reading eeprom files
+    
+    Otherwise, the integration of velocity will start at MISSING and get
+    stranger. Fortunately, we know the initial velocity of the rocket when
+    sitting on the pad.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b3c3c6eabd6837f0e72acee3906c8f71c6f0030e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Sep 11 23:37:20 2012 -0700
+
+    altosui: Don't say a decimal point for distances in meters
+    
+    Useful for distances in miles, but not meters.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 87f9a8923656f275f74cfb6c8c6a57bbe59e74f8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Sep 11 23:36:26 2012 -0700
+
+    altosui: Initialize imperial units checkbox with correct value
+    
+    Use imperial units preference instead of serial debug preference. Cut
+    & paste programming failure...
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 69d42b26223b45df4167aa3baafba100ad71baab
+Merge: 3e9078c 3fa5fbd
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Sep 12 00:26:21 2012 -0600
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 3fa5fbdfd1ab257028f272fbc32759b39608ddaf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Sep 11 23:04:19 2012 -0700
+
+    Clean up Windows event handles on com port close
+    
+    This avoids having to wait for the receiver to timeout before we can
+    open the same com port again.
+    
+    This patch also adds a bit more debugging -- it prints Windows error
+    messages to stdout along with the file/line where the error was generated.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1a154ce0b9fc3ea360d6bc7e17d6debb2da94438
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Sep 11 22:03:17 2012 -0700
+
+    Include AltosLib.jar in windows install
+    
+    Otherwise, altosui doesn't do much.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 3e9078cb1077e7ad0d845f10c2ad0a007df76d29
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Sep 11 22:17:22 2012 -0600
+
+    releasing 1.1
+
+commit 4563624638884b7b2f16cd4d396c00690e045999
+Merge: 11fbcf5 e5a55db
+Author: Tom Marble <tmarble@info9.net>
+Date:   Tue Sep 11 22:50:18 2012 -0500
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 11fbcf5e30e0cd09f2d6b448911d2ef62b7f29c7
+Author: Tom Marble <tmarble@info9.net>
+Date:   Tue Sep 11 22:48:04 2012 -0500
+
+    Added the feature to AC to default --with-android to $ANDROID_SDK (if set)
+    Fixed typos in altosui/Makefile.am (had removed JCOMMON, but it's from AC)
+    Jenkins changes:
+    - added android sdk
+    - will now record artifacts: altoslib/AltosLib.jar,altosui/altosui.jar,**/*.apk
+
 commit e5a55dbf265354e7c94be3e2be53c2d5c8fba056
 Author: Keith Packard <keithp@keithp.com>
 Date:   Tue Sep 11 15:53:36 2012 -0700
