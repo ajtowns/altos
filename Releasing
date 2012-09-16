@@ -1,6 +1,12 @@
 These are Bdale's notes on how to do a release.
 
 	git checkout master
+
+	- make sure there is a doc/release-notes-<version>.xsl
+	- make sure that doc/altusmetrum.xsl has the right copyright year,
+	  and add release to the revision history at the front (release notes
+	  will be pulled in automatically)
+
 	- update the version in configure.ac
         git log > ChangeLog
 	git commit -a
@@ -24,8 +30,14 @@ These are Bdale's notes on how to do a release.
 
         git commit -n debian/changelog -m "update changelog for Debian build"
 
-	git-buildpackage --git-no-pristine-tar 
-	pristine-tar commit ../build-area/altos/altos_<version>.orig.tar.gz
+	- if this is a -1 release, then
+		git-buildpackage --git-no-pristine-tar 
+		pristine-tar commit \
+			../build-area/altos/altos_<version>.orig.tar.gz \
+			branch-<version>
+	  else if this is not a -1 release
+		git-buildpackage
+
 	git tag debian/<version>
 
 	- at this point we have packages in ~/debian/build-area/altos, now
@@ -41,10 +53,6 @@ These are Bdale's notes on how to do a release.
 	- copy the relevant release notes file from doc/ to 
 	    /home/bdale/web/altusmetrum/AltOS/releases/<rev>
 
-	- make sure that doc/altusmetrum.xsl has the right copyright year,
-	  and add release to the revision history at the front (release notes
-	  will be pulled in automatically)
-
 	- go edit ~/web/altusmetrum/AltOS/releases/<rev>.mdwn to include
 	  release date and explicit ref to dir contents so the AltOS page
 	  shows versioned links, commit and push
@@ -54,7 +62,7 @@ These are Bdale's notes on how to do a release.
 		this pushes fresh documents to the web site
 
 	sudo debian/rules clean
-	git push
+	git push origin master branch-1.1 debian
 	git push --tags
 
 		push commits and leave the build tree in an uncluttered state
