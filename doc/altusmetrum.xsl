@@ -36,6 +36,14 @@
     </legalnotice>
     <revhistory>
       <revision>
+	<revnumber>1.1.1</revnumber>
+	<date>16 September 2012</date>
+	<revremark>
+	  Updated for software version 1.1.1 Version 1.1.1 fixes a few
+	  bugs found in version 1.1.
+	</revremark>
+      </revision>
+      <revision>
 	<revnumber>1.1</revnumber>
 	<date>13 September 2012</date>
 	<revremark>
@@ -872,14 +880,16 @@ NAR #88757, TRA #12200
 	  be below 10m/s when under the main parachute in a dual-deploy flight.
         </para>
         <para>
-          For TeleMetrum altimeters, you can locate the rocket in the sky
-	  using the elevation and
-          bearing information to figure out where to look. Elevation is
-          in degrees above the horizon. Bearing is reported in degrees
-          relative to true north. Range can help figure out how big the
-          rocket will appear. Note that all of these values are relative
-          to the pad location. If the elevation is near 90°, the rocket
-          is over the pad, not over you.
+          For TeleMetrum altimeters, you can locate the rocket in the
+          sky using the elevation and bearing information to figure
+          out where to look. Elevation is in degrees above the
+          horizon. Bearing is reported in degrees relative to true
+          north. Range can help figure out how big the rocket will
+          appear. Ground Distance shows how far it is to a point
+          directly under the rocket and can help figure out where the
+          rocket is likely to land. Note that all of these values are
+          relative to the pad location. If the elevation is near 90°,
+          the rocket is over the pad, not over you.
         </para>
         <para>
           Finally, the igniter voltages are reported in this tab as
@@ -2567,6 +2577,7 @@ NAR #88757, TRA #12200
   <appendix
       xmlns:xi="http://www.w3.org/2001/XInclude">
     <title>Release Notes</title>
+    <xi:include	href="release-notes-1.1.1.xsl"  xpointer="xpointer(/article/*)"/>
     <xi:include	href="release-notes-1.1.xsl"  xpointer="xpointer(/article/*)"/>
     <xi:include	href="release-notes-1.0.1.xsl"  xpointer="xpointer(/article/*)"/>
     <xi:include	href="release-notes-0.9.2.xsl"  xpointer="xpointer(/article/*)"/>
