@@ -23,6 +23,8 @@ ALTOSLIB=$(EXT_LIBDIR)/$(ALTOSLIB_JAR)
 
 SRC=\
 	$(SRC_DIR)/AltosDroid.java \
+	$(SRC_DIR)/AltosDroidPreferences.java \
+	$(SRC_DIR)/AltosVoice.java \
 	$(SRC_DIR)/TelemetryService.java \
 	$(SRC_DIR)/TelemetryReader.java \
 	$(SRC_DIR)/AltosBluetooth.java \
