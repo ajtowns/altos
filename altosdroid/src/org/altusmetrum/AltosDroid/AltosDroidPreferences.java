@@ -38,17 +38,13 @@ public class AltosDroidPreferences implements AltosPreferencesBackend {
 		editor  = prefs.edit();
 	}
 
-	public AltosPreferencesBackend node(String key) {
-		return new AltosDroidPreferences(context, key);
-	}
-
-	public void flush() {
-		editor.apply();
-	}
-
 	public String[] keys() {
 		Map<String, ?> all = prefs.getAll();
 		return (String[])all.keySet().toArray();
+	}
+
+	public AltosPreferencesBackend node(String key) {
+		return new AltosDroidPreferences(context, key);
 	}
 
 	public boolean nodeExists(String key) {
@@ -90,6 +86,10 @@ public class AltosDroidPreferences implements AltosPreferencesBackend {
 
 	public void remove(String key) {
 		editor.remove(key);
+	}
+
+	public void flush() {
+		editor.apply();
 	}
 
 }
