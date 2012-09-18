@@ -47,10 +47,8 @@ public class AltosDroidPreferences implements AltosPreferencesBackend {
 	}
 
 	public String[] keys() {
-		Map<String, ?> data = prefs.getAll();
-		String[] keys = new String[data.size()];
-		data.keySet().toArray(keys);
-		return keys;
+		Map<String, ?> all = prefs.getAll();
+		return (String[])all.keySet().toArray();
 	}
 
 	public boolean nodeExists(String key) {
