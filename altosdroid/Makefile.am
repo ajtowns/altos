@@ -27,6 +27,7 @@ SRC=\
 	$(SRC_DIR)/AltosVoice.java \
 	$(SRC_DIR)/TelemetryService.java \
 	$(SRC_DIR)/TelemetryReader.java \
+	$(SRC_DIR)/TelemetryLogger.java \
 	$(SRC_DIR)/AltosBluetooth.java \
 	$(SRC_DIR)/DeviceListActivity.java \
 	$(SRC_DIR)/Dumper.java
