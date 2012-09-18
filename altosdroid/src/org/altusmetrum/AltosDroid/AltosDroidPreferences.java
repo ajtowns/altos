@@ -17,9 +17,12 @@
 
 package org.altusmetrum.AltosDroid;
 
+import java.io.File;
 import java.util.Map;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Environment;
+
 import org.altusmetrum.AltosLib.*;
 
 public class AltosDroidPreferences implements AltosPreferencesBackend {
@@ -92,4 +95,7 @@ public class AltosDroidPreferences implements AltosPreferencesBackend {
 		editor.apply();
 	}
 
+	public File homeDirectory() {
+		return Environment.getExternalStorageDirectory();
+	}
 }

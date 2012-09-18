@@ -17,6 +17,8 @@
 
 package org.altusmetrum.AltosLib;
 
+import java.io.File;
+
 public interface AltosPreferencesBackend {
 
 	public String  getString(String key, String def);
@@ -38,4 +40,6 @@ public interface AltosPreferencesBackend {
 	public void    remove(String key);
 
 	public void    flush();
+
+	public File homeDirectory();
 }
