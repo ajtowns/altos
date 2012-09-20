@@ -18,15 +18,8 @@
 package altosui;
 
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.*;
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.util.prefs.*;
-import java.util.concurrent.LinkedBlockingQueue;
 import org.altusmetrum.AltosLib.*;
 
 public class AltosInfoTable extends JTable {
@@ -92,9 +85,9 @@ public class AltosInfoTable extends JTable {
 	}
 
 	void info_add_deg(int col, String name, double v, int pos, int neg) {
-		int	c = pos;
+		//int	c = pos;
 		if (v < 0) {
-			c = neg;
+			//c = neg;
 			v = -v;
 		}
 		double	deg = Math.floor(v);
@@ -152,6 +145,7 @@ public class AltosInfoTable extends JTable {
 			info_add_row(1, "GPS height", "%6.0f", state.gps_height);
 
 			/* The SkyTraq GPS doesn't report these values */
+			/*
 			if (false) {
 				info_add_row(1, "GPS ground speed", "%8.1f m/s %3d°",
 					     state.gps.ground_speed,
@@ -161,6 +155,8 @@ public class AltosInfoTable extends JTable {
 				info_add_row(1, "GPS error", "%6d m(h)%3d m(v)",
 					     state.gps.h_error, state.gps.v_error);
 			}
+			*/
+
 			info_add_row(1, "GPS hdop", "%8.1f", state.gps.hdop);
 
 			if (state.npad > 0) {
@@ -191,7 +187,7 @@ public class AltosInfoTable extends JTable {
 				       state.gps.hour,
 				       state.gps.minute,
 				       state.gps.second);
-			int	nsat_vis = 0;
+			//int	nsat_vis = 0;
 			int	c;
 
 			if (state.gps.cc_gps_sat == null)

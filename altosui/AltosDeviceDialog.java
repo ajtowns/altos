@@ -17,12 +17,9 @@
 
 package altosui;
 
-import java.lang.*;
-import java.util.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import libaltosJNI.*;
 
 public class AltosDeviceDialog extends AltosDialog implements ActionListener {
 

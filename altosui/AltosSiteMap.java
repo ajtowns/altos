@@ -18,19 +18,10 @@
 package altosui;
 
 import java.awt.*;
-import java.awt.image.*;
-import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.event.MouseInputAdapter;
-import javax.imageio.ImageIO;
-import javax.swing.table.*;
 import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.util.prefs.*;
 import java.lang.Math;
 import java.awt.geom.Point2D;
-import java.awt.geom.Line2D;
 import java.util.concurrent.*;
 import org.altusmetrum.AltosLib.*;
 
@@ -61,11 +52,13 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	// based on google js
 	//  http://maps.gstatic.com/intl/en_us/mapfiles/api-3/2/10/main.js
 	// search for fromLatLngToPoint and fromPointToLatLng
+	/*
 	private static Point2D.Double pt(LatLng latlng, int zoom) {
 		double scale_x = 256/360.0 * Math.pow(2, zoom);
 		double scale_y = 256/(2.0*Math.PI) * Math.pow(2, zoom);
 		return pt(latlng, scale_x, scale_y);
 	}
+	*/
 
 	private static Point2D.Double pt(LatLng latlng,
 					 double scale_x, double scale_y)
@@ -108,9 +101,11 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	private LatLng latlng(double x, double y) {
 		return latlng(new Point2D.Double(x,y), scale_x, scale_y);
 	}
+	/*
 	private LatLng latlng(Point2D.Double pt) {
 		return latlng(pt, scale_x, scale_y);
 	}
+	*/
 
 	ConcurrentHashMap<Point,AltosSiteMapTile> mapTiles = new ConcurrentHashMap<Point,AltosSiteMapTile>();
 	Point2D.Double centre;
@@ -190,8 +185,8 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		AltosSiteMap asm = new AltosSiteMap(true);
 		asm.centre = asm.getBaseLocation(lat, lng);
 
-		Point2D.Double p = new Point2D.Double();
-		Point2D.Double p2;
+		//Point2D.Double p = new Point2D.Double();
+		//Point2D.Double p2;
 		int dx = -w/2, dy = -h/2;
 		for (int y = dy; y < h+dy; y++) {
 			for (int x = dx; x < w+dx; x++) {
@@ -426,7 +421,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	public AltosSiteMap(int in_radius) {
 		radius = in_radius;
 
-		GrabNDrag scroller = new GrabNDrag(comp);
+		//GrabNDrag scroller = new GrabNDrag(comp);
 
 		comp.setLayout(layout);
 

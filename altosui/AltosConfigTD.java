@@ -17,18 +17,10 @@
 
 package altosui;
 
-import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
 import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.util.prefs.*;
 import java.util.concurrent.*;
-
-import libaltosJNI.*;
 
 import org.altusmetrum.AltosLib.*;
 
@@ -344,11 +336,6 @@ public class AltosConfigTD implements ActionListener {
 							      String.format("Device \"%s\" already in use",
 									    device.toShortString()),
 							      "Device in use",
-							      JOptionPane.ERROR_MESSAGE);
-			} catch (IOException ee) {
-				JOptionPane.showMessageDialog(owner,
-							      device.toShortString(),
-							      ee.getLocalizedMessage(),
 							      JOptionPane.ERROR_MESSAGE);
 			}
 		}

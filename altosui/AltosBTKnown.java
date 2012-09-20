@@ -16,9 +16,7 @@
  */
 
 package altosui;
-import java.lang.*;
 import java.util.*;
-import libaltosJNI.*;
 import java.util.prefs.*;
 
 public class AltosBTKnown implements Iterable<AltosBTDevice> {

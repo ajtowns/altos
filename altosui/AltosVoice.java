@@ -19,7 +19,6 @@ package altosui;
 
 import com.sun.speech.freetts.Voice;
 import com.sun.speech.freetts.VoiceManager;
-import com.sun.speech.freetts.audio.JavaClipAudioPlayer;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class AltosVoice implements Runnable {

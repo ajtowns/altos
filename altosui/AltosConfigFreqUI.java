@@ -20,15 +20,7 @@ package altosui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
-import javax.swing.event.*;
-import javax.swing.plaf.basic.*;
-import java.io.*;
 import java.util.*;
-import java.text.*;
-import java.util.prefs.*;
-import java.util.concurrent.*;
 import org.altusmetrum.AltosLib.*;
 
 class AltosEditFreqUI extends AltosDialog implements ActionListener {

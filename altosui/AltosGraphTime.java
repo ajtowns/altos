@@ -4,16 +4,10 @@
 
 package altosui;
 
-import java.lang.*;
-import java.io.*;
-import java.util.concurrent.*;
 import java.util.*;
-import java.text.*;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.altusmetrum.AltosLib.*;
-
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.AxisLocation;

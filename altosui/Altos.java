@@ -18,10 +18,6 @@
 package altosui;
 
 import java.awt.*;
-import java.util.*;
-import java.text.*;
-import java.nio.charset.Charset;
-
 import libaltosJNI.*;
 
 import org.altusmetrum.AltosLib.*;

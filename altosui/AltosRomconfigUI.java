@@ -20,14 +20,6 @@ package altosui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.*;
-import javax.swing.event.*;
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.util.prefs.*;
-import org.altusmetrum.AltosLib.*;
 
 public class AltosRomconfigUI
 	extends AltosDialog
