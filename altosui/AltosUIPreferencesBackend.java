@@ -17,8 +17,10 @@
 
 package altosui;
 
+import java.io.File;
 import java.util.prefs.*;
 import org.altusmetrum.AltosLib.*;
+import javax.swing.filechooser.FileSystemView;
 
 public class AltosUIPreferencesBackend implements AltosPreferencesBackend {
 
@@ -92,4 +94,8 @@ public class AltosUIPreferencesBackend implements AltosPreferencesBackend {
 		}
 	}
 
+	public File homeDirectory() {
+		/* Use the file system view default directory */
+		return FileSystemView.getFileSystemView().getDefaultDirectory();
+	}
 }

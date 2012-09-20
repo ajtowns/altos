@@ -25,7 +25,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * This creates a thread to capture telemetry data and write it to
  * a log file
  */
-class AltosLog implements Runnable {
+public class AltosLog implements Runnable {
 
 	LinkedBlockingQueue<AltosLine>	input_queue;
 	LinkedBlockingQueue<String>	pending_queue;
@@ -45,7 +45,7 @@ class AltosLog implements Runnable {
 		}
 	}
 
-	void close() {
+	public void close() {
 		close_log_file();
 		if (log_thread != null) {
 			log_thread.interrupt();
@@ -53,7 +53,7 @@ class AltosLog implements Runnable {
 		}
 	}
 
-	File file() {
+	public File file() {
 		return file;
 	}
 

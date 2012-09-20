@@ -76,6 +76,7 @@ public class TelemetryService extends Service {
 	private AltosBluetooth  mAltosBluetooth  = null;
 	private AltosConfigData mConfigData      = null;
 	private TelemetryReader mTelemetryReader = null;
+	private TelemetryLogger mTelemetryLogger = null;
 
 	// internally track state of bluetooth connection
 	private int state = STATE_NONE;
@@ -164,6 +165,11 @@ public class TelemetryService extends Service {
 			}
 			mTelemetryReader = null;
 		}
+		if (mTelemetryLogger != null) {
+			if (D) Log.d(TAG, "stopAltosBluetooth(): stopping TelemetryLogger");
+			mTelemetryLogger.stop();
+			mTelemetryLogger = null;
+		}
 		if (mAltosBluetooth != null) {
 			if (D) Log.d(TAG, "stopAltosBluetooth(): stopping AltosBluetooth");
 			mAltosBluetooth.close();
@@ -216,6 +222,8 @@ public class TelemetryService extends Service {
 
 		mTelemetryReader = new TelemetryReader(mAltosBluetooth, mHandler);
 		mTelemetryReader.start();
+		
+		mTelemetryLogger = new TelemetryLogger(this, mAltosBluetooth);
 	}
 
 

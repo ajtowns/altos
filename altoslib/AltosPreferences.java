@@ -19,7 +19,6 @@ package org.altusmetrum.AltosLib;
 
 import java.io.*;
 import java.util.*;
-import javax.swing.filechooser.FileSystemView;
 
 public class AltosPreferences {
 	public static AltosPreferencesBackend backend = null;
@@ -145,8 +144,7 @@ public class AltosPreferences {
 		if (logdir_string != null)
 			logdir = new File(logdir_string);
 		else {
-			/* Use the file system view default directory */
-			logdir = new File(FileSystemView.getFileSystemView().getDefaultDirectory(), logdirName);
+			logdir = new File(backend.homeDirectory(), logdirName);
 			if (!logdir.exists())
 				logdir.mkdirs();
 		}
