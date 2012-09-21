@@ -29,10 +29,10 @@ const real LAYER0_BASE_PRESSURE = 101325;
 
 /* lapse rate and base altitude for each layer in the atmosphere */
 const real[NUMBER_OF_LAYERS] lapse_rate = {
-	-0.0065, 0.0, 0.001, 0.0028, 0.0, -0.0028, -0.002
+	-0.0065, 0.0, 0.001, 0.0028, 0.0, -0.0028, -0.002,
 };
 const int[NUMBER_OF_LAYERS] base_altitude = {
-	0, 11000, 20000, 32000, 47000, 51000, 71000
+	0, 11000, 20000, 32000, 47000, 51000, 71000,
 };
 
 
@@ -54,7 +54,7 @@ real altitude_to_pressure(real altitude) {
 
    /* calculate the base temperature and pressure for the atmospheric layer
       associated with the inputted altitude */
-   for(layer_number = 0; layer_number < NUMBER_OF_LAYERS - 1 && altitude > base_altitude[layer_number + 1]; layer_number++) {
+   for(layer_number = 0; layer_number < NUMBER_OF_LAYERS - 2 && altitude > base_altitude[layer_number + 1]; layer_number++) {
       delta_z = base_altitude[layer_number + 1] - base_altitude[layer_number];
       if (lapse_rate[layer_number] == 0.0) {
          exponent = GRAVITATIONAL_ACCELERATION * delta_z
@@ -113,7 +113,7 @@ real pressure_to_altitude(real pressure) {
    /* calculate the base temperature and pressure for the atmospheric layer
       associated with the inputted pressure. */
    layer_number = -1;
-   do {
+   while (layer_number < NUMBER_OF_LAYERS - 2) {
       layer_number++;
       base_pressure = next_base_pressure;
       base_temperature = next_base_temperature;
@@ -130,8 +130,9 @@ real pressure_to_altitude(real pressure) {
          next_base_pressure *= pow(base, exponent);
       }
       next_base_temperature += delta_z * lapse_rate[layer_number];
+      if (pressure >= next_base_pressure)
+	      break;
    }
-   while(layer_number < NUMBER_OF_LAYERS - 1 && pressure < next_base_pressure);
 
    /* calculate the altitude associated with the inputted pressure */
    if (lapse_rate[layer_number] == 0.0) {
@@ -148,18 +149,7 @@ real pressure_to_altitude(real pressure) {
       altitude = base_altitude[layer_number]
                       + coefficient * (pow(base, exponent) - 1);
    }
-
    return altitude;
-}
-
-real feet_to_meters(real feet)
-{
-    return feet * (12 * 2.54 / 100);
-}
-
-real meters_to_feet(real meters)
-{
-    return meters / (12 * 2.54 / 100);
 }
 
 /*
@@ -174,14 +164,15 @@ real meters_to_feet(real meters)
 
 typedef struct {
 	real m, b;
-	int m_i, b_i;
 } line_t;
 
+/*
+ * Linear least-squares fit values in the specified array
+ */
 line_t best_fit(real[] values, int first, int last) {
        real sum_x = 0, sum_x2 = 0, sum_y = 0, sum_xy = 0;
        int n = last - first + 1;
        real m, b;
-       int m_i, b_i;
 
        for (int i = first; i <= last; i++) {
 	       sum_x += i;
@@ -197,9 +188,10 @@ line_t best_fit(real[] values, int first, int last) {
 real	min_Pa = 0;
 real	max_Pa = 120000;
 
-/* Target is an array of < 2000 entries */
-int pa_sample_shift = 3;
-int pa_part_shift = 3;
+/* Target is an array of < 1000 entries */
+int pa_sample_shift = 2;
+int pa_part_shift = 6;
+int pa_part_mask = (1 << pa_part_shift) - 1;
 
 int num_part = ceil(max_Pa / (2 ** (pa_part_shift + pa_sample_shift)));
 
@@ -211,6 +203,10 @@ real sample_to_altitude(int sample) = pressure_to_altitude(sample_to_Pa(sample))
 
 int part_to_sample(int part) = part << pa_part_shift;
 
+int sample_to_part(int sample) = sample >> pa_part_shift;
+
+bool is_part(int sample) = (sample & pa_part_mask) == 0;
+
 real[num_samples] alt = { [n] = sample_to_altitude(n) };
 
 int seg_len = 1 << pa_part_shift;
@@ -219,17 +215,21 @@ line_t [num_part] fit = {
 	[n] = best_fit(alt, n * seg_len, n * seg_len + seg_len - 1)
 };
 
-int[num_samples/seg_len + 1]	alt_part;
+real[num_samples/seg_len + 1]	alt_part;
+real[dim(alt_part)]		alt_error = {0...};
 
-alt_part[0] = floor (fit[0].b + 0.5);
-alt_part[dim(fit)] = floor(fit[dim(fit)-1].m * dim(fit) * seg_len + fit[dim(fit)-1].b + 0.5);
+alt_part[0] = fit[0].b;
+alt_part[dim(fit)] = fit[dim(fit)-1].m * dim(fit) * seg_len + fit[dim(fit)-1].b;
 
 for (int i = 0; i < dim(fit) - 1; i++) {
 	real	here, there;
 	here = fit[i].m * (i+1) * seg_len + fit[i].b;
 	there = fit[i+1].m * (i+1) * seg_len + fit[i+1].b;
-	alt_part[i+1] = floor ((here + there) / 2 + 0.5);
+#	printf ("at %d mis-fit %8.2f\n", i, there - here);
+	alt_part[i+1] = (here + there) / 2;
 }
+
+real round(real x) = floor(x + 0.5);
 
 real sample_to_fit_altitude(int sample) {
 	int	sub = sample // seg_len;
@@ -239,7 +239,7 @@ real sample_to_fit_altitude(int sample) {
 	real i_v;
 
 	r_v = sample * l.m + l.b;
-	i_v = (alt_part[sub] * (seg_len - off) + alt_part[sub+1] * off) / seg_len;
+	i_v = (round(alt_part[sub]) * (seg_len - off) + round(alt_part[sub+1]) * off) / seg_len;
 	return i_v;
 }
 
@@ -249,27 +249,41 @@ real total_error = 0;
 
 for (int sample = 0; sample < num_samples; sample++) {
 	real	Pa = sample_to_Pa(sample);
-	real	meters = pressure_to_altitude(Pa);
+	real	meters = alt[sample];
 
 	real	meters_approx = sample_to_fit_altitude(sample);
 	real	error = abs(meters - meters_approx);
+
+	int	part = sample_to_part(sample);
+
+	if (error > alt_error[part])
+		alt_error[part] = error;
 
 	total_error += error;
 	if (error > max_error) {
 		max_error = error;
 		max_error_sample = sample;
 	}
-#	printf ("	%7d,	/* %6.2f kPa %5d sample approx %d */\n",
-#		floor (meters + 0.5), Pa / 1000, sample, floor(sample_to_fit_altitude(sample) + 0.5));
+	if (false) {
+		printf ("	%8.1f %8.2f %8.2f %8.2f %s\n",
+			Pa,
+			meters,
+			meters_approx,
+			meters - meters_approx,
+			is_part(sample) ? "*" : "");
+	}
 }
 
-printf ("/*max error %f at %7.3f%%. Average error %f*/\n", max_error, max_error_sample / (num_samples - 1) * 100, total_error / num_samples);
+printf ("/*max error %f at %7.3f kPa. Average error %f*/\n",
+	max_error, sample_to_Pa(max_error_sample) / 1000, total_error / num_samples);
 
 printf ("#define NALT %d\n", dim(alt_part));
 printf ("#define ALT_SHIFT %d\n", pa_part_shift + pa_sample_shift);
+printf ("#ifndef SATURATE\n#define SATURATE(x) (x)\n#endif\n");
 
 for (int part = 0; part < dim(alt_part); part++) {
 	real kPa = sample_to_Pa(part_to_sample(part)) / 1000;
-	printf ("%9d, /* %6.2f kPa */\n",
-		alt_part[part], kPa);
+	printf ("SATURATE(%9d), /* %6.2f kPa error %6.2fm */\n",
+		round (alt_part[part]), kPa,
+		alt_error[part]);
 }
