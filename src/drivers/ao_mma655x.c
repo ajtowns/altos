@@ -20,7 +20,7 @@
 
 #if HAS_MMA655X
 
-#if 1
+#if 0
 #define PRINTD(...) do { printf ("\r%5u %s: ", ao_tick_count, __func__); printf(__VA_ARGS__); } while(0)
 #else
 #define PRINTD(...) 
@@ -273,7 +273,7 @@ ao_mma655x_init(void)
 	ao_cmd_register(&ao_mma655x_cmds[0]);
 	ao_spi_init_cs(AO_MMA655X_CS_PORT, (1 << AO_MMA655X_CS_PIN));
 
-//	ao_add_task(&ao_mma655x_task, ao_mma655x, "mma655x");
+	ao_add_task(&ao_mma655x_task, ao_mma655x, "mma655x");
 }
 
 #endif

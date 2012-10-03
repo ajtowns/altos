@@ -19,7 +19,7 @@
 #include <ao_exti.h>
 #include "ao_ms5607.h"
 
-#if HAS_MS5607
+#if HAS_MS5607 || HAS_MS5611
 
 static struct ao_ms5607_prom	ms5607_prom;
 static uint8_t	  		ms5607_configured;
@@ -92,7 +92,7 @@ ao_ms5607_prom_read(struct ao_ms5607_prom *prom)
 		printf ("MS5607 PROM CRC error (computed %x actual %x)\n",
 			crc, (((uint8_t *) prom)[15] & 0xf));
 		flush();
-//		ao_panic(AO_PANIC_SELF_TEST_MS5607);
+		ao_panic(AO_PANIC_SELF_TEST_MS5607);
 	}
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -262,7 +262,7 @@ ao_ms5607_init(void)
 	ao_cmd_register(&ao_ms5607_cmds[0]);
 	ao_spi_init_cs(AO_MS5607_CS_PORT, (1 << AO_MS5607_CS_PIN));
 
-//	ao_add_task(&ao_ms5607_task, ao_ms5607, "ms5607");
+	ao_add_task(&ao_ms5607_task, ao_ms5607, "ms5607");
 
 	/* Configure the MISO pin as an interrupt; when the
 	 * conversion is complete, the MS5607 will raise this
