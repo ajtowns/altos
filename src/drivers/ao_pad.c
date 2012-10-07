@@ -139,6 +139,9 @@ ao_pad_monitor(void)
 			prev = cur;
 		}
 
+		if (ao_pad_armed && (int16_t) (ao_time() - ao_pad_arm_time) > AO_PAD_ARM_TIME)
+			ao_pad_armed = 0;
+
 		if (ao_pad_armed) {
 			if (sample & 2)
 				ao_beep(AO_BEEP_HIGH);
@@ -196,9 +199,6 @@ ao_pad(void)
 		
 		PRINTD ("tick %d box %d cmd %d channels %02x\n",
 			command.tick, command.box, command.cmd, command.channels);
-
-		if (ao_pad_armed && (int16_t) (ao_time() - ao_pad_arm_time) > AO_PAD_ARM_TIME)
-			ao_pad_armed = 0;
 
 		switch (command.cmd) {
 		case AO_LAUNCH_ARM:
