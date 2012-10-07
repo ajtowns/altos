@@ -248,7 +248,7 @@ struct ao_adc {
  * Pressure sensor settings
  */
 #define HAS_MS5607		1
-#define AO_MS5607_PRIVATE_PINS	0
+#define AO_MS5607_PRIVATE_PINS	1
 #define AO_MS5607_CS_PORT	(&stm_gpioc)
 #define AO_MS5607_CS_PIN	4
 #define AO_MS5607_CS_MASK	(1 << AO_MS5607_CS)
