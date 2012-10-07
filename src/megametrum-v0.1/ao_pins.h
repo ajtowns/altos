@@ -107,8 +107,6 @@
 #define HAS_GPS			1
 #define HAS_FLIGHT		1
 #define HAS_ADC			1
-#define HAS_ACCEL		1
-#define HAS_ACCEL_REF		1
 #define HAS_LOG			1
 
 /*
