@@ -207,13 +207,15 @@ ao_ms5607_convert(struct ao_ms5607_sample *sample, struct ao_ms5607_value *value
 	value->temp = TEMP;
 }
 
+struct ao_ms5607_sample	ao_ms5607_current;
+
 static void
 ao_ms5607(void)
 {
 	ao_ms5607_setup();
 	for (;;)
 	{
-		ao_ms5607_sample((struct ao_ms5607_sample *) &ao_data_ring[ao_data_head].ms5607_raw);
+		ao_ms5607_sample(&ao_ms5607_current);
 		ao_arch_critical(
 			AO_DATA_PRESENT(AO_DATA_MS5607);
 			AO_DATA_WAIT();

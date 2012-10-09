@@ -85,14 +85,7 @@ extern volatile __data uint8_t		ao_data_count;
 /*
  * Mark a section of data as ready, check for data complete
  */
-#define AO_DATA_PRESENT(bit)	do {					\
-		if ((ao_data_present |= (bit)) == AO_DATA_ALL) {	\
-			ao_data_ring[ao_data_head].tick = ao_tick_count; \
-			ao_data_head = ao_data_ring_next(ao_data_head); \
-			ao_data_present = 0;				\
-			ao_wakeup((void *) &ao_data_head);		\
-		}							\
-	} while (0);
+#define AO_DATA_PRESENT(bit)	(ao_data_present |= (bit))
 
 /*
  * Wait until it is time to write a sensor sample; this is

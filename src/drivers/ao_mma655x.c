@@ -250,12 +250,14 @@ __code struct ao_cmds ao_mma655x_cmds[] = {
 	{ 0, NULL },
 };
 
+uint16_t	ao_mma655x_current;
+
 static void
 ao_mma655x(void)
 {
 	ao_mma655x_setup();
 	for (;;) {
-		ao_data_ring[ao_data_head].mma655x = ao_mma655x_value();
+		ao_mma655x_current = ao_mma655x_value();
 		ao_arch_critical(
 			AO_DATA_PRESENT(AO_DATA_MMA655X);
 			AO_DATA_WAIT();

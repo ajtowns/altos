@@ -240,13 +240,15 @@ ao_mpu6000_setup(void)
 	ao_mpu6000_configured = 1;
 }
 
+struct ao_mpu6000_sample	ao_mpu6000_current;
+
 static void
 ao_mpu6000(void)
 {
 	ao_mpu6000_setup();
 	for (;;)
 	{
-		ao_mpu6000_sample((struct ao_mpu6000_sample *) &ao_data_ring[ao_data_head].mpu6000);
+		ao_mpu6000_sample(&ao_mpu6000_current);
 		ao_arch_critical(
 			AO_DATA_PRESENT(AO_DATA_MPU6000);
 			AO_DATA_WAIT();

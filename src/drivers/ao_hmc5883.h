@@ -79,6 +79,8 @@ struct ao_hmc5883_sample {
 	int16_t		x, y, z;
 };
 
+extern struct ao_hmc5883_sample	ao_hmc5883_current;
+
 void
 ao_hmc5883_init(void);
 

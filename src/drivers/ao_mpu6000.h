@@ -155,6 +155,8 @@ struct ao_mpu6000_sample {
 	int16_t		gyro_z;
 };
 
+extern struct ao_mpu6000_sample	ao_mpu6000_current;
+
 void
 ao_mpu6000_init(void);
 
