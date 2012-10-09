@@ -241,13 +241,11 @@ ao_ms5607_info(void)
 static void
 ao_ms5607_dump(void)
 {
-	struct ao_data	data;
 	struct ao_ms5607_value value;
 
-	ao_data_get(&data);
-	ao_ms5607_convert(&data.ms5607_raw, &value);
-	printf ("Pressure:    %8u %8d\n", data.ms5607_raw.pres, value.pres);
-	printf ("Temperature: %8u %8d\n", data.ms5607_raw.temp, value.temp);
+	ao_ms5607_convert(&ao_ms5607_current, &value);
+	printf ("Pressure:    %8u %8d\n", ao_ms5607_current.pres, value.pres);
+	printf ("Temperature: %8u %8d\n", ao_ms5607_current.temp, value.temp);
 	printf ("Altitude: %ld\n", ao_pa_to_altitude(value.pres));
 }
 

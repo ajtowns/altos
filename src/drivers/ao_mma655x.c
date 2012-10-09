@@ -238,19 +238,18 @@ ao_mma655x_setup(void)
 
 }
 
+uint16_t	ao_mma655x_current;
+
 static void
 ao_mma655x_dump(void)
 {
-	ao_mma655x_setup();
-	printf ("MMA655X value %d\n", ao_mma655x_value());
+	printf ("MMA655X value %d\n", ao_mma655x_current);
 }
 
 __code struct ao_cmds ao_mma655x_cmds[] = {
 	{ ao_mma655x_dump,	"A\0Display MMA655X data" },
 	{ 0, NULL },
 };
-
-uint16_t	ao_mma655x_current;
 
 static void
 ao_mma655x(void)
