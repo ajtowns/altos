@@ -40,24 +40,62 @@ static __pdata uint8_t	ao_pad_debug;
 #endif
 
 static void
+ao_siren(uint8_t v)
+{
+#ifdef AO_SIREN
+	ao_gpio_set(AO_SIREN_PORT, AO_SIREN_PIN, AO_SIREN, v);
+#else
+	ao_beep(v ? AO_BEEP_MID : 0);
+#endif
+}
+
+static void
+ao_strobe(uint8_t v)
+{
+#ifdef AO_STROBE
+	ao_gpio_set(AO_STROBE_PORT, AO_STROBE_PIN, AO_STROBE, v);
+#endif
+}
+
+static void
 ao_pad_run(void)
 {
+	uint8_t	pins;
+
 	for (;;) {
 		while (!ao_pad_ignite)
 			ao_sleep(&ao_pad_ignite);
 		/*
 		 * Actually set the pad bits
 		 */
-		AO_PAD_PORT = (AO_PAD_PORT & (~AO_PAD_ALL_PINS)) | ao_pad_ignite;
+		pins = 0;
+#if AO_PAD_NUM > 0
+		if (ao_pad_ignite & (1 << 0))
+			pins |= (1 << AO_PAD_PIN_0);
+#endif
+#if AO_PAD_NUM > 1
+		if (ao_pad_ignite & (1 << 1))
+			pins |= (1 << AO_PAD_PIN_1);
+#endif
+#if AO_PAD_NUM > 2
+		if (ao_pad_ignite & (1 << 2))
+			pins |= (1 << AO_PAD_PIN_2);
+#endif
+#if AO_PAD_NUM > 3
+		if (ao_pad_ignite & (1 << 3))
+			pins |= (1 << AO_PAD_PIN_3);
+#endif
+		AO_PAD_PORT = (AO_PAD_PORT & (~AO_PAD_ALL_PINS)) | pins;
 		while (ao_pad_ignite) {
 			ao_pad_ignite = 0;
+
 			ao_delay(AO_PAD_FIRE_TIME);
 		}
 		AO_PAD_PORT &= ~(AO_PAD_ALL_PINS);
 	}
 }
 
-#define AO_PAD_ARM_BEEP_INTERVAL	200
+#define AO_PAD_ARM_SIREN_INTERVAL	200
 
 static void
 ao_pad_monitor(void)
@@ -143,21 +181,23 @@ ao_pad_monitor(void)
 			ao_pad_armed = 0;
 
 		if (ao_pad_armed) {
+			ao_strobe(1);
 			if (sample & 2)
-				ao_beep(AO_BEEP_HIGH);
+				ao_siren(1);
 			else
-				ao_beep(AO_BEEP_LOW);
+				ao_siren(0);
 			beeping = 1;
 		} else if (query.arm_status == AO_PAD_ARM_STATUS_ARMED && !beeping) {
 			if (arm_beep_time == 0) {
-				arm_beep_time = AO_PAD_ARM_BEEP_INTERVAL;
+				arm_beep_time = AO_PAD_ARM_SIREN_INTERVAL;
 				beeping = 1;
-				ao_beep(AO_BEEP_HIGH);
+				ao_siren(1);
 			}
 			--arm_beep_time;
 		} else if (beeping) {
 			beeping = 0;
-			ao_beep(0);
+			ao_siren(0);
+			ao_strobe(0);
 		}
 	}
 }
@@ -184,7 +224,6 @@ ao_pad(void)
 	int16_t	time_difference;
 	int8_t	ret;
 
-	ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(200));
 	ao_pad_box = 0;
 	ao_led_set(0);
 	ao_led_on(AO_LED_POWER);
@@ -207,7 +246,7 @@ ao_pad(void)
 				break;
 			}
 
-			if (command.channels & ~(AO_PAD_ALL_PINS))
+			if (command.channels & ~(AO_PAD_ALL_CHANNELS))
 				break;
 
 			time_difference = command.tick - ao_time();
@@ -348,6 +387,12 @@ ao_pad_init(void)
 #endif
 #if AO_PAD_NUM > 3
 	ao_enable_output(AO_PAD_PORT, AO_PAD_PIN_3, AO_PAD_3, 0);
+#endif
+#ifdef AO_STROBE
+	ao_enable_output(AO_STROBE_PORT, AO_STROBE_PIN, AO_STROBE, 0);
+#endif
+#ifdef AO_SIREN
+	ao_enable_output(AO_SIREN_PORT, AO_SIREN_PIN, AO_SIREN, 0);
 #endif
 	ao_cmd_register(&ao_pad_cmds[0]);
 	ao_add_task(&ao_pad_task, ao_pad, "pad listener");
