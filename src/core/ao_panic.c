@@ -29,6 +29,10 @@
 #define ao_led_off(x)
 #endif
 
+#ifndef AO_LED_PANIC
+#define AO_LED_PANIC	AO_LED_RED
+#endif
+
 static void
 ao_panic_delay(uint8_t n)
 {
@@ -52,10 +56,10 @@ ao_panic(uint8_t reason)
 	__critical for (;;) {
 		ao_panic_delay(20);
 		for (n = 0; n < 5; n++) {
-			ao_led_on(AO_LED_RED);
+			ao_led_on(AO_LED_PANIC);
 			ao_beep(AO_BEEP_HIGH);
 			ao_panic_delay(1);
-			ao_led_off(AO_LED_RED);
+			ao_led_off(AO_LED_PANIC);
 			ao_beep(AO_BEEP_LOW);
 			ao_panic_delay(1);
 		}
@@ -66,18 +70,18 @@ ao_panic(uint8_t reason)
 #pragma disable_warning 126
 #endif
 		if (reason & 0x40) {
-			ao_led_on(AO_LED_RED);
+			ao_led_on(AO_LED_PANIC);
 			ao_beep(AO_BEEP_HIGH);
 			ao_panic_delay(40);
-			ao_led_off(AO_LED_RED);
+			ao_led_off(AO_LED_PANIC);
 			ao_beep(AO_BEEP_OFF);
 			ao_panic_delay(10);
 		}
 		for (n = 0; n < (reason & 0x3f); n++) {
-			ao_led_on(AO_LED_RED);
+			ao_led_on(AO_LED_PANIC);
 			ao_beep(AO_BEEP_MID);
 			ao_panic_delay(10);
-			ao_led_off(AO_LED_RED);
+			ao_led_off(AO_LED_PANIC);
 			ao_beep(AO_BEEP_OFF);
 			ao_panic_delay(10);
 		}
