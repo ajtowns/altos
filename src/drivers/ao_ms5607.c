@@ -17,7 +17,7 @@
 
 #include <ao.h>
 #include <ao_exti.h>
-#include "ao_ms5607.h"
+#include <ao_ms5607.h>
 
 #if HAS_MS5607 || HAS_MS5611
 
@@ -27,12 +27,12 @@ static uint8_t	  		ms5607_configured;
 static void
 ao_ms5607_start(void) {
 	ao_spi_get(AO_MS5607_SPI_INDEX,AO_SPI_SPEED_FAST);
-	stm_gpio_set(AO_MS5607_CS_PORT, AO_MS5607_CS_PIN, 0);
+	ao_gpio_set(AO_MS5607_CS_PORT, AO_MS5607_CS_PIN, AO_MS5607_CS, 0);
 }
 
 static void
 ao_ms5607_stop(void) {
-	stm_gpio_set(AO_MS5607_CS_PORT, AO_MS5607_CS_PIN, 1);
+	ao_gpio_set(AO_MS5607_CS_PORT, AO_MS5607_CS_PIN, AO_MS5607_CS, 1);
 	ao_spi_put(AO_MS5607_SPI_INDEX);
 }
 
@@ -53,7 +53,6 @@ ao_ms5607_crc(uint8_t *prom)
 	uint8_t		crc_byte = prom[15];
 	uint8_t 	cnt;
 	uint16_t	n_rem = 0;
-	uint16_t	crc_read;
 	uint8_t		n_bit;
 
 	prom[15] = 0;
@@ -89,9 +88,11 @@ ao_ms5607_prom_read(struct ao_ms5607_prom *prom)
 	}
 	crc = ao_ms5607_crc((uint8_t *) prom);
 	if (crc != (((uint8_t *) prom)[15] & 0xf)) {
+#if HAS_TASK
 		printf ("MS5607 PROM CRC error (computed %x actual %x)\n",
 			crc, (((uint8_t *) prom)[15] & 0xf));
 		flush();
+#endif
 		ao_panic(AO_PANIC_SELF_TEST_MS5607);
 	}
 
@@ -105,7 +106,7 @@ ao_ms5607_prom_read(struct ao_ms5607_prom *prom)
 #endif
 }
 
-static void
+void
 ao_ms5607_setup(void)
 {
 	if (ms5607_configured)
@@ -115,33 +116,34 @@ ao_ms5607_setup(void)
 	ao_ms5607_prom_read(&ms5607_prom);
 }
 
-static uint8_t	ao_ms5607_done;
+static volatile uint8_t	ao_ms5607_done;
 
 static void
 ao_ms5607_isr(void)
 {
 	ao_exti_disable(AO_MS5607_MISO_PORT, AO_MS5607_MISO_PIN);
 	ao_ms5607_done = 1;
-	ao_wakeup(&ao_ms5607_done);
+	ao_wakeup((void *) &ao_ms5607_done);
 }
 
 static uint32_t
 ao_ms5607_get_sample(uint8_t cmd) {
 	uint8_t	reply[3];
 	uint8_t read;
-	uint16_t now;
 
 	ao_ms5607_done = 0;
 
 	ao_ms5607_start();
 	ao_spi_send(&cmd, 1, AO_MS5607_SPI_INDEX);
+
 	ao_exti_enable(AO_MS5607_MISO_PORT, AO_MS5607_MISO_PIN);
+
 #if AO_MS5607_PRIVATE_PINS
 	ao_spi_put(AO_MS5607_SPI_INDEX);
 #endif
 	cli();
 	while (!ao_ms5607_done)
-		ao_sleep(&ao_ms5607_done);
+		ao_sleep((void *) &ao_ms5607_done);
 	sei();
 #if AO_MS5607_PRIVATE_PINS
 	stm_gpio_set(AO_MS5607_CS_PORT, AO_MS5607_CS_PIN, 1);
@@ -168,12 +170,10 @@ ao_ms5607_sample(struct ao_ms5607_sample *sample)
 void
 ao_ms5607_convert(struct ao_ms5607_sample *sample, struct ao_ms5607_value *value)
 {
-	uint8_t	addr;
 	int32_t	dT;
 	int32_t TEMP;
 	int64_t OFF;
 	int64_t SENS;
-	int32_t P;
 
 	dT = sample->temp - ((int32_t) ms5607_prom.tref << 8);
 	
@@ -207,6 +207,7 @@ ao_ms5607_convert(struct ao_ms5607_sample *sample, struct ao_ms5607_value *value
 	value->temp = TEMP;
 }
 
+#if HAS_TASK
 static void
 ao_ms5607(void)
 {
@@ -254,15 +255,18 @@ __code struct ao_cmds ao_ms5607_cmds[] = {
 	{ ao_ms5607_dump,	"B\0Display MS5607 data" },
 	{ 0, NULL },
 };
+#endif /* HAS_TASK */
 
 void
 ao_ms5607_init(void)
 {
 	ms5607_configured = 0;
-	ao_cmd_register(&ao_ms5607_cmds[0]);
 	ao_spi_init_cs(AO_MS5607_CS_PORT, (1 << AO_MS5607_CS_PIN));
 
+#if HAS_TASK
+	ao_cmd_register(&ao_ms5607_cmds[0]);
 	ao_add_task(&ao_ms5607_task, ao_ms5607, "ms5607");
+#endif
 
 	/* Configure the MISO pin as an interrupt; when the
 	 * conversion is complete, the MS5607 will raise this
@@ -273,12 +277,14 @@ ao_ms5607_init(void)
 		      AO_EXTI_MODE_RISING,
 		      ao_ms5607_isr);
 
+#ifdef STM_MODER_ALTERNATE
 	/* Reset the pin from INPUT to ALTERNATE so that SPI works
 	 * This needs an abstraction at some point...
 	 */
 	stm_moder_set(AO_MS5607_MISO_PORT,
 		      AO_MS5607_MISO_PIN,
 		      STM_MODER_ALTERNATE);
+#endif
 }
 
 #endif

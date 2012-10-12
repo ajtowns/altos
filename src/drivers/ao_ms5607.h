@@ -57,6 +57,9 @@ struct ao_ms5607_value {
 };
 
 void
+ao_ms5607_setup(void);
+
+void
 ao_ms5607_init(void);
 
 void
