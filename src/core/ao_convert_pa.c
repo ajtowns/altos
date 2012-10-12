@@ -19,9 +19,17 @@
 #include "ao.h"
 #endif
 
-static const int32_t altitude_table[] = {
+#ifndef AO_CONST_ATTRIB
+#define AO_CONST_ATTRIB
+#endif
+
+static const alt_t altitude_table[] AO_CONST_ATTRIB = {
 #include "altitude-pa.h"
 };
+
+#ifndef FETCH_ALT
+#define FETCH_ALT(o)	altitude_table[o]
+#endif
 
 #define ALT_SCALE	(1 << ALT_SHIFT)
 #define ALT_MASK	(ALT_SCALE - 1)
