@@ -119,11 +119,13 @@ ao_clock_init(void);
  * ao_mutex.c
  */
 
+#ifndef ao_mutex_get
 void
 ao_mutex_get(__xdata uint8_t *ao_mutex) __reentrant;
 
 void
 ao_mutex_put(__xdata uint8_t *ao_mutex) __reentrant;
+#endif
 
 /*
  * ao_cmd.c
