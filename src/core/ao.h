@@ -85,7 +85,9 @@ ao_panic(uint8_t reason);
 extern volatile __data AO_TICK_TYPE ao_tick_count;
 
 /* Our timer runs at 100Hz */
+#ifndef AO_HERTZ
 #define AO_HERTZ		100
+#endif
 #define AO_MS_TO_TICKS(ms)	((ms) / (1000 / AO_HERTZ))
 #define AO_SEC_TO_TICKS(s)	((s) * AO_HERTZ)
 
