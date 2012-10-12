@@ -52,6 +52,8 @@
 #define AO_DATA_MMA655X 0
 #endif
 
+#ifdef AO_DATA_RING
+
 #define AO_DATA_ALL	(AO_DATA_ADC|AO_DATA_MS5607|AO_DATA_MPU6000|AO_DATA_HMC5883|AO_DATA_MMA655X)
 
 struct ao_data {
@@ -101,6 +103,8 @@ extern volatile __data uint8_t		ao_data_count;
 #define AO_DATA_WAIT() do {				\
 		ao_sleep((void *) &ao_data_count);	\
 	} while (0)
+
+#endif /* AO_DATA_RING */
 
 #if !HAS_BARO && HAS_MS5607
 
