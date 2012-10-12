@@ -26,7 +26,7 @@ static const int32_t altitude_table[] = {
 #define ALT_SCALE	(1 << ALT_SHIFT)
 #define ALT_MASK	(ALT_SCALE - 1)
 
-int32_t
+alt_t
 ao_pa_to_altitude(int32_t pa)
 {
 	int16_t	o;
@@ -40,8 +40,8 @@ ao_pa_to_altitude(int32_t pa)
 	o = pa >> ALT_SHIFT;
 	part = pa & ALT_MASK;
 
-	low = (int32_t) altitude_table[o] * (ALT_SCALE - part);
-	high = (int32_t) altitude_table[o+1] * part + (ALT_SCALE >> 1);
+	low = (alt_t) FETCH_ALT(o) * (ALT_SCALE - part);
+	high = (alt_t) FETCH_ALT(o+1) * part + (ALT_SCALE >> 1);
 	return (low + high) >> ALT_SHIFT;
 }
 

@@ -17,6 +17,7 @@
 
 #include <stdint.h>
 #define AO_CONVERT_TEST
+typedef int32_t alt_t;
 #include "ao_host.h"
 #include "ao_convert_pa.c"
 
