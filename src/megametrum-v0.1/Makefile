@@ -13,7 +13,7 @@ INC = \
 	ao_data.h \
 	ao_sample.h \
 	ao_pins.h \
-	altitude.h \
+	altitude-pa.h \
 	ao_kalman.h \
 	ao_product.h \
 	ao_ms5607.h \
@@ -99,7 +99,7 @@ all: $(PROG)
 $(PROG): Makefile $(OBJ) altos.ld
 	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(OBJ) $(SAT_CLIB) -lgcc
 
-../altitude.h: make-altitude
+../altitude-pa.h: make-altitude-pa
 	nickle $< > $@
 
 $(OBJ): $(INC)
