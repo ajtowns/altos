@@ -53,6 +53,7 @@ ao_pa_to_altitude(int32_t pa)
 	return (low + high) >> ALT_SHIFT;
 }
 
+#ifdef AO_CONVERT_TEST
 int32_t
 ao_altitude_to_pa(int32_t alt)
 {
@@ -78,3 +79,4 @@ ao_altitude_to_pa(int32_t alt)
 		pa = 0;
 	return pa;
 }
+#endif
