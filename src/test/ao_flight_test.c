@@ -469,7 +469,6 @@ union ao_telemetry_all {
 uint16_t
 uint16(uint8_t *bytes, int off)
 {
-	off++;
 	return (uint16_t) bytes[off] | (((uint16_t) bytes[off+1]) << 8);
 }
 
@@ -608,22 +607,22 @@ ao_sleep(void *wchan)
 					}
 				} else if (len == 99) {
 					ao_flight_started = 1;
-					tick = uint16(bytes, 21);
-					ao_flight_ground_accel = int16(bytes, 7);
-					ao_config.accel_plus_g = int16(bytes, 17);
-					ao_config.accel_minus_g = int16(bytes, 19);
+					tick = uint16(bytes+1, 21);
+					ao_flight_ground_accel = int16(bytes+1, 7);
+					ao_config.accel_plus_g = int16(bytes+1, 17);
+					ao_config.accel_minus_g = int16(bytes+1, 19);
 					type = 'A';
-					a = int16(bytes, 23);
-					b = int16(bytes, 25);
+					a = int16(bytes+1, 23);
+					b = int16(bytes+1, 25);
 				} else if (len == 98) {
 					ao_flight_started = 1;
-					tick = uint16(bytes, 20);
-					ao_flight_ground_accel = int16(bytes, 6);
-					ao_config.accel_plus_g = int16(bytes, 16);
-					ao_config.accel_minus_g = int16(bytes, 18);
+					tick = uint16(bytes+1, 20);
+					ao_flight_ground_accel = int16(bytes+1, 6);
+					ao_config.accel_plus_g = int16(bytes+1, 16);
+					ao_config.accel_minus_g = int16(bytes+1, 18);
 					type = 'A';
-					a = int16(bytes, 22);
-					b = int16(bytes, 24);
+					a = int16(bytes+1, 22);
+					b = int16(bytes+1, 24);
 				} else {
 					printf("unknown len %d\n", len);
 					continue;
