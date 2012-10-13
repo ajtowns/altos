@@ -67,6 +67,9 @@ struct ao_data {
 #endif
 #if HAS_MPU6000
 	struct ao_mpu6000_sample	mpu6000;
+#if !HAS_MMA655X
+	int16_t				z_accel;
+#endif
 #endif
 #if HAS_HMC5883
 	struct ao_hmc5883_sample	hmc5883;
@@ -285,9 +288,9 @@ typedef int16_t accel_t;
 typedef int16_t accel_t;
 
 /* MPU6000 is hooked up so that positive y is positive acceleration */
-#define ao_data_accel(packet)			((packet)->mpu6000.accel_y)
+#define ao_data_accel(packet)			((packet)->z_accel)
 #define ao_data_accel_cook(packet)		(-(packet)->mpu6000.accel_y)
-#define ao_data_set_accel(packet, accel)	((packet)->mpu6000.accel_y = (accel))
+#define ao_data_set_accel(packet, accel)	((packet)->z_accel = (accel))
 #define ao_data_accel_invert(a)			(-(a))
 
 #endif
