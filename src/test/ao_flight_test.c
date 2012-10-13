@@ -35,6 +35,21 @@
 #define AO_MS_TO_SPEED(ms)	((int16_t) ((ms) * 16))
 #define AO_MSS_TO_ACCEL(mss)	((int16_t) ((mss) * 16))
 
+#if MEGAMETRUM
+#define AO_ADC_NUM_SENSE	6
+#define HAS_MS5607		1
+#define HAS_MPU6000		1
+#define HAS_MMA655X		0
+
+struct ao_adc {
+	int16_t			sense[AO_ADC_NUM_SENSE];
+	int16_t			v_batt;
+	int16_t			v_pbatt;
+	int16_t			accel_ref;
+	int16_t			accel;
+	int16_t			temp;
+};
+#else
 /*
  * One set of samples read from the A/D converter
  */
@@ -48,6 +63,13 @@ struct ao_adc {
 	int16_t		sense_m;	/* main continuity sense */
 };
 
+#ifndef HAS_ACCEL
+#define HAS_ACCEL 1
+#define HAS_ACCEL_REF 0
+#endif
+
+#endif
+
 #define __pdata
 #define __data
 #define __xdata
@@ -58,12 +80,9 @@ struct ao_adc {
 #define HAS_IGNITE 1
 #define HAS_USB 1
 #define HAS_GPS 1
-#ifndef HAS_ACCEL
-#define HAS_ACCEL 1
-#define HAS_ACCEL_REF 0
-#endif
 
 #include <ao_data.h>
+#include <ao_log.h>
 
 #define to_fix16(x) ((int16_t) ((x) * 65536.0 + 0.5))
 #define to_fix32(x) ((int32_t) ((x) * 65536.0 + 0.5))
@@ -72,7 +91,6 @@ struct ao_adc {
 /*
  * Above this height, the baro sensor doesn't work
  */
-#define AO_MAX_BARO_HEIGHT	12000
 #define AO_BARO_SATURATE	13000
 #define AO_MIN_BARO_VALUE	ao_altitude_to_pres(AO_BARO_SATURATE)
 
@@ -82,19 +100,6 @@ struct ao_adc {
 #define AO_MAX_BARO_SPEED	200
 
 #define ACCEL_NOSE_UP	(ao_accel_2g >> 2)
-
-enum ao_flight_state {
-	ao_flight_startup = 0,
-	ao_flight_idle = 1,
-	ao_flight_pad = 2,
-	ao_flight_boost = 3,
-	ao_flight_fast = 4,
-	ao_flight_coast = 5,
-	ao_flight_drogue = 6,
-	ao_flight_main = 7,
-	ao_flight_landed = 8,
-	ao_flight_invalid = 9
-};
 
 extern enum ao_flight_state ao_flight_state;
 
@@ -190,7 +195,14 @@ struct ao_cmds {
 #define ao_xmemcmp(d,s,c) memcmp(d,s,c)
 
 #define AO_NEED_ALTITUDE_TO_PRES 1
+#if MEGAMETRUM
+#include "ao_convert_pa.c"
+#include <ao_ms5607.h>
+struct ao_ms5607_prom	ms5607_prom;
+#include "ao_ms5607_convert.c"
+#else
 #include "ao_convert.c"
+#endif
 
 struct ao_config {
 	uint16_t	main_deploy;
@@ -218,11 +230,11 @@ typedef int16_t	accel_t;
 
 extern uint16_t	ao_sample_tick;
 
-extern int16_t	ao_sample_height;
+extern alt_t	ao_sample_height;
 extern accel_t	ao_sample_accel;
 extern int32_t	ao_accel_scale;
-extern int16_t	ao_ground_height;
-extern int16_t	ao_sample_alt;
+extern alt_t	ao_ground_height;
+extern alt_t	ao_sample_alt;
 
 int ao_sample_prev_tick;
 uint16_t	prev_tick;
@@ -293,9 +305,20 @@ ao_insert(void)
 	ao_data_ring[ao_data_head] = ao_data_static;
 	ao_data_head = ao_data_ring_next(ao_data_head);
 	if (ao_flight_state != ao_flight_startup) {
-		double	height = ao_pres_to_altitude(ao_data_static.adc.pres_real) - ao_ground_height;
-		double  accel = ((ao_flight_ground_accel - ao_data_static.adc.accel) * GRAVITY * 2.0) /
+#if HAS_ACCEL
+		double  accel = ((ao_flight_ground_accel - ao_data_accel_cook(&ao_data_static)) * GRAVITY * 2.0) /
 			(ao_config.accel_minus_g - ao_config.accel_plus_g);
+#else
+		double	accel = 0.0;
+#endif
+#if MEGAMETRUM
+		double	height;
+
+		ao_ms5607_convert(&ao_data_static.ms5607_raw, &ao_data_static.ms5607_cooked);
+		height = ao_pa_to_altitude(ao_data_static.ms5607_cooked.pres) - ao_ground_height;
+#else
+		double	height = ao_pres_to_altitude(ao_data_static.adc.pres_real) - ao_ground_height;
+#endif
 
 		if (!tick_offset)
 			tick_offset = -ao_data_static.tick;
@@ -478,6 +501,22 @@ int16(uint8_t *bytes, int off)
 	return (int16_t) uint16(bytes, off);
 }
 
+uint32_t
+uint32(uint8_t *bytes, int off)
+{
+	return (uint32_t) bytes[off] | (((uint32_t) bytes[off+1]) << 8) |
+		(((uint32_t) bytes[off+2]) << 16) |
+		(((uint32_t) bytes[off+3]) << 24);
+}
+
+int32_t
+int32(uint8_t *bytes, int off)
+{
+	return (int32_t) uint32(bytes, off);
+}
+
+static int log_format;
+
 void
 ao_sleep(void *wchan)
 {
@@ -496,7 +535,10 @@ ao_sleep(void *wchan)
 		for (;;) {
 			if (ao_records_read > 2 && ao_flight_state == ao_flight_startup)
 			{
+#if MEGAMETRUM
+#else
 				ao_data_static.adc.accel = ao_flight_ground_accel;
+#endif
 				ao_insert();
 				return;
 			}
@@ -518,13 +560,69 @@ ao_sleep(void *wchan)
 				if (words[nword] == NULL)
 					break;
 			}
-			if (nword == 4) {
+#if MEGAMETRUM
+			if (log_format == AO_LOG_FORMAT_MEGAMETRUM && nword == 30 && strlen(words[0]) == 1) {
+				int	i;
+				struct ao_ms5607_value	value;
+
+				type = words[0][0];
+				tick = strtoul(words[1], NULL, 16);
+//				printf ("%c %04x", type, tick);
+				for (i = 2; i < nword; i++) {
+					bytes[i - 2] = strtoul(words[i], NULL, 16);
+//					printf(" %02x", bytes[i-2]);
+				}
+//				printf ("\n");
+				switch (type) {
+				case 'F':
+					ao_flight_ground_accel = int16(bytes, 2);
+					ao_flight_started = 1;
+					ao_ground_pres = int32(bytes, 4);
+					ao_ground_height = ao_pa_to_altitude(ao_ground_pres);
+					break;
+				case 'A':
+					ao_data_static.tick = tick;
+					ao_data_static.ms5607_raw.pres = int32(bytes, 0);
+					ao_data_static.ms5607_raw.temp = int32(bytes, 4);
+					ao_ms5607_convert(&ao_data_static.ms5607_raw, &value);
+					ao_data_set_accel(&ao_data_static, -int16(bytes, 10));
+//					printf ("accel %d pres %d\n", ao_data_accel_cook(&ao_data_static), value.pres);
+					ao_records_read++;
+					ao_insert();
+					return;
+				}
+				continue;
+			} else if (nword == 3 && strcmp(words[0], "ms5607") == 0) {
+				if (strcmp(words[1], "reserved:") == 0)
+					ms5607_prom.reserved = strtoul(words[2], NULL, 10);
+				else if (strcmp(words[1], "sens:") == 0)
+					ms5607_prom.sens = strtoul(words[2], NULL, 10);
+				else if (strcmp(words[1], "off:") == 0)
+					ms5607_prom.off = strtoul(words[2], NULL, 10);
+				else if (strcmp(words[1], "tcs:") == 0)
+					ms5607_prom.tcs = strtoul(words[2], NULL, 10);
+				else if (strcmp(words[1], "tco:") == 0)
+					ms5607_prom.tco = strtoul(words[2], NULL, 10);
+				else if (strcmp(words[1], "tref:") == 0)
+					ms5607_prom.tref = strtoul(words[2], NULL, 10);
+				else if (strcmp(words[1], "tempsens:") == 0)
+					ms5607_prom.tempsens = strtoul(words[2], NULL, 10);
+				else if (strcmp(words[1], "crc:") == 0)
+					ms5607_prom.crc = strtoul(words[2], NULL, 10);
+				continue;
+			}
+#else
+			if (nword == 4 && log_format != AO_LOG_FORMAT_MEGAMETRUM) {
 				type = words[0][0];
 				tick = strtoul(words[1], NULL, 16);
 				a = strtoul(words[2], NULL, 16);
 				b = strtoul(words[3], NULL, 16);
 				if (type == 'P')
 					type = 'A';
+			}
+#endif
+			else if (nword == 2 && strcmp(words[0], "log-format") == 0) {
+				log_format = strtoul(words[1], NULL, 10);
 			} else if (nword >= 6 && strcmp(words[0], "Accel") == 0) {
 				ao_config.accel_plus_g = atoi(words[3]);
 				ao_config.accel_minus_g = atoi(words[5]);
@@ -631,6 +729,8 @@ ao_sleep(void *wchan)
 			if (type != 'F' && !ao_flight_started)
 				continue;
 
+#if MEGAMETRUM
+#else
 			switch (type) {
 			case 'F':
 				ao_flight_ground_accel = a;
@@ -666,6 +766,7 @@ ao_sleep(void *wchan)
 			case 'H':
 				break;
 			}
+#endif
 		}
 
 	}
