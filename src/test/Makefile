@@ -3,6 +3,8 @@ vpath % ..:../core:../drivers:../util
 PROGS=ao_flight_test ao_flight_test_baro ao_flight_test_accel ao_flight_test_noisy_accel ao_flight_test_mm \
 	ao_gps_test ao_gps_test_skytraq ao_convert_test ao_convert_pa_test ao_fec_test
 
+INCS=ao_kalman.h ao_ms5607.h ao_log.h ao_data.h altitude-pa.h altitude.h
+
 KALMAN=make-kalman 
 
 CFLAGS=-I.. -I. -I../core -I../drivers -O0 -g -Wall
@@ -14,19 +16,19 @@ clean:
 
 install:
 
-ao_flight_test: ao_flight_test.c ao_host.h ao_flight.c ao_sample.c ao_kalman.c altitude.h ao_kalman.h
+ao_flight_test: ao_flight_test.c ao_host.h ao_flight.c ao_sample.c ao_kalman.c altitude.h $(INCS)
 	cc $(CFLAGS) -o $@ $<
 
-ao_flight_test_noisy_accel: ao_flight_test.c ao_host.h ao_flight.c ao_sample.c ao_kalman.c altitude-pa.h ao_kalman.h
+ao_flight_test_noisy_accel: ao_flight_test.c ao_host.h ao_flight.c ao_sample.c ao_kalman.c $(INCS)
 	cc -DNOISY_ACCEL=1 $(CFLAGS) -o $@ $<
 
-ao_flight_test_baro: ao_flight_test.c ao_host.h ao_flight.c  ao_sample.c ao_kalman.c altitude.h ao_kalman.h
+ao_flight_test_baro: ao_flight_test.c ao_host.h ao_flight.c  ao_sample.c ao_kalman.c $(INCS)
 	cc $(CFLAGS) -o $@ -DHAS_ACCEL=0 ao_flight_test.c
 
-ao_flight_test_accel: ao_flight_test.c ao_host.h ao_flight.c  ao_sample.c ao_kalman.c altitude.h ao_kalman.h
+ao_flight_test_accel: ao_flight_test.c ao_host.h ao_flight.c  ao_sample.c ao_kalman.c $(INCS)
 	cc $(CFLAGS) -o $@ -DFORCE_ACCEL=1 ao_flight_test.c
 
-ao_flight_test_mm: ao_flight_test.c ao_host.h ao_flight.c ao_sample.c ao_kalman.c altitude.h ao_kalman.h
+ao_flight_test_mm: ao_flight_test.c ao_host.h ao_flight.c ao_sample.c ao_kalman.c $(INCS)
 	cc -DMEGAMETRUM=1 $(CFLAGS) -o $@ $<
 
 ao_gps_test: ao_gps_test.c ao_gps_sirf.c ao_gps_print.c ao_host.h

@@ -260,6 +260,10 @@ static int	landed_set;
 static double	landed_time;
 static double	landed_height;
 
+#if HAS_MPU6000
+static struct ao_mpu6000_sample	ao_ground_mpu6000;
+#endif
+
 void
 ao_test_exit(void)
 {
@@ -296,6 +300,20 @@ ao_test_exit(void)
 	}
 	exit(0);
 }
+
+#if HAS_MPU6000
+static double
+ao_mpu6000_accel(int16_t sensor)
+{
+	return sensor / 32767.0 * MPU6000_ACCEL_FULLSCALE * GRAVITY;
+}
+
+static double
+ao_mpu6000_gyro(int16_t sensor)
+{
+	return sensor / 32767.0 * MPU6000_GYRO_FULLSCALE;
+}
+#endif
 
 void
 ao_insert(void)
@@ -350,10 +368,22 @@ ao_insert(void)
 		}
 
 		if (!ao_summary) {
-			printf("%7.2f height %8.2f accel %8.3f state %-8.8s k_height %8.2f k_speed %8.3f k_accel %8.3f avg_height %5d drogue %4d main %4d error %5d\n",
+			printf("%7.2f height %8.2f accel %8.3f "
+#if MEGAMETRUM
+			       "accel_x %8.3f accel_y %8.3f accel_z %8.3f gyro_x %8.3f gyro_y %8.3f gyro_z %8.3f "
+#endif
+			       "state %-8.8s k_height %8.2f k_speed %8.3f k_accel %8.3f avg_height %5d drogue %4d main %4d error %5d\n",
 			       time,
 			       height,
 			       accel,
+#if MEGAMETRUM
+			       ao_mpu6000_accel(ao_data_static.mpu6000.accel_x),
+			       ao_mpu6000_accel(ao_data_static.mpu6000.accel_y),
+			       ao_mpu6000_accel(ao_data_static.mpu6000.accel_z),
+			       ao_mpu6000_gyro(ao_data_static.mpu6000.gyro_x - ao_ground_mpu6000.gyro_x),
+			       ao_mpu6000_gyro(ao_data_static.mpu6000.gyro_y - ao_ground_mpu6000.gyro_y),
+			       ao_mpu6000_gyro(ao_data_static.mpu6000.gyro_z - ao_ground_mpu6000.gyro_z),
+#endif
 			       ao_state_names[ao_flight_state],
 			       ao_k_height / 65536.0,
 			       ao_k_speed / 65536.0 / 16.0,
@@ -536,6 +566,7 @@ ao_sleep(void *wchan)
 			if (ao_records_read > 2 && ao_flight_state == ao_flight_startup)
 			{
 #if MEGAMETRUM
+				ao_data_static.mpu6000 = ao_ground_mpu6000;
 #else
 				ao_data_static.adc.accel = ao_flight_ground_accel;
 #endif
@@ -585,8 +616,23 @@ ao_sleep(void *wchan)
 					ao_data_static.ms5607_raw.pres = int32(bytes, 0);
 					ao_data_static.ms5607_raw.temp = int32(bytes, 4);
 					ao_ms5607_convert(&ao_data_static.ms5607_raw, &value);
-					ao_data_set_accel(&ao_data_static, -int16(bytes, 10));
-//					printf ("accel %d pres %d\n", ao_data_accel_cook(&ao_data_static), value.pres);
+					ao_data_static.mpu6000.accel_x = int16(bytes, 8);
+					ao_data_static.mpu6000.accel_y = -int16(bytes, 10);
+					ao_data_static.mpu6000.accel_z = int16(bytes, 12);
+					ao_data_static.mpu6000.gyro_x = int16(bytes, 14);
+					ao_data_static.mpu6000.gyro_y = -int16(bytes, 16);
+					ao_data_static.mpu6000.gyro_z = int16(bytes, 18);
+					if (ao_records_read == 0)
+						ao_ground_mpu6000 = ao_data_static.mpu6000;
+					else if (ao_records_read < 10) {
+#define f(f) ao_ground_mpu6000.f = ao_ground_mpu6000.f + ((ao_data_static.mpu6000.f - ao_ground_mpu6000.f) >> 2)
+						f(accel_x);
+						f(accel_y);
+						f(accel_z);
+						f(gyro_x);
+						f(gyro_y);
+						f(gyro_z);
+					}
 					ao_records_read++;
 					ao_insert();
 					return;
