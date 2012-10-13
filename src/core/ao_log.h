@@ -138,17 +138,17 @@ ao_log_full(void);
 #define AO_LOG_POS_NONE		(~0UL)
 
 struct ao_log_record {
-	char			type;
-	uint8_t			csum;
-	uint16_t		tick;
+	char			type;				/* 0 */
+	uint8_t			csum;				/* 1 */
+	uint16_t		tick;				/* 2 */
 	union {
 		struct {
-			int16_t		ground_accel;
-			uint16_t	flight;
+			int16_t		ground_accel;		/* 4 */
+			uint16_t	flight;			/* 6 */
 		} flight;
 		struct {
-			int16_t		accel;
-			int16_t		pres;
+			int16_t		accel;			/* 4 */
+			int16_t		pres;			/* 6 */
 		} sensor;
 		struct {
 			int16_t		temp;
