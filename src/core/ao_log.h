@@ -201,8 +201,7 @@ struct ao_log_mega {
 			uint16_t	flight;		/* 4 */
 			int16_t		ground_accel;	/* 6 */
 			uint32_t	ground_pres;	/* 8 */
-			uint32_t	ground_temp;	/* 12 */
-		} flight;				/* 16 */
+		} flight;				/* 12 */
 		struct {
 			uint16_t	state;
 			uint16_t	reason;
