@@ -167,45 +167,7 @@ ao_ms5607_sample(struct ao_ms5607_sample *sample)
 	sample->temp = ao_ms5607_get_sample(AO_MS5607_CONVERT_D2_2048);
 }
 
-void
-ao_ms5607_convert(struct ao_ms5607_sample *sample, struct ao_ms5607_value *value)
-{
-	int32_t	dT;
-	int32_t TEMP;
-	int64_t OFF;
-	int64_t SENS;
-
-	dT = sample->temp - ((int32_t) ms5607_prom.tref << 8);
-	
-	TEMP = 2000 + (((int64_t) dT * ms5607_prom.tempsens) >> 23);
-
-#if HAS_MS5611
-	OFF = ((int64_t) ms5607_prom.off << 16) + (((int64_t) ms5607_prom.tco * dT) >> 7);
-	SENS = ((int64_t) ms5607_prom.sens << 15) + (((int64_t) ms5607_prom.tcs * dT) >> 8);
-#else
-	OFF = ((int64_t) ms5607_prom.off << 17) + (((int64_t) ms5607_prom.tco * dT) >> 6);
-	SENS = ((int64_t) ms5607_prom.sens << 16) + (((int64_t) ms5607_prom.tcs * dT) >> 7);
-#endif
-
-	if (TEMP < 2000) {
-		int32_t	T2 = ((int64_t) dT * (int64_t) dT) >> 31;
-		int32_t TEMPM = TEMP - 2000;
-		int64_t OFF2 = (61 * (int64_t) TEMPM * (int64_t) TEMPM) >> 4;
-		int64_t SENS2 = 2 * (int64_t) TEMPM * (int64_t) TEMPM;
-		if (TEMP < 1500) {
-			int32_t TEMPP = TEMP + 1500;
-			int64_t TEMPP2 = TEMPP * TEMPP;
-			OFF2 = OFF2 + 15 * TEMPP2;
-			SENS2 = SENS2 + 8 * TEMPP2;
-		}
-		TEMP -= T2;
-		OFF -= OFF2;
-		SENS -= SENS2;
-	}
-
-	value->pres = ((((int64_t) sample->pres * SENS) >> 21) - OFF) >> 15;
-	value->temp = TEMP;
-}
+#include "ao_ms5607_convert.c"
 
 #if HAS_TASK
 static void
