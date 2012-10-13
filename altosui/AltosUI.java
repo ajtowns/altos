@@ -444,6 +444,8 @@ public class AltosUI extends AltosFrame {
 		//AltosReplayReader reader;
 		if (file.getName().endsWith("eeprom")) {
 			recs = new AltosEepromIterable(in);
+		} else if (file.getName().endsWith("mega")) {
+			recs = new AltosEepromMegaIterable(in);
 		} else {
 			recs = new AltosTelemetryIterable(in);
 		}
