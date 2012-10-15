@@ -43,6 +43,7 @@ static uint8_t	ao_lco_box;
 static uint8_t	ao_lco_armed;
 static uint8_t	ao_lco_firing;
 static uint8_t	ao_lco_valid;
+static uint8_t	ao_lco_got_channels;
 static uint16_t	ao_lco_tick_offset;
 
 static struct ao_pad_query	ao_pad_query;
@@ -77,7 +78,7 @@ ao_lco_box_present(uint8_t box)
 static uint8_t
 ao_lco_pad_present(uint8_t pad)
 {
-	if (!ao_lco_valid || !ao_pad_query.channels)
+	if (!ao_lco_got_channels || !ao_pad_query.channels)
 		return pad == 0;
 	if (pad >= AO_PAD_MAX_CHANNELS)
 		return 0;
@@ -151,7 +152,7 @@ ao_lco_input(void)
 					ao_quadrature_count[AO_QUADRATURE_PAD] = new_box;
 					if (ao_lco_box != new_box) {
 						ao_lco_box = new_box;
-						ao_lco_valid = 0;
+						ao_lco_got_channels = 0;
 						ao_lco_set_box();
 					}
 				}
@@ -213,13 +214,15 @@ ao_lco_update(void)
 
 	r = ao_lco_query(ao_lco_box, &ao_pad_query, &ao_lco_tick_offset);
 	if (r == AO_RADIO_CMAC_OK) {
-		c = ao_lco_valid;
+		c = ao_lco_got_channels;
+		ao_lco_got_channels = 1;
 		ao_lco_valid = 1;
 		if (!c) {
 			ao_lco_pad = ao_lco_pad_first();
 			ao_lco_set_pad();
 		}
-	}
+	} else
+		ao_lco_valid = 0;
 
 #if 0
 	PRINTD("lco_query success arm_status %d i0 %d i1 %d i2 %d i3 %d\n",
@@ -266,6 +269,7 @@ ao_lco_search(void)
 	else
 		ao_lco_min_box = ao_lco_max_box = ao_lco_box = 0;
 	ao_lco_valid = 0;
+	ao_lco_got_channels = 0;
 	ao_lco_pad = 0;
 }
 
