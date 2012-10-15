@@ -127,6 +127,7 @@ ao_lco_input(void)
 							break;
 					}
 					if (new_pad != ao_lco_pad) {
+						ao_lco_pad = new_pad;
 						ao_quadrature_count[AO_QUADRATURE_PAD] = ao_lco_pad;
 						ao_lco_set_pad();
 					}
