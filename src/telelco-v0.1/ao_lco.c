@@ -99,7 +99,7 @@ static void
 ao_lco_input(void)
 {
 	static struct ao_event	event;
-	int8_t	dir, new_box;
+	int8_t	dir, new_box, new_pad;
 
 	ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(200));
 	ao_lco_set_pad();
@@ -116,16 +116,20 @@ ao_lco_input(void)
 					if (event.value == ao_lco_pad)
 						break;
 					dir = ((int8_t) event.value - (int8_t) ao_lco_pad) > 0 ? 1 : -1;
-					ao_lco_pad = event.value;
-					while (!ao_lco_pad_present(ao_lco_pad)) {
-						ao_lco_pad += dir;
-						if ((int8_t) ao_lco_pad > AO_PAD_MAX_CHANNELS)
-							ao_lco_pad = 0;
-						else if ((int8_t) ao_lco_pad < 0)
-							ao_lco_pad = AO_PAD_MAX_CHANNELS - 1;
+					new_pad = event.value;
+					while (!ao_lco_pad_present(new_pad)) {
+						new_pad += dir;
+						if (new_pad > AO_PAD_MAX_CHANNELS)
+							new_pad = 0;
+						else if (new_pad < 0)
+							new_pad = AO_PAD_MAX_CHANNELS - 1;
+						if (new_pad == ao_lco_pad)
+							break;
 					}
-					ao_quadrature_count[AO_QUADRATURE_PAD] = ao_lco_pad;
-					ao_lco_set_pad();
+					if (new_pad != ao_lco_pad) {
+						ao_quadrature_count[AO_QUADRATURE_PAD] = ao_lco_pad;
+						ao_lco_set_pad();
+					}
 				}
 				break;
 			case AO_QUADRATURE_BOX:
@@ -140,6 +144,8 @@ ao_lco_input(void)
 							new_box = ao_lco_min_box;
 						else if (new_box < ao_lco_min_box)
 							new_box = ao_lco_min_box;
+						if (new_box == ao_lco_box)
+							break;
 					}
 					ao_quadrature_count[AO_QUADRATURE_PAD] = new_box;
 					if (ao_lco_box != new_box) {
@@ -256,7 +262,7 @@ ao_lco_search(void)
 	if (ao_lco_min_box <= ao_lco_max_box)
 		ao_lco_box = ao_lco_min_box;
 	else
-		ao_lco_box = 0;
+		ao_lco_min_box = ao_lco_max_box = ao_lco_box = 0;
 	ao_lco_valid = 0;
 	ao_lco_pad = 0;
 }
