@@ -53,7 +53,7 @@ ao_radio_master_start(void)
 {
 	ao_spi_get_bit(AO_RADIO_CS_PORT, AO_RADIO_CS_PIN, AO_RADIO_CS,
 		       AO_RADIO_SPI_BUS,
-		       AO_SPI_SPEED_200kHz);
+		       AO_SPI_SPEED_2MHz);
 }
 
 static void
