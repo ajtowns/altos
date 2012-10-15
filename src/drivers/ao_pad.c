@@ -271,7 +271,7 @@ ao_pad(void)
 
 			query.tick = ao_time();
 			query.box = ao_pad_box;
-			query.channels = AO_PAD_ALL_PINS;
+			query.channels = AO_PAD_ALL_CHANNELS;
 			query.armed = ao_pad_armed;
 			PRINTD ("query tick %d box %d channels %02x arm %d arm_status %d igniter %d,%d,%d,%d\n",
 				query.tick, query.box, query.channels, query.armed,
