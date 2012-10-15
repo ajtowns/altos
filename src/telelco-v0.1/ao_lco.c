@@ -250,7 +250,8 @@ ao_lco_search(void)
 	ao_lco_min_box = 0xff;
 	ao_lco_max_box = 0x00;
 	for (ao_lco_box = 0; ao_lco_box < AO_PAD_MAX_BOXES; ao_lco_box++) {
-		ao_lco_set_box();
+		if ((ao_lco_box % 10) == 0)
+			ao_lco_set_box();
 		r = ao_lco_query(ao_lco_box, &ao_pad_query, &ao_lco_tick_offset);
 		if (r == AO_RADIO_CMAC_OK) {
 			if (ao_lco_box < ao_lco_min_box)
