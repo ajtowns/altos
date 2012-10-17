@@ -44,9 +44,8 @@ ao_spi_slave_send(uint8_t *buf, uint8_t len)
 
 static uint8_t ao_spi_slave_running;
 
-ISR(PCINT0_vect)
+ISR(PCINT0_vect, ISR_BLOCK)
 {
-	cli();
 #if SPI_SLAVE_PIN_0_3
 	if ((PINB & (1 << PORTB0)) == 0)
 #endif
@@ -61,7 +60,6 @@ ISR(PCINT0_vect)
 	} else {
 		ao_spi_slave_running = 0;
 	}
-	sei();
 }
 
 void
