@@ -138,7 +138,8 @@ public class AltosFlightUI extends AltosFrame implements AltosFlightDisplay, Alt
 			}
 		}
 		} catch (Exception e) {
-			System.out.print("Show exception" + e);
+			System.out.print("Show exception " + e + "\n");
+			e.printStackTrace();
 		}
 	}
 
