@@ -309,7 +309,10 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	class Distance extends DescentValue {
 		void show(AltosState state, int crc_errors) {
-			show(AltosConvert.distance, state.from_pad.distance);
+			if (state.from_pad != null)
+				show(AltosConvert.distance, state.from_pad.distance);
+			else
+				show("???");
 		}
 
 		public Distance (GridBagLayout layout, int x, int y) {
