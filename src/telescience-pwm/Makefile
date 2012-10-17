@@ -53,19 +53,20 @@ ALTOS_SRC = \
 	ao_adc_avr.c \
 	ao_science_slave.c \
 	ao_spi_slave.c \
+	ao_pwmin.c \
 	$(TELESCIENCE_STORAGE)\
 	$(TELESCIENCE_LOG)
 
-PRODUCT=TeleScience-v0.1
+PRODUCT=TeleScience-PWM
 MCU=atmega32u4
-PRODUCT_DEF=-DTELESCIENCE
+PRODUCT_DEF=-DTELESCIENCE -DTELESCIENCE_PWM
 IDPRODUCT=0x0011
 CFLAGS = $(PRODUCT_DEF) -I. -I../avr -I../core -I..
 CFLAGS += -g -mmcu=$(MCU) -Wall -Wstrict-prototypes -O3 -mcall-prologues -DAVR
 
 NICKLE=nickle
 
-PROG=telescience-v0.1
+PROG=telescience-pwm
 
 SRC=$(ALTOS_SRC) ao_telescience.c
 OBJ=$(SRC:.c=.o)

@@ -94,7 +94,7 @@ ISR(ADC_vect)
 	value = ADCL;
 	value |= (ADCH << 8);
 	ao_data_ring[ao_data_head].adc.adc[ao_adc_channel] = value;
-	if (++ao_adc_channel < NUM_ADC - 1)
+	if (++ao_adc_channel < NUM_ADC - HAS_ICP3_COUNT)
 		ao_adc_start();
 	else {
 #if HAS_ICP3_COUNT
