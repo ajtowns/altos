@@ -43,6 +43,23 @@ static void ao_adc_done(int index)
 {
 	AO_DATA_PRESENT(AO_DATA_ADC);
 	ao_dma_done_transfer(STM_DMA_INDEX(STM_DMA_CHANNEL_ADC1));
+	if (ao_data_present == AO_DATA_ALL) {
+#if HAS_MS5607
+		ao_data_ring[ao_data_head].ms5607_raw = ao_ms5607_current;
+#endif
+#if HAS_MMA655X
+		ao_data_ring[ao_data_head].mma655x = ao_mma655x_current;
+#endif
+#if HAS_HMC5883
+		ao_data_ring[ao_data_head].hmc5883 = ao_hmc5883_current;
+#endif
+#if HAS_MPU6000
+		ao_data_ring[ao_data_head].mpu6000 = ao_mpu6000_current;
+#endif
+		ao_data_ring[ao_data_head].tick = ao_tick_count;
+		ao_data_head = ao_data_ring_next(ao_data_head);
+		ao_wakeup((void *) &ao_data_head);
+	}
 	ao_adc_ready = 1;
 }
 

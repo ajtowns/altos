@@ -123,12 +123,14 @@ ao_hmc5883_setup(void)
 	return 1;
 }
 
+struct ao_hmc5883_sample ao_hmc5883_current;
+
 static void
 ao_hmc5883(void)
 {
 	ao_hmc5883_setup();
 	for (;;) {
-		ao_hmc5883_sample((struct ao_hmc5883_sample *) &ao_data_ring[ao_data_head].hmc5883);
+		ao_hmc5883_sample(&ao_hmc5883_current);
 		ao_arch_critical(
 			AO_DATA_PRESENT(AO_DATA_HMC5883);
 			AO_DATA_WAIT();

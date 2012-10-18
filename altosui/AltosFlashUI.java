@@ -286,7 +286,7 @@ public class AltosFlashUI
 		if (!select_source_file())
 			return;
 		build_dialog();
-		//flash_task	f = new flash_task(this);
+		flash_task	f = new flash_task(this);
 	}
 
 	static void show(JFrame frame) {

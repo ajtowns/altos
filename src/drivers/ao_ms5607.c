@@ -170,13 +170,15 @@ ao_ms5607_sample(struct ao_ms5607_sample *sample)
 #include "ao_ms5607_convert.c"
 
 #if HAS_TASK
+struct ao_ms5607_sample	ao_ms5607_current;
+
 static void
 ao_ms5607(void)
 {
 	ao_ms5607_setup();
 	for (;;)
 	{
-		ao_ms5607_sample((struct ao_ms5607_sample *) &ao_data_ring[ao_data_head].ms5607_raw);
+		ao_ms5607_sample(&ao_ms5607_current);
 		ao_arch_critical(
 			AO_DATA_PRESENT(AO_DATA_MS5607);
 			AO_DATA_WAIT();
@@ -202,14 +204,11 @@ ao_ms5607_info(void)
 static void
 ao_ms5607_dump(void)
 {
-	struct ao_ms5607_sample sample;
 	struct ao_ms5607_value value;
 
-	ao_ms5607_setup();
-	ao_ms5607_sample(&sample);
-	ao_ms5607_convert(&sample, &value);
-	printf ("Pressure:    %8u %8d\n", sample.pres, value.pres);
-	printf ("Temperature: %8u %8d\n", sample.temp, value.temp);
+	ao_ms5607_convert(&ao_ms5607_current, &value);
+	printf ("Pressure:    %8u %8d\n", ao_ms5607_current.pres, value.pres);
+	printf ("Temperature: %8u %8d\n", ao_ms5607_current.temp, value.temp);
 	printf ("Altitude: %ld\n", ao_pa_to_altitude(value.pres));
 }
 

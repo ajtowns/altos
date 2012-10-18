@@ -78,6 +78,7 @@
 #define AO_MMA655X_COUNT	0x15
 #define AO_MMA655X_OFFCORR	0x16
 
+extern uint16_t	ao_mma655x_current;
 
 void
 ao_mma655x_init(void);

@@ -163,7 +163,7 @@ public class AltosUIPreferences extends AltosPreferences {
 		}
 	}
 	public static void set_serial_debug(boolean new_serial_debug) {
-		AltosLink.set_debug(serial_debug);
+		AltosLink.set_debug(new_serial_debug);
 		synchronized (backend) {
 			serial_debug = new_serial_debug;
 			backend.putBoolean(serialDebugPreference, serial_debug);
