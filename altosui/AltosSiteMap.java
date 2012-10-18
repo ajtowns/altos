@@ -421,7 +421,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	public AltosSiteMap(int in_radius) {
 		radius = in_radius;
 
-		//GrabNDrag scroller = new GrabNDrag(comp);
+		GrabNDrag scroller = new GrabNDrag(comp);
 
 		comp.setLayout(layout);
 
