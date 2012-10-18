@@ -20,6 +20,10 @@
 volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
 volatile __data uint8_t		ao_data_head;
 
+#ifndef AO_ADC_FIRST_PIN
+#define AO_ADC_FIRST_PIN	0
+#endif
+
 void
 ao_adc_poll(void)
 {
@@ -29,7 +33,7 @@ ao_adc_poll(void)
 # ifdef TELENANO_V_0_1
 	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 1;
 # else
-	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 0;
+	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | AO_ADC_FIRST_PIN;
 # endif
 #endif
 }
@@ -141,7 +145,7 @@ ao_adc_isr(void) __interrupt 1
 #endif /* telemini || telenano */
 
 #ifdef TELEFIRE_V_0_1
-	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.sense[0] + sequence);
+	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.sense[0] + sequence - AO_ADC_FIRST_PIN);
 	a[0] = ADCL;
 	a[1] = ADCH;
 	if (sequence < 5)

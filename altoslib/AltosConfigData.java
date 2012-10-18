@@ -134,6 +134,7 @@ public class AltosConfigData implements Iterable<String> {
 		radio_setting = 0;
 		radio_frequency = 0;
 		stored_flight = 0;
+		serial = -1;
 		for (;;) {
 			String line = link.get_reply();
 			if (line == null)

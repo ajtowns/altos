@@ -43,6 +43,10 @@ static uint8_t	ao_lco_box;
 static uint8_t	ao_lco_armed;
 static uint8_t	ao_lco_firing;
 static uint8_t	ao_lco_valid;
+static uint8_t	ao_lco_got_channels;
+static uint16_t	ao_lco_tick_offset;
+
+static struct ao_pad_query	ao_pad_query;
 
 static void
 ao_lco_set_pad(void)
@@ -71,11 +75,32 @@ ao_lco_box_present(uint8_t box)
 	return (ao_lco_box_mask[MASK_ID(box)] >> MASK_SHIFT(box)) & 1;
 }
 
+static uint8_t
+ao_lco_pad_present(uint8_t pad)
+{
+	if (!ao_lco_got_channels || !ao_pad_query.channels)
+		return pad == 0;
+	if (pad >= AO_PAD_MAX_CHANNELS)
+		return 0;
+	return (ao_pad_query.channels >> pad) & 1;
+}
+
+static uint8_t
+ao_lco_pad_first(void)
+{
+	uint8_t	pad;
+
+	for (pad = 0; pad < AO_PAD_MAX_CHANNELS; pad++)
+		if (ao_lco_pad_present(pad))
+			return pad;
+	return 0;
+}
+
 static void
 ao_lco_input(void)
 {
 	static struct ao_event	event;
-	int8_t	dir;
+	int8_t	dir, new_box, new_pad;
 
 	ao_beep_for(AO_BEEP_MID, AO_MS_TO_TICKS(200));
 	ao_lco_set_pad();
@@ -89,26 +114,47 @@ ao_lco_input(void)
 			switch (event.unit) {
 			case AO_QUADRATURE_PAD:
 				if (!ao_lco_armed) {
-					ao_lco_pad = event.value & 3;
-					ao_quadrature_count[AO_QUADRATURE_PAD] = ao_lco_pad;
-					ao_lco_set_pad();
+					if (event.value == ao_lco_pad)
+						break;
+					dir = ((int8_t) event.value - (int8_t) ao_lco_pad) > 0 ? 1 : -1;
+					new_pad = event.value;
+					while (!ao_lco_pad_present(new_pad)) {
+						new_pad += dir;
+						if (new_pad > AO_PAD_MAX_CHANNELS)
+							new_pad = 0;
+						else if (new_pad < 0)
+							new_pad = AO_PAD_MAX_CHANNELS - 1;
+						if (new_pad == ao_lco_pad)
+							break;
+					}
+					if (new_pad != ao_lco_pad) {
+						ao_lco_pad = new_pad;
+						ao_quadrature_count[AO_QUADRATURE_PAD] = ao_lco_pad;
+						ao_lco_set_pad();
+					}
 				}
 				break;
 			case AO_QUADRATURE_BOX:
 				if (!ao_lco_armed) {
 					if (event.value == ao_lco_box)
 						break;
-					dir = (event.value - ao_lco_box) > 0 ? 1 : -1;
-					ao_lco_box = event.value;
-					while (!ao_lco_box_present(ao_lco_box)) {
-						ao_lco_box += dir;
-						if (ao_lco_box > ao_lco_max_box)
-							ao_lco_box = ao_lco_min_box;
-						else if (ao_lco_box < ao_lco_min_box)
-							ao_lco_box = ao_lco_min_box;
+					dir = ((int8_t) event.value - (int8_t) ao_lco_box) > 0 ? 1 : -1;
+					new_box = event.value;
+					while (!ao_lco_box_present(new_box)) {
+						new_box += dir;
+						if (new_box > ao_lco_max_box)
+							new_box = ao_lco_min_box;
+						else if (new_box < ao_lco_min_box)
+							new_box = ao_lco_min_box;
+						if (new_box == ao_lco_box)
+							break;
 					}
-					ao_quadrature_count[AO_QUADRATURE_PAD] = ao_lco_box;
-					ao_lco_set_box();
+					ao_quadrature_count[AO_QUADRATURE_PAD] = new_box;
+					if (ao_lco_box != new_box) {
+						ao_lco_box = new_box;
+						ao_lco_got_channels = 0;
+						ao_lco_set_box();
+					}
 				}
 				break;
 			}
@@ -160,10 +206,6 @@ static AO_LED_TYPE	continuity_led[AO_LED_CONTINUITY_NUM] = {
 #endif
 };
 
-static uint16_t	ao_lco_tick_offset;
-
-static struct ao_pad_query	ao_pad_query;
-
 static void
 ao_lco_update(void)
 {
@@ -171,8 +213,16 @@ ao_lco_update(void)
 	uint8_t			c;
 
 	r = ao_lco_query(ao_lco_box, &ao_pad_query, &ao_lco_tick_offset);
-	if (r == AO_RADIO_CMAC_OK)
+	if (r == AO_RADIO_CMAC_OK) {
+		c = ao_lco_got_channels;
+		ao_lco_got_channels = 1;
 		ao_lco_valid = 1;
+		if (!c) {
+			ao_lco_pad = ao_lco_pad_first();
+			ao_lco_set_pad();
+		}
+	} else
+		ao_lco_valid = 0;
 
 #if 0
 	PRINTD("lco_query success arm_status %d i0 %d i1 %d i2 %d i3 %d\n",
@@ -203,7 +253,8 @@ ao_lco_search(void)
 	ao_lco_min_box = 0xff;
 	ao_lco_max_box = 0x00;
 	for (ao_lco_box = 0; ao_lco_box < AO_PAD_MAX_BOXES; ao_lco_box++) {
-		ao_lco_set_box();
+		if ((ao_lco_box % 10) == 0)
+			ao_lco_set_box();
 		r = ao_lco_query(ao_lco_box, &ao_pad_query, &ao_lco_tick_offset);
 		if (r == AO_RADIO_CMAC_OK) {
 			if (ao_lco_box < ao_lco_min_box)
@@ -213,7 +264,12 @@ ao_lco_search(void)
 			ao_lco_box_set_present(ao_lco_box);
 		}
 	}
-	ao_lco_box = ao_lco_min_box;
+	if (ao_lco_min_box <= ao_lco_max_box)
+		ao_lco_box = ao_lco_min_box;
+	else
+		ao_lco_min_box = ao_lco_max_box = ao_lco_box = 0;
+	ao_lco_valid = 0;
+	ao_lco_got_channels = 0;
 	ao_lco_pad = 0;
 }
 
@@ -233,7 +289,7 @@ ao_lco_igniter_status(void)
 			continue;
 		}
 		PRINTD("RSSI %d\n", ao_radio_cmac_rssi);
-		if (ao_radio_cmac_rssi < -70)
+		if (ao_radio_cmac_rssi < -90)
 			ao_led_on(AO_LED_RED|AO_LED_GREEN);
 		else {
 			ao_led_on(AO_LED_GREEN);

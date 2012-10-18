@@ -17,15 +17,17 @@
 
 #include <stdint.h>
 #define AO_CONVERT_TEST
+typedef int32_t alt_t;
 #include "ao_host.h"
 #include "ao_convert_pa.c"
 
 #define STEP_P	1
 #define STEP_A	1
 
-static inline i_abs(int i) { return i < 0 ? -i : i; }
+static inline int i_abs(int i) { return i < 0 ? -i : i; }
 
-main ()
+int
+main (int argc, char **argv)
 {
 	int	i;
 	int32_t p_to_a, p_to_a_to_p;
@@ -49,9 +51,7 @@ main ()
 //		printf ("pa %d alt %d pa %d\n",
 //			i, p_to_a, p_to_a_to_p);
 	}
-	for (i = -1450; i < 74250 + STEP_A; i += STEP_A) {
-		if (i > 74250)
-			i = 74250;
+	for (i = -1450; i < 40000 + STEP_A; i += STEP_A) {
 		a_to_p = ao_altitude_to_pa(i);
 		a_to_p_to_a = ao_pa_to_altitude(a_to_p);
 		a_error = i_abs(a_to_p_to_a - i);

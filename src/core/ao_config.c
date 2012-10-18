@@ -102,6 +102,7 @@ _ao_config_get(void)
 		ao_xmemset(&ao_config.callsign, '\0', sizeof (ao_config.callsign));
 		ao_xmemcpy(&ao_config.callsign, CODE_TO_XDATA(AO_CONFIG_DEFAULT_CALLSIGN),
 		       sizeof(AO_CONFIG_DEFAULT_CALLSIGN) - 1);
+		ao_config._legacy_radio_channel = 0;
 	}
 	minor = ao_config.minor;
 	if (minor != AO_CONFIG_MINOR) {
@@ -131,7 +132,7 @@ _ao_config_get(void)
 		if (minor < 9)
 			ao_xmemset(&ao_config.aes_key, '\0', AO_AES_LEN);
 		if (minor < 10)
-			ao_config.frequency = 434550;
+			ao_config.frequency = 434550 + ao_config._legacy_radio_channel * 100;
 		if (minor < 11)
 			ao_config.apogee_lockout = 0;
 #if AO_PYRO_NUM

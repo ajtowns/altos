@@ -239,8 +239,8 @@ real sample_to_fit_altitude(int sample) {
 	real i_v;
 
 	r_v = sample * l.m + l.b;
-	i_v = (round(alt_part[sub]) * (seg_len - off) + round(alt_part[sub+1]) * off) / seg_len;
-	return i_v;
+	i_v = (round(alt_part[sub]*10) * (seg_len - off) + round(alt_part[sub+1]*10) * off) / seg_len;
+	return i_v/10;
 }
 
 real max_error = 0;
@@ -279,11 +279,11 @@ printf ("/*max error %f at %7.3f kPa. Average error %f*/\n",
 
 printf ("#define NALT %d\n", dim(alt_part));
 printf ("#define ALT_SHIFT %d\n", pa_part_shift + pa_sample_shift);
-printf ("#ifndef SATURATE\n#define SATURATE(x) (x)\n#endif\n");
+printf ("#ifndef AO_ALT_VALUE\n#define AO_ALT_VALUE(x) (alt_t) (x)\n#endif\n");
 
 for (int part = 0; part < dim(alt_part); part++) {
 	real kPa = sample_to_Pa(part_to_sample(part)) / 1000;
-	printf ("SATURATE(%9d), /* %6.2f kPa error %6.2fm */\n",
-		round (alt_part[part]), kPa,
+	printf ("AO_ALT_VALUE(%10.1f), /* %6.2f kPa error %6.2fm */\n",
+		round (alt_part[part]*10) / 10, kPa,
 		alt_error[part]);
 }

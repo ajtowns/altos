@@ -145,6 +145,9 @@
 /* Self test gyro is approximately 50°/s */
 #define MPU6000_ST_GYRO(full_scale)	((int16_t) (((int32_t) 32767 * (int32_t) 50) / (full_scale)))
 
+#define MPU6000_GYRO_FULLSCALE	2000
+#define MPU6000_ACCEL_FULLSCALE	16
+
 struct ao_mpu6000_sample {
 	int16_t		accel_x;
 	int16_t		accel_y;

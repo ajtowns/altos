@@ -39,64 +39,13 @@
 #define CODE_TO_XDATA(a)	(a)
 #endif
 
-/* An AltOS task */
-struct ao_task {
-	__xdata void *wchan;		/* current wait channel (NULL if running) */
-	uint16_t alarm;			/* abort ao_sleep time */
-	ao_arch_task_members		/* any architecture-specific fields */
-	uint8_t task_id;		/* unique id */
-	__code char *name;		/* task name */
-	uint8_t	stack[AO_STACK_SIZE];	/* saved stack */
-};
+#ifndef HAS_TASK
+#define HAS_TASK	1
+#endif
 
-extern __xdata struct ao_task *__data ao_cur_task;
-
-#define AO_NUM_TASKS		16	/* maximum number of tasks */
-#define AO_NO_TASK		0	/* no task id */
-
-/*
- ao_task.c
- */
-
-/* Suspend the current task until wchan is awoken.
- * returns:
- *  0 on normal wake
- *  1 on alarm
- */
-uint8_t
-ao_sleep(__xdata void *wchan);
-
-/* Wake all tasks sleeping on wchan */
-void
-ao_wakeup(__xdata void *wchan);
-
-/* set an alarm to go off in 'delay' ticks */
-void
-ao_alarm(uint16_t delay);
-
-/* Clear any pending alarm */
-void
-ao_clear_alarm(void);
-
-/* Yield the processor to another task */
-void
-ao_yield(void) ao_arch_naked_declare;
-
-/* Add a task to the run queue */
-void
-ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *name) __reentrant;
-
-/* Terminate the current task */
-void
-ao_exit(void);
-
-/* Dump task info to console */
-void
-ao_task_info(void);
-
-/* Start the scheduler. This will not return */
-void
-ao_start_scheduler(void);
+#if HAS_TASK
+#include <ao_task.h>
+#endif
 
 /*
  * ao_panic.c
@@ -136,7 +85,9 @@ ao_panic(uint8_t reason);
 extern volatile __data AO_TICK_TYPE ao_tick_count;
 
 /* Our timer runs at 100Hz */
+#ifndef AO_HERTZ
 #define AO_HERTZ		100
+#endif
 #define AO_MS_TO_TICKS(ms)	((ms) / (1000 / AO_HERTZ))
 #define AO_SEC_TO_TICKS(s)	((s) * AO_HERTZ)
 
@@ -168,11 +119,13 @@ ao_clock_init(void);
  * ao_mutex.c
  */
 
+#ifndef ao_mutex_get
 void
 ao_mutex_get(__xdata uint8_t *ao_mutex) __reentrant;
 
 void
 ao_mutex_put(__xdata uint8_t *ao_mutex) __reentrant;
+#endif
 
 /*
  * ao_cmd.c
@@ -319,11 +272,13 @@ ao_temp_to_dC(int16_t temp) __reentrant;
  * Convert between pressure in Pa and altitude in meters
  */
 
-int32_t
+#include <ao_data.h>
+
+alt_t
 ao_pa_to_altitude(int32_t pa);
 
 int32_t
-ao_altitude_to_pa(int32_t alt);
+ao_altitude_to_pa(alt_t alt);
 
 #if HAS_DBG
 #include <ao_dbg.h>

@@ -314,7 +314,7 @@ public class AltosEepromDownload implements Runnable {
 		done = false;
 		start = true;
 
-		if (flights.config_data.serial == 0)
+		if (flights.config_data.serial < 0)
 			throw new IOException("no serial number found");
 
 		/* Reset per-capture variables */
