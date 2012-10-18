@@ -18,8 +18,6 @@
 #ifndef _AO_PINS_H_
 #define _AO_PINS_H_
 
-#define HAS_MS5611		1
-
 /* 8MHz High speed external crystal */
 #define AO_HSE			8000000
 
@@ -248,6 +246,7 @@ struct ao_adc {
  * Pressure sensor settings
  */
 #define HAS_MS5607		1
+#define HAS_MS5611		0
 #define AO_MS5607_PRIVATE_PINS	1
 #define AO_MS5607_CS_PORT	(&stm_gpioc)
 #define AO_MS5607_CS_PIN	4
