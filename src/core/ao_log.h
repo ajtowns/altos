@@ -197,15 +197,18 @@ struct ao_log_mega {
 	uint8_t			csum;			/* 1 */
 	uint16_t		tick;			/* 2 */
 	union {						/* 4 */
+		/* AO_LOG_FLIGHT */
 		struct {
 			uint16_t	flight;		/* 4 */
 			int16_t		ground_accel;	/* 6 */
 			uint32_t	ground_pres;	/* 8 */
 		} flight;				/* 12 */
+		/* AO_LOG_STATE */
 		struct {
 			uint16_t	state;
 			uint16_t	reason;
 		} state;
+		/* AO_LOG_SENSOR */
 		struct {
 			uint32_t	pres;		/* 4 */
 			uint32_t	temp;		/* 8 */
@@ -220,12 +223,14 @@ struct ao_log_mega {
 			int16_t		mag_z;		/* 28 */
 			int16_t		accel;		/* 30 */
 		} sensor;	/* 32 */
+		/* AO_LOG_TEMP_VOLT */
 		struct {
 			int16_t		v_batt;		/* 4 */
 			int16_t		v_pbatt;	/* 6 */
 			int16_t		n_sense;	/* 8 */
 			int16_t		sense[10];	/* 10 */
 		} volt;					/* 30 */
+		/* AO_LOG_GPS_TIME */
 		struct {
 			int32_t		latitude;	/* 4 */
 			int32_t		longitude;	/* 8 */
@@ -239,6 +244,7 @@ struct ao_log_mega {
 			uint8_t		day;		/* 20 */
 			uint8_t		pad;		/* 21 */
 		} gps;	/* 22 */
+		/* AO_LOG_GPS_SAT */
 		struct {
 			uint16_t	channels;	/* 4 */
 			struct {
