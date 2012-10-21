@@ -106,15 +106,6 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 			eeprom.sensor_tick = record.tick;
 			has_accel = true;
 			break;
-		case AltosLib.AO_LOG_PRESSURE:
-			state.pres = record.b;
-			state.flight_pres = state.pres;
-			if (eeprom.n_pad_samples == 0) {
-				eeprom.n_pad_samples++;
-				state.ground_pres = state.pres;
-			}
-			eeprom.seen |= seen_sensor;
-			break;
 		case AltosLib.AO_LOG_TEMP_VOLT:
 			state.v_batt = record.v_batt();
 			state.v_pyro = record.v_pbatt();
@@ -122,14 +113,6 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 				state.sense[i] = record.sense(i);
 			eeprom.seen |= seen_temp_volt;
 			break;
-//
-//		case AltosLib.AO_LOG_DEPLOY:
-//			state.drogue = record.a;
-//			state.main = record.b;
-//			eeprom.seen |= seen_deploy;
-//			has_ignite = true;
-//			break;
-
 		case AltosLib.AO_LOG_STATE:
 			state.state = record.state();
 			break;
