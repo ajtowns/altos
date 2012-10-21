@@ -111,7 +111,11 @@ public class AltosRecordMM extends AltosRecord {
 	}
 
 	public double accel_speed() {
-		return speed;
+		if (speed != MISSING)
+			return speed;
+		if (flight_vel == MISSING)
+			return MISSING;
+		return flight_vel / (accel_counts_per_mss() * 100.0);
 	}
 
 	public void copy (AltosRecordMM old) {
