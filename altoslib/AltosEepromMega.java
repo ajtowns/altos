@@ -24,7 +24,7 @@ public class AltosEepromMega {
 	public int	tick;
 	public boolean	valid;
 	public String	data;
-	public int	a, b;
+	public int	config_a, config_b;
 
 	public int	data8[];
 
@@ -74,6 +74,22 @@ public class AltosEepromMega {
 	public int nsense() { return data16(4); }
 	public int sense(int i) { return data16(6 + i * 2); }
 
+	/* AO_LOG_GPS_TIME elements */
+	public int latitude() { return data32(0); }
+	public int longitude() { return data32(4); }
+	public int altitude() { return data16(8); }
+	public int hour() { return data8(10); }
+	public int minute() { return data8(11); }
+	public int second() { return data8(12); }
+	public int flags() { return data8(13); }
+	public int year() { return data8(14); }
+	public int month() { return data8(15); }
+	public int day() { return data8(16); }
+	
+	/* AO_LOG_GPS_SAT elements */
+	public int nsat() { return data16(0); }
+	public int svid(int n) { return data8(2 + n * 2); }
+	public int c_n(int n) { return data8(2 + n * 2 + 1); }
 	public AltosEepromMega (AltosEepromChunk chunk, int start) throws ParseException {
 		cmd = chunk.data(start);
 
@@ -121,26 +137,26 @@ public class AltosEepromMega {
 					data = tokens[2];
 				} else if (tokens[0].equals("Main") && tokens[1].equals("deploy:")) {
 					cmd = AltosLib.AO_LOG_MAIN_DEPLOY;
-					a = Integer.parseInt(tokens[2]);
+					config_a = Integer.parseInt(tokens[2]);
 				} else if (tokens[0].equals("Apogee") && tokens[1].equals("delay:")) {
 					cmd = AltosLib.AO_LOG_APOGEE_DELAY;
-					a = Integer.parseInt(tokens[2]);
+					config_a = Integer.parseInt(tokens[2]);
 				} else if (tokens[0].equals("Radio") && tokens[1].equals("channel:")) {
 					cmd = AltosLib.AO_LOG_RADIO_CHANNEL;
-					a = Integer.parseInt(tokens[2]);
+					config_a = Integer.parseInt(tokens[2]);
 				} else if (tokens[0].equals("Callsign:")) {
 					cmd = AltosLib.AO_LOG_CALLSIGN;
 					data = tokens[1].replaceAll("\"","");
 				} else if (tokens[0].equals("Accel") && tokens[1].equals("cal")) {
 					cmd = AltosLib.AO_LOG_ACCEL_CAL;
-					a = Integer.parseInt(tokens[3]);
-					b = Integer.parseInt(tokens[5]);
+					config_a = Integer.parseInt(tokens[3]);
+					config_b = Integer.parseInt(tokens[5]);
 				} else if (tokens[0].equals("Radio") && tokens[1].equals("cal:")) {
 					cmd = AltosLib.AO_LOG_RADIO_CAL;
-					a = Integer.parseInt(tokens[2]);
+					config_a = Integer.parseInt(tokens[2]);
 				} else if (tokens[0].equals("Max") && tokens[1].equals("flight") && tokens[2].equals("log:")) {
 					cmd = AltosLib.AO_LOG_MAX_FLIGHT_LOG;
-					a = Integer.parseInt(tokens[3]);
+					config_a = Integer.parseInt(tokens[3]);
 				} else if (tokens[0].equals("manufacturer")) {
 					cmd = AltosLib.AO_LOG_MANUFACTURER;
 					data = tokens[1];
@@ -149,38 +165,38 @@ public class AltosEepromMega {
 					data = tokens[1];
 				} else if (tokens[0].equals("serial-number")) {
 					cmd = AltosLib.AO_LOG_SERIAL_NUMBER;
-					a = Integer.parseInt(tokens[1]);
+					config_a = Integer.parseInt(tokens[1]);
 				} else if (tokens[0].equals("log-format")) {
 					cmd = AltosLib.AO_LOG_LOG_FORMAT;
-					a = Integer.parseInt(tokens[1]);
+					config_a = Integer.parseInt(tokens[1]);
 				} else if (tokens[0].equals("software-version")) {
 					cmd = AltosLib.AO_LOG_SOFTWARE_VERSION;
 					data = tokens[1];
 				} else if (tokens[0].equals("ms5607")) {
 					if (tokens[1].equals("reserved:")) {
 						cmd = AltosLib.AO_LOG_BARO_RESERVED;
-						a = Integer.parseInt(tokens[2]);
+						config_a = Integer.parseInt(tokens[2]);
 					} else if (tokens[1].equals("sens:")) {
 						cmd = AltosLib.AO_LOG_BARO_SENS;
-						a = Integer.parseInt(tokens[2]);
+						config_a = Integer.parseInt(tokens[2]);
 					} else if (tokens[1].equals("off:")) {
 						cmd = AltosLib.AO_LOG_BARO_OFF;
-						a = Integer.parseInt(tokens[2]);
+						config_a = Integer.parseInt(tokens[2]);
 					} else if (tokens[1].equals("tcs:")) {
 						cmd = AltosLib.AO_LOG_BARO_TCS;
-						a = Integer.parseInt(tokens[2]);
+						config_a = Integer.parseInt(tokens[2]);
 					} else if (tokens[1].equals("tco:")) {
 						cmd = AltosLib.AO_LOG_BARO_TCO;
-						a = Integer.parseInt(tokens[2]);
+						config_a = Integer.parseInt(tokens[2]);
 					} else if (tokens[1].equals("tref:")) {
 						cmd = AltosLib.AO_LOG_BARO_TREF;
-						a = Integer.parseInt(tokens[2]);
+						config_a = Integer.parseInt(tokens[2]);
 					} else if (tokens[1].equals("tempsens:")) {
 						cmd = AltosLib.AO_LOG_BARO_TEMPSENS;
-						a = Integer.parseInt(tokens[2]);
+						config_a = Integer.parseInt(tokens[2]);
 					} else if (tokens[1].equals("crc:")) {
 						cmd = AltosLib.AO_LOG_BARO_CRC;
-						a = Integer.parseInt(tokens[2]);
+						config_a = Integer.parseInt(tokens[2]);
 					} else {
 						cmd = AltosLib.AO_LOG_INVALID;
 						data = line;

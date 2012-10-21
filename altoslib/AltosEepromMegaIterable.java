@@ -109,7 +109,7 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 		case AltosLib.AO_LOG_TEMP_VOLT:
 			state.v_batt = record.v_batt();
 			state.v_pyro = record.v_pbatt();
-			for (int i = 0; i < AltosRecordMM.num_sense; i++)
+			for (int i = 0; i < record.nsense(); i++)
 				state.sense[i] = record.sense(i);
 			eeprom.seen |= seen_temp_volt;
 			break;
@@ -118,51 +118,35 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 			break;
 		case AltosLib.AO_LOG_GPS_TIME:
 			eeprom.gps_tick = state.tick;
-			AltosGPS old = state.gps;
 			state.gps = new AltosGPS();
 
-			/* GPS date doesn't get repeated through the file */
-			if (old != null) {
-				state.gps.year = old.year;
-				state.gps.month = old.month;
-				state.gps.day = old.day;
-			}
-			state.gps.hour = (record.a & 0xff);
-			state.gps.minute = (record.a >> 8);
-			state.gps.second = (record.b & 0xff);
+			state.gps.lat = record.latitude() / 1e7;
+			state.gps.lon = record.longitude() / 1e7;
+			state.gps.alt = record.altitude();
+			state.gps.year = record.year() + 2000;
+			state.gps.month = record.month();
+			state.gps.day = record.day();
 
-			int flags = (record.b >> 8);
+			state.gps.hour = record.hour();
+			state.gps.minute = record.minute();
+			state.gps.second = record.second();
+
+			int flags = record.flags();
 			state.gps.connected = (flags & AltosLib.AO_GPS_RUNNING) != 0;
 			state.gps.locked = (flags & AltosLib.AO_GPS_VALID) != 0;
 			state.gps.nsat = (flags & AltosLib.AO_GPS_NUM_SAT_MASK) >>
 				AltosLib.AO_GPS_NUM_SAT_SHIFT;
 			state.new_gps = true;
 			has_gps = true;
-			break;
-		case AltosLib.AO_LOG_GPS_LAT:
-			int lat32 = record.a | (record.b << 16);
-			state.gps.lat = (double) lat32 / 1e7;
-			break;
-		case AltosLib.AO_LOG_GPS_LON:
-			int lon32 = record.a | (record.b << 16);
-			state.gps.lon = (double) lon32 / 1e7;
-			break;
-		case AltosLib.AO_LOG_GPS_ALT:
-			state.gps.alt = record.a;
+			eeprom.seen |= seen_gps_time | seen_gps_lat | seen_gps_lon;
 			break;
 		case AltosLib.AO_LOG_GPS_SAT:
 			if (state.tick == eeprom.gps_tick) {
-				int svid = record.a;
-				int c_n0 = record.b >> 8;
-				state.gps.add_sat(svid, c_n0);
+				int nsat = record.nsat();
+				for (int i = 0; i < nsat; i++)
+					state.gps.add_sat(record.svid(i), record.c_n(i));
 			}
 			break;
-		case AltosLib.AO_LOG_GPS_DATE:
-			state.gps.year = (record.a & 0xff) + 2000;
-			state.gps.month = record.a >> 8;
-			state.gps.day = record.b & 0xff;
-			break;
-
 		case AltosLib.AO_LOG_CONFIG_VERSION:
 			break;
 		case AltosLib.AO_LOG_MAIN_DEPLOY:
@@ -175,8 +159,8 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 			state.callsign = record.data;
 			break;
 		case AltosLib.AO_LOG_ACCEL_CAL:
-			state.accel_plus_g = record.a;
-			state.accel_minus_g = record.b;
+			state.accel_plus_g = record.config_a;
+			state.accel_minus_g = record.config_b;
 			break;
 		case AltosLib.AO_LOG_RADIO_CAL:
 			break;
@@ -185,33 +169,33 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 		case AltosLib.AO_LOG_PRODUCT:
 			break;
 		case AltosLib.AO_LOG_SERIAL_NUMBER:
-			state.serial = record.a;
+			state.serial = record.config_a;
 			break;
 		case AltosLib.AO_LOG_SOFTWARE_VERSION:
 			break;
 		case AltosLib.AO_LOG_BARO_RESERVED:
-			baro.reserved = record.a;
+			baro.reserved = record.config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_SENS:
-			baro.sens =record.a;
+			baro.sens =record.config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_OFF:
-			baro.off =record.a;
+			baro.off =record.config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_TCS:
-			baro.tcs =record.a;
+			baro.tcs =record.config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_TCO:
-			baro.tco =record.a;
+			baro.tco =record.config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_TREF:
-			baro.tref =record.a;
+			baro.tref =record.config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_TEMPSENS:
-			baro.tempsens =record.a;
+			baro.tempsens =record.config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_CRC:
-			baro.crc =record.a;
+			baro.crc =record.config_a;
 			break;
 		}
 		state.seen |= eeprom.seen;
@@ -270,25 +254,25 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 				out.printf("# Config version: %s\n", record.data);
 				break;
 			case AltosLib.AO_LOG_MAIN_DEPLOY:
-				out.printf("# Main deploy: %s\n", record.a);
+				out.printf("# Main deploy: %s\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_APOGEE_DELAY:
-				out.printf("# Apogee delay: %s\n", record.a);
+				out.printf("# Apogee delay: %s\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_RADIO_CHANNEL:
-				out.printf("# Radio channel: %s\n", record.a);
+				out.printf("# Radio channel: %s\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_CALLSIGN:
 				out.printf("# Callsign: %s\n", record.data);
 				break;
 			case AltosLib.AO_LOG_ACCEL_CAL:
-				out.printf ("# Accel cal: %d %d\n", record.a, record.b);
+				out.printf ("# Accel cal: %d %d\n", record.config_a, record.config_b);
 				break;
 			case AltosLib.AO_LOG_RADIO_CAL:
-				out.printf ("# Radio cal: %d\n", record.a);
+				out.printf ("# Radio cal: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_MAX_FLIGHT_LOG:
-				out.printf ("# Max flight log: %d\n", record.a);
+				out.printf ("# Max flight log: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_MANUFACTURER:
 				out.printf ("# Manufacturer: %s\n", record.data);
@@ -297,34 +281,34 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 				out.printf ("# Product: %s\n", record.data);
 				break;
 			case AltosLib.AO_LOG_SERIAL_NUMBER:
-				out.printf ("# Serial number: %d\n", record.a);
+				out.printf ("# Serial number: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_SOFTWARE_VERSION:
 				out.printf ("# Software version: %s\n", record.data);
 				break;
 			case AltosLib.AO_LOG_BARO_RESERVED:
-				out.printf ("# Baro reserved: %d\n", record.a);
+				out.printf ("# Baro reserved: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_BARO_SENS:
-				out.printf ("# Baro sens: %d\n", record.a);
+				out.printf ("# Baro sens: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_BARO_OFF:
-				out.printf ("# Baro off: %d\n", record.a);
+				out.printf ("# Baro off: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_BARO_TCS:
-				out.printf ("# Baro tcs: %d\n", record.a);
+				out.printf ("# Baro tcs: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_BARO_TCO:
-				out.printf ("# Baro tco: %d\n", record.a);
+				out.printf ("# Baro tco: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_BARO_TREF:
-				out.printf ("# Baro tref: %d\n", record.a);
+				out.printf ("# Baro tref: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_BARO_TEMPSENS:
-				out.printf ("# Baro tempsens: %d\n", record.a);
+				out.printf ("# Baro tempsens: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_BARO_CRC:
-				out.printf ("# Baro crc: %d\n", record.a);
+				out.printf ("# Baro crc: %d\n", record.config_a);
 				break;
 			}
 		}
@@ -369,7 +353,7 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 
 				/* Bail after reading the 'landed' record; we're all done */
 				if (record.cmd == AltosLib.AO_LOG_STATE &&
-				    record.a == AltosLib.ao_flight_landed)
+				    record.state() == AltosLib.ao_flight_landed)
 					break;
 			}
 		} catch (IOException io) {
