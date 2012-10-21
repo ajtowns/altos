@@ -109,7 +109,7 @@ public class AltosKML implements AltosWriter {
 		AltosGPS	gps = record.gps;
 		out.printf(kml_coord_fmt,
 			   gps.lon, gps.lat,
-			   record.filtered_altitude(), (double) gps.alt,
+			   record.altitude(), (double) gps.alt,
 			   record.time, gps.nsat);
 	}
 

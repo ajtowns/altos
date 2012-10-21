@@ -86,9 +86,9 @@ public class AltosTelemetryRecordSensor extends AltosTelemetryRecordRaw {
 			next.main = AltosRecord.MISSING;
 		}
 
-		next.acceleration = acceleration / 16.0;
-		next.speed = speed / 16.0;
-		next.height = height;
+		next.kalman_acceleration = acceleration / 16.0;
+		next.kalman_speed = speed / 16.0;
+		next.kalman_height = height;
 
 		next.ground_pres = ground_pres;
 		if (type == packet_type_TM_sensor) {

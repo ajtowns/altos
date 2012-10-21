@@ -17,7 +17,7 @@
 
 package org.altusmetrum.AltosLib;
 
-public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
+public abstract class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 
 	public static final int	seen_flight = 1;
 	public static final int	seen_sensor = 2;
@@ -43,11 +43,6 @@ public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 	public int	state;
 	public int	tick;
 
-	/* Current flight dynamic state */
-	public double	acceleration;	/* m/s² */
-	public double	speed;		/* m/s */
-	public double	height;		/* m */
-
 	public AltosGPS	gps;
 	public boolean	new_gps;
 
@@ -63,6 +58,11 @@ public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 
 	public AltosRecordCompanion companion;
 
+	/* Telemetry sources have these values recorded from the flight computer */
+	public double	kalman_height;
+	public double	kalman_speed;
+	public double	kalman_acceleration;
+
 	/*
 	 * Abstract methods that convert record data
 	 * to standard units:
@@ -75,11 +75,36 @@ public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 	 *	temperature:	°C
 	 */
 
-	public double raw_pressure() { return MISSING; }
+	abstract public double pressure();
+	abstract public double ground_pressure();
+	abstract public double acceleration();
 
-	public double filtered_pressure() { return MISSING; }
+	public double altitude() {
+		double	p = pressure();
 
-	public double ground_pressure() { return MISSING; }
+		if (p == MISSING)
+			return MISSING;
+		return AltosConvert.pressure_to_altitude(p);
+	}
+
+	public double ground_altitude() {
+		double	p = ground_pressure();
+
+		if (p == MISSING)
+			return MISSING;
+		return AltosConvert.pressure_to_altitude(p);
+	}
+
+	public double height() {
+		double	g = ground_altitude();
+		double	a = altitude();
+
+		if (g == MISSING)
+			return MISSING;
+		if (a == MISSING)
+			return MISSING;
+		return a - g;
+	}
 
 	public double battery_voltage() { return MISSING; }
 
@@ -89,62 +114,9 @@ public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 
 	public double temperature() { return MISSING; }
 	
-	public double acceleration() { return MISSING; }
-
-	public double accel_speed() { return MISSING; }
-
 	public AltosIMU imu() { return null; }
 
 	public AltosMag mag() { return null; }
-
-	/*
-	 * Convert various pressure values to altitude
-	 */
-
-	public double raw_altitude() {
-		double p = raw_pressure();
-		if (p == MISSING)
-			return MISSING;
-		return AltosConvert.pressure_to_altitude(p);
-	}
-
-	public double ground_altitude() {
-		double p = ground_pressure();
-		if (p == MISSING)
-			return MISSING;
-		return AltosConvert.pressure_to_altitude(p);
-	}
-
-	public double filtered_altitude() {
-		double	ga = ground_altitude();
-		if (height != MISSING && ga != MISSING)
-			return height + ga;
-
-		double	p = filtered_pressure();
-		if (p == MISSING)
-			return raw_altitude();
-		return AltosConvert.pressure_to_altitude(p);
-	}
-
-	public double filtered_height() {
-		if (height != MISSING)
-			return height;
-
-		double f = filtered_altitude();
-		double g = ground_altitude();
-		if (f == MISSING || g == MISSING)
-			return MISSING;
-		return f - g;
-	}
-
-	public double raw_height() {
-		double r = raw_altitude();
-		double g = ground_altitude();
-
-		if (r == MISSING || g == MISSING)
-			return height;
-		return r - g;
-	}
 
 	public String state() {
 		return AltosLib.state_name(state);
@@ -164,12 +136,12 @@ public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 		status = old.status;
 		state = old.state;
 		tick = old.tick;
-		acceleration = old.acceleration;
-		speed = old.speed;
-		height = old.height;
 		gps = new AltosGPS(old.gps);
 		new_gps = old.new_gps;
 		companion = old.companion;
+		kalman_acceleration = old.kalman_acceleration;
+		kalman_speed = old.kalman_speed;
+		kalman_height = old.kalman_height;
 	}
 
 	public AltosRecord clone() {
@@ -192,11 +164,12 @@ public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 		status = 0;
 		state = AltosLib.ao_flight_startup;
 		tick = 0;
-		acceleration = MISSING;
-		speed = MISSING;
-		height = MISSING;
 		gps = new AltosGPS();
 		new_gps = false;
 		companion = null;
+
+		kalman_acceleration = MISSING;
+		kalman_speed = MISSING;
+		kalman_height = MISSING;
 	}
 }

@@ -40,17 +40,17 @@ public class AltosState {
 	public double	ground_altitude;
 	public double	altitude;
 	public double	height;
-	public double	speed;
 	public double	acceleration;
 	public double	battery;
 	public double	temperature;
 	public double	main_sense;
 	public double	drogue_sense;
+	public double	accel_speed;
 	public double	baro_speed;
 
 	public double	max_height;
 	public double	max_acceleration;
-	public double	max_speed;
+	public double	max_accel_speed;
 	public double	max_baro_speed;
 
 	public AltosGPS	gps;
@@ -76,20 +76,39 @@ public class AltosState {
 	public int	speak_tick;
 	public double	speak_altitude;
 
-	public void init (AltosRecord cur, AltosState prev_state) {
-		//int		i;
-		//AltosRecord prev;
+	public double speed() {
+		if (ascent)
+			return accel_speed;
+		else
+			return baro_speed;
+	}
 
+	public double max_speed() {
+		if (max_accel_speed != 0)
+			return max_accel_speed;
+		return max_baro_speed;
+	}
+
+	public void init (AltosRecord cur, AltosState prev_state) {
 		data = cur;
 
 		ground_altitude = data.ground_altitude();
-		altitude = data.raw_altitude();
-		height = data.filtered_height();
+
+		altitude = data.altitude();
+
+		if (data.kalman_height != AltosRecord.MISSING)
+			height = data.kalman_height;
+		else {
+			if (prev_state != null)
+				height = (prev_state.height * 15 + altitude - ground_altitude) / 16.0;
+		}
 
 		report_time = System.currentTimeMillis();
 
-		acceleration = data.acceleration();
-		speed = data.accel_speed();
+		if (data.kalman_acceleration != AltosRecord.MISSING)
+			acceleration = data.kalman_acceleration;
+		else
+			acceleration = data.acceleration();
 		temperature = data.temperature();
 		drogue_sense = data.drogue_voltage();
 		main_sense = data.main_voltage();
@@ -108,7 +127,7 @@ public class AltosState {
 			pad_alt = prev_state.pad_alt;
 			max_height = prev_state.max_height;
 			max_acceleration = prev_state.max_acceleration;
-			max_speed = prev_state.max_speed;
+			max_accel_speed = prev_state.max_accel_speed;
 			max_baro_speed = prev_state.max_baro_speed;
 			imu = prev_state.imu;
 			mag = prev_state.mag;
@@ -119,23 +138,39 @@ public class AltosState {
 
 			time_change = (tick - prev_state.tick) / 100.0;
 
-			/* compute barometric speed */
+			if (data.kalman_speed != AltosRecord.MISSING) {
+				baro_speed = accel_speed = data.kalman_speed;
+			} else {
+				/* compute barometric speed */
 
-			double height_change = height - prev_state.height;
-			if (data.speed != AltosRecord.MISSING)
-				baro_speed = data.speed;
-			else {
+				double height_change = height - prev_state.height;
 				if (time_change > 0)
 					baro_speed = (prev_state.baro_speed * 3 + (height_change / time_change)) / 4.0;
 				else
 					baro_speed = prev_state.baro_speed;
+
+				if (acceleration == AltosRecord.MISSING) {
+					/* Fill in mising acceleration value */
+					accel_speed = baro_speed;
+					if (time_change > 0)
+						acceleration = (accel_speed - prev_state.accel_speed) / time_change;
+					else
+						acceleration = prev_state.acceleration;
+				} else {
+					/* compute accelerometer speed */
+					accel_speed = prev_state.accel_speed + acceleration * time_change;
+				}
 			}
+
 		} else {
 			npad = 0;
 			ngps = 0;
 			gps = null;
 			baro_speed = 0;
+			accel_speed = 0;
 			time_change = 0;
+			if (acceleration == AltosRecord.MISSING)
+				acceleration = 0;
 		}
 
 		time = tick / 100.0;
@@ -180,8 +215,8 @@ public class AltosState {
 		/* Only look at accelerometer data under boost */
 		if (boost && acceleration > max_acceleration && acceleration != AltosRecord.MISSING)
 			max_acceleration = acceleration;
-		if (boost && speed > max_speed && speed != AltosRecord.MISSING)
-			max_speed = speed;
+		if (boost && accel_speed > max_accel_speed && accel_speed != AltosRecord.MISSING)
+			max_accel_speed = accel_speed;
 		if (boost && baro_speed > max_baro_speed && baro_speed != AltosRecord.MISSING)
 			max_baro_speed = baro_speed;
 

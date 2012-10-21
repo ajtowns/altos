@@ -46,6 +46,7 @@ AltosLib_JAVA = \
 	$(SRC)/AltosRecordCompanion.java \
 	$(SRC)/AltosRecordIterable.java \
 	$(SRC)/AltosRecord.java \
+	$(SRC)/AltosRecordNone.java \
 	$(SRC)/AltosRecordTM.java \
 	$(SRC)/AltosRecordMM.java \
 	$(SRC)/AltosReplayReader.java \

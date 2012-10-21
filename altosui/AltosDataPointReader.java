@@ -12,7 +12,6 @@ import org.altusmetrum.AltosLib.*;
 class AltosDataPointReader implements Iterable<AltosDataPoint> {
     Iterator<AltosRecord> iter;
     AltosState state;
-    AltosRecord record;
     boolean has_gps;
     boolean has_accel;
     boolean has_ignite;
@@ -22,7 +21,7 @@ class AltosDataPointReader implements Iterable<AltosDataPoint> {
     public AltosDataPointReader(AltosRecordIterable reader) {
         this.iter = reader.iterator();
         this.state = null;
-	has_accel = reader.has_accel();
+	has_accel = true;
 	has_gps = reader.has_gps();
 	has_ignite = reader.has_ignite();
     }
@@ -30,35 +29,31 @@ class AltosDataPointReader implements Iterable<AltosDataPoint> {
     private void read_next_record() 
         throws NoSuchElementException
     {
-        record = iter.next();
-        state = new AltosState(record, state);
+        state = new AltosState(iter.next(), state);
     }
 
     private AltosDataPoint current_dp() {
-        assert this.record != null;
+        assert this.state != null;
         
         return new AltosDataPoint() {
-            public int version() { return record.version; }
-            public int serial() { return record.serial; }
-            public int flight() { return record.flight; }
-            public String callsign() { return record.callsign; }
-            public double time() { return record.time; }
-            public double rssi() { return record.rssi; }
+            public int version() { return state.data.version; }
+            public int serial() { return state.data.serial; }
+            public int flight() { return state.data.flight; }
+            public String callsign() { return state.data.callsign; }
+            public double time() { return state.data.time; }
+            public double rssi() { return state.data.rssi; }
 
-            public int state() { return record.state; }
-            public String state_name() { return record.state(); }
+            public int state() { return state.state; }
+            public String state_name() { return state.data.state(); }
 
-            public double acceleration() { return record.acceleration(); }
-            public double pressure() { return record.raw_pressure(); }
-            public double altitude() { return record.raw_altitude(); }
-	    public double height() { return record.raw_height(); }
-            public double accel_speed() { return record.accel_speed(); }
-            public double baro_speed() { return state.baro_speed; }
-            public double temperature() { return record.temperature(); }
-            public double battery_voltage() { return record.battery_voltage(); }
-            public double drogue_voltage() { return record.drogue_voltage(); }
-            public double main_voltage() { return record.main_voltage(); }
-	    public boolean has_accel() { return has_accel; }
+            public double acceleration() { return state.acceleration; }
+	    public double height() { return state.height; }
+	    public double speed() { return state.speed(); }
+            public double temperature() { return state.temperature; }
+            public double battery_voltage() { return state.battery; }
+            public double drogue_voltage() { return state.drogue_sense; }
+            public double main_voltage() { return state.main_sense; }
+	    public boolean has_accel() { return true; } // return state.acceleration != AltosRecord.MISSING; }
         };
     }
 
@@ -68,14 +63,14 @@ class AltosDataPointReader implements Iterable<AltosDataPoint> {
                 throw new UnsupportedOperationException(); 
             }
             public boolean hasNext() {
-		if (record != null && record.state == Altos.ao_flight_landed)
+		if (state != null && state.state == Altos.ao_flight_landed)
 		    return false;
                 return iter.hasNext();
             }
             public AltosDataPoint next() {
 		do {
 		    read_next_record();
-		} while (record.time < -1.0 && hasNext());
+		} while (state.data.time < -1.0 && hasNext());
                 return current_dp();
             }
         };

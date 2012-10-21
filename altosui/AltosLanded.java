@@ -173,7 +173,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 
 	class Speed extends LandedValue {
 		void show (AltosState state, int crc_errors) {
-			show(AltosConvert.speed, state.max_speed);
+			show(AltosConvert.speed, state.max_speed());
 		}
 		public Speed (GridBagLayout layout, int y) {
 			super (layout, y, "Maximum Speed");

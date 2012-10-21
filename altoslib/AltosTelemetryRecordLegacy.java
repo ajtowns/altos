@@ -257,9 +257,9 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 		record.accel_minus_g = map.get_int(AO_TELEM_CAL_ACCEL_MINUS, AltosRecord.MISSING);
 
 		/* flight computer values */
-		record.acceleration = map.get_double(AO_TELEM_KALMAN_ACCEL, AltosRecord.MISSING, 1/16.0);
-		record.speed = map.get_double(AO_TELEM_KALMAN_SPEED, AltosRecord.MISSING, 1/16.0);
-		record.height = map.get_int(AO_TELEM_KALMAN_HEIGHT, AltosRecord.MISSING);
+		record.kalman_acceleration = map.get_double(AO_TELEM_KALMAN_ACCEL, AltosRecord.MISSING, 1/16.0);
+		record.kalman_speed = map.get_double(AO_TELEM_KALMAN_SPEED, AltosRecord.MISSING, 1/16.0);
+		record.kalman_height = map.get_int(AO_TELEM_KALMAN_HEIGHT, AltosRecord.MISSING);
 
 		record.flight_accel = map.get_int(AO_TELEM_ADHOC_ACCEL, AltosRecord.MISSING);
 		record.flight_vel = map.get_int(AO_TELEM_ADHOC_SPEED, AltosRecord.MISSING);
@@ -334,9 +334,9 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 
 		/* Old TeleDongle code with kalman-reporting TeleMetrum code */
 		if ((record.flight_vel & 0xffff0000) == 0x80000000) {
-			record.speed = ((short) record.flight_vel) / 16.0;
-			record.acceleration = record.flight_accel / 16.0;
-			record.height = record.flight_pres;
+			record.kalman_speed = ((short) record.flight_vel) / 16.0;
+			record.kalman_acceleration = record.flight_accel / 16.0;
+			record.kalman_height = record.flight_pres;
 			record.flight_vel = AltosRecord.MISSING;
 			record.flight_pres = AltosRecord.MISSING;
 			record.flight_accel = AltosRecord.MISSING;
@@ -455,9 +455,9 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 		record.accel_minus_g = int16(19);
 
 		if (uint16(11) == 0x8000) {
-			record.acceleration = int16(5);
-			record.speed = int16(9);
-			record.height = int16(13);
+			record.kalman_acceleration = int16(5);
+			record.kalman_speed = int16(9);
+			record.kalman_height = int16(13);
 			record.flight_accel = AltosRecord.MISSING;
 			record.flight_vel = AltosRecord.MISSING;
 			record.flight_pres = AltosRecord.MISSING;
@@ -465,9 +465,9 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 			record.flight_accel = int16(5);
 			record.flight_vel = uint32(9);
 			record.flight_pres = int16(13);
-			record.acceleration = AltosRecord.MISSING;
-			record.speed = AltosRecord.MISSING;
-			record.height = AltosRecord.MISSING;
+			record.kalman_acceleration = AltosRecord.MISSING;
+			record.kalman_speed = AltosRecord.MISSING;
+			record.kalman_height = AltosRecord.MISSING;
 		}
 
 		record.gps = null;
