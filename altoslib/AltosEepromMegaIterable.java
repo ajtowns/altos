@@ -348,40 +348,6 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 	}
 
 	/*
-	 * Given an AO_LOG_GPS_TIME record with correct time, and one
-	 * missing time, rewrite the missing time values with the good
-	 * ones, assuming that the difference between them is 'diff' seconds
-	 */
-	void update_time(AltosOrderedMegaRecord good, AltosOrderedMegaRecord bad) {
-
-		int diff = (bad.tick - good.tick + 50) / 100;
-
-		int hour = (good.a & 0xff);
-		int minute = (good.a >> 8);
-		int second = (good.b & 0xff);
-		int flags = (good.b >> 8);
-		int seconds = hour * 3600 + minute * 60 + second;
-
-		/* Make sure this looks like a good GPS value */
-		if ((flags & AltosLib.AO_GPS_NUM_SAT_MASK) >> AltosLib.AO_GPS_NUM_SAT_SHIFT < 4)
-			flags = (flags & ~AltosLib.AO_GPS_NUM_SAT_MASK) | (4 << AltosLib.AO_GPS_NUM_SAT_SHIFT);
-		flags |= AltosLib.AO_GPS_RUNNING;
-		flags |= AltosLib.AO_GPS_VALID;
-
-		int new_seconds = seconds + diff;
-		if (new_seconds < 0)
-			new_seconds += 24 * 3600;
-		int new_second = (new_seconds % 60);
-		int new_minutes = (new_seconds / 60);
-		int new_minute = (new_minutes % 60);
-		int new_hours = (new_minutes / 60);
-		int new_hour = (new_hours % 24);
-
-		bad.a = new_hour + (new_minute << 8);
-		bad.b = new_second + (flags << 8);
-	}
-
-	/*
 	 * Read the whole file, dumping records into a RB tree so
 	 * we can enumerate them in time order -- the eeprom data
 	 * are sometimes out of order with GPS data getting timestamps
@@ -416,48 +382,6 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 					continue;
 				}
 
-				/* Two firmware bugs caused the loss of some GPS data.
-				 * The flight date would never be recorded, and often
-				 * the flight time would get overwritten by another
-				 * record. Detect the loss of the GPS date and fix up the
-				 * missing time records
-				 */
-				if (record.cmd == AltosLib.AO_LOG_GPS_DATE) {
-					gps_date_record = record;
-					continue;
-				}
-
-				/* go back and fix up any missing time values */
-				if (record.cmd == AltosLib.AO_LOG_GPS_TIME) {
-					last_gps_time = record;
-					if (missing_time) {
-						Iterator<AltosOrderedMegaRecord> iterator = records.iterator();
-						while (iterator.hasNext()) {
-							AltosOrderedMegaRecord old = iterator.next();
-							if (old.cmd == AltosLib.AO_LOG_GPS_TIME &&
-							    old.a == -1 && old.b == -1)
-							{
-								update_time(record, old);
-							}
-						}
-						missing_time = false;
-					}
-				}
-
-				if (record.cmd == AltosLib.AO_LOG_GPS_LAT) {
-					if (last_gps_time == null || last_gps_time.tick != record.tick) {
-						AltosOrderedMegaRecord add_gps_time = new AltosOrderedMegaRecord(AltosLib.AO_LOG_GPS_TIME,
-													 record.tick,
-													 -1, -1, index-1);
-						if (last_gps_time != null)
-							update_time(last_gps_time, add_gps_time);
-						else
-							missing_time = true;
-
-						records.add(add_gps_time);
-						record.index = index++;
-					}
-				}
 				records.add(record);
 
 				/* Bail after reading the 'landed' record; we're all done */

@@ -66,12 +66,7 @@ public class AltosEepromMega {
 	public int mag_x() { return data16(20); }
 	public int mag_y() { return data16(22); }
 	public int mag_z() { return data16(24); }
-	public int accel() {
-		int a = data16(26);
-		if (a != 0xffff)
-			return a;
-		return accel_y();
-	}
+	public int accel() { return data16(26); }
 
 	/* AO_LOG_VOLT elements */
 	public int v_batt() { return data16(0); }
