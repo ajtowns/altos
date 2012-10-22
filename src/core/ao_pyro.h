@@ -42,6 +42,9 @@ enum ao_pyro_flag {
 	ao_pyro_after_motor		= 0x00001000,
 
 	ao_pyro_delay			= 0x00002000,
+
+	ao_pyro_state_less		= 0x00004000,
+	ao_pyro_state_greater_or_equal  = 0x00008000,
 };
 
 struct ao_pyro {
@@ -52,6 +55,7 @@ struct ao_pyro {
 	int16_t			orient_less, orient_greater;
 	int16_t			time_less, time_greater;
 	int16_t			delay;
+	uint8_t			state_less, state_greater_or_equal;
 	int16_t			motor;
 	uint16_t		delay_done;
 	uint8_t			fired;
