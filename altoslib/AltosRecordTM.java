@@ -18,6 +18,8 @@
 package org.altusmetrum.AltosLib;
 
 public class AltosRecordTM extends AltosRecord {
+
+	/* Sensor values */
 	public int	accel;
 	public int	pres;
 	public int	temp;
@@ -57,16 +59,10 @@ public class AltosRecordTM extends AltosRecord {
 		return ((count / 16.0) / 2047.0 + 0.095) / 0.009 * 1000.0;
 	}
 
-	public double raw_pressure() {
+	public double pressure() {
 		if (pres == MISSING)
 			return MISSING;
 		return barometer_to_pressure(pres);
-	}
-
-	public double filtered_pressure() {
-		if (flight_pres == MISSING)
-			return MISSING;
-		return barometer_to_pressure(flight_pres);
 	}
 
 	public double ground_pressure() {
@@ -121,20 +117,9 @@ public class AltosRecordTM extends AltosRecord {
 	}
 
 	public double acceleration() {
-		if (acceleration != MISSING)
-			return acceleration;
-
 		if (ground_accel == MISSING || accel == MISSING)
 			return MISSING;
 		return (ground_accel - accel) / accel_counts_per_mss();
-	}
-
-	public double accel_speed() {
-		if (speed != MISSING)
-			return speed;
-		if (flight_vel == MISSING)
-			return MISSING;
-		return flight_vel / (accel_counts_per_mss() * 100.0);
 	}
 
 	public void copy(AltosRecordTM old) {

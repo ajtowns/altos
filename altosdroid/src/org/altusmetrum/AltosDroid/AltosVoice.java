@@ -67,7 +67,7 @@ public class AltosVoice {
 			speak(state.data.state());
 			if ((old_state == null || old_state.state <= AltosLib.ao_flight_boost) &&
 			    state.state > AltosLib.ao_flight_boost) {
-				speak(String.format("max speed: %d meters per second.", (int) (state.max_speed + 0.5)));
+				speak(String.format("max speed: %d meters per second.", (int) (state.max_speed() + 0.5)));
 				spoke = true;
 			} else if ((old_state == null || old_state.state < AltosLib.ao_flight_drogue) &&
 			           state.state >= AltosLib.ao_flight_drogue) {

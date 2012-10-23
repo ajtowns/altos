@@ -24,6 +24,7 @@ altosui_JAVA = \
 	AltosConfig.java \
 	AltosConfigFreqUI.java \
 	AltosConfigUI.java \
+	AltosConfigPyroUI.java \
 	AltosConfigureUI.java \
 	AltosConfigTD.java \
 	AltosConfigTDUI.java \

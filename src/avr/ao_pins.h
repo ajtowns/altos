@@ -32,7 +32,7 @@
 	#define HAS_BEEP		0
 #endif
 
-#ifdef TELESCIENCE
+#if defined(TELESCIENCE) || defined(TELESCIENCE_PWM)
 	#define LEDS_AVAILABLE		0
 	#define HAS_USB			1
 	#define HAS_LOG			1
@@ -47,6 +47,11 @@
 	#define AVR_VCC_5V	       	0
 	#define AVR_VCC_3V3		1
 	#define AVR_CLOCK		8000000UL
+#ifdef TELESCIENCE_PWM
+	#define HAS_ICP3_COUNT		1
+#else
+	#define HAS_ICP3_COUNT		0
+#endif
 
 	#define SPI_CS_PORT		PORTE
 	#define SPI_CS_DIR		DDRE
@@ -64,6 +69,7 @@
 #endif
 
 #ifdef TELEPYRO
+	#define AO_STACK_SIZE		104
 	#define LEDS_AVAILABLE		0
 	#define HAS_USB			1
 	#define HAS_LOG			0
@@ -81,6 +87,7 @@
 	#define IS_COMPANION		1
 	#define HAS_ORIENT		0
 	#define ao_storage_pos_t	uint16_t
+	#define HAS_ICP3_COUNT		0
 
 	#define AVR_VCC_5V	       	0
 	#define AVR_VCC_3V3		1

@@ -39,7 +39,7 @@
 #define AO_ADC_NUM_SENSE	6
 #define HAS_MS5607		1
 #define HAS_MPU6000		1
-#define HAS_MMA655X		0
+#define HAS_MMA655X		1
 
 struct ao_adc {
 	int16_t			sense[AO_ADC_NUM_SENSE];
@@ -622,6 +622,9 @@ ao_sleep(void *wchan)
 					ao_data_static.mpu6000.gyro_x = int16(bytes, 14);
 					ao_data_static.mpu6000.gyro_y = -int16(bytes, 16);
 					ao_data_static.mpu6000.gyro_z = int16(bytes, 18);
+#if HAS_MMA655X
+					ao_data_static.mma655x = int16(bytes, 26);
+#endif
 					if (ao_records_read == 0)
 						ao_ground_mpu6000 = ao_data_static.mpu6000;
 					else if (ao_records_read < 10) {

@@ -30,6 +30,7 @@ SRC=\
 	$(SRC_DIR)/TelemetryLogger.java \
 	$(SRC_DIR)/AltosBluetooth.java \
 	$(SRC_DIR)/DeviceListActivity.java \
+	$(SRC_DIR)/BuildInfo.java \
 	$(SRC_DIR)/Dumper.java
 
 all: $(all_target)
@@ -37,6 +38,9 @@ all: $(all_target)
 $(ALTOSLIB): $(ALTOSLIB_SRCDIR)/$(ALTOSLIB_JAR)
 	mkdir -p $(EXT_LIBDIR)
 	cd $(EXT_LIBDIR) && ln -s $(shell echo $(EXT_LIBDIR) | sed 's|[^/]\+|..|g')/$(ALTOSLIB_SRCDIR)/$(ALTOSLIB_JAR) .
+
+$(SRC_DIR)/BuildInfo.java:
+	./buildinfo.sh
 
 if ANDROID
 install-release: bin/AltosDroid-release.apk
@@ -55,3 +59,4 @@ endif
 clean:
 	$(clean_command)
 
+.PHONY: $(SRC_DIR)/BuildInfo.java

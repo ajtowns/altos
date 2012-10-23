@@ -106,80 +106,47 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 			eeprom.sensor_tick = record.tick;
 			has_accel = true;
 			break;
-		case AltosLib.AO_LOG_PRESSURE:
-			state.pres = record.b;
-			state.flight_pres = state.pres;
-			if (eeprom.n_pad_samples == 0) {
-				eeprom.n_pad_samples++;
-				state.ground_pres = state.pres;
-			}
-			eeprom.seen |= seen_sensor;
-			break;
 		case AltosLib.AO_LOG_TEMP_VOLT:
 			state.v_batt = record.v_batt();
 			state.v_pyro = record.v_pbatt();
-			for (int i = 0; i < AltosRecordMM.num_sense; i++)
+			for (int i = 0; i < record.nsense(); i++)
 				state.sense[i] = record.sense(i);
 			eeprom.seen |= seen_temp_volt;
 			break;
-//
-//		case AltosLib.AO_LOG_DEPLOY:
-//			state.drogue = record.a;
-//			state.main = record.b;
-//			eeprom.seen |= seen_deploy;
-//			has_ignite = true;
-//			break;
-
 		case AltosLib.AO_LOG_STATE:
 			state.state = record.state();
 			break;
 		case AltosLib.AO_LOG_GPS_TIME:
 			eeprom.gps_tick = state.tick;
-			AltosGPS old = state.gps;
 			state.gps = new AltosGPS();
 
-			/* GPS date doesn't get repeated through the file */
-			if (old != null) {
-				state.gps.year = old.year;
-				state.gps.month = old.month;
-				state.gps.day = old.day;
-			}
-			state.gps.hour = (record.a & 0xff);
-			state.gps.minute = (record.a >> 8);
-			state.gps.second = (record.b & 0xff);
+			state.gps.lat = record.latitude() / 1e7;
+			state.gps.lon = record.longitude() / 1e7;
+			state.gps.alt = record.altitude();
+			state.gps.year = record.year() + 2000;
+			state.gps.month = record.month();
+			state.gps.day = record.day();
 
-			int flags = (record.b >> 8);
+			state.gps.hour = record.hour();
+			state.gps.minute = record.minute();
+			state.gps.second = record.second();
+
+			int flags = record.flags();
 			state.gps.connected = (flags & AltosLib.AO_GPS_RUNNING) != 0;
 			state.gps.locked = (flags & AltosLib.AO_GPS_VALID) != 0;
 			state.gps.nsat = (flags & AltosLib.AO_GPS_NUM_SAT_MASK) >>
 				AltosLib.AO_GPS_NUM_SAT_SHIFT;
 			state.new_gps = true;
 			has_gps = true;
-			break;
-		case AltosLib.AO_LOG_GPS_LAT:
-			int lat32 = record.a | (record.b << 16);
-			state.gps.lat = (double) lat32 / 1e7;
-			break;
-		case AltosLib.AO_LOG_GPS_LON:
-			int lon32 = record.a | (record.b << 16);
-			state.gps.lon = (double) lon32 / 1e7;
-			break;
-		case AltosLib.AO_LOG_GPS_ALT:
-			state.gps.alt = record.a;
+			eeprom.seen |= seen_gps_time | seen_gps_lat | seen_gps_lon;
 			break;
 		case AltosLib.AO_LOG_GPS_SAT:
 			if (state.tick == eeprom.gps_tick) {
-				int svid = record.a;
-				int c_n0 = record.b >> 8;
-				state.gps.add_sat(svid, c_n0);
+				int nsat = record.nsat();
+				for (int i = 0; i < nsat; i++)
+					state.gps.add_sat(record.svid(i), record.c_n(i));
 			}
 			break;
-		case AltosLib.AO_LOG_GPS_DATE:
-			state.gps.year = (record.a & 0xff) + 2000;
-			state.gps.month = record.a >> 8;
-			state.gps.day = record.b & 0xff;
-			break;
-
 		case AltosLib.AO_LOG_CONFIG_VERSION:
 			break;
 		case AltosLib.AO_LOG_MAIN_DEPLOY:
@@ -192,8 +159,8 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 			state.callsign = record.data;
 			break;
 		case AltosLib.AO_LOG_ACCEL_CAL:
-			state.accel_plus_g = record.a;
-			state.accel_minus_g = record.b;
+			state.accel_plus_g = record.config_a;
+			state.accel_minus_g = record.config_b;
 			break;
 		case AltosLib.AO_LOG_RADIO_CAL:
 			break;
@@ -202,33 +169,33 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 		case AltosLib.AO_LOG_PRODUCT:
 			break;
 		case AltosLib.AO_LOG_SERIAL_NUMBER:
-			state.serial = record.a;
+			state.serial = record.config_a;
 			break;
 		case AltosLib.AO_LOG_SOFTWARE_VERSION:
 			break;
 		case AltosLib.AO_LOG_BARO_RESERVED:
-			baro.reserved = record.a;
+			baro.reserved = record.config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_SENS:
-			baro.sens =record.a;
+			baro.sens =record.config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_OFF:
-			baro.off =record.a;
+			baro.off =record.config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_TCS:
-			baro.tcs =record.a;
+			baro.tcs =record.config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_TCO:
-			baro.tco =record.a;
+			baro.tco =record.config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_TREF:
-			baro.tref =record.a;
+			baro.tref =record.config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_TEMPSENS:
-			baro.tempsens =record.a;
+			baro.tempsens =record.config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_CRC:
-			baro.crc =record.a;
+			baro.crc =record.config_a;
 			break;
 		}
 		state.seen |= eeprom.seen;
@@ -287,25 +254,25 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 				out.printf("# Config version: %s\n", record.data);
 				break;
 			case AltosLib.AO_LOG_MAIN_DEPLOY:
-				out.printf("# Main deploy: %s\n", record.a);
+				out.printf("# Main deploy: %s\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_APOGEE_DELAY:
-				out.printf("# Apogee delay: %s\n", record.a);
+				out.printf("# Apogee delay: %s\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_RADIO_CHANNEL:
-				out.printf("# Radio channel: %s\n", record.a);
+				out.printf("# Radio channel: %s\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_CALLSIGN:
 				out.printf("# Callsign: %s\n", record.data);
 				break;
 			case AltosLib.AO_LOG_ACCEL_CAL:
-				out.printf ("# Accel cal: %d %d\n", record.a, record.b);
+				out.printf ("# Accel cal: %d %d\n", record.config_a, record.config_b);
 				break;
 			case AltosLib.AO_LOG_RADIO_CAL:
-				out.printf ("# Radio cal: %d\n", record.a);
+				out.printf ("# Radio cal: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_MAX_FLIGHT_LOG:
-				out.printf ("# Max flight log: %d\n", record.a);
+				out.printf ("# Max flight log: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_MANUFACTURER:
 				out.printf ("# Manufacturer: %s\n", record.data);
@@ -314,71 +281,37 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 				out.printf ("# Product: %s\n", record.data);
 				break;
 			case AltosLib.AO_LOG_SERIAL_NUMBER:
-				out.printf ("# Serial number: %d\n", record.a);
+				out.printf ("# Serial number: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_SOFTWARE_VERSION:
 				out.printf ("# Software version: %s\n", record.data);
 				break;
 			case AltosLib.AO_LOG_BARO_RESERVED:
-				out.printf ("# Baro reserved: %d\n", record.a);
+				out.printf ("# Baro reserved: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_BARO_SENS:
-				out.printf ("# Baro sens: %d\n", record.a);
+				out.printf ("# Baro sens: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_BARO_OFF:
-				out.printf ("# Baro off: %d\n", record.a);
+				out.printf ("# Baro off: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_BARO_TCS:
-				out.printf ("# Baro tcs: %d\n", record.a);
+				out.printf ("# Baro tcs: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_BARO_TCO:
-				out.printf ("# Baro tco: %d\n", record.a);
+				out.printf ("# Baro tco: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_BARO_TREF:
-				out.printf ("# Baro tref: %d\n", record.a);
+				out.printf ("# Baro tref: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_BARO_TEMPSENS:
-				out.printf ("# Baro tempsens: %d\n", record.a);
+				out.printf ("# Baro tempsens: %d\n", record.config_a);
 				break;
 			case AltosLib.AO_LOG_BARO_CRC:
-				out.printf ("# Baro crc: %d\n", record.a);
+				out.printf ("# Baro crc: %d\n", record.config_a);
 				break;
 			}
 		}
-	}
-
-	/*
-	 * Given an AO_LOG_GPS_TIME record with correct time, and one
-	 * missing time, rewrite the missing time values with the good
-	 * ones, assuming that the difference between them is 'diff' seconds
-	 */
-	void update_time(AltosOrderedMegaRecord good, AltosOrderedMegaRecord bad) {
-
-		int diff = (bad.tick - good.tick + 50) / 100;
-
-		int hour = (good.a & 0xff);
-		int minute = (good.a >> 8);
-		int second = (good.b & 0xff);
-		int flags = (good.b >> 8);
-		int seconds = hour * 3600 + minute * 60 + second;
-
-		/* Make sure this looks like a good GPS value */
-		if ((flags & AltosLib.AO_GPS_NUM_SAT_MASK) >> AltosLib.AO_GPS_NUM_SAT_SHIFT < 4)
-			flags = (flags & ~AltosLib.AO_GPS_NUM_SAT_MASK) | (4 << AltosLib.AO_GPS_NUM_SAT_SHIFT);
-		flags |= AltosLib.AO_GPS_RUNNING;
-		flags |= AltosLib.AO_GPS_VALID;
-
-		int new_seconds = seconds + diff;
-		if (new_seconds < 0)
-			new_seconds += 24 * 3600;
-		int new_second = (new_seconds % 60);
-		int new_minutes = (new_seconds / 60);
-		int new_minute = (new_minutes % 60);
-		int new_hours = (new_minutes / 60);
-		int new_hour = (new_hours % 24);
-
-		bad.a = new_hour + (new_minute << 8);
-		bad.b = new_second + (flags << 8);
 	}
 
 	/*
@@ -416,53 +349,11 @@ public class AltosEepromMegaIterable extends AltosRecordIterable {
 					continue;
 				}
 
-				/* Two firmware bugs caused the loss of some GPS data.
-				 * The flight date would never be recorded, and often
-				 * the flight time would get overwritten by another
-				 * record. Detect the loss of the GPS date and fix up the
-				 * missing time records
-				 */
-				if (record.cmd == AltosLib.AO_LOG_GPS_DATE) {
-					gps_date_record = record;
-					continue;
-				}
-
-				/* go back and fix up any missing time values */
-				if (record.cmd == AltosLib.AO_LOG_GPS_TIME) {
-					last_gps_time = record;
-					if (missing_time) {
-						Iterator<AltosOrderedMegaRecord> iterator = records.iterator();
-						while (iterator.hasNext()) {
-							AltosOrderedMegaRecord old = iterator.next();
-							if (old.cmd == AltosLib.AO_LOG_GPS_TIME &&
-							    old.a == -1 && old.b == -1)
-							{
-								update_time(record, old);
-							}
-						}
-						missing_time = false;
-					}
-				}
-
-				if (record.cmd == AltosLib.AO_LOG_GPS_LAT) {
-					if (last_gps_time == null || last_gps_time.tick != record.tick) {
-						AltosOrderedMegaRecord add_gps_time = new AltosOrderedMegaRecord(AltosLib.AO_LOG_GPS_TIME,
-													 record.tick,
-													 -1, -1, index-1);
-						if (last_gps_time != null)
-							update_time(last_gps_time, add_gps_time);
-						else
-							missing_time = true;
-
-						records.add(add_gps_time);
-						record.index = index++;
-					}
-				}
 				records.add(record);
 
 				/* Bail after reading the 'landed' record; we're all done */
 				if (record.cmd == AltosLib.AO_LOG_STATE &&
-				    record.a == AltosLib.ao_flight_landed)
+				    record.state() == AltosLib.ao_flight_landed)
 					break;
 			}
 		} catch (IOException io) {

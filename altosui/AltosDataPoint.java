@@ -16,11 +16,8 @@ interface AltosDataPoint {
     String state_name();
 
     double acceleration();
-    double pressure();
-    double altitude();
     double height();
-    double accel_speed();
-    double baro_speed();
+    double speed();
     double temperature();
     double battery_voltage();
     double drogue_voltage();

@@ -24,7 +24,7 @@ public class AltosFlightStats {
 	double		max_height;
 	double		max_speed;
 	double		max_acceleration;
-	double[]	state_speed = new double[Altos.ao_flight_invalid + 1];
+	double[]	state_accel_speed = new double[Altos.ao_flight_invalid + 1];
 	double[]	state_baro_speed = new double[Altos.ao_flight_invalid + 1];
 	double[]	state_accel = new double[Altos.ao_flight_invalid + 1];
 	int[]		state_count = new int[Altos.ao_flight_invalid + 1];
@@ -123,7 +123,7 @@ public class AltosFlightStats {
 					}
 				}
 				state_accel[state.state] += state.acceleration;
-				state_speed[state.state] += state.speed;
+				state_accel_speed[state.state] += state.accel_speed;
 				state_baro_speed[state.state] += state.baro_speed;
 				state_count[state.state]++;
 				if (state_start[state.state] == 0.0)
@@ -131,8 +131,8 @@ public class AltosFlightStats {
 				if (state_end[state.state] < state.time)
 					state_end[state.state] = state.time;
 				max_height = state.max_height;
-				if (state.max_speed != 0)
-					max_speed = state.max_speed;
+				if (state.max_accel_speed != 0)
+					max_speed = state.max_accel_speed;
 				else
 					max_speed = state.max_baro_speed;
 				max_acceleration = state.max_acceleration;
@@ -140,7 +140,7 @@ public class AltosFlightStats {
 		}
 		for (int s = Altos.ao_flight_startup; s <= Altos.ao_flight_landed; s++) {
 			if (state_count[s] > 0) {
-				state_speed[s] /= state_count[s];
+				state_accel_speed[s] /= state_count[s];
 				state_baro_speed[s] /= state_count[s];
 				state_accel[s] /= state_count[s];
 			}

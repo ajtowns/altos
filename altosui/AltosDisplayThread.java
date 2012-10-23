@@ -197,7 +197,7 @@ public class AltosDisplayThread extends Thread {
 			if ((old_state == null || old_state.state <= Altos.ao_flight_boost) &&
 			    state.state > Altos.ao_flight_boost) {
 				voice.speak("max speed: %s.",
-					    AltosConvert.speed.say_units(state.max_speed + 0.5));
+					    AltosConvert.speed.say_units(state.max_accel_speed + 0.5));
 				ret = true;
 			} else if ((old_state == null || old_state.state < Altos.ao_flight_drogue) &&
 				   state.state >= Altos.ao_flight_drogue) {

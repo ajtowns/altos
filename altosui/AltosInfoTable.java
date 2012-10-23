@@ -114,8 +114,8 @@ public class AltosInfoTable extends JTable {
 		info_add_row(0, "Max height", "%6.0f    m", state.max_height);
 		info_add_row(0, "Acceleration", "%8.1f  m/s²", state.acceleration);
 		info_add_row(0, "Max acceleration", "%8.1f  m/s²", state.max_acceleration);
-		info_add_row(0, "Speed", "%8.1f  m/s", state.ascent ? state.speed : state.baro_speed);
-		info_add_row(0, "Max Speed", "%8.1f  m/s", state.max_speed);
+		info_add_row(0, "Speed", "%8.1f  m/s", state.speed());
+		info_add_row(0, "Max Speed", "%8.1f  m/s", state.max_accel_speed);
 		info_add_row(0, "Temperature", "%9.2f °C", state.temperature);
 		info_add_row(0, "Battery", "%9.2f V", state.battery);
 		if (state.drogue_sense != AltosRecord.MISSING)

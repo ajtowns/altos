@@ -283,7 +283,7 @@ public class AltosEepromDownload implements Runnable {
 				if (r.cmd == Altos.AO_LOG_GPS_TIME) {
 					year = 2000 + r.data8(14);
 					month = r.data8(15);
-					day = r.data8(14);
+					day = r.data8(16);
 					want_file = true;
 				}
 

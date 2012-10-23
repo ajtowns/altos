@@ -97,7 +97,7 @@ public class AltosIdleMonitor extends Thread {
 			else if (has_sensor_mm(config_data))
 				record = sensor_mm(config_data);
 			else
-				record = new AltosRecord();
+				record = new AltosRecordNone();
 
 			if (has_gps(config_data))
 				gps = new AltosGPSQuery(link, config_data);

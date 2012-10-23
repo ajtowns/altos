@@ -256,7 +256,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	class Speed extends DescentValue {
 		void show (AltosState state, int crc_errors) {
-			double speed = state.speed;
+			double speed = state.accel_speed;
 			if (!state.ascent)
 				speed = state.baro_speed;
 			show(AltosConvert.speed, speed);

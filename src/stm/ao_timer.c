@@ -266,6 +266,7 @@ ao_clock_init(void)
 	stm_rcc.csr |= (1 << STM_RCC_CSR_RMVF);
 
 
+#if DEBUG_THE_CLOCK
 	/* Output SYSCLK on PA8 for measurments */
 
 	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOAEN);
@@ -276,4 +277,5 @@ ao_clock_init(void)
 
 	stm_rcc.cfgr |= (STM_RCC_CFGR_MCOPRE_DIV_1 << STM_RCC_CFGR_MCOPRE);
 	stm_rcc.cfgr |= (STM_RCC_CFGR_MCOSEL_HSE << STM_RCC_CFGR_MCOSEL);
+#endif
 }

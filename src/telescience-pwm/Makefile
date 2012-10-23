@@ -2,7 +2,7 @@
 # AltOS build
 #
 #
-vpath % .:..:../core:../product:../drivers:../avr
+vpath % ..:../core:../product:../drivers:../avr
 vpath ao-make-product.5c ../util
 
 MCU=atmega32u4
@@ -20,11 +20,22 @@ endif
 
 INC = \
 	ao.h \
+	ao_arch.h \
 	ao_usb.h \
 	ao_pins.h \
-	ao_arch.h \
-	ao_arch_funcs.h \
 	ao_product.h
+
+#
+# Common AltOS sources
+#
+TELESCIENCE_STORAGE= \
+	ao_m25.c \
+	ao_spi_usart.c \
+	ao_storage.c
+
+TELESCIENCE_LOG= \
+	ao_log_single.c \
+	ao_log_telescience.c
 
 ALTOS_SRC = \
 	ao_clock.c \
@@ -40,25 +51,24 @@ ALTOS_SRC = \
 	ao_romconfig.c \
 	ao_usb_avr.c \
 	ao_adc_avr.c \
-	ao_pyro_slave.c \
+	ao_science_slave.c \
 	ao_spi_slave.c \
-	ao_eeprom_avr.c \
-	ao_storage.c \
-	ao_config.c \
-	ao_pyro.c
+	ao_pwmin.c \
+	$(TELESCIENCE_STORAGE)\
+	$(TELESCIENCE_LOG)
 
-PRODUCT=TelePyro-v0.1
+PRODUCT=TeleScience-PWM
 MCU=atmega32u4
-PRODUCT_DEF=-DTELEPYRO
+PRODUCT_DEF=-DTELESCIENCE -DTELESCIENCE_PWM
 IDPRODUCT=0x0011
 CFLAGS = $(PRODUCT_DEF) -I. -I../avr -I../core -I..
-CFLAGS += -mmcu=$(MCU) -Wall -Wstrict-prototypes -O3 -mcall-prologues -DAVR
+CFLAGS += -g -mmcu=$(MCU) -Wall -Wstrict-prototypes -O3 -mcall-prologues -DAVR
 
 NICKLE=nickle
 
-PROG=telepyro-v0.1
+PROG=telescience-pwm
 
-SRC=$(ALTOS_SRC) ao_telepyro.c
+SRC=$(ALTOS_SRC) ao_telescience.c
 OBJ=$(SRC:.c=.o)
 
 V=0
@@ -90,17 +100,17 @@ ao_product.h: ao-make-product.5c ../Version
 
 ao_product.o: ao_product.c ao_product.h
 
-%.o : %.c
+%.o : %.c $(INC)
 	$(call quiet,CC) -c $(CFLAGS) $<
 
 distclean:	clean
 
 clean:
-	rm -f $(OBJ) $(PROG) $(PROG).hex
+	rm -f *.o $(PROG) $(PROG).hex
 	rm -f ao_product.h
 
 install:
 
 uninstall:
 
-$(OBJ): $(INC)
+$(OBJ): ao_product.h $(INC)

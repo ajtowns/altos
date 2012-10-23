@@ -22,6 +22,7 @@ import javax.swing.*;
 import java.io.*;
 import java.util.concurrent.*;
 import org.altusmetrum.AltosLib.*;
+import java.text.*;
 
 public class AltosConfig implements ActionListener {
 
@@ -78,6 +79,8 @@ public class AltosConfig implements ActionListener {
 	string_ref	version;
 	string_ref	product;
 	string_ref	callsign;
+	int_ref		npyro;
+	AltosPyro[]	pyros;
 	AltosConfigUI	config_ui;
 	boolean		serial_started;
 	boolean		made_visible;
@@ -162,12 +165,16 @@ public class AltosConfig implements ActionListener {
 		config_ui.set_ignite_mode(ignite_mode.get());
 		config_ui.set_pad_orientation(pad_orientation.get());
 		config_ui.set_callsign(callsign.get());
+		config_ui.set_pyros(pyros);
+		config_ui.set_has_pyro(npyro.get() > 0);
 		config_ui.set_clean();
 		if (!made_visible) {
 			made_visible = true;
 			config_ui.make_visible();
 		}
 	}
+
+	int	pyro;
 
 	void process_line(String line) {
 		if (line == null) {
@@ -177,6 +184,18 @@ public class AltosConfig implements ActionListener {
 		if (line.equals("all finished")) {
 			if (serial_line != null)
 				update_ui();
+			return;
+		}
+		if (pyro < npyro.get()) {
+			if (pyros == null)
+				pyros = new AltosPyro[npyro.get()];
+
+			try {
+				pyros[pyro] = new AltosPyro(pyro, line);
+			} catch (ParseException e) {
+				System.out.printf ("pyro parse failed %s\n", line);
+			}
+			++pyro;
 			return;
 		}
 		get_int(line, "serial-number", serial);
@@ -200,6 +219,7 @@ public class AltosConfig implements ActionListener {
 		get_string(line, "Callsign:", callsign);
 		get_string(line,"software-version", version);
 		get_string(line,"product", product);
+		get_int(line, "Pyro-count:", npyro);
 	}
 
 	final static int	serial_mode_read = 0;
@@ -243,6 +263,8 @@ public class AltosConfig implements ActionListener {
 			callsign.set("N0CALL");
 			version.set("unknown");
 			product.set("unknown");
+			pyro = 0;
+			npyro.set(0);
 		}
 
 		void get_data() {
@@ -304,6 +326,12 @@ public class AltosConfig implements ActionListener {
 					serial_line.printf("c i %d\n", ignite_mode.get());
 				if (pad_orientation.get() >= 0)
 					serial_line.printf("c o %d\n", pad_orientation.get());
+				if (pyros.length > 0) {
+					for (int p = 0; p < pyros.length; p++) {
+						serial_line.printf("c P %s\n",
+								   pyros[p].toString());
+					}
+				}
 				serial_line.printf("c w\n");
 			} catch (InterruptedException ie) {
 			} catch (TimeoutException te) {
@@ -431,6 +459,9 @@ public class AltosConfig implements ActionListener {
 		if (pad_orientation.get() >= 0)
 			pad_orientation.set(config_ui.pad_orientation());
 		callsign.set(config_ui.callsign());
+		if (npyro.get() > 0) {
+			pyros = config_ui.pyros();
+		}
 		run_serial_thread(serial_mode_save);
 	}
 
@@ -477,13 +508,14 @@ public class AltosConfig implements ActionListener {
 		callsign = new string_ref("N0CALL");
 		version = new string_ref("unknown");
 		product = new string_ref("unknown");
+		npyro = new int_ref(0);
 
 		device = AltosDeviceDialog.show(owner, Altos.product_any);
 		if (device != null) {
 			try {
 				serial_line = new AltosSerial(device);
 				try {
-					if (!device.matchProduct(Altos.product_altimeter))
+					if (device.matchProduct(Altos.product_basestation))
 						remote = true;
 					init_ui();
 				} catch (InterruptedException ie) {

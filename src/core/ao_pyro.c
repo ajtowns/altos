@@ -113,6 +113,15 @@ ao_pyro_ready(struct ao_pyro *pyro)
 			/* handled separately */
 			continue;
 
+		case ao_pyro_state_less:
+			if (ao_flight_state < pyro->state_less)
+				continue;
+			break;
+		case ao_pyro_state_greater_or_equal:
+			if (ao_flight_state >= pyro->state_greater_or_equal)
+				continue;
+			break;
+
 		default:
 			continue;
 		}
@@ -166,7 +175,7 @@ uint8_t	ao_pyro_wakeup;
 static void
 ao_pyro(void)
 {
-	uint8_t		p;
+	uint8_t		p, any_waiting;
 	struct ao_pyro	*pyro;
 
 	ao_config_get();
@@ -177,6 +186,7 @@ ao_pyro(void)
 		ao_alarm(AO_MS_TO_TICKS(100));
 		ao_sleep(&ao_pyro_wakeup);
 		ao_clear_alarm();
+		any_waiting = 0;
 		for (p = 0; p < AO_PYRO_NUM; p++) {
 			pyro = &ao_config.pyro[p];
 
@@ -190,6 +200,7 @@ ao_pyro(void)
 			if (!pyro->flags)
 				continue;
 
+			any_waiting = 1;
 			/* Check pyro state to see if it shoule fire
 			 */
 			if (!pyro->delay_done) {
@@ -213,7 +224,10 @@ ao_pyro(void)
 
 			ao_pyro_fire(p);
 		}
+		if (!any_waiting)
+			break;
 	}
+	ao_exit();
 }
 
 __xdata struct ao_task ao_pyro_task;
@@ -256,6 +270,9 @@ const struct {
 
 	{ "t<",	ao_pyro_time_less,	offsetof(struct ao_pyro, time_less), HELP("time less (s * 100)") },
 	{ "t>",	ao_pyro_time_greater,	offsetof(struct ao_pyro, time_greater), HELP("time greater (s * 100)")  },
+
+	{ "f<",	ao_pyro_state_less,	offsetof(struct ao_pyro, state_less), HELP("state less") },
+	{ "f>=",ao_pyro_state_greater_or_equal,	offsetof(struct ao_pyro, state_greater_or_equal), HELP("state greater or equal")  },
 
 	{ "A", ao_pyro_ascending,	NO_VALUE, HELP("ascending") },
 	{ "D", ao_pyro_descending,	NO_VALUE, HELP("descending") },

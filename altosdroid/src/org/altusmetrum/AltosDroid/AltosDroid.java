@@ -189,10 +189,7 @@ public class AltosDroid extends Activity {
 		mSerialView.setText(String.format("%d", state.data.serial));
 		mFlightView.setText(String.format("%d", state.data.flight));
 		mStateView.setText(state.data.state());
-		double speed = state.speed;
-		if (!state.ascent)
-			speed = state.baro_speed;
-		mSpeedView.setText(String.format("%6.0f m/s", speed));
+		mSpeedView.setText(String.format("%6.0f m/s", state.speed()));
 		mAccelView.setText(String.format("%6.0f m/s²", state.acceleration));
 		mRangeView.setText(String.format("%6.0f m", state.range));
 		mHeightView.setText(String.format("%6.0f m", state.height));

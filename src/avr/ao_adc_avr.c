@@ -16,6 +16,7 @@
  */
 
 #include "ao.h"
+#include "ao_pwmin.h"
 
 volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
 volatile __data uint8_t		ao_data_head;
@@ -93,9 +94,13 @@ ISR(ADC_vect)
 	value = ADCL;
 	value |= (ADCH << 8);
 	ao_data_ring[ao_data_head].adc.adc[ao_adc_channel] = value;
-	if (++ao_adc_channel < NUM_ADC)
+	if (++ao_adc_channel < NUM_ADC - HAS_ICP3_COUNT)
 		ao_adc_start();
 	else {
+#if HAS_ICP3_COUNT
+		/* steal last adc channel for pwm input */
+		ao_data_ring[ao_data_head].adc.adc[ao_adc_channel] = ao_icp3_count;
+#endif
 		ADCSRA = ADCSRA_INIT;
 		ao_data_ring[ao_data_head].tick = ao_time();
 		ao_data_head = ao_data_ring_next(ao_data_head);
