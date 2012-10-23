@@ -69,6 +69,7 @@
 #endif
 
 #ifdef TELEPYRO
+	#define AO_STACK_SIZE		104
 	#define LEDS_AVAILABLE		0
 	#define HAS_USB			1
 	#define HAS_LOG			0

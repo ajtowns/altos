@@ -37,7 +37,9 @@
  * AVR definitions and code fragments for AltOS
  */
 
+#ifndef AO_STACK_SIZE
 #define AO_STACK_SIZE	116
+#endif
 
 /* Various definitions to make GCC look more like SDCC */
 
