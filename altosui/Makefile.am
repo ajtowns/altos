@@ -338,5 +338,3 @@ $(WINDOWS_DIST): $(WINDOWS_FILES) altos-windows.nsi
 	-rm -f $@
 	makensis -Oaltos-windows.log "-XOutFile $@" "-DVERSION=$(VERSION)" altos-windows.nsi
 
-publish:
-	scp launch-sites.txt gag.com:public_html
