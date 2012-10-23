@@ -45,6 +45,12 @@ public class AltosDialog extends JDialog implements AltosUIListener {
 		addWindowListener(new AltosDialogListener());
 	}
 
+	public AltosDialog(Dialog dialog, String label, boolean modal) {
+		super(dialog, label, modal);
+		AltosUIPreferences.register_ui_listener(this);
+		addWindowListener(new AltosDialogListener());
+	}
+
 	public AltosDialog(Frame frame, boolean modal) {
 		super(frame, modal);
 		AltosUIPreferences.register_ui_listener(this);

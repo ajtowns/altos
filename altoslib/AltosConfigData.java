@@ -50,6 +50,8 @@ public class AltosConfigData implements Iterable<String> {
 	public int	storage_size;
 	public int	storage_erase_unit;
 
+	public AltosPyro[]	pyros;
+
 	public static String get_string(String line, String label) throws  ParseException {
 		if (line.startsWith(label)) {
 			String	quoted = line.substring(label.length()).trim();
@@ -135,6 +137,10 @@ public class AltosConfigData implements Iterable<String> {
 		radio_frequency = 0;
 		stored_flight = 0;
 		serial = -1;
+		pyros = null;
+
+		int npyro = 0;
+		int pyro = 0;
 		for (;;) {
 			String line = link.get_reply();
 			if (line == null)
@@ -142,6 +148,16 @@ public class AltosConfigData implements Iterable<String> {
 			if (line.contains("Syntax error"))
 				continue;
 			lines.add(line);
+			if (pyro < npyro - 1) {
+				if (pyros == null)
+					pyros = new AltosPyro[npyro];
+				try {
+					pyros[pyro] = new AltosPyro(pyro, line);
+				} catch (ParseException e) {
+				}
+				++pyro;
+				continue;
+			}
 			try { serial = get_int(line, "serial-number"); } catch (Exception e) {}
 			try { log_format = get_int(line, "log-format"); } catch (Exception e) {}
 			try { main_deploy = get_int(line, "Main deploy:"); } catch (Exception e) {}
@@ -173,6 +189,7 @@ public class AltosConfigData implements Iterable<String> {
 			try { get_int(line, "flight"); stored_flight++; }  catch (Exception e) {}
 			try { storage_size = get_int(line, "Storage size:"); } catch (Exception e) {}
 			try { storage_erase_unit = get_int(line, "Storage erase unit"); } catch (Exception e) {}
+			try { npyro = get_int(line, "Pyro-count:"); pyro = 0; } catch (Exception e) {}
 
 			/* signals the end of the version info */
 			if (line.startsWith("software-version"))

@@ -75,7 +75,8 @@ AltosLib_JAVA = \
 	$(SRC)/AltosDistance.java \
 	$(SRC)/AltosHeight.java \
 	$(SRC)/AltosSpeed.java \
-	$(SRC)/AltosAccel.java
+	$(SRC)/AltosAccel.java \
+	$(SRC)/AltosPyro.java
 
 JAR=AltosLib.jar
 

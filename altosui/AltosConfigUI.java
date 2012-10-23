@@ -29,7 +29,6 @@ public class AltosConfigUI
 {
 
 	Container	pane;
-	Box		box;
 	JLabel		product_label;
 	JLabel		version_label;
 	JLabel		serial_label;
@@ -62,10 +61,14 @@ public class AltosConfigUI
 	JComboBox	pad_orientation_value;
 	JTextField	callsign_value;
 
+	JButton		pyro;
+
 	JButton		save;
 	JButton		reset;
 	JButton		reboot;
 	JButton		close;
+
+	AltosPyro[]	pyros;
 
 	ActionListener	listener;
 
@@ -510,6 +513,20 @@ public class AltosConfigUI
 		set_pad_orientation_tool_tip();
 		row++;
 
+		/* Pyro channels */
+		c = new GridBagConstraints();
+		c.gridx = 4; c.gridy = row;
+		c.gridwidth = 4;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
+		c.ipady = 5;
+		pyro = new JButton("Configure Pyro Channels");
+		pane.add(pyro, c);
+		pyro.addActionListener(this);
+		pyro.setActionCommand("Pyro");
+		row++;
+
 		/* Buttons */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = row;
@@ -582,9 +599,29 @@ public class AltosConfigUI
 		return true;
 	}
 
+	void set_dirty() {
+		dirty = true;
+		save.setEnabled(true);
+	}
+
+	public void set_clean() {
+		dirty = false;
+		save.setEnabled(false);
+	}
+
+	AltosConfigPyroUI	pyro_ui;
+
 	/* Listen for events from our buttons */
 	public void actionPerformed(ActionEvent e) {
 		String	cmd = e.getActionCommand();
+
+		if (cmd.equals("Pyro")) {
+			if (pyro_ui == null && pyros != null) {
+				pyro_ui = new AltosConfigPyroUI(this, pyros);
+				pyro_ui.make_visible();
+			}
+			return;
+		}
 
 		if (cmd.equals("Close") || cmd.equals("Reboot"))
 			if (!check_dirty(cmd))
@@ -594,25 +631,25 @@ public class AltosConfigUI
 			setVisible(false);
 			dispose();
 		}
-		dirty = false;
+		set_clean();
 	}
 
 	/* ItemListener interface method */
 	public void itemStateChanged(ItemEvent e) {
-		dirty = true;
+		set_dirty();
 	}
 
 	/* DocumentListener interface methods */
 	public void changedUpdate(DocumentEvent e) {
-		dirty = true;
+		set_dirty();
 	}
 
 	public void insertUpdate(DocumentEvent e) {
-		dirty = true;
+		set_dirty();
 	}
 
 	public void removeUpdate(DocumentEvent e) {
-		dirty = true;
+		set_dirty();
 	}
 
 	/* Let the config code hook on a listener */
@@ -725,8 +762,7 @@ public class AltosConfigUI
 	}
 
 	public void set_flight_log_max(int new_flight_log_max) {
-		if (new_flight_log_max == 0)
-			flight_log_max_value.setEnabled(false);
+		flight_log_max_value.setEnabled(new_flight_log_max > 0);
 		flight_log_max_value.setSelectedItem(Integer.toString(new_flight_log_max));
 		set_flight_log_max_tool_tip();
 	}
@@ -793,7 +829,19 @@ public class AltosConfigUI
 			return -1;
 	}
 
-	public void set_clean() {
-		dirty = false;
+	public void set_has_pyro(boolean has_pyro) {
+		pyro.setEnabled(has_pyro);
+	}
+
+	public void set_pyros(AltosPyro[] new_pyros) {
+		pyros = new_pyros;
+		if (pyro_ui != null)
+			pyro_ui.set_pyros(pyros);
+	}
+
+	public AltosPyro[] pyros() {
+		if (pyro_ui != null)
+			pyros = pyro_ui.get_pyros();
+		return pyros;
 	}
 }
