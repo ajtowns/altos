@@ -271,6 +271,9 @@ const struct {
 	{ "t<",	ao_pyro_time_less,	offsetof(struct ao_pyro, time_less), HELP("time less (s * 100)") },
 	{ "t>",	ao_pyro_time_greater,	offsetof(struct ao_pyro, time_greater), HELP("time greater (s * 100)")  },
 
+	{ "f<",	ao_pyro_state_less,	offsetof(struct ao_pyro, state_less), HELP("state less") },
+	{ "f>=",ao_pyro_state_greater_or_equal,	offsetof(struct ao_pyro, state_greater_or_equal), HELP("state greater or equal")  },
+
 	{ "A", ao_pyro_ascending,	NO_VALUE, HELP("ascending") },
 	{ "D", ao_pyro_descending,	NO_VALUE, HELP("descending") },
 
