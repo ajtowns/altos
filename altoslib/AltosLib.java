@@ -199,7 +199,7 @@ public class AltosLib {
 
 	public static String state_name_capital(int state) {
 		if (state < 0 || state_to_string.length <= state)
-			return "invalid";
+			return "Invalid";
 		return state_to_string_capital[state];
 	}
 
