@@ -22,7 +22,9 @@ INC = \
 	ao_mma655x.h \
 	ao_cc1120_CC1120.h \
 	ao_profile.h \
+	ao_task.h \
 	ao_whiten.h \
+	ao_sample_profile.h \
 	stm32l.h
 
 #
@@ -31,6 +33,10 @@ INC = \
 
 #PROFILE=ao_profile.c
 #PROFILE_DEF=-DAO_PROFILE=1
+
+SAMPLE_PROFILE=ao_sample_profile.c \
+	ao_sample_profile_timer.c
+SAMPLE_PROFILE_DEF=-DHAS_SAMPLE_PROFILE=1
 
 #	ao_hmc5883.c
 
@@ -80,13 +86,14 @@ ALTOS_SRC = \
 	ao_packet.c \
 	ao_companion.c \
 	ao_pyro.c \
-	$(PROFILE)
+	$(PROFILE) \
+	$(SAMPLE_PROFILE)
 
 PRODUCT=MegaMetrum-v0.1
 PRODUCT_DEF=-DMEGAMETRUM
 IDPRODUCT=0x0023
 
-CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) $(PROFILE_DEF) -Os -g
+CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) $(PROFILE_DEF) $(SAMPLE_PROFILE_DEF) -Os -g
 
 PROGNAME=megametrum-v0.1
 PROG=$(PROGNAME)-$(VERSION).elf

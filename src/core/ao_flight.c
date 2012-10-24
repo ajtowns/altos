@@ -115,7 +115,7 @@ ao_flight(void)
  			{
 				/* Set pad mode - we can fly! */
 				ao_flight_state = ao_flight_pad;
-#if HAS_USB && HAS_RADIO && !HAS_FLIGHT_DEBUG
+#if HAS_USB && HAS_RADIO && !HAS_FLIGHT_DEBUG && !HAS_SAMPLE_PROFILE
 				/* Disable the USB controller in flight mode
 				 * to save power
 				 */

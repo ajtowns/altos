@@ -143,7 +143,7 @@ extern const uint32_t ao_radio_cal;
 
 
 #define ao_arch_cpu_idle() do {			\
-		asm("wfi");		\
+		asm(".global ao_idle_loc\n\twfi\nao_idle_loc:");	\
 	} while (0)
 
 #define ao_arch_restore_stack() do { \

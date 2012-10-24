@@ -24,6 +24,9 @@
 #include <ao_packet.h>
 #include <ao_companion.h>
 #include <ao_profile.h>
+#if HAS_SAMPLE_PROFILE
+#include <ao_sample_profile.h>
+#endif
 #include <ao_pyro.h>
 
 int
@@ -77,6 +80,9 @@ main(void)
 	ao_config_init();
 #if AO_PROFILE
 	ao_profile_init();
+#endif
+#if HAS_SAMPLE_PROFILE
+	ao_sample_profile_init();
 #endif
 	
 	ao_start_scheduler();

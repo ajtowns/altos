@@ -21,6 +21,9 @@
 #include <ao_fec.h>
 #include <ao_packet.h>
 
+#define AO_RADIO_MAX_RECV	sizeof(struct ao_packet)
+#define AO_RADIO_MAX_SEND	sizeof(struct ao_packet)
+
 uint8_t ao_radio_wake;
 uint8_t ao_radio_mutex;
 uint8_t ao_radio_abort;
@@ -559,18 +562,19 @@ ao_radio_test_cmd(void)
 	}
 }
 
+static uint8_t	tx_data[(AO_RADIO_MAX_SEND + 4) * 2];
+
 void
 ao_radio_send(const void *d, uint8_t size)
 {
 	uint8_t		marc_status;
-	static uint8_t	encode[256];
-	uint8_t		*e = encode;
+	uint8_t		*e = tx_data;
 	uint8_t		encode_len;
 	uint8_t		this_len;
 	uint8_t		started = 0;
 	uint8_t		fifo_space;
 
-	encode_len = ao_fec_encode(d, size, encode);
+	encode_len = ao_fec_encode(d, size, tx_data);
 
 	ao_radio_get(encode_len);
 
@@ -610,8 +614,6 @@ ao_radio_send(const void *d, uint8_t size)
 	}
 	ao_radio_put();
 }
-
-#define AO_RADIO_MAX_RECV	90
 
 static uint8_t	rx_data[(AO_RADIO_MAX_RECV + 4) * 2 * 8];
 static uint16_t	rx_data_count;
@@ -1026,6 +1028,7 @@ ao_radio_init(void)
 	ao_radio_configured = 0;
 	ao_spi_init_cs (AO_CC1120_SPI_CS_PORT, (1 << AO_CC1120_SPI_CS_PIN));
 
+#if 0
 	AO_CC1120_SPI_CS_PORT->bsrr = ((uint32_t) (1 << AO_CC1120_SPI_CS_PIN));
 	for (i = 0; i < 10000; i++) {
 		if ((SPI_2_PORT->idr & (1 << SPI_2_MISO_PIN)) == 0)
@@ -1034,6 +1037,7 @@ ao_radio_init(void)
 	AO_CC1120_SPI_CS_PORT->bsrr = (1 << AO_CC1120_SPI_CS_PIN);
 	if (i == 10000)
 		ao_panic(AO_PANIC_SELF_TEST_CC1120);
+#endif
 
 	/* Enable the EXTI interrupt for the appropriate pin */
 	ao_enable_port(AO_CC1120_INT_PORT);

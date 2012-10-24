@@ -26,12 +26,21 @@ struct ao_task {
 	uint8_t task_id;		/* unique id */
 	__code char *name;		/* task name */
 	uint8_t	stack[AO_STACK_SIZE];	/* saved stack */
+#if HAS_SAMPLE_PROFILE
+	uint32_t ticks;
+	uint32_t yields;
+	uint16_t start;
+	uint16_t max_run;
+#endif
 };
-
-extern __xdata struct ao_task *__data ao_cur_task;
 
 #define AO_NUM_TASKS		16	/* maximum number of tasks */
 #define AO_NO_TASK		0	/* no task id */
+
+extern __xdata struct ao_task * __xdata ao_tasks[AO_NUM_TASKS];
+extern __data uint8_t ao_num_tasks;
+extern __data uint8_t ao_cur_task_index;
+extern __xdata struct ao_task *__data ao_cur_task;
 
 /*
  ao_task.c

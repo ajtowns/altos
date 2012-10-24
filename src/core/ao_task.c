@@ -16,6 +16,10 @@
  */
 
 #include <ao.h>
+#include <ao_task.h>
+#if HAS_SAMPLE_PROFILE
+#include <ao_sample_profile.h>
+#endif
 
 #define AO_NO_TASK_INDEX	0xff
 
@@ -67,6 +71,8 @@ ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *nam
 	ao_arch_init_stack(task, start);
 }
 
+__xdata uint8_t	ao_idle;
+
 /* Task switching function. This must not use any stack variables */
 void
 ao_yield(void) ao_arch_naked_define
@@ -77,6 +83,13 @@ ao_yield(void) ao_arch_naked_define
 		ao_cur_task_index = ao_num_tasks-1;
 	else
 	{
+#if HAS_SAMPLE_PROFILE
+		uint16_t	tick = ao_sample_profile_timer_value();
+		uint16_t	run = tick - ao_cur_task->start;
+		if (run > ao_cur_task->max_run)
+			ao_cur_task->max_run = run;
+		++ao_cur_task->yields;
+#endif
 		ao_arch_save_stack();
 	}
 
@@ -110,6 +123,9 @@ ao_yield(void) ao_arch_naked_define
 			if (ao_cur_task_index == ao_last_task_index)
 				ao_arch_cpu_idle();
 		}
+#if HAS_SAMPLE_PROFILE
+	ao_cur_task->start = ao_sample_profile_timer_value();
+#endif
 	}
 #if AO_CHECK_STACK
 	cli();
