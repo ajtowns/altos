@@ -18,11 +18,13 @@
 package org.altusmetrum.AltosDroid;
 
 public class BuildInfo {
-	public static final String git_describe = "@DESCRIBE@";
 	public static final String version      = "@VERSION@";
+	public static final String git_describe = "@DESCRIBE@";
+	public static final String branch       = "@BRANCH@";
 	public static final String commitnum    = "@COMMITNUM@";
 	public static final String commithash   = "@COMMITHASH@";
 	public static final String builddate    = "@BUILDDATE@";
 	public static final String buildtime    = "@BUILDTIME@";
+	public static final String buildtz      = "@BUILDTZ@";
 }
 
