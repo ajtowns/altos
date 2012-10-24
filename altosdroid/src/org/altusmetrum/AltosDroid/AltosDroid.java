@@ -81,6 +81,7 @@ public class AltosDroid extends Activity {
 
 	// Generic field for extras at the bottom
 	private TextView mTextView;
+	private TextView mVersion;
 
 	// Service
 	private boolean mIsBound   = false;
@@ -248,6 +249,11 @@ public class AltosDroid extends Activity {
 		mTextView.setMovementMethod(new ScrollingMovementMethod());
 		mTextView.setClickable(false);
 		mTextView.setLongClickable(false);
+
+		mVersion = (TextView) findViewById(R.id.version);
+		mVersion.setText("Version: " + BuildInfo.version +
+		                 "  Built: " + BuildInfo.builddate + " " + BuildInfo.buildtime + " " + BuildInfo.buildtz +
+		                 "  (" + BuildInfo.branch + "-" + BuildInfo.commitnum + "-" + BuildInfo.commithash + ")");
 
 		mCallsignView  = (TextView) findViewById(R.id.callsign_value);
 		mRSSIView      = (TextView) findViewById(R.id.rssi_value);
