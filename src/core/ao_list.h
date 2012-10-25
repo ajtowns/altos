@@ -137,7 +137,7 @@ ao_list_is_empty(struct ao_list *head)
  * @return A pointer to the data struct containing the list head.
  */
 #define ao_container_of(ptr, type, member) \
-    (type *)((char *)(ptr) - offsetof(type, member))
+	((type *)((char *)(ptr) - offsetof(type, member)))
 
 /**
  * Alias of ao_container_of
