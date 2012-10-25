@@ -26,15 +26,6 @@ ao_beep(uint8_t beep)
 	} else {
 		stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_TIM3EN);
 
-		stm_tim3.cr1 = ((STM_TIM234_CR1_CKD_1 << STM_TIM234_CR1_CKD) |
-				(0 << STM_TIM234_CR1_ARPE) |
-				(STM_TIM234_CR1_CMS_EDGE << STM_TIM234_CR1_CMS) |
-				(0 << STM_TIM234_CR1_DIR) |
-				(0 << STM_TIM234_CR1_OPM) |
-				(0 << STM_TIM234_CR1_URS) |
-				(0 << STM_TIM234_CR1_UDIS) |
-				(0 << STM_TIM234_CR1_CEN));
-
 		stm_tim3.cr2 = ((0 << STM_TIM234_CR2_TI1S) |
 				(STM_TIM234_CR2_MMS_RESET << STM_TIM234_CR2_MMS) |
 				(0 << STM_TIM234_CR2_CCDS));
@@ -102,6 +93,9 @@ ao_beep(uint8_t beep)
 				(0 << STM_TIM234_CR1_URS) |
 				(0 << STM_TIM234_CR1_UDIS) |
 				(1 << STM_TIM234_CR1_CEN));
+
+		/* Update the values */
+		stm_tim3.egr = (1 << STM_TIM234_EGR_UG);
 	}
 }
 
