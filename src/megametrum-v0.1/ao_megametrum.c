@@ -28,12 +28,19 @@
 #include <ao_sample_profile.h>
 #endif
 #include <ao_pyro.h>
+#if HAS_STACK_GUARD
+#include <ao_mpu.h>
+#endif
 
 int
 main(void)
 {
 	ao_clock_init();
 	
+#if HAS_STACK_GUARD
+	ao_mpu_init();
+#endif
+
 	ao_serial_init();
 	ao_led_init(LEDS_AVAILABLE);
 	ao_led_on(AO_LED_GREEN);

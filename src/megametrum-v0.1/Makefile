@@ -25,11 +25,13 @@ INC = \
 	ao_task.h \
 	ao_whiten.h \
 	ao_sample_profile.h \
+	ao_mpu.h \
 	stm32l.h
 
 #
 # Common AltOS sources
 #
+#	ao_hmc5883.c
 
 #PROFILE=ao_profile.c
 #PROFILE_DEF=-DAO_PROFILE=1
@@ -38,7 +40,8 @@ SAMPLE_PROFILE=ao_sample_profile.c \
 	ao_sample_profile_timer.c
 SAMPLE_PROFILE_DEF=-DHAS_SAMPLE_PROFILE=1
 
-#	ao_hmc5883.c
+STACK_GUARD=ao_mpu_stm.c
+STACK_GUARD_DEF=-DHAS_STACK_GUARD=1
 
 ALTOS_SRC = \
 	ao_interrupt.c \
@@ -87,13 +90,14 @@ ALTOS_SRC = \
 	ao_companion.c \
 	ao_pyro.c \
 	$(PROFILE) \
-	$(SAMPLE_PROFILE)
+	$(SAMPLE_PROFILE) \
+	$(STACK_GUARD)
 
 PRODUCT=MegaMetrum-v0.1
 PRODUCT_DEF=-DMEGAMETRUM
 IDPRODUCT=0x0023
 
-CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) $(PROFILE_DEF) $(SAMPLE_PROFILE_DEF) -Os -g
+CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) $(PROFILE_DEF) $(SAMPLE_PROFILE_DEF) $(STACK_GUARD_DEF) -Os -g
 
 PROGNAME=megametrum-v0.1
 PROG=$(PROGNAME)-$(VERSION).elf

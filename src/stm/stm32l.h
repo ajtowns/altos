@@ -901,6 +901,63 @@ stm_nvic_get_priority(int irq) {
 	return (stm_nvic.ipr[IRQ_PRIO_REG(irq)] >> IRQ_PRIO_BIT(irq)) & IRQ_PRIO_MASK(0);
 }
 
+struct stm_mpu {
+	vuint32_t	typer;
+	vuint32_t	cr;
+	vuint32_t	rnr;
+	vuint32_t	rbar;
+
+	vuint32_t	rasr;
+	vuint32_t	rbar_a1;
+	vuint32_t	rasr_a1;
+	vuint32_t	rbar_a2;
+	vuint32_t	rasr_a2;
+	vuint32_t	rbar_a3;
+	vuint32_t	rasr_a3;
+};
+
+extern struct stm_mpu stm_mpu;
+
+#define STM_MPU_TYPER_IREGION	16
+#define  STM_MPU_TYPER_IREGION_MASK	0xff
+#define STM_MPU_TYPER_DREGION	8
+#define  STM_MPU_TYPER_DREGION_MASK	0xff
+#define STM_MPU_TYPER_SEPARATE	0
+
+#define STM_MPU_CR_PRIVDEFENA	2
+#define STM_MPU_CR_HFNMIENA	1
+#define STM_MPU_CR_ENABLE	0
+
+#define STM_MPU_RNR_REGION	0
+#define STM_MPU_RNR_REGION_MASK		0xff
+
+#define STM_MPU_RBAR_ADDR	5
+#define STM_MPU_RBAR_ADDR_MASK		0x7ffffff
+
+#define STM_MPU_RBAR_VALID	4
+#define STM_MPU_RBAR_REGION	0
+#define STM_MPU_RBAR_REGION_MASK	0xf
+
+#define STM_MPU_RASR_XN		28
+#define STM_MPU_RASR_AP		24
+#define  STM_MPU_RASR_AP_NONE_NONE	0
+#define  STM_MPU_RASR_AP_RW_NONE	1
+#define  STM_MPU_RASR_AP_RW_RO		2
+#define  STM_MPU_RASR_AP_RW_RW		3
+#define  STM_MPU_RASR_AP_RO_NONE	5
+#define  STM_MPU_RASR_AP_RO_RO		6
+#define  STM_MPU_RASR_AP_MASK		7
+#define STM_MPU_RASR_TEX	19
+#define  STM_MPU_RASR_TEX_MASK		7
+#define STM_MPU_RASR_S		18
+#define STM_MPU_RASR_C		17
+#define STM_MPU_RASR_B		16
+#define STM_MPU_RASR_SRD	8
+#define  STM_MPU_RASR_SRD_MASK		0xff
+#define STM_MPU_RASR_SIZE	1
+#define  STM_MPU_RASR_SIZE_MASK		0x1f
+#define STM_MPU_RASR_ENABLE	0
+
 #define isr(name) void stm_ ## name ## _isr(void);
 
 isr(nmi)
@@ -1567,6 +1624,13 @@ extern struct stm_tim234 stm_tim2, stm_tim3, stm_tim4;
 #define STM_TIM234_SR_CC2IF	2
 #define STM_TIM234_SR_CC1IF	1
 #define STM_TIM234_SR_UIF	0
+
+#define STM_TIM234_EGR_TG	6
+#define STM_TIM234_EGR_CC4G	4
+#define STM_TIM234_EGR_CC3G	3
+#define STM_TIM234_EGR_CC2G	2
+#define STM_TIM234_EGR_CC1G	1
+#define STM_TIM234_EGR_UG	0
 
 #define STM_TIM234_CCMR1_OC2CE	15
 #define STM_TIM234_CCMR1_OC2M	12

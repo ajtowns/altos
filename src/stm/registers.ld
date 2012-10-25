@@ -46,5 +46,7 @@ stm_tim2   = 0x40000000;
 
 stm_nvic   = 0xe000e100;
 
+stm_mpu    = 0xe000ed90;
+
 /* calibration data in system memory */
 stm_temp_cal = 0x1ff80078;

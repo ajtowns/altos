@@ -12,7 +12,7 @@ PDCLIB=/home/keithp/sat
 C_LIB=$(PDCLIB)/lib/pdclib.a
 C_INC=-I$(PDCLIB)/include
 
-DEF_CFLAGS=-g -std=gnu99 -Os -mlittle-endian -mthumb -ffreestanding -nostdlib -I../../src/stm $(C_INC)
+DEF_CFLAGS=-g -std=gnu99 -Os -mlittle-endian -mthumb -ffreestanding -nostdlib -I. -I../../src/stm $(C_INC)
 
 # to run from SRAM
 LD_FLAGS_RAM=-L../stm -Wl,-Taltos-ram.ld

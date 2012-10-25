@@ -15,6 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+#include <ao.h>
 #include "stm32l.h"
 #include <string.h>
 
@@ -28,7 +29,7 @@ extern char __bss_start__, __bss_end__;
 
 void stm_halt_isr(void)
 {
-	for(;;);
+	ao_panic(AO_PANIC_CRASH);
 }
 
 void stm_ignore_isr(void)

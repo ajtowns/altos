@@ -20,6 +20,9 @@
 #if HAS_SAMPLE_PROFILE
 #include <ao_sample_profile.h>
 #endif
+#if HAS_STACK_GUARD
+#include <ao_mpu.h>
+#endif
 
 #define AO_NO_TASK_INDEX	0xff
 
@@ -127,6 +130,9 @@ ao_yield(void) ao_arch_naked_define
 	ao_cur_task->start = ao_sample_profile_timer_value();
 #endif
 	}
+#if HAS_STACK_GUARD
+	ao_mpu_stack_guard(ao_cur_task->stack);
+#endif
 #if AO_CHECK_STACK
 	cli();
 	in_yield = 0;
