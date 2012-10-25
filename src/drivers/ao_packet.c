@@ -27,6 +27,7 @@ static __pdata uint8_t rx_seq;
 
 __xdata struct ao_task	ao_packet_task;
 __xdata uint8_t ao_packet_enable;
+__xdata uint8_t ao_packet_restart;
 
 #if PACKET_HAS_MASTER
 __xdata uint8_t ao_packet_master_sleeping;
@@ -106,7 +107,8 @@ ao_packet_recv(void)
 		/* Check for incoming data at the next sequence and
 		 * for an empty data buffer
 		 */
-		if (ao_rx_packet.packet.seq == (uint8_t) (rx_seq + (uint8_t) 1) &&
+		if ((ao_rx_packet.packet.seq == (uint8_t) (rx_seq + (uint8_t) 1) ||
+		     ao_packet_restart) &&
 		    ao_packet_rx_used == ao_packet_rx_len) {
 
 			/* Copy data to the receive data buffer and set up the
@@ -126,6 +128,7 @@ ao_packet_recv(void)
 			ao_wakeup(&ao_stdin_ready);
 		}
 	}
+	ao_packet_restart = 0;
 
 	/* If the other side has seen the latest data we queued,
 	 * wake up any task waiting to send data and let them go again

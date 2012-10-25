@@ -48,6 +48,7 @@ extern __xdata struct ao_task	ao_packet_task;
 extern __xdata uint8_t ao_packet_enable;
 extern __xdata uint8_t ao_packet_master_sleeping;
 extern __pdata uint8_t ao_packet_rx_len, ao_packet_rx_used, ao_packet_tx_used;
+extern __xdata uint8_t ao_packet_restart;
 
 void
 ao_packet_send(void);
