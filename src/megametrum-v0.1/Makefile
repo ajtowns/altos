@@ -26,7 +26,8 @@ INC = \
 	ao_whiten.h \
 	ao_sample_profile.h \
 	ao_mpu.h \
-	stm32l.h
+	stm32l.h \
+	Makefile
 
 #
 # Common AltOS sources
