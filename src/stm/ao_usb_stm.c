@@ -223,16 +223,16 @@ _ao_usb_set_stat_tx(int ep, uint32_t stat_tx)
 static void
 ao_usb_set_stat_tx(int ep, uint32_t stat_tx)
 {
-	cli();
+	ao_arch_block_interrupts();
 	_ao_usb_set_stat_tx(ep, stat_tx);
-	sei();
+	ao_arch_release_interrupts();
 }
 
 static void
 ao_usb_set_stat_rx(int ep, uint32_t stat_rx) {
 	uint32_t	epr_write, epr_old;
 
-	cli();
+	ao_arch_block_interrupts();
 	epr_write = epr_old = stm_usb.epr[ep];
 	epr_write &= STM_USB_EPR_PRESERVE_MASK;
 	epr_write |= STM_USB_EPR_INVARIANT;
@@ -240,7 +240,7 @@ ao_usb_set_stat_rx(int ep, uint32_t stat_rx) {
 			      STM_USB_EPR_STAT_RX_MASK << STM_USB_EPR_STAT_RX,
 			      stat_rx << STM_USB_EPR_STAT_RX);
 	stm_usb.epr[ep] = epr_write;
-	sei();
+	ao_arch_release_interrupts();
 }
 
 /*
@@ -251,7 +251,7 @@ static void
 ao_usb_init_ep(uint8_t ep, uint32_t addr, uint32_t type, uint32_t stat_rx, uint32_t stat_tx)
 {
 	uint32_t		epr;
-	cli();
+	ao_arch_block_interrupts();
 	epr = stm_usb.epr[ep];
 	epr = ((0 << STM_USB_EPR_CTR_RX) |
 	       (epr & (1 << STM_USB_EPR_DTOG_RX)) |
@@ -267,7 +267,7 @@ ao_usb_init_ep(uint8_t ep, uint32_t addr, uint32_t type, uint32_t stat_rx, uint3
 			  (stat_tx << STM_USB_EPR_STAT_TX)) |
 	       (addr << STM_USB_EPR_EA));
 	stm_usb.epr[ep] = epr;
-	sei();
+	ao_arch_release_interrupts();
 	debug ("writing epr[%d] 0x%08x wrote 0x%08x\n",
 	       ep, epr, stm_usb.epr[ep]);
 }

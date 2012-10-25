@@ -75,7 +75,7 @@ ao_radio_master_send(void)
 	 */
 
 	PRINTD("Waiting radio ready\n");
-	cli();
+	ao_arch_block_interrupts();
 	ao_radio_ready = ao_gpio_get(AO_RADIO_INT_PORT,
 				     AO_RADIO_INT_PIN, AO_RADIO_INT);
 	ret = 0;
@@ -84,7 +84,7 @@ ao_radio_master_send(void)
 		if (ret)
 			break;
 	}
-	sei();
+	ao_arch_release_interrupts();
 	if (ret)
 		return 0;
 
@@ -99,11 +99,11 @@ ao_radio_master_send(void)
 		    AO_RADIO_SPI_BUS);
 	ao_radio_master_stop();
 	PRINTD("waiting for send done %d\n", ao_radio_done);
-	cli();
+	ao_arch_block_interrupts();
 	while (!ao_radio_done)
 		if (ao_sleep((void *) &ao_radio_done))
 			break;
-	sei();
+	ao_arch_release_interrupts();
 	PRINTD ("sent, radio done %d isr_0 %d isr_1 %d\n", ao_radio_done, isr_0_count, isr_1_count);
 	return ao_radio_done;
 }

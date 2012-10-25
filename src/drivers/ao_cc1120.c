@@ -469,10 +469,10 @@ ao_rdf_run(void)
 {
 	ao_radio_start_tx();
 
-	cli();
+	ao_arch_block_interrupts();
 	while (!ao_radio_wake && !ao_radio_abort)
 		ao_sleep(&ao_radio_wake);
-	sei();
+	ao_arch_release_interrupts();
 	if (!ao_radio_wake)
 		ao_radio_idle();
 	ao_radio_put();
@@ -603,10 +603,10 @@ ao_radio_send(const void *d, uint8_t size)
 			
 		do {
 			ao_radio_wake = 0;
-			cli();
+			ao_arch_block_interrupts();
 			while (!ao_radio_wake)
 				ao_sleep(&ao_radio_wake);
-			sei();
+			ao_arch_release_interrupts();
 			if (!encode_len)
 				break;
 			fifo_space = ao_radio_tx_fifo_space();
@@ -660,14 +660,14 @@ ao_radio_rx_isr(void)
 static uint16_t
 ao_radio_rx_wait(void)
 {
-	cli();
+	ao_arch_block_interrupts();
 	rx_waiting = 1;
 	while (rx_data_cur - rx_data_consumed < AO_FEC_DECODE_BLOCK &&
 	       !ao_radio_abort) {
 		ao_sleep(&ao_radio_wake);
 	}
 	rx_waiting = 0;
-	sei();
+	ao_arch_release_interrupts();
 	if (ao_radio_abort)
 		return 0;
 	rx_data_consumed += AO_FEC_DECODE_BLOCK;

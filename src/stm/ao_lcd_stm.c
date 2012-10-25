@@ -253,12 +253,12 @@ ao_lcd_stm_fcr_sync(void)
 void
 ao_lcd_flush(void)
 {
-	cli();
+	ao_arch_block_interrupts();
 	ao_lcd_update_active = 1;
 	stm_lcd.sr = (1 << STM_LCD_SR_UDR);
 	while (ao_lcd_update_active)
 		ao_sleep(&ao_lcd_update_active);
-	sei();
+	ao_arch_release_interrupts();
 }
 
 void

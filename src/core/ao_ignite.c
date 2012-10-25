@@ -23,10 +23,10 @@ __xdata struct ao_ignition ao_ignition[2];
 void
 ao_ignite(enum ao_igniter igniter)
 {
-	cli();
+	ao_arch_block_interrupts();
 	ao_ignition[igniter].request = 1;
 	ao_wakeup(&ao_ignition);
-	sei();
+	ao_arch_release_interrupts();
 }
 
 #ifndef AO_SENSE_DROGUE

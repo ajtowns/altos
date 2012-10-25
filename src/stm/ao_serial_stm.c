@@ -34,7 +34,7 @@ ao_debug_out(char c)
 }
 
 static void
-ao_usart_tx_start(struct ao_stm_usart *usart)
+_ao_usart_tx_start(struct ao_stm_usart *usart)
 {
 	if (!ao_fifo_empty(usart->tx_fifo) && !usart->tx_started)
 	{
@@ -61,7 +61,7 @@ ao_usart_isr(struct ao_stm_usart *usart, int stdin)
 	}
 	if (sr & (1 << STM_USART_SR_TC)) {
 		usart->tx_started = 0;
-		ao_usart_tx_start(usart);
+		_ao_usart_tx_start(usart);
 		ao_wakeup(&usart->tx_fifo);
 	}
 }
@@ -70,11 +70,11 @@ char
 ao_usart_getchar(struct ao_stm_usart *usart)
 {
 	char c;
-	cli();
+	ao_arch_block_interrupts();
 	while (ao_fifo_empty(usart->rx_fifo))
 		ao_sleep(&usart->rx_fifo);
 	ao_fifo_remove(usart->rx_fifo, c);
-	sei();
+	ao_arch_release_interrupts();
 	return c;
 }
 
@@ -82,34 +82,34 @@ char
 ao_usart_pollchar(struct ao_stm_usart *usart)
 {
 	char	c;
-	cli();
-	if (ao_fifo_empty(usart->rx_fifo)) {
-		sei();
-		return AO_READ_AGAIN;
-	}
-	ao_fifo_remove(usart->rx_fifo,c);
-	sei();
+	
+	ao_arch_block_interrupts();
+	if (ao_fifo_empty(usart->rx_fifo))
+		c = AO_READ_AGAIN;
+	else
+		ao_fifo_remove(usart->rx_fifo,c);
+	ao_arch_release_interrupts();
 	return c;
 }
 
 void
 ao_usart_putchar(struct ao_stm_usart *usart, char c)
 {
-	cli();
+	ao_arch_block_interrupts();
 	while (ao_fifo_full(usart->tx_fifo))
 		ao_sleep(&usart->tx_fifo);
 	ao_fifo_insert(usart->tx_fifo, c);
-	ao_usart_tx_start(usart);
-	sei();
+	_ao_usart_tx_start(usart);
+	ao_arch_release_interrupts();
 }
 
 void
 ao_usart_drain(struct ao_stm_usart *usart)
 {
-	cli();
+	ao_arch_block_interrupts();
 	while (!ao_fifo_empty(usart->tx_fifo))
 		ao_sleep(&usart->tx_fifo);
-	sei();
+	ao_arch_release_interrupts();
 }
 
 static const struct {

@@ -130,7 +130,6 @@ static uint32_t
 ao_ms5607_get_sample(uint8_t cmd) {
 	uint8_t	reply[3];
 	uint8_t read;
-	uint32_t loops;
 
 	ao_ms5607_done = 0;
 
@@ -142,15 +141,10 @@ ao_ms5607_get_sample(uint8_t cmd) {
 #if AO_MS5607_PRIVATE_PINS
 	ao_spi_put(AO_MS5607_SPI_INDEX);
 #endif
-//	loops = 0;
-	cli();
-	while (!ao_ms5607_done) {
-//		loops++;
+	ao_arch_block_interrupts();
+	while (!ao_ms5607_done)
 		ao_sleep((void *) &ao_ms5607_done);
-	}
-	sei();
-//	if (loops > 1)
-//		printf ("ms5607 loops %d\n", loops);
+	ao_arch_release_interrupts();
 #if AO_MS5607_PRIVATE_PINS
 	stm_gpio_set(AO_MS5607_CS_PORT, AO_MS5607_CS_PIN, 1);
 #else
