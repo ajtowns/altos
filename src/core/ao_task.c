@@ -114,6 +114,8 @@ ao_task_validate_alarm_queue(void)
 #define ao_task_validate_alarm_queue()
 #endif
 
+uint16_t	ao_task_alarm_tick;
+
 static void
 ao_task_to_alarm_queue(struct ao_task *task)
 {
@@ -126,6 +128,7 @@ ao_task_to_alarm_queue(struct ao_task *task)
 		}
 	}
 	ao_list_append(&task->alarm_queue, &alarm_queue);
+	ao_task_alarm_tick = ao_list_first_entry(&alarm_queue, struct ao_task, alarm_queue)->alarm;
 	ao_task_validate_alarm_queue();
 }
 
@@ -133,6 +136,10 @@ static void
 ao_task_from_alarm_queue(struct ao_task *task)
 {
 	ao_list_del(&task->alarm_queue);
+	if (ao_list_is_empty(&alarm_queue))
+		ao_task_alarm_tick = 0;
+	else
+		ao_task_alarm_tick = ao_list_first_entry(&alarm_queue, struct ao_task, alarm_queue)->alarm;
 	ao_task_validate_alarm_queue();
 }
 
@@ -154,10 +161,7 @@ void
 ao_task_check_alarm(uint16_t tick)
 {
 	struct ao_task	*alarm, *next;
-	int		i;
 
-	if (ao_num_tasks == 0)
-		return;
 	ao_list_for_each_entry_safe(alarm, next, &alarm_queue, struct ao_task, alarm_queue) {
 		if ((int16_t) (tick - alarm->alarm) < 0)
 			break;
@@ -173,6 +177,7 @@ ao_task_init(void)
 	uint8_t	i;
 	ao_list_init(&run_queue);
 	ao_list_init(&alarm_queue);
+	ao_task_alarm_tick = 0;
 	for (i = 0; i < SLEEP_HASH_SIZE; i++)
 		ao_list_init(&sleep_queue[i]);
 }
@@ -264,14 +269,9 @@ ao_task_validate(void)
 		}
 	}
 }
-#else
-#define ao_task_validate()
-#endif
+#endif /* DEBUG */
 
-#else
-#define ao_task_to_run_queue(task)
-#define ao_task_to_alarm_queue(task)
-#endif
+#endif /* HAS_TASK_QUEUE */
 
 void
 ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *name) __reentrant

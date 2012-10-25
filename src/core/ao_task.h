@@ -82,6 +82,7 @@ ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *nam
 
 #if HAS_TASK_QUEUE
 /* Called on timer interrupt to check alarms */
+extern uint16_t	ao_task_alarm_tick;
 void
 ao_task_check_alarm(uint16_t tick);
 #endif
