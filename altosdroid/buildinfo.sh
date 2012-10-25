@@ -1,31 +1,42 @@
 #!/bin/sh
 #
-
-describe=$(git describe --always 2>/dev/null || echo '')
-if [ -n "$describe" ]; then
-   version=$(echo $describe | cut -d- -f1)
-   commitnum=$(echo $describe | cut -d- -f2)
-   commithash=$(echo $describe | cut -d- -f3)
-else
-   . ../src/Version
-   version=$VERSION
-   commitnum=''
-   commithash=''
-fi
-
-builddate=$(date "+%Y-%m-%d")
-buildtime=$(date "+%H:%M")
-
+# Author: Mike Beattie <mike@ethernal.org>
+#
+# Script to parse result from git describe, and push values into
+# BuildInfo.java for use within altosdroid (to display the current
+# version and build information, primarily).
+#
 
 infile=src/org/altusmetrum/AltosDroid/BuildInfo.java.in
 outfile=src/org/altusmetrum/AltosDroid/BuildInfo.java
 
-echo "Version $describe, built on $builddate, $buildtime"
+. ../src/Version
+version=$VERSION
+branch=''
+commitnum=''
+commithash=''
+builddate=$(date "+%Y-%m-%d")
+buildtime=$(date "+%H:%M")
+buildtz=$(date "+%z")
 
-sed -e "s/@DESCRIBE@/$describe/" \
-    -e "s/@VERSION@/$version/" \
+
+describe=$(git describe --match "$version" --long --always 2>/dev/null || echo '')
+if [ -n "$describe" ]; then
+   branch=$(git status -s -b | sed -ne '1s/^## \(.*\)\.\.\..*$/\1/p')
+   commitdetails=$(echo $describe | sed -e "s/^$version-//")
+   commitnum=$(echo $commitdetails | cut -d- -f1)
+   commithash=$(echo $commitdetails | cut -d- -f2)
+fi
+
+
+echo "Version $describe, built on $builddate $buildtime $buildtz"
+
+sed -e "s/@VERSION@/$version/" \
+    -e "s/@DESCRIBE@/$describe/" \
+    -e "s/@BRANCH@/$branch/" \
     -e "s/@COMMITNUM@/$commitnum/" \
     -e "s/@COMMITHASH@/$commithash/" \
     -e "s/@BUILDDATE@/$builddate/" \
     -e "s/@BUILDTIME@/$buildtime/" \
+    -e "s/@BUILDTZ@/$buildtz/" \
  $infile > $outfile

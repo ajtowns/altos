@@ -335,15 +335,30 @@
         </RelativeLayout>
 
 
-        <TextView
-	        android:id="@+id/text"
-	        android:layout_width="fill_parent"
-	        android:layout_height="0dip"
-	        android:layout_alignParentBottom="true"
-	        android:layout_below="@+id/longitude_container"
-	        android:gravity="bottom"
-	        android:scrollbars="vertical"
-	        android:textSize="7dp"
-	        android:typeface="monospace" />
+        <RelativeLayout
+            android:id="@+id/text_container"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_below="@id/longitude_container" >
+
+        	<TextView
+        	    android:id="@+id/text"
+        	    android:layout_width="fill_parent"
+        	    android:layout_height="fill_parent"
+        	    android:layout_above="@+id/version"
+        	    android:scrollbars="vertical"
+        	    android:textSize="7dp"
+        	    android:typeface="monospace" />
+        
+            <TextView
+                android:id="@+id/version"
+                android:layout_width="fill_parent"
+                android:layout_height="10dip"
+                android:layout_alignParentBottom="true"
+                android:gravity="bottom|right"
+                android:textSize="7dp"
+                android:typeface="monospace" />
+
+        </RelativeLayout>
 
     </RelativeLayout>
