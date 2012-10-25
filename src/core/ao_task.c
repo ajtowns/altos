@@ -331,6 +331,7 @@ ao_yield(void) ao_arch_naked_define
 	}
 
 	ao_arch_isr_stack();
+	ao_arch_block_interrupts();
 
 #if AO_CHECK_STACK
 	in_yield = 1;
@@ -339,21 +340,19 @@ ao_yield(void) ao_arch_naked_define
 	 * this loop will run forever, which is just fine
 	 */
 #if HAS_TASK_QUEUE
-	if (ao_cur_task->wchan == NULL) {
-		uint32_t flags;
-		flags = ao_arch_irqsave();
+	/* If the current task is running, move it to the
+	 * end of the queue to allow other tasks a chance
+	 */
+	if (ao_cur_task->wchan == NULL)
 		ao_task_to_run_queue(ao_cur_task);
-		ao_arch_irqrestore(flags);
-	}
 	ao_cur_task = NULL;
-
 	for (;;) {
 		ao_arch_memory_barrier();
 		if (!ao_list_is_empty(&run_queue))
 			break;
-		ao_arch_cpu_idle();
+		/* Wait for interrupts when there's nothing ready */
+		ao_arch_wait_interrupt();
 	}
-		
 	ao_cur_task = ao_list_first_entry(&run_queue, struct ao_task, queue);
 #else
 	{
@@ -374,20 +373,19 @@ ao_yield(void) ao_arch_naked_define
 			    (int16_t) (ao_time() - ao_cur_task->alarm) >= 0)
 				break;
 
-			/* Enter lower power mode when there isn't anything to do */
+			/* Wait for interrupts when there's nothing ready */
 			if (ao_cur_task_index == ao_last_task_index)
-				ao_arch_cpu_idle();
+				ao_arch_wait_interrupt();
 		}
-#if HAS_SAMPLE_PROFILE
-		ao_cur_task->start = ao_sample_profile_timer_value();
-#endif
 	}
+#endif
+#if HAS_SAMPLE_PROFILE
+	ao_cur_task->start = ao_sample_profile_timer_value();
 #endif
 #if HAS_STACK_GUARD
 	ao_mpu_stack_guard(ao_cur_task->stack);
 #endif
 #if AO_CHECK_STACK
-	ao_arch_block_interrupts();
 	in_yield = 0;
 #endif
 	ao_arch_restore_stack();
@@ -519,7 +517,7 @@ ao_task_info(void)
 		       task->name,
 		       (int) task->wchan);
 	}
-#if HAS_TASK_QUEUE
+#if HAS_TASK_QUEUE && DEBUG
 	ao_task_validate();
 #endif
 }

@@ -112,7 +112,6 @@ extern uint8_t	ao_cpu_sleep_disable;
 		asm("push r9" "\n\t" "push r8" "\n\t" "push r7" "\n\t" "push r6" "\n\t" "push r5"); \
 		asm("push r4" "\n\t" "push r3" "\n\t" "push r2" "\n\t" "push r1" "\n\t" "push r0"); \
 		asm("in r0, __SREG__" "\n\t" "push r0");		\
-		sei();							\
 	} while (0)
 
 #define ao_arch_save_stack() do {					\
@@ -124,16 +123,28 @@ extern uint8_t	ao_cpu_sleep_disable;
 
 #define ao_arch_isr_stack()	/* nothing */
 
-#define ao_arch_cpu_idle() do {			\
-		if (!ao_cpu_sleep_disable)	\
+/* Idle the CPU (if possible) waiting for an interrupt. Enabling
+ * interrupts and sleeping the CPU must be adjacent to eliminate race
+ * conditions. In all cases, we execute a single nop with interrupts
+ * enabled
+ */
+#define ao_arch_wait_interrupt() do {		\
+		if (!ao_cpu_sleep_disable) {	\
+			sleep_enable();		\
+			sei();			\
 			sleep_cpu();		\
+			sleep_disable();	\
+		} else {			\
+			sei();			\
+		}				\
+		ao_arch_nop();			\
+		cli();				\
 	} while (0)
 
 #define ao_arch_restore_stack() do { \
 		uint8_t	sp_l, sp_h;					\
 		sp_l = (uint16_t) ao_cur_task->sp;			\
 		sp_h = ((uint16_t) ao_cur_task->sp) >> 8;		\
-		cli();							\
 		asm("out __SP_H__,%0" : : "r" (sp_h) );			\
 		asm("out __SP_L__,%0" : : "r" (sp_l) );			\
 		asm("pop r0"	"\n\t"					\

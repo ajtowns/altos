@@ -299,8 +299,10 @@ static inline void ao_arch_restore_stack(void) {
 
 #define ao_arch_isr_stack()
 
-#define ao_arch_cpu_idle() do {			\
+#define ao_arch_wait_interrupt() do {			\
 		asm(".global ao_idle_loc\n\twfi\nao_idle_loc:");	\
+		ao_arch_release_interrupts();				\
+		ao_arch_block_interrupts();				\
 	} while (0)
 
 #define ao_arch_critical(b) do {				\

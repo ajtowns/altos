@@ -112,9 +112,7 @@ extern AO_ROMCONFIG_SYMBOL(0x00a6) uint32_t ao_radio_cal;
 	/* Push ACC first, as when restoring the context it must be restored \
 	 * last (it is used to set the IE register). */			\
 	push	ACC							\
-	/* Store the IE register then enable interrupts. */		\
 	push	_IEN0							\
-	setb	_EA							\
 	push	DPL							\
 	push	DPH							\
 	push	b							\
@@ -150,10 +148,15 @@ extern AO_ROMCONFIG_SYMBOL(0x00a6) uint32_t ao_radio_cal;
 /* Empty the stack; might as well let interrupts have the whole thing */
 #define ao_arch_isr_stack()		(SP = AO_STACK_START - 1)
 
-/* Idle the CPU, waking when an interrupt occurs */
-#define ao_arch_cpu_idle()		(PCON = PCON_IDLE)
 #define ao_arch_block_interrupts()	__asm clr _EA __endasm
 #define ao_arch_release_interrupts()	__asm setb _EA __endasm
+
+/* Idle the CPU, waking when an interrupt occurs */
+#define ao_arch_wait_interrupt() do {		\
+		ao_arch_release_interrupts();	\
+		(PCON = PCON_IDLE);		\
+		ao_arch_block_interrupts();	\
+	} while (0)
 
 #define ao_arch_restore_stack() {					\
 		uint8_t stack_len;					\
