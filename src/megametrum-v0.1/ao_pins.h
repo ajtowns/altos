@@ -18,6 +18,8 @@
 #ifndef _AO_PINS_H_
 #define _AO_PINS_H_
 
+#define HAS_TASK_QUEUE		1
+
 /* 8MHz High speed external crystal */
 #define AO_HSE			8000000
 

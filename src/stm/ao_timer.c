@@ -16,6 +16,7 @@
  */
 
 #include "ao.h"
+#include <ao_task.h>
 
 volatile __data AO_TICK_TYPE ao_tick_count;
 
@@ -42,6 +43,9 @@ void stm_tim6_isr(void)
 	if (stm_tim6.sr & (1 << STM_TIM67_SR_UIF)) {
 		stm_tim6.sr = 0;
 		++ao_tick_count;
+#if HAS_TASK_QUEUE
+		ao_task_check_alarm((uint16_t) ao_tick_count);
+#endif
 #if AO_DATA_ALL
 		if (++ao_data_count == ao_data_interval) {
 			ao_data_count = 0;
