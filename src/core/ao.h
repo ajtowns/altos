@@ -101,7 +101,7 @@ ao_delay(uint16_t ticks);
 
 /* Set the ADC interval */
 void
-ao_timer_set_adc_interval(uint8_t interval) __critical;
+ao_timer_set_adc_interval(uint8_t interval);
 
 /* Timer interrupt */
 void

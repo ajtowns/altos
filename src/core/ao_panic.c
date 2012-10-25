@@ -53,7 +53,8 @@ ao_panic(uint8_t reason)
 	ao_cur_task = NULL;
 	printf ("panic %d\n", reason);
 #endif
-	__critical for (;;) {
+	ao_arch_block_interrupts();
+	for (;;) {
 		ao_panic_delay(20);
 		for (n = 0; n < 5; n++) {
 			ao_led_on(AO_LED_PANIC);

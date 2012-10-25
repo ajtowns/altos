@@ -155,6 +155,9 @@ ao_packet_flush(void)
 void
 ao_packet_putchar(char c) __reentrant
 {
+	/* No need to block interrupts, all variables here
+	 * are only manipulated in task context
+	 */
 	while (ao_packet_tx_used == AO_PACKET_MAX && ao_packet_enable) {
 #if PACKET_HAS_MASTER
 		ao_packet_flush();
@@ -167,8 +170,11 @@ ao_packet_putchar(char c) __reentrant
 }
 
 char
-ao_packet_pollchar(void) __critical
+ao_packet_pollchar(void)
 {
+	/* No need to block interrupts, all variables here
+	 * are only manipulated in task context
+	 */
 	if (!ao_packet_enable)
 		return AO_READ_AGAIN;
 

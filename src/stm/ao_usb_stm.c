@@ -799,25 +799,23 @@ ao_usb_in_send(void)
 	ao_usb_tx_count = 0;
 }
 
-/* Wait for a free IN buffer */
+/* Wait for a free IN buffer. Interrupts are blocked */
 static void
-ao_usb_in_wait(void)
+_ao_usb_in_wait(void)
 {
 	for (;;) {
 		/* Check if the current buffer is writable */
 		if (ao_usb_tx_count < AO_USB_IN_SIZE)
 			break;
 
-		cli();
 		/* Wait for an IN buffer to be ready */
 		while (ao_usb_in_pending)
 			ao_sleep(&ao_usb_in_pending);
-		sei();
 	}
 }
 
 void
-ao_usb_flush(void) __critical
+ao_usb_flush(void)
 {
 	if (!ao_usb_running)
 		return;
@@ -829,24 +827,25 @@ ao_usb_flush(void) __critical
 	 * packet was full, in which case we now
 	 * want to send an empty packet
 	 */
+	ao_arch_block_interrupts();
 	if (!ao_usb_in_flushed) {
 		ao_usb_in_flushed = 1;
-		cli();
 		/* Wait for an IN buffer to be ready */
 		while (ao_usb_in_pending)
 			ao_sleep(&ao_usb_in_pending);
-		sei();
 		ao_usb_in_send();
 	}
+	ao_arch_release_interrupts();
 }
 
 void
-ao_usb_putchar(char c) __critical __reentrant
+ao_usb_putchar(char c)
 {
 	if (!ao_usb_running)
 		return;
 
-	ao_usb_in_wait();
+	ao_arch_block_interrupts();
+	_ao_usb_in_wait();
 
 	ao_usb_in_flushed = 0;
 	ao_usb_tx_buffer[ao_usb_tx_count++] = (uint8_t) c;
@@ -854,10 +853,11 @@ ao_usb_putchar(char c) __critical __reentrant
 	/* Send the packet when full */
 	if (ao_usb_tx_count == AO_USB_IN_SIZE)
 		ao_usb_in_send();
+	ao_arch_release_interrupts();
 }
 
 static void
-ao_usb_out_recv(void)
+_ao_usb_out_recv(void)
 {
 	ao_usb_out_avail = 0;
 
@@ -888,7 +888,7 @@ _ao_usb_pollchar(void)
 		/* Check to see if a packet has arrived */
 		if (!ao_usb_out_avail)
 			return AO_READ_AGAIN;
-		ao_usb_out_recv();
+		_ao_usb_out_recv();
 	}
 
 	/* Pull a character out of the fifo */
@@ -900,27 +900,28 @@ char
 ao_usb_pollchar(void)
 {
 	char	c;
-	cli();
+	ao_arch_block_interrupts();
 	c = _ao_usb_pollchar();
-	sei();
+	ao_arch_release_interrupts();
 	return c;
 }
 
 char
-ao_usb_getchar(void) __critical
+ao_usb_getchar(void)
 {
 	char	c;
 
-	cli();
+	ao_arch_block_interrupts();
 	while ((c = _ao_usb_pollchar()) == AO_READ_AGAIN)
 		ao_sleep(&ao_stdin_ready);
-	sei();
+	ao_arch_release_interrupts();
 	return c;
 }
 
 void
 ao_usb_disable(void)
 {
+	ao_arch_block_interrupts();
 	stm_usb.cntr = (1 << STM_USB_CNTR_FRES);
 	stm_usb.istr = 0;
 
@@ -932,6 +933,7 @@ ao_usb_disable(void)
 
 	/* Disable the interface */
 	stm_rcc.apb1enr &+ ~(1 << STM_RCC_APB1ENR_USBEN);
+	ao_arch_release_interrupts();
 }
 
 void
@@ -953,6 +955,8 @@ ao_usb_enable(void)
 	 * input 10 (the documented correct selection), then USB is
 	 * pulled low and doesn't work at all
 	 */
+
+	ao_arch_block_interrupts();
 
 	/* Route interrupts */
 	stm_nvic_set_priority(STM_ISR_USB_LP_POS, 3);
@@ -984,6 +988,8 @@ ao_usb_enable(void)
 			(0 << STM_USB_CNTR_LP_MODE) |
 			(0 << STM_USB_CNTR_PDWN) |
 			(0 << STM_USB_CNTR_FRES));
+
+	ao_arch_release_interrupts();
 
 	for (t = 0; t < 1000; t++)
 		ao_arch_nop();

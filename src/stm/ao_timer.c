@@ -56,10 +56,12 @@ void stm_tim6_isr(void)
 
 #if HAS_ADC
 void
-ao_timer_set_adc_interval(uint8_t interval) __critical
+ao_timer_set_adc_interval(uint8_t interval)
 {
-	ao_data_interval = interval;
-	ao_data_count = 0;
+	ao_arch_critical(
+		ao_data_interval = interval;
+		ao_data_count = 0;
+		);
 }
 #endif
 

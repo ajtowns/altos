@@ -312,18 +312,20 @@ __xdata struct ao_task ao_btm_task;
 #endif
 
 void
-ao_btm_check_link() __critical
+ao_btm_check_link()
 {
-	/* Check the pin and configure the interrupt detector to wait for the
-	 * pin to flip the other way
-	 */
-	if (BT_LINK_PIN) {
-		ao_btm_connected = 0;
-		PICTL |= BT_PICTL_ICON;
-	} else {
-		ao_btm_connected = 1;
-		PICTL &= ~BT_PICTL_ICON;
-	}
+	ao_arch_critical(
+		/* Check the pin and configure the interrupt detector to wait for the
+		 * pin to flip the other way
+		 */
+		if (BT_LINK_PIN) {
+			ao_btm_connected = 0;
+			PICTL |= BT_PICTL_ICON;
+		} else {
+			ao_btm_connected = 1;
+			PICTL &= ~BT_PICTL_ICON;
+		}
+		);
 }
 
 void

@@ -43,7 +43,6 @@
 #define __xdata
 #define __code const
 #define __reentrant
-#define __critical
 #define __interrupt(n)
 #define __at(n)
 
@@ -83,8 +82,29 @@ extern const uint32_t ao_radio_cal;
 #define ao_arch_task_members\
 	uint32_t *sp;			/* saved stack pointer */
 
-#define cli()	asm("cpsid i")
-#define sei()	asm("cpsie i")
+#define ao_arch_block_interrupts()	asm("cpsid i")
+#define ao_arch_release_interrupts()	asm("cpsie i")
+
+#define cli()	ao_arch_block_interrupts()
+#define sei()	ao_arch_release_interrupts()
+
+static uint32_t
+ao_arch_irqsave(void) {
+	uint32_t	primask;
+	asm("mrs %0,primask" : "=&r" (primask));
+	ao_arch_block_interrupts();
+	return primask;
+}
+
+static void
+ao_arch_irqrestore(uint32_t primask) {
+	asm("msr primask,%0" : : "r" (primask));
+}
+
+static void
+ao_arch_memory_barrier() {
+	asm volatile("" ::: "memory");
+}
 
 #define ao_arch_init_stack(task, start) do {				\
 		uint32_t	*sp = (uint32_t *) (task->stack + AO_STACK_SIZE); \

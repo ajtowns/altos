@@ -96,21 +96,23 @@ flush(void)
 __xdata uint8_t ao_stdin_ready;
 
 char
-getchar(void) __reentrant __critical
+getchar(void) __reentrant
 {
 	char c;
-	int8_t stdio = ao_cur_stdio;
+	ao_arch_critical(
+		int8_t stdio = ao_cur_stdio;
 
-	for (;;) {
-		c = ao_stdios[stdio].pollchar();
-		if (c != AO_READ_AGAIN)
-			break;
-		if (++stdio == ao_num_stdios)
-			stdio = 0;
-		if (stdio == ao_cur_stdio)
-			ao_sleep(&ao_stdin_ready);
-	}
-	ao_cur_stdio = stdio;
+		for (;;) {
+			c = ao_stdios[stdio].pollchar();
+			if (c != AO_READ_AGAIN)
+				break;
+			if (++stdio == ao_num_stdios)
+				stdio = 0;
+			if (stdio == ao_cur_stdio)
+				ao_sleep(&ao_stdin_ready);
+		}
+		ao_cur_stdio = stdio;
+		);
 	return c;
 }
 

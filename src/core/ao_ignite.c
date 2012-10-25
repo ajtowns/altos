@@ -21,10 +21,12 @@
 __xdata struct ao_ignition ao_ignition[2];
 
 void
-ao_ignite(enum ao_igniter igniter) __critical
+ao_ignite(enum ao_igniter igniter)
 {
+	cli();
 	ao_ignition[igniter].request = 1;
 	ao_wakeup(&ao_ignition);
+	sei();
 }
 
 #ifndef AO_SENSE_DROGUE
@@ -39,12 +41,12 @@ ao_igniter_status(enum ao_igniter igniter)
 	__pdata int16_t value;
 	__pdata uint8_t request, firing, fired;
 
-	__critical {
+	ao_arch_critical(
 		ao_data_get(&packet);
 		request = ao_ignition[igniter].request;
 		fired = ao_ignition[igniter].fired;
 		firing = ao_ignition[igniter].firing;
-	}
+		);
 	if (firing || (request && !fired))
 		return ao_igniter_active;
 
@@ -79,7 +81,7 @@ ao_igniter_status(enum ao_igniter igniter)
 #endif
 
 void
-ao_igniter_fire(enum ao_igniter igniter) __critical
+ao_igniter_fire(enum ao_igniter igniter)
 {
 	ao_ignition[igniter].firing = 1;
 	switch(ao_config.ignite_mode) {

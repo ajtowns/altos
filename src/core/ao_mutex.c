@@ -22,11 +22,11 @@ ao_mutex_get(__xdata uint8_t *mutex) __reentrant
 {
 	if (*mutex == ao_cur_task->task_id)
 		ao_panic(AO_PANIC_MUTEX);
-	__critical {
+	ao_arch_critical(
 		while (*mutex)
 			ao_sleep(mutex);
 		*mutex = ao_cur_task->task_id;
-	}
+		);
 }
 
 void
@@ -34,8 +34,8 @@ ao_mutex_put(__xdata uint8_t *mutex) __reentrant
 {
 	if (*mutex != ao_cur_task->task_id)
 		ao_panic(AO_PANIC_MUTEX);
-	__critical {
+	ao_arch_critical(
 		*mutex = 0;
 		ao_wakeup(mutex);
-	}
+		);
 }
