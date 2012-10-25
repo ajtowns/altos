@@ -210,4 +210,103 @@ ao_i2c_recv(void *block, uint16_t len, uint8_t i2c_index, uint8_t stop);
 void
 ao_i2c_init(void);
 
+#define ARM_PUSH32(stack, val)	(*(--(stack)) = (val))
+
+static inline uint32_t
+ao_arch_irqsave(void) {
+	uint32_t	primask;
+	asm("mrs %0,primask" : "=&r" (primask));
+	ao_arch_block_interrupts();
+	return primask;
+}
+
+static inline void
+ao_arch_irqrestore(uint32_t primask) {
+	asm("msr primask,%0" : : "r" (primask));
+}
+
+static inline void
+ao_arch_memory_barrier() {
+	asm volatile("" ::: "memory");
+}
+
+static inline void
+ao_arch_init_stack(struct ao_task *task, void *start)
+{
+	uint32_t	*sp = (uint32_t *) (task->stack + AO_STACK_SIZE);
+	uint32_t	a = (uint32_t) start;
+	int		i;
+
+	/* Return address (goes into LR) */
+	ARM_PUSH32(sp, a);
+
+	/* Clear register values r0-r12 */
+	i = 13;
+	while (i--)
+		ARM_PUSH32(sp, 0);
+
+	/* APSR */
+	ARM_PUSH32(sp, 0);
+
+	/* PRIMASK with interrupts enabled */
+	ARM_PUSH32(sp, 0);
+
+	task->sp = sp;
+}
+
+static inline void ao_arch_save_regs(void) {
+	/* Save general registers */
+	asm("push {r0-r12,lr}\n");
+
+	/* Save APSR */
+	asm("mrs r0,apsr");
+	asm("push {r0}");
+
+	/* Save PRIMASK */
+	asm("mrs r0,primask");
+	asm("push {r0}");
+}
+
+static inline void ao_arch_save_stack(void) {
+	uint32_t	*sp;
+	asm("mov %0,sp" : "=&r" (sp) );
+	ao_cur_task->sp = (sp);
+	if ((uint8_t *) sp < &ao_cur_task->stack[0])
+		ao_panic (AO_PANIC_STACK);
+}
+
+static inline void ao_arch_restore_stack(void) {
+	uint32_t	sp;
+	sp = (uint32_t) ao_cur_task->sp;
+
+	/* Switch stacks */
+	asm("mov sp, %0" : : "r" (sp) );
+
+	/* Restore PRIMASK */
+	asm("pop {r0}");
+	asm("msr primask,r0");
+
+	/* Restore APSR */
+	asm("pop {r0}");
+	asm("msr apsr,r0");
+
+	/* Restore general registers */
+	asm("pop {r0-r12,lr}\n");
+
+	/* Return to calling function */
+	asm("bx lr");
+}
+
+#define ao_arch_isr_stack()
+
+#define ao_arch_cpu_idle() do {			\
+		asm(".global ao_idle_loc\n\twfi\nao_idle_loc:");	\
+	} while (0)
+
+#define ao_arch_critical(b) do {				\
+		ao_arch_block_interrupts();			\
+		do { b } while (0);				\
+		ao_arch_release_interrupts();			\
+	} while (0)
+
 #endif /* _AO_ARCH_FUNCS_H_ */

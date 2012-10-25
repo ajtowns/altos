@@ -901,6 +901,36 @@ stm_nvic_get_priority(int irq) {
 	return (stm_nvic.ipr[IRQ_PRIO_REG(irq)] >> IRQ_PRIO_BIT(irq)) & IRQ_PRIO_MASK(0);
 }
 
+struct stm_scb {
+	vuint32_t	cpuid;
+	vuint32_t	icsr;
+	vuint32_t	vtor;
+	vuint32_t	aircr;
+
+	vuint32_t	scr;
+	vuint32_t	ccr;
+	vuint32_t	shpr1;
+	vuint32_t	shpr2;
+
+	vuint32_t	shpr3;
+	vuint32_t	shcrs;
+	vuint32_t	cfsr;
+	vuint32_t	hfsr;
+
+	uint32_t	unused_30;
+	vuint32_t	mmfar;
+	vuint32_t	bfar;
+};
+
+extern struct stm_scb stm_scb;
+
+#define STM_SCB_AIRCR_VECTKEY		16
+#define  STM_SCB_AIRCR_VECTKEY_KEY		0x05fa
+#define STM_SCB_AIRCR_PRIGROUP		8
+#define STM_SCB_AIRCR_SYSRESETREQ	2
+#define STM_SCB_AIRCR_VECTCLRACTIVE	1
+#define STM_SCB_AIRCR_VECTRESET		0
+
 struct stm_mpu {
 	vuint32_t	typer;
 	vuint32_t	cr;
