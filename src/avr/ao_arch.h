@@ -150,6 +150,9 @@ extern uint8_t	ao_cpu_sleep_disable;
 
 #define ao_arch_critical(b) do { cli(); do { b } while (0); sei(); } while (0)
 
+#define ao_arch_block_interrupts()	cli()
+#define ao_arch_release_interrupts()	sei()
+
 #define AO_TELESCIENCE_NUM_ADC	12
 
 #endif /* _AO_ARCH_H_ */

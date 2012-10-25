@@ -153,6 +153,11 @@ extern AO_ROMCONFIG_SYMBOL(0x00a6) uint32_t ao_radio_cal;
 
 #define ao_arch_cpu_idle()	(PCON = PCON_IDLE)
 
+#define ao_arch_block_interrupts()	__asm clr ea __endasm
+#define ao_arch_release_interrupts()	__asm setb ea __endasm
+#define cli() ao_arch_block_interrupts()
+#define sei() ao_arch_release_interrupts()
+
 #define ao_arch_restore_stack() {					\
 		uint8_t stack_len;					\
 		__data uint8_t *stack_ptr;				\
