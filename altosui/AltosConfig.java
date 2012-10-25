@@ -393,8 +393,10 @@ public class AltosConfig implements ActionListener {
 	}
 
 	void abort() {
-		serial_line.close();
-		serial_line = null;
+		if (serial_line != null) {
+			serial_line.close();
+			serial_line = null;
+		}
 		JOptionPane.showMessageDialog(owner,
 					      String.format("Connection to \"%s\" failed",
 							    device.toShortString()),
