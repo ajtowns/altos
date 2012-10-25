@@ -147,16 +147,13 @@ extern AO_ROMCONFIG_SYMBOL(0x00a6) uint32_t ao_radio_cal;
 		while (--stack_len);					\
 	}
 
-#define ao_arch_isr_stack()						\
-	/* Empty the stack; might as well let interrupts have the whole thing */ \
-	(SP = AO_STACK_START - 1)
+/* Empty the stack; might as well let interrupts have the whole thing */
+#define ao_arch_isr_stack()		(SP = AO_STACK_START - 1)
 
-#define ao_arch_cpu_idle()	(PCON = PCON_IDLE)
-
-#define ao_arch_block_interrupts()	__asm clr ea __endasm
-#define ao_arch_release_interrupts()	__asm setb ea __endasm
-#define cli() ao_arch_block_interrupts()
-#define sei() ao_arch_release_interrupts()
+/* Idle the CPU, waking when an interrupt occurs */
+#define ao_arch_cpu_idle()		(PCON = PCON_IDLE)
+#define ao_arch_block_interrupts()	__asm clr _EA __endasm
+#define ao_arch_release_interrupts()	__asm setb _EA __endasm
 
 #define ao_arch_restore_stack() {					\
 		uint8_t stack_len;					\
@@ -197,7 +194,7 @@ extern AO_ROMCONFIG_SYMBOL(0x00a6) uint32_t ao_radio_cal;
 		0098$:							\
 			SETB		_EA				\
 		0099$:							\
-		/* Finally pop off the ACC, which was the first register saved. */ \
+		/* Finally restore ACC, which was the first register saved. */ \
 		pop		ACC					\
 		ret							\
 		__endasm;						\
