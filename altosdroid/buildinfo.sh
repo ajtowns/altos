@@ -22,7 +22,7 @@ buildtz=$(date "+%z")
 
 describe=$(git describe --match "$version" --long --always 2>/dev/null || echo '')
 if [ -n "$describe" ]; then
-   branch=$(git status -s -b | sed -ne '1s/^## \(.*\)\.\.\..*$/\1/p')
+   branch=$(git branch | sed -ne 's/^\* //p')
    commitdetails=$(echo $describe | sed -e "s/^$version-//")
    commitnum=$(echo $commitdetails | cut -d- -f1)
    commithash=$(echo $commitdetails | cut -d- -f2)
