@@ -64,6 +64,9 @@
 
 #define ao_arch_critical(b) do { cli(); do { b } while (0); sei(); } while (0)
 
+#define ao_arch_block_interrupts()	cli()
+#define ao_arch_release_interrupts()	sei()
+
 #define ao_mutex_get(m)
 #define ao_mutex_put(m)
 
