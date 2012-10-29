@@ -27,7 +27,7 @@ ifneq ($(shell which sdcc),)
 endif
 
 ifneq ($(shell which avr-gcc),)
-	SUBDIRS += telescience-v0.1 telescience-pwm telepyro-v0.1
+	SUBDIRS += telescience-v0.1 telescience-pwm telepyro-v0.1 micropeak
 endif
 
 ifneq ($(shell which arm-none-eabi-gcc),)
