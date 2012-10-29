@@ -19,6 +19,13 @@ ifndef VERSION
 include ../Version
 endif
 
+# Support for a logging EEPROM
+#
+#EEPROM_SRC=ao_async.c \
+#	ao_i2c_attiny.c \
+#	ao_at24c.c
+#
+
 ALTOS_SRC = \
 	ao_micropeak.c \
 	ao_spi_attiny.c \
@@ -27,13 +34,11 @@ ALTOS_SRC = \
 	ao_ms5607.c \
 	ao_exti.c \
 	ao_convert_pa.c \
-	ao_i2c_attiny.c \
-	ao_at24c.c \
 	ao_report_tiny.c \
-	ao_async.c \
 	ao_notask.c \
 	ao_eeprom_tiny.c \
-	ao_panic.c
+	ao_panic.c \
+	$(EEPROM_SRC)
 
 INC=\
 	ao.h \

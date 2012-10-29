@@ -47,6 +47,12 @@ ao_pa_get(void)
 #define GROUND_AVG_SHIFT	4
 #define GROUND_AVG		(1 << GROUND_AVG_SHIFT)
 
+/* Pressure change (in Pa) to detect boost */
+#define BOOST_DETECT		48	/* 4m at sea level, 4.8m at 2000m */
+
+/* Pressure change (in Pa) to detect landing */
+#define LAND_DETECT		12	/* 1m at sea level, 1.2m at 2000m */
+
 static void
 ao_compute_height(void)
 {
@@ -122,9 +128,9 @@ main(void)
 	sample_count = 0;
 	for (;;) {
 		time += SAMPLE_SLEEP;
-		ao_delay_until(time);
 		if (sample_count == 0)
 			ao_led_on(AO_LED_BLUE);
+		ao_delay_until(time);
 		ao_pa_get();
 		if (sample_count == 0)
 			ao_led_off(AO_LED_BLUE);
@@ -133,12 +139,11 @@ main(void)
 		if (pa_diff < 0)
 			pa_diff = -pa_diff;
 
-		/* about 2 meters at sea level, more if you're higher */
-		if (pa_diff > (24 << FILTER_SHIFT))
+		/* Check for a significant pressure change */
+		if (pa_diff > (BOOST_DETECT << FILTER_SHIFT))
 			break;
 
 		if (sample_count < GROUND_AVG * 2) {
-			ao_led_off(AO_LED_BLUE);
 			if (sample_count < GROUND_AVG)
 				pa_sum += pa;
 			++sample_count;
@@ -178,8 +183,9 @@ main(void)
 
 		if (sample_count == (GROUND_AVG - 1)) {
 			pa_diff = pa_interval_max - pa_interval_min;
-			/* About 1m at sea level */
-			if (pa_diff < (12 << FILTER_SHIFT))
+
+			/* Check to see if the pressure is now stable */
+			if (pa_diff < (LAND_DETECT << FILTER_SHIFT))
 				break;
 			sample_count = 0;
 			pa_interval_min = pa_avg;

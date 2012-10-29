@@ -29,7 +29,7 @@
 #define HAS_SERIAL_1		0
 #define HAS_TASK		0
 #define HAS_MS5607		1
-#define HAS_MS5611		1
+#define HAS_MS5611		0
 #define HAS_EEPROM		0
 #define HAS_BEEP		0
 #define AVR_CLOCK		8000000UL
