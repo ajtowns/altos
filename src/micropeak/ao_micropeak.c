@@ -48,7 +48,10 @@ ao_pa_get(void)
 #define GROUND_AVG		(1 << GROUND_AVG_SHIFT)
 
 /* Pressure change (in Pa) to detect boost */
-#define BOOST_DETECT		48	/* 4m at sea level, 4.8m at 2000m */
+#define BOOST_DETECT		120	/* 10m at sea level, 12m at 2000m */
+
+/* Wait after power on before doing anything to give the user time to assemble the rocket */
+#define BOOST_DELAY		AO_SEC_TO_TICKS(30)
 
 /* Pressure change (in Pa) to detect landing */
 #define LAND_DETECT		12	/* 1m at sea level, 1.2m at 2000m */
@@ -121,6 +124,7 @@ main(void)
 		ao_log_micro_dump();
 #endif	
 
+	ao_delay(BOOST_DELAY);
 	/* Wait for motion, averaging values to get ground pressure */
 	time = ao_time();
 	ao_pa_get();
@@ -136,8 +140,6 @@ main(void)
 			ao_led_off(AO_LED_BLUE);
 		pa_avg = pa_avg - (pa_avg >> FILTER_SHIFT) + pa;
 		pa_diff = pa_ground - pa_avg;
-		if (pa_diff < 0)
-			pa_diff = -pa_diff;
 
 		/* Check for a significant pressure change */
 		if (pa_diff > (BOOST_DETECT << FILTER_SHIFT))
