@@ -160,11 +160,25 @@ ao_ms5607_get_sample(uint8_t cmd) {
 	return ((uint32_t) reply[0] << 16) | ((uint32_t) reply[1] << 8) | (uint32_t) reply[2];
 }
 
+#ifndef AO_MS5607_BARO_OVERSAMPLE
+#define AO_MS5607_BARO_OVERSAMPLE	2048
+#endif
+
+#ifndef AO_MS5607_TEMP_OVERSAMPLE
+#define AO_MS5607_TEMP_OVERSAMPLE	AO_MS5607_BARO_OVERSAMPLE
+#endif
+
+#define token_paster(x,y)	x ## y
+#define token_evaluator(x,y)	token_paster(x,y)
+
+#define AO_CONVERT_D1	token_evaluator(AO_MS5607_CONVERT_D1_, AO_MS5607_BARO_OVERSAMPLE)
+#define AO_CONVERT_D2	token_evaluator(AO_MS5607_CONVERT_D2_, AO_MS5607_TEMP_OVERSAMPLE)
+
 void
 ao_ms5607_sample(struct ao_ms5607_sample *sample)
 {
-	sample->pres = ao_ms5607_get_sample(AO_MS5607_CONVERT_D1_2048);
-	sample->temp = ao_ms5607_get_sample(AO_MS5607_CONVERT_D2_2048);
+	sample->pres = ao_ms5607_get_sample(AO_CONVERT_D1);
+	sample->temp = ao_ms5607_get_sample(AO_CONVERT_D2);
 }
 
 #include "ao_ms5607_convert.c"
