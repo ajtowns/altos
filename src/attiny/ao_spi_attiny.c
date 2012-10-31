@@ -119,5 +119,4 @@ ao_spi_init(void)
 	SPI_DIR &= ~(1 << DDB0);	/* DI */
 	SPI_DIR |= (1 << DDB1);		/* DO */
 	SPI_DIR |= (1 << DDB2);		/* SCLK */
-	SPI_DIR |= (1 << DDB3);		/* CS */
 }
