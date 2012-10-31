@@ -39,12 +39,45 @@ ao_time(void)
 	return r;
 }
 
+#if AVR_CLOCK == 8000000UL
+#define AO_CLKPS	0	/* divide by 1 */
+#define AO_CS		10	/* prescale by 512 */
+#endif
+#if AVR_CLOCK == 4000000UL
+#define AO_CLKPS	1	/* divide by 2 */
+#define AO_CS		9	/* prescale by 256 */
+#endif
+#if AVR_CLOCK == 2000000UL
+#define AO_CLKPS	2	/* divide by 4 */
+#define AO_CS		8	/* prescale by 128 */
+#endif
+#if AVR_CLOCK == 1000000UL
+#define AO_CLKPS	3	/* divide by 8 */
+#define AO_CS		7	/* prescale by 64 */
+#endif
+#if AVR_CLOCK == 500000UL
+#define AO_CLKPS	4	/* divide by 16 */
+#define AO_CS		6	/* prescale by 32 */
+#endif
+#if AVR_CLOCK == 250000UL
+#define AO_CLKPS	5	/* divide by 32 */
+#define AO_CS		5	/* prescale by 16 */
+#endif
+#if AVR_CLOCK == 125000UL
+#define AO_CLKPS	6	/* divide by 64 */
+#define AO_CS		4	/* prescale by 32 */
+#endif
+#if AVR_CLOCK == 62500UL
+#define AO_CLKPS	7	/* divide by 128 */
+#define AO_CS		4	/* prescale by 32 */
+#endif
+
 void
 ao_timer_init(void)
 {
 	cli();
 	CLKPR = (1 << CLKPCE);
-	CLKPR = 0;
+	CLKPR = (AO_CLKPS << CLKPS0);
 	sei();
 
 	/* Overall division ratio is 512 * 125,
@@ -55,10 +88,7 @@ ao_timer_init(void)
 		 (0 << PWM1A) |		/* Not PWM mode */
 		 (0 << COM1A0) |	/* Don't change output pins */
 		 (0 << COM1A1) |	/*  ... */
-		 (1 << CS13) |		/* Prescale by 512 */
-		 (0 << CS12) |		/*  ... */
-		 (1 << CS11) |		/*  ... */
-		 (0 << CS10));		/*  ... */
+		 (AO_CS << CS10));	/* Prescale */
 	GTCCR = ((0 << PWM1B) |		/* Not PWM mode */
 		 (0 << COM1B1) |	/* Don't change output pins */
 		 (0 << COM1B0) |	/*  ... */

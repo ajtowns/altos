@@ -32,7 +32,7 @@
 #define HAS_MS5611		0
 #define HAS_EEPROM		0
 #define HAS_BEEP		0
-#define AVR_CLOCK		8000000UL
+#define AVR_CLOCK		250000UL
 
 /* SPI */
 #define SPI_PORT		PORTB
