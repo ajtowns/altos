@@ -22,7 +22,6 @@ static volatile AO_TICK_TYPE	ao_wakeup_count;
 
 ISR(TIMER1_COMPA_vect)
 {
-	PORTB ^= 2;
 	++ao_tick_count;
 	if ((int16_t) (ao_tick_count - ao_wakeup_count) >= 0)
 		ao_wakeup((void *) &ao_tick_count);
