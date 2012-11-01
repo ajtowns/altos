@@ -17,9 +17,9 @@
 
 #include "ao.h"
 
-static __xdata volatile uint16_t	ao_rssi_time;
-static __pdata volatile uint16_t	ao_rssi_delay;
-static __pdata uint8_t			ao_rssi_led;
+static __xdata uint16_t	ao_rssi_time;
+static __pdata uint16_t	ao_rssi_delay;
+static __pdata uint8_t	ao_rssi_led;
 
 void
 ao_rssi(void)
