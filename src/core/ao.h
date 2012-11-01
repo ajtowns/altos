@@ -558,8 +558,10 @@ extern const char const * const ao_state_names[];
 union ao_monitor {
 	struct ao_telemetry_raw_recv	raw;
 	struct ao_telemetry_all_recv	all;
+#if LEGACY_MONITOR
 	struct ao_telemetry_orig_recv	orig;
 	struct ao_telemetry_tiny_recv	tiny;
+#endif
 };
 
 extern __xdata union ao_monitor ao_monitor_ring[AO_MONITOR_RING];
