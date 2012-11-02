@@ -31,7 +31,7 @@ ifneq ($(shell which avr-gcc),)
 endif
 
 ifneq ($(shell which arm-none-eabi-gcc),)
-	SUBDIRS += megametrum-v0.1 stm-bringup stm-demo telelco-v0.1
+	SUBDIRS += megametrum-v0.1 megadongle-v0.1 stm-bringup stm-demo telelco-v0.1
 endif
 
 all: all-local all-recursive
