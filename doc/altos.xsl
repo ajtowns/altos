@@ -25,6 +25,11 @@
     </legalnotice>
     <revhistory>
       <revision>
+        <revnumber>1.1</revnumber>
+        <date>05 November 2012</date>
+        <revremark>Portable version</revremark>
+      </revision>
+      <revision>
         <revnumber>0.1</revnumber>
         <date>22 November 2010</date>
         <revremark>Initial content</revremark>
@@ -34,15 +39,48 @@
   <chapter>
     <title>Overview</title>
     <para>
-      AltOS is a operating system built for the 8051-compatible
-      processor found in the TI cc1111 microcontroller. It's designed
-      to be small and easy to program with. The main features are:
+      AltOS is a operating system built for a variety of
+      microcontrollers used in Altus Metrum devices. It has a simple
+      porting layer for each CPU while providing a convenient
+      operating enviroment for the developer. AltOS currently
+      supports three different CPUs:
       <itemizedlist>
 	<listitem>
-	  <para>Multi-tasking. While the 8051 doesn't provide separate
-	  address spaces, it's often easier to write code that operates
-	  in separate threads instead of tying everything into one giant
-	  event loop.
+	  <para>
+	    STM32L series from ST Microelectronics. This ARM Cortex-M3
+	    based microcontroller offers low power consumption and a
+	    wide variety of built-in peripherals. Altus Metrum uses
+	    this in the MegaMetrum, MegaDongle and TeleLCO projects.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    CC1111 from Texas Instruments. This device includes a
+	    fabulous 10mW digital RF transceiver along with an
+	    8051-compatible processor core and a range of
+	    peripherals. This is used in the TeleMetrum, TeleMini,
+	    TeleDongle and TeleFire projects which share the need for
+	    a small microcontroller and an RF interface.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    ATmega32U4 from Atmel. This 8-bit AVR microcontroller is
+	    one of the many used to create Arduino boards. The 32U4
+	    includes a USB interface, making it easy to connect to
+	    other computers. Altus Metrum used this in prototypes of
+	    the TeleScience and TelePyro boards; those have been
+	    switched to the STM32L which is more capable and cheaper.
+	  </para>
+	</listitem>
+      </itemizedlist>
+      Among the features of AltOS are:
+      <itemizedlist>
+	<listitem>
+	  <para>Multi-tasking. While microcontrollers often don't
+	  provide separate address spaces, it's often easier to write
+	  code that operates in separate threads instead of tying
+	  everything into one giant event loop.
 	  </para>
 	</listitem>
 	<listitem>
@@ -110,6 +148,166 @@
     </para>
   </chapter>
   <chapter>
+    <title>AltOS Porting Layer</title>
+    <para>
+      AltOS provides a CPU-independent interface to various common
+      microcontroller subsystems, including GPIO pins, interrupts,
+      SPI, I2C, USB and asynchronous serial interfaces. By making
+      these CPU-independent, device drivers, generic OS and
+      application code can all be written that work on any supported
+      CPU. Many of the architecture abstraction interfaces are
+      prefixed with ao_arch.
+    </para>
+    <section>
+      <title>Low-level CPU operations</title>
+      <para>
+	These primitive operations provide the abstraction needed to
+	run the multi-tasking framework while providing reliable
+	interrupt delivery.
+      </para>
+      <section>
+	<title>ao_arch_block_interrupts/ao_arch_release_interrupts</title>
+	<programlisting>
+	  static inline void
+	  ao_arch_block_interrupts(void);
+	  
+	  static inline void
+	  ao_arch_release_interrupts(void);
+	</programlisting>
+	<para>
+	  These disable/enable interrupt delivery, they may not
+	  discard any interrupts. Use these for sections of code that
+	  must be atomic with respect to any code run from an
+	  interrupt handler.
+	</para>
+      </section>
+      <section>
+	<title>ao_arch_save_regs, ao_arch_save_stack,
+	ao_arch_restore_stack</title>
+	<programlisting>
+	  static inline void
+	  ao_arch_save_regs(void);
+
+	  static inline void
+	  ao_arch_save_stack(void);
+
+	  static inline void
+	  ao_arch_restore_stack(void);
+	</programlisting>
+	<para>
+	  These provide all of the support needed to switch between
+	  tasks.. ao_arch_save_regs must save all CPU registers to the
+	  current stack, including the interrupt enable
+	  state. ao_arch_save_stack records the current stack location
+	  in the current ao_task structure. ao_arch_restore_stack
+	  switches back to the saved stack, restores all registers and
+	  branches to the saved return address.
+	</para>
+      </section>
+      <section>
+	<title>ao_arch_wait_interupt</title>
+	<programlisting>
+	  #define ao_arch_wait_interrupt()
+	</programlisting>
+	<para>
+	  This stops the CPU, leaving clocks and interrupts
+	  enabled. When an interrupt is received, this must wake up
+	  and handle the interrupt. ao_arch_wait_interrupt is entered
+	  with interrupts disabled to ensure that there is no gap
+	  between determining that no task wants to run and idling the
+	  CPU. It must sleep the CPU, process interrupts and then
+	  disable interrupts again. If the CPU doesn't have any
+	  reduced power mode, this must at the least allow pending
+	  interrupts to be processed.
+	</para>
+      </section>
+    </section>
+    <section>
+      <title>GPIO operations</title>
+      <para>
+	These functions provide an abstract interface to configure and
+	manipulate GPIO pins.
+      </para>
+      <section>
+	<title>GPIO setup</title>
+	<para>
+	  These macros may be invoked at system initialization time to
+	  configure pins as needed for system operation. One tricky
+	  aspect is that some chips provide direct access to specific
+	  GPIO pins while others only provide access to a whole
+	  register full of pins. To support this, the GPIO macros
+	  provide both port+bit and pin arguments. Simply define the
+	  arguments needed for the target platform and leave the
+	  others undefined.
+	</para>
+	<section>
+	  <title>ao_enable_output</title>
+	  <programlisting>
+	    #define ao_enable_output(port, bit, pin, value)
+	  </programlisting>
+	  <para>
+	    Set the specified port+bit (also called 'pin') for output,
+	    initializing to the specified value. The macro must avoid
+	    driving the pin with the opposite value if at all
+	    possible.
+	  </para>
+	</section>
+	<section>
+	  <title>ao_enable_input</title>
+	  <programlisting>
+	    #define ao_enable_input(port, bit, mode)
+	  </programlisting>
+	  <para>
+	    Sets the specified port/bit to be an input pin. 'mode' is
+	    a combination of one or more of the following. Note that
+	    some platforms may not support the desired mode. In that
+	    case, the value will not be defined so that the program
+	    will fail to compile.
+	    <itemizedlist>
+	      <listitem>
+		AO_EXTI_MODE_PULL_UP. Apply a pull-up to the pin; a
+		disconnected pin will read as 1.
+	      </listitem>
+	      <listitem>
+		AO_EXTI_MODE_PULL_DOWN. Apply a pull-down to the pin;
+		a disconnected pin will read as 0.
+	      </listitem>
+	      <listitem>
+		0. Don't apply either a pull-up or pull-down. A
+		disconnected pin will read an undetermined value.
+	      </listitem>
+	    </itemizedlist>
+	  </para>
+	</section>
+      </section>
+      <section>
+	<title>Reading and writing GPIO pins</title>
+	<para>
+	  These macros read and write individual GPIO pins.
+	</para>
+	<section>
+	  <title>ao_gpio_set</title>
+	  <programlisting>
+	    #define ao_gpio_set(port, bit, pin, value)
+	  </programlisting>
+	  <para>
+	    Sets the specified port/bit or pin to the indicated value
+	  </para>
+	</section>
+	<section>
+	  <title>ao_gpio_get</title>
+	  <programlisting>
+	    #define ao_gpio_get(port, bit, pin)
+	  </programlisting>
+	  <para>
+	    Returns either 1 or 0 depending on whether the input to
+	    the pin is high or low.
+	  </para>
+	</section>
+      </section>
+    </section>
+  </chapter>
+  <chapter>
     <title>Programming the 8051 with SDCC</title>
     <para>
       The 8051 is a primitive 8-bit processor, designed in the mists
@@ -119,6 +317,10 @@
       stack itself is of limited size. While SDCC papers over the
       instruction set, it is not completely able to hide the memory
       architecture from the application designer.
+    </para>
+    <para>
+      When built on other architectures, the various SDCC-specific
+      symbols are #defined as empty strings so they don't affect the compiler.
     </para>
     <section>
       <title>8051 memory spaces</title>
@@ -278,7 +480,9 @@
 	  __critical which blocks interrupts during the execution of
 	  that statement. Keeping critical sections as short as
 	  possible is key to ensuring that interrupts are handled as
-	  quickly as possible.
+	  quickly as possible. AltOS doesn't use this form in shared
+	  code as other compilers wouldn't know what to do. Use
+	  ao_arch_block_interrupts and ao_arch_release_interrupts instead.
 	</para>
       </section>
     </section>
@@ -328,15 +532,17 @@
       </para>
       <para>
 	Because ao_wakeup wakes every task waiting on a particular
-	location, ao_sleep should be used in a loop that first
-	checks the desired condition, blocks in ao_sleep and then
-	rechecks until the condition is satisfied. If the
-	location may be signaled from an interrupt handler, the
-	code will need to block interrupts by using the __critical
-	label around the block of code. Here's a complete example:
+	location, ao_sleep should be used in a loop that first checks
+	the desired condition, blocks in ao_sleep and then rechecks
+	until the condition is satisfied. If the location may be
+	signaled from an interrupt handler, the code will need to
+	block interrupts around the block of code. Here's a complete
+	example:
 	<programlisting>
-	  __critical while (!ao_radio_done)
+	  ao_arch_block_interrupts();
+	  while (!ao_radio_done)
 	          ao_sleep(&amp;ao_radio_done);
+	  ao_arch_release_interrupts();
 	</programlisting>
       </para>
     </section>
@@ -357,27 +563,34 @@
 	          RFIF &amp;= ~RFIF_IM_DONE;
 	  }
 	</programlisting>
-	Note that this need not be enclosed in __critical as the
-	ao_sleep block can only be run from normal mode, and so
-	this sequence can never be interrupted with execution of
-	the other sequence.
+	Note that this need not block interrupts as the ao_sleep block
+	can only be run from normal mode, and so this sequence can
+	never be interrupted with execution of the other sequence.
       </para>
     </section>
     <section>
       <title>ao_alarm</title>
       <programlisting>
 	void
-	ao_alarm(uint16_t delay)
+	ao_alarm(uint16_t delay);
+
+	void
+	ao_clear_alarm(void);
       </programlisting>
       <para>
-	Schedules an alarm to fire in at least 'delay' ticks. If
-	the task is asleep when the alarm fires, it will wakeup
-	and ao_sleep will return 1.
+	Schedules an alarm to fire in at least 'delay' ticks. If the
+	task is asleep when the alarm fires, it will wakeup and
+	ao_sleep will return 1. ao_clear_alarm resets any pending
+	alarm so that it doesn't fire at some arbitrary point in the
+	future.
 	<programlisting>
 	  ao_alarm(ao_packet_master_delay);
-	  __critical while (!ao_radio_dma_done)
+	  ao_arch_block_interrupts();
+	  while (!ao_radio_dma_done)
 	          if (ao_sleep(&amp;ao_radio_dma_done) != 0)
 	                  ao_radio_abort();
+	  ao_arch_release_interrupts();
+	  ao_clear_alarm();
 	</programlisting>
 	In this example, a timeout is set before waiting for
 	incoming radio data. If no data is received before the
@@ -389,7 +602,7 @@
       <title>ao_start_scheduler</title>
       <programlisting>
 	void
-	ao_start_scheduler(void)
+	ao_start_scheduler(void);
       </programlisting>
       <para>
 	This is called from 'main' when the system is all
@@ -400,26 +613,22 @@
       <title>ao_clock_init</title>
       <programlisting>
 	void
-	ao_clock_init(void)
+	ao_clock_init(void);
       </programlisting>
       <para>
-	This turns on the external 48MHz clock then switches the
-	hardware to using it. This is required by many of the
-	internal devices like USB. It should be called by the
-	'main' function first, before initializing any of the
-	other devices in the system.
+	This initializes the main CPU clock and switches to it.
       </para>
     </section>
   </chapter>
   <chapter>
     <title>Timer Functions</title>
     <para>
-      AltOS sets up one of the cc1111 timers to run at 100Hz and
+      AltOS sets up one of the CPU timers to run at 100Hz and
       exposes this tick as the fundemental unit of time. At each
       interrupt, AltOS increments the counter, and schedules any tasks
-      waiting for that time to pass, then fires off the ADC system to
+      waiting for that time to pass, then fires off the sensors to
       collect current data readings. Doing this from the ISR ensures
-      that the ADC values are sampled at a regular rate, independent
+      that the values are sampled at a regular rate, independent
       of any scheduling jitter.
     </para>
     <section>
@@ -462,9 +671,9 @@
 	ao_timer_init(void)
       </programlisting>
       <para>
-	This turns on the 100Hz tick using the CC1111 timer 1. It
-	is required for any of the time-based functions to
-	work. It should be called by 'main' before ao_start_scheduler.
+	This turns on the 100Hz tick. It is required for any of the
+	time-based functions to work. It should be called by 'main'
+	before ao_start_scheduler.
       </para>
     </section>
   </chapter>
@@ -502,13 +711,20 @@
     </section>
   </chapter>
   <chapter>
-    <title>CC1111 DMA engine</title>
+    <title>DMA engine</title>
     <para>
-      The CC1111 contains a useful bit of extra hardware in the form
-      of five programmable DMA engines. They can be configured to copy
-      data in memory, or between memory and devices (or even between
-      two devices). AltOS exposes a general interface to this hardware
-      and uses it to handle radio and SPI data.
+      The CC1111 and STM32L both contain a useful bit of extra
+      hardware in the form of a number of programmable DMA
+      engines. They can be configured to copy data in memory, or
+      between memory and devices (or even between two devices). AltOS
+      exposes a general interface to this hardware and uses it to
+      handle both internal and external devices.
+    </para>
+    <para>
+      Because the CC1111 and STM32L DMA engines are different, the
+      interface to them is also different. As the DMA engines are
+      currently used to implement platform-specific drivers, this
+      isn't yet a problem.
     </para>
     <para>
       Code using a DMA engine should allocate one at startup
@@ -524,83 +740,170 @@
       transfer is usually initiated by software.
     </para>
     <section>
-      <title>ao_dma_alloc</title>
-      <programlisting>
-	uint8_t
-	ao_dma_alloc(__xdata uint8_t *done)
-      </programlisting>
-      <para>
-	Allocates a DMA engine, returning the identifier. Whenever
-	this DMA engine completes a transfer. 'done' is cleared
-	when the DMA is started, and then receives the
-	AO_DMA_DONE bit on a successful transfer or the
-	AO_DMA_ABORTED bit if ao_dma_abort was called. Note that
-	it is possible to get both bits if the transfer was
-	aborted after it had finished.
-      </para>
+      <title>CC1111 DMA Engine</title>
+      <section>
+	<title>ao_dma_alloc</title>
+	<programlisting>
+	  uint8_t
+	  ao_dma_alloc(__xdata uint8_t *done)
+	</programlisting>
+	<para>
+	  Allocate a DMA engine, returning the identifier.  'done' is
+	  cleared when the DMA is started, and then receives the
+	  AO_DMA_DONE bit on a successful transfer or the
+	  AO_DMA_ABORTED bit if ao_dma_abort was called. Note that it
+	  is possible to get both bits if the transfer was aborted
+	  after it had finished.
+	</para>
+      </section>
+      <section>
+	<title>ao_dma_set_transfer</title>
+	<programlisting>
+	  void
+	  ao_dma_set_transfer(uint8_t id,
+	  void __xdata *srcaddr,
+	  void __xdata *dstaddr,
+	  uint16_t count,
+	  uint8_t cfg0,
+	  uint8_t cfg1)
+	</programlisting>
+	<para>
+	  Initializes the specified dma engine to copy data
+	  from 'srcaddr' to 'dstaddr' for 'count' units. cfg0 and
+	  cfg1 are values directly out of the CC1111 documentation
+	  and tell the DMA engine what the transfer unit size,
+	  direction and step are.
+	</para>
+      </section>
+      <section>
+	<title>ao_dma_start</title>
+	<programlisting>
+	  void
+	  ao_dma_start(uint8_t id);
+	</programlisting>
+	<para>
+	  Arm the specified DMA engine and await a signal from
+	  either hardware or software to start transferring data.
+	</para>
+      </section>
+      <section>
+	<title>ao_dma_trigger</title>
+	<programlisting>
+	  void
+	  ao_dma_trigger(uint8_t id)
+	</programlisting>
+	<para>
+	  Trigger the specified DMA engine to start copying data.
+	</para>
+      </section>
+      <section>
+	<title>ao_dma_abort</title>
+	<programlisting>
+	  void
+	  ao_dma_abort(uint8_t id)
+	</programlisting>
+	<para>
+	  Terminate any in-progress DMA transation, marking its
+	  'done' variable with the AO_DMA_ABORTED bit.
+	</para>
+      </section>
     </section>
     <section>
-      <title>ao_dma_set_transfer</title>
-      <programlisting>
-	void
-	ao_dma_set_transfer(uint8_t id,
-	                    void __xdata *srcaddr,
-	                    void __xdata *dstaddr,
-	                    uint16_t count,
-	                    uint8_t cfg0,
-	                    uint8_t cfg1)
-      </programlisting>
-      <para>
-	Initializes the specified dma engine to copy data
-	from 'srcaddr' to 'dstaddr' for 'count' units. cfg0 and
-	cfg1 are values directly out of the CC1111 documentation
-	and tell the DMA engine what the transfer unit size,
-	direction and step are.
-      </para>
-    </section>
-    <section>
-      <title>ao_dma_start</title>
-      <programlisting>
-	void
-	ao_dma_start(uint8_t id);
-      </programlisting>
-      <para>
-	Arm the specified DMA engine and await a signal from
-	either hardware or software to start transferring data.
-      </para>
-    </section>
-    <section>
-      <title>ao_dma_trigger</title>
-      <programlisting>
-	void
-	ao_dma_trigger(uint8_t id)
-      </programlisting>
-      <para>
-	Trigger the specified DMA engine to start copying data.
-      </para>
-    </section>
-    <section>
-      <title>ao_dma_abort</title>
-      <programlisting>
-	void
-	ao_dma_abort(uint8_t id)
-      </programlisting>
-      <para>
-	Terminate any in-progress DMA transation, marking its
-	'done' variable with the AO_DMA_ABORTED bit.
-      </para>
+      <title>STM32L DMA Engine</title>
+      <section>
+	<title>ao_dma_alloc</title>
+	<programlisting>
+	  uint8_t ao_dma_done[];
+
+	  void
+	  ao_dma_alloc(uint8_t index);
+	</programlisting>
+	<para>
+	  Reserve a DMA engine for exclusive use by one
+	  driver.
+	</para>
+      </section>
+      <section>
+	<title>ao_dma_set_transfer</title>
+	<programlisting>
+	  void
+	  ao_dma_set_transfer(uint8_t id,
+	  void *peripheral,
+	  void *memory,
+	  uint16_t count,
+	  uint32_t ccr);
+	</programlisting>
+	<para>
+	  Initializes the specified dma engine to copy data between
+	  'peripheral' and 'memory' for 'count' units. 'ccr' is a
+	  value directly out of the STM32L documentation and tells the
+	  DMA engine what the transfer unit size, direction and step
+	  are.
+	</para>
+      </section>
+      <section>
+	<title>ao_dma_set_isr</title>
+	<programlisting>
+	  void
+	  ao_dma_set_isr(uint8_t index, void (*isr)(int))
+	</programlisting>
+	<para>
+	  This sets a function to be called when the DMA transfer
+	  completes in lieu of setting the ao_dma_done bits. Use this
+	  when some work needs to be done when the DMA finishes that
+	  cannot wait until user space resumes.
+	</para>
+      </section>
+      <section>
+	<title>ao_dma_start</title>
+	<programlisting>
+	  void
+	  ao_dma_start(uint8_t id);
+	</programlisting>
+	<para>
+	  Arm the specified DMA engine and await a signal from either
+	  hardware or software to start transferring data.
+	  'ao_dma_done[index]' is cleared when the DMA is started, and
+	  then receives the AO_DMA_DONE bit on a successful transfer
+	  or the AO_DMA_ABORTED bit if ao_dma_abort was called. Note
+	  that it is possible to get both bits if the transfer was
+	  aborted after it had finished.
+	</para>
+      </section>
+      <section>
+	<title>ao_dma_done_transfer</title>
+	<programlisting>
+	  void
+	  ao_dma_done_transfer(uint8_t id);
+	</programlisting>
+	<para>
+	  Signals that a specific DMA engine is done being used. This
+	  allows multiple drivers to use the same DMA engine safely.
+	</para>
+      </section>
+      <section>
+	<title>ao_dma_abort</title>
+	<programlisting>
+	  void
+	  ao_dma_abort(uint8_t id)
+	</programlisting>
+	<para>
+	  Terminate any in-progress DMA transation, marking its
+	  'done' variable with the AO_DMA_ABORTED bit.
+	</para>
+      </section>
     </section>
   </chapter>
   <chapter>
-    <title>SDCC Stdio interface</title>
+    <title>Stdio interface</title>
     <para>
-      AltOS offers a stdio interface over both USB and the RF packet
-      link. This provides for control of the device localy or
-      remotely. This is hooked up to the stdio functions in SDCC by
-      providing the standard putchar/getchar/flush functions. These
-      automatically multiplex the two available communication
-      channels; output is always delivered to the channel which
-      provided the most recent input.
+      AltOS offers a stdio interface over USB, serial and the RF
+      packet link. This provides for control of the device localy or
+      remotely. This is hooked up to the stdio functions by providing
+      the standard putchar/getchar/flush functions. These
+      automatically multiplex the available communication channels;
+      output is always delivered to the channel which provided the
+      most recent input.
     </para>
     <section>
       <title>putchar</title>
@@ -673,9 +976,9 @@
     <para>
       AltOS includes a simple command line parser which is hooked up
       to the stdio interfaces permitting remote control of the device
-      over USB or the RF link as desired. Each command uses a single
-      character to invoke it, the remaining characters on the line are
-      available as parameters to the command.
+      over USB, serial or the RF link as desired. Each command uses a
+      single character to invoke it, the remaining characters on the
+      line are available as parameters to the command.
     </para>
     <section>
       <title>ao_cmd_register</title>
@@ -828,9 +1131,9 @@
     </section>
   </chapter>
   <chapter>
-    <title>CC1111 USB target device</title>
+    <title>USB target device</title>
     <para>
-      The CC1111 contains a full-speed USB target device. It can be
+      AltOS contains a full-speed USB target device driver. It can be
       programmed to offer any kind of USB target, but to simplify
       interactions with a variety of operating systems, AltOS provides
       only a single target device profile, that of a USB modem which
@@ -945,7 +1248,7 @@
     </section>
   </chapter>
   <chapter>
-    <title>CC1111 Serial peripheral</title>
+    <title>Serial peripherals</title>
     <para>
       The CC1111 provides two USART peripherals. AltOS uses one for
       asynch serial data, generally to communicate with a GPS device,
