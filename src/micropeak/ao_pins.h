@@ -19,10 +19,11 @@
 #define _AO_PINS_H_
 #include <avr/pgmspace.h>
 
-#define AO_LED_BLUE		(1<<4)
+#define AO_LED_ORANGE		(1<<4)
 #define AO_LED_SERIAL		4
-#define AO_LED_PANIC		AO_LED_BLUE
-#define LEDS_AVAILABLE		(AO_LED_BLUE)
+#define AO_LED_PANIC		AO_LED_ORANGE
+#define AO_LED_REPORT		AO_LED_ORANGE
+#define LEDS_AVAILABLE		(AO_LED_ORANGE)
 #define USE_SERIAL_1_STDIN	0
 #define HAS_USB			0
 #define PACKET_HAS_SLAVE	0

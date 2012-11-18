@@ -133,11 +133,11 @@ main(void)
 	for (;;) {
 		time += SAMPLE_SLEEP;
 		if (sample_count == 0)
-			ao_led_on(AO_LED_BLUE);
+			ao_led_on(AO_LED_REPORT);
 		ao_delay_until(time);
 		ao_pa_get();
 		if (sample_count == 0)
-			ao_led_off(AO_LED_BLUE);
+			ao_led_off(AO_LED_REPORT);
 		pa_avg = pa_avg - (pa_avg >> FILTER_SHIFT) + pa;
 		pa_diff = pa_ground - pa_avg;
 
@@ -172,10 +172,10 @@ main(void)
 		time += SAMPLE_SLEEP;
 		ao_delay_until(time);
 		if ((sample_count & 3) == 0)
-			ao_led_on(AO_LED_BLUE);
+			ao_led_on(AO_LED_REPORT);
 		ao_pa_get();
 		if ((sample_count & 3) == 0)
-			ao_led_off(AO_LED_BLUE);
+			ao_led_off(AO_LED_REPORT);
 #if HAS_EEPROM
 		ao_log_micro_data(AO_LOG_MICRO_DATA | pa);
 #endif

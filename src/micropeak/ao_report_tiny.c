@@ -17,7 +17,7 @@
 
 #include <ao.h>
 
-#define mid(time)	ao_led_for(AO_LED_BLUE, time)
+#define mid(time)	ao_led_for(AO_LED_REPORT, time)
 #define pause(time)	ao_delay(time)
 
 static void
