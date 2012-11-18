@@ -521,7 +521,7 @@ static void
 ao_radio_test_cmd(void)
 {
 	uint8_t	mode = 2;
-	uint8_t radio_on;
+	static uint8_t radio_on;
 	ao_cmd_white();
 	if (ao_cmd_lex_c != '\n') {
 		ao_cmd_decimal();
