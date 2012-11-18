@@ -25,14 +25,14 @@ ao_report_digit(uint8_t digit) __reentrant
 {
 	if (!digit) {
 		mid(AO_MS_TO_TICKS(600));
-		pause(AO_MS_TO_TICKS(200));
+		pause(AO_MS_TO_TICKS(300));
 	} else {
 		while (digit--) {
-			mid(AO_MS_TO_TICKS(200));
-			pause(AO_MS_TO_TICKS(200));
+			mid(AO_MS_TO_TICKS(300));
+			pause(AO_MS_TO_TICKS(300));
 		}
 	}
-	pause(AO_MS_TO_TICKS(300));
+	pause(AO_MS_TO_TICKS(600));
 }
 
 void
