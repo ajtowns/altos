@@ -87,7 +87,7 @@ public class AltosTelemetryRecordMegaData extends AltosTelemetryRecordRaw {
 		next.kalman_speed = speed / 16.0;
 		next.kalman_height = height;
 
-		next.seen |= AltosRecord.seen_flight | AltosRecord.seen_temp_volt;
+		next.seen |= AltosRecord.seen_sensor | AltosRecord.seen_temp_volt;
 
 		return next;
 	}
