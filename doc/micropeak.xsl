@@ -30,6 +30,13 @@
 	  Initial release with preliminary hardware.
 	</revremark>
       </revision>
+      <revision>
+	<revnumber>1.0</revnumber>
+	<date>18 November 2012</date>
+	<revremark>
+	  Updates for version 1.0 release.
+	</revremark>
+      </revision>
     </revhistory>
   </bookinfo>
   <acknowledgements>
@@ -70,7 +77,8 @@ NAR #88757, TRA #12200
 	  preparing a soft cushion of wadding inside a vented model payload
 	  bay. Wherever you mount it, make sure you protect the
 	  barometric sensor from corrosive ejection gasses as those
-	  will damage the sensor.
+	  will damage the sensor, and shield it from light as that can
+	  cause incorrect sensor readings.
 	</para>
       </listitem>
       <listitem>
@@ -115,8 +123,7 @@ NAR #88757, TRA #12200
       </listitem>
       <listitem>
 	<para>
-	  Recover the data. Turn MicroPeak off for a couple of seconds
-	  (to discharge the capacitors) and then back on. MicroPeak
+	  Recover the data. Turn MicroPeak off and then back on. MicroPeak
 	  will blink out the maximum height for the last flight. Turn
 	  MicroPeak back off to conserve battery power.
 	</para>
@@ -141,14 +148,13 @@ NAR #88757, TRA #12200
       to keep conductive material from coming in contact with the exposed metal elements.
     </para>
     <para>
-      The barometric sensors used in MicroPeak is
-      sensitive to sunlight. Please consider this when
-      designing an installation, for example, in an air-frame with a
-      see-through plastic payload bay. Many model rockets with payload bays
-      use clear plastic for the payload bay. Replacing these with an opaque
-      cardboard tube, painting them, or wrapping them with a layer of masking
-      tape are all reasonable approaches to keep the sensor out of direct
-      sunlight.
+      The barometric sensor used in MicroPeak is sensitive to
+      sunlight. Please consider this when designing an
+      installation. Many model rockets with payload bays use clear
+      plastic for the payload bay. Replacing these with an opaque
+      cardboard tube, painting them, or wrapping them with a layer of
+      masking tape are all reasonable approaches to keep the sensor
+      out of direct sunlight.
     </para>
     <para>
       The barometric sensor sampling ports must be able to "breathe",
@@ -204,7 +210,7 @@ NAR #88757, TRA #12200
       <title>Lithium Battery</title>
       <para>
 	The CR1025 battery used by MicroPeak holes 30mAh of power,
-	which is sufficient to run for over 15 hours. Because
+	which is sufficient to run for over 40 hours. Because
 	MicroPeak powers down on landing, run time includes only time
 	sitting on the launch pad or during flight.
       </para>

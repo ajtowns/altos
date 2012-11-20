@@ -17,7 +17,7 @@
 
 #include <ao.h>
 
-#define mid(time)	ao_led_for(AO_LED_BLUE, time)
+#define mid(time)	ao_led_for(AO_LED_REPORT, time)
 #define pause(time)	ao_delay(time)
 
 static void
@@ -25,14 +25,14 @@ ao_report_digit(uint8_t digit) __reentrant
 {
 	if (!digit) {
 		mid(AO_MS_TO_TICKS(600));
-		pause(AO_MS_TO_TICKS(200));
+		pause(AO_MS_TO_TICKS(300));
 	} else {
 		while (digit--) {
-			mid(AO_MS_TO_TICKS(200));
-			pause(AO_MS_TO_TICKS(200));
+			mid(AO_MS_TO_TICKS(300));
+			pause(AO_MS_TO_TICKS(300));
 		}
 	}
-	pause(AO_MS_TO_TICKS(300));
+	pause(AO_MS_TO_TICKS(600));
 }
 
 void

@@ -13,8 +13,7 @@ vpath matrix.5c kalman
 
 include Version
 
-ifneq ($(shell which sdcc),)
-	SUBDIRS+=\
+SDCCDIRS=\
 	telemetrum-v1.2 telemetrum-v1.1 telemetrum-v1.0 \
 	teledongle-v0.2 teledongle-v0.1 \
 	telemini-v1.0 telenano-v0.1 \
@@ -24,23 +23,43 @@ ifneq ($(shell which sdcc),)
 	teleterra-v0.2 teleshield-v0.1 \
 	telefire-v0.1 \
 	spiradio-v0.1
+
+AVRDIRS=\
+	telescience-v0.1 telescience-pwm telepyro-v0.1 micropeak
+
+ARMDIRS=\
+	megametrum-v0.1 megadongle-v0.1 stm-bringup stm-demo telelco-v0.1
+
+ifneq ($(shell which sdcc),)
+	SUBDIRS += $(SDCCDIRS)
 endif
 
 ifneq ($(shell which avr-gcc),)
-	SUBDIRS += telescience-v0.1 telescience-pwm telepyro-v0.1 micropeak
+	SUBDIRS += $(AVRDIRS)
 endif
 
 ifneq ($(shell which arm-none-eabi-gcc),)
-	SUBDIRS += megametrum-v0.1 megadongle-v0.1 stm-bringup stm-demo telelco-v0.1
+	SUBDIRS += $(ARMDIRS)
 endif
+
+ALLDIRS=$(SDCCDIRS) $(AVRDIRS) $(ARMDIRS)
 
 all: all-local all-recursive
 
-RECURSIVE_TARGETS = all-recursive clean-recursive install-recursive
+RECURSIVE_TARGETS = all-recursive install-recursive
 
 $(RECURSIVE_TARGETS):
 	@target=`echo $@ | sed 's/-recursive//'`; \
 	for subdir in $(SUBDIRS); do \
+		echo "Making $$target in $$subdir"; \
+		(cd $$subdir && $(MAKE) $$target) || exit 1; \
+	done
+
+ALL_RECURSIVE_TARGETS = clean-recursive
+
+$(ALL_RECURSIVE_TARGETS):
+	@target=`echo $@ | sed 's/-recursive//'`; \
+	for subdir in $(ALLDIRS); do \
 		echo "Making $$target in $$subdir"; \
 		(cd $$subdir && $(MAKE) $$target) || exit 1; \
 	done

@@ -62,7 +62,8 @@ public class AltosTelemetryRecordRaw extends AltosTelemetryRecord {
 
 	public AltosRecord update_state(AltosRecord previous) {
 		AltosRecord	next;
-		if (previous != null)
+
+		if (previous != null && previous.serial == serial)
 			next = previous.clone();
 		else
 			next = new AltosRecordNone();

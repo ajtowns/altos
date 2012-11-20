@@ -144,8 +144,12 @@ _ao_config_get(void)
 	}
 #if HAS_RADIO
 #if HAS_FORCE_FREQ
-	if (ao_force_freq)
+	if (ao_force_freq) {
 		ao_config.frequency = 434550;
+		ao_config.radio_cal = ao_radio_cal;
+		ao_xmemcpy(&ao_config.callsign, CODE_TO_XDATA(AO_CONFIG_DEFAULT_CALLSIGN),
+		       sizeof(AO_CONFIG_DEFAULT_CALLSIGN) - 1);
+	}
 #endif
 	ao_config_set_radio();
 #endif
