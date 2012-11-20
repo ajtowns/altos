@@ -27,7 +27,7 @@ build-indep: build-stamp
 
 build-stamp: configure-stamp  
 	dh_testdir
-	$(MAKE) VERSION=$(PKG_VERSION)
+	$(MAKE)
 	(cd doc ; $(MAKE))
 	touch $@
 
