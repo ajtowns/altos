@@ -170,6 +170,10 @@ ao_cmd_hex(void);
 void
 ao_cmd_decimal(void);
 
+/* Read a single hex nibble off stdin. */
+uint8_t
+ao_getnibble(void);
+
 uint8_t
 ao_match_word(__code char *word);
 

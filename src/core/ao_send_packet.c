@@ -21,22 +21,6 @@
 
 static __xdata uint8_t ao_send[AO_MAX_SEND];
 
-static uint8_t
-getnibble(void)
-{
-	char	c;
-
-	c = getchar();
-	if ('0' <= c && c <= '9')
-		return c - '0';
-	if ('a' <= c && c <= 'f')
-		return c - ('a' - 10);
-	if ('A' <= c && c <= 'F')
-		return c - ('A' - 10);
-	ao_cmd_status = ao_cmd_lex_error;
-	return 0;
-}
-
 static void
 ao_send_packet(void)
 {
@@ -53,8 +37,8 @@ ao_send_packet(void)
 		return;
 	}
 	for (i = 0; i < count; i++) {
-		b = getnibble() << 4;
-		b |= getnibble();
+		b = ao_getnibble() << 4;
+		b |= ao_getnibble();
 		if (ao_cmd_status != ao_cmd_success)
 			return;
 		ao_send[i] = b;

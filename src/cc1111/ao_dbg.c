@@ -281,22 +281,6 @@ debug_get(void)
 	putchar('\n');
 }
 
-static uint8_t
-getnibble(void)
-{
-	__pdata char	c;
-
-	c = getchar();
-	if ('0' <= c && c <= '9')
-		return c - '0';
-	if ('a' <= c && c <= 'f')
-		return c - ('a' - 10);
-	if ('A' <= c && c <= 'F')
-		return c - ('A' - 10);
-	ao_cmd_status = ao_cmd_lex_error;
-	return 0;
-}
-
 static void
 debug_input(void)
 {
@@ -338,8 +322,8 @@ debug_output(void)
 		return;
 	ao_dbg_start_transfer(addr);
 	while (count--) {
-		b = getnibble() << 4;
-		b |= getnibble();
+		b = ao_getnibble() << 4;
+		b |= ao_getnibble();
 		if (ao_cmd_status != ao_cmd_success)
 			return;
 		ao_dbg_write_byte(b);
