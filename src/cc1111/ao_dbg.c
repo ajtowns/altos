@@ -193,22 +193,24 @@ ao_dbg_long_delay(void)
 #define AO_RESET_LOW_DELAY	AO_MS_TO_TICKS(100)
 #define AO_RESET_HIGH_DELAY	AO_MS_TO_TICKS(100)
 
+static void
+ao_dbg_send_bits_delay(uint8_t msk, uint8_t val)
+{
+	ao_dbg_long_delay();
+	ao_dbg_send_bits(msk, val);
+}
+
 void
 ao_dbg_debug_mode(void)
 {
 	ao_dbg_set_pins();
-	ao_dbg_long_delay();
-	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|DBG_RESET_N);
-	ao_dbg_long_delay();
-	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N,     0    |DBG_DATA|    0    );
+	ao_dbg_send_bits_delay(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|DBG_RESET_N);
+	ao_dbg_send_bits_delay(DBG_CLOCK|DBG_DATA|DBG_RESET_N,     0    |DBG_DATA|    0    );
 	ao_delay(AO_RESET_LOW_DELAY);
-	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
-	ao_dbg_long_delay();
-	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N,     0    |DBG_DATA|    0    );
-	ao_dbg_long_delay();
-	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
-	ao_dbg_long_delay();
-	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N,     0    |DBG_DATA|DBG_RESET_N);
+	ao_dbg_send_bits      (DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
+	ao_dbg_send_bits_delay(DBG_CLOCK|DBG_DATA|DBG_RESET_N,     0    |DBG_DATA|    0    );
+	ao_dbg_send_bits_delay(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
+	ao_dbg_send_bits_delay(DBG_CLOCK|DBG_DATA|DBG_RESET_N,     0    |DBG_DATA|DBG_RESET_N);
 	ao_delay(AO_RESET_HIGH_DELAY);
 }
 
@@ -216,18 +218,13 @@ void
 ao_dbg_reset(void)
 {
 	ao_dbg_set_pins();
-	ao_dbg_long_delay();
-	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|DBG_RESET_N);
-	ao_dbg_long_delay();
-	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
+	ao_dbg_send_bits_delay(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|DBG_RESET_N);
+	ao_dbg_send_bits_delay(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
 	ao_delay(AO_RESET_LOW_DELAY);
-	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
-	ao_dbg_long_delay();
-	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
-	ao_dbg_long_delay();
-	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
-	ao_dbg_long_delay();
-	ao_dbg_send_bits(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|DBG_RESET_N);
+	ao_dbg_send_bits      (DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
+	ao_dbg_send_bits_delay(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
+	ao_dbg_send_bits_delay(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|    0    );
+	ao_dbg_send_bits_delay(DBG_CLOCK|DBG_DATA|DBG_RESET_N, DBG_CLOCK|DBG_DATA|DBG_RESET_N);
 	ao_delay(AO_RESET_HIGH_DELAY);
 }
 
