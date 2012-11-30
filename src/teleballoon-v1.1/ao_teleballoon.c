@@ -26,6 +26,8 @@ ao_ignite_set_pins(void)
 	AO_IGNITER_DIR |= AO_IGNITER_DROGUE_BIT | AO_IGNITER_MAIN_BIT;
 }
 
+__pdata uint16_t ao_motor_number;
+
 void
 main(void)
 {
