@@ -123,7 +123,7 @@ ao_echo(void)
 }
 
 int8_t
-ao_add_stdio(char (*pollchar)(void),
+ao_add_stdio(int (*pollchar)(void),
 	     void (*putchar)(char),
 	     void (*flush)(void)) __reentrant
 {

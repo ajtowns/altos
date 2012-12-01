@@ -123,42 +123,6 @@ void ao_lcd_font_init(void);
 
 void ao_lcd_font_string(char *s);
 
-char
-ao_serial1_getchar(void);
-
-void
-ao_serial1_putchar(char c);
-
-char
-ao_serial1_pollchar(void);
-
-void
-ao_serial1_set_speed(uint8_t speed);
-
-char
-ao_serial2_getchar(void);
-
-void
-ao_serial2_putchar(char c);
-
-char
-ao_serial2_pollchar(void);
-
-void
-ao_serial2_set_speed(uint8_t speed);
-
-char
-ao_serial3_getchar(void);
-
-void
-ao_serial3_putchar(char c);
-
-char
-ao_serial3_pollchar(void);
-
-void
-ao_serial3_set_speed(uint8_t speed);
-
 extern const uint32_t	ao_radio_cal;
 
 void

@@ -210,6 +210,26 @@ ao_i2c_recv(void *block, uint16_t len, uint8_t i2c_index, uint8_t stop);
 void
 ao_i2c_init(void);
 
+/* ao_serial_stm.c */
+struct ao_stm_usart {
+	struct ao_fifo		rx_fifo;
+	struct ao_fifo		tx_fifo;
+	struct stm_usart	*reg;
+	uint8_t			tx_started;
+};
+
+#if HAS_SERIAL_1
+extern struct ao_stm_usart	ao_stm_usart1;
+#endif
+
+#if HAS_SERIAL_2
+extern struct ao_stm_usart	ao_stm_usart2;
+#endif
+
+#if HAS_SERIAL_3
+extern struct ao_stm_usart	ao_stm_usart3;
+#endif
+
 #define ARM_PUSH32(stack, val)	(*(--(stack)) = (val))
 
 static inline uint32_t

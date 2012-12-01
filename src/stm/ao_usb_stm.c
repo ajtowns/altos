@@ -873,10 +873,10 @@ _ao_usb_out_recv(void)
 	ao_usb_set_stat_rx(AO_USB_OUT_EPR, STM_USB_EPR_STAT_RX_VALID);
 }
 
-static char
+static int
 _ao_usb_pollchar(void)
 {
-	char c;
+	uint8_t c;
 
 	if (!ao_usb_running)
 		return AO_READ_AGAIN;
@@ -896,10 +896,10 @@ _ao_usb_pollchar(void)
 	return c;
 }
 
-char
+int
 ao_usb_pollchar(void)
 {
-	char	c;
+	int	c;
 	ao_arch_block_interrupts();
 	c = _ao_usb_pollchar();
 	ao_arch_release_interrupts();
@@ -909,7 +909,7 @@ ao_usb_pollchar(void)
 char
 ao_usb_getchar(void)
 {
-	char	c;
+	int	c;
 
 	ao_arch_block_interrupts();
 	while ((c = _ao_usb_pollchar()) == AO_READ_AGAIN)

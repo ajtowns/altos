@@ -21,8 +21,8 @@ __xdata struct ao_packet_recv ao_rx_packet;
 __xdata struct ao_packet ao_tx_packet;
 __pdata uint8_t ao_packet_rx_len, ao_packet_rx_used, ao_packet_tx_used;
 
-static __xdata char tx_data[AO_PACKET_MAX];
-static __xdata char rx_data[AO_PACKET_MAX];
+static __xdata uint8_t tx_data[AO_PACKET_MAX];
+static __xdata uint8_t rx_data[AO_PACKET_MAX];
 static __pdata uint8_t rx_seq;
 
 __xdata struct ao_task	ao_packet_task;
@@ -169,7 +169,7 @@ ao_packet_putchar(char c) __reentrant
 		tx_data[ao_packet_tx_used++] = c;
 }
 
-char
+int
 ao_packet_pollchar(void)
 {
 	/* No need to block interrupts, all variables here

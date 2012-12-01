@@ -382,19 +382,19 @@ ao_usb_putchar(char c) __critical __reentrant
 		ao_usb_in_send();
 }
 
-char
+int
 ao_usb_pollchar(void) __critical
 {
-	char c;
+	uint8_t c;
 	if (ao_usb_out_bytes == 0) {
 		USBINDEX = AO_USB_OUT_EP;
 		if ((USBCSOL & USBCSOL_OUTPKT_RDY) == 0)
-			return AO_READ_AGAIN;
+			return -1;
 		ao_usb_out_bytes = (USBCNTH << 8) | USBCNTL;
 		if (ao_usb_out_bytes == 0) {
 			USBINDEX = AO_USB_OUT_EP;
 			USBCSOL &= ~USBCSOL_OUTPKT_RDY;
-			return AO_READ_AGAIN;
+			return -1;
 		}
 	}
 	--ao_usb_out_bytes;
@@ -409,9 +409,9 @@ ao_usb_pollchar(void) __critical
 char
 ao_usb_getchar(void) __critical
 {
-	char	c;
+	int	c;
 
-	while ((c = ao_usb_pollchar()) == AO_READ_AGAIN)
+	while ((c = ao_usb_pollchar()) == -1)
 		ao_sleep(&ao_stdin_ready);
 	return c;
 }

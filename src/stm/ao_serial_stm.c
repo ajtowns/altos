@@ -17,13 +17,6 @@
 
 #include <ao.h>
 
-struct ao_stm_usart {
-	struct ao_fifo		rx_fifo;
-	struct ao_fifo		tx_fifo;
-	struct stm_usart	*reg;
-	uint8_t			tx_started;
-};
-
 void
 ao_debug_out(char c)
 {
@@ -78,16 +71,19 @@ ao_usart_getchar(struct ao_stm_usart *usart)
 	return c;
 }
 
-char
+int
 ao_usart_pollchar(struct ao_stm_usart *usart)
 {
-	char	c;
+	int	c;
 	
 	ao_arch_block_interrupts();
 	if (ao_fifo_empty(usart->rx_fifo))
 		c = AO_READ_AGAIN;
-	else
-		ao_fifo_remove(usart->rx_fifo,c);
+	else {
+		uint8_t	u;
+		ao_fifo_remove(usart->rx_fifo,u);
+		c = u;
+	}
 	ao_arch_release_interrupts();
 	return c;
 }
@@ -201,7 +197,7 @@ ao_serial1_putchar(char c)
 	ao_usart_putchar(&ao_stm_usart1, c);
 }
 
-char
+int
 ao_serial1_pollchar(void)
 {
 	return ao_usart_pollchar(&ao_stm_usart1);
@@ -232,7 +228,7 @@ ao_serial2_putchar(char c)
 	ao_usart_putchar(&ao_stm_usart2, c);
 }
 
-char
+int
 ao_serial2_pollchar(void)
 {
 	return ao_usart_pollchar(&ao_stm_usart2);
@@ -263,7 +259,7 @@ ao_serial3_putchar(char c)
 	ao_usart_putchar(&ao_stm_usart3, c);
 }
 
-char
+int
 ao_serial3_pollchar(void)
 {
 	return ao_usart_pollchar(&ao_stm_usart3);

@@ -85,10 +85,10 @@ ao_serial0_getchar(void) __critical
 }
 
 #if USE_SERIAL_0_STDIN
-char
+int
 ao_serial0_pollchar(void) __critical
 {
-	char	c;
+	uint8_t	c;
 	if (ao_fifo_empty(ao_serial0_rx_fifo))
 		return AO_READ_AGAIN;
 	ao_fifo_remove(ao_serial0_rx_fifo,c);
@@ -173,10 +173,10 @@ ao_serial1_getchar(void) __critical
 }
 
 #if USE_SERIAL_1_STDIN
-char
+int
 ao_serial1_pollchar(void) __critical
 {
-	char	c;
+	uint8_t	c;
 	if (ao_fifo_empty(ao_serial1_rx_fifo))
 		return AO_READ_AGAIN;
 	ao_fifo_remove(ao_serial1_rx_fifo,c);

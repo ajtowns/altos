@@ -599,10 +599,10 @@ ao_monitor_init(void) __reentrant;
  * ao_stdio.c
  */
 
-#define AO_READ_AGAIN	((char) -1)
+#define AO_READ_AGAIN	(-1)
 
 struct ao_stdio {
-	char	(*pollchar)(void);
+	int	(*pollchar)(void);
 	void	(*putchar)(char c) __reentrant;
 	void	(*flush)(void);
 	uint8_t	echo;
@@ -621,7 +621,7 @@ uint8_t
 ao_echo(void);
 
 int8_t
-ao_add_stdio(char (*pollchar)(void),
+ao_add_stdio(int (*pollchar)(void),
 	     void (*putchar)(char) __reentrant,
 	     void (*flush)(void)) __reentrant;
 
