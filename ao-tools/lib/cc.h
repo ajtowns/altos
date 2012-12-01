@@ -269,6 +269,122 @@ struct cc_telem {
 int
 cc_telem_parse(const char *input_line, struct cc_telem *telem);
 
+struct ao_log_mega {
+	char			type;			/* 0 */
+	uint8_t			is_config;		/* 1 */
+	uint16_t		tick;			/* 2 */
+	union {						/* 4 */
+		/* AO_LOG_FLIGHT */
+		struct {
+			uint16_t	flight;		/* 4 */
+			int16_t		ground_accel;	/* 6 */
+			uint32_t	ground_pres;	/* 8 */
+		} flight;				/* 12 */
+		/* AO_LOG_STATE */
+		struct {
+			uint16_t	state;
+			uint16_t	reason;
+		} state;
+		/* AO_LOG_SENSOR */
+		struct {
+			uint32_t	pres;		/* 4 */
+			uint32_t	temp;		/* 8 */
+			int16_t		accel_x;	/* 12 */
+			int16_t		accel_y;	/* 14 */
+			int16_t		accel_z;	/* 16 */
+			int16_t		gyro_x;		/* 18 */
+			int16_t		gyro_y;		/* 20 */
+			int16_t		gyro_z;		/* 22 */
+			int16_t		mag_x;		/* 24 */
+			int16_t		mag_y;		/* 26 */
+			int16_t		mag_z;		/* 28 */
+			int16_t		accel;		/* 30 */
+		} sensor;	/* 32 */
+		/* AO_LOG_TEMP_VOLT */
+		struct {
+			int16_t		v_batt;		/* 4 */
+			int16_t		v_pbatt;	/* 6 */
+			int16_t		n_sense;	/* 8 */
+			int16_t		sense[10];	/* 10 */
+		} volt;					/* 30 */
+		/* AO_LOG_GPS_TIME */
+		struct {
+			int32_t		latitude;	/* 4 */
+			int32_t		longitude;	/* 8 */
+			int16_t		altitude;	/* 12 */
+			uint8_t		hour;		/* 14 */
+			uint8_t		minute;		/* 15 */
+			uint8_t		second;		/* 16 */
+			uint8_t		flags;		/* 17 */
+			uint8_t		year;		/* 18 */
+			uint8_t		month;		/* 19 */
+			uint8_t		day;		/* 20 */
+			uint8_t		pad;		/* 21 */
+		} gps;	/* 22 */
+		/* AO_LOG_GPS_SAT */
+		struct {
+			uint16_t	channels;	/* 4 */
+			struct {
+				uint8_t	svid;
+				uint8_t c_n;
+			} sats[12];			/* 6 */
+		} gps_sat;				/* 30 */
+
+		struct {
+			uint32_t		kind;
+			int32_t			data[6];
+		} config_int;
+
+		struct {
+			uint32_t		kind;
+			char			string[24];
+		} config_str;
+
+		/* Raw bytes */
+		uint8_t	bytes[28];
+	} u;
+};
+
+#define AO_CONFIG_CONFIG		1
+#define AO_CONFIG_MAIN			2
+#define AO_CONFIG_APOGEE		3
+#define AO_CONFIG_LOCKOUT		4
+#define AO_CONFIG_FREQUENCY		5
+#define AO_CONFIG_RADIO_ENABLE		6
+#define AO_CONFIG_ACCEL_CAL		7
+#define AO_CONFIG_RADIO_CAL		8
+#define AO_CONFIG_MAX_LOG		9
+#define AO_CONFIG_IGNITE_MODE		10
+#define AO_CONFIG_PAD_ORIENTATION	11
+#define AO_CONFIG_SERIAL_NUMBER		12
+#define AO_CONFIG_LOG_FORMAT		13
+#define AO_CONFIG_MS5607_RESERVED	14
+#define AO_CONFIG_MS5607_SENS		15
+#define AO_CONFIG_MS5607_OFF		16
+#define AO_CONFIG_MS5607_TCS		17
+#define AO_CONFIG_MS5607_TCO		18
+#define AO_CONFIG_MS5607_TREF		19
+#define AO_CONFIG_MS5607_TEMPSENS	20
+#define AO_CONFIG_MS5607_CRC		21
+
+
+#define AO_LOG_FLIGHT		'F'
+#define AO_LOG_SENSOR		'A'
+#define AO_LOG_TEMP_VOLT	'T'
+#define AO_LOG_DEPLOY		'D'
+#define AO_LOG_STATE		'S'
+#define AO_LOG_GPS_TIME		'G'
+#define AO_LOG_GPS_LAT		'N'
+#define AO_LOG_GPS_LON		'W'
+#define AO_LOG_GPS_ALT		'H'
+#define AO_LOG_GPS_SAT		'V'
+#define AO_LOG_GPS_DATE		'Y'
+
+#define AO_LOG_CONFIG		'c'
+
+int
+cc_mega_parse(const char *input_line, struct ao_log_mega *l);
+
 #ifndef TRUE
 #define TRUE 1
 #define FALSE 0

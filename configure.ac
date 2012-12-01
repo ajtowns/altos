@@ -164,6 +164,7 @@ ao-tools/ao-telem/Makefile
 ao-tools/ao-stmload/Makefile
 ao-tools/ao-send-telem/Makefile
 ao-tools/ao-sky-flash/Makefile
+ao-tools/ao-mega/Makefile
 ao-utils/Makefile
 src/Version
 ])
