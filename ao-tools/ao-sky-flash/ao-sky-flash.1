@@ -1,0 +1,85 @@
+.\"
+.\" Copyright © 2009 Keith Packard <keithp@keithp.com>
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+.\"
+.\"
+.TH AO-SKY-FLASH 1 "ao-sky-flash" ""
+.SH NAME
+ao-sky-flash \- flash GPS firmware program to a SkyTraq GPS chip
+.SH SYNOPSIS
+.B "ao-sky-flash"
+[\-T \fItty-device\fP]
+[\--tty \fItty-device\fP]
+[\-D \fIaltos-device\fP]
+[\--device \fIaltos-device\fP]
+[\--loader \fIboot-loader\fP]
+[\--firmware \fIgps-firmware\fP]
+[\--query]
+[\--quiet]
+[\--raw]
+.SH DESCRIPTION
+.I ao-sky-flash
+loads the specified GPS firmware file into the target GPS chip flash
+memory using the specified boot loader.
+.SH OPTIONS
+.TP
+\-T tty-device | --tty tty-device
+This selects which tty device the debugger uses to communicate with
+the target device.
+.TP
+\-D AltOS-device | --device AltOS-device
+Search for a connected device. This requires an argument of one of the
+following forms:
+.IP
+TeleMetrum:2
+.br
+TeleMetrum
+.br
+2
+.IP
+Leaving out the product name will cause the tool to select a suitable
+product, leaving out the serial number will cause the tool to match
+one of the available devices.
+.TP
+\--loader boot-loader
+This specifies the desired boot loader to use for reflashing the
+device. You should use srec_115200.bin unless you have a good reason
+not to. This should be in S record format.
+.TP
+\--firmware gps-firmware
+This specifies the new GPS firmware image to load onto the target GPS
+chip. No checking is done on this device at all; flash garbage and the
+GPS chip will probably fail to boot.
+.TP
+\--query
+Instead of loading new firmware, query the current version of firmware
+running on the target device.
+.TP
+\--quiet
+Normally, ao-spy-flash is quite chatty. This shuts it up, except for
+error messages.
+.TP
+\--raw
+The expected target for reflashing is an Altus Metrum product with the
+GPS chip connected to the CPU on that board and not directly to the
+USB serial port. This option says that the target GPS chip is directly
+connected, which changes how things are initialized a bit.
+.SH USAGE
+.I ao-sky-flash
+loads the specified bootloader into device RAM and then uses that to
+load new firmware to flash.
+.SH AUTHOR
+Keith Packard
