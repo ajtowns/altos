@@ -62,6 +62,7 @@
 #define ao_gps_getchar		ao_serial3_getchar
 #define ao_gps_putchar		ao_serial3_putchar
 #define ao_gps_set_speed	ao_serial3_set_speed
+#define ao_gps_fifo		(ao_stm_usart3.rx_fifo)
 
 #define HAS_EEPROM		1
 #define USE_INTERNAL_FLASH	0
