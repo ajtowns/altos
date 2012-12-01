@@ -47,6 +47,7 @@ struct ao_task {
 extern __xdata struct ao_task * __xdata ao_tasks[AO_NUM_TASKS];
 extern __data uint8_t ao_num_tasks;
 extern __xdata struct ao_task *__data ao_cur_task;
+extern __data uint8_t ao_task_minimize_latency;	/* Reduce IRQ latency */
 
 /*
  ao_task.c
