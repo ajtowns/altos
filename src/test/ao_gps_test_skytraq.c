@@ -397,6 +397,7 @@ ao_serial1_putchar(char c)
 #define AO_SERIAL_SPEED_4800	0
 #define AO_SERIAL_SPEED_9600	1
 #define AO_SERIAL_SPEED_57600	2
+#define AO_SERIAL_SPEED_115200	3
 
 static void
 ao_serial1_set_speed(uint8_t speed)
@@ -411,10 +412,13 @@ ao_serial1_set_speed(uint8_t speed)
 		cfsetspeed(&termios, B4800);
 		break;
 	case AO_SERIAL_SPEED_9600:
-		cfsetspeed(&termios, B38400);
+		cfsetspeed(&termios, B9600);
 		break;
 	case AO_SERIAL_SPEED_57600:
 		cfsetspeed(&termios, B57600);
+		break;
+	case AO_SERIAL_SPEED_115200:
+		cfsetspeed(&termios, B115200);
 		break;
 	}
 	tcsetattr(fd, TCSAFLUSH, &termios);
@@ -422,6 +426,10 @@ ao_serial1_set_speed(uint8_t speed)
 }
 
 #define ao_time() 0
+
+uint8_t	ao_task_minimize_latency;
+
+#define ao_usb_getchar()	0
 
 #include "ao_gps_print.c"
 #include "ao_gps_skytraq.c"

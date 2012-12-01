@@ -123,12 +123,15 @@ static const struct {
 	[AO_SERIAL_SPEED_57600] = {
 		AO_PCLK1 / 57600
 	},
+	[AO_SERIAL_SPEED_115200] = {
+		AO_PCLK1 / 115200
+	},
 };
 
 void
 ao_usart_set_speed(struct ao_stm_usart *usart, uint8_t speed)
 {
-	if (speed > AO_SERIAL_SPEED_57600)
+	if (speed > AO_SERIAL_SPEED_115200)
 		return;
 	usart->reg->brr = ao_usart_speeds[speed].brr;
 }

@@ -34,7 +34,13 @@ const __code struct ao_serial_speed ao_serial_speeds[] = {
 		/* .baud = */ 59,
 		/* .gcr =  */ (11 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
 	},
+	/* [AO_SERIAL_SPEED_115200] = */ {
+		/* .baud = */ 59,
+		/* .gcr =  */ (12 << UxGCR_BAUD_E_SHIFT) | UxGCR_ORDER_LSB
+	},
 };
+
+#define AO_SERIAL_SPEED_MAX	AO_SERIAL_SPEED_115200
 
 #if HAS_SERIAL_0
 
@@ -116,7 +122,7 @@ void
 ao_serial0_set_speed(uint8_t speed)
 {
 	ao_serial0_drain();
-	if (speed > AO_SERIAL_SPEED_57600)
+	if (speed > AO_SERIAL_SPEED_MAX)
 		return;
 	U0UCR |= UxUCR_FLUSH;
 	U0BAUD = ao_serial_speeds[speed].baud;
@@ -204,7 +210,7 @@ void
 ao_serial1_set_speed(uint8_t speed)
 {
 	ao_serial1_drain();
-	if (speed > AO_SERIAL_SPEED_57600)
+	if (speed > AO_SERIAL_SPEED_MAX)
 		return;
 	U1UCR |= UxUCR_FLUSH;
 	U1BAUD = ao_serial_speeds[speed].baud;

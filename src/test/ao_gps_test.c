@@ -88,6 +88,7 @@ ao_mutex_put(uint8_t *mutex)
 static int
 ao_gps_fd;
 
+#if 0
 static void
 ao_dbg_char(char c)
 {
@@ -103,6 +104,7 @@ ao_dbg_char(char c)
 	}
 	write(1, line, strlen(line));
 }
+#endif
 
 #define QUEUE_LEN	4096
 
@@ -391,6 +393,7 @@ ao_serial1_putchar(char c)
 
 #define AO_SERIAL_SPEED_4800	0
 #define AO_SERIAL_SPEED_57600	1
+#define AO_SERIAL_SPEED_115200	2
 
 static void
 ao_serial1_set_speed(uint8_t speed)
@@ -407,6 +410,9 @@ ao_serial1_set_speed(uint8_t speed)
 	case AO_SERIAL_SPEED_57600:
 		cfsetspeed(&termios, B57600);
 		break;
+	case AO_SERIAL_SPEED_115200:
+		cfsetspeed(&termios, B115200);
+		break;
 	}
 	tcsetattr(fd, TCSAFLUSH, &termios);
 	tcflush(fd, TCIFLUSH);
@@ -420,7 +426,6 @@ ao_serial1_set_speed(uint8_t speed)
 void
 ao_dump_state(void *wchan)
 {
-	double	lat, lon;
 	int	i;
 	if (wchan == &ao_gps_data)
 		ao_gps_print(&ao_gps_data);
@@ -510,4 +515,5 @@ main (int argc, char **argv)
 	}
 	ao_gps_setup();
 	ao_gps();
+	return 0;
 }
