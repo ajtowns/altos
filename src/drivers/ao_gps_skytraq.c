@@ -507,6 +507,13 @@ static __code uint8_t ao_gps_115200[] = {
 };
 
 static void
+ao_gps_set_speed_delay(uint8_t speed) {
+	ao_delay(AO_MS_TO_TICKS(500));
+	ao_gps_set_speed(speed);
+	ao_delay(AO_MS_TO_TICKS(500));
+}
+
+static void
 gps_update(void) __reentrant
 {
 	ao_gps_updating = 1;
@@ -515,13 +522,9 @@ gps_update(void) __reentrant
 	ao_timer_set_adc_interval(0);
 #endif
 	ao_skytraq_sendstruct(ao_gps_115200);
-	ao_delay(AO_MS_TO_TICKS(500));
-	ao_gps_set_speed(AO_SERIAL_SPEED_4800);
-	ao_delay(AO_MS_TO_TICKS(500));
+	ao_gps_set_speed_delay(AO_SERIAL_SPEED_4800);
 	ao_skytraq_sendstruct(ao_gps_115200);
-	ao_delay(AO_MS_TO_TICKS(500));
-	ao_gps_set_speed(AO_SERIAL_SPEED_115200);
-	ao_delay(AO_MS_TO_TICKS(500));
+	ao_gps_set_speed_delay(AO_SERIAL_SPEED_115200);
 
 	/* It's a binary protocol; abandon attempts to escape */
 	for (;;)
