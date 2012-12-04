@@ -34,7 +34,6 @@ libao_tools_a_SOURCES = \
 	cc-telem.c \
 	cc-telemetry.c \
 	cc-telemetry.h \
-	cc-mega.c \
 	cp-usb-async.c \
 	cp-usb-async.h \
 	i0.c \
