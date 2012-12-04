@@ -103,16 +103,14 @@ skytraq_write(int fd, const char *data, int len)
 	int		r;
 	int		us;
 
+	skytraq_dbg_printf (0, "%4d: ", len);
+	if (len < 70)
+		skytraq_dbg_buf(0, data, len);
 	while (len) {
 		int	this_time = len;
 		if (this_time > 128)
 			this_time = 128;
-		if (this_time < 70) {
-			skytraq_dbg_printf (0, "%4d: ", this_time);
-			skytraq_dbg_buf(0, data, this_time);
-		} else {
-			skytraq_dbg_printf (0, "%d bytes (%d remain)", this_time, len);
-		}
+		skytraq_dbg_printf(0, ".");
 		fflush(stdout);
 		r = write(fd, data, this_time);
 		if (r <= 0)

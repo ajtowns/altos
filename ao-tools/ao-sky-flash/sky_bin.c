@@ -40,14 +40,12 @@ skytraq_send_bin(int fd, const char *filename)
 		return -1;
 	}
 
-	printf ("computing checksum...\n"); fflush(stdout);
 	/* Compute checksum, figure out how long the file */
 	cksum = 0;
 	while ((c = getc(file)) != EOF)
 		cksum += (unsigned char) c;
 	size = ftell(file);
 	rewind(file);
-	printf ("checksum: %d\n", cksum); fflush(stdout);
 
 	sprintf(message, "BINSIZE = %d Checksum = %d Loopnumber = %d ", size, cksum, 1);
 
@@ -65,7 +63,7 @@ skytraq_send_bin(int fd, const char *filename)
 		}
 		if (count == 0)
 			break;
-		printf ("write %ld of %ld ", pos + count, size); fflush(stdout);
+		skytraq_dbg_printf (0, "%7d of %7d ", pos + count, size);
 		pos += count;
 		ret = skytraq_cmd_wait(fd, buf, count, "OK", 20000);
 		if (ret < 0)
