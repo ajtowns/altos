@@ -145,11 +145,6 @@
 
 #include <ao_aprs.h>
 
-typedef int bool_t;
-typedef int32_t int32;
-#define false 0
-#define true 1
-
 // Public methods, constants, and data structures for each class.
 
 static void timeInit(void);
@@ -284,9 +279,6 @@ static uint8_t tncLength;
 
 /// A copy of the last 5 bits we've transmitted to determine if we need to bit stuff on the next bit.
 static uint8_t tncBitStuff;
-
-/// Pointer to TNC buffer as we save each byte during message preparation.
-static uint8_t *tncBufferPnt;
 
 /// Buffer to hold the message portion of the AX.25 packet as we prepare it.
 static uint8_t tncBuffer[TNC_BUFFER_SIZE];
@@ -471,18 +463,18 @@ static void tnc1200TimerTick()
 /**
  *   Generate the plain text position packet.
  */
-static void tncPositionPacket(void)
+static int tncPositionPacket(void)
 {
-    int32_t	latitude = 45.4694766 * 10000000;
-    int32_t	longitude = -122.7376250 * 10000000;
-    uint32_t	altitude = 10000;
+    int32_t	latitude = ao_gps_data.latitude;
+    int32_t	longitude = ao_gps_data.longitude;
+    int32_t	altitude = ao_gps_data.altitude;
+
     uint16_t	lat_deg;
     uint16_t	lon_deg;
     uint16_t	lat_min;
     uint16_t	lat_frac;
     uint16_t	lon_min;
     uint16_t	lon_frac;
-    int		c;
 
     char	lat_sign = 'N', lon_sign = 'E';
 
@@ -510,12 +502,15 @@ static void tncPositionPacket(void)
     longitude -= lon_min * 10000000;
     lon_frac = (longitude + 50000) / 100000;
 
-    c = sprintf ((char *) tncBufferPnt, "=%02u%02u.%02u%c\\%03u%02u.%02u%cO /A=%06u\015",
-		lat_deg, lat_min, lat_frac, lat_sign,
-		lon_deg, lon_min, lon_frac, lon_sign,
-		altitude * 100 / 3048);
-    tncBufferPnt += c;
-    tncLength += c;
+    if (altitude < 0)
+	altitude = 0;
+
+    altitude = altitude * (int32_t) 1000 / (int32_t) 3048;
+    
+    return sprintf ((char *) tncBuffer, "=%02u%02u.%02u%c\\%03u%02u.%02u%cO /A=%06u\015",
+		    lat_deg, lat_min, lat_frac, lat_sign,
+		    lon_deg, lon_min, lon_frac, lon_sign,
+		    altitude);
 }
 
 static int16_t
@@ -553,24 +548,15 @@ void ao_aprs_send(void)
     timeInit();
     tncInit();
 
-    // Set a pointer to our TNC output buffer.
-    tncBufferPnt = tncBuffer;
-
-    // Set the message length counter.
-    tncLength = 0;
-
-    tncPositionPacket();
+    tncLength = tncPositionPacket();
 
     // Calculate the CRC for the header and message.
     crc = sysCRC16(TNC_AX25_HEADER, sizeof(TNC_AX25_HEADER), 0xffff);
     crc = sysCRC16(tncBuffer, tncLength, crc ^ 0xffff);
 
     // Save the CRC in the message.
-    *tncBufferPnt++ = crc & 0xff;
-    *tncBufferPnt = (crc >> 8) & 0xff;
-
-    // Update the length to include the CRC bytes.
-    tncLength += 2;
+    tncBuffer[tncLength++] = crc & 0xff;
+    tncBuffer[tncLength++] = (crc >> 8) & 0xff;
 
     // Prepare the variables that are used in the real-time clock interrupt.
     tncBitCount = 0;

@@ -23,6 +23,8 @@
 
 #include <ao_telemetry.h>
 
+struct ao_telemetry_location ao_gps_data;
+
 #define AO_APRS_TEST
 
 typedef int16_t (*ao_radio_fill_func)(uint8_t *buffer, int16_t len);
@@ -90,6 +92,10 @@ audio_gap(int secs)
 int main(int argc, char **argv)
 {
     audio_gap(1);
+
+    ao_gps_data.latitude = 45.4694766 * 10000000;
+    ao_gps_data.longitude = -122.7376250 * 10000000;
+    ao_gps_data.altitude = 83;
 
     /* Transmit one packet */
     ao_aprs_send();
