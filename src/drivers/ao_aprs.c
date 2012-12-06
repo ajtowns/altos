@@ -139,96 +139,22 @@
  *
  */
 
-// Hardware specific configuration.
-#include <18f2525.h>
-#device ADC=10
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdarg.h>
+#include <ao_aprs.h>
 
-// NOTE: Even though we are using an external clock, we set the HS oscillator mode to
-//       make the PIC 18F252 work with our external clock which is a clipped 1V P-P sine wave.
-#fuses HS,NOWDT,NOPROTECT,NOPUT,NOBROWNOUT,NOLVP
-
-// C runtime library definitions.
-#include 
-#include 
-
-// These compiler directives set the clock, SPI/I2C ports, and I/O configuration.
-
-// TCXO frequency
-#use delay(clock=19200000)
-
-// Engineering and data extracation port.
-#use rs232(baud=57600, xmit=PIN_B7, rcv=PIN_B6, STREAM=PC_HOST)
-
-// GPS engine 
-#use rs232(baud=9600, xmit=PIN_C6, rcv=PIN_C7)
-
-#use i2c (master, scl=PIN_C3, sda=PIN_C4)
-
-#use fast_io(A)
-#use fast_io(B)
-#use fast_io(C)
-
-// We define types that are used for all variables.  These are declared
-// because each processor has a different sizes for int and long.
-// The PIC compiler defines int8_t, int16_t, and int32_t.
-
-/// Boolean value { false, true }
-typedef boolean bool_t;
-
-/// Signed 8-bit number in the range -128 through 127.
-typedef signed int8 int8_t;
-
-/// Unsigned 8-bit number in the range 0 through 255.
-typedef unsigned int8 uint8_t;
-
-/// Signed 16-bit number in the range -32768 through 32767.
-typedef signed int16 int16_t;
-
-/// Unsigned 16-bit number in the range 0 through 65535.
-typedef unsigned int16 uint16_t;
-
-/// Signed 32-bit number in the range -2147483648 through 2147483647.
-typedef signed int32 int32_t;
-
-/// Unsigned 32-bit number in the range 0 through 4294967296.
-typedef unsigned int32 uint32_t;
-
-// Function and structure prototypes.  These are declared at the start of
-// the file much like a C++ header file.
-
-// Map I/O pin names to hardware pins.
-
-/// Heartbeat LED - Port A2
-#define IO_LED PIN_A2
-
-/// AD9954 DDS Profile Select 0 - Port A3
-#define IO_PS0 PIN_A3
-
-/// UHF amplifier and PA chain - Port A4
-#define IO_PTT PIN_A4
-
-/// AD9954 DDS Update - Port A5
-#define IO_UPDATE PIN_A5
-
-/// AD9954 CS (Chip Select) - Port B0
-#define IO_CS PIN_B0
-
-/// GPS Engine Power - Port B1
-#define IO_GPS_PWR PIN_B1
-
-/// AD9954 DDS Profile Select 1 - Port C0
-#define IO_PS1 PIN_C0
-
-/// AD9954 DDS OSK (Output Shift Key) - Port C2
-#define IO_OSK PIN_C2
-
-/// GPS engine serial transmit pin - Port C6
-#define IO_GPS_TXD PIN_C6
+typedef int bool_t;
+typedef int32_t int32;
+#define false 0
+#define true 1
 
 // Public methods, constants, and data structures for each class.
 
 /// Operational modes of the AD9954 DDS for the ddsSetMode function.
-enum DDS_MODE
+typedef enum
 {
     /// Device has not been initialized.
     DDS_MODE_NOT_INITIALIZED,
@@ -241,7 +167,7 @@ enum DDS_MODE
 
     /// Generate true FSK tones.
     DDS_MODE_FSK
-};
+}  DDS_MODE;
 
 void ddsInit();
 void ddsSetAmplitude (uint8_t amplitude);
@@ -251,15 +177,8 @@ void ddsSetFreq (uint32_t freq);
 void ddsSetFTW (uint32_t ftw);
 void ddsSetMode (DDS_MODE mode);
 
-void flashErase();
-uint8_t flashGetByte ();
-void flashReadBlock(uint32_t address, uint8_t *block, uint16_t length);
-void flashSendByte(uint8_t value);
-void flashSendAddress(uint32_t address);
-void flashWriteBlock(uint32_t address, uint8_t *block, uint8_t length);
-
 /// Type of GPS fix.
-enum GPS_FIX_TYPE 
+typedef enum
 {
     /// No GPS FIX
     GPS_NO_FIX,
@@ -269,7 +188,7 @@ enum GPS_FIX_TYPE
 
     /// 3D (Latitude/Longitude/Altitude) fix.
     GPS_3D_FIX
-};
+}  GPS_FIX_TYPE;
 
 /// GPS Position information.
 typedef struct 
@@ -329,6 +248,8 @@ typedef struct
     uint8_t visibleSats;
 } GPSPOSITION_STRUCT;
 
+GPSPOSITION_STRUCT gpsPosition;
+
 void gpsInit();
 bool_t gpsIsReady();
 GPS_FIX_TYPE gpsGetFixType();
@@ -337,47 +258,7 @@ void gpsPowerOn();
 bool_t gpsSetup();
 void gpsUpdate();
 
-int16_t lm92GetTemp();
-
-/// Define the log record types.
-enum LOG_TYPE 
-{
-    /// Time stamp the log was started.
-    LOG_BOOTED = 0xb4,
-
-    /// GPS coordinates.
-    LOG_COORD = 0xa5,
-
-    /// Temperature
-    LOG_TEMPERATURE = 0x96,
-
-    /// Bus voltage.
-    LOG_VOLTAGE = 0x87
-};
-
-void logInit();
-uint32_t logGetAddress();
-void logType (LOG_TYPE type);
-void logUint8 (uint8_t value);
-void logInt16 (int16_t value);
-
-bool_t serialHasData();
-void serialInit();
-uint8_t serialRead();
-void serialUpdate();
-
 uint16_t sysCRC16(uint8_t *buffer, uint8_t length, uint16_t crc);
-void sysInit();
-void sysLogVoltage();
-
-/// 0% duty cycle (LED Off) constant for function timeSetDutyCycle
-#define TIME_DUTYCYCLE_0 0
-
-/// 10% duty cycle constant for function timeSetDutyCycle
-#define TIME_DUTYCYCLE_10 1
-
-/// 70% duty cycle constant for function timeSetDutyCycle
-#define TIME_DUTYCYCLE_70 7
 
 uint8_t timeGetTicks();
 void timeInit();
@@ -385,7 +266,7 @@ void timeSetDutyCycle (uint8_t dutyCycle);
 void timeUpdate();
 
 /// Operational modes of the TNC for the tncSetMode function.
-enum TNC_DATA_MODE
+typedef enum
 {
     /// No operation waiting for setup and configuration.
     TNC_MODE_STANDBY, 
@@ -395,7 +276,7 @@ enum TNC_DATA_MODE
 
     /// 9600 bps using true FSK tones.
     TNC_MODE_9600_FSK
-};
+} TNC_DATA_MODE;
 
 void tncInit();
 bool_t tncIsFree();
@@ -406,394 +287,7 @@ void tnc9600TimerTick();
 void tncTxByte (uint8_t value);
 void tncTxPacket(TNC_DATA_MODE dataMode);
 
-/**
- *  @defgroup ADC Analog To Digital Converter
- *
- *  Control and manage the on board PIC A/D converter.
- *
- *  @{
- */
-
-/// Filtered voltages using a single pole, low pass filter.
-uint16_t adcMainBusVolt;
-
-/// PIC ADC Channel number of the reference voltage.
-#define ADC_REF 0
-
-/// PIC ADC Channel number of the main bus voltage.
-#define ADC_MAINBUS 1
-
-/// Input diode drop in units of 0.01 volts.
-#define MAIN_BUS_VOLT_OFFSET 20
-
-/**
- *  Intialize the ADC subsystem.
- */
-void adcInit()
-{
-    // Setup the ADC.
-    setup_adc_ports(AN0_TO_AN1);
-    setup_adc( ADC_CLOCK_DIV_32 );
-
-    // Zero the ADC filters.
-    adcMainBusVolt = 0;
-}
-
-/**
- *   Filtered main bus voltage in 10mV resolution.
- *
- *   @return voltage in 10mV steps
- */
-uint16_t adcGetMainBusVolt()
-{
-    uint32_t volts;
-
-    volts = (uint32_t) (adcMainBusVolt >> 3);
-
-    volts = (volts * 330l) / 1023l;
-
-    return (uint16_t) volts + MAIN_BUS_VOLT_OFFSET;
-}
-
-/** 
- *   Get the current ADC value for the main bus voltage.
- *
- *   @return ADC value in the range 0 to 1023
- */
-uint16_t adcRawBusVolt()
-{
-    set_adc_channel(ADC_MAINBUS);
-    delay_us(50);
-    return read_adc();
-}
-
-/** 
- *   Get the current ADC value for the reference source voltage.
- *
- *   @return ADC value in the range 0 to 1023
- */
-uint16_t adcRawRefVolt()
-{
-    set_adc_channel(ADC_REF);
-    delay_us(50);
-    return read_adc();
-}
-
-/**
- *   Read and filter the ADC channels for bus voltages.
- */
-void adcUpdate(void)
-{
-    // Filter the bus voltage using a single pole low pass filter.
-    set_adc_channel(ADC_MAINBUS);
-    delay_us(50);
-    adcMainBusVolt = read_adc() + adcMainBusVolt - (adcMainBusVolt >> 3);
-}
-
 /** @} */
-
-
-/**
- *  @defgroup diag Diagnostics and Control
- *
- *  Functions for diagnostics and control of the hardware and flight data recorder.
- *
- *  @{
- */
-
-/// Number of bytes per line to display when reading flight data recorder.
-#define DIAG_BYTES_PER_LINE 32
-
-/**
- *   Process the command to erase the data logger flash.
- */
-void diagEraseFlash()
-{
-    // Confirm we want to erase the flash with the key sequence 'yes' .
-    fprintf (PC_HOST, "Are you sure (yes)?  ");
-
-    if (fgetc(PC_HOST) != 'y')
-        return;
-
-    if (fgetc(PC_HOST) != 'e')
-        return;
-
-    if (fgetc(PC_HOST) != 's')
-        return;
-
-    if (fgetc(PC_HOST) != 13)
-        return;
-
-    // User feedback and erase the part.
-    fprintf (PC_HOST, "Erasing flash...");
-
-    flashErase();
-
-    fprintf (PC_HOST, "done.\n\r");
-}
-
-/**
- *   Display the engineering mode menu.
- */
-void diagMenu()
-{
-    // User interface.
-    fprintf (PC_HOST, "Options: (e)rase Flash, (r)ead Flash\n\r");
-    fprintf (PC_HOST, "         Toggle (L)ED\n\r");
-    fprintf (PC_HOST, "         (P)TT - Push To Transmit\n\r");
-    fprintf (PC_HOST, "         (f)requencey down, (F)requency up - 1KHz step\n\r");
-    fprintf (PC_HOST, "         (c)hannel down, (C)hannel up - 25KHz step\n\r");
-    fprintf (PC_HOST, "         (a)mplitude down, (A)mplitude up - 0.5 dB steps\n\r");
-    fprintf (PC_HOST, "         e(x)it engineering mode\n\r");
-}
-
-/**
- *   Process the command to dump the contents of the data logger flash.
- */
-void diagReadFlash()
-{
-    bool_t dataFoundFlag, userStopFlag;
-    uint8_t i, buffer[DIAG_BYTES_PER_LINE];
-    uint32_t address;
-
-    // Set the initial conditions to read the flash.
-    address = 0x0000;
-    userStopFlag = false;
-
-    do 
-    {
-        // Read each block from the flash device.
-        flashReadBlock (address, buffer, DIAG_BYTES_PER_LINE);
-
-        // This flag will get set if any data byte is not equal to 0xff (erase flash state)
-        dataFoundFlag = false;
-
-        // Display the address.
-        fprintf (PC_HOST, "%08lx ", address);
-
-        // Display each byte in the line.
-        for (i = 0; i < DIAG_BYTES_PER_LINE; ++i) 
-        {
-            fprintf (PC_HOST, "%02x", buffer[i]);
-
-            // Set this flag if the cell is not erased.
-            if (buffer[i] != 0xff)
-                dataFoundFlag = true;
-
-            // Any key will abort the transfer.
-            if (kbhit(PC_HOST))
-                userStopFlag = true;
-        } // END for
-
-        //  at the end of each line.
-        fprintf (PC_HOST, "\n\r");
-
-        // Advance to the next block of memory.
-        address += DIAG_BYTES_PER_LINE;
-    } while (dataFoundFlag && !userStopFlag);
-
-    // Feedback to let the user know why the transfer stopped.
-    if (userStopFlag)
-        fprintf (PC_HOST, "User aborted download!\n\r");
-}
-
-void diag1PPS()
-{
-    uint16_t timeStamp, lastTimeStamp;
-
-    lastTimeStamp = 0x0000;
-
-    gpsPowerOn();
-
-    for (;;)
-    {
-        timeStamp = CCP_2;
-
-        if (timeStamp != lastTimeStamp)
-        {
-            delay_ms (10);
-
-            timeStamp = CCP_2;
-
-            fprintf (PC_HOST, "%lu %lu\n\r", timeStamp, (timeStamp - lastTimeStamp));
-
-            lastTimeStamp = timeStamp;
-        }
-    }
-}
-
-/**
- *   Process diagnostic commands through the debug RS-232 port.
- */
-void diagPort()
-{
-    bool_t diagDoneFlag, ledFlag, paFlag, showSettingsFlag;
-    uint8_t command, amplitude;
-    uint32_t freqHz;
-
-    // If the input is low, we aren't connected to the RS-232 device so continue to boot.
-    if (!input(PIN_B6))
-        return;
-
-    fprintf (PC_HOST, "Engineering Mode\n\r");
-    fprintf (PC_HOST, "Application Built %s %s\n\r", __DATE__, __TIME__);
-
-    // Current state of the status LED.
-    ledFlag = false;
-    output_bit (IO_LED, ledFlag);
-
-    // This flag indicates we are ready to leave the diagnostics mode.
-    diagDoneFlag = false;
-
-    // Current state of the PA.
-    paFlag = false;
-
-    // Flag that indicate we should show the current carrier frequency.
-    showSettingsFlag = false;
-
-    // Set the initial carrier frequency and amplitude.
-    freqHz = 445950000;
-    amplitude = 0;
-
-    // Wait for the exit command.
-    while (!diagDoneFlag) 
-    {
-        // Wait for the user command.
-        command = fgetc(PC_HOST);
-
-        // Decode and process the key stroke.
-        switch (command) 
-        {
-            case 'e':
-                diagEraseFlash();
-                logInit();
-                break;
-
-            case 'l':
-            case 'L':
-                ledFlag = (ledFlag ? false : true);
-                output_bit (IO_LED, ledFlag);
-                break;
-
-            case 'h':
-            case 'H':
-            case '?':
-                diagMenu();
-                break;
-
-            case 'r':
-                diagReadFlash();
-                break;
-
-            case 't':
-                tncHighRate (true);
-                fprintf (PC_HOST, "Set high rate TNC.\n\r");    
-                break;
-
-            case 'f':
-                freqHz -= 1000;
-                ddsSetFreq (freqHz);
-
-                // Display the new frequency.
-                showSettingsFlag = true;
-                break;
-
-            case 'F':
-                freqHz += 1000;
-                ddsSetFreq (freqHz);
-
-                // Display the new frequency.
-                showSettingsFlag = true;
-                break;
-
-            case 'c':
-                freqHz -= 25000;
-                ddsSetFreq (freqHz);
-
-                // Display the new frequency.
-                showSettingsFlag = true;
-                break;
-
-            case 'C':
-                freqHz += 25000;
-                ddsSetFreq (freqHz);
-
-                // Display the new frequency.
-                showSettingsFlag = true;
-                break;
-
-            case 'p':
-            case 'P':
-                ddsSetFreq (freqHz);
-
-                paFlag = (paFlag ? false : true);
-                output_bit (IO_PTT, paFlag);
-                output_bit (IO_OSK, paFlag);
-
-                if (paFlag)
-                {
-                    ddsSetMode (DDS_MODE_AFSK);             
-                    ddsSetAmplitude (amplitude);
-                } else
-                    ddsSetMode (DDS_MODE_POWERDOWN);
-
-                break;
-
-            case 'a':
-                if (amplitude != 200)
-                {
-                    amplitude += 5;
-                    ddsSetAmplitude (amplitude);
-
-                    // Display the new amplitude.
-                    showSettingsFlag = true;
-                }
-                break;
-
-            case 'A':
-                if (amplitude != 0)
-                {
-                    amplitude -= 5;
-                    ddsSetAmplitude (amplitude);
-
-                    // Display the new amplitude.
-                    showSettingsFlag = true;
-                }
-                break;
-
-            case 'g':
-                diag1PPS();
-                break;
-
-            case 'x':
-                diagDoneFlag = true;
-                break;
-
-            default:
-                fprintf (PC_HOST, "Invalid command.  (H)elp for menu.\n\r");
-                break;
-        } // END switch
-
-        // Display the results of any user requests or commands.
-        if (showSettingsFlag) 
-        {
-            showSettingsFlag = false;
-
-            fprintf (PC_HOST, "%03ld.%03ld MHz  ", freqHz / 1000000, (freqHz / 1000) % 1000);
-            fprintf (PC_HOST, "%d.%01ddBc\n\r", amplitude / 10, amplitude % 10);
-
-        } // END if
-
-    } // END while
-
-    // Let the user know we are done with this mode.
-    fprintf (PC_HOST, "Exit diagnostic mode.\n\r");
-
-    return;
-}
-
-/** @} */
-
 
 /**
  *  @defgroup DDS AD9954 DDS (Direct Digital Synthesizer)
@@ -895,109 +389,16 @@ const uint32_t freqTable[256] =
 };
 
 /**
- *   Initialize the DDS regsiters and RAM.
- */
-void ddsInit()
-{
-    // Setup the SPI port for the DDS interface.    
-    setup_spi( SPI_MASTER | SPI_L_TO_H | SPI_CLK_DIV_4 | SPI_XMIT_L_TO_H );    
-
-    // Set the initial DDS mode.  The ddsSetMode function uses this value to make the desired DDS selections. 
-    ddsMode = DDS_MODE_NOT_INITIALIZED;
-
-    // Set the DDS operational mode.
-    ddsSetMode (DDS_MODE_POWERDOWN);
-
-    // Set the output to full scale.
-    ddsSetOutputScale (0x3fff);
-
-    // CFR2 (Control Function Register No. 2)
-    output_low (IO_CS);
-    spi_write (DDS_AD9954_CFR2);
-
-    spi_write (0x00);     // Unused register bits
-    spi_write (0x00);
-    spi_write (0x9c);     // 19x reference clock multipler, high VCO range, nominal charge pump current
-    output_high (IO_CS);
-
-    // ARR (Amplitude Ramp Rate) to 15mS for OSK
-    output_low (IO_CS);
-    spi_write (DDS_AD9954_ARR);
-
-    spi_write (83);
-    output_high (IO_CS);
-
-    // Strobe the part so we apply the updates.
-    output_high (IO_UPDATE);
-    output_low (IO_UPDATE);
-}
-
-/**
- *  Set DDS amplitude value in the range 0 to 16383 where 16383 is full scale.  This value is a 
- *  linear multiplier and needs to be scale for RF output power in log scale.
- *
- *  @param scale in the range 0 to 16383
- */
-void ddsSetOutputScale (uint16_t scale)
-{
-    // Set ASF (Amplitude Scale Factor)
-    output_low (IO_CS);
-    spi_write (DDS_AD9954_ASF);
-
-    spi_write ((scale >> 8) & 0xff);
-    spi_write (scale & 0xff);
-
-    output_high (IO_CS);
-    
-    // Strobe the DDS to set the amplitude.
-    output_high (IO_UPDATE);
-    output_low (IO_UPDATE);
-}
-
-/**
- *   Set the DDS amplitude in units of dBc of full scale where 1 is 0.1 dB.  For example, a value of 30 is 3dBc
- *   or a value of 85 is 8.5dBc.
- *
- *   @param amplitude in 0.1 dBc of full scale
- */ 
-void ddsSetAmplitude (uint8_t amplitude)
-{
-    // Range limit based on the lookup table size.
-    if (amplitude > 200)
-        return;
-
-    // Set the linear DDS ASF (Amplitude Scale Factor) based on the dB lookup table.
-    ddsSetOutputScale (DDS_AMP_TO_SCALE[amplitude / 5]);
-
-    // Toggle the DDS output low and then high to force it to ramp to the new output level setting.
-    output_low (IO_OSK);
-    delay_ms(25); 
-
-    output_high (IO_OSK);
-    delay_ms(25); 
-}
-
-/**
  *  Set DDS frequency tuning word.  The output frequency is equal to RefClock * (ftw / 2 ^ 32).
  *
  *  @param ftw Frequency Tuning Word
  */
 void ddsSetFTW (uint32_t ftw)
 {
-    // Set FTW0 (Frequency Tuning Word 0)
-    output_low (IO_CS);
-    spi_write (DDS_AD9954_FTW0);
-
-    spi_write ((ftw >> 24) & 0xff);
-    spi_write ((ftw >> 16) & 0xff);
-    spi_write ((ftw >> 8) & 0xff);
-    spi_write (ftw & 0xff);
-
-    output_high (IO_CS);
-    
-    // Strobe the DDS to set the frequency.
-    output_high (IO_UPDATE);
-    output_low (IO_UPDATE);     
+    static int id;
+    int	x = ftw - freqTable[0];
+    putchar (x > 0 ? 0xff : 0x0);
+//    printf ("%d %d\n", id++, x > 0 ? 1 : 0);
 }
 
 /**
@@ -1029,31 +430,7 @@ void ddsSetFreq(uint32_t freq)
  */
 void ddsSetFSKFreq (uint32_t ftw0, uint32_t ftw1)
 {
-    // Set FTW0 (Frequency Tuning Word 0)
-    output_low (IO_CS);
-    spi_write (DDS_AD9954_FTW0);
-
-    spi_write ((ftw0 >> 24) & 0xff);
-    spi_write ((ftw0 >> 16) & 0xff);
-    spi_write ((ftw0 >> 8) & 0xff);
-    spi_write (ftw0 & 0xff);
-
-    output_high (IO_CS);
-    
-    // Set FTW0 (Frequency Tuning Word 1)
-    output_low (IO_CS);
-    spi_write (DDS_AD9954_FTW1);
-
-    spi_write ((ftw1 >> 24) & 0xff);
-    spi_write ((ftw1 >> 16) & 0xff);
-    spi_write ((ftw1 >> 8) & 0xff);
-    spi_write (ftw1 & 0xff);
-
-    output_high (IO_CS);
-    
-    // Strobe the DDS to set the frequency.
-    output_high (IO_UPDATE);
-    output_low (IO_UPDATE);     
+//	printf ("ftw0 %d ftw1 %d\n", ftw0, ftw1);
 }
 
 /** 
@@ -1063,316 +440,7 @@ void ddsSetFSKFreq (uint32_t ftw0, uint32_t ftw1)
  */
 void ddsSetMode (DDS_MODE mode)
 {
-    // Save the current mode.
-    ddsMode = mode;
-
-    switch (mode) 
-    {
-        case DDS_MODE_POWERDOWN:
-            // CFR1 (Control Function Register No. 1)
-            output_low (IO_CS);
-            spi_write (DDS_AD9954_CFR1);
-        
-            spi_write (0x00);
-            spi_write (0x00);
-            spi_write (0x00);
-            spi_write (0xf0);  // Power down all subsystems.
-            output_high (IO_CS);
-            break;
-
-        case DDS_MODE_AFSK:
-            // CFR1 (Control Function Register No. 1)
-            output_low (IO_CS);
-            spi_write (DDS_AD9954_CFR1);
-        
-            spi_write (0x03);  // OSK Enable and Auto OSK keying
-            spi_write (0x00);
-            spi_write (0x00);
-            spi_write (0x40);  // Power down comparator circuit
-            output_high (IO_CS);
-            break;
-
-        case DDS_MODE_FSK:
-            // CFR1 (Control Function Register No. 1)
-            output_low (IO_CS);
-            spi_write (DDS_AD9954_CFR1);
-
-            spi_write (0x03);  // Clear RAM Enable, OSK Enable, Auto OSK keying
-            spi_write (0x00);
-            spi_write (0x00);
-            spi_write (0x40);  // Power down comparator circuit
-            output_high (IO_CS);
-
-            // NOTE: The sweep rate requires 1/4 of a bit time (26uS) to transition.
-            // 6KHz delta = 70641 counts = (6KHz / 364.8MHz) * 2 ^ 32
-            // SYNC_CLK = 91.2MHz  1/91.2MHz * 70641 * 1/29 = 26.7uS
-
-            // NLSCW (Negative Linear Sweep Control Word)
-            output_low (IO_CS);
-            spi_write (DDS_AD9954_NLSCW);
-
-            spi_write (1);     // Falling sweep ramp rate word
-            spi_write (0x00);  // Delta frequency tuning word
-            spi_write (0x00);
-            spi_write (0x00);
-            spi_write (250); 
-            output_high (IO_CS);
-
-            // PLSCW (Positive Linear Sweep Control Word)
-            output_low (IO_CS);
-            spi_write (DDS_AD9954_PLSCW);
-
-            spi_write (1);     // Rising sweep ramp rate word
-            spi_write (0x00);  // Delta frequency tuning word
-            spi_write (0x00);
-            spi_write (0x00);
-            spi_write (250); 
-            output_high (IO_CS);
-            break;
-    } // END switch
-    
-    // Strobe the DDS to change the mode.
-    output_high (IO_UPDATE);
-    output_low (IO_UPDATE);      
-}
-
-/** @} */
-
-/**
- *  @defgroup flash Flash Manager
- *
- *  Functions to control the ST MP25P80 serial flash device.
- *
- *  @{
- */
-
-/// Flash Chip Select - Port B3
-#define FLASH_CS PIN_B3
-
-/// Flash Clock - Port B5
-#define FLASH_CLK PIN_B5
-
-/// Flash Data Input - Port B4
-#define FLASH_D PIN_B4
-
-/// Flash Data Output - Port B2
-#define FLASH_Q PIN_B2
-
-/** 
- *   Determine if a flash write or erase operation is currently in progress.
- *
- *   @return true if write/erase in progress
- */
-bool_t flashIsWriteInProgress()
-{
-    uint8_t status;
-
-    output_low (FLASH_CS);
-
-    // Read Status Register (RDSR) flash command.
-    flashSendByte (0x05);
-
-    status = flashGetByte();
-
-    output_high (FLASH_CS);
-
-    return (((status & 0x01) == 0x01) ? true : false);
-}
-
-/**
- *   Read a block of memory from the flash device.
- *
- *   @param address of desired location in the range 0x00000 to 0xFFFFF (1MB)
- *   @param block pointer to locate of data block
- *   @param length number of bytes to read
- */
-void flashReadBlock(uint32_t address, uint8_t *block, uint16_t length)
-{
-    uint16_t i;
-    
-    output_low (FLASH_CS);
-
-    // Read Data Byte(s) (READ) flash command.
-    flashSendByte (0x03);
-    flashSendAddress (address);
-    
-    for (i = 0; i < length; ++i)
-        *block++ = flashGetByte();
-    
-    output_high (FLASH_CS);
-}
-
-/**
- *   Write a block of memory to the flash device.
- *
- *   @param address of desired location in the range 0x00000 to 0xFFFFF (1MB)
- *   @param block pointer data block to write
- *   @param length number of bytes to write
- */
-void flashWriteBlock(uint32_t address, uint8_t *block, uint8_t length)
-{
-    uint8_t i;
-
-    output_low (FLASH_CS);
-    // Write Enable (WREN) flash command.
-    flashSendByte (0x06);
-    output_high (FLASH_CS);
-    
-    output_low (FLASH_CS);
-    // Page Program (PP) flash command.
-    flashSendByte (0x02);
-    flashSendAddress (address);
-    
-    for (i = 0; i < length; ++i) 
-    {
-        // Send each byte in the data block.
-        flashSendByte (*block++);
-
-        // Track the address in the flash device.
-        ++address;
-
-        // If we cross a page boundary (a page is 256 bytes) we need to stop and send the address again.
-        if ((address & 0xff) == 0x00) 
-        {
-            output_high (FLASH_CS);
-
-            // Write this block of data.
-            while (flashIsWriteInProgress());
-
-            output_low (FLASH_CS);
-            // Write Enable (WREN) flash command.
-            flashSendByte (0x06);
-            output_high (FLASH_CS);
-
-            output_low (FLASH_CS);
-            // Page Program (PP) flash command.
-            flashSendByte (0x02);
-            flashSendAddress (address);
-        } // END if
-    } // END for    
-
-    output_high (FLASH_CS);
-
-    // Wait for the final write operation to complete.
-    while (flashIsWriteInProgress());
-}
-
-/** 
- *   Erase the entire flash device (all locations set to 0xff).
- */
-void flashErase()
-{
-    output_low (FLASH_CS);
-    // Write Enable (WREN) flash command.
-    flashSendByte (0x06);
-    output_high (FLASH_CS);
-    
-    output_low (FLASH_CS);
-    // Bulk Erase (BE) flash command.
-    flashSendByte (0xc7);
-    output_high (FLASH_CS);
-
-    while (flashIsWriteInProgress());
-}
-
-/**
- *   Read a single byte from the flash device through the serial interface.  This function
- *   only controls the clock line.  The chip select must be configured before calling
- *   this function.
- *
- *   @return byte read from device
- */
-uint8_t flashGetByte()
-{
-    uint8_t i, value;
-    
-    value = 0;      
-    
-    // Bit bang the 8-bits.
-    for (i = 0; i < 8; ++i) 
-    {
-        // Data is ready on the rising edge of the clock.
-        output_high (FLASH_CLK);
-
-        // MSB is first, so shift left.
-        value = value << 1;
-    
-        if (input (FLASH_Q))
-            value = value | 0x01;
-    
-        output_low (FLASH_CLK);
-    } // END for
-
-    return value;
-}
-
-/**
- *   Initialize the flash memory subsystem.
- */
-void flashInit()
-{
-    // I/O lines to control flash.
-    output_high (FLASH_CS);
-    output_low (FLASH_CLK);
-    output_low (FLASH_D);
-}
-
-/**
- *   Write a single byte to the flash device through the serial interface.  This function
- *   only controls the clock line.  The chip select must be configured before calling
- *   this function.
- *
- *   @param value byte to write to device
- */
-void flashSendByte(uint8_t value)
-{
-    uint8_t i;
-    
-    // Bit bang the 8-bits.
-    for (i = 0; i < 8; ++i) 
-    {
-        // Drive the data input pin.
-        if ((value & 0x80) == 0x80)
-            output_high (FLASH_D);
-        else
-            output_low (FLASH_D);
-        
-        // MSB is first, so shift leeft.
-        value = value << 1;
-        
-        // Data is accepted on the rising edge of the clock.
-        output_high (FLASH_CLK);
-        output_low (FLASH_CLK);
-    } // END for
-}
-
-/**
- *    Write the 24-bit address to the flash device through the serial interface.  This function
- *   only controls the clock line.  The chip select must be configured before calling
- *   this function.
- *
- *   @param address 24-bit flash device address
- */
-void flashSendAddress(uint32_t address)
-{
-    uint8_t i;
-    
-    // Bit bang the 24-bits.
-    for (i = 0; i < 24; ++i) 
-    {
-        // Drive the data input pin.
-        if ((address & 0x800000) == 0x800000)
-            output_high (FLASH_D);
-        else
-            output_low (FLASH_D);
-        
-        // MSB is first, so shift left.
-        address = address << 1;
-
-        // Data is accepted on the rising edge of the clock.
-        output_high (FLASH_CLK);
-        output_low (FLASH_CLK);
-    } // END for
+//	printf ("mode %d\n", mode);
 }
 
 /** @} */
@@ -1389,7 +457,7 @@ void flashSendAddress(uint32_t address)
 #define GPS_BUFFER_SIZE 50
 
 /// GPS parse engine state machine values.
-enum GPS_PARSE_STATE_MACHINE 
+typedef enum
 {
     /// 1st start character '@'
     GPS_START1,
@@ -1414,7 +482,7 @@ enum GPS_PARSE_STATE_MACHINE
 
     /// End of message - Line Feed
     GPS_EOMLF
-};
+} GPS_PARSE_STATE_MACHINE;
 
 /// Index into gpsBuffer used to store message data.
 uint8_t gpsIndex;
@@ -1480,8 +548,8 @@ void gpsInit()
     memset (&gpsPosition, 0, sizeof(GPSPOSITION_STRUCT));
 
     // Setup the timers used to measure the 1-PPS time period.
-    setup_timer_3(T3_INTERNAL | T3_DIV_BY_1);
-    setup_ccp2 (CCP_CAPTURE_RE | CCP_USE_TIMER3);
+//    setup_timer_3(T3_INTERNAL | T3_DIV_BY_1);
+//    setup_ccp2 (CCP_CAPTURE_RE | CCP_USE_TIMER3);
 }
 
 /**
@@ -1492,6 +560,7 @@ void gpsInit()
  */
 bool_t gpsIsReady()
 {
+    return true;
     if (gpsPosition.updateFlag) 
     {
         gpsPosition.updateFlag = false;
@@ -1538,12 +607,12 @@ bool_t gpsSetup()
     while (++retryCount < 10) 
     {
         // Read the serial FIFO and process the GPS messages.
-        gpsUpdate();
+//        gpsUpdate();
 
         // If a GPS data set is available, then GPS is operational.
         if (gpsIsReady()) 
         {
-            timeSetDutyCycle (TIME_DUTYCYCLE_10);
+//            timeSetDutyCycle (TIME_DUTYCYCLE_10);
             return true;
         }
 
@@ -1597,12 +666,8 @@ void gpsParsePositionMessage()
 void gpsPowerOn()
 {
     // 3.0 VDC LDO control line.
-    output_high (IO_GPS_PWR);
+//    output_high (IO_GPS_PWR);
 
-    // Enable the UART and the transmit line.
-#asm
-    bsf 0xFAB.7
-#endasm
 }
 
 /**
@@ -1610,393 +675,12 @@ void gpsPowerOn()
  */
 void gpsPowerOff()
 {
-    // Disable the UART and the transmit line.
-#asm
-    bcf 0xFAB.7
-#endasm
-
     // 3.0 VDC LDO control line.
-    output_low (IO_GPS_PWR);
-}
-
-/**
- *   Read the serial FIFO and process complete GPS messages.
- */
-void gpsUpdate() 
-{
-    uint8_t value;
-
-    // This state machine handles each characters as it is read from the GPS serial port.
-    // We are looking for the GPS mesage @@Hb ... C
-    while (serialHasData()) 
-    {
-        // Get the character value.
-        value = serialRead();
-
-        // Process based on the state machine.
-        switch (gpsParseState) 
-        {
-            case GPS_START1:
-                if (value == '@')
-                    gpsParseState = GPS_START2;
-                break;
-
-            case GPS_START2:
-                if (value == '@')
-                    gpsParseState = GPS_COMMAND1;
-                else
-                    gpsParseState = GPS_START1;
-                break;
-
-            case GPS_COMMAND1:
-                if (value == 'H')
-                    gpsParseState = GPS_COMMAND2;
-                else
-                    gpsParseState = GPS_START1;
-                break;
-
-            case GPS_COMMAND2:
-                if (value == 'b') 
-                {
-                    gpsParseState = GPS_READMESSAGE;
-                    gpsIndex = 0;
-                    gpsChecksum = 0;
-                    gpsChecksum ^= 'H';
-                    gpsChecksum ^= 'b';
-                } else
-                    gpsParseState = GPS_START1;
-                break;
-
-            case GPS_READMESSAGE:
-                gpsChecksum ^= value;
-                gpsBuffer[gpsIndex++] = value;
-
-                if (gpsIndex == 47)
-                    gpsParseState = GPS_CHECKSUMMESSAGE;
-
-                break;
-
-            case GPS_CHECKSUMMESSAGE:
-                if (gpsChecksum == value)
-                    gpsParseState = GPS_EOMCR;
-                else
-                    gpsParseState = GPS_START1;
-                break;
-
-            case GPS_EOMCR:
-                if (value == 13)
-                    gpsParseState = GPS_EOMLF;
-                else
-                    gpsParseState = GPS_START1;
-                break;
-
-            case GPS_EOMLF:
-                // Once we have the last character, convert the binary message to something usable.
-                if (value == 10)
-                    gpsParsePositionMessage();
-
-                gpsParseState = GPS_START1;
-                break;
-        } // END switch
-    } // END while
+//    output_low (IO_GPS_PWR);
 }
 
 /** @} */
 
-
-/**
- *  @defgroup log Flight Data Recorder
- *
- *  Functions to manage and control the flight data recorder
- *
- *  @{
- */
-
-/// Number of bytes to buffer before writing to flash memory.
-#define LOG_WRITE_BUFFER_SIZE 40
-
-/// Last used address in flash memory.
-uint32_t logAddress;
-
-/// Temporary buffer that holds data before it is written to flash device.
-uint8_t logBuffer[LOG_WRITE_BUFFER_SIZE];
-
-/// Current index into log buffer.
-uint8_t logIndex;
-
-/** 
- *    Last used address in flash memory.  This location is where the next log data will
- *    be written.
- *
- *    @return 24-bit flash memory address
- */
-uint32_t logGetAddress()
-{
-    return logAddress;
-}
-
-/**
- *   Write the contents of the temporary log buffer to the flash device.  If the buffer
- *   is empty, nothing is done.
- */
-void logFlush()
-{
-    // We only need to write if there is data.
-    if (logIndex != 0) 
-    {
-        flashWriteBlock (logAddress, logBuffer, logIndex);
-        logAddress += logIndex;
-        logIndex = 0;
-    } // END if
-}
-
-/** 
- *   Prepare the flight data recorder for logging.
- */
-void logInit()
-{
-    uint8_t buffer[8];
-    bool_t endFound;
-
-    fprintf (PC_HOST, "Searching for end of flash log...");
-
-    logAddress = 0x0000;
-    endFound = false;
-
-    // Read each logged data block from flash to determine how long it is.
-    do 
-    {
-        // Read the data log entry type.
-        flashReadBlock (logAddress, buffer, 1);
-
-        // Based on the log entry type, we'll skip over the data contained in the entry.
-        switch (buffer[0]) 
-        {
-            case LOG_BOOTED:
-                logAddress += 7;
-                break;
-
-            case LOG_COORD:
-                logAddress += 26;
-                break;
-
-            case LOG_TEMPERATURE:
-                logAddress += 3;
-                break;
-
-            case LOG_VOLTAGE:
-                logAddress += 5;
-                break;
-
-            case 0xff:
-                endFound = true;
-                break;
-
-            default:
-                ++logAddress;
-        } // END switch
-    } while (logAddress < 0x100000 && !endFound);
-
-    fprintf (PC_HOST, "done.  Log contains %ld bytes.\n\r", logAddress);
-
-    logIndex = 0;
-}
-
-/**
- *   Start a entry in the data log.
- *
- *   @param type of log entry, i.e. LOG_BOOTED, LOG_COORD, etc.
- */
-void logType (LOG_TYPE type)
-{
-    // Only add the new entry if there is space.
-    if (logAddress >= 0x100000)
-        return;
-
-    // Write the old entry first.
-    logFlush();
-
-    // Save the type and set the log buffer pointer.
-    logBuffer[0] = type;
-    logIndex = 1;
-}
-
-/**
- *  Save an unsigned, 8-bit value in the log.
- *
- *  @param value unsigned, 8-bit value
- */
-void logUint8 (uint8_t value)
-{
-    logBuffer[logIndex++] = value;
-}
-
-/**
- *  Save a signed, 16-bit value in the log.
- *
- *  @param value signed, 16-bit value
- */
-void logInt16 (int16_t value)
-{
-    logBuffer[logIndex++] = (value >> 8) & 0xff;
-    logBuffer[logIndex++] = value & 0xff;
-}
-
-/**
- *  Save an unsigned, 16-bit value in the log.
- *
- *  @param value unsigned, 16-bit value
- */
-void logUint16 (uint16_t value)
-{
-    logBuffer[logIndex++] = (value >> 8) & 0xff;
-    logBuffer[logIndex++] = value & 0xff;
-}
-
-/**
- *  Save a signed, 32-bit value in the log.
- *
- *  @param value signed, 32-bit value
- */
-void logInt32 (int32_t value)
-{
-    logBuffer[logIndex++] = (value >> 24) & 0xff;
-    logBuffer[logIndex++] = (value >> 16) & 0xff;
-    logBuffer[logIndex++] = (value >> 8) & 0xff;
-    logBuffer[logIndex++] = value & 0xff;
-}
-
-/** @} */
-
-/**
- *  @defgroup LM92 LM92 temperature sensor
- *
- *  Read and control the National Semiconductor LM92 I2C temperature sensor
- *
- *  @{
- */
-
-/** 
- *   Read the LM92 temperature value in 0.1 degrees F.
- *
- *   @return 0.1 degrees F
- */
-int16_t lm92GetTemp()
-{
-    int16_t value;
-    int32_t temp;
-
-    // Set the SDA and SCL to input pins to control the LM92.
-    set_tris_c (0x9a);
-
-    // Read the temperature register value.
-    i2c_start();
-    i2c_write(0x97);
-    value = ((int16_t) i2c_read() << 8);
-    value = value | ((int16_t) i2c_read() & 0x00f8);
-    i2c_stop();
-
-    // Set the SDA and SCL back to outputs for use with the AD9954 because we share common clock pins.
-    set_tris_c (0x82);
-
-    //  LM92 register   0.0625degC/bit   9   10     9
-    //  ------------- * -------------- * - * -- =  -- + 320
-    //        8                          5         64
-
-    // Convert to degrees F.
-    temp = (int32_t) value;
-    temp = ((temp * 9l) / 64l) + 320;
-    
-    return (int16_t) temp;
-}
-
-/** @} */
-
-
-/**
- *  @defgroup serial Serial Port FIFO
- *
- *  FIFO for the built-in serial port.
- *
- *  @{
- */
-
-/// Size of serial port FIFO in bytes.  It must be a power of 2, i.e. 2, 4, 8, 16, etc.
-#define SERIAL_BUFFER_SIZE 64
-
-/// Mask to wrap around at end of circular buffer.  (SERIAL_BUFFER_SIZE - 1)
-#define SERIAL_BUFFER_MASK 0x3f
-
-/// Index to the next free location in the buffer.
-uint8_t serialHead;
-
-/// Index to the next oldest data in the buffer.
-uint8_t serialTail;
-
-/// Circular buffer (FIFO) to hold serial data.
-uint8_t serialBuffer[SERIAL_BUFFER_SIZE];
-
-/**
- *   Determine if the FIFO contains data.
- *
- *   @return true if data present; otherwise false
- */
-bool_t serialHasData()
-{
-    if (serialHead == serialTail)
-        return false;
-
-    return true;
-}
-
-/** 
- *   Initialize the serial processor.
- */
-void serialInit()
-{
-    serialHead = 0;
-    serialTail = 0;
-}
-
-/**
- *   Get the oldest character from the FIFO.
- *
- *   @return oldest character; 0 if FIFO is empty
- */
-uint8_t serialRead()
-{
-    uint8_t value;
-
-    // Make sure we have something to return.
-    if (serialHead == serialTail)
-        return 0;
-
-    // Save the value.
-    value = serialBuffer[serialTail];
-
-    // Update the pointer.
-    serialTail = (serialTail + 1) & SERIAL_BUFFER_MASK;
-
-    return value;
-}
-
-/**
- *   Read and store any characters in the PIC serial port in a FIFO.
- */
-void serialUpdate()
-{
-    // If there isn't a character in the PIC buffer, just leave.
-    while (kbhit()) 
-    {
-        // Save the value in the FIFO.
-        serialBuffer[serialHead] = getc();
-
-        // Move the pointer to the next open space.
-        serialHead = (serialHead + 1) & SERIAL_BUFFER_MASK;
-    }
-}
-
-/** @} */
 
 /**
  *  @defgroup sys System Library Functions
@@ -2033,65 +717,6 @@ uint16_t sysCRC16(uint8_t *buffer, uint8_t length, uint16_t crc)
     } // END for
 
     return crc ^ 0xffff;
-}
-
-/**
- *   Initialize the system library and global resources.
- */
-void sysInit()
-{
-    gpsPowerOff ();
-    output_high (IO_LED);
-
-    output_high (IO_CS);
-    output_low (IO_PS1);
-    output_low (IO_PS0);
-    output_low (IO_OSK);
-    output_low (IO_UPDATE);
-    output_low (IO_PTT);
-    output_low (IO_GPS_TXD);
-
-    // Configure the port direction (input/output).
-    set_tris_a (0xc3);
-    set_tris_b (0x44);
-    set_tris_c (0x82);
-
-    // Display a startup message during boot.
-    fprintf (PC_HOST, "System booted.\n\r");
-}
-
-/**
- *   Log the current GPS position.
- */
-void sysLogGPSData()
-{
-    // Log the data.
-    logType (LOG_COORD);
-    logUint8 (gpsPosition.hours);
-    logUint8 (gpsPosition.minutes);
-    logUint8 (gpsPosition.seconds);
-    logInt32 (gpsPosition.latitude);
-    logInt32 (gpsPosition.longitude);
-    logInt32 (gpsPosition.altitudeCM);
-
-    logUint16 (gpsPosition.vSpeed);
-    logUint16 (gpsPosition.hSpeed);
-    logUint16 (gpsPosition.heading);
-
-    logUint16 (gpsPosition.status);
-
-    logUint8 ((uint8_t) (gpsPosition.dop & 0xff));
-    logUint8 ((uint8_t) ((gpsPosition.visibleSats << 4) | gpsPosition.trackedSats));
-}
-
-/**
- *   Log the ADC values of the bus and reference voltage values.
- */
-void sysLogVoltage()
-{
-    logType (LOG_VOLTAGE);
-    logUint16 (adcRawBusVolt());
-    logUint16 (adcRawRefVolt());
 }
 
 /** @} */
@@ -2166,11 +791,10 @@ void timeInit()
 {
     timeTicks = 0;
     timeInterruptCount = 0;
-    time100mS = 0;
+//    time100mS = 0;
     timeSeconds = 0;
     timeMinutes = 0;
     timeHours = 0;
-    timeDutyCycle = TIME_DUTYCYCLE_70;
     timeCompare = TIME_RATE;
     timeUpdateFlag = false;
     timeNCO = 0x00;
@@ -2178,12 +802,6 @@ void timeInit()
     timeNCOFreq = 0x2000;
     tncDataMode = TNC_MODE_STANDBY;  
     timeRunFlag = false;
-    
-    // Configure CCP1 to interrupt at 1mS for PSK31 or 833uS for 1200 baud APRS
-    CCP_1 = TIME_RATE;
-    set_timer1(timeCompare);
-    setup_ccp1( CCP_COMPARE_INT );
-    setup_timer_1( T1_INTERNAL | T1_DIV_BY_4 );
 }
 
 /**
@@ -2203,16 +821,6 @@ bool_t timeIsUpdate()
 }
 
 /**
- *   Set the blink duty cycle of the heartbeat LED.  The LED blinks at a 1Hz rate.
- *
- *   @param dutyCycle TIME_DUTYCYCLE_xx constant
- */
-void timeSetDutyCycle (uint8_t dutyCycle)
-{
-    timeDutyCycle = dutyCycle;
-}
-
-/**
  *   Set a flag to indicate the flight time should run.  This flag is typically set when the payload
  *   lifts off.
  */
@@ -2221,7 +829,6 @@ void timeSetRunFlag()
     timeRunFlag = true;
 }
 
-#INT_CCP1
 /**
  *   Timer interrupt handler called every 104uS (9600 times/second).
  */
@@ -2229,7 +836,7 @@ void timeUpdate()
 {
     // Setup the next interrupt for the operational mode.
     timeCompare += TIME_RATE;
-    CCP_1 = timeCompare;
+//    CCP_1 = timeCompare;
 
     switch (tncDataMode) 
     {
@@ -2252,46 +859,6 @@ void timeUpdate()
             tnc9600TimerTick();
             break;
     } // END switch
-
-    // Read the GPS serial port and save any incoming characters.
-    serialUpdate();
-
-    // Count the number of milliseconds required for the tenth second counter.
-    if (++timeInterruptCount == 960) 
-    {
-        timeInterruptCount = 0;
-
-        // This timer just ticks every 100mS and is used for general timing.
-        ++timeTicks;
-
-        // Roll the counter over every second.
-        if (++time100mS == 10) 
-        {
-            time100mS = 0;
-
-            // We set this flag true every second.
-            timeUpdateFlag = true;
-
-            // Maintain a Real Time Clock.
-            if (timeRunFlag)
-                if (++timeSeconds == 60) 
-                {
-                    timeSeconds = 0;
-    
-                    if (++timeMinutes == 60) 
-                    {
-                        timeMinutes = 0;
-                        ++timeHours;
-                    } // END if timeMinutes
-                } // END if timeSeconds
-        } // END if time100mS
-
-        // Flash the status LED at timeDutyCycle % per second.  We use the duty cycle for mode feedback.
-        if (time100mS >= timeDutyCycle)
-            output_low (IO_LED);
-        else
-            output_high (IO_LED);
-    } // END if
 }
 
 /** @} */
@@ -2311,7 +878,7 @@ void timeUpdate()
 #define TNC_BUFFER_SIZE 80
 
 /// States that define the current mode of the 1200 bps (A-FSK) state machine.
-enum TNC_TX_1200BPS_STATE 
+typedef enum
 {
     /// Stand by state ready to accept new message.
     TNC_TX_READY,
@@ -2327,10 +894,10 @@ enum TNC_TX_1200BPS_STATE
 
     /// Transmit the end flag sequence.
     TNC_TX_END
-};
+} TNC_TX_1200BPS_STATE;
 
 /// Enumeration of the messages we can transmit. 
-enum TNC_MESSAGE_TYPE 
+typedef enum
 {
     /// Startup message that contains software version information.
     TNC_BOOT_MESSAGE,
@@ -2343,13 +910,13 @@ enum TNC_MESSAGE_TYPE
 
     /// Message that contains GPS NMEA-0183 $GPRMC message.
     TNC_RMC
-};
+}  TNC_MESSAGE_TYPE;
 
 /// AX.25 compliant packet header that contains destination, station call sign, and path.
 /// 0x76 for SSID-11, 0x78 for SSID-12
 uint8_t TNC_AX25_HEADER[30] = { 
     'A' << 1, 'P' << 1, 'R' << 1, 'S' << 1, ' ' << 1, ' ' << 1, 0x60, \
-    'K' << 1, 'D' << 1, '7' << 1, 'L' << 1, 'M' << 1, 'O' << 1, 0x76, \
+    'K' << 1, 'D' << 1, '7' << 1, 'S' << 1, 'Q' << 1, 'G' << 1, 0x76, \
     'G' << 1, 'A' << 1, 'T' << 1, 'E' << 1, ' ' << 1, ' ' << 1, 0x60, \
     'W' << 1, 'I' << 1, 'D' << 1, 'E' << 1, '3' << 1, ' ' << 1, 0x67, \
     0x03, 0xf0 };
@@ -2631,8 +1198,8 @@ void tnc1200TimerTick()
                     tncDataMode = TNC_MODE_STANDBY;
 
                     // Key off the DDS.
-                    output_low (IO_OSK);
-                    output_low (IO_PTT);
+//                    output_low (IO_OSK);
+//                    output_low (IO_PTT);
                     ddsSetMode (DDS_MODE_POWERDOWN);
 
                     return;
@@ -2665,6 +1232,19 @@ void tncTxByte (uint8_t character)
     ++tncLength;
 }
 
+static void
+tncPrintf(char *fmt, ...)
+{
+    va_list	ap;
+    int		c;
+
+    va_start(ap, fmt);
+    c = vsprintf(tncBufferPnt, fmt, ap);
+    va_end(ap);
+    tncBufferPnt += c;
+    tncLength += c;
+}
+
 /**
  *   Generate the GPS NMEA standard UTC time stamp.  Data is written through the tncTxByte
  *   callback function.
@@ -2672,7 +1252,7 @@ void tncTxByte (uint8_t character)
 void tncNMEATime()
 {
     // UTC of position fix.
-    printf (tncTxByte, "%02d%02d%02d,", gpsPosition.hours, gpsPosition.minutes, gpsPosition.seconds);
+    tncPrintf ("%02d%02d%02d,", gpsPosition.hours, gpsPosition.minutes, gpsPosition.seconds);
 }
 
 /**
@@ -2697,7 +1277,7 @@ void tncNMEAFix()
     }
 
     coordMin = (coord % 3600000) / 6;
-    printf (tncTxByte, "%02ld%02ld.%04ld,%c,", (uint32_t) (coord / 3600000), (uint32_t) (coordMin / 10000), (uint32_t) (coordMin % 10000), dirChar);
+    tncPrintf ("%02ld%02ld.%04ld,%c,", (uint32_t) (coord / 3600000), (uint32_t) (coordMin / 10000), (uint32_t) (coordMin % 10000), dirChar);
 
 
     // Longitude value.
@@ -2711,8 +1291,8 @@ void tncNMEAFix()
     }
 
     coordMin = (coord % 3600000) / 6;
-    printf (tncTxByte, "%03ld%02ld.%04ld,%c,", (uint32_t) (coord / 3600000), (uint32_t) (coordMin / 10000), (uint32_t) (coordMin % 10000), dirChar);
-
+    tncPrintf ("%03ld%02ld.%04ld,%c,", (uint32_t) (coord / 3600000), (uint32_t) (coordMin / 10000), (uint32_t) (coordMin % 10000), dirChar);
+    
 }
 
 /**
@@ -2722,7 +1302,7 @@ void tncNMEAFix()
 void tncGPGGAPacket()
 {
     // Generate the GPGGA message.
-    printf (tncTxByte, "$GPGGA,");
+    tncPrintf ("$GPGGA,");
 
     // Standard NMEA time.
     tncNMEATime();
@@ -2732,21 +1312,21 @@ void tncGPGGAPacket()
 
     // GPS status where 0: not available, 1: available
     if (gpsGetFixType() != GPS_NO_FIX)
-        printf (tncTxByte, "1,");
+        tncPrintf ("1,");
     else
-        printf (tncTxByte, "0,");
+        tncPrintf ("0,");
 
     // Number of visible birds.
-    printf (tncTxByte, "%02d,", gpsPosition.trackedSats);
+    tncPrintf ("%02d,", gpsPosition.trackedSats);
 
     // DOP
-    printf (tncTxByte, "%ld.%01ld,", gpsPosition.dop / 10, gpsPosition.dop % 10);
+    tncPrintf ("%ld.%01ld,", gpsPosition.dop / 10, gpsPosition.dop % 10);
 
     // Altitude in meters.
-    printf (tncTxByte, "%ld.%02ld,M,,M,,", (int32_t) (gpsPosition.altitudeCM / 100l), (int32_t) (gpsPosition.altitudeCM % 100));
+    tncPrintf ("%ld.%02ld,M,,M,,", (int32_t) (gpsPosition.altitudeCM / 100l), (int32_t) (gpsPosition.altitudeCM % 100));
 
     // Checksum, we add 1 to skip over the $ character.
-    printf (tncTxByte, "*%02X", gpsNMEAChecksum(tncBuffer + 1, tncLength - 1));
+    tncPrintf ("*%02X", gpsNMEAChecksum(tncBuffer + 1, tncLength - 1));
 }
 
 /**
@@ -2758,29 +1338,29 @@ void tncGPRMCPacket()
     uint32_t temp;
 
     // Generate the GPRMC message.
-    printf (tncTxByte, "$GPRMC,");
+    tncPrintf ("$GPRMC,");
 
     // Standard NMEA time.
     tncNMEATime();
 
     // GPS status.
     if (gpsGetFixType() != GPS_NO_FIX)
-        printf (tncTxByte, "A,");
+        tncPrintf ("A,");
     else
-        printf (tncTxByte, "V,");
+        tncPrintf ("V,");
 
     // Standard NMEA-0183 latitude/longitude.
     tncNMEAFix();
 
     // Speed knots and heading.
     temp = (int32_t) gpsPosition.hSpeed * 75000 / 385826;
-    printf (tncTxByte, "%ld.%ld,%ld.%ld,", (int16_t) (temp / 10), (int16_t) (temp % 10), gpsPosition.heading / 10, gpsPosition.heading % 10);
+    tncPrintf ("%ld.%ld,%ld.%ld,", (int16_t) (temp / 10), (int16_t) (temp % 10), gpsPosition.heading / 10, gpsPosition.heading % 10);
 
     // Date
-    printf (tncTxByte, "%02d%02d%02ld,,", gpsPosition.day, gpsPosition.month, gpsPosition.year % 100);
+    tncPrintf ("%02d%02d%02ld,,", gpsPosition.day, gpsPosition.month, gpsPosition.year % 100);
 
     // Checksum, skip over the $ character.
-    printf (tncTxByte, "*%02X", gpsNMEAChecksum(tncBuffer + 1, tncLength - 1));
+    tncPrintf ("*%02X", gpsNMEAChecksum(tncBuffer + 1, tncLength - 1));
 }
 
 /**
@@ -2792,49 +1372,49 @@ void tncStatusPacket(int16_t temperature)
     uint16_t voltage;
 
     // Plain text telemetry.
-    printf (tncTxByte, ">ANSR ");
+    tncPrintf (">ANSR ");
     
     // Display the flight time.
-    printf (tncTxByte, "%02U:%02U:%02U ", timeHours, timeMinutes, timeSeconds);
+    tncPrintf ("%02U:%02U:%02U ", timeHours, timeMinutes, timeSeconds);
     
     // Altitude in feet.
-    printf (tncTxByte, "%ld' ", gpsPosition.altitudeFeet);
+    tncPrintf ("%ld' ", gpsPosition.altitudeFeet);
     
     // Peak altitude in feet.
-    printf (tncTxByte, "%ld'pk ", gpsGetPeakAltitude());
+    tncPrintf ("%ld'pk ", gpsGetPeakAltitude());
     
     // GPS hdop or pdop
-    printf (tncTxByte, "%lu.%lu", gpsPosition.dop / 10, gpsPosition.dop % 10);
+    tncPrintf ("%lu.%lu", gpsPosition.dop / 10, gpsPosition.dop % 10);
 
     // The text 'pdop' for a 3D fix, 'hdop' for a 2D fix, and 'dop' for no fix.
     switch (gpsGetFixType()) 
     {
         case GPS_NO_FIX:
-            printf (tncTxByte, "dop ");
+            tncPrintf ("dop ");
             break;
 
         case GPS_2D_FIX:
-            printf (tncTxByte, "hdop ");
+            tncPrintf ("hdop ");
             break;
 
 
         case GPS_3D_FIX:
-            printf (tncTxByte, "pdop ");
+            tncPrintf ("pdop ");
             break;
     } // END switch
 
     // Number of satellites in the solution.
-    printf (tncTxByte, "%utrk ", gpsPosition.trackedSats);
+    tncPrintf ("%utrk ", gpsPosition.trackedSats);
     
     // Display main bus voltage.
-    voltage = adcGetMainBusVolt();
-    printf (tncTxByte, "%lu.%02luvdc ", voltage / 100, voltage % 100);
+//    voltage = adcGetMainBusVolt();
+//    tncPrintf ("%lu.%02luvdc ", voltage / 100, voltage % 100);
     
     // Display internal temperature.
-    printf (tncTxByte, "%ld.%01ldF ", temperature / 10, abs(temperature % 10));
+//    tncPrintf ("%ld.%01ldF ", temperature / 10, abs(temperature % 10));
     
     // Print web address link.
-    printf (tncTxByte, "www.kd7lmo.net");
+    tncPrintf ("www.altusmetrum.org");
 }  
 
 /** 
@@ -2852,16 +1432,6 @@ void tncTxPacket(TNC_DATA_MODE dataMode)
     if (tncMode != TNC_TX_READY)
         return;
 
-    // Log the battery and reference voltage before we start the RF chain.
-    sysLogVoltage();
-
-    // We need to read the temperature sensor before we setup the DDS since they share a common clock pin.
-    temperature = lm92GetTemp();
-
-    // Log the system temperature every time we transmit a packet.
-    logType (LOG_TEMPERATURE);
-    logInt16 (temperature);
-
     // Configure the DDS for the desired operational.
     tncSetMode (dataMode);
 
@@ -2875,7 +1445,7 @@ void tncTxPacket(TNC_DATA_MODE dataMode)
     switch (tncPacketType) 
     {
         case TNC_BOOT_MESSAGE:
-            printf (tncTxByte, ">ANSR Pico Beacon - V3.05");
+            tncPrintf (">MegaMetrum v1.0 Beacon");
 
             // Select the next packet we will generate.
             tncPacketType = TNC_STATUS;
@@ -2904,7 +1474,7 @@ void tncTxPacket(TNC_DATA_MODE dataMode)
     }
 
     // Add the end of message character.
-    printf (tncTxByte, "\015");
+    tncPrintf ("\015");
 
     // Calculate the CRC for the header and message.
     crc = sysCRC16(TNC_AX25_HEADER, sizeof(TNC_AX25_HEADER), 0xffff);
@@ -2925,20 +1495,23 @@ void tncTxPacket(TNC_DATA_MODE dataMode)
     tncMode = TNC_TX_SYNC;
 
     // Turn on the PA chain.
-    output_high (IO_PTT);
+//    output_high (IO_PTT);
 
     // Wait for the PA chain to power up.
-    delay_ms (10);
+//    delay_ms (10);
 
     // Key the DDS.
-    output_high (IO_OSK);
+//    output_high (IO_OSK);
 
     // Log the battery and reference voltage just after we key the transmitter.
-    sysLogVoltage();
+//    sysLogVoltage();
+    while (tncMode != TNC_TX_READY)
+	timeUpdate();
 }
 
 /** @} */
 
+#if 0
 uint32_t counter;
 
 uint8_t bitIndex;
@@ -2959,7 +1532,7 @@ void test()
 {
     counter += 0x10622d;
 
-    CCP_1 = (uint16_t) ((counter >> 16) & 0xffff);
+//    CCP_1 = (uint16_t) ((counter >> 16) & 0xffff);
 
     if ((value & 0x80) == 0x80)
         setup_ccp1 (CCP_COMPARE_SET_ON_MATCH);
@@ -2979,68 +1552,37 @@ void test()
     } else
         value = value << 1;
 }
+#endif
 
 // This is where we go after reset.
-void main()
+int main(int argc, char **argv)
 {
     uint8_t i, utcSeconds, lockLostCounter;
 
-test();
+//test();
 
     // Configure the basic systems.
-    sysInit();
+//    sysInit();
 
     // Wait for the power converter chains to stabilize.
-    delay_ms (100);
+//    delay_ms (100);
 
     // Setup the subsystems.
-    adcInit();
-    flashInit();
+//    adcInit();
+//    flashInit();
     gpsInit();
-    logInit();
-    timeInit();
-    serialInit();
+//    logInit();
+//    timeInit();
+//    serialInit();
     tncInit();
 
     // Program the DDS.
-    ddsInit();
-
-    // Turn off the LED after everything is configured.
-    output_low (IO_LED);
-
-    // Check for the diagnostics plug, otherwise we'll continue to boot.
-    diagPort();
-
-    // Setup our interrupts.
-    enable_interrupts(GLOBAL);
-    enable_interrupts(INT_CCP1);
-
-    // Turn on the GPS engine.
-    gpsPowerOn();
-
-    // Allow the GPS engine to boot.
-    delay_ms (250);
-
-    // Initialize the GPS engine.
-    while (!gpsSetup());
-
-    // Charge the ADC filters.
-    for (i = 0; i < 32; ++i)
-        adcUpdate();
-
-    // Log startup event.
-    logType (LOG_BOOTED);
-    logUint8 (gpsPosition.month);
-    logUint8 (gpsPosition.day);
-    logUint8 (gpsPosition.year & 0xff);
-
-    logUint8 (gpsPosition.hours);
-    logUint8 (gpsPosition.minutes);
-    logUint8 (gpsPosition.seconds);
+//    ddsInit();
 
     // Transmit software version packet on start up.
     tncTxPacket(TNC_MODE_1200_AFSK);
 
+    exit(0);
     // Counters to send packets if the GPS time stamp is not available.
     lockLostCounter = 5;
     utcSeconds = 55;
@@ -3049,7 +1591,7 @@ test();
     for (;;) 
     {
         // Read the GPS engine serial port FIFO and process the GPS data.
-        gpsUpdate();
+//        gpsUpdate();
 
         if (gpsIsReady()) 
         {
@@ -3068,7 +1610,7 @@ test();
             lockLostCounter = 0;
 
             // Log the data to flash.
-            sysLogGPSData();            
+//            sysLogGPSData();            
         } // END if gpsIsReady   
 
         // Processing that occurs once a second.
@@ -3088,7 +1630,7 @@ test();
                 ++lockLostCounter;
 
             // Update the ADC filters.
-            adcUpdate();
+//            adcUpdate();
 
             if (timeHours == 5 && timeMinutes == 0 && timeSeconds == 0)
                 gpsPowerOff();
