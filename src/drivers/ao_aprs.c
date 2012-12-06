@@ -167,8 +167,6 @@ void timeSetDutyCycle (uint8_t dutyCycle);
 void timeUpdate();
 
 void tncInit();
-bool_t tncIsFree();
-void tncHighRate(bool_t state);
 void tnc1200TimerTick();
 void tncTxByte (uint8_t value);
 void tncTxPacket(void);
@@ -504,9 +502,6 @@ TNC_MESSAGE_TYPE tncPacketType;
 /// Buffer to hold the message portion of the AX.25 packet as we prepare it.
 uint8_t tncBuffer[TNC_BUFFER_SIZE];
 
-/// Flag that indicates we want to transmit every 5 seconds.
-bool_t tncHighRateFlag;
-
 /** 
  *   Initialize the TNC internal variables.
  */
@@ -515,56 +510,6 @@ void tncInit()
     tncTxBit = 0;
     tncMode = TNC_TX_READY;
     tncPacketType = TNC_BOOT_MESSAGE;
-    tncHighRateFlag = false;
-}
-
-/**
- *  Determine if the hardware if ready to transmit a 1200 baud packet.
- *
- *  @return true if ready; otherwise false
- */
-bool_t tncIsFree()
-{
-    if (tncMode == TNC_TX_READY)
-        return true;
-
-    return false;
-}
-
-void tncHighRate(bool_t state)
-{
-    tncHighRateFlag = state;
-}
-
-/**
- *  Determine if the seconds value timeSeconds is a valid time slot to transmit
- *  a message.  Time seconds is in UTC.
- *
- *  @param timeSeconds UTC time in seconds
- *
- *  @return true if valid time slot; otherwise false
- */
-bool_t tncIsTimeSlot (uint8_t timeSeconds)
-{
-    if (tncHighRateFlag)
-    {
-        if ((timeSeconds % 5) == 0)
-            return true;
-
-        return false;
-    } // END if
-
-    switch (timeSeconds) 
-    {
-        case 0:
-        case 15:
-        case 30:
-        case 45:
-            return true;
-
-        default:
-            return false;
-    } // END switch
 }
 
 /**
@@ -733,14 +678,6 @@ void tnc1200TimerTick()
 
             break;
     } // END switch
-}
-
-/**
- *   Method that is called every 104uS to transmit the 9600bps FSK data stream.
- */
-void tnc9600TimerTick()
-{
-
 }
 
 /**
