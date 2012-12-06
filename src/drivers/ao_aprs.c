@@ -152,110 +152,12 @@ typedef int32_t int32;
 
 // Public methods, constants, and data structures for each class.
 
-/// Operational modes of the AD9954 DDS for the ddsSetMode function.
-typedef enum
-{
-    /// Device has not been initialized.
-    DDS_MODE_NOT_INITIALIZED,
-
-    /// Device in lowest power down mode.
-    DDS_MODE_POWERDOWN,
-
-    /// Generate FM modulated audio tones.
-    DDS_MODE_AFSK,
-
-    /// Generate true FSK tones.
-    DDS_MODE_FSK
-}  DDS_MODE;
-
 void ddsInit();
 void ddsSetAmplitude (uint8_t amplitude);
 void ddsSetOutputScale (uint16_t amplitude);
 void ddsSetFSKFreq (uint32_t ftw0, uint32_t ftw1);
 void ddsSetFreq (uint32_t freq);
 void ddsSetFTW (uint32_t ftw);
-void ddsSetMode (DDS_MODE mode);
-
-/// Type of GPS fix.
-typedef enum
-{
-    /// No GPS FIX
-    GPS_NO_FIX,
-
-    /// 2D (Latitude/Longitude) fix.
-    GPS_2D_FIX,
-
-    /// 3D (Latitude/Longitude/Altitude) fix.
-    GPS_3D_FIX
-}  GPS_FIX_TYPE;
-
-/// GPS Position information.
-typedef struct 
-{
-    /// Flag that indicates the position information has been updated since it was last checked.
-    bool_t updateFlag;
-
-    /// Month in UTC time.
-    uint8_t month;
-
-    /// Day of month in UTC time.
-    uint8_t day;
-
-    /// Hours in UTC time.
-    uint8_t hours;
-
-    /// Minutes in UTC time.
-    uint8_t minutes;
-
-    /// Seconds in UTC time.
-    uint8_t seconds;
-
-    /// Year in UTC time.
-    uint16_t year;
-
-    /// Latitude in milli arc-seconds where + is North, - is South.
-    int32_t latitude;
-
-    /// Longitude in milli arc-seconds where + is East, - is West.
-    int32_t longitude;
-
-    /// Altitude in cm
-    int32_t altitudeCM;
-
-    /// Calculated altitude in feet
-    int32_t altitudeFeet;
-
-    /// 3D speed in cm/second.
-    uint16_t vSpeed;
-
-    /// 2D speed in cm/second.
-    uint16_t hSpeed;
-
-    /// Heading units of 0.1 degrees.
-    uint16_t heading;
-
-    /// DOP (Dilution of Precision)
-    uint16_t dop;
-
-    /// 16-bit number that represents status of GPS engine.
-    uint16_t status;
-
-    /// Number of tracked satellites used in the fix position.
-    uint8_t trackedSats;
-
-    /// Number of visible satellites.
-    uint8_t visibleSats;
-} GPSPOSITION_STRUCT;
-
-GPSPOSITION_STRUCT gpsPosition;
-
-void gpsInit();
-bool_t gpsIsReady();
-GPS_FIX_TYPE gpsGetFixType();
-int32_t gpsGetPeakAltitude();
-void gpsPowerOn();
-bool_t gpsSetup();
-void gpsUpdate();
 
 uint16_t sysCRC16(uint8_t *buffer, uint8_t length, uint16_t crc);
 
@@ -264,27 +166,12 @@ void timeInit();
 void timeSetDutyCycle (uint8_t dutyCycle);
 void timeUpdate();
 
-/// Operational modes of the TNC for the tncSetMode function.
-typedef enum
-{
-    /// No operation waiting for setup and configuration.
-    TNC_MODE_STANDBY, 
-
-    /// 1200 bps using A-FSK (Audio FSK) tones.
-    TNC_MODE_1200_AFSK,
-
-    /// 9600 bps using true FSK tones.
-    TNC_MODE_9600_FSK
-} TNC_DATA_MODE;
-
 void tncInit();
 bool_t tncIsFree();
 void tncHighRate(bool_t state);
-void tncSetMode (TNC_DATA_MODE dataMode);
 void tnc1200TimerTick();
-void tnc9600TimerTick();
 void tncTxByte (uint8_t value);
-void tncTxPacket(TNC_DATA_MODE dataMode);
+void tncTxPacket(void);
 
 /** @} */
 
@@ -295,42 +182,6 @@ void tncTxPacket(TNC_DATA_MODE dataMode);
  *
  *  @{
  */
-
-/// AD9954 CFR1 - Control functions including RAM, profiles, OSK, sync, sweep, SPI, and power control settings.
-#define DDS_AD9954_CFR1 0x00
-
-/// AD9954 CFR2 - Control functions including sync, PLL multiplier, VCO range, and charge pump current.
-#define DDS_AD9954_CFR2 0x01
-
-/// AD9954 ASF - Auto ramp rate speed control and output scale factor (0x0000 to 0x3fff).
-#define DDS_AD9954_ASF 0x02
-
-/// AD9954 ARR - Amplitude ramp rate for OSK function.
-#define DDS_AD9954_ARR 0x03
-
-/// AD9954 FTW0 - Frequency tuning word 0.
-#define DDS_AD9954_FTW0 0x04
-
-/// AD9954 FTW1 - Frequency tuning word 1
-#define DDS_AD9954_FTW1 0x06
-
-/// AD9954 NLSCW - Negative Linear Sweep Control Word used for spectral shaping in FSK mode
-#define DDS_AD9954_NLSCW 0x07
-
-/// AD9954 PLSCW - Positive Linear Sweep Control Word used for spectral shaping in FSK mode
-#define DDS_AD9954_PLSCW 0x08
-
-/// AD9954 RSCW0 - RAM Segment Control Word 0
-#define DDS_AD9954_RWCW0 0x07
-
-/// AD9954 RSCW0 - RAM Segment Control Word 1
-#define DDS_AD9954_RWCW1 0x08
-
-/// AD9954 RAM segment
-#define DDS_RAM 0x0b
-
-/// Current operational mode.
-DDS_MODE ddsMode;
 
 /// Number of digits in DDS frequency to FTW conversion.
 #define DDS_FREQ_TO_FTW_DIGITS 9
@@ -398,286 +249,7 @@ void ddsSetFTW (uint32_t ftw)
     putchar (x > 0 ? 0xc0 : 0x40);
 }
 
-/**
- *   Convert frequency in hertz to 32-bit DDS FTW (Frequency Tune Word).
- *
- *   @param freq frequency in Hertz
- *
- */
-void ddsSetFreq(uint32_t freq)
-{
-    uint8_t i;
-    uint32_t ftw;
-    
-    // To avoid rounding errors with floating point math, we do a long multiply on the data.
-    ftw = freq * DDS_MULT[0];
-    
-    for (i = 0; i < DDS_FREQ_TO_FTW_DIGITS - 1; ++i)
-        ftw += (freq * DDS_MULT[i+1]) / DDS_DIVISOR[i];
-    
-    ddsSetFTW (ftw);
-}
-
-/**
- *  Set DDS frequency tuning word for the FSK 0 and 1 values.  The output frequency is equal 
- *  to RefClock * (ftw / 2 ^ 32).
- *
- *  @param ftw0 frequency tuning word for the FSK 0 value
- *  @param ftw1 frequency tuning word for the FSK 1 value
- */
-void ddsSetFSKFreq (uint32_t ftw0, uint32_t ftw1)
-{
-//	printf ("ftw0 %d ftw1 %d\n", ftw0, ftw1);
-}
-
-/** 
- *   Set the DDS to run in A-FSK, FSK, or PSK31 mode
- *
- *   @param mode DDS_MODE_APRS, DDS_MODE_PSK31, or DDS_MODE_HF_APRS constant
- */
-void ddsSetMode (DDS_MODE mode)
-{
-//	printf ("mode %d\n", mode);
-}
-
 /** @} */
-
-/**
- *  @defgroup GPS Motorola M12+ GPS Engine
- *
- *  Functions to control the Motorola M12+ GPS engine in native binary protocol mode.
- *
- *  @{
- */
-
-/// The maximum length of a binary GPS engine message.
-#define GPS_BUFFER_SIZE 50
-
-/// GPS parse engine state machine values.
-typedef enum
-{
-    /// 1st start character '@'
-    GPS_START1,
-
-    /// 2nd start character '@'
-    GPS_START2,
-
-    /// Upper case 'A' - 'Z' message type
-    GPS_COMMAND1,
-
-    /// Lower case 'a' - 'z' message type
-    GPS_COMMAND2,
-
-    /// 0 - xx bytes based on message type 'Aa'
-    GPS_READMESSAGE,
-
-    /// 8-bit checksum
-    GPS_CHECKSUMMESSAGE,
-
-    /// End of message - Carriage Return
-    GPS_EOMCR,
-
-    /// End of message - Line Feed
-    GPS_EOMLF
-} GPS_PARSE_STATE_MACHINE;
-
-/// Index into gpsBuffer used to store message data.
-uint8_t gpsIndex;
-
-/// State machine used to parse the GPS message stream.
-GPS_PARSE_STATE_MACHINE gpsParseState;
-
-/// Buffer to store data as it is read from the GPS engine.
-uint8_t gpsBuffer[GPS_BUFFER_SIZE]; 
-
-/// Peak altitude detected while GPS is in 3D fix mode.
-int32_t gpsPeakAltitude;
-
-/// Checksum used to verify binary message from GPS engine.
-uint8_t gpsChecksum;
-
-/// Last verified GPS message received.
-GPSPOSITION_STRUCT gpsPosition;
-
-/**
- *   Get the type of fix.
- *
- *   @return gps fix type enumeration
- */
-GPS_FIX_TYPE gpsGetFixType()
-{
-    // The upper 3-bits determine the fix type.
-    switch (gpsPosition.status & 0xe000) 
-    {
-        case 0xe000:
-            return GPS_3D_FIX;
-
-        case 0xc000:
-            return GPS_2D_FIX;
-    
-        default:
-            return GPS_NO_FIX;
-    } // END switch
-}
-
-/**
- *  Peak altitude detected while GPS is in 3D fix mode since the system was booted.
- *
- *  @return altitude in feet
- */
-int32_t gpsGetPeakAltitude()
-{
-    return gpsPeakAltitude;
-}
-
-/** 
- *    Initialize the GPS subsystem.
- */
-void gpsInit()
-{
-    // Initial parse state.
-    gpsParseState = GPS_START1;
-
-    // Assume we start at sea level.
-    gpsPeakAltitude = 0;
-
-    // Clear the structure that stores the position message.
-    memset (&gpsPosition, 0, sizeof(GPSPOSITION_STRUCT));
-
-    // Setup the timers used to measure the 1-PPS time period.
-//    setup_timer_3(T3_INTERNAL | T3_DIV_BY_1);
-//    setup_ccp2 (CCP_CAPTURE_RE | CCP_USE_TIMER3);
-}
-
-/**
- *   Determine if new GPS message is ready to process.  This function is a one shot and
- *   typically returns true once a second for each GPS position fix.
- *
- *   @return true if new message available; otherwise false
- */
-bool_t gpsIsReady()
-{
-    return true;
-    if (gpsPosition.updateFlag) 
-    {
-        gpsPosition.updateFlag = false;
-        return true;
-    } // END if
-
-    return false;
-}
-
-/**
- *   Calculate NMEA-0183 message checksum of buffer that is length bytes long.
- *
- *   @param buffer pointer to data buffer.
- *   @param length number of bytes in buffer.
- *
- *   @return checksum of buffer
- */
-uint8_t gpsNMEAChecksum (uint8_t *buffer, uint8_t length)
-{
-    uint8_t i, checksum;
-
-    checksum = 0;
-
-    for (i = 0; i < length; ++i)
-        checksum ^= buffer[i];
-
-    return checksum;
-}
-
-/**
- *   Verify the GPS engine is sending the @@Hb position report message.  If not,
- *   configure the GPS engine to send the desired report.
- *
- *   @return true if GPS engine operation; otherwise false
- */
-bool_t gpsSetup()
-{
-    uint8_t startTime, retryCount;
-
-    // We wait 10 seconds for the GPS engine to respond to our message request.
-    startTime = timeGetTicks();
-    retryCount = 0;
-
-    while (++retryCount < 10) 
-    {
-        // Read the serial FIFO and process the GPS messages.
-//        gpsUpdate();
-
-        // If a GPS data set is available, then GPS is operational.
-        if (gpsIsReady()) 
-        {
-//            timeSetDutyCycle (TIME_DUTYCYCLE_10);
-            return true;
-        }
-
-        if (timeGetTicks() > startTime) 
-        {
-            puts ("@@Hb\001\053\015\012");
-            startTime += 10;
-        } // END if
-            
-    } // END while
-
-    return false;
-}
-
-/**
- *   Parse the Motorola @@Hb (Short position/message) report.
- */
-void gpsParsePositionMessage()
-{
-    // Convert the binary stream into data elements.  We will scale to the desired units
-    // as the values are used.
-    gpsPosition.updateFlag = true;
-
-    gpsPosition.month = gpsBuffer[0];
-    gpsPosition.day = gpsBuffer[1];
-    gpsPosition.year = ((uint16_t) gpsBuffer[2] << 8) | gpsBuffer[3];
-    gpsPosition.hours = gpsBuffer[4];
-    gpsPosition.minutes = gpsBuffer[5];
-    gpsPosition.seconds = gpsBuffer[6];
-    gpsPosition.latitude = ((int32) gpsBuffer[11] << 24) | ((int32) gpsBuffer[12] << 16) | ((int32) gpsBuffer[13] << 8) | (int32) gpsBuffer[14];
-    gpsPosition.longitude = ((int32) gpsBuffer[15] << 24) | ((int32) gpsBuffer[16] << 16) | ((int32) gpsBuffer[17] << 8) | gpsBuffer[18];
-    gpsPosition.altitudeCM = ((int32) gpsBuffer[19] << 24) | ((int32) gpsBuffer[20] << 16) | ((int32) gpsBuffer[21] << 8) | gpsBuffer[22];
-    gpsPosition.altitudeFeet = gpsPosition.altitudeCM * 100l / 3048l;
-    gpsPosition.vSpeed = ((uint16_t) gpsBuffer[27] << 8) | gpsBuffer[28];
-    gpsPosition.hSpeed = ((uint16_t) gpsBuffer[29] << 8) | gpsBuffer[30];
-    gpsPosition.heading = ((uint16_t) gpsBuffer[31] << 8) | gpsBuffer[32];
-    gpsPosition.dop = ((uint16_t) gpsBuffer[33] << 8) | gpsBuffer[34];
-    gpsPosition.visibleSats = gpsBuffer[35];
-    gpsPosition.trackedSats = gpsBuffer[36];
-    gpsPosition.status = ((uint16_t) gpsBuffer[37] << 8) | gpsBuffer[38];
-
-    // Update the peak altitude if we have a valid 3D fix.
-    if (gpsGetFixType() == GPS_3D_FIX)
-        if (gpsPosition.altitudeFeet > gpsPeakAltitude)
-            gpsPeakAltitude = gpsPosition.altitudeFeet;
-}
-
-/**
- *  Turn on the GPS engine power and serial interface.
- */
-void gpsPowerOn()
-{
-    // 3.0 VDC LDO control line.
-//    output_high (IO_GPS_PWR);
-
-}
-
-/**
- *   Turn off the GPS engine power and serial interface.
- */
-void gpsPowerOff()
-{
-    // 3.0 VDC LDO control line.
-//    output_low (IO_GPS_PWR);
-}
-
-/** @} */
-
 
 /**
  *  @defgroup sys System Library Functions
@@ -759,9 +331,6 @@ uint16_t timeNCOFreq;
 /// Counter used to deciminate down from the 104uS to 833uS interrupt rate.  (9600 to 1200 baud) 
 uint8_t timeLowRateCount;
 
-/// Current TNC mode (standby, 1200bps A-FSK, or 9600bps FSK)
-TNC_DATA_MODE tncDataMode;
-
 /// Flag set true once per second.
 bool_t timeUpdateFlag;
 
@@ -797,7 +366,6 @@ void timeInit()
     timeNCO = 0x00;
     timeLowRateCount = 0;
     timeNCOFreq = 0x2000;
-    tncDataMode = TNC_MODE_STANDBY;  
     timeRunFlag = false;
 }
 
@@ -833,29 +401,16 @@ void timeUpdate()
 {
     // Setup the next interrupt for the operational mode.
     timeCompare += TIME_RATE;
-//    CCP_1 = timeCompare;
 
-    switch (tncDataMode) 
+    ddsSetFTW (freqTable[timeNCO >> 8]);
+
+    timeNCO += timeNCOFreq;
+
+    if (++timeLowRateCount == 8) 
     {
-        case TNC_MODE_STANDBY:
-            break;
-
-        case TNC_MODE_1200_AFSK:
-            ddsSetFTW (freqTable[timeNCO >> 8]);
-
-            timeNCO += timeNCOFreq;
-
-            if (++timeLowRateCount == 8) 
-            {
-                timeLowRateCount = 0;
-                tnc1200TimerTick();
-            } // END if
-            break;
-
-        case TNC_MODE_9600_FSK:
-            tnc9600TimerTick();
-            break;
-    } // END switch
+	timeLowRateCount = 0;
+	tnc1200TimerTick();
+    } // END if
 }
 
 /** @} */
@@ -979,32 +534,6 @@ bool_t tncIsFree()
 void tncHighRate(bool_t state)
 {
     tncHighRateFlag = state;
-}
-
-/**
- *   Configure the TNC for the desired data mode.
- *
- *    @param dataMode enumerated type that specifies 1200bps A-FSK or 9600bps FSK
- */ 
-void tncSetMode(TNC_DATA_MODE dataMode)
-{
-    switch (dataMode) 
-    {
-        case TNC_MODE_1200_AFSK:
-            ddsSetMode (DDS_MODE_AFSK);
-            break;
-
-        case TNC_MODE_9600_FSK:
-            ddsSetMode (DDS_MODE_FSK);
-
-            // FSK tones at 445.947 and 445.953 MHz
-            ddsSetFSKFreq (955382980, 955453621);
-            break;
-    	case TNC_MODE_STANDBY:
-	    break;
-    } // END switch
-
-    tncDataMode = dataMode; 
 }
 
 /**
@@ -1197,14 +726,6 @@ void tnc1200TimerTick()
                 {
                     tncMode = TNC_TX_READY;
 
-                    // Tell the TNC time interrupt to stop generating the frequency words.
-                    tncDataMode = TNC_MODE_STANDBY;
-
-                    // Key off the DDS.
-//                    output_low (IO_OSK);
-//                    output_low (IO_PTT);
-                    ddsSetMode (DDS_MODE_POWERDOWN);
-
                     return;
                 } // END if
             } else
@@ -1223,36 +744,6 @@ void tnc9600TimerTick()
 }
 
 /**
- *    Write character to the TNC buffer.  Maintain the pointer
- *    and length to the buffer.  The pointer tncBufferPnt and tncLength
- *    must be set before calling this function for the first time.
- * 
- *    @param character to save to telemetry buffer
- */
-void tncTxByte (uint8_t character)
-{
-    *tncBufferPnt++ = character;
-    ++tncLength;
-}
-
-static void
-tncPrintf(char *fmt, ...)
-{
-    va_list	ap;
-    int		c;
-
-    va_start(ap, fmt);
-    c = vsprintf((char *) tncBufferPnt, fmt, ap);
-    if (*fmt == '\015')
-	fprintf (stderr, "\n");
-    else
-	vfprintf(stderr, fmt, ap);
-    va_end(ap);
-    tncBufferPnt += c;
-    tncLength += c;
-}
-
-/**
  *   Generate the plain text position packet. Data is written through the tncTxByte
  *   callback function
  */
@@ -1267,6 +758,7 @@ void tncPositionPacket(void)
     uint16_t	lat_frac;
     uint16_t	lon_min;
     uint16_t	lon_frac;
+    int		c;
 
     char	lat_sign = 'N', lon_sign = 'E';
 
@@ -1294,10 +786,12 @@ void tncPositionPacket(void)
     longitude -= lon_min * 10000000;
     lon_frac = (longitude + 50000) / 100000;
 
-    tncPrintf ("=%02u%02u.%02u%c\\%03u%02u.%02u%cO /A=%06u\015",
-	       lat_deg, lat_min, lat_frac, lat_sign,
-	       lon_deg, lon_min, lon_frac, lon_sign,
-	       altitude * 100 / 3048);
+    c = sprintf ((char *) tncBufferPnt, "=%02u%02u.%02u%c\\%03u%02u.%02u%cO /A=%06u\015",
+		lat_deg, lat_min, lat_frac, lat_sign,
+		lon_deg, lon_min, lon_frac, lon_sign,
+		altitude * 100 / 3048);
+    tncBufferPnt += c;
+    tncLength += c;
 }
 
 /** 
@@ -1306,16 +800,9 @@ void tncPositionPacket(void)
  *
  *    @param dataMode enumerated type that specifies 1200bps A-FSK or 9600bps FSK
  */
-void tncTxPacket(TNC_DATA_MODE dataMode)
+void tncTxPacket(void)
 {
     uint16_t crc;
-
-    // Only transmit if there is not another message in progress.
-    if (tncMode != TNC_TX_READY)
-        return;
-
-    // Configure the DDS for the desired operational.
-    tncSetMode (dataMode);
 
     // Set a pointer to our TNC output buffer.
     tncBufferPnt = tncBuffer;

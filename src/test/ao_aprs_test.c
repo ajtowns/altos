@@ -66,13 +66,12 @@ audio_gap(int secs)
 // This is where we go after reset.
 int main(int argc, char **argv)
 {
-    gpsInit();
     tncInit();
 
     audio_gap(1);
 
     /* Transmit one packet */
-    tncTxPacket(TNC_MODE_1200_AFSK);
+    tncTxPacket();
 
     exit(0);
 }
