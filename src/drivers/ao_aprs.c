@@ -161,7 +161,6 @@ void ddsSetFTW (uint32_t ftw);
 
 uint16_t sysCRC16(uint8_t *buffer, uint8_t length, uint16_t crc);
 
-uint8_t timeGetTicks();
 void timeInit();
 void timeSetDutyCycle (uint8_t dutyCycle);
 void timeUpdate();
@@ -220,30 +219,6 @@ uint16_t sysCRC16(uint8_t *buffer, uint8_t length, uint16_t crc)
  *  @{
  */
 
-/// A counter that ticks every 100mS.
-uint8_t timeTicks;
-
-/// Counts the number of 104uS interrupts for a 100mS time period.
-uint16_t timeInterruptCount;
-
-/// Counts the number of 100mS time periods in 1 second.
-uint8_t time100ms;
-
-/// System time in seconds.
-uint8_t timeSeconds;
-
-/// System time in minutes.
-uint8_t timeMinutes;
-
-/// System time in hours.
-uint8_t timeHours;
-
-/// Desired LED duty cycle 0 to 9 where 0 = 0% and 9 = 90%.
-uint8_t timeDutyCycle;
-
-/// Current value of the timer 1 compare register used to generate 104uS interrupt rate (9600bps).
-uint16_t timeCompare;
-
 /// 16-bit NCO where the upper 8-bits are used to index into the frequency generation table.
 uint16_t timeNCO;
 
@@ -253,67 +228,14 @@ uint16_t timeNCOFreq;
 /// Counter used to deciminate down from the 104uS to 833uS interrupt rate.  (9600 to 1200 baud) 
 uint8_t timeLowRateCount;
 
-/// Flag set true once per second.
-bool_t timeUpdateFlag;
-
-/// Flag that indicate the flight time should run.
-bool_t timeRunFlag;
-
-/// The change in the CCP_1 register for each 104uS (9600bps) interrupt period.
-#define TIME_RATE 125
-
-/**
- *   Running 8-bit counter that ticks every 100mS.
- *
- *   @return 100mS time tick
- */
-uint8_t timeGetTicks()
-{
-    return timeTicks;
-}
-
 /**
  *   Initialize the real-time clock.
  */
 void timeInit()
 {
-    timeTicks = 0;
-    timeInterruptCount = 0;
-//    time100mS = 0;
-    timeSeconds = 0;
-    timeMinutes = 0;
-    timeHours = 0;
-    timeCompare = TIME_RATE;
-    timeUpdateFlag = false;
     timeNCO = 0x00;
     timeLowRateCount = 0;
     timeNCOFreq = 0x2000;
-    timeRunFlag = false;
-}
-
-/**
- *   Function return true once a second based on real-time clock.
- *
- *   @return true on one second tick; otherwise false
- */
-bool_t timeIsUpdate()
-{
-    if (timeUpdateFlag) 
-    {
-        timeUpdateFlag = false;
-        return true;
-    } // END if
-
-    return false;
-}
-
-/**
- *   Set a flag to indicate the flight time should run.  This flag is typically set when the payload
- *   lifts off.
- */
-void timeSetRunFlag()
-{
-    timeRunFlag = true;
 }
 
 /**
@@ -321,9 +243,6 @@ void timeSetRunFlag()
  */
 void timeUpdate()
 {
-    // Setup the next interrupt for the operational mode.
-    timeCompare += TIME_RATE;
-
     putchar ((timeNCO >> 8) < 0x80 ? 0xc0 : 0x40);
 
     timeNCO += timeNCOFreq;
