@@ -70,6 +70,7 @@
 #define HAS_BEEP		1
 #define HAS_RADIO		1
 #define HAS_TELEMETRY		1
+#define HAS_APRS		1
 
 #define HAS_SPI_1		1
 #define SPI_1_PA5_PA6_PA7	1	/* Barometer */
