@@ -174,82 +174,6 @@ void tncTxPacket(void);
 /** @} */
 
 /**
- *  @defgroup DDS AD9954 DDS (Direct Digital Synthesizer)
- *
- *  Functions to control the Analog Devices AD9954 DDS.
- *
- *  @{
- */
-
-/// Number of digits in DDS frequency to FTW conversion.
-#define DDS_FREQ_TO_FTW_DIGITS 9
-
-/// Array of multiplication factors used to convert frequency to the FTW.
-const uint32_t DDS_MULT[DDS_FREQ_TO_FTW_DIGITS] = { 11, 7, 7, 3, 4, 8, 4, 9, 1 };
-
-/// Array of divisors used to convert frequency to the FTW.
-const uint32_t DDS_DIVISOR[DDS_FREQ_TO_FTW_DIGITS - 1] = { 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000 };
-
-/// Lookup table to convert dB amplitude scale in 0.5 steps to a linear DDS scale factor.
-const uint16_t DDS_AMP_TO_SCALE[] = 
-{ 
-    16383, 15467, 14601, 13785, 13013, 12286, 11598, 10949, 10337, 9759, 9213, 8697, 
-    8211, 7752, 7318, 6909, 6522, 6157, 5813, 5488, 5181, 4891, 4617, 4359, 4115, 3885, 3668, 3463, 
-    3269, 3086, 2913, 2750, 2597, 2451, 2314, 2185, 2062, 1947, 1838, 1735, 1638 
-};
-
-
-/// Frequency Word List - 4.0KHz FM frequency deviation at 81.15MHz  (445.950MHz)
-const uint32_t freqTable[256] = 
-{
-    955418300, 955419456, 955420611, 955421765, 955422916, 955424065, 955425210, 955426351, 
-    955427488, 955428618, 955429743, 955430861, 955431971, 955433073, 955434166, 955435249, 
-    955436322, 955437385, 955438435, 955439474, 955440500, 955441513, 955442511, 955443495, 
-    955444464, 955445417, 955446354, 955447274, 955448176, 955449061, 955449926, 955450773, 
-    955451601, 955452408, 955453194, 955453960, 955454704, 955455426, 955456126, 955456803, 
-    955457457, 955458088, 955458694, 955459276, 955459833, 955460366, 955460873, 955461354, 
-    955461809, 955462238, 955462641, 955463017, 955463366, 955463688, 955463983, 955464250, 
-    955464489, 955464701, 955464884, 955465040, 955465167, 955465266, 955465337, 955465380, 
-    955465394, 955465380, 955465337, 955465266, 955465167, 955465040, 955464884, 955464701, 
-    955464489, 955464250, 955463983, 955463688, 955463366, 955463017, 955462641, 955462238, 
-    955461809, 955461354, 955460873, 955460366, 955459833, 955459276, 955458694, 955458088, 
-    955457457, 955456803, 955456126, 955455426, 955454704, 955453960, 955453194, 955452408, 
-    955451601, 955450773, 955449926, 955449061, 955448176, 955447274, 955446354, 955445417, 
-    955444464, 955443495, 955442511, 955441513, 955440500, 955439474, 955438435, 955437385, 
-    955436322, 955435249, 955434166, 955433073, 955431971, 955430861, 955429743, 955428618, 
-    955427488, 955426351, 955425210, 955424065, 955422916, 955421765, 955420611, 955419456, 
-    955418300, 955417144, 955415989, 955414836, 955413684, 955412535, 955411390, 955410249, 
-    955409113, 955407982, 955406857, 955405740, 955404629, 955403528, 955402435, 955401351, 
-    955400278, 955399216, 955398165, 955397126, 955396100, 955395088, 955394089, 955393105, 
-    955392136, 955391183, 955390246, 955389326, 955388424, 955387540, 955386674, 955385827, 
-    955385000, 955384192, 955383406, 955382640, 955381896, 955381174, 955380474, 955379797, 
-    955379143, 955378513, 955377906, 955377324, 955376767, 955376235, 955375728, 955375246, 
-    955374791, 955374362, 955373959, 955373583, 955373234, 955372912, 955372618, 955372350, 
-    955372111, 955371900, 955371716, 955371560, 955371433, 955371334, 955371263, 955371220, 
-    955371206, 955371220, 955371263, 955371334, 955371433, 955371560, 955371716, 955371900, 
-    955372111, 955372350, 955372618, 955372912, 955373234, 955373583, 955373959, 955374362, 
-    955374791, 955375246, 955375728, 955376235, 955376767, 955377324, 955377906, 955378513, 
-    955379143, 955379797, 955380474, 955381174, 955381896, 955382640, 955383406, 955384192, 
-    955385000, 955385827, 955386674, 955387540, 955388424, 955389326, 955390246, 955391183, 
-    955392136, 955393105, 955394089, 955395088, 955396100, 955397126, 955398165, 955399216, 
-    955400278, 955401351, 955402435, 955403528, 955404629, 955405740, 955406857, 955407982, 
-    955409113, 955410249, 955411390, 955412535, 955413684, 955414836, 955415989, 955417144
-};
-
-/**
- *  Set DDS frequency tuning word.  The output frequency is equal to RefClock * (ftw / 2 ^ 32).
- *
- *  @param ftw Frequency Tuning Word
- */
-void ddsSetFTW (uint32_t ftw)
-{
-    int	x = ftw - freqTable[0];
-    putchar (x > 0 ? 0xc0 : 0x40);
-}
-
-/** @} */
-
-/**
  *  @defgroup sys System Library Functions
  *
  *  Generic system functions similiar to the run-time C library.
@@ -400,7 +324,7 @@ void timeUpdate()
     // Setup the next interrupt for the operational mode.
     timeCompare += TIME_RATE;
 
-    ddsSetFTW (freqTable[timeNCO >> 8]);
+    putchar ((timeNCO >> 8) < 0x80 ? 0xc0 : 0x40);
 
     timeNCO += timeNCOFreq;
 
@@ -446,22 +370,6 @@ typedef enum
     TNC_TX_END
 } TNC_TX_1200BPS_STATE;
 
-/// Enumeration of the messages we can transmit. 
-typedef enum
-{
-    /// Startup message that contains software version information.
-    TNC_BOOT_MESSAGE,
-
-    /// Plain text status message.
-    TNC_STATUS,
-
-    /// Message that contains GPS NMEA-0183 $GPGGA message.
-    TNC_GGA,
-
-    /// Message that contains GPS NMEA-0183 $GPRMC message.
-    TNC_RMC
-}  TNC_MESSAGE_TYPE;
-
 /// AX.25 compliant packet header that contains destination, station call sign, and path.
 /// 0x76 for SSID-11, 0x78 for SSID-12
 uint8_t TNC_AX25_HEADER[30] = { 
@@ -470,7 +378,6 @@ uint8_t TNC_AX25_HEADER[30] = {
     'G' << 1, 'A' << 1, 'T' << 1, 'E' << 1, ' ' << 1, ' ' << 1, 0x60, \
     'W' << 1, 'I' << 1, 'D' << 1, 'E' << 1, '3' << 1, ' ' << 1, 0x67, \
     0x03, 0xf0 };
-
 
 /// The next bit to transmit.
 uint8_t tncTxBit;
@@ -496,9 +403,6 @@ uint8_t tncBitStuff;
 /// Pointer to TNC buffer as we save each byte during message preparation.
 uint8_t *tncBufferPnt;
 
-/// The type of message to tranmit in the next packet.
-TNC_MESSAGE_TYPE tncPacketType;
-
 /// Buffer to hold the message portion of the AX.25 packet as we prepare it.
 uint8_t tncBuffer[TNC_BUFFER_SIZE];
 
@@ -509,7 +413,6 @@ void tncInit()
 {
     tncTxBit = 0;
     tncMode = TNC_TX_READY;
-    tncPacketType = TNC_BOOT_MESSAGE;
 }
 
 /**
