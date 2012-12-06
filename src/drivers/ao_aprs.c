@@ -238,22 +238,6 @@ void timeInit()
     timeNCOFreq = 0x2000;
 }
 
-/**
- *   Timer interrupt handler called every 104uS (9600 times/second).
- */
-void timeUpdate()
-{
-    putchar ((timeNCO >> 8) < 0x80 ? 0xc0 : 0x40);
-
-    timeNCO += timeNCOFreq;
-
-    if (++timeLowRateCount == 8) 
-    {
-	timeLowRateCount = 0;
-	tnc1200TimerTick();
-    } // END if
-}
-
 /** @} */
 
 /**
@@ -553,6 +537,28 @@ void tncPositionPacket(void)
     tncLength += c;
 }
 
+static int16_t
+tncFill(uint8_t *buf, int16_t len)
+{
+    int16_t	l = 0;
+    uint8_t	b;
+    uint8_t	bit;
+
+    while (tncMode != TNC_TX_READY && l < len) {
+	b = 0;
+	for (bit = 0; bit < 8; bit++) {
+	    b = b << 1 | (timeNCO >> 15);
+	    timeNCO += timeNCOFreq;
+	}
+	*buf++ = b;
+	l++;
+	tnc1200TimerTick();
+    }
+    if (tncMode == TNC_TX_READY)
+	l = -l;
+    return l;
+}
+
 /** 
  *    Prepare an AX.25 data packet.  Each time this method is called, it automatically
  *    rotates through 1 of 3 messages.
@@ -589,19 +595,9 @@ void tncTxPacket(void)
     tncIndex = 0;
     tncMode = TNC_TX_SYNC;
 
-    // Turn on the PA chain.
-//    output_high (IO_PTT);
+    timeInit();
 
-    // Wait for the PA chain to power up.
-//    delay_ms (10);
-
-    // Key the DDS.
-//    output_high (IO_OSK);
-
-    // Log the battery and reference voltage just after we key the transmitter.
-//    sysLogVoltage();
-    while (tncMode != TNC_TX_READY)
-	timeUpdate();
+    ao_radio_send_lots(tncFill);
 }
 
 /** @} */

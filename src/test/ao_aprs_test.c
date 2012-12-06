@@ -25,6 +25,27 @@
 
 #define AO_APRS_TEST
 
+typedef int16_t (*ao_radio_fill_func)(uint8_t *buffer, int16_t len);
+
+#define DEBUG 0
+#if DEBUG
+void
+ao_aprs_bit(uint8_t bit)
+{
+	static int	seq = 0;
+	printf ("%6d %d\n", seq++, bit ? 1 : 0);
+}
+#else
+void
+ao_aprs_bit(uint8_t bit)
+{
+	putchar (bit ? 0xc0 : 0x40);
+}
+#endif
+
+void
+ao_radio_send_lots(ao_radio_fill_func fill);
+
 #include <ao_aprs.c>
 
 /*
@@ -57,10 +78,12 @@
 static void
 audio_gap(int secs)
 {
+#if !DEBUG
 	int	samples = secs * 9600;
 
 	while (samples--)
-		putchar(0x7f);
+		ao_aprs_bit(0);
+#endif
 }
 
 // This is where we go after reset.
@@ -76,6 +99,27 @@ int main(int argc, char **argv)
     exit(0);
 }
 
+void
+ao_radio_send_lots(ao_radio_fill_func fill)
+{
+	int16_t	len;
+	uint8_t	done = 0;
+	uint8_t	buf[16], *b, c;
+	uint8_t bit;
 
-
-
+	while (!done) {
+		len = (*fill)(buf, sizeof (buf));
+		if (len < 0) {
+			done = 1;
+			len = -len;
+		}
+		b = buf;
+		while (len--) {
+			c = *b++;
+			for (bit = 0; bit < 8; bit++) {
+				ao_aprs_bit(c & 0x80);
+				c <<= 1;
+			}
+		}
+	}
+}
