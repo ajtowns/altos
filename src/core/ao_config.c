@@ -128,7 +128,7 @@ _ao_config_get(void)
 		if (minor < 6)
 			ao_config.pad_orientation = AO_CONFIG_DEFAULT_PAD_ORIENTATION;
 		if (minor < 8)
-			ao_config.radio_enable = TRUE;
+			ao_config.radio_enable = AO_RADIO_ENABLE_CORE;
 		if (minor < 9)
 			ao_xmemset(&ao_config.aes_key, '\0', AO_AES_LEN);
 		if (minor < 10)

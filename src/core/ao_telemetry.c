@@ -300,27 +300,35 @@ ao_telemetry(void)
 		while (ao_telemetry_interval) {
 
 
+#if HAS_APRS
+			if (!(ao_config.radio_enable & AO_RADIO_DISABLE_TELEMETRY))
+#endif
+			{
 #ifdef AO_SEND_ALL_BARO
-			ao_send_baro();
+				ao_send_baro();
 #endif
 #ifdef AO_SEND_MEGA
-			ao_send_mega_sensor();
-			ao_send_mega_data();
+				ao_send_mega_sensor();
+				ao_send_mega_data();
 #else
-			ao_send_sensor();
+				ao_send_sensor();
 #endif
 
 #if HAS_COMPANION
-			if (ao_companion_running)
-				ao_send_companion();
+				if (ao_companion_running)
+					ao_send_companion();
 #endif
-			ao_send_configuration();
+				ao_send_configuration();
 #if HAS_GPS
-			ao_send_location();
-			ao_send_satellite();
+				ao_send_location();
+				ao_send_satellite();
 #endif
+			}
 #ifndef AO_SEND_ALL_BARO
 			if (ao_rdf &&
+#if HAS_APRS
+			    !(ao_config.radio_enable & AO_RADIO_DISABLE_RDF) &&
+#endif
 			    (int16_t) (ao_time() - ao_rdf_time) >= 0)
 			{
 #if HAS_IGNITE_REPORT
@@ -335,7 +343,10 @@ ao_telemetry(void)
 					ao_radio_rdf();
 			}
 #if HAS_APRS
-			if (ao_rdf && (int16_t) (ao_time() - ao_aprs_time) >= 0) {
+			if (ao_rdf &&
+			    (ao_config.radio_enable & AO_RADIO_ENABLE_APRS) &&
+			    (int16_t) (ao_time() - ao_aprs_time) >= 0)
+			{
 				ao_aprs_time = ao_time() + AO_APRS_INTERVAL_TICKS;
 				ao_aprs_send();
 			}
