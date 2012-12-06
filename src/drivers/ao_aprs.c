@@ -1270,7 +1270,6 @@ void tncPositionPacket(void)
 
     char	lat_sign = 'N', lon_sign = 'E';
 
-//    tncPrintf (">ANSR ");
     if (latitude < 0) {
 	lat_sign = 'S';
 	latitude = -latitude;
@@ -1295,11 +1294,10 @@ void tncPositionPacket(void)
     longitude -= lon_min * 10000000;
     lon_frac = (longitude + 50000) / 100000;
 
-    tncPrintf ("=%02u%02u.%02u%c\\%03u%02u.%02u%cO",
+    tncPrintf ("=%02u%02u.%02u%c\\%03u%02u.%02u%cO /A=%06u\015",
 	       lat_deg, lat_min, lat_frac, lat_sign,
-	       lon_deg, lon_min, lon_frac, lon_sign);
-
-    tncPrintf (" /A=%06u", altitude * 100 / 3048);
+	       lon_deg, lon_min, lon_frac, lon_sign,
+	       altitude * 100 / 3048);
 }
 
 /** 
@@ -1326,9 +1324,6 @@ void tncTxPacket(TNC_DATA_MODE dataMode)
     tncLength = 0;
 
     tncPositionPacket();
-
-    // Add the end of message character.
-    tncPrintf ("\015");
 
     // Calculate the CRC for the header and message.
     crc = sysCRC16(TNC_AX25_HEADER, sizeof(TNC_AX25_HEADER), 0xffff);
