@@ -152,23 +152,10 @@ typedef int32_t int32;
 
 // Public methods, constants, and data structures for each class.
 
-void ddsInit();
-void ddsSetAmplitude (uint8_t amplitude);
-void ddsSetOutputScale (uint16_t amplitude);
-void ddsSetFSKFreq (uint32_t ftw0, uint32_t ftw1);
-void ddsSetFreq (uint32_t freq);
-void ddsSetFTW (uint32_t ftw);
+static void timeInit(void);
 
-uint16_t sysCRC16(uint8_t *buffer, uint8_t length, uint16_t crc);
-
-void timeInit();
-void timeSetDutyCycle (uint8_t dutyCycle);
-void timeUpdate();
-
-void tncInit();
-void tnc1200TimerTick();
-void tncTxByte (uint8_t value);
-void tncTxPacket(void);
+static void tncInit(void);
+static void tnc1200TimerTick(void);
 
 /** @} */
 
@@ -190,7 +177,7 @@ void tncTxPacket(void);
  *
  *    @return CRC-16 of buffer[0 .. length]
  */
-uint16_t sysCRC16(uint8_t *buffer, uint8_t length, uint16_t crc)
+static uint16_t sysCRC16(const uint8_t *buffer, uint8_t length, uint16_t crc)
 {
     uint8_t i, bit, value;
 
@@ -220,21 +207,17 @@ uint16_t sysCRC16(uint8_t *buffer, uint8_t length, uint16_t crc)
  */
 
 /// 16-bit NCO where the upper 8-bits are used to index into the frequency generation table.
-uint16_t timeNCO;
+static uint16_t timeNCO;
 
 /// Audio tone NCO update step (phase).
-uint16_t timeNCOFreq;
-
-/// Counter used to deciminate down from the 104uS to 833uS interrupt rate.  (9600 to 1200 baud) 
-uint8_t timeLowRateCount;
+static uint16_t timeNCOFreq;
 
 /**
  *   Initialize the real-time clock.
  */
-void timeInit()
+static void timeInit()
 {
     timeNCO = 0x00;
-    timeLowRateCount = 0;
     timeNCOFreq = 0x2000;
 }
 
@@ -252,7 +235,7 @@ void timeInit()
 #define TNC_TX_DELAY 45
 
 /// The size of the TNC output buffer.
-#define TNC_BUFFER_SIZE 80
+#define TNC_BUFFER_SIZE 40
 
 /// States that define the current mode of the 1200 bps (A-FSK) state machine.
 typedef enum
@@ -275,44 +258,43 @@ typedef enum
 
 /// AX.25 compliant packet header that contains destination, station call sign, and path.
 /// 0x76 for SSID-11, 0x78 for SSID-12
-uint8_t TNC_AX25_HEADER[30] = { 
-    'A' << 1, 'P' << 1, 'R' << 1, 'S' << 1, ' ' << 1, ' ' << 1, 0x60, \
-    'K' << 1, 'D' << 1, '7' << 1, 'S' << 1, 'Q' << 1, 'G' << 1, 0x76, \
-    'G' << 1, 'A' << 1, 'T' << 1, 'E' << 1, ' ' << 1, ' ' << 1, 0x60, \
-    'W' << 1, 'I' << 1, 'D' << 1, 'E' << 1, '3' << 1, ' ' << 1, 0x67, \
+static const uint8_t TNC_AX25_HEADER[] = { 
+    'A' << 1, 'P' << 1, 'A' << 1, 'M' << 1, ' ' << 1, ' ' << 1, 0x60, \
+    'K' << 1, 'D' << 1, '7' << 1, 'S' << 1, 'Q' << 1, 'G' << 1, 0x78, \
+    'W' << 1, 'I' << 1, 'D' << 1, 'E' << 1, '2' << 1, ' ' << 1, 0x65, \
     0x03, 0xf0 };
 
 /// The next bit to transmit.
-uint8_t tncTxBit;
+static uint8_t tncTxBit;
 
 /// Current mode of the 1200 bps state machine.
-TNC_TX_1200BPS_STATE tncMode;
+static TNC_TX_1200BPS_STATE tncMode;
 
 /// Counter for each bit (0 - 7) that we are going to transmit.
-uint8_t tncBitCount;
+static uint8_t tncBitCount;
 
 /// A shift register that holds the data byte as we bit shift it for transmit.
-uint8_t tncShift;
+static uint8_t tncShift;
 
 /// Index into the APRS header and data array for each byte as we transmit it.
-uint8_t tncIndex;
+static uint8_t tncIndex;
 
 /// The number of bytes in the message portion of the AX.25 message.
-uint8_t tncLength;
+static uint8_t tncLength;
 
 /// A copy of the last 5 bits we've transmitted to determine if we need to bit stuff on the next bit.
-uint8_t tncBitStuff;
+static uint8_t tncBitStuff;
 
 /// Pointer to TNC buffer as we save each byte during message preparation.
-uint8_t *tncBufferPnt;
+static uint8_t *tncBufferPnt;
 
 /// Buffer to hold the message portion of the AX.25 packet as we prepare it.
-uint8_t tncBuffer[TNC_BUFFER_SIZE];
+static uint8_t tncBuffer[TNC_BUFFER_SIZE];
 
 /** 
  *   Initialize the TNC internal variables.
  */
-void tncInit()
+static void tncInit()
 {
     tncTxBit = 0;
     tncMode = TNC_TX_READY;
@@ -322,7 +304,7 @@ void tncInit()
  *   Method that is called every 833uS to transmit the 1200bps A-FSK data stream.
  *   The provides the pre and postamble as well as the bit stuffed data stream.
  */
-void tnc1200TimerTick()
+static void tnc1200TimerTick()
 {
     // Set the A-FSK frequency.
     if (tncTxBit == 0x00)
@@ -487,10 +469,9 @@ void tnc1200TimerTick()
 }
 
 /**
- *   Generate the plain text position packet. Data is written through the tncTxByte
- *   callback function
+ *   Generate the plain text position packet.
  */
-void tncPositionPacket(void)
+static void tncPositionPacket(void)
 {
     int32_t	latitude = 45.4694766 * 10000000;
     int32_t	longitude = -122.7376250 * 10000000;
@@ -565,9 +546,12 @@ tncFill(uint8_t *buf, int16_t len)
  *
  *    @param dataMode enumerated type that specifies 1200bps A-FSK or 9600bps FSK
  */
-void tncTxPacket(void)
+void ao_aprs_send(void)
 {
     uint16_t crc;
+
+    timeInit();
+    tncInit();
 
     // Set a pointer to our TNC output buffer.
     tncBufferPnt = tncBuffer;
@@ -594,8 +578,6 @@ void tncTxPacket(void)
     tncTxBit = 0;
     tncIndex = 0;
     tncMode = TNC_TX_SYNC;
-
-    timeInit();
 
     ao_radio_send_lots(tncFill);
 }

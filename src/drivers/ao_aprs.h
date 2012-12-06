@@ -21,7 +21,4 @@
 void
 ao_aprs_send(void);
 
-void
-ao_aprs_init(void);
-
 #endif /* _AO_APRS_H_ */

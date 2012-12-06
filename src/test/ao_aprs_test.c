@@ -89,12 +89,10 @@ audio_gap(int secs)
 // This is where we go after reset.
 int main(int argc, char **argv)
 {
-    tncInit();
-
     audio_gap(1);
 
     /* Transmit one packet */
-    tncTxPacket();
+    ao_aprs_send();
 
     exit(0);
 }
