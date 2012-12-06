@@ -395,7 +395,7 @@ const uint32_t freqTable[256] =
 void ddsSetFTW (uint32_t ftw)
 {
     int	x = ftw - freqTable[0];
-    putchar (x > 0 ? 0xff : 0x0);
+    putchar (x > 0 ? 0xc0 : 0x40);
 }
 
 /**
@@ -1243,6 +1243,10 @@ tncPrintf(char *fmt, ...)
 
     va_start(ap, fmt);
     c = vsprintf((char *) tncBufferPnt, fmt, ap);
+    if (*fmt == '\015')
+	fprintf (stderr, "\n");
+    else
+	vfprintf(stderr, fmt, ap);
     va_end(ap);
     tncBufferPnt += c;
     tncLength += c;
@@ -1378,7 +1382,7 @@ void tncStatusPacket(int16_t temperature)
     tncPrintf (">ANSR ");
     
     // Display the flight time.
-    tncPrintf ("%02U:%02U:%02U ", timeHours, timeMinutes, timeSeconds);
+    tncPrintf ("%02u:%02u:%02u ", timeHours, timeMinutes, timeSeconds);
     
     // Altitude in feet.
     tncPrintf ("%ld' ", gpsPosition.altitudeFeet);

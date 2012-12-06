@@ -54,42 +54,34 @@
 
  */
 
+static void
+audio_gap(int secs)
+{
+	int	samples = secs * 9600;
+
+	while (samples--)
+		putchar(0x7f);
+}
+
 // This is where we go after reset.
 int main(int argc, char **argv)
 {
-    uint8_t utcSeconds, lockLostCounter;
-
-//test();
-
-    // Configure the basic systems.
-//    sysInit();
-
-    // Wait for the power converter chains to stabilize.
-//    delay_ms (100);
-
-    // Setup the subsystems.
-//    adcInit();
-//    flashInit();
+    uint8_t utcSeconds, lockLostCounter, i;
     gpsInit();
-//    logInit();
-//    timeInit();
-//    serialInit();
     tncInit();
 
-    // Program the DDS.
-//    ddsInit();
-
+    audio_gap(1);
     // Transmit software version packet on start up.
     tncTxPacket(TNC_MODE_1200_AFSK);
 
-    exit(0);
     // Counters to send packets if the GPS time stamp is not available.
     lockLostCounter = 5;
     utcSeconds = 55;
   
     // This is the main loop that process GPS data and waits for the once per second timer tick.
-    for (;;) 
+    for (i = 0; i < 5; i++)
     {
+	    audio_gap(10);
         // Read the GPS engine serial port FIFO and process the GPS data.
 //        gpsUpdate();
 
@@ -138,6 +130,7 @@ int main(int argc, char **argv)
         } // END if timeIsUpdate
 
     } // END for
+    return 0;
 }
 
 
