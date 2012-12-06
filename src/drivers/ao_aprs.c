@@ -139,11 +139,10 @@
  *
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdarg.h>
+#ifndef AO_APRS_TEST
+#include <ao.h>
+#endif
+
 #include <ao_aprs.h>
 
 typedef int bool_t;
@@ -395,10 +394,8 @@ const uint32_t freqTable[256] =
  */
 void ddsSetFTW (uint32_t ftw)
 {
-    static int id;
     int	x = ftw - freqTable[0];
     putchar (x > 0 ? 0xff : 0x0);
-//    printf ("%d %d\n", id++, x > 0 ? 1 : 0);
 }
 
 /**
@@ -1003,6 +1000,8 @@ void tncSetMode(TNC_DATA_MODE dataMode)
             // FSK tones at 445.947 and 445.953 MHz
             ddsSetFSKFreq (955382980, 955453621);
             break;
+    	case TNC_MODE_STANDBY:
+	    break;
     } // END switch
 
     tncDataMode = dataMode; 
@@ -1061,11 +1060,12 @@ void tnc1200TimerTick()
         case TNC_TX_SYNC:
             // The variable tncShift contains the lastest data byte.
             // NRZI enocde the data stream.
-            if ((tncShift & 0x01) == 0x00)
+            if ((tncShift & 0x01) == 0x00) {
                 if (tncTxBit == 0)
                     tncTxBit = 1;
                 else
                     tncTxBit = 0;
+	    }
                     
             // When the flag is done, determine if we need to send more or data.
             if (++tncBitCount == 8) 
@@ -1101,11 +1101,12 @@ void tnc1200TimerTick()
 
             // The variable tncShift contains the lastest data byte.
             // NRZI enocde the data stream.
-            if ((tncShift & 0x01) == 0x00)
+            if ((tncShift & 0x01) == 0x00) {
                 if (tncTxBit == 0)
                     tncTxBit = 1;
                 else
                     tncTxBit = 0;
+	    }
 
             // Save the data stream so we can determine if bit stuffing is 
             // required on the next bit time.
@@ -1145,11 +1146,12 @@ void tnc1200TimerTick()
 
             // The variable tncShift contains the lastest data byte.
             // NRZI enocde the data stream.
-            if ((tncShift & 0x01) == 0x00)
+            if ((tncShift & 0x01) == 0x00) {
                 if (tncTxBit == 0)
                     tncTxBit = 1;
                 else
                     tncTxBit = 0;
+	    }
 
             // Save the data stream so we can determine if bit stuffing is 
             // required on the next bit time.
@@ -1177,11 +1179,12 @@ void tnc1200TimerTick()
         case TNC_TX_END:
             // The variable tncShift contains the lastest data byte.
             // NRZI enocde the data stream. 
-            if ((tncShift & 0x01) == 0x00)
+            if ((tncShift & 0x01) == 0x00) {
                 if (tncTxBit == 0)
                     tncTxBit = 1;
                 else
                     tncTxBit = 0;
+	    }
 
             // If all the bits were shifted, get the next one.
             if (++tncBitCount == 8) 
@@ -1239,7 +1242,7 @@ tncPrintf(char *fmt, ...)
     int		c;
 
     va_start(ap, fmt);
-    c = vsprintf(tncBufferPnt, fmt, ap);
+    c = vsprintf((char *) tncBufferPnt, fmt, ap);
     va_end(ap);
     tncBufferPnt += c;
     tncLength += c;
@@ -1369,7 +1372,7 @@ void tncGPRMCPacket()
  */
 void tncStatusPacket(int16_t temperature)
 {
-    uint16_t voltage;
+//    uint16_t voltage;
 
     // Plain text telemetry.
     tncPrintf (">ANSR ");
@@ -1425,7 +1428,7 @@ void tncStatusPacket(int16_t temperature)
  */
 void tncTxPacket(TNC_DATA_MODE dataMode)
 {
-    int16_t temperature;
+    int16_t temperature = 20;
     uint16_t crc;
 
     // Only transmit if there is not another message in progress.
@@ -1510,135 +1513,3 @@ void tncTxPacket(TNC_DATA_MODE dataMode)
 }
 
 /** @} */
-
-#if 0
-uint32_t counter;
-
-uint8_t bitIndex;
-uint8_t streamIndex;
-uint8_t value;
-
-uint8_t bitStream[] = { 0x10, 0x20, 0x30 };
-
-void init()
-{
-    counter = 0;
-    bitIndex = 0;
-    streamIndex = 0;
-    value = bitStream[0];
-}
-
-void test()
-{
-    counter += 0x10622d;
-
-//    CCP_1 = (uint16_t) ((counter >> 16) & 0xffff);
-
-    if ((value & 0x80) == 0x80)
-        setup_ccp1 (CCP_COMPARE_SET_ON_MATCH);
-    else
-        setup_ccp1 (CCP_COMPARE_CLR_ON_MATCH);
-
-    if (++bitIndex == 8)
-    {
-        bitIndex = 0;
-        
-        if (++streamIndex == sizeof(bitStream))
-        {
-            streamIndex = 0;
-        }
-
-        value = bitStream[streamIndex];
-    } else
-        value = value << 1;
-}
-#endif
-
-// This is where we go after reset.
-int main(int argc, char **argv)
-{
-    uint8_t i, utcSeconds, lockLostCounter;
-
-//test();
-
-    // Configure the basic systems.
-//    sysInit();
-
-    // Wait for the power converter chains to stabilize.
-//    delay_ms (100);
-
-    // Setup the subsystems.
-//    adcInit();
-//    flashInit();
-    gpsInit();
-//    logInit();
-//    timeInit();
-//    serialInit();
-    tncInit();
-
-    // Program the DDS.
-//    ddsInit();
-
-    // Transmit software version packet on start up.
-    tncTxPacket(TNC_MODE_1200_AFSK);
-
-    exit(0);
-    // Counters to send packets if the GPS time stamp is not available.
-    lockLostCounter = 5;
-    utcSeconds = 55;
-  
-    // This is the main loop that process GPS data and waits for the once per second timer tick.
-    for (;;) 
-    {
-        // Read the GPS engine serial port FIFO and process the GPS data.
-//        gpsUpdate();
-
-        if (gpsIsReady()) 
-        {
-            // Start the flight timer when we get a valid 3D fix.
-            if (gpsGetFixType() == GPS_3D_FIX)
-                timeSetRunFlag();
-
-            // Generate our packets based on the GPS time.
-            if (tncIsTimeSlot(gpsPosition.seconds))
-                 tncTxPacket(TNC_MODE_1200_AFSK);
-
-            // Sync the internal clock to GPS UTC time.
-            utcSeconds = gpsPosition.seconds;
-
-            // This counter is reset every time we receive the GPS message.
-            lockLostCounter = 0;
-
-            // Log the data to flash.
-//            sysLogGPSData();            
-        } // END if gpsIsReady   
-
-        // Processing that occurs once a second.
-        if (timeIsUpdate()) 
-        {
-            // We maintain the UTC time in seconds if we shut off the GPS engine or it fails.
-            if (++utcSeconds == 60)
-                utcSeconds = 0;
-
-            // If we loose information for more than 5 seconds, 
-            // we will determine when to send a packet based on internal time.
-            if (lockLostCounter == 5) 
-            {
-                if (tncIsTimeSlot(utcSeconds))
-                    tncTxPacket(TNC_MODE_1200_AFSK);
-            } else
-                ++lockLostCounter;
-
-            // Update the ADC filters.
-//            adcUpdate();
-
-            if (timeHours == 5 && timeMinutes == 0 && timeSeconds == 0)
-                gpsPowerOff();
-
-        } // END if timeIsUpdate
-
-    } // END for
-}
-
-
-
