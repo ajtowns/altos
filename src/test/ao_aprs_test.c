@@ -66,71 +66,15 @@ audio_gap(int secs)
 // This is where we go after reset.
 int main(int argc, char **argv)
 {
-    uint8_t utcSeconds, lockLostCounter, i;
     gpsInit();
     tncInit();
 
     audio_gap(1);
-    // Transmit software version packet on start up.
+
+    /* Transmit one packet */
     tncTxPacket(TNC_MODE_1200_AFSK);
 
-    // Counters to send packets if the GPS time stamp is not available.
-    lockLostCounter = 5;
-    utcSeconds = 55;
-  
-    // This is the main loop that process GPS data and waits for the once per second timer tick.
-    for (i = 0; i < 3; i++)
-    {
-	    audio_gap(10);
-        // Read the GPS engine serial port FIFO and process the GPS data.
-//        gpsUpdate();
-
-        if (gpsIsReady()) 
-        {
-            // Start the flight timer when we get a valid 3D fix.
-            if (gpsGetFixType() == GPS_3D_FIX)
-                timeSetRunFlag();
-
-            // Generate our packets based on the GPS time.
-            if (tncIsTimeSlot(gpsPosition.seconds))
-                 tncTxPacket(TNC_MODE_1200_AFSK);
-
-            // Sync the internal clock to GPS UTC time.
-            utcSeconds = gpsPosition.seconds;
-
-            // This counter is reset every time we receive the GPS message.
-            lockLostCounter = 0;
-
-            // Log the data to flash.
-//            sysLogGPSData();            
-        } // END if gpsIsReady   
-
-        // Processing that occurs once a second.
-        if (timeIsUpdate()) 
-        {
-            // We maintain the UTC time in seconds if we shut off the GPS engine or it fails.
-            if (++utcSeconds == 60)
-                utcSeconds = 0;
-
-            // If we loose information for more than 5 seconds, 
-            // we will determine when to send a packet based on internal time.
-            if (lockLostCounter == 5) 
-            {
-                if (tncIsTimeSlot(utcSeconds))
-                    tncTxPacket(TNC_MODE_1200_AFSK);
-            } else
-                ++lockLostCounter;
-
-            // Update the ADC filters.
-//            adcUpdate();
-
-            if (timeHours == 5 && timeMinutes == 0 && timeSeconds == 0)
-                gpsPowerOff();
-
-        } // END if timeIsUpdate
-
-    } // END for
-    return 0;
+    exit(0);
 }
 
 

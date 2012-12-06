@@ -1253,124 +1253,6 @@ tncPrintf(char *fmt, ...)
 }
 
 /**
- *   Generate the GPS NMEA standard UTC time stamp.  Data is written through the tncTxByte
- *   callback function.
- */
-void tncNMEATime()
-{
-    // UTC of position fix.
-    tncPrintf ("%02d%02d%02d,", gpsPosition.hours, gpsPosition.minutes, gpsPosition.seconds);
-}
-
-/**
- *   Generate the GPS NMEA standard latitude/longitude fix.  Data is written through the tncTxByte
- *   callback function.
- */
-void tncNMEAFix()
-{
-    uint8_t dirChar;
-    uint32_t coord, coordMin;
-
-    // Latitude value.
-    coord = gpsPosition.latitude;
-
-    if (gpsPosition.latitude < 0) 
-    {
-        coord = gpsPosition.latitude * -1;
-        dirChar = 'S';
-    } else {
-        coord = gpsPosition.latitude;
-        dirChar = 'N';
-    }
-
-    coordMin = (coord % 3600000) / 6;
-    tncPrintf ("%02ld%02ld.%04ld,%c,", (uint32_t) (coord / 3600000), (uint32_t) (coordMin / 10000), (uint32_t) (coordMin % 10000), dirChar);
-
-
-    // Longitude value.
-    if (gpsPosition.longitude < 0) 
-    {
-        coord = gpsPosition.longitude * - 1;
-        dirChar = 'W';
-    } else {
-        coord = gpsPosition.longitude;
-        dirChar = 'E';
-    }
-
-    coordMin = (coord % 3600000) / 6;
-    tncPrintf ("%03ld%02ld.%04ld,%c,", (uint32_t) (coord / 3600000), (uint32_t) (coordMin / 10000), (uint32_t) (coordMin % 10000), dirChar);
-    
-}
-
-/**
- *   Generate the GPS NMEA-0183 $GPGGA packet.  Data is written through the tncTxByte
- *   callback function.
- */
-void tncGPGGAPacket()
-{
-    // Generate the GPGGA message.
-    tncPrintf ("$GPGGA,");
-
-    // Standard NMEA time.
-    tncNMEATime();
-
-    // Standard NMEA-0183 latitude/longitude.
-    tncNMEAFix();
-
-    // GPS status where 0: not available, 1: available
-    if (gpsGetFixType() != GPS_NO_FIX)
-        tncPrintf ("1,");
-    else
-        tncPrintf ("0,");
-
-    // Number of visible birds.
-    tncPrintf ("%02d,", gpsPosition.trackedSats);
-
-    // DOP
-    tncPrintf ("%ld.%01ld,", gpsPosition.dop / 10, gpsPosition.dop % 10);
-
-    // Altitude in meters.
-    tncPrintf ("%ld.%02ld,M,,M,,", (int32_t) (gpsPosition.altitudeCM / 100l), (int32_t) (gpsPosition.altitudeCM % 100));
-
-    // Checksum, we add 1 to skip over the $ character.
-    tncPrintf ("*%02X", gpsNMEAChecksum(tncBuffer + 1, tncLength - 1));
-}
-
-/**
- *   Generate the GPS NMEA-0183 $GPRMC packet.  Data is written through the tncTxByte
- *   callback function.
- */
-void tncGPRMCPacket()
-{
-    uint32_t temp;
-
-    // Generate the GPRMC message.
-    tncPrintf ("$GPRMC,");
-
-    // Standard NMEA time.
-    tncNMEATime();
-
-    // GPS status.
-    if (gpsGetFixType() != GPS_NO_FIX)
-        tncPrintf ("A,");
-    else
-        tncPrintf ("V,");
-
-    // Standard NMEA-0183 latitude/longitude.
-    tncNMEAFix();
-
-    // Speed knots and heading.
-    temp = (int32_t) gpsPosition.hSpeed * 75000 / 385826;
-    tncPrintf ("%ld.%ld,%ld.%ld,", (int16_t) (temp / 10), (int16_t) (temp % 10), gpsPosition.heading / 10, gpsPosition.heading % 10);
-
-    // Date
-    tncPrintf ("%02d%02d%02ld,,", gpsPosition.day, gpsPosition.month, gpsPosition.year % 100);
-
-    // Checksum, skip over the $ character.
-    tncPrintf ("*%02X", gpsNMEAChecksum(tncBuffer + 1, tncLength - 1));
-}
-
-/**
  *   Generate the plain text position packet. Data is written through the tncTxByte
  *   callback function
  */
@@ -1420,62 +1302,6 @@ void tncPositionPacket(void)
     tncPrintf (" /A=%06u", altitude * 100 / 3048);
 }
 
-
-
-/**
- *   Generate the plain text status packet.  Data is written through the tncTxByte
- *   callback function.
- */
-void tncStatusPacket(int16_t temperature)
-{
-//    uint16_t voltage;
-
-    // Plain text telemetry.
-    tncPrintf (">ANSR ");
-    
-    // Display the flight time.
-    tncPrintf ("%02u:%02u:%02u ", timeHours, timeMinutes, timeSeconds);
-    
-    // Altitude in feet.
-    tncPrintf ("%ld' ", gpsPosition.altitudeFeet);
-    
-    // Peak altitude in feet.
-    tncPrintf ("%ld'pk ", gpsGetPeakAltitude());
-    
-    // GPS hdop or pdop
-    tncPrintf ("%lu.%lu", gpsPosition.dop / 10, gpsPosition.dop % 10);
-
-    // The text 'pdop' for a 3D fix, 'hdop' for a 2D fix, and 'dop' for no fix.
-    switch (gpsGetFixType()) 
-    {
-        case GPS_NO_FIX:
-            tncPrintf ("dop ");
-            break;
-
-        case GPS_2D_FIX:
-            tncPrintf ("hdop ");
-            break;
-
-
-        case GPS_3D_FIX:
-            tncPrintf ("pdop ");
-            break;
-    } // END switch
-
-    // Number of satellites in the solution.
-    tncPrintf ("%utrk ", gpsPosition.trackedSats);
-    
-    // Display main bus voltage.
-//    voltage = adcGetMainBusVolt();
-//    tncPrintf ("%lu.%02luvdc ", voltage / 100, voltage % 100);
-    
-    // Display internal temperature.
-//    tncPrintf ("%ld.%01ldF ", temperature / 10, abs(temperature % 10));
-    
-    // Print web address link.
-    tncPrintf ("www.altusmetrum.org");
-}  
-
 /** 
  *    Prepare an AX.25 data packet.  Each time this method is called, it automatically
  *    rotates through 1 of 3 messages.
@@ -1484,7 +1310,6 @@ void tncStatusPacket(int16_t temperature)
  */
 void tncTxPacket(TNC_DATA_MODE dataMode)
 {
-    int16_t temperature = 20;
     uint16_t crc;
 
     // Only transmit if there is not another message in progress.
@@ -1500,38 +1325,7 @@ void tncTxPacket(TNC_DATA_MODE dataMode)
     // Set the message length counter.
     tncLength = 0;
 
-    // Determine the contents of the packet.
-    switch (tncPacketType) 
-    {
-        case TNC_BOOT_MESSAGE:
-            tncPrintf (">MegaMetrum v1.0 Beacon");
-
-            // Select the next packet we will generate.
-            tncPacketType = TNC_STATUS;
-            break;
-
-        case TNC_STATUS:
-            tncStatusPacket(temperature);
-
-            // Select the next packet we will generate.
-            tncPacketType = TNC_GGA;
-            break;
-
-        case TNC_GGA:
-	    tncPositionPacket();
-//            tncGPGGAPacket();
-
-            // Select the next packet we will generate.
-            tncPacketType = TNC_RMC;
-            break;
-
-        case TNC_RMC:
-            tncGPRMCPacket();
-
-            // Select the next packet we will generate.
-            tncPacketType = TNC_STATUS;
-            break;
-    }
+    tncPositionPacket();
 
     // Add the end of message character.
     tncPrintf ("\015");
