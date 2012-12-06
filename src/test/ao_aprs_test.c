@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     utcSeconds = 55;
   
     // This is the main loop that process GPS data and waits for the once per second timer tick.
-    for (i = 0; i < 5; i++)
+    for (i = 0; i < 3; i++)
     {
 	    audio_gap(10);
         // Read the GPS engine serial port FIFO and process the GPS data.

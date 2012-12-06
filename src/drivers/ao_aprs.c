@@ -1371,6 +1371,58 @@ void tncGPRMCPacket()
 }
 
 /**
+ *   Generate the plain text position packet. Data is written through the tncTxByte
+ *   callback function
+ */
+void tncPositionPacket(void)
+{
+    int32_t	latitude = 45.4694766 * 10000000;
+    int32_t	longitude = -122.7376250 * 10000000;
+    uint32_t	altitude = 10000;
+    uint16_t	lat_deg;
+    uint16_t	lon_deg;
+    uint16_t	lat_min;
+    uint16_t	lat_frac;
+    uint16_t	lon_min;
+    uint16_t	lon_frac;
+
+    char	lat_sign = 'N', lon_sign = 'E';
+
+//    tncPrintf (">ANSR ");
+    if (latitude < 0) {
+	lat_sign = 'S';
+	latitude = -latitude;
+    }
+
+    if (longitude < 0) {
+	lon_sign = 'W';
+	longitude = -longitude;
+    }
+
+    lat_deg = latitude / 10000000;
+    latitude -= lat_deg * 10000000;
+    latitude *= 60;
+    lat_min = latitude / 10000000;
+    latitude -= lat_min * 10000000;
+    lat_frac = (latitude + 50000) / 100000;
+
+    lon_deg = longitude / 10000000;
+    longitude -= lon_deg * 10000000;
+    longitude *= 60;
+    lon_min = longitude / 10000000;
+    longitude -= lon_min * 10000000;
+    lon_frac = (longitude + 50000) / 100000;
+
+    tncPrintf ("=%02u%02u.%02u%c\\%03u%02u.%02u%cO",
+	       lat_deg, lat_min, lat_frac, lat_sign,
+	       lon_deg, lon_min, lon_frac, lon_sign);
+
+    tncPrintf (" /A=%06u", altitude * 100 / 3048);
+}
+
+
+
+/**
  *   Generate the plain text status packet.  Data is written through the tncTxByte
  *   callback function.
  */
@@ -1466,7 +1518,8 @@ void tncTxPacket(TNC_DATA_MODE dataMode)
             break;
 
         case TNC_GGA:
-            tncGPGGAPacket();
+	    tncPositionPacket();
+//            tncGPGGAPacket();
 
             // Select the next packet we will generate.
             tncPacketType = TNC_RMC;
