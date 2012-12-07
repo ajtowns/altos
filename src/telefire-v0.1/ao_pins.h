@@ -48,6 +48,8 @@
 #define AO_LED_RED		AO_LED_TX
 #define AO_LED_GREEN		AO_LED_RX
 
+#define AO_ADC_PIN_OFFSETS      AO_ADC_NC, 1, 2, 3, 4
+
 #define LEDS_AVAILABLE		(0xff)
 #define HAS_EXTERNAL_TEMP	0
 #define HAS_ACCEL_REF		0

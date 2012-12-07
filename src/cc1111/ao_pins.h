@@ -52,6 +52,10 @@
 	#define HAS_ACCEL		1
 	#define HAS_IGNITE		1
 	#define HAS_MONITOR		0
+
+	#define AO_ADC_PIN_OFFSETS	0, 1, AO_ADC_NC, 3, 4, 5
+	#define AO_ADC_TEMP_OFFSET	2
+	#define AO_ADC_PINS		((1 << 0) | (1 << 1) | (1 << 3) | (1 << 4) | (1 << 5))
 #endif
 
 #if defined(TELEMETRUM_V_1_1)
@@ -88,6 +92,12 @@
 	#define HAS_ACCEL		1
 	#define HAS_IGNITE		1
 	#define HAS_MONITOR		0
+
+	#define AO_ADC_ACCEL_PIN	2
+	#define AO_ADC_ACCEL_OFFSET	6
+	#define AO_ADC_PIN_OFFSETS	0, 1, AO_ADC_NC, 3, 4, 5
+	#define AO_ADC_TEMP_OFFSET	2
+	#define AO_ADC_PINS		((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5))
 #endif
 
 #if defined(TELEMETRUM_V_1_2)
@@ -124,6 +134,12 @@
 	#define HAS_ACCEL		1
 	#define HAS_IGNITE		1
 	#define HAS_MONITOR		0
+
+	#define AO_ADC_ACCEL_PIN	2
+	#define AO_ADC_ACCEL_OFFSET	6
+	#define AO_ADC_PIN_OFFSETS	0, 1, AO_ADC_NC, 3, 4, 5
+	#define AO_ADC_TEMP_OFFSET	2
+	#define AO_ADC_PINS		((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5))
 #endif
 
 #if defined(TELEDONGLE_V_0_2)
@@ -179,6 +195,10 @@
 	#define HAS_ACCEL		0
 	#define HAS_IGNITE		1
 	#define HAS_MONITOR		0
+
+	#define AO_ADC_PIN_OFFSETS	1, 4, 5, 3
+	#define AO_ADC_TEMP_OFFSET	2
+	#define AO_ADC_PINS		((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3))
 #endif
 
 #if defined(TELENANO_V_0_1)
@@ -204,7 +224,12 @@
 	#define HAS_ACCEL		0
 	#define HAS_IGNITE		0
 	#define HAS_MONITOR		0
+
 	#define AO_ADC_FIRST_PIN	1
+	#define AO_ADC_PIN_OFFSETS	AO_ADC_NC, 1, AO_ADC_NC, 3
+	#define AO_ADC_TEMP_OFFSET	2
+	#define AO_ADC_PINS		((1 << 1) | (1 << 3))
+	/* used to include pin 0 and 2 via telemini config section??? */
 #endif
 
 #if defined(TELEMETRUM_V_0_1)
@@ -235,6 +260,9 @@
 	#define HAS_IGNITE		1
 	#define HAS_MONITOR		0
 	#define AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX	((uint32_t) 127 * (uint32_t) 1024)
+
+	#define AO_ADC_PIN_OFFSETS	0, 1, 2, 3, 4, 5
+	#define AO_ADC_PINS		((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5))
 #endif
 
 #if defined(TELEDONGLE_V_0_1)
@@ -399,6 +427,9 @@
 	#define HAS_IGNITE		1
 	#define HAS_MONITOR		0
 	#define HAS_AES			1
+
+	#define AO_ADC_PIN_OFFSETS	0, 1, 2, 3, 4, 5
+	#define AO_ADC_PINS		((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5))
 #endif
 
 #if DBG_ON_P1
@@ -463,10 +494,6 @@
 
 #ifndef IGNITE_ON_P0
 #error Please define IGNITE_ON_P0
-#endif
-
-#ifndef HAS_ADC
-#error Please define HAS_ADC
 #endif
 
 #ifndef HAS_EEPROM

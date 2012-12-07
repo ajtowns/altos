@@ -17,51 +17,27 @@
 
 #include "ao.h"
 
+#ifndef AO_ADC_PIN_OFFSETS
+#error Incomplete ADC configuration -- set AO_ADC_PIN_OFFSETS
+#endif
+
+#ifndef AO_ADC_PINS
+#error Incomplete ADC configuration -- set AO_ADC_PINS
+#endif
+
 volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
 volatile __data uint8_t		ao_data_head;
 
-#define AO_ADC_NC (255)
-
-#ifdef TELEMINI_V_1_0
-#define AO_ADC_PIN_OFFSETS	1, 4, 5, 3
-#define AO_ADC_TEMP_OFFSET	2
-#endif
-
-#ifdef TELENANO_V_0_1
-#define AO_ADC_PIN_OFFSETS	AO_ADC_NC, 1, AO_ADC_NC, 3
-#define AO_ADC_TEMP_OFFSET	2
-#endif
-
-#ifdef TELEFIRE_V_0_1
-#define AO_ADC_PIN_OFFSETS	AO_ADC_NC, 1, 2, 3, 4
-#endif
-
-#if TELEMETRUM_V_0_1 || TELEMETRUM_V_0_2 || TELEMETRUM_V_1_0 || TELEMETRUM_V_1_1 || TELEMETRUM_V_1_2 || TELELAUNCH_V_0_1 || TELEBALLOON_V_1_1
-
-# if HAS_ACCEL_REF
-#  define AO_ADC_ACCEL_PIN 2
-#  define AO_ADC_ACCEL_OFFSET 12
-# endif
-
-# if HAS_EXTERNAL_TEMP
-#  define AO_ADC_PIN_OFFSETS	0, 1, 2,         3, 4, 5
-# else
-#  define AO_ADC_PIN_OFFSETS	0, 1, AO_ADC_NC, 3, 4, 5
-#  define AO_ADC_TEMP_OFFSET	2
-# endif
-
-#endif
-
-#if HAS_ACCEL_REF
+#ifdef AO_ADC_ACCEL_PIN
 # define AO_ADC_FIRST_PIN	AO_ADC_ACCEL_PIN
 #else
-# ifndef AO_ADC_FIRST_PIN
-#  define AO_ADC_FIRST_PIN	0
+# if HAS_ACCEL_REF
+#  error "Must define AO_ADC_ACCEL_PIN if HAS_ACCEL_REF"
 # endif
 #endif
 
-#ifndef AO_ADC_PIN_OFFSETS
-#error No known ADC configuration set
+#ifndef AO_ADC_FIRST_PIN
+#define AO_ADC_FIRST_PIN	0
 #endif
 
 static const uint8_t ao_adc_pin_dest[] = { AO_ADC_PIN_OFFSETS };
@@ -101,7 +77,7 @@ ao_adc_isr(void) __interrupt 1
 	}
 #endif
 
-#if HAS_ACCEL_REF
+#ifdef AO_ADC_ACCEL_PIN
 	if (sequence == AO_ADC_ACCEL_PIN) {
 		a += AO_ADC_ACCEL_OFFSET;
 		sequence = 0;
@@ -163,33 +139,33 @@ ao_adc_init(void)
 {
 #ifdef AO_ADC_PINS
 	ADCCFG = AO_ADC_PINS;
-
-#else
-
-#if IGNITE_ON_P2
-	/* TeleMetrum configuration */
-	ADCCFG = ((1 << 0) |	/* acceleration */
-		  (1 << 1) |	/* pressure */
-#if HAS_EXTERNAL_TEMP
-		  (1 << 2) |	/* v0.1 temperature */
 #endif
-		  (1 << 3) |	/* battery voltage */
-		  (1 << 4) |	/* drogue sense */
-		  (1 << 5));	/* main sense */
-#endif
-
-#if IGNITE_ON_P0
-	/* TeleMini configuration */
-	ADCCFG = ((1 << 0) |	/* pressure */
-		  (1 << 1) |	/* drogue sense */
-		  (1 << 2) |	/* main sense */
-		  (1 << 3));	/* battery voltage */
-#endif
-
-#endif /* else AO_ADC_PINS */
 
 	/* enable interrupts */
 	ADCIF = 0;
 	IEN0 |= IEN0_ADCIE;
 	ao_cmd_register(&ao_adc_cmds[0]);
 }
+
+#define COMPILE_ASSERT(x)  extern int foo[1-2*!(x)]
+
+#if IGNITE_ON_P2
+COMPILE_ASSERT(AO_ADC_PINS ==
+		(1 << 0) |	/* acceleration */
+		(1 << 1) |	/* pressure */
+#if HAS_EXTERNAL_TEMP
+		(1 << 2) |	/* v0.1 temperature */
+#endif
+		(1 << 3) |	/* battery voltage */
+		(1 << 4) |	/* drogue sense */
+		(1 << 5));	/* main sense */
+#endif
+
+#if IGNITE_ON_P0
+COMPILE_ASSERT(AO_ADC_PINS ==
+	/* TeleMini configuration */
+		(1 << 0) |	/* pressure */
+		(1 << 1) |	/* drogue sense */
+		(1 << 2) |	/* main sense */
+		(1 << 3));	/* battery voltage */
+#endif

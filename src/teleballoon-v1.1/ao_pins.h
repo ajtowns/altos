@@ -58,6 +58,13 @@
 	#define HAS_ACCEL		1
 	#define HAS_IGNITE		0
 	#define HAS_MONITOR		0
+
+	#define AO_ADC_ACCEL_PIN	2
+	#define AO_ADC_ACCEL_OFFSET	6
+	#define AO_ADC_PIN_OFFSETS	0, 1, AO_ADC_NC, 3, 4, 5
+	#define AO_ADC_TEMP_OFFSET	2
+	#define AO_ADC_PINS		((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5))
+
 #endif
 
 #if DBG_ON_P1

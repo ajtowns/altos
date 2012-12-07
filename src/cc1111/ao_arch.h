@@ -297,6 +297,8 @@ ao_dma_isr(void) ao_arch_interrupt(8);
 /* The A/D interrupt handler */
 void
 ao_adc_isr(void) ao_arch_interrupt(1);
+
+#define AO_ADC_NC (255)
 #endif
 
 #if HAS_USB
