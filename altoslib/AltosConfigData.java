@@ -74,7 +74,6 @@ public class AltosConfigData implements Iterable<String> {
 	/* Log listing replies */
 	public int	stored_flight;
 
-
 	public static String get_string(String line, String label) throws  ParseException {
 		if (line.startsWith(label)) {
 			String	quoted = line.substring(label.length()).trim();
@@ -159,12 +158,40 @@ public class AltosConfigData implements Iterable<String> {
 	public void reset() {
 		lines = new LinkedList<String>();
 
-		serial = -1;
-		radio_setting = 0;
+		manufacturer = "unknown";
+		product = "unknown";
+		serial = 0;
+		flight = 0;
+		log_format = AltosLib.AO_LOG_FORMAT_UNKNOWN;
+		version = "unknown";
+
+		main_deploy = 250;
+		apogee_delay = 0;
+		apogee_lockout = 0;
+
 		radio_frequency = 0;
-		pyros = null;
-		npyro = 0;
+		callsign = "N0CALL";
+		radio_enable = -1;
+		radio_calibration = 0;
+		radio_channel = -1;
+		radio_setting = -1;
+
+		accel_cal_plus = -1;
+		accel_cal_minus = -1;
+		pad_orientation = -1;
+
+		flight_log_max = 0;
+		ignite_mode = -1;
+
+		aes_key = "";
+
 		pyro = 0;
+		npyro = 0;
+		pyros = null;
+
+		storage_size = -1;
+		storage_erase_unit = -1;
+		stored_flight = -1;
 	}
 	
 	public void parse_line(String line) {
@@ -244,7 +271,7 @@ public class AltosConfigData implements Iterable<String> {
 	}
 
 	public AltosConfigData() {
-		this.reset();
+		reset();
 	}
 
 	private void read_link(AltosLink link, String finished) throws InterruptedException, TimeoutException {
@@ -263,7 +290,7 @@ public class AltosConfigData implements Iterable<String> {
 	}
 
 	public AltosConfigData(AltosLink link) throws InterruptedException, TimeoutException {
-		this.reset();
+		reset();
 		link.printf("c s\nf\nv\n");
 		read_link(link, "software-version");
 		switch (log_format) {
