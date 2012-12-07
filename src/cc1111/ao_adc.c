@@ -28,6 +28,16 @@ volatile __data uint8_t		ao_data_head;
 # endif
 #endif
 
+#ifdef TELEMINI_V_1_0
+static const uint8_t ao_adc_pin_dest[6] = { 0, 6, 8, 4 };
+#define AO_ADC_TEMP_PIN 2
+#endif
+
+#ifdef TELENANO_V_0_1
+static const uint8_t ao_adc_pin_dest[6] = { ~0, 0, 4 };
+#define AO_ADC_TEMP_PIN 2
+#endif
+
 void
 ao_adc_poll(void)
 {
@@ -82,56 +92,32 @@ ao_adc_isr(void) __interrupt 1
 #endif
 
 #if TELEMINI_V_1_0 || TELENANO_V_0_1
+#define GOT_ADC
 	/* TeleMini readings */
 	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.pres);
-#if TELEMINI_V_1_0
-	switch (sequence) {
-	case 0:
-		/* pressure */
-		a += 0;
-		sequence = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 1;
-		break;
-	case 1:
-		/* drogue sense */
-		a += 6;
-		sequence = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 2;
-		break;
-	case 2:
-		/* main sense */
-		a += 8;
-		sequence = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 3;
-		break;
-	case 3:
-		/* battery */
-		a += 4;
-		sequence = ADCCON3_EREF_1_25 | ADCCON3_EDIV_512 | ADCCON3_ECH_TEMP;
-		break;
-	case ADCCON3_ECH_TEMP:
-		a += 2;
+
+#ifdef AO_ADC_TEMP_PIN
+	if (sequence == ADCCON3_ECH_TEMP) {
+		a += AO_ADC_TEMP_PIN;
 		sequence = 0;
-		break;
+		goto next_adc;
 	}
-#define GOT_ADC
 #endif
-#ifdef TELENANO_V_0_1
-	switch (sequence) {
-	case 1:
-		/* pressure */
-		a += 0;
-		sequence = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 3;
-		break;
-	case 3:
-		/* battery */
-		a += 4;
-		sequence = ADCCON3_EREF_1_25 | ADCCON3_EDIV_512 | ADCCON3_ECH_TEMP;
-		break;
-	case ADCCON3_ECH_TEMP:
-		a += 2;
-		sequence = 0;
-		break;
+
+	a += ao_adc_pin_dest[sequence];
+	while (++sequence < sizeof(ao_adc_pin_dest)) {
+		if (ao_adc_pin_dest[sequence] != ((uint8_t) ~0)) {
+			sequence |= ADCCON3_EREF_VDD | ADCCON3_EDIV_512;
+			goto next_adc;
+		}
 	}
-#define GOT_ADC
+#ifdef AO_ADC_TEMP_PIN
+	sequence = ADCCON3_EREF_1_25 | ADCCON3_EDIV_512 | ADCCON3_ECH_TEMP;
+#else
+	sequence = 0;
 #endif
+
+next_adc:
 	a[0] = ADCL;
 	a[1] = ADCH;
 	if (sequence) {
