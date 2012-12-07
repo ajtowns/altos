@@ -58,63 +58,11 @@ public class AltosConfig implements ActionListener {
 	AltosDevice	device;
 	AltosSerial	serial_line;
 	boolean		remote;
-	AltosConfigData	remote_config_data;
-	double		remote_frequency;
-	int_ref		serial;
-	int_ref		log_format;
-	int_ref		main_deploy;
-	int_ref		apogee_delay;
-	int_ref		apogee_lockout;
-	int_ref		radio_channel;
-	int_ref		radio_calibration;
-	int_ref		flight_log_max;
-	int_ref		ignite_mode;
-	int_ref		pad_orientation;
-	int_ref		radio_setting;
-	int_ref		radio_frequency;
-	int_ref		storage_size;
-	int_ref		storage_erase_unit;
-	int_ref		stored_flight;
-	int_ref		radio_enable;
-	string_ref	version;
-	string_ref	product;
-	string_ref	callsign;
-	int_ref		npyro;
-	AltosPyro[]	pyros;
+
+	AltosConfigData	data;
 	AltosConfigUI	config_ui;
 	boolean		serial_started;
 	boolean		made_visible;
-
-	boolean get_int(String line, String label, int_ref x) {
-		if (line.startsWith(label)) {
-			try {
-				String tail = line.substring(label.length()).trim();
-				String[] tokens = tail.split("\\s+");
-				if (tokens.length > 0) {
-					int	i = Integer.parseInt(tokens[0]);
-					x.set(i);
-					return true;
-				}
-			} catch (NumberFormatException ne) {
-			}
-		}
-		return false;
-	}
-
-	boolean get_string(String line, String label, string_ref s) {
-		if (line.startsWith(label)) {
-			String	quoted = line.substring(label.length()).trim();
-
-			if (quoted.startsWith("\""))
-				quoted = quoted.substring(1);
-			if (quoted.endsWith("\""))
-				quoted = quoted.substring(0,quoted.length()-1);
-			s.set(quoted);
-			return true;
-		} else {
-			return false;
-		}
-	}
 
 	void start_serial() throws InterruptedException, TimeoutException {
 		serial_started = true;
@@ -131,8 +79,8 @@ public class AltosConfig implements ActionListener {
 	}
 
 	int log_limit() {
-		if (storage_size.get() > 0 && storage_erase_unit.get() > 0) {
-			int	log_limit = storage_size.get() - storage_erase_unit.get();
+		if (data.storage_size > 0 && data.storage_erase_unit > 0) {
+			int	log_limit = data.storage_size - data.storage_erase_unit;
 			if (log_limit > 0)
 				return log_limit / 1024;
 		}
@@ -140,33 +88,33 @@ public class AltosConfig implements ActionListener {
 	}
 
 	void update_ui() {
-		config_ui.set_serial(serial.get());
-		config_ui.set_product(product.get());
-		config_ui.set_version(version.get());
-		config_ui.set_main_deploy(main_deploy.get());
-		config_ui.set_apogee_delay(apogee_delay.get());
-		config_ui.set_apogee_lockout(apogee_lockout.get());
-		config_ui.set_radio_calibration(radio_calibration.get());
+		config_ui.set_serial(data.serial);
+		config_ui.set_product(data.product);
+		config_ui.set_version(data.version);
+		config_ui.set_main_deploy(data.main_deploy);
+		config_ui.set_apogee_delay(data.apogee_delay);
+		config_ui.set_apogee_lockout(data.apogee_lockout);
+		config_ui.set_radio_calibration(data.radio_calibration);
 		config_ui.set_radio_frequency(frequency());
 		boolean max_enabled = true;
-		switch (log_format.get()) {
+		switch (data.log_format) {
 		case Altos.AO_LOG_FORMAT_TINY:
 			max_enabled = false;
 			break;
 		default:
-			if (stored_flight.get() >= 0)
+			if (data.stored_flight >= 0)
 				max_enabled = false;
 			break;
 		}
 		config_ui.set_flight_log_max_enabled(max_enabled);
-		config_ui.set_radio_enable(radio_enable.get());
+		config_ui.set_radio_enable(data.radio_enable);
 		config_ui.set_flight_log_max_limit(log_limit());
-		config_ui.set_flight_log_max(flight_log_max.get());
-		config_ui.set_ignite_mode(ignite_mode.get());
-		config_ui.set_pad_orientation(pad_orientation.get());
-		config_ui.set_callsign(callsign.get());
-		config_ui.set_pyros(pyros);
-		config_ui.set_has_pyro(npyro.get() > 0);
+		config_ui.set_flight_log_max(data.flight_log_max);
+		config_ui.set_ignite_mode(data.ignite_mode);
+		config_ui.set_pad_orientation(data.pad_orientation);
+		config_ui.set_callsign(data.callsign);
+		config_ui.set_pyros(data.pyros);
+		config_ui.set_has_pyro(data.npyro > 0);
 		config_ui.set_clean();
 		if (!made_visible) {
 			made_visible = true;
@@ -176,52 +124,6 @@ public class AltosConfig implements ActionListener {
 
 	int	pyro;
 
-	void process_line(String line) {
-		if (line == null) {
-			abort();
-			return;
-		}
-		if (line.equals("all finished")) {
-			if (serial_line != null)
-				update_ui();
-			return;
-		}
-		if (pyro < npyro.get()) {
-			if (pyros == null)
-				pyros = new AltosPyro[npyro.get()];
-
-			try {
-				pyros[pyro] = new AltosPyro(pyro, line);
-			} catch (ParseException e) {
-				System.out.printf ("pyro parse failed %s\n", line);
-			}
-			++pyro;
-			return;
-		}
-		get_int(line, "serial-number", serial);
-		get_int(line, "log-format", log_format);
-		get_int(line, "Main deploy:", main_deploy);
-		get_int(line, "Apogee delay:", apogee_delay);
-		get_int(line, "Apogee lockout:", apogee_lockout);
-		get_int(line, "Radio channel:", radio_channel);
-		get_int(line, "Radio cal:", radio_calibration);
-		get_int(line, "Max flight log:", flight_log_max);
-		get_int(line, "Ignite mode:", ignite_mode);
-		get_int(line, "Pad orientation:", pad_orientation);
-		get_int(line, "Radio setting:", radio_setting);
-		if (get_int(line, "Frequency:", radio_frequency))
-			if (radio_frequency.get() < 0)
-				radio_frequency.set(434550);
-		get_int(line, "Radio enable:", radio_enable);
-		get_int(line, "Storage size:", storage_size);
-		get_int(line, "Storage erase unit:", storage_erase_unit);
-		get_int(line, "flight", stored_flight);
-		get_string(line, "Callsign:", callsign);
-		get_string(line,"software-version", version);
-		get_string(line,"product", product);
-		get_int(line, "Pyro-count:", npyro);
-	}
-
 	final static int	serial_mode_read = 0;
 	final static int	serial_mode_save = 1;
 	final static int	serial_mode_reboot = 2;
@@ -230,63 +132,33 @@ public class AltosConfig implements ActionListener {
 		AltosConfig	config;
 		int		serial_mode;
 
-		void process_line(String line) {
-			config.process_line(line);
-		}
-		void callback(String in_line) {
-			final String line = in_line;
+		void callback(String in_cmd) {
+			final String cmd = in_cmd;
 			Runnable r = new Runnable() {
 					public void run() {
-						process_line(line);
+						if (cmd.equals("abort")) {
+							abort();
+						} else if (cmd.equals("all finished")) {
+							if (serial_line != null)
+								update_ui();
+						}
 					}
 				};
 			SwingUtilities.invokeLater(r);
 		}
 
-		void reset_data() {
-			serial.set(0);
-			log_format.set(Altos.AO_LOG_FORMAT_UNKNOWN);
-			main_deploy.set(250);
-			apogee_delay.set(0);
-			apogee_lockout.set(0);
-			radio_channel.set(0);
-			radio_setting.set(0);
-			radio_frequency.set(0);
-			radio_calibration.set(1186611);
-			radio_enable.set(-1);
-			flight_log_max.set(0);
-			ignite_mode.set(-1);
-			pad_orientation.set(-1);
-			storage_size.set(-1);
-			storage_erase_unit.set(-1);
-			stored_flight.set(-1);
-			callsign.set("N0CALL");
-			version.set("unknown");
-			product.set("unknown");
-			pyro = 0;
-			npyro.set(0);
-		}
-
 		void get_data() {
+			data = null;
 			try {
-				config.start_serial();
-				reset_data();
-
-				config.serial_line.printf("c s\nf\nl\nv\n");
-				for (;;) {
-					try {
-						String line = config.serial_line.get_reply(5000);
-						if (line == null)
-							stop_serial();
-						callback(line);
-						if (line.startsWith("software-version"))
-							break;
-					} catch (Exception e) {
-						break;
-					}
-				}
+				start_serial();
+				data = new AltosConfigData(config.serial_line);
 			} catch (InterruptedException ie) {
 			} catch (TimeoutException te) {
+				try {
+					stop_serial();
+					callback("abort");
+				} catch (InterruptedException ie) {
+				}
 			} finally {
 				try {
 					stop_serial();
@@ -299,37 +171,37 @@ public class AltosConfig implements ActionListener {
 		void save_data() {
 			try {
 				double frequency = frequency();
-				boolean has_frequency = radio_frequency.get() > 0;
-				boolean has_setting = radio_setting.get() > 0;
+				boolean has_frequency = data.radio_frequency > 0;
+				boolean has_setting = data.radio_setting > 0;
 				start_serial();
-				serial_line.printf("c m %d\n", main_deploy.get());
-				serial_line.printf("c d %d\n", apogee_delay.get());
-				serial_line.printf("c L %d\n", apogee_lockout.get());
+				serial_line.printf("c m %d\n", data.main_deploy);
+				serial_line.printf("c d %d\n", data.apogee_delay);
+				serial_line.printf("c L %d\n", data.apogee_lockout);
 				if (!remote)
-					serial_line.printf("c f %d\n", radio_calibration.get());
+					serial_line.printf("c f %d\n", data.radio_calibration);
 				serial_line.set_radio_frequency(frequency,
 								has_frequency,
 								has_setting,
-								radio_calibration.get());
+								data.radio_calibration);
 				if (remote) {
 					serial_line.stop_remote();
 					serial_line.set_radio_frequency(frequency);
 					AltosUIPreferences.set_frequency(device.getSerial(), frequency);
 					serial_line.start_remote();
 				}
-				serial_line.printf("c c %s\n", callsign.get());
-				if (flight_log_max.get() != 0)
-					serial_line.printf("c l %d\n", flight_log_max.get());
-				if (radio_enable.get() >= 0)
-					serial_line.printf("c e %d\n", radio_enable.get());
-				if (ignite_mode.get() >= 0)
-					serial_line.printf("c i %d\n", ignite_mode.get());
-				if (pad_orientation.get() >= 0)
-					serial_line.printf("c o %d\n", pad_orientation.get());
-				if (pyros.length > 0) {
-					for (int p = 0; p < pyros.length; p++) {
+				serial_line.printf("c c %s\n", data.callsign);
+				if (data.flight_log_max != 0)
+					serial_line.printf("c l %d\n", data.flight_log_max);
+				if (data.radio_enable >= 0)
+					serial_line.printf("c e %d\n", data.radio_enable);
+				if (data.ignite_mode >= 0)
+					serial_line.printf("c i %d\n", data.ignite_mode);
+				if (data.pad_orientation >= 0)
+					serial_line.printf("c o %d\n", data.pad_orientation);
+				if (data.pyros.length > 0) {
+					for (int p = 0; p < data.pyros.length; p++) {
 						serial_line.printf("c P %s\n",
-								   pyros[p].toString());
+								   data.pyros[p].toString());
 					}
 				}
 				serial_line.printf("c w\n");
@@ -413,25 +285,25 @@ public class AltosConfig implements ActionListener {
 	}
 
 	double frequency() {
-		return AltosConvert.radio_to_frequency(radio_frequency.get(),
-						       radio_setting.get(),
-						       radio_calibration.get(),
-						       radio_channel.get());
+		return AltosConvert.radio_to_frequency(data.radio_frequency,
+						       data.radio_setting,
+						       data.radio_calibration,
+						       data.radio_channel);
 	}
 
 	void set_frequency(double freq) {
-		int	frequency = radio_frequency.get();
-		int	setting = radio_setting.get();
+		int	frequency = data.radio_frequency;
+		int	setting = data.radio_setting;
 
 		if (frequency > 0) {
-			radio_frequency.set((int) Math.floor (freq * 1000 + 0.5));
-			radio_channel.set(0);
+			data.radio_frequency = (int) Math.floor (freq * 1000 + 0.5);
+			data.radio_channel = 0;
 		} else if (setting > 0) {
-			radio_setting.set(AltosConvert.radio_frequency_to_setting(freq,
-										  radio_calibration.get()));
-			radio_channel.set(0);
+			data.radio_setting =AltosConvert.radio_frequency_to_setting(freq,
+										    data.radio_calibration);
+			data.radio_channel = 0;
 		} else {
-			radio_channel.set(AltosConvert.radio_frequency_to_channel(freq));
+			data.radio_channel = AltosConvert.radio_frequency_to_channel(freq);
 		}
 	}
 
@@ -448,21 +320,21 @@ public class AltosConfig implements ActionListener {
 			return;
 		}
 
-		main_deploy.set(config_ui.main_deploy());
-		apogee_delay.set(config_ui.apogee_delay());
-		apogee_lockout.set(config_ui.apogee_lockout());
-		radio_calibration.set(config_ui.radio_calibration());
+		data.main_deploy = config_ui.main_deploy();
+		data.apogee_delay = config_ui.apogee_delay();
+		data.apogee_lockout = config_ui.apogee_lockout();
+		data.radio_calibration = config_ui.radio_calibration();
 		set_frequency(config_ui.radio_frequency());
-		flight_log_max.set(config_ui.flight_log_max());
-		if (radio_enable.get() >= 0)
-			radio_enable.set(config_ui.radio_enable());
-		if (ignite_mode.get() >= 0)
-			ignite_mode.set(config_ui.ignite_mode());
-		if (pad_orientation.get() >= 0)
-			pad_orientation.set(config_ui.pad_orientation());
-		callsign.set(config_ui.callsign());
-		if (npyro.get() > 0) {
-			pyros = config_ui.pyros();
+		data.flight_log_max = config_ui.flight_log_max();
+		if (data.radio_enable >= 0)
+			data.radio_enable = config_ui.radio_enable();
+		if (data.ignite_mode >= 0)
+			data.ignite_mode = config_ui.ignite_mode();
+		if (data.pad_orientation >= 0)
+			data.pad_orientation = config_ui.pad_orientation();
+		data.callsign = config_ui.callsign();
+		if (data.npyro > 0) {
+			data.pyros = config_ui.pyros();
 		}
 		run_serial_thread(serial_mode_save);
 	}
@@ -490,27 +362,6 @@ public class AltosConfig implements ActionListener {
 
 	public AltosConfig(JFrame given_owner) {
 		owner = given_owner;
-
-		serial = new int_ref(0);
-		log_format = new int_ref(Altos.AO_LOG_FORMAT_UNKNOWN);
-		main_deploy = new int_ref(250);
-		apogee_delay = new int_ref(0);
-		apogee_lockout = new int_ref(0);
-		radio_channel = new int_ref(0);
-		radio_setting = new int_ref(0);
-		radio_frequency = new int_ref(0);
-		radio_calibration = new int_ref(1186611);
-		radio_enable = new int_ref(-1);
-		flight_log_max = new int_ref(0);
-		ignite_mode = new int_ref(-1);
-		pad_orientation = new int_ref(-1);
-		storage_size = new int_ref(-1);
-		storage_erase_unit = new int_ref(-1);
-		stored_flight = new int_ref(-1);
-		callsign = new string_ref("N0CALL");
-		version = new string_ref("unknown");
-		product = new string_ref("unknown");
-		npyro = new int_ref(0);
 
 		device = AltosDeviceDialog.show(owner, Altos.product_any);
 		if (device != null) {

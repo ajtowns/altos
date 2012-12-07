@@ -82,6 +82,43 @@ public class AltosMs5607 {
 		return pa;
 	}
 
+	public boolean parse_line(String line) {
+		String[] items = line.split("\\s+");
+		if (line.startsWith("Pressure:")) {
+			if (items.length >= 2)
+				raw_pres = Integer.parseInt(items[1]);
+		} else if (line.startsWith("Temperature:")) {
+			if (items.length >= 2)
+				raw_temp = Integer.parseInt(items[1]);
+		} else if (line.startsWith("ms5607 reserved:")) {
+			if (items.length >= 3)
+				reserved = Integer.parseInt(items[2]);
+		} else if (line.startsWith("ms5607 sens:")) {
+			if (items.length >= 3)
+				sens = Integer.parseInt(items[2]);
+		} else if (line.startsWith("ms5607 off:")) {
+			if (items.length >= 3)
+				off = Integer.parseInt(items[2]);
+		} else if (line.startsWith("ms5607 tcs:")) {
+			if (items.length >= 3)
+				tcs = Integer.parseInt(items[2]);
+		} else if (line.startsWith("ms5607 tco:")) {
+			if (items.length >= 3)
+				tco = Integer.parseInt(items[2]);
+		} else if (line.startsWith("ms5607 tref:")) {
+			if (items.length >= 3)
+				tref = Integer.parseInt(items[2]);
+		} else if (line.startsWith("ms5607 tempsens:")) {
+			if (items.length >= 3)
+				tempsens = Integer.parseInt(items[2]);
+		} else if (line.startsWith("ms5607 crc:")) {
+			if (items.length >= 3)
+				crc = Integer.parseInt(items[2]);
+		} else if (line.startsWith("Altitude"))
+			return false;
+		return true;
+	}
+
 	public AltosMs5607() {
 		raw_pres = AltosRecord.MISSING;
 		raw_temp = AltosRecord.MISSING;

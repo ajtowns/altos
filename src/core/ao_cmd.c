@@ -265,12 +265,25 @@ ao_reboot(void)
 static void
 version(void)
 {
-	printf("manufacturer     %s\n", ao_manufacturer);
-	printf("product          %s\n", ao_product);
-	printf("serial-number    %u\n", ao_serial_number);
-#if HAS_LOG
-	printf("log-format       %u\n", ao_log_format);
+	printf("manufacturer     %s\n"
+	       "product          %s\n"
+	       "serial-number    %u\n"
+#if HAS_FLIGHT
+	       "current-flight   %u\n"
 #endif
+#if HAS_LOG
+	       "log-format       %u\n"
+#endif
+	       , ao_manufacturer
+	       , ao_product
+	       , ao_serial_number
+#if HAS_FLIGHT
+	       , ao_flight_number
+#endif
+#if HAS_LOG
+	       , ao_log_format
+#endif
+		);
 #if HAS_MS5607
 	ao_ms5607_info();
 #endif
