@@ -269,7 +269,7 @@ version(void)
 	       "product          %s\n"
 	       "serial-number    %u\n"
 #if HAS_FLIGHT
-	       "flight-number    %u\n"
+	       "current-flight   %u\n"
 #endif
 #if HAS_LOG
 	       "log-format       %u\n"

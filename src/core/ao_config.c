@@ -529,15 +529,15 @@ __code struct ao_config_var ao_config_vars[] = {
 	  ao_config_callsign_set,	ao_config_callsign_show },
 	{ "e <0 disable, 1 enable>\0Enable telemetry and RDF",
 	  ao_config_radio_enable_set, ao_config_radio_enable_show },
+	{ "f <cal>\0Radio calib (cal = rf/(xtal/2^16))",
+	  ao_config_radio_cal_set,  	ao_config_radio_cal_show },
 #endif /* HAS_RADIO */
 #if HAS_ACCEL
 	{ "a <+g> <-g>\0Accel calib (0 for auto)",
 	  ao_config_accel_calibrate_set,ao_config_accel_calibrate_show },
+	{ "o <0 antenna up, 1 antenna down>\0Set pad orientation",
+	  ao_config_pad_orientation_set,ao_config_pad_orientation_show },
 #endif /* HAS_ACCEL */
-#if HAS_RADIO
-	{ "f <cal>\0Radio calib (cal = rf/(xtal/2^16))",
-	  ao_config_radio_cal_set,  	ao_config_radio_cal_show },
-#endif /* HAS_RADIO */
 #if HAS_LOG
 	{ "l <size>\0Flight log size (kB)",
 	  ao_config_log_set,		ao_config_log_show },
@@ -545,10 +545,6 @@ __code struct ao_config_var ao_config_vars[] = {
 #if HAS_IGNITE
 	{ "i <0 dual, 1 apogee, 2 main>\0Set igniter mode",
 	  ao_config_ignite_mode_set,	ao_config_ignite_mode_show },
-#endif
-#if HAS_ACCEL
-	{ "o <0 antenna up, 1 antenna down>\0Set pad orientation",
-	  ao_config_pad_orientation_set,ao_config_pad_orientation_show },
 #endif
 #if HAS_AES
 	{ "k <32 hex digits>\0Set AES encryption key",
