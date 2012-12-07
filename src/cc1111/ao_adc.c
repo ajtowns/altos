@@ -20,22 +20,20 @@
 volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
 volatile __data uint8_t		ao_data_head;
 
-#ifndef AO_ADC_FIRST_PIN
-# if HAS_ACCEL_REF
-#  define AO_ADC_FIRST_PIN	2
-# else
-#  define AO_ADC_FIRST_PIN	0
-# endif
-#endif
+#define AO_ADC_NC (255)
 
 #ifdef TELEMINI_V_1_0
-static const uint8_t ao_adc_pin_dest[6] = { 2, 8, 10, 6 };
-#define AO_ADC_TEMP_OFFSET 4
+#define AO_ADC_PIN_OFFSETS	1, 4, 5, 3
+#define AO_ADC_TEMP_OFFSET	2
 #endif
 
 #ifdef TELENANO_V_0_1
-static const uint8_t ao_adc_pin_dest[6] = { ~0, 2, ~0, 6 };
-#define AO_ADC_TEMP_OFFSET 4
+#define AO_ADC_PIN_OFFSETS	AO_ADC_NC, 1, AO_ADC_NC, 3
+#define AO_ADC_TEMP_OFFSET	2
+#endif
+
+#ifdef TELEFIRE_V_0_1
+#define AO_ADC_PIN_OFFSETS	AO_ADC_NC, 1, 2, 3, 4
 #endif
 
 #if TELEMETRUM_V_0_1 || TELEMETRUM_V_0_2 || TELEMETRUM_V_1_0 || TELEMETRUM_V_1_1 || TELEMETRUM_V_1_2 || TELELAUNCH_V_0_1 || TELEBALLOON_V_1_1
@@ -45,14 +43,28 @@ static const uint8_t ao_adc_pin_dest[6] = { ~0, 2, ~0, 6 };
 #  define AO_ADC_ACCEL_OFFSET 12
 # endif
 
-# if HAS_EXTERNAL_TEMP == 0
-static const uint8_t ao_adc_pin_dest[6] = { 0, 2, ~0, 6, 8, 10 };
-#  define AO_ADC_TEMP_OFFSET 4
+# if HAS_EXTERNAL_TEMP
+#  define AO_ADC_PIN_OFFSETS	0, 1, 2,         3, 4, 5
 # else
-static const uint8_t ao_adc_pin_dest[6] = { 0, 2, 4, 6, 8, 10 };
+#  define AO_ADC_PIN_OFFSETS	0, 1, AO_ADC_NC, 3, 4, 5
+#  define AO_ADC_TEMP_OFFSET	2
 # endif
 
 #endif
+
+#if HAS_ACCEL_REF
+# define AO_ADC_FIRST_PIN	AO_ADC_ACCEL_PIN
+#else
+# ifndef AO_ADC_FIRST_PIN
+#  define AO_ADC_FIRST_PIN	0
+# endif
+#endif
+
+#ifndef AO_ADC_PIN_OFFSETS
+#error No known ADC configuration set
+#endif
+
+static const uint8_t ao_adc_pin_dest[] = { AO_ADC_PIN_OFFSETS };
 
 void
 ao_adc_poll(void)
@@ -78,9 +90,8 @@ ao_adc_isr(void) __interrupt 1
 	uint8_t	__xdata *a;
 
 	sequence = (ADCCON2 & ADCCON2_SCH_MASK) >> ADCCON2_SCH_SHIFT;
-#if TELEMETRUM_V_0_1 || TELEMETRUM_V_0_2 || TELEMETRUM_V_1_0 || TELEMETRUM_V_1_1 || TELEMETRUM_V_1_2 || TELELAUNCH_V_0_1 || TELEBALLOON_V_1_1 || TELEMINI_V_1_0 || TELENANO_V_0_1
-#define GOT_ADC
-	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.accel);
+
+	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc);
 
 #ifdef AO_ADC_TEMP_OFFSET
 	if (sequence == ADCCON3_ECH_TEMP) {
@@ -98,13 +109,14 @@ ao_adc_isr(void) __interrupt 1
 	}
 #endif
 
-	a += ao_adc_pin_dest[sequence];
+	a += ao_adc_pin_dest[sequence] << 1;
 	while (++sequence < sizeof(ao_adc_pin_dest)) {
 bump_sequence:
-		if (ao_adc_pin_dest[sequence] != (uint8_t) ~0) {
-			sequence |= ADCCON3_EREF_VDD | ADCCON3_EDIV_512;
-			goto store_adc;
-		}
+		if (ao_adc_pin_dest[sequence] == AO_ADC_NC)
+			continue;
+
+		sequence |= ADCCON3_EREF_VDD | ADCCON3_EDIV_512;
+		goto store_adc;
 	}
 #ifdef AO_ADC_TEMP_OFFSET_
 	sequence = ADCCON3_EREF_1_25 | ADCCON3_EDIV_512 | ADCCON3_ECH_TEMP;
@@ -115,32 +127,17 @@ bump_sequence:
 store_adc:
 	a[0] = ADCL;
 	a[1] = ADCH;
+
 	if (sequence) {
 		/* Start next conversion */
 		ADCCON3 = sequence;
-	}
-#endif /* telemini || telenano */
-
-#ifdef TELEFIRE_V_0_1
-	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.sense[0] + sequence - AO_ADC_FIRST_PIN);
-	a[0] = ADCL;
-	a[1] = ADCH;
-	if (sequence < 5)
-		ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | (sequence + 1);
-#define GOT_ADC
-#endif /* TELEFIRE_V_0_1 */
-
-	else {
+	} else {
 		/* record this conversion series */
 		ao_data_ring[ao_data_head].tick = ao_time();
 		ao_data_head = ao_data_ring_next(ao_data_head);
 		ao_wakeup(DATA_TO_XDATA(&ao_data_head));
 	}
 }
-
-#ifndef GOT_ADC
-#error No known ADC configuration set
-#endif
 
 static void
 ao_adc_dump(void) __reentrant
