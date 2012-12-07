@@ -204,6 +204,7 @@
 	#define HAS_ACCEL		0
 	#define HAS_IGNITE		0
 	#define HAS_MONITOR		0
+	#define AO_ADC_FIRST_PIN	1
 #endif
 
 #if defined(TELEMETRUM_V_0_1)
