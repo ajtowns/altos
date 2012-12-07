@@ -261,7 +261,7 @@ ao_radio_idle(void)
 #define PACKET_DEV_M	80
 
 /*
- * For our packet data, set the symbol rate to 38360 Baud
+ * For our packet data, set the symbol rate to 38400 Baud
  *
  *              (2**20 + DATARATE_M) * 2 ** DATARATE_E
  *	Rdata = -------------------------------------- * fosc
@@ -383,8 +383,8 @@ static const uint16_t rdf_setup[] = {
  *	Rdata = 9599.998593330383301
  *
  */
-#define APRS_DRATE_E	5
-#define APRS_DRATE_M	25166
+#define APRS_DRATE_E	7
+#define APRS_DRATE_M	239914
 
 static const uint16_t aprs_setup[] = {
 	CC1120_DEVIATION_M,	APRS_DEV_M,
@@ -432,8 +432,9 @@ static uint16_t ao_radio_mode;
 #define AO_RADIO_MODE_PACKET_TX_FINISH	(AO_RADIO_MODE_BITS_PACKET | AO_RADIO_MODE_BITS_PACKET_TX | AO_RADIO_MODE_BITS_TX_FINISH)
 #define AO_RADIO_MODE_PACKET_RX		(AO_RADIO_MODE_BITS_PACKET | AO_RADIO_MODE_BITS_PACKET_RX)
 #define AO_RADIO_MODE_RDF		(AO_RADIO_MODE_BITS_RDF | AO_RADIO_MODE_BITS_TX_FINISH)
-#define AO_RADIO_MODE_APRS_BUF		(AO_RADIO_MODE_BITS_APRS | AO_RADIO_MODE_BITS_INFINITE)
-#define AO_RADIO_MODE_APRS_FINISH	(AO_RADIO_MODE_BITS_APRS | AO_RADIO_MODE_BITS_FIXED)
+#define AO_RADIO_MODE_APRS_BUF		(AO_RADIO_MODE_BITS_APRS | AO_RADIO_MODE_BITS_INFINITE | AO_RADIO_MODE_BITS_TX_BUF)
+#define AO_RADIO_MODE_APRS_LAST_BUF	(AO_RADIO_MODE_BITS_APRS | AO_RADIO_MODE_BITS_FIXED | AO_RADIO_MODE_BITS_TX_BUF)
+#define AO_RADIO_MODE_APRS_FINISH	(AO_RADIO_MODE_BITS_APRS | AO_RADIO_MODE_BITS_FIXED | AO_RADIO_MODE_BITS_TX_FINISH)
 
 static void
 ao_radio_set_mode(uint16_t new_mode)
@@ -642,17 +643,23 @@ ao_radio_test_cmd(void)
 	}
 }
 
+static void
+ao_radio_wait_isr(void)
+{
+	ao_radio_wake = 0;
+	ao_arch_block_interrupts();
+	while (!ao_radio_wake)
+		ao_sleep(&ao_radio_wake);
+	ao_arch_release_interrupts();
+}
+
 static uint8_t
 ao_radio_wait_tx(uint8_t wait_fifo)
 {
 	uint8_t	fifo_space = 0;
 
 	do {
-		ao_radio_wake = 0;
-		ao_arch_block_interrupts();
-		while (!ao_radio_wake)
-			ao_sleep(&ao_radio_wake);
-		ao_arch_release_interrupts();
+		ao_radio_wait_isr();
 		if (!wait_fifo)
 			return 0;
 		fifo_space = ao_radio_tx_fifo_space();
@@ -725,25 +732,47 @@ ao_radio_send_lots(ao_radio_fill_func fill)
 			cnt = -cnt;
 		}
 		total += cnt;
-		if (done) {
+
+		/* At the last buffer, set the total length */
+		if (done)
 			ao_radio_set_len(total & 0xff);
-			ao_radio_set_mode(AO_RADIO_MODE_APRS_FINISH);
-		} else
-			ao_radio_set_mode(AO_RADIO_MODE_APRS_BUF);
+
 		b = buf;
 		while (cnt) {
 			uint8_t	this_len = cnt;
+
+			/* Wait for some space in the fifo */
+			while ((fifo_space = ao_radio_tx_fifo_space()) == 0) {
+				ao_radio_wake = 0;
+				ao_arch_block_interrupts();
+				while (!ao_radio_wake)
+					ao_sleep(&ao_radio_wake);
+				ao_arch_release_interrupts();
+			}
 			if (this_len > fifo_space)
 				this_len = fifo_space;
+
+			cnt -= this_len;
+
+			if (done) {
+				if (cnt)
+					ao_radio_set_mode(AO_RADIO_MODE_APRS_LAST_BUF);
+				else
+					ao_radio_set_mode(AO_RADIO_MODE_APRS_FINISH);
+			} else
+				ao_radio_set_mode(AO_RADIO_MODE_APRS_BUF);
+
 			ao_radio_fifo_write(b, this_len);
 			b += this_len;
-			cnt -= this_len;
+
 			if (!started) {
 				ao_radio_start_tx();
 				started = 1;
-			}
-			fifo_space = ao_radio_wait_tx(!done || cnt);
+			} else
+				ao_exti_enable(AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
 		}
+		/* Wait for the transmitter to go idle */
+		ao_radio_wait_isr();
 	}
 	ao_radio_put();
 }
@@ -1140,11 +1169,21 @@ ao_radio_test_recv()
 	}
 }
 
+#include <ao_aprs.h>
+
+static void
+ao_radio_aprs()
+{
+	ao_packet_slave_stop();
+	ao_aprs_send();
+}
+
 #endif
 
 static const struct ao_cmds ao_radio_cmds[] = {
 	{ ao_radio_test_cmd,	"C <1 start, 0 stop, none both>\0Radio carrier test" },
 #if CC1120_DEBUG
+	{ ao_radio_aprs,	"G\0Send APRS packet" },
 	{ ao_radio_show,	"R\0Show CC1120 status" },
 	{ ao_radio_beep,	"b\0Emit an RDF beacon" },
 	{ ao_radio_packet,	"p\0Send a test packet" },
