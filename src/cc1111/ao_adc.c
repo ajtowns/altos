@@ -20,6 +20,21 @@
 volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
 volatile __data uint8_t		ao_data_head;
 
+
+#ifdef AO_ADC_ADCCON3
+#define AO_ADC_END_OF_LIST (0xFF)
+
+static uint8_t *ao_adc_order_in;
+
+static uint8_t __xdata *ao_adc_order_out;
+
+static const uint8_t ao_adc_order_adccon3[] = {
+	AO_ADC_ADCCON3, 
+	AO_ADC_END_OF_LIST 
+};
+
+#else
+
 #ifndef AO_ADC_FIRST_PIN
 # if HAS_ACCEL_REF
 #  define AO_ADC_FIRST_PIN	2
@@ -28,10 +43,18 @@ volatile __data uint8_t		ao_data_head;
 # endif
 #endif
 
+#endif
+
 void
 ao_adc_poll(void)
 {
+#ifdef AO_ADC_ADCCON3
+	ao_adc_order_in = &ao_adc_order_adccon3[0];
+	ao_adc_order_out = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc);
+	ADCCON3 = *ao_adc_order_in;
+#else
 	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | AO_ADC_FIRST_PIN;
+#endif
 }
 
 void
@@ -45,6 +68,28 @@ ao_data_get(__xdata struct ao_data *packet)
 	ao_xmemcpy(packet, (void __xdata *) &ao_data_ring[i], sizeof (struct ao_data));
 }
 
+#ifdef AO_ADC_ADCCON3
+
+void
+ao_adc_isr(void) __interrupt 1
+{
+	uint8_t next;
+
+	*(ao_adc_order_out++) = ADCL;
+	*(ao_adc_order_out++) = ADCH;
+
+	next = *(++ao_adc_order_in);
+	if (next != AO_ADC_END_OF_LIST) {
+		ADCCON3 = next;
+	} else {
+		/* record this conversion series */
+		ao_data_ring[ao_data_head].tick = ao_time();
+		ao_data_head = ao_data_ring_next(ao_data_head);
+		ao_wakeup(DATA_TO_XDATA(&ao_data_head));
+	}
+}
+
+#else /* AO_ADC_ADCCON3 */
 void
 ao_adc_isr(void) __interrupt 1
 {
@@ -81,65 +126,6 @@ ao_adc_isr(void) __interrupt 1
 	}
 #endif
 
-#if TELEMINI_V_1_0 || TELENANO_V_0_1
-	/* TeleMini readings */
-	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.pres);
-#if TELEMINI_V_1_0
-	switch (sequence) {
-	case 0:
-		/* pressure */
-		a += 0;
-		sequence = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 1;
-		break;
-	case 1:
-		/* drogue sense */
-		a += 6;
-		sequence = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 2;
-		break;
-	case 2:
-		/* main sense */
-		a += 8;
-		sequence = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 3;
-		break;
-	case 3:
-		/* battery */
-		a += 4;
-		sequence = ADCCON3_EREF_1_25 | ADCCON3_EDIV_512 | ADCCON3_ECH_TEMP;
-		break;
-	case ADCCON3_ECH_TEMP:
-		a += 2;
-		sequence = 0;
-		break;
-	}
-#define GOT_ADC
-#endif
-#ifdef TELENANO_V_0_1
-	switch (sequence) {
-	case 1:
-		/* pressure */
-		a += 0;
-		sequence = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 3;
-		break;
-	case 3:
-		/* battery */
-		a += 4;
-		sequence = ADCCON3_EREF_1_25 | ADCCON3_EDIV_512 | ADCCON3_ECH_TEMP;
-		break;
-	case ADCCON3_ECH_TEMP:
-		a += 2;
-		sequence = 0;
-		break;
-	}
-#define GOT_ADC
-#endif
-	a[0] = ADCL;
-	a[1] = ADCH;
-	if (sequence) {
-		/* Start next conversion */
-		ADCCON3 = sequence;
-	}
-#endif /* telemini || telenano */
-
 #ifdef TELEFIRE_V_0_1
 	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.sense[0] + sequence - AO_ADC_FIRST_PIN);
 	a[0] = ADCL;
@@ -160,19 +146,14 @@ ao_adc_isr(void) __interrupt 1
 		ao_wakeup(DATA_TO_XDATA(&ao_data_head));
 	}
 }
+#endif /* AO_ADC_ADCCON3 */
 
 static void
 ao_adc_dump(void) __reentrant
 {
 	static __xdata struct ao_data	packet;
 	ao_data_get(&packet);
-#ifndef AO_ADC_DUMP
-	printf("tick: %5u accel: %5d pres: %5d temp: %5d batt: %5d drogue: %5d main: %5d\n",
-	       packet.tick, packet.adc.accel, packet.adc.pres, packet.adc.temp,
-	       packet.adc.v_batt, packet.adc.sense_d, packet.adc.sense_m);
-#else
 	AO_ADC_DUMP(&packet);
-#endif
 }
 
 __code struct ao_cmds ao_adc_cmds[] = {
@@ -198,14 +179,8 @@ ao_adc_init(void)
 		  (1 << 3) |	/* battery voltage */
 		  (1 << 4) |	/* drogue sense */
 		  (1 << 5));	/* main sense */
-#endif
-
-#if IGNITE_ON_P0
-	/* TeleMini configuration */
-	ADCCFG = ((1 << 0) |	/* pressure */
-		  (1 << 1) |	/* drogue sense */
-		  (1 << 2) |	/* main sense */
-		  (1 << 3));	/* battery voltage */
+#else
+#error "Need to set AO_ADC_PINS"
 #endif
 
 #endif /* else AO_ADC_PINS */
