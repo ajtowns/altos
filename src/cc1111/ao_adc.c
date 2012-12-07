@@ -146,26 +146,3 @@ ao_adc_init(void)
 	IEN0 |= IEN0_ADCIE;
 	ao_cmd_register(&ao_adc_cmds[0]);
 }
-
-#define COMPILE_ASSERT(x)  extern int foo[1-2*!(x)]
-
-#if IGNITE_ON_P2
-COMPILE_ASSERT(AO_ADC_PINS ==
-		(1 << 0) |	/* acceleration */
-		(1 << 1) |	/* pressure */
-#if HAS_EXTERNAL_TEMP
-		(1 << 2) |	/* v0.1 temperature */
-#endif
-		(1 << 3) |	/* battery voltage */
-		(1 << 4) |	/* drogue sense */
-		(1 << 5));	/* main sense */
-#endif
-
-#if IGNITE_ON_P0
-COMPILE_ASSERT(AO_ADC_PINS ==
-	/* TeleMini configuration */
-		(1 << 0) |	/* pressure */
-		(1 << 1) |	/* drogue sense */
-		(1 << 2) |	/* main sense */
-		(1 << 3));	/* battery voltage */
-#endif
