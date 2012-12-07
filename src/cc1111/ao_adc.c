@@ -21,21 +21,17 @@ volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
 volatile __data uint8_t		ao_data_head;
 
 #ifndef AO_ADC_FIRST_PIN
-#define AO_ADC_FIRST_PIN	0
+# if HAS_ACCEL_REF
+#  define AO_ADC_FIRST_PIN	2
+# else
+#  define AO_ADC_FIRST_PIN	0
+# endif
 #endif
 
 void
 ao_adc_poll(void)
 {
-#if HAS_ACCEL_REF
-	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 2;
-#else
-# ifdef TELENANO_V_0_1
-	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 1;
-# else
 	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | AO_ADC_FIRST_PIN;
-# endif
-#endif
 }
 
 void
