@@ -297,6 +297,9 @@ ao_dma_isr(void) ao_arch_interrupt(8);
 /* The A/D interrupt handler */
 void
 ao_adc_isr(void) ao_arch_interrupt(1);
+
+#define AO_ADC_PIN(x)   (ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | (x))
+#define AO_ADC_INT_TEMP (ADCCON3_EREF_1_25 | ADCCON3_EDIV_512 | ADCCON3_ECH_TEMP)
 #endif
 
 #if HAS_USB

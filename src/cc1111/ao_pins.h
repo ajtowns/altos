@@ -179,6 +179,17 @@
 	#define HAS_ACCEL		0
 	#define HAS_IGNITE		1
 	#define HAS_MONITOR		0
+
+	#define AO_ADC_ADCCON3		AO_ADC_PIN(0), \
+					AO_ADC_INT_TEMP, \
+					AO_ADC_PIN(3), \
+					AO_ADC_PIN(1), \
+					AO_ADC_PIN(2)
+
+	#define AO_ADC_PINS		((1 << 0) | \
+					 (1 << 1) | \
+					 (1 << 2) | \
+					 (1 << 3))
 #endif
 
 #if defined(TELENANO_V_0_1)
@@ -205,6 +216,13 @@
 	#define HAS_IGNITE		0
 	#define HAS_MONITOR		0
 	#define AO_ADC_FIRST_PIN	1
+
+	#define AO_ADC_ADCCON3		AO_ADC_PIN(1), \
+					AO_ADC_INT_TEMP, \
+					AO_ADC_PIN(3)
+
+	#define AO_ADC_PINS		((1 << 1) | \
+					 (1 << 3))
 #endif
 
 #if defined(TELEMETRUM_V_0_1)
@@ -562,15 +580,46 @@
 #define AO_IGNITER_CHARGE_TIME	AO_MS_TO_TICKS(2000)
 
 struct ao_adc {
+#if HAS_ACCEL || TELELAUNCH_V_0_1
 	int16_t		accel;		/* accelerometer */
+#endif
 	int16_t		pres;		/* pressure sensor */
 	int16_t		temp;		/* temperature sensor */
 	int16_t		v_batt;		/* battery voltage */
+#if HAS_IGNITE
 	int16_t		sense_d;	/* drogue continuity sense */
 	int16_t		sense_m;	/* main continuity sense */
+#endif
 #if HAS_ACCEL_REF
 	uint16_t	accel_ref;	/* acceleration reference */
 #endif
 };
+
+#if HAS_ACCEL || TELELAUNCH_V_0_1
+#define IF_ACCEL(x) x
+#else
+#define IF_ACCEL(x)
+#endif
+
+#if HAS_IGNITE
+#define IF_IGNITE(x) x
+#else
+#define IF_IGNITE(x)
+#endif
+
+#define COMMA ,
+
+#define AO_ADC_DUMP(p) \
+	printf("tick: %5u" \
+		IF_ACCEL(" accel: %5d") \
+		" pres: %5d temp: %5d batt: %5d" \
+		IF_IGNITE(" drogue: %5d main: %5d") \
+		"\n" \
+		\
+		, (p)->tick \
+		IF_ACCEL(COMMA (p)->adc.accel) \
+		, (p)->adc.pres, (p)->adc.temp, (p)->adc.v_batt \
+		IF_IGNITE(COMMA (p)->adc.sense_d COMMA (p)->adc.sense_m) \
+	);
 
 #endif /* _AO_PINS_H_ */

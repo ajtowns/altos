@@ -226,4 +226,10 @@ struct ao_adc {
 #endif
 };
 
+#define AO_ADC_DUMP(p) \
+	printf("tick: %5u accel: %5d pres: %5d temp: %5d batt: %5d drogue: %5d main", \
+		(p)->tick, (p)->adc.accel, (p)->adc.pres, (p)->adc.temp, \
+		(p)->adc.v_batt, (p)->adc.sense_d, (p)->adc.sense_m)
+
+
 #endif /* _AO_PINS_H_ */
