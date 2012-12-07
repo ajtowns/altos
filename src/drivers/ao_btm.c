@@ -120,7 +120,7 @@ uint8_t
 ao_btm_get_line(void)
 {
 	uint8_t ao_btm_reply_len = 0;
-	char c;
+	int c;
 
 	for (;;) {
 

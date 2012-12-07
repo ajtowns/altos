@@ -411,7 +411,7 @@ ao_usb_getchar(void) __critical
 {
 	int	c;
 
-	while ((c = ao_usb_pollchar()) == -1)
+	while ((c = ao_usb_pollchar()) == AO_READ_AGAIN)
 		ao_sleep(&ao_stdin_ready);
 	return c;
 }

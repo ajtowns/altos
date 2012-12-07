@@ -20,7 +20,7 @@
 static char
 ao_packet_getchar(void)
 {
-	char c;
+	int c;
 	while ((c = ao_packet_pollchar()) == AO_READ_AGAIN) {
 		if (!ao_packet_enable)
 			break;
@@ -35,7 +35,7 @@ ao_packet_getchar(void)
 static void
 ao_packet_echo(void) __reentrant
 {
-	char	c;
+	int	c;
 	while (ao_packet_enable) {
 		c = ao_packet_getchar();
 		if (c != AO_READ_AGAIN)
