@@ -22,6 +22,7 @@ SDCCDIRS=\
 	telelaunch-v0.1 tidongle test \
 	teleterra-v0.2 teleshield-v0.1 \
 	telefire-v0.1 \
+	teleballoon-v1.1 \
 	spiradio-v0.1
 
 AVRDIRS=\
