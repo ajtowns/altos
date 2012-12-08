@@ -37,12 +37,12 @@ INC = \
 #PROFILE=ao_profile.c
 #PROFILE_DEF=-DAO_PROFILE=1
 
-SAMPLE_PROFILE=ao_sample_profile.c \
-	ao_sample_profile_timer.c
-SAMPLE_PROFILE_DEF=-DHAS_SAMPLE_PROFILE=1
+#SAMPLE_PROFILE=ao_sample_profile.c \
+#	ao_sample_profile_timer.c
+#SAMPLE_PROFILE_DEF=-DHAS_SAMPLE_PROFILE=1
 
-STACK_GUARD=ao_mpu_stm.c
-STACK_GUARD_DEF=-DHAS_STACK_GUARD=1
+#STACK_GUARD=ao_mpu_stm.c
+#STACK_GUARD_DEF=-DHAS_STACK_GUARD=1
 
 ALTOS_SRC = \
 	ao_interrupt.c \
