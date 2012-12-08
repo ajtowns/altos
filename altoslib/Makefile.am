@@ -12,6 +12,7 @@ AltosLibdir = $(datadir)/java
 AltosLib_JAVA = \
 	$(SRC)/AltosLib.java \
 	$(SRC)/AltosConfigData.java \
+	$(SRC)/AltosConfigValues.java \
 	$(SRC)/AltosConvert.java \
 	$(SRC)/AltosCRCException.java \
 	$(SRC)/AltosEepromChunk.java \
