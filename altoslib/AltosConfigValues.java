@@ -72,4 +72,8 @@ public interface AltosConfigValues {
 	public abstract void set_pyros(AltosPyro[] new_pyros);
 
 	public abstract AltosPyro[] pyros();
+
+	public abstract int aprs_interval();
+
+	public abstract void set_aprs_interval(int new_aprs_interval);
 }

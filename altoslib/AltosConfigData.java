@@ -67,6 +67,9 @@ public class AltosConfigData implements Iterable<String> {
 	public int		npyro;
 	public int		pyro;
 
+	/* HAS_APRS */
+	public int		aprs_interval;
+
 	/* Storage info replies */
 	public int	storage_size;
 	public int	storage_erase_unit;
@@ -189,6 +192,8 @@ public class AltosConfigData implements Iterable<String> {
 		npyro = 0;
 		pyros = null;
 
+		aprs_interval = -1;
+
 		storage_size = -1;
 		storage_erase_unit = -1;
 		stored_flight = -1;
@@ -261,6 +266,9 @@ public class AltosConfigData implements Iterable<String> {
 					pyros[pyro++] = p;
 			} catch (Exception e) {}
 		}
+
+		/* HAS_APRS */
+		try { aprs_interval = get_int(line, "APRS interval:"); } catch (Exception e) {}
 
 		/* Storage info replies */
 		try { storage_size = get_int(line, "Storage size:"); } catch (Exception e) {}
@@ -367,6 +375,9 @@ public class AltosConfigData implements Iterable<String> {
 		/* AO_PYRO_NUM */
 		if (npyro > 0)
 			pyros = source.pyros();
+
+		if (aprs_interval >= 0)
+			aprs_interval = source.aprs_interval();
 	}
 
 	public void set_values(AltosConfigValues dest) {
@@ -399,6 +410,7 @@ public class AltosConfigData implements Iterable<String> {
 			dest.set_pyros(pyros);
 		else
 			dest.set_pyros(null);
+		dest.set_aprs_interval(aprs_interval);
 	}
 
 	public void save(AltosLink link, boolean remote) throws InterruptedException, TimeoutException {
@@ -460,6 +472,10 @@ public class AltosConfigData implements Iterable<String> {
 						   pyros[p].toString());
 			}
 		}
+
+		/* HAS_APRS */
+		if (aprs_interval >= 0)
+			link.printf("c A %d\n", aprs_interval);
 
 		link.printf("c w\n");
 		link.flush_output();
