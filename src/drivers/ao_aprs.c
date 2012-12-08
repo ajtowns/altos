@@ -265,6 +265,7 @@ static uint8_t TNC_AX25_HEADER[] = {
 static void
 tncSetCallsign(void)
 {
+#ifndef AO_APRS_TEST
 	uint8_t	i;
 
 	for (i = 0; i < TNC_CALLSIGN_LEN; i++) {
@@ -274,7 +275,7 @@ tncSetCallsign(void)
 	}
 	for (; i < TNC_CALLSIGN_LEN; i++)
 		TNC_AX25_HEADER[TNC_CALLSIGN_OFF + i] = ' ' << 1;
-		
+#endif
 }
 
 /// The next bit to transmit.
