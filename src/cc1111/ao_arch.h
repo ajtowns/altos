@@ -300,7 +300,14 @@ ao_adc_isr(void) ao_arch_interrupt(1);
 
 #define AO_ADC_PIN(x)   (ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | (x))
 #define AO_ADC_INT_TEMP (ADCCON3_EREF_1_25 | ADCCON3_EDIV_512 | ADCCON3_ECH_TEMP)
-#endif
+
+#ifndef AO_ADC_STRUCT_DEFINED
+#define ao_adc_struct_def(type,name,p)  type    name;
+struct ao_adc {
+        AO_ADC_SETUP(ao_adc_struct_def)
+};
+#endif /* AO_ADC_STRUCT_DEFINED */
+#endif /* HAS_ADC */
 
 #if HAS_USB
 /* USB interrupt handler */

@@ -180,16 +180,12 @@
 	#define HAS_IGNITE		1
 	#define HAS_MONITOR		0
 
-	#define AO_ADC_ADCCON3		AO_ADC_PIN(0), \
-					AO_ADC_INT_TEMP, \
-					AO_ADC_PIN(3), \
-					AO_ADC_PIN(1), \
-					AO_ADC_PIN(2)
+	#define AO_ADC_SETUP(adc)	adc(int16_t, pres,    0) \
+					adc(int16_t, temp,   AO_ADC_INT_TEMP) \
+					adc(int16_t, v_batt,  3) \
+					adc(int16_t, sense_d, 1) \
+					adc(int16_t, sense_m, 2)
 
-	#define AO_ADC_PINS		((1 << 0) | \
-					 (1 << 1) | \
-					 (1 << 2) | \
-					 (1 << 3))
 #endif
 
 #if defined(TELENANO_V_0_1)
@@ -217,12 +213,9 @@
 	#define HAS_MONITOR		0
 	#define AO_ADC_FIRST_PIN	1
 
-	#define AO_ADC_ADCCON3		AO_ADC_PIN(1), \
-					AO_ADC_INT_TEMP, \
-					AO_ADC_PIN(3)
-
-	#define AO_ADC_PINS		((1 << 1) | \
-					 (1 << 3))
+	#define AO_ADC_SETUP(adc)	adc(int16_t, pres,    1) \
+					adc(int16_t, temp,   AO_ADC_INT_TEMP) \
+					adc(int16_t, v_batt,  3)
 #endif
 
 #if defined(TELEMETRUM_V_0_1)
@@ -579,21 +572,6 @@
 #define AO_IGNITER_FIRE_TIME	AO_MS_TO_TICKS(50)
 #define AO_IGNITER_CHARGE_TIME	AO_MS_TO_TICKS(2000)
 
-struct ao_adc {
-#if HAS_ACCEL || TELELAUNCH_V_0_1
-	int16_t		accel;		/* accelerometer */
-#endif
-	int16_t		pres;		/* pressure sensor */
-	int16_t		temp;		/* temperature sensor */
-	int16_t		v_batt;		/* battery voltage */
-#if HAS_IGNITE
-	int16_t		sense_d;	/* drogue continuity sense */
-	int16_t		sense_m;	/* main continuity sense */
-#endif
-#if HAS_ACCEL_REF
-	uint16_t	accel_ref;	/* acceleration reference */
-#endif
-};
 
 #if HAS_ACCEL || TELELAUNCH_V_0_1
 #define IF_ACCEL(x) x
@@ -607,19 +585,51 @@ struct ao_adc {
 #define IF_IGNITE(x)
 #endif
 
-#define COMMA ,
+#if HAS_ACCEL_REF
+#define IF_ACCEL_REF(x) x
+#else
+#define IF_ACCEL_REF(x)
+#endif
 
+#if HAS_EXTERNAL_TEMP
+#define IF_EXTEMP(x) x
+#define IF_INTEMP(x)
+#else
+#define IF_EXTEMP(x)
+#define IF_INTEMP(x) x
+#endif
+
+#ifndef AO_ADC_SETUP
+
+#define AO_ADC_SETUP(adc)	\
+		IF_ACCEL( 	adc(int16_t,  accel,     0) ) \
+		IF_ACCEL_REF(	adc(uint16_t, accel_ref, 2) ) \
+				adc(int16_t,  pres,      1) \
+		IF_EXTEMP(	adc(int16_t,  temp,      2) ) \
+		IF_INTEMP(	adc(int16_t,  temp,   AO_ADC_INT_TEMP) ) \
+				adc(int16_t,  v_batt,    3) \
+		IF_IGNITE(	adc(int16_t,  sense_d,   4) ) \
+		IF_IGNITE(	adc(int16_t,  sense_m,   5) )
+
+#endif /* AO_ADC_SETUP */
+
+#if HAS_ACCEL_REF
+#ifndef HAS_ACCEL
+#error "An accel_ref without accel?"
+#endif
+
+#if HAS_IGNITE
 #define AO_ADC_DUMP(p) \
-	printf("tick: %5u" \
-		IF_ACCEL(" accel: %5d") \
-		" pres: %5d temp: %5d batt: %5d" \
-		IF_IGNITE(" drogue: %5d main: %5d") \
-		"\n" \
-		\
-		, (p)->tick \
-		IF_ACCEL(COMMA (p)->adc.accel) \
-		, (p)->adc.pres, (p)->adc.temp, (p)->adc.v_batt \
-		IF_IGNITE(COMMA (p)->adc.sense_d COMMA (p)->adc.sense_m) \
-	);
+	printf("tick: %5u accel: %5d pres: %5d temp: %5d batt: %5d " \
+		"drogue: %5d main: %5d\n", \
+		(p)->tick, (p)->adc.accel, (p)->adc.pres, (p)->adc.temp, \
+		(p)->adc.v_batt, (p)->adc.sense_d , (p)->adc.sense_m)
+#else
+#define AO_ADC_DUMP(p) \
+	printf("tick: %5u accel: %5d pres: %5d temp: %5d batt: %5d\n", \
+		(p)->tick, (p)->adc.accel, (p)->adc.pres, (p)->adc.temp, \
+		(p)->adc.v_batt )
+#endif /* HAS_IGNITE */
+#endif /* HAS_ACCEL_REF */
 
 #endif /* _AO_PINS_H_ */
