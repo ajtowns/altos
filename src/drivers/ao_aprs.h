@@ -18,8 +18,6 @@
 #ifndef _AO_APRS_H_
 #define _AO_APRS_H_
 
-#define AO_APRS_INTERVAL_TICKS	AO_SEC_TO_TICKS(2)
-
 void
 ao_aprs_send(void);
 

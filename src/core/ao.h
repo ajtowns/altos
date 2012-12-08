@@ -684,7 +684,7 @@ extern __xdata uint8_t ao_force_freq;
 #endif
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	12
+#define AO_CONFIG_MINOR	13
 
 #define AO_AES_LEN 16
 
@@ -711,6 +711,7 @@ struct ao_config {
 #if AO_PYRO_NUM
 	struct ao_pyro	pyro[AO_PYRO_NUM];	/* minor version 12 */
 #endif
+	uint16_t	aprs_interval;		/* minor version 13 */
 };
 
 #define AO_IGNITE_MODE_DUAL		0
@@ -718,9 +719,8 @@ struct ao_config {
 #define AO_IGNITE_MODE_MAIN		2
 
 #define AO_RADIO_ENABLE_CORE		1
-#define AO_RADIO_ENABLE_APRS		2
-#define AO_RADIO_DISABLE_TELEMETRY	4
-#define AO_RADIO_DISABLE_RDF		8
+#define AO_RADIO_DISABLE_TELEMETRY	2
+#define AO_RADIO_DISABLE_RDF		4
 
 #define AO_PAD_ORIENTATION_ANTENNA_UP	0
 #define AO_PAD_ORIENTATION_ANTENNA_DOWN	1

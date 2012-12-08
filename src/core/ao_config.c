@@ -139,6 +139,8 @@ _ao_config_get(void)
 		if (minor < 12)
 			memset(&ao_config.pyro, '\0', sizeof (ao_config.pyro));
 #endif
+		if (minor < 13)
+			ao_config.aprs_interval = 0;
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
@@ -498,6 +500,27 @@ ao_config_key_set(void) __reentrant
 }
 #endif
 
+#if HAS_APRS
+
+void
+ao_config_aprs_show(void)
+{
+	printf ("APRS interval: %d\n", ao_config.aprs_interval);
+}
+
+void
+ao_config_aprs_set(void)
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	_ao_config_edit_start();
+	ao_config.aprs_interval = ao_cmd_lex_i;
+	_ao_config_edit_finish();
+}
+
+#endif /* HAS_APRS */
+
 struct ao_config_var {
 	__code char	*str;
 	void		(*set)(void) __reentrant;
@@ -553,6 +576,10 @@ __code struct ao_config_var ao_config_vars[] = {
 #if AO_PYRO_NUM
 	{ "P <n,?>\0Configure pyro channels",
 	  ao_pyro_set, ao_pyro_show },
+#endif
+#if HAS_APRS
+	{ "A <secs>\0APRS packet interval (0 disable)",
+	  ao_config_aprs_set, ao_config_aprs_show },
 #endif
 	{ "s\0Show",
 	  ao_config_show,		0 },

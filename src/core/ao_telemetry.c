@@ -299,7 +299,6 @@ ao_telemetry(void)
 #endif
 		while (ao_telemetry_interval) {
 
-
 #if HAS_APRS
 			if (!(ao_config.radio_enable & AO_RADIO_DISABLE_TELEMETRY))
 #endif
@@ -343,10 +342,10 @@ ao_telemetry(void)
 					ao_radio_rdf();
 			}
 #if HAS_APRS
-			if ((ao_config.radio_enable & AO_RADIO_ENABLE_APRS) &&
+			if (ao_config.aprs_interval != 0 &&
 			    (int16_t) (ao_time() - ao_aprs_time) >= 0)
 			{
-				ao_aprs_time = ao_time() + AO_APRS_INTERVAL_TICKS;
+				ao_aprs_time = ao_time() + AO_SEC_TO_TICKS(ao_config.aprs_interval);
 				ao_aprs_send();
 			}
 #endif
