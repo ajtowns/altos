@@ -253,11 +253,29 @@ typedef enum
 
 /// AX.25 compliant packet header that contains destination, station call sign, and path.
 /// 0x76 for SSID-11, 0x78 for SSID-12
-static const uint8_t TNC_AX25_HEADER[] = { 
+static uint8_t TNC_AX25_HEADER[] = { 
     'A' << 1, 'P' << 1, 'A' << 1, 'M' << 1, ' ' << 1, ' ' << 1, 0x60, \
-    'K' << 1, 'D' << 1, '7' << 1, 'S' << 1, 'Q' << 1, 'G' << 1, 0x78, \
+    'N' << 1, '0' << 1, 'C' << 1, 'A' << 1, 'L' << 1, 'L' << 1, 0x78, \
     'W' << 1, 'I' << 1, 'D' << 1, 'E' << 1, '2' << 1, ' ' << 1, 0x65, \
     0x03, 0xf0 };
+
+#define TNC_CALLSIGN_OFF	7
+#define TNC_CALLSIGN_LEN	6
+
+static void
+tncSetCallsign(void)
+{
+	uint8_t	i;
+
+	for (i = 0; i < TNC_CALLSIGN_LEN; i++) {
+		if (!ao_config.callsign[i])
+			break;
+		TNC_AX25_HEADER[TNC_CALLSIGN_OFF + i] = ao_config.callsign[i] << 1;
+	}
+	for (; i < TNC_CALLSIGN_LEN; i++)
+		TNC_AX25_HEADER[TNC_CALLSIGN_OFF + i] = ' ' << 1;
+		
+}
 
 /// The next bit to transmit.
 static uint8_t tncTxBit;
@@ -547,6 +565,7 @@ void ao_aprs_send(void)
 
     timeInit();
     tncInit();
+    tncSetCallsign();
 
     tncLength = tncPositionPacket();
 
