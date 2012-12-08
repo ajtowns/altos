@@ -107,8 +107,12 @@
 #define AO_PAD_ADC_PYRO		4
 #define AO_PAD_ADC_BATT		5
 
-#define AO_ADC_FIRST_PIN	2
+#define AO_ADC_SETUP(adc)	adc(int16_t, sense[0], 2) \
+				adc(int16_t, sense[1], 3) \
+				adc(int16_t, pyro,     4) \
+				adc(int16_t, batt,     5)
 
+#define AO_ADC_STRUCT_DEFINED
 struct ao_adc {
 	int16_t		sense[AO_PAD_NUM];
 	int16_t		pyro;
@@ -122,7 +126,5 @@ struct ao_adc {
 		(p)->adc.sense[1],					\
 		(p)->adc.pyro,						\
 		(p)->adc.batt)
-
-#define AO_ADC_PINS	((1 << AO_PAD_ADC_0) | (1 << AO_PAD_ADC_1) | (1 << AO_PAD_ADC_PYRO) | (1 << AO_PAD_ADC_BATT))
 
 #endif /* _AO_PINS_H_ */

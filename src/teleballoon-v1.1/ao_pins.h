@@ -214,17 +214,13 @@
 #define AO_IGNITER_FIRE_TIME	AO_MS_TO_TICKS(50)
 #define AO_IGNITER_CHARGE_TIME	AO_MS_TO_TICKS(2000)
 
-struct ao_adc {
-	int16_t		accel;		/* accelerometer */
-	int16_t		pres;		/* pressure sensor */
-	int16_t		temp;		/* temperature sensor */
-	int16_t		v_batt;		/* battery voltage */
-	int16_t		sense_d;	/* drogue continuity sense */
-	int16_t		sense_m;	/* main continuity sense */
-#if HAS_ACCEL_REF
-	uint16_t	accel_ref;	/* acceleration reference */
-#endif
-};
+#define AO_ADC_SETUP(adc)	adc(int16_t,  accel,      0) \
+				adc(uint16_t, accel_ref,  2) \
+				adc(int16_t,  pres,       1) \
+				adc(int16_t,  temp,   AO_ADC_INT_TEMP) \
+				adc(int16_t,  v_batt,     3) \
+				adc(int16_t,  sense_d,    4) \
+				adc(int16_t,  sense_m,    5)
 
 #define AO_ADC_DUMP(p) \
 	printf("tick: %5u accel: %5d pres: %5d temp: %5d batt: %5d drogue: %5d main", \

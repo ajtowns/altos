@@ -1,5 +1,6 @@
 /*
  * Copyright © 2009 Keith Packard <keithp@keithp.com>
+ * Copyright © 2012 Anthony Towns <aj@erisian.com.au>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,41 +21,34 @@
 volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
 volatile __data uint8_t		ao_data_head;
 
+#define COMPILE_ASSERT(x) extern int compile_assert[1-2*!(x)]
 
-#ifdef AO_ADC_ADCCON3
-#define AO_ADC_END_OF_LIST (0xFF)
+#ifndef AO_ADC_SETUP
+#error No known ADC configuration set
+#endif
 
-static uint8_t *ao_adc_order_in;
+#ifndef AO_ADC_PINS
+#define ao_adc_pins(t,n,pin)	((pin) < 8 ? (1 << (pin)) : 0) |
+#define AO_ADC_PINS		AO_ADC_SETUP(ao_adc_pins) 0
+#endif
 
-static uint8_t __xdata *ao_adc_order_out;
+#define ao_adc_cfg_array(t,n,pin)  ((pin) < 8 ? AO_ADC_PIN((pin)) : (pin)),
+#define AO_ADC_END_OF_LIST	   (0xFF)
 
 static const uint8_t ao_adc_order_adccon3[] = {
-	AO_ADC_ADCCON3, 
+	AO_ADC_SETUP(ao_adc_cfg_array)
 	AO_ADC_END_OF_LIST 
 };
 
-#else
-
-#ifndef AO_ADC_FIRST_PIN
-# if HAS_ACCEL_REF
-#  define AO_ADC_FIRST_PIN	2
-# else
-#  define AO_ADC_FIRST_PIN	0
-# endif
-#endif
-
-#endif
+static uint8_t		*ao_adc_order_in;
+static uint8_t __xdata	*ao_adc_order_out;
 
 void
 ao_adc_poll(void)
 {
-#ifdef AO_ADC_ADCCON3
 	ao_adc_order_in = &ao_adc_order_adccon3[0];
 	ao_adc_order_out = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc);
-	ADCCON3 = *ao_adc_order_in;
-#else
-	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | AO_ADC_FIRST_PIN;
-#endif
+	ADCCON3 = ao_adc_order_adccon3[0];
 }
 
 void
@@ -67,8 +61,6 @@ ao_data_get(__xdata struct ao_data *packet)
 #endif
 	ao_xmemcpy(packet, (void __xdata *) &ao_data_ring[i], sizeof (struct ao_data));
 }
-
-#ifdef AO_ADC_ADCCON3
 
 void
 ao_adc_isr(void) __interrupt 1
@@ -89,71 +81,21 @@ ao_adc_isr(void) __interrupt 1
 	}
 }
 
-#else /* AO_ADC_ADCCON3 */
-void
-ao_adc_isr(void) __interrupt 1
-{
-	uint8_t sequence;
-	uint8_t	__xdata *a;
-
-	sequence = (ADCCON2 & ADCCON2_SCH_MASK) >> ADCCON2_SCH_SHIFT;
-#if TELEMETRUM_V_0_1 || TELEMETRUM_V_0_2 || TELEMETRUM_V_1_0 || TELEMETRUM_V_1_1 || TELEMETRUM_V_1_2 || TELELAUNCH_V_0_1 || TELEBALLOON_V_1_1
-	/* TeleMetrum readings */
-#if HAS_ACCEL_REF
-	if (sequence == 2) {
-		a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.accel_ref);
-		sequence = 0;
-	} else
-#endif
-	{
-		if (sequence == ADCCON3_ECH_TEMP)
-			sequence = 2;
-		a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.accel + sequence);
-		sequence++;
-	}
-#define GOT_ADC
-	a[0] = ADCL;
-	a[1] = ADCH;
-	if (sequence < 6) {
-#if HAS_EXTERNAL_TEMP == 0
-		/* start next channel conversion */
-		/* v0.2 replaces external temp sensor with internal one */
-		if (sequence == 2)
-			ADCCON3 = ADCCON3_EREF_1_25 | ADCCON3_EDIV_512 | ADCCON3_ECH_TEMP;
-		else
-#endif
-			ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | sequence;
-	}
-#endif
-
-#ifdef TELEFIRE_V_0_1
-	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.sense[0] + sequence - AO_ADC_FIRST_PIN);
-	a[0] = ADCL;
-	a[1] = ADCH;
-	if (sequence < 5)
-		ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | (sequence + 1);
-#define GOT_ADC
-#endif /* TELEFIRE_V_0_1 */
-
-#ifndef GOT_ADC
-#error No known ADC configuration set
-#endif
-
-	else {
-		/* record this conversion series */
-		ao_data_ring[ao_data_head].tick = ao_time();
-		ao_data_head = ao_data_ring_next(ao_data_head);
-		ao_wakeup(DATA_TO_XDATA(&ao_data_head));
-	}
-}
-#endif /* AO_ADC_ADCCON3 */
+#define ao_adc_printf_fmt(t,name,p)     " " #name ": %5d"
+#define ao_adc_printf_arg(t,name,p)     , packet.adc. name
 
 static void
 ao_adc_dump(void) __reentrant
 {
 	static __xdata struct ao_data	packet;
 	ao_data_get(&packet);
+#ifdef AO_ADC_DUMP
 	AO_ADC_DUMP(&packet);
+#else
+	printf( "tick: %5u"  AO_ADC_SETUP(ao_adc_printf_fmt) "\n",
+		packet.tick  AO_ADC_SETUP(ao_adc_printf_arg) );
+
+#endif
 }
 
 __code struct ao_cmds ao_adc_cmds[] = {
@@ -164,26 +106,7 @@ __code struct ao_cmds ao_adc_cmds[] = {
 void
 ao_adc_init(void)
 {
-#ifdef AO_ADC_PINS
 	ADCCFG = AO_ADC_PINS;
-
-#else
-
-#if IGNITE_ON_P2
-	/* TeleMetrum configuration */
-	ADCCFG = ((1 << 0) |	/* acceleration */
-		  (1 << 1) |	/* pressure */
-#if HAS_EXTERNAL_TEMP
-		  (1 << 2) |	/* v0.1 temperature */
-#endif
-		  (1 << 3) |	/* battery voltage */
-		  (1 << 4) |	/* drogue sense */
-		  (1 << 5));	/* main sense */
-#else
-#error "Need to set AO_ADC_PINS"
-#endif
-
-#endif /* else AO_ADC_PINS */
 
 	/* enable interrupts */
 	ADCIF = 0;
