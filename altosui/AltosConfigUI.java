@@ -25,7 +25,7 @@ import org.altusmetrum.AltosLib.*;
 
 public class AltosConfigUI
 	extends AltosDialog
-	implements ActionListener, ItemListener, DocumentListener
+	implements ActionListener, ItemListener, DocumentListener, AltosConfigValues
 {
 
 	Container	pane;
@@ -684,6 +684,7 @@ public class AltosConfigUI
 
 	public void set_apogee_delay(int new_apogee_delay) {
 		apogee_delay_value.setSelectedItem(Integer.toString(new_apogee_delay));
+		apogee_delay_value.setEnabled(new_apogee_delay >= 0);
 	}
 
 	public int apogee_delay() {
@@ -692,6 +693,7 @@ public class AltosConfigUI
 
 	public void set_apogee_lockout(int new_apogee_lockout) {
 		apogee_lockout_value.setSelectedItem(Integer.toString(new_apogee_lockout));
+		apogee_lockout_value.setEnabled(new_apogee_lockout >= 0);
 	}
 
 	public int apogee_lockout() {
@@ -829,13 +831,10 @@ public class AltosConfigUI
 			return -1;
 	}
 
-	public void set_has_pyro(boolean has_pyro) {
-		pyro.setEnabled(has_pyro);
-	}
-
 	public void set_pyros(AltosPyro[] new_pyros) {
 		pyros = new_pyros;
-		if (pyro_ui != null)
+		pyro.setEnabled(pyros != null);
+		if (pyros != null && pyro_ui != null)
 			pyro_ui.set_pyros(pyros);
 	}
 
