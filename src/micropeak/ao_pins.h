@@ -57,6 +57,7 @@
 #define I2C_PIN_SDA		PINB0
 
 #define AO_CONST_ATTRIB		PROGMEM
+typedef int32_t alt_t;
 #define FETCH_ALT(o)		((alt_t) pgm_read_dword(&altitude_table[o]))
 
 #define AO_ALT_VALUE(x)		((x) * 10)
