@@ -43,13 +43,13 @@ ao_pa_to_altitude(int32_t pa)
 
 	if (pa < 0)
 		pa = 0;
-	if (pa > 120000)
-		pa = 120000;
+	if (pa > 120000L)
+		pa = 120000L;
 	o = pa >> ALT_SHIFT;
 	part = pa & ALT_MASK;
 
-	low = (alt_t) FETCH_ALT(o) * (ALT_SCALE - part);
-	high = (alt_t) FETCH_ALT(o+1) * part + (ALT_SCALE >> 1);
+	low = (int32_t) FETCH_ALT(o) * (ALT_SCALE - part);
+	high = (int32_t) FETCH_ALT(o+1) * part + (ALT_SCALE >> 1);
 	return (low + high) >> ALT_SHIFT;
 }
 

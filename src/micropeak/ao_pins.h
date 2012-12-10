@@ -60,6 +60,6 @@
 typedef int32_t alt_t;
 #define FETCH_ALT(o)		((alt_t) pgm_read_dword(&altitude_table[o]))
 
-#define AO_ALT_VALUE(x)		((x) * 10)
+#define AO_ALT_VALUE(x)		((x) * (alt_t) 10)
 
 #endif /* _AO_PINS_H_ */
