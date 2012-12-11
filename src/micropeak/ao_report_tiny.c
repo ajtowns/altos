@@ -24,7 +24,7 @@ static void
 ao_report_digit(uint8_t digit) __reentrant
 {
 	if (!digit) {
-		mid(AO_MS_TO_TICKS(600));
+		mid(AO_MS_TO_TICKS(1000));
 		pause(AO_MS_TO_TICKS(300));
 	} else {
 		while (digit--) {
@@ -32,7 +32,7 @@ ao_report_digit(uint8_t digit) __reentrant
 			pause(AO_MS_TO_TICKS(300));
 		}
 	}
-	pause(AO_MS_TO_TICKS(600));
+	pause(AO_MS_TO_TICKS(1000));
 }
 
 void
