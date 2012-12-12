@@ -11,6 +11,7 @@ DUDECPUTYPE=t85
 #PROGRAMMER=stk500v2 -P usb
 PROGRAMMER=usbtiny
 LOADCMD=avrdude
+LOADSLOW=-i 32 -B 32
 LOADARG=-p $(DUDECPUTYPE) -c $(PROGRAMMER) -e -U flash:w:
 CC=avr-gcc
 OBJCOPY=avr-objcopy
@@ -85,6 +86,9 @@ $(PROG).hex: $(PROG)
 
 load: $(PROG).hex
 	$(LOADCMD) $(LOADARG)$(PROG).hex
+
+load-slow: $(PROG).hex
+	$(LOADCMD) $(LOADSLOW) $(LOADARG)$(PROG).hex
 
 ao_product.h: ao-make-product.5c ../Version
 	$(call quiet,NICKLE,$<) $< -m altusmetrum.org -i $(IDPRODUCT) -p $(PRODUCT) -v $(VERSION) > $@
