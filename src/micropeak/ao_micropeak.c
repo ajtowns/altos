@@ -110,6 +110,8 @@ main(void)
 #endif
 	ao_restore_flight();
 	ao_compute_height();
+	/* Give the person a second to get their finger out of the way */
+	ao_delay(AO_MS_TO_TICKS(1000));
 	ao_report_altitude();
 	
 	ao_spi_init();
