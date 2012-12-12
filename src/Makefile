@@ -15,6 +15,7 @@ include Version
 
 SDCCDIRS=\
 	telemetrum-v1.2 telemetrum-v1.1 telemetrum-v1.0 \
+	teletemp-v0.2 \
 	teledongle-v0.2 teledongle-v0.1 \
 	telemini-v1.0 telenano-v0.1 \
 	telebt-v0.0 telebt-v0.1 \
