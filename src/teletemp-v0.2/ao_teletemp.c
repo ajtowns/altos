@@ -32,6 +32,7 @@ main(void)
 	ao_usb_init();
 	ao_monitor_init();
 	ao_rssi_init(AO_LED_RED);
+	ao_telemetry_init();
 	ao_radio_init();
 	ao_packet_master_init();
 	ao_send_packet_init();
@@ -39,5 +40,6 @@ main(void)
 	ao_dbg_init();
 #endif
 	ao_config_init();
+	ao_telemetry_set_interval(AO_MS_TO_TICKS(1000));
 	ao_start_scheduler();
 }
