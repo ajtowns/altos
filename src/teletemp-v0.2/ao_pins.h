@@ -1,5 +1,6 @@
 /*
  * Copyright © 2010 Keith Packard <keithp@keithp.com>
+ * Copyright © 2012 Anthony Towns <aj@erisian.com.au>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
