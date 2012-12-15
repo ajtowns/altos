@@ -92,6 +92,9 @@ public class AltosState {
 	public void init (AltosRecord cur, AltosState prev_state) {
 		data = cur;
 
+		/* Discard previous state if it was for a different board */
+		if (prev_state != null && prev_state.data.serial != data.serial)
+			prev_state = null;
 		ground_altitude = data.ground_altitude();
 
 		altitude = data.altitude();
