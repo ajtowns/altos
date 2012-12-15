@@ -230,10 +230,10 @@ NAR #88757, TRA #12200
 	with the negative battery terminal.
       </para>
       <para>
-	Shipping restrictions prevent us from including a CR1025
-	battery with MicroPeak. Many stores carry CR1025 batteries as
-	they are commonly used in small electronic devices such as
-	flash lights.
+	Shipping restrictions may prevent us from including a CR1025
+	battery with MicroPeak. If so, many stores carry CR1025
+	batteries as they are commonly used in small electronic
+	devices such as flash lights.
       </para>
     </section>
     <section>
