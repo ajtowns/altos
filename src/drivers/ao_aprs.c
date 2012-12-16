@@ -507,24 +507,32 @@ static int tncPositionPacket(void)
 	longitude = -longitude;
     }
 
+    /* Round latitude and longitude by 0.005 minutes */
+    latitude = latitude + 833;
+    if (latitude > 900000000)
+	latitude = 900000000;
+    longitude = longitude + 833;
+    if (longitude > 1800000000)
+	    longitude = 1800000000;
+
     lat_deg = latitude / 10000000;
     latitude -= lat_deg * 10000000;
     latitude *= 60;
     lat_min = latitude / 10000000;
     latitude -= lat_min * 10000000;
-    lat_frac = (latitude + 50000) / 100000;
+    lat_frac = latitude / 100000;
 
     lon_deg = longitude / 10000000;
     longitude -= lon_deg * 10000000;
     longitude *= 60;
     lon_min = longitude / 10000000;
     longitude -= lon_min * 10000000;
-    lon_frac = (longitude + 50000) / 100000;
+    lon_frac = longitude / 100000;
 
     if (altitude < 0)
 	altitude = 0;
 
-    altitude = altitude * (int32_t) 1000 / (int32_t) 3048;
+    altitude = (altitude * (int32_t) 10000 + (3048/2)) / (int32_t) 3048;
     
     return sprintf ((char *) tncBuffer, "=%02u%02u.%02u%c\\%03u%02u.%02u%cO /A=%06u\015",
 		    lat_deg, lat_min, lat_frac, lat_sign,
