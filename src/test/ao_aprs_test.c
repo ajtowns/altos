@@ -93,12 +93,15 @@ int main(int argc, char **argv)
 {
     audio_gap(1);
 
-    ao_gps_data.latitude = 45.4694766 * 10000000;
-    ao_gps_data.longitude = -122.7376250 * 10000000;
-    ao_gps_data.altitude = 83;
+    ao_gps_data.latitude = (45.0 + 28.25 / 60.0) * 10000000;
+    ao_gps_data.longitude = (-(122 + 44.2649 / 60.0)) * 10000000;
+    ao_gps_data.altitude = 84;
 
     /* Transmit one packet */
     ao_aprs_send();
+
+    tncBuffer[strlen((char *) tncBuffer) - 2] = '\0';
+    fprintf(stderr, "packet: %s\n", tncBuffer);
 
     exit(0);
 }
