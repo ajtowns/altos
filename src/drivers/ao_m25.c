@@ -100,6 +100,7 @@ static __xdata uint8_t ao_m25_mutex;
 static __xdata uint8_t	ao_m25_instruction[4];
 
 #if HAS_BOOT_RADIO
+/* Kick any radio listeners off so the flash can be written */
 extern uint8_t ao_radio_in_recv;
 
 static void ao_boot_radio(void) {
