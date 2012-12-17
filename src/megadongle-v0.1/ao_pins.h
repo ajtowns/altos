@@ -140,7 +140,6 @@
 #define AO_CC1120_INT_PIN	14
 
 #define AO_CC1120_INT_GPIO	2
-#define HAS_BOOT_RADIO		1
 
 /*
  * Profiling Viterbi decoding
