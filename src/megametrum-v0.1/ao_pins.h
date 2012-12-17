@@ -67,7 +67,7 @@
 #define HAS_EEPROM		1
 #define USE_INTERNAL_FLASH	0
 #define HAS_USB			1
-#define HAS_BEEP		0
+#define HAS_BEEP		1
 #define HAS_RADIO		1
 #define HAS_TELEMETRY		1
 #define HAS_APRS		1
