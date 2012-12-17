@@ -139,7 +139,14 @@
 #define AO_CC1120_INT_PORT	(&stm_gpioc)
 #define AO_CC1120_INT_PIN	14
 
+#define AO_CC1120_MCU_WAKEUP_PORT	(&stm_gpioc)
+#define AO_CC1120_MCU_WAKEUP_PIN	(0)
+
 #define AO_CC1120_INT_GPIO	2
+#define AO_CC1120_INT_GPIO_IOCFG	CC1120_IOCFG2
+
+#define AO_CC1120_MARC_GPIO	3
+#define AO_CC1120_MARC_GPIO_IOCFG	CC1120_IOCFG3
 
 /*
  * Profiling Viterbi decoding
