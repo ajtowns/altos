@@ -37,6 +37,13 @@
 	  Updates for version 1.0 release.
 	</revremark>
       </revision>
+      <revision>
+	<revnumber>1.1</revnumber>
+	<date>12 December 2012</date>
+	<revremark>
+	  Add comments about EEPROM storage format and programming jig.
+	</revremark>
+      </revision>
     </revhistory>
   </bookinfo>
   <acknowledgements>
@@ -223,10 +230,10 @@ NAR #88757, TRA #12200
 	with the negative battery terminal.
       </para>
       <para>
-	Shipping restrictions prevent us from including a CR1025
-	battery with MicroPeak. Many stores carry CR1025 batteries as
-	they are commonly used in small electronic devices such as
-	flash lights.
+	Shipping restrictions may prevent us from including a CR1025
+	battery with MicroPeak. If so, many stores carry CR1025
+	batteries as they are commonly used in small electronic
+	devices such as flash lights.
       </para>
     </section>
     <section>
@@ -270,6 +277,118 @@ NAR #88757, TRA #12200
 	any direction. Because it is a sliding switch, orienting the
 	switch perpendicular to the direction of rocket travel will
 	serve to further protect the switch from launch forces.
+      </para>
+    </section>
+    <section>
+      <title>On-board data storage</title>
+      <para>
+	The ATtiny85 has 512 bytes of non-volatile storage, separate
+	from the code storage memory. The MicroPeak firmware uses this
+	to store information about the last completed
+	flight. Barometric measurements from the ground before launch
+	and at apogee are stored, and used at power-on to compute the
+	height of the last flight.
+      </para>
+      <para>
+	In addition to the data used to present the height of the last
+	flight, MicroPeak also stores barometric information sampled
+	at regular intervals during the flight. This information can
+	be extracted from MicroPeak through any AVR programming
+	tool.
+      </para>
+      <table frame='all'>
+	<title>MicroPeak EEPROM Data Storage</title>
+	<tgroup cols='3' align='center' colsep='1' rowsep='1'>
+	  <colspec align='center' colwidth='2*' colname='Address'/>
+	  <colspec align='center' colwidth='*' colname='Size (bytes)'/>
+	  <colspec align='left' colwidth='7*' colname='Description'/>
+	  <thead>
+	    <row>
+	      <entry align='center'>Address</entry>
+	      <entry align='center'>Size (bytes)</entry>
+	      <entry align='center'>Description</entry>
+	    </row>
+	  </thead>
+	  <tbody>
+	    <row>
+	      <entry>0x000</entry>
+	      <entry>4</entry>
+	      <entry>Average ground pressure (Pa)</entry>
+	    </row>
+	    <row>
+	      <entry>0x004</entry>
+	      <entry>4</entry>
+	      <entry>Minimum flight pressure (Pa)</entry>
+	    </row>
+	    <row>
+	      <entry>0x008</entry>
+	      <entry>2</entry>
+	      <entry>Number of in-flight samples</entry>
+	    </row>
+	    <row>
+	      <entry>0x00a … 0x1fe</entry>
+	      <entry>2</entry>
+	      <entry>Instantaneous flight pressure (Pa) low 16 bits</entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </table>
+      <para>
+	All EEPROM data are stored least-significant byte first. The
+	instantaneous flight pressure data are stored without the
+	upper 16 bits of data. The upper bits can be reconstructed
+	from the previous sample, assuming that pressure doesn't
+	change by more more than 32kPa in a single sample
+	interval. Note that this pressure data is <emphasis>not</emphasis>
+	filtered in any way, while both the recorded ground and apogee
+	pressure values are, so you shouldn't expect the minimum
+	instantaneous pressure value to match the recorded minimum
+	pressure value exactly.
+      </para>
+      <para>
+	MicroPeak samples pressure every 96ms, but stores only every
+	other sample in the EEPROM. This provides for 251 pressure
+	samples at 192ms intervals, or 48.192s of storage. The clock
+	used for these samples is a factory calibrated RC circuit
+	built into the ATtiny85 and is accurate only to within ±10% at
+	25°C. So, you can count on the pressure data being accurate,
+	but speed or acceleration data computed from this will be
+	limited by the accuracy of this clock.
+      </para>
+    </section>
+    <section>
+      <title>MicroPeak Programming Interface</title>
+      <para>
+	MicroPeak exposes a standard 6-pin AVR programming interface,
+	but not using the usual 2x3 array of pins on 0.1"
+	centers. Instead, there is a single row of tiny 0.60mm ×
+	0.85mm pads on 1.20mm centers exposed near the edge of the
+	circuit board. We couldn't find any connector that was
+	small enough to include on the circuit board.
+      </para>
+      <para>
+	In lieu of an actual connector, the easiest way to connect to
+	the bare pads is through a set of Pogo pins. These
+	spring-loaded contacts are designed to connect in precisely
+	this way. We've designed a programming jig, the MicroPeak
+	Pogo Pin board which provides a standard AVR interface on one
+	end and a recessed slot for MicroPeak to align the board with
+	the Pogo Pins.
+      </para>
+      <para>
+	The MicroPeak Pogo Pin board is not a complete AVR programmer,
+	it is an interface board that provides a 3.3V regulated power
+	supply to run the MicroPeak via USB and a standard 6-pin AVR
+	programming interface with the usual 2x3 grid of pins on 0.1"
+	centers. This can be connected to any AVR programming
+	dongle.
+      </para>
+      <para>
+	The AVR programming interface cannot run faster than ¼ of the
+	AVR CPU clock frequency. Because MicroPeak runs at 250kHz to
+	save power, you must configure your AVR programming system to
+	clock the AVR programming interface at no faster than
+	62.5kHz, or a clock period of 32µS.
       </para>
     </section>
   </chapter>

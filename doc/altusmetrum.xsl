@@ -278,6 +278,19 @@ NAR #88757, TRA #12200
       designed for use with single-cell batteries with 3.7 volts nominal.
     </para>
     <para>
+      The battery connectors are a standard 2-pin JST connector and
+      match batteries sold by Spark Fun. These batteries are
+      single-cell Lithium Polymer batteries that nominally provide 3.7
+      volts.  Other vendors sell similar batteries for RC aircraft
+      using mating connectors, however the polarity for those is
+      generally reversed from the batteries used by Altus Metrum
+      products. In particular, the Tenergy batteries supplied for use
+      in Featherweight flight computers are not compatible with Altus
+      Metrum flight computers or battery chargers. <emphasis>Check
+      polarity and voltage before connecting any battery not purchased
+      from Altus Metrum or Spark Fun.</emphasis>
+    </para>
+    <para>
       By default, we use the unregulated output of the Li-Po battery directly
       to fire ejection charges.  This works marvelously with standard
       low-current e-matches like the J-Tek from MJG Technologies, and with
@@ -481,7 +494,7 @@ NAR #88757, TRA #12200
       <para>
         You can monitor the operation of the radio link by watching the 
         lights on the devices. The red LED will flash each time a packet
-        is tramsitted, while the green LED will light up on TeleDongle when 
+        is transmitted, while the green LED will light up on TeleDongle when 
         it is waiting to receive a packet from the altimeter.
       </para>
     </section>
@@ -2199,7 +2212,7 @@ NAR #88757, TRA #12200
 	</listitem>
 	<listitem>
 	  <para>
-	    RF interface for battery charging, configuration, and data recovery.
+	    RF interface for configuration, and data recovery.
 	  </para>
 	</listitem>
 	<listitem>

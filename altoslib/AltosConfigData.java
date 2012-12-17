@@ -485,13 +485,15 @@ public class AltosConfigData implements Iterable<String> {
 		reset();
 		link.printf("c s\nf\nv\n");
 		read_link(link, "software-version");
+		System.out.printf("Log format %d\n", log_format);
 		switch (log_format) {
-		case AltosLib.AO_LOG_FORMAT_TELEMETRY:
-		case AltosLib.AO_LOG_FORMAT_TELESCIENCE:
-			break;
-		default:
+		case AltosLib.AO_LOG_FORMAT_FULL:
+		case AltosLib.AO_LOG_FORMAT_TINY:
+		case AltosLib.AO_LOG_FORMAT_MEGAMETRUM:
 			link.printf("l\n");
 			read_link(link, "done");
+		default:
+			break;
 		}
 	}
 

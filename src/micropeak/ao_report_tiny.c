@@ -24,7 +24,7 @@ static void
 ao_report_digit(uint8_t digit) __reentrant
 {
 	if (!digit) {
-		mid(AO_MS_TO_TICKS(600));
+		mid(AO_MS_TO_TICKS(1000));
 		pause(AO_MS_TO_TICKS(300));
 	} else {
 		while (digit--) {
@@ -32,14 +32,14 @@ ao_report_digit(uint8_t digit) __reentrant
 			pause(AO_MS_TO_TICKS(300));
 		}
 	}
-	pause(AO_MS_TO_TICKS(600));
+	pause(AO_MS_TO_TICKS(1000));
 }
 
 void
 ao_report_altitude(void)
 {
-	__pdata int16_t	agl = ao_max_height;
-	__xdata uint8_t	digits[10];
+	__pdata alt_t	agl = ao_max_height;
+	static __xdata uint8_t	digits[11];
 	__pdata uint8_t ndigits, i;
 
 	if (agl < 0)

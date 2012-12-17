@@ -65,18 +65,40 @@ ao_compute_height(void)
 }
 
 #if !HAS_EEPROM
+
+#define PA_GROUND_OFFSET	0
+#define PA_MIN_OFFSET		4
+#define N_SAMPLES_OFFSET	8
+#define STARTING_LOG_OFFSET	10
+#define MAX_LOG_OFFSET		512
+
+static uint16_t ao_log_offset = STARTING_LOG_OFFSET;
+
 void
 ao_save_flight(void)
 {
-	ao_eeprom_write(0, &pa_ground, sizeof (pa_ground));
-	ao_eeprom_write(sizeof (pa_ground), &pa_min, sizeof (pa_min));
+	uint16_t	n_samples = (ao_log_offset - STARTING_LOG_OFFSET) / sizeof (uint16_t);
+	ao_eeprom_write(PA_GROUND_OFFSET, &pa_ground, sizeof (pa_ground));
+	ao_eeprom_write(PA_MIN_OFFSET, &pa_min, sizeof (pa_min));
+	ao_eeprom_write(N_SAMPLES_OFFSET, &n_samples, sizeof (n_samples));
 }
 
 void
 ao_restore_flight(void)
 {
-	ao_eeprom_read(0, &pa_ground, sizeof (pa_ground));
-	ao_eeprom_read(sizeof (pa_ground), &pa_min, sizeof (pa_min));
+	ao_eeprom_read(PA_GROUND_OFFSET, &pa_ground, sizeof (pa_ground));
+	ao_eeprom_read(PA_MIN_OFFSET, &pa_min, sizeof (pa_min));
+}
+
+void
+ao_log_micro(void)
+{
+	uint16_t	low_bits = pa;
+
+	if (ao_log_offset < MAX_LOG_OFFSET) {
+		ao_eeprom_write(ao_log_offset, &low_bits, sizeof (low_bits));
+		ao_log_offset += sizeof (low_bits);
+	}
 }
 #endif
 
@@ -110,6 +132,8 @@ main(void)
 #endif
 	ao_restore_flight();
 	ao_compute_height();
+	/* Give the person a second to get their finger out of the way */
+	ao_delay(AO_MS_TO_TICKS(1000));
 	ao_report_altitude();
 	
 	ao_spi_init();
@@ -178,6 +202,9 @@ main(void)
 			ao_led_off(AO_LED_REPORT);
 #if HAS_EEPROM
 		ao_log_micro_data(AO_LOG_MICRO_DATA | pa);
+#else
+		if (sample_count & 1)
+			ao_log_micro();
 #endif
 		pa_avg = pa_avg - (pa_avg >> FILTER_SHIFT) + pa;
 		if (pa_avg < pa_min)
