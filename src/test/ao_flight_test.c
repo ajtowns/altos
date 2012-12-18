@@ -236,10 +236,14 @@ extern int32_t	ao_accel_scale;
 extern alt_t	ao_ground_height;
 extern alt_t	ao_sample_alt;
 
+double ao_sample_qangle;
+
 int ao_sample_prev_tick;
 uint16_t	prev_tick;
 
+
 #include "ao_kalman.c"
+#include "ao_sqrt.c"
 #include "ao_sample.c"
 #include "ao_flight.c"
 
@@ -309,7 +313,7 @@ ao_mpu6000_accel(int16_t sensor)
 }
 
 static double
-ao_mpu6000_gyro(int16_t sensor)
+ao_mpu6000_gyro(int32_t sensor)
 {
 	return sensor / 32767.0 * MPU6000_GYRO_FULLSCALE;
 }
@@ -370,6 +374,7 @@ ao_insert(void)
 		if (!ao_summary) {
 			printf("%7.2f height %8.2f accel %8.3f "
 #if MEGAMETRUM
+			       "roll %8.3f angle %8.3f qangle %8.3f "
 			       "accel_x %8.3f accel_y %8.3f accel_z %8.3f gyro_x %8.3f gyro_y %8.3f gyro_z %8.3f "
 #endif
 			       "state %-8.8s k_height %8.2f k_speed %8.3f k_accel %8.3f avg_height %5d drogue %4d main %4d error %5d\n",
@@ -377,6 +382,9 @@ ao_insert(void)
 			       height,
 			       accel,
 #if MEGAMETRUM
+			       ao_mpu6000_gyro(ao_sample_roll_angle) / 100.0,
+			       ao_mpu6000_gyro(ao_sample_angle) / 100.0,
+			       ao_sample_qangle,
 			       ao_mpu6000_accel(ao_data_static.mpu6000.accel_x),
 			       ao_mpu6000_accel(ao_data_static.mpu6000.accel_y),
 			       ao_mpu6000_accel(ao_data_static.mpu6000.accel_z),
@@ -715,12 +723,14 @@ update_orientation (double rate_x, double rate_y, double rate_z, int tick)
 	q_dot.q2 =  0.5 * (ao_orient.q0 * rate_y + ao_orient.q3 * rate_x - ao_orient.q1 * rate_z) + lambda * ao_orient.q2;
 	q_dot.q3 =  0.5 * (ao_orient.q0 * rate_z + ao_orient.q1 * rate_y - ao_orient.q2 * rate_x) + lambda * ao_orient.q3;
 
+#if 0
 	printf ("update_orientation %g %g %g (%g s)\n", rate_x, rate_y, rate_z, dt);
 	printf ("q_dot (%g) %g %g %g\n",
 		q_dot.q0,
 		q_dot.q1,
 		q_dot.q2,
 		q_dot.q3);
+#endif
 
 	ao_orient.q0 += q_dot.q0 * dt;
 	ao_orient.q1 += q_dot.q1 * dt;
@@ -731,6 +741,8 @@ update_orientation (double rate_x, double rate_y, double rate_z, int tick)
 
 	ao_quat_rot(&ao_current, &ao_up, &ao_orient);
 
+	ao_sample_qangle = 180 / M_PI * acos(ao_current.q3 * sqrt(2));
+#if 0
 	printf ("orient (%g) %g %g %g current (%g) %g %g %g\n",
 		ao_orient.q0,
 		ao_orient.q1,
@@ -740,6 +752,7 @@ update_orientation (double rate_x, double rate_y, double rate_z, int tick)
 		ao_current.q1,
 		ao_current.q2,
 		ao_current.q3);
+#endif
 }
 #endif
 
@@ -845,7 +858,7 @@ ao_sleep(void *wchan)
 						double		rate_y = ao_mpu6000_gyro(ao_data_static.mpu6000.gyro_y - ao_ground_mpu6000.gyro_y);
 						double		rate_z = ao_mpu6000_gyro(ao_data_static.mpu6000.gyro_z - ao_ground_mpu6000.gyro_z);
 
-						update_orientation(rate_x, rate_z, rate_y, tick);
+						update_orientation(rate_x * M_PI / 180, rate_z * M_PI / 180, rate_y * M_PI / 180, tick);
 					}
 					ao_records_read++;
 					ao_insert();
