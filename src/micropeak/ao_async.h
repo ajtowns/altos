@@ -19,6 +19,12 @@
 #define _AO_ASYNC_H_
 
 void
+ao_async_start(void);
+
+void
+ao_async_stop(void);
+
+void
 ao_async_byte(uint8_t byte);
 
 #endif /* _AO_ASYNC_H_ */

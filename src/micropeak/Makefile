@@ -50,7 +50,7 @@ IDPRODUCT=0
 PRODUCT=MicroPeak-v0.1
 PRODUCT_DEF=-DMICROPEAK
 CFLAGS = $(PRODUCT_DEF) -I. -I../attiny -I../core -I.. -I../drivers
-CFLAGS += -g -mmcu=$(MCU) -Wall -Wstrict-prototypes -O3 -mcall-prologues -DATTINY
+CFLAGS += -g -mmcu=$(MCU) -Wall -Wstrict-prototypes -O2 -mcall-prologues -DATTINY
 
 NICKLE=nickle
 

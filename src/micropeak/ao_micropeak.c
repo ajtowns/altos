@@ -19,6 +19,7 @@
 #include <ao_micropeak.h>
 #include <ao_ms5607.h>
 #include <ao_log_micro.h>
+#include <ao_async.h>
 
 static struct ao_ms5607_sample	sample;
 static struct ao_ms5607_value	value;
