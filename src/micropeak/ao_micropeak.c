@@ -49,6 +49,17 @@ ao_compute_height(void)
 	ao_max_height = max_alt - ground_alt;
 }
 
+static void
+ao_pips(void)
+{
+	uint8_t	i;
+	for (i = 0; i < 10; i++) {
+		ao_led_toggle(AO_LED_REPORT);
+		ao_delay(AO_MS_TO_TICKS(80));
+	}
+	ao_delay(AO_MS_TO_TICKS(200));
+}
+
 int
 main(void)
 {
@@ -71,6 +82,7 @@ main(void)
 	ao_log_micro_restore();
 	ao_compute_height();
 	ao_report_altitude();
+	ao_pips();
 	ao_log_micro_dump();
 	
 	ao_delay(BOOST_DELAY);
