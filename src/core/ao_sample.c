@@ -172,8 +172,8 @@ ao_sample_preflight_update(void)
 		ao_sample_preflight_set();
 }
 
+#if 0
 #if HAS_GYRO
-
 static int32_t	p_filt;
 static int32_t	y_filt;
 
@@ -188,6 +188,7 @@ static gyro_t inline ao_gyro(void) {
 	y = y_filt >> 6;
 	return ao_sqrt(p*p + y*y);
 }
+#endif
 #endif
 
 uint8_t
@@ -217,6 +218,8 @@ ao_sample(void)
 #endif
 #if HAS_GYRO
 		ao_sample_accel_along = ao_data_along(ao_data);
+		ao_sample_accel_across = ao_data_across(ao_data);
+		ao_sample_accel_through = ao_data_through(ao_data);
 		ao_sample_pitch = ao_data_pitch(ao_data);
 		ao_sample_yaw = ao_data_yaw(ao_data);
 		ao_sample_roll = ao_data_roll(ao_data);
@@ -229,8 +232,7 @@ ao_sample(void)
 				ao_sample_preflight_update();
 			ao_kalman();
 #if HAS_GYRO
-			ao_sample_angle += ao_gyro();
-			ao_sample_roll_angle += (ao_sample_roll - ao_ground_roll);
+			/* do quaternion stuff here... */
 #endif
 		}
 		ao_sample_data = ao_data_ring_next(ao_sample_data);

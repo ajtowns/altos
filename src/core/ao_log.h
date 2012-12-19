@@ -205,9 +205,9 @@ struct ao_log_mega {
 			int16_t		ground_accel_along;	/* 16 */
 			int16_t		ground_accel_across;	/* 12 */
 			int16_t		ground_accel_through;	/* 14 */
-			int16_t		ground_gyro_roll;	/* 18 */
-			int16_t		ground_gyro_pitch;	/* 20 */
-			int16_t		ground_gyro_yaw;	/* 22 */
+			int16_t		ground_roll;		/* 18 */
+			int16_t		ground_pitch;		/* 20 */
+			int16_t		ground_yaw;		/* 22 */
 		} flight;					/* 24 */
 		/* AO_LOG_STATE */
 		struct {
