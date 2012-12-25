@@ -15,8 +15,6 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#define AO_NO_SERIAL_ISR 1
-#define AO_NO_ADC_ISR 1
 #include "ao.h"
 
 void
