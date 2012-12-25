@@ -29,7 +29,7 @@ public class AltosGraphUI extends AltosFrame
 
     static private class OverallGraphs {
         AltosGraphTime.Element height = 
-		new AltosGraphTime.TimeSeries(String.format("Height (%s)", AltosConvert.height.show_units()), "Height (AGL)", red) {
+		new AltosGraphTime.TimeSeries("Height", AltosConvert.height.show_units(), "Height (AGL)", red) {
                 public void gotTimeData(double time, AltosDataPoint d) {
 			double	height = d.height();
 			if (height != AltosRecord.MISSING)
@@ -38,7 +38,7 @@ public class AltosGraphUI extends AltosFrame
             };
     
         AltosGraphTime.Element speed =
-		new AltosGraphTime.TimeSeries(String.format("Speed (%s)", AltosConvert.speed.show_units()), "Vertical Speed", green) { 
+		new AltosGraphTime.TimeSeries("Speed", AltosConvert.speed.show_units(), "Vertical Speed", green) { 
                 public void gotTimeData(double time, AltosDataPoint d) {
 		    double	speed = d.speed();
 		    if (speed != AltosRecord.MISSING)
@@ -47,8 +47,8 @@ public class AltosGraphUI extends AltosFrame
             };
     
         AltosGraphTime.Element acceleration =
-		new AltosGraphTime.TimeSeries(String.format("Acceleration (%s)",
-							    AltosConvert.accel.show_units()),
+		new AltosGraphTime.TimeSeries("Acceleration",
+					      AltosConvert.accel.show_units(),
 					      "Axial Acceleration", blue)
             {
                 public void gotTimeData(double time, AltosDataPoint d) {
@@ -59,8 +59,8 @@ public class AltosGraphUI extends AltosFrame
             };
     
         AltosGraphTime.Element temperature =
-            new AltosGraphTime.TimeSeries("Temperature (\u00B0C)", 
-                    "Board temperature", red) 
+	    new AltosGraphTime.TimeSeries("Temperature", "\u00B0C", 
+					  "Board temperature", red) 
             {
                 public void gotTimeData(double time, AltosDataPoint d) {
 		    double temp = d.temperature();
@@ -70,7 +70,7 @@ public class AltosGraphUI extends AltosFrame
             };
     
         AltosGraphTime.Element drogue_voltage =
-            new AltosGraphTime.TimeSeries("Voltage (V)", "Drogue Continuity", yellow) 
+            new AltosGraphTime.TimeSeries("Voltage", "(V)", "Drogue Continuity", yellow) 
             {
                 public void gotTimeData(double time, AltosDataPoint d) {
 		    double v = d.drogue_voltage();
@@ -80,7 +80,7 @@ public class AltosGraphUI extends AltosFrame
             };
     
         AltosGraphTime.Element main_voltage =
-            new AltosGraphTime.TimeSeries("Voltage (V)", "Main Continuity", magenta) 
+            new AltosGraphTime.TimeSeries("Voltage", "(V)", "Main Continuity", magenta) 
             {
                 public void gotTimeData(double time, AltosDataPoint d) {
 		    double v = d.main_voltage();

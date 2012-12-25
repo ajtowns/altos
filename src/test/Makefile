@@ -1,7 +1,8 @@
 vpath % ..:../core:../drivers:../util
 
 PROGS=ao_flight_test ao_flight_test_baro ao_flight_test_accel ao_flight_test_noisy_accel ao_flight_test_mm \
-	ao_gps_test ao_gps_test_skytraq ao_convert_test ao_convert_pa_test ao_fec_test
+	ao_gps_test ao_gps_test_skytraq ao_convert_test ao_convert_pa_test ao_fec_test \
+	ao_aprs_test
 
 INCS=ao_kalman.h ao_ms5607.h ao_log.h ao_data.h altitude-pa.h altitude.h
 
@@ -9,7 +10,7 @@ KALMAN=make-kalman
 
 CFLAGS=-I.. -I. -I../core -I../drivers -O0 -g -Wall
 
-all: $(PROGS)
+all: $(PROGS) ao_aprs_data.wav
 
 clean:
 	rm -f $(PROGS) run-out.baro run-out.full
@@ -29,7 +30,7 @@ ao_flight_test_accel: ao_flight_test.c ao_host.h ao_flight.c  ao_sample.c ao_kal
 	cc $(CFLAGS) -o $@ -DFORCE_ACCEL=1 ao_flight_test.c
 
 ao_flight_test_mm: ao_flight_test.c ao_host.h ao_flight.c ao_sample.c ao_kalman.c $(INCS)
-	cc -DMEGAMETRUM=1 $(CFLAGS) -o $@ $<
+	cc -DMEGAMETRUM=1 $(CFLAGS) -o $@ $< -lm
 
 ao_gps_test: ao_gps_test.c ao_gps_sirf.c ao_gps_print.c ao_host.h
 	cc $(CFLAGS) -o $@ $<
@@ -48,6 +49,15 @@ ao_kalman.h: $(KALMAN)
 
 ao_fec_test: ao_fec_test.c ao_fec_tx.c ao_fec_rx.c
 	cc $(CFLAGS) -DAO_FEC_DEBUG=1 -o $@ ao_fec_test.c ../core/ao_fec_tx.c ../core/ao_fec_rx.c -lm
+
+ao_aprs_test: ao_aprs_test.c ao_aprs.c
+	cc $(CFLAGS) -o $@ ao_aprs_test.c
+
+SOX_INPUT_ARGS=--type raw --encoding unsigned-integer -b 8 -c 1 -r 9600
+SOX_OUTPUT_ARGS=--type wav
+
+ao_aprs_data.wav: ao_aprs_test
+	./ao_aprs_test | sox $(SOX_INPUT_ARGS) - $(SOX_OUTPUT_ARGS) $@
 
 check: ao_fec_test ao_flight_test ao_flight_test_baro run-tests
 	./ao_fec_test && ./run-tests

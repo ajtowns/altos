@@ -21,6 +21,7 @@
 
 #ifndef ao_gps_getchar
 #define ao_gps_getchar	ao_serial1_getchar
+#define ao_gps_fifo	ao_serial1_rx_fifo
 #endif
 
 #ifndef ao_gps_putchar
@@ -453,6 +454,8 @@ ao_gps_nmea_parse(void)
 	}
 }
 
+static uint8_t	ao_gps_updating;
+
 void
 ao_gps(void) __reentrant
 {
@@ -468,6 +471,13 @@ ao_gps(void) __reentrant
 		if (ao_gps_getchar() == '$') {
 			ao_gps_nmea_parse();
 		}
+#ifndef AO_GPS_TEST
+		while (ao_gps_updating) {
+			ao_usb_putchar(ao_gps_getchar());
+			if (ao_fifo_empty(ao_gps_fifo))
+				flush();
+		}
+#endif
 	}
 }
 
@@ -492,8 +502,38 @@ gps_dump(void) __reentrant
 	ao_mutex_put(&ao_gps_mutex);
 }
 
+static __code uint8_t ao_gps_115200[] = {
+	SKYTRAQ_MSG_3(5,0,5,0)	/* Set to 115200 baud */
+};
+
+static void
+ao_gps_set_speed_delay(uint8_t speed) {
+	ao_delay(AO_MS_TO_TICKS(500));
+	ao_gps_set_speed(speed);
+	ao_delay(AO_MS_TO_TICKS(500));
+}
+
+static void
+gps_update(void) __reentrant
+{
+	ao_gps_updating = 1;
+	ao_task_minimize_latency = 1;
+#if HAS_ADC
+	ao_timer_set_adc_interval(0);
+#endif
+	ao_skytraq_sendstruct(ao_gps_115200);
+	ao_gps_set_speed_delay(AO_SERIAL_SPEED_4800);
+	ao_skytraq_sendstruct(ao_gps_115200);
+	ao_gps_set_speed_delay(AO_SERIAL_SPEED_115200);
+
+	/* It's a binary protocol; abandon attempts to escape */
+	for (;;)
+		ao_gps_putchar(ao_usb_getchar());
+}
+
 __code struct ao_cmds ao_gps_cmds[] = {
 	{ gps_dump, 	"g\0Display GPS" },
+	{ gps_update,	"U\0Update GPS firmware" },
 	{ 0, NULL },
 };
 

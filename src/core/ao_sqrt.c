@@ -15,7 +15,9 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+#ifndef AO_FLIGHT_TEST
 #include "ao.h"
+#endif
 
 /* Adapted from int_sqrt.c in the linux kernel, which is licensed GPLv2 */
 /**

@@ -128,7 +128,7 @@ _ao_config_get(void)
 		if (minor < 6)
 			ao_config.pad_orientation = AO_CONFIG_DEFAULT_PAD_ORIENTATION;
 		if (minor < 8)
-			ao_config.radio_enable = TRUE;
+			ao_config.radio_enable = AO_RADIO_ENABLE_CORE;
 		if (minor < 9)
 			ao_xmemset(&ao_config.aes_key, '\0', AO_AES_LEN);
 		if (minor < 10)
@@ -139,6 +139,8 @@ _ao_config_get(void)
 		if (minor < 12)
 			memset(&ao_config.pyro, '\0', sizeof (ao_config.pyro));
 #endif
+		if (minor < 13)
+			ao_config.aprs_interval = 0;
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
@@ -498,6 +500,27 @@ ao_config_key_set(void) __reentrant
 }
 #endif
 
+#if HAS_APRS
+
+void
+ao_config_aprs_show(void)
+{
+	printf ("APRS interval: %d\n", ao_config.aprs_interval);
+}
+
+void
+ao_config_aprs_set(void)
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	_ao_config_edit_start();
+	ao_config.aprs_interval = ao_cmd_lex_i;
+	_ao_config_edit_finish();
+}
+
+#endif /* HAS_APRS */
+
 struct ao_config_var {
 	__code char	*str;
 	void		(*set)(void) __reentrant;
@@ -529,15 +552,15 @@ __code struct ao_config_var ao_config_vars[] = {
 	  ao_config_callsign_set,	ao_config_callsign_show },
 	{ "e <0 disable, 1 enable>\0Enable telemetry and RDF",
 	  ao_config_radio_enable_set, ao_config_radio_enable_show },
+	{ "f <cal>\0Radio calib (cal = rf/(xtal/2^16))",
+	  ao_config_radio_cal_set,  	ao_config_radio_cal_show },
 #endif /* HAS_RADIO */
 #if HAS_ACCEL
 	{ "a <+g> <-g>\0Accel calib (0 for auto)",
 	  ao_config_accel_calibrate_set,ao_config_accel_calibrate_show },
+	{ "o <0 antenna up, 1 antenna down>\0Set pad orientation",
+	  ao_config_pad_orientation_set,ao_config_pad_orientation_show },
 #endif /* HAS_ACCEL */
-#if HAS_RADIO
-	{ "f <cal>\0Radio calib (cal = rf/(xtal/2^16))",
-	  ao_config_radio_cal_set,  	ao_config_radio_cal_show },
-#endif /* HAS_RADIO */
 #if HAS_LOG
 	{ "l <size>\0Flight log size (kB)",
 	  ao_config_log_set,		ao_config_log_show },
@@ -546,10 +569,6 @@ __code struct ao_config_var ao_config_vars[] = {
 	{ "i <0 dual, 1 apogee, 2 main>\0Set igniter mode",
 	  ao_config_ignite_mode_set,	ao_config_ignite_mode_show },
 #endif
-#if HAS_ACCEL
-	{ "o <0 antenna up, 1 antenna down>\0Set pad orientation",
-	  ao_config_pad_orientation_set,ao_config_pad_orientation_show },
-#endif
 #if HAS_AES
 	{ "k <32 hex digits>\0Set AES encryption key",
 	  ao_config_key_set, ao_config_key_show },
@@ -557,6 +576,10 @@ __code struct ao_config_var ao_config_vars[] = {
 #if AO_PYRO_NUM
 	{ "P <n,?>\0Configure pyro channels",
 	  ao_pyro_set, ao_pyro_show },
+#endif
+#if HAS_APRS
+	{ "A <secs>\0APRS packet interval (0 disable)",
+	  ao_config_aprs_set, ao_config_aprs_show },
 #endif
 	{ "s\0Show",
 	  ao_config_show,		0 },

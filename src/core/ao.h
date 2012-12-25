@@ -170,6 +170,10 @@ ao_cmd_hex(void);
 void
 ao_cmd_decimal(void);
 
+/* Read a single hex nibble off stdin. */
+uint8_t
+ao_getnibble(void);
+
 uint8_t
 ao_match_word(__code char *word);
 
@@ -525,6 +529,11 @@ ao_radio_recv_abort(void);
 void
 ao_radio_test(uint8_t on);
 
+typedef int16_t (*ao_radio_fill_func)(uint8_t *buffer, int16_t len);
+
+void
+ao_radio_send_lots(ao_radio_fill_func fill);
+
 /*
  * Compute the packet length as follows:
  *
@@ -595,10 +604,10 @@ ao_monitor_init(void) __reentrant;
  * ao_stdio.c
  */
 
-#define AO_READ_AGAIN	((char) -1)
+#define AO_READ_AGAIN	(-1)
 
 struct ao_stdio {
-	char	(*pollchar)(void);
+	int	(*pollchar)(void);
 	void	(*putchar)(char c) __reentrant;
 	void	(*flush)(void);
 	uint8_t	echo;
@@ -617,7 +626,7 @@ uint8_t
 ao_echo(void);
 
 int8_t
-ao_add_stdio(char (*pollchar)(void),
+ao_add_stdio(int (*pollchar)(void),
 	     void (*putchar)(char) __reentrant,
 	     void (*flush)(void)) __reentrant;
 
@@ -675,7 +684,7 @@ extern __xdata uint8_t ao_force_freq;
 #endif
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	12
+#define AO_CONFIG_MINOR	13
 
 #define AO_AES_LEN 16
 
@@ -702,11 +711,16 @@ struct ao_config {
 #if AO_PYRO_NUM
 	struct ao_pyro	pyro[AO_PYRO_NUM];	/* minor version 12 */
 #endif
+	uint16_t	aprs_interval;		/* minor version 13 */
 };
 
 #define AO_IGNITE_MODE_DUAL		0
 #define AO_IGNITE_MODE_APOGEE		1
 #define AO_IGNITE_MODE_MAIN		2
+
+#define AO_RADIO_ENABLE_CORE		1
+#define AO_RADIO_DISABLE_TELEMETRY	2
+#define AO_RADIO_DISABLE_RDF		4
 
 #define AO_PAD_ORIENTATION_ANTENNA_UP	0
 #define AO_PAD_ORIENTATION_ANTENNA_DOWN	1

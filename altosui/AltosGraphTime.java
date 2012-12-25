@@ -68,11 +68,13 @@ class AltosGraphTime extends AltosGraph {
     abstract static class TimeSeries implements Element {
         protected XYSeries series;
         private String axisName;
+	private String axisUnits;
         private Color color;
 
-        public TimeSeries(String axisName, String label, Color color) {
+        public TimeSeries(String axisName, String axisUnits, String label, Color color) {
             this.series = new XYSeries(label);
-            this.axisName = axisName;
+            this.axisName = String.format("%s (%s)", axisName, axisUnits);
+	    this.axisUnits = axisUnits;
             this.color = color;
         }
 
@@ -85,8 +87,14 @@ class AltosGraphTime extends AltosGraph {
             XYSeriesCollection dataset = new XYSeriesCollection();
             dataset.addSeries(this.series);
 
-            XYItemRenderer renderer = new StandardXYItemRenderer();
+            XYItemRenderer renderer = new XYLineAndShapeRenderer(true, false);
             renderer.setSeriesPaint(0, color);
+	    StandardXYToolTipGenerator	tool_tip;
+
+	    tool_tip = new StandardXYToolTipGenerator(String.format("{1}s: {2}%s ({0})", axisUnits),
+						      new java.text.DecimalFormat("0.00"),
+						      new java.text.DecimalFormat("0.00"));
+	    renderer.setBaseToolTipGenerator(tool_tip);
 
             int dataNum = g.getDataNum(this);
             int axisNum = g.getAxisNum(this);
@@ -192,10 +200,8 @@ class AltosGraphTime extends AltosGraph {
     public JFreeChart createChart() {
         NumberAxis xAxis = new NumberAxis("Time (s)");
         xAxis.setAutoRangeIncludesZero(false);
-        XYItemRenderer renderer = new XYLineAndShapeRenderer(true, false);
         XYPlot plot = new XYPlot();
         plot.setDomainAxis(xAxis);
-        plot.setRenderer(renderer);
         plot.setOrientation(PlotOrientation.VERTICAL);
 
         if (serial != null && flight != null) {
@@ -205,7 +211,6 @@ class AltosGraphTime extends AltosGraph {
             title = callsign + " - " + title;
         }
 
-        renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
         JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT,
                                 plot, true);
         ChartUtilities.applyCurrentTheme(chart);

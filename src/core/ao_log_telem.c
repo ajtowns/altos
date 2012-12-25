@@ -102,9 +102,9 @@ ao_log_single(void)
 		while (ao_log_running) {
 			/* Write samples to EEPROM */
 			while (ao_log_monitor_pos != ao_monitor_head) {
-				memcpy(&ao_log_single_write_data.telemetry,
-				       &ao_monitor_ring[ao_log_monitor_pos],
-				       AO_LOG_SINGLE_SIZE);
+				ao_xmemcpy(&ao_log_single_write_data.telemetry,
+					   &ao_monitor_ring[ao_log_monitor_pos],
+					   AO_LOG_SINGLE_SIZE);
 				ao_log_single_write();
 				ao_log_monitor_pos = ao_monitor_ring_next(ao_log_monitor_pos);
 				ao_log_telem_track();

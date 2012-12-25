@@ -110,6 +110,22 @@ putnibble(uint8_t v)
 		putchar(v + ('a' - 10));
 }
 
+uint8_t
+ao_getnibble(void)
+{
+	char	c;
+
+	c = getchar();
+	if ('0' <= c && c <= '9')
+		return c - '0';
+	if ('a' <= c && c <= 'f')
+		return c - ('a' - 10);
+	if ('A' <= c && c <= 'F')
+		return c - ('A' - 10);
+	ao_cmd_status = ao_cmd_lex_error;
+	return 0;
+}
+
 void
 ao_cmd_put16(uint16_t v)
 {
@@ -249,12 +265,25 @@ ao_reboot(void)
 static void
 version(void)
 {
-	printf("manufacturer     %s\n", ao_manufacturer);
-	printf("product          %s\n", ao_product);
-	printf("serial-number    %u\n", ao_serial_number);
-#if HAS_LOG
-	printf("log-format       %u\n", ao_log_format);
+	printf("manufacturer     %s\n"
+	       "product          %s\n"
+	       "serial-number    %u\n"
+#if HAS_FLIGHT
+	       "current-flight   %u\n"
 #endif
+#if HAS_LOG
+	       "log-format       %u\n"
+#endif
+	       , ao_manufacturer
+	       , ao_product
+	       , ao_serial_number
+#if HAS_FLIGHT
+	       , ao_flight_number
+#endif
+#if HAS_LOG
+	       , ao_log_format
+#endif
+		);
 #if HAS_MS5607
 	ao_ms5607_info();
 #endif

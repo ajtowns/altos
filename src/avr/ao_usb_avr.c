@@ -480,10 +480,10 @@ ao_usb_putchar(char c) __critical __reentrant
 	ao_usb_in_flushed = 0;
 }
 
-static char
+static int
 _ao_usb_pollchar(void)
 {
-	char c;
+	uint8_t c;
 	uint8_t	intx;
 
 	if (!ao_usb_running)
@@ -517,10 +517,10 @@ _ao_usb_pollchar(void)
 	return c;
 }
 
-char
+int
 ao_usb_pollchar(void)
 {
-	char	c;
+	int	c;
 	cli();
 	c = _ao_usb_pollchar();
 	sei();
@@ -530,7 +530,7 @@ ao_usb_pollchar(void)
 char
 ao_usb_getchar(void) __critical
 {
-	char	c;
+	int	c;
 
 	cli();
 	while ((c = _ao_usb_pollchar()) == AO_READ_AGAIN)

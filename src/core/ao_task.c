@@ -305,6 +305,8 @@ ao_add_task(__xdata struct ao_task * task, void (*start)(void), __code char *nam
 		);
 }
 
+__data uint8_t	ao_task_minimize_latency;
+
 /* Task switching function. This must not use any stack variables */
 void
 ao_yield(void) ao_arch_naked_define
@@ -331,7 +333,12 @@ ao_yield(void) ao_arch_naked_define
 	}
 
 	ao_arch_isr_stack();
-	ao_arch_block_interrupts();
+#if !HAS_TASK_QUEUE
+	if (ao_task_minimize_latency)
+		ao_arch_release_interrupts();
+	else
+#endif
+		ao_arch_block_interrupts();
 
 #if AO_CHECK_STACK
 	in_yield = 1;
@@ -374,7 +381,7 @@ ao_yield(void) ao_arch_naked_define
 				break;
 
 			/* Wait for interrupts when there's nothing ready */
-			if (ao_cur_task_index == ao_last_task_index)
+			if (ao_cur_task_index == ao_last_task_index && !ao_task_minimize_latency)
 				ao_arch_wait_interrupt();
 		}
 	}

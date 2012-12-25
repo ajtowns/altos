@@ -98,7 +98,7 @@ __xdata uint8_t ao_stdin_ready;
 char
 getchar(void) __reentrant
 {
-	char c;
+	int c;
 	ao_arch_critical(
 		int8_t stdio = ao_cur_stdio;
 
@@ -123,7 +123,7 @@ ao_echo(void)
 }
 
 int8_t
-ao_add_stdio(char (*pollchar)(void),
+ao_add_stdio(int (*pollchar)(void),
 	     void (*putchar)(char),
 	     void (*flush)(void)) __reentrant
 {

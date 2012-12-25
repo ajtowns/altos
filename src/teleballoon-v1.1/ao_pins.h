@@ -43,9 +43,9 @@
 	#define PACKET_HAS_SLAVE	1
 
 	#define HAS_COMPANION		1
-	#define COMPANION_CS_ON_P1	1
-	#define COMPANION_CS_MASK	0x4	/* CS1 is P1_2 */
-	#define COMPANION_CS		P1_2
+	#define AO_COMPANION_CS_PORT	P1
+	#define AO_COMPANION_CS_PIN	2
+	#define AO_COMPANION_CS		P1_2
 
 	#define AO_LED_RED		1
 	#define LEDS_AVAILABLE		(AO_LED_RED)
@@ -53,7 +53,7 @@
 	#define HAS_ACCEL_REF		1
 	#define SPI_CS_ON_P1		1
 	#define SPI_CS_ON_P0		0
-	#define M25_CS_MASK		0x02	/* CS0 is P1_1 */
+	#define AO_M25_SPI_CS_MASK	0x02	/* CS0 is P1_1 */
 	#define M25_MAX_CHIPS		1
 	#define HAS_ACCEL		1
 	#define HAS_IGNITE		0
@@ -113,6 +113,8 @@
 	#define SPI_CS_SEL	P0SEL
 	#define SPI_CS_DIR	P0DIR
 #endif
+
+#define AO_M25_SPI_CS_PORT	SPI_CS_PORT
 
 #ifndef IGNITE_ON_P2
 #error Please define IGNITE_ON_P2
@@ -211,5 +213,17 @@
 #define AO_IGNITER_CLOSED	7000
 #define AO_IGNITER_FIRE_TIME	AO_MS_TO_TICKS(50)
 #define AO_IGNITER_CHARGE_TIME	AO_MS_TO_TICKS(2000)
+
+struct ao_adc {
+	int16_t		accel;		/* accelerometer */
+	int16_t		pres;		/* pressure sensor */
+	int16_t		temp;		/* temperature sensor */
+	int16_t		v_batt;		/* battery voltage */
+	int16_t		sense_d;	/* drogue continuity sense */
+	int16_t		sense_m;	/* main continuity sense */
+#if HAS_ACCEL_REF
+	uint16_t	accel_ref;	/* acceleration reference */
+#endif
+};
 
 #endif /* _AO_PINS_H_ */

@@ -118,10 +118,13 @@ ao_companion_status(void) __reentrant
 	printf("Companion running: %d\n", ao_companion_running);
 	if (!ao_companion_running)
 		return;
-	printf("device: %d\n", ao_companion_setup.board_id);
-	printf("update period: %d\n", ao_companion_setup.update_period);
-	printf("channels: %d\n", ao_companion_setup.channels);
-	printf("data:");
+	printf("device: %d\n"
+	       "update period: %d\n"
+	       "channels: %d\n"
+	       "data:",
+	       ao_companion_setup.board_id,
+	       ao_companion_setup.update_period,
+	       ao_companion_setup.channels);
 	for(i = 0; i < ao_companion_setup.channels; i++)
 		printf(" %5u", ao_companion_data[i]);
 	printf("\n");

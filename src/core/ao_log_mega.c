@@ -95,6 +95,14 @@ ao_log(void)
 #if HAS_ACCEL
 	log.u.flight.ground_accel = ao_ground_accel;
 #endif
+#if HAS_GYRO
+	log.u.flight.ground_accel_along = ao_ground_accel_along;
+	log.u.flight.ground_accel_across = ao_ground_accel_across;
+	log.u.flight.ground_accel_through = ao_ground_accel_through;
+	log.u.flight.ground_pitch = ao_ground_pitch;
+	log.u.flight.ground_yaw = ao_ground_yaw;
+	log.u.flight.ground_roll = ao_ground_roll;
+#endif
 	log.u.flight.ground_pres = ao_ground_pres;
 	log.u.flight.flight = ao_flight_number;
 	ao_log_mega(&log);

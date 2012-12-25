@@ -288,4 +288,25 @@ typedef int16_t accel_t;
 
 #endif
 
+#if !HAS_GYRO && HAS_MPU6000
+
+#define HAS_GYRO	1
+
+typedef int16_t	gyro_t;
+typedef int32_t angle_t;
+
+/* Y axis is aligned with the direction of motion (along) */
+/* X axis is aligned in the other board axis (across) */
+/* Z axis is aligned perpendicular to the board (through) */
+
+#define ao_data_along(packet)	((packet)->mpu6000.accel_y)
+#define ao_data_across(packet)	((packet)->mpu6000.accel_x)
+#define ao_data_through(packet)	((packet)->mpu6000.accel_z)
+
+#define ao_data_roll(packet)	((packet)->mpu6000.gyro_y)
+#define ao_data_pitch(packet)	((packet)->mpu6000.gyro_x)
+#define ao_data_yaw(packet)	((packet)->mpu6000.gyro_z)
+
+#endif
+
 #endif /* _AO_DATA_H_ */

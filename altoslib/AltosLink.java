@@ -284,8 +284,8 @@ public abstract class AltosLink implements Runnable {
 		frequency = in_frequency;
 		config_data();
 		set_radio_frequency(frequency,
-				    config_data.radio_frequency != 0,
-				    config_data.radio_setting != 0,
+				    config_data.radio_frequency > 0,
+				    config_data.radio_setting > 0,
 				    config_data.radio_calibration);
 	}
 
@@ -339,10 +339,10 @@ public abstract class AltosLink implements Runnable {
 	public String name;
 
 	public void start_remote() throws TimeoutException, InterruptedException {
-		if (debug)
-			System.out.printf("start remote %7.3f\n", frequency);
 		if (frequency == 0.0)
 			frequency = AltosPreferences.frequency(serial);
+		if (debug)
+			System.out.printf("start remote %7.3f\n", frequency);
 		set_radio_frequency(frequency);
 		set_callsign(AltosPreferences.callsign());
 		printf("p\nE 0\n");
