@@ -32,24 +32,31 @@ public class MicroPeak extends JFrame implements ActionListener, ItemListener {
 	MicroData	data;
 	Container	pane;
 
+	private void RunFile(InputStream input) {
+		try {
+			data = new MicroData(input);
+			graph.setData(data);
+		} catch (IOException ioe) {
+		}
+		try {
+			input.close();
+		} catch (IOException ioe) {
+		}
+	}
+
 	private void OpenFile(File filename) {
 		try {
-			FileInputStream	input = new FileInputStream(filename);
-			try {
-				data = new MicroData(input);
-				graph = new MicroGraph(data);
-				pane.add(graph.panel);
-			} catch (IOException ioe) {
-			}
-			try {
-				input.close();
-			} catch (IOException ioe) {
-			}
+			RunFile (new FileInputStream(filename));
 		} catch (FileNotFoundException fne) {
 		}
 	}
 
 	private void SelectFile() {
+		MicroFileChooser	chooser = new MicroFileChooser(this);
+		InputStream		input = chooser.runDialog();
+
+		if (input != null)
+			RunFile(input);
 	}
 
 	private void DownloadData() {
@@ -73,16 +80,11 @@ public class MicroPeak extends JFrame implements ActionListener, ItemListener {
 	public void itemStateChanged(ItemEvent e) {
 	}
 
-	public MicroPeak(File filename) {
+	public MicroPeak() {
 
 		this.filename = filename;
 
 		pane = getContentPane();
-
-//		JLabel label = new JLabel ("Hello, World");
-//		pane.add(label);
-
-		setSize(800, 500);
 
 		setTitle("MicroPeak");
 
@@ -116,20 +118,27 @@ public class MicroPeak extends JFrame implements ActionListener, ItemListener {
 			}
 		});
 
-		if (filename != null)
-			this.OpenFile(filename);
+		graph = new MicroGraph(data);
+		pane.add(graph.panel);
+		pane.doLayout();
+		pane.validate();
+		doLayout();
+		validate();
+		Insets i = getInsets();
+		Dimension ps = pane.getPreferredSize();
+		ps.width += i.left + i.right;
+		ps.height += i.top + i.bottom;
+		setPreferredSize(ps);
+		setSize(ps);
 		setVisible(true);
-	}
-
-	public MicroPeak() {
-		this(null);
 	}
 
 	public static void main(final String[] args) {
 		boolean	opened = false;
 
 		for (int i = 0; i < args.length; i++) {
-			new MicroPeak(new File(args[i]));
+			MicroPeak m = new MicroPeak();
+			m.OpenFile(new File(args[i]));
 			opened = true;
 		}
 		if (!opened)

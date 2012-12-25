@@ -12,6 +12,7 @@ micropeak_JAVA= \
 	MicroData.java \
 	MicroGraph.java \
 	MicroSerial.java \
+	MicroFileChooser.java \
 	MicroUSB.java
 
 JFREECHART_CLASS= \

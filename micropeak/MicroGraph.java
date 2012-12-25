@@ -65,6 +65,18 @@ public class MicroGraph {
 		plot.mapDatasetToRangeAxis(index, index);
 	}
 	
+	public void setData (MicroData data) {
+		heightSeries.clear();
+		speedSeries.clear();
+		accelSeries.clear();
+		for (int i = 0; i < data.pressures.length; i++) {
+			double x = data.time(i);
+			heightSeries.add(x, data.height(i));
+			speedSeries.add(x, data.speed(i));
+			accelSeries.add(x, data.acceleration(i));
+		}
+	}
+
 	public MicroGraph(MicroData data) {
 
 		this.data = data;
@@ -72,13 +84,6 @@ public class MicroGraph {
 		heightSeries = new XYSeries("Height");
 		speedSeries = new XYSeries("Speed");
 		accelSeries = new XYSeries("Acceleration");
-
-		for (int i = 0; i < data.pressures.length; i++) {
-			double x = data.time(i);
-			heightSeries.add(x, data.height(i));
-			speedSeries.add(x, data.speed(i));
-			accelSeries.add(x, data.acceleration(i));
-		}
 
 		xAxis = new NumberAxis("Time (s)");
 		
