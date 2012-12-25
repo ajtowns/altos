@@ -1,4 +1,4 @@
-SUBDIRS=src doc altoslib altosui ao-tools ao-utils altosdroid
+SUBDIRS=src doc altoslib libaltos altosui ao-tools ao-utils altosdroid
 
 EXTRA_DIST = ChangeLog
 

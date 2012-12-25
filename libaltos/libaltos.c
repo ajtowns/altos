@@ -20,16 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define USB_VENDOR_FSF			0xfffe
-#define USB_VENDOR_ALTUSMETRUM		USB_VENDOR_FSF
-#define USB_PRODUCT_ALTUSMETRUM		0x000a
-#define USB_PRODUCT_ALTUSMETRUM_MIN	0x000a
-#define USB_PRODUCT_ALTUSMETRUM_MAX	0x00ff
-
-#define USB_IS_ALTUSMETRUM(v,p)	((v) == USB_VENDOR_ALTUSMETRUM && \
-		(USB_PRODUCT_ALTUSMETRUM_MIN <= (p) && \
-		 (p) <= USB_PRODUCT_ALTUSMETRUM_MAX))
-
 #define BLUETOOTH_PRODUCT_TELEBT	"TeleBT"
 
 #define USE_POLL
@@ -473,6 +463,7 @@ usb_tty(char *sys)
 				base, config, interface);
 			endpoint_full = cc_fullname(sys, endpoint_base);
 
+
 			/* Check for tty:ttyACMx style names
 			 */
 			ntty = scandir(endpoint_full, &namelist,
@@ -481,6 +472,18 @@ usb_tty(char *sys)
 			if (ntty > 0) {
 				free(endpoint_full);
 				tty = cc_fullname("/dev", namelist[0]->d_name + 4);
+				free(namelist);
+				return tty;
+			}
+
+			/* Check for ttyACMx style names
+			 */
+			ntty = scandir(endpoint_full, &namelist,
+				       dir_filter_tty,
+				       alphasort);
+			if (ntty > 0) {
+				free(endpoint_full);
+				tty = cc_fullname("/dev", namelist[0]->d_name);
 				free(namelist);
 				return tty;
 			}
@@ -498,6 +501,7 @@ usb_tty(char *sys)
 				free(namelist);
 				return tty;
 			}
+
 		}
 	}
 	return NULL;
@@ -507,7 +511,11 @@ static struct altos_usbdev *
 usb_scan_device(char *sys)
 {
 	struct altos_usbdev *usbdev;
+	char *tty;
 
+	tty = usb_tty(sys);
+	if (!tty)
+		return NULL;
 	usbdev = calloc(1, sizeof (struct altos_usbdev));
 	if (!usbdev)
 		return NULL;
@@ -517,7 +525,7 @@ usb_scan_device(char *sys)
 	usbdev->serial = load_dec(sys, "serial");
 	usbdev->idProduct = load_hex(sys, "idProduct");
 	usbdev->idVendor = load_hex(sys, "idVendor");
-	usbdev->tty = usb_tty(sys);
+	usbdev->tty = tty;
 	return usbdev;
 }
 
@@ -581,15 +589,15 @@ altos_list_start(void)
 	for (e = 0; e < n; e++) {
 		dir = cc_fullname(USB_DEVICES, ents[e]->d_name);
 		dev = usb_scan_device(dir);
+		if (!dev)
+			continue;
 		free(dir);
-		if (USB_IS_ALTUSMETRUM(dev->idVendor, dev->idProduct)) {
-			if (devs->dev)
-				devs->dev = realloc(devs->dev,
-						    (devs->ndev + 1) * sizeof (struct usbdev *));
-			else
-				devs->dev = malloc (sizeof (struct usbdev *));
-			devs->dev[devs->ndev++] = dev;
-		}
+		if (devs->dev)
+			devs->dev = realloc(devs->dev,
+					    (devs->ndev + 1) * sizeof (struct usbdev *));
+		else
+			devs->dev = malloc (sizeof (struct usbdev *));
+		devs->dev[devs->ndev++] = dev;
 	}
 	free(ents);
 	devs->current = 0;
@@ -600,8 +608,9 @@ int
 altos_list_next(struct altos_list *list, struct altos_device *device)
 {
 	struct altos_usbdev *dev;
-	if (list->current >= list->ndev)
+	if (list->current >= list->ndev) {
 		return 0;
+	}
 	dev = list->dev[list->current];
 	strcpy(device->name, dev->product_name);
 	device->vendor = dev->idVendor;
@@ -1026,10 +1035,6 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 		       "%04X", &pid);
 		sscanf((char *) symbolic + sizeof("\\??\\USB#VID_XXXX&PID_XXXX#") - 1,
 		       "%d", &serial);
-		if (!USB_IS_ALTUSMETRUM(vid, pid)) {
-			RegCloseKey(dev_key);
-			continue;
-		}
 
 		/* Fetch the com port name */
 		port_len = sizeof (port);

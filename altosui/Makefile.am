@@ -1,4 +1,4 @@
-SUBDIRS=libaltos
+
 JAVAROOT=classes
 AM_JAVACFLAGS=-encoding UTF-8 -Xlint:deprecation
 
@@ -6,7 +6,7 @@ man_MANS=altosui.1
 
 altoslibdir=$(libdir)/altos
 
-CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../altoslib/*:libaltos:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar:$(FREETTS)/freetts.jar"
+CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../altoslib/*:../libaltos:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar:$(FREETTS)/freetts.jar"
 
 bin_SCRIPTS=altosui
 
@@ -233,13 +233,13 @@ $(JAR): classaltosui.stamp Manifest.txt $(JAVA_ICONS) $(ALTOSLIB_CLASS)
 	jar cfm $@ Manifest.txt \
 		$(ICONJAR) \
 		-C classes altosui \
-		-C libaltos libaltosJNI
+		-C ../libaltos libaltosJNI
 
 $(FATJAR): classaltosui.stamp Manifest-fat.txt $(ALTOSLIB_CLASS) $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) $(JAVA_ICONS)
 	jar cfm $@ Manifest-fat.txt \
 		$(ICONJAR) \
 		-C classes altosui \
-		-C libaltos libaltosJNI
+		-C ../libaltos libaltosJNI
 
 Manifest.txt: Makefile
 	echo 'Main-Class: altosui.AltosUI' > $@
@@ -256,43 +256,43 @@ altosui: Makefile
 
 altosui-test: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java -cp "./*:$(FREETTS)/freetts.jar:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="libaltos/.libs" -jar altosui.jar "$$@"' >> $@
+	echo 'exec java -cp "./*:../libaltos:$(FREETTS)/freetts.jar:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="../libaltos/.libs" -jar altosui.jar "$$@"' >> $@
 	chmod +x $@
 
 altosui-jdb: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec jdb -classpath "classes:libaltos:$(FREETTS)/freetts.jar:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="libaltos/.libs" altosui/AltosUI "$$@"' >> $@
+	echo 'exec jdb -classpath "classes:../libaltos:$(FREETTS)/freetts.jar:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="../libaltos/.libs" altosui/AltosUI "$$@"' >> $@
 	chmod +x $@
 
 libaltos.so: build-libaltos
 	-rm -f "$@"
-	$(LN_S) libaltos/.libs/"$@" .
+	$(LN_S) ../libaltos/.libs/"$@" .
 
 libaltos.dylib:
 	-rm -f "$@"
-	$(LN_S) libaltos/"$@" .
+	$(LN_S) ../libaltos/"$@" .
 
-altos.dll: libaltos/altos.dll
+altos.dll: ../libaltos/altos.dll
 	-rm -f "$@"
-	$(LN_S) libaltos/"$@" .
+	$(LN_S) ../libaltos/"$@" .
 
-altos64.dll: libaltos/altos64.dll
+altos64.dll: ../libaltos/altos64.dll
 	-rm -f "$@"
-	$(LN_S) libaltos/"$@" .
+	$(LN_S) ../libaltos/"$@" .
 
-libaltos/.libs/libaltos.so: build-libaltos
+../libaltos/.libs/libaltos.so: build-libaltos
 
-libaltos/altos.dll: build-altos-dll
+../libaltos/altos.dll: build-altos-dll
 
-libaltos/altos64.dll: build-altos64-dll
+../libaltos/altos64.dll: build-altos64-dll
 
 build-libaltos:
-	+cd libaltos && make libaltos.la
+	+cd ../libaltos && make libaltos.la
 build-altos-dll:
-	+cd libaltos && make altos.dll
+	+cd ../libaltos && make altos.dll
 
 build-altos64-dll:
-	+cd libaltos && make altos64.dll
+	+cd ../libaltos && make altos64.dll
 
 $(ALTOSLIB_CLASS):
 	-rm -f "$@"
