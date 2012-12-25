@@ -23,7 +23,7 @@ __xdata uint16_t ao_launch_ignite;
 #if 0
 #define PRINTD(...) printf(__VA_ARGS__)
 #else
-#define PRINTD(...) 
+#define PRINTD(...)
 #endif
 
 static void
@@ -81,7 +81,7 @@ ao_launch(void)
 		flush();
 		if (ao_radio_cmac_recv(&command, sizeof (command), 0) != AO_RADIO_CMAC_OK)
 			continue;
-		
+
 		PRINTD ("tick %d serial %d cmd %d channel %d\n",
 			command.tick, command.serial, command.cmd, command.channel);
 
