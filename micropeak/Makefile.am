@@ -1,0 +1,115 @@
+JAVAROOT=classes
+AM_JAVACFLAGS=-encoding UTF-8 -Xlint:deprecation
+
+CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../altoslib/*:../libaltos:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar"
+
+bin_SCRIPTS=micropeak
+
+micropeakdir=$(datadir)/java
+
+micropeak_JAVA= \
+	MicroPeak.java \
+	MicroData.java \
+	MicroGraph.java \
+	MicroSerial.java \
+	MicroUSB.java
+
+JFREECHART_CLASS= \
+    jfreechart.jar
+
+JCOMMON_CLASS=\
+    jcommon.jar
+
+JAR=micropeak.jar
+
+FATJAR=micropeak-fat.jar
+
+LIBALTOS= \
+	libaltos.so \
+	libaltos.dylib \
+	altos.dll
+
+ALTOSLIB_CLASS=\
+	AltosLib.jar
+
+all-local: micropeak-test $(JAR)
+
+clean-local:
+	-rm -rf classes $(JAR) $(FATJAR) \
+		$(ALTOSLIB_CLASS) \
+		$(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) Manifest.txt \
+		micropeak micropeak-test macosx linux windows
+
+micropeak: Makefile
+	echo "#!/bin/sh" > $@
+	echo 'exec java  -cp "$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="$(altoslibdir)" -jar "$(micropeakdir)/micropeak.jar" "$$@"' >> $@
+	chmod +x $@
+
+micropeak-test: Makefile
+	echo "#!/bin/sh" > $@
+	echo 'exec java -cp "./*:../libaltos/*:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="../libaltos/.libs" -jar micropeak.jar "$$@"' >> $@
+	chmod +x $@
+
+$(JAR): classmicropeak.stamp Manifest.txt $(JAVA_ICONS) $(ALTOSLIB_CLASS)
+	jar cfm $@ Manifest.txt \
+		$(ICONJAR) \
+		-C classes org \
+		-C ../libaltos libaltosJNI
+
+$(FATJAR): classmicropeak.stamp Manifest-fat.txt $(ALTOSLIB_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS) $(JAVA_ICONS)
+	jar cfm $@ Manifest-fat.txt \
+		$(ICONJAR) \
+		-C classes org \
+		-C ../libaltos libaltosJNI
+
+
+libaltos.so: build-libaltos
+	-rm -f "$@"
+	$(LN_S) ../libaltos/.libs/"$@" .
+
+libaltos.dylib:
+	-rm -f "$@"
+	$(LN_S) ../libaltos/"$@" .
+
+altos.dll: ../libaltos/altos.dll
+	-rm -f "$@"
+	$(LN_S) ../libaltos/"$@" .
+
+altos64.dll: ../libaltos/altos64.dll
+	-rm -f "$@"
+	$(LN_S) ../libaltos/"$@" .
+
+../libaltos/.libs/libaltos.so: build-libaltos
+
+../libaltos/altos.dll: build-altos-dll
+
+../libaltos/altos64.dll: build-altos64-dll
+
+build-libaltos:
+	+cd ../libaltos && make libaltos.la
+build-altos-dll:
+	+cd ../libaltos && make altos.dll
+
+build-altos64-dll:
+	+cd ../libaltos && make altos64.dll
+
+$(ALTOSLIB_CLASS):
+	-rm -f "$@"
+	$(LN_S) ../altoslib/"$@" .
+
+$(JFREECHART_CLASS):
+	-rm -f "$@"
+	$(LN_S) "$(JFREECHART)"/"$@" .
+
+$(JCOMMON_CLASS):
+	-rm -f "$@"
+	$(LN_S) "$(JCOMMON)"/"$@" .
+
+Manifest.txt: Makefile
+	echo 'Main-Class: org.altusmetrum.micropeak.MicroPeak' > $@
+	echo "Class-Path: AltosLib.jar $(JCOMMON)/jcommon.jar $(JFREECHART)/jfreechart.jar" >> $@
+
+Manifest-fat.txt:
+	echo 'Main-Class: org.altusmetrum.micropeak.MicroPeak' > $@
+	echo "Class-Path: AltosLib.jar jcommon.jar jfreechart.jar" >> $@
+
