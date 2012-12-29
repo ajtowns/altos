@@ -53,7 +53,9 @@ main(void)
 	ao_exti_init();
 
 	ao_adc_init();
+#if HAS_BEEP
 	ao_beep_init();
+#endif
 	ao_cmd_init();
 
 #if HAS_MS5607

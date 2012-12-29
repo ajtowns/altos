@@ -1,5 +1,5 @@
 /*
- * Copyright © 2011 Keith Packard <keithp@keithp.com>
+ * Copyright © 2012 Keith Packard <keithp@keithp.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,34 +15,10 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#ifndef AO_FLIGHT_TEST
-#include "ao.h"
-#endif
+#ifndef _AO_APRS_H_
+#define _AO_APRS_H_
 
-/* Adapted from int_sqrt.c in the linux kernel, which is licensed GPLv2 */
-/**
- * int_sqrt - rough approximation to sqrt
- * @x: integer of which to calculate the sqrt
- *
- * A very rough approximation to the sqrt() function.
- */
+void
+ao_aprs_send(void);
 
-uint32_t
-ao_sqrt(uint32_t op)
-{
-	uint32_t	res = 0;
-	uint32_t	one = 1UL << (sizeof (one) * 8 - 2);
-
-	while (one > op)
-		one >>= 2;
-
-	while (one != 0) {
-		if (op >= res + one) {
-			op = op - (res + one);
-			res = res +  2 * one;
-		}
-		res /= 2;
-		one /= 4;
-	}
-	return res;
-}
+#endif /* _AO_APRS_H_ */

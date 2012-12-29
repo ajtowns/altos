@@ -39,6 +39,7 @@ public class AltosConfigUI
 	JLabel		radio_calibration_label;
 	JLabel		radio_frequency_label;
 	JLabel		radio_enable_label;
+	JLabel		aprs_interval_label;
 	JLabel		flight_log_max_label;
 	JLabel		ignite_mode_label;
 	JLabel		pad_orientation_label;
@@ -56,6 +57,7 @@ public class AltosConfigUI
 	AltosFreqList	radio_frequency_value;
 	JTextField	radio_calibration_value;
 	JRadioButton	radio_enable_value;
+	JComboBox	aprs_interval_value;
 	JComboBox	flight_log_max_value;
 	JComboBox	ignite_mode_value;
 	JComboBox	pad_orientation_value;
@@ -95,6 +97,13 @@ public class AltosConfigUI
 		"Dual Deploy",
 		"Redundant Apogee",
 		"Redundant Main",
+	};
+
+	static String[] aprs_interval_values = {
+		"Disabled",
+		"2",
+		"5",
+		"10"
 	};
 
 	static String[] pad_orientation_values = {
@@ -139,6 +148,13 @@ public class AltosConfigUI
 			radio_enable_value.setToolTipText("Enable/Disable telemetry and RDF transmissions");
 		else
 			radio_enable_value.setToolTipText("Firmware version does not support disabling radio");
+	}
+
+	void set_aprs_interval_tool_tip() {
+		if (aprs_interval_value.isEnabled())
+			aprs_interval_value.setToolTipText("Enable APRS and set the interval between APRS reports");
+		else
+			aprs_interval_value.setToolTipText("Hardware doesn't support APRS");
 	}
 
 	void set_flight_log_max_tool_tip() {
@@ -393,7 +409,7 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
 		c.ipady = 5;
-		radio_enable_label = new JLabel("Telemetry/RDF Enable:");
+		radio_enable_label = new JLabel("Telemetry/RDF/APRS Enable:");
 		pane.add(radio_enable_label, c);
 
 		c = new GridBagConstraints();
@@ -408,6 +424,32 @@ public class AltosConfigUI
 		radio_enable_value.addItemListener(this);
 		pane.add(radio_enable_value, c);
 		set_radio_enable_tool_tip();
+		row++;
+
+		/* APRS interval */
+		c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = row;
+		c.gridwidth = 4;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
+		c.ipady = 5;
+		aprs_interval_label = new JLabel("APRS Interval(s):");
+		pane.add(aprs_interval_label, c);
+
+		c = new GridBagConstraints();
+		c.gridx = 4; c.gridy = row;
+		c.gridwidth = 4;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		c.ipady = 5;
+		aprs_interval_value = new JComboBox(aprs_interval_values);
+		aprs_interval_value.setEditable(true);
+		aprs_interval_value.addItemListener(this);
+		pane.add(aprs_interval_value, c);
+		set_aprs_interval_tool_tip();
 		row++;
 
 		/* Callsign */
@@ -842,5 +884,25 @@ public class AltosConfigUI
 		if (pyro_ui != null)
 			pyros = pyro_ui.get_pyros();
 		return pyros;
+	}
+
+	public void set_aprs_interval(int new_aprs_interval) {
+		String	s;
+
+		if (new_aprs_interval <= 0)
+			s = "Disabled";
+		else
+			s = Integer.toString(new_aprs_interval);
+		aprs_interval_value.setSelectedItem(s);
+		aprs_interval_value.setEnabled(new_aprs_interval >= 0);
+		set_aprs_interval_tool_tip();
+	}
+
+	public int aprs_interval() {
+		String	s = aprs_interval_value.getSelectedItem().toString();
+
+		if (s.equals("Disabled"))
+			return 0;
+		return Integer.parseInt(s);
 	}
 }

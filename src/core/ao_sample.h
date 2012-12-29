@@ -111,6 +111,14 @@ extern __pdata accel_t	ao_ground_accel;	/* startup acceleration */
 extern __pdata accel_t 	ao_accel_2g;		/* factory accel calibration */
 extern __pdata int32_t	ao_accel_scale;		/* sensor to m/s² conversion */
 #endif
+#if HAS_GYRO
+extern __pdata accel_t	ao_ground_accel_along;
+extern __pdata accel_t	ao_ground_accel_across;
+extern __pdata accel_t	ao_ground_accel_through;
+extern __pdata gyro_t	ao_ground_pitch;
+extern __pdata gyro_t	ao_ground_yaw;
+extern __pdata gyro_t	ao_ground_roll;
+#endif
 
 void ao_sample_init(void);
 

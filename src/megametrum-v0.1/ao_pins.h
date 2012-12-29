@@ -70,6 +70,7 @@
 #define HAS_BEEP		1
 #define HAS_RADIO		1
 #define HAS_TELEMETRY		1
+#define HAS_APRS		1
 
 #define HAS_SPI_1		1
 #define SPI_1_PA5_PA6_PA7	1	/* Barometer */
@@ -281,11 +282,19 @@ struct ao_adc {
 #define AO_CC1120_SPI_CS_PIN	5
 #define AO_CC1120_SPI_BUS	AO_SPI_2_PB13_PB14_PB15
 
-#define AO_CC1120_INT_PORT	(&stm_gpioc)
-#define AO_CC1120_INT_PIN	14
+#define AO_CC1120_INT_PORT		(&stm_gpioc)
+#define AO_CC1120_INT_PIN		14
+#define AO_CC1120_MCU_WAKEUP_PORT	(&stm_gpioc)
+#define AO_CC1120_MCU_WAKEUP_PIN	(0)
 
 #define AO_CC1120_INT_GPIO	2
-#define HAS_BOOT_RADIO		1
+#define AO_CC1120_INT_GPIO_IOCFG	CC1120_IOCFG2
+
+#define AO_CC1120_MARC_GPIO	3
+#define AO_CC1120_MARC_GPIO_IOCFG	CC1120_IOCFG3
+
+
+#define HAS_BOOT_RADIO		0
 
 /*
  * Mag sensor (hmc5883)
