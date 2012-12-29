@@ -1195,7 +1195,7 @@ static void ao_radio_show(void) {
 }
 
 static void ao_radio_beep(void) {
-	ao_radio_rdf(RDF_PACKET_LEN);
+	ao_radio_rdf();
 }
 
 static void ao_radio_packet(void) {
@@ -1231,6 +1231,7 @@ ao_radio_test_recv()
 	}
 }
 
+#if HAS_APRS
 #include <ao_aprs.h>
 
 static void
@@ -1239,13 +1240,16 @@ ao_radio_aprs()
 	ao_packet_slave_stop();
 	ao_aprs_send();
 }
+#endif
 
 #endif
 
 static const struct ao_cmds ao_radio_cmds[] = {
 	{ ao_radio_test_cmd,	"C <1 start, 0 stop, none both>\0Radio carrier test" },
 #if CC1120_DEBUG
+#if HAS_APRS
 	{ ao_radio_aprs,	"G\0Send APRS packet" },
+#endif
 	{ ao_radio_show,	"R\0Show CC1120 status" },
 	{ ao_radio_beep,	"b\0Emit an RDF beacon" },
 	{ ao_radio_packet,	"p\0Send a test packet" },
