@@ -25,7 +25,7 @@ import java.util.concurrent.*;
 import java.util.*;
 import org.altusmetrum.AltosLib.*;
 
-public class MicroPeak extends JFrame implements ActionListener, ItemListener {
+public class MicroPeak extends MicroFrame implements ActionListener, ItemListener {
 
 	File		filename;
 	MicroGraph	graph;

@@ -24,7 +24,10 @@ public class MicroSerial extends InputStream {
 	SWIGTYPE_p_altos_file	file;
 
 	public int read() {
-		return libaltos.altos_getchar(file, 0);
+		int	c = libaltos.altos_getchar(file, 0);
+		if (MicroPreferences.serial_debug)
+			System.out.printf("%c", c);
+		return c;
 	}
 
 	public void close() {

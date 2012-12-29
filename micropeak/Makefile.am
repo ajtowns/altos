@@ -10,9 +10,14 @@ micropeakdir=$(datadir)/java
 micropeak_JAVA= \
 	MicroPeak.java \
 	MicroData.java \
+	MicroFrame.java \
 	MicroGraph.java \
 	MicroSerial.java \
 	MicroFileChooser.java \
+	MicroPreferences.java \
+	MicroPreferencesBackend.java \
+	MicroFontListener.java \
+	MicroUIListener.java \
 	MicroUSB.java
 
 JFREECHART_CLASS= \
@@ -32,6 +37,25 @@ LIBALTOS= \
 
 ALTOSLIB_CLASS=\
 	AltosLib.jar
+
+# Icons
+ICONDIR=$(top_srcdir)/icon
+
+JAVA_ICONS=\
+	$(ICONDIR)/micropeak-16.png \
+	$(ICONDIR)/micropeak-32.png \
+	$(ICONDIR)/micropeak-48.png \
+	$(ICONDIR)/micropeak-64.png \
+	$(ICONDIR)/micropeak-128.png \
+	$(ICONDIR)/micropeak-256.png
+
+# icon base names for jar
+ICONJAR= -C $(ICONDIR) micropeak-16.png \
+	-C $(ICONDIR) micropeak-32.png \
+	-C $(ICONDIR) micropeak-48.png \
+	-C $(ICONDIR) micropeak-64.png \
+	-C $(ICONDIR) micropeak-128.png \
+	-C $(ICONDIR) micropeak-256.png
 
 all-local: micropeak-test $(JAR)
 
