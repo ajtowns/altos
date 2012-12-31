@@ -834,8 +834,8 @@ ao_radio_rx_isr(void)
 {
 	uint8_t	d;
 
-	d = stm_spi2.dr;
-	stm_spi2.dr = 0;
+	d = AO_CC1120_SPI.dr;
+	AO_CC1120_SPI.dr = 0;
 	if (rx_ignore == 0) {
 		if (rx_data_cur >= rx_data_count)
 			ao_exti_disable(AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
@@ -922,10 +922,10 @@ ao_radio_recv(__xdata void *d, uint8_t size)
 	ao_radio_wake = 0;
 	ao_radio_mcu_wake = 0;
 
-	stm_spi2.cr2 = 0;
+	AO_CC1120_SPI.cr2 = 0;
 
 	/* clear any RXNE */
-	(void) stm_spi2.dr;
+	(void) AO_CC1120_SPI.dr;
 
 	/* Have the radio signal when the preamble quality goes high */
 	ao_radio_reg_write(AO_CC1120_INT_GPIO_IOCFG, CC1120_IOCFG_GPIO_CFG_PQT_REACHED);
