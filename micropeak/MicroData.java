@@ -22,6 +22,87 @@ import java.io.*;
 import java.util.*;
 import org.altusmetrum.AltosLib.*;
 
+abstract class MicroIterator implements Iterator<Double> {
+	int		i;
+	MicroData	data;
+
+	public boolean hasNext() {
+		return i < data.pressures.length;
+	}
+
+	public MicroIterator (MicroData data) {
+		this.data = data;
+		i = 0;
+	}
+
+	public void remove() {
+	}
+}
+
+class MicroHeightIterator extends MicroIterator {
+	public Double next() {
+		return data.height(i++);
+	}
+
+	public MicroHeightIterator(MicroData data) {
+		super(data);
+	}
+}
+
+class MicroHeightIterable implements Iterable<Double> {
+	MicroData	data;
+
+	public Iterator<Double> iterator() {
+		return new MicroHeightIterator(data);
+	}
+
+	public MicroHeightIterable(MicroData data) {
+		this.data = data;
+	}
+}
+
+class MicroSpeedIterator extends MicroIterator {
+	public Double next() {
+		return data.speed(i++);
+	}
+	public MicroSpeedIterator(MicroData data) {
+		super(data);
+	}
+}
+
+class MicroSpeedIterable implements Iterable<Double> {
+	MicroData	data;
+
+	public Iterator<Double> iterator() {
+		return new MicroSpeedIterator(data);
+	}
+
+	public MicroSpeedIterable(MicroData data) {
+		this.data = data;
+	}
+}
+
+class MicroAccelIterator extends MicroIterator {
+	public Double next() {
+		return data.acceleration(i++);
+	}
+	public MicroAccelIterator(MicroData data) {
+		super(data);
+	}
+}
+
+class MicroAccelIterable implements Iterable<Double> {
+	MicroData	data;
+
+	public Iterator<Double> iterator() {
+		return new MicroAccelIterator(data);
+	}
+
+	public MicroAccelIterable(MicroData data) {
+		this.data = data;
+	}
+}
+
 public class MicroData {
 	public int		ground_pressure;
 	public int		min_pressure;
@@ -141,6 +222,18 @@ public class MicroData {
 
 	public double altitude(int i) {
 		return AltosConvert.pressure_to_altitude(pressures[i]);
+	}
+
+	public Iterable<Double> heights() {
+		return new MicroHeightIterable(this);
+	}
+
+	public Iterable<Double> speeds() {
+		return new MicroSpeedIterable(this);
+	}
+
+	public Iterable<Double> accels() {
+		return new MicroAccelIterable(this);
 	}
 
 	int fact(int n) {
@@ -265,6 +358,13 @@ public class MicroData {
 		} catch (NonHexcharException ne) {
 			throw new IOException();
 		}
+	}
+
+	public MicroData() {
+		ground_pressure = 101000;
+		min_pressure = 101000;
+		pressures = new int[1];
+		pressures[0] = 101000;
 	}
 	
 }

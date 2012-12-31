@@ -24,17 +24,17 @@ import org.altusmetrum.AltosLib.*;
 
 public class AltosUILib extends AltosLib {
 
-	static final int tab_elt_pad = 5;
+	public static final int tab_elt_pad = 5;
 
-	static Font label_font;
-	static Font value_font;
-	static Font status_font;
-	static Font table_label_font;
-	static Font table_value_font;
+	public static Font label_font;
+	public static Font value_font;
+	public static Font status_font;
+	public static Font table_label_font;
+	public static Font table_value_font;
 
-	final static int font_size_small = 1;
-	final static int font_size_medium = 2;
-	final static int font_size_large = 3;
+	final public static int font_size_small = 1;
+	final public static int font_size_medium = 2;
+	final public static int font_size_large = 3;
 
 	static void set_fonts(int size) {
 		int	brief_size;

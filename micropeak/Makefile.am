@@ -13,6 +13,8 @@ micropeak_JAVA= \
 	MicroFrame.java \
 	MicroGraph.java \
 	MicroSerial.java \
+	MicroStats.java \
+	MicroStatsTable.java \
 	MicroFileChooser.java \
 	MicroUSB.java
 
