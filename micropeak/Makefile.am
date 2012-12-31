@@ -1,7 +1,7 @@
 JAVAROOT=classes
 AM_JAVACFLAGS=-encoding UTF-8 -Xlint:deprecation
 
-CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../altoslib/*:../libaltos:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar"
+CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../altoslib/*:../altosuilib/*:../libaltos:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar"
 
 bin_SCRIPTS=micropeak
 
@@ -14,10 +14,6 @@ micropeak_JAVA= \
 	MicroGraph.java \
 	MicroSerial.java \
 	MicroFileChooser.java \
-	MicroPreferences.java \
-	MicroPreferencesBackend.java \
-	MicroFontListener.java \
-	MicroUIListener.java \
 	MicroUSB.java
 
 JFREECHART_CLASS= \
@@ -37,6 +33,9 @@ LIBALTOS= \
 
 ALTOSLIB_CLASS=\
 	AltosLib.jar
+
+ALTOSUILIB_CLASS=\
+	AltosUILib.jar
 
 # Icons
 ICONDIR=$(top_srcdir)/icon
@@ -62,6 +61,7 @@ all-local: micropeak-test $(JAR)
 clean-local:
 	-rm -rf classes $(JAR) $(FATJAR) \
 		$(ALTOSLIB_CLASS) \
+		$(ALTOSUILIB_CLASS) \
 		$(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) Manifest.txt \
 		micropeak micropeak-test macosx linux windows
 
@@ -75,13 +75,13 @@ micropeak-test: Makefile
 	echo 'exec java -cp "./*:../libaltos/*:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="../libaltos/.libs" -jar micropeak.jar "$$@"' >> $@
 	chmod +x $@
 
-$(JAR): classmicropeak.stamp Manifest.txt $(JAVA_ICONS) $(ALTOSLIB_CLASS)
+$(JAR): classmicropeak.stamp Manifest.txt $(JAVA_ICONS) $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS)
 	jar cfm $@ Manifest.txt \
 		$(ICONJAR) \
 		-C classes org \
 		-C ../libaltos libaltosJNI
 
-$(FATJAR): classmicropeak.stamp Manifest-fat.txt $(ALTOSLIB_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS) $(JAVA_ICONS)
+$(FATJAR): classmicropeak.stamp Manifest-fat.txt $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS) $(JAVA_ICONS)
 	jar cfm $@ Manifest-fat.txt \
 		$(ICONJAR) \
 		-C classes org \
@@ -122,6 +122,10 @@ $(ALTOSLIB_CLASS):
 	-rm -f "$@"
 	$(LN_S) ../altoslib/"$@" .
 
+$(ALTOSUILIB_CLASS):
+	-rm -f "$@"
+	$(LN_S) ../altosuilib/"$@" .
+
 $(JFREECHART_CLASS):
 	-rm -f "$@"
 	$(LN_S) "$(JFREECHART)"/"$@" .
@@ -132,9 +136,9 @@ $(JCOMMON_CLASS):
 
 Manifest.txt: Makefile
 	echo 'Main-Class: org.altusmetrum.micropeak.MicroPeak' > $@
-	echo "Class-Path: AltosLib.jar $(JCOMMON)/jcommon.jar $(JFREECHART)/jfreechart.jar" >> $@
+	echo "Class-Path: AltosLib.jar AltosUILib.jar $(JCOMMON)/jcommon.jar $(JFREECHART)/jfreechart.jar" >> $@
 
 Manifest-fat.txt:
 	echo 'Main-Class: org.altusmetrum.micropeak.MicroPeak' > $@
-	echo "Class-Path: AltosLib.jar jcommon.jar jfreechart.jar" >> $@
+	echo "Class-Path: AltosLib.jar AltosUILib.jar jcommon.jar jfreechart.jar" >> $@
 

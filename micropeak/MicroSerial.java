@@ -16,16 +16,18 @@
  */
 
 package org.altusmetrum.micropeak;
+
 import java.util.*;
 import java.io.*;
 import libaltosJNI.*;
+import org.altusmetrum.altosuilib.*;
 
 public class MicroSerial extends InputStream {
 	SWIGTYPE_p_altos_file	file;
 
 	public int read() {
 		int	c = libaltos.altos_getchar(file, 0);
-		if (MicroPreferences.serial_debug)
+		if (AltosUIPreferences.serial_debug)
 			System.out.printf("%c", c);
 		return c;
 	}

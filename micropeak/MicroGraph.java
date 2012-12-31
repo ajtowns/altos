@@ -34,15 +34,47 @@ import org.jfree.chart.labels.*;
 import org.jfree.data.xy.*;
 import org.jfree.data.*;
 
-public class MicroGraph {
+class MicroSeries extends XYSeries {
+	NumberAxis	axis;
+	String		label;
+	String		units;
+	Color		color;
+	
+	String label() {
+		return String.format("%s (%s)", label, units);
+	}
+
+	void set_units(String units) {
+		this.units = units;
+
+		axis.setLabel(label());
+	}
+
+	public MicroSeries (String label, String units, Color color) {
+		super(label);
+		this.label = label;
+		this.units = units;
+		this.color = color;
+
+		axis = new NumberAxis(label());
+		axis.setLabelPaint(color);
+		axis.setTickLabelPaint(color);
+	}
+}
+
+public class MicroGraph implements AltosUnitsListener {
 
 	XYPlot		plot;
 	JFreeChart	chart;
 	ChartPanel	panel;
 	NumberAxis	xAxis;
-	XYSeries	heightSeries;
-	XYSeries	speedSeries;
-	XYSeries	accelSeries;
+	MicroSeries	heightSeries;
+        MicroSeries	speedSeries;
+	MicroSeries	accelSeries;
+
+	static final private Color red = new Color(194,31,31);
+	static final private Color green = new Color(31,194,31);
+	static final private Color blue = new Color(31,31,194);
 
 	MicroData	data;
 
@@ -50,40 +82,50 @@ public class MicroGraph {
 		return panel;
 	}
 
-	private void addSeries(XYSeries series, int index, String label, String units) {
+	private MicroSeries addSeries(int index, String label, String units, Color color) {
+		MicroSeries		series = new MicroSeries(label, units, color);
 		XYSeriesCollection	dataset = new XYSeriesCollection(series);
-		NumberAxis		axis = new NumberAxis(String.format("%s (%s)", label, units));
 		XYItemRenderer		renderer = new XYLineAndShapeRenderer(true, false);
 
+		renderer.setSeriesPaint(0, color);
 		renderer.setPlot(plot);
 		renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator(String.format("{1}s: {2}%s ({0})", units),
 										new java.text.DecimalFormat("0.00"),
 										new java.text.DecimalFormat("0.00")));
-		plot.setRangeAxis(index, axis);
+		plot.setRangeAxis(index, series.axis);
 		plot.setDataset(index, dataset);
 		plot.setRenderer(index, renderer);
 		plot.mapDatasetToRangeAxis(index, index);
+		return series;
 	}
 	
-	public void setData (MicroData data) {
+	public void resetData() {
 		heightSeries.clear();
 		speedSeries.clear();
 		accelSeries.clear();
 		for (int i = 0; i < data.pressures.length; i++) {
 			double x = data.time(i);
-			heightSeries.add(x, data.height(i));
-			speedSeries.add(x, data.speed(i));
-			accelSeries.add(x, data.acceleration(i));
+			heightSeries.add(x, AltosConvert.height.value(data.height(i)));
+			speedSeries.add(x, AltosConvert.speed.value(data.speed(i)));
+			accelSeries.add(x, AltosConvert.accel.value(data.acceleration(i)));
 		}
 	}
 
-	public MicroGraph(MicroData data) {
-
+	public void setData (MicroData data) {
 		this.data = data;
+		resetData();
+	}
 
-		heightSeries = new XYSeries("Height");
-		speedSeries = new XYSeries("Speed");
-		accelSeries = new XYSeries("Acceleration");
+	public void units_changed(boolean imperial_units) {
+		if (data != null) {
+			heightSeries.set_units(AltosConvert.height.show_units());
+			speedSeries.set_units(AltosConvert.speed.show_units());
+			accelSeries.set_units(AltosConvert.accel.show_units());
+			resetData();
+		}
+	}
+
+	public MicroGraph() {
 
 		xAxis = new NumberAxis("Time (s)");
 		
@@ -95,9 +137,9 @@ public class MicroGraph {
 		plot.setDomainPannable(true);
 		plot.setRangePannable(true);
 
-		addSeries(heightSeries, 0, "Height", "m");
-		addSeries(speedSeries, 1, "Speed", "m/s");
-		addSeries(accelSeries, 2, "Acceleration", "m/s²");
+		heightSeries = addSeries(0, "Height", AltosConvert.height.show_units(), red);
+		speedSeries = addSeries(1, "Speed", AltosConvert.speed.show_units(), green);
+		accelSeries = addSeries(2, "Acceleration", AltosConvert.accel.show_units(), blue);
 
 		chart = new JFreeChart("Flight", JFreeChart.DEFAULT_TITLE_FONT,
 				       plot, true);
@@ -106,5 +148,7 @@ public class MicroGraph {
 		panel = new ChartPanel(chart);
 		panel.setMouseWheelEnabled(true);
 		panel.setPreferredSize(new java.awt.Dimension(800, 500));
+
+		AltosPreferences.register_units_listener(this);
 	}
 }

@@ -21,21 +21,10 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
+import org.altusmetrum.altosuilib.*;
 
-class MicroFrameListener extends WindowAdapter {
-	public void windowClosing (WindowEvent e) {
-		MicroPreferences.unregister_ui_listener((MicroFrame) e.getWindow());
-	}
-}
-
-public class MicroFrame extends JFrame implements MicroUIListener {
-
-	public void ui_changed(String look_and_feel) {
-		SwingUtilities.updateComponentTreeUI(this);
-		this.pack();
-	}
-
-	static final String[] icon_names = {
+public class MicroFrame extends AltosUIFrame {
+	static String[] micro_icon_names = {
 		"/micropeak-16.png",
 		"/micropeak-32.png",
 		"/micropeak-48.png",
@@ -44,31 +33,5 @@ public class MicroFrame extends JFrame implements MicroUIListener {
 		"/micropeak-256.png"
 	};
 
-	public void set_icon() {
-		ArrayList<Image> icons = new ArrayList<Image>();
-		
-		for (int i = 0; i < icon_names.length; i++) {
-			java.net.URL imgURL = MicroPeak.class.getResource(icon_names[i]);
-			if (imgURL != null)
-				icons.add(new ImageIcon(imgURL).getImage());
-		}
-
-		setIconImages(icons);
-	}
-			
-	public MicroFrame() {
-		super();
-		MicroPreferences.set_component(this);
-		MicroPreferences.register_ui_listener(this);
-		addWindowListener(new MicroFrameListener());
-		set_icon();
-	}
-
-	public MicroFrame(String name) {
-		super(name);
-		MicroPreferences.set_component(this);
-		MicroPreferences.register_ui_listener(this);
-		addWindowListener(new MicroFrameListener());
-		set_icon();
-	}
+	static { set_icon_names(micro_icon_names); }
 }

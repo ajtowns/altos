@@ -24,6 +24,7 @@ import java.io.*;
 import java.util.concurrent.*;
 import java.util.*;
 import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altosuilib.*;
 
 public class MicroPeak extends MicroFrame implements ActionListener, ItemListener {
 
@@ -59,6 +60,10 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 			RunFile(input);
 	}
 
+	private void Preferences() {
+		new AltosConfigureUI(this);
+	}
+		
 	private void DownloadData() {
 		java.util.List<MicroUSB>	devices = MicroUSB.list();
 		for (MicroUSB device : devices)
@@ -66,7 +71,6 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 	}
 
 	public void actionPerformed(ActionEvent ev) {
-		System.out.printf("action %s %s\n", ev.getActionCommand(), ev.paramString());
 		if ("Exit".equals(ev.getActionCommand()))
 			System.exit(0);
 		else if ("Open".equals(ev.getActionCommand()))
@@ -75,6 +79,8 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 			new MicroPeak();
 		else if ("Download".equals(ev.getActionCommand()))
 			DownloadData();
+		else if ("Preferences".equals(ev.getActionCommand()))
+			Preferences();
 	}
 
 	public void itemStateChanged(ItemEvent e) {
@@ -82,7 +88,7 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 
 	public MicroPeak() {
 
-		this.filename = filename;
+		AltosUIPreferences.set_component(this);
 
 		pane = getContentPane();
 
@@ -106,6 +112,10 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		fileMenu.add(downloadAction);
 		downloadAction.addActionListener(this);
 
+		JMenuItem preferencesAction = new JMenuItem("Preferences");
+		fileMenu.add(preferencesAction);
+		preferencesAction.addActionListener(this);
+
 		JMenuItem exitAction = new JMenuItem("Exit");
 		fileMenu.add(exitAction);
 		exitAction.addActionListener(this);
@@ -118,7 +128,7 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 			}
 		});
 
-		graph = new MicroGraph(data);
+		graph = new MicroGraph();
 		pane.add(graph.panel);
 		pane.doLayout();
 		pane.validate();
@@ -135,6 +145,11 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 
 	public static void main(final String[] args) {
 		boolean	opened = false;
+
+		try {
+			UIManager.setLookAndFeel(AltosUIPreferences.look_and_feel());
+		} catch (Exception e) {
+		}
 
 		for (int i = 0; i < args.length; i++) {
 			MicroPeak m = new MicroPeak();

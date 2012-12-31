@@ -21,6 +21,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.*;
 import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altosuilib.*;
 
 public class MicroFileChooser extends JFileChooser {
 	JFrame	frame;
@@ -61,5 +62,6 @@ public class MicroFileChooser extends JFileChooser {
 		setDialogTitle("Select MicroPeak Data File");
 		setFileFilter(new FileNameExtensionFilter("MicroPeak data file",
 							  "mpd"));
+		setCurrentDirectory(AltosUIPreferences.logdir());
 	}
 }
