@@ -367,6 +367,8 @@ public class AltosPreferences {
 		set_common_frequencies(new_frequencies);
 	}
 
+	static LinkedList<AltosUnitsListener> units_listeners;
+
 	public static boolean imperial_units() {
 		synchronized(backend) {
 			return AltosConvert.imperial_units;
@@ -378,6 +380,25 @@ public class AltosPreferences {
 			AltosConvert.imperial_units = imperial_units;
 			backend.putBoolean(unitsPreference, imperial_units);
 			flush_preferences();
+		}
+		if (units_listeners != null) {
+			for (AltosUnitsListener l : units_listeners) {
+				l.units_changed(imperial_units);
+			}
+		}
+	}
+
+	public static void register_units_listener(AltosUnitsListener l) {
+		synchronized(backend) {
+			if (units_listeners == null)
+				units_listeners = new LinkedList<AltosUnitsListener>();
+			units_listeners.add(l);
+		}
+	}
+
+	public static void unregister_units_listener(AltosUnitsListener l) {
+		synchronized(backend) {
+			units_listeners.remove(l);
 		}
 	}
 }
