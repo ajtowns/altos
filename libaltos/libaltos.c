@@ -116,6 +116,7 @@ altos_open(struct altos_device *device)
 		return NULL;
 	}
 
+	printf ("open\n");
 //	altos_set_last_error(12, "yeah yeah, failed again");
 //	free(file);
 //	return NULL;
@@ -148,6 +149,8 @@ altos_open(struct altos_device *device)
 		return NULL;
 	}
 	cfmakeraw(&term);
+	cfsetospeed(&term, B9600);
+	cfsetispeed(&term, B9600);
 #ifdef USE_POLL
 	term.c_cc[VMIN] = 1;
 	term.c_cc[VTIME] = 0;
@@ -609,6 +612,7 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 {
 	struct altos_usbdev *dev;
 	if (list->current >= list->ndev) {
+		printf ("end\n");
 		return 0;
 	}
 	dev = list->dev[list->current];

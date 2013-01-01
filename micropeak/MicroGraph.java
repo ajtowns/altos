@@ -111,8 +111,13 @@ public class MicroGraph implements AltosUnitsListener {
 		}
 	}
 
+	public void setName (String name) {
+		chart.setTitle(name);
+	}
+
 	public void setData (MicroData data) {
 		this.data = data;
+		chart.setTitle(data.name);
 		resetData();
 	}
 

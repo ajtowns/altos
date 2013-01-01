@@ -34,13 +34,36 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 	MicroData	data;
 	Container	container;
 	JTabbedPane	pane;
+	static int	number_of_windows;
 
-	private void RunFile(InputStream input) {
+	MicroPeak SetData(MicroData data) {
+		MicroPeak	mp = this;
+		if (this.data != null) {
+			mp = new MicroPeak();
+			return mp.SetData(data);
+		}
+		this.data = data;
+		graph.setData(data);
+		stats.setData(data);
+		setTitle(data.name);
+		return this;
+	}
+
+	void SetName(String name) {
+		graph.setName(name);
+		setTitle(name);
+	}
+
+	private void RunFile(InputStream input, String name) {
 		try {
-			data = new MicroData(input);
-			graph.setData(data);
-			stats.setData(data);
+			MicroData data = new MicroData(input, name);
+			SetData(data);
 		} catch (IOException ioe) {
+			JOptionPane.showMessageDialog(this,
+						      ioe.getMessage(),
+						      "File Read Error",
+						      JOptionPane.ERROR_MESSAGE);
+		} catch (InterruptedException ie) {
 		}
 		try {
 			input.close();
@@ -50,8 +73,12 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 
 	private void OpenFile(File filename) {
 		try {
-			RunFile (new FileInputStream(filename));
+			RunFile (new FileInputStream(filename), filename.getName());
 		} catch (FileNotFoundException fne) {
+			JOptionPane.showMessageDialog(this,
+						      fne.getMessage(),
+						      "Cannot open file",
+						      JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -60,36 +87,52 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		InputStream		input = chooser.runDialog();
 
 		if (input != null)
-			RunFile(input);
+			RunFile(input, chooser.filename);
 	}
 
 	private void Preferences() {
 		new AltosConfigureUI(this);
 	}
-		
+
 	private void DownloadData() {
-		java.util.List<MicroUSB>	devices = MicroUSB.list();
-		for (MicroUSB device : devices)
-			System.out.printf("device %s\n", device.toString());
+		AltosDevice	device = MicroDeviceDialog.show(this);
+		
+		if (device != null)
+			new MicroDownload(this, device);
 	}
 
+	private void Save() {
+		if (data == null) {
+			JOptionPane.showMessageDialog(this,
+						      "No data available",
+						      "No data",
+						      JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+		MicroSave	save = new MicroSave (this, data);
+		if (save.runDialog())
+			SetName(data.name);
+	}
+	
 	public void actionPerformed(ActionEvent ev) {
 		if ("Exit".equals(ev.getActionCommand()))
 			System.exit(0);
 		else if ("Open".equals(ev.getActionCommand()))
 			SelectFile();
-		else if ("New".equals(ev.getActionCommand()))
-			new MicroPeak();
 		else if ("Download".equals(ev.getActionCommand()))
 			DownloadData();
 		else if ("Preferences".equals(ev.getActionCommand()))
 			Preferences();
+		else if ("Save a Copy".equals(ev.getActionCommand()))
+			Save();
 	}
 
 	public void itemStateChanged(ItemEvent e) {
 	}
 
 	public MicroPeak() {
+
+		++number_of_windows;
 
 		AltosUIPreferences.set_component(this);
 
@@ -104,10 +147,6 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		JMenu fileMenu = new JMenu("File");
 		menuBar.add(fileMenu);
 
-		JMenuItem newAction = new JMenuItem("New");
-		fileMenu.add(newAction);
-		newAction.addActionListener(this);
-
 		JMenuItem openAction = new JMenuItem("Open");
 		fileMenu.add(openAction);
 		openAction.addActionListener(this);
@@ -115,6 +154,10 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		JMenuItem downloadAction = new JMenuItem("Download");
 		fileMenu.add(downloadAction);
 		downloadAction.addActionListener(this);
+
+		JMenuItem saveAction = new JMenuItem("Save a Copy");
+		fileMenu.add(saveAction);
+		saveAction.addActionListener(this);
 
 		JMenuItem preferencesAction = new JMenuItem("Preferences");
 		fileMenu.add(preferencesAction);
@@ -128,7 +171,11 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				System.exit(0);
+				setVisible(false);
+				dispose();
+				--number_of_windows;
+				if (number_of_windows == 0)
+					System.exit(0);
 			}
 		});
 

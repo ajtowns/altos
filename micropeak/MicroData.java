@@ -110,6 +110,7 @@ public class MicroData {
 	private double		time_step;
 	private double		ground_altitude;
 	private ArrayList<Integer>	bytes;
+	String			name;
 	
 
 	class FileEndedException extends Exception {
@@ -310,12 +311,18 @@ public class MicroData {
 	public void save (OutputStream f) throws IOException {
 		for (int c : bytes)
 			f.write(c);
+		f.write('\n');
 	}
 
-	public MicroData (InputStream f) throws IOException {
+	public void set_name(String name) {
+		this.name = name;
+	}
+
+	public MicroData (InputStream f, String name) throws IOException, InterruptedException {
+		this.name = name;
 		bytes = new ArrayList<Integer>();
 		if (!find_header(f))
-			throw new IOException();
+			throw new IOException("No MicroPeak data header found");
 		try {
 			file_crc = 0xffff;
 			ground_pressure = get_32(f);
@@ -354,9 +361,9 @@ public class MicroData {
 
 			time_step = 0.192;
 		} catch (FileEndedException fe) {
-			throw new IOException();
+			throw new IOException("File Ended Unexpectedly");
 		} catch (NonHexcharException ne) {
-			throw new IOException();
+			throw new IOException("Non hexadecimal character found");
 		}
 	}
 

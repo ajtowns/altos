@@ -15,51 +15,27 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.micropeak;
+package org.altusmetrum.altosuilib;
 
 import java.util.*;
 import libaltosJNI.*;
-import org.altusmetrum.altosuilib.*;
 
-public class MicroUSB extends altos_device implements AltosDevice {
-
-	static boolean	initialized = false;
-	static boolean	loaded_library = false;
-
-	public static boolean load_library() {
-		if (!initialized) {
-			try {
-				System.loadLibrary("altos");
-				libaltos.altos_init();
-				loaded_library = true;
-			} catch (UnsatisfiedLinkError e) {
-				try {
-					System.loadLibrary("altos64");
-					libaltos.altos_init();
-					loaded_library = true;
-				} catch (UnsatisfiedLinkError e2) {
-					loaded_library = false;
-				}
-			}
-			initialized = true;
-		}
-		return loaded_library;
-	}
+public class AltosUSBDevice  extends altos_device implements AltosDevice {
 
 	public String toString() {
 		String	name = getName();
 		if (name == null)
 			name = "Altus Metrum";
-		return String.format("%-20.20s %s",
-				     name, getPath());
+		return String.format("%-20.20s %4d %s",
+				     name, getSerial(), getPath());
 	}
 
 	public String toShortString() {
 		String	name = getName();
 		if (name == null)
 			name = "Altus Metrum";
-		return String.format("%s %s",
-				     name, getPath());
+		return String.format("%s %d %s",
+				     name, getSerial(), getPath());
 
 	}
 
@@ -74,32 +50,58 @@ public class MicroUSB extends altos_device implements AltosDevice {
 		return libaltos.altos_open(this);
 	}
 
-	private boolean isMicro() {
-		if (getVendor() != 0x0403)
+	private boolean isAltusMetrum() {
+		if (getVendor() != AltosUILib.vendor_altusmetrum)
 			return false;
-		if (getProduct() != 0x6015)
+		if (getProduct() < AltosUILib.product_altusmetrum_min)
+			return false;
+		if (getProduct() > AltosUILib.product_altusmetrum_max)
 			return false;
 		return true;
 	}
 
-	public boolean matchProduct(int product) {
-		return isMicro();
+	public boolean matchProduct(int want_product) {
+
+		if (!isAltusMetrum())
+			return false;
+
+		if (want_product == AltosUILib.product_any)
+			return true;
+
+		if (want_product == AltosUILib.product_basestation)
+			return matchProduct(AltosUILib.product_teledongle) ||
+				matchProduct(AltosUILib.product_teleterra) ||
+				matchProduct(AltosUILib.product_telebt) ||
+				matchProduct(AltosUILib.product_megadongle);
+
+		if (want_product == AltosUILib.product_altimeter)
+			return matchProduct(AltosUILib.product_telemetrum) ||
+				matchProduct(AltosUILib.product_megametrum);
+
+		int have_product = getProduct();
+
+		if (have_product == AltosUILib.product_altusmetrum)	/* old devices match any request */
+			return true;
+
+		if (want_product == have_product)
+			return true;
+
+		return false;
 	}
 
-	static java.util.List<MicroUSB> list() {
-		if (!load_library())
+	static java.util.List<AltosDevice> list(int product) {
+		if (!AltosUILib.load_library())
 			return null;
 
 		SWIGTYPE_p_altos_list list = libaltos.altos_list_start();
 
-		ArrayList<MicroUSB> device_list = new ArrayList<MicroUSB>();
+		ArrayList<AltosDevice> device_list = new ArrayList<AltosDevice>();
 		if (list != null) {
 			for (;;) {
-				MicroUSB device = new MicroUSB();
+				AltosUSBDevice device = new AltosUSBDevice();
 				if (libaltos.altos_list_next(list, device) == 0)
 					break;
-				System.out.printf("Device %s\n", device.toString());
-				if (device.isMicro())
+				if (device.matchProduct(product))
 					device_list.add(device);
 			}
 			libaltos.altos_list_finish(list);

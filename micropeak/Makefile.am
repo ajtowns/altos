@@ -10,12 +10,15 @@ micropeakdir=$(datadir)/java
 micropeak_JAVA= \
 	MicroPeak.java \
 	MicroData.java \
+	MicroDownload.java \
 	MicroFrame.java \
 	MicroGraph.java \
+	MicroSave.java \
 	MicroSerial.java \
 	MicroStats.java \
 	MicroStatsTable.java \
 	MicroFileChooser.java \
+	MicroDeviceDialog.java \
 	MicroUSB.java
 
 JFREECHART_CLASS= \

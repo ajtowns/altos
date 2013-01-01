@@ -11,6 +11,9 @@ AltosUILibdir = $(datadir)/java
 
 AltosUILib_JAVA = \
 	AltosConfigureUI.java \
+	AltosDevice.java \
+	AltosDeviceDialog.java \
+	AltosUSBDevice.java \
 	AltosFontListener.java \
 	AltosUIDialog.java \
 	AltosUIFrame.java \

@@ -17,39 +17,34 @@
 
 package org.altusmetrum.micropeak;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
-import java.io.*;
-import libaltosJNI.*;
 import org.altusmetrum.altosuilib.*;
 
-public class MicroSerial extends InputStream {
-	SWIGTYPE_p_altos_file	file;
+public class MicroDeviceDialog extends AltosDeviceDialog {
 
-	public int read() {
-		int	c = libaltos.altos_getchar(file, 0);
-		if (Thread.interrupted())
-			return -1;
-		if (c == -1)
-			return -1;
-		if (AltosUIPreferences.serial_debug)
-			System.out.printf("%c", c);
-		return c;
+	public AltosDevice[] devices() {
+		java.util.List<MicroUSB>	list = MicroUSB.list();
+		int		num_devices = list.size();
+		AltosDevice[]	devices = new AltosDevice[num_devices];
+
+		for (int i = 0; i < num_devices; i++)
+			devices[i] = list.get(i);
+		return devices;
 	}
 
-	public void close() {
-		if (file != null) {
-			libaltos.altos_close(file);
-			file = null;
-		}
+	public MicroDeviceDialog (Frame in_frame, Component location) {
+		super(in_frame, location, 0);
 	}
 
-	public MicroSerial(AltosDevice device) throws FileNotFoundException {
-		file = device.open();
-		if (file == null) {
-			final String message = device.getErrorString();
-			throw new FileNotFoundException(String.format("%s (%s)",
-								      device.toShortString(),
-								      message));
-		}
+	public static AltosDevice show (Component frameComp) {
+		Frame			frame = JOptionPane.getFrameForComponent(frameComp);
+		MicroDeviceDialog	dialog;
+
+		dialog = new MicroDeviceDialog (frame, frameComp);
+		dialog.setVisible(true);
+		return dialog.getValue();
 	}
 }
