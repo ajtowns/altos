@@ -75,7 +75,6 @@ altosui_JAVA = \
 	AltosSiteMapCache.java \
 	AltosSiteMapTile.java \
 	AltosUI.java \
-	AltosUIListener.java \
 	AltosWriter.java \
 	AltosDataPointReader.java \
 	AltosDataPoint.java \
