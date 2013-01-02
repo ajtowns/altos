@@ -20,9 +20,10 @@ package altosui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import org.altusmetrum.altosuilib.*;
 
 public class AltosRomconfigUI
-	extends AltosDialog
+	extends AltosUIDialog
 	implements ActionListener
 {
 	Container	pane;

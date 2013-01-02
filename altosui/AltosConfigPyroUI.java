@@ -22,9 +22,10 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altosuilib.*;
 
 public class AltosConfigPyroUI
-	extends AltosDialog
+	extends AltosUIDialog
 	implements ItemListener, DocumentListener
 {
 	AltosConfigUI	owner;

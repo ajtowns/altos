@@ -26,6 +26,7 @@ import java.text.*;
 import java.lang.Math;
 import java.net.URL;
 import java.net.URLConnection;
+import org.altusmetrum.altosuilib.*;
 
 class AltosMapPos extends Box {
 	AltosUI		owner;
@@ -205,7 +206,7 @@ class AltosSites extends Thread {
 	}
 }
 
-public class AltosSiteMapPreload extends AltosDialog implements ActionListener, ItemListener {
+public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener, ItemListener {
 	AltosUI		owner;
 	AltosSiteMap	map;
 

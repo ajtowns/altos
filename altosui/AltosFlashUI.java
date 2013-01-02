@@ -26,7 +26,7 @@ import java.util.concurrent.*;
 import org.altusmetrum.altosuilib.*;
 
 public class AltosFlashUI
-	extends AltosDialog
+	extends AltosUIDialog
 	implements ActionListener
 {
 	Container	pane;

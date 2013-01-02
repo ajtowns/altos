@@ -22,9 +22,10 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altosuilib.*;
 
 public class AltosCSVUI
-	extends AltosDialog
+	extends AltosUIDialog
 	implements ActionListener
 {
 	JFileChooser		csv_chooser;

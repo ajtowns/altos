@@ -6,7 +6,7 @@ man_MANS=altosui.1
 
 altoslibdir=$(libdir)/altos
 
-CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH="./*:$(JAVAROOT):../libaltos:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar:$(FREETTS)/freetts.jar"
+CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH="$(JAVAROOT):./*:../libaltos:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar:$(FREETTS)/freetts.jar"
 
 bin_SCRIPTS=altosui
 
@@ -76,8 +76,6 @@ altosui_JAVA = \
 	AltosSiteMapTile.java \
 	AltosUI.java \
 	AltosUIListener.java \
-	AltosFrame.java \
-	AltosDialog.java \
 	AltosWriter.java \
 	AltosDataPointReader.java \
 	AltosDataPoint.java \

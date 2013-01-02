@@ -27,7 +27,7 @@ import org.altusmetrum.AltosLib.*;
 import org.altusmetrum.altosuilib.*;
 
 public class AltosIgniteUI
-	extends AltosDialog
+	extends AltosUIDialog
 	implements ActionListener
 {
 	AltosDevice	device;

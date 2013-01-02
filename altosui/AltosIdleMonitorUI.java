@@ -25,7 +25,7 @@ import java.util.concurrent.*;
 import org.altusmetrum.AltosLib.*;
 import org.altusmetrum.altosuilib.*;
 
-public class AltosIdleMonitorUI extends AltosFrame implements AltosFlightDisplay, AltosFontListener, AltosIdleMonitorListener {
+public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDisplay, AltosFontListener, AltosIdleMonitorListener {
 	AltosDevice		device;
 	JTabbedPane		pane;
 	AltosPad		pad;

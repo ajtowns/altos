@@ -22,8 +22,9 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altosuilib.*;
 
-class AltosEditFreqUI extends AltosDialog implements ActionListener {
+class AltosEditFreqUI extends AltosUIDialog implements ActionListener {
 	Frame		frame;
 	JTextField	frequency;
 	JTextField	description;
@@ -158,7 +159,7 @@ class AltosEditFreqUI extends AltosDialog implements ActionListener {
 	}
 }
 
-public class AltosConfigFreqUI extends AltosDialog implements ActionListener {
+public class AltosConfigFreqUI extends AltosUIDialog implements ActionListener {
 
 	Frame frame;
 	LinkedList<ActionListener> listeners;

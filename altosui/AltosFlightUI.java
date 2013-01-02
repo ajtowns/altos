@@ -24,7 +24,7 @@ import java.util.concurrent.*;
 import org.altusmetrum.AltosLib.*;
 import org.altusmetrum.altosuilib.*;
 
-public class AltosFlightUI extends AltosFrame implements AltosFlightDisplay, AltosFontListener {
+public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay, AltosFontListener {
 	AltosVoice		voice;
 	AltosFlightReader	reader;
 	AltosDisplayThread	thread;

@@ -46,7 +46,7 @@ class FireButton extends JButton {
 }
 
 public class AltosLaunchUI
-	extends AltosDialog
+	extends AltosUIDialog
 	implements ActionListener
 {
 	AltosDevice	device;

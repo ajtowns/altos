@@ -25,7 +25,7 @@ import java.util.concurrent.*;
 import org.altusmetrum.AltosLib.*;
 import org.altusmetrum.altosuilib.*;
 
-public class AltosUI extends AltosFrame {
+public class AltosUI extends AltosUIFrame {
 	public AltosVoice voice = new AltosVoice();
 
 	public static boolean load_library(Frame frame) {
