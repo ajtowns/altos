@@ -97,7 +97,6 @@ public class AltosLib {
 	public final static int product_any = 0x10000;
 	public final static int product_basestation = 0x10000 + 1;
 	public final static int product_altimeter = 0x10000 + 2;
-	public final static int product_micropeak_serial = 0x10000 + 3;
 
 	/* Bluetooth "identifier" (bluetooth sucks) */
 	public final static String bt_product_telebt = "TeleBT";
