@@ -50,7 +50,7 @@ public class AltosUSBDevice  extends altos_device implements AltosDevice {
 		return libaltos.altos_open(this);
 	}
 
-	private boolean isAltusMetrum() {
+	public boolean isAltusMetrum() {
 		if (getVendor() != AltosUILib.vendor_altusmetrum)
 			return false;
 		if (getProduct() < AltosUILib.product_altusmetrum_min)
@@ -89,7 +89,7 @@ public class AltosUSBDevice  extends altos_device implements AltosDevice {
 		return false;
 	}
 
-	static java.util.List<AltosDevice> list(int product) {
+	static public java.util.List<AltosDevice> list(int product) {
 		if (!AltosUILib.load_library())
 			return null;
 
