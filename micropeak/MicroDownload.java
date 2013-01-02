@@ -37,10 +37,17 @@ public class MicroDownload extends AltosUIDialog implements Runnable, ActionList
 	private void done_internal() {
 		setVisible(false);
 		if (data != null) {
-			owner = owner.SetData(data);
-			MicroSave save = new MicroSave(owner, data);
-			if (save.runDialog())
-				owner.SetName(data.name);
+			if (data.crc_valid) {
+				owner = owner.SetData(data);
+				MicroSave save = new MicroSave(owner, data);
+				if (save.runDialog())
+					owner.SetName(data.name);
+			} else {
+				JOptionPane.showMessageDialog(owner,
+							      "Flight data corrupted",
+							      "Download Failed",
+							      JOptionPane.ERROR_MESSAGE);
+			}
 		}
 		dispose();
 	}
