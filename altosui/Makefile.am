@@ -50,7 +50,6 @@ altosui_JAVA = \
 	AltosFlightStatus.java \
 	AltosFlightStatusUpdate.java \
 	AltosFlightUI.java \
-	AltosFontListener.java \
 	AltosFreqList.java \
 	AltosHexfile.java \
 	Altos.java \
