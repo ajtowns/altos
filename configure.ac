@@ -153,6 +153,7 @@ altosui/AltosVersion.java
 altosui/Info.plist
 libaltos/Makefile
 micropeak/Makefile
+micropeak/Info.plist
 altosdroid/Makefile
 altosdroid/local.properties
 ao-tools/Makefile

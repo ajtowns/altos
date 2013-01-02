@@ -34,6 +34,7 @@ FATJAR=micropeak-fat.jar
 LIBALTOS= \
 	libaltos.so \
 	libaltos.dylib \
+	altos64.dll \
 	altos.dll
 
 ALTOSLIB_CLASS=\
@@ -61,14 +62,57 @@ ICONJAR= -C $(ICONDIR) micropeak-16.png \
 	-C $(ICONDIR) micropeak-128.png \
 	-C $(ICONDIR) micropeak-256.png
 
+WINDOWS_ICON=$(ICONDIR)/micro-peak.ico
+
 all-local: micropeak-test $(JAR)
 
 clean-local:
 	-rm -rf classes $(JAR) $(FATJAR) \
+		$(LINUX_DIST) $(MACOSX_DIST) windows $(WINDOWS_DIST) \
 		$(ALTOSLIB_CLASS) \
 		$(ALTOSUILIB_CLASS) \
 		$(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) Manifest.txt \
 		micropeak micropeak-test macosx linux windows
+
+LINUX_DIST=MicroPeak-Linux-$(VERSION).tar.bz2
+MACOSX_DIST=MicroPeak-Mac-$(VERSION).zip
+WINDOWS_DIST=MicroPeak-Windows-$(VERSION_DASH).exe
+
+FAT_FILES=$(FATJAR) $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS)
+
+LINUX_FILES=$(FAT_FILES) libaltos.so $(FIRMWARE) $(DOC)
+LINUX_EXTRA=micropeak-fat
+
+MACOSX_INFO_PLIST=Info.plist
+MACOSX_FILES=$(FAT_FILES) libaltos.dylib $(MACOSX_INFO_PLIST)
+
+WINDOWS_FILES=$(FAT_FILES) altos.dll altos64.dll $(top_srcdir)/telemetrum.inf $(WINDOWS_ICON)
+
+if FATINSTALL
+
+FATTARGET=$(FATDIR)/$(VERSION)
+
+LINUX_DIST_TARGET=$(FATTARGET)/$(LINUX_DIST)
+MACOSX_DIST_TARGET=$(FATTARGET)/$(MACOSX_DIST)
+WINDOWS_DIST_TARGET=$(FATTARGET)/$(WINDOWS_DIST)
+
+fat: $(LINUX_DIST_TARGET) $(MACOSX_DIST_TARGET) $(WINDOWS_DIST_TARGET)
+
+$(LINUX_DIST_TARGET): $(LINUX_DIST)
+	mkdir -p $(FATTARGET)
+	cp -p $< $@
+
+$(MACOSX_DIST_TARGET): $(MACOSX_DIST)
+	mkdir -p $(FATTARGET)
+	cp -p $< $@
+
+$(WINDOWS_DIST_TARGET): $(WINDOWS_DIST)
+	mkdir -p $(FATTARGET)
+	cp -p $< $@
+
+else
+fat: $(LINUX_DIST) $(MACOSX_DIST) $(WINDOWS_DIST)
+endif
 
 micropeak: Makefile
 	echo "#!/bin/sh" > $@
@@ -79,6 +123,12 @@ micropeak-test: Makefile
 	echo "#!/bin/sh" > $@
 	echo 'exec java -cp "./*:../libaltos/*:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="../libaltos/.libs" -jar micropeak.jar "$$@"' >> $@
 	chmod +x $@
+
+install-micropeakJAVA: micropeak.jar
+	@$(NORMAL_INSTALL)
+	test -z "$(micropeakdir)" || $(MKDIR_P) "$(DESTDIR)$(micropeakdir)"
+	echo " $(INSTALL_DATA)" "$<" "'$(DESTDIR)$(micropeakdir)/micropeak.jar'"; \
+	$(INSTALL_DATA) "$<" "$(DESTDIR)$(micropeakdir)"
 
 $(JAR): classmicropeak.stamp Manifest.txt $(JAVA_ICONS) $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS)
 	jar cfm $@ Manifest.txt \
@@ -91,7 +141,6 @@ $(FATJAR): classmicropeak.stamp Manifest-fat.txt $(ALTOSLIB_CLASS) $(ALTOSUILIB_
 		$(ICONJAR) \
 		-C classes org \
 		-C ../libaltos libaltosJNI
-
 
 libaltos.so: build-libaltos
 	-rm -f "$@"
@@ -138,6 +187,34 @@ $(JFREECHART_CLASS):
 $(JCOMMON_CLASS):
 	-rm -f "$@"
 	$(LN_S) "$(JCOMMON)"/"$@" .
+
+$(LINUX_DIST): $(LINUX_FILES) $(LINUX_EXTRA)
+	-rm -f $@
+	-rm -rf linux
+	mkdir -p linux/MicroPeak
+	cp -p $(LINUX_FILES) linux/MicroPeak
+	cp -p micropeak-fat linux/MicroPeak/micropeak
+	chmod +x linux/MicroPeak/micropeak
+	tar cjf $@ -C linux MicroPeak
+
+$(MACOSX_DIST): $(MACOSX_FILES)
+	-rm -f $@
+	-rm -rf macosx
+	mkdir macosx
+	cp -a MicroPeak.app macosx/
+	cp -p Info.plist macosx/MicroPeak.app/Contents
+	mkdir -p macosx/MicroPeak macosx/MicroPeak.app/Contents/Resources/Java
+	cp -p $(FATJAR) macosx/MicroPeak.app/Contents/Resources/Java/micropeak.jar
+	cp -p libaltos.dylib macosx/MicroPeak.app/Contents/Resources/Java
+	cp -p $(ALTOSLIB_CLASS) macosx/MicroPeak.app/Contents/Resources/Java
+	cp -p $(ALTOSUILIB_CLASS) macosx/MicroPeak.app/Contents/Resources/Java
+	cp -p $(JFREECHART_CLASS) macosx/MicroPeak.app/Contents/Resources/Java
+	cp -p $(JCOMMON_CLASS) macosx/MicroPeak.app/Contents/Resources/Java
+	cd macosx && zip -r ../$@ MicroPeak.app MicroPeak
+
+$(WINDOWS_DIST): $(WINDOWS_FILES) micropeak-windows.nsi
+	-rm -f $@
+	makensis -Omicropeak-windows.log "-XOutFile $@" "-DVERSION=$(VERSION)" micropeak-windows.nsi
 
 Manifest.txt: Makefile
 	echo 'Main-Class: org.altusmetrum.micropeak.MicroPeak' > $@
