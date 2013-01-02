@@ -149,7 +149,6 @@ altoslib/Makefile
 altosuilib/Makefile
 altosuilib/AltosUIVersion.java
 altosui/Makefile
-altosui/AltosVersion.java
 altosui/Info.plist
 libaltos/Makefile
 micropeak/Makefile
