@@ -91,7 +91,7 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 	}
 
 	private void Preferences() {
-		new AltosConfigureUI(this);
+		new AltosUIConfigure(this);
 	}
 
 	private void DownloadData() {

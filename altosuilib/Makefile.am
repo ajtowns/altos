@@ -10,7 +10,7 @@ BIN=bin/org/altusmetrum/AltosUILib
 AltosUILibdir = $(datadir)/java
 
 AltosUILib_JAVA = \
-	AltosConfigureUI.java \
+	AltosUIConfigure.java \
 	AltosDevice.java \
 	AltosDeviceDialog.java \
 	AltosUSBDevice.java \

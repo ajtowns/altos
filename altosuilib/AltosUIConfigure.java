@@ -64,7 +64,7 @@ class DelegatingRenderer implements ListCellRenderer {
 	}
 }
 
-public class AltosConfigureUI
+public class AltosUIConfigure
 	extends AltosUIDialog
 	implements DocumentListener
 {
@@ -350,7 +350,7 @@ public class AltosConfigureUI
 //		pane.add(manage_frequencies, c);
 	}
 
-	public AltosConfigureUI(JFrame in_owner) {
+	public AltosUIConfigure(JFrame in_owner) {
 		super(in_owner, "Configure AltosUI", false);
 
 		owner = in_owner;
