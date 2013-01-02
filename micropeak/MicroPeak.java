@@ -114,9 +114,19 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 			SetName(data.name);
 	}
 	
+	private void Close() {
+		setVisible(false);
+		dispose();
+		--number_of_windows;
+		if (number_of_windows == 0)
+			System.exit(0);
+	}
+
 	public void actionPerformed(ActionEvent ev) {
 		if ("Exit".equals(ev.getActionCommand()))
 			System.exit(0);
+		else if ("Close".equals(ev.getActionCommand()))
+			Close();
 		else if ("Open".equals(ev.getActionCommand()))
 			SelectFile();
 		else if ("Download".equals(ev.getActionCommand()))
@@ -163,6 +173,10 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		fileMenu.add(preferencesAction);
 		preferencesAction.addActionListener(this);
 
+		JMenuItem closeAction = new JMenuItem("Close");
+		fileMenu.add(closeAction);
+		closeAction.addActionListener(this);
+
 		JMenuItem exitAction = new JMenuItem("Exit");
 		fileMenu.add(exitAction);
 		exitAction.addActionListener(this);
@@ -171,11 +185,7 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				setVisible(false);
-				dispose();
-				--number_of_windows;
-				if (number_of_windows == 0)
-					System.exit(0);
+				Close();
 			}
 		});
 
@@ -194,8 +204,9 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		Dimension ps = pane.getPreferredSize();
 		ps.width += i.left + i.right;
 		ps.height += i.top + i.bottom;
-		setPreferredSize(ps);
+//		setPreferredSize(ps);
 		setSize(ps);
+		setLocationByPlatform(true);
 		setVisible(true);
 	}
 
