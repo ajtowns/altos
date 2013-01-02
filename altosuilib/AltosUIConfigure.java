@@ -66,51 +66,13 @@ class DelegatingRenderer implements ListCellRenderer {
 
 public class AltosUIConfigure
 	extends AltosUIDialog
-	implements DocumentListener
 {
-	JFrame		owner;
-	Container	pane;
+	public JFrame		owner;
+	public Container	pane;
 
-	JRadioButton	enable_voice;
-	JButton		test_voice;
-	JButton		close;
-
-	JButton		configure_log;
-	JTextField	log_directory;
-
-	JLabel		callsign_label;
-	JTextField	callsign_value;
-
-	JRadioButton	imperial_units;
-
-	JLabel		font_size_label;
-	JComboBox	font_size_value;
-
-	JLabel		look_and_feel_label;
-	JComboBox	look_and_feel_value;
-
-	JRadioButton	serial_debug;
-
-	JButton		manage_bluetooth;
-	JButton		manage_frequencies;
-
-	int		row;
+	public int		row;
 
 	final static String[] font_size_names = { "Small", "Medium", "Large" };
-
-	/* DocumentListener interface methods */
-	public void changedUpdate(DocumentEvent e) {
-		if (callsign_value != null) 
-			AltosUIPreferences.set_callsign(callsign_value.getText());
-	}
-
-	public void insertUpdate(DocumentEvent e) {
-		changedUpdate(e);
-	}
-
-	public void removeUpdate(DocumentEvent e) {
-		changedUpdate(e);
-	}
 
 	public GridBagConstraints constraints (int x, int width, int fill) {
 		GridBagConstraints c = new GridBagConstraints();
@@ -120,6 +82,8 @@ public class AltosUIConfigure
 		c.fill = fill;
 		if (width == 3)
 			c.anchor = GridBagConstraints.CENTER;
+		else if (x == 2)
+			c.anchor = GridBagConstraints.EAST;
 		else
 			c.anchor = GridBagConstraints.WEST;
 		c.gridx = x;
@@ -133,59 +97,13 @@ public class AltosUIConfigure
 	}
 
 	public void add_voice() {
-//		GridBagConstraints c = new GridBagConstraints();
-//
-//		/* Voice settings */
-//		c.gridx = 0;
-//		c.gridy = row;
-//		c.gridwidth = 1;
-//		c.fill = GridBagConstraints.NONE;
-//		c.anchor = GridBagConstraints.WEST;
-//		pane.add(new JLabel("Voice"), c);
-//
-//		enable_voice = new JRadioButton("Enable", AltosUIPreferences.voice());
-//		enable_voice.addActionListener(new ActionListener() {
-//				public void actionPerformed(ActionEvent e) {
-//					JRadioButton item = (JRadioButton) e.getSource();
-//					boolean enabled = item.isSelected();
-//					AltosUIPreferences.set_voice(enabled);
-//					if (enabled)
-//						voice.speak_always("Enable voice.");
-//					else
-//						voice.speak_always("Disable voice.");
-//				}
-//			});
-//		c.gridx = 1;
-//		c.gridy = row;
-//		c.gridwidth = 1;
-//		c.weightx = 1;
-//		c.fill = GridBagConstraints.NONE;
-//		c.anchor = GridBagConstraints.WEST;
-//		pane.add(enable_voice, c);
-//		enable_voice.setToolTipText("Enable/Disable all audio in-flight announcements");
-//
-//		c.gridx = 2;
-//		c.gridy = row++;
-//		c.gridwidth = 1;
-//		c.weightx = 1;
-//		c.fill = GridBagConstraints.NONE;
-//		c.anchor = GridBagConstraints.EAST;
-//		test_voice = new JButton("Test Voice");
-//		test_voice.addActionListener(new ActionListener() {
-//				public void actionPerformed(ActionEvent e) {
-//					voice.speak("That's one small step for man; one giant leap for mankind.");
-//				}
-//			});
-//		pane.add(test_voice, c);
-//		test_voice.setToolTipText("Play a stock audio clip to check volume");
-//		row++;
 	}
 
 	public void add_log_dir() {
 		/* Log directory settings */
 		pane.add(new JLabel("Log Directory"), constraints(0, 1));
 
-		configure_log = new JButton(AltosUIPreferences.logdir().getPath());
+		final JButton configure_log = new JButton(AltosUIPreferences.logdir().getPath());
 		configure_log.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					AltosUIPreferences.ConfigureLog();
@@ -198,21 +116,13 @@ public class AltosUIConfigure
 	}
 
 	public void add_callsign() {
-//		/* Callsign setting */
-//		pane.add(new JLabel("Callsign"), constraints(0, 1));
-//
-//		callsign_value = new JTextField(AltosUIPreferences.callsign());
-//		callsign_value.getDocument().addDocumentListener(this);
-//		callsign_value.setToolTipText("Callsign sent in packet mode");
-//		pane.add(callsign_value, constraints(1, 2, GridBagConstraints.BOTH));
-//		row++;
 	}
 
 	public void add_units() {
 		/* Imperial units setting */
 		pane.add(new JLabel("Imperial Units"), constraints(0, 1));
 
-		imperial_units = new JRadioButton("Enable", AltosUIPreferences.imperial_units());
+		JRadioButton imperial_units = new JRadioButton("Enable", AltosUIPreferences.imperial_units());
 		imperial_units.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					JRadioButton item = (JRadioButton) e.getSource();
@@ -229,7 +139,7 @@ public class AltosUIConfigure
 		/* Font size setting */
 		pane.add(new JLabel("Font size"), constraints(0, 1));
 
-		font_size_value = new JComboBox(font_size_names);
+		final JComboBox font_size_value = new JComboBox(font_size_names);
 		int font_size = AltosUIPreferences.font_size();
 		font_size_value.setSelectedIndex(font_size - AltosUILib.font_size_small);
 		font_size_value.addActionListener(new ActionListener() {
@@ -271,7 +181,7 @@ public class AltosUIConfigure
 
 		final UIManager.LookAndFeelInfo[] look_and_feels = UIManager.getInstalledLookAndFeels();
 
-		look_and_feel_value = new JComboBox(look_and_feels);
+		final JComboBox look_and_feel_value = new JComboBox(look_and_feels);
 
 		DelegatingRenderer.install(look_and_feel_value);
 
@@ -298,7 +208,7 @@ public class AltosUIConfigure
 		/* Serial debug setting */
 		pane.add(new JLabel("Serial Debug"), constraints(0, 1));
 
-		serial_debug = new JRadioButton("Enable", AltosUIPreferences.serial_debug());
+		JRadioButton serial_debug = new JRadioButton("Enable", AltosUIPreferences.serial_debug());
 		serial_debug.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					JRadioButton item = (JRadioButton) e.getSource();
@@ -307,47 +217,18 @@ public class AltosUIConfigure
 				}
 			});
 		serial_debug.setToolTipText("Enable/Disable USB I/O getting sent to the console");
+		c.gridx = 1;
+		c.gridy = row++;
+		c.gridwidth = 3;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.WEST;
+		pane.add(serial_debug, c);
 	}
 
 	public void add_bluetooth() {
-//		GridBagConstraints c = new GridBagConstraints();
-//		c.gridx = 1;
-//		c.gridy = row++;
-//		c.gridwidth = 3;
-//		c.fill = GridBagConstraints.NONE;
-//		c.anchor = GridBagConstraints.WEST;
-//		pane.add(serial_debug, c);
-//
-//		manage_bluetooth = new JButton("Manage Bluetooth");
-//		manage_bluetooth.addActionListener(new ActionListener() {
-//				public void actionPerformed(ActionEvent e) {
-//					AltosBTManage.show(owner, AltosBTKnown.bt_known());
-//				}
-//			});
-//		c.gridx = 0;
-//		c.gridy = row;
-//		c.gridwidth = 2;
-//		c.fill = GridBagConstraints.NONE;
-//		c.anchor = GridBagConstraints.WEST;
-//		pane.add(manage_bluetooth, c);
 	}
 
 	public void add_frequencies() {
-//		GridBagConstraints c = new GridBagConstraints();
-//		manage_frequencies = new JButton("Manage Frequencies");
-//		manage_frequencies.addActionListener(new ActionListener() {
-//				public void actionPerformed(ActionEvent e) {
-//					AltosConfigFreqUI.show(owner);
-//				}
-//			});
-//		manage_frequencies.setToolTipText("Configure which values are shown in frequency menus");
-//		c.gridx = 2;
-//		c.gridx = 2;
-//		c.gridy = row++;
-//		c.gridwidth = 2;
-//		c.fill = GridBagConstraints.NONE;
-//		c.anchor = GridBagConstraints.WEST;
-//		pane.add(manage_frequencies, c);
 	}
 
 	public AltosUIConfigure(JFrame in_owner) {
@@ -378,7 +259,7 @@ public class AltosUIConfigure
 		add_frequencies();
 
 		/* And a close button at the bottom */
-		close = new JButton("Close");
+		JButton close = new JButton("Close");
 		close.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					setVisible(false);

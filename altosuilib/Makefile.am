@@ -2,14 +2,13 @@ AM_JAVACFLAGS=-encoding UTF-8 -Xlint:deprecation
 
 JAVAROOT=bin
 
-CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH="bin:../altoslib/*:../libaltos:$(FREETTS)/*:/usr/share/java/*"
+CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH="$(JAVAROOT):../altoslib/*:../libaltos:/usr/share/java/*"
 
 SRC=.
-BIN=bin/org/altusmetrum/AltosUILib
 
-AltosUILibdir = $(datadir)/java
+altosuilibdir = $(datadir)/java
 
-AltosUILib_JAVA = \
+altosuilib_JAVA = \
 	AltosUIConfigure.java \
 	AltosDevice.java \
 	AltosDeviceDialog.java \
@@ -24,21 +23,21 @@ AltosUILib_JAVA = \
 	AltosUIVersion.java \
 	AltosUnitsListener.java
 
-JAR=AltosUILib.jar
+JAR=altosuilib.jar
 
 all-local: $(JAR)
 
 clean-local:
-	-rm -rf bin $(JAR)
+	-rm -rf $(JAVAROOT) $(JAR)
 
-install-AltosUILibJAVA: $(JAR)
+install-altosuilibjava: $(JAR)
 	@$(NORMAL_INSTALL)
-	test -z "$(AltosUILibdir)" || $(MKDIR_P) "$(DESTDIR)$(AltosUILibdir)"
-	echo " $(INSTALL_DATA)" "$<" "'$(DESTDIR)$(AltosUILibdir)/$(JAR)"; \
-	$(INSTALL_DATA) "$<" "$(DESTDIR)$(AltosUILibdir)"
+	test -z "$(altosuilibdir)" || $(MKDIR_P) "$(DESTDIR)$(altosuilibdir)"
+	echo " $(INSTALL_DATA)" "$<" "'$(DESTDIR)$(altosuilibdir)/$(JAR)"; \
+	$(INSTALL_DATA) "$<" "$(DESTDIR)$(altosuilibdir)"
 
-bin:
-	mkdir -p bin
+$(JAVAROOT):
+	mkdir -p $(JAVAROOT)
 
-$(JAR): classAltosUILib.stamp
-	jar cf $@ -C bin org
+$(JAR): classaltosuilib.stamp
+	jar cf $@ -C $(JAVAROOT) .
