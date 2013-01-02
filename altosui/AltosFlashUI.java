@@ -23,6 +23,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.*;
 import java.util.concurrent.*;
+import org.altusmetrum.altosuilib.*;
 
 public class AltosFlashUI
 	extends AltosDialog
@@ -175,7 +176,7 @@ public class AltosFlashUI
 	}
 
 	boolean select_debug_dongle() {
-		debug_dongle = AltosDeviceDialog.show(frame, Altos.product_any);
+		debug_dongle = AltosDeviceUIDialog.show(frame, Altos.product_any);
 
 		if (debug_dongle == null)
 			return false;

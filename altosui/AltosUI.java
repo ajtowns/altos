@@ -23,6 +23,7 @@ import javax.swing.*;
 import java.io.*;
 import java.util.concurrent.*;
 import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altosuilib.*;
 
 public class AltosUI extends AltosFrame {
 	public AltosVoice voice = new AltosVoice();
@@ -241,7 +242,7 @@ public class AltosUI extends AltosFrame {
 	}
 
 	private void ConnectToDevice() {
-		AltosDevice	device = AltosDeviceDialog.show(AltosUI.this,
+		AltosDevice	device = AltosDeviceUIDialog.show(AltosUI.this,
 								Altos.product_basestation);
 
 		if (device != null)

@@ -23,6 +23,7 @@ import javax.swing.*;
 import java.io.*;
 import java.text.*;
 import java.util.concurrent.*;
+import org.altusmetrum.altosuilib.*;
 
 class FireButton extends JButton {
 	protected void processMouseEvent(MouseEvent e) {
@@ -370,7 +371,7 @@ public class AltosLaunchUI
 	private boolean open() {
 		command_queue = new LinkedBlockingQueue<String>();
 
-		device = AltosDeviceDialog.show(owner, Altos.product_any);
+		device = AltosDeviceUIDialog.show(owner, Altos.product_any);
 		if (device != null) {
 				LaunchHandler	handler = new LaunchHandler(owner);
 				Thread		t = new Thread(handler);

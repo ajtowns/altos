@@ -24,6 +24,7 @@ import java.io.*;
 import java.text.*;
 import java.util.concurrent.*;
 import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altosuilib.*;
 
 public class AltosIgniteUI
 	extends AltosDialog
@@ -304,7 +305,7 @@ public class AltosIgniteUI
 	private boolean open() {
 		command_queue = new LinkedBlockingQueue<String>();
 
-		device = AltosDeviceDialog.show(owner, Altos.product_any);
+		device = AltosDeviceUIDialog.show(owner, Altos.product_any);
 		if (device != null) {
 				IgniteHandler	handler = new IgniteHandler(owner);
 				Thread		t = new Thread(handler);

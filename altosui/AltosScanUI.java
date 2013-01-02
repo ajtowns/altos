@@ -26,6 +26,7 @@ import java.util.*;
 import java.text.*;
 import java.util.concurrent.*;
 import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altosuilib.*;
 
 class AltosScanResult {
 	String		callsign;
@@ -327,7 +328,7 @@ public class AltosScanUI
 	}
 
 	private boolean open() {
-		device = AltosDeviceDialog.show(owner, Altos.product_basestation);
+		device = AltosDeviceUIDialog.show(owner, Altos.product_basestation);
 		if (device == null)
 			return false;
 		try {

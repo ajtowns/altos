@@ -18,6 +18,7 @@
 package altosui;
 import java.util.*;
 import libaltosJNI.*;
+import org.altusmetrum.altosuilib.*;
 
 public class AltosUSBDevice  extends altos_device implements AltosDevice {
 

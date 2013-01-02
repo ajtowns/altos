@@ -32,8 +32,7 @@ altosui_JAVA = \
 	AltosCSVUI.java \
 	AltosDebug.java \
 	AltosDescent.java \
-	AltosDeviceDialog.java \
-	AltosDevice.java \
+	AltosDeviceUIDialog.java \
 	AltosUSBDevice.java \
 	AltosDisplayThread.java \
 	AltosEepromDelete.java \

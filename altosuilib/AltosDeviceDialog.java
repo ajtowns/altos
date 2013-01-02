@@ -27,21 +27,23 @@ public abstract class AltosDeviceDialog extends AltosUIDialog implements ActionL
 	private JList		list;
 	private JButton		cancel_button;
 	private JButton		select_button;
-	private JButton		manage_bluetooth_button;
-	private Frame		frame;
-	private int		product;
-
+	public Frame		frame;
+	public int		product;
+	public JPanel		buttonPane;
+	
 	public AltosDevice getValue() {
 		return value;
 	}
 
 	public abstract AltosDevice[] devices();
 
-	private void update_devices() {
+	public void update_devices() {
 		AltosDevice[] devices = devices();
 		list.setListData(devices);
 		select_button.setEnabled(devices.length > 0);
 	}
+
+	public void add_bluetooth() { }
 
 	public AltosDeviceDialog (Frame in_frame, Component location, int in_product) {
 		super(in_frame, "Device Selection", true);
@@ -55,10 +57,6 @@ public abstract class AltosDeviceDialog extends AltosUIDialog implements ActionL
 		cancel_button = new JButton("Cancel");
 		cancel_button.setActionCommand("cancel");
 		cancel_button.addActionListener(this);
-
-//		manage_bluetooth_button = new JButton("Manage Bluetooth");
-//		manage_bluetooth_button.setActionCommand("manage");
-//		manage_bluetooth_button.addActionListener(this);
 
 		select_button = new JButton("Select");
 		select_button.setActionCommand("select");
@@ -126,14 +124,15 @@ public abstract class AltosDeviceDialog extends AltosUIDialog implements ActionL
 		listPane.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
 		//Lay out the buttons from left to right.
-		JPanel buttonPane = new JPanel();
+		buttonPane = new JPanel();
 		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(cancel_button);
 		buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
-//		buttonPane.add(manage_bluetooth_button);
-//		buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
+
+		add_bluetooth();
+
 		buttonPane.add(select_button);
 
 		//Put everything together, using the content pane's BorderLayout.
@@ -150,14 +149,12 @@ public abstract class AltosDeviceDialog extends AltosUIDialog implements ActionL
 
 	//Handle clicks on the Set and Cancel buttons.
 	public void actionPerformed(ActionEvent e) {
-		if ("select".equals(e.getActionCommand()))
+		if ("select".equals(e.getActionCommand())) {
 			value = (AltosDevice)(list.getSelectedValue());
-//		if ("manage".equals(e.getActionCommand())) {
-//			AltosBTManage.show(frame, AltosBTKnown.bt_known());
-//			update_devices();
-//			return;
-//		}
-		setVisible(false);
+			setVisible(false);
+		}
+		if ("cancel".equals(e.getActionCommand()))
+			setVisible(false);
 	}
 
 }

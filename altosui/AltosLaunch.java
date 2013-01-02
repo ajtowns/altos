@@ -20,6 +20,7 @@ package altosui;
 import java.io.*;
 import java.util.concurrent.*;
 import java.awt.*;
+import org.altusmetrum.altosuilib.*;
 
 public class AltosLaunch {
 	AltosDevice	device;
