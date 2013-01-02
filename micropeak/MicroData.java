@@ -22,12 +22,16 @@ import java.io.*;
 import java.util.*;
 import org.altusmetrum.AltosLib.*;
 
-abstract class MicroIterator implements Iterator<Double> {
+class MicroIterator implements Iterator<MicroDataPoint> {
 	int		i;
 	MicroData	data;
 
 	public boolean hasNext() {
 		return i < data.pressures.length;
+	}
+
+	public MicroDataPoint next() {
+		return new MicroDataPoint(data, i++);
 	}
 
 	public MicroIterator (MicroData data) {
@@ -39,66 +43,15 @@ abstract class MicroIterator implements Iterator<Double> {
 	}
 }
 
-class MicroHeightIterator extends MicroIterator {
-	public Double next() {
-		return data.height(i++);
-	}
+class MicroIterable implements Iterable<MicroDataPoint> {
 
-	public MicroHeightIterator(MicroData data) {
-		super(data);
-	}
-}
-
-class MicroHeightIterable implements Iterable<Double> {
 	MicroData	data;
 
-	public Iterator<Double> iterator() {
-		return new MicroHeightIterator(data);
+	public Iterator<MicroDataPoint> iterator() {
+		return new MicroIterator(data);
 	}
 
-	public MicroHeightIterable(MicroData data) {
-		this.data = data;
-	}
-}
-
-class MicroSpeedIterator extends MicroIterator {
-	public Double next() {
-		return data.speed(i++);
-	}
-	public MicroSpeedIterator(MicroData data) {
-		super(data);
-	}
-}
-
-class MicroSpeedIterable implements Iterable<Double> {
-	MicroData	data;
-
-	public Iterator<Double> iterator() {
-		return new MicroSpeedIterator(data);
-	}
-
-	public MicroSpeedIterable(MicroData data) {
-		this.data = data;
-	}
-}
-
-class MicroAccelIterator extends MicroIterator {
-	public Double next() {
-		return data.acceleration(i++);
-	}
-	public MicroAccelIterator(MicroData data) {
-		super(data);
-	}
-}
-
-class MicroAccelIterable implements Iterable<Double> {
-	MicroData	data;
-
-	public Iterator<Double> iterator() {
-		return new MicroAccelIterator(data);
-	}
-
-	public MicroAccelIterable(MicroData data) {
+	public MicroIterable(MicroData data) {
 		this.data = data;
 	}
 }
@@ -225,16 +178,8 @@ public class MicroData {
 		return AltosConvert.pressure_to_altitude(pressures[i]);
 	}
 
-	public Iterable<Double> heights() {
-		return new MicroHeightIterable(this);
-	}
-
-	public Iterable<Double> speeds() {
-		return new MicroSpeedIterable(this);
-	}
-
-	public Iterable<Double> accels() {
-		return new MicroAccelIterable(this);
+	public Iterable<MicroDataPoint> points() {
+		return new MicroIterable(this);
 	}
 
 	int fact(int n) {

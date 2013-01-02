@@ -10,6 +10,7 @@ micropeakdir=$(datadir)/java
 micropeak_JAVA= \
 	MicroPeak.java \
 	MicroData.java \
+	MicroDataPoint.java \
 	MicroDownload.java \
 	MicroFrame.java \
 	MicroGraph.java \

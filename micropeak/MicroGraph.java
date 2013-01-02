@@ -106,11 +106,10 @@ public class MicroGraph implements AltosUnitsListener {
 		heightSeries.clear();
 		speedSeries.clear();
 		accelSeries.clear();
-		for (int i = 0; i < data.pressures.length; i++) {
-			double x = data.time(i);
-			heightSeries.add(x, AltosConvert.height.value(data.height(i)));
-			speedSeries.add(x, AltosConvert.speed.value(data.speed(i)));
-			accelSeries.add(x, AltosConvert.accel.value(data.acceleration(i)));
+		for (MicroDataPoint point : data.points()) {
+			heightSeries.add(point.time, AltosConvert.height.value(point.height));
+			speedSeries.add(point.time, AltosConvert.speed.value(point.speed));
+			accelSeries.add(point.time, AltosConvert.accel.value(point.accel));
 		}
 	}
 

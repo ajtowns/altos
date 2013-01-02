@@ -39,25 +39,21 @@ public class MicroStats {
 	void find_landing() {
 		landed_height = 0;
 
-		int t = 0;
-		for (double height : data.heights()) {
-			landed_height = height;
-			t++;
+		for (MicroDataPoint point : data.points()) {
+			landed_height = point.height;
+			landed_time = point.time;
 		}
-		landed_time = data.time(t);
 
-		t = 0;
 		boolean above = false;
-		for (double height : data.heights()) {
-			if (height > landed_height + 10) {
+		for (MicroDataPoint point : data.points()) {
+			if (point.height > landed_height + 10) {
 				above = true;
 			} else {
-				if (above && height < landed_height + 2) {
+				if (above && point.height < landed_height + 2) {
 					above = false;
-					landed_time = data.time(t);
+					landed_time = point.time;
 				}
 			}
-			t++;
 		}
 	}
 
@@ -65,13 +61,11 @@ public class MicroStats {
 		apogee_height = 0;
 		apogee_time = 0;
 		
-		int t = 0;
-		for (double height : data.heights()) {
-			if (height > apogee_height) {
-				apogee_height = height;
-				apogee_time = data.time(t);
+		for (MicroDataPoint point : data.points()) {
+			if (point.height > apogee_height) {
+				apogee_height = point.height;
+				apogee_time = point.time;
 			}
-			t++;
 		}
 	}
 
@@ -79,47 +73,31 @@ public class MicroStats {
 		coast_height = 0;
 		coast_time = 0;
 
-		int t = 0;
-		for (double accel : data.accels()) {
-			if (accel < -9.8)
+		for (MicroDataPoint point : data.points()) {
+			if (point.accel < -9.8)
 				break;
-			t++;
-		}
-		coast_time = data.time(t);
-
-		int coast_t = t;
-		t = 0;
-		for (double height : data.heights()) {
-			if (t >= coast_t) {
-				coast_height = height;
-				break;
-			}
-			t++;
+			coast_time = point.time;
+			coast_height = point.height;
 		}
 	}
 
 	void find_max_speed() {
 		max_speed = 0;
-		int	t = 0;
-		for (double speed : data.speeds()) {
-			if (data.time(t) > apogee_time)
+		for (MicroDataPoint point : data.points()) {
+			if (point.time > apogee_time)
 				break;
-			if (speed > max_speed)
-				max_speed = speed;
-			t++;
+			if (point.speed > max_speed)
+				max_speed = point.speed;
 		}
 	}
 
 	void find_max_accel() {
 		max_accel = 0;
-
-		int t = 0;
-		for (double accel : data.accels()) {
-			if (data.time(t) > apogee_time)
+		for (MicroDataPoint point : data.points()) {
+			if (point.time > apogee_time)
 				break;
-			if (accel > max_accel)
-				max_accel = accel;
-			t++;
+			if (point.accel > max_accel)
+				max_accel = point.accel;
 		}
 	}
 
