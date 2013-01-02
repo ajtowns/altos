@@ -221,6 +221,10 @@ public class MicroData {
 		return alt;
 	}
 
+	public double pressure(int i) {
+		return pressures[i];
+	}
+
 	public double height(int i) {
 		return altitude(i) - ground_altitude;
 	}

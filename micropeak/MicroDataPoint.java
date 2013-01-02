@@ -19,11 +19,13 @@ package org.altusmetrum.micropeak;
 
 public class MicroDataPoint {
 	public double	time;
+	public double	pressure;
 	public double	height;
 	public double	speed;
 	public double	accel;
 
-	public MicroDataPoint (double height, double speed, double accel, double time) {
+	public MicroDataPoint (double pressure, double height, double speed, double accel, double time) {
+		this.pressure = pressure;
 		this.height = height;
 		this.speed = speed;
 		this.accel = accel;
@@ -31,7 +33,8 @@ public class MicroDataPoint {
 	}
 
 	public MicroDataPoint(MicroData data, int i) {
-		this(data.height(i),
+		this(data.pressure(i),
+		     data.height(i),
 		     data.speed(i),
 		     data.acceleration(i),
 		     data.time(i));

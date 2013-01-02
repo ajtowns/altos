@@ -101,12 +101,15 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 			new MicroDownload(this, device);
 	}
 
-	private void Save() {
-		if (data == null) {
+	private void no_data() {
 			JOptionPane.showMessageDialog(this,
 						      "No data available",
 						      "No data",
 						      JOptionPane.INFORMATION_MESSAGE);
+	}
+	private void Save() {
+		if (data == null) {
+			no_data();
 			return;
 		}
 		MicroSave	save = new MicroSave (this, data);
@@ -114,6 +117,15 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 			SetName(data.name);
 	}
 	
+	private void Export() {
+		if (data == null) {
+			no_data();
+			return;
+		}
+		MicroExport	export = new MicroExport (this, data);
+		export.runDialog();
+	}
+
 	private void Close() {
 		setVisible(false);
 		dispose();
@@ -131,6 +143,8 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 			SelectFile();
 		else if ("Download".equals(ev.getActionCommand()))
 			DownloadData();
+		else if ("Export".equals(ev.getActionCommand()))
+			Export();
 		else if ("Preferences".equals(ev.getActionCommand()))
 			Preferences();
 		else if ("Save a Copy".equals(ev.getActionCommand()))
@@ -168,6 +182,10 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		JMenuItem saveAction = new JMenuItem("Save a Copy");
 		fileMenu.add(saveAction);
 		saveAction.addActionListener(this);
+
+		JMenuItem exportAction = new JMenuItem("Export");
+		fileMenu.add(exportAction);
+		exportAction.addActionListener(this);
 
 		JMenuItem preferencesAction = new JMenuItem("Preferences");
 		fileMenu.add(preferencesAction);
