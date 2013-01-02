@@ -72,9 +72,12 @@ public class MicroGraph implements AltosUnitsListener {
         MicroSeries	speedSeries;
 	MicroSeries	accelSeries;
 
-	static final private Color red = new Color(194,31,31);
-	static final private Color green = new Color(31,194,31);
-	static final private Color blue = new Color(31,31,194);
+	static final private Color height_color = new Color(194,31,31);
+	static final private Color speed_color = new Color(31,194,31);
+	static final private Color accel_color = new Color(31,31,194);
+	static final private Color gridline_color = new Color(0, 0, 0);
+	static final private Color border_color = new Color(255, 255, 255);
+	static final private Color background_color = new Color(255, 255, 255);
 
 	MicroData	data;
 
@@ -142,14 +145,22 @@ public class MicroGraph implements AltosUnitsListener {
 		plot.setDomainPannable(true);
 		plot.setRangePannable(true);
 
-		heightSeries = addSeries(0, "Height", AltosConvert.height.show_units(), red);
-		speedSeries = addSeries(1, "Speed", AltosConvert.speed.show_units(), green);
-		accelSeries = addSeries(2, "Acceleration", AltosConvert.accel.show_units(), blue);
-
 		chart = new JFreeChart("Flight", JFreeChart.DEFAULT_TITLE_FONT,
 				       plot, true);
 
 		ChartUtilities.applyCurrentTheme(chart);
+
+		heightSeries = addSeries(0, "Height", AltosConvert.height.show_units(), height_color);
+		speedSeries = addSeries(1, "Speed", AltosConvert.speed.show_units(), speed_color);
+		accelSeries = addSeries(2, "Acceleration", AltosConvert.accel.show_units(), accel_color);
+
+		plot.setDomainGridlinePaint(gridline_color);
+		plot.setRangeGridlinePaint(gridline_color);
+		plot.setBackgroundPaint(background_color);
+		plot.setBackgroundAlpha((float) 1);
+
+		chart.setBackgroundPaint(background_color);
+		chart.setBorderPaint(border_color);
 		panel = new ChartPanel(chart);
 		panel.setMouseWheelEnabled(true);
 		panel.setPreferredSize(new java.awt.Dimension(800, 500));
