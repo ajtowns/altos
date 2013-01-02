@@ -78,9 +78,9 @@ public class MicroExport extends JFileChooser {
 			try {
 				FileWriter fw = new FileWriter(file);
 				PrintWriter pw = new PrintWriter(fw);
-				pw.printf(" Time, Press, Height,  Speed,  Accel\n");
+				pw.printf("  Time, Press, Height,  Speed,  Accel\n");
 				for (MicroDataPoint point : data.points()) {
-					pw.printf("%5.2f,%6.0f,%7.1f,%7.2f,%7.2f\n",
+					pw.printf("%6.3f,%6.0f,%7.1f,%7.2f,%7.2f\n",
 						  point.time, point.pressure, point.height, point.speed, point.accel);
 				}
 				fw.close();

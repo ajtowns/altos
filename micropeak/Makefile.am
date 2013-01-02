@@ -15,6 +15,7 @@ micropeak_JAVA= \
 	MicroExport.java \
 	MicroFrame.java \
 	MicroGraph.java \
+	MicroRaw.java \
 	MicroSave.java \
 	MicroSerial.java \
 	MicroStats.java \

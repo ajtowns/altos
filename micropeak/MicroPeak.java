@@ -31,6 +31,7 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 	File		filename;
 	MicroGraph	graph;
 	MicroStatsTable	stats;
+	MicroRaw	raw;
 	MicroData	data;
 	Container	container;
 	JTabbedPane	pane;
@@ -45,6 +46,7 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		this.data = data;
 		graph.setData(data);
 		stats.setData(data);
+		raw.setData(data);
 		setTitle(data.name);
 		return this;
 	}
@@ -209,8 +211,10 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 
 		graph = new MicroGraph();
 		stats = new MicroStatsTable();
+		raw = new MicroRaw();
 		pane.add(graph.panel, "Graph");
 		pane.add(stats, "Statistics");
+		pane.add(raw, "Raw Data");
 		pane.doLayout();
 		pane.validate();
 		container.add(pane);
