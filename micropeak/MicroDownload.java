@@ -81,9 +81,7 @@ public class MicroDownload extends AltosUIDialog implements Runnable, ActionList
 	}
 
 	public void actionPerformed(ActionEvent ae) {
-		System.out.printf ("command %s\n", ae.getActionCommand());
 		if (serial_thread != null) {
-			System.out.printf ("Interrupting serial_thread\n");
 			serial.close();
 			serial_thread.interrupt();
 		}

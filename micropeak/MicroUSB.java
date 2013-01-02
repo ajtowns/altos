@@ -98,7 +98,6 @@ public class MicroUSB extends altos_device implements AltosDevice {
 				MicroUSB device = new MicroUSB();
 				if (libaltos.altos_list_next(list, device) == 0)
 					break;
-				System.out.printf("Device %s\n", device.toString());
 				if (device.isMicro())
 					device_list.add(device);
 			}
