@@ -44,7 +44,7 @@ ALTOSLIB_CLASS=\
 	AltosLib.jar
 
 ALTOSUILIB_CLASS=\
-	AltosUILib.jar
+	altosuilib.jar
 
 # Icons
 ICONDIR=$(top_srcdir)/icon
@@ -221,9 +221,9 @@ $(WINDOWS_DIST): $(WINDOWS_FILES) micropeak-windows.nsi
 
 Manifest.txt: Makefile
 	echo 'Main-Class: org.altusmetrum.micropeak.MicroPeak' > $@
-	echo "Class-Path: AltosLib.jar AltosUILib.jar $(JCOMMON)/jcommon.jar $(JFREECHART)/jfreechart.jar" >> $@
+	echo "Class-Path: $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) $(JCOMMON)/jcommon.jar $(JFREECHART)/jfreechart.jar" >> $@
 
 Manifest-fat.txt:
 	echo 'Main-Class: org.altusmetrum.micropeak.MicroPeak' > $@
-	echo "Class-Path: AltosLib.jar AltosUILib.jar jcommon.jar jfreechart.jar" >> $@
+	echo "Class-Path: $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) jcommon.jar jfreechart.jar" >> $@
 

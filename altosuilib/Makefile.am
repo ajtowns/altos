@@ -30,11 +30,11 @@ all-local: $(JAR)
 clean-local:
 	-rm -rf $(JAVAROOT) $(JAR)
 
-install-altosuilibjava: $(JAR)
+install-altosuilibJAVA: $(JAR)
 	@$(NORMAL_INSTALL)
 	test -z "$(altosuilibdir)" || $(MKDIR_P) "$(DESTDIR)$(altosuilibdir)"
-	echo " $(INSTALL_DATA)" "$<" "'$(DESTDIR)$(altosuilibdir)/$(JAR)"; \
-	$(INSTALL_DATA) "$<" "$(DESTDIR)$(altosuilibdir)"
+	echo " $(INSTALL_DATA)" "$(JAR)" "'$(DESTDIR)$(altosuilibdir)/$(JAR)"; \
+	$(INSTALL_DATA) "$(JAR)" "$(DESTDIR)$(altosuilibdir)"
 
 $(JAVAROOT):
 	mkdir -p $(JAVAROOT)
