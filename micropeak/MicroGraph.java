@@ -106,10 +106,12 @@ public class MicroGraph implements AltosUnitsListener {
 		heightSeries.clear();
 		speedSeries.clear();
 		accelSeries.clear();
-		for (MicroDataPoint point : data.points()) {
-			heightSeries.add(point.time, AltosConvert.height.value(point.height));
-			speedSeries.add(point.time, AltosConvert.speed.value(point.speed));
-			accelSeries.add(point.time, AltosConvert.accel.value(point.accel));
+		if (data != null) {
+			for (MicroDataPoint point : data.points()) {
+				heightSeries.add(point.time, AltosConvert.height.value(point.height));
+				speedSeries.add(point.time, AltosConvert.speed.value(point.speed));
+				accelSeries.add(point.time, AltosConvert.accel.value(point.accel));
+			}
 		}
 	}
 
@@ -119,17 +121,16 @@ public class MicroGraph implements AltosUnitsListener {
 
 	public void setData (MicroData data) {
 		this.data = data;
-		chart.setTitle(data.name);
+		if (data != null)
+			setName(data.name);
 		resetData();
 	}
 
 	public void units_changed(boolean imperial_units) {
-		if (data != null) {
-			heightSeries.set_units(AltosConvert.height.show_units());
-			speedSeries.set_units(AltosConvert.speed.show_units());
-			accelSeries.set_units(AltosConvert.accel.show_units());
-			resetData();
-		}
+		heightSeries.set_units(AltosConvert.height.show_units());
+		speedSeries.set_units(AltosConvert.speed.show_units());
+		accelSeries.set_units(AltosConvert.accel.show_units());
+		resetData();
 	}
 
 	public MicroGraph() {

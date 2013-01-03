@@ -22,7 +22,7 @@ import javax.swing.*;
 import org.altusmetrum.AltosLib.*;
 import org.altusmetrum.altosuilib.*;
 
-public class MicroRaw extends TextArea {
+public class MicroRaw extends JTextArea {
 
 	public void setData(MicroData data) {
 		setRows(data.pressures.length);

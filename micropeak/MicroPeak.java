@@ -214,7 +214,8 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		raw = new MicroRaw();
 		pane.add(graph.panel, "Graph");
 		pane.add(stats, "Statistics");
-		pane.add(raw, "Raw Data");
+		JScrollPane scroll = new JScrollPane(raw);
+		pane.add(scroll, "Raw Data");
 		pane.doLayout();
 		pane.validate();
 		container.add(pane);
