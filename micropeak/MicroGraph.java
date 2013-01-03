@@ -39,15 +39,19 @@ class MicroSeries extends XYSeries {
 	String		label;
 	String		units;
 	Color		color;
+	XYItemRenderer	renderer;
 	
-	String label() {
-		return String.format("%s (%s)", label, units);
-	}
-
 	void set_units(String units) {
 		this.units = units;
 
-		axis.setLabel(label());
+		axis.setLabel(String.format("%s (%s)", label, units));
+
+		StandardXYToolTipGenerator	ttg;
+
+		ttg = new StandardXYToolTipGenerator(String.format("{1}s: {2}%s ({0})", units),
+						     new java.text.DecimalFormat("0.00"),
+						     new java.text.DecimalFormat("0.00"));
+		renderer.setBaseToolTipGenerator(ttg);
 	}
 
 	public MicroSeries (String label, String units, Color color) {
@@ -56,9 +60,13 @@ class MicroSeries extends XYSeries {
 		this.units = units;
 		this.color = color;
 
-		axis = new NumberAxis(label());
+		axis = new NumberAxis();
 		axis.setLabelPaint(color);
 		axis.setTickLabelPaint(color);
+
+		renderer = new XYLineAndShapeRenderer(true, false);
+		renderer.setSeriesPaint(0, color);
+		set_units(units);
 	}
 }
 
@@ -88,16 +96,11 @@ public class MicroGraph implements AltosUnitsListener {
 	private MicroSeries addSeries(int index, String label, String units, Color color) {
 		MicroSeries		series = new MicroSeries(label, units, color);
 		XYSeriesCollection	dataset = new XYSeriesCollection(series);
-		XYItemRenderer		renderer = new XYLineAndShapeRenderer(true, false);
 
-		renderer.setSeriesPaint(0, color);
-		renderer.setPlot(plot);
-		renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator(String.format("{1}s: {2}%s ({0})", units),
-										new java.text.DecimalFormat("0.00"),
-										new java.text.DecimalFormat("0.00")));
+		series.renderer.setPlot(plot);
 		plot.setRangeAxis(index, series.axis);
 		plot.setDataset(index, dataset);
-		plot.setRenderer(index, renderer);
+		plot.setRenderer(index, series.renderer);
 		plot.mapDatasetToRangeAxis(index, index);
 		return series;
 	}
