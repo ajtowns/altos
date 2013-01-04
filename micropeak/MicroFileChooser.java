@@ -36,24 +36,12 @@ public class MicroFileChooser extends JFileChooser {
 		return file;
 	}
 
-	public InputStream runDialog() {
+	public File runDialog() {
 		int	ret;
 
 		ret = showOpenDialog(frame);
-		if (ret == APPROVE_OPTION) {
-			file = getSelectedFile();
-			if (file == null)
-				return null;
-			filename = file.getName();
-			try {
-				return new FileInputStream(file);
-			} catch (FileNotFoundException fe) {
-				JOptionPane.showMessageDialog(frame,
-							      fe.getMessage(),
-							      "Cannot open file",
-							      JOptionPane.ERROR_MESSAGE);
-			}
-		}
+		if (ret == APPROVE_OPTION)
+			return getSelectedFile();
 		return null;
 	}
 

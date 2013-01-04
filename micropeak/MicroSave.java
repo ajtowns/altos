@@ -32,6 +32,12 @@ public class MicroSave extends JFileChooser {
 	JFrame		frame;
 	MicroData	data;
 
+	public static void save(File file, MicroData data) throws FileNotFoundException, IOException {
+		FileOutputStream fos = new FileOutputStream(file);
+		data.save(fos);
+		fos.close();
+	}
+
 	public boolean runDialog() {
 		int	ret;
 
@@ -76,9 +82,7 @@ public class MicroSave extends JFileChooser {
 				}
 			}
 			try {
-				FileOutputStream fos = new FileOutputStream(file);
-				data.save(fos);
-				fos.close();
+				save(file, data);
 				data.set_name(filename);
 				return true;
 			} catch (FileNotFoundException fe) {

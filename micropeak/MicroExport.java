@@ -31,6 +31,12 @@ public class MicroExport extends JFileChooser {
 	JFrame		frame;
 	MicroData	data;
 
+	public static void export(File file, MicroData data) throws FileNotFoundException, IOException {
+		FileWriter fw = new FileWriter(file);
+		data.export(fw);
+		fw.close();
+	}
+
 	public boolean runDialog() {
 		int	ret;
 
@@ -76,14 +82,7 @@ public class MicroExport extends JFileChooser {
 				}
 			}
 			try {
-				FileWriter fw = new FileWriter(file);
-				PrintWriter pw = new PrintWriter(fw);
-				pw.printf("  Time, Press, Height,  Speed,  Accel\n");
-				for (MicroDataPoint point : data.points()) {
-					pw.printf("%6.3f,%6.0f,%7.1f,%7.2f,%7.2f\n",
-						  point.time, point.pressure, point.height, point.speed, point.accel);
-				}
-				fw.close();
+				export(file, data);
 				return true;
 			} catch (FileNotFoundException fe) {
 				JOptionPane.showMessageDialog(frame,

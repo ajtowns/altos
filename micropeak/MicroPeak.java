@@ -56,40 +56,41 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		setTitle(name);
 	}
 
-	private void RunFile(InputStream input, String name) {
+	private static MicroData ReadFile(File filename) throws IOException, FileNotFoundException {
+		MicroData	data = null;
+		FileInputStream	fis = new FileInputStream(filename);
 		try {
-			MicroData data = new MicroData(input, name);
-			SetData(data);
-		} catch (IOException ioe) {
-			JOptionPane.showMessageDialog(this,
-						      ioe.getMessage(),
-						      "File Read Error",
-						      JOptionPane.ERROR_MESSAGE);
+			data = new MicroData((InputStream) fis, filename.getName());
 		} catch (InterruptedException ie) {
+			data = null;
+		} finally {
+			fis.close();
 		}
-		try {
-			input.close();
-		} catch (IOException ioe) {
-		}
+		return data;
 	}
 
 	private void OpenFile(File filename) {
 		try {
-			RunFile (new FileInputStream(filename), filename.getName());
+			SetData(ReadFile(filename));
 		} catch (FileNotFoundException fne) {
 			JOptionPane.showMessageDialog(this,
 						      fne.getMessage(),
 						      "Cannot open file",
+						      JOptionPane.ERROR_MESSAGE);
+		} catch (IOException ioe) {
+			JOptionPane.showMessageDialog(this,
+						      ioe.getMessage(),
+						      "File Read Error",
 						      JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
 	private void SelectFile() {
 		MicroFileChooser	chooser = new MicroFileChooser(this);
-		InputStream		input = chooser.runDialog();
+		File			file = chooser.runDialog();
 
-		if (input != null)
-			RunFile(input, chooser.filename);
+		if (file != null)
+			OpenFile(file);
 	}
 
 	private void Preferences() {
@@ -109,6 +110,7 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 						      "No data",
 						      JOptionPane.INFORMATION_MESSAGE);
 	}
+
 	private void Save() {
 		if (data == null) {
 			no_data();
@@ -126,6 +128,30 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		}
 		MicroExport	export = new MicroExport (this, data);
 		export.runDialog();
+	}
+
+	private static void CommandGraph(File file) {
+		MicroPeak m = new MicroPeak();
+		m.OpenFile(file);
+	}
+
+	private static void CommandExport(File file) {
+		try {
+			MicroData d = ReadFile(file);
+			if (d != null) {
+				File	csv = new File(AltosLib.replace_extension(file.getPath(), ".csv"));
+				try {
+					System.out.printf ("Export \"%s\" to \"%s\"\n", file.getPath(), csv.getPath());
+					MicroExport.export(csv, d);
+				} catch (FileNotFoundException fe) {
+					System.err.printf("Cannot create file \"%s\" (%s)\n", csv.getName(), fe.getMessage());
+				} catch (IOException ie) {
+					System.err.printf("Cannot write file \"%s\" (%s)\n", csv.getName(), ie.getMessage());
+				}
+			}
+		} catch (IOException ie) {
+			System.err.printf("Cannot read file \"%s\" (%s)\n", file.getName(), ie.getMessage());
+		}
 	}
 
 	private void Close() {
@@ -233,8 +259,17 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		setVisible(true);
 	}
 
+	public static void help(int code) {
+		System.out.printf("Usage: micropeak [OPTION] ... [FILE]...\n");
+		System.out.printf("  Options:\n");
+		System.out.printf("    --csv\tgenerate comma separated output for spreadsheets, etc\n");
+		System.out.printf("    --graph\tgraph a flight\n");
+		System.exit(code);
+	}
+
 	public static void main(final String[] args) {
 		boolean	opened = false;
+		boolean graphing = true;
 
 		try {
 			UIManager.setLookAndFeel(AltosUIPreferences.look_and_feel());
@@ -242,9 +277,28 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		}
 
 		for (int i = 0; i < args.length; i++) {
-			MicroPeak m = new MicroPeak();
-			m.OpenFile(new File(args[i]));
-			opened = true;
+			System.out.printf ("Arg %d: %s\n", i, args[i]);
+			if (args[i].equals("--help"))
+				help(0);
+			else if (args[i].equals("--export"))
+				graphing = false;
+			else if (args[i].equals("--graph"))
+				graphing = true;
+			else if (args[i].startsWith("--"))
+				help(1);
+			else {
+				File	file = new File(args[i]);
+				try {
+					if (graphing)
+						CommandGraph(file);
+					else
+						CommandExport(file);
+					opened = true;
+				} catch (Exception e) {
+					System.err.printf("Error processing \"%s\": %s\n",
+							  file.getName(), e.getMessage());
+				}
+			}
 		}
 		if (!opened)
 			new MicroPeak();

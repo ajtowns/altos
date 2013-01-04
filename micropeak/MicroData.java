@@ -263,6 +263,15 @@ public class MicroData {
 		f.write('\n');
 	}
 
+	public void export (Writer f) throws IOException {
+		PrintWriter	pw = new PrintWriter(f);
+		pw.printf("  Time, Press, Height,  Speed,  Accel\n");
+		for (MicroDataPoint point : points()) {
+			pw.printf("%6.3f,%6.0f,%7.1f,%7.2f,%7.2f\n",
+				  point.time, point.pressure, point.height, point.speed, point.accel);
+		}
+	}
+
 	public void set_name(String name) {
 		this.name = name;
 	}
