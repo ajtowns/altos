@@ -265,15 +265,15 @@ public class MicroData {
 
 	public void export (Writer f) throws IOException {
 		PrintWriter	pw = new PrintWriter(f);
-		pw.printf("  Time, Press(Pa), Height(m), Height(f), Speed(m/s), Speed(ft/s), Speed(mach), Accel(m/s²), Accel(ft/s²),  Accel(g)\n");
+		pw.printf("  Time, Press(Pa), Height(m), Height(f), Speed(m/s), Speed(mph), Speed(mach), Accel(m/s²), Accel(ft/s²),  Accel(g)\n");
 		for (MicroDataPoint point : points()) {
-			pw.printf("%6.3f,%10.0f,%10.1f,%10.1f,%11.2f,%12.2f,%12.4f,%12.2f,%13.2f,%10.4f\n",
+			pw.printf("%6.3f,%10.0f,%10.1f,%10.1f,%11.2f,%11.2f,%12.4f,%12.2f,%13.2f,%10.4f\n",
 				  point.time,
 				  point.pressure,
 				  point.height,
 				  AltosConvert.meters_to_feet(point.height),
 				  point.speed,
-				  AltosConvert.meters_to_feet(point.speed),
+				  AltosConvert.meters_to_mph(point.speed),
 				  AltosConvert.meters_to_mach(point.speed),
 				  point.accel,
 				  AltosConvert.meters_to_feet(point.accel),

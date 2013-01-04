@@ -18,6 +18,7 @@
 package org.altusmetrum.micropeak;
 
 import java.awt.*;
+import java.io.*;
 import javax.swing.*;
 import org.altusmetrum.AltosLib.*;
 import org.altusmetrum.altosuilib.*;
@@ -25,12 +26,13 @@ import org.altusmetrum.altosuilib.*;
 public class MicroRaw extends JTextArea {
 
 	public void setData(MicroData data) {
-		setRows(data.pressures.length);
-		setText("  Time, Press, Height,  Speed,  Accel\n");
-		for (MicroDataPoint point : data.points()) {
-			append(String.format(
-				       "%6.3f,%6.0f,%7.1f,%7.2f,%7.2f\n",
-				       point.time, point.pressure, point.height, point.speed, point.accel));
+		StringWriter	sw = new StringWriter();
+		try {
+			data.export(sw);
+			setRows(data.pressures.length + 1);
+			setText(sw.toString());
+		} catch (IOException ie) {
+			setText(String.format("Error writing data: %s", ie.getMessage()));
 		}
 	}
 
