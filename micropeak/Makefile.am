@@ -67,7 +67,7 @@ ICONJAR= -C $(ICONDIR) micropeak-16.png \
 
 WINDOWS_ICON=$(ICONDIR)/micro-peak.ico
 
-all-local: micropeak-test $(JAR)
+all-local: micropeak-test micropeak-jdb $(JAR)
 
 clean-local:
 	-rm -rf classes $(JAR) $(FATJAR) \
@@ -78,7 +78,7 @@ clean-local:
 		micropeak micropeak-test macosx linux windows
 
 LINUX_DIST=MicroPeak-Linux-$(VERSION).tar.bz2
-MACOSX_DIST=MicroPeak-Mac-$(VERSION).zip
+MACOSX_DIST=MicroPeak-Mac-$(VERSION).dmg
 WINDOWS_DIST=MicroPeak-Windows-$(VERSION_DASH).exe
 
 FAT_FILES=$(FATJAR) $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS)
@@ -120,6 +120,11 @@ endif
 micropeak: Makefile
 	echo "#!/bin/sh" > $@
 	echo 'exec java  -cp "$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="$(altoslibdir)" -jar "$(micropeakdir)/micropeak.jar" "$$@"' >> $@
+	chmod +x $@
+
+micropeak-jdb: Makefile
+	echo "#!/bin/sh" > $@
+	echo 'exec jdb -classpath "classes:./*:../libaltos:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="../libaltos/.libs" org.altusmetrum.micropeak.MicroPeak "$$@"' >> $@
 	chmod +x $@
 
 micropeak-test: Makefile
@@ -206,14 +211,14 @@ $(MACOSX_DIST): $(MACOSX_FILES)
 	mkdir macosx
 	cp -a MicroPeak.app macosx/
 	cp -p Info.plist macosx/MicroPeak.app/Contents
-	mkdir -p macosx/MicroPeak macosx/MicroPeak.app/Contents/Resources/Java
+	mkdir -p macosx/MicroPeak.app/Contents/Resources/Java
 	cp -p $(FATJAR) macosx/MicroPeak.app/Contents/Resources/Java/micropeak.jar
 	cp -p libaltos.dylib macosx/MicroPeak.app/Contents/Resources/Java
 	cp -p $(ALTOSLIB_CLASS) macosx/MicroPeak.app/Contents/Resources/Java
 	cp -p $(ALTOSUILIB_CLASS) macosx/MicroPeak.app/Contents/Resources/Java
 	cp -p $(JFREECHART_CLASS) macosx/MicroPeak.app/Contents/Resources/Java
 	cp -p $(JCOMMON_CLASS) macosx/MicroPeak.app/Contents/Resources/Java
-	cd macosx && zip -r ../$@ MicroPeak.app MicroPeak
+	genisoimage -D -V MicroPeak-$(VERSION) -no-pad -r -apple -o $@ macosx
 
 $(WINDOWS_DIST): $(WINDOWS_FILES) micropeak-windows.nsi
 	-rm -f $@
