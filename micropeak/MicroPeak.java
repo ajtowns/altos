@@ -277,7 +277,6 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		}
 
 		for (int i = 0; i < args.length; i++) {
-			System.out.printf ("Arg %d: %s\n", i, args[i]);
 			if (args[i].equals("--help"))
 				help(0);
 			else if (args[i].equals("--export"))
