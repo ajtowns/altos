@@ -102,5 +102,6 @@ public class MicroSave extends JFileChooser {
 		setFileFilter(new FileNameExtensionFilter("MicroPeak data file",
 							  "mpd"));
 		setCurrentDirectory(AltosUIPreferences.logdir());
+		setSelectedFile(MicroFile.make());
 	}
 }

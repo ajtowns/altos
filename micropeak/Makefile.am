@@ -13,6 +13,7 @@ micropeak_JAVA= \
 	MicroDataPoint.java \
 	MicroDownload.java \
 	MicroExport.java \
+	MicroFile.java \
 	MicroFrame.java \
 	MicroGraph.java \
 	MicroRaw.java \
