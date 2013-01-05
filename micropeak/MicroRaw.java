@@ -34,10 +34,12 @@ public class MicroRaw extends JTextArea {
 		} catch (IOException ie) {
 			setText(String.format("Error writing data: %s", ie.getMessage()));
 		}
+		setCaretPosition(0);
 	}
 
 	public MicroRaw() {
 		super(1, 30);
 		setFont(AltosUILib.table_value_font);
+		setEditable(false);
 	}
 }
