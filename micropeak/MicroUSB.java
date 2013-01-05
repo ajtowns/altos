@@ -50,7 +50,7 @@ public class MicroUSB extends altos_device implements AltosDevice {
 		String	name = getName();
 		if (name == null)
 			name = "Altus Metrum";
-		return String.format("%-20.20s %s",
+		return String.format("%-24.24s %s",
 				     name, getPath());
 	}
 
@@ -90,7 +90,7 @@ public class MicroUSB extends altos_device implements AltosDevice {
 		if (!load_library())
 			return null;
 
-		SWIGTYPE_p_altos_list list = libaltos.altos_list_start();
+		SWIGTYPE_p_altos_list list = libaltos.altos_ftdi_list_start();
 
 		ArrayList<MicroUSB> device_list = new ArrayList<MicroUSB>();
 		if (list != null) {
