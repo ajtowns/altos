@@ -73,6 +73,9 @@ altos_get_last_error(struct altos_error *error);
 PUBLIC struct altos_list *
 altos_list_start(void);
 
+PUBLIC struct altos_list *
+altos_ftdi_list_start(void);
+
 /* Returns 1 for success, zero on end of list */
 PUBLIC int
 altos_list_next(struct altos_list *list, struct altos_device *device);
