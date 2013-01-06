@@ -165,7 +165,7 @@ DOC=$(ALTUSMETRUM_DOC) $(ALTOS_DOC) $(TELEMETRY_DOC) $(TEMPLATE_DOC)
 
 # Distribution targets
 LINUX_DIST=Altos-Linux-$(VERSION).tar.bz2
-MACOSX_DIST=Altos-Mac-$(VERSION).zip
+MACOSX_DIST=Altos-Mac-$(VERSION).dmg
 WINDOWS_DIST=Altos-Windows-$(VERSION_DASH).exe
 
 FAT_FILES=$(FATJAR) $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS)
@@ -174,7 +174,7 @@ LINUX_FILES=$(FAT_FILES) libaltos.so $(FIRMWARE) $(DOC)
 LINUX_EXTRA=altosui-fat
 
 MACOSX_INFO_PLIST=Info.plist
-MACOSX_FILES=$(FAT_FILES) libaltos.dylib $(MACOSX_INFO_PLIST)
+MACOSX_FILES=$(FAT_FILES) libaltos.dylib $(MACOSX_INFO_PLIST) ReadMe-Mac.rtf
 MACOSX_EXTRA=$(FIRMWARE)
 
 WINDOWS_FILES=$(FAT_FILES) altos.dll altos64.dll $(top_srcdir)/telemetrum.inf $(WINDOWS_ICON)
@@ -319,13 +319,14 @@ $(LINUX_DIST): $(LINUX_FILES) $(LINUX_EXTRA)
 	chmod +x linux/AltOS/altosui
 	tar cjf $@ -C linux AltOS
 
-$(MACOSX_DIST): $(MACOSX_FILES) $(MACOSX_EXTRA)
+$(MACOSX_DIST): $(MACOSX_FILES) $(MACOSX_EXTRA) Makefile
 	-rm -f $@
 	-rm -rf macosx
 	mkdir macosx
 	cp -a AltosUI.app macosx/
+	cp -a ReadMe-Mac.rtf macosx/ReadMe.rtf
 	cp -p Info.plist macosx/AltosUI.app/Contents
-	mkdir -p macosx/AltOS macosx/AltosUI.app/Contents/Resources/Java
+	mkdir -p macosx/AltOS-$(VERSION) macosx/AltosUI.app/Contents/Resources/Java
 	cp -p $(FATJAR) macosx/AltosUI.app/Contents/Resources/Java/altosui.jar
 	cp -p libaltos.dylib macosx/AltosUI.app/Contents/Resources/Java
 	cp -p $(ALTOSLIB_CLASS) macosx/AltosUI.app/Contents/Resources/Java
@@ -333,8 +334,8 @@ $(MACOSX_DIST): $(MACOSX_FILES) $(MACOSX_EXTRA)
 	cp -p $(FREETTS_CLASS) macosx/AltosUI.app/Contents/Resources/Java
 	cp -p $(JFREECHART_CLASS) macosx/AltosUI.app/Contents/Resources/Java
 	cp -p $(JCOMMON_CLASS) macosx/AltosUI.app/Contents/Resources/Java
-	cp -p $(MACOSX_EXTRA) macosx/AltOS
-	cd macosx && zip -r ../$@ AltosUI.app AltOS
+	cp -p $(MACOSX_EXTRA) macosx/AltOS-$(VERSION)
+	genisoimage -D -V AltOS-$(VERSION) -no-pad -r -apple -o $@ macosx
 
 $(WINDOWS_DIST): $(WINDOWS_FILES) altos-windows.nsi
 	-rm -f $@
