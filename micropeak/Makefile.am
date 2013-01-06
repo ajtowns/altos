@@ -89,7 +89,8 @@ LINUX_EXTRA=micropeak-fat
 
 MACOSX_INFO_PLIST=Info.plist
 MACOSX_DRIVER=FTDI.tar.gz
-MACOSX_FILES=$(FAT_FILES) libaltos.dylib $(MACOSX_INFO_PLIST) $(MACOSX_DRIVER)
+MACOSX_README=ReadMe-Mac.rtf
+MACOSX_FILES=$(FAT_FILES) libaltos.dylib $(MACOSX_INFO_PLIST) $(MACOSX_DRIVER) $(MACOSX_README)
 
 WINDOWS_FILES=$(FAT_FILES) altos.dll altos64.dll $(top_srcdir)/telemetrum.inf $(WINDOWS_ICON)
 
@@ -212,6 +213,7 @@ $(MACOSX_DIST): $(MACOSX_FILES)
 	-rm -rf macosx
 	mkdir macosx
 	cp -a MicroPeak.app macosx/
+	cp -a $(MACOSX_README) macosx/ReadMe.rtf
 	cp -p Info.plist macosx/MicroPeak.app/Contents
 	tar xzf $(MACOSX_DRIVER) -C macosx
 	mkdir -p macosx/MicroPeak.app/Contents/Resources/Java
