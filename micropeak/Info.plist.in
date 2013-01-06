@@ -15,7 +15,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.altusmetrum.altosui</string>
+	<string>org.altusmetrum.micropeak</string>
 	<key>CFBundleSignature</key>
 	<string>Altu</string>
 	<key>CFBundleGetInfoString</key>
@@ -34,6 +34,11 @@
 		<array>
 			<string>$JAVAROOT/micropeak.jar</string>
 		</array>
+		<key>Properties</key>
+		<dict>
+		  <key>apple.laf.useScreenMenuBar</key>
+		  <string>true</string>
+		</dict>
 		<key>VMOptions</key>
 		<array>
 		  <string>-Xms512M</string>

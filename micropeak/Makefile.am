@@ -88,7 +88,8 @@ LINUX_FILES=$(FAT_FILES) libaltos.so $(FIRMWARE) $(DOC)
 LINUX_EXTRA=micropeak-fat
 
 MACOSX_INFO_PLIST=Info.plist
-MACOSX_FILES=$(FAT_FILES) libaltos.dylib $(MACOSX_INFO_PLIST)
+MACOSX_DRIVER=FTDI.tar.gz
+MACOSX_FILES=$(FAT_FILES) libaltos.dylib $(MACOSX_INFO_PLIST) $(MACOSX_DRIVER)
 
 WINDOWS_FILES=$(FAT_FILES) altos.dll altos64.dll $(top_srcdir)/telemetrum.inf $(WINDOWS_ICON)
 
@@ -212,6 +213,7 @@ $(MACOSX_DIST): $(MACOSX_FILES)
 	mkdir macosx
 	cp -a MicroPeak.app macosx/
 	cp -p Info.plist macosx/MicroPeak.app/Contents
+	tar xzf $(MACOSX_DRIVER) -C macosx
 	mkdir -p macosx/MicroPeak.app/Contents/Resources/Java
 	cp -p $(FATJAR) macosx/MicroPeak.app/Contents/Resources/Java/micropeak.jar
 	cp -p libaltos.dylib macosx/MicroPeak.app/Contents/Resources/Java
