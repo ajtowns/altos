@@ -126,6 +126,8 @@ public abstract class AltosRecord implements Comparable <AltosRecord>, Cloneable
 		return tick - o.tick;
 	}
 
+	abstract public AltosRecord clone();
+
 	public void copy(AltosRecord old) {
 		seen = old.seen;
 		version = old.version;
@@ -142,16 +144,6 @@ public abstract class AltosRecord implements Comparable <AltosRecord>, Cloneable
 		kalman_acceleration = old.kalman_acceleration;
 		kalman_speed = old.kalman_speed;
 		kalman_height = old.kalman_height;
-	}
-
-	public AltosRecord clone() {
-		try {
-			AltosRecord n = (AltosRecord) super.clone();
-			n.copy(this);
-			return n;
-		} catch (CloneNotSupportedException e) {
-			return null;
-		}
 	}
 
 	public AltosRecord() {

@@ -28,6 +28,10 @@ public class AltosRecordNone extends AltosRecord {
 		super.copy(old);
 	}
 
+	public AltosRecordNone clone() {
+		return new AltosRecordNone(this);
+	}
+
 	public AltosRecordNone() {
 		super();
 	}
