@@ -27,6 +27,15 @@ public class MicroDeviceDialog extends AltosDeviceDialog {
 
 	public AltosDevice[] devices() {
 		java.util.List<MicroUSB>	list = MicroUSB.list();
+
+		if (list == null) {
+			JOptionPane.showMessageDialog(frame,
+						      "libaltos failed to load",
+						      "Helper Library Failed",
+						      JOptionPane.ERROR_MESSAGE);
+			return new AltosDevice[0];
+		}
+
 		int		num_devices = list.size();
 		AltosDevice[]	devices = new AltosDevice[num_devices];
 
