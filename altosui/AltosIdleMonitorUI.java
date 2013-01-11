@@ -23,8 +23,9 @@ import javax.swing.*;
 import java.io.*;
 import java.util.concurrent.*;
 import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altosuilib.*;
 
-public class AltosIdleMonitorUI extends AltosFrame implements AltosFlightDisplay, AltosFontListener, AltosIdleMonitorListener {
+public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDisplay, AltosFontListener, AltosIdleMonitorListener {
 	AltosDevice		device;
 	JTabbedPane		pane;
 	AltosPad		pad;
@@ -90,7 +91,7 @@ public class AltosIdleMonitorUI extends AltosFrame implements AltosFlightDisplay
 	public AltosIdleMonitorUI(JFrame in_owner)
 		throws FileNotFoundException, AltosSerialInUseException, TimeoutException, InterruptedException {
 
-		device = AltosDeviceDialog.show(in_owner, Altos.product_any);
+		device = AltosDeviceUIDialog.show(in_owner, Altos.product_any);
 		remote = false;
 		if (!device.matchProduct(Altos.product_altimeter))
 			remote = true;

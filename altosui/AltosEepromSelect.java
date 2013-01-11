@@ -22,6 +22,7 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altosuilib.*;
 
 class AltosEepromItem implements ActionListener {
 	AltosEepromLog	log;
@@ -50,7 +51,7 @@ class AltosEepromItem implements ActionListener {
 	}
 }
 
-public class AltosEepromSelect extends AltosDialog implements ActionListener {
+public class AltosEepromSelect extends AltosUIDialog implements ActionListener {
 	//private JList			list;
 	private JFrame			frame;
 	JButton				ok;

@@ -15,8 +15,23 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.micropeak;
 
-public interface AltosFontListener {
-	void font_size_changed(int font_size);
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.util.*;
+import org.altusmetrum.altosuilib.*;
+
+public class MicroFrame extends AltosUIFrame {
+	static String[] micro_icon_names = {
+		"/micropeak-16.png",
+		"/micropeak-32.png",
+		"/micropeak-48.png",
+		"/micropeak-64.png",
+		"/micropeak-128.png",
+		"/micropeak-256.png"
+	};
+
+	static { set_icon_names(micro_icon_names); }
 }

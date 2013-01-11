@@ -22,9 +22,10 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altosuilib.*;
 
 public class AltosConfigUI
-	extends AltosDialog
+	extends AltosUIDialog
 	implements ActionListener, ItemListener, DocumentListener, AltosConfigValues
 {
 

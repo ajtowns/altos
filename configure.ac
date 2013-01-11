@@ -146,10 +146,13 @@ AM_CONDITIONAL([LIBSTLINK], [test x$HAVE_STLINK != xno])
 AC_OUTPUT([
 Makefile
 altoslib/Makefile
+altosuilib/Makefile
+altosuilib/AltosUIVersion.java
 altosui/Makefile
-altosui/AltosVersion.java
 altosui/Info.plist
-altosui/libaltos/Makefile
+libaltos/Makefile
+micropeak/Makefile
+micropeak/Info.plist
 altosdroid/Makefile
 altosdroid/local.properties
 ao-tools/Makefile

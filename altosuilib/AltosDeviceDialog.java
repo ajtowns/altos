@@ -15,48 +15,37 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class AltosDeviceDialog extends AltosDialog implements ActionListener {
+public abstract class AltosDeviceDialog extends AltosUIDialog implements ActionListener {
 
 	private AltosDevice	value;
 	private JList		list;
 	private JButton		cancel_button;
 	private JButton		select_button;
-	private JButton		manage_bluetooth_button;
-	private Frame		frame;
-	private int		product;
-
-	private AltosDevice getValue() {
+	public Frame		frame;
+	public int		product;
+	public JPanel		buttonPane;
+	
+	public AltosDevice getValue() {
 		return value;
 	}
 
-	private AltosDevice[] devices() {
-		java.util.List<AltosDevice>	usb_devices = AltosUSBDevice.list(product);
-		int				num_devices = usb_devices.size();
-		java.util.List<AltosDevice>	bt_devices = AltosBTKnown.bt_known().list(product);
-		num_devices += bt_devices.size();
-		AltosDevice[]			devices = new AltosDevice[num_devices];
+	public abstract AltosDevice[] devices();
 
-		for (int i = 0; i < usb_devices.size(); i++)
-			devices[i] = usb_devices.get(i);
-		int off = usb_devices.size();
-		for (int j = 0; j < bt_devices.size(); j++)
-			devices[off + j] = bt_devices.get(j);
-		return devices;
-	}
-
-	private void update_devices() {
+	public void update_devices() {
 		AltosDevice[] devices = devices();
 		list.setListData(devices);
 		select_button.setEnabled(devices.length > 0);
 	}
 
-	private AltosDeviceDialog (Frame in_frame, Component location, int in_product) {
+	public void add_bluetooth() { }
+
+	public AltosDeviceDialog (Frame in_frame, Component location, int in_product) {
 		super(in_frame, "Device Selection", true);
 
 		product = in_product;
@@ -68,10 +57,6 @@ public class AltosDeviceDialog extends AltosDialog implements ActionListener {
 		cancel_button = new JButton("Cancel");
 		cancel_button.setActionCommand("cancel");
 		cancel_button.addActionListener(this);
-
-		manage_bluetooth_button = new JButton("Manage Bluetooth");
-		manage_bluetooth_button.setActionCommand("manage");
-		manage_bluetooth_button.addActionListener(this);
 
 		select_button = new JButton("Select");
 		select_button.setActionCommand("select");
@@ -139,14 +124,15 @@ public class AltosDeviceDialog extends AltosDialog implements ActionListener {
 		listPane.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
 		//Lay out the buttons from left to right.
-		JPanel buttonPane = new JPanel();
+		buttonPane = new JPanel();
 		buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 		buttonPane.add(Box.createHorizontalGlue());
 		buttonPane.add(cancel_button);
 		buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
-		buttonPane.add(manage_bluetooth_button);
-		buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
+
+		add_bluetooth();
+
 		buttonPane.add(select_button);
 
 		//Put everything together, using the content pane's BorderLayout.
@@ -163,23 +149,12 @@ public class AltosDeviceDialog extends AltosDialog implements ActionListener {
 
 	//Handle clicks on the Set and Cancel buttons.
 	public void actionPerformed(ActionEvent e) {
-		if ("select".equals(e.getActionCommand()))
+		if ("select".equals(e.getActionCommand())) {
 			value = (AltosDevice)(list.getSelectedValue());
-		if ("manage".equals(e.getActionCommand())) {
-			AltosBTManage.show(frame, AltosBTKnown.bt_known());
-			update_devices();
-			return;
+			setVisible(false);
 		}
-		setVisible(false);
+		if ("cancel".equals(e.getActionCommand()))
+			setVisible(false);
 	}
 
-	public static AltosDevice show (Component frameComp, int product) {
-
-		Frame				frame = JOptionPane.getFrameForComponent(frameComp);
-		AltosDeviceDialog	dialog;
-
-		dialog = new AltosDeviceDialog(frame, frameComp, product);
-		dialog.setVisible(true);
-		return dialog.getValue();
-	}
 }
