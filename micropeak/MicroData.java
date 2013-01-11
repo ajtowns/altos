@@ -229,6 +229,18 @@ public class MicroData {
 		return altitude(i) - ground_altitude;
 	}
 
+	public double apogee_pressure() {
+		return min_pressure;
+	}
+
+	public double apogee_altitude() {
+		return AltosConvert.pressure_to_altitude(apogee_pressure());
+	}
+
+	public double apogee_height() {
+		return apogee_altitude() - ground_altitude;
+	}
+
 	static final int speed_avg = 3;
 	static final int accel_avg = 5;
 

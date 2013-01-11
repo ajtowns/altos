@@ -58,12 +58,17 @@ public class MicroStats {
 	}
 
 	void find_apogee() {
-		apogee_height = 0;
+		apogee_height = data.apogee_height();
+		double searched_apogee = 0;
 		apogee_time = 0;
 		
+		/* This just finds the apogee time -- we've recorded the
+		 * peak altitude separately in eeprom, and that could
+		 * have occurred after the eeprom was full.
+		 */
 		for (MicroDataPoint point : data.points()) {
-			if (point.height > apogee_height) {
-				apogee_height = point.height;
+			if (point.height > searched_apogee) {
+				searched_apogee = point.height;
 				apogee_time = point.time;
 			}
 		}
