@@ -862,6 +862,7 @@ ao_radio_rx_wait(void)
 	do {
 		if (ao_radio_mcu_wake)
 			ao_radio_check_marc_status();
+		ao_alarm(AO_MS_TO_TICKS(100));
 		ao_arch_block_interrupts();
 		rx_waiting = 1;
 		while (rx_data_cur - rx_data_consumed < AO_FEC_DECODE_BLOCK &&
@@ -873,6 +874,7 @@ ao_radio_rx_wait(void)
 		}
 		rx_waiting = 0;
 		ao_arch_release_interrupts();
+		ao_clear_alarm();
 	} while (ao_radio_mcu_wake);
 	if (ao_radio_abort)
 		return 0;
