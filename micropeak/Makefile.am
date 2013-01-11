@@ -155,6 +155,8 @@ $(FATJAR): classmicropeak.stamp Manifest-fat.txt $(ALTOSLIB_CLASS) $(ALTOSUILIB_
 		-C classes org \
 		-C ../libaltos libaltosJNI
 
+classaltosui.stamp: $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS)
+
 libaltos.so: build-libaltos
 	-rm -f "$@"
 	$(LN_S) ../libaltos/.libs/"$@" .
