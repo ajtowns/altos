@@ -1,6 +1,8 @@
 JAVAROOT=classes
 AM_JAVACFLAGS=-encoding UTF-8 -Xlint:deprecation
 
+altoslibdir=$(libdir)/altos
+
 CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../altoslib/*:../altosuilib/*:../libaltos:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar"
 
 bin_SCRIPTS=micropeak
@@ -122,7 +124,7 @@ endif
 
 micropeak: Makefile
 	echo "#!/bin/sh" > $@
-	echo 'exec java  -cp "$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="$(altoslibdir)" -jar "$(micropeakdir)/micropeak.jar" "$$@"' >> $@
+	echo 'exec java  -Djava.library.path="$(altoslibdir)" -jar "$(micropeakdir)/micropeak.jar" "$$@"' >> $@
 	chmod +x $@
 
 micropeak-jdb: Makefile
