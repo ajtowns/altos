@@ -15,5 +15,8 @@ dist-hook: ChangeLog
 fat:
 	cd src && $(MAKE) all
 	cd doc && $(MAKE) all
-	cd altosui/libaltos && $(MAKE) all
+	cd libaltos && $(MAKE) all
+	cd altoslib && $(MAKE) all
+	cd altosuilib && $(MAKE) all
 	cd altosui && $(MAKE) fat
+	cd micropeak && $(MAKE) fat
