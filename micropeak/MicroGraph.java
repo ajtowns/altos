@@ -54,6 +54,11 @@ class MicroSeries extends XYSeries {
 		renderer.setBaseToolTipGenerator(ttg);
 	}
 
+	void set_enable(boolean enable) {
+		renderer.setSeriesVisible(0, enable);
+		axis.setVisible(enable);
+	}
+
 	public MicroSeries (String label, String units, Color color) {
 		super(label);
 		this.label = label;
@@ -116,6 +121,7 @@ public class MicroGraph implements AltosUnitsListener {
 				accelSeries.add(point.time, AltosConvert.accel.value(point.accel));
 			}
 		}
+//		accelSeries.set_enable(false);
 	}
 
 	public void setName (String name) {
