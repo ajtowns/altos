@@ -478,26 +478,26 @@ usb_tty(char *sys)
 				return tty;
 			}
 
+			/* Check for tty/ttyACMx style names
+			 */
+			tty_dir = cc_fullname(endpoint_full, "tty");
+			ntty = scandir(tty_dir, &namelist,
+				       dir_filter_tty,
+				       alphasort);
+			free (tty_dir);
+			if (ntty > 0) {
+				tty = cc_fullname("/dev", namelist[0]->d_name);
+				free(endpoint_full);
+				free(namelist);
+				return tty;
+			}
+
 			/* Check for ttyACMx style names
 			 */
 			ntty = scandir(endpoint_full, &namelist,
 				       dir_filter_tty,
 				       alphasort);
-			if (ntty > 0) {
-				free(endpoint_full);
-				tty = cc_fullname("/dev", namelist[0]->d_name);
-				free(namelist);
-				return tty;
-			}
-
-			/* Check for tty/ttyACMx style names
-			 */
-			tty_dir = cc_fullname(endpoint_full, "tty");
 			free(endpoint_full);
-			ntty = scandir(tty_dir, &namelist,
-				       dir_filter_tty,
-				       alphasort);
-			free (tty_dir);
 			if (ntty > 0) {
 				tty = cc_fullname("/dev", namelist[0]->d_name);
 				free(namelist);
