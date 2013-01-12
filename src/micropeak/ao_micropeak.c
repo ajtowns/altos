@@ -60,6 +60,12 @@ ao_pips(void)
 	ao_delay(AO_MS_TO_TICKS(200));
 }
 
+#define NUM_PA_HIST	16
+
+#define SKIP_PA_HIST(i,j)	(((i) + (j)) & (NUM_PA_HIST - 1))
+
+static uint32_t	pa_hist[NUM_PA_HIST];
+
 int
 main(void)
 {
@@ -67,6 +73,7 @@ main(void)
 	uint16_t	time;
 	uint32_t	pa_interval_min, pa_interval_max;
 	int32_t		pa_diff;
+	uint8_t		h, i;
 
 	ao_led_init(LEDS_AVAILABLE);
 	ao_timer_init();
@@ -91,6 +98,7 @@ main(void)
 	ao_pa_get();
 	pa_avg = pa_ground = pa << FILTER_SHIFT;
 	sample_count = 0;
+	h = 0;
 	for (;;) {
 		time += SAMPLE_SLEEP;
 		if (sample_count == 0)
@@ -99,6 +107,8 @@ main(void)
 		ao_pa_get();
 		if (sample_count == 0)
 			ao_led_off(AO_LED_REPORT);
+		pa_hist[h] = pa;
+		h = SKIP_PA_HIST(h,1);
 		pa_avg = pa_avg - (pa_avg >> FILTER_SHIFT) + pa;
 		pa_diff = pa_ground - pa_avg;
 
@@ -118,6 +128,19 @@ main(void)
 	}
 
 	pa_ground >>= FILTER_SHIFT;
+
+	/* Go back and find the first sample a decent interval above the ground */
+	pa_min = pa_ground - LAND_DETECT;
+	for (i = SKIP_PA_HIST(h,2); i != h; i = SKIP_PA_HIST(i,2)) {
+		if (pa_hist[i] < pa_min)
+			break;
+	}
+
+	/* Log the remaining samples so we get a complete history since leaving the ground */
+	for (; i != h; i = SKIP_PA_HIST(i,2)) {
+		pa = pa_hist[i];
+		ao_log_micro_data();
+	}
 
 	/* Now sit around until the pressure is stable again and record the max */
 
