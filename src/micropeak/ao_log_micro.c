@@ -16,58 +16,106 @@
  */
 
 #include <ao.h>
+#include <ao_micropeak.h>
 #include <ao_log_micro.h>
 #include <ao_async.h>
 
-#if HAS_EEPROM
-
-ao_pos_t	ao_log_micro_pos;
+static uint16_t ao_log_offset = STARTING_LOG_OFFSET;
 
 void
-ao_log_micro_data(uint32_t data)
+ao_log_micro_save(void)
 {
-	ao_storage_write(ao_log_micro_pos, &data, sizeof (data));
-	ao_log_micro_pos += sizeof (data);
+	uint16_t	n_samples = (ao_log_offset - STARTING_LOG_OFFSET) / sizeof (uint16_t);
+	ao_eeprom_write(PA_GROUND_OFFSET, &pa_ground, sizeof (pa_ground));
+	ao_eeprom_write(PA_MIN_OFFSET, &pa_min, sizeof (pa_min));
+	ao_eeprom_write(N_SAMPLES_OFFSET, &n_samples, sizeof (n_samples));
 }
 
-uint32_t	ao_log_last_ground;
-uint32_t	ao_log_last_done;
-
-uint8_t
-ao_log_micro_scan(void)
+void
+ao_log_micro_restore(void)
 {
-	uint32_t	data;
-	ao_pos_t	pos;
+	ao_eeprom_read(PA_GROUND_OFFSET, &pa_ground, sizeof (pa_ground));
+	ao_eeprom_read(PA_MIN_OFFSET, &pa_min, sizeof (pa_min));
+}
 
-	ao_storage_read(0, &data, sizeof (data));
-	if ((data & AO_LOG_MICRO_MASK) != AO_LOG_MICRO_GROUND)
-		return 0;
+void
+ao_log_micro_data(void)
+{
+	uint16_t	low_bits = pa;
 
-	ao_log_last_ground = data & ~(AO_LOG_MICRO_MASK);
-	for (pos = 4; pos < ao_storage_total; pos += 4) {
-		ao_storage_read(pos, &data, sizeof (data));
-		if ((data & AO_LOG_MICRO_MASK) == AO_LOG_MICRO_GROUND) {
-			ao_log_last_done = data & ~(AO_LOG_MICRO_MASK);
-			return 1;
-		}
+	if (ao_log_offset < MAX_LOG_OFFSET) {
+		ao_eeprom_write(ao_log_offset, &low_bits, sizeof (low_bits));
+		ao_log_offset += sizeof (low_bits);
 	}
-	return 0;
+}
+
+#define POLY 0x8408
+
+static uint16_t
+ao_log_micro_crc(uint16_t crc, uint8_t byte)
+{
+	uint8_t	i;
+
+	for (i = 0; i < 8; i++) {
+		if ((crc & 0x0001) ^ (byte & 0x0001))
+			crc = (crc >> 1) ^ POLY;
+		else
+			crc = crc >> 1;
+		byte >>= 1;
+	}
+	return crc;
+}
+
+static void
+ao_log_hex_nibble(uint8_t b)
+{
+	if (b < 10)
+		ao_async_byte('0' + b);
+	else
+		ao_async_byte('a' - 10 + b);
+}
+
+static void
+ao_log_hex(uint8_t b)
+{
+	ao_log_hex_nibble(b>>4);
+	ao_log_hex_nibble(b&0xf);
+}
+
+static void
+ao_log_newline(void)
+{
+	ao_async_byte('\r');
+	ao_async_byte('\n');
 }
 
 void
 ao_log_micro_dump(void)
 {
-	ao_pos_t	pos;
-	uint8_t		data[4];
-	uint8_t		i;
+	uint16_t	n_samples;
+	uint16_t	nbytes;
+	uint8_t		byte;
+	uint16_t	b;
+	uint16_t	crc = 0xffff;
 
-	for (pos = 0; pos < ao_storage_total; pos += 4) {
-		ao_storage_read(pos, data, 4);
-		for (i = 0; i < 4; i++)
-			ao_async_byte(data[i]);
-		if (data[3] == (uint8_t) (AO_LOG_MICRO_GROUND >> 24))
-			break;
+	ao_eeprom_read(N_SAMPLES_OFFSET, &n_samples, sizeof (n_samples));
+	if (n_samples == 0xffff)
+		n_samples = 0;
+	nbytes = STARTING_LOG_OFFSET + sizeof (uint16_t) * n_samples;
+	ao_async_start();
+	ao_async_byte('M');
+	ao_async_byte('P');
+	for (b = 0; b < nbytes; b++) {
+		if ((b & 0xf) == 0)
+			ao_log_newline();
+		ao_eeprom_read(b, &byte, 1);
+		ao_log_hex(byte);
+		crc = ao_log_micro_crc(crc, byte);
 	}
+	ao_log_newline();
+	crc = ~crc;
+	ao_log_hex(crc >> 8);
+	ao_log_hex(crc);
+	ao_log_newline();
+	ao_async_stop();
 }
-
-#endif

@@ -18,6 +18,7 @@
 package altosui;
 
 import java.io.*;
+import org.altusmetrum.altosuilib.*;
 
 public class AltosDebug extends AltosSerial {
 

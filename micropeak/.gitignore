@@ -1,0 +1,6 @@
+*.jar
+Manifest.txt
+classes
+*.stamp
+micropeak
+micropeak-test

@@ -1,4 +1,4 @@
-SUBDIRS=src doc altoslib altosui ao-tools ao-utils altosdroid
+SUBDIRS=src doc altoslib libaltos altosuilib altosui micropeak ao-tools ao-utils altosdroid
 
 EXTRA_DIST = ChangeLog
 
@@ -15,5 +15,8 @@ dist-hook: ChangeLog
 fat:
 	cd src && $(MAKE) all
 	cd doc && $(MAKE) all
-	cd altosui/libaltos && $(MAKE) all
+	cd libaltos && $(MAKE) all
+	cd altoslib && $(MAKE) all
+	cd altosuilib && $(MAKE) all
 	cd altosui && $(MAKE) fat
+	cd micropeak && $(MAKE) fat

@@ -21,8 +21,9 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import java.util.concurrent.*;
-import org.altusmetrum.AltosLib.*;
 import java.text.*;
+import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altosuilib.*;
 
 public class AltosConfig implements ActionListener {
 
@@ -270,7 +271,7 @@ public class AltosConfig implements ActionListener {
 	public AltosConfig(JFrame given_owner) {
 		owner = given_owner;
 
-		device = AltosDeviceDialog.show(owner, Altos.product_any);
+		device = AltosDeviceUIDialog.show(owner, Altos.product_any);
 		if (device != null) {
 			try {
 				serial_line = new AltosSerial(device);

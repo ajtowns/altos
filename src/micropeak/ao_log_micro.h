@@ -18,19 +18,20 @@
 #ifndef _AO_LOG_MICRO_H_
 #define _AO_LOG_MICRO_H_
 
-#define AO_LOG_MICRO_GROUND	(0l << 24)
-#define AO_LOG_MICRO_DATA	(1l << 24)
-#define AO_LOG_MICRO_DONE	(0xaal << 24)
-#define AO_LOG_MICRO_MASK	(0xffl << 24)
+#define PA_GROUND_OFFSET	0
+#define PA_MIN_OFFSET		4
+#define N_SAMPLES_OFFSET	8
+#define STARTING_LOG_OFFSET	10
+#define MAX_LOG_OFFSET		512
 
 void
-ao_log_micro_data(uint32_t data);
+ao_log_micro_save(void);
 
-extern uint32_t	ao_log_last_ground;
-extern uint32_t	ao_log_last_done;
+void
+ao_log_micro_restore(void);
 
-uint8_t
-ao_log_micro_scan(void);
+void
+ao_log_micro_data(void);
 
 void
 ao_log_micro_dump(void);

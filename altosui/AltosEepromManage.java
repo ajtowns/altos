@@ -22,6 +22,7 @@ import javax.swing.*;
 import java.io.*;
 import java.util.concurrent.*;
 import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altosuilib.*;
 
 public class AltosEepromManage implements ActionListener {
 
@@ -197,7 +198,7 @@ public class AltosEepromManage implements ActionListener {
 		//boolean	running = false;
 
 		frame = given_frame;
-		device = AltosDeviceDialog.show(frame, Altos.product_any);
+		device = AltosDeviceUIDialog.show(frame, Altos.product_any);
 
 		remote = false;
 

@@ -200,10 +200,10 @@ public class AltosState {
 				}
 				ngps++;
 			}
-		} else
-			pad_alt = ground_altitude;
-
-		data.new_gps = false;
+		} else {
+			if (ngps == 0)
+				pad_alt = ground_altitude;
+		}
 
 		gps_waiting = MIN_PAD_SAMPLES - npad;
 		if (gps_waiting < 0)

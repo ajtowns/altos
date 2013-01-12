@@ -16,21 +16,22 @@
  */
 
 #include <ao.h>
+#include <ao_micropeak.h>
 #include <ao_ms5607.h>
 #include <ao_log_micro.h>
+#include <ao_async.h>
 
 static struct ao_ms5607_sample	sample;
 static struct ao_ms5607_value	value;
 
-static uint32_t	pa;
-static uint32_t	pa_sum;
-static uint32_t	pa_avg;
-static int32_t	pa_diff;
-static uint32_t	pa_ground;
-static uint32_t	pa_min;
-static uint32_t	pa_interval_min, pa_interval_max;
-static alt_t	ground_alt, max_alt;
+uint32_t	pa;
+uint32_t	pa_avg;
+uint32_t	pa_ground;
+uint32_t	pa_min;
+alt_t		ground_alt, max_alt;
 alt_t		ao_max_height;
+
+static uint32_t	pa_sum;
 
 static void
 ao_pa_get(void)
@@ -40,22 +41,6 @@ ao_pa_get(void)
 	pa = value.pres;
 }
 
-#define FILTER_SHIFT		3
-#define SAMPLE_SLEEP		AO_MS_TO_TICKS(96)
-
-/* 16 sample, or about two seconds worth */
-#define GROUND_AVG_SHIFT	4
-#define GROUND_AVG		(1 << GROUND_AVG_SHIFT)
-
-/* Pressure change (in Pa) to detect boost */
-#define BOOST_DETECT		120	/* 10m at sea level, 12m at 2000m */
-
-/* Wait after power on before doing anything to give the user time to assemble the rocket */
-#define BOOST_DELAY		AO_SEC_TO_TICKS(30)
-
-/* Pressure change (in Pa) to detect landing */
-#define LAND_DETECT		12	/* 1m at sea level, 1.2m at 2000m */
-
 static void
 ao_compute_height(void)
 {
@@ -64,96 +49,56 @@ ao_compute_height(void)
 	ao_max_height = max_alt - ground_alt;
 }
 
-#if !HAS_EEPROM
-
-#define PA_GROUND_OFFSET	0
-#define PA_MIN_OFFSET		4
-#define N_SAMPLES_OFFSET	8
-#define STARTING_LOG_OFFSET	10
-#define MAX_LOG_OFFSET		512
-
-static uint16_t ao_log_offset = STARTING_LOG_OFFSET;
-
-void
-ao_save_flight(void)
+static void
+ao_pips(void)
 {
-	uint16_t	n_samples = (ao_log_offset - STARTING_LOG_OFFSET) / sizeof (uint16_t);
-	ao_eeprom_write(PA_GROUND_OFFSET, &pa_ground, sizeof (pa_ground));
-	ao_eeprom_write(PA_MIN_OFFSET, &pa_min, sizeof (pa_min));
-	ao_eeprom_write(N_SAMPLES_OFFSET, &n_samples, sizeof (n_samples));
-}
-
-void
-ao_restore_flight(void)
-{
-	ao_eeprom_read(PA_GROUND_OFFSET, &pa_ground, sizeof (pa_ground));
-	ao_eeprom_read(PA_MIN_OFFSET, &pa_min, sizeof (pa_min));
-}
-
-void
-ao_log_micro(void)
-{
-	uint16_t	low_bits = pa;
-
-	if (ao_log_offset < MAX_LOG_OFFSET) {
-		ao_eeprom_write(ao_log_offset, &low_bits, sizeof (low_bits));
-		ao_log_offset += sizeof (low_bits);
+	uint8_t	i;
+	for (i = 0; i < 10; i++) {
+		ao_led_toggle(AO_LED_REPORT);
+		ao_delay(AO_MS_TO_TICKS(80));
 	}
+	ao_delay(AO_MS_TO_TICKS(200));
 }
-#endif
+
+#define NUM_PA_HIST	16
+
+#define SKIP_PA_HIST(i,j)	(((i) + (j)) & (NUM_PA_HIST - 1))
+
+static uint32_t	pa_hist[NUM_PA_HIST];
 
 int
 main(void)
 {
 	int16_t		sample_count;
 	uint16_t	time;
-#if HAS_EEPROM
-	uint8_t	dump_eeprom = 0;
-#endif
+	uint32_t	pa_interval_min, pa_interval_max;
+	int32_t		pa_diff;
+	uint8_t		h, i;
+
 	ao_led_init(LEDS_AVAILABLE);
 	ao_timer_init();
 
-#if HAS_EEPROM
-
-	/* Set MOSI and CLK as inputs with pull-ups */
-	DDRB &= ~(1 << 0) | (1 << 2);
-	PORTB |= (1 << 0) | (1 << 2);
-
-	/* Check to see if either MOSI or CLK are pulled low by the
-	 * user shorting them to ground. If so, dump the eeprom out
-	 * via the LED. Wait for the shorting wire to go away before
-	 * continuing.
-	 */
-	while ((PINB & ((1 << 0) | (1 << 2))) != ((1 << 0) | (1 << 2)))
-		dump_eeprom = 1;
-	PORTB &= ~(1 << 0) | (1 << 2);
-
-	ao_i2c_init();
-#endif
-	ao_restore_flight();
-	ao_compute_height();
-	/* Give the person a second to get their finger out of the way */
-	ao_delay(AO_MS_TO_TICKS(1000));
-	ao_report_altitude();
-	
+	/* Init external hardware */
 	ao_spi_init();
 	ao_ms5607_init();
 	ao_ms5607_setup();
 
-#if HAS_EEPROM
-	ao_storage_init();
+	/* Give the person a second to get their finger out of the way */
+	ao_delay(AO_MS_TO_TICKS(1000));
 
-	/* Check to see if there's a flight recorded in memory */
-	if (dump_eeprom && ao_log_micro_scan())
-		ao_log_micro_dump();
-#endif	
-
+	ao_log_micro_restore();
+	ao_compute_height();
+	ao_report_altitude();
+	ao_pips();
+	ao_log_micro_dump();
+	
 	ao_delay(BOOST_DELAY);
 	/* Wait for motion, averaging values to get ground pressure */
 	time = ao_time();
 	ao_pa_get();
 	pa_avg = pa_ground = pa << FILTER_SHIFT;
 	sample_count = 0;
+	h = 0;
 	for (;;) {
 		time += SAMPLE_SLEEP;
 		if (sample_count == 0)
@@ -162,6 +107,8 @@ main(void)
 		ao_pa_get();
 		if (sample_count == 0)
 			ao_led_off(AO_LED_REPORT);
+		pa_hist[h] = pa;
+		h = SKIP_PA_HIST(h,1);
 		pa_avg = pa_avg - (pa_avg >> FILTER_SHIFT) + pa;
 		pa_diff = pa_ground - pa_avg;
 
@@ -182,9 +129,18 @@ main(void)
 
 	pa_ground >>= FILTER_SHIFT;
 
-#if HAS_EEPROM
-	ao_log_micro_data(AO_LOG_MICRO_GROUND | pa_ground);
-#endif
+	/* Go back and find the first sample a decent interval above the ground */
+	pa_min = pa_ground - LAND_DETECT;
+	for (i = SKIP_PA_HIST(h,2); i != h; i = SKIP_PA_HIST(i,2)) {
+		if (pa_hist[i] < pa_min)
+			break;
+	}
+
+	/* Log the remaining samples so we get a complete history since leaving the ground */
+	for (; i != h; i = SKIP_PA_HIST(i,2)) {
+		pa = pa_hist[i];
+		ao_log_micro_data();
+	}
 
 	/* Now sit around until the pressure is stable again and record the max */
 
@@ -200,12 +156,8 @@ main(void)
 		ao_pa_get();
 		if ((sample_count & 3) == 0)
 			ao_led_off(AO_LED_REPORT);
-#if HAS_EEPROM
-		ao_log_micro_data(AO_LOG_MICRO_DATA | pa);
-#else
 		if (sample_count & 1)
-			ao_log_micro();
-#endif
+			ao_log_micro_data();
 		pa_avg = pa_avg - (pa_avg >> FILTER_SHIFT) + pa;
 		if (pa_avg < pa_min)
 			pa_min = pa_avg;
@@ -228,10 +180,7 @@ main(void)
 		}
 	}
 	pa_min >>= FILTER_SHIFT;
-#if HAS_EEPROM
-	ao_log_micro_data(AO_LOG_MICRO_DONE | pa_min);
-#endif
-	ao_save_flight();
+	ao_log_micro_save();
 	ao_compute_height();
 	ao_report_altitude();
 	for (;;) {

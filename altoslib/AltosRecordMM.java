@@ -131,10 +131,10 @@ public class AltosRecordMM extends AltosRecord {
 		mag = old.mag;
 	}
 
+
+
 	public AltosRecordMM clone() {
-		AltosRecordMM n = (AltosRecordMM) super.clone();
-		n.copy(this);
-		return n;
+		return new AltosRecordMM(this);
 	}
 
 	void make_missing() {
@@ -165,6 +165,10 @@ public class AltosRecordMM extends AltosRecord {
 	public AltosRecordMM(AltosRecord old) {
 		super.copy(old);
 		make_missing();
+	}
+
+	public AltosRecordMM(AltosRecordMM old) {
+		copy(old);
 	}
 
 	public AltosRecordMM() {

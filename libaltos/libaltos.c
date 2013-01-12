@@ -20,16 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define USB_VENDOR_FSF			0xfffe
-#define USB_VENDOR_ALTUSMETRUM		USB_VENDOR_FSF
-#define USB_PRODUCT_ALTUSMETRUM		0x000a
-#define USB_PRODUCT_ALTUSMETRUM_MIN	0x000a
-#define USB_PRODUCT_ALTUSMETRUM_MAX	0x00ff
-
-#define USB_IS_ALTUSMETRUM(v,p)	((v) == USB_VENDOR_ALTUSMETRUM && \
-		(USB_PRODUCT_ALTUSMETRUM_MIN <= (p) && \
-		 (p) <= USB_PRODUCT_ALTUSMETRUM_MAX))
-
 #define BLUETOOTH_PRODUCT_TELEBT	"TeleBT"
 
 #define USE_POLL
@@ -158,6 +148,8 @@ altos_open(struct altos_device *device)
 		return NULL;
 	}
 	cfmakeraw(&term);
+	cfsetospeed(&term, B9600);
+	cfsetispeed(&term, B9600);
 #ifdef USE_POLL
 	term.c_cc[VMIN] = 1;
 	term.c_cc[VTIME] = 0;
@@ -473,6 +465,7 @@ usb_tty(char *sys)
 				base, config, interface);
 			endpoint_full = cc_fullname(sys, endpoint_base);
 
+
 			/* Check for tty:ttyACMx style names
 			 */
 			ntty = scandir(endpoint_full, &namelist,
@@ -488,16 +481,29 @@ usb_tty(char *sys)
 			/* Check for tty/ttyACMx style names
 			 */
 			tty_dir = cc_fullname(endpoint_full, "tty");
-			free(endpoint_full);
 			ntty = scandir(tty_dir, &namelist,
 				       dir_filter_tty,
 				       alphasort);
 			free (tty_dir);
 			if (ntty > 0) {
 				tty = cc_fullname("/dev", namelist[0]->d_name);
+				free(endpoint_full);
 				free(namelist);
 				return tty;
 			}
+
+			/* Check for ttyACMx style names
+			 */
+			ntty = scandir(endpoint_full, &namelist,
+				       dir_filter_tty,
+				       alphasort);
+			free(endpoint_full);
+			if (ntty > 0) {
+				tty = cc_fullname("/dev", namelist[0]->d_name);
+				free(namelist);
+				return tty;
+			}
+
 		}
 	}
 	return NULL;
@@ -507,7 +513,11 @@ static struct altos_usbdev *
 usb_scan_device(char *sys)
 {
 	struct altos_usbdev *usbdev;
+	char *tty;
 
+	tty = usb_tty(sys);
+	if (!tty)
+		return NULL;
 	usbdev = calloc(1, sizeof (struct altos_usbdev));
 	if (!usbdev)
 		return NULL;
@@ -517,7 +527,7 @@ usb_scan_device(char *sys)
 	usbdev->serial = load_dec(sys, "serial");
 	usbdev->idProduct = load_hex(sys, "idProduct");
 	usbdev->idVendor = load_hex(sys, "idVendor");
-	usbdev->tty = usb_tty(sys);
+	usbdev->tty = tty;
 	return usbdev;
 }
 
@@ -581,27 +591,34 @@ altos_list_start(void)
 	for (e = 0; e < n; e++) {
 		dir = cc_fullname(USB_DEVICES, ents[e]->d_name);
 		dev = usb_scan_device(dir);
+		if (!dev)
+			continue;
 		free(dir);
-		if (USB_IS_ALTUSMETRUM(dev->idVendor, dev->idProduct)) {
-			if (devs->dev)
-				devs->dev = realloc(devs->dev,
-						    (devs->ndev + 1) * sizeof (struct usbdev *));
-			else
-				devs->dev = malloc (sizeof (struct usbdev *));
-			devs->dev[devs->ndev++] = dev;
-		}
+		if (devs->dev)
+			devs->dev = realloc(devs->dev,
+					    (devs->ndev + 1) * sizeof (struct usbdev *));
+		else
+			devs->dev = malloc (sizeof (struct usbdev *));
+		devs->dev[devs->ndev++] = dev;
 	}
 	free(ents);
 	devs->current = 0;
 	return devs;
 }
 
+PUBLIC struct altos_list *
+altos_ftdi_list_start(void)
+{
+	return altos_list_start();
+}
+
 int
 altos_list_next(struct altos_list *list, struct altos_device *device)
 {
 	struct altos_usbdev *dev;
-	if (list->current >= list->ndev)
+	if (list->current >= list->ndev) {
 		return 0;
+	}
 	dev = list->dev[list->current];
 	strcpy(device->name, dev->product_name);
 	device->vendor = dev->idVendor;
@@ -774,6 +791,7 @@ no_file:
 
 struct altos_list {
 	io_iterator_t iterator;
+	int ftdi;
 };
 
 static int
@@ -831,8 +849,21 @@ altos_list_start(void)
 	int i;
 
 	ret = IOServiceGetMatchingServices(kIOMasterPortDefault, matching_dictionary, &list->iterator);
-	if (ret != kIOReturnSuccess)
+	if (ret != kIOReturnSuccess) {
+		free(list);
 		return NULL;
+	}
+	list->ftdi = 0;
+	return list;
+}
+
+PUBLIC struct altos_list *
+altos_ftdi_list_start(void)
+{
+	struct altos_list *list = altos_list_start();
+
+	if (list)
+		list->ftdi = 1;
 	return list;
 }
 
@@ -850,10 +881,15 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 		if (!get_number (object, CFSTR(kUSBVendorID), &device->vendor) ||
 		    !get_number (object, CFSTR(kUSBProductID), &device->product))
 			continue;
-		if (device->vendor != 0xfffe)
-			continue;
-		if (device->product < 0x000a || 0x0013 < device->product)
-			continue;
+		if (list->ftdi) {
+			if (device->vendor != 0x0403)
+				continue;
+		} else {
+			if (device->vendor != 0xfffe)
+				continue;
+			if (device->product < 0x000a || 0x0013 < device->product)
+				continue;
+		}
 		if (get_string (object, CFSTR("IOCalloutDevice"), device->path, sizeof (device->path)) &&
 		    get_string (object, CFSTR("USB Product Name"), device->name, sizeof (device->name)) &&
 		    get_string (object, CFSTR("USB Serial Number"), serial_string, sizeof (serial_string))) {
@@ -924,6 +960,7 @@ altos_bt_open(struct altos_bt_device *device)
 struct altos_list {
 	HDEVINFO	dev_info;
 	int		index;
+	int		ftdi;
 };
 
 #define USB_BUF_SIZE	64
@@ -974,6 +1011,26 @@ altos_list_start(void)
 		return NULL;
 	}
 	list->index = 0;
+	list->ftdi = 0;
+	return list;
+}
+
+PUBLIC struct altos_list *
+altos_ftdi_list_start(void)
+{
+	struct altos_list	*list = calloc(1, sizeof (struct altos_list));
+
+	if (!list)
+		return NULL;
+	list->dev_info = SetupDiGetClassDevs(NULL, "FTDIBUS", NULL,
+					     DIGCF_ALLCLASSES|DIGCF_PRESENT);
+	if (list->dev_info == INVALID_HANDLE_VALUE) {
+		altos_set_last_windows_error();
+		free(list);
+		return NULL;
+	}
+	list->index = 0;
+	list->ftdi = 1;
 	return list;
 }
 
@@ -1008,27 +1065,29 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 			continue;
 		}
 
-		/* Fetch symbolic name for this device and parse out
-		 * the vid/pid/serial info */
-		symbolic_len = sizeof(symbolic);
-		result = RegQueryValueEx(dev_key, "SymbolicName", NULL, NULL,
-					 symbolic, &symbolic_len);
-		if (result != 0) {
-			altos_set_last_windows_error();
-			printf("cannot find SymbolicName value\n");
-			RegCloseKey(dev_key);
-			continue;
-		}
-		vid = pid = serial = 0;
-		sscanf((char *) symbolic + sizeof("\\??\\USB#VID_") - 1,
-		       "%04X", &vid);
-		sscanf((char *) symbolic + sizeof("\\??\\USB#VID_XXXX&PID_") - 1,
-		       "%04X", &pid);
-		sscanf((char *) symbolic + sizeof("\\??\\USB#VID_XXXX&PID_XXXX#") - 1,
-		       "%d", &serial);
-		if (!USB_IS_ALTUSMETRUM(vid, pid)) {
-			RegCloseKey(dev_key);
-			continue;
+		if (list->ftdi) {
+			vid = 0x0403;
+			pid = 0x6015;
+			serial = 0;
+		} else {
+			/* Fetch symbolic name for this device and parse out
+			 * the vid/pid/serial info */
+			symbolic_len = sizeof(symbolic);
+			result = RegQueryValueEx(dev_key, "SymbolicName", NULL, NULL,
+						 symbolic, &symbolic_len);
+			if (result != 0) {
+				altos_set_last_windows_error();
+				printf("cannot find SymbolicName value\n");
+				RegCloseKey(dev_key);
+				continue;
+			}
+			vid = pid = serial = 0;
+			sscanf((char *) symbolic + sizeof("\\??\\USB#VID_") - 1,
+			       "%04X", &vid);
+			sscanf((char *) symbolic + sizeof("\\??\\USB#VID_XXXX&PID_") - 1,
+			       "%04X", &pid);
+			sscanf((char *) symbolic + sizeof("\\??\\USB#VID_XXXX&PID_XXXX#") - 1,
+			       "%d", &serial);
 		}
 
 		/* Fetch the com port name */
@@ -1196,6 +1255,7 @@ altos_open(struct altos_device *device)
 	struct altos_file	*file = calloc (1, sizeof (struct altos_file));
 	char	full_name[64];
 	COMMTIMEOUTS timeouts;
+	DCB	     dcb;
 
 	if (!file)
 		return NULL;
@@ -1220,6 +1280,11 @@ altos_open(struct altos_device *device)
 	timeouts.WriteTotalTimeoutMultiplier = 0;
 	timeouts.WriteTotalTimeoutConstant = 0;
 	SetCommTimeouts(file->handle, &timeouts);
+
+	if (GetCommState(file->handle, &dcb)) {
+		dcb.BaudRate = CBR_9600;
+		(void) SetCommState(file->handle, &dcb);
+	}
 
 	return file;
 }

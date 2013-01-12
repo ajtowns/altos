@@ -149,9 +149,7 @@ public class AltosRecordTM extends AltosRecord {
 	}
 
 	public AltosRecordTM clone() {
-		AltosRecordTM	n = (AltosRecordTM) super.clone();
-		n.copy(this);
-		return n;
+		return new AltosRecordTM(this);
 	}
 
 	void make_missing() {
@@ -177,6 +175,10 @@ public class AltosRecordTM extends AltosRecord {
 		make_missing();
 	}
 
+	public AltosRecordTM(AltosRecordTM old) {
+		copy(old);
+	}
+	
 	public AltosRecordTM() {
 		super();
 		make_missing();

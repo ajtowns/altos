@@ -15,7 +15,8 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib;
+
 import java.util.*;
 import libaltosJNI.*;
 
@@ -49,12 +50,12 @@ public class AltosUSBDevice  extends altos_device implements AltosDevice {
 		return libaltos.altos_open(this);
 	}
 
-	private boolean isAltusMetrum() {
-		if (getVendor() != Altos.vendor_altusmetrum)
+	public boolean isAltusMetrum() {
+		if (getVendor() != AltosUILib.vendor_altusmetrum)
 			return false;
-		if (getProduct() < Altos.product_altusmetrum_min)
+		if (getProduct() < AltosUILib.product_altusmetrum_min)
 			return false;
-		if (getProduct() > Altos.product_altusmetrum_max)
+		if (getProduct() > AltosUILib.product_altusmetrum_max)
 			return false;
 		return true;
 	}
@@ -64,22 +65,22 @@ public class AltosUSBDevice  extends altos_device implements AltosDevice {
 		if (!isAltusMetrum())
 			return false;
 
-		if (want_product == Altos.product_any)
+		if (want_product == AltosUILib.product_any)
 			return true;
 
-		if (want_product == Altos.product_basestation)
-			return matchProduct(Altos.product_teledongle) ||
-				matchProduct(Altos.product_teleterra) ||
-				matchProduct(Altos.product_telebt) ||
-				matchProduct(Altos.product_megadongle);
+		if (want_product == AltosUILib.product_basestation)
+			return matchProduct(AltosUILib.product_teledongle) ||
+				matchProduct(AltosUILib.product_teleterra) ||
+				matchProduct(AltosUILib.product_telebt) ||
+				matchProduct(AltosUILib.product_megadongle);
 
-		if (want_product == Altos.product_altimeter)
-			return matchProduct(Altos.product_telemetrum) ||
-				matchProduct(Altos.product_megametrum);
+		if (want_product == AltosUILib.product_altimeter)
+			return matchProduct(AltosUILib.product_telemetrum) ||
+				matchProduct(AltosUILib.product_megametrum);
 
 		int have_product = getProduct();
 
-		if (have_product == Altos.product_altusmetrum)	/* old devices match any request */
+		if (have_product == AltosUILib.product_altusmetrum)	/* old devices match any request */
 			return true;
 
 		if (want_product == have_product)
@@ -88,8 +89,8 @@ public class AltosUSBDevice  extends altos_device implements AltosDevice {
 		return false;
 	}
 
-	static java.util.List<AltosDevice> list(int product) {
-		if (!Altos.load_library())
+	static public java.util.List<AltosDevice> list(int product) {
+		if (!AltosUILib.load_library())
 			return null;
 
 		SWIGTYPE_p_altos_list list = libaltos.altos_list_start();

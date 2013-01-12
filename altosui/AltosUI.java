@@ -23,8 +23,9 @@ import javax.swing.*;
 import java.io.*;
 import java.util.concurrent.*;
 import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altosuilib.*;
 
-public class AltosUI extends AltosFrame {
+public class AltosUI extends AltosUIFrame {
 	public AltosVoice voice = new AltosVoice();
 
 	public static boolean load_library(Frame frame) {
@@ -241,7 +242,7 @@ public class AltosUI extends AltosFrame {
 	}
 
 	private void ConnectToDevice() {
-		AltosDevice	device = AltosDeviceDialog.show(AltosUI.this,
+		AltosDevice	device = AltosDeviceUIDialog.show(AltosUI.this,
 								Altos.product_basestation);
 
 		if (device != null)

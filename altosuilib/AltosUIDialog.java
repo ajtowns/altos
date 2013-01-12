@@ -15,45 +15,45 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-class AltosDialogListener extends WindowAdapter {
+class AltosUIDialogListener extends WindowAdapter {
 	public void windowClosing (WindowEvent e) {
-		AltosUIPreferences.unregister_ui_listener((AltosDialog) e.getWindow());
+		AltosUIPreferences.unregister_ui_listener((AltosUIDialog) e.getWindow());
 	}
 }
 
-public class AltosDialog extends JDialog implements AltosUIListener {
+public class AltosUIDialog extends JDialog implements AltosUIListener {
 
 	public void ui_changed(String look_and_feel) {
 		SwingUtilities.updateComponentTreeUI(this);
 		this.pack();
 	}
 
-	public AltosDialog() {
+	public AltosUIDialog() {
 		AltosUIPreferences.register_ui_listener(this);
-		addWindowListener(new AltosDialogListener());
+		addWindowListener(new AltosUIDialogListener());
 	}
 
-	public AltosDialog(Frame frame, String label, boolean modal) {
+	public AltosUIDialog(Frame frame, String label, boolean modal) {
 		super(frame, label, modal);
 		AltosUIPreferences.register_ui_listener(this);
-		addWindowListener(new AltosDialogListener());
+		addWindowListener(new AltosUIDialogListener());
 	}
 
-	public AltosDialog(Dialog dialog, String label, boolean modal) {
+	public AltosUIDialog(Dialog dialog, String label, boolean modal) {
 		super(dialog, label, modal);
 		AltosUIPreferences.register_ui_listener(this);
-		addWindowListener(new AltosDialogListener());
+		addWindowListener(new AltosUIDialogListener());
 	}
 
-	public AltosDialog(Frame frame, boolean modal) {
+	public AltosUIDialog(Frame frame, boolean modal) {
 		super(frame, modal);
 		AltosUIPreferences.register_ui_listener(this);
-		addWindowListener(new AltosDialogListener());
+		addWindowListener(new AltosUIDialogListener());
 	}
 }

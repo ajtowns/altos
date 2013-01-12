@@ -20,13 +20,6 @@ ifndef VERSION
 include ../Version
 endif
 
-# Support for a logging EEPROM
-#
-#EEPROM_SRC=ao_async.c \
-#	ao_i2c_attiny.c \
-#	ao_at24c.c
-#
-
 ALTOS_SRC = \
 	ao_micropeak.c \
 	ao_spi_attiny.c \
@@ -39,7 +32,8 @@ ALTOS_SRC = \
 	ao_notask.c \
 	ao_eeprom_tiny.c \
 	ao_panic.c \
-	$(EEPROM_SRC)
+	ao_log_micro.c \
+	ao_async.c
 
 INC=\
 	ao.h \
@@ -48,13 +42,15 @@ INC=\
 	ao_arch_funcs.h \
 	ao_exti.h \
 	ao_ms5607.h \
+	ao_log_micro.h \
+	ao_micropeak.h \
 	altitude-pa.h
 
 IDPRODUCT=0
 PRODUCT=MicroPeak-v0.1
 PRODUCT_DEF=-DMICROPEAK
 CFLAGS = $(PRODUCT_DEF) -I. -I../attiny -I../core -I.. -I../drivers
-CFLAGS += -g -mmcu=$(MCU) -Wall -Wstrict-prototypes -O3 -mcall-prologues -DATTINY
+CFLAGS += -g -mmcu=$(MCU) -Wall -Wstrict-prototypes -O2 -mcall-prologues -DATTINY
 
 NICKLE=nickle
 
