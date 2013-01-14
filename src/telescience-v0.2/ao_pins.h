@@ -67,14 +67,17 @@
 #define HAS_TELEMETRY		0
 #define PACKET_HAS_SLAVE	0
 
-#define HAS_SPI_1		1
-#define SPI_1_PA5_PA6_PA7	1
+#define HAS_SPI_1		0
+#define HAS_SPI_SLAVE_1		1
+#define SPI_1_PA5_PA6_PA7	1	
 #define SPI_1_PB3_PB4_PB5	0
 #define SPI_1_PE13_PE14_PE15	0
+#define SPI_1_OSPEEDR		STM_OSPEEDR_10MHz
 
 #define HAS_SPI_2		1
 #define SPI_2_PB13_PB14_PB15	1
 #define SPI_2_PD1_PD3_PD4	0
+#define SPI_2_OSPEEDR		STM_OSPEEDR_10MHz
 
 #define SPI_2_PORT		(&stm_gpiob)
 #define SPI_2_SCK_PIN		13

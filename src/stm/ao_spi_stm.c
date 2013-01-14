@@ -425,12 +425,21 @@ ao_spi_init(void)
 #if HAS_SPI_1
 # if SPI_1_PA5_PA6_PA7
 	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOAEN);
+	stm_ospeedr_set(&stm_gpioa, 5, SPI_1_OSPEEDR);
+	stm_ospeedr_set(&stm_gpioa, 6, SPI_1_OSPEEDR);
+	stm_ospeedr_set(&stm_gpioa, 7, SPI_1_OSPEEDR);
 # endif
 # if SPI_1_PB3_PB4_PB5
 	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOBEN);
+	stm_ospeedr_set(&stm_gpiob, 3, SPI_1_OSPEEDR);
+	stm_ospeedr_set(&stm_gpiob, 4, SPI_1_OSPEEDR);
+	stm_ospeedr_set(&stm_gpiob, 5, SPI_1_OSPEEDR);
 # endif
 # if SPI_1_PE13_PE14_PE15
 	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOEEN);
+	stm_ospeedr_set(&stm_gpioe, 13, SPI_1_OSPEEDR);
+	stm_ospeedr_set(&stm_gpioe, 14, SPI_1_OSPEEDR);
+	stm_ospeedr_set(&stm_gpioe, 15, SPI_1_OSPEEDR);
 # endif
 	stm_rcc.apb2enr |= (1 << STM_RCC_APB2ENR_SPI1EN);
 	ao_spi_index[0] = AO_SPI_CONFIG_NONE;
@@ -440,9 +449,15 @@ ao_spi_init(void)
 #if HAS_SPI_2
 # if SPI_2_PB13_PB14_PB15
 	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOBEN);
+	stm_ospeedr_set(&stm_gpiob, 13, SPI_2_OSPEEDR);
+	stm_ospeedr_set(&stm_gpiob, 14, SPI_2_OSPEEDR);
+	stm_ospeedr_set(&stm_gpiob, 15, SPI_2_OSPEEDR);
 # endif
 # if SPI_2_PD1_PD3_PD4
 	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIODEN);
+	stm_ospeedr_set(&stm_gpiod, 1, SPI_2_OSPEEDR);
+	stm_ospeedr_set(&stm_gpiod, 3, SPI_2_OSPEEDR);
+	stm_ospeedr_set(&stm_gpiod, 4, SPI_2_OSPEEDR);
 # endif
 	stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_SPI2EN);
 	ao_spi_index[1] = AO_SPI_CONFIG_NONE;

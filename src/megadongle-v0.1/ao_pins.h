@@ -78,6 +78,7 @@
 #define HAS_SPI_2		1
 #define SPI_2_PB13_PB14_PB15	1	/* Flash, Companion */
 #define SPI_2_PD1_PD3_PD4	0
+#define SPI_2_OSPEEDR		STM_OSPEEDR_10MHz
 
 #define SPI_2_PORT		(&stm_gpiob)
 #define SPI_2_SCK_PIN		13
