@@ -33,7 +33,9 @@ ALTOS_SRC = \
 	ao_eeprom_tiny.c \
 	ao_panic.c \
 	ao_log_micro.c \
-	ao_async.c
+	ao_async.c \
+	ao_microflight.c \
+	ao_microkalman.c
 
 INC=\
 	ao.h \
