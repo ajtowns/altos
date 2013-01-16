@@ -769,6 +769,15 @@ NAR #88757, TRA #12200
             incorrect data from being reported.
           </para>
         </listitem>
+        <listitem>
+          <para>
+            The age of the displayed data, in seconds since the last 
+	    successfully received telemetry packet.  In normal operation
+	    this will stay in the low single digits.  If the number starts
+	    counting up, then you are no longer receiving data over the radio
+	    link from the flight computer.
+          </para>
+        </listitem>
       </itemizedlist>
       <para>
         Finally, the largest portion of the window contains a set of
