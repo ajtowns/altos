@@ -6,6 +6,7 @@ SIGMA_BOTH="-M 2 -H 6 -A 2"
 SIGMA_BARO="-M 2 -H 6 -A 2"
 SIGMA_ACCEL="-M 2 -H 4 -A 4"
 SIGMA_BOTH_NOISY_ACCEL="-M 2 -H 6 -A 3"
+SIGMA_MICRO="-M 10"
 
 echo '#if NOISY_ACCEL'
 echo
@@ -39,3 +40,4 @@ nickle kalman.5c -p AO_BARO -c baro -t 0.01 $SIGMA_BARO
 nickle kalman.5c -p AO_BARO -c baro -t 0.1 $SIGMA_BARO
 nickle kalman.5c -p AO_BARO -c baro -t 1 $SIGMA_BARO
 
+nickle kalman_micro.5c -p AO_MK_BARO -c baro -t 0.096 $SIGMA_MICRO

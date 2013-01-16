@@ -75,21 +75,21 @@ public class MicroStatsTable extends JComponent {
 	MicroStat	flight_time;
 	
 	public void setStats(MicroStats stats) {
-		max_height.set_values(String.format("%5.0f m", stats.apogee_height),
-				      String.format("%5.0f ft", AltosConvert.meters_to_feet(stats.apogee_height)));
-		max_speed.set_values(String.format("%5.0f m/s", stats.max_speed),
-				     String.format("%5.0f mph", AltosConvert.meters_to_mph(stats.max_speed)),
-				     String.format("Mach %4.1f", AltosConvert.meters_to_mach(stats.max_speed)));
-		max_accel.set_values(String.format("%5.0f m/s²", stats.max_accel),
-				     String.format("%5.0f ft/s²", AltosConvert.meters_to_feet(stats.max_accel)),
-				     String.format("%5.0f G", AltosConvert.meters_to_g(stats.max_accel)));
-		avg_accel.set_values(String.format("%5.0f m/s²", stats.boost_accel(),
-						   String.format("%5.0f ft/s²", AltosConvert.meters_to_feet(stats.boost_accel())),
-						   String.format("%5.0f G", AltosConvert.meters_to_g(stats.boost_accel()))));
+		max_height.set_values(String.format("%7.1f m", stats.apogee_height),
+				      String.format("%7.1f ft", AltosConvert.meters_to_feet(stats.apogee_height)));
+		max_speed.set_values(String.format("%7.1f m/s", stats.max_speed),
+				     String.format("%7.1f mph", AltosConvert.meters_to_mph(stats.max_speed)),
+				     String.format("Mach %7.3f", AltosConvert.meters_to_mach(stats.max_speed)));
+		max_accel.set_values(String.format("%7.1f m/s²", stats.max_accel),
+				     String.format("%7.1f ft/s²", AltosConvert.meters_to_feet(stats.max_accel)),
+				     String.format("%7.3f G", AltosConvert.meters_to_g(stats.max_accel)));
+		avg_accel.set_values(String.format("%7.1f m/s²", stats.boost_accel(),
+						   String.format("%7.1f ft/s²", AltosConvert.meters_to_feet(stats.boost_accel())),
+						   String.format("%7.3f G", AltosConvert.meters_to_g(stats.boost_accel()))));
 		boost_duration.set_values(String.format("%6.1f s", stats.boost_duration()));
 		coast_duration.set_values(String.format("%6.1f s", stats.coast_duration()));
-		descent_speed.set_values(String.format("%5.0f m/s", stats.descent_speed()),
-					 String.format("%5.0f ft/s", AltosConvert.meters_to_feet(stats.descent_speed())));
+		descent_speed.set_values(String.format("%7.1f m/s", stats.descent_speed()),
+					 String.format("%7.1f ft/s", AltosConvert.meters_to_feet(stats.descent_speed())));
 		descent_duration.set_values(String.format("%6.1f s", stats.descent_duration()));
 		flight_time.set_values(String.format("%6.1f s", stats.landed_time));
 	}
@@ -104,31 +104,31 @@ public class MicroStatsTable extends JComponent {
 		setLayout(layout);
 		int y = 0;
 		max_height = new MicroStat(layout, y++, "Maximum height",
-					   String.format("%5.0f m", stats.apogee_height),
-					   String.format("%5.0f ft", AltosConvert.meters_to_feet(stats.apogee_height)));
+					   String.format("%7.1f m", stats.apogee_height),
+					   String.format("%7.1f ft", AltosConvert.meters_to_feet(stats.apogee_height)));
 		max_speed = new MicroStat(layout, y++, "Maximum speed",
-					  String.format("%5.0f m/s", stats.max_speed),
-					  String.format("%5.0f mph", AltosConvert.meters_to_mph(stats.max_speed)),
+					  String.format("%7.1f m/s", stats.max_speed),
+					  String.format("%7.1f mph", AltosConvert.meters_to_mph(stats.max_speed)),
 					  String.format("Mach %4.1f", AltosConvert.meters_to_mach(stats.max_speed)));
 		max_accel = new MicroStat(layout, y++, "Maximum boost acceleration",
-					  String.format("%5.0f m/s²", stats.max_accel),
-					  String.format("%5.0f ft/s²", AltosConvert.meters_to_feet(stats.max_accel)),
-					  String.format("%5.0f G", AltosConvert.meters_to_g(stats.max_accel)));
+					  String.format("%7.1f m/s²", stats.max_accel),
+					  String.format("%7.1f ft/s²", AltosConvert.meters_to_feet(stats.max_accel)),
+					  String.format("%7.3f G", AltosConvert.meters_to_g(stats.max_accel)));
 		avg_accel = new MicroStat(layout, y++, "Average boost acceleration",
-					  String.format("%5.0f m/s²", stats.boost_accel(),
-							String.format("%5.0f ft/s²", AltosConvert.meters_to_feet(stats.boost_accel())),
-							String.format("%5.0f G", AltosConvert.meters_to_g(stats.boost_accel()))));
+					  String.format("%7.1f m/s²", stats.boost_accel(),
+							String.format("%7.1f ft/s²", AltosConvert.meters_to_feet(stats.boost_accel())),
+							String.format("%7.3f G", AltosConvert.meters_to_g(stats.boost_accel()))));
 		boost_duration = new MicroStat(layout, y++, "Boost duration",
-					       String.format("%6.0f s", stats.boost_duration()));
+					       String.format("%6.1f s", stats.boost_duration()));
 		coast_duration = new MicroStat(layout, y++, "Coast duration",
 					       String.format("%6.1f s", stats.coast_duration()));
 		descent_speed = new MicroStat(layout, y++, "Descent rate",
-					      String.format("%5.0f m/s", stats.descent_speed()),
-					      String.format("%5.0f ft/s", AltosConvert.meters_to_feet(stats.descent_speed())));
+					      String.format("%7.1f m/s", stats.descent_speed()),
+					      String.format("%7.1f ft/s", AltosConvert.meters_to_feet(stats.descent_speed())));
 		descent_duration = new MicroStat(layout, y++, "Descent duration",
 						 String.format("%6.1f s", stats.descent_duration()));
 		flight_time = new MicroStat(layout, y++, "Flight Time",
-					    String.format("%6.0f s", stats.landed_time));
+					    String.format("%6.1f s", stats.landed_time));
 	}
 
 	public MicroStatsTable() {

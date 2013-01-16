@@ -55,6 +55,12 @@ real default_σ_m = 5;
 real default_σ_h = 20;
 real default_σ_a = 2;
 
+real[3,3] model_error(t, Φ) = multiply_mat_val ((real[3,3]) {
+		{ t**5 / 20, t**4 / 8, t**3 / 6 },
+		{ t**4 /  8, t**3 / 3, t**2 / 2 },
+		{ t**3 /  6, t**2 / 2, t }
+	}, Φ);
+
 parameters_t param_both(real t, real σ_m, real σ_h, real σ_a) {
 	if (σ_m == 0)
 		σ_m = default_σ_m;
@@ -87,11 +93,7 @@ parameters_t param_both(real t, real σ_m, real σ_h, real σ_a) {
  * Model error covariance. The only inaccuracy in the
  * model is the assumption that acceleration is constant
  */
-		.q = (real[3,3]) {
-			{ 0, 0, 0 },
-			{ 0, 0, 0 },
-			{.0, 0, σ_m**2	},
-		},
+		.q = model_error (t, σ_m**2),
 /*
  * Measurement error covariance
  * Our sensors are independent, so
@@ -140,11 +142,7 @@ parameters_t param_baro(real t, real σ_m, real σ_h) {
  * Model error covariance. The only inaccuracy in the
  * model is the assumption that acceleration is constant
  */
-		.q = (real[3,3]) {
-			{ 0, 0, 0 },
-			{ 0, 0, 0 },
-			{.0, 0, σ_m**2	},
-		},
+		.q = model_error (t, σ_m**2),
 /*
  * Measurement error covariance
  * Our sensors are independent, so
@@ -191,11 +189,7 @@ parameters_t param_accel(real t, real σ_m, real σ_a) {
  * Model error covariance. The only inaccuracy in the
  * model is the assumption that acceleration is constant
  */
-		.q = (real[3,3]) {
-			{ 0, 0, 0 },
-			{ 0, 0, 0 },
-			{.0, 0, σ_m**2	},
-		},
+		.q = model_error (t, σ_m**2),
 /*
  * Measurement error covariance
  * Our sensors are independent, so
@@ -236,11 +230,7 @@ parameters_t param_vel(real t) {
  * Model error covariance. The only inaccuracy in the
  * model is the assumption that acceleration is constant
  */
-		.q = (real[3,3]) {
-			{ 0, 0, 0 },
-			{ 0, 0, 0 },
-			{.0, 0, σ_m**2	},
-		},
+		.q = model_error (t, σ_m**2),
 /*
  * Measurement error covariance
  * Our sensors are independent, so

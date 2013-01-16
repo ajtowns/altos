@@ -8,6 +8,7 @@ vpath make-kalman util
 vpath make-whiten util
 vpath kalman.5c kalman
 vpath kalman_filter.5c kalman
+vpath kalman_micro.5c kalman
 vpath load_csv.5c kalman
 vpath matrix.5c kalman
 

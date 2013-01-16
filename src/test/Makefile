@@ -1,14 +1,14 @@
-vpath % ..:../core:../drivers:../util
+vpath % ..:../core:../drivers:../util:../micropeak
 
 PROGS=ao_flight_test ao_flight_test_baro ao_flight_test_accel ao_flight_test_noisy_accel ao_flight_test_mm \
 	ao_gps_test ao_gps_test_skytraq ao_convert_test ao_convert_pa_test ao_fec_test \
-	ao_aprs_test
+	ao_aprs_test ao_micropeak_test
 
 INCS=ao_kalman.h ao_ms5607.h ao_log.h ao_data.h altitude-pa.h altitude.h
 
 KALMAN=make-kalman 
 
-CFLAGS=-I.. -I. -I../core -I../drivers -O0 -g -Wall
+CFLAGS=-I.. -I. -I../core -I../drivers -I../micropeak -O0 -g -Wall
 
 all: $(PROGS) ao_aprs_data.wav
 
@@ -61,3 +61,6 @@ ao_aprs_data.wav: ao_aprs_test
 
 check: ao_fec_test ao_flight_test ao_flight_test_baro run-tests
 	./ao_fec_test && ./run-tests
+
+ao_micropeak_test: ao_micropeak_test.c ao_microflight.c
+	cc $(CFLAGS) -o $@ ao_micropeak_test.c -lm

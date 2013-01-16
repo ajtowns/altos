@@ -1,0 +1,329 @@
+#!/usr/bin/env nickle
+
+/*
+ * Copyright © 2013 Keith Packard <keithp@keithp.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
+autoimport ParseArgs;
+
+load "load_csv.5c"
+import load_csv;
+
+load "matrix.5c"
+import matrix;
+
+load "kalman_filter.5c"
+import kalman;
+
+load "../util/atmosphere.5c"
+
+real	height_scale = 1.0;
+real	accel_scale = 1.0;
+real	speed_scale = 1.0;
+
+/*
+ * State:
+ *
+ * x[0] = pressure
+ * x[1] = delta pressure
+ * x[2] = delta delta pressure
+ */
+
+/*
+ * Measurement
+ *
+ * z[0] = pressure
+ */
+
+real default_σ_m = 5;
+real default_σ_h = 2.4;	/* pascals */
+
+real[3,3] model_error(t, Φ) = multiply_mat_val ((real[3,3]) {
+		{ t**5 / 20, t**4 / 8, t**3 / 6 },
+		{ t**4 /  8, t**3 / 3, t**2 / 2 },
+		{ t**3 /  6, t**2 / 2, t }
+	}, Φ);
+
+parameters_t param_baro(real t, real σ_m, real σ_h) {
+	if (σ_m == 0) {
+		printf ("Using default σ_m\n");
+		σ_m = default_σ_m;
+	}
+	if (σ_h == 0) {
+		printf ("Using default σ_h\n");
+		σ_h = default_σ_h;
+	}
+
+	σ_m = imprecise(σ_m) * accel_scale;
+	σ_h = imprecise(σ_h) * height_scale;
+
+	t = imprecise(t);
+	return (parameters_t) {
+/*
+ * Equation computing state k from state k-1
+ *
+ * height = height- + velocity- * t + acceleration- * t² / 2
+ * velocity = velocity- + acceleration- * t
+ * acceleration = acceleration-
+ */
+		.a = (real[3,3]) {
+			{ 1, t * height_scale / speed_scale , t**2/2 * height_scale / accel_scale },
+			{ 0, 1, t * speed_scale / accel_scale },
+			{ 0, 0, 1 }
+		},
+/*
+ * Model error covariance. The only inaccuracy in the
+ * model is the assumption that acceleration is constant
+ */
+		.q = model_error (t, σ_m**2),
+
+/*
+ * Measurement error covariance
+ * Our sensors are independent, so
+ * this matrix is zero off-diagonal
+ */
+		.r = (real[1,1]) {
+			{ σ_h ** 2 },
+		},
+/*
+ * Extract measurements from state,
+ * this just pulls out the height
+ * values.
+ */
+		.h = (real[1,3]) {
+			{ 1, 0, 0 },
+		},
+	 };
+}
+
+bool	just_kalman = true;
+real	accel_input_scale = 1;
+
+real	error_avg;
+
+void update_error_avg(real e) {
+	if (e < 0)
+		e = -e;
+
+#	if (e > 1000)
+#		e = 1000;
+
+	error_avg -= error_avg / 8;
+	error_avg += (e * e) / 8;
+}
+
+void run_flight(string name, file f, bool summary, real σ_m, real σ_h) {
+	state_t	current_both = {
+		.x = (real[3]) { 0, 0, 0 },
+		.p = (real[3,3]) { { 0 ... } ... },
+	};
+	state_t current_accel = current_both;
+	state_t current_baro = current_both;
+	real	t;
+	real	kalman_apogee_time = -1;
+	real	kalman_apogee = 0;
+	real	raw_apogee_time_first;
+	real	raw_apogee_time_last;
+	real	raw_apogee = 0;
+	real	speed = 0;
+	real	prev_acceleration = 0;
+	real	height, max_height = 0;
+	state_t	apogee_state;
+	parameters_fast_t	fast_baro;
+	real			fast_delta_t = 0;
+	bool			fast = true;
+	int			speed_lock = 0;
+
+	error_avg = 0;
+	for (;;) {
+		record_t	record = parse_record(f, 1.0);
+		if (record.done)
+			break;
+		if (is_uninit(&t))
+			t = record.time;
+		real delta_t = record.time - t;
+		if (delta_t < 0.096)
+			continue;
+#		delta_t = 0.096;	/* pretend that we're getting micropeak-rate data */
+#		record.time = record.time + delta_t;
+		t = record.time;
+		if (record.height > raw_apogee) {
+			raw_apogee_time_first = record.time;
+			raw_apogee = record.height;
+		}
+		if (record.height == raw_apogee)
+			raw_apogee_time_last = record.time;
+
+		real	pressure = record.pressure;
+
+		if (current_baro.x[0] == 0)
+			current_baro.x[0] = pressure;
+
+		vec_t z_baro = (real[1]) { record.pressure * height_scale };
+
+		real	error_h;
+
+		if (fast) {
+			if (delta_t != fast_delta_t) {
+				fast_baro = convert_to_fast(param_baro(delta_t, σ_m, σ_h));
+				fast_delta_t = delta_t;
+			}
+
+			current_baro.x = predict_fast(current_baro.x, fast_baro);
+			error_h = current_baro.x[0] - pressure;
+			current_baro.x = correct_fast(current_baro.x, z_baro, fast_baro);
+		} else {
+			parameters_t p_baro = param_baro(delta_t, σ_m, σ_h);
+
+			state_t pred_baro = predict(current_baro, p_baro);
+			error_h = current_baro.x[0] - pressure;
+			state_t next_baro = correct(pred_baro, z_baro, p_baro);
+			current_baro = next_baro;
+		}
+
+		update_error_avg(error_h);
+
+		/* Don't check for maximum altitude if we're accelerating upwards */
+		if (current_baro.x[2] / accel_scale < -2 * σ_m)
+			speed_lock = 10;
+		else if (speed_lock > 0)
+			speed_lock--;
+
+		height = pressure_to_altitude(current_baro.x[0] / height_scale);
+		if (speed_lock == 0 && height > max_height)
+			max_height = height;
+
+		printf ("%16.8f %16.8f %16.8f %16.8f %16.8f %16.8f %16.8f %16.8f %16.8f %16.8f %d %d\n",
+			record.time,
+			record.pressure,
+			pressure_to_altitude(record.pressure),
+			current_baro.x[0] / height_scale,
+			current_baro.x[1] / speed_scale,
+			current_baro.x[2] / accel_scale,
+			height,
+			max_height,
+			error_h,
+			error_avg,
+			error_avg > 50000 ? 0 : 95000,
+			speed_lock > 0 ? 0 : 4500);
+
+		if (kalman_apogee_time < 0) {
+			if (current_baro.x[1] > 1) {
+				kalman_apogee = current_both.x[0];
+				kalman_apogee_time = record.time;
+			}
+		}
+	}
+	real raw_apogee_time = (raw_apogee_time_last + raw_apogee_time_first) / 2;
+	if (summary && !just_kalman) {
+		printf("%s: kalman (%8.2f m %6.2f s) raw (%8.2f m %6.2f s) error %6.2f s\n",
+		       name,
+		       kalman_apogee, kalman_apogee_time,
+		       raw_apogee, raw_apogee_time,
+		       kalman_apogee_time - raw_apogee_time);
+	}
+}
+
+void main() {
+	bool	summary = false;
+	int	user_argind = 1;
+	real	time_step = 0.01;
+	string	compute = "none";
+	string	prefix = "AO_K";
+	real	σ_m = default_σ_m;
+	real	σ_h = default_σ_h;
+
+	ParseArgs::argdesc argd = {
+		.args = {
+			{ .var = { .arg_flag = &summary },
+			  .abbr = 's',
+			  .name = "summary",
+			  .desc = "Print a summary of the flight" },
+			{ .var = { .arg_real = &time_step, },
+			  .abbr = 't',
+			  .name = "time",
+			  .expr_name = "<time-step>",
+			  .desc = "Set time step for convergence" },
+			{ .var = { .arg_string = &prefix },
+			  .abbr = 'p',
+			  .name = "prefix",
+			  .expr_name = "<prefix>",
+			  .desc = "Prefix for compute output" },
+			{ .var = { .arg_string = &compute },
+			  .abbr = 'c',
+			  .name = "compute",
+			  .expr_name = "{baro,none}",
+			  .desc = "Compute Kalman factor through convergence" },
+			{ .var = { .arg_real = &σ_m },
+			  .abbr = 'M',
+			  .name = "model",
+			  .expr_name = "<model-accel-error>",
+			  .desc = "Model co-variance for acceleration" },
+			{ .var = { .arg_real = &σ_h },
+			  .abbr = 'H',
+			  .name = "height",
+			  .expr_name = "<measure-height-error>",
+			  .desc = "Measure co-variance for height" },
+		},
+
+		.unknown = &user_argind,
+	};
+
+	ParseArgs::parseargs(&argd, &argv);
+
+	if (compute != "none") {
+		parameters_t	param;
+
+		printf ("/* Kalman matrix for micro %s\n", compute);
+		printf (" *     step = %f\n", time_step);
+		printf (" *     σ_m = %f\n", σ_m);
+		switch (compute) {
+		case "baro":
+			printf (" *     σ_h = %f\n", σ_h);
+			param = param_baro(time_step, σ_m, σ_h);
+			break;
+		}
+		printf (" */\n\n");
+		mat_t k = converge(param);
+		int[] d = dims(k);
+		int time_inc = floor(1/time_step + 0.5);
+		for (int i = 0; i < d[0]; i++)
+			for (int j = 0; j < d[1]; j++) {
+				string name;
+				if (d[1] == 1)
+					name = sprintf("%s_K%d_%d", prefix, i, time_inc);
+				else
+					name = sprintf("%s_K%d%d_%d", prefix, i, j, time_inc);
+				printf ("#define %s to_fix32(%12.10f)\n", name, k[i,j]);
+			}
+		printf ("\n");
+		exit(0);
+	}
+	string[dim(argv) - user_argind] rest = { [i] = argv[i+user_argind] };
+
+	#	height_scale = accel_scale = speed_scale = 1;
+
+	if (dim(rest) == 0)
+		run_flight("<stdin>", stdin, summary, σ_m, σ_h);
+	else {
+		for (int i = 0; i < dim(rest); i++) {
+			twixt(file f = File::open(rest[i], "r"); File::close(f)) {
+				run_flight(rest[i], f, summary, σ_m, σ_h);
+			}
+		}
+	}
+}
+main();

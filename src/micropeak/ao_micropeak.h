@@ -18,7 +18,6 @@
 #ifndef _AO_MICROPEAK_H_
 #define _AO_MICROPEAK_H_
 
-#define FILTER_SHIFT		3
 #define SAMPLE_SLEEP		AO_MS_TO_TICKS(96)
 
 /* 16 sample, or about two seconds worth */
@@ -32,13 +31,10 @@
 #define BOOST_DELAY		AO_SEC_TO_TICKS(30)
 
 /* Pressure change (in Pa) to detect landing */
-#define LAND_DETECT		12	/* 1m at sea level, 1.2m at 2000m */
+#define LAND_DETECT		24	/* 2m at sea level, 2.4m at 2000m */
 
 /* Current sensor pressure value */
 extern uint32_t	pa;
-
-/* IIR filtered pressure value */
-extern uint32_t	pa_avg;
 
 /* Average pressure value on ground */
 extern uint32_t	pa_ground;
@@ -52,5 +48,31 @@ extern alt_t	ground_alt, max_alt;
 /* max_alt - ground_alt */
 extern alt_t	ao_max_height;
 
+void
+ao_pa_get(void);
+
+void
+ao_microflight(void);
+
+#define ACCEL_LOCK_PA		-20
+#define ACCEL_LOCK_TIME		10
+
+extern uint32_t	ao_k_pa;		/* 24.8 fixed point */
+extern int32_t	ao_k_pa_speed;		/* 16.16 fixed point */
+extern int32_t	ao_k_pa_accel;		/* 16.16 fixed point */
+
+extern uint32_t	ao_pa;			/* integer portion */
+extern int16_t	ao_pa_speed;		/* integer portion */
+extern int16_t	ao_pa_accel;		/* integer portion */
+
+void
+ao_microkalman_init(void);
+
+void
+ao_microkalman_predict(void);
+
+void
+ao_microkalman_correct(void);
+	
 #endif
 
