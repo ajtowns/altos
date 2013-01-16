@@ -769,6 +769,15 @@ NAR #88757, TRA #12200
             incorrect data from being reported.
           </para>
         </listitem>
+        <listitem>
+          <para>
+            The age of the displayed data, in seconds since the last 
+	    successfully received telemetry packet.  In normal operation
+	    this will stay in the low single digits.  If the number starts
+	    counting up, then you are no longer receiving data over the radio
+	    link from the flight computer.
+          </para>
+        </listitem>
       </itemizedlist>
       <para>
         Finally, the largest portion of the window contains a set of
@@ -2590,13 +2599,13 @@ NAR #88757, TRA #12200
   <appendix
       xmlns:xi="http://www.w3.org/2001/XInclude">
     <title>Release Notes</title>
-    <xi:include	href="release-notes-1.1.1.xsl"  xpointer="xpointer(/article/*)"/>
-    <xi:include	href="release-notes-1.1.xsl"  xpointer="xpointer(/article/*)"/>
-    <xi:include	href="release-notes-1.0.1.xsl"  xpointer="xpointer(/article/*)"/>
-    <xi:include	href="release-notes-0.9.2.xsl"  xpointer="xpointer(/article/*)"/>
-    <xi:include	href="release-notes-0.9.xsl"  xpointer="xpointer(/article/*)"/>
-    <xi:include	href="release-notes-0.8.xsl"  xpointer="xpointer(/article/*)"/>
-    <xi:include	href="release-notes-0.7.1.xsl"  xpointer="xpointer(/article/*)"/>
+    <simplesect><title>Version 1.1.1</title><xi:include	href="release-notes-1.1.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
+    <simplesect><title>Version 1.1</title><xi:include	href="release-notes-1.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
+    <simplesect><title>Version 1.0.1</title><xi:include	href="release-notes-1.0.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
+    <simplesect><title>Version 0.9.2</title><xi:include	href="release-notes-0.9.2.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
+    <simplesect><title>Version 0.9</title><xi:include	href="release-notes-0.9.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
+    <simplesect><title>Version 0.8</title><xi:include	href="release-notes-0.8.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
+    <simplesect><title>Version 0.7.1</title><xi:include	href="release-notes-0.7.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
   </appendix>
 </book>
 

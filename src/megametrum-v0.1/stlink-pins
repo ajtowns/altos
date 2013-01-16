@@ -1,4 +1,4 @@
-	ST discovery card pins
+ST discovery card pins
 
 1	AIN-1
 2	JTCK
@@ -7,7 +7,7 @@
 5	NRST
 6	SWO
 
-MM misc connector
+MegaMetrum v0.1 misc connector
 
 1	GND
 2	reset_n
@@ -28,13 +28,13 @@ MM misc connector
 
 For debugging:
 
-	ST	MM
+	ST	MM v0.1
 JTCK	2	9
 GND	3	7
 JTMS	4	8
 NRST	5	2
 
-TL debug connector:
+Altus Metrum STM32L standard debug connector (4 pin MicoMaTch):
 
 	TL	ST
 GND	1	3
