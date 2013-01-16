@@ -31,6 +31,7 @@ namespace load_csv {
 		real	time;
 		real	height;
 		real	acceleration;
+		real	pressure;
 	} record_t;
 
 	public record_t parse_record(file f, real accel_scale) {
@@ -40,16 +41,28 @@ namespace load_csv {
 		int time_off = 4;
 		int height_off = 11;
 		int accel_off = 8;
-		if (string_to_integer(data[0]) == 2) {
+		int pres_off = 9;
+		switch (string_to_integer(data[0])) {
+		case 2:
 			time_off = 4;
 			accel_off = 9;
+			pres_off = 10;
 			height_off = 12;
+			break;
+		case 5:
+			time_off = 4;
+			accel_off = 10;
+			pres_off = 11;
+			height_off = 13;
+			break;
 		}
 		return (record_t) {
 			.done = false,
-				.time = string_to_real(data[time_off]),
-				.height = imprecise(string_to_real(data[height_off])),
-				.acceleration = imprecise(string_to_real(data[accel_off]) * accel_scale) };
+			.time = string_to_real(data[time_off]),
+			.height = imprecise(string_to_real(data[height_off])),
+			.acceleration = imprecise(string_to_real(data[accel_off]) * accel_scale),
+			.pressure = imprecise(string_to_real(data[pres_off]))
+		};
 	}
 
 	public void dump(file f) {
