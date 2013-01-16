@@ -2599,13 +2599,13 @@ NAR #88757, TRA #12200
   <appendix
       xmlns:xi="http://www.w3.org/2001/XInclude">
     <title>Release Notes</title>
-    <xi:include	href="release-notes-1.1.1.xsl"  xpointer="xpointer(/article/*)"/>
-    <xi:include	href="release-notes-1.1.xsl"  xpointer="xpointer(/article/*)"/>
-    <xi:include	href="release-notes-1.0.1.xsl"  xpointer="xpointer(/article/*)"/>
-    <xi:include	href="release-notes-0.9.2.xsl"  xpointer="xpointer(/article/*)"/>
-    <xi:include	href="release-notes-0.9.xsl"  xpointer="xpointer(/article/*)"/>
-    <xi:include	href="release-notes-0.8.xsl"  xpointer="xpointer(/article/*)"/>
-    <xi:include	href="release-notes-0.7.1.xsl"  xpointer="xpointer(/article/*)"/>
+    <simplesect><title>Version 1.1.1</title><xi:include	href="release-notes-1.1.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
+    <simplesect><title>Version 1.1</title><xi:include	href="release-notes-1.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
+    <simplesect><title>Version 1.0.1</title><xi:include	href="release-notes-1.0.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
+    <simplesect><title>Version 0.9.2</title><xi:include	href="release-notes-0.9.2.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
+    <simplesect><title>Version 0.9</title><xi:include	href="release-notes-0.9.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
+    <simplesect><title>Version 0.8</title><xi:include	href="release-notes-0.8.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
+    <simplesect><title>Version 0.7.1</title><xi:include	href="release-notes-0.7.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
   </appendix>
 </book>
 
