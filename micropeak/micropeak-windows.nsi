@@ -80,6 +80,15 @@ Section "MicroPeak Application"
 	CreateShortCut "$SMPROGRAMS\MicroPeak.lnk" "$SYSDIR\javaw.exe" "-jar micropeak-fat.jar" "$INSTDIR\micro-peak.ico"
 SectionEnd
 
+Section "FTDI USB Driver"
+	SetOutPath $INSTDIR
+
+	File "CDM20824_Setup.exe"
+
+	StrCpy $2 "$INSTDIR\CDM20824_Setup.exe"
+	ExecWait $2
+SectionEnd
+
 Section "MicroPeak Desktop Shortcut"
 	CreateShortCut "$DESKTOP\MicroPeak.lnk" "$INSTDIR\micropeak-fat.jar"  "" "$INSTDIR\micro-peak.ico"
 SectionEnd

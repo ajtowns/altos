@@ -89,12 +89,22 @@ FAT_FILES=$(FATJAR) $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) $(FREETTS_CLASS) $(JFR
 LINUX_FILES=$(FAT_FILES) libaltos.so $(FIRMWARE) $(DOC)
 LINUX_EXTRA=micropeak-fat
 
+MACOSX_DRIVER_URL=http://www.ftdichip.com/Drivers/VCP/MacOSX/FTDIUSBSerialDriver_v2_2_18.dmg
+MACOSX_DRIVER=FTDIUSBSerialDriver_v2_2_18.dmg
 MACOSX_INFO_PLIST=Info.plist
-MACOSX_DRIVER=FTDI.tar.gz
 MACOSX_README=ReadMe-Mac.rtf
 MACOSX_FILES=$(FAT_FILES) libaltos.dylib $(MACOSX_INFO_PLIST) $(MACOSX_DRIVER) $(MACOSX_README)
 
-WINDOWS_FILES=$(FAT_FILES) altos.dll altos64.dll $(top_srcdir)/telemetrum.inf $(WINDOWS_ICON)
+$(MACOSX_DRIVER):
+	wget $(MACOSX_DRIVER_URL)
+
+WINDOWS_DRIVER_URL=http://www.ftdichip.com/Drivers/CDM/CDM20824_Setup.exe
+WINDOWS_DRIVER=CDM20824_Setup.exe
+
+$(WINDOWS_DRIVER):
+	wget $(WINDOWS_DRIVER_URL)
+
+WINDOWS_FILES=$(FAT_FILES) altos.dll altos64.dll $(top_srcdir)/telemetrum.inf $(WINDOWS_ICON) $(WINDOWS_DRIVER)
 
 if FATINSTALL
 
@@ -219,7 +229,7 @@ $(MACOSX_DIST): $(MACOSX_FILES)
 	cp -a MicroPeak.app macosx/
 	cp -a $(MACOSX_README) macosx/ReadMe.rtf
 	cp -p Info.plist macosx/MicroPeak.app/Contents
-	tar xzf $(MACOSX_DRIVER) -C macosx
+	cp -p $(MACOSX_DRIVER) macosx
 	mkdir -p macosx/MicroPeak.app/Contents/Resources/Java
 	cp -p $(FATJAR) macosx/MicroPeak.app/Contents/Resources/Java/micropeak.jar
 	cp -p libaltos.dylib macosx/MicroPeak.app/Contents/Resources/Java
