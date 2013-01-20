@@ -66,7 +66,19 @@ public class AltosUIFrame extends JFrame implements AltosUIListener {
 		setIconImages(icons);
 	}
 			
+	private boolean location_by_platform = true;
 
+	public void setLocationByPlatform(boolean lbp) {
+		location_by_platform = lbp;
+		super.setLocationByPlatform(lbp);
+	}
+		
+	public void setVisible (boolean visible) {
+		if (visible)
+			setLocationByPlatform(location_by_platform);
+		super.setVisible(visible);
+	}
+		
 	public AltosUIFrame() {
 		AltosUIPreferences.register_ui_listener(this);
 		addWindowListener(new AltosUIFrameListener());

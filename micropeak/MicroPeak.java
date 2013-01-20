@@ -255,7 +255,6 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		ps.height += i.top + i.bottom;
 //		setPreferredSize(ps);
 		setSize(ps);
-		setLocationByPlatform(true);
 		setVisible(true);
 	}
 

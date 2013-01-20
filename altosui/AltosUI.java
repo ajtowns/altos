@@ -552,7 +552,6 @@ public class AltosUI extends AltosUIFrame {
 		/* Handle batch-mode */
 		if (args.length == 0) {
 			AltosUI altosui = new AltosUI();
-			altosui.setVisible(true);
 
 			java.util.List<AltosDevice> devices = AltosUSBDevice.list(Altos.product_basestation);
 			for (AltosDevice device : devices)
