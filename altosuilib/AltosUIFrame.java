@@ -28,7 +28,7 @@ class AltosUIFrameListener extends WindowAdapter {
 	}
 }
 
-public class AltosUIFrame extends JFrame implements AltosUIListener {
+public class AltosUIFrame extends JFrame implements AltosUIListener, AltosPositionListener {
 
 	public void ui_changed(String look_and_feel) {
 		SwingUtilities.updateComponentTreeUI(this);
@@ -73,22 +73,101 @@ public class AltosUIFrame extends JFrame implements AltosUIListener {
 		super.setLocationByPlatform(lbp);
 	}
 		
+	public void setSize() {
+		/* Smash sizes around so that the window comes up in the right shape */
+		Insets i = getInsets();
+		Dimension ps = rootPane.getPreferredSize();
+		ps.width += i.left + i.right;
+		ps.height += i.top + i.bottom;
+		setPreferredSize(ps);
+		setSize(ps);
+	}
+
+	public void setPosition (int position) {
+		Insets i = getInsets();
+		Dimension ps = getSize();
+
+		/* Stick the window in the desired location on the screen */
+		setLocationByPlatform(false);
+		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		GraphicsConfiguration gc = gd.getDefaultConfiguration();
+		Rectangle r = gc.getBounds();
+
+		/* compute X position */
+		int x = 0;
+		int y = 0;
+		switch (position) {
+		case AltosUILib.position_top_left:
+		case AltosUILib.position_left:
+		case AltosUILib.position_bottom_left:
+			x = 0;
+			break;
+		case AltosUILib.position_top:
+		case AltosUILib.position_center:
+		case AltosUILib.position_bottom:
+			x = (r.width - ps.width) / 2;
+			break;
+		case AltosUILib.position_top_right:
+		case AltosUILib.position_right:
+		case AltosUILib.position_bottom_right:
+			x = r.width - ps.width + i.right;
+			break;
+		}
+
+		/* compute Y position */
+		switch (position) {
+		case AltosUILib.position_top_left:
+		case AltosUILib.position_top:
+		case AltosUILib.position_top_right:
+			y = 0;
+			break;
+		case AltosUILib.position_left:
+		case AltosUILib.position_center:
+		case AltosUILib.position_right:
+			y = (r.height - ps.height) / 2;
+			break;
+		case AltosUILib.position_bottom_left:
+		case AltosUILib.position_bottom:
+		case AltosUILib.position_bottom_right:
+			y = r.height - ps.height + i.bottom;
+			break;
+		}
+		setLocation(x, y);
+	}
+
+	int position;
+
+	public void position_changed(int position) {
+		this.position = position;
+		if (!location_by_platform)
+			setPosition(position);
+	}
+
 	public void setVisible (boolean visible) {
 		if (visible)
 			setLocationByPlatform(location_by_platform);
 		super.setVisible(visible);
+		if (visible) {
+			setSize();
+			if (!location_by_platform)
+				setPosition(position);
+		}
 	}
 		
-	public AltosUIFrame() {
+	void init() {
 		AltosUIPreferences.register_ui_listener(this);
+		AltosUIPreferences.register_position_listener(this);
+		position = AltosUIPreferences.position();
 		addWindowListener(new AltosUIFrameListener());
 		set_icon();
 	}
 
+	public AltosUIFrame() {
+		init();
+	}
+
 	public AltosUIFrame(String name) {
 		super(name);
-		AltosUIPreferences.register_ui_listener(this);
-		addWindowListener(new AltosUIFrameListener());
-		set_icon();
+		init();
 	}
 }

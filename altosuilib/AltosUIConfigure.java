@@ -202,9 +202,10 @@ public class AltosUIConfigure
 		row++;
 	}
 
-	public void add_serial_debug() {
-		GridBagConstraints c = new GridBagConstraints();
+	public void add_position () {
+	}
 
+	public void add_serial_debug() {
 		/* Serial debug setting */
 		pane.add(new JLabel("Serial Debug"), constraints(0, 1));
 
@@ -217,12 +218,8 @@ public class AltosUIConfigure
 				}
 			});
 		serial_debug.setToolTipText("Enable/Disable USB I/O getting sent to the console");
-		c.gridx = 1;
-		c.gridy = row++;
-		c.gridwidth = 3;
-		c.fill = GridBagConstraints.NONE;
-		c.anchor = GridBagConstraints.WEST;
-		pane.add(serial_debug, c);
+		pane.add(serial_debug, constraints(1,2));
+		row++;
 	}
 
 	public void add_bluetooth() {
@@ -253,8 +250,10 @@ public class AltosUIConfigure
 		add_log_dir();
 		add_callsign();
 		add_units();
+		add_serial_debug();
 		add_font_size();
 		add_look_and_feel();
+		add_position();
 		add_bluetooth();
 		add_frequencies();
 

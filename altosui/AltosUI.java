@@ -224,14 +224,6 @@ public class AltosUI extends AltosUIFrame {
 		doLayout();
 		validate();
 
-		setVisible(true);
-
-		Insets i = getInsets();
-		Dimension ps = rootPane.getPreferredSize();
-		ps.width += i.left + i.right;
-		ps.height += i.top + i.bottom;
-		setPreferredSize(ps);
-		setSize(ps);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -239,6 +231,11 @@ public class AltosUI extends AltosUIFrame {
 				System.exit(0);
 			}
 		});
+
+		setLocationByPlatform(false);
+		
+		/* Insets aren't set before the window is visible */
+		setVisible(true);
 	}
 
 	private void ConnectToDevice() {

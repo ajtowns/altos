@@ -36,7 +36,17 @@ public class AltosUILib extends AltosLib {
 	final public static int font_size_medium = 2;
 	final public static int font_size_large = 3;
 
-	static void set_fonts(int size) {
+	final public static int position_top_left = 0;
+	final public static int position_top = 1;
+	final public static int position_top_right = 2;
+	final public static int position_left = 3;
+	final public static int position_center = 4;
+	final public static int position_right = 5;
+	final public static int position_bottom_left = 6;
+	final public static int position_bottom = 7;
+	final public static int position_bottom_right = 8;
+
+	public static void set_fonts(int size) {
 		int	brief_size;
 		int	table_size;
 		int	status_size;
@@ -66,7 +76,7 @@ public class AltosUILib extends AltosLib {
 		table_value_font = new Font("Monospaced", Font.PLAIN, table_size);
 	}
 
-	static final int text_width = 20;
+	static public final int text_width = 20;
 
 	static public boolean initialized = false;
 	static public boolean loaded_library = false;

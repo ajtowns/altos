@@ -14,6 +14,7 @@ altosuilib_JAVA = \
 	AltosDeviceDialog.java \
 	AltosUSBDevice.java \
 	AltosFontListener.java \
+	AltosPositionListener.java \
 	AltosUIDialog.java \
 	AltosUIFrame.java \
 	AltosUILib.java \

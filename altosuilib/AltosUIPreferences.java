@@ -31,6 +31,9 @@ public class AltosUIPreferences extends AltosPreferences {
 	/* Look&Feel preference name */
 	final static String lookAndFeelPreference = "LOOK-AND-FEEL";
 
+	/* Window position preference name */
+	final static String positionPreference = "POSITION";
+
 	/* UI Component to pop dialogs up */
 	static Component component;
 
@@ -45,6 +48,10 @@ public class AltosUIPreferences extends AltosPreferences {
 	/* Serial debug */
 	public static boolean serial_debug;
 
+	static LinkedList<AltosPositionListener> position_listeners;
+
+	public static int position = AltosUILib.position_top_left;
+
 	public static void init() {
 		AltosPreferences.init(new AltosUIPreferencesBackend());
 
@@ -56,7 +63,11 @@ public class AltosUIPreferences extends AltosPreferences {
 
 		ui_listeners = new LinkedList<AltosUIListener>();
 		serial_debug = backend.getBoolean(serialDebugPreference, false);
+
 		AltosLink.set_debug(serial_debug);
+
+		position = backend.getInt(positionPreference, AltosUILib.position_top_left);
+		position_listeners = new LinkedList<AltosPositionListener>();
 	}
 
 	static { init(); }
@@ -177,4 +188,31 @@ public class AltosUIPreferences extends AltosPreferences {
 		}
 	}
 
+	public static void register_position_listener(AltosPositionListener l) {
+		synchronized(backend) {
+			position_listeners.add(l);
+		}
+	}
+
+	public static void unregister_position_listener(AltosPositionListener l) {
+		synchronized (backend) {
+			position_listeners.remove(l);
+		}
+	}
+
+	public static void set_position(int new_position) {
+		synchronized (backend) {
+			position = new_position;
+			backend.putInt(positionPreference, position);
+			flush_preferences();
+			for (AltosPositionListener l : position_listeners)
+				l.position_changed(position);
+		}
+	}
+
+	public static int position() {
+		synchronized (backend) {
+			return position;
+		}
+	}
 }
