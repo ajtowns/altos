@@ -62,7 +62,6 @@ altosui_JAVA = \
 	AltosLed.java \
 	AltosLights.java \
 	AltosPad.java \
-	AltosUIPreferences.java \
 	AltosUIPreferencesBackend.java \
 	AltosRomconfig.java \
 	AltosRomconfigUI.java \

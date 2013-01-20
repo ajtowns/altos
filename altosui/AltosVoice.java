@@ -20,6 +20,7 @@ package altosui;
 import com.sun.speech.freetts.Voice;
 import com.sun.speech.freetts.VoiceManager;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.altusmetrum.altosuilib.*;
 
 public class AltosVoice implements Runnable {
 	VoiceManager			voice_manager;

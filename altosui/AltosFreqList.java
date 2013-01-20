@@ -19,6 +19,7 @@ package altosui;
 
 import javax.swing.*;
 import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altosuilib.*;
 
 public class AltosFreqList extends JComboBox {
 
