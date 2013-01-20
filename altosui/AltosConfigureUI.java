@@ -42,7 +42,7 @@ public class AltosConfigureUI
 	}
 
 	public void changedUpdate(DocumentEvent e) {
-		if (callsign_value != null) 
+		if (callsign_value != null)
 			AltosUIPreferences.set_callsign(callsign_value.getText());
 	}
 
@@ -81,7 +81,7 @@ public class AltosConfigureUI
 		/* Callsign setting */
 		pane.add(new JLabel("Callsign"), constraints(0, 1));
 
-		JTextField callsign_value = new JTextField(AltosUIPreferences.callsign());
+		callsign_value = new JTextField(AltosUIPreferences.callsign());
 		callsign_value.getDocument().addDocumentListener(this);
 		callsign_value.setToolTipText("Callsign sent in packet mode");
 		pane.add(callsign_value, constraints(1, 2, GridBagConstraints.BOTH));
