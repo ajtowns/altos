@@ -44,6 +44,15 @@
 	  Add comments about EEPROM storage format and programming jig.
 	</revremark>
       </revision>
+      <revision>
+	<revnumber>1.2</revnumber>
+	<date>20 January 2013</date>
+	<revremark>
+	  Add documentation for the MicroPeak USB adapter board. Note
+	  the switch to a Kalman filter for peak altitude
+	  determination.
+	</revremark>
+      </revision>
     </revhistory>
   </bookinfo>
   <acknowledgements>
@@ -176,6 +185,176 @@ NAR #88757, TRA #12200
     </para>
   </chapter>
   <chapter>
+    <title>The MicroPeak USB adapter</title>
+    <para>
+      MicroPeak stores barometric pressure information for the first
+      48 seconds of the flight in on-board non-volatile memory. The
+      contents of this memory can be downloaded to a computer using
+      the MicroPeak USB adapter.
+    </para>
+    <section>
+      <title>Installing the MicroPeak software</title>
+      <para>
+	The MicroPeak application runs on Linux, Mac OS X and
+	Windows. You can download the latest version from
+	<ulink url="http://altusmetrum.org/AltOS"/>.
+      </para>
+      <para>
+	On Mac OS X and Windows, the FTDI USB device driver needs to
+	be installed. A compatible version of this driver is included
+	with the MicroPeak application, but you may want to download a
+	newer version from <ulink
+	url="http://www.ftdichip.com/FTDrivers.htm"/>.
+      </para>
+    </section>
+    <section>
+      <title>Downloading Micro Peak data</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Connect the MicroPeak USB adapter to a USB cable and plug it
+	    in to your computer.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Start the MicroPeak application, locate the File menu and
+	    select the Download entry.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The MicroPeak USB adapter has a small phototransistor on the 
+	    end of the board furthest from the USB connector. Locate
+	    this and place the LED on the MicroPeak right over
+	    it. Turn on the MicroPeak board and adjust the position
+	    until the blue LED on the MicroPeak USB adapter blinks in
+	    time with the orange LED on the MicroPeak board.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    After the maximum flight height is reported, MicroPeak will
+	    pause for a few seconds, blink the LED four times rapidly
+	    and then send the data in one long blur on the LED. The
+	    MicroPeak application should receive the data. When it does,
+	    it will present the data in a graph and offer to save the
+	    data to a file. If not, you can power cycle the MicroPeak
+	    board and try again.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>Analyzing MicroPeak Data</title>
+      <para>
+	The MicroPeak application can present flight data in the form
+	of a graph, a collection of computed statistics or in tabular
+	form.
+      </para>
+      <para>
+	MicroPeak collects raw barometric pressure data which is
+	then used to compute the remaining data. Altitude is computed
+	through a standard atmospheric model. Absolute error in this
+	data will be affected by local atmospheric
+	conditions. Fortunately, these errors tend to mostly cancel
+	out, so the error in the height computation is much smaller
+	than the error in altitude would be.
+      </para>
+      <para>
+	Speed and acceleration are computed by first smoothing the
+	height data with a Gaussian window averaging filter. For speed
+	data, this average uses seven samples. For acceleration data,
+	eleven samples are used. These were chosen to provide
+	reasonably smooth speed and acceleration data, which would
+	otherwise be swamped with noise.
+      </para>
+      <para>
+	Under the Graph tab, the height, speed and acceleration values
+	are displayed together. You can zoom in on the graph by
+	clicking and dragging to sweep out an area of
+	interest. Right-click on the plot to bring up a menu that will
+	let you save, copy or print the graph.
+      </para>
+      <para>
+	The Statistics tab presents overall data from the flight. Note
+	that the Maximum height value is taken from the minumum
+	pressure captured in flight, and may be different from the
+	apparant apogee value as the on-board data are sampled twice
+	as fast as the recorded values, or because the true apogee
+	occurred after the on-board memory was full. Each value is
+	presented in several units as appropriate.
+      </para>
+      <para>
+	A table consisting of the both the raw barometric pressure
+	data and values computed from that for each recorded time.
+      </para>
+      <para>
+	The File menu has operations to open existing flight logs,
+	Download new data from MicroPeak, Save a copy of the flight
+	log to a new file, Export the tabular data (as seen in the Raw
+	Data tab) to a file, change the application Preferences, Close
+	the current window or close all windows and Exit the
+	application.
+      </para>
+    </section>
+    <section>
+      <title>Configuring the MicroPeak application</title>
+      <para>
+	The MicroPeak application has a few user settings which are
+	configured through the Preferences dialog, which can be
+	accessed from the File menu.
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    The Log Directory is where flight data will be saved to
+	    and loaded from by default. Of course, you can always
+	    navigate to other directories in the file chooser windows,
+	    this setting is just the starting point.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    If you prefer to see your graph data in feet and
+	    miles per hour instead of meters and meters per second,
+	    you can select Imperial Units.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    To see what data is actually arriving over the serial
+	    port, start the MicroPeak application from a command
+	    prompt and select the Serial Debug option. This can be
+	    useful in debugging serial communication problems, but
+	    most people need never choose this.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    You can adjust the size of the text in the Statistics tab
+	    by changing the Font size preference. There are three
+	    settings, with luck one will both fit on your screen and
+	    provide readable values.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    The Look &amp; feel menu shows a list of available
+	    application appearance choices. By default, the MicroPeak
+	    application tries to blend in with other applications, but
+	    you may choose some other appearance if you like.
+	  </para>
+	</listitem>
+      </itemizedlist>
+      </para>
+      <para>
+	Note that MicroPeak shares a subset of the AltosUI
+	preferences, so if you use both of these applications, change
+	in one application will affect the other.
+      </para>
+    </section>
+  </chapter>
+  <chapter>
     <title>Technical Information</title>
     <section>
       <title>Barometric Sensor</title>
@@ -193,8 +372,8 @@ NAR #88757, TRA #12200
       <para>
 	Ground pressure is computed from an average of 16 samples,
 	taken while the altimeter is at rest. Flight pressure is
-	computed from an exponential IIR filter designed to smooth out
-	transients caused by mechanical stress on the barometer.
+	computed from a Kalman filter designed to smooth out any minor
+	noise in the sensor values. 
       </para>
     </section>
     <section>
