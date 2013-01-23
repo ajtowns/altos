@@ -74,15 +74,19 @@ all-local: micropeak-test micropeak-jdb $(JAR)
 
 clean-local:
 	-rm -rf classes $(JAR) $(FATJAR) \
-		$(LINUX_DIST) $(MACOSX_DIST) windows $(WINDOWS_DIST) \
+		MicroPeak-Linux-*.tar.bz2 MicroPeak-Mac-*.dmg MicroPeak-Windows-*.exe \
 		$(ALTOSLIB_CLASS) \
 		$(ALTOSUILIB_CLASS) \
-		$(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) Manifest.txt \
-		micropeak micropeak-test macosx linux windows
+		$(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) Manifest.txt Manifest-fat.txt \
+		micropeak micropeak-test micropeak-jdb macosx linux windows micropeak-windows.log
 
 LINUX_DIST=MicroPeak-Linux-$(VERSION).tar.bz2
 MACOSX_DIST=MicroPeak-Mac-$(VERSION).dmg
 WINDOWS_DIST=MicroPeak-Windows-$(VERSION_DASH).exe
+
+MICROPEAK_DOC=$(top_srcdir)/doc/micropeak.pdf
+
+DOC=$(MICROPEAK_DOC)
 
 FAT_FILES=$(FATJAR) $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS)
 
@@ -93,7 +97,7 @@ MACOSX_DRIVER_URL=http://www.ftdichip.com/Drivers/VCP/MacOSX/FTDIUSBSerialDriver
 MACOSX_DRIVER=FTDIUSBSerialDriver_v2_2_18.dmg
 MACOSX_INFO_PLIST=Info.plist
 MACOSX_README=ReadMe-Mac.rtf
-MACOSX_FILES=$(FAT_FILES) libaltos.dylib $(MACOSX_INFO_PLIST) $(MACOSX_DRIVER) $(MACOSX_README)
+MACOSX_FILES=$(FAT_FILES) libaltos.dylib $(MACOSX_INFO_PLIST) $(MACOSX_DRIVER) $(MACOSX_README) $(DOC)
 
 $(MACOSX_DRIVER):
 	wget $(MACOSX_DRIVER_URL)
@@ -104,7 +108,7 @@ WINDOWS_DRIVER=CDM20824_Setup.exe
 $(WINDOWS_DRIVER):
 	wget $(WINDOWS_DRIVER_URL)
 
-WINDOWS_FILES=$(FAT_FILES) altos.dll altos64.dll $(top_srcdir)/telemetrum.inf $(WINDOWS_ICON) $(WINDOWS_DRIVER)
+WINDOWS_FILES=$(FAT_FILES) altos.dll altos64.dll $(DOC) $(WINDOWS_ICON) $(WINDOWS_DRIVER)
 
 if FATINSTALL
 
@@ -228,6 +232,7 @@ $(MACOSX_DIST): $(MACOSX_FILES)
 	mkdir macosx
 	cp -a MicroPeak.app macosx/
 	cp -a $(MACOSX_README) macosx/ReadMe.rtf
+	cp -a $(DOC) macosx
 	cp -p Info.plist macosx/MicroPeak.app/Contents
 	cp -p $(MACOSX_DRIVER) macosx
 	mkdir -p macosx/MicroPeak.app/Contents/Resources/Java
