@@ -231,6 +231,7 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
+				stats.tell_closing();
 				Close();
 			}
 		});

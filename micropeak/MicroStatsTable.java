@@ -22,7 +22,7 @@ import javax.swing.*;
 import org.altusmetrum.AltosLib.*;
 import org.altusmetrum.altosuilib.*;
 
-public class MicroStatsTable extends JComponent {
+public class MicroStatsTable extends JComponent implements AltosFontListener {
 	GridBagLayout	layout;
 
 	class MicroStat {
@@ -33,6 +33,12 @@ public class MicroStatsTable extends JComponent {
 			for (int j = 0; j < values.length; j++) {
 				texts[j].setText(values[j]);
 			}
+		}
+
+		public void set_font() {
+			for (int j = 0; j < texts.length; j++)
+				texts[j].setFont(AltosUILib.value_font);
+			label.setFont(AltosUILib.label_font);
 		}
 
 		public MicroStat(GridBagLayout layout, int y, String label_text, String ... values) {
@@ -94,6 +100,22 @@ public class MicroStatsTable extends JComponent {
 		flight_time.set_values(String.format("%6.1f s", stats.landed_time));
 	}
 
+	public void set_font() {
+		max_height.set_font();
+		max_speed.set_font();
+		max_accel.set_font();
+		avg_accel.set_font();
+		boost_duration.set_font();
+		coast_duration.set_font();
+		descent_speed.set_font();
+		descent_duration.set_font();
+		flight_time.set_font();
+	}
+
+	public void font_size_changed(int font_size) {
+		set_font();
+	}
+
 	public void setData(MicroData data) {
 		setStats(new MicroStats(data));
 	}
@@ -129,6 +151,13 @@ public class MicroStatsTable extends JComponent {
 						 String.format("%6.1f s", stats.descent_duration()));
 		flight_time = new MicroStat(layout, y++, "Flight Time",
 					    String.format("%6.1f s", stats.landed_time));
+		set_font();
+
+		AltosUIPreferences.register_font_listener(this);
+	}
+
+	public void tell_closing() {
+		AltosUIPreferences.unregister_font_listener(this);
 	}
 
 	public MicroStatsTable() {
