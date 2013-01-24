@@ -3,7 +3,7 @@
   "/usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd">
 <book>
   <title>MicroPeak Owner's Manual</title>
-  <subtitle>A peak-recording altimeter for hobby rocketry</subtitle>
+  <subtitle>A recording altimeter for hobby rocketry</subtitle>
   <bookinfo>
     <author>
       <firstname>Keith</firstname>
