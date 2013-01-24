@@ -106,6 +106,72 @@ ao_adc_get(__xdata struct ao_adc *packet)
 	memcpy(packet, (void *) &ao_data_ring[i].adc, sizeof (struct ao_adc));
 }
 
+#ifdef AO_ADC_SQ1_NAME
+static const char *ao_adc_name[AO_NUM_ADC] = {
+	AO_ADC_SQ1_NAME,
+#ifdef AO_ADC_SQ2_NAME
+	AO_ADC_SQ2_NAME,
+#endif
+#ifdef AO_ADC_SQ3_NAME
+	AO_ADC_SQ3_NAME,
+#endif
+#ifdef AO_ADC_SQ4_NAME
+	AO_ADC_SQ4_NAME,
+#endif
+#ifdef AO_ADC_SQ5_NAME
+	AO_ADC_SQ5_NAME,
+#endif
+#ifdef AO_ADC_SQ6_NAME
+	AO_ADC_SQ6_NAME,
+#endif
+#ifdef AO_ADC_SQ7_NAME
+	AO_ADC_SQ7_NAME,
+#endif
+#ifdef AO_ADC_SQ8_NAME
+	AO_ADC_SQ8_NAME,
+#endif
+#ifdef AO_ADC_SQ9_NAME
+	AO_ADC_SQ9_NAME,
+#endif
+#ifdef AO_ADC_SQ10_NAME
+	AO_ADC_SQ10_NAME,
+#endif
+#ifdef AO_ADC_SQ11_NAME
+	AO_ADC_SQ11_NAME,
+#endif
+#ifdef AO_ADC_SQ12_NAME
+	AO_ADC_SQ12_NAME,
+#endif
+#ifdef AO_ADC_SQ13_NAME
+	AO_ADC_SQ13_NAME,
+#endif
+#ifdef AO_ADC_SQ14_NAME
+	AO_ADC_SQ14_NAME,
+#endif
+#ifdef AO_ADC_SQ15_NAME
+	AO_ADC_SQ15_NAME,
+#endif
+#ifdef AO_ADC_SQ16_NAME
+	AO_ADC_SQ16_NAME,
+#endif
+#ifdef AO_ADC_SQ17_NAME
+	AO_ADC_SQ17_NAME,
+#endif
+#ifdef AO_ADC_SQ18_NAME
+	AO_ADC_SQ18_NAME,
+#endif
+#ifdef AO_ADC_SQ19_NAME
+	AO_ADC_SQ19_NAME,
+#endif
+#ifdef AO_ADC_SQ20_NAME
+	AO_ADC_SQ20_NAME,
+#endif
+#ifdef AO_ADC_SQ21_NAME
+	#error "too many ADC names"
+#endif
+};
+#endif
+
 static void
 ao_adc_dump(void) __reentrant
 {
@@ -121,8 +187,14 @@ ao_adc_dump(void) __reentrant
 #else
 	printf("tick: %5u",  packet.tick);
 	d = (int16_t *) (&packet.adc);
-	for (i = 0; i < AO_NUM_ADC; i++)
-		printf (" %2d: %5d", i, d[i]);
+	for (i = 0; i < AO_NUM_ADC; i++) {
+#ifdef AO_ADC_SQ1_NAME
+		if (ao_adc_name[i])
+			printf ("\t%s: %5d\n", ao_adc_name[i], d[i]);
+		else		
+#endif
+			printf (" %2d: %5d", i, d[i]);
+	}
 	printf("\n");
 #endif
 }
@@ -177,6 +249,42 @@ ao_adc_init(void)
 #endif
 #ifdef AO_ADC_PIN12_PORT
 	stm_moder_set(AO_ADC_PIN12_PORT, AO_ADC_PIN12_PIN, STM_MODER_ANALOG);
+#endif
+#ifdef AO_ADC_PIN13_PORT
+	stm_moder_set(AO_ADC_PIN13_PORT, AO_ADC_PIN13_PIN, STM_MODER_ANALOG);
+#endif
+#ifdef AO_ADC_PIN14_PORT
+	stm_moder_set(AO_ADC_PIN14_PORT, AO_ADC_PIN14_PIN, STM_MODER_ANALOG);
+#endif
+#ifdef AO_ADC_PIN15_PORT
+	stm_moder_set(AO_ADC_PIN15_PORT, AO_ADC_PIN15_PIN, STM_MODER_ANALOG);
+#endif
+#ifdef AO_ADC_PIN16_PORT
+	stm_moder_set(AO_ADC_PIN16_PORT, AO_ADC_PIN16_PIN, STM_MODER_ANALOG);
+#endif
+#ifdef AO_ADC_PIN17_PORT
+	stm_moder_set(AO_ADC_PIN17_PORT, AO_ADC_PIN17_PIN, STM_MODER_ANALOG);
+#endif
+#ifdef AO_ADC_PIN18_PORT
+	stm_moder_set(AO_ADC_PIN18_PORT, AO_ADC_PIN18_PIN, STM_MODER_ANALOG);
+#endif
+#ifdef AO_ADC_PIN19_PORT
+	stm_moder_set(AO_ADC_PIN19_PORT, AO_ADC_PIN19_PIN, STM_MODER_ANALOG);
+#endif
+#ifdef AO_ADC_PIN20_PORT
+	stm_moder_set(AO_ADC_PIN20_PORT, AO_ADC_PIN20_PIN, STM_MODER_ANALOG);
+#endif
+#ifdef AO_ADC_PIN21_PORT
+	stm_moder_set(AO_ADC_PIN21_PORT, AO_ADC_PIN21_PIN, STM_MODER_ANALOG);
+#endif
+#ifdef AO_ADC_PIN22_PORT
+	stm_moder_set(AO_ADC_PIN22_PORT, AO_ADC_PIN22_PIN, STM_MODER_ANALOG);
+#endif
+#ifdef AO_ADC_PIN23_PORT
+	stm_moder_set(AO_ADC_PIN23_PORT, AO_ADC_PIN23_PIN, STM_MODER_ANALOG);
+#endif
+#ifdef AO_ADC_PIN24_PORT
+	#error "Too many ADC ports"
 #endif
 
 	stm_rcc.apb2enr |= (1 << STM_RCC_APB2ENR_ADC1EN);
@@ -248,6 +356,24 @@ ao_adc_init(void)
 	stm_adc.sqr4 |= (AO_ADC_SQ12 << 25);
 #endif
 #if AO_NUM_ADC > 12
+	stm_adc.sqr3 |= (AO_ADC_SQ13 << 0);
+#endif
+#if AO_NUM_ADC > 13
+	stm_adc.sqr3 |= (AO_ADC_SQ14 << 5);
+#endif
+#if AO_NUM_ADC > 14
+	stm_adc.sqr3 |= (AO_ADC_SQ15 << 10);
+#endif
+#if AO_NUM_ADC > 15
+	stm_adc.sqr3 |= (AO_ADC_SQ16 << 15);
+#endif
+#if AO_NUM_ADC > 16
+	stm_adc.sqr3 |= (AO_ADC_SQ17 << 20);
+#endif
+#if AO_NUM_ADC > 17
+	stm_adc.sqr3 |= (AO_ADC_SQ18 << 25);
+#endif
+#if AO_NUM_ADC > 18
 #error "need to finish stm_adc.sqr settings"
 #endif
 	
@@ -258,6 +384,9 @@ ao_adc_init(void)
 	while (!(stm_adc.sr & (1 << STM_ADC_SR_ADONS)))
 		;
 
+#ifndef HAS_ADC_TEMP
+#error Please define HAS_ADC_TEMP
+#endif
 #if HAS_ADC_TEMP
 	stm_adc.ccr = ((1 << STM_ADC_CCR_TSVREFE));
 #else
