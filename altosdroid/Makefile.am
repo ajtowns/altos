@@ -54,6 +54,15 @@ bin/AltosDroid-debug.apk: $(SRC) $(ALTOSLIB)
 
 bin/AltosDroid-release.apk: $(SRC) $(ALTOSLIB)
 	ant release
+
+sign:
+	jarsigner -keystore release.keystore \
+	   -signedjar bin/AltosDroid-release-signed.apk \
+	   bin/AltosDroid-release-unsigned.apk AltosDroid
+	$(SDK)/tools/zipalign -f 4 \
+	   bin/AltosDroid-release-signed.apk \
+	   bin/AltosDroid-release.apk
+
 endif
 
 clean:

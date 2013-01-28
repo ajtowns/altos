@@ -119,7 +119,7 @@ public class AltosDroid extends Activity {
 					Toast.makeText(ad.getApplicationContext(), "Connected to " + str, Toast.LENGTH_SHORT).show();
 					ad.mAltosVoice.speak("Connected");
 					//TEST!
-					ad.mTextView.setText(Dumper.dump(ad.mConfigData));
+					//ad.mTextView.setText(Dumper.dump(ad.mConfigData));
 					break;
 				case TelemetryService.STATE_CONNECTING:
 					ad.mTitle.setText(R.string.title_connecting);
@@ -135,7 +135,7 @@ public class AltosDroid extends Activity {
 			case MSG_TELEMETRY:
 				ad.update_ui((AltosState) msg.obj);
 				// TEST!
-				ad.mTextView.setText(Dumper.dump(msg.obj));
+				//ad.mTextView.setText(Dumper.dump(msg.obj));
 				break;
 			}
 		}
