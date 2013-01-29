@@ -22,7 +22,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import java.util.concurrent.*;
-import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altoslib.*;
 import org.altusmetrum.altosuilib.*;
 
 public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDisplay, AltosFontListener, AltosIdleMonitorListener {

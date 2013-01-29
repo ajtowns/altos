@@ -21,7 +21,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altoslib.*;
 import org.altusmetrum.altosuilib.*;
 
 public class AltosConfigTDUI

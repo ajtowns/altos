@@ -22,7 +22,7 @@ import java.awt.image.*;
 import javax.swing.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Line2D;
-import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altoslib.*;
 
 public class AltosSiteMapTile extends JLayeredPane {
 	JLabel mapLabel;

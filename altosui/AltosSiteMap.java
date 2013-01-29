@@ -23,7 +23,7 @@ import java.io.*;
 import java.lang.Math;
 import java.awt.geom.Point2D;
 import java.util.concurrent.*;
-import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altoslib.*;
 import org.altusmetrum.altosuilib.*;
 
 public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {

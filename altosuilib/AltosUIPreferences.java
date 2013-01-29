@@ -21,7 +21,7 @@ import java.io.*;
 import java.util.*;
 import java.awt.Component;
 import javax.swing.*;
-import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altoslib.*;
 
 public class AltosUIPreferences extends AltosPreferences {
 

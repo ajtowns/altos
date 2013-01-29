@@ -19,7 +19,7 @@ package altosui;
 
 import java.awt.*;
 import javax.swing.*;
-import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altoslib.*;
 
 public class AltosFlightStatus extends JComponent implements AltosFlightDisplay {
 	GridBagLayout	layout;

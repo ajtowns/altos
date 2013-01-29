@@ -19,7 +19,7 @@ package altosui;
 
 import java.io.*;
 import java.util.*;
-import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altoslib.*;
 
 public class AltosCSV implements AltosWriter {
 	File			name;

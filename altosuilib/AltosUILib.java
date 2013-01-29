@@ -20,7 +20,7 @@ package org.altusmetrum.altosuilib;
 import java.awt.*;
 import libaltosJNI.*;
 
-import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altoslib.*;
 
 public class AltosUILib extends AltosLib {
 

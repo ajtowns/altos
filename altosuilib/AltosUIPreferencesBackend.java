@@ -19,7 +19,7 @@ package org.altusmetrum.altosuilib;
 
 import java.io.File;
 import java.util.prefs.*;
-import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altoslib.*;
 import javax.swing.filechooser.FileSystemView;
 
 public class AltosUIPreferencesBackend implements AltosPreferencesBackend {

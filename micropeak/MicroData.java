@@ -20,7 +20,7 @@ package org.altusmetrum.micropeak;
 import java.lang.*;
 import java.io.*;
 import java.util.*;
-import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altoslib.*;
 
 class MicroIterator implements Iterator<MicroDataPoint> {
 	int		i;

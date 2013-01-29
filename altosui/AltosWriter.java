@@ -17,7 +17,7 @@
 
 package altosui;
 
-import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altoslib.*;
 
 
 public interface AltosWriter {

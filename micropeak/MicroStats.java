@@ -18,7 +18,7 @@
 package org.altusmetrum.micropeak;
 
 import java.io.*;
-import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altoslib.*;
 import org.altusmetrum.altosuilib.*;
 
 public class MicroStats {

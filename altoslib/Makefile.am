@@ -2,6 +2,8 @@ AM_JAVACFLAGS=-encoding UTF-8 -Xlint:deprecation
 
 JAVAROOT=bin
 
+VERSION=1
+
 CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH="bin:$(FREETTS)/*:/usr/share/java/*"
 
 SRC=.

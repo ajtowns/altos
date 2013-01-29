@@ -26,6 +26,18 @@ AM_MAINTAINER_MODE
 VERSION_DASH=`echo $VERSION | sed 's/\./-/g'`
 AC_SUBST(VERSION_DASH)
 
+
+dnl ==========================================================================
+dnl Java library versions
+
+ALTOSUILIB_VERSION=1
+ALTOSLIB_VERSION=1
+
+AC_SUBST(ALTOSLIB_VERSION)
+AC_DEFINE(ALTOSLIB_VERSION,$ALTOSLIB_VERSION,[Version of the AltosLib package])
+AC_SUBST(ALTOSUILIB_VERSION)
+AC_DEFINE(ALTOSUILIB_VERSION,$ALTOSUILIB_VERSION,[Version of the AltosUILib package])
+
 dnl ==========================================================================
 
 AM_CONFIG_HEADER(config.h)

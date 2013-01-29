@@ -19,7 +19,7 @@ package org.altusmetrum.micropeak;
 
 import java.awt.*;
 import javax.swing.*;
-import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altoslib.*;
 import org.altusmetrum.altosuilib.*;
 
 public class MicroStatsTable extends JComponent implements AltosFontListener {
