@@ -19,7 +19,7 @@ package org.altusmetrum.micropeak;
 
 import java.util.*;
 import libaltosJNI.*;
-import org.altusmetrum.altosuilib.*;
+import org.altusmetrum.altosuilib_1.*;
 
 public class MicroUSB extends altos_device implements AltosDevice {
 

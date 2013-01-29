@@ -17,7 +17,7 @@ ZIPALIGN=$(SDK)/tools/zipalign
 SRC_DIR=src/org/altusmetrum/AltosDroid
 EXT_LIBDIR=libs
 ALTOSLIB_SRCDIR=../altoslib
-ALTOSLIB_JAR=AltosLib.jar
+ALTOSLIB_JAR=altoslib_$(ALTOSLIB_VERSION).jar
 
 ALTOSLIB=$(EXT_LIBDIR)/$(ALTOSLIB_JAR)
 
@@ -56,7 +56,10 @@ bin/AltosDroid-release.apk: $(SRC) $(ALTOSLIB)
 	ant release
 endif
 
-clean:
+clean: clean-local
 	$(clean_command)
+
+clean-local:
+	rm -rf $(EXT_LIBDIR)
 
 .PHONY: $(SRC_DIR)/BuildInfo.java

@@ -23,8 +23,8 @@ import javax.swing.*;
 import java.io.*;
 import java.util.concurrent.*;
 import java.util.*;
-import org.altusmetrum.altoslib.*;
-import org.altusmetrum.altosuilib.*;
+import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altosuilib_1.*;
 
 public class MicroPeak extends MicroFrame implements ActionListener, ItemListener {
 

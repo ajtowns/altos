@@ -38,7 +38,7 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altoslib_1.*;
 
 public class TelemetryService extends Service {
 

@@ -21,8 +21,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
-import org.altusmetrum.altoslib.*;
-import org.altusmetrum.altosuilib.*;
+import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altosuilib_1.*;
 
 public class AltosCSVUI
 	extends AltosUIDialog

@@ -1,0 +1,11 @@
+#!/bin/sh -vx
+
+sed_opts='-i'
+
+for i in "$@"; do
+	name=`echo $i | sed 's/=.*$//'`
+	value=`echo $i | sed 's/.*=//'`
+	sed_opts="$sed_opts -e s/${name}_*[0-9]*/${name}_${value}/g"
+done
+
+find . -name '*.java*' -print0 | xargs -0 sed $sed_opts

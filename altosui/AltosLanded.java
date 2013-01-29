@@ -21,7 +21,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
-import org.altusmetrum.altoslib.*;
+import org.altusmetrum.altoslib_1.*;
 
 public class AltosLanded extends JComponent implements AltosFlightDisplay, ActionListener {
 	GridBagLayout	layout;

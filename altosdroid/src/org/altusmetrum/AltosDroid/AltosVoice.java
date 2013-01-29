@@ -21,7 +21,7 @@ package org.altusmetrum.AltosDroid;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 
-import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altoslib_1.*;
 
 public class AltosVoice {
 

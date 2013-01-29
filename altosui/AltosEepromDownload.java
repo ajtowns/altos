@@ -23,7 +23,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.concurrent.*;
-import org.altusmetrum.altoslib.*;
+import org.altusmetrum.altoslib_1.*;
 
 public class AltosEepromDownload implements Runnable {
 

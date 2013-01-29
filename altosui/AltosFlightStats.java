@@ -18,7 +18,7 @@
 package altosui;
 
 import java.io.*;
-import org.altusmetrum.altoslib.*;
+import org.altusmetrum.altoslib_1.*;
 
 public class AltosFlightStats {
 	double		max_height;

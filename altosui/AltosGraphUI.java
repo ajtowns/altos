@@ -9,8 +9,8 @@ import java.util.ArrayList;
 
 import java.awt.*;
 import javax.swing.*;
-import org.altusmetrum.altoslib.*;
-import org.altusmetrum.altosuilib.*;
+import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altosuilib_1.*;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;

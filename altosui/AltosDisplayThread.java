@@ -21,7 +21,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.io.*;
 import java.text.*;
-import org.altusmetrum.altoslib.*;
+import org.altusmetrum.altoslib_1.*;
 
 public class AltosDisplayThread extends Thread {
 

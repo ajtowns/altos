@@ -20,8 +20,8 @@ package org.altusmetrum.micropeak;
 import java.awt.*;
 import java.io.*;
 import javax.swing.*;
-import org.altusmetrum.altoslib.*;
-import org.altusmetrum.altosuilib.*;
+import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altosuilib_1.*;
 
 public class MicroRaw extends JTextArea {
 

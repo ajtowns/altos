@@ -7,7 +7,7 @@ package altosui;
 import java.lang.UnsupportedOperationException;
 import java.util.NoSuchElementException;
 import java.util.Iterator;
-import org.altusmetrum.altoslib.*;
+import org.altusmetrum.altoslib_1.*;
 
 class AltosDataPointReader implements Iterable<AltosDataPoint> {
     Iterator<AltosRecord> iter;

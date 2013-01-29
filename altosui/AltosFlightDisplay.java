@@ -17,7 +17,7 @@
 
 package altosui;
 
-import org.altusmetrum.altoslib.*;
+import org.altusmetrum.altoslib_1.*;
 
 public interface AltosFlightDisplay {
 	void reset();

@@ -24,7 +24,7 @@ altosuilib_JAVA = \
 	AltosUIVersion.java \
 	AltosUnitsListener.java
 
-JAR=altosuilib.jar
+JAR=altosuilib_$(ALTOSUILIB_VERSION).jar
 
 all-local: $(JAR)
 

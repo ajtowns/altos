@@ -26,7 +26,7 @@ import java.text.*;
 import java.lang.Math;
 import java.net.URL;
 import java.net.URLConnection;
-import org.altusmetrum.altosuilib.*;
+import org.altusmetrum.altosuilib_1.*;
 
 class AltosMapPos extends Box {
 	AltosUI		owner;

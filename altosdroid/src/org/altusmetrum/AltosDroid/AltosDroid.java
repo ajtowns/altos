@@ -43,7 +43,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.app.AlertDialog;
 
-import org.altusmetrum.AltosLib.*;
+import org.altusmetrum.altoslib_1.*;
 
 /**
  * This is the main Activity that displays the current chat session.

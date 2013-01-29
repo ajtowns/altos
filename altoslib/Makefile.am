@@ -7,89 +7,88 @@ VERSION=1
 CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH="bin:$(FREETTS)/*:/usr/share/java/*"
 
 SRC=.
-BIN=bin/org/altusmetrum/AltosLib
 
-AltosLibdir = $(datadir)/java
+altoslibdir = $(datadir)/java
 
-AltosLib_JAVA = \
-	$(SRC)/AltosLib.java \
-	$(SRC)/AltosConfigData.java \
-	$(SRC)/AltosConfigValues.java \
-	$(SRC)/AltosConvert.java \
-	$(SRC)/AltosCRCException.java \
-	$(SRC)/AltosEepromChunk.java \
-	$(SRC)/AltosEepromIterable.java \
-	$(SRC)/AltosEepromLog.java \
-	$(SRC)/AltosEepromMega.java \
-	$(SRC)/AltosEepromMegaIterable.java \
-	$(SRC)/AltosEepromRecord.java \
-	$(SRC)/AltosEepromTeleScience.java \
-	$(SRC)/AltosFile.java \
-	$(SRC)/AltosFlightReader.java \
-	$(SRC)/AltosFrequency.java \
-	$(SRC)/AltosGPS.java \
-	$(SRC)/AltosGPSQuery.java \
-	$(SRC)/AltosGPSSat.java \
-	$(SRC)/AltosGreatCircle.java \
-	$(SRC)/AltosIdleMonitor.java \
-	$(SRC)/AltosIdleMonitorListener.java \
-	$(SRC)/AltosIgnite.java \
-	$(SRC)/AltosIMU.java \
-	$(SRC)/AltosIMUQuery.java \
-	$(SRC)/AltosLine.java \
-	$(SRC)/AltosLink.java \
-	$(SRC)/AltosLog.java \
-	$(SRC)/AltosMs5607.java \
-	$(SRC)/AltosMs5607Query.java \
-	$(SRC)/AltosOrderedRecord.java \
-	$(SRC)/AltosOrderedMegaRecord.java \
-	$(SRC)/AltosParse.java \
-	$(SRC)/AltosPreferences.java \
-	$(SRC)/AltosPreferencesBackend.java \
-	$(SRC)/AltosRecordCompanion.java \
-	$(SRC)/AltosRecordIterable.java \
-	$(SRC)/AltosRecord.java \
-	$(SRC)/AltosRecordNone.java \
-	$(SRC)/AltosRecordTM.java \
-	$(SRC)/AltosRecordMM.java \
-	$(SRC)/AltosReplayReader.java \
-	$(SRC)/AltosSensorMM.java \
-	$(SRC)/AltosSensorTM.java \
-	$(SRC)/AltosState.java \
-	$(SRC)/AltosTelemetry.java \
-	$(SRC)/AltosTelemetryIterable.java \
-	$(SRC)/AltosTelemetryMap.java \
-	$(SRC)/AltosTelemetryReader.java \
-	$(SRC)/AltosTelemetryRecordCompanion.java \
-	$(SRC)/AltosTelemetryRecordConfiguration.java \
-	$(SRC)/AltosTelemetryRecordGeneral.java \
-	$(SRC)/AltosTelemetryRecord.java \
-	$(SRC)/AltosTelemetryRecordLegacy.java \
-	$(SRC)/AltosTelemetryRecordLocation.java \
-	$(SRC)/AltosTelemetryRecordRaw.java \
-	$(SRC)/AltosTelemetryRecordSatellite.java \
-	$(SRC)/AltosTelemetryRecordSensor.java \
-	$(SRC)/AltosTelemetryRecordMegaSensor.java \
-	$(SRC)/AltosTelemetryRecordMegaData.java \
-	$(SRC)/AltosUnitsListener.java \
-	$(SRC)/AltosMs5607.java \
-	$(SRC)/AltosIMU.java \
-	$(SRC)/AltosMag.java \
-	$(SRC)/AltosUnits.java \
-	$(SRC)/AltosDistance.java \
-	$(SRC)/AltosHeight.java \
-	$(SRC)/AltosSpeed.java \
-	$(SRC)/AltosAccel.java \
-	$(SRC)/AltosPyro.java
+altoslib_JAVA = \
+	AltosLib.java \
+	AltosConfigData.java \
+	AltosConfigValues.java \
+	AltosConvert.java \
+	AltosCRCException.java \
+	AltosEepromChunk.java \
+	AltosEepromIterable.java \
+	AltosEepromLog.java \
+	AltosEepromMega.java \
+	AltosEepromMegaIterable.java \
+	AltosEepromRecord.java \
+	AltosEepromTeleScience.java \
+	AltosFile.java \
+	AltosFlightReader.java \
+	AltosFrequency.java \
+	AltosGPS.java \
+	AltosGPSQuery.java \
+	AltosGPSSat.java \
+	AltosGreatCircle.java \
+	AltosIdleMonitor.java \
+	AltosIdleMonitorListener.java \
+	AltosIgnite.java \
+	AltosIMU.java \
+	AltosIMUQuery.java \
+	AltosLine.java \
+	AltosLink.java \
+	AltosLog.java \
+	AltosMs5607.java \
+	AltosMs5607Query.java \
+	AltosOrderedRecord.java \
+	AltosOrderedMegaRecord.java \
+	AltosParse.java \
+	AltosPreferences.java \
+	AltosPreferencesBackend.java \
+	AltosRecordCompanion.java \
+	AltosRecordIterable.java \
+	AltosRecord.java \
+	AltosRecordNone.java \
+	AltosRecordTM.java \
+	AltosRecordMM.java \
+	AltosReplayReader.java \
+	AltosSensorMM.java \
+	AltosSensorTM.java \
+	AltosState.java \
+	AltosTelemetry.java \
+	AltosTelemetryIterable.java \
+	AltosTelemetryMap.java \
+	AltosTelemetryReader.java \
+	AltosTelemetryRecordCompanion.java \
+	AltosTelemetryRecordConfiguration.java \
+	AltosTelemetryRecordGeneral.java \
+	AltosTelemetryRecord.java \
+	AltosTelemetryRecordLegacy.java \
+	AltosTelemetryRecordLocation.java \
+	AltosTelemetryRecordRaw.java \
+	AltosTelemetryRecordSatellite.java \
+	AltosTelemetryRecordSensor.java \
+	AltosTelemetryRecordMegaSensor.java \
+	AltosTelemetryRecordMegaData.java \
+	AltosUnitsListener.java \
+	AltosMs5607.java \
+	AltosIMU.java \
+	AltosMag.java \
+	AltosUnits.java \
+	AltosDistance.java \
+	AltosHeight.java \
+	AltosSpeed.java \
+	AltosAccel.java \
+	AltosPyro.java
 
-JAR=AltosLib.jar
+JAR=altoslib_$(ALTOSLIB_VERSION).jar
 
 all-local: $(JAR)
 
 clean-local:
 	-rm -rf bin $(JAR)
 
-install-AltosLibJAVA: $(JAR)
+install-altoslibJAVA: $(JAR)
 	@$(NORMAL_INSTALL)
 	test -z "$(AltosLibdir)" || $(MKDIR_P) "$(DESTDIR)$(AltosLibdir)"
 	echo " $(INSTALL_DATA)" "$<" "'$(DESTDIR)$(AltosLibdir)/$(JAR)"; \

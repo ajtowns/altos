@@ -20,7 +20,7 @@ package altosui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import org.altusmetrum.altosuilib.*;
+import org.altusmetrum.altosuilib_1.*;
 
 public class AltosDeviceUIDialog extends AltosDeviceDialog {
 

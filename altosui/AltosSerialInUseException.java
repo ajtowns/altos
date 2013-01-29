@@ -16,7 +16,7 @@
  */
 
 package altosui;
-import org.altusmetrum.altosuilib.*;
+import org.altusmetrum.altosuilib_1.*;
 
 public class AltosSerialInUseException extends Exception {
 	public AltosDevice	device;
