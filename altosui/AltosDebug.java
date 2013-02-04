@@ -254,7 +254,7 @@ public class AltosDebug extends AltosSerial {
 
 	public AltosRomconfig romconfig() {
 		try {
-			byte[] bytes = read_memory(0xa0, 10);
+			byte[] bytes = read_memory(0xa0, 512);
 			return new AltosRomconfig(bytes, 0);
 		} catch (IOException ie) {
 		} catch (InterruptedException ie) {
