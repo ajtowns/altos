@@ -97,5 +97,5 @@ install-altoslibJAVA: $(JAR)
 bin:
 	mkdir -p bin
 
-$(JAR): classAltosLib.stamp
+$(JAR): classaltoslib.stamp
 	jar cf $@ -C bin org
