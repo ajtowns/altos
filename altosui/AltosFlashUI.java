@@ -232,7 +232,8 @@ public class AltosFlashUI
 
 		public void run () {
 			try {
-				flash = new AltosFlash(ui.file, ui.debug_dongle);
+				flash = new AltosFlash(ui.debug_dongle);
+				flash.set_file(ui.file);
 				flash.addActionListener(ui);
 
 				final AltosRomconfig	current_config = flash.romconfig();

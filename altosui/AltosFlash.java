@@ -23,8 +23,6 @@ import java.io.*;
 import org.altusmetrum.altosuilib.*;
 
 public class AltosFlash {
-	File		file;
-	FileInputStream	input;
 	AltosHexfile	image;
 	JFrame		frame;
 	AltosDevice	debug_dongle;
@@ -357,14 +355,18 @@ public class AltosFlash {
 		return rom_config;
 	}
 
-	public AltosFlash(File in_file, AltosDevice in_debug_dongle)
+	public void set_file(File file)
+		throws IOException, FileNotFoundException {
+		FileInputStream	input;
+		input = new FileInputStream(file);
+		image = new AltosHexfile(input);
+	}
+
+	public AltosFlash(AltosDevice in_debug_dongle)
 		throws IOException, FileNotFoundException, AltosSerialInUseException, InterruptedException {
-		file = in_file;
 		debug_dongle = in_debug_dongle;
 		if (debug_dongle != null)
 			debug = new AltosDebug(in_debug_dongle);
-		input = new FileInputStream(file);
-		image = new AltosHexfile(input);
 		if (debug != null && !debug.check_connection()) {
 			debug.close();
 			throw new IOException("Debug port not connected");
