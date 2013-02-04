@@ -28,10 +28,12 @@ public class AltosRomconfigUI
 {
 	Container	pane;
 	Box		box;
+	JLabel		product_label;
 	JLabel		serial_label;
 	JLabel		radio_calibration_label;
 
 	JFrame		owner;
+	JLabel		product_value;
 	JTextField	serial_value;
 	JTextField	radio_calibration_value;
 
@@ -51,9 +53,29 @@ public class AltosRomconfigUI
 		pane = getContentPane();
 		pane.setLayout(new GridBagLayout());
 
-		/* Serial */
+		/* Product */
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = 0;
+		c.gridwidth = 3;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
+		product_label = new JLabel("Product:");
+		pane.add(product_label, c);
+
+		c = new GridBagConstraints();
+		c.gridx = 3; c.gridy = 0;
+		c.gridwidth = 3;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		product_value = new JLabel("TeleSomething-v0.00");
+		pane.add(product_value, c);
+
+		/* Serial */
+		c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = 1;
 		c.gridwidth = 3;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -62,7 +84,7 @@ public class AltosRomconfigUI
 		pane.add(serial_label, c);
 
 		c = new GridBagConstraints();
-		c.gridx = 3; c.gridy = 0;
+		c.gridx = 3; c.gridy = 1;
 		c.gridwidth = 3;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
@@ -73,7 +95,7 @@ public class AltosRomconfigUI
 
 		/* Radio calibration value */
 		c = new GridBagConstraints();
-		c.gridx = 0; c.gridy = 1;
+		c.gridx = 0; c.gridy = 2;
 		c.gridwidth = 3;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
@@ -83,7 +105,7 @@ public class AltosRomconfigUI
 		pane.add(radio_calibration_label, c);
 
 		c = new GridBagConstraints();
-		c.gridx = 3; c.gridy = 1;
+		c.gridx = 3; c.gridy = 2;
 		c.gridwidth = 3;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
@@ -95,7 +117,7 @@ public class AltosRomconfigUI
 
 		/* Buttons */
 		c = new GridBagConstraints();
-		c.gridx = 0; c.gridy = 2;
+		c.gridx = 0; c.gridy = 3;
 		c.gridwidth = 3;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
@@ -106,7 +128,7 @@ public class AltosRomconfigUI
 		ok.setActionCommand("ok");
 
 		c = new GridBagConstraints();
-		c.gridx = 3; c.gridy = 2;
+		c.gridx = 3; c.gridy = 3;
 		c.gridwidth = 3;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
@@ -145,6 +167,14 @@ public class AltosRomconfigUI
 		setVisible(false);
 	}
 
+	String product() {
+		return product_value.getText();
+	}
+
+	void set_product(String product) {
+		product_value.setText(product);
+	}
+
 	int serial() {
 		return Integer.parseInt(serial_value.getText());
 	}
@@ -163,6 +193,7 @@ public class AltosRomconfigUI
 
 	public void set(AltosRomconfig config) {
 		if (config != null && config.valid()) {
+			set_product(config.product_name);
 			set_serial(config.serial_number);
 			set_radio_calibration(config.radio_calibration);
 		}
