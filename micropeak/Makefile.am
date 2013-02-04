@@ -44,10 +44,10 @@ LIBALTOS= \
 	altos.dll
 
 ALTOSLIB_CLASS=\
-	AltosLib.jar
+	altoslib_$(ALTOSLIB_VERSION).jar
 
 ALTOSUILIB_CLASS=\
-	altosuilib.jar
+	altosuilib_$(ALTOSUILIB_VERSION).jar
 
 # Icons
 ICONDIR=$(top_srcdir)/icon
