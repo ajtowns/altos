@@ -22,6 +22,7 @@ public class AltosRomconfig {
 	public boolean	valid;
 	public int	version;
 	public int	check;
+	public String	product_name;
 	public int	serial_number;
 	public int	radio_calibration;
 
@@ -53,20 +54,39 @@ public class AltosRomconfig {
 
 	static final int AO_USB_DESC_STRING	= 3;
 
-	static void put_usb_serial(int value, byte[] bytes, int start) {
+	static int get_usb_string_offset(int strnum, byte[] bytes, int start) {
 		int offset = start + 0xa;
-		int string_num = 0;
+		int string_count = 0;
 
 		while (offset < bytes.length && bytes[offset] != 0) {
 			if (bytes[offset + 1] == AO_USB_DESC_STRING) {
-				++string_num;
-				if (string_num == 4)
-					break;
+				++string_count;
+				if (string_count == strnum)
+					return offset;
 			}
 			offset += ((int) bytes[offset]) & 0xff;
 		}
-		if (offset >= bytes.length || bytes[offset] == 0)
+		return 0;
+	}
+
+	static String get_usb_product(byte[] bytes, int start) {
+		int offset = get_usb_string_offset(3, bytes, start);
+		if (offset == 0)
+			return "unknown";
+
+		int len = ((((int) bytes[offset]) & 0xff) -2) / 2;
+		char[] result = new char[len];
+		for (int i = 0; i < len; i++) {
+			result[i] = (char) bytes[offset + 2 + i*2];
+		}
+		return new String(result);
+	}
+
+	static void put_usb_serial(int value, byte[] bytes, int start) {
+		int offset = get_usb_string_offset(4, bytes, start);
+		if (offset == 0)
 			return;
+
 		int len = ((((int) bytes[offset]) & 0xff) - 2) / 2;
 		String fmt = String.format("%%0%dd", len);
 
@@ -85,9 +105,11 @@ public class AltosRomconfig {
 	public AltosRomconfig(byte[] bytes, int offset) {
 		version = get_int(bytes, offset + 0, 2);
 		check = get_int(bytes, offset + 2, 2);
+		product_name = "unknown";
 		if (check == (~version & 0xffff)) {
 			switch (version) {
 			case 2:
+				product_name = get_usb_product(bytes, offset);
 			case 1:
 				serial_number = get_int(bytes, offset + 4, 2);
 				radio_calibration = get_int(bytes, offset + 6, 4);
