@@ -536,6 +536,7 @@ public class AltosUI extends AltosUIFrame {
 		System.out.printf("    --graph <filename>\t\tgraph a flight\n");
 		System.out.printf("    --csv\tgenerate comma separated output for spreadsheets, etc\n");
 		System.out.printf("    --kml\tgenerate KML output for use with Google Earth\n");
+		System.out.printf("    --flash\tflash new firmware to a device\n");
 		System.exit(code);
 	}
 	
@@ -567,6 +568,10 @@ public class AltosUI extends AltosUIFrame {
 						AltosSiteMap.prefetchMaps(lat, lon, 5, 5);
 						i += 2;
 					}
+				} else if (args[i].equals("--flash")) {
+					AltosFlashUI.show(null);
+					System.exit(0);
+					return;
 				} else if (args[i].equals("--replay"))
 					process = process_replay;
 				else if (args[i].equals("--kml"))
