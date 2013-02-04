@@ -67,10 +67,11 @@ ao_micro_report(void)
 {
 	if (running) {
 		alt_t	ground = ao_pa_to_altitude(pa_ground);
-		printf ("%6.2f %10d %10d %10d\n", now / 100.0,
+		printf ("%6.3f %10d %10d %10d %10d %10d\n", now / 100.0,
 			ao_pa_to_altitude(pa) - ground,
 			ao_pa_to_altitude(ao_pa) - ground,
-			ao_pa_to_altitude(pa_min) - ground);
+			ao_pa_to_altitude(pa_min) - ground,
+			ao_pa_speed, ao_pa_accel);
 	}
 }
 
@@ -92,14 +93,24 @@ ao_pa_get(void)
 	double		time;
 	double		pressure;
 	static double	last_time;
+	static double	last_pressure;
 	static int	been_here;
 	static int	start_samples;
+	static int	is_mp;
+	static int	use_saved;
 
 	if (been_here && start_samples < 100) {
 		start_samples++;
 		return;
 	}
 	ao_micro_report();
+	if (use_saved) {
+		pa = last_pressure;
+		now = last_time;
+		use_saved = 0;
+//		printf ("use saved %d %d\n", now, pa);
+		return;
+	}
 	for (;;) {
 		if (!fgets(line, sizeof (line), emulator_in))
 			exit(0);
@@ -119,15 +130,32 @@ ao_pa_get(void)
 				}
 			}
 			continue;
+		} else if (!strcmp(toks[0], "Time")) {
+			time_id = 0;
+			pa_id = 1;
+			is_mp = 1;
+			continue;
 		}
 		time = strtod(toks[time_id],NULL);
 		pressure = strtod(toks[pa_id],NULL);
-		if (been_here && time - last_time < 0.1)
+		time *= 100;
+		if (been_here && time - last_time < 0.096 * 100)
 			continue;
-		been_here = 1;
+		if (is_mp && been_here) {
+			double	avg_pressure = (pressure + last_pressure) / 2.0;
+			double	avg_time = (time + last_time) / 2.0;
+
+			now = avg_time;
+			pa = avg_pressure;
+//			printf ("new %d %d\n", now, pa);
+			use_saved = 1;
+		} else {
+			now = floor (time + 0.5);
+			pa = pressure;
+		}
+		last_pressure = pressure;
 		last_time = time;
-		now = floor (time * 100 + 0.5);
-		pa = pressure;
+		been_here = 1;
 		break;
 	}
 }

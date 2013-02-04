@@ -62,5 +62,5 @@ ao_aprs_data.wav: ao_aprs_test
 check: ao_fec_test ao_flight_test ao_flight_test_baro run-tests
 	./ao_fec_test && ./run-tests
 
-ao_micropeak_test: ao_micropeak_test.c ao_microflight.c
+ao_micropeak_test: ao_micropeak_test.c ao_microflight.c ao_kalman.h
 	cc $(CFLAGS) -o $@ ao_micropeak_test.c -lm
