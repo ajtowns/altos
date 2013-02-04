@@ -569,8 +569,7 @@ public class AltosUI extends AltosUIFrame {
 						i += 2;
 					}
 				} else if (args[i].equals("--flash")) {
-					AltosFlashUI.show(null);
-					System.exit(0);
+					AltosFlashUI.show_and_exit();
 					return;
 				} else if (args[i].equals("--replay"))
 					process = process_replay;

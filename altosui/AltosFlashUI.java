@@ -219,6 +219,17 @@ public class AltosFlashUI
 		Thread		t;
 		AltosFlash	flash;
 
+		public void join () {
+			for (;;) {
+				try {
+					t.join();
+					return;
+				} catch (InterruptedException ee) {
+					// wait some more
+				}
+			}
+		}
+
 		public void run () {
 			try {
 				flash = new AltosFlash(ui.file, ui.debug_dongle);
@@ -274,21 +285,27 @@ public class AltosFlashUI
 		}
 	}
 
-	flash_task	flasher;
-
 	/*
 	 * Execute the steps for flashing
 	 * a device. Note that this returns immediately;
 	 * this dialog is not modal
 	 */
-	void showDialog() {
+	flash_task showDialog() {
 		if (!select_debug_dongle())
-			return;
+			return null;
 		if (!select_source_file())
-			return;
+			return null;
 		build_dialog();
-		flash_task	f = new flash_task(this);
+		return new flash_task(this);
 	}
+
+	static void show_and_exit() {
+		AltosFlashUI	ui = new AltosFlashUI(null);
+		flash_task	flasher = ui.showDialog();
+		if (flasher == null) return;
+		flasher.join();
+	}
+
 
 	static void show(JFrame frame) {
 		AltosFlashUI	ui = new AltosFlashUI(frame);
