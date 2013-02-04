@@ -21,6 +21,27 @@
 #define MPU6000_ADDR_WRITE	0xd0
 #define MPU6000_ADDR_READ	0xd1
 
+/* From Tridge */
+#define MPUREG_XG_OFFS_TC 0x00
+#define MPUREG_YG_OFFS_TC 0x01
+#define MPUREG_ZG_OFFS_TC 0x02
+#define MPUREG_X_FINE_GAIN 0x03
+#define MPUREG_Y_FINE_GAIN 0x04
+#define MPUREG_Z_FINE_GAIN 0x05
+#define MPUREG_XA_OFFS_H 0x06 // X axis accelerometer offset (high byte)
+#define MPUREG_XA_OFFS_L 0x07 // X axis accelerometer offset (low byte)
+#define MPUREG_YA_OFFS_H 0x08 // Y axis accelerometer offset (high byte)
+#define MPUREG_YA_OFFS_L 0x09 // Y axis accelerometer offset (low byte)
+#define MPUREG_ZA_OFFS_H 0x0A // Z axis accelerometer offset (high byte)
+#define MPUREG_ZA_OFFS_L 0x0B // Z axis accelerometer offset (low byte)
+#define MPUREG_PRODUCT_ID 0x0C // Product ID Register
+#define MPUREG_XG_OFFS_USRH 0x13 // X axis gyro offset (high byte)
+#define MPUREG_XG_OFFS_USRL 0x14 // X axis gyro offset (low byte)
+#define MPUREG_YG_OFFS_USRH 0x15 // Y axis gyro offset (high byte)
+#define MPUREG_YG_OFFS_USRL 0x16 // Y axis gyro offset (low byte)
+#define MPUREG_ZG_OFFS_USRH 0x17 // Z axis gyro offset (high byte)
+#define MPUREG_ZG_OFFS_USRL 0x18 // Z axis gyro offset (low byte)
+
 #define MPU6000_SMPRT_DIV	0x19
 
 #define MPU6000_CONFIG		0x1a
@@ -162,5 +183,21 @@ extern struct ao_mpu6000_sample	ao_mpu6000_current;
 
 void
 ao_mpu6000_init(void);
+
+/* Product ID Description for MPU6000
+ * high 4 bits low 4 bits
+ * Product Name Product Revision
+ */
+#define MPU6000ES_REV_C4 0x14	/* 0001 0100 */
+#define MPU6000ES_REV_C5 0x15	/* 0001 0101 */
+#define MPU6000ES_REV_D6 0x16	/* 0001 0110 */
+#define MPU6000ES_REV_D7 0x17	/* 0001 0111 */
+#define MPU6000ES_REV_D8 0x18	/* 0001 1000 */
+#define MPU6000_REV_C4 0x54	/* 0101 0100 */
+#define MPU6000_REV_C5 0x55	/* 0101 0101 */
+#define MPU6000_REV_D6 0x56	/* 0101 0110 */
+#define MPU6000_REV_D7 0x57	/* 0101 0111 */
+#define MPU6000_REV_D8 0x58	/* 0101 1000 */
+#define MPU6000_REV_D9 0x59	/* 0101 1001 */
 
 #endif /* _AO_MPU6000_H_ */

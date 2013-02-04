@@ -199,6 +199,24 @@ ao_mpu6000_setup(void)
 	ao_delay(AO_MS_TO_TICKS(200));
 	ao_mpu6000_sample(&test_mode);
 
+#if TRIDGE
+	// read the product ID rev c has 1/2 the sensitivity of rev d
+    _mpu6000_product_id = _register_read(MPUREG_PRODUCT_ID);
+    //Serial.printf("Product_ID= 0x%x\n", (unsigned) _mpu6000_product_id);
+
+    if ((_mpu6000_product_id == MPU6000ES_REV_C4) || (_mpu6000_product_id == MPU6000ES_REV_C5) ||
+        (_mpu6000_product_id == MPU6000_REV_C4) || (_mpu6000_product_id == MPU6000_REV_C5)) {
+        // Accel scale 8g (4096 LSB/g)
+        // Rev C has different scaling than rev D
+        register_write(MPUREG_ACCEL_CONFIG,1<<3);
+    } else {
+        // Accel scale 8g (4096 LSB/g)
+        register_write(MPUREG_ACCEL_CONFIG,2<<3);
+    }
+    hal.scheduler->delay(1);
+
+#endif
+
 	/* Configure accelerometer to +/-16G */
 	ao_mpu6000_reg_write(MPU6000_ACCEL_CONFIG,
 			     (0 << MPU600_ACCEL_CONFIG_XA_ST) |
