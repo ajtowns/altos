@@ -21,6 +21,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileFilter;
 import java.io.*;
 import java.util.concurrent.*;
 import org.altusmetrum.altosuilib.*;
@@ -46,6 +47,9 @@ public class AltosFlashUI
 	// Debug connection
 	AltosDevice	debug_dongle;
 
+	// Current product name pulled from debug connection
+	String		cur_product_name;
+
 	// Desired Rom configuration
 	AltosRomconfig	rom_config;
 
@@ -54,6 +58,24 @@ public class AltosFlashUI
 
 	// Thread for doing the flashing
 	Thread		thread;
+
+	class FlashFilter extends FileFilter {
+		public boolean accept(File f) {
+			if (!f.isFile())
+				return true;
+
+			String name = f.getName().toLowerCase();
+			if (!name.endsWith(".ihx"))
+				return false;
+			if (!name.startsWith(cur_product_name.toLowerCase()))
+				return false;
+			return true;
+		}
+
+		public String getDescription() {
+			return "Flash Images for " + cur_product_name;
+		}
+	}
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == cancel) {
@@ -166,7 +188,8 @@ public class AltosFlashUI
 			hexfile_chooser.setCurrentDirectory(firmwaredir);
 
 		hexfile_chooser.setDialogTitle("Select Flash Image");
-		hexfile_chooser.setFileFilter(new FileNameExtensionFilter("Flash Image", "ihx"));
+		hexfile_chooser.addChoosableFileFilter(new FileNameExtensionFilter("All Flash Images", "ihx"));
+		hexfile_chooser.setFileFilter(new FlashFilter());
 		int returnVal = hexfile_chooser.showOpenDialog(frame);
 
 		if (returnVal != JFileChooser.APPROVE_OPTION)
@@ -221,15 +244,19 @@ public class AltosFlashUI
 		try {
 			if (!select_debug_dongle())
 				return;
-			if (!select_source_file())
-				return;
-			build_dialog();
 
 			flash = new AltosFlash(debug_dongle);
+			final AltosRomconfig	current_config = flash.romconfig();
+			cur_product_name = current_config.product_name;
+
+			if (!select_source_file())
+				return;
+
+			build_dialog();
+
 			flash.set_file(file);
 			flash.addActionListener(this);
 
-			final AltosRomconfig	current_config = flash.romconfig();
 
 			final Semaphore await_rom_config = new Semaphore(0);
 			SwingUtilities.invokeLater(new Runnable() {
