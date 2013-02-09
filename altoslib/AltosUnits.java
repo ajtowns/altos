@@ -43,6 +43,10 @@ public abstract class AltosUnits {
 		return String.format("%%1.%df %s", say_fraction(), say_units());
 	}
 
+	public String graph_format(int width) {
+		return String.format(String.format("%%%d.%df", width, show_fraction(width)), 0.0);
+	}
+
 	public String show(int width, double v) {
 		return String.format(show_format(width), value(v));
 	}
