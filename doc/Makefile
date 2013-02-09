@@ -18,6 +18,7 @@ DOC=$(HTML) $(PDF)
 HTMLSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/html/docbook.xsl
 FOSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl
 PDFSTYLE=
+IMAGES=telemetrum.svg telemini.svg
 
 .SUFFIXES: .xsl .html .fo .pdf
 
@@ -50,8 +51,8 @@ clean:
 distclean:
 	rm -f $(HTML) $(PDF) *.fo
 
-altusmetrum.html: $(RELNOTES_XSL)
-altusmetrum.fo: $(RELNOTES_XSL)
+altusmetrum.html: $(RELNOTES_XSL) $(IMAGES)
+altusmetrum.fo: $(RELNOTES_XSL) $(IMAGES)
 
 indent:		altusmetrum.xsl
 	xmlindent -i 2 < altusmetrum.xsl > altusmetrum.new

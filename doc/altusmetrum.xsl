@@ -2492,6 +2492,29 @@ NAR #88757, TRA #12200
     </para>
   </appendix>
   <appendix>
+    <title>Drill Templates</title>
+    <para>
+      These images, when printed, provide precise templates for the
+      mounting holes in Altus Metrum flight computers
+    </para>
+    <section>
+      <title>TeleMetrum template</title>
+      <mediaobject id="TeleMetrumTemplate">
+	<imageobject>
+	  <imagedata format="SVG" fileref="telemetrum.svg"/>
+	</imageobject>
+      </mediaobject>
+    </section>
+    <section>
+      <title>TeleMini template</title>
+      <mediaobject id="TeleMiniTemplate">
+	<imageobject>
+	  <imagedata format="SVG" fileref="telemini.svg"/>
+	</imageobject>
+      </mediaobject>
+    </section>
+  </appendix>
+  <appendix>
       <title>Calibration</title>
       <para>
         There are only two calibrations required for a TeleMetrum board, and

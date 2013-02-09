@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<svg
+       xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   width="5in"
+   height="2in"
+   viewBox="0 0 500 200"
+   preserveaspectratio="none"
+   id="svg2"
+   version="1.1">
+  <g transform="translate(175,75)"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linejoin:miter;font-family:Frutiger LT Std">
+    <!-- outline -->
+    <rect width="150" height="50" x="0" y="0"/>
+    <!-- holes -->
+    <path d="M135,10 A5,5,0,1,0,145,10 A5,5,0,1,0,135,10 M135,10 l10,0 M140,5 l0,10"/>
+    <path d="M135,40 A5,5,0,1,0,145,40 A5,5,0,1,0,135,40 M135,40 l10,0 M140,35 l0,10"/>
+    <!-- arrow -->
+    <path d="M25,25 l90,0"/>
+    <path style="fill:#000000;stroke:none" d="M115,20 l10,5 l-10,5 z"/>
+    <!-- label -->
+    <text x="75" y="20" style="fill:#000000;stroke:none" text-anchor="middle">TeleMini</text>
+    <g transform="rotate(90)">
+      <text x="25" y="-130" style="fill:#000000;stroke:none" text-anchor="middle">UP</text>
+    </g>
+  </g>
+</svg>
