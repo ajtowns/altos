@@ -22,7 +22,7 @@
       <surname>Towns</surname>
     </author>
     <copyright>
-      <year>2012</year>
+      <year>2013</year>
       <holder>Bdale Garbee and Keith Packard</holder>
     </copyright>
     <legalnotice>
