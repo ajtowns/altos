@@ -21,6 +21,7 @@ import java.lang.*;
 import java.io.*;
 import java.util.*;
 import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altosuilib_1.*;
 
 class MicroIterator implements Iterator<MicroDataPoint> {
 	int		i;
@@ -56,7 +57,40 @@ class MicroIterable implements Iterable<MicroDataPoint> {
 	}
 }
 
-public class MicroData {
+class MicroUIIterator implements Iterator<AltosUIDataPoint> {
+	int		i;
+	MicroData	data;
+
+	public boolean hasNext() {
+		return i < data.pressures.length;
+	}
+
+	public AltosUIDataPoint next() {
+		return new MicroDataPoint(data, i++);
+	}
+
+	public MicroUIIterator (MicroData data) {
+		this.data = data;
+		i = 0;
+	}
+
+	public void remove() {
+	}
+}
+
+class MicroUIIterable implements Iterable<AltosUIDataPoint> {
+	MicroData	data;
+
+	public Iterator<AltosUIDataPoint> iterator() {
+		return new MicroUIIterator(data);
+	}
+
+	public MicroUIIterable(MicroData data) {
+		this.data = data;
+	}
+}
+
+public class MicroData implements AltosUIDataSet {
 	public int		ground_pressure;
 	public int		min_pressure;
 	public int[]		pressures;
@@ -65,7 +99,6 @@ public class MicroData {
 	private ArrayList<Integer>	bytes;
 	String			name;
 	
-
 	class FileEndedException extends Exception {
 	}
 
@@ -176,6 +209,14 @@ public class MicroData {
 
 	public double altitude(int i) {
 		return AltosConvert.pressure_to_altitude(pressures[i]);
+	}
+
+	public String name() {
+		return name;
+	}
+
+	public Iterable<AltosUIDataPoint> dataPoints() {
+		return new MicroUIIterable(this);
 	}
 
 	public Iterable<MicroDataPoint> points() {

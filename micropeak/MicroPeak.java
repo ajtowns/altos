@@ -30,6 +30,7 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 
 	File		filename;
 	MicroGraph	graph;
+	AltosUIEnable	enable;
 	MicroStatsTable	stats;
 	MicroRaw	raw;
 	MicroData	data;
@@ -44,7 +45,7 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 			return mp.SetData(data);
 		}
 		this.data = data;
-		graph.setData(data);
+		graph.setDataSet(data);
 		stats.setData(data);
 		raw.setData(data);
 		setTitle(data.name);
@@ -236,10 +237,12 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 			}
 		});
 
-		graph = new MicroGraph();
+		enable = new AltosUIEnable();
+		graph = new MicroGraph(enable);
 		stats = new MicroStatsTable();
 		raw = new MicroRaw();
 		pane.add(graph.panel, "Graph");
+		pane.add(enable, "Configure Graph");
 		pane.add(stats, "Statistics");
 		JScrollPane scroll = new JScrollPane(raw);
 		pane.add(scroll, "Raw Data");

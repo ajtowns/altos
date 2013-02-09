@@ -17,12 +17,35 @@
 
 package org.altusmetrum.micropeak;
 
-public class MicroDataPoint {
+import org.altusmetrum.altosuilib_1.*;
+
+public class MicroDataPoint implements AltosUIDataPoint {
 	public double	time;
 	public double	pressure;
 	public double	height;
 	public double	speed;
 	public double	accel;
+
+	public static final int data_height = 0;
+	public static final int data_speed = 1;
+	public static final int data_accel = 2;
+
+	public double x() {
+		return time;
+	}
+
+	public double y(int index) {
+		switch (index) {
+		case data_height:
+			return height;
+		case data_speed:
+			return speed;
+		case data_accel:
+			return accel;
+		default:
+			return 0;
+		}
+	}
 
 	public MicroDataPoint (double pressure, double height, double speed, double accel, double time) {
 		this.pressure = pressure;
