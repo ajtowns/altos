@@ -122,7 +122,7 @@ NAR #88757, TRA #12200
       support optional capabilities in the future.
     </para>
     <para>
-      The newest device is TeleMini, a dual deploy altimeter with
+      Our second device was TeleMini, a dual deploy altimeter with
       radio telemetry and radio direction finding. This device is only
       13mm by 38mm (½ inch by 1½ inches) and can fit easily in an 18mm 
       air-frame.
@@ -172,8 +172,9 @@ NAR #88757, TRA #12200
     <para>
       The TeleMini battery can be charged by disconnecting it from the
       TeleMini board and plugging it into a standalone battery charger 
-      board, and connecting that via a USB cable to a laptop or other USB
-      power source
+      such as the LipoCharger product included in TeleMini Starter Kits, 
+      and connecting that via a USB cable to a laptop or other USB
+      power source.  
     </para>
     <para>
       The other active device in the starter kit is the TeleDongle USB to
@@ -1583,7 +1584,9 @@ NAR #88757, TRA #12200
         <title>On the Ground</title>
         <para>
           To receive the data stream from the rocket, you need an antenna and short
-          feed-line connected to one of our <ulink url="http://www.altusmetrum.org/TeleDongle/">TeleDongle</ulink> units.  The
+          feed-line connected to one of our <ulink url="http://www.altusmetrum.org/TeleDongle/">TeleDongle</ulink> units.  If possible, use an SMA to BNC 
+	adapter instead of feedline between the antenna feedpoint and 
+	TeleDongle, as this will give you the best performance.  The
           TeleDongle in turn plugs directly into the USB port on a notebook
           computer.  Because TeleDongle looks like a simple serial port, your computer
           does not require special device drivers... just plug it in.
@@ -1620,7 +1623,7 @@ NAR #88757, TRA #12200
           So, to recap, on the ground the hardware you'll need includes:
           <orderedlist inheritnum='inherit' numeration='arabic'>
             <listitem>
-              an antenna and feed-line
+              an antenna and feed-line or adapter
             </listitem>
             <listitem>
               a TeleDongle
@@ -1643,7 +1646,9 @@ NAR #88757, TRA #12200
             Arrow Antennas.
           </ulink>
           The 440-3 and 440-5 are both good choices for finding a
-          TeleMetrum- or TeleMini- equipped rocket when used with a suitable 70cm HT.
+          TeleMetrum- or TeleMini- equipped rocket when used with a suitable 
+	  70cm HT.  TeleDongle and an SMA to BNC adapter fit perfectly
+	  between the driven element and reflector of Arrow antennas.
         </para>
       </section>
       <section>
@@ -1669,22 +1674,36 @@ NAR #88757, TRA #12200
       <section>
         <title>Future Plans</title>
         <para>
-          In the future, we intend to offer "companion boards" for the rocket that will
-          plug in to TeleMetrum to collect additional data, provide more pyro channels,
-          and so forth.  
+          In the future, we intend to offer "companion boards" for the rocket 
+	  that will plug in to TeleMetrum to collect additional data, provide 
+	  more pyro channels, and so forth.  
         </para>
         <para>
-          We are also working on the design of a hand-held ground terminal that will
-          allow monitoring the rocket's status, collecting data during flight, and
-          logging data after flight without the need for a notebook computer on the
-          flight line.  Particularly since it is so difficult to read most notebook
-          screens in direct sunlight, we think this will be a great thing to have.
+	  Also under design is a new flight computer with more sensors, more
+	  pyro channels, and a more powerful radio system designed for use
+	  in multi-stage, complex, and extreme altitude projects.
         </para>
         <para>
-          Because all of our work is open, both the hardware designs and the software,
-          if you have some great idea for an addition to the current Altus Metrum family,
-          feel free to dive in and help!  Or let us know what you'd like to see that
-          we aren't already working on, and maybe we'll get excited about it too...
+          We are also working on alternatives to TeleDongle.  One is a
+	  a stand-alone, hand-held ground terminal that will allow monitoring 
+	  the rocket's status, collecting data during flight, and logging data 
+	  after flight without the need for a notebook computer on the
+          flight line.  Particularly since it is so difficult to read most 
+	  notebook screens in direct sunlight, we think this will be a great 
+	  thing to have.  We are also working on a TeleDongle variant with
+	  Bluetooth that will work with Android phones and tablets.
+        </para>
+        <para>
+          Because all of our work is open, both the hardware designs and the 
+	  software, if you have some great idea for an addition to the current 
+	  Altus Metrum family, feel free to dive in and help!  Or let us know 
+	  what you'd like to see that we aren't already working on, and maybe 
+	  we'll get excited about it too...
+        </para>
+        <para>
+	  Watch our 
+	  <ulink url="http://altusmetrum.org/">web site</ulink> for more news 
+	  and information as our family of products evolves!
         </para>
     </section>
   </chapter>
