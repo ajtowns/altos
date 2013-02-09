@@ -2499,6 +2499,10 @@ NAR #88757, TRA #12200
     </para>
     <section>
       <title>TeleMetrum template</title>
+      <para>
+	TeleMetrum has overall dimensions of 1.000 x 2.750 inches, and the
+	mounting holes are sized for use with 4-40 or M3 screws.
+      </para>
       <mediaobject id="TeleMetrumTemplate">
 	<imageobject>
 	  <imagedata format="SVG" fileref="telemetrum.svg"/>
@@ -2507,6 +2511,10 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>TeleMini template</title>
+      <para>
+	TeleMini has overall dimensions of 0.500 x 1.500 inches, and the
+	mounting holes are sized for use with 2-56 or M2 screws.
+      </para>
       <mediaobject id="TeleMiniTemplate">
 	<imageobject>
 	  <imagedata format="SVG" fileref="telemini.svg"/>
