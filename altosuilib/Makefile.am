@@ -9,20 +9,24 @@ SRC=.
 altosuilibdir = $(datadir)/java
 
 altosuilib_JAVA = \
-	AltosUIConfigure.java \
 	AltosDevice.java \
 	AltosDeviceDialog.java \
-	AltosUSBDevice.java \
 	AltosFontListener.java \
 	AltosPositionListener.java \
+	AltosUIConfigure.java \
+	AltosUIDataPoint.java \
+	AltosUIDataSet.java \
+	AltosUIGraph.java \
 	AltosUIDialog.java \
+	AltosUIEnable.java \
 	AltosUIFrame.java \
 	AltosUILib.java \
 	AltosUIListener.java \
 	AltosUIPreferencesBackend.java \
 	AltosUIPreferences.java \
+	AltosUISeries.java \
 	AltosUIVersion.java \
-	AltosUnitsListener.java
+	AltosUSBDevice.java
 
 JAR=altosuilib_$(ALTOSUILIB_VERSION).jar
 
