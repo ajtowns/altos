@@ -82,5 +82,6 @@ public class AltosUISeries extends XYSeries {
 
 		renderer = new XYLineAndShapeRenderer(true, false);
 		renderer.setSeriesPaint(0, color);
+		set_units();
 	}
 }
