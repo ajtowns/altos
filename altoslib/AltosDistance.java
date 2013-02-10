@@ -37,13 +37,13 @@ public class AltosDistance extends AltosUnits {
 		return "meters";
 	}
 
-	int show_fraction(int width) {
+	public int show_fraction(int width) {
 		if (AltosConvert.imperial_units)
 			return width / 3;
 		return width / 9;
 	}
 
-	int say_fraction() {
+	public int say_fraction() {
 		if (AltosConvert.imperial_units)
 			return 1;
 		return 0;

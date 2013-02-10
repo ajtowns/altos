@@ -37,7 +37,7 @@ public class AltosSpeed extends AltosUnits {
 		return "meters per second";
 	}
 
-	int show_fraction(int width) {
+	public int show_fraction(int width) {
 		return width / 9;
 	}
 }
