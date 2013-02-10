@@ -50,7 +50,7 @@ class AltosVoltage extends AltosUnits {
 	}
 
 	public int show_fraction(int width) {
-		return width / 9;
+		return width / 2;
 	}
 }
 
