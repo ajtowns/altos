@@ -90,9 +90,9 @@ clean-local:
 
 install-altoslibJAVA: $(JAR)
 	@$(NORMAL_INSTALL)
-	test -z "$(AltosLibdir)" || $(MKDIR_P) "$(DESTDIR)$(AltosLibdir)"
-	echo " $(INSTALL_DATA)" "$<" "'$(DESTDIR)$(AltosLibdir)/$(JAR)"; \
-	$(INSTALL_DATA) "$<" "$(DESTDIR)$(AltosLibdir)"
+	test -z "$(altoslibdir)" || $(MKDIR_P) "$(DESTDIR)$(altoslibdir)"
+	echo " $(INSTALL_DATA)" "$<" "'$(DESTDIR)$(altoslibdir)/$(JAR)"; \
+	$(INSTALL_DATA) "$<" "$(DESTDIR)$(altoslibdir)"
 
 bin:
 	mkdir -p bin
