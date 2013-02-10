@@ -48,7 +48,7 @@ public class AltosUI extends AltosUIFrame {
 		} catch (FileNotFoundException ee) {
 			JOptionPane.showMessageDialog(AltosUI.this,
 						      ee.getMessage(),
-						      "Cannot open target device",
+						      String.format ("Cannot open %s", device.toShortString()),
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (AltosSerialInUseException si) {
 			JOptionPane.showMessageDialog(AltosUI.this,
@@ -58,17 +58,17 @@ public class AltosUI extends AltosUIFrame {
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (IOException ee) {
 			JOptionPane.showMessageDialog(AltosUI.this,
-						      device.toShortString(),
-						      "Unkonwn I/O error",
+						      String.format ("Unknown I/O error on %s", device.toShortString()),
+						      "Unknown I/O error",
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (TimeoutException te) {
 			JOptionPane.showMessageDialog(this,
-						      device.toShortString(),
+						      String.format ("Timeout on %s", device.toShortString()),
 						      "Timeout error",
 						      JOptionPane.ERROR_MESSAGE);
 		} catch (InterruptedException ie) {
 			JOptionPane.showMessageDialog(this,
-						      device.toShortString(),
+						      String.format("Interrupted %s", device.toShortString()),
 						      "Interrupted exception",
 						      JOptionPane.ERROR_MESSAGE);
 		}

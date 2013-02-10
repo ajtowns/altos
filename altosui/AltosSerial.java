@@ -72,7 +72,7 @@ public class AltosSerial extends AltosLink  {
 		Object[] options = { "Cancel" };
 
 		JOptionPane	pane = new JOptionPane();
-		pane.setMessage(String.format("Connecting to %s, %7.3f MHz", device.toShortString(), frequency));
+		pane.setMessage(String.format("Connecting to %s, %7.3f MHz as %s", device.toShortString(), frequency, callsign));
 		pane.setOptions(options);
 		pane.setInitialValue(null);
 
