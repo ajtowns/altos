@@ -20,15 +20,17 @@ package org.altusmetrum.micropeak;
 import org.altusmetrum.altosuilib_1.*;
 
 public class MicroDataPoint implements AltosUIDataPoint {
-	public double	time;
-	public double	pressure;
-	public double	height;
-	public double	speed;
-	public double	accel;
+	public double		time;
+	public double		pressure;
+	public double		height;
+	public double		speed;
+	public double		accel;
+	public MicroStats	stats;
 
 	public static final int data_height = 0;
 	public static final int data_speed = 1;
 	public static final int data_accel = 2;
+	public static final int data_state = 3;
 
 	public double x() {
 		return time;
@@ -47,12 +49,26 @@ public class MicroDataPoint implements AltosUIDataPoint {
 		}
 	}
 
-	public MicroDataPoint (double pressure, double height, double speed, double accel, double time) {
+	public int id(int index) {
+		if (index == data_state) {
+			return stats.state(time);
+		}
+		return 0;
+	}
+
+	public String id_name(int index) {
+		if (index == data_state)
+			return stats.state_name(time);
+		return "";
+	}
+
+	public MicroDataPoint (double pressure, double height, double speed, double accel, double time, MicroStats stats) {
 		this.pressure = pressure;
 		this.height = height;
 		this.speed = speed;
 		this.accel = accel;
 		this.time = time;
+		this.stats = stats;
 	}
 
 	public MicroDataPoint(MicroData data, int i) {
@@ -60,6 +76,7 @@ public class MicroDataPoint implements AltosUIDataPoint {
 		     data.height(i),
 		     data.speed(i),
 		     data.acceleration(i),
-		     data.time(i));
+		     data.time(i),
+		     data.stats);
 	}
 }

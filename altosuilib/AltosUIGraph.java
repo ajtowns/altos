@@ -41,8 +41,9 @@ public class AltosUIGraph implements AltosUnitsListener {
 	public ChartPanel		panel;
 	NumberAxis			xAxis;
 	AltosUIEnable			enable;
-	ArrayList<AltosUISeries>	series;
+	ArrayList<AltosUIGrapher>	graphers;
 	AltosUIDataSet			dataSet;
+	int				index;
 
 	static final private Color gridline_color = new Color(0, 0, 0);
 	static final private Color border_color = new Color(255, 255, 255);
@@ -52,7 +53,7 @@ public class AltosUIGraph implements AltosUnitsListener {
 		return panel;
 	}
 
-	public void addSeries(int index, String label, int fetch, AltosUnits units, Color color) {
+	public void addSeries(String label, int fetch, AltosUnits units, Color color) {
 		AltosUISeries		series = new AltosUISeries(label, fetch, units, color);
 		XYSeriesCollection	dataset = new XYSeriesCollection(series);
 
@@ -63,22 +64,30 @@ public class AltosUIGraph implements AltosUnitsListener {
 		plot.mapDatasetToRangeAxis(index, index);
 		if (enable != null)
 			enable.add(label, series, true);
-		this.series.add(series);
+		this.graphers.add(series);
+		index++;
 	}
 	
+	public void addMarker(String label, int fetch, Color color) {
+		AltosUIMarker		marker = new AltosUIMarker(fetch, color, plot);
+		if (enable != null)
+			enable.add(label, marker, true);
+		this.graphers.add(marker);
+	}
+
 	public void resetData() {
-		for (AltosUISeries s : series)
-			s.clear();
+		for (AltosUIGrapher g : graphers)
+			g.clear();
 		if (dataSet != null) {
 			for (AltosUIDataPoint dataPoint : dataSet.dataPoints())
-				for (AltosUISeries s : series)
-					s.add(dataPoint);
+				for (AltosUIGrapher g : graphers)
+					g.add(dataPoint);
 		}
 	}
 
 	public void units_changed(boolean imperial_units) {
-		for (AltosUISeries s : series)
-			s.set_units();
+		for (AltosUIGrapher g : graphers)
+			g.set_units();
 		resetData();
 	}
 
@@ -96,7 +105,8 @@ public class AltosUIGraph implements AltosUnitsListener {
 	public AltosUIGraph(AltosUIEnable enable) {
 
 		this.enable = enable;
-		this.series = new ArrayList<AltosUISeries>();
+		this.graphers = new ArrayList<AltosUIGrapher>();
+		this.index = 0;
 
 		xAxis = new NumberAxis("Time (s)");
 		

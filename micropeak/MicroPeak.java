@@ -31,9 +31,10 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 	File		filename;
 	MicroGraph	graph;
 	AltosUIEnable	enable;
-	MicroStatsTable	stats;
+	MicroStatsTable	statsTable;
 	MicroRaw	raw;
 	MicroData	data;
+	MicroStats	stats;
 	Container	container;
 	JTabbedPane	pane;
 	static int	number_of_windows;
@@ -45,8 +46,9 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 			return mp.SetData(data);
 		}
 		this.data = data;
+		stats = new MicroStats(data);
 		graph.setDataSet(data);
-		stats.setData(data);
+		statsTable.setStats(stats);
 		raw.setData(data);
 		setTitle(data.name);
 		return this;
@@ -232,18 +234,18 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				stats.tell_closing();
+				statsTable.tell_closing();
 				Close();
 			}
 		});
 
 		enable = new AltosUIEnable();
 		graph = new MicroGraph(enable);
-		stats = new MicroStatsTable();
+		statsTable = new MicroStatsTable();
 		raw = new MicroRaw();
 		pane.add(graph.panel, "Graph");
 		pane.add(enable, "Configure Graph");
-		pane.add(stats, "Statistics");
+		pane.add(statsTable, "Statistics");
 		JScrollPane scroll = new JScrollPane(raw);
 		pane.add(scroll, "Raw Data");
 		pane.doLayout();

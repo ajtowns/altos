@@ -1,5 +1,5 @@
 /*
- * Copyright © 2012 Keith Packard <keithp@keithp.com>
+ * Copyright © 2013 Keith Packard <keithp@keithp.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.micropeak;
+package org.altusmetrum.altosuilib_1;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.awt.*;
 import javax.swing.*;
 import org.altusmetrum.altoslib_1.*;
-import org.altusmetrum.altosuilib_1.*;
 
 import org.jfree.ui.*;
 import org.jfree.chart.*;
@@ -35,19 +34,13 @@ import org.jfree.chart.labels.*;
 import org.jfree.data.xy.*;
 import org.jfree.data.*;
 
-public class MicroGraph extends AltosUIGraph {
+interface AltosUIGrapher {
 
-	static final private Color height_color = new Color(194,31,31);
-	static final private Color speed_color = new Color(31,194,31);
-	static final private Color accel_color = new Color(31,31,194);
-	static final private Color state_color = new Color(3,3,3);
+	public abstract void set_units();
+	
+	public abstract void clear();
 
-	public MicroGraph(AltosUIEnable enable) {
-		super(enable);
+	public abstract void add(AltosUIDataPoint dataPoint);
 
-		addSeries("Height", MicroDataPoint.data_height, AltosConvert.height, height_color);
-		addSeries("Speed", MicroDataPoint.data_speed, AltosConvert.speed, speed_color);
-		addSeries("Acceleration", MicroDataPoint.data_accel, AltosConvert.accel, accel_color);
-		addMarker("State", MicroDataPoint.data_state, state_color);
-	}
+	public abstract void set_enable(boolean enable);
 }

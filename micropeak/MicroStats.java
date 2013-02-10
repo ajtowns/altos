@@ -150,6 +150,43 @@ public class MicroStats {
 		return descent_height() / descent_duration();
 	}
 
+	public static final int state_startup = -1;
+	public static final int state_pad = 0;
+	public static final int state_boost = 1;
+	public static final int state_coast = 2;
+	public static final int state_descent = 3;
+	public static final int state_landed = 4;
+
+	static final String state_names[] = {
+		"pad",
+		"boost",
+		"coast",
+		"descent",
+		"landed"
+	};
+
+	public int state(double t) {
+		if (t >= landed_time)
+			return state_landed;
+		if (t >= apogee_time)
+			return state_descent;
+		if (t >= coast_time)
+			return state_coast;
+		if (t >= 0)
+			return state_boost;
+		return state_pad;
+	}
+
+	public static String state_name(int state) {
+		if (state < 0 || state > state_landed)
+			return "unknown";
+		return state_names[state];
+	}
+
+	public String state_name(double t) {
+		return state_name(state(t));
+	}
+
 	public MicroStats(MicroData data) {
 
 		this.data = data;

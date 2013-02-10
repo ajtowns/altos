@@ -34,54 +34,66 @@ import org.jfree.chart.labels.*;
 import org.jfree.data.xy.*;
 import org.jfree.data.*;
 
-public class AltosUISeries extends XYSeries {
-	NumberAxis	axis;
+public class AltosUISeries extends XYSeries implements AltosUIGrapher {
+	AltosUIAxis	axis;
 	String		label;
 	AltosUnits	units;
 	Color		color;
 	XYItemRenderer	renderer;
 	int		fetch;
+	boolean		enable;
 	
-	void set_units() {
-		String	units_string = units.show_units();
-		axis.setLabel(String.format("%s (%s)", label, units_string));
-
+	public void set_units() {
+		axis.set_units();
 		StandardXYToolTipGenerator	ttg;
 
 		String  example = units.graph_format(4);
 
-		ttg = new StandardXYToolTipGenerator(String.format("{1}s: {2}%s ({0})", units_string),
+		ttg = new StandardXYToolTipGenerator(String.format("{1}s: {2}%s ({0})",
+								   units.show_units()),
 						     new java.text.DecimalFormat(example),
 						     new java.text.DecimalFormat(example));
 		renderer.setBaseToolTipGenerator(ttg);
 	}
 
-	void set_enable(boolean enable) {
-		renderer.setSeriesVisible(0, enable);
-		axis.setVisible(enable);
+	public void set_enable(boolean enable) {
+		if (this.enable != enable) {
+			this.enable = enable;
+			renderer.setSeriesVisible(0, enable);
+			axis.set_enable(enable);
+		}
 	}
 
 	public void add(AltosUIDataPoint dataPoint) {
 		super.add(dataPoint.x(), dataPoint.y(fetch));
 	}
 
-	public void set_axis(NumberAxis axis) {
-		this.axis = axis;
-	}
-
-	public AltosUISeries (String label, int fetch, AltosUnits units, Color color) {
+	public AltosUISeries (String label, int fetch, AltosUnits units, Color color,
+			      boolean enable, AltosUIAxis axis) {
 		super(label);
 		this.label = label;
 		this.fetch = fetch;
 		this.units = units;
 		this.color = color;
+		this.enable = enable;
+		this.axis = axis;
 
-		axis = new NumberAxis();
-		axis.setLabelPaint(color);
-		axis.setTickLabelPaint(color);
+		axis.ref(this.enable);
 
 		renderer = new XYLineAndShapeRenderer(true, false);
 		renderer.setSeriesPaint(0, color);
 		set_units();
+	}
+
+	public AltosUISeries (String label, int fetch, AltosUnits units, Color color, boolean enable) {
+		this(label, fetch, units, color,
+		     enable,
+		     new AltosUIAxis(label, units, color));
+	}
+
+	public AltosUISeries (String label, int fetch, AltosUnits units, Color color) {
+		this(label, fetch, units, color,
+		     true,
+		     new AltosUIAxis(label, units, color));
 	}
 }

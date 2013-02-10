@@ -98,6 +98,7 @@ public class MicroData implements AltosUIDataSet {
 	private double		ground_altitude;
 	private ArrayList<Integer>	bytes;
 	String			name;
+	MicroStats		stats;
 	
 	class FileEndedException extends Exception {
 	}
@@ -380,6 +381,7 @@ public class MicroData implements AltosUIDataSet {
 			crc_valid = crc == current_crc;
 
 			time_step = 0.192;
+			stats = new MicroStats(this);
 		} catch (FileEndedException fe) {
 			throw new IOException("File Ended Unexpectedly");
 		} catch (NonHexcharException ne) {

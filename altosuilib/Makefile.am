@@ -14,14 +14,17 @@ altosuilib_JAVA = \
 	AltosFontListener.java \
 	AltosPositionListener.java \
 	AltosUIConfigure.java \
+	AltosUIAxis.java \
 	AltosUIDataPoint.java \
 	AltosUIDataSet.java \
 	AltosUIGraph.java \
+	AltosUIGrapher.java \
 	AltosUIDialog.java \
 	AltosUIEnable.java \
 	AltosUIFrame.java \
 	AltosUILib.java \
 	AltosUIListener.java \
+	AltosUIMarker.java \
 	AltosUIPreferencesBackend.java \
 	AltosUIPreferences.java \
 	AltosUISeries.java \

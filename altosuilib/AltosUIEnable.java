@@ -41,28 +41,28 @@ public class AltosUIEnable extends Container {
 	int	y;
 
 	class GraphElement implements ActionListener {
-		AltosUISeries	series;
+		AltosUIGrapher	grapher;
 		JLabel		label;
 		JRadioButton	enable;
 		String		name;
 
 		public void actionPerformed(ActionEvent ae) {
-			series.set_enable(enable.isSelected());
+			grapher.set_enable(enable.isSelected());
 		}
 
-		GraphElement (String name, AltosUISeries series, boolean enabled) {
+		GraphElement (String name, AltosUIGrapher grapher, boolean enabled) {
 			this.name = name;
-			this.series = series;
+			this.grapher = grapher;
 			label = new JLabel(name);
 			enable = new JRadioButton("Enable", enabled);
-			series.set_enable(enabled);			  
+			grapher.set_enable(enabled);			  
 			enable.addActionListener(this);
 		}
 	}
 
-	public void add(String name, AltosUISeries series, boolean enabled) {
+	public void add(String name, AltosUIGrapher grapher, boolean enabled) {
 
-		GraphElement	e = new GraphElement(name, series, enabled);
+		GraphElement	e = new GraphElement(name, grapher, enabled);
 
 		/* Add label */
 		GridBagConstraints c = new GridBagConstraints();

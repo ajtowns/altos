@@ -20,4 +20,6 @@ package org.altusmetrum.altosuilib_1;
 public interface AltosUIDataPoint {
 	public abstract double x();
 	public abstract double y(int index);
+	public abstract int id(int index);
+	public abstract String id_name(int index);
 }

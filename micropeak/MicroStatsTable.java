@@ -116,10 +116,6 @@ public class MicroStatsTable extends JComponent implements AltosFontListener {
 		set_font();
 	}
 
-	public void setData(MicroData data) {
-		setStats(new MicroStats(data));
-	}
-
 	public MicroStatsTable(MicroStats stats) {
 		layout = new GridBagLayout();
 
