@@ -258,6 +258,10 @@ public class AltosConvert {
 		return meters / 9.80665;
 	}
 
+	public static double c_to_f(double c) {
+		return c * 9/5 + 32;
+	}
+
 	public static boolean imperial_units = false;
 
 	public static AltosDistance distance = new AltosDistance();
@@ -267,6 +271,8 @@ public class AltosConvert {
 	public static AltosSpeed speed = new AltosSpeed();
 
 	public static AltosAccel accel = new AltosAccel();
+
+	public static AltosTemperature temperature = new AltosTemperature();
 
 	public static String show_gs(String format, double a) {
 		a = meters_to_g(a);

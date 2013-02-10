@@ -78,6 +78,7 @@ altoslib_JAVA = \
 	AltosDistance.java \
 	AltosHeight.java \
 	AltosSpeed.java \
+	AltosTemperature.java \
 	AltosAccel.java \
 	AltosPyro.java
 

@@ -25,7 +25,7 @@ public abstract class AltosUnits {
 
 	public abstract String say_units();
 
-	abstract int show_fraction(int width);
+	public abstract int show_fraction(int width);
 
 	int say_fraction() {
 		return 0;

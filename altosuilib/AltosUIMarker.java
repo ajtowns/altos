@@ -72,20 +72,23 @@ public class AltosUIMarker implements AltosUIGrapher {
 	}
 
 	public void add(AltosUIDataPoint dataPoint) {
-		int id = dataPoint.id(fetch);
-		if (id < 0)
-			return;
-		if (id == last_id)
-			return;
-		ValueMarker marker = new ValueMarker(dataPoint.x());
-		marker.setLabel(dataPoint.id_name(fetch));
-		marker.setLabelAnchor(RectangleAnchor.TOP_RIGHT);
-		marker.setLabelTextAnchor(TextAnchor.TOP_LEFT);
-		marker.setPaint(color);
-		if (enabled)
-			plot.addDomainMarker(marker);
-		markers.add(marker);
-		last_id = id;
+		try {
+			int id = dataPoint.id(fetch);
+			if (id < 0)
+				return;
+			if (id == last_id)
+				return;
+			ValueMarker marker = new ValueMarker(dataPoint.x());
+			marker.setLabel(dataPoint.id_name(fetch));
+			marker.setLabelAnchor(RectangleAnchor.TOP_RIGHT);
+			marker.setLabelTextAnchor(TextAnchor.TOP_LEFT);
+			marker.setPaint(color);
+			if (enabled)
+				plot.addDomainMarker(marker);
+			markers.add(marker);
+			last_id = id;
+		} catch (AltosUIDataMissing m) {
+		}
 	}
 
 	public AltosUIMarker (int fetch, Color color, XYPlot plot, boolean enable) {

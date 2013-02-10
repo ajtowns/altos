@@ -37,7 +37,7 @@ public class AltosHeight extends AltosUnits {
 		return "meters";
 	}
 
-	int show_fraction(int width) {
+	public int show_fraction(int width) {
 		return width / 9;
 	}
 }

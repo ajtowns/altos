@@ -43,7 +43,8 @@ public class AltosUIGraph implements AltosUnitsListener {
 	AltosUIEnable			enable;
 	ArrayList<AltosUIGrapher>	graphers;
 	AltosUIDataSet			dataSet;
-	int				index;
+	int				axis_index;
+	int				series_index;
 
 	static final private Color gridline_color = new Color(0, 0, 0);
 	static final private Color border_color = new Color(255, 255, 255);
@@ -53,19 +54,33 @@ public class AltosUIGraph implements AltosUnitsListener {
 		return panel;
 	}
 
-	public void addSeries(String label, int fetch, AltosUnits units, Color color) {
-		AltosUISeries		series = new AltosUISeries(label, fetch, units, color);
+	public AltosUIAxis newAxis(String label, AltosUnits units, Color color, int flags) {
+		AltosUIAxis axis = new AltosUIAxis(label, units, color, axis_index++, flags);
+		plot.setRangeAxis(axis.index, axis);
+		return axis;
+	}
+
+	public AltosUIAxis newAxis(String label, AltosUnits units, Color color) {
+		return newAxis(label, units, color, AltosUIAxis.axis_default);
+	}
+
+	public void addSeries(String label, int fetch, AltosUnits units, Color color,
+			      boolean enabled, AltosUIAxis axis) {
+		AltosUISeries		series = new AltosUISeries(label, fetch, units, color, enabled, axis);
 		XYSeriesCollection	dataset = new XYSeriesCollection(series);
 
 		series.renderer.setPlot(plot);
-		plot.setRangeAxis(index, series.axis);
-		plot.setDataset(index, dataset);
-		plot.setRenderer(index, series.renderer);
-		plot.mapDatasetToRangeAxis(index, index);
+		plot.setDataset(series_index, dataset);
+		plot.setRenderer(series_index, series.renderer);
+		plot.mapDatasetToRangeAxis(series_index, axis.index);
 		if (enable != null)
-			enable.add(label, series, true);
+			enable.add(label, series, enabled);
 		this.graphers.add(series);
-		index++;
+		series_index++;
+	}
+
+	public void addSeries(String label, int fetch, AltosUnits units, Color color) {
+		addSeries(label, fetch, units, color, true, newAxis(label, units, color));
 	}
 	
 	public void addMarker(String label, int fetch, Color color) {
@@ -97,16 +112,17 @@ public class AltosUIGraph implements AltosUnitsListener {
 
 	public void setDataSet (AltosUIDataSet dataSet) {
 		this.dataSet = dataSet;
+		resetData();
 		if (dataSet != null)
 			setName(dataSet.name());
-		resetData();
 	}
 
 	public AltosUIGraph(AltosUIEnable enable) {
 
 		this.enable = enable;
 		this.graphers = new ArrayList<AltosUIGrapher>();
-		this.index = 0;
+		this.series_index = 0;
+		this.axis_index = 0;
 
 		xAxis = new NumberAxis("Time (s)");
 		

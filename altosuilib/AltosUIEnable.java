@@ -84,10 +84,38 @@ public class AltosUIEnable extends Container {
 		y++;
 	}
 
+	public void add_units() {
+		/* Imperial units setting */
+		/* Add label */
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = 1000;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
+		add(new JLabel("Imperial Units"), c);
+
+		JRadioButton imperial_units = new JRadioButton("Enable", AltosUIPreferences.imperial_units());
+		imperial_units.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					JRadioButton item = (JRadioButton) e.getSource();
+					boolean enabled = item.isSelected();
+					AltosUIPreferences.set_imperial_units(enabled);
+				}
+			});
+		imperial_units.setToolTipText("Use Imperial units instead of metric");
+		c = new GridBagConstraints();
+		c.gridx = 1; c.gridy = 1000;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
+		add(imperial_units, c);
+	}
+
 	public AltosUIEnable() {
 		il = new Insets(4,4,4,4);
 		ir = new Insets(4,4,4,4);
 		y = 0;
 		setLayout(new GridBagLayout());
+		add_units();
 	}
 }

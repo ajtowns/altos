@@ -34,58 +34,59 @@ import org.jfree.chart.labels.*;
 import org.jfree.data.xy.*;
 import org.jfree.data.*;
 
-public class AltosUISeries extends XYSeries implements AltosUIGrapher {
-	AltosUIAxis	axis;
+public class AltosUIAxis extends NumberAxis {
 	String		label;
 	AltosUnits	units;
 	Color		color;
-	XYItemRenderer	renderer;
-	int		fetch;
-	boolean		enable;
-	
+	int		ref;
+	int		visible;
+	int		index;
+
+	public final static int	axis_integer = 1;
+	public final static int axis_include_zero = 2;
+
+	public final static int axis_default = axis_include_zero;
+
 	public void set_units() {
-		axis.set_units();
-		StandardXYToolTipGenerator	ttg;
-
-		String  example = units.graph_format(4);
-
-		ttg = new StandardXYToolTipGenerator(String.format("{1}s: {2}%s ({0})",
-								   units.show_units()),
-						     new java.text.DecimalFormat(example),
-						     new java.text.DecimalFormat(example));
-		renderer.setBaseToolTipGenerator(ttg);
+		setLabel(String.format("%s (%s)", label, units.show_units()));
 	}
-
+	
 	public void set_enable(boolean enable) {
-		if (this.enable != enable) {
-			this.enable = enable;
-			renderer.setSeriesVisible(0, enable);
-			axis.set_enable(enable);
+		if (enable) {
+			visible++;
+			if (visible > ref)
+				System.out.printf("too many visible\n");
+		} else {
+			visible--;
+			if (visible < 0)
+				System.out.printf("too few visible\n");
+		}
+		setVisible(visible > 0);
+	}
+
+	public void ref(boolean enable) {
+		++ref;
+		if (enable) {
+			++visible;
+			setVisible(visible > 0);
 		}
 	}
 
-	public void add(AltosUIDataPoint dataPoint) {
-		try {
-			super.add(dataPoint.x(), units.value(dataPoint.y(fetch)));
-		} catch (AltosUIDataMissing dm) {
-		}
-	}
-
-	public AltosUISeries (String label, int fetch, AltosUnits units, Color color,
-			      boolean enable, AltosUIAxis axis) {
-		super(label);
+	public AltosUIAxis(String label, AltosUnits units, Color color, int index, int flags) {
 		this.label = label;
-		this.fetch = fetch;
 		this.units = units;
-		this.color = color;
-		this.enable = enable;
-		this.axis = axis;
+		this.index = index;
+		this.visible = 0;
+		this.ref = 0;
+		setLabelPaint(color);
+		setTickLabelPaint(color);
+		setVisible(false);
+		if ((flags & axis_integer) != 0)
+			setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+		setAutoRangeIncludesZero((flags & axis_include_zero) != 0);
+	}
 
-		axis.ref(this.enable);
-
-		renderer = new XYLineAndShapeRenderer(true, false);
-		renderer.setSeriesPaint(0, color);
-		renderer.setSeriesVisible(0, enable);
-		set_units();
+	public AltosUIAxis(String label, AltosUnits units, Color color, int index) {
+		this(label, units, color, index, axis_default);
 	}
 }

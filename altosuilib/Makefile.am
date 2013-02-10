@@ -15,6 +15,7 @@ altosuilib_JAVA = \
 	AltosPositionListener.java \
 	AltosUIConfigure.java \
 	AltosUIAxis.java \
+	AltosUIDataMissing.java \
 	AltosUIDataPoint.java \
 	AltosUIDataSet.java \
 	AltosUIGraph.java \

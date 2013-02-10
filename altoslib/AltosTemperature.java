@@ -1,5 +1,5 @@
 /*
- * Copyright © 2013 Keith Packard <keithp@keithp.com>
+ * Copyright © 2012 Keith Packard <keithp@keithp.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +15,29 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.altosuilib_1;
+package org.altusmetrum.altoslib_1;
 
-public interface AltosUIDataPoint {
-	public abstract double x() throws AltosUIDataMissing;
-	public abstract double y(int index) throws AltosUIDataMissing;
-	public abstract int id(int index) throws AltosUIDataMissing;
-	public abstract String id_name(int index) throws AltosUIDataMissing;
+public class AltosTemperature extends AltosUnits {
+
+	public double value(double v) {
+		if (AltosConvert.imperial_units)
+			return AltosConvert.c_to_f(v);
+		return v;
+	}
+
+	public String show_units() {
+		if (AltosConvert.imperial_units)
+			return "°F";
+		return "°C";
+	}
+
+	public String say_units() {
+		if (AltosConvert.imperial_units)
+			return "degrees farenheit";
+		return "degrees celsius";
+	}
+
+	public int show_fraction(int width) {
+		return width / 3;
+	}
 }

@@ -17,9 +17,9 @@
 
 package org.altusmetrum.altosuilib_1;
 
-public interface AltosUIDataPoint {
-	public abstract double x() throws AltosUIDataMissing;
-	public abstract double y(int index) throws AltosUIDataMissing;
-	public abstract int id(int index) throws AltosUIDataMissing;
-	public abstract String id_name(int index) throws AltosUIDataMissing;
+public class AltosUIDataMissing extends Exception {
+	public int	id;
+	public AltosUIDataMissing(int id) {
+		this.id = id;
+	}
 }

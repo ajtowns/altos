@@ -74,10 +74,9 @@ altosui_JAVA = \
 	AltosSiteMapTile.java \
 	AltosUI.java \
 	AltosWriter.java \
-	AltosDataPointReader.java \
-	AltosDataPoint.java \
 	AltosGraph.java \
-	AltosGraphTime.java \
+	AltosGraphDataPoint.java \
+	AltosGraphDataSet.java \
 	AltosGraphUI.java \
 	AltosDataChooser.java \
 	AltosVoice.java \
@@ -99,10 +98,10 @@ FREETTS_CLASS= \
 	freetts.jar
 
 ALTOSLIB_CLASS=\
-	AltosLib.jar
+	altoslib_$(ALTOSLIB_VERSION).jar
 
 ALTOSUILIB_CLASS=\
-	altosuilib.jar
+	altosuilib_$(ALTOSUILIB_VERSION).jar
 
 LIBALTOS= \
 	libaltos.so \

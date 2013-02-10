@@ -1,26 +1,214 @@
-
-// Copyright (c) 2010 Anthony Towns
-// GPL v2 or later
+/*
+ * Copyright © 2013 Keith Packard <keithp@keithp.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
 
 package altosui;
 
 import java.io.*;
+import java.util.ArrayList;
 
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.ChartUtilities;
+import java.awt.*;
+import javax.swing.*;
+import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altosuilib_1.*;
 
-abstract class AltosGraph {
-    public String filename;
-    public abstract void addData(AltosDataPoint d);
-    public abstract JFreeChart createChart();
-    public String title;
-    public void toPNG() throws java.io.IOException { toPNG(300, 500); }
-    public void toPNG(int width, int height)
-        throws java.io.IOException
-    {
-        File pngout = new File(filename);
-        JFreeChart chart = createChart();
-        ChartUtilities.saveChartAsPNG(pngout, chart, width, height);
-        System.out.println("Created " + filename);
-    }
+import org.jfree.ui.*;
+import org.jfree.chart.*;
+import org.jfree.chart.plot.*;
+import org.jfree.chart.axis.*;
+import org.jfree.chart.renderer.*;
+import org.jfree.chart.renderer.xy.*;
+import org.jfree.chart.labels.*;
+import org.jfree.data.xy.*;
+import org.jfree.data.*;
+
+class AltosVoltage extends AltosUnits {
+
+	public double value(double v) {
+		return v;
+	}
+
+	public String show_units() {
+		return "V";
+	}
+
+	public String say_units() {
+		return "volts";
+	}
+
+	public int show_fraction(int width) {
+		return width / 9;
+	}
+}
+
+class AltosNsat extends AltosUnits {
+
+	public double value(double v) {
+		return v;
+	}
+
+	public String show_units() {
+		return "Sats";
+	}
+
+	public String say_units() {
+		return "Satellites";
+	}
+
+	public int show_fraction(int width) {
+		return 0;
+	}
+}
+
+class AltosDbm extends AltosUnits {
+
+	public double value(double v) {
+		return v;
+	}
+
+	public String show_units() {
+		return "dBm";
+	}
+
+	public String say_units() {
+		return "d b m";
+	}
+
+	public int show_fraction(int width) {
+		return 0;
+	}
+}
+
+public class AltosGraph extends AltosUIGraph {
+
+	static final private Color height_color = new Color(194,31,31);
+	static final private Color gps_height_color = new Color(150,31,31);
+	static final private Color range_color = new Color(100, 31, 31);
+	static final private Color distance_color = new Color(100, 31, 194);
+	static final private Color speed_color = new Color(31,194,31);
+	static final private Color accel_color = new Color(31,31,194);
+	static final private Color voltage_color = new Color(194, 194, 31);
+	static final private Color battery_voltage_color = new Color(194, 194, 31);
+	static final private Color drogue_voltage_color = new Color(150, 150, 31);
+	static final private Color main_voltage_color = new Color(100, 100, 31);
+	static final private Color gps_nsat_color = new Color (194, 31, 194);
+	static final private Color gps_nsat_solution_color = new Color (194, 31, 194);
+	static final private Color gps_nsat_view_color = new Color (150, 31, 150);
+	static final private Color temperature_color = new Color (31, 194, 194);
+	static final private Color dbm_color = new Color(31, 100, 100);
+	static final private Color state_color = new Color(0,0,0);
+
+	static AltosVoltage voltage_units = new AltosVoltage();
+	static AltosNsat nsat_units = new AltosNsat();
+	static AltosDbm dbm_units = new AltosDbm();
+
+	AltosUIAxis	height_axis, speed_axis, accel_axis, voltage_axis, temperature_axis, nsat_axis, dbm_axis;
+	AltosUIAxis	distance_axis;
+
+	public AltosGraph(AltosUIEnable enable) {
+		super(enable);
+
+		height_axis = newAxis("Height", AltosConvert.height, height_color);
+		speed_axis = newAxis("Speed", AltosConvert.speed, speed_color);
+		accel_axis = newAxis("Acceleration", AltosConvert.accel, accel_color);
+		voltage_axis = newAxis("Voltage", voltage_units, voltage_color);
+		temperature_axis = newAxis("Temperature", AltosConvert.temperature, temperature_color, 0);
+		nsat_axis = newAxis("Satellites", nsat_units, gps_nsat_color,
+				    AltosUIAxis.axis_include_zero | AltosUIAxis.axis_integer);
+		dbm_axis = newAxis("Signal Strength", dbm_units, dbm_color, 0);
+		distance_axis = newAxis("Distance", AltosConvert.distance, range_color);
+
+		addMarker("State", AltosGraphDataPoint.data_state, state_color);
+		addSeries("Height",
+			  AltosGraphDataPoint.data_height,
+			  AltosConvert.height,
+			  height_color,
+			  true,
+			  height_axis);
+		addSeries("Speed",
+			  AltosGraphDataPoint.data_speed,
+			  AltosConvert.speed,
+			  speed_color,
+			  true,
+			  speed_axis);
+		addSeries("Acceleration",
+			  AltosGraphDataPoint.data_accel,
+			  AltosConvert.accel,
+			  accel_color,
+			  true,
+			  accel_axis);
+		addSeries("Range",
+			  AltosGraphDataPoint.data_range,
+			  AltosConvert.distance,
+			  range_color,
+			  false,
+			  distance_axis);
+		addSeries("Distance",
+			  AltosGraphDataPoint.data_distance,
+			  AltosConvert.distance,
+			  distance_color,
+			  false,
+			  distance_axis);
+		addSeries("GPS Height",
+			  AltosGraphDataPoint.data_gps_height,
+			  AltosConvert.height,
+			  gps_height_color,
+			  false,
+			  height_axis);
+		addSeries("GPS Satellites in Solution",
+			  AltosGraphDataPoint.data_gps_nsat_solution,
+			  nsat_units,
+			  gps_nsat_solution_color,
+			  false,
+			  nsat_axis);
+		addSeries("GPS Satellites in View",
+			  AltosGraphDataPoint.data_gps_nsat_view,
+			  nsat_units,
+			  gps_nsat_view_color,
+			  false,
+			  nsat_axis);
+		addSeries("Received Signal Strength",
+			  AltosGraphDataPoint.data_rssi,
+			  dbm_units,
+			  dbm_color,
+			  false,
+			  dbm_axis);
+		addSeries("Temperature",
+			  AltosGraphDataPoint.data_temperature,
+			  AltosConvert.temperature,
+			  temperature_color,
+			  false,
+			  temperature_axis);
+		addSeries("Battery Voltage",
+			  AltosGraphDataPoint.data_battery_voltage,
+			  voltage_units,
+			  battery_voltage_color,
+			  false,
+			  voltage_axis);
+		addSeries("Drogue Voltage",
+			  AltosGraphDataPoint.data_drogue_voltage,
+			  voltage_units,
+			  drogue_voltage_color,
+			  false,
+			  voltage_axis);
+		addSeries("Main Voltage",
+			  AltosGraphDataPoint.data_main_voltage,
+			  voltage_units,
+			  main_voltage_color,
+			  false,
+			  voltage_axis);
+	}
 }
