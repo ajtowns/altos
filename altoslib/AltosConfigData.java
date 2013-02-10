@@ -116,12 +116,22 @@ public class AltosConfigData implements Iterable<String> {
 		default:
 			if (flight_log_max <= 0)
 				return 1;
+			int	log_max = flight_log_max * 1024;
 			int	log_space = storage_size - storage_erase_unit;
-			int	log_used = stored_flight * flight_log_max;
+			int	log_used;
+
+			if (stored_flight <= 0)
+				log_used = 0;
+			else
+				log_used = stored_flight * log_max;
+			int	log_avail;
 
 			if (log_used >= log_space)
-				return 0;
-			return (log_space - log_used) / flight_log_max;
+				log_avail = 0;
+			else
+				log_avail = (log_space - log_used) / log_max;
+
+			return log_avail;
 		}
 	}
 
@@ -196,7 +206,7 @@ public class AltosConfigData implements Iterable<String> {
 
 		storage_size = -1;
 		storage_erase_unit = -1;
-		stored_flight = -1;
+		stored_flight = 0;
 	}
 
 	public void parse_line(String line) {
@@ -272,7 +282,7 @@ public class AltosConfigData implements Iterable<String> {
 
 		/* Storage info replies */
 		try { storage_size = get_int(line, "Storage size:"); } catch (Exception e) {}
-		try { storage_erase_unit = get_int(line, "Storage erase unit"); } catch (Exception e) {}
+		try { storage_erase_unit = get_int(line, "Storage erase unit:"); } catch (Exception e) {}
 
 		/* Log listing replies */
 		try { get_int(line, "flight"); stored_flight++; }  catch (Exception e) {}
@@ -485,7 +495,6 @@ public class AltosConfigData implements Iterable<String> {
 		reset();
 		link.printf("c s\nf\nv\n");
 		read_link(link, "software-version");
-		System.out.printf("Log format %d\n", log_format);
 		switch (log_format) {
 		case AltosLib.AO_LOG_FORMAT_FULL:
 		case AltosLib.AO_LOG_FORMAT_TINY:
