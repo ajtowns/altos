@@ -58,6 +58,17 @@ public class AltosFlightStatsTable extends JComponent {
 
 	}
 
+	static String pos(double p, String pos, String neg) {
+		String	h = pos;
+		if (p < 0) {
+			h = neg;
+			p = -p;
+		}
+		int deg = (int) Math.floor(p);
+		double min = (p - Math.floor(p)) * 60.0;
+		return String.format("%s %4d° %9.6f'", h, deg, min);
+	}
+
 	public AltosFlightStatsTable(AltosFlightStats stats) {
 		layout = new GridBagLayout();
 
@@ -65,12 +76,18 @@ public class AltosFlightStatsTable extends JComponent {
 		int y = 0;
 		new FlightStat(layout, y++, "Serial", String.format("%d", stats.serial));
 		new FlightStat(layout, y++, "Flight", String.format("%d", stats.flight));
-		if (stats.year > 0)
-			new FlightStat(layout, y++, "Date",
-				       String.format("%04d-%02d-%02d", stats.year, stats.month, stats.day));
-		if (stats.hour > 0)
-			new FlightStat(layout, y++, "Time",
+		if (stats.year > 0 && stats.hour > 0)
+			new FlightStat(layout, y++, "Date/Time",
+				       String.format("%04d-%02d-%02d", stats.year, stats.month, stats.day),
 				       String.format("%02d:%02d:%02d UTC", stats.hour, stats.minute, stats.second));
+		else {
+			if (stats.year > 0)
+				new FlightStat(layout, y++, "Date",
+					       String.format("%04d-%02d-%02d", stats.year, stats.month, stats.day));
+			if (stats.hour > 0)
+				new FlightStat(layout, y++, "Time",
+					       String.format("%02d:%02d:%02d UTC", stats.hour, stats.minute, stats.second));
+		}
 		new FlightStat(layout, y++, "Maximum height",
 			       String.format("%5.0f m", stats.max_height),
 			       String.format("%5.0f ft", AltosConvert.meters_to_feet(stats.max_height)));
@@ -94,14 +111,29 @@ public class AltosFlightStatsTable extends JComponent {
 		new FlightStat(layout, y++, "Main descent rate",
 			       String.format("%5.0f m/s", stats.state_baro_speed[Altos.ao_flight_main]),
 			       String.format("%5.0f ft/s", AltosConvert.meters_to_feet(stats.state_baro_speed[Altos.ao_flight_main])));
-		for (int s = Altos.ao_flight_boost; s <= Altos.ao_flight_main; s++) {
-			new FlightStat(layout, y++, String.format("%s time", AltosLib.state_name_capital(s)),
-				       String.format("%6.0f s", stats.state_end[s] - stats.state_start[s]));
-		}
-		new FlightStat(layout, y++, "Flight Time",
-			       String.format("%6.0f s", stats.state_end[Altos.ao_flight_main] -
+		new FlightStat(layout, y++, "Ascent time",
+			       String.format("%6.1f s %s", stats.state_end[AltosLib.ao_flight_boost] - stats.state_start[AltosLib.ao_flight_boost],
+					     AltosLib.state_name(Altos.ao_flight_boost)),
+			       String.format("%6.1f s %s", stats.state_end[AltosLib.ao_flight_fast] - stats.state_start[AltosLib.ao_flight_fast],
+					     AltosLib.state_name(Altos.ao_flight_fast)),
+			       String.format("%6.1f s %s", stats.state_end[AltosLib.ao_flight_coast] - stats.state_start[AltosLib.ao_flight_coast],
+					     AltosLib.state_name(Altos.ao_flight_coast)));
+		new FlightStat(layout, y++, "Descent time",
+			       String.format("%6.1f s %s", stats.state_end[AltosLib.ao_flight_drogue] - stats.state_start[AltosLib.ao_flight_drogue],
+					     AltosLib.state_name(Altos.ao_flight_drogue)),
+			       String.format("%6.1f s %s", stats.state_end[AltosLib.ao_flight_main] - stats.state_start[AltosLib.ao_flight_main],
+					     AltosLib.state_name(Altos.ao_flight_main)));
+		new FlightStat(layout, y++, "Flight time",
+			       String.format("%6.1f s", stats.state_end[Altos.ao_flight_main] -
 					     stats.state_start[Altos.ao_flight_boost]));
-		
+		if (stats.lat != -1 && stats.lon != -1) {
+			new FlightStat(layout, y++, "Pad location",
+				       pos(stats.pad_lat,"N","S"),
+				       pos(stats.pad_lon,"E","W"));
+			new FlightStat(layout, y++, "Last reported location",
+				       pos(stats.lat,"N","S"),
+				       pos(stats.lon,"E","W"));
+		}
 	}
 	
 }

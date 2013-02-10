@@ -34,6 +34,8 @@ public class AltosFlightStats {
 	int		flight;
 	int		year, month, day;
 	int		hour, minute, second;
+	double		lat, lon;
+	double		pad_lat, pad_lon;
 
 	double landed_time(AltosRecordIterable iterable) {
 		AltosState	state = null;
@@ -98,6 +100,7 @@ public class AltosFlightStats {
 		year = month = day = -1;
 		hour = minute = second = -1;
 		serial = flight = -1;
+		lat = lon = -1;
 		for (AltosRecord record : iterable) {
 			if (serial < 0)
 				serial = record.serial;
@@ -136,6 +139,14 @@ public class AltosFlightStats {
 				else
 					max_speed = state.max_baro_speed;
 				max_acceleration = state.max_acceleration;
+			}
+			if (state.gps.locked && state.gps.nsat >= 4) {
+				if (state.state <= Altos.ao_flight_pad) {
+					pad_lat = state.gps.lat;
+					pad_lon = state.gps.lon;
+				}
+				lat = state.gps.lat;
+				lon = state.gps.lon;
 			}
 		}
 		for (int s = Altos.ao_flight_startup; s <= Altos.ao_flight_landed; s++) {

@@ -21,8 +21,24 @@ public class AltosGraphUI extends AltosUIFrame
 	JTabbedPane		pane;
 	AltosGraph		graph;
 	AltosUIEnable		enable;
+	AltosSiteMap		map;
+	AltosState		state;
+
+	boolean fill_map(AltosRecordIterable records) {
+		boolean		any_gps = false;
+		for (AltosRecord record : records) {
+			state = new AltosState(record, state);
+			if (state.data.gps != null) {
+				map.show(state, 0);
+				any_gps = true;
+			}
+		}
+		return any_gps;
+	}
 
 	AltosGraphUI(AltosRecordIterable records, String file) throws InterruptedException, IOException {
+		state = null;
+
 		pane = new JTabbedPane();
 
 		enable = new AltosUIEnable();
@@ -31,11 +47,16 @@ public class AltosGraphUI extends AltosUIFrame
 
 		graph.setDataSet(new AltosGraphDataSet(records));
 
+		map = new AltosSiteMap();
+
 		pane.add("Flight Graph", graph.panel);
 		pane.add("Configure Graph", enable);
 
 		AltosFlightStatsTable stats = new AltosFlightStatsTable(new AltosFlightStats(records));
 		pane.add("Flight Statistics", stats);
+
+		if (fill_map(records))
+			pane.add("Map", map);
 
 		setContentPane (pane);
 
@@ -43,5 +64,7 @@ public class AltosGraphUI extends AltosUIFrame
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setVisible(true);
+		if (state != null)
+			map.centre(state);
 	}
 }

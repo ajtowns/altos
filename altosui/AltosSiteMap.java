@@ -322,6 +322,22 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		last_state = state.state;
 	}
 
+	public void centre(Point2D.Double pt) {
+		Rectangle r = comp.getVisibleRect();
+		Point2D.Double copt = translatePoint(pt, tileCoordOffset(topleft));
+		int dx = (int)copt.x - r.width/2 - r.x;
+		int dy = (int)copt.y - r.height/2 - r.y;
+		r.x += dx;
+		r.y += dy;
+		comp.scrollRectToVisible(r);
+	}
+
+	public void centre(AltosState state) {
+		if (!state.gps.locked && state.gps.nsat < 4)
+			return;
+		centre(pt(state.gps.lat, state.gps.lon));
+	}
+
 	public void draw_circle(double lat, double lon) {
 		final Point2D.Double pt = pt(lat, lon);
 
