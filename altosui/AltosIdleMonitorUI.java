@@ -20,12 +20,13 @@ package altosui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.event.*;
 import java.io.*;
 import java.util.concurrent.*;
 import org.altusmetrum.altoslib_1.*;
 import org.altusmetrum.altosuilib_1.*;
 
-public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDisplay, AltosFontListener, AltosIdleMonitorListener {
+public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDisplay, AltosFontListener, AltosIdleMonitorListener, DocumentListener {
 	AltosDevice		device;
 	JTabbedPane		pane;
 	AltosPad		pad;
@@ -87,6 +88,45 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 
 	Container	bag;
 	AltosFreqList	frequencies;
+	JTextField	callsign_value;
+
+	/* DocumentListener interface methods */
+	public void changedUpdate(DocumentEvent e) {
+		if (callsign_value != null)
+			AltosUIPreferences.set_callsign(callsign_value.getText());
+	}
+
+	public void insertUpdate(DocumentEvent e) {
+		changedUpdate(e);
+	}
+
+	public void removeUpdate(DocumentEvent e) {
+		changedUpdate(e);
+	}
+
+	int row = 0;
+
+	public GridBagConstraints constraints (int x, int width, int fill) {
+		GridBagConstraints c = new GridBagConstraints();
+		Insets insets = new Insets(4, 4, 4, 4);
+
+		c.insets = insets;
+		c.fill = fill;
+		if (width == 3)
+			c.anchor = GridBagConstraints.CENTER;
+		else if (x == 2)
+			c.anchor = GridBagConstraints.EAST;
+		else
+			c.anchor = GridBagConstraints.WEST;
+		c.gridx = x;
+		c.gridwidth = width;
+		c.gridy = row;
+		return c;
+	}
+
+	public GridBagConstraints constraints(int x, int width) {
+		return constraints(x, width, GridBagConstraints.NONE);
+	}
 
 	public AltosIdleMonitorUI(JFrame in_owner)
 		throws FileNotFoundException, AltosSerialInUseException, TimeoutException, InterruptedException {
@@ -99,8 +139,6 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 		serial = device.getSerial();
 		bag = getContentPane();
 		bag.setLayout(new GridBagLayout());
-
-		GridBagConstraints c = new GridBagConstraints();
 
 		setTitle(String.format("AltOS %s", device.toShortString()));
 
@@ -116,23 +154,21 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 									       frequency);
 					}
 			});
-			c.gridx = 0;
-			c.gridy = 0;
-			c.insets = new Insets(3, 3, 3, 3);
-			c.anchor = GridBagConstraints.WEST;
-			bag.add (frequencies, c);
+			bag.add (frequencies, constraints(0, 1));
+			bag.add (new JLabel("Callsign:"), constraints(1, 1));
+			/* Add callsign configuration */
+			callsign_value = new JTextField(AltosUIPreferences.callsign());
+			callsign_value.getDocument().addDocumentListener(this);
+			callsign_value.setToolTipText("Callsign sent in packet mode");
+			bag.add(callsign_value, constraints(2, 1, GridBagConstraints.BOTH));
+			row++;
 		}
 
 
 		/* Flight status is always visible */
 		flightStatus = new AltosFlightStatus();
-		c.gridx = 0;
-		c.gridy = 1;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.weightx = 1;
-		c.gridwidth = 2;
-		bag.add(flightStatus, c);
-		c.gridwidth = 1;
+		bag.add(flightStatus, constraints(0, 3, GridBagConstraints.HORIZONTAL));
+		row++;
 
 		/* The rest of the window uses a tabbed pane to
 		 * show one of the alternate data views
@@ -146,13 +182,7 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 		pane.add("Table", new JScrollPane(flightInfo));
 
 		/* Make the tabbed pane use the rest of the window space */
-		c.gridx = 0;
-		c.gridy = 2;
-		c.fill = GridBagConstraints.BOTH;
-		c.weightx = 1;
-		c.weighty = 1;
-		c.gridwidth = 2;
-		bag.add(pane, c);
+		bag.add(pane, constraints(0, 3, GridBagConstraints.BOTH));
 
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
