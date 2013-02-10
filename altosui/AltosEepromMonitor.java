@@ -101,7 +101,7 @@ public class AltosEepromMonitor extends AltosUIDialog {
 		max_state = in_max_state;
 		pbar = new JProgressBar();
 		pbar.setMinimum(0);
-		pbar.setMaximum((max_state - min_state) * 100);
+		pbar.setMaximum(1000);
 		pbar.setValue(0);
 		pbar.setString("startup");
 		pbar.setStringPainted(true);
@@ -135,30 +135,28 @@ public class AltosEepromMonitor extends AltosUIDialog {
 		cancel.addActionListener(l);
 	}
 
-	private void set_value_internal(String state_name, int in_state, int in_block) {
-		int block = in_block;
-		int state = in_state;
-
-		if (block > 100)
-			block = 100;
+	private void set_value_internal(String state_name, int state, int state_block, int block) {
+		if (state_block > 100)
+			state_block = 100;
 		if (state < min_state) state = min_state;
 		if (state >= max_state) state = max_state - 1;
 		state -= min_state;
 
-		int pos = state * 100 + block;
+		int pos = state * 100 + state_block;
 
-		pbar.setString(state_name);
+		pbar.setString(String.format("block %d state %s", block, state_name));
 		pbar.setValue(pos);
 	}
 
-	public void set_value(String in_state_name, int in_state, int in_block) {
+	public void set_value(String in_state_name, int in_state, int in_state_block, int in_block) {
 		final String state_name = in_state_name;
 		final int state = in_state;
+		final int state_block = in_state_block;
 		final int block = in_block;
 		Runnable r = new Runnable() {
 				public void run() {
 					try {
-						set_value_internal(state_name, state, block);
+						set_value_internal(state_name, state, state_block, block);
 					} catch (Exception ex) {
 					}
 				}
@@ -235,7 +233,7 @@ public class AltosEepromMonitor extends AltosUIDialog {
 	}
 
 	private void reset_internal() {
-		set_value_internal("startup",min_state,0);
+		set_value_internal("startup",min_state,0, 0);
 		set_flight_internal(0);
 		set_file_internal("");
 	}
