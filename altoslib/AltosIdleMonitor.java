@@ -27,6 +27,7 @@ public class AltosIdleMonitor extends Thread {
 	AltosState		state;
 	boolean			remote;
 	double			frequency;
+	String			callsign;
 	AltosState		previous_state;
 	AltosConfigData		config_data;
 	AltosGPS		gps;
@@ -87,6 +88,7 @@ public class AltosIdleMonitor extends Thread {
 		try {
 			if (remote) {
 				link.set_radio_frequency(frequency);
+				link.set_callsign(callsign);
 				link.start_remote();
 			} else
 				link.flush_input();
@@ -126,10 +128,27 @@ public class AltosIdleMonitor extends Thread {
 
 	public void set_frequency(double in_frequency) {
 		frequency = in_frequency;
+		link.abort_reply();
+	}
+
+	public void set_callsign(String in_callsign) {
+		callsign = in_callsign;
+		link.abort_reply();
 	}
 
 	public void post_state() {
 		listener.update(state);
+	}
+
+	public void abort() {
+		if (isAlive()) {
+			interrupt();
+			link.abort_reply();
+			try {
+				join();
+			} catch (InterruptedException ie) {
+			}
+		}
 	}
 
 	public void run() {

@@ -37,11 +37,8 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 	boolean			remote;
 
 	void stop_display() {
-		if (thread != null && thread.isAlive()) {
-			thread.interrupt();
-			try {
-				thread.join();
-			} catch (InterruptedException ie) {}
+		if (thread != null) {
+			thread.abort();
 		}
 		thread = null;
 	}
@@ -92,8 +89,11 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 
 	/* DocumentListener interface methods */
 	public void changedUpdate(DocumentEvent e) {
-		if (callsign_value != null)
-			AltosUIPreferences.set_callsign(callsign_value.getText());
+		if (callsign_value != null) {
+			String	callsign = callsign_value.getText();
+			thread.set_callsign(callsign);
+			AltosUIPreferences.set_callsign(callsign);
+		}
 	}
 
 	public void insertUpdate(DocumentEvent e) {

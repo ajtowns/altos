@@ -249,6 +249,7 @@ public abstract class AltosLink implements Runnable {
 	public boolean monitor_mode = false;
 	public int telemetry = AltosLib.ao_telemetry_standard;
 	public double frequency;
+	public String callsign;
 	AltosConfigData	config_data;
 
 	private int telemetry_len() {
@@ -330,6 +331,7 @@ public abstract class AltosLink implements Runnable {
 	}
 
 	public void set_callsign(String callsign) {
+		this.callsign = callsign;
 		printf ("c c %s\n", callsign);
 		flush_output();
 	}
@@ -363,5 +365,6 @@ public abstract class AltosLink implements Runnable {
 	}
 
 	public AltosLink() {
+		callsign = "";
 	}
 }
