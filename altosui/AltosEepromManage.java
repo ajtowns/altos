@@ -45,6 +45,15 @@ public class AltosEepromManage implements ActionListener {
 		}
 	}
 
+	private int countDeletedFlights() {
+		int count = 0;
+		for (AltosEepromLog flight : flights) {
+			if (flight.selected)
+				count++;
+		}
+		return count;
+	}
+
 	private String showDeletedFlights() {
 		String	result = "";
 
@@ -94,7 +103,8 @@ public class AltosEepromManage implements ActionListener {
 		} else if (cmd.equals("delete")) {
 			if (success) {
 				JOptionPane.showMessageDialog(frame,
-							      String.format("Flights erased: %s",
+							      String.format("%d flights erased: %s",
+									    countDeletedFlights(),
 									    showDeletedFlights()),
 							      serial_line.device.toShortString(),
 							      JOptionPane.INFORMATION_MESSAGE);
