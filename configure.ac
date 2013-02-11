@@ -162,9 +162,11 @@ altosuilib/Makefile
 altosuilib/AltosUIVersion.java
 altosui/Makefile
 altosui/Info.plist
+altosui/altos-windows.nsi
 libaltos/Makefile
 micropeak/Makefile
 micropeak/Info.plist
+micropeak/micropeak-windows.nsi
 altosdroid/Makefile
 altosdroid/local.properties
 ao-tools/Makefile

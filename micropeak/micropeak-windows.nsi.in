@@ -5,7 +5,7 @@
 !define JRE_URL "http://javadl.sun.com/webapps/download/AutoDL?BundleId=52247&/jre-6u27-windows-i586-p.exe"
 !define PRODUCT_NAME "Altus Metrum Windows Software"
 
-Name "Altus Metrum Installer"
+Name "Altus Metrum MicroPeak Installer"
 
 ; Default install directory
 InstallDir "$PROGRAMFILES\AltusMetrum"
@@ -21,7 +21,7 @@ RequestExecutionLevel admin
 
 ShowInstDetails Show
 
-ComponentText "Altus Metrum Software and Driver Installer"
+ComponentText "Altus Metrum MicroPeak Software Installer"
 
 Function GetJRE
         MessageBox MB_OK "${PRODUCT_NAME} uses Java ${JRE_VERSION} 32-bit, it will now \
@@ -62,40 +62,14 @@ UninstPage instfiles
 
 ; And the stuff to install
 
-Section "Install Driver" InstDriver
-
-	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} AltusMetrumSerial
-	Pop $0
-	DetailPrint "InitDriverSetup: $0"
-	InstDrv::DeleteOemInfFiles /NOUNLOAD
-	InstDrv::CreateDevice /NOUNLOAD
-
-	SetOutPath $TEMP
-	File "../telemetrum.inf"
-	InstDrv::InstallDriver /NOUNLOAD "$TEMP\telemetrum.inf"
-
-	SetOutPath $INSTDIR
-	File "../telemetrum.inf"
-
-	SetOutPath $WINDIR\Inf
-	File "../telemetrum.inf"
-
-SectionEnd
-
-Section "AltosUI Application"
+Section "MicroPeak Application"
 	Call DetectJRE
 
 	SetOutPath $INSTDIR
 
-	File "altosui-fat.jar"
-	File "AltosLib.jar"
-	File "cmudict04.jar"
-	File "cmulex.jar"
-	File "cmu_time_awb.jar"
-	File "cmutimelex.jar"
-	File "cmu_us_kal.jar"
-	File "en_us.jar"
-	File "freetts.jar"
+	File "micropeak-fat.jar"
+	File "altoslib_@ALTOSLIB_VERSION@.jar"
+	File "altosuilib_@ALTOSUILIB_VERSION@.jar"
 	File "jfreechart.jar"
 	File "jcommon.jar"
 
@@ -103,34 +77,27 @@ Section "AltosUI Application"
 
 	File "../icon/*.ico"
 
-	CreateShortCut "$SMPROGRAMS\AltusMetrum.lnk" "$SYSDIR\javaw.exe" "-jar altosui-fat.jar" "$INSTDIR\altus-metrum.ico"
+	CreateShortCut "$SMPROGRAMS\MicroPeak.lnk" "$SYSDIR\javaw.exe" "-jar micropeak-fat.jar" "$INSTDIR\micro-peak.ico"
 SectionEnd
 
-Section "AltosUI Desktop Shortcut"
-	CreateShortCut "$DESKTOP\AltusMetrum.lnk" "$INSTDIR\altosui-fat.jar"  "" "$INSTDIR\altus-metrum.ico"
-SectionEnd
-
-Section "TeleMetrum and TeleDongle Firmware"
-
+Section "FTDI USB Driver"
 	SetOutPath $INSTDIR
 
-	File "../src/telemetrum-v1.0/telemetrum-v1.0-${VERSION}.ihx"
-	File "../src/telemetrum-v1.1/telemetrum-v1.1-${VERSION}.ihx"
-	File "../src/telemetrum-v1.2/telemetrum-v1.2-${VERSION}.ihx"
-	File "../src/telemini-v1.0/telemini-v1.0-${VERSION}.ihx"
-	File "../src/teledongle-v0.2/teledongle-v0.2-${VERSION}.ihx"
+	File "CDM20824_Setup.exe"
 
+	StrCpy $2 "$INSTDIR\CDM20824_Setup.exe"
+	ExecWait $2
+SectionEnd
+
+Section "MicroPeak Desktop Shortcut"
+	CreateShortCut "$DESKTOP\MicroPeak.lnk" "$INSTDIR\micropeak-fat.jar"  "" "$INSTDIR\micro-peak.ico"
 SectionEnd
 
 Section "Documentation"
 
 	SetOutPath $INSTDIR
 
-	File "../doc/altusmetrum.pdf"
-	File "../doc/altos.pdf"
-	File "../doc/telemetry.pdf"
-	File "../doc/telemetrum-outline.pdf"
-	File "../doc/megametrum-outline.pdf"
+	File "../doc/micropeak.pdf"
 SectionEnd
 
 Section "Uninstaller"
@@ -158,16 +125,8 @@ Section "Uninstall"
 	Delete "$INSTDIR\*.*"
 	RMDir "$INSTDIR"
 
-	; Remove .inf file
-	Delete "$WINDIR\Inf\telemetrum.inf"
-
-	; Remove devices
-	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} AltusMetrumSerial
-	InstDrv::DeleteOemInfFiles /NOUNLOAD
-	InstDrv::RemoveAllDevices
-
 	; Remove shortcuts, if any
-	Delete "$SMPROGRAMS\AltusMetrum.lnk"
-	Delete "$DESKTOP\AltusMetrum.lnk"
+	Delete "$SMPROGRAMS\MicroPeak.lnk"
+	Delete "$DESKTOP\MicroPeak.lnk"
 	
 SectionEnd
