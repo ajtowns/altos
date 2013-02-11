@@ -36,7 +36,8 @@ public class AltosGraphUI extends AltosUIFrame
 		return any_gps;
 	}
 
-	AltosGraphUI(AltosRecordIterable records, String file) throws InterruptedException, IOException {
+	AltosGraphUI(AltosRecordIterable records, File file) throws InterruptedException, IOException {
+		super(file.getName());
 		state = null;
 
 		pane = new JTabbedPane();

@@ -405,4 +405,8 @@ public class AltosLib {
 			input = input.substring(0,dot);
 		return input.concat(extension);
 	}
+
+	public static File replace_extension(File input, String extension) {
+		return new File(replace_extension(input.getPath(), extension));
+	}
 }
