@@ -36,6 +36,9 @@ public class AltosFlightStats {
 	int		hour, minute, second;
 	double		lat, lon;
 	double		pad_lat, pad_lon;
+	boolean		has_gps;
+	boolean		has_other_adc;
+	boolean		has_rssi;
 
 	double landed_time(AltosRecordIterable iterable) {
 		AltosState	state = null;
@@ -101,11 +104,18 @@ public class AltosFlightStats {
 		hour = minute = second = -1;
 		serial = flight = -1;
 		lat = lon = -1;
+		has_gps = false;
+		has_other_adc = false;
+		has_rssi = false;
 		for (AltosRecord record : iterable) {
 			if (serial < 0)
 				serial = record.serial;
 			if ((record.seen & AltosRecord.seen_flight) != 0 && flight < 0)
 				flight = record.flight;
+			if ((record.seen & AltosRecord.seen_temp_volt) != 0)
+				has_other_adc = true;
+			if (record.rssi != 0)
+				has_rssi = true;
 			new_state = new AltosState(record, state);
 			end_time = new_state.time;
 			state = new_state;
@@ -147,6 +157,7 @@ public class AltosFlightStats {
 				}
 				lat = state.gps.lat;
 				lon = state.gps.lon;
+				has_gps = true;
 			}
 		}
 		for (int s = Altos.ao_flight_startup; s <= Altos.ao_flight_landed; s++) {

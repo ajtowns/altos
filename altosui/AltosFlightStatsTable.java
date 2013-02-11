@@ -126,7 +126,7 @@ public class AltosFlightStatsTable extends JComponent {
 		new FlightStat(layout, y++, "Flight time",
 			       String.format("%6.1f s", stats.state_end[Altos.ao_flight_main] -
 					     stats.state_start[Altos.ao_flight_boost]));
-		if (stats.lat != -1 && stats.lon != -1) {
+		if (stats.has_gps) {
 			new FlightStat(layout, y++, "Pad location",
 				       pos(stats.pad_lat,"N","S"),
 				       pos(stats.pad_lon,"E","W"));

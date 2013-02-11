@@ -118,7 +118,7 @@ public class AltosGraph extends AltosUIGraph {
 	AltosUIAxis	height_axis, speed_axis, accel_axis, voltage_axis, temperature_axis, nsat_axis, dbm_axis;
 	AltosUIAxis	distance_axis;
 
-	public AltosGraph(AltosUIEnable enable) {
+	public AltosGraph(AltosUIEnable enable, AltosFlightStats stats, AltosGraphDataSet dataSet) {
 		super(enable);
 
 		height_axis = newAxis("Height", AltosConvert.height, height_color);
@@ -150,65 +150,72 @@ public class AltosGraph extends AltosUIGraph {
 			  accel_color,
 			  true,
 			  accel_axis);
-		addSeries("Range",
-			  AltosGraphDataPoint.data_range,
-			  AltosConvert.distance,
-			  range_color,
-			  false,
-			  distance_axis);
-		addSeries("Distance",
-			  AltosGraphDataPoint.data_distance,
-			  AltosConvert.distance,
-			  distance_color,
-			  false,
-			  distance_axis);
-		addSeries("GPS Height",
-			  AltosGraphDataPoint.data_gps_height,
-			  AltosConvert.height,
-			  gps_height_color,
-			  false,
-			  height_axis);
-		addSeries("GPS Satellites in Solution",
-			  AltosGraphDataPoint.data_gps_nsat_solution,
-			  nsat_units,
-			  gps_nsat_solution_color,
-			  false,
+		if (stats.has_gps) {
+			addSeries("Range",
+				  AltosGraphDataPoint.data_range,
+				  AltosConvert.distance,
+				  range_color,
+				  false,
+				  distance_axis);
+			addSeries("Distance",
+				  AltosGraphDataPoint.data_distance,
+				  AltosConvert.distance,
+				  distance_color,
+				  false,
+				  distance_axis);
+			addSeries("GPS Height",
+				  AltosGraphDataPoint.data_gps_height,
+				  AltosConvert.height,
+				  gps_height_color,
+				  false,
+				  height_axis);
+			addSeries("GPS Satellites in Solution",
+				  AltosGraphDataPoint.data_gps_nsat_solution,
+				  nsat_units,
+				  gps_nsat_solution_color,
+				  false,
+				  nsat_axis);
+			addSeries("GPS Satellites in View",
+				  AltosGraphDataPoint.data_gps_nsat_view,
+				  nsat_units,
+				  gps_nsat_view_color,
+				  false,
 			  nsat_axis);
-		addSeries("GPS Satellites in View",
-			  AltosGraphDataPoint.data_gps_nsat_view,
-			  nsat_units,
-			  gps_nsat_view_color,
-			  false,
-			  nsat_axis);
-		addSeries("Received Signal Strength",
-			  AltosGraphDataPoint.data_rssi,
-			  dbm_units,
-			  dbm_color,
-			  false,
-			  dbm_axis);
-		addSeries("Temperature",
-			  AltosGraphDataPoint.data_temperature,
-			  AltosConvert.temperature,
-			  temperature_color,
-			  false,
-			  temperature_axis);
-		addSeries("Battery Voltage",
-			  AltosGraphDataPoint.data_battery_voltage,
-			  voltage_units,
-			  battery_voltage_color,
-			  false,
-			  voltage_axis);
-		addSeries("Drogue Voltage",
-			  AltosGraphDataPoint.data_drogue_voltage,
-			  voltage_units,
-			  drogue_voltage_color,
-			  false,
-			  voltage_axis);
-		addSeries("Main Voltage",
-			  AltosGraphDataPoint.data_main_voltage,
-			  voltage_units,
-			  main_voltage_color,
-			  false,
-			  voltage_axis);
+		}
+		if (stats.has_rssi)
+			addSeries("Received Signal Strength",
+				  AltosGraphDataPoint.data_rssi,
+				  dbm_units,
+				  dbm_color,
+				  false,
+				  dbm_axis);
+		if (stats.has_other_adc) {
+			addSeries("Temperature",
+				  AltosGraphDataPoint.data_temperature,
+				  AltosConvert.temperature,
+				  temperature_color,
+				  false,
+				  temperature_axis);
+			addSeries("Battery Voltage",
+				  AltosGraphDataPoint.data_battery_voltage,
+				  voltage_units,
+				  battery_voltage_color,
+				  false,
+				  voltage_axis);
+			addSeries("Drogue Voltage",
+				  AltosGraphDataPoint.data_drogue_voltage,
+				  voltage_units,
+				  drogue_voltage_color,
+				  false,
+				  voltage_axis);
+			addSeries("Main Voltage",
+				  AltosGraphDataPoint.data_main_voltage,
+				  voltage_units,
+				  main_voltage_color,
+				  false,
+				  voltage_axis);
+		}
+
+		setDataSet(dataSet);
 	}
 }
