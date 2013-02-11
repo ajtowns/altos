@@ -62,6 +62,8 @@ public class AltosUIAxis extends NumberAxis {
 				System.out.printf("too few visible\n");
 		}
 		setVisible(visible > 0);
+		if (enable)
+			autoAdjustRange();
 	}
 
 	public void ref(boolean enable) {
