@@ -7,6 +7,7 @@ micropeak
 micropeak-test
 micropeak-jdb
 micropeak-windows.log
+micropeak-windows.nsi
 MicroPeak-Linux-*
 MicroPeak-Mac-*
 MicroPeak-Windows-*
@@ -17,3 +18,4 @@ linux
 macosx
 CDM*.exe
 FTDI*.dmg
+Info.plist

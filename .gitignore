@@ -35,6 +35,7 @@ ao-tools/ao-load/ao-load
 ao-tools/ao-postflight/ao-postflight
 ao-tools/ao-rawload/ao-rawload
 ao-tools/ao-send-telem/ao-send-telem
+ao-tools/ao-sky-flash/ao-sky-flash
 ao-tools/ao-view/ao-view
 ao-view/Makefile
 ao-view/ao-view

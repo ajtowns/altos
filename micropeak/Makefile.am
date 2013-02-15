@@ -78,7 +78,8 @@ clean-local:
 		$(ALTOSLIB_CLASS) \
 		$(ALTOSUILIB_CLASS) \
 		$(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) Manifest.txt Manifest-fat.txt \
-		micropeak micropeak-test micropeak-jdb macosx linux windows micropeak-windows.log
+		micropeak micropeak-test micropeak-jdb macosx linux windows micropeak-windows.log \
+		micropeak-windows.nsi
 
 LINUX_DIST=MicroPeak-Linux-$(VERSION).tar.bz2
 MACOSX_DIST=MicroPeak-Mac-$(VERSION).dmg
