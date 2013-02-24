@@ -299,10 +299,10 @@ ao_altitude_to_pa(alt_t alt);
  */
 
 uint8_t
-ao_spi_slave_recv(uint8_t *buf, uint8_t len);
+ao_spi_slave_recv(void *buf, uint16_t len);
 
 void
-ao_spi_slave_send(uint8_t *buf, uint8_t len);
+ao_spi_slave_send(void *buf, uint16_t len);
 
 void
 ao_spi_slave_init(void);
