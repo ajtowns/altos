@@ -113,6 +113,19 @@ ao_spi_init(void);
 			stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOEEN); \
 	} while (0)
 
+#define ao_disable_port(port) do {					\
+		if ((port) == &stm_gpioa)				\
+			stm_rcc.ahbenr &= ~(1 << STM_RCC_AHBENR_GPIOAEN); \
+		else if ((port) == &stm_gpiob)				\
+			stm_rcc.ahbenr &= ~(1 << STM_RCC_AHBENR_GPIOBEN); \
+		else if ((port) == &stm_gpioc)				\
+			stm_rcc.ahbenr &= ~(1 << STM_RCC_AHBENR_GPIOCEN); \
+		else if ((port) == &stm_gpiod)				\
+			stm_rcc.ahbenr &= ~(1 << STM_RCC_AHBENR_GPIODEN); \
+		else if ((port) == &stm_gpioe)				\
+			stm_rcc.ahbenr &= ~(1 << STM_RCC_AHBENR_GPIOEEN); \
+	} while (0)
+
 
 #define ao_gpio_set(port, bit, pin, v) stm_gpio_set(port, bit, v)
 
@@ -124,15 +137,19 @@ ao_spi_init(void);
 		stm_moder_set(port, bit, STM_MODER_OUTPUT);\
 	} while (0)
 
-#define ao_enable_input(port,bit,mode) do {				\
-		ao_enable_port(port);					\
-		stm_moder_set(port, bit, STM_MODER_INPUT);		\
+#define ao_gpio_set_mode(port,bit,mode) do {				\
 		if (mode == AO_EXTI_MODE_PULL_UP)			\
 			stm_pupdr_set(port, bit, STM_PUPDR_PULL_UP);	\
 		else if (mode == AO_EXTI_MODE_PULL_DOWN)		\
 			stm_pupdr_set(port, bit, STM_PUPDR_PULL_DOWN);	\
 		else							\
 			stm_pupdr_set(port, bit, STM_PUPDR_NONE);	\
+	} while (0)
+	
+#define ao_enable_input(port,bit,mode) do {				\
+		ao_enable_port(port);					\
+		stm_moder_set(port, bit, STM_MODER_INPUT);		\
+		ao_gpio_set_mode(port, bit, mode);			\
 	} while (0)
 
 #define ao_enable_cs(port,bit) do {				\

@@ -36,7 +36,47 @@ void stm_ignore_isr(void)
 {
 }
 
+const void *stm_interrupt_vector[];
+
+#define BOOT_FETCH(o)	(*((uint32_t *) (AO_BOOT_APPLICATION_BASE + (o))))
+
+#ifdef AO_BOOT_APPLICATION_PIN
+#include <ao_exti.h>
+#endif
+
 void start(void) {
+#ifdef AO_BOOT_APPLICATION_PIN
+	uint16_t v;
+
+	/* Enable power interface clock */
+	stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_PWREN);
+	
+	/* Enable the input pin */
+	ao_enable_input(&AO_BOOT_APPLICATION_GPIO, AO_BOOT_APPLICATION_PIN,
+			AO_BOOT_APPLICATION_MODE);
+
+	/* Read the value */
+	v = stm_gpio_get(&AO_BOOT_APPLICATION_GPIO, AO_BOOT_APPLICATION_PIN);
+
+	/* Reset the chip to turn off the port and the power interface clock */
+	ao_gpio_set_mode(&AO_BOOT_APPLICATION_GPIO, AO_BOOT_APPLICATION_PIN, 0);
+	ao_disable_port(&AO_BOOT_APPLICATION_GPIO);
+	stm_rcc.apb1enr &= ~(1 << STM_RCC_APB1ENR_PWREN);
+	if (v == AO_BOOT_APPLICATION_VALUE)
+	{
+		uint32_t	sp;
+		uint32_t	pc;
+
+		sp = BOOT_FETCH(0);
+		pc = BOOT_FETCH(4);
+		asm ("mov sp, %0" : : "r" (sp));
+		asm ("mov lr, %0" : : "r" (pc));
+		asm ("bx lr");
+	}
+#endif
+
+	/* Set interrupt vector table offset */
+	stm_nvic.vto = (uint32_t) &stm_interrupt_vector;
 	memcpy(&__data_start__, &__text_end__, &__data_end__ - &__data_start__);
 	memset(&__bss_start__, '\0', &__bss_end__ - &__bss_start__);
 	main();
