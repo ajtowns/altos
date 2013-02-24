@@ -77,11 +77,11 @@ ao_hmc5883_sample(struct ao_hmc5883_sample *sample)
 	ao_hmc5883_reg_write(HMC5883_MODE, HMC5883_MODE_SINGLE);
 
 	ao_alarm(AO_MS_TO_TICKS(10));
-	cli();
+	ao_arch_block_interrupts();
 	while (!ao_hmc5883_done)
 		if (ao_sleep(&ao_hmc5883_done))
 			++ao_hmc5883_missed_irq;
-	sei();
+	ao_arch_release_interrupts();
 	ao_clear_alarm();
 
 	ao_hmc5883_read(HMC5883_X_MSB, (uint8_t *) sample, sizeof (struct ao_hmc5883_sample));
@@ -109,7 +109,7 @@ ao_hmc5883_setup(void)
 	ao_i2c_put(AO_HMC5883_I2C_INDEX);
 
 	if (!present)
-		ao_panic(AO_PANIC_SELF_TEST);
+		ao_panic(AO_PANIC_SELF_TEST_HMC5883);
 
 	ao_hmc5883_reg_write(HMC5883_CONFIG_A,
 			     (HMC5883_CONFIG_A_MA_8 << HMC5883_CONFIG_A_MA) |
