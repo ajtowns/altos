@@ -91,12 +91,18 @@ public class AltosUIGraph implements AltosUnitsListener {
 	}
 
 	public void resetData() {
-		for (AltosUIGrapher g : graphers)
+		for (AltosUIGrapher g : graphers) {
 			g.clear();
+			g.setNotify(false);
+		}
 		if (dataSet != null) {
 			for (AltosUIDataPoint dataPoint : dataSet.dataPoints())
 				for (AltosUIGrapher g : graphers)
 					g.add(dataPoint);
+		}
+		for (AltosUIGrapher g : graphers) {
+			g.setNotify(true);
+			g.fireSeriesChanged();
 		}
 	}
 
