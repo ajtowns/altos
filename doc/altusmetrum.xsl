@@ -386,6 +386,36 @@ NAR #88757, TRA #12200
         tower with a screw-driver trying to turn on your avionics before 
         installing igniters!
       </para>
+      <para>
+	TeleMini is configured via the radio link. Of course, that
+	means you need to know the TeleMini radio configuration values
+	or you won't be able to communicate with it. For situations
+	when you don't have the radio configuration values, TeleMini
+	offers an 'emergency recovery' mode. In this mode, TeleMini is
+	configured as follows:
+	<itemizedlist>
+	  <listitem>
+	    Sets the radio frequency to 434.550MHz
+	  </listitem>
+	  <listitem>
+	    Sets the radio calibration back to the factory value.
+	  </listitem>
+	  <listitem>
+	    Sets the callsign to N0CALL
+	  </listitem>
+	  <listitem>
+	    Does not go to 'pad' mode after five seconds.
+	  </listitem>
+	</itemizedlist>
+      </para>
+      <para>
+	To get into 'emergency recovery' mode, first find the row of
+	four small holes opposite the switch wiring. Using a short
+	piece of small gauge wire, connect the outer two holes
+	together, then power TeleMini up. Once the red LED is lit,
+	disconnect the wire and the board should signal that it's in
+	'idle' mode after the initial five second startup period.
+      </para>
     </section>
     <section>
       <title>GPS </title>
