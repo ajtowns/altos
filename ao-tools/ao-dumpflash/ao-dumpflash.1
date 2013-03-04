@@ -1,0 +1,71 @@
+.\"
+.\" Copyright © 2013 Keith Packard <keithp@keithp.com>
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+.\"
+.\"
+.TH AO-DUMPFLASH 1 "ao-dumpflash" ""
+.SH NAME
+ao-dumpflash \- Fetch flash memory contents from AltOS device
+.SH SYNOPSIS
+.B "ao-dumpflash"
+[\--tty \fItty-device\fP]
+[\--device \fIaltos-device\fP]
+[\--output \fIoutput-file\fP]
+[\--remote\fP]
+[\--frequency \fIfrequency\fP]
+[\--call \fIcallsign\fP]
+.SH OPTIONS
+.TP
+\-T tty-device | --tty tty-device
+This selects which tty device ao-dumpflash uses to communicate with
+the target device.
+.TP
+\-D AltOS-device | --device AltOS-device
+Search for a connected device. This requires an argument of one of the
+following forms:
+.IP
+TeleMetrum:2
+.br
+TeleMetrum
+.br
+2
+.IP
+Leaving out the product name will cause the tool to select a suitable
+product, leaving out the serial number will cause the tool to match
+one of the available devices.
+.TP
+\-o output-file | --output output-file
+Write flash contents to the specified file rather than stdout.
+.TP
+\-R | --remote
+This uses the command radio link to download the flash from TeleMetrum
+through a TeleDongle.
+.TP
+\-F frequency | --frequency frequency
+Specifies the radio frequency to use for remote communications in
+kHz. Default is 434550.
+.TP
+\-C callsign | --call callsign
+Specifies the callsign to use for remote communications. Default is N0CALL.
+.SH DESCRIPTION
+.I ao-dumpflash
+downloads the entire flash memory contents from a connected AltOS device and writes
+it to either stdout or the specified output file.
+.SH USAGE
+.I ao-dumpflash
+connects to the specified target device and dumps the flash.
+.SH AUTHOR
+Keith Packard

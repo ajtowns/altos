@@ -240,7 +240,6 @@ ccdbg_flash_lock(struct ccdbg *dbg, uint8_t lock)
 uint8_t
 ccdbg_flash_hex_image(struct ccdbg *dbg, struct hex_image *image)
 {
-	uint16_t offset;
 	uint16_t flash_prog;
 	uint16_t flash_len;
 	uint8_t	fwt;
@@ -249,7 +248,6 @@ ccdbg_flash_hex_image(struct ccdbg *dbg, struct hex_image *image)
 	uint16_t flash_words;
 	uint8_t flash_words_high, flash_words_low;
 	uint16_t ram_addr;
-	uint16_t pc;
 	uint8_t status;
 	uint16_t remain, this_time, start;
 	uint8_t verify[0x400];
@@ -284,8 +282,6 @@ ccdbg_flash_hex_image(struct ccdbg *dbg, struct hex_image *image)
 		if (this_time > 0x400)
 			this_time = 0x400;
 
-		offset = ram_addr - (image->address + start);
-
 		ccdbg_debug(CC_DEBUG_FLASH, "Upload %d bytes at 0x%04x\n", this_time, ram_addr);
 		ccdbg_write_memory(dbg, ram_addr, image->data + start, this_time);
 #if 0
@@ -319,7 +315,6 @@ ccdbg_flash_hex_image(struct ccdbg *dbg, struct hex_image *image)
 		ccdbg_write_uint8(dbg, flash_prog + FLASH_WORDS_LOW, flash_words_low);
 
 		ccdbg_set_pc(dbg, flash_prog);
-		pc = ccdbg_get_pc(dbg);
 		ccdbg_debug(CC_DEBUG_FLASH, "Flashing %d bytes at 0x%04x\n",
 			    this_time, flash_addr);
 		status = ccdbg_resume(dbg);
