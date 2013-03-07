@@ -193,7 +193,7 @@ public class AltosDroid extends Activity {
 		mAltosVoice.tell(state);
 	}
 
-	String pos(double p, String pos, String neg) {
+	static String pos(double p, String pos, String neg) {
 		String	h = pos;
 		if (p < 0) {
 			h = neg;
