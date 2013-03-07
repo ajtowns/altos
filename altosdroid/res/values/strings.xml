@@ -16,46 +16,46 @@
 	 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 -->
 <resources>
-    <string name="app_name">AltosDroid</string>
 
-    <!--  AltosDroid -->
-    <string name="bt_not_enabled">Bluetooth was not enabled.</string>
-    <string name="title_connecting">connecting…</string>
-    <string name="title_connected_to">connected: </string>
-    <string name="title_not_connected">not connected</string>
+	<string name="app_name">AltosDroid</string>
 
-    <!-- Options Menu -->
-    <string name="connect_device">Connect a device</string>
-    <string name="select_freq">Select radio frequency</string>
+	<!-- AltosDroid -->
+	<string name="bt_not_enabled">Bluetooth was not enabled.</string>
+	<string name="title_connecting">connecting…</string>
+	<string name="title_connected_to">connected: </string>
+	<string name="title_not_connected">not connected</string>
 
-    <!--  DeviceListActivity -->
-    <string name="scanning">scanning for devices…</string>
-    <string name="select_device">select a device to connect</string>
-    <string name="none_paired">No devices have been paired</string>
-    <string name="none_found">No devices found</string>
-    <string name="title_paired_devices">Paired Devices</string>
-    <string name="title_other_devices">Other Available Devices</string>
-    <string name="button_scan">Scan for devices</string>
+	<!-- Options Menu -->
+	<string name="connect_device">Connect a device</string>
+	<string name="select_freq">Select radio frequency</string>
 
-    <!-- Service -->
-    <string name="telemetry_service_label">AltosDroid Telemetry Service</string>
-    <string name="telemetry_service_started">Telemetry Service Started</string>
-    <string name="telemetry_service_stopped">Telemetry Service Stopped</string>
+	<!-- DeviceListActivity -->
+	<string name="scanning">scanning for devices…</string>
+	<string name="select_device">select a device to connect</string>
+	<string name="none_paired">No devices have been paired</string>
+	<string name="none_found">No devices found</string>
+	<string name="title_paired_devices">Paired Devices</string>
+	<string name="title_other_devices">Other Available Devices</string>
+	<string name="button_scan">Scan for devices</string>
 
+	<!-- Service -->
+	<string name="telemetry_service_label">AltosDroid Telemetry Service</string>
+	<string name="telemetry_service_started">Telemetry Service Started</string>
+	<string name="telemetry_service_stopped">Telemetry Service Stopped</string>
 
 	<!-- UI fields -->
-    <string name="callsign_label">Callsign</string>
-    <string name="serial_label">Serial no.</string>
-    <string name="flight_label">Flight no.</string>
-    <string name="rssi_label">RSSI</string>
-    <string name="state_label">State</string>
-    <string name="speed_label">Speed</string>
-    <string name="accel_label">Acceleration</string>
-    <string name="range_label">Range</string>
-    <string name="height_label">Height</string>
-    <string name="elevation_label">Elevation</string>
-    <string name="bearing_label">Bearing</string>
-    <string name="latitude_label">Latitude</string>
-    <string name="longitude_label">Longitude</string>
+	<string name="callsign_label">Callsign</string>
+	<string name="serial_label">Serial</string>
+	<string name="flight_label">Flight</string>
+	<string name="state_label">State</string>
+	<string name="rssi_label">RSSI</string>
+	<string name="height_label">Height</string>
+	<string name="speed_label">Speed</string>
+	<string name="accel_label">Acceleration</string>
+	<string name="bearing_label">Bearing</string>
+	<string name="elevation_label">Elevation</string>
+	<string name="range_label">Range</string>
+	<string name="latitude_label">Latitude</string>
+	<string name="longitude_label">Longitude</string>
 
 </resources>
