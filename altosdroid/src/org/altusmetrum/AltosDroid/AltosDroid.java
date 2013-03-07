@@ -19,6 +19,8 @@ package org.altusmetrum.AltosDroid;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -56,6 +58,7 @@ public class AltosDroid extends FragmentActivity {
 	// Message types received by our Handler
 	public static final int MSG_STATE_CHANGE    = 1;
 	public static final int MSG_TELEMETRY       = 2;
+	public static final int MSG_UPDATE_AGE      = 3;
 
 	// Intent request codes
 	private static final int REQUEST_CONNECT_DEVICE = 1;
@@ -80,6 +83,10 @@ public class AltosDroid extends FragmentActivity {
 	ViewPager   mViewPager;
 	TabsAdapter mTabsAdapter;
 	ArrayList<AltosDroidTab> mTabs = new ArrayList<AltosDroidTab>();
+
+	// Timer and Saved flight state for Age calculation
+	private Timer timer = new Timer();
+	AltosState saved_state;
 
 	// Service
 	private boolean mIsBound   = false;
@@ -129,6 +136,11 @@ public class AltosDroid extends FragmentActivity {
 				break;
 			case MSG_TELEMETRY:
 				ad.update_ui((AltosState) msg.obj);
+				break;
+			case MSG_UPDATE_AGE:
+				if (ad.saved_state != null) {
+					ad.mAgeView.setText(String.format("%d", (System.currentTimeMillis() - ad.saved_state.report_time + 500) / 1000));
+				}
 				break;
 			}
 		}
@@ -185,6 +197,8 @@ public class AltosDroid extends FragmentActivity {
 	}
 
 	void update_ui(AltosState state) {
+		saved_state = state;
+
 		mCallsignView.setText(state.data.callsign);
 		mSerialView.setText(String.format("%d", state.data.serial));
 		mFlightView.setText(String.format("%d", state.data.flight));
@@ -195,6 +209,13 @@ public class AltosDroid extends FragmentActivity {
 			mTab.update_ui(state);
 
 		mAltosVoice.tell(state);
+	}
+
+	private void onTimerTick() {
+		try {
+			mMessenger.send(Message.obtain(null, MSG_UPDATE_AGE));
+		} catch (RemoteException e) {
+		}
 	}
 
 	static String pos(double p, String pos, String neg) {
@@ -264,6 +285,8 @@ public class AltosDroid extends FragmentActivity {
 		mFlightView    = (TextView) findViewById(R.id.flight_value);
 		mStateView     = (TextView) findViewById(R.id.state_value);
 		mAgeView       = (TextView) findViewById(R.id.age_value);
+
+		timer.scheduleAtFixedRate(new TimerTask(){ public void run() {onTimerTick();}}, 1000L, 100L);
 
 		mAltosVoice = new AltosVoice(this);
 	}
