@@ -72,11 +72,11 @@ bin/AltosDroid-debug.apk: $(SRC) $(ALTOSLIB) $(SUPPORT_V4) $(GOOGLE_PLAY_SERVICE
 bin/AltosDroid-release-unsigned.apk: $(SRC) $(ALTOSLIB) $(SUPPORT_V4) $(GOOGLE_PLAY_SERVICES_LIB)
 	ant release
 
-sign:
+release: bin/AltosDroid-release-unsigned.apk
 	jarsigner -keystore release.keystore \
 	   -signedjar bin/AltosDroid-release-signed.apk \
 	   bin/AltosDroid-release-unsigned.apk AltosDroid
-	$(SDK)/tools/zipalign -f 4 \
+	$(ZIPALIGN) -f 4 \
 	   bin/AltosDroid-release-signed.apk \
 	   bin/AltosDroid-release.apk
 
