@@ -1,12 +1,11 @@
 if ANDROID
-all_target=bin/AltosDroid-debug.apk bin/AltosDroid-release.apk
-clean_command=ant clean
+all_target=bin/AltosDroid-debug.apk bin/AltosDroid-release-unsigned.apk
 else
 all_target=
-clean_command=echo done
 endif
 
 SDK=$(ANDROID_SDK)
+SDK_TARGET=$(shell sed -ne 's/^target=//p' project.properties)
 
 DX=$(SDK)/platform-tools/dx
 ADB=$(SDK)/platform-tools/adb
@@ -21,6 +20,14 @@ ALTOSLIB_JAR=altoslib_$(ALTOSLIB_VERSION).jar
 
 ALTOSLIB=$(EXT_LIBDIR)/$(ALTOSLIB_JAR)
 
+SUPPORT_V4_SRCDIR=$(SDK)/extras/android/support/v4
+SUPPORT_V4_JAR=android-support-v4.jar
+
+SUPPORT_V4=$(EXT_LIBDIR)/$(SUPPORT_V4_JAR)
+
+GOOGLE_PLAY_SERVICES_LIB_SRCDIR=$(SDK)/extras/google/google_play_services/libproject
+GOOGLE_PLAY_SERVICES_LIB=google-play-services_lib
+
 SRC=$(SRC_DIR)/*.java
 
 all: $(all_target)
@@ -30,6 +37,13 @@ $(EXT_LIBDIR):
 
 $(ALTOSLIB): $(EXT_LIBDIR) $(ALTOSLIB_SRCDIR)/$(ALTOSLIB_JAR)
 	cd $(EXT_LIBDIR) && ln -sf $(shell echo $(EXT_LIBDIR) | sed 's|[^/]\+|..|g')/$(ALTOSLIB_SRCDIR)/$(ALTOSLIB_JAR) .
+
+$(SUPPORT_V4): $(EXT_LIBDIR) $(SUPPORT_V4_SRCDIR)/$(SUPPORT_V4_JAR)
+	cd $(EXT_LIBDIR) && ln -sf $(SUPPORT_V4_SRCDIR)/$(SUPPORT_V4_JAR) .
+
+$(GOOGLE_PLAY_SERVICES_LIB): $(GOOGLE_PLAY_SERVICES_LIB_SRCDIR)/$(GOOGLE_PLAY_SERVICES_LIB)
+	cp -a $(GOOGLE_PLAY_SERVICES_LIB_SRCDIR)/$(GOOGLE_PLAY_SERVICES_LIB) .
+	cd $(GOOGLE_PLAY_SERVICES_LIB) && $(SDK)/tools/android update project --target $(SDK_TARGET) --path .
 
 $(SRC_DIR)/BuildInfo.java: $(SRC)
 	./buildinfo.sh
@@ -41,10 +55,10 @@ install-release: bin/AltosDroid-release.apk
 install-debug: bin/AltosDroid-debug.apk
 	$(ADB) install -r bin/AltosDroid-debug.apk
 
-bin/AltosDroid-debug.apk: $(SRC) $(ALTOSLIB)
+bin/AltosDroid-debug.apk: $(SRC) $(ALTOSLIB) $(SUPPORT_V4) $(GOOGLE_PLAY_SERVICES_LIB)
 	ant debug
 
-bin/AltosDroid-release.apk: $(SRC) $(ALTOSLIB)
+bin/AltosDroid-release-unsigned.apk: $(SRC) $(ALTOSLIB) $(SUPPORT_V4) $(GOOGLE_PLAY_SERVICES_LIB)
 	ant release
 
 sign:
@@ -55,11 +69,14 @@ sign:
 	   bin/AltosDroid-release-signed.apk \
 	   bin/AltosDroid-release.apk
 
-endif
-
-clean: clean-local
-	$(clean_command)
-
-clean-local:
+clean: $(GOOGLE_PLAY_SERVICES_LIB)
+	ant clean
 	rm -rf $(EXT_LIBDIR)
+	rm -rf $(GOOGLE_PLAY_SERVICES_LIB)
+
+else
+
+clean:
+
+endif
 
