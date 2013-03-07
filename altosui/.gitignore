@@ -12,6 +12,7 @@ altosui
 altosui-test
 altosui-jdb
 classaltosui.stamp
+altos-windows.nsi
 Altos-Linux-*.tar.bz2
 Altos-Mac-*.zip
 Altos-Windows-*.exe

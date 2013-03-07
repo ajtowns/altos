@@ -1,3 +1,5 @@
+ao_aprs_data.wav
+ao_aprs_test
 ao_flight_test
 ao_flight_test_baro
 ao_flight_test_accel
@@ -6,4 +8,6 @@ ao_gps_test_skytraq
 ao_convert_test
 ao_convert_pa_test
 ao_fec_test
+ao_flight_test_mm
 ao_flight_test_noisy_accel
+ao_micropeak_test

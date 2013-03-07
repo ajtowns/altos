@@ -33,7 +33,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -45,9 +44,6 @@ import android.app.AlertDialog;
 
 import org.altusmetrum.altoslib_1.*;
 
-/**
- * This is the main Activity that displays the current chat session.
- */
 public class AltosDroid extends Activity {
 	// Debugging
 	private static final String TAG = "AltosDroid";
@@ -79,8 +75,7 @@ public class AltosDroid extends Activity {
 	private TextView mLatitudeView;
 	private TextView mLongitudeView;
 
-	// Generic field for extras at the bottom
-	private TextView mTextView;
+	// field to display the version at the bottom of the screen
 	private TextView mVersion;
 
 	// Service
@@ -118,8 +113,6 @@ public class AltosDroid extends Activity {
 					ad.mTitle.append(str);
 					Toast.makeText(ad.getApplicationContext(), "Connected to " + str, Toast.LENGTH_SHORT).show();
 					ad.mAltosVoice.speak("Connected");
-					//TEST!
-					//ad.mTextView.setText(Dumper.dump(ad.mConfigData));
 					break;
 				case TelemetryService.STATE_CONNECTING:
 					ad.mTitle.setText(R.string.title_connecting);
@@ -128,14 +121,11 @@ public class AltosDroid extends Activity {
 				case TelemetryService.STATE_NONE:
 					ad.mConfigData = null;
 					ad.mTitle.setText(R.string.title_not_connected);
-					ad.mTextView.setText("");
 					break;
 				}
 				break;
 			case MSG_TELEMETRY:
 				ad.update_ui((AltosState) msg.obj);
-				// TEST!
-				//ad.mTextView.setText(Dumper.dump(msg.obj));
 				break;
 			}
 		}
@@ -235,7 +225,6 @@ public class AltosDroid extends Activity {
 
 		// Set up the window layout
 		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-		//setContentView(R.layout.main);
 		setContentView(R.layout.altosdroid);
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_title);
 
@@ -244,12 +233,7 @@ public class AltosDroid extends Activity {
 		mTitle.setText(R.string.app_name);
 		mTitle = (TextView) findViewById(R.id.title_right_text);
 
-		// Set up the temporary Text View
-		mTextView = (TextView) findViewById(R.id.text);
-		mTextView.setMovementMethod(new ScrollingMovementMethod());
-		mTextView.setClickable(false);
-		mTextView.setLongClickable(false);
-
+		// Display the Version
 		mVersion = (TextView) findViewById(R.id.version);
 		mVersion.setText("Version: " + BuildInfo.version +
 		                 "  Built: " + BuildInfo.builddate + " " + BuildInfo.buildtime + " " + BuildInfo.buildtz +

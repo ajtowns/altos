@@ -13,7 +13,7 @@ CFLAGS=-I.. -I. -I../core -I../drivers -I../micropeak -O0 -g -Wall
 all: $(PROGS) ao_aprs_data.wav
 
 clean:
-	rm -f $(PROGS) run-out.baro run-out.full
+	rm -f $(PROGS) ao_aprs_data.wav run-out.baro run-out.full
 
 install:
 

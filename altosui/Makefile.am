@@ -182,7 +182,7 @@ all-local: classes/altosui $(JAR) altosui altosui-test altosui-jdb
 clean-local:
 	-rm -rf classes $(JAR) $(FATJAR) \
 		$(LINUX_DIST) $(MACOSX_DIST) windows $(WINDOWS_DIST) $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) $(FREETTS_CLASS) \
-		$(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) Manifest.txt Manifest-fat.txt altos-windows.log \
+		$(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) Manifest.txt Manifest-fat.txt altos-windows.log altos-windows.nsi \
 		altosui altosui-test altosui-jdb macosx linux
 
 if FATINSTALL
