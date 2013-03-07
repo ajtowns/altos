@@ -25,9 +25,11 @@ SRC=$(SRC_DIR)/*.java
 
 all: $(all_target)
 
-$(ALTOSLIB): $(ALTOSLIB_SRCDIR)/$(ALTOSLIB_JAR)
+$(EXT_LIBDIR):
 	mkdir -p $(EXT_LIBDIR)
-	cd $(EXT_LIBDIR) && ln -s $(shell echo $(EXT_LIBDIR) | sed 's|[^/]\+|..|g')/$(ALTOSLIB_SRCDIR)/$(ALTOSLIB_JAR) .
+
+$(ALTOSLIB): $(EXT_LIBDIR) $(ALTOSLIB_SRCDIR)/$(ALTOSLIB_JAR)
+	cd $(EXT_LIBDIR) && ln -sf $(shell echo $(EXT_LIBDIR) | sed 's|[^/]\+|..|g')/$(ALTOSLIB_SRCDIR)/$(ALTOSLIB_JAR) .
 
 $(SRC_DIR)/BuildInfo.java: $(SRC)
 	./buildinfo.sh
