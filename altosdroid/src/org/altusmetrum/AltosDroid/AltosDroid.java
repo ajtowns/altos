@@ -18,6 +18,7 @@
 package org.altusmetrum.AltosDroid;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -78,6 +79,7 @@ public class AltosDroid extends FragmentActivity {
 	TabHost     mTabHost;
 	ViewPager   mViewPager;
 	TabsAdapter mTabsAdapter;
+	ArrayList<AltosDroidTab> mTabs = new ArrayList<AltosDroidTab>();
 
 	// Service
 	private boolean mIsBound   = false;
@@ -175,9 +177,11 @@ public class AltosDroid extends FragmentActivity {
 	}
 
 	public void registerTab(AltosDroidTab mTab) {
+		mTabs.add(mTab);
 	}
 
 	public void unregisterTab(AltosDroidTab mTab) {
+		mTabs.remove(mTab);
 	}
 
 	void update_ui(AltosState state) {
@@ -186,6 +190,9 @@ public class AltosDroid extends FragmentActivity {
 		mFlightView.setText(String.format("%d", state.data.flight));
 		mStateView.setText(state.data.state());
 		mRSSIView.setText(String.format("%d", state.data.rssi));
+
+		for (AltosDroidTab mTab : mTabs)
+			mTab.update_ui(state);
 
 		mAltosVoice.tell(state);
 	}
