@@ -173,6 +173,12 @@ public class AltosDroid extends Activity {
 		}
 	}
 
+	public void registerTab(AltosDroidTab mTab) {
+	}
+
+	public void unregisterTab(AltosDroidTab mTab) {
+	}
+
 	void update_ui(AltosState state) {
 		mCallsignView.setText(state.data.callsign);
 		mRSSIView.setText(String.format("%d", state.data.rssi));

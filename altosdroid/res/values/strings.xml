@@ -44,18 +44,36 @@
 	<string name="telemetry_service_stopped">Telemetry Service Stopped</string>
 
 	<!-- UI fields -->
+	<!-- Header -->
 	<string name="callsign_label">Callsign</string>
 	<string name="serial_label">Serial</string>
 	<string name="flight_label">Flight</string>
 	<string name="state_label">State</string>
 	<string name="rssi_label">RSSI</string>
+	<string name="age_label">Age</string>
+
+	<!-- Tab fields -->
 	<string name="height_label">Height</string>
 	<string name="speed_label">Speed</string>
 	<string name="accel_label">Acceleration</string>
 	<string name="bearing_label">Bearing</string>
 	<string name="elevation_label">Elevation</string>
 	<string name="range_label">Range</string>
+	<string name="distance_label">Distance</string>
+	<string name="gnd_distance_label">Ground Distance</string>
+	<string name="max_height_label">Max Height</string>
+	<string name="max_speed_label">Max Speed</string>
+	<string name="max_accel_label">Max Accel</string>
+	<string name="battery_voltage_label">Battery Voltage</string>
+	<string name="apogee_voltage_label">Apogee Igniter Voltage</string>
+	<string name="main_voltage_label">Main Igniter Voltage</string>
+	<string name="logging_label">On-board Data Logging</string>
+	<string name="gps_locked_label">GPS Locked</string>
+	<string name="gps_ready_label">GPS Ready</string>
 	<string name="latitude_label">Latitude</string>
 	<string name="longitude_label">Longitude</string>
+	<string name="pad_lat_label">Pad Latitude</string>
+	<string name="pad_lon_label">Pad Longitude</string>
+	<string name="pad_alt_label">Pad Altitude</string>
 
 </resources>
