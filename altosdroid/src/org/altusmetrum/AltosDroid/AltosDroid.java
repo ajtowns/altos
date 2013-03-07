@@ -150,7 +150,6 @@ public class AltosDroid extends Activity {
 		}
 	};
 
-
 	void doBindService() {
 		bindService(new Intent(this, TelemetryService.class), mConnection, Context.BIND_AUTO_CREATE);
 		mIsBound = true;
