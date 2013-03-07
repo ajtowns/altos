@@ -16,18 +16,20 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="org.altusmetrum.AltosDroid"
-      android:versionCode="1"
-      android:versionName="1.1.9.3">
+          package="org.altusmetrum.AltosDroid"
+          android:versionCode="1"
+          android:versionName="1.1.9.3">
     <uses-sdk android:targetSdkVersion="10" android:minSdkVersion="10"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application android:label="@string/app_name"
-                 android:icon="@drawable/app_icon" >
-        <activity android:label="@string/app_name"
-                  android:configChanges="orientation|keyboardHidden" android:name="org.altusmetrum.AltosDroid.AltosDroid">
+                 android:icon="@drawable/app_icon"
+                 android:allowBackup="true" >
+        <activity android:name="org.altusmetrum.AltosDroid.AltosDroid"
+                  android:label="@string/app_name"
+                  android:configChanges="orientation|keyboardHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
