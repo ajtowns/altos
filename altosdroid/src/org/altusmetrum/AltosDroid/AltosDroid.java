@@ -197,6 +197,22 @@ public class AltosDroid extends FragmentActivity {
 	}
 
 	void update_ui(AltosState state) {
+		if (saved_state != null) {
+			if (saved_state.state != state.state) {
+				String currentTab = mTabHost.getCurrentTabTag();
+				switch (state.state) {
+				case AltosLib.ao_flight_boost:
+					if (currentTab.equals("pad")) mTabHost.setCurrentTabByTag("ascent");
+					break;
+				case AltosLib.ao_flight_drogue:
+					if (currentTab.equals("ascent")) mTabHost.setCurrentTabByTag("descent");
+					break;
+				case AltosLib.ao_flight_landed:
+					if (currentTab.equals("descent")) mTabHost.setCurrentTabByTag("landed");
+					break;
+				}
+			}
+		}
 		saved_state = state;
 
 		mCallsignView.setText(state.data.callsign);
