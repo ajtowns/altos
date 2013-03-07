@@ -300,9 +300,6 @@ public class AltosDroid extends Activity {
 		mAltosVoice.stop();
 	}
 
-
-
-
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(D) Log.d(TAG, "onActivityResult " + resultCode);
 		switch (requestCode) {

@@ -38,9 +38,7 @@
                   android:theme="@android:style/Theme.Dialog"
                   android:configChanges="orientation|keyboardHidden" />
 
-
         <service android:name=".TelemetryService" />
-
 
     </application>
 </manifest>
