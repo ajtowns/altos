@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright © 2013 Mike Beattie <mike@ethernal.org>
+
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful, but
+     WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+     General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical" >
+
+	<RelativeLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" >
+
+		<TextView
+			android:id="@+id/bearing_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/bearing_label" />
+
+		<TextView
+			android:id="@+id/bearing_value"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@+id/bearing_label"
+			android:text=""
+			android:textAppearance="?android:attr/textAppearanceLarge" />
+	</RelativeLayout>
+
+	<RelativeLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:paddingTop="5dp" >
+
+		<TextView
+			android:id="@+id/distance_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/distance_label" />
+
+		<TextView
+			android:id="@+id/distance_value"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@+id/distance_label"
+			android:text=""
+			android:textAppearance="?android:attr/textAppearanceLarge" />
+	</RelativeLayout>
+
+	<RelativeLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:paddingTop="5dp" >
+
+		<TextView
+			android:id="@+id/lat_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/latitude_label" />
+
+		<TextView
+			android:id="@+id/lat_value"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@id/lat_label"
+			android:text=""
+			android:textAppearance="?android:attr/textAppearanceLarge" />
+	</RelativeLayout>
+
+	<RelativeLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:paddingTop="5dp" >
+
+		<TextView
+			android:id="@+id/lon_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/longitude_label" />
+
+		<TextView
+			android:id="@+id/lon_value"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@id/lon_label"
+			android:text=""
+			android:textAppearance="?android:attr/textAppearanceLarge" />
+	</RelativeLayout>
+
+	<RelativeLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:paddingTop="5dp" >
+
+		<TextView
+			android:id="@+id/max_height_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/max_height_label" />
+
+		<TextView
+			android:id="@+id/max_height_value"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@id/max_height_label"
+			android:text=""
+			android:textAppearance="?android:attr/textAppearanceLarge" />
+	</RelativeLayout>
+
+	<RelativeLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:paddingTop="5dp" >
+
+		<TextView
+			android:id="@+id/max_speed_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/max_speed_label" />
+
+		<TextView
+			android:id="@+id/max_speed_value"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@id/max_speed_label"
+			android:text=""
+			android:textAppearance="?android:attr/textAppearanceLarge" />
+	</RelativeLayout>
+
+	<RelativeLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:paddingTop="5dp" >
+
+		<TextView
+			android:id="@+id/max_accel_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/max_accel_label" />
+
+		<TextView
+			android:id="@+id/max_accel_value"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@id/max_accel_label"
+			android:text=""
+			android:textAppearance="?android:attr/textAppearanceLarge" />
+	</RelativeLayout>
+
+</LinearLayout>

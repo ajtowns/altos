@@ -1,12 +1,11 @@
 if ANDROID
-all_target=bin/AltosDroid-debug.apk bin/AltosDroid-release.apk
-clean_command=ant clean
+all_target=bin/AltosDroid-debug.apk bin/AltosDroid-release-unsigned.apk
 else
 all_target=
-clean_command=echo done
 endif
 
 SDK=$(ANDROID_SDK)
+SDK_TARGET=$(shell sed -ne 's/^target=//p' project.properties)
 
 DX=$(SDK)/platform-tools/dx
 ADB=$(SDK)/platform-tools/adb
@@ -14,33 +13,51 @@ AAPT=$(SDK)/platform-tools/aapt
 APKBUILDER=$(SDK)/tools/apkbuilder
 ZIPALIGN=$(SDK)/tools/zipalign
 
-SRC_DIR=src/org/altusmetrum/AltosDroid
+JAVA_SRC_DIR=src/org/altusmetrum/AltosDroid
 EXT_LIBDIR=libs
+DRAWABLE_DIR=res/drawable
 ALTOSLIB_SRCDIR=../altoslib
 ALTOSLIB_JAR=altoslib_$(ALTOSLIB_VERSION).jar
 
 ALTOSLIB=$(EXT_LIBDIR)/$(ALTOSLIB_JAR)
 
-SRC=\
-	$(SRC_DIR)/AltosDroid.java \
-	$(SRC_DIR)/AltosDroidPreferences.java \
-	$(SRC_DIR)/AltosVoice.java \
-	$(SRC_DIR)/TelemetryService.java \
-	$(SRC_DIR)/TelemetryReader.java \
-	$(SRC_DIR)/TelemetryLogger.java \
-	$(SRC_DIR)/AltosBluetooth.java \
-	$(SRC_DIR)/DeviceListActivity.java \
-	$(SRC_DIR)/BuildInfo.java \
-	$(SRC_DIR)/Dumper.java
+SUPPORT_V4_SRCDIR=$(SDK)/extras/android/support/v4
+SUPPORT_V4_JAR=android-support-v4.jar
+
+SUPPORT_V4=$(EXT_LIBDIR)/$(SUPPORT_V4_JAR)
+
+GOOGLE_PLAY_SERVICES_LIB_SRCDIR=$(SDK)/extras/google/google_play_services/libproject
+GOOGLE_PLAY_SERVICES_LIB=google-play-services_lib
+
+JAVA_SRC=$(JAVA_SRC_DIR)/*.java
+
+DRAWABLES=\
+    $(DRAWABLE_DIR)/redled.png \
+    $(DRAWABLE_DIR)/greenled.png \
+    $(DRAWABLE_DIR)/grayled.png
+
+SRC=$(JAVA_SRC) $(DRAWABLES)
 
 all: $(all_target)
 
-$(ALTOSLIB): $(ALTOSLIB_SRCDIR)/$(ALTOSLIB_JAR)
+$(EXT_LIBDIR):
 	mkdir -p $(EXT_LIBDIR)
-	cd $(EXT_LIBDIR) && ln -s $(shell echo $(EXT_LIBDIR) | sed 's|[^/]\+|..|g')/$(ALTOSLIB_SRCDIR)/$(ALTOSLIB_JAR) .
 
-$(SRC_DIR)/BuildInfo.java:
+$(ALTOSLIB): $(EXT_LIBDIR) $(ALTOSLIB_SRCDIR)/$(ALTOSLIB_JAR)
+	cd $(EXT_LIBDIR) && ln -sf $(shell echo $(EXT_LIBDIR) | sed 's|[^/]\+|..|g')/$(ALTOSLIB_SRCDIR)/$(ALTOSLIB_JAR) .
+
+$(SUPPORT_V4): $(EXT_LIBDIR) $(SUPPORT_V4_SRCDIR)/$(SUPPORT_V4_JAR)
+	cd $(EXT_LIBDIR) && ln -sf $(SUPPORT_V4_SRCDIR)/$(SUPPORT_V4_JAR) .
+
+$(GOOGLE_PLAY_SERVICES_LIB): $(GOOGLE_PLAY_SERVICES_LIB_SRCDIR)/$(GOOGLE_PLAY_SERVICES_LIB)
+	cp -a $(GOOGLE_PLAY_SERVICES_LIB_SRCDIR)/$(GOOGLE_PLAY_SERVICES_LIB) .
+	cd $(GOOGLE_PLAY_SERVICES_LIB) && $(SDK)/tools/android update project --target $(SDK_TARGET) --path .
+
+$(JAVA_SRC_DIR)/BuildInfo.java: $(JAVA_SRC)
 	./buildinfo.sh
+
+$(DRAWABLE_DIR)/%.png: ../icon/%.png
+	cd $(DRAWABLE_DIR) && ln -sf $(shell echo $(DRAWABLE_DIR) | sed 's|[^/]\+|..|g')/$< .
 
 if ANDROID
 install-release: bin/AltosDroid-release.apk
@@ -49,26 +66,29 @@ install-release: bin/AltosDroid-release.apk
 install-debug: bin/AltosDroid-debug.apk
 	$(ADB) install -r bin/AltosDroid-debug.apk
 
-bin/AltosDroid-debug.apk: $(SRC) $(ALTOSLIB)
+bin/AltosDroid-debug.apk: $(SRC) $(ALTOSLIB) $(SUPPORT_V4) $(GOOGLE_PLAY_SERVICES_LIB)
 	ant debug
 
-bin/AltosDroid-release.apk: $(SRC) $(ALTOSLIB)
+bin/AltosDroid-release-unsigned.apk: $(SRC) $(ALTOSLIB) $(SUPPORT_V4) $(GOOGLE_PLAY_SERVICES_LIB)
 	ant release
 
-sign:
+release: bin/AltosDroid-release-unsigned.apk
 	jarsigner -keystore release.keystore \
 	   -signedjar bin/AltosDroid-release-signed.apk \
 	   bin/AltosDroid-release-unsigned.apk AltosDroid
-	$(SDK)/tools/zipalign -f 4 \
+	$(ZIPALIGN) -f 4 \
 	   bin/AltosDroid-release-signed.apk \
 	   bin/AltosDroid-release.apk
 
+clean: $(GOOGLE_PLAY_SERVICES_LIB)
+	ant clean
+	rm -rf $(EXT_LIBDIR)
+	rm -f $(DRAWABLES)
+	rm -rf $(GOOGLE_PLAY_SERVICES_LIB)
+
+else
+
+clean:
+
 endif
 
-clean: clean-local
-	$(clean_command)
-
-clean-local:
-	rm -rf $(EXT_LIBDIR)
-
-.PHONY: $(SRC_DIR)/BuildInfo.java

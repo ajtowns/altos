@@ -1,60 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2009 The Android Open Source Project
+<!--
+	 Copyright © 2012-2013 Mike Beattie <mike@ethernal.org>
 
-     Licensed under the Apache License, Version 2.0 (the "License");
-     you may not use this file except in compliance with the License.
-     You may obtain a copy of the License at
+	 This program is free software; you can redistribute it and/or modify
+	 it under the terms of the GNU General Public License as published by
+	 the Free Software Foundation; version 2 of the License.
 
-          http://www.apache.org/licenses/LICENSE-2.0
+	 This program is distributed in the hope that it will be useful, but
+	 WITHOUT ANY WARRANTY; without even the implied warranty of
+	 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	 General Public License for more details.
 
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     See the License for the specific language governing permissions and
-     limitations under the License.
+	 You should have received a copy of the GNU General Public License along
+	 with this program; if not, write to the Free Software Foundation, Inc.,
+	 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 -->
-
 <resources>
-    <string name="app_name">AltosDroid</string>
 
-    <!--  AltosDroid -->
-    <string name="bt_not_enabled">Bluetooth was not enabled.</string>
-    <string name="title_connecting">connecting…</string>
-    <string name="title_connected_to">connected: </string>
-    <string name="title_not_connected">not connected</string>
+	<string name="app_name">AltosDroid</string>
 
-    <!-- Options Menu -->
-    <string name="connect_device">Connect a device</string>
-    <string name="select_freq">Select radio frequency</string>
+	<!-- AltosDroid -->
+	<string name="bt_not_enabled">Bluetooth was not enabled.</string>
+	<string name="title_connecting">connecting…</string>
+	<string name="title_connected_to">connected: </string>
+	<string name="title_not_connected">not connected</string>
 
-    <!--  DeviceListActivity -->
-    <string name="scanning">scanning for devices…</string>
-    <string name="select_device">select a device to connect</string>
-    <string name="none_paired">No devices have been paired</string>
-    <string name="none_found">No devices found</string>
-    <string name="title_paired_devices">Paired Devices</string>
-    <string name="title_other_devices">Other Available Devices</string>
-    <string name="button_scan">Scan for devices</string>
+	<!-- Options Menu -->
+	<string name="connect_device">Connect a device</string>
+	<string name="select_freq">Select radio frequency</string>
 
-    <!-- Service -->
-    <string name="telemetry_service_label">AltosDroid Telemetry Service</string>
-    <string name="telemetry_service_started">Telemetry Service Started</string>
-    <string name="telemetry_service_stopped">Telemetry Service Stopped</string>
+	<!-- DeviceListActivity -->
+	<string name="scanning">scanning for devices…</string>
+	<string name="select_device">select a device to connect</string>
+	<string name="none_paired">No devices have been paired</string>
+	<string name="none_found">No devices found</string>
+	<string name="title_paired_devices">Paired Devices</string>
+	<string name="title_other_devices">Other Available Devices</string>
+	<string name="button_scan">Scan for devices</string>
 
+	<!-- Service -->
+	<string name="telemetry_service_label">AltosDroid Telemetry Service</string>
+	<string name="telemetry_service_started">Telemetry Service Started</string>
+	<string name="telemetry_service_stopped">Telemetry Service Stopped</string>
 
 	<!-- UI fields -->
-    <string name="callsign_label">Callsign</string>
-    <string name="serial_label">Serial no.</string>
-    <string name="flight_label">Flight no.</string>
-    <string name="rssi_label">RSSI</string>
-    <string name="state_label">State</string>
-    <string name="speed_label">Speed</string>
-    <string name="accel_label">Acceleration</string>
-    <string name="range_label">Range</string>
-    <string name="height_label">Height</string>
-    <string name="elevation_label">Elevation</string>
-    <string name="bearing_label">Bearing</string>
-    <string name="latitude_label">Latitude</string>
-    <string name="longitude_label">Longitude</string>
+	<!-- Header -->
+	<string name="callsign_label">Callsign</string>
+	<string name="serial_label">Serial</string>
+	<string name="flight_label">Flight</string>
+	<string name="state_label">State</string>
+	<string name="rssi_label">RSSI</string>
+	<string name="age_label">Age</string>
+
+	<!-- Tab fields -->
+	<string name="height_label">Height</string>
+	<string name="speed_label">Speed</string>
+	<string name="accel_label">Acceleration</string>
+	<string name="bearing_label">Bearing</string>
+	<string name="elevation_label">Elevation</string>
+	<string name="range_label">Range</string>
+	<string name="distance_label">Distance</string>
+	<string name="gnd_distance_label">Ground Distance</string>
+	<string name="max_height_label">Max Height</string>
+	<string name="max_speed_label">Max Speed</string>
+	<string name="max_accel_label">Max Accel</string>
+	<string name="battery_voltage_label">Battery Voltage</string>
+	<string name="apogee_voltage_label">Apogee Igniter Voltage</string>
+	<string name="main_voltage_label">Main Igniter Voltage</string>
+	<string name="logging_label">On-board Data Logging</string>
+	<string name="gps_locked_label">GPS Locked</string>
+	<string name="gps_ready_label">GPS Ready</string>
+	<string name="latitude_label">Latitude</string>
+	<string name="longitude_label">Longitude</string>
+	<string name="pad_lat_label">Pad Latitude</string>
+	<string name="pad_lon_label">Pad Longitude</string>
+	<string name="pad_alt_label">Pad Altitude</string>
 
 </resources>

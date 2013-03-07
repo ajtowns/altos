@@ -1,5 +1,5 @@
 /*
- * Copyright © 2012 Mike Beattie <mike@ethernal.org>
+ * Copyright © 2012-2013 Mike Beattie <mike@ethernal.org>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,9 @@
 package org.altusmetrum.AltosDroid;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -33,18 +36,21 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.Window;
+import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.app.AlertDialog;
 
 import org.altusmetrum.altoslib_1.*;
 
-public class AltosDroid extends Activity {
+public class AltosDroid extends FragmentActivity {
 	// Debugging
 	private static final String TAG = "AltosDroid";
 	private static final boolean D = true;
@@ -52,6 +58,7 @@ public class AltosDroid extends Activity {
 	// Message types received by our Handler
 	public static final int MSG_STATE_CHANGE    = 1;
 	public static final int MSG_TELEMETRY       = 2;
+	public static final int MSG_UPDATE_AGE      = 3;
 
 	// Intent request codes
 	private static final int REQUEST_CONNECT_DEVICE = 1;
@@ -66,17 +73,20 @@ public class AltosDroid extends Activity {
 	private TextView mSerialView;
 	private TextView mFlightView;
 	private TextView mStateView;
-	private TextView mSpeedView;
-	private TextView mAccelView;
-	private TextView mRangeView;
-	private TextView mHeightView;
-	private TextView mElevationView;
-	private TextView mBearingView;
-	private TextView mLatitudeView;
-	private TextView mLongitudeView;
+	private TextView mAgeView;
 
 	// field to display the version at the bottom of the screen
 	private TextView mVersion;
+
+	// Tabs
+	TabHost     mTabHost;
+	ViewPager   mViewPager;
+	TabsAdapter mTabsAdapter;
+	ArrayList<AltosDroidTab> mTabs = new ArrayList<AltosDroidTab>();
+
+	// Timer and Saved flight state for Age calculation
+	private Timer timer = new Timer();
+	AltosState saved_state;
 
 	// Service
 	private boolean mIsBound   = false;
@@ -127,6 +137,11 @@ public class AltosDroid extends Activity {
 			case MSG_TELEMETRY:
 				ad.update_ui((AltosState) msg.obj);
 				break;
+			case MSG_UPDATE_AGE:
+				if (ad.saved_state != null) {
+					ad.mAgeView.setText(String.format("%d", (System.currentTimeMillis() - ad.saved_state.report_time + 500) / 1000));
+				}
+				break;
 			}
 		}
 	};
@@ -149,7 +164,6 @@ public class AltosDroid extends Activity {
 			mService = null;
 		}
 	};
-
 
 	void doBindService() {
 		bindService(new Intent(this, TelemetryService.class), mConnection, Context.BIND_AUTO_CREATE);
@@ -174,26 +188,53 @@ public class AltosDroid extends Activity {
 		}
 	}
 
+	public void registerTab(AltosDroidTab mTab) {
+		mTabs.add(mTab);
+	}
+
+	public void unregisterTab(AltosDroidTab mTab) {
+		mTabs.remove(mTab);
+	}
+
 	void update_ui(AltosState state) {
+		if (saved_state != null) {
+			if (saved_state.state != state.state) {
+				String currentTab = mTabHost.getCurrentTabTag();
+				switch (state.state) {
+				case AltosLib.ao_flight_boost:
+					if (currentTab.equals("pad")) mTabHost.setCurrentTabByTag("ascent");
+					break;
+				case AltosLib.ao_flight_drogue:
+					if (currentTab.equals("ascent")) mTabHost.setCurrentTabByTag("descent");
+					break;
+				case AltosLib.ao_flight_landed:
+					if (currentTab.equals("descent")) mTabHost.setCurrentTabByTag("landed");
+					break;
+				}
+			}
+		}
+		saved_state = state;
+
 		mCallsignView.setText(state.data.callsign);
-		mRSSIView.setText(String.format("%d", state.data.rssi));
 		mSerialView.setText(String.format("%d", state.data.serial));
 		mFlightView.setText(String.format("%d", state.data.flight));
 		mStateView.setText(state.data.state());
-		mSpeedView.setText(String.format("%6.0f m/s", state.speed()));
-		mAccelView.setText(String.format("%6.0f m/s²", state.acceleration));
-		mRangeView.setText(String.format("%6.0f m", state.range));
-		mHeightView.setText(String.format("%6.0f m", state.height));
-		mElevationView.setText(String.format("%3.0f°", state.elevation));
-		if (state.from_pad != null)
-			mBearingView.setText(String.format("%3.0f°", state.from_pad.bearing));
-		mLatitudeView.setText(pos(state.gps.lat, "N", "S"));
-		mLongitudeView.setText(pos(state.gps.lon, "W", "E"));
+		mRSSIView.setText(String.format("%d", state.data.rssi));
+
+		for (AltosDroidTab mTab : mTabs)
+			mTab.update_ui(state);
 
 		mAltosVoice.tell(state);
 	}
 
-	String pos(double p, String pos, String neg) {
+	private void onTimerTick() {
+		try {
+			mMessenger.send(Message.obtain(null, MSG_UPDATE_AGE));
+		} catch (RemoteException e) {
+		}
+	}
+
+	static String pos(double p, String pos, String neg) {
 		String	h = pos;
 		if (p < 0) {
 			h = neg;
@@ -228,6 +269,21 @@ public class AltosDroid extends Activity {
 		setContentView(R.layout.altosdroid);
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_title);
 
+		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
+		mTabHost.setup();
+
+		mViewPager = (ViewPager)findViewById(R.id.pager);
+		mViewPager.setOffscreenPageLimit(4);
+
+		mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
+
+		mTabsAdapter.addTab(mTabHost.newTabSpec("pad").setIndicator("Pad"), TabPad.class, null);
+		mTabsAdapter.addTab(mTabHost.newTabSpec("ascent").setIndicator("Ascent"), TabAscent.class, null);
+		mTabsAdapter.addTab(mTabHost.newTabSpec("descent").setIndicator("Descent"), TabDescent.class, null);
+		mTabsAdapter.addTab(mTabHost.newTabSpec("landed").setIndicator("Landed"), TabLanded.class, null);
+		mTabsAdapter.addTab(mTabHost.newTabSpec("map").setIndicator("Map"), TabMap.class, null);
+
+
 		// Set up the custom title
 		mTitle = (TextView) findViewById(R.id.title_left_text);
 		mTitle.setText(R.string.app_name);
@@ -244,14 +300,9 @@ public class AltosDroid extends Activity {
 		mSerialView    = (TextView) findViewById(R.id.serial_value);
 		mFlightView    = (TextView) findViewById(R.id.flight_value);
 		mStateView     = (TextView) findViewById(R.id.state_value);
-		mSpeedView     = (TextView) findViewById(R.id.speed_value);
-		mAccelView     = (TextView) findViewById(R.id.accel_value);
-		mRangeView     = (TextView) findViewById(R.id.range_value);
-		mHeightView    = (TextView) findViewById(R.id.height_value);
-		mElevationView = (TextView) findViewById(R.id.elevation_value);
-		mBearingView   = (TextView) findViewById(R.id.bearing_value);
-		mLatitudeView  = (TextView) findViewById(R.id.latitude_value);
-		mLongitudeView = (TextView) findViewById(R.id.longitude_value);
+		mAgeView       = (TextView) findViewById(R.id.age_value);
+
+		timer.scheduleAtFixedRate(new TimerTask(){ public void run() {onTimerTick();}}, 1000L, 100L);
 
 		mAltosVoice = new AltosVoice(this);
 	}
@@ -299,9 +350,6 @@ public class AltosDroid extends Activity {
 
 		mAltosVoice.stop();
 	}
-
-
-
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(D) Log.d(TAG, "onActivityResult " + resultCode);
