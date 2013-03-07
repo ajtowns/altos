@@ -39,7 +39,7 @@ $(ALTOSLIB): $(ALTOSLIB_SRCDIR)/$(ALTOSLIB_JAR)
 	mkdir -p $(EXT_LIBDIR)
 	cd $(EXT_LIBDIR) && ln -s $(shell echo $(EXT_LIBDIR) | sed 's|[^/]\+|..|g')/$(ALTOSLIB_SRCDIR)/$(ALTOSLIB_JAR) .
 
-$(SRC_DIR)/BuildInfo.java:
+$(SRC_DIR)/BuildInfo.java: $(SRC)
 	./buildinfo.sh
 
 if ANDROID
@@ -71,4 +71,3 @@ clean: clean-local
 clean-local:
 	rm -rf $(EXT_LIBDIR)
 
-.PHONY: $(SRC_DIR)/BuildInfo.java
