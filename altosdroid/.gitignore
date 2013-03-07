@@ -4,3 +4,4 @@ gen
 libs
 google-play-services_lib
 src/org/altusmetrum/AltosDroid/BuildInfo.java
+res/drawable/*led.png

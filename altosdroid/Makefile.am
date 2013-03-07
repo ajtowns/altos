@@ -13,8 +13,9 @@ AAPT=$(SDK)/platform-tools/aapt
 APKBUILDER=$(SDK)/tools/apkbuilder
 ZIPALIGN=$(SDK)/tools/zipalign
 
-SRC_DIR=src/org/altusmetrum/AltosDroid
+JAVA_SRC_DIR=src/org/altusmetrum/AltosDroid
 EXT_LIBDIR=libs
+DRAWABLE_DIR=res/drawable
 ALTOSLIB_SRCDIR=../altoslib
 ALTOSLIB_JAR=altoslib_$(ALTOSLIB_VERSION).jar
 
@@ -28,7 +29,14 @@ SUPPORT_V4=$(EXT_LIBDIR)/$(SUPPORT_V4_JAR)
 GOOGLE_PLAY_SERVICES_LIB_SRCDIR=$(SDK)/extras/google/google_play_services/libproject
 GOOGLE_PLAY_SERVICES_LIB=google-play-services_lib
 
-SRC=$(SRC_DIR)/*.java
+JAVA_SRC=$(JAVA_SRC_DIR)/*.java
+
+DRAWABLES=\
+    $(DRAWABLE_DIR)/redled.png \
+    $(DRAWABLE_DIR)/greenled.png \
+    $(DRAWABLE_DIR)/grayled.png
+
+SRC=$(JAVA_SRC) $(DRAWABLES)
 
 all: $(all_target)
 
@@ -45,8 +53,11 @@ $(GOOGLE_PLAY_SERVICES_LIB): $(GOOGLE_PLAY_SERVICES_LIB_SRCDIR)/$(GOOGLE_PLAY_SE
 	cp -a $(GOOGLE_PLAY_SERVICES_LIB_SRCDIR)/$(GOOGLE_PLAY_SERVICES_LIB) .
 	cd $(GOOGLE_PLAY_SERVICES_LIB) && $(SDK)/tools/android update project --target $(SDK_TARGET) --path .
 
-$(SRC_DIR)/BuildInfo.java: $(SRC)
+$(JAVA_SRC_DIR)/BuildInfo.java: $(JAVA_SRC)
 	./buildinfo.sh
+
+$(DRAWABLE_DIR)/%.png: ../icon/%.png
+	cd $(DRAWABLE_DIR) && ln -sf $(shell echo $(DRAWABLE_DIR) | sed 's|[^/]\+|..|g')/$< .
 
 if ANDROID
 install-release: bin/AltosDroid-release.apk
@@ -72,6 +83,7 @@ sign:
 clean: $(GOOGLE_PLAY_SERVICES_LIB)
 	ant clean
 	rm -rf $(EXT_LIBDIR)
+	rm -f $(DRAWABLES)
 	rm -rf $(GOOGLE_PLAY_SERVICES_LIB)
 
 else
