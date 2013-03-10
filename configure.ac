@@ -86,10 +86,8 @@ AC_ARG_WITH(android, AS_HELP_STRING([--with-android=PATH],
 	[Set android SDK path (default searches in a variety of places)]),
 	[ANDROID_SDK=$withval], [ANDROID_SDK=${ANDROID_SDK:-auto}])
 
-echo ANDROID_SDK set to $ANDROID_SDK
-
 if test "x$ANDROID_SDK" = "xauto"; then
-	AC_MSG_CHECKING([Android SDK files])
+	AC_MSG_CHECKING([Android SDK])
 	for sdk in ../android/android-sdk-linux ../android/android-sdk ../android-sdk ../android-sdk-linux $HOME/android; do
 		if test "x$ANDROID_SDK" = "xauto"; then
 			SDK="$sdk"
@@ -103,6 +101,48 @@ if test "x$ANDROID_SDK" = "xauto"; then
 		ANDROID_SDK=no
 	fi
 	AC_MSG_RESULT([$ANDROID_SDK])
+fi
+if test "x$ANDROID_SDK" != "xno"; then
+	AC_MSG_CHECKING([Android SDK version])
+	SDK_VERSION=`grep -i '^Pkg.Revision=' $ANDROID_SDK/tools/source.properties | cut -f2- -d= | sed s/^r//`
+	SDK_MAJOR_VERSION="`echo $SDK_VERSION | sed 's/[[^0-9]].*//'`"
+	if test "$SDK_MAJOR_VERSION" -lt 17 ; then
+		AC_MSG_NOTICE([SDK version $SDK_VERSION is too old. Need >= r17])
+		ANDROID_SDK=no
+	else
+		AC_MSG_RESULT([$SDK_VERSION])
+	fi
+fi
+if test "x$ANDROID_SDK" != "xno"; then
+	AC_MSG_CHECKING([Android SDK API Level])
+	if test -f "$ANDROID_SDK/platforms/android-10/source.properties"; then
+		API_LEVEL=`sed -ne 's/^AndroidVersion.ApiLevel=//p' $ANDROID_SDK/platforms/android-10/source.properties`
+		if test "$API_LEVEL" = "10"; then
+			AC_MSG_RESULT([$API_LEVEL])
+		else
+			AC_MSG_NOTICE([API Level 10 not installed correctly.])
+			ANDROID_SDK=no
+		fi
+	else
+		AC_MSG_NOTICE([API Level 10 not installed, but is required.])
+		ANDROID_SDK=no
+	fi
+fi
+if test "x$ANDROID_SDK" != "xno"; then
+	AC_MSG_CHECKING([Android SDK required extras])
+	if test -f "$ANDROID_SDK/extras/android/support/source.properties"; then
+		ANDROID_SUPPORT_LIB_NAME=`sed -ne 's/^Extra.NameDisplay=//p' $ANDROID_SDK/extras/android/support/source.properties`
+		if test -f "$ANDROID_SDK/extras/google/google_play_services/source.properties"; then
+			GOOGLE_PLAY_SERVICES_NAME=`sed -ne 's/^Extra.NameDisplay=//p' $ANDROID_SDK/extras/google/google_play_services/source.properties`
+			AC_MSG_RESULT([$ANDROID_SUPPORT_LIB_NAME, $GOOGLE_PLAY_SERVICES_NAME])
+		else
+			AC_MSG_NOTICE([Google Play Services library not installed.])
+			ANDROID_SDK=no
+		fi
+	else
+		AC_MSG_NOTICE([Android Support Library not installed.])
+		ANDROID_SDK=no
+	fi
 fi
 
 AM_CONDITIONAL([ANDROID], [test x$ANDROID_SDK != xno])

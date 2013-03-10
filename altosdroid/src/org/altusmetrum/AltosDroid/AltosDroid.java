@@ -80,7 +80,7 @@ public class AltosDroid extends FragmentActivity {
 
 	// Tabs
 	TabHost     mTabHost;
-	ViewPager   mViewPager;
+	AltosViewPager   mViewPager;
 	TabsAdapter mTabsAdapter;
 	ArrayList<AltosDroidTab> mTabs = new ArrayList<AltosDroidTab>();
 
@@ -272,7 +272,7 @@ public class AltosDroid extends FragmentActivity {
 		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
 		mTabHost.setup();
 
-		mViewPager = (ViewPager)findViewById(R.id.pager);
+		mViewPager = (AltosViewPager)findViewById(R.id.pager);
 		mViewPager.setOffscreenPageLimit(4);
 
 		mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
