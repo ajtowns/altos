@@ -80,7 +80,7 @@ release: bin/AltosDroid-release-unsigned.apk
 	   bin/AltosDroid-release-signed.apk \
 	   bin/AltosDroid-release.apk
 
-clean: $(GOOGLE_PLAY_SERVICES_LIB)
+clean-local: $(GOOGLE_PLAY_SERVICES_LIB)
 	ant clean
 	rm -rf $(EXT_LIBDIR)
 	rm -f $(DRAWABLES)
@@ -88,7 +88,8 @@ clean: $(GOOGLE_PLAY_SERVICES_LIB)
 
 else
 
-clean:
+clean-local:
 
 endif
 
+clean: clean-local
