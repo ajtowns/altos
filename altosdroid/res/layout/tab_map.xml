@@ -15,8 +15,122 @@
      with this program; if not, write to the Free Software Foundation, Inc.,
      59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 -->
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/map"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	class="com.google.android.gms.maps.SupportMapFragment"/>
+	android:orientation="vertical" >
+
+	<LinearLayout
+	    android:id="@+id/map"
+		android:orientation="horizontal"
+		android:layout_width="fill_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1">
+
+	</LinearLayout>
+
+	<LinearLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:baselineAligned="true"
+		android:orientation="horizontal" >
+
+		<RelativeLayout
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:paddingTop="5dp" >
+
+			<TextView
+				android:id="@+id/distance_label"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/distance_label" />
+
+			<TextView
+				android:id="@+id/distance_value"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:layout_below="@+id/distance_label"
+				android:text=""
+				android:textAppearance="?android:attr/textAppearanceLarge" />
+		</RelativeLayout>
+
+		<RelativeLayout
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:paddingTop="5dp" >
+
+			<TextView
+				android:id="@+id/bearing_label"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/bearing_label" />
+
+			<TextView
+				android:id="@+id/bearing_value"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:layout_below="@+id/bearing_label"
+				android:text=""
+				android:textAppearance="?android:attr/textAppearanceLarge" />
+		</RelativeLayout>
+
+	</LinearLayout>
+
+	<LinearLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:baselineAligned="true"
+		android:orientation="horizontal" >
+
+		<RelativeLayout
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:paddingTop="5dp" >
+
+			<TextView
+				android:id="@+id/lat_label"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/latitude_label" />
+
+			<TextView
+				android:id="@+id/lat_value"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:layout_below="@id/lat_label"
+				android:text=""
+				android:textAppearance="?android:attr/textAppearanceLarge" />
+		</RelativeLayout>
+
+		<RelativeLayout
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:paddingTop="5dp" >
+
+			<TextView
+				android:id="@+id/lon_label"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/longitude_label" />
+
+			<TextView
+				android:id="@+id/lon_value"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:layout_below="@id/lon_label"
+				android:text=""
+				android:textAppearance="?android:attr/textAppearanceLarge" />
+		</RelativeLayout>
+	</LinearLayout>
+</LinearLayout>
