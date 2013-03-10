@@ -182,6 +182,7 @@ ao-tools/ao-stmload/Makefile
 ao-tools/ao-send-telem/Makefile
 ao-tools/ao-sky-flash/Makefile
 ao-tools/ao-dumpflash/Makefile
+ao-tools/ao-edit-telem/Makefile
 ao-utils/Makefile
 src/Version
 ])
