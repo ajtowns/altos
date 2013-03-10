@@ -237,7 +237,19 @@ union ao_telemetry_all {
 	struct ao_telemetry_baro		baro;
 };
 
+#define CC_TELEMETRY_HEADER	"TELEM"
+
+/* "TELEM " 1 byte length 32 data bytes 1 rssi 1 status 1 checksum 1 null */
+
+#define CC_TELEMETRY_BUFSIZE	(6 + (1 + 32 + 3) * 2 + 1)
+
 int
 cc_telemetry_parse(const char *input_line, union ao_telemetry_all *telemetry);
+
+uint8_t
+cc_telemetry_cksum(const union ao_telemetry_all *telemetry);
+
+void
+cc_telemetry_unparse(const union ao_telemetry_all *telemetry, char output_line[CC_TELEMETRY_BUFSIZE]);
 
 #endif
