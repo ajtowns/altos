@@ -17,6 +17,7 @@
 
 package org.altusmetrum.AltosDroid;
 
+import java.util.Arrays;
 
 import org.altusmetrum.altoslib_1.*;
 
@@ -27,8 +28,11 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -46,6 +50,8 @@ public class TabMap extends Fragment implements AltosDroidTab {
 
 	private Marker mRocketMarker;
 	private Marker mPadMarker;
+	private Polyline mPolyline;
+
 	private TextView mDistanceView;
 	private TextView mBearingView;
 	private TextView mLatitudeView;
@@ -122,6 +128,13 @@ public class TabMap extends Fragment implements AltosDroidTab {
 					                   .visible(false)
 					);
 
+			mPolyline = mMap.addPolyline(
+					new PolylineOptions().add(new LatLng(0,0), new LatLng(0,0))
+					                     .width(3)
+					                     .color(Color.BLUE)
+					                     .visible(false)
+					);
+
 			mapLoaded = true;
 		}
 	}
@@ -137,6 +150,9 @@ public class TabMap extends Fragment implements AltosDroidTab {
 		if (mapLoaded) {
 			mRocketMarker.setPosition(new LatLng(state.gps.lat, state.gps.lon));
 			mRocketMarker.setVisible(true);
+
+			mPolyline.setPoints(Arrays.asList(new LatLng(state.pad_lat, state.pad_lon), new LatLng(state.gps.lat, state.gps.lon)));
+			mPolyline.setVisible(true);
 
 			if (state.state == AltosLib.ao_flight_pad) {
 				mPadMarker.setPosition(new LatLng(state.pad_lat, state.pad_lon));
