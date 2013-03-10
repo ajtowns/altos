@@ -23,7 +23,10 @@ import org.altusmetrum.altoslib_1.*;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -41,6 +44,8 @@ public class TabMap extends Fragment implements AltosDroidTab {
 	private GoogleMap mMap;
 	private boolean mapLoaded = false;
 
+	private Marker mRocketMarker;
+	private Marker mPadMarker;
 	private TextView mDistanceView;
 	private TextView mBearingView;
 	private TextView mLatitudeView;
@@ -104,6 +109,19 @@ public class TabMap extends Fragment implements AltosDroidTab {
 			mMap.getUiSettings().setZoomControlsEnabled(false);
 			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(40.8,-104.7),8));
 
+			mRocketMarker = mMap.addMarker(
+					// From: http://mapicons.nicolasmollet.com/markers/industry/military/missile-2/
+					new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.rocket))
+					                   .position(new LatLng(0,0))
+					                   .visible(false)
+					);
+
+			mPadMarker = mMap.addMarker(
+					new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.pad))
+					                   .position(new LatLng(0,0))
+					                   .visible(false)
+					);
+
 			mapLoaded = true;
 		}
 	}
@@ -117,6 +135,13 @@ public class TabMap extends Fragment implements AltosDroidTab {
 		mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
 
 		if (mapLoaded) {
+			mRocketMarker.setPosition(new LatLng(state.gps.lat, state.gps.lon));
+			mRocketMarker.setVisible(true);
+
+			if (state.state == AltosLib.ao_flight_pad) {
+				mPadMarker.setPosition(new LatLng(state.pad_lat, state.pad_lon));
+				mPadMarker.setVisible(true);
+			}
 		}
 	}
 
