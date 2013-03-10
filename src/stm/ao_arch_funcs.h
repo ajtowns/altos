@@ -23,7 +23,7 @@
 
 /* PCLK is set to 16MHz (HCLK 32MHz, APB prescaler 2) */
 
-#define AO_SPI_SPEED_8MHz	STM_SPI_CR1_BR_PCLK_2	/* This doesn't appear to work */
+#define AO_SPI_SPEED_8MHz	STM_SPI_CR1_BR_PCLK_2
 #define AO_SPI_SPEED_4MHz	STM_SPI_CR1_BR_PCLK_4
 #define AO_SPI_SPEED_2MHz	STM_SPI_CR1_BR_PCLK_8
 #define AO_SPI_SPEED_1MHz	STM_SPI_CR1_BR_PCLK_16
@@ -32,7 +32,7 @@
 #define AO_SPI_SPEED_125kHz	STM_SPI_CR1_BR_PCLK_128
 #define AO_SPI_SPEED_62500Hz	STM_SPI_CR1_BR_PCLK_256
 
-#define AO_SPI_SPEED_FAST	AO_SPI_SPEED_4MHz
+#define AO_SPI_SPEED_FAST	AO_SPI_SPEED_8MHz
 
 /* Companion bus wants something no faster than 200kHz */
 

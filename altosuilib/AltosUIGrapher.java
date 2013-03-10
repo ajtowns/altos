@@ -43,4 +43,8 @@ interface AltosUIGrapher {
 	public abstract void add(AltosUIDataPoint dataPoint);
 
 	public abstract void set_enable(boolean enable);
+
+	public abstract void setNotify(boolean notify);
+
+	public abstract void fireSeriesChanged();
 }

@@ -977,6 +977,24 @@ struct altos_file {
 	OVERLAPPED			ov_write;
 };
 
+#include <stdarg.h>
+
+static void
+log_message(char *fmt, ...)
+{
+	static	FILE *log = NULL;
+	va_list	a;
+
+	if (!log)
+		log = fopen("\\temp\\altos.txt", "w");
+	if (log) {
+		va_start(a, fmt);
+		vfprintf(log, fmt, a);
+		va_end(a);
+		fflush(log);
+	}
+}
+
 static void
 _altos_set_last_windows_error(char *file, int line)
 {
@@ -990,7 +1008,7 @@ _altos_set_last_windows_error(char *file, int line)
 		      sizeof (message) / sizeof (TCHAR),
 		      NULL);
 	if (error != ERROR_SUCCESS)
-		printf ("%s:%d %s\n", file, line, message);
+		log_message ("%s:%d %s\n", file, line, message);
 	altos_set_last_error(error, message);
 }
 
@@ -1061,7 +1079,6 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 					       KEY_READ);
 		if (dev_key == INVALID_HANDLE_VALUE) {
 			altos_set_last_windows_error();
-			printf("cannot open device registry key\n");
 			continue;
 		}
 
@@ -1077,7 +1094,6 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 						 symbolic, &symbolic_len);
 			if (result != 0) {
 				altos_set_last_windows_error();
-				printf("cannot find SymbolicName value\n");
 				RegCloseKey(dev_key);
 				continue;
 			}
@@ -1097,7 +1113,6 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 		RegCloseKey(dev_key);
 		if (result != 0) {
 			altos_set_last_windows_error();
-			printf("failed to get PortName\n");
 			continue;
 		}
 
@@ -1113,7 +1128,6 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 						     &friendlyname_len))
 		{
 			altos_set_last_windows_error();
-			printf("Failed to get friendlyname\n");
 			continue;
 		}
 		device->vendor = vid;
@@ -1125,10 +1139,8 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 		return 1;
 	}
 	result = GetLastError();
-	if (result != ERROR_NO_MORE_ITEMS) {
+	if (result != ERROR_NO_MORE_ITEMS)
 		altos_set_last_windows_error();
-		printf ("SetupDiEnumDeviceInfo failed error %d\n", (int) result);
-	}
 	return 0;
 }
 
@@ -1187,6 +1199,7 @@ altos_wait_read(struct altos_file *file, int timeout)
 		return LIBALTOS_TIMEOUT;
 		break;
 	default:
+		altos_set_last_windows_error();
 		return LIBALTOS_ERROR;
 	}
 	return LIBALTOS_SUCCESS;
@@ -1224,7 +1237,6 @@ altos_flush(struct altos_file *file)
 		if (!WriteFile(file->handle, data, used, &put, &file->ov_write)) {
 			if (GetLastError() != ERROR_IO_PENDING) {
 				altos_set_last_windows_error();
-				printf ("\tflush write error\n");
 				return LIBALTOS_ERROR;
 			}
 			ret = WaitForSingleObject(file->ov_write.hEvent, INFINITE);
@@ -1232,13 +1244,11 @@ altos_flush(struct altos_file *file)
 			case WAIT_OBJECT_0:
 				if (!GetOverlappedResult(file->handle, &file->ov_write, &put, FALSE)) {
 					altos_set_last_windows_error();
-					printf ("\tflush result error\n");
 					return LIBALTOS_ERROR;
 				}
 				break;
 			default:
 				altos_set_last_windows_error();
-				printf ("\tflush wait error\n");
 				return LIBALTOS_ERROR;
 			}
 		}
@@ -1249,30 +1259,88 @@ altos_flush(struct altos_file *file)
 	return LIBALTOS_SUCCESS;
 }
 
+static HANDLE
+open_serial(char *full_name)
+{
+	HANDLE	handle;
+	DCB	dcb;
+
+	handle = CreateFile(full_name, GENERIC_READ|GENERIC_WRITE,
+			    0, NULL, OPEN_EXISTING,
+			    FILE_FLAG_OVERLAPPED, NULL);
+
+	if (handle == INVALID_HANDLE_VALUE) {
+		altos_set_last_windows_error();
+		return INVALID_HANDLE_VALUE;
+	}
+
+	if (!GetCommState(handle, &dcb)) {
+		altos_set_last_windows_error();
+		CloseHandle(handle);
+		return INVALID_HANDLE_VALUE;
+	}
+	dcb.BaudRate = CBR_9600;
+	dcb.fBinary = TRUE;
+	dcb.fParity = FALSE;
+	dcb.fOutxCtsFlow = FALSE;
+	dcb.fOutxDsrFlow = FALSE;
+	dcb.fDtrControl = DTR_CONTROL_ENABLE;
+	dcb.fDsrSensitivity = FALSE;
+	dcb.fTXContinueOnXoff = FALSE;
+	dcb.fOutX = FALSE;
+	dcb.fInX = FALSE;
+	dcb.fErrorChar = FALSE;
+	dcb.fNull = FALSE;
+	dcb.fRtsControl = RTS_CONTROL_ENABLE;
+	dcb.fAbortOnError = FALSE;
+	dcb.XonLim = 10;
+	dcb.XoffLim = 10;
+	dcb.ByteSize = 8;
+	dcb.Parity = NOPARITY;
+	dcb.StopBits = ONESTOPBIT;
+	dcb.XonChar = 17;
+	dcb.XoffChar = 19;
+#if 0
+	dcb.ErrorChar = 0;
+	dcb.EofChar = 0;
+	dcb.EvtChar = 0;
+#endif
+	if (!SetCommState(handle, &dcb)) {
+		altos_set_last_windows_error();
+		CloseHandle(handle);
+		return INVALID_HANDLE_VALUE;
+	}
+	return handle;
+}
+
 PUBLIC struct altos_file *
 altos_open(struct altos_device *device)
 {
 	struct altos_file	*file = calloc (1, sizeof (struct altos_file));
 	char	full_name[64];
 	COMMTIMEOUTS timeouts;
-	DCB	     dcb;
 
 	if (!file)
 		return NULL;
 
 	strcpy(full_name, "\\\\.\\");
 	strcat(full_name, device->path);
-	file->handle = CreateFile(full_name, GENERIC_READ|GENERIC_WRITE,
-				  0, NULL, OPEN_EXISTING,
-				  FILE_FLAG_OVERLAPPED, NULL);
+
+	file->handle = open_serial(full_name);
 	if (file->handle == INVALID_HANDLE_VALUE) {
-		altos_set_last_windows_error();
-		printf ("cannot open %s\n", full_name);
 		free(file);
 		return NULL;
 	}
-	file->ov_read.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-	file->ov_write.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+	/* The FTDI driver doesn't appear to work right unless you open it twice */
+	if (device->vendor == 0x0403) {
+		CloseHandle(file->handle);
+		file->handle = open_serial(full_name);
+		if (file->handle == INVALID_HANDLE_VALUE) {
+			free(file);
+			return NULL;
+		}
+	}
 
 	timeouts.ReadIntervalTimeout = MAXDWORD;
 	timeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
@@ -1281,10 +1349,8 @@ altos_open(struct altos_device *device)
 	timeouts.WriteTotalTimeoutConstant = 0;
 	SetCommTimeouts(file->handle, &timeouts);
 
-	if (GetCommState(file->handle, &dcb)) {
-		dcb.BaudRate = CBR_9600;
-		(void) SetCommState(file->handle, &dcb);
-	}
+	file->ov_read.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+	file->ov_write.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
 	return file;
 }
@@ -1330,8 +1396,10 @@ altos_getchar(struct altos_file *file, int timeout)
 {
 	int	ret;
 	while (file->in_read == file->in_used) {
-		if (file->handle == INVALID_HANDLE_VALUE)
+		if (file->handle == INVALID_HANDLE_VALUE) {
+			altos_set_last_windows_error();
 			return LIBALTOS_ERROR;
+		}
 		ret = altos_fill(file, timeout);
 		if (ret)
 			return ret;

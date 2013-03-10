@@ -85,15 +85,15 @@ public class AltosInfoTable extends JTable {
 	}
 
 	void info_add_deg(int col, String name, double v, int pos, int neg) {
-		//int	c = pos;
+		int	c = pos;
 		if (v < 0) {
-			//c = neg;
+			c = neg;
 			v = -v;
 		}
 		double	deg = Math.floor(v);
 		double	min = (v - deg) * 60;
 
-		info_add_row(col, name, String.format("%3.0f°%08.5f'", deg, min));
+		info_add_row(col, name, String.format("%c %3.0f°%08.5f'", c, deg, min));
 	}
 
 	void info_finish() {

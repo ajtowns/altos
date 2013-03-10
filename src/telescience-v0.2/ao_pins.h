@@ -59,24 +59,23 @@
 #define SERIAL_3_PC10_PC11	1
 #define SERIAL_3_PD8_PD9	0
 
-#define ao_gps_getchar		ao_serial3_getchar
-#define ao_gps_putchar		ao_serial3_putchar
-#define ao_gps_set_speed	ao_serial3_set_speed
-
-#define HAS_EEPROM		0
+#define HAS_EEPROM		1
 #define USE_INTERNAL_FLASH	0
 #define HAS_USB			1
 #define HAS_BEEP		0
-#define HAS_RADIO		1
+#define HAS_RADIO		0
 #define HAS_TELEMETRY		0
+#define PACKET_HAS_SLAVE	0
 
 #define HAS_SPI_1		0
-#define SPI_1_PA5_PA6_PA7	0	/* Barometer */
+#define HAS_SPI_SLAVE_1		1
+#define SPI_1_PA5_PA6_PA7	1	
 #define SPI_1_PB3_PB4_PB5	0
-#define SPI_1_PE13_PE14_PE15	0	/* Accelerometer */
+#define SPI_1_PE13_PE14_PE15	0
+#define SPI_1_OSPEEDR		STM_OSPEEDR_10MHz
 
 #define HAS_SPI_2		1
-#define SPI_2_PB13_PB14_PB15	1	/* Flash, Companion */
+#define SPI_2_PB13_PB14_PB15	1
 #define SPI_2_PD1_PD3_PD4	0
 #define SPI_2_OSPEEDR		STM_OSPEEDR_10MHz
 
@@ -84,28 +83,23 @@
 #define SPI_2_SCK_PIN		13
 #define SPI_2_MISO_PIN		14
 #define SPI_2_MOSI_PIN		15
+#define SPI_SLAVE_INDEX		1
 
 #define HAS_I2C_1		0
-#define I2C_1_PB8_PB9		1
+#define I2C_1_PB8_PB9		0
 
 #define HAS_I2C_2		0
-#define I2C_2_PB10_PB11		1
-
-#define PACKET_HAS_SLAVE	0
-#define PACKET_HAS_MASTER	1
+#define I2C_2_PB10_PB11		0
 
 #define LOW_LEVEL_DEBUG		0
 
 #define LED_PORT_0_ENABLE	STM_RCC_AHBENR_GPIOAEN
-#define LED_PORT_1_ENABLE	STM_RCC_AHBENR_GPIOBEN
+
 #define LED_PORT_0		(&stm_gpioa)
 #define LED_PORT_0_MASK		(0xff)
 #define LED_PORT_0_SHIFT	0
-#define LED_PORT_1_MASK		(0xff00)
-#define LED_PORT_1_SHIFT	0
-#define LED_PORT_1		(&stm_gpiob)
-#define LED_PIN_RED		1
-#define LED_PIN_GREEN		12
+#define LED_PIN_RED		8
+#define LED_PIN_GREEN		9
 #define AO_LED_RED		(1 << LED_PIN_RED)
 #define AO_LED_GREEN		(1 << LED_PIN_GREEN)
 
@@ -113,49 +107,38 @@
 
 #define HAS_GPS			0
 #define HAS_FLIGHT		0
-#define HAS_ADC			0
-#define HAS_LOG			0
+#define HAS_ADC			1
+#define HAS_LOG			1
 
 /*
- * Telemetry monitoring
+ * SPI Flash memory
  */
-#define HAS_MONITOR		1
-#define LEGACY_MONITOR		0
-#define HAS_MONITOR_PUT		1
-#define AO_MONITOR_LED		AO_LED_GREEN
+
+#define M25_MAX_CHIPS		1
+#define AO_M25_SPI_CS_PORT	(&stm_gpioa)
+#define AO_M25_SPI_CS_MASK	(1 << 3)
+#define AO_M25_SPI_BUS		AO_SPI_2_PB13_PB14_PB15
 
 /*
- * Radio (cc1120)
+ * ADC
  */
 
-/* gets pretty close to 434.550 */
+#define AO_DATA_RING		32
+#define AO_ADC_NUM		1
 
-#define AO_RADIO_CAL_DEFAULT 	0x6ca333
+struct ao_adc {
+	int16_t			adc[AO_ADC_NUM];
+};
 
-#define AO_FEC_DEBUG		0
-#define AO_CC1120_SPI_CS_PORT	(&stm_gpioa)
-#define AO_CC1120_SPI_CS_PIN	0
-#define AO_CC1120_SPI_BUS	AO_SPI_2_PB13_PB14_PB15
-#define AO_CC1120_SPI		stm_spi2
+#define AO_ADC_TEMP		16
 
-#define AO_CC1120_INT_PORT	(&stm_gpioc)
-#define AO_CC1120_INT_PIN	13
+#define AO_ADC_RCC_AHBENR	0
 
-#define AO_CC1120_MCU_WAKEUP_PORT	(&stm_gpioc)
-#define AO_CC1120_MCU_WAKEUP_PIN	(0)
+#define AO_NUM_ADC_PIN		0
 
-#define AO_CC1120_INT_GPIO	2
-#define AO_CC1120_INT_GPIO_IOCFG	CC1120_IOCFG2
+#define AO_NUM_ADC	       	1
 
-#define AO_CC1120_MARC_GPIO	3
-#define AO_CC1120_MARC_GPIO_IOCFG	CC1120_IOCFG3
+#define AO_ADC_SQ1		AO_ADC_TEMP
 
-/*
- * Profiling Viterbi decoding
- */
-
-#ifndef AO_PROFILE
-#define AO_PROFILE	       	0
-#endif
 
 #endif /* _AO_PINS_H_ */

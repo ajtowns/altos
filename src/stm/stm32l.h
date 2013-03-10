@@ -811,30 +811,41 @@ extern struct stm_lcd stm_lcd;
 #define STM_LCD_CLR_UDDC		(3)
 #define STM_LCD_CLR_SOFC		(1)
 
+/* The NVIC starts at 0xe000e100, so add that to the offsets to find the absolute address */
+
 struct stm_nvic {
-	vuint32_t	iser[3];	/* 0x000 */
+	vuint32_t	iser[8];	/* 0x000 0xe000e100 Set Enable Register */
 
-	uint8_t		_unused00c[0x080 - 0x00c];
+	uint8_t		_unused020[0x080 - 0x020];
 
-	vuint32_t	icer[3];	/* 0x080 */
+	vuint32_t	icer[8];	/* 0x080 0xe000e180 Clear Enable Register */
 
-	uint8_t		_unused08c[0x100 - 0x08c];
+	uint8_t		_unused0a0[0x100 - 0x0a0];
 
-	vuint32_t	ispr[3];	/* 0x100 */
+	vuint32_t	ispr[8];	/* 0x100 0xe000e200 Set Pending Register */
 
-	uint8_t		_unused10c[0x180 - 0x10c];
+	uint8_t		_unused120[0x180 - 0x120];
 
-	vuint32_t	icpr[3];	/* 0x180 */
+	vuint32_t	icpr[8];	/* 0x180 0xe000e280 Clear Pending Register */
 
-	uint8_t		_unused18c[0x200 - 0x18c];
+	uint8_t		_unused1a0[0x200 - 0x1a0];
 
-	vuint32_t	iabr[3];	/* 0x200 */
+	vuint32_t	iabr[8];	/* 0x200 0xe000e300 Active Bit Register */
 
-	uint8_t		_unused20c[0x300 - 0x20c];
+	uint8_t		_unused220[0x300 - 0x220];
 
-	vuint32_t	ipr[21];	/* 0x300 */
+	vuint32_t	ipr[60];	/* 0x300 0xe000e400 Priority Register */
 
-	uint8_t		_unused324[0xe00 - 0x324];
+	uint8_t		_unused3f0[0xc00 - 0x3f0];
+
+	vuint32_t	cpuid_base;	/* 0xc00 0xe000ed00 CPUID Base Register */
+	vuint32_t	ics;		/* 0xc04 0xe000ed04 Interrupt Control State Register */
+	vuint32_t	vto;		/* 0xc08 0xe000ed08 Vector Table Offset Register */
+	vuint32_t	ai_rc;		/* 0xc0c 0xe000ed0c Application Interrupt/Reset Control Register */
+	vuint32_t	sc;		/* 0xc10 0xe000ed10 System Control Register */
+	vuint32_t	cc;		/* 0xc14 0xe000ed14 Configuration Control Register */
+
+	uint8_t		_unusedc18[0xe00 - 0xc18];
 
 	vuint32_t	stir;		/* 0xe00 */
 };

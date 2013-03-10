@@ -18,22 +18,24 @@
 #include "ao.h"
 
 uint8_t
-ao_spi_slave_recv(uint8_t *buf, uint8_t len)
+ao_spi_slave_recv(void *buf, uint16_t len)
 {
+	uint8_t *b = buf;
 	while (len--) {
 		while (!(SPSR & (1 << SPIF)))
 			if ((PINB & (1 << PINB0)))
 				return 0;
-		*buf++ = SPDR;
+		*b++ = SPDR;
 	}
 	return 1;
 }
 
 void
-ao_spi_slave_send(uint8_t *buf, uint8_t len)
+ao_spi_slave_send(void *buf, uint16_t len)
 {
+	uint8_t *b = buf;
 	while (len--) {
-		SPDR = *buf++;
+		SPDR = *b++;
 		while (!(SPSR & (1 << SPIF)))
 			if ((PINB & (1 << PINB0)))
 				return;

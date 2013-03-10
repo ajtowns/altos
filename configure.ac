@@ -18,7 +18,7 @@ dnl
 dnl Process this file with autoconf to create configure.
 
 AC_PREREQ(2.57)
-AC_INIT([altos], 1.1.9.3)
+AC_INIT([altos], 1.2)
 AC_CONFIG_SRCDIR([src/core/ao.h])
 AM_INIT_AUTOMAKE([foreign dist-bzip2])
 AM_MAINTAINER_MODE
@@ -181,6 +181,8 @@ ao-tools/ao-telem/Makefile
 ao-tools/ao-stmload/Makefile
 ao-tools/ao-send-telem/Makefile
 ao-tools/ao-sky-flash/Makefile
+ao-tools/ao-dumpflash/Makefile
+ao-tools/ao-edit-telem/Makefile
 ao-utils/Makefile
 src/Version
 ])

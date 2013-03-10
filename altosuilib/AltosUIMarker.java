@@ -100,6 +100,12 @@ public class AltosUIMarker implements AltosUIGrapher {
 		this.enabled = enable;
 	}
 
+	public void setNotify(boolean notify) {
+	}
+
+	public void fireSeriesChanged() {
+	}
+
 	public AltosUIMarker (int fetch, Color color, XYPlot plot) {
 		this(fetch, color, plot, true);
 	}
