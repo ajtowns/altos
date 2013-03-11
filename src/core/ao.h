@@ -145,6 +145,9 @@ extern __pdata char	ao_cmd_lex_c;
 extern __pdata enum ao_cmd_status ao_cmd_status;
 
 void
+ao_put_string(__code char *s);
+
+void
 ao_cmd_lex(void);
 
 void

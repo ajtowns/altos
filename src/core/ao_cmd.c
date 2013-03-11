@@ -28,8 +28,8 @@ static __xdata char	cmd_line[CMD_LEN];
 static __pdata uint8_t	cmd_len;
 static __pdata uint8_t	cmd_i;
 
-static void
-put_string(__code char *s)
+void
+ao_put_string(__code char *s)
 {
 	char	c;
 	while ((c = *s++))
@@ -39,7 +39,7 @@ put_string(__code char *s)
 static void
 backspace(void)
 {
-	put_string ("\010 \010");
+	ao_put_string ("\010 \010");
 }
 
 static void
@@ -47,7 +47,7 @@ readline(void)
 {
 	char c;
 	if (ao_echo())
-		put_string("> ");
+		ao_put_string("> ");
 	cmd_len = 0;
 	for (;;) {
 		flush();
@@ -303,13 +303,21 @@ help(void)
 	__pdata uint8_t cmds;
 	__pdata uint8_t cmd;
 	__code struct ao_cmds * __pdata cs;
-	const char *h;
+	__code const char *h;
+	uint8_t e;
 
 	for (cmds = 0; cmds < ao_ncmds; cmds++) {
 		cs = ao_cmds[cmds];
 		for (cmd = 0; cs[cmd].func; cmd++) {
 			h = cs[cmd].help;
-			printf("%-45s %s\n", h, h + 1 + strlen(h));
+			ao_put_string(h);
+			e = strlen(h);
+			h += e + 1;
+			e = 45 - e;
+			while (e--)
+				putchar(' ');
+			ao_put_string(h);
+			putchar('\n');
 		}
 	}
 }
