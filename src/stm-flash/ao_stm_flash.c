@@ -17,7 +17,6 @@
 
 #include "ao.h"
 #include <ao_exti.h>
-<<<<<<< HEAD
 #include <ao_boot.h>
 #include <ao_flash_stm.h>
 
@@ -118,48 +117,23 @@ __code struct ao_cmds ao_flash_cmds[] = {
 	{ ao_block_read, "R <addr>\0Read block. Returns 256 bytes" },
 	{ 0, NULL },
 };
-=======
 
-void
-ao_panic(uint8_t c)
-{
-}
-
-void
-ao_test(void)
-{
-	char	c;
-
-	for (;;) {
-		c = ao_usb_getchar();
-		ao_usb_putchar(c);
-		ao_usb_flush();
-	}
-}
-
-struct ao_task ao_test_task;
->>>>>>> 5187bb4... Add STM self-flashing loader
 
 int
 main(void)
 {
 	ao_clock_init();
-<<<<<<< HEAD
 
 	ao_task_init();
 
-=======
->>>>>>> 5187bb4... Add STM self-flashing loader
 	ao_timer_init();
 //	ao_dma_init();
 	ao_cmd_init();
 //	ao_exti_init();
 	ao_usb_init();
 
-<<<<<<< HEAD
 	ao_cmd_register(&ao_flash_cmds[0]);
-=======
->>>>>>> 5187bb4... Add STM self-flashing loader
+	ao_cmd_register(&ao_flash_cmds[0]);
 	ao_start_scheduler();
 	return 0;
 }

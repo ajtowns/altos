@@ -53,7 +53,7 @@ OBJ=$(SRC:.c=.o)
 
 all: $(PROG)
 
-LDFLAGS=-L../stm -Wl,-Taltos.ld
+LDFLAGS=-L../stm -Wl,-Taltos-application.ld
 
 $(PROG): Makefile $(OBJ)
 	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(OBJ) $(SAT_CLIB) -lgcc

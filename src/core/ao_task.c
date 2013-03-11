@@ -512,6 +512,7 @@ ao_exit(void)
 	/* we'll never get back here */
 }
 
+#if HAS_TASK_INFO
 void
 ao_task_info(void)
 {
@@ -528,6 +529,7 @@ ao_task_info(void)
 	ao_task_validate();
 #endif
 }
+#endif
 
 void
 ao_start_scheduler(void)

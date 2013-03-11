@@ -21,6 +21,10 @@
 #include <ao_list.h>
 #endif
 
+#ifndef HAS_TASK_INFO
+#define HAS_TASK_INFO 1
+#endif
+
 /* An AltOS task */
 struct ao_task {
 	__xdata void *wchan;		/* current wait channel (NULL if running) */

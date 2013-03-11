@@ -20,7 +20,9 @@
 
 #define HAS_TASK_QUEUE		0
 
-#define AO_HSE			8000000
+/* Bridge SB17 on the board and use the MCO from the other chip */
+#define AO_HSE		8000000
+#define AO_HSE_BYPASS		1
 
 /* PLLVCO = 96MHz (so that USB will work) */
 #define AO_PLLMUL		12
@@ -61,11 +63,12 @@
 #define AO_TICK_SIGNED		int32_t
 
 #define HAS_TASK_INFO		0
+#define HAS_VERSION		0
 
-#define AO_BOOT_APPLICATION_GPIO	stm_gpiob
-#define AO_BOOT_APPLICATION_PIN		5
-#define AO_BOOT_APPLICATION_VALUE	0
-#define AO_BOOT_APPLICATION_MODE	AO_EXTI_MODE_PULL_UP
+#define AO_BOOT_APPLICATION_GPIO	stm_gpioa
+#define AO_BOOT_APPLICATION_PIN		0
+#define AO_BOOT_APPLICATION_VALUE	1
+#define AO_BOOT_APPLICATION_MODE	0
 #define AO_BOOT_APPLICATION_BASE	0x2000
 
 #endif /* _AO_PINS_H_ */

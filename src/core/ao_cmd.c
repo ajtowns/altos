@@ -16,6 +16,7 @@
  */
 
 #include "ao.h"
+#include "ao_task.h"
 
 __pdata uint16_t ao_cmd_lex_i;
 __pdata uint32_t ao_cmd_lex_u32;
@@ -262,6 +263,11 @@ ao_reboot(void)
 	ao_panic(AO_PANIC_REBOOT);
 }
 
+#ifndef HAS_VERSION
+#define HAS_VERSION 1
+#endif
+
+#if HAS_VERSION
 static void
 version(void)
 {
@@ -289,6 +295,7 @@ version(void)
 #endif
 	printf("software-version %s\n", ao_version);
 }
+#endif
 
 #ifndef NUM_CMDS
 #define NUM_CMDS	11
@@ -382,10 +389,14 @@ __xdata struct ao_task ao_cmd_task;
 
 __code struct ao_cmds	ao_base_cmds[] = {
 	{ help,		"?\0Help" },
+#if HAS_TASK_INFO
 	{ ao_task_info,	"T\0Tasks" },
+#endif
 	{ echo,		"E <0 off, 1 on>\0Echo" },
 	{ ao_reboot,	"r eboot\0Reboot" },
+#if HAS_VERSION
 	{ version,	"v\0Version" },
+#endif
 	{ 0,	NULL },
 };
 
