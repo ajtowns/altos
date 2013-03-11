@@ -435,6 +435,9 @@ extern struct stm_flash	stm_flash;
 #define STM_FLASH_PEKEYR_PEKEY1	0x89ABCDEF
 #define STM_FLASH_PEKEYR_PEKEY2 0x02030405
 
+#define STM_FLASH_PRGKEYR_PRGKEY1 0x8C9DAEBF
+#define STM_FLASH_PRGKEYR_PRGKEY2 0x13141516
+
 struct stm_rcc {
 	vuint32_t	cr;
 	vuint32_t	icscr;

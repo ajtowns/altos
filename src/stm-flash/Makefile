@@ -24,6 +24,7 @@ ALTOS_SRC = \
 	ao_mutex.c \
 	ao_usb_stm.c \
 	ao_stdio.c \
+	ao_flash_stm.c \
 	ao_cmd.c
 
 PRODUCT=StmFlash-v0.0

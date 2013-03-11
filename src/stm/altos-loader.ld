@@ -16,8 +16,8 @@
  */
 
 MEMORY {
-	rom (rx) : ORIGIN = 0x08000000, LENGTH = 8K
-	ram (!w) : ORIGIN = 0x20000000, LENGTH = 16K
+	rom : ORIGIN = 0x08000000, LENGTH = 8K
+	ram : ORIGIN = 0x20000000, LENGTH = 16K
 }
 
 INCLUDE registers.ld
@@ -29,7 +29,7 @@ SECTIONS {
 	 * Rom contents
 	 */
 
-	.text ORIGIN(rom) : {
+	.text : {
 		__text_start__ = .;
 		*(.interrupt)	/* Interrupt vectors */
 
@@ -38,26 +38,35 @@ SECTIONS {
 		ao_romconfig.o(.romconfig*)
 		ao_product.o(.romconfig*)
 
-		*(.text*)	/* Executable code */
-		*(.rodata*)	/* Constants */
+		*(.text)	/* Executable code */
+		*(.rodata)	/* Constants */
 
 	} > rom
 
 	.ARM.exidx : {
 		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
-		__text_end__ = .;
 	} > rom
+	__text_end__ = .;
+
+	/* Functions placed in RAM (required for flashing) */
+	.textram : {
+		__text_ram_start = .;
+		__data_start__ = .;
+		*(.text.ram)
+		. = ALIGN(4);
+	} >ram AT>rom
+	__text_ram_end = .;
 
 	/* Data -- relocated to RAM, but written to ROM
 	 */
-	.data ORIGIN(ram) : AT (ADDR(.ARM.exidx) + SIZEOF (.ARM.exidx)) {
-		__data_start__ = .;
+	.data : {
 		*(.data)	/* initialized data */
-		__data_end__ = .;
-		__bss_start__ = .;
-	} >ram
+		. = ALIGN (4);
+	} >ram AT>rom
+	__data_end__ = .;
 
 	.bss : {
+		__bss_start__ = .;
 		*(.bss)
 		*(COMMON)
 		__bss_end__ = .;
