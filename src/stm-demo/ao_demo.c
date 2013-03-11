@@ -20,6 +20,7 @@
 #include <ao_event.h>
 #include <ao_quadrature.h>
 #include <ao_button.h>
+#include <ao_boot.h>
 
 struct ao_task demo_task;
 
@@ -168,6 +169,13 @@ ao_event(void)
 
 }
 
+static void
+ao_boot_loader(void)
+{
+	flush();
+	ao_boot_reboot((uint32_t *) 0);
+}
+
 __code struct ao_cmds ao_demo_cmds[] = {
 	{ ao_dma_test,	"D\0DMA test" },
 	{ ao_spi_write, "W\0SPI write" },
@@ -175,6 +183,7 @@ __code struct ao_cmds ao_demo_cmds[] = {
 	{ ao_i2c_write, "i\0I2C write" },
 	{ ao_temp, "t\0Show temp" },
 	{ ao_event, "e\0Monitor event queue" },
+	{ ao_boot_loader, "L\0Reboot to boot loader" },
 	{ 0, NULL }
 };
 

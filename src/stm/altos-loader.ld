@@ -48,9 +48,20 @@ SECTIONS {
 	} > rom
 	__text_end__ = .;
 
+	/* Boot data which must live at the start of ram so that
+	 * the application and bootloader share the same addresses.
+	 * This must be all uninitialized data
+	 */
+	.boot : {
+		__boot_start__ = .;
+		*(.boot)
+		. = ALIGN(4);
+		__boot_end__ = .;
+	} >ram
+
 	/* Functions placed in RAM (required for flashing) */
 	.textram : {
-		__text_ram_start = .;
+		__text_ram_start__ = .;
 		__data_start__ = .;
 		*(.text.ram)
 		. = ALIGN(4);

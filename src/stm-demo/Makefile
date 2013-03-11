@@ -17,6 +17,7 @@ INC = \
 #
 ALTOS_SRC = \
 	ao_interrupt.c \
+	ao_boot_chain.c \
 	ao_product.c \
 	ao_romconfig.c \
 	ao_cmd.c \

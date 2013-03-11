@@ -18,6 +18,7 @@
 #include <ao.h>
 #include "stm32l.h"
 #include <string.h>
+#include <ao_boot.h>
 
 extern void main(void);
 extern char __stack__;
@@ -38,67 +39,14 @@ void stm_ignore_isr(void)
 
 const void *stm_interrupt_vector[];
 
-#define BOOT_FETCH(o)	(*((uint32_t *) (AO_BOOT_APPLICATION_BASE + (o))))
-
-#ifdef AO_BOOT_APPLICATION_PIN
-#include <ao_exti.h>
-
-#define AO_BOOT_APPLICATION		0x5a5aa5a5
-#define AO_BOOT_APPLICATION_CHECK	0xc3c33c3c
-
-static uint32_t	ao_boot_application;
-static uint32_t	ao_boot_application_check;
-
-static void
-ao_boot_chain(void) {
-	uint32_t	sp;
-	uint32_t	pc;
-
-	sp = BOOT_FETCH(0);
-	pc = BOOT_FETCH(4);
-	asm ("mov sp, %0" : : "r" (sp));
-	asm ("mov lr, %0" : : "r" (pc));
-	asm ("bx lr");
-}
-
-void
-ao_reboot_application(void)
+void start(void)
 {
-	ao_boot_application = AO_BOOT_APPLICATION;
-	ao_boot_application_check = AO_BOOT_APPLICATION_CHECK;
-	ao_arch_reboot();
-}
-
+#ifdef AO_BOOT_CHAIN
+	ao_boot_check_chain();
 #endif
-
-void start(void) {
-#ifdef AO_BOOT_APPLICATION_PIN
-	uint16_t v;
-
-	if (ao_boot_application == AO_BOOT_APPLICATION &&
-	    ao_boot_application_check == AO_BOOT_APPLICATION_CHECK) {
-		ao_boot_application = 0;
-		ao_boot_application_check = 0;
-		ao_boot_chain();
-	}
-	/* Enable power interface clock */
-	stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_PWREN);
-	
-	/* Enable the input pin */
-	ao_enable_input(&AO_BOOT_APPLICATION_GPIO, AO_BOOT_APPLICATION_PIN,
-			AO_BOOT_APPLICATION_MODE);
-
-	/* Read the value */
-	v = stm_gpio_get(&AO_BOOT_APPLICATION_GPIO, AO_BOOT_APPLICATION_PIN);
-
-	/* Reset the chip to turn off the port and the power interface clock */
-	ao_gpio_set_mode(&AO_BOOT_APPLICATION_GPIO, AO_BOOT_APPLICATION_PIN, 0);
-	ao_disable_port(&AO_BOOT_APPLICATION_GPIO);
-	stm_rcc.apb1enr &= ~(1 << STM_RCC_APB1ENR_PWREN);
-	if (v == AO_BOOT_APPLICATION_VALUE)
-		ao_boot_chain();
+#ifdef AO_BOOT_PIN
+	ao_boot_check_pin();
 #endif
-
 	/* Set interrupt vector table offset */
 	stm_nvic.vto = (uint32_t) &stm_interrupt_vector;
 	memcpy(&__data_start__, &__text_end__, &__data_end__ - &__data_start__);

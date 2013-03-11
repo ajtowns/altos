@@ -68,6 +68,8 @@
 #define HAS_BEEP		0
 #define PACKET_HAS_SLAVE	0
 
+#define AO_BOOT_CHAIN		1
+
 #define LOW_LEVEL_DEBUG		1
 
 #define LED_PORT_ENABLE		STM_RCC_AHBENR_GPIOBEN

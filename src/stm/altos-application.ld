@@ -48,16 +48,27 @@ SECTIONS {
 		__text_end__ = .;
 	} > rom
 
+	/* Boot data which must live at the start of ram so that
+	 * the application and bootloader share the same addresses.
+	 * This must be all uninitialized data
+	 */
+	.boot : {
+		__boot_start__ = .;
+		*(.boot)
+		. = ALIGN(4);
+		__boot_end__ = .;
+	} >ram
+
 	/* Data -- relocated to RAM, but written to ROM
 	 */
-	.data ORIGIN(ram) : AT (ADDR(.ARM.exidx) + SIZEOF (.ARM.exidx)) {
+	.data : {
 		__data_start__ = .;
 		*(.data)	/* initialized data */
 		__data_end__ = .;
-		__bss_start__ = .;
-	} >ram
+	} >ram AT>rom
 
 	.bss : {
+		__bss_start__ = .;
 		*(.bss)
 		*(COMMON)
 		__bss_end__ = .;

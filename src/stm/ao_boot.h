@@ -19,6 +19,15 @@
 #define _AO_BOOT_H_
 
 void
-ao_reboot_application(void);
+ao_boot_chain(uint32_t *base);
+
+void
+ao_boot_check_pin(void);
+
+void
+ao_boot_check_chain(void);
+
+void
+ao_boot_reboot(uint32_t *base);
 
 #endif /* _AO_BOOT_H_ */

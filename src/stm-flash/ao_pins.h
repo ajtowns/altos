@@ -65,10 +65,13 @@
 #define HAS_TASK_INFO		0
 #define HAS_VERSION		0
 
+#define AO_BOOT_CHAIN		1
+#define AO_BOOT_PIN		1
+
 #define AO_BOOT_APPLICATION_GPIO	stm_gpioa
 #define AO_BOOT_APPLICATION_PIN		0
 #define AO_BOOT_APPLICATION_VALUE	1
 #define AO_BOOT_APPLICATION_MODE	0
-#define AO_BOOT_APPLICATION_BASE	0x2000
+#define AO_BOOT_APPLICATION_BASE	((uint32_t *) 0x2000)
 
 #endif /* _AO_PINS_H_ */
