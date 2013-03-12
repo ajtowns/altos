@@ -224,12 +224,17 @@ NAR #88757, TRA #12200
 	</listitem>
 	<listitem>
 	  <para>
-	    The MicroPeak USB adapter has a small phototransistor on the 
-	    end of the board furthest from the USB connector. Locate
-	    this and place the LED on the MicroPeak right over
-	    it. Turn on the MicroPeak board and adjust the position
-	    until the blue LED on the MicroPeak USB adapter blinks in
-	    time with the orange LED on the MicroPeak board.
+	    The MicroPeak USB adapter has a small phototransistor on
+	    the end of the board furthest from the USB
+	    connector. Locate this and place the LED on the MicroPeak
+	    directly in contact with it. The MicroPeak LED and the
+	    MicroPeak USB adapter photo need to be touching—even a
+	    millimeters of space between them will reduce the light
+	    intensity from the LED enough that the phototransistor
+	    will not sense it. Turn on the MicroPeak board and adjust
+	    the position until the blue LED on the MicroPeak USB
+	    adapter blinks in time with the orange LED on the
+	    MicroPeak board.
 	  </para>
 	</listitem>
 	<listitem>

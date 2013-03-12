@@ -92,10 +92,13 @@ public class MicroDownload extends AltosUIDialog implements Runnable, ActionList
 			serial.close();
 			serial_thread.interrupt();
 		}
+		setVisible(false);
 	}
 
 	public MicroDownload(MicroPeak owner, AltosDevice device) {
 		super (owner, "Download MicroPeak Data", false);
+
+		int y = 0;
 
 		GridBagConstraints c;
 		Insets il = new Insets(4,4,4,4);
@@ -108,7 +111,7 @@ public class MicroDownload extends AltosUIDialog implements Runnable, ActionList
 		pane.setLayout(new GridBagLayout());
 
 		c = new GridBagConstraints();
-		c.gridx = 0; c.gridy = 0;
+		c.gridx = 0; c.gridy = y;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
@@ -116,29 +119,65 @@ public class MicroDownload extends AltosUIDialog implements Runnable, ActionList
 		pane.add(device_label, c);
 
 		c = new GridBagConstraints();
-		c.gridx = 1; c.gridy = 0;
+		c.gridx = 1; c.gridy = y;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		JLabel device_value = new JLabel(device.toString());
 		pane.add(device_value, c);
+		y++;
+
+		c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = y;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		JTextArea help_text = new JTextArea(
+
+			"Locate the photo transistor on the MicroPeak USB adapter\n" +
+			"and place the LED on the MicroPeak directly in contact\n" +
+			"with it.\n" +
+			"\n" +
+			"The MicroPeak LED and the MicroPeak USB adapter\n" +
+			"photo need to be touching—even a millimeters of space\n" +
+			"between them will reduce the light intensity from the LED\n" +
+			"enough that the phototransistor will not sense it.\n" +
+			"\n" +
+			"Turn on the MicroPeak board and adjust the position until\n" +
+			"the blue LED on the MicroPeak USB adapter blinks in time\n" +
+			"with the orange LED on the MicroPeak board.");
+
+		pane.add(help_text, c);
+		y++;
+
+		c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = y;
+		c.gridwidth = 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		JLabel waiting_value = new JLabel("Waiting for MicroPeak data...");
+		pane.add(waiting_value, c);
 
 		cancel = new JButton("Cancel");
 		c = new GridBagConstraints();
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
-		c.gridx = 0; c.gridy = 1;
+		c.gridx = 1; c.gridy = y;
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		Insets ic = new Insets(4,4,4,4);
 		c.insets = ic;
 		pane.add(cancel, c);
+		y++;
 
 		cancel.addActionListener(this);
 
 		pack();
 		setLocationRelativeTo(owner);
 		setVisible(true);
-		this.start();
 	}
 }
