@@ -32,8 +32,58 @@ ao_application(void)
 	ao_boot_reboot(AO_BOOT_APPLICATION_BASE);
 }
 
+static uint32_t
+ao_cmd_hex32(void)
+{
+	__pdata uint8_t	r = ao_cmd_lex_error;
+	int8_t	n;
+	uint32_t v = 0;
+
+	ao_cmd_white();
+	for(;;) {
+		n = ao_cmd_hexchar(ao_cmd_lex_c);
+		if (n < 0)
+			break;
+		v = (v << 4) | n;
+		r = ao_cmd_success;
+		ao_cmd_lex();
+	}
+	if (r != ao_cmd_success)
+		ao_cmd_status = r;
+	return v;
+}
+
+void
+ao_block_write(void)
+{
+	uint32_t	addr = ao_cmd_hex32();
+	uint32_t	*p = (uint32_t *) addr;
+	union {
+		uint8_t		data8[256];
+		uint32_t	data32[64];
+	} u;
+	uint16_t	i;
+
+	for (i = 0; i < 256; i++)
+		u.data8[i] = getchar();
+	ao_flash_page(p, u.data32);
+}
+
+void
+ao_block_read(void)
+{
+	uint32_t	addr = ao_cmd_hex32();
+	uint8_t		*p = (uint8_t *) addr;
+	uint16_t	i;
+
+	for (i = 0; i < 256; i++)
+		putchar(*p++);
+}
+
 __code struct ao_cmds ao_flash_cmds[] = {
 	{ ao_application, "A\0Switch to application" },
+	{ ao_block_write, "W <addr>\0Write block. 256 binary bytes follow newline" },
+	{ ao_block_read, "R <addr>\0Read block. Returns 256 bytes" },
 	{ 0, NULL },
 };
 
