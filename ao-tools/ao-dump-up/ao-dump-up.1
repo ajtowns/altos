@@ -1,0 +1,45 @@
+.\"
+.\" Copyright © 2009 Keith Packard <keithp@keithp.com>
+.\"
+.\" This program is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License along
+.\" with this program; if not, write to the Free Software Foundation, Inc.,
+.\" 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+.\"
+.\"
+.TH AO-DUMPLOG 1 "ao-dump-up" ""
+.SH NAME
+ao-dump-up \- Dump flight log from MicroPeak flight computer
+.SH SYNOPSIS
+.B "ao-dump-up"
+[\-T \fItty-device\fP]
+[\--tty \fItty-device\fP]
+[\-D \fIaltos-device\fP]
+[\--device \fIaltos-device\fP]
+.SH OPTIONS
+.TP
+\-T tty-device | --tty tty-device
+This selects which tty device ao-dump-up uses to communicate with
+the target device.
+.TP
+\-D AltOS-device | --device AltOS-device
+Search for a connected device. This forces the program to look
+for a specific USB device name.
+.SH DESCRIPTION
+.I ao-dump-up
+downloads a MicroPeak flight log from a connected MicroPeak USB adapter.
+.SH USAGE
+.I ao-dump-up
+connects to the specified target device and dumps the stored flight
+log.
+.SH AUTHOR
+Keith Packard
