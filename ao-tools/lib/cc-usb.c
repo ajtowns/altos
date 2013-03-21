@@ -254,15 +254,21 @@ cc_usb_printf(struct cc_usb *cc, char *format, ...)
 }
 
 int
-cc_usb_getchar(struct cc_usb *cc)
+cc_usb_getchar_timeout(struct cc_usb *cc, int timeout)
 {
 	while (cc->in_pos == cc->in_count) {
-		if (_cc_usb_sync(cc, 5000) < 0) {
+		if (_cc_usb_sync(cc, timeout) < 0) {
 			fprintf(stderr, "USB link timeout\n");
 			exit(1);
 		}
 	}
 	return cc->in_buf[cc->in_pos++];
+}
+
+int
+cc_usb_getchar(struct cc_usb *cc)
+{
+	return cc_usb_getchar_timeout(cc, 5000);
 }
 
 void
@@ -420,6 +426,8 @@ cc_usb_open(char *tty)
 	tcgetattr(cc->fd, &termios);
 	save_termios = termios;
 	cfmakeraw(&termios);
+	cfsetospeed(&termios, B9600);
+	cfsetispeed(&termios, B9600);
 	tcsetattr(cc->fd, TCSAFLUSH, &termios);
 	cc_usb_printf(cc, "\nE 0\nm 0\n");
 	do {

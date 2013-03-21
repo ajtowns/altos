@@ -54,6 +54,9 @@ void
 cc_queue_read(struct cc_usb *cc, uint8_t *buf, int len);
 
 int
+cc_usb_getchar_timeout(struct cc_usb *cc, int timeout);
+
+int
 cc_usb_getchar(struct cc_usb *cc);
 
 void

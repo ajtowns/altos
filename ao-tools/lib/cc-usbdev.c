@@ -132,11 +132,23 @@ usb_tty(char *sys)
 			/* Check for tty/ttyACMx style names
 			 */
 			tty_dir = cc_fullname(endpoint_full, "tty");
-			free(endpoint_full);
 			ntty = scandir(tty_dir, &namelist,
 				       dir_filter_tty,
 				       alphasort);
 			free (tty_dir);
+			if (ntty > 0) {
+				tty = cc_fullname("/dev", namelist[0]->d_name);
+				free(endpoint_full);
+				free(namelist);
+				return tty;
+			}
+
+			/* Check for ttyACMx style names
+			 */
+			ntty = scandir(endpoint_full, &namelist,
+				       dir_filter_tty,
+				       alphasort);
+			free(endpoint_full);
 			if (ntty > 0) {
 				tty = cc_fullname("/dev", namelist[0]->d_name);
 				free(namelist);
@@ -197,6 +209,15 @@ dir_filter_dev(const struct dirent *d)
 	return 1;
 }
 
+static int
+is_am(int idVendor, int idProduct) {
+	if (idVendor == 0xfffe)
+		return 1;
+	if (idVendor == 0x0403 && idProduct == 0x6015)
+		return 1;
+	return 0;
+}
+
 struct cc_usbdevs *
 cc_usbdevs_scan(void)
 {
@@ -220,7 +241,7 @@ cc_usbdevs_scan(void)
 		dir = cc_fullname(USB_DEVICES, ents[e]->d_name);
 		dev = usb_scan_device(dir);
 		free(dir);
-		if (dev->idVendor == 0xfffe && dev->tty) {
+		if (is_am(dev->idVendor, dev->idProduct) && dev->tty) {
 			if (devs->dev)
 				devs->dev = realloc(devs->dev,
 						    (devs->ndev + 1) * sizeof (struct usbdev *));
