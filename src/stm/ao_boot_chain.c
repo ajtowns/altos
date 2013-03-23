@@ -26,9 +26,11 @@ ao_boot_chain(uint32_t *base)
 
 	sp = base[0];
 	pc = base[1];
-	asm ("mov sp, %0" : : "r" (sp));
-	asm ("mov lr, %0" : : "r" (pc));
-	asm ("bx lr");
+	if (0x08000100 <= pc && pc <= 0x08200000) {
+		asm ("mov sp, %0" : : "r" (sp));
+		asm ("mov lr, %0" : : "r" (pc));
+		asm ("bx lr");
+	}
 }
 
 #define AO_BOOT_SIGNAL	0x5a5aa5a5
