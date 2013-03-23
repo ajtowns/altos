@@ -54,6 +54,15 @@ ao_cmd_hex32(void)
 }
 
 void
+ao_block_erase(void)
+{
+	uint32_t	addr = ao_cmd_hex32();
+	uint32_t	*p = (uint32_t *) addr;
+
+	ao_flash_erase_page(p);
+}
+
+void
 ao_block_write(void)
 {
 	uint32_t	addr = ao_cmd_hex32();
@@ -64,9 +73,24 @@ ao_block_write(void)
 	} u;
 	uint16_t	i;
 
+	if (addr < 0x08002000 || 0x08200000 <= addr) {
+		puts("Invalid address");
+		return;
+	}
 	for (i = 0; i < 256; i++)
-		u.data8[i] = getchar();
+		u.data8[i] = i;
 	ao_flash_page(p, u.data32);
+}
+
+static void
+puthex(uint8_t c)
+{
+	c &= 0xf;
+	if (c < 10)
+		c += '0';
+	else
+		c += 'a' - 10;
+	putchar (c);
 }
 
 void
@@ -75,13 +99,20 @@ ao_block_read(void)
 	uint32_t	addr = ao_cmd_hex32();
 	uint8_t		*p = (uint8_t *) addr;
 	uint16_t	i;
+	uint8_t		c;
 
-	for (i = 0; i < 256; i++)
-		putchar(*p++);
+	for (i = 0; i < 256; i++) {
+		c = *p++;
+		puthex(c);
+		puthex(c>>4);
+		if ((i & 0xf) == 0xf)
+			putchar('\n');
+	}
 }
 
 __code struct ao_cmds ao_flash_cmds[] = {
-	{ ao_application, "A\0Switch to application" },
+	{ ao_application, "a\0Switch to application" },
+	{ ao_block_erase, "e <addr>\0Erase block." },
 	{ ao_block_write, "W <addr>\0Write block. 256 binary bytes follow newline" },
 	{ ao_block_read, "R <addr>\0Read block. Returns 256 bytes" },
 	{ 0, NULL },
