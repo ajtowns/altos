@@ -69,6 +69,11 @@ find_symbols (Elf *e)
 	int		i, symbol_count, s;
 	int		required = 0;
 	char		*symbol_name;
+	char		*section_name;
+	size_t		shstrndx;
+
+	if (elf_getshdrstrndx(e, &shstrndx) < 0)
+		return 0;
 
 	/*
 	 * Find the symbols
@@ -76,8 +81,28 @@ find_symbols (Elf *e)
 
 	scn = NULL;
 	while ((scn = elf_nextscn(e, scn)) != NULL) {
+
 		if (gelf_getshdr(scn, &shdr) != &shdr)
 			return 0;
+
+#if 0
+		section_name = elf_strptr(e, shstrndx, shdr.sh_name);
+
+		printf ("name %s\n", section_name);
+
+		if (shdr.sh_type == SHT_PROGBITS)
+		{
+			printf ("\ttype %lx\n", shdr.sh_type);
+			printf ("\tflags %lx\n", shdr.sh_flags);
+			printf ("\taddr %lx\n", shdr.sh_addr);
+			printf ("\toffset %lx\n", shdr.sh_offset);
+			printf ("\tsize %lx\n", shdr.sh_size);
+			printf ("\tlink %lx\n", shdr.sh_link);
+			printf ("\tinfo %lx\n", shdr.sh_info);
+			printf ("\taddralign %lx\n", shdr.sh_addralign);
+			printf ("\tentsize %lx\n", shdr.sh_entsize);
+		}
+#endif
 
 		if (shdr.sh_type == SHT_SYMTAB) {
 			symbol_data = elf_getdata(scn, NULL);
@@ -199,14 +224,23 @@ get_load(Elf *e)
 	uint8_t		*buf;
 	char		*got_name;
 	size_t		nphdr;
-	int		p;
+	size_t		p;
 	GElf_Phdr	phdr;
+	GElf_Addr	p_paddr;
+	GElf_Off	p_offset;
+	GElf_Addr	sh_paddr;
 	struct load	*load = NULL;
+	char		*section_name;
+	size_t		nshdr;
+	size_t		s;
 	
 	if (elf_getshdrstrndx(e, &shstrndx) < 0)
 		return 0;
 
 	if (elf_getphdrnum(e, &nphdr) < 0)
+		return 0;
+
+	if (elf_getshdrnum(e, &nshdr) < 0)
 		return 0;
 
 	/*
@@ -218,16 +252,54 @@ get_load(Elf *e)
 		/* Find this phdr */
 		gelf_getphdr(e, p, &phdr);
 
+		if (phdr.p_type != PT_LOAD)
+			continue;
+
+		p_offset = phdr.p_offset;
 		/* Get the associated file section */
-		scn = gelf_offscn(e, phdr.p_offset);
 
-		if (gelf_getshdr(scn, &shdr) != &shdr)
-			abort();
+#if 0
+		printf ("offset %08x vaddr %08x paddr %08x filesz %08x memsz %08x\n",
+			(uint32_t) phdr.p_offset,
+			(uint32_t) phdr.p_vaddr,
+			(uint32_t) phdr.p_paddr,
+			(uint32_t) phdr.p_filesz,
+			(uint32_t) phdr.p_memsz);
+#endif
+		
+		for (s = 0; s < nshdr; s++) {
+			scn = elf_getscn(e, s);
 
-		data = elf_getdata(scn, NULL);
+			if (!scn) {
+				printf ("getscn failed\n");
+				abort();
+			}
+			if (gelf_getshdr(scn, &shdr) != &shdr) {
+				printf ("gelf_getshdr failed\n");
+				abort();
+			}
 
-		/* Write the section data into the memory block */
-		load = load_write(load, phdr.p_paddr, phdr.p_filesz, data->d_buf);
+			section_name = elf_strptr(e, shstrndx, shdr.sh_name);
+
+			if (phdr.p_offset <= shdr.sh_offset && shdr.sh_offset < phdr.p_offset + phdr.p_filesz) {
+					
+				if (shdr.sh_size == 0)
+					continue;
+
+				sh_paddr = phdr.p_paddr + shdr.sh_offset - phdr.p_offset;
+
+				printf ("\tsize %08x rom %08x exec %08x %s\n",
+					(uint32_t) shdr.sh_size,
+					(uint32_t) sh_paddr,
+					(uint32_t) shdr.sh_addr,
+					section_name);
+
+				data = elf_getdata(scn, NULL);
+
+				/* Write the section data into the memory block */
+				load = load_write(load, sh_paddr, shdr.sh_size, data->d_buf);
+			}
+		}
 	}
 	return load;
 }
@@ -422,6 +494,7 @@ main (int argc, char **argv)
 	stlink_t		*sl;
 	int			was_flashed = 0;
 	struct load		*load;
+	int			tries;
 
 	while ((c = getopt_long(argc, argv, "D:c:s:", options, NULL)) != -1) {
 		switch (c) {
@@ -472,18 +545,27 @@ main (int argc, char **argv)
 	/* Connect to the programming dongle
 	 */
 	
-	if (device) {
-		sl = stlink_v1_open(50);
-	} else {
-		sl = stlink_open_usb(50);
+	for (tries = 0; tries < 3; tries++) {
+		if (device) {
+			sl = stlink_v1_open(50);
+		} else {
+			sl = stlink_open_usb(50);
 		
-	}
-	if (!sl) {
-		fprintf (stderr, "No STLink devices present\n");
-		done (sl, 1);
-	}
+		}
+		if (!sl) {
+			fprintf (stderr, "No STLink devices present\n");
+			done (sl, 1);
+		}
 
-	sl->verbose = 50;
+		if (sl->chip_id != 0)
+			break;
+		stlink_reset(sl);
+		stlink_close(sl);
+	}
+	if (sl->chip_id == 0) {
+		fprintf (stderr, "Debugger connection failed\n");
+		done(sl, 1);
+	}
 
 	/* Verify that the loaded image fits entirely within device flash
 	 */
