@@ -45,14 +45,14 @@ SECTIONS {
 
 	.ARM.exidx : {
 		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
-		__text_end__ = .;
 	} > rom
+	__text_end__ = .;
 
 	/* Boot data which must live at the start of ram so that
 	 * the application and bootloader share the same addresses.
 	 * This must be all uninitialized data
 	 */
-	.boot : {
+	.boot (NOLOAD) : {
 		__boot_start__ = .;
 		*(.boot)
 		. = ALIGN(4);
@@ -64,6 +64,7 @@ SECTIONS {
 	.data : {
 		__data_start__ = .;
 		*(.data)	/* initialized data */
+		. = ALIGN(4);
 		__data_end__ = .;
 	} >ram AT>rom
 
@@ -71,6 +72,7 @@ SECTIONS {
 		__bss_start__ = .;
 		*(.bss)
 		*(COMMON)
+		. = ALIGN(4);
 		__bss_end__ = .;
 	} >ram
 

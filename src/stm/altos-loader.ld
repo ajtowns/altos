@@ -52,7 +52,7 @@ SECTIONS {
 	 * the application and bootloader share the same addresses.
 	 * This must be all uninitialized data
 	 */
-	.boot : {
+	.boot (NOLOAD) : {
 		__boot_start__ = .;
 		*(.boot)
 		. = ALIGN(4);
