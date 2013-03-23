@@ -19,6 +19,9 @@
 #define _AO_FLASH_STM_H_
 
 void
+ao_flash_erase_page(uint32_t *page);
+
+void
 ao_flash_page(uint32_t *page, uint32_t *src);
 
 #endif /* _AO_FLASH_STM_H_ */

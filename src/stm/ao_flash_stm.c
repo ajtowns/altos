@@ -39,6 +39,8 @@ ao_flash_pecr_unlock(void)
 	/* Unlock Data EEPROM and FLASH_PECR register */
 	stm_flash.pekeyr = STM_FLASH_PEKEYR_PEKEY1;
 	stm_flash.pekeyr = STM_FLASH_PEKEYR_PEKEY2;
+	if (ao_flash_pecr_is_locked())
+		ao_panic(AO_PANIC_FLASH);
 }
 
 static void
@@ -50,6 +52,14 @@ ao_flash_pgr_unlock(void)
 	/* Unlock program memory */
 	stm_flash.prgkeyr = STM_FLASH_PRGKEYR_PRGKEY1;
 	stm_flash.prgkeyr = STM_FLASH_PRGKEYR_PRGKEY2;
+	if (ao_flash_pgr_is_locked())
+		ao_panic(AO_PANIC_FLASH);
+}
+
+static void
+ao_flash_lock(void)
+{
+	stm_flash.pecr |= (1 << STM_FLASH_PECR_OPTLOCK) | (1 << STM_FLASH_PECR_PRGLOCK) | (1 << STM_FLASH_PECR_PELOCK);
 }
 
 static void
@@ -59,32 +69,45 @@ ao_flash_wait_bsy(void)
 		;
 }
 
-static void
+static void __attribute__ ((section(".text.ram"),noinline))
+_ao_flash_erase_page(uint32_t *page)
+{
+	stm_flash.pecr |= (1 << STM_FLASH_PECR_ERASE) | (1 << STM_FLASH_PECR_PROG);
+	
+	*page = 0x00000000;
+
+	while (stm_flash.sr & (1 << STM_FLASH_SR_BSY))
+		;
+}
+
+void
 ao_flash_erase_page(uint32_t *page)
 {
 	ao_flash_pecr_unlock();
 	ao_flash_pgr_unlock();
 
-	stm_flash.pecr |= (1 << STM_FLASH_PECR_ERASE);
-	stm_flash.pecr |= (1 << STM_FLASH_PECR_PROG);
-	
-	ao_flash_wait_bsy();
+	_ao_flash_erase_page(page);
 
-	*page = 0x00000000;
+	ao_flash_lock();
 }
 
 static void __attribute__ ((section(".text.ram"), noinline))
-	_ao_flash_half_page(uint32_t *dst, uint32_t *src)
+_ao_flash_half_page(uint32_t *dst, uint32_t *src)
 {
 	uint8_t		i;
 
 	stm_flash.pecr |= (1 << STM_FLASH_PECR_FPRG);
 	stm_flash.pecr |= (1 << STM_FLASH_PECR_PROG);
+	
 	while (stm_flash.sr & (1 << STM_FLASH_SR_BSY))
 		;
-	
-	for (i = 0; i < 32; i++)
+
+	for (i = 0; i < 32; i++) {
 		*dst++ = *src++;
+	}
+
+	while (stm_flash.sr & (1 << STM_FLASH_SR_BSY))
+		;
 }
 
 void
@@ -93,11 +116,12 @@ ao_flash_page(uint32_t *page, uint32_t *src)
 	uint8_t		h;
 
 	ao_flash_erase_page(page);
+	ao_flash_pecr_unlock();
+	ao_flash_pgr_unlock();
 	for (h = 0; h < 2; h++) {
-		ao_flash_pecr_unlock();
-		ao_flash_pgr_unlock();
 		_ao_flash_half_page(page, src);
 		page += 32;
 		src += 32;
 	}
+	ao_flash_lock();
 }
