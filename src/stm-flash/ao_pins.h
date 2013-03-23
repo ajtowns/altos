@@ -51,9 +51,9 @@
 #define PACKET_HAS_SLAVE	0
 
 #define LED_PORT_ENABLE		STM_RCC_AHBENR_GPIOCEN
-#define LED_PORT		(&stm_gpioc)
-#define LED_PIN_RED		8
-#define LED_PIN_GREEN		9
+#define LED_PORT		(&stm_gpiob)
+#define LED_PIN_RED		6
+#define LED_PIN_GREEN		7
 #define AO_LED_RED		(1 << LED_PIN_RED)
 #define AO_LED_GREEN		(1 << LED_PIN_GREEN)
 

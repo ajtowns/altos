@@ -35,7 +35,7 @@ IDPRODUCT=0x000a
 
 CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) -g -Os
 
-PROG=stm-flash
+PROG=stm-flash-$(VERSION).elf
 
 SRC=$(ALTOS_SRC) ao_stm_flash.c
 OBJ=$(SRC:.c=.o)
