@@ -228,21 +228,70 @@ public class AltosHexfile {
 			else
 				record_list.add(record);
 		}
-		HexRecord[] records  = record_list.toArray(new HexRecord[0]);
-		Arrays.sort(records);
-		if (records.length > 0) {
-			int	base = records[0].address;
-			int	bound = records[records.length-1].address +
-				records[records.length-1].data.length;
 
-			data = new byte[bound - base];
-			address = base;
-			Arrays.fill(data, (byte) 0xff);
+		long	extended_addr = 0;
+		long	base = 0xffffffff;
+		long	bound = 0x00000000;
+		for (HexRecord record : record_list) {
+			switch (record.type) {
+			case 0:
+				long addr = extended_addr + record.address;
+				long r_bound = addr + record.data.length;
+				if (addr < base)
+					base = addr;
+				if (r_bound > bound)
+					bound = r_bound;
+				break;
+			case 1:
+				break;
+			case 2:
+				if (record.data.length != 2)
+					throw new IOException("invalid extended segment address record");
+				extended_addr = ((record.data[0] << 8) + (record.data[1])) << 4;
+				break;
+			case 4:
+				if (record.data.length != 2)
+					throw new IOException("invalid extended segment address record");
+				extended_addr = ((record.data[0] << 8) + (record.data[1])) << 16;
+				break;
+			default:
+				throw new IOException ("invalid hex record type");
+			}
+		}
 
-			/* Paint the records into the new array */
-			for (int i = 0; i < records.length; i++) {
-				for (int j = 0; j < records[i].data.length; j++)
-					data[records[i].address - base + j] = records[i].data[j];
+		if (base >= bound)
+			throw new IOException("invalid hex file");
+
+		if (bound - base > 4 * 1024 * 1024)
+			throw new IOException("hex file too large");
+
+		data = new byte[(int) (bound - base)];
+		address = (int) base;
+		Arrays.fill(data, (byte) 0xff);
+
+		/* Paint the records into the new array */
+		for (HexRecord record : record_list) {
+			switch (record.type) {
+			case 0:
+				long addr = extended_addr + record.address;
+				long r_bound = addr + record.data.length;
+				for (int j = 0; j < record.data.length; j++)
+					data[(int) (addr - base) + j] = record.data[j];
+				break;
+			case 1:
+				break;
+			case 2:
+				if (record.data.length != 2)
+					throw new IOException("invalid extended segment address record");
+				extended_addr = ((record.data[0] << 8) + (record.data[1])) << 4;
+				break;
+			case 4:
+				if (record.data.length != 2)
+					throw new IOException("invalid extended segment address record");
+				extended_addr = ((record.data[0] << 8) + (record.data[1])) << 16;
+				break;
+			default:
+				throw new IOException ("invalid hex record type");
 			}
 		}
 	}
