@@ -39,7 +39,6 @@ altosui_JAVA = \
 	AltosEepromManage.java \
 	AltosEepromMonitor.java \
 	AltosEepromSelect.java \
-	AltosFlash.java \
 	AltosFlashUI.java \
 	AltosFlightDisplay.java \
 	AltosFlightInfoTableModel.java \

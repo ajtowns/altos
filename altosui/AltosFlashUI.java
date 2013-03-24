@@ -215,15 +215,30 @@ public class AltosFlashUI
 		}
 	}
 
-	class flash_task implements Runnable {
+	class flash_task implements Runnable, AltosFlashListener {
 		AltosFlashUI	ui;
 		Thread		t;
 		AltosFlash	flash;
 
+		public void position(String in_s, int in_percent) {
+			final String s = in_s;
+			final int percent = in_percent;
+			Runnable r = new Runnable() {
+					public void run() {
+						try {
+							ui.actionPerformed(new ActionEvent(this,
+											   percent,
+											   s));
+						} catch (Exception ex) {
+						}
+					}
+				};
+			SwingUtilities.invokeLater(r);
+		}
+
 		public void run () {
 			try {
-				flash = new AltosFlash(ui.file, ui.debug_dongle);
-				flash.addActionListener(ui);
+				flash = new AltosFlash(ui.file, new AltosSerial(ui.debug_dongle), this);
 
 				final AltosRomconfig	current_config = flash.romconfig();
 

@@ -25,6 +25,8 @@ altoslib_JAVA = \
 	AltosEepromRecord.java \
 	AltosEepromTeleScience.java \
 	AltosFile.java \
+	AltosFlash.java \
+	AltosFlashListener.java \
 	AltosFlightReader.java \
 	AltosFrequency.java \
 	AltosGPS.java \

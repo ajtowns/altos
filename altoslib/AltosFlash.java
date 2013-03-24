@@ -15,24 +15,19 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altoslib_1;
 
-import java.awt.event.*;
-import javax.swing.*;
 import java.io.*;
-import org.altusmetrum.altoslib_1.*;
-import org.altusmetrum.altosuilib_1.*;
 
 public class AltosFlash {
-	File		file;
-	FileInputStream	input;
-	AltosHexfile	image;
-	JFrame		frame;
-	AltosDevice	debug_dongle;
-	AltosDebug	debug;
-	AltosRomconfig	rom_config;
-	ActionListener	listener;
-	boolean		aborted;
+	File			file;
+	FileInputStream		input;
+	AltosHexfile		image;
+	AltosLink		link;
+	AltosDebug		debug;
+	AltosRomconfig		rom_config;
+	boolean			aborted;
+	AltosFlashListener	listener;
 
 	static final byte MOV_direct_data	= (byte) 0x75;
 	static final byte MOV_DPTR_data16	= (byte) 0x90;
@@ -206,22 +201,9 @@ public class AltosFlash {
 		}
 	}
 
-	void action(String in_s, int in_percent) {
-		final String s = in_s;
-		final int percent = in_percent;
-		if (listener != null && !aborted) {
-			Runnable r = new Runnable() {
-					public void run() {
-						try {
-							listener.actionPerformed(new ActionEvent(this,
-												 percent,
-												 s));
-						} catch (Exception ex) {
-						}
-					}
-				};
-			SwingUtilities.invokeLater(r);
-		}
+	void action(String s, int percent) {
+		if (listener != null && !aborted)
+			listener.position(s, percent);
 	}
 
 	void action(int part, int total) {
@@ -336,10 +318,6 @@ public class AltosFlash {
 		close();
 	}
 
-	public void addActionListener(ActionListener l) {
-		listener = l;
-	}
-
 	public boolean check_rom_config() {
 		if (debug == null)
 			return true;
@@ -358,12 +336,13 @@ public class AltosFlash {
 		return rom_config;
 	}
 
-	public AltosFlash(File in_file, AltosDevice in_debug_dongle)
-		throws IOException, FileNotFoundException, AltosSerialInUseException, InterruptedException {
-		file = in_file;
-		debug_dongle = in_debug_dongle;
-		if (debug_dongle != null)
-			debug = new AltosDebug(new AltosSerial(in_debug_dongle));
+	public AltosFlash(File file, AltosLink link, AltosFlashListener listener)
+		throws IOException, FileNotFoundException, InterruptedException {
+		this.file = file;
+		this.link = link;
+		this.listener = listener;
+		if (link != null)
+			debug = new AltosDebug(link);
 		input = new FileInputStream(file);
 		image = new AltosHexfile(input);
 		if (debug != null && !debug.check_connection()) {
