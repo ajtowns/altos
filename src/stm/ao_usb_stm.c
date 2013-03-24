@@ -823,15 +823,20 @@ ao_usb_ep0(void)
 
 /* Queue the current IN buffer for transmission */
 static void
-ao_usb_in_send(void)
+_ao_usb_in_send(void)
 {
 	_tx_dbg0("in_send start");
 	debug ("send %d\n", ao_usb_tx_count);
+	while (ao_usb_in_pending)
+		ao_sleep(&ao_usb_in_pending);
 	ao_usb_in_pending = 1;
+	if (ao_usb_tx_count != AO_USB_IN_SIZE)
+		ao_usb_in_flushed = 1;
 	ao_usb_write(ao_usb_tx_buffer, ao_usb_in_tx_buffer, 0, ao_usb_tx_count);
 	ao_usb_bdt[AO_USB_IN_EPR].single.count_tx = ao_usb_tx_count;
-	ao_usb_set_stat_tx(AO_USB_IN_EPR, STM_USB_EPR_STAT_TX_VALID);
 	ao_usb_tx_count = 0;
+	_ao_usb_set_stat_tx(AO_USB_IN_EPR, STM_USB_EPR_STAT_TX_VALID);
+	_tx_dbg0("in_send end");
 }
 
 /* Wait for a free IN buffer. Interrupts are blocked */
@@ -865,12 +870,10 @@ ao_usb_flush(void)
 	 * want to send an empty packet
 	 */
 	ao_arch_block_interrupts();
-	if (!ao_usb_in_flushed) {
-		ao_usb_in_flushed = 1;
-		/* Wait for an IN buffer to be ready */
-		while (ao_usb_in_pending)
-			ao_sleep(&ao_usb_in_pending);
-		ao_usb_in_send();
+	while (!ao_usb_in_flushed) {
+		_tx_dbg0("flush top");
+		_ao_usb_in_send();
+		_tx_dbg0("flush end");
 	}
 	ao_arch_release_interrupts();
 }
