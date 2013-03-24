@@ -16,6 +16,7 @@ altoslib_JAVA = \
 	AltosConfigValues.java \
 	AltosConvert.java \
 	AltosCRCException.java \
+	AltosDebug.java \
 	AltosEepromChunk.java \
 	AltosEepromIterable.java \
 	AltosEepromLog.java \
@@ -30,6 +31,7 @@ altoslib_JAVA = \
 	AltosGPSQuery.java \
 	AltosGPSSat.java \
 	AltosGreatCircle.java \
+	AltosHexfile.java \
 	AltosIdleMonitor.java \
 	AltosIdleMonitorListener.java \
 	AltosIgnite.java \
@@ -53,6 +55,7 @@ altoslib_JAVA = \
 	AltosRecordTM.java \
 	AltosRecordMM.java \
 	AltosReplayReader.java \
+	AltosRomconfig.java \
 	AltosSensorMM.java \
 	AltosSensorTM.java \
 	AltosState.java \

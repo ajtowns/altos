@@ -30,7 +30,6 @@ altosui_JAVA = \
 	AltosConfigTDUI.java \
 	AltosCSV.java \
 	AltosCSVUI.java \
-	AltosDebug.java \
 	AltosDescent.java \
 	AltosDeviceUIDialog.java \
 	AltosDisplayThread.java \
@@ -50,7 +49,6 @@ altosui_JAVA = \
 	AltosFlightStatusUpdate.java \
 	AltosFlightUI.java \
 	AltosFreqList.java \
-	AltosHexfile.java \
 	Altos.java \
 	AltosIdleMonitorUI.java \
 	AltosIgniteUI.java \
@@ -63,7 +61,6 @@ altosui_JAVA = \
 	AltosLights.java \
 	AltosPad.java \
 	AltosUIPreferencesBackend.java \
-	AltosRomconfig.java \
 	AltosRomconfigUI.java \
 	AltosScanUI.java \
 	AltosSerial.java \

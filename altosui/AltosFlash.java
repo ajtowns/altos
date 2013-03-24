@@ -20,6 +20,7 @@ package altosui;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
+import org.altusmetrum.altoslib_1.*;
 import org.altusmetrum.altosuilib_1.*;
 
 public class AltosFlash {
@@ -362,7 +363,7 @@ public class AltosFlash {
 		file = in_file;
 		debug_dongle = in_debug_dongle;
 		if (debug_dongle != null)
-			debug = new AltosDebug(in_debug_dongle);
+			debug = new AltosDebug(new AltosSerial(in_debug_dongle));
 		input = new FileInputStream(file);
 		image = new AltosHexfile(input);
 		if (debug != null && !debug.check_connection()) {

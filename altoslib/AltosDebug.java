@@ -15,12 +15,11 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altoslib_1;
 
 import java.io.*;
-import org.altusmetrum.altosuilib_1.*;
 
-public class AltosDebug extends AltosSerial {
+public class AltosDebug {
 
 	public static final byte WR_CONFIG =		0x1d;
 	public static final byte RD_CONFIG =		0x24;
@@ -53,13 +52,15 @@ public class AltosDebug extends AltosSerial {
 	public static final byte GET_CHIP_ID =		0x68;
 
 
+	AltosLink	link;
+
 	boolean	debug_mode;
 
 	void ensure_debug_mode() {
 		if (!debug_mode) {
-			printf("D\n");
+			link.printf("D\n");
 			try {
-				flush_input();
+				link.flush_input();
 			} catch (InterruptedException ie) {
 			}
 			debug_mode = true;
@@ -79,15 +80,19 @@ public class AltosDebug extends AltosSerial {
 		System.out.printf("\n");
 	}
 
+	public void close() {
+		link.close();
+	}
+
 	/*
 	 * Write target memory
 	 */
 	public void write_memory(int address, byte[] bytes, int start, int len) {
 		ensure_debug_mode();
 //		dump_memory("write_memory", address, bytes, start, len);
-		printf("O %x %x\n", len, address);
+		link.printf("O %x %x\n", len, address);
 		for (int i = 0; i < len; i++)
-			printf("%02x", bytes[start + i]);
+			link.printf("%02x", bytes[start + i]);
 	}
 
 	public void write_memory(int address, byte[] bytes) {
@@ -101,21 +106,21 @@ public class AltosDebug extends AltosSerial {
 		throws IOException, InterruptedException {
 		byte[]	data = new byte[length];
 
-		flush_input();
+		link.flush_input();
 		ensure_debug_mode();
-		printf("I %x %x\n", length, address);
+		link.printf("I %x %x\n", length, address);
 		int i = 0;
 		int start = 0;
 		while (i < length) {
-			String	line = get_reply().trim();
-			if (!Altos.ishex(line) || line.length() % 2 != 0)
+			String	line = link.get_reply().trim();
+			if (!AltosLib.ishex(line) || line.length() % 2 != 0)
 				throw new IOException(
 					String.format
 					("Invalid reply \"%s\"", line));
 			int this_time = line.length() / 2;
 			for (int j = 0; j < this_time; j++)
-				data[start + j] = (byte) ((Altos.fromhex(line.charAt(j*2)) << 4) +
-						  Altos.fromhex(line.charAt(j*2+1)));
+				data[start + j] = (byte) ((AltosLib.fromhex(line.charAt(j*2)) << 4) +
+						  AltosLib.fromhex(line.charAt(j*2+1)));
 			start += this_time;
 			i += this_time;
 		}
@@ -134,10 +139,10 @@ public class AltosDebug extends AltosSerial {
 			int this_time = bytes.length - i;
 			if (this_time > 8)
 				this_time = 0;
-			printf("P");
+			link.printf("P");
 			for (int j = 0; j < this_time; j++)
-				printf(" %02x", bytes[i+j]);
-			printf("\n");
+				link.printf(" %02x", bytes[i+j]);
+			link.printf("\n");
 			i += this_time;
 		}
 	}
@@ -153,20 +158,20 @@ public class AltosDebug extends AltosSerial {
 	public byte[] read_bytes(int length)
 		throws IOException, InterruptedException {
 
-		flush_input();
+		link.flush_input();
 		ensure_debug_mode();
-		printf("G %x\n", length);
+		link.printf("G %x\n", length);
 		int i = 0;
 		byte[] data = new byte[length];
 		while (i < length) {
-			String line = get_reply();
+			String line = link.get_reply();
 
 			if (line == null)
 				throw new IOException("Timeout in read_bytes");
 			line = line.trim();
 			String tokens[] = line.split("\\s+");
 			for (int j = 0; j < tokens.length; j++) {
-				if (!Altos.ishex(tokens[j]) ||
+				if (!AltosLib.ishex(tokens[j]) ||
 				    tokens[j].length() != 2)
 					throw new IOException(
 						String.format
@@ -266,10 +271,10 @@ public class AltosDebug extends AltosSerial {
 	 * Reset target
 	 */
 	public void reset() {
-		printf ("R\n");
+		link.printf ("R\n");
 	}
 
-	public AltosDebug (AltosDevice in_device) throws FileNotFoundException, AltosSerialInUseException {
-		super(in_device);
+	public AltosDebug (AltosLink link) {
+		this.link = link;
 	}
 }
