@@ -99,20 +99,21 @@ char
 getchar(void) __reentrant
 {
 	int c;
-	ao_arch_critical(
-		int8_t stdio = ao_cur_stdio;
+	int8_t stdio;
 
-		for (;;) {
-			c = ao_stdios[stdio].pollchar();
-			if (c != AO_READ_AGAIN)
-				break;
-			if (++stdio == ao_num_stdios)
-				stdio = 0;
-			if (stdio == ao_cur_stdio)
-				ao_sleep(&ao_stdin_ready);
-		}
-		ao_cur_stdio = stdio;
-		);
+	ao_arch_block_interrupts();
+	stdio = ao_cur_stdio;
+	for (;;) {
+		c = ao_stdios[stdio]._pollchar();
+		if (c != AO_READ_AGAIN)
+			break;
+		if (++stdio == ao_num_stdios)
+			stdio = 0;
+		if (stdio == ao_cur_stdio)
+			ao_sleep(&ao_stdin_ready);
+	}
+	ao_cur_stdio = stdio;
+	ao_arch_release_interrupts();
 	return c;
 }
 
@@ -123,13 +124,13 @@ ao_echo(void)
 }
 
 int8_t
-ao_add_stdio(int (*pollchar)(void),
+ao_add_stdio(int (*_pollchar)(void),
 	     void (*putchar)(char),
 	     void (*flush)(void)) __reentrant
 {
 	if (ao_num_stdios == AO_NUM_STDIOS)
 		ao_panic(AO_PANIC_STDIO);
-	ao_stdios[ao_num_stdios].pollchar = pollchar;
+	ao_stdios[ao_num_stdios]._pollchar = _pollchar;
 	ao_stdios[ao_num_stdios].putchar = putchar;
 	ao_stdios[ao_num_stdios].flush = flush;
 	ao_stdios[ao_num_stdios].echo = 1;

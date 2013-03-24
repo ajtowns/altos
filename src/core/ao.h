@@ -638,7 +638,7 @@ ao_monitor_init(void) __reentrant;
 #define AO_READ_AGAIN	(-1)
 
 struct ao_stdio {
-	int	(*pollchar)(void);
+	int	(*_pollchar)(void);	/* Called with interrupts blocked */
 	void	(*putchar)(char c) __reentrant;
 	void	(*flush)(void);
 	uint8_t	echo;

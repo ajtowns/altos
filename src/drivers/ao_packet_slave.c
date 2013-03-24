@@ -59,7 +59,7 @@ ao_packet_slave_stop(void)
 void
 ao_packet_slave_init(uint8_t enable)
 {
-	ao_add_stdio(ao_packet_pollchar,
+	ao_add_stdio(_ao_packet_pollchar,
 		     ao_packet_putchar,
 		     NULL);
 	if (enable)

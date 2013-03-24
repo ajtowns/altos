@@ -383,18 +383,18 @@ ao_usb_putchar(char c) __critical __reentrant
 }
 
 int
-ao_usb_pollchar(void) __critical
+_ao_usb_pollchar(void)
 {
 	uint8_t c;
 	if (ao_usb_out_bytes == 0) {
 		USBINDEX = AO_USB_OUT_EP;
 		if ((USBCSOL & USBCSOL_OUTPKT_RDY) == 0)
-			return -1;
+			return AO_READ_AGAIN;
 		ao_usb_out_bytes = (USBCNTH << 8) | USBCNTL;
 		if (ao_usb_out_bytes == 0) {
 			USBINDEX = AO_USB_OUT_EP;
 			USBCSOL &= ~USBCSOL_OUTPKT_RDY;
-			return -1;
+			return AO_READ_AGAIN;
 		}
 	}
 	--ao_usb_out_bytes;
@@ -407,12 +407,14 @@ ao_usb_pollchar(void) __critical
 }
 
 char
-ao_usb_getchar(void) __critical
+ao_usb_getchar(void)
 {
 	int	c;
 
-	while ((c = ao_usb_pollchar()) == AO_READ_AGAIN)
+	ao_arch_block_interrupts();
+	while ((c = _ao_usb_pollchar()) == AO_READ_AGAIN)
 		ao_sleep(&ao_stdin_ready);
+	ao_arch_release_interrupts();
 	return c;
 }
 
@@ -459,5 +461,5 @@ ao_usb_init(void)
 	ao_usb_enable();
 
 	ao_add_task(&ao_usb_task, ao_usb_ep0, "usb");
-	ao_add_stdio(ao_usb_pollchar, ao_usb_putchar, ao_usb_flush);
+	ao_add_stdio(_ao_usb_pollchar, ao_usb_putchar, ao_usb_flush);
 }

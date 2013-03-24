@@ -92,7 +92,7 @@ ao_serial0_getchar(void) __critical
 
 #if USE_SERIAL_0_STDIN
 int
-ao_serial0_pollchar(void) __critical
+_ao_serial0_pollchar(void)
 {
 	uint8_t	c;
 	if (ao_fifo_empty(ao_serial0_rx_fifo))
@@ -180,7 +180,7 @@ ao_serial1_getchar(void) __critical
 
 #if USE_SERIAL_1_STDIN
 int
-ao_serial1_pollchar(void) __critical
+_ao_serial1_pollchar(void)
 {
 	uint8_t	c;
 	if (ao_fifo_empty(ao_serial1_rx_fifo))
@@ -271,7 +271,7 @@ ao_serial_init(void)
 	IEN0 |= IEN0_URX0IE;
 	IEN2 |= IEN2_UTX0IE;
 #if USE_SERIAL_0_STDIN && !DELAY_SERIAL_0_STDIN
-	ao_add_stdio(ao_serial0_pollchar,
+	ao_add_stdio(_ao_serial0_pollchar,
 		     ao_serial0_putchar,
 		     NULL);
 #endif
@@ -327,7 +327,7 @@ ao_serial_init(void)
 	IEN2 |= IEN2_UTX1IE;
 
 #if USE_SERIAL_1_STDIN && !DELAY_SERIAL_1_STDIN
-	ao_add_stdio(ao_serial1_pollchar,
+	ao_add_stdio(_ao_serial1_pollchar,
 		     ao_serial1_putchar,
 		     NULL);
 #endif

@@ -229,10 +229,9 @@ ao_usb_set_stat_tx(int ep, uint32_t stat_tx)
 }
 
 static void
-ao_usb_set_stat_rx(int ep, uint32_t stat_rx) {
+_ao_usb_set_stat_rx(int ep, uint32_t stat_rx) {
 	uint32_t	epr_write, epr_old;
 
-	ao_arch_block_interrupts();
 	epr_write = epr_old = stm_usb.epr[ep];
 	epr_write &= STM_USB_EPR_PRESERVE_MASK;
 	epr_write |= STM_USB_EPR_INVARIANT;
@@ -240,6 +239,12 @@ ao_usb_set_stat_rx(int ep, uint32_t stat_rx) {
 			      STM_USB_EPR_STAT_RX_MASK << STM_USB_EPR_STAT_RX,
 			      stat_rx << STM_USB_EPR_STAT_RX);
 	stm_usb.epr[ep] = epr_write;
+}
+
+static void
+ao_usb_set_stat_rx(int ep, uint32_t stat_rx) {
+	ao_arch_block_interrupts();
+	_ao_usb_set_stat_rx(ep, stat_rx);
 	ao_arch_release_interrupts();
 }
 
@@ -870,10 +875,10 @@ _ao_usb_out_recv(void)
 	ao_usb_rx_pos = 0;
 
 	/* ACK the packet */
-	ao_usb_set_stat_rx(AO_USB_OUT_EPR, STM_USB_EPR_STAT_RX_VALID);
+	_ao_usb_set_stat_rx(AO_USB_OUT_EPR, STM_USB_EPR_STAT_RX_VALID);
 }
 
-static int
+int
 _ao_usb_pollchar(void)
 {
 	uint8_t c;
@@ -893,16 +898,6 @@ _ao_usb_pollchar(void)
 
 	/* Pull a character out of the fifo */
 	c = ao_usb_rx_buffer[ao_usb_rx_pos++];
-	return c;
-}
-
-int
-ao_usb_pollchar(void)
-{
-	int	c;
-	ao_arch_block_interrupts();
-	c = _ao_usb_pollchar();
-	ao_arch_release_interrupts();
 	return c;
 }
 

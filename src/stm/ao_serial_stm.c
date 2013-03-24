@@ -59,24 +59,11 @@ ao_usart_isr(struct ao_stm_usart *usart, int stdin)
 	}
 }
 
-char
-ao_usart_getchar(struct ao_stm_usart *usart)
-{
-	char c;
-	ao_arch_block_interrupts();
-	while (ao_fifo_empty(usart->rx_fifo))
-		ao_sleep(&usart->rx_fifo);
-	ao_fifo_remove(usart->rx_fifo, c);
-	ao_arch_release_interrupts();
-	return c;
-}
-
 int
-ao_usart_pollchar(struct ao_stm_usart *usart)
+_ao_usart_pollchar(struct ao_stm_usart *usart)
 {
 	int	c;
 	
-	ao_arch_block_interrupts();
 	if (ao_fifo_empty(usart->rx_fifo))
 		c = AO_READ_AGAIN;
 	else {
@@ -84,8 +71,18 @@ ao_usart_pollchar(struct ao_stm_usart *usart)
 		ao_fifo_remove(usart->rx_fifo,u);
 		c = u;
 	}
-	ao_arch_release_interrupts();
 	return c;
+}
+
+char
+ao_usart_getchar(struct ao_stm_usart *usart)
+{
+	int c;
+	ao_arch_block_interrupts();
+	while ((c = _ao_usart_pollchar(usart)) == AO_READ_AGAIN)
+		ao_sleep(&usart->rx_fifo);
+	ao_arch_release_interrupts();
+	return (char) c;
 }
 
 void
@@ -201,9 +198,9 @@ ao_serial1_putchar(char c)
 }
 
 int
-ao_serial1_pollchar(void)
+_ao_serial1_pollchar(void)
 {
-	return ao_usart_pollchar(&ao_stm_usart1);
+	return _ao_usart_pollchar(&ao_stm_usart1);
 }
 
 void
@@ -232,9 +229,9 @@ ao_serial2_putchar(char c)
 }
 
 int
-ao_serial2_pollchar(void)
+_ao_serial2_pollchar(void)
 {
-	return ao_usart_pollchar(&ao_stm_usart2);
+	return _ao_usart_pollchar(&ao_stm_usart2);
 }
 
 void
@@ -263,9 +260,9 @@ ao_serial3_putchar(char c)
 }
 
 int
-ao_serial3_pollchar(void)
+_ao_serial3_pollchar(void)
 {
-	return ao_usart_pollchar(&ao_stm_usart3);
+	return _ao_usart_pollchar(&ao_stm_usart3);
 }
 
 void
@@ -309,7 +306,7 @@ ao_serial_init(void)
 	stm_nvic_set_enable(STM_ISR_USART1_POS);
 	stm_nvic_set_priority(STM_ISR_USART1_POS, 4);
 #if USE_SERIAL_1_STDIN
-	ao_add_stdio(ao_serial1_pollchar,
+	ao_add_stdio(_ao_serial1_pollchar,
 		     ao_serial1_putchar,
 		     NULL);
 #endif
@@ -346,7 +343,7 @@ ao_serial_init(void)
 	stm_nvic_set_enable(STM_ISR_USART2_POS);
 	stm_nvic_set_priority(STM_ISR_USART2_POS, 4);
 #if USE_SERIAL_2_STDIN
-	ao_add_stdio(ao_serial2_pollchar,
+	ao_add_stdio(_ao_serial2_pollchar,
 		     ao_serial2_putchar,
 		     NULL);
 #endif
@@ -390,7 +387,7 @@ ao_serial_init(void)
 	stm_nvic_set_enable(STM_ISR_USART3_POS);
 	stm_nvic_set_priority(STM_ISR_USART3_POS, 4);
 #if USE_SERIAL_3_STDIN
-	ao_add_stdio(ao_serial3_pollchar,
+	ao_add_stdio(_ao_serial3_pollchar,
 		     ao_serial3_putchar,
 		     NULL);
 #endif

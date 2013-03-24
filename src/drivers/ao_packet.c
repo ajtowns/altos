@@ -169,12 +169,10 @@ ao_packet_putchar(char c) __reentrant
 		tx_data[ao_packet_tx_used++] = c;
 }
 
+/* May be called with interrupts blocked */
 int
-ao_packet_pollchar(void)
+_ao_packet_pollchar(void)
 {
-	/* No need to block interrupts, all variables here
-	 * are only manipulated in task context
-	 */
 	if (!ao_packet_enable)
 		return AO_READ_AGAIN;
 

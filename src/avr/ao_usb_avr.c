@@ -411,7 +411,7 @@ ao_usb_ep0(void)
 
 /* Wait for a free IN buffer */
 static void
-ao_usb_in_wait(void)
+_ao_usb_in_wait(void)
 {
 	for (;;) {
 		/* Check if the current buffer is writable */
@@ -419,7 +419,6 @@ ao_usb_in_wait(void)
 		if (UEINTX & (1 << RWAL))
 			break;
 
-		cli();
 		/* Wait for an IN buffer to be ready */
 		for (;;) {
 			UENUM = AO_USB_IN_EP;
@@ -430,24 +429,24 @@ ao_usb_in_wait(void)
 		}
 		/* Ack the interrupt */
 		UEINTX &= ~(1 << TXINI);
-		sei();
 	}
 }
 
 /* Queue the current IN buffer for transmission */
 static void
-ao_usb_in_send(void)
+_ao_usb_in_send(void)
 {
 	UENUM = AO_USB_IN_EP;
 	UEINTX &= ~(1 << FIFOCON);
 }
 
 void
-ao_usb_flush(void) __critical
+ao_usb_flush(void)
 {
 	if (!ao_usb_running)
 		return;
 
+	ao_arch_block_interrupts();
 	/* Anytime we've sent a character since
 	 * the last time we flushed, we'll need
 	 * to send a packet -- the only other time
@@ -457,18 +456,20 @@ ao_usb_flush(void) __critical
 	 */
 	if (!ao_usb_in_flushed) {
 		ao_usb_in_flushed = 1;
-		ao_usb_in_wait();
-		ao_usb_in_send();
+		_ao_usb_in_wait();
+		_ao_usb_in_send();
 	}
+	ao_arch_release_interrupts();
 }
 
 void
-ao_usb_putchar(char c) __critical __reentrant
+ao_usb_putchar(char c)
 {
 	if (!ao_usb_running)
 		return;
 
-	ao_usb_in_wait();
+	ao_arch_block_interrupts();
+	_ao_usb_in_wait();
 
 	/* Queue a byte */
 	UENUM = AO_USB_IN_EP;
@@ -476,11 +477,12 @@ ao_usb_putchar(char c) __critical __reentrant
 
 	/* Send the packet when full */
 	if ((UEINTX & (1 << RWAL)) == 0)
-		ao_usb_in_send();
+		_ao_usb_in_send();
 	ao_usb_in_flushed = 0;
+	ao_arch_release_interrupts();
 }
 
-static int
+int
 _ao_usb_pollchar(void)
 {
 	uint8_t c;
@@ -517,25 +519,15 @@ _ao_usb_pollchar(void)
 	return c;
 }
 
-int
-ao_usb_pollchar(void)
-{
-	int	c;
-	cli();
-	c = _ao_usb_pollchar();
-	sei();
-	return c;
-}
-
 char
-ao_usb_getchar(void) __critical
+ao_usb_getchar(void)
 {
 	int	c;
 
-	cli();
+	ao_arch_block_interrupts();
 	while ((c = _ao_usb_pollchar()) == AO_READ_AGAIN)
 		ao_sleep(&ao_stdin_ready);
-	sei();
+	ao_arch_release_interrupts();
 	return c;
 }
 
@@ -668,5 +660,5 @@ ao_usb_init(void)
 #if USB_DEBUG
 	ao_add_task(&ao_usb_echo_task, ao_usb_echo, "usb echo");
 #endif
-	ao_add_stdio(ao_usb_pollchar, ao_usb_putchar, ao_usb_flush);
+	ao_add_stdio(_ao_usb_pollchar, ao_usb_putchar, ao_usb_flush);
 }

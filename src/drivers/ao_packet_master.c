@@ -21,7 +21,12 @@ static char
 ao_packet_getchar(void)
 {
 	int c;
-	while ((c = ao_packet_pollchar()) == AO_READ_AGAIN) {
+
+	/* No need to block interrupts in this function as
+	 * all packet variables are only modified from task
+	 * context, not an interrupt handler
+	 */
+	while ((c = _ao_packet_pollchar()) == AO_READ_AGAIN) {
 		if (!ao_packet_enable)
 			break;
 		if (ao_packet_master_sleeping)

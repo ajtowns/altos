@@ -63,7 +63,7 @@ void
 ao_packet_putchar(char c) __reentrant;
 
 int
-ao_packet_pollchar(void);
+_ao_packet_pollchar(void);
 
 #if PACKET_HAS_MASTER
 /* ao_packet_master.c */

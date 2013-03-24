@@ -32,7 +32,7 @@ char
 ao_serial0_getchar(void);
 
 int
-ao_serial0_pollchar(void);
+_ao_serial0_pollchar(void);
 
 void
 ao_serial0_putchar(char c);
@@ -52,7 +52,7 @@ char
 ao_serial1_getchar(void);
 
 int
-ao_serial1_pollchar(void);
+_ao_serial1_pollchar(void);
 
 void
 ao_serial1_putchar(char c);
@@ -72,7 +72,7 @@ char
 ao_serial2_getchar(void);
 
 int
-ao_serial2_pollchar(void);
+_ao_serial2_pollchar(void);
 
 void
 ao_serial2_putchar(char c);
@@ -92,7 +92,7 @@ char
 ao_serial3_getchar(void);
 
 int
-ao_serial3_pollchar(void);
+_ao_serial3_pollchar(void);
 
 void
 ao_serial3_putchar(char c);

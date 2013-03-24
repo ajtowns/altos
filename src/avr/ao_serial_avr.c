@@ -59,52 +59,51 @@ ISR(USART1_UDRE_vect)
 	ao_wakeup(&ao_serial1_tx_fifo);
 }
 
-char
-ao_serial1_getchar(void) __critical
-{
-	char	c;
-	cli();
-	while (ao_fifo_empty(ao_serial1_rx_fifo))
-		ao_sleep(&ao_serial1_rx_fifo);
-	ao_fifo_remove(ao_serial1_rx_fifo, c);
-	sei();
-	return c;
-}
-
 #if USE_SERIAL_1_STDIN
-char
-ao_serial1_pollchar(void) __critical
+int
+_ao_serial1_pollchar(void)
 {
 	char	c;
-	cli();
 	if (ao_fifo_empty(ao_serial1_rx_fifo)) {
 		sei();
 		return AO_READ_AGAIN;
 	}
 	ao_fifo_remove(ao_serial1_rx_fifo,c);
-	sei();
 	return c;
 }
 #endif
 
-void
-ao_serial1_putchar(char c) __critical
+char
+ao_serial1_getchar(void) __critical
 {
-	cli();
+	char	c;
+
+	ao_arch_block_interrupts();
+	while (ao_fifo_empty(ao_serial1_rx_fifo))
+		ao_sleep(&ao_serial1_rx_fifo);
+	ao_fifo_remove(ao_serial1_rx_fifo, c);
+	ao_arch_release_interrupts();
+	return c;
+}
+
+void
+ao_serial1_putchar(char c)
+{
+	ao_arch_block_interrupts();
 	while (ao_fifo_full(ao_serial1_tx_fifo))
 		ao_sleep(&ao_serial1_tx_fifo);
 	ao_fifo_insert(ao_serial1_tx_fifo, c);
 	ao_serial_tx1_start();
-	sei();
+	ao_arch_release_interrupts();
 }
 
 void
 ao_serial1_drain(void) __critical
 {
-	cli();
+	ao_arch_block_interrupts();
 	while (!ao_fifo_empty(ao_serial1_tx_fifo))
 		ao_sleep(&ao_serial1_tx_fifo);
-	sei();
+	ao_arch_release_interrupts();
 }
 
 static const struct {
@@ -155,7 +154,7 @@ ao_serial_init(void)
 		  (1 << RXCIE1) |	/* Enable receive interrupts */
 		  (1 << UDRIE1));	/* Enable transmit empty interrupts */
 #if USE_SERIAL_1_STDIN
-	ao_add_stdio(ao_serial1_pollchar,
+	ao_add_stdio(_ao_serial1_pollchar,
 		     ao_serial1_putchar,
 		     NULL);
 #endif
