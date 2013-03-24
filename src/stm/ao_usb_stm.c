@@ -200,6 +200,29 @@ ao_usb_set_address(uint8_t address)
 					 (1 << STM_USB_EPR_EP_KIND) |	\
 					 (STM_USB_EPR_EA_MASK << STM_USB_EPR_EA))
 
+#define TX_DBG 0
+#define RX_DBG 0
+
+#if TX_DBG
+#define _tx_dbg0(msg) _dbg(__LINE__,msg,0)
+#define _tx_dbg1(msg,value) _dbg(__LINE__,msg,value)
+#else
+#define _tx_dbg0(msg)
+#define _tx_dbg1(msg,value)
+#endif
+
+#if RX_DBG
+#define _rx_dbg0(msg) _dbg(__LINE__,msg,0)
+#define _rx_dbg1(msg,value) _dbg(__LINE__,msg,value)
+#else
+#define _rx_dbg0(msg)
+#define _rx_dbg1(msg,value)
+#endif
+
+#if TX_DBG || RX_DBG
+static void _dbg(int line, char *msg, uint32_t value);
+#endif
+
 /*
  * Set the state of the specified endpoint register to a new
  * value. This is tricky because the bits toggle where the new
@@ -211,6 +234,7 @@ _ao_usb_set_stat_tx(int ep, uint32_t stat_tx)
 {
 	uint32_t	epr_write, epr_old;
 
+	_tx_dbg1("set_stat_tx top", stat_tx);
 	epr_old = epr_write = stm_usb.epr[ep];
 	epr_write &= STM_USB_EPR_PRESERVE_MASK;
 	epr_write |= STM_USB_EPR_INVARIANT;
@@ -218,6 +242,7 @@ _ao_usb_set_stat_tx(int ep, uint32_t stat_tx)
 			      STM_USB_EPR_STAT_TX_MASK << STM_USB_EPR_STAT_TX,
 			      stat_tx << STM_USB_EPR_STAT_TX);
 	stm_usb.epr[ep] = epr_write;
+	_tx_dbg1("set_stat_tx bottom", epr_write);
 }
 
 static void
@@ -338,7 +363,7 @@ ao_usb_set_configuration(void)
 		       STM_USB_EPR_EP_TYPE_INTERRUPT,
 		       STM_USB_EPR_STAT_RX_DISABLED,
 		       STM_USB_EPR_STAT_TX_NAK);
-	
+
 	/* Set up the OUT end point */
 	ao_usb_bdt[AO_USB_OUT_EPR].single.addr_rx = ao_usb_sram_addr;
 	ao_usb_bdt[AO_USB_OUT_EPR].single.count_rx = ((1 << STM_USB_BDT_COUNT_RX_BL_SIZE) |
@@ -351,7 +376,7 @@ ao_usb_set_configuration(void)
 		       STM_USB_EPR_EP_TYPE_BULK,
 		       STM_USB_EPR_STAT_RX_VALID,
 		       STM_USB_EPR_STAT_TX_DISABLED);
-	
+
 	/* Set up the IN end point */
 	ao_usb_bdt[AO_USB_IN_EPR].single.addr_tx = ao_usb_sram_addr;
 	ao_usb_bdt[AO_USB_IN_EPR].single.count_tx = 0;
@@ -409,12 +434,16 @@ stm_usb_lp_isr(void)
 		case AO_USB_OUT_EPR:
 			++out_count;
 			if (ao_usb_epr_ctr_rx(epr)) {
+				_rx_dbg1("RX ISR", epr);
 				ao_usb_out_avail = 1;
+				_rx_dbg0("out avail set");
 				ao_wakeup(&ao_stdin_ready);
+				_rx_dbg0("stdin awoken");
 			}
 			break;
 		case AO_USB_IN_EPR:
 			++in_count;
+			_tx_dbg1("TX ISR", epr);
 			if (ao_usb_epr_ctr_tx(epr)) {
 				ao_usb_in_pending = 0;
 				ao_wakeup(&ao_usb_in_pending);
@@ -758,7 +787,7 @@ ao_usb_ep0(void)
 				ao_sleep(&ao_usb_ep0_receive);
 			ao_usb_ep0_receive = 0;
 			);
-		
+
 		if (receive & AO_USB_EP0_GOT_RESET) {
 			debug ("\treset\n");
 			ao_usb_set_ep0();
@@ -796,6 +825,7 @@ ao_usb_ep0(void)
 static void
 ao_usb_in_send(void)
 {
+	_tx_dbg0("in_send start");
 	debug ("send %d\n", ao_usb_tx_count);
 	ao_usb_in_pending = 1;
 	ao_usb_write(ao_usb_tx_buffer, ao_usb_in_tx_buffer, 0, ao_usb_tx_count);
@@ -813,9 +843,11 @@ _ao_usb_in_wait(void)
 		if (ao_usb_tx_count < AO_USB_IN_SIZE)
 			break;
 
+		_tx_dbg0("in_wait top");
 		/* Wait for an IN buffer to be ready */
 		while (ao_usb_in_pending)
 			ao_sleep(&ao_usb_in_pending);
+		_tx_dbg0("in_wait bottom");
 	}
 }
 
@@ -856,18 +888,23 @@ ao_usb_putchar(char c)
 	ao_usb_tx_buffer[ao_usb_tx_count++] = (uint8_t) c;
 
 	/* Send the packet when full */
-	if (ao_usb_tx_count == AO_USB_IN_SIZE)
-		ao_usb_in_send();
+	if (ao_usb_tx_count == AO_USB_IN_SIZE) {
+		_tx_dbg0("putchar full");
+		_ao_usb_in_send();
+		_tx_dbg0("putchar flushed");
+	}
 	ao_arch_release_interrupts();
 }
 
 static void
 _ao_usb_out_recv(void)
 {
+	_rx_dbg0("out_recv top");
 	ao_usb_out_avail = 0;
 
 	ao_usb_rx_count = ao_usb_bdt[AO_USB_OUT_EPR].single.count_rx & STM_USB_BDT_COUNT_RX_COUNT_RX_MASK;
 
+	_rx_dbg1("out_recv count", ao_usb_rx_count);
 	debug ("recv %d\n", ao_usb_rx_count);
 	debug_data("Fill OUT len %d:", ao_usb_rx_count);
 	ao_usb_read(ao_usb_rx_buffer, ao_usb_out_rx_buffer, 0, ao_usb_rx_count);
@@ -890,9 +927,12 @@ _ao_usb_pollchar(void)
 		if (ao_usb_rx_pos != ao_usb_rx_count)
 			break;
 
+		_rx_dbg0("poll check");
 		/* Check to see if a packet has arrived */
-		if (!ao_usb_out_avail)
+		if (!ao_usb_out_avail) {
+			_rx_dbg0("poll none");
 			return AO_READ_AGAIN;
+		}
 		_ao_usb_out_recv();
 	}
 
@@ -966,7 +1006,7 @@ ao_usb_enable(void)
 
 	/* Clear any spurious interrupts */
 	stm_usb.istr = 0;
-	
+
 	debug ("ao_usb_enable\n");
 
 	/* Enable interrupts */
@@ -1036,6 +1076,59 @@ ao_usb_init(void)
 	ao_cmd_register(&ao_usb_cmds[0]);
 #endif
 #if !USB_ECHO
-	ao_add_stdio(ao_usb_pollchar, ao_usb_putchar, ao_usb_flush);
+	ao_add_stdio(_ao_usb_pollchar, ao_usb_putchar, ao_usb_flush);
 #endif
 }
+
+#if TX_DBG || RX_DBG
+
+struct ao_usb_dbg {
+	int		line;
+	char		*msg;
+	uint32_t	value;
+	uint32_t	primask;
+#if TX_DBG
+	uint16_t	in_count;
+	uint32_t	in_epr;
+	uint32_t	in_pending;
+	uint32_t	tx_count;
+	uint32_t	in_flushed;
+#endif
+#if RX_DBG
+	uint8_t		rx_count;
+	uint8_t		rx_pos;
+	uint8_t		out_avail;
+	uint32_t	out_epr;
+#endif
+};
+
+#define NUM_USB_DBG	128
+
+static struct ao_usb_dbg dbg[128];
+static int dbg_i;
+
+static void _dbg(int line, char *msg, uint32_t value)
+{
+	uint32_t	primask;
+	dbg[dbg_i].line = line;
+	dbg[dbg_i].msg = msg;
+	dbg[dbg_i].value = value;
+	asm("mrs %0,primask" : "=&r" (primask));
+	dbg[dbg_i].primask = primask;
+#if TX_DBG
+	dbg[dbg_i].in_count = in_count;
+	dbg[dbg_i].in_epr = stm_usb.epr[AO_USB_IN_EPR];
+	dbg[dbg_i].in_pending = ao_usb_in_pending;
+	dbg[dbg_i].tx_count = ao_usb_tx_count;
+	dbg[dbg_i].in_flushed = ao_usb_in_flushed;
+#endif
+#if RX_DBG
+	dbg[dbg_i].rx_count = ao_usb_rx_count;
+	dbg[dbg_i].rx_pos = ao_usb_rx_pos;
+	dbg[dbg_i].out_avail = ao_usb_out_avail;
+	dbg[dbg_i].out_epr = stm_usb.epr[AO_USB_OUT_EPR];
+#endif
+	if (++dbg_i == NUM_USB_DBG)
+		dbg_i = 0;
+}
+#endif
