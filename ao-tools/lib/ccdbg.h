@@ -122,8 +122,8 @@ struct hex_file {
 };
 
 struct hex_image {
-	uint16_t	address;
-	uint16_t	length;
+	uint32_t	address;
+	uint32_t	length;
 	uint8_t		data[0];
 };
 
@@ -252,6 +252,9 @@ ccdbg_hex_image_create(struct hex_file *hex);
 
 void
 ccdbg_hex_image_free(struct hex_image *image);
+
+struct hex_image *
+ccdbg_hex_load(char *filename);
 
 int
 ccdbg_hex_image_equal(struct hex_image *a, struct hex_image *b);

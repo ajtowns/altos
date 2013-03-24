@@ -233,15 +233,6 @@ ccdbg_hex_file_free(struct hex_file *hex)
 	free(hex);
 }
 
-static int
-ccdbg_hex_record_compar(const void *av, const void *bv)
-{
-	const struct hex_record *a = *(struct hex_record **) av;
-	const struct hex_record *b = *(struct hex_record **) bv;
-
-	return (int) a->address - (int) b->address;
-}
-
 struct hex_file *
 ccdbg_hex_file_read(FILE *file, char *name)
 {
@@ -272,11 +263,6 @@ ccdbg_hex_file_read(FILE *file, char *name)
 		if (record->type == HEX_RECORD_EOF)
 			done = 1;
 	}
-	/*
-	 * Sort them into increasing addresses, except for EOF
-	 */
-	qsort(hex->records, hex->nrecord - 1, sizeof (struct hex_record *),
-	      ccdbg_hex_record_compar);
 	return hex;
 
 bail:
@@ -288,16 +274,45 @@ struct hex_image *
 ccdbg_hex_image_create(struct hex_file *hex)
 {
 	struct hex_image *image;
-	struct hex_record *first, *last, *record;
+	struct hex_record *record;
 	int i;
+	uint32_t addr;
 	uint32_t base, bound;
 	uint32_t offset;
+	uint32_t extended_addr;
+
 	int length;
 
-	first = hex->records[0];
-	last = hex->records[hex->nrecord - 2];	/* skip EOF */
-	base = (uint32_t) first->address;
-	bound = (uint32_t) last->address + (uint32_t) last->length;
+	base = 0xffffffff;
+	bound = 0x0;
+	extended_addr = 0;
+	for (i = 0; i < hex->nrecord; i++) {
+		uint32_t r_bound;
+		record = hex->records[i];
+		switch (record->type) {
+		case 0:
+			addr = extended_addr + record->address;
+			r_bound = addr + record->length;
+			if (addr < base)
+				base = addr;
+			if (r_bound > bound)
+				bound = r_bound;
+			break;
+		case 1:
+			break;
+		case 2:
+			if (record->length != 2)
+				return NULL;
+			extended_addr = ((record->data[0] << 8) | record->data[1]) << 4;
+			break;
+		case 4:
+			if (record->length != 2)
+				return NULL;
+			extended_addr = ((record->data[0] << 8) | record->data[1]) << 16;
+			break;
+		}
+
+	}
 	length = bound - base;
 	image = calloc(sizeof(struct hex_image) + length, 1);
 	if (!image)
@@ -305,10 +320,24 @@ ccdbg_hex_image_create(struct hex_file *hex)
 	image->address = base;
 	image->length = length;
 	memset(image->data, 0xff, length);
-	for (i = 0; i < hex->nrecord - 1; i++) {
+	extended_addr = 0;
+	for (i = 0; i < hex->nrecord; i++) {
 		record = hex->records[i];
-		offset = record->address - base;
-		memcpy(image->data + offset, record->data, record->length);
+		switch (record->type) {
+		case 0:
+			addr = extended_addr + record->address;
+			offset = addr - base;
+			memcpy(image->data + offset, record->data, record->length);
+			break;
+		case 1:
+			break;
+		case 2:
+			extended_addr = ((record->data[0] << 8) | record->data[1]) << 4;
+			break;
+		case 4:
+			extended_addr = ((record->data[0] << 8) | record->data[1]) << 16;
+			break;
+		}
 	}
 	return image;
 }
@@ -327,4 +356,26 @@ ccdbg_hex_image_equal(struct hex_image *a, struct hex_image *b)
 	if (memcmp(a->data, b->data, a->length) != 0)
 		return 0;
 	return 1;
+}
+
+struct hex_image *
+ccdbg_hex_load(char *filename)
+{
+	FILE *file;
+	struct hex_file	*hex_file;
+	struct hex_image *hex_image;
+
+	file = fopen (filename, "r");
+	if (!file)
+		return 0;
+	
+	hex_file = ccdbg_hex_file_read(file, filename);
+	fclose(file);
+	if (!hex_file)
+		return 0;
+	hex_image = ccdbg_hex_image_create(hex_file);
+	if (!hex_image)
+		return 0;
+	ccdbg_hex_file_free(hex_file);
+	return hex_image;
 }
