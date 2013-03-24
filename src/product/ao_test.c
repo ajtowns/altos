@@ -102,6 +102,8 @@ main(void)
 {
 	ao_clock_init();
 
+	ao_task_init();
+
 //	ao_add_task(&blink_0_task, blink_0);
 //	ao_add_task(&blink_1_task, blink_1);
 //	ao_add_task(&wakeup_task, wakeup);

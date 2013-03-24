@@ -23,6 +23,8 @@ main(void)
 {
 	ao_clock_init();
 
+	ao_task_init();
+
 	ao_timer_init();
 	ao_beep_init();
 	ao_cmd_init();

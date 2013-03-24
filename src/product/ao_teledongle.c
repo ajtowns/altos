@@ -26,6 +26,8 @@ main(void)
 	/* Turn on the LED until the system is stable */
 	ao_led_init(LEDS_AVAILABLE);
 	ao_led_on(AO_LED_RED);
+	ao_task_init();
+
 	ao_timer_init();
 	ao_cmd_init();
 	ao_usb_init();

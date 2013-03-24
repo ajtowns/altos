@@ -27,6 +27,8 @@ main(void)
 
 	ao_led_init(LEDS_AVAILABLE);
 
+	ao_task_init();
+
 	ao_timer_init();
 	ao_adc_init();
 	ao_beep_init();

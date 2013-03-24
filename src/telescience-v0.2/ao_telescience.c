@@ -29,9 +29,11 @@ main(void)
 	ao_mpu_init();
 #endif
 
-	ao_task_init();
 	ao_led_init(LEDS_AVAILABLE);
 	ao_led_on(AO_LED_GREEN);
+
+	ao_task_init();
+
 	ao_timer_init();
 
 	ao_spi_init();

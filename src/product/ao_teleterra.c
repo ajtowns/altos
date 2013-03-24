@@ -26,6 +26,8 @@ main(void)
 	/* Turn on the red LED until the system is stable */
 	ao_led_init(AO_LED_RED|AO_LED_GREEN);
 	ao_led_on(AO_LED_RED);
+	ao_task_init();
+
 	ao_timer_init();
 	ao_beep_init();
 	ao_cmd_init();

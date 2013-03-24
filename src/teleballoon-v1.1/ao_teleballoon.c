@@ -52,6 +52,8 @@ main(void)
 		while (P1_3 == 0)
 			;
 	}
+	ao_task_init();
+
 	ao_timer_init();
 	ao_adc_init();
 	ao_beep_init();

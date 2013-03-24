@@ -25,6 +25,8 @@ main(void)
 	PORTE |= (1 << 6);
 	DDRE |= (1 << 6);
 
+	ao_task_init();
+
 	ao_avr_stdio_init();
 	ao_timer_init();
 	ao_cmd_init();
