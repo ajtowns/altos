@@ -74,11 +74,11 @@ ao_block_write(void)
 	uint16_t	i;
 
 	if (addr < 0x08002000 || 0x08200000 <= addr) {
-		puts("Invalid address");
+		ao_put_string("Invalid address\n");
 		return;
 	}
 	for (i = 0; i < 256; i++)
-		u.data8[i] = i;
+		u.data8[i] = getchar();
 	ao_flash_page(p, u.data32);
 }
 
@@ -103,18 +103,43 @@ ao_block_read(void)
 
 	for (i = 0; i < 256; i++) {
 		c = *p++;
-		puthex(c);
+		(*ao_stdios[ao_cur_stdio].putchar)(c);
+	}
+}
+
+void
+ao_block_read_hex(void)
+{
+	uint32_t	addr = ao_cmd_hex32();
+	uint8_t		*p = (uint8_t *) addr;
+	uint16_t	i;
+	uint8_t		c;
+
+	for (i = 0; i < 256; i++) {
+		c = *p++;
 		puthex(c>>4);
+		puthex(c);
 		if ((i & 0xf) == 0xf)
 			putchar('\n');
 	}
 }
 
+static void
+ao_show_version(void)
+{
+	puts("altos-loader");
+	ao_put_string("manufacturer     "); puts(ao_manufacturer);
+	ao_put_string("product          "); puts(ao_product);
+	ao_put_string("software-version "); puts(ao_version);
+}
+
 __code struct ao_cmds ao_flash_cmds[] = {
+	{ ao_show_version, "v\0Version" },
 	{ ao_application, "a\0Switch to application" },
-	{ ao_block_erase, "e <addr>\0Erase block." },
+	{ ao_block_erase, "X <addr>\0Erase block." },
 	{ ao_block_write, "W <addr>\0Write block. 256 binary bytes follow newline" },
-	{ ao_block_read, "R <addr>\0Read block. Returns 256 bytes" },
+	{ ao_block_read, "R <addr>\0Read block. Returns 256 binary bytes" },
+	{ ao_block_read_hex, "H <addr>\0Hex read block. Returns 256 bytes in hex" },
 	{ 0, NULL },
 };
 
