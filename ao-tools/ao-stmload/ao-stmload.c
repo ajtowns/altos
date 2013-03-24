@@ -427,7 +427,7 @@ main (int argc, char **argv)
 				fflush(stdout);
 				ao_self_block_write(cc, 0x08002000, block);
 				ao_self_block_read(cc, 0x08002000, block);
-				if (memcmp(block, check, 256/me ta) != 0) {
+				if (memcmp(block, check, 256) != 0) {
 					fprintf (stderr, "read differed\n");
 					exit(1);
 				}
