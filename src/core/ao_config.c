@@ -210,6 +210,7 @@ ao_config_callsign_set(void) __reentrant
 }
 
 #if HAS_RADIO
+
 void
 ao_config_frequency_show(void) __reentrant
 {
@@ -227,7 +228,9 @@ ao_config_frequency_set(void) __reentrant
 	ao_config.frequency = ao_cmd_lex_u32;
 	ao_config_set_radio();
 	_ao_config_edit_finish();
+#if HAS_RADIO_RECV
 	ao_radio_recv_abort();
+#endif
 }
 #endif
 
