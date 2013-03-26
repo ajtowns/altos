@@ -514,17 +514,28 @@ extern __xdata uint8_t	ao_radio_dma;
 #define AO_RADIO_STATUS_CRC_OK	AO_FEC_DECODE_CRC_OK
 #endif
 
+#ifndef HAS_RADIO_RECV
+#define HAS_RADIO_RECV HAS_RADIO
+#endif
+#ifndef HAS_RADIO_XMIT
+#define HAS_RADIO_XMIT HAS_RADIO
+#endif
+
 void
 ao_radio_general_isr(void) ao_arch_interrupt(16);
 
+#if HAS_RADIO_XMIT
 void
 ao_radio_send(const __xdata void *d, uint8_t size) __reentrant;
+#endif
 
+#if HAS_RADIO_RECV
 uint8_t
 ao_radio_recv(__xdata void *d, uint8_t size) __reentrant;
 
 void
 ao_radio_recv_abort(void);
+#endif
 
 void
 ao_radio_test(uint8_t on);
