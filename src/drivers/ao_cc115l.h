@@ -206,6 +206,7 @@
 #define CC115L_SFTX		0x3b
 #define CC115L_SNOP		0x3d
 
+#define CC115L_PA		0x3e
 #define CC115L_FIFO		0x3f
 
 #define CC115L_FIFO_SIZE	64

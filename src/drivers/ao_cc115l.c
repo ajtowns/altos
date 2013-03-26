@@ -30,14 +30,12 @@ static uint8_t ao_radio_abort;		/* radio operation should abort */
 static uint8_t ao_radio_mcu_wake;	/* MARC status change */
 static uint8_t ao_radio_marcstate;	/* Last read MARC state value */
 
-#define CC115L_DEBUG	AO_FEC_DEBUG
+#define CC115L_DEBUG	1
 #define CC115L_TRACE	1
-
-extern const uint32_t	ao_radio_cal;
 
 #define FOSC	26000000
 
-#define ao_radio_select()	ao_spi_get_mask(AO_CC115L_SPI_CS_PORT,(1 << AO_CC115L_SPI_CS_PIN),AO_CC115L_SPI_BUS,AO_SPI_SPEED_4MHz)
+#define ao_radio_select()	ao_spi_get_mask(AO_CC115L_SPI_CS_PORT,(1 << AO_CC115L_SPI_CS_PIN),AO_CC115L_SPI_BUS,AO_SPI_SPEED_1MHz)
 #define ao_radio_deselect()	ao_spi_put_mask(AO_CC115L_SPI_CS_PORT,(1 << AO_CC115L_SPI_CS_PIN),AO_CC115L_SPI_BUS)
 #define ao_radio_spi_send(d,l)	ao_spi_send((d), (l), AO_CC115L_SPI_BUS)
 #define ao_radio_spi_send_fixed(d,l) ao_spi_send_fixed((d), (l), AO_CC115L_SPI_BUS)
@@ -47,22 +45,23 @@ extern const uint32_t	ao_radio_cal;
 static uint8_t
 ao_radio_reg_read(uint16_t addr)
 {
-	uint8_t	datao[2], datai[2];
+	uint8_t	data[1];
 	uint8_t	d;
 
 #if CC115L_TRACE
 	printf("\t\tao_radio_reg_read (%04x): ", addr); flush();
 #endif
-	datao[0] = ((1 << CC115L_READ)  |
-		    (0 << CC115L_BURST) |
-		    addr);
+	data[0] = ((1 << CC115L_READ)  |
+		   (0 << CC115L_BURST) |
+		   addr);
 	ao_radio_select();
-	ao_radio_duplex(datao, datai, 2);
+	ao_radio_spi_send(data, 1);
+	ao_radio_spi_recv(data, 1);
 	ao_radio_deselect();
 #if CC115L_TRACE
-	printf (" %02x\n", datai[1]);
+	printf (" %02x\n", data[0]);
 #endif
-	return datai[1];
+	return data[0];
 }
 
 static void
@@ -142,6 +141,9 @@ static uint8_t
 ao_radio_fifo_write(uint8_t *data, uint8_t len)
 {
 	uint8_t	status = ao_radio_fifo_write_start();
+#if CC115L_TRACE
+	printf ("fifo_write %d\n", len);
+#endif
 	ao_radio_spi_send(data, len);
 	return ao_radio_fifo_write_stop(status);
 }
@@ -150,6 +152,10 @@ static uint8_t
 ao_radio_fifo_write_fixed(uint8_t data, uint8_t len)
 {
 	uint8_t status = ao_radio_fifo_write_start();
+
+#if CC115L_TRACE
+	printf ("fifo_write_fixed %02x %d\n", data, len);
+#endif
 	ao_radio_spi_send_fixed(data, len);
 	return ao_radio_fifo_write_stop(status);
 }
@@ -204,6 +210,7 @@ ao_radio_isr(void)
 static void
 ao_radio_start_tx(void)
 {
+	ao_radio_pa_on();
 	ao_exti_set_callback(AO_CC115L_INT_PORT, AO_CC115L_INT_PIN, ao_radio_isr);
 	ao_exti_enable(AO_CC115L_INT_PORT, AO_CC115L_INT_PIN);
 	ao_exti_enable(AO_CC115L_MCU_WAKEUP_PORT, AO_CC115L_MCU_WAKEUP_PIN);
@@ -213,6 +220,7 @@ ao_radio_start_tx(void)
 static void
 ao_radio_idle(void)
 {
+	ao_radio_pa_off();
 	for (;;) {
 		uint8_t	state = ao_radio_strobe(CC115L_SIDLE);
 		if ((state >> CC115L_STATUS_STATE) == CC115L_STATUS_STATE_IDLE)
@@ -398,10 +406,29 @@ ao_radio_setup(void)
 {
 	int	i;
 
-	ao_radio_strobe(CC115L_SRES);
+#if 0
+	ao_gpio_set(AO_CC115L_SPI_CS_PORT, AO_CC115L_SPI_CS_PIN, AO_CC115L_SPI_CS, 0);
+	for (i = 0; i < 10000; i++) {
+		if (ao_gpio_get(SPI_2_PORT, SPI_2_MISO_PIN, SPI_2_MISO) == 0) {
+			printf ("Chip clock alive\n");
+			break;
+		}
+	}
+	ao_gpio_set(AO_CC115L_SPI_CS_PORT, AO_CC115L_SPI_CS_PIN, AO_CC115L_SPI_CS, 1);
+	if (i == 10000)
+		printf ("Chip clock not alive\n");
+#endif
 
-	for (i = 0; i < sizeof (radio_setup) / sizeof (radio_setup[0]); i += 2)
+	ao_radio_strobe(CC115L_SRES);
+	ao_delay(AO_MS_TO_TICKS(10));
+
+	printf ("Part %x\n", ao_radio_reg_read(CC115L_PARTNUM));
+	printf ("Version %x\n", ao_radio_reg_read(CC115L_VERSION));
+
+	for (i = 0; i < sizeof (radio_setup) / sizeof (radio_setup[0]); i += 2) {
 		ao_radio_reg_write(radio_setup[i], radio_setup[i+1]);
+		ao_radio_reg_read(radio_setup[i]);
+	}
 
 	ao_radio_mode = 0;
 
@@ -462,6 +489,7 @@ ao_rdf_run(void)
 	ao_arch_release_interrupts();
 	if (ao_radio_mcu_wake)
 		ao_radio_check_marcstate();
+	ao_radio_pa_off();
 	if (!ao_radio_wake)
 		ao_radio_idle();
 	ao_radio_put();
@@ -525,6 +553,7 @@ ao_radio_test_cmd(void)
 		ao_packet_slave_stop();
 #endif
 		ao_radio_get(0xff);
+		ao_radio_pa_on();
 		ao_radio_strobe(CC115L_STX);
 #if CC115L_TRACE
 		{ int t; 
@@ -622,6 +651,7 @@ ao_radio_send(const void *d, uint8_t size)
 			break;
 		}
 	}
+	ao_radio_pa_off();
 	ao_radio_put();
 }
 
@@ -692,6 +722,7 @@ ao_radio_send_lots(ao_radio_fill_func fill)
 		ao_radio_wake = 0;
 		ao_radio_wait_isr();
 	}
+	ao_radio_pa_off();
 	ao_radio_put();
 }
 
@@ -704,6 +735,55 @@ static char *cc115l_state_name[] = {
 	[CC115L_STATUS_STATE_TX_FIFO_UNDERFLOW] = "TX_FIFO_UNDERFLOW",
 };
 
+struct ao_cc115l_reg {
+	uint16_t	addr;
+	char		*name;
+};
+
+const static struct ao_cc115l_reg ao_cc115l_reg[] = {
+	{ .addr = CC115L_IOCFG2, .name = "IOCFG2" },
+	{ .addr = CC115L_IOCFG1, .name = "IOCFG1" },
+	{ .addr = CC115L_IOCFG0, .name = "IOCFG0" },
+	{ .addr = CC115L_FIFOTHR, .name = "FIFOTHR" },
+	{ .addr = CC115L_SYNC1, .name = "SYNC1" },
+	{ .addr = CC115L_SYNC0, .name = "SYNC0" },
+	{ .addr = CC115L_PKTLEN, .name = "PKTLEN" },
+	{ .addr = CC115L_PKTCTRL0, .name = "PKTCTRL0" },
+	{ .addr = CC115L_CHANNR, .name = "CHANNR" },
+	{ .addr = CC115L_FSCTRL0, .name = "FSCTRL0" },
+	{ .addr = CC115L_FREQ2, .name = "FREQ2" },
+	{ .addr = CC115L_FREQ1, .name = "FREQ1" },
+	{ .addr = CC115L_FREQ0, .name = "FREQ0" },
+	{ .addr = CC115L_MDMCFG4, .name = "MDMCFG4" },
+	{ .addr = CC115L_MDMCFG3, .name = "MDMCFG3" },
+	{ .addr = CC115L_MDMCFG2, .name = "MDMCFG2" },
+	{ .addr = CC115L_MDMCFG1, .name = "MDMCFG1" },
+	{ .addr = CC115L_MDMCFG0, .name = "MDMCFG0" },
+	{ .addr = CC115L_DEVIATN, .name = "DEVIATN" },
+	{ .addr = CC115L_MCSM1, .name = "MCSM1" },
+	{ .addr = CC115L_MCSM0, .name = "MCSM0" },
+	{ .addr = CC115L_RESERVED_0X20, .name = "RESERVED_0X20" },
+	{ .addr = CC115L_FREND0, .name = "FREND0" },
+	{ .addr = CC115L_FSCAL3, .name = "FSCAL3" },
+	{ .addr = CC115L_FSCAL2, .name = "FSCAL2" },
+	{ .addr = CC115L_FSCAL1, .name = "FSCAL1" },
+	{ .addr = CC115L_FSCAL0, .name = "FSCAL0" },
+	{ .addr = CC115L_RESERVED_0X29, .name = "RESERVED_0X29" },
+	{ .addr = CC115L_RESERVED_0X2A, .name = "RESERVED_0X2A" },
+	{ .addr = CC115L_RESERVED_0X2B, .name = "RESERVED_0X2B" },
+	{ .addr = CC115L_TEST2, .name = "TEST2" },
+	{ .addr = CC115L_TEST1, .name = "TEST1" },
+	{ .addr = CC115L_TEST0, .name = "TEST0" },
+	{ .addr = CC115L_PARTNUM, .name = "PARTNUM" },
+	{ .addr = CC115L_VERSION, .name = "VERSION" },
+	{ .addr = CC115L_MARCSTATE, .name = "MARCSTATE" },
+	{ .addr = CC115L_PKTSTATUS, .name = "PKTSTATUS" },
+	{ .addr = CC115L_TXBYTES, .name = "TXBYTES" },
+	{ .addr = CC115L_PA, .name = "PA" },
+};
+
+#define AO_NUM_CC115L_REG	(sizeof ao_cc115l_reg / sizeof ao_cc115l_reg[0])
+
 static void ao_radio_show(void) {
 	uint8_t	status = ao_radio_status();
 	int	i;
@@ -715,6 +795,8 @@ static void ao_radio_show(void) {
 	printf ("STATE:    %s\n", cc115l_state_name[(status >> CC115L_STATUS_STATE) & CC115L_STATUS_STATE_MASK]);
 	printf ("MARC:     %02x\n", ao_radio_get_marcstate());
 
+	for (i = 0; i < AO_NUM_CC115L_REG; i++)
+		printf ("\t%02x %-20.20s\n", ao_radio_reg_read(ao_cc115l_reg[i].addr), ao_cc115l_reg[i].name);
 	ao_radio_put();
 }
 
@@ -743,7 +825,9 @@ static void ao_radio_packet(void) {
 static void
 ao_radio_aprs()
 {
+#if PACKET_HAS_SLAVE
 	ao_packet_slave_stop();
+#endif
 	ao_aprs_send();
 }
 #endif
@@ -791,6 +875,8 @@ ao_radio_init(void)
 	ao_exti_setup(AO_CC115L_MCU_WAKEUP_PORT, AO_CC115L_MCU_WAKEUP_PIN,
 		      AO_EXTI_MODE_FALLING|AO_EXTI_PRIORITY_MED,
 		      ao_radio_mcu_wakeup_isr);
+
+	ao_radio_pa_init();
 
 	ao_cmd_register(&ao_radio_cmds[0]);
 }
