@@ -535,6 +535,25 @@ void
 ao_radio_send_lots(ao_radio_fill_func fill);
 
 /*
+ * ao_radio_pa
+ */
+
+#if AO_RADIO_HAS_PA
+void
+ao_radio_pa_on(void);
+
+void
+ao_radio_pa_off(void);
+
+void
+ao_radio_pa_init(void);
+#else
+#define ao_radio_pa_on()
+#define ao_radio_pa_off()
+#define ao_radio_pa_init()
+#endif
+
+/*
  * Compute the packet length as follows:
  *
  * 2000 bps (for a 1kHz tone)
