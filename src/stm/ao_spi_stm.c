@@ -160,6 +160,8 @@ ao_spi_recv(void *block, uint16_t len, uint8_t spi_index)
 	uint8_t	mosi_dma_index = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].mosi_dma_index;
 	uint8_t	miso_dma_index = ao_spi_stm_info[AO_SPI_INDEX(spi_index)].miso_dma_index;
 
+	spi_dev_null = 0xff;
+
 	/* Set up transmit DMA to make the SPI hardware actually run */
 	ao_dma_set_transfer(mosi_dma_index,
 			    &stm_spi->dr,
