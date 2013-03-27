@@ -64,17 +64,20 @@
 #define ao_gps_set_speed	ao_serial2_set_speed
 #define ao_gps_fifo		(ao_stm_usart2.rx_fifo)
 
-#define HAS_EEPROM		0
-#define USE_INTERNAL_FLASH	0
+#define HAS_EEPROM		1
+#define USE_INTERNAL_FLASH	1
 #define HAS_USB			1
 #define HAS_BEEP		0
-#define HAS_RADIO		0
-#define HAS_TELEMETRY		0
+#define HAS_RADIO		1
+#define HAS_TELEMETRY		1
+#define HAS_APRS		1
+#define HAS_RADIO_RECV		0
 
-#define HAS_SPI_1		0
-#define SPI_1_PA5_PA6_PA7	0
+#define HAS_SPI_1		1
+#define SPI_1_PA5_PA6_PA7	1	/* SD card */
 #define SPI_1_PB3_PB4_PB5	0
 #define SPI_1_PE13_PE14_PE15	0
+#define SPI_1_OSPEEDR		STM_OSPEEDR_10MHz
 
 #define HAS_SPI_2		1
 #define SPI_2_PB13_PB14_PB15	1	/* CC115L */
@@ -108,7 +111,7 @@
 
 #define LEDS_AVAILABLE		(AO_LED_RED | AO_LED_GREEN)
 
-#define HAS_GPS			0
+#define HAS_GPS			1
 #define HAS_FLIGHT		0
 #define HAS_ADC			0
 #define HAS_LOG			0
@@ -147,5 +150,26 @@
 #define AO_CC115L_MARC_GPIO	0
 #define AO_CC115L_MARC_GPIO_IOCFG	CC115L_IOCFG0
 
+#define AO_RADIO_HAS_PA	1
+
+/*
+ * Power amplifier (RFPA0133)
+ */
+
+#define AO_PA_POWER_GPIO	(&stm_gpiob)
+#define AO_PA_POWER_PIN		1
+#define AO_PA_GAIN_8_GPIO	(&stm_gpiob)
+#define AO_PA_GAIN_8_PIN	10
+#define AO_PA_GAIN_16_GPIO	(&stm_gpiob)
+#define AO_PA_GAIN_16_PIN	11
+
+/*
+ * SD card
+ */
+
+#define AO_SDCARD_SPI_BUS	AO_SPI_1_PA5_PA6_PA7
+#define AO_SDCARD_SPI_CS_PORT	(&stm_gpioa)
+#define AO_SDCARD_SPI_CS_PIN	4
+#define AO_SDCARD_SPI		stm_spi1
 
 #endif /* _AO_PINS_H_ */

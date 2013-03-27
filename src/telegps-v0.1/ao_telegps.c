@@ -17,6 +17,7 @@
 
 #include <ao.h>
 #include <ao_exti.h>
+#include <ao_fat.h>
 
 int
 main(void)
@@ -32,9 +33,12 @@ main(void)
 //	ao_led_on(AO_LED_RED);
 	ao_timer_init();
 
+
 	ao_spi_init();
 	ao_dma_init();
 	ao_exti_init();
+
+	ao_storage_init();
 
 	ao_serial_init();
 
@@ -44,6 +48,8 @@ main(void)
 	ao_radio_init();
 
 	ao_gps_init();
+
+	ao_fat_init();
 
 	ao_config_init();
 	

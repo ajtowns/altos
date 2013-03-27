@@ -14,6 +14,7 @@ INC = \
 	ao_task.h \
 	ao_whiten.h \
 	ao_cc115l.h \
+	ao_rf_cc115l.h \
 	ao_fec.h \
 	stm32l.h \
 	Makefile
@@ -48,7 +49,14 @@ ALTOS_SRC = \
 	ao_serial_stm.c \
 	ao_gps_skytraq.c \
 	ao_cc115l.c \
-	ao_fec_tx.c
+	ao_fec_tx.c \
+	ao_rfpa0133.c \
+	ao_aprs.c \
+	ao_storage.c \
+	ao_eeprom_stm.c \
+	ao_sdcard.c \
+	ao_bufio.c \
+	ao_fat.c
 
 PRODUCT=TeleGPS-v0.1
 PRODUCT_DEF=-DTELEGPS
