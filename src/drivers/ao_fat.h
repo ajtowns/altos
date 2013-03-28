@@ -21,6 +21,7 @@
 void
 ao_fat_init(void);
 
+#define AO_FAT_FILE_REGULAR		0x00
 #define AO_FAT_FILE_READ_ONLY		0x01
 #define AO_FAT_FILE_HIDDEN		0x02
 #define AO_FAT_FILE_SYSTEM		0x04
@@ -31,32 +32,52 @@ ao_fat_init(void);
 #define AO_FAT_DENT_EMPTY		0xe5
 #define AO_FAT_DENT_END			0x00
 
-uint8_t
-ao_fat_open(char name[11]);
+#define AO_FAT_IS_FILE(attr)	(((attr) & (AO_FAT_FILE_VOLUME_LABEL|AO_FAT_FILE_DIRECTORY|AO_FAT_FILE_ARCHIVE)) == 0)
+#define AO_FAT_IS_DIR(attr)	(((attr) & (AO_FAT_FILE_DIRECTORY)) == AO_FAT_FILE_DIRECTORY)
 
-uint8_t
+#define AO_FAT_SUCCESS			0
+#define AO_FAT_EPERM			1
+#define AO_FAT_ENOENT			2
+#define AO_FAT_EIO			4
+#define AO_FAT_EBADF			9
+#define AO_FAT_EACCESS			13
+#define AO_FAT_EEXIST			17
+#define AO_FAT_ENOTDIR			20
+#define AO_FAT_EISDIR			21
+#define AO_FAT_EMFILE			24
+#define AO_FAT_EFBIG			27
+#define AO_FAT_ENOSPC			28
+
+int8_t
+ao_fat_open(char name[11], uint8_t mode);
+
+#define AO_FAT_OPEN_READ		0
+#define AO_FAT_OPEN_WRITE		1
+#define AO_FAT_OPEN_RW			2
+
+int8_t
 ao_fat_creat(char name[11]);
 
-void
+int8_t
 ao_fat_close(void);
 
 int
-ao_fat_read(uint8_t *dest, int len);
+ao_fat_read(void *dest, int len);
 
 int
-ao_fat_write(uint8_t *buf, int len);
+ao_fat_write(void *src, int len);
 
 #define AO_FAT_SEEK_SET	0
 #define AO_FAT_SEEK_CUR	1
 #define AO_FAT_SEEK_END	2
 
-uint32_t
-bao_fat_seek(int32_t pos, uint8_t whence);
+int32_t
+ao_fat_seek(int32_t pos, uint8_t whence);
 
-uint8_t
+int8_t
 ao_fat_unlink(char name[11]);
 
-uint8_t
+int8_t
 ao_fat_rename(char old[11], char new[11]);
 
 struct ao_fat_dirent {
@@ -67,7 +88,7 @@ struct ao_fat_dirent {
 	uint16_t	entry;
 };
 
-uint8_t
+int8_t
 ao_fat_readdir(uint16_t *entry, struct ao_fat_dirent *dirent);
 
 #endif /* _AO_FAT_H_ */
