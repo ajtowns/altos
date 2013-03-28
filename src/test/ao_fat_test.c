@@ -261,12 +261,17 @@ check_fs(void)
 		}
 
 		clusters = check_file(r, first_cluster, used);
-		if (size > clusters * bytes_per_cluster)
-			fatal("file %d: size %u beyond clusters %d (%u)\n",
-			      r, size, clusters, clusters * bytes_per_cluster);
-		if (size <= (clusters - 1) * bytes_per_cluster)
-			fatal("file %d: size %u too small clusters %d (%u)\n",
-			      r, size, clusters, clusters * bytes_per_cluster);
+		if (size == 0) {
+			if (clusters != 0)
+				fatal("file %d: zero sized, but %d clusters\n", clusters);
+		} else {
+			if (size > clusters * bytes_per_cluster)
+				fatal("file %d: size %u beyond clusters %d (%u)\n",
+				      r, size, clusters, clusters * bytes_per_cluster);
+			if (size <= (clusters - 1) * bytes_per_cluster)
+				fatal("file %d: size %u too small clusters %d (%u)\n",
+				      r, size, clusters, clusters * bytes_per_cluster);
+		}
 	}
 	for (; r < root_entries; r++) {
 		uint8_t	*dent = ao_fat_root_get(r);
@@ -296,8 +301,8 @@ check_fs(void)
 	}
 }
 
-#define NUM_FILES	512
-#define LINES_FILE	1000
+#define NUM_FILES	10
+#define LINES_FILE	80000
 
 uint32_t		sizes[NUM_FILES];
 
@@ -330,22 +335,20 @@ main(int argc, char **argv)
 			char	line[64];
 			check_bufio("file created");
 			MD5_Init(&ctx);
-			for (j = 0; j < 1000; j++) {
-				int len;
+			for (j = 0; j < LINES_FILE; j++) {
+				int len, ret;
 				sprintf (line, "Hello, world %d %d\r\n", id, j);
 				len = strlen(line);
-				ao_fat_write((uint8_t *) line, len);
-				MD5_Update(&ctx, line, len);
-				sizes[id] += len;
+				ret = ao_fat_write((uint8_t *) line, len);
+				if (ret <= 0)
+					break;
+				MD5_Update(&ctx, line, ret);
+				sizes[id] += ret;
+				if (ret != len)
+					printf ("write failed %d\n", ret);
 			}
 			ao_fat_close();
 			MD5_Final(&md5[id][0], &ctx);
-			if (id == 0) {
-				printf ("MD5 write %d:", id);
-				for (j = 0; j < MD5_DIGEST_LENGTH; j++)
-					printf(" %02x", md5[id][j]);
-				printf ("\n");
-			}
 			check_bufio("file written");
 		}
 	}
@@ -357,26 +360,25 @@ main(int argc, char **argv)
 	printf ("   **** Comparing %d files\n", NUM_FILES);
 
 	for (id = 0; id < NUM_FILES; id++) {
-		char	buf[337];
+		char buf[337];
+		uint32_t size;
 		sprintf(name, "D%07dTXT", id);
+		size = 0;
 		if (ao_fat_open(name, AO_FAT_OPEN_READ) == AO_FAT_SUCCESS) {
 			int	len;
 
 			MD5_Init(&ctx);
 			while ((len = ao_fat_read((uint8_t *) buf, sizeof(buf))) > 0) {
 				MD5_Update(&ctx, buf, len);
+				size += len;
 			}
 			ao_fat_close();
 			MD5_Final(md5_check, &ctx);
-			if (id == 0) {
-				int j;
-				printf ("MD5 read %d:", id);
-				for (j = 0; j < MD5_DIGEST_LENGTH; j++)
-					printf(" %02x", md5_check[j]);
-				printf ("\n");
-			}
+			if (size != sizes[id])
+				fatal("file %d: size differs %d written %d read\n",
+				      id, sizes[id], size);
 			if (memcmp(md5_check, &md5[id][0], sizeof (md5_check)) != 0)
-				fatal ("checksum failed file %d\n", id);
+				fatal ("file %d: checksum failed\n", id);
 			check_bufio("file shown");
 		}
 	}
