@@ -476,7 +476,7 @@ public class AltosConfigData implements Iterable<String> {
 		/* UI doesn't support AES key config */
 
 		/* AO_PYRO_NUM */
-		if (pyros.length > 0) {
+		if (npyro > 0) {
 			for (int p = 0; p < pyros.length; p++) {
 				link.printf("c P %s\n",
 						   pyros[p].toString());
