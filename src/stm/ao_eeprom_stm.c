@@ -55,9 +55,15 @@ ao_storage_erase(ao_pos_t pos) __reentrant
 static void
 ao_intflash_unlock(void)
 {
+	/* Disable backup write protection */
+	stm_pwr.cr |= (1 << STM_PWR_CR_DBP);
+
 	/* Unlock Data EEPROM and FLASH_PECR register */
 	stm_flash.pekeyr = STM_FLASH_PEKEYR_PEKEY1;
 	stm_flash.pekeyr = STM_FLASH_PEKEYR_PEKEY2;
+
+	if (stm_flash.pecr & (1 << STM_FLASH_PECR_PELOCK))
+		printf ("eeprom unlock failed\n");
 
 	/* Configure the FTDW bit (FLASH_PECR[8]) to execute
 	 * word write, whatever the previous value of the word
@@ -68,8 +74,8 @@ ao_intflash_unlock(void)
 			  (0 << STM_FLASH_PECR_EOPIE) |
 			  (0 << STM_FLASH_PECR_FPRG) |
 			  (0 << STM_FLASH_PECR_ERASE) |
-			  (0 << STM_FLASH_PECR_FTDW) |
-			  (1 << STM_FLASH_PECR_DATA) |
+			  (1 << STM_FLASH_PECR_FTDW) |
+			  (0 << STM_FLASH_PECR_DATA) |
 			  (0 << STM_FLASH_PECR_PROG) |
 			  (0 << STM_FLASH_PECR_OPTLOCK) |
 			  (0 << STM_FLASH_PECR_PRGLOCK) |
@@ -97,15 +103,9 @@ ao_intflash_write32(uint16_t pos, uint32_t w)
 
 	addr = (uint32_t *) (stm_eeprom + pos);
 
-	/* Erase previous word */
-	*addr = 0;
+	/* Write a word to a valid address in the data EEPROM */
+	*addr = w;
 	ao_intflash_wait();
-
-	if (w) {
-		/* Write a word to a valid address in the data EEPROM */
-		*addr = w;
-		ao_intflash_wait();
-	}
 }
 
 static void
