@@ -205,10 +205,13 @@ ao_bufio_get(uint32_t block)
 				bufio->block = 0xffffffff;
 				bufio = NULL;
 			}
-		}
+		} else
+			ao_panic(AO_PANIC_BUFIO);
 	}
 	if (bufio) {
 		bufio->busy++;
+		if (!bufio->busy)
+			ao_panic(AO_PANIC_BUFIO);
 		buf = ao_bufio_to_buf(bufio);
 	}
 	ao_bufio_unlock();
@@ -227,6 +230,9 @@ ao_bufio_put(uint8_t *buf, uint8_t write)
 	ao_bufio_lock();
 	bufio = ao_buf_to_bufio(buf);
 	
+	if (!bufio->busy)
+		ao_panic(AO_PANIC_BUFIO);
+
 	DBG ("idle buffer %d write %d\n", ao_bufio_to_num(bufio), write);
 	bufio->dirty |= write;
 	if (!--bufio->busy) {
