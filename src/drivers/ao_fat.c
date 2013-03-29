@@ -375,10 +375,20 @@ ao_fat_current_sector(void)
 
 	sector_offset = ao_file_offset >> SECTOR_SHIFT;
 
-	if (!ao_file_cluster) {
+	if (!ao_file_cluster || ao_file_offset < ao_file_cluster_offset) {
+		ao_file_cluster = ao_file_dirent.cluster;
+		ao_file_cluster_offset = 0;
+	}
+
+	if (ao_file_cluster_offset + bytes_per_cluster <= ao_file_offset) {
+		uint16_t	cluster_distance;
+
 		cluster_offset = sector_offset / sectors_per_cluster;
 
-		cluster = ao_fat_cluster_seek(ao_file_dirent.cluster, cluster_offset);
+		cluster_distance = cluster_offset - ao_file_cluster_offset / bytes_per_cluster;
+
+		cluster = ao_fat_cluster_seek(ao_file_cluster, cluster_distance);
+
 		if (!ao_fat_cluster_valid(cluster))
 			return 0xffffffff;
 		ao_file_cluster = cluster;
@@ -392,16 +402,6 @@ ao_fat_current_sector(void)
 static void
 ao_fat_set_offset(uint32_t offset)
 {
-	
-	if (offset == 0) {
-		ao_file_cluster = ao_file_dirent.cluster;
-		ao_file_cluster_offset = 0;
-	}
-	else if (offset < ao_file_cluster_offset ||
-	    ao_file_cluster_offset + bytes_per_cluster <= offset)
-	{
-		ao_file_cluster = 0;
-	}
 	ao_file_offset = offset;
 }
 
