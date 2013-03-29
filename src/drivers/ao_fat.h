@@ -32,8 +32,8 @@ ao_fat_init(void);
 #define AO_FAT_DENT_EMPTY		0xe5
 #define AO_FAT_DENT_END			0x00
 
-#define AO_FAT_IS_FILE(attr)	(((attr) & (AO_FAT_FILE_VOLUME_LABEL|AO_FAT_FILE_DIRECTORY|AO_FAT_FILE_ARCHIVE)) == 0)
-#define AO_FAT_IS_DIR(attr)	(((attr) & (AO_FAT_FILE_DIRECTORY)) == AO_FAT_FILE_DIRECTORY)
+#define AO_FAT_IS_FILE(attr)	(((attr) & (AO_FAT_FILE_VOLUME_LABEL|AO_FAT_FILE_DIRECTORY)) == 0)
+#define AO_FAT_IS_DIR(attr)	(((attr) & (AO_FAT_FILE_DIRECTORY|AO_FAT_FILE_VOLUME_LABEL)) == AO_FAT_FILE_DIRECTORY)
 
 #define AO_FAT_SUCCESS			0
 #define AO_FAT_EPERM			1
@@ -80,12 +80,37 @@ ao_fat_unlink(char name[11]);
 int8_t
 ao_fat_rename(char old[11], char new[11]);
 
+/*
+ * Byte offset within a file. Supports files up to 2GB in size
+ */
+typedef int32_t		ao_fat_offset_t;
+
+/*
+ * Cluster index in partition data space
+ */
+typedef uint32_t	ao_fat_cluster_t;
+
+/*
+ * Sector offset within partition
+ */
+typedef uint32_t	ao_fat_sector_t;
+
+/*
+ * Index within the root directory
+ */
+typedef uint16_t	ao_fat_dirent_t;
+
+/*
+ * Offset within a cluster (or sector)
+ */
+typedef uint16_t	ao_fat_cluster_offset_t;
+
 struct ao_fat_dirent {
-	char		name[11];
-	uint8_t		attr;
-	uint32_t	size;
-	uint16_t	cluster;
-	uint16_t	entry;
+	char			name[11];
+	uint8_t			attr;
+	uint32_t		size;
+	ao_fat_cluster_t	cluster;
+	uint16_t		entry;
 };
 
 int8_t

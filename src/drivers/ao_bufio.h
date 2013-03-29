@@ -31,6 +31,9 @@ void
 ao_bufio_flush(void);
 
 void
+ao_bufio_setup(void);
+
+void
 ao_bufio_init(void);
 
 #endif /* _AO_BUFIO_H_ */

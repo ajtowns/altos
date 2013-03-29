@@ -84,14 +84,33 @@ ao_sdcard_write_block(uint32_t block, uint8_t *data)
 	return write(fs_fd, data, 512) == 512;
 }
 
-char	*fs = "fs.fat";
+struct fs_param {
+	int	fat;
+	int	blocks;
+} fs_params[] = {
+	{ .fat = 16, .blocks = 16384 },
+	{ .fat = 32, .blocks = 16384 },
+	{ .fat = 16, .blocks = 65536 },
+	{ .fat = 32, .blocks = 65536 },
+	{ .fat = 16, .blocks = 1048576 },
+	{ .fat = 32, .blocks = 1048576 },
+	{ .fat = 0, .blocks = 0 },
+};
+
+char		*fs = "fs.fat";
+struct fs_param	*param;
 
 void
 ao_sdcard_init(void)
 {
 	char	cmd[1024];
 
-	snprintf(cmd, sizeof(cmd), "rm -f %s && mkfs.vfat -C %s 16384", fs, fs);
+	if (fs_fd) {
+		close(fs_fd);
+		fs_fd = 0;
+	}
+	snprintf(cmd, sizeof(cmd), "rm -f %s && mkfs.vfat -F %d -C %s %d",
+		 fs, param->fat, fs, param->blocks);
 	if (system (cmd) != 0) {
 		fprintf(stderr, "'%s' failed\n", cmd);
 		exit(1);
@@ -125,21 +144,27 @@ check_fat(void);
 #include "ao_fat.c"
 
 /* Get the next cluster entry in the chain */
-static uint16_t
-ao_fat_entry_raw_read(uint16_t cluster, uint8_t fat)
+static cluster_t
+ao_fat_entry_raw_read(cluster_t cluster, uint8_t fat)
 {
-	uint32_t	sector;
-	uint16_t	offset;
-	uint8_t		*buf;
-	uint16_t	ret;
+	sector_t		sector;
+	cluster_offset_t	offset;
+	uint8_t			*buf;
+	cluster_t		ret;
 
-//	cluster -= 2;
-	sector = cluster >> (SECTOR_SHIFT - 1);
-	offset = (cluster << 1) & SECTOR_MASK;
+	if (fat32)
+		cluster <<= 2;
+	else
+		cluster <<= 1;
+	sector = cluster >> SECTOR_SHIFT;
+	offset = cluster & SECTOR_MASK;
 	buf = ao_fat_sector_get(fat_start + fat * sectors_per_fat + sector);
 	if (!buf)
 		return 0;
-	ret = get_u16(buf + offset);
+	if (fat32)
+		ret = get_u32(buf + offset);
+	else
+		ret = get_u16(buf + offset);
 	ao_fat_sector_put(buf, 0);
 	return ret;
 }
@@ -153,16 +178,21 @@ dump_fat(void)
 	for (e = 0; e < number_cluster; e++) {
 		if ((e & 0xf) == 0x0)
 			printf ("%04x: ", e);
-		printf (" %04x", ao_fat_entry_raw_read(e, 0));
+		if (fat32)
+			printf (" %08x", ao_fat_entry_raw_read(e, 0));
+		else
+			printf (" %04x", ao_fat_entry_raw_read(e, 0));
 		if ((e & 0xf) == 0xf)
 			putchar ('\n');
 	}
+	if (e & 0xf)
+		putchar('\n');
 }
 
 void
 fat_list(void)
 {
-	uint16_t		entry = 0;
+	dirent_t		entry = 0;
 	struct ao_fat_dirent	dirent;
 
 	printf ("  **** Root directory ****\n");
@@ -182,8 +212,8 @@ fat_list(void)
 void
 fatal(char *msg, ...)
 {
-	dump_fat();
-	fat_list();
+//	dump_fat();
+//	fat_list();
 
 	va_list	l;
 	va_start(l, msg);
@@ -200,7 +230,7 @@ check_fat(void)
 	int	f;
 
 	for (e = 0; e < number_cluster; e++) {
-		uint16_t	v = ao_fat_entry_raw_read(e, 0);
+		cluster_t	v = ao_fat_entry_raw_read(e, 0);
 		for (f = 1; f < number_fat; f++) {
 			if (ao_fat_entry_raw_read(e, f) != v)
 				fatal ("fats differ at %d\n", e);
@@ -208,24 +238,24 @@ check_fat(void)
 	}
 }
 
-uint16_t
-check_file(uint16_t dent, uint16_t first_cluster, uint8_t *used)
+cluster_t
+check_file(dirent_t dent, cluster_t first_cluster, dirent_t *used)
 {
-	uint16_t	clusters = 0;
-	uint16_t	cluster;
+	cluster_t	clusters = 0;
+	cluster_t	cluster;
 
 	if (!first_cluster)
 		return 0;
 	
 	for (cluster = first_cluster;
-	     (cluster & 0xfff8) != 0xfff8;
+	     fat32 ? !AO_FAT_IS_LAST_CLUSTER(cluster) : !AO_FAT_IS_LAST_CLUSTER16(cluster);
 	     cluster = ao_fat_entry_raw_read(cluster, 0))
 	{
 		if (!ao_fat_cluster_valid(cluster))
-			fatal("file %d: invalid cluster %04x\n", dent, cluster);
+			fatal("file %d: invalid cluster %08x\n", dent, cluster);
 		if (used[cluster])
-			fatal("file %d: duplicate cluster %04x\n", dent, cluster);
-		used[cluster] = 1;
+			fatal("file %d: duplicate cluster %08x also in file %d\n", dent, cluster, used[cluster]-1);
+		used[cluster] = dent;
 		clusters++;
 	}
 	return clusters;
@@ -234,25 +264,27 @@ check_file(uint16_t dent, uint16_t first_cluster, uint8_t *used)
 void
 check_fs(void)
 {
-	uint16_t	r;
-	uint16_t	cluster, chain;
-	uint8_t		*used;
+	dirent_t	r;
+	cluster_t	cluster, chain;
+	dirent_t	*used;
+	uint8_t		*dent;
 
 	check_fat();
 
-	used = calloc(1, number_cluster);
+	used = calloc(sizeof (dirent_t), number_cluster);
 
-	for (r = 0; r < root_entries; r++) {
-		uint8_t		*dent = ao_fat_root_get(r);
-		uint16_t	clusters;
-		uint32_t	size;
-		uint16_t	first_cluster;
-		uint8_t		name[11];
+	for (r = 0; (dent = ao_fat_root_get(r)); r++) {
+		cluster_t	clusters;
+		offset_t	size;
+		cluster_t	first_cluster;
+		char		name[11];
 
 		if (!dent)
 			fatal("cannot map dent %d\n", r);
 		memcpy(name, dent+0, 11);
 		first_cluster = get_u16(dent + 0x1a);
+		if (fat32)
+			first_cluster |= (cluster_t) get_u16(dent + 0x14) << 16;
 		size = get_u32(dent + 0x1c);
 		ao_fat_root_put(dent, r, 0);
 
@@ -260,7 +292,7 @@ check_fs(void)
 			break;
 		}
 
-		clusters = check_file(r, first_cluster, used);
+		clusters = check_file(r + 1, first_cluster, used);
 		if (size == 0) {
 			if (clusters != 0)
 				fatal("file %d: zero sized, but %d clusters\n", clusters);
@@ -273,20 +305,29 @@ check_fs(void)
 				      r, size, clusters, clusters * bytes_per_cluster);
 		}
 	}
-	for (; r < root_entries; r++) {
-		uint8_t	*dent = ao_fat_root_get(r);
-		if (!dent)
-			fatal("cannot map dent %d\n", r);
-		if (dent[0] != AO_FAT_DENT_END)
-			fatal("found non-zero dent past end %d\n", r);
-		ao_fat_root_put(dent, r, 0);
+	if (!fat32) {
+		for (; r < root_entries; r++) {
+			uint8_t	*dent = ao_fat_root_get(r);
+			if (!dent)
+				fatal("cannot map dent %d\n", r);
+			if (dent[0] != AO_FAT_DENT_END)
+				fatal("found non-zero dent past end %d\n", r);
+			ao_fat_root_put(dent, r, 0);
+		}
+	} else {
+		check_file((dirent_t) -1, root_cluster, used);
 	}
 
 	for (cluster = 0; cluster < 2; cluster++) {
 		chain = ao_fat_entry_raw_read(cluster, 0);
 
-		if ((chain & 0xfff8) != 0xfff8)
-			fatal("cluster %d: not marked busy\n", cluster);
+		if (fat32) {
+			if ((chain & 0xffffff8) != 0xffffff8)
+				fatal("cluster %d: not marked busy\n", cluster);
+		} else {
+			if ((chain & 0xfff8) != 0xfff8)
+				fatal("cluster %d: not marked busy\n", cluster);
+		}
 	}
 	for (; cluster < number_cluster; cluster++) {
 		chain = ao_fat_entry_raw_read(cluster, 0);
@@ -296,40 +337,66 @@ check_fs(void)
 				fatal("cluster %d: marked busy, but not in any file\n", cluster);
 		} else {
 			if (used[cluster] != 0)
-				fatal("cluster %d: marked free, but foudn in file\n", cluster);
+				fatal("cluster %d: marked free, but found in file %d\n", cluster, used[cluster]-1);
 		}
 	}
 }
 
-#define NUM_FILES	10
-#define LINES_FILE	80000
+#define NUM_FILES	100
+#define LINES_FILE	500000
 
 uint32_t		sizes[NUM_FILES];
 
 unsigned char		md5[NUM_FILES][MD5_DIGEST_LENGTH];
 
-int
-main(int argc, char **argv)
+void
+short_test_fs(void)
+{
+	int	len;
+	char	buf[345];
+
+	if (ao_fat_open("HELLO   TXT",AO_FAT_OPEN_READ) == AO_FAT_SUCCESS) {
+		printf ("File contents for HELLO.TXT\n");
+		while ((len = ao_fat_read(buf, sizeof(buf))))
+			write(1, buf, len);
+		ao_fat_close();
+	}
+	
+	if (ao_fat_creat("NEWFILE TXT") == AO_FAT_SUCCESS) {
+		printf ("Create new file\n");
+		for (len = 0; len < 2; len++)
+			ao_fat_write("hello, world!\n", 14);
+		ao_fat_seek(0, AO_FAT_SEEK_SET);
+		printf ("read new file\n");
+		while ((len = ao_fat_read(buf, sizeof (buf))))
+			write (1, buf, len);
+		ao_fat_close();
+	}
+
+	check_fs();
+}
+
+void
+long_test_fs(void)
 {
 	char	name[12];
 	int	id;
 	MD5_CTX	ctx;
 	unsigned char	md5_check[MD5_DIGEST_LENGTH];
+	char buf[337];
+	int	len;
+	uint64_t	total_file_size = 0;
 
-	if (argv[1])
-		fs = argv[1];
+	total_reads = total_writes = 0;
 
-	ao_fat_init();
-
-	check_bufio("top");
-	ao_fat_setup();
-
-	check_fs();
-	check_bufio("after setup");
 	printf ("   **** Creating %d files\n", NUM_FILES);
 
+	memset(sizes, '\0', sizeof (sizes));
 	for (id = 0; id < NUM_FILES; id++) {
 		sprintf(name, "D%07dTXT", id);
+		if ((id % (NUM_FILES/50)) == 0) {
+			printf ("."); fflush(stdout);
+		}
 		if (ao_fat_creat(name) == AO_FAT_SUCCESS) {
 			int j;
 			char	line[64];
@@ -342,6 +409,7 @@ main(int argc, char **argv)
 				ret = ao_fat_write((uint8_t *) line, len);
 				if (ret <= 0)
 					break;
+				total_file_size += ret;
 				MD5_Update(&ctx, line, ret);
 				sizes[id] += ret;
 				if (ret != len)
@@ -353,20 +421,24 @@ main(int argc, char **argv)
 		}
 	}
 
+	printf ("\n   **** Write IO: read %llu write %llu data sectors %llu\n", total_reads, total_writes, (total_file_size + 511) / 512);
+
 	check_bufio("all files created");
 	printf ("   **** All done creating files\n");
 	check_fs();
 
+	total_reads = total_writes = 0;
+
 	printf ("   **** Comparing %d files\n", NUM_FILES);
 
 	for (id = 0; id < NUM_FILES; id++) {
-		char buf[337];
 		uint32_t size;
 		sprintf(name, "D%07dTXT", id);
 		size = 0;
+		if ((id % (NUM_FILES/50)) == 0) {
+			printf ("."); fflush(stdout);
+		}
 		if (ao_fat_open(name, AO_FAT_OPEN_READ) == AO_FAT_SUCCESS) {
-			int	len;
-
 			MD5_Init(&ctx);
 			while ((len = ao_fat_read((uint8_t *) buf, sizeof(buf))) > 0) {
 				MD5_Update(&ctx, buf, len);
@@ -382,7 +454,43 @@ main(int argc, char **argv)
 			check_bufio("file shown");
 		}
 	}
+	printf ("\n  **** Read IO: read %llu write %llu\n", total_reads, total_writes);
+}
 
-	printf ("\n    **** Total IO: read %llu write %llu\n", total_reads, total_writes);
+char *params[] = {
+	"-F 16 -C %s 16384",
+	"-F 32 -C %s 16384",
+	"-F 16 -C %s 65536",
+	"-F 32 -C %s 65536",
+	"-F 16 -C %s 1048576",
+	"-F 32 -C %s 1048576",
+	NULL
+};
+
+int
+main(int argc, char **argv)
+{
+	int	p;
+
+	if (argv[1])
+		fs = argv[1];
+
+	for (p = 0; fs_params[p].fat; p++) {
+		param = &fs_params[p];
+		ao_fat_init();
+
+		check_bufio("top");
+		ao_fat_setup();
+
+		check_fs();
+		check_bufio("after setup");
+
+#ifdef SIMPLE_TEST
+		short_test_fs();
+#else
+		long_test_fs();
+#endif
+	}
+
 	return 0;
 }

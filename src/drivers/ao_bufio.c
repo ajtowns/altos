@@ -22,7 +22,7 @@
 #include "ao_sdcard.h"
 #include "ao_bufio.h"
 
-#define AO_NUM_BUF		4
+#define AO_NUM_BUF		16
 #define AO_BUFSIZ		512
 
 struct ao_bufio {
@@ -292,13 +292,21 @@ static const struct ao_cmds ao_bufio_cmds[] = {
 };
 
 void
-ao_bufio_init(void)
+ao_bufio_setup(void)
 {
 	int b;
 
-	for (b = 0; b < AO_NUM_BUF; b++)
+	for (b = 0; b < AO_NUM_BUF; b++) {
+		ao_bufio[b].dirty = 0;
+		ao_bufio[b].busy = 0;
 		ao_bufio[b].block = 0xffffffff;
-	ao_sdcard_init();
+	}
+}
 
+void
+ao_bufio_init(void)
+{
+	ao_bufio_setup();
+	ao_sdcard_init();
 	ao_cmd_register(&ao_bufio_cmds[0]);
 }
