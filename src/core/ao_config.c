@@ -47,6 +47,8 @@ __xdata uint8_t ao_config_mutex;
 #define AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX	((uint32_t) 192 * (uint32_t) 1024)
 #endif
 #endif
+#define AO_CONFIG_DEFAULT_RADIO_POWER		0x60
+#define AO_CONFIG_DEFAULT_RADIO_AMP		0
 
 #if HAS_EEPROM
 static void
@@ -141,6 +143,14 @@ _ao_config_get(void)
 #endif
 		if (minor < 13)
 			ao_config.aprs_interval = 0;
+#if HAS_RADIO_POWER
+		if (minor < 14)
+			ao_config.radio_power = AO_CONFIG_DEFAULT_RADIO_POWER;
+		#endif
+#if HAS_RADIO_AMP
+		if (minor  < 14)
+			ao_config.radio_amp = AO_CONFIG_DEFAULT_RADIO_AMP;
+#endif
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
@@ -524,6 +534,48 @@ ao_config_aprs_set(void)
 
 #endif /* HAS_APRS */
 
+#if HAS_RADIO_AMP
+
+void
+ao_config_radio_amp_show(void)
+{
+	printf ("Radio amp setting: %d\n", ao_config.radio_amp);
+}
+
+void
+ao_config_radio_amp_set(void)
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	_ao_config_edit_start();
+	ao_config.radio_amp = ao_cmd_lex_i;
+	_ao_config_edit_finish();
+}
+
+#endif
+
+#if HAS_RADIO_POWER
+
+void
+ao_config_radio_power_show(void)
+{
+	printf ("Radio power setting: %d\n", ao_config.radio_power);
+}
+
+void
+ao_config_radio_power_set(void)
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	_ao_config_edit_start();
+	ao_config.radio_power = ao_cmd_lex_i;
+	_ao_config_edit_finish();
+}
+
+#endif
+
 struct ao_config_var {
 	__code char	*str;
 	void		(*set)(void) __reentrant;
@@ -557,6 +609,14 @@ __code struct ao_config_var ao_config_vars[] = {
 	  ao_config_radio_enable_set, ao_config_radio_enable_show },
 	{ "f <cal>\0Radio calib (cal = rf/(xtal/2^16))",
 	  ao_config_radio_cal_set,  	ao_config_radio_cal_show },
+#if HAS_RADIO_POWER
+	{ "p <setting>\0Radio power setting (0-255)",
+	  ao_config_radio_power_set,	ao_config_radio_power_show },
+#endif
+#if HAS_RADIO_AMP
+	{ "d <setting>\0Radio amplifier setting (0-3)",
+	  ao_config_radio_amp_set,	ao_config_radio_amp_show },
+#endif
 #endif /* HAS_RADIO */
 #if HAS_ACCEL
 	{ "a <+g> <-g>\0Accel calib (0 for auto)",

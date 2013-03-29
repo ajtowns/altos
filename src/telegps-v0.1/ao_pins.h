@@ -132,6 +132,8 @@
 
 #define AO_RADIO_CAL_DEFAULT 	0x10b6a5
 
+#define HAS_RADIO_POWER		1
+
 #define AO_FEC_DEBUG		0
 #define AO_CC115L_SPI_CS_PORT	(&stm_gpiob)
 #define AO_CC115L_SPI_CS_PIN	12
@@ -150,7 +152,7 @@
 #define AO_CC115L_MARC_GPIO	0
 #define AO_CC115L_MARC_GPIO_IOCFG	CC115L_IOCFG0
 
-#define AO_RADIO_HAS_PA	1
+#define HAS_RADIO_AMP		1
 
 /*
  * Power amplifier (RFPA0133)

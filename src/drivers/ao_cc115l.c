@@ -452,6 +452,7 @@ static void
 ao_radio_get(uint8_t len)
 {
 	static uint32_t	last_radio_setting;
+	static uint8_t	last_power_setting;
 
 	ao_mutex_get(&ao_radio_mutex);
 	if (!ao_radio_configured)
@@ -461,6 +462,10 @@ ao_radio_get(uint8_t len)
 		ao_radio_reg_write(CC115L_FREQ1, ao_config.radio_setting >> 8);
 		ao_radio_reg_write(CC115L_FREQ0, ao_config.radio_setting);
 		last_radio_setting = ao_config.radio_setting;
+	}
+	if (ao_config.radio_power != last_power_setting) {
+		ao_radio_reg_write(CC115L_PA, ao_config.radio_power);
+		last_power_setting = ao_config.radio_power;
 	}
 	ao_radio_set_len(len);
 }

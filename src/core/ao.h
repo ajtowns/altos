@@ -550,7 +550,7 @@ ao_radio_send_lots(ao_radio_fill_func fill);
  * ao_radio_pa
  */
 
-#if AO_RADIO_HAS_PA
+#if HAS_RADIO_AMP
 void
 ao_radio_pa_on(void);
 
@@ -715,7 +715,7 @@ extern __xdata uint8_t ao_force_freq;
 #endif
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	13
+#define AO_CONFIG_MINOR	14
 
 #define AO_AES_LEN 16
 
@@ -743,6 +743,12 @@ struct ao_config {
 	struct ao_pyro	pyro[AO_PYRO_NUM];	/* minor version 12 */
 #endif
 	uint16_t	aprs_interval;		/* minor version 13 */
+#if HAS_RADIO_POWER
+	uint8_t		radio_power;		/* minor version 14 */
+#endif
+#if HAS_RADIO_AMP
+	uint8_t		radio_amp;		/* minor version 14 */
+#endif
 };
 
 #define AO_IGNITE_MODE_DUAL		0

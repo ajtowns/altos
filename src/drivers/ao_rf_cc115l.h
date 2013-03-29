@@ -80,4 +80,4 @@
         CC115L_TEST1,                       0x35,       /* Various Test Settings */
         CC115L_TEST0,                       0x09,       /* Various Test Settings */
 
-	CC115L_PA,		     	    0x60,	 /* Power setting (0dBm) */
+	CC115L_PA,		     	    0x00,	 /* Power setting (0dBm) */
