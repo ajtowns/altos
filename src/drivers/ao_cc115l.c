@@ -516,7 +516,7 @@ ao_radio_get(void)
 }
 
 static void
-ao_radio_send_lots(ao_radio_fill_func fill, uint8_t mode);
+_ao_radio_send_lots(ao_radio_fill_func fill, uint8_t mode);
 
 #define ao_radio_put()	ao_mutex_put(&ao_radio_mutex)
 
@@ -569,10 +569,12 @@ ao_radio_tone_fill(uint8_t *buf, int16_t len)
 static void
 ao_radio_tone_run(struct ao_radio_tone *tones, int ntones)
 {
+	ao_radio_get();
 	ao_radio_tone = tones;
 	ao_radio_tone_current = 0;
 	ao_radio_tone_offset = 0;
-	ao_radio_send_lots(ao_radio_tone_fill, AO_RADIO_MODE_RDF);
+	_ao_radio_send_lots(ao_radio_tone_fill, AO_RADIO_MODE_RDF);
+	ao_radio_put();
 }
 
 void
@@ -718,15 +720,19 @@ ao_radio_send_fill(uint8_t *buf, int16_t len)
 void
 ao_radio_send(const void *d, uint8_t size)
 {
+	int i;
+
+	ao_radio_get();
 	ao_radio_send_len = ao_fec_encode(d, size, tx_data);
 	ao_radio_send_buf = tx_data;
-	ao_radio_send_lots(ao_radio_send_fill, AO_RADIO_MODE_PACKET_TX);
+	_ao_radio_send_lots(ao_radio_send_fill, AO_RADIO_MODE_PACKET_TX);
+	ao_radio_put();
 }
 
 #define AO_RADIO_LOTS	64
 
 static void
-ao_radio_send_lots(ao_radio_fill_func fill, uint8_t mode)
+_ao_radio_send_lots(ao_radio_fill_func fill, uint8_t mode)
 {
 	uint8_t	buf[AO_RADIO_LOTS], *b;
 	int	cnt;
@@ -735,7 +741,6 @@ ao_radio_send_lots(ao_radio_fill_func fill, uint8_t mode)
 	uint8_t	started = 0;
 	uint8_t	fifo_space;
 
-	ao_radio_get();
 	fifo_space = CC115L_FIFO_SIZE;
 	ao_radio_done = 0;
 	ao_radio_fifo = 0;
@@ -795,13 +800,14 @@ ao_radio_send_lots(ao_radio_fill_func fill, uint8_t mode)
 		ao_radio_idle();
 	ao_radio_wait_done();
 	ao_radio_pa_off();
-	ao_radio_put();
 }
 
 void
 ao_radio_send_aprs(ao_radio_fill_func fill)
 {
-	ao_radio_send_lots(fill, AO_RADIO_MODE_APRS);
+	ao_radio_get();
+	_ao_radio_send_lots(fill, AO_RADIO_MODE_APRS);
+	ao_radio_put();
 }
 
 #if CC115L_DEBUG
