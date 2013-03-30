@@ -24,6 +24,7 @@
 #include "cc.h"
 
 static const struct option options[] = {
+	{ .name = "crc", .has_arg = 0, .val = 'c' },
 	{ 0, 0, 0, 0},
 };
 
@@ -44,8 +45,12 @@ main (int argc, char **argv)
 	char *s;
 	FILE *file;
 	int serial;
-	while ((c = getopt_long(argc, argv, "", options, NULL)) != -1) {
+	int ignore_crc = 0;
+	while ((c = getopt_long(argc, argv, "c", options, NULL)) != -1) {
 		switch (c) {
+		case 'c':
+			ignore_crc = 1;
+			break;
 		default:
 			usage(argv[0]);
 			break;
@@ -74,7 +79,7 @@ main (int argc, char **argv)
 				printf ("serial %5d rssi %d status %02x tick %5d type %3d ",
 					telem.generic.serial, rssi, telem.generic.status,
 					telem.generic.tick, telem.generic.type);
-				if ((telem.generic.status & (1 << 7)) == 0) {
+				if (!ignore_crc && (telem.generic.status & (1 << 7)) == 0) {
 					printf ("CRC error\n");
 					continue;
 				}

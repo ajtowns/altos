@@ -16,6 +16,7 @@
  */
 
 #include "ao.h"
+#include "ao_log.h"
 
 void
 ao_gps_report_mega(void)

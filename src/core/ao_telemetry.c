@@ -16,6 +16,7 @@
  */
 
 #include "ao.h"
+#include "ao_log.h"
 #include "ao_product.h"
 
 static __pdata uint16_t ao_telemetry_interval;
@@ -306,11 +307,13 @@ ao_telemetry(void)
 #ifdef AO_SEND_ALL_BARO
 				ao_send_baro();
 #endif
+#if HAS_FLIGHT
 #ifdef AO_SEND_MEGA
 				ao_send_mega_sensor();
 				ao_send_mega_data();
 #else
 				ao_send_sensor();
+#endif
 #endif
 
 #if HAS_COMPANION

@@ -55,7 +55,10 @@ ALTOS_SRC = \
 	ao_eeprom_stm.c \
 	ao_sdcard.c \
 	ao_bufio.c \
-	ao_fat.c
+	ao_fat.c \
+	ao_log_fat.c \
+	ao_gps_report_mega.c \
+	ao_telemetry.c
 
 PRODUCT=TeleGPS-v0.1
 PRODUCT_DEF=-DTELEGPS

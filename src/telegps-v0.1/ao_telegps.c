@@ -19,6 +19,8 @@
 #include <ao_exti.h>
 #include <ao_fat.h>
 
+uint16_t	ao_flight_number = 1;
+
 int
 main(void)
 {
@@ -47,9 +49,14 @@ main(void)
 	ao_usb_init();
 	ao_radio_init();
 
-	ao_gps_init();
-
 	ao_fat_init();
+
+	ao_gps_init();
+	ao_gps_report_mega_init();
+
+	ao_telemetry_init();
+	ao_telemetry_set_interval(AO_SEC_TO_TICKS(1));
+	ao_rdf_set(1);
 
 	ao_config_init();
 	
