@@ -107,7 +107,7 @@ int main(int argc, char **argv)
 }
 
 void
-ao_radio_send_lots(ao_radio_fill_func fill)
+ao_radio_send_aprs(ao_radio_fill_func fill)
 {
 	int16_t	len;
 	uint8_t	done = 0;

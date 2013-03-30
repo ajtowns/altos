@@ -593,7 +593,7 @@ void ao_aprs_send(void)
     tncIndex = 0;
     tncMode = TNC_TX_SYNC;
 
-    ao_radio_send_lots(tncFill);
+    ao_radio_send_aprs(tncFill);
 }
 
 /** @} */

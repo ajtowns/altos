@@ -544,7 +544,7 @@ ao_radio_test(uint8_t on);
 typedef int16_t (*ao_radio_fill_func)(uint8_t *buffer, int16_t len);
 
 void
-ao_radio_send_lots(ao_radio_fill_func fill);
+ao_radio_send_aprs(ao_radio_fill_func fill);
 
 /*
  * ao_radio_pa

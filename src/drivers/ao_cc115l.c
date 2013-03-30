@@ -25,13 +25,18 @@
 
 static uint8_t ao_radio_mutex;
 
-static uint8_t ao_radio_wake;		/* radio ready. Also used as sleep address */
+static uint8_t ao_radio_fifo;		/* fifo drained interrupt received */
+static uint8_t ao_radio_done;		/* tx done interrupt received */
+static uint8_t ao_radio_wake;		/* sleep address for radio interrupts */
 static uint8_t ao_radio_abort;		/* radio operation should abort */
 static uint8_t ao_radio_mcu_wake;	/* MARC status change */
 static uint8_t ao_radio_marcstate;	/* Last read MARC state value */
 
+/* Debugging commands */
 #define CC115L_DEBUG	1
-#define CC115L_TRACE	1
+
+/* Runtime tracing */
+#define CC115L_TRACE	0
 
 #define FOSC	26000000
 
@@ -42,15 +47,67 @@ static uint8_t ao_radio_marcstate;	/* Last read MARC state value */
 #define ao_radio_spi_recv(d,l)	ao_spi_recv((d), (l), AO_CC115L_SPI_BUS)
 #define ao_radio_duplex(o,i,l)	ao_spi_duplex((o), (i), (l), AO_CC115L_SPI_BUS)
 
+struct ao_cc115l_reg {
+	uint16_t	addr;
+	char		*name;
+};
+
+#if CC115L_TRACE
+
+const static struct ao_cc115l_reg ao_cc115l_reg[];
+const static char *cc115l_state_name[];
+
+enum ao_cc115l_trace_type {
+	trace_strobe,
+	trace_read,
+	trace_write,
+	trace_dma,
+	trace_line,
+};
+
+struct ao_cc115l_trace {
+	enum ao_cc115l_trace_type	type;
+	int16_t				addr;
+	int16_t				value;
+	const char			*comment;
+};
+
+#define NUM_TRACE	256
+
+static struct ao_cc115l_trace	trace[NUM_TRACE];
+static int			trace_i;
+static int			trace_disable;
+
+static void trace_add(enum ao_cc115l_trace_type type, int16_t addr, int16_t value, const char *comment)
+{
+	if (trace_disable)
+		return;
+	switch (type) {
+	case trace_read:
+	case trace_write:
+		comment = ao_cc115l_reg[addr].name;
+		break;
+	case trace_strobe:
+		comment = cc115l_state_name[(value >> 4) & 0x7];
+		break;
+	}
+	trace[trace_i].type = type;
+	trace[trace_i].addr = addr;
+	trace[trace_i].value = value;
+	trace[trace_i].comment = comment;
+	if (++trace_i == NUM_TRACE)
+		trace_i = 0;
+}
+#else
+#define trace_add(t,a,v,c)
+#endif
+
 static uint8_t
-ao_radio_reg_read(uint16_t addr)
+ao_radio_reg_read(uint8_t addr)
 {
 	uint8_t	data[1];
 	uint8_t	d;
 
-#if CC115L_TRACE
-	printf("\t\tao_radio_reg_read (%04x): ", addr); flush();
-#endif
 	data[0] = ((1 << CC115L_READ)  |
 		   (0 << CC115L_BURST) |
 		   addr);
@@ -58,21 +115,17 @@ ao_radio_reg_read(uint16_t addr)
 	ao_radio_spi_send(data, 1);
 	ao_radio_spi_recv(data, 1);
 	ao_radio_deselect();
-#if CC115L_TRACE
-	printf (" %02x\n", data[0]);
-#endif
+	trace_add(trace_read, addr, data[0], NULL);
 	return data[0];
 }
 
 static void
-ao_radio_reg_write(uint16_t addr, uint8_t value)
+ao_radio_reg_write(uint8_t addr, uint8_t value)
 {
 	uint8_t	data[2];
 	uint8_t	d;
 
-#if CC115L_TRACE
-	printf("\t\tao_radio_reg_write (%04x): %02x\n", addr, value);
-#endif
+	trace_add(trace_write, addr, value, NULL);
 	data[0] = ((0 << CC115L_READ)  |
 		   (0 << CC115L_BURST) |
 		   addr);
@@ -107,15 +160,10 @@ ao_radio_strobe(uint8_t addr)
 {
 	uint8_t	in;
 
-#if CC115L_TRACE
-	printf("\t\tao_radio_strobe (%02x): ", addr); flush();
-#endif
 	ao_radio_select();
 	ao_radio_duplex(&addr, &in, 1);
 	ao_radio_deselect();
-#if CC115L_TRACE
-	printf("%02x\n", in); flush();
-#endif
+	trace_add(trace_strobe, addr, in, NULL);
 	return in;
 }
 
@@ -141,22 +189,8 @@ static uint8_t
 ao_radio_fifo_write(uint8_t *data, uint8_t len)
 {
 	uint8_t	status = ao_radio_fifo_write_start();
-#if CC115L_TRACE
-	printf ("fifo_write %d\n", len);
-#endif
+	trace_add(trace_dma, CC115L_FIFO, len, NULL);
 	ao_radio_spi_send(data, len);
-	return ao_radio_fifo_write_stop(status);
-}
-
-static uint8_t
-ao_radio_fifo_write_fixed(uint8_t data, uint8_t len)
-{
-	uint8_t status = ao_radio_fifo_write_start();
-
-#if CC115L_TRACE
-	printf ("fifo_write_fixed %02x %d\n", data, len);
-#endif
-	ao_radio_spi_send_fixed(data, len);
 	return ao_radio_fifo_write_stop(status);
 }
 
@@ -179,42 +213,28 @@ ao_radio_get_marcstate(void)
 {
 	return ao_radio_reg_read(CC115L_MARCSTATE) & CC115L_MARCSTATE_MASK;
 }
-
+	  
 static void
-ao_radio_mcu_wakeup_isr(void)
+ao_radio_done_isr(void)
 {
-	ao_radio_mcu_wake = 1;
+	ao_exti_disable(AO_CC115L_DONE_INT_PORT, AO_CC115L_DONE_INT_PIN);
+	trace_add(trace_line, __LINE__, 0, "done_isr");
+	ao_radio_done = 1;
 	ao_wakeup(&ao_radio_wake);
 }
 
-
 static void
-ao_radio_check_marcstate(void)
+ao_radio_fifo_isr(void)
 {
-	ao_radio_mcu_wake = 0;
-	ao_radio_marcstate = ao_radio_get_marcstate();
-	
-	/* Anyt other than 'tx finished' means an error occurred */
-	if (ao_radio_marcstate != CC115L_MARCSTATE_TX_END)
-		ao_radio_abort = 1;
-}
-
-static void
-ao_radio_isr(void)
-{
-	ao_exti_disable(AO_CC115L_INT_PORT, AO_CC115L_INT_PIN);
-	ao_radio_wake = 1;
+	ao_exti_disable(AO_CC115L_FIFO_INT_PORT, AO_CC115L_FIFO_INT_PIN);
+	trace_add(trace_line, __LINE__, 0, "fifo_isr");
+	ao_radio_fifo = 1;
 	ao_wakeup(&ao_radio_wake);
 }
 
 static void
 ao_radio_start_tx(void)
 {
-	ao_radio_pa_on();
-	ao_exti_set_callback(AO_CC115L_INT_PORT, AO_CC115L_INT_PIN, ao_radio_isr);
-	ao_exti_enable(AO_CC115L_INT_PORT, AO_CC115L_INT_PIN);
-	ao_exti_enable(AO_CC115L_MCU_WAKEUP_PORT, AO_CC115L_MCU_WAKEUP_PIN);
-	ao_radio_strobe(CC115L_STX);
 }
 
 static void
@@ -287,12 +307,9 @@ static const uint16_t packet_setup[] = {
  *
  *	DATARATE_M = 67
  *	DATARATE_E = 6
- *
- * To make the tone last for 200ms, we need 2000 * .2 = 400 bits or 50 bytes
  */
 #define RDF_DRATE_E	6
 #define RDF_DRATE_M	67
-#define RDF_PACKET_LEN	50
 
 static const uint16_t rdf_setup[] = {
 	CC115L_DEVIATN,		((RDF_DEV_E << CC115L_DEVIATN_DEVIATION_E) |
@@ -307,7 +324,7 @@ static const uint16_t rdf_setup[] = {
  */
 
 #define APRS_DEV_E	RDF_DEV_E
-#define APRS_DEV_M	RDF_DEV_E
+#define APRS_DEV_M	RDF_DEV_M
 
 /*
  * For our APRS beacon, set the symbol rate to 9.6kBaud (8x oversampling for 1200 baud data rate)
@@ -342,21 +359,27 @@ static const uint16_t aprs_setup[] = {
 
 static uint16_t ao_radio_mode;
 
+
+/*
+ * These set the data rate and modulation parameters
+ */
 #define AO_RADIO_MODE_BITS_PACKET_TX	1
-#define AO_RADIO_MODE_BITS_TX_BUF	2
-#define AO_RADIO_MODE_BITS_TX_FINISH	4
-#define AO_RADIO_MODE_BITS_RDF		8
-#define AO_RADIO_MODE_BITS_APRS		16
-#define AO_RADIO_MODE_BITS_INFINITE	32
-#define AO_RADIO_MODE_BITS_FIXED	64
+#define AO_RADIO_MODE_BITS_RDF		2
+#define AO_RADIO_MODE_BITS_APRS		4
+
+/*
+ * Flips between infinite packet mode and fixed packet mode;
+ * we use infinite mode until the sender gives us the
+ * last chunk of data
+ */
+#define AO_RADIO_MODE_BITS_INFINITE	40
+#define AO_RADIO_MODE_BITS_FIXED	80
 
 #define AO_RADIO_MODE_NONE		0
-#define AO_RADIO_MODE_PACKET_TX_BUF	(AO_RADIO_MODE_BITS_PACKET_TX | AO_RADIO_MODE_BITS_TX_BUF)
-#define AO_RADIO_MODE_PACKET_TX_FINISH	(AO_RADIO_MODE_BITS_PACKET_TX | AO_RADIO_MODE_BITS_TX_FINISH)
-#define AO_RADIO_MODE_RDF		(AO_RADIO_MODE_BITS_RDF | AO_RADIO_MODE_BITS_TX_FINISH)
-#define AO_RADIO_MODE_APRS_BUF		(AO_RADIO_MODE_BITS_APRS | AO_RADIO_MODE_BITS_INFINITE | AO_RADIO_MODE_BITS_TX_BUF)
-#define AO_RADIO_MODE_APRS_LAST_BUF	(AO_RADIO_MODE_BITS_APRS | AO_RADIO_MODE_BITS_FIXED | AO_RADIO_MODE_BITS_TX_BUF)
-#define AO_RADIO_MODE_APRS_FINISH	(AO_RADIO_MODE_BITS_APRS | AO_RADIO_MODE_BITS_FIXED | AO_RADIO_MODE_BITS_TX_FINISH)
+
+#define AO_RADIO_MODE_RDF		AO_RADIO_MODE_BITS_RDF
+#define AO_RADIO_MODE_PACKET_TX		AO_RADIO_MODE_BITS_PACKET_TX
+#define AO_RADIO_MODE_APRS		AO_RADIO_MODE_BITS_APRS
 
 static void
 ao_radio_set_mode(uint16_t new_mode)
@@ -371,12 +394,6 @@ ao_radio_set_mode(uint16_t new_mode)
 	if (changes & AO_RADIO_MODE_BITS_PACKET_TX)
 		for (i = 0; i < sizeof (packet_setup) / sizeof (packet_setup[0]); i += 2)
 			ao_radio_reg_write(packet_setup[i], packet_setup[i+1]);
-
-	if (changes & AO_RADIO_MODE_BITS_TX_BUF)
-		ao_radio_reg_write(AO_CC115L_INT_GPIO_IOCFG, CC115L_IOCFG_GPIO_CFG_TXFIFO_THR);
-
-	if (changes & AO_RADIO_MODE_BITS_TX_FINISH)
-		ao_radio_reg_write(AO_CC115L_INT_GPIO_IOCFG, CC115L_IOCFG_GPIO_CFG_PKT_SYNC_TX | (1 << CC115L_IOCFG_GPIO_INV));
 
 	if (changes & AO_RADIO_MODE_BITS_RDF)
 		for (i = 0; i < sizeof (rdf_setup) / sizeof (rdf_setup[0]); i += 2)
@@ -395,8 +412,44 @@ ao_radio_set_mode(uint16_t new_mode)
 	ao_radio_mode = new_mode;
 }
 
+/***************************************************************
+ *  SmartRF Studio(tm) Export
+ *
+ *  Radio register settings specifed with address, value
+ *
+ *  RF device: CC115L
+ *
+ ***************************************************************/
+
 static const uint16_t radio_setup[] = {
-#include "ao_rf_cc115l.h"
+
+	/* High when FIFO is above threshold, low when fifo is below threshold */
+	AO_CC115L_FIFO_INT_GPIO_IOCFG,	    CC115L_IOCFG_GPIO_CFG_TXFIFO_THR,
+
+	/* High when transmitter is running, low when off */
+	AO_CC115L_DONE_INT_GPIO_IOCFG,	    CC115L_IOCFG_GPIO_CFG_PA_PD | (1 << CC115L_IOCFG_GPIO_INV),
+
+        CC115L_FIFOTHR,                     0x47,       /* TX FIFO Thresholds */
+        CC115L_PKTCTRL0,                    0x05,       /* Packet Automation Control */
+        CC115L_FREQ2,                       0x10,       /* Frequency Control Word, High Byte */
+        CC115L_FREQ1,                       0xb6,       /* Frequency Control Word, Middle Byte */
+        CC115L_FREQ0,                       0xa5,       /* Frequency Control Word, Low Byte */
+        CC115L_MDMCFG4,                     0xfa,       /* Modem Configuration */
+        CC115L_MDMCFG3,                     0x83,       /* Modem Configuration */
+        CC115L_MDMCFG2,                     0x13,       /* Modem Configuration */
+        CC115L_MDMCFG1,                     0x21,       /* Modem Configuration */
+        CC115L_DEVIATN,                     0x35,       /* Modem Deviation Setting */
+        CC115L_MCSM0,                       0x18,       /* Main Radio Control State Machine Configuration */
+        CC115L_RESERVED_0X20,               0xfb,       /* Use setting from SmartRF Studio */
+        CC115L_FSCAL3,                      0xe9,       /* Frequency Synthesizer Calibration */
+        CC115L_FSCAL2,                      0x2a,       /* Frequency Synthesizer Calibration */
+        CC115L_FSCAL1,                      0x00,       /* Frequency Synthesizer Calibration */
+        CC115L_FSCAL0,                      0x1f,       /* Frequency Synthesizer Calibration */
+        CC115L_TEST2,                       0x81,       /* Various Test Settings */
+        CC115L_TEST1,                       0x35,       /* Various Test Settings */
+        CC115L_TEST0,                       0x09,       /* Various Test Settings */
+
+	CC115L_PA,		     	    0x00,	 /* Power setting (0dBm) */
 };
 
 static uint8_t	ao_radio_configured = 0;
@@ -406,29 +459,11 @@ ao_radio_setup(void)
 {
 	int	i;
 
-#if 0
-	ao_gpio_set(AO_CC115L_SPI_CS_PORT, AO_CC115L_SPI_CS_PIN, AO_CC115L_SPI_CS, 0);
-	for (i = 0; i < 10000; i++) {
-		if (ao_gpio_get(SPI_2_PORT, SPI_2_MISO_PIN, SPI_2_MISO) == 0) {
-			printf ("Chip clock alive\n");
-			break;
-		}
-	}
-	ao_gpio_set(AO_CC115L_SPI_CS_PORT, AO_CC115L_SPI_CS_PIN, AO_CC115L_SPI_CS, 1);
-	if (i == 10000)
-		printf ("Chip clock not alive\n");
-#endif
-
 	ao_radio_strobe(CC115L_SRES);
 	ao_delay(AO_MS_TO_TICKS(10));
 
-	printf ("Part %x\n", ao_radio_reg_read(CC115L_PARTNUM));
-	printf ("Version %x\n", ao_radio_reg_read(CC115L_VERSION));
-
-	for (i = 0; i < sizeof (radio_setup) / sizeof (radio_setup[0]); i += 2) {
+	for (i = 0; i < sizeof (radio_setup) / sizeof (radio_setup[0]); i += 2)
 		ao_radio_reg_write(radio_setup[i], radio_setup[i+1]);
-		ao_radio_reg_read(radio_setup[i]);
-	}
 
 	ao_radio_mode = 0;
 
@@ -449,7 +484,7 @@ ao_radio_set_len(uint8_t len)
 }
 
 static void
-ao_radio_get(uint8_t len)
+ao_radio_get(void)
 {
 	static uint32_t	last_radio_setting;
 	static uint8_t	last_power_setting;
@@ -467,69 +502,100 @@ ao_radio_get(uint8_t len)
 		ao_radio_reg_write(CC115L_PA, ao_config.radio_power);
 		last_power_setting = ao_config.radio_power;
 	}
-	ao_radio_set_len(len);
 }
+
+static void
+ao_radio_send_lots(ao_radio_fill_func fill, uint8_t mode);
 
 #define ao_radio_put()	ao_mutex_put(&ao_radio_mutex)
 
-static void
-ao_rdf_start(uint8_t len)
+struct ao_radio_tone {
+	uint8_t	value;
+	uint8_t	len;
+};
+
+struct ao_radio_tone *ao_radio_tone;
+uint8_t ao_radio_tone_count;
+uint8_t ao_radio_tone_current;
+uint8_t ao_radio_tone_offset;
+
+int16_t
+ao_radio_tone_fill(uint8_t *buf, int16_t len)
 {
-	ao_radio_abort = 0;
-	ao_radio_get(len);
+	int16_t	ret = 0;
 
-	ao_radio_set_mode(AO_RADIO_MODE_RDF);
-	ao_radio_wake = 0;
+	while (len) {
+		int16_t 		this_time;
+		struct ao_radio_tone	*t;
 
+		/* Figure out how many to send of the current value */
+		t = &ao_radio_tone[ao_radio_tone_current];
+		this_time = t->len - ao_radio_tone_offset;
+		if (this_time > len)
+			this_time = len;
+
+		/* queue the data */
+		memset(buf, t->value, this_time);
+
+		/* mark as sent */
+		len -= this_time;
+		ao_radio_tone_offset += this_time;
+		ret += this_time;
+
+		if (ao_radio_tone_offset >= t->len) {
+			ao_radio_tone_offset = 0;
+			ao_radio_tone_current++;
+			if (ao_radio_tone_current >= ao_radio_tone_count) {
+				trace_add(trace_line, __LINE__, ret, "done with tone");
+				return -ret;
+			}
+		}
+	}
+	trace_add(trace_line, __LINE__, ret, "got some tone");
+	return ret;
 }
 
 static void
-ao_rdf_run(void)
+ao_radio_tone_run(struct ao_radio_tone *tones, int ntones)
 {
-	ao_radio_start_tx();
-
-	ao_arch_block_interrupts();
-	while (!ao_radio_wake && !ao_radio_abort && !ao_radio_mcu_wake)
-		ao_sleep(&ao_radio_wake);
-	ao_arch_release_interrupts();
-	if (ao_radio_mcu_wake)
-		ao_radio_check_marcstate();
-	ao_radio_pa_off();
-	if (!ao_radio_wake)
-		ao_radio_idle();
-	ao_radio_put();
+	ao_radio_tone = tones;
+	ao_radio_tone_current = 0;
+	ao_radio_tone_offset = 0;
+	ao_radio_send_lots(ao_radio_tone_fill, AO_RADIO_MODE_RDF);
 }
 
 void
 ao_radio_rdf(void)
 {
-	ao_rdf_start(AO_RADIO_RDF_LEN);
+	struct ao_radio_tone	tone;
 
-	ao_radio_fifo_write_fixed(ao_radio_rdf_value, AO_RADIO_RDF_LEN);
-
-	ao_rdf_run();
+	tone.value = ao_radio_rdf_value;
+	tone.len = AO_RADIO_RDF_LEN;
+	ao_radio_tone_run(&tone, 1);
 }
 
 void
 ao_radio_continuity(uint8_t c)
 {
-	uint8_t	i;
-	uint8_t status;
+	struct ao_radio_tone	tones[7];
+	uint8_t	count = 0;
+	uint8_t i;
 
-	ao_rdf_start(AO_RADIO_CONT_TOTAL_LEN);
-
-	status = ao_radio_fifo_write_start();
 	for (i = 0; i < 3; i++) {
-		ao_radio_spi_send_fixed(0x00, AO_RADIO_CONT_PAUSE_LEN);
+		tones[count].value = 0x00;
+		tones[count].len = AO_RADIO_CONT_PAUSE_LEN;
+		count++;
 		if (i < c)
-			ao_radio_spi_send_fixed(ao_radio_rdf_value, AO_RADIO_CONT_TONE_LEN);
+			tones[count].value = ao_radio_rdf_value;
 		else
-			ao_radio_spi_send_fixed(0x00, AO_RADIO_CONT_TONE_LEN);
+			tones[count].value = 0x00;
+		tones[count].len = AO_RADIO_CONT_TONE_LEN;
+		count++;
 	}
-	ao_radio_spi_send_fixed(0x00, AO_RADIO_CONT_PAUSE_LEN);
-	status = ao_radio_fifo_write_stop(status);
-	(void) status;
-	ao_rdf_run();
+	tones[count].value = 0x00;
+	tones[count].len = AO_RADIO_CONT_PAUSE_LEN;
+	count++;
+	ao_radio_tone_run(tones, count);
 }
 
 void
@@ -557,17 +623,12 @@ ao_radio_test_cmd(void)
 #if PACKET_HAS_SLAVE
 		ao_packet_slave_stop();
 #endif
-		ao_radio_get(0xff);
+		ao_radio_get();
+		ao_radio_set_len(0xff);
+		ao_radio_set_mode(AO_RADIO_MODE_PACKET_TX | AO_RADIO_MODE_BITS_FIXED);
+		ao_radio_strobe(CC115L_SFTX);
 		ao_radio_pa_on();
 		ao_radio_strobe(CC115L_STX);
-#if CC115L_TRACE
-		{ int t; 
-			for (t = 0; t < 10; t++) {
-				printf ("status: %02x\n", ao_radio_status());
-				ao_delay(AO_MS_TO_TICKS(100));
-			}
-		}
-#endif
 		radio_on = 1;
 	}
 	if (mode == 3) {
@@ -585,85 +646,76 @@ ao_radio_test_cmd(void)
 	}
 }
 
-static void
-ao_radio_wait_isr(void)
+static inline int16_t
+ao_radio_gpio_bits(void)
 {
-	ao_arch_block_interrupts();
-	while (!ao_radio_wake && !ao_radio_mcu_wake && !ao_radio_abort)
-		ao_sleep(&ao_radio_wake);
-	ao_arch_release_interrupts();
-	if (ao_radio_mcu_wake)
-		ao_radio_check_marcstate();
+	return AO_CC115L_DONE_INT_PORT->idr & ((1 << AO_CC115L_FIFO_INT_PIN) |
+					       (1 << AO_CC115L_DONE_INT_PIN));
 }
 
-static uint8_t
-ao_radio_wait_tx(uint8_t wait_fifo)
+static void
+ao_radio_wait_fifo(void)
 {
-	uint8_t	fifo_space = 0;
+	ao_arch_block_interrupts();
+	while (!ao_radio_fifo && !ao_radio_done && !ao_radio_abort) {
+		trace_add(trace_line, __LINE__, ao_radio_gpio_bits(), "wait_fifo");
+		ao_sleep(&ao_radio_wake);
+	}
+	ao_arch_release_interrupts();
+	trace_add(trace_line, __LINE__, ao_radio_gpio_bits(), "wake bits");
+	trace_add(trace_line, __LINE__, ao_radio_fifo, "wake fifo");
+	trace_add(trace_line, __LINE__, ao_radio_done, "wake done");
+	trace_add(trace_line, __LINE__, ao_radio_abort, "wake abort");
+}
 
-	do {
-		ao_radio_wait_isr();
-		if (!wait_fifo)
-			return 0;
-		fifo_space = ao_radio_tx_fifo_space();
-	} while (!fifo_space && !ao_radio_abort);
-	return fifo_space;
+static void
+ao_radio_wait_done(void)
+{
+	ao_arch_block_interrupts();
+	while (!ao_radio_done && !ao_radio_abort) {
+		trace_add(trace_line, __LINE__, ao_radio_gpio_bits(), "wait_done");
+		ao_sleep(&ao_radio_wake);
+	}
+	ao_arch_release_interrupts();
+	trace_add(trace_line, __LINE__, ao_radio_gpio_bits(), "wake bits");
+	trace_add(trace_line, __LINE__, ao_radio_fifo, "wake fifo");
+	trace_add(trace_line, __LINE__, ao_radio_done, "wake done");
+	trace_add(trace_line, __LINE__, ao_radio_abort, "wake abort");
 }
 
 static uint8_t	tx_data[(AO_RADIO_MAX_SEND + 4) * 2];
 
+static uint8_t	*ao_radio_send_buf;
+static int16_t	ao_radio_send_len;
+
+static int16_t
+ao_radio_send_fill(uint8_t *buf, int16_t len)
+{
+	int16_t this_time;
+
+	this_time = ao_radio_send_len;
+	if (this_time > len)
+		this_time = len;
+	memcpy(buf, ao_radio_send_buf, this_time);
+	ao_radio_send_buf += this_time;
+	ao_radio_send_len -= this_time;
+	if (ao_radio_send_len == 0)
+		return -this_time;
+	return this_time;
+}
+
 void
 ao_radio_send(const void *d, uint8_t size)
 {
-	uint8_t		marc_status;
-	uint8_t		*e = tx_data;
-	uint8_t		encode_len;
-	uint8_t		this_len;
-	uint8_t		started = 0;
-	uint8_t		fifo_space;
-
-	encode_len = ao_fec_encode(d, size, tx_data);
-
-	ao_radio_get(encode_len);
-
-	started = 0;
-	fifo_space = CC115L_FIFO_SIZE;
-	while (encode_len) {
-		this_len = encode_len;
-
-		ao_radio_wake = 0;
-		if (this_len > fifo_space) {
-			this_len = fifo_space;
-			ao_radio_set_mode(AO_RADIO_MODE_PACKET_TX_BUF);
-		} else {
-			ao_radio_set_mode(AO_RADIO_MODE_PACKET_TX_FINISH);
-		}
-
-		ao_radio_fifo_write(e, this_len);
-		e += this_len;
-		encode_len -= this_len;
-
-		if (!started) {
-			ao_radio_start_tx();
-			started = 1;
-		} else {
-			ao_exti_enable(AO_CC115L_INT_PORT, AO_CC115L_INT_PIN);
-		}
-			
-		fifo_space = ao_radio_wait_tx(encode_len != 0);
-		if (ao_radio_abort) {
-			ao_radio_idle();
-			break;
-		}
-	}
-	ao_radio_pa_off();
-	ao_radio_put();
+	ao_radio_send_len = ao_fec_encode(d, size, tx_data);
+	ao_radio_send_buf = tx_data;
+	ao_radio_send_lots(ao_radio_send_fill, AO_RADIO_MODE_PACKET_TX);
 }
 
 #define AO_RADIO_LOTS	64
 
-void
-ao_radio_send_lots(ao_radio_fill_func fill)
+static void
+ao_radio_send_lots(ao_radio_fill_func fill, uint8_t mode)
 {
 	uint8_t	buf[AO_RADIO_LOTS], *b;
 	int	cnt;
@@ -672,10 +724,13 @@ ao_radio_send_lots(ao_radio_fill_func fill)
 	uint8_t	started = 0;
 	uint8_t	fifo_space;
 
-	ao_radio_get(0xff);
+	ao_radio_get();
 	fifo_space = CC115L_FIFO_SIZE;
+	ao_radio_done = 0;
+	ao_radio_fifo = 0;
 	while (!done) {
 		cnt = (*fill)(buf, sizeof(buf));
+		trace_add(trace_line, __LINE__, cnt, "send data count");
 		if (cnt < 0) {
 			done = 1;
 			cnt = -cnt;
@@ -683,8 +738,13 @@ ao_radio_send_lots(ao_radio_fill_func fill)
 		total += cnt;
 
 		/* At the last buffer, set the total length */
-		if (done)
+		if (done) {
 			ao_radio_set_len(total & 0xff);
+			ao_radio_set_mode(mode | AO_RADIO_MODE_BITS_FIXED);
+		} else {
+			ao_radio_set_len(0xff);
+			ao_radio_set_mode(mode | AO_RADIO_MODE_BITS_INFINITE);
+		}
 
 		b = buf;
 		while (cnt) {
@@ -692,57 +752,55 @@ ao_radio_send_lots(ao_radio_fill_func fill)
 
 			/* Wait for some space in the fifo */
 			while (!ao_radio_abort && (fifo_space = ao_radio_tx_fifo_space()) == 0) {
-				ao_radio_wake = 0;
-				ao_radio_wait_isr();
+				trace_add(trace_line, __LINE__, this_len, "wait for space");
+				ao_radio_wait_fifo();
 			}
-			if (ao_radio_abort)
+			if (ao_radio_abort || ao_radio_done)
 				break;
+			trace_add(trace_line, __LINE__, fifo_space, "got space");
 			if (this_len > fifo_space)
 				this_len = fifo_space;
 
 			cnt -= this_len;
 
-			if (done) {
-				if (cnt)
-					ao_radio_set_mode(AO_RADIO_MODE_APRS_LAST_BUF);
-				else
-					ao_radio_set_mode(AO_RADIO_MODE_APRS_FINISH);
-			} else
-				ao_radio_set_mode(AO_RADIO_MODE_APRS_BUF);
-
+			ao_radio_done = 0;
+			ao_radio_fifo = 0;
 			ao_radio_fifo_write(b, this_len);
 			b += this_len;
 
+			ao_exti_enable(AO_CC115L_FIFO_INT_PORT, AO_CC115L_FIFO_INT_PIN);
+			ao_exti_enable(AO_CC115L_DONE_INT_PORT, AO_CC115L_DONE_INT_PIN);
+
 			if (!started) {
-				ao_radio_start_tx();
+				ao_radio_pa_on();
+				ao_radio_strobe(CC115L_STX);
 				started = 1;
-			} else
-				ao_exti_enable(AO_CC115L_INT_PORT, AO_CC115L_INT_PIN);
+			}
 		}
-		if (ao_radio_abort) {
-			ao_radio_idle();
+		if (ao_radio_abort || ao_radio_done)
 			break;
-		}
-		/* Wait for the transmitter to go idle */
-		ao_radio_wake = 0;
-		ao_radio_wait_isr();
 	}
+	if (ao_radio_abort)
+		ao_radio_idle();
+	ao_radio_wait_done();
 	ao_radio_pa_off();
 	ao_radio_put();
 }
 
-static char *cc115l_state_name[] = {
+void
+ao_radio_send_aprs(ao_radio_fill_func fill)
+{
+	ao_radio_send_lots(fill, AO_RADIO_MODE_APRS);
+}
+
+#if CC115L_DEBUG
+const static char *cc115l_state_name[] = {
 	[CC115L_STATUS_STATE_IDLE] = "IDLE",
 	[CC115L_STATUS_STATE_TX] = "TX",
 	[CC115L_STATUS_STATE_FSTXON] = "FSTXON",
 	[CC115L_STATUS_STATE_CALIBRATE] = "CALIBRATE",
 	[CC115L_STATUS_STATE_SETTLING] = "SETTLING",
 	[CC115L_STATUS_STATE_TX_FIFO_UNDERFLOW] = "TX_FIFO_UNDERFLOW",
-};
-
-struct ao_cc115l_reg {
-	uint16_t	addr;
-	char		*name;
 };
 
 const static struct ao_cc115l_reg ao_cc115l_reg[] = {
@@ -793,7 +851,7 @@ static void ao_radio_show(void) {
 	uint8_t	status = ao_radio_status();
 	int	i;
 
-	ao_radio_get(0xff);
+	ao_radio_get();
 	status = ao_radio_status();
 	printf ("Status:   %02x\n", status);
 	printf ("CHIP_RDY: %d\n", (status >> CC115L_STATUS_CHIP_RDY) & 1);
@@ -823,6 +881,8 @@ static void ao_radio_packet(void) {
 
 	ao_radio_send(packet, sizeof (packet));
 }
+
+#endif /* CC115L_DEBUG */
 
 #if HAS_APRS
 #include <ao_aprs.h>
@@ -869,17 +929,17 @@ ao_radio_init(void)
 		ao_panic(AO_PANIC_SELF_TEST_CC115L);
 #endif
 
-	/* Enable the EXTI interrupt for the appropriate pin */
-	ao_enable_port(AO_CC115L_INT_PORT);
-	ao_exti_setup(AO_CC115L_INT_PORT, AO_CC115L_INT_PIN,
+	/* Enable the fifo threhold interrupt pin */
+	ao_enable_port(AO_CC115L_FIFO_INT_PORT);
+	ao_exti_setup(AO_CC115L_FIFO_INT_PORT, AO_CC115L_FIFO_INT_PIN,
 		      AO_EXTI_MODE_FALLING|AO_EXTI_PRIORITY_HIGH,
-		      ao_radio_isr);
+		      ao_radio_fifo_isr);
 
-	/* Enable the hacked up GPIO3 pin */
-	ao_enable_port(AO_CC115L_MCU_WAKEUP_PORT);
-	ao_exti_setup(AO_CC115L_MCU_WAKEUP_PORT, AO_CC115L_MCU_WAKEUP_PIN,
+	/* Enable the tx done interrupt pin */
+	ao_enable_port(AO_CC115L_DONE_INT_PORT);
+	ao_exti_setup(AO_CC115L_DONE_INT_PORT, AO_CC115L_DONE_INT_PIN,
 		      AO_EXTI_MODE_FALLING|AO_EXTI_PRIORITY_MED,
-		      ao_radio_mcu_wakeup_isr);
+		      ao_radio_done_isr);
 
 	ao_radio_pa_init();
 

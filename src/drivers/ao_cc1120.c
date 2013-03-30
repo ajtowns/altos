@@ -747,7 +747,7 @@ ao_radio_send(const void *d, uint8_t size)
 #define AO_RADIO_LOTS	64
 
 void
-ao_radio_send_lots(ao_radio_fill_func fill)
+ao_radio_send_aprs(ao_radio_fill_func fill)
 {
 	uint8_t	buf[AO_RADIO_LOTS], *b;
 	int	cnt;

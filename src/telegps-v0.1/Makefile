@@ -14,7 +14,6 @@ INC = \
 	ao_task.h \
 	ao_whiten.h \
 	ao_cc115l.h \
-	ao_rf_cc115l.h \
 	ao_fec.h \
 	stm32l.h \
 	Makefile
