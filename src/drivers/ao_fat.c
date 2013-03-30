@@ -574,25 +574,36 @@ static uint32_t 		ao_file_offset;
 static uint32_t			ao_file_cluster_offset;
 static cluster_t		ao_file_cluster;
 static uint8_t			ao_file_opened;
+static uint8_t			ao_filesystem_available;
+static uint8_t			ao_filesystem_setup;
 
 static uint8_t
 ao_fat_setup(void)
 {
-	ao_bufio_setup();
+	if (!ao_filesystem_setup) {
+
+		ao_filesystem_setup = 1;
+		ao_bufio_setup();
 	
-	partition_type = partition_start = partition_end = 0;
-	sectors_per_cluster = bytes_per_cluster = reserved_sector_count = 0;
-	number_fat = root_entries = sectors_per_fat = 0;
-	number_cluster = fat_start = root_start = data_start = 0;
-	next_free = filesystem_full = 0;
-	fat32 = fsinfo_dirty = root_cluster = fsinfo_sector = free_count = 0;
-	memset(&ao_file_dirent, '\0', sizeof (ao_file_dirent));
-	ao_file_offset = ao_file_cluster_offset = ao_file_cluster = ao_file_opened = 0;
-	if (!ao_fat_setup_partition())
-		return 0;
-	if (!ao_fat_setup_fs())
-		return 0;
-	return 1;
+		/* Re-initialize all global state; this will help to allow the
+		 * file system to get swapped someday
+		 */
+		partition_type = partition_start = partition_end = 0;
+		sectors_per_cluster = bytes_per_cluster = reserved_sector_count = 0;
+		number_fat = root_entries = sectors_per_fat = 0;
+		number_cluster = fat_start = root_start = data_start = 0;
+		next_free = filesystem_full = 0;
+		fat32 = fsinfo_dirty = root_cluster = fsinfo_sector = free_count = 0;
+		memset(&ao_file_dirent, '\0', sizeof (ao_file_dirent));
+
+		ao_file_offset = ao_file_cluster_offset = ao_file_cluster = ao_file_opened = 0;
+		if (!ao_fat_setup_partition())
+			return 0;
+		if (!ao_fat_setup_fs())
+			return 0;
+		ao_filesystem_available = 1;
+	}
+	return ao_filesystem_available;
 }
 
 /*
@@ -699,7 +710,7 @@ ao_fat_set_size(uint32_t size)
  *
  * Initialize a root directory entry
  */
-void
+static void
 ao_fat_root_init(uint8_t *dent, char name[11], uint8_t attr)
 {
 	memset(dent, '\0', 0x20);
@@ -750,7 +761,7 @@ ao_fat_dirent_init(uint8_t *dent, uint16_t entry, struct ao_fat_dirent *dirent)
  * Write out any fsinfo changes to disk
  */
 
-void
+static void
 ao_fat_flush_fsinfo(void)
 {
 	uint8_t	*fsinfo;
@@ -777,6 +788,36 @@ ao_fat_flush_fsinfo(void)
  */
 
 /*
+ * ao_fat_sync
+ *
+ * Flush any pending I/O to storage
+ */
+
+void
+ao_fat_sync(void)
+{
+	if (!ao_fat_setup())
+		return;
+	ao_fat_flush_fsinfo();
+	ao_bufio_flush();
+}
+
+/*
+ * ao_fat_full
+ *
+ * Returns TRUE if the filesystem cannot take
+ * more data
+ */
+
+int8_t
+ao_fat_full(void)
+{
+	if (!ao_fat_setup())
+		return -AO_FAT_EIO;
+	return filesystem_full;
+}
+
+/*
  * ao_fat_open
  *
  * Open an existing file.
@@ -786,6 +827,9 @@ ao_fat_open(char name[11], uint8_t mode)
 {
 	uint16_t		entry = 0;
 	struct ao_fat_dirent	dirent;
+
+	if (!ao_fat_setup())
+		return -AO_FAT_EIO;
 
 	if (ao_file_opened)
 		return -AO_FAT_EMFILE;
@@ -819,6 +863,9 @@ ao_fat_creat(char name[11])
 	uint16_t	entry;
 	int8_t		status;
 	uint8_t		*dent;
+
+	if (!ao_fat_setup())
+		return -AO_FAT_EIO;
 
 	if (ao_file_opened)
 		return -AO_FAT_EMFILE;
@@ -874,8 +921,7 @@ ao_fat_close(void)
 	ao_file_cluster = 0;
 	ao_file_opened = 0;
 
-	ao_fat_flush_fsinfo();
-	ao_bufio_flush();
+	ao_fat_sync();
 	return AO_FAT_SUCCESS;
 }
 
@@ -1023,6 +1069,8 @@ ao_fat_unlink(char name[11])
 	uint16_t		entry = 0;
 	struct ao_fat_dirent	dirent;
 
+	if (!ao_fat_setup())
+		return -AO_FAT_EIO;
 	while (ao_fat_readdir(&entry, &dirent)) {
 		if (memcmp(name, dirent.name, 11) == 0) {
 			uint8_t	*next;
@@ -1066,6 +1114,8 @@ ao_fat_readdir(uint16_t *entry, struct ao_fat_dirent *dirent)
 {
 	uint8_t	*dent;
 
+	if (!ao_fat_setup())
+		return -AO_FAT_EIO;
 	for (;;) {
 		dent = ao_fat_root_get(*entry);
 		if (!dent)
@@ -1102,15 +1152,8 @@ ao_fat_list(void)
 	}
 }
 
-static void
-ao_fat_test(void)
-{
-	ao_fat_setup();
-	ao_fat_list();
-}
-
 static const struct ao_cmds ao_fat_cmds[] = {
-	{ ao_fat_test,	"F\0Test FAT" },
+	{ ao_fat_list,	"F\0List FAT" },
 	{ 0, NULL },
 };
 

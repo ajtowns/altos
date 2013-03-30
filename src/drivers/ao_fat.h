@@ -48,6 +48,12 @@ ao_fat_init(void);
 #define AO_FAT_EFBIG			27
 #define AO_FAT_ENOSPC			28
 
+void
+ao_fat_sync(void);
+
+int8_t
+ao_fat_full(void);
+
 int8_t
 ao_fat_open(char name[11], uint8_t mode);
 
