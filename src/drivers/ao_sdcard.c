@@ -27,7 +27,11 @@
 #define ao_sdcard_select()		ao_gpio_set(AO_SDCARD_SPI_CS_PORT,AO_SDCARD_SPI_CS_PIN,AO_SDCARD_SPI_CS,0)
 #define ao_sdcard_deselect()		ao_gpio_set(AO_SDCARD_SPI_CS_PORT,AO_SDCARD_SPI_CS_PIN,AO_SDCARD_SPI_CS,1)
 
+/* Include SD card commands */
 #define SDCARD_DEBUG	0
+
+/* Spew SD tracing */
+#define SDCARD_TRACE	0
 
 static uint8_t	initialized;
 static uint8_t	present;
@@ -37,7 +41,7 @@ static enum ao_sdtype sdtype;
 #define ao_sdcard_lock()	ao_mutex_get(&mutex)
 #define ao_sdcard_unlock()	ao_mutex_put(&mutex)
 
-#if 0
+#if SDCARD_TRACE
 #define DBG(...) printf(__VA_ARGS__)
 #else
 #define DBG(...)
@@ -369,6 +373,7 @@ ao_sdcard_read_block(uint32_t block, uint8_t *data)
 		ao_sdcard_unlock();
 		return 0;
 	}
+	DBG("read block %d\n", block);
 	if (sdtype != ao_sdtype_sd2block)
 		block <<= 9;
 	ao_sdcard_get();
@@ -390,6 +395,7 @@ bail:
 	ao_sdcard_deselect();
 	ao_sdcard_put();
 	ao_sdcard_unlock();
+	DBG("read %s\n", ret == SDCARD_STATUS_READY_STATE ? "success" : "failure");
 	return ret == SDCARD_STATUS_READY_STATE;
 }
 
@@ -415,6 +421,7 @@ ao_sdcard_write_block(uint32_t block, uint8_t *data)
 		ao_sdcard_unlock();
 		return 0;
 	}
+	DBG("write block %d\n", block);
 	if (sdtype != ao_sdtype_sd2block)
 		block <<= 9;
 	ao_sdcard_get();
@@ -455,6 +462,7 @@ bail:
 	ao_sdcard_deselect();
 	ao_sdcard_put();
 	ao_sdcard_unlock();
+	DBG("write %s\n", ret == SDCARD_STATUS_READY_STATE ? "success" : "failure");
 	return ret == SDCARD_STATUS_READY_STATE;
 }
 
