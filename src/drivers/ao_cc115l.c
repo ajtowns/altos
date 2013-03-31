@@ -33,7 +33,7 @@ static uint8_t ao_radio_mcu_wake;	/* MARC status change */
 static uint8_t ao_radio_marcstate;	/* Last read MARC state value */
 
 /* Debugging commands */
-#define CC115L_DEBUG	1
+#define CC115L_DEBUG	0
 
 /* Runtime tracing */
 #define CC115L_TRACE	0
