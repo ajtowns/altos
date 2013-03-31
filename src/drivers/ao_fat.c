@@ -1263,6 +1263,8 @@ ao_fat_parse_name(char name[11])
 		}
 		ao_cmd_lex();
 	}
+	while (c < 11)
+		name[c++] = ' ';
 }
 
 static void
