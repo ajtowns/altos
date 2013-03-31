@@ -1153,17 +1153,17 @@ ao_fat_readdir(uint16_t *entry, struct ao_fat_dirent *dirent)
 	for (;;) {
 		dent = ao_fat_root_get(*entry);
 		if (!dent)
-			return 0;
+			return -AO_FAT_EDIREOF;
 
 		if (dent[0] == AO_FAT_DENT_END) {
 			ao_fat_root_put(dent, *entry, 0);
-			return 0;
+			return -AO_FAT_EDIREOF;
 		}
 		if (dent[0] != AO_FAT_DENT_EMPTY && (dent[0xb] & 0xf) != 0xf) {
 			ao_fat_dirent_init(dent, *entry, dirent);
 			ao_fat_root_put(dent, *entry, 0);
 			(*entry)++;
-			return 1;
+			return AO_FAT_SUCCESS;
 		}
 		ao_fat_root_put(dent, *entry, 0);
 		(*entry)++;
@@ -1232,8 +1232,9 @@ ao_fat_list_cmd(void)
 	uint16_t		entry = 0;
 	struct ao_fat_dirent	dirent;
 	int			i;
+	int8_t			status;
 
-	while (ao_fat_readdir(&entry, &dirent)) {
+	while ((status = ao_fat_readdir(&entry, &dirent)) == AO_FAT_SUCCESS) {
 		for (i = 0; i < 8; i++)
 			putchar(dirent.name[i]);
 		putchar('.');
@@ -1243,6 +1244,8 @@ ao_fat_list_cmd(void)
 			putchar (dirent.attr & ao_fat_attr[i].bit ? ao_fat_attr[i].label : ' ');
 		printf (" @%08x %d\n", dirent.cluster, dirent.size);
 	}
+	if (status != -AO_FAT_EDIREOF)
+		printf ("readdir failed: %d\n", status);
 }
 
 static uint8_t

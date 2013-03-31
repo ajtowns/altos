@@ -48,6 +48,7 @@ ao_fat_init(void);
 #define AO_FAT_EMFILE			24
 #define AO_FAT_EFBIG			27
 #define AO_FAT_ENOSPC			28
+#define AO_FAT_EDIREOF			29
 
 /* ao_fat_setup return values */
 #define AO_FAT_FILESYSTEM_SUCCESS			0
