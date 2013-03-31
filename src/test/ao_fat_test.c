@@ -226,14 +226,15 @@ fatal(char *msg, ...)
 void
 check_fat(void)
 {
-	int	e;
-	int	f;
+	cluster_t	e;
+	int		f;
 
 	for (e = 0; e < number_cluster; e++) {
 		cluster_t	v = ao_fat_entry_raw_read(e, 0);
 		for (f = 1; f < number_fat; f++) {
-			if (ao_fat_entry_raw_read(e, f) != v)
-				fatal ("fats differ at %d\n", e);
+			cluster_t	o = ao_fat_entry_raw_read(e, f);
+			if (o != v)
+				fatal ("fats differ at %08x (0 %08x %d %08x)\n", e, v, f, o);
 		}
 	}
 }
@@ -490,6 +491,7 @@ main(int argc, char **argv)
 #else
 		long_test_fs();
 #endif
+		ao_fat_unmount();
 	}
 
 	return 0;

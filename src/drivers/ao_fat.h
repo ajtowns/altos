@@ -63,6 +63,9 @@ ao_fat_init(void);
 void
 ao_fat_sync(void);
 
+void
+ao_fat_unmount(void);
+
 int8_t
 ao_fat_full(void);
 

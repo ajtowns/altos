@@ -608,6 +608,12 @@ ao_fat_setup(void)
 	return ao_filesystem_status;
 }
 
+void
+ao_fat_unmount(void)
+{
+	ao_filesystem_setup = 0;
+}
+
 /*
  * Basic file operations
  */
