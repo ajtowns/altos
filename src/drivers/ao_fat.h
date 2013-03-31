@@ -35,6 +35,7 @@ ao_fat_init(void);
 #define AO_FAT_IS_FILE(attr)	(((attr) & (AO_FAT_FILE_VOLUME_LABEL|AO_FAT_FILE_DIRECTORY)) == 0)
 #define AO_FAT_IS_DIR(attr)	(((attr) & (AO_FAT_FILE_DIRECTORY|AO_FAT_FILE_VOLUME_LABEL)) == AO_FAT_FILE_DIRECTORY)
 
+/* API error codes */
 #define AO_FAT_SUCCESS			0
 #define AO_FAT_EPERM			1
 #define AO_FAT_ENOENT			2
@@ -47,6 +48,17 @@ ao_fat_init(void);
 #define AO_FAT_EMFILE			24
 #define AO_FAT_EFBIG			27
 #define AO_FAT_ENOSPC			28
+
+/* ao_fat_setup return values */
+#define AO_FAT_FILESYSTEM_SUCCESS			0
+#define AO_FAT_FILESYSTEM_MBR_READ_FAILURE		1
+#define AO_FAT_FILESYSTEM_INVALID_MBR_SIGNATURE		2
+#define AO_FAT_FILESYSTEM_INVALID_PARTITION_TYPE	3
+#define AO_FAT_FILESYSTEM_ZERO_SIZED_PARTITION		4
+
+#define AO_FAT_FILESYSTEM_BOOT_READ_FAILURE		5
+#define AO_FAT_FILESYSTEM_INVALID_BOOT_SIGNATURE	6
+#define AO_FAT_FILESYSTEM_INVALID_SECTOR_SIZE		7
 
 void
 ao_fat_sync(void);

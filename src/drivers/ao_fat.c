@@ -22,6 +22,18 @@
 #include "ao_fat.h"
 #include "ao_bufio.h"
 
+/* Include FAT commands */
+#define FAT_COMMANDS	1
+
+/* Spew FAT tracing */
+#define FAT_TRACE	0
+ 
+#if FAT_TRACE
+#define DBG(...) printf(__VA_ARGS__)
+#else
+#define DBG(...)
+#endif
+
 /*
  * Basic file system types
  */
@@ -409,7 +421,7 @@ ao_fat_root_put(uint8_t *root, dirent_t e, uint8_t write)
 /*
  * ao_fat_root_extend
  *
- * On FAT32, make the 
+ * On FAT32, make the root directory at least 'ents' entries long
  */
 static int8_t
 ao_fat_root_extend(dirent_t ents)
@@ -440,14 +452,14 @@ ao_fat_setup_partition(void)
 
 	mbr = ao_bufio_get(0);
 	if (!mbr)
-		return 0;
+		return AO_FAT_FILESYSTEM_MBR_READ_FAILURE;
 
 	/* Check the signature */
 	if (mbr[0x1fe] != 0x55 || mbr[0x1ff] != 0xaa) {
-		printf ("Invalid MBR signature %02x %02x\n",
+		DBG ("Invalid MBR signature %02x %02x\n",
 			mbr[0x1fe], mbr[0x1ff]);
 		ao_bufio_put(mbr, 0);
-		return 0;
+		return AO_FAT_FILESYSTEM_INVALID_MBR_SIGNATURE;
 	}
 
 	/* Check to see if it's actually a boot block, in which
@@ -472,24 +484,22 @@ ao_fat_setup_partition(void)
 		case 0x0c:	/* FAT32 LBA */
 			break;
 		default:
-			printf ("Invalid partition type %02x\n", partition_type);
+			DBG ("Invalid partition type %02x\n", partition_type);
 			ao_bufio_put(mbr, 0);
-			return 0;
+			return AO_FAT_FILESYSTEM_INVALID_PARTITION_TYPE;
 		}
 
 		partition_start = get_u32(partition+8);
 		partition_size = get_u32(partition+12);
 		if (partition_size == 0) {
-			printf ("Zero-sized partition\n");
+			DBG ("Zero-sized partition\n");
 			ao_bufio_put(mbr, 0);
-			return 0;
+			return AO_FAT_FILESYSTEM_ZERO_SIZED_PARTITION;
 		}
 	}
 	partition_end = partition_start + partition_size;
-	printf ("Partition type %02x start %08x end %08x\n",
-		partition_type, partition_start, partition_end);
 	ao_bufio_put(mbr, 0);
-	return 1;
+	return AO_FAT_FILESYSTEM_SUCCESS;
 }
 	
 static uint8_t
@@ -499,22 +509,22 @@ ao_fat_setup_fs(void)
 	uint32_t	data_sectors;
 
 	if (!boot)
-		return 0;
+		return AO_FAT_FILESYSTEM_BOOT_READ_FAILURE;
 
 	/* Check the signature */
 	if (boot[0x1fe] != 0x55 || boot[0x1ff] != 0xaa) {
-		printf ("Invalid BOOT signature %02x %02x\n",
+		DBG ("Invalid BOOT signature %02x %02x\n",
 			boot[0x1fe], boot[0x1ff]);
 		ao_fat_sector_put(boot, 0);
-		return 0;
+		return AO_FAT_FILESYSTEM_INVALID_BOOT_SIGNATURE;
 	}
 
 	/* Check the sector size */
 	if (get_u16(boot + 0xb) != SECTOR_SIZE) {
-		printf ("Invalid sector size %d\n",
+		DBG ("Invalid sector size %d\n",
 			get_u16(boot + 0xb));
 		ao_fat_sector_put(boot, 0);
-		return 0;
+		return AO_FAT_FILESYSTEM_INVALID_SECTOR_SIZE;
 	}
 
 	sectors_per_cluster = boot[0xd];
@@ -552,18 +562,7 @@ ao_fat_setup_fs(void)
 
 	number_cluster = data_sectors / sectors_per_cluster;
 
-	printf ("fat32: %d\n", fat32);
-	printf ("sectors per cluster %d\n", sectors_per_cluster);
-	printf ("reserved sectors %d\n", reserved_sector_count);
-	printf ("number of FATs %d\n", number_fat);
-	printf ("root entries %d\n", root_entries);
-	printf ("sectors per fat %d\n", sectors_per_fat);
-
-	printf ("fat  start %d\n", fat_start);
-	printf ("root start %d\n", root_start);
-	printf ("data start %d\n", data_start);
-
-	return 1;
+	return AO_FAT_FILESYSTEM_SUCCESS;
 }
 
 /*
@@ -576,6 +575,7 @@ static cluster_t		ao_file_cluster;
 static uint8_t			ao_file_opened;
 static uint8_t			ao_filesystem_available;
 static uint8_t			ao_filesystem_setup;
+static uint8_t			ao_filesystem_status;
 
 static uint8_t
 ao_fat_setup(void)
@@ -597,13 +597,14 @@ ao_fat_setup(void)
 		memset(&ao_file_dirent, '\0', sizeof (ao_file_dirent));
 
 		ao_file_offset = ao_file_cluster_offset = ao_file_cluster = ao_file_opened = 0;
-		if (!ao_fat_setup_partition())
-			return 0;
-		if (!ao_fat_setup_fs())
-			return 0;
-		ao_filesystem_available = 1;
+		ao_filesystem_status = ao_fat_setup_partition();
+		if (ao_filesystem_status != AO_FAT_FILESYSTEM_SUCCESS)
+			return ao_filesystem_status;
+		ao_filesystem_status = ao_fat_setup_fs();
+		if (ao_filesystem_status != AO_FAT_FILESYSTEM_SUCCESS)
+			return ao_filesystem_status;
 	}
-	return ao_filesystem_available;
+	return ao_filesystem_status;
 }
 
 /*
@@ -618,6 +619,9 @@ ao_fat_current_sector(void)
 	uint16_t	sector_index;
 	cluster_t	cluster;
 
+	DBG("current sector offset %d size %d\n",
+	    ao_file_offset, ao_file_dirent.size);
+
 	if (ao_file_offset > ao_file_dirent.size)
 		return 0xffffffff;
 
@@ -626,6 +630,7 @@ ao_fat_current_sector(void)
 	if (!ao_file_cluster || ao_file_offset < ao_file_cluster_offset) {
 		ao_file_cluster = ao_file_dirent.cluster;
 		ao_file_cluster_offset = 0;
+		DBG("\treset to start of file %08x\n", ao_file_cluster);
 	}
 
 	if (ao_file_cluster_offset + bytes_per_cluster <= ao_file_offset) {
@@ -635,6 +640,7 @@ ao_fat_current_sector(void)
 
 		cluster_distance = cluster_offset - ao_file_cluster_offset / bytes_per_cluster;
 
+		DBG("\tseek forward %d clusters\n", cluster_distance);
 		cluster = ao_fat_cluster_seek(ao_file_cluster, cluster_distance);
 
 		if (!ao_fat_cluster_valid(cluster))
@@ -644,12 +650,16 @@ ao_fat_current_sector(void)
 	}
 
 	sector_index = sector_offset % sectors_per_cluster;
+	DBG("current cluster %08x sector_index %d sector %d\n",
+	    ao_file_cluster, sector_index,
+	    data_start + (uint32_t) (ao_file_cluster-2) * sectors_per_cluster + sector_index);
 	return data_start + (uint32_t) (ao_file_cluster-2) * sectors_per_cluster + sector_index;
 }
 
 static void
 ao_fat_set_offset(uint32_t offset)
 {
+	DBG("Set offset %d\n", offset);
 	ao_file_offset = offset;
 }
 
@@ -666,23 +676,30 @@ ao_fat_set_size(uint32_t size)
 	cluster_t	first_cluster;
 	cluster_t	have_clusters, need_clusters;
 
-	if (size == ao_file_dirent.size)
+	DBG ("Set size %d\n", size);
+	if (size == ao_file_dirent.size) {
+		DBG("\tsize match\n");
 		return AO_FAT_SUCCESS;
+	}
 
 	first_cluster = ao_file_dirent.cluster;
 	have_clusters = (ao_file_dirent.size + bytes_per_cluster - 1) / bytes_per_cluster;
 	need_clusters = (size + bytes_per_cluster - 1) / bytes_per_cluster;
 
+	DBG ("\tfirst cluster %08x have %d need %d\n", first_cluster, have_clusters, need_clusters);
 	if (have_clusters != need_clusters) {
 		if (ao_file_cluster && size >= ao_file_cluster_offset) {
 			cluster_t	offset_clusters = (ao_file_cluster_offset + bytes_per_cluster) / bytes_per_cluster;
 			cluster_t	extra_clusters = need_clusters - offset_clusters;
 			cluster_t	next_cluster;
 
+			DBG ("\tset size relative offset_clusters %d extra_clusters %d\n",
+			     offset_clusters, extra_clusters);
 			next_cluster = ao_fat_cluster_set_size(ao_file_cluster, extra_clusters);
 			if (next_cluster == AO_FAT_BAD_CLUSTER)
 				return -AO_FAT_ENOSPC;
 		} else {
+			DBG ("\tset size absolute need_clusters %d\n", need_clusters);
 			first_cluster = ao_fat_cluster_set_size(first_cluster, need_clusters);
 
 			if (first_cluster == AO_FAT_BAD_CLUSTER)
@@ -690,6 +707,7 @@ ao_fat_set_size(uint32_t size)
 		}
 	}
 
+	DBG ("\tupdate directory size\n");
 	/* Update the directory entry */
 	dent = ao_fat_root_get(ao_file_dirent.entry);
 	if (!dent)
@@ -702,6 +720,7 @@ ao_fat_set_size(uint32_t size)
 
 	ao_file_dirent.size = size;
 	ao_file_dirent.cluster = first_cluster;
+	DBG ("set size done\n");
 	return AO_FAT_SUCCESS;
 }
 
@@ -796,7 +815,7 @@ ao_fat_flush_fsinfo(void)
 void
 ao_fat_sync(void)
 {
-	if (!ao_fat_setup())
+	if (ao_fat_setup() != AO_FAT_FILESYSTEM_SUCCESS)
 		return;
 	ao_fat_flush_fsinfo();
 	ao_bufio_flush();
@@ -812,8 +831,8 @@ ao_fat_sync(void)
 int8_t
 ao_fat_full(void)
 {
-	if (!ao_fat_setup())
-		return -AO_FAT_EIO;
+	if (ao_fat_setup() != AO_FAT_FILESYSTEM_SUCCESS)
+		return 1;
 	return filesystem_full;
 }
 
@@ -828,7 +847,7 @@ ao_fat_open(char name[11], uint8_t mode)
 	uint16_t		entry = 0;
 	struct ao_fat_dirent	dirent;
 
-	if (!ao_fat_setup())
+	if (ao_fat_setup() != AO_FAT_FILESYSTEM_SUCCESS)
 		return -AO_FAT_EIO;
 
 	if (ao_file_opened)
@@ -864,7 +883,7 @@ ao_fat_creat(char name[11])
 	int8_t		status;
 	uint8_t		*dent;
 
-	if (!ao_fat_setup())
+	if (ao_fat_setup() != AO_FAT_FILESYSTEM_SUCCESS)
 		return -AO_FAT_EIO;
 
 	if (ao_file_opened)
@@ -926,6 +945,32 @@ ao_fat_close(void)
 }
 
 /*
+ * ao_fat_map_current
+ *
+ * Map the sector pointed at by the current file offset
+ */
+
+static void *
+ao_fat_map_current(int len, cluster_offset_t *offsetp, cluster_offset_t *this_time)
+{
+	cluster_offset_t 	offset;
+	sector_t		sector;
+	void			*buf;
+
+	offset = ao_file_offset & SECTOR_MASK;
+	sector = ao_fat_current_sector();
+	if (sector == 0xffffffff)
+		return NULL;
+	buf = ao_fat_sector_get(sector);
+	if (offset + len < SECTOR_SIZE)
+		*this_time = len;
+	else
+		*this_time = SECTOR_SIZE - offset;
+	*offsetp = offset;
+	return buf;
+}
+
+/*
  * ao_fat_read
  *
  * Read from the file
@@ -933,12 +978,11 @@ ao_fat_close(void)
 int
 ao_fat_read(void *dst, int len)
 {
-	uint8_t		*dst_b = dst;
-	uint32_t	sector;
-	uint16_t	this_time;
-	uint16_t	offset;
-	uint8_t		*buf;
-	int		ret = 0;
+	uint8_t			*dst_b = dst;
+	cluster_offset_t	this_time;
+	cluster_offset_t	offset;
+	uint8_t			*buf;
+	int			ret = 0;
 
 	if (!ao_file_opened)
 		return -AO_FAT_EBADF;
@@ -950,16 +994,7 @@ ao_fat_read(void *dst, int len)
 		len = 0;
 
 	while (len) {
-		offset = ao_file_offset & SECTOR_MASK;
-		if (offset + len < SECTOR_SIZE)
-			this_time = len;
-		else
-			this_time = SECTOR_SIZE - offset;
-
-		sector = ao_fat_current_sector();
-		if (sector == 0xffffffff)
-			break;
-		buf = ao_fat_sector_get(sector);
+		buf = ao_fat_map_current(len, &offset, &this_time);
 		if (!buf) {
 			ret = -AO_FAT_EIO;
 			break;
@@ -1000,16 +1035,7 @@ ao_fat_write(void *src, int len)
 	}
 
 	while (len) {
-		offset = ao_file_offset & SECTOR_MASK;
-		if (offset + len < SECTOR_SIZE)
-			this_time = len;
-		else
-			this_time = SECTOR_SIZE - offset;
-
-		sector = ao_fat_current_sector();
-		if (sector == 0xffffffff)
-			break;
-		buf = ao_fat_sector_get(sector);
+		buf = ao_fat_map_current(len, &offset, &this_time);
 		if (!buf) {
 			ret = -AO_FAT_EIO;
 			break;
@@ -1069,8 +1095,9 @@ ao_fat_unlink(char name[11])
 	uint16_t		entry = 0;
 	struct ao_fat_dirent	dirent;
 
-	if (!ao_fat_setup())
+	if (ao_fat_setup() != AO_FAT_FILESYSTEM_SUCCESS)
 		return -AO_FAT_EIO;
+
 	while (ao_fat_readdir(&entry, &dirent)) {
 		if (memcmp(name, dirent.name, 11) == 0) {
 			uint8_t	*next;
@@ -1114,8 +1141,9 @@ ao_fat_readdir(uint16_t *entry, struct ao_fat_dirent *dirent)
 {
 	uint8_t	*dent;
 
-	if (!ao_fat_setup())
+	if (ao_fat_setup() != AO_FAT_FILESYSTEM_SUCCESS)
 		return -AO_FAT_EIO;
+
 	for (;;) {
 		dent = ao_fat_root_get(*entry);
 		if (!dent)
@@ -1136,24 +1164,170 @@ ao_fat_readdir(uint16_t *entry, struct ao_fat_dirent *dirent)
 	}
 }
 
+static const char *filesystem_errors[] = {
+	[AO_FAT_FILESYSTEM_SUCCESS] = "FAT file system operating normally",
+	[AO_FAT_FILESYSTEM_MBR_READ_FAILURE] = "MBR media read error",
+	[AO_FAT_FILESYSTEM_INVALID_MBR_SIGNATURE] = "MBR signature invalid",
+	[AO_FAT_FILESYSTEM_INVALID_PARTITION_TYPE] = "Unsupported paritition type",
+	[AO_FAT_FILESYSTEM_ZERO_SIZED_PARTITION] = "Partition has zero sectors",
+	[AO_FAT_FILESYSTEM_BOOT_READ_FAILURE] = "Boot block media read error",
+	[AO_FAT_FILESYSTEM_INVALID_BOOT_SIGNATURE] = "Boot block signature invalid",
+	[AO_FAT_FILESYSTEM_INVALID_SECTOR_SIZE] = "Sector size not 512",
+};
+	
 static void
-ao_fat_list(void)
+ao_fat_mbr_cmd(void)
 {
-	uint16_t		entry = 0;
-	struct ao_fat_dirent	dirent;
+	uint8_t	status;
 
-	while (ao_fat_readdir(&entry, &dirent)) {
-		printf ("%-8.8s.%-3.3s %02x %04x %d\n",
-			dirent.name,
-			dirent.name + 8,
-			dirent.attr,
-			dirent.cluster,
-			dirent.size);
+	status = ao_fat_setup();
+	if (status == AO_FAT_FILESYSTEM_SUCCESS) {
+		printf ("partition type: %02x\n", partition_type);
+		printf ("partition start: %08x\n", partition_start);
+
+		printf ("partition end:   %08x\n", partition_end);
+
+		printf ("fat32: %d\n", fat32);
+		printf ("sectors per cluster %d\n", sectors_per_cluster);
+		printf ("reserved sectors %d\n", reserved_sector_count);
+		printf ("number of FATs %d\n", number_fat);
+		printf ("root entries %d\n", root_entries);
+		printf ("sectors per fat %d\n", sectors_per_fat);
+
+		printf ("fat  start %d\n", fat_start);
+		printf ("root start %d\n", root_start);
+		printf ("data start %d\n", data_start);
+	} else {
+		printf ("FAT filesystem not available: %s\n", filesystem_errors[status]);
 	}
 }
 
+struct ao_fat_attr {
+	uint8_t	bit;
+	char	label;
+};
+
+static const struct ao_fat_attr ao_fat_attr[] = {
+	{ .bit = AO_FAT_FILE_READ_ONLY, .label = 'R' },
+	{ .bit = AO_FAT_FILE_HIDDEN, .label = 'H' },
+	{ .bit = AO_FAT_FILE_SYSTEM, .label = 'S' },
+	{ .bit = AO_FAT_FILE_VOLUME_LABEL, .label = 'V' },
+	{ .bit = AO_FAT_FILE_DIRECTORY, .label = 'D' },
+	{ .bit = AO_FAT_FILE_ARCHIVE, .label = 'A' },
+};
+
+#define NUM_FAT_ATTR	(sizeof (ao_fat_attr) / sizeof (ao_fat_attr[0]))
+
+static void
+ao_fat_list_cmd(void)
+{
+	uint16_t		entry = 0;
+	struct ao_fat_dirent	dirent;
+	int			i;
+
+	while (ao_fat_readdir(&entry, &dirent)) {
+		for (i = 0; i < 8; i++)
+			putchar(dirent.name[i]);
+		putchar('.');
+		for (; i < 11; i++)
+			putchar(dirent.name[i]);
+		for (i = 0; i < NUM_FAT_ATTR; i++)
+			putchar (dirent.attr & ao_fat_attr[i].bit ? ao_fat_attr[i].label : ' ');
+		printf (" @%08x %d\n", dirent.cluster, dirent.size);
+	}
+}
+
+static uint8_t
+ao_fat_parse_name(char name[11])
+{
+	uint8_t	c;
+
+	name[0] = '\0';
+	ao_cmd_white();
+	c = 0;
+	while (ao_cmd_lex_c != '\n') {
+		if (ao_cmd_lex_c == '.') {
+			for (; c < 8; c++)
+				name[c] = ' ';
+		} else {
+			if (c < 11)
+				name[c++] = ao_cmd_lex_c;
+		}
+		ao_cmd_lex();
+	}
+}
+
+static void
+ao_fat_show_cmd(void)
+{
+	char		name[11];
+	int8_t		status;
+	int		cnt, i;
+	char		buf[64];
+
+	ao_fat_parse_name(name);
+	if (name[0] == '\0') {
+		ao_cmd_status = ao_cmd_syntax_error;
+		return;
+	}
+		
+	status = ao_fat_open(name, AO_FAT_OPEN_READ);
+	if (status) {
+		printf ("Open failed: %d\n", status);
+		return;
+	}
+	while ((cnt = ao_fat_read(buf, sizeof(buf))) > 0) {
+		for (i = 0; i < cnt; i++)
+			putchar(buf[i]);
+	}
+	ao_fat_close();
+}
+
+static void
+ao_fat_putchar(char c)
+{
+}
+
+static void
+ao_fat_write_cmd(void)
+{
+	char		name[11];
+	int8_t		status;
+	int		cnt, i;
+	char		buf[64];
+	char		c;
+
+	ao_fat_parse_name(name);
+	if (name[0] == '\0') {
+		ao_cmd_status = ao_cmd_syntax_error;
+		return;
+	}
+		
+	status = ao_fat_creat(name);
+	if (status) {
+		printf ("Open failed: %d\n", status);
+		return;
+	}
+	flush();
+	while ((c = getchar()) != 4) {
+		if (c == '\r') c = '\n';
+		if (ao_echo()) {
+			if (c == '\n') putchar ('\r');
+			putchar(c); flush();
+		}
+		if (ao_fat_write(&c, 1) != 1) {
+			printf ("Write failure\n");
+			break;
+		}
+	}
+	ao_fat_close();
+}
+
 static const struct ao_cmds ao_fat_cmds[] = {
-	{ ao_fat_list,	"F\0List FAT" },
+	{ ao_fat_mbr_cmd,	"M\0Show FAT MBR and other info" },
+	{ ao_fat_list_cmd,	"F\0List FAT directory" },
+	{ ao_fat_show_cmd,	"S <name>\0Show FAT file" },
+	{ ao_fat_write_cmd,	"W <name>\0Write FAT file (end with ^D)" },
 	{ 0, NULL },
 };
 
