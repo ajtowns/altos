@@ -23,7 +23,9 @@
 #include "ao_bufio.h"
 
 /* Include FAT commands */
+#ifndef AO_FAT_TEST
 #define FAT_COMMANDS	1
+#endif
 
 /* Spew FAT tracing */
 #define FAT_TRACE	0
@@ -573,7 +575,6 @@ static uint32_t 		ao_file_offset;
 static uint32_t			ao_file_cluster_offset;
 static cluster_t		ao_file_cluster;
 static uint8_t			ao_file_opened;
-static uint8_t			ao_filesystem_available;
 static uint8_t			ao_filesystem_setup;
 static uint8_t			ao_filesystem_status;
 
@@ -1019,7 +1020,6 @@ int
 ao_fat_write(void *src, int len)
 {
 	uint8_t		*src_b = src;
-	uint32_t	sector;
 	uint16_t	this_time;
 	uint16_t	offset;
 	uint8_t		*buf;
@@ -1163,6 +1163,8 @@ ao_fat_readdir(uint16_t *entry, struct ao_fat_dirent *dirent)
 		(*entry)++;
 	}
 }
+
+#if FAT_COMMANDS
 
 static const char *filesystem_errors[] = {
 	[AO_FAT_FILESYSTEM_SUCCESS] = "FAT file system operating normally",
@@ -1330,6 +1332,8 @@ static const struct ao_cmds ao_fat_cmds[] = {
 	{ ao_fat_write_cmd,	"W <name>\0Write FAT file (end with ^D)" },
 	{ 0, NULL },
 };
+
+#endif
 
 void
 ao_fat_init(void)
