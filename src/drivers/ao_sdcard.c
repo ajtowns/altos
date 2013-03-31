@@ -27,6 +27,7 @@
 #define ao_sdcard_select()		ao_gpio_set(AO_SDCARD_SPI_CS_PORT,AO_SDCARD_SPI_CS_PIN,AO_SDCARD_SPI_CS,0)
 #define ao_sdcard_deselect()		ao_gpio_set(AO_SDCARD_SPI_CS_PORT,AO_SDCARD_SPI_CS_PIN,AO_SDCARD_SPI_CS,1)
 
+#define SDCARD_DEBUG	0
 
 static uint8_t	initialized;
 static uint8_t	present;
@@ -171,6 +172,20 @@ ao_sdcard_send_if_cond(uint32_t arg, uint8_t send_if_cond_response[4])
 }
 
 static uint8_t
+ao_sdcard_send_status(void)
+{
+	uint8_t ret;
+
+	DBG ("send_status\n");
+	ao_sdcard_select();
+	ret = ao_sdcard_send_cmd(SDCARD_SEND_STATUS, 0);
+	ao_sdcard_recv_reply(NULL, 0);
+	if (ret != SDCARD_STATUS_READY_STATE)
+		DBG ("\tsend_if_cond failed %02x\n", ret);
+	return ret;
+}
+
+static uint8_t
 ao_sdcard_set_blocklen(uint32_t blocklen)
 {
 	uint8_t ret;
@@ -182,7 +197,6 @@ ao_sdcard_set_blocklen(uint32_t blocklen)
 	if (ret != SDCARD_STATUS_READY_STATE)
 		DBG ("\tsend_if_cond failed %02x\n", ret);
 	return ret;
-	
 }
 
 static uint8_t
@@ -364,7 +378,8 @@ ao_sdcard_read_block(uint32_t block, uint8_t *data)
 	if (ret != SDCARD_STATUS_READY_STATE)
 		goto bail;
 
-	if (ao_sdcard_wait_block_start() != 0xfe) {
+	/* Wait for the data start block marker */
+	if (ao_sdcard_wait_block_start() != SDCARD_DATA_START_BLOCK) {
 		ret = 0x3f;
 		goto bail;
 	}
@@ -384,15 +399,110 @@ bail:
 uint8_t
 ao_sdcard_write_block(uint32_t block, uint8_t *data)
 {
-	/* Not doing anything until the file system code seems reasonable
-	 */
-	return 1;
+	uint8_t	ret;
+	uint8_t	response;
+	uint8_t	start_block[2];
+	int	i;
+
+	ao_sdcard_lock();
+	if (!initialized) {
+		ao_sdcard_setup();
+		initialized = 1;
+		if (sdtype != ao_sdtype_unknown)
+			present = 1;
+	}
+	if (!present) {
+		ao_sdcard_unlock();
+		return 0;
+	}
+	if (sdtype != ao_sdtype_sd2block)
+		block <<= 9;
+	ao_sdcard_get();
+	ao_sdcard_select();
+
+	ret = ao_sdcard_send_cmd(SDCARD_WRITE_BLOCK, block);
+	ao_sdcard_recv_reply(NULL, 0);
+	if (ret != SDCARD_STATUS_READY_STATE)
+		goto bail;
+
+	/* Write a pad byte followed by the data start block marker */
+	start_block[0] = 0xff;
+	start_block[1] = SDCARD_DATA_START_BLOCK;
+	ao_sdcard_send(start_block, 2);
+
+	/* Send the data */
+	ao_sdcard_send(data, 512);
+
+	/* Fake the CRC */
+	ao_sdcard_send_fixed(0xff, 2);
+
+	/* See if the card liked the data */
+	ao_sdcard_recv(&response, 1);
+	if ((response & SDCARD_DATA_RES_MASK) != SDCARD_DATA_RES_ACCEPTED) {
+		ret = 0x3f;
+		goto bail;
+	}
+		
+	/* Wait for the bus to go idle (should be done with an interrupt) */
+	for (i = 0; i < SDCARD_IDLE_TIMEOUT; i++) {
+		ao_sdcard_recv(&response, 1);
+		if (response == 0xff)
+			break;
+	}
+	if (i == SDCARD_IDLE_TIMEOUT)
+		ret = 0x3f;
+bail:
+	ao_sdcard_deselect();
+	ao_sdcard_put();
+	ao_sdcard_unlock();
+	return ret == SDCARD_STATUS_READY_STATE;
 }
+
+#if SDCARD_DEBUG
+static uint8_t	test_data[512];
+
+static void
+ao_sdcard_test_read(void)
+{
+	int i;
+	if (!ao_sdcard_read_block(1, test_data)) {
+		printf ("read error\n");
+		return;
+	}
+	printf ("data:");
+	for (i = 0; i < 18; i++)
+		printf (" %02x", test_data[i]);
+	printf ("\n");
+}
+
+static void
+ao_sdcard_test_write(void)
+{
+	int	i;
+	printf ("data:");
+	for (i = 0; i < 16; i++) {
+		test_data[i]++;
+		printf (" %02x", test_data[i]);
+	}
+	printf ("\n");
+	if (!ao_sdcard_write_block(1, test_data)) {
+		printf ("write error\n");
+		return;
+	}
+}
+
+static const struct ao_cmds ao_sdcard_cmds[] = {
+	{ ao_sdcard_test_read,	"x\0Test read" },
+	{ ao_sdcard_test_write,	"y\0Test read" },
+	{ 0, NULL },
+};
+#endif
 
 void
 ao_sdcard_init(void)
 {
 	ao_spi_init_cs(AO_SDCARD_SPI_CS_PORT, (1 << AO_SDCARD_SPI_CS_PIN));
+#if SDCARD_DEBUG
+	ao_cmd_register(&ao_sdcard_cmds[0]);
+#endif
 }
-
-
