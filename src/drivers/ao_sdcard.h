@@ -61,9 +61,9 @@ ao_sdcard_init(void);
 #define SDCARD_DATA_RES_ACCEPTED	0x05
 
 #define SDCARD_CMD_TIMEOUT		100
-#define SDCARD_IDLE_WAIT		100
+#define SDCARD_IDLE_WAIT		1000
 #define SDCARD_BLOCK_TIMEOUT		100
-#define SDCARD_IDLE_TIMEOUT		10000
+#define SDCARD_IDLE_TIMEOUT		1000
 
 enum ao_sdtype {
 	ao_sdtype_unknown,

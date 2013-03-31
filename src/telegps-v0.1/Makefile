@@ -16,7 +16,11 @@ INC = \
 	ao_cc115l.h \
 	ao_fec.h \
 	stm32l.h \
+	ao_sdcard.h \
+	ao_bufio.h \
+	ao_fat.h \
 	Makefile
+
 
 #PROFILE=ao_profile.c
 #PROFILE_DEF=-DAO_PROFILE=1
