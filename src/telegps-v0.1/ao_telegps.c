@@ -52,7 +52,7 @@ main(void)
 	ao_fat_init();
 
 	ao_gps_init();
-//	ao_gps_report_mega_init();
+	ao_gps_report_mega_init();
 
 	ao_telemetry_init();
 	ao_telemetry_set_interval(AO_SEC_TO_TICKS(1));

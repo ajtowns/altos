@@ -18,9 +18,11 @@
 #include "ao.h"
 #include "ao_sdcard.h"
 
-#define ao_sdcard_get_slow()		ao_spi_get(AO_SDCARD_SPI_BUS, AO_SPI_SPEED_250kHz)
-#define ao_sdcard_get()			ao_spi_get(AO_SDCARD_SPI_BUS, AO_SPI_SPEED_FAST)
-#define ao_sdcard_put()			ao_spi_put(AO_SDCARD_SPI_BUS)
+extern uint8_t ao_radio_mutex;
+
+#define ao_sdcard_get_slow() do { ao_mutex_get(&ao_radio_mutex); ao_spi_get(AO_SDCARD_SPI_BUS, AO_SPI_SPEED_250kHz); } while (0)
+#define ao_sdcard_get()	do { ao_mutex_get(&ao_radio_mutex); ao_spi_get(AO_SDCARD_SPI_BUS, AO_SPI_SPEED_FAST); } while (0)
+#define ao_sdcard_put() do { ao_spi_put(AO_SDCARD_SPI_BUS); ao_mutex_put(&ao_radio_mutex); } while (0)
 #define ao_sdcard_send_fixed(d,l)	ao_spi_send_fixed((d), (l), AO_SDCARD_SPI_BUS)
 #define ao_sdcard_send(d,l)		ao_spi_send((d), (l), AO_SDCARD_SPI_BUS)
 #define ao_sdcard_recv(d,l)		ao_spi_recv((d), (l), AO_SDCARD_SPI_BUS)
@@ -686,6 +688,9 @@ static const struct ao_cmds ao_sdcard_cmds[] = {
 void
 ao_sdcard_init(void)
 {
+	stm_pupdr_set(AO_SDCARD_SPI_PORT, AO_SDCARD_SPI_SCK_PIN, STM_PUPDR_PULL_UP);
+	stm_pupdr_set(AO_SDCARD_SPI_PORT, AO_SDCARD_SPI_MISO_PIN, STM_PUPDR_PULL_UP);
+	stm_pupdr_set(AO_SDCARD_SPI_PORT, AO_SDCARD_SPI_MOSI_PIN, STM_PUPDR_PULL_UP);
 	ao_spi_init_cs(AO_SDCARD_SPI_CS_PORT, (1 << AO_SDCARD_SPI_CS_PIN));
 #if SDCARD_DEBUG
 	ao_cmd_register(&ao_sdcard_cmds[0]);

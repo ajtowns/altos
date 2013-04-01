@@ -23,7 +23,7 @@
 
 #define AO_RADIO_MAX_SEND	sizeof (struct ao_telemetry_generic)
 
-static uint8_t ao_radio_mutex;
+uint8_t ao_radio_mutex;
 
 static uint8_t ao_radio_fifo;		/* fifo drained interrupt received */
 static uint8_t ao_radio_done;		/* tx done interrupt received */
