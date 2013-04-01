@@ -28,10 +28,13 @@
 #define ao_sdcard_deselect()		ao_gpio_set(AO_SDCARD_SPI_CS_PORT,AO_SDCARD_SPI_CS_PIN,AO_SDCARD_SPI_CS,1)
 
 /* Include SD card commands */
-#define SDCARD_DEBUG	0
+#define SDCARD_DEBUG	1
 
 /* Spew SD tracing */
 #define SDCARD_TRACE	0
+
+/* Emit error and warning messages */
+#define SDCARD_WARN	0
 
 static uint8_t	initialized;
 static uint8_t	present;
@@ -47,6 +50,38 @@ static enum ao_sdtype sdtype;
 #define DBG(...)
 #endif
 
+#if SDCARD_WARN
+#define WARN(...) printf(__VA_ARGS__)
+#else
+#define WARN(...)
+#endif
+
+#define later(x,y)	((int16_t) ((x) - (y)) >= 0)
+
+/*
+ * Wait while the card is busy. The card will return a stream of 0xff
+ * when it is ready to accept a command
+ */
+
+static uint8_t
+ao_sdcard_wait_busy(void)
+{
+	uint16_t	timeout = ao_time() + SDCARD_BUSY_TIMEOUT;
+	uint8_t		reply;
+	for (;;) {
+		ao_sdcard_recv(&reply, 1);
+		DBG("\t\twait busy %02x\n", reply);
+		if (reply == 0xff)
+			break;
+		if (later(ao_time(), timeout)) {
+			WARN("wait busy timeout\n");
+			return 0;
+		}
+	}
+	return 1;
+}
+
+
 /*
  * Send an SD command and await the status reply
  */
@@ -57,15 +92,13 @@ ao_sdcard_send_cmd(uint8_t cmd, uint32_t arg)
 	uint8_t	data[6];
 	uint8_t	reply;
 	int i;
+	uint16_t timeout;
 
 	DBG ("\tsend_cmd %d arg %08x\n", cmd, arg);
+
+	/* Wait for the card to not be busy */
 	if (cmd != SDCARD_GO_IDLE_STATE) {
-		for (i = 0; i < SDCARD_CMD_TIMEOUT; i++) {
-			ao_sdcard_recv(&reply, 1);
-			if (reply == 0xff)
-				break;
-		}
-		if (i == SDCARD_CMD_TIMEOUT)
+		if (!ao_sdcard_wait_busy())
 			return SDCARD_STATUS_TIMEOUT;
 	}
 	
@@ -85,13 +118,22 @@ ao_sdcard_send_cmd(uint8_t cmd, uint32_t arg)
 	/* The first reply byte will be the status,
 	 * which must have the high bit clear
 	 */
-	for (i = 0; i < SDCARD_CMD_TIMEOUT; i++) {
+	timeout = ao_time() + SDCARD_CMD_TIMEOUT;
+	for (;;) {
 		ao_sdcard_recv(&reply, 1);
 		DBG ("\t\tgot byte %02x\n", reply);
 		if ((reply & 0x80) == 0)
-			return reply;
+			break;
+		if (later(ao_time(), timeout)) {
+			WARN("send_cmd %02x timeout\n", cmd);
+			return SDCARD_STATUS_TIMEOUT;
+		}
 	}
-	return SDCARD_STATUS_TIMEOUT;
+#if SDCARD_WARN
+	if (reply != SDCARD_STATUS_READY_STATE && reply != SDCARD_STATUS_IDLE_STATE)
+		WARN("send_cmd %d failed %02x\n", cmd, reply);
+#endif
+	return reply;
 }
 
 /*
@@ -109,21 +151,8 @@ ao_sdcard_recv_reply(uint8_t *reply, int len)
 }
 
 /*
- * Wait while the card is busy. The
- * card will return a stream of 0xff
- * until it isn't busy anymore
+ * Switch to 'idle' state. This is used to get the card into SPI mode
  */
-static void
-ao_sdcard_wait_busy(void)
-{
-	uint8_t	v;
-
-	do {
-		ao_sdcard_recv(&v, 1);
-	} while (v != 0xff);
-	ao_sdcard_send_fixed(0xff, 1);
-}
-
 static uint8_t
 ao_sdcard_go_idle_state(void)
 {
@@ -175,20 +204,33 @@ ao_sdcard_send_if_cond(uint32_t arg, uint8_t send_if_cond_response[4])
 	return ret;
 }
 
-static uint8_t
-ao_sdcard_send_status(void)
+/*
+ * _ao_sdcard_send_status
+ *
+ * Get the 2-byte status value.
+ *
+ * Called from other functions with CS held low already,
+ * hence prefixing the name with '_'
+ */
+static uint16_t
+_ao_sdcard_send_status(void)
 {
 	uint8_t ret;
+	uint8_t extra;
 
 	DBG ("send_status\n");
-	ao_sdcard_select();
 	ret = ao_sdcard_send_cmd(SDCARD_SEND_STATUS, 0);
-	ao_sdcard_recv_reply(NULL, 0);
+	ao_sdcard_recv_reply(&extra, 1);
 	if (ret != SDCARD_STATUS_READY_STATE)
 		DBG ("\tsend_if_cond failed %02x\n", ret);
-	return ret;
+	return ret | (extra << 8);
 }
 
+/*
+ * ao_sdcard_set_blocklen
+ *
+ * Set the block length for future read and write commands
+ */
 static uint8_t
 ao_sdcard_set_blocklen(uint32_t blocklen)
 {
@@ -198,21 +240,28 @@ ao_sdcard_set_blocklen(uint32_t blocklen)
 	ao_sdcard_select();
 	ret = ao_sdcard_send_cmd(SDCARD_SET_BLOCKLEN, blocklen);
 	ao_sdcard_recv_reply(NULL, 0);
+	ao_sdcard_deselect();
 	if (ret != SDCARD_STATUS_READY_STATE)
 		DBG ("\tsend_if_cond failed %02x\n", ret);
 	return ret;
 }
 
+/*
+ * _ao_sdcard_app_cmd
+ *
+ * Send the app command prefix
+ *
+ * Called with the CS held low, hence
+ * the '_' prefix
+ */
 static uint8_t
-ao_sdcard_app_cmd(void)
+_ao_sdcard_app_cmd(void)
 {
 	uint8_t	ret;
 
 	DBG ("app_cmd\n");
-	ao_sdcard_select();
 	ret = ao_sdcard_send_cmd(SDCARD_APP_CMD, 0);
 	ao_sdcard_recv_reply(NULL, 0);
-	ao_sdcard_deselect();
 	DBG ("\tapp_cmd status %02x\n");
 	return ret;
 }
@@ -222,13 +271,14 @@ ao_sdcard_app_send_op_cond(uint32_t arg)
 {
 	uint8_t	ret;
 
-	ret = ao_sdcard_app_cmd();
-	if (ret != SDCARD_STATUS_IDLE_STATE)
-		return ret;
 	DBG("send_op_comd\n");
 	ao_sdcard_select();
+	ret = _ao_sdcard_app_cmd();
+	if (ret != SDCARD_STATUS_IDLE_STATE)
+		goto bail;
 	ret = ao_sdcard_send_cmd(SDCARD_APP_SEND_OP_COMD, arg);
 	ao_sdcard_recv_reply(NULL, 0);
+bail:
 	ao_sdcard_deselect();
 	DBG ("\tapp_send_op_cond status %02x\n", ret);
 	return ret;
@@ -254,6 +304,10 @@ ao_sdcard_read_ocr(uint8_t read_ocr_response[4])
 	return ret;
 }
 
+/*
+ * Follow the flow-chart defined by the SD group to
+ * initialize the card and figure out what kind it is
+ */
 static void
 ao_sdcard_setup(void)
 {
@@ -269,10 +323,7 @@ ao_sdcard_setup(void)
 	 */
 	ao_sdcard_send_fixed(0xff, 10);
 
-	ao_delay(AO_MS_TO_TICKS(10));
-
 	/* Reset the card and get it into SPI mode */
-
 	for (i = 0; i < SDCARD_IDLE_WAIT; i++) {
 		if (ao_sdcard_go_idle_state() == SDCARD_STATUS_IDLE_STATE)
 			break;
@@ -281,7 +332,6 @@ ao_sdcard_setup(void)
 		goto bail;
 
 	/* Figure out what kind of card we have */
-
 	sdtype = ao_sdtype_unknown;
 
 	if (ao_sdcard_send_if_cond(0x1aa, response) == SDCARD_STATUS_IDLE_STATE) {
@@ -338,17 +388,84 @@ bail:
 }
 
 static uint8_t
+_ao_sdcard_reset(void)
+{
+	int i;
+	uint8_t	ret;
+	uint8_t	response[10];
+
+	for (i = 0; i < SDCARD_IDLE_WAIT; i++) {
+		if (ao_sdcard_go_idle_state() == SDCARD_STATUS_IDLE_STATE)
+			break;
+	}
+	if (i == SDCARD_IDLE_WAIT) {
+		ret = 0x3f;
+		goto bail;
+	}
+
+	/* Follow the setup path to get the card out of idle state and
+	 * up and running again
+	 */
+	if (ao_sdcard_send_if_cond(0x1aa, response) == SDCARD_STATUS_IDLE_STATE) {
+		uint32_t	arg = 0;
+		uint8_t		sdver2 = 0;
+
+		/* Check for SD version 2 */
+		if ((response[2] & 0xf) == 1 && response[3] == 0xaa) {
+			arg = 0x40000000;
+			sdver2 = 1;
+		}
+
+		for (i = 0; i < SDCARD_IDLE_WAIT; i++) {
+			ret = ao_sdcard_app_send_op_cond(arg);
+			if (ret != SDCARD_STATUS_IDLE_STATE)
+				break;
+		}
+
+		if (ret != SDCARD_STATUS_READY_STATE) {
+			/* MMC */
+			for (i = 0; i < SDCARD_IDLE_WAIT; i++) {
+				ret = ao_sdcard_send_op_cond();
+				if (ret != SDCARD_STATUS_IDLE_STATE)
+					break;
+			}
+			if (ret != SDCARD_STATUS_READY_STATE)
+				goto bail;
+		}
+
+		/* For everything but SDHC cards, set the block length */
+		if (sdtype != ao_sdtype_sd2block) {
+			ret = ao_sdcard_set_blocklen(512);
+			if (ret != SDCARD_STATUS_READY_STATE)
+				DBG ("set_blocklen failed, ignoring\n");
+		}
+	}
+bail:
+	return ret;
+}
+
+/*
+ * The card will send 0xff until it is ready to send
+ * the data block at which point it will send the START_BLOCK
+ * marker followed by the data. This function waits while
+ * the card is sending 0xff
+ */
+static uint8_t
 ao_sdcard_wait_block_start(void)
 {
-	int	i;
-	uint8_t	v;
+	uint8_t		v;
+	uint16_t	timeout = ao_time() + SDCARD_BLOCK_TIMEOUT;
 
 	DBG ("\twait_block_start\n");
-	for (i = 0; i < SDCARD_BLOCK_TIMEOUT; i++) {
+	for (;;) {
 		ao_sdcard_recv(&v, 1);
 		DBG("\t\trecv %02x\n", v);
 		if (v != 0xff)
 			break;
+		if (later(ao_time(), timeout)) {
+			printf ("wait block start timeout\n");
+			return 0xff;
+		}
 	}
 	return v;
 }
@@ -360,7 +477,9 @@ uint8_t
 ao_sdcard_read_block(uint32_t block, uint8_t *data)
 {
 	uint8_t	ret;
+	uint8_t start_block;
 	uint8_t crc[2];
+	int tries;
 
 	ao_sdcard_lock();
 	if (!initialized) {
@@ -376,25 +495,53 @@ ao_sdcard_read_block(uint32_t block, uint8_t *data)
 	DBG("read block %d\n", block);
 	if (sdtype != ao_sdtype_sd2block)
 		block <<= 9;
+
 	ao_sdcard_get();
-	ao_sdcard_select();
-	ret = ao_sdcard_send_cmd(SDCARD_READ_BLOCK, block);
-	ao_sdcard_recv_reply(NULL, 0);
-	if (ret != SDCARD_STATUS_READY_STATE)
-		goto bail;
+	for (tries = 0; tries < 10; tries++) {
+		ao_sdcard_select();
 
-	/* Wait for the data start block marker */
-	if (ao_sdcard_wait_block_start() != SDCARD_DATA_START_BLOCK) {
-		ret = 0x3f;
-		goto bail;
+		ret = ao_sdcard_send_cmd(SDCARD_READ_BLOCK, block);
+		ao_sdcard_recv_reply(NULL, 0);
+		if (ret != SDCARD_STATUS_READY_STATE) {
+			uint16_t	status;
+			WARN ("read block command failed %d status %02x\n", block, ret);
+			status = _ao_sdcard_send_status();
+			WARN ("\tstatus now %04x\n", status);
+			goto bail;
+		}
+
+		ao_sdcard_send_fixed(0xff, 1);
+
+		/* Wait for the data start block marker */
+		start_block = ao_sdcard_wait_block_start();
+		if (start_block != SDCARD_DATA_START_BLOCK) {
+			WARN ("wait block start failed %02x\n", start_block);
+			ret = 0x3f;
+			goto bail;
+		}
+
+		ao_sdcard_recv(data, 512);
+		ao_sdcard_recv(crc, 2);
+	bail:
+		ao_sdcard_deselect();
+		if (ret == SDCARD_STATUS_READY_STATE)
+			break;
+		if (ret == SDCARD_STATUS_IDLE_STATE) {
+			ret = _ao_sdcard_reset();
+			if (ret != SDCARD_STATUS_READY_STATE)
+				break;
+		}
 	}
-
-	ao_sdcard_recv(data, 512);
-	ao_sdcard_recv(crc, 2);
-bail:
-	ao_sdcard_deselect();
 	ao_sdcard_put();
 	ao_sdcard_unlock();
+
+#if SDCARD_WARN
+	if (ret != SDCARD_STATUS_READY_STATE)
+		WARN("read failed\n");
+	else if (tries)
+		WARN("took %d tries to read %d\n", tries + 1, block);
+#endif
+
 	DBG("read %s\n", ret == SDCARD_STATUS_READY_STATE ? "success" : "failure");
 	return ret == SDCARD_STATUS_READY_STATE;
 }
@@ -406,9 +553,12 @@ uint8_t
 ao_sdcard_write_block(uint32_t block, uint8_t *data)
 {
 	uint8_t	ret;
-	uint8_t	response;
-	uint8_t	start_block[2];
+	uint8_t	response[1];
+	uint8_t	start_block[8];
+	uint16_t status;
+	static uint8_t	check_data[512];
 	int	i;
+	int	tries;
 
 	ao_sdcard_lock();
 	if (!initialized) {
@@ -424,45 +574,64 @@ ao_sdcard_write_block(uint32_t block, uint8_t *data)
 	DBG("write block %d\n", block);
 	if (sdtype != ao_sdtype_sd2block)
 		block <<= 9;
+
 	ao_sdcard_get();
-	ao_sdcard_select();
 
-	ret = ao_sdcard_send_cmd(SDCARD_WRITE_BLOCK, block);
-	ao_sdcard_recv_reply(NULL, 0);
-	if (ret != SDCARD_STATUS_READY_STATE)
-		goto bail;
+	for (tries = 0; tries < 10; tries++) {
+		ao_sdcard_select();
 
-	/* Write a pad byte followed by the data start block marker */
-	start_block[0] = 0xff;
-	start_block[1] = SDCARD_DATA_START_BLOCK;
-	ao_sdcard_send(start_block, 2);
+		ret = ao_sdcard_send_cmd(SDCARD_WRITE_BLOCK, block);
+		ao_sdcard_recv_reply(NULL, 0);
+		if (ret != SDCARD_STATUS_READY_STATE)
+			goto bail;
 
-	/* Send the data */
-	ao_sdcard_send(data, 512);
+		/* Write a pad byte followed by the data start block marker */
+		start_block[0] = 0xff;
+		start_block[1] = SDCARD_DATA_START_BLOCK;
+		ao_sdcard_send(start_block, 2);
 
-	/* Fake the CRC */
-	ao_sdcard_send_fixed(0xff, 2);
+		/* Send the data */
+		ao_sdcard_send(data, 512);
 
-	/* See if the card liked the data */
-	ao_sdcard_recv(&response, 1);
-	if ((response & SDCARD_DATA_RES_MASK) != SDCARD_DATA_RES_ACCEPTED) {
-		ret = 0x3f;
-		goto bail;
-	}
+		/* Fake the CRC */
+		ao_sdcard_send_fixed(0xff, 2);
+
+		/* See if the card liked the data */
+		ao_sdcard_recv(response, sizeof (response));
+		if ((response[0] & SDCARD_DATA_RES_MASK) != SDCARD_DATA_RES_ACCEPTED) {
+			int i;
+			WARN("Data not accepted, response");
+			for (i = 0; i < sizeof (response); i++)
+				WARN(" %02x", response[i]);
+			WARN("\n");
+			ret = 0x3f;
+			goto bail;
+		}
 		
-	/* Wait for the bus to go idle (should be done with an interrupt) */
-	for (i = 0; i < SDCARD_IDLE_TIMEOUT; i++) {
-		ao_sdcard_recv(&response, 1);
-		if (response == 0xff)
+		/* Wait for the bus to go idle (should be done with an interrupt?) */
+		if (!ao_sdcard_wait_busy()) {
+			ret = 0x3f;
+			goto bail;
+		}
+
+		/* Check the current status after the write completes */
+		status = _ao_sdcard_send_status();
+		if ((status & 0xff) != SDCARD_STATUS_READY_STATE) {
+			WARN ("send status after write %04x\n", status);
+			ret = status & 0xff;
+			goto bail;
+		}
+	bail:
+		ao_sdcard_deselect();
+		DBG("write %s\n", ret == SDCARD_STATUS_READY_STATE ? "success" : "failure");
+		if (ret == SDCARD_STATUS_READY_STATE)
 			break;
 	}
-	if (i == SDCARD_IDLE_TIMEOUT)
-		ret = 0x3f;
-bail:
-	ao_sdcard_deselect();
 	ao_sdcard_put();
 	ao_sdcard_unlock();
-	DBG("write %s\n", ret == SDCARD_STATUS_READY_STATE ? "success" : "failure");
+	if (tries)
+		WARN("took %d tries to write %d\n", tries + 1, block);
+
 	return ret == SDCARD_STATUS_READY_STATE;
 }
 
@@ -473,9 +642,17 @@ static void
 ao_sdcard_test_read(void)
 {
 	int i;
-	if (!ao_sdcard_read_block(1, test_data)) {
-		printf ("read error\n");
+
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
 		return;
+	
+	for (i = 0; i < 100; i++) {
+		printf ("."); flush();
+		if (!ao_sdcard_read_block(ao_cmd_lex_u32+i, test_data)) {
+			printf ("read error %d\n", i);
+			return;
+		}
 	}
 	printf ("data:");
 	for (i = 0; i < 18; i++)
