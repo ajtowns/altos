@@ -286,101 +286,130 @@ ao_fat_cluster_seek(cluster_t cluster, cluster_t distance)
 static cluster_t
 ao_fat_cluster_set_size(cluster_t first_cluster, cluster_t size)
 {
-	cluster_t	clear_cluster = 0;
+	cluster_t	have;
+	cluster_t	last_cluster;
+	cluster_t	next_cluster;
 
-	if (size == 0) {
-		clear_cluster = first_cluster;
-		first_cluster = 0;
+	/* Walk the cluster chain to the
+	 * spot where it needs to change. That
+	 * will either be the end of the chain (in case it needs to grow),
+	 * or after the desired number of clusters, in which case it needs to shrink
+	 */
+	next_cluster = first_cluster;
+	last_cluster = 0;
+	DBG("\tclusters:");
+	for (have = 0; have < size; have++) {
+		DBG(" %08x", next_cluster);
+		if (!ao_fat_cluster_valid(next_cluster))
+			break;
+		last_cluster = next_cluster;
+		next_cluster = ao_fat_entry_read(next_cluster);
+	}
+	DBG("\n");
+
+	/* At this point, last_cluster points to the last valid
+	 * cluster in the file, if any. That's the spot in the FAT
+	 * that needs to be rewritten, either to truncate the file by
+	 * writing an END marker, or to extend the file by writing
+	 * more clusters. next_cluster will contain the value of the
+	 * FAT at last_cluster.
+	 *
+	 * If this is at the head of the cluster chain, then
+	 * last_cluster will be zero and next_cluster will
+	 * be the first cluster in the chain.
+	 */
+	if (have == size) {
+		/* The file is large enough, truncate as needed */
+		if (ao_fat_cluster_valid(next_cluster)) {
+			DBG("truncate between %08x and %08x\n", last_cluster, next_cluster);
+			if (last_cluster)
+				/*
+				 * Otherwise, rewrite the last cluster
+				 * in the chain with a LAST marker
+				 */
+				(void) ao_fat_entry_replace(last_cluster,
+							    AO_FAT_LAST_CLUSTER);
+			else
+				/*
+				 * If the file is getting erased, then
+				 * rewrite the directory entry cluster
+				 * value
+				 */
+				first_cluster = 0;
+
+			/* Clear the remaining clusters in the chain */
+			ao_fat_free_cluster_chain(next_cluster);
+
+			/* The file system is no longer full (if it was) */
+			filesystem_full = 0;
+		} else {
+			DBG("unchanged FAT chain\n");
+			/* The chain is already the right length, don't mess with it */
+			;
+		}
 	} else {
-		cluster_t	have;
-		cluster_t	last_cluster = 0;
-		cluster_t	next_cluster;
+		cluster_t	need;
+		cluster_t	free;
 
-		/* Walk the cluster chain to the
-		 * spot where it needs to change. That
-		 * will either be the end of the chain (in case it needs to grow),
-		 * or after the desired number of clusters, in which case it needs to shrink
-		 */
-		next_cluster = first_cluster;
-		for (have = 0; have < size; have++) {
-			last_cluster = next_cluster;
-			next_cluster = ao_fat_entry_read(last_cluster);
-			if (!ao_fat_cluster_valid(next_cluster))
-				break;
+		if (filesystem_full)
+			return AO_FAT_BAD_CLUSTER;
+
+		/* Set next_free if it has wrapped or wasn't set before */
+		if (next_free < 2 || number_cluster <= next_free) {
+			next_free = 2;
+			fsinfo_dirty = 1;
 		}
 
-		if (have == size) {
-			/* The file is large enough, truncate as needed */
-			if (ao_fat_cluster_valid(next_cluster)) {
-				/* Rewrite that cluster entry with 0xffff to mark the end of the chain */
-				clear_cluster = ao_fat_entry_replace(last_cluster, AO_FAT_LAST_CLUSTER);
-				filesystem_full = 0;
-			} else {
-				/* The chain is already the right length, don't mess with it */
-				;
-			}
-		} else {
-			cluster_t	need;
-			cluster_t	free;
-
-			if (filesystem_full)
-				return AO_FAT_BAD_CLUSTER;
-
-			if (next_free < 2 || number_cluster <= next_free) {
-				next_free = 2;
-				fsinfo_dirty = 1;
-			}
-
-			/* See if there are enough free clusters in the file system */
-			need = size - have;
+		/* See if there are enough free clusters in the file system */
+		need = size - have;
 
 #define loop_cluster	for (free = next_free; need > 0;)
-#define next_cluster					\
-			if (++free == number_cluster)	\
-				free = 2;		\
-			if (free == next_free) \
-				break;			\
+#define next_cluster				\
+		if (++free == number_cluster)	\
+			free = 2;		\
+		if (free == next_free)		\
+			break;			\
 
-			loop_cluster {
-				if (!ao_fat_entry_read(free))
-					need--;
-				next_cluster;
-			}
-			/* Still need some, tell the user that we've failed */
-			if (need) {
-				filesystem_full = 1;
-				return AO_FAT_BAD_CLUSTER;
-			}
+		loop_cluster {
+			if (!ao_fat_entry_read(free))
+				need--;
+			next_cluster;
+		}
 
-			/* Now go allocate those clusters and
-			 * thread them onto the chain
-			 */
-			need = size - have;
-			loop_cluster {
-				if (!ao_fat_entry_read(free)) {
-					next_free = free + 1;
-					if (next_free >= number_cluster)
-						next_free = 2;
-					fsinfo_dirty = 1;
-					if (last_cluster)
-						ao_fat_entry_replace(last_cluster, free);
-					else
-						first_cluster = free;
-					last_cluster = free;
-					need--;
-				}
-				next_cluster;
+		/* Still need some, tell the user that we've failed */
+		if (need) {
+			filesystem_full = 1;
+			return AO_FAT_BAD_CLUSTER;
+		}
+
+		/* Now go allocate those clusters and
+		 * thread them onto the chain
+		 */
+		need = size - have;
+		loop_cluster {
+			if (ao_fat_entry_read(free) == 0) {
+				next_free = free + 1;
+				if (next_free >= number_cluster)
+					next_free = 2;
+				fsinfo_dirty = 1;
+				DBG("\tadd cluster. old %08x new %08x\n", last_cluster, free);
+				if (last_cluster)
+					ao_fat_entry_replace(last_cluster, free);
+				else
+					first_cluster = free;
+				last_cluster = free;
+				need--;
 			}
+			next_cluster;
+		}
 #undef loop_cluster
 #undef next_cluster
-			/* Mark the new end of the chain */
-			ao_fat_entry_replace(last_cluster, AO_FAT_LAST_CLUSTER);
-		}
+		DBG("\tlast cluster %08x\n", last_cluster);
+		/* Mark the new end of the chain */
+		ao_fat_entry_replace(last_cluster, AO_FAT_LAST_CLUSTER);
 	}
 
-	/* Deallocate clusters off the end of the file */
-	if (ao_fat_cluster_valid(clear_cluster))
-		ao_fat_free_cluster_chain(clear_cluster);
+	DBG("\tfirst cluster %08x\n", first_cluster);
 	return first_cluster;
 }
 
@@ -437,8 +466,8 @@ ao_fat_root_extend(dirent_t ents)
 	if (!fat32)
 		return 0;
 	
-	byte_size = ents * 0x20;
-	cluster_size = byte_size / bytes_per_cluster;
+	byte_size = (ents + 1) * 0x20;
+	cluster_size = (byte_size + bytes_per_cluster - 1) / bytes_per_cluster;
 	if (ao_fat_cluster_set_size(root_cluster, cluster_size) != AO_FAT_BAD_CLUSTER)
 		return 1;
 	return 0;
