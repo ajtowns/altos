@@ -79,6 +79,11 @@
 #define SPI_1_PE13_PE14_PE15	0
 #define SPI_1_OSPEEDR		STM_OSPEEDR_10MHz
 
+#define SPI_1_PORT		(&stm_gpioa)
+#define SPI_1_SCK_PIN		5
+#define SPI_1_MISO_PIN		6
+#define SPI_1_MOSI_PIN		7
+
 #define HAS_SPI_2		1
 #define SPI_2_PB13_PB14_PB15	1	/* CC115L */
 #define SPI_2_PD1_PD3_PD4	0
@@ -166,6 +171,10 @@
  */
 
 #define AO_SDCARD_SPI_BUS	AO_SPI_1_PA5_PA6_PA7
+#define AO_SDCARD_SPI_PORT	SPI_1_PORT
+#define AO_SDCARD_SPI_SCK_PIN	SPI_1_SCK_PIN
+#define AO_SDCARD_SPI_MISO_PIN	SPI_1_MISO_PIN
+#define AO_SDCARD_SPI_MOSI_PIN	SPI_1_MOSI_PIN
 #define AO_SDCARD_SPI_CS_PORT	(&stm_gpioa)
 #define AO_SDCARD_SPI_CS_PIN	4
 #define AO_SDCARD_SPI		stm_spi1
