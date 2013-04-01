@@ -30,6 +30,10 @@
 /* Spew FAT tracing */
 #define FAT_TRACE	0
  
+#ifdef DBG
+#undef DBG
+#endif
+
 #if FAT_TRACE
 #define DBG(...) printf(__VA_ARGS__)
 #else
