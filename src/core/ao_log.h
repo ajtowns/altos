@@ -268,4 +268,7 @@ ao_log_data(__xdata struct ao_log_record *log) __reentrant;
 uint8_t
 ao_log_mega(__xdata struct ao_log_mega *log) __reentrant;
 
+void
+ao_log_flush(void);
+
 #endif /* _AO_LOG_H_ */

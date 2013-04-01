@@ -171,6 +171,8 @@ ao_log(void)
 		}
 #endif
 
+		ao_log_flush();
+
 		/* Wait for a while */
 		ao_delay(AO_MS_TO_TICKS(100));
 

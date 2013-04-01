@@ -83,3 +83,9 @@ ao_log_mega(struct ao_log_mega *log)
 	ao_mutex_put(&log_mutex);
 	return wrote;
 }
+
+void
+ao_log_flush(void)
+{
+	ao_fat_sync();
+}
