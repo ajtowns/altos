@@ -351,27 +351,88 @@ uint32_t		sizes[NUM_FILES];
 unsigned char		md5[NUM_FILES][MD5_DIGEST_LENGTH];
 
 void
+micro_test_fs(void)
+{
+	int8_t	fd;
+	char	name[] = "FOO        ";
+	char	buf[512];
+	int	len;
+
+	printf ("write once\n");
+	if ((fd = ao_fat_creat(name)) >= 0) {
+		ao_fat_write(fd, "hello world\n", 12);
+		ao_fat_close(fd);
+	}
+
+	printf ("read first\n");
+	if ((fd = ao_fat_open(name, AO_FAT_OPEN_READ)) >= 0) {
+		len = ao_fat_read(fd, buf, sizeof(buf));
+		write (1, buf, len);
+		ao_fat_close(fd);
+	}
+	
+	printf ("write again\n");
+	if ((fd = ao_fat_creat(name)) >= 0) {
+		ao_fat_write(fd, "hi\n", 3);
+		ao_fat_close(fd);
+	}
+
+	printf ("read again\n");
+	if ((fd = ao_fat_open(name, AO_FAT_OPEN_READ)) >= 0) {
+		len = ao_fat_read(fd, buf, sizeof(buf));
+		write (1, buf, len);
+		ao_fat_close(fd);
+	}
+
+	printf ("write 3\n");
+	if ((fd = ao_fat_creat(name)) >= 0) {
+		int	l;
+		char	c;
+
+		for (l = 0; l < 10; l++) {
+			for (c = ' '; c < '~'; c++)
+				ao_fat_write(fd, &c, 1);
+			c = '\n';
+			ao_fat_write(fd, &c, 1);
+		}
+		ao_fat_close(fd);
+	}
+
+	printf ("read 3\n");
+	if ((fd = ao_fat_open(name, AO_FAT_OPEN_READ)) >= 0) {
+		while ((len = ao_fat_read(fd, buf, sizeof(buf))) > 0)
+			write (1, buf, len);
+		ao_fat_close(fd);
+	}
+
+	check_fs();
+	printf ("all done\n");
+}
+
+
+void
 short_test_fs(void)
 {
 	int	len;
+	int8_t	fd;
 	char	buf[345];
 
-	if (ao_fat_open("HELLO   TXT",AO_FAT_OPEN_READ) == AO_FAT_SUCCESS) {
+	if ((fd = ao_fat_open("HELLO   TXT",AO_FAT_OPEN_READ)) >= 0) {
 		printf ("File contents for HELLO.TXT\n");
-		while ((len = ao_fat_read(buf, sizeof(buf))))
+		while ((len = ao_fat_read(fd, buf, sizeof(buf))))
 			write(1, buf, len);
-		ao_fat_close();
+		ao_fat_close(fd);
 	}
 	
-	if (ao_fat_creat("NEWFILE TXT") == AO_FAT_SUCCESS) {
+	if ((fd = ao_fat_creat("NEWFILE TXT")) >= 0) {
 		printf ("Create new file\n");
 		for (len = 0; len < 2; len++)
-			ao_fat_write("hello, world!\n", 14);
-		ao_fat_seek(0, AO_FAT_SEEK_SET);
+			ao_fat_write(fd, "hello, world!\n", 14);
+		ao_fat_seek(fd, 0, AO_FAT_SEEK_SET);
 		printf ("read new file\n");
-		while ((len = ao_fat_read(buf, sizeof (buf))))
+		while ((len = ao_fat_read(fd, buf, sizeof (buf))))
 			write (1, buf, len);
-		ao_fat_close();
+		ao_fat_close(fd);
 	}
 
 	check_fs();
@@ -386,6 +447,7 @@ long_test_fs(void)
 	unsigned char	md5_check[MD5_DIGEST_LENGTH];
 	char buf[337];
 	int	len;
+	int8_t	fd;
 	uint64_t	total_file_size = 0;
 
 	total_reads = total_writes = 0;
@@ -395,10 +457,10 @@ long_test_fs(void)
 	memset(sizes, '\0', sizeof (sizes));
 	for (id = 0; id < NUM_FILES; id++) {
 		sprintf(name, "D%07dTXT", id);
-		if ((id % (NUM_FILES/50)) == 0) {
+		if ((id % ((NUM_FILES+49)/50)) == 0) {
 			printf ("."); fflush(stdout);
 		}
-		if (ao_fat_creat(name) == AO_FAT_SUCCESS) {
+		if ((fd = ao_fat_creat(name)) >= 0) {
 			int j;
 			char	line[64];
 			check_bufio("file created");
@@ -407,7 +469,7 @@ long_test_fs(void)
 				int len, ret;
 				sprintf (line, "Hello, world %d %d\r\n", id, j);
 				len = strlen(line);
-				ret = ao_fat_write((uint8_t *) line, len);
+				ret = ao_fat_write(fd, line, len);
 				if (ret <= 0)
 					break;
 				total_file_size += ret;
@@ -416,7 +478,7 @@ long_test_fs(void)
 				if (ret != len)
 					printf ("write failed %d\n", ret);
 			}
-			ao_fat_close();
+			ao_fat_close(fd);
 			MD5_Final(&md5[id][0], &ctx);
 			check_bufio("file written");
 		}
@@ -436,16 +498,16 @@ long_test_fs(void)
 		uint32_t size;
 		sprintf(name, "D%07dTXT", id);
 		size = 0;
-		if ((id % (NUM_FILES/50)) == 0) {
+		if ((id % ((NUM_FILES+49)/50)) == 0) {
 			printf ("."); fflush(stdout);
 		}
-		if (ao_fat_open(name, AO_FAT_OPEN_READ) == AO_FAT_SUCCESS) {
+		if ((fd = ao_fat_open(name, AO_FAT_OPEN_READ)) >= 0) {
 			MD5_Init(&ctx);
-			while ((len = ao_fat_read((uint8_t *) buf, sizeof(buf))) > 0) {
+			while ((len = ao_fat_read(fd, buf, sizeof(buf))) > 0) {
 				MD5_Update(&ctx, buf, len);
 				size += len;
 			}
-			ao_fat_close();
+			ao_fat_close(fd);
 			MD5_Final(md5_check, &ctx);
 			if (size != sizes[id])
 				fatal("file %d: size differs %d written %d read\n",
@@ -468,6 +530,20 @@ char *params[] = {
 	NULL
 };
 
+void
+do_test(void (*test)(void))
+{
+	ao_fat_init();
+
+	check_bufio("top");
+	ao_fat_setup();
+
+	check_fs();
+	check_bufio("after setup");
+	(*test)();
+	ao_fat_unmount();
+}
+
 int
 main(int argc, char **argv)
 {
@@ -478,21 +554,12 @@ main(int argc, char **argv)
 
 	for (p = 0; fs_params[p].fat; p++) {
 		param = &fs_params[p];
-		ao_fat_init();
 
-		check_bufio("top");
-		ao_fat_setup();
-
-		check_fs();
-		check_bufio("after setup");
-
-#ifdef SIMPLE_TEST
-		short_test_fs();
-#else
-		long_test_fs();
-#endif
-		ao_fat_unmount();
+		do_test(micro_test_fs);
+		do_test(short_test_fs);
+		do_test(long_test_fs);
 	}
+	unlink (fs);
 
 	return 0;
 }
