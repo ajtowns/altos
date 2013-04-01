@@ -21,6 +21,7 @@
 
 static uint8_t	log_year, log_month, log_day;
 static uint8_t	log_open;
+static int8_t	log_fd;
 static uint8_t	log_mutex;
 
 static void
@@ -31,24 +32,27 @@ ao_log_open(void)
 
 	sprintf(name,"%04d%02d%02dLOG", 2000 + log_year, log_month, log_day);
 	status = ao_fat_open(name, AO_FAT_OPEN_WRITE);
-	switch (status) {
-	case AO_FAT_SUCCESS:
-		ao_fat_seek(0, AO_FAT_SEEK_END);
+	if (status >= 0) {
+		log_fd = status;
+		ao_fat_seek(log_fd, 0, AO_FAT_SEEK_END);
 		log_open = 1;
-		break;
-	case -AO_FAT_ENOENT:
+	} else if (status == -AO_FAT_ENOENT) {
 		status = ao_fat_creat(name);
-		if (status == AO_FAT_SUCCESS)
+		if (status == AO_FAT_SUCCESS) {
+			log_fd = status;
 			log_open = 1;
-		break;
+		}
 	} 
 }
 
 static void
 ao_log_close(void)
 {
-	log_open = 0;
-	ao_fat_close();
+	if (log_open) {
+		log_open = 0;
+		ao_fat_close(log_fd);
+		log_fd = -1;
+	}
 }
 
 uint8_t
@@ -77,7 +81,7 @@ ao_log_mega(struct ao_log_mega *log)
 		}
 	}
 	if (log_open) {
-		wrote = ao_fat_write(log, sizeof (*log)) == AO_FAT_SUCCESS;
+		wrote = ao_fat_write(log_fd, log, sizeof (*log)) == AO_FAT_SUCCESS;
 		ao_fat_sync();
 	}
 	ao_mutex_put(&log_mutex);

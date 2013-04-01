@@ -601,13 +601,94 @@ ao_fat_setup_fs(void)
 }
 
 /*
- * State for the current opened file
+ * State for an open file
  */
-static struct ao_fat_dirent	ao_file_dirent;
-static uint32_t 		ao_file_offset;
-static uint32_t			ao_file_cluster_offset;
-static cluster_t		ao_file_cluster;
-static uint8_t			ao_file_opened;
+
+struct ao_file {
+	struct ao_fat_dirent	*dirent;
+	offset_t		offset;
+	offset_t		cluster_offset;
+	cluster_t		cluster;
+	uint8_t			busy;
+};
+
+#define AO_FAT_NFILE	8
+
+static struct ao_fat_dirent	ao_file_dirent[AO_FAT_NFILE];
+
+static struct ao_fat_dirent *
+ao_fat_file_dirent_alloc(struct ao_fat_dirent *want)
+{
+	int8_t	d;
+	struct ao_fat_dirent *free = NULL, *dirent;
+
+	for (d = 0; d < AO_FAT_NFILE; d++) {
+
+		dirent = &ao_file_dirent[d];
+		/* See if there's another user of this file already */
+		if (want && dirent->name[0] != 0) {
+			if (dirent->entry == want->entry)
+				return dirent;
+		} else {
+			if (!free) {
+				free = dirent;
+				if (!want)
+					break;
+			}
+		}
+	}
+	if (free && want)
+		*free = *want;
+	return free;
+}
+
+static struct ao_file 		ao_file_table[AO_FAT_NFILE];
+
+static int8_t
+ao_fat_fd_alloc(struct ao_fat_dirent *dirent)
+{
+	int8_t	fd;
+
+	for (fd = 0; fd < AO_FAT_NFILE; fd++)
+		if (!ao_file_table[fd].busy) {
+			ao_file_table[fd].dirent = ao_fat_file_dirent_alloc(dirent);
+			ao_file_table[fd].busy = 1;
+			ao_file_table[fd].offset = 0;
+			ao_file_table[fd].cluster_offset = 0;
+			ao_file_table[fd].cluster = ao_file_table[fd].dirent->cluster;
+				
+			return fd;
+		}
+	return -AO_FAT_EMFILE;
+}
+
+static void
+ao_fat_fd_free(int8_t fd)
+{
+	struct ao_file *file = &ao_file_table[fd];
+	struct ao_fat_dirent *dirent = file->dirent;
+	memset(&ao_file_table[fd], '\0', sizeof (struct ao_file));
+
+	/* Check and see if another ao_file references the same dirent */
+	for (fd = 0; fd < AO_FAT_NFILE; fd++)
+		if (ao_file_table[fd].dirent == dirent)
+			return;
+	memset(dirent, '\0', sizeof (struct ao_fat_dirent));
+}
+
+static struct ao_file *
+ao_fat_fd_to_file(int8_t fd)
+{
+	struct ao_file *file;
+	if (fd < 0 || AO_FAT_NFILE <= fd)
+		return NULL;
+
+	file = &ao_file_table[fd];
+	if (!file->busy)
+		return NULL;
+	return file;
+}
+
 static uint8_t			ao_filesystem_setup;
 static uint8_t			ao_filesystem_status;
 
@@ -628,9 +709,10 @@ ao_fat_setup(void)
 		number_cluster = fat_start = root_start = data_start = 0;
 		next_free = filesystem_full = 0;
 		fat32 = fsinfo_dirty = root_cluster = fsinfo_sector = free_count = 0;
-		memset(&ao_file_dirent, '\0', sizeof (ao_file_dirent));
 
-		ao_file_offset = ao_file_cluster_offset = ao_file_cluster = ao_file_opened = 0;
+		/* Reset open file table */
+		memset(&ao_file_table, '\0', sizeof (ao_file_table));
+
 		ao_filesystem_status = ao_fat_setup_partition();
 		if (ao_filesystem_status != AO_FAT_FILESYSTEM_SUCCESS)
 			return ao_filesystem_status;
@@ -652,7 +734,7 @@ ao_fat_unmount(void)
  */
 
 static uint32_t
-ao_fat_current_sector(void)
+ao_fat_current_sector(struct ao_file *file)
 {
 	cluster_t	cluster_offset;
 	uint32_t	sector_offset;
@@ -660,49 +742,74 @@ ao_fat_current_sector(void)
 	cluster_t	cluster;
 
 	DBG("current sector offset %d size %d\n",
-	    ao_file_offset, ao_file_dirent.size);
+	    file->offset, file->dirent->size);
 
-	if (ao_file_offset > ao_file_dirent.size)
+	if (file->offset > file->dirent->size) {
+		printf ("file offset %d larger than size %d\n",
+			file->offset, file->dirent->size);
 		return 0xffffffff;
-
-	sector_offset = ao_file_offset >> SECTOR_SHIFT;
-
-	if (!ao_file_cluster || ao_file_offset < ao_file_cluster_offset) {
-		ao_file_cluster = ao_file_dirent.cluster;
-		ao_file_cluster_offset = 0;
-		DBG("\treset to start of file %08x\n", ao_file_cluster);
 	}
 
-	if (ao_file_cluster_offset + bytes_per_cluster <= ao_file_offset) {
+	sector_offset = file->offset >> SECTOR_SHIFT;
+
+	if (!file->cluster || file->offset < file->cluster_offset) {
+		file->cluster = file->dirent->cluster;
+		file->cluster_offset = 0;
+		DBG("\treset to start of file %08x\n", file->cluster);
+	}
+
+	if (file->cluster_offset + bytes_per_cluster <= file->offset) {
 		cluster_t	cluster_distance;
 
 		cluster_offset = sector_offset / sectors_per_cluster;
 
-		cluster_distance = cluster_offset - ao_file_cluster_offset / bytes_per_cluster;
+		cluster_distance = cluster_offset - file->cluster_offset / bytes_per_cluster;
 
 		DBG("\tseek forward %d clusters\n", cluster_distance);
-		cluster = ao_fat_cluster_seek(ao_file_cluster, cluster_distance);
+		cluster = ao_fat_cluster_seek(file->cluster, cluster_distance);
 
-		if (!ao_fat_cluster_valid(cluster))
+		if (!ao_fat_cluster_valid(cluster)) {
+			printf ("invalid cluster %08x\n", cluster);
 			return 0xffffffff;
-		ao_file_cluster = cluster;
-		ao_file_cluster_offset = cluster_offset * bytes_per_cluster;
+		}
+		file->cluster = cluster;
+		file->cluster_offset = cluster_offset * bytes_per_cluster;
 	}
 
 	sector_index = sector_offset % sectors_per_cluster;
 	DBG("current cluster %08x sector_index %d sector %d\n",
-	    ao_file_cluster, sector_index,
-	    data_start + (uint32_t) (ao_file_cluster-2) * sectors_per_cluster + sector_index);
-	return data_start + (uint32_t) (ao_file_cluster-2) * sectors_per_cluster + sector_index;
+	    file->cluster, sector_index,
+	    data_start + (uint32_t) (file->cluster-2) * sectors_per_cluster + sector_index);
+	return data_start + (uint32_t) (file->cluster-2) * sectors_per_cluster + sector_index;
 }
+
+/*
+ * ao_fat_invaldate_cluster_offset
+ *
+ * When the file size gets shrunk, invalidate
+ * any file structures referencing clusters beyond that point
+ */
 
 static void
-ao_fat_set_offset(uint32_t offset)
+ao_fat_invalidate_cluster_offset(struct ao_fat_dirent *dirent)
 {
-	DBG("Set offset %d\n", offset);
-	ao_file_offset = offset;
+	int8_t		fd;
+	struct ao_file	*file;
+
+	for (fd = 0; fd < AO_FAT_NFILE; fd++) {
+		file = &ao_file_table[fd];
+		if (!file->busy)
+			continue;
+		if (file->dirent == dirent) {
+			if (file->cluster_offset >= dirent->size) {
+				file->cluster_offset = 0;
+				file->cluster = dirent->cluster;
+			}
+		}
+	}
 }
 
+ 
 /*
  * ao_fat_set_size
  *
@@ -710,32 +817,34 @@ ao_fat_set_offset(uint32_t offset)
  * the cluster chain as needed
  */
 static int8_t
-ao_fat_set_size(uint32_t size)
+ao_fat_set_size(struct ao_file *file, uint32_t size)
 {
 	uint8_t		*dent;
 	cluster_t	first_cluster;
 	cluster_t	have_clusters, need_clusters;
 
 	DBG ("Set size %d\n", size);
-	if (size == ao_file_dirent.size) {
+	if (size == file->dirent->size) {
 		DBG("\tsize match\n");
 		return AO_FAT_SUCCESS;
 	}
 
-	first_cluster = ao_file_dirent.cluster;
-	have_clusters = (ao_file_dirent.size + bytes_per_cluster - 1) / bytes_per_cluster;
+	first_cluster = file->dirent->cluster;
+	have_clusters = (file->dirent->size + bytes_per_cluster - 1) / bytes_per_cluster;
 	need_clusters = (size + bytes_per_cluster - 1) / bytes_per_cluster;
 
 	DBG ("\tfirst cluster %08x have %d need %d\n", first_cluster, have_clusters, need_clusters);
 	if (have_clusters != need_clusters) {
-		if (ao_file_cluster && size >= ao_file_cluster_offset) {
-			cluster_t	offset_clusters = (ao_file_cluster_offset + bytes_per_cluster) / bytes_per_cluster;
+		if (file->cluster && size > file->cluster_offset) {
+			cluster_t	offset_clusters = (file->cluster_offset + bytes_per_cluster) / bytes_per_cluster;
 			cluster_t	extra_clusters = need_clusters - offset_clusters;
 			cluster_t	next_cluster;
 
 			DBG ("\tset size relative offset_clusters %d extra_clusters %d\n",
 			     offset_clusters, extra_clusters);
-			next_cluster = ao_fat_cluster_set_size(ao_file_cluster, extra_clusters);
+
+			/* Need one more to account for file->cluster, which we already have */
+			next_cluster = ao_fat_cluster_set_size(file->cluster, extra_clusters + 1);
 			if (next_cluster == AO_FAT_BAD_CLUSTER)
 				return -AO_FAT_ENOSPC;
 		} else {
@@ -749,17 +858,21 @@ ao_fat_set_size(uint32_t size)
 
 	DBG ("\tupdate directory size\n");
 	/* Update the directory entry */
-	dent = ao_fat_root_get(ao_file_dirent.entry);
-	if (!dent)
+	dent = ao_fat_root_get(file->dirent->entry);
+	if (!dent) {
+		printf ("dent update failed\n");
 		return -AO_FAT_EIO;
+	}
 	put_u32(dent + 0x1c, size);
 	put_u16(dent + 0x1a, first_cluster);
 	if (fat32)
 		put_u16(dent + 0x14, first_cluster >> 16);
-	ao_fat_root_put(dent, ao_file_dirent.entry, 1);
+	ao_fat_root_put(dent, file->dirent->entry, 1);
 
-	ao_file_dirent.size = size;
-	ao_file_dirent.cluster = first_cluster;
+	file->dirent->size = size;
+	file->dirent->cluster = first_cluster;
+	if (have_clusters > need_clusters)
+		ao_fat_invalidate_cluster_offset(file->dirent);
 	DBG ("set size done\n");
 	return AO_FAT_SUCCESS;
 }
@@ -803,7 +916,7 @@ ao_fat_root_init(uint8_t *dent, char name[11], uint8_t attr)
 
 
 static void
-ao_fat_dirent_init(uint8_t *dent, uint16_t entry, struct ao_fat_dirent *dirent)
+ao_fat_dirent_init(struct ao_fat_dirent *dirent, uint8_t *dent, uint16_t entry)
 {
 	memcpy(dirent->name, dent + 0x00, 11);
 	dirent->attr = dent[0x0b];
@@ -886,14 +999,18 @@ ao_fat_open(char name[11], uint8_t mode)
 {
 	uint16_t		entry = 0;
 	struct ao_fat_dirent	dirent;
+	int8_t			status;
 
 	if (ao_fat_setup() != AO_FAT_FILESYSTEM_SUCCESS)
 		return -AO_FAT_EIO;
 
-	if (ao_file_opened)
-		return -AO_FAT_EMFILE;
-	
-	while (ao_fat_readdir(&entry, &dirent)) {
+	for (;;) {
+		status = ao_fat_readdir(&entry, &dirent);
+		if (status < 0) {
+			if (status == -AO_FAT_EDIREOF)
+				return -AO_FAT_ENOENT;
+			return status;
+		}
 		if (!memcmp(name, dirent.name, 11)) {
 			if (AO_FAT_IS_DIR(dirent.attr))
 				return -AO_FAT_EISDIR;
@@ -901,10 +1018,7 @@ ao_fat_open(char name[11], uint8_t mode)
 				return -AO_FAT_EPERM;
 			if (mode > AO_FAT_OPEN_READ && (dirent.attr & AO_FAT_FILE_READ_ONLY))
 				return -AO_FAT_EACCESS;
-			ao_file_dirent = dirent;
-			ao_fat_set_offset(0);
-			ao_file_opened = 1;
-			return AO_FAT_SUCCESS;
+			return ao_fat_fd_alloc(&dirent);
 		}
 	}
 	return -AO_FAT_ENOENT;
@@ -919,49 +1033,62 @@ ao_fat_open(char name[11], uint8_t mode)
 int8_t
 ao_fat_creat(char name[11])
 {
-	uint16_t	entry;
-	int8_t		status;
-	uint8_t		*dent;
+	uint16_t		entry;
+	int8_t			fd;
+	int8_t			status;
+	uint8_t			*dent;
+	struct ao_file		*file;
 
 	if (ao_fat_setup() != AO_FAT_FILESYSTEM_SUCCESS)
 		return -AO_FAT_EIO;
 
-	if (ao_file_opened)
-		return -AO_FAT_EMFILE;
-
-	status = ao_fat_open(name, AO_FAT_OPEN_WRITE);
-
-	switch (status) {
-	case -AO_FAT_SUCCESS:
-		status = ao_fat_set_size(0);
-		break;
-	case -AO_FAT_ENOENT:
-		entry = 0;
-		for (;;) {
-			dent = ao_fat_root_get(entry);
-			if (!dent) {
+	fd = ao_fat_open(name, AO_FAT_OPEN_WRITE);
+	if (fd >= 0) {
+		file = &ao_file_table[fd];
+		status = ao_fat_set_size(file, 0);
+		if (status < 0) {
+			ao_fat_close(fd);
+			fd = status;
+		}
+	} else {
+		if (fd == -AO_FAT_ENOENT) {
+			entry = 0;
+			for (;;) {
+				dent = ao_fat_root_get(entry);
+				if (!dent) {
 				
-				if (ao_fat_root_extend(entry))
-					continue;
-				status = -AO_FAT_ENOSPC;
-				break;
+					if (ao_fat_root_extend(entry))
+						continue;
+					fd = -AO_FAT_ENOSPC;
+					break;
+				}
+				if (dent[0] == AO_FAT_DENT_EMPTY || dent[0] == AO_FAT_DENT_END) {
+					fd = ao_fat_fd_alloc(NULL);
+					if (fd < 0) {
+						ao_fat_root_put(dent, entry, 0);
+						break;
+					}
+
+					file = &ao_file_table[fd];
+					/* Initialize the dent */
+					ao_fat_root_init(dent, name, AO_FAT_FILE_REGULAR);
+
+					/* Now initialize the dirent from the dent */
+					ao_fat_dirent_init(file->dirent, dent, entry);
+
+					/* And write the dent to storage */
+					ao_fat_root_put(dent, entry, 1);
+
+					status = -AO_FAT_SUCCESS;
+					break;
+				} else {
+					ao_fat_root_put(dent, entry, 0);
+				}
+				entry++;
 			}
-				
-			if (dent[0] == AO_FAT_DENT_EMPTY || dent[0] == AO_FAT_DENT_END) {
-				ao_fat_root_init(dent, name, AO_FAT_FILE_REGULAR);
-				ao_fat_dirent_init(dent, entry,  &ao_file_dirent);
-				ao_fat_root_put(dent, entry, 1);
-				ao_file_opened = 1;
-				ao_fat_set_offset(0);
-				status = -AO_FAT_SUCCESS;
-				break;
-			} else {
-				ao_fat_root_put(dent, entry, 0);
-			}
-			entry++;
 		}
 	}
-	return status;
+	return fd;
 }
 
 /*
@@ -970,16 +1097,13 @@ ao_fat_creat(char name[11])
  * Close the currently open file
  */
 int8_t
-ao_fat_close(void)
+ao_fat_close(int8_t fd)
 {
-	if (!ao_file_opened)
+	struct ao_file *file = ao_fat_fd_to_file(fd);
+	if (!file)
 		return -AO_FAT_EBADF;
 
-	memset(&ao_file_dirent, '\0', sizeof (struct ao_fat_dirent));
-	ao_file_offset = 0;
-	ao_file_cluster = 0;
-	ao_file_opened = 0;
-
+	ao_fat_fd_free(fd);
 	ao_fat_sync();
 	return AO_FAT_SUCCESS;
 }
@@ -991,17 +1115,21 @@ ao_fat_close(void)
  */
 
 static void *
-ao_fat_map_current(int len, cluster_offset_t *offsetp, cluster_offset_t *this_time)
+ao_fat_map_current(struct ao_file *file, int len, cluster_offset_t *offsetp, cluster_offset_t *this_time)
 {
 	cluster_offset_t 	offset;
 	sector_t		sector;
 	void			*buf;
 
-	offset = ao_file_offset & SECTOR_MASK;
-	sector = ao_fat_current_sector();
-	if (sector == 0xffffffff)
+	offset = file->offset & SECTOR_MASK;
+	sector = ao_fat_current_sector(file);
+	if (sector == 0xffffffff) {
+		printf ("invalid sector at offset %d\n", file->offset);
 		return NULL;
+	}
 	buf = ao_fat_sector_get(sector);
+	if (!buf)
+		printf ("sector get failed. Sector %d. Partition end %d\n", sector, partition_end);
 	if (offset + len < SECTOR_SIZE)
 		*this_time = len;
 	else
@@ -1016,26 +1144,27 @@ ao_fat_map_current(int len, cluster_offset_t *offsetp, cluster_offset_t *this_ti
  * Read from the file
  */
 int
-ao_fat_read(void *dst, int len)
+ao_fat_read(int8_t fd, void *dst, int len)
 {
 	uint8_t			*dst_b = dst;
 	cluster_offset_t	this_time;
 	cluster_offset_t	offset;
 	uint8_t			*buf;
 	int			ret = 0;
-
-	if (!ao_file_opened)
+	struct ao_file		*file = ao_fat_fd_to_file(fd);
+	if (!file)
 		return -AO_FAT_EBADF;
 
-	if (ao_file_offset + len > ao_file_dirent.size)
-		len = ao_file_dirent.size - ao_file_offset;
+	if (file->offset + len > file->dirent->size)
+		len = file->dirent->size - file->offset;
 
 	if (len < 0)
 		len = 0;
 
 	while (len) {
-		buf = ao_fat_map_current(len, &offset, &this_time);
+		buf = ao_fat_map_current(file, len, &offset, &this_time);
 		if (!buf) {
+			printf ("map_current failed\n");
 			ret = -AO_FAT_EIO;
 			break;
 		}
@@ -1045,7 +1174,7 @@ ao_fat_read(void *dst, int len)
 		ret += this_time;
 		len -= this_time;
 		dst_b += this_time;
-		ao_fat_set_offset(ao_file_offset + this_time);
+		file->offset = file->offset + this_time;
 	}
 	return ret;
 }
@@ -1056,26 +1185,27 @@ ao_fat_read(void *dst, int len)
  * Write to the file, extended as necessary
  */
 int
-ao_fat_write(void *src, int len)
+ao_fat_write(int8_t fd, void *src, int len)
 {
-	uint8_t		*src_b = src;
-	uint16_t	this_time;
-	uint16_t	offset;
-	uint8_t		*buf;
-	int		ret = 0;
-
-	if (!ao_file_opened)
+	uint8_t			*src_b = src;
+	cluster_offset_t	this_time;
+	cluster_offset_t	offset;
+	uint8_t			*buf;
+	int			ret = 0;
+	struct ao_file		*file = ao_fat_fd_to_file(fd);
+	if (!file)
 		return -AO_FAT_EBADF;
 
-	if (ao_file_offset + len > ao_file_dirent.size) {
-		ret = ao_fat_set_size(ao_file_offset + len);
+	if (file->offset + len > file->dirent->size) {
+		ret = ao_fat_set_size(file, file->offset + len);
 		if (ret < 0)
 			return ret;
 	}
 
 	while (len) {
-		buf = ao_fat_map_current(len, &offset, &this_time);
+		buf = ao_fat_map_current(file, len, &offset, &this_time);
 		if (!buf) {
+			printf ("map_current failed\n");
 			ret = -AO_FAT_EIO;
 			break;
 		}
@@ -1085,7 +1215,7 @@ ao_fat_write(void *src, int len)
 		ret += this_time;
 		len -= this_time;
 		src_b += this_time;
-		ao_fat_set_offset(ao_file_offset + this_time);
+		file->offset = file->offset + this_time;
 	}
 	return ret;
 }
@@ -1100,13 +1230,14 @@ ao_fat_write(void *src, int len)
  * write
  */
 int32_t
-ao_fat_seek(int32_t pos, uint8_t whence)
+ao_fat_seek(int8_t fd, int32_t pos, uint8_t whence)
 {
-	uint32_t	new_offset = ao_file_offset;
-
-	if (!ao_file_opened)
+	offset_t	new_offset;
+	struct ao_file	*file = ao_fat_fd_to_file(fd);
+	if (!file)
 		return -AO_FAT_EBADF;
 
+	new_offset = file->offset;
 	switch (whence) {
 	case AO_FAT_SEEK_SET:
 		new_offset = pos;
@@ -1115,11 +1246,11 @@ ao_fat_seek(int32_t pos, uint8_t whence)
 		new_offset += pos;
 		break;
 	case AO_FAT_SEEK_END:
-		new_offset = ao_file_dirent.size + pos;
+		new_offset = file->dirent->size + pos;
 		break;
 	}
-	ao_fat_set_offset(new_offset);
-	return ao_file_offset;
+	file->offset = new_offset;
+	return file->offset;
 }
 
 /*
@@ -1193,7 +1324,7 @@ ao_fat_readdir(uint16_t *entry, struct ao_fat_dirent *dirent)
 			return -AO_FAT_EDIREOF;
 		}
 		if (dent[0] != AO_FAT_DENT_EMPTY && (dent[0xb] & 0xf) != 0xf) {
-			ao_fat_dirent_init(dent, *entry, dirent);
+			ao_fat_dirent_init(dirent, dent, *entry);
 			ao_fat_root_put(dent, *entry, 0);
 			(*entry)++;
 			return AO_FAT_SUCCESS;
@@ -1304,12 +1435,12 @@ ao_fat_parse_name(char name[11])
 }
 
 static void
-ao_fat_show_cmd(void)
+ao_fat_dump_cmd(void)
 {
 	char		name[11];
-	int8_t		status;
+	int8_t		fd;
 	int		cnt, i;
-	char		buf[64];
+	char		buf[32];
 
 	ao_fat_parse_name(name);
 	if (name[0] == '\0') {
@@ -1317,31 +1448,27 @@ ao_fat_show_cmd(void)
 		return;
 	}
 		
-	status = ao_fat_open(name, AO_FAT_OPEN_READ);
-	if (status) {
-		printf ("Open failed: %d\n", status);
+	fd = ao_fat_open(name, AO_FAT_OPEN_READ);
+	if (fd < 0) {
+		printf ("Open failed: %d\n", fd);
 		return;
 	}
-	while ((cnt = ao_fat_read(buf, sizeof(buf))) > 0) {
+	while ((cnt = ao_fat_read(fd, buf, sizeof(buf))) > 0) {
 		for (i = 0; i < cnt; i++)
 			putchar(buf[i]);
 	}
-	ao_fat_close();
-}
-
-static void
-ao_fat_putchar(char c)
-{
+	ao_fat_close(fd);
 }
 
 static void
 ao_fat_write_cmd(void)
 {
 	char		name[11];
-	int8_t		status;
+	int8_t		fd;
 	int		cnt, i;
 	char		buf[64];
 	char		c;
+	int		status;
 
 	ao_fat_parse_name(name);
 	if (name[0] == '\0') {
@@ -1349,9 +1476,9 @@ ao_fat_write_cmd(void)
 		return;
 	}
 		
-	status = ao_fat_creat(name);
-	if (status) {
-		printf ("Open failed: %d\n", status);
+	fd = ao_fat_creat(name);
+	if (fd < 0) {
+		printf ("Open failed: %d\n", fd);
 		return;
 	}
 	flush();
@@ -1361,19 +1488,61 @@ ao_fat_write_cmd(void)
 			if (c == '\n') putchar ('\r');
 			putchar(c); flush();
 		}
-		if (ao_fat_write(&c, 1) != 1) {
-			printf ("Write failure\n");
+		status = ao_fat_write(fd, &c, 1);
+		if (status != 1) {
+			printf ("Write failure %d\n", status);
 			break;
 		}
 	}
-	ao_fat_close();
+	ao_fat_close(fd);
+}
+
+static void
+put32(uint32_t a)
+{
+	ao_cmd_put16(a >> 16);
+	ao_cmd_put16(a);
+}
+
+static void
+ao_fat_hexdump_cmd(void)
+{
+	char		name[11];
+	int8_t		fd;
+	int		cnt, i;
+	char		buf[8];
+	uint32_t	addr;
+
+	ao_fat_parse_name(name);
+	if (name[0] == '\0') {
+		ao_cmd_status = ao_cmd_syntax_error;
+		return;
+	}
+		
+	fd = ao_fat_open(name, AO_FAT_OPEN_READ);
+	if (fd < 0) {
+		printf ("Open failed: %d\n", fd);
+		return;
+	}
+	addr = 0;
+	while ((cnt = ao_fat_read(fd, buf, sizeof(buf))) > 0) {
+		put32(addr);
+		for (i = 0; i < cnt; i++) {
+			putchar(' ');
+			ao_cmd_put8(buf[i]);
+		}
+		putchar('\n');
+		addr += cnt;
+	}
+	ao_fat_close(fd);
 }
 
 static const struct ao_cmds ao_fat_cmds[] = {
 	{ ao_fat_mbr_cmd,	"M\0Show FAT MBR and other info" },
 	{ ao_fat_list_cmd,	"F\0List FAT directory" },
-	{ ao_fat_show_cmd,	"S <name>\0Show FAT file" },
+	{ ao_fat_dump_cmd,	"D <name>\0Dump FAT file" },
 	{ ao_fat_write_cmd,	"W <name>\0Write FAT file (end with ^D)" },
+	{ ao_fat_hexdump_cmd,	"H <name>\0HEX dump FAT file" },
 	{ 0, NULL },
 };
 

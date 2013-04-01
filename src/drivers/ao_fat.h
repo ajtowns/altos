@@ -81,20 +81,20 @@ int8_t
 ao_fat_creat(char name[11]);
 
 int8_t
-ao_fat_close(void);
+ao_fat_close(int8_t fd);
 
 int
-ao_fat_read(void *dest, int len);
+ao_fat_read(int8_t fd, void *dest, int len);
 
 int
-ao_fat_write(void *src, int len);
+ao_fat_write(int8_t fd, void *src, int len);
 
 #define AO_FAT_SEEK_SET	0
 #define AO_FAT_SEEK_CUR	1
 #define AO_FAT_SEEK_END	2
 
 int32_t
-ao_fat_seek(int32_t pos, uint8_t whence);
+ao_fat_seek(int8_t fd, int32_t pos, uint8_t whence);
 
 int8_t
 ao_fat_unlink(char name[11]);
