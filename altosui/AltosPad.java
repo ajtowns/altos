@@ -168,8 +168,12 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class Battery extends LaunchStatus {
 		void show (AltosState state, int crc_errors) {
-			show("%4.2f V", state.battery);
-			lights.set(state.battery > 3.7);
+			if (state.battery == AltosRecord.MISSING)
+				hide();
+			else {
+				show("%4.2f V", state.battery);
+				lights.set(state.battery > 3.7);
+			}
 		}
 		public Battery (GridBagLayout layout, int y) {
 			super(layout, y, "Battery Voltage");
@@ -285,7 +289,10 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class PadAlt extends LaunchValue {
 		void show (AltosState state, int crc_errors) {
-			show("%4.0f m", state.pad_alt);
+			if (state.pad_alt == AltosRecord.MISSING)
+				hide();
+			else
+				show("%4.0f m", state.pad_alt);
 		}
 		public PadAlt (GridBagLayout layout, int y) {
 			super (layout, y, "Pad Altitude");

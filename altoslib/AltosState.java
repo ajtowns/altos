@@ -99,19 +99,27 @@ public class AltosState {
 
 		altitude = data.altitude();
 
+		height = AltosRecord.MISSING;
 		if (data.kalman_height != AltosRecord.MISSING)
 			height = data.kalman_height;
 		else {
-			if (prev_state != null)
-				height = (prev_state.height * 15 + altitude - ground_altitude) / 16.0;
+			if (prev_state != null && altitude != AltosRecord.MISSING && ground_altitude != AltosRecord.MISSING) {
+				double	cur_height = altitude - ground_altitude;
+				if (prev_state.height == AltosRecord.MISSING)
+					height = cur_height;
+				else
+					height = (prev_state.height * 15 + cur_height) / 16.0;
+			}
 		}
 
 		report_time = System.currentTimeMillis();
 
 		if (data.kalman_acceleration != AltosRecord.MISSING)
 			acceleration = data.kalman_acceleration;
-		else
+		else {
 			acceleration = data.acceleration();
+			System.out.printf ("data acceleration %g\n", acceleration);
+		}
 		temperature = data.temperature();
 		drogue_sense = data.drogue_voltage();
 		main_sense = data.main_voltage();
@@ -169,16 +177,18 @@ public class AltosState {
 			npad = 0;
 			ngps = 0;
 			gps = null;
-			baro_speed = 0;
-			accel_speed = 0;
+			baro_speed = AltosRecord.MISSING;
+			accel_speed = AltosRecord.MISSING;
+			max_baro_speed = AltosRecord.MISSING;
+			max_accel_speed = AltosRecord.MISSING;
+			max_height = AltosRecord.MISSING;
+			max_acceleration = AltosRecord.MISSING;
 			time_change = 0;
-			if (acceleration == AltosRecord.MISSING)
-				acceleration = 0;
 		}
 
 		time = tick / 100.0;
 
-		if (cur.new_gps && (state == AltosLib.ao_flight_pad || state == AltosLib.ao_flight_idle)) {
+		if (cur.new_gps && (state < AltosLib.ao_flight_boost)) {
 
 			/* Track consecutive 'good' gps reports, waiting for 10 of them */
 			if (data.gps != null && data.gps.locked && data.gps.nsat >= 4)
@@ -188,7 +198,7 @@ public class AltosState {
 
 			/* Average GPS data while on the pad */
 			if (data.gps != null && data.gps.locked && data.gps.nsat >= 4) {
-				if (ngps > 1) {
+				if (ngps > 1 && state == AltosLib.ao_flight_pad) {
 					/* filter pad position */
 					pad_lat = (pad_lat * 31.0 + data.gps.lat) / 32.0;
 					pad_lon = (pad_lon * 31.0 + data.gps.lon) / 32.0;
@@ -201,7 +211,7 @@ public class AltosState {
 				ngps++;
 			}
 		} else {
-			if (ngps == 0)
+			if (ngps == 0 && ground_altitude != AltosRecord.MISSING)
 				pad_alt = ground_altitude;
 		}
 
@@ -218,14 +228,14 @@ public class AltosState {
 		boost = (AltosLib.ao_flight_boost == state);
 
 		/* Only look at accelerometer data under boost */
-		if (boost && acceleration > max_acceleration && acceleration != AltosRecord.MISSING)
+		if (boost && acceleration != AltosRecord.MISSING && (max_acceleration == AltosRecord.MISSING || acceleration > max_acceleration))
 			max_acceleration = acceleration;
-		if (boost && accel_speed > max_accel_speed && accel_speed != AltosRecord.MISSING)
+		if (boost && accel_speed != AltosRecord.MISSING && (max_accel_speed == AltosRecord.MISSING || accel_speed > max_accel_speed))
 			max_accel_speed = accel_speed;
-		if (boost && baro_speed > max_baro_speed && baro_speed != AltosRecord.MISSING)
+		if (boost && baro_speed != AltosRecord.MISSING && (max_baro_speed == AltosRecord.MISSING || baro_speed > max_baro_speed))
 			max_baro_speed = baro_speed;
 
-		if (height > max_height && height != AltosRecord.MISSING)
+		if (height != AltosRecord.MISSING || (max_height == AltosRecord.MISSING || height > max_height))
 			max_height = height;
 		if (data.gps != null) {
 			if (gps == null || !gps.locked || data.gps.locked)
