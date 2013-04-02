@@ -76,7 +76,8 @@ public class AltosUSBDevice  extends altos_device implements AltosDevice {
 
 		if (want_product == AltosUILib.product_altimeter)
 			return matchProduct(AltosUILib.product_telemetrum) ||
-				matchProduct(AltosUILib.product_megametrum);
+				matchProduct(AltosUILib.product_megametrum) ||
+				matchProduct(AltosUILib.product_telegps);
 
 		int have_product = getProduct();
 
