@@ -37,8 +37,8 @@ public class AltosTelemetryRecordLocation extends AltosTelemetryRecordRaw {
 	int	climb_rate;
 	int	course;
 
-	public AltosTelemetryRecordLocation(int[] in_bytes) {
-		super(in_bytes);
+	public AltosTelemetryRecordLocation(int[] in_bytes, int rssi) {
+		super(in_bytes, rssi);
 
 		flags          = uint8(5);
 		altitude       = int16(6);

@@ -29,8 +29,8 @@ public class AltosTelemetryRecordConfiguration extends AltosTelemetryRecordRaw {
 	String	callsign;
 	String	version;
 
-	public AltosTelemetryRecordConfiguration(int[] in_bytes) {
-		super(in_bytes);
+	public AltosTelemetryRecordConfiguration(int[] in_bytes, int rssi) {
+		super(in_bytes, rssi);
 
 		device_type    = uint8(5);
 		flight         = uint16(6);

@@ -21,8 +21,8 @@ public class AltosTelemetryRecordSatellite extends AltosTelemetryRecordRaw {
 	int		channels;
 	AltosGPSSat[]	sats;
 
-	public AltosTelemetryRecordSatellite(int[] in_bytes) {
-		super(in_bytes);
+	public AltosTelemetryRecordSatellite(int[] in_bytes, int rssi) {
+		super(in_bytes, rssi);
 
 		channels = uint8(5);
 		if (channels > 12)

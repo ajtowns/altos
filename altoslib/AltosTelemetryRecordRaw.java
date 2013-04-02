@@ -22,6 +22,7 @@ public class AltosTelemetryRecordRaw extends AltosTelemetryRecord {
 	int	serial;
 	int	tick;
 	int	type;
+	int	rssi;
 
 	long	received_time;
 
@@ -53,11 +54,12 @@ public class AltosTelemetryRecordRaw extends AltosTelemetryRecord {
 		return AltosLib.string(bytes, off + 1, l);
 	}
 
-	public AltosTelemetryRecordRaw(int[] in_bytes) {
+	public AltosTelemetryRecordRaw(int[] in_bytes, int in_rssi) {
 		bytes = in_bytes;
 		serial = uint16(0);
 		tick   = uint16(2);
 		type   = uint8(4);
+		rssi   = in_rssi;
 	}
 
 	public AltosRecord update_state(AltosRecord previous) {
@@ -69,6 +71,7 @@ public class AltosTelemetryRecordRaw extends AltosTelemetryRecord {
 			next = new AltosRecordNone();
 		next.serial = serial;
 		next.tick = tick;
+		next.rssi = rssi;
 		return next;
 	}
 

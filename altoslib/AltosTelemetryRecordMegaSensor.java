@@ -35,10 +35,8 @@ public class AltosTelemetryRecordMegaSensor extends AltosTelemetryRecordRaw {
 	int	mag_y;
 	int	mag_z;
 
-	int	rssi;
-
-	public AltosTelemetryRecordMegaSensor(int[] in_bytes, int in_rssi) {
-		super(in_bytes);
+	public AltosTelemetryRecordMegaSensor(int[] in_bytes, int rssi) {
+		super(in_bytes, rssi);
 
 		accel         = int16(6);
 		pres          = int32(8);
@@ -55,8 +53,6 @@ public class AltosTelemetryRecordMegaSensor extends AltosTelemetryRecordRaw {
 		mag_x	      = int16(26);
 		mag_y	      = int16(28);
 		mag_z	      = int16(30);
-
-		rssi	      = in_rssi;
 	}
 
 	public AltosRecord update_state(AltosRecord previous) {
@@ -84,8 +80,6 @@ public class AltosTelemetryRecordMegaSensor extends AltosTelemetryRecordRaw {
 		next.mag.x = mag_x;
 		next.mag.y = mag_y;
 		next.mag.z = mag_z;
-
-		next.rssi = rssi;
 
 		next.seen |= AltosRecord.seen_sensor;
 

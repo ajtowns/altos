@@ -36,10 +36,8 @@ public class AltosTelemetryRecordSensor extends AltosTelemetryRecordRaw {
 	int	accel_plus_g;
 	int	accel_minus_g;
 
-	int	rssi;
-
-	public AltosTelemetryRecordSensor(int[] in_bytes, int in_rssi) {
-		super(in_bytes);
+	public AltosTelemetryRecordSensor(int[] in_bytes, int rssi) {
+		super(in_bytes, rssi);
 		state         = uint8(5);
 
 		accel         = int16(6);
@@ -57,8 +55,6 @@ public class AltosTelemetryRecordSensor extends AltosTelemetryRecordRaw {
 		ground_accel  = int16(26);
 		accel_plus_g  = int16(28);
 		accel_minus_g = int16(30);
-
-		rssi	      = in_rssi;
 	}
 
 	public AltosRecord update_state(AltosRecord prev) {
@@ -100,8 +96,6 @@ public class AltosTelemetryRecordSensor extends AltosTelemetryRecordRaw {
 			next.accel_plus_g = AltosRecord.MISSING;
 			next.accel_minus_g = AltosRecord.MISSING;
 		}
-
-		next.rssi = rssi;
 
 		next.seen |= AltosRecord.seen_sensor | AltosRecord.seen_temp_volt;
 

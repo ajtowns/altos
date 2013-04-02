@@ -35,8 +35,8 @@ public class AltosTelemetryRecordMegaData extends AltosTelemetryRecordRaw {
 	int	speed;
 	int	height;
 
-	public AltosTelemetryRecordMegaData(int[] in_bytes) {
-		super(in_bytes);
+	public AltosTelemetryRecordMegaData(int[] in_bytes, int rssi) {
+		super(in_bytes, rssi);
 
 		state = int8(5);
 
