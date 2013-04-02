@@ -30,7 +30,7 @@ extern uint8_t ao_radio_mutex;
 #define ao_sdcard_deselect()		ao_gpio_set(AO_SDCARD_SPI_CS_PORT,AO_SDCARD_SPI_CS_PIN,AO_SDCARD_SPI_CS,1)
 
 /* Include SD card commands */
-#define SDCARD_DEBUG	1
+#define SDCARD_DEBUG	0
 
 /* Spew SD tracing */
 #define SDCARD_TRACE	0
@@ -326,11 +326,11 @@ ao_sdcard_setup(void)
 	ao_sdcard_send_fixed(0xff, 10);
 
 	/* Reset the card and get it into SPI mode */
-	for (i = 0; i < SDCARD_IDLE_WAIT; i++) {
+	for (i = 0; i < SDCARD_IDLE_RETRY; i++) {
 		if (ao_sdcard_go_idle_state() == SDCARD_STATUS_IDLE_STATE)
 			break;
 	}
-	if (i == SDCARD_IDLE_WAIT)
+	if (i == SDCARD_IDLE_RETRY)
 		goto bail;
 
 	/* Figure out what kind of card we have */
@@ -346,14 +346,14 @@ ao_sdcard_setup(void)
 			sdver2 = 1;
 		}
 
-		for (i = 0; i < SDCARD_IDLE_WAIT; i++) {
+		for (i = 0; i < SDCARD_IDLE_RETRY; i++) {
 			ret = ao_sdcard_app_send_op_cond(arg);
 			if (ret != SDCARD_STATUS_IDLE_STATE)
 				break;
 		}
 		if (ret != SDCARD_STATUS_READY_STATE) {
 			/* MMC */
-			for (i = 0; i < SDCARD_IDLE_WAIT; i++) {
+			for (i = 0; i < SDCARD_IDLE_RETRY; i++) {
 				ret = ao_sdcard_send_op_cond();
 				if (ret != SDCARD_STATUS_IDLE_STATE)
 					break;
@@ -396,11 +396,11 @@ _ao_sdcard_reset(void)
 	uint8_t	ret;
 	uint8_t	response[10];
 
-	for (i = 0; i < SDCARD_IDLE_WAIT; i++) {
+	for (i = 0; i < SDCARD_IDLE_RETRY; i++) {
 		if (ao_sdcard_go_idle_state() == SDCARD_STATUS_IDLE_STATE)
 			break;
 	}
-	if (i == SDCARD_IDLE_WAIT) {
+	if (i == SDCARD_IDLE_RETRY) {
 		ret = 0x3f;
 		goto bail;
 	}
@@ -418,7 +418,7 @@ _ao_sdcard_reset(void)
 			sdver2 = 1;
 		}
 
-		for (i = 0; i < SDCARD_IDLE_WAIT; i++) {
+		for (i = 0; i < SDCARD_IDLE_RETRY; i++) {
 			ret = ao_sdcard_app_send_op_cond(arg);
 			if (ret != SDCARD_STATUS_IDLE_STATE)
 				break;
@@ -426,7 +426,7 @@ _ao_sdcard_reset(void)
 
 		if (ret != SDCARD_STATUS_READY_STATE) {
 			/* MMC */
-			for (i = 0; i < SDCARD_IDLE_WAIT; i++) {
+			for (i = 0; i < SDCARD_IDLE_RETRY; i++) {
 				ret = ao_sdcard_send_op_cond();
 				if (ret != SDCARD_STATUS_IDLE_STATE)
 					break;
