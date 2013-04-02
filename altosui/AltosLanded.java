@@ -271,6 +271,10 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 		}
 	}
 
+	public String getName() {
+		return "Landed";
+	}
+
 	public AltosLanded(AltosFlightReader in_reader) {
 		layout = new GridBagLayout();
 

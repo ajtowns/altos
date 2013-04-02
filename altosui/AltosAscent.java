@@ -398,6 +398,10 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		add(max);
 	}
 
+	public String getName() {
+		return "Ascent";
+	}
+
 	public AltosAscent() {
 		layout = new GridBagLayout();
 

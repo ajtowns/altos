@@ -440,6 +440,10 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			apogee.hide();
 	}
 
+	public String getName() {
+		return "Descent";
+	}
+
 	public AltosDescent() {
 		layout = new GridBagLayout();
 

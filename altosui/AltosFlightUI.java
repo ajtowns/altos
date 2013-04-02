@@ -39,6 +39,7 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay, A
 	AltosSiteMap    sitemap;
 	boolean		has_map;
 	boolean		has_companion;
+	boolean		has_state;
 
 	private AltosFlightStatus flightStatus;
 	private AltosInfoTable flightInfo;
@@ -102,9 +103,21 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay, A
 		JComponent tab = which_tab(state);
 		try {
 		pad.show(state, crc_errors);
+
+		if (state.state != Altos.ao_flight_startup) {
+			if (!has_state) {
+				pane.setTitleAt(0, "Launch Pad");
+				pane.add(ascent, 1);
+				pane.add(descent, 2);
+				pane.add(landed, 3);
+				has_state = true;
+			}
+		}
+
 		ascent.show(state, crc_errors);
 		descent.show(state, crc_errors);
 		landed.show(state, crc_errors);
+
 		if (tab != cur_tab) {
 			if (cur_tab == pane.getSelectedComponent()) {
 				pane.setSelectedComponent(tab);
@@ -260,22 +273,18 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay, A
 		pane = new JTabbedPane();
 
 		pad = new AltosPad();
-		pane.add("Launch Pad", pad);
+		pane.add("Status", pad);
 
 		ascent = new AltosAscent();
-		pane.add("Ascent", ascent);
-
 		descent = new AltosDescent();
-		pane.add("Descent", descent);
-
 		landed = new AltosLanded(reader);
-		pane.add("Landed", landed);
 
 		flightInfo = new AltosInfoTable();
 		pane.add("Table", new JScrollPane(flightInfo));
 
 		companion = new AltosCompanionInfo();
 		has_companion = false;
+		has_state = false;
 
 		sitemap = new AltosSiteMap();
 		has_map = false;
