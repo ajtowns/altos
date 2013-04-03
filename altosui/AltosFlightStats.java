@@ -150,7 +150,7 @@ public class AltosFlightStats {
 					max_speed = state.max_baro_speed;
 				max_acceleration = state.max_acceleration;
 			}
-			if (state.gps.locked && state.gps.nsat >= 4) {
+			if (state.gps != null && state.gps.locked && state.gps.nsat >= 4) {
 				if (state.state <= Altos.ao_flight_pad) {
 					pad_lat = state.gps.lat;
 					pad_lon = state.gps.lon;
