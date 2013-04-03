@@ -98,14 +98,16 @@ public class AltosState {
 		ground_altitude = data.ground_altitude();
 
 		altitude = data.altitude();
+		if (altitude == AltosRecord.MISSING && data.gps != null)
+			altitude = data.gps.alt;
 
 		height = AltosRecord.MISSING;
 		if (data.kalman_height != AltosRecord.MISSING)
 			height = data.kalman_height;
 		else {
-			if (prev_state != null && altitude != AltosRecord.MISSING && ground_altitude != AltosRecord.MISSING) {
+			if (altitude != AltosRecord.MISSING && ground_altitude != AltosRecord.MISSING) {
 				double	cur_height = altitude - ground_altitude;
-				if (prev_state.height == AltosRecord.MISSING)
+				if (prev_state == null || prev_state.height == AltosRecord.MISSING)
 					height = cur_height;
 				else
 					height = (prev_state.height * 15 + cur_height) / 16.0;
@@ -116,10 +118,8 @@ public class AltosState {
 
 		if (data.kalman_acceleration != AltosRecord.MISSING)
 			acceleration = data.kalman_acceleration;
-		else {
+		else
 			acceleration = data.acceleration();
-			System.out.printf ("data acceleration %g\n", acceleration);
-		}
 		temperature = data.temperature();
 		drogue_sense = data.drogue_voltage();
 		main_sense = data.main_voltage();
@@ -179,10 +179,10 @@ public class AltosState {
 			gps = null;
 			baro_speed = AltosRecord.MISSING;
 			accel_speed = AltosRecord.MISSING;
-			max_baro_speed = AltosRecord.MISSING;
-			max_accel_speed = AltosRecord.MISSING;
-			max_height = AltosRecord.MISSING;
-			max_acceleration = AltosRecord.MISSING;
+			max_baro_speed = 0;
+			max_accel_speed = 0;
+			max_height = 0;
+			max_acceleration = 0;
 			time_change = 0;
 		}
 
@@ -230,12 +230,12 @@ public class AltosState {
 		/* Only look at accelerometer data under boost */
 		if (boost && acceleration != AltosRecord.MISSING && (max_acceleration == AltosRecord.MISSING || acceleration > max_acceleration))
 			max_acceleration = acceleration;
-		if (boost && accel_speed != AltosRecord.MISSING && (max_accel_speed == AltosRecord.MISSING || accel_speed > max_accel_speed))
+		if (boost && accel_speed != AltosRecord.MISSING && accel_speed > max_accel_speed)
 			max_accel_speed = accel_speed;
-		if (boost && baro_speed != AltosRecord.MISSING && (max_baro_speed == AltosRecord.MISSING || baro_speed > max_baro_speed))
+		if (boost && baro_speed != AltosRecord.MISSING && baro_speed > max_baro_speed)
 			max_baro_speed = baro_speed;
 
-		if (height != AltosRecord.MISSING || (max_height == AltosRecord.MISSING || height > max_height))
+		if (height != AltosRecord.MISSING && height > max_height)
 			max_height = height;
 		if (data.gps != null) {
 			if (gps == null || !gps.locked || data.gps.locked)

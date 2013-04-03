@@ -66,6 +66,10 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			value.setFont(Altos.value_font);
 		}
 
+		public void set_label(String text) {
+			label.setText(text);
+		}
+		
 		public LaunchStatus (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
 			c.weighty = 1;
@@ -135,6 +139,10 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			show(String.format(format, v));
 		}
 
+		public void set_label(String text) {
+			label.setText(text);
+		}
+		
 		void reset() {
 			value.setText("");
 		}
@@ -267,7 +275,13 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class PadLat extends LaunchValue {
 		void show (AltosState state, int crc_errors) {
-			show(pos(state.pad_lat,"N", "S"));
+			if (state.state < AltosLib.ao_flight_pad && state.gps != null) {
+				show(pos(state.gps.lat,"N", "S"));
+				set_label("Latitude");
+			} else { 
+				show(pos(state.pad_lat,"N", "S"));
+				set_label("Pad Latitude");
+			}
 		}
 		public PadLat (GridBagLayout layout, int y) {
 			super (layout, y, "Pad Latitude");
@@ -278,7 +292,13 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class PadLon extends LaunchValue {
 		void show (AltosState state, int crc_errors) {
-			show(pos(state.pad_lon,"E", "W"));
+			if (state.state < AltosLib.ao_flight_pad && state.gps != null) {
+				show(pos(state.gps.lon,"E", "W"));
+				set_label("Longitude");
+			} else { 
+				show(pos(state.pad_lon,"E", "W"));
+				set_label("Pad Longitude");
+			}
 		}
 		public PadLon (GridBagLayout layout, int y) {
 			super (layout, y, "Pad Longitude");
@@ -289,10 +309,17 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class PadAlt extends LaunchValue {
 		void show (AltosState state, int crc_errors) {
-			if (state.pad_alt == AltosRecord.MISSING)
-				hide();
-			else
-				show("%4.0f m", state.pad_alt);
+			if (state.state < AltosLib.ao_flight_pad && state.gps != null) {
+				show("%4.0f m", state.gps.alt);
+				set_label("Altitude");
+			} else {
+				if (state.pad_alt == AltosRecord.MISSING)
+					hide();
+				else {
+					show("%4.0f m", state.pad_alt);
+					set_label("Pad Altitude");
+				}
+			}
 		}
 		public PadAlt (GridBagLayout layout, int y) {
 			super (layout, y, "Pad Altitude");
