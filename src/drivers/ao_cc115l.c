@@ -638,7 +638,7 @@ ao_radio_test_cmd(void)
 #endif
 		ao_radio_get();
 		ao_radio_set_len(0xff);
-		ao_radio_set_mode(AO_RADIO_MODE_PACKET_TX | AO_RADIO_MODE_BITS_FIXED);
+		ao_radio_set_mode(AO_RADIO_MODE_RDF);
 		ao_radio_strobe(CC115L_SFTX);
 		ao_radio_pa_on();
 		ao_radio_strobe(CC115L_STX);
