@@ -1,8 +1,9 @@
 #
 # TeleBT build file
 #
-# Define TELEBT_VER, TELEBT_DEF, TELEBT_INC and TELEBT_SRC
-# and include this file
+
+TELEBT_VER=1.0
+TELEBT_DEF=1_0
 
 vpath %.c ..:../core:../cc1111:../drivers:../product
 vpath %.h ..:../core:../cc1111:../drivers:../product
@@ -18,8 +19,7 @@ INC = \
 	ao_arch.h \
 	ao_arch_funcs.h \
 	cc1111.h \
-	ao_product.h \
-	$(TELEBT_INC)
+	ao_product.h
 
 CORE_SRC = \
 	ao_cmd.c \
@@ -57,8 +57,7 @@ SRC = \
 	$(CORE_SRC) \
 	$(CC1111_SRC) \
 	$(DRIVER_SRC) \
-	$(PRODUCT_SRC) \
-	$(TELEBT_SRC)
+	$(PRODUCT_SRC)
 
 PROGNAME = telebt-v$(TELEBT_VER)
 PROG = $(PROGNAME)-$(VERSION).ihx

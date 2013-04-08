@@ -18,7 +18,7 @@ SDCCDIRS=\
 	telemetrum-v1.2 telemetrum-v1.1 telemetrum-v1.0 \
 	teledongle-v0.2 teledongle-v0.1 \
 	telemini-v1.0 telenano-v0.1 \
-	telebt-v0.0 telebt-v0.1 \
+	telebt-v1.0 \
 	telemetrum-v0.1-sky telemetrum-v0.1-sirf \
 	telelaunch-v0.1 tidongle test \
 	teleterra-v0.2 teleshield-v0.1 \
