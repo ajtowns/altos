@@ -302,7 +302,7 @@ ao_btm(void)
 		while (!ao_btm_connected)
 			ao_sleep(&ao_btm_connected);
 		while (ao_btm_connected) {
-			ao_led_for(AO_LED_GREEN, AO_MS_TO_TICKS(20));
+			ao_led_for(AO_BT_LED, AO_MS_TO_TICKS(20));
 			ao_delay(AO_SEC_TO_TICKS(3));
 		}
 	}

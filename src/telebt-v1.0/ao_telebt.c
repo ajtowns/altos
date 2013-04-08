@@ -17,10 +17,6 @@
 
 #include "ao.h"
 
-#if HAS_LOG
-__code uint8_t ao_log_format = AO_LOG_FORMAT_NONE;	/* until we actually log stuff */
-#endif
-
 void
 main(void)
 {
@@ -30,31 +26,14 @@ main(void)
 	ao_led_init(LEDS_AVAILABLE);
 	ao_led_on(AO_LED_RED);
 	ao_timer_init();
-#if HAS_BEEP
-	ao_beep_init();
-#endif
 	ao_cmd_init();
-#if HAS_EEPROM
-	ao_spi_init();
-	ao_storage_init();
-#endif
 	ao_usb_init();
 	ao_monitor_init();
-#if HAS_LOG
-	ao_report_init();
-#endif
 	ao_radio_init();
 	ao_packet_master_init();
 	ao_btm_init();
-#if HAS_LOG
-	ao_log_single_init();
-#endif
 #if HAS_DBG
 	ao_dbg_init();
-#endif
-#if HAS_AES
-	ao_aes_init();
-	ao_radio_cmac_init();
 #endif
 	ao_config_init();
 	ao_start_scheduler();
