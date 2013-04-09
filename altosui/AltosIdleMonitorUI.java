@@ -74,10 +74,10 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 		}
 	}
 
-	public void update(final AltosState state) {
+	public void update(final AltosState state, final AltosListenerState listener_state) {
 		Runnable r = new Runnable() {
 				public void run() {
-					show(state, null);
+					show(state, listener_state);
 				}
 			};
 		SwingUtilities.invokeLater(r);

@@ -18,5 +18,5 @@
 package org.altusmetrum.altoslib_1;
 
 public interface AltosIdleMonitorListener {
-	public void update(AltosState state);
+	public void update(AltosState state, AltosListenerState listener_state);
 }
