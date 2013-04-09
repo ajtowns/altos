@@ -37,6 +37,7 @@ altoslib_JAVA = \
 	AltosIMUQuery.java \
 	AltosLine.java \
 	AltosLink.java \
+	AltosListenerState.java \
 	AltosLog.java \
 	AltosMs5607.java \
 	AltosMs5607Query.java \

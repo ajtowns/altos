@@ -98,11 +98,15 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay, A
 
 	AltosFlightStatusUpdate	status_update;
 
-	public void show(AltosState state, int crc_errors) {
+	public void show(AltosState state, AltosListenerState listener_state) {
 		status_update.saved_state = state;
-		JComponent tab = which_tab(state);
-		try {
-		pad.show(state, crc_errors);
+
+		if (state == null) {
+			System.out.printf ("no state provided\n");
+			state = new AltosState(new AltosRecord());
+		}
+
+		pad.show(state, listener_state);
 
 		if (state.state != Altos.ao_flight_startup) {
 			if (!has_state) {
@@ -114,25 +118,26 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay, A
 			}
 		}
 
-		ascent.show(state, crc_errors);
-		descent.show(state, crc_errors);
-		landed.show(state, crc_errors);
+		ascent.show(state, listener_state);
+		descent.show(state, listener_state);
+		landed.show(state, listener_state);
 
+		JComponent tab = which_tab(state);
 		if (tab != cur_tab) {
 			if (cur_tab == pane.getSelectedComponent()) {
 				pane.setSelectedComponent(tab);
 			}
 			cur_tab = tab;
 		}
-		flightStatus.show(state, crc_errors);
-		flightInfo.show(state, crc_errors);
+		flightStatus.show(state, listener_state);
+		flightInfo.show(state, listener_state);
 
 		if (state.data.companion != null) {
 			if (!has_companion) {
 				pane.add("Companion", companion);
 				has_companion= true;
 			}
-			companion.show(state, crc_errors);
+			companion.show(state, listener_state);
 		} else {
 			if (has_companion) {
 				pane.remove(companion);
@@ -144,16 +149,12 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay, A
 				pane.add("Site Map", sitemap);
 				has_map = true;
 			}
-			sitemap.show(state, crc_errors);
+			sitemap.show(state, listener_state);
 		} else {
 			if (has_map) {
 				pane.remove(sitemap);
 				has_map = false;
 			}
-		}
-		} catch (Exception e) {
-			System.out.print("Show exception " + e + "\n");
-			e.printStackTrace();
 		}
 	}
 

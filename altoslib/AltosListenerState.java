@@ -1,5 +1,5 @@
 /*
- * Copyright © 2010 Keith Packard <keithp@keithp.com>
+ * Copyright © 2013 Keith Packard <keithp@keithp.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +15,14 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altoslib_1;
 
-import org.altusmetrum.altoslib_1.*;
+public class AltosListenerState {
+	public int	crc_errors;
+	public double	battery;
 
-public interface AltosFlightDisplay {
-	void reset();
-
-	void show(AltosState state, AltosListenerState listener_state);
-
-	void set_font();
+	public AltosListenerState() {
+		crc_errors = 0;
+		battery = AltosRecord.MISSING;
+	}
 }

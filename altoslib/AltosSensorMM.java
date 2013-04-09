@@ -28,75 +28,65 @@ class AltosSensorMM {
 	int		accel_ref;
 
 	public AltosSensorMM(AltosLink link) throws InterruptedException, TimeoutException {
-		link.printf("a\n");
-		for (;;) {
-			String line = link.get_reply_no_dialog(5000);
-			if (line == null) {
-				throw new TimeoutException();
-			}
-			if (!line.startsWith("tick:"))
+		String[] items = link.adc();
+		sense = new int[6];
+		for (int i = 0; i < items.length;) {
+			if (items[i].equals("tick:")) {
+				tick = Integer.parseInt(items[i+1]);
+				i += 2;
 				continue;
-			String[] items = line.split("\\s+");
-			sense = new int[6];
-			for (int i = 0; i < items.length;) {
-				if (items[i].equals("tick:")) {
-					tick = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("0:")) {
-					sense[0] = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("1:")) {
-					sense[1] = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("2:")) {
-					sense[2] = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("3:")) {
-					sense[3] = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("4:")) {
-					sense[4] = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("5:")) {
-					sense[5] = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("6:")) {
-					v_batt = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("7:")) {
-					v_pyro = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("8:")) {
-					accel = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("9:")) {
-					accel_ref = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				i++;
 			}
-			break;
+			if (items[i].equals("0:")) {
+				sense[0] = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("1:")) {
+				sense[1] = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("2:")) {
+				sense[2] = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("3:")) {
+				sense[3] = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("4:")) {
+				sense[4] = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("5:")) {
+				sense[5] = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("6:")) {
+				v_batt = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("7:")) {
+				v_pyro = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("8:")) {
+				accel = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("9:")) {
+				accel_ref = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			i++;
 		}
 	}
 }

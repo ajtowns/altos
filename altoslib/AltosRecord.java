@@ -17,7 +17,7 @@
 
 package org.altusmetrum.altoslib_1;
 
-public abstract class AltosRecord implements Comparable <AltosRecord>, Cloneable {
+public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 
 	public static final int	seen_flight = 1;
 	public static final int	seen_sensor = 2;
@@ -75,15 +75,17 @@ public abstract class AltosRecord implements Comparable <AltosRecord>, Cloneable
 	 *	temperature:	°C
 	 */
 
-	abstract public double pressure();
-	abstract public double ground_pressure();
-	abstract public double acceleration();
+	public double pressure() { return MISSING; }
+	public double ground_pressure() { return MISSING; }
+	public double acceleration() { return MISSING; }
 
 	public double altitude() {
 		double	p = pressure();
 
-		if (p == MISSING)
+		if (p == MISSING) {
+			System.out.printf ("altitude missing\n");
 			return MISSING;
+		}
 		return AltosConvert.pressure_to_altitude(p);
 	}
 
@@ -126,7 +128,11 @@ public abstract class AltosRecord implements Comparable <AltosRecord>, Cloneable
 		return tick - o.tick;
 	}
 
-	abstract public AltosRecord clone();
+	public AltosRecord clone() {
+		AltosRecord n = new AltosRecord();
+		n.copy(this);
+		return n;
+	}
 
 	public void copy(AltosRecord old) {
 		seen = old.seen;
@@ -150,13 +156,13 @@ public abstract class AltosRecord implements Comparable <AltosRecord>, Cloneable
 		seen = 0;
 		version = 0;
 		callsign = "N0CALL";
-		serial = 0;
-		flight = 0;
+		serial = MISSING;
+		flight = MISSING;
 		rssi = 0;
 		status = 0;
 		state = AltosLib.ao_flight_startup;
 		tick = 0;
-		gps = new AltosGPS();
+		gps = null;
 		new_gps = false;
 		companion = null;
 

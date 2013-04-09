@@ -29,7 +29,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		JTextField	value;
 		AltosLights	lights;
 
-		void show(AltosState state, int crc_errors) {}
+		void show(AltosState state, AltosListenerState listener_state) {}
 
 		void reset() {
 			value.setText("");
@@ -109,7 +109,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	public class LaunchValue {
 		JLabel		label;
 		JTextField	value;
-		void show(AltosState state, int crc_errors) {}
+		void show(AltosState state, AltosListenerState listener_state) {}
 
 		void show() {
 			label.setVisible(true);
@@ -175,8 +175,8 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	}
 
 	class Battery extends LaunchStatus {
-		void show (AltosState state, int crc_errors) {
-			if (state.battery == AltosRecord.MISSING)
+		void show (AltosState state, AltosListenerState listener_state) {
+			if (state == null || state.battery == AltosRecord.MISSING)
 				hide();
 			else {
 				show("%4.2f V", state.battery);
@@ -191,9 +191,13 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	Battery	battery;
 
 	class Apogee extends LaunchStatus {
-		void show (AltosState state, int crc_errors) {
-			show("%4.2f V", state.drogue_sense);
-			lights.set(state.drogue_sense > 3.2);
+		void show (AltosState state, AltosListenerState listener_state) {
+			if (state == null || state.drogue_sense == AltosRecord.MISSING)
+				hide();
+			else {
+				show("%4.2f V", state.drogue_sense);
+				lights.set(state.drogue_sense > 3.2);
+			}
 		}
 		public Apogee (GridBagLayout layout, int y) {
 			super(layout, y, "Apogee Igniter Voltage");
@@ -203,9 +207,13 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	Apogee apogee;
 
 	class Main extends LaunchStatus {
-		void show (AltosState state, int crc_errors) {
-			show("%4.2f V", state.main_sense);
-			lights.set(state.main_sense > 3.2);
+		void show (AltosState state, AltosListenerState listener_state) {
+			if (state == null || state.main_sense == AltosRecord.MISSING)
+				hide();
+			else {
+				show("%4.2f V", state.main_sense);
+				lights.set(state.main_sense > 3.2);
+			}
 		}
 		public Main (GridBagLayout layout, int y) {
 			super(layout, y, "Main Igniter Voltage");
@@ -215,18 +223,21 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	Main main;
 
 	class LoggingReady extends LaunchStatus {
-		void show (AltosState state, int crc_errors) {
-			if (state.data.flight != 0) {
-				if (state.data.state <= Altos.ao_flight_pad)
-					show("Ready to record");
-				else if (state.data.state < Altos.ao_flight_landed)
-					show("Recording data");
-				else
-					show("Recorded data");
+		void show (AltosState state, AltosListenerState listener_state) {
+			if (state == null || state.data.flight == AltosRecord.MISSING) {
+				hide();
+			} else {
+				if (state.data.flight != 0) {
+					if (state.data.state <= Altos.ao_flight_pad)
+						show("Ready to record");
+					else if (state.data.state < Altos.ao_flight_landed)
+						show("Recording data");
+					else
+						show("Recorded data");
+				} else
+					show("Storage full");
+				lights.set(state.data.flight != 0);
 			}
-			else
-				show("Storage full");
-			lights.set(state.data.flight != 0);
 		}
 		public LoggingReady (GridBagLayout layout, int y) {
 			super(layout, y, "On-board Data Logging");
@@ -236,9 +247,13 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	LoggingReady logging_ready;
 
 	class GPSLocked extends LaunchStatus {
-		void show (AltosState state, int crc_errors) {
-			show("%4d sats", state.gps.nsat);
-			lights.set(state.gps.locked && state.gps.nsat >= 4);
+		void show (AltosState state, AltosListenerState listener_state) {
+			if (state == null || state.gps == null)
+				hide();
+			else {
+				show("%4d sats", state.gps.nsat);
+				lights.set(state.gps.locked && state.gps.nsat >= 4);
+			}
 		}
 		public GPSLocked (GridBagLayout layout, int y) {
 			super (layout, y, "GPS Locked");
@@ -248,12 +263,16 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	GPSLocked gps_locked;
 
 	class GPSReady extends LaunchStatus {
-		void show (AltosState state, int crc_errors) {
-			if (state.gps_ready)
-				show("Ready");
-			else
-				show("Waiting %d", state.gps_waiting);
-			lights.set(state.gps_ready);
+		void show (AltosState state, AltosListenerState listener_state) {
+			if (state == null || state.gps == null)
+				hide();
+			else {
+				if (state.gps_ready)
+					show("Ready");
+				else
+					show("Waiting %d", state.gps_waiting);
+				lights.set(state.gps_ready);
+			}
 		}
 		public GPSReady (GridBagLayout layout, int y) {
 			super (layout, y, "GPS Ready");
@@ -261,6 +280,22 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	}
 
 	GPSReady gps_ready;
+
+	class ReceiverBattery extends LaunchStatus {
+		void show (AltosState state, AltosListenerState listener_state) {
+			if (listener_state == null || listener_state.battery == AltosRecord.MISSING)
+				hide();
+			else {
+				show("%4.2f V", listener_state.battery);
+				lights.set(listener_state.battery > 3.7);
+			}
+		}
+		public ReceiverBattery (GridBagLayout layout, int y) {
+			super(layout, y, "Receiver Battery");
+		}
+	}
+
+	ReceiverBattery	receiver_battery;
 
 	String pos(double p, String pos, String neg) {
 		String	h = pos;
@@ -274,13 +309,17 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	}
 
 	class PadLat extends LaunchValue {
-		void show (AltosState state, int crc_errors) {
-			if (state.state < AltosLib.ao_flight_pad && state.gps != null) {
-				show(pos(state.gps.lat,"N", "S"));
-				set_label("Latitude");
-			} else { 
-				show(pos(state.pad_lat,"N", "S"));
-				set_label("Pad Latitude");
+		void show (AltosState state, AltosListenerState listener_state) {
+			if (state == null || state.gps == null) {
+				hide();
+			} else {
+				if (state.state < AltosLib.ao_flight_pad) {
+					show(pos(state.gps.lat,"N", "S"));
+					set_label("Latitude");
+				} else { 
+					show(pos(state.pad_lat,"N", "S"));
+					set_label("Pad Latitude");
+				}
 			}
 		}
 		public PadLat (GridBagLayout layout, int y) {
@@ -291,13 +330,17 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	PadLat pad_lat;
 
 	class PadLon extends LaunchValue {
-		void show (AltosState state, int crc_errors) {
-			if (state.state < AltosLib.ao_flight_pad && state.gps != null) {
-				show(pos(state.gps.lon,"E", "W"));
-				set_label("Longitude");
-			} else { 
-				show(pos(state.pad_lon,"E", "W"));
-				set_label("Pad Longitude");
+		void show (AltosState state, AltosListenerState listener_state) {
+			if (state == null || state.gps == null) {
+				hide();
+			} else {
+				if (state.state < AltosLib.ao_flight_pad) {
+					show(pos(state.gps.lon,"E", "W"));
+					set_label("Longitude");
+				} else { 
+					show(pos(state.pad_lon,"E", "W"));
+					set_label("Pad Longitude");
+				}
 			}
 		}
 		public PadLon (GridBagLayout layout, int y) {
@@ -308,16 +351,20 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	PadLon pad_lon;
 
 	class PadAlt extends LaunchValue {
-		void show (AltosState state, int crc_errors) {
-			if (state.state < AltosLib.ao_flight_pad && state.gps != null) {
-				show("%4.0f m", state.gps.alt);
-				set_label("Altitude");
-			} else {
-				if (state.pad_alt == AltosRecord.MISSING)
-					hide();
-				else {
-					show("%4.0f m", state.pad_alt);
-					set_label("Pad Altitude");
+		void show (AltosState state, AltosListenerState listener_state) {
+			if (state == null)
+				hide();
+			else {
+				if (state.state < AltosLib.ao_flight_pad && state.gps != null) {
+					show("%4.0f m", state.gps.alt);
+					set_label("Altitude");
+				} else {
+					if (state.pad_alt == AltosRecord.MISSING)
+						hide();
+					else {
+						show("%4.0f m", state.pad_alt);
+						set_label("Pad Altitude");
+					}
 				}
 			}
 		}
@@ -335,6 +382,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		logging_ready.reset();
 		gps_locked.reset();
 		gps_ready.reset();
+		receiver_battery.reset();
 		pad_lat.reset();
 		pad_lon.reset();
 		pad_alt.reset();
@@ -347,34 +395,23 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		logging_ready.set_font();
 		gps_locked.set_font();
 		gps_ready.set_font();
+		receiver_battery.set_font();
 		pad_lat.set_font();
 		pad_lon.set_font();
 		pad_alt.set_font();
 	}
 	
-	public void show(AltosState state, int crc_errors) {
-		battery.show(state, crc_errors);
-		if (state.drogue_sense == AltosRecord.MISSING)
-			apogee.hide();
-		else
-			apogee.show(state, crc_errors);
-		if (state.main_sense == AltosRecord.MISSING)
-			main.hide();
-		else
-			main.show(state, crc_errors);
-		logging_ready.show(state, crc_errors);
-		pad_alt.show(state, crc_errors);
-		if (state.gps != null && state.gps.connected) {
-			gps_locked.show(state, crc_errors);
-			gps_ready.show(state, crc_errors);
-			pad_lat.show(state, crc_errors);
-			pad_lon.show(state, crc_errors);
-		} else {
-			gps_locked.hide();
-			gps_ready.hide();
-			pad_lat.hide();
-			pad_lon.hide();
-		}
+	public void show(AltosState state, AltosListenerState listener_state) {
+		battery.show(state, listener_state);
+		apogee.show(state, listener_state);
+		main.show(state, listener_state);
+		logging_ready.show(state, listener_state);
+		pad_alt.show(state, listener_state);
+		receiver_battery.show(state, listener_state);
+		gps_locked.show(state, listener_state);
+		gps_ready.show(state, listener_state);
+		pad_lat.show(state, listener_state);
+		pad_lon.show(state, listener_state);
 	}
 
 	public AltosPad() {
@@ -398,8 +435,10 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		logging_ready = new LoggingReady(layout, 3);
 		gps_locked = new GPSLocked(layout, 4);
 		gps_ready = new GPSReady(layout, 5);
-		pad_lat = new PadLat(layout, 6);
-		pad_lon = new PadLon(layout, 7);
-		pad_alt = new PadAlt(layout, 8);
+		receiver_battery = new ReceiverBattery(layout, 6);
+		pad_lat = new PadLat(layout, 7);
+		pad_lon = new PadLon(layout, 8);
+		pad_alt = new PadAlt(layout, 9);
+		show(null, null);
 	}
 }

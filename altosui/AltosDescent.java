@@ -29,7 +29,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		JTextField	value;
 		AltosLights	lights;
 
-		abstract void show(AltosState state, int crc_errors);
+		abstract void show(AltosState state, AltosListenerState listener_state);
 
 		void show() {
 			label.setVisible(true);
@@ -108,7 +108,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			value.setText("");
 		}
 
-		abstract void show(AltosState state, int crc_errors);
+		abstract void show(AltosState state, AltosListenerState listener_state);
 
 		void show() {
 			label.setVisible(true);
@@ -192,7 +192,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			value2.setFont(Altos.value_font);
 		}
 
-		abstract void show(AltosState state, int crc_errors);
+		abstract void show(AltosState state, AltosListenerState listener_state);
 
 		void show(String v1, String v2) {
 			show();
@@ -244,7 +244,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	}
 
 	class Height extends DescentValue {
-		void show (AltosState state, int crc_errors) {
+		void show (AltosState state, AltosListenerState listener_state) {
 			show(AltosConvert.height, state.height);
 		}
 		public Height (GridBagLayout layout, int x, int y) {
@@ -255,7 +255,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	Height	height;
 
 	class Speed extends DescentValue {
-		void show (AltosState state, int crc_errors) {
+		void show (AltosState state, AltosListenerState listener_state) {
 			double speed = state.accel_speed;
 			if (!state.ascent)
 				speed = state.baro_speed;
@@ -280,7 +280,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	}
 
 	class Lat extends DescentValue {
-		void show (AltosState state, int crc_errors) {
+		void show (AltosState state, AltosListenerState listener_state) {
 			if (state.gps != null && state.gps.connected)
 				show(pos(state.gps.lat,"N", "S"));
 			else
@@ -294,7 +294,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	Lat lat;
 
 	class Lon extends DescentValue {
-		void show (AltosState state, int crc_errors) {
+		void show (AltosState state, AltosListenerState listener_state) {
 			if (state.gps != null && state.gps.connected)
 				show(pos(state.gps.lon,"W", "E"));
 			else
@@ -308,7 +308,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	Lon lon;
 
 	class Distance extends DescentValue {
-		void show(AltosState state, int crc_errors) {
+		void show(AltosState state, AltosListenerState listener_state) {
 			if (state.from_pad != null)
 				show(AltosConvert.distance, state.from_pad.distance);
 			else
@@ -324,7 +324,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		
 
 	class Apogee extends DescentStatus {
-		void show (AltosState state, int crc_errors) {
+		void show (AltosState state, AltosListenerState listener_state) {
 			show("%4.2f V", state.drogue_sense);
 			lights.set(state.drogue_sense > 3.2);
 		}
@@ -336,7 +336,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	Apogee apogee;
 
 	class Main extends DescentStatus {
-		void show (AltosState state, int crc_errors) {
+		void show (AltosState state, AltosListenerState listener_state) {
 			show("%4.2f V", state.main_sense);
 			lights.set(state.main_sense > 3.2);
 		}
@@ -348,7 +348,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	Main main;
 
 	class Bearing extends DescentDualValue {
-		void show (AltosState state, int crc_errors) {
+		void show (AltosState state, AltosListenerState listener_state) {
 			if (state.from_pad != null) {
 				show( String.format("%3.0f°", state.from_pad.bearing),
 				      state.from_pad.bearing_words(
@@ -365,7 +365,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	Bearing bearing;
 
 	class Range extends DescentValue {
-		void show (AltosState state, int crc_errors) {
+		void show (AltosState state, AltosListenerState listener_state) {
 			show(AltosConvert.distance, state.range);
 		}
 		public Range (GridBagLayout layout, int x, int y) {
@@ -376,7 +376,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	Range range;
 
 	class Elevation extends DescentValue {
-		void show (AltosState state, int crc_errors) {
+		void show (AltosState state, AltosListenerState listener_state) {
 			show("%3.0f°", state.elevation);
 		}
 		public Elevation (GridBagLayout layout, int x, int y) {
@@ -412,16 +412,16 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		apogee.set_font();
 	}
 
-	public void show(AltosState state, int crc_errors) {
-		height.show(state, crc_errors);
-		speed.show(state, crc_errors);
+	public void show(AltosState state, AltosListenerState listener_state) {
+		height.show(state, listener_state);
+		speed.show(state, listener_state);
 		if (state.gps != null && state.gps.connected) {
-			bearing.show(state, crc_errors);
-			range.show(state, crc_errors);
-			distance.show(state, crc_errors);
-			elevation.show(state, crc_errors);
-			lat.show(state, crc_errors);
-			lon.show(state, crc_errors);
+			bearing.show(state, listener_state);
+			range.show(state, listener_state);
+			distance.show(state, listener_state);
+			elevation.show(state, listener_state);
+			lat.show(state, listener_state);
+			lon.show(state, listener_state);
 		} else {
 			bearing.hide();
 			range.hide();
@@ -431,11 +431,11 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			lon.hide();
 		}
 		if (state.main_sense != AltosRecord.MISSING)
-			main.show(state, crc_errors);
+			main.show(state, listener_state);
 		else
 			main.hide();
 		if (state.drogue_sense != AltosRecord.MISSING)
-			apogee.show(state, crc_errors);
+			apogee.show(state, listener_state);
 		else
 			apogee.hide();
 	}

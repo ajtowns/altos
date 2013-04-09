@@ -116,8 +116,10 @@ public class AltosIdleMonitor extends Thread {
 		} finally {
 			if (remote) {
 				link.stop_remote();
-				if (record != null)
-					record.rssi = AltosRSSI();
+				if (record != null) {
+					record.rssi = link.rssi();
+					record.monitor_battery = link.monitor_battery();
+				}
 			} else {
 				if (record != null)
 					record.rssi = 0;

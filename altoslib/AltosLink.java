@@ -364,6 +364,63 @@ public abstract class AltosLink implements Runnable {
 		remote = false;
 	}
 
+	public int rssi() throws TimeoutException, InterruptedException {
+		if (remote)
+			return 0;
+		printf("s\n");
+		String line = get_reply_no_dialog(5000);
+		if (line == null)
+			throw new TimeoutException();
+		String[] items = line.split("\\s+");
+		if (items.length < 2)
+			return 0;
+		if (!items[0].equals("RSSI:"))
+			return 0;
+		int rssi = Integer.parseInt(items[1]);
+		return rssi;
+	}
+
+	public String[] adc() throws TimeoutException, InterruptedException {
+		printf("a\n");
+		for (;;) {
+			String line = get_reply_no_dialog(5000);
+			if (line == null) {
+				throw new TimeoutException();
+			}
+			if (!line.startsWith("tick:"))
+				continue;
+			String[] items = line.split("\\s+");
+			return items;
+		}
+	}
+
+	public boolean has_monitor_battery() {
+		return config_data.has_monitor_battery();
+	}
+
+	public double monitor_battery() {
+		int monitor_batt = AltosRecord.MISSING;
+
+		if (config_data.has_monitor_battery()) {
+			try {
+			String[] items = adc();
+			for (int i = 0; i < items.length;) {
+				if (items[i].equals("batt")) {
+					monitor_batt = Integer.parseInt(items[i+1]);
+					i += 2;
+					continue;
+				}
+				i++;
+			}
+			} catch (InterruptedException ie) {
+			} catch (TimeoutException te) {
+			}
+		}
+		if (monitor_batt == AltosRecord.MISSING)
+			return AltosRecord.MISSING;
+		return AltosConvert.cc_battery_to_voltage(monitor_batt);
+	}
+
 	public AltosLink() {
 		callsign = "";
 	}

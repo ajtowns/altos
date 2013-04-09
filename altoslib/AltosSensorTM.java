@@ -23,54 +23,44 @@ class AltosSensorTM extends AltosRecordTM {
 
 	public AltosSensorTM(AltosLink link, AltosConfigData config_data) throws InterruptedException, TimeoutException {
 		super();
-		link.printf("a\n");
-		for (;;) {
-			String line = link.get_reply_no_dialog(5000);
-			if (line == null) {
-				throw new TimeoutException();
-			}
-			if (!line.startsWith("tick:"))
+		String[] items = link.adc();
+		for (int i = 0; i < items.length;) {
+			if (items[i].equals("tick:")) {
+				tick = Integer.parseInt(items[i+1]);
+				i += 2;
 				continue;
-			String[] items = line.split("\\s+");
-			for (int i = 0; i < items.length;) {
-				if (items[i].equals("tick:")) {
-					tick = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("accel:")) {
-					accel = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("pres:")) {
-					pres = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("temp:")) {
-					temp = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("batt:")) {
-					batt = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("drogue:")) {
-					drogue = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				if (items[i].equals("main:")) {
-					main = Integer.parseInt(items[i+1]);
-					i += 2;
-					continue;
-				}
-				i++;
 			}
-			break;
+			if (items[i].equals("accel:")) {
+				accel = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("pres:")) {
+				pres = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("temp:")) {
+				temp = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("batt:")) {
+				batt = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("drogue:")) {
+				drogue = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("main:")) {
+				main = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			i++;
 		}
 		ground_accel = config_data.accel_cal_plus;
 		ground_pres = pres;

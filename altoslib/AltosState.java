@@ -155,30 +155,41 @@ public class AltosState {
 				/* compute barometric speed */
 
 				double height_change = height - prev_state.height;
+
+				double prev_baro_speed = prev_state.baro_speed;
+				if (prev_baro_speed == AltosRecord.MISSING)
+					prev_baro_speed = 0;
+
 				if (time_change > 0)
-					baro_speed = (prev_state.baro_speed * 3 + (height_change / time_change)) / 4.0;
+					baro_speed = (prev_baro_speed * 3 + (height_change / time_change)) / 4.0;
 				else
 					baro_speed = prev_state.baro_speed;
+
+				double prev_accel_speed = prev_state.accel_speed;
+
+				if (prev_accel_speed == AltosRecord.MISSING)
+					prev_accel_speed = 0;
 
 				if (acceleration == AltosRecord.MISSING) {
 					/* Fill in mising acceleration value */
 					accel_speed = baro_speed;
-					if (time_change > 0)
-						acceleration = (accel_speed - prev_state.accel_speed) / time_change;
+
+					if (time_change > 0 && accel_speed != AltosRecord.MISSING)
+						acceleration = (accel_speed - prev_accel_speed) / time_change;
 					else
 						acceleration = prev_state.acceleration;
 				} else {
 					/* compute accelerometer speed */
-					accel_speed = prev_state.accel_speed + acceleration * time_change;
+					accel_speed = prev_accel_speed + acceleration * time_change;
 				}
 			}
-
 		} else {
 			npad = 0;
 			ngps = 0;
 			gps = null;
 			baro_speed = AltosRecord.MISSING;
 			accel_speed = AltosRecord.MISSING;
+			pad_alt = AltosRecord.MISSING;
 			max_baro_speed = 0;
 			max_accel_speed = 0;
 			max_height = 0;

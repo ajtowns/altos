@@ -35,7 +35,7 @@ public class AltosGraphUI extends AltosUIFrame
 			if (state.gps != null && state.gps.locked && state.gps.nsat >= 4) {
 				if (map == null)
 					map = new AltosSiteMap();
-				map.show(state, 0);
+				map.show(state, null);
 				has_gps = true;
 			}
 		}

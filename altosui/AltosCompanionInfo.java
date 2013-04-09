@@ -83,7 +83,7 @@ public class AltosCompanionInfo extends JTable {
 		}
 	}
 	
-	public void show(AltosState state, int crc_errors) {
+	public void show(AltosState state, AltosListenerState listener_state) {
 		if (state == null)
 			return;
 		if (state.data.companion != null)

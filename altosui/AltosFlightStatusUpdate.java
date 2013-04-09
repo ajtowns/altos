@@ -22,12 +22,16 @@ import org.altusmetrum.altoslib_1.*;
 
 public class AltosFlightStatusUpdate implements ActionListener {
 
-	public AltosState	saved_state;
-	AltosFlightStatus	flightStatus;
+	public AltosState		saved_state;
+	public AltosListenerState	saved_listener_state;
+	AltosFlightStatus		flightStatus;
 
 	public void actionPerformed (ActionEvent e) {
-		if (saved_state != null)
-			flightStatus.show(saved_state, 0);
+		if (saved_state != null) {
+			if (saved_listener_state == null)
+				saved_listener_state = new AltosListenerState();
+			flightStatus.show(saved_state, saved_listener_state);
+		}
 	}
 
 	public AltosFlightStatusUpdate (AltosFlightStatus in_flightStatus) {

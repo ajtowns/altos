@@ -42,7 +42,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			label.setVisible(false);
 		}
 
-		void show(AltosState state, int crc_errors) {}
+		void show(AltosState state, AltosListenerState listener_state) {}
 
 		void show(String s) {
 			show();
@@ -107,7 +107,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 	public class AscentValue {
 		JLabel		label;
 		JTextField	value;
-		void show(AltosState state, int crc_errors) {}
+		void show(AltosState state, AltosListenerState listener_state) {}
 
 		void reset() {
 			value.setText("");
@@ -174,7 +174,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		JTextField	max_value;
 		double		max;
 
-		void show(AltosState state, int crc_errors) {}
+		void show(AltosState state, AltosListenerState listener_state) {}
 
 		void reset() {
 			value.setText("");
@@ -239,7 +239,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 
 	class Height extends AscentValueHold {
-		void show (AltosState state, int crc_errors) {
+		void show (AltosState state, AltosListenerState listener_state) {
 			show(AltosConvert.height, state.height);
 		}
 		public Height (GridBagLayout layout, int y) {
@@ -250,7 +250,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 	Height	height;
 
 	class Speed extends AscentValueHold {
-		void show (AltosState state, int crc_errors) {
+		void show (AltosState state, AltosListenerState listener_state) {
 			double speed = state.accel_speed;
 			if (!state.ascent)
 				speed = state.baro_speed;
@@ -264,7 +264,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 	Speed	speed;
 
 	class Accel extends AscentValueHold {
-		void show (AltosState state, int crc_errors) {
+		void show (AltosState state, AltosListenerState listener_state) {
 			show(AltosConvert.accel, state.acceleration);
 		}
 		public Accel (GridBagLayout layout, int y) {
@@ -286,7 +286,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 	}
 
 	class Apogee extends AscentStatus {
-		void show (AltosState state, int crc_errors) {
+		void show (AltosState state, AltosListenerState listener_state) {
 			show("%4.2f V", state.drogue_sense);
 			lights.set(state.drogue_sense > 3.2);
 		}
@@ -298,7 +298,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 	Apogee apogee;
 
 	class Main extends AscentStatus {
-		void show (AltosState state, int crc_errors) {
+		void show (AltosState state, AltosListenerState listener_state) {
 			show("%4.2f V", state.main_sense);
 			lights.set(state.main_sense > 3.2);
 		}
@@ -310,7 +310,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 	Main main;
 
 	class Lat extends AscentValue {
-		void show (AltosState state, int crc_errors) {
+		void show (AltosState state, AltosListenerState listener_state) {
 			if (state.gps != null)
 				show(pos(state.gps.lat,"N", "S"));
 			else
@@ -324,7 +324,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 	Lat lat;
 
 	class Lon extends AscentValue {
-		void show (AltosState state, int crc_errors) {
+		void show (AltosState state, AltosListenerState listener_state) {
 			if (state.gps != null)
 				show(pos(state.gps.lon,"E", "W"));
 			else
@@ -359,25 +359,25 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		accel.set_font();
 	}
 
-	public void show(AltosState state, int crc_errors) {
+	public void show(AltosState state, AltosListenerState listener_state) {
 		if (state.gps != null && state.gps.connected) {
-			lat.show(state, crc_errors);
-			lon.show(state, crc_errors);
+			lat.show(state, listener_state);
+			lon.show(state, listener_state);
 		} else {
 			lat.hide();
 			lon.hide();
 		}
-		height.show(state, crc_errors);
+		height.show(state, listener_state);
 		if (state.main_sense != AltosRecord.MISSING)
-			main.show(state, crc_errors);
+			main.show(state, listener_state);
 		else
 			main.hide();
 		if (state.drogue_sense != AltosRecord.MISSING)
-			apogee.show(state, crc_errors);
+			apogee.show(state, listener_state);
 		else
 			apogee.hide();
-		speed.show(state, crc_errors);
-		accel.show(state, crc_errors);
+		speed.show(state, listener_state);
+		accel.show(state, listener_state);
 	}
 
 	public void labels(GridBagLayout layout, int y) {

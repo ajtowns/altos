@@ -104,111 +104,118 @@ public class AltosInfoTable extends JTable {
 		model.clear();
 	}
 
-	public void show(AltosState state, int crc_errors) {
-		if (state == null)
-			return;
+	public void show(AltosState state, AltosListenerState listener_state) {
 		info_reset();
-		if (state.altitude != AltosRecord.MISSING)
-			info_add_row(0, "Altitude", "%6.0f    m", state.altitude);
-		if (state.ground_altitude != AltosRecord.MISSING)
-			info_add_row(0, "Pad altitude", "%6.0f    m", state.ground_altitude);
-		if (state.height != AltosRecord.MISSING)
-			info_add_row(0, "Height", "%6.0f    m", state.height);
-		if (state.max_height != AltosRecord.MISSING)
-			info_add_row(0, "Max height", "%6.0f    m", state.max_height);
-		if (state.acceleration != AltosRecord.MISSING)
-			info_add_row(0, "Acceleration", "%8.1f  m/s²", state.acceleration);
-		if (state.max_acceleration != AltosRecord.MISSING)
-			info_add_row(0, "Max acceleration", "%8.1f  m/s²", state.max_acceleration);
-		if (state.speed() != AltosRecord.MISSING)
-			info_add_row(0, "Speed", "%8.1f  m/s", state.speed());
-		if (state.max_speed() != AltosRecord.MISSING)
-			info_add_row(0, "Max Speed", "%8.1f  m/s", state.max_accel_speed);
-		if (state.temperature != AltosRecord.MISSING)
-			info_add_row(0, "Temperature", "%9.2f °C", state.temperature);
-		if (state.battery != AltosRecord.MISSING)
-			info_add_row(0, "Battery", "%9.2f V", state.battery);
-		if (state.drogue_sense != AltosRecord.MISSING)
-			info_add_row(0, "Drogue", "%9.2f V", state.drogue_sense);
-		if (state.main_sense != AltosRecord.MISSING)
-			info_add_row(0, "Main", "%9.2f V", state.main_sense);
-		info_add_row(0, "CRC Errors", "%6d", crc_errors);
+		if (state != null) {
+			if (state.altitude != AltosRecord.MISSING)
+				info_add_row(0, "Altitude", "%6.0f    m", state.altitude);
+			if (state.ground_altitude != AltosRecord.MISSING)
+				info_add_row(0, "Pad altitude", "%6.0f    m", state.ground_altitude);
+			if (state.height != AltosRecord.MISSING)
+				info_add_row(0, "Height", "%6.0f    m", state.height);
+			if (state.height != AltosRecord.MISSING)
+				info_add_row(0, "Max height", "%6.0f    m", state.max_height);
+			if (state.acceleration != AltosRecord.MISSING)
+				info_add_row(0, "Acceleration", "%8.1f  m/s²", state.acceleration);
+			if (state.acceleration != AltosRecord.MISSING)
+				info_add_row(0, "Max acceleration", "%8.1f  m/s²", state.max_acceleration);
+			if (state.speed() != AltosRecord.MISSING)
+				info_add_row(0, "Speed", "%8.1f  m/s", state.speed());
+			if (state.speed() != AltosRecord.MISSING)
+				info_add_row(0, "Max Speed", "%8.1f  m/s", state.max_accel_speed);
+			if (state.temperature != AltosRecord.MISSING)
+				info_add_row(0, "Temperature", "%9.2f °C", state.temperature);
+			if (state.battery != AltosRecord.MISSING)
+				info_add_row(0, "Battery", "%9.2f V", state.battery);
+			if (state.drogue_sense != AltosRecord.MISSING)
+				info_add_row(0, "Drogue", "%9.2f V", state.drogue_sense);
+			if (state.main_sense != AltosRecord.MISSING)
+				info_add_row(0, "Main", "%9.2f V", state.main_sense);
+		}
+		if (listener_state != null) {
+			info_add_row(0, "CRC Errors", "%6d", listener_state.crc_errors);
 
-		if (state.gps == null || !state.gps.connected) {
-			info_add_row(1, "GPS", "not available");
-		} else {
-			if (state.gps_ready)
-				info_add_row(1, "GPS state", "%s", "ready");
-			else
-				info_add_row(1, "GPS state", "wait (%d)",
-					     state.gps_waiting);
-			if (state.data.gps.locked)
-				info_add_row(1, "GPS", "   locked");
-			else if (state.data.gps.connected)
-				info_add_row(1, "GPS", " unlocked");
-			else
-				info_add_row(1, "GPS", "  missing");
-			info_add_row(1, "Satellites", "%6d", state.data.gps.nsat);
-			info_add_deg(1, "Latitude", state.gps.lat, 'N', 'S');
-			info_add_deg(1, "Longitude", state.gps.lon, 'E', 'W');
-			info_add_row(1, "GPS altitude", "%6d", state.gps.alt);
-			info_add_row(1, "GPS height", "%6.0f", state.gps_height);
+			if (listener_state.battery != AltosRecord.MISSING)
+				info_add_row(0, "Receiver Battery", "%9.2f", listener_state.battery);
+		}
 
-			/* The SkyTraq GPS doesn't report these values */
-			/*
-			if (false) {
-				info_add_row(1, "GPS ground speed", "%8.1f m/s %3d°",
-					     state.gps.ground_speed,
-					     state.gps.course);
-				info_add_row(1, "GPS climb rate", "%8.1f m/s",
-					     state.gps.climb_rate);
-				info_add_row(1, "GPS error", "%6d m(h)%3d m(v)",
-					     state.gps.h_error, state.gps.v_error);
-			}
-			*/
+		if (state != null) {
+			if (state.gps == null || !state.gps.connected) {
+				info_add_row(1, "GPS", "not available");
+			} else {
+				if (state.gps_ready)
+					info_add_row(1, "GPS state", "%s", "ready");
+				else
+					info_add_row(1, "GPS state", "wait (%d)",
+						     state.gps_waiting);
+				if (state.data.gps.locked)
+					info_add_row(1, "GPS", "   locked");
+				else if (state.data.gps.connected)
+					info_add_row(1, "GPS", " unlocked");
+				else
+					info_add_row(1, "GPS", "  missing");
+				info_add_row(1, "Satellites", "%6d", state.data.gps.nsat);
+				info_add_deg(1, "Latitude", state.gps.lat, 'N', 'S');
+				info_add_deg(1, "Longitude", state.gps.lon, 'E', 'W');
+				info_add_row(1, "GPS altitude", "%6d", state.gps.alt);
+				info_add_row(1, "GPS height", "%6.0f", state.gps_height);
 
-			info_add_row(1, "GPS hdop", "%8.1f", state.gps.hdop);
+				/* The SkyTraq GPS doesn't report these values */
+				/*
+				  if (false) {
+				  info_add_row(1, "GPS ground speed", "%8.1f m/s %3d°",
+				  state.gps.ground_speed,
+				  state.gps.course);
+				  info_add_row(1, "GPS climb rate", "%8.1f m/s",
+				  state.gps.climb_rate);
+				  info_add_row(1, "GPS error", "%6d m(h)%3d m(v)",
+				  state.gps.h_error, state.gps.v_error);
+				  }
+				*/
 
-			if (state.npad > 0) {
-				if (state.from_pad != null) {
-					info_add_row(1, "Distance from pad", "%6d m",
-						     (int) (state.from_pad.distance + 0.5));
-					info_add_row(1, "Direction from pad", "%6d°",
-						     (int) (state.from_pad.bearing + 0.5));
-					info_add_row(1, "Elevation from pad", "%6d°",
-						     (int) (state.elevation + 0.5));
-					info_add_row(1, "Range from pad", "%6d m",
-						     (int) (state.range + 0.5));
-				} else {
-					info_add_row(1, "Distance from pad", "unknown");
-					info_add_row(1, "Direction from pad", "unknown");
-					info_add_row(1, "Elevation from pad", "unknown");
-					info_add_row(1, "Range from pad", "unknown");
+				info_add_row(1, "GPS hdop", "%8.1f", state.gps.hdop);
+
+				if (state.npad > 0) {
+					if (state.from_pad != null) {
+						info_add_row(1, "Distance from pad", "%6d m",
+							     (int) (state.from_pad.distance + 0.5));
+						info_add_row(1, "Direction from pad", "%6d°",
+							     (int) (state.from_pad.bearing + 0.5));
+						info_add_row(1, "Elevation from pad", "%6d°",
+							     (int) (state.elevation + 0.5));
+						info_add_row(1, "Range from pad", "%6d m",
+							     (int) (state.range + 0.5));
+					} else {
+						info_add_row(1, "Distance from pad", "unknown");
+						info_add_row(1, "Direction from pad", "unknown");
+						info_add_row(1, "Elevation from pad", "unknown");
+						info_add_row(1, "Range from pad", "unknown");
+					}
+					info_add_deg(1, "Pad latitude", state.pad_lat, 'N', 'S');
+					info_add_deg(1, "Pad longitude", state.pad_lon, 'E', 'W');
+					info_add_row(1, "Pad GPS alt", "%6.0f m", state.pad_alt);
 				}
-				info_add_deg(1, "Pad latitude", state.pad_lat, 'N', 'S');
-				info_add_deg(1, "Pad longitude", state.pad_lon, 'E', 'W');
-				info_add_row(1, "Pad GPS alt", "%6.0f m", state.pad_alt);
-			}
-			info_add_row(1, "GPS date", "%04d-%02d-%02d",
-				       state.gps.year,
-				       state.gps.month,
-				       state.gps.day);
-			info_add_row(1, "GPS time", "  %02d:%02d:%02d",
-				       state.gps.hour,
-				       state.gps.minute,
-				       state.gps.second);
-			//int	nsat_vis = 0;
-			int	c;
+				info_add_row(1, "GPS date", "%04d-%02d-%02d",
+					     state.gps.year,
+					     state.gps.month,
+					     state.gps.day);
+				info_add_row(1, "GPS time", "  %02d:%02d:%02d",
+					     state.gps.hour,
+					     state.gps.minute,
+					     state.gps.second);
+				//int	nsat_vis = 0;
+				int	c;
 
-			if (state.gps.cc_gps_sat == null)
-				info_add_row(2, "Satellites Visible", "%4d", 0);
-			else {
-				info_add_row(2, "Satellites Visible", "%4d", state.gps.cc_gps_sat.length);
-				for (c = 0; c < state.gps.cc_gps_sat.length; c++) {
-					info_add_row(2, "Satellite id,C/N0",
-						     "%4d, %4d",
-						     state.gps.cc_gps_sat[c].svid,
-						     state.gps.cc_gps_sat[c].c_n0);
+				if (state.gps.cc_gps_sat == null)
+					info_add_row(2, "Satellites Visible", "%4d", 0);
+				else {
+					info_add_row(2, "Satellites Visible", "%4d", state.gps.cc_gps_sat.length);
+					for (c = 0; c < state.gps.cc_gps_sat.length; c++) {
+						info_add_row(2, "Satellite id,C/N0",
+							     "%4d, %4d",
+							     state.gps.cc_gps_sat[c].svid,
+							     state.gps.cc_gps_sat[c].c_n0);
+					}
 				}
 			}
 		}

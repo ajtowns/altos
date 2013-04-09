@@ -29,21 +29,17 @@ public class AltosDisplayThread extends Thread {
 	IdleThread		idle_thread;
 	AltosVoice		voice;
 	AltosFlightReader	reader;
-	int			crc_errors;
+	AltosState		old_state, state;
+	AltosListenerState	listener_state;
 	AltosFlightDisplay	display;
 
-	void show_internal(AltosState state, int crc_errors) {
-		if (state != null)
-			display.show(state, crc_errors);
-	}
-
-	void show_safely(AltosState in_state, int in_crc_errors) {
-		final AltosState state = in_state;
-		final int crc_errors = in_crc_errors;
+	synchronized void show_safely() {
+		final AltosState my_state = state;
+		final AltosListenerState my_listener_state = listener_state;
 		Runnable r = new Runnable() {
 				public void run() {
 					try {
-						show_internal(state, crc_errors);
+						display.show(my_state, my_listener_state);
 					} catch (Exception ex) {
 					}
 				}
@@ -73,7 +69,6 @@ public class AltosDisplayThread extends Thread {
 	class IdleThread extends Thread {
 
 		boolean	started;
-		private AltosState state;
 		int	reported_landing;
 		int	report_interval;
 		long	report_time;
@@ -129,7 +124,7 @@ public class AltosDisplayThread extends Thread {
 				++reported_landing;
 				if (state.state != Altos.ao_flight_landed) {
 					state.state = Altos.ao_flight_landed;
-					show_safely(state, 0);
+					show_safely();
 				}
 			}
 		}
@@ -145,6 +140,10 @@ public class AltosDisplayThread extends Thread {
 		public void run () {
 			try {
 				for (;;) {
+					if (reader.has_monitor_battery()) {
+						listener_state.battery = reader.monitor_battery();
+						show_safely();
+					}
 					set_report_time();
 					for (;;) {
 						voice.drain();
@@ -155,6 +154,7 @@ public class AltosDisplayThread extends Thread {
 							wait(sleep_time);
 						}
 					}
+					
 					report(false);
 				}
 			} catch (InterruptedException ie) {
@@ -164,18 +164,7 @@ public class AltosDisplayThread extends Thread {
 			}
 		}
 
-		public synchronized void notice(AltosState new_state, boolean spoken) {
-			AltosState old_state = state;
-			state = new_state;
-			if (!started && state.state > Altos.ao_flight_pad) {
-				started = true;
-				start();
-			}
-
-			if (state.state < Altos.ao_flight_drogue)
-				report_interval = 10000;
-			else
-				report_interval = 20000;
+		public synchronized void notice(boolean spoken) {
 			if (old_state != null && old_state.state != state.state) {
 				report_time = now();
 				this.notify();
@@ -184,13 +173,12 @@ public class AltosDisplayThread extends Thread {
 		}
 
 		public IdleThread() {
-			state = null;
 			reported_landing = 0;
 			report_interval = 10000;
 		}
 	}
 
-	boolean tell(AltosState state, AltosState old_state) {
+	synchronized boolean tell() {
 		boolean	ret = false;
 		if (old_state == null || old_state.state != state.state) {
 			voice.speak(state.data.state());
@@ -222,12 +210,10 @@ public class AltosDisplayThread extends Thread {
 
 	public void run() {
 		boolean		interrupted = false;
-		//String		line;
-		AltosState	state = null;
-		AltosState	old_state = null;
 		boolean		told;
 
 		idle_thread = new IdleThread();
+		idle_thread.start();
 
 		try {
 			for (;;) {
@@ -238,14 +224,14 @@ public class AltosDisplayThread extends Thread {
 					old_state = state;
 					state = new AltosState(record, state);
 					reader.update(state);
-					show_safely(state, crc_errors);
-					told = tell(state, old_state);
-					idle_thread.notice(state, told);
+					show_safely();
+					told = tell();
+					idle_thread.notice(told);
 				} catch (ParseException pp) {
 					System.out.printf("Parse error: %d \"%s\"\n", pp.getErrorOffset(), pp.getMessage());
 				} catch (AltosCRCException ce) {
-					++crc_errors;
-					show_safely(state, crc_errors);
+					++listener_state.crc_errors;
+					show_safely();
 				}
 			}
 		} catch (InterruptedException ee) {
@@ -264,6 +250,7 @@ public class AltosDisplayThread extends Thread {
 	}
 
 	public AltosDisplayThread(Frame in_parent, AltosVoice in_voice, AltosFlightDisplay in_display, AltosFlightReader in_reader) {
+		listener_state = new AltosListenerState();
 		parent = in_parent;
 		voice = in_voice;
 		display = in_display;

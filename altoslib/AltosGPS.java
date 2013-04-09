@@ -217,33 +217,38 @@ public class AltosGPS {
 	}
 
 	public AltosGPS(AltosGPS old) {
-		nsat = old.nsat;
-		locked = old.locked;
-		connected = old.connected;
-		lat = old.lat;		/* degrees (+N -S) */
-		lon = old.lon;		/* degrees (+E -W) */
-		alt = old.alt;		/* m */
-		year = old.year;
-		month = old.month;
-		day = old.day;
-		hour = old.hour;
-		minute = old.minute;
-		second = old.second;
+		if (old != null) {
+			nsat = old.nsat;
+			locked = old.locked;
+			connected = old.connected;
+			lat = old.lat;		/* degrees (+N -S) */
+			lon = old.lon;		/* degrees (+E -W) */
+			alt = old.alt;		/* m */
+			year = old.year;
+			month = old.month;
+			day = old.day;
+			hour = old.hour;
+			minute = old.minute;
+			second = old.second;
 
-		ground_speed = old.ground_speed;	/* m/s */
-		course = old.course;		/* degrees */
-		climb_rate = old.climb_rate;	/* m/s */
-		hdop = old.hdop;		/* unitless? */
-		h_error = old.h_error;	/* m */
-		v_error = old.v_error;	/* m */
+			ground_speed = old.ground_speed;	/* m/s */
+			course = old.course;		/* degrees */
+			climb_rate = old.climb_rate;	/* m/s */
+			hdop = old.hdop;		/* unitless? */
+			h_error = old.h_error;	/* m */
+			v_error = old.v_error;	/* m */
 
-		if (old.cc_gps_sat != null) {
-			cc_gps_sat = new AltosGPSSat[old.cc_gps_sat.length];
-			for (int i = 0; i < old.cc_gps_sat.length; i++) {
-				cc_gps_sat[i] = new AltosGPSSat();
-				cc_gps_sat[i].svid = old.cc_gps_sat[i].svid;
-				cc_gps_sat[i].c_n0 = old.cc_gps_sat[i].c_n0;
+			if (old.cc_gps_sat != null) {
+				cc_gps_sat = new AltosGPSSat[old.cc_gps_sat.length];
+				for (int i = 0; i < old.cc_gps_sat.length; i++) {
+					cc_gps_sat[i] = new AltosGPSSat();
+					cc_gps_sat[i].svid = old.cc_gps_sat[i].svid;
+					cc_gps_sat[i].c_n0 = old.cc_gps_sat[i].c_n0;
+				}
 			}
+		} else {
+			ClearGPSTime();
+			cc_gps_sat = null;
 		}
 	}
 }

@@ -135,6 +135,12 @@ public class AltosConfigData implements Iterable<String> {
 		}
 	}
 
+	public boolean has_monitor_battery() {
+		if (product.startsWith("TeleBT"))
+			return true;
+		return false;
+	}
+
 	int[] parse_version(String v) {
 		String[] parts = v.split("\\.");
 		int r[] = new int[parts.length];

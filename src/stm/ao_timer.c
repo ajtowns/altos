@@ -18,15 +18,12 @@
 #include "ao.h"
 #include <ao_task.h>
 
-volatile __data AO_TICK_TYPE ao_tick_count;
+volatile AO_TICK_TYPE ao_tick_count;
 
-uint16_t ao_time(void)
+AO_TICK_TYPE
+ao_time(void)
 {
-	uint16_t	v;
-	ao_arch_critical(
-		v = ao_tick_count;
-		);
-	return v;
+	return ao_tick_count;
 }
 
 #if AO_DATA_ALL

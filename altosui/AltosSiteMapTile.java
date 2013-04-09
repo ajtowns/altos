@@ -56,7 +56,7 @@ public class AltosSiteMapTile extends JLayeredPane {
 
 	private boolean drawn_landed_circle = false;
 	private boolean drawn_boost_circle = false;
-	public synchronized void show(AltosState state, int crc_errors,
+	public synchronized void show(AltosState state, AltosListenerState listener_state,
 				      Point2D.Double last_pt, Point2D.Double pt)
 	{
 		if (0 <= state.state && state.state < stateColors.length) {

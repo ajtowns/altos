@@ -94,7 +94,7 @@ extern volatile __data AO_TICK_TYPE ao_tick_count;
 #define AO_SEC_TO_TICKS(s)	((s) * AO_HERTZ)
 
 /* Returns the current time in ticks */
-uint16_t
+AO_TICK_TYPE
 ao_time(void);
 
 /* Suspend the current task until ticks time has passed */

@@ -45,4 +45,8 @@ public class AltosFlightReader {
 	public boolean supports_telemetry(int telemetry) { return false; }
 
 	public File backing_file() { return null; }
+
+	public boolean has_monitor_battery() { return false; }
+
+	public double monitor_battery() { return AltosRecord.MISSING; }
 }
