@@ -36,6 +36,15 @@
     </legalnotice>
     <revhistory>
       <revision>
+	<revnumber>1.2</revnumber>
+	<date>14 April 2013</date>
+	<revremark>
+	  Updated for software version 1.2. Version 1.2 adds support
+	  for TeleBT and AltosDroid. It also adds a few minor features
+	  and fixes a few minor bugs in AltosUI and the AltOS firmware.
+	</revremark>
+      </revision>
+      <revision>
 	<revnumber>1.1.1</revnumber>
 	<date>16 September 2012</date>
 	<revremark>
@@ -1579,6 +1588,45 @@ NAR #88757, TRA #12200
 	query commands to discover the current state rather than
 	listening for telemetry packets.
       </para>
+    </section>
+  </chapter>
+  <chapter>
+    <title>AltosDroid</title>
+    <para>
+      AltosDroid provides the same flight monitoring capabilities as
+      AltosUI, but runs on Android devices and is designed to connect
+      to a TeleBT receiver over Bluetooth™. Altos Droid monitors
+      telemetry data, logging it to internal storage in the Android
+      device, and presents that data in a UI the same way the 'Monitor
+      Flight' window does in AltosUI.
+    </para>
+    <para>
+      This manual will explain how to configure AltosDroid, connect
+      to TeleBT, operate the flight monitoring interface and describe
+      what the displayed data means.
+    </para>
+    <section>
+      <title>Installing AltosDroid</title>
+      <para>
+	AltosDroid is included in the Google Play store. To install
+	it on your Android device, open open the Google Play Store
+	application and search for "altosdroid". Make sure you don't
+	have a space between "altos" and "droid" or you probably won't
+	find what you want. That should bring you to the right page
+	from which you can download and install the application.
+      </para>
+    </section>
+    <section>
+      <title>Connecting to TeleBT</title>
+    </section>
+    <section>
+      <title>Configuring AltosDroid</title>
+    </section>
+    <section>
+      <title>Flight Monitoring</title>
+    </section>
+    <section>
+      <title>Downloading Flight Logs</title>
     </section>
   </chapter>
   <chapter>
