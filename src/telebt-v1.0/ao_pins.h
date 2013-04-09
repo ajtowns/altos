@@ -28,7 +28,6 @@
 #define HAS_SERIAL_1_HW_FLOW	1
 #define USE_SERIAL_1_STDIN	1
 #define DELAY_SERIAL_1_STDIN	1
-#define HAS_ADC			0
 #define HAS_DBG			1
 #define HAS_EEPROM		0
 #define HAS_LOG			0
@@ -49,6 +48,19 @@
 #define BT_LINK_PIN		P1_7
 #define HAS_MONITOR		1
 #define LEGACY_MONITOR		0
+
+#define HAS_ADC			1
+#define AO_PAD_ADC_BATT		0
+#define AO_ADC_PINS		(1 << AO_PAD_ADC_BATT)
+
+struct ao_adc {
+	int16_t		batt;
+};
+
+#define AO_ADC_DUMP(p)							\
+	printf ("tick: %5u batt %5d\n",					\
+		(p)->tick,						\
+		(p)->adc.batt)
 
 #if DBG_ON_P1
 

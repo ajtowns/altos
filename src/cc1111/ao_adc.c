@@ -153,6 +153,15 @@ ao_adc_isr(void) __interrupt 1
 #define GOT_ADC
 #endif /* TELEFIRE_V_0_1 */
 
+#ifdef TELEBT_V_1_0
+	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.batt);
+	a[0] = ADCL;
+	a[1] = ADCH;
+	if (0)
+		;
+#define GOT_ADC
+#endif	
+
 #ifndef GOT_ADC
 #error No known ADC configuration set
 #endif

@@ -35,6 +35,7 @@ CORE_SRC = \
 
 CC1111_SRC = \
 	ao_dbg.c \
+	ao_adc.c \
 	ao_dma.c \
 	ao_led.c \
 	ao_packet.c \

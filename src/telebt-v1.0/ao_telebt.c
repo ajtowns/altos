@@ -31,6 +31,7 @@ main(void)
 	ao_monitor_init();
 	ao_radio_init();
 	ao_packet_master_init();
+	ao_adc_init();
 	ao_btm_init();
 #if HAS_DBG
 	ao_dbg_init();
