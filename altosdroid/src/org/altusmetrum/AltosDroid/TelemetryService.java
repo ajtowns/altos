@@ -46,7 +46,6 @@ import org.altusmetrum.altoslib_1.*;
 
 class AltosLocationListener implements LocationListener {
 	TelemetryService service;
-	boolean	fine;
 
 	public void onLocationChanged(Location location) {
 		service.sendLocation(location);
@@ -61,8 +60,7 @@ class AltosLocationListener implements LocationListener {
 	public void onProviderDisabled(String provider) {
 	}
 
-	public AltosLocationListener(TelemetryService service, boolean fine) {
-		this.fine = fine;
+	public AltosLocationListener(TelemetryService service) {
 		this.service = service;
 	}
 }
@@ -112,8 +110,7 @@ public class TelemetryService extends Service {
 
 	// location listeners
 
-	private AltosLocationListener gpsListener;
-	private AltosLocationListener netListener;
+	private AltosLocationListener locationListener;
 	
 	// Last data seen; send to UI when it starts
 
@@ -311,13 +308,12 @@ public class TelemetryService extends Service {
 		timer.scheduleAtFixedRate(new TimerTask(){ public void run() {onTimerTick();}}, 10000L, 10000L);
 
 		// Listen for GPS and Network position updates
-		gpsListener = new AltosLocationListener(this, true);
-		netListener = new AltosLocationListener(this, false);
+		locationListener = new AltosLocationListener(this);
 
 		LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 		
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsListener);
-		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, netListener);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 	}
 
 	@Override
@@ -352,8 +348,7 @@ public class TelemetryService extends Service {
 
 		// Stop listening for location updates
 		LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-		locationManager.removeUpdates(gpsListener);
-		locationManager.removeUpdates(netListener);
+		locationManager.removeUpdates(locationListener);
 
 		// Stop the bluetooth Comms threads
 		stopAltosBluetooth();
