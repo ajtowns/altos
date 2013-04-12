@@ -51,7 +51,6 @@ public class TabMap extends Fragment implements AltosDroidTab {
 
 	private Marker mRocketMarker;
 	private Marker mPadMarker;
-	private Marker mReceiverMarker;
 	private Polyline mPolyline;
 
 	private TextView mDistanceView;
@@ -130,12 +129,6 @@ public class TabMap extends Fragment implements AltosDroidTab {
 					                   .visible(false)
 					);
 
-			mReceiverMarker = mMap.addMarker(
-					new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.pad))
-					                   .position(new LatLng(0,0))
-					                   .visible(false)
-					);
-
 			mPolyline = mMap.addPolyline(
 					new PolylineOptions().add(new LatLng(0,0), new LatLng(0,0))
 					                     .width(3)
@@ -169,11 +162,6 @@ public class TabMap extends Fragment implements AltosDroidTab {
 			if (state.state == AltosLib.ao_flight_pad) {
 				mPadMarker.setPosition(new LatLng(state.pad_lat, state.pad_lon));
 				mPadMarker.setVisible(true);
-			}
-
-			if (receiver != null) {
-				mReceiverMarker.setPosition(new LatLng(receiver.getLatitude(), receiver.getLongitude()));
-				mReceiverMarker.setVisible(true);
 			}
 		}
 	}
