@@ -248,23 +248,21 @@ public class AltosState {
 
 		if (height != AltosRecord.MISSING && height > max_height)
 			max_height = height;
+		elevation = 0;
+		range = -1;
+		gps_height = 0;
 		if (data.gps != null) {
 			if (gps == null || !gps.locked || data.gps.locked)
 				gps = data.gps;
 			if (ngps > 0 && gps.locked) {
-				from_pad = new AltosGreatCircle(pad_lat, pad_lon, gps.lat, gps.lon);
+				double h = height;
+
+				if (h == AltosRecord.MISSING) h = 0;
+				from_pad = new AltosGreatCircle(pad_lat, pad_lon, 0, gps.lat, gps.lon, h);
+				elevation = from_pad.elevation;
+				range = from_pad.range;
+				gps_height = gps.alt - pad_alt;
 			}
-		}
-		elevation = 0;
-		range = -1;
-		if (ngps > 0) {
-			gps_height = gps.alt - pad_alt;
-			if (from_pad != null) {
-				elevation = Math.atan2(height, from_pad.distance) * 180 / Math.PI;
-				range = Math.sqrt(height * height + from_pad.distance * from_pad.distance);
-			}
-		} else {
-			gps_height = 0;
 		}
 	}
 
