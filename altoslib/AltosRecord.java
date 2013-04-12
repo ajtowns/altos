@@ -82,10 +82,8 @@ public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 	public double altitude() {
 		double	p = pressure();
 
-		if (p == MISSING) {
-			System.out.printf ("altitude missing\n");
+		if (p == MISSING)
 			return MISSING;
-		}
 		return AltosConvert.pressure_to_altitude(p);
 	}
 
