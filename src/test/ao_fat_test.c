@@ -158,14 +158,14 @@ ao_fat_entry_raw_read(cluster_t cluster, uint8_t fat)
 		cluster <<= 1;
 	sector = cluster >> SECTOR_SHIFT;
 	offset = cluster & SECTOR_MASK;
-	buf = ao_fat_sector_get(fat_start + fat * sectors_per_fat + sector);
+	buf = _ao_fat_sector_get(fat_start + fat * sectors_per_fat + sector);
 	if (!buf)
 		return 0;
 	if (fat32)
 		ret = get_u32(buf + offset);
 	else
 		ret = get_u16(buf + offset);
-	ao_fat_sector_put(buf, 0);
+	_ao_fat_sector_put(buf, 0);
 	return ret;
 }
 
@@ -252,7 +252,7 @@ check_file(dirent_t dent, cluster_t first_cluster, dirent_t *used)
 	     fat32 ? !AO_FAT_IS_LAST_CLUSTER(cluster) : !AO_FAT_IS_LAST_CLUSTER16(cluster);
 	     cluster = ao_fat_entry_raw_read(cluster, 0))
 	{
-		if (!ao_fat_cluster_valid(cluster))
+		if (!_ao_fat_cluster_valid(cluster))
 			fatal("file %d: invalid cluster %08x\n", dent, cluster);
 		if (used[cluster])
 			fatal("file %d: duplicate cluster %08x also in file %d\n", dent, cluster, used[cluster]-1);
@@ -274,7 +274,7 @@ check_fs(void)
 
 	used = calloc(sizeof (dirent_t), number_cluster);
 
-	for (r = 0; (dent = ao_fat_root_get(r)); r++) {
+	for (r = 0; (dent = _ao_fat_root_get(r)); r++) {
 		cluster_t	clusters;
 		offset_t	size;
 		cluster_t	first_cluster;
@@ -287,7 +287,7 @@ check_fs(void)
 		if (fat32)
 			first_cluster |= (cluster_t) get_u16(dent + 0x14) << 16;
 		size = get_u32(dent + 0x1c);
-		ao_fat_root_put(dent, r, 0);
+		_ao_fat_root_put(dent, r, 0);
 
 		if (name[0] == AO_FAT_DENT_END) {
 			break;
@@ -308,12 +308,12 @@ check_fs(void)
 	}
 	if (!fat32) {
 		for (; r < root_entries; r++) {
-			uint8_t	*dent = ao_fat_root_get(r);
+			uint8_t	*dent = _ao_fat_root_get(r);
 			if (!dent)
 				fatal("cannot map dent %d\n", r);
 			if (dent[0] != AO_FAT_DENT_END)
 				fatal("found non-zero dent past end %d\n", r);
-			ao_fat_root_put(dent, r, 0);
+			_ao_fat_root_put(dent, r, 0);
 		}
 	} else {
 		check_file((dirent_t) -1, root_cluster, used);
@@ -536,7 +536,7 @@ do_test(void (*test)(void))
 	ao_fat_init();
 
 	check_bufio("top");
-	ao_fat_setup();
+	_ao_fat_setup();
 
 	check_fs();
 	check_bufio("after setup");
