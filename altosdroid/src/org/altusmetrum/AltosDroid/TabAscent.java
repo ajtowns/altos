@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.location.Location;
 
 public class TabAscent extends Fragment implements AltosDroidTab {
 	AltosDroid mAltosDroid;
@@ -84,7 +85,7 @@ public class TabAscent extends Fragment implements AltosDroidTab {
 		mAltosDroid = null;
 	}
 
-	public void update_ui(AltosState state, AltosGreatCircle from_receiver) {
+	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
 		mHeightView.setText(String.format("%6.0f m", state.height));
 		mMaxHeightView.setText(String.format("%6.0f m", state.max_height));
 		mSpeedView.setText(String.format("%6.0f m/s", state.speed()));
@@ -92,8 +93,10 @@ public class TabAscent extends Fragment implements AltosDroidTab {
 		mAccelView.setText(String.format("%6.0f m/s²", state.acceleration));
 		mMaxAccelView.setText(String.format("%6.0f m/s²", state.max_acceleration));
 
-		mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
-		mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+		if (state.gps != null) {
+			mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
+			mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+		}
 
 		mApogeeVoltageView.setText(String.format("%4.2f V", state.drogue_sense));
 		mApogeeLights.set(state.drogue_sense > 3.2);

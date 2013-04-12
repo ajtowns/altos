@@ -26,6 +26,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.location.Location;
 
 public class TabLanded extends Fragment implements AltosDroidTab {
 	AltosDroid mAltosDroid;
@@ -68,13 +69,15 @@ public class TabLanded extends Fragment implements AltosDroidTab {
 		mAltosDroid = null;
 	}
 
-	public void update_ui(AltosState state, AltosGreatCircle from_receiver) {
+	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
 		if (from_receiver != null) {
 			mBearingView.setText(String.format("%3.0f°", from_receiver.bearing));
 			mDistanceView.setText(String.format("%6.0f m", from_receiver.distance));
 		}
-		mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
-		mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+		if (state.gps != null) {
+			mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
+			mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+		}
 		mMaxHeightView.setText(String.format("%6.0f m", state.max_height));
 		mMaxAccelView.setText(String.format("%6.0f m/s²", state.max_acceleration));
 		mMaxSpeedView.setText(String.format("%6.0f m/s", state.max_speed()));

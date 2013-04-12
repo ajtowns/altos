@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.location.Location;
 
 public class TabPad extends Fragment implements AltosDroidTab {
 	AltosDroid mAltosDroid;
@@ -100,7 +101,7 @@ public class TabPad extends Fragment implements AltosDroidTab {
 		mAltosDroid = null;
 	}
 
-	public void update_ui(AltosState state, AltosGreatCircle from_receiver) {
+	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
 		mBatteryVoltageView.setText(String.format("%4.2f V", state.battery));
 		mBatteryLights.set(state.battery > 3.7);
 
@@ -122,18 +123,24 @@ public class TabPad extends Fragment implements AltosDroidTab {
 		}
 		mDataLoggingLights.set(state.data.flight != 0);
 
-		mGPSLockedView.setText(String.format("%4d sats", state.gps.nsat));
-		mGPSLockedLights.set(state.gps.locked && state.gps.nsat >= 4);
+		if (state.gps != null) {
+			mGPSLockedView.setText(String.format("%4d sats", state.gps.nsat));
+			mGPSLockedLights.set(state.gps.locked && state.gps.nsat >= 4);
+			if (state.gps_ready)
+				mGPSReadyView.setText("Ready");
+			else
+				mGPSReadyView.setText(String.format("Waiting %d", state.gps_waiting));
+			mGPSReadyLights.set(state.gps_ready);
+		}
 
-		if (state.gps_ready)
-			mGPSReadyView.setText("Ready");
-		else
-			mGPSReadyView.setText(String.format("Waiting %d", state.gps_waiting));
-		mGPSReadyLights.set(state.gps_ready);
-
-		mPadLatitudeView.setText(AltosDroid.pos(state.pad_lat, "N", "S"));
-		mPadLongitudeView.setText(AltosDroid.pos(state.pad_lon, "W", "E"));
-		mPadAltitudeView.setText(String.format("%4.0f m", state.pad_alt));
+		if (receiver != null) {
+			double altitude = 0;
+			if (receiver.hasAltitude())
+				altitude = receiver.getAltitude();
+			mPadLatitudeView.setText(AltosDroid.pos(receiver.getLatitude(), "N", "S"));
+			mPadLongitudeView.setText(AltosDroid.pos(receiver.getLongitude(), "W", "E"));
+			mPadAltitudeView.setText(String.format("%4.0f m", altitude));
+		}
 	}
 
 }

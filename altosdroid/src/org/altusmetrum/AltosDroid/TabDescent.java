@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.location.Location;
 
 public class TabDescent extends Fragment implements AltosDroidTab {
 	AltosDroid mAltosDroid;
@@ -88,7 +89,7 @@ public class TabDescent extends Fragment implements AltosDroidTab {
 		mAltosDroid = null;
 	}
 
-	public void update_ui(AltosState state, AltosGreatCircle from_receiver) {
+	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
 		mSpeedView.setText(String.format("%6.0f m/s", state.speed()));
 		mHeightView.setText(String.format("%6.0f m", state.height));
 		if (from_receiver != null) {
@@ -104,8 +105,10 @@ public class TabDescent extends Fragment implements AltosDroidTab {
 			mCompassView.setText("<unknown>");
 			mDistanceView.setText("<unknown>");
 		}
-		mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
-		mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+		if (state.gps != null) {
+			mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
+			mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+		}
 
 		mApogeeVoltageView.setText(String.format("%4.2f V", state.drogue_sense));
 		mApogeeLights.set(state.drogue_sense > 3.2);

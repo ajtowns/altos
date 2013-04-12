@@ -40,6 +40,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.location.Location;
 
 public class TabMap extends Fragment implements AltosDroidTab {
 	AltosDroid mAltosDroid;
@@ -50,6 +51,7 @@ public class TabMap extends Fragment implements AltosDroidTab {
 
 	private Marker mRocketMarker;
 	private Marker mPadMarker;
+	private Marker mReceiverMarker;
 	private Polyline mPolyline;
 
 	private TextView mDistanceView;
@@ -128,6 +130,12 @@ public class TabMap extends Fragment implements AltosDroidTab {
 					                   .visible(false)
 					);
 
+			mReceiverMarker = mMap.addMarker(
+					new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.pad))
+					                   .position(new LatLng(0,0))
+					                   .visible(false)
+					);
+
 			mPolyline = mMap.addPolyline(
 					new PolylineOptions().add(new LatLng(0,0), new LatLng(0,0))
 					                     .width(3)
@@ -139,24 +147,33 @@ public class TabMap extends Fragment implements AltosDroidTab {
 		}
 	}
 
-	public void update_ui(AltosState state, AltosGreatCircle from_receiver) {
+	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
 		if (state.from_pad != null) {
 			mDistanceView.setText(String.format("%6.0f m", state.from_pad.distance));
 			mBearingView.setText(String.format("%3.0f°", state.from_pad.bearing));
 		}
-		mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
-		mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+		if (state.gps != null) {
+			mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
+			mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+		}
 
 		if (mapLoaded) {
-			mRocketMarker.setPosition(new LatLng(state.gps.lat, state.gps.lon));
-			mRocketMarker.setVisible(true);
+			if (state.gps != null) {
+				mRocketMarker.setPosition(new LatLng(state.gps.lat, state.gps.lon));
+				mRocketMarker.setVisible(true);
 
-			mPolyline.setPoints(Arrays.asList(new LatLng(state.pad_lat, state.pad_lon), new LatLng(state.gps.lat, state.gps.lon)));
-			mPolyline.setVisible(true);
+				mPolyline.setPoints(Arrays.asList(new LatLng(state.pad_lat, state.pad_lon), new LatLng(state.gps.lat, state.gps.lon)));
+				mPolyline.setVisible(true);
+			}
 
 			if (state.state == AltosLib.ao_flight_pad) {
 				mPadMarker.setPosition(new LatLng(state.pad_lat, state.pad_lon));
 				mPadMarker.setVisible(true);
+			}
+
+			if (receiver != null) {
+				mReceiverMarker.setPosition(new LatLng(receiver.getLatitude(), receiver.getLongitude()));
+				mReceiverMarker.setVisible(true);
 			}
 		}
 	}

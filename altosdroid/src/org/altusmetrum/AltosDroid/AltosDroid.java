@@ -233,9 +233,12 @@ public class AltosDroid extends FragmentActivity {
 		AltosGreatCircle from_receiver = null;
 
 		if (saved_location != null && state.gps != null && state.gps.locked) {
+			double altitude = 0;
+			if (saved_location.hasAltitude())
+				altitude = saved_location.getAltitude();
 			from_receiver = new AltosGreatCircle(saved_location.getLatitude(),
 							     saved_location.getLongitude(),
-							     saved_location.getAltitude(),
+							     altitude,
 							     state.gps.lat,
 							     state.gps.lon,
 							     state.gps.alt);
@@ -248,7 +251,7 @@ public class AltosDroid extends FragmentActivity {
 		mRSSIView.setText(String.format("%d", state.data.rssi));
 
 		for (AltosDroidTab mTab : mTabs)
-			mTab.update_ui(state, from_receiver);
+			mTab.update_ui(state, from_receiver, saved_location);
 
 		mAltosVoice.tell(state);
 	}
