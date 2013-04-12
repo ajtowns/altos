@@ -17,7 +17,7 @@
 
 package org.altusmetrum.AltosDroid;
 
-import org.altusmetrum.altoslib_1.AltosState;
+import org.altusmetrum.altoslib_1.*;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -84,7 +84,7 @@ public class TabAscent extends Fragment implements AltosDroidTab {
 		mAltosDroid = null;
 	}
 
-	public void update_ui(AltosState state) {
+	public void update_ui(AltosState state, AltosGreatCircle from_receiver) {
 		mHeightView.setText(String.format("%6.0f m", state.height));
 		mMaxHeightView.setText(String.format("%6.0f m", state.max_height));
 		mSpeedView.setText(String.format("%6.0f m/s", state.speed()));

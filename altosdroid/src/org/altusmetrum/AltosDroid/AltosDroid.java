@@ -47,6 +47,7 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.app.AlertDialog;
+import android.location.Location;
 
 import org.altusmetrum.altoslib_1.*;
 
@@ -59,6 +60,8 @@ public class AltosDroid extends FragmentActivity {
 	public static final int MSG_STATE_CHANGE    = 1;
 	public static final int MSG_TELEMETRY       = 2;
 	public static final int MSG_UPDATE_AGE      = 3;
+	public static final int MSG_LOCATION	    = 4;
+	public static final int MSG_CRC_ERROR	    = 5;
 
 	// Intent request codes
 	private static final int REQUEST_CONNECT_DEVICE = 1;
@@ -87,6 +90,7 @@ public class AltosDroid extends FragmentActivity {
 	// Timer and Saved flight state for Age calculation
 	private Timer timer = new Timer();
 	AltosState saved_state;
+	Location saved_location;
 
 	// Service
 	private boolean mIsBound   = false;
@@ -137,6 +141,10 @@ public class AltosDroid extends FragmentActivity {
 			case MSG_TELEMETRY:
 				ad.update_ui((AltosState) msg.obj);
 				break;
+			case MSG_LOCATION:
+				ad.set_location((Location) msg.obj);
+				break;
+			case MSG_CRC_ERROR:
 			case MSG_UPDATE_AGE:
 				if (ad.saved_state != null) {
 					ad.mAgeView.setText(String.format("%d", (System.currentTimeMillis() - ad.saved_state.report_time + 500) / 1000));
@@ -196,6 +204,13 @@ public class AltosDroid extends FragmentActivity {
 		mTabs.remove(mTab);
 	}
 
+	void set_location(Location location) {
+		saved_location = location;
+		if (saved_state != null) {
+			update_ui(saved_state);
+		}
+	}
+
 	void update_ui(AltosState state) {
 		if (saved_state != null) {
 			if (saved_state.state != state.state) {
@@ -215,6 +230,17 @@ public class AltosDroid extends FragmentActivity {
 		}
 		saved_state = state;
 
+		AltosGreatCircle from_receiver = null;
+
+		if (saved_location != null && state.gps != null && state.gps.locked) {
+			from_receiver = new AltosGreatCircle(saved_location.getLatitude(),
+							     saved_location.getLongitude(),
+							     saved_location.getAltitude(),
+							     state.gps.lat,
+							     state.gps.lon,
+							     state.gps.alt);
+		}
+
 		mCallsignView.setText(state.data.callsign);
 		mSerialView.setText(String.format("%d", state.data.serial));
 		mFlightView.setText(String.format("%d", state.data.flight));
@@ -222,7 +248,7 @@ public class AltosDroid extends FragmentActivity {
 		mRSSIView.setText(String.format("%d", state.data.rssi));
 
 		for (AltosDroidTab mTab : mTabs)
-			mTab.update_ui(state);
+			mTab.update_ui(state, from_receiver);
 
 		mAltosVoice.tell(state);
 	}

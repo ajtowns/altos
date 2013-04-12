@@ -36,7 +36,6 @@ public class TelemetryReader extends Thread {
 
 	Handler     handler;
 
-	TelemetryService service;
 	AltosLink   link;
 	AltosRecord previous;
 
@@ -69,12 +68,12 @@ public class TelemetryReader extends Thread {
 					if (record == null)
 						break;
 					state = new AltosState(record, state);
-					service.sendTelemetry(state);
+					handler.obtainMessage(TelemetryService.MSG_TELEMETRY, state).sendToTarget();
 				} catch (ParseException pp) {
 					Log.e(TAG, String.format("Parse error: %d \"%s\"", pp.getErrorOffset(), pp.getMessage()));
 				} catch (AltosCRCException ce) {
 					++crc_errors;
-					service.sendCrcErrors(crc_errors);
+					handler.obtainMessage(TelemetryService.MSG_CRC_ERROR, new Integer(crc_errors)).sendToTarget();
 				}
 			}
 		} catch (InterruptedException ee) {
@@ -84,8 +83,7 @@ public class TelemetryReader extends Thread {
 		}
 	}
 
-	public TelemetryReader (TelemetryService in_service, AltosLink in_link, Handler in_handler) {
-		service = in_service;
+	public TelemetryReader (AltosLink in_link, Handler in_handler) {
 		link    = in_link;
 		handler = in_handler;
 

@@ -100,7 +100,7 @@ public class TabPad extends Fragment implements AltosDroidTab {
 		mAltosDroid = null;
 	}
 
-	public void update_ui(AltosState state) {
+	public void update_ui(AltosState state, AltosGreatCircle from_receiver) {
 		mBatteryVoltageView.setText(String.format("%4.2f V", state.battery));
 		mBatteryLights.set(state.battery > 3.7);
 

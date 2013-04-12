@@ -139,7 +139,7 @@ public class TabMap extends Fragment implements AltosDroidTab {
 		}
 	}
 
-	public void update_ui(AltosState state) {
+	public void update_ui(AltosState state, AltosGreatCircle from_receiver) {
 		if (state.from_pad != null) {
 			mDistanceView.setText(String.format("%6.0f m", state.from_pad.distance));
 			mBearingView.setText(String.format("%3.0f°", state.from_pad.bearing));

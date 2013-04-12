@@ -45,10 +45,10 @@ import android.location.LocationListener;
 import org.altusmetrum.altoslib_1.*;
 
 class AltosLocationListener implements LocationListener {
-	TelemetryService service;
+	Handler handler;
 
 	public void onLocationChanged(Location location) {
-		service.sendLocation(location);
+		handler.obtainMessage(TelemetryService.MSG_LOCATION, location).sendToTarget();
 	}
 
 	public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -60,8 +60,8 @@ class AltosLocationListener implements LocationListener {
 	public void onProviderDisabled(String provider) {
 	}
 
-	public AltosLocationListener(TelemetryService service) {
-		this.service = service;
+	public AltosLocationListener(Handler handler) {
+		this.handler = handler;
 	}
 }
 
@@ -169,7 +169,19 @@ public class TelemetryService extends Service {
 				}
 				break;
 			case MSG_TELEMETRY:
+				// forward telemetry messages
+				s.last_state = (AltosState) msg.obj;
 				s.sendMessageToClients(Message.obtain(null, AltosDroid.MSG_TELEMETRY, msg.obj));
+				break;
+			case MSG_LOCATION:
+				// forward location messages
+				s.last_location = (Location) msg.obj;
+				s.sendMessageToClients(Message.obtain(null, AltosDroid.MSG_LOCATION, msg.obj));
+				break;
+			case MSG_CRC_ERROR:
+				// forward crc error messages
+				s.last_crc_errors = (Integer) msg.obj;
+				s.sendMessageToClients(Message.obtain(null, AltosDroid.MSG_CRC_ERROR, msg.obj));
 				break;
 			case MSG_SETFREQUENCY:
 				if (s.state == STATE_CONNECTED) {
@@ -187,18 +199,13 @@ public class TelemetryService extends Service {
 	}
 
 	public void sendTelemetry(AltosState state) {
-		last_state = state;
-		mHandler.obtainMessage(MSG_TELEMETRY, state).sendToTarget();
 	}
 
 	public void sendLocation(Location location) {
-		last_location = location;
 		mHandler.obtainMessage(MSG_LOCATION, location).sendToTarget();
 	}
 
 	public void sendCrcErrors(int crc_errors) {
-		last_crc_errors = crc_errors;
-		mHandler.obtainMessage(MSG_CRC_ERROR, new Integer(crc_errors)).sendToTarget();
 	}
 
 	private void sendMessageToClients(Message m) {
@@ -278,7 +285,7 @@ public class TelemetryService extends Service {
 
 		setState(STATE_CONNECTED);
 
-		mTelemetryReader = new TelemetryReader(this, mAltosBluetooth, mHandler);
+		mTelemetryReader = new TelemetryReader(mAltosBluetooth, mHandler);
 		mTelemetryReader.start();
 		
 		mTelemetryLogger = new TelemetryLogger(this, mAltosBluetooth);
@@ -308,7 +315,7 @@ public class TelemetryService extends Service {
 		timer.scheduleAtFixedRate(new TimerTask(){ public void run() {onTimerTick();}}, 10000L, 10000L);
 
 		// Listen for GPS and Network position updates
-		locationListener = new AltosLocationListener(this);
+		locationListener = new AltosLocationListener(mHandler);
 
 		LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 		

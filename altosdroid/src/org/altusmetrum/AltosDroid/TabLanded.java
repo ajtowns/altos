@@ -17,7 +17,7 @@
 
 package org.altusmetrum.AltosDroid;
 
-import org.altusmetrum.altoslib_1.AltosState;
+import org.altusmetrum.altoslib_1.*;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -68,10 +68,10 @@ public class TabLanded extends Fragment implements AltosDroidTab {
 		mAltosDroid = null;
 	}
 
-	public void update_ui(AltosState state) {
-		if (state.from_pad != null) {
-			mBearingView.setText(String.format("%3.0f°", state.from_pad.bearing));
-			mDistanceView.setText(String.format("%6.0f m", state.from_pad.distance));
+	public void update_ui(AltosState state, AltosGreatCircle from_receiver) {
+		if (from_receiver != null) {
+			mBearingView.setText(String.format("%3.0f°", from_receiver.bearing));
+			mDistanceView.setText(String.format("%6.0f m", from_receiver.distance));
 		}
 		mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
 		mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
