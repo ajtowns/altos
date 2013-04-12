@@ -29,7 +29,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
-//import android.os.Bundle;
+import android.content.Context;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Handler;
 import android.os.Message;
@@ -37,8 +38,31 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
+import android.location.Location;
+import android.location.LocationManager;
+import android.location.LocationListener;
 
 import org.altusmetrum.altoslib_1.*;
+
+class AltosLocationListener implements LocationListener {
+	boolean	fine;
+
+	public void onLocationChanged(Location location) {
+	}
+
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+	}
+
+	public void onProviderEnabled(String provider) {
+	}
+
+	public void onProviderDisabled(String provider) {
+	}
+
+	public AltosLocationListener(boolean fine) {
+		this.fine = fine;
+	}
+}
 
 public class TelemetryService extends Service {
 
@@ -81,6 +105,11 @@ public class TelemetryService extends Service {
 	// internally track state of bluetooth connection
 	private int state = STATE_NONE;
 
+	// location listeners
+
+	private AltosLocationListener gpsListener;
+	private AltosLocationListener netListener;
+	
 	// Handler of incoming messages from clients.
 	static class IncomingHandler extends Handler {
 		private final WeakReference<TelemetryService> service;
@@ -249,6 +278,14 @@ public class TelemetryService extends Service {
 		// Start our timer - first event in 10 seconds, then every 10 seconds after that.
 		timer.scheduleAtFixedRate(new TimerTask(){ public void run() {onTimerTick();}}, 10000L, 10000L);
 
+		// Listen for GPS and Network position updates
+		gpsListener = new AltosLocationListener(true);
+		netListener = new AltosLocationListener(false);
+
+		LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+		
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsListener);
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, netListener);
 	}
 
 	@Override
@@ -280,6 +317,11 @@ public class TelemetryService extends Service {
 
 	@Override
 	public void onDestroy() {
+
+		// Stop listening for location updates
+		LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+		locationManager.removeUpdates(gpsListener);
+		locationManager.removeUpdates(netListener);
 
 		// Stop the bluetooth Comms threads
 		stopAltosBluetooth();
