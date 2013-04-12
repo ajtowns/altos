@@ -442,15 +442,10 @@ static const uint16_t radio_setup[] = {
 	AO_CC115L_DONE_INT_GPIO_IOCFG,	    CC115L_IOCFG_GPIO_CFG_PA_PD | (1 << CC115L_IOCFG_GPIO_INV),
 
         CC115L_FIFOTHR,                     0x47,       /* TX FIFO Thresholds */
-        CC115L_FREQ2,                       0x10,       /* Frequency Control Word, High Byte */
-        CC115L_FREQ1,                       0xb6,       /* Frequency Control Word, Middle Byte */
-        CC115L_FREQ0,                       0xa5,       /* Frequency Control Word, Low Byte */
-        CC115L_MDMCFG2,                     0x13,       /* Modem Configuration */
 	CC115L_MDMCFG1,			    (0x00 |
 					     (CC115L_MDMCFG1_NUM_PREAMBLE_4 << CC115L_MDMCFG1_NUM_PREAMBLE) |
 					     (1 << CC115L_MDMCFG1_CHANSPC_E)),
 	CC115L_MDMCFG0,			    248,	/* Channel spacing M value (100kHz channels) */
-        CC115L_DEVIATN,                     0x35,       /* Modem Deviation Setting */
         CC115L_MCSM0,                       0x38,       /* Main Radio Control State Machine Configuration */
         CC115L_RESERVED_0X20,               0xfb,       /* Use setting from SmartRF Studio */
         CC115L_FSCAL3,                      0xe9,       /* Frequency Synthesizer Calibration */
@@ -460,7 +455,6 @@ static const uint16_t radio_setup[] = {
         CC115L_TEST2,                       0x81,       /* Various Test Settings */
         CC115L_TEST1,                       0x35,       /* Various Test Settings */
         CC115L_TEST0,                       0x09,       /* Various Test Settings */
-	CC115L_PA,		     	    0x00,	/* Power setting (as low as possible) */
 };
 
 static uint8_t	ao_radio_configured = 0;
@@ -638,7 +632,7 @@ ao_radio_test_cmd(void)
 #endif
 		ao_radio_get();
 		ao_radio_set_len(0xff);
-		ao_radio_set_mode(AO_RADIO_MODE_RDF);
+		ao_radio_set_mode(AO_RADIO_MODE_RDF|AO_RADIO_MODE_BITS_FIXED);
 		ao_radio_strobe(CC115L_SFTX);
 		ao_radio_pa_on();
 		ao_radio_strobe(CC115L_STX);
