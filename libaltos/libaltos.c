@@ -1319,6 +1319,7 @@ altos_open(struct altos_device *device)
 	struct altos_file	*file = calloc (1, sizeof (struct altos_file));
 	char	full_name[64];
 	COMMTIMEOUTS timeouts;
+	int i;
 
 	if (!file)
 		return NULL;
@@ -1326,7 +1327,15 @@ altos_open(struct altos_device *device)
 	strcpy(full_name, "\\\\.\\");
 	strcat(full_name, device->path);
 
-	file->handle = open_serial(full_name);
+	file->handle = INVALID_HANDLE_VALUE;
+
+	for (i = 0; i < 5; i++) {
+		file->handle = open_serial(full_name);
+		if (file->handle != INVALID_HANDLE_VALUE)
+			break;
+		Sleep(100);
+	}
+	
 	if (file->handle == INVALID_HANDLE_VALUE) {
 		free(file);
 		return NULL;
