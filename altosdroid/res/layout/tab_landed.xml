@@ -37,7 +37,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_below="@+id/bearing_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceMedium" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -58,7 +58,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_below="@+id/distance_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceMedium" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -79,7 +79,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_below="@id/lat_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceMedium" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -100,7 +100,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_below="@id/lon_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceMedium" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -121,7 +121,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_below="@id/max_height_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceMedium" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -142,7 +142,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_below="@id/max_speed_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceMedium" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -163,7 +163,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_below="@id/max_accel_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceMedium" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 </LinearLayout>

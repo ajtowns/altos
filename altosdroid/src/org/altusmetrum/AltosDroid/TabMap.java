@@ -55,8 +55,10 @@ public class TabMap extends Fragment implements AltosDroidTab {
 
 	private TextView mDistanceView;
 	private TextView mBearingView;
-	private TextView mLatitudeView;
-	private TextView mLongitudeView;
+	private TextView mTargetLatitudeView;
+	private TextView mTargetLongitudeView;
+	private TextView mReceiverLatitudeView;
+	private TextView mReceiverLongitudeView;
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -84,8 +86,10 @@ public class TabMap extends Fragment implements AltosDroidTab {
 		View v = inflater.inflate(R.layout.tab_map, container, false);
 		mDistanceView  = (TextView)v.findViewById(R.id.distance_value);
 		mBearingView   = (TextView)v.findViewById(R.id.bearing_value);
-		mLatitudeView  = (TextView)v.findViewById(R.id.lat_value);
-		mLongitudeView = (TextView)v.findViewById(R.id.lon_value);
+		mTargetLatitudeView  = (TextView)v.findViewById(R.id.target_lat_value);
+		mTargetLongitudeView = (TextView)v.findViewById(R.id.target_lon_value);
+		mReceiverLatitudeView  = (TextView)v.findViewById(R.id.receiver_lat_value);
+		mReceiverLongitudeView = (TextView)v.findViewById(R.id.receiver_lon_value);
 		return v;
 	}
 
@@ -146,8 +150,13 @@ public class TabMap extends Fragment implements AltosDroidTab {
 			mBearingView.setText(String.format("%3.0f°", state.from_pad.bearing));
 		}
 		if (state.gps != null) {
-			mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
-			mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+			mTargetLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
+			mTargetLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+		}
+
+		if (receiver != null) {
+			mReceiverLatitudeView.setText(AltosDroid.pos(receiver.getLatitude(), "N", "S"));
+			mReceiverLongitudeView.setText(AltosDroid.pos(receiver.getLongitude(), "W", "E"));
 		}
 
 		if (mapLoaded) {

@@ -271,7 +271,7 @@ public class AltosDroid extends FragmentActivity {
 		}
 		int deg = (int) Math.floor(p);
 		double min = (p - Math.floor(p)) * 60.0;
-		return String.format("%d° %9.6f\" %s", deg, min, h);
+		return String.format("%d°%9.4f\" %s", deg, min, h);
 	}
 
 	@Override
@@ -312,6 +312,8 @@ public class AltosDroid extends FragmentActivity {
 		mTabsAdapter.addTab(mTabHost.newTabSpec("landed").setIndicator("Landed"), TabLanded.class, null);
 		mTabsAdapter.addTab(mTabHost.newTabSpec("map").setIndicator("Map"), TabMap.class, null);
 
+		for (int i = 0; i < 5; i++)
+			mTabHost.getTabWidget().getChildAt(i).getLayoutParams().height = 45;
 
 		// Set up the custom title
 		mTitle = (TextView) findViewById(R.id.title_left_text);

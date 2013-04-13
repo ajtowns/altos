@@ -47,7 +47,7 @@
 				android:layout_alignParentRight="true"
 				android:layout_below="@id/height_label"
 				android:text=""
-				android:textAppearance="?android:attr/textAppearanceMedium" />
+				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</RelativeLayout>
 
 		<RelativeLayout
@@ -68,7 +68,7 @@
 				android:layout_alignParentRight="true"
 				android:layout_below="@id/max_height_label"
 				android:text=""
-				android:textAppearance="?android:attr/textAppearanceMedium" />
+				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</RelativeLayout>
 	</LinearLayout>
 
@@ -99,7 +99,7 @@
 				android:layout_alignParentRight="true"
 				android:layout_below="@id/speed_label"
 				android:text=""
-				android:textAppearance="?android:attr/textAppearanceMedium" />
+				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</RelativeLayout>
 
 		<RelativeLayout
@@ -120,7 +120,7 @@
 				android:layout_alignParentRight="true"
 				android:layout_below="@id/max_speed_label"
 				android:text=""
-				android:textAppearance="?android:attr/textAppearanceMedium" />
+				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</RelativeLayout>
 	</LinearLayout>
 
@@ -151,7 +151,7 @@
 				android:layout_alignParentRight="true"
 				android:layout_below="@id/accel_label"
 				android:text=""
-				android:textAppearance="?android:attr/textAppearanceMedium" />
+				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</RelativeLayout>
 
 		<RelativeLayout
@@ -172,7 +172,7 @@
 				android:layout_alignParentRight="true"
 				android:layout_below="@id/max_accel_label"
 				android:text=""
-				android:textAppearance="?android:attr/textAppearanceMedium" />
+				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</RelativeLayout>
 	</LinearLayout>
 
@@ -194,7 +194,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_below="@id/lat_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceMedium" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -215,7 +215,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_below="@id/lon_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceMedium" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -254,7 +254,7 @@
 			android:layout_below="@id/apogee_voltage_label"
 			android:layout_toRightOf="@id/apogee_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceMedium" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -293,7 +293,7 @@
 			android:layout_below="@id/main_voltage_label"
 			android:layout_toRightOf="@id/main_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceMedium" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 </LinearLayout>

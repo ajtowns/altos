@@ -245,6 +245,9 @@ public class TelemetryService extends Service {
 	}
 
 	private void startAltosBluetooth() {
+		if (device == null) {
+			return;
+		}
 		if (mAltosBluetooth == null) {
 			if (D) Log.d(TAG, String.format("startAltosBluetooth(): Connecting to %s (%s)", device.getName(), device.getAddress()));
 			mAltosBluetooth = new AltosBluetooth(device, mHandler);
@@ -274,6 +277,8 @@ public class TelemetryService extends Service {
 
 	private void connected() {
 		try {
+			if (mAltosBluetooth == null)
+				throw new InterruptedException("no bluetooth");
 			mConfigData = mAltosBluetooth.config_data();
 		} catch (InterruptedException e) {
 		} catch (TimeoutException e) {
