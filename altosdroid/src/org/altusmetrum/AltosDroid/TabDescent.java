@@ -90,31 +90,33 @@ public class TabDescent extends Fragment implements AltosDroidTab {
 	}
 
 	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
-		mSpeedView.setText(String.format("%6.0f m/s", state.speed()));
-		mHeightView.setText(String.format("%6.0f m", state.height));
-		if (from_receiver != null) {
-			mElevationView.setText(String.format("%3.0f°", from_receiver.elevation));
-			mRangeView.setText(String.format("%6.0f m", from_receiver.range));
-			mBearingView.setText(String.format("%3.0f°", from_receiver.bearing));
-			mCompassView.setText(from_receiver.bearing_words(AltosGreatCircle.BEARING_LONG));
-			mDistanceView.setText(String.format("%6.0f m", from_receiver.distance));
-		} else { 
-			mElevationView.setText("<unknown>");
-			mRangeView.setText("<unknown>");
-			mBearingView.setText("<unknown>");
-			mCompassView.setText("<unknown>");
-			mDistanceView.setText("<unknown>");
-		}
-		if (state.gps != null) {
-			mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
-			mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
-		}
+		if (state != null) {
+			mSpeedView.setText(String.format("%6.0f m/s", state.speed()));
+			mHeightView.setText(String.format("%6.0f m", state.height));
+			if (from_receiver != null) {
+				mElevationView.setText(String.format("%3.0f°", from_receiver.elevation));
+				mRangeView.setText(String.format("%6.0f m", from_receiver.range));
+				mBearingView.setText(String.format("%3.0f°", from_receiver.bearing));
+				mCompassView.setText(from_receiver.bearing_words(AltosGreatCircle.BEARING_LONG));
+				mDistanceView.setText(String.format("%6.0f m", from_receiver.distance));
+			} else { 
+				mElevationView.setText("<unknown>");
+				mRangeView.setText("<unknown>");
+				mBearingView.setText("<unknown>");
+				mCompassView.setText("<unknown>");
+				mDistanceView.setText("<unknown>");
+			}
+			if (state.gps != null) {
+				mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
+				mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+			}
 
-		mApogeeVoltageView.setText(String.format("%4.2f V", state.drogue_sense));
-		mApogeeLights.set(state.drogue_sense > 3.2);
+			mApogeeVoltageView.setText(String.format("%4.2f V", state.drogue_sense));
+			mApogeeLights.set(state.drogue_sense > 3.2);
 
-		mMainVoltageView.setText(String.format("%4.2f V", state.main_sense));
-		mMainLights.set(state.main_sense > 3.2);
+			mMainVoltageView.setText(String.format("%4.2f V", state.main_sense));
+			mMainLights.set(state.main_sense > 3.2);
+		}
 	}
 
 }

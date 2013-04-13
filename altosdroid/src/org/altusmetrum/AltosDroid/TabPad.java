@@ -102,35 +102,37 @@ public class TabPad extends Fragment implements AltosDroidTab {
 	}
 
 	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
-		mBatteryVoltageView.setText(String.format("%4.2f V", state.battery));
-		mBatteryLights.set(state.battery > 3.7);
+		if (state != null) {
+			mBatteryVoltageView.setText(String.format("%4.2f V", state.battery));
+			mBatteryLights.set(state.battery > 3.7);
 
-		mApogeeVoltageView.setText(String.format("%4.2f V", state.drogue_sense));
-		mApogeeLights.set(state.drogue_sense > 3.2);
+			mApogeeVoltageView.setText(String.format("%4.2f V", state.drogue_sense));
+			mApogeeLights.set(state.drogue_sense > 3.2);
 
-		mMainVoltageView.setText(String.format("%4.2f V", state.main_sense));
-		mMainLights.set(state.main_sense > 3.2);
+			mMainVoltageView.setText(String.format("%4.2f V", state.main_sense));
+			mMainLights.set(state.main_sense > 3.2);
 
-		if (state.data.flight != 0) {
-			if (state.data.state <= AltosLib.ao_flight_pad)
-				mDataLoggingView.setText("Ready to record");
-			else if (state.data.state < AltosLib.ao_flight_landed)
-				mDataLoggingView.setText("Recording data");
-			else
-				mDataLoggingView.setText("Recorded data");
-		} else {
-			mDataLoggingView.setText("Storage full");
-		}
-		mDataLoggingLights.set(state.data.flight != 0);
+			if (state.data.flight != 0) {
+				if (state.data.state <= AltosLib.ao_flight_pad)
+					mDataLoggingView.setText("Ready to record");
+				else if (state.data.state < AltosLib.ao_flight_landed)
+					mDataLoggingView.setText("Recording data");
+				else
+					mDataLoggingView.setText("Recorded data");
+			} else {
+				mDataLoggingView.setText("Storage full");
+			}
+			mDataLoggingLights.set(state.data.flight != 0);
 
-		if (state.gps != null) {
-			mGPSLockedView.setText(String.format("%4d sats", state.gps.nsat));
-			mGPSLockedLights.set(state.gps.locked && state.gps.nsat >= 4);
-			if (state.gps_ready)
-				mGPSReadyView.setText("Ready");
-			else
-				mGPSReadyView.setText(String.format("Waiting %d", state.gps_waiting));
-			mGPSReadyLights.set(state.gps_ready);
+			if (state.gps != null) {
+				mGPSLockedView.setText(String.format("%4d sats", state.gps.nsat));
+				mGPSLockedLights.set(state.gps.locked && state.gps.nsat >= 4);
+				if (state.gps_ready)
+					mGPSReadyView.setText("Ready");
+				else
+					mGPSReadyView.setText(String.format("Waiting %d", state.gps_waiting));
+				mGPSReadyLights.set(state.gps_ready);
+			}
 		}
 
 		if (receiver != null) {
