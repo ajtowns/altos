@@ -55,7 +55,7 @@
 			android:layout_below="@id/battery_voltage_label"
 			android:layout_toRightOf="@id/battery_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceMedium" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -93,7 +93,7 @@
 			android:layout_below="@id/apogee_voltage_label"
 			android:layout_toRightOf="@id/apogee_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceMedium" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -131,7 +131,7 @@
 			android:layout_below="@id/main_voltage_label"
 			android:layout_toRightOf="@id/main_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceMedium" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -169,7 +169,7 @@
 			android:layout_below="@id/logging_label"
 			android:layout_toRightOf="@id/logging_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceMedium" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -207,7 +207,7 @@
 			android:layout_below="@id/gps_locked_label"
 			android:layout_toRightOf="@id/gps_locked_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceMedium" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -245,7 +245,7 @@
 			android:layout_below="@id/gps_ready_label"
 			android:layout_toRightOf="@id/gps_ready_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceMedium" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -268,7 +268,7 @@
 			android:layout_below="@id/pad_lat_label"
 			android:layout_toRightOf="@id/gps_ready_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceMedium" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -291,7 +291,7 @@
 			android:layout_below="@id/pad_lon_label"
 			android:layout_toRightOf="@id/gps_ready_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceMedium" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -314,7 +314,7 @@
 			android:layout_below="@id/pad_alt_label"
 			android:layout_toRightOf="@id/gps_ready_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceMedium" />
 	</RelativeLayout>
 
 </LinearLayout>
