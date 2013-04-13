@@ -126,7 +126,6 @@ public class AltosDroid extends FragmentActivity {
 					ad.mTitle.setText(R.string.title_connected_to);
 					ad.mTitle.append(str);
 					Toast.makeText(ad.getApplicationContext(), "Connected to " + str, Toast.LENGTH_SHORT).show();
-					ad.mAltosVoice.speak("Connected");
 					break;
 				case TelemetryService.STATE_CONNECTING:
 					ad.mTitle.setText(R.string.title_connecting);
