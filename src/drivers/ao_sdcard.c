@@ -346,14 +346,16 @@ ao_sdcard_setup(void)
 			sdver2 = 1;
 		}
 
-		for (i = 0; i < SDCARD_IDLE_RETRY; i++) {
+		for (i = 0; i < SDCARD_OP_COND_RETRY; i++) {
+			ao_delay(AO_MS_TO_TICKS(10));
 			ret = ao_sdcard_app_send_op_cond(arg);
 			if (ret != SDCARD_STATUS_IDLE_STATE)
 				break;
 		}
 		if (ret != SDCARD_STATUS_READY_STATE) {
 			/* MMC */
-			for (i = 0; i < SDCARD_IDLE_RETRY; i++) {
+			for (i = 0; i < SDCARD_OP_COND_RETRY; i++) {
+				ao_delay(AO_MS_TO_TICKS(10));
 				ret = ao_sdcard_send_op_cond();
 				if (ret != SDCARD_STATUS_IDLE_STATE)
 					break;

@@ -69,6 +69,7 @@ ao_sdcard_init(void);
 #define SDCARD_BUSY_TIMEOUT		AO_MS_TO_TICKS(20)
 #define SDCARD_BLOCK_TIMEOUT		AO_MS_TO_TICKS(200)
 #define SDCARD_IDLE_RETRY		10
+#define SDCARD_OP_COND_RETRY		10
 
 enum ao_sdtype {
 	ao_sdtype_unknown,

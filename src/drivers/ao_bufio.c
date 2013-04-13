@@ -19,6 +19,11 @@
 #include "ao.h"
 #endif
 
+/* Include bufio commands */
+#ifndef AO_FAT_TEST
+#define BUFIO_COMMANDS	0
+#endif
+
 #include "ao_sdcard.h"
 #include "ao_bufio.h"
 
@@ -268,6 +273,7 @@ ao_bufio_flush(void)
 	ao_bufio_unlock();
 }
 
+#if BUFIO_COMMANDS
 static void
 ao_bufio_test_read(void)
 {
@@ -290,6 +296,7 @@ static const struct ao_cmds ao_bufio_cmds[] = {
 	{ ao_bufio_test_read,	"q\0Test bufio read" },
 	{ 0, NULL },
 };
+#endif
 
 void
 ao_bufio_setup(void)
@@ -308,5 +315,7 @@ ao_bufio_init(void)
 {
 	ao_bufio_setup();
 	ao_sdcard_init();
+#if BUFIO_COMMANDS
 	ao_cmd_register(&ao_bufio_cmds[0]);
+#endif
 }
