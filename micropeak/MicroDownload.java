@@ -179,5 +179,6 @@ public class MicroDownload extends AltosUIDialog implements Runnable, ActionList
 		pack();
 		setLocationRelativeTo(owner);
 		setVisible(true);
+		start();
 	}
 }
