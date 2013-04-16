@@ -131,24 +131,34 @@ public class AltosEepromIterable extends AltosRecordIterable {
 		case AltosLib.AO_LOG_GPS_LAT:
 			eeprom.seen |= AltosRecord.seen_gps_lat;
 			int lat32 = record.a | (record.b << 16);
+			if (state.gps == null)
+				state.gps = new AltosGPS();
 			state.gps.lat = (double) lat32 / 1e7;
 			break;
 		case AltosLib.AO_LOG_GPS_LON:
 			eeprom.seen |= AltosRecord.seen_gps_lon;
 			int lon32 = record.a | (record.b << 16);
+			if (state.gps == null)
+				state.gps = new AltosGPS();
 			state.gps.lon = (double) lon32 / 1e7;
 			break;
 		case AltosLib.AO_LOG_GPS_ALT:
+			if (state.gps == null)
+				state.gps = new AltosGPS();
 			state.gps.alt = record.a;
 			break;
 		case AltosLib.AO_LOG_GPS_SAT:
 			if (state.tick == eeprom.gps_tick) {
 				int svid = record.a;
 				int c_n0 = record.b >> 8;
+				if (state.gps == null)
+					state.gps = new AltosGPS();
 				state.gps.add_sat(svid, c_n0);
 			}
 			break;
 		case AltosLib.AO_LOG_GPS_DATE:
+			if (state.gps == null)
+				state.gps = new AltosGPS();
 			state.gps.year = (record.a & 0xff) + 2000;
 			state.gps.month = record.a >> 8;
 			state.gps.day = record.b & 0xff;
