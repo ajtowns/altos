@@ -101,10 +101,8 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay, A
 	public void show(AltosState state, AltosListenerState listener_state) {
 		status_update.saved_state = state;
 
-		if (state == null) {
-			System.out.printf ("no state provided\n");
+		if (state == null)
 			state = new AltosState(new AltosRecord());
-		}
 
 		pad.show(state, listener_state);
 
