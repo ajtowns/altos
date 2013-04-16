@@ -228,7 +228,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:contentDescription="@string/apogee_voltage_label"
-			android:src="@drawable/redled" />
+			android:src="@drawable/grayled" />
 
 		<ImageView
 			android:id="@+id/apogee_greenled"
@@ -267,7 +267,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:contentDescription="@string/main_voltage_label"
-			android:src="@drawable/redled" />
+			android:src="@drawable/grayled" />
 
 		<ImageView
 			android:id="@+id/main_greenled"

@@ -23,6 +23,8 @@ import android.widget.ImageView;
 
 public class GoNoGoLights {
 	private Boolean state;
+	private Boolean missing;
+	private Boolean set;
 
 	private ImageView red;
 	private ImageView green;
@@ -35,16 +37,23 @@ public class GoNoGoLights {
 		red = in_red;
 		green = in_green;
 		state = false;
+		missing = true;
+		set = false;
 
 		dRed   = r.getDrawable(R.drawable.redled);
 		dGreen = r.getDrawable(R.drawable.greenled);
 		dGray  = r.getDrawable(R.drawable.grayled);
 	}
 
-	public void set(Boolean s) {
-		if (s == state) return;
+	public void set(Boolean s, Boolean m) {
+		if (set && s == state && m == missing) return;
 		state = s;
-		if (state) {
+		missing = m;
+		set = true;
+		if (missing) {
+			red.setImageDrawable(dGray);
+			green.setImageDrawable(dGray);
+		} else if (state) {
 			red.setImageDrawable(dGray);
 			green.setImageDrawable(dGreen);
 		} else {

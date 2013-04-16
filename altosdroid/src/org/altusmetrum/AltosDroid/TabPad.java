@@ -103,14 +103,14 @@ public class TabPad extends Fragment implements AltosDroidTab {
 
 	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
 		if (state != null) {
-			mBatteryVoltageView.setText(String.format("%4.2f V", state.battery));
-			mBatteryLights.set(state.battery > 3.7);
+			mBatteryVoltageView.setText(AltosDroid.number("%4.2f V", state.battery));
+			mBatteryLights.set(state.battery > 3.7, state.battery == AltosRecord.MISSING);
 
-			mApogeeVoltageView.setText(String.format("%4.2f V", state.drogue_sense));
-			mApogeeLights.set(state.drogue_sense > 3.2);
+			mApogeeVoltageView.setText(AltosDroid.number("%4.2f V", state.drogue_sense));
+			mApogeeLights.set(state.drogue_sense > 3.2, state.drogue_sense == AltosRecord.MISSING);
 
-			mMainVoltageView.setText(String.format("%4.2f V", state.main_sense));
-			mMainLights.set(state.main_sense > 3.2);
+			mMainVoltageView.setText(AltosDroid.number("%4.2f V", state.main_sense));
+			mMainLights.set(state.main_sense > 3.2, state.main_sense == AltosRecord.MISSING);
 
 			if (state.data.flight != 0) {
 				if (state.data.state <= AltosLib.ao_flight_pad)
@@ -122,17 +122,18 @@ public class TabPad extends Fragment implements AltosDroidTab {
 			} else {
 				mDataLoggingView.setText("Storage full");
 			}
-			mDataLoggingLights.set(state.data.flight != 0);
+			mDataLoggingLights.set(state.data.flight != 0, state.data.flight != AltosRecord.MISSING);
 
 			if (state.gps != null) {
-				mGPSLockedView.setText(String.format("%4d sats", state.gps.nsat));
-				mGPSLockedLights.set(state.gps.locked && state.gps.nsat >= 4);
+				mGPSLockedView.setText(AltosDroid.number("%4d sats", state.gps.nsat));
+				mGPSLockedLights.set(state.gps.locked && state.gps.nsat >= 4, false);
 				if (state.gps_ready)
 					mGPSReadyView.setText("Ready");
 				else
-					mGPSReadyView.setText(String.format("Waiting %d", state.gps_waiting));
-				mGPSReadyLights.set(state.gps_ready);
-			}
+					mGPSReadyView.setText(AltosDroid.number("Waiting %d", state.gps_waiting));
+			} else
+				mGPSLockedLights.set(false, true);
+			mGPSReadyLights.set(state.gps_ready, state.gps == null);
 		}
 
 		if (receiver != null) {
@@ -141,7 +142,7 @@ public class TabPad extends Fragment implements AltosDroidTab {
 				altitude = receiver.getAltitude();
 			mPadLatitudeView.setText(AltosDroid.pos(receiver.getLatitude(), "N", "S"));
 			mPadLongitudeView.setText(AltosDroid.pos(receiver.getLongitude(), "W", "E"));
-			mPadAltitudeView.setText(String.format("%4.0f m", altitude));
+			mPadAltitudeView.setText(AltosDroid.number("%4.0f m", altitude));
 		}
 	}
 

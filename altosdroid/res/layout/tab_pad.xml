@@ -30,7 +30,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:contentDescription="@string/battery_voltage_label"
-			android:src="@drawable/redled" />
+			android:src="@drawable/grayled" />
 
 		<ImageView
 			android:id="@+id/battery_greenled"
@@ -68,7 +68,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:contentDescription="@string/apogee_voltage_label"
-			android:src="@drawable/redled" />
+			android:src="@drawable/grayled" />
 
 		<ImageView
 			android:id="@+id/apogee_greenled"
@@ -106,7 +106,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:contentDescription="@string/main_voltage_label"
-			android:src="@drawable/redled" />
+			android:src="@drawable/grayled" />
 
 		<ImageView
 			android:id="@+id/main_greenled"
@@ -144,7 +144,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:contentDescription="@string/logging_label"
-			android:src="@drawable/redled" />
+			android:src="@drawable/grayled" />
 
 		<ImageView
 			android:id="@+id/logging_greenled"
@@ -182,7 +182,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:contentDescription="@string/gps_locked_label"
-			android:src="@drawable/redled" />
+			android:src="@drawable/grayled" />
 
 		<ImageView
 			android:id="@+id/gps_locked_greenled"
@@ -220,7 +220,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:contentDescription="@string/gps_ready_label"
-			android:src="@drawable/redled" />
+			android:src="@drawable/grayled" />
 
 		<ImageView
 			android:id="@+id/gps_ready_greenled"

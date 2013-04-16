@@ -265,6 +265,8 @@ public class AltosDroid extends FragmentActivity {
 
 	static String pos(double p, String pos, String neg) {
 		String	h = pos;
+		if (p == AltosRecord.MISSING)
+			return "";
 		if (p < 0) {
 			h = neg;
 			p = -p;
@@ -272,6 +274,12 @@ public class AltosDroid extends FragmentActivity {
 		int deg = (int) Math.floor(p);
 		double min = (p - Math.floor(p)) * 60.0;
 		return String.format("%d°%9.4f\" %s", deg, min, h);
+	}
+
+	static String number(String format, double value) {
+		if (value == AltosRecord.MISSING)
+			return "";
+		return String.format(format, value);
 	}
 
 	@Override
