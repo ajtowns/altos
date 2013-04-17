@@ -122,15 +122,15 @@ public class TabPad extends Fragment implements AltosDroidTab {
 			} else {
 				mDataLoggingView.setText("Storage full");
 			}
-			mDataLoggingLights.set(state.data.flight != 0, state.data.flight != AltosRecord.MISSING);
+			mDataLoggingLights.set(state.data.flight != 0, state.data.flight == AltosRecord.MISSING);
 
 			if (state.gps != null) {
-				mGPSLockedView.setText(AltosDroid.number("%4d sats", state.gps.nsat));
+				mGPSLockedView.setText(AltosDroid.integer("%4d sats", state.gps.nsat));
 				mGPSLockedLights.set(state.gps.locked && state.gps.nsat >= 4, false);
 				if (state.gps_ready)
 					mGPSReadyView.setText("Ready");
 				else
-					mGPSReadyView.setText(AltosDroid.number("Waiting %d", state.gps_waiting));
+					mGPSReadyView.setText(AltosDroid.integer("Waiting %d", state.gps_waiting));
 			} else
 				mGPSLockedLights.set(false, true);
 			mGPSReadyLights.set(state.gps_ready, state.gps == null);

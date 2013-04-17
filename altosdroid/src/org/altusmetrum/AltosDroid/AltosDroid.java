@@ -282,6 +282,12 @@ public class AltosDroid extends FragmentActivity {
 		return String.format(format, value);
 	}
 
+	static String integer(String format, int value) {
+		if (value == AltosRecord.MISSING)
+			return "";
+		return String.format(format, value);
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
