@@ -19,6 +19,7 @@ package altosui;
 
 import javax.swing.*;
 import javax.imageio.ImageIO;
+import java.awt.image.*;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
@@ -87,7 +88,14 @@ public class AltosSiteMapCache extends JLabel {
 		}
 
 		try {
-			return new ImageIcon(ImageIO.read(pngfile));
+			BufferedImage	img;
+
+			img = ImageIO.read(pngfile);
+			if (img == null) {
+				System.out.printf("# Can't read pngfile %s\n", pngfile);
+				return null;
+			}
+			return new ImageIcon(img);
 		} catch (IOException e) {
 			System.out.printf("# IO error trying to load %s\n", pngfile);
 			return null;
