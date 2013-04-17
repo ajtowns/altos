@@ -220,6 +220,16 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		return pngfile.toString();
 	}
 
+	public void initAndFinishMapAsync (final AltosSiteMapTile tile, final Point offset) {
+		Thread thread = new Thread() {
+				public void run() {
+					initMap(offset);
+					finishTileLater(tile, offset);
+				}
+			};
+		thread.start();
+	}
+
 	public void setBaseLocation(double lat, double lng) {
 		for (Point k : mapTiles.keySet()) {
 			AltosSiteMapTile tile = mapTiles.get(k);
@@ -308,8 +318,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 
 			AltosSiteMapTile tile = createTile(offset);
 			tile.show(state, listener_state, lref, ref);
-			initMap(offset);
-			finishTileLater(tile, offset);
+			initAndFinishMapAsync(tile, offset);
 		}
 
 		scrollRocketToVisible(pt);
@@ -370,8 +379,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 				if (mapTiles.containsKey(offset))
 					continue;
 				AltosSiteMapTile tile = createTile(offset);
-				initMap(offset);
-				finishTileLater(tile, offset);
+				initAndFinishMapAsync(tile, offset);
 			}
 		}
 	}

@@ -719,6 +719,7 @@ public class AltosConfigUI
 
 	public void set_main_deploy(int new_main_deploy) {
 		main_deploy_value.setSelectedItem(Integer.toString(new_main_deploy));
+		main_deploy_value.setEnabled(new_main_deploy >= 0);
 	}
 
 	public int main_deploy() {
