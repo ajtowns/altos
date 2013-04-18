@@ -61,7 +61,7 @@ ao_timer_set_adc_interval(uint8_t interval)
 }
 #endif
 
-#define SYSTICK_RELOAD ((AO_LPC_CLKOUT / 2) / 100 - 1)
+#define SYSTICK_RELOAD ((AO_LPC_SYSCLK / 2) / 100 - 1)
 
 /* Initialize our 100Hz clock */
 void

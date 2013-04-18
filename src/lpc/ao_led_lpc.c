@@ -22,13 +22,13 @@ __pdata uint16_t ao_led_enable;
 void
 ao_led_on(uint16_t colors)
 {
-	lpc_gpio.pin[LED_PORT] = 0xffffffff;
+	lpc_gpio.pin[LED_PORT] |= colors;
 }
 
 void
 ao_led_off(uint16_t colors)
 {
-	lpc_gpio.pin[LED_PORT] = 0;
+	lpc_gpio.pin[LED_PORT] &= ~colors;
 }
 
 void
@@ -44,6 +44,7 @@ ao_led_set(uint16_t colors)
 void
 ao_led_toggle(uint16_t colors)
 {
+	lpc_gpio.pin[LED_PORT] ^= colors;
 }
 
 void

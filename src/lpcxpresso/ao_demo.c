@@ -17,6 +17,15 @@
 
 #include "ao.h"
 
+struct ao_task demo_task;
+
+static void demo(void) {
+	for (;;) {
+		ao_delay(100);
+		ao_led_toggle(AO_LED_RED);
+	}
+}
+
 int
 main(void)
 {
@@ -24,13 +33,22 @@ main(void)
 	ao_led_init(LEDS_AVAILABLE);
 	ao_led_on(AO_LED_RED);
 	ao_clock_init();
+	ao_timer_init();
+	
+	ao_task_init();
+
+	ao_add_task(&demo_task, demo, "demo");
+
+	ao_start_scheduler();
 
 	for (;;) {
 		ao_led_off(AO_LED_RED);
-		for (i = 0; i < 100000; i++)
-			ao_arch_nop();
+		for (;;)
+			if (ao_tick_count & 1)
+				break;
 		ao_led_on(AO_LED_RED);
-		for (i = 0; i < 100000; i++)
-			ao_arch_nop();
+		for (;;)
+			if (!(ao_tick_count & 1))
+				break;
 	}
 }
