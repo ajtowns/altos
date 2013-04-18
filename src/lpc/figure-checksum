@@ -1,0 +1,39 @@
+#!/usr/bin/env nickle
+
+autoimport Process;
+
+int byteflip(int x) {
+	return ((x >> 24) & 0xff) | ((x >> 8) & 0xff00) | ((x << 8) & 0xff0000) | ((x << 24) & 0xff000000);
+}
+
+void main () {
+	file	input = popen(popen_direction.read, true, "objdump",
+			      "objdump", "-j", ".text",
+			      "--start-address=0",
+			      "--stop-address=0x20",
+			      "-s", argv[1]);
+	int sum = 0;
+
+	void add_in(int addr, int value) {
+		if (addr < 0x1c) {
+			sum += value;
+		} else if (addr == 0x1c) {
+			printf ("-DCKSUM=0x%08x\n", -sum & 0xffffffff);
+			exit(0);
+		}
+	}
+	while (!File::end(input)) {
+		string line = File::fgets(input);
+		string[] words = String::wordsplit(line, " ");
+
+		if (dim(words) < 5)
+		    continue;
+		if (words[0] == "0000" || words[0] == "0010") {
+			int addr = string_to_integer(words[0], 16);
+			for (int i = 0; i < 4; i++)
+				add_in(addr + i * 4, byteflip(string_to_integer(words[i+1], 16)));
+		}
+	}
+}
+
+main();

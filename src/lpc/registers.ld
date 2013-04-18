@@ -1,0 +1,9 @@
+lpc_usart	= 0x40008000;
+lpc_flash	= 0x4003c000;
+lpc_ioconf	= 0x40044000;
+lpc_scb		= 0x40048000;
+lpc_gpio_pin	= 0x4004c000;
+lpc_gpio_group0 = 0x4005c000;
+lpc_gpio_group1 = 0x40060000;
+lpc_gpio	= 0x50000000;
+lpc_systick	= 0xe000e000;

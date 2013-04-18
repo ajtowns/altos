@@ -1,0 +1,131 @@
+#!/usr/bin/env nickle
+
+/*
+ * Given a main clock frequency,
+ * compute USART clock freq and a table
+ * of USART config parameters for our target baud rates
+ */
+
+real main_clock = 0;
+real usart_clock = 0;
+
+real[] baud_rates = { 4800, 9600, 19200, 57600, 115200 };
+
+void
+compute_baud_rate(real rate) {
+	int	divaddval;
+	int	mulval;
+
+	real 	dl_est = usart_clock / (16 * rate);
+
+	if (dl_est == floor(dl_est)) {
+		divaddval = 0;
+		mulval = 1;
+	} else {
+		if (false) {
+
+			/* This is how the docs suggest doing it; this
+			 * generates a rate which is reasonably close
+			 */
+
+			real fr_est = 1.5;
+
+			/* Compute fractional estimate */
+			do {
+				dl_est = floor(usart_clock / (16 * rate * fr_est) + 0.5);
+				fr_est = usart_clock / (16 * rate * dl_est);
+			} while (fr_est <= 1.1 || 1.9 <= fr_est);
+
+			/* Given fractional estimate, compute divaddval/mulvals that work best */
+
+			real best_dist = 1000;
+			for (int tmp_divaddval = 1; tmp_divaddval < 15; tmp_divaddval++) {
+				for (int tmp_mulval = 1; tmp_mulval < 16; tmp_mulval++) {
+					real fr = 1 + tmp_divaddval / tmp_mulval;
+					real dist = abs(fr - fr_est);
+					if (dist < best_dist) {
+						divaddval = tmp_divaddval;
+						mulval = tmp_mulval;
+						best_dist = dist;
+					}
+				}
+			}
+		} else {
+
+			/* This exhaustively searches for the best match */
+
+			real my_best_dist = 1e20;
+			int my_best_dl;
+			int my_best_divaddval;
+			int my_best_mulval;
+			for (int my_dl = 1; my_dl < 1024; my_dl++) {
+				for (int my_mulval = 1; my_mulval < 16; my_mulval++) {
+					for (int my_divaddval = 0; my_divaddval < my_mulval; my_divaddval++) {
+						real my_rate = usart_clock / ((16 * my_dl) * (1 + my_divaddval/my_mulval));
+
+						real my_dist = abs(rate - my_rate);
+
+						if (my_dist == 0 && my_divaddval == 0) {
+							my_dist = -1;
+						}
+
+						if (my_dist < my_best_dist) {
+							my_best_dl = my_dl;
+							my_best_divaddval = my_divaddval;
+							my_best_mulval = my_mulval;
+							my_best_dist = my_dist;
+						}
+					}
+				}
+			}
+
+			dl_est = my_best_dl;
+			divaddval = my_best_divaddval;
+			mulval = my_best_mulval;
+		}
+	}
+
+	int dl = floor (dl_est);	
+
+	real actual = usart_clock / ((16 * dl) * (1 + divaddval/mulval));
+
+	printf("\t[AO_SERIAL_SPEED_%d] = { /* actual = %8.2f */\n", floor(rate), actual);
+	printf("\t\t.dl = %d,\n", dl);
+	printf("\t\t.divaddval = %d,\n", divaddval);
+	printf("\t\t.mulval = %d\n", mulval);
+	printf("\t},\n");
+}
+
+void
+main() {
+	if (dim(argv) < 2) {
+		printf ("usage: %s <main-clock>\n", argv[0]);
+		exit(1);
+	}
+	main_clock = string_to_real(argv[1]);
+
+	for (int div = 0; div < 4; div++) {
+		if (main_clock / (1 << div) <= 12000000) {
+			usart_clock = main_clock / (1 << div);
+			break;
+		}
+	}
+
+	if (usart_clock == 0) {
+		printf ("can't get usart clock in range\n");
+		exit(1);
+	}
+
+	printf ("#define AO_LPC_USARTCLK %d\n\n", floor(usart_clock));
+	printf("static const struct {\n");
+	printf("\tuint16_t dl;\n");
+	printf("\tuint8_t divaddval;\n");
+	printf("\tuint8_t mulval;\n");
+	printf("} ao_usart_speeds[] = {\n");
+	for (int i = 0; i < dim(baud_rates); i++) {
+		compute_baud_rate(baud_rates[i]);
+	}
+	printf ("};\n");
+}
+
+main();
