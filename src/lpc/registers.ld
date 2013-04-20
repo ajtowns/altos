@@ -7,3 +7,4 @@ lpc_gpio_group0 = 0x4005c000;
 lpc_gpio_group1 = 0x40060000;
 lpc_gpio	= 0x50000000;
 lpc_systick	= 0xe000e000;
+lpc_nvic	= 0xe000e100;

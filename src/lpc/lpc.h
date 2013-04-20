@@ -720,4 +720,193 @@ struct lpc_usart {
 
 extern struct lpc_usart lpc_usart;
 
+#define LPC_USART_IER_RBRINTEN	0
+#define LPC_USART_IER_THREINTEN	1
+#define LPC_USART_IER_RSLINTEN	2
+#define LPC_USART_IER_MSINTEN	3
+#define LPC_USART_IER_ABEOINTEN	8
+#define LPC_USART_IER_ABTOINTEN	9
+
+#define LPC_USART_IIR_INTSTATUS		0
+#define LPC_USART_IIR_INTID		1
+#define LPC_USART_IIR_INTID_RLS			3
+#define LPC_USART_IIR_INTID_RDA			2
+#define LPC_USART_IIR_INTID_CTI			6
+#define LPC_USART_IIR_INTID_THRE		1
+#define LPC_USART_IIR_INTID_MS			0
+#define LPC_USART_IIR_INTID_MASK		7
+#define LPC_USART_IIR_FIFOEN		6
+#define LPC_USART_IIR_ABEOINT		8
+#define LPC_USART_IIR_ABTOINT		9
+
+#define LPC_USART_FCR_FIFOEN		0
+#define LPC_USART_FCR_RXFIFORES		1
+#define LPC_USART_FCR_TXFIFORES		2
+#define LPC_USART_FCR_RXTL		6
+#define LPC_USART_FCR_RXTL_1			0
+#define LPC_USART_FCR_RXTL_4			1
+#define LPC_USART_FCR_RXTL_8			2
+#define LPC_USART_FCR_RXTL_14			3
+
+#define LPC_USART_LCR_WLS	0
+#define LPC_USART_LCR_WLS_5		0
+#define LPC_USART_LCR_WLS_6		1
+#define LPC_USART_LCR_WLS_7		2
+#define LPC_USART_LCR_WLS_8		3
+#define LPC_USART_LCR_WLS_MASK		3
+#define LPC_USART_LCR_SBS	2
+#define LPC_USART_LCR_SBS_1		0
+#define LPC_USART_LCR_SBS_2		1
+#define LPC_USART_LCR_SBS_MASK		1
+#define LPC_USART_LCR_PE	3
+#define LPC_USART_LCR_PS	4
+#define LPC_USART_LCR_PS_ODD		0
+#define LPC_USART_LCR_PS_EVEN		1
+#define LPC_USART_LCR_PS_ONE		2
+#define LPC_USART_LCR_PS_ZERO		3
+#define LPC_USART_LCR_PS_MASK		3
+#define LPC_USART_LCR_BC	6
+#define LPC_USART_LCR_DLAB	7
+
+#define LPC_USART_MCR_DTRCTRL	0
+#define LPC_USART_MCR_RTSCTRL	1
+#define LPC_USART_MCR_LMS	4
+#define LPC_USART_MCR_RTSEN	6
+#define LPC_USART_MCR_CTSEN	7
+
+#define LPC_USART_LSR_RDR	0
+#define LPC_USART_LSR_OE	1
+#define LPC_USART_LSR_PE	2
+#define LPC_USART_LSR_FE	3
+#define LPC_USART_LSR_BI	4
+#define LPC_USART_LSR_THRE	5
+#define LPC_USART_LSR_TEMT	6
+#define LPC_USART_LSR_RXFE	7
+#define LPC_USART_LSR_TXERR	8
+
+#define LPC_USART_MSR_DCTS	0
+#define LPC_USART_MSR_DDSR	1
+#define LPC_USART_MSR_TERI	2
+#define LPC_USART_MSR_DDCD	3
+#define LPC_USART_MSR_CTS	4
+#define LPC_USART_MSR_DSR	5
+#define LPC_USART_MSR_RI	6
+#define LPC_USART_MSR_DCD	7
+
+#define LPC_USART_ACR_START	0
+#define LPC_USART_ACR_MODE	1
+#define LPC_USART_ACR_AUTORESTART	2
+#define LPC_USART_ACR_ABEOINTCLR	8
+#define LPC_USART_ACR_ABTOINTCLR	9
+
+#define LPC_USART_FDR_DIVADDVAL	0
+#define LPC_USART_FDR_MULVAL	4
+
+#define LPC_USART_OSR_OSFRAC	1
+#define LPC_USART_OSR_OSINT	4
+#define LPC_USART_OSR_FDINT	8
+
+#define LPC_USART_TER_TXEN	7
+
+#define LPC_USART_HDEN_HDEN	0
+
+#define LPC_ISR_PIN_INT0_POS	0
+#define LPC_ISR_PIN_INT1_POS	1
+#define LPC_ISR_PIN_INT2_POS	2
+#define LPC_ISR_PIN_INT3_POS	3
+#define LPC_ISR_PIN_INT4_POS	4
+#define LPC_ISR_PIN_INT5_POS	5
+#define LPC_ISR_PIN_INT6_POS	6
+#define LPC_ISR_PIN_INT7_POS	7
+#define LPC_ISR_GINT0_POS	8
+#define LPC_ISR_GINT1_POS	9
+#define LPC_ISR_SSP1_POS	14
+#define LPC_ISR_I2C_POS		15
+#define LPC_ISR_CT16B0_POS	16
+#define LPC_ISR_CT16B1_POS	17
+#define LPC_ISR_CT32B0_POS	18
+#define LPC_ISR_CT32B1_POS	19
+#define LPC_ISR_SSP0_POS	20
+#define LPC_ISR_USART_POS	21
+#define LPC_ISR_USB_IRQ_POS	22
+#define LPC_ISR_USB_FIQ_POS	23
+#define LPC_ISR_ADC_POS		24
+#define LPC_ISR_WWDT_POS	25
+#define LPC_ISR_BOD_POS		26
+#define LPC_ISR_FLASH_POS	27
+#define LPC_ISR_USB_WAKEUP_POS	30
+
+struct lpc_nvic {
+	vuint32_t	iser;		/* 0x000 0xe000e100 Set Enable Register */
+
+	uint8_t		_unused020[0x080 - 0x004];
+
+	vuint32_t	icer;		/* 0x080 0xe000e180 Clear Enable Register */
+
+	uint8_t		_unused0a0[0x100 - 0x084];
+
+	vuint32_t	ispr;		/* 0x100 0xe000e200 Set Pending Register */
+
+	uint8_t		_unused120[0x180 - 0x104];
+
+	vuint32_t	icpr;		/* 0x180 0xe000e280 Clear Pending Register */
+
+	uint8_t		_unused1a0[0x300 - 0x184];
+
+	vuint32_t	ipr[8];		/* 0x300 0xe000e400 Priority Register */
+};
+
+extern struct lpc_nvic lpc_nvic;
+
+static inline void
+lpc_nvic_set_enable(int irq) {
+	lpc_nvic.iser |= (1 << irq);
+}
+
+static inline void
+lpc_nvic_clear_enable(int irq) {
+	lpc_nvic.icer |= (1 << irq);
+}
+
+static inline int
+lpc_nvic_enabled(int irq) {
+	return (lpc_nvic.iser >> irq) & 1;
+}
+
+	
+static inline void
+lpc_nvic_set_pending(int irq) {
+	lpc_nvic.ispr = (1 << irq);
+}
+
+static inline void
+lpc_nvic_clear_pending(int irq) {
+	lpc_nvic.icpr = (1 << irq);
+}
+
+static inline int
+lpc_nvic_pending(int irq) {
+	return (lpc_nvic.ispr >> irq) & 1;
+}
+
+#define IRQ_PRIO_REG(irq)	((irq) >> 2)
+#define IRQ_PRIO_BIT(irq)	(((irq) & 3) << 3)
+#define IRQ_PRIO_MASK(irq)	(0xff << IRQ_PRIO_BIT(irq))
+
+static inline void
+lpc_nvic_set_priority(int irq, uint8_t prio) {
+	int		n = IRQ_PRIO_REG(irq);
+	uint32_t	v;
+
+	v = lpc_nvic.ipr[n];
+	v &= ~IRQ_PRIO_MASK(irq);
+	v |= (prio) << IRQ_PRIO_BIT(irq);
+	lpc_nvic.ipr[n] = v;
+}
+
+static inline uint8_t
+lpc_nvic_get_priority(int irq) {
+	return (lpc_nvic.ipr[IRQ_PRIO_REG(irq)] >> IRQ_PRIO_BIT(irq)) & IRQ_PRIO_MASK(0);
+}
+
 #endif /* _LPC_H_ */

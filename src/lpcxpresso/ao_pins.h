@@ -40,8 +40,9 @@
 
 /* USART */
 
-#define HAS_SERIAL	1
+#define HAS_SERIAL		1
+#define USE_SERIAL_0_STDIN	1
 #define SERIAL_0_18_19		1
-#define SERIAL_1_14_15		0
-#define SERIAL_1_17_18		0
-#define SERIAL_1_26_27		0
+#define SERIAL_0_14_15		0
+#define SERIAL_0_17_18		0
+#define SERIAL_0_26_27		0

@@ -27,10 +27,9 @@ ao_debug_out(char c)
 {
 	if (c == '\n')
 		ao_debug_out('\r');
-#if 0
-	while (!(stm_usart1.sr & (1 << STM_USART_SR_TXE)));
-	stm_usart1.dr = c;
-#endif
+	while (!(lpc_usart.lsr & (1 << LPC_USART_LSR_TEMT)))
+		;
+	lpc_usart.rbr_thr = c;
 }
 
 static void
@@ -39,35 +38,28 @@ _ao_serial_tx_start(void)
 	if (!ao_fifo_empty(ao_usart_tx_fifo) & !ao_usart_tx_started)
 	{
 		ao_usart_tx_started = 1;
-#if 0
-		ao_fifo_remove(ao_usart_tx_fifo, usart->reg->dr);
-#endif
+		ao_fifo_remove(ao_usart_tx_fifo, lpc_usart.rbr_thr);
 	}
 }
 
 void
 lpc_usart_isr(void)
 {
-#if 0
-	uint32_t	sr;
+	(void) lpc_usart.iir_fcr;
 
-	sr = usart->reg->sr;
-	usart->reg->sr = 0;
-
-	if (sr & (1 << STM_USART_SR_RXNE)) {
-		char c = usart->reg->dr;
+	while (lpc_usart.lsr & (1 << LPC_USART_LSR_RDR)) {
+		char c = lpc_usart.rbr_thr;
 		if (!ao_fifo_full(ao_usart_rx_fifo))
 			ao_fifo_insert(ao_usart_rx_fifo, c);
-		ao_wakeup(ao_usart_rx_fifo);
+		ao_wakeup(&ao_usart_rx_fifo);
 		if (stdin)
 			ao_wakeup(&ao_stdin_ready);
 	}
-	if (sr & (1 << STM_USART_SR_TC)) {
+	if (lpc_usart.lsr & (1 << LPC_USART_LSR_THRE)) {
 		ao_usart_tx_started = 0;
-		_ao_usart_tx_start(usart);
-		ao_wakeup(ao_usart_tx_fifo);
+		_ao_serial_tx_start();
+		ao_wakeup(&ao_usart_tx_fifo);
 	}
-#endif
 }
 
 int
@@ -116,24 +108,33 @@ ao_serial_drain(void)
 	ao_arch_release_interrupts();
 }
 
+#include "ao_serial_lpc.h"
+
 void
 ao_serial_set_speed(uint8_t speed)
 {
 	if (speed > AO_SERIAL_SPEED_115200)
 		return;
-#if 0
-	usart->reg->brr = ao_usart_speeds[speed].brr;
-#endif
-}
 
-#include "ao_serial_lpc.h"
+	/* Flip to allow access to divisor latches */
+	lpc_usart.lcr |= (1 << LPC_USART_LCR_DLAB);
+
+	/* DL LSB */
+	lpc_usart.rbr_thr = ao_usart_speeds[speed].dl & 0xff;
+	
+	/* DL MSB */
+	lpc_usart.ier = (ao_usart_speeds[speed].dl >> 8) & 0xff;
+
+	lpc_usart.fdr = ((ao_usart_speeds[speed].divaddval << LPC_USART_FDR_DIVADDVAL) |
+			 (ao_usart_speeds[speed].mulval << LPC_USART_FDR_MULVAL));
+
+	/* Turn access to divisor latches back off */
+	lpc_usart.lcr &= ~(1 << LPC_USART_LCR_DLAB);
+}
 
 void
 ao_serial_init(void)
 {
-	/* Turn on the USART clock */
-	lpc_scb.uartclkdiv = 1;
-
 #if SERIAL_0_18_19
 	lpc_ioconf.pio0_18 = ((LPC_IOCONF_FUNC_PIO0_18_RXD << LPC_IOCONF_FUNC) |
 			      (LPC_IOCONF_MODE_INACTIVE << LPC_IOCONF_MODE) |
@@ -149,6 +150,53 @@ ao_serial_init(void)
 
 	/* Turn on the USART */
 	lpc_scb.sysahbclkctrl |= (1 << LPC_SCB_SYSAHBCLKCTRL_USART);
+
+	/* Turn on the USART clock */
+	lpc_scb.uartclkdiv = AO_LPC_CLKOUT / AO_LPC_USARTCLK;
+
+	/* Configure USART */
+
+	/* Enable FIFOs, reset fifo contents, interrupt on 1 received char */
+	lpc_usart.iir_fcr = ((1 << LPC_USART_FCR_FIFOEN) |
+			 (1 << LPC_USART_FCR_RXFIFORES) |
+			 (1 << LPC_USART_FCR_TXFIFORES) |
+			 (LPC_USART_FCR_RXTL_1 << LPC_USART_FCR_RXTL));
+
+	/* 8 n 1 */
+	lpc_usart.lcr = ((LPC_USART_LCR_WLS_8 << LPC_USART_LCR_WLS) |
+			 (LPC_USART_LCR_SBS_1 << LPC_USART_LCR_SBS) |
+			 (0 << LPC_USART_LCR_PE) |
+			 (LPC_USART_LCR_PS_ODD << LPC_USART_LCR_PS) |
+			 (0 << LPC_USART_LCR_BC) |
+			 (0 << LPC_USART_LCR_DLAB));
+
+	/* Disable flow control */
+	lpc_usart.mcr = ((0 << LPC_USART_MCR_DTRCTRL) |
+			 (0 << LPC_USART_MCR_RTSCTRL) |
+			 (0 << LPC_USART_MCR_LMS) |
+			 (0 << LPC_USART_MCR_RTSEN) |
+			 (0 << LPC_USART_MCR_CTSEN));
+
+	/* 16x oversampling */
+	lpc_usart.osr = ((0 << LPC_USART_OSR_OSFRAC) |
+			 ((16 - 1) << LPC_USART_OSR_OSINT) |
+			 (0 << LPC_USART_OSR_FDINT));
+
+	/* Full duplex */
+	lpc_usart.hden = ((0 << LPC_USART_HDEN_HDEN));
+
+	/* Set baud rate */
+	ao_serial_set_speed(AO_SERIAL_SPEED_9600);
+
+	/* Enable interrupts */
+	lpc_usart.ier = ((1 << LPC_USART_IER_RBRINTEN) |
+			 (1 << LPC_USART_IER_THREINTEN));
+
+	lpc_nvic_set_enable(LPC_ISR_USART_POS);
+	lpc_nvic_set_priority(LPC_ISR_USART_POS, 0);
+#if USE_SERIAL_0_STDIN
+	ao_add_stdio(_ao_serial_pollchar,
+		     ao_serial_putchar,
+		     NULL);
+#endif
 }
-
-

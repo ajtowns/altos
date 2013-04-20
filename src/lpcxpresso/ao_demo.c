@@ -26,6 +26,14 @@ static void demo(void) {
 	}
 }
 
+static struct ao_task serial_task;
+
+static void serial(void) {
+	for (;;) {
+		printf ("hello, world\n");
+	}
+}
+
 int
 main(void)
 {
@@ -35,9 +43,12 @@ main(void)
 	ao_clock_init();
 	ao_timer_init();
 	
+	ao_serial_init();
+
 	ao_task_init();
 
 	ao_add_task(&demo_task, demo, "demo");
+	ao_add_task(&serial_task, serial, "serial");
 
 	ao_start_scheduler();
 
