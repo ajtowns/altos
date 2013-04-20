@@ -152,11 +152,12 @@ public class TabMap extends Fragment implements AltosDroidTab {
 		}
 	}
 	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
+		if (from_receiver != null) {
+			mBearingView.setText(String.format("%3.0f°", from_receiver.bearing));
+			mDistanceView.setText(String.format("%6.0f m", from_receiver.distance));
+		}
+
 		if (state != null) {
-			if (state.from_pad != null) {
-				mDistanceView.setText(String.format("%6.0f m", state.from_pad.distance));
-				mBearingView.setText(String.format("%3.0f°", state.from_pad.bearing));
-			}
 			if (mapLoaded) {
 				if (state.gps != null) {
 					mRocketMarker.setPosition(new LatLng(state.gps.lat, state.gps.lon));

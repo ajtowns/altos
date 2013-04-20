@@ -251,14 +251,14 @@
 	<RelativeLayout
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:paddingLeft="69dp"
-		android:paddingTop="5dp" >
+		android:paddingLeft="69dp">
 
 		<TextView
 			android:id="@+id/pad_lat_label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android.paddingRight="4dp"
+			android:width="100sp"
+			android.paddingRight="10sp"
 			android:layout_toRightOf="@id/gps_ready_greenled"
 			android:text="@string/pad_lat_label" />
 
@@ -274,14 +274,14 @@
 	<RelativeLayout
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:paddingLeft="69dp"
-		android:paddingTop="5dp" >
+		android:paddingLeft="69dp">
 
 		<TextView
 			android:id="@+id/pad_lon_label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android.paddingRight="4dp"
+			android:width="100sp"
+			android.paddingRight="10sp"
 			android:layout_toRightOf="@id/gps_ready_greenled"
 			android:text="@string/pad_lon_label" />
 
@@ -297,14 +297,14 @@
 	<RelativeLayout
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:paddingLeft="69dp"
-		android:paddingTop="5dp" >
+		android:paddingLeft="69dp">
 
 		<TextView
 			android:id="@+id/pad_alt_label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android.paddingRight="4dp"
+			android:width="100sp"
+			android.paddingRight="10sp"
 			android:layout_toRightOf="@id/gps_ready_greenled"
 			android:text="@string/pad_alt_label" />
 
