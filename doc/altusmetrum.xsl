@@ -3,7 +3,7 @@
   "/usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd">
 <book>
   <title>The Altus Metrum System</title>
-  <subtitle>An Owner's Manual for TeleMetrum, TeleMini and TeleDongle Devices</subtitle>
+  <subtitle>An Owner's Manual for TeleMetrum, TeleMini, TeleDongle and TeleBT Devices</subtitle>
   <bookinfo>
     <author>
       <firstname>Bdale</firstname>
@@ -137,13 +137,20 @@ NAR #88757, TRA #12200
       air-frame.
     </para>
     <para>
-      Complementing TeleMetrum and TeleMini is TeleDongle, a USB to RF 
-      interface for communicating with the altimeters.  Combined with your 
-      choice of antenna and
-      notebook computer, TeleDongle and our associated user interface software
-      form a complete ground station capable of logging and displaying in-flight
-      telemetry, aiding rocket recovery, then processing and archiving flight
+      TeleDongle was our first ground station, providing a USB to RF
+      interfaces for communicating with the altimeters. Combined with
+      your choice of antenna and notebook computer, TeleDongle and our
+      associated user interface software form a complete ground
+      station capable of logging and displaying in-flight telemetry,
+      aiding rocket recovery, then processing and archiving flight
       data for analysis and review.
+    </para>
+    <para>
+      For a slightly more portable ground station experience that also
+      provides direct rocket recovery support, TeleBT offers flight
+      monitoring and data logging using a Bluetooth connection between
+      the receiver and an Android device that has the Altos Droid
+      application installed from the Google Play store.
     </para>
     <para>
       More products will be added to the Altus Metrum family over time, and
@@ -205,6 +212,16 @@ NAR #88757, TRA #12200
       Full source code and build instructions are also available.
       The latest version may always be downloaded from
       <ulink url="http://altusmetrum.org/AltOS"/>.
+    </para>
+    <para>
+      If you're using a TeleBT instead of the TeleDongle, you'll want
+      to go install the Altos Droid application from the Google Play
+      store. You don't need a data plan to use Altos Droid, but
+      without network access, the Map view will be less useful as it
+      won't contain any map data. You can also use TeleBT connected
+      over USB with your laptop computer; it acts exactly like a
+      TeleDongle. Anywhere this manual talks about TeleDongle, you can
+      also read that as 'and TeleBT when connected via USB'.
     </para>
   </chapter>
   <chapter>
@@ -373,15 +390,15 @@ NAR #88757, TRA #12200
         flights, do what makes sense.
       </para>
       <para>
-        If idle mode is entered, you will hear an audible "di-dit" or see 
-        two short flashes ("I" for idle), and the flight state machine is 
-        disengaged, thus no ejection charges will fire.  The altimeters also 
-        listen for the radio link when in idle mode for requests sent via 
-        TeleDongle.  Commands can be issued to a TeleMetrum in idle mode 
-        over either
-        USB or the radio link equivalently. TeleMini only has the radio link.
-        Idle mode is useful for configuring the altimeter, for extracting data
-        from the on-board storage chip after flight, and for ground testing
+        If idle mode is entered, you will hear an audible "di-dit" or
+        see two short flashes ("I" for idle), and the flight state
+        machine is disengaged, thus no ejection charges will fire.
+        The altimeters also listen for the radio link when in idle
+        mode for requests sent via TeleDongle.  Commands can be issued
+        to a TeleMetrum in idle mode over either USB or the radio link
+        equivalently. TeleMini only has the radio link.  Idle mode is
+        useful for configuring the altimeter, for extracting data from
+        the on-board storage chip after flight, and for ground testing
         pyro charges.
       </para>
       <para>
@@ -452,11 +469,12 @@ NAR #88757, TRA #12200
     <section>
       <title>Controlling An Altimeter Over The Radio Link</title>
       <para>
-        One of the unique features of the Altus Metrum system is
-        the ability to create a two way command link between TeleDongle
-        and an altimeter using the digital radio transceivers built into
-        each device. This allows you to interact with the altimeter from
-        afar, as if it were directly connected to the computer.
+        One of the unique features of the Altus Metrum system is the
+        ability to create a two way command link between TeleDongle
+        and an altimeter using the digital radio transceivers
+        built into each device. This allows you to interact with the
+        altimeter from afar, as if it were directly connected to the
+        computer.
       </para>
       <para>
         Any operation which can be performed with TeleMetrum can
@@ -1618,15 +1636,42 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>Connecting to TeleBT</title>
+      <para>
+	Press the Android 'Menu' button or soft-key to see the
+	configuration options available. Select the 'Connect a device'
+	option and then the 'Scan for devices' entry at the bottom to
+	look for your TeleBT device. Select your device, and when it
+	asks for the code, enter '1234'.
+      </para>
+      <para>
+	Subsequent connections will not require you to enter that
+	code, and your 'paired' device will appear in the list without
+	scanning.
+      </para>
     </section>
     <section>
       <title>Configuring AltosDroid</title>
+      <para>
+	The only configuration option available for AltosDroid is
+	which frequency to listen on. Press the Android 'Menu' button
+	or soft-key and pick the 'Select radio frequency' entry. That
+	brings up a menu of pre-set radio frequencies; pick the one
+	which matches your altimeter.
+      </para>
     </section>
     <section>
       <title>Flight Monitoring</title>
     </section>
     <section>
       <title>Downloading Flight Logs</title>
+      <para>
+	Altos Droid always saves every bit of telemetry data it
+	receives. To download that to a computer for use with AltosUI,
+	simply remove the SD card from your Android device, or connect
+	your device to your computer's USB port and browse the files
+	on that device. You will find '.telem' files in the TeleMetrum
+	directory that will work with AltosUI directly.
+      </para>
     </section>
   </chapter>
   <chapter>
