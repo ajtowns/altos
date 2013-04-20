@@ -20,7 +20,10 @@
 
 struct ao_fifo	ao_usart_rx_fifo;
 struct ao_fifo	ao_usart_tx_fifo;
-uint8_t		ao_usart_tx_started;
+uint8_t		ao_usart_tx_avail;
+uint8_t		ao_usart_tx_avail_min;
+
+#define LPC_USART_TX_FIFO_SIZE	16
 
 void
 ao_debug_out(char c)
@@ -35,9 +38,10 @@ ao_debug_out(char c)
 static void
 _ao_serial_tx_start(void)
 {
-	if (!ao_fifo_empty(ao_usart_tx_fifo) & !ao_usart_tx_started)
-	{
-		ao_usart_tx_started = 1;
+	if (!ao_fifo_empty(ao_usart_tx_fifo) && ao_usart_tx_avail) {
+		ao_usart_tx_avail--;
+		if (ao_usart_tx_avail < ao_usart_tx_avail_min)
+			ao_usart_tx_avail_min = ao_usart_tx_avail;
 		ao_fifo_remove(ao_usart_tx_fifo, lpc_usart.rbr_thr);
 	}
 }
@@ -56,7 +60,7 @@ lpc_usart_isr(void)
 			ao_wakeup(&ao_stdin_ready);
 	}
 	if (lpc_usart.lsr & (1 << LPC_USART_LSR_THRE)) {
-		ao_usart_tx_started = 0;
+		ao_usart_tx_avail = LPC_USART_TX_FIFO_SIZE;
 		_ao_serial_tx_start();
 		ao_wakeup(&ao_usart_tx_fifo);
 	}
@@ -161,6 +165,9 @@ ao_serial_init(void)
 			 (1 << LPC_USART_FCR_RXFIFORES) |
 			 (1 << LPC_USART_FCR_TXFIFORES) |
 			 (LPC_USART_FCR_RXTL_1 << LPC_USART_FCR_RXTL));
+
+	ao_usart_tx_avail = LPC_USART_TX_FIFO_SIZE;
+	ao_usart_tx_avail_min = LPC_USART_TX_FIFO_SIZE;
 
 	/* 8 n 1 */
 	lpc_usart.lcr = ((LPC_USART_LCR_WLS_8 << LPC_USART_LCR_WLS) |
