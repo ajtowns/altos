@@ -42,6 +42,14 @@ NRST	2	5
 SWDIO	3	4
 SWCLK	4	2
 
+Altus Metrum standard 4-pin connector to MegaMetrum v0.1 misc connector:
+
+	AMstd	MM v0.1
+gnd	1	1
+nrst	2	2
+swdio	3	8
+swclk	4	9
+
 MegaAccel:
 
 Jumpers
