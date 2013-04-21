@@ -765,6 +765,7 @@ altos_bt_open(struct altos_bt_device *device)
 		altos_set_last_posix_error();
 		goto no_link;
 	}
+	usleep(100 * 1000);
 
 #ifdef USE_POLL
 	pipe(file->pipe);
