@@ -133,16 +133,14 @@ public class TelemetryService extends Service {
 					// Now we try to send the freshly connected UI any relavant information about what
 					// we're talking to - Basically state and Config Data.
 					msg.replyTo.send(Message.obtain(null, AltosDroid.MSG_STATE_CHANGE, s.state, -1, s.mConfigData));
+					// We also send any recent telemetry or location data that's cached
+					if (s.last_state      != null) msg.replyTo.send(Message.obtain(null, AltosDroid.MSG_TELEMETRY, s.last_state     ));
+					if (s.last_location   != null) msg.replyTo.send(Message.obtain(null, AltosDroid.MSG_LOCATION , s.last_location  ));
+					if (s.last_crc_errors != 0   ) msg.replyTo.send(Message.obtain(null, AltosDroid.MSG_CRC_ERROR, s.last_crc_errors));
 				} catch (RemoteException e) {
 					s.mClients.remove(msg.replyTo);
 				}
 				if (D) Log.d(TAG, "Client bound to service");
-				if (s.last_state != null)
-					s.sendTelemetry(s.last_state);
-				if (s.last_location != null)
-					s.sendLocation(s.last_location);
-				if (s.last_crc_errors != 0)
-					s.sendCrcErrors(s.last_crc_errors);
 				break;
 			case MSG_UNREGISTER_CLIENT:
 				s.mClients.remove(msg.replyTo);
@@ -196,16 +194,6 @@ public class TelemetryService extends Service {
 				super.handleMessage(msg);
 			}
 		}
-	}
-
-	public void sendTelemetry(AltosState state) {
-	}
-
-	public void sendLocation(Location location) {
-		mHandler.obtainMessage(MSG_LOCATION, location).sendToTarget();
-	}
-
-	public void sendCrcErrors(int crc_errors) {
 	}
 
 	private void sendMessageToClients(Message m) {
