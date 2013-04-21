@@ -1660,7 +1660,86 @@ NAR #88757, TRA #12200
       </para>
     </section>
     <section>
-      <title>Flight Monitoring</title>
+      <title>Altos Droid Flight Monitoring</title>
+      <para>
+	Altos Droid is designed to mimic the AltosUI flight monitoring
+	display, providing separate tabs for each stage of your rocket
+	flight along with a tab containing a map of the local area
+	with icons marking the current location of the altimeter and
+	the Android device.
+      </para>
+      <section>
+	<title>Pad</title>
+        <para>
+          The 'Launch Pad' tab shows information used to decide when the
+          rocket is ready for flight. The first elements include red/green
+          indicators, if any of these is red, you'll want to evaluate
+          whether the rocket is ready to launch:
+          <itemizedlist>
+            <listitem>
+              <para>
+                Battery Voltage. This indicates whether the Li-Po battery
+                powering the TeleMetrum has sufficient charge to last for
+                the duration of the flight. A value of more than
+                3.7V is required for a 'GO' status.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                Apogee Igniter Voltage. This indicates whether the apogee
+                igniter has continuity. If the igniter has a low
+                resistance, then the voltage measured here will be close
+                to the Li-Po battery voltage. A value greater than 3.2V is
+                required for a 'GO' status.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                Main Igniter Voltage. This indicates whether the main
+                igniter has continuity. If the igniter has a low
+                resistance, then the voltage measured here will be close
+                to the Li-Po battery voltage. A value greater than 3.2V is
+                required for a 'GO' status.
+              </para>
+            </listitem>
+	    <listitem>
+	      <para>
+		On-board Data Logging. This indicates whether there is
+		space remaining on-board to store flight data for the
+		upcoming flight. If you've downloaded data, but failed
+		to erase flights, there may not be any space
+		left. TeleMetrum can store multiple flights, depending
+		on the configured maximum flight log size. TeleMini
+		stores only a single flight, so it will need to be
+		downloaded and erased after each flight to capture
+		data. This only affects on-board flight logging; the
+		altimeter will still transmit telemetry and fire
+		ejection charges at the proper times.
+	      </para>
+	    </listitem>
+            <listitem>
+              <para>
+                GPS Locked. For a TeleMetrum device, this indicates whether the GPS receiver is
+                currently able to compute position information. GPS requires
+                at least 4 satellites to compute an accurate position.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                GPS Ready. For a TeleMetrum device, this indicates whether GPS has reported at least
+                10 consecutive positions without losing lock. This ensures
+                that the GPS receiver has reliable reception from the
+                satellites.
+              </para>
+            </listitem>
+          </itemizedlist>
+          <para>
+            The Launchpad tab also shows the computed launch pad position
+            and altitude, averaging many reported positions to improve the
+            accuracy of the fix.
+          </para>
+        </para>
+      </section>
     </section>
     <section>
       <title>Downloading Flight Logs</title>
