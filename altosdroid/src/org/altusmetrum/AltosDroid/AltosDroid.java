@@ -414,7 +414,7 @@ public class AltosDroid extends FragmentActivity {
 		super.onDestroy();
 		if(D) Log.e(TAG, "--- ON DESTROY ---");
 
-		mAltosVoice.stop();
+		if (mAltosVoice != null) mAltosVoice.stop();
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
