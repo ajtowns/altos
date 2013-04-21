@@ -72,8 +72,12 @@
 	<string name="gps_ready_label">GPS Ready</string>
 	<string name="latitude_label">Latitude</string>
 	<string name="longitude_label">Longitude</string>
-	<string name="pad_lat_label">Pad Latitude</string>
-	<string name="pad_lon_label">Pad Longitude</string>
-	<string name="pad_alt_label">Pad Altitude</string>
+	<string name="target_latitude_label">Tar Lat</string>
+	<string name="target_longitude_label">Tar Lon</string>
+	<string name="receiver_latitude_label">My Lat</string>
+	<string name="receiver_longitude_label">My Lon</string>
+	<string name="pad_lat_label">Pad Lat</string>
+	<string name="pad_lon_label">Pad Lon</string>
+	<string name="pad_alt_label">Pad Alt</string>
 
 </resources>

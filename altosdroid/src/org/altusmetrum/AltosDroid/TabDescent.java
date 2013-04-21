@@ -17,8 +17,7 @@
 
 package org.altusmetrum.AltosDroid;
 
-import org.altusmetrum.altoslib_1.AltosGreatCircle;
-import org.altusmetrum.altoslib_1.AltosState;
+import org.altusmetrum.altoslib_1.*;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -28,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.location.Location;
 
 public class TabDescent extends Fragment implements AltosDroidTab {
 	AltosDroid mAltosDroid;
@@ -89,24 +89,34 @@ public class TabDescent extends Fragment implements AltosDroidTab {
 		mAltosDroid = null;
 	}
 
-	public void update_ui(AltosState state) {
-		mSpeedView.setText(String.format("%6.0f m/s", state.speed()));
-		mHeightView.setText(String.format("%6.0f m", state.height));
-		mElevationView.setText(String.format("%3.0f°", state.elevation));
-		mRangeView.setText(String.format("%6.0f m", state.range));
-		if (state.from_pad != null) {
-			mBearingView.setText(String.format("%3.0f°", state.from_pad.bearing));
-			mCompassView.setText(state.from_pad.bearing_words(AltosGreatCircle.BEARING_LONG));
+	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
+		if (state != null) {
+			mSpeedView.setText(AltosDroid.number("%6.0f m/s", state.speed()));
+			mHeightView.setText(AltosDroid.number("%6.0f m", state.height));
+			if (from_receiver != null) {
+				mElevationView.setText(AltosDroid.number("%3.0f°", from_receiver.elevation));
+				mRangeView.setText(AltosDroid.number("%6.0f m", from_receiver.range));
+				mBearingView.setText(AltosDroid.number("%3.0f°", from_receiver.bearing));
+				mCompassView.setText(from_receiver.bearing_words(AltosGreatCircle.BEARING_LONG));
+				mDistanceView.setText(AltosDroid.number("%6.0f m", from_receiver.distance));
+			} else { 
+				mElevationView.setText("<unknown>");
+				mRangeView.setText("<unknown>");
+				mBearingView.setText("<unknown>");
+				mCompassView.setText("<unknown>");
+				mDistanceView.setText("<unknown>");
+			}
+			if (state.gps != null) {
+				mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
+				mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+			}
+
+			mApogeeVoltageView.setText(AltosDroid.number("%4.2f V", state.drogue_sense));
+			mApogeeLights.set(state.drogue_sense > 3.2, state.drogue_sense == AltosRecord.MISSING);
+
+			mMainVoltageView.setText(AltosDroid.number("%4.2f V", state.main_sense));
+			mMainLights.set(state.main_sense > 3.2, state.main_sense == AltosRecord.MISSING);
 		}
-		mDistanceView.setText(String.format("%6.0f m", state.range));
-		mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
-		mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
-
-		mApogeeVoltageView.setText(String.format("%4.2f V", state.drogue_sense));
-		mApogeeLights.set(state.drogue_sense > 3.2);
-
-		mMainVoltageView.setText(String.format("%4.2f V", state.main_sense));
-		mMainLights.set(state.main_sense > 3.2);
 	}
 
 }

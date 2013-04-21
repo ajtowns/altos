@@ -17,8 +17,9 @@
 
 package org.altusmetrum.AltosDroid;
 
-import org.altusmetrum.altoslib_1.AltosState;
+import org.altusmetrum.altoslib_1.*;
+import android.location.Location;
 
 public interface AltosDroidTab {
-	public void update_ui(AltosState state);
+	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver);
 }

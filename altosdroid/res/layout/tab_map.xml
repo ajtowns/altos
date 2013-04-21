@@ -46,16 +46,16 @@
 				android:id="@+id/distance_label"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:paddingRight="4dp"
 				android:text="@string/distance_label" />
 
 			<TextView
 				android:id="@+id/distance_value"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_alignParentRight="true"
-				android:layout_below="@+id/distance_label"
+				android:layout_toRightOf="@+id/distance_label"
 				android:text=""
-				android:textAppearance="?android:attr/textAppearanceLarge" />
+				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</RelativeLayout>
 
 		<RelativeLayout
@@ -68,16 +68,16 @@
 				android:id="@+id/bearing_label"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:paddingRight="4dp"
 				android:text="@string/bearing_label" />
 
 			<TextView
 				android:id="@+id/bearing_value"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_alignParentRight="true"
-				android:layout_below="@+id/bearing_label"
+				android:layout_toRightOf="@+id/bearing_label"
 				android:text=""
-				android:textAppearance="?android:attr/textAppearanceLarge" />
+				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</RelativeLayout>
 
 	</LinearLayout>
@@ -96,19 +96,19 @@
 			android:paddingTop="5dp" >
 
 			<TextView
-				android:id="@+id/lat_label"
+				android:id="@+id/target_lat_label"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="@string/latitude_label" />
+				android:paddingRight="4dp"
+				android:text="@string/target_latitude_label" />
 
 			<TextView
-				android:id="@+id/lat_value"
+				android:id="@+id/target_lat_value"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_alignParentRight="true"
-				android:layout_below="@id/lat_label"
+				android:layout_toRightOf="@id/target_lat_label"
 				android:text=""
-				android:textAppearance="?android:attr/textAppearanceLarge" />
+				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</RelativeLayout>
 
 		<RelativeLayout
@@ -118,19 +118,71 @@
 			android:paddingTop="5dp" >
 
 			<TextView
-				android:id="@+id/lon_label"
+				android:id="@+id/target_lon_label"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="@string/longitude_label" />
+				android:paddingRight="4dp"
+				android:text="@string/target_longitude_label" />
 
 			<TextView
-				android:id="@+id/lon_value"
+				android:id="@+id/target_lon_value"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_alignParentRight="true"
-				android:layout_below="@id/lon_label"
+				android:layout_toRightOf="@id/target_lon_label"
 				android:text=""
-				android:textAppearance="?android:attr/textAppearanceLarge" />
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		</RelativeLayout>
+	</LinearLayout>
+
+	<LinearLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:baselineAligned="true"
+		android:orientation="horizontal" >
+
+		<RelativeLayout
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:paddingTop="5dp" >
+
+			<TextView
+				android:id="@+id/receiver_lat_label"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:paddingRight="4dp"
+				android:text="@string/receiver_latitude_label" />
+
+			<TextView
+				android:id="@+id/receiver_lat_value"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toRightOf="@id/receiver_lat_label"
+				android:text=""
+				android:textAppearance="?android:attr/textAppearanceSmall" />
+		</RelativeLayout>
+
+		<RelativeLayout
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:paddingTop="5dp" >
+
+			<TextView
+				android:id="@+id/receiver_lon_label"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:paddingRight="4dp"
+				android:text="@string/receiver_longitude_label" />
+
+			<TextView
+				android:id="@+id/receiver_lon_value"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_toRightOf="@id/receiver_lon_label"
+				android:text=""
+				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</RelativeLayout>
 	</LinearLayout>
 </LinearLayout>

@@ -17,7 +17,7 @@
 
 package org.altusmetrum.AltosDroid;
 
-import org.altusmetrum.altoslib_1.AltosState;
+import org.altusmetrum.altoslib_1.*;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.location.Location;
 
 public class TabAscent extends Fragment implements AltosDroidTab {
 	AltosDroid mAltosDroid;
@@ -84,21 +85,28 @@ public class TabAscent extends Fragment implements AltosDroidTab {
 		mAltosDroid = null;
 	}
 
-	public void update_ui(AltosState state) {
-		mHeightView.setText(String.format("%6.0f m", state.height));
-		mMaxHeightView.setText(String.format("%6.0f m", state.max_height));
-		mSpeedView.setText(String.format("%6.0f m/s", state.speed()));
-		mMaxSpeedView.setText(String.format("%6.0f m/s", state.max_speed()));
-		mAccelView.setText(String.format("%6.0f m/s²", state.acceleration));
-		mMaxAccelView.setText(String.format("%6.0f m/s²", state.max_acceleration));
+	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
+		if (state != null) {
+			mHeightView.setText(AltosDroid.number("%6.0f m", state.height));
+			mMaxHeightView.setText(AltosDroid.number("%6.0f m", state.max_height));
+			mSpeedView.setText(AltosDroid.number("%6.0f m/s", state.speed()));
+			mMaxSpeedView.setText(AltosDroid.number("%6.0f m/s", state.max_speed()));
+			mAccelView.setText(AltosDroid.number("%6.0f m/s²", state.acceleration));
+			mMaxAccelView.setText(AltosDroid.number("%6.0f m/s²", state.max_acceleration));
 
-		mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
-		mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+			if (state.gps != null) {
+				mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
+				mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+			} else {
+				mLatitudeView.setText("");
+				mLongitudeView.setText("");
+			}
 
-		mApogeeVoltageView.setText(String.format("%4.2f V", state.drogue_sense));
-		mApogeeLights.set(state.drogue_sense > 3.2);
+			mApogeeVoltageView.setText(AltosDroid.number("%4.2f V", state.drogue_sense));
+			mApogeeLights.set(state.drogue_sense > 3.2, state.drogue_sense == AltosRecord.MISSING);
 
-		mMainVoltageView.setText(String.format("%4.2f V", state.main_sense));
-		mMainLights.set(state.main_sense > 3.2);
+			mMainVoltageView.setText(AltosDroid.number("%4.2f V", state.main_sense));
+			mMainLights.set(state.main_sense > 3.2, state.main_sense == AltosRecord.MISSING);
+		}
 	}
 }

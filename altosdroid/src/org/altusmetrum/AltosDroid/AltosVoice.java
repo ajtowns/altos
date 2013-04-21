@@ -38,7 +38,6 @@ public class AltosVoice {
 			public void onInit(int status) {
 				if (status == TextToSpeech.SUCCESS) tts_enabled = true;
 				if (tts_enabled) {
-					speak("AltosDroid ready");
 					idle_thread = new IdleThread();
 				}
 			}

@@ -47,7 +47,7 @@
 				android:layout_height="wrap_content"
 				android:layout_below="@+id/callsign_label"
 				android:text=""
-				android:textAppearance="?android:attr/textAppearanceLarge" />
+				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</RelativeLayout>
 
 		<RelativeLayout
@@ -67,7 +67,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_below="@+id/serial_label"
-				android:textAppearance="?android:attr/textAppearanceLarge" />
+				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</RelativeLayout>
 
 		<RelativeLayout
@@ -87,7 +87,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_below="@+id/flight_label"
-				android:textAppearance="?android:attr/textAppearanceLarge" />
+				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</RelativeLayout>
 
 		<RelativeLayout
@@ -107,7 +107,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_below="@+id/state_label"
-				android:textAppearance="?android:attr/textAppearanceLarge" />
+				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</RelativeLayout>
 
 		<RelativeLayout
@@ -127,7 +127,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_below="@+id/rssi_label"
-				android:textAppearance="?android:attr/textAppearanceLarge" />
+				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</RelativeLayout>
 
 		<RelativeLayout
@@ -147,7 +147,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_below="@+id/age_label"
-				android:textAppearance="?android:attr/textAppearanceLarge" />
+				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</RelativeLayout>
 	</LinearLayout>
 

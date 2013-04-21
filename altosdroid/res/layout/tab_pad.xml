@@ -30,7 +30,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:contentDescription="@string/battery_voltage_label"
-			android:src="@drawable/redled" />
+			android:src="@drawable/grayled" />
 
 		<ImageView
 			android:id="@+id/battery_greenled"
@@ -55,7 +55,7 @@
 			android:layout_below="@id/battery_voltage_label"
 			android:layout_toRightOf="@id/battery_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -68,7 +68,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:contentDescription="@string/apogee_voltage_label"
-			android:src="@drawable/redled" />
+			android:src="@drawable/grayled" />
 
 		<ImageView
 			android:id="@+id/apogee_greenled"
@@ -93,7 +93,7 @@
 			android:layout_below="@id/apogee_voltage_label"
 			android:layout_toRightOf="@id/apogee_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -106,7 +106,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:contentDescription="@string/main_voltage_label"
-			android:src="@drawable/redled" />
+			android:src="@drawable/grayled" />
 
 		<ImageView
 			android:id="@+id/main_greenled"
@@ -131,7 +131,7 @@
 			android:layout_below="@id/main_voltage_label"
 			android:layout_toRightOf="@id/main_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -144,7 +144,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:contentDescription="@string/logging_label"
-			android:src="@drawable/redled" />
+			android:src="@drawable/grayled" />
 
 		<ImageView
 			android:id="@+id/logging_greenled"
@@ -169,7 +169,7 @@
 			android:layout_below="@id/logging_label"
 			android:layout_toRightOf="@id/logging_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -182,7 +182,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:contentDescription="@string/gps_locked_label"
-			android:src="@drawable/redled" />
+			android:src="@drawable/grayled" />
 
 		<ImageView
 			android:id="@+id/gps_locked_greenled"
@@ -207,7 +207,7 @@
 			android:layout_below="@id/gps_locked_label"
 			android:layout_toRightOf="@id/gps_locked_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -220,7 +220,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:contentDescription="@string/gps_ready_label"
-			android:src="@drawable/redled" />
+			android:src="@drawable/grayled" />
 
 		<ImageView
 			android:id="@+id/gps_ready_greenled"
@@ -245,19 +245,20 @@
 			android:layout_below="@id/gps_ready_label"
 			android:layout_toRightOf="@id/gps_ready_greenled"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:paddingLeft="69dp"
-		android:paddingTop="5dp" >
+		android:paddingLeft="69dp">
 
 		<TextView
 			android:id="@+id/pad_lat_label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:width="100sp"
+			android:paddingRight="10sp"
 			android:layout_toRightOf="@id/gps_ready_greenled"
 			android:text="@string/pad_lat_label" />
 
@@ -265,22 +266,22 @@
 			android:id="@+id/pad_lat_value"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_below="@id/pad_lat_label"
-			android:layout_toRightOf="@id/gps_ready_greenled"
+			android:layout_toRightOf="@id/pad_lat_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:paddingLeft="69dp"
-		android:paddingTop="5dp" >
+		android:paddingLeft="69dp">
 
 		<TextView
 			android:id="@+id/pad_lon_label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:width="100sp"
+			android:paddingRight="10sp"
 			android:layout_toRightOf="@id/gps_ready_greenled"
 			android:text="@string/pad_lon_label" />
 
@@ -288,22 +289,22 @@
 			android:id="@+id/pad_lon_value"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_below="@id/pad_lon_label"
-			android:layout_toRightOf="@id/gps_ready_greenled"
+			android:layout_toRightOf="@id/pad_lon_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:paddingLeft="69dp"
-		android:paddingTop="5dp" >
+		android:paddingLeft="69dp">
 
 		<TextView
 			android:id="@+id/pad_alt_label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:width="100sp"
+			android:paddingRight="10sp"
 			android:layout_toRightOf="@id/gps_ready_greenled"
 			android:text="@string/pad_alt_label" />
 
@@ -311,10 +312,9 @@
 			android:id="@+id/pad_alt_value"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_below="@id/pad_alt_label"
-			android:layout_toRightOf="@id/gps_ready_greenled"
+			android:layout_toRightOf="@id/pad_alt_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 </LinearLayout>

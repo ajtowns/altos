@@ -22,6 +22,8 @@ import java.lang.Math;
 public class AltosGreatCircle {
 	public double	distance;
 	public double	bearing;
+	public double	range;
+	public double	elevation;
 
 	double sqr(double a) { return a * a; }
 
@@ -54,9 +56,8 @@ public class AltosGreatCircle {
 		return bearing_string[length][(int)((bearing / 90 * 8 + 1) / 2)%16];
 	}
 
-	public AltosGreatCircle (double start_lat, double start_lon,
-				 double end_lat, double end_lon)
-	{
+	public AltosGreatCircle (double start_lat, double start_lon, double start_alt,
+				 double end_lat, double end_lon, double end_alt) {
 		double lat1 = rad * start_lat;
 		double lon1 = rad * -start_lon;
 		double lat2 = rad * end_lat;
@@ -88,14 +89,25 @@ public class AltosGreatCircle {
 		}
 		distance = d * earth_radius;
 		bearing = course * 180/Math.PI;
+
+		double height_diff = end_alt - start_alt;
+		range = Math.sqrt(distance * distance + height_diff * height_diff);
+		elevation = Math.atan2(height_diff, distance) * 180 / Math.PI;
+	}
+
+	public AltosGreatCircle (double start_lat, double start_lon,
+				 double end_lat, double end_lon) {
+		this(start_lat, start_lon, 0, end_lat, end_lon, 0);
 	}
 
 	public AltosGreatCircle(AltosGPS start, AltosGPS end) {
-		this(start.lat, start.lon, end.lat, end.lon);
+		this(start.lat, start.lon, start.alt, end.lat, end.lon, end.alt);
 	}
 
 	public AltosGreatCircle() {
 		distance = 0;
 		bearing = 0;
+		range = 0;
+		elevation = 0;
 	}
 }

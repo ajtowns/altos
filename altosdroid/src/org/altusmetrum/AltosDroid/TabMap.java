@@ -35,11 +35,12 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+//import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.location.Location;
 
 public class TabMap extends Fragment implements AltosDroidTab {
 	AltosDroid mAltosDroid;
@@ -54,8 +55,12 @@ public class TabMap extends Fragment implements AltosDroidTab {
 
 	private TextView mDistanceView;
 	private TextView mBearingView;
-	private TextView mLatitudeView;
-	private TextView mLongitudeView;
+	private TextView mTargetLatitudeView;
+	private TextView mTargetLongitudeView;
+	private TextView mReceiverLatitudeView;
+	private TextView mReceiverLongitudeView;
+
+	private double mapAccuracy = -1;
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -83,8 +88,10 @@ public class TabMap extends Fragment implements AltosDroidTab {
 		View v = inflater.inflate(R.layout.tab_map, container, false);
 		mDistanceView  = (TextView)v.findViewById(R.id.distance_value);
 		mBearingView   = (TextView)v.findViewById(R.id.bearing_value);
-		mLatitudeView  = (TextView)v.findViewById(R.id.lat_value);
-		mLongitudeView = (TextView)v.findViewById(R.id.lon_value);
+		mTargetLatitudeView  = (TextView)v.findViewById(R.id.target_lat_value);
+		mTargetLongitudeView = (TextView)v.findViewById(R.id.target_lon_value);
+		mReceiverLatitudeView  = (TextView)v.findViewById(R.id.receiver_lat_value);
+		mReceiverLongitudeView = (TextView)v.findViewById(R.id.receiver_lon_value);
 		return v;
 	}
 
@@ -113,7 +120,6 @@ public class TabMap extends Fragment implements AltosDroidTab {
 			mMap.setMyLocationEnabled(true);
 			mMap.getUiSettings().setTiltGesturesEnabled(false);
 			mMap.getUiSettings().setZoomControlsEnabled(false);
-			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(40.8,-104.7),8));
 
 			mRocketMarker = mMap.addMarker(
 					// From: http://mapicons.nicolasmollet.com/markers/industry/military/missile-2/
@@ -139,26 +145,54 @@ public class TabMap extends Fragment implements AltosDroidTab {
 		}
 	}
 
-	public void update_ui(AltosState state) {
-		if (state.from_pad != null) {
-			mDistanceView.setText(String.format("%6.0f m", state.from_pad.distance));
-			mBearingView.setText(String.format("%3.0f°", state.from_pad.bearing));
+	private void center(double lat, double lon, double accuracy) {
+		if (mapAccuracy < 0 || accuracy < mapAccuracy/10) {
+			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lon),14));
+			mapAccuracy = accuracy;
 		}
-		mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
-		mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+	}
 
-		if (mapLoaded) {
-			mRocketMarker.setPosition(new LatLng(state.gps.lat, state.gps.lon));
-			mRocketMarker.setVisible(true);
+	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
+		if (from_receiver != null) {
+			mBearingView.setText(String.format("%3.0f°", from_receiver.bearing));
+			mDistanceView.setText(String.format("%6.0f m", from_receiver.distance));
+		}
 
-			mPolyline.setPoints(Arrays.asList(new LatLng(state.pad_lat, state.pad_lon), new LatLng(state.gps.lat, state.gps.lon)));
-			mPolyline.setVisible(true);
+		if (state != null) {
+			if (mapLoaded) {
+				if (state.gps != null) {
+					mRocketMarker.setPosition(new LatLng(state.gps.lat, state.gps.lon));
+					mRocketMarker.setVisible(true);
 
-			if (state.state == AltosLib.ao_flight_pad) {
-				mPadMarker.setPosition(new LatLng(state.pad_lat, state.pad_lon));
-				mPadMarker.setVisible(true);
+					mPolyline.setPoints(Arrays.asList(new LatLng(state.pad_lat, state.pad_lon), new LatLng(state.gps.lat, state.gps.lon)));
+					mPolyline.setVisible(true);
+				}
+
+				if (state.state == AltosLib.ao_flight_pad) {
+					mPadMarker.setPosition(new LatLng(state.pad_lat, state.pad_lon));
+					mPadMarker.setVisible(true);
+				}
+			}
+			if (state.gps != null) {
+				mTargetLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
+				mTargetLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+				if (state.gps.locked && state.gps.nsat >= 4)
+					center (state.gps.lat, state.gps.lon, 10);
 			}
 		}
+
+		if (receiver != null) {
+			double accuracy;
+
+			if (receiver.hasAccuracy())
+				accuracy = receiver.getAccuracy();
+			else
+				accuracy = 1000;
+			mReceiverLatitudeView.setText(AltosDroid.pos(receiver.getLatitude(), "N", "S"));
+			mReceiverLongitudeView.setText(AltosDroid.pos(receiver.getLongitude(), "W", "E"));
+			center (receiver.getLatitude(), receiver.getLongitude(), accuracy);
+		}
+
 	}
 
 }

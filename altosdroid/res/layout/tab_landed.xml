@@ -37,7 +37,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_below="@+id/bearing_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -58,7 +58,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_below="@+id/distance_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -67,19 +67,19 @@
 		android:paddingTop="5dp" >
 
 		<TextView
-			android:id="@+id/lat_label"
+			android:id="@+id/target_lat_label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/latitude_label" />
+			android:text="@string/target_latitude_label" />
 
 		<TextView
-			android:id="@+id/lat_value"
+			android:id="@+id/target_lat_value"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
-			android:layout_below="@id/lat_label"
+			android:layout_below="@id/target_lat_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -88,19 +88,61 @@
 		android:paddingTop="5dp" >
 
 		<TextView
-			android:id="@+id/lon_label"
+			android:id="@+id/target_lon_label"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/longitude_label" />
+			android:text="@string/target_longitude_label" />
 
 		<TextView
-			android:id="@+id/lon_value"
+			android:id="@+id/target_lon_value"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_alignParentRight="true"
-			android:layout_below="@id/lon_label"
+			android:layout_below="@id/target_lon_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
+	</RelativeLayout>
+
+	<RelativeLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:paddingTop="5dp" >
+
+		<TextView
+			android:id="@+id/receiver_lat_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/receiver_latitude_label" />
+
+		<TextView
+			android:id="@+id/receiver_lat_value"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@id/receiver_lat_label"
+			android:text=""
+			android:textAppearance="?android:attr/textAppearanceSmall" />
+	</RelativeLayout>
+
+	<RelativeLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:paddingTop="5dp" >
+
+		<TextView
+			android:id="@+id/receiver_lon_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/receiver_longitude_label" />
+
+		<TextView
+			android:id="@+id/receiver_lon_value"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentRight="true"
+			android:layout_below="@id/receiver_lon_label"
+			android:text=""
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -121,7 +163,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_below="@id/max_height_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -142,7 +184,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_below="@id/max_speed_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 	<RelativeLayout
@@ -163,7 +205,7 @@
 			android:layout_alignParentRight="true"
 			android:layout_below="@id/max_accel_label"
 			android:text=""
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceSmall" />
 	</RelativeLayout>
 
 </LinearLayout>

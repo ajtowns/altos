@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.location.Location;
 
 public class TabPad extends Fragment implements AltosDroidTab {
 	AltosDroid mAltosDroid;
@@ -100,40 +101,49 @@ public class TabPad extends Fragment implements AltosDroidTab {
 		mAltosDroid = null;
 	}
 
-	public void update_ui(AltosState state) {
-		mBatteryVoltageView.setText(String.format("%4.2f V", state.battery));
-		mBatteryLights.set(state.battery > 3.7);
+	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
+		if (state != null) {
+			mBatteryVoltageView.setText(AltosDroid.number("%4.2f V", state.battery));
+			mBatteryLights.set(state.battery > 3.7, state.battery == AltosRecord.MISSING);
 
-		mApogeeVoltageView.setText(String.format("%4.2f V", state.drogue_sense));
-		mApogeeLights.set(state.drogue_sense > 3.2);
+			mApogeeVoltageView.setText(AltosDroid.number("%4.2f V", state.drogue_sense));
+			mApogeeLights.set(state.drogue_sense > 3.2, state.drogue_sense == AltosRecord.MISSING);
 
-		mMainVoltageView.setText(String.format("%4.2f V", state.main_sense));
-		mMainLights.set(state.main_sense > 3.2);
+			mMainVoltageView.setText(AltosDroid.number("%4.2f V", state.main_sense));
+			mMainLights.set(state.main_sense > 3.2, state.main_sense == AltosRecord.MISSING);
 
-		if (state.data.flight != 0) {
-			if (state.data.state <= AltosLib.ao_flight_pad)
-				mDataLoggingView.setText("Ready to record");
-			else if (state.data.state < AltosLib.ao_flight_landed)
-				mDataLoggingView.setText("Recording data");
-			else
-				mDataLoggingView.setText("Recorded data");
-		} else {
-			mDataLoggingView.setText("Storage full");
+			if (state.data.flight != 0) {
+				if (state.data.state <= AltosLib.ao_flight_pad)
+					mDataLoggingView.setText("Ready to record");
+				else if (state.data.state < AltosLib.ao_flight_landed)
+					mDataLoggingView.setText("Recording data");
+				else
+					mDataLoggingView.setText("Recorded data");
+			} else {
+				mDataLoggingView.setText("Storage full");
+			}
+			mDataLoggingLights.set(state.data.flight != 0, state.data.flight == AltosRecord.MISSING);
+
+			if (state.gps != null) {
+				mGPSLockedView.setText(AltosDroid.integer("%4d sats", state.gps.nsat));
+				mGPSLockedLights.set(state.gps.locked && state.gps.nsat >= 4, false);
+				if (state.gps_ready)
+					mGPSReadyView.setText("Ready");
+				else
+					mGPSReadyView.setText(AltosDroid.integer("Waiting %d", state.gps_waiting));
+			} else
+				mGPSLockedLights.set(false, true);
+			mGPSReadyLights.set(state.gps_ready, state.gps == null);
 		}
-		mDataLoggingLights.set(state.data.flight != 0);
 
-		mGPSLockedView.setText(String.format("%4d sats", state.gps.nsat));
-		mGPSLockedLights.set(state.gps.locked && state.gps.nsat >= 4);
-
-		if (state.gps_ready)
-			mGPSReadyView.setText("Ready");
-		else
-			mGPSReadyView.setText(String.format("Waiting %d", state.gps_waiting));
-		mGPSReadyLights.set(state.gps_ready);
-
-		mPadLatitudeView.setText(AltosDroid.pos(state.pad_lat, "N", "S"));
-		mPadLongitudeView.setText(AltosDroid.pos(state.pad_lon, "W", "E"));
-		mPadAltitudeView.setText(String.format("%4.0f m", state.pad_alt));
+		if (receiver != null) {
+			double altitude = 0;
+			if (receiver.hasAltitude())
+				altitude = receiver.getAltitude();
+			mPadLatitudeView.setText(AltosDroid.pos(receiver.getLatitude(), "N", "S"));
+			mPadLongitudeView.setText(AltosDroid.pos(receiver.getLongitude(), "W", "E"));
+			mPadAltitudeView.setText(AltosDroid.number("%4.0f m", altitude));
+		}
 	}
 
 }

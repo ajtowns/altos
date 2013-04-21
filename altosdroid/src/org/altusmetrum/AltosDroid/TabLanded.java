@@ -17,7 +17,7 @@
 
 package org.altusmetrum.AltosDroid;
 
-import org.altusmetrum.altoslib_1.AltosState;
+import org.altusmetrum.altoslib_1.*;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -26,14 +26,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.location.Location;
 
 public class TabLanded extends Fragment implements AltosDroidTab {
 	AltosDroid mAltosDroid;
 
 	private TextView mBearingView;
 	private TextView mDistanceView;
-	private TextView mLatitudeView;
-	private TextView mLongitudeView;
+	private TextView mTargetLatitudeView;
+	private TextView mTargetLongitudeView;
+	private TextView mReceiverLatitudeView;
+	private TextView mReceiverLongitudeView;
 	private TextView mMaxHeightView;
 	private TextView mMaxSpeedView;
 	private TextView mMaxAccelView;
@@ -52,8 +55,10 @@ public class TabLanded extends Fragment implements AltosDroidTab {
 
 		mBearingView   = (TextView) v.findViewById(R.id.bearing_value);
 		mDistanceView  = (TextView) v.findViewById(R.id.distance_value);
-		mLatitudeView  = (TextView) v.findViewById(R.id.lat_value);
-		mLongitudeView = (TextView) v.findViewById(R.id.lon_value);
+		mTargetLatitudeView  = (TextView) v.findViewById(R.id.target_lat_value);
+		mTargetLongitudeView = (TextView) v.findViewById(R.id.target_lon_value);
+		mReceiverLatitudeView  = (TextView) v.findViewById(R.id.receiver_lat_value);
+		mReceiverLongitudeView = (TextView) v.findViewById(R.id.receiver_lon_value);
 		mMaxHeightView = (TextView) v.findViewById(R.id.max_height_value);
 		mMaxSpeedView  = (TextView) v.findViewById(R.id.max_speed_value);
 		mMaxAccelView  = (TextView) v.findViewById(R.id.max_accel_value);
@@ -68,16 +73,26 @@ public class TabLanded extends Fragment implements AltosDroidTab {
 		mAltosDroid = null;
 	}
 
-	public void update_ui(AltosState state) {
-		if (state.from_pad != null) {
-			mBearingView.setText(String.format("%3.0f°", state.from_pad.bearing));
-			mDistanceView.setText(String.format("%6.0f m", state.from_pad.distance));
+	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
+		if (from_receiver != null) {
+			mBearingView.setText(String.format("%3.0f°", from_receiver.bearing));
+			mDistanceView.setText(String.format("%6.0f m", from_receiver.distance));
 		}
-		mLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
-		mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
-		mMaxHeightView.setText(String.format("%6.0f m", state.max_height));
-		mMaxAccelView.setText(String.format("%6.0f m/s²", state.max_acceleration));
-		mMaxSpeedView.setText(String.format("%6.0f m/s", state.max_speed()));
+		if (state != null && state.gps != null) {
+			mTargetLatitudeView.setText(AltosDroid.pos(state.gps.lat, "N", "S"));
+			mTargetLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
+		}
+
+		if (receiver != null) {
+			mReceiverLatitudeView.setText(AltosDroid.pos(receiver.getLatitude(), "N", "S"));
+			mReceiverLongitudeView.setText(AltosDroid.pos(receiver.getLongitude(), "W", "E"));
+		}
+	       
+		if (state != null) {
+			mMaxHeightView.setText(String.format("%6.0f m", state.max_height));
+			mMaxAccelView.setText(String.format("%6.0f m/s²", state.max_acceleration));
+			mMaxSpeedView.setText(String.format("%6.0f m/s", state.max_speed()));
+		}
 	}
 
 }

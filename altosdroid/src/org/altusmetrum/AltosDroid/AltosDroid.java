@@ -37,7 +37,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewPager;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,6 +47,7 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.app.AlertDialog;
+import android.location.Location;
 
 import org.altusmetrum.altoslib_1.*;
 
@@ -59,6 +60,8 @@ public class AltosDroid extends FragmentActivity {
 	public static final int MSG_STATE_CHANGE    = 1;
 	public static final int MSG_TELEMETRY       = 2;
 	public static final int MSG_UPDATE_AGE      = 3;
+	public static final int MSG_LOCATION	    = 4;
+	public static final int MSG_CRC_ERROR	    = 5;
 
 	// Intent request codes
 	private static final int REQUEST_CONNECT_DEVICE = 1;
@@ -79,14 +82,16 @@ public class AltosDroid extends FragmentActivity {
 	private TextView mVersion;
 
 	// Tabs
-	TabHost     mTabHost;
-	AltosViewPager   mViewPager;
-	TabsAdapter mTabsAdapter;
+	TabHost         mTabHost;
+	AltosViewPager  mViewPager;
+	TabsAdapter     mTabsAdapter;
 	ArrayList<AltosDroidTab> mTabs = new ArrayList<AltosDroidTab>();
+	int             tabHeight;
 
 	// Timer and Saved flight state for Age calculation
 	private Timer timer = new Timer();
 	AltosState saved_state;
+	Location saved_location;
 
 	// Service
 	private boolean mIsBound   = false;
@@ -122,7 +127,6 @@ public class AltosDroid extends FragmentActivity {
 					ad.mTitle.setText(R.string.title_connected_to);
 					ad.mTitle.append(str);
 					Toast.makeText(ad.getApplicationContext(), "Connected to " + str, Toast.LENGTH_SHORT).show();
-					ad.mAltosVoice.speak("Connected");
 					break;
 				case TelemetryService.STATE_CONNECTING:
 					ad.mTitle.setText(R.string.title_connecting);
@@ -137,6 +141,10 @@ public class AltosDroid extends FragmentActivity {
 			case MSG_TELEMETRY:
 				ad.update_ui((AltosState) msg.obj);
 				break;
+			case MSG_LOCATION:
+				ad.set_location((Location) msg.obj);
+				break;
+			case MSG_CRC_ERROR:
 			case MSG_UPDATE_AGE:
 				if (ad.saved_state != null) {
 					ad.mAgeView.setText(String.format("%d", (System.currentTimeMillis() - ad.saved_state.report_time + 500) / 1000));
@@ -196,8 +204,13 @@ public class AltosDroid extends FragmentActivity {
 		mTabs.remove(mTab);
 	}
 
+	void set_location(Location location) {
+		saved_location = location;
+		update_ui(saved_state);
+	}
+
 	void update_ui(AltosState state) {
-		if (saved_state != null) {
+		if (state != null && saved_state != null) {
 			if (saved_state.state != state.state) {
 				String currentTab = mTabHost.getCurrentTabTag();
 				switch (state.state) {
@@ -215,16 +228,33 @@ public class AltosDroid extends FragmentActivity {
 		}
 		saved_state = state;
 
-		mCallsignView.setText(state.data.callsign);
-		mSerialView.setText(String.format("%d", state.data.serial));
-		mFlightView.setText(String.format("%d", state.data.flight));
-		mStateView.setText(state.data.state());
-		mRSSIView.setText(String.format("%d", state.data.rssi));
+		AltosGreatCircle from_receiver = null;
+
+		if (state != null && saved_location != null && state.gps != null && state.gps.locked) {
+			double altitude = 0;
+			if (saved_location.hasAltitude())
+				altitude = saved_location.getAltitude();
+			from_receiver = new AltosGreatCircle(saved_location.getLatitude(),
+							     saved_location.getLongitude(),
+							     altitude,
+							     state.gps.lat,
+							     state.gps.lon,
+							     state.gps.alt);
+		}
+
+		if (state != null) {
+			mCallsignView.setText(state.data.callsign);
+			mSerialView.setText(String.format("%d", state.data.serial));
+			mFlightView.setText(String.format("%d", state.data.flight));
+			mStateView.setText(state.data.state());
+			mRSSIView.setText(String.format("%d", state.data.rssi));
+		}
 
 		for (AltosDroidTab mTab : mTabs)
-			mTab.update_ui(state);
+			mTab.update_ui(state, from_receiver, saved_location);
 
-		mAltosVoice.tell(state);
+		if (state != null)
+			mAltosVoice.tell(state);
 	}
 
 	private void onTimerTick() {
@@ -236,13 +266,27 @@ public class AltosDroid extends FragmentActivity {
 
 	static String pos(double p, String pos, String neg) {
 		String	h = pos;
+		if (p == AltosRecord.MISSING)
+			return "";
 		if (p < 0) {
 			h = neg;
 			p = -p;
 		}
 		int deg = (int) Math.floor(p);
 		double min = (p - Math.floor(p)) * 60.0;
-		return String.format("%d° %9.6f\" %s", deg, min, h);
+		return String.format("%d°%9.4f\" %s", deg, min, h);
+	}
+
+	static String number(String format, double value) {
+		if (value == AltosRecord.MISSING)
+			return "";
+		return String.format(format, value);
+	}
+
+	static String integer(String format, int value) {
+		if (value == AltosRecord.MISSING)
+			return "";
+		return String.format(format, value);
 	}
 
 	@Override
@@ -269,6 +313,7 @@ public class AltosDroid extends FragmentActivity {
 		setContentView(R.layout.altosdroid);
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_title);
 
+		// Create the Tabs and ViewPager
 		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
 		mTabHost.setup();
 
@@ -282,6 +327,27 @@ public class AltosDroid extends FragmentActivity {
 		mTabsAdapter.addTab(mTabHost.newTabSpec("descent").setIndicator("Descent"), TabDescent.class, null);
 		mTabsAdapter.addTab(mTabHost.newTabSpec("landed").setIndicator("Landed"), TabLanded.class, null);
 		mTabsAdapter.addTab(mTabHost.newTabSpec("map").setIndicator("Map"), TabMap.class, null);
+
+
+		// Scale the size of the Tab bar for different screen densities
+		// This probably won't be needed when we start supporting ICS+ tabs.
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		int density = metrics.densityDpi;
+
+		if (density==DisplayMetrics.DENSITY_XHIGH)
+			tabHeight = 65;
+		else if (density==DisplayMetrics.DENSITY_HIGH)
+			tabHeight = 45;
+		else if (density==DisplayMetrics.DENSITY_MEDIUM)
+			tabHeight = 35;
+		else if (density==DisplayMetrics.DENSITY_LOW)
+			tabHeight = 25;
+		else
+			tabHeight = 65;
+
+		for (int i = 0; i < 5; i++)
+			mTabHost.getTabWidget().getChildAt(i).getLayoutParams().height = tabHeight;
 
 
 		// Set up the custom title
@@ -348,7 +414,7 @@ public class AltosDroid extends FragmentActivity {
 		super.onDestroy();
 		if(D) Log.e(TAG, "--- ON DESTROY ---");
 
-		mAltosVoice.stop();
+		if (mAltosVoice != null) mAltosVoice.stop();
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
