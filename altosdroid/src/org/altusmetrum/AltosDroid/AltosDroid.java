@@ -37,6 +37,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.FragmentActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -85,6 +86,7 @@ public class AltosDroid extends FragmentActivity {
 	AltosViewPager  mViewPager;
 	TabsAdapter     mTabsAdapter;
 	ArrayList<AltosDroidTab> mTabs = new ArrayList<AltosDroidTab>();
+	int             tabHeight;
 
 	// Timer and Saved flight state for Age calculation
 	private Timer timer = new Timer();
@@ -311,6 +313,7 @@ public class AltosDroid extends FragmentActivity {
 		setContentView(R.layout.altosdroid);
 		getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.custom_title);
 
+		// Create the Tabs and ViewPager
 		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
 		mTabHost.setup();
 
@@ -325,8 +328,27 @@ public class AltosDroid extends FragmentActivity {
 		mTabsAdapter.addTab(mTabHost.newTabSpec("landed").setIndicator("Landed"), TabLanded.class, null);
 		mTabsAdapter.addTab(mTabHost.newTabSpec("map").setIndicator("Map"), TabMap.class, null);
 
+
+		// Scale the size of the Tab bar for different screen densities
+		// This probably won't be needed when we start supporting ICS+ tabs.
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		int density = metrics.densityDpi;
+
+		if (density==DisplayMetrics.DENSITY_XHIGH)
+			tabHeight = 65;
+		else if (density==DisplayMetrics.DENSITY_HIGH)
+			tabHeight = 45;
+		else if (density==DisplayMetrics.DENSITY_MEDIUM)
+			tabHeight = 35;
+		else if (density==DisplayMetrics.DENSITY_LOW)
+			tabHeight = 25;
+		else
+			tabHeight = 65;
+
 		for (int i = 0; i < 5; i++)
-			mTabHost.getTabWidget().getChildAt(i).getLayoutParams().height = 45;
+			mTabHost.getTabWidget().getChildAt(i).getLayoutParams().height = tabHeight;
+
 
 		// Set up the custom title
 		mTitle = (TextView) findViewById(R.id.title_left_text);
