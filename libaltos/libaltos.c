@@ -736,30 +736,35 @@ struct altos_file *
 altos_bt_open(struct altos_bt_device *device)
 {
 	struct sockaddr_rc addr = { 0 };
-	int	s, status;
+	int	status, i;
 	struct altos_file *file;
 
 	file = calloc(1, sizeof (struct altos_file));
 	if (!file)
 		goto no_file;
-	file->fd = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
-	if (file->fd < 0) {
-		altos_set_last_posix_error();
-		goto no_sock;
-	}
-
 	addr.rc_family = AF_BLUETOOTH;
 	addr.rc_channel = 1;
 	str2ba(device->addr, &addr.rc_bdaddr);
 
-	status = connect(file->fd,
-			 (struct sockaddr *)&addr,
-			 sizeof(addr));
+	for (i = 0; i < 5; i++) {
+		file->fd = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+		if (file->fd < 0) {
+			altos_set_last_posix_error();
+			goto no_sock;
+		}
+
+		status = connect(file->fd,
+				 (struct sockaddr *)&addr,
+				 sizeof(addr));
+		if (status >= 0 || errno != EBUSY)
+			break;
+		close(file->fd);
+		usleep(100 * 1000);
+	}
 	if (status < 0) {
 		altos_set_last_posix_error();
 		goto no_link;
 	}
-	sleep(1);
 
 #ifdef USE_POLL
 	pipe(file->pipe);
@@ -768,7 +773,7 @@ altos_bt_open(struct altos_bt_device *device)
 #endif
 	return file;
 no_link:
-	close(s);
+	close(file->fd);
 no_sock:
 	free(file);
 no_file:
