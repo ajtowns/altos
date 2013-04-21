@@ -109,9 +109,10 @@ public class DeviceListActivity extends Activity {
 		// If there are paired devices, add each one to the ArrayAdapter
 		if (pairedDevices.size() > 0) {
 			findViewById(R.id.title_paired_devices).setVisibility(View.VISIBLE);
-			for (BluetoothDevice device : pairedDevices) {
-				mPairedDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
-			}
+			for (BluetoothDevice device : pairedDevices)
+				if (device.getName().startsWith("TeleBT"))
+					mPairedDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+
 		} else {
 			String noDevices = getResources().getText(R.string.none_paired).toString();
 			mPairedDevicesArrayAdapter.add(noDevices);
@@ -185,7 +186,8 @@ public class DeviceListActivity extends Activity {
 				// Get the BluetoothDevice object from the Intent
 				BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 				// If it's already paired, skip it, because it's been listed already
-				if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
+				if (   device.getBondState() != BluetoothDevice.BOND_BONDED
+				    && device.getName().startsWith("TeleBT")               ) {
 					mNewDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
 				}
 			// When discovery is finished, change the Activity title
