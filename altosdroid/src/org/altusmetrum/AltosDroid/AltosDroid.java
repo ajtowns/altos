@@ -37,7 +37,6 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -82,9 +81,9 @@ public class AltosDroid extends FragmentActivity {
 	private TextView mVersion;
 
 	// Tabs
-	TabHost     mTabHost;
-	AltosViewPager   mViewPager;
-	TabsAdapter mTabsAdapter;
+	TabHost         mTabHost;
+	AltosViewPager  mViewPager;
+	TabsAdapter     mTabsAdapter;
 	ArrayList<AltosDroidTab> mTabs = new ArrayList<AltosDroidTab>();
 
 	// Timer and Saved flight state for Age calculation
