@@ -1,0 +1,57 @@
+ST discovery card pins
+
+1	AIN-1
+2	JTCK
+3	GND
+4	JTMS
+5	NRST
+6	SWO
+
+MegaMetrum v0.1 misc connector
+
+1	GND
+2	reset_n
+3	boot0
+4	tx1
+5	rx1
+6	+3.3V
+7	GND
+8	jtms
+9	jtck
+10	jtdi
+11	jtdo
+12	jntrst
+13	sda2
+14	scl2
+15	pe1
+16	pe0
+
+For debugging:
+
+	ST	MM v0.1
+JTCK	2	9
+GND	3	7
+JTMS	4	8
+NRST	5	2
+
+Altus Metrum STM32L standard debug connector (4 pin MicoMaTch):
+
+	TL	ST
+GND	1	3
+NRST	2	5
+SWDIO	3	4
+SWCLK	4	2
+
+Altus Metrum standard 4-pin connector to MegaMetrum v0.1 misc connector:
+
+	AMstd	MM v0.1
+gnd	1	1
+nrst	2	2
+swdio	3	8
+swclk	4	9
+
+MegaAccel:
+
+Jumpers
+PC0 (pin15) (blue)	PE0 (pin97)	accel_ref	(debug 16)
+PC1 (pin16) (green)	PE1 (pin98)	accel		(debug 15)
