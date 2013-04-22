@@ -8,8 +8,8 @@ endif
 CC=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
 
-PDCLIB=/home/keithp/sat
-C_LIB=$(PDCLIB)/lib/pdclib.a
+PDCLIB=/opt/cortex
+C_LIB=$(PDCLIB)/lib/pdclib-cortex-m3.a
 C_INC=-I$(PDCLIB)/include
 
 DEF_CFLAGS=-g -std=gnu99 -Os -mlittle-endian -mthumb -ffreestanding -nostdlib -I. -I../../src/stm $(C_INC)
