@@ -810,6 +810,24 @@ extern struct lpc_usart lpc_usart;
 
 #define LPC_USART_HDEN_HDEN	0
 
+struct lpc_usb {
+	vuint32_t	devcmdstat;
+	vuint32_t	info;
+	vuint32_t	epliststart;
+	vuint32_t	databufstart;
+	vuint32_t	lpm;
+	vuint32_t	epskip;
+	vuint32_t	epinuse;
+	vuint32_t	epbufcfg;
+	vuint32_t	intstat;
+	vuint32_t	inten;
+	vuint32_t	intsetstat;
+	vuint32_t	introuting;
+	vuint32_t	eptoggle;
+} lpc_usb;
+
+extern struct lpc_usb lpc_usb;
+
 #define LPC_ISR_PIN_INT0_POS	0
 #define LPC_ISR_PIN_INT1_POS	1
 #define LPC_ISR_PIN_INT2_POS	2
