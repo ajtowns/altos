@@ -29,7 +29,7 @@ static __pdata uint16_t ao_aprs_time;
 #include <ao_aprs.h>
 #endif
 
-#if defined(MEGAMETRUM)
+#if defined(TELEMEGA)
 #define AO_SEND_MEGA	1
 #endif
 

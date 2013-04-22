@@ -50,7 +50,7 @@
 	    STM32L series from ST Microelectronics. This ARM Cortex-M3
 	    based microcontroller offers low power consumption and a
 	    wide variety of built-in peripherals. Altus Metrum uses
-	    this in the MegaMetrum, MegaDongle and TeleLCO projects.
+	    this in the TeleMega, MegaDongle and TeleLCO projects.
 	  </para>
 	</listitem>
 	<listitem>

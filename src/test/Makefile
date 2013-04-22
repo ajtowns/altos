@@ -30,7 +30,7 @@ ao_flight_test_accel: ao_flight_test.c ao_host.h ao_flight.c  ao_sample.c ao_kal
 	cc $(CFLAGS) -o $@ -DFORCE_ACCEL=1 ao_flight_test.c
 
 ao_flight_test_mm: ao_flight_test.c ao_host.h ao_flight.c ao_sample.c ao_kalman.c $(INCS)
-	cc -DMEGAMETRUM=1 $(CFLAGS) -o $@ $< -lm
+	cc -DTELEMEGA=1 $(CFLAGS) -o $@ $< -lm
 
 ao_gps_test: ao_gps_test.c ao_gps_sirf.c ao_gps_print.c ao_host.h
 	cc $(CFLAGS) -o $@ $<

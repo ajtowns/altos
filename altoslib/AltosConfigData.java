@@ -504,7 +504,7 @@ public class AltosConfigData implements Iterable<String> {
 		switch (log_format) {
 		case AltosLib.AO_LOG_FORMAT_FULL:
 		case AltosLib.AO_LOG_FORMAT_TINY:
-		case AltosLib.AO_LOG_FORMAT_MEGAMETRUM:
+		case AltosLib.AO_LOG_FORMAT_TELEMEGA:
 			link.printf("l\n");
 			read_link(link, "done");
 		default:

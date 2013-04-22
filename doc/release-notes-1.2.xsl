@@ -41,7 +41,7 @@
 	raised, breaking the Descent tab contents.
       </listitem>
       <listitem>
-	Add preliminary MegaMetrum support, including configuration,
+	Add preliminary TeleMega support, including configuration,
 	data download and analysis.
       </listitem>
       <listitem>

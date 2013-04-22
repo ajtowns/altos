@@ -18,7 +18,7 @@
 #include <ao_fec.h>
 #include <stdio.h>
 
-#ifdef MEGAMETRUM
+#ifdef TELEMEGA
 #include <ao.h>
 #endif
 

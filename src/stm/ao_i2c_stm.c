@@ -36,7 +36,7 @@ static uint16_t	ao_i2c_addr[STM_NUM_I2C];
 uint8_t 	ao_i2c_mutex[STM_NUM_I2C];
 
 # define I2C_HIGH_SLOW	5000	/* ns, 100kHz clock */
-#ifdef MEGAMETRUM
+#ifdef TELEMEGA
 # define I2C_HIGH_FAST	2000	/* ns, 167kHz clock */
 #else
 # define I2C_HIGH_FAST	1000	/* ns, 333kHz clock */

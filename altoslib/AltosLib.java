@@ -50,7 +50,7 @@ public class AltosLib {
 	public static final int AO_LOG_SERIAL_NUMBER = 2002;
 	public static final int AO_LOG_LOG_FORMAT = 2003;
 
-	/* Added for header fields in megametrum files */
+	/* Added for header fields in telemega files */
 	public static final int AO_LOG_BARO_RESERVED = 3000;
 	public static final int AO_LOG_BARO_SENS = 3001;
 	public static final int AO_LOG_BARO_OFF = 3002;
@@ -89,7 +89,7 @@ public class AltosLib {
 	public final static int product_telelco = 0x0010;
 	public final static int product_telescience = 0x0011;
 	public final static int product_telepyro =0x0012;
-	public final static int product_megametrum = 0x0023;
+	public final static int product_telemega = 0x0023;
 	public final static int product_megadongle = 0x0024;
 	public final static int product_telegps = 0x0025;
 	public final static int product_altusmetrum_min = 0x000a;
@@ -215,7 +215,7 @@ public class AltosLib {
 	public static final int AO_LOG_FORMAT_TINY = 2;
 	public static final int AO_LOG_FORMAT_TELEMETRY = 3;
 	public static final int AO_LOG_FORMAT_TELESCIENCE = 4;
-	public static final int AO_LOG_FORMAT_MEGAMETRUM = 5;
+	public static final int AO_LOG_FORMAT_TELEMEGA = 5;
 	public static final int AO_LOG_FORMAT_NONE = 127;
 
 	public static boolean isspace(int c) {

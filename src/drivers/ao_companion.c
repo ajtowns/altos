@@ -18,7 +18,7 @@
 #include <ao.h>
 #include <ao_companion.h>
 
-#ifdef MEGAMETRUM
+#ifdef TELEMEGA
 #define ao_spi_slow(b)
 #define ao_spi_fast(b)
 #endif

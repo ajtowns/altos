@@ -75,7 +75,7 @@ public class AltosDataChooser extends JFileChooser {
 							  "eeprom"));
 		setFileFilter(new FileNameExtensionFilter("Telemetry file",
 							  "telem"));
-		setFileFilter(new FileNameExtensionFilter("MegaMetrum eeprom file",
+		setFileFilter(new FileNameExtensionFilter("TeleMega eeprom file",
 							  "mega"));
 		setFileFilter(new FileNameExtensionFilter("Flight data file",
 							  "telem", "eeprom", "mega"));

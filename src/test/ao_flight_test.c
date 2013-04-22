@@ -35,7 +35,7 @@
 #define AO_MS_TO_SPEED(ms)	((int16_t) ((ms) * 16))
 #define AO_MSS_TO_ACCEL(mss)	((int16_t) ((mss) * 16))
 
-#if MEGAMETRUM
+#if TELEMEGA
 #define AO_ADC_NUM_SENSE	6
 #define HAS_MS5607		1
 #define HAS_MPU6000		1
@@ -195,7 +195,7 @@ struct ao_cmds {
 #define ao_xmemcmp(d,s,c) memcmp(d,s,c)
 
 #define AO_NEED_ALTITUDE_TO_PRES 1
-#if MEGAMETRUM
+#if TELEMEGA
 #include "ao_convert_pa.c"
 #include <ao_ms5607.h>
 struct ao_ms5607_prom	ms5607_prom;
@@ -333,7 +333,7 @@ ao_insert(void)
 #else
 		double	accel = 0.0;
 #endif
-#if MEGAMETRUM
+#if TELEMEGA
 		double	height;
 
 		ao_ms5607_convert(&ao_data_static.ms5607_raw, &ao_data_static.ms5607_cooked);
@@ -373,7 +373,7 @@ ao_insert(void)
 
 		if (!ao_summary) {
 			printf("%7.2f height %8.2f accel %8.3f "
-#if MEGAMETRUM
+#if TELEMEGA
 			       "roll %8.3f angle %8.3f qangle %8.3f "
 			       "accel_x %8.3f accel_y %8.3f accel_z %8.3f gyro_x %8.3f gyro_y %8.3f gyro_z %8.3f "
 #endif
@@ -381,7 +381,7 @@ ao_insert(void)
 			       time,
 			       height,
 			       accel,
-#if MEGAMETRUM
+#if TELEMEGA
 			       ao_mpu6000_gyro(ao_sample_roll_angle) / 100.0,
 			       ao_mpu6000_gyro(ao_sample_angle) / 100.0,
 			       ao_sample_qangle,
@@ -555,7 +555,7 @@ int32(uint8_t *bytes, int off)
 
 static int log_format;
 
-#if MEGAMETRUM
+#if TELEMEGA
 
 static double
 ao_vec_norm(double x, double y, double z)
@@ -774,7 +774,7 @@ ao_sleep(void *wchan)
 		for (;;) {
 			if (ao_records_read > 2 && ao_flight_state == ao_flight_startup)
 			{
-#if MEGAMETRUM
+#if TELEMEGA
 				ao_data_static.mpu6000 = ao_ground_mpu6000;
 #else
 				ao_data_static.adc.accel = ao_flight_ground_accel;
@@ -800,8 +800,8 @@ ao_sleep(void *wchan)
 				if (words[nword] == NULL)
 					break;
 			}
-#if MEGAMETRUM
-			if (log_format == AO_LOG_FORMAT_MEGAMETRUM && nword == 30 && strlen(words[0]) == 1) {
+#if TELEMEGA
+			if (log_format == AO_LOG_FORMAT_TELEMEGA && nword == 30 && strlen(words[0]) == 1) {
 				int	i;
 				struct ao_ms5607_value	value;
 
@@ -885,7 +885,7 @@ ao_sleep(void *wchan)
 				continue;
 			}
 #else
-			if (nword == 4 && log_format != AO_LOG_FORMAT_MEGAMETRUM) {
+			if (nword == 4 && log_format != AO_LOG_FORMAT_TELEMEGA) {
 				type = words[0][0];
 				tick = strtoul(words[1], NULL, 16);
 				a = strtoul(words[2], NULL, 16);
@@ -1002,7 +1002,7 @@ ao_sleep(void *wchan)
 			if (type != 'F' && !ao_flight_started)
 				continue;
 
-#if MEGAMETRUM
+#if TELEMEGA
 			(void) a;
 			(void) b;
 #else

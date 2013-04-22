@@ -366,7 +366,7 @@ public class AltosEepromDownload implements Runnable {
 				extension = "science";
 				CaptureTeleScience(eechunk);
 				break;
-			case AltosLib.AO_LOG_FORMAT_MEGAMETRUM:
+			case AltosLib.AO_LOG_FORMAT_TELEMEGA:
 				extension = "mega";
 				CaptureMega(eechunk);
 			}

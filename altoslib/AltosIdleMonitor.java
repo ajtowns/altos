@@ -52,11 +52,11 @@ public class AltosIdleMonitor extends Thread {
 	}
 
 	boolean has_sensor_mm(AltosConfigData config_data) {
-		return config_data.product.startsWith("MegaMetrum");
+		return config_data.product.startsWith("TeleMega");
 	}
 
 	boolean has_gps(AltosConfigData config_data) {
-		return config_data.product.startsWith("TeleMetrum") || config_data.product.startsWith("MegaMetrum");
+		return config_data.product.startsWith("TeleMetrum") || config_data.product.startsWith("TeleMega");
 	}
 
 	AltosRecord sensor_mm(AltosConfigData config_data) throws InterruptedException, TimeoutException {
