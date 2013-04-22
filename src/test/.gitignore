@@ -7,6 +7,7 @@ ao_gps_test
 ao_gps_test_skytraq
 ao_convert_test
 ao_convert_pa_test
+ao_fat_test
 ao_fec_test
 ao_flight_test_mm
 ao_flight_test_noisy_accel

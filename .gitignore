@@ -29,6 +29,7 @@ ao-tidongle.h
 ao-tools/ao-bitbang/ao-bitbang
 ao-tools/ao-dbg/ao-dbg
 ao-tools/ao-dumplog/ao-dumplog
+ao-tools/ao-dump-up/ao-dump-up
 ao-tools/ao-eeprom/ao-eeprom
 ao-tools/ao-edit-telem/ao-edit-telem
 ao-tools/ao-list/ao-list
