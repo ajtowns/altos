@@ -16,7 +16,7 @@
  */
 
 MEMORY {
-	rom (rx) : ORIGIN = 0x08002000, LENGTH = 120K
+	rom (rx) : ORIGIN = 0x08001000, LENGTH = 124K
 	ram (!w) : ORIGIN = 0x20000000, LENGTH = 16K
 }
 
