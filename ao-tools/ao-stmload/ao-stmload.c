@@ -403,7 +403,7 @@ main (int argc, char **argv)
 			if (is_loader)
 				break;
 			printf ("rebooting to loader\n");
-			cc_usb_printf(cc, "L\n");
+			cc_usb_printf(cc, "X\n");
 			cc_usb_close(cc);
 			sleep(1);
 			cc = NULL;
