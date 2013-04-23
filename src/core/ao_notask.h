@@ -15,31 +15,13 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include <ao.h>
-
-static volatile void *ao_wchan;
+#ifndef _AO_NOTASK_H_
+#define _AO_NOTASK_H_
 
 uint8_t
-ao_sleep(__xdata void *wchan)
-{
-#if 1
-	ao_wchan = wchan;
-	ao_arch_cpu_idle();
-#else
-	uint8_t	sreg;
-
-	ao_wchan = wchan;
-	asm("in %0,__SREG__" : "=&r" (sreg));
-	sei();
-	while (ao_wchan)
-		ao_arch_cpu_idle();
-	asm("out __SREG__,%0" : : "r" (sreg));
-#endif
-	return 0;
-}
+ao_sleep(__xdata void *wchan);
 
 void
-ao_wakeup(__xdata void *wchan)
-{
-	ao_wchan = 0;
-}
+ao_wakeup(__xdata void *wchan);
+
+#endif /* _AO_NOTASK_H_ */

@@ -55,7 +55,7 @@
 #define putchar(c)	ao_putchar(c)
 #define getchar		ao_getchar
 
-#define ao_arch_cpu_idle() do {			\
+#define ao_arch_wait_interrupt() do {		\
 		sleep_enable();			\
 		sei();				\
 		sleep_cpu();			\

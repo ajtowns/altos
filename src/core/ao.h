@@ -45,6 +45,8 @@
 
 #if HAS_TASK
 #include <ao_task.h>
+#else
+#include <ao_notask.h>
 #endif
 
 /*
