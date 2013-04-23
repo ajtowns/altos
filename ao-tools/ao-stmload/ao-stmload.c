@@ -36,19 +36,19 @@
 
 struct sym ao_symbols[] = {
 
-	{ 0, 0x08002100,	"ao_romconfig_version",	1 },
+	{ 0, AO_BOOT_APPLICATION_BASE + 0x100,	"ao_romconfig_version",	1 },
 #define AO_ROMCONFIG_VERSION	(ao_symbols[0].addr)
 
-	{ 0, 0x08002102,	"ao_romconfig_check",	1 },
+	{ 0, AO_BOOT_APPLICATION_BASE + 0x102,	"ao_romconfig_check",	1 },
 #define AO_ROMCONFIG_CHECK	(ao_symbols[1].addr)
 
-	{ 0, 0x08002104,	"ao_serial_number", 1 },
+	{ 0, AO_BOOT_APPLICATION_BASE + 0x104,	"ao_serial_number", 1 },
 #define AO_SERIAL_NUMBER	(ao_symbols[2].addr)
 
-	{ 0, 0x08002108,	"ao_radio_cal", 0 },
+	{ 0, AO_BOOT_APPLICATION_BASE + 0x108,	"ao_radio_cal", 0 },
 #define AO_RADIO_CAL		(ao_symbols[3].addr)
 
-	{ 0, 0x0800210c,	"ao_usb_descriptors", 0 },
+	{ 0, AO_BOOT_APPLICATION_BASE + 0x10c,	"ao_usb_descriptors", 0 },
 #define AO_USB_DESCRIPTORS	(ao_symbols[4].addr)
 };
 
@@ -416,7 +416,7 @@ main (int argc, char **argv)
 			uint8_t	check[256];
 			int	i = 0;
 
-			ao_self_block_read(cc, 0x08002000, check);
+			ao_self_block_read(cc, AO_BOOT_APPLICATION_BASE, check);
 			for (;;) {
 				uint8_t block[256];
 				putchar ('.');
@@ -425,8 +425,8 @@ main (int argc, char **argv)
 					i = 0;
 				}
 				fflush(stdout);
-				ao_self_block_write(cc, 0x08002000, block);
-				ao_self_block_read(cc, 0x08002000, block);
+				ao_self_block_write(cc, AO_BOOT_APPLICATION_BASE, block);
+				ao_self_block_read(cc, AO_BOOT_APPLICATION_BASE, block);
 				if (memcmp(block, check, 256) != 0) {
 					fprintf (stderr, "read differed\n");
 					exit(1);

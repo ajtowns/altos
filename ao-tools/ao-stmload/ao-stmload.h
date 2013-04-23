@@ -25,6 +25,8 @@ struct sym {
 	int		required;
 };
 
+#define AO_BOOT_APPLICATION_BASE	0x08001000
+
 extern struct sym ao_symbols[];
 
 extern int ao_num_symbols;
