@@ -35,8 +35,6 @@
 #define debug_data(format, args...)
 #endif
 
-struct ao_task ao_usb_task;
-
 struct ao_usb_setup {
 	uint8_t		dir_type_recip;
 	uint8_t		request;
@@ -398,81 +396,6 @@ static uint16_t	in_count;
 static uint16_t	out_count;
 static uint16_t	reset_count;
 
-void
-stm_usb_lp_isr(void)
-{
-	uint32_t	istr = stm_usb.istr;
-
-	if (istr & (1 << STM_USB_ISTR_CTR)) {
-		uint8_t		ep = istr & STM_USB_ISTR_EP_ID_MASK;
-		uint32_t	epr, epr_write;
-
-		/* Preserve the SW write bits, don't mess with most HW writable bits,
-		 * clear the CTR_RX and CTR_TX bits
-		 */
-		epr = stm_usb.epr[ep];
-		epr_write = epr;
-		epr_write &= STM_USB_EPR_PRESERVE_MASK;
-		epr_write |= STM_USB_EPR_INVARIANT;
-		epr_write &= ~(1 << STM_USB_EPR_CTR_RX);
-		epr_write &= ~(1 << STM_USB_EPR_CTR_TX);
-		stm_usb.epr[ep] = epr_write;
-
-		switch (ep) {
-		case 0:
-			++control_count;
-			if (ao_usb_epr_ctr_rx(epr)) {
-				if (ao_usb_epr_setup(epr))
-					ao_usb_ep0_receive |= AO_USB_EP0_GOT_SETUP;
-				else
-					ao_usb_ep0_receive |= AO_USB_EP0_GOT_RX_DATA;
-			}
-			if (ao_usb_epr_ctr_tx(epr))
-				ao_usb_ep0_receive |= AO_USB_EP0_GOT_TX_ACK;
-			ao_wakeup(&ao_usb_ep0_receive);
-			break;
-		case AO_USB_OUT_EPR:
-			++out_count;
-			if (ao_usb_epr_ctr_rx(epr)) {
-				_rx_dbg1("RX ISR", epr);
-				ao_usb_out_avail = 1;
-				_rx_dbg0("out avail set");
-				ao_wakeup(&ao_stdin_ready);
-				_rx_dbg0("stdin awoken");
-			}
-			break;
-		case AO_USB_IN_EPR:
-			++in_count;
-			_tx_dbg1("TX ISR", epr);
-			if (ao_usb_epr_ctr_tx(epr)) {
-				ao_usb_in_pending = 0;
-				ao_wakeup(&ao_usb_in_pending);
-			}
-			break;
-		case AO_USB_INT_EPR:
-			++int_count;
-			if (ao_usb_epr_ctr_tx(epr))
-				_ao_usb_set_stat_tx(AO_USB_INT_EPR, STM_USB_EPR_STAT_TX_NAK);
-			break;
-		}
-		return;
-	}
-
-	if (istr & (1 << STM_USB_ISTR_RESET)) {
-		++reset_count;
-		stm_usb.istr &= ~(1 << STM_USB_ISTR_RESET);
-		ao_usb_ep0_receive |= AO_USB_EP0_GOT_RESET;
-		ao_wakeup(&ao_usb_ep0_receive);
-	}
-}
-
-void
-stm_usb_fs_wkup(void)
-{
-	/* USB wakeup, just clear the bit for now */
-	stm_usb.istr &= ~(1 << STM_USB_ISTR_WKUP);
-}
-
 /* The USB memory holds 16 bit values on 32 bit boundaries
  * and must be accessed only in 32 bit units. Sigh.
  */
@@ -772,53 +695,115 @@ ao_usb_ep0_setup(void)
 		ao_usb_ep0_in_start(ao_usb_setup.length);
 }
 
-/* End point 0 receives all of the control messages. */
 static void
-ao_usb_ep0(void)
+ao_usb_ep0_handle(uint8_t receive)
 {
-	uint8_t	intx, udint;
-
-	debug ("usb task started\n");
-	ao_usb_ep0_state = AO_USB_EP0_IDLE;
-	for (;;) {
-		uint8_t	receive;
-		ao_arch_critical(
-			while (!(receive = ao_usb_ep0_receive))
-				ao_sleep(&ao_usb_ep0_receive);
-			ao_usb_ep0_receive = 0;
-			);
-
-		if (receive & AO_USB_EP0_GOT_RESET) {
-			debug ("\treset\n");
-			ao_usb_set_ep0();
-			continue;
-		}
-		if (receive & AO_USB_EP0_GOT_SETUP) {
-			debug ("\tsetup\n");
-			ao_usb_ep0_setup();
-		}
-		if (receive & AO_USB_EP0_GOT_RX_DATA) {
-			debug ("\tgot rx data\n");
-			if (ao_usb_ep0_state == AO_USB_EP0_DATA_OUT) {
-				ao_usb_ep0_fill();
-				if (ao_usb_ep0_out_len == 0) {
-					ao_usb_ep0_state = AO_USB_EP0_DATA_IN;
-					ao_usb_ep0_in_start(0);
-				}
+	ao_usb_ep0_receive = 0;
+	if (receive & AO_USB_EP0_GOT_RESET) {
+		debug ("\treset\n");
+		ao_usb_set_ep0();
+		return;
+	}
+	if (receive & AO_USB_EP0_GOT_SETUP) {
+		debug ("\tsetup\n");
+		ao_usb_ep0_setup();
+	}
+	if (receive & AO_USB_EP0_GOT_RX_DATA) {
+		debug ("\tgot rx data\n");
+		if (ao_usb_ep0_state == AO_USB_EP0_DATA_OUT) {
+			ao_usb_ep0_fill();
+			if (ao_usb_ep0_out_len == 0) {
+				ao_usb_ep0_state = AO_USB_EP0_DATA_IN;
+				ao_usb_ep0_in_start(0);
 			}
 		}
-		if (receive & AO_USB_EP0_GOT_TX_ACK) {
-			debug ("\tgot tx ack\n");
-
-			/* Wait until the IN packet is received from addr 0
-			 * before assigning our local address
-			 */
-			if (ao_usb_address_pending)
-				ao_usb_set_address(ao_usb_address);
-			if (ao_usb_ep0_state == AO_USB_EP0_DATA_IN)
-				ao_usb_ep0_flush();
-		}
 	}
+	if (receive & AO_USB_EP0_GOT_TX_ACK) {
+		debug ("\tgot tx ack\n");
+
+		/* Wait until the IN packet is received from addr 0
+		 * before assigning our local address
+		 */
+		if (ao_usb_address_pending)
+			ao_usb_set_address(ao_usb_address);
+		if (ao_usb_ep0_state == AO_USB_EP0_DATA_IN)
+			ao_usb_ep0_flush();
+	}
+}
+
+void
+stm_usb_lp_isr(void)
+{
+	uint32_t	istr = stm_usb.istr;
+
+	if (istr & (1 << STM_USB_ISTR_CTR)) {
+		uint8_t		ep = istr & STM_USB_ISTR_EP_ID_MASK;
+		uint32_t	epr, epr_write;
+
+		/* Preserve the SW write bits, don't mess with most HW writable bits,
+		 * clear the CTR_RX and CTR_TX bits
+		 */
+		epr = stm_usb.epr[ep];
+		epr_write = epr;
+		epr_write &= STM_USB_EPR_PRESERVE_MASK;
+		epr_write |= STM_USB_EPR_INVARIANT;
+		epr_write &= ~(1 << STM_USB_EPR_CTR_RX);
+		epr_write &= ~(1 << STM_USB_EPR_CTR_TX);
+		stm_usb.epr[ep] = epr_write;
+
+		switch (ep) {
+		case 0:
+			++control_count;
+			if (ao_usb_epr_ctr_rx(epr)) {
+				if (ao_usb_epr_setup(epr))
+					ao_usb_ep0_receive |= AO_USB_EP0_GOT_SETUP;
+				else
+					ao_usb_ep0_receive |= AO_USB_EP0_GOT_RX_DATA;
+			}
+			if (ao_usb_epr_ctr_tx(epr))
+				ao_usb_ep0_receive |= AO_USB_EP0_GOT_TX_ACK;
+			ao_usb_ep0_handle(ao_usb_ep0_receive);
+			break;
+		case AO_USB_OUT_EPR:
+			++out_count;
+			if (ao_usb_epr_ctr_rx(epr)) {
+				_rx_dbg1("RX ISR", epr);
+				ao_usb_out_avail = 1;
+				_rx_dbg0("out avail set");
+				ao_wakeup(&ao_stdin_ready);
+				_rx_dbg0("stdin awoken");
+			}
+			break;
+		case AO_USB_IN_EPR:
+			++in_count;
+			_tx_dbg1("TX ISR", epr);
+			if (ao_usb_epr_ctr_tx(epr)) {
+				ao_usb_in_pending = 0;
+				ao_wakeup(&ao_usb_in_pending);
+			}
+			break;
+		case AO_USB_INT_EPR:
+			++int_count;
+			if (ao_usb_epr_ctr_tx(epr))
+				_ao_usb_set_stat_tx(AO_USB_INT_EPR, STM_USB_EPR_STAT_TX_NAK);
+			break;
+		}
+		return;
+	}
+
+	if (istr & (1 << STM_USB_ISTR_RESET)) {
+		++reset_count;
+		stm_usb.istr &= ~(1 << STM_USB_ISTR_RESET);
+		ao_usb_ep0_receive |= AO_USB_EP0_GOT_RESET;
+		ao_usb_ep0_handle(ao_usb_ep0_receive);
+	}
+}
+
+void
+stm_usb_fs_wkup(void)
+{
+	/* USB wakeup, just clear the bit for now */
+	stm_usb.istr &= ~(1 << STM_USB_ISTR_WKUP);
 }
 
 /* Queue the current IN buffer for transmission */
@@ -1071,7 +1056,7 @@ ao_usb_init(void)
 	ao_usb_enable();
 
 	debug ("ao_usb_init\n");
-	ao_add_task(&ao_usb_task, ao_usb_ep0, "usb");
+	ao_usb_ep0_state = AO_USB_EP0_IDLE;
 #if USB_ECHO
 	ao_add_task(&ao_usb_echo_task, ao_usb_echo, "usb echo");
 #endif
