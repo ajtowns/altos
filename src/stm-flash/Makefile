@@ -20,14 +20,11 @@ ALTOS_SRC = \
 	ao_boot_chain.c \
 	ao_boot_pin.c \
 	ao_product.c \
-	ao_romconfig.c \
-	ao_task.c \
+	ao_notask.c \
 	ao_timer.c \
-	ao_mutex.c \
 	ao_usb_stm.c \
 	ao_stdio.c \
-	ao_flash_stm.c \
-	ao_cmd.c
+	ao_flash_stm.c
 
 PRODUCT=StmFlash-v0.0
 PRODUCT_DEF=-DSTM_FLASH

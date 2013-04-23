@@ -27,36 +27,49 @@ ao_panic(uint8_t reason)
 }
 
 void
+ao_put_string(__code char *s)
+{
+	char	c;
+	while ((c = *s++))
+		putchar(c);
+}
+
+void
 ao_application(void)
 {
 	ao_boot_reboot(AO_BOOT_APPLICATION_BASE);
 }
 
 static uint32_t
-ao_cmd_hex32(void)
+ao_get_hex32(void)
 {
-	__pdata uint8_t	r = ao_cmd_lex_error;
 	int8_t	n;
 	uint32_t v = 0;
 
-	ao_cmd_white();
+	for (;;) {
+		n = getchar();
+		if (n != ' ')
+			break;
+	}
 	for(;;) {
-		n = ao_cmd_hexchar(ao_cmd_lex_c);
-		if (n < 0)
+		if ('0' <= n && n <= '9')
+			n = n - '0';
+		else if ('a' <= n && n <= 'f')
+			n = n - ('a' - 10);
+		else if ('A' <= n && n <= 'F')
+			n = n - ('A' - 10);
+		else
 			break;
 		v = (v << 4) | n;
-		r = ao_cmd_success;
-		ao_cmd_lex();
+		n = getchar();
 	}
-	if (r != ao_cmd_success)
-		ao_cmd_status = r;
 	return v;
 }
 
 void
 ao_block_erase(void)
 {
-	uint32_t	addr = ao_cmd_hex32();
+	uint32_t	addr = ao_get_hex32();
 	uint32_t	*p = (uint32_t *) addr;
 
 	ao_flash_erase_page(p);
@@ -65,7 +78,7 @@ ao_block_erase(void)
 void
 ao_block_write(void)
 {
-	uint32_t	addr = ao_cmd_hex32();
+	uint32_t	addr = ao_get_hex32();
 	uint32_t	*p = (uint32_t *) addr;
 	union {
 		uint8_t		data8[256];
@@ -82,45 +95,17 @@ ao_block_write(void)
 	ao_flash_page(p, u.data32);
 }
 
-static void
-puthex(uint8_t c)
-{
-	c &= 0xf;
-	if (c < 10)
-		c += '0';
-	else
-		c += 'a' - 10;
-	putchar (c);
-}
-
 void
 ao_block_read(void)
 {
-	uint32_t	addr = ao_cmd_hex32();
+	uint32_t	addr = ao_get_hex32();
 	uint8_t		*p = (uint8_t *) addr;
 	uint16_t	i;
 	uint8_t		c;
 
 	for (i = 0; i < 256; i++) {
 		c = *p++;
-		(*ao_stdios[ao_cur_stdio].putchar)(c);
-	}
-}
-
-void
-ao_block_read_hex(void)
-{
-	uint32_t	addr = ao_cmd_hex32();
-	uint8_t		*p = (uint8_t *) addr;
-	uint16_t	i;
-	uint8_t		c;
-
-	for (i = 0; i < 256; i++) {
-		c = *p++;
-		puthex(c>>4);
-		puthex(c);
-		if ((i & 0xf) == 0xf)
-			putchar('\n');
+		putchar(c);
 	}
 }
 
@@ -133,15 +118,18 @@ ao_show_version(void)
 	ao_put_string("software-version "); puts(ao_version);
 }
 
-__code struct ao_cmds ao_flash_cmds[] = {
-	{ ao_show_version, "v\0Version" },
-	{ ao_application, "a\0Switch to application" },
-	{ ao_block_erase, "X <addr>\0Erase block." },
-	{ ao_block_write, "W <addr>\0Write block. 256 binary bytes follow newline" },
-	{ ao_block_read, "R <addr>\0Read block. Returns 256 binary bytes" },
-	{ ao_block_read_hex, "H <addr>\0Hex read block. Returns 256 bytes in hex" },
-	{ 0, NULL },
-};
+static void
+ao_flash_task(void) {
+	for (;;) {
+		switch (getchar()) {
+		case 'v': ao_show_version(); break;
+		case 'a': ao_application(); break;
+		case 'X': ao_block_erase(); break;
+		case 'W': ao_block_write(); break;
+		case 'R': ao_block_read(); break;
+		}
+	}
+}
 
 
 int
@@ -149,15 +137,11 @@ main(void)
 {
 	ao_clock_init();
 
-	ao_task_init();
-
-	ao_timer_init();
+//	ao_timer_init();
 //	ao_dma_init();
-	ao_cmd_init();
 //	ao_exti_init();
 	ao_usb_init();
 
-	ao_cmd_register(&ao_flash_cmds[0]);
-	ao_start_scheduler();
+	ao_flash_task();
 	return 0;
 }

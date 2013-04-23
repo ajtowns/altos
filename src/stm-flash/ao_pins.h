@@ -47,6 +47,9 @@
 #define HAS_USB			1
 #define USE_USB_STDIN		1
 #define HAS_BEEP		0
+#define HAS_TASK		0
+#define HAS_ECHO		0
+#define HAS_TICK		0
 
 #define PACKET_HAS_SLAVE	0
 

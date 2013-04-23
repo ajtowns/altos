@@ -32,21 +32,7 @@ SECTIONS {
 	.text : {
 		__text_start__ = .;
 		*(.interrupt)	/* Interrupt vectors */
-
-		. = ORIGIN(rom) + 0x100;
-
-		/* Ick. What I want is to specify the
-		 * addresses of some global constants so
-		 * that I can find them across versions
-		 * of the application. I can't figure out
-		 * how to make gnu ld do that, so instead
-		 * we just load the two files that include
-		 * these defines in the right order here and
-		 * expect things to 'just work'. Don't change
-		 * the contents of those files, ok?
-		 */
-		ao_romconfig.o(.romconfig*)
-		ao_product.o(.romconfig*)
+		*(.romconfig)
 		*(.text)	/* Executable code */
 		*(.rodata)	/* Constants */
 
