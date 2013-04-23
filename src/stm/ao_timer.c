@@ -18,6 +18,11 @@
 #include "ao.h"
 #include <ao_task.h>
 
+#ifndef HAS_TICK
+#define HAS_TICK 1
+#endif
+
+#if HAS_TICK
 volatile AO_TICK_TYPE ao_tick_count;
 
 AO_TICK_TYPE
@@ -87,6 +92,8 @@ ao_timer_init(void)
 			   (1 << STM_SYSTICK_CSR_TICKINT) |
 			   (STM_SYSTICK_CSR_CLKSOURCE_HCLK_8 << STM_SYSTICK_CSR_CLKSOURCE));
 }
+
+#endif
 
 void
 ao_clock_init(void)
