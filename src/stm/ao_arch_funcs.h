@@ -267,6 +267,7 @@ ao_arch_memory_barrier() {
 	asm volatile("" ::: "memory");
 }
 
+#if HAS_TASK
 static inline void
 ao_arch_init_stack(struct ao_task *task, void *start)
 {
@@ -348,6 +349,8 @@ static inline void ao_arch_start_scheduler(void) {
 }
 
 #define ao_arch_isr_stack()
+
+#endif
 
 #define ao_arch_wait_interrupt() do {			\
 		asm(".global ao_idle_loc\n\twfi\nao_idle_loc:");	\
