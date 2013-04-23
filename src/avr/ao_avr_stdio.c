@@ -20,16 +20,7 @@
 int
 stdio_put(char c, FILE *stream)
 {
-	if (ao_cur_task && ao_num_stdios)
-		putchar(c);
-	else
-	{
-		if (c == '\n')
-			stdio_put('\r', stream);
-		loop_until_bit_is_set(UCSR1A, UDRE1);
-		UDR1 = c;
-	}
-
+	putchar(c);
 	return 0;
 }
 

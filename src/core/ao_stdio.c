@@ -66,8 +66,15 @@
 #define AO_NUM_STDIOS	(HAS_USB + PACKET_HAS_SLAVE + USE_SERIAL_STDIN)
 
 __xdata struct ao_stdio ao_stdios[AO_NUM_STDIOS];
+
+#if AO_NUM_STDIOS > 1
 __pdata int8_t ao_cur_stdio;
 __pdata int8_t ao_num_stdios;
+#else
+__pdata int8_t ao_cur_stdio;
+#define ao_cur_stdio	0
+#define ao_num_stdios	0
+#endif
 
 void
 putchar(char c)
@@ -107,12 +114,16 @@ getchar(void) __reentrant
 		c = ao_stdios[stdio]._pollchar();
 		if (c != AO_READ_AGAIN)
 			break;
+#if AO_NUM_STDIOS > 1
 		if (++stdio == ao_num_stdios)
 			stdio = 0;
 		if (stdio == ao_cur_stdio)
+#endif
 			ao_sleep(&ao_stdin_ready);
 	}
+#if AO_NUM_STDIOS > 1
 	ao_cur_stdio = stdio;
+#endif
 	ao_arch_release_interrupts();
 	return c;
 }
@@ -128,11 +139,17 @@ ao_add_stdio(int (*_pollchar)(void),
 	     void (*putchar)(char),
 	     void (*flush)(void)) __reentrant
 {
+#if AO_NUM_STDIOS > 1
 	if (ao_num_stdios == AO_NUM_STDIOS)
 		ao_panic(AO_PANIC_STDIO);
+#endif
 	ao_stdios[ao_num_stdios]._pollchar = _pollchar;
 	ao_stdios[ao_num_stdios].putchar = putchar;
 	ao_stdios[ao_num_stdios].flush = flush;
 	ao_stdios[ao_num_stdios].echo = 1;
+#if AO_NUM_STDIOS > 1
 	return ao_num_stdios++;
+#else
+	return 0;
+#endif
 }
