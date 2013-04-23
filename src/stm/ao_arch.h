@@ -129,7 +129,7 @@ extern const uint32_t	ao_radio_cal;
 void
 ao_adc_init();
 
-#define AO_BOOT_APPLICATION_BASE	((uint32_t *) 0x1000)
+#define AO_BOOT_APPLICATION_BASE	((uint32_t *) 0x08001000)
 #define AO_BOOT_LOADER_BASE		((uint32_t *) 0x0)
 #define HAS_BOOT_LOADER			1
 

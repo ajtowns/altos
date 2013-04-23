@@ -86,7 +86,7 @@ ao_block_write(void)
 	} u;
 	uint16_t	i;
 
-	if (addr < 0x08002000 || 0x08200000 <= addr) {
+	if (addr < (uint32_t) AO_BOOT_APPLICATION_BASE) {
 		ao_put_string("Invalid address\n");
 		return;
 	}
