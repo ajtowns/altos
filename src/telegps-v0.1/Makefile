@@ -33,6 +33,7 @@ INC = \
 #STACK_GUARD_DEF=-DHAS_STACK_GUARD=1
 
 ALTOS_SRC = \
+	ao_boot_chain.c \
 	ao_interrupt.c \
 	ao_product.c \
 	ao_romconfig.c \

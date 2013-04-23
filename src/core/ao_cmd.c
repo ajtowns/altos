@@ -385,6 +385,18 @@ ao_cmd(void)
 	}
 }
 
+#if HAS_BOOT_LOADER
+
+#include <ao_boot.h>
+
+static void
+ao_loader(void)
+{
+	flush();
+	ao_boot_loader();
+}
+#endif
+
 __xdata struct ao_task ao_cmd_task;
 
 __code struct ao_cmds	ao_base_cmds[] = {
@@ -396,6 +408,9 @@ __code struct ao_cmds	ao_base_cmds[] = {
 	{ ao_reboot,	"r eboot\0Reboot" },
 #if HAS_VERSION
 	{ version,	"v\0Version" },
+#endif
+#if HAS_BOOT_LOADER
+	{ ao_loader,	"X\0Switch to boot loader" },
 #endif
 	{ 0,	NULL },
 };

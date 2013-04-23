@@ -30,4 +30,9 @@ ao_boot_check_chain(void);
 void
 ao_boot_reboot(uint32_t *base);
 
+static inline void
+ao_boot_loader(void) {
+	ao_boot_reboot(AO_BOOT_LOADER_BASE);
+}
+
 #endif /* _AO_BOOT_H_ */
