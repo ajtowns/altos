@@ -1,0 +1,7 @@
+The firmware for the various target microcontrollers will only be built if
+suitable compilers are present.  All of these are specified in the build
+dependencies *except* for the ARM Cortex targets which currently require a
+bare-metal toolchain which is not yet packaged for Debian.
+
+See http://altusmetrum.org/AltOS/building for details on how to build and
+install a suitable toolchaing for ARM Cortex M0 and M3 hardware targets.
