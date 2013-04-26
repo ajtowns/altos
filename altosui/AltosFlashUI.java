@@ -255,8 +255,11 @@ public class AltosFlashUI
 			build_dialog();
 
 			flash.set_file(file);
-			flash.addActionListener(this);
 
+			final AltosFlash next_flash = new AltosFlash(file)
+			final AltosRomconfig next_config = next_flash.romconfig;
+
+			flash.addActionListener(this);
 
 			final Semaphore await_rom_config = new Semaphore(0);
 			SwingUtilities.invokeLater(new Runnable() {
