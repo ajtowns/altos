@@ -1,5 +1,7 @@
 These are Bdale's notes on how to do a release.
 
+	- make sure there's a suitable ARM Cortex toolchain in /opt/cortex!
+
 	git checkout master
 
 	- make sure there is a doc/release-notes-<version>.xsl
