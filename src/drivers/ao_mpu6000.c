@@ -22,47 +22,71 @@
 static uint8_t	ao_mpu6000_wake;
 static uint8_t	ao_mpu6000_configured;
 
-static void
-ao_mpu6000_write(uint8_t addr, uint8_t *data, uint8_t len)
-{
-	ao_i2c_get(AO_MPU6000_I2C_INDEX);
-	ao_i2c_start(AO_MPU6000_I2C_INDEX, MPU6000_ADDR_WRITE);
-	ao_i2c_send(&addr, 1, AO_MPU6000_I2C_INDEX, FALSE);
-	ao_i2c_send(data, len, AO_MPU6000_I2C_INDEX, TRUE);
-	ao_i2c_put(AO_MPU6000_I2C_INDEX);
-}
+#define ao_mpu6000_spi_get() 	ao_spi_get_bit(AO_MPU6000_SPI_CS_PORT,	\
+					       AO_MPU6000_SPI_CS_PIN,	\
+					       AO_MPU6000_SPI_CS,	\
+					       AO_MPU6000_SPI_BUS,	\
+					       AO_SPI_SPEED_1MHz)
+
+#define ao_mpu6000_spi_put() 	ao_spi_put_bit(AO_MPU6000_SPI_CS_PORT,	\
+					       AO_MPU6000_SPI_CS_PIN,	\
+					       AO_MPU6000_SPI_CS,	\
+					       AO_MPU6000_SPI_BUS)
+
 
 static void
 ao_mpu6000_reg_write(uint8_t addr, uint8_t value)
 {
 	uint8_t	d[2] = { addr, value };
+#ifdef AO_MPU6000_I2C_INDEX
 	ao_i2c_get(AO_MPU6000_I2C_INDEX);
 	ao_i2c_start(AO_MPU6000_I2C_INDEX, MPU6000_ADDR_WRITE);
 	ao_i2c_send(d, 2, AO_MPU6000_I2C_INDEX, TRUE);
 	ao_i2c_put(AO_MPU6000_I2C_INDEX);
+#else
+	ao_mpu6000_spi_get();
+	ao_spi_send(d, 2, AO_MPU6000_SPI_BUS);
+	ao_mpu6000_spi_put();
+#endif
 }
 
 static void
 ao_mpu6000_read(uint8_t addr, void *data, uint8_t len)
 {
+#ifdef AO_MPU6000_I2C_INDEX
 	ao_i2c_get(AO_MPU6000_I2C_INDEX);
 	ao_i2c_start(AO_MPU6000_I2C_INDEX, MPU6000_ADDR_WRITE);
 	ao_i2c_send(&addr, 1, AO_MPU6000_I2C_INDEX, FALSE);
 	ao_i2c_start(AO_MPU6000_I2C_INDEX, MPU6000_ADDR_READ);
 	ao_i2c_recv(data, len, AO_MPU6000_I2C_INDEX, TRUE);
 	ao_i2c_put(AO_MPU6000_I2C_INDEX);
+#else
+	addr |= 0x80;
+	ao_mpu6000_spi_get();
+	ao_spi_send(&addr, 1, AO_MPU6000_SPI_BUS);
+	ao_spi_recv(data, len, AO_MPU6000_SPI_BUS);
+	ao_mpu6000_spi_put();
+#endif
 }
 
 static uint8_t
 ao_mpu6000_reg_read(uint8_t addr)
 {
 	uint8_t	value;
+#ifdef AO_MPU6000_I2C_INDEX
 	ao_i2c_get(AO_MPU6000_I2C_INDEX);
 	ao_i2c_start(AO_MPU6000_I2C_INDEX, MPU6000_ADDR_WRITE);
 	ao_i2c_send(&addr, 1, AO_MPU6000_I2C_INDEX, FALSE);
 	ao_i2c_start(AO_MPU6000_I2C_INDEX, MPU6000_ADDR_READ);
 	ao_i2c_recv(&value, 1, AO_MPU6000_I2C_INDEX, TRUE);
 	ao_i2c_put(AO_MPU6000_I2C_INDEX);
+#else
+	addr |= 0x80;
+	ao_mpu6000_spi_get();
+	ao_spi_send(&addr, 1, AO_MPU6000_SPI_BUS);
+	ao_spi_recv(&value, 1, AO_MPU6000_SPI_BUS);
+	ao_mpu6000_spi_put();
+#endif
 	return value;
 }
 
