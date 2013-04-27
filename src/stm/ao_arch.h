@@ -88,6 +88,10 @@ extern const uint32_t ao_radio_cal;
  * For now, we're running at a weird frequency
  */
 
+#ifndef AO_HSE
+#error High speed frequency undefined
+#endif
+
 #if AO_HSE
 #define AO_PLLSRC	AO_HSE
 #else

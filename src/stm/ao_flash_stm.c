@@ -16,7 +16,7 @@
  */
 
 #include <ao.h>
-#include <ao_flash_stm.h>
+#include <ao_flash.h>
 
 static uint8_t
 ao_flash_pecr_is_locked(void)

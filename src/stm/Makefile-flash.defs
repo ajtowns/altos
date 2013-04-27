@@ -1,0 +1,92 @@
+vpath % $(TOPDIR)/stm:$(TOPDIR)/product:$(TOPDIR)/drivers:$(TOPDIR)/core:$(TOPDIR)/util:$(TOPDIR)
+vpath ao-make-product.5c $(TOPDIR)/util
+
+.SUFFIXES: .elf .ihx
+
+.elf.ihx:
+	objcopy -O ihex $*.elf $@
+
+CC=arm-none-eabi-gcc
+SAT=/opt/cortex
+SAT_CLIB=$(SAT)/lib/pdclib-cortex-m3.a
+SAT_CFLAGS=-I$(SAT)/include
+
+ifndef VERSION
+include $(TOPDIR)/Version
+endif
+
+AO_CFLAGS=-I. -I$(TOPDIR)/stm -I$(TOPDIR)/core -I$(TOPDIR)/drivers -I$(TOPDIR)/product -I$(TOPDIR)
+STM_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m3 -mthumb -ffreestanding -nostdlib $(AO_CFLAGS) $(SAT_CFLAGS)
+
+LDFLAGS=-L$(TOPDIR)/stm -Wl,-Taltos-loader.ld
+
+NICKLE=nickle
+
+V=0
+# The user has explicitly enabled quiet compilation.
+ifeq ($(V),0)
+quiet = @printf "  $1 $2 $@\n"; $($1)
+endif
+# Otherwise, print the full command line.
+quiet ?= $($1)
+
+.c.o:
+	$(call quiet,CC) -c $(CFLAGS) -o $@ $<
+
+INC = \
+	ao.h \
+	ao_arch.h \
+	ao_arch_funcs.h \
+	ao_flash_pins.h \
+	ao_flash_stm_pins.h \
+	ao_flash_task.h \
+	ao_pins.h \
+	ao_product.h \
+	Makefile
+
+#
+# Common AltOS sources
+#
+SRC = \
+	ao_interrupt.c \
+	ao_romconfig.c \
+	ao_boot_chain.c \
+	ao_boot_pin.c \
+	ao_product.c \
+	ao_notask.c \
+	ao_timer.c \
+	ao_usb_stm.c \
+	ao_flash_stm.c \
+	ao_flash_task.c \
+	ao_flash_loader_stm.c
+
+OBJ=$(SRC:.c=.o)
+
+PRODUCT=AltosFlash-$(VERSION)
+PRODUCT_DEF=-DALTOS_FLASH
+IDPRODUCT=0x000a
+
+CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) -g -Os
+
+PROGNAME=altos-flash
+PROG=$(HARDWARE)-$(PROGNAME)-$(VERSION).elf
+
+$(PROG): Makefile $(OBJ) altos-loader.ld
+	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(OBJ) $(SAT_CLIB) -lgcc
+
+ao_product.h: ao-make-product.5c $(TOPDIR)/Version
+	$(call quiet,NICKLE,$<) $< -m altusmetrum.org -i $(IDPRODUCT) -p $(PRODUCT) -v $(VERSION) > $@
+
+$(OBJ): $(INC)
+
+all: $(PROG)
+
+distclean:	clean
+
+clean:
+	rm -f *.o $(PROG)
+	rm -f ao_product.h
+
+install:
+
+uninstall:

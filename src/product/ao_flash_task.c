@@ -1,5 +1,5 @@
 /*
- * Copyright © 2011 Keith Packard <keithp@keithp.com>
+ * Copyright © 2013 Keith Packard <keithp@keithp.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +18,12 @@
 #include "ao.h"
 #include <ao_exti.h>
 #include <ao_boot.h>
-#include <ao_flash_stm.h>
+#include <ao_flash.h>
+#include <ao_flash_task.h>
 
 void
 ao_panic(uint8_t reason)
 {
-	for (;;);
 }
 
 void
@@ -37,7 +37,7 @@ ao_put_string(__code char *s)
 	}
 }
 
-void
+static void
 ao_application(void)
 {
 	ao_boot_reboot(AO_BOOT_APPLICATION_BASE);
@@ -69,7 +69,7 @@ ao_get_hex32(void)
 	return v;
 }
 
-void
+static void
 ao_block_erase(void)
 {
 	uint32_t	addr = ao_get_hex32();
@@ -78,7 +78,7 @@ ao_block_erase(void)
 	ao_flash_erase_page(p);
 }
 
-void
+static void
 ao_block_write(void)
 {
 	uint32_t	addr = ao_get_hex32();
@@ -98,7 +98,7 @@ ao_block_write(void)
 	ao_flash_page(p, u.data32);
 }
 
-void
+static void
 ao_block_read(void)
 {
 	uint32_t	addr = ao_get_hex32();
@@ -122,7 +122,7 @@ ao_show_version(void)
 	ao_put_string("\n");
 }
 
-static void
+void
 ao_flash_task(void) {
 	for (;;) {
 		ao_usb_flush();
@@ -134,19 +134,4 @@ ao_flash_task(void) {
 		case 'R': ao_block_read(); break;
 		}
 	}
-}
-
-
-int
-main(void)
-{
-	ao_clock_init();
-
-//	ao_timer_init();
-//	ao_dma_init();
-//	ao_exti_init();
-	ao_usb_init();
-
-	ao_flash_task();
-	return 0;
 }

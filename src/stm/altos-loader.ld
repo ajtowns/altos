@@ -32,19 +32,16 @@ SECTIONS {
 	.text : {
 		__text_start__ = .;
 		*(.interrupt)	/* Interrupt vectors */
-		*(.romconfig*)
-		*(.text)	/* Executable code */
-		. = ALIGN(4);
-		*(.rodata*)	/* Constants */
-		. = ALIGN(4);
-	} > rom
 
-	.ARM.exidx : {
-		. = ALIGN(4);
+		. = ORIGIN(rom) + 0x100;
+
+		ao_romconfig.o(.romconfig*)
+		ao_product.o(.romconfig*)
+		*(.text)	/* Executable code */
 		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
-		. = ALIGN(4);
+		*(.rodata*)	/* Constants */
+		__text_end__ = .;
 	} > rom
-	__text_end__ = .;
 
 	/* Boot data which must live at the start of ram so that
 	 * the application and bootloader share the same addresses.
@@ -53,12 +50,20 @@ SECTIONS {
 	.boot (NOLOAD) : {
 		__boot_start__ = .;
 		*(.boot)
-		. = ALIGN(4);
 		__boot_end__ = .;
 	} >ram
 
-	/* Functions placed in RAM (required for flashing) */
-	.textram : {
+	/* Functions placed in RAM (required for flashing)
+	 *
+	 * Align to 8 bytes as that's what the ARM likes text
+	 * segment alignments to be, and if we don't, then
+	 * we end up with a mismatch between the location in
+	 * ROM and the desired location in RAM. I don't
+	 * entirely understand this, but at least this appears
+	 * to work...
+	 */
+
+	.textram BLOCK(8): {
 		__data_start__ = .;
 		__text_ram_start__ = .;
 		*(.text.ram)
