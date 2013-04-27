@@ -16,3 +16,5 @@
  */
 
 #define ao_panic(n)	for(;;);
+
+#define AO_BOOT_LOADER_BASE               ((uint32_t *) 0x0)
