@@ -42,10 +42,11 @@ const void *stm_interrupt_vector[];
 void start(void)
 {
 #ifdef AO_BOOT_CHAIN
-	ao_boot_check_chain();
-#endif
+	if (ao_boot_check_chain()) {
 #ifdef AO_BOOT_PIN
-	ao_boot_check_pin();
+		ao_boot_check_pin();
+#endif
+	}
 #endif
 	/* Set interrupt vector table offset */
 	stm_nvic.vto = (uint32_t) &stm_interrupt_vector;

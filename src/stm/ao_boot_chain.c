@@ -26,7 +26,7 @@ ao_boot_chain(uint32_t *base)
 
 	sp = base[0];
 	pc = base[1];
-	if (0x08000100 <= pc && pc <= 0x08200000) {
+	if (0x08000100 <= pc && pc <= 0x08200000 && (pc & 1) == 1) {
 		asm ("mov sp, %0" : : "r" (sp));
 		asm ("mov lr, %0" : : "r" (pc));
 		asm ("bx lr");
@@ -44,14 +44,17 @@ struct ao_boot {
 
 static struct ao_boot __attribute__ ((section(".boot"))) ao_boot;
 	
-void
+int
 ao_boot_check_chain(void)
 {
 	if (ao_boot.signal == AO_BOOT_SIGNAL && ao_boot.check == AO_BOOT_CHECK) {
 		ao_boot.signal = 0;
 		ao_boot.check = 0;
+		if (ao_boot.base == 0)
+			return 0;
 		ao_boot_chain(ao_boot.base);
 	}
+	return 1;
 }
 
 void
