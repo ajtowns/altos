@@ -108,6 +108,7 @@
 #define HAS_GPS			0
 #define HAS_FLIGHT		0
 #define HAS_ADC			1
+#define HAS_ADC_TEMP		1
 #define HAS_LOG			1
 
 /*
