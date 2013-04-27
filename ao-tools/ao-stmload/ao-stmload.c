@@ -224,12 +224,13 @@ static const struct option options[] = {
 	{ .name = "device", .has_arg = 1, .val = 'D' },
 	{ .name = "cal", .has_arg = 1, .val = 'c' },
 	{ .name = "serial", .has_arg = 1, .val = 's' },
+	{ .name = "verbose", .has_arg = 0, .val = 'v' },
 	{ 0, 0, 0, 0},
 };
 
 static void usage(char *program)
 {
-	fprintf(stderr, "usage: %s [--stlink] [--device=<device>] [-tty=<tty>] [--cal=<radio-cal>] [--serial=<serial>] file.{elf,ihx}\n", program);
+	fprintf(stderr, "usage: %s [--stlink] [--verbose] [--device=<device>] [-tty=<tty>] [--cal=<radio-cal>] [--serial=<serial>] file.{elf,ihx}\n", program);
 	exit(1);
 }
 
@@ -286,8 +287,9 @@ main (int argc, char **argv)
 	int			use_stlink = 0;
 	char			*tty = NULL;
 	int			success;
+	int			verbose = 0;
 
-	while ((c = getopt_long(argc, argv, "T:D:c:s:S", options, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "T:D:c:s:Sv", options, NULL)) != -1) {
 		switch (c) {
 		case 'T':
 			tty = optarg;
@@ -308,11 +310,19 @@ main (int argc, char **argv)
 		case 'S':
 			use_stlink = 1;
 			break;
+		case 'v':
+			verbose++;
+			break;
 		default:
 			usage(argv[0]);
 			break;
 		}
 	}
+
+	ao_self_verbose = verbose;
+
+	if (verbose > 1)
+		ccdbg_add_debug(CC_DEBUG_BITBANG);
 
 	filename = argv[optind];
 	if (filename == NULL)
@@ -412,6 +422,7 @@ main (int argc, char **argv)
 			fprintf(stderr, "Cannot switch to boot loader\n");
 			exit(1);
 		}
+#if 0
 		{
 			uint8_t	check[256];
 			int	i = 0;
@@ -433,6 +444,7 @@ main (int argc, char **argv)
 				}
 			}
 		}
+#endif
 	}
 
 	/* Go fetch existing config values

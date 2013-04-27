@@ -44,4 +44,6 @@ ao_self_read(struct cc_usb *cc, uint32_t address, uint32_t length);
 int
 ao_self_write(struct cc_usb *cc, struct hex_image *image);
 
+extern int ao_self_verbose;
+
 #endif /* _AO_STMLOAD_H_ */

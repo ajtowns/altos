@@ -26,18 +26,24 @@
 #include "ccdbg.h"
 #include "ao-stmload.h"
 
+int	ao_self_verbose;
+
+#define TRACE(...) if (ao_self_verbose) printf (__VA_ARGS__)
+
 void
 ao_self_block_read(struct cc_usb *cc, uint32_t address, uint8_t block[256])
 {
 	int			byte;
 	cc_usb_sync(cc);
 	cc_usb_printf(cc, "R %x\n", address);
-//	printf ("read %08x\n", address);
 	for (byte = 0; byte < 0x100; byte++) {
 		block[byte] = cc_usb_getchar(cc);
-//		printf (" %02x", block[byte]);
-//		if ((byte & 0xf) == 0xf)
-//			printf ("\n");
+	}
+	TRACE ("\nread %08x\n", address);
+	for (byte = 0; byte < 0x100; byte++) {
+		TRACE (" %02x", block[byte]);
+		if ((byte & 0xf) == 0xf)
+			TRACE ("\n");
 	}
 }
 
@@ -47,12 +53,14 @@ ao_self_block_write(struct cc_usb *cc, uint32_t address, uint8_t block[256])
 	int			byte;
 	cc_usb_sync(cc);
 	cc_usb_printf(cc, "W %x\n", address);
-//	printf ("write %08x\n", address);
+	TRACE ("write %08x\n", address);
+	for (byte = 0; byte < 0x100; byte++) {
+		TRACE (" %02x", block[byte]);
+		if ((byte & 0xf) == 0xf)
+			TRACE ("\n");
+	}
 	for (byte = 0; byte < 0x100; byte++) {
 		cc_usb_printf(cc, "%c", block[byte]);
-//		printf (" %02x", block[byte]);
-//		if ((byte & 0xf) == 0xf)
-//			printf ("\n");
 	}
 }
 
@@ -114,5 +122,6 @@ ao_self_write(struct cc_usb *cc, struct hex_image *image)
 		putchar('.'); fflush(stdout);
 	}
 	printf("done\n");
+	cc_usb_printf(cc,"a\n");
 	return 1;
 }

@@ -123,9 +123,10 @@ cc_handle_hex_read(struct cc_usb *cc)
 static void
 cc_usb_dbg(int indent, uint8_t *bytes, int len)
 {
-	int	eol = 1;
+	static int	eol = 1;
 	int	i;
 	uint8_t	c;
+	ccdbg_debug(CC_DEBUG_BITBANG, "<<<%d bytes>>>", len);
 	while (len--) {
 		c = *bytes++;
 		if (eol) {
@@ -135,10 +136,12 @@ cc_usb_dbg(int indent, uint8_t *bytes, int len)
 		}
 		switch (c) {
 		case '\r':
-			ccdbg_debug(CC_DEBUG_BITBANG, "^M");
+			ccdbg_debug(CC_DEBUG_BITBANG, "\\r");
 			break;
 		case '\n':
 			eol = 1;
+			ccdbg_debug(CC_DEBUG_BITBANG, "\\n\n");
+			break;
 		default:
 			if (c < ' ' || c > '~')
 				ccdbg_debug(CC_DEBUG_BITBANG, "\\%02x", c);
@@ -193,7 +196,6 @@ _cc_usb_sync(struct cc_usb *cc, int wait_for_input)
 			ret = read(cc->fd, cc->in_buf + cc->in_count,
 				   CC_IN_BUF - cc->in_count);
 			if (ret > 0) {
-				int i;
 				cc_usb_dbg(24, cc->in_buf + cc->in_count, ret);
 				cc->in_count += ret;
 				if (cc->hex_count)
