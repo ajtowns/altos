@@ -30,8 +30,11 @@ void
 ao_put_string(__code char *s)
 {
 	char	c;
-	while ((c = *s++))
-		putchar(c);
+	while ((c = *s++)) {
+		if (c == '\n')
+			ao_usb_putchar('\r');
+		ao_usb_putchar(c);
+	}
 }
 
 void
@@ -47,7 +50,7 @@ ao_get_hex32(void)
 	uint32_t v = 0;
 
 	for (;;) {
-		n = getchar();
+		n = ao_usb_getchar();
 		if (n != ' ')
 			break;
 	}
@@ -61,7 +64,7 @@ ao_get_hex32(void)
 		else
 			break;
 		v = (v << 4) | n;
-		n = getchar();
+		n = ao_usb_getchar();
 	}
 	return v;
 }
@@ -91,7 +94,7 @@ ao_block_write(void)
 		return;
 	}
 	for (i = 0; i < 256; i++)
-		u.data8[i] = getchar();
+		u.data8[i] = ao_usb_getchar();
 	ao_flash_page(p, u.data32);
 }
 
@@ -105,23 +108,25 @@ ao_block_read(void)
 
 	for (i = 0; i < 256; i++) {
 		c = *p++;
-		putchar(c);
+		ao_usb_putchar(c);
 	}
 }
 
 static void
 ao_show_version(void)
 {
-	puts("altos-loader");
-	ao_put_string("manufacturer     "); puts(ao_manufacturer);
-	ao_put_string("product          "); puts(ao_product);
-	ao_put_string("software-version "); puts(ao_version);
+	ao_put_string("altos-loader");
+	ao_put_string("\nmanufacturer     "); ao_put_string(ao_manufacturer);
+	ao_put_string("\nproduct          "); ao_put_string(ao_product);
+	ao_put_string("\nsoftware-version "); ao_put_string(ao_version);
+	ao_put_string("\n");
 }
 
 static void
 ao_flash_task(void) {
 	for (;;) {
-		switch (getchar()) {
+		ao_usb_flush();
+		switch (ao_usb_getchar()) {
 		case 'v': ao_show_version(); break;
 		case 'a': ao_application(); break;
 		case 'X': ao_block_erase(); break;

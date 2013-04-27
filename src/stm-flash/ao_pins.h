@@ -45,7 +45,7 @@
 #define AO_RCC_CFGR_PPRE2_DIV	STM_RCC_CFGR_PPRE2_DIV_1
 
 #define HAS_USB			1
-#define USE_USB_STDIN		1
+#define USE_USB_STDIO		0
 #define HAS_BEEP		0
 #define HAS_TASK		0
 #define HAS_ECHO		0
@@ -71,9 +71,9 @@
 #define AO_BOOT_CHAIN		1
 #define AO_BOOT_PIN		1
 
-#define AO_BOOT_APPLICATION_GPIO	stm_gpioa
-#define AO_BOOT_APPLICATION_PIN		0
+#define AO_BOOT_APPLICATION_GPIO	stm_gpiod
+#define AO_BOOT_APPLICATION_PIN		2
 #define AO_BOOT_APPLICATION_VALUE	1
-#define AO_BOOT_APPLICATION_MODE	0
+#define AO_BOOT_APPLICATION_MODE	AO_EXTI_MODE_PULL_UP
 
 #endif /* _AO_PINS_H_ */

@@ -23,16 +23,15 @@ ALTOS_SRC = \
 	ao_notask.c \
 	ao_timer.c \
 	ao_usb_stm.c \
-	ao_stdio.c \
 	ao_flash_stm.c
 
-PRODUCT=StmFlash-v0.0
-PRODUCT_DEF=-DSTM_FLASH
+PRODUCT=AltosFlash-$(VERSION)
+PRODUCT_DEF=-DALTOS_FLASH
 IDPRODUCT=0x000a
 
 CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) -g -Os
 
-PROG=stm-flash-$(VERSION).elf
+PROG=altos-flash-$(VERSION).elf
 
 SRC=$(ALTOS_SRC) ao_stm_flash.c
 OBJ=$(SRC:.c=.o)
