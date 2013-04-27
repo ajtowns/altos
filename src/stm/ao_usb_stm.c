@@ -23,6 +23,16 @@
 #define USB_DEBUG_DATA	0
 #define USB_ECHO	0
 
+#ifndef USE_USB_STDIO
+#define USE_USB_STDIO	1
+#endif
+
+#if USE_USB_STDIO
+#define AO_USB_OUT_SLEEP_ADDR	(&ao_stdin_ready)
+#else
+#define AO_USB_OUT_SLEEP_ADDR	(&ao_usb_out_avail)
+#endif
+
 #if USB_DEBUG
 #define debug(format, args...)	printf(format, ## args);
 #else
@@ -770,7 +780,7 @@ stm_usb_lp_isr(void)
 				_rx_dbg1("RX ISR", epr);
 				ao_usb_out_avail = 1;
 				_rx_dbg0("out avail set");
-				ao_wakeup(&ao_stdin_ready);
+				ao_wakeup(AO_USB_OUT_SLEEP_ADDR);
 				_rx_dbg0("stdin awoken");
 			}
 			break;
@@ -936,7 +946,7 @@ ao_usb_getchar(void)
 
 	ao_arch_block_interrupts();
 	while ((c = _ao_usb_pollchar()) == AO_READ_AGAIN)
-		ao_sleep(&ao_stdin_ready);
+		ao_sleep(AO_USB_OUT_SLEEP_ADDR);
 	ao_arch_release_interrupts();
 	return c;
 }
@@ -1064,7 +1074,9 @@ ao_usb_init(void)
 	ao_cmd_register(&ao_usb_cmds[0]);
 #endif
 #if !USB_ECHO
+#if USE_USB_STDIO
 	ao_add_stdio(_ao_usb_pollchar, ao_usb_putchar, ao_usb_flush);
+#endif
 #endif
 }
 
