@@ -16,7 +16,7 @@
  */
 
 MEMORY {
-	rom : ORIGIN = 0x08000000, LENGTH = 8K
+	rom : ORIGIN = 0x08000000, LENGTH = 4K
 	ram : ORIGIN = 0x20000000, LENGTH = 16K
 }
 
@@ -32,14 +32,17 @@ SECTIONS {
 	.text : {
 		__text_start__ = .;
 		*(.interrupt)	/* Interrupt vectors */
-		*(.romconfig)
+		*(.romconfig*)
 		*(.text)	/* Executable code */
-		*(.rodata)	/* Constants */
-
+		. = ALIGN(4);
+		*(.rodata*)	/* Constants */
+		. = ALIGN(4);
 	} > rom
 
 	.ARM.exidx : {
+		. = ALIGN(4);
 		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
+		. = ALIGN(4);
 	} > rom
 	__text_end__ = .;
 
@@ -56,20 +59,19 @@ SECTIONS {
 
 	/* Functions placed in RAM (required for flashing) */
 	.textram : {
-		__text_ram_start__ = .;
 		__data_start__ = .;
+		__text_ram_start__ = .;
 		*(.text.ram)
-		. = ALIGN(4);
+		__text_ram_end = .;
 	} >ram AT>rom
-	__text_ram_end = .;
 
 	/* Data -- relocated to RAM, but written to ROM
 	 */
 	.data : {
 		*(.data)	/* initialized data */
-		. = ALIGN (4);
+		__data_end__ = .;
 	} >ram AT>rom
-	__data_end__ = .;
+
 
 	.bss : {
 		__bss_start__ = .;
