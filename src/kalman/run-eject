@@ -1,0 +1,7 @@
+#!/bin/sh
+M=100
+for i in `cat ejection-csv`; do
+    micro=`basename $i .csv`-$M.micro
+    echo $i '->' $micro
+    nickle ./kalman_micro.5c -M $M $i > $micro
+done

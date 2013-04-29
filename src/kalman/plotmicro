@@ -1,0 +1,16 @@
+#!/bin/sh
+for i in "$@"; do
+gnuplot -p << EOF &
+set title "$i"
+set ylabel "error"
+set y2label "height (m)"
+set xlabel "time (s)"
+set xtics border out nomirror
+set ytics border out nomirror
+set y2tics border out nomirror
+plot "$i" using 1:3 with lines lt 2 axes x1y2 title "raw height",\
+     "$i" using 1:7 with lines lt 4 axes x1y2 title "kalman height",\
+     "$i" using 1:9 with lines lt 1 axes x1y1 title "avg error", \
+     "$i" using 1:10 with lines lt 3 axes x1y1 title "valid"
+EOF
+done
