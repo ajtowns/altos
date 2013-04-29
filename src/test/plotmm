@@ -1,0 +1,11 @@
+gnuplot -persist << EOF
+set ylabel "altitude (m)"
+set y2label "angle (d)"
+set xlabel "time (s)"
+set xtics border out nomirror
+set ytics border out nomirror
+set y2tics border out nomirror
+plot "$1" using 1:3 with lines axes x1y1 title "raw height",\
+"$1" using 1:9 with lines axes x1y2 title "angle",\
+"$1" using 1:11 with lines axes x1y2 title "qangle"
+EOF
