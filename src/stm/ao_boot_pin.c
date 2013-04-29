@@ -31,6 +31,9 @@ ao_boot_check_pin(void)
 	ao_enable_input(&AO_BOOT_APPLICATION_GPIO, AO_BOOT_APPLICATION_PIN,
 			AO_BOOT_APPLICATION_MODE);
 
+	for (v = 0; v < 100; v++)
+		ao_arch_nop();
+
 	/* Read the value */
 	v = stm_gpio_get(&AO_BOOT_APPLICATION_GPIO, AO_BOOT_APPLICATION_PIN);
 
