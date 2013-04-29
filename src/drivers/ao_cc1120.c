@@ -272,6 +272,8 @@ ao_radio_idle(void)
 		uint8_t	state = ao_radio_strobe(CC1120_SIDLE);
 		if ((state >> CC1120_STATUS_STATE) == CC1120_STATUS_STATE_IDLE)
 			break;
+		if ((state >> CC1120_STATUS_STATE) == CC1120_STATUS_STATE_TX_FIFO_ERROR)
+			ao_radio_strobe(CC1120_SFTX);
 	}
 	/* Flush any pending TX bytes */
 	ao_radio_strobe(CC1120_SFTX);
@@ -715,10 +717,16 @@ ao_radio_send(const void *d, uint8_t size)
 	uint8_t		this_len;
 	uint8_t		started = 0;
 	uint8_t		fifo_space;
+	uint8_t		q;
 
 	encode_len = ao_fec_encode(d, size, tx_data);
 
 	ao_radio_get(encode_len);
+
+	ao_radio_abort = 0;
+
+	/* Flush any pending TX bytes */
+	ao_radio_strobe(CC1120_SFTX);
 
 	started = 0;
 	fifo_space = CC1120_FIFO_SIZE;
