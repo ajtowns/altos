@@ -18,6 +18,10 @@
 #include <ao.h>
 #include <ao_lcd_stm.h>
 
+#ifndef LCD_DEBUG
+#define LCD_DEBUG	0
+#endif
+
 struct ao_lcd_segment {
 	uint8_t	reg;
 	uint8_t	bit;
@@ -271,24 +275,51 @@ ao_lcd_clear(void)
 	ao_lcd_flush();
 }
 
+#ifdef AO_SEGMENT_MAP
+#if AO_LCD_PER_DIGIT
+static const struct ao_lcd_map {
+	uint8_t	com, seg;
+} ao_lcd_map[AO_LCD_DIGITS * AO_LCD_SEGMENTS] = AO_SEGMENT_MAP;
+#else
+static const uint8_t ao_lcd_map[] = AO_SEGMENT_MAP;
+#endif
+#endif
+
 void
 ao_lcd_set(uint8_t digit, uint8_t segment, uint8_t value)
 {
 	uint8_t	n;
+	uint8_t com, seg;
 
-	if (digit >= NCOM)
-		digit = NCOM-1;
-	if (segment >= NSEG)
-		segment = NSEG-1;
+#ifdef AO_SEGMENT_MAP
+#if AO_LCD_PER_DIGIT
+	n = digit * AO_LCD_SEGMENTS + segment;
+	com = ao_lcd_map[n].com;
+	seg = ao_lcd_map[n].seg;
+#else
+	com = digit;
+	seg = ao_lcd_map[segment];
+#endif
+#else
+	com = digit;
+	seg = segment;
+#endif
+	if (com >= NCOM)
+		com = NCOM-1;
+	if (seg >= NSEG)
+		seg = NSEG-1;
 
-	n = (segment >> 5) & 1;
+#if LCD_DEBUG
+	printf ("digit %d segment %d -> com %d seg %d\n", digit, segment, com, seg);
+#endif
+	n = (seg >> 5) & 1;
 	if (value)
-		stm_lcd.ram[digit * 2 + n] |= (1 << (segment & 0x1f));
+		stm_lcd.ram[com * 2 + n] |= (1 << (seg & 0x1f));
 	else
-		stm_lcd.ram[digit * 2 + n] &= ~(1 << (segment & 0x1f));
+		stm_lcd.ram[com * 2 + n] &= ~(1 << (seg & 0x1f));
 }
 
-#if 0
+#if LCD_DEBUG
 static void
 ao_lcd_stm_seg_set(void)
 {
@@ -307,7 +338,7 @@ ao_lcd_stm_seg_set(void)
 
 static const struct ao_cmds ao_lcd_stm_cmds[] = {
 	{ ao_lcd_stm_seg_set,	"s <com> <seg> <value>\0Set LCD segment" },
-	{ ao_lcd_clear,		"C\0Clear LCD" },
+	{ ao_lcd_clear,		"x\0Clear LCD" },
 	{ 0, NULL },
 };
 #endif
@@ -411,7 +442,7 @@ ao_lcd_stm_init(void)
 	stm_nvic_set_priority(STM_ISR_LCD_POS, AO_STM_NVIC_LOW_PRIORITY);
 
 	/* All done */
-#if 0
+#if LCD_DEBUG
 	ao_cmd_register(ao_lcd_stm_cmds);
 #endif
 }

@@ -34,134 +34,138 @@
  *
  */
 
+#ifndef SEVEN_SEGMENT_DEBUG
+#define SEVEN_SEGMENT_DEBUG 0
+#endif
+
 static const uint8_t ao_segments[] = {
-	(1 << AO_SEGMENT_0) |
-	(1 << AO_SEGMENT_1) |
-	(1 << AO_SEGMENT_2) |
-	(0 << AO_SEGMENT_3) |
-	(1 << AO_SEGMENT_4) |
-	(1 << AO_SEGMENT_5) |
-	(1 << AO_SEGMENT_6),		/* 0 */
+	(1 << 0) |
+	(1 << 1) |
+	(1 << 2) |
+	(0 << 3) |
+	(1 << 4) |
+	(1 << 5) |
+	(1 << 6),		/* 0 */
 
-	(0 << AO_SEGMENT_0) |
-	(0 << AO_SEGMENT_1) |
-	(1 << AO_SEGMENT_2) |
-	(0 << AO_SEGMENT_3) |
-	(0 << AO_SEGMENT_4) |
-	(1 << AO_SEGMENT_5) |
-	(0 << AO_SEGMENT_6),		/* 1 */
+	(0 << 0) |
+	(0 << 1) |
+	(1 << 2) |
+	(0 << 3) |
+	(0 << 4) |
+	(1 << 5) |
+	(0 << 6),		/* 1 */
 
-	(1 << AO_SEGMENT_0) |
-	(0 << AO_SEGMENT_1) |
-	(1 << AO_SEGMENT_2) |
-	(1 << AO_SEGMENT_3) |
-	(1 << AO_SEGMENT_4) |
-	(0 << AO_SEGMENT_5) |
-	(1 << AO_SEGMENT_6),		/* 2 */
+	(1 << 0) |
+	(0 << 1) |
+	(1 << 2) |
+	(1 << 3) |
+	(1 << 4) |
+	(0 << 5) |
+	(1 << 6),		/* 2 */
 
-	(1 << AO_SEGMENT_0) |
-	(0 << AO_SEGMENT_1) |
-	(1 << AO_SEGMENT_2) |
-	(1 << AO_SEGMENT_3) |
-	(0 << AO_SEGMENT_4) |
-	(1 << AO_SEGMENT_5) |
-	(1 << AO_SEGMENT_6),		/* 3 */
+	(1 << 0) |
+	(0 << 1) |
+	(1 << 2) |
+	(1 << 3) |
+	(0 << 4) |
+	(1 << 5) |
+	(1 << 6),		/* 3 */
 
-	(0 << AO_SEGMENT_0) |
-	(1 << AO_SEGMENT_1) |
-	(1 << AO_SEGMENT_2) |
-	(1 << AO_SEGMENT_3) |
-	(0 << AO_SEGMENT_4) |
-	(1 << AO_SEGMENT_5) |
-	(0 << AO_SEGMENT_6),		/* 4 */
+	(0 << 0) |
+	(1 << 1) |
+	(1 << 2) |
+	(1 << 3) |
+	(0 << 4) |
+	(1 << 5) |
+	(0 << 6),		/* 4 */
 
-	(1 << AO_SEGMENT_0) |
-	(1 << AO_SEGMENT_1) |
-	(0 << AO_SEGMENT_2) |
-	(1 << AO_SEGMENT_3) |
-	(0 << AO_SEGMENT_4) |
-	(1 << AO_SEGMENT_5) |
-	(1 << AO_SEGMENT_6),		/* 5 */
+	(1 << 0) |
+	(1 << 1) |
+	(0 << 2) |
+	(1 << 3) |
+	(0 << 4) |
+	(1 << 5) |
+	(1 << 6),		/* 5 */
 
-	(1 << AO_SEGMENT_0) |
-	(1 << AO_SEGMENT_1) |
-	(0 << AO_SEGMENT_2) |
-	(1 << AO_SEGMENT_3) |
-	(1 << AO_SEGMENT_4) |
-	(1 << AO_SEGMENT_5) |
-	(1 << AO_SEGMENT_6),		/* 6 */
+	(1 << 0) |
+	(1 << 1) |
+	(0 << 2) |
+	(1 << 3) |
+	(1 << 4) |
+	(1 << 5) |
+	(1 << 6),		/* 6 */
 
-	(1 << AO_SEGMENT_0) |
-	(0 << AO_SEGMENT_1) |
-	(1 << AO_SEGMENT_2) |
-	(0 << AO_SEGMENT_3) |
-	(0 << AO_SEGMENT_4) |
-	(1 << AO_SEGMENT_5) |
-	(0 << AO_SEGMENT_6),		/* 7 */
+	(1 << 0) |
+	(0 << 1) |
+	(1 << 2) |
+	(0 << 3) |
+	(0 << 4) |
+	(1 << 5) |
+	(0 << 6),		/* 7 */
 
-	(1 << AO_SEGMENT_0) |
-	(1 << AO_SEGMENT_1) |
-	(1 << AO_SEGMENT_2) |
-	(1 << AO_SEGMENT_3) |
-	(1 << AO_SEGMENT_4) |
-	(1 << AO_SEGMENT_5) |
-	(1 << AO_SEGMENT_6),		/* 8 */
+	(1 << 0) |
+	(1 << 1) |
+	(1 << 2) |
+	(1 << 3) |
+	(1 << 4) |
+	(1 << 5) |
+	(1 << 6),		/* 8 */
 
-	(1 << AO_SEGMENT_0) |
-	(1 << AO_SEGMENT_1) |
-	(1 << AO_SEGMENT_2) |
-	(1 << AO_SEGMENT_3) |
-	(0 << AO_SEGMENT_4) |
-	(1 << AO_SEGMENT_5) |
-	(1 << AO_SEGMENT_6),		/* 9 */
+	(1 << 0) |
+	(1 << 1) |
+	(1 << 2) |
+	(1 << 3) |
+	(0 << 4) |
+	(1 << 5) |
+	(1 << 6),		/* 9 */
 
-	(1 << AO_SEGMENT_0) |
-	(1 << AO_SEGMENT_1) |
-	(1 << AO_SEGMENT_2) |
-	(1 << AO_SEGMENT_3) |
-	(1 << AO_SEGMENT_4) |
-	(1 << AO_SEGMENT_5) |
-	(0 << AO_SEGMENT_6),		/* A */
+	(1 << 0) |
+	(1 << 1) |
+	(1 << 2) |
+	(1 << 3) |
+	(1 << 4) |
+	(1 << 5) |
+	(0 << 6),		/* A */
 
-	(0 << AO_SEGMENT_0) |
-	(1 << AO_SEGMENT_1) |
-	(0 << AO_SEGMENT_2) |
-	(1 << AO_SEGMENT_3) |
-	(1 << AO_SEGMENT_4) |
-	(1 << AO_SEGMENT_5) |
-	(1 << AO_SEGMENT_6),		/* b */
+	(0 << 0) |
+	(1 << 1) |
+	(0 << 2) |
+	(1 << 3) |
+	(1 << 4) |
+	(1 << 5) |
+	(1 << 6),		/* b */
 
-	(1 << AO_SEGMENT_0) |
-	(1 << AO_SEGMENT_1) |
-	(0 << AO_SEGMENT_2) |
-	(0 << AO_SEGMENT_3) |
-	(1 << AO_SEGMENT_4) |
-	(0 << AO_SEGMENT_5) |
-	(1 << AO_SEGMENT_6),		/* c */
+	(1 << 0) |
+	(1 << 1) |
+	(0 << 2) |
+	(0 << 3) |
+	(1 << 4) |
+	(0 << 5) |
+	(1 << 6),		/* c */
 
-	(0 << AO_SEGMENT_0) |
-	(0 << AO_SEGMENT_1) |
-	(1 << AO_SEGMENT_2) |
-	(1 << AO_SEGMENT_3) |
-	(1 << AO_SEGMENT_4) |
-	(1 << AO_SEGMENT_5) |
-	(1 << AO_SEGMENT_6),		/* d */
+	(0 << 0) |
+	(0 << 1) |
+	(1 << 2) |
+	(1 << 3) |
+	(1 << 4) |
+	(1 << 5) |
+	(1 << 6),		/* d */
 
-	(1 << AO_SEGMENT_0) |
-	(1 << AO_SEGMENT_1) |
-	(0 << AO_SEGMENT_2) |
-	(1 << AO_SEGMENT_3) |
-	(1 << AO_SEGMENT_4) |
-	(0 << AO_SEGMENT_5) |
-	(1 << AO_SEGMENT_6),		/* E */
+	(1 << 0) |
+	(1 << 1) |
+	(0 << 2) |
+	(1 << 3) |
+	(1 << 4) |
+	(0 << 5) |
+	(1 << 6),		/* E */
 
-	(1 << AO_SEGMENT_0) |
-	(1 << AO_SEGMENT_1) |
-	(0 << AO_SEGMENT_2) |
-	(1 << AO_SEGMENT_3) |
-	(1 << AO_SEGMENT_4) |
-	(0 << AO_SEGMENT_5) |
-	(0 << AO_SEGMENT_6),		/* F */
+	(1 << 0) |
+	(1 << 1) |
+	(0 << 2) |
+	(1 << 3) |
+	(1 << 4) |
+	(0 << 5) |
+	(0 << 6),		/* F */
 };
 
 void
@@ -177,7 +181,7 @@ ao_seven_segment_set(uint8_t digit, uint8_t value)
 
 		/* Check for decimal point */
 		if (value & 0x10)
-			segments |= (1 << AO_SEGMENT_7);
+			segments |= (1 << 7);
 	}
 
 	for (s = 0; s <= 7; s++)
@@ -192,7 +196,7 @@ ao_seven_segment_clear(void)
 }
 
 
-#if 0
+#if SEVEN_SEGMENT_DEBUG
 static void
 ao_seven_segment_show(void)
 {
@@ -214,7 +218,7 @@ static const struct ao_cmds ao_seven_segment_cmds[] = {
 void
 ao_seven_segment_init(void)
 {
-#if 0
+#if SEVEN_SEGMENT_DEBUG
 	ao_cmd_register(ao_seven_segment_cmds);
 #endif
 }
