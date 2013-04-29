@@ -20,3 +20,7 @@ Desired AltosDroid feature list
  *) Frequency scanning
 
  *) Select satellite imaging mode
+
+ *) Remember most-recently-used TBT and frequency, perhaps
+    auto-connect at startup.
+    
