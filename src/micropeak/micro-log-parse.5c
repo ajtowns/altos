@@ -1,0 +1,356 @@
+/*
+ * Copyright © 2012 Keith Packard <keithp@keithp.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
+exception non_hexchar(int c);
+exception file_ended();
+exception invalid_crc();
+
+int
+get_nonwhite(file f)
+{
+	int	c;
+
+	for (;;) {
+		if (File::end(f))
+			raise file_ended();
+		if (!Ctype::isspace((c = File::getc(f))))
+			return c;
+	}
+}
+
+int
+get_hexc(file f)
+{
+	int	c = get_nonwhite(f);
+
+	if ('0' <= c && c <= '9')
+		return c - '0';
+	if ('a' <= c && c <= 'f')
+		return c - 'a' + 10;
+	if ('A' <= c && c <= 'F')
+		return c - 'A' + 10;
+	raise non_hexchar(c);
+}
+
+int POLY = 0x8408;
+
+int
+log_crc(int crc, int byte)
+{
+	int	i;
+
+	for (i = 0; i < 8; i++) {
+		if (((crc & 0x0001) ^ (byte & 0x0001)) != 0)
+			crc = (crc >> 1) ^ POLY;
+		else
+			crc = crc >> 1;
+		byte >>= 1;
+	}
+	return crc & 0xffff;
+}
+
+int	file_crc;
+
+
+int
+get_hex(file f)
+{
+	int	a = get_hexc(f);
+	int	b = get_hexc(f);
+
+	int h = (a << 4) + b;
+
+	file_crc = log_crc(file_crc, h);
+	return h;
+}
+
+bool
+find_header(file f)
+{
+	while (!File::end(f)) {
+		if (get_nonwhite(f) == 'M' && get_nonwhite(f) == 'P')
+			return true;
+	}
+	return false;
+}
+
+int
+get_32(file f)
+{
+	int	v = 0;
+	for (int i = 0; i < 4; i++) {
+		v += get_hex(f) << (i * 8);
+	}
+	return v;
+}
+
+int
+get_16(file f)
+{
+	int	v = 0;
+	for (int i = 0; i < 2; i++) {
+		v += get_hex(f) << (i * 8);
+	}
+	return v;
+}
+
+int
+swap16(int i) {
+	return ((i << 8) & 0xff00) | ((i >> 8) & 0xff);
+}
+typedef struct {
+	int	ground_baro;
+	int	min_baro;
+	int[*]	samples;
+} log_t;
+
+log_t
+get_log(file f) {
+	log_t	log;
+
+	if (!find_header(f))
+		raise file_ended();
+	file_crc = 0xffff;
+	log.ground_baro = get_32(f);
+	log.min_baro = get_32(f);
+	int nsamples = get_16(f);
+	log.samples = (int[nsamples]) { [i] = get_16(f) };
+
+	int current_crc = swap16(~file_crc & 0xffff);
+	int crc = get_16(f);
+
+	if (crc != current_crc)
+		raise invalid_crc();
+	return log;
+}
+
+/*
+ * Pressure Sensor Model, version 1.1
+ *
+ * written by Holly Grimes
+ *
+ * Uses the International Standard Atmosphere as described in
+ *   "A Quick Derivation relating altitude to air pressure" (version 1.03)
+ *    from the Portland State Aerospace Society, except that the atmosphere
+ *    is divided into layers with each layer having a different lapse rate.
+ *
+ * Lapse rate data for each layer was obtained from Wikipedia on Sept. 1, 2007
+ *    at site <http://en.wikipedia.org/wiki/International_Standard_Atmosphere
+ *
+ * Height measurements use the local tangent plane.  The postive z-direction is up.
+ *
+ * All measurements are given in SI units (Kelvin, Pascal, meter, meters/second^2).
+ *   The lapse rate is given in Kelvin/meter, the gas constant for air is given
+ *   in Joules/(kilogram-Kelvin).
+ */
+
+const real GRAVITATIONAL_ACCELERATION = -9.80665;
+const real AIR_GAS_CONSTANT = 287.053;
+const int NUMBER_OF_LAYERS = 7;
+const real MAXIMUM_ALTITUDE = 84852;
+const real MINIMUM_PRESSURE = 0.3734;
+const real LAYER0_BASE_TEMPERATURE = 288.15;
+const real LAYER0_BASE_PRESSURE = 101325;
+
+/* lapse rate and base altitude for each layer in the atmosphere */
+const real[NUMBER_OF_LAYERS] lapse_rate = {
+	-0.0065, 0.0, 0.001, 0.0028, 0.0, -0.0028, -0.002
+};
+const int[NUMBER_OF_LAYERS] base_altitude = {
+	0, 11000, 20000, 32000, 47000, 51000, 71000
+};
+
+
+/* outputs atmospheric pressure associated with the given altitude. altitudes
+   are measured with respect to the mean sea level */
+real altitude_to_pressure(real altitude) {
+
+   real base_temperature = LAYER0_BASE_TEMPERATURE;
+   real base_pressure = LAYER0_BASE_PRESSURE;
+
+   real pressure;
+   real base; /* base for function to determine pressure */
+   real exponent; /* exponent for function to determine pressure */
+   int layer_number; /* identifies layer in the atmosphere */
+   int delta_z; /* difference between two altitudes */
+
+   if (altitude > MAXIMUM_ALTITUDE) /* FIX ME: use sensor data to improve model */
+      return 0;
+
+   /* calculate the base temperature and pressure for the atmospheric layer
+      associated with the inputted altitude */
+   for(layer_number = 0; layer_number < NUMBER_OF_LAYERS - 1 && altitude > base_altitude[layer_number + 1]; layer_number++) {
+      delta_z = base_altitude[layer_number + 1] - base_altitude[layer_number];
+      if (lapse_rate[layer_number] == 0.0) {
+         exponent = GRAVITATIONAL_ACCELERATION * delta_z
+              / AIR_GAS_CONSTANT / base_temperature;
+         base_pressure *= exp(exponent);
+      }
+      else {
+         base = (lapse_rate[layer_number] * delta_z / base_temperature) + 1.0;
+         exponent = GRAVITATIONAL_ACCELERATION /
+              (AIR_GAS_CONSTANT * lapse_rate[layer_number]);
+         base_pressure *= pow(base, exponent);
+      }
+      base_temperature += delta_z * lapse_rate[layer_number];
+   }
+
+   /* calculate the pressure at the inputted altitude */
+   delta_z = altitude - base_altitude[layer_number];
+   if (lapse_rate[layer_number] == 0.0) {
+      exponent = GRAVITATIONAL_ACCELERATION * delta_z
+           / AIR_GAS_CONSTANT / base_temperature;
+      pressure = base_pressure * exp(exponent);
+   }
+   else {
+      base = (lapse_rate[layer_number] * delta_z / base_temperature) + 1.0;
+      exponent = GRAVITATIONAL_ACCELERATION /
+           (AIR_GAS_CONSTANT * lapse_rate[layer_number]);
+      pressure = base_pressure * pow(base, exponent);
+   }
+
+   return pressure;
+}
+
+
+/* outputs the altitude associated with the given pressure. the altitude
+   returned is measured with respect to the mean sea level */
+real pressure_to_altitude(real pressure) {
+
+   real next_base_temperature = LAYER0_BASE_TEMPERATURE;
+   real next_base_pressure = LAYER0_BASE_PRESSURE;
+
+   real altitude;
+   real base_pressure;
+   real base_temperature;
+   real base; /* base for function to determine base pressure of next layer */
+   real exponent; /* exponent for function to determine base pressure
+                             of next layer */
+   real coefficient;
+   int layer_number; /* identifies layer in the atmosphere */
+   int delta_z; /* difference between two altitudes */
+
+   if (pressure < 0)  /* illegal pressure */
+      return -1;
+   if (pressure < MINIMUM_PRESSURE) /* FIX ME: use sensor data to improve model */
+      return MAXIMUM_ALTITUDE;
+
+   /* calculate the base temperature and pressure for the atmospheric layer
+      associated with the inputted pressure. */
+   layer_number = -1;
+   do {
+      layer_number++;
+      base_pressure = next_base_pressure;
+      base_temperature = next_base_temperature;
+      delta_z = base_altitude[layer_number + 1] - base_altitude[layer_number];
+      if (lapse_rate[layer_number] == 0.0) {
+         exponent = GRAVITATIONAL_ACCELERATION * delta_z
+              / AIR_GAS_CONSTANT / base_temperature;
+         next_base_pressure *= exp(exponent);
+      }
+      else {
+         base = (lapse_rate[layer_number] * delta_z / base_temperature) + 1.0;
+         exponent = GRAVITATIONAL_ACCELERATION /
+              (AIR_GAS_CONSTANT * lapse_rate[layer_number]);
+         next_base_pressure *= pow(base, exponent);
+      }
+      next_base_temperature += delta_z * lapse_rate[layer_number];
+   }
+   while(layer_number < NUMBER_OF_LAYERS - 1 && pressure < next_base_pressure);
+
+   /* calculate the altitude associated with the inputted pressure */
+   if (lapse_rate[layer_number] == 0.0) {
+      coefficient = (AIR_GAS_CONSTANT / GRAVITATIONAL_ACCELERATION)
+                                                    * base_temperature;
+      altitude = base_altitude[layer_number]
+                    + coefficient * log(pressure / base_pressure);
+   }
+   else {
+      base = pressure / base_pressure;
+      exponent = AIR_GAS_CONSTANT * lapse_rate[layer_number]
+                                       / GRAVITATIONAL_ACCELERATION;
+      coefficient = base_temperature / lapse_rate[layer_number];
+      altitude = base_altitude[layer_number]
+                      + coefficient * (pow(base, exponent) - 1);
+   }
+
+   return altitude;
+}
+
+real feet_to_meters(real feet)
+{
+    return feet * (12 * 2.54 / 100);
+}
+
+real meters_to_feet(real meters)
+{
+    return meters / (12 * 2.54 / 100);
+}
+
+
+real	time = 0;
+int	sample = 0;
+real	interval = 0.192;
+real	ground_alt = 0;
+
+void show(int pa)
+{
+	printf ("%9.2f %9.1f %d\n", time, pressure_to_altitude(pa) - ground_alt, pa);
+	sample++;
+	time += interval;
+}
+
+int mix_in (int high, int low)
+{
+	return  high - (high & 0xffff) + low;
+}
+
+bool closer (int target, int a, int b)
+{
+	return abs (target - a) < abs(target - b);
+}
+
+void
+dump_log(log_t log) {
+	int cur = log.ground_baro;
+
+	ground_alt = pressure_to_altitude(cur);
+	show(cur);
+	for (int l = 0; l < dim(log.samples); l++) {
+		int 	k = log.samples[l];
+		int	same = mix_in(cur, k);
+		int	up = mix_in(cur + 0x10000, k);
+		int	down = mix_in(cur - 0x10000, k);
+
+		if (closer (cur, same, up)) {
+			if (closer (cur, same, down))
+				cur = same;
+			else
+				cur = down;
+		} else {
+			if (closer (cur, up, down))
+				cur = up;
+			else
+				cur = down;
+		}
+		show(cur);
+	}
+}
+
+
+log_t log = get_log(stdin);
+dump_log(log);
