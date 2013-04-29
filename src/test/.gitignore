@@ -12,3 +12,4 @@ ao_fec_test
 ao_flight_test_mm
 ao_flight_test_noisy_accel
 ao_micropeak_test
+ao_aes_test
