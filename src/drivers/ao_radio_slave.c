@@ -65,7 +65,8 @@ ao_radio_slave_spi(void)
 			ao_config.radio_setting = ao_radio_spi_request.setting;
 			ao_led_on(AO_LED_RX);
 			ao_radio_spi_reply.status = ao_radio_recv(&ao_radio_spi_reply.payload,
-								  ao_radio_spi_request.recv_len);
+								  ao_radio_spi_request.recv_len,
+								  ao_radio_spi_request.timeout);
 			ao_led_off(AO_LED_RX);
 			ao_radio_spi_reply.rssi = 0;
 			ao_spi_send(&ao_radio_spi_reply,

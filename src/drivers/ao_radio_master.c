@@ -156,7 +156,7 @@ ao_radio_send(const void *d, uint8_t size)
 
 
 uint8_t
-ao_radio_recv(__xdata void *d, uint8_t size)
+ao_radio_recv(__xdata void *d, uint8_t size, uint8_t timeout)
 {
 	int8_t	ret;
 	uint8_t	recv;
@@ -166,6 +166,7 @@ ao_radio_recv(__xdata void *d, uint8_t size)
 	
 	ao_radio_get(AO_RADIO_SPI_RECV, 0);
 	ao_radio_spi_request.recv_len = size;
+	ao_radio_spi_request.timeout = timeout;
 	recv = ao_radio_master_send();
 	if (!recv) {
 		ao_radio_put();

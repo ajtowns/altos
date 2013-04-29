@@ -85,11 +85,7 @@ radio_cmac_recv(uint8_t len, uint16_t timeout) __reentrant
 #if HAS_MONITOR
 	ao_monitor_set(0);
 #endif
-	if (timeout)
-		ao_alarm(timeout);
-
-	i = ao_radio_recv(cmac_data, len + AO_CMAC_KEY_LEN + 2);
-	ao_clear_alarm();
+	i = ao_radio_recv(cmac_data, len + AO_CMAC_KEY_LEN + 2, timeout);
 
 	if (!i) {
 		ao_radio_cmac_rssi = 0;

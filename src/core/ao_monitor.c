@@ -81,7 +81,7 @@ ao_monitor_get(void)
 			size = ao_monitoring;
 			break;
 		}
-		if (!ao_radio_recv(&ao_monitor_ring[ao_monitor_head], size + 2))
+		if (!ao_radio_recv(&ao_monitor_ring[ao_monitor_head], size + 2, 0))
 			continue;
 		ao_monitor_head = ao_monitor_ring_next(ao_monitor_head);
 		ao_wakeup(DATA_TO_XDATA(&ao_monitor_head));

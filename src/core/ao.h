@@ -535,7 +535,7 @@ ao_radio_send(const __xdata void *d, uint8_t size) __reentrant;
 
 #if HAS_RADIO_RECV
 uint8_t
-ao_radio_recv(__xdata void *d, uint8_t size) __reentrant;
+ao_radio_recv(__xdata void *d, uint8_t size, uint8_t timeout) __reentrant;
 
 void
 ao_radio_recv_abort(void);

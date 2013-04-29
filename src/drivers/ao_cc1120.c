@@ -671,12 +671,17 @@ ao_radio_test_cmd(void)
 }
 
 static void
-ao_radio_wait_isr(void)
+ao_radio_wait_isr(uint16_t timeout)
 {
+	if (timeout)
+		ao_alarm(timeout);
 	ao_arch_block_interrupts();
 	while (!ao_radio_wake && !ao_radio_mcu_wake && !ao_radio_abort)
-		ao_sleep(&ao_radio_wake);
+		if (ao_sleep(&ao_radio_wake))
+			ao_radio_abort = 1;
 	ao_arch_release_interrupts();
+	if (timeout)
+		ao_clear_alarm();
 	if (ao_radio_mcu_wake)
 		ao_radio_check_marc_status();
 }
@@ -687,7 +692,7 @@ ao_radio_wait_tx(uint8_t wait_fifo)
 	uint8_t	fifo_space = 0;
 
 	do {
-		ao_radio_wait_isr();
+		ao_radio_wait_isr(0);
 		if (!wait_fifo)
 			return 0;
 		fifo_space = ao_radio_tx_fifo_space();
@@ -777,7 +782,7 @@ ao_radio_send_aprs(ao_radio_fill_func fill)
 			/* Wait for some space in the fifo */
 			while (!ao_radio_abort && (fifo_space = ao_radio_tx_fifo_space()) == 0) {
 				ao_radio_wake = 0;
-				ao_radio_wait_isr();
+				ao_radio_wait_isr(0);
 			}
 			if (ao_radio_abort)
 				break;
@@ -809,7 +814,7 @@ ao_radio_send_aprs(ao_radio_fill_func fill)
 		}
 		/* Wait for the transmitter to go idle */
 		ao_radio_wake = 0;
-		ao_radio_wait_isr();
+		ao_radio_wait_isr(0);
 	}
 	ao_radio_put();
 }
@@ -886,7 +891,7 @@ ao_radio_rx_wait(void)
 }
 
 uint8_t
-ao_radio_recv(__xdata void *d, uint8_t size)
+ao_radio_recv(__xdata void *d, uint8_t size, uint8_t timeout)
 {
 	uint8_t		len;
 	uint16_t	i;
@@ -940,7 +945,7 @@ ao_radio_recv(__xdata void *d, uint8_t size)
 	ao_radio_strobe(CC1120_SRX);
 
 	/* Wait for the preamble to appear */
-	ao_radio_wait_isr();
+	ao_radio_wait_isr(timeout);
 	if (ao_radio_abort)
 		goto abort;
 

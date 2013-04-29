@@ -62,7 +62,7 @@ ao_packet_recv(void)
 #ifdef AO_LED_GREEN
 	ao_led_on(AO_LED_GREEN);
 #endif
-	dma_done = ao_radio_recv(&ao_rx_packet, sizeof (struct ao_packet_recv));
+	dma_done = ao_radio_recv(&ao_rx_packet, sizeof (struct ao_packet_recv), 0);
 #ifdef AO_LED_GREEN
 	ao_led_off(AO_LED_GREEN);
 #endif
