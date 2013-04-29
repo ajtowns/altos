@@ -30,6 +30,7 @@ static uint8_t ao_radio_wake;		/* radio ready. Also used as sleep address */
 static uint8_t ao_radio_abort;		/* radio operation should abort */
 static uint8_t ao_radio_mcu_wake;	/* MARC status change */
 static uint8_t ao_radio_marc_status;	/* Last read MARC status value */
+static uint8_t ao_radio_tx_finished;	/* MARC status indicates TX finished */
 
 #define CC1120_DEBUG	AO_FEC_DEBUG
 #define CC1120_TRACE	0
@@ -242,6 +243,8 @@ ao_radio_check_marc_status(void)
 	/* Anyt other than 'tx/rx finished' means an error occurred */
 	if (ao_radio_marc_status & ~(CC1120_MARC_STATUS1_TX_FINISHED|CC1120_MARC_STATUS1_RX_FINISHED))
 		ao_radio_abort = 1;
+	if (ao_radio_marc_status & (CC1120_MARC_STATUS1_TX_FINISHED))
+		ao_radio_tx_finished = 1;
 }
 
 static void
@@ -258,6 +261,7 @@ ao_radio_start_tx(void)
 	ao_exti_set_callback(AO_CC1120_INT_PORT, AO_CC1120_INT_PIN, ao_radio_isr);
 	ao_exti_enable(AO_CC1120_INT_PORT, AO_CC1120_INT_PIN);
 	ao_exti_enable(AO_CC1120_MCU_WAKEUP_PORT, AO_CC1120_MCU_WAKEUP_PIN);
+	ao_radio_tx_finished = 0;
 	ao_radio_strobe(CC1120_STX);
 }
 
@@ -746,6 +750,8 @@ ao_radio_send(const void *d, uint8_t size)
 			break;
 		}
 	}
+	while (started && !ao_radio_abort && !ao_radio_tx_finished)
+		ao_radio_wait_isr(0);
 	ao_radio_put();
 }
 
