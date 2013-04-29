@@ -1,0 +1,50 @@
+#!/usr/bin/env nickle
+
+typedef struct {
+	int	a, b;
+} ck_t;
+
+/* Fletcher algorithm */
+ck_t checksum(int[] msg)
+{
+	ck_t	ck = { .a = 0, .b = 0 };
+	for (int i = 4; i < dim(msg); i++) {
+		ck.a += msg[i];
+		ck.b += ck.a;
+		ck.a &= 0xff;
+		ck.b &= 0xff;
+	}
+	return ck;
+}
+
+void main()
+{
+	string[...]	input;
+	int[...]	msg;
+
+	setdim(input, 0);
+	while (!File::end(stdin)) {
+		input[dim(input)] = gets();
+	}
+
+	setdim(msg, 0);
+	for (int i = 0; i < dim(input); i++) {
+		string[*] words = String::wordsplit(input[i], " ,\t");
+		for (int j = 0; j < dim(words); j++) {
+			if (words[j] == "/" + "*")
+				break;
+			if (String::length(words[j]) > 0 &&
+			    Ctype::isdigit(words[j][0])) {
+				msg[dim(msg)] = string_to_integer(words[j]);
+			}
+		 }
+	}
+	printf("\t0xb5, 0x62, \t\t/* length: %d bytes */\n", dim(msg));
+	for (int i = 0; i < dim(input); i++)
+		printf("%s\n", input[i]);
+	ck_t ck = checksum(msg);
+	printf ("\t0x%02x, 0x%02x,\n",
+		ck.a, ck.b);
+}
+
+main();
