@@ -11,7 +11,9 @@
  *          Vincent Rijmen
  */
 
+#ifndef AO_AES_TEST
 #include <ao.h>
+#endif
 #include <ao_aes.h>
 #include "ao_aes_int.h"
 
@@ -193,6 +195,7 @@ static inline void xAddInvMix(word32 res[MAXBC], word32 a[MAXBC],
 
 #endif				/* code included for reference */
 
+static
 int xrijndaelKeySched(word32 key[], int keyBits, int blockBits,
 		      roundkey *rkk)
 {
@@ -280,6 +283,7 @@ int xrijndaelKeySched(word32 key[], int keyBits, int blockBits,
 
 /* Encryption of one block. */
 
+static
 void xrijndaelEncrypt(word32 block[], roundkey *rkk)
 {
   word32 block2[MAXBC];		/* hold intermediate result */
@@ -306,6 +310,7 @@ void xrijndaelEncrypt(word32 block[], roundkey *rkk)
   xKeyAddition(block, block2, rp, BC);
 }
 
+static
 void xrijndaelDecrypt(word32 block[], roundkey *rkk)
 {
   word32 block2[MAXBC];		/* hold intermediate result */
@@ -349,6 +354,7 @@ void xrijndaelDecrypt(word32 block[], roundkey *rkk)
 }
 
 uint8_t ao_aes_mutex;
+static uint8_t key[16];
 static roundkey	rkk;
 
 static uint8_t iv[16];
@@ -362,7 +368,8 @@ ao_aes_set_mode(enum ao_aes_mode mode)
 void
 ao_aes_set_key(__xdata uint8_t *in)
 {
-	xrijndaelKeySched((word32 *) in, 128, 128, &rkk);
+	memcpy(key, in, 16);
+	xrijndaelKeySched((word32 *) key, 128, 128, &rkk);
 }
 
 void

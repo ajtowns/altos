@@ -41,6 +41,7 @@ typedef struct {
   word32 rk[MAXRK];
 } roundkey;
 
+#if 0
 /* keys and blocks are externally treated as word32 arrays, to
    make sure they are aligned on 4-byte boundaries on architectures
    that require it. */
@@ -60,5 +61,6 @@ int xrijndaelKeySched(word32 key[], int keyBits, int blockBits,
 
 void xrijndaelEncrypt(word32 block[], roundkey *rkk);
 void xrijndaelDecrypt(word32 block[], roundkey *rkk);
+#endif
 
 #endif				/* __RIJNDAEL_H */
