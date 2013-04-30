@@ -31,7 +31,6 @@ __xdata uint8_t ao_packet_restart;
 
 #if PACKET_HAS_MASTER
 __xdata uint8_t ao_packet_master_sleeping;
-__xdata uint8_t ao_packet_last_rssi;
 #endif
 
 void
@@ -85,9 +84,6 @@ ao_packet_recv(void)
 	if (!(ao_rx_packet.status & AO_RADIO_STATUS_CRC_OK))
 		return 0;
 
-#if PACKET_HAS_MASTER
-	ao_packet_last_rssi = ao_rx_packet.rssi;
-#endif
 	/* Accept packets with matching call signs, or any packet if
 	 * our callsign hasn't been configured
 	 */

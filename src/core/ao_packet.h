@@ -68,7 +68,7 @@ _ao_packet_pollchar(void);
 #if PACKET_HAS_MASTER
 /* ao_packet_master.c */
 
-extern __xdata uint8_t ao_packet_last_rssi;
+extern __xdata int8_t ao_packet_last_rssi;
 
 void
 ao_packet_master_init(void);

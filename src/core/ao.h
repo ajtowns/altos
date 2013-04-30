@@ -511,6 +511,8 @@ ao_telemetry_tiny_init(void);
 
 extern __xdata uint8_t	ao_radio_dma;
 
+extern __xdata int8_t	ao_radio_rssi;
+
 #ifdef PKT_APPEND_STATUS_1_CRC_OK
 #define AO_RADIO_STATUS_CRC_OK	PKT_APPEND_STATUS_1_CRC_OK
 #else

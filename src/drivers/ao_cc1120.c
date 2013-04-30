@@ -32,6 +32,8 @@ static uint8_t ao_radio_mcu_wake;	/* MARC status change */
 static uint8_t ao_radio_marc_status;	/* Last read MARC status value */
 static uint8_t ao_radio_tx_finished;	/* MARC status indicates TX finished */
 
+int8_t	ao_radio_rssi;			/* Last received RSSI value */
+
 #define CC1120_DEBUG	AO_FEC_DEBUG
 #define CC1120_TRACE	0
 
@@ -552,6 +554,7 @@ ao_radio_get(uint8_t len)
 	static uint32_t	last_radio_setting;
 
 	ao_mutex_get(&ao_radio_mutex);
+
 	if (!ao_radio_configured)
 		ao_radio_setup();
 	if (ao_config.radio_setting != last_radio_setting) {
@@ -909,7 +912,8 @@ ao_radio_recv(__xdata void *d, uint8_t size, uint8_t timeout)
 {
 	uint8_t		len;
 	uint16_t	i;
-	uint8_t		rssi;
+	uint8_t		radio_rssi = 0;
+	uint8_t		rssi0;
 	uint8_t		ret;
 	static int been_here = 0;
 
@@ -977,17 +981,26 @@ ao_radio_recv(__xdata void *d, uint8_t size, uint8_t timeout)
 	ao_radio_burst_read_stop();
 
 abort:
-	ao_radio_strobe(CC1120_SIDLE);
-
 	/* Convert from 'real' rssi to cc1111-style values */
 
-	rssi = AO_RADIO_FROM_RSSI(ao_radio_reg_read(CC1120_RSSI1));
+	rssi0 = ao_radio_reg_read(CC1120_RSSI0);
+	if (rssi0 & 1) {
+		int8_t rssi = ao_radio_reg_read(CC1120_RSSI1);
+		ao_radio_rssi = rssi;
+
+		/* Bound it to the representable range */
+		if (rssi > -11)
+			rssi = -11;
+		radio_rssi = AO_RADIO_FROM_RSSI (rssi);
+	}
+
+	ao_radio_strobe(CC1120_SIDLE);
 
 	ao_radio_put();
 
 	/* Store the received RSSI value; the crc-OK byte is already done */
 
-	((uint8_t *) d)[size] = (uint8_t) rssi;
+	((uint8_t *) d)[size] = radio_rssi;
 
 #if AO_PROFILE
 	rx_last_done_tick = rx_done_tick;

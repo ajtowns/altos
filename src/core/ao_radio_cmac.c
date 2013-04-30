@@ -92,7 +92,7 @@ radio_cmac_recv(uint8_t len, uint16_t timeout) __reentrant
 		return AO_RADIO_CMAC_TIMEOUT;
 	}
 
-	ao_radio_cmac_rssi = (int8_t) (((int8_t) cmac_data[len + AO_CMAC_KEY_LEN]) >> 1) - 74;
+	ao_radio_cmac_rssi = ao_radio_rssi;
 	if (!(cmac_data[len + AO_CMAC_KEY_LEN +1] & AO_RADIO_STATUS_CRC_OK))
 		return AO_RADIO_CMAC_CRC_ERROR;
 
@@ -146,7 +146,7 @@ ao_radio_cmac_send(__xdata void *packet, uint8_t len) __reentrant
 int8_t
 ao_radio_cmac_recv(__xdata void *packet, uint8_t len, uint16_t timeout) __reentrant
 {
-	uint8_t	i;
+	int8_t	i;
 	if (len > AO_CMAC_MAX_LEN)
 		return AO_RADIO_CMAC_LEN_ERROR;
 	ao_mutex_get(&ao_radio_cmac_mutex);

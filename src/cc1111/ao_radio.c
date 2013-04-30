@@ -249,6 +249,18 @@ __xdata uint8_t ao_radio_done;
 __xdata uint8_t ao_radio_abort;
 __xdata uint8_t ao_radio_mutex;
 
+#if PACKET_HAS_MASTER || HAS_AES
+#define NEED_RADIO_RSSI 1
+#endif
+
+#ifndef NEED_RADIO_RSSI
+#define NEED_RADIO_RSSI 0
+#endif
+
+#if NEED_RADIO_RSSI
+__xdata int8_t ao_radio_rssi;
+#endif
+
 void
 ao_radio_general_isr(void) __interrupt 16
 {
@@ -356,7 +368,14 @@ ao_radio_recv(__xdata void *packet, uint8_t size, uint8_t timeout) __reentrant
 	if (!ao_radio_dma_done) {
 		ao_dma_abort(ao_radio_dma);
 		ao_radio_idle();
+#if NEED_RADIO_RSSI
+		ao_radio_rssi = 0;
+#endif
 	}
+#if NEED_RADIO_RSSI
+	else
+		ao_radio_rssi = AO_RSSI_FROM_RADIO(((uint8_t *)packet)[size - 1]);
+#endif
 	ao_radio_put();
 	return ao_radio_dma_done;
 }
