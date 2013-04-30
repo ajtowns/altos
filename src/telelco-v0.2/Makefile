@@ -20,6 +20,7 @@ INC = \
 	ao_lco_func.h \
 	ao_radio_spi.h \
 	ao_radio_cmac.h \
+	ao_cc1120_CC1120.h \
 	stm32l.h
 
 #
