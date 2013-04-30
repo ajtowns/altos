@@ -21,6 +21,10 @@
  *
  ***************************************************************/
 
+#ifndef AO_CC1120_AGC_GAIN_ADJUST
+#define AO_CC1120_AGC_GAIN_ADJUST	-80
+#endif
+
         CC1120_SYNC3,                          0xD3,       /* Sync Word Configuration [31:24] */
         CC1120_SYNC2,                          0x91,       /* Sync Word Configuration [23:16] */
         CC1120_SYNC1,                          0xD3,       /* Sync Word Configuration [15:8] */
@@ -53,24 +57,49 @@
 		(0 << CC1120_MDMCFG1_SINGLE_ADC_EN),
         CC1120_MDMCFG0,                        0x05,       /* General Modem Parameter Configuration */
 
-        CC1120_AGC_REF,                        0x20,       /* AGC Reference Level Configuration */
-        CC1120_AGC_CS_THR,                     0x19,       /* Carrier Sense Threshold Configuration */
-        CC1120_AGC_GAIN_ADJUST,                0x00,       /* RSSI Offset Configuration */
-        CC1120_AGC_CFG3,                       0x91,       /* AGC Configuration */
-        CC1120_AGC_CFG2,                       0x20,       /* AGC Configuration */
-        CC1120_AGC_CFG1,                       0xa9,       /* AGC Configuration */
-        CC1120_AGC_CFG0,                       0xcf,       /* AGC Configuration */
+	/* AGC reference = 10 * log10(receive BW) - 4 = 10 * log10(100e3) - 4 = 46 */
+        CC1120_AGC_REF,                        46,         /* AGC Reference Level Configuration */
+
+	/* Carrier sense threshold - 25dB above the noise */
+        CC1120_AGC_CS_THR,                     25,         /* Carrier Sense Threshold Configuration */
+        CC1120_AGC_GAIN_ADJUST,				   /* RSSI Offset Configuration */
+                AO_CC1120_AGC_GAIN_ADJUST,
+
+	CC1120_AGC_CFG3,                              	   /* AGC Configuration */
+		(1 << CC1120_AGC_CFG3_RSSI_STEP_THR) |
+		(17 << CC1120_AGC_CFG3_AGC_MIN_GAIN),
+
+        CC1120_AGC_CFG2,       				   /* AGC Configuration */
+		(0 << CC1120_AGC_CFG2_START_PREVIOUS_GAIN_EN) |
+		(CC1120_AGC_CFG2_FE_PERFORMANCE_MODE_NORMAL << CC1120_AGC_CFG2_FE_PERFORMANCE_MODE) |
+		(0 << CC1120_AGC_CFG2_AGC_MAX_GAIN),
+
+        CC1120_AGC_CFG1,       				   /* AGC Configuration */
+		(CC1120_AGC_CFG1_AGC_SYNC_BEHAVIOR_UPDATE_AGC_UPDATE_RSSI_SLOW << CC1120_AGC_CFG1_AGC_SYNC_BEHAVIOR) |
+		(CC1120_AGC_CFG1_AGC_WIN_SIZE_32 << CC1120_AGC_CFG1_AGC_WIN_SIZE) |
+		(CC1120_AGC_CFG1_AGC_SETTLE_WAIT_32 << CC1120_AGC_CFG1_AGC_SETTLE_WAIT),
+
+        CC1120_AGC_CFG0,       				   /* AGC Configuration */
+		(CC1120_AGC_CFG0_AGC_HYST_LEVEL_10 << CC1120_AGC_CFG0_AGC_HYST_LEVEL) |
+		(CC1120_AGC_CFG0_AGC_SLEWRATE_LIMIT_60 << CC1120_AGC_CFG0_AGC_SLEWRATE_LIMIT) |
+		(CC1120_AGC_CFG0_RSSI_VALID_CNT_9 << CC1120_AGC_CFG0_RSSI_VALID_CNT) |
+		(CC1120_AGC_CFG0_AGC_ASK_DECAY_1_128 << CC1120_AGC_CFG0_AGC_ASK_DECAY),
+
         CC1120_FIFO_CFG,		       		   /* FIFO Configuration */
 		(0 << CC1120_FIFO_CFG_CRC_AUTOFLUSH) |
 		(0x40 << CC1120_FIFO_CFG_FIFO_THR),
+
         CC1120_DEV_ADDR,                       0x00,       /* Device Address Configuration */
+
         CC1120_SETTLING_CFG,                          	   /* Frequency Synthesizer Calibration and Settling Configuration */
 		(CC1120_SETTLING_CFG_FS_AUTOCAL_IDLE_TO_ON << CC1120_SETTLING_CFG_FS_AUTOCAL) |
 		(CC1120_SETTLING_CFG_LOCK_TIME_50_20 << CC1120_SETTLING_CFG_LOCK_TIME) |
 		(CC1120_SETTLING_CFG_FSREG_TIME_60 << CC1120_SETTLING_CFG_FSREG_TIME),
+
         CC1120_FS_CFG,                                	   /* Frequency Synthesizer Configuration */
 		(1 << CC1120_FS_CFG_LOCK_EN) |
 		(CC1120_FS_CFG_FSD_BANDSELECT_410_480 << CC1120_FS_CFG_FSD_BANDSELECT),
+
         CC1120_WOR_CFG1,                       0x08,       /* eWOR Configuration, Reg 1 */
         CC1120_WOR_CFG0,                       0x21,       /* eWOR Configuration, Reg 0 */
         CC1120_WOR_EVENT0_MSB,                 0x00,       /* Event 0 Configuration */
