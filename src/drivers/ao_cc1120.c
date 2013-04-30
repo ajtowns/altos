@@ -964,8 +964,10 @@ ao_radio_recv(__xdata void *d, uint8_t size, uint8_t timeout)
 
 	/* Wait for the preamble to appear */
 	ao_radio_wait_isr(timeout);
-	if (ao_radio_abort)
+	if (ao_radio_abort) {
+		ret = 0;
 		goto abort;
+	}
 
 	ao_radio_reg_write(AO_CC1120_INT_GPIO_IOCFG, CC1120_IOCFG_GPIO_CFG_CLKEN_SOFT);
 	ao_exti_set_mode(AO_CC1120_INT_PORT, AO_CC1120_INT_PIN,
