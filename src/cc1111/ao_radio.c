@@ -187,7 +187,7 @@ static __code uint8_t radio_setup[] = {
 				 RF_BSCFG_BS_POST_KI_PRE_KI|
 				 RF_BSCFG_BS_POST_KP_PRE_KP|
 				 RF_BSCFG_BS_LIMIT_0),
-	RF_AGCCTRL2_OFF,	0x43,
+	RF_AGCCTRL2_OFF,	0x03,
 	RF_AGCCTRL1_OFF,	0x40,
 	RF_AGCCTRL0_OFF,	0x91,
 
