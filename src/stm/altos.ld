@@ -17,7 +17,8 @@
 
 MEMORY {
 	rom (rx) : ORIGIN = 0x08000000, LENGTH = 128K
-	ram (!w) : ORIGIN = 0x20000000, LENGTH = 16K
+	ram (!w) : ORIGIN = 0x20000000, LENGTH = 15872
+	stack (!w) : ORIGIN = 0x20003e00, LENGTH = 512
 }
 
 INCLUDE registers.ld
@@ -63,8 +64,9 @@ SECTIONS {
 		__bss_end__ = .;
 	} >ram
 
-	PROVIDE(__stack__ = ORIGIN(ram) + LENGTH(ram));
 	PROVIDE(end = .);
+
+	PROVIDE(__stack__ = ORIGIN(stack) + LENGTH(stack));
 }
 
 ENTRY(start);

@@ -536,5 +536,8 @@ ao_start_scheduler(void)
 	ao_cur_task_index = AO_NO_TASK_INDEX;
 #endif
 	ao_cur_task = NULL;
+#if HAS_ARCH_START_SCHEDULER
+	ao_arch_start_scheduler();
+#endif
 	ao_yield();
 }
