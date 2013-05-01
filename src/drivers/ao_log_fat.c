@@ -27,7 +27,7 @@ static uint8_t	log_mutex;
 static void
 ao_log_open(void)
 {
-	char	name[12];
+	static char	name[12];
 	int8_t	status;
 
 	sprintf(name,"%04d%02d%02dLOG", 2000 + log_year, log_month, log_day);
@@ -38,7 +38,7 @@ ao_log_open(void)
 		log_open = 1;
 	} else if (status == -AO_FAT_ENOENT) {
 		status = ao_fat_creat(name);
-		if (status == AO_FAT_SUCCESS) {
+		if (status >= 0) {
 			log_fd = status;
 			log_open = 1;
 		}

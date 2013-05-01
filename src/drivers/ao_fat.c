@@ -1052,7 +1052,7 @@ static int8_t
 _ao_fat_open(char name[11], uint8_t mode)
 {
 	uint16_t		entry = 0;
-	struct ao_fat_dirent	dirent;
+	static struct ao_fat_dirent	dirent;
 	int8_t			status;
 
 	if (_ao_fat_setup() != AO_FAT_FILESYSTEM_SUCCESS)
@@ -1214,12 +1214,11 @@ ao_fat_map_current(struct ao_file *file, int len, cluster_offset_t *offsetp, clu
 	offset = file->offset & SECTOR_MASK;
 	sector = _ao_fat_current_sector(file);
 	if (sector == 0xffffffff) {
-		printf ("invalid sector at offset %d\n", file->offset);
 		return NULL;
 	}
 	buf = _ao_fat_sector_get(sector);
 	if (!buf)
-		printf ("sector get failed. Sector %d. Partition end %d\n", sector, partition_end);
+		return NULL;
 	if (offset + len < SECTOR_SIZE)
 		*this_time = len;
 	else
@@ -1259,7 +1258,6 @@ ao_fat_read(int8_t fd, void *dst, int len)
 	while (len) {
 		buf = ao_fat_map_current(file, len, &offset, &this_time);
 		if (!buf) {
-			printf ("map_current failed\n");
 			ret = -AO_FAT_EIO;
 			break;
 		}
@@ -1307,7 +1305,6 @@ ao_fat_write(int8_t fd, void *src, int len)
 	while (len) {
 		buf = ao_fat_map_current(file, len, &offset, &this_time);
 		if (!buf) {
-			printf ("map_current failed\n");
 			ret = -AO_FAT_EIO;
 			break;
 		}
@@ -1375,7 +1372,7 @@ int8_t
 ao_fat_unlink(char name[11])
 {
 	uint16_t		entry = 0;
-	struct ao_fat_dirent	dirent;
+	static struct ao_fat_dirent	dirent;
 	int8_t			ret;
 
 	ao_mutex_get(&ao_fat_mutex);
@@ -1492,7 +1489,7 @@ static void
 ao_fat_list_cmd(void)
 {
 	uint16_t		entry = 0;
-	struct ao_fat_dirent	dirent;
+	static struct ao_fat_dirent	dirent;
 	int			i;
 	int8_t			status;
 
@@ -1535,10 +1532,10 @@ ao_fat_parse_name(char name[11])
 static void
 ao_fat_dump_cmd(void)
 {
-	char		name[11];
+	static char	name[11];
 	int8_t		fd;
 	int		cnt, i;
-	char		buf[32];
+	static char	buf[32];
 
 	ao_fat_parse_name(name);
 	if (name[0] == '\0') {
@@ -1561,10 +1558,10 @@ ao_fat_dump_cmd(void)
 static void
 ao_fat_write_cmd(void)
 {
-	char		name[11];
+	static char	name[11];
 	int8_t		fd;
 	int		cnt, i;
-	char		buf[64];
+	static char	buf[64];
 	char		c;
 	int		status;
 
