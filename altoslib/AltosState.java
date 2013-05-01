@@ -252,8 +252,7 @@ public class AltosState {
 		range = -1;
 		gps_height = 0;
 		if (data.gps != null) {
-			if (gps == null || !gps.locked || data.gps.locked)
-				gps = data.gps;
+			gps = data.gps;
 			if (ngps > 0 && gps.locked) {
 				double h = height;
 
