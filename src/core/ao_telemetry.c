@@ -230,6 +230,7 @@ ao_send_location(void)
 		ao_xmemcpy(&telemetry.location.flags,
 		       &ao_gps_data.flags,
 		       26);
+		telemetry.location.tick = ao_gps_tick;
 		ao_mutex_put(&ao_gps_mutex);
 		ao_radio_send(&telemetry, sizeof (telemetry));
 		ao_telemetry_loc_cur = ao_telemetry_config_max;
