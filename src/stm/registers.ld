@@ -44,6 +44,8 @@ stm_tim4   = 0x40000800;
 stm_tim3   = 0x40000400;
 stm_tim2   = 0x40000000;
 
+stm_systick = 0xe000e010;
+
 stm_nvic   = 0xe000e100;
 
 stm_scb    = 0xe000ed00;

@@ -811,6 +811,24 @@ extern struct stm_lcd stm_lcd;
 #define STM_LCD_CLR_UDDC		(3)
 #define STM_LCD_CLR_SOFC		(1)
 
+/* The SYSTICK starts at 0xe000e010 */
+
+struct stm_systick {
+	vuint32_t	csr;
+	vuint32_t	rvr;
+	vuint32_t	cvr;
+	vuint32_t	calib;
+};
+
+extern struct stm_systick stm_systick;
+
+#define STM_SYSTICK_CSR_ENABLE		0
+#define STM_SYSTICK_CSR_TICKINT		1
+#define STM_SYSTICK_CSR_CLKSOURCE	2
+#define  STM_SYSTICK_CSR_CLKSOURCE_HCLK_8		0
+#define  STM_SYSTICK_CSR_CLKSOURCE_HCLK			1
+#define STM_SYSTICK_CSR_COUNTFLAG	16
+
 /* The NVIC starts at 0xe000e100, so add that to the offsets to find the absolute address */
 
 struct stm_nvic {
