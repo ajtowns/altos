@@ -145,6 +145,12 @@ if test "x$ANDROID_SDK" != "xno"; then
 	fi
 fi
 
+if test "x$ANDROID_SDK" != "xno"; then
+	HAVE_ANDROID_SDK="yes"
+else
+	HAVE_ANDROD_SDK="no"
+fi
+
 AM_CONDITIONAL([ANDROID], [test x$ANDROID_SDK != xno])
 
 AC_SUBST(ANDROID_SDK)
@@ -176,7 +182,12 @@ AC_SUBST(WARN_CFLAGS)
 
 AC_CHECK_PROG([HAVE_SDCC], [sdcc], yes, no)
 if test "x$HAVE_SDCC" = "xno"; then
-	AC_MSG_ERROR([Please install sdcc to build AltOs])
+	AC_MSG_WARN([No sdcc found, cc1111 binaries will not be built])
+fi
+
+AC_CHECK_PROG([HAVE_ARM_GCC], [arm-none-eabi-gcc], yes, no)
+if test "x$HAVE_ARM_GCC" = "xno"; then
+	AC_MSG_WARN([No arm compiler found, STM32L and LPC11U14 binaries will not be built])
 fi
 
 AC_CHECK_PROG([HAVE_NICKLE], [nickle], yes, no)
@@ -227,3 +238,24 @@ ao-tools/ao-dump-up/Makefile
 ao-utils/Makefile
 src/Version
 ])
+
+echo ""
+echo "  Package: ${PACKAGE_NAME} ${PACKAGE_VERSION}"
+echo ""
+echo "  Configuration"
+echo "    STM32L/LPC11U14 support.....: ${HAVE_ARM_GCC}"
+echo "    CC1111 support..............: ${HAVE_SDCC}"
+echo "    Android support.............: ${HAVE_ANDROID_SDK}"
+echo "    STlink support..............: ${HAVE_STLINK}"
+echo ""
+echo "  Java paths"
+echo "    freetts.....................: ${FREETTS}"
+echo "    jfreechart..................: ${JFREECHART}"
+echo "    jcommon.....................: ${JCOMMON}"
+echo "    JVM include.................: ${JVM_INCLUDE}"
+if test x${ANDROID_SDK} != "xno"; then
+echo ""
+echo "  Android path"
+echo "    Android SDK.................: ${ANDROID_SDK}"
+fi
+echo ""
