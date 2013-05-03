@@ -46,7 +46,7 @@ ao_aprs_bit(uint8_t bit)
 #endif
 
 void
-ao_radio_send_lots(ao_radio_fill_func fill);
+ao_radio_send_aprs(ao_radio_fill_func fill);
 
 #include <ao_aprs.c>
 
