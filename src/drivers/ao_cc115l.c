@@ -328,11 +328,13 @@ static const uint16_t rdf_setup[] = {
 };
 
 /*
- * APRS deviation is the same as RDF
+ * APRS deviation is 3kHz
+ *
+ * 26e6 / (2 ** 17) * (8 + 7) * (2 ** 0) = 2975
  */
 
-#define APRS_DEV_E	RDF_DEV_E
-#define APRS_DEV_M	RDF_DEV_M
+#define APRS_DEV_E	0
+#define APRS_DEV_M	7
 
 /*
  * For our APRS beacon, set the symbol rate to 9.6kBaud (8x oversampling for 1200 baud data rate)
