@@ -880,14 +880,65 @@ extern struct lpc_usb lpc_usb;
 
 #define LPC_USB_EPSKIP_SKIP		0
 
-#define LPC_USB_EPINUSE(ep)		((ep) + 2)
+#define LPC_USB_EPINUSE_BUF(ep)		(ep)
 
-#define LPC_USB_
-#define LPC_USB_
-#define LPC_USB_
-#define LPC_USB_
-#define LPC_USB_
-#define LPC_USB_
+#define LPC_USB_EPBUFCFG_BUF_SB(ep)	(ep)
+
+#define LPC_USB_INTSTAT_EP0OUT		0
+#define LPC_USB_INTSTAT_EP0IN		1
+#define LPC_USB_INTSTAT_EP1OUT		2
+#define LPC_USB_INTSTAT_EP1IN		3
+#define LPC_USB_INTSTAT_EP2OUT		4
+#define LPC_USB_INTSTAT_EP2IN		5
+#define LPC_USB_INTSTAT_EP3OUT		6
+#define LPC_USB_INTSTAT_EP3IN		7
+#define LPC_USB_INTSTAT_EP4OUT		8
+#define LPC_USB_INTSTAT_EP4IN		9
+#define LPC_USB_INTSTAT_FRAME_INT	30
+#define LPC_USB_INTSTAT_DEV_INT		31
+
+#define LPC_USB_INTIN_EP_INT_EN(ep)	(ep)
+#define LPC_USB_INTIN_FRAME_INT_EN	30
+#define LPC_USB_INTIN_DEV_INT_EN	31
+
+#define LPC_USB_INTSETSTAT_EP_SET_INT(ep)	(ep)
+#define LPC_USB_INTSETSTAT_FRAME_SET_INT	30
+#define LPC_USB_INTSETSTAT_DEV_SET_INT		31
+
+#define LPC_USB_INTROUTING_ROUTE_INT(ep)	(ep)
+#define LPC_USB_INTROUTING_INT30		30
+#define LPC_USB_INTROUTING_INT31		31
+
+#define LPC_USB_EPTOGGLE_TOGGLE(ep)		(ep)
+
+struct lpc_usb_ep {
+	vuint16_t	buffer_offset;
+	vuint16_t	buffer_status_nbytes;
+};
+
+struct lpc_usb_epn {
+	struct lpc_usb_ep	out[2];
+	struct lpc_usb_ep	in[2];
+};
+
+struct lpc_usb_endpoint {
+	struct lpc_usb_ep	ep0_out;
+	vuint16_t	setup_offset;
+	vuint16_t	reserved_06;
+	struct lpc_usb_ep	ep0_in;
+	vuint16_t	reserved_0c;
+	vuint16_t	reserved_0e;
+	struct lpc_usb_epn	epn[4];
+};
+
+#define LPC_USB_EP_STATUS_ACTIVE	15
+#define LPC_USB_EP_STATUS_DISABLED	14
+#define LPC_USB_EP_STATUS_STALL		13
+#define LPC_USB_EP_STATUS_TOGGLE_RESET	12
+#define LPC_USB_EP_STATUS_RATE_FEEDBACK	11
+#define LPC_USB_EP_STATUS_ENDPOINT_TYPE	10
+#define LPC_USB_EP_STATUS_OFFSET	0
+#define LPC_USB_EP_STATUS_OFFSET_MASK	0x3ff
 
 #define LPC_ISR_PIN_INT0_POS	0
 #define LPC_ISR_PIN_INT1_POS	1
