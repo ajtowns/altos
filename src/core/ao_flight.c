@@ -94,7 +94,9 @@ ao_flight(void)
 			if (ao_config.accel_plus_g == 0 ||
 			    ao_config.accel_minus_g == 0 ||
 			    ao_ground_accel < ao_config.accel_plus_g - ACCEL_NOSE_UP ||
-			    ao_ground_accel > ao_config.accel_minus_g + ACCEL_NOSE_UP)
+			    ao_ground_accel > ao_config.accel_minus_g + ACCEL_NOSE_UP ||
+			    ao_ground_height < -1000 ||
+			    ao_ground_height > 7000)
 			{
 				/* Detected an accel value outside -1.5g to 1.5g
 				 * (or uncalibrated values), so we go into invalid mode
