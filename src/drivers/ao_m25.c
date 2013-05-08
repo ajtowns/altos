@@ -29,6 +29,7 @@ __pdata uint32_t	ao_storage_config;
 /* Storage unit size - device reads and writes must be within blocks of this size. Usually 256 bytes. */
 __pdata uint16_t	ao_storage_unit;
 
+#define M25_DEBUG	0
 /*
  * Each flash chip is arranged in 64kB sectors; the
  * chip cannot erase in units smaller than that.
@@ -330,7 +331,9 @@ ao_storage_setup(void)
 void
 ao_storage_device_info(void) __reentrant
 {
+#if M25_DEBUG
 	uint8_t	cs;
+#endif
 #if M25_MAX_CHIPS > 1
 	uint8_t chip;
 #endif
@@ -348,6 +351,7 @@ ao_storage_device_info(void) __reentrant
 	printf ("Detected chips 1 size %d\n", ao_m25_total);
 #endif
 
+#if M25_DEBUG
 	printf ("Available chips:\n");
 	for (cs = 1; cs != 0; cs <<= 1) {
 		if ((AO_M25_SPI_CS_MASK & cs) == 0)
@@ -368,6 +372,7 @@ ao_storage_device_info(void) __reentrant
 			ao_m25_instruction[M25_UID_OFFSET]);
 		ao_mutex_put(&ao_m25_mutex);
 	}
+#endif
 }
 
 void
