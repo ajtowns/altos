@@ -83,6 +83,7 @@ public class MicroSave extends JFileChooser {
 			}
 			try {
 				save(file, data);
+				AltosUIPreferences.set_last_logdir(file.getParentFile());
 				data.set_name(filename);
 				return true;
 			} catch (FileNotFoundException fe) {
@@ -101,7 +102,7 @@ public class MicroSave extends JFileChooser {
 		setDialogTitle("Save MicroPeak Data File");
 		setFileFilter(new FileNameExtensionFilter("MicroPeak data file",
 							  "mpd"));
-		setCurrentDirectory(AltosUIPreferences.logdir());
+		setCurrentDirectory(AltosUIPreferences.last_logdir());
 		setSelectedFile(MicroFile.make());
 	}
 }

@@ -50,6 +50,6 @@ public class MicroFileChooser extends JFileChooser {
 		setDialogTitle("Select MicroPeak Data File");
 		setFileFilter(new FileNameExtensionFilter("MicroPeak data file",
 							  "mpd"));
-		setCurrentDirectory(AltosUIPreferences.logdir());
+		setCurrentDirectory(AltosUIPreferences.last_logdir());
 	}
 }
