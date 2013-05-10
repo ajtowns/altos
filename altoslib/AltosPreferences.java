@@ -62,6 +62,9 @@ public class AltosPreferences {
 	/* Log directory */
 	public static File logdir;
 
+	/* Last log directory - use this next time we open or save something */
+	public static File last_logdir;
+
 	/* Map directory -- hangs of logdir */
 	public static File mapdir;
 
@@ -195,6 +198,24 @@ public class AltosPreferences {
 	public static File logdir() {
 		synchronized (backend) {
 			return logdir;
+		}
+	}
+
+	public static File last_logdir() {
+		synchronized (backend) {
+			if (last_logdir == null)
+				last_logdir = logdir;
+			return last_logdir;
+		}
+	}
+
+	public static void set_last_logdir(File file) {
+		synchronized(backend) {
+			if (file != null && !file.isDirectory())
+				file = file.getParentFile();
+			if (file == null)
+				file = new File(".");
+			last_logdir = file;
 		}
 	}
 

@@ -26,3 +26,5 @@ Desired AltosDroid feature list
     
  *) Re-loading flight data from .telem file to get back to
     'find my rocket' mode after shutting down the application.
+
+ *) Imperial Units mode

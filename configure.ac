@@ -148,7 +148,7 @@ fi
 if test "x$ANDROID_SDK" != "xno"; then
 	HAVE_ANDROID_SDK="yes"
 else
-	HAVE_ANDROD_SDK="no"
+	HAVE_ANDROID_SDK="no"
 fi
 
 AM_CONDITIONAL([ANDROID], [test x$ANDROID_SDK != xno])

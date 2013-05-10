@@ -64,6 +64,7 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		FileInputStream	fis = new FileInputStream(filename);
 		try {
 			data = new MicroData((InputStream) fis, filename.getName());
+			AltosUIPreferences.set_last_logdir(filename);
 		} catch (InterruptedException ie) {
 			data = null;
 		} finally {
