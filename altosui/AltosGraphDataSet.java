@@ -36,14 +36,16 @@ class AltosGraphIterator implements Iterator<AltosUIDataPoint> {
 	public AltosUIDataPoint next() {
 		state = new AltosState(iterator.next(), state);
 
-		if (dataSet.callsign == null && state.data.callsign != null)
-			dataSet.callsign = state.data.callsign;
+		if ((state.data.seen & AltosRecord.seen_flight) != 0) {
+			if (dataSet.callsign == null && state.data.callsign != null)
+				dataSet.callsign = state.data.callsign;
 
-		if (dataSet.serial == 0 && state.data.serial != 0)
-			dataSet.serial = state.data.serial;
+			if (dataSet.serial == 0 && state.data.serial != 0)
+				dataSet.serial = state.data.serial;
 
-		if (dataSet.flight == 0 && state.data.flight != 0)
-			dataSet.flight = state.data.flight;
+			if (dataSet.flight == 0 && state.data.flight != 0)
+				dataSet.flight = state.data.flight;
+		}
 
 		return new AltosGraphDataPoint(state);
 	}
