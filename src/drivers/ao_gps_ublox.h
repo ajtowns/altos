@@ -50,8 +50,8 @@ struct ublox_nav_posllh {
 	uint16_t	length;		/* 28 */
 
 	uint32_t	itow;		/* ms */
-	int32_t		lat;		/* deg * 1e7 */
 	int32_t		lon;		/* deg * 1e7 */
+	int32_t		lat;		/* deg * 1e7 */
 	int32_t		height;		/* mm */
 	int32_t		hmsl;		/* mm */
 	uint32_t	hacc;		/* mm */
