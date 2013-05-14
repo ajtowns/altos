@@ -126,13 +126,15 @@ struct ao_telemetry_satellite_info {
 	uint8_t		c_n_1;
 };
 
+#define AO_TELEMETRY_SATELLITE_MAX_SAT	12
+
 struct ao_telemetry_satellite {
 	uint16_t				serial;		/*  0 */
 	uint16_t				tick;		/*  2 */
 	uint8_t					type;		/*  4 */
 	uint8_t					channels;	/*  5 number of reported sats */
 
-	struct ao_telemetry_satellite_info	sats[12];	/* 6 */
+	struct ao_telemetry_satellite_info	sats[AO_TELEMETRY_SATELLITE_MAX_SAT];	/* 6 */
 	uint8_t					unused[2];	/* 30 */
 	/* 32 */
 };
