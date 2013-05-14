@@ -19,6 +19,8 @@
 #include <ao_mpu6000.h>
 #include <ao_exti.h>
 
+#if HAS_MPU6000
+
 static uint8_t	ao_mpu6000_wake;
 static uint8_t	ao_mpu6000_configured;
 
@@ -326,5 +328,9 @@ ao_mpu6000_init(void)
 	ao_mpu6000_configured = 0;
 
 	ao_add_task(&ao_mpu6000_task, ao_mpu6000, "mpu6000");
+#ifndef AO_MPU6000_I2C_INDEX
+	ao_spi_init_cs(AO_MPU6000_SPI_CS_PORT, (1 << AO_MPU6000_SPI_CS_PIN));
+#endif	
 	ao_cmd_register(&ao_mpu6000_cmds[0]);
 }
+#endif

@@ -308,7 +308,7 @@ struct ao_adc {
  * mpu6000
  */
 
-#define HAS_MPU6000		1	
+#define HAS_MPU6000		1
 #define AO_MPU6000_INT_PORT	(&stm_gpioe)
 #define AO_MPU6000_INT_PIN	0
 #define AO_MPU6000_SPI_BUS	AO_SPI_1_PE13_PE14_PE15
