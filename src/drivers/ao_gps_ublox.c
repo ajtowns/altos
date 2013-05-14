@@ -695,10 +695,16 @@ ao_gps(void) __reentrant
 	}
 }
 
+__code struct ao_cmds ao_gps_cmds[] = {
+	{ ao_gps_show, 	"g\0Display GPS" },
+	{ 0, NULL },
+};
+
 __xdata struct ao_task ao_gps_task;
 
 void
 ao_gps_init(void)
 {
+	ao_cmd_register(&ao_gps_cmds[0]);
 	ao_add_task(&ao_gps_task, ao_gps, "gps");
 }

@@ -380,6 +380,9 @@ void
 ao_gps_tracking_print(__xdata struct ao_gps_tracking_orig *gps_tracking_data);
 
 void
+ao_gps_show(void) __reentrant;
+
+void
 ao_gps_init(void);
 
 /*

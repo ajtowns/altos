@@ -59,6 +59,7 @@ ALTOS_SRC = \
 	ao_mutex.c \
 	ao_serial_stm.c \
 	ao_gps_skytraq.c \
+	ao_gps_show.c \
 	ao_gps_report_mega.c \
 	ao_ignite.c \
 	ao_freq.c \

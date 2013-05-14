@@ -483,25 +483,6 @@ ao_gps(void) __reentrant
 
 __xdata struct ao_task ao_gps_task;
 
-static void
-gps_dump(void) __reentrant
-{
-	uint8_t	i;
-	ao_mutex_get(&ao_gps_mutex);
-	printf ("Date: %02d/%02d/%02d\n", ao_gps_data.year, ao_gps_data.month, ao_gps_data.day);
-	printf ("Time: %02d:%02d:%02d\n", ao_gps_data.hour, ao_gps_data.minute, ao_gps_data.second);
-	printf ("Lat/Lon: %ld %ld\n", (long) ao_gps_data.latitude, (long) ao_gps_data.longitude);
-	printf ("Alt: %d\n", ao_gps_data.altitude);
-	printf ("Flags: 0x%x\n", ao_gps_data.flags);
-	printf ("Sats: %d", ao_gps_tracking_data.channels);
-	for (i = 0; i < ao_gps_tracking_data.channels; i++)
-		printf (" %d %d",
-			ao_gps_tracking_data.sats[i].svid,
-			ao_gps_tracking_data.sats[i].c_n_1);
-	printf ("\ndone\n");
-	ao_mutex_put(&ao_gps_mutex);
-}
-
 static __code uint8_t ao_gps_115200[] = {
 	SKYTRAQ_MSG_3(5,0,5,0)	/* Set to 115200 baud */
 };
@@ -532,7 +513,7 @@ gps_update(void) __reentrant
 }
 
 __code struct ao_cmds ao_gps_cmds[] = {
-	{ gps_dump, 	"g\0Display GPS" },
+	{ ao_gps_show, 	"g\0Display GPS" },
 	{ gps_update,	"U\0Update GPS firmware" },
 	{ 0, NULL },
 };

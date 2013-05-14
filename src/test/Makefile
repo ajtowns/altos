@@ -35,10 +35,10 @@ ao_flight_test_mm: ao_flight_test.c ao_host.h ao_flight.c ao_sample.c ao_kalman.
 ao_gps_test: ao_gps_test.c ao_gps_sirf.c ao_gps_print.c ao_host.h
 	cc $(CFLAGS) -o $@ $<
 
-ao_gps_test_skytraq: ao_gps_test_skytraq.c ao_gps_skytraq.c ao_gps_print.c ao_host.h
+ao_gps_test_skytraq: ao_gps_test_skytraq.c ao_gps_skytraq.c ao_gps_print.c ao_gps_show.c ao_host.h
 	cc $(CFLAGS) -o $@ $<
 
-ao_gps_test_ublox: ao_gps_test_ublox.c ao_gps_ublox.c ao_gps_print.c ao_host.h ao_gps_ublox.h
+ao_gps_test_ublox: ao_gps_test_ublox.c ao_gps_ublox.c ao_gps_print.c ao_gps_show.c ao_host.h ao_gps_ublox.h
 	cc $(CFLAGS) -o $@ $<
 
 ao_convert_test: ao_convert_test.c ao_convert.c altitude.h

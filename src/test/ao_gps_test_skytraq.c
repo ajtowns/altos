@@ -75,6 +75,11 @@ struct ao_gps_tracking_orig {
 #define ao_telemetry_satellite ao_gps_tracking_orig
 #define ao_telemetry_satellite_info ao_gps_sat_orig
 
+extern __xdata struct ao_telemetry_location	ao_gps_data;
+extern __xdata struct ao_telemetry_satellite	ao_gps_tracking_data;
+
+uint8_t ao_gps_mutex;
+
 void
 ao_mutex_get(uint8_t *mutex)
 {
@@ -432,17 +437,14 @@ uint8_t	ao_task_minimize_latency;
 #define ao_usb_getchar()	0
 
 #include "ao_gps_print.c"
+#include "ao_gps_show.c"
 #include "ao_gps_skytraq.c"
 
 void
 ao_dump_state(void *wchan)
 {
 	if (wchan == &ao_gps_data)
-		ao_gps_print(&ao_gps_data);
-	else
-		ao_gps_tracking_print(&ao_gps_tracking_data);
-	putchar('\n');
-	return;
+		ao_gps_show();
 }
 
 int

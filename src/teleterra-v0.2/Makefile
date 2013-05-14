@@ -52,7 +52,8 @@ CC1111_SRC = \
 DRIVER_SRC = \
 	ao_m25.c \
 	ao_lcd.c \
-	ao_gps_skytraq.c
+	ao_gps_skytraq.c \
+	ao_gps_show.c
 
 PRODUCT_SRC = \
 	ao_teleterra_0_2.c \

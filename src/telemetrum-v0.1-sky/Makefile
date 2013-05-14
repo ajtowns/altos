@@ -11,6 +11,7 @@ TM_INC = \
 
 TM_SRC = \
 	ao_gps_skytraq.c \
+	ao_gps_show.c \
 	ao_25lc1024.c
 
 include ../product/Makefile.telemetrum

@@ -52,6 +52,7 @@ ALTOS_SRC = \
 	ao_exti_stm.c \
 	ao_serial_stm.c \
 	ao_gps_skytraq.c \
+	ao_gps_show.c \
 	ao_cc115l.c \
 	ao_fec_tx.c \
 	ao_rfpa0133.c \
