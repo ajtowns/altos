@@ -153,6 +153,7 @@ ao_temp (void)
 	printf ("temp: %d\n", temp);
 }
 
+#if 0
 static void
 ao_event(void)
 {
@@ -168,6 +169,7 @@ ao_event(void)
 	}
 
 }
+#endif
 
 __code struct ao_cmds ao_demo_cmds[] = {
 	{ ao_dma_test,	"D\0DMA test" },
@@ -175,7 +177,7 @@ __code struct ao_cmds ao_demo_cmds[] = {
 	{ ao_spi_read, "R\0SPI read" },
 	{ ao_i2c_write, "i\0I2C write" },
 	{ ao_temp, "t\0Show temp" },
-	{ ao_event, "e\0Monitor event queue" },
+/*	{ ao_event, "e\0Monitor event queue" }, */
 	{ 0, NULL }
 };
 

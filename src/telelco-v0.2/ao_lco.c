@@ -114,11 +114,9 @@ ao_lco_input(void)
 			switch (event.unit) {
 			case AO_QUADRATURE_PAD:
 				if (!ao_lco_armed) {
-					if (event.value == ao_lco_pad)
-						break;
-					dir = ((int8_t) event.value - (int8_t) ao_lco_pad) > 0 ? 1 : -1;
-					new_pad = event.value;
-					while (!ao_lco_pad_present(new_pad)) {
+					dir = (int8_t) event.value;
+					new_pad = ao_lco_pad;
+					do {
 						new_pad += dir;
 						if (new_pad > AO_PAD_MAX_CHANNELS)
 							new_pad = 0;
@@ -126,21 +124,18 @@ ao_lco_input(void)
 							new_pad = AO_PAD_MAX_CHANNELS - 1;
 						if (new_pad == ao_lco_pad)
 							break;
-					}
+					} while (!ao_lco_pad_present(new_pad));
 					if (new_pad != ao_lco_pad) {
 						ao_lco_pad = new_pad;
-						ao_quadrature_count[AO_QUADRATURE_PAD] = ao_lco_pad;
 						ao_lco_set_pad();
 					}
 				}
 				break;
 			case AO_QUADRATURE_BOX:
 				if (!ao_lco_armed) {
-					if (event.value == ao_lco_box)
-						break;
-					dir = ((int8_t) event.value - (int8_t) ao_lco_box) > 0 ? 1 : -1;
-					new_box = event.value;
-					while (!ao_lco_box_present(new_box)) {
+					dir = (int8_t) event.value;
+					new_box = ao_lco_box;
+					do {
 						new_box += dir;
 						if (new_box > ao_lco_max_box)
 							new_box = ao_lco_min_box;
@@ -148,8 +143,7 @@ ao_lco_input(void)
 							new_box = ao_lco_min_box;
 						if (new_box == ao_lco_box)
 							break;
-					}
-					ao_quadrature_count[AO_QUADRATURE_PAD] = new_box;
+					} while (!ao_lco_box_present(new_box));
 					if (ao_lco_box != new_box) {
 						ao_lco_box = new_box;
 						ao_lco_got_channels = 0;
