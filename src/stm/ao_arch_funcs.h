@@ -87,13 +87,16 @@ extern uint16_t	ao_spi_speed[STM_NUM_SPI];
 void
 ao_spi_init(void);
 
+#define ao_spi_set_cs(reg,mask) ((reg)->bsrr = ((uint32_t) (mask)) << 16)
+#define ao_spi_clr_cs(reg,mask) ((reg)->bsrr = (mask))
+
 #define ao_spi_get_mask(reg,mask,bus, speed) do {		\
 		ao_spi_get(bus, speed);				\
-		(reg)->bsrr = ((uint32_t) mask) << 16;	\
+		ao_spi_set_cs(reg,mask);			\
 	} while (0)
 
 #define ao_spi_put_mask(reg,mask,bus) do {	\
-		(reg)->bsrr = mask;		\
+		ao_spi_clr_cs(reg,mask);	\
 		ao_spi_put(bus);		\
 	} while (0)
 
