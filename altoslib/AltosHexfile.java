@@ -230,17 +230,19 @@ public class AltosHexfile {
 		}
 
 		long	extended_addr = 0;
-		long	base = 0xffffffff;
-		long	bound = 0x00000000;
+		long	base = 0;
+		long	bound = 0;
+		boolean	set = false;
 		for (HexRecord record : record_list) {
 			switch (record.type) {
 			case 0:
 				long addr = extended_addr + record.address;
 				long r_bound = addr + record.data.length;
-				if (addr < base)
+				if (!set || addr < base)
 					base = addr;
-				if (r_bound > bound)
+				if (!set || r_bound > bound)
 					bound = r_bound;
+				set = true;
 				break;
 			case 1:
 				break;
@@ -259,7 +261,7 @@ public class AltosHexfile {
 			}
 		}
 
-		if (base >= bound)
+		if (!set || base >= bound)
 			throw new IOException("invalid hex file");
 
 		if (bound - base > 4 * 1024 * 1024)
