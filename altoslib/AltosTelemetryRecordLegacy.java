@@ -267,7 +267,7 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 
 		if (map.has(AO_TELEM_GPS_STATE)) {
 		record.gps = new AltosGPS(map);
-		record.new_gps = true;
+		record.gps_sequence++;
 		}
 		else
 		record.gps = null;
@@ -357,7 +357,7 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 		}
 
 		record.gps = new AltosGPS(words, i, record.version);
-		record.new_gps = true;
+		record.gps_sequence++;
 	}
 
 	public AltosTelemetryRecordLegacy(String line) throws ParseException, AltosCRCException {
@@ -476,7 +476,7 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 
 		if ((gps_flags & (AO_GPS_VALID|AO_GPS_RUNNING)) != 0) {
 			record.gps = new AltosGPS();
-			record.new_gps = true;
+			record.gps_sequence++;
 
 			record.seen |= AltosRecord.seen_gps_time | AltosRecord.seen_gps_lat | AltosRecord.seen_gps_lon;
 			record.gps.nsat = (gps_flags & AO_GPS_NUM_SAT_MASK);

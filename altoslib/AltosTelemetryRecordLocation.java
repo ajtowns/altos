@@ -85,7 +85,7 @@ public class AltosTelemetryRecordLocation extends AltosTelemetryRecordRaw {
 			next.gps.hdop = hdop;
 			next.gps.vdop = vdop;
 			next.seen |= AltosRecord.seen_gps_time | AltosRecord.seen_gps_lat | AltosRecord.seen_gps_lon;
-			next.new_gps = true;
+			next.gps_sequence++;
 		}
 
 		return next;

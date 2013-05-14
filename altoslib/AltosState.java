@@ -54,6 +54,7 @@ public class AltosState {
 	public double	max_baro_speed;
 
 	public AltosGPS	gps;
+	public int gps_sequence;
 
 	public AltosIMU	imu;
 	public AltosMag	mag;
@@ -133,6 +134,7 @@ public class AltosState {
 			npad = prev_state.npad;
 			ngps = prev_state.ngps;
 			gps = prev_state.gps;
+			gps_sequence = prev_state.gps_sequence;
 			pad_lat = prev_state.pad_lat;
 			pad_lon = prev_state.pad_lon;
 			pad_alt = prev_state.pad_alt;
@@ -187,6 +189,7 @@ public class AltosState {
 			npad = 0;
 			ngps = 0;
 			gps = null;
+			gps_sequence = 0;
 			baro_speed = AltosRecord.MISSING;
 			accel_speed = AltosRecord.MISSING;
 			pad_alt = AltosRecord.MISSING;
@@ -199,7 +202,7 @@ public class AltosState {
 
 		time = tick / 100.0;
 
-		if (cur.new_gps && (state < AltosLib.ao_flight_boost)) {
+		if (data.gps != null && data.gps_sequence != gps_sequence && (state < AltosLib.ao_flight_boost)) {
 
 			/* Track consecutive 'good' gps reports, waiting for 10 of them */
 			if (data.gps != null && data.gps.locked && data.gps.nsat >= 4)
@@ -226,7 +229,7 @@ public class AltosState {
 				pad_alt = ground_altitude;
 		}
 
-		data.new_gps = false;
+		gps_sequence = data.gps_sequence;
 
 		gps_waiting = MIN_PAD_SAMPLES - npad;
 		if (gps_waiting < 0)

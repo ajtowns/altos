@@ -44,7 +44,7 @@ public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 	public int	tick;
 
 	public AltosGPS	gps;
-	public boolean	new_gps;
+	public int	gps_sequence;
 
 	public double	time;	/* seconds since boost */
 
@@ -143,7 +143,7 @@ public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 		state = old.state;
 		tick = old.tick;
 		gps = new AltosGPS(old.gps);
-		new_gps = old.new_gps;
+		gps_sequence = old.gps_sequence;
 		companion = old.companion;
 		kalman_acceleration = old.kalman_acceleration;
 		kalman_speed = old.kalman_speed;
@@ -161,7 +161,7 @@ public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 		state = AltosLib.ao_flight_startup;
 		tick = 0;
 		gps = null;
-		new_gps = false;
+		gps_sequence = 0;
 		companion = null;
 
 		kalman_acceleration = MISSING;

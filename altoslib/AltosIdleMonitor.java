@@ -112,7 +112,7 @@ public class AltosIdleMonitor extends Thread {
 			record.status = 0;
 			record.state = AltosLib.ao_flight_idle;
 			record.gps = gps;
-			record.new_gps = true;
+			record.gps_sequence++;
 			state = new AltosState (record, state);
 		} finally {
 			if (remote) {

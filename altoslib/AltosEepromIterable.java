@@ -125,7 +125,7 @@ public class AltosEepromIterable extends AltosRecordIterable {
 			state.gps.locked = (flags & AltosLib.AO_GPS_VALID) != 0;
 			state.gps.nsat = (flags & AltosLib.AO_GPS_NUM_SAT_MASK) >>
 				AltosLib.AO_GPS_NUM_SAT_SHIFT;
-			state.new_gps = true;
+			state.gps_sequence++;
 			has_gps = true;
 			break;
 		case AltosLib.AO_LOG_GPS_LAT:
