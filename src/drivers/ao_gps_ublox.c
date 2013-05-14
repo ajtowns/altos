@@ -450,6 +450,18 @@ static const uint8_t ublox_disable_nav[] = {
 	0x06, 0x03, 0x30, 0x20, 0x21, 0x11, 0x12
 };
 
+/*
+ * Enable enough messages to get all of the data we want
+ */
+static const uint8_t ublox_enable_nav[] = {
+	UBLOX_NAV_DOP,
+	UBLOX_NAV_POSLLH,
+	UBLOX_NAV_SOL,
+	UBLOX_NAV_SVINFO,
+	UBLOX_NAV_VELNED,
+	UBLOX_NAV_TIMEUTC
+};
+
 void
 ao_gps(void) __reentrant
 {
@@ -459,30 +471,15 @@ ao_gps(void) __reentrant
 
 	ao_gps_setup();
 
+	/* Disable all messages */
 	for (i = 0; i < sizeof (ublox_disable_mon); i++)
 		ao_ublox_set_message_rate(0x0a, ublox_disable_mon[i], 0);
 	for (i = 0; i < sizeof (ublox_disable_nav); i++)
-		ao_ublox_set_message_rate(0x01, ublox_disable_nav[i], 0);
+		ao_ublox_set_message_rate(UBLOX_NAV, ublox_disable_nav[i], 0);
 
 	/* Enable all of the messages we want */
-
-	/* DOP */
-	ao_ublox_set_message_rate(0x01, 0x04, 1);
-
-	/* POSLLH */
-	ao_ublox_set_message_rate(0x01, 0x02, 1);
-
-	/* SOL */
-	ao_ublox_set_message_rate(0x01, 0x06, 1);
-
-	/* SVINFO */
-	ao_ublox_set_message_rate(0x01, 0x30, 1);
-
-	/* VELNED */
-	ao_ublox_set_message_rate(0x01, 0x12, 1);
-
-	/* TIMEUTC */
-	ao_ublox_set_message_rate(0x01, 0x21, 1);
+	for (i = 0; i < sizeof (ublox_enable_nav); i++)
+		ao_ublox_set_message_rate(UBLOX_NAV, ublox_enable_nav[i], 1);
 	
 	for (;;) {
 		/* Locate the begining of the next record */
