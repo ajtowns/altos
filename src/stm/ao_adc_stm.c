@@ -113,11 +113,15 @@ ao_adc_dump(void) __reentrant
 	uint8_t i;
 
 	ao_data_get(&packet);
+#ifdef AO_ADC_DUMP
+	AO_ADC_DUMP(&packet);
+#else
 	printf("tick: %5u",  packet.tick);
 	d = (int16_t *) (&packet.adc);
 	for (i = 0; i < AO_NUM_ADC; i++)
 		printf (" %2d: %5d", i, d[i]);
 	printf("\n");
+#endif
 }
 
 __code struct ao_cmds ao_adc_cmds[] = {

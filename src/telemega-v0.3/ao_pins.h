@@ -121,28 +121,34 @@
 #define HAS_IGNITE		1
 #define HAS_IGNITE_REPORT	1
 
-#define AO_SENSE_DROGUE(p)	((p)->adc.sense[0])
-#define AO_SENSE_MAIN(p)	((p)->adc.sense[1])
+#define AO_SENSE_DROGUE(p)	((p)->adc.sense[4])
+#define AO_SENSE_MAIN(p)	((p)->adc.sense[5])
 #define AO_IGNITER_CLOSED	400
 #define AO_IGNITER_OPEN		60
 
-#define AO_IGNITER_DROGUE_PORT	(&stm_gpiod)
+/* Pyro A */
+#define AO_PYRO_PORT_0	(&stm_gpiod)
+#define AO_PYRO_PIN_0	6
+
+/* Pyro B */
+#define AO_PYRO_PORT_1	(&stm_gpiod)
+#define AO_PYRO_PIN_1	7
+
+/* Pyro C */
+#define AO_PYRO_PORT_2	(&stm_gpiob)
+#define AO_PYRO_PIN_2	5
+
+/* Pyro D */
+#define AO_PYRO_PORT_3	(&stm_gpioe)
+#define AO_PYRO_PIN_3	4
+
+/* Drogue */
+#define AO_IGNITER_DROGUE_PORT	(&stm_gpioe)
 #define AO_IGNITER_DROGUE_PIN	6
 
-#define AO_IGNITER_MAIN_PORT	(&stm_gpiod)
-#define AO_IGNITER_MAIN_PIN	7
-
-#define AO_PYRO_PORT_0	(&stm_gpiob)
-#define AO_PYRO_PIN_0	5
-
-#define AO_PYRO_PORT_1	(&stm_gpioe)
-#define AO_PYRO_PIN_1	4
-
-#define AO_PYRO_PORT_2	(&stm_gpioe)
-#define AO_PYRO_PIN_2	6
-
-#define AO_PYRO_PORT_3	(&stm_gpioe)
-#define AO_PYRO_PIN_3	5
+/* Main */
+#define AO_IGNITER_MAIN_PORT	(&stm_gpioe)
+#define AO_IGNITER_MAIN_PIN	5
 
 /* Number of general purpose pyro channels available */
 #define AO_PYRO_NUM	4
@@ -163,6 +169,13 @@ struct ao_adc {
 	int16_t			temp;
 };
 
+#define AO_ADC_DUMP(p) \
+	printf("tick: %5u A: %5d B: %5d C: %5d D: %5d drogue: %5d main: %5d batt: %5d pbatt: %5d temp: %5d\n", \
+	       (p)->tick, \
+	       (p)->adc.sense[0], (p)->adc.sense[1], (p)->adc.sense[2], \
+	       (p)->adc.sense[3], (p)->adc.sense[4], (p)->adc.sense[5], \
+	       (p)->adc.v_batt, (p)->adc.v_pbatt, (p)->adc.temp)
+
 #define AO_ADC_SENSE_A		0
 #define AO_ADC_SENSE_A_PORT	(&stm_gpioa)
 #define AO_ADC_SENSE_A_PIN	0
@@ -179,13 +192,13 @@ struct ao_adc {
 #define AO_ADC_SENSE_D_PORT	(&stm_gpioa)
 #define AO_ADC_SENSE_D_PIN	3
 
-#define AO_ADC_SENSE_E		4
-#define AO_ADC_SENSE_E_PORT	(&stm_gpioa)
-#define AO_ADC_SENSE_E_PIN	4
+#define AO_ADC_SENSE_DROGUE	4
+#define AO_ADC_SENSE_DROGUE_PORT	(&stm_gpioa)
+#define AO_ADC_SENSE_DROGUE_PIN	4
 
-#define AO_ADC_SENSE_F		22
-#define AO_ADC_SENSE_F_PORT	(&stm_gpioe)
-#define AO_ADC_SENSE_F_PIN	7
+#define AO_ADC_SENSE_MAIN	22
+#define AO_ADC_SENSE_MAIN_PORT	(&stm_gpioe)
+#define AO_ADC_SENSE_MAIN_PIN	7
 
 #define AO_ADC_V_BATT		8
 #define AO_ADC_V_BATT_PORT	(&stm_gpiob)
@@ -211,10 +224,10 @@ struct ao_adc {
 #define AO_ADC_PIN2_PIN		AO_ADC_SENSE_C_PIN
 #define AO_ADC_PIN3_PORT	AO_ADC_SENSE_D_PORT
 #define AO_ADC_PIN3_PIN		AO_ADC_SENSE_D_PIN
-#define AO_ADC_PIN4_PORT	AO_ADC_SENSE_E_PORT
-#define AO_ADC_PIN4_PIN		AO_ADC_SENSE_E_PIN
-#define AO_ADC_PIN5_PORT	AO_ADC_SENSE_F_PORT
-#define AO_ADC_PIN5_PIN		AO_ADC_SENSE_F_PIN
+#define AO_ADC_PIN4_PORT	AO_ADC_SENSE_DROGUE_PORT
+#define AO_ADC_PIN4_PIN		AO_ADC_SENSE_DROGUE_PIN
+#define AO_ADC_PIN5_PORT	AO_ADC_SENSE_MAIN_PORT
+#define AO_ADC_PIN5_PIN		AO_ADC_SENSE_MAIN_PIN
 #define AO_ADC_PIN6_PORT	AO_ADC_V_BATT_PORT
 #define AO_ADC_PIN6_PIN		AO_ADC_V_BATT_PIN
 #define AO_ADC_PIN7_PORT	AO_ADC_V_PBATT_PORT
@@ -226,8 +239,8 @@ struct ao_adc {
 #define AO_ADC_SQ2		AO_ADC_SENSE_B
 #define AO_ADC_SQ3		AO_ADC_SENSE_C
 #define AO_ADC_SQ4		AO_ADC_SENSE_D
-#define AO_ADC_SQ5		AO_ADC_SENSE_E
-#define AO_ADC_SQ6		AO_ADC_SENSE_F
+#define AO_ADC_SQ5		AO_ADC_SENSE_DROGUE
+#define AO_ADC_SQ6		AO_ADC_SENSE_MAIN
 #define AO_ADC_SQ7		AO_ADC_V_BATT
 #define AO_ADC_SQ8		AO_ADC_V_PBATT
 #define AO_ADC_SQ9		AO_ADC_TEMP
