@@ -1,7 +1,7 @@
 vpath % ..:../core:../drivers:../util:../micropeak:../aes
 
 PROGS=ao_flight_test ao_flight_test_baro ao_flight_test_accel ao_flight_test_noisy_accel ao_flight_test_mm \
-	ao_gps_test ao_gps_test_skytraq ao_convert_test ao_convert_pa_test ao_fec_test \
+	ao_gps_test ao_gps_test_skytraq ao_gps_test_ublox ao_convert_test ao_convert_pa_test ao_fec_test \
 	ao_aprs_test ao_micropeak_test ao_fat_test ao_aes_test
 
 INCS=ao_kalman.h ao_ms5607.h ao_log.h ao_data.h altitude-pa.h altitude.h
@@ -36,6 +36,9 @@ ao_gps_test: ao_gps_test.c ao_gps_sirf.c ao_gps_print.c ao_host.h
 	cc $(CFLAGS) -o $@ $<
 
 ao_gps_test_skytraq: ao_gps_test_skytraq.c ao_gps_skytraq.c ao_gps_print.c ao_host.h
+	cc $(CFLAGS) -o $@ $<
+
+ao_gps_test_ublox: ao_gps_test_ublox.c ao_gps_ublox.c ao_gps_print.c ao_host.h
 	cc $(CFLAGS) -o $@ $<
 
 ao_convert_test: ao_convert_test.c ao_convert.c altitude.h
