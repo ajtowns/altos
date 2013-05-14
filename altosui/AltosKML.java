@@ -108,9 +108,15 @@ public class AltosKML implements AltosWriter {
 
 	void coord(AltosRecord record) {
 		AltosGPS	gps = record.gps;
+		double		altitude;
+
+		if (record.height() != AltosRecord.MISSING)
+			altitude = record.height() + gps_start_altitude;
+		else
+			altitude = gps.alt;
 		out.printf(kml_coord_fmt,
 			   gps.lon, gps.lat,
-			   record.height() + gps_start_altitude, (double) gps.alt,
+			   altitude, (double) gps.alt,
 			   record.time, gps.nsat);
 	}
 
@@ -132,8 +138,6 @@ public class AltosKML implements AltosWriter {
 		if (gps == null)
 			return;
 
-		if ((record.seen & (AltosRecord.seen_flight)) == 0)
-			return;
 		if ((record.seen & (AltosRecord.seen_gps_lat)) == 0)
 			return;
 		if ((record.seen & (AltosRecord.seen_gps_lon)) == 0)
