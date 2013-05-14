@@ -405,6 +405,9 @@ static void
 ao_gps_setup(void)
 {
 	uint8_t	i, k;
+
+	ao_delay(AO_SEC_TO_TICKS(3));
+
 	ao_ublox_set_speed(AO_SERIAL_SPEED_9600);
 
 	/*
