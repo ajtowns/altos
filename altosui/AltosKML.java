@@ -26,6 +26,7 @@ public class AltosKML implements AltosWriter {
 	PrintStream		out;
 	int			state = -1;
 	AltosRecord		prev = null;
+	double			gps_start_altitude;
 
 	static final String[] kml_state_colors = {
 		"FF000000",
@@ -109,7 +110,7 @@ public class AltosKML implements AltosWriter {
 		AltosGPS	gps = record.gps;
 		out.printf(kml_coord_fmt,
 			   gps.lon, gps.lat,
-			   record.altitude(), (double) gps.alt,
+			   record.height() + gps_start_altitude, (double) gps.alt,
 			   record.time, gps.nsat);
 	}
 
@@ -140,11 +141,9 @@ public class AltosKML implements AltosWriter {
 		if (!started) {
 			start(record);
 			started = true;
+			gps_start_altitude = gps.alt;
 		}
-		if (prev != null &&
-		    prev.gps.second == record.gps.second &&
-		    prev.gps.minute == record.gps.minute &&
-		    prev.gps.hour == record.gps.hour)
+		if (prev != null && prev.gps_sequence == record.gps_sequence)
 			return;
 		if (record.state != state) {
 			state = record.state;
