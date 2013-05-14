@@ -130,7 +130,7 @@ static uint16_t	recv_len;
 static void check_ublox_message(char *which, uint8_t *msg);
 
 char
-ao_serial1_getchar(void)
+ao_gps_getchar(void)
 {
 	char	c;
 	uint8_t	uc;
@@ -163,7 +163,7 @@ static int	message_len;
 static uint16_t	send_len;
 
 void
-ao_serial1_putchar(char c)
+ao_gps_putchar(char c)
 {
 	int	i;
 	uint8_t	uc = (uint8_t) c;
@@ -196,7 +196,7 @@ ao_serial1_putchar(char c)
 #define AO_SERIAL_SPEED_115200	3
 
 static void
-ao_serial1_set_speed(uint8_t speed)
+ao_gps_set_speed(uint8_t speed)
 {
 	int	fd = ao_gps_fd;
 	struct termios	termios;

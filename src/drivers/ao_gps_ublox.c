@@ -39,13 +39,7 @@ struct ao_ublox_cksum {
 static __pdata struct ao_ublox_cksum ao_ublox_cksum;
 static __pdata uint16_t ao_ublox_len;
 
-#ifndef ao_ublox_getchar
-#define ao_ublox_getchar	ao_serial1_getchar
-#define ao_ublox_putchar	ao_serial1_putchar
-#define ao_ublox_set_speed	ao_serial1_set_speed
-#endif
-
-#define ao_ublox_byte()	((uint8_t) ao_ublox_getchar())
+#define ao_ublox_byte()	((uint8_t) ao_gps_getchar())
 
 static inline void add_cksum(struct ao_ublox_cksum *cksum, uint8_t c)
 {
@@ -61,7 +55,7 @@ static void ao_ublox_init_cksum(void)
 static void ao_ublox_put_u8(uint8_t c)
 {
 	add_cksum(&ao_ublox_cksum, c);
-	ao_ublox_putchar(c);
+	ao_gps_putchar(c);
 }
 
 static void ao_ublox_put_i8(int8_t c)
@@ -408,14 +402,14 @@ ao_gps_setup(void)
 
 	ao_delay(AO_SEC_TO_TICKS(3));
 
-	ao_ublox_set_speed(AO_SERIAL_SPEED_9600);
+	ao_gps_set_speed(AO_SERIAL_SPEED_9600);
 
 	/*
 	 * A bunch of nulls so the start bit
 	 * is clear
 	 */
 	for (i = 0; i < 64; i++)
-		ao_ublox_putchar(0x00);
+		ao_gps_putchar(0x00);
 
 	/*
 	 * Send the baud-rate setting and protocol-setting
@@ -423,27 +417,27 @@ ao_gps_setup(void)
 	 */
 	for (k = 0; k < 3; k++)
 		for (i = 0; i < sizeof (ao_gps_set_nmea); i++)
-			ao_ublox_putchar(ao_gps_set_nmea[i]);
+			ao_gps_putchar(ao_gps_set_nmea[i]);
 
 	/*
 	 * Increase the baud rate
 	 */
-	ao_ublox_set_speed(AO_SERIAL_SPEED_57600);
+	ao_gps_set_speed(AO_SERIAL_SPEED_57600);
 
 	/*
 	 * Pad with nulls to give the chip
 	 * time to see the baud rate switch
 	 */
 	for (i = 0; i < 64; i++)
-		ao_ublox_putchar(0x00);
+		ao_gps_putchar(0x00);
 }
 
 static void
 ao_ublox_putstart(uint8_t class, uint8_t id, uint16_t len)
 {
 	ao_ublox_init_cksum();
-	ao_ublox_putchar(0xb5);
-	ao_ublox_putchar(0x62);
+	ao_gps_putchar(0xb5);
+	ao_gps_putchar(0x62);
 	ao_ublox_put_u8(class);
 	ao_ublox_put_u8(id);
 	ao_ublox_put_u8(len);
@@ -453,8 +447,8 @@ ao_ublox_putstart(uint8_t class, uint8_t id, uint16_t len)
 static void
 ao_ublox_putend(void)
 {
-	ao_ublox_putchar(ao_ublox_cksum.a);
-	ao_ublox_putchar(ao_ublox_cksum.b);
+	ao_gps_putchar(ao_ublox_cksum.a);
+	ao_gps_putchar(ao_ublox_cksum.b);
 }
 
 static void
