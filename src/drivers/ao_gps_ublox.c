@@ -58,10 +58,41 @@ static void ao_ublox_init_cksum(void)
 	ao_ublox_cksum.a = ao_ublox_cksum.b = 0;
 }
 
-static void ao_ublox_putchar_cksum(uint8_t c)
+static void ao_ublox_put_u8(uint8_t c)
 {
 	add_cksum(&ao_ublox_cksum, c);
 	ao_ublox_putchar(c);
+}
+
+static void ao_ublox_put_i8(int8_t c)
+{
+	ao_ublox_put_u8((uint8_t) c);
+}
+
+static void ao_ublox_put_u16(uint16_t c)
+{
+	ao_ublox_put_u8(c);
+	ao_ublox_put_u8(c>>8);
+}
+
+#if 0
+static void ao_ublox_put_i16(int16_t c)
+{
+	ao_ublox_put_u16((uint16_t) c);
+}
+#endif
+
+static void ao_ublox_put_u32(uint32_t c)
+{
+	ao_ublox_put_u8(c);
+	ao_ublox_put_u8(c>>8);
+	ao_ublox_put_u8(c>>16);
+	ao_ublox_put_u8(c>>24);
+}
+
+static void ao_ublox_put_i32(int32_t c)
+{
+	ao_ublox_put_u32((uint32_t) c);
 }
 
 static uint8_t header_byte(void)
@@ -404,34 +435,70 @@ ao_gps_setup(void)
 		ao_ublox_putchar(0x00);
 }
 
-void
+static void
 ao_ublox_putstart(uint8_t class, uint8_t id, uint16_t len)
 {
 	ao_ublox_init_cksum();
 	ao_ublox_putchar(0xb5);
 	ao_ublox_putchar(0x62);
-	ao_ublox_putchar_cksum(class);
-	ao_ublox_putchar_cksum(id);
-	ao_ublox_putchar_cksum(len);
-	ao_ublox_putchar_cksum(len >> 8);
+	ao_ublox_put_u8(class);
+	ao_ublox_put_u8(id);
+	ao_ublox_put_u8(len);
+	ao_ublox_put_u8(len >> 8);
 }
 
-void
+static void
 ao_ublox_putend(void)
 {
 	ao_ublox_putchar(ao_ublox_cksum.a);
 	ao_ublox_putchar(ao_ublox_cksum.b);
 }
 
-void
+static void
 ao_ublox_set_message_rate(uint8_t class, uint8_t msgid, uint8_t rate)
 {
 	ao_ublox_putstart(0x06, 0x01, 3);
-	ao_ublox_putchar_cksum(class);
-	ao_ublox_putchar_cksum(msgid);
-	ao_ublox_putchar_cksum(rate);
+	ao_ublox_put_u8(class);
+	ao_ublox_put_u8(msgid);
+	ao_ublox_put_u8(rate);
 	ao_ublox_putend();
 }
+
+static void
+ao_ublox_set_navigation_settings(uint16_t mask,
+				 uint8_t dyn_model,
+				 uint8_t fix_mode,
+				 int32_t fixed_alt,
+				 uint32_t fixed_alt_var,
+				 int8_t min_elev,
+				 uint8_t dr_limit,
+				 uint16_t pdop,
+				 uint16_t tdop,
+				 uint16_t pacc,
+				 uint16_t tacc,
+				 uint8_t static_hold_thresh,
+				 uint8_t dgps_time_out)
+{
+	ao_ublox_putstart(UBLOX_CFG, UBLOX_CFG_NAV5, 36);
+	ao_ublox_put_u16(mask);
+	ao_ublox_put_u8(dyn_model);
+	ao_ublox_put_u8(fix_mode);
+	ao_ublox_put_i32(fixed_alt);
+	ao_ublox_put_u32(fixed_alt_var);
+	ao_ublox_put_i8(min_elev);
+	ao_ublox_put_u8(dr_limit);
+	ao_ublox_put_u16(pdop);
+	ao_ublox_put_u16(tdop);
+	ao_ublox_put_u16(pacc);
+	ao_ublox_put_u16(tacc);
+	ao_ublox_put_u8(static_hold_thresh);
+	ao_ublox_put_u8(dgps_time_out);
+	ao_ublox_put_u32(0);
+	ao_ublox_put_u32(0);
+	ao_ublox_put_u32(0);
+	ao_ublox_putend();
+}
+
 
 /*
  * Disable all MON message
@@ -481,6 +548,20 @@ ao_gps(void) __reentrant
 	for (i = 0; i < sizeof (ublox_enable_nav); i++)
 		ao_ublox_set_message_rate(UBLOX_NAV, ublox_enable_nav[i], 1);
 	
+	ao_ublox_set_navigation_settings((1 << UBLOX_CFG_NAV5_MASK_DYN) | (1 << UBLOX_CFG_NAV5_MASK_FIXMODE),
+					 UBLOX_CFG_NAV5_DYNMODEL_AIRBORNE_4G,
+					 UBLOX_CFG_NAV5_FIXMODE_3D,
+					 0,
+					 0,
+					 0,
+					 0,
+					 0,
+					 0,
+					 0,
+					 0,
+					 0,
+					 0);
+
 	for (;;) {
 		/* Locate the begining of the next record */
 		while (ao_ublox_byte() != (uint8_t) 0xb5)
