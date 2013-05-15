@@ -693,6 +693,9 @@ ao_config_show(void) __reentrant
 	for (cmd = 0; ao_config_vars[cmd].str != NULL; cmd++)
 		if (ao_config_vars[cmd].show)
 			(*ao_config_vars[cmd].show)();
+#if HAS_MS5607
+	ao_ms5607_info();
+#endif
 }
 
 #if HAS_EEPROM

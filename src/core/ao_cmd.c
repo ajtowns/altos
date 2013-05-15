@@ -290,9 +290,6 @@ version(void)
 	       , ao_log_format
 #endif
 		);
-#if HAS_MS5607
-	ao_ms5607_info();
-#endif
 	printf("software-version %s\n", ao_version);
 }
 #endif
