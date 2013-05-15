@@ -206,10 +206,7 @@ ao_mma655x_setup(void)
 	ao_mma655x_reg_write(AO_MMA655X_AXISCFG,
 			     AXISCFG_VALUE |
 			     (1 << AO_MMA655X_AXISCFG_ST));
-	for (i = 0; i < 10; i++) {
-		a_st = ao_mma655x_value();
-		printf ("SELF-TEST %2d = %6d\n", i, a_st);
-	}
+	a_st = ao_mma655x_value();
 
 	stdefl = ao_mma655x_reg_read(AO_MMA655X_STDEFL);
 
@@ -217,11 +214,6 @@ ao_mma655x_setup(void)
 			     AXISCFG_VALUE |
 			     (0 << AO_MMA655X_AXISCFG_ST));
 	a = ao_mma655x_value();
-
-	for (i = 0; i < 10; i++) {
-		a = ao_mma655x_value();
-		printf("NORMAL   %2d = %6d\n", i, a);
-	}
 
 	ao_mma655x_reg_write(AO_MMA655X_DEVCFG,
 			     DEVCFG_VALUE | (1 << AO_MMA655X_DEVCFG_ENDINIT));
@@ -234,8 +226,6 @@ ao_mma655x_setup(void)
 	serial = lot & 0x1fff;
 	lot >>= 12;
 	pn = ao_mma655x_reg_read(AO_MMA655X_PN);
-	printf ("MMA655X lot %d serial %d number %d\n", lot, serial, pn);
-
 }
 
 uint16_t	ao_mma655x_current;
