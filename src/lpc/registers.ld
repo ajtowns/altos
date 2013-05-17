@@ -9,3 +9,5 @@ lpc_usb		= 0x40080000;
 lpc_gpio	= 0x50000000;
 lpc_systick	= 0xe000e000;
 lpc_nvic	= 0xe000e100;
+arm_scb		= 0xe000ed00;
+lpc_usb_sram	= 0x20004000;

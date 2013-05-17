@@ -78,6 +78,14 @@ ao_timer_init(void)
 
 #define AO_LPC_FCCO_MIN	156000000
 
+static void
+ao_clock_delay(void)
+{
+	uint32_t	i;
+	for (i = 0; i < 200; i++)
+		ao_arch_nop();
+}
+
 void
 ao_clock_init(void)
 {
@@ -94,11 +102,15 @@ ao_clock_init(void)
 				 
 	/* Turn the IRC clock back on */
 	lpc_scb.pdruncfg &= ~(1 << LPC_SCB_PDRUNCFG_IRC_PD);
+	ao_clock_delay();
 	
 	/* Switch to the IRC clock */
 	lpc_scb.mainclksel = LPC_SCB_MAINCLKSEL_SEL_IRC << LPC_SCB_MAINCLKSEL_SEL;
+	lpc_scb.mainclkuen = (1 << LPC_SCB_MAINCLKUEN_ENA);
 	lpc_scb.mainclkuen = (0 << LPC_SCB_MAINCLKUEN_ENA);
 	lpc_scb.mainclkuen = (1 << LPC_SCB_MAINCLKUEN_ENA);
+	while (!(lpc_scb.mainclkuen & (1 << LPC_SCB_MAINCLKUEN_ENA)))
+		;
 	
 	/* Find a PLL post divider ratio that gets the FCCO in range */
 	for (p = 0; p < 4; p++)
@@ -110,14 +122,15 @@ ao_clock_init(void)
 
 	/* Power down the PLL before touching the registers */
 	lpc_scb.pdruncfg |= (1 << LPC_SCB_PDRUNCFG_SYSPLL_PD);
+	ao_clock_delay();
 
 	/* Set PLL divider values */
 	lpc_scb.syspllctrl = ((AO_LPC_M << LPC_SCB_SYSPLLCTRL_MSEL) |
 			      (p << LPC_SCB_SYSPLLCTRL_PSEL));
 
-
 	/* Turn off the external crystal clock */
 	lpc_scb.pdruncfg |= (1 << LPC_SCB_PDRUNCFG_SYSOSC_PD);
+	ao_clock_delay();
 
 	/* Configure the crystal clock */
 	lpc_scb.sysoscctrl = ((0 << LPC_SCB_SYSOSCCTRL_BYPASS) |			   /* using a crystal */
@@ -125,12 +138,16 @@ ao_clock_init(void)
 
 	/* Turn on the external crystal clock */
 	lpc_scb.pdruncfg &= ~(1 << LPC_SCB_PDRUNCFG_SYSOSC_PD);
+	ao_clock_delay();
 
 	/* Select crystal as PLL input */
 
 	lpc_scb.syspllclksel = (LPC_SCB_SYSPLLCLKSEL_SEL_SYSOSC << LPC_SCB_SYSPLLCLKSEL_SEL);
-	lpc_scb.syspllclkuen = 0;
 	lpc_scb.syspllclkuen = (1 << LPC_SCB_SYSPLLCLKUEN_ENA);
+	lpc_scb.syspllclkuen = (0 << LPC_SCB_SYSPLLCLKUEN_ENA);
+	lpc_scb.syspllclkuen = (1 << LPC_SCB_SYSPLLCLKUEN_ENA);
+	while (!(lpc_scb.syspllclkuen & (1 << LPC_SCB_SYSPLLCLKUEN_ENA)))
+		;
 	
 	/* Turn on the PLL */
 	lpc_scb.pdruncfg &= ~(1 << LPC_SCB_PDRUNCFG_SYSPLL_PD);
@@ -145,16 +162,14 @@ ao_clock_init(void)
 
 	/* Switch to the PLL */
 	lpc_scb.mainclksel = LPC_SCB_MAINCLKSEL_SEL_PLL_OUTPUT << LPC_SCB_MAINCLKSEL_SEL;
-	lpc_scb.mainclkuen = 0 << LPC_SCB_MAINCLKUEN_ENA;
-	lpc_scb.mainclkuen = 1 << LPC_SCB_MAINCLKUEN_ENA;
+	lpc_scb.mainclkuen = (1 << LPC_SCB_MAINCLKUEN_ENA);
+	lpc_scb.mainclkuen = (0 << LPC_SCB_MAINCLKUEN_ENA);
+	lpc_scb.mainclkuen = (1 << LPC_SCB_MAINCLKUEN_ENA);
+	while (!(lpc_scb.mainclkuen & (1 << LPC_SCB_MAINCLKUEN_ENA)))
+		;
 
 	/* Set system clock divider */
 	lpc_scb.sysahbclkdiv = AO_LPC_CLKOUT / AO_LPC_SYSCLK;
-
-	/* Set USB clock source */
-	lpc_scb.usbclksel = (LPC_SCB_USBCLKSEL_SEL_MAIN_CLOCK << LPC_SCB_USBCLKSEL_SEL);
-	lpc_scb.usbclkuen = (0 << LPC_SCB_USBCLKUEN_ENA);
-	lpc_scb.usbclkuen = (1 << LPC_SCB_USBCLKUEN_ENA);
 
 	/* Shut down perhipheral clocks (enabled as needed) */
 	lpc_scb.ssp0clkdiv = 0;

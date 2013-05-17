@@ -116,7 +116,7 @@ extern struct lpc_ioconf lpc_ioconf;
 #define  LPC_IOCONF_FUNC_SSEL0		1
 #define  LPC_IOCONF_FUNC_CT16B0_CAP0	2
 
-/* PIO0_3
+/* PIO0_3 */
 #define  LPC_IOCONF_FUNC_PIO0_3		0
 #define  LPC_IOCONF_FUNC_USB_VBUS	1
 
@@ -395,7 +395,7 @@ struct lpc_scb {
 	vuint32_t	syspllclksel;	/* 0x40 */
 	vuint32_t	syspllclkuen;
 	vuint32_t	usbpllclksel;
-	vuint32_t	usbplllclkuen;
+	vuint32_t	usbpllclkuen;
 
 	uint32_t	r50[8];
 
@@ -600,8 +600,13 @@ extern struct lpc_scb lpc_scb;
 #define LPC_SCB_USBCLKUEN_ENA		0
 #define LPC_SCB_USBCLKDIV_DIV		0
 
-#define LPC_SCB_CLKOUTSEL_
-#define LPC_SCB_CLKOUTUEN_
+#define LPC_SCB_CLKOUTSEL_SEL		0
+#define  LPC_SCB_CLKOUTSEL_SEL_IRC		0
+#define  LPC_SCB_CLKOUTSEL_SEL_SYSOSC		1
+#define  LPC_SCB_CLKOUTSEL_SEL_LF		2
+#define  LPC_SCB_CLKOUTSEL_SEL_MAIN_CLOCK	3
+
+#define LPC_SCB_CLKOUTUEN_ENA		0
 
 #define LPC_SCB_PDRUNCFG_IRCOUT_PD	0
 #define LPC_SCB_PDRUNCFG_IRC_PD		1
@@ -823,6 +828,7 @@ struct lpc_usb {
 	vuint32_t	inten;
 	vuint32_t	intsetstat;
 	vuint32_t	introuting;
+	uint32_t	r30;
 	vuint32_t	eptoggle;
 } lpc_usb;
 
@@ -884,18 +890,11 @@ extern struct lpc_usb lpc_usb;
 
 #define LPC_USB_EPBUFCFG_BUF_SB(ep)	(ep)
 
-#define LPC_USB_INTSTAT_EP0OUT		0
-#define LPC_USB_INTSTAT_EP0IN		1
-#define LPC_USB_INTSTAT_EP1OUT		2
-#define LPC_USB_INTSTAT_EP1IN		3
-#define LPC_USB_INTSTAT_EP2OUT		4
-#define LPC_USB_INTSTAT_EP2IN		5
-#define LPC_USB_INTSTAT_EP3OUT		6
-#define LPC_USB_INTSTAT_EP3IN		7
-#define LPC_USB_INTSTAT_EP4OUT		8
-#define LPC_USB_INTSTAT_EP4IN		9
-#define LPC_USB_INTSTAT_FRAME_INT	30
-#define LPC_USB_INTSTAT_DEV_INT		31
+#define LPC_USB_INT_EPOUT(ep)		((ep) << 1)
+#define LPC_USB_INT_EPIN(ep)		(((ep) << 1) + 1)
+
+#define LPC_USB_INT_FRAME		30
+#define LPC_USB_INT_DEV			31
 
 #define LPC_USB_INTIN_EP_INT_EN(ep)	(ep)
 #define LPC_USB_INTIN_FRAME_INT_EN	30
@@ -911,34 +910,34 @@ extern struct lpc_usb lpc_usb;
 
 #define LPC_USB_EPTOGGLE_TOGGLE(ep)		(ep)
 
-struct lpc_usb_ep {
-	vuint16_t	buffer_offset;
-	vuint16_t	buffer_status_nbytes;
-};
-
 struct lpc_usb_epn {
-	struct lpc_usb_ep	out[2];
-	struct lpc_usb_ep	in[2];
+	vuint32_t		out[2];
+	vuint32_t		in[2];
 };
 
 struct lpc_usb_endpoint {
-	struct lpc_usb_ep	ep0_out;
-	vuint16_t	setup_offset;
-	vuint16_t	reserved_06;
-	struct lpc_usb_ep	ep0_in;
-	vuint16_t	reserved_0c;
-	vuint16_t	reserved_0e;
+	vuint32_t		ep0_out;
+	vuint32_t		setup;
+	vuint32_t		ep0_in;
+	vuint32_t		reserved_0c;
 	struct lpc_usb_epn	epn[4];
 };
 
-#define LPC_USB_EP_STATUS_ACTIVE	15
-#define LPC_USB_EP_STATUS_DISABLED	14
-#define LPC_USB_EP_STATUS_STALL		13
-#define LPC_USB_EP_STATUS_TOGGLE_RESET	12
-#define LPC_USB_EP_STATUS_RATE_FEEDBACK	11
-#define LPC_USB_EP_STATUS_ENDPOINT_TYPE	10
-#define LPC_USB_EP_STATUS_OFFSET	0
-#define LPC_USB_EP_STATUS_OFFSET_MASK	0x3ff
+/* Assigned in registers.ld to point at the base
+ * of USB ram
+ */
+
+extern uint8_t lpc_usb_sram[];
+
+#define LPC_USB_EP_ACTIVE		31
+#define LPC_USB_EP_DISABLED		30
+#define LPC_USB_EP_STALL		29
+#define LPC_USB_EP_TOGGLE_RESET		28
+#define LPC_USB_EP_RATE_FEEDBACK	27
+#define LPC_USB_EP_ENDPOINT_ISO		26
+#define LPC_USB_EP_NBYTES		16
+#define  LPC_USB_EP_NBYTES_MASK			0x3ff
+#define LPC_USB_EP_OFFSET		0
 
 #define LPC_ISR_PIN_INT0_POS	0
 #define LPC_ISR_PIN_INT1_POS	1
@@ -1038,5 +1037,21 @@ static inline uint8_t
 lpc_nvic_get_priority(int irq) {
 	return (lpc_nvic.ipr[IRQ_PRIO_REG(irq)] >> IRQ_PRIO_BIT(irq)) & IRQ_PRIO_MASK(0);
 }
+
+struct arm_scb {
+	vuint32_t	cpuid;
+	vuint32_t	icsr;
+	uint32_t	reserved08;
+	vuint32_t	aircr;
+
+	vuint32_t	scr;
+	vuint32_t	ccr;
+	uint32_t	reserved18;
+	vuint32_t	shpr2;
+
+	vuint32_t	shpr3;
+};
+
+extern struct arm_scb arm_scb;
 
 #endif /* _LPC_H_ */

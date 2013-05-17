@@ -45,7 +45,10 @@
 #define __interrupt(n)
 #define __at(n)
 
-#define ao_arch_reboot() 
+#define ao_arch_reboot() arm_scb.aircr = ((0x05fa << 16) |	\
+					  (0 << 15) |		\
+					  (1 << 2) |		\
+					  (0 << 1))
 
 #define ao_arch_nop()		asm("nop")
 
@@ -114,7 +117,8 @@ extern const uint32_t ao_radio_cal;
 void
 ao_adc_init(void);
 
-
+#define AO_USB_OUT_EP	2
+#define AO_USB_IN_EP	3
 
 void
 ao_serial_init(void);

@@ -34,7 +34,10 @@
 
 #define LEDS_AVAILABLE	AO_LED_RED
 
-#define HAS_USB		0
+#define HAS_USB		1
+
+#define HAS_USB_CONNECT	1
+#define HAS_USB_VBUS	1
 
 #define PACKET_HAS_SLAVE	0
 

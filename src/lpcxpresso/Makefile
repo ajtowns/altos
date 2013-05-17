@@ -23,8 +23,10 @@ ALTOS_SRC = \
 	ao_panic.c \
 	ao_led_lpc.c \
 	ao_task.c \
+	ao_cmd.c \
 	ao_timer_lpc.c \
 	ao_serial_lpc.c \
+	ao_usb_lpc.c \
 	ao_stdio.c
 
 PRODUCT=LpcDemo-v0.0

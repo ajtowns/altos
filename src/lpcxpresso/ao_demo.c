@@ -15,24 +15,8 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "ao.h"
-
-struct ao_task demo_task;
-
-static void demo(void) {
-	for (;;) {
-		ao_delay(100);
-		ao_led_toggle(AO_LED_RED);
-	}
-}
-
-static struct ao_task serial_task;
-
-static void serial(void) {
-	for (;;) {
-		printf ("hello, world\n");
-	}
-}
+#include <ao.h>
+#include <ao_usb.h>
 
 int
 main(void)
@@ -44,11 +28,9 @@ main(void)
 	ao_timer_init();
 	
 	ao_serial_init();
-
+	ao_usb_init();
+	ao_cmd_init();
 	ao_task_init();
-
-	ao_add_task(&demo_task, demo, "demo");
-	ao_add_task(&serial_task, serial, "serial");
 
 	ao_start_scheduler();
 
