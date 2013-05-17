@@ -994,6 +994,11 @@ log_message(char *fmt, ...)
 	if (!log)
 		log = fopen("\\temp\\altos.txt", "w");
 	if (log) {
+		SYSTEMTIME time;
+		GetLocalTime(&time);
+		fprintf (log, "%4d-%02d-%02d %2d:%02d:%02d. ", 
+			 time.wYear, time.wMonth, time.wDay,
+			 time.wHour, time.wMinute, time.wSecond);
 		va_start(a, fmt);
 		vfprintf(log, fmt, a);
 		va_end(a);
@@ -1339,6 +1344,7 @@ altos_open(struct altos_device *device)
 		file->handle = open_serial(full_name);
 		if (file->handle != INVALID_HANDLE_VALUE)
 			break;
+		altos_set_last_windows_error();
 		Sleep(100);
 	}
 	
@@ -1373,13 +1379,19 @@ altos_open(struct altos_device *device)
 PUBLIC void
 altos_close(struct altos_file *file)
 {
-	if (file->handle != INVALID_HANDLE_VALUE) {
-		CloseHandle(file->handle);
+	HANDLE	handle = file->handle;
+	if (handle != INVALID_HANDLE_VALUE) {
+		HANDLE	ov_read = file->ov_read.hEvent;
+		HANDLE	ov_write = file->ov_write.hEvent;
 		file->handle = INVALID_HANDLE_VALUE;
-		SetEvent(file->ov_read.hEvent);
-		SetEvent(file->ov_write.hEvent);
-		CloseHandle(file->ov_read.hEvent);
-		CloseHandle(file->ov_write.hEvent);
+		file->ov_read.hEvent = INVALID_HANDLE_VALUE;
+		file->ov_write.hEvent = INVALID_HANDLE_VALUE;
+		PurgeComm(handle, PURGE_RXABORT|PURGE_RXCLEAR|PURGE_TXABORT|PURGE_TXCLEAR);
+		Sleep(100);
+		CloseHandle(handle);
+		file->handle = INVALID_HANDLE_VALUE;
+		CloseHandle(ov_read);
+		CloseHandle(ov_write);
 	}
 }
 
