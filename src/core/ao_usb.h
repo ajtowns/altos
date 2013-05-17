@@ -114,6 +114,7 @@ extern __code __at (0x00aa) uint8_t ao_usb_descriptors [];
 #define AO_USB_EP0_IDLE		0
 #define AO_USB_EP0_DATA_IN	1
 #define AO_USB_EP0_DATA_OUT	2
+#define AO_USB_EP0_STALL	3
 
 #define LE_WORD(x)    ((x)&0xFF),((uint8_t) (((uint16_t) (x))>>8))
 

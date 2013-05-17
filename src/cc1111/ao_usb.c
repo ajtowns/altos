@@ -152,19 +152,17 @@ ao_usb_ep0_fill(void)
 		*ao_usb_ep0_out_data++ = USBFIFO[0];
 }
 
-void
+static void
 ao_usb_ep0_queue_byte(uint8_t a)
 {
 	ao_usb_ep0_in_buf[ao_usb_ep0_in_len++] = a;
 }
 
-void
+static void
 ao_usb_set_address(uint8_t address)
 {
 	ao_usb_running = 1;
-	USBADDR = address | 0x80;
-	while (USBADDR & 0x80)
-		;
+	USBADDR = address;
 }
 
 static void
@@ -190,24 +188,6 @@ ao_usb_ep0_setup(void)
 	ao_usb_ep0_fill();
 	if (ao_usb_ep0_out_len != 0)
 		return;
-
-	/* Figure out how to ACK the setup packet */
-	if (ao_usb_setup.dir_type_recip & AO_USB_DIR_IN) {
-		if (ao_usb_setup.length)
-			ao_usb_ep0_state = AO_USB_EP0_DATA_IN;
-		else
-			ao_usb_ep0_state = AO_USB_EP0_IDLE;
-	} else {
-		if (ao_usb_setup.length)
-			ao_usb_ep0_state = AO_USB_EP0_DATA_OUT;
-		else
-			ao_usb_ep0_state = AO_USB_EP0_IDLE;
-	}
-	USBINDEX = 0;
-	if (ao_usb_ep0_state == AO_USB_EP0_IDLE)
-		USBCS0 = USBCS0_CLR_OUTPKT_RDY | USBCS0_DATA_END;
-	else
-		USBCS0 = USBCS0_CLR_OUTPKT_RDY;
 
 	ao_usb_ep0_in_data = ao_usb_ep0_in_buf;
 	ao_usb_ep0_in_len = 0;
@@ -274,10 +254,39 @@ ao_usb_ep0_setup(void)
 		}
 		break;
 	}
-	if (ao_usb_ep0_state != AO_USB_EP0_DATA_OUT) {
+
+	/* Figure out how to ACK the setup packet and the
+	 * next state
+	 */
+	USBINDEX = 0;
+	if (ao_usb_ep0_in_len) {
+
+		/* Sending data back to the host
+		 */
+		ao_usb_ep0_state = AO_USB_EP0_DATA_IN;
+		USBCS0 = USBCS0_CLR_OUTPKT_RDY;
 		if (ao_usb_setup.length < ao_usb_ep0_in_len)
 			ao_usb_ep0_in_len = ao_usb_setup.length;
 		ao_usb_ep0_flush();
+	} else if (ao_usb_ep0_out_len) {
+		
+		/* Receiving data from the host
+		 */
+		ao_usb_ep0_state = AO_USB_EP0_DATA_OUT;
+		USBCS0 = USBCS0_CLR_OUTPKT_RDY;
+	} else if (ao_usb_setup.length) {
+
+		/* Uh-oh, the host expected to send or receive data
+		 * and we don't know what to do.
+		 */
+		ao_usb_ep0_state = AO_USB_EP0_STALL;
+		USBCS0 = USBCS0_CLR_OUTPKT_RDY | USBCS0_SEND_STALL;
+	} else {
+
+		/* Simple setup packet with no data
+		 */
+		ao_usb_ep0_state = AO_USB_EP0_IDLE;
+		USBCS0 = USBCS0_CLR_OUTPKT_RDY | USBCS0_DATA_END;
 	}
 }
 
@@ -299,12 +308,12 @@ ao_usb_ep0(void)
 		USBINDEX = 0;
 		cs0 = USBCS0;
 		if (cs0 & USBCS0_SETUP_END) {
-			ao_usb_ep0_state = AO_USB_EP0_IDLE;
 			USBCS0 = USBCS0_CLR_SETUP_END;
+			ao_usb_ep0_state = AO_USB_EP0_IDLE;
 		}
 		if (cs0 & USBCS0_SENT_STALL) {
+			USBCS0 = 0;
 			ao_usb_ep0_state = AO_USB_EP0_IDLE;
-			USBCS0 &= ~USBCS0_SENT_STALL;
 		}
 		if (ao_usb_ep0_state == AO_USB_EP0_DATA_IN &&
 		    (cs0 & USBCS0_INPKT_RDY) == 0)
@@ -318,12 +327,11 @@ ao_usb_ep0(void)
 				break;
 			case AO_USB_EP0_DATA_OUT:
 				ao_usb_ep0_fill();
-				if (ao_usb_ep0_out_len == 0)
-					ao_usb_ep0_state = AO_USB_EP0_IDLE;
 				USBINDEX = 0;
-				if (ao_usb_ep0_state == AO_USB_EP0_IDLE)
+				if (ao_usb_ep0_out_len == 0) {
+					ao_usb_ep0_state = AO_USB_EP0_IDLE;
 					USBCS0 = USBCS0_CLR_OUTPKT_RDY | USBCS0_DATA_END;
-				else
+				} else
 					USBCS0 = USBCS0_CLR_OUTPKT_RDY;
 				break;
 			}
