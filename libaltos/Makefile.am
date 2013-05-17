@@ -42,7 +42,7 @@ MINGCC64=x86_64-w64-mingw32-gcc
 MINGFLAGS=-Wall -DWINDOWS -DBUILD_DLL -I$(JVM_INCLUDE)
 MINGLIBS=-lsetupapi
 
-fat: altos.dll altos64.dll
+fat: all altos.dll altos64.dll
 
 altos.dll: $(libaltos_la_SOURCES)
 	$(MINGCC32) -o $@ $(MINGFLAGS) -shared $(libaltos_la_SOURCES) $(MINGLIBS)
