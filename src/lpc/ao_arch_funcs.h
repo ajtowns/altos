@@ -144,4 +144,55 @@ static inline void ao_arch_restore_stack(void) {
 		ao_arch_release_interrupts();			\
 	} while (0)
 
+/*
+ * SPI
+ */
+
+#define ao_spi_set_cs(port,mask) (lpc_gpio.clr[port] = (mask))
+#define ao_spi_clr_cs(port,mask) (lpc_gpio.set[port] = (mask))
+
+#define ao_spi_get_mask(port,mask,bus,speed) do {	\
+		ao_spi_get(bus, speed);			\
+		ao_spi_set_cs(port, mask);		\
+	} while (0)
+
+#define ao_spi_put_mask(reg,mask,bus) do {	\
+		ao_spi_clr_cs(reg,mask);	\
+		ao_spi_put(bus);		\
+	} while (0)
+
+#define ao_spi_get_bit(reg,bit,pin,bus,speed) ao_spi_get_mask(reg,(1<<bit),bus,speed)
+#define ao_spi_put_bit(reg,bit,pin,bus) ao_spi_put_mask(reg,(1<<bit),bus)
+
+void
+ao_spi_get(uint8_t spi_index, uint32_t speed);
+
+void
+ao_spi_put(uint8_t spi_index);
+
+void
+ao_spi_send(void *block, uint16_t len, uint8_t spi_index);
+
+void
+ao_spi_send_fixed(uint8_t value, uint16_t len, uint8_t spi_index);
+
+void
+ao_spi_recv(void *block, uint16_t len, uint8_t spi_index);
+
+void
+ao_spi_duplex(void *out, void *in, uint16_t len, uint8_t spi_index);
+
+extern uint16_t	ao_spi_speed[LPC_NUM_SPI];
+
+void
+ao_spi_init(void);
+
+#define ao_spi_init_cs(port, mask) do {					\
+		uint8_t __bit__;					\
+		for (__bit__ = 0; __bit__ < 32; __bit__++) {		\
+			if (mask & (1 << __bit__))			\
+				ao_enable_output(port, __bit__, PIN, 1); \
+		}							\
+	} while (0)
+
 #endif /* _AO_ARCH_FUNCS_H_ */

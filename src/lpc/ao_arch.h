@@ -28,6 +28,8 @@
 
 #define AO_LED_TYPE	uint16_t
 
+#define AO_PORT_TYPE	uint32_t
+
 #ifndef AO_TICK_TYPE
 #define AO_TICK_TYPE	uint16_t
 #define AO_TICK_SIGNED	int16_t
@@ -122,5 +124,18 @@ ao_adc_init(void);
 
 void
 ao_serial_init(void);
+
+/* SPI definitions */
+
+#define AO_SPI_SPEED_12MHz		2
+#define AO_SPI_SPEED_6MHz		4
+#define AO_SPI_SPEED_4MHz		6
+#define AO_SPI_SPEED_2MHz		12
+#define AO_SPI_SPEED_1MHz		24
+#define AO_SPI_SPEED_500kHz		48
+#define AO_SPI_SPEED_250kHz		96
+#define AO_SPI_SPEED_125kHz		192
+
+#define AO_SPI_SPEED_FAST	AO_SPI_SPEED_12MHz
 
 #endif /* _AO_ARCH_H_ */
