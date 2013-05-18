@@ -111,10 +111,10 @@ extern const uint32_t ao_radio_cal;
 #define AO_TIM91011_CLK		(2 * AO_PCLK2)
 #endif
 
-#define AO_STM_NVIC_HIGH_PRIORITY	4
-#define AO_STM_NVIC_CLOCK_PRIORITY	6
-#define AO_STM_NVIC_MED_PRIORITY	8
-#define AO_STM_NVIC_LOW_PRIORITY	10
+#define AO_LPC_NVIC_HIGH_PRIORITY	0
+#define AO_LPC_NVIC_CLOCK_PRIORITY	1
+#define AO_LPC_NVIC_MED_PRIORITY	2
+#define AO_LPC_NVIC_LOW_PRIORITY	3
 
 void
 ao_adc_init(void);
