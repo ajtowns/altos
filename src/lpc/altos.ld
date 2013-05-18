@@ -17,8 +17,9 @@
 
 MEMORY {
 	rom (rx) : ORIGIN = 0x00000000, LENGTH = 32K
-	ram (!w) : ORIGIN = 0x10000000, LENGTH = 4K - 512
-	stack (!w) : ORIGIN = 0x10000000 + 4K - 512, LENGTH = 512
+	ram (!w) : ORIGIN = 0x10000000, LENGTH = 4K - 128
+	usb (!x) : ORIGIN = 0x20004000 + 2K - 256, LENGTH = 256
+	stack (!w) : ORIGIN = 0x10000000 + 4K - 128, LENGTH = 128
 }
 
 INCLUDE registers.ld
@@ -63,9 +64,13 @@ SECTIONS {
 		*(COMMON)
 		__bss_end__ = .;
 	} >ram
+	PROVIDE(end = .);
+
+	.usb : {
+		*(.usb)
+	} > usb
 
 	PROVIDE(__stack__ = ORIGIN(stack) + LENGTH(stack));
-	PROVIDE(end = .);
 }
 
 ENTRY(start);
