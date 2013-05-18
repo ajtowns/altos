@@ -36,16 +36,29 @@
 	} while (0)
 
 #define ao_enable_input(port,bit,mode) do {				\
+		vuint32_t *_ioconf = &lpc_ioconf.pio0_0 + ((port)*24+(bit)); \
+		vuint32_t _mode;					\
 		ao_enable_port(port);					\
 		lpc_gpio.dir[port] &= ~(1 << bit);			\
 		if (mode == AO_EXTI_MODE_PULL_UP)			\
-			stm_pupdr_set(port, bit, STM_PUPDR_PULL_UP);	\
+			_mode = LPC_IOCONF_MODE_PULL_UP << LPC_IOCONF_MODE; \
 		else if (mode == AO_EXTI_MODE_PULL_DOWN)		\
-			stm_pupdr_set(port, bit, STM_PUPDR_PULL_DOWN);	\
+			_mode = LPC_IOCONF_MODE_PULL_UP << LPC_IOCONF_MODE; \
 		else							\
-			stm_pupdr_set(port, bit, STM_PUPDR_NONE);	\
+			_mode = LPC_IOCONF_MODE_INACTIVE << LPC_IOCONF_MODE; \
+		*_ioconf = ((*_ioconf & ~(LPC_IOCONF_MODE_MASK << LPC_IOCONF_MODE)) | \
+			    _mode |					\
+			    (1 << LPC_IOCONF_ADMODE));			\
 	} while (0)
 
+#define ao_enable_analog(port,bit) do {					\
+		vuint32_t *_ioconf = &lpc_ioconf.pio0_0 + ((port)*24+(bit)); \
+		ao_enable_port(port);					\
+		lpc_gpio.dir[port] &= ~(1 << bit);			\
+		*_ioconf = *_ioconf & ~((1 << LPC_IOCONF_ADMODE) |	\
+					(LPC_IOCONF_MODE_MASK << LPC_IOCONF_MODE)); \
+	} while (0)
+	
 #define ARM_PUSH32(stack, val)	(*(--(stack)) = (val))
 
 static inline uint32_t
