@@ -28,10 +28,6 @@ ao_adc_poll(void);
 void
 ao_adc_sleep(void);
 
-/* Get a copy of the last complete sample set */
-void
-ao_data_get(__xdata struct ao_data *packet);
-
 /* Initialize the A/D converter */
 void
 ao_adc_init(void);

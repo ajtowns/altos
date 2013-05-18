@@ -82,6 +82,10 @@ struct ao_data {
 #define ao_data_ring_next(n)	(((n) + 1) & (AO_DATA_RING - 1))
 #define ao_data_ring_prev(n)	(((n) - 1) & (AO_DATA_RING - 1))
 
+/* Get a copy of the last complete sample set */
+void
+ao_data_get(__xdata struct ao_data *packet);
+
 extern volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
 extern volatile __data uint8_t		ao_data_head;
 extern volatile __data uint8_t		ao_data_present;
