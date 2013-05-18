@@ -454,17 +454,9 @@ struct lpc_scb {
 
 	vuint32_t	irqlatency;	/* 0x170 */
 	vuint32_t	nmisrc;
-	vuint32_t	pintsel0;
-	vuint32_t	pintsel1;
+	vuint32_t	pintsel[8];
 
-	vuint32_t	pintsel2;	/* 0x180 */
-	vuint32_t	pintsel3;
-	vuint32_t	pintsel4;
-	vuint32_t	pintsel5;
-
-	vuint32_t	pintsel6;	/* 0x190 */
-	vuint32_t	pintsel7;
-	vuint32_t	usbclkctrl;
+	vuint32_t	usbclkctrl;	/* 0x198 */
 	vuint32_t	usbclkst;
 
 	uint32_t	r1a0[6*4];	/* 0x1a0 */
@@ -637,6 +629,18 @@ struct lpc_flash {
 extern struct lpc_flash lpc_flash;
 
 struct lpc_gpio_pin {
+	vuint32_t	isel;		/* 0x00 */
+	vuint32_t	ienr;
+	vuint32_t	sienr;
+	vuint32_t	cienr;
+
+	vuint32_t	ienf;		/* 0x10 */
+	vuint32_t	sienf;
+	vuint32_t	cienf;
+	vuint32_t	rise;
+
+	vuint32_t	fall;		/* 0x20 */
+	vuint32_t	ist;
 };
 
 extern struct lpc_gpio_pin lpc_gpio_pin;
@@ -1062,5 +1066,150 @@ struct arm_scb {
 };
 
 extern struct arm_scb arm_scb;
+
+struct lpc_ssp {
+	vuint32_t	cr0;	/* 0x00 */
+	vuint32_t	cr1;
+	vuint32_t	dr;
+	vuint32_t	sr;
+
+	vuint32_t	cpsr;	/* 0x10 */
+	vuint32_t	imsc;
+	vuint32_t	ris;
+	vuint32_t	mis;
+
+	vuint32_t	icr;	/* 0x20 */
+};
+
+extern struct lpc_ssp lpc_ssp0, lpc_ssp1;
+
+#define LPC_NUM_SPI		2
+
+#define LPC_SSP_FIFOSIZE	8
+
+#define LPC_SSP_CR0_DSS		0
+#define  LPC_SSP_CR0_DSS_4		0x3
+#define  LPC_SSP_CR0_DSS_5		0x4
+#define  LPC_SSP_CR0_DSS_6		0x5
+#define  LPC_SSP_CR0_DSS_7		0x6
+#define  LPC_SSP_CR0_DSS_8		0x7
+#define  LPC_SSP_CR0_DSS_9		0x8
+#define  LPC_SSP_CR0_DSS_10		0x9
+#define  LPC_SSP_CR0_DSS_11		0xa
+#define  LPC_SSP_CR0_DSS_12		0xb
+#define  LPC_SSP_CR0_DSS_13		0xc
+#define  LPC_SSP_CR0_DSS_14		0xd
+#define  LPC_SSP_CR0_DSS_15		0xe
+#define  LPC_SSP_CR0_DSS_16		0xf
+#define LPC_SSP_CR0_FRF		4
+#define  LPC_SSP_CR0_FRF_SPI		0
+#define  LPC_SSP_CR0_FRF_TI		1
+#define  LPC_SSP_CR0_FRF_MICROWIRE	2
+#define LPC_SSP_CR0_CPOL	6
+#define  LPC_SSP_CR0_CPOL_LOW		0
+#define  LPC_SSP_CR0_CPOL_HIGH		1
+#define LPC_SSP_CR0_CPHA	7
+#define  LPC_SSP_CR0_CPHA_FIRST		0
+#define  LPC_SSP_CR0_CPHA_SECOND	1
+#define LPC_SSP_CR0_SCR		8
+
+#define LPC_SSP_CR1_LBM		0
+#define LPC_SSP_CR1_SSE		1
+#define LPC_SSP_CR1_MS		2
+#define  LPC_SSP_CR1_MS_MASTER		0
+#define  LPC_SSP_CR1_MS_SLAVE		1
+#define LPC_SSP_CR1_SOD		3
+
+#define LPC_SSP_SR_TFE		0
+#define LPC_SSP_SR_TNF		1
+#define LPC_SSP_SR_RNE		2
+#define LPC_SSP_SR_RFF		3
+#define LPC_SSP_SR_BSY		4
+
+#define LPC_SSP_IMSC_RORIM	0
+#define LPC_SSP_IMSC_RTIM	1
+#define LPC_SSP_IMSC_RXIM	2
+#define LPC_SSP_IMSC_TXIM	3
+
+#define LPC_SSP_RIS_RORRIS	0
+#define LPC_SSP_RIS_RTRIS	1
+#define LPC_SSP_RIS_RXRIS	2
+#define LPC_SSP_RIS_TXRIS	3
+
+#define LPC_SSP_MIS_RORMIS	0
+#define LPC_SSP_MIS_RTMIS	1
+#define LPC_SSP_MIS_RXMIS	2
+#define LPC_SSP_MIS_TXMIS	3
+
+#define LPC_SSP_ICR_RORIC	0
+#define LPC_SSP_ICR_RTIC	1
+
+struct lpc_adc {
+	vuint32_t	cr;	/* 0x00 */
+	vuint32_t	gdr;
+	uint32_t	r08;
+	vuint32_t	inten;
+
+	vuint32_t	dr[8];	/* 0x10 */
+
+	vuint32_t	stat;	/* 0x30 */
+};
+
+extern struct lpc_adc lpc_adc;
+
+#define LPC_ADC_CR_SEL		0
+#define LPC_ADC_CR_CLKDIV	8
+#define LPC_ADC_CR_BURST	16
+#define LPC_ADC_CR_CLKS		17
+#define  LPC_ADC_CR_CLKS_11		0
+#define  LPC_ADC_CR_CLKS_10		1
+#define  LPC_ADC_CR_CLKS_9		2
+#define  LPC_ADC_CR_CLKS_8		3
+#define  LPC_ADC_CR_CLKS_7		4
+#define  LPC_ADC_CR_CLKS_6		5
+#define  LPC_ADC_CR_CLKS_5		6
+#define  LPC_ADC_CR_CLKS_4		7
+
+#define LPC_ADC_INTEN_ADINTEN	0
+#define LPC_ADC_INTEN_ADGINTEN	8
+
+#define LPC_ADC_STAT_DONE	0
+#define LPC_ADC_STAT_OVERRUN	8
+#define LPC_ADC_STAT_ADINT	16
+
+struct lpc_ct32b {
+	vuint32_t	ir;	/* 0x00 */
+	vuint32_t	tcr;
+	vuint32_t	tc;
+	vuint32_t	pr;
+	
+	vuint32_t	pc;	/* 0x10 */
+	vuint32_t	mcr;
+	vuint32_t	mr[4];	/* 0x18 */
+	vuint32_t	ccr;	/* 0x28 */
+	vuint32_t	cr0;
+	
+	vuint32_t	cr1_0;	/* 0x30 (only for ct32b0 */
+	vuint32_t	cr1_1;	/* 0x34 (only for ct32b1 */
+	uint32_t	r38;
+	vuint32_t	emr;
+
+	uint32_t	r40[12];
+
+	vuint32_t	ctcr;	/* 0x70 */
+	vuint32_t	pwmc;
+};
+
+extern struct lpc_ct32b lpc_ct32b0, lpc_ct32b1;
+
+#define LPC_CT32B_TCR_CEN	0
+#define LPC_CT32B_TCR_CRST	1
+
+#define LPC_CT32B_MCR_MR0R	1
+
+#define LPC_CT32B_PWMC_PWMEN0	0
+#define LPC_CT32B_PWMC_PWMEN1	1
+#define LPC_CT32B_PWMC_PWMEN2	2
+#define LPC_CT32B_PWMC_PWMEN3	3
 
 #endif /* _LPC_H_ */
