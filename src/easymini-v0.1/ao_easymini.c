@@ -26,16 +26,19 @@ main(void)
 	ao_timer_init();
 	ao_exti_init();
 
+	ao_spi_init();
+	ao_storage_init();
+
+	ao_usb_init();
+
 	ao_cmd_init();
 #if 0
-	ao_storage_init();
 	ao_flight_init();
 	ao_ms5607_init();
 	ao_log_init();
 	ao_report_init();
 	ao_igniter_init();
 #endif
-	ao_usb_init();
 	ao_config_init();
 	ao_start_scheduler();
 }
