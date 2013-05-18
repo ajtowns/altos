@@ -124,7 +124,7 @@ ao_flight(void)
 				ao_usb_disable();
 #endif
 
-#if !HAS_ACCEL
+#if !HAS_ACCEL && PACKET_HAS_SLAVE
 				/* Disable packet mode in pad state on TeleMini */
 				ao_packet_slave_stop();
 #endif
