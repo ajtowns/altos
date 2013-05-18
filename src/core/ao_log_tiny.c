@@ -105,7 +105,7 @@ ao_log(void)
 		 */
 		ao_sleep(DATA_TO_XDATA(&ao_sample_data));
 		while (ao_log_data != ao_sample_data) {
-			sum += ao_data_ring[ao_log_data].adc.pres;
+			sum += ao_data_pres(&ao_data_ring[ao_log_data]);
 			count++;
 			ao_log_data = ao_data_ring_next(ao_log_data);
 		}
