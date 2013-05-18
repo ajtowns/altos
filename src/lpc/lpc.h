@@ -137,7 +137,7 @@ extern struct lpc_ioconf lpc_ioconf;
 #define  LPC_IOCONF_FUNC_PIO0_7		0
 #define  LPC_IOCONF_FUNC_CTS		1
 
-/* PIO0_8
+/* PIO0_8 */
 #define  LPC_IOCONF_FUNC_PIO0_8		0
 #define  LPC_IOCONF_FUNC_MISO0		1
 #define  LPC_IOCONF_FUNC_CT16B0_MAT0	2
@@ -211,13 +211,13 @@ extern struct lpc_ioconf lpc_ioconf;
 /* PIO0_21 */
 #define  LPC_IOCONF_FUNC_PIO0_21	0
 #define  LPC_IOCONF_FUNC_CT16B1_MAT0	1
-#define  LPC_IOCONF_FUNC_MOSI1		2
+#define  LPC_IOCONF_FUNC_PIO0_21_MOSI1	2
 
 /* PIO0_22 */
 #define  LPC_IOCONF_FUNC_PIO0_22	0
 #define  LPC_IOCONF_FUNC_AD6		1
 #define  LPC_IOCONF_FUNC_CT16B1_MAT1	2
-#define  LPC_IOCONF_FUNC_MISO1		3
+#define  LPC_IOCONF_FUNC_PIO0_22_MISO1	3
 
 /* PIO0_23 */
 #define  LPC_IOCONF_FUNC_PIO0_23	0
@@ -284,7 +284,7 @@ extern struct lpc_ioconf lpc_ioconf;
 #define  LPC_IOCONF_FUNC_PIO1_15	0
 #define  LPC_IOCONF_FUNC_DCD		1
 #define  LPC_IOCONF_FUNC_PIO1_15_CT16B0_MAT2	2
-#define  LPC_IOCONF_FUNC_SCK1		3
+#define  LPC_IOCONF_FUNC_PIO1_15_SCK1	3
 
 /* PIO1_16 */
 #define  LPC_IOCONF_FUNC_PIO1_16	0
@@ -319,7 +319,7 @@ extern struct lpc_ioconf lpc_ioconf;
 /* PIO1_22 */
 #define  LPC_IOCONF_FUNC_PIO1_22	0
 #define  LPC_IOCONF_FUNC_RI		1
-#define  LPC_IOCONF_FUNC_MOSI1		2
+#define  LPC_IOCONF_FUNC_PIO1_22_MOSI1	2
 
 /* PIO1_23 */
 #define  LPC_IOCONF_FUNC_PIO1_23	0
@@ -359,6 +359,13 @@ extern struct lpc_ioconf lpc_ioconf;
 
 #define  LPC_IOCONF_FUNC_MASK		0x7
 
+#define ao_lpc_alternate(func) (((func) << LPC_IOCONF_FUNC) | \
+				(LPC_IOCONF_MODE_INACTIVE << LPC_IOCONF_MODE) | \
+				(0 << LPC_IOCONF_HYS) |			\
+				(0 << LPC_IOCONF_INV) |			\
+				(0 << LPC_IOCONF_OD) |			\
+				0x80)
+
 #define LPC_IOCONF_MODE			3
 #define  LPC_IOCONF_MODE_INACTIVE		0
 #define  LPC_IOCONF_MODE_PULL_DOWN		1
@@ -369,6 +376,8 @@ extern struct lpc_ioconf lpc_ioconf;
 #define LPC_IOCONF_HYS			5
 
 #define LPC_IOCONF_INV			6
+#define LPC_IOCONF_ADMODE		7
+#define LPC_IOCONF_FILTR		8
 #define LPC_IOCONF_OD			10
 
 struct lpc_scb {
