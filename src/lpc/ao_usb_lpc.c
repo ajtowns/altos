@@ -605,8 +605,14 @@ ao_usb_ep0_handle(uint8_t receive)
 		/* Wait until the IN packet is received from addr 0
 		 * before assigning our local address
 		 */
-		if (ao_usb_address_pending)
+		if (ao_usb_address_pending) {
+#if HAS_FLIGHT
+			/* Go to idle mode if USB is connected
+			 */
+			ao_flight_force_idle = 1;
+#endif
 			ao_usb_set_address(ao_usb_address);
+		}
 		if (ao_usb_ep0_state == AO_USB_EP0_DATA_IN)
 			ao_usb_ep0_flush();
 	}
