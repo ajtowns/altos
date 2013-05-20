@@ -25,7 +25,7 @@
 
 #define lpc_all_bit(port,bit)	(((port) << 5) | (bit))
 
-#define ao_gpio_set(port, bit, pin, v)	(lpc_gpio.byte[lpc_all_bit(port,bit)] = v)
+#define ao_gpio_set(port, bit, pin, v)	(lpc_gpio.byte[lpc_all_bit(port,bit)] = (v))
 
 #define ao_gpio_get(port, bit, pin) 	(lpc_gpio_byte[lpc_all_bit(port,bit)])
 
