@@ -35,8 +35,10 @@ ao_exti_isr(uint8_t pint)
 
 	if (lpc_gpio_pin.ist & mask) {
 		lpc_gpio_pin.ist = mask;
+		lpc_gpio_pin.rise = mask;
+		lpc_gpio_pin.fall = mask;
 
-		(*ao_exti_callback) ();
+		(*ao_exti_callback[pint]) ();
 	}
 }
 
@@ -52,6 +54,30 @@ pin_isr(7)
 
 #define pin_id(port,pin)	((port) * 24 + (pin));
 
+static void
+_ao_exti_set_enable(uint8_t pint)
+{
+	uint8_t		mask = 1 << pint;
+	uint8_t		mode;
+
+	if (ao_pint_enabled & mask)
+		mode = ao_pint_mode[pint];
+	else
+		mode = 0;
+
+	if (mode & AO_EXTI_MODE_RISING)
+		lpc_gpio_pin.sienr = mask;
+	else
+		lpc_gpio_pin.cienr = mask;
+		
+	if (mode & AO_EXTI_MODE_FALLING)
+		lpc_gpio_pin.sienf = mask;
+	else
+		lpc_gpio_pin.cienf = mask;
+	lpc_gpio_pin.rise = mask;
+	lpc_gpio_pin.fall = mask;
+}
+
 void
 ao_exti_setup (uint8_t port, uint8_t pin, uint8_t mode, void (*callback)(void)) {
 	uint8_t		id = pin_id(port,pin);
@@ -65,22 +91,23 @@ ao_exti_setup (uint8_t port, uint8_t pin, uint8_t mode, void (*callback)(void)) 
 	if (pint == LPC_NUM_PINT)
 		ao_panic(AO_PANIC_EXTI);
 
+	ao_arch_block_interrupts();
 	mask = (1 << pint);
 	ao_pint_inuse |= mask;
 	ao_pint_enabled &= ~mask;
 	
 	ao_pint_map[id] = pint;
-	ao_exti_callback[pin] = callback;
+	ao_exti_callback[pint] = callback;
 
 	/* configure gpio to interrupt routing */
 	lpc_scb.pintsel[pint] = id;
 
-	ao_enable_input(port, pin, mode);
-
 	/* Set edge triggered */
 	lpc_gpio_pin.isel &= ~mask;
 
-	ao_exti_set_mode(port, pin, mode);
+	ao_pint_enabled &= ~mask;
+	ao_pint_mode[pint] = mode;
+	_ao_exti_set_enable(pint);
 
 	/* Set interrupt mask and rising/falling mode */
 
@@ -93,25 +120,19 @@ ao_exti_setup (uint8_t port, uint8_t pin, uint8_t mode, void (*callback)(void)) 
 	/* Set priority and enable */
 	lpc_nvic_set_priority(LPC_ISR_PIN_INT0_POS + pint, prio);
 	lpc_nvic_set_enable(LPC_ISR_PIN_INT0_POS + pint);
+	ao_arch_release_interrupts();
 }
 
 void
-ao_exti_set_mode(uint8_t port, uint8_t pin, uint8_t mode) {
+ao_exti_set_mode(uint8_t port, uint8_t pin, uint8_t mode)
+{
 	uint8_t		id = pin_id(port,pin);
 	uint8_t		pint = ao_pint_map[id];
-	uint8_t		mask = 1 << pint;
 
+	ao_arch_block_interrupts();
 	ao_pint_mode[pint] = mode;
-
-	if (mode & AO_EXTI_MODE_RISING)
-		lpc_gpio_pin.sienr = mask;
-	else
-		lpc_gpio_pin.cienr = mask;
-		
-	if (mode & AO_EXTI_MODE_FALLING)
-		lpc_gpio_pin.sienf = mask;
-	else
-		lpc_gpio_pin.cienf = mask;
+	_ao_exti_set_enable(pint);
+	ao_arch_release_interrupts();
 }
 
 void
@@ -129,8 +150,10 @@ ao_exti_enable(uint8_t port, uint8_t pin)
 	uint8_t		pint = ao_pint_map[id];
 	uint8_t		mask = 1 << pint;
 
+	ao_arch_block_interrupts();
 	ao_pint_enabled |= mask;
-	ao_exti_set_mode(port, pin, ao_pint_mode[pint]);
+	_ao_exti_set_enable(pint);
+	ao_arch_release_interrupts();
 }
 
 void
@@ -139,9 +162,10 @@ ao_exti_disable(uint8_t port, uint8_t pin) {
 	uint8_t		pint = ao_pint_map[id];
 	uint8_t		mask = 1 << pint;
 
+	ao_arch_block_interrupts();
 	ao_pint_enabled &= ~mask;
-	lpc_gpio_pin.cienr = mask;
-	lpc_gpio_pin.cienf = mask;
+	_ao_exti_set_enable(pint);
+	ao_arch_release_interrupts();
 }
 
 void
