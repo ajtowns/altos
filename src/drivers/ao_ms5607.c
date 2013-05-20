@@ -247,17 +247,9 @@ ao_ms5607_init(void)
 	 */
 	ao_exti_setup(AO_MS5607_MISO_PORT,
 		      AO_MS5607_MISO_PIN,
-		      AO_EXTI_MODE_RISING,
+		      AO_EXTI_MODE_RISING|
+		      AO_EXTI_PIN_NOCONFIGURE,
 		      ao_ms5607_isr);
-
-#ifdef STM_MODER_ALTERNATE
-	/* Reset the pin from INPUT to ALTERNATE so that SPI works
-	 * This needs an abstraction at some point...
-	 */
-	stm_moder_set(AO_MS5607_MISO_PORT,
-		      AO_MS5607_MISO_PIN,
-		      STM_MODER_ALTERNATE);
-#endif
 }
 
 #endif
