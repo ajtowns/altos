@@ -216,6 +216,7 @@ public class AltosLib {
 	public static final int AO_LOG_FORMAT_TELEMETRY = 3;
 	public static final int AO_LOG_FORMAT_TELESCIENCE = 4;
 	public static final int AO_LOG_FORMAT_TELEMEGA = 5;
+	public static final int AO_LOG_FORMAT_MINI = 6;
 	public static final int AO_LOG_FORMAT_NONE = 127;
 
 	public static boolean isspace(int c) {

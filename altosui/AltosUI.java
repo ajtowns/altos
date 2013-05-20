@@ -354,6 +354,8 @@ public class AltosUI extends AltosUIFrame {
 				return new AltosEepromIterable(in);
 			else if (file.getName().endsWith("mega"))
 				return new AltosEepromMegaIterable(in);
+			else if (file.getName().endsWith("mini"))
+				return new AltosEepromMiniIterable(in);
 			else
 				return new AltosTelemetryIterable(in);
 		} catch (FileNotFoundException fe) {
@@ -441,6 +443,8 @@ public class AltosUI extends AltosUIFrame {
 			recs = new AltosEepromIterable(in);
 		} else if (file.getName().endsWith("mega")) {
 			recs = new AltosEepromMegaIterable(in);
+		} else if (file.getName().endsWith("mini")) {
+			recs = new AltosEepromMiniIterable(in);
 		} else {
 			recs = new AltosTelemetryIterable(in);
 		}

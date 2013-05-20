@@ -302,6 +302,53 @@ public class AltosEepromDownload implements Runnable {
 		CheckFile(false);
 	}
 	
+	void LogMini(AltosEepromMini r) throws IOException {
+		if (r.cmd != Altos.AO_LOG_INVALID) {
+			String log_line = String.format("%c %4x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x %2x\n",
+							r.cmd, r.tick,
+							r.data8[0], r.data8[1], r.data8[2], r.data8[3],
+							r.data8[4], r.data8[5], r.data8[6], r.data8[7],
+							r.data8[8], r.data8[9], r.data8[10], r.data8[11]);
+			if (eeprom_file != null)
+				eeprom_file.write(log_line);
+			else
+				eeprom_pending.add(log_line);
+		}
+	}
+
+	void CaptureMini(AltosEepromChunk eechunk) throws IOException {
+		boolean any_valid = false;
+
+		extension = "mini";
+		set_serial(flights.config_data.serial);
+		for (int i = 0; i < AltosEepromChunk.chunk_size && !done; i += AltosEepromMini.record_length) {
+			try {
+				AltosEepromMini r = new AltosEepromMini(eechunk, i);
+				if (r.cmd == Altos.AO_LOG_FLIGHT)
+					set_flight(r.data16(0));
+
+				/* Monitor state transitions to update display */
+				if (r.cmd == Altos.AO_LOG_STATE && r.data16(0) <= Altos.ao_flight_landed) {
+					state = r.data16(0);
+					if (state > Altos.ao_flight_pad)
+						want_file = true;
+				}
+
+				if (r.cmd == Altos.AO_LOG_STATE && r.data16(0) == Altos.ao_flight_landed)
+					done = true;
+				any_valid = true;
+				LogMini(r);
+			} catch (ParseException pe) {
+				if (parse_exception == null)
+					parse_exception = pe;
+			}
+		}
+		if (!any_valid)
+			done = true;
+
+		CheckFile(false);
+	}
+	
 	void CaptureTelemetry(AltosEepromChunk eechunk) throws IOException {
 		
 	}
@@ -369,6 +416,9 @@ public class AltosEepromDownload implements Runnable {
 			case AltosLib.AO_LOG_FORMAT_TELEMEGA:
 				extension = "mega";
 				CaptureMega(eechunk);
+			case AltosLib.AO_LOG_FORMAT_MINI:
+				extension = "mini";
+				CaptureMini(eechunk);
 			}
 		}
 		CheckFile(true);

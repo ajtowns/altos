@@ -106,7 +106,7 @@
 #define AO_ADC_2		1
 
 struct ao_adc {
-	int16_t		sense_d;
+	int16_t		sense_a;
 	int16_t		sense_m;
 	int16_t		v_batt;
 };
@@ -126,6 +126,9 @@ struct ao_adc {
 #define AO_IGNITER_MAIN_PIN	3
 #define AO_IGNITER_SET_MAIN(v)		ao_gpio_set(AO_IGNITER_MAIN_PORT, AO_IGNITER_MAIN_PIN, AO_IGNITER_MAIN, v)
 
+#define AO_SENSE_DROGUE(p)	((p)->adc.sense_a)
+#define AO_SENSE_MAIN(p)	((p)->adc.sense_m)
+
 #define AO_ADC_DUMP(p) \
-	printf("tick: %5u drogue: %5d main: %5d batt: %5d\n", \
-	       (p)->tick, (p)->adc.sense_d, (p)->adc.sense_m, (p)->adc.v_batt)
+	printf("tick: %5u apogee: %5d main: %5d batt: %5d\n", \
+	       (p)->tick, (p)->adc.sense_a, (p)->adc.sense_m, (p)->adc.v_batt)

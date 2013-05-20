@@ -253,6 +253,9 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 					} else if (filename.endsWith("mega")) {
 						FileInputStream in = new FileInputStream(file);
 						records = new AltosEepromMegaIterable(in);
+					} else if (filename.endsWith("mini")) {
+						FileInputStream in = new FileInputStream(file);
+						records = new AltosEepromMiniIterable(in);
 					} else {
 						throw new FileNotFoundException(filename);
 					}

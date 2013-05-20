@@ -34,7 +34,7 @@ ALTOS_SRC = \
 	ao_led_lpc.c \
 	ao_task.c \
 	ao_log.c \
-	ao_log_tiny.c \
+	ao_log_mini.c \
 	ao_cmd.c \
 	ao_config.c \
 	ao_timer_lpc.c \
