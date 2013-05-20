@@ -36,8 +36,8 @@
 
 #define HAS_USB		1
 
-#define HAS_USB_CONNECT	1
-#define HAS_USB_VBUS	1
+#define HAS_USB_CONNECT	0
+#define HAS_USB_VBUS	0
 
 #define PACKET_HAS_SLAVE	0
 
