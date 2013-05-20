@@ -86,34 +86,38 @@ static uint8_t			ao_adc_ready;
 
 void  lpc_adc_isr(void)
 {
+	uint32_t	stat = lpc_adc.stat;
 	uint16_t	*out = (uint16_t *) &ao_data_ring[ao_data_head].adc;
 	vuint32_t	*in = &lpc_adc.dr[0];
+
+	lpc_adc.cr = 0;
+	lpc_adc.stat = 0;
 
 	/* Store converted values in packet */
 
 #if AO_ADC_0
-	*out++ = ((uint16_t) *in++) >> 1;
+	*out++ = lpc_adc.dr[0] >> 1;
 #endif
 #if AO_ADC_1
-	*out++ = ((uint16_t) *in++) >> 1;
+	*out++ = lpc_adc.dr[1] >> 1;
 #endif
 #if AO_ADC_2
-	*out++ = ((uint16_t) *in++) >> 1;
+	*out++ = lpc_adc.dr[2] >> 1;
 #endif
 #if AO_ADC_3
-	*out++ = ((uint16_t) *in++) >> 1;
+	*out++ = lpc_adc.dr[3] >> 1;
 #endif
 #if AO_ADC_4
-	*out++ = ((uint16_t) *in++) >> 1;
+	*out++ = lpc_adc.dr[4] >> 1;
 #endif
 #if AO_ADC_5
-	*out++ = ((uint16_t) *in++) >> 1;
+	*out++ = lpc_adc.dr[5] >> 1;
 #endif
 #if AO_ADC_6
-	*out++ = ((uint16_t) *in++) >> 1;
+	*out++ = lpc_adc.dr[6] >> 1;
 #endif
 #if AO_ADC_7
-	*out++ = ((uint16_t) *in++) >> 1;
+	*out++ = lpc_adc.dr[7] >> 1;
 #endif
 
 	AO_DATA_PRESENT(AO_DATA_ADC);
