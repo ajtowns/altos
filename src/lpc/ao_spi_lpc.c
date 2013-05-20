@@ -182,7 +182,7 @@ ao_spi_init(void)
 #endif
 
 #if SPI_MOSI1_P0_21
-	lpc_ioconf.pio1_21 = ao_lpc_alternate(LPC_IOCONF_FUNC_PIO0_21_MOSI1);
+	lpc_ioconf.pio0_21 = ao_lpc_alternate(LPC_IOCONF_FUNC_PIO0_21_MOSI1);
 #define HAS_MOSI1
 #endif
 #if SPI_MOSI1_P1_22
