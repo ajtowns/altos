@@ -89,24 +89,11 @@ ao_spi_get(uint8_t id, uint32_t speed)
 	
 	/* Set the clock prescale */
 	lpc_ssp->cpsr = speed;
-
-	/* Enable the device */
-	lpc_ssp->cr1 = ((0 << LPC_SSP_CR1_LBM) |
-			(1 << LPC_SSP_CR1_SSE) |
-			(LPC_SSP_CR1_MS_MASTER << LPC_SSP_CR1_MS) |
-			(0 << LPC_SSP_CR1_SOD));
 }
 
 void
 ao_spi_put(uint8_t id)
 {
-	struct lpc_ssp	*lpc_ssp = ao_lpc_ssp[id];
-
-	/* Disable the device */
-	lpc_ssp->cr1 = ((0 << LPC_SSP_CR1_LBM) |
-			(0 << LPC_SSP_CR1_SSE) |
-			(LPC_SSP_CR1_MS_MASTER << LPC_SSP_CR1_MS) |
-			(0 << LPC_SSP_CR1_SOD));
 	ao_mutex_put(&ao_spi_mutex[id]);
 }
 
@@ -121,6 +108,13 @@ ao_spi_channel_init(uint8_t id)
 			(0 << LPC_SSP_CR0_CPOL) |
 			(0 << LPC_SSP_CR0_CPHA) |
 			(0 << LPC_SSP_CR0_SCR));
+
+	/* Enable the device */
+	lpc_ssp->cr1 = ((0 << LPC_SSP_CR1_LBM) |
+			(1 << LPC_SSP_CR1_SSE) |
+			(LPC_SSP_CR1_MS_MASTER << LPC_SSP_CR1_MS) |
+			(0 << LPC_SSP_CR1_SOD));
+
 	/* Drain the receive fifo */
 	for (d = 0; d < LPC_SSP_FIFOSIZE; d++)
 		(void) lpc_ssp->dr;
