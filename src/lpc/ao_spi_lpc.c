@@ -125,7 +125,21 @@ ao_spi_init(void)
 {
 #if HAS_SPI_0
 	/* Configure pins */
-	lpc_ioconf.pio0_6 = ao_lpc_alternate(LPC_IOCONF_FUNC_SCK0);
+#if SPI_SCK0_P0_6
+	lpc_ioconf.pio0_6 = ao_lpc_alternate(LPC_IOCONF_FUNC_PIO0_6_SCK0);
+#define HAS_SCK0
+#endif
+#if SPI_SCK0_P0_10
+	lpc_ioconf.pio0_10 = ao_lpc_alternate(LPC_IOCONF_FUNC_PIO0_10_SCK0);
+#define HAS_SCK0
+#endif
+#if SPI_SCK0_P1_29
+	lpc_ioconf.pio1_29 = ao_lpc_alternate(LPC_IOCONF_FUNC_PIO1_29_SCK0);
+#define HAS_SCK0
+#endif
+#ifndef HAS_SCK0
+#error "No pin specified for SCK0"
+#endif
 	lpc_ioconf.pio0_8 = ao_lpc_alternate(LPC_IOCONF_FUNC_MISO0);
 	lpc_ioconf.pio0_9 = ao_lpc_alternate(LPC_IOCONF_FUNC_MOSI0);
 

@@ -131,7 +131,7 @@ extern struct lpc_ioconf lpc_ioconf;
 /* PIO0_6 */
 #define  LPC_IOCONF_FUNC_PIO0_6		0
 #define  LPC_IOCONF_FUNC_USB_CONNECT	1
-#define  LPC_IOCONF_FUNC_SCK0		2
+#define  LPC_IOCONF_FUNC_PIO0_6_SCK0	2
 
 /* PIO0_7 */
 #define  LPC_IOCONF_FUNC_PIO0_7		0
@@ -150,7 +150,7 @@ extern struct lpc_ioconf lpc_ioconf;
 /* PIO0_10 */
 #define  LPC_IOCONF_FUNC_SWCLK		0
 #define  LPC_IOCONF_FUNC_PIO0_10	1
-#define  LPC_IOCONF_FUNC_SCK0		2
+#define  LPC_IOCONF_FUNC_PIO0_10_SCK0	2
 #define  LPC_IOCONF_FUNC_CT16B0_MAT2	3
 
 /* PIO0_11 */

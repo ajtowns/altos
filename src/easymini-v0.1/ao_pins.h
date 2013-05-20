@@ -53,6 +53,7 @@
 /* SPI */
 
 #define HAS_SPI_0		1
+#define SPI_SCK0_P0_6		1
 #define HAS_SPI_1		1
 #define SPI_SCK1_P1_15		1
 #define SPI_MISO1_P0_22		1
