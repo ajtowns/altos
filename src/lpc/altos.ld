@@ -66,10 +66,6 @@ SECTIONS {
 	} >ram
 	PROVIDE(end = .);
 
-	.usb : {
-		*(.usb)
-	} > usb
-
 	PROVIDE(__stack__ = ORIGIN(stack) + LENGTH(stack));
 }
 

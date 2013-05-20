@@ -1,4 +1,5 @@
 lpc_usb_sram	= 0x20004000;
+lpc_usb_endpoint = 0x20004700;
 lpc_usart	= 0x40008000;
 lpc_ct32b0	= 0x40014000;
 lpc_ct32b1	= 0x40018000;

@@ -81,8 +81,7 @@ static uint8_t	ao_usb_tx_count;
 static uint8_t	ao_usb_rx_buffer[AO_USB_OUT_SIZE];
 static uint8_t	ao_usb_rx_count, ao_usb_rx_pos;
 
-__attribute__((section(".usb")))
-static struct lpc_usb_endpoint lpc_usb_endpoint __attribute((aligned(256)));
+extern struct lpc_usb_endpoint lpc_usb_endpoint;
 
 /* Marks when we don't need to send an IN packet.
  * This happens only when the last IN packet is not full,
