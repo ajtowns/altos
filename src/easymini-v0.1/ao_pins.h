@@ -88,6 +88,8 @@
 #define HAS_APRS		0
 #define HAS_LOG			1
 #define USE_INTERNAL_FLASH	0
+#define HAS_IGNITE		1
+#define HAS_IGNITE_REPORT	1
 
 #define AO_DATA_RING		16
 
