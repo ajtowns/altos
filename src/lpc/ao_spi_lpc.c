@@ -23,21 +23,25 @@ static struct lpc_ssp * const ao_lpc_ssp[LPC_NUM_SPI] = { &lpc_ssp0, &lpc_ssp1 }
 
 static uint8_t	spi_dev_null;
 
+#define tx_busy(lpc_ssp) (lpc_ssp->sr & ((1 << LPC_SSP_SR_BSY) | (1 << LPC_SSP_SR_TNF))) != (1 << LPC_SSP_SR_TNF)
+#define rx_busy(lpc_ssp) (lpc_ssp->sr & ((1 << LPC_SSP_SR_BSY) | (1 << LPC_SSP_SR_RNE))) != (1 << LPC_SSP_SR_RNE)
+
 #define spi_loop(len, put, get) do {					\
 		while (len--) {						\
 			/* Wait for space in the fifo */		\
-			while ((lpc_ssp->sr & (1 << LPC_SSP_SR_TNF)) == 0) \
+			while (tx_busy(lpc_ssp))			\
 				;					\
+									\
 			/* send a byte */				\
 			lpc_ssp->dr = put;				\
+									\
+			/* Wait for byte to appear in the fifo */	\
+			while (rx_busy(lpc_ssp))			\
+				;					\
 									\
 			/* recv a byte */				\
 			get lpc_ssp->dr;				\
 		}							\
-									\
-		/* Wait for the fifo to drain */			\
-		while ((lpc_ssp->sr & (1 << LPC_SSP_SR_BSY)))		\
-			;						\
 	} while (0);
 
 void
