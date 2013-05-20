@@ -199,7 +199,8 @@ ao_spi_init(void)
 	/* Turn on the clock */
 	lpc_scb.ssp1clkdiv = 1;
 
-	/* De-assert reset */
+	/* Reset the device */
+	lpc_scb.presetctrl &= ~(1 << LPC_SCB_PRESETCTRL_SSP1_RST_N);
 	lpc_scb.presetctrl |= (1 << LPC_SCB_PRESETCTRL_SSP1_RST_N);
 	ao_spi_channel_init(1);
 #endif /* HAS_SPI_1 */
