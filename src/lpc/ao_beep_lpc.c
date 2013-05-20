@@ -29,15 +29,18 @@ ao_beep(uint8_t beep)
 
 		/* Set prescaler to match cc1111 clocks
 		 */
-		lpc_ct32b1.pc = AO_LPC_CLKOUT / 750000 - 1;
+		lpc_ct32b1.pr = AO_LPC_SYSCLK / 750000 - 1;
 
 		/* Write the desired data in the match registers */
 
 		/* Reset after two time units */
 		lpc_ct32b1.mr[0] = beep << 1;
 
-		/* Flip output after one time unit */
+		/* PWM width is half of that */
 		lpc_ct32b1.mr[1] = beep;
+
+		/* Flip output 1 on PWM match */
+		lpc_ct32b1.emr = (LPC_CT32B_EMR_EMC_TOGGLE << LPC_CT32B_EMR_EMC1);
 
 		/* Reset on match 0 */
 		lpc_ct32b1.mcr = (1 << LPC_CT32B_MCR_MR0R);
@@ -50,7 +53,7 @@ ao_beep(uint8_t beep)
 
 		/* And turn the timer on */
 		lpc_ct32b1.tcr = ((1 << LPC_CT32B_TCR_CEN) |
-				  (1 << LPC_CT32B_TCR_CRST));
+				  (0 << LPC_CT32B_TCR_CRST));
 	}
 }
 
@@ -73,6 +76,7 @@ ao_beep_init(void)
 			      (LPC_IOCONF_MODE_INACTIVE << LPC_IOCONF_MODE) |
 			      (0 << LPC_IOCONF_HYS) |
 			      (0 << LPC_IOCONF_INV) |
+			      (1 << LPC_IOCONF_ADMODE) |
 			      (0 << LPC_IOCONF_OD));
 
 	lpc_scb.sysahbclkctrl |= (1 << LPC_SCB_SYSAHBCLKCTRL_CT32B1);

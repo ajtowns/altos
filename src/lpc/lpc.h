@@ -1212,4 +1212,14 @@ extern struct lpc_ct32b lpc_ct32b0, lpc_ct32b1;
 #define LPC_CT32B_PWMC_PWMEN2	2
 #define LPC_CT32B_PWMC_PWMEN3	3
 
+#define LPC_CT32B_EMR_EMC0	4
+#define LPC_CT32B_EMR_EMC1	6
+#define LPC_CT32B_EMR_EMC2	8
+#define LPC_CT32B_EMR_EMC3	10
+
+#define LPC_CT32B_EMR_EMC_NOTHING	0
+#define LPC_CT32B_EMR_EMC_CLEAR		1
+#define LPC_CT32B_EMR_EMC_SET		2
+#define LPC_CT32B_EMR_EMC_TOGGLE	3
+
 #endif /* _LPC_H_ */
