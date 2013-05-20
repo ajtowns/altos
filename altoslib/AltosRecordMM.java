@@ -71,11 +71,11 @@ public class AltosRecordMM extends AltosRecord {
 	}
 
 	public double main_voltage() {
-		return pyro(sense[1]);
+		return pyro(sense[5]);
 	}
 
 	public double drogue_voltage() {
-		return pyro(sense[0]);
+		return pyro(sense[4]);
 	}
 
 	public double temperature() {
