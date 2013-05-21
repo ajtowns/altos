@@ -1,0 +1,42 @@
+vpath % ../lpc:../product:../drivers:../core:../util:../kalman:../aes:..
+vpath make-altitude ../util
+vpath make-kalman ../util
+vpath kalman.5c ../kalman
+vpath kalman_filter.5c ../kalman
+vpath load_csv.5c ../kalman
+vpath matrix.5c ../kalman
+vpath ao-make-product.5c ../util
+
+CC=/usr/bin/arm-none-eabi-gcc
+SAT=/opt/cortex
+SAT_CLIB=$(SAT)/lib/pdclib-cortex-m0.a
+SAT_CFLAGS=-I$(SAT)/include
+
+ifndef VERSION
+include ../Version
+endif
+
+AO_CFLAGS=-I. -I../lpc -I../core -I../drivers -I..
+LPC_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m0 -mthumb -ffreestanding -nostdlib $(AO_CFLAGS) $(SAT_CFLAGS)
+
+LDFLAGS=-L../stm -Wl,-Taltos.ld
+
+NICKLE=nickle
+
+V=0
+# The user has explicitly enabled quiet compilation.
+ifeq ($(V),0)
+quiet = @printf "  $1 $2 $@\n"; $($1)
+endif
+# Otherwise, print the full command line.
+quiet ?= $($1)
+
+.c.o:
+	$(call quiet,CC) -c $(CFLAGS) -o $@ $<
+
+ao_serial_lpc.h: ../lpc/baud_rate ao_pins.h
+	nickle ../lpc/baud_rate `awk '/AO_LPC_CLKOUT/{print $$3}' ao_pins.h` > $@
+
+ao_serial_lpc.o: ao_serial_lpc.h
+
+.DEFAULT_GOAL=all

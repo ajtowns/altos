@@ -20,21 +20,16 @@
  */
 
 #define ao_spi_get_mask(reg,mask,bus,speed) do {	\
-		(reg) &= ~(mask);		\
+		(reg) &= ~(mask);			\
 	} while (0)
 
 #define ao_spi_put_mask(reg,mask,bus) do {	\
 		(reg) |= (mask);		\
 	} while (0)
 
-#define ao_spi_get_bit(reg,bit,pin,bus,speed) do {	\
-		(pin) = 0;			\
-	} while (0)
+#define ao_spi_get_bit(reg,bit,pin,bus,speed) ao_spi_get_mask(reg,(1<<(bit)),bus,speed)
 
-#define ao_spi_put_bit(reg,bit,pin,bus) do {	\
-		(pin) = 1;			\
-	} while (0)
-
+#define ao_spi_put_bit(reg,bit,pin,bus) ao_spi_put_mask(reg,(1<<(bit)),bus)
 
 #define ao_gpio_token_paster(x,y)		x ## y
 #define ao_gpio_token_evaluator(x,y)	ao_gpio_token_paster(x,y)

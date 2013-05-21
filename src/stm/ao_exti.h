@@ -25,6 +25,7 @@
 #define AO_EXTI_PRIORITY_LOW	16
 #define AO_EXTI_PRIORITY_MED	0
 #define AO_EXTI_PRIORITY_HIGH	32
+#define AO_EXTI_PIN_NOCONFIGURE	64
 
 void
 ao_exti_setup(struct stm_gpio *gpio, uint8_t pin, uint8_t mode, void (*callback)());

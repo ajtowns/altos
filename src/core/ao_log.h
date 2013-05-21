@@ -44,6 +44,7 @@ extern __pdata enum ao_flight_state ao_log_state;
 #define AO_LOG_FORMAT_TELEMETRY		3	/* 32 byte ao_telemetry records */
 #define AO_LOG_FORMAT_TELESCIENCE	4	/* 32 byte typed telescience records */
 #define AO_LOG_FORMAT_TELEMEGA		5	/* 32 byte typed telemega records */
+#define AO_LOG_FORMAT_MINI		6	/* 16-byte MS5607 baro only */
 #define AO_LOG_FORMAT_NONE		127	/* No log at all */
 
 extern __code uint8_t ao_log_format;
@@ -261,12 +262,49 @@ struct ao_log_mega {
 	} u;
 };
 
+struct ao_log_mini {
+	char		type;				/* 0 */
+	uint8_t		csum;				/* 1 */
+	uint16_t	tick;				/* 2 */
+	union {						/* 4 */
+		/* AO_LOG_FLIGHT */
+		struct {
+			uint16_t	flight;		/* 4 */
+			uint16_t	r6;
+			uint32_t	ground_pres;	/* 8 */
+		} flight;
+		/* AO_LOG_STATE */
+		struct {
+			uint16_t	state;		/* 4 */
+			uint16_t	reason;		/* 6 */
+		} state;
+		/* AO_LOG_SENSOR */
+		struct {
+			uint8_t		pres[3];	/* 4 */
+			uint8_t		temp[3];	/* 7 */
+			int16_t		sense_a;	/* 10 */
+			int16_t		sense_m;	/* 12 */
+			int16_t		v_batt;		/* 14 */
+		} sensor;				/* 16 */
+	} u;						/* 16 */
+};							/* 16 */
+
+static inline void
+ao_log_pack24(uint8_t *dst, uint32_t value) {
+	dst[0] = value;
+	dst[1] = value >> 8;
+	dst[2] = value >> 16;
+}
+
 /* Write a record to the eeprom log */
 uint8_t
 ao_log_data(__xdata struct ao_log_record *log) __reentrant;
 
 uint8_t
 ao_log_mega(__xdata struct ao_log_mega *log) __reentrant;
+
+uint8_t
+ao_log_mini(__xdata struct ao_log_mini *log) __reentrant;
 
 void
 ao_log_flush(void);

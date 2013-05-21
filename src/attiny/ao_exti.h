@@ -30,5 +30,6 @@ ao_exti_setup_port(uint8_t pin, uint8_t mode, void (*callback)(void));
 #define ao_exti_init()
 
 #define AO_EXTI_MODE_RISING	1
+#define AO_EXTI_PIN_NOCONFIGURE	0
 
 #endif /* _AO_EXTI_H_ */

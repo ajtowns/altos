@@ -43,6 +43,12 @@
 #define HAS_TASK	1
 #endif
 
+#ifndef AO_PORT_TYPE
+#define AO_PORT_TYPE uint8_t
+#endif
+
+typedef AO_PORT_TYPE ao_port_t;
+
 #if HAS_TASK
 #include <ao_task.h>
 #else
@@ -68,6 +74,7 @@
 #define AO_PANIC_SPI		13	/* SPI communication failure */
 #define AO_PANIC_CRASH		14	/* Processor crashed */
 #define AO_PANIC_BUFIO		15	/* Mis-using bufio API */
+#define AO_PANIC_EXTI		16	/* Mis-using exti API */
 #define AO_PANIC_SELF_TEST_CC1120	0x40 | 1	/* Self test failure */
 #define AO_PANIC_SELF_TEST_HMC5883	0x40 | 2	/* Self test failure */
 #define AO_PANIC_SELF_TEST_MPU6000	0x40 | 3	/* Self test failure */

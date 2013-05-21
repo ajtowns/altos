@@ -82,7 +82,7 @@ __pdata uint16_t	ao_storage_unit;
 
 #if M25_MAX_CHIPS > 1
 static uint8_t ao_m25_size[M25_MAX_CHIPS];	/* number of sectors in each chip */
-static uint8_t ao_m25_pin[M25_MAX_CHIPS];	/* chip select pin for each chip */
+static ao_port_t ao_m25_pin[M25_MAX_CHIPS];	/* chip select pin for each chip */
 static uint8_t ao_m25_numchips;			/* number of chips detected */
 #endif
 static uint8_t ao_m25_total;			/* total sectors available */
@@ -112,7 +112,7 @@ static __xdata uint8_t	ao_m25_instruction[4];
  * Block until the specified chip is done writing
  */
 static void
-ao_m25_wait_wip(uint8_t cs)
+ao_m25_wait_wip(ao_port_t cs)
 {
 	if (ao_m25_wip & cs) {
 		M25_SELECT(cs);
@@ -132,7 +132,7 @@ ao_m25_wait_wip(uint8_t cs)
  * so that future operations will block until the WIP bit goes off
  */
 static void
-ao_m25_write_enable(uint8_t cs)
+ao_m25_write_enable(ao_port_t cs)
 {
 	M25_SELECT(cs);
 	ao_m25_instruction[0] = M25_WREN;
@@ -146,7 +146,7 @@ ao_m25_write_enable(uint8_t cs)
  * Returns the number of 64kB sectors
  */
 static uint8_t
-ao_m25_read_capacity(uint8_t cs)
+ao_m25_read_capacity(ao_port_t cs)
 {
 	uint8_t	capacity;
 	M25_SELECT(cs);
@@ -166,12 +166,13 @@ ao_m25_read_capacity(uint8_t cs)
 	return 1 << (capacity - 0x10);
 }
 
-static uint8_t
+static ao_port_t
 ao_m25_set_address(uint32_t pos)
 {
-	uint8_t	chip;
+	ao_port_t	mask;
 #if M25_MAX_CHIPS > 1
 	uint8_t	size;
+	uint8_t		chip;
 
 	for (chip = 0; chip < ao_m25_numchips; chip++) {
 		size = ao_m25_size[chip];
@@ -182,16 +183,16 @@ ao_m25_set_address(uint32_t pos)
 	if (chip == ao_m25_numchips)
 		return 0xff;
 
-	chip = ao_m25_pin[chip];
+	mask = ao_m25_pin[chip];
 #else
-	chip = AO_M25_SPI_CS_MASK;
+	mask = AO_M25_SPI_CS_MASK;
 #endif
-	ao_m25_wait_wip(chip);
+	ao_m25_wait_wip(mask);
 
 	ao_m25_instruction[1] = pos >> 16;
 	ao_m25_instruction[2] = pos >> 8;
 	ao_m25_instruction[3] = pos;
-	return chip;
+	return mask;
 }
 
 /*
@@ -239,7 +240,7 @@ ao_m25_scan(void)
 uint8_t
 ao_storage_erase(uint32_t pos) __reentrant
 {
-	uint8_t	cs;
+	ao_port_t	cs;
 
 	if (pos >= ao_storage_total || pos + ao_storage_block > ao_storage_total)
 		return 0;
@@ -268,7 +269,7 @@ ao_storage_erase(uint32_t pos) __reentrant
 uint8_t
 ao_storage_device_write(uint32_t pos, __xdata void *d, uint16_t len) __reentrant
 {
-	uint8_t	cs;
+	ao_port_t	cs;
 
 	if (pos >= ao_storage_total || pos + len > ao_storage_total)
 		return 0;
@@ -295,7 +296,7 @@ ao_storage_device_write(uint32_t pos, __xdata void *d, uint16_t len) __reentrant
 uint8_t
 ao_storage_device_read(uint32_t pos, __xdata void *d, uint16_t len) __reentrant
 {
-	uint8_t	cs;
+	ao_port_t	cs;
 
 	if (pos >= ao_storage_total || pos + len > ao_storage_total)
 		return 0;
@@ -332,7 +333,7 @@ void
 ao_storage_device_info(void) __reentrant
 {
 #if M25_DEBUG
-	uint8_t	cs;
+	ao_port_t	cs;
 #endif
 #if M25_MAX_CHIPS > 1
 	uint8_t chip;

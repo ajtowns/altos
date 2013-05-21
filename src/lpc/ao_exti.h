@@ -15,21 +15,34 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#ifndef _AO_ADC_H_
-#define _AO_ADC_H_
+#ifndef _AO_EXTI_H_
+#define _AO_EXTI_H_
 
-#include <ao_data.h>
+#define AO_EXTI_MODE_RISING	1
+#define AO_EXTI_MODE_FALLING	2
+#define AO_EXTI_MODE_PULL_UP	4
+#define AO_EXTI_MODE_PULL_DOWN	8
+#define AO_EXTI_PRIORITY_LOW	16
+#define AO_EXTI_PRIORITY_MED	0
+#define AO_EXTI_PRIORITY_HIGH	32
+#define AO_EXTI_PIN_NOCONFIGURE	64
 
-/* Trigger a conversion sequence (called from the timer interrupt) */
 void
-ao_adc_poll(void);
+ao_exti_setup(uint8_t gpio, uint8_t pin, uint8_t mode, void (*callback)());
 
-/* Suspend the current task until another A/D sample is converted */
 void
-ao_adc_sleep(void);
+ao_exti_set_mode(uint8_t gpio, uint8_t pin, uint8_t mode);
 
-/* Initialize the A/D converter */
 void
-ao_adc_init(void);
+ao_exti_set_callback(uint8_t gpio, uint8_t pin, void (*callback)());
 
-#endif /* _AO_ADC_H_ */
+void
+ao_exti_enable(uint8_t gpio, uint8_t pin);
+
+void
+ao_exti_disable(uint8_t gpio, uint8_t pin);
+
+void
+ao_exti_init(void);
+
+#endif /* _AO_EXTI_H_ */

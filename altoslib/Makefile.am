@@ -24,6 +24,8 @@ altoslib_JAVA = \
 	AltosEepromMegaIterable.java \
 	AltosEepromRecord.java \
 	AltosEepromTeleScience.java \
+	AltosEepromMini.java \
+	AltosEepromMiniIterable.java \
 	AltosFile.java \
 	AltosFlash.java \
 	AltosFlashListener.java \
@@ -47,6 +49,7 @@ altoslib_JAVA = \
 	AltosMs5607Query.java \
 	AltosOrderedRecord.java \
 	AltosOrderedMegaRecord.java \
+	AltosOrderedMiniRecord.java \
 	AltosParse.java \
 	AltosPreferences.java \
 	AltosPreferencesBackend.java \
@@ -56,6 +59,7 @@ altoslib_JAVA = \
 	AltosRecordNone.java \
 	AltosRecordTM.java \
 	AltosRecordMM.java \
+	AltosRecordMini.java \
 	AltosReplayReader.java \
 	AltosRomconfig.java \
 	AltosSensorMM.java \

@@ -35,7 +35,8 @@ ARMDIRS=\
 	telegps-v0.1 telegps-v0.1/flash-loader \
 	stm-bringup stm-demo \
 	telelco-v0.2 telelco-v0.2/flash-loader \
-	telescience-v0.2 telescience-v0.2/flash-loader
+	telescience-v0.2 telescience-v0.2/flash-loader \
+	easymini-v0.1
 
 ifneq ($(shell which sdcc),)
 	SUBDIRS += $(SDCCDIRS)

@@ -26,14 +26,12 @@ static uint8_t	  		ms5607_configured;
 
 static void
 ao_ms5607_start(void) {
-	ao_spi_get(AO_MS5607_SPI_INDEX,AO_SPI_SPEED_FAST);
-	ao_gpio_set(AO_MS5607_CS_PORT, AO_MS5607_CS_PIN, AO_MS5607_CS, 0);
+	ao_spi_get_bit(AO_MS5607_CS_PORT, AO_MS5607_CS_PIN, AO_MS5607_CS, AO_MS5607_SPI_INDEX, AO_SPI_SPEED_FAST);
 }
 
 static void
 ao_ms5607_stop(void) {
-	ao_gpio_set(AO_MS5607_CS_PORT, AO_MS5607_CS_PIN, AO_MS5607_CS, 1);
-	ao_spi_put(AO_MS5607_SPI_INDEX);
+	ao_spi_put_bit(AO_MS5607_CS_PORT, AO_MS5607_CS_PIN, AO_MS5607_CS, AO_MS5607_SPI_INDEX);
 }
 
 static void
@@ -249,17 +247,9 @@ ao_ms5607_init(void)
 	 */
 	ao_exti_setup(AO_MS5607_MISO_PORT,
 		      AO_MS5607_MISO_PIN,
-		      AO_EXTI_MODE_RISING,
+		      AO_EXTI_MODE_RISING|
+		      AO_EXTI_PIN_NOCONFIGURE,
 		      ao_ms5607_isr);
-
-#ifdef STM_MODER_ALTERNATE
-	/* Reset the pin from INPUT to ALTERNATE so that SPI works
-	 * This needs an abstraction at some point...
-	 */
-	stm_moder_set(AO_MS5607_MISO_PORT,
-		      AO_MS5607_MISO_PIN,
-		      STM_MODER_ALTERNATE);
-#endif
 }
 
 #endif

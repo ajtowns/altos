@@ -70,21 +70,23 @@ ao_exti_setup (struct stm_gpio *gpio, uint8_t pin, uint8_t mode, void (*callback
 	/* configure gpio to interrupt routing */
 	stm_exticr_set(gpio, pin);
 
-	/* configure pin as input, setting selected pull-up/down mode */
-	stm_moder_set(gpio, pin, STM_MODER_INPUT);
-	switch (mode & (AO_EXTI_MODE_PULL_UP|AO_EXTI_MODE_PULL_DOWN)) {
-	case 0:
-	default:
-		pupdr  = STM_PUPDR_NONE;
-		break;
-	case AO_EXTI_MODE_PULL_UP:
-		pupdr = STM_PUPDR_PULL_UP;
-		break;
-	case AO_EXTI_MODE_PULL_DOWN:
-		pupdr = STM_PUPDR_PULL_DOWN;
-		break;
+	if (!(mode & AO_EXTI_PIN_NOCONFIGURE)) {
+		/* configure pin as input, setting selected pull-up/down mode */
+		stm_moder_set(gpio, pin, STM_MODER_INPUT);
+		switch (mode & (AO_EXTI_MODE_PULL_UP|AO_EXTI_MODE_PULL_DOWN)) {
+		case 0:
+		default:
+			pupdr  = STM_PUPDR_NONE;
+			break;
+		case AO_EXTI_MODE_PULL_UP:
+			pupdr = STM_PUPDR_PULL_UP;
+			break;
+		case AO_EXTI_MODE_PULL_DOWN:
+			pupdr = STM_PUPDR_PULL_DOWN;
+			break;
+		}
+		stm_pupdr_set(gpio, pin, pupdr);
 	}
-	stm_pupdr_set(gpio, pin, pupdr);
 
 	/* Set interrupt mask and rising/falling mode */
 	stm_exti.imr &= ~mask;
