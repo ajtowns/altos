@@ -12,8 +12,8 @@ vpath ao-make-product.5c ../util
 .elf.ihx:
 	objcopy -O ihex $*.elf $@
 
-CC=arm-none-eabi-gcc
 SAT=/opt/cortex
+CC=$(SAT)/bin/arm-none-eabi-gcc
 SAT_CLIB=$(SAT)/lib/pdclib-cortex-m3.a
 SAT_CFLAGS=-I$(SAT)/include
 
