@@ -185,9 +185,14 @@ if test "x$HAVE_SDCC" = "xno"; then
 	AC_MSG_WARN([No sdcc found, cc1111 binaries will not be built])
 fi
 
-AC_CHECK_PROG([HAVE_ARM_GCC], [arm-none-eabi-gcc], yes, no)
+AC_CHECK_PROG([HAVE_ARM_GCC],[arm-none-eabi-gcc], yes, no,[/opt/cortex/bin])
 if test "x$HAVE_ARM_GCC" = "xno"; then
-	AC_MSG_WARN([No arm compiler found, STM32L and LPC11U14 binaries will not be built])
+	AC_MSG_WARN([No summon toolchain arm compiler found, STM32L binaries will not be built])
+fi
+
+AC_CHECK_PROG([HAVE_ARM_M0_GCC], [arm-none-eabi-gcc], yes, no,[/usr/bin])
+if test "x$HAVE_ARM_M0_GCC" = "xno"; then
+	AC_MSG_WARN([No linaro toolchain arm cortex-m0 compiler found, LPC11U14 binaries will not be built])
 fi
 
 AC_CHECK_PROG([HAVE_NICKLE], [nickle], yes, no)
@@ -243,7 +248,8 @@ echo ""
 echo "  Package: ${PACKAGE_NAME} ${PACKAGE_VERSION}"
 echo ""
 echo "  Configuration"
-echo "    STM32L/LPC11U14 support.....: ${HAVE_ARM_GCC}"
+echo "    STM32L support..............: ${HAVE_ARM_GCC}"
+echo "    LPC11U14 support............: ${HAVE_ARM_M0_GCC}"
 echo "    CC1111 support..............: ${HAVE_SDCC}"
 echo "    Android support.............: ${HAVE_ANDROID_SDK}"
 echo "    STlink support..............: ${HAVE_STLINK}"

@@ -35,7 +35,9 @@ ARMDIRS=\
 	telegps-v0.1 telegps-v0.1/flash-loader \
 	stm-bringup stm-demo \
 	telelco-v0.2 telelco-v0.2/flash-loader \
-	telescience-v0.2 telescience-v0.2/flash-loader \
+	telescience-v0.2 telescience-v0.2/flash-loader
+
+ARMM0DIRS=\
 	easymini-v0.1
 
 ifneq ($(shell which sdcc),)
@@ -46,8 +48,12 @@ ifneq ($(shell which avr-gcc),)
 	SUBDIRS += $(AVRDIRS)
 endif
 
-ifneq ($(shell which arm-none-eabi-gcc),)
+ifneq ($(shell which /opt/cortex/bin/arm-none-eabi-gcc),)
 	SUBDIRS += $(ARMDIRS)
+endif
+
+ifneq ($(shell which /usr/bin/arm-none-eabi-gcc),)
+	SUBDIRS += $(ARMM0DIRS)
 endif
 
 ALLDIRS=$(SDCCDIRS) $(AVRDIRS) $(ARMDIRS)
