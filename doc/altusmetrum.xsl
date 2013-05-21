@@ -1113,14 +1113,15 @@ NAR #88757, TRA #12200
         flash memory.
       </para>
       <para>
-        Once a flight record is selected, a window with two tabs is
+        Once a flight record is selected, a window with four tabs is
         opened. The first tab contains a graph with acceleration
         (blue), velocity (green) and altitude (red) of the flight,
-        measured in metric units. The
-        apogee(yellow) and main(magenta) igniter voltages are also
-        displayed; high voltages indicate continuity, low voltages
-        indicate open circuits. The second tab contains some basic
-	flight statistics.
+        measured in metric units. The apogee(yellow) and main(magenta)
+        igniter voltages are also displayed; high voltages indicate
+        continuity, low voltages indicate open circuits. The second
+        tab lets you configure which data to show in the graph.  The
+        third contains some basic flight statistics while the fourth
+        has a map with the ground track of the flight displayed.
       </para>
       <para>
         The graph can be zoomed into a particular area by clicking and
