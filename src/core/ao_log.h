@@ -289,12 +289,11 @@ struct ao_log_mini {
 	} u;						/* 16 */
 };							/* 16 */
 
-static inline void
-ao_log_pack24(uint8_t *dst, uint32_t value) {
-	dst[0] = value;
-	dst[1] = value >> 8;
-	dst[2] = value >> 16;
-}
+#define ao_log_pack24(dst,value) do {		\
+		(dst)[0] = (value);		\
+		(dst)[1] = (value) >> 8;	\
+		(dst)[2] = (value) >> 16;	\
+	} while (0)
 
 /* Write a record to the eeprom log */
 uint8_t
