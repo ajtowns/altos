@@ -86,11 +86,11 @@ void ao_mul64(ao_int64_t *r, int32_t a, int32_t b) {
 
 	if (a < 0) {
 		a = -a;
-		negative = 1;
+		negative = ~0;
 	}
 	if (b < 0) {
 		b = -b;
-		negative = !negative;
+		negative = ~negative;
 	}
 	ao_umul64(r, a, b);
 	if (negative)
@@ -98,12 +98,7 @@ void ao_mul64(ao_int64_t *r, int32_t a, int32_t b) {
 }
 
 void ao_umul64_16(ao_int64_t *r, ao_int64_t *a, uint16_t b) {
-	uint32_t	low = a->low;
-	ao_umul64(r, (uint32_t) low >> 1, (uint32_t) b << 1);
-	if (low & 1) {
-		if ((uint32_t) (r->low += b) < (uint32_t) b)
-			r->high++;
-	}
+	ao_umul64(r, a->low, b);
 	r->high += a->high * b;
 }
 
