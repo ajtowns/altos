@@ -22,6 +22,7 @@ volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
 volatile __data uint8_t		ao_data_head;
 volatile __data uint8_t		ao_data_present;
 
+#ifndef ao_data_count
 void
 ao_data_get(__xdata struct ao_data *packet)
 {
@@ -32,3 +33,4 @@ ao_data_get(__xdata struct ao_data *packet)
 #endif
 	memcpy(packet, (void *) &ao_data_ring[i], sizeof (struct ao_data));
 }
+#endif

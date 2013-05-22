@@ -171,6 +171,36 @@ ao_send_mega_data(void)
 }
 #endif /* AO_SEND_MEGA */
 
+#ifdef AO_SEND_MINI
+
+static void
+ao_send_mini(void)
+{
+	__xdata	struct ao_data *packet = (__xdata struct ao_data *) &ao_data_ring[ao_data_ring_prev(ao_sample_data)];
+			
+	telemetry.generic.tick = packet->tick;
+	telemetry.generic.type = AO_TELEMETRY_MINI;
+
+	telemetry.mini.state = ao_flight_state;
+
+	telemetry.mini.v_batt = packet->adc.v_batt;
+	telemetry.mini.sense_a = packet->adc.sense_a;
+	telemetry.mini.sense_m = packet->adc.sense_m;
+
+	telemetry.mini.pres = ao_data_pres(packet);
+	telemetry.mini.temp = ao_data_temp(packet);
+
+	telemetry.mini.acceleration = ao_accel;
+	telemetry.mini.speed = ao_speed;
+	telemetry.mini.height = ao_height;
+
+	telemetry.mini.ground_pres = ao_ground_pres;
+
+	ao_radio_send(&telemetry, sizeof (telemetry));
+}
+
+#endif
+
 #ifdef AO_SEND_ALL_BARO
 static uint8_t		ao_baro_sample;
 
@@ -323,12 +353,16 @@ ao_telemetry(void)
 				ao_send_baro();
 #endif
 #if HAS_FLIGHT
-#ifdef AO_SEND_MEGA
+# ifdef AO_SEND_MEGA
 				ao_send_mega_sensor();
 				ao_send_mega_data();
-#else
+# else
+#  ifdef AO_SEND_MINI
+				ao_send_mini();
+#  else
 				ao_send_sensor();
-#endif
+#  endif
+# endif
 #endif
 
 #if HAS_COMPANION

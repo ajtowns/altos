@@ -162,6 +162,11 @@ ao_adc_isr(void) __interrupt 1
 #define GOT_ADC
 #endif	
 
+#ifdef FETCH_ADC
+	FETCH_ADC()
+#define GOT_ADC
+#endif
+
 #ifndef GOT_ADC
 #error No known ADC configuration set
 #endif
