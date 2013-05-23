@@ -65,6 +65,10 @@ do_test(int trial, int64_t a, int64_t b)
 	test_a(+, ao_plus64, a, b, &ao_a, &ao_b);
 	test_b(+, ao_plus64, a, b, &ao_a, &ao_b);
 	test_x(+, ao_plus64, a, b, &ao_a, &ao_b);
+	test(-, ao_minus64, a, b, &ao_a, &ao_b);
+	test_a(-, ao_minus64, a, b, &ao_a, &ao_b);
+	test_b(-, ao_minus64, a, b, &ao_a, &ao_b);
+	test_x(-, ao_minus64, a, b, &ao_a, &ao_b);
 	test(*, ao_mul64_32_32,(int64_t) (int32_t) a, (int32_t) b, (int32_t) a, (int32_t) b);
 	test(*, ao_mul64, a, b, &ao_a, &ao_b);
 	test_a(*, ao_mul64, a, b, &ao_a, &ao_b);

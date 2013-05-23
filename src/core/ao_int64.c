@@ -27,6 +27,17 @@ void ao_plus64(ao_int64_t *r, ao_int64_t *a, ao_int64_t *b) {
 	r->low = t;
 }
 
+void ao_minus64(ao_int64_t *r, ao_int64_t *a, ao_int64_t *b) {
+	uint32_t	t;
+
+
+	r->high = a->high - b->high;
+	t = a->low - b->low;
+	if (t > a->low)
+		r->high--;
+	r->low = t;
+}
+
 void ao_rshift64(ao_int64_t *r, ao_int64_t *a, uint8_t d) {
 	if (d < 32) {
 		r->low = a->low >> d;
