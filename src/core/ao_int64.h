@@ -25,16 +25,18 @@ typedef struct {
 	uint32_t	low;
 } ao_int64_t;
 
-void ao_plus64(ao_int64_t *r, ao_int64_t *a, ao_int64_t *b);
-void ao_minus64(ao_int64_t *r, ao_int64_t *a, ao_int64_t *b);
-void ao_neg64(ao_int64_t *r, ao_int64_t *a);
-void ao_lshift64_16(ao_int64_t *r, uint16_t a, uint8_t d);
-void ao_rshift64(ao_int64_t *r, ao_int64_t *a, uint8_t d);
-void ao_lshift64(ao_int64_t *r, ao_int64_t *a, uint8_t d);
-void ao_mul64_64_64(ao_int64_t *r, ao_int64_t *a, ao_int64_t *b);
-void ao_mul64_32_32(ao_int64_t *r, int32_t a, int32_t b);
-void ao_mul64_64_16(ao_int64_t *r, ao_int64_t *a, uint16_t b);
-void ao_mul64(ao_int64_t *r, ao_int64_t *a, ao_int64_t *b);
+#define __FATTR
+#define __ARG __pdata
+#define __LOCAL static __pdata
+
+void ao_plus64(__pdata ao_int64_t *ao_64r, __pdata ao_int64_t *ao_64a, __pdata ao_int64_t *ao_64b) __FATTR;
+void ao_minus64(__pdata ao_int64_t *ao_64r, __pdata ao_int64_t *ao_64a, __pdata ao_int64_t *ao_64b) __FATTR;
+void ao_neg64(__pdata ao_int64_t *ao_64r, __pdata ao_int64_t *ao_64a) __FATTR;
+void ao_rshift64(__pdata ao_int64_t *ao_64r, __pdata ao_int64_t *ao_64a, uint8_t d) __FATTR;
+void ao_lshift64(__pdata ao_int64_t *ao_64r, __pdata ao_int64_t *ao_64a, uint8_t d) __FATTR;
+void ao_mul64_32_32(__ARG ao_int64_t *r, __ARG int32_t a, __ARG int32_t b) __FATTR;
+void ao_mul64_64_16(__ARG ao_int64_t *r, __ARG ao_int64_t *a, __ARG uint16_t b) __FATTR;
+void ao_mul64(__ARG ao_int64_t * __ARG r, __ARG ao_int64_t * __ARG a, __ARG ao_int64_t *__ARG b) __FATTR;
 
 #define ao_int64_init32(r, a) (((r)->high = 0), (r)->low = (a))
 #define ao_int64_init64(r, a, b) (((r)->high = (a)), (r)->low = (b))

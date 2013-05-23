@@ -115,6 +115,8 @@ struct ao_adc {
 #define AO_SENSE_DROGUE(p)	((p)->adc.sense_a)
 #define AO_SENSE_MAIN(p)	((p)->adc.sense_m)
 
+#define AO_NUM_TASKS	10
+
 #define AO_ADC_DUMP(p) \
 	printf("tick: %5u apogee: %5d main: %5d batt: %5d\n", \
 	       (p)->tick, (p)->adc.sense_a, (p)->adc.sense_m, (p)->adc.v_batt)

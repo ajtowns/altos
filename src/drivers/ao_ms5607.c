@@ -173,7 +173,7 @@ ao_ms5607_get_sample(uint8_t cmd) {
 #define AO_CONVERT_D2	token_evaluator(AO_MS5607_CONVERT_D2_, AO_MS5607_TEMP_OVERSAMPLE)
 
 void
-ao_ms5607_sample(struct ao_ms5607_sample *sample)
+ao_ms5607_sample(__xdata struct ao_ms5607_sample *sample)
 {
 	sample->pres = ao_ms5607_get_sample(AO_CONVERT_D1);
 	sample->temp = ao_ms5607_get_sample(AO_CONVERT_D2);
@@ -220,7 +220,7 @@ ao_ms5607_info(void)
 static void
 ao_ms5607_dump(void)
 {
-	struct ao_ms5607_value value;
+	__xdata struct ao_ms5607_value value;
 
 	ao_ms5607_convert(&ao_ms5607_current, &value);
 	printf ("Pressure:    %8u %8d\n", ao_ms5607_current.pres, value.pres);

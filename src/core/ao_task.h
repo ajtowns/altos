@@ -45,7 +45,10 @@ struct ao_task {
 #endif
 };
 
+#ifndef AO_NUM_TASKS
 #define AO_NUM_TASKS		16	/* maximum number of tasks */
+#endif
+
 #define AO_NO_TASK		0	/* no task id */
 
 extern __xdata struct ao_task * __xdata ao_tasks[AO_NUM_TASKS];

@@ -19,7 +19,11 @@ INC = \
 	ao_arch.h \
 	ao_arch_funcs.h \
 	cc1111.h \
-	ao_product.h
+	ao_ms5607.h \
+	ao_ms5607_convert_8051.c \
+	ao_product.h \
+	ao_int64.h \
+	ao_sample.h
 
 CORE_SRC = \
 	ao_cmd.c \
@@ -37,7 +41,8 @@ CORE_SRC = \
 	ao_storage.c \
 	ao_task.c \
 	ao_telemetry.c \
-	ao_freq.c
+	ao_freq.c \
+	ao_int64.c
 
 CC1111_SRC = \
 	ao_adc.c \
