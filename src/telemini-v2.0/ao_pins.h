@@ -46,6 +46,8 @@
  * SPI
  */
 
+#define HAS_SPI_0		1
+#define HAS_SPI_1		1
 #define SPI_CS_PORT		P1
 #define SPI_CS_SEL		P1SEL
 #define SPI_CS_DIR		P1DIR

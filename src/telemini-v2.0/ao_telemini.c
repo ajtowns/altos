@@ -41,6 +41,8 @@ main(void)
 	ao_adc_init();
 	ao_cmd_init();
 	ao_storage_init();
+	ao_exti_init();
+	ao_spi_init();
 	ao_ms5607_init();
 	ao_flight_init();
 	ao_log_init();

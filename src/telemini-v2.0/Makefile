@@ -60,6 +60,7 @@ CC1111_SRC = \
 	ao_data.c \
 	ao_beep.c \
 	ao_timer.c \
+	ao_exti.c \
 	_bp.c
 
 DRIVER_SRC = \
