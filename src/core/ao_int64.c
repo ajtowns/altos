@@ -20,39 +20,40 @@
 void ao_plus64(ao_int64_t *r, ao_int64_t *a, ao_int64_t *b) {
 	uint32_t	t;
 
-	r->low = t = a->low + b->low;
 	r->high = a->high + b->high;
+	t = a->low + b->low;
 	if (t < a->low)
 		r->high++;
+	r->low = t;
 }
 
 void ao_rshift64(ao_int64_t *r, ao_int64_t *a, uint8_t d) {
 	if (d < 32) {
-		r->high = (int32_t) a->high >> d;
 		r->low = a->low >> d;
 		if (d)
 			r->low |= a->high << (32 - d);
+		r->high = (int32_t) a->high >> d;
 	} else {
 		d &= 0x1f;
-		r->high = 0;
 		r->low = (int32_t) a->high >> d;
+		r->high = 0;
 	}
 }
 
 void ao_lshift64(ao_int64_t *r, ao_int64_t *a, uint8_t d) {
 	if (d < 32) {
 		r->high = a->high << d;
-		r->low = a->low << d;
 		if (d)
 			r->high |= a->low >> (32 - d);
+		r->low = a->low << d;
 	} else {
 		d &= 0x1f;
-		r->low = 0;
 		r->high = a->low << d;
+		r->low = 0;
 	}
 }
 
-void ao_umul64(ao_int64_t *r, uint32_t a, uint32_t b)
+static void ao_umul64_32_32(ao_int64_t *r, uint32_t a, uint32_t b)
 {
 	uint32_t	r1;
 	uint32_t	r2, r3, r4;
@@ -65,11 +66,11 @@ void ao_umul64(ao_int64_t *r, uint32_t a, uint32_t b)
 	s.low = r1;
 	s.high = r4;
 
-	t.high = (uint32_t) r2 >> 16;
+	t.high = r2 >> 16;
 	t.low = r2 << 16;
 	ao_plus64(&u, &s, &t);
 
-	v.high = (int32_t) r3 >> 16;
+	v.high = r3 >> 16;
 	v.low = r3 << 16;
 	ao_plus64(r, &u, &v);
 }
@@ -81,7 +82,7 @@ void ao_neg64(ao_int64_t *r, ao_int64_t *a) {
 		r->high++;
 }
 
-void ao_mul64(ao_int64_t *r, int32_t a, int32_t b) {
+void ao_mul64_32_32(ao_int64_t *r, int32_t a, int32_t b) {
 	uint8_t		negative = 0;
 
 	if (a < 0) {
@@ -92,23 +93,55 @@ void ao_mul64(ao_int64_t *r, int32_t a, int32_t b) {
 		b = -b;
 		negative = ~negative;
 	}
+	ao_umul64_32_32(r, a, b);
+	if (negative)
+		ao_neg64(r, r);
+}
+
+static void ao_umul64(ao_int64_t *r, ao_int64_t *a, ao_int64_t *b) {
+	ao_int64_t	r2, r3;
+
+	ao_umul64_32_32(&r2, a->high, b->low);
+	ao_umul64_32_32(&r3, a->low, b->high);
+	ao_umul64_32_32(r, a->low, b->low);
+
+	r->high += r2.low + r3.low;
+}
+
+void ao_mul64(ao_int64_t *r, ao_int64_t *a, ao_int64_t *b) {
+	uint8_t	negative = 0;
+	ao_int64_t	ap, bp;
+
+	if (ao_int64_negativep(a)) {
+		ao_neg64(&ap, a);
+		a = &ap;
+		negative = ~0;
+	}
+	if (ao_int64_negativep(b)) {
+		ao_neg64(&bp, b);
+		b = &bp;
+		negative = ~negative;
+	}
 	ao_umul64(r, a, b);
 	if (negative)
 		ao_neg64(r, r);
 }
 
-void ao_umul64_16(ao_int64_t *r, ao_int64_t *a, uint16_t b) {
-	ao_umul64(r, a->low, b);
-	r->high += a->high * b;
+void ao_umul64_64_16(ao_int64_t *r, ao_int64_t *a, uint16_t b) {
+	uint32_t h = a->high * b;
+	ao_umul64_32_32(r, a->low, b);
+	r->high += h;
 }
 
-void ao_mul64_16(ao_int64_t *r, ao_int64_t *a, uint16_t b) {
+void ao_mul64_64_16(ao_int64_t *r, ao_int64_t *a, uint16_t b) {
+	ao_int64_t	ap;
+	uint8_t		negative = 0;
 	if ((int32_t) a->high < 0) {
-		ao_int64_t	t;
-
-		ao_neg64(&t, a);
-		ao_umul64_16(r, &t, b);
-		ao_neg64(r, r);
+		ao_neg64(&ap, a);
+		a = &ap;
+		negative = ~0;
 	} else
-		ao_umul64_16(r, a, b);
+		ao_umul64_64_16(r, a, b);
+	if (negative)
+		ao_neg64(r, r);
 }
