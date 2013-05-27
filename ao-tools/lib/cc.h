@@ -306,7 +306,8 @@ struct ao_log_mega {
 			int16_t		v_pbatt;	/* 6 */
 			int16_t		n_sense;	/* 8 */
 			int16_t		sense[10];	/* 10 */
-		} volt;					/* 30 */
+			uint16_t	pyro;		/* 30 */
+		} volt;					/* 32 */
 		/* AO_LOG_GPS_TIME */
 		struct {
 			int32_t		latitude;	/* 4 */

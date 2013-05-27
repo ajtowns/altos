@@ -126,6 +126,7 @@ main (int argc, char **argv)
 							printf (" s%d %6d",
 								j, log.u.volt.sense[j]);
 						}
+						printf ("pyro %04x\n", log.u.volt.pyro);
 						printf ("\n");
 						break;
 					default:
