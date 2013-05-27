@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <string.h>
 #include <getopt.h>
 #include <math.h>
@@ -137,6 +138,18 @@ int	tick_offset;
 
 static int32_t	ao_k_height;
 
+int16_t
+ao_time(void)
+{
+	return ao_data_static.tick;
+}
+
+void
+ao_delay(int16_t interval)
+{
+	return;
+}
+
 void
 ao_ignite(enum ao_igniter igniter)
 {
@@ -200,6 +213,8 @@ struct ao_cmds {
 #include <ao_ms5607.h>
 struct ao_ms5607_prom	ms5607_prom;
 #include "ao_ms5607_convert.c"
+#define AO_PYRO_NUM	4
+#include <ao_pyro.h>
 #else
 #include "ao_convert.c"
 #endif
@@ -210,6 +225,9 @@ struct ao_config {
 	int16_t		accel_minus_g;
 	uint8_t		pad_orientation;
 	uint16_t	apogee_lockout;
+#if TELEMEGA
+	struct ao_pyro	pyro[AO_PYRO_NUM];	/* minor version 12 */
+#endif
 };
 
 #define AO_PAD_ORIENTATION_ANTENNA_UP	0
@@ -246,6 +264,24 @@ uint16_t	prev_tick;
 #include "ao_sqrt.c"
 #include "ao_sample.c"
 #include "ao_flight.c"
+#if TELEMEGA
+#define AO_PYRO_NUM	4
+
+#define AO_PYRO_0	0
+#define AO_PYRO_1	1
+#define AO_PYRO_2	2
+#define AO_PYRO_3	3
+
+static void
+ao_pyro_tell(int pin)
+{
+	printf ("fire pyro %d\n", pin);
+}
+
+#define ao_pyro_fire_port(port,bit,pin) ao_pyro_tell(pin)
+
+#include "ao_pyro.c"
+#endif
 
 #define to_double(f)	((f) / 65536.0)
 
@@ -771,6 +807,10 @@ ao_sleep(void *wchan)
 		char		*words[64];
 		int		nword;
 
+#if TELEMEGA
+		if (ao_flight_state >= ao_flight_boost && ao_flight_state < ao_flight_landed)
+			ao_pyro_check();
+#endif
 		for (;;) {
 			if (ao_records_read > 2 && ao_flight_state == ao_flight_startup)
 			{
@@ -883,6 +923,23 @@ ao_sleep(void *wchan)
 				else if (strcmp(words[1], "crc:") == 0)
 					ms5607_prom.crc = strtoul(words[2], NULL, 10);
 				continue;
+			} else if (nword >= 3 && strcmp(words[0], "Pyro") == 0) {
+				int	p = strtoul(words[1], NULL, 10);
+				int	i, j;
+				struct ao_pyro	*pyro = &ao_config.pyro[p];
+
+				for (i = 2; i < nword; i++) {
+					for (j = 0; j < NUM_PYRO_VALUES; j++)
+						if (!strcmp (words[2], ao_pyro_values[j].name))
+							break;
+					if (j == NUM_PYRO_VALUES)
+						continue;
+					pyro->flags |= ao_pyro_values[j].flag;
+					if (ao_pyro_values[j].offset != NO_VALUE && i + 1 < nword) {
+						int16_t	val = strtoul(words[++i], NULL, 10);
+						*((int16_t *) ((char *) pyro + ao_pyro_values[j].offset)) = val;
+					}
+				}
 			}
 #else
 			if (nword == 4 && log_format != AO_LOG_FORMAT_TELEMEGA) {

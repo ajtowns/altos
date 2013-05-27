@@ -15,10 +15,12 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+#ifndef AO_FLIGHT_TEST
 #include <ao.h>
-#include <ao_pyro.h>
 #include <ao_sample.h>
 #include <ao_flight.h>
+#endif
+#include <ao_pyro.h>
 
 #if IS_COMPANION
 #include <ao_companion.h>
@@ -130,12 +132,13 @@ ao_pyro_ready(struct ao_pyro *pyro)
 	return TRUE;
 }
 
+#ifndef AO_FLIGHT_TEST
 #define ao_pyro_fire_port(port, bit, pin) do {	\
 		ao_gpio_set(port, bit, pin, 1);	\
 		ao_delay(AO_MS_TO_TICKS(50));	\
 		ao_gpio_set(port, bit, pin, 0);	\
 	} while (0)
-
+#endif
 
 static void
 ao_pyro_fire(uint8_t p)
@@ -172,65 +175,57 @@ ao_pyro_fire(uint8_t p)
 
 uint8_t	ao_pyro_wakeup;
 
-static void
-ao_pyro(void)
+static uint8_t
+ao_pyro_check(void)
 {
-	uint8_t		p, any_waiting;
 	struct ao_pyro	*pyro;
+	uint8_t		p, any_waiting;
+	
+	any_waiting = 0;
+	for (p = 0; p < AO_PYRO_NUM; p++) {
+		pyro = &ao_config.pyro[p];
 
-	ao_config_get();
-	while (ao_flight_state < ao_flight_boost)
-		ao_sleep(&ao_flight_state);
+		/* Ignore igniters which have already fired
+		 */
+		if (pyro->fired)
+			continue;
 
-	for (;;) {
-		ao_alarm(AO_MS_TO_TICKS(100));
-		ao_sleep(&ao_pyro_wakeup);
-		ao_clear_alarm();
-		any_waiting = 0;
-		for (p = 0; p < AO_PYRO_NUM; p++) {
-			pyro = &ao_config.pyro[p];
+		/* Ignore disabled igniters
+		 */
+		if (!pyro->flags)
+			continue;
 
-			/* Ignore igniters which have already fired
-			 */
-			if (pyro->fired)
+		any_waiting = 1;
+		/* Check pyro state to see if it should fire
+		 */
+		if (!pyro->delay_done) {
+			if (!ao_pyro_ready(pyro))
 				continue;
 
-			/* Ignore disabled igniters
+			/* If there's a delay set, then remember when
+			 * it expires
 			 */
-			if (!pyro->flags)
-				continue;
-
-			any_waiting = 1;
-			/* Check pyro state to see if it shoule fire
-			 */
-			if (!pyro->delay_done) {
-				if (!ao_pyro_ready(pyro))
-					continue;
-
-				/* If there's a delay set, then remember when
-				 * it expires
-				 */
-				if (pyro->flags & ao_pyro_delay)
-					pyro->delay_done = ao_time() + pyro->delay;
+			if (pyro->flags & ao_pyro_delay) {
+				pyro->delay_done = ao_time() + pyro->delay;
+				if (!pyro->delay_done)
+					pyro->delay_done = 1;
 			}
-
-			/* Check to see if we're just waiting for
-			 * the delay to expire
-			 */
-			if (pyro->delay_done) {
-				if ((int16_t) (ao_time() - pyro->delay_done) < 0)
-					continue;
-			}
-
-			ao_pyro_fire(p);
 		}
-		if (!any_waiting)
-			break;
-	}
-	ao_exit();
-}
 
-__xdata struct ao_task ao_pyro_task;
+		/* Check to see if we're just waiting for
+		 * the delay to expire
+		 */
+		if (pyro->delay_done) {
+			if ((int16_t) (ao_time() - pyro->delay_done) < 0)
+				continue;
+		}
+
+		ao_pyro_fire(p);
+		pyro->fired = 1;
+		ao_pyro_fired |= (1 << p);
+	}
+	return any_waiting;
+}
 
 #define NO_VALUE	0xff
 
@@ -282,6 +277,34 @@ const struct {
 	{ "d", ao_pyro_delay,		offsetof(struct ao_pyro, delay), HELP("delay before firing (s * 100)") },
 	{ "", ao_pyro_none,		NO_VALUE, HELP(NULL) },
 };
+
+#define NUM_PYRO_VALUES (sizeof ao_pyro_values / sizeof ao_pyro_values[0])
+
+#ifndef AO_FLIGHT_TEST
+static void
+ao_pyro(void)
+{
+	uint8_t		any_waiting;
+
+	ao_config_get();
+	while (ao_flight_state < ao_flight_boost)
+		ao_sleep(&ao_flight_state);
+
+	for (;;) {
+		ao_alarm(AO_MS_TO_TICKS(100));
+		ao_sleep(&ao_pyro_wakeup);
+		ao_clear_alarm();
+		if (ao_flight_state >= ao_flight_landed)
+			break;
+		any_waiting = ao_pyro_check();
+		if (!any_waiting)
+			break;
+	}
+	ao_exit();
+}
+
+__xdata struct ao_task ao_pyro_task;
+
 
 static void
 ao_pyro_print_name(uint8_t v)
@@ -449,3 +472,4 @@ ao_pyro_init(void)
 	ao_cmd_register(&ao_pyro_cmds[0]);
 	ao_add_task(&ao_pyro_task, ao_pyro, "pyro");
 }
+#endif
