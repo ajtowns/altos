@@ -170,6 +170,26 @@ ao_pyro_pin_set(uint8_t p, uint8_t v)
 
 uint8_t	ao_pyro_wakeup;
 
+static void
+ao_pyro_pins_fire(uint16_t fire)
+{
+	uint8_t p;
+
+	for (p = 0; p < AO_PYRO_NUM; p++) {
+		if (fire & (1 << p))
+			ao_pyro_pin_set(p, 1);
+	}
+	ao_delay(AO_MS_TO_TICKS(50));
+	for (p = 0; p < AO_PYRO_NUM; p++) {
+		if (fire & (1 << p)) {
+			ao_pyro_pin_set(p, 0);
+			ao_config.pyro[p].fired = 1;
+			ao_pyro_fired |= (1 << p);
+		}
+	}
+	ao_delay(AO_MS_TO_TICKS(50));
+}
+
 static uint8_t
 ao_pyro_check(void)
 {
@@ -219,21 +239,8 @@ ao_pyro_check(void)
 		fire |= (1 << p);
 	}
 
-	if (fire) {
-		for (p = 0; p < AO_PYRO_NUM; p++) {
-			if (fire & (1 << p))
-				ao_pyro_pin_set(p, 1);
-		}
-		ao_delay(AO_MS_TO_TICKS(50));
-		for (p = 0; p < AO_PYRO_NUM; p++) {
-			if (fire & (1 << p)) {
-				ao_pyro_pin_set(p, 0);
-				ao_config.pyro[p].fired = 1;
-				ao_pyro_fired |= (1 << p);
-			}
-		}
-		ao_delay(AO_MS_TO_TICKS(50));
-	}
+	if (fire)
+		ao_pyro_pins_fire(fire);
 
 	return any_waiting;
 }
@@ -444,7 +451,7 @@ ao_pyro_manual(void)
 	ao_cmd_decimal();
 	if (ao_cmd_lex_i < 0 || AO_PYRO_NUM <= ao_cmd_lex_i)
 		return;
-	ao_pyro_fire(ao_cmd_lex_i);
+	ao_pyro_pins_fire(1 << ao_cmd_lex_i);
 
 }
 
