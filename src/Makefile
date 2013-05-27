@@ -26,7 +26,7 @@ SDCCDIRS=\
 	spiradio-v0.1
 
 AVRDIRS=\
-	telescience-v0.1 telescience-pwm telepyro-v0.1 micropeak
+	telescience-v0.1 telescience-pwm micropeak
 
 ARMDIRS=\
 	telemega-v0.1 telemega-v0.1/flash-loader \

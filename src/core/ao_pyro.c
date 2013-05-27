@@ -33,6 +33,40 @@
 
 #define ao_lowbit(x)	((x) & (-x))
 
+#ifndef AO_FLIGHT_TEST
+enum ao_igniter_status
+ao_pyro_status(uint8_t p)
+{
+	__xdata struct ao_data packet;
+	__pdata int16_t value;
+
+	ao_arch_critical(
+		ao_data_get(&packet);
+		);
+
+	value = (AO_IGNITER_CLOSED>>1);
+	value = AO_SENSE_PYRO(&packet, p);
+	if (value < AO_IGNITER_OPEN)
+		return ao_igniter_open;
+	else if (value > AO_IGNITER_CLOSED)
+		return ao_igniter_ready;
+	else
+		return ao_igniter_unknown;
+}
+
+void
+ao_pyro_print_status(void)
+{
+	uint8_t	p;
+
+	for(p = 0; p < AO_PYRO_NUM; p++) {
+		enum ao_igniter_status status = ao_pyro_status(p);
+		printf("Igniter: %d Status: %s\n",
+		       p, ao_igniter_status_names[status]);
+	}
+}
+#endif
+
 uint16_t	ao_pyro_fired;
 
 /*
@@ -441,24 +475,16 @@ ao_pyro_set(void)
 	_ao_config_edit_finish();
 }
 
-static void
-ao_pyro_manual(void)
+void
+ao_pyro_manual(uint8_t p)
 {
-	ao_cmd_white();
-	if (!ao_match_word("DoIt"))
+	printf ("ao_pyro_manual %d\n", p);
+	if (p >= AO_PYRO_NUM) {
+		ao_cmd_status = ao_cmd_syntax_error;
 		return;
-	ao_cmd_white();
-	ao_cmd_decimal();
-	if (ao_cmd_lex_i < 0 || AO_PYRO_NUM <= ao_cmd_lex_i)
-		return;
-	ao_pyro_pins_fire(1 << ao_cmd_lex_i);
-
+	}
+	ao_pyro_pins_fire(1 << p);
 }
-
-const struct ao_cmds ao_pyro_cmds[] = {
-	{ ao_pyro_manual,	"P DoIt <n>\0Fire igniter" },
-	{ 0, NULL }
-};
 
 void
 ao_pyro_init(void)
@@ -487,7 +513,6 @@ ao_pyro_init(void)
 #if AO_PYRO_NUM > 7
 	ao_enable_output(AO_PYRO_PORT_7, AO_PYRO_PIN_7, AO_PYRO_7, 0);
 #endif
-	ao_cmd_register(&ao_pyro_cmds[0]);
 	ao_add_task(&ao_pyro_task, ao_pyro, "pyro");
 }
 #endif

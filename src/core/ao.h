@@ -703,6 +703,8 @@ struct ao_ignition {
 	uint8_t firing;
 };
 
+extern __code char * __code ao_igniter_status_names[];
+
 extern __xdata struct ao_ignition ao_ignition[2];
 
 enum ao_igniter_status

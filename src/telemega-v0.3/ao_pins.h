@@ -121,6 +121,7 @@
 #define HAS_IGNITE		1
 #define HAS_IGNITE_REPORT	1
 
+#define AO_SENSE_PYRO(p,n)	((p)->adc.sense[n])
 #define AO_SENSE_DROGUE(p)	((p)->adc.sense[4])
 #define AO_SENSE_MAIN(p)	((p)->adc.sense[5])
 #define AO_IGNITER_CLOSED	400
