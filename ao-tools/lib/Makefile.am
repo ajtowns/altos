@@ -21,6 +21,7 @@ libao_tools_a_SOURCES = \
 	cc-convert.c \
 	cc-dsp.c \
 	cc-integrate.c \
+	cc-mega.c \
 	cc-period.c \
 	cc-process.c \
 	cc-usb.c \
