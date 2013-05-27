@@ -73,6 +73,7 @@ public class AltosEepromMega {
 	public int v_pbatt() { return data16(2); }
 	public int nsense() { return data16(4); }
 	public int sense(int i) { return data16(6 + i * 2); }
+	public int pyro() { return data16(26); }
 
 	/* AO_LOG_GPS_TIME elements */
 	public int latitude() { return data32(0); }

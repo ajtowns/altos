@@ -33,6 +33,8 @@
 
 #define ao_lowbit(x)	((x) & (-x))
 
+uint16_t	ao_pyro_fired;
+
 /*
  * Given a pyro structure, figure out
  * if the current flight state satisfies all
