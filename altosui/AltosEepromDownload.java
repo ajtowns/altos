@@ -417,9 +417,11 @@ public class AltosEepromDownload implements Runnable {
 			case AltosLib.AO_LOG_FORMAT_TELEMEGA:
 				extension = "mega";
 				CaptureMega(eechunk);
+				break;
 			case AltosLib.AO_LOG_FORMAT_MINI:
 				extension = "mini";
 				CaptureMini(eechunk);
+				break;
 			}
 		}
 		CheckFile(true);
