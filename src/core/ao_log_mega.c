@@ -151,7 +151,7 @@ ao_log(void)
 				log.u.volt.n_sense = AO_ADC_NUM_SENSE;
 				for (i = 0; i < AO_ADC_NUM_SENSE; i++)
 					log.u.volt.sense[i] = ao_data_ring[ao_log_data_pos].adc.sense[i];
-				log.u.pyro = ao_pyro_fired;
+				log.u.volt.pyro = ao_pyro_fired;
 				ao_log_mega(&log);
 				next_other = log.tick + AO_OTHER_INTERVAL;
 			}
