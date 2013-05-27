@@ -135,45 +135,38 @@ ao_pyro_ready(struct ao_pyro *pyro)
 }
 
 #ifndef AO_FLIGHT_TEST
-#define ao_pyro_fire_port(port, bit, pin) do {	\
-		ao_gpio_set(port, bit, pin, 1);	\
-		ao_delay(AO_MS_TO_TICKS(50));	\
-		ao_gpio_set(port, bit, pin, 0);	\
-	} while (0)
-#endif
-
 static void
-ao_pyro_fire(uint8_t p)
+ao_pyro_pin_set(uint8_t p, uint8_t v)
 {
 	switch (p) {
 #if AO_PYRO_NUM > 0
-	case 0: ao_pyro_fire_port(AO_PYRO_PORT_0, AO_PYRO_PIN_0, AO_PYRO_0); break;
+	case 0: ao_gpio_set(AO_PYRO_PORT_0, AO_PYRO_PIN_0, AO_PYRO_0, v); break;
 #endif
 #if AO_PYRO_NUM > 1
-	case 1: ao_pyro_fire_port(AO_PYRO_PORT_1, AO_PYRO_PIN_1, AO_PYRO_1); break;
+	case 1: ao_gpio_set(AO_PYRO_PORT_1, AO_PYRO_PIN_1, AO_PYRO_1, v); break;
 #endif
 #if AO_PYRO_NUM > 2
-	case 2: ao_pyro_fire_port(AO_PYRO_PORT_2, AO_PYRO_PIN_2, AO_PYRO_2); break;
+	case 2: ao_gpio_set(AO_PYRO_PORT_2, AO_PYRO_PIN_2, AO_PYRO_2, v); break;
 #endif
 #if AO_PYRO_NUM > 3
-	case 3: ao_pyro_fire_port(AO_PYRO_PORT_3, AO_PYRO_PIN_3, AO_PYRO_3); break;
+	case 3: ao_gpio_set(AO_PYRO_PORT_3, AO_PYRO_PIN_3, AO_PYRO_3, v); break;
 #endif
 #if AO_PYRO_NUM > 4
-	case 4: ao_pyro_fire_port(AO_PYRO_PORT_4, AO_PYRO_PIN_4, AO_PYRO_4); break;
+	case 4: ao_gpio_set(AO_PYRO_PORT_4, AO_PYRO_PIN_4, AO_PYRO_4, v); break;
 #endif
 #if AO_PYRO_NUM > 5
-	case 5: ao_pyro_fire_port(AO_PYRO_PORT_5, AO_PYRO_PIN_5, AO_PYRO_5); break;
+	case 5: ao_gpio_set(AO_PYRO_PORT_5, AO_PYRO_PIN_5, AO_PYRO_5, v); break;
 #endif
 #if AO_PYRO_NUM > 6
-	case 6: ao_pyro_fire_port(AO_PYRO_PORT_6, AO_PYRO_PIN_6, AO_PYRO_6); break;
+	case 6: ao_gpio_set(AO_PYRO_PORT_6, AO_PYRO_PIN_6, AO_PYRO_6, v); break;
 #endif
 #if AO_PYRO_NUM > 7
-	case 7: ao_pyro_fire_port(AO_PYRO_PORT_7, AO_PYRO_PIN_7, AO_PYRO_7); break;
+	case 7: ao_gpio_set(AO_PYRO_PORT_7, AO_PYRO_PIN_7, AO_PYRO_7, v); break;
 #endif
 	default: break;
 	}
-	ao_delay(AO_MS_TO_TICKS(50));
 }
+#endif
 
 uint8_t	ao_pyro_wakeup;
 
@@ -182,6 +175,7 @@ ao_pyro_check(void)
 {
 	struct ao_pyro	*pyro;
 	uint8_t		p, any_waiting;
+	uint16_t	fire = 0;
 	
 	any_waiting = 0;
 	for (p = 0; p < AO_PYRO_NUM; p++) {
@@ -222,10 +216,25 @@ ao_pyro_check(void)
 				continue;
 		}
 
-		ao_pyro_fire(p);
-		pyro->fired = 1;
-		ao_pyro_fired |= (1 << p);
+		fire |= (1 << p);
 	}
+
+	if (fire) {
+		for (p = 0; p < AO_PYRO_NUM; p++) {
+			if (fire & (1 << p))
+				ao_pyro_pin_set(p, 1);
+		}
+		ao_delay(AO_MS_TO_TICKS(50));
+		for (p = 0; p < AO_PYRO_NUM; p++) {
+			if (fire & (1 << p)) {
+				ao_pyro_pin_set(p, 0);
+				ao_config.pyro[p].fired = 1;
+				ao_pyro_fired |= (1 << p);
+			}
+		}
+		ao_delay(AO_MS_TO_TICKS(50));
+	}
+
 	return any_waiting;
 }
 

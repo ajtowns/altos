@@ -273,12 +273,10 @@ uint16_t	prev_tick;
 #define AO_PYRO_3	3
 
 static void
-ao_pyro_tell(int pin)
+ao_pyro_pin_set(uint8_t pin, uint8_t value)
 {
-	printf ("fire pyro %d\n", pin);
+	printf ("set pyro %d %d\n", pin, value);
 }
-
-#define ao_pyro_fire_port(port,bit,pin) ao_pyro_tell(pin)
 
 #include "ao_pyro.c"
 #endif
