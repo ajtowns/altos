@@ -182,10 +182,7 @@ ao_pad_monitor(void)
 
 		if (ao_pad_armed) {
 			ao_strobe(1);
-			if (sample & 2)
-				ao_siren(1);
-			else
-				ao_siren(0);
+			ao_siren(1);
 			beeping = 1;
 		} else if (query.arm_status == AO_PAD_ARM_STATUS_ARMED && !beeping) {
 			if (arm_beep_time == 0) {
@@ -379,6 +376,26 @@ ao_pad_set_debug(void)
 	if (ao_cmd_status == ao_cmd_success)
 		ao_pad_debug = ao_cmd_lex_i != 0;
 }
+
+
+static void
+ao_pad_alarm_debug(void)
+{
+	uint8_t	which, value;
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	which = ao_cmd_lex_i;
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	value = ao_cmd_lex_i;
+	printf ("Set %s to %d\n", which ? "siren" : "strobe", value);
+	if (which)
+		ao_siren(value);
+	else
+		ao_strobe(value);
+}
 #endif
 
 __code struct ao_cmds ao_pad_cmds[] = {
@@ -386,6 +403,7 @@ __code struct ao_cmds ao_pad_cmds[] = {
 	{ ao_pad_manual,	"i <key> <n>\0Fire igniter. <key> is doit with D&I" },
 #if DEBUG
 	{ ao_pad_set_debug,	"D <0 off, 1 on>\0Debug" },
+	{ ao_pad_alarm_debug,	"S <0 strobe, 1 siren> <0 off, 1 on>\0Set alarm output" },
 #endif
 	{ 0, NULL }
 };
