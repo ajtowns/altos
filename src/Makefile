@@ -16,14 +16,11 @@ include Version
 
 SDCCDIRS=\
 	telemetrum-v1.2 telemetrum-v1.1 telemetrum-v1.0 \
-	teledongle-v0.2 teledongle-v0.1 \
-	telemini-v1.0 telenano-v0.1 \
+	teledongle-v0.2 \
+	telemini-v1.0 \
 	telebt-v1.0 \
-	telemetrum-v0.1-sky telemetrum-v0.1-sirf \
-	telelaunch-v0.1 tidongle test \
 	teleterra-v0.2 teleshield-v0.1 \
-	telefire-v0.1 \
-	spiradio-v0.1
+	telefire-v0.1 telefire-v0.2
 
 AVRDIRS=\
 	telescience-v0.1 telescience-pwm micropeak

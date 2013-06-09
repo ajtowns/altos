@@ -17,7 +17,7 @@
 
 #include <ao.h>
 #include <ao_pad.h>
-#include <ao_74hc497.h>
+#include <ao_74hc165.h>
 #include <ao_radio_cmac.h>
 
 static __xdata uint8_t ao_pad_ignite;
@@ -218,6 +218,21 @@ ao_pad_enable(void)
 	ao_wakeup (&ao_pad_disabled);
 }
 
+#if HAS_74HC165
+static uint8_t
+ao_pad_read_box(void)
+{
+	uint8_t		byte = ao_74hc165_read();
+	uint8_t		h, l;
+
+	h = byte >> 4;
+	l = byte & 0xf;
+	return h * 10 + l;
+}
+#else
+#define ao_pad_read_box()	0
+#endif
+
 static void
 ao_pad(void)
 {
@@ -236,8 +251,10 @@ ao_pad(void)
 		if (ret != AO_RADIO_CMAC_OK)
 			continue;
 		
-		PRINTD ("tick %d box %d cmd %d channels %02x\n",
-			command.tick, command.box, command.cmd, command.channels);
+		ao_pad_box = ao_pad_read_box();
+
+		PRINTD ("tick %d box %d (me %d) cmd %d channels %02x\n",
+			command.tick, command.box, ao_pad_box, command.cmd, command.channels);
 
 		switch (command.cmd) {
 		case AO_LAUNCH_ARM:
@@ -327,7 +344,7 @@ ao_pad_test(void)
 	}
 
 	for (c = 0; c < AO_PAD_NUM; c++) {
-		printf ("Pad %d: ");
+		printf ("Pad %d: ", c);
 		switch (query.igniter_status[c]) {
 		case AO_PAD_IGNITER_STATUS_NO_IGNITER_RELAY_CLOSED:	printf ("No igniter. Relay closed\n"); break;
 		case AO_PAD_IGNITER_STATUS_NO_IGNITER_RELAY_OPEN:	printf ("No igniter. Relay open\n"); break;
