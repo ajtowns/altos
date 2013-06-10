@@ -171,6 +171,11 @@ stm_gpio_get(struct stm_gpio *gpio, int pin) {
 	return (gpio->idr >> pin) & 1;
 }
 
+static inline uint16_t
+stm_gpio_get_all(struct stm_gpio *gpio) {
+	return gpio->idr;
+}
+
 extern struct stm_gpio stm_gpioa;
 extern struct stm_gpio stm_gpiob;
 extern struct stm_gpio stm_gpioc;

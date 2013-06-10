@@ -74,9 +74,10 @@ _ao_button_set(struct ao_debounce *debounce, uint8_t value)
 
 static void
 ao_button_debounce_init(struct ao_debounce *debounce) {
-	debounce->hold = AO_BUTTON_DEBOUNCE_HOLD;
-	debounce->_get = _ao_button_get;
-	debounce->_set = _ao_button_set;
+	ao_debounce_config(debounce,
+			   _ao_button_get,
+			   _ao_button_set,
+			   AO_BUTTON_DEBOUNCE_HOLD);
 }
 
 static void

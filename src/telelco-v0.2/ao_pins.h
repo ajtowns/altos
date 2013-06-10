@@ -235,7 +235,6 @@
  */
 
 #define AO_QUADRATURE_COUNT	2
-#define AO_QUADRATURE_MODE	0
 
 #define AO_QUADRATURE_0_PORT	&stm_gpioe
 #define AO_QUADRATURE_0_A	3

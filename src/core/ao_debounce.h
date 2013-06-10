@@ -22,13 +22,16 @@ struct ao_debounce {
 	struct ao_debounce	*next;
 
 	/* time that pin value must be stable before accepting */
-	int8_t			hold;
+	uint8_t			hold;
 
 	/* last value reported to app; don't report it twice */
 	uint8_t			value;
 
+	/* current value received from pins */
+	uint8_t			current;
+
 	/* current count of intervals pin value has been stable */
-	int8_t			count;
+	uint8_t			count;
 
 	/* This pin is running */
 	uint8_t			running;
@@ -40,6 +43,22 @@ struct ao_debounce {
 	void 			(*_set)(struct ao_debounce *debounce, uint8_t value);
 };
 
+static inline void
+ao_debounce_config(struct ao_debounce *debounce,
+		   uint8_t (*_get)(struct ao_debounce *debounce),
+		   void (*_set)(struct ao_debounce *debounce, uint8_t value),
+		   uint8_t hold)
+{
+	debounce->next = 0;
+	debounce->hold = hold;
+	debounce->value = 0xff;
+	debounce->current = 0xff;
+	debounce->count = 0;
+	debounce->running = 0;
+	debounce->_get = _get;
+	debounce->_set = _set;
+}
+
 void
 _ao_debounce_start(struct ao_debounce *debounce);
 
@@ -48,5 +67,8 @@ _ao_debounce_stop(struct ao_debounce *debounce);
 
 void
 ao_debounce_init(void);
+
+void
+ao_debounce_dump(void);
 
 #endif /* _AO_DEBOUNCE_H_ */
