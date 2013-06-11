@@ -25,6 +25,13 @@ public class AltosHeight extends AltosUnits {
 		return v;
 	}
 
+	public double parse(String s) throws NumberFormatException {
+		double	v = Double.parseDouble(s);
+		if (AltosConvert.imperial_units)
+			v = AltosConvert.feet_to_meters(v);
+		return v;
+	}
+
 	public String show_units() {
 		if (AltosConvert.imperial_units)
 			return "ft";

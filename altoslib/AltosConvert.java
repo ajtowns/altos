@@ -242,6 +242,10 @@ public class AltosConvert {
 		return meters * (100 / (2.54 * 12));
 	}
 
+	public static double feet_to_meters(double feet) {
+		return feet * 12 * 2.54 / 100.0;
+	}
+
 	public static double meters_to_miles(double meters) {
 		return meters_to_feet(meters) / 5280;
 	}

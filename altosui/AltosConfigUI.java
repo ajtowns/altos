@@ -26,7 +26,7 @@ import org.altusmetrum.altosuilib_1.*;
 
 public class AltosConfigUI
 	extends AltosUIDialog
-	implements ActionListener, ItemListener, DocumentListener, AltosConfigValues
+	implements ActionListener, ItemListener, DocumentListener, AltosConfigValues, AltosUnitsListener
 {
 
 	Container	pane;
@@ -75,9 +75,14 @@ public class AltosConfigUI
 
 	ActionListener	listener;
 
-	static String[] main_deploy_values = {
+	static String[] main_deploy_values_m = {
 		"100", "150", "200", "250", "300", "350",
 		"400", "450", "500"
+	};
+
+	static String[] main_deploy_values_ft = {
+		"250", "500", "750", "1000", "1250", "1500",
+		"1750", "2000"
 	};
 
 	static String[] apogee_delay_values = {
@@ -280,7 +285,7 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
 		c.ipady = 5;
-		main_deploy_label = new JLabel("Main Deploy Altitude(m):");
+		main_deploy_label = new JLabel(get_main_deploy_label());
 		pane.add(main_deploy_label, c);
 
 		c = new GridBagConstraints();
@@ -291,7 +296,7 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		main_deploy_value = new JComboBox(main_deploy_values);
+		main_deploy_value = new JComboBox(main_deploy_values());
 		main_deploy_value.setEditable(true);
 		main_deploy_value.addItemListener(this);
 		pane.add(main_deploy_value, c);
@@ -616,6 +621,7 @@ public class AltosConfigUI
 		close.setActionCommand("Close");
 
 		addWindowListener(new ConfigListener(this));
+		AltosPreferences.register_units_listener(this);
 	}
 
 	/* Once the initial values are set, the config code will show the dialog */
@@ -653,6 +659,10 @@ public class AltosConfigUI
 	}
 
 	AltosConfigPyroUI	pyro_ui;
+
+	public void dispose() {
+		AltosPreferences.unregister_units_listener(this);
+	}
 
 	/* Listen for events from our buttons */
 	public void actionPerformed(ActionEvent e) {
@@ -718,12 +728,38 @@ public class AltosConfigUI
 	}
 
 	public void set_main_deploy(int new_main_deploy) {
-		main_deploy_value.setSelectedItem(Integer.toString(new_main_deploy));
+		main_deploy_value.setSelectedItem(AltosConvert.height.say(new_main_deploy));
 		main_deploy_value.setEnabled(new_main_deploy >= 0);
 	}
 
 	public int main_deploy() {
-		return Integer.parseInt(main_deploy_value.getSelectedItem().toString());
+		return (int) (AltosConvert.height.parse(main_deploy_value.getSelectedItem().toString()) + 0.5);
+	}
+
+	String get_main_deploy_label() {
+		return String.format("Main Deploy Altitude(%s):", AltosConvert.height.show_units());
+	}
+	
+	String[] main_deploy_values() {
+		if (AltosConvert.imperial_units)
+			return main_deploy_values_ft;
+		else
+			return main_deploy_values_m;
+	}
+			
+	void set_main_deploy_values() {
+		String[]	v = main_deploy_values();
+		while (main_deploy_value.getItemCount() > 0)
+			main_deploy_value.removeItemAt(0);
+		for (int i = 0; i < v.length; i++)
+			main_deploy_value.addItem(v[i]);
+		main_deploy_value.setMaximumRowCount(v.length);
+	}
+	
+	public void units_changed(boolean imperial_units) {
+		main_deploy_label.setText(get_main_deploy_label());
+		set_main_deploy_values();
+		listener.actionPerformed(new ActionEvent(this, 0, "Reset"));
 	}
 
 	public void set_apogee_delay(int new_apogee_delay) {
