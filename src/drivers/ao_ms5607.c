@@ -22,7 +22,7 @@
 #if HAS_MS5607 || HAS_MS5611
 
 static __xdata struct ao_ms5607_prom	ms5607_prom;
-static uint8_t	  		ms5607_configured;
+static __xdata uint8_t	  		ms5607_configured;
 
 static void
 ao_ms5607_start(void) {

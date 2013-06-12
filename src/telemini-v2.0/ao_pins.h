@@ -47,7 +47,9 @@
  */
 
 #define HAS_SPI_0		1
+#define SPI_0_ALT_1		1
 #define HAS_SPI_1		1
+#define SPI_1_ALT_2		1
 #define SPI_CS_PORT		P1
 #define SPI_CS_SEL		P1SEL
 #define SPI_CS_DIR		P1DIR
@@ -55,6 +57,7 @@
 /*
  * Flash
  */
+#define AO_M25_SPI_BUS		1
 #define AO_M25_SPI_CS_PORT	SPI_CS_PORT
 #define AO_M25_SPI_CS_MASK	0x04	/* cs_flash is P1_2 */
 #define M25_MAX_CHIPS		1
@@ -74,6 +77,7 @@
 #define AO_MS5607_MISO_PIN	2
 #define AO_MS5607_MISO_MASK	(1 << AO_MS5607_MISO_PIN)
 #define AO_MS5607_SPI_INDEX	0
+#define HAS_EXTI_0		1
 
 /*
  * Igniters
