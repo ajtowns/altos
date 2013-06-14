@@ -51,12 +51,22 @@
 			    (1 << LPC_IOCONF_ADMODE));			\
 	} while (0)
 
-#define ao_enable_analog(port,bit) do {					\
-		vuint32_t *_ioconf = &lpc_ioconf.pio0_0 + ((port)*24+(bit)); \
+#define lpc_token_paster_2(x,y)		x ## y
+#define lpc_token_evaluator_2(x,y)	lpc_token_paster_2(x,y)
+#define lpc_token_paster_3(x,y,z)	x ## y ## z
+#define lpc_token_evaluator_3(x,y,z)	lpc_token_paster_3(x,y,z)
+#define lpc_token_paster_4(w,x,y,z)	w ## x ## y ## z
+#define lpc_token_evaluator_4(w,x,y,z)	lpc_token_paster_4(w,x,y,z)
+#define analog_reg(port,bit)		lpc_token_evaluator_4(pio,port,_,bit)
+#define analog_func(id)			lpc_token_evaluator_2(LPC_IOCONF_FUNC_AD,id)
+
+#define ao_enable_analog(port,bit,id) do {				\
+		uint32_t _mode;						\
 		ao_enable_port(port);					\
 		lpc_gpio.dir[port] &= ~(1 << bit);			\
-		*_ioconf = *_ioconf & ~((1 << LPC_IOCONF_ADMODE) |	\
-					(LPC_IOCONF_MODE_MASK << LPC_IOCONF_MODE)); \
+		_mode = ((analog_func(id) << LPC_IOCONF_FUNC) |		\
+			 (0 << LPC_IOCONF_ADMODE));			\
+		lpc_ioconf.analog_reg(port,bit) = _mode;		\
 	} while (0)
 	
 #define ARM_PUSH32(stack, val)	(*(--(stack)) = (val))

@@ -82,19 +82,33 @@
 # endif
 #endif
 
+#define AO_ADC_MASK	((AO_ADC_0 << 0) |	\
+			 (AO_ADC_1 << 1) |	\
+			 (AO_ADC_2 << 2) |	\
+			 (AO_ADC_3 << 3) |	\
+			 (AO_ADC_4 << 4) |	\
+			 (AO_ADC_5 << 5) |	\
+			 (AO_ADC_6 << 6) |	\
+			 (AO_ADC_7 << 7))
+
+#define AO_ADC_CLKDIV	(AO_LPC_SYSCLK / 4500000 - 1)
+
 static uint8_t			ao_adc_ready;
 
 void  lpc_adc_isr(void)
 {
 	uint32_t	stat = lpc_adc.stat;
-	uint16_t	*out = (uint16_t *) &ao_data_ring[ao_data_head].adc;
-	vuint32_t	*in = &lpc_adc.dr[0];
+	uint16_t	*out;
 
-	lpc_adc.cr = 0;
+	lpc_adc.cr = ((AO_ADC_MASK << LPC_ADC_CR_SEL) |
+		      (AO_ADC_CLKDIV << LPC_ADC_CR_CLKDIV) |
+		      (0 << LPC_ADC_CR_BURST) |
+		      (LPC_ADC_CR_CLKS_11 << LPC_ADC_CR_CLKS));
 	lpc_adc.stat = 0;
 
 	/* Store converted values in packet */
 
+	out = (uint16_t *) &ao_data_ring[ao_data_head].adc;
 #if AO_ADC_0
 	*out++ = lpc_adc.dr[0] >> 1;
 #endif
@@ -141,16 +155,6 @@ void  lpc_adc_isr(void)
 	ao_adc_ready = 1;
 }
 
-#define AO_ADC_MASK	((AO_ADC_0 << 0) |	\
-			 (AO_ADC_1 << 1) |	\
-			 (AO_ADC_2 << 2) |	\
-			 (AO_ADC_3 << 3) |	\
-			 (AO_ADC_4 << 4) |	\
-			 (AO_ADC_5 << 5) |	\
-			 (AO_ADC_6 << 6) |	\
-			 (AO_ADC_7 << 7))
-
-#define AO_ADC_CLKDIV	(AO_LPC_CLKOUT / 4500000)
 
 /*
  * Start the ADC sequence using the DMA engine
@@ -204,29 +208,35 @@ ao_adc_init(void)
 	lpc_nvic_set_enable(LPC_ISR_ADC_POS);
 	lpc_nvic_set_priority(LPC_ISR_ADC_POS, AO_LPC_NVIC_CLOCK_PRIORITY);
 #if AO_ADC_0
-	ao_enable_analog(0, 11);
+	ao_enable_analog(0, 11, 0);
 #endif
 #if AO_ADC_1
-	ao_enable_analog(0, 12);
+	ao_enable_analog(0, 12, 1);
 #endif
 #if AO_ADC_2
-	ao_enable_analog(0, 13);
+	ao_enable_analog(0, 13, 2);
 #endif
 #if AO_ADC_3
-	ao_enable_analog(0, 14);
+	ao_enable_analog(0, 14, 3);
 #endif
 #if AO_ADC_4
-	ao_enable_analog(0, 14);
+	ao_enable_analog(0, 15, 4);
 #endif
 #if AO_ADC_5
-	ao_enable_analog(0, 14);
+	ao_enable_analog(0, 16, 5);
 #endif
 #if AO_ADC_6
-	ao_enable_analog(0, 14);
+	ao_enable_analog(0, 22, 6);
 #endif
 #if AO_ADC_7
-	ao_enable_analog(0, 14);
+	ao_enable_analog(0, 23, 7);
 #endif
+
+	lpc_adc.cr = ((AO_ADC_MASK << LPC_ADC_CR_SEL) |
+		      (AO_ADC_CLKDIV << LPC_ADC_CR_CLKDIV) |
+		      (0 << LPC_ADC_CR_BURST) |
+		      (LPC_ADC_CR_CLKS_11 << LPC_ADC_CR_CLKS));
+
 	ao_cmd_register(&ao_adc_cmds[0]);
 
 	ao_adc_ready = 1;
