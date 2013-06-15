@@ -61,12 +61,10 @@
 #define analog_func(id)			lpc_token_evaluator_2(LPC_IOCONF_FUNC_AD,id)
 
 #define ao_enable_analog(port,bit,id) do {				\
-		uint32_t _mode;						\
 		ao_enable_port(port);					\
 		lpc_gpio.dir[port] &= ~(1 << bit);			\
-		_mode = ((analog_func(id) << LPC_IOCONF_FUNC) |		\
-			 (0 << LPC_IOCONF_ADMODE));			\
-		lpc_ioconf.analog_reg(port,bit) = _mode;		\
+		lpc_ioconf.analog_reg(port,bit) = ((analog_func(id) << LPC_IOCONF_FUNC) | \
+						   (0 << LPC_IOCONF_ADMODE)); \
 	} while (0)
 	
 #define ARM_PUSH32(stack, val)	(*(--(stack)) = (val))

@@ -1169,6 +1169,13 @@ extern struct lpc_adc lpc_adc;
 #define  LPC_ADC_CR_CLKS_6		5
 #define  LPC_ADC_CR_CLKS_5		6
 #define  LPC_ADC_CR_CLKS_4		7
+#define LPC_ADC_CR_START	24
+#define  LPC_ADC_CR_START_NONE		0
+#define  LPC_ADC_CR_START_NOW		1
+
+#define LPC_ADC_GDR_CHN			24
+#define LPC_ADC_GDR_OVERRUN		30
+#define LPC_ADC_GDR_DONE		31
 
 #define LPC_ADC_INTEN_ADINTEN	0
 #define LPC_ADC_INTEN_ADGINTEN	8

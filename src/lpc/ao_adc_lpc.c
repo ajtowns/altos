@@ -91,47 +91,58 @@
 			 (AO_ADC_6 << 6) |	\
 			 (AO_ADC_7 << 7))
 
-#define AO_ADC_CLKDIV	(AO_LPC_SYSCLK / 4500000 - 1)
+#define AO_ADC_CLKDIV	(AO_LPC_SYSCLK / 4500000)
 
-static uint8_t			ao_adc_ready;
+static uint8_t		ao_adc_ready;
+
+static uint16_t		ao_adc_prev[AO_NUM_ADC];
+
+#define sample(id)	do {				\
+		uint16_t	p = *prev;		\
+		uint16_t	v = lpc_adc.dr[id];	\
+		p -= p >> 4;				\
+		p += v >> 4;				\
+		*prev++ = p;				\
+		*out++ = p >> 1;			\
+	} while (0)
 
 void  lpc_adc_isr(void)
 {
 	uint32_t	stat = lpc_adc.stat;
 	uint16_t	*out;
+	uint16_t	*prev;
 
-	lpc_adc.cr = ((AO_ADC_MASK << LPC_ADC_CR_SEL) |
-		      (AO_ADC_CLKDIV << LPC_ADC_CR_CLKDIV) |
-		      (0 << LPC_ADC_CR_BURST) |
-		      (LPC_ADC_CR_CLKS_11 << LPC_ADC_CR_CLKS));
+	/* Turn off burst mode */
+	lpc_adc.cr = 0;
 	lpc_adc.stat = 0;
 
 	/* Store converted values in packet */
 
 	out = (uint16_t *) &ao_data_ring[ao_data_head].adc;
+	prev = ao_adc_prev;
 #if AO_ADC_0
-	*out++ = lpc_adc.dr[0] >> 1;
+	sample(0);
 #endif
 #if AO_ADC_1
-	*out++ = lpc_adc.dr[1] >> 1;
+	sample(1);
 #endif
 #if AO_ADC_2
-	*out++ = lpc_adc.dr[2] >> 1;
+	sample(2);
 #endif
 #if AO_ADC_3
-	*out++ = lpc_adc.dr[3] >> 1;
+	sample(3);
 #endif
 #if AO_ADC_4
-	*out++ = lpc_adc.dr[4] >> 1;
+	sample(4);
 #endif
 #if AO_ADC_5
-	*out++ = lpc_adc.dr[5] >> 1;
+	sample(5); 
 #endif
 #if AO_ADC_6
-	*out++ = lpc_adc.dr[6] >> 1;
+	sample(6);
 #endif
 #if AO_ADC_7
-	*out++ = lpc_adc.dr[7] >> 1;
+	sample(7);
 #endif
 
 	AO_DATA_PRESENT(AO_DATA_ADC);
