@@ -177,4 +177,15 @@ ao_clock_init(void)
 	lpc_scb.ssp1clkdiv = 0;
 	lpc_scb.usbclkdiv = 0;
 	lpc_scb.clkoutdiv = 0;
+
+	/* Power down everything we don't need */
+	lpc_scb.pdruncfg = ((1 << LPC_SCB_PDRUNCFG_IRCOUT_PD) |
+			    (1 << LPC_SCB_PDRUNCFG_IRC_PD) |
+			    (1 << LPC_SCB_PDRUNCFG_BOD_PD) |
+			    (1 << LPC_SCB_PDRUNCFG_ADC_PD) |
+			    (1 << LPC_SCB_PDRUNCFG_WDTOSC_PD) |
+			    (1 << LPC_SCB_PDRUNCFG_USBPLL_PD) |
+			    (1 << LPC_SCB_PDRUNCFG_USBPAD_PD) |
+			    (1 << 11) |
+			    (7 << 13));
 }

@@ -39,7 +39,6 @@ ALTOS_SRC = \
 	ao_config.c \
 	ao_timer_lpc.c \
 	ao_exti_lpc.c \
-	ao_serial_lpc.c \
 	ao_usb_lpc.c \
 	ao_spi_lpc.c \
 	ao_adc_lpc.c \
