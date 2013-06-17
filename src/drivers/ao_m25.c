@@ -86,7 +86,7 @@ static ao_port_t ao_m25_pin[M25_MAX_CHIPS];	/* chip select pin for each chip */
 static uint8_t ao_m25_numchips;			/* number of chips detected */
 #endif
 static uint8_t ao_m25_total;			/* total sectors available */
-static uint8_t ao_m25_wip;			/* write in progress */
+static ao_port_t ao_m25_wip;			/* write in progress */
 
 static __xdata uint8_t ao_m25_mutex;
 
@@ -250,7 +250,6 @@ ao_storage_erase(uint32_t pos) __reentrant
 
 	cs = ao_m25_set_address(pos);
 
-	ao_m25_wait_wip(cs);
 	ao_m25_write_enable(cs);
 
 	ao_m25_instruction[0] = M25_SE;
