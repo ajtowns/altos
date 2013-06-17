@@ -42,7 +42,7 @@ static uint8_t	spi_dev_null;
 			/* recv a byte */				\
 			get lpc_ssp->dr;				\
 		}							\
-	} while (0);
+	} while (0)
 
 void
 ao_spi_send(void *block, uint16_t len, uint8_t id)
