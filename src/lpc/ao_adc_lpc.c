@@ -95,22 +95,12 @@
 
 static uint8_t		ao_adc_ready;
 
-static uint16_t		ao_adc_prev[AO_NUM_ADC];
-
-#define sample(id)	do {				\
-		uint16_t	p = *prev;		\
-		uint16_t	v = lpc_adc.dr[id];	\
-		p -= p >> 4;				\
-		p += v >> 4;				\
-		*prev++ = p;				\
-		*out++ = p >> 1;			\
-	} while (0)
+#define sample(id)	(*out++ = lpc_adc.dr[id] >> 1)
 
 void  lpc_adc_isr(void)
 {
 	uint32_t	stat = lpc_adc.stat;
 	uint16_t	*out;
-	uint16_t	*prev;
 
 	/* Turn off burst mode */
 	lpc_adc.cr = 0;
@@ -119,7 +109,6 @@ void  lpc_adc_isr(void)
 	/* Store converted values in packet */
 
 	out = (uint16_t *) &ao_data_ring[ao_data_head].adc;
-	prev = ao_adc_prev;
 #if AO_ADC_0
 	sample(0);
 #endif
