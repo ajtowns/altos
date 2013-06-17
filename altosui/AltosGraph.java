@@ -73,18 +73,18 @@ class AltosNsat extends AltosUnits {
 	}
 }
 
-class AltosDbm extends AltosUnits {
+class AltosPressure extends AltosUnits {
 
-	public double value(double v) {
-		return v;
+	public double value(double p) {
+		return p;
 	}
 
 	public String show_units() {
-		return "dBm";
+		return "Pa";
 	}
 
 	public String say_units() {
-		return "d b m";
+		return "pascals";
 	}
 
 	public int show_fraction(int width) {
@@ -96,6 +96,7 @@ public class AltosGraph extends AltosUIGraph {
 
 	static final private Color height_color = new Color(194,31,31);
 	static final private Color gps_height_color = new Color(150,31,31);
+	static final private Color pressure_color = new Color (225,31,31);
 	static final private Color range_color = new Color(100, 31, 31);
 	static final private Color distance_color = new Color(100, 31, 194);
 	static final private Color speed_color = new Color(31,194,31);
@@ -112,16 +113,18 @@ public class AltosGraph extends AltosUIGraph {
 	static final private Color state_color = new Color(0,0,0);
 
 	static AltosVoltage voltage_units = new AltosVoltage();
+	static AltosPressure pressure_units = new AltosPressure();
 	static AltosNsat nsat_units = new AltosNsat();
 	static AltosDbm dbm_units = new AltosDbm();
 
 	AltosUIAxis	height_axis, speed_axis, accel_axis, voltage_axis, temperature_axis, nsat_axis, dbm_axis;
-	AltosUIAxis	distance_axis;
+	AltosUIAxis	distance_axis, pressure_axis;
 
 	public AltosGraph(AltosUIEnable enable, AltosFlightStats stats, AltosGraphDataSet dataSet) {
 		super(enable);
 
 		height_axis = newAxis("Height", AltosConvert.height, height_color);
+		pressure_axis = newAxis("Pressure", pressure_units, pressure_color, 0);
 		speed_axis = newAxis("Speed", AltosConvert.speed, speed_color);
 		accel_axis = newAxis("Acceleration", AltosConvert.accel, accel_color);
 		voltage_axis = newAxis("Voltage", voltage_units, voltage_color);
@@ -138,6 +141,12 @@ public class AltosGraph extends AltosUIGraph {
 			  height_color,
 			  true,
 			  height_axis);
+		addSeries("Pressure",
+			  AltosGraphDataPoint.data_pressure,
+			  pressure_units,
+			  pressure_color,
+			  false,
+			  pressure_axis);
 		addSeries("Speed",
 			  AltosGraphDataPoint.data_speed,
 			  AltosConvert.speed,

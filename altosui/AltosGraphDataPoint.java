@@ -39,6 +39,7 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 	public static final int data_temperature = 12;
 	public static final int data_range = 13;
 	public static final int data_distance = 14;
+	public static final int data_pressure = 15;
 
 	public double x() throws AltosUIDataMissing {
 		if (state.data.time < -2)
@@ -93,6 +94,9 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 		case data_distance:
 			if (state.from_pad != null)
 				y = state.from_pad.distance;
+			break;
+		case data_pressure:
+			y = state.pressure;
 			break;
 		}
 		if (y == AltosRecord.MISSING)

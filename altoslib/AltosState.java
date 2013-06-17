@@ -40,6 +40,7 @@ public class AltosState {
 	public double	ground_altitude;
 	public double	altitude;
 	public double	height;
+	public double	pressure;
 	public double	acceleration;
 	public double	battery;
 	public double	temperature;
@@ -125,6 +126,7 @@ public class AltosState {
 		drogue_sense = data.drogue_voltage();
 		main_sense = data.main_voltage();
 		battery = data.battery_voltage();
+		pressure = data.pressure();
 		tick = data.tick;
 		state = data.state;
 
