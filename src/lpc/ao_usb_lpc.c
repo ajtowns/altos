@@ -834,8 +834,9 @@ ao_usb_disable(void)
 	/* Turn off USB clock */
 	lpc_scb.usbclkdiv = 0;
 
-	/* Disable USB PHY */
-	lpc_scb.pdruncfg |= (1 << LPC_SCB_PDRUNCFG_USBPAD_PD);
+	/* Disable USB PHY and PLL */
+	lpc_scb.pdruncfg |= ((1 << LPC_SCB_PDRUNCFG_USBPAD_PD) |
+			     (1 << LPC_SCB_PDRUNCFG_USBPLL_PD));
 
 	/* Disable USB registers and RAM */
 	lpc_scb.sysahbclkctrl &= ~((1 << LPC_SCB_SYSAHBCLKCTRL_USB) |
@@ -877,7 +878,6 @@ ao_usb_enable(void)
 	lpc_scb.pdruncfg &= ~(1 << LPC_SCB_PDRUNCFG_USBPLL_PD);
 
 	lpc_scb.usbpllclksel = (LPC_SCB_SYSPLLCLKSEL_SEL_SYSOSC << LPC_SCB_SYSPLLCLKSEL_SEL);
-	lpc_scb.usbpllclkuen = (1 << LPC_SCB_USBPLLCLKUEN_ENA);
 	lpc_scb.usbpllclkuen = (0 << LPC_SCB_USBPLLCLKUEN_ENA);
 	lpc_scb.usbpllclkuen = (1 << LPC_SCB_USBPLLCLKUEN_ENA);
 	while (!(lpc_scb.usbpllclkuen & (1 << LPC_SCB_USBPLLCLKUEN_ENA)))
@@ -887,6 +887,10 @@ ao_usb_enable(void)
 		;
 
 	lpc_scb.usbclksel = 0;
+	lpc_scb.usbclkuen = (0 << LPC_SCB_USBCLKUEN_ENA);
+	lpc_scb.usbclkuen = (1 << LPC_SCB_USBCLKUEN_ENA);
+	while (!(lpc_scb.usbclkuen & (1 << LPC_SCB_USBCLKUEN_ENA)))
+		;
 
 	/* Turn on USB clock, use 48MHz clock unchanged */
 	lpc_scb.usbclkdiv = 1;

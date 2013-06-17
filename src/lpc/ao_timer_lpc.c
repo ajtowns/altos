@@ -106,10 +106,16 @@ ao_clock_init(void)
 	
 	/* Switch to the IRC clock */
 	lpc_scb.mainclksel = LPC_SCB_MAINCLKSEL_SEL_IRC << LPC_SCB_MAINCLKSEL_SEL;
-	lpc_scb.mainclkuen = (1 << LPC_SCB_MAINCLKUEN_ENA);
 	lpc_scb.mainclkuen = (0 << LPC_SCB_MAINCLKUEN_ENA);
 	lpc_scb.mainclkuen = (1 << LPC_SCB_MAINCLKUEN_ENA);
 	while (!(lpc_scb.mainclkuen & (1 << LPC_SCB_MAINCLKUEN_ENA)))
+		;
+	
+	/* Switch USB to the main clock */
+	lpc_scb.usbclksel = (LPC_SCB_USBCLKSEL_SEL_MAIN_CLOCK << LPC_SCB_USBCLKSEL_SEL);
+	lpc_scb.usbclkuen = (0 << LPC_SCB_USBCLKUEN_ENA);
+	lpc_scb.usbclkuen = (1 << LPC_SCB_USBCLKUEN_ENA);
+	while (!(lpc_scb.usbclkuen & (1 << LPC_SCB_USBCLKUEN_ENA)))
 		;
 	
 	/* Find a PLL post divider ratio that gets the FCCO in range */
@@ -178,7 +184,13 @@ ao_clock_init(void)
 	lpc_scb.usbclkdiv = 0;
 	lpc_scb.clkoutdiv = 0;
 
-#if 0
+	/* Switch USB PLL source to system osc so we can power down the IRC */
+	lpc_scb.usbpllclksel = (LPC_SCB_USBPLLCLKSEL_SEL_SYSOSC << LPC_SCB_USBPLLCLKSEL_SEL);
+	lpc_scb.usbpllclkuen = (0 << LPC_SCB_USBPLLCLKUEN_ENA);
+	lpc_scb.usbpllclkuen = (1 << LPC_SCB_USBPLLCLKUEN_ENA);
+	while (!(lpc_scb.usbpllclkuen & (1 << LPC_SCB_USBPLLCLKUEN_ENA)))
+		;
+	
 	/* Power down everything we don't need */
 	lpc_scb.pdruncfg = ((1 << LPC_SCB_PDRUNCFG_IRCOUT_PD) |
 			    (1 << LPC_SCB_PDRUNCFG_IRC_PD) |
@@ -189,5 +201,4 @@ ao_clock_init(void)
 			    (1 << LPC_SCB_PDRUNCFG_USBPAD_PD) |
 			    (1 << 11) |
 			    (7 << 13));
-#endif
 }
