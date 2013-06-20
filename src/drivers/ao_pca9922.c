@@ -30,9 +30,12 @@ ao_led_apply(void)
 	/* Don't try the SPI bus during initialization */
 	if (!ao_cur_task)
 		return;
-	ao_spi_get_bit(AO_PCA9922_CS_PORT, AO_PCA9922_CS_PIN, AO_PCA9922_CS, AO_PCA9922_SPI_BUS, AO_SPI_SPEED_FAST);
+	ao_mutex_get(&ao_spi_mutex);
+	ao_spi_set_speed(AO_SPI_SPEED_FAST);
+	AO_PCA9922_CS = 1;
 	ao_spi_send(&ao_led_state, 1, AO_PCA9922_SPI_BUS);
-	ao_spi_put_bit(AO_PCA9922_CS_PORT, AO_PCA9922_CS_PIN, AO_PCA9922_CS, AO_PCA9922_SPI_BUS);
+	AO_PCA9922_CS = 0;
+	ao_mutex_put(&ao_spi_mutex);
 }
 
 void
