@@ -374,7 +374,7 @@ ao_radio_recv(__xdata void *packet, uint8_t size, uint8_t timeout) __reentrant
 	}
 #if NEED_RADIO_RSSI
 	else
-		ao_radio_rssi = AO_RSSI_FROM_RADIO(((uint8_t *)packet)[size - 1]);
+		ao_radio_rssi = AO_RSSI_FROM_RADIO(((uint8_t *)packet)[size - 2]);
 #endif
 	ao_radio_put();
 	return ao_radio_dma_done;
