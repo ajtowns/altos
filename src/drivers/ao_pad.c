@@ -27,6 +27,7 @@ static __pdata uint8_t	ao_pad_armed;
 static __pdata uint16_t	ao_pad_arm_time;
 static __pdata uint8_t	ao_pad_box;
 static __xdata uint8_t	ao_pad_disabled;
+static __pdata uint16_t	ao_pad_packet_time;
 
 #define DEBUG	1
 
@@ -135,6 +136,12 @@ ao_pad_monitor(void)
 			query.arm_status = AO_PAD_ARM_STATUS_UNKNOWN;
 			arm_beep_time = 0;
 		}
+		if ((ao_time() - ao_pad_packet_time) > AO_SEC_TO_TICKS(2))
+			cur |= AO_LED_RED;
+		else if (ao_radio_cmac_rssi < -90)
+			cur |= AO_LED_AMBER;
+		else
+			cur |= AO_LED_GREEN;
 
 		for (c = 0; c < AO_PAD_NUM; c++) {
 			int16_t		sense = packet->adc.sense[c];
@@ -171,9 +178,10 @@ ao_pad_monitor(void)
 			query.igniter_status[c] = status;
 		}
 		if (cur != prev) {
-			PRINTD("change leds from %02x to %02x mask %02x\n",
-			       prev, cur, AO_LED_CONTINUITY_MASK|AO_LED_ARMED);
-			ao_led_set_mask(cur, AO_LED_CONTINUITY_MASK | AO_LED_ARMED);
+			PRINTD("change leds from %02x to %02x\n",
+			       prev, cur);
+			FLUSHD();
+			ao_led_set(cur);
 			prev = cur;
 		}
 
@@ -238,15 +246,15 @@ ao_pad(void)
 
 	ao_pad_box = 0;
 	ao_led_set(0);
-	ao_led_on(AO_LED_POWER);
 	for (;;) {
 		FLUSHD();
 		while (ao_pad_disabled)
 			ao_sleep(&ao_pad_disabled);
 		ret = ao_radio_cmac_recv(&command, sizeof (command), 0);
-		PRINTD ("cmac_recv %d\n", ret);
+		PRINTD ("cmac_recv %d %d\n", ret, ao_radio_cmac_rssi);
 		if (ret != AO_RADIO_CMAC_OK)
 			continue;
+		ao_pad_packet_time = ao_time();
 		
 		ao_pad_box = ao_pad_read_box();
 
