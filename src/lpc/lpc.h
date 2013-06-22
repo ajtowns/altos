@@ -1014,12 +1014,12 @@ extern struct lpc_nvic lpc_nvic;
 
 static inline void
 lpc_nvic_set_enable(int irq) {
-	lpc_nvic.iser |= (1 << irq);
+	lpc_nvic.iser = (1 << irq);
 }
 
 static inline void
 lpc_nvic_clear_enable(int irq) {
-	lpc_nvic.icer |= (1 << irq);
+	lpc_nvic.icer = (1 << irq);
 }
 
 static inline int
