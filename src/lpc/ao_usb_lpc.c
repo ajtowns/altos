@@ -35,8 +35,6 @@
 #define debug_data(format, args...)
 #endif
 
-struct ao_task ao_usb_task;
-
 struct ao_usb_setup {
 	uint8_t		dir_type_recip;
 	uint8_t		request;
