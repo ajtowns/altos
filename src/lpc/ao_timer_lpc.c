@@ -100,6 +100,15 @@ ao_clock_init(void)
 				 (1 << LPC_SCB_SYSAHBCLKCTRL_GPIO) |
 				 (1 << LPC_SCB_SYSAHBCLKCTRL_IOCON));
 				 
+	/* Enable the brown-out detection at the highest voltage to
+	 * make sure the flash part remains happy
+	 */
+
+	lpc_scb.pdruncfg &= ~(1 << LPC_SCB_PDRUNCFG_BOD_PD);
+	lpc_scb.bodctrl = ((LPC_SCB_BOD_BODRSTLEV_2_63 << LPC_SCB_BOD_BODRSTLEV) |
+			   (LPC_SCB_BOD_BODINTVAL_RESERVED << LPC_SCB_BOD_BODINTVAL) |
+			   (1 << LPC_SCB_BOD_BODRSTENA));
+
 	/* Turn the IRC clock back on */
 	lpc_scb.pdruncfg &= ~(1 << LPC_SCB_PDRUNCFG_IRC_PD);
 	ao_clock_delay();
@@ -194,7 +203,7 @@ ao_clock_init(void)
 	/* Power down everything we don't need */
 	lpc_scb.pdruncfg = ((1 << LPC_SCB_PDRUNCFG_IRCOUT_PD) |
 			    (1 << LPC_SCB_PDRUNCFG_IRC_PD) |
-			    (1 << LPC_SCB_PDRUNCFG_BOD_PD) |
+			    (0 << LPC_SCB_PDRUNCFG_BOD_PD) |
 			    (1 << LPC_SCB_PDRUNCFG_ADC_PD) |
 			    (1 << LPC_SCB_PDRUNCFG_WDTOSC_PD) |
 			    (1 << LPC_SCB_PDRUNCFG_USBPLL_PD) |
