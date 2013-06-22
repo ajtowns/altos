@@ -40,13 +40,10 @@
 
 #define AO_LED_CONTINUITY(c)	(1 << ((c) + 2))
 #define AO_LED_CONTINUITY_MASK	(0xc)
-#define AO_LED_RX		0x10
-#define AO_LED_TX		0x20
-#define AO_LED_ARMED		0x40
-#define AO_LED_POWER		0x80
-
-#define AO_LED_RED		AO_LED_TX
-#define AO_LED_GREEN		AO_LED_RX
+#define AO_LED_ARMED		0x10
+#define AO_LED_RED		0x20
+#define AO_LED_AMBER		0x40
+#define AO_LED_GREEN		0x80
 
 #define LEDS_AVAILABLE		(0xff)
 #define HAS_EXTERNAL_TEMP	0
