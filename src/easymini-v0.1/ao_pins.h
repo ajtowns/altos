@@ -18,6 +18,8 @@
 #define HAS_BEEP	1
 #define	HAS_LED		1
 
+#define IS_FLASH_LOADER	0
+
 /* Crystal on the board */
 #define AO_LPC_CLKIN	12000000
 
@@ -38,6 +40,9 @@
 
 #define HAS_USB_CONNECT	0
 #define HAS_USB_VBUS	0
+#define HAS_USB_PULLUP	1
+#define AO_USB_PULLUP_PORT	0
+#define AO_USB_PULLUP_PIN	20
 
 #define PACKET_HAS_SLAVE	0
 

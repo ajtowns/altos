@@ -15,28 +15,18 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#ifndef _AO_FLASH_PINS_H_
-#define _AO_FLASH_PINS_H_
+#ifndef _AO_FLASH_LPC_PINS_H_
+#define _AO_FLASH_LPC_PINS_H_
 
-/* Common definitions for the USB flash loader */
+#include <ao_flash_pins.h>
 
-#define HAS_TASK_QUEUE		0
+/* Crystal on the board */
+#define AO_LPC_CLKIN	12000000
 
-#define HAS_USB			1
-#define USE_USB_STDIO		0
-#define HAS_BEEP		0
-#define HAS_TASK		0
-#define HAS_ECHO		0
-#define HAS_TICK		0
+/* Main clock frequency. 48MHz for USB so we don't use the USB PLL */
+#define AO_LPC_CLKOUT	48000000
 
-#define PACKET_HAS_SLAVE	0
+/* System clock frequency */
+#define AO_LPC_SYSCLK	24000000
 
-#define HAS_TASK_INFO		0
-#define HAS_VERSION		0
-
-#define AO_BOOT_CHAIN		1
-#define AO_BOOT_PIN		1
-
-#define IS_FLASH_LOADER		1
-
-#endif /* _AO_FLASH_PINS_H_ */
+#endif /* _AO_FLASH_STM_PINS_H_ */

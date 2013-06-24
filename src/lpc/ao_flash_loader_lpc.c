@@ -15,28 +15,18 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#ifndef _AO_FLASH_PINS_H_
-#define _AO_FLASH_PINS_H_
+#include "ao.h"
+#include <ao_exti.h>
+#include <ao_boot.h>
+#include <ao_flash_task.h>
 
-/* Common definitions for the USB flash loader */
+int
+main(void)
+{
+	ao_clock_init();
 
-#define HAS_TASK_QUEUE		0
+	ao_usb_init();
 
-#define HAS_USB			1
-#define USE_USB_STDIO		0
-#define HAS_BEEP		0
-#define HAS_TASK		0
-#define HAS_ECHO		0
-#define HAS_TICK		0
-
-#define PACKET_HAS_SLAVE	0
-
-#define HAS_TASK_INFO		0
-#define HAS_VERSION		0
-
-#define AO_BOOT_CHAIN		1
-#define AO_BOOT_PIN		1
-
-#define IS_FLASH_LOADER		1
-
-#endif /* _AO_FLASH_PINS_H_ */
+	ao_flash_task();
+	return 0;
+}

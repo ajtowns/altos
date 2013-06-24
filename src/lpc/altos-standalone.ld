@@ -16,10 +16,10 @@
  */
 
 MEMORY {
-	rom (rx) : ORIGIN = 0x00001000, LENGTH = 28K
-	ram (!w) : ORIGIN = 0x10000000, LENGTH = 4K - 128
+	rom (rx) : ORIGIN = 0x00000000, LENGTH = 32K
+	ram (!w) : ORIGIN = 0x10000000, LENGTH = 4K - 128 - 32
 	usb (!x) : ORIGIN = 0x20004000 + 2K - 256, LENGTH = 256
-	stack (!w) : ORIGIN = 0x10000000 + 4K - 128, LENGTH = 128
+	stack (!w) : ORIGIN = 0x10000000 + 4K - 128 - 32, LENGTH = 128
 }
 
 INCLUDE registers.ld
@@ -31,15 +31,11 @@ SECTIONS {
 	 * Rom contents
 	 */
 
-	.interrupt ORIGIN(ram) : AT (ORIGIN(rom)) {
-		__interrupt_start__ = .;
-		__interrupt_rom__ = ORIGIN(rom);
-		*(.interrupt)	/* Interrupt vectors */
-		__interrupt_end__ = .;
-	} > ram
-
-	.text ORIGIN(rom) + 0x100 : {
+	.text ORIGIN(rom) : {
 		__text_start__ = .;
+		*(.interrupt)	/* Interrupt vectors */
+
+		. = ORIGIN(rom) + 0x100;
 
 		ao_romconfig.o(.romconfig*)
 		ao_product.o(.romconfig*)
@@ -58,7 +54,7 @@ SECTIONS {
 	 * the application and bootloader share the same addresses.
 	 * This must be all uninitialized data
 	 */
-	.boot : {
+	.boot (NOLOAD) : {
 		__boot_start__ = .;
 		*(.boot)
 		. = ALIGN(4);
@@ -67,7 +63,7 @@ SECTIONS {
 
 	/* Data -- relocated to RAM, but written to ROM
 	 */
-	.data : AT (ADDR(.ARM.exidx) + SIZEOF (.ARM.exidx)) {
+	.data ORIGIN(ram) : AT (ADDR(.ARM.exidx) + SIZEOF (.ARM.exidx)) {
 		__data_start__ = .;
 		*(.data)	/* initialized data */
 		__data_end__ = .;
@@ -75,7 +71,6 @@ SECTIONS {
 	} >ram
 
 	.bss : {
-		__bss_start__ = .;
 		*(.bss)
 		*(COMMON)
 		__bss_end__ = .;

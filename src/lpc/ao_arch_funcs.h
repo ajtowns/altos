@@ -22,12 +22,13 @@
 #define ao_spi_put_bit(reg,bit,pin,bus) ao_spi_put_mask(reg,(1<<bit),bus)
 
 #define ao_enable_port(port) (lpc_scb.sysahbclkctrl |= (1 << LPC_SCB_SYSAHBCLKCTRL_GPIO))
+#define ao_disable_port(port) (lpc_scb.sysahbclkctrl &= ~(1 << LPC_SCB_SYSAHBCLKCTRL_GPIO))
 
 #define lpc_all_bit(port,bit)	(((port) << 5) | (bit))
 
 #define ao_gpio_set(port, bit, pin, v)	(lpc_gpio.byte[lpc_all_bit(port,bit)] = (v))
 
-#define ao_gpio_get(port, bit, pin) 	(lpc_gpio_byte[lpc_all_bit(port,bit)])
+#define ao_gpio_get(port, bit, pin) 	(lpc_gpio.byte[lpc_all_bit(port,bit)])
 
 #define ao_enable_output(port,bit,pin,v) do {			\
 		ao_enable_port(port);				\
@@ -35,11 +36,9 @@
 		lpc_gpio.dir[port] |= (1 << bit);		\
 	} while (0)
 
-#define ao_enable_input(port,bit,mode) do {				\
+#define ao_gpio_set_mode(port,bit,mode) do {				\
 		vuint32_t *_ioconf = &lpc_ioconf.pio0_0 + ((port)*24+(bit)); \
 		vuint32_t _mode;					\
-		ao_enable_port(port);					\
-		lpc_gpio.dir[port] &= ~(1 << bit);			\
 		if (mode == AO_EXTI_MODE_PULL_UP)			\
 			_mode = LPC_IOCONF_MODE_PULL_UP << LPC_IOCONF_MODE; \
 		else if (mode == AO_EXTI_MODE_PULL_DOWN)		\
@@ -49,6 +48,12 @@
 		*_ioconf = ((*_ioconf & ~(LPC_IOCONF_MODE_MASK << LPC_IOCONF_MODE)) | \
 			    _mode |					\
 			    (1 << LPC_IOCONF_ADMODE));			\
+	} while (0)
+
+#define ao_enable_input(port,bit,mode) do {				\
+		ao_enable_port(port);					\
+		lpc_gpio.dir[port] &= ~(1 << bit);			\
+		ao_gpio_set_mode(port,bit,mode);			\
 	} while (0)
 
 #define lpc_token_paster_2(x,y)		x ## y
@@ -87,6 +92,7 @@ ao_arch_memory_barrier() {
 	asm volatile("" ::: "memory");
 }
 
+#if HAS_TASK
 static inline void
 ao_arch_init_stack(struct ao_task *task, void *start)
 {
@@ -152,6 +158,8 @@ static inline void ao_arch_restore_stack(void) {
 }
 
 #define ao_arch_isr_stack()
+
+#endif /* HAS_TASK */
 
 #define ao_arch_wait_interrupt() do {			\
 		asm(".global ao_idle_loc\n\twfi\nao_idle_loc:");	\

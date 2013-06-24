@@ -18,6 +18,7 @@ INC = \
 #
 ALTOS_SRC = \
 	ao_interrupt.c \
+	ao_boot_chain.c \
 	ao_romconfig.c \
 	ao_product.c \
 	ao_mutex.c \
@@ -48,7 +49,7 @@ ALTOS_SRC = \
 
 PRODUCT=EasyMini-v0.1
 PRODUCT_DEF=-DEASYMINI_V_0_1
-IDPRODUCT=0x000a
+IDPRODUCT=0x0026
 
 CFLAGS = $(PRODUCT_DEF) $(LPC_CFLAGS) -g -Os
 
@@ -62,7 +63,7 @@ all: $(PROG)
 
 LDFLAGS=-L../lpc -Wl,-Taltos.ld
 
-$(PROG): Makefile $(OBJ)
+$(PROG): Makefile $(OBJ) altos.ld
 	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(OBJ) $(SAT_CLIB) -lgcc
 
 ao_product.h: ao-make-product.5c ../Version

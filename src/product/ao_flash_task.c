@@ -73,7 +73,7 @@ static void
 ao_block_erase(void)
 {
 	uint32_t	addr = ao_get_hex32();
-	uint32_t	*p = (uint32_t *) addr;
+	void		*p = (void *) addr;
 
 	ao_flash_erase_page(p);
 }
@@ -82,11 +82,8 @@ static void
 ao_block_write(void)
 {
 	uint32_t	addr = ao_get_hex32();
-	uint32_t	*p = (uint32_t *) addr;
-	union {
-		uint8_t		data8[256];
-		uint32_t	data32[64];
-	} u;
+	void		*p = (void *) addr;
+	uint8_t		data[256];
 	uint16_t	i;
 
 	if (addr < (uint32_t) AO_BOOT_APPLICATION_BASE) {
@@ -94,8 +91,8 @@ ao_block_write(void)
 		return;
 	}
 	for (i = 0; i < 256; i++)
-		u.data8[i] = ao_usb_getchar();
-	ao_flash_page(p, u.data32);
+		data[i] = ao_usb_getchar();
+	ao_flash_page(p, (void *) data);
 }
 
 static void

@@ -17,12 +17,25 @@
 
 #include <ao.h>
 #include <string.h>
+#include <ao_boot.h>
+
+#ifndef IS_FLASH_LOADER
+#error Should define IS_FLASH_LOADER
+#define IS_FLASH_LOADER	0
+#endif
+
+#if !IS_FLASH_LOADER
+#define RELOCATE_INTERRUPT	1
+#endif
 
 extern void main(void);
 extern char __stack__;
 extern char __text_start__, __text_end__;
 extern char __data_start__, __data_end__;
 extern char __bss_start__, __bss_end__;
+#if RELOCATE_INTERRUPT
+extern char __interrupt_rom__, __interrupt_start__, __interrupt_end__;
+#endif
 
 /* Interrupt functions */
 
@@ -35,10 +48,18 @@ void lpc_ignore_isr(void)
 {
 }
 
-int x;
-
 void start(void) {
-	x = 0;
+#ifdef AO_BOOT_CHAIN
+	if (ao_boot_check_chain()) {
+#ifdef AO_BOOT_PIN
+		ao_boot_check_pin();
+#endif
+	}
+#endif
+#if RELOCATE_INTERRUPT
+	memcpy(&__interrupt_start__, &__interrupt_rom__, &__interrupt_end__ - &__interrupt_start__);
+	lpc_scb.sysmemremap = LPC_SCB_SYSMEMREMAP_MAP_RAM << LPC_SCB_SYSMEMREMAP_MAP;
+#endif
 	memcpy(&__data_start__, &__text_end__, &__data_end__ - &__data_start__);
 	memset(&__bss_start__, '\0', &__bss_end__ - &__bss_start__);
 	main();
