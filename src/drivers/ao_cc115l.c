@@ -655,12 +655,14 @@ ao_radio_test_cmd(void)
 	}
 }
 
+#if CC115L_TRACE
 static inline int16_t
 ao_radio_gpio_bits(void)
 {
 	return AO_CC115L_DONE_INT_PORT->idr & ((1 << AO_CC115L_FIFO_INT_PIN) |
 					       (1 << AO_CC115L_DONE_INT_PIN));
 }
+#endif
 
 static void
 ao_radio_wait_fifo(void)
