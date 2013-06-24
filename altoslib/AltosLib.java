@@ -92,8 +92,10 @@ public class AltosLib {
 	public final static int product_telemega = 0x0023;
 	public final static int product_megadongle = 0x0024;
 	public final static int product_telegps = 0x0025;
+	public final static int product_easymini = 0x0026;
+	public final static int product_telemini = 0x0027;
 	public final static int product_altusmetrum_min = 0x000a;
-	public final static int product_altusmetrum_max = 0x0025;
+	public final static int product_altusmetrum_max = 0x002c;
 
 	public final static int product_any = 0x10000;
 	public final static int product_basestation = 0x10000 + 1;
