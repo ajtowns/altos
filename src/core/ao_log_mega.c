@@ -65,6 +65,7 @@ ao_log_dump_check_data(void)
 	return 1;
 }
 
+#if HAS_ADC
 static __data uint8_t	ao_log_data_pos;
 
 /* a hack to make sure that ao_log_megas fill the eeprom block in even units */
@@ -182,6 +183,7 @@ ao_log(void)
 			ao_sleep(&ao_log_running);
 	}
 }
+#endif
 
 uint16_t
 ao_log_flight(uint8_t slot)

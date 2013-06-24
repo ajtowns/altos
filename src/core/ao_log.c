@@ -278,6 +278,11 @@ ao_log_init(void)
 
 	ao_cmd_register(&ao_log_cmds[0]);
 
+#ifndef HAS_ADC
+#error Define HAS_ADC for ao_log.c
+#endif
+#if HAS_ADC
 	/* Create a task to log events to eeprom */
 	ao_add_task(&ao_log_task, ao_log, "log");
+#endif
 }
