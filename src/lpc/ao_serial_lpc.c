@@ -67,7 +67,7 @@ lpc_usart_isr(void)
 }
 
 int
-_ao_serial_pollchar(void)
+_ao_serial0_pollchar(void)
 {
 	int	c;
 	
@@ -82,18 +82,18 @@ _ao_serial_pollchar(void)
 }
 
 char
-ao_serial_getchar(void)
+ao_serial0_getchar(void)
 {
 	int c;
 	ao_arch_block_interrupts();
-	while ((c = _ao_serial_pollchar()) == AO_READ_AGAIN)
+	while ((c = _ao_serial0_pollchar()) == AO_READ_AGAIN)
 		ao_sleep(&ao_usart_rx_fifo);
 	ao_arch_release_interrupts();
 	return (char) c;
 }
 
 void
-ao_serial_putchar(char c)
+ao_serial0_putchar(char c)
 {
 	ao_arch_block_interrupts();
 	while (ao_fifo_full(ao_usart_tx_fifo))
@@ -104,7 +104,7 @@ ao_serial_putchar(char c)
 }
 
 void
-ao_serial_drain(void)
+ao_serial0_drain(void)
 {
 	ao_arch_block_interrupts();
 	while (!ao_fifo_empty(ao_usart_tx_fifo))
@@ -115,7 +115,7 @@ ao_serial_drain(void)
 #include "ao_serial_lpc.h"
 
 void
-ao_serial_set_speed(uint8_t speed)
+ao_serial0_set_speed(uint8_t speed)
 {
 	if (speed > AO_SERIAL_SPEED_115200)
 		return;
@@ -193,7 +193,7 @@ ao_serial_init(void)
 	lpc_usart.hden = ((0 << LPC_USART_HDEN_HDEN));
 
 	/* Set baud rate */
-	ao_serial_set_speed(AO_SERIAL_SPEED_9600);
+	ao_serial0_set_speed(AO_SERIAL_SPEED_9600);
 
 	/* Enable interrupts */
 	lpc_usart.ier = ((1 << LPC_USART_IER_RBRINTEN) |
