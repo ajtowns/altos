@@ -231,6 +231,10 @@ public class MicroPeak extends MicroFrame implements ActionListener, ItemListene
 		fileMenu.add(exitAction);
 		exitAction.addActionListener(this);
 
+		JButton downloadButton = new JButton ("Download");
+		downloadButton.addActionListener(this);
+		menuBar.add(downloadButton);
+
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
