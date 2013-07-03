@@ -36,11 +36,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationListener;
+import android.location.Criteria;
 
 import org.altusmetrum.altoslib_1.*;
 
@@ -280,8 +282,8 @@ public class TelemetryService extends Service implements LocationListener {
 		// Listen for GPS and Network position updates
 		LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 		
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, this);
+//		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
 	}
 
 	@Override
