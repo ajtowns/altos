@@ -18,6 +18,7 @@
 #include <ao.h>
 #include <ao_button.h>
 #include <ao_exti.h>
+#include <ao_debounce.h>
 #if AO_EVENT
 #include <ao_event.h>
 #define ao_button_queue(b,v)	ao_event_put_isr(AO_EVENT_BUTTON, b, v)
@@ -25,55 +26,71 @@
 #define ao_button_queue(b,v)
 #endif
 
-static uint8_t		ao_button[AO_BUTTON_COUNT];
-static AO_TICK_TYPE	ao_button_time[AO_BUTTON_COUNT];
+#define AO_BUTTON_DEBOUNCE_HOLD	10
 
-#define AO_DEBOUNCE	AO_MS_TO_TICKS(20)
+static struct ao_debounce	ao_button_debounce[AO_BUTTON_COUNT];
 
 #define port(q)	AO_BUTTON_ ## q ## _PORT
 #define bit(q) AO_BUTTON_ ## q
 #define pin(q) AO_BUTTON_ ## q ## _PIN
 
-static void
-ao_button_do(uint8_t b, uint8_t v)
-{
-	/* Debounce */
-	if ((AO_TICK_SIGNED) (ao_tick_count - ao_button_time[b]) < AO_DEBOUNCE)
-		return;
+/* pins are inverted */
+#define ao_button_value(b)	!ao_gpio_get(port(b), bit(b), pin(b))
 
-	/* pins are inverted */
-	v = !v;
-	if (ao_button[b] != v) {
-		ao_button[b] = v;
-		ao_button_time[b] = ao_tick_count;
-		ao_button_queue(b, v);
-		ao_wakeup(&ao_button[b]);
+static uint8_t
+_ao_button_get(struct ao_debounce *debounce)
+{
+	uint8_t	b = debounce - ao_button_debounce;
+
+	switch (b) {
+#if AO_BUTTON_COUNT > 0
+	case 0: return ao_button_value(0);
+#endif
+#if AO_BUTTON_COUNT > 1
+	case 1: return ao_button_value(1);
+#endif
+#if AO_BUTTON_COUNT > 2
+	case 2: return ao_button_value(2);
+#endif
+#if AO_BUTTON_COUNT > 3
+	case 3: return ao_button_value(3);
+#endif
+#if AO_BUTTON_COUNT > 4
+	case 4: return ao_button_value(4);
+#endif
 	}
 }
+
+static void
+_ao_button_set(struct ao_debounce *debounce, uint8_t value)
+{
+	uint8_t b = debounce - ao_button_debounce;
+
+	ao_button_queue(b, value);
+}
+
 
 #define ao_button_update(b)	ao_button_do(b, ao_gpio_get(port(b), bit(b), pin(b)))
 
 static void
+ao_button_debounce_init(struct ao_debounce *debounce) {
+	ao_debounce_config(debounce,
+			   _ao_button_get,
+			   _ao_button_set,
+			   AO_BUTTON_DEBOUNCE_HOLD);
+}
+
+static void
 ao_button_isr(void)
 {
-#if AO_BUTTON_COUNT > 0
-	ao_button_update(0);
-#endif
-#if AO_BUTTON_COUNT > 1
-	ao_button_update(1);
-#endif
-#if AO_BUTTON_COUNT > 2
-	ao_button_update(2);
-#endif
-#if AO_BUTTON_COUNT > 3
-	ao_button_update(3);
-#endif
-#if AO_BUTTON_COUNT > 4
-	ao_button_update(4);
-#endif
+	uint8_t	b;
+
+	for (b = 0; b < AO_BUTTON_COUNT; b++)
+		_ao_debounce_start(&ao_button_debounce[b]);
 }
 
 #define init(b) do {							\
+		ao_button_debounce_init(&ao_button_debounce[b]);	\
 		ao_enable_port(port(b));				\
 									\
 		ao_exti_setup(port(b), bit(b),				\
@@ -91,4 +108,14 @@ ao_button_init(void)
 #if AO_BUTTON_COUNT > 1
 	init(1);
 #endif
+#if AO_BUTTON_COUNT > 2
+	init(2);
+#endif
+#if AO_BUTTON_COUNT > 3
+	init(3);
+#endif
+#if AO_BUTTON_COUNT > 4
+	init(4);
+#endif
+	ao_debounce_init();
 }

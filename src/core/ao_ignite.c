@@ -17,7 +17,11 @@
 
 #include "ao.h"
 #include <ao_data.h>
+#if AO_PYRO_NUM
+#include <ao_pyro.h>
+#endif
 
+#if HAS_IGNITE
 __xdata struct ao_ignition ao_ignition[2];
 
 void
@@ -150,6 +154,8 @@ ao_igniter(void)
 	}
 }
 
+#endif
+
 void
 ao_ignite_manual(void)
 {
@@ -157,33 +163,50 @@ ao_ignite_manual(void)
 	if (!ao_match_word("DoIt"))
 		return;
 	ao_cmd_white();
-	if (ao_cmd_lex_c == 'm') {
-		if(ao_match_word("main"))
-			ao_igniter_fire(ao_igniter_main);
-	} else {
-		if(ao_match_word("drogue"))
-			ao_igniter_fire(ao_igniter_drogue);
+#if HAS_IGNITE
+	if (ao_cmd_lex_c == 'm' && ao_match_word("main")) {
+		ao_igniter_fire(ao_igniter_main);
+		return;
 	}
+	if (ao_cmd_lex_c == 'd' && ao_match_word("drogue")) {
+		ao_igniter_fire(ao_igniter_drogue);
+		return;
+	}
+#endif
+#if AO_PYRO_NUM
+	if ('0' <= ao_cmd_lex_c && ao_cmd_lex_c <= '9') {
+		ao_pyro_manual(ao_cmd_lex_c - '0');
+		return;
+	}
+#endif
+	ao_cmd_status = ao_cmd_syntax_error;
 }
 
-static __code char * __code igniter_status_names[] = {
+__code char * __code ao_igniter_status_names[] = {
 	"unknown", "ready", "active", "open"
 };
 
+#if HAS_IGNITE
 void
 ao_ignite_print_status(enum ao_igniter igniter, __code char *name) __reentrant
 {
 	enum ao_igniter_status status = ao_igniter_status(igniter);
 	printf("Igniter: %6s Status: %s\n",
 	       name,
-	       igniter_status_names[status]);
+	       ao_igniter_status_names[status]);
 }
+#endif
 
 void
 ao_ignite_test(void)
 {
+#if HAS_IGNITE
 	ao_ignite_print_status(ao_igniter_drogue, "drogue");
 	ao_ignite_print_status(ao_igniter_main, "main");
+#endif
+#if AO_PYRO_NUM
+	ao_pyro_print_status();
+#endif
 }
 
 __code struct ao_cmds ao_ignite_cmds[] = {
@@ -192,6 +215,7 @@ __code struct ao_cmds ao_ignite_cmds[] = {
 	{ 0,	NULL },
 };
 
+#if HAS_IGNITE
 __xdata struct ao_task ao_igniter_task;
 
 void
@@ -200,11 +224,14 @@ ao_ignite_set_pins(void)
 	ao_enable_output(AO_IGNITER_DROGUE_PORT, AO_IGNITER_DROGUE_PIN, AO_IGNITER_DROGUE, 0);
 	ao_enable_output(AO_IGNITER_MAIN_PORT, AO_IGNITER_MAIN_PIN, AO_IGNITER_MAIN, 0);
 }
+#endif
 
 void
 ao_igniter_init(void)
 {
+#if HAS_IGNITE
 	ao_ignite_set_pins();
-	ao_cmd_register(&ao_ignite_cmds[0]);
 	ao_add_task(&ao_igniter_task, ao_igniter, "igniter");
+#endif
+	ao_cmd_register(&ao_ignite_cmds[0]);
 }

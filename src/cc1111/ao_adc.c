@@ -144,7 +144,7 @@ ao_adc_isr(void) __interrupt 1
 	}
 #endif /* telemini || telenano */
 
-#ifdef TELEFIRE_V_0_1
+#if defined(TELEFIRE_V_0_1) || defined(TELEFIRE_V_0_2)
 	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.sense[0] + sequence - AO_ADC_FIRST_PIN);
 	a[0] = ADCL;
 	a[1] = ADCH;

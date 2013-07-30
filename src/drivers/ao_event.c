@@ -25,11 +25,6 @@
 #define ao_event_queue_empty()	(ao_event_queue_insert == ao_event_queue_remove)
 #define ao_event_queue_full()	(ao_event_queue_next(ao_event_queue_insert) == ao_event_queue_remove)
 
-/*
- * Whether a sequence of events from the same device should be collapsed
- */
-#define ao_event_can_collapse(type)	((type) == AO_EVENT_QUADRATURE)
-
 struct ao_event ao_event_queue[AO_EVENT_QUEUE];
 uint8_t		ao_event_queue_insert;
 uint8_t		ao_event_queue_remove;
@@ -48,17 +43,9 @@ ao_event_get(struct ao_event *ev)
 
 /* called with interrupts disabled */
 void
-ao_event_put_isr(uint8_t type, uint8_t unit, uint32_t value)
+ao_event_put_isr(uint8_t type, uint8_t unit, int32_t value)
 {
 	if (!ao_event_queue_full()) {
-
-		if (ao_event_can_collapse(type) && !ao_event_queue_empty()) {
-			uint8_t	prev = ao_event_queue_prev(ao_event_queue_insert);
-
-			if (ao_event_queue[prev].type == type &&
-			    ao_event_queue[prev].unit == unit)
-				ao_event_queue_insert = prev;
-		}
 		ao_event_queue[ao_event_queue_insert] = (struct ao_event) {
 			.type = type,
 			.unit = unit,
@@ -71,7 +58,7 @@ ao_event_put_isr(uint8_t type, uint8_t unit, uint32_t value)
 }
 
 void
-ao_event_put(uint8_t type, uint8_t unit, uint32_t value)
+ao_event_put(uint8_t type, uint8_t unit, int32_t value)
 {
 	ao_arch_critical(ao_event_put_isr(type, unit, value););
 }

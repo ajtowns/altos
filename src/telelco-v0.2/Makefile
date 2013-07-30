@@ -21,6 +21,7 @@ INC = \
 	ao_radio_spi.h \
 	ao_radio_cmac.h \
 	ao_cc1120_CC1120.h \
+	ao_debounce.h \
 	stm32l.h
 
 #
@@ -49,6 +50,7 @@ ALTOS_SRC = \
 	ao_beep_stm.c \
 	ao_storage.c \
 	ao_eeprom_stm.c \
+	ao_fast_timer.c \
 	ao_lcd_stm.c \
 	ao_usb_stm.c \
 	ao_exti_stm.c \
@@ -59,6 +61,7 @@ ALTOS_SRC = \
 	ao_fec_tx.c \
 	ao_fec_rx.c \
 	ao_seven_segment.c \
+	ao_debounce.c \
 	ao_quadrature.c \
 	ao_button.c \
 	ao_event.c \

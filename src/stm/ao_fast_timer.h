@@ -1,5 +1,5 @@
 /*
- * Copyright © 2012 Keith Packard <keithp@keithp.com>
+ * Copyright © 2013 Keith Packard <keithp@keithp.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,27 +15,20 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#ifndef _AO_EVENT_H_
-#define _AO_EVENT_H_
-
-#define AO_EVENT_NONE		0
-#define AO_EVENT_QUADRATURE	1
-#define AO_EVENT_BUTTON		2
-
-struct ao_event {
-	uint8_t		type;
-	uint8_t		unit;
-	uint16_t	tick;
-	int32_t		value;
-};
-
-uint8_t
-ao_event_get(struct ao_event *ev);
+#ifndef _AO_FAST_TIMER_H_
+#define _AO_FAST_TIMER_H_
 
 void
-ao_event_put_isr(uint8_t type, uint8_t unit, int32_t value);
+ao_fast_timer_init(void);
+
+#ifndef AO_FAST_TIMER_MAX
+#define AO_FAST_TIMER_MAX	2
+#endif
 
 void
-ao_event_put(uint8_t type, uint8_t unit, int32_t value);
+ao_fast_timer_on(void (*callback)(void));
 
-#endif /* _AO_EVENT_H_ */
+void
+ao_fast_timer_off(void (*callback)(void));
+
+#endif /* _AO_FAST_TIMER_H_ */

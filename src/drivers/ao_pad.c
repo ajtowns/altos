@@ -17,7 +17,7 @@
 
 #include <ao.h>
 #include <ao_pad.h>
-#include <ao_74hc497.h>
+#include <ao_74hc165.h>
 #include <ao_radio_cmac.h>
 
 static __xdata uint8_t ao_pad_ignite;
@@ -182,10 +182,7 @@ ao_pad_monitor(void)
 
 		if (ao_pad_armed) {
 			ao_strobe(1);
-			if (sample & 2)
-				ao_siren(1);
-			else
-				ao_siren(0);
+			ao_siren(1);
 			beeping = 1;
 		} else if (query.arm_status == AO_PAD_ARM_STATUS_ARMED && !beeping) {
 			if (arm_beep_time == 0) {
@@ -218,6 +215,21 @@ ao_pad_enable(void)
 	ao_wakeup (&ao_pad_disabled);
 }
 
+#if HAS_74HC165
+static uint8_t
+ao_pad_read_box(void)
+{
+	uint8_t		byte = ao_74hc165_read();
+	uint8_t		h, l;
+
+	h = byte >> 4;
+	l = byte & 0xf;
+	return h * 10 + l;
+}
+#else
+#define ao_pad_read_box()	0
+#endif
+
 static void
 ao_pad(void)
 {
@@ -236,8 +248,10 @@ ao_pad(void)
 		if (ret != AO_RADIO_CMAC_OK)
 			continue;
 		
-		PRINTD ("tick %d box %d cmd %d channels %02x\n",
-			command.tick, command.box, command.cmd, command.channels);
+		ao_pad_box = ao_pad_read_box();
+
+		PRINTD ("tick %d box %d (me %d) cmd %d channels %02x\n",
+			command.tick, command.box, ao_pad_box, command.cmd, command.channels);
 
 		switch (command.cmd) {
 		case AO_LAUNCH_ARM:
@@ -327,7 +341,7 @@ ao_pad_test(void)
 	}
 
 	for (c = 0; c < AO_PAD_NUM; c++) {
-		printf ("Pad %d: ");
+		printf ("Pad %d: ", c);
 		switch (query.igniter_status[c]) {
 		case AO_PAD_IGNITER_STATUS_NO_IGNITER_RELAY_CLOSED:	printf ("No igniter. Relay closed\n"); break;
 		case AO_PAD_IGNITER_STATUS_NO_IGNITER_RELAY_OPEN:	printf ("No igniter. Relay open\n"); break;
@@ -362,6 +376,26 @@ ao_pad_set_debug(void)
 	if (ao_cmd_status == ao_cmd_success)
 		ao_pad_debug = ao_cmd_lex_i != 0;
 }
+
+
+static void
+ao_pad_alarm_debug(void)
+{
+	uint8_t	which, value;
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	which = ao_cmd_lex_i;
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	value = ao_cmd_lex_i;
+	printf ("Set %s to %d\n", which ? "siren" : "strobe", value);
+	if (which)
+		ao_siren(value);
+	else
+		ao_strobe(value);
+}
 #endif
 
 __code struct ao_cmds ao_pad_cmds[] = {
@@ -369,6 +403,7 @@ __code struct ao_cmds ao_pad_cmds[] = {
 	{ ao_pad_manual,	"i <key> <n>\0Fire igniter. <key> is doit with D&I" },
 #if DEBUG
 	{ ao_pad_set_debug,	"D <0 off, 1 on>\0Debug" },
+	{ ao_pad_alarm_debug,	"S <0 strobe, 1 siren> <0 off, 1 on>\0Set alarm output" },
 #endif
 	{ 0, NULL }
 };

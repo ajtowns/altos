@@ -75,6 +75,7 @@ typedef AO_PORT_TYPE ao_port_t;
 #define AO_PANIC_CRASH		14	/* Processor crashed */
 #define AO_PANIC_BUFIO		15	/* Mis-using bufio API */
 #define AO_PANIC_EXTI		16	/* Mis-using exti API */
+#define AO_PANIC_FAST_TIMER	17	/* Mis-using fast timer API */
 #define AO_PANIC_SELF_TEST_CC1120	0x40 | 1	/* Self test failure */
 #define AO_PANIC_SELF_TEST_HMC5883	0x40 | 2	/* Self test failure */
 #define AO_PANIC_SELF_TEST_MPU6000	0x40 | 3	/* Self test failure */
@@ -702,6 +703,8 @@ struct ao_ignition {
 	uint8_t fired;
 	uint8_t firing;
 };
+
+extern __code char * __code ao_igniter_status_names[];
 
 extern __xdata struct ao_ignition ao_ignition[2];
 
