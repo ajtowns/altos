@@ -1397,6 +1397,13 @@ NAR #88757, TRA #12200
           with the AltosUI operators call sign as needed to comply with
           your local radio regulations.
         </para>
+        <para>
+	  Note that to successfully command a flight computer over the radio
+	  (to configure the altimeter, monitor idle, or fire pyro charges), 
+	  the callsign configured here must exactly match the callsign
+	  configured in the flight computer.  This matching is case 
+	  sensitive.
+        </para>
       </section>
       <section>
 	<title>Imperial Units</title>
