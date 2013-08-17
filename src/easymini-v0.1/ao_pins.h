@@ -18,6 +18,8 @@
 #define HAS_BEEP	1
 #define	HAS_LED		1
 
+#define AO_STACK_SIZE	384
+
 #define IS_FLASH_LOADER	0
 
 /* Crystal on the board */
