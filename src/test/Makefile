@@ -69,7 +69,7 @@ ao_micropeak_test: ao_micropeak_test.c ao_microflight.c ao_kalman.h
 	cc $(CFLAGS) -o $@ ao_micropeak_test.c -lm
 
 ao_fat_test: ao_fat_test.c ao_fat.c ao_bufio.c
-	cc $(CFLAGS) -o $@ ao_fat_test.c -lssl
+	cc $(CFLAGS) -o $@ ao_fat_test.c -lssl -lcrypto
 
 ao_aes_test: ao_aes_test.c ao_aes.c ao_aes_tables.c
 	cc $(CFLAGS) -o $@ ao_aes_test.c
