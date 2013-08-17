@@ -26,11 +26,21 @@ __pdata uint16_t ao_gps_tick;
 __xdata struct ao_telemetry_location	ao_gps_data;
 __xdata struct ao_telemetry_satellite	ao_gps_tracking_data;
 
-static const char ao_gps_set_nmea[] = "\r\n$PUBX,41,1,3,1,57600,0*2d\r\n";
+#ifndef AO_SERIAL_SPEED_UBLOX
+#define AO_SERIAL_SPEED_UBLOX AO_SERIAL_SPEED_57600
+#endif
 
-const char ao_gps_config[] = {
+#if AO_SERIAL_SPEED_UBLOX == AO_SERIAL_SPEED_57600
+#define SERIAL_SPEED_STRING	"57600"
+#endif
+#if AO_SERIAL_SPEED_UBLOX == AO_SERIAL_SPEED_19200
+#define SERIAL_SPEED_STRING	"19200"
+#endif
+#if AO_SERIAL_SPEED_UBLOX == AO_SERIAL_SPEED_9600
+#define SERIAL_SPEED_STRING	"9600"
+#endif
 
-};
+static const char ao_gps_set_nmea[] = "\r\n$PUBX,41,1,3,1," SERIAL_SPEED_STRING ",0*2d\r\n";
 
 struct ao_ublox_cksum {
 	uint8_t	a, b;
@@ -419,10 +429,12 @@ ao_gps_setup(void)
 		for (i = 0; i < sizeof (ao_gps_set_nmea); i++)
 			ao_gps_putchar(ao_gps_set_nmea[i]);
 
+#if AO_SERIAL_SPEED_UBLOX != AO_SERIAL_SPEED_9600
 	/*
 	 * Increase the baud rate
 	 */
-	ao_gps_set_speed(AO_SERIAL_SPEED_57600);
+	ao_gps_set_speed(AO_SERIAL_SPEED_UBLOX);
+#endif
 
 	/*
 	 * Pad with nulls to give the chip
