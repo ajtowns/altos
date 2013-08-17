@@ -49,20 +49,24 @@ _ao_serial_tx_start(void)
 void
 lpc_usart_isr(void)
 {
+	uint8_t wake_input = 0;
 	(void) lpc_usart.iir_fcr;
 
 	while (lpc_usart.lsr & (1 << LPC_USART_LSR_RDR)) {
 		char c = lpc_usart.rbr_thr;
 		if (!ao_fifo_full(ao_usart_rx_fifo))
 			ao_fifo_insert(ao_usart_rx_fifo, c);
-		ao_wakeup(&ao_usart_rx_fifo);
-		if (stdin)
-			ao_wakeup(&ao_stdin_ready);
+		wake_input = 1;
 	}
 	if (lpc_usart.lsr & (1 << LPC_USART_LSR_THRE)) {
 		ao_usart_tx_avail = LPC_USART_TX_FIFO_SIZE;
 		_ao_serial_tx_start();
 		ao_wakeup(&ao_usart_tx_fifo);
+	}
+	if (wake_input) {
+		ao_wakeup(&ao_usart_rx_fifo);
+		if (stdin)
+			ao_wakeup(&ao_stdin_ready);
 	}
 }
 
