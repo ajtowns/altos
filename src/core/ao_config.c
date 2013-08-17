@@ -28,6 +28,9 @@ __pdata uint8_t ao_config_loaded;
 __pdata uint8_t ao_config_dirty;
 __xdata uint8_t ao_config_mutex;
 
+#ifndef AO_CONFIG_DEFAULT_APRS_INTERVAL
+#define AO_CONFIG_DEFAULT_APRS_INTERVAL	0
+#endif
 #define AO_CONFIG_DEFAULT_MAIN_DEPLOY	250
 #define AO_CONFIG_DEFAULT_RADIO_CHANNEL	0
 #define AO_CONFIG_DEFAULT_CALLSIGN	"N0CALL"
@@ -47,7 +50,9 @@ __xdata uint8_t ao_config_mutex;
 #define AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX	((uint32_t) 192 * (uint32_t) 1024)
 #endif
 #endif
+#ifndef AO_CONFIG_DEFAULT_RADIO_POWER
 #define AO_CONFIG_DEFAULT_RADIO_POWER		0x60
+#endif
 #define AO_CONFIG_DEFAULT_RADIO_AMP		0
 
 #if HAS_EEPROM
@@ -142,7 +147,7 @@ _ao_config_get(void)
 			memset(&ao_config.pyro, '\0', sizeof (ao_config.pyro));
 #endif
 		if (minor < 13)
-			ao_config.aprs_interval = 0;
+			ao_config.aprs_interval = AO_CONFIG_DEFAULT_APRS_INTERVAL;
 #if HAS_RADIO_POWER
 		if (minor < 14)
 			ao_config.radio_power = AO_CONFIG_DEFAULT_RADIO_POWER;

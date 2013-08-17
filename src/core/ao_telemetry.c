@@ -198,7 +198,11 @@ ao_send_configuration(void)
 	{
 		telemetry.generic.type = AO_TELEMETRY_CONFIGURATION;
 		telemetry.configuration.device = AO_idProduct_NUMBER;
+#if HAS_LOG
 		telemetry.configuration.flight = ao_log_full() ? 0 : ao_flight_number;
+#else
+		telemetry.configuration.flight = ao_flight_number;
+#endif
 		telemetry.configuration.config_major = AO_CONFIG_MAJOR;
 		telemetry.configuration.config_minor = AO_CONFIG_MINOR;
 		telemetry.configuration.apogee_delay = ao_config.apogee_delay;
