@@ -92,6 +92,25 @@ class AltosPressure extends AltosUnits {
 	}
 }
 
+class AltosDbm extends AltosUnits {
+
+	public double value(double d) {
+		return d;
+	}
+
+	public String show_units() {
+		return "dBm";
+	}
+
+	public String say_units() {
+		return "D B M";
+	}
+
+	public int show_fraction(int width) {
+		return 0;
+	}
+}
+
 public class AltosGraph extends AltosUIGraph {
 
 	static final private Color height_color = new Color(194,31,31);
