@@ -245,6 +245,8 @@ ao_radio_idle(void)
 		uint8_t	state = ao_radio_strobe(CC115L_SIDLE);
 		if ((state >> CC115L_STATUS_STATE) == CC115L_STATUS_STATE_IDLE)
 			break;
+		if ((state >> CC115L_STATUS_STATE) == CC115L_STATUS_STATE_TX_FIFO_UNDERFLOW)
+			ao_radio_strobe(CC115L_SFTX);
 	}
 	/* Flush any pending TX bytes */
 	ao_radio_strobe(CC115L_SFTX);
@@ -476,6 +478,8 @@ ao_radio_setup(void)
 
 	ao_config_get();
 
+	ao_radio_strobe(CC115L_SCAL);
+
 	ao_radio_configured = 1;
 }
 
@@ -494,7 +498,6 @@ static void
 ao_radio_get(void)
 {
 	static uint32_t	last_radio_setting;
-	static uint8_t	last_power_setting;
 
 	ao_mutex_get(&ao_radio_mutex);
 	if (!ao_radio_configured)
@@ -504,10 +507,6 @@ ao_radio_get(void)
 		ao_radio_reg_write(CC115L_FREQ1, ao_config.radio_setting >> 8);
 		ao_radio_reg_write(CC115L_FREQ0, ao_config.radio_setting);
 		last_radio_setting = ao_config.radio_setting;
-	}
-	if (ao_config.radio_power != last_power_setting) {
-		ao_radio_reg_write(CC115L_PA, ao_config.radio_power);
-		last_power_setting = ao_config.radio_power;
 	}
 }
 
@@ -614,6 +613,20 @@ ao_radio_rdf_abort(void)
 	ao_wakeup(&ao_radio_wake);
 }
 
+#define POWER_STEP	0x08
+
+static void
+ao_radio_stx(void)
+{
+	uint8_t	power;
+	ao_radio_pa_on();
+	ao_radio_reg_write(CC115L_PA, 0);
+	ao_radio_strobe(CC115L_STX);
+	for (power = POWER_STEP; power < ao_config.radio_power; power += POWER_STEP)
+		ao_radio_reg_write(CC115L_PA, power);
+	ao_radio_reg_write(CC115L_PA, ao_config.radio_power);
+}
+
 static void
 ao_radio_test_cmd(void)
 {
@@ -633,11 +646,10 @@ ao_radio_test_cmd(void)
 		ao_packet_slave_stop();
 #endif
 		ao_radio_get();
-		ao_radio_set_len(0xff);
-		ao_radio_set_mode(AO_RADIO_MODE_RDF|AO_RADIO_MODE_BITS_FIXED);
 		ao_radio_strobe(CC115L_SFTX);
-		ao_radio_pa_on();
-		ao_radio_strobe(CC115L_STX);
+		ao_radio_set_len(0xff);
+		ao_radio_set_mode(AO_RADIO_MODE_RDF);
+		ao_radio_stx();
 		radio_on = 1;
 	}
 	if (mode == 3) {
@@ -740,6 +752,10 @@ _ao_radio_send_lots(ao_radio_fill_func fill, uint8_t mode)
 	uint8_t	fifo_space;
 
 	fifo_space = CC115L_FIFO_SIZE;
+	ao_radio_abort = 0;
+
+	ao_radio_strobe(CC115L_SFTX);
+
 	ao_radio_done = 0;
 	ao_radio_fifo = 0;
 	while (!done) {
@@ -786,8 +802,7 @@ _ao_radio_send_lots(ao_radio_fill_func fill, uint8_t mode)
 			ao_exti_enable(AO_CC115L_DONE_INT_PORT, AO_CC115L_DONE_INT_PIN);
 
 			if (!started) {
-				ao_radio_pa_on();
-				ao_radio_strobe(CC115L_STX);
+				ao_radio_stx();
 				started = 1;
 			}
 		}
