@@ -40,6 +40,10 @@ static __pdata uint16_t ao_aprs_time;
 #define AO_SEND_MEGA	1
 #endif
 
+#if defined (TELEMETRUM_V_2_0)
+#define AO_SEND_METRUM	1
+#endif
+
 #if defined(TELEMETRUM_V_0_1) || defined(TELEMETRUM_V_0_2) || defined(TELEMETRUM_V_1_0) || defined(TELEMETRUM_V_1_1) || defined(TELEBALLOON_V_1_1) || defined(TELEMETRUM_V_1_2)
 #define AO_TELEMETRY_SENSOR	AO_TELEMETRY_SENSOR_TELEMETRUM
 #endif
@@ -167,6 +171,57 @@ ao_send_mega_data(void)
 
 		ao_radio_send(&telemetry, sizeof (telemetry));
 		ao_telemetry_mega_data_cur = ao_telemetry_mega_data_max;
+	}
+}
+#endif /* AO_SEND_MEGA */
+
+#ifdef AO_SEND_METRUM
+/* Send telemetrum sensor packet */
+static void
+ao_send_metrum_sensor(void)
+{
+	__xdata	struct ao_data *packet = (__xdata struct ao_data *) &ao_data_ring[ao_data_ring_prev(ao_sample_data)];
+			
+	telemetry.generic.tick = packet->tick;
+	telemetry.generic.type = AO_TELEMETRY_METRUM_SENSOR;
+
+	telemetry.metrum_sensor.state = ao_flight_state;
+	telemetry.metrum_sensor.accel = ao_data_accel(packet);
+	telemetry.metrum_sensor.pres = ao_data_pres(packet);
+	telemetry.metrum_sensor.temp = ao_data_temp(packet);
+
+	telemetry.metrum_sensor.acceleration = ao_accel;
+	telemetry.metrum_sensor.speed = ao_speed;
+	telemetry.metrum_sensor.height = ao_height;
+
+	telemetry.metrum_sensor.v_batt = packet->adc.v_batt;
+	telemetry.metrum_sensor.sense_a = packet->adc.sense[0];
+	telemetry.metrum_sensor.sense_m = packet->adc.sense[1];
+
+	ao_radio_send(&telemetry, sizeof (telemetry));
+}
+
+static __pdata int8_t ao_telemetry_metrum_data_max;
+static __pdata int8_t ao_telemetry_metrum_data_cur;
+
+/* Send telemetrum data packet */
+static void
+ao_send_metrum_data(void)
+{
+	if (--ao_telemetry_metrum_data_cur <= 0) {
+		__xdata	struct ao_data *packet = (__xdata struct ao_data *) &ao_data_ring[ao_data_ring_prev(ao_sample_data)];
+		uint8_t	i;
+
+		telemetry.generic.tick = packet->tick;
+		telemetry.generic.type = AO_TELEMETRY_MEGA_DATA;
+
+		telemetry.metrum_data.ground_pres = ao_ground_pres;
+		telemetry.metrum_data.ground_accel = ao_ground_accel;
+		telemetry.metrum_data.accel_plus_g = ao_config.accel_plus_g;
+		telemetry.metrum_data.accel_minus_g = ao_config.accel_minus_g;
+
+		ao_radio_send(&telemetry, sizeof (telemetry));
+		ao_telemetry_metrum_data_cur = ao_telemetry_metrum_data_max;
 	}
 }
 #endif /* AO_SEND_MEGA */
@@ -327,7 +382,12 @@ ao_telemetry(void)
 				ao_send_mega_sensor();
 				ao_send_mega_data();
 #else
+#ifdef AO_SEND_METRUM
+				ao_send_metrum_sensor();
+				ao_send_metrum_data();
+#else
 				ao_send_sensor();
+#endif
 #endif
 #endif
 
@@ -398,6 +458,12 @@ ao_telemetry_set_interval(uint16_t interval)
 	if (ao_telemetry_mega_data_max > cur)
 		cur++;
 	ao_telemetry_mega_data_cur = cur;
+#endif
+#if AO_SEND_METRUM
+	ao_telemetry_metrum_data_max = AO_SEC_TO_TICKS(1) / interval;
+	if (ao_telemetry_metrum_data_max > cur)
+		cur++;
+	ao_telemetry_metrum_data_cur = cur;
 #endif
 
 #if HAS_COMPANION

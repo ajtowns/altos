@@ -45,6 +45,7 @@ extern __pdata enum ao_flight_state ao_log_state;
 #define AO_LOG_FORMAT_TELESCIENCE	4	/* 32 byte typed telescience records */
 #define AO_LOG_FORMAT_TELEMEGA		5	/* 32 byte typed telemega records */
 #define AO_LOG_FORMAT_MINI		6	/* 16-byte MS5607 baro only */
+#define AO_LOG_FORMAT_TELEMETRUM	7	/* 16-byte typed telemetrum records */
 #define AO_LOG_FORMAT_NONE		127	/* No log at all */
 
 extern __code uint8_t ao_log_format;
@@ -135,6 +136,7 @@ ao_log_full(void);
 #define AO_LOG_GPS_ALT		'H'
 #define AO_LOG_GPS_SAT		'V'
 #define AO_LOG_GPS_DATE		'Y'
+#define AO_LOG_GPS_POS		'P'
 
 #define AO_LOG_POS_NONE		(~0UL)
 
@@ -263,6 +265,64 @@ struct ao_log_mega {
 	} u;
 };
 
+struct ao_log_metrum {
+	char			type;			/* 0 */
+	uint8_t			csum;			/* 1 */
+	uint16_t		tick;			/* 2 */
+	union {						/* 4 */
+		/* AO_LOG_FLIGHT */
+		struct {
+			uint16_t	flight;		/* 4 */
+			int16_t		ground_accel;	/* 6 */
+			uint32_t	ground_pres;	/* 8 */
+		} flight;	/* 12 */
+		/* AO_LOG_STATE */
+		struct {
+			uint16_t	state;		/* 4 */
+			uint16_t	reason;		/* 6 */
+		} state;	/* 8 */
+		/* AO_LOG_SENSOR */
+		struct {
+			uint32_t	pres;		/* 4 */
+			uint32_t	temp;		/* 8 */
+			int16_t		accel;		/* 12 */
+		} sensor;	/* 14 */
+		/* AO_LOG_TEMP_VOLT */
+		struct {
+			int16_t		v_batt;		/* 4 */
+			int16_t		sense_a;	/* 6 */
+			int16_t		sense_m;	/* 8 */
+		} volt;		/* 10 */
+		/* AO_LOG_GPS_POS */
+		struct {
+			int32_t		latitude;	/* 4 */
+			int32_t		longitude;	/* 8 */
+			int16_t		altitude;	/* 12 */
+		} gps;		/* 14 */
+		/* AO_LOG_GPS_TIME */
+		struct {
+			uint8_t		hour;		/* 4 */
+			uint8_t		minute;		/* 5 */
+			uint8_t		second;		/* 6 */
+			uint8_t		flags;		/* 7 */
+			uint8_t		year;		/* 8 */
+			uint8_t		month;		/* 9 */
+			uint8_t		day;		/* 10 */
+			uint8_t		pad;		/* 11 */
+		} gps_time;	/* 12 */
+		/* AO_LOG_GPS_SAT (up to three packets) */
+		struct {
+			uint8_t	channels;		/* 4 */
+			uint8_t	more;			/* 5 */
+			struct {
+				uint8_t	svid;
+				uint8_t c_n;
+			} sats[4];			/* 6 */
+		} gps_sat;				/* 14 */
+		uint8_t		raw[12];		/* 4 */
+	} u;	/* 16 */
+};
+
 struct ao_log_mini {
 	char		type;				/* 0 */
 	uint8_t		csum;				/* 1 */
@@ -304,9 +364,15 @@ uint8_t
 ao_log_mega(__xdata struct ao_log_mega *log) __reentrant;
 
 uint8_t
+ao_log_metrum(__xdata struct ao_log_metrum *log) __reentrant;
+
+uint8_t
 ao_log_mini(__xdata struct ao_log_mini *log) __reentrant;
 
 void
 ao_log_flush(void);
+
+void
+ao_gps_report_metrum_init(void);
 
 #endif /* _AO_LOG_H_ */

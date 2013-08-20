@@ -34,6 +34,8 @@
 #define AO_TICK_SIGNED	int16_t
 #endif
 
+#define AO_PORT_TYPE	uint16_t
+
 /* Various definitions to make GCC look more like SDCC */
 
 #define ao_arch_naked_declare	__attribute__((naked))

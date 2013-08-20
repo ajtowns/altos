@@ -17,6 +17,10 @@
 
 #include "ao.h"
 
+#ifndef BEEPER_CHANNEL
+#define BEEPER_CHANNEL	1
+#endif
+
 void
 ao_beep(uint8_t beep)
 {
@@ -56,6 +60,7 @@ ao_beep(uint8_t beep)
 		 *  is enabled and active high.
 		 */
 
+#if BEEPER_CHANNEL == 1
 		stm_tim3.ccmr1 = ((0 << STM_TIM234_CCMR1_OC2CE) |
 				  (STM_TIM234_CCMR1_OC2M_FROZEN << STM_TIM234_CCMR1_OC2M) |
 				  (0 << STM_TIM234_CCMR1_OC2PE) |
@@ -67,7 +72,6 @@ ao_beep(uint8_t beep)
 				  (0 << STM_TIM234_CCMR1_OC1PE) |
 				  (0 << STM_TIM234_CCMR1_OC1FE) |
 				  (STM_TIM234_CCMR1_CC1S_OUTPUT << STM_TIM234_CCMR1_CC1S));
-
 
 		stm_tim3.ccer = ((0 << STM_TIM234_CCER_CC4NP) |
 				 (0 << STM_TIM234_CCER_CC4P) |
@@ -81,6 +85,33 @@ ao_beep(uint8_t beep)
 				 (0 << STM_TIM234_CCER_CC1NP) |
 				 (0 << STM_TIM234_CCER_CC1P) |
 				 (1 << STM_TIM234_CCER_CC1E));
+#endif
+#if BEEPER_CHANNEL == 4
+		stm_tim3.ccmr2 = ((0 << STM_TIM234_CCMR2_OC4CE) |
+				  (STM_TIM234_CCMR2_OC4M_TOGGLE << STM_TIM234_CCMR2_OC4M) |
+				  (0 << STM_TIM234_CCMR2_OC4PE) |
+				  (0 << STM_TIM234_CCMR2_OC4FE) |
+				  (STM_TIM234_CCMR2_CC4S_OUTPUT << STM_TIM234_CCMR2_CC4S) |
+
+				  (0 << STM_TIM234_CCMR2_OC3CE) |
+				  (STM_TIM234_CCMR2_OC3M_FROZEN << STM_TIM234_CCMR2_OC3M) |
+				  (0 << STM_TIM234_CCMR2_OC3PE) |
+				  (0 << STM_TIM234_CCMR2_OC3FE) |
+				  (STM_TIM234_CCMR2_CC3S_OUTPUT << STM_TIM234_CCMR2_CC3S));
+
+		stm_tim3.ccer = ((0 << STM_TIM234_CCER_CC4NP) |
+				 (0 << STM_TIM234_CCER_CC4P) |
+				 (1 << STM_TIM234_CCER_CC4E) |
+				 (0 << STM_TIM234_CCER_CC3NP) |
+				 (0 << STM_TIM234_CCER_CC3P) |
+				 (0 << STM_TIM234_CCER_CC3E) |
+				 (0 << STM_TIM234_CCER_CC2NP) |
+				 (0 << STM_TIM234_CCER_CC2P) |
+				 (0 << STM_TIM234_CCER_CC2E) |
+				 (0 << STM_TIM234_CCER_CC1NP) |
+				 (0 << STM_TIM234_CCER_CC1P) |
+				 (0 << STM_TIM234_CCER_CC1E));
+#endif
 
 
 		/* 5. Enable the counter by setting the CEN bit in the TIMx_CR1 register. */
@@ -110,13 +141,22 @@ ao_beep_for(uint8_t beep, uint16_t ticks) __reentrant
 void
 ao_beep_init(void)
 {
-	/* Our beeper is on PC6, which is hooked to TIM3_CH1,
-	 * which is on PC6
-	 */
+#if BEEPER_CHANNEL == 1
 
+	/* Our beeper is on PC6, which is hooked to TIM3_CH1.
+	 */
 	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOCEN);
 
 	stm_afr_set(&stm_gpioc, 6, STM_AFR_AF2);
+#endif
+#if BEEPER_CHANNEL == 4
+
+	/* Our beeper is on PB1, which is hooked to TIM3_CH4.
+	 */
+	stm_rcc.ahbenr |= (1 << STM_RCC_AHBENR_GPIOBEN);
+
+	stm_afr_set(&stm_gpiob, 1, STM_AFR_AF2);
+#endif
 
 	/* Leave the timer off until requested */
 	
