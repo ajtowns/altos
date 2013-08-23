@@ -122,8 +122,8 @@
 #define HAS_IGNITE		1
 #define HAS_IGNITE_REPORT	1
 
-#define AO_SENSE_DROGUE(p)	((p)->adc.sense[0])
-#define AO_SENSE_MAIN(p)	((p)->adc.sense[1])
+#define AO_SENSE_DROGUE(p)	((p)->adc.sense_a)
+#define AO_SENSE_MAIN(p)	((p)->adc.sense_m)
 #define AO_IGNITER_CLOSED	400
 #define AO_IGNITER_OPEN		60
 
@@ -145,16 +145,17 @@
 #define AO_ADC_NUM_SENSE	2
 
 struct ao_adc {
-	int16_t			sense[AO_ADC_NUM_SENSE];
+	int16_t			sense_a;
+	int16_t			sense_m;
 	int16_t			v_batt;
 	int16_t			temp;
 };
 
 #define AO_ADC_DUMP(p) \
-	printf("tick: %5u drogue: %5d main: %5d batt: %5d pbatt: %5d temp: %5d\n", \
+	printf("tick: %5u drogue: %5d main: %5d batt: %5d\n", \
 	       (p)->tick, \
-	       (p)->adc.sense[0], (p)->adc.sense[1], \
-	       (p)->adc.v_batt, (p)->adc.temp)
+	       (p)->adc.sense_a, (p)->adc.sense_m, \
+	       (p)->adc.v_batt);
 
 #define AO_ADC_SENSE_DROGUE	0
 #define AO_ADC_SENSE_DROGUE_PORT	(&stm_gpioa)

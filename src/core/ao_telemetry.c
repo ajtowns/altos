@@ -195,8 +195,8 @@ ao_send_metrum_sensor(void)
 	telemetry.metrum_sensor.height = ao_height;
 
 	telemetry.metrum_sensor.v_batt = packet->adc.v_batt;
-	telemetry.metrum_sensor.sense_a = packet->adc.sense[0];
-	telemetry.metrum_sensor.sense_m = packet->adc.sense[1];
+	telemetry.metrum_sensor.sense_a = packet->adc.sense_a;
+	telemetry.metrum_sensor.sense_m = packet->adc.sense_m;
 
 	ao_radio_send(&telemetry, sizeof (telemetry));
 }

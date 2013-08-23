@@ -127,8 +127,8 @@ ao_log(void)
 			if ((int16_t) (log.tick - next_other) >= 0) {
 				log.type = AO_LOG_TEMP_VOLT;
 				log.u.volt.v_batt = ao_data_ring[ao_log_data_pos].adc.v_batt;
-				log.u.volt.sense_a = ao_data_ring[ao_log_data_pos].adc.sense[0];
-				log.u.volt.sense_m = ao_data_ring[ao_log_data_pos].adc.sense[1];
+				log.u.volt.sense_a = ao_data_ring[ao_log_data_pos].adc.sense_a;
+				log.u.volt.sense_m = ao_data_ring[ao_log_data_pos].adc.sense_m;
 				ao_log_metrum(&log);
 				next_other = log.tick + AO_OTHER_INTERVAL;
 			}
