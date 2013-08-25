@@ -19,9 +19,16 @@
 #include "ao_log.h"
 #include "ao_product.h"
 
+#ifndef HAS_RDF
+#define HAS_RDF 1
+#endif
+
 static __pdata uint16_t ao_telemetry_interval;
 static __pdata uint8_t ao_rdf = 0;
+
+#if HAS_RDF
 static __pdata uint16_t ao_rdf_time;
+#endif
 
 #if HAS_APRS
 static __pdata uint16_t ao_aprs_time;
@@ -299,7 +306,10 @@ ao_telemetry(void)
 	for (;;) {
 		while (ao_telemetry_interval == 0)
 			ao_sleep(&telemetry);
-		time = ao_rdf_time = ao_time();
+		time = ao_time();
+#if HAS_RDF
+		ao_rdf_time = time;
+#endif
 #if HAS_APRS
 		ao_aprs_time = time;
 #endif
@@ -332,6 +342,7 @@ ao_telemetry(void)
 #endif
 			}
 #ifndef AO_SEND_ALL_BARO
+#if HAS_RDF
 			if (ao_rdf &&
 #if HAS_APRS
 			    !(ao_config.radio_enable & AO_RADIO_DISABLE_RDF) &&
@@ -349,6 +360,7 @@ ao_telemetry(void)
 #endif
 					ao_radio_rdf();
 			}
+#endif /* HAS_RDF */
 #if HAS_APRS
 			if (ao_config.aprs_interval != 0 &&
 			    (int16_t) (ao_time() - ao_aprs_time) >= 0)
@@ -415,6 +427,7 @@ ao_telemetry_set_interval(uint16_t interval)
 	ao_wakeup(&telemetry);
 }
 
+#if HAS_RDF
 void
 ao_rdf_set(uint8_t rdf)
 {
@@ -425,6 +438,7 @@ ao_rdf_set(uint8_t rdf)
 		ao_rdf_time = ao_time() + AO_RDF_INTERVAL_TICKS;
 	}
 }
+#endif
 
 __xdata struct ao_task	ao_telemetry_task;
 
