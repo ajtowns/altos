@@ -198,7 +198,7 @@ command_read (void)
 	if (!s51_tty) {
 		if (!s51_device)
 			s51_device = getenv("AO_DBG_DEVICE");
-		s51_tty = cc_usbdevs_find_by_arg(s51_device, "TIDongle");
+		s51_tty = cc_usbdevs_find_by_arg(s51_device, "TeleDongle");
 	}
 	s51_dbg = ccdbg_open (s51_tty);
 	if (!s51_dbg)
