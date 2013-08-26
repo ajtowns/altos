@@ -12,6 +12,8 @@ SAT=/opt/cortex
 SAT_CLIB=$(SAT)/lib/pdclib-cortex-m0.a
 SAT_CFLAGS=-I$(SAT)/include
 
+#CC=/opt/arm-gcc-bits/bin/arm-none-eabi-gcc
+
 ifndef VERSION
 include ../Version
 endif

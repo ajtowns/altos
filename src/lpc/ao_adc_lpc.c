@@ -50,89 +50,65 @@
 #define AO_ADC_7	0
 #endif
 
-#if AO_ADC_7
-# define AO_ADC_LAST		7
-#else
-# if AO_ADC_6
-#  define AO_ADC_LAST		6
-# else
-#  if AO_ADC_5
-#   define AO_ADC_LAST		5
-#  else
-#   if AO_ADC_4
-#    define AO_ADC_LAST		4
-#   else
-#    if AO_ADC_3
-#     define AO_ADC_LAST	3
-#    else
-#     if AO_ADC_2
-#      define AO_ADC_LAST	2
-#     else
-#      if AO_ADC_1
-#       define AO_ADC_LAST	1
-#      else
-#       if AO_ADC_0
-#        define AO_ADC_LAST	0
-#       endif
-#      endif
-#     endif
-#    endif
-#   endif
-#  endif
-# endif
-#endif
+#define AO_ADC_NUM	(AO_ADC_0 + AO_ADC_1 + AO_ADC_2 + AO_ADC_3 + \
+			 AO_ADC_4 + AO_ADC_5 + AO_ADC_6 + AO_ADC_7)
 
-#define AO_ADC_MASK	((AO_ADC_0 << 0) |	\
-			 (AO_ADC_1 << 1) |	\
-			 (AO_ADC_2 << 2) |	\
-			 (AO_ADC_3 << 3) |	\
-			 (AO_ADC_4 << 4) |	\
-			 (AO_ADC_5 << 5) |	\
-			 (AO_ADC_6 << 6) |	\
-			 (AO_ADC_7 << 7))
-
-#define AO_ADC_CLKDIV	(AO_LPC_SYSCLK / 4500000)
+/* ADC clock is divided by this value + 1, which ensures that
+ * the ADC clock will be strictly less than 4.5MHz as required
+ */
+#define AO_ADC_CLKDIV	(AO_LPC_SYSCLK / 450000)
 
 static uint8_t		ao_adc_ready;
+static uint8_t		ao_adc_sequence;
 
-#define sample(id)	(*out++ = lpc_adc.dr[id] >> 1)
+static const uint8_t	ao_adc_mask_seq[AO_ADC_NUM] = {
+#if AO_ADC_0
+	1 << 0,
+#endif
+#if AO_ADC_1
+	1 << 1,
+#endif
+#if AO_ADC_2
+	1 << 2,
+#endif
+#if AO_ADC_3
+	1 << 3,
+#endif
+#if AO_ADC_4
+	1 << 4,
+#endif
+#if AO_ADC_5
+	1 << 6,
+#endif
+#if AO_ADC_6
+	1 << 6,
+#endif
+#if AO_ADC_7
+	1 << 7,
+#endif
+};
+
+#define sample(id)	(*out++ = (uint16_t) lpc_adc.dr[id] >> 1)
+
+static inline void lpc_adc_start(void) {
+	lpc_adc.cr = ((ao_adc_mask_seq[ao_adc_sequence] << LPC_ADC_CR_SEL) |
+		      (AO_ADC_CLKDIV << LPC_ADC_CR_CLKDIV) |
+		      (0 << LPC_ADC_CR_BURST) |
+		      (LPC_ADC_CR_CLKS_11 << LPC_ADC_CR_CLKS) |
+		      (LPC_ADC_CR_START_NOW << LPC_ADC_CR_START));
+}
 
 void  lpc_adc_isr(void)
 {
-	uint32_t	stat = lpc_adc.stat;
 	uint16_t	*out;
 
-	/* Turn off burst mode */
-	lpc_adc.cr = 0;
-	lpc_adc.stat = 0;
-
-	/* Store converted values in packet */
-
+	/* Store converted value in packet */
 	out = (uint16_t *) &ao_data_ring[ao_data_head].adc;
-#if AO_ADC_0
-	sample(0);
-#endif
-#if AO_ADC_1
-	sample(1);
-#endif
-#if AO_ADC_2
-	sample(2);
-#endif
-#if AO_ADC_3
-	sample(3);
-#endif
-#if AO_ADC_4
-	sample(4);
-#endif
-#if AO_ADC_5
-	sample(5); 
-#endif
-#if AO_ADC_6
-	sample(6);
-#endif
-#if AO_ADC_7
-	sample(7);
-#endif
+	out[ao_adc_sequence] = (uint16_t) lpc_adc.gdr >> 1;
+	if (++ao_adc_sequence < AO_ADC_NUM) {
+		lpc_adc_start();
+		return;
+	}
 
 	AO_DATA_PRESENT(AO_DATA_ADC);
 	if (ao_data_present == AO_DATA_ALL) {
@@ -157,7 +133,7 @@ void  lpc_adc_isr(void)
 
 
 /*
- * Start the ADC sequence using the DMA engine
+ * Start the ADC sequence using burst mode
  */
 void
 ao_adc_poll(void)
@@ -165,11 +141,8 @@ ao_adc_poll(void)
 	if (!ao_adc_ready)
 		return;
 	ao_adc_ready = 0;
-
-	lpc_adc.cr = ((AO_ADC_MASK << LPC_ADC_CR_SEL) |
-		      (AO_ADC_CLKDIV << LPC_ADC_CR_CLKDIV) |
-		      (1 << LPC_ADC_CR_BURST) |
-		      (LPC_ADC_CR_CLKS_11 << LPC_ADC_CR_CLKS));
+	ao_adc_sequence = 0;
+	lpc_adc_start();
 }
 
 static void
@@ -202,8 +175,8 @@ ao_adc_init(void)
 	lpc_scb.sysahbclkctrl |= (1 << LPC_SCB_SYSAHBCLKCTRL_ADC);
 	lpc_scb.pdruncfg &= ~(1 << LPC_SCB_PDRUNCFG_ADC_PD);
 
-	/* Enable interrupt when last channel is complete */
-	lpc_adc.inten = (1 << AO_ADC_LAST);
+	/* Enable interrupt when channel is complete */
+	lpc_adc.inten = (1 << LPC_ADC_INTEN_ADGINTEN);
 
 	lpc_nvic_set_enable(LPC_ISR_ADC_POS);
 	lpc_nvic_set_priority(LPC_ISR_ADC_POS, AO_LPC_NVIC_CLOCK_PRIORITY);
@@ -232,7 +205,7 @@ ao_adc_init(void)
 	ao_enable_analog(0, 23, 7);
 #endif
 
-	lpc_adc.cr = ((AO_ADC_MASK << LPC_ADC_CR_SEL) |
+	lpc_adc.cr = ((0 << LPC_ADC_CR_SEL) |
 		      (AO_ADC_CLKDIV << LPC_ADC_CR_CLKDIV) |
 		      (0 << LPC_ADC_CR_BURST) |
 		      (LPC_ADC_CR_CLKS_11 << LPC_ADC_CR_CLKS));

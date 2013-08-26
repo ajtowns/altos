@@ -42,11 +42,14 @@ ao_ms5607_convert(struct ao_ms5607_sample *sample, struct ao_ms5607_value *value
 		int32_t TEMPM = TEMP - 2000;
 		int64_t OFF2 = (61 * (int64_t) TEMPM * (int64_t) TEMPM) >> 4;
 		int64_t SENS2 = 2 * (int64_t) TEMPM * (int64_t) TEMPM;
-		if (TEMP < 1500) {
+		if (TEMP < -1500) {
 			int32_t TEMPP = TEMP + 1500;
-			int64_t TEMPP2 = TEMPP * TEMPP;
-			OFF2 = OFF2 + 15 * TEMPP2;
-			SENS2 = SENS2 + 8 * TEMPP2;
+			/* You'd think this would need a 64-bit int, but
+			 * that would imply a temperature below -327.67°C...
+			 */
+			int32_t TEMPP2 = TEMPP * TEMPP;
+			OFF2 = OFF2 + (int64_t) 15 * TEMPP2;
+			SENS2 = SENS2 + (int64_t) 8 * TEMPP2;
 		}
 		TEMP -= T2;
 		OFF -= OFF2;
