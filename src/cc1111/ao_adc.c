@@ -20,22 +20,22 @@
 volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
 volatile __data uint8_t		ao_data_head;
 
+#ifdef TELENANO_V_0_1
+# define AO_ADC_FIRST_PIN	1
+#endif
+
+#if HAS_ACCEL_REF
+# define AO_ADC_FIRST_PIN	2
+#endif
+
 #ifndef AO_ADC_FIRST_PIN
-#define AO_ADC_FIRST_PIN	0
+# define AO_ADC_FIRST_PIN	0
 #endif
 
 void
 ao_adc_poll(void)
 {
-#if HAS_ACCEL_REF
-	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 2;
-#else
-# ifdef TELENANO_V_0_1
-	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | 1;
-# else
 	ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | AO_ADC_FIRST_PIN;
-# endif
-#endif
 }
 
 void
@@ -141,6 +141,7 @@ ao_adc_isr(void) __interrupt 1
 	if (sequence) {
 		/* Start next conversion */
 		ADCCON3 = sequence;
+		return;
 	}
 #endif /* telemini || telenano */
 
@@ -148,8 +149,10 @@ ao_adc_isr(void) __interrupt 1
 	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.sense[0] + sequence - AO_ADC_FIRST_PIN);
 	a[0] = ADCL;
 	a[1] = ADCH;
-	if (sequence < 5)
+	if (sequence < 5) {
 		ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | (sequence + 1);
+		return;
+	}
 #define GOT_ADC
 #endif /* TELEFIRE_V_0_1 */
 
@@ -157,8 +160,6 @@ ao_adc_isr(void) __interrupt 1
 	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc.batt);
 	a[0] = ADCL;
 	a[1] = ADCH;
-	if (0)
-		;
 #define GOT_ADC
 #endif	
 
@@ -171,12 +172,10 @@ ao_adc_isr(void) __interrupt 1
 #error No known ADC configuration set
 #endif
 
-	else {
-		/* record this conversion series */
-		ao_data_ring[ao_data_head].tick = ao_time();
-		ao_data_head = ao_data_ring_next(ao_data_head);
-		ao_wakeup(DATA_TO_XDATA(&ao_data_head));
-	}
+	/* record this conversion series */
+	ao_data_ring[ao_data_head].tick = ao_time();
+	ao_data_head = ao_data_ring_next(ao_data_head);
+	ao_wakeup(DATA_TO_XDATA(&ao_data_head));
 }
 
 static void

@@ -31,7 +31,6 @@
 #define USE_INTERNAL_FLASH	0
 #define HAS_DBG			0
 #define PACKET_HAS_SLAVE	1
-#define USE_FAST_ASCENT_LOG	1
 
 #define AO_LED_GREEN		1
 #define AO_LED_RED		2
@@ -127,6 +126,8 @@ struct ao_adc {
 	printf("tick: %5u apogee: %5d main: %5d batt: %5d\n", \
 	       (p)->tick, (p)->adc.sense_a, (p)->adc.sense_m, (p)->adc.v_batt)
 
+#define AO_ADC_PINS	((1 << 0) | (1 << 1) | (1 << 4))
+
 #define FETCH_ADC() 							\
 	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc); 	\
 	switch (sequence) {						\
@@ -142,7 +143,11 @@ struct ao_adc {
 		sequence = 1;						\
 		break;							\
 	}								\
-	if (sequence)							\
-		;
+	a[0] = ADCL;							\
+	a[1] = ADCH;							\
+	if (sequence) {							\
+		ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | sequence; \
+		return;							\
+	}
 
 #endif /* _AO_PINS_H_ */
