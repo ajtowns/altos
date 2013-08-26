@@ -16,6 +16,8 @@ LOADARG=-p $(DUDECPUTYPE) -c $(PROGRAMMER) -e -U flash:w:
 CC=avr-gcc
 OBJCOPY=avr-objcopy
 
+LDFLAGS=-L/usr/lib/ldscripts -Tavr25.x
+
 ifndef VERSION
 include ../Version
 endif
