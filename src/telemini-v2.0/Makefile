@@ -23,7 +23,8 @@ INC = \
 	ao_ms5607_convert_8051.c \
 	ao_product.h \
 	ao_int64.h \
-	ao_sample.h
+	ao_sample.h \
+	ao_exti.h
 
 CORE_SRC = \
 	ao_cmd.c \
