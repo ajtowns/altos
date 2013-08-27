@@ -39,19 +39,18 @@ extern void 	(*ao_int_callback)(void);
 		ao_int_callback = callback;		\
 	} while (0)
 
-#define ao_exti_init() do {			\
-		IEN1 &= IEN1_P0IE;		\
-		PICTL |= PICTL_P0IENL;		\
-	} while (0)
+#define ao_exti_init()
 
 #define ao_exti_enable(port, pin) do {		\
 		P0IFG &= ~(1 << pin);		\
 		P0IF = 0;			\
+		PICTL |= PICTL_P0IENL;		\
 		IEN1 |= IEN1_P0IE;		\
 	} while (0)
 
 #define ao_exti_disable(port, pin) do {		\
 		IEN1 &= ~IEN1_P0IE;		\
+		PICTL &= ~PICTL_P0IENL;		\
 	} while (0)
 
 #endif /* _AO_EXTI_H_ */
