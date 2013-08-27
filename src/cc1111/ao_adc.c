@@ -19,6 +19,9 @@
 
 volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
 volatile __data uint8_t		ao_data_head;
+#if (AO_DATA_ALL & ~(AO_DATA_ADC))
+volatile __data uint8_t		ao_data_present;
+#endif
 
 #ifdef TELENANO_V_0_1
 # define AO_ADC_FIRST_PIN	1

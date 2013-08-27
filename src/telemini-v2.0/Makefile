@@ -24,7 +24,8 @@ INC = \
 	ao_product.h \
 	ao_int64.h \
 	ao_sample.h \
-	ao_exti.h
+	ao_exti.h \
+	ao_task.h
 
 CORE_SRC = \
 	ao_cmd.c \
@@ -58,7 +59,6 @@ CC1111_SRC = \
 	ao_spi.c \
 	ao_usb.c \
 	ao_convert_pa.c \
-	ao_data.c \
 	ao_beep.c \
 	ao_timer.c \
 	ao_exti.c \
