@@ -128,26 +128,32 @@ struct ao_adc {
 
 #define AO_ADC_PINS	((1 << 0) | (1 << 1) | (1 << 4))
 
-#define FETCH_ADC() 							\
-	a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc); 	\
-	switch (sequence) {						\
-	case 4:								\
-		a += 4;							\
-		sequence = 0;						\
-		break;							\
-	case 1:								\
-		a += 2;							\
-		sequence = 4;						\
-		break;							\
-	case 0:								\
-		sequence = 1;						\
-		break;							\
-	}								\
-	a[0] = ADCL;							\
-	a[1] = ADCH;							\
-	if (sequence) {							\
-		ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | sequence; \
-		return;							\
-	}
+#define FETCH_ADC() do {						\
+		a = (uint8_t __xdata *) (&ao_data_ring[ao_data_head].adc); \
+		switch (sequence) {					\
+		case 4:							\
+			a += 4;						\
+			sequence = 0;					\
+			break;						\
+		case 1:							\
+			a += 2;						\
+			sequence = 4;					\
+			break;						\
+		case 0:							\
+			sequence = 1;					\
+			break;						\
+		}							\
+		a[0] = ADCL;						\
+		a[1] = ADCH;						\
+		if (sequence) {						\
+			ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | sequence; \
+			return;						\
+		}							\
+		AO_DATA_PRESENT(AO_DATA_ADC);				\
+		if (ao_data_present != AO_DATA_ALL)			\
+			return;						\
+		ao_data_ring[ao_data_head].ms5607_raw.pres = ao_ms5607_current.pres; \
+		ao_data_ring[ao_data_head].ms5607_raw.temp = ao_ms5607_current.temp; \
+	} while (0)
 
 #endif /* _AO_PINS_H_ */

@@ -164,7 +164,7 @@ ao_adc_isr(void) __interrupt 1
 #endif	
 
 #ifdef FETCH_ADC
-	FETCH_ADC()
+	FETCH_ADC();
 #define GOT_ADC
 #endif
 
