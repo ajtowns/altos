@@ -223,8 +223,8 @@ ao_ms5607_dump(void)
 	__xdata struct ao_ms5607_value value;
 
 	ao_ms5607_convert(&ao_ms5607_current, &value);
-	printf ("Pressure:    %8u %8d\n", ao_ms5607_current.pres, value.pres);
-	printf ("Temperature: %8u %8d\n", ao_ms5607_current.temp, value.temp);
+	printf ("Pressure:    %8lu %8ld\n", ao_ms5607_current.pres, value.pres);
+	printf ("Temperature: %8lu %8ld\n", ao_ms5607_current.temp, value.temp);
 	printf ("Altitude: %ld\n", ao_pa_to_altitude(value.pres));
 }
 
