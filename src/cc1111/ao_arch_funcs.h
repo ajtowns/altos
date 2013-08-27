@@ -145,4 +145,5 @@ ao_spi_init(void);
 
 #define ao_enable_output(port,bit,pin,v) cc1111_enable_output(port,token_evaluator(port,DIR), token_evaluator(port,SEL), pin, bit, v)
 #define ao_gpio_set(port, bit, pin, v) ((pin) = (v))
+#define ao_gpio_get(port, bit, pin) (pin)
 
