@@ -70,7 +70,7 @@ ao_sleep(__xdata void *wchan);
 
 /* Wake all tasks sleeping on wchan */
 void
-ao_wakeup(__xdata void *wchan);
+ao_wakeup(__xdata void *wchan) __reentrant;
 
 /* set an alarm to go off in 'delay' ticks */
 void
