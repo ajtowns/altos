@@ -248,9 +248,9 @@ struct ao_adc {
  */
 
 #define HAS_MMA655X		1
-#define AO_MMA655X_SPI_INDEX	AO_SPI_1_PE13_PE14_PE15
-#define AO_MMA655X_CS_PORT	(&stm_gpiod)
-#define AO_MMA655X_CS_PIN	4
+#define AO_MMA655X_SPI_INDEX	AO_SPI_1_PB3_PB4_PB5
+#define AO_MMA655X_CS_PORT	(&stm_gpiob)
+#define AO_MMA655X_CS_PIN	9
 
 #define NUM_CMDS		16
 
