@@ -59,11 +59,6 @@
 #define SERIAL_3_PC10_PC11	0
 #define SERIAL_3_PD8_PD9	0
 
-#define ao_gps_getchar		ao_serial3_getchar
-#define ao_gps_putchar		ao_serial3_putchar
-#define ao_gps_set_speed	ao_serial3_set_speed
-#define ao_gps_fifo		(ao_stm_usart3.rx_fifo)
-
 #define HAS_EEPROM		1
 #define USE_INTERNAL_FLASH	0
 #define HAS_USB			1
@@ -190,6 +185,17 @@ struct ao_adc {
 #define AO_ADC_SQ2		AO_ADC_SENSE_MAIN
 #define AO_ADC_SQ3		AO_ADC_V_BATT
 #define AO_ADC_SQ4		AO_ADC_TEMP
+
+/*
+ * GPS
+ */
+
+#define AO_SERIAL_SPEED_UBLOX	AO_SERIAL_SPEED_9600
+
+#define ao_gps_getchar		ao_serial3_getchar
+#define ao_gps_putchar		ao_serial3_putchar
+#define ao_gps_set_speed	ao_serial3_set_speed
+#define ao_gps_fifo		(ao_stm_usart3.rx_fifo)
 
 /*
  * Pressure sensor settings
