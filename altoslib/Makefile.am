@@ -17,7 +17,10 @@ altoslib_JAVA = \
 	AltosConvert.java \
 	AltosCRCException.java \
 	AltosDebug.java \
+	AltosEeprom.java \
 	AltosEepromChunk.java \
+	AltosEepromFile.java \
+	AltosEepromHeader.java \
 	AltosEepromIterable.java \
 	AltosEepromLog.java \
 	AltosEepromMega.java \
@@ -26,6 +29,7 @@ altoslib_JAVA = \
 	AltosEepromTeleScience.java \
 	AltosEepromMini.java \
 	AltosEepromMiniIterable.java \
+	AltosEepromOldIterable.java \
 	AltosFile.java \
 	AltosFlash.java \
 	AltosFlashListener.java \
@@ -65,6 +69,7 @@ altoslib_JAVA = \
 	AltosSensorMM.java \
 	AltosSensorTM.java \
 	AltosState.java \
+	AltosStateUpdate.java \
 	AltosTelemetry.java \
 	AltosTelemetryIterable.java \
 	AltosTelemetryMap.java \
@@ -80,6 +85,7 @@ altoslib_JAVA = \
 	AltosTelemetryRecordSensor.java \
 	AltosTelemetryRecordMegaSensor.java \
 	AltosTelemetryRecordMegaData.java \
+	AltosTelemetryRecordMini.java \
 	AltosUnitsListener.java \
 	AltosMs5607.java \
 	AltosIMU.java \

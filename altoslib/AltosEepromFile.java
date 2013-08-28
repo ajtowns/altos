@@ -21,29 +21,31 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 
-public class AltosEepromIterable implements Iterable<AltosEeprom> {
-	public LinkedList<AltosEeprom> eeproms;
+public class AltosEepromFile {
+
+	AltosEepromIterable	headers;
+	AltosEepromIterable	body;
 
 	public void write(PrintStream out) {
-		for (AltosEeprom eeprom : eeproms)
-			eeprom.write(out);
+		headers.write(out);
+		body.write(out);
 	}
 
-	public AltosState state() {
-		AltosState	state = new AltosState(null);
+	public AltosEepromFile(FileInputStream input) {
+		headers = new AltosEepromIterable(AltosEepromHeader.read(input));
 
-		for (AltosEeprom header : eeproms)
-			header.update_state(state);
-		return state;
-	}
+		AltosState	state = headers.state();
 
-	public AltosEepromIterable(LinkedList<AltosEeprom> eeproms) {
-		this.eeproms = eeproms;
-	}
-
-	public Iterator<AltosEeprom> iterator() {
-		if (eeproms == null)
-			eeproms = new LinkedList<AltosEeprom>();
-		return eeproms.iterator();
+		switch (state.log_format) {
+		case AltosLib.AO_LOG_FORMAT_FULL:
+		case AltosLib.AO_LOG_FORMAT_TINY:
+		case AltosLib.AO_LOG_FORMAT_TELEMETRY:
+		case AltosLib.AO_LOG_FORMAT_TELESCIENCE:
+		case AltosLib.AO_LOG_FORMAT_TELEMEGA:
+			break;
+		case AltosLib.AO_LOG_FORMAT_MINI:
+			body = new AltosEepromIterable(AltosEepromMini.read(input));
+			break;
+		}
 	}
 }

@@ -19,7 +19,7 @@ package org.altusmetrum.altoslib_1;
 
 import java.text.*;
 
-public class AltosGPS {
+public class AltosGPS implements Cloneable {
 
 	public final static int MISSING = AltosRecord.MISSING;
 
@@ -214,6 +214,39 @@ public class AltosGPS {
 	public AltosGPS() {
 		ClearGPSTime();
 		cc_gps_sat = null;
+	}
+
+	public AltosGPS clone() {
+		AltosGPS	g = new AltosGPS();
+
+		g.nsat = nsat;
+		g.locked = locked;
+		g.connected = connected;
+		g.lat = lat;		g./* degrees (+N -S) */
+		g.lon = lon;		/* degrees (+E -W) */
+		g.alt = alt;		/* m */
+		g.year = year;
+		g.month = month;
+		g.day = day;
+		g.hour = hour;
+		g.minute = minute;
+		g.second = second;
+
+		g.ground_speed = ground_speed;	/* m/s */
+		g.course = course;		/* degrees */
+		g.climb_rate = climb_rate;	/* m/s */
+		g.hdop = hdop;		/* unitless? */
+		g.h_error = h_error;	/* m */
+		g.v_error = v_error;	/* m */
+
+		if (cc_gps_sat != null) {
+			g.cc_gps_sat = new AltosGPSSat[cc_gps_sat.length];
+			for (int i = 0; i < cc_gps_sat.length; i++) {
+				g.cc_gps_sat[i] = new AltosGPSSat();
+				g.cc_gps_sat[i].svid = cc_gps_sat[i].svid;
+				g.cc_gps_sat[i].c_n0 = cc_gps_sat[i].c_n0;
+			}
+		}
 	}
 
 	public AltosGPS(AltosGPS old) {

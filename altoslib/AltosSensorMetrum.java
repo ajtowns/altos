@@ -17,33 +17,39 @@
 
 package org.altusmetrum.altoslib_1;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
+import java.util.concurrent.TimeoutException;
 
-public class AltosEepromIterable implements Iterable<AltosEeprom> {
-	public LinkedList<AltosEeprom> eeproms;
+class AltosSensorMetrum {
+	int		tick;
+	int		sense_a;
+	int		sense_m;
+	int		v_batt;
 
-	public void write(PrintStream out) {
-		for (AltosEeprom eeprom : eeproms)
-			eeprom.write(out);
-	}
-
-	public AltosState state() {
-		AltosState	state = new AltosState(null);
-
-		for (AltosEeprom header : eeproms)
-			header.update_state(state);
-		return state;
-	}
-
-	public AltosEepromIterable(LinkedList<AltosEeprom> eeproms) {
-		this.eeproms = eeproms;
-	}
-
-	public Iterator<AltosEeprom> iterator() {
-		if (eeproms == null)
-			eeproms = new LinkedList<AltosEeprom>();
-		return eeproms.iterator();
+	public AltosSensorMetrum(AltosLink link) throws InterruptedException, TimeoutException {
+		String[] items = link.adc();
+		for (int i = 0; i < items.length;) {
+			if (items[i].equals("tick:")) {
+				tick = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("drogue:")) {
+				sense_a = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("main:")) {
+				sense_m = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("batt:")) {
+				v_batt = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			i++;
+		}
 	}
 }
+

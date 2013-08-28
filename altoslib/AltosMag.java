@@ -17,9 +17,18 @@
 
 package org.altusmetrum.altoslib_1;
 
-public class AltosMag {
+public class AltosMag implements Cloneable {
 	public int		x;
 	public int		y;
 	public int		z;
+
+	public AltosMag clone() {
+		AltosMag n = new AltosMag();
+
+		n.x = x;
+		n.y = y;
+		n.z = z;
+		return n;
+	}
 }
 	

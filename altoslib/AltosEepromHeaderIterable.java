@@ -21,29 +21,28 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 
-public class AltosEepromIterable implements Iterable<AltosEeprom> {
-	public LinkedList<AltosEeprom> eeproms;
+public class AltosEepromHeaderIterable implements Iterable<AltosEepromHeader> {
+	public LinkedList<AltosEepromHeader> headers;
 
 	public void write(PrintStream out) {
-		for (AltosEeprom eeprom : eeproms)
-			eeprom.write(out);
+		AltosEepromHeader.write(out, headers);
 	}
 
 	public AltosState state() {
 		AltosState	state = new AltosState(null);
 
-		for (AltosEeprom header : eeproms)
+		for (AltosEepromHeader header : headers)
 			header.update_state(state);
 		return state;
 	}
 
-	public AltosEepromIterable(LinkedList<AltosEeprom> eeproms) {
-		this.eeproms = eeproms;
+	public AltosEepromHeaderIterable(FileInputStream input) {
+		headers = AltosEepromHeader.read(input);
 	}
 
-	public Iterator<AltosEeprom> iterator() {
-		if (eeproms == null)
-			eeproms = new LinkedList<AltosEeprom>();
-		return eeproms.iterator();
+	public Iterator<AltosEepromHeader> iterator() {
+		if (headers == null)
+			headers = new LinkedList<AltosEepromHeader>();
+		return headers.iterator();
 	}
 }

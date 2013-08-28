@@ -44,6 +44,7 @@ public abstract class AltosTelemetryRecord {
 	final static int packet_type_companion = 0x07;
 	final static int packet_type_MM_sensor = 0x08;
 	final static int packet_type_MM_data = 0x09;
+	final static int packet_type_Mini = 0x10;
 	
 	static AltosTelemetryRecord parse_hex(String hex)  throws ParseException, AltosCRCException {
 		AltosTelemetryRecord	r;

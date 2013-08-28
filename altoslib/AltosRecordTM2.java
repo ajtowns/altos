@@ -17,22 +17,24 @@
 
 package org.altusmetrum.altoslib_1;
 
-public class AltosRecordMini extends AltosRecord {
+public class AltosRecordTM2 extends AltosRecord {
 
 	/* Sensor values */
+	public int	accel;
 	public int	pres;
 	public int	temp;
 	
+	public int	v_batt;
 	public int	sense_a;
 	public int	sense_m;
-	public int	v_batt;
 
+	public int      ground_accel;
 	public int      ground_pres;
+	public int      accel_plus_g;
+	public int      accel_minus_g;
 
 	public int	flight_accel;
 	public int	flight_vel;
-	public int	flight_height;
-
 	public int	flight_pres;
 
 	static double adc(int raw) {
@@ -42,12 +44,6 @@ public class AltosRecordMini extends AltosRecord {
 	public double pressure() {
 		if (pres != MISSING)
 			return pres;
-		return MISSING;
-	}
-
-	public double temperature() {
-		if (temp != MISSING)
-			return temp;
 		return MISSING;
 	}
 
@@ -73,60 +69,87 @@ public class AltosRecordMini extends AltosRecord {
 		return pyro(sense_m);
 	}
 
-	public double apogee_voltage() {
+	public double drogue_voltage() {
 		return pyro(sense_a);
 	}
 
-	public void copy (AltosRecordMini old) {
+	public double temperature() {
+		if (temp != MISSING)
+			return temp / 100.0;
+		return MISSING;
+	}
+	
+	double accel_counts_per_mss() {
+		double	counts_per_g = Math.abs(accel_minus_g - accel_plus_g) / 2;
+
+		return counts_per_g / 9.80665;
+	}
+
+	public double acceleration() {
+		if (ground_accel == MISSING || accel == MISSING)
+			return MISSING;
+
+		if (accel_minus_g == MISSING || accel_plus_g == MISSING)
+			return MISSING;
+
+		return (ground_accel - accel) / accel_counts_per_mss();
+	}
+
+	public void copy (AltosRecordTM2 old) {
 		super.copy(old);
 
+		accel = old.accel;
 		pres = old.pres;
 		temp = old.temp;
 
+		v_batt = old.v_batt;
 		sense_a = old.sense_a;
 		sense_m = old.sense_m;
-		v_batt = old.v_batt;
 
+		ground_accel = old.ground_accel;
 		ground_pres = old.ground_pres;
+		accel_plus_g = old.accel_plus_g;
+		accel_minus_g = old.accel_minus_g;
 		
 		flight_accel = old.flight_accel;
 		flight_vel = old.flight_vel;
-		flight_height = old.flight_height;
 		flight_pres = old.flight_pres;
 	}
 
-
-
-	public AltosRecordMini clone() {
-		return new AltosRecordMini(this);
+	public AltosRecordTM2 clone() {
+		return new AltosRecordTM2(this);
 	}
 
 	void make_missing() {
 
+		accel = MISSING;
 		pres = MISSING;
+		temp = MISSING;
 
+		v_batt = MISSING;
 		sense_a = MISSING;
 		sense_m = MISSING;
-		v_batt = MISSING;
 
+		ground_accel = MISSING;
 		ground_pres = MISSING;
+		accel_plus_g = MISSING;
+		accel_minus_g = MISSING;
 
 		flight_accel = 0;
 		flight_vel = 0;
-		flight_height = 0;
 		flight_pres = 0;
 	}
 
-	public AltosRecordMini(AltosRecord old) {
+	public AltosRecordTM2(AltosRecord old) {
 		super.copy(old);
 		make_missing();
 	}
 
-	public AltosRecordMini(AltosRecordMini old) {
+	public AltosRecordTM2(AltosRecordTM2 old) {
 		copy(old);
 	}
 
-	public AltosRecordMini() {
+	public AltosRecordTM2() {
 		super();
 		make_missing();
 	}

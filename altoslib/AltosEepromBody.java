@@ -1,5 +1,5 @@
 /*
- * Copyright © 2012 Keith Packard <keithp@keithp.com>
+ * Copyright © 2013 Keith Packard <keithp@keithp.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,25 +17,15 @@
 
 package org.altusmetrum.altoslib_1;
 
-public class AltosIMU implements Cloneable {
-	public int		accel_x;
-	public int		accel_y;
-	public int		accel_z;
+import java.io.*;
+import java.util.*;
+import java.text.*;
 
-	public int		gyro_x;
-	public int		gyro_y;
-	public int		gyro_z;
+public class AltosEepromBody implements AltosEeprom, AltosStateUpdate {
 
-	public AltosIMU clone() {
-		AltosIMU	n = new AltosIMU();
+	public void update_state(AltosState state) {
+	}
 
-		n.accel_x = accel_x;
-		n.accel_y = accel_y;
-		n.accel_z = accel_z;
-
-		n.gyro_x = gyro_x;
-		n.gyro_y = gyro_y;
-		n.gyro_z = gyro_z;
-		return n;
+	public void write(PrintStream out) {
+	}
 }
-	

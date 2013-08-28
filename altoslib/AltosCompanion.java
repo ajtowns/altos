@@ -1,5 +1,5 @@
 /*
- * Copyright © 2012 Keith Packard <keithp@keithp.com>
+ * Copyright © 2011 Keith Packard <keithp@keithp.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,25 +17,22 @@
 
 package org.altusmetrum.altoslib_1;
 
-public class AltosIMU implements Cloneable {
-	public int		accel_x;
-	public int		accel_y;
-	public int		accel_z;
+public class AltosCompanion {
+	public final static int	board_id_telescience = 0x0a;
+	public final static int	MAX_CHANNELS = 12;
 
-	public int		gyro_x;
-	public int		gyro_y;
-	public int		gyro_z;
+	public int	tick;
+	public int	board_id;
+	public int	update_period;
+	public int	channels;
+	public int[]	companion_data;
 
-	public AltosIMU clone() {
-		AltosIMU	n = new AltosIMU();
-
-		n.accel_x = accel_x;
-		n.accel_y = accel_y;
-		n.accel_z = accel_z;
-
-		n.gyro_x = gyro_x;
-		n.gyro_y = gyro_y;
-		n.gyro_z = gyro_z;
-		return n;
+	public AltosCompanion(int in_channels) {
+		channels = in_channels;
+		if (channels < 0)
+			channels = 0;
+		if (channels > MAX_CHANNELS)
+			channels = MAX_CHANNELS;
+		companion_data = new int[channels];
+	}
 }
-	
