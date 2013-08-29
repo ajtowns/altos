@@ -90,7 +90,15 @@ ao_clock_init(void)
 	/* Switch to MSI while messing about */
 	stm_rcc.cr |= (1 << STM_RCC_CR_MSION);
 	while (!(stm_rcc.cr & (1 << STM_RCC_CR_MSIRDY)))
-		asm("nop");
+		ao_arch_nop();
+
+	stm_rcc.cfgr = (stm_rcc.cfgr & ~(STM_RCC_CFGR_SW_MASK << STM_RCC_CFGR_SW)) |
+		(STM_RCC_CFGR_SW_MSI << STM_RCC_CFGR_SW);
+
+	/* wait for system to switch to MSI */
+	while ((stm_rcc.cfgr & (STM_RCC_CFGR_SWS_MASK << STM_RCC_CFGR_SWS)) !=
+	       (STM_RCC_CFGR_SWS_MSI << STM_RCC_CFGR_SWS))
+		ao_arch_nop();
 
 	/* reset SW, HPRE, PPRE1, PPRE2, MCOSEL and MCOPRE */
 	stm_rcc.cfgr &= (uint32_t)0x88FFC00C;
@@ -141,7 +149,6 @@ ao_clock_init(void)
 	stm_flash.acr |= (1 << STM_FLASH_ACR_PRFEN);
 
 	/* Enable 1 wait state so the CPU can run at 32MHz */
-	/* (haven't managed to run the CPU at 32MHz yet, it's at 16MHz) */
 	stm_flash.acr |= (1 << STM_FLASH_ACR_LATENCY);
 
 	/* Enable power interface clock */
