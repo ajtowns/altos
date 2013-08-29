@@ -109,6 +109,8 @@ ao_task_validate_alarm_queue(void)
 				ao_panic(3);
 		}
 	}
+	if (ao_task_alarm_tick != ao_list_first_entry(&alarm_queue, struct ao_task, alarm_queue)->alarm)
+		ao_panic(4);
 }
 #else
 #define ao_task_validate_alarm_queue()
@@ -123,6 +125,7 @@ ao_task_to_alarm_queue(struct ao_task *task)
 	ao_list_for_each_entry(alarm, &alarm_queue, struct ao_task, alarm_queue) {
 		if ((int16_t) (alarm->alarm - task->alarm) >= 0) {
 			ao_list_insert(&task->alarm_queue, alarm->alarm_queue.prev);
+			ao_task_alarm_tick = ao_list_first_entry(&alarm_queue, struct ao_task, alarm_queue)->alarm;
 			ao_task_validate_alarm_queue();
 			return;
 		}
