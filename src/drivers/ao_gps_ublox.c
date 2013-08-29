@@ -30,21 +30,27 @@ __pdata uint16_t ao_gps_tick;
 __xdata struct ao_telemetry_location	ao_gps_data;
 __xdata struct ao_telemetry_satellite	ao_gps_tracking_data;
 
+#undef AO_SERIAL_SPEED_UBLOX
+
 #ifndef AO_SERIAL_SPEED_UBLOX
-#define AO_SERIAL_SPEED_UBLOX AO_SERIAL_SPEED_57600
+#define AO_SERIAL_SPEED_UBLOX AO_SERIAL_SPEED_9600
 #endif
 
 #if AO_SERIAL_SPEED_UBLOX == AO_SERIAL_SPEED_57600
 #define SERIAL_SPEED_STRING	"57600"
+#define SERIAL_SPEED_CHECKSUM	"2d"
 #endif
 #if AO_SERIAL_SPEED_UBLOX == AO_SERIAL_SPEED_19200
 #define SERIAL_SPEED_STRING	"19200"
+#define SERIAL_SPEED_CHECKSUM	"23"
 #endif
 #if AO_SERIAL_SPEED_UBLOX == AO_SERIAL_SPEED_9600
 #define SERIAL_SPEED_STRING	"9600"
+#define SERIAL_SPEED_CHECKSUM	"16"
 #endif
 
-static const char ao_gps_set_nmea[] = "\r\n$PUBX,41,1,3,1," SERIAL_SPEED_STRING ",0*2d\r\n";
+static const char ao_gps_set_nmea[] =
+	"\r\n$PUBX,41,1,3,1," SERIAL_SPEED_STRING ",0*" SERIAL_SPEED_CHECKSUM "\r\n";
 
 struct ao_ublox_cksum {
 	uint8_t	a, b;
