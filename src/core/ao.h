@@ -182,7 +182,7 @@ void
 ao_cmd_hex(void);
 
 void
-ao_cmd_decimal(void);
+ao_cmd_decimal(void) __reentrant;
 
 /* Read a single hex nibble off stdin. */
 uint8_t

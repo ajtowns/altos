@@ -56,7 +56,7 @@ struct ao_ms5607_value {
 	int32_t		temp;	/* in °C * 100 */
 };
 
-extern struct ao_ms5607_sample	ao_ms5607_current;
+extern __xdata struct ao_ms5607_sample	ao_ms5607_current;
 
 void
 ao_ms5607_setup(void);
@@ -68,12 +68,13 @@ void
 ao_ms5607_info(void);
 
 void
-ao_ms5607_sample(struct ao_ms5607_sample *sample);
+ao_ms5607_sample(__xdata struct ao_ms5607_sample *sample);
 
 void
-ao_ms5607_convert(struct ao_ms5607_sample *sample, struct ao_ms5607_value *value);
+ao_ms5607_convert(__xdata struct ao_ms5607_sample *sample,
+		  __xdata struct ao_ms5607_value *value);
 
 void
-ao_ms5607_get_prom(struct ao_ms5607_prom *prom);
+ao_ms5607_get_prom(__data struct ao_ms5607_prom *prom);
 
 #endif /* _AO_MS5607_H_ */

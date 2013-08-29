@@ -201,6 +201,11 @@ ao_usb_ep0_setup(void)
 				ao_usb_ep0_queue_byte(0);
 				break;
 			case AO_USB_REQ_SET_ADDRESS:
+#if USB_FORCE_FLIGHT_IDLE
+				/* Go to idle mode if USB is connected
+				 */
+				ao_flight_force_idle = 1;
+#endif
 				ao_usb_set_address(ao_usb_setup.value);
 				break;
 			case AO_USB_REQ_GET_DESCRIPTOR:

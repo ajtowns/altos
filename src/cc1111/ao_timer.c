@@ -39,6 +39,9 @@ void ao_timer_isr(void) __interrupt 9
 	if (++ao_adc_count == ao_adc_interval) {
 		ao_adc_count = 0;
 		ao_adc_poll();
+#if (AO_DATA_ALL & ~(AO_DATA_ADC))
+		ao_wakeup(DATA_TO_XDATA(&ao_adc_count));
+#endif
 	}
 #endif
 }

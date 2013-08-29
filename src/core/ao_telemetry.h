@@ -248,6 +248,30 @@ struct ao_telemetry_metrum_data {
 	/* 32 */
 };
 
+#define AO_TELEMETRY_MINI		0x10
+
+struct ao_telemetry_mini {
+	uint16_t	serial;		/*  0 */
+	uint16_t	tick;		/*  2 */
+	uint8_t		type;		/*  4 */
+
+	uint8_t         state;          /*  5 flight state */
+	int16_t		v_batt;		/*  6 battery voltage */
+	int16_t		sense_a;	/*  8 apogee continuity */
+	int16_t		sense_m;	/* 10 main continuity */
+
+	int32_t		pres;		/* 12 Pa * 10 */
+	int16_t		temp;		/* 16 °C * 100 */
+
+	int16_t         acceleration;   /* 18 m/s² * 16 */
+	int16_t         speed;          /* 20 m/s * 16 */
+	int16_t         height;         /* 22 m */
+
+	int32_t		ground_pres;	/* 24 average pres on pad */
+
+	int32_t		pad28;		/* 28 */
+	/* 32 */
+};
 
 /* #define AO_SEND_ALL_BARO */
 
@@ -284,6 +308,7 @@ union ao_telemetry_all {
 	struct ao_telemetry_mega_data		mega_data;
 	struct ao_telemetry_metrum_sensor	metrum_sensor;
 	struct ao_telemetry_metrum_data		metrum_data;
+	struct ao_telemetry_mini		mini;
 	struct ao_telemetry_baro		baro;
 };
 

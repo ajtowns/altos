@@ -16,21 +16,18 @@
  */
 
 #include <ao.h>
-#include <ao_data.h>
+#include <ao_exti.h>
 
-volatile __xdata struct ao_data	ao_data_ring[AO_DATA_RING];
-volatile __data uint8_t		ao_data_head;
-volatile __data uint8_t		ao_data_present;
+#if HAS_EXTI_0
+__xdata void 	(*ao_int_callback)(void);
 
-#ifndef ao_data_count
 void
-ao_data_get(__xdata struct ao_data *packet)
+ao_p0_isr(void) __interrupt(13)
 {
-#if HAS_FLIGHT
-	uint8_t	i = ao_data_ring_prev(ao_sample_data);
-#else
-	uint8_t	i = ao_data_ring_prev(ao_data_head);
-#endif
-	memcpy(packet, (void *) &ao_data_ring[i], sizeof (struct ao_data));
+	if (P0IF && (P0IFG & (AO_MS5607_MISO_MASK))) {
+		(*ao_int_callback)();
+	}
+	P0IFG = 0;
+	P0IF = 0;
 }
 #endif

@@ -423,7 +423,7 @@ ao_sleep(__xdata void *wchan)
 }
 
 void
-ao_wakeup(__xdata void *wchan)
+ao_wakeup(__xdata void *wchan) __reentrant
 {
 #if HAS_TASK_QUEUE
 	struct ao_task	*sleep, *next;

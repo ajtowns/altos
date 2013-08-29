@@ -40,9 +40,9 @@ static __pdata int32_t		ao_k_accel;
 __pdata int16_t			ao_height;
 __pdata int16_t			ao_speed;
 __pdata int16_t			ao_accel;
-__pdata int16_t			ao_max_height;
+__xdata int16_t			ao_max_height;
 static __pdata int32_t		ao_avg_height_scaled;
-__pdata int16_t			ao_avg_height;
+__xdata int16_t			ao_avg_height;
 
 __pdata int16_t			ao_error_h;
 __pdata int16_t			ao_error_h_sq_avg;

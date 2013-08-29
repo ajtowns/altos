@@ -27,12 +27,12 @@ uint8_t
 ao_74hc165_read(void)
 {
 	static __xdata state;
-	ao_mutex_get(&ao_spi_mutex);
-	ao_spi_set_speed(AO_SPI_SPEED_FAST);
+	ao_spi_get(AO_74HC165_SPI_BUS);
+	ao_spi_set_speed(AO_74HC165_SPI_BUS, AO_SPI_SPEED_FAST);
 	AO_74HC165_CS = 1;
 	ao_spi_recv(&state, 1, AO_74HC165_SPI_BUS);
 	AO_74HC165_CS = 0;
-	ao_mutex_put(&ao_spi_mutex);
+	ao_spi_put(AO_74HC165_SPI_BUS);
 	return state;
 }
 

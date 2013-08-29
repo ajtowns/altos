@@ -321,4 +321,9 @@ void
 ao_serial1_tx_isr(void) ao_arch_interrupt(14);
 #endif
 
+#if HAS_EXTI_0
+void
+ao_p0_isr(void) __interrupt(13);
+#endif
+
 #endif /* _AO_ARCH_H_ */

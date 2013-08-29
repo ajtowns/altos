@@ -181,8 +181,7 @@ static void
 ao_send_metrum_sensor(void)
 {
 	__xdata	struct ao_data *packet = (__xdata struct ao_data *) &ao_data_ring[ao_data_ring_prev(ao_sample_data)];
-			
-	telemetry.generic.tick = packet->tick;
+
 	telemetry.generic.type = AO_TELEMETRY_METRUM_SENSOR;
 
 	telemetry.metrum_sensor.state = ao_flight_state;
@@ -213,7 +212,7 @@ ao_send_metrum_data(void)
 		uint8_t	i;
 
 		telemetry.generic.tick = packet->tick;
-		telemetry.generic.type = AO_TELEMETRY_MEGA_DATA;
+		telemetry.generic.type = AO_TELEMETRY_METRUM_DATA;
 
 		telemetry.metrum_data.ground_pres = ao_ground_pres;
 		telemetry.metrum_data.ground_accel = ao_ground_accel;
@@ -224,7 +223,37 @@ ao_send_metrum_data(void)
 		ao_telemetry_metrum_data_cur = ao_telemetry_metrum_data_max;
 	}
 }
-#endif /* AO_SEND_MEGA */
+#endif /* AO_SEND_METRUM */
+
+#ifdef AO_SEND_MINI
+
+static void
+ao_send_mini(void)
+{
+	__xdata	struct ao_data *packet = (__xdata struct ao_data *) &ao_data_ring[ao_data_ring_prev(ao_sample_data)];
+			
+	telemetry.generic.tick = packet->tick;
+	telemetry.generic.type = AO_TELEMETRY_MINI;
+
+	telemetry.mini.state = ao_flight_state;
+
+	telemetry.mini.v_batt = packet->adc.v_batt;
+	telemetry.mini.sense_a = packet->adc.sense_a;
+	telemetry.mini.sense_m = packet->adc.sense_m;
+
+	telemetry.mini.pres = ao_data_pres(packet);
+	telemetry.mini.temp = ao_data_temp(packet);
+
+	telemetry.mini.acceleration = ao_accel;
+	telemetry.mini.speed = ao_speed;
+	telemetry.mini.height = ao_height;
+
+	telemetry.mini.ground_pres = ao_ground_pres;
+
+	ao_radio_send(&telemetry, sizeof (telemetry));
+}
+
+#endif /* AO_SEND_MINI */
 
 #ifdef AO_SEND_ALL_BARO
 static uint8_t		ao_baro_sample;
@@ -369,7 +398,6 @@ ao_telemetry(void)
 		ao_aprs_time = time;
 #endif
 		while (ao_telemetry_interval) {
-
 #if HAS_APRS
 			if (!(ao_config.radio_enable & AO_RADIO_DISABLE_TELEMETRY))
 #endif
@@ -377,19 +405,23 @@ ao_telemetry(void)
 #ifdef AO_SEND_ALL_BARO
 				ao_send_baro();
 #endif
+
 #if HAS_FLIGHT
-#ifdef AO_SEND_MEGA
+# ifdef AO_SEND_MEGA
 				ao_send_mega_sensor();
 				ao_send_mega_data();
-#else
-#ifdef AO_SEND_METRUM
+# endif
+# ifdef AO_SEND_METRUM
 				ao_send_metrum_sensor();
 				ao_send_metrum_data();
-#else
+# endif
+# ifdef AO_SEND_MINI
+				ao_send_mini();
+# endif
+# ifdef AO_TELEMETRY_SENSOR
 				ao_send_sensor();
-#endif
-#endif
-#endif
+# endif
+#endif /* HAS_FLIGHT */
 
 #if HAS_COMPANION
 				if (ao_companion_running)
@@ -406,18 +438,18 @@ ao_telemetry(void)
 			if (ao_rdf &&
 #if HAS_APRS
 			    !(ao_config.radio_enable & AO_RADIO_DISABLE_RDF) &&
-#endif
+#endif /* HAS_APRS */
 			    (int16_t) (ao_time() - ao_rdf_time) >= 0)
 			{
 #if HAS_IGNITE_REPORT
 				uint8_t	c;
-#endif
+#endif /* HAS_IGNITE_REPORT */
 				ao_rdf_time = ao_time() + AO_RDF_INTERVAL_TICKS;
 #if HAS_IGNITE_REPORT
 				if (ao_flight_state == ao_flight_pad && (c = ao_report_igniter()))
 					ao_radio_continuity(c);
 				else
-#endif
+#endif /* HAS_IGNITE_REPORT*/
 					ao_radio_rdf();
 			}
 #endif /* HAS_RDF */
@@ -428,8 +460,8 @@ ao_telemetry(void)
 				ao_aprs_time = ao_time() + AO_SEC_TO_TICKS(ao_config.aprs_interval);
 				ao_aprs_send();
 			}
-#endif
-#endif
+#endif /* HAS_APRS */
+#endif /* !AO_SEND_ALL_BARO */
 			time += ao_telemetry_interval;
 			delay = time - ao_time();
 			if (delay > 0) {

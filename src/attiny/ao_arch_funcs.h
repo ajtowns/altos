@@ -41,6 +41,8 @@
 			PORTB &= ~(1 << bit);	\
 	} while (0)
 
+#define ao_gpio_get(port, bit, pin)	((PORTB >> (bit)) & 1)
+
 /*
  * The SPI mutex must be held to call either of these
  * functions -- this mutex covers the entire SPI operation,
