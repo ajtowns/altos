@@ -67,20 +67,6 @@ ao_timer_set_adc_interval(uint8_t interval)
 }
 #endif
 
-/*
- * According to the STM clock-configuration, timers run
- * twice as fast as the APB1 clock *if* the APB1 prescaler
- * is greater than 1.
- */
-
-#if AO_APB1_PRESCALER > 1
-#define TIMER_23467_SCALER 2
-#else
-#define TIMER_23467_SCALER 1
-#endif
-
-#define TIMER_10kHz	((AO_PCLK1 * TIMER_23467_SCALER) / 10000)
-
 #define SYSTICK_RELOAD (AO_SYSTICK / 100 - 1)
 
 void
