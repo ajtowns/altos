@@ -48,6 +48,8 @@
 
 #define PACKET_HAS_SLAVE	0
 
+#define AO_LOG_FORMAT		AO_LOG_FORMAT_EASYMINI
+
 /* USART */
 
 #define HAS_SERIAL		0
