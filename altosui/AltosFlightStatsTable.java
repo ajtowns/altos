@@ -106,11 +106,11 @@ public class AltosFlightStatsTable extends JComponent {
 				       String.format("%5.0f G", AltosConvert.meters_to_g(stats.state_accel[Altos.ao_flight_boost])));
 		}
 		new FlightStat(layout, y++, "Drogue descent rate",
-			       String.format("%5.0f m/s", stats.state_baro_speed[Altos.ao_flight_drogue]),
-			       String.format("%5.0f ft/s", AltosConvert.meters_to_feet(stats.state_baro_speed[Altos.ao_flight_drogue])));
+			       String.format("%5.0f m/s", stats.state_speed[Altos.ao_flight_drogue]),
+			       String.format("%5.0f ft/s", AltosConvert.meters_to_feet(stats.state_speed[Altos.ao_flight_drogue])));
 		new FlightStat(layout, y++, "Main descent rate",
-			       String.format("%5.0f m/s", stats.state_baro_speed[Altos.ao_flight_main]),
-			       String.format("%5.0f ft/s", AltosConvert.meters_to_feet(stats.state_baro_speed[Altos.ao_flight_main])));
+			       String.format("%5.0f m/s", stats.state_speed[Altos.ao_flight_main]),
+			       String.format("%5.0f ft/s", AltosConvert.meters_to_feet(stats.state_speed[Altos.ao_flight_main])));
 		new FlightStat(layout, y++, "Ascent time",
 			       String.format("%6.1f s %s", stats.state_end[AltosLib.ao_flight_boost] - stats.state_start[AltosLib.ao_flight_boost],
 					     AltosLib.state_name(Altos.ao_flight_boost)),

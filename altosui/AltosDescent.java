@@ -256,10 +256,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	class Speed extends DescentValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			double speed = state.accel_speed;
-			if (!state.ascent)
-				speed = state.baro_speed;
-			show(AltosConvert.speed, speed);
+			show(AltosConvert.speed, state.speed);
 		}
 		public Speed (GridBagLayout layout, int x, int y) {
 			super (layout, x, y, "Speed");
@@ -325,8 +322,8 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	class Apogee extends DescentStatus {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show("%4.2f V", state.drogue_sense);
-			lights.set(state.drogue_sense > 3.2);
+			show("%4.2f V", state.apogee_voltage);
+			lights.set(state.apogee_voltage > 3.7);
 		}
 		public Apogee (GridBagLayout layout, int y) {
 			super(layout, y, "Apogee Igniter Voltage");
@@ -337,8 +334,8 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	class Main extends DescentStatus {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show("%4.2f V", state.main_sense);
-			lights.set(state.main_sense > 3.2);
+			show("%4.2f V", state.main_voltage);
+			lights.set(state.main_voltage > 3.7);
 		}
 		public Main (GridBagLayout layout, int y) {
 			super(layout, y, "Main Igniter Voltage");
@@ -430,11 +427,11 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			lat.hide();
 			lon.hide();
 		}
-		if (state.main_sense != AltosRecord.MISSING)
+		if (state.main_voltage != AltosRecord.MISSING)
 			main.show(state, listener_state);
 		else
 			main.hide();
-		if (state.drogue_sense != AltosRecord.MISSING)
+		if (state.apogee_voltage != AltosRecord.MISSING)
 			apogee.show(state, listener_state);
 		else
 			apogee.hide();

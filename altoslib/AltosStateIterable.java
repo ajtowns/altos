@@ -19,30 +19,11 @@ package org.altusmetrum.altoslib_1;
 
 import java.io.*;
 import java.util.*;
-import java.text.*;
 
-public class AltosEepromHeaderIterable implements Iterable<AltosEepromHeader> {
-	public LinkedList<AltosEepromHeader> headers;
+public abstract class AltosStateIterable implements Iterable<AltosState> {
 
-	public void write(PrintStream out) {
-		AltosEepromHeader.write(out, headers);
+	public void write_comments (PrintStream out) {
 	}
-
-	public AltosState state() {
-		AltosState	state = new AltosState();
-
-		for (AltosEepromHeader header : headers)
-			header.update_state(state);
-		return state;
-	}
-
-	public AltosEepromHeaderIterable(FileInputStream input) {
-		headers = AltosEepromHeader.read(input);
-	}
-
-	public Iterator<AltosEepromHeader> iterator() {
-		if (headers == null)
-			headers = new LinkedList<AltosEepromHeader>();
-		return headers.iterator();
-	}
+	
+	public abstract void write(PrintStream out);
 }

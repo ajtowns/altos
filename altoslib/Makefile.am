@@ -20,6 +20,7 @@ altoslib_JAVA = \
 	AltosEeprom.java \
 	AltosEepromChunk.java \
 	AltosEepromFile.java \
+	AltosEepromTM.java \
 	AltosEepromHeader.java \
 	AltosEepromIterable.java \
 	AltosEepromLog.java \
@@ -28,7 +29,6 @@ altoslib_JAVA = \
 	AltosEepromRecord.java \
 	AltosEepromTeleScience.java \
 	AltosEepromMini.java \
-	AltosEepromMiniIterable.java \
 	AltosEepromOldIterable.java \
 	AltosFile.java \
 	AltosFlash.java \
@@ -69,6 +69,7 @@ altoslib_JAVA = \
 	AltosSensorMM.java \
 	AltosSensorTM.java \
 	AltosState.java \
+	AltosStateIterable.java \
 	AltosStateUpdate.java \
 	AltosTelemetry.java \
 	AltosTelemetryIterable.java \

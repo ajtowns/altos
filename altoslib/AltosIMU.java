@@ -37,5 +37,6 @@ public class AltosIMU implements Cloneable {
 		n.gyro_y = gyro_y;
 		n.gyro_z = gyro_z;
 		return n;
+	}
 }
 	

@@ -56,6 +56,10 @@ public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 	public int	flight_log_max;
 	public String	firmware_version;
 
+	public double	accel_plus_g, accel_minus_g;
+	public double	ground_accel;
+	public double	accel;
+
 	public AltosRecordCompanion companion;
 
 	/* Telemetry sources have these values recorded from the flight computer */
@@ -167,5 +171,9 @@ public class AltosRecord implements Comparable <AltosRecord>, Cloneable {
 		kalman_acceleration = MISSING;
 		kalman_speed = MISSING;
 		kalman_height = MISSING;
+
+		accel_plus_g = MISSING;
+		accel_minus_g = MISSING;
+		
 	}
 }

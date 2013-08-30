@@ -36,7 +36,7 @@ public class AltosDataChooser extends JFileChooser {
 		return file;
 	}
 
-	public AltosRecordIterable runDialog() {
+	public AltosStateIterable runDialog() {
 		int	ret;
 
 		ret = showOpenDialog(frame);
@@ -48,16 +48,10 @@ public class AltosDataChooser extends JFileChooser {
 			try {
 				if (filename.endsWith("eeprom")) {
 					FileInputStream in = new FileInputStream(file);
-					return new AltosEepromIterable(in);
+					return new AltosEepromFile(in);
 				} else if (filename.endsWith("telem")) {
 					FileInputStream in = new FileInputStream(file);
-					return new AltosTelemetryIterable(in);
-				} else if (filename.endsWith("mega")) {
-					FileInputStream in = new FileInputStream(file);
-					return new AltosEepromMegaIterable(in);
-				} else if (filename.endsWith("mini")) {
-					FileInputStream in = new FileInputStream(file);
-					return new AltosEepromMiniIterable(in);
+					return null; // new AltosTelemetryIterable(in);
 				} else {
 					throw new FileNotFoundException();
 				}

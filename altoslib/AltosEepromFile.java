@@ -21,10 +21,46 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 
-public class AltosEepromFile {
+class AltosEepromIterator implements Iterator<AltosState> {
+	AltosState		state;
+	Iterator<AltosEeprom>	body;
+	AltosEeprom		next;
+	boolean			seen;
+
+	public boolean hasNext() {
+		return !seen || body.hasNext();
+	}
+
+	public AltosState next() {
+		if (seen) {
+			AltosState	n = state.clone();
+			AltosEeprom	e = body.next();
+
+			e.update_state(n);
+			state = n;
+		}
+		seen = true;
+		return state;
+	}
+
+	public void remove () {
+	}
+
+	public AltosEepromIterator(AltosState start, Iterator<AltosEeprom> body) {
+		this.state = start;
+		this.body = body;
+		this.seen = false;
+	}
+}
+
+public class AltosEepromFile extends AltosStateIterable {
 
 	AltosEepromIterable	headers;
 	AltosEepromIterable	body;
+
+	public void write_comments(PrintStream out) {
+		headers.write(out);
+	}
 
 	public void write(PrintStream out) {
 		headers.write(out);
@@ -38,14 +74,38 @@ public class AltosEepromFile {
 
 		switch (state.log_format) {
 		case AltosLib.AO_LOG_FORMAT_FULL:
+			body = new AltosEepromIterable(AltosEepromTM.read(input));
+			break;
 		case AltosLib.AO_LOG_FORMAT_TINY:
 		case AltosLib.AO_LOG_FORMAT_TELEMETRY:
 		case AltosLib.AO_LOG_FORMAT_TELESCIENCE:
 		case AltosLib.AO_LOG_FORMAT_TELEMEGA:
 			break;
-		case AltosLib.AO_LOG_FORMAT_MINI:
+		case AltosLib.AO_LOG_FORMAT_TELEMINI:
+		case AltosLib.AO_LOG_FORMAT_EASYMINI:
 			body = new AltosEepromIterable(AltosEepromMini.read(input));
 			break;
 		}
+	}
+
+	int boost_tick (AltosState start) {
+		AltosState	state = start.clone();
+		for (AltosEeprom eeprom : body) {
+			eeprom.update_state(state);
+			if (state.state >= AltosLib.ao_flight_boost)
+				return state.tick;
+		}
+		return 0;
+	}
+
+	public Iterator<AltosState> iterator() {
+
+		AltosState		state = headers.state();
+		Iterator<AltosEeprom>  	i = body.iterator();
+
+		while (i.hasNext() && !state.valid())
+			i.next().update_state(state);
+		state.set_boost_tick(boost_tick(state));
+		return new AltosEepromIterator(state, i);
 	}
 }

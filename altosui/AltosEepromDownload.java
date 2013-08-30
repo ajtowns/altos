@@ -418,8 +418,9 @@ public class AltosEepromDownload implements Runnable {
 				extension = "mega";
 				CaptureMega(eechunk);
 				break;
-			case AltosLib.AO_LOG_FORMAT_MINI:
-				extension = "mini";
+			case AltosLib.AO_LOG_FORMAT_EASYMINI:
+			case AltosLib.AO_LOG_FORMAT_TELEMINI:
+				extension = "eeprom";
 				CaptureMini(eechunk);
 				break;
 			}

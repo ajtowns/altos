@@ -113,7 +113,7 @@ public class AltosDisplayThread extends Thread {
 			     System.currentTimeMillis() - state.report_time >= 15000 ||
 			     state.state == Altos.ao_flight_landed))
 			{
-				if (Math.abs(state.baro_speed) < 20 && state.height < 100)
+				if (Math.abs(state.speed) < 20 && state.height < 100)
 					voice.speak("rocket landed safely");
 				else
 					voice.speak("rocket may have crashed");
@@ -181,11 +181,11 @@ public class AltosDisplayThread extends Thread {
 	synchronized boolean tell() {
 		boolean	ret = false;
 		if (old_state == null || old_state.state != state.state) {
-			voice.speak(state.data.state());
+			voice.speak(state.state_name());
 			if ((old_state == null || old_state.state <= Altos.ao_flight_boost) &&
 			    state.state > Altos.ao_flight_boost) {
 				voice.speak("max speed: %s.",
-					    AltosConvert.speed.say_units(state.max_accel_speed + 0.5));
+					    AltosConvert.speed.say_units(state.max_speed + 0.5));
 				ret = true;
 			} else if ((old_state == null || old_state.state < Altos.ao_flight_drogue) &&
 				   state.state >= Altos.ao_flight_drogue) {
@@ -218,11 +218,9 @@ public class AltosDisplayThread extends Thread {
 		try {
 			for (;;) {
 				try {
-					AltosRecord record = reader.read();
-					if (record == null)
+					state = reader.read();
+					if (state == null)
 						break;
-					old_state = state;
-					state = new AltosState(record, state);
 					reader.update(state);
 					show_safely();
 					told = tell();

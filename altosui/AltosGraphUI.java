@@ -28,10 +28,9 @@ public class AltosGraphUI extends AltosUIFrame
 	AltosFlightStatsTable	statsTable;
 	boolean			has_gps;
 
-	void fill_map(AltosRecordIterable records) {
+	void fill_map(AltosStateIterable states) {
 		boolean		any_gps = false;
-		for (AltosRecord record : records) {
-			state = new AltosState(record, state);
+		for (AltosState state : states) {
 			if (state.gps != null && state.gps.locked && state.gps.nsat >= 4) {
 				if (map == null)
 					map = new AltosSiteMap();
@@ -41,7 +40,7 @@ public class AltosGraphUI extends AltosUIFrame
 		}
 	}
 
-	AltosGraphUI(AltosRecordIterable records, File file) throws InterruptedException, IOException {
+	AltosGraphUI(AltosStateIterable states, File file) throws InterruptedException, IOException {
 		super(file.getName());
 		state = null;
 
@@ -49,8 +48,8 @@ public class AltosGraphUI extends AltosUIFrame
 
 		enable = new AltosUIEnable();
 
-		stats = new AltosFlightStats(records);
-		graphDataSet = new AltosGraphDataSet(records);
+		stats = new AltosFlightStats(states);
+		graphDataSet = new AltosGraphDataSet(states);
 
 		graph = new AltosGraph(enable, stats, graphDataSet);
 
@@ -61,7 +60,7 @@ public class AltosGraphUI extends AltosUIFrame
 		pane.add("Flight Statistics", statsTable);
 
 		has_gps = false;
-		fill_map(records);
+		fill_map(states);
 		if (has_gps)
 			pane.add("Map", map);
 

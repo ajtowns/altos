@@ -27,16 +27,18 @@ public class AltosTelemetryReader extends AltosFlightReader {
 	AltosRecord	previous;
 	double		frequency;
 	int		telemetry;
+	AltosState	state = null;
 
 	LinkedBlockingQueue<AltosLine> telem;
 
-	public AltosRecord read() throws InterruptedException, ParseException, AltosCRCException, IOException {
+	public AltosState read() throws InterruptedException, ParseException, AltosCRCException, IOException {
 		AltosLine l = telem.take();
 		if (l.line == null)
 			throw new IOException("IO error");
 		AltosRecord	next = AltosTelemetry.parse(l.line, previous);
 		previous = next;
-		return next;
+		state = new AltosState (next, state);
+		return state;
 	}
 
 	public void flush() {

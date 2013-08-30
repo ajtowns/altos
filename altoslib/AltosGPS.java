@@ -28,7 +28,7 @@ public class AltosGPS implements Cloneable {
 	public boolean	connected;
 	public double	lat;		/* degrees (+N -S) */
 	public double	lon;		/* degrees (+E -W) */
-	public int	alt;		/* m */
+	public double	alt;		/* m */
 	public int	year;
 	public int	month;
 	public int	day;
@@ -222,7 +222,7 @@ public class AltosGPS implements Cloneable {
 		g.nsat = nsat;
 		g.locked = locked;
 		g.connected = connected;
-		g.lat = lat;		g./* degrees (+N -S) */
+		g.lat = lat;		/* degrees (+N -S) */
 		g.lon = lon;		/* degrees (+E -W) */
 		g.alt = alt;		/* m */
 		g.year = year;
@@ -242,11 +242,11 @@ public class AltosGPS implements Cloneable {
 		if (cc_gps_sat != null) {
 			g.cc_gps_sat = new AltosGPSSat[cc_gps_sat.length];
 			for (int i = 0; i < cc_gps_sat.length; i++) {
-				g.cc_gps_sat[i] = new AltosGPSSat();
-				g.cc_gps_sat[i].svid = cc_gps_sat[i].svid;
-				g.cc_gps_sat[i].c_n0 = cc_gps_sat[i].c_n0;
+				g.cc_gps_sat[i] = new AltosGPSSat(cc_gps_sat[i].svid,
+								  cc_gps_sat[i].c_n0);
 			}
 		}
+		return g;
 	}
 
 	public AltosGPS(AltosGPS old) {

@@ -184,13 +184,13 @@ public class AltosScanUI
 			try {
 				for (;;) {
 					try {
-						AltosRecord	record = reader.read();
-						if (record == null)
+						AltosState	state = reader.read();
+						if (state == null)
 							continue;
-						if ((record.seen & AltosRecord.seen_flight) != 0) {
-							final AltosScanResult	result = new AltosScanResult(record.callsign,
-												     record.serial,
-												     record.flight,
+						if (state.flight != AltosRecord.MISSING) {
+							final AltosScanResult	result = new AltosScanResult(state.callsign,
+												     state.serial,
+												     state.flight,
 												     frequencies[frequency_index],
 												     telemetry);
 							Runnable r = new Runnable() {

@@ -28,7 +28,7 @@ public class AltosFlightReader {
 
 	public void init() { }
 
-	public AltosRecord read() throws InterruptedException, ParseException, AltosCRCException, IOException { return null; }
+	public AltosState read() throws InterruptedException, ParseException, AltosCRCException, IOException { return null; }
 
 	public void close(boolean interrupted) { }
 

@@ -21,7 +21,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 
-public class AltosEepromMiniIterable extends AltosRecordIterable {
+public class AltosEepromMiniIterable implements Iterable<AltosEepromMini> {
 
 	static final int	seen_flight = 1;
 	static final int	seen_sensor = 2;

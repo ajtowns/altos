@@ -43,8 +43,7 @@ public class AltosEepromHeader extends AltosEeprom {
 			state.callsign = data;
 			break;
 		case AltosLib.AO_LOG_ACCEL_CAL:
-			state.accel_plus_g = config_a;
-			state.accel_minus_g = config_b;
+			state.set_accel_g(config_a, config_b);
 			break;
 		case AltosLib.AO_LOG_RADIO_CAL:
 			break;
@@ -56,30 +55,38 @@ public class AltosEepromHeader extends AltosEeprom {
 			state.log_format = config_a;
 			break;
 		case AltosLib.AO_LOG_SERIAL_NUMBER:
-			state.serial = config_a;
+			state.set_serial(config_a);
 			break;
 		case AltosLib.AO_LOG_BARO_RESERVED:
+			state.make_baro();
 			state.baro.reserved = config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_SENS:
+			state.make_baro();
 			state.baro.sens = config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_OFF:
+			state.make_baro();
 			state.baro.off = config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_TCS:
+			state.make_baro();
 			state.baro.tcs = config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_TCO:
+			state.make_baro();
 			state.baro.tco = config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_TREF:
+			state.make_baro();
 			state.baro.tref = config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_TEMPSENS:
+			state.make_baro();
 			state.baro.tempsens = config_a;
 			break;
 		case AltosLib.AO_LOG_BARO_CRC:
+			state.make_baro();
 			state.baro.crc = config_a;
 			break;
 		case AltosLib.AO_LOG_SOFTWARE_VERSION:

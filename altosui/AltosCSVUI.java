@@ -31,7 +31,7 @@ public class AltosCSVUI
 	JFileChooser		csv_chooser;
 	JPanel			accessory;
 	JComboBox		combo_box;
-	AltosRecordIterable	iterable;
+	Iterable<AltosState>	states;
 	AltosWriter		writer;
 
 	static String[]		combo_box_items = { "Comma Separated Values (.CSV)", "Googleearth Data (.KML)" };
@@ -55,8 +55,8 @@ public class AltosCSVUI
 			set_default_file();
 	}
 
-	public AltosCSVUI(JFrame frame, AltosRecordIterable in_iterable, File source_file) {
-		iterable = in_iterable;
+	public AltosCSVUI(JFrame frame, AltosStateIterable states, File source_file) {
+		this.states = states;
 		csv_chooser = new JFileChooser(source_file);
 
 		accessory = new JPanel();
@@ -91,7 +91,7 @@ public class AltosCSVUI
 					writer = new AltosCSV(file);
 				else
 					writer = new AltosKML(file);
-				writer.write(iterable);
+				writer.write(states);
 				writer.close();
 			} catch (FileNotFoundException ee) {
 				JOptionPane.showMessageDialog(frame,

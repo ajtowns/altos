@@ -271,27 +271,34 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	int last_state = -1;
 
 	public void show(double lat, double lon) {
-		initMaps(lat, lon);
-		scrollRocketToVisible(pt(lat, lon));
+		System.out.printf ("show %g %g\n", lat, lon);
+		return;
+//		initMaps(lat, lon);
+//		scrollRocketToVisible(pt(lat, lon));
 	}
 	public void show(final AltosState state, final AltosListenerState listener_state) {
 		// if insufficient gps data, nothing to update
-		if (!state.gps.locked && state.gps.nsat < 4)
+		AltosGPS	gps = state.gps;
+
+		if (gps == null)
+			return;
+
+		if (!gps.locked && gps.nsat < 4)
 			return;
 
 		if (!initialised) {
-			if (state.pad_lat != 0 || state.pad_lon != 0) {
+			if (state.pad_lat != AltosRecord.MISSING && state.pad_lon != AltosRecord.MISSING) {
 				initMaps(state.pad_lat, state.pad_lon);
 				initialised = true;
-			} else if (state.gps.lat != 0 || state.gps.lon != 0) {
-				initMaps(state.gps.lat, state.gps.lon);
+			} else if (gps.lat != AltosRecord.MISSING && gps.lon != AltosRecord.MISSING) {
+				initMaps(gps.lat, gps.lon);
 				initialised = true;
 			} else {
 				return;
 			}
 		}
 
-		final Point2D.Double pt = pt(state.gps.lat, state.gps.lon);
+		final Point2D.Double pt = pt(gps.lat, gps.lon);
 		if (last_pt == pt && last_state == state.state)
 			return;
 

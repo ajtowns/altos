@@ -55,13 +55,30 @@ public class AltosEepromMini extends AltosEeprom {
 	public int sense_m() { return data16(8); }
 	public int v_batt() { return data16(10); }
 
+	double voltage(AltosState state, int sensor) {
+		double	supply;
+
+		if (state.log_format == AltosLib.AO_LOG_FORMAT_EASYMINI)
+			supply = 3.0;
+		else
+			supply = 3.3;
+		return sensor / 32767.0 * supply * 127/27;
+	}
+
 	public void update_state(AltosState state) {
 		switch (cmd) {
 		case AltosLib.AO_LOG_FLIGHT:
+			state.set_flight(flight());
+			state.set_ground_pressure(ground_pres());
 			break;
 		case AltosLib.AO_LOG_STATE:
+			state.set_state(state());
 			break;
 		case AltosLib.AO_LOG_SENSOR:
+			state.set_ms5607(pres(), temp());
+			state.set_apogee_voltage(voltage(state, sense_a()));
+			state.set_main_voltage(voltage(state, sense_m()));
+			state.set_battery_voltage(voltage(state, v_batt()));
 			break;
 		}
 	}

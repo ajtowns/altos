@@ -176,11 +176,11 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class Battery extends LaunchStatus {
 		void show (AltosState state, AltosListenerState listener_state) {
-			if (state == null || state.battery == AltosRecord.MISSING)
+			if (state == null || state.battery_voltage == AltosRecord.MISSING)
 				hide();
 			else {
-				show("%4.2f V", state.battery);
-				lights.set(state.battery > 3.7);
+				show("%4.2f V", state.battery_voltage);
+				lights.set(state.battery_voltage > 3.7);
 			}
 		}
 		public Battery (GridBagLayout layout, int y) {
@@ -192,11 +192,11 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class Apogee extends LaunchStatus {
 		void show (AltosState state, AltosListenerState listener_state) {
-			if (state == null || state.drogue_sense == AltosRecord.MISSING)
+			if (state == null || state.apogee_voltage == AltosRecord.MISSING)
 				hide();
 			else {
-				show("%4.2f V", state.drogue_sense);
-				lights.set(state.drogue_sense > 3.2);
+				show("%4.2f V", state.apogee_voltage);
+				lights.set(state.apogee_voltage > 3.7);
 			}
 		}
 		public Apogee (GridBagLayout layout, int y) {
@@ -208,11 +208,11 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class Main extends LaunchStatus {
 		void show (AltosState state, AltosListenerState listener_state) {
-			if (state == null || state.main_sense == AltosRecord.MISSING)
+			if (state == null || state.main_voltage == AltosRecord.MISSING)
 				hide();
 			else {
-				show("%4.2f V", state.main_sense);
-				lights.set(state.main_sense > 3.2);
+				show("%4.2f V", state.main_voltage);
+				lights.set(state.main_voltage > 3.7);
 			}
 		}
 		public Main (GridBagLayout layout, int y) {
@@ -224,19 +224,19 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class LoggingReady extends LaunchStatus {
 		void show (AltosState state, AltosListenerState listener_state) {
-			if (state == null || state.data.flight == AltosRecord.MISSING) {
+			if (state == null || state.flight == AltosRecord.MISSING) {
 				hide();
 			} else {
-				if (state.data.flight != 0) {
-					if (state.data.state <= Altos.ao_flight_pad)
+				if (state.flight != 0) {
+					if (state.state <= Altos.ao_flight_pad)
 						show("Ready to record");
-					else if (state.data.state < Altos.ao_flight_landed)
+					else if (state.state < Altos.ao_flight_landed)
 						show("Recording data");
 					else
 						show("Recorded data");
 				} else
 					show("Storage full");
-				lights.set(state.data.flight != 0);
+				lights.set(state.flight != 0);
 			}
 		}
 		public LoggingReady (GridBagLayout layout, int y) {

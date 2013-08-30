@@ -290,9 +290,9 @@ public class AltosUI extends AltosUIFrame {
 		AltosDataChooser chooser = new AltosDataChooser(
 			AltosUI.this);
 
-		AltosRecordIterable iterable = chooser.runDialog();
-		if (iterable != null) {
-			AltosFlightReader reader = new AltosReplayReader(iterable.iterator(),
+		Iterable<AltosState> states = chooser.runDialog();
+		if (states != null) {
+			AltosFlightReader reader = new AltosReplayReader(states.iterator(),
 									 chooser.file());
 			new AltosFlightUI(voice, reader);
 		}
@@ -312,10 +312,10 @@ public class AltosUI extends AltosUIFrame {
 	private void ExportData() {
 		AltosDataChooser chooser;
 		chooser = new AltosDataChooser(this);
-		AltosRecordIterable record_reader = chooser.runDialog();
-		if (record_reader == null)
+		AltosStateIterable states = chooser.runDialog();
+		if (states == null)
 			return;
-		new AltosCSVUI(AltosUI.this, record_reader, chooser.file());
+		new AltosCSVUI(AltosUI.this, states, chooser.file());
 	}
 
 	/* Load a flight log CSV file and display a pretty graph.
@@ -324,11 +324,11 @@ public class AltosUI extends AltosUIFrame {
 	private void GraphData() {
 		AltosDataChooser chooser;
 		chooser = new AltosDataChooser(this);
-		AltosRecordIterable record_reader = chooser.runDialog();
-		if (record_reader == null)
+		AltosStateIterable states = chooser.runDialog();
+		if (states == null)
 			return;
 		try {
-			new AltosGraphUI(record_reader, chooser.file());
+			new AltosGraphUI(states, chooser.file());
 		} catch (InterruptedException ie) {
 		} catch (IOException ie) {
 		}
@@ -345,19 +345,15 @@ public class AltosUI extends AltosUIFrame {
 		}
 	}
 
-	static AltosRecordIterable open_logfile(File file) {
+	static AltosStateIterable open_logfile(File file) {
 		try {
 			FileInputStream in;
 
 			in = new FileInputStream(file);
 			if (file.getName().endsWith("eeprom"))
-				return new AltosEepromIterable(in);
-			else if (file.getName().endsWith("mega"))
-				return new AltosEepromMegaIterable(in);
-			else if (file.getName().endsWith("mini"))
-				return new AltosEepromMiniIterable(in);
+				return new AltosEepromFile(in);
 			else
-				return new AltosTelemetryIterable(in);
+				return null; // new AltosTelemetryIterable(in);
 		} catch (FileNotFoundException fe) {
 			System.out.printf("%s\n", fe.getMessage());
 			return null;
@@ -388,10 +384,11 @@ public class AltosUI extends AltosUIFrame {
 	static final int process_graph = 3;
 	static final int process_replay = 4;
 	static final int process_summary = 5;
+	static final int process_cat = 6;
 
 	static boolean process_csv(File input) {
-		AltosRecordIterable iterable = open_logfile(input);
-		if (iterable == null)
+		AltosStateIterable states = open_logfile(input);
+		if (states == null)
 			return false;
 
 		File output = Altos.replace_extension(input,".csv");
@@ -403,15 +400,15 @@ public class AltosUI extends AltosUIFrame {
 			AltosWriter writer = open_csv(output);
 			if (writer == null)
 				return false;
-			writer.write(iterable);
+			writer.write(states);
 			writer.close();
 		}
 		return true;
 	}
 
 	static boolean process_kml(File input) {
-		AltosRecordIterable iterable = open_logfile(input);
-		if (iterable == null)
+		AltosStateIterable states = open_logfile(input);
+		if (states == null)
 			return false;
 
 		File output = Altos.replace_extension(input,".kml");
@@ -423,13 +420,13 @@ public class AltosUI extends AltosUIFrame {
 			AltosWriter writer = open_kml(output);
 			if (writer == null)
 				return false;
-			writer.write(iterable);
+			writer.write(states);
 			writer.close();
 			return true;
 		}
 	}
 
-	static AltosRecordIterable record_iterable(File file) {
+	static AltosStateIterable record_iterable(File file) {
 		FileInputStream in;
 		try {
 			in = new FileInputStream(file);
@@ -437,25 +434,18 @@ public class AltosUI extends AltosUIFrame {
 			System.out.printf("Failed to open file '%s'\n", file);
 			return null;
 		}
-		AltosRecordIterable recs;
-		//AltosReplayReader reader;
 		if (file.getName().endsWith("eeprom")) {
-			recs = new AltosEepromIterable(in);
-		} else if (file.getName().endsWith("mega")) {
-			recs = new AltosEepromMegaIterable(in);
-		} else if (file.getName().endsWith("mini")) {
-			recs = new AltosEepromMiniIterable(in);
+			return new AltosEepromFile(in);
 		} else {
-			recs = new AltosTelemetryIterable(in);
+			return null; // new AltosTelemetryIterable(in);
 		}
-		return recs;
 	}
 
 	static AltosReplayReader replay_file(File file) {
-		AltosRecordIterable recs = record_iterable(file);
-		if (recs == null)
+		AltosStateIterable states = record_iterable(file);
+		if (states == null)
 			return null;
-		return new AltosReplayReader(recs.iterator(), file);
+		return new AltosReplayReader(states.iterator(), file);
 	}
 
 	static boolean process_replay(File file) {
@@ -468,11 +458,11 @@ public class AltosUI extends AltosUIFrame {
 	}
 
 	static boolean process_graph(File file) {
-		AltosRecordIterable recs = record_iterable(file);
-		if (recs == null)
+		AltosStateIterable states = record_iterable(file);
+		if (states == null)
 			return false;
 		try {
-			new AltosGraphUI(recs, file);
+			new AltosGraphUI(states, file);
 			return true;
 		} catch (InterruptedException ie) {
 		} catch (IOException ie) {
@@ -481,11 +471,11 @@ public class AltosUI extends AltosUIFrame {
 	}
 	
 	static boolean process_summary(File file) {
-		AltosRecordIterable iterable = record_iterable(file);
-		if (iterable == null)
+		AltosStateIterable states = record_iterable(file);
+		if (states == null)
 			return false;
 		try {
-			AltosFlightStats stats = new AltosFlightStats(iterable);
+			AltosFlightStats stats = new AltosFlightStats(states);
 			if (stats.serial > 0)
 				System.out.printf("Serial:       %5d\n", stats.serial);
 			if (stats.flight > 0)
@@ -510,11 +500,11 @@ public class AltosUI extends AltosUIFrame {
 						  AltosConvert.meters_to_g(stats.max_acceleration));
 			}
 			System.out.printf("Drogue rate: %6.0f m/s  %6.0f ft/s\n",
-					  stats.state_baro_speed[Altos.ao_flight_drogue],
-					  AltosConvert.meters_to_feet(stats.state_baro_speed[Altos.ao_flight_drogue]));
+					  stats.state_speed[Altos.ao_flight_drogue],
+					  AltosConvert.meters_to_feet(stats.state_speed[Altos.ao_flight_drogue]));
 			System.out.printf("Main rate:   %6.0f m/s  %6.0f ft/s\n",
-					  stats.state_baro_speed[Altos.ao_flight_main],
-					  AltosConvert.meters_to_feet(stats.state_baro_speed[Altos.ao_flight_main]));
+					  stats.state_speed[Altos.ao_flight_main],
+					  AltosConvert.meters_to_feet(stats.state_speed[Altos.ao_flight_main]));
 			System.out.printf("Flight time: %6.0f s\n",
 					  stats.state_end[Altos.ao_flight_main] -
 					  stats.state_start[Altos.ao_flight_boost]);
@@ -523,6 +513,27 @@ public class AltosUI extends AltosUIFrame {
 		} catch (IOException ie) {
 		}
 		return false;
+	}
+
+	static boolean process_cat(File file) {
+		try {
+			FileInputStream input = new FileInputStream(file);
+			AltosEepromFile eef = new AltosEepromFile(input);
+
+			for (AltosState state : eef) {
+				if ((state.set & AltosState.set_gps) != 0)
+					System.out.printf ("time %g lat %g lon %g alt %g\n",
+							   state.time_since_boost(),
+							   state.gps.lat,
+							   state.gps.lon,
+							   state.gps.alt);
+			}
+
+		} catch (Exception e) {
+			System.out.printf("Failed to open file '%s'\n", file);
+			return false;
+		}
+		return true;
 	}
 
 	public static void help(int code) {
@@ -574,6 +585,8 @@ public class AltosUI extends AltosUIFrame {
 					process = process_graph;
 				else if (args[i].equals("--summary"))
 					process = process_summary;
+				else if (args[i].equals("--cat"))
+					process = process_cat;
 				else if (args[i].startsWith("--"))
 					help(1);
 				else {
@@ -600,6 +613,9 @@ public class AltosUI extends AltosUIFrame {
 						if (!process_summary(file))
 							++errors;
 						break;
+					case process_cat:
+						if (!process_cat(file))
+							++errors;
 					}
 				}
 			}

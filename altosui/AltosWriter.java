@@ -22,9 +22,9 @@ import org.altusmetrum.altoslib_1.*;
 
 public interface AltosWriter {
 
-	public void write(AltosRecord record);
+	public void write(AltosState state);
 
-	public void write(AltosRecordIterable iterable);
+	public void write(AltosStateIterable states);
 
 	public void close();
 }

@@ -130,7 +130,7 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay, A
 		flightStatus.show(state, listener_state);
 		flightInfo.show(state, listener_state);
 
-		if (state.data.companion != null) {
+		if (state.companion != null) {
 			if (!has_companion) {
 				pane.add("Companion", companion);
 				has_companion= true;

@@ -190,6 +190,12 @@ public class AltosConvert {
 		return ignite / 32767 * 15.0;
 	}
 
+	public static double
+	barometer_to_pressure(double count)
+	{
+		return ((count / 16.0) / 2047.0 + 0.095) / 0.009 * 1000.0;
+	}
+
 	public static double radio_to_frequency(int freq, int setting, int cal, int channel) {
 		double	f;
 

@@ -25,34 +25,31 @@ import org.altusmetrum.altosuilib_1.*;
 
 class AltosGraphIterator implements Iterator<AltosUIDataPoint> {
 	AltosGraphDataSet	dataSet;
-	Iterator<AltosRecord>	iterator;
-
-	AltosState	state;
+	Iterator<AltosState>	iterator;
 
 	public boolean hasNext() {
 		return iterator.hasNext();
 	}
 
 	public AltosUIDataPoint next() {
-		state = new AltosState(iterator.next(), state);
+		AltosState	state = iterator.next();
 
-		if ((state.data.seen & AltosRecord.seen_flight) != 0) {
-			if (dataSet.callsign == null && state.data.callsign != null)
-				dataSet.callsign = state.data.callsign;
+		if (state.flight != AltosRecord.MISSING) {
+			if (dataSet.callsign == null && state.callsign != null)
+				dataSet.callsign = state.callsign;
 
-			if (dataSet.serial == 0 && state.data.serial != 0)
-				dataSet.serial = state.data.serial;
+			if (dataSet.serial == 0 && state.serial != 0)
+				dataSet.serial = state.serial;
 
-			if (dataSet.flight == 0 && state.data.flight != 0)
-				dataSet.flight = state.data.flight;
+			if (dataSet.flight == 0 && state.flight != 0)
+				dataSet.flight = state.flight;
 		}
 
 		return new AltosGraphDataPoint(state);
 	}
 
-	public AltosGraphIterator (Iterator<AltosRecord> iterator, AltosGraphDataSet dataSet) {
+	public AltosGraphIterator (Iterator<AltosState> iterator, AltosGraphDataSet dataSet) {
 		this.iterator = iterator;
-		this.state = null;
 		this.dataSet = dataSet;
 	}
 
@@ -64,7 +61,7 @@ class AltosGraphIterable implements Iterable<AltosUIDataPoint> {
 	AltosGraphDataSet	dataSet;
 
 	public Iterator<AltosUIDataPoint> iterator() {
-		return new AltosGraphIterator(dataSet.records.iterator(), dataSet);
+		return new AltosGraphIterator(dataSet.states.iterator(), dataSet);
 	}
 
 	public AltosGraphIterable(AltosGraphDataSet dataSet) {
@@ -76,7 +73,7 @@ public class AltosGraphDataSet implements AltosUIDataSet {
 	String			callsign;
 	int			serial;
 	int			flight;
-	AltosRecordIterable	records;
+	AltosStateIterable	states;
 
 	public String name() {
 		if (callsign != null)
@@ -89,8 +86,8 @@ public class AltosGraphDataSet implements AltosUIDataSet {
 		return new AltosGraphIterable(this);
 	}
 
-	public AltosGraphDataSet (AltosRecordIterable records) {
-		this.records = records;
+	public AltosGraphDataSet (AltosStateIterable states) {
+		this.states = states;
 		this.callsign = null;
 		this.serial = 0;
 		this.flight = 0;

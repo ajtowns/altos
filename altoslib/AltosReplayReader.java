@@ -25,10 +25,10 @@ import java.util.*;
  */
 
 public class AltosReplayReader extends AltosFlightReader {
-	Iterator<AltosRecord>	iterator;
+	Iterator<AltosState>	iterator;
 	File	file;
 
-	public AltosRecord read() {
+	public AltosState read() {
 		if (iterator.hasNext())
 			return iterator.next();
 		return null;
@@ -45,7 +45,7 @@ public class AltosReplayReader extends AltosFlightReader {
 
 	public File backing_file() { return file; }
 
-	public AltosReplayReader(Iterator<AltosRecord> in_iterator, File in_file) {
+	public AltosReplayReader(Iterator<AltosState> in_iterator, File in_file) {
 		iterator = in_iterator;
 		file = in_file;
 		name = file.getName();

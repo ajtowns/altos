@@ -27,7 +27,7 @@ public class AltosCSV implements AltosWriter {
 	boolean			header_written;
 	boolean			seen_boost;
 	int			boost_tick;
-	LinkedList<AltosRecord>	pad_records;
+	LinkedList<AltosState>	pad_states;
 	AltosState		state;
 
 	static final int ALTOS_CSV_VERSION = 5;
@@ -105,47 +105,47 @@ public class AltosCSV implements AltosWriter {
 		out.printf("version,serial,flight,call,time,clock,rssi,lqi");
 	}
 
-	void write_general(AltosRecord record) {
+	void write_general(AltosState state) {
 		out.printf("%s, %d, %d, %s, %8.2f, %8.2f, %4d, %3d",
-			   ALTOS_CSV_VERSION, record.serial, record.flight, record.callsign,
-			   (double) record.time, (double) record.tick / 100.0,
-			   record.rssi,
-			   record.status & 0x7f);
+			   ALTOS_CSV_VERSION, state.serial, state.flight, state.callsign,
+			   (double) state.time, (double) state.tick / 100.0,
+			   state.rssi,
+			   state.status & 0x7f);
 	}
 
 	void write_flight_header() {
 		out.printf("state,state_name");
 	}
 
-	void write_flight(AltosRecord record) {
-		out.printf("%d,%8s", record.state, record.state());
+	void write_flight(AltosState state) {
+		out.printf("%d,%8s", state.state, state.state_name());
 	}
 
 	void write_basic_header() {
 		out.printf("acceleration,pressure,altitude,height,accel_speed,baro_speed,temperature,battery_voltage,drogue_voltage,main_voltage");
 	}
 
-	void write_basic(AltosRecord record) {
+	void write_basic(AltosState state) {
 		out.printf("%8.2f,%10.2f,%8.2f,%8.2f,%8.2f,%8.2f,%5.1f,%5.2f,%5.2f,%5.2f",
-			   record.acceleration(),
-			   record.pressure(),
-			   record.altitude(),
-			   record.height(),
-			   state.accel_speed,
-			   state.baro_speed,
-			   record.temperature(),
-			   record.battery_voltage(),
-			   record.drogue_voltage(),
-			   record.main_voltage());
+			   state.acceleration,
+			   state.pressure,
+			   state.altitude,
+			   state.height,
+			   state.speed,
+			   state.speed,
+			   state.temperature,
+			   state.battery_voltage,
+			   state.apogee_voltage,
+			   state.main_voltage);
 	}
 
 	void write_advanced_header() {
 		out.printf("accel_x,accel_y,accel_z,gyro_x,gyro_y,gyro_z");
 	}
 
-	void write_advanced(AltosRecord record) {
-		AltosIMU	imu = record.imu();
-		AltosMag	mag = record.mag();
+	void write_advanced(AltosState state) {
+		AltosIMU	imu = state.imu;
+		AltosMag	mag = state.mag;
 
 		if (imu == null)
 			imu = new AltosIMU();
@@ -161,8 +161,8 @@ public class AltosCSV implements AltosWriter {
 		out.printf("connected,locked,nsat,latitude,longitude,altitude,year,month,day,hour,minute,second,pad_dist,pad_range,pad_az,pad_el,hdop");
 	}
 
-	void write_gps(AltosRecord record) {
-		AltosGPS	gps = record.gps;
+	void write_gps(AltosState state) {
+		AltosGPS	gps = state.gps;
 		if (gps == null)
 			gps = new AltosGPS();
 
@@ -198,8 +198,8 @@ public class AltosCSV implements AltosWriter {
 		}
 	}
 
-	void write_gps_sat(AltosRecord record) {
-		AltosGPS	gps = record.gps;
+	void write_gps_sat(AltosState state) {
+		AltosGPS	gps = state.gps;
 		for(int i = 1; i <= 32; i++) {
 			int	c_n0 = 0;
 			if (gps != null && gps.cc_gps_sat != null) {
@@ -221,8 +221,8 @@ public class AltosCSV implements AltosWriter {
 			out.printf(",companion_%02d", i);
 	}
 
-	void write_companion(AltosRecord record) {
-		AltosRecordCompanion companion = record.companion;
+	void write_companion(AltosState state) {
+		AltosRecordCompanion companion = state.companion;
 
 		int	channels_written = 0;
 		if (companion == null) {
@@ -256,50 +256,49 @@ public class AltosCSV implements AltosWriter {
 		out.printf ("\n");
 	}
 
-	void write_one(AltosRecord record) {
-		state = new AltosState(record, state);
-		write_general(record); out.printf(",");
-		write_flight(record); out.printf(",");
-		write_basic(record); out.printf(",");
-		if (record.imu() != null || record.mag() != null)
-			write_advanced(record);
-		if (record.gps != null) {
+	void write_one(AltosState state) {
+		write_general(state); out.printf(",");
+		write_flight(state); out.printf(",");
+		write_basic(state); out.printf(",");
+		if (state.imu != null || state.mag != null)
+			write_advanced(state);
+		if (state.gps != null) {
 			out.printf(",");
-			write_gps(record); out.printf(",");
-			write_gps_sat(record);
+			write_gps(state); out.printf(",");
+			write_gps_sat(state);
 		}
-		if (record.companion != null) {
+		if (state.companion != null) {
 			out.printf(",");
-			write_companion(record);
+			write_companion(state);
 		}
 		out.printf ("\n");
 	}
 
 	void flush_pad() {
-		while (!pad_records.isEmpty()) {
-			write_one (pad_records.remove());
+		while (!pad_states.isEmpty()) {
+			write_one (pad_states.remove());
 		}
 	}
 
-	public void write(AltosRecord record) {
-		if (record.state == Altos.ao_flight_startup)
+	public void write(AltosState state) {
+		if (state.state == Altos.ao_flight_startup)
 			return;
 		if (!header_written) {
-			write_header(record.imu() != null || record.mag() != null,
-				     record.gps != null, record.companion != null);
+			write_header(state.imu != null || state.mag != null,
+				     state.gps != null, state.companion != null);
 			header_written = true;
 		}
 		if (!seen_boost) {
-			if (record.state >= Altos.ao_flight_boost) {
+			if (state.state >= Altos.ao_flight_boost) {
 				seen_boost = true;
-				boost_tick = record.tick;
+				boost_tick = state.tick;
 				flush_pad();
 			}
 		}
 		if (seen_boost)
-			write_one(record);
+			write_one(state);
 		else
-			pad_records.add(record);
+			pad_states.add(state);
 	}
 
 	public PrintStream out() {
@@ -307,23 +306,23 @@ public class AltosCSV implements AltosWriter {
 	}
 
 	public void close() {
-		if (!pad_records.isEmpty()) {
-			boost_tick = pad_records.element().tick;
+		if (!pad_states.isEmpty()) {
+			boost_tick = pad_states.element().tick;
 			flush_pad();
 		}
 		out.close();
 	}
 
-	public void write(AltosRecordIterable iterable) {
-		iterable.write_comments(out());
-		for (AltosRecord r : iterable)
-			write(r);
+	public void write(AltosStateIterable states) {
+		states.write_comments(out());
+		for (AltosState state : states)
+			write(state);
 	}
 
 	public AltosCSV(PrintStream in_out, File in_name) {
 		name = in_name;
 		out = in_out;
-		pad_records = new LinkedList<AltosRecord>();
+		pad_states = new LinkedList<AltosState>();
 	}
 
 	public AltosCSV(File in_name) throws FileNotFoundException {

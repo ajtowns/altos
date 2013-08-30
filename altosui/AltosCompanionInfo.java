@@ -86,8 +86,8 @@ public class AltosCompanionInfo extends JTable {
 	public void show(AltosState state, AltosListenerState listener_state) {
 		if (state == null)
 			return;
-		if (state.data.companion != null)
-			companion = state.data.companion;
+		if (state.companion != null)
+			companion = state.companion;
 		info_reset();
 		info_add_row(0, "Companion board", "%s", board_name());
 		if (companion != null) {

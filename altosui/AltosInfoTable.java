@@ -122,15 +122,15 @@ public class AltosInfoTable extends JTable {
 			if (state.speed() != AltosRecord.MISSING)
 				info_add_row(0, "Speed", "%8.1f  m/s", state.speed());
 			if (state.speed() != AltosRecord.MISSING)
-				info_add_row(0, "Max Speed", "%8.1f  m/s", state.max_accel_speed);
+				info_add_row(0, "Max Speed", "%8.1f  m/s", state.max_speed);
 			if (state.temperature != AltosRecord.MISSING)
 				info_add_row(0, "Temperature", "%9.2f °C", state.temperature);
-			if (state.battery != AltosRecord.MISSING)
-				info_add_row(0, "Battery", "%9.2f V", state.battery);
-			if (state.drogue_sense != AltosRecord.MISSING)
-				info_add_row(0, "Drogue", "%9.2f V", state.drogue_sense);
-			if (state.main_sense != AltosRecord.MISSING)
-				info_add_row(0, "Main", "%9.2f V", state.main_sense);
+			if (state.battery_voltage != AltosRecord.MISSING)
+				info_add_row(0, "Battery", "%9.2f V", state.battery_voltage);
+			if (state.apogee_voltage != AltosRecord.MISSING)
+				info_add_row(0, "Drogue", "%9.2f V", state.apogee_voltage);
+			if (state.main_voltage != AltosRecord.MISSING)
+				info_add_row(0, "Main", "%9.2f V", state.main_voltage);
 		}
 		if (listener_state != null) {
 			info_add_row(0, "CRC Errors", "%6d", listener_state.crc_errors);
@@ -148,13 +148,13 @@ public class AltosInfoTable extends JTable {
 				else
 					info_add_row(1, "GPS state", "wait (%d)",
 						     state.gps_waiting);
-				if (state.data.gps.locked)
+				if (state.gps.locked)
 					info_add_row(1, "GPS", "   locked");
-				else if (state.data.gps.connected)
+				else if (state.gps.connected)
 					info_add_row(1, "GPS", " unlocked");
 				else
 					info_add_row(1, "GPS", "  missing");
-				info_add_row(1, "Satellites", "%6d", state.data.gps.nsat);
+				info_add_row(1, "Satellites", "%6d", state.gps.nsat);
 				info_add_deg(1, "Latitude", state.gps.lat, 'N', 'S');
 				info_add_deg(1, "Longitude", state.gps.lon, 'E', 'W');
 				info_add_row(1, "GPS altitude", "%6d", state.gps.alt);

@@ -65,7 +65,7 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 
 	class Call extends FlightValue {
 		void show(AltosState state, AltosListenerState listener_state) {
-			value.setText(state.data.callsign);
+			value.setText(state.callsign);
 		}
 		public Call (GridBagLayout layout, int x) {
 			super (layout, x, "Callsign");
@@ -76,10 +76,10 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 
 	class Serial extends FlightValue {
 		void show(AltosState state, AltosListenerState listener_state) {
-			if (state.data.serial == AltosRecord.MISSING)
+			if (state.serial == AltosRecord.MISSING)
 				value.setText("none");
 			else
-				value.setText(String.format("%d", state.data.serial));
+				value.setText(String.format("%d", state.serial));
 		}
 		public Serial (GridBagLayout layout, int x) {
 			super (layout, x, "Serial");
@@ -90,10 +90,10 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 
 	class Flight extends FlightValue {
 		void show(AltosState state, AltosListenerState listener_state) {
-			if (state.data.flight == AltosRecord.MISSING)
+			if (state.flight == AltosRecord.MISSING)
 				value.setText("none");
 			else
-				value.setText(String.format("%d", state.data.flight));
+				value.setText(String.format("%d", state.flight));
 		}
 		public Flight (GridBagLayout layout, int x) {
 			super (layout, x, "Flight");
@@ -104,7 +104,7 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 
 	class FlightState extends FlightValue {
 		void show(AltosState state, AltosListenerState listener_state) {
-			value.setText(state.data.state());
+			value.setText(state.state_name());
 		}
 		public FlightState (GridBagLayout layout, int x) {
 			super (layout, x, "State");
@@ -115,7 +115,7 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 
 	class RSSI extends FlightValue {
 		void show(AltosState state, AltosListenerState listener_state) {
-			value.setText(String.format("%d", state.data.rssi));
+			value.setText(String.format("%d", state.rssi()));
 		}
 		public RSSI (GridBagLayout layout, int x) {
 			super (layout, x, "RSSI");
