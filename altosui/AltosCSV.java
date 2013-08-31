@@ -170,7 +170,7 @@ public class AltosCSV implements AltosWriter {
 		if (from_pad == null)
 			from_pad = new AltosGreatCircle();
 
-		out.printf("%2d,%2d,%3d,%12.7f,%12.7f,%6d,%5d,%3d,%3d,%3d,%3d,%3d,%9.0f,%9.0f,%4.0f,%4.0f,%6.1f",
+		out.printf("%2d,%2d,%3d,%12.7f,%12.7f,%8.1f,%5d,%3d,%3d,%3d,%3d,%3d,%9.0f,%9.0f,%4.0f,%4.0f,%6.1f",
 			   gps.connected?1:0,
 			   gps.locked?1:0,
 			   gps.nsat,

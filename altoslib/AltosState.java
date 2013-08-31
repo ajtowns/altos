@@ -350,7 +350,7 @@ public class AltosState implements Cloneable {
 	}
 
 	double motion_filter_value() {
-		return 1/ Math.exp(time_change/10.0);
+		return 1/ Math.exp(time_change/2.0);
 	}
 
 	void update_speed() {

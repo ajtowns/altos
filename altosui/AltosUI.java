@@ -353,7 +353,7 @@ public class AltosUI extends AltosUIFrame {
 			if (file.getName().endsWith("eeprom"))
 				return new AltosEepromFile(in);
 			else
-				return null; // new AltosTelemetryIterable(in);
+				return new AltosTelemetryFile(in);
 		} catch (FileNotFoundException fe) {
 			System.out.printf("%s\n", fe.getMessage());
 			return null;
