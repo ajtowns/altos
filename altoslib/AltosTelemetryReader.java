@@ -35,9 +35,12 @@ public class AltosTelemetryReader extends AltosFlightReader {
 		AltosLine l = telem.take();
 		if (l.line == null)
 			throw new IOException("IO error");
-		AltosRecord	next = AltosTelemetry.parse(l.line, previous);
-		previous = next;
-		state = new AltosState (next, state);
+		AltosTelemetry	telem = AltosTelemetryLegacy.parse(l.line);
+		if (state == null)
+			state = new AltosState();
+		else
+			state = state.clone();
+		telem.update_state(state);
 		return state;
 	}
 

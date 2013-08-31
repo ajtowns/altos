@@ -57,8 +57,8 @@ public class AltosLog implements Runnable {
 		return file;
 	}
 
-	boolean open (AltosRecord telem) throws IOException {
-		AltosFile	a = new AltosFile(telem);
+	boolean open (AltosState state) throws IOException {
+		AltosFile	a = new AltosFile(state);
 
 		log_file = new FileWriter(a, true);
 		if (log_file != null) {
@@ -78,22 +78,25 @@ public class AltosLog implements Runnable {
 
 	public void run () {
 		try {
-			AltosRecord	previous = null;
+			AltosState	state = null;
 			for (;;) {
 				AltosLine	line = input_queue.take();
 				if (line.line == null)
 					continue;
 				try {
-					AltosRecord	telem = AltosTelemetry.parse(line.line, previous);
-					if ((telem.seen & AltosRecord.seen_flight) != 0 &&
-					    (telem.serial != serial || telem.flight != flight || log_file == null))
+					AltosTelemetry	telem = new AltosTelemetryLegacy(line.line);
+					if (state != null)
+						state = state.clone();
+					else
+						state = new AltosState();
+					telem.update_state(state);
+					if (state.serial != serial || state.flight != flight || log_file == null)
 					{
 						close_log_file();
-						serial = telem.serial;
-						flight = telem.flight;
-						open(telem);
+						serial = state.serial;
+						flight = state.flight;
+						open(state);
 					}
-					previous = telem;
 				} catch (ParseException pe) {
 				} catch (AltosCRCException ce) {
 				}

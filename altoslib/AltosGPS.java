@@ -70,35 +70,35 @@ public class AltosGPS implements Cloneable {
 	}
 
 	public AltosGPS(AltosTelemetryMap map) throws ParseException {
-		String	state = map.get_string(AltosTelemetry.AO_TELEM_GPS_STATE,
-					       AltosTelemetry.AO_TELEM_GPS_STATE_ERROR);
+		String	state = map.get_string(AltosTelemetryLegacy.AO_TELEM_GPS_STATE,
+					       AltosTelemetryLegacy.AO_TELEM_GPS_STATE_ERROR);
 
-		nsat = map.get_int(AltosTelemetry.AO_TELEM_GPS_NUM_SAT, 0);
-		if (state.equals(AltosTelemetry.AO_TELEM_GPS_STATE_LOCKED)) {
+		nsat = map.get_int(AltosTelemetryLegacy.AO_TELEM_GPS_NUM_SAT, 0);
+		if (state.equals(AltosTelemetryLegacy.AO_TELEM_GPS_STATE_LOCKED)) {
 			connected = true;
 			locked = true;
-			lat = map.get_double(AltosTelemetry.AO_TELEM_GPS_LATITUDE, MISSING, 1.0e-7);
-			lon = map.get_double(AltosTelemetry.AO_TELEM_GPS_LONGITUDE, MISSING, 1.0e-7);
-			alt = map.get_int(AltosTelemetry.AO_TELEM_GPS_ALTITUDE, MISSING);
-			year = map.get_int(AltosTelemetry.AO_TELEM_GPS_YEAR, MISSING);
+			lat = map.get_double(AltosTelemetryLegacy.AO_TELEM_GPS_LATITUDE, MISSING, 1.0e-7);
+			lon = map.get_double(AltosTelemetryLegacy.AO_TELEM_GPS_LONGITUDE, MISSING, 1.0e-7);
+			alt = map.get_int(AltosTelemetryLegacy.AO_TELEM_GPS_ALTITUDE, MISSING);
+			year = map.get_int(AltosTelemetryLegacy.AO_TELEM_GPS_YEAR, MISSING);
 			if (year != MISSING)
 				year += 2000;
-			month = map.get_int(AltosTelemetry.AO_TELEM_GPS_MONTH, MISSING);
-			day = map.get_int(AltosTelemetry.AO_TELEM_GPS_DAY, MISSING);
+			month = map.get_int(AltosTelemetryLegacy.AO_TELEM_GPS_MONTH, MISSING);
+			day = map.get_int(AltosTelemetryLegacy.AO_TELEM_GPS_DAY, MISSING);
 
-			hour = map.get_int(AltosTelemetry.AO_TELEM_GPS_HOUR, 0);
-			minute = map.get_int(AltosTelemetry.AO_TELEM_GPS_MINUTE, 0);
-			second = map.get_int(AltosTelemetry.AO_TELEM_GPS_SECOND, 0);
+			hour = map.get_int(AltosTelemetryLegacy.AO_TELEM_GPS_HOUR, 0);
+			minute = map.get_int(AltosTelemetryLegacy.AO_TELEM_GPS_MINUTE, 0);
+			second = map.get_int(AltosTelemetryLegacy.AO_TELEM_GPS_SECOND, 0);
 
-			ground_speed = map.get_double(AltosTelemetry.AO_TELEM_GPS_HORIZONTAL_SPEED,
+			ground_speed = map.get_double(AltosTelemetryLegacy.AO_TELEM_GPS_HORIZONTAL_SPEED,
 						      AltosRecord.MISSING, 1/100.0);
-			course = map.get_int(AltosTelemetry.AO_TELEM_GPS_COURSE,
+			course = map.get_int(AltosTelemetryLegacy.AO_TELEM_GPS_COURSE,
 					     AltosRecord.MISSING);
-			hdop = map.get_double(AltosTelemetry.AO_TELEM_GPS_HDOP, MISSING, 1.0);
-			vdop = map.get_double(AltosTelemetry.AO_TELEM_GPS_VDOP, MISSING, 1.0);
-			h_error = map.get_int(AltosTelemetry.AO_TELEM_GPS_HERROR, MISSING);
-			v_error = map.get_int(AltosTelemetry.AO_TELEM_GPS_VERROR, MISSING);
-		} else if (state.equals(AltosTelemetry.AO_TELEM_GPS_STATE_UNLOCKED)) {
+			hdop = map.get_double(AltosTelemetryLegacy.AO_TELEM_GPS_HDOP, MISSING, 1.0);
+			vdop = map.get_double(AltosTelemetryLegacy.AO_TELEM_GPS_VDOP, MISSING, 1.0);
+			h_error = map.get_int(AltosTelemetryLegacy.AO_TELEM_GPS_HERROR, MISSING);
+			v_error = map.get_int(AltosTelemetryLegacy.AO_TELEM_GPS_VERROR, MISSING);
+		} else if (state.equals(AltosTelemetryLegacy.AO_TELEM_GPS_STATE_UNLOCKED)) {
 			connected = true;
 			locked = false;
 		} else {

@@ -21,22 +21,22 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 
-class AltosEepromIterator implements Iterator<AltosState> {
-	AltosState		state;
-	Iterator<AltosEeprom>	body;
-	AltosEeprom		next;
-	boolean			seen;
+class AltosTelemetryIterator implements Iterator<AltosState> {
+	AltosState			state;
+	Iterator<AltosTelemetry>	telems;
+	AltosTelemetry			next;
+	boolean				seen;
 
 	public boolean hasNext() {
-		return !seen || body.hasNext();
+		return !seen || telems.hasNext();
 	}
 
 	public AltosState next() {
 		if (seen) {
 			AltosState	n = state.clone();
-			AltosEeprom	e = body.next();
+			AltosTelemetry	t = telems.next();
 
-			e.update_state(n);
+			t.update_state(n);
 			state = n;
 		}
 		seen = true;
@@ -46,52 +46,34 @@ class AltosEepromIterator implements Iterator<AltosState> {
 	public void remove () {
 	}
 
-	public AltosEepromIterator(AltosState start, Iterator<AltosEeprom> body) {
+	public AltosTelemetryIterator(AltosState start, Iterator<AltosTelemetry> telems) {
 		this.state = start;
-		this.body = body;
+		this.telems = telems;
 		this.seen = false;
 	}
 }
 
-public class AltosEepromFile extends AltosStateIterable {
+public class AltosTelemetryFile extends AltosStateIterable {
 
-	AltosEepromIterable	headers;
-	AltosEepromIterable	body;
+	AltosTelemetryIterable	telems;
 	AltosState		start;
 
 	public void write_comments(PrintStream out) {
-		headers.write(out);
 	}
 
 	public void write(PrintStream out) {
-		headers.write(out);
-		body.write(out);
+		
 	}
 
-	public AltosEepromFile(FileInputStream input) {
-		headers = new AltosEepromIterable(AltosEepromHeader.read(input));
-
-		start = headers.state();
-
-		switch (start.log_format) {
-		case AltosLib.AO_LOG_FORMAT_FULL:
-			body = new AltosEepromIterable(AltosEepromTM.read(input));
-			break;
-		case AltosLib.AO_LOG_FORMAT_TINY:
-		case AltosLib.AO_LOG_FORMAT_TELEMETRY:
-		case AltosLib.AO_LOG_FORMAT_TELESCIENCE:
-		case AltosLib.AO_LOG_FORMAT_TELEMEGA:
-			break;
-		case AltosLib.AO_LOG_FORMAT_TELEMINI:
-		case AltosLib.AO_LOG_FORMAT_EASYMINI:
-			body = new AltosEepromIterable(AltosEepromMini.read(input));
-			break;
-		}
+	public AltosTelemetryFile(FileInputStream input) {
+		telems = new AltosTelemetryIterable(input);
+		start = new AltosState();
 
 		/* Find boost tick */
 		AltosState	state = start.clone();
-		for (AltosEeprom eeprom : body) {
-			eeprom.update_state(state);
+
+		for (AltosTelemetry telem : telems) {
+			telem.update_state(state);
 			if (state.state >= AltosLib.ao_flight_boost) {
 				start.set_boost_tick(state.tick);
 				break;
@@ -100,11 +82,13 @@ public class AltosEepromFile extends AltosStateIterable {
 	}
 
 	public Iterator<AltosState> iterator() {
-		AltosState		state = start.clone();
-		Iterator<AltosEeprom>	i = body.iterator();
+		AltosState			state = start.clone();
+		Iterator<AltosTelemetry>  	i = telems.iterator();
 
-		while (i.hasNext() && !state.valid())
-			i.next().update_state(state);
-		return new AltosEepromIterator(state, i);
+		while (i.hasNext() && !state.valid()) {
+			AltosTelemetry	t = i.next();
+			t.update_state(state);
+		}
+		return new AltosTelemetryIterator(state, i);
 	}
 }

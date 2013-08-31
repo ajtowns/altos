@@ -22,10 +22,17 @@ import java.util.*;
 
 public class AltosFile extends File {
 
+	static String number(int n) {
+		if (n == AltosRecord.MISSING)
+			return "unk";
+		else
+			return String.format("%03d", n);
+	}
+
 	public AltosFile(int year, int month, int day, int serial, int flight, String extension) {
 		super (AltosPreferences.logdir(),
-		       String.format("%04d-%02d-%02d-serial-%03d-flight-%03d.%s",
-				     year, month, day, serial, flight, extension));
+		       String.format("%04d-%02d-%02d-serial-%s-flight-%s.%s",
+				     year, month, day, number(serial), number(flight), extension));
 	}
 
 	public AltosFile(int serial, int flight, String extension) {
@@ -37,7 +44,7 @@ public class AltosFile extends File {
 		     extension);
 	}
 
-	public AltosFile(AltosRecord telem) {
-		this(telem.serial, telem.flight, "telem");
+	public AltosFile(AltosState state) {
+		this(state.serial, state.flight, "telem");
 	}
 }

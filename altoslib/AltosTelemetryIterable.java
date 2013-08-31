@@ -21,27 +21,15 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 
-public class AltosTelemetryIterable extends AltosRecordIterable {
-	TreeSet<AltosRecord>	records;
+public class AltosTelemetryIterable implements Iterable<AltosTelemetry> {
+	LinkedList<AltosTelemetry>	telems;
 
-	public Iterator<AltosRecord> iterator () {
-		return records.iterator();
+	public Iterator<AltosTelemetry> iterator () {
+		return telems.iterator();
 	}
 
-	boolean has_gps = false;
-	boolean has_accel = false;
-	boolean has_ignite = false;
-	public boolean has_gps() { return has_gps; }
-	public boolean has_accel() { return has_accel; }
-	public boolean has_ignite() { return has_ignite; };
-
 	public AltosTelemetryIterable (FileInputStream input) {
-		boolean saw_boost = false;
-		int	current_tick = 0;
-		int	boost_tick = 0;
-
-		AltosRecord	previous = null;
-		records = new TreeSet<AltosRecord> ();
+		telems = new LinkedList<AltosTelemetry> ();
 
 		try {
 			for (;;) {
@@ -50,32 +38,10 @@ public class AltosTelemetryIterable extends AltosRecordIterable {
 					break;
 				}
 				try {
-					AltosRecord record = AltosTelemetry.parse(line, previous);
-					if (record == null)
+					AltosTelemetry telem = AltosTelemetry.parse(line);
+					if (telem == null)
 						break;
-					if (records.isEmpty()) {
-						current_tick = record.tick;
-					} else {
-						int tick = record.tick;
-						while (tick < current_tick - 0x1000)
-							tick += 0x10000;
-						current_tick = tick;
-						record.tick = current_tick;
-					}
-					if (!saw_boost && record.state >= AltosLib.ao_flight_boost)
-					{
-						saw_boost = true;
-						boost_tick = record.tick;
-					}
-					if (record.acceleration() != AltosRecord.MISSING)
-						has_accel = true;
-					if (record.gps != null)
-						has_gps = true;
-					if (record.main_voltage() != AltosRecord.MISSING)
-						has_ignite = true;
-					if (previous != null && previous.tick != record.tick)
-						records.add(previous);
-					previous = record;
+					telems.add(telem);
 				} catch (ParseException pe) {
 					System.out.printf("parse exception %s\n", pe.getMessage());
 				} catch (AltosCRCException ce) {
@@ -83,27 +49,6 @@ public class AltosTelemetryIterable extends AltosRecordIterable {
 			}
 		} catch (IOException io) {
 			System.out.printf("io exception\n");
-		}
-
-		if (previous != null)
-			records.add(previous);
-
-		/* Adjust all tick counts to match expected eeprom values,
-		 * which starts with a 16-bit tick count 16 samples before boost
-		 */
-
-		int tick_adjust = (boost_tick - 16) & 0xffff0000;
-		for (AltosRecord r : this)
-			r.tick -= tick_adjust;
-		boost_tick -= tick_adjust;
-
-		/* adjust all tick counts to be relative to boost time */
-		for (AltosRecord r : this)
-			r.time = (r.tick - boost_tick) / 100.0;
-
-		try {
-			input.close();
-		} catch (IOException ie) {
 		}
 	}
 }

@@ -104,6 +104,7 @@ public class AltosState implements Cloneable {
 	public double	accel_minus_g;
 	public double	accel;
 	public double	ground_accel;
+	public double	ground_accel_avg;
 
 	public int	log_format;
 
@@ -201,6 +202,7 @@ public class AltosState implements Cloneable {
 		accel_minus_g = AltosRecord.MISSING;
 		accel = AltosRecord.MISSING;
 		ground_accel = AltosRecord.MISSING;
+		ground_accel_avg = AltosRecord.MISSING;
 		log_format = AltosRecord.MISSING;
 		serial = AltosRecord.MISSING;
 
@@ -306,6 +308,7 @@ public class AltosState implements Cloneable {
 		accel_minus_g = old.accel_minus_g;
 		accel = old.accel;
 		ground_accel = old.ground_accel;
+		ground_accel_avg = old.ground_accel_avg;
 
 		log_format = old.log_format;
 		serial = old.serial;
@@ -396,9 +399,13 @@ public class AltosState implements Cloneable {
 	}
 	
 	void update_accel() {
+		double	ground = ground_accel;
+
+		if (ground == AltosRecord.MISSING)
+			ground = ground_accel_avg;
 		if (accel == AltosRecord.MISSING)
 			return;
-		if (ground_accel == AltosRecord.MISSING)
+		if (ground == AltosRecord.MISSING)
 			return;
 		if (accel_plus_g == AltosRecord.MISSING)
 			return;
@@ -408,7 +415,7 @@ public class AltosState implements Cloneable {
 		double counts_per_g = (accel_minus_g - accel_plus_g) / 2.0;
 		double counts_per_mss = counts_per_g / 9.80665;
 
-		acceleration = (ground_accel - accel) / counts_per_mss;
+		acceleration = (ground - accel) / counts_per_mss;
 
 		/* Only look at accelerometer data under boost */
 		if (boost && acceleration != AltosRecord.MISSING && (max_acceleration == AltosRecord.MISSING || acceleration > max_acceleration))
@@ -556,9 +563,6 @@ public class AltosState implements Cloneable {
 
 	public void set_gps(AltosGPS gps, int sequence) {
 		if (gps != null) {
-			System.out.printf ("gps date: %d-%d-%d time %d:%d:%d\n",
-					   gps.year, gps.month, gps.day,
-					   gps.hour, gps.minute, gps.second);
 			this.gps = gps.clone();
 			gps_sequence = sequence;
 			update_gps();
@@ -623,6 +627,12 @@ public class AltosState implements Cloneable {
 	public void set_accel(double accel) {
 		if (accel != AltosRecord.MISSING) {
 			this.accel = accel;
+			if (state == AltosLib.ao_flight_pad) {
+				if (ground_accel_avg == AltosRecord.MISSING)
+					ground_accel_avg = accel;
+				else
+					ground_accel_avg = (ground_accel_avg * 7 + accel) / 8;
+			}
 		}
 		update_accel();
 	}

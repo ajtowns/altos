@@ -437,7 +437,7 @@ public class AltosUI extends AltosUIFrame {
 		if (file.getName().endsWith("eeprom")) {
 			return new AltosEepromFile(in);
 		} else {
-			return null; // new AltosTelemetryIterable(in);
+			return new AltosTelemetryFile(in);
 		}
 	}
 
@@ -517,9 +517,9 @@ public class AltosUI extends AltosUIFrame {
 
 	static boolean process_cat(File file) {
 		try {
-			FileInputStream input = new FileInputStream(file);
-			AltosEepromFile eef = new AltosEepromFile(input);
+			AltosStateIterable eef = record_iterable(file);
 
+			System.out.printf ("process cat\n");
 			for (AltosState state : eef) {
 				if ((state.set & AltosState.set_gps) != 0)
 					System.out.printf ("time %g lat %g lon %g alt %g\n",

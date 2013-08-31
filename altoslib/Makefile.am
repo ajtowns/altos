@@ -72,21 +72,11 @@ altoslib_JAVA = \
 	AltosStateIterable.java \
 	AltosStateUpdate.java \
 	AltosTelemetry.java \
+	AltosTelemetryFile.java \
 	AltosTelemetryIterable.java \
+	AltosTelemetryLegacy.java \
 	AltosTelemetryMap.java \
 	AltosTelemetryReader.java \
-	AltosTelemetryRecordCompanion.java \
-	AltosTelemetryRecordConfiguration.java \
-	AltosTelemetryRecordGeneral.java \
-	AltosTelemetryRecord.java \
-	AltosTelemetryRecordLegacy.java \
-	AltosTelemetryRecordLocation.java \
-	AltosTelemetryRecordRaw.java \
-	AltosTelemetryRecordSatellite.java \
-	AltosTelemetryRecordSensor.java \
-	AltosTelemetryRecordMegaSensor.java \
-	AltosTelemetryRecordMegaData.java \
-	AltosTelemetryRecordMini.java \
 	AltosUnitsListener.java \
 	AltosMs5607.java \
 	AltosIMU.java \
