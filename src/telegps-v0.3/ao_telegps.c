@@ -49,6 +49,7 @@ main(void)
 	ao_gps_init();
 #if HAS_LOG
 	ao_gps_report_mega_init();
+	ao_log_init();
 #endif
 
 	ao_telemetry_init();
