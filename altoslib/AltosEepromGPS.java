@@ -21,8 +21,8 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 
-public class AltosEepromMega extends AltosEeprom {
-	public static final int	record_length = 32;
+public class AltosEepromGPS extends AltosEeprom {
+	public static final int	record_length = 16;
 
 	public int record_length() { return record_length; }
 
@@ -39,42 +39,34 @@ public class AltosEepromMega extends AltosEeprom {
 	/* AO_LOG_SENSOR elements */
 	public int pres() { return data32(0); }
 	public int temp() { return data32(4); }
-	public int accel_x() { return data16(8); }
-	public int accel_y() { return data16(10); }
-	public int accel_z() { return data16(12); }
-	public int gyro_x() { return data16(14); }
-	public int gyro_y() { return data16(16); }
-	public int gyro_z() { return data16(18); }
-	public int mag_x() { return data16(20); }
-	public int mag_y() { return data16(22); }
-	public int mag_z() { return data16(24); }
-	public int accel() { return data16(26); }
+	public int accel() { return data16(8); }
 
 	/* AO_LOG_TEMP_VOLT elements */
 	public int v_batt() { return data16(0); }
-	public int v_pbatt() { return data16(2); }
-	public int nsense() { return data16(4); }
-	public int sense(int i) { return data16(6 + i * 2); }
-	public int pyro() { return data16(26); }
+	public int sense_a() { return data16(2); }
+	public int sense_m() { return data16(4); }
 
-	/* AO_LOG_GPS_TIME elements */
+	/* AO_LOG_GPS_POS elements */
 	public int latitude() { return data32(0); }
 	public int longitude() { return data32(4); }
 	public int altitude() { return data16(8); }
-	public int hour() { return data8(10); }
-	public int minute() { return data8(11); }
-	public int second() { return data8(12); }
-	public int flags() { return data8(13); }
-	public int year() { return data8(14); }
-	public int month() { return data8(15); }
-	public int day() { return data8(16); }
+
+	/* AO_LOG_GPS_TIME elements */
+	public int hour() { return data8(0); }
+	public int minute() { return data8(1); }
+	public int second() { return data8(2); }
+	public int flags() { return data8(3); }
+	public int year() { return data8(4); }
+	public int month() { return data8(5); }
+	public int day() { return data8(6); }
 	
 	/* AO_LOG_GPS_SAT elements */
-	public int nsat() { return data16(0); }
+	public int nsat() { return data8(0); }
+	public int more() { return data8(1); }
 	public int svid(int n) { return data8(2 + n * 2); }
 	public int c_n(int n) { return data8(2 + n * 2 + 1); }
 
-	public AltosEepromMega (AltosEepromChunk chunk, int start) throws ParseException {
+	public AltosEepromMetrum2 (AltosEepromChunk chunk, int start) throws ParseException {
 		parse_chunk(chunk, start);
 	}
 
@@ -84,6 +76,7 @@ public class AltosEepromMega extends AltosEeprom {
 		/* Flush any pending GPS changes */
 		if (state.gps_pending) {
 			switch (cmd) {
+			case AltosLib.AO_LOG_GPS_POS:
 			case AltosLib.AO_LOG_GPS_LAT:
 			case AltosLib.AO_LOG_GPS_LON:
 			case AltosLib.AO_LOG_GPS_ALT:
@@ -96,63 +89,39 @@ public class AltosEepromMega extends AltosEeprom {
 			}
 		}
 
+		if (cmd != AltosLib.AO_LOG_FLIGHT)
+			state.set_tick(tick);
 		switch (cmd) {
 		case AltosLib.AO_LOG_FLIGHT:
 			state.set_boost_tick(tick);
 			state.set_flight(flight());
 			state.set_ground_accel(ground_accel());
 			state.set_ground_pressure(ground_pres());
-			state.set_temperature(ground_temp() / 100.0);
+//			state.set_temperature(ground_temp() / 100.0);
 			break;
 		case AltosLib.AO_LOG_STATE:
-			state.set_tick(tick);
 			state.set_state(state());
 			break;
 		case AltosLib.AO_LOG_SENSOR:
-			state.set_tick(tick);
 			state.set_ms5607(pres(), temp());
-
-			AltosIMU imu = new AltosIMU();
-			imu.accel_x = accel_x();
-			imu.accel_y = accel_y();
-			imu.accel_z = accel_z();
-
-			imu.gyro_x = gyro_x();
-			imu.gyro_y = gyro_y();
-			imu.gyro_z = gyro_z();
-			state.imu = imu;
-
-			AltosMag mag = new AltosMag();
-			mag.x = mag_x();
-			mag.y = mag_y();
-			mag.z = mag_z();
-
-			state.mag = mag;
-
 			state.set_accel(accel());
 
 			break;
 		case AltosLib.AO_LOG_TEMP_VOLT:
 			state.set_battery_voltage(AltosConvert.mega_battery_voltage(v_batt()));
-			state.set_pyro_voltage(AltosConvert.mega_pyro_voltage(v_pbatt()));
 
-			int nsense = nsense();
+			state.set_apogee_voltage(AltosConvert.mega_pyro_voltage(sense_a()));
+			state.set_main_voltage(AltosConvert.mega_pyro_voltage(sense_m()));
 
-			state.set_apogee_voltage(AltosConvert.mega_pyro_voltage(sense(nsense-2)));
-			state.set_main_voltage(AltosConvert.mega_pyro_voltage(sense(nsense-1)));
-
-			double voltages[] = new double[nsense-2];
-			for (int i = 0; i < nsense-2; i++)
-				voltages[i] = AltosConvert.mega_pyro_voltage(sense(i));
-
-			state.set_ignitor_voltage(voltages);
 			break;
-		case AltosLib.AO_LOG_GPS_TIME:
-			state.set_tick(tick);
+		case AltosLib.AO_LOG_GPS_POS:
 			gps = state.make_temp_gps();
 			gps.lat = latitude() / 1e7;
 			gps.lon = longitude() / 1e7;
 			gps.alt = altitude();
+			break;
+		case AltosLib.AO_LOG_GPS_TIME:
+			gps = state.make_temp_gps();
 
 			gps.hour = hour();
 			gps.minute = minute();
@@ -180,7 +149,7 @@ public class AltosEepromMega extends AltosEeprom {
 		}
 	}
 
-	public AltosEepromMega (String line) {
+	public AltosEepromMetrum2 (String line) {
 		parse_string(line);
 	}
 
@@ -193,7 +162,7 @@ public class AltosEepromMega extends AltosEeprom {
 				if (line == null)
 					break;
 				try {
-					AltosEepromMega mega = new AltosEepromMega(line);
+					AltosEepromMetrum2 mega = new AltosEepromMetrum2(line);
 					if (mega.cmd != AltosLib.AO_LOG_INVALID)
 						megas.add(mega);
 				} catch (Exception e) {

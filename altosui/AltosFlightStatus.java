@@ -126,7 +126,7 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 
 	class LastPacket extends FlightValue {
 		void show(AltosState state, AltosListenerState listener_state) {
-			long secs = (System.currentTimeMillis() - state.report_time + 500) / 1000;
+			long secs = (System.currentTimeMillis() - state.received_time + 500) / 1000;
 			value.setText(String.format("%d", secs));
 		}
 		public LastPacket(GridBagLayout layout, int x) {

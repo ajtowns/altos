@@ -24,21 +24,7 @@ import java.text.*;
 public class AltosEepromMini extends AltosEeprom {
 	public static final int	record_length = 16;
 
-	public int data8(int i) {
-		return data8[i];
-	}
-
-	public int data16(int i) {
-		return ((data8[i] | (data8[i+1] << 8)) << 16) >> 16;
-	}
-
-	public int data24(int i) {
-		return data8[i] | (data8[i+1] << 8) | (data8[i+2] << 16);
-	}
-
-	public int data32(int i) {
-		return data8[i] | (data8[i+1] << 8) | (data8[i+2] << 16) | (data8[i+3] << 24);
-	}
+	public int record_length() { return record_length; }
 
 	/* AO_LOG_FLIGHT elements */
 	public int flight() { return data16(0); }
@@ -84,11 +70,11 @@ public class AltosEepromMini extends AltosEeprom {
 	}
 
 	public AltosEepromMini (AltosEepromChunk chunk, int start) throws ParseException {
-		parse_chunk(chunk, start, record_length);
+		parse_chunk(chunk, start);
 	}
 
 	public AltosEepromMini (String line) {
-		parse_string(line, record_length);
+		parse_string(line);
 	}
 
 	public AltosEepromMini(int in_cmd, int in_tick) {

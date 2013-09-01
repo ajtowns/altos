@@ -27,7 +27,25 @@ public abstract class AltosEeprom implements AltosStateUpdate {
 	public int	data8[];
 	public boolean	valid;
 
+	public int data8(int i) {
+		return data8[i];
+	}
+
+	public int data16(int i) {
+		return ((data8[i] | (data8[i+1] << 8)) << 16) >> 16;
+	}
+
+	public int data24(int i) {
+		return data8[i] | (data8[i+1] << 8) | (data8[i+2] << 16);
+	}
+
+	public int data32(int i) {
+		return data8[i] | (data8[i+1] << 8) | (data8[i+2] << 16) | (data8[i+3] << 24);
+	}
+
 	public final static int header_length = 4;
+
+	public abstract int record_length();
 
 	public abstract void update_state(AltosState state);
 
@@ -40,14 +58,28 @@ public abstract class AltosEeprom implements AltosStateUpdate {
 		out.printf ("\n");
 	}
 
-	void parse_chunk(AltosEepromChunk chunk, int start, int record_length) throws ParseException {
+	public String string() {
+		String	s;
+
+		s = String.format("%c %04x", cmd, tick);
+		if (data8 != null) {
+			for (int i = 0; i < data8.length; i++) {
+				String	d = String.format(" %02x", data8[i]);
+				s = s.concat(d);
+			}
+		}
+		s = s.concat("\n");
+		return s;
+	}
+
+	void parse_chunk(AltosEepromChunk chunk, int start) throws ParseException {
 		cmd = chunk.data(start);
 
-		int data_length = record_length - header_length;
+		int data_length = record_length() - header_length;
 
-		valid = !chunk.erased(start, record_length);
+		valid = !chunk.erased(start, record_length());
 		if (valid) {
-			if (AltosConvert.checksum(chunk.data, start, record_length) != 0)
+			if (AltosConvert.checksum(chunk.data, start, record_length()) != 0)
 				throw new ParseException(String.format("invalid checksum at 0x%x",
 								       chunk.address + start), 0);
 		} else {
@@ -61,12 +93,12 @@ public abstract class AltosEeprom implements AltosStateUpdate {
 			data8[i] = chunk.data(start + header_length + i);
 	}
 
-	void parse_string(String line, int record_length) {
+	void parse_string(String line) {
 		valid = false;
 		tick = 0;
 		cmd = AltosLib.AO_LOG_INVALID;
 
-		int data_length = record_length - header_length;
+		int data_length = record_length() - header_length;
 
 		if (line == null)
 			return;
@@ -79,6 +111,7 @@ public abstract class AltosEeprom implements AltosStateUpdate {
 					tick = Integer.parseInt(tokens[1],16);
 					valid = true;
 					data8 = new int[data_length];
+
 					for (int i = 0; i < data_length; i++)
 						data8[i] = Integer.parseInt(tokens[2 + i],16);
 				}

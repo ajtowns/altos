@@ -32,6 +32,8 @@ public class AltosEepromMetrum {
 	static final int	header_length = 4;
 	static final int	data_length = record_length - header_length;
 
+	public int record_length() { return record_length; }
+
 	public int data8(int i) {
 		return data8[i];
 	}

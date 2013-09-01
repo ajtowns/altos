@@ -308,7 +308,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Lat extends AscentValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			if (state.gps != null)
+			if (state.gps != null && state.gps.connected && state.gps.lat != AltosRecord.MISSING)
 				show(pos(state.gps.lat,"N", "S"));
 			else
 				show("???");
@@ -322,7 +322,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Lon extends AscentValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			if (state.gps != null)
+			if (state.gps != null && state.gps.connected && state.gps.lon != AltosRecord.MISSING)
 				show(pos(state.gps.lon,"E", "W"));
 			else
 				show("???");

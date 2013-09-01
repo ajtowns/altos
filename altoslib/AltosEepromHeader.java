@@ -29,6 +29,9 @@ public class AltosEepromHeader extends AltosEeprom {
 	public boolean	last;
 	public boolean	valid;
 
+	public int record_length () { return 0; }
+
+	/* XXX pull rest of config data to state */
 	public void update_state(AltosState state) {
 		switch (cmd) {
 		case AltosLib.AO_LOG_CONFIG_VERSION:
@@ -40,7 +43,7 @@ public class AltosEepromHeader extends AltosEeprom {
 		case AltosLib.AO_LOG_RADIO_CHANNEL:
 			break;
 		case AltosLib.AO_LOG_CALLSIGN:
-			state.callsign = data;
+			state.set_callsign(data);
 			break;
 		case AltosLib.AO_LOG_ACCEL_CAL:
 			state.set_accel_g(config_a, config_b);
@@ -90,6 +93,7 @@ public class AltosEepromHeader extends AltosEeprom {
 			state.baro.crc = config_a;
 			break;
 		case AltosLib.AO_LOG_SOFTWARE_VERSION:
+			state.set_firmware_version(data);
 			break;
 		}
 	}

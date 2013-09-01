@@ -350,10 +350,10 @@ public class AltosUI extends AltosUIFrame {
 			FileInputStream in;
 
 			in = new FileInputStream(file);
-			if (file.getName().endsWith("eeprom"))
-				return new AltosEepromFile(in);
-			else
+			if (file.getName().endsWith("telem"))
 				return new AltosTelemetryFile(in);
+			else
+				return new AltosEepromFile(in);
 		} catch (FileNotFoundException fe) {
 			System.out.printf("%s\n", fe.getMessage());
 			return null;
@@ -434,11 +434,10 @@ public class AltosUI extends AltosUIFrame {
 			System.out.printf("Failed to open file '%s'\n", file);
 			return null;
 		}
-		if (file.getName().endsWith("eeprom")) {
-			return new AltosEepromFile(in);
-		} else {
+		if (file.getName().endsWith("telem"))
 			return new AltosTelemetryFile(in);
-		}
+		else
+			return new AltosEepromFile(in);
 	}
 
 	static AltosReplayReader replay_file(File file) {
@@ -521,6 +520,8 @@ public class AltosUI extends AltosUIFrame {
 
 			System.out.printf ("process cat\n");
 			for (AltosState state : eef) {
+				System.out.printf ("tick %d state %d height %g\n",
+						   state.tick, state.state, state.height);
 				if ((state.set & AltosState.set_gps) != 0)
 					System.out.printf ("time %g lat %g lon %g alt %g\n",
 							   state.time_since_boost(),

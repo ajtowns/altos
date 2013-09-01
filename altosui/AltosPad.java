@@ -310,17 +310,23 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class PadLat extends LaunchValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			if (state == null || state.gps == null) {
-				hide();
-			} else {
-				if (state.state < AltosLib.ao_flight_pad) {
-					show(pos(state.gps.lat,"N", "S"));
-					set_label("Latitude");
-				} else { 
-					show(pos(state.pad_lat,"N", "S"));
-					set_label("Pad Latitude");
+			double lat = AltosRecord.MISSING;
+			String label = null;
+
+			if (state != null) {
+				if (state.state < AltosLib.ao_flight_pad && state.gps != null && state.gps.lat != AltosRecord.MISSING) {
+					lat = state.gps.lat;
+					label = "Latitude";
+				} else {
+					lat = state.pad_lat;
+					label = "Pad Latitude";
 				}
 			}
+			if (lat != AltosRecord.MISSING) {
+				show(pos(lat,"E", "W"));
+				set_label(label);
+			} else
+				hide();
 		}
 		public PadLat (GridBagLayout layout, int y) {
 			super (layout, y, "Pad Latitude");
@@ -331,17 +337,23 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class PadLon extends LaunchValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			if (state == null || state.gps == null) {
-				hide();
-			} else {
-				if (state.state < AltosLib.ao_flight_pad) {
-					show(pos(state.gps.lon,"E", "W"));
-					set_label("Longitude");
-				} else { 
-					show(pos(state.pad_lon,"E", "W"));
-					set_label("Pad Longitude");
+			double lon = AltosRecord.MISSING;
+			String label = null;
+
+			if (state != null) {
+				if (state.state < AltosLib.ao_flight_pad && state.gps != null && state.gps.lon != AltosRecord.MISSING) {
+					lon = state.gps.lon;
+					label = "Longitude";
+				} else {
+					lon = state.pad_lon;
+					label = "Pad Longitude";
 				}
 			}
+			if (lon != AltosRecord.MISSING) {
+				show(pos(lon,"E", "W"));
+				set_label(label);
+			} else
+				hide();
 		}
 		public PadLon (GridBagLayout layout, int y) {
 			super (layout, y, "Pad Longitude");
@@ -352,21 +364,23 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 
 	class PadAlt extends LaunchValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			if (state == null)
-				hide();
-			else {
-				if (state.state < AltosLib.ao_flight_pad && state.gps != null) {
-					show("%4.0f m", state.gps.alt);
-					set_label("Altitude");
+			double alt = AltosRecord.MISSING;
+			String label = null;
+
+			if (state != null) {
+				if (state.state < AltosLib.ao_flight_pad && state.gps != null && state.gps.alt != AltosRecord.MISSING) {
+					alt = state.gps.alt;
+					label = "Altitude";
 				} else {
-					if (state.pad_alt == AltosRecord.MISSING)
-						hide();
-					else {
-						show("%4.0f m", state.pad_alt);
-						set_label("Pad Altitude");
-					}
+					alt = state.pad_alt;
+					label = "Pad Altitude";
 				}
 			}
+			if (alt != AltosRecord.MISSING) {
+				show("%4.0f m", state.gps.alt);
+				set_label(label);
+			} else
+				hide();
 		}
 		public PadAlt (GridBagLayout layout, int y) {
 			super (layout, y, "Pad Altitude");

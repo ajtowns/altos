@@ -65,8 +65,8 @@ public class AltosGPS implements Cloneable {
 	}
 
 	public void ClearGPSTime() {
-		year = month = day = 0;
-		hour = minute = second = 0;
+		year = month = day = AltosRecord.MISSING;
+		hour = minute = second = AltosRecord.MISSING;
 	}
 
 	public AltosGPS(AltosTelemetryMap map) throws ParseException {
@@ -212,6 +212,9 @@ public class AltosGPS implements Cloneable {
 	}
 
 	public AltosGPS() {
+		lat = AltosRecord.MISSING;
+		lon = AltosRecord.MISSING;
+		alt = AltosRecord.MISSING;
 		ClearGPSTime();
 		cc_gps_sat = null;
 	}
@@ -280,6 +283,9 @@ public class AltosGPS implements Cloneable {
 				}
 			}
 		} else {
+			lat = AltosRecord.MISSING;
+			lon = AltosRecord.MISSING;
+			alt = AltosRecord.MISSING;
 			ClearGPSTime();
 			cc_gps_sat = null;
 		}

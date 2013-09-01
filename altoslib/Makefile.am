@@ -10,7 +10,19 @@ SRC=.
 
 altoslibdir = $(datadir)/java
 
+record_files = \
+	AltosEepromRecord.java \
+	AltosEepromTeleScience.java \
+	AltosRecordCompanion.java \
+	AltosRecordIterable.java \
+	AltosRecord.java \
+	AltosRecordNone.java \
+	AltosRecordTM.java \
+	AltosRecordMM.java \
+	AltosRecordMini.java
+
 altoslib_JAVA = \
+	$(record_files) \
 	AltosLib.java \
 	AltosConfigData.java \
 	AltosConfigValues.java \
@@ -25,11 +37,8 @@ altoslib_JAVA = \
 	AltosEepromIterable.java \
 	AltosEepromLog.java \
 	AltosEepromMega.java \
-	AltosEepromMegaIterable.java \
-	AltosEepromRecord.java \
-	AltosEepromTeleScience.java \
+	AltosEepromMetrum2.java \
 	AltosEepromMini.java \
-	AltosEepromOldIterable.java \
 	AltosFile.java \
 	AltosFlash.java \
 	AltosFlashListener.java \
@@ -57,13 +66,6 @@ altoslib_JAVA = \
 	AltosParse.java \
 	AltosPreferences.java \
 	AltosPreferencesBackend.java \
-	AltosRecordCompanion.java \
-	AltosRecordIterable.java \
-	AltosRecord.java \
-	AltosRecordNone.java \
-	AltosRecordTM.java \
-	AltosRecordMM.java \
-	AltosRecordMini.java \
 	AltosReplayReader.java \
 	AltosRomconfig.java \
 	AltosSensorMM.java \
@@ -72,11 +74,21 @@ altoslib_JAVA = \
 	AltosStateIterable.java \
 	AltosStateUpdate.java \
 	AltosTelemetry.java \
+	AltosTelemetryConfiguration.java \
 	AltosTelemetryFile.java \
 	AltosTelemetryIterable.java \
 	AltosTelemetryLegacy.java \
+	AltosTelemetryLocation.java \
 	AltosTelemetryMap.java \
+	AltosTelemetryMegaSensor.java \
+	AltosTelemetryMegaData.java \
+	AltosTelemetryMetrumSensor.java \
+	AltosTelemetryMetrumData.java \
 	AltosTelemetryReader.java \
+	AltosTelemetryRaw.java \
+	AltosTelemetrySensor.java \
+	AltosTelemetrySatellite.java \
+	AltosTelemetryStandard.java \
 	AltosUnitsListener.java \
 	AltosMs5607.java \
 	AltosIMU.java \

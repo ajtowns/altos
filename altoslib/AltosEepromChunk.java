@@ -62,6 +62,32 @@ public class AltosEepromChunk {
 		return true;
 	}
 
+	public AltosEeprom eeprom(int offset, int log_format) {
+		AltosEeprom	eeprom = null;
+		try {
+			switch (log_format) {
+			case AltosLib.AO_LOG_FORMAT_FULL:
+				eeprom = new AltosEepromTM(this, offset);
+				break;
+			case AltosLib.AO_LOG_FORMAT_TINY:
+			case AltosLib.AO_LOG_FORMAT_TELEMETRY:
+			case AltosLib.AO_LOG_FORMAT_TELESCIENCE:
+			case AltosLib.AO_LOG_FORMAT_TELEMEGA:
+				eeprom = new AltosEepromMega(this, offset);
+				break;
+			case AltosLib.AO_LOG_FORMAT_TELEMETRUM:
+				eeprom = new AltosEepromMetrum2(this, offset);
+				break;
+			case AltosLib.AO_LOG_FORMAT_TELEMINI:
+			case AltosLib.AO_LOG_FORMAT_EASYMINI:
+				eeprom = new AltosEepromMini(this, offset);
+				break;
+			}
+		} catch (ParseException e) {
+		}
+		return eeprom;
+	}
+
 	public AltosEepromChunk(AltosLink link, int block, boolean flush)
 		throws TimeoutException, InterruptedException {
 

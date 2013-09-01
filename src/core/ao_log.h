@@ -276,7 +276,8 @@ struct ao_log_metrum {
 			uint16_t	flight;		/* 4 */
 			int16_t		ground_accel;	/* 6 */
 			uint32_t	ground_pres;	/* 8 */
-		} flight;	/* 12 */
+			uint32_t	ground_temp;	/* 12 */
+		} flight;	/* 16 */
 		/* AO_LOG_STATE */
 		struct {
 			uint16_t	state;		/* 4 */

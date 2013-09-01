@@ -196,6 +196,28 @@ public class AltosConvert {
 		return ((count / 16.0) / 2047.0 + 0.095) / 0.009 * 1000.0;
 	}
 
+	static double
+	thermometer_to_temperature(double thermo)
+	{
+		return (thermo - 19791.268) / 32728.0 * 1.25 / 0.00247;
+	}
+
+	static double mega_adc(int raw) {
+		return raw / 4095.0;
+	}
+
+	static public double mega_battery_voltage(int v_batt) {
+		if (v_batt != AltosRecord.MISSING)
+			return 3.3 * mega_adc(v_batt) * (15.0 + 27.0) / 27.0;
+		return AltosRecord.MISSING;
+	}
+
+	static double mega_pyro_voltage(int raw) {
+		if (raw != AltosRecord.MISSING)
+			return 3.3 * mega_adc(raw) * (100.0 + 27.0) / 27.0;
+		return AltosRecord.MISSING;
+	}
+
 	public static double radio_to_frequency(int freq, int setting, int cal, int channel) {
 		double	f;
 

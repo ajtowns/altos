@@ -43,6 +43,10 @@ public abstract class AltosTelemetry implements AltosStateUpdate {
 	}
 
 	public void update_state(AltosState state) {
+		state.set_serial(serial);
+		state.set_tick(tick);
+		state.set_rssi(rssi, status);
+		state.set_received_time(received_time);
 	}
 
 	final static int PKT_APPEND_STATUS_1_CRC_OK		= (1 << 7);
@@ -56,9 +60,11 @@ public abstract class AltosTelemetry implements AltosStateUpdate {
 	final static int packet_type_location = 0x05;
 	final static int packet_type_satellite = 0x06;
 	final static int packet_type_companion = 0x07;
-	final static int packet_type_MM_sensor = 0x08;
-	final static int packet_type_MM_data = 0x09;
-	final static int packet_type_Mini = 0x10;
+	final static int packet_type_mega_sensor = 0x08;
+	final static int packet_type_mega_data = 0x09;
+	final static int packet_type_metrum_sensor = 0x0a;
+	final static int packet_type_metrum_data = 0x0b;
+	final static int packet_type_mini = 0x10;
 	
 	static AltosTelemetry parse_hex(String hex)  throws ParseException, AltosCRCException {
 		AltosTelemetry	telem = null;
@@ -87,37 +93,7 @@ public abstract class AltosTelemetry implements AltosStateUpdate {
 		/* length, data ..., rssi, status, checksum -- 4 bytes extra */
 		switch (bytes.length) {
 		case AltosLib.ao_telemetry_standard_len + 4:
-			int	type = AltosLib.uint8(bytes, 4 + 1);
-/*
-			switch (type) {
-			case packet_type_TM_sensor:
-			case packet_type_Tm_sensor:
-			case packet_type_Tn_sensor:
-				telem = new AltosTelemetrySensor(bytes);
-				break;
-			case packet_type_configuration:
-				telem = new AltosTelemetryConfiguration(bytes);
-				break;
-			case packet_type_location:
-				telem = new AltosTelemetryLocation(bytes);
-				break;
-			case packet_type_satellite:
-				telem = new AltosTelemetrySatellite(bytes);
-				break;
-			case packet_type_companion:
-				telem = new AltosTelemetryCompanion(bytes);
-				break;
-			case packet_type_MM_sensor:
-				telem = new AltosTelemetryMegaSensor(bytes);
-				break;
-			case packet_type_MM_data:
-				telem = new AltosTelemetryMegaData(bytes);
-				break;
-			default:
-				telem = new AltosTelemetryRaw(bytes);
-				break;
-			}
-*/
+			telem = AltosTelemetryStandard.parse_hex(bytes);
 			break;
 		case AltosLib.ao_telemetry_0_9_len + 4:
 			telem = new AltosTelemetryLegacy(bytes);

@@ -546,7 +546,7 @@ public class AltosTelemetryLegacy extends AltosTelemetry {
 		state.set_accel(accel);
 		if (kalman_height != AltosRecord.MISSING)
 			state.set_kalman(kalman_height, kalman_speed, kalman_acceleration);
-		state.set_temperature(AltosEepromTM.thermometer_to_temperature(temp));
+		state.set_temperature(AltosConvert.thermometer_to_temperature(temp));
 		state.set_battery_voltage(AltosConvert.cc_battery_to_voltage(batt));
 		state.set_apogee_voltage(AltosConvert.cc_ignitor_to_voltage(apogee));
 		state.set_main_voltage(AltosConvert.cc_ignitor_to_voltage(main));

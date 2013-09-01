@@ -28,6 +28,7 @@ public class AltosLib {
 	public static final int AO_LOG_TEMP_VOLT = 'T';
 	public static final int AO_LOG_DEPLOY = 'D';
 	public static final int AO_LOG_STATE = 'S';
+	public static final int AO_LOG_GPS_POS = 'P';
 	public static final int AO_LOG_GPS_TIME = 'G';
 	public static final int AO_LOG_GPS_LAT = 'N';
 	public static final int AO_LOG_GPS_LON = 'W';

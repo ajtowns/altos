@@ -65,13 +65,13 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 
 	public void show(AltosState state, AltosListenerState listener_state) {
 		status_update.saved_state = state;
-		try {
+//		try {
 			pad.show(state, listener_state);
 			flightStatus.show(state, listener_state);
 			flightInfo.show(state, listener_state);
-		} catch (Exception e) {
-			System.out.print("Show exception" + e);
-		}
+//		} catch (Exception e) {
+//			System.out.print("Show exception " + e);
+//		}
 	}
 
 	public void update(final AltosState state, final AltosListenerState listener_state) {

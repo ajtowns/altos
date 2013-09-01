@@ -33,6 +33,8 @@ public class AltosEepromTeleScience {
 	static final int	max_data = 12;
 	public static final int	record_length = 32;
 
+	public int record_length() { return record_length; }
+
 	public AltosEepromTeleScience (AltosEepromChunk chunk, int start) throws ParseException {
 		type = chunk.data(start);
 

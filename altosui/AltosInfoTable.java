@@ -155,10 +155,14 @@ public class AltosInfoTable extends JTable {
 				else
 					info_add_row(1, "GPS", "  missing");
 				info_add_row(1, "Satellites", "%6d", state.gps.nsat);
-				info_add_deg(1, "Latitude", state.gps.lat, 'N', 'S');
-				info_add_deg(1, "Longitude", state.gps.lon, 'E', 'W');
-				info_add_row(1, "GPS altitude", "%6d", state.gps.alt);
-				info_add_row(1, "GPS height", "%6.0f", state.gps_height);
+				if (state.gps.lat != AltosRecord.MISSING)
+					info_add_deg(1, "Latitude", state.gps.lat, 'N', 'S');
+				if (state.gps.lon != AltosRecord.MISSING)
+					info_add_deg(1, "Longitude", state.gps.lon, 'E', 'W');
+				if (state.gps.alt != AltosRecord.MISSING)
+					info_add_row(1, "GPS altitude", "%8.1f", state.gps.alt);
+				if (state.gps_height != AltosRecord.MISSING)
+					info_add_row(1, "GPS height", "%8.1f", state.gps_height);
 
 				/* The SkyTraq GPS doesn't report these values */
 				/*
@@ -195,14 +199,16 @@ public class AltosInfoTable extends JTable {
 					info_add_deg(1, "Pad longitude", state.pad_lon, 'E', 'W');
 					info_add_row(1, "Pad GPS alt", "%6.0f m", state.pad_alt);
 				}
-				info_add_row(1, "GPS date", "%04d-%02d-%02d",
-					     state.gps.year,
-					     state.gps.month,
-					     state.gps.day);
-				info_add_row(1, "GPS time", "  %02d:%02d:%02d",
-					     state.gps.hour,
-					     state.gps.minute,
-					     state.gps.second);
+				if (state.gps.year != AltosRecord.MISSING) 
+					info_add_row(1, "GPS date", "%04d-%02d-%02d",
+						     state.gps.year,
+						     state.gps.month,
+						     state.gps.day);
+				if (state.gps.hour != AltosRecord.MISSING)
+					info_add_row(1, "GPS time", "  %02d:%02d:%02d",
+						     state.gps.hour,
+						     state.gps.minute,
+						     state.gps.second);
 				//int	nsat_vis = 0;
 				int	c;
 

@@ -72,6 +72,7 @@ public class AltosEepromFile extends AltosStateIterable {
 		headers = new AltosEepromIterable(AltosEepromHeader.read(input));
 
 		start = headers.state();
+		start.set_state(AltosLib.ao_flight_pad);
 
 		switch (start.log_format) {
 		case AltosLib.AO_LOG_FORMAT_FULL:
@@ -81,6 +82,10 @@ public class AltosEepromFile extends AltosStateIterable {
 		case AltosLib.AO_LOG_FORMAT_TELEMETRY:
 		case AltosLib.AO_LOG_FORMAT_TELESCIENCE:
 		case AltosLib.AO_LOG_FORMAT_TELEMEGA:
+			body = new AltosEepromIterable(AltosEepromMega.read(input));
+			break;
+		case AltosLib.AO_LOG_FORMAT_TELEMETRUM:
+			body = new AltosEepromIterable(AltosEepromMetrum2.read(input));
 			break;
 		case AltosLib.AO_LOG_FORMAT_TELEMINI:
 		case AltosLib.AO_LOG_FORMAT_EASYMINI:

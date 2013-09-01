@@ -103,7 +103,8 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 
 	class Lat extends LandedValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			if (state.gps != null && state.gps.connected)
+			show();
+			if (state.gps != null && state.gps.connected && state.gps.lat != AltosRecord.MISSING)
 				show(pos(state.gps.lat,"N", "S"));
 			else
 				show("???");
@@ -118,7 +119,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 	class Lon extends LandedValue {
 		void show (AltosState state, AltosListenerState listener_state) {
 			show();
-			if (state.gps != null && state.gps.connected)
+			if (state.gps != null && state.gps.connected && state.gps.lon != AltosRecord.MISSING)
 				show(pos(state.gps.lon,"E", "W"));
 			else
 				show("???");

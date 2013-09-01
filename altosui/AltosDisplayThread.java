@@ -110,7 +110,7 @@ public class AltosDisplayThread extends Thread {
 			 */
 			if (state.state >= Altos.ao_flight_drogue &&
 			    (last ||
-			     System.currentTimeMillis() - state.report_time >= 15000 ||
+			     System.currentTimeMillis() - state.received_time >= 15000 ||
 			     state.state == Altos.ao_flight_landed))
 			{
 				if (Math.abs(state.speed) < 20 && state.height < 100)

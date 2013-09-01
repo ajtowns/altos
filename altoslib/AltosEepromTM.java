@@ -30,14 +30,14 @@ public class AltosEepromTM extends AltosEeprom {
 
 	public static final int	record_length = 8;
 
-	static double
-	thermometer_to_temperature(double thermo)
-	{
-		return (thermo - 19791.268) / 32728.0 * 1.25 / 0.00247;
-	}
-
 	public void write(PrintStream out) {
 		out.printf("%c %4x %4x %4x\n", cmd, tick, a, b);
+	}
+
+	public int record_length() { return record_length; }
+
+	public String string() {
+		return String.format("%c %4x %4x %4x\n", cmd, tick, a, b);
 	}
 
 	public void update_state(AltosState state) {
@@ -77,7 +77,7 @@ public class AltosEepromTM extends AltosEeprom {
 			break;
 		case AltosLib.AO_LOG_TEMP_VOLT:
 			state.set_tick(tick);
-			state.set_temperature(thermometer_to_temperature(a));
+			state.set_temperature(AltosConvert.thermometer_to_temperature(a));
 			state.set_battery_voltage(AltosConvert.cc_battery_to_voltage(b));
 			break;
 		case AltosLib.AO_LOG_DEPLOY:
