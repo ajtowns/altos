@@ -37,25 +37,29 @@ public class TelemetryReader extends Thread {
 	Handler     handler;
 
 	AltosLink   link;
-	AltosRecord previous;
+	AltosState  state = null;
 
-	LinkedBlockingQueue<AltosLine> telem;
+	LinkedBlockingQueue<AltosLine> telemQueue;
 
-	public AltosRecord read() throws ParseException, AltosCRCException, InterruptedException, IOException {
-		AltosLine l = telem.take();
+	public AltosState read() throws ParseException, AltosCRCException, InterruptedException, IOException {
+		AltosLine l = telemQueue.take();
 		if (l.line == null)
 			throw new IOException("IO error");
-		AltosRecord	next = AltosTelemetry.parse(l.line, previous);
-		previous = next;
-		return next;
+		AltosTelemetry telem = AltosTelemetryLegacy.parse(l.line);
+		if (state == null)
+			state = new AltosState();
+		else
+			state = state.clone();
+		telem.update_state(state);
+		return state;
 	}
 
 	public void close() {
-		previous = null;
-		link.remove_monitor(telem);
+		state = null;
+		link.remove_monitor(telemQueue);
 		link = null;
-		telem.clear();
-		telem = null;
+		telemQueue.clear();
+		telemQueue = null;
 	}
 
 	public void run() {
@@ -64,10 +68,7 @@ public class TelemetryReader extends Thread {
 		try {
 			for (;;) {
 				try {
-					AltosRecord record = read();
-					if (record == null)
-						break;
-					state = new AltosState(record, state);
+					state = read();
 					handler.obtainMessage(TelemetryService.MSG_TELEMETRY, state).sendToTarget();
 				} catch (ParseException pp) {
 					Log.e(TAG, String.format("Parse error: %d \"%s\"", pp.getErrorOffset(), pp.getMessage()));
@@ -87,8 +88,8 @@ public class TelemetryReader extends Thread {
 		link    = in_link;
 		handler = in_handler;
 
-		previous = null;
-		telem = new LinkedBlockingQueue<AltosLine>();
-		link.add_monitor(telem);
+		state = null;
+		telemQueue = new LinkedBlockingQueue<AltosLine>();
+		link.add_monitor(telemQueue);
 	}
 }

@@ -111,11 +111,11 @@ public class TabDescent extends Fragment implements AltosDroidTab {
 				mLongitudeView.setText(AltosDroid.pos(state.gps.lon, "W", "E"));
 			}
 
-			mApogeeVoltageView.setText(AltosDroid.number("%4.2f V", state.drogue_sense));
-			mApogeeLights.set(state.drogue_sense > 3.2, state.drogue_sense == AltosLib.MISSING);
+			mApogeeVoltageView.setText(AltosDroid.number("%4.2f V", state.apogee_voltage));
+			mApogeeLights.set(state.apogee_voltage > 3.2, state.apogee_voltage == AltosLib.MISSING);
 
-			mMainVoltageView.setText(AltosDroid.number("%4.2f V", state.main_sense));
-			mMainLights.set(state.main_sense > 3.2, state.main_sense == AltosLib.MISSING);
+			mMainVoltageView.setText(AltosDroid.number("%4.2f V", state.main_voltage));
+			mMainLights.set(state.main_voltage > 3.2, state.main_voltage == AltosLib.MISSING);
 		}
 	}
 

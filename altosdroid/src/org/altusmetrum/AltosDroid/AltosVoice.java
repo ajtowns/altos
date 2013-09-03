@@ -63,7 +63,7 @@ public class AltosVoice {
 
 		boolean	spoke = false;
 		if (old_state == null || old_state.state != state.state) {
-			speak(state.data.state());
+			speak(state.state_name());
 			if ((old_state == null || old_state.state <= AltosLib.ao_flight_boost) &&
 			    state.state > AltosLib.ao_flight_boost) {
 				speak(String.format("max speed: %d meters per second.", (int) (state.max_speed() + 0.5)));
@@ -132,10 +132,10 @@ public class AltosVoice {
 			 */
 			if (state.state >= AltosLib.ao_flight_drogue &&
 			    (last ||
-			     System.currentTimeMillis() - state.report_time >= 15000 ||
+			     System.currentTimeMillis() - state.received_time >= 15000 ||
 			     state.state == AltosLib.ao_flight_landed))
 			{
-				if (Math.abs(state.baro_speed) < 20 && state.height < 100)
+				if (Math.abs(state.speed) < 20 && state.height < 100)
 					speak("rocket landed safely");
 				else
 					speak("rocket may have crashed");

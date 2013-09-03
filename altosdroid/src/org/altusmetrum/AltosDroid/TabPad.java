@@ -103,26 +103,26 @@ public class TabPad extends Fragment implements AltosDroidTab {
 
 	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
 		if (state != null) {
-			mBatteryVoltageView.setText(AltosDroid.number("%4.2f V", state.battery));
-			mBatteryLights.set(state.battery > 3.7, state.battery == AltosLib.MISSING);
+			mBatteryVoltageView.setText(AltosDroid.number("%4.2f V", state.battery_voltage));
+			mBatteryLights.set(state.battery_voltage > 3.7, state.battery_voltage == AltosLib.MISSING);
 
-			mApogeeVoltageView.setText(AltosDroid.number("%4.2f V", state.drogue_sense));
-			mApogeeLights.set(state.drogue_sense > 3.2, state.drogue_sense == AltosLib.MISSING);
+			mApogeeVoltageView.setText(AltosDroid.number("%4.2f V", state.apogee_voltage));
+			mApogeeLights.set(state.apogee_voltage > 3.2, state.apogee_voltage == AltosLib.MISSING);
 
-			mMainVoltageView.setText(AltosDroid.number("%4.2f V", state.main_sense));
-			mMainLights.set(state.main_sense > 3.2, state.main_sense == AltosLib.MISSING);
+			mMainVoltageView.setText(AltosDroid.number("%4.2f V", state.main_voltage));
+			mMainLights.set(state.main_voltage > 3.2, state.main_voltage == AltosLib.MISSING);
 
-			if (state.data.flight != 0) {
-				if (state.data.state <= AltosLib.ao_flight_pad)
+			if (state.flight != 0) {
+				if (state.state <= AltosLib.ao_flight_pad)
 					mDataLoggingView.setText("Ready to record");
-				else if (state.data.state < AltosLib.ao_flight_landed)
+				else if (state.state < AltosLib.ao_flight_landed)
 					mDataLoggingView.setText("Recording data");
 				else
 					mDataLoggingView.setText("Recorded data");
 			} else {
 				mDataLoggingView.setText("Storage full");
 			}
-			mDataLoggingLights.set(state.data.flight != 0, state.data.flight == AltosLib.MISSING);
+			mDataLoggingLights.set(state.flight != 0, state.flight == AltosLib.MISSING);
 
 			if (state.gps != null) {
 				mGPSLockedView.setText(AltosDroid.integer("%4d sats", state.gps.nsat));
