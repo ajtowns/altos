@@ -884,7 +884,7 @@ public class AltosState implements Cloneable {
 
 		double counts_per_g = (accel_minus_g - accel_plus_g) / 2.0;
 		double counts_per_mss = counts_per_g / 9.80665;
-		acceleration.set_computed((ground - accel) / counts_per_mss, time);
+		acceleration.set_measured((ground - accel) / counts_per_mss, time);
 	}
 
 	public void set_accel_g(double accel_plus_g, double accel_minus_g) {
