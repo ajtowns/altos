@@ -9,6 +9,20 @@ CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH="bin:$(FREETTS)/*:/usr/share/java/
 SRC=.
 
 altoslibdir = $(datadir)/java
+record_files = \
+	AltosEepromRecord.java \
+	AltosEepromTeleScience.java \
+	AltosRecordCompanion.java \
+	AltosRecordIterable.java \
+	AltosOrderedRecord.java \
+	AltosOrderedMegaRecord.java \
+	AltosOrderedMiniRecord.java \
+	AltosRecord.java \
+	AltosRecordNone.java \
+	AltosRecordTM.java \
+	AltosRecordMM.java \
+	AltosRecordMini.java
+
 
 altoslib_JAVA = \
 	AltosLib.java \
