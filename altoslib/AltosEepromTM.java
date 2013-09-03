@@ -22,8 +22,6 @@ import java.util.*;
 import java.text.*;
 
 public class AltosEepromTM extends AltosEeprom {
-	public int	cmd;
-	public int	tick;
 	public int	a;
 	public int	b;
 	public boolean	tick_valid;
@@ -41,6 +39,8 @@ public class AltosEepromTM extends AltosEeprom {
 	}
 
 	public void update_state(AltosState state) {
+		super.update_state(state);
+
 		AltosGPS	gps;
 
 		/* Flush any pending GPS changes */
@@ -66,27 +66,21 @@ public class AltosEepromTM extends AltosEeprom {
 			state.set_boost_tick(tick);
 			break;
 		case AltosLib.AO_LOG_SENSOR:
-			state.set_tick(tick);
 			state.set_accel(a);
-			double pressure = AltosConvert.barometer_to_pressure(b);
-			state.set_pressure(pressure);
+			state.set_pressure(AltosConvert.barometer_to_pressure(b));
 			break;
 		case AltosLib.AO_LOG_PRESSURE:
-			state.set_tick(tick);
 			state.set_pressure(AltosConvert.barometer_to_pressure(b));
 			break;
 		case AltosLib.AO_LOG_TEMP_VOLT:
-			state.set_tick(tick);
 			state.set_temperature(AltosConvert.thermometer_to_temperature(a));
 			state.set_battery_voltage(AltosConvert.cc_battery_to_voltage(b));
 			break;
 		case AltosLib.AO_LOG_DEPLOY:
-			state.set_tick(tick);
 			state.set_apogee_voltage(AltosConvert.cc_ignitor_to_voltage(a));
 			state.set_main_voltage(AltosConvert.cc_ignitor_to_voltage(b));
 			break;
 		case AltosLib.AO_LOG_STATE:
-			state.set_tick(tick);
 			state.set_state(a);
 			break;
 		case AltosLib.AO_LOG_GPS_TIME:
