@@ -91,6 +91,9 @@ public class AltosEepromFile extends AltosStateIterable {
 		case AltosLib.AO_LOG_FORMAT_EASYMINI:
 			body = new AltosEepromIterable(AltosEepromMini.read(input));
 			break;
+		default:
+			body = new AltosEepromIterable(new LinkedList<AltosEeprom>());
+			break;
 		}
 
 		/* Find boost tick */
