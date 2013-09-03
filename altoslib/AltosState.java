@@ -62,6 +62,12 @@ public class AltosState implements Cloneable {
 			}
 		}
 
+		void set_filtered(double new_value, double time) {
+			if (prev_value != AltosRecord.MISSING)
+				new_value = (prev_value * 15.0 + new_value) / 16.0;
+			set(new_value, time);
+		}
+
 		double value() {
 			return value;
 		}
@@ -278,9 +284,14 @@ public class AltosState implements Cloneable {
 		ground_altitude.set_measured(a, time);
 	}
 
-	class AltosGroundPressure extends AltosValue {
-		void set(double p, double time) {
-			super.set(p, time);
+	class AltosGroundPressure extends AltosCValue {
+		void set_filtered(double p, double time) {
+			computed.set_filtered(p, time);
+			ground_altitude.set_computed(pressure_to_altitude(computed.value()), time);
+		}
+
+		void set_measured(double p, double time) {
+			super.set_measured(p, time);
 			ground_altitude.set_computed(pressure_to_altitude(p), time);
 		}
 	}
@@ -292,7 +303,7 @@ public class AltosState implements Cloneable {
 	}
 
 	public void set_ground_pressure (double pressure) {
-		ground_pressure.set(pressure, time);
+		ground_pressure.set_measured(pressure, time);
 	}
 
 	class AltosAltitude extends AltosCValue {
@@ -340,7 +351,10 @@ public class AltosState implements Cloneable {
 	class AltosPressure extends AltosValue {
 		void set(double p, double time) {
 			super.set(p, time);
-			altitude.set_computed(pressure_to_altitude(p), time);
+			if (state == AltosLib.ao_flight_pad)
+				ground_pressure.set_filtered(p, time);
+			double a = pressure_to_altitude(p);
+			altitude.set_computed(a, time);
 		}
 	}
 
