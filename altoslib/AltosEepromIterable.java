@@ -73,7 +73,9 @@ class AltosEepromOrderedIterator implements Iterator<AltosEeprom> {
 				tick = t;
 			}
 			olist.add(new AltosEepromOrdered(e, index++, tick));
+			first = false;
 		}
+
 		oiterator = olist.iterator();
 	}
 
