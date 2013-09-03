@@ -133,7 +133,7 @@ public class AltosEepromMetrum2 extends AltosEeprom {
 			gps.nsat = (flags & AltosLib.AO_GPS_NUM_SAT_MASK) >>
 				AltosLib.AO_GPS_NUM_SAT_SHIFT;
 
-			gps.year = year();
+			gps.year = 2000 + year();
 			gps.month = month();
 			gps.day = day();
 			break;
