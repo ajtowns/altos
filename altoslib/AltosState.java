@@ -30,7 +30,8 @@ public class AltosState implements Cloneable {
 
 	public int set;
 
-	static final double filter_len = 0.5;
+	static final double ascent_filter_len = 0.1;
+	static final double descent_filter_len = 2.0;
 
 	/* derived data */
 
@@ -102,29 +103,42 @@ public class AltosState implements Cloneable {
 		}
 
 		void set_derivative(AltosValue in) {
-			double	new_value = in.rate();
+			double	n = in.rate();
 			
-			if (new_value == AltosRecord.MISSING)
+			if (n == AltosRecord.MISSING)
 				return;
 
-			/* Clip changes to reduce noise */
-			if (prev_value != AltosRecord.MISSING) {
-				double	ddt = in.time() - prev_set_time;
-				double	ddv = (new_value - prev_value) / ddt;
-				
-				/* 100gs */
-				if (Math.abs(ddv) > 1000) {
-					if (new_value > prev_value)
-						new_value = prev_value + ddt * 1000;
-					else
-						new_value = prev_value - ddt * 1000;
-				}
+			double	p = prev_value;
+			double	pt = prev_set_time;
 
-				double f = 1/Math.exp(ddt/ filter_len);
-				new_value = prev_value * f + new_value * (1-f);
+			if (p == AltosRecord.MISSING) {
+				p = 0;
+				pt = in.time() - 0.01;
 			}
 
-			set(new_value, in.time());
+			/* Clip changes to reduce noise */
+			double	ddt = in.time() - pt;
+			double	ddv = (n - p) / ddt;
+				
+			/* 100gs */
+			if (Math.abs(ddv) > 1000) {
+				if (n > p)
+					n = p + ddt * 1000;
+				else
+					n = p - ddt * 1000;
+			}
+
+			double filter_len;
+
+			if (ascent)
+				filter_len = ascent_filter_len;
+			else
+				filter_len = descent_filter_len;
+
+			double f = 1/Math.exp(ddt/ filter_len);
+			n = p * f + n * (1-f);
+
+			set(n, in.time());
 		}
 
 		void set_integral(AltosValue in) {
