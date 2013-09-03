@@ -464,7 +464,7 @@ public class AltosState implements Cloneable {
 
 	public AltosGPS	gps;
 	public AltosGPS	temp_gps;
-	public boolean	temp_gps_clear_sats_pending;
+	public int temp_gps_sat_tick;
 	public boolean	gps_pending;
 	public int gps_sequence;
 
@@ -558,7 +558,7 @@ public class AltosState implements Cloneable {
 
 		gps = null;
 		temp_gps = null;
-		temp_gps_clear_sats_pending = false;
+		temp_gps_sat_tick = 0;
 		gps_sequence = 0;
 		gps_pending = false;
 
@@ -653,7 +653,7 @@ public class AltosState implements Cloneable {
 			temp_gps = old.temp_gps.clone();
 		else
 			temp_gps = null;
-		temp_gps_clear_sats_pending = old.temp_gps_clear_sats_pending;
+		temp_gps_sat_tick = old.temp_gps_sat_tick;
 		gps_sequence = old.gps_sequence;
 		gps_pending = old.gps_pending;
 
@@ -973,11 +973,10 @@ public class AltosState implements Cloneable {
 			temp_gps = new AltosGPS(gps);
 		}
 		gps_pending = true;
-		if (!sats)
-			temp_gps_clear_sats_pending = true;
-		else if (temp_gps_clear_sats_pending) {
-			temp_gps.cc_gps_sat = null;
-			temp_gps_clear_sats_pending = false;
+		if (sats) {
+			if (tick != temp_gps_sat_tick)
+				temp_gps.cc_gps_sat = null;
+			temp_gps_sat_tick = tick;
 		}
 		return temp_gps;
 	}
