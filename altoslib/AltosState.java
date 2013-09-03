@@ -150,8 +150,12 @@ public class AltosState implements Cloneable {
 		void set_integral(AltosValue in) {
 			double	change = in.integrate();
 
-			if (change != AltosRecord.MISSING)
-				set(prev_value + change, in.time());
+			if (change != AltosRecord.MISSING) {
+				double	prev = prev_value;
+				if (prev == AltosRecord.MISSING)
+					prev = 0;
+				set(prev + change, in.time());
+			}
 		}
 
 		void copy(AltosValue old) {
