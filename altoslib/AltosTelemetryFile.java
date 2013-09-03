@@ -72,13 +72,16 @@ public class AltosTelemetryFile extends AltosStateIterable {
 		/* Find boost tick */
 		AltosState	state = start.clone();
 
+		System.out.printf ("Searching for boost\n");
 		for (AltosTelemetry telem : telems) {
 			telem.update_state(state);
-			if (state.state >= AltosLib.ao_flight_boost) {
+			if (state.state != AltosLib.ao_flight_invalid && state.state >= AltosLib.ao_flight_boost) {
+				System.out.printf ("boost tick %d\n", state.tick);
 				start.set_boost_tick(state.tick);
 				break;
 			}
 		}
+		System.out.printf ("Found boost %d\n", start.boost_tick);
 	}
 
 	public Iterator<AltosState> iterator() {

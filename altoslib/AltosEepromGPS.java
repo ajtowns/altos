@@ -71,6 +71,8 @@ public class AltosEepromGPS extends AltosEeprom {
 	}
 
 	public void update_state(AltosState state) {
+		super.update_state(state);
+
 		AltosGPS	gps;
 
 		/* Flush any pending GPS changes */
@@ -89,11 +91,8 @@ public class AltosEepromGPS extends AltosEeprom {
 			}
 		}
 
-		if (cmd != AltosLib.AO_LOG_FLIGHT)
-			state.set_tick(tick);
 		switch (cmd) {
 		case AltosLib.AO_LOG_FLIGHT:
-			state.set_boost_tick(tick);
 			state.set_flight(flight());
 			state.set_ground_accel(ground_accel());
 			state.set_ground_pressure(ground_pres());
@@ -139,7 +138,6 @@ public class AltosEepromGPS extends AltosEeprom {
 			gps.day = day();
 			break;
 		case AltosLib.AO_LOG_GPS_SAT:
-			state.set_tick(tick);
 			gps = state.make_temp_gps();
 
 			int n = nsat();

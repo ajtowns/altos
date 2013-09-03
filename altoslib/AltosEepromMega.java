@@ -79,6 +79,8 @@ public class AltosEepromMega extends AltosEeprom {
 	}
 
 	public void update_state(AltosState state) {
+		super.update_state(state);
+
 		AltosGPS	gps;
 
 		/* Flush any pending GPS changes */
@@ -149,7 +151,7 @@ public class AltosEepromMega extends AltosEeprom {
 			break;
 		case AltosLib.AO_LOG_GPS_TIME:
 			state.set_tick(tick);
-			gps = state.make_temp_gps();
+			gps = state.make_temp_gps(false);
 			gps.lat = latitude() / 1e7;
 			gps.lon = longitude() / 1e7;
 			gps.alt = altitude();
@@ -171,7 +173,7 @@ public class AltosEepromMega extends AltosEeprom {
 			break;
 		case AltosLib.AO_LOG_GPS_SAT:
 			state.set_tick(tick);
-			gps = state.make_temp_gps();
+			gps = state.make_temp_gps(true);
 
 			int n = nsat();
 			for (int i = 0; i < n; i++)

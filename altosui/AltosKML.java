@@ -110,8 +110,8 @@ public class AltosKML implements AltosWriter {
 		AltosGPS	gps = state.gps;
 		double		altitude;
 
-		if (state.height != AltosRecord.MISSING)
-			altitude = state.height + gps_start_altitude;
+		if (state.height() != AltosRecord.MISSING)
+			altitude = state.height() + gps_start_altitude;
 		else
 			altitude = gps.alt;
 		out.printf(kml_coord_fmt,

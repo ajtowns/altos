@@ -43,6 +43,8 @@ public abstract class AltosTelemetry implements AltosStateUpdate {
 	}
 
 	public void update_state(AltosState state) {
+		if (state.state == AltosLib.ao_flight_invalid)
+			state.set_state(AltosLib.ao_flight_startup);
 		state.set_serial(serial);
 		state.set_tick(tick);
 		state.set_rssi(rssi, status);

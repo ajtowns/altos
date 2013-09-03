@@ -51,7 +51,7 @@ public class AltosFlightStats {
 		if (state == null)
 			return 0;
 
-		double	landed_height = state.height;
+		double	landed_height = state.height();
 
 		state = null;
 
@@ -62,10 +62,10 @@ public class AltosFlightStats {
 		for (AltosState s : states) {
 			state = s;
 
-			if (state.height > landed_height + 10) {
+			if (state.height() > landed_height + 10) {
 				above = true;
 			} else {
-				if (above && state.height < landed_height + 2) {
+				if (above && state.height() < landed_height + 2) {
 					above = false;
 					landed_time = state.time;
 				}
@@ -82,7 +82,7 @@ public class AltosFlightStats {
 
 		for (AltosState s : states) {
 			state = s;
-			if (state.acceleration < 1)
+			if (state.acceleration() < 1)
 				boost_time = state.time;
 			if (state.state >= Altos.ao_flight_boost)
 				break;
@@ -131,16 +131,16 @@ public class AltosFlightStats {
 				second = state.gps.second;
 			}
 			if (0 <= state.state && state.state < Altos.ao_flight_invalid) {
-				state_accel[state.state] += state.acceleration;
-				state_speed[state.state] += state.speed;
+				state_accel[state.state] += state.acceleration();
+				state_speed[state.state] += state.speed();
 				state_count[state.state]++;
 				if (state_start[state.state] == 0.0)
 					state_start[state.state] = state.time;
 				if (state_end[state.state] < state.time)
 					state_end[state.state] = state.time;
-				max_height = state.max_height;
-				max_speed = state.max_speed;
-				max_acceleration = state.max_acceleration;
+				max_height = state.max_height();
+				max_speed = state.max_speed();
+				max_acceleration = state.max_acceleration();
 			}
 			if (state.gps != null && state.gps.locked && state.gps.nsat >= 4) {
 				if (state.state <= Altos.ao_flight_pad) {

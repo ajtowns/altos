@@ -163,7 +163,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 
 	class Height extends LandedValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(AltosConvert.height, state.max_height);
+			show(AltosConvert.height, state.max_height());
 		}
 		public Height (GridBagLayout layout, int y) {
 			super (layout, y, "Maximum Height");
@@ -185,7 +185,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 
 	class Accel extends LandedValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(AltosConvert.accel, state.max_acceleration);
+			show(AltosConvert.accel, state.max_acceleration());
 		}
 		public Accel (GridBagLayout layout, int y) {
 			super (layout, y, "Maximum Acceleration");

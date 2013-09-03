@@ -127,12 +127,12 @@ public class AltosCSV implements AltosWriter {
 
 	void write_basic(AltosState state) {
 		out.printf("%8.2f,%10.2f,%8.2f,%8.2f,%8.2f,%8.2f,%5.1f,%5.2f,%5.2f,%5.2f",
-			   state.acceleration,
-			   state.pressure,
-			   state.altitude,
-			   state.height,
-			   state.speed,
-			   state.speed,
+			   state.acceleration(),
+			   state.pressure(),
+			   state.altitude(),
+			   state.height(),
+			   state.speed(),
+			   state.speed(),
 			   state.temperature,
 			   state.battery_voltage,
 			   state.apogee_voltage,

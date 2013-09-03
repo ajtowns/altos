@@ -76,15 +76,15 @@ public class AltosFlightStatsTable extends JComponent {
 		int y = 0;
 		new FlightStat(layout, y++, "Serial", String.format("%d", stats.serial));
 		new FlightStat(layout, y++, "Flight", String.format("%d", stats.flight));
-		if (stats.year > 0 && stats.hour > 0)
+		if (stats.year != AltosRecord.MISSING && stats.hour != AltosRecord.MISSING)
 			new FlightStat(layout, y++, "Date/Time",
 				       String.format("%04d-%02d-%02d", stats.year, stats.month, stats.day),
 				       String.format("%02d:%02d:%02d UTC", stats.hour, stats.minute, stats.second));
 		else {
-			if (stats.year > 0)
+			if (stats.year != AltosRecord.MISSING)
 				new FlightStat(layout, y++, "Date",
 					       String.format("%04d-%02d-%02d", stats.year, stats.month, stats.day));
-			if (stats.hour > 0)
+			if (stats.hour != AltosRecord.MISSING)
 				new FlightStat(layout, y++, "Time",
 					       String.format("%02d:%02d:%02d UTC", stats.hour, stats.minute, stats.second));
 		}

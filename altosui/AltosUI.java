@@ -521,7 +521,7 @@ public class AltosUI extends AltosUIFrame {
 			System.out.printf ("process cat\n");
 			for (AltosState state : eef) {
 				System.out.printf ("tick %d state %d height %g\n",
-						   state.tick, state.state, state.height);
+						   state.tick, state.state, state.height());
 				if ((state.set & AltosState.set_gps) != 0)
 					System.out.printf ("time %g lat %g lon %g alt %g\n",
 							   state.time_since_boost(),

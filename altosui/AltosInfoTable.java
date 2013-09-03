@@ -107,22 +107,22 @@ public class AltosInfoTable extends JTable {
 	public void show(AltosState state, AltosListenerState listener_state) {
 		info_reset();
 		if (state != null) {
-			if (state.altitude != AltosRecord.MISSING)
-				info_add_row(0, "Altitude", "%6.0f    m", state.altitude);
-			if (state.ground_altitude != AltosRecord.MISSING)
-				info_add_row(0, "Pad altitude", "%6.0f    m", state.ground_altitude);
-			if (state.height != AltosRecord.MISSING)
-				info_add_row(0, "Height", "%6.0f    m", state.height);
-			if (state.height != AltosRecord.MISSING)
-				info_add_row(0, "Max height", "%6.0f    m", state.max_height);
-			if (state.acceleration != AltosRecord.MISSING)
-				info_add_row(0, "Acceleration", "%8.1f  m/s²", state.acceleration);
-			if (state.acceleration != AltosRecord.MISSING)
-				info_add_row(0, "Max acceleration", "%8.1f  m/s²", state.max_acceleration);
+			if (state.altitude() != AltosRecord.MISSING)
+				info_add_row(0, "Altitude", "%6.0f    m", state.altitude());
+			if (state.ground_altitude() != AltosRecord.MISSING)
+				info_add_row(0, "Pad altitude", "%6.0f    m", state.ground_altitude());
+			if (state.height() != AltosRecord.MISSING)
+				info_add_row(0, "Height", "%6.0f    m", state.height());
+			if (state.max_height() != AltosRecord.MISSING)
+				info_add_row(0, "Max height", "%6.0f    m", state.max_height());
+			if (state.acceleration() != AltosRecord.MISSING)
+				info_add_row(0, "Acceleration", "%8.1f  m/s²", state.acceleration());
+			if (state.max_acceleration() != AltosRecord.MISSING)
+				info_add_row(0, "Max acceleration", "%8.1f  m/s²", state.max_acceleration());
 			if (state.speed() != AltosRecord.MISSING)
 				info_add_row(0, "Speed", "%8.1f  m/s", state.speed());
-			if (state.speed() != AltosRecord.MISSING)
-				info_add_row(0, "Max Speed", "%8.1f  m/s", state.max_speed);
+			if (state.max_speed() != AltosRecord.MISSING)
+				info_add_row(0, "Max Speed", "%8.1f  m/s", state.max_speed());
 			if (state.temperature != AltosRecord.MISSING)
 				info_add_row(0, "Temperature", "%9.2f °C", state.temperature);
 			if (state.battery_voltage != AltosRecord.MISSING)

@@ -30,6 +30,8 @@ public class AltosState implements Cloneable {
 
 	public int set;
 
+	static final double filter_len = 0.5;
+
 	/* derived data */
 
 	public long	received_time;
@@ -38,7 +40,198 @@ public class AltosState implements Cloneable {
 	public double	prev_time;
 	public double	time_change;
 	public int	tick;
+	private int	prev_tick;
 	public int	boost_tick;
+
+	class AltosValue {
+		private double	value;
+		private double	prev_value;
+		private double	max_value;
+		private double	set_time;
+		private double	prev_set_time;
+		private double	max_rate = 1000.0;
+
+		void set(double new_value, double time) {
+			if (new_value != AltosRecord.MISSING) {
+				value = new_value;
+				if (max_value == AltosRecord.MISSING || value > max_value) {
+					max_value = value;
+				}
+				set_time = time;
+			}
+		}
+
+		double value() {
+			return value;
+		}
+
+		double max() {
+			return max_value;
+		}
+
+		double prev() {
+			return prev_value;
+		}
+
+		double change() {
+			if (value != AltosRecord.MISSING && prev_value != AltosRecord.MISSING)
+				return value - prev_value;
+			return AltosRecord.MISSING;
+		}
+
+		double rate() {
+			double c = change();
+			double t = set_time - prev_set_time;
+
+			if (c != AltosRecord.MISSING && t != 0)
+				return c / t;
+			return AltosRecord.MISSING;
+		}
+
+		double integrate() {
+			if (value == AltosRecord.MISSING)
+				return AltosRecord.MISSING;
+			if (prev_value == AltosRecord.MISSING)
+				return AltosRecord.MISSING;
+
+			return (value + prev_value) / 2 * (set_time - prev_set_time);
+		}
+
+		double time() {
+			return set_time;
+		}
+
+		void set_derivative(AltosValue in) {
+			double	new_value = in.rate();
+			
+			if (new_value == AltosRecord.MISSING)
+				return;
+
+			/* Clip changes to reduce noise */
+			if (prev_value != AltosRecord.MISSING) {
+				double	ddt = in.time() - prev_set_time;
+				double	ddv = (new_value - prev_value) / ddt;
+				
+				/* 100gs */
+				if (Math.abs(ddv) > 1000) {
+					if (new_value > prev_value)
+						new_value = prev_value + ddt * 1000;
+					else
+						new_value = prev_value - ddt * 1000;
+				}
+
+				double f = 1/Math.exp(ddt/ filter_len);
+				new_value = prev_value * f + new_value * (1-f);
+			}
+
+			set(new_value, in.time());
+		}
+
+		void set_integral(AltosValue in) {
+			double	change = in.integrate();
+
+			if (change != AltosRecord.MISSING)
+				set(prev_value + change, in.time());
+		}
+
+		void copy(AltosValue old) {
+			value = old.value;
+			set_time = old.set_time;
+			prev_value = old.value;
+			prev_set_time = old.set_time;
+			max_value = old.max_value;
+		}
+
+		AltosValue() {
+			value = AltosRecord.MISSING;
+			prev_value = AltosRecord.MISSING;
+			max_value = AltosRecord.MISSING;
+		}
+	}
+
+	class AltosCValue {
+		AltosValue	measured;
+		AltosValue	computed;
+
+		double value() {
+			double v = measured.value();
+			if (v != AltosRecord.MISSING)
+				return v;
+			return computed.value();
+		}
+
+		boolean is_measured() {
+			return measured.value() != AltosRecord.MISSING;
+		}
+
+		double max() {
+			double m = measured.max();
+
+			if (m != AltosRecord.MISSING)
+				return m;
+			return computed.max();
+		}
+
+		double prev_value() {
+			if (measured.value != AltosRecord.MISSING && measured.prev_value != AltosRecord.MISSING)
+				return measured.prev_value;
+			return computed.prev_value;
+		}
+
+		AltosValue altos_value() {
+			if (measured.value() != AltosRecord.MISSING)
+				return measured;
+			return computed;
+		}
+
+		double change() {
+			double c = measured.change();
+			if (c == AltosRecord.MISSING)
+				c = computed.change();
+			return c;
+		}
+
+		double rate() {
+			double r = measured.rate();
+			if (r == AltosRecord.MISSING)
+				r = computed.rate();
+			return r;
+		}
+
+		void set_measured(double new_value, double time) {
+			measured.set(new_value, time);
+		}
+
+		void set_computed(double new_value, double time) {
+			computed.set(new_value, time);
+		}
+
+		void set_derivative(AltosValue in) {
+			computed.set_derivative(in);
+		}
+
+		void set_derivative(AltosCValue in) {
+			set_derivative(in.altos_value());
+		}
+
+		void set_integral(AltosValue in) {
+			computed.set_integral(in);
+		}
+		
+		void set_integral(AltosCValue in) {
+			set_integral(in.altos_value());
+		}
+		
+		void copy(AltosCValue old) {
+			measured.copy(old.measured);
+			computed.copy(old.computed);
+		}
+
+		AltosCValue() {
+			measured = new AltosValue();
+			computed = new AltosValue();
+		}
+	}
 
 	public int	state;
 	public int	flight;
@@ -55,36 +248,191 @@ public class AltosState implements Cloneable {
 	public int	main_deploy;
 	public int	flight_log_max;
 
-	public double	ground_altitude;
-	public double	ground_pressure;
-	public double	altitude;
-	public double	height;
-	public double	pressure;
-	public double	acceleration;
+	private double pressure_to_altitude(double p) {
+		if (p == AltosRecord.MISSING)
+			return AltosRecord.MISSING;
+		return AltosConvert.pressure_to_altitude(p);
+	}
+
+	private AltosCValue ground_altitude;
+
+	public double ground_altitude() {
+		return ground_altitude.value();
+	}
+
+	public void set_ground_altitude(double a) {
+		ground_altitude.set_measured(a, time);
+	}
+
+	class AltosGroundPressure extends AltosValue {
+		void set(double p, double time) {
+			super.set(p, time);
+			ground_altitude.set_computed(pressure_to_altitude(p), time);
+		}
+	}
+
+	private AltosGroundPressure ground_pressure;
+		
+	public double ground_pressure() {
+		return ground_pressure.value();
+	}
+
+	public void set_ground_pressure (double pressure) {
+		ground_pressure.set(pressure, time);
+	}
+
+	class AltosAltitude extends AltosCValue {
+
+		private void set_speed(AltosValue v) {
+			if (!acceleration.is_measured() || !ascent)
+				speed.set_derivative(this);
+		}
+
+		void set_computed(double a, double time) {
+			super.set_computed(a,time);
+			set_speed(computed);
+			set |= set_position;
+		}
+
+		void set_measured(double a, double time) {
+			super.set_measured(a,time);
+			set_speed(measured);
+			set |= set_position;
+		}
+	}
+
+	private AltosAltitude	altitude;
+
+	public double altitude() {
+		double a = altitude.value();
+		if (a != AltosRecord.MISSING)
+			return a;
+		if (gps != null)
+			return gps.alt;
+		return AltosRecord.MISSING;
+	}
+
+	public double max_altitude() {
+		double a = altitude.max();
+		if (a != AltosRecord.MISSING)
+			return a;
+		return AltosRecord.MISSING;
+	}
+
+	public void set_altitude(double new_altitude) {
+		altitude.set_measured(new_altitude, time);
+	}
+
+	class AltosPressure extends AltosValue {
+		void set(double p, double time) {
+			super.set(p, time);
+			altitude.set_computed(pressure_to_altitude(p), time);
+		}
+	}
+
+	private AltosPressure	pressure;
+
+	public double pressure() {
+		return pressure.value();
+	}
+
+	public void set_pressure(double p) {
+		pressure.set(p, time);
+	}
+
+	public double height() {
+		double k = kalman_height.value();
+		if (k != AltosRecord.MISSING)
+			return k;
+
+		double a = altitude();
+		double g = ground_altitude();
+		if (a != AltosRecord.MISSING && g != AltosRecord.MISSING)
+			return a - g;
+		return AltosRecord.MISSING;
+	}
+
+	public double max_height() {
+		double	k = kalman_height.max();
+		if (k != AltosRecord.MISSING)
+			return k;
+
+		double a = altitude.max();
+		double g = ground_altitude();
+		if (a != AltosRecord.MISSING && g != AltosRecord.MISSING)
+			return a - g;
+		return AltosRecord.MISSING;
+	}
+
+	class AltosSpeed extends AltosCValue {
+		
+		void set_accel() {
+			acceleration.set_derivative(this);
+		}
+
+		void set_derivative(AltosCValue in) {
+			super.set_derivative(in);
+			set_accel();
+		}
+
+		void set_computed(double new_value, double time) {
+			super.set_computed(new_value, time);
+			set_accel();
+		}
+
+		void set_measured(double new_value, double time) {
+			super.set_measured(new_value, time);
+			set_accel();
+		}
+	}
+
+	private AltosSpeed speed;
+
+	public double speed() {
+		return speed.value();
+	}
+
+	public double max_speed() {
+		return speed.max();
+	}
+
+	class AltosAccel extends AltosCValue {
+		void set_measured(double a, double time) {
+			super.set_measured(a, time);
+			if (ascent)
+				speed.set_integral(this.measured);
+		}
+	}
+
+	AltosAccel acceleration;
+
+	public double acceleration() {
+		return acceleration.value();
+	}
+
+	public double max_acceleration() {
+		return acceleration.max();
+	}
+
+	public AltosValue	kalman_height, kalman_speed, kalman_acceleration;
+
+	public void set_kalman(double height, double speed, double acceleration) {
+		kalman_height.set(height, time);
+		kalman_speed.set(speed, time);
+		kalman_acceleration.set(acceleration, time);
+	}
+
 	public double	battery_voltage;
 	public double	pyro_voltage;
 	public double	temperature;
 	public double	apogee_voltage;
 	public double	main_voltage;
-	public double	speed;
+
 	public double	ignitor_voltage[];
-
-	public double	prev_height;
-	public double	prev_speed;
-	public double	prev_acceleration;
-
-	public double	prev_max_height;
-	public double	prev_max_acceleration;
-	public double	prev_max_speed;
-
-	public double	max_height;
-	public double	max_acceleration;
-	public double	max_speed;
-
-	public double	kalman_height, kalman_speed, kalman_acceleration;
 
 	public AltosGPS	gps;
 	public AltosGPS	temp_gps;
+	public boolean	temp_gps_clear_sats_pending;
 	public boolean	gps_pending;
 	public int gps_sequence;
 
@@ -125,14 +473,6 @@ public class AltosState implements Cloneable {
 
 	public AltosRecordCompanion	companion;
 
-	public double speed() {
-		return speed;
-	}
-
-	public double max_speed() {
-		return max_speed;
-	}
-
 	public void set_npad(int npad) {
 		this.npad = npad;
 		gps_waiting = MIN_PAD_SAMPLES - npad;
@@ -151,6 +491,7 @@ public class AltosState implements Cloneable {
 		time_change = AltosRecord.MISSING;
 		prev_time = AltosRecord.MISSING;
 		tick = AltosRecord.MISSING;
+		prev_tick = AltosRecord.MISSING;
 		boost_tick = AltosRecord.MISSING;
 		state = AltosLib.ao_flight_invalid;
 		flight = AltosRecord.MISSING;
@@ -165,40 +506,27 @@ public class AltosState implements Cloneable {
 		main_deploy = AltosRecord.MISSING;
 		flight_log_max = AltosRecord.MISSING;
 
-		ground_altitude = AltosRecord.MISSING;
-		ground_pressure = AltosRecord.MISSING;
-		altitude = AltosRecord.MISSING;
-		height = AltosRecord.MISSING;
-		pressure = AltosRecord.MISSING;
-		acceleration = AltosRecord.MISSING;
+		ground_altitude = new AltosCValue();
+		ground_pressure = new AltosGroundPressure();
+		altitude = new AltosAltitude();
+		pressure = new AltosPressure();
+		speed = new AltosSpeed();
+		acceleration = new AltosAccel();
+
 		temperature = AltosRecord.MISSING;
-
-		prev_height = AltosRecord.MISSING;
-		prev_speed = AltosRecord.MISSING;
-		prev_acceleration = AltosRecord.MISSING;
-
-		prev_max_height = 0;
-		prev_max_speed = 0;
-		prev_max_acceleration = 0;
-
 		battery_voltage = AltosRecord.MISSING;
 		pyro_voltage = AltosRecord.MISSING;
 		apogee_voltage = AltosRecord.MISSING;
 		main_voltage = AltosRecord.MISSING;
 		ignitor_voltage = null;
 
-		speed = AltosRecord.MISSING;
-
-		kalman_height = AltosRecord.MISSING;
-		kalman_speed = AltosRecord.MISSING;
-		kalman_acceleration = AltosRecord.MISSING;
-
-		max_speed = 0;
-		max_height = 0;
-		max_acceleration = 0;
+		kalman_height = new AltosValue();
+		kalman_speed = new AltosValue();
+		kalman_acceleration = new AltosValue();
 
 		gps = null;
 		temp_gps = null;
+		temp_gps_clear_sats_pending = false;
 		gps_sequence = 0;
 		gps_pending = false;
 
@@ -225,8 +553,10 @@ public class AltosState implements Cloneable {
 		accel_plus_g = AltosRecord.MISSING;
 		accel_minus_g = AltosRecord.MISSING;
 		accel = AltosRecord.MISSING;
+
 		ground_accel = AltosRecord.MISSING;
 		ground_accel_avg = AltosRecord.MISSING;
+
 		log_format = AltosRecord.MISSING;
 		serial = AltosRecord.MISSING;
 
@@ -247,6 +577,7 @@ public class AltosState implements Cloneable {
 		time = old.time;
 		time_change = 0;
 		tick = old.tick;
+		prev_tick = old.tick;
 		boost_tick = old.boost_tick;
 
 		state = old.state;
@@ -265,35 +596,22 @@ public class AltosState implements Cloneable {
 		
 		set = 0;
 
-		ground_altitude = old.ground_altitude;
-		altitude = old.altitude;
-		height = old.height;
-		pressure = old.pressure;
-		acceleration = old.acceleration;
+		ground_altitude.copy(old.ground_altitude);
+		altitude.copy(old.altitude);
+		pressure.copy(old.pressure);
+		speed.copy(old.speed);
+		acceleration.copy(old.acceleration);
+
 		battery_voltage = old.battery_voltage;
 		pyro_voltage = old.pyro_voltage;
 		temperature = old.temperature;
 		apogee_voltage = old.apogee_voltage;
 		main_voltage = old.main_voltage;
 		ignitor_voltage = old.ignitor_voltage;
-		speed = old.speed;
 
-		prev_height = old.height;
-		prev_speed = old.speed;
-		prev_acceleration = old.acceleration;
-
-		prev_max_height = old.max_height;
-		prev_max_speed = old.max_speed;
-		prev_max_acceleration = old.max_acceleration;
-		prev_time = old.time;
-
-		max_height = old.max_height;
-		max_acceleration = old.max_acceleration;
-		max_speed = old.max_speed;
-
-		kalman_height = old.kalman_height;
-		kalman_speed = old.kalman_speed;
-		kalman_acceleration = old.kalman_acceleration;
+		kalman_height.copy(old.kalman_height);
+		kalman_speed.copy(old.kalman_speed);
+		kalman_acceleration.copy(old.kalman_acceleration);
 
 		if (old.gps != null)
 			gps = old.gps.clone();
@@ -303,6 +621,7 @@ public class AltosState implements Cloneable {
 			temp_gps = old.temp_gps.clone();
 		else
 			temp_gps = null;
+		temp_gps_clear_sats_pending = old.temp_gps_clear_sats_pending;
 		gps_sequence = old.gps_sequence;
 		gps_pending = old.gps_pending;
 
@@ -351,122 +670,8 @@ public class AltosState implements Cloneable {
 		baro = old.baro;
 		companion = old.companion;
 	}
-
-	double altitude() {
-		if (altitude != AltosRecord.MISSING)
-			return altitude;
-		if (gps != null)
-			return gps.alt;
-		return AltosRecord.MISSING;
-	}
-
-	void update_vertical_pos() {
-
-		double	alt = altitude();
-
-		if (state == AltosLib.ao_flight_pad && alt != AltosRecord.MISSING && ground_pressure == AltosRecord.MISSING) {
-			if (ground_altitude == AltosRecord.MISSING)
-				ground_altitude = alt;
-			else
-				ground_altitude = (ground_altitude * 7 + alt) / 8;
-		}
-
-		if (kalman_height != AltosRecord.MISSING)
-			height = kalman_height;
-		else if (altitude != AltosRecord.MISSING && ground_altitude != AltosRecord.MISSING)
-			height = altitude - ground_altitude;
-		else
-			height = AltosRecord.MISSING;
-
-		if (height != AltosRecord.MISSING && height > prev_max_height)
-			max_height = height;
-
-		update_speed();
-	}
-
-	double motion_filter_value() {
-		return 1/ Math.exp(time_change/2.0);
-	}
-
-	void update_speed() {
-		if (kalman_speed != AltosRecord.MISSING)
-			speed = kalman_speed;
-		else if (state != AltosLib.ao_flight_invalid &&
-			 time_change != AltosRecord.MISSING)
-		{
-			if (ascent && acceleration != AltosRecord.MISSING)
-			{
-				if (prev_speed == AltosRecord.MISSING)
-					speed = acceleration * time_change;
-				else
-					speed = prev_speed + acceleration * time_change;
-			}
-			else if (height != AltosRecord.MISSING &&
-				 prev_height != AltosRecord.MISSING &&
-				 time_change != 0)
-			{
-				double	new_speed = (height - prev_height) / time_change;
-
-				if (prev_speed == AltosRecord.MISSING)
-					speed = new_speed;
-				else {
-					double	filter = motion_filter_value();
-
-					speed = prev_speed * filter + new_speed * (1-filter);
-				}
-			}
-		}
-		if (acceleration == AltosRecord.MISSING) {
-			if (prev_speed != AltosRecord.MISSING && time_change != 0) {
-				double	new_acceleration = (speed - prev_speed) / time_change;
-
-				if (prev_acceleration == AltosRecord.MISSING)
-					acceleration = new_acceleration;
-				else {
-					double filter = motion_filter_value();
-
-					acceleration = prev_acceleration * filter + new_acceleration * (1-filter);
-				}
-			}
-		}
-		if (boost && speed != AltosRecord.MISSING && speed > prev_max_speed)
-			max_speed = speed;
-	}
 	
-	void update_accel() {
-		if (kalman_acceleration != AltosRecord.MISSING) {
-			acceleration = kalman_acceleration;
-		} else {
-			double	ground = ground_accel;
-
-			if (ground == AltosRecord.MISSING)
-				ground = ground_accel_avg;
-			if (accel == AltosRecord.MISSING)
-				return;
-			if (ground == AltosRecord.MISSING)
-				return;
-			if (accel_plus_g == AltosRecord.MISSING)
-				return;
-			if (accel_minus_g == AltosRecord.MISSING)
-				return;
-
-			double counts_per_g = (accel_minus_g - accel_plus_g) / 2.0;
-			double counts_per_mss = counts_per_g / 9.80665;
-			acceleration = (ground - accel) / counts_per_mss;
-		}
-
-		/* Only look at accelerometer data under boost */
-		if (boost && acceleration != AltosRecord.MISSING && acceleration > prev_max_acceleration)
-			max_acceleration = acceleration;
-		update_speed();
-	}
-
 	void update_time() {
-		if (tick != AltosRecord.MISSING) {
-			time = tick / 100.0;
-			if (prev_time != AltosRecord.MISSING)
-				time_change = time - prev_time;
-		}
 	}
 
 	void update_gps() {
@@ -497,7 +702,7 @@ public class AltosState implements Cloneable {
 		    pad_lat != AltosRecord.MISSING &&
 		    pad_lon != AltosRecord.MISSING)
 		{
-			double h = height;
+			double h = height();
 
 			if (h == AltosRecord.MISSING)
 				h = 0;
@@ -508,16 +713,15 @@ public class AltosState implements Cloneable {
 		}
 	}
 
-	public void set_tick(int tick) {
-		if (tick != AltosRecord.MISSING) {
-			if (this.tick != AltosRecord.MISSING) {
-				while (tick < this.tick)
-					tick += 65536;
-				time_change = (tick - this.tick) / 100.0;
-			} else
-				time_change = 0;
-			this.tick = tick;
-			update_time();
+	public void set_tick(int new_tick) {
+		if (new_tick != AltosRecord.MISSING) {
+			if (prev_tick != AltosRecord.MISSING) {
+				while (new_tick < prev_tick - 32767) {
+					new_tick += 65536;
+				}
+			}
+			tick = new_tick;
+			time = tick / 100.0;
 		}
 	}
 
@@ -600,54 +804,12 @@ public class AltosState implements Cloneable {
 		received_time = ms;
 	}
 
-	public void set_altitude(double altitude) {
-		if (altitude != AltosRecord.MISSING) {
-			this.altitude = altitude;
-			update_vertical_pos();
-			set |= set_position;
-		}
-	}
-
-	public void set_ground_altitude(double ground_altitude) {
-		if (ground_altitude != AltosRecord.MISSING) {
-			this.ground_altitude = ground_altitude;
-			update_vertical_pos();
-		}
-	}
-
-	public void set_ground_pressure (double pressure) {
-		if (pressure != AltosRecord.MISSING) {
-			this.ground_pressure = pressure;
-			set_ground_altitude(AltosConvert.pressure_to_altitude(pressure));
-			update_vertical_pos();
-		}
-	}
-
 	public void set_gps(AltosGPS gps, int sequence) {
 		if (gps != null) {
 			this.gps = gps.clone();
 			gps_sequence = sequence;
 			update_gps();
-			update_vertical_pos();
 			set |= set_gps;
-		}
-	}
-
-	public void set_kalman(double height, double speed, double acceleration) {
-		if (height != AltosRecord.MISSING) {
-			kalman_height = height;
-			kalman_speed = speed;
-			kalman_acceleration = acceleration;
-			update_vertical_pos();
-			update_speed();
-			update_accel();
-		}
-	}
-
-	public void set_pressure(double pressure) {
-		if (pressure != AltosRecord.MISSING) {
-			this.pressure = pressure;
-			set_altitude(AltosConvert.pressure_to_altitude(pressure));
 		}
 	}
 
@@ -674,6 +836,25 @@ public class AltosState implements Cloneable {
 		this.companion = companion;
 	}
 
+	void update_accel() {
+		double	ground = ground_accel;
+
+		if (ground == AltosRecord.MISSING)
+			ground = ground_accel_avg;
+		if (accel == AltosRecord.MISSING)
+			return;
+		if (ground == AltosRecord.MISSING)
+			return;
+		if (accel_plus_g == AltosRecord.MISSING)
+			return;
+		if (accel_minus_g == AltosRecord.MISSING)
+			return;
+
+		double counts_per_g = (accel_minus_g - accel_plus_g) / 2.0;
+		double counts_per_mss = counts_per_g / 9.80665;
+		acceleration.set_computed((ground - accel) / counts_per_mss, time);
+	}
+
 	public void set_accel_g(double accel_plus_g, double accel_minus_g) {
 		if (accel_plus_g != AltosRecord.MISSING) {
 			this.accel_plus_g = accel_plus_g;
@@ -681,6 +862,7 @@ public class AltosState implements Cloneable {
 			update_accel();
 		}
 	}
+
 	public void set_ground_accel(double ground_accel) {
 		if (ground_accel != AltosRecord.MISSING) {
 			this.ground_accel = ground_accel;
@@ -754,12 +936,17 @@ public class AltosState implements Cloneable {
 		return tick != AltosRecord.MISSING && serial != AltosRecord.MISSING;
 	}
 
-	public AltosGPS make_temp_gps() {
+	public AltosGPS make_temp_gps(boolean sats) {
 		if (temp_gps == null) {
 			temp_gps = new AltosGPS(gps);
-			temp_gps.cc_gps_sat = null;
 		}
 		gps_pending = true;
+		if (!sats)
+			temp_gps_clear_sats_pending = true;
+		else if (temp_gps_clear_sats_pending) {
+			temp_gps.cc_gps_sat = null;
+			temp_gps_clear_sats_pending = false;
+		}
 		return temp_gps;
 	}
 

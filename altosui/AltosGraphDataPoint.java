@@ -52,13 +52,13 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 		double y = AltosRecord.MISSING;
 		switch (index) {
 		case data_height:
-			y = state.height;
+			y = state.height();
 			break;
 		case data_speed:
 			y = state.speed();
 			break;
 		case data_accel:
-			y = state.acceleration;
+			y = state.acceleration();
 			break;
 		case data_temp:
 			y = state.temperature;
@@ -97,7 +97,7 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 				y = state.from_pad.distance;
 			break;
 		case data_pressure:
-			y = state.pressure;
+			y = state.pressure();
 			break;
 		}
 		if (y == AltosRecord.MISSING)

@@ -92,14 +92,14 @@ public class AltosDisplayThread extends Thread {
 			    state.range >= 0)
 			{
 				voice.speak("Height %s, bearing %s %d, elevation %d, range %s.\n",
-					    AltosConvert.height.say(state.height),
+					    AltosConvert.height.say(state.height()),
 					    state.from_pad.bearing_words(
 						    AltosGreatCircle.BEARING_VOICE),
 					    (int) (state.from_pad.bearing + 0.5),
 					    (int) (state.elevation + 0.5),
 					    AltosConvert.distance.say(state.range));
 			} else if (state.state > Altos.ao_flight_pad) {
-				voice.speak(AltosConvert.height.say_units(state.height));
+				voice.speak(AltosConvert.height.say_units(state.height()));
 			} else {
 				reported_landing = 0;
 			}
@@ -113,7 +113,7 @@ public class AltosDisplayThread extends Thread {
 			     System.currentTimeMillis() - state.received_time >= 15000 ||
 			     state.state == Altos.ao_flight_landed))
 			{
-				if (Math.abs(state.speed) < 20 && state.height < 100)
+				if (Math.abs(state.speed()) < 20 && state.height() < 100)
 					voice.speak("rocket landed safely");
 				else
 					voice.speak("rocket may have crashed");
@@ -185,12 +185,12 @@ public class AltosDisplayThread extends Thread {
 			if ((old_state == null || old_state.state <= Altos.ao_flight_boost) &&
 			    state.state > Altos.ao_flight_boost) {
 				voice.speak("max speed: %s.",
-					    AltosConvert.speed.say_units(state.max_speed + 0.5));
+					    AltosConvert.speed.say_units(state.max_speed() + 0.5));
 				ret = true;
 			} else if ((old_state == null || old_state.state < Altos.ao_flight_drogue) &&
 				   state.state >= Altos.ao_flight_drogue) {
 				voice.speak("max height: %s.",
-					    AltosConvert.height.say_units(state.max_height + 0.5));
+					    AltosConvert.height.say_units(state.max_height() + 0.5));
 				ret = true;
 			}
 		}

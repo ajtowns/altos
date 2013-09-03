@@ -42,7 +42,7 @@ public class AltosTelemetrySatellite extends AltosTelemetryStandard {
 	public void update_state(AltosState state) {
 		super.update_state(state);
 
-		AltosGPS	gps = state.make_temp_gps();
+		AltosGPS	gps = state.make_temp_gps(true);
 		
 		gps.cc_gps_sat = sats;
 		state.set_temp_gps();

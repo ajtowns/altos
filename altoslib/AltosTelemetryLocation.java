@@ -61,7 +61,7 @@ public class AltosTelemetryLocation extends AltosTelemetryStandard {
 
 	public void update_state(AltosState state) {
 		super.update_state(state);
-		AltosGPS	gps = state.make_temp_gps();
+		AltosGPS	gps = state.make_temp_gps(false);
 
 		gps.nsat = flags & 0xf;
 		gps.locked = (flags & (1 << 4)) != 0;

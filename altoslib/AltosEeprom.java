@@ -47,7 +47,12 @@ public abstract class AltosEeprom implements AltosStateUpdate {
 
 	public abstract int record_length();
 
-	public abstract void update_state(AltosState state);
+	public void update_state(AltosState state) {
+		if (cmd == AltosLib.AO_LOG_FLIGHT)
+			state.set_boost_tick(tick);
+		else
+			state.set_tick(tick);
+	}
 
 	public void write(PrintStream out) {
 		out.printf("%c %04x", cmd, tick);

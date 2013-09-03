@@ -90,7 +90,7 @@ public class AltosEepromTM extends AltosEeprom {
 			state.set_state(a);
 			break;
 		case AltosLib.AO_LOG_GPS_TIME:
-			gps = state.make_temp_gps();
+			gps = state.make_temp_gps(false);
 
 			gps.hour = (a & 0xff);
 			gps.minute = (a >> 8);
@@ -104,29 +104,29 @@ public class AltosEepromTM extends AltosEeprom {
 				AltosLib.AO_GPS_NUM_SAT_SHIFT;
 			break;
 		case AltosLib.AO_LOG_GPS_LAT:
-			gps = state.make_temp_gps();
+			gps = state.make_temp_gps(false);
 
 			int lat32 = a | (b << 16);
 			gps.lat = (double) lat32 / 1e7;
 			break;
 		case AltosLib.AO_LOG_GPS_LON:
-			gps = state.make_temp_gps();
+			gps = state.make_temp_gps(false);
 
 			int lon32 = a | (b << 16);
 			gps.lon = (double) lon32 / 1e7;
 			break;
 		case AltosLib.AO_LOG_GPS_ALT:
-			gps = state.make_temp_gps();
+			gps = state.make_temp_gps(false);
 			gps.alt = a;
 			break;
 		case AltosLib.AO_LOG_GPS_SAT:
-			gps = state.make_temp_gps();
+			gps = state.make_temp_gps(true);
 			int svid = a;
 			int c_n0 = b >> 8;
 			gps.add_sat(svid, c_n0);
 			break;
 		case AltosLib.AO_LOG_GPS_DATE:
-			gps = state.make_temp_gps();
+			gps = state.make_temp_gps(false);
 			gps.year = (a & 0xff) + 2000;
 			gps.month = a >> 8;
 			gps.day = b & 0xff;

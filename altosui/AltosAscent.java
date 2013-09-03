@@ -240,7 +240,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Height extends AscentValueHold {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(AltosConvert.height, state.height);
+			show(AltosConvert.height, state.height());
 		}
 		public Height (GridBagLayout layout, int y) {
 			super (layout, y, "Height");
@@ -251,7 +251,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Speed extends AscentValueHold {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(AltosConvert.speed, state.speed);
+			show(AltosConvert.speed, state.speed());
 		}
 		public Speed (GridBagLayout layout, int y) {
 			super (layout, y, "Speed");
@@ -262,7 +262,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Accel extends AscentValueHold {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(AltosConvert.accel, state.acceleration);
+			show(AltosConvert.accel, state.acceleration());
 		}
 		public Accel (GridBagLayout layout, int y) {
 			super (layout, y, "Acceleration");

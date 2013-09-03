@@ -52,6 +52,8 @@ public class AltosEepromMini extends AltosEeprom {
 	}
 
 	public void update_state(AltosState state) {
+		super.update_state(state);
+
 		switch (cmd) {
 		case AltosLib.AO_LOG_FLIGHT:
 			state.set_flight(flight());
