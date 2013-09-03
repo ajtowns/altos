@@ -138,7 +138,6 @@ public class AltosEepromMetrum2 extends AltosEeprom {
 			gps.day = day();
 			break;
 		case AltosLib.AO_LOG_GPS_SAT:
-			state.set_tick(tick);
 			gps = state.make_temp_gps(true);
 
 			int n = nsat();
@@ -153,7 +152,7 @@ public class AltosEepromMetrum2 extends AltosEeprom {
 	}
 
 	static public LinkedList<AltosEeprom> read(FileInputStream input) {
-		LinkedList<AltosEeprom> megas = new LinkedList<AltosEeprom>();
+		LinkedList<AltosEeprom> metrums = new LinkedList<AltosEeprom>();
 
 		for (;;) {
 			try {
@@ -161,9 +160,10 @@ public class AltosEepromMetrum2 extends AltosEeprom {
 				if (line == null)
 					break;
 				try {
-					AltosEepromMetrum2 mega = new AltosEepromMetrum2(line);
-					if (mega.cmd != AltosLib.AO_LOG_INVALID)
-						megas.add(mega);
+					AltosEepromMetrum2 metrum = new AltosEepromMetrum2(line);
+					
+					if (metrum.cmd != AltosLib.AO_LOG_INVALID)
+						metrums.add(metrum);
 				} catch (Exception e) {
 					System.out.printf ("exception\n");
 				}
@@ -172,6 +172,6 @@ public class AltosEepromMetrum2 extends AltosEeprom {
 			}
 		}
 
-		return megas;
+		return metrums;
 	}
 }
