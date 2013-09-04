@@ -70,7 +70,7 @@ public class AltosVoice {
 				spoke = true;
 			} else if ((old_state == null || old_state.state < AltosLib.ao_flight_drogue) &&
 			           state.state >= AltosLib.ao_flight_drogue) {
-				speak(String.format("max height: %d meters.", (int) (state.max_height + 0.5)));
+				speak(String.format("max height: %d meters.", (int) (state.max_height() + 0.5)));
 				spoke = true;
 			}
 		}
@@ -114,14 +114,14 @@ public class AltosVoice {
 			    state.range >= 0)
 			{
 				speak(String.format("Height %d, bearing %s %d, elevation %d, range %d.\n",
-				                    (int) (state.height + 0.5),
+				                    (int) (state.height() + 0.5),
 	                                state.from_pad.bearing_words(
 	                                      AltosGreatCircle.BEARING_VOICE),
 				                    (int) (state.from_pad.bearing + 0.5),
 				                    (int) (state.elevation + 0.5),
 				                    (int) (state.range + 0.5)));
 			} else if (state.state > AltosLib.ao_flight_pad) {
-				speak(String.format("%d meters", (int) (state.height + 0.5)));
+				speak(String.format("%d meters", (int) (state.height() + 0.5)));
 			} else {
 				reported_landing = 0;
 			}
@@ -135,7 +135,7 @@ public class AltosVoice {
 			     System.currentTimeMillis() - state.received_time >= 15000 ||
 			     state.state == AltosLib.ao_flight_landed))
 			{
-				if (Math.abs(state.speed) < 20 && state.height < 100)
+				if (Math.abs(state.speed()) < 20 && state.height() < 100)
 					speak("rocket landed safely");
 				else
 					speak("rocket may have crashed");

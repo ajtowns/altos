@@ -89,8 +89,8 @@ public class TabLanded extends Fragment implements AltosDroidTab {
 		}
 	       
 		if (state != null) {
-			mMaxHeightView.setText(String.format("%6.0f m", state.max_height));
-			mMaxAccelView.setText(String.format("%6.0f m/s²", state.max_acceleration));
+			mMaxHeightView.setText(String.format("%6.0f m", state.max_height()));
+			mMaxAccelView.setText(String.format("%6.0f m/s²", state.max_acceleration()));
 			mMaxSpeedView.setText(String.format("%6.0f m/s", state.max_speed()));
 		}
 	}

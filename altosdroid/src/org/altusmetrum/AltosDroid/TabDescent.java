@@ -92,7 +92,7 @@ public class TabDescent extends Fragment implements AltosDroidTab {
 	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
 		if (state != null) {
 			mSpeedView.setText(AltosDroid.number("%6.0f m/s", state.speed()));
-			mHeightView.setText(AltosDroid.number("%6.0f m", state.height));
+			mHeightView.setText(AltosDroid.number("%6.0f m", state.height()));
 			if (from_receiver != null) {
 				mElevationView.setText(AltosDroid.number("%3.0f°", from_receiver.elevation));
 				mRangeView.setText(AltosDroid.number("%6.0f m", from_receiver.range));
