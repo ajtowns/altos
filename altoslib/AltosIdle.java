@@ -1,5 +1,5 @@
 /*
- * Copyright © 2010 Keith Packard <keithp@keithp.com>
+ * Copyright © 2013 Keith Packard <keithp@keithp.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,15 +15,25 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.altoslib_1;
+package org.altusmetrum.altoslib_2;
 
 import java.io.*;
 import java.util.*;
+import java.text.*;
+import java.util.concurrent.*;
 
-public abstract class AltosRecordIterable implements Iterable<AltosRecord> {
-	public abstract Iterator<AltosRecord> iterator();
-	public void write_comments(PrintStream out) { }
-	public boolean has_accel() { return false; }
-	public boolean has_gps() { return false; }
-	public boolean has_ignite() { return false; };
+public abstract class AltosIdle {
+	AltosLink	link;
+	AltosConfigData	config_data;
+
+	public void printf(String format, Object ... arguments) {
+		link.printf(format, arguments);
+	}
+
+	public abstract void update_state(AltosState state) throws InterruptedException, TimeoutException;
+
+	public AltosIdle(AltosLink link, AltosConfigData config_data) {
+		this.link = link;
+		this.config_data = config_data;
+	}
 }

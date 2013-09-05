@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.altoslib_1;
+package org.altusmetrum.altoslib_2;
 
 import java.text.*;
 import java.io.*;
@@ -24,7 +24,6 @@ import java.util.concurrent.*;
 public class AltosTelemetryReader extends AltosFlightReader {
 	AltosLink	link;
 	AltosLog	log;
-	AltosRecord	previous;
 	double		frequency;
 	int		telemetry;
 	AltosState	state = null;
@@ -49,7 +48,6 @@ public class AltosTelemetryReader extends AltosFlightReader {
 	}
 
 	public void reset() {
-		previous = null;
 		flush();
 	}
 
@@ -126,7 +124,6 @@ public class AltosTelemetryReader extends AltosFlightReader {
 		try {
 			log = new AltosLog(link);
 			name = link.name;
-			previous = null;
 			telem = new LinkedBlockingQueue<AltosLine>();
 			frequency = AltosPreferences.frequency(link.serial);
 			set_frequency(frequency);

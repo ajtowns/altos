@@ -18,7 +18,7 @@
 package altosui;
 
 import org.altusmetrum.altosuilib_1.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 public class AltosGraphDataPoint implements AltosUIDataPoint {
 
@@ -49,7 +49,7 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 	}
 
 	public double y(int index) throws AltosUIDataMissing {
-		double y = AltosRecord.MISSING;
+		double y = AltosLib.MISSING;
 		switch (index) {
 		case data_height:
 			y = state.height();
@@ -100,7 +100,7 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 			y = state.pressure();
 			break;
 		}
-		if (y == AltosRecord.MISSING)
+		if (y == AltosLib.MISSING)
 			throw new AltosUIDataMissing(index);
 		return y;
 	}

@@ -17,7 +17,7 @@
 
 package altosui;
 import java.util.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 import org.altusmetrum.altosuilib_1.*;
 
 public class AltosBTKnown implements Iterable<AltosBTDevice> {

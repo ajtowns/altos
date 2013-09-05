@@ -19,34 +19,28 @@ package org.altusmetrum.altoslib_2;
 
 import java.util.concurrent.TimeoutException;
 
-public class AltosSensorTM {
+public class AltosSensorEMini {
 	public int	tick;
-	public int	accel;
-	public int	pres;
-	public int	temp;
-	public int	batt;
-	public int	drogue;
+	public int	apogee;
 	public int	main;
+	public int	batt;
 
 	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) {
 		try {
-			AltosSensorTM	sensor_tm = new AltosSensorTM(link);
+			AltosSensorEMini	sensor_emini = new AltosSensorEMini(link);
 
-			if (sensor_tm == null)
+			if (sensor_emini == null)
 				return;
-			state.set_accel(sensor_tm.accel);
-			state.set_pressure(AltosConvert.barometer_to_pressure(sensor_tm.pres));
-			state.set_temperature(AltosConvert.thermometer_to_temperature(sensor_tm.temp));
-			state.set_battery_voltage(AltosConvert.cc_battery_to_voltage(sensor_tm.batt));
-			state.set_apogee_voltage(AltosConvert.cc_ignitor_to_voltage(sensor_tm.drogue));
-			state.set_main_voltage(AltosConvert.cc_ignitor_to_voltage(sensor_tm.main));
+			state.set_battery_voltage(AltosConvert.easy_mini_voltage(sensor_emini.batt));
+			state.set_apogee_voltage(AltosConvert.easy_mini_voltage(sensor_emini.apogee));
+			state.set_main_voltage(AltosConvert.easy_mini_voltage(sensor_emini.main));
 			
 		} catch (TimeoutException te) {
 		} catch (InterruptedException ie) {
 		}
 	}
 
-	public AltosSensorTM(AltosLink link) throws InterruptedException, TimeoutException {
+	public AltosSensorEMini(AltosLink link) throws InterruptedException, TimeoutException {
 		String[] items = link.adc();
 		for (int i = 0; i < items.length;) {
 			if (items[i].equals("tick:")) {
@@ -54,33 +48,18 @@ public class AltosSensorTM {
 				i += 2;
 				continue;
 			}
-			if (items[i].equals("accel:")) {
-				accel = Integer.parseInt(items[i+1]);
-				i += 2;
-				continue;
-			}
-			if (items[i].equals("pres:")) {
-				pres = Integer.parseInt(items[i+1]);
-				i += 2;
-				continue;
-			}
-			if (items[i].equals("temp:")) {
-				temp = Integer.parseInt(items[i+1]);
-				i += 2;
-				continue;
-			}
-			if (items[i].equals("batt:")) {
-				batt = Integer.parseInt(items[i+1]);
-				i += 2;
-				continue;
-			}
-			if (items[i].equals("drogue:")) {
-				drogue = Integer.parseInt(items[i+1]);
+			if (items[i].equals("apogee:")) {
+				apogee = Integer.parseInt(items[i+1]);
 				i += 2;
 				continue;
 			}
 			if (items[i].equals("main:")) {
 				main = Integer.parseInt(items[i+1]);
+				i += 2;
+				continue;
+			}
+			if (items[i].equals("batt:")) {
+				batt = Integer.parseInt(items[i+1]);
 				i += 2;
 				continue;
 			}

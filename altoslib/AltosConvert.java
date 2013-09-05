@@ -18,7 +18,7 @@
 /*
  * Sensor data conversion functions
  */
-package org.altusmetrum.altoslib_1;
+package org.altusmetrum.altoslib_2;
 
 public class AltosConvert {
 	/*
@@ -207,15 +207,27 @@ public class AltosConvert {
 	}
 
 	static public double mega_battery_voltage(int v_batt) {
-		if (v_batt != AltosRecord.MISSING)
+		if (v_batt != AltosLib.MISSING)
 			return 3.3 * mega_adc(v_batt) * (15.0 + 27.0) / 27.0;
-		return AltosRecord.MISSING;
+		return AltosLib.MISSING;
 	}
 
 	static double mega_pyro_voltage(int raw) {
-		if (raw != AltosRecord.MISSING)
+		if (raw != AltosLib.MISSING)
 			return 3.3 * mega_adc(raw) * (100.0 + 27.0) / 27.0;
-		return AltosRecord.MISSING;
+		return AltosLib.MISSING;
+	}
+
+	static double tele_mini_voltage(int sensor) {
+		double	supply = 3.3;
+
+		return sensor / 32767.0 * supply * 127/27;
+	}
+
+	static double easy_mini_voltage(int sensor) {
+		double	supply = 3.0;
+
+		return sensor / 32767.0 * supply * 127/27;
 	}
 
 	public static double radio_to_frequency(int freq, int setting, int cal, int channel) {

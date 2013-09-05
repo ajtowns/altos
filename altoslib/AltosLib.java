@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.altoslib_1;
+package org.altusmetrum.altoslib_2;
 
 import java.util.*;
 import java.io.*;
@@ -62,6 +62,8 @@ public class AltosLib {
 	public static final int AO_LOG_BARO_CRC = 3008;
 
 	public static final int AO_LOG_SOFTWARE_VERSION = 9999;
+
+	public final static int	MISSING = 0x7fffffff;
 
 	/* Added to flag invalid records */
 	public static final int AO_LOG_INVALID = -1;

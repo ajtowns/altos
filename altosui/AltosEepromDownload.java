@@ -23,7 +23,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.concurrent.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 public class AltosEepromDownload implements Runnable {
 
@@ -61,9 +61,9 @@ public class AltosEepromDownload implements Runnable {
 			AltosGPS		gps = state.gps;
 
 			if (gps != null &&
-			    gps.year != AltosRecord.MISSING &&
-			    gps.month != AltosRecord.MISSING &&
-			    gps.day != AltosRecord.MISSING)
+			    gps.year != AltosLib.MISSING &&
+			    gps.month != AltosLib.MISSING &&
+			    gps.day != AltosLib.MISSING)
 			{
 				eeprom_name = new AltosFile(gps.year, gps.month, gps.day,
 							    state.serial, state.flight, "eeprom");

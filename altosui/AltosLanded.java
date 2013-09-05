@@ -21,7 +21,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 public class AltosLanded extends JComponent implements AltosFlightDisplay, ActionListener {
 	GridBagLayout	layout;
@@ -104,7 +104,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 	class Lat extends LandedValue {
 		void show (AltosState state, AltosListenerState listener_state) {
 			show();
-			if (state.gps != null && state.gps.connected && state.gps.lat != AltosRecord.MISSING)
+			if (state.gps != null && state.gps.connected && state.gps.lat != AltosLib.MISSING)
 				show(pos(state.gps.lat,"N", "S"));
 			else
 				show("???");
@@ -119,7 +119,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 	class Lon extends LandedValue {
 		void show (AltosState state, AltosListenerState listener_state) {
 			show();
-			if (state.gps != null && state.gps.connected && state.gps.lon != AltosRecord.MISSING)
+			if (state.gps != null && state.gps.connected && state.gps.lon != AltosLib.MISSING)
 				show(pos(state.gps.lon,"E", "W"));
 			else
 				show("???");

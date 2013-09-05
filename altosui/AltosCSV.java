@@ -19,7 +19,7 @@ package altosui;
 
 import java.io.*;
 import java.util.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 public class AltosCSV implements AltosWriter {
 	File			name;
@@ -222,7 +222,7 @@ public class AltosCSV implements AltosWriter {
 	}
 
 	void write_companion(AltosState state) {
-		AltosRecordCompanion companion = state.companion;
+		AltosCompanion companion = state.companion;
 
 		int	channels_written = 0;
 		if (companion == null) {

@@ -25,7 +25,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.concurrent.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 import org.altusmetrum.altosuilib_1.*;
 
 class AltosScanResult {
@@ -187,7 +187,7 @@ public class AltosScanUI
 						AltosState	state = reader.read();
 						if (state == null)
 							continue;
-						if (state.flight != AltosRecord.MISSING) {
+						if (state.flight != AltosLib.MISSING) {
 							final AltosScanResult	result = new AltosScanResult(state.callsign,
 												     state.serial,
 												     state.flight,

@@ -20,7 +20,7 @@ package altosui;
 import java.lang.*;
 import java.io.*;
 import java.util.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 import org.altusmetrum.altosuilib_1.*;
 
 class AltosGraphIterator implements Iterator<AltosUIDataPoint> {
@@ -34,7 +34,7 @@ class AltosGraphIterator implements Iterator<AltosUIDataPoint> {
 	public AltosUIDataPoint next() {
 		AltosState	state = iterator.next();
 
-		if (state.flight != AltosRecord.MISSING) {
+		if (state.flight != AltosLib.MISSING) {
 			if (dataSet.callsign == null && state.callsign != null)
 				dataSet.callsign = state.callsign;
 

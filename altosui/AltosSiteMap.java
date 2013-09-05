@@ -23,7 +23,7 @@ import java.io.*;
 import java.lang.Math;
 import java.awt.geom.Point2D;
 import java.util.concurrent.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 import org.altusmetrum.altosuilib_1.*;
 
 public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
@@ -287,10 +287,10 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 			return;
 
 		if (!initialised) {
-			if (state.pad_lat != AltosRecord.MISSING && state.pad_lon != AltosRecord.MISSING) {
+			if (state.pad_lat != AltosLib.MISSING && state.pad_lon != AltosLib.MISSING) {
 				initMaps(state.pad_lat, state.pad_lon);
 				initialised = true;
-			} else if (gps.lat != AltosRecord.MISSING && gps.lon != AltosRecord.MISSING) {
+			} else if (gps.lat != AltosLib.MISSING && gps.lon != AltosLib.MISSING) {
 				initMaps(gps.lat, gps.lon);
 				initialised = true;
 			} else {

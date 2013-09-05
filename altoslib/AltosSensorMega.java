@@ -1,5 +1,5 @@
 /*
- * Copyright © 2012 Keith Packard <keithp@keithp.com>
+ * Copyright © 2013 Keith Packard <keithp@keithp.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,74 +19,90 @@ package org.altusmetrum.altoslib_2;
 
 import java.util.concurrent.TimeoutException;
 
-class AltosSensorMM {
+class AltosSensorMega {
 	int		tick;
-	int		sense[];
+	int[]		sense;
 	int		v_batt;
-	int		v_pyro;
-	int		accel;
-	int		accel_ref;
+	int		v_pbatt;
+	int		temp;
 
-	public AltosSensorMM(AltosLink link) throws InterruptedException, TimeoutException {
-		String[] items = link.adc();
+	public AltosSensorMega() {
 		sense = new int[6];
+	}
+
+	public AltosSensorMega(AltosLink link) throws InterruptedException, TimeoutException {
+		this();
+		String[] items = link.adc();
 		for (int i = 0; i < items.length;) {
 			if (items[i].equals("tick:")) {
 				tick = Integer.parseInt(items[i+1]);
 				i += 2;
 				continue;
 			}
-			if (items[i].equals("0:")) {
+			if (items[i].equals("A:")) {
 				sense[0] = Integer.parseInt(items[i+1]);
 				i += 2;
 				continue;
 			}
-			if (items[i].equals("1:")) {
+			if (items[i].equals("B:")) {
 				sense[1] = Integer.parseInt(items[i+1]);
 				i += 2;
 				continue;
 			}
-			if (items[i].equals("2:")) {
+			if (items[i].equals("C:")) {
 				sense[2] = Integer.parseInt(items[i+1]);
 				i += 2;
 				continue;
 			}
-			if (items[i].equals("3:")) {
+			if (items[i].equals("D:")) {
 				sense[3] = Integer.parseInt(items[i+1]);
 				i += 2;
 				continue;
 			}
-			if (items[i].equals("4:")) {
+			if (items[i].equals("drogue:")) {
 				sense[4] = Integer.parseInt(items[i+1]);
 				i += 2;
 				continue;
 			}
-			if (items[i].equals("5:")) {
+			if (items[i].equals("main:")) {
 				sense[5] = Integer.parseInt(items[i+1]);
 				i += 2;
 				continue;
 			}
-			if (items[i].equals("6:")) {
+			if (items[i].equals("batt:")) {
 				v_batt = Integer.parseInt(items[i+1]);
 				i += 2;
 				continue;
 			}
-			if (items[i].equals("7:")) {
-				v_pyro = Integer.parseInt(items[i+1]);
+			if (items[i].equals("pbatt:")) {
+				v_pbatt = Integer.parseInt(items[i+1]);
 				i += 2;
 				continue;
 			}
-			if (items[i].equals("8:")) {
-				accel = Integer.parseInt(items[i+1]);
-				i += 2;
-				continue;
-			}
-			if (items[i].equals("9:")) {
-				accel_ref = Integer.parseInt(items[i+1]);
+			if (items[i].equals("temp:")) {
+				temp = Integer.parseInt(items[i+1]);
 				i += 2;
 				continue;
 			}
 			i++;
+		}
+	}
+
+	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) {
+		try {
+			AltosSensorMega	sensor_mega = new AltosSensorMega(link);
+
+			state.set_battery_voltage(AltosConvert.mega_battery_voltage(sensor_mega.v_batt));
+			state.set_apogee_voltage(AltosConvert.mega_pyro_voltage(sensor_mega.sense[4]));
+			state.set_main_voltage(AltosConvert.mega_pyro_voltage(sensor_mega.sense[5]));
+
+			double[]	ignitor_voltage = new double[4];
+			for (int i = 0; i < 4; i++)
+				ignitor_voltage[i] = AltosConvert.mega_pyro_voltage(sensor_mega.sense[i]);
+			state.set_ignitor_voltage(ignitor_voltage);
+
+		} catch (TimeoutException te) {
+		} catch (InterruptedException ie) {
 		}
 	}
 }

@@ -21,7 +21,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.concurrent.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 /*
  * Temporary structure to hold the list of stored flights;

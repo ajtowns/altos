@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 import java.awt.*;
 import javax.swing.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 import org.jfree.ui.*;
 import org.jfree.chart.*;
@@ -33,6 +33,20 @@ import org.jfree.chart.renderer.xy.*;
 import org.jfree.chart.labels.*;
 import org.jfree.data.xy.*;
 import org.jfree.data.*;
+
+class AltosUITime extends AltosUnits {
+	public double value(double v) { return v; }
+	public String show_units() { return "s"; }
+	public String say_units() { return "seconds"; }
+
+	public int show_fraction(int width) {
+		if (width < 5)
+			return 0;
+		return width - 5;
+	}
+
+	public int say_fraction() { return 0; }
+}
 
 public class AltosUISeries extends XYSeries implements AltosUIGrapher {
 	AltosUIAxis	axis;
@@ -47,11 +61,12 @@ public class AltosUISeries extends XYSeries implements AltosUIGrapher {
 		axis.set_units();
 		StandardXYToolTipGenerator	ttg;
 
-		String  example = units.graph_format(4);
+		String	time_example = (new AltosUITime()).graph_format(7);
+		String  example = units.graph_format(7);
 
 		ttg = new StandardXYToolTipGenerator(String.format("{1}s: {2}%s ({0})",
 								   units.show_units()),
-						     new java.text.DecimalFormat(example),
+						     new java.text.DecimalFormat(time_example),
 						     new java.text.DecimalFormat(example));
 		renderer.setBaseToolTipGenerator(ttg);
 	}

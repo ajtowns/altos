@@ -15,13 +15,14 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.altoslib_1;
+package org.altusmetrum.altoslib_2;
 
 import java.text.*;
+import java.util.concurrent.*;
 
 public class AltosGPS implements Cloneable {
 
-	public final static int MISSING = AltosRecord.MISSING;
+	public final static int MISSING = AltosLib.MISSING;
 
 	public int	nsat;
 	public boolean	locked;
@@ -65,8 +66,8 @@ public class AltosGPS implements Cloneable {
 	}
 
 	public void ClearGPSTime() {
-		year = month = day = AltosRecord.MISSING;
-		hour = minute = second = AltosRecord.MISSING;
+		year = month = day = AltosLib.MISSING;
+		hour = minute = second = AltosLib.MISSING;
 	}
 
 	public AltosGPS(AltosTelemetryMap map) throws ParseException {
@@ -91,9 +92,9 @@ public class AltosGPS implements Cloneable {
 			second = map.get_int(AltosTelemetryLegacy.AO_TELEM_GPS_SECOND, 0);
 
 			ground_speed = map.get_double(AltosTelemetryLegacy.AO_TELEM_GPS_HORIZONTAL_SPEED,
-						      AltosRecord.MISSING, 1/100.0);
+						      AltosLib.MISSING, 1/100.0);
 			course = map.get_int(AltosTelemetryLegacy.AO_TELEM_GPS_COURSE,
-					     AltosRecord.MISSING);
+					     AltosLib.MISSING);
 			hdop = map.get_double(AltosTelemetryLegacy.AO_TELEM_GPS_HDOP, MISSING, 1.0);
 			vdop = map.get_double(AltosTelemetryLegacy.AO_TELEM_GPS_VDOP, MISSING, 1.0);
 			h_error = map.get_int(AltosTelemetryLegacy.AO_TELEM_GPS_HERROR, MISSING);
@@ -105,6 +106,62 @@ public class AltosGPS implements Cloneable {
 			connected = false;
 			locked = false;
 		}
+	}
+
+	public boolean parse_string (String line, boolean says_done) {
+		String[] bits = line.split("\\s+");
+		if (bits.length == 0)
+			return false;
+		if (line.startsWith("Date:")) {
+			if (bits.length < 2)
+				return false;
+			String[] d = bits[1].split("/");
+			if (d.length < 3)
+				return false;
+			year = Integer.parseInt(d[0]) + 2000;
+			month = Integer.parseInt(d[1]);
+			day = Integer.parseInt(d[2]);
+		} else if (line.startsWith("Time:")) {
+			if (bits.length < 2)
+				return false;
+			String[] d = bits[1].split(":");
+			if (d.length < 3)
+				return false;
+			hour = Integer.parseInt(d[0]);
+			minute = Integer.parseInt(d[1]);
+			second = Integer.parseInt(d[2]);
+		} else if (line.startsWith("Lat/Lon:")) {
+			if (bits.length < 3)
+				return false;
+			lat = Integer.parseInt(bits[1]) * 1.0e-7;
+			lon = Integer.parseInt(bits[2]) * 1.0e-7;
+		} else if (line.startsWith("Alt:")) {
+			if (bits.length < 2)
+				return false;
+			alt = Integer.parseInt(bits[1]);
+		} else if (line.startsWith("Flags:")) {
+			if (bits.length < 2)
+				return false;
+			int status = Integer.decode(bits[1]);
+			connected = (status & AltosLib.AO_GPS_RUNNING) != 0;
+			locked = (status & AltosLib.AO_GPS_VALID) != 0;
+			if (!says_done)
+				return false;
+		} else if (line.startsWith("Sats:")) {
+			if (bits.length < 2)
+				return false;
+			nsat = Integer.parseInt(bits[1]);
+			cc_gps_sat = new AltosGPSSat[nsat];
+			for (int i = 0; i < nsat; i++) {
+				int	svid = Integer.parseInt(bits[2+i*2]);
+				int	cc_n0 = Integer.parseInt(bits[3+i*2]);
+				cc_gps_sat[i] = new AltosGPSSat(svid, cc_n0);
+			}
+		} else if (line.startsWith("done")) {
+			return false;
+		} else
+			return false;
+		return true;
 	}
 
 	public AltosGPS(String[] words, int i, int version) throws ParseException {
@@ -212,9 +269,9 @@ public class AltosGPS implements Cloneable {
 	}
 
 	public AltosGPS() {
-		lat = AltosRecord.MISSING;
-		lon = AltosRecord.MISSING;
-		alt = AltosRecord.MISSING;
+		lat = AltosLib.MISSING;
+		lon = AltosLib.MISSING;
+		alt = AltosLib.MISSING;
 		ClearGPSTime();
 		cc_gps_sat = null;
 	}
@@ -283,11 +340,37 @@ public class AltosGPS implements Cloneable {
 				}
 			}
 		} else {
-			lat = AltosRecord.MISSING;
-			lon = AltosRecord.MISSING;
-			alt = AltosRecord.MISSING;
+			lat = AltosLib.MISSING;
+			lon = AltosLib.MISSING;
+			alt = AltosLib.MISSING;
 			ClearGPSTime();
 			cc_gps_sat = null;
+		}
+	}
+
+	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) {
+		try {
+			AltosGPS	gps = new AltosGPS(link, config_data);
+
+			if (gps != null) {
+				state.set_gps(gps, state.gps_sequence++);
+				return;
+			}
+		} catch (TimeoutException te) {
+		} catch (InterruptedException ie) {
+		}
+		state.set_gps(null, 0);
+	}
+
+	public AltosGPS (AltosLink link, AltosConfigData config_data) throws TimeoutException, InterruptedException {
+		boolean says_done = config_data.compare_version("1.0") >= 0;
+		link.printf("g\n");
+		for (;;) {
+			String line = link.get_reply_no_dialog(5000);
+			if (line == null)
+				throw new TimeoutException();
+			if (!parse_string(line, says_done))
+				break;
 		}
 	}
 }

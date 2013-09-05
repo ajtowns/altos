@@ -17,7 +17,7 @@
 
 package org.altusmetrum.AltosDroid;
 
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -104,13 +104,13 @@ public class TabPad extends Fragment implements AltosDroidTab {
 	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
 		if (state != null) {
 			mBatteryVoltageView.setText(AltosDroid.number("%4.2f V", state.battery));
-			mBatteryLights.set(state.battery > 3.7, state.battery == AltosRecord.MISSING);
+			mBatteryLights.set(state.battery > 3.7, state.battery == AltosLib.MISSING);
 
 			mApogeeVoltageView.setText(AltosDroid.number("%4.2f V", state.drogue_sense));
-			mApogeeLights.set(state.drogue_sense > 3.2, state.drogue_sense == AltosRecord.MISSING);
+			mApogeeLights.set(state.drogue_sense > 3.2, state.drogue_sense == AltosLib.MISSING);
 
 			mMainVoltageView.setText(AltosDroid.number("%4.2f V", state.main_sense));
-			mMainLights.set(state.main_sense > 3.2, state.main_sense == AltosRecord.MISSING);
+			mMainLights.set(state.main_sense > 3.2, state.main_sense == AltosLib.MISSING);
 
 			if (state.data.flight != 0) {
 				if (state.data.state <= AltosLib.ao_flight_pad)
@@ -122,7 +122,7 @@ public class TabPad extends Fragment implements AltosDroidTab {
 			} else {
 				mDataLoggingView.setText("Storage full");
 			}
-			mDataLoggingLights.set(state.data.flight != 0, state.data.flight == AltosRecord.MISSING);
+			mDataLoggingLights.set(state.data.flight != 0, state.data.flight == AltosLib.MISSING);
 
 			if (state.gps != null) {
 				mGPSLockedView.setText(AltosDroid.integer("%4d sats", state.gps.nsat));

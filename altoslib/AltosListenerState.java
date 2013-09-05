@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.altoslib_1;
+package org.altusmetrum.altoslib_2;
 
 public class AltosListenerState {
 	public int	crc_errors;
@@ -23,6 +23,6 @@ public class AltosListenerState {
 
 	public AltosListenerState() {
 		crc_errors = 0;
-		battery = AltosRecord.MISSING;
+		battery = AltosLib.MISSING;
 	}
 }

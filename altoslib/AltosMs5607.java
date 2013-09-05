@@ -15,7 +15,9 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.altoslib_1;
+package org.altusmetrum.altoslib_2;
+
+import java.util.concurrent.*;
 
 public class AltosMs5607 {
 	public int	reserved;
@@ -83,10 +85,13 @@ public class AltosMs5607 {
 	}
 
 	public boolean parse_line(String line) {
+		System.out.printf ("parse %s\n", line);
 		String[] items = line.split("\\s+");
 		if (line.startsWith("Pressure:")) {
-			if (items.length >= 2)
+			if (items.length >= 2) {
 				raw_pres = Integer.parseInt(items[1]);
+				System.out.printf ("raw_pres %d\n", raw_pres);
+			}
 		} else if (line.startsWith("Temperature:")) {
 			if (items.length >= 2)
 				raw_temp = Integer.parseInt(items[1]);
@@ -94,8 +99,11 @@ public class AltosMs5607 {
 			if (items.length >= 3)
 				reserved = Integer.parseInt(items[2]);
 		} else if (line.startsWith("ms5607 sens:")) {
-			if (items.length >= 3)
+			System.out.printf ("found sens length %d\n", items.length);
+			if (items.length >= 3) {
 				sens = Integer.parseInt(items[2]);
+				System.out.printf ("sens %d\n", sens);
+			}
 		} else if (line.startsWith("ms5607 off:")) {
 			if (items.length >= 3)
 				off = Integer.parseInt(items[2]);
@@ -114,15 +122,48 @@ public class AltosMs5607 {
 		} else if (line.startsWith("ms5607 crc:")) {
 			if (items.length >= 3)
 				crc = Integer.parseInt(items[2]);
-		} else if (line.startsWith("Altitude"))
+		} else if (line.startsWith("Altitude:")) {
 			return false;
+		}
 		return true;
 	}
 
+	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) {
+		try {
+			AltosMs5607	ms5607 = new AltosMs5607(link);
+
+			if (ms5607 != null) {
+				state.set_ms5607(ms5607);
+				return;
+			}
+		} catch (TimeoutException te) {
+		} catch (InterruptedException ie) {
+		}
+	}
+
 	public AltosMs5607() {
-		raw_pres = AltosRecord.MISSING;
-		raw_temp = AltosRecord.MISSING;
-		pa = AltosRecord.MISSING;
-		cc = AltosRecord.MISSING;
+		raw_pres = AltosLib.MISSING;
+		raw_temp = AltosLib.MISSING;
+		pa = AltosLib.MISSING;
+		cc = AltosLib.MISSING;
+	}
+
+	public AltosMs5607 (AltosLink link) throws InterruptedException, TimeoutException {
+		this();
+		link.printf("c s\nB\n");
+		for (;;) {
+			String line = link.get_reply_no_dialog(5000);
+			if (line == null) {
+				throw new TimeoutException();
+			}
+			if (!parse_line(line)) {
+				System.out.printf ("stop parsing at %s\n", line);
+				break;
+			}
+		}
+		System.out.printf ("sens %d off %d tcs %d tco %d tref %d tempsens %d crc %d pres %d temp %d\n",
+				   sens, off, tcs, tco, tref, tempsens, crc, raw_pres, raw_temp);
+		convert();
+		System.out.printf ("pa %d cc %d\n", pa, cc);
 	}
 }

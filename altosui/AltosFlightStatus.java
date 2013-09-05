@@ -19,7 +19,7 @@ package altosui;
 
 import java.awt.*;
 import javax.swing.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 public class AltosFlightStatus extends JComponent implements AltosFlightDisplay {
 	GridBagLayout	layout;
@@ -76,7 +76,7 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 
 	class Serial extends FlightValue {
 		void show(AltosState state, AltosListenerState listener_state) {
-			if (state.serial == AltosRecord.MISSING)
+			if (state.serial == AltosLib.MISSING)
 				value.setText("none");
 			else
 				value.setText(String.format("%d", state.serial));
@@ -90,7 +90,7 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 
 	class Flight extends FlightValue {
 		void show(AltosState state, AltosListenerState listener_state) {
-			if (state.flight == AltosRecord.MISSING)
+			if (state.flight == AltosLib.MISSING)
 				value.setText("none");
 			else
 				value.setText(String.format("%d", state.flight));

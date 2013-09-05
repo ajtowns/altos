@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.altoslib_1;
+package org.altusmetrum.altoslib_2;
 
 import java.io.*;
 import java.util.concurrent.*;
@@ -32,6 +32,9 @@ public abstract class AltosLink implements Runnable {
 
 	public static boolean debug = false;
 	public static void set_debug(boolean in_debug) { debug = in_debug; }
+
+	public boolean has_error;
+
 	LinkedList<String> pending_output = new LinkedList<String>();
 
 	public LinkedList<LinkedBlockingQueue<AltosLine>> monitors = new LinkedList<LinkedBlockingQueue<AltosLine>> ();;
@@ -107,6 +110,7 @@ public abstract class AltosLink implements Runnable {
 				if (c == ERROR) {
 					if (debug)
 						System.out.printf("ERROR\n");
+					has_error = true;
 					add_telem (new AltosLine());
 					add_reply (new AltosLine());
 					break;
@@ -399,7 +403,7 @@ public abstract class AltosLink implements Runnable {
 	}
 
 	public double monitor_battery() {
-		int monitor_batt = AltosRecord.MISSING;
+		int monitor_batt = AltosLib.MISSING;
 
 		if (config_data.has_monitor_battery()) {
 			try {
@@ -416,12 +420,13 @@ public abstract class AltosLink implements Runnable {
 			} catch (TimeoutException te) {
 			}
 		}
-		if (monitor_batt == AltosRecord.MISSING)
-			return AltosRecord.MISSING;
+		if (monitor_batt == AltosLib.MISSING)
+			return AltosLib.MISSING;
 		return AltosConvert.cc_battery_to_voltage(monitor_batt);
 	}
 
 	public AltosLink() {
 		callsign = "";
+		has_error = false;
 	}
 }

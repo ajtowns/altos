@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.altoslib_1;
+package org.altusmetrum.altoslib_2;
 
 import java.io.*;
 import java.util.*;
@@ -42,13 +42,10 @@ public class AltosEepromMini extends AltosEeprom {
 	public int v_batt() { return data16(10); }
 
 	double voltage(AltosState state, int sensor) {
-		double	supply;
-
 		if (state.log_format == AltosLib.AO_LOG_FORMAT_EASYMINI)
-			supply = 3.0;
+			return AltosConvert.easy_mini_voltage(sensor);
 		else
-			supply = 3.3;
-		return sensor / 32767.0 * supply * 127/27;
+			return AltosConvert.tele_mini_voltage(sensor);
 	}
 
 	public void update_state(AltosState state) {

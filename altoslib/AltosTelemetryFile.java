@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.altoslib_1;
+package org.altusmetrum.altoslib_2;
 
 import java.io.*;
 import java.util.*;
@@ -72,16 +72,14 @@ public class AltosTelemetryFile extends AltosStateIterable {
 		/* Find boost tick */
 		AltosState	state = start.clone();
 
-		System.out.printf ("Searching for boost\n");
 		for (AltosTelemetry telem : telems) {
 			telem.update_state(state);
+			state.finish_update();
 			if (state.state != AltosLib.ao_flight_invalid && state.state >= AltosLib.ao_flight_boost) {
-				System.out.printf ("boost tick %d\n", state.tick);
 				start.set_boost_tick(state.tick);
 				break;
 			}
 		}
-		System.out.printf ("Found boost %d\n", start.boost_tick);
 	}
 
 	public Iterator<AltosState> iterator() {
@@ -91,6 +89,7 @@ public class AltosTelemetryFile extends AltosStateIterable {
 		while (i.hasNext() && !state.valid()) {
 			AltosTelemetry	t = i.next();
 			t.update_state(state);
+			state.finish_update();
 		}
 		return new AltosTelemetryIterator(state, i);
 	}

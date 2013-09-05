@@ -17,7 +17,7 @@
 
 package org.altusmetrum.AltosDroid;
 
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -103,10 +103,10 @@ public class TabAscent extends Fragment implements AltosDroidTab {
 			}
 
 			mApogeeVoltageView.setText(AltosDroid.number("%4.2f V", state.drogue_sense));
-			mApogeeLights.set(state.drogue_sense > 3.2, state.drogue_sense == AltosRecord.MISSING);
+			mApogeeLights.set(state.drogue_sense > 3.2, state.drogue_sense == AltosLib.MISSING);
 
 			mMainVoltageView.setText(AltosDroid.number("%4.2f V", state.main_sense));
-			mMainLights.set(state.main_sense > 3.2, state.main_sense == AltosRecord.MISSING);
+			mMainLights.set(state.main_sense > 3.2, state.main_sense == AltosLib.MISSING);
 		}
 	}
 }

@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.altoslib_1;
+package org.altusmetrum.altoslib_2;
 
 import java.io.*;
 import java.util.*;
@@ -100,6 +100,7 @@ public class AltosEepromFile extends AltosStateIterable {
 		AltosState	state = start.clone();
 		for (AltosEeprom eeprom : body) {
 			eeprom.update_state(state);
+			state.finish_update();
 			if (state.state >= AltosLib.ao_flight_boost) {
 				start.set_boost_tick(state.tick);
 				break;
@@ -111,8 +112,10 @@ public class AltosEepromFile extends AltosStateIterable {
 		AltosState		state = start.clone();
 		Iterator<AltosEeprom>	i = body.iterator();
 
-		while (i.hasNext() && !state.valid())
+		while (i.hasNext() && !state.valid()) {
 			i.next().update_state(state);
+			state.finish_update();
+		}
 		return new AltosEepromIterator(state, i);
 	}
 }

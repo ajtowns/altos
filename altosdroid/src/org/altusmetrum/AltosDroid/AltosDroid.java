@@ -49,7 +49,7 @@ import android.widget.Toast;
 import android.app.AlertDialog;
 import android.location.Location;
 
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 public class AltosDroid extends FragmentActivity {
 	// Debugging
@@ -266,7 +266,7 @@ public class AltosDroid extends FragmentActivity {
 
 	static String pos(double p, String pos, String neg) {
 		String	h = pos;
-		if (p == AltosRecord.MISSING)
+		if (p == AltosLib.MISSING)
 			return "";
 		if (p < 0) {
 			h = neg;
@@ -278,13 +278,13 @@ public class AltosDroid extends FragmentActivity {
 	}
 
 	static String number(String format, double value) {
-		if (value == AltosRecord.MISSING)
+		if (value == AltosLib.MISSING)
 			return "";
 		return String.format(format, value);
 	}
 
 	static String integer(String format, int value) {
-		if (value == AltosRecord.MISSING)
+		if (value == AltosLib.MISSING)
 			return "";
 		return String.format(format, value);
 	}

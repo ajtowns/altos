@@ -10,20 +10,9 @@ SRC=.
 
 altoslibdir = $(datadir)/java
 
-record_files = \
-	AltosEepromRecord.java \
-	AltosEepromTeleScience.java \
-	AltosRecordCompanion.java \
-	AltosRecordIterable.java \
-	AltosRecord.java \
-	AltosRecordNone.java \
-	AltosRecordTM.java \
-	AltosRecordMM.java \
-	AltosRecordMini.java
-
 altoslib_JAVA = \
-	$(record_files) \
 	AltosLib.java \
+	AltosCompanion.java \
 	AltosConfigData.java \
 	AltosConfigValues.java \
 	AltosConvert.java \
@@ -45,31 +34,32 @@ altoslib_JAVA = \
 	AltosFlightReader.java \
 	AltosFrequency.java \
 	AltosGPS.java \
-	AltosGPSQuery.java \
 	AltosGPSSat.java \
 	AltosGreatCircle.java \
 	AltosHexfile.java \
+	AltosIdle.java \
+	AltosIdleFetch.java \
 	AltosIdleMonitor.java \
 	AltosIdleMonitorListener.java \
 	AltosIgnite.java \
 	AltosIMU.java \
-	AltosIMUQuery.java \
 	AltosLine.java \
 	AltosLink.java \
 	AltosListenerState.java \
 	AltosLog.java \
+	AltosMag.java \
+	AltosMma655x.java \
 	AltosMs5607.java \
-	AltosMs5607Query.java \
-	AltosOrderedRecord.java \
-	AltosOrderedMegaRecord.java \
-	AltosOrderedMiniRecord.java \
 	AltosParse.java \
 	AltosPreferences.java \
 	AltosPreferencesBackend.java \
 	AltosReplayReader.java \
 	AltosRomconfig.java \
 	AltosSensorMM.java \
+	AltosSensorEMini.java \
 	AltosSensorTM.java \
+	AltosSensorMega.java \
+	AltosSensorMetrum.java \
 	AltosState.java \
 	AltosStateIterable.java \
 	AltosStateUpdate.java \

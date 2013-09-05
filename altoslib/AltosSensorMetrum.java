@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.altoslib_1;
+package org.altusmetrum.altoslib_2;
 
 import java.util.concurrent.TimeoutException;
 
@@ -49,6 +49,17 @@ class AltosSensorMetrum {
 				continue;
 			}
 			i++;
+		}
+	}
+
+	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) {
+		try {
+			AltosSensorMetrum	sensor_metrum = new AltosSensorMetrum(link);
+			state.set_battery_voltage(AltosConvert.mega_battery_voltage(sensor_metrum.v_batt));
+			state.set_apogee_voltage(AltosConvert.mega_pyro_voltage(sensor_metrum.sense_a));
+			state.set_main_voltage(AltosConvert.mega_pyro_voltage(sensor_metrum.sense_m));
+		} catch (TimeoutException te) {
+		} catch (InterruptedException ie) {
 		}
 	}
 }

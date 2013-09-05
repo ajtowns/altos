@@ -19,7 +19,7 @@ package org.altusmetrum.AltosDroid;
 
 import java.util.Arrays;
 
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;

@@ -18,7 +18,7 @@
 package altosui;
 
 import java.awt.event.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 public class AltosFlightStatusUpdate implements ActionListener {
 

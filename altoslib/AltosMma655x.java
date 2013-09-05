@@ -19,62 +19,51 @@ package org.altusmetrum.altoslib_2;
 
 import java.util.concurrent.*;
 
-public class AltosMag implements Cloneable {
-	public int		x;
-	public int		y;
-	public int		z;
+public class AltosMma655x implements Cloneable {
 
-	public boolean parse_string(String line) {
-		if (!line.startsWith("X:"))
-			return false;
+	int	accel;
 
+	public boolean parse_line(String line) {
 		String[] items = line.split("\\s+");
-
-		if (items.length >= 6) {
-			x = Integer.parseInt(items[1]);
-			y = Integer.parseInt(items[3]);
-			z = Integer.parseInt(items[5]);
-		}
+		if (line.startsWith("MMA655X value:")) {
+			if (items.length >= 3)
+				accel = Integer.parseInt(items[1]);
+		} else
+			return false;
 		return true;
 	}
 
-	public AltosMag clone() {
-		AltosMag n = new AltosMag();
-
-		n.x = x;
-		n.y = y;
-		n.z = z;
-		return n;
+	public AltosMma655x() {
+		accel = AltosLib.MISSING;
 	}
 
-	public AltosMag() {
-		x = AltosLib.MISSING;
-		y = AltosLib.MISSING;
-		z = AltosLib.MISSING;
+	public AltosMma655x clone() {
+		AltosMma655x	n = new AltosMma655x();
+
+		n.accel = accel;
+		return n;
 	}
 
 	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) {
 		try {
-			AltosMag	mag = new AltosMag(link);
+			AltosMma655x	mma655x = new AltosMma655x(link);
 
-			if (mag != null)
-				state.set_mag(mag);
+			if (mma655x != null)
+				state.set_accel(mma655x.accel);
 		} catch (TimeoutException te) {
 		} catch (InterruptedException ie) {
 		}
 	}
 
-	public AltosMag(AltosLink link) throws InterruptedException, TimeoutException {
+	public AltosMma655x(AltosLink link) throws InterruptedException, TimeoutException {
 		this();
-		link.printf("M\n");
+		link.printf("A\n");
 		for (;;) {
 			String line = link.get_reply_no_dialog(5000);
-			if (line == null) {
+			if (line == null)
 				throw new TimeoutException();
-			}
-			if (parse_string(line))
+			if (!parse_line(line))
 				break;
 		}
 	}
 }
-	

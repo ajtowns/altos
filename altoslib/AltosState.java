@@ -19,10 +19,9 @@
  * Track flight state from telemetry or eeprom data stream
  */
 
-package org.altusmetrum.altoslib_1;
+package org.altusmetrum.altoslib_2;
 
 public class AltosState implements Cloneable {
-	public AltosRecord record;
 
 	public static final int set_position = 1;
 	public static final int set_gps = 2;
@@ -53,9 +52,9 @@ public class AltosState implements Cloneable {
 		private double	max_rate = 1000.0;
 
 		void set(double new_value, double time) {
-			if (new_value != AltosRecord.MISSING) {
+			if (new_value != AltosLib.MISSING) {
 				value = new_value;
-				if (max_value == AltosRecord.MISSING || value > max_value) {
+				if (max_value == AltosLib.MISSING || value > max_value) {
 					max_value = value;
 				}
 				set_time = time;
@@ -63,7 +62,7 @@ public class AltosState implements Cloneable {
 		}
 
 		void set_filtered(double new_value, double time) {
-			if (prev_value != AltosRecord.MISSING)
+			if (prev_value != AltosLib.MISSING)
 				new_value = (prev_value * 15.0 + new_value) / 16.0;
 			set(new_value, time);
 		}
@@ -81,25 +80,25 @@ public class AltosState implements Cloneable {
 		}
 
 		double change() {
-			if (value != AltosRecord.MISSING && prev_value != AltosRecord.MISSING)
+			if (value != AltosLib.MISSING && prev_value != AltosLib.MISSING)
 				return value - prev_value;
-			return AltosRecord.MISSING;
+			return AltosLib.MISSING;
 		}
 
 		double rate() {
 			double c = change();
 			double t = set_time - prev_set_time;
 
-			if (c != AltosRecord.MISSING && t != 0)
+			if (c != AltosLib.MISSING && t != 0)
 				return c / t;
-			return AltosRecord.MISSING;
+			return AltosLib.MISSING;
 		}
 
 		double integrate() {
-			if (value == AltosRecord.MISSING)
-				return AltosRecord.MISSING;
-			if (prev_value == AltosRecord.MISSING)
-				return AltosRecord.MISSING;
+			if (value == AltosLib.MISSING)
+				return AltosLib.MISSING;
+			if (prev_value == AltosLib.MISSING)
+				return AltosLib.MISSING;
 
 			return (value + prev_value) / 2 * (set_time - prev_set_time);
 		}
@@ -111,13 +110,13 @@ public class AltosState implements Cloneable {
 		void set_derivative(AltosValue in) {
 			double	n = in.rate();
 			
-			if (n == AltosRecord.MISSING)
+			if (n == AltosLib.MISSING)
 				return;
 
 			double	p = prev_value;
 			double	pt = prev_set_time;
 
-			if (p == AltosRecord.MISSING) {
+			if (p == AltosLib.MISSING) {
 				p = 0;
 				pt = in.time() - 0.01;
 			}
@@ -150,9 +149,9 @@ public class AltosState implements Cloneable {
 		void set_integral(AltosValue in) {
 			double	change = in.integrate();
 
-			if (change != AltosRecord.MISSING) {
+			if (change != AltosLib.MISSING) {
 				double	prev = prev_value;
-				if (prev == AltosRecord.MISSING)
+				if (prev == AltosLib.MISSING)
 					prev = 0;
 				set(prev + change, in.time());
 			}
@@ -166,10 +165,15 @@ public class AltosState implements Cloneable {
 			max_value = old.max_value;
 		}
 
+		void finish_update() {
+			prev_value = value;
+			prev_set_time = set_time;
+		}
+
 		AltosValue() {
-			value = AltosRecord.MISSING;
-			prev_value = AltosRecord.MISSING;
-			max_value = AltosRecord.MISSING;
+			value = AltosLib.MISSING;
+			prev_value = AltosLib.MISSING;
+			max_value = AltosLib.MISSING;
 		}
 	}
 
@@ -179,45 +183,45 @@ public class AltosState implements Cloneable {
 
 		double value() {
 			double v = measured.value();
-			if (v != AltosRecord.MISSING)
+			if (v != AltosLib.MISSING)
 				return v;
 			return computed.value();
 		}
 
 		boolean is_measured() {
-			return measured.value() != AltosRecord.MISSING;
+			return measured.value() != AltosLib.MISSING;
 		}
 
 		double max() {
 			double m = measured.max();
 
-			if (m != AltosRecord.MISSING)
+			if (m != AltosLib.MISSING)
 				return m;
 			return computed.max();
 		}
 
 		double prev_value() {
-			if (measured.value != AltosRecord.MISSING && measured.prev_value != AltosRecord.MISSING)
+			if (measured.value != AltosLib.MISSING && measured.prev_value != AltosLib.MISSING)
 				return measured.prev_value;
 			return computed.prev_value;
 		}
 
 		AltosValue altos_value() {
-			if (measured.value() != AltosRecord.MISSING)
+			if (measured.value() != AltosLib.MISSING)
 				return measured;
 			return computed;
 		}
 
 		double change() {
 			double c = measured.change();
-			if (c == AltosRecord.MISSING)
+			if (c == AltosLib.MISSING)
 				c = computed.change();
 			return c;
 		}
 
 		double rate() {
 			double r = measured.rate();
-			if (r == AltosRecord.MISSING)
+			if (r == AltosLib.MISSING)
 				r = computed.rate();
 			return r;
 		}
@@ -251,6 +255,11 @@ public class AltosState implements Cloneable {
 			computed.copy(old.computed);
 		}
 
+		void finish_update() {
+			measured.finish_update();
+			computed.finish_update();
+		}
+
 		AltosCValue() {
 			measured = new AltosValue();
 			computed = new AltosValue();
@@ -273,8 +282,8 @@ public class AltosState implements Cloneable {
 	public int	flight_log_max;
 
 	private double pressure_to_altitude(double p) {
-		if (p == AltosRecord.MISSING)
-			return AltosRecord.MISSING;
+		if (p == AltosLib.MISSING)
+			return AltosLib.MISSING;
 		return AltosConvert.pressure_to_altitude(p);
 	}
 
@@ -334,18 +343,18 @@ public class AltosState implements Cloneable {
 
 	public double altitude() {
 		double a = altitude.value();
-		if (a != AltosRecord.MISSING)
+		if (a != AltosLib.MISSING)
 			return a;
 		if (gps != null)
 			return gps.alt;
-		return AltosRecord.MISSING;
+		return AltosLib.MISSING;
 	}
 
 	public double max_altitude() {
 		double a = altitude.max();
-		if (a != AltosRecord.MISSING)
+		if (a != AltosLib.MISSING)
 			return a;
-		return AltosRecord.MISSING;
+		return AltosLib.MISSING;
 	}
 
 	public void set_altitude(double new_altitude) {
@@ -374,26 +383,26 @@ public class AltosState implements Cloneable {
 
 	public double height() {
 		double k = kalman_height.value();
-		if (k != AltosRecord.MISSING)
+		if (k != AltosLib.MISSING)
 			return k;
 
 		double a = altitude();
 		double g = ground_altitude();
-		if (a != AltosRecord.MISSING && g != AltosRecord.MISSING)
+		if (a != AltosLib.MISSING && g != AltosLib.MISSING)
 			return a - g;
-		return AltosRecord.MISSING;
+		return AltosLib.MISSING;
 	}
 
 	public double max_height() {
 		double	k = kalman_height.max();
-		if (k != AltosRecord.MISSING)
+		if (k != AltosLib.MISSING)
 			return k;
 
 		double a = altitude.max();
 		double g = ground_altitude();
-		if (a != AltosRecord.MISSING && g != AltosRecord.MISSING)
+		if (a != AltosLib.MISSING && g != AltosLib.MISSING)
 			return a - g;
-		return AltosRecord.MISSING;
+		return AltosLib.MISSING;
 	}
 
 	class AltosSpeed extends AltosCValue {
@@ -421,10 +430,16 @@ public class AltosState implements Cloneable {
 	private AltosSpeed speed;
 
 	public double speed() {
+		double v = kalman_speed.value();
+		if (v != AltosLib.MISSING)
+			return v;
 		return speed.value();
 	}
 
 	public double max_speed() {
+		double v = kalman_speed.max();
+		if (v != AltosLib.MISSING)
+			return v;
 		return speed.max();
 	}
 
@@ -503,7 +518,7 @@ public class AltosState implements Cloneable {
 
 	public AltosMs5607	baro;
 
-	public AltosRecordCompanion	companion;
+	public AltosCompanion	companion;
 
 	public void set_npad(int npad) {
 		this.npad = npad;
@@ -514,29 +529,27 @@ public class AltosState implements Cloneable {
 	}
 
 	public void init() {
-		record = null;
-
 		set = 0;
 
 		received_time = System.currentTimeMillis();
-		time = AltosRecord.MISSING;
-		time_change = AltosRecord.MISSING;
-		prev_time = AltosRecord.MISSING;
-		tick = AltosRecord.MISSING;
-		prev_tick = AltosRecord.MISSING;
-		boost_tick = AltosRecord.MISSING;
+		time = AltosLib.MISSING;
+		time_change = AltosLib.MISSING;
+		prev_time = AltosLib.MISSING;
+		tick = AltosLib.MISSING;
+		prev_tick = AltosLib.MISSING;
+		boost_tick = AltosLib.MISSING;
 		state = AltosLib.ao_flight_invalid;
-		flight = AltosRecord.MISSING;
+		flight = AltosLib.MISSING;
 		landed = false;
 		boost = false;
-		rssi = AltosRecord.MISSING;
+		rssi = AltosLib.MISSING;
 		status = 0;
-		device_type = AltosRecord.MISSING;
-		config_major = AltosRecord.MISSING;
-		config_minor = AltosRecord.MISSING;
-		apogee_delay = AltosRecord.MISSING;
-		main_deploy = AltosRecord.MISSING;
-		flight_log_max = AltosRecord.MISSING;
+		device_type = AltosLib.MISSING;
+		config_major = AltosLib.MISSING;
+		config_minor = AltosLib.MISSING;
+		apogee_delay = AltosLib.MISSING;
+		main_deploy = AltosLib.MISSING;
+		flight_log_max = AltosLib.MISSING;
 
 		ground_altitude = new AltosCValue();
 		ground_pressure = new AltosGroundPressure();
@@ -545,11 +558,11 @@ public class AltosState implements Cloneable {
 		speed = new AltosSpeed();
 		acceleration = new AltosAccel();
 
-		temperature = AltosRecord.MISSING;
-		battery_voltage = AltosRecord.MISSING;
-		pyro_voltage = AltosRecord.MISSING;
-		apogee_voltage = AltosRecord.MISSING;
-		main_voltage = AltosRecord.MISSING;
+		temperature = AltosLib.MISSING;
+		battery_voltage = AltosLib.MISSING;
+		pyro_voltage = AltosLib.MISSING;
+		apogee_voltage = AltosLib.MISSING;
+		main_voltage = AltosLib.MISSING;
 		ignitor_voltage = null;
 
 		kalman_height = new AltosValue();
@@ -569,36 +582,48 @@ public class AltosState implements Cloneable {
 		ngps = 0;
 
 		from_pad = null;
-		elevation = AltosRecord.MISSING;
-		range = AltosRecord.MISSING;
-		gps_height = AltosRecord.MISSING;
+		elevation = AltosLib.MISSING;
+		range = AltosLib.MISSING;
+		gps_height = AltosLib.MISSING;
 
-		pad_lat = AltosRecord.MISSING;
-		pad_lon = AltosRecord.MISSING;
-		pad_alt = AltosRecord.MISSING;
+		pad_lat = AltosLib.MISSING;
+		pad_lon = AltosLib.MISSING;
+		pad_alt = AltosLib.MISSING;
 
-		speak_tick = AltosRecord.MISSING;
-		speak_altitude = AltosRecord.MISSING;
+		speak_tick = AltosLib.MISSING;
+		speak_altitude = AltosLib.MISSING;
 
 		callsign = null;
 
-		accel_plus_g = AltosRecord.MISSING;
-		accel_minus_g = AltosRecord.MISSING;
-		accel = AltosRecord.MISSING;
+		accel_plus_g = AltosLib.MISSING;
+		accel_minus_g = AltosLib.MISSING;
+		accel = AltosLib.MISSING;
 
-		ground_accel = AltosRecord.MISSING;
-		ground_accel_avg = AltosRecord.MISSING;
+		ground_accel = AltosLib.MISSING;
+		ground_accel_avg = AltosLib.MISSING;
 
-		log_format = AltosRecord.MISSING;
-		serial = AltosRecord.MISSING;
+		log_format = AltosLib.MISSING;
+		serial = AltosLib.MISSING;
 
 		baro = null;
 		companion = null;
 	}
 
-	void copy(AltosState old) {
+	void finish_update() {
+		prev_tick = tick;
 
-		record = null;
+		ground_altitude.finish_update();
+		altitude.finish_update();
+		pressure.finish_update();
+		speed.finish_update();
+		acceleration.finish_update();
+
+		kalman_height.finish_update();
+		kalman_speed.finish_update();
+		kalman_acceleration.finish_update();
+	}
+
+	void copy(AltosState old) {
 
 		if (old == null) {
 			init();
@@ -718,25 +743,25 @@ public class AltosState implements Cloneable {
 			/* Track consecutive 'good' gps reports, waiting for 10 of them */
 			if (state == AltosLib.ao_flight_pad) {
 				set_npad(npad+1);
-				if (pad_lat != AltosRecord.MISSING) {
+				if (pad_lat != AltosLib.MISSING) {
 					pad_lat = (pad_lat * 31 + gps.lat) / 32;
 					pad_lon = (pad_lon * 31 + gps.lon) / 32;
 					pad_alt = (pad_alt * 31 + gps.alt) / 32;
 				}
 			}
-			if (pad_lat == AltosRecord.MISSING) {
+			if (pad_lat == AltosLib.MISSING) {
 				pad_lat = gps.lat;
 				pad_lon = gps.lon;
 				pad_alt = gps.alt;
 			}
 		}
 		if (gps.lat != 0 && gps.lon != 0 &&
-		    pad_lat != AltosRecord.MISSING &&
-		    pad_lon != AltosRecord.MISSING)
+		    pad_lat != AltosLib.MISSING &&
+		    pad_lon != AltosLib.MISSING)
 		{
 			double h = height();
 
-			if (h == AltosRecord.MISSING)
+			if (h == AltosLib.MISSING)
 				h = 0;
 			from_pad = new AltosGreatCircle(pad_lat, pad_lon, 0, gps.lat, gps.lon, h);
 			elevation = from_pad.elevation;
@@ -746,9 +771,9 @@ public class AltosState implements Cloneable {
 	}
 
 	public void set_tick(int new_tick) {
-		if (new_tick != AltosRecord.MISSING) {
-			if (prev_tick != AltosRecord.MISSING) {
-				while (new_tick < prev_tick - 32767) {
+		if (new_tick != AltosLib.MISSING) {
+			if (prev_tick != AltosLib.MISSING) {
+				while (new_tick < prev_tick - 1000) {
 					new_tick += 65536;
 				}
 			}
@@ -758,7 +783,7 @@ public class AltosState implements Cloneable {
 	}
 
 	public void set_boost_tick(int boost_tick) {
-		if (boost_tick != AltosRecord.MISSING)
+		if (boost_tick != AltosLib.MISSING)
 			this.boost_tick = boost_tick;
 	}
 
@@ -799,8 +824,8 @@ public class AltosState implements Cloneable {
 	public void set_flight(int flight) {
 
 		/* When the flight changes, reset the state */
-		if (flight != AltosRecord.MISSING) {
-			if (this.flight != AltosRecord.MISSING &&
+		if (flight != AltosLib.MISSING && flight != 0) {
+			if (this.flight != AltosLib.MISSING &&
 			    this.flight != flight) {
 				init();
 			}
@@ -810,8 +835,8 @@ public class AltosState implements Cloneable {
 
 	public void set_serial(int serial) {
 		/* When the serial changes, reset the state */
-		if (serial != AltosRecord.MISSING) {
-			if (this.serial != AltosRecord.MISSING &&
+		if (serial != AltosLib.MISSING) {
+			if (this.serial != AltosLib.MISSING &&
 			    this.serial != serial) {
 				init();
 			}
@@ -820,13 +845,13 @@ public class AltosState implements Cloneable {
 	}
 
 	public int rssi() {
-		if (rssi == AltosRecord.MISSING)
+		if (rssi == AltosLib.MISSING)
 			return 0;
 		return rssi;
 	}
 
 	public void set_rssi(int rssi, int status) {
-		if (rssi != AltosRecord.MISSING) {
+		if (rssi != AltosLib.MISSING) {
 			this.rssi = rssi;
 			this.status = status;
 		}
@@ -845,9 +870,29 @@ public class AltosState implements Cloneable {
 		}
 	}
 
-	public void make_baro() {
+	public void set_imu(AltosIMU imu) {
+		if (imu != null)
+			imu = imu.clone();
+		this.imu = imu;
+	}
+
+	public void set_mag(AltosMag mag) {
+		this.mag = mag.clone();
+	}
+
+	public AltosMs5607 make_baro() {
 		if (baro == null)
 			baro = new AltosMs5607();
+		return baro;
+	}
+
+	public void set_ms5607(AltosMs5607 ms5607) {
+		baro = ms5607;
+
+		if (baro != null) {
+			set_pressure(baro.pa);
+			set_temperature(baro.cc / 100.0);
+		}
 	}
 
 	public void set_ms5607(int pres, int temp) {
@@ -861,25 +906,25 @@ public class AltosState implements Cloneable {
 
 	public void make_companion (int nchannels) {
 		if (companion == null)
-			companion = new AltosRecordCompanion(nchannels);
+			companion = new AltosCompanion(nchannels);
 	}
 
-	public void set_companion(AltosRecordCompanion companion) {
+	public void set_companion(AltosCompanion companion) {
 		this.companion = companion;
 	}
 
 	void update_accel() {
 		double	ground = ground_accel;
 
-		if (ground == AltosRecord.MISSING)
+		if (ground == AltosLib.MISSING)
 			ground = ground_accel_avg;
-		if (accel == AltosRecord.MISSING)
+		if (accel == AltosLib.MISSING)
 			return;
-		if (ground == AltosRecord.MISSING)
+		if (ground == AltosLib.MISSING)
 			return;
-		if (accel_plus_g == AltosRecord.MISSING)
+		if (accel_plus_g == AltosLib.MISSING)
 			return;
-		if (accel_minus_g == AltosRecord.MISSING)
+		if (accel_minus_g == AltosLib.MISSING)
 			return;
 
 		double counts_per_g = (accel_minus_g - accel_plus_g) / 2.0;
@@ -888,7 +933,7 @@ public class AltosState implements Cloneable {
 	}
 
 	public void set_accel_g(double accel_plus_g, double accel_minus_g) {
-		if (accel_plus_g != AltosRecord.MISSING) {
+		if (accel_plus_g != AltosLib.MISSING) {
 			this.accel_plus_g = accel_plus_g;
 			this.accel_minus_g = accel_minus_g;
 			update_accel();
@@ -896,17 +941,17 @@ public class AltosState implements Cloneable {
 	}
 
 	public void set_ground_accel(double ground_accel) {
-		if (ground_accel != AltosRecord.MISSING) {
+		if (ground_accel != AltosLib.MISSING) {
 			this.ground_accel = ground_accel;
 			update_accel();
 		}
 	}
 
 	public void set_accel(double accel) {
-		if (accel != AltosRecord.MISSING) {
+		if (accel != AltosLib.MISSING) {
 			this.accel = accel;
 			if (state == AltosLib.ao_flight_pad) {
-				if (ground_accel_avg == AltosRecord.MISSING)
+				if (ground_accel_avg == AltosLib.MISSING)
 					ground_accel_avg = accel;
 				else
 					ground_accel_avg = (ground_accel_avg * 7 + accel) / 8;
@@ -916,35 +961,35 @@ public class AltosState implements Cloneable {
 	}
 
 	public void set_temperature(double temperature) {
-		if (temperature != AltosRecord.MISSING) {
+		if (temperature != AltosLib.MISSING) {
 			this.temperature = temperature;
 			set |= set_data;
 		}
 	}
 
 	public void set_battery_voltage(double battery_voltage) {
-		if (battery_voltage != AltosRecord.MISSING) {
+		if (battery_voltage != AltosLib.MISSING) {
 			this.battery_voltage = battery_voltage;
 			set |= set_data;
 		}
 	}
 
 	public void set_pyro_voltage(double pyro_voltage) {
-		if (pyro_voltage != AltosRecord.MISSING) {
+		if (pyro_voltage != AltosLib.MISSING) {
 			this.pyro_voltage = pyro_voltage;
 			set |= set_data;
 		}
 	}
 
 	public void set_apogee_voltage(double apogee_voltage) {
-		if (apogee_voltage != AltosRecord.MISSING) {
+		if (apogee_voltage != AltosLib.MISSING) {
 			this.apogee_voltage = apogee_voltage;
 			set |= set_data;
 		}
 	}
 
 	public void set_main_voltage(double main_voltage) {
-		if (main_voltage != AltosRecord.MISSING) {
+		if (main_voltage != AltosLib.MISSING) {
 			this.main_voltage = main_voltage;
 			set |= set_data;
 		}
@@ -955,17 +1000,17 @@ public class AltosState implements Cloneable {
 	}
 
 	public double time_since_boost() {
-		if (tick == AltosRecord.MISSING)
+		if (tick == AltosLib.MISSING)
 			return 0.0;
 
-		if (boost_tick != AltosRecord.MISSING) {
+		if (boost_tick != AltosLib.MISSING) {
 			return (tick - boost_tick) / 100.0;
 		}
 		return tick / 100.0;
 	}
 
 	public boolean valid() {
-		return tick != AltosRecord.MISSING && serial != AltosRecord.MISSING;
+		return tick != AltosLib.MISSING && serial != AltosLib.MISSING;
 	}
 
 	public AltosGPS make_temp_gps(boolean sats) {
@@ -992,56 +1037,6 @@ public class AltosState implements Cloneable {
 		s.copy(this);
 		return s;
 	}
-
-
-	public void init (AltosRecord cur, AltosState prev_state) {
-
-		System.out.printf ("init\n");
-		if (cur == null)
-			cur = new AltosRecord();
-
-		record = cur;
-
-		/* Discard previous state if it was for a different board */
-		if (prev_state != null && prev_state.serial != cur.serial)
-			prev_state = null;
-
-		copy(prev_state);
-
-		set_ground_altitude(cur.ground_altitude());
-		set_altitude(cur.altitude());
-
-		set_kalman(cur.kalman_height, cur.kalman_speed, cur.kalman_acceleration);
-
-		received_time = System.currentTimeMillis();
-
-		set_temperature(cur.temperature());
-		set_apogee_voltage(cur.drogue_voltage());
-		set_main_voltage(cur.main_voltage());
-		set_battery_voltage(cur.battery_voltage());
-
-		set_pressure(cur.pressure());
-
-		set_tick(cur.tick);
-		set_state(cur.state);
-
-		set_accel_g (cur.accel_minus_g, cur.accel_plus_g);
-		set_ground_accel(cur.ground_accel);
-		set_accel (cur.accel);
-
-		if (cur.gps_sequence != gps_sequence)
-			set_gps(cur.gps, cur.gps_sequence);
-
-	}
-
-	public AltosState(AltosRecord cur) {
-		init(cur, null);
-	}
-
-	public AltosState (AltosRecord cur, AltosState prev) {
-		init(cur, prev);
-	}
-
 
 	public AltosState () {
 		init();

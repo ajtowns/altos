@@ -19,7 +19,7 @@ package altosui;
 
 import java.awt.*;
 import javax.swing.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 public class AltosAscent extends JComponent implements AltosFlightDisplay {
 	GridBagLayout	layout;
@@ -179,7 +179,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		void reset() {
 			value.setText("");
 			max_value.setText("");
-			max = AltosRecord.MISSING;
+			max = AltosLib.MISSING;
 		}
 
 		void set_font() {
@@ -189,12 +189,12 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		}
 
 		void show(AltosUnits units, double v) {
-			if (v == AltosRecord.MISSING) {
+			if (v == AltosLib.MISSING) {
 				value.setText("Missing");
 				max_value.setText("Missing");
 			} else {
 				value.setText(units.show(8, v));
-				if (v > max || max == AltosRecord.MISSING) {
+				if (v > max || max == AltosLib.MISSING) {
 					max_value.setText(units.show(8, v));
 					max = v;
 				}
@@ -308,7 +308,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Lat extends AscentValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			if (state.gps != null && state.gps.connected && state.gps.lat != AltosRecord.MISSING)
+			if (state.gps != null && state.gps.connected && state.gps.lat != AltosLib.MISSING)
 				show(pos(state.gps.lat,"N", "S"));
 			else
 				show("???");
@@ -322,7 +322,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Lon extends AscentValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			if (state.gps != null && state.gps.connected && state.gps.lon != AltosRecord.MISSING)
+			if (state.gps != null && state.gps.connected && state.gps.lon != AltosLib.MISSING)
 				show(pos(state.gps.lon,"E", "W"));
 			else
 				show("???");
@@ -365,11 +365,11 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			lon.hide();
 		}
 		height.show(state, listener_state);
-		if (state.main_voltage != AltosRecord.MISSING)
+		if (state.main_voltage != AltosLib.MISSING)
 			main.show(state, listener_state);
 		else
 			main.hide();
-		if (state.apogee_voltage != AltosRecord.MISSING)
+		if (state.apogee_voltage != AltosLib.MISSING)
 			apogee.show(state, listener_state);
 		else
 			apogee.hide();

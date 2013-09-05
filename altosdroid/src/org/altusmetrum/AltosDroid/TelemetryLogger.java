@@ -1,6 +1,6 @@
 package org.altusmetrum.AltosDroid;
 
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

@@ -15,17 +15,78 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.altoslib_1;
+package org.altusmetrum.altoslib_2;
 
 import java.io.*;
 import java.util.*;
 import java.text.*;
 
+class AltosTelemetryOrdered implements Comparable<AltosTelemetryOrdered> {
+	AltosTelemetry	telem;
+	int		index;
+	int		tick;
+
+	public int compareTo(AltosTelemetryOrdered o) {
+		int	tick_diff = tick - o.tick;
+
+		if (tick_diff != 0)
+			return tick_diff;
+		return index - o.index;
+	}
+
+	AltosTelemetryOrdered (AltosTelemetry telem, int index, int tick) {
+		this.telem = telem;
+		this.index = index;
+		this.tick = tick;
+	}
+}
+
+class AltosTelemetryOrderedIterator implements Iterator<AltosTelemetry> {
+	TreeSet<AltosTelemetryOrdered>	olist;
+	Iterator<AltosTelemetryOrdered>	oiterator;
+
+	public AltosTelemetryOrderedIterator(Iterable<AltosTelemetry> telems) {
+		olist = new TreeSet<AltosTelemetryOrdered>();
+
+		int	tick = 0;
+		int	index = 0;
+		boolean	first = true;
+
+		for (AltosTelemetry e : telems) {
+			int	t = e.tick;
+			if (first)
+				tick = t;
+			else {
+				while (t < tick - 32767)
+					t += 65536;
+				tick = t;
+			}
+			olist.add(new AltosTelemetryOrdered(e, index++, tick));
+			first = false;
+		}
+
+		oiterator = olist.iterator();
+	}
+
+	public boolean hasNext() {
+		return oiterator.hasNext();
+	}
+
+	public AltosTelemetry next() {
+		return oiterator.next().telem;
+	}
+
+	public void remove () {
+	}
+}
+
 public class AltosTelemetryIterable implements Iterable<AltosTelemetry> {
 	LinkedList<AltosTelemetry>	telems;
 
 	public Iterator<AltosTelemetry> iterator () {
-		return telems.iterator();
+		if (telems == null)
+			telems = new LinkedList<AltosTelemetry>();
+		return new AltosTelemetryOrderedIterator(telems);
 	}
 
 	public AltosTelemetryIterable (FileInputStream input) {

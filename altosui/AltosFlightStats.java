@@ -18,7 +18,7 @@
 package altosui;
 
 import java.io.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 public class AltosFlightStats {
 	double		max_height;
@@ -77,7 +77,7 @@ public class AltosFlightStats {
 	}
 
 	double boost_time(AltosStateIterable states) {
-		double boost_time = AltosRecord.MISSING;
+		double boost_time = AltosLib.MISSING;
 		AltosState	state = null;
 
 		for (AltosState s : states) {
@@ -90,7 +90,7 @@ public class AltosFlightStats {
 		if (state == null)
 			return 0;
 
-		if (boost_time == AltosRecord.MISSING)
+		if (boost_time == AltosLib.MISSING)
 			boost_time = state.time;
 		return boost_time;
 	}
@@ -101,21 +101,21 @@ public class AltosFlightStats {
 		double		end_time = 0;
 		double		landed_time = landed_time(states);
 
-		year = month = day = AltosRecord.MISSING;
-		hour = minute = second = AltosRecord.MISSING;
-		serial = flight = AltosRecord.MISSING;
-		lat = lon = AltosRecord.MISSING;
+		year = month = day = AltosLib.MISSING;
+		hour = minute = second = AltosLib.MISSING;
+		serial = flight = AltosLib.MISSING;
+		lat = lon = AltosLib.MISSING;
 		has_gps = false;
 		has_other_adc = false;
 		has_rssi = false;
 		for (AltosState state : states) {
-			if (serial == AltosRecord.MISSING && state.serial != AltosRecord.MISSING)
+			if (serial == AltosLib.MISSING && state.serial != AltosLib.MISSING)
 				serial = state.serial;
-			if (flight == AltosRecord.MISSING && state.flight != AltosRecord.MISSING)
+			if (flight == AltosLib.MISSING && state.flight != AltosLib.MISSING)
 				flight = state.flight;
-			if (state.battery_voltage != AltosRecord.MISSING)
+			if (state.battery_voltage != AltosLib.MISSING)
 				has_other_adc = true;
-			if (state.rssi != AltosRecord.MISSING)
+			if (state.rssi != AltosLib.MISSING)
 				has_rssi = true;
 			end_time = state.time;
 			if (state.time >= boost_time && state.state < Altos.ao_flight_boost)

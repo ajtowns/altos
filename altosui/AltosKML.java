@@ -18,7 +18,7 @@
 package altosui;
 
 import java.io.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 public class AltosKML implements AltosWriter {
 
@@ -110,7 +110,7 @@ public class AltosKML implements AltosWriter {
 		AltosGPS	gps = state.gps;
 		double		altitude;
 
-		if (state.height() != AltosRecord.MISSING)
+		if (state.height() != AltosLib.MISSING)
 			altitude = state.height() + gps_start_altitude;
 		else
 			altitude = gps.alt;
@@ -138,9 +138,9 @@ public class AltosKML implements AltosWriter {
 		if (gps == null)
 			return;
 
-		if (gps.lat == AltosRecord.MISSING)
+		if (gps.lat == AltosLib.MISSING)
 			return;
-		if (gps.lon == AltosRecord.MISSING)
+		if (gps.lon == AltosLib.MISSING)
 			return;
 		if (!started) {
 			start(state);

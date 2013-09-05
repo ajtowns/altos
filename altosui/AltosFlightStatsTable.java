@@ -19,7 +19,7 @@ package altosui;
 
 import java.awt.*;
 import javax.swing.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 public class AltosFlightStatsTable extends JComponent {
 	GridBagLayout	layout;
@@ -76,15 +76,15 @@ public class AltosFlightStatsTable extends JComponent {
 		int y = 0;
 		new FlightStat(layout, y++, "Serial", String.format("%d", stats.serial));
 		new FlightStat(layout, y++, "Flight", String.format("%d", stats.flight));
-		if (stats.year != AltosRecord.MISSING && stats.hour != AltosRecord.MISSING)
+		if (stats.year != AltosLib.MISSING && stats.hour != AltosLib.MISSING)
 			new FlightStat(layout, y++, "Date/Time",
 				       String.format("%04d-%02d-%02d", stats.year, stats.month, stats.day),
 				       String.format("%02d:%02d:%02d UTC", stats.hour, stats.minute, stats.second));
 		else {
-			if (stats.year != AltosRecord.MISSING)
+			if (stats.year != AltosLib.MISSING)
 				new FlightStat(layout, y++, "Date",
 					       String.format("%04d-%02d-%02d", stats.year, stats.month, stats.day));
-			if (stats.hour != AltosRecord.MISSING)
+			if (stats.hour != AltosLib.MISSING)
 				new FlightStat(layout, y++, "Time",
 					       String.format("%02d:%02d:%02d UTC", stats.hour, stats.minute, stats.second));
 		}
@@ -95,7 +95,7 @@ public class AltosFlightStatsTable extends JComponent {
 			       String.format("%5.0f m/s", stats.max_speed),
 			       String.format("%5.0f mph", AltosConvert.meters_to_mph(stats.max_speed)),
 			       String.format("Mach %4.1f", AltosConvert.meters_to_mach(stats.max_speed)));
-		if (stats.max_acceleration != AltosRecord.MISSING) {
+		if (stats.max_acceleration != AltosLib.MISSING) {
 			new FlightStat(layout, y++, "Maximum boost acceleration",
 				       String.format("%5.0f m/s²", stats.max_acceleration),
 				       String.format("%5.0f ft/s²", AltosConvert.meters_to_feet(stats.max_acceleration)),

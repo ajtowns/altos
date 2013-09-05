@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.altoslib_1;
+package org.altusmetrum.altoslib_2;
 
 import java.text.*;
 
@@ -236,34 +236,34 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 		AltosTelemetryMap	map = new AltosTelemetryMap(words, i);
 
 		record.callsign = map.get_string(AO_TELEM_CALL, "N0CALL");
-		record.serial = map.get_int(AO_TELEM_SERIAL, AltosRecord.MISSING);
-		record.flight = map.get_int(AO_TELEM_FLIGHT, AltosRecord.MISSING);
-		record.rssi = map.get_int(AO_TELEM_RSSI, AltosRecord.MISSING);
+		record.serial = map.get_int(AO_TELEM_SERIAL, AltosLib.MISSING);
+		record.flight = map.get_int(AO_TELEM_FLIGHT, AltosLib.MISSING);
+		record.rssi = map.get_int(AO_TELEM_RSSI, AltosLib.MISSING);
 		record.state = AltosLib.state(map.get_string(AO_TELEM_STATE, "invalid"));
 		record.tick = map.get_int(AO_TELEM_TICK, 0);
 
 		/* raw sensor values */
-		record.accel = map.get_int(AO_TELEM_RAW_ACCEL, AltosRecord.MISSING);
-		record.pres = map.get_int(AO_TELEM_RAW_BARO, AltosRecord.MISSING);
-		record.temp = map.get_int(AO_TELEM_RAW_THERMO, AltosRecord.MISSING);
-		record.batt = map.get_int(AO_TELEM_RAW_BATT, AltosRecord.MISSING);
-		record.drogue = map.get_int(AO_TELEM_RAW_DROGUE, AltosRecord.MISSING);
-		record.main = map.get_int(AO_TELEM_RAW_MAIN, AltosRecord.MISSING);
+		record.accel = map.get_int(AO_TELEM_RAW_ACCEL, AltosLib.MISSING);
+		record.pres = map.get_int(AO_TELEM_RAW_BARO, AltosLib.MISSING);
+		record.temp = map.get_int(AO_TELEM_RAW_THERMO, AltosLib.MISSING);
+		record.batt = map.get_int(AO_TELEM_RAW_BATT, AltosLib.MISSING);
+		record.drogue = map.get_int(AO_TELEM_RAW_DROGUE, AltosLib.MISSING);
+		record.main = map.get_int(AO_TELEM_RAW_MAIN, AltosLib.MISSING);
 
 		/* sensor calibration information */
-		record.ground_accel = map.get_int(AO_TELEM_CAL_ACCEL_GROUND, AltosRecord.MISSING);
-		record.ground_pres = map.get_int(AO_TELEM_CAL_BARO_GROUND, AltosRecord.MISSING);
-		record.accel_plus_g = map.get_int(AO_TELEM_CAL_ACCEL_PLUS, AltosRecord.MISSING);
-		record.accel_minus_g = map.get_int(AO_TELEM_CAL_ACCEL_MINUS, AltosRecord.MISSING);
+		record.ground_accel = map.get_int(AO_TELEM_CAL_ACCEL_GROUND, AltosLib.MISSING);
+		record.ground_pres = map.get_int(AO_TELEM_CAL_BARO_GROUND, AltosLib.MISSING);
+		record.accel_plus_g = map.get_int(AO_TELEM_CAL_ACCEL_PLUS, AltosLib.MISSING);
+		record.accel_minus_g = map.get_int(AO_TELEM_CAL_ACCEL_MINUS, AltosLib.MISSING);
 
 		/* flight computer values */
-		record.kalman_acceleration = map.get_double(AO_TELEM_KALMAN_ACCEL, AltosRecord.MISSING, 1/16.0);
-		record.kalman_speed = map.get_double(AO_TELEM_KALMAN_SPEED, AltosRecord.MISSING, 1/16.0);
-		record.kalman_height = map.get_int(AO_TELEM_KALMAN_HEIGHT, AltosRecord.MISSING);
+		record.kalman_acceleration = map.get_double(AO_TELEM_KALMAN_ACCEL, AltosLib.MISSING, 1/16.0);
+		record.kalman_speed = map.get_double(AO_TELEM_KALMAN_SPEED, AltosLib.MISSING, 1/16.0);
+		record.kalman_height = map.get_int(AO_TELEM_KALMAN_HEIGHT, AltosLib.MISSING);
 
-		record.flight_accel = map.get_int(AO_TELEM_ADHOC_ACCEL, AltosRecord.MISSING);
-		record.flight_vel = map.get_int(AO_TELEM_ADHOC_SPEED, AltosRecord.MISSING);
-		record.flight_pres = map.get_int(AO_TELEM_ADHOC_BARO, AltosRecord.MISSING);
+		record.flight_accel = map.get_int(AO_TELEM_ADHOC_ACCEL, AltosLib.MISSING);
+		record.flight_vel = map.get_int(AO_TELEM_ADHOC_SPEED, AltosLib.MISSING);
+		record.flight_pres = map.get_int(AO_TELEM_ADHOC_BARO, AltosLib.MISSING);
 
 		if (map.has(AO_TELEM_GPS_STATE)) {
 		record.gps = new AltosGPS(map);
@@ -337,9 +337,9 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 			record.kalman_speed = ((short) record.flight_vel) / 16.0;
 			record.kalman_acceleration = record.flight_accel / 16.0;
 			record.kalman_height = record.flight_pres;
-			record.flight_vel = AltosRecord.MISSING;
-			record.flight_pres = AltosRecord.MISSING;
-			record.flight_accel = AltosRecord.MISSING;
+			record.flight_vel = AltosLib.MISSING;
+			record.flight_pres = AltosLib.MISSING;
+			record.flight_accel = AltosLib.MISSING;
 		}
 
 		AltosParse.word(words[i++], "gp:");
@@ -458,16 +458,16 @@ public class AltosTelemetryRecordLegacy extends AltosTelemetryRecord {
 			record.kalman_acceleration = int16(5);
 			record.kalman_speed = int16(9);
 			record.kalman_height = int16(13);
-			record.flight_accel = AltosRecord.MISSING;
-			record.flight_vel = AltosRecord.MISSING;
-			record.flight_pres = AltosRecord.MISSING;
+			record.flight_accel = AltosLib.MISSING;
+			record.flight_vel = AltosLib.MISSING;
+			record.flight_pres = AltosLib.MISSING;
 		} else {
 			record.flight_accel = int16(5);
 			record.flight_vel = uint32(9);
 			record.flight_pres = int16(13);
-			record.kalman_acceleration = AltosRecord.MISSING;
-			record.kalman_speed = AltosRecord.MISSING;
-			record.kalman_height = AltosRecord.MISSING;
+			record.kalman_acceleration = AltosLib.MISSING;
+			record.kalman_speed = AltosLib.MISSING;
+			record.kalman_height = AltosLib.MISSING;
 		}
 
 		record.gps = null;

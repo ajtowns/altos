@@ -20,7 +20,7 @@ package altosui;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 
 public class AltosInfoTable extends JTable {
 	private AltosFlightInfoTableModel model;
@@ -107,40 +107,44 @@ public class AltosInfoTable extends JTable {
 	public void show(AltosState state, AltosListenerState listener_state) {
 		info_reset();
 		if (state != null) {
-			if (state.altitude() != AltosRecord.MISSING)
+			if (state.altitude() != AltosLib.MISSING)
 				info_add_row(0, "Altitude", "%6.0f    m", state.altitude());
-			if (state.ground_altitude() != AltosRecord.MISSING)
+			if (state.ground_altitude() != AltosLib.MISSING)
 				info_add_row(0, "Pad altitude", "%6.0f    m", state.ground_altitude());
-			if (state.height() != AltosRecord.MISSING)
+			if (state.height() != AltosLib.MISSING)
 				info_add_row(0, "Height", "%6.0f    m", state.height());
-			if (state.max_height() != AltosRecord.MISSING)
+			if (state.max_height() != AltosLib.MISSING)
 				info_add_row(0, "Max height", "%6.0f    m", state.max_height());
-			if (state.acceleration() != AltosRecord.MISSING)
+			if (state.acceleration() != AltosLib.MISSING)
 				info_add_row(0, "Acceleration", "%8.1f  m/s²", state.acceleration());
-			if (state.max_acceleration() != AltosRecord.MISSING)
+			if (state.max_acceleration() != AltosLib.MISSING)
 				info_add_row(0, "Max acceleration", "%8.1f  m/s²", state.max_acceleration());
-			if (state.speed() != AltosRecord.MISSING)
+			if (state.speed() != AltosLib.MISSING)
 				info_add_row(0, "Speed", "%8.1f  m/s", state.speed());
-			if (state.max_speed() != AltosRecord.MISSING)
+			if (state.max_speed() != AltosLib.MISSING)
 				info_add_row(0, "Max Speed", "%8.1f  m/s", state.max_speed());
-			if (state.temperature != AltosRecord.MISSING)
+			if (state.temperature != AltosLib.MISSING)
 				info_add_row(0, "Temperature", "%9.2f °C", state.temperature);
-			if (state.battery_voltage != AltosRecord.MISSING)
+			if (state.battery_voltage != AltosLib.MISSING)
 				info_add_row(0, "Battery", "%9.2f V", state.battery_voltage);
-			if (state.apogee_voltage != AltosRecord.MISSING)
+			if (state.apogee_voltage != AltosLib.MISSING)
 				info_add_row(0, "Drogue", "%9.2f V", state.apogee_voltage);
-			if (state.main_voltage != AltosRecord.MISSING)
+			if (state.main_voltage != AltosLib.MISSING)
 				info_add_row(0, "Main", "%9.2f V", state.main_voltage);
 		}
 		if (listener_state != null) {
 			info_add_row(0, "CRC Errors", "%6d", listener_state.crc_errors);
 
-			if (listener_state.battery != AltosRecord.MISSING)
+			if (listener_state.battery != AltosLib.MISSING)
 				info_add_row(0, "Receiver Battery", "%9.2f", listener_state.battery);
 		}
 
 		if (state != null) {
 			if (state.gps == null || !state.gps.connected) {
+				if (state.gps == null)
+					System.out.printf ("null gps\n");
+				else
+					System.out.printf ("not connected gps\n");
 				info_add_row(1, "GPS", "not available");
 			} else {
 				if (state.gps_ready)
@@ -155,13 +159,13 @@ public class AltosInfoTable extends JTable {
 				else
 					info_add_row(1, "GPS", "  missing");
 				info_add_row(1, "Satellites", "%6d", state.gps.nsat);
-				if (state.gps.lat != AltosRecord.MISSING)
+				if (state.gps.lat != AltosLib.MISSING)
 					info_add_deg(1, "Latitude", state.gps.lat, 'N', 'S');
-				if (state.gps.lon != AltosRecord.MISSING)
+				if (state.gps.lon != AltosLib.MISSING)
 					info_add_deg(1, "Longitude", state.gps.lon, 'E', 'W');
-				if (state.gps.alt != AltosRecord.MISSING)
+				if (state.gps.alt != AltosLib.MISSING)
 					info_add_row(1, "GPS altitude", "%8.1f", state.gps.alt);
-				if (state.gps_height != AltosRecord.MISSING)
+				if (state.gps_height != AltosLib.MISSING)
 					info_add_row(1, "GPS height", "%8.1f", state.gps_height);
 
 				/* The SkyTraq GPS doesn't report these values */
@@ -199,12 +203,12 @@ public class AltosInfoTable extends JTable {
 					info_add_deg(1, "Pad longitude", state.pad_lon, 'E', 'W');
 					info_add_row(1, "Pad GPS alt", "%6.0f m", state.pad_alt);
 				}
-				if (state.gps.year != AltosRecord.MISSING) 
+				if (state.gps.year != AltosLib.MISSING) 
 					info_add_row(1, "GPS date", "%04d-%02d-%02d",
 						     state.gps.year,
 						     state.gps.month,
 						     state.gps.day);
-				if (state.gps.hour != AltosRecord.MISSING)
+				if (state.gps.hour != AltosLib.MISSING)
 					info_add_row(1, "GPS time", "  %02d:%02d:%02d",
 						     state.gps.hour,
 						     state.gps.minute,

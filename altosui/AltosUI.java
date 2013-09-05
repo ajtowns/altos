@@ -22,7 +22,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import java.util.concurrent.*;
-import org.altusmetrum.altoslib_1.*;
+import org.altusmetrum.altoslib_2.*;
 import org.altusmetrum.altosuilib_1.*;
 
 public class AltosUI extends AltosUIFrame {
@@ -492,7 +492,7 @@ public class AltosUI extends AltosUIFrame {
 					  stats.max_speed,
 					  AltosConvert.meters_to_feet(stats.max_speed),
 					  AltosConvert.meters_to_mach(stats.max_speed));
-			if (stats.max_acceleration != AltosRecord.MISSING) {
+			if (stats.max_acceleration != AltosLib.MISSING) {
 				System.out.printf("Max accel:   %6.0f m/s² %6.0f ft/s² %6.2f g\n",
 						  stats.max_acceleration,
 						  AltosConvert.meters_to_feet(stats.max_acceleration),
