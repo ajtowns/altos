@@ -34,7 +34,7 @@ public class AltosTelemetryReader extends AltosFlightReader {
 		AltosLine l = telem.take();
 		if (l.line == null)
 			throw new IOException("IO error");
-		AltosTelemetry	telem = AltosTelemetryLegacy.parse(l.line);
+		AltosTelemetry	telem = AltosTelemetry.parse(l.line);
 		if (state == null)
 			state = new AltosState();
 		else

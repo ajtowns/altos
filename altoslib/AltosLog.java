@@ -84,7 +84,7 @@ public class AltosLog implements Runnable {
 				if (line.line == null)
 					continue;
 				try {
-					AltosTelemetry	telem = new AltosTelemetryLegacy(line.line);
+					AltosTelemetry	telem = AltosTelemetry.parse(line.line);
 					if (state != null)
 						state = state.clone();
 					else
