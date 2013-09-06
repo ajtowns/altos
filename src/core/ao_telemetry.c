@@ -182,6 +182,7 @@ ao_send_metrum_sensor(void)
 {
 	__xdata	struct ao_data *packet = (__xdata struct ao_data *) &ao_data_ring[ao_data_ring_prev(ao_sample_data)];
 
+	telemetry.generic.tick = packet->tick;
 	telemetry.generic.type = AO_TELEMETRY_METRUM_SENSOR;
 
 	telemetry.metrum_sensor.state = ao_flight_state;
