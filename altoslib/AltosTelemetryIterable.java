@@ -42,38 +42,18 @@ class AltosTelemetryOrdered implements Comparable<AltosTelemetryOrdered> {
 }
 
 class AltosTelemetryOrderedIterator implements Iterator<AltosTelemetry> {
-	TreeSet<AltosTelemetryOrdered>	olist;
-	Iterator<AltosTelemetryOrdered>	oiterator;
+	Iterator<AltosTelemetryOrdered> iterator;
 
-	public AltosTelemetryOrderedIterator(Iterable<AltosTelemetry> telems) {
-		olist = new TreeSet<AltosTelemetryOrdered>();
-
-		int	tick = 0;
-		int	index = 0;
-		boolean	first = true;
-
-		for (AltosTelemetry e : telems) {
-			int	t = e.tick;
-			if (first)
-				tick = t;
-			else {
-				while (t < tick - 32767)
-					t += 65536;
-				tick = t;
-			}
-			olist.add(new AltosTelemetryOrdered(e, index++, tick));
-			first = false;
-		}
-
-		oiterator = olist.iterator();
+	public AltosTelemetryOrderedIterator(TreeSet<AltosTelemetryOrdered> telems) {
+		iterator = telems.iterator();
 	}
 
 	public boolean hasNext() {
-		return oiterator.hasNext();
+		return iterator.hasNext();
 	}
 
 	public AltosTelemetry next() {
-		return oiterator.next().telem;
+		return iterator.next().telem;
 	}
 
 	public void remove () {
@@ -81,16 +61,28 @@ class AltosTelemetryOrderedIterator implements Iterator<AltosTelemetry> {
 }
 
 public class AltosTelemetryIterable implements Iterable<AltosTelemetry> {
-	LinkedList<AltosTelemetry>	telems;
+	TreeSet<AltosTelemetryOrdered>	telems;
+	int tick;
+	int index;
+
+	public void add (AltosTelemetry telem) {
+		int	t = telem.tick;
+		if (!telems.isEmpty()) {
+			while (t < tick - 32767)
+				t += 65536;
+		}
+		tick = t;
+		telems.add(new AltosTelemetryOrdered(telem, index++, tick));
+	}
 
 	public Iterator<AltosTelemetry> iterator () {
-		if (telems == null)
-			telems = new LinkedList<AltosTelemetry>();
 		return new AltosTelemetryOrderedIterator(telems);
 	}
 
 	public AltosTelemetryIterable (FileInputStream input) {
-		telems = new LinkedList<AltosTelemetry> ();
+		telems = new TreeSet<AltosTelemetryOrdered> ();
+		tick = 0;
+		index = 0;
 
 		try {
 			for (;;) {
@@ -102,7 +94,7 @@ public class AltosTelemetryIterable implements Iterable<AltosTelemetry> {
 					AltosTelemetry telem = AltosTelemetry.parse(line);
 					if (telem == null)
 						break;
-					telems.add(telem);
+					add(telem);
 				} catch (ParseException pe) {
 					System.out.printf("parse exception %s\n", pe.getMessage());
 				} catch (AltosCRCException ce) {
