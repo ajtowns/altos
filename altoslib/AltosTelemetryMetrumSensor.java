@@ -64,6 +64,5 @@ public class AltosTelemetryMetrumSensor extends AltosTelemetryStandard {
 
 		state.set_apogee_voltage(AltosConvert.mega_pyro_voltage(sense_a));
 		state.set_main_voltage(AltosConvert.mega_pyro_voltage(sense_m));
-		System.out.printf ("sense_a %d apogee voltage %g\n", sense_a, state.apogee_voltage);
 	}
 }
