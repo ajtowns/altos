@@ -94,10 +94,12 @@ public class AltosEepromDownload implements Runnable {
 
 	void CaptureEeprom(AltosEepromChunk eechunk, int log_format) throws IOException {
 		boolean any_valid = false;
+		boolean got_flight = false;
 
 		int record_length = 8;
 
 		state.set_serial(flights.config_data.serial);
+		monitor.set_serial(flights.config_data.serial);
 
 		for (int i = 0; i < AltosEepromChunk.chunk_size && !done; i += record_length) {
 			AltosEeprom r = eechunk.eeprom(i, log_format, state);
@@ -108,6 +110,9 @@ public class AltosEepromDownload implements Runnable {
 			record_length = r.record_length();
 
 			r.update_state(state);
+
+			if (!got_flight && state.flight != AltosLib.MISSING)
+				monitor.set_flight(state.flight);
 
 			/* Monitor state transitions to update display */
 			if (state.state != AltosLib.ao_flight_invalid &&
@@ -234,7 +239,10 @@ public class AltosEepromDownload implements Runnable {
 				     serial_line.device.toShortString(),
 				     JOptionPane.ERROR_MESSAGE);
 		} catch (InterruptedException ie) {
-			System.out.printf("download interrupted\n");
+			show_message(String.format("Connection to \"%s\" interrupted",
+						   serial_line.device.toShortString()),
+				     "Connection Interrupted",
+				     JOptionPane.ERROR_MESSAGE);
 		} catch (TimeoutException te) {
 			show_message(String.format("Connection to \"%s\" failed",
 						   serial_line.device.toShortString()),
