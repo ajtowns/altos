@@ -40,12 +40,12 @@ public abstract class AltosLink implements Runnable {
 	public LinkedList<LinkedBlockingQueue<AltosLine>> monitors = new LinkedList<LinkedBlockingQueue<AltosLine>> ();;
 	public LinkedBlockingQueue<AltosLine> reply_queue = new LinkedBlockingQueue<AltosLine>();
 
-	public void add_monitor(LinkedBlockingQueue<AltosLine> q) {
+	public synchronized void add_monitor(LinkedBlockingQueue<AltosLine> q) {
 		set_monitor(true);
 		monitors.add(q);
 	}
 
-	public void remove_monitor(LinkedBlockingQueue<AltosLine> q) {
+	public synchronized void remove_monitor(LinkedBlockingQueue<AltosLine> q) {
 		monitors.remove(q);
 		if (monitors.isEmpty())
 			set_monitor(false);
@@ -256,6 +256,8 @@ public abstract class AltosLink implements Runnable {
 	public String callsign;
 	AltosConfigData	config_data;
 
+	private Object config_data_lock = new Object();
+
 	private int telemetry_len() {
 		return AltosLib.telemetry_len(telemetry);
 	}
@@ -329,9 +331,11 @@ public abstract class AltosLink implements Runnable {
 	}
 
 	public AltosConfigData config_data() throws InterruptedException, TimeoutException {
-		if (config_data == null)
-			config_data = new AltosConfigData(this);
-		return config_data;
+		synchronized(config_data_lock) {
+			if (config_data == null)
+				config_data = new AltosConfigData(this);
+			return config_data;
+		}
 	}
 
 	public void set_callsign(String callsign) {
