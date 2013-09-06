@@ -95,7 +95,8 @@ public class AltosLog implements Runnable {
 						close_log_file();
 						serial = state.serial;
 						flight = state.flight;
-						open(state);
+						if (state.serial != AltosLib.MISSING && state.flight != AltosLib.MISSING)
+							open(state);
 					}
 				} catch (ParseException pe) {
 				} catch (AltosCRCException ce) {
