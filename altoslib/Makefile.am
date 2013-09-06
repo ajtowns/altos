@@ -36,6 +36,7 @@ altoslib_JAVA = \
 	AltosEepromChunk.java \
 	AltosEepromFile.java \
 	AltosEepromTM.java \
+	AltosEepromTm.java \
 	AltosEepromHeader.java \
 	AltosEepromIterable.java \
 	AltosEepromLog.java \
