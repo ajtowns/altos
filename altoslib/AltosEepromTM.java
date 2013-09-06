@@ -24,7 +24,6 @@ import java.text.*;
 public class AltosEepromTM extends AltosEeprom {
 	public int	a;
 	public int	b;
-	public boolean	tick_valid;
 
 	public static final int	record_length = 8;
 
@@ -131,10 +130,10 @@ public class AltosEepromTM extends AltosEeprom {
 	public AltosEepromTM (AltosEepromChunk chunk, int start) throws ParseException {
 
 		cmd = chunk.data(start);
-		tick_valid = true;
+		valid = true;
 
-		tick_valid = !chunk.erased(start, record_length);
-		if (tick_valid) {
+		valid = !chunk.erased(start, record_length);
+		if (valid) {
 			if (AltosConvert.checksum(chunk.data, start, record_length) != 0)
 				throw new ParseException(String.format("invalid checksum at 0x%x",
 								       chunk.address + start), 0);
@@ -148,7 +147,7 @@ public class AltosEepromTM extends AltosEeprom {
 	}
 
 	public AltosEepromTM (String line) {
-		tick_valid = false;
+		valid = false;
 		tick = 0;
 		a = 0;
 		b = 0;
@@ -164,7 +163,7 @@ public class AltosEepromTM extends AltosEeprom {
 					} else {
 						cmd = tokens[0].codePointAt(0);
 						tick = Integer.parseInt(tokens[1],16);
-						tick_valid = true;
+						valid = true;
 						a = Integer.parseInt(tokens[2],16);
 						b = Integer.parseInt(tokens[3],16);
 					}
@@ -178,7 +177,7 @@ public class AltosEepromTM extends AltosEeprom {
 	}
 
 	public AltosEepromTM(int in_cmd, int in_tick, int in_a, int in_b) {
-		tick_valid = true;
+		valid = true;
 		cmd = in_cmd;
 		tick = in_tick;
 		a = in_a;
