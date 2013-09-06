@@ -100,7 +100,10 @@ public class AltosEepromDownload implements Runnable {
 		state.set_serial(flights.config_data.serial);
 
 		for (int i = 0; i < AltosEepromChunk.chunk_size && !done; i += record_length) {
-			AltosEeprom r = eechunk.eeprom(i, log_format);
+			AltosEeprom r = eechunk.eeprom(i, log_format, state);
+
+			if (r == null)
+				continue;
 
 			record_length = r.record_length();
 

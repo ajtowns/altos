@@ -62,7 +62,7 @@ public class AltosEepromChunk {
 		return true;
 	}
 
-	public AltosEeprom eeprom(int offset, int log_format) {
+	public AltosEeprom eeprom(int offset, int log_format, AltosState state) {
 		AltosEeprom	eeprom = null;
 		try {
 			switch (log_format) {
@@ -70,8 +70,11 @@ public class AltosEepromChunk {
 				eeprom = new AltosEepromTM(this, offset);
 				break;
 			case AltosLib.AO_LOG_FORMAT_TINY:
+				eeprom = new AltosEepromTm(this, offset, state);
+				break;
 			case AltosLib.AO_LOG_FORMAT_TELEMETRY:
 			case AltosLib.AO_LOG_FORMAT_TELESCIENCE:
+				break;
 			case AltosLib.AO_LOG_FORMAT_TELEMEGA:
 				eeprom = new AltosEepromMega(this, offset);
 				break;
