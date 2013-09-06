@@ -18,8 +18,8 @@
 package org.altusmetrum.altoslib_2;
 
 import java.io.*;
-import java.text.ParseException;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.text.*;
+import java.util.concurrent.*;
 
 /*
  * This creates a thread to capture telemetry data and write it to
@@ -31,9 +31,11 @@ public class AltosLog implements Runnable {
 	LinkedBlockingQueue<String>	pending_queue;
 	int				serial;
 	int				flight;
+	int				receiver_serial;
 	FileWriter			log_file;
 	Thread				log_thread;
 	AltosFile			file;
+	AltosLink			link;
 
 	private void close_log_file() {
 		if (log_file != null) {
@@ -78,17 +80,16 @@ public class AltosLog implements Runnable {
 
 	public void run () {
 		try {
-			AltosState	state = null;
+			AltosState	state = new AltosState();
+			AltosConfigData	receiver_config = link.config_data();
+			state.set_receiver_serial(receiver_config.serial);
 			for (;;) {
 				AltosLine	line = input_queue.take();
 				if (line.line == null)
 					continue;
 				try {
 					AltosTelemetry	telem = AltosTelemetry.parse(line.line);
-					if (state != null)
-						state = state.clone();
-					else
-						state = new AltosState();
+					state = state.clone();
 					telem.update_state(state);
 					if (state.serial != serial || state.flight != flight || log_file == null)
 					{
@@ -109,6 +110,7 @@ public class AltosLog implements Runnable {
 					pending_queue.put(line.line);
 			}
 		} catch (InterruptedException ie) {
+		} catch (TimeoutException te) {
 		} catch (IOException ie) {
 		}
 		close();
@@ -120,6 +122,7 @@ public class AltosLog implements Runnable {
 		link.add_monitor(input_queue);
 		serial = -1;
 		flight = -1;
+		this.link = link;
 		log_file = null;
 		log_thread = new Thread(this);
 		log_thread.start();

@@ -24,15 +24,35 @@ public class AltosFile extends File {
 
 	static String number(int n) {
 		if (n == AltosLib.MISSING)
-			return "unk";
+			return "unkn";
 		else
-			return String.format("%03d", n);
+			return String.format("%04d", n);
+	}
+
+	static String receiver(int receiver) {
+		if (receiver == AltosLib.MISSING)
+			return "";
+		return String.format("-via-%04d", receiver);
+	}
+
+	public AltosFile(int year, int month, int day, int serial, int flight, int receiver, String extension) {
+		super (AltosPreferences.logdir(),
+		       String.format("%04d-%02d-%02d-serial-%s-flight-%s%s.%s",
+				     year, month, day, number(serial), number(flight), receiver(receiver), extension));
 	}
 
 	public AltosFile(int year, int month, int day, int serial, int flight, String extension) {
-		super (AltosPreferences.logdir(),
-		       String.format("%04d-%02d-%02d-serial-%s-flight-%s.%s",
-				     year, month, day, number(serial), number(flight), extension));
+		this(year, month, day, serial, flight, AltosLib.MISSING, extension);
+	}
+
+	public AltosFile(int serial, int flight, int receiver, String extension) {
+		this(Calendar.getInstance().get(Calendar.YEAR),
+		     Calendar.getInstance().get(Calendar.MONTH) + 1,
+		     Calendar.getInstance().get(Calendar.DAY_OF_MONTH),
+		     serial,
+		     flight,
+		     receiver,
+		     extension);
 	}
 
 	public AltosFile(int serial, int flight, String extension) {
@@ -41,10 +61,11 @@ public class AltosFile extends File {
 		     Calendar.getInstance().get(Calendar.DAY_OF_MONTH),
 		     serial,
 		     flight,
+		     AltosLib.MISSING,
 		     extension);
 	}
 
 	public AltosFile(AltosState state) {
-		this(state.serial, state.flight, "telem");
+		this(state.serial, state.flight, state.receiver_serial, "telem");
 	}
 }

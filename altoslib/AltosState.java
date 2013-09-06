@@ -269,6 +269,7 @@ public class AltosState implements Cloneable {
 	public int	state;
 	public int	flight;
 	public int	serial;
+	public int	receiver_serial;
 	public boolean	landed;
 	public boolean	ascent;	/* going up? */
 	public boolean	boost;	/* under power */
@@ -604,6 +605,7 @@ public class AltosState implements Cloneable {
 
 		log_format = AltosLib.MISSING;
 		serial = AltosLib.MISSING;
+		receiver_serial = AltosLib.MISSING;
 
 		baro = null;
 		companion = null;
@@ -725,6 +727,7 @@ public class AltosState implements Cloneable {
 
 		log_format = old.log_format;
 		serial = old.serial;
+		receiver_serial = old.receiver_serial;
 
 		baro = old.baro;
 		companion = old.companion;
@@ -845,6 +848,11 @@ public class AltosState implements Cloneable {
 			}
 			this.serial = serial;
 		}
+	}
+
+	public void set_receiver_serial(int serial) {
+		if (serial != AltosLib.MISSING)
+			receiver_serial = serial;
 	}
 
 	public int rssi() {
