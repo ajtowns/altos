@@ -632,7 +632,9 @@ public class AltosState implements Cloneable {
 
 		received_time = old.received_time;
 		time = old.time;
-		time_change = 0;
+		time_change = old.time_change;
+		prev_time = old.time;
+		
 		tick = old.tick;
 		prev_tick = old.tick;
 		boost_tick = old.boost_tick;
@@ -779,6 +781,7 @@ public class AltosState implements Cloneable {
 			}
 			tick = new_tick;
 			time = tick / 100.0;
+			time_change = time - prev_time;
 		}
 	}
 
