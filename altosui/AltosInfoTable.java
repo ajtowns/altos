@@ -141,10 +141,6 @@ public class AltosInfoTable extends JTable {
 
 		if (state != null) {
 			if (state.gps == null || !state.gps.connected) {
-				if (state.gps == null)
-					System.out.printf ("null gps\n");
-				else
-					System.out.printf ("not connected gps\n");
 				info_add_row(1, "GPS", "not available");
 			} else {
 				if (state.gps_ready)
