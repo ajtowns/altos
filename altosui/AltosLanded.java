@@ -250,7 +250,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 						states = new AltosEepromFile(in);
 					} else if (filename.endsWith("telem")) {
 						FileInputStream in = new FileInputStream(file);
-						states = null; // new AltosTelemetryIterable(in);
+						states = new AltosTelemetryFile(in);
 					} else {
 						throw new FileNotFoundException(filename);
 					}
