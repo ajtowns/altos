@@ -56,7 +56,8 @@ public class AltosTelemetryMetrumSensor extends AltosTelemetryStandard {
 		state.set_state(this.state);
 
 		state.set_accel(accel);
-		state.set_ms5607(pres, temp);
+		state.set_pressure(pres);
+		state.set_temperature(temp/100.0);
 
 		state.set_kalman(height, speed/16.0, acceleration/16.0);
 
