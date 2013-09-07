@@ -418,4 +418,24 @@ public class AltosLib {
 	public static File replace_extension(File input, String extension) {
 		return new File(replace_extension(input.getPath(), extension));
 	}
+
+	public static String product_name(int product_id) {
+		switch (product_id) {
+		case product_altusmetrum: return "AltusMetrum";
+		case product_telemetrum: return "TeleMetrum";
+		case product_teledongle: return "TeleDongle";
+		case product_teleterra: return "TeleTerra";
+		case product_telebt: return "TeleBT";
+		case product_telelaunch: return "TeleLaunch";
+		case product_telelco: return "TeleLco";
+		case product_telescience: return "Telescience";
+		case product_telepyro: return "TelePyro";
+		case product_telemega: return "TeleMega";
+		case product_megadongle: return "MegaDongle";
+		case product_telegps: return "TeleGPS";
+		case product_easymini: return "EasyMini";
+		case product_telemini: return "TeleMini";
+		default: return "unknown";
+		}
+	}
 }

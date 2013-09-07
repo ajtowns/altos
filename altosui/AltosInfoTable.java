@@ -107,6 +107,8 @@ public class AltosInfoTable extends JTable {
 	public void show(AltosState state, AltosListenerState listener_state) {
 		info_reset();
 		if (state != null) {
+			if (state.device_type != AltosLib.MISSING)
+				info_add_row(0, "Device", "%s", AltosLib.product_name(state.device_type));
 			if (state.altitude() != AltosLib.MISSING)
 				info_add_row(0, "Altitude", "%6.0f    m", state.altitude());
 			if (state.ground_altitude() != AltosLib.MISSING)
