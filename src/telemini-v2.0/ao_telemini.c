@@ -24,36 +24,42 @@ __xdata uint8_t ao_force_freq;
 void
 main(void)
 {
-	/*
-	 * Reduce the transient on the ignite pins at startup by
-	 * pulling the pins low as soon as possible at power up
-	 */
-	ao_ignite_set_pins();
-
 	ao_clock_init();
+
+#if HAS_STACK_GUARD
+	ao_mpu_init();
+#endif
+	ao_task_init();
 
 	/* Turn on the red LED until the system is stable */
 	ao_led_init(LEDS_AVAILABLE);
 	ao_led_on(AO_LED_RED);
 
-	ao_task_init();
-
 	ao_timer_init();
-	ao_adc_init();
-	ao_beep_init();
-	ao_cmd_init();
+
 	ao_spi_init();
 	ao_exti_init();
+	ao_adc_init();
+#if HAS_BEEP
+	ao_beep_init();
+#endif
+	ao_cmd_init();
+#if HAS_MS5607
 	ao_ms5607_init();
+#endif
 	ao_storage_init();
+
 	ao_flight_init();
 	ao_log_init();
 	ao_report_init();
+
 	ao_usb_init();
 	ao_telemetry_init();
 	ao_radio_init();
 	ao_packet_slave_init(TRUE);
+
 	ao_igniter_init();
+
 	ao_config_init();
 	ao_start_scheduler();
 }
