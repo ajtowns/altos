@@ -82,7 +82,7 @@ quiet ?= $($1)
 all: $(PROG)
 
 $(PROG): $(REL) Makefile
-	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(REL) && cp $(PROG) $(PMAP) ..
+	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(REL)
 	$(call quiet,CHECK_STACK) ../cc1111/ao_arch.h $(PMEM) || rm $@
 
 ao_product.h: ao-make-product.5c ../Version

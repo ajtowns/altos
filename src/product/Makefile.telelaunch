@@ -82,9 +82,9 @@ endif
 # Otherwise, print the full command line.
 quiet ?= $($1)
 
-all: ../$(PROG)
+all: $(PROG)
 
-../$(PROG): $(REL) Makefile
+$(PROG): $(REL) Makefile
 	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(REL) && cp $(PROG) $(PMAP) ..
 	$(call quiet,CHECK_STACK) ../cc1111/ao_arch.h $(PMEM)  || rm $@
 
