@@ -24,7 +24,7 @@ SDCCDIRS=\
 	telemini-v2.0
 
 AVRDIRS=\
-	telescience-v0.1 telescience-pwm micropeak
+	telescience-v0.1 telescience-pwm micropeak nanopeak-v0.1
 
 ARMDIRS=\
 	telemega-v0.1 telemega-v0.1/flash-loader \
