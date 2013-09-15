@@ -2,7 +2,7 @@
 # Tiny AltOS build
 #
 #
-vpath % ../attiny:../drivers:../core:..
+vpath % ../attiny:../drivers:../core:../product:..
 vpath ao-make-product.5c ../util
 vpath make-altitude-pa ../util
 
@@ -30,7 +30,7 @@ ALTOS_SRC = \
 	ao_ms5607.c \
 	ao_exti.c \
 	ao_convert_pa.c \
-	ao_report_tiny.c \
+	ao_report_micro.c \
 	ao_notask.c \
 	ao_eeprom_tiny.c \
 	ao_panic.c \
@@ -53,7 +53,7 @@ INC=\
 IDPRODUCT=0
 PRODUCT=MicroPeak-v0.1
 PRODUCT_DEF=-DMICROPEAK
-CFLAGS = $(PRODUCT_DEF) -I. -I../attiny -I../core -I.. -I../drivers
+CFLAGS = $(PRODUCT_DEF) -I. -I../attiny -I../core -I.. -I../drivers -I../product
 CFLAGS += -g -mmcu=$(MCU) -Wall -Wstrict-prototypes -O2 -mcall-prologues -DATTINY
 
 NICKLE=nickle
