@@ -214,6 +214,19 @@ main (int argc, char **argv)
 						telem.metrum_data.accel_plus_g,
 						telem.metrum_data.accel_minus_g);
 					break;
+				case AO_TELEMETRY_MINI:
+					printf ("state %1d v_batt %5d sense_a %5d sense_m %5d pres %9d temp %6.2f acceleration %6.2f speed %6.2f height %5d ground_pres %9d\n",
+						telem.mini.state,
+						telem.mini.v_batt,
+						telem.mini.sense_a,
+						telem.mini.sense_m,
+						telem.mini.pres,
+						telem.mini.temp / 100.0,
+						telem.mini.acceleration / 16.0,
+						telem.mini.speed / 16.0,
+						telem.mini.height,
+						telem.mini.ground_pres);
+					break;
 				default:
 					printf("\n");
 				}
