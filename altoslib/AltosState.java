@@ -301,7 +301,8 @@ public class AltosState implements Cloneable {
 	class AltosGroundPressure extends AltosCValue {
 		void set_filtered(double p, double time) {
 			computed.set_filtered(p, time);
-			ground_altitude.set_computed(pressure_to_altitude(computed.value()), time);
+			if (!is_measured())
+				ground_altitude.set_computed(pressure_to_altitude(computed.value()), time);
 		}
 
 		void set_measured(double p, double time) {
@@ -657,6 +658,7 @@ public class AltosState implements Cloneable {
 		
 		set = 0;
 
+		ground_pressure.copy(old.ground_pressure);
 		ground_altitude.copy(old.ground_altitude);
 		altitude.copy(old.altitude);
 		pressure.copy(old.pressure);
