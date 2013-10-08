@@ -185,7 +185,7 @@ if test "x$HAVE_SDCC" = "xno"; then
 	AC_MSG_WARN([No sdcc found, cc1111 binaries will not be built])
 fi
 
-AC_CHECK_PROG([HAVE_ARM_GCC],[arm-none-eabi-gcc], yes, no,[/opt/cortex/bin])
+AC_CHECK_PROG([HAVE_ARM_GCC],[arm-none-eabi-gcc], yes, no,[/usr/bin])
 if test "x$HAVE_ARM_GCC" = "xno"; then
 	AC_MSG_WARN([No summon toolchain arm compiler found, STM32L binaries will not be built])
 fi
