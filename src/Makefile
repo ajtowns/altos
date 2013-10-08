@@ -47,7 +47,7 @@ ifeq ($(strip ($HAVE_ARM_M3_CC)),yes)
 	SUBDIRS += $(ARMM3DIRS)
 endif
 
-ifneq ($(strip ($HAVE_ARM_M0_CC)),yes)
+ifeq ($(strip ($HAVE_ARM_M0_CC)),yes)
 	SUBDIRS += $(ARMM0DIRS)
 endif
 
