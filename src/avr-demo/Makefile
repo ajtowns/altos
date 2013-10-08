@@ -11,18 +11,12 @@ vpath load_csv.5c ../kalman
 vpath matrix.5c ../kalman
 vpath ao-make-product.5c ../util
 
+include ../avr/Makefile.defs
+
 MCU=atmega32u4
 DUDECPUTYPE=m32u4
 #PROGRAMMER=stk500v2 -P usb
-PROGRAMMER=usbtiny
-LOADCMD=avrdude
 LOADARG=-p $(DUDECPUTYPE) -c $(PROGRAMMER) -e -U flash:w:
-CC=avr-gcc
-OBJCOPY=avr-objcopy
-
-ifndef VERSION
-include ../Version
-endif
 
 INC = \
 	ao.h \

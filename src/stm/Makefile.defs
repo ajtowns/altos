@@ -12,14 +12,19 @@ vpath ao-make-product.5c ../util
 .elf.ihx:
 	objcopy -O ihex $*.elf $@
 
-SAT=/opt/cortex
-CC=$(SAT)/bin/arm-none-eabi-gcc
-SAT_CLIB=$(SAT)/lib/pdclib-cortex-m3.a
-SAT_CFLAGS=-I$(SAT)/include
+ifndef TOPDIR
+TOPDIR=..
+endif
 
 ifndef VERSION
-include ../Version
+include $(TOPDIR)/Version
 endif
+include $(TOPDIR)/Makedefs
+
+CC=$(ARM_CC)
+SAT=/opt/cortex
+SAT_CLIB=$(SAT)/lib/pdclib-cortex-m3.a
+SAT_CFLAGS=-I$(SAT)/include
 
 AO_CFLAGS=-I. -I../stm -I../core -I../drivers -I..
 STM_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m3 -mthumb -ffreestanding -nostdlib $(AO_CFLAGS) $(SAT_CFLAGS)

@@ -6,21 +6,15 @@ vpath % ../attiny:../drivers:../core:../product:..
 vpath ao-make-product.5c ../util
 vpath make-altitude-pa ../util
 
+include ../avr/Makefile.defs
+
 MCU=attiny85
 DUDECPUTYPE=t85
 #PROGRAMMER=stk500v2 -P usb
-PROGRAMMER=usbtiny
-LOADCMD=avrdude
 LOADSLOW=-i 32 -B 32
 LOADARG=-p $(DUDECPUTYPE) -c $(PROGRAMMER) -e -U flash:w:
-CC=avr-gcc
-OBJCOPY=avr-objcopy
 
-LDFLAGS=-L/usr/lib/ldscripts -Tavr25.x
-
-ifndef VERSION
-include ../Version
-endif
+LDFLAGS=-L$(LDSCRIPTS) -Tavr25.x
 
 ALTOS_SRC = \
 	ao_micropeak.c \

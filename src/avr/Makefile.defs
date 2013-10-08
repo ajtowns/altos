@@ -1,0 +1,16 @@
+ifndef TOPDIR
+TOPDIR=..
+endif
+
+ifndef VERSION
+include $(TOPDIR)/Version
+endif
+
+include $(TOPDIR)/Makedefs
+
+CC=$(AVR_CC)
+OBJCOPY=$(AVR_OBJCOPY)
+LDSCRIPTS=/usr/lib/avr/lib/ldscripts
+
+PROGRAMMER=usbtiny
+LOADCMD=avrdude

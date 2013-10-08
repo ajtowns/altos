@@ -1,4 +1,5 @@
-CC=sdcc
+include ../Makedefs
+CC=$(SDCC)
 
 CFLAGS=--model-small --debug --opt-code-speed -DCODESIZE=$(CODESIZE)
 

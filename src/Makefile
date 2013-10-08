@@ -13,6 +13,7 @@ vpath load_csv.5c kalman
 vpath matrix.5c kalman
 
 include Version
+include Makedefs
 
 SDCCDIRS=\
 	telemetrum-v1.2 telemetrum-v1.1 telemetrum-v1.0 \
@@ -23,10 +24,7 @@ SDCCDIRS=\
 	telefire-v0.1 telefire-v0.2 \
 	telemini-v2.0
 
-AVRDIRS=\
-	telescience-v0.1 telescience-pwm micropeak nanopeak-v0.1
-
-ARMDIRS=\
+ARMM3DIRS=\
 	telemega-v0.1 telemega-v0.1/flash-loader \
 	telemega-v0.3 telemega-v0.3/flash-loader \
 	megadongle-v0.1 megadongle-v0.1/flash-loader \
@@ -38,23 +36,26 @@ ARMDIRS=\
 ARMM0DIRS=\
 	easymini-v1.0 easymini-v1.0/flash-loader
 
-ifneq ($(shell which sdcc),)
+AVRDIRS=\
+	telescience-v0.1 telescience-pwm micropeak nanopeak-v0.1
+
+ifeq ($(strip $(HAVE_SDCC)),yes)
 	SUBDIRS += $(SDCCDIRS)
 endif
 
-ifneq ($(shell which avr-gcc),)
-	SUBDIRS += $(AVRDIRS)
+ifeq ($(strip ($HAVE_ARM_M3_CC)),yes)
+	SUBDIRS += $(ARMM3DIRS)
 endif
 
-ifneq ($(shell which /opt/cortex/bin/arm-none-eabi-gcc),)
-	SUBDIRS += $(ARMDIRS)
-endif
-
-ifneq ($(shell which /usr/bin/arm-none-eabi-gcc),)
+ifneq ($(strip ($HAVE_ARM_M0_CC)),yes)
 	SUBDIRS += $(ARMM0DIRS)
 endif
 
-ALLDIRS=$(SDCCDIRS) $(AVRDIRS) $(ARMDIRS)
+ifeq ($(strip $(HAVE_AVR_CC)),yes)
+	SUBDIRS += $(AVRDIRS)
+endif
+
+ALLDIRS=$(SDCCDIRS) $(ARMM3DIRS) $(ARMM0DIRS) $(AVRDIRS)
 
 all: all-local all-recursive
 

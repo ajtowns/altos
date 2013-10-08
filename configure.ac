@@ -180,20 +180,150 @@ if test "x$GCC" = "xyes"; then
 fi
 AC_SUBST(WARN_CFLAGS)
 
-AC_CHECK_PROG([HAVE_SDCC], [sdcc], yes, no)
+#
+# Configure SDCC
+#
+
+AC_ARG_WITH([sdcc],
+	    [AS_HELP_STRING([--with-sdcc],
+	                    [Name of SDCC])],
+	    [],
+	    [with_sdcc=auto])
+
+if test "x$with_sdcc" != "xno"; then	    
+	if test "x$with_sdcc" = "xauto"; then
+		with_sdcc="sdcc"
+		AC_CHECK_PROG([HAVE_SDCC],[$with_sdcc], yes, no)
+	else
+		HAVE_SDCC=yes
+	fi
+else
+	HAVE_SDCC=no
+fi
+
 if test "x$HAVE_SDCC" = "xno"; then
-	AC_MSG_WARN([No sdcc found, cc1111 binaries will not be built])
+	AC_MSG_WARN([SDCC not found, cc1111 binaries will not be built])
+else
+	SDCC=$with_sdcc
 fi
 
-AC_CHECK_PROG([HAVE_ARM_GCC],[arm-none-eabi-gcc], yes, no,[/opt/cortex/bin])
-if test "x$HAVE_ARM_GCC" = "xno"; then
-	AC_MSG_WARN([No summon toolchain arm compiler found, STM32L binaries will not be built])
+AC_SUBST(SDCC)
+AC_SUBST(HAVE_SDCC)
+
+#
+# Configure ARM compiler for STM32L and LPC11U14
+#
+
+AC_ARG_WITH([arm-cc],
+	    [AS_HELP_STRING([--with-arm-cc],
+	                    [Name of ARM C compiler])],
+	    [],
+	    [with_arm_cc=auto])
+
+if test "x$with_arm_cc" != "xno"; then	    
+	if test "x$with_arm_cc" = "xauto"; then
+		with_arm_cc="arm-none-eabi-gcc"
+		AC_CHECK_PROG([HAVE_ARM_CC],[$with_arm_cc], yes, no)
+	else
+		HAVE_ARM_CC=yes
+	fi
+else
+	HAVE_ARM_CC=no
 fi
 
-AC_CHECK_PROG([HAVE_ARM_M0_GCC], [arm-none-eabi-gcc], yes, no,[/usr/bin])
-if test "x$HAVE_ARM_M0_GCC" = "xno"; then
-	AC_MSG_WARN([No linaro toolchain arm cortex-m0 compiler found, LPC11U14 binaries will not be built])
+if test "x$HAVE_ARM_CC" = "xno"; then
+	AC_MSG_WARN([Arm compiler not found, ARM binaries will not be built])
+else
+	ARM_CC=$with_arm_cc
 fi
+AC_SUBST(HAVE_ARM_CC)
+AC_SUBST(ARM_CC)
+
+if test "x$HAVE_ARM_CC" = "xyes"; then
+	save_CC="$CC"
+	save_CFLAGS="$CFLAGS"
+	CC="$ARM_CC"
+	CFLAGS="-mthumb -mcpu=cortex-m0"
+	AC_LANG_PUSH([C])
+
+	AC_MSG_CHECKING([if ]$ARM_CC[ supports cortex-m0])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([int i;])],
+			  [HAVE_ARM_M0_CC=yes],
+			  [HAVE_ARM_M0_CC=no])
+        AC_MSG_RESULT([$HAVE_ARM_M0])
+	CFLAGS="-mthumb -mcpu=cortex-m3"
+	AC_MSG_CHECKING([if ]$ARM_CC[ supports cortex-m3])
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([int i;])],
+			  [HAVE_ARM_M3_CC=yes],
+			  [HAVE_ARM_M3_CC=no])
+        AC_MSG_RESULT([$HAVE_ARM_M3])
+	AC_LANG_POP([C])
+	CFLAGS="$save_CFLAGS"
+	CC="$save_CC"
+else
+	HAVE_ARM_M3_CC=no
+	HAVE_ARM_M0_CC=no
+fi
+AC_SUBST(HAVE_ARM_M3_CC)
+AC_SUBST(HAVE_ARM_M0_CC)
+	
+if test "x$HAVE_ARM_M3_CC" = "xno"; then
+	AC_MSG_WARN([No cortex-m3 arm compiler found, STM32L binaries will not be built])
+fi
+
+if test "x$HAVE_ARM_M0_CC" = "xno"; then
+	AC_MSG_WARN([No cortex-m0 arm compiler found, LPC11U14 binaries will not be built])
+fi
+
+#
+# Configure AVR compiler
+#
+
+AC_ARG_WITH([avr-cc],
+	    [AS_HELP_STRING([--with-avr-cc],
+	                    [Name of AVR C compiler])],
+	    [],
+	    [with_avr_cc=auto])
+
+if test "x$with_avr_cc" != "xno"; then	    
+	if test "x$with_avr_cc" = "xauto"; then
+		with_avr_cc="avr-gcc"
+		AC_CHECK_PROG([HAVE_AVR_CC],[$with_avr_cc], yes, no)
+	else
+		HAVE_AVR_CC=yes
+	fi
+else
+	HAVE_AVR_CC=no
+fi
+
+AC_ARG_WITH([avr-objcopy],
+	    [AS_HELP_STRING([--with-avr-objcopy],
+	                    [Name of AVR objcopy])],
+	    [],
+	    [with_avr_objcopy=auto])
+
+if test "x$with_avr_objcopy" != "xno"; then	    
+	if test "x$with_avr_objcopy" = "xauto"; then
+		with_avr_objcopy="avr-objcopy"
+		AC_CHECK_PROG([HAVE_AVR_OBJCOPY],[$with_avr_objcopy], yes, no)
+	else
+		HAVE_AVR_OBJCOPY=yes
+	fi
+else
+	HAVE_AVR_OBJCOPY=no
+fi
+
+if test "x$HAVE_AVR_CC" = "xno" -o "x$HAVE_AVR_OBJCOPY" = "xno"; then
+	AC_MSG_WARN([AVR compiler and objcopy not found, atmel binaries will not be built])
+	HAVE_AVR_CC=no
+else
+	AVR_CC=$with_avr_cc
+	AVR_OBJCOPY=$with_avr_objcopy
+fi
+
+AC_SUBST(AVR_CC)
+AC_SUBST(AVR_OBJCOPY)
+AC_SUBST(HAVE_AVR_CC)
 
 AC_CHECK_PROG([HAVE_NICKLE], [nickle], yes, no)
 if test "x$HAVE_NICKLE" = "xno"; then
@@ -213,6 +343,7 @@ AM_CONDITIONAL([LIBSTLINK], [test x$HAVE_STLINK != xno])
 
 AC_OUTPUT([
 Makefile
+src/Makedefs
 altoslib/Makefile
 altosuilib/Makefile
 altosuilib/AltosUIVersion.java
@@ -248,9 +379,13 @@ echo ""
 echo "  Package: ${PACKAGE_NAME} ${PACKAGE_VERSION}"
 echo ""
 echo "  Configuration"
-echo "    STM32L support..............: ${HAVE_ARM_GCC}"
-echo "    LPC11U14 support............: ${HAVE_ARM_M0_GCC}"
+echo "    Arm compiler................: ${ARM_CC}"
+echo "    STM32L support..............: ${HAVE_ARM_M3_CC}"
+echo "    LPC11U14 support............: ${HAVE_ARM_M0_CC}"
+echo "    SDCC........................: ${SDCC}"
 echo "    CC1111 support..............: ${HAVE_SDCC}"
+echo "    AVR compiler................: ${AVR_CC} ${AVR_OBJCOPY}"
+echo "    AVR support.................: ${HAVE_AVR_CC}"
 echo "    Android support.............: ${HAVE_ANDROID_SDK}"
 echo "    STlink support..............: ${HAVE_STLINK}"
 echo ""

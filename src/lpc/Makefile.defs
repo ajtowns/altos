@@ -7,19 +7,24 @@ vpath load_csv.5c ../kalman
 vpath matrix.5c ../kalman
 vpath ao-make-product.5c ../util
 
-CC=arm-none-eabi-gcc
+ifndef TOPDIR
+TOPDIR=..
+endif
+
+ifndef VERSION
+include $(TOPDIR)/Version
+endif
+include $(TOPDIR)/Makedefs
+
+CC=$(ARM_CC)
 SAT=/opt/cortex
 SAT_CLIB=$(SAT)/lib/pdclib-cortex-m0.a
 SAT_CFLAGS=-I$(SAT)/include
 
-ifndef VERSION
-include ../Version
-endif
-
-AO_CFLAGS=-I. -I../lpc -I../core -I../drivers -I..
+AO_CFLAGS=-I. -I$(TOPDIR)/lpc -I$(TOPDIR)/core -I$(TOPDIR)/drivers -I$(TOPDIR)
 LPC_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m0 -mthumb -ffreestanding -nostdlib $(AO_CFLAGS) $(SAT_CFLAGS)
 
-LDFLAGS=$(LPC_CFLAGS) -L../stm -Wl,-Taltos.ld
+LDFLAGS=$(LPC_CFLAGS) -L$(TOPDIR)/stm -Wl,-Taltos.ld
 
 NICKLE=nickle
 
@@ -34,8 +39,8 @@ quiet ?= $($1)
 .c.o:
 	$(call quiet,CC) -c $(CFLAGS) $<
 
-ao_serial_lpc.h: ../lpc/baud_rate ao_pins.h
-	nickle ../lpc/baud_rate `awk '/AO_LPC_CLKOUT/{print $$3}' ao_pins.h` > $@
+ao_serial_lpc.h: $(TOPDIR)/lpc/baud_rate ao_pins.h
+	nickle $(TOPDIR)/lpc/baud_rate `awk '/AO_LPC_CLKOUT/{print $$3}' ao_pins.h` > $@
 
 ao_serial_lpc.o: ao_serial_lpc.h
 
