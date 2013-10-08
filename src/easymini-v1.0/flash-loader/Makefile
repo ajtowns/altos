@@ -4,5 +4,5 @@
 #
 
 TOPDIR=../..
-HARDWARE=easymini-v0.1
+HARDWARE=easymini-v1.0
 include $(TOPDIR)/lpc/Makefile-flash.defs

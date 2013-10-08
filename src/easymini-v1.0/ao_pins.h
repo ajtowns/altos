@@ -16,7 +16,7 @@
  */
 
 #define HAS_BEEP	1
-#define	HAS_LED		1
+#define	HAS_LED		0
 
 #define AO_STACK_SIZE	384
 
@@ -30,13 +30,6 @@
 
 /* System clock frequency */
 #define AO_LPC_SYSCLK	24000000
-
-#define LED_PORT	0
-#define LED_PIN_RED	7
-
-#define AO_LED_RED	(1 << LED_PIN_RED)
-
-#define LEDS_AVAILABLE	AO_LED_RED
 
 #define HAS_USB		1
 

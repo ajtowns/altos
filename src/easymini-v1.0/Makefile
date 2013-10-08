@@ -32,7 +32,6 @@ ALTOS_SRC = \
 	ao_sample.c \
 	ao_data.c \
 	ao_convert_pa.c \
-	ao_led_lpc.c \
 	ao_task.c \
 	ao_log.c \
 	ao_log_mini.c \
@@ -47,13 +46,13 @@ ALTOS_SRC = \
 	ao_m25.c \
 	ao_ms5607.c
 
-PRODUCT=EasyMini-v0.1
-PRODUCT_DEF=-DEASYMINI_V_0_1
+PRODUCT=EasyMini-v1.0
+PRODUCT_DEF=-DEASYMINI_V_1_0
 IDPRODUCT=0x0026
 
 CFLAGS = $(PRODUCT_DEF) $(LPC_CFLAGS) -g -Os
 
-PROGNAME=easymini-v0.1
+PROGNAME=easymini-v1.0
 PROG=$(PROGNAME)-$(VERSION).elf
 
 SRC=$(ALTOS_SRC) ao_easymini.c
