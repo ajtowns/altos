@@ -29,8 +29,8 @@ public class AltosState implements Cloneable {
 
 	public int set;
 
-	static final double ascent_filter_len = 0.1;
-	static final double descent_filter_len = 2.0;
+	static final double ascent_filter_len = 0.5;
+	static final double descent_filter_len = 0.5;
 
 	/* derived data */
 
@@ -49,7 +49,6 @@ public class AltosState implements Cloneable {
 		private double	max_value;
 		private double	set_time;
 		private double	prev_set_time;
-		private double	max_rate = 1000.0;
 
 		void set(double new_value, double time) {
 			if (new_value != AltosLib.MISSING) {
@@ -125,12 +124,14 @@ public class AltosState implements Cloneable {
 			double	ddt = in.time() - pt;
 			double	ddv = (n - p) / ddt;
 				
+			final double max = 100000;
+
 			/* 100gs */
-			if (Math.abs(ddv) > 1000) {
+			if (Math.abs(ddv) > max) {
 				if (n > p)
-					n = p + ddt * 1000;
+					n = p + ddt * max;
 				else
-					n = p - ddt * 1000;
+					n = p - ddt * max;
 			}
 
 			double filter_len;
