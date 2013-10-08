@@ -235,6 +235,7 @@ static inline void ao_arch_start_scheduler(void) {
 	asm("mrs %0,control" : "=&r" (control));
 	control |= (1 << 1);
 	asm("msr control,%0" : : "r" (control));
+	asm("isb");
 }
 
 #endif /* _AO_ARCH_FUNCS_H_ */
