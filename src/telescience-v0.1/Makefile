@@ -12,7 +12,7 @@ DUDECPUTYPE=m32u4
 #PROGRAMMER=stk500v2 -P usb
 LOADARG=-p $(DUDECPUTYPE) -c $(PROGRAMMER) -e -U flash:w:
 
-LDFLAGS=-L$(LDSCRIPTS) -Tavr5.x
+#LDFLAGS=-L$(LDSCRIPTS) -Tavr5.x
 
 INC = \
 	ao.h \

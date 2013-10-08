@@ -14,7 +14,7 @@ DUDECPUTYPE=t85
 LOADSLOW=-i 32 -B 32
 LOADARG=-p $(DUDECPUTYPE) -c $(PROGRAMMER) -e -U flash:w:
 
-LDFLAGS=-L$(LDSCRIPTS) -Tavr25.x
+#LDFLAGS=-L$(LDSCRIPTS) -Tavr25.x
 
 ALTOS_SRC = \
 	ao_micropeak.c \
