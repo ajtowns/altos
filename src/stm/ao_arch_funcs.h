@@ -329,7 +329,7 @@ static inline void ao_arch_restore_stack(void) {
 
 	/* Restore APSR */
 	asm("pop {r0}");
-	asm("msr apsr,r0");
+	asm("msr apsr_nczvq,r0");
 
 	/* Restore general registers */
 	asm("pop {r0-r12,lr}\n");
