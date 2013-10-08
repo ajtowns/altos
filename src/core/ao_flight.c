@@ -134,8 +134,10 @@ ao_flight(void)
 				ao_rdf_set(1);
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_PAD);
 #endif
+#if HAS_LED
 				/* signal successful initialization by turning off the LED */
 				ao_led_off(AO_LED_RED);
+#endif
 			} else {
 				/* Set idle mode */
  				ao_flight_state = ao_flight_idle;
@@ -145,8 +147,10 @@ ao_flight(void)
 				ao_packet_slave_start();
 #endif
 
+#if HAS_LED
 				/* signal successful initialization by turning off the LED */
 				ao_led_off(AO_LED_RED);
+#endif
 			}
 			/* wakeup threads due to state change */
 			ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
