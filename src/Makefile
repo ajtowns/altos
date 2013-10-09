@@ -39,20 +39,24 @@ ARMM0DIRS=\
 AVRDIRS=\
 	telescience-v0.1 telescience-pwm micropeak nanopeak-v0.1
 
+SUBDIRS=
+
 ifeq ($(strip $(HAVE_SDCC)),yes)
-	SUBDIRS += $(SDCCDIRS)
+SUBDIRS+=$(SDCCDIRS)
 endif
 
-ifeq ($(strip ($HAVE_ARM_M3_CC)),yes)
-	SUBDIRS += $(ARMM3DIRS)
+ifeq ($(strip $(HAVE_ARM_M3_CC)),yes)
+SUBDIRS+=$(ARMM3DIRS)
+foo=bar
 endif
 
-ifeq ($(strip ($HAVE_ARM_M0_CC)),yes)
-	SUBDIRS += $(ARMM0DIRS)
+ifeq ($(strip $(HAVE_ARM_M0_CC)),yes)
+SUBDIRS+=$(ARMM0DIRS)
+baz=bletch
 endif
 
 ifeq ($(strip $(HAVE_AVR_CC)),yes)
-	SUBDIRS += $(AVRDIRS)
+SUBDIRS += $(AVRDIRS)
 endif
 
 ALLDIRS=$(SDCCDIRS) $(ARMM3DIRS) $(ARMM0DIRS) $(AVRDIRS)
