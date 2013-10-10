@@ -330,8 +330,29 @@ if test "x$HAVE_AVR_CC" = "xno" -o "x$HAVE_AVR_OBJCOPY" = "xno"; then
 	AC_MSG_WARN([AVR compiler and objcopy not found, atmel binaries will not be built])
 	HAVE_AVR_CC=no
 else
-	AVR_CC=$with_avr_cc
-	AVR_OBJCOPY=$with_avr_objcopy
+	save_CC="$CC"
+	save_CFLAGS="$CFLAGS"
+	save_LIBS="$LIBS"
+
+	CC="$with_avr_cc"
+	AC_LANG_PUSH([C])
+	AC_MSG_CHECKING([if ]$with_avr_cc[ can link programs])
+	AC_LINK_IFELSE([AC_LANG_PROGRAM([])],
+			  [AVR_LINK=yes],
+			  [AVR_LINK=no])
+        AC_MSG_RESULT([$AVR_LINK])
+	AC_LANG_POP([C])
+
+	LIBS="$save_LIBS"
+	CFLAGS="$save_CFLAGS"
+	CC="$save_CC"
+
+	if test "x$AVR_LINK" = xyes; then
+		AVR_CC=$with_avr_cc
+		AVR_OBJCOPY=$with_avr_objcopy
+	else
+		HAVE_AVR_CC=no;
+	fi
 fi
 
 AC_SUBST(AVR_CC)
