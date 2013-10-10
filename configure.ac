@@ -335,6 +335,7 @@ else
 	save_LIBS="$LIBS"
 
 	CC="$with_avr_cc"
+	CFLAGS="-mmcu=attiny85"
 	AC_LANG_PUSH([C])
 	AC_MSG_CHECKING([if ]$with_avr_cc[ can link programs])
 	AC_LINK_IFELSE([AC_LANG_PROGRAM([])],
