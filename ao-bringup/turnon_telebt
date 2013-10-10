@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# serial number of the TeleDongle being used as the flash programmer
+DONGLE=612
+
 if [ -x ../ao-tools/ao-load/ao-load ]; then
 	AOLOAD=../ao-tools/ao-load/ao-load
 elif [ -x /usr/bin/ao-load ]; then
@@ -18,12 +21,12 @@ else
 	exit 1
 fi
 
-echo "TeleBT v0.1 Turn-On and Calibration Program"
-echo "Copyright 2011 by Bdale Garbee.  Released under GPL v2"
+echo "TeleBT v1.1 Turn-On and Calibration Program"
+echo "Copyright 2013 by Bdale Garbee.  Released under GPL v2"
 echo
 echo "Expectations:"
-echo "\tTeleBT v0.1 powered from USB"
-echo "\t\twith TeleDonle (on /dev/ttyACM0) cabled to debug header"
+echo "\tTeleBT v1.1 powered from USB"
+echo "\t\twith TeleDonlge (on /dev/ttyACM0) cabled to debug header"
 echo "\t\twith coax from SMA to frequency counter"
 echo
 echo -n "TeleBT serial number: "
@@ -31,18 +34,18 @@ read SERIAL
 
 echo $RAWLOAD
 
-$RAWLOAD -D 100 -r ao_led_blink.ihx
+$RAWLOAD -D $DONGLE -r ao_led_blink.ihx
 echo "LEDs should be blinking"
 sleep 5
 
-$RAWLOAD -D 100 -r ao_radio_xmit.ihx
+$RAWLOAD -D $DONGLE -r ao_radio_xmit.ihx
 echo -n "Generating RF carrier.  Please enter measured frequency: "
 read FREQ
 
 CAL_VALUE=`nickle -e "floor(434.55 / $FREQ * 1186611 + 0.5)"`
 
 echo "Programming flash with cal value " $CAL_VALUE
-$AOLOAD -D 100 --cal $CAL_VALUE /usr/share/altos/telebt-v0.1*.ihx $SERIAL
+$AOLOAD -D $DONGLE --cal $CAL_VALUE /usr/share/altos/stable/telebt-v1.0*.ihx $SERIAL
 
 echo "Serial number "$SERIAL" programmed with RF cal value "$CAL_VALUE
 echo "Unplug debug cable, power cycle, cu to the board, confirm freq and record power"
