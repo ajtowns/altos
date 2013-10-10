@@ -22,12 +22,10 @@ endif
 include $(TOPDIR)/Makedefs
 
 CC=$(ARM_CC)
-SAT=/opt/cortex
-SAT_CLIB=$(SAT)/lib/pdclib-cortex-m3.a
-SAT_CFLAGS=-I$(SAT)/include
+LIBS=-lpdclib-cortex-m3 -lgcc
 
 AO_CFLAGS=-I. -I../stm -I../core -I../drivers -I..
-STM_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m3 -mthumb -ffreestanding -nostdlib $(AO_CFLAGS) $(SAT_CFLAGS)
+STM_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m3 -mthumb -ffreestanding -nostdlib $(AO_CFLAGS)
 
 LDFLAGS=-L../stm -Wl,-Taltos.ld
 

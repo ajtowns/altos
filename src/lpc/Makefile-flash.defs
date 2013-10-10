@@ -1,39 +1,4 @@
-vpath % $(TOPDIR)/lpc:$(TOPDIR)/product:$(TOPDIR)/drivers:$(TOPDIR)/core:$(TOPDIR)/util:$(TOPDIR)
-vpath ao-make-product.5c $(TOPDIR)/util
-
-.SUFFIXES: .elf .ihx
-
-.elf.ihx:
-	objcopy -O ihex $*.elf $@
-
-
-ifndef VERSION
-include $(TOPDIR)/Version
-endif
-include $(TOPDIR)/Makedefs
-
-CC=$(ARM_CC)
-SAT=/opt/cortex
-SAT_CLIB=$(SAT)/lib/pdclib-cortex-m0.a
-SAT_CFLAGS=-I$(SAT)/include
-
-AO_CFLAGS=-I. -I$(TOPDIR)/lpc -I$(TOPDIR)/core -I$(TOPDIR)/drivers -I$(TOPDIR)/product -I$(TOPDIR)
-STM_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m0 -mthumb -ffreestanding -nostdlib $(AO_CFLAGS) $(SAT_CFLAGS)
-
-LDFLAGS=-L$(TOPDIR)/lpc -Wl,-Taltos-loader.ld
-
-NICKLE=nickle
-
-V=0
-# The user has explicitly enabled quiet compilation.
-ifeq ($(V),0)
-quiet = @printf "  $1 $2 $@\n"; $($1)
-endif
-# Otherwise, print the full command line.
-quiet ?= $($1)
-
-.c.o:
-	$(call quiet,CC) -c $(CFLAGS) -o $@ $<
+include $(TOPDIR)/lpc/Makefile-lpc.defs
 
 INC = \
 	ao.h \
@@ -68,13 +33,15 @@ PRODUCT=AltosFlash-$(VERSION)
 PRODUCT_DEF=-DALTOS_FLASH
 IDPRODUCT=0x000a
 
-CFLAGS = $(PRODUCT_DEF) $(STM_CFLAGS) -g -Os
+CFLAGS = $(PRODUCT_DEF) $(LPC_CFLAGS) -g -Os
+
+LDFLAGS=$(CFLAGS) -L$(TOPDIR)/lpc -Wl,-Taltos-loader.ld
 
 PROGNAME=altos-flash
 PROG=$(HARDWARE)-$(PROGNAME)-$(VERSION).elf
 
 $(PROG): Makefile $(OBJ) altos-loader.ld
-	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(OBJ) $(SAT_CLIB) -lgcc
+	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(OBJ) $(LIBS)
 
 ao_product.h: ao-make-product.5c $(TOPDIR)/Version
 	$(call quiet,NICKLE,$<) $< -m altusmetrum.org -i $(IDPRODUCT) -p $(PRODUCT) -v $(VERSION) > $@

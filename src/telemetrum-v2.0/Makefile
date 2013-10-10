@@ -101,7 +101,7 @@ OBJ=$(SRC:.c=.o)
 all: $(PROG)
 
 $(PROG): Makefile $(OBJ) altos.ld
-	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(OBJ) $(SAT_CLIB) -lgcc
+	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(OBJ) $(LIBS)
 
 ../altitude-pa.h: make-altitude-pa
 	nickle $< > $@

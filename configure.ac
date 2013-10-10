@@ -242,22 +242,35 @@ AC_SUBST(ARM_CC)
 if test "x$HAVE_ARM_CC" = "xyes"; then
 	save_CC="$CC"
 	save_CFLAGS="$CFLAGS"
+	save_LIBS="$LIBS"
 	CC="$ARM_CC"
 	CFLAGS="-mthumb -mcpu=cortex-m0"
+	LIBS="-ffreestanding -nostdlib"
 	AC_LANG_PUSH([C])
 
 	AC_MSG_CHECKING([if ]$ARM_CC[ supports cortex-m0])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([int i;])],
 			  [HAVE_ARM_M0_CC=yes],
 			  [HAVE_ARM_M0_CC=no])
-        AC_MSG_RESULT([$HAVE_ARM_M0])
+        AC_MSG_RESULT([$HAVE_ARM_M0_CC])
+
+	AC_CHECK_LIB(pdclib-cortex-m0,memcpy,
+		     [],
+		     [HAVE_ARM_M0_CC=no])
+
 	CFLAGS="-mthumb -mcpu=cortex-m3"
 	AC_MSG_CHECKING([if ]$ARM_CC[ supports cortex-m3])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([int i;])],
 			  [HAVE_ARM_M3_CC=yes],
 			  [HAVE_ARM_M3_CC=no])
-        AC_MSG_RESULT([$HAVE_ARM_M3])
+        AC_MSG_RESULT([$HAVE_ARM_M3_CC])
+
+	AC_CHECK_LIB(pdclib-cortex-m3,memcpy,
+		     [],
+		     [HAVE_ARM_M3_CC=no])
+
 	AC_LANG_POP([C])
+	LIBS="$save_LIBS"
 	CFLAGS="$save_CFLAGS"
 	CC="$save_CC"
 else

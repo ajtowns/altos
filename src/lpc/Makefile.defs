@@ -1,43 +1,11 @@
-vpath % ../lpc:../product:../drivers:../core:../util:../kalman:../aes:..
-vpath make-altitude ../util
-vpath make-kalman ../util
-vpath kalman.5c ../kalman
-vpath kalman_filter.5c ../kalman
-vpath load_csv.5c ../kalman
-vpath matrix.5c ../kalman
-vpath ao-make-product.5c ../util
-
 ifndef TOPDIR
 TOPDIR=..
 endif
 
-ifndef VERSION
-include $(TOPDIR)/Version
-endif
+include $(TOPDIR)/lpc/Makefile-lpc.defs
 include $(TOPDIR)/Makedefs
 
-CC=$(ARM_CC)
-SAT=/opt/cortex
-SAT_CLIB=$(SAT)/lib/pdclib-cortex-m0.a
-SAT_CFLAGS=-I$(SAT)/include
-
-AO_CFLAGS=-I. -I$(TOPDIR)/lpc -I$(TOPDIR)/core -I$(TOPDIR)/drivers -I$(TOPDIR)
-LPC_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m0 -mthumb -ffreestanding -nostdlib $(AO_CFLAGS) $(SAT_CFLAGS)
-
-LDFLAGS=$(LPC_CFLAGS) -L$(TOPDIR)/stm -Wl,-Taltos.ld
-
-NICKLE=nickle
-
-V=0
-# The user has explicitly enabled quiet compilation.
-ifeq ($(V),0)
-quiet = @printf "  $1 $2 $@\n"; $($1)
-endif
-# Otherwise, print the full command line.
-quiet ?= $($1)
-
-.c.o:
-	$(call quiet,CC) -c $(CFLAGS) $<
+LDFLAGS=$(CFLAGS) -L$(TOPDIR)/lpc -Wl,-Taltos.ld
 
 ao_serial_lpc.h: $(TOPDIR)/lpc/baud_rate ao_pins.h
 	nickle $(TOPDIR)/lpc/baud_rate `awk '/AO_LPC_CLKOUT/{print $$3}' ao_pins.h` > $@

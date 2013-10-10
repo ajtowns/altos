@@ -1,0 +1,44 @@
+ifndef TOPDIR
+TOPDIR=..
+endif
+
+include $(TOPDIR)/Makedefs
+
+vpath % $(TOPDIR)/lpc:$(TOPDIR)/product:$(TOPDIR)/drivers:$(TOPDIR)/core:$(TOPDIR)/util:$(TOPDIR)/kalman:$(TOPDIR/aes):$(TOPDIR)
+vpath make-altitude $(TOPDIR)/util
+vpath make-kalman $(TOPDIR)/util
+vpath kalman.5c $(TOPDIR)/kalman
+vpath kalman_filter.5c $(TOPDIR)/kalman
+vpath load_csv.5c $(TOPDIR)/kalman
+vpath matrix.5c $(TOPDIR)/kalman
+vpath ao-make-product.5c $(TOPDIR)/util
+
+.SUFFIXES: .elf .ihx
+
+.elf.ihx:
+	objcopy -O ihex $*.elf $@
+
+
+ifndef VERSION
+include $(TOPDIR)/Version
+endif
+
+CC=$(ARM_CC)
+
+AO_CFLAGS=-I. -I$(TOPDIR)/lpc -I$(TOPDIR)/core -I$(TOPDIR)/drivers -I$(TOPDIR)/product -I$(TOPDIR)
+LPC_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m0 -mthumb -ffreestanding -nostdlib $(AO_CFLAGS)
+
+NICKLE=nickle
+
+LIBS=-lpdclib-cortex-m0 -lgcc
+
+V=0
+# The user has explicitly enabled quiet compilation.
+ifeq ($(V),0)
+quiet = @printf "  $1 $2 $@\n"; $($1)
+endif
+# Otherwise, print the full command line.
+quiet ?= $($1)
+
+.c.o:
+	$(call quiet,CC) -c $(CFLAGS) -o $@ $<
