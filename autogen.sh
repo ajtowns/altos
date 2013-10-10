@@ -9,5 +9,4 @@ cd $srcdir
 autoreconf --force -v --install || exit 1
 cd $ORIGDIR || exit $?
 
-PKG_CONFIG_PATH=/opt/cortex/lib/pkgconfig \
-	$srcdir/configure --enable-maintainer-mode "$@"
+$srcdir/configure --enable-maintainer-mode "$@"

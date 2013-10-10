@@ -8,11 +8,9 @@ endif
 CC=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
 
-PDCLIB=/opt/cortex
-C_LIB=$(PDCLIB)/lib/pdclib-cortex-m3.a
-C_INC=-I$(PDCLIB)/include
+C_LIB=-lpdclib-cortex-m3
 
-DEF_CFLAGS=-g -std=gnu99 -Os -mlittle-endian -mthumb -ffreestanding -nostdlib -I. -I../../src/stm $(C_INC)
+DEF_CFLAGS=-g -std=gnu99 -Os -mlittle-endian -mthumb -ffreestanding -nostdlib -I. -I../stm
 
 # to run from SRAM
 LD_FLAGS_RAM=-L../stm -Wl,-Taltos-ram.ld
@@ -28,10 +26,10 @@ all: bringup-ram.elf bringup.elf
 %.bin: %.elf
 	$(OBJCOPY) -O binary $^ $@
 
-bringup.elf: $(OBJ) $(C_LIB) bringup.ld
+bringup.elf: $(OBJ) bringup.ld
 	$(CC) $(CFLAGS) $(LD_FLAGS) -o $@ $(OBJ) $(C_LIB) -lgcc
 
-bringup-ram.elf: $(OBJ) $(C_LIB) altos-ram.ld
+bringup-ram.elf: $(OBJ) altos-ram.ld
 	$(CC) $(CFLAGS) $(LD_FLAGS_RAM) -o $@ $(OBJ) $(C_LIB) -lgcc
 
 clean:
