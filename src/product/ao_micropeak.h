@@ -20,12 +20,12 @@
 
 #define SAMPLE_SLEEP		AO_MS_TO_TICKS(96)
 
-/* 16 sample, or about two seconds worth */
-#define GROUND_AVG_SHIFT	4
+/* 64 sample, or about six seconds worth */
+#define GROUND_AVG_SHIFT	6
 #define GROUND_AVG		(1 << GROUND_AVG_SHIFT)
 
 /* Pressure change (in Pa) to detect boost */
-#define BOOST_DETECT		120	/* 10m at sea level, 12m at 2000m */
+#define BOOST_DETECT		360	/* 30m at sea level, 36m at 2000m */
 
 /* Wait after power on before doing anything to give the user time to assemble the rocket */
 #define BOOST_DELAY		AO_SEC_TO_TICKS(60)

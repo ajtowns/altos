@@ -33,7 +33,7 @@ ao_microsample(void)
 	ao_microkalman_correct();
 }
 
-#define NUM_PA_HIST	16
+#define NUM_PA_HIST	(GROUND_AVG)
 
 #define SKIP_PA_HIST(i,j)	(((i) + (j)) & (NUM_PA_HIST - 1))
 
@@ -60,11 +60,11 @@ ao_microflight(void)
 	h = 0;
 	for (;;) {
 		time += SAMPLE_SLEEP;
-		if (sample_count == 0)
+		if ((sample_count & 0x1f) == 0)
 			ao_led_on(AO_LED_REPORT);
 		ao_delay_until(time);
 		ao_microsample();
-		if (sample_count == 0)
+		if ((sample_count & 0x1f) == 0)
 			ao_led_off(AO_LED_REPORT);
 		pa_hist[h] = pa;
 		h = SKIP_PA_HIST(h,1);
@@ -85,10 +85,10 @@ ao_microflight(void)
 		}
 	}
 
-	/* Go back and find the first sample a decent interval above the ground */
+	/* Go back and find the last sample close to the ground */
 	pa_min = pa_ground - LAND_DETECT;
-	for (i = SKIP_PA_HIST(h,2); i != h; i = SKIP_PA_HIST(i,2)) {
-		if (pa_hist[i] < pa_min)
+	for (i = SKIP_PA_HIST(h,-2); i != SKIP_PA_HIST(h,2); i = SKIP_PA_HIST(i,-2)) {
+		if (pa_hist[i] >= pa_min)
 			break;
 	}
 
