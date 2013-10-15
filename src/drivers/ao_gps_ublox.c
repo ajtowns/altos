@@ -702,9 +702,9 @@ ao_gps(void) __reentrant
 			continue;
 
 		switch (class) {
-		case 0x01:
+		case UBLOX_NAV:
 			switch (id) {
-			case 0x21:
+			case UBLOX_NAV_TIMEUTC:
 				ao_mutex_get(&ao_gps_mutex);
 				ao_gps_tick = ao_time();
 
