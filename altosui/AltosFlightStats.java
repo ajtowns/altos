@@ -84,7 +84,7 @@ public class AltosFlightStats {
 			state = s;
 			if (state.acceleration() < 1)
 				boost_time = state.time;
-			if (state.state >= Altos.ao_flight_boost)
+			if (state.state >= AltosLib.ao_flight_boost && state.state <= AltosLib.ao_flight_landed)
 				break;
 		}
 		if (state == null)
@@ -118,10 +118,12 @@ public class AltosFlightStats {
 			if (state.rssi != AltosLib.MISSING)
 				has_rssi = true;
 			end_time = state.time;
-			if (state.time >= boost_time && state.state < Altos.ao_flight_boost)
-				state.state = Altos.ao_flight_boost;
-			if (state.time >= landed_time && state.state < Altos.ao_flight_landed)
-				state.state = Altos.ao_flight_landed;
+
+			int state_id = state.state;
+			if (state.time >= boost_time && state_id < Altos.ao_flight_boost)
+				state_id = Altos.ao_flight_boost;
+			if (state.time >= landed_time && state_id < Altos.ao_flight_landed)
+				state_id = Altos.ao_flight_landed;
 			if (state.gps != null && state.gps.locked) {
 				year = state.gps.year;
 				month = state.gps.month;
@@ -130,20 +132,24 @@ public class AltosFlightStats {
 				minute = state.gps.minute;
 				second = state.gps.second;
 			}
-			if (0 <= state.state && state.state < Altos.ao_flight_invalid) {
-				state_accel[state.state] += state.acceleration();
-				state_speed[state.state] += state.speed();
-				state_count[state.state]++;
-				if (state_start[state.state] == 0.0)
-					state_start[state.state] = state.time;
-				if (state_end[state.state] < state.time)
-					state_end[state.state] = state.time;
+			if (0 <= state_id && state_id < Altos.ao_flight_invalid) {
+				double acceleration = state.acceleration();
+				double speed = state.speed();
+				if (acceleration != AltosLib.MISSING && speed != AltosLib.MISSING) {
+					state_accel[state_id] += acceleration;
+					state_speed[state_id] += speed;
+					state_count[state_id]++;
+				}
+				if (state_start[state_id] == 0.0)
+					state_start[state_id] = state.time;
+				if (state_end[state_id] < state.time)
+					state_end[state_id] = state.time;
 				max_height = state.max_height();
 				max_speed = state.max_speed();
 				max_acceleration = state.max_acceleration();
 			}
 			if (state.gps != null && state.gps.locked && state.gps.nsat >= 4) {
-				if (state.state <= Altos.ao_flight_pad) {
+				if (state_id <= Altos.ao_flight_pad) {
 					pad_lat = state.gps.lat;
 					pad_lon = state.gps.lon;
 				}

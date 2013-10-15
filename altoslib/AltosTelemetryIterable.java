@@ -68,7 +68,7 @@ public class AltosTelemetryIterable implements Iterable<AltosTelemetry> {
 	public void add (AltosTelemetry telem) {
 		int	t = telem.tick;
 		if (!telems.isEmpty()) {
-			while (t < tick - 32767)
+			while (t < tick - 1000)
 				t += 65536;
 		}
 		tick = t;

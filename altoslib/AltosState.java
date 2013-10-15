@@ -836,7 +836,9 @@ public class AltosState implements Cloneable {
 		if (flight != AltosLib.MISSING && flight != 0) {
 			if (this.flight != AltosLib.MISSING &&
 			    this.flight != flight) {
+				int bt = boost_tick;
 				init();
+				boost_tick = bt;
 			}
 			this.flight = flight;
 		}
@@ -847,7 +849,9 @@ public class AltosState implements Cloneable {
 		if (serial != AltosLib.MISSING) {
 			if (this.serial != AltosLib.MISSING &&
 			    this.serial != serial) {
+				int bt = boost_tick;
 				init();
+				boost_tick = bt;
 			}
 			this.serial = serial;
 		}
@@ -1017,10 +1021,9 @@ public class AltosState implements Cloneable {
 		if (tick == AltosLib.MISSING)
 			return 0.0;
 
-		if (boost_tick != AltosLib.MISSING) {
-			return (tick - boost_tick) / 100.0;
-		}
-		return tick / 100.0;
+		if (boost_tick == AltosLib.MISSING)
+			return tick / 100.0;
+		return (tick - boost_tick) / 100.0;
 	}
 
 	public boolean valid() {
