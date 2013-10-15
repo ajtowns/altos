@@ -347,7 +347,7 @@ check_ublox_message(char *which, uint8_t *msg)
 void
 ao_dump_state(void *wchan)
 {
-	if (wchan == &ao_gps_data)
+	if (wchan == &ao_gps_new)
 		ao_gps_show();
 	return;
 }

@@ -629,7 +629,7 @@ ao_terragps(void)
 
 	for (;;) {
 		while (ao_gps_tick == gps_tick)
-			ao_sleep(&ao_gps_data);
+			ao_sleep(&ao_gps_new);
 		gps_tick = ao_gps_tick;
 		ao_gps_progress = (ao_gps_progress + 1) & 3;
 	}

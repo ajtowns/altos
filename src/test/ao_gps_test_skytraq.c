@@ -443,7 +443,7 @@ uint8_t	ao_task_minimize_latency;
 void
 ao_dump_state(void *wchan)
 {
-	if (wchan == &ao_gps_data)
+	if (wchan == &ao_gps_new)
 		ao_gps_show();
 }
 

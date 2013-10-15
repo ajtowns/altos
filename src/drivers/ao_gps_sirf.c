@@ -19,6 +19,7 @@
 #include "ao.h"
 #endif
 
+__xdata uint8_t ao_gps_new;
 __xdata uint8_t ao_gps_mutex;
 __pdata uint16_t ao_gps_tick;
 __xdata struct ao_telemetry_location	ao_gps_data;
@@ -422,8 +423,9 @@ ao_gps(void) __reentrant
 			else
 				ao_gps_data.v_error = ao_sirf_data.v_error / 100;
 #endif
+			ao_gps_new |= AO_GPS_NEW_DATA;
 			ao_mutex_put(&ao_gps_mutex);
-			ao_wakeup(&ao_gps_data);
+			ao_wakeup(&ao_gps_new);
 			break;
 		case 4:
 			ao_mutex_get(&ao_gps_mutex);
@@ -432,8 +434,9 @@ ao_gps(void) __reentrant
 				ao_gps_tracking_data.sats[i].svid = ao_sirf_tracker_data.sats[i].svid;
 				ao_gps_tracking_data.sats[i].c_n_1 = ao_sirf_tracker_data.sats[i].c_n_1;
 			}
+			ao_gps_new |= AO_GPS_NEW_TRACKING;
 			ao_mutex_put(&ao_gps_mutex);
-			ao_wakeup(&ao_gps_tracking_data);
+			ao_wakeup(&ao_gps_new);
 			break;
 		}
 	}

@@ -105,8 +105,8 @@ ao_flight(void)
 
 #if HAS_GPS
 				/* Record current GPS position by waking up GPS log tasks */
-				ao_wakeup(&ao_gps_data);
-				ao_wakeup(&ao_gps_tracking_data);
+				ao_gps_new = AO_GPS_NEW_DATA | AO_GPS_NEW_TRACKING;
+				ao_wakeup(&ao_gps_new);
 #endif
 
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));

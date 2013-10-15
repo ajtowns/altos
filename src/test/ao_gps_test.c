@@ -427,11 +427,18 @@ void
 ao_dump_state(void *wchan)
 {
 	int	i;
-	if (wchan == &ao_gps_data)
+
+	if (wchan != &ao_gps_new)
+		return;
+	
+	if (ao_gps_new & AO_GPS_NEW_DATA) {
 		ao_gps_print(&ao_gps_data);
-	else
+		putchar('\n');
+	}
+	if (ao_gps_new & AO_GPS_NEW_TRACKING) {
 		ao_gps_tracking_print(&ao_gps_tracking_data);
-	putchar('\n');
+		putchar('\n');
+	}
 	return;
 	printf ("%02d:%02d:%02d",
 		ao_gps_data.hour, ao_gps_data.minute,

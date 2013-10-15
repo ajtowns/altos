@@ -25,6 +25,7 @@
 
 #include <stdarg.h>
 
+__xdata uint8_t ao_gps_new;
 __xdata uint8_t ao_gps_mutex;
 __pdata uint16_t ao_gps_tick;
 __xdata struct ao_telemetry_location	ao_gps_data;
@@ -760,8 +761,8 @@ ao_gps(void) __reentrant
 				}
 
 				ao_mutex_put(&ao_gps_mutex);
-				ao_wakeup(&ao_gps_data);
-				ao_wakeup(&ao_gps_tracking_data);
+				ao_gps_new = AO_GPS_NEW_DATA | AO_GPS_NEW_TRACKING;
+				ao_wakeup(&ao_gps_new);
 				break;
 			}
 			break;

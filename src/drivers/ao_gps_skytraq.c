@@ -32,6 +32,7 @@
 #define ao_gps_set_speed	ao_serial1_set_speed
 #endif
 
+__xdata uint8_t ao_gps_new;
 __xdata uint8_t ao_gps_mutex;
 static __data char ao_gps_char;
 static __data uint8_t ao_gps_cksum;
@@ -293,10 +294,11 @@ ao_nmea_gga(void)
 
 	if (!ao_gps_error) {
 		ao_mutex_get(&ao_gps_mutex);
+		ao_gps_new |= AO_GPS_NEW_DATA;
 		ao_gps_tick = ao_gps_next_tick;
 		ao_xmemcpy(&ao_gps_data, PDATA_TO_XDATA(&ao_gps_next), sizeof (ao_gps_data));
 		ao_mutex_put(&ao_gps_mutex);
-		ao_wakeup(&ao_gps_data);
+		ao_wakeup(&ao_gps_new);
 	}
 }
 
@@ -352,9 +354,10 @@ ao_nmea_gsv(void)
 		ao_gps_tracking_next.channels = 0;
 	else if (done) {
 		ao_mutex_get(&ao_gps_mutex);
+		ao_gps_new |= AO_GPS_NEW_TRACKING;
 		ao_xmemcpy(&ao_gps_tracking_data, PDATA_TO_XDATA(&ao_gps_tracking_next), sizeof(ao_gps_tracking_data));
 		ao_mutex_put(&ao_gps_mutex);
-		ao_wakeup(&ao_gps_tracking_data);
+		ao_wakeup(&ao_gps_new);
 	}
 }
 

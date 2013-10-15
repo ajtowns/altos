@@ -342,6 +342,10 @@ ao_spi_slave(void);
 #define AO_GPS_DATE_VALID	(1 << 6)
 #define AO_GPS_COURSE_VALID	(1 << 7)
 
+#define AO_GPS_NEW_DATA		1
+#define AO_GPS_NEW_TRACKING	2
+
+extern __xdata uint8_t ao_gps_new;
 extern __pdata uint16_t ao_gps_tick;
 extern __xdata uint8_t ao_gps_mutex;
 extern __xdata struct ao_telemetry_location ao_gps_data;
