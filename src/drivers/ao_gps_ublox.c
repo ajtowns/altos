@@ -21,7 +21,7 @@
 
 #include "ao_gps_ublox.h"
 
-#define AO_UBLOX_DEBUG 1
+#define AO_UBLOX_DEBUG 0
 
 #include <stdarg.h>
 

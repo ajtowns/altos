@@ -26,6 +26,9 @@
 #define AO_GPS_NUM_SAT_MASK	(0xf << 0)
 #define AO_GPS_NUM_SAT_SHIFT	(0)
 
+#define AO_GPS_NEW_DATA		1
+#define AO_GPS_NEW_TRACKING	2
+
 #define AO_GPS_VALID		(1 << 4)
 #define AO_GPS_RUNNING		(1 << 5)
 #define AO_GPS_DATE_VALID	(1 << 6)
