@@ -139,19 +139,16 @@ ao_sample_preflight_set(void)
 	/* No rotation yet */
 	ao_quaternion_init_zero_rotation(&ao_rotation);
 
-	/* XXX Assume we're pointing straight up for now */
+	/* Take the pad IMU acceleration values and compute our current direction
+	 */
 	ao_quaternion_init_vector(&ao_pad_orientation,
-				  ao_ground_accel_across,
-				  ao_ground_accel_through,
-				  -ao_ground_accel_along);
+				  ao_ground_accel_across - ao_config.accel_zero_across,
+				  ao_ground_accel_through - ao_config.accel_zero_through,
+				  -ao_ground_accel_along - ao_config.accel_zero_along);
+
 	ao_quaternion_normalize(&ao_pad_orientation,
 				&ao_pad_orientation);
 				  
-	printf ("pad r%8.5f x%8.5f y%8.5f z%8.5f\n",
-		ao_pad_orientation.r,
-		ao_pad_orientation.x,
-		ao_pad_orientation.y,
-		ao_pad_orientation.z);
 #endif	
 	nsamples = 0;
 }

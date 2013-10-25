@@ -156,6 +156,19 @@ _ao_config_get(void)
 		if (minor  < 14)
 			ao_config.radio_amp = AO_CONFIG_DEFAULT_RADIO_AMP;
 #endif
+#if HAS_GYRO
+		if (minor < 15) {
+			ao_config.accel_zero_along = 0;
+			ao_config.accel_zero_across = 0;
+			ao_config.accel_zero_through = 0;
+
+			/* Reset the main accel offsets to force
+			 * re-calibration
+			 */
+			ao_config.accel_plus_g = 0;
+			ao_config.accel_minus_g = 0;
+		}
+#endif
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
 	}
@@ -275,10 +288,22 @@ ao_config_accel_calibrate_show(void) __reentrant
 {
 	printf("Accel cal +1g: %d -1g: %d\n",
 	       ao_config.accel_plus_g, ao_config.accel_minus_g);
+#if HAS_GYRO
+	printf ("IMU cal along %d across %d through %d\n",
+		ao_config.accel_zero_along,
+		ao_config.accel_zero_across,
+		ao_config.accel_zero_through);
+#endif
 }
 
 #define ACCEL_CALIBRATE_SAMPLES	1024
 #define ACCEL_CALIBRATE_SHIFT	10
+
+#if HAS_GYRO
+static int16_t accel_cal_along;
+static int16_t accel_cal_across;
+static int16_t accel_cal_through;
+#endif
 
 static int16_t
 ao_config_accel_calibrate_auto(char *orientation) __reentrant
@@ -286,6 +311,11 @@ ao_config_accel_calibrate_auto(char *orientation) __reentrant
 	uint16_t	i;
 	int32_t		accel_total;
 	uint8_t		cal_data_ring;
+#if HAS_GYRO
+	int32_t		accel_along_total = 0;
+	int32_t		accel_across_total = 0;
+	int32_t		accel_through_total = 0;
+#endif
 
 	printf("Orient antenna %s and press a key...", orientation);
 	flush();
@@ -299,10 +329,20 @@ ao_config_accel_calibrate_auto(char *orientation) __reentrant
 		ao_sleep(DATA_TO_XDATA(&ao_sample_data));
 		while (i && cal_data_ring != ao_sample_data) {
 			accel_total += (int32_t) ao_data_accel(&ao_data_ring[cal_data_ring]);
+#if HAS_GYRO
+			accel_along_total += (int32_t) ao_data_along(&ao_data_ring[cal_data_ring]);
+			accel_across_total += (int32_t) ao_data_across(&ao_data_ring[cal_data_ring]);
+			accel_through_total += (int32_t) ao_data_through(&ao_data_ring[cal_data_ring]);
+#endif
 			cal_data_ring = ao_data_ring_next(cal_data_ring);
 			i--;
 		}
 	}
+#if HAS_GYRO
+	accel_cal_along = accel_along_total >> ACCEL_CALIBRATE_SHIFT;
+	accel_cal_across = accel_across_total >> ACCEL_CALIBRATE_SHIFT;
+	accel_cal_through = accel_through_total >> ACCEL_CALIBRATE_SHIFT;
+#endif
 	return accel_total >> ACCEL_CALIBRATE_SHIFT;
 }
 
@@ -310,12 +350,28 @@ void
 ao_config_accel_calibrate_set(void) __reentrant
 {
 	int16_t	up, down;
+#if HAS_GYRO
+	int16_t	accel_along_up, accel_along_down;
+	int16_t	accel_across_up, accel_across_down;
+	int16_t	accel_through_up, accel_through_down;
+#endif
+	
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
 		return;
 	if (ao_cmd_lex_i == 0) {
 		up = ao_config_accel_calibrate_auto("up");
+#if HAS_GYRO
+		accel_along_up = accel_cal_along;
+		accel_across_up = accel_cal_across;
+		accel_through_up = accel_cal_through;
+#endif
 		down = ao_config_accel_calibrate_auto("down");
+#if HAS_GYRO
+		accel_along_down = accel_cal_along;
+		accel_across_down = accel_cal_across;
+		accel_through_down = accel_cal_through;
+#endif
 	} else {
 		up = ao_cmd_lex_i;
 		ao_cmd_decimal();
@@ -331,6 +387,11 @@ ao_config_accel_calibrate_set(void) __reentrant
 	_ao_config_edit_start();
 	ao_config.accel_plus_g = up;
 	ao_config.accel_minus_g = down;
+#if HAS_GYRO
+	ao_config.accel_zero_along = (accel_along_up + accel_along_down) / 2;
+	ao_config.accel_zero_across = (accel_across_up + accel_across_down) / 2;
+	ao_config.accel_zero_through = (accel_through_up + accel_through_down) / 2;
+#endif
 	_ao_config_edit_finish();
 }
 #endif /* HAS_ACCEL */

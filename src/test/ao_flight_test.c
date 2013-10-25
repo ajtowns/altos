@@ -234,6 +234,9 @@ struct ao_config {
 	uint16_t	apogee_lockout;
 #if TELEMEGA
 	struct ao_pyro	pyro[AO_PYRO_NUM];	/* minor version 12 */
+	int16_t		accel_zero_along;
+	int16_t		accel_zero_across;
+	int16_t		accel_zero_through;
 #endif
 };
 
@@ -719,6 +722,13 @@ ao_sleep(void *wchan)
 			} else if (nword >= 6 && strcmp(words[0], "Accel") == 0) {
 				ao_config.accel_plus_g = atoi(words[3]);
 				ao_config.accel_minus_g = atoi(words[5]);
+#ifdef TELEMEGA
+			} else if (nword >= 8 && strcmp(words[0], "IMU") == 0) {
+				ao_config.accel_zero_along = atoi(words[3]);
+				ao_config.accel_zero_across = atoi(words[5]);
+				ao_config.accel_zero_through = atoi(words[7]);
+				printf ("%d %d %d\n", ao_config.accel_zero_along, ao_config.accel_zero_across, ao_config.accel_zero_through);
+#endif
 			} else if (nword >= 4 && strcmp(words[0], "Main") == 0) {
 				ao_config.main_deploy = atoi(words[2]);
 			} else if (nword >= 3 && strcmp(words[0], "Apogee") == 0 &&

@@ -739,7 +739,7 @@ extern __xdata uint8_t ao_force_freq;
 #endif
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	14
+#define AO_CONFIG_MINOR	15
 
 #define AO_AES_LEN 16
 
@@ -772,6 +772,11 @@ struct ao_config {
 #endif
 #if HAS_RADIO_AMP
 	uint8_t		radio_amp;		/* minor version 14 */
+#endif
+#if HAS_GYRO
+	uint16_t	accel_zero_along;	/* minor version 15 */
+	uint16_t	accel_zero_across;	/* minor version 15 */
+	uint16_t	accel_zero_through;	/* minor version 15 */
 #endif
 };
 
