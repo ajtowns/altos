@@ -113,7 +113,7 @@ ao_pyro_ready(struct ao_pyro *pyro)
 				continue;
 			break;
 
-#if HAS_ORIENT
+#if HAS_GYRO
 		case ao_pyro_orient_less:
 			if (ao_orient <= pyro->orient_less)
 				continue;
@@ -310,7 +310,7 @@ const struct {
 	{ "h<",	ao_pyro_height_less,	offsetof(struct ao_pyro, height_less), HELP("height less (m)") },
 	{ "h>",	ao_pyro_height_greater,	offsetof(struct ao_pyro, height_greater), HELP("height greater (m)") },
 
-#if HAS_ORIENT
+#if HAS_GYRO
 	{ "o<",	ao_pyro_orient_less,	offsetof(struct ao_pyro, orient_less), HELP("orient less (deg)") },
 	{ "o>",	ao_pyro_orient_greater,	offsetof(struct ao_pyro, orient_greater), HELP("orient greater (deg)")  },
 #endif

@@ -118,6 +118,7 @@ _ao_mpu6000_sample(struct ao_mpu6000_sample *sample)
 
 #define G	981	/* in cm/s² */
 
+#if 0
 static int16_t /* cm/s² */
 ao_mpu6000_accel(int16_t v)
 {
@@ -129,6 +130,7 @@ ao_mpu6000_gyro(int16_t v)
 {
 	return (int16_t) ((v * (int32_t) 20000) / 32767);
 }
+#endif
 
 static uint8_t
 ao_mpu6000_accel_check(int16_t normal, int16_t test, char *which)

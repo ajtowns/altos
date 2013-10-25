@@ -18,6 +18,10 @@
 #ifndef _AO_MPU6000_H_
 #define _AO_MPU6000_H_
 
+#ifndef M_PI
+#define M_PI 3.1415926535897832384626433
+#endif
+
 #define MPU6000_ADDR_WRITE	0xd0
 #define MPU6000_ADDR_READ	0xd1
 
@@ -166,8 +170,19 @@
 /* Self test gyro is approximately 50°/s */
 #define MPU6000_ST_GYRO(full_scale)	((int16_t) (((int32_t) 32767 * (int32_t) 50) / (full_scale)))
 
-#define MPU6000_GYRO_FULLSCALE	2000
+#define MPU6000_GYRO_FULLSCALE	((float) 2000 * M_PI/180.0)
+
+static inline float
+ao_mpu6000_gyro(int16_t sensor) {
+	return (float) sensor * ((float) (MPU6000_GYRO_FULLSCALE / 32767.0));
+}
+
 #define MPU6000_ACCEL_FULLSCALE	16
+
+static inline float
+ao_mpu6000_accel(int16_t sensor) {
+	return (float) sensor * ((float) (MPU6000_ACCEL_FULLSCALE * GRAVITY / 32767.0));
+}
 
 struct ao_mpu6000_sample {
 	int16_t		accel_x;

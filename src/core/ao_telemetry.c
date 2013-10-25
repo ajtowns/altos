@@ -115,6 +115,7 @@ ao_send_mega_sensor(void)
 	telemetry.generic.tick = packet->tick;
 	telemetry.generic.type = AO_TELEMETRY_MEGA_SENSOR;
 
+	telemetry.mega_sensor.orient = ao_orient;
 	telemetry.mega_sensor.accel = ao_data_accel(packet);
 	telemetry.mega_sensor.pres = ao_data_pres(packet);
 	telemetry.mega_sensor.temp = ao_data_temp(packet);

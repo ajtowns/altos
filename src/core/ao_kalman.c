@@ -292,7 +292,4 @@ ao_kalman(void)
 	else 
 #endif
 		ao_avg_height = (ao_avg_height_scaled + 63) >> 7;
-#ifdef AO_FLIGHT_TEST
-	ao_sample_prev_tick = ao_sample_tick;
-#endif
 }

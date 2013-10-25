@@ -20,6 +20,10 @@
 #include <ao_log.h>
 #endif
 
+#if HAS_MPU6000
+#include <ao_quaternion.h>
+#endif
+
 #ifndef HAS_ACCEL
 #error Please define HAS_ACCEL
 #endif

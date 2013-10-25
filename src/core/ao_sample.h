@@ -64,8 +64,6 @@
  * for all further flight computations
  */
 
-#define GRAVITY 9.80665
-
 /*
  * Above this height, the baro sensor doesn't work
  */
@@ -118,6 +116,7 @@ extern __pdata accel_t	ao_ground_accel_through;
 extern __pdata gyro_t	ao_ground_pitch;
 extern __pdata gyro_t	ao_ground_yaw;
 extern __pdata gyro_t	ao_ground_roll;
+extern __pdata angle_t	ao_orient;
 #endif
 
 void ao_sample_init(void);

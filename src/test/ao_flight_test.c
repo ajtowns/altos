@@ -25,6 +25,8 @@
 #include <getopt.h>
 #include <math.h>
 
+#define GRAVITY 9.80665
+
 #define AO_HERTZ	100
 
 #define HAS_ADC 1
@@ -35,6 +37,11 @@
 #define AO_M_TO_HEIGHT(m)	((int16_t) (m))
 #define AO_MS_TO_SPEED(ms)	((int16_t) ((ms) * 16))
 #define AO_MSS_TO_ACCEL(mss)	((int16_t) ((mss) * 16))
+
+#define AO_GPS_NEW_DATA		1
+#define AO_GPS_NEW_TRACKING	2
+
+int ao_gps_new;
 
 #if TELEMEGA
 #define AO_ADC_NUM_SENSE	6
@@ -240,7 +247,6 @@ struct ao_config ao_config;
 #define DATA_TO_XDATA(x) (x)
 
 
-#define GRAVITY 9.80665
 extern int16_t ao_ground_accel, ao_flight_accel;
 extern int16_t ao_accel_2g;
 
@@ -339,20 +345,6 @@ ao_test_exit(void)
 	exit(0);
 }
 
-#if HAS_MPU6000
-static double
-ao_mpu6000_accel(int16_t sensor)
-{
-	return sensor / 32767.0 * MPU6000_ACCEL_FULLSCALE * GRAVITY;
-}
-
-static double
-ao_mpu6000_gyro(int32_t sensor)
-{
-	return sensor / 32767.0 * MPU6000_GYRO_FULLSCALE;
-}
-#endif
-
 void
 ao_insert(void)
 {
@@ -408,23 +400,23 @@ ao_insert(void)
 		if (!ao_summary) {
 			printf("%7.2f height %8.2f accel %8.3f "
 #if TELEMEGA
-			       "roll %8.3f angle %8.3f qangle %8.3f "
-			       "accel_x %8.3f accel_y %8.3f accel_z %8.3f gyro_x %8.3f gyro_y %8.3f gyro_z %8.3f "
+			       "angle %5d "
+/*			       "accel_x %8.3f accel_y %8.3f accel_z %8.3f gyro_x %8.3f gyro_y %8.3f gyro_z %8.3f " */
 #endif
 			       "state %-8.8s k_height %8.2f k_speed %8.3f k_accel %8.3f avg_height %5d drogue %4d main %4d error %5d\n",
 			       time,
 			       height,
 			       accel,
 #if TELEMEGA
-			       ao_mpu6000_gyro(ao_sample_roll_angle) / 100.0,
-			       ao_mpu6000_gyro(ao_sample_angle) / 100.0,
-			       ao_sample_qangle,
+			       ao_orient,
+/*
 			       ao_mpu6000_accel(ao_data_static.mpu6000.accel_x),
 			       ao_mpu6000_accel(ao_data_static.mpu6000.accel_y),
 			       ao_mpu6000_accel(ao_data_static.mpu6000.accel_z),
 			       ao_mpu6000_gyro(ao_data_static.mpu6000.gyro_x - ao_ground_mpu6000.gyro_x),
 			       ao_mpu6000_gyro(ao_data_static.mpu6000.gyro_y - ao_ground_mpu6000.gyro_y),
 			       ao_mpu6000_gyro(ao_data_static.mpu6000.gyro_z - ao_ground_mpu6000.gyro_z),
+*/
 #endif
 			       ao_state_names[ao_flight_state],
 			       ao_k_height / 65536.0,
@@ -589,207 +581,6 @@ int32(uint8_t *bytes, int off)
 
 static int log_format;
 
-#if TELEMEGA
-
-static double
-ao_vec_norm(double x, double y, double z)
-{
-	return x*x + y*y + z*z;
-}
-
-static void
-ao_vec_normalize(double *x, double *y, double *z)
-{
-	double	scale = 1/sqrt(ao_vec_norm(*x, *y, *z));
-
-	*x *= scale;
-	*y *= scale;
-	*z *= scale;
-}
-
-struct ao_quat {
-	double	q0, q1, q2, q3;
-};
-
-static void
-ao_quat_mul(struct ao_quat *r, struct ao_quat *a, struct ao_quat *b)
-{
-	r->q0 = a->q0 * b->q0 - a->q1 * b->q1 - a->q2 * b->q2 - a->q3 * b->q3;
-	r->q1 = a->q0 * b->q1 + a->q1 * b->q0 + a->q2 * b->q3 - a->q3 * b->q2;
-	r->q2 = a->q0 * b->q2 - a->q1 * b->q3 + a->q2 * b->q0 + a->q3 * b->q1;
-	r->q3 = a->q0 * b->q3 + a->q1 * b->q2 - a->q2 * b->q1 + a->q3 * b->q0;
-}
-
-#if 0
-static void
-ao_quat_scale(struct ao_quat *r, struct ao_quat *a, double s)
-{
-	r->q0 = a->q0 * s;
-	r->q1 = a->q1 * s;
-	r->q2 = a->q2 * s;
-	r->q3 = a->q3 * s;
-}
-#endif
-
-static void
-ao_quat_conj(struct ao_quat *r, struct ao_quat *a)
-{
-	r->q0 =  a->q0;
-	r->q1 = -a->q1;
-	r->q2 = -a->q2;
-	r->q3 = -a->q3;
-}
-
-static void
-ao_quat_rot(struct ao_quat *r, struct ao_quat *a, struct ao_quat *q)
-{
-	struct ao_quat	t;
-	struct ao_quat	c;
-	ao_quat_mul(&t, q, a);
-	ao_quat_conj(&c, q);
-	ao_quat_mul(r, &t, &c);
-}
-
-static void
-ao_quat_from_angle(struct ao_quat *r,
-		   double x_rad,
-		   double y_rad,
-		   double z_rad)
-{
-	double angle = sqrt (x_rad * x_rad + y_rad * y_rad + z_rad * z_rad);
-	double s = sin(angle/2);
-	double c = cos(angle/2);
-
-	r->q0 = c;
-	r->q1 = x_rad * s / angle;
-	r->q2 = y_rad * s / angle;
-	r->q3 = z_rad * s / angle;
-}
-
-static void
-ao_quat_from_vector(struct ao_quat *r, double x, double y, double z)
-{
-	ao_vec_normalize(&x, &y, &z);
-	double	x_rad = atan2(z, y);
-	double	y_rad = atan2(x, z);
-	double	z_rad = atan2(y, x);
-
-	ao_quat_from_angle(r, x_rad, y_rad, z_rad);
-}
-
-static double
-ao_quat_norm(struct ao_quat *a)
-{
-	return (a->q0 * a->q0 +
-		a->q1 * a->q1 +
-		a->q2 * a->q2 +
-		a->q3 * a->q3);
-}
-
-static void
-ao_quat_normalize(struct ao_quat *a)
-{
-	double	norm = ao_quat_norm(a);
-
-	if (norm) {
-		double m = 1/sqrt(norm);
-
-		a->q0 *= m;
-		a->q1 *= m;
-		a->q2 *= m;
-		a->q3 *= m;
-	}
-}
-
-static struct ao_quat	ao_up, ao_current;
-static struct ao_quat	ao_orient;
-static int		ao_orient_tick;
-
-void
-set_orientation(double x, double y, double z, int tick)
-{
-	struct ao_quat	t;
-
-	printf ("set_orientation %g %g %g\n", x, y, z);
-	ao_quat_from_vector(&ao_orient, x, y, z);
-	ao_up.q1 = ao_up.q2 = 0;
-	ao_up.q0 = ao_up.q3 = sqrt(2)/2;
-	ao_orient_tick = tick;
-
-	ao_orient.q0 = 1;
-	ao_orient.q1 = 0;
-	ao_orient.q2 = 0;
-	ao_orient.q3 = 0;
-
-	printf ("orient (%g) %g %g %g up (%g) %g %g %g\n",
-		ao_orient.q0,
-		ao_orient.q1,
-		ao_orient.q2,
-		ao_orient.q3,
-		ao_up.q0,
-		ao_up.q1,
-		ao_up.q2,
-		ao_up.q3);
-
-	ao_quat_rot(&t, &ao_up, &ao_orient);
-	printf ("pad orient (%g) %g %g %g\n",
-		t.q0,
-		t.q1,
-		t.q2,
-		t.q3);
-
-}
-
-void
-update_orientation (double rate_x, double rate_y, double rate_z, int tick)
-{
-	struct ao_quat	q_dot;
-	double		lambda;
-	double		dt = (tick - ao_orient_tick) / 100.0;
-
-	ao_orient_tick = tick;
- 
-//	lambda = 1 - ao_quat_norm(&ao_orient);
-	lambda = 0;
-
-	q_dot.q0 = -0.5 * (ao_orient.q1 * rate_x + ao_orient.q2 * rate_y + ao_orient.q3 * rate_z) + lambda * ao_orient.q0;
-	q_dot.q1 =  0.5 * (ao_orient.q0 * rate_x + ao_orient.q2 * rate_z - ao_orient.q3 * rate_y) + lambda * ao_orient.q1;
-	q_dot.q2 =  0.5 * (ao_orient.q0 * rate_y + ao_orient.q3 * rate_x - ao_orient.q1 * rate_z) + lambda * ao_orient.q2;
-	q_dot.q3 =  0.5 * (ao_orient.q0 * rate_z + ao_orient.q1 * rate_y - ao_orient.q2 * rate_x) + lambda * ao_orient.q3;
-
-#if 0
-	printf ("update_orientation %g %g %g (%g s)\n", rate_x, rate_y, rate_z, dt);
-	printf ("q_dot (%g) %g %g %g\n",
-		q_dot.q0,
-		q_dot.q1,
-		q_dot.q2,
-		q_dot.q3);
-#endif
-
-	ao_orient.q0 += q_dot.q0 * dt;
-	ao_orient.q1 += q_dot.q1 * dt;
-	ao_orient.q2 += q_dot.q2 * dt;
-	ao_orient.q3 += q_dot.q3 * dt;
-
-	ao_quat_normalize(&ao_orient);
-
-	ao_quat_rot(&ao_current, &ao_up, &ao_orient);
-
-	ao_sample_qangle = 180 / M_PI * acos(ao_current.q3 * sqrt(2));
-#if 0
-	printf ("orient (%g) %g %g %g current (%g) %g %g %g\n",
-		ao_orient.q0,
-		ao_orient.q1,
-		ao_orient.q2,
-		ao_orient.q3,
-		ao_current.q0,
-		ao_current.q1,
-		ao_current.q2,
-		ao_current.q3);
-#endif
-}
-#endif
-
 void
 ao_sleep(void *wchan)
 {
@@ -872,32 +663,6 @@ ao_sleep(void *wchan)
 #if HAS_MMA655X
 					ao_data_static.mma655x = int16(bytes, 26);
 #endif
-					if (ao_records_read == 0)
-						ao_ground_mpu6000 = ao_data_static.mpu6000;
-					else if (ao_records_read < 10) {
-#define f(f) ao_ground_mpu6000.f = ao_ground_mpu6000.f + ((ao_data_static.mpu6000.f - ao_ground_mpu6000.f) >> 2)
-						f(accel_x);
-						f(accel_y);
-						f(accel_z);
-						f(gyro_x);
-						f(gyro_y);
-						f(gyro_z);
-
-						double		accel_x = ao_mpu6000_accel(ao_ground_mpu6000.accel_x);
-						double		accel_y = ao_mpu6000_accel(ao_ground_mpu6000.accel_y);
-						double		accel_z = ao_mpu6000_accel(ao_ground_mpu6000.accel_z);
-
-						/* X and Y are in the ground plane, arbitraryily picked as MPU X and Z axes
-						 * Z is normal to the ground, the MPU y axis
-						 */
-						set_orientation(accel_x, accel_z, accel_y, tick);
-					} else {
-						double		rate_x = ao_mpu6000_gyro(ao_data_static.mpu6000.gyro_x - ao_ground_mpu6000.gyro_x);
-						double		rate_y = ao_mpu6000_gyro(ao_data_static.mpu6000.gyro_y - ao_ground_mpu6000.gyro_y);
-						double		rate_z = ao_mpu6000_gyro(ao_data_static.mpu6000.gyro_z - ao_ground_mpu6000.gyro_z);
-
-						update_orientation(rate_x * M_PI / 180, rate_z * M_PI / 180, rate_y * M_PI / 180, tick);
-					}
 					ao_records_read++;
 					ao_insert();
 					return;

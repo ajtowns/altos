@@ -20,6 +20,10 @@
 #include <ao_data.h>
 #endif
 
+#if HAS_GYRO
+#include <ao_quaternion.h>
+#endif
+
 /*
  * Current sensor values
  */
@@ -44,8 +48,7 @@ __pdata accel_t		ao_sample_accel_through;
 __pdata gyro_t		ao_sample_roll;
 __pdata gyro_t		ao_sample_pitch;
 __pdata gyro_t		ao_sample_yaw;
-__pdata angle_t		ao_sample_angle;
-__pdata angle_t		ao_sample_roll_angle;
+__pdata angle_t		ao_orient;
 #endif
 
 __data uint8_t		ao_sample_data;
@@ -86,6 +89,8 @@ __pdata int32_t	ao_sample_accel_through_sum;
 __pdata int32_t ao_sample_pitch_sum;
 __pdata int32_t ao_sample_yaw_sum;
 __pdata int32_t	ao_sample_roll_sum;
+static struct ao_quaternion ao_rotation;
+static struct ao_quaternion ao_pad_orientation;
 #endif
 
 static void
@@ -129,10 +134,90 @@ ao_sample_preflight_set(void)
 	ao_sample_pitch_sum = 0;
 	ao_sample_yaw_sum = 0;
 	ao_sample_roll_sum = 0;
-	ao_sample_angle = 0;
+	ao_orient = 0;
+
+	/* No rotation yet */
+	ao_quaternion_init_zero_rotation(&ao_rotation);
+
+	/* XXX Assume we're pointing straight up for now */
+	ao_quaternion_init_vector(&ao_pad_orientation,
+				  ao_ground_accel_across,
+				  ao_ground_accel_through,
+				  -ao_ground_accel_along);
+	ao_quaternion_normalize(&ao_pad_orientation,
+				&ao_pad_orientation);
+				  
+	printf ("pad r%8.5f x%8.5f y%8.5f z%8.5f\n",
+		ao_pad_orientation.r,
+		ao_pad_orientation.x,
+		ao_pad_orientation.y,
+		ao_pad_orientation.z);
 #endif	
 	nsamples = 0;
 }
+
+#if HAS_GYRO
+static void
+ao_sample_rotate(void)
+{
+#ifdef AO_FLIGHT_TEST
+	float	dt = (ao_sample_tick - ao_sample_prev_tick) / 100.0;
+#else
+	static const float dt = 1/100.0;
+#endif
+	float	x = ao_mpu6000_gyro(ao_sample_pitch - ao_ground_pitch) * dt;
+	float	y = ao_mpu6000_gyro(ao_sample_yaw - ao_ground_yaw) * dt;
+	float	z = ao_mpu6000_gyro(ao_sample_roll - ao_ground_roll) * dt;
+
+	float			n_2, n;
+	float			s, c;
+	
+	struct ao_quaternion	rot;
+	struct ao_quaternion	point;
+
+	/* The amount of rotation is just the length of the vector. Now,
+	 * here's the trick -- assume that the rotation amount is small. In this case,
+	 * sin(x) ≃ x, so we can just make this the sin.
+	 */
+
+	n_2 = x*x + y*y + z*z;
+	n = sqrtf(n_2);
+	s = n / 2;
+	if (s > 1)
+		s = 1;
+	c = sqrtf(1 - s*s);
+
+	/* Make unit vector */
+	if (n > 0) {
+		x /= n;
+		y /= n;
+		z /= n;
+	}
+
+	/* Now compute the unified rotation quaternion */
+
+	ao_quaternion_init_rotation(&rot,
+				    x, y, z,
+				    s, c);
+
+	/* Integrate with the previous rotation amount */
+	ao_quaternion_multiply(&ao_rotation, &ao_rotation, &rot);
+
+	/* And normalize to make sure it remains a unit vector */
+	ao_quaternion_normalize(&ao_rotation, &ao_rotation);
+
+	/* Compute pitch angle from vertical by taking the pad
+	 * orientation vector and rotating it by the current total
+	 * rotation value. That will be a unit vector pointing along
+	 * the airframe axis. The Z value will be the cosine of the
+	 * change in the angle from vertical since boost
+	 */
+
+	ao_quaternion_rotate(&point, &ao_pad_orientation, &ao_rotation);
+
+	ao_orient = acosf(point.z) * (float) (180.0/M_PI);
+}
+#endif
 
 static void
 ao_sample_preflight(void)
@@ -232,9 +317,12 @@ ao_sample(void)
 				ao_sample_preflight_update();
 			ao_kalman();
 #if HAS_GYRO
-			/* do quaternion stuff here... */
+			ao_sample_rotate();
 #endif
 		}
+#ifdef AO_FLIGHT_TEST
+		ao_sample_prev_tick = ao_sample_tick;
+#endif
 		ao_sample_data = ao_data_ring_next(ao_sample_data);
 	}
 	return !ao_preflight;
@@ -264,7 +352,7 @@ ao_sample_init(void)
 	ao_sample_pitch = 0;
 	ao_sample_yaw = 0;
 	ao_sample_roll = 0;
-	ao_sample_angle = 0;
+	ao_orient = 0;
 #endif
 	ao_sample_data = ao_data_head;
 	ao_preflight = TRUE;

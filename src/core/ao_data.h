@@ -18,6 +18,8 @@
 #ifndef _AO_DATA_H_
 #define _AO_DATA_H_
 
+#define GRAVITY 9.80665
+
 #if HAS_ADC
 #define AO_DATA_ADC	(1 << 0)
 #else
@@ -300,8 +302,8 @@ typedef int16_t accel_t;
 
 #define HAS_GYRO	1
 
-typedef int16_t	gyro_t;
-typedef int32_t angle_t;
+typedef int16_t	gyro_t;		/* in raw sample units */
+typedef int16_t angle_t;	/* in degrees */
 
 /* Y axis is aligned with the direction of motion (along) */
 /* X axis is aligned in the other board axis (across) */
