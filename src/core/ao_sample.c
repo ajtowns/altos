@@ -90,7 +90,6 @@ __pdata int32_t ao_sample_pitch_sum;
 __pdata int32_t ao_sample_yaw_sum;
 __pdata int32_t	ao_sample_roll_sum;
 static struct ao_quaternion ao_rotation;
-static struct ao_quaternion ao_pad_orientation;
 #endif
 
 static void
@@ -136,19 +135,30 @@ ao_sample_preflight_set(void)
 	ao_sample_roll_sum = 0;
 	ao_sample_orient = 0;
 
-	/* No rotation yet */
-	ao_quaternion_init_zero_rotation(&ao_rotation);
+	struct ao_quaternion	orient;
 
 	/* Take the pad IMU acceleration values and compute our current direction
 	 */
-	ao_quaternion_init_vector(&ao_pad_orientation,
-				  ao_ground_accel_across - ao_config.accel_zero_across,
-				  ao_ground_accel_through - ao_config.accel_zero_through,
-				  -ao_ground_accel_along - ao_config.accel_zero_along);
 
-	ao_quaternion_normalize(&ao_pad_orientation,
-				&ao_pad_orientation);
-				  
+	ao_quaternion_init_vector(&orient,
+				  (ao_ground_accel_across - ao_config.accel_zero_across),
+				  (ao_ground_accel_through - ao_config.accel_zero_through),
+				  (ao_ground_accel_along - ao_config.accel_zero_along));
+
+	ao_quaternion_normalize(&orient,
+				&orient);
+
+	/* Here's up */
+
+	struct ao_quaternion	up = { .r = 0, .x = 0, .y = 0, .z = 1 };
+
+	if (ao_config.pad_orientation != AO_PAD_ORIENTATION_ANTENNA_UP)
+		up.z = -1;
+
+	/* Compute rotation to get from up to our current orientation, set
+	 * that as the current rotation vector
+	 */
+	ao_quaternion_vectors_to_rotation(&ao_rotation, &up, &orient);
 #endif	
 	nsamples = 0;
 }
@@ -203,10 +213,24 @@ ao_sample_rotate(void)
 	 * orientation vector and rotating it by the current total
 	 * rotation value. That will be a unit vector pointing along
 	 * the airframe axis. The Z value will be the cosine of the
-	 * change in the angle from vertical since boost
+	 * change in the angle from vertical since boost.
+	 *
+	 * rot = ao_rotation * vertical * ao_rotation°
+	 * rot = ao_rotation * (0,0,0,1) * ao_rotation°
+	 *     = ((a.z, a.y, -a.x, a.r) * (a.r, -a.x, -a.y, -a.z)) .z
+	 *
+	 *     = (-a.z * -a.z) + (a.y * -a.y) - (-a.x * -a.x) + (a.r * a.r)
+	 *     = a.z² - a.y² - a.x² + a.r²
+	 *
+	 * rot = ao_rotation * (0, 0, 0, -1) * ao_rotation°
+	 *     = ((-a.z, -a.y, a.x, -a.r) * (a.r, -a.x, -a.y, -a.z)) .z
+	 *
+	 *     = (a.z * -a.z) + (-a.y * -a.y) - (a.x * -a.x) + (-a.r * a.r)
+	 *     = -a.z² + a.y² + a.x² - a.r²
 	 */
 
-	ao_quaternion_rotate(&point, &ao_pad_orientation, &ao_rotation);
+	float rotz;
+	rotz = ao_rotation.z * ao_rotation.z - ao_rotation.y * ao_rotation.y - ao_rotation.x * ao_rotation.x + ao_rotation.r * ao_rotation.r;
 
 	ao_sample_orient = acosf(rotz) * (float) (180.0/M_PI);
 }
