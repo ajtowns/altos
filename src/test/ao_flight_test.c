@@ -128,6 +128,7 @@ int	ao_summary = 0;
 #define ao_rdf_set(rdf)
 #define ao_packet_slave_start()
 #define ao_packet_slave_stop()
+#define flush()
 
 enum ao_igniter {
 	ao_igniter_drogue = 0,
@@ -411,7 +412,7 @@ ao_insert(void)
 			       height,
 			       accel,
 #if TELEMEGA
-			       ao_orient,
+			       ao_sample_orient,
 /*
 			       ao_mpu6000_accel(ao_data_static.mpu6000.accel_x),
 			       ao_mpu6000_accel(ao_data_static.mpu6000.accel_y),

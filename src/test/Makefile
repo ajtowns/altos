@@ -5,7 +5,7 @@ PROGS=ao_flight_test ao_flight_test_baro ao_flight_test_accel ao_flight_test_noi
 	ao_aprs_test ao_micropeak_test ao_fat_test ao_aes_test ao_int64_test \
 	ao_ms5607_convert_test ao_quaternion_test
 
-INCS=ao_kalman.h ao_ms5607.h ao_log.h ao_data.h altitude-pa.h altitude.h
+INCS=ao_kalman.h ao_ms5607.h ao_log.h ao_data.h altitude-pa.h altitude.h ao_quaternion.h
 
 KALMAN=make-kalman 
 

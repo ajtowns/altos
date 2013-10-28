@@ -3,15 +3,20 @@
 DIR=~/misc/rockets/flights
 
 for i in "$@"; do
-case "$i" in
-    */*)
-    file="$i"
-    ;;
-    *)
-    file="$DIR/$i"
-    ;;
-esac
-./ao_flight_test_mm "$file" > run-out.mm
+    case "$i" in
+	*/*)
+	file="$i"
+	;;
+	*)
+	file="$DIR/$i"
+	;;
+    esac
+    base=`basename "$i" .eeprom`
+
+    ./ao_flight_test_mm "$file" > $base.plot
+
+    sh ./plotmm $base.plot `basename "$file"`
+done
 
 #./ao_flight_test_accel "$file" > run-out.accel
 #"run-out.accel" using 1:9 with lines lt 4 axes x1y1 title "accel height",\
@@ -21,21 +26,21 @@ esac
 #"run-out.accel" using 1:17 with lines lt 4 axes x1y1 title "accel main",\
 #
 
-gnuplot << EOF
-set ylabel "altitude (m)"
-set y2label "velocity (m/s), acceleration(m/s²)"
-set xlabel "time (s)"
-set xtics border out nomirror
-set ytics border out nomirror
-set y2tics border out nomirror
-set title "$i"
-plot "run-out.mm" using 1:3 with lines lw 2 lt 1 axes x1y1 title "raw height",\
-"run-out.mm" using 1:5 with lines lw 2 lt 1 axes x1y2 title "raw accel",\
-"run-out.mm" using 1:21 with lines lt 2 axes x1y1 title "mm height",\
-"run-out.mm" using 1:23 with lines lt 2 axes x1y2 title "mm speed",\
-"run-out.mm" using 1:25 with lines lt 2 axes x1y2 title "mm accel",\
-"run-out.mm" using 1:29 with lines lt 2 axes x1y1 title "mm drogue",\
-"run-out.mm" using 1:31 with lines lt 2 axes x1y1 title "mm main"
-pause mouse close
-EOF
-done
+#gnuplot << EOF
+#set ylabel "altitude (m)"
+#set y2label "velocity (m/s), acceleration(m/s²)"
+#set xlabel "time (s)"
+#set xtics border out nomirror
+#set ytics border out nomirror
+#set y2tics border out nomirror
+#set title "$i"
+#plot "run-out.mm" using 1:3 with lines lw 2 lt 1 axes x1y1 title "raw height",\
+#"run-out.mm" using 1:5 with lines lw 2 lt 1 axes x1y2 title "raw accel",\
+#"run-out.mm" using 1:21 with lines lt 2 axes x1y1 title "mm height",\
+#"run-out.mm" using 1:23 with lines lt 2 axes x1y2 title "mm speed",\
+#"run-out.mm" using 1:25 with lines lt 2 axes x1y2 title "mm accel",\
+#"run-out.mm" using 1:29 with lines lt 2 axes x1y1 title "mm drogue",\
+#"run-out.mm" using 1:31 with lines lt 2 axes x1y1 title "mm main"
+#pause mouse close
+#EOF
+#done
