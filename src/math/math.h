@@ -22,6 +22,8 @@ float acosf(float x);
 
 float cosf(float x);
 
+float sinf(float x);
+
 float sqrtf(float x);
 
 float fabsf(float x);
