@@ -70,9 +70,9 @@ __pdata int32_t		ao_accel_scale;		/* sensor to m/s² conversion */
 __pdata accel_t		ao_ground_accel_along;
 __pdata accel_t		ao_ground_accel_across;
 __pdata accel_t		ao_ground_accel_through;
-__pdata gyro_t		ao_ground_pitch;
-__pdata gyro_t		ao_ground_yaw;
-__pdata gyro_t		ao_ground_roll;
+__pdata int32_t		ao_ground_pitch;
+__pdata int32_t		ao_ground_yaw;
+__pdata int32_t		ao_ground_roll;
 #endif
 
 static __pdata uint8_t	ao_preflight;		/* in preflight mode */
@@ -125,9 +125,9 @@ ao_sample_preflight_set(void)
 	ao_ground_accel_along = ao_sample_accel_along_sum >> 9;
 	ao_ground_accel_across = ao_sample_accel_across_sum >> 9;
 	ao_ground_accel_through = ao_sample_accel_through_sum >> 9;
-	ao_ground_pitch = ao_sample_pitch_sum >> 9;
-	ao_ground_yaw = ao_sample_yaw_sum >> 9;
-	ao_ground_roll = ao_sample_roll_sum >> 9;
+	ao_ground_pitch = ao_sample_pitch_sum;
+	ao_ground_yaw = ao_sample_yaw_sum;
+	ao_ground_roll = ao_sample_roll_sum;
 	ao_sample_accel_along_sum = 0;
 	ao_sample_accel_across_sum = 0;
 	ao_sample_accel_through_sum = 0;
@@ -162,13 +162,9 @@ ao_sample_rotate(void)
 #else
 	static const float dt = 1/100.0;
 #endif
-	float	x = ao_mpu6000_gyro(ao_sample_pitch - ao_ground_pitch) * dt;
-	float	y = ao_mpu6000_gyro(ao_sample_yaw - ao_ground_yaw) * dt;
-	float	z = ao_mpu6000_gyro(ao_sample_roll - ao_ground_roll) * dt;
-
-	float			n_2, n;
-	float			s, c;
-	
+	float	x = ao_mpu6000_gyro((float) ((ao_sample_pitch << 9) - ao_ground_pitch) / 512.0f) * dt;
+	float	y = ao_mpu6000_gyro((float) ((ao_sample_yaw << 9) - ao_ground_yaw) / 512.0f) * dt;
+	float	z = ao_mpu6000_gyro((float) ((ao_sample_roll << 9) - ao_ground_roll) / 512.0f) * dt;
 	struct ao_quaternion	rot;
 	struct ao_quaternion	point;
 
