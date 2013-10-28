@@ -319,8 +319,6 @@ struct ao_adc {
 #define AO_MPU6000_INT_PIN	13
 #define AO_MPU6000_I2C_INDEX	STM_I2C_INDEX(1)
 
-#define HAS_HIGHG_ACCEL		0
-
 /*
  * mma655x
  */
