@@ -364,6 +364,18 @@ ao_flight(void)
 				ao_interval_end = ao_sample_tick + AO_INTERVAL_TICKS;
 			}
 			break;
+#if HAS_FLIGHT_DEBUG
+		case ao_flight_test:
+#if HAS_GYRO
+			printf ("angle %4d pitch %7d yaw %7d roll %7d\n",
+				ao_sample_orient,
+				((ao_sample_pitch << 9) - ao_ground_pitch) >> 9,
+				((ao_sample_yaw << 9) - ao_ground_yaw) >> 9,
+				((ao_sample_roll << 9) - ao_ground_roll) >> 9);
+#endif
+			flush();
+			break;
+#endif /* HAS_FLIGHT_DEBUG */
 		default:
 			break;
 		}
@@ -414,8 +426,17 @@ ao_flight_dump(void)
 	printf ("  error_avg   %d\n", ao_error_h_sq_avg);
 }
 
+static void
+ao_gyro_test(void)
+{
+	ao_flight_state = ao_flight_test;
+	ao_getchar();
+	ao_flight_state = ao_flight_idle;
+}
+
 __code struct ao_cmds ao_flight_cmds[] = {
 	{ ao_flight_dump, 	"F\0Dump flight status" },
+	{ ao_gyro_test,		"G\0Test gyro code" },
 	{ 0, NULL },
 };
 #endif

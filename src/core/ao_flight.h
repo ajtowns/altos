@@ -33,7 +33,8 @@ enum ao_flight_state {
 	ao_flight_drogue = 6,
 	ao_flight_main = 7,
 	ao_flight_landed = 8,
-	ao_flight_invalid = 9
+	ao_flight_invalid = 9,
+	ao_flight_test = 10
 };
 
 extern __pdata enum ao_flight_state	ao_flight_state;
