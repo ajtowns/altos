@@ -173,8 +173,8 @@
 #define MPU6000_GYRO_FULLSCALE	((float) 2000 * M_PI/180.0)
 
 static inline float
-ao_mpu6000_gyro(int16_t sensor) {
-	return (float) sensor * ((float) (MPU6000_GYRO_FULLSCALE / 32767.0));
+ao_mpu6000_gyro(float sensor) {
+	return sensor * ((float) (MPU6000_GYRO_FULLSCALE / 32767.0));
 }
 
 #define MPU6000_ACCEL_FULLSCALE	16
