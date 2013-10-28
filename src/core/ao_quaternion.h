@@ -110,15 +110,66 @@ static inline void ao_quaternion_normalize(struct ao_quaternion *r,
 }
 
 static inline void ao_quaternion_rotate(struct ao_quaternion *r,
-					struct ao_quaternion *a,
-					struct ao_quaternion *b)
+					const struct ao_quaternion *a,
+					const struct ao_quaternion *b)
 {
 	struct ao_quaternion	c;
 	struct ao_quaternion	t;
 
-	ao_quaternion_conjugate(&c, b);
 	ao_quaternion_multiply(&t, b, a);
+	ao_quaternion_conjugate(&c, b);
 	ao_quaternion_multiply(r, &t, &c);
+}
+
+/*
+ * Compute a rotation quaternion between two vectors
+ *
+ *	cos(θ) + u * sin(θ)
+ *
+ * where θ is the angle between the two vectors and u
+ * is a unit vector axis of rotation
+ */
+
+static inline void ao_quaternion_vectors_to_rotation(struct ao_quaternion *r,
+						     const struct ao_quaternion *a,
+						     const struct ao_quaternion *b)
+{
+	/*
+	 * The cross product will point orthogonally to the two
+	 * vectors, forming our rotation axis. The length will be
+	 * sin(θ), so these values are already multiplied by that.
+	 */
+
+	float x = a->y * b->z - a->z * b->y;
+	float y = a->z * b->x - a->x * b->z;
+	float z = a->x * b->y - a->y * b->x;
+
+	float s_2 = x*x + y*y + z*z;
+	float s = sqrtf(s_2);
+
+	/* cos(θ) = a · b / (|a| |b|).
+	 *
+	 * a and b are both unit vectors, so the divisor is one
+	 */
+	float c = a->x*b->x + a->y*b->y + a->z*b->z;
+
+	float c_half = sqrtf ((1 + c) / 2);
+	float s_half = sqrtf ((1 - c) / 2);
+
+	/*
+	 * Divide out the sine factor from the
+	 * cross product, then multiply in the
+	 * half sine factor needed for the quaternion
+	 */
+	float s_scale = s_half / s;
+
+	r->x = x * s_scale;
+	r->y = y * s_scale;
+	r->z = z * s_scale;
+
+	r->r = c_half;
+
+	ao_quaternion_normalize(r, r);
 }
 
 static inline void ao_quaternion_init_vector(struct ao_quaternion *r,
@@ -144,6 +195,46 @@ static inline void ao_quaternion_init_zero_rotation(struct ao_quaternion *r)
 {
 	r->r = 1;
 	r->x = r->y = r->z = 0;
+}
+
+/*
+ * The sincosf from newlib just calls sinf and cosf. This is a bit
+ * faster, if slightly less precise
+ */
+
+static inline void
+ao_sincosf(float a, float *s, float *c) {
+	float	_s = sinf(a);
+	*s = _s;
+	*c = sqrtf(1 - _s*_s);
+}
+
+/*
+ * Initialize a quaternion from 1/2 euler rotation angles (in radians).
+ *
+ * Yes, it would be nicer if there were a faster way, but because we
+ * sample the gyros at only 100Hz, we end up getting angles too large
+ * to take advantage of sin(x) ≃ x.
+ *
+ * We might be able to use just a couple of elements of the sin taylor
+ * series though, instead of the whole sin function?
+ */
+
+static inline void ao_quaternion_init_half_euler(struct ao_quaternion *r,
+						 float x, float y, float z)
+{
+	float	s_x, c_x;
+	float	s_y, c_y;
+	float	s_z, c_z;
+
+	ao_sincosf(x, &s_x, &c_x);
+	ao_sincosf(y, &s_y, &c_y);
+	ao_sincosf(z, &s_z, &c_z);
+
+	r->r = c_x * c_y * c_z + s_x * s_y * s_z;
+	r->x = s_x * c_y * c_z - c_x * s_y * s_z;
+	r->y = c_x * s_y * c_z + s_x * c_y * s_z;
+	r->z = c_x * c_y * s_z - s_x * s_y * c_z;
 }
 
 #endif /* _AO_QUATERNION_H_ */
