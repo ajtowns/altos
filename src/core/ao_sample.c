@@ -164,47 +164,24 @@ ao_sample_preflight_set(void)
 }
 
 #if HAS_GYRO
+
+#define TIME_DIV	200.0f
+
 static void
 ao_sample_rotate(void)
 {
 #ifdef AO_FLIGHT_TEST
-	float	dt = (ao_sample_tick - ao_sample_prev_tick) / 100.0;
+	float	dt = (ao_sample_tick - ao_sample_prev_tick) / TIME_DIV;
 #else
-	static const float dt = 1/100.0;
+	static const float dt = 1/TIME_DIV;
 #endif
 	float	x = ao_mpu6000_gyro((float) ((ao_sample_pitch << 9) - ao_ground_pitch) / 512.0f) * dt;
 	float	y = ao_mpu6000_gyro((float) ((ao_sample_yaw << 9) - ao_ground_yaw) / 512.0f) * dt;
 	float	z = ao_mpu6000_gyro((float) ((ao_sample_roll << 9) - ao_ground_roll) / 512.0f) * dt;
 	struct ao_quaternion	rot;
-	struct ao_quaternion	point;
 
-	/* The amount of rotation is just the length of the vector. Now,
-	 * here's the trick -- assume that the rotation amount is small. In this case,
-	 * sin(x) ≃ x, so we can just make this the sin.
-	 */
-
-	n_2 = x*x + y*y + z*z;
-	n = sqrtf(n_2);
-	s = n / 2;
-	if (s > 1)
-		s = 1;
-	c = sqrtf(1 - s*s);
-
-	/* Make unit vector */
-	if (n > 0) {
-		x /= n;
-		y /= n;
-		z /= n;
-	}
-
-	/* Now compute the unified rotation quaternion */
-
-	ao_quaternion_init_rotation(&rot,
-				    x, y, z,
-				    s, c);
-
-	/* Integrate with the previous rotation amount */
-	ao_quaternion_multiply(&ao_rotation, &ao_rotation, &rot);
+	ao_quaternion_init_half_euler(&rot, x, y, z);
+	ao_quaternion_multiply(&ao_rotation, &rot, &ao_rotation);
 
 	/* And normalize to make sure it remains a unit vector */
 	ao_quaternion_normalize(&ao_rotation, &ao_rotation);
