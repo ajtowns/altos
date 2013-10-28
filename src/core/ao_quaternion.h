@@ -31,6 +31,39 @@ static inline void ao_quaternion_multiply(struct ao_quaternion *r,
 {
 	struct ao_quaternion	t;
 #define T(_a,_b)	(((a)->_a) * ((b)->_b))
+
+/*
+ * Quaternions
+ *
+ *	ii = jj = kk = ijk = -1;
+ *
+ *	kji = 1;
+ *
+ * 	ij = k;		ji = -k;
+ *	kj = -i;	jk = i;
+ *	ik = -j;	ki = j;
+ *
+ * Multiplication p * q:
+ *
+ *	(pr + ipx + jpy + kpz) (qr + iqx + jqy + kqz) =
+ *
+ *		( pr * qr +  pr * iqx +  pr * jqy +  pr * kqz) +
+ *		(ipx * qr + ipx * iqx + ipx * jqy + ipx * kqz) +
+ *		(jpy * qr + jpy * iqx + jpy * jqy + jpy * kqz) +
+ *		(kpz * qr + kpz * iqx + kpz * jqy + kpz * kqz) =
+ *
+ *
+ *		 (pr * qr) + i(pr * qx) + j(pr * qy) + k(pr * qz) +
+ *		i(px * qr) -  (px * qx) + k(px * qy) - j(px * qz) +
+ *		j(py * qr) - k(py * qx) -  (py * qy) + i(py * qz) +
+ *		k(pz * qr) + j(pz * qx) - i(pz * qy) -  (pz * qz) =
+ *
+ *		1 * ( (pr * qr) - (px * qx) - (py * qy) - (pz * qz) ) +
+ *		i * ( (pr * qx) + (px * qr) + (py * qz) - (pz * qy) ) +
+ *		j * ( (pr * qy) - (px * qz) + (py * qr) + (pz * qx) ) +
+ *		k * ( (pr * qz) + (px * qy) - (py * qx) + (pz * qr);
+ */
+
 	t.r = T(r,r) - T(x,x) - T(y,y) - T(z,z);
 	t.x = T(r,x) + T(x,r) + T(y,z) - T(z,y);
 	t.y = T(r,y) - T(x,z) + T(y,r) + T(z,x);
