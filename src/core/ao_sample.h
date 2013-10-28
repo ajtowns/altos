@@ -113,10 +113,16 @@ extern __pdata int32_t	ao_accel_scale;		/* sensor to m/s² conversion */
 extern __pdata accel_t	ao_ground_accel_along;
 extern __pdata accel_t	ao_ground_accel_across;
 extern __pdata accel_t	ao_ground_accel_through;
-extern __pdata gyro_t	ao_ground_pitch;
-extern __pdata gyro_t	ao_ground_yaw;
-extern __pdata gyro_t	ao_ground_roll;
-extern __pdata angle_t	ao_orient;
+extern __pdata int32_t	ao_ground_pitch;	/* * 512 */
+extern __pdata int32_t	ao_ground_yaw;		/* * 512 */
+extern __pdata int32_t	ao_ground_roll;		/* * 512 */
+extern __pdata accel_t	ao_sample_accel_along;
+extern __pdata accel_t	ao_sample_accel_across;
+extern __pdata accel_t	ao_sample_accel_through;
+extern __pdata gyro_t	ao_sample_roll;
+extern __pdata gyro_t	ao_sample_pitch;
+extern __pdata gyro_t	ao_sample_yaw;
+extern __pdata angle_t	ao_sample_orient;
 #endif
 
 void ao_sample_init(void);
