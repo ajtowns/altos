@@ -26,8 +26,8 @@ struct ao_quaternion {
 };
 
 static inline void ao_quaternion_multiply(struct ao_quaternion *r,
-					  struct ao_quaternion *a,
-					  struct ao_quaternion *b)
+					  const struct ao_quaternion *a,
+					  const struct ao_quaternion *b)
 {
 	struct ao_quaternion	t;
 #define T(_a,_b)	(((a)->_a) * ((b)->_b))
@@ -40,7 +40,7 @@ static inline void ao_quaternion_multiply(struct ao_quaternion *r,
 }
 
 static inline void ao_quaternion_conjugate(struct ao_quaternion *r,
-					   struct ao_quaternion *a)
+					   const struct ao_quaternion *a)
 {
 	r->r = a->r;
 	r->x = -a->x;
@@ -48,7 +48,7 @@ static inline void ao_quaternion_conjugate(struct ao_quaternion *r,
 	r->z = -a->z;
 }
 
-static inline float ao_quaternion_normal(struct ao_quaternion *a)
+static inline float ao_quaternion_normal(const struct ao_quaternion *a)
 {
 #define S(_a)	(((a)->_a) * ((a)->_a))
 	return S(r) + S(x) + S(y) + S(z);
@@ -56,7 +56,7 @@ static inline float ao_quaternion_normal(struct ao_quaternion *a)
 }
 
 static inline void ao_quaternion_scale(struct ao_quaternion *r,
-				       struct ao_quaternion *a,
+				       const struct ao_quaternion *a,
 				       float b)
 {
 	r->r = a->r * b;
@@ -66,7 +66,7 @@ static inline void ao_quaternion_scale(struct ao_quaternion *r,
 }
 
 static inline void ao_quaternion_normalize(struct ao_quaternion *r,
-					   struct ao_quaternion *a)
+					   const struct ao_quaternion *a)
 {
 	float	n = ao_quaternion_normal(a);
 
