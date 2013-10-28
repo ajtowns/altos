@@ -774,9 +774,9 @@ struct ao_config {
 	uint8_t		radio_amp;		/* minor version 14 */
 #endif
 #if HAS_GYRO
-	uint16_t	accel_zero_along;	/* minor version 15 */
-	uint16_t	accel_zero_across;	/* minor version 15 */
-	uint16_t	accel_zero_through;	/* minor version 15 */
+	int16_t		accel_zero_along;	/* minor version 15 */
+	int16_t		accel_zero_across;	/* minor version 15 */
+	int16_t		accel_zero_through;	/* minor version 15 */
 #endif
 };
 
