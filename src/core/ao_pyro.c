@@ -115,11 +115,11 @@ ao_pyro_ready(struct ao_pyro *pyro)
 
 #if HAS_GYRO
 		case ao_pyro_orient_less:
-			if (ao_orient <= pyro->orient_less)
+			if (ao_sample_orient <= pyro->orient_less)
 				continue;
 			break;
 		case ao_pyro_orient_greater:
-			if (ao_orient >= pyro->orient_greater)
+			if (ao_sample_orient >= pyro->orient_greater)
 				continue;
 			break;
 #endif

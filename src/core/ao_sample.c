@@ -48,7 +48,7 @@ __pdata accel_t		ao_sample_accel_through;
 __pdata gyro_t		ao_sample_roll;
 __pdata gyro_t		ao_sample_pitch;
 __pdata gyro_t		ao_sample_yaw;
-__pdata angle_t		ao_orient;
+__pdata angle_t		ao_sample_orient;
 #endif
 
 __data uint8_t		ao_sample_data;
@@ -134,7 +134,7 @@ ao_sample_preflight_set(void)
 	ao_sample_pitch_sum = 0;
 	ao_sample_yaw_sum = 0;
 	ao_sample_roll_sum = 0;
-	ao_orient = 0;
+	ao_sample_orient = 0;
 
 	/* No rotation yet */
 	ao_quaternion_init_zero_rotation(&ao_rotation);
@@ -212,7 +212,7 @@ ao_sample_rotate(void)
 
 	ao_quaternion_rotate(&point, &ao_pad_orientation, &ao_rotation);
 
-	ao_orient = acosf(point.z) * (float) (180.0/M_PI);
+	ao_sample_orient = acosf(rotz) * (float) (180.0/M_PI);
 }
 #endif
 
@@ -349,7 +349,7 @@ ao_sample_init(void)
 	ao_sample_pitch = 0;
 	ao_sample_yaw = 0;
 	ao_sample_roll = 0;
-	ao_orient = 0;
+	ao_sample_orient = 0;
 #endif
 	ao_sample_data = ao_data_head;
 	ao_preflight = TRUE;
