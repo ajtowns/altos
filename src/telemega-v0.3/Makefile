@@ -25,6 +25,8 @@ INC = \
 	ao_task.h \
 	ao_whiten.h \
 	ao_sample_profile.h \
+	ao_quaternion.h \
+	math.h \
 	ao_mpu.h \
 	stm32l.h \
 	math.h \
@@ -47,17 +49,17 @@ INC = \
 
 MATH_SRC=\
 	ef_acos.c \
-	ef_sqrt.c
-
-#	ef_rem_pio2.c \
-#	kf_cos.c \
-#	kf_sin.c \
-#	kf_rem_pio2.c \
-#	sf_copysign.c \
-#	sf_cos.c \
-#	sf_fabs.c \
-#	sf_floor.c \
-#	sf_scalbn.c
+	ef_sqrt.c \
+	ef_rem_pio2.c \
+	kf_cos.c \
+	kf_sin.c \
+	kf_rem_pio2.c \
+	sf_copysign.c \
+	sf_cos.c \
+	sf_fabs.c \
+	sf_floor.c \
+	sf_scalbn.c \
+	sf_sin.c
 
 ALTOS_SRC = \
 	ao_boot_chain.c \
