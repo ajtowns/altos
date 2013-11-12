@@ -1,0 +1,53 @@
+#!/bin/sh
+
+if [ -x ../ao-tools/ao-load/ao-load ]; then
+	AOLOAD=../ao-tools/ao-load/ao-load
+elif [ -x /usr/bin/ao-load ]; then
+	AOLOAD=/usr/bin/ao-load
+else
+	echo "Can't find ao-load!  Aborting."
+	exit 1
+fi
+
+if [ -x ../ao-tools/ao-rawload/ao-rawload ]; then
+	RAWLOAD=../ao-tools/ao-rawload/ao-rawload
+elif [ -x /usr/bin/ao-rawload ]; then
+	RAWLOAD=/usr/bin/ao-rawload
+else
+	echo "Can't find ao-rawload!  Aborting."
+	exit 1
+fi
+
+echo "TeleMini v2.0 Turn-On and Calibration Program"
+echo "Copyright 2011 by Bdale Garbee.  Released under GPL v2"
+echo "Copyright 2013 by Keith Packard.  Released under GPL v2"
+echo
+echo "Expectations:"
+echo "\tTeleMini v2.0 powered from LiPo"
+echo "\t\twith TeleDongle (on /dev/ttyACM0) cabled to debug header"
+echo "\t\twith frequency counter able to sample RF output"
+echo
+echo -n "TeleMini serial number: "
+read SERIAL
+
+echo $RAWLOAD
+
+#TTY=/dev/ttyACM0
+PROGRAMMER="-D 186"
+BIN=../src/telemini-v2.0*.ihx
+
+$RAWLOAD $PROGRAMMER -r ao_led_blink.ihx
+echo "LEDs should be blinking"
+sleep 5
+
+$RAWLOAD $PROGRAMMER -r ao_radio_xmit.ihx
+echo -n "Generating RF carrier.  Please enter measured frequency: "
+read FREQ
+
+CAL_VALUE=`nickle -e "floor(434.55 / $FREQ * 1186611 + 0.5)"`
+
+echo "Programming flash with cal value " $CAL_VALUE
+$AOLOAD $PROGRAMMER --cal=$CAL_VALUE $BIN $SERIAL
+
+echo "Serial number "$SERIAL" programmed with RF cal value "$CAL_VALUE
+echo "Unplug and replug USB, cu to the board, confirm freq and record power"
