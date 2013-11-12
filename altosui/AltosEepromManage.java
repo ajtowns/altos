@@ -133,11 +133,13 @@ public class AltosEepromManage implements ActionListener {
 					for (AltosEepromLog flight : flights)
 						any_selected = any_selected || flight.selected;
 					if (any_selected) {
-						download = new AltosEepromDownload(frame,
+						AltosEepromMonitorUI monitor = new AltosEepromMonitorUI(frame);
+						monitor.addActionListener(this);
+						serial_line.set_frame(frame);
+						download = new AltosEepromDownload(monitor,
 										   serial_line,
 										   remote,
 										   flights);
-						download.addActionListener(this);
 						/*
 						 * Start flight log download
 						 */

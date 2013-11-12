@@ -33,9 +33,15 @@ public interface AltosEepromMonitor {
 
 	public void set_thread(Thread eeprom_thread);
 
+	final static int INFO_MESSAGE = 0;
+	final static int WARNING_MESSAGE = 1;
+	final static int ERROR_MESSAGE = 2;
+
+	public void show_message(String message, String title, int message_type);
+
 	public void start();
 
-	public void done();
+	public void done(boolean success);
 
 	public void reset();
 }

@@ -24,7 +24,7 @@ import org.altusmetrum.altosuilib_1.*;
 import org.altusmetrum.altoslib_2.*;
 
 public class AltosEepromMonitorUI extends AltosUIDialog implements AltosEepromMonitor {
-
+	JFrame		owner;
 	Container	pane;
 	Box		box;
 	JLabel		serial_label;
@@ -36,9 +36,12 @@ public class AltosEepromMonitorUI extends AltosUIDialog implements AltosEepromMo
 	JButton		cancel;
 	JProgressBar	pbar;
 	int		min_state, max_state;
+	ActionListener	listener;
 
 	public AltosEepromMonitorUI(JFrame owner) {
 		super (owner, "Download Flight Data", false);
+
+		this.owner = owner;
 
 		GridBagConstraints c;
 		Insets il = new Insets(4,4,4,4);
@@ -129,6 +132,10 @@ public class AltosEepromMonitorUI extends AltosUIDialog implements AltosEepromMo
 		setLocationRelativeTo(owner);
 	}
 
+	public void addActionListener(ActionListener l) {
+		listener = l;
+	}
+
 	public void set_states(int min_state, int max_state) {
 		this.min_state = min_state;
 		this.max_state = max_state;
@@ -136,7 +143,7 @@ public class AltosEepromMonitorUI extends AltosUIDialog implements AltosEepromMo
 
 	public void set_thread(Thread in_eeprom_thread) {
 		final Thread eeprom_thread = in_eeprom_thread;
-		addActionListener(new ActionListener() {
+		cancel.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if (eeprom_thread != null)
 						eeprom_thread.interrupt();
@@ -146,10 +153,6 @@ public class AltosEepromMonitorUI extends AltosUIDialog implements AltosEepromMo
 
 	public void start() {
 		setVisible(true);
-	}
-
-	public void addActionListener (ActionListener l) {
-		cancel.addActionListener(l);
 	}
 
 	private void set_value_internal(String state_name, int state, int state_block, int block) {
@@ -232,16 +235,20 @@ public class AltosEepromMonitorUI extends AltosUIDialog implements AltosEepromMo
 		SwingUtilities.invokeLater(r);
 	}
 
-	private void done_internal() {
+	private void done_internal(boolean success) {
+		listener.actionPerformed(new ActionEvent(this,
+							 success ? 1 : 0,
+							 "download"));
 		setVisible(false);
 		dispose();
 	}
 
-	public void done() {
+	public void done(boolean in_success) {
+		final boolean success = in_success;
 		Runnable r = new Runnable() {
 				public void run() {
 					try {
-						done_internal();
+						done_internal(success);
 					} catch (Exception ex) {
 					}
 				}
@@ -260,6 +267,41 @@ public class AltosEepromMonitorUI extends AltosUIDialog implements AltosEepromMo
 				public void run() {
 					try {
 						reset_internal();
+					} catch (Exception ex) {
+					}
+				}
+			};
+		SwingUtilities.invokeLater(r);
+	}
+
+	private void show_message_internal(String message, String title, int message_type) {
+		int joption_message_type = JOptionPane.ERROR_MESSAGE;
+
+		switch (message_type) {
+		case INFO_MESSAGE:
+			joption_message_type = JOptionPane.INFORMATION_MESSAGE;
+			break;
+		case WARNING_MESSAGE:
+			joption_message_type = JOptionPane.WARNING_MESSAGE;
+			break;
+		case ERROR_MESSAGE:
+			joption_message_type = JOptionPane.ERROR_MESSAGE;
+			break;
+		}
+		JOptionPane.showMessageDialog(owner,
+					      message,
+					      title,
+					      joption_message_type);
+	}
+
+	public void show_message(String in_message, String in_title, int in_message_type) {
+		final String message = in_message;
+		final String title = in_title;
+		final int message_type = in_message_type;
+		Runnable r = new Runnable() {
+				public void run() {
+					try {
+						show_message_internal(message, title, message_type);
 					} catch (Exception ex) {
 					}
 				}

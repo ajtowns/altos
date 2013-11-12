@@ -17,8 +17,6 @@
 
 package altosui;
 
-import java.awt.event.*;
-import javax.swing.*;
 import java.io.*;
 import java.util.*;
 import java.text.*;
@@ -27,7 +25,6 @@ import org.altusmetrum.altoslib_2.*;
 
 public class AltosEepromDownload implements Runnable {
 
-	JFrame			frame;
 	AltosSerial		serial_line;
 	boolean			remote;
 	Thread			eeprom_thread;
@@ -38,7 +35,6 @@ public class AltosEepromDownload implements Runnable {
 	LinkedList<String>	eeprom_pending;
 
 	AltosEepromList		flights;
-	ActionListener		listener;
 	boolean			success;
 	ParseException		parse_exception;
 	AltosState		state;
@@ -190,28 +186,6 @@ public class AltosEepromDownload implements Runnable {
 		}
 	}
 
-	private void show_message_internal(String message, String title, int message_type) {
-		JOptionPane.showMessageDialog(frame,
-					      message,
-					      title,
-					      message_type);
-	}
-
-	private void show_message(String in_message, String in_title, int in_message_type) {
-		final String message = in_message;
-		final String title = in_title;
-		final int message_type = in_message_type;
-		Runnable r = new Runnable() {
-				public void run() {
-					try {
-						show_message_internal(message, title, message_type);
-					} catch (Exception ex) {
-					}
-				}
-			};
-		SwingUtilities.invokeLater(r);
-	}
-
 	public void run () {
 		try {
 			boolean	failed = false;
@@ -230,28 +204,28 @@ public class AltosEepromDownload implements Runnable {
 				}
 				if (parse_exception != null) {
 					failed = true;
-					show_message(String.format("Flight %d download error\n%s\nValid log data saved",
-								   log.flight,
-								   parse_exception.getMessage()),
-						     serial_line.device.toShortString(),
-						     JOptionPane.WARNING_MESSAGE);
+					monitor.show_message(String.format("Flight %d download error\n%s\nValid log data saved",
+									   log.flight,
+									   parse_exception.getMessage()),
+							     serial_line.device.toShortString(),
+							     AltosEepromMonitor.WARNING_MESSAGE);
 				}
 			}
 			success = !failed;
 		} catch (IOException ee) {
-			show_message(ee.getLocalizedMessage(),
-				     serial_line.device.toShortString(),
-				     JOptionPane.ERROR_MESSAGE);
+			monitor.show_message(ee.getLocalizedMessage(),
+					     serial_line.device.toShortString(),
+					     AltosEepromMonitor.ERROR_MESSAGE);
 		} catch (InterruptedException ie) {
-			show_message(String.format("Connection to \"%s\" interrupted",
-						   serial_line.device.toShortString()),
-				     "Connection Interrupted",
-				     JOptionPane.ERROR_MESSAGE);
+			monitor.show_message(String.format("Connection to \"%s\" interrupted",
+							   serial_line.device.toShortString()),
+					     "Connection Interrupted",
+					     AltosEepromMonitor.ERROR_MESSAGE);
 		} catch (TimeoutException te) {
-			show_message(String.format("Connection to \"%s\" failed",
-						   serial_line.device.toShortString()),
-				     "Connection Failed",
-				     JOptionPane.ERROR_MESSAGE);
+			monitor.show_message(String.format("Connection to \"%s\" failed",
+							   serial_line.device.toShortString()),
+					     "Connection Failed",
+					     AltosEepromMonitor.ERROR_MESSAGE);
 		} finally {
 			if (remote) {
 				try {
@@ -261,20 +235,7 @@ public class AltosEepromDownload implements Runnable {
 			}
 			serial_line.flush_output();
 		}
-		monitor.done();
-		if (listener != null) {
-			Runnable r = new Runnable() {
-					public void run() {
-						try {
-							listener.actionPerformed(new ActionEvent(this,
-												 success ? 1 : 0,
-												 "download"));
-						} catch (Exception ex) {
-						}
-					}
-				};
-			SwingUtilities.invokeLater(r);
-		}
+		monitor.done(success);
 	}
 
 	public void start() {
@@ -282,25 +243,20 @@ public class AltosEepromDownload implements Runnable {
 		eeprom_thread.start();
 	}
 
-	public void addActionListener(ActionListener l) {
-		listener = l;
-	}
-
-	public AltosEepromDownload(JFrame given_frame,
+	public AltosEepromDownload(AltosEepromMonitor given_monitor,
 				   AltosSerial given_serial_line,
 				   boolean given_remote,
 				   AltosEepromList given_flights) {
 
-		frame = given_frame;
+		monitor = given_monitor;
 		serial_line = given_serial_line;
-		serial_line.set_frame(frame);
 		remote = given_remote;
 		flights = given_flights;
 		success = false;
 
-		monitor = new AltosEepromMonitorUI(given_frame);
 		monitor.set_states(Altos.ao_flight_boost, Altos.ao_flight_landed);
 
 		monitor.set_thread(eeprom_thread);
+		monitor.start();
 	}
 }
