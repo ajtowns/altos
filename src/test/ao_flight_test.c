@@ -48,6 +48,7 @@ int ao_gps_new;
 #define HAS_MS5607		1
 #define HAS_MPU6000		1
 #define HAS_MMA655X		1
+#define HAS_HMC5883 		1
 
 struct ao_adc {
 	int16_t			sense[AO_ADC_NUM_SENSE];
@@ -349,6 +350,23 @@ ao_test_exit(void)
 	exit(0);
 }
 
+#ifdef TELEMEGA
+struct ao_azel {
+	int	az;
+	int	el;
+};
+
+static void
+azel (struct ao_azel *r, struct ao_quaternion *q)
+{
+	double	v;
+
+	r->az = floor (atan2(q->y, q->x) * 180/M_PI + 0.5);
+	v = sqrt (q->x*q->x + q->y*q->y);
+	r->el = floor (atan2(q->z, v) * 180/M_PI + 0.5);
+}
+#endif
+
 void
 ao_insert(void)
 {
@@ -402,10 +420,86 @@ ao_insert(void)
 		}
 
 		if (!ao_summary) {
+#if TELEMEGA
+			static struct ao_quaternion	ao_ground_mag;
+			static int			ao_ground_mag_set;
+
+			if (!ao_ground_mag_set) {
+				ao_quaternion_init_vector (&ao_ground_mag,
+							   ao_data_mag_across(&ao_data_static),
+							   ao_data_mag_through(&ao_data_static),
+							   ao_data_mag_along(&ao_data_static));
+				ao_quaternion_normalize(&ao_ground_mag, &ao_ground_mag);
+				ao_quaternion_rotate(&ao_ground_mag, &ao_ground_mag, &ao_rotation);
+				ao_ground_mag_set = 1;
+			}
+
+			struct ao_quaternion		ao_mag, ao_mag_rot;
+
+			ao_quaternion_init_vector(&ao_mag,
+						  ao_data_mag_across(&ao_data_static),
+						  ao_data_mag_through(&ao_data_static),
+						  ao_data_mag_along(&ao_data_static));
+
+			ao_quaternion_normalize(&ao_mag, &ao_mag);
+			ao_quaternion_rotate(&ao_mag_rot, &ao_mag, &ao_rotation);
+			
+			float				ao_dot;
+			int				ao_mag_angle;
+
+			ao_dot = ao_quaternion_dot(&ao_mag_rot, &ao_ground_mag);
+
+			struct ao_azel			ground_azel, mag_azel, rot_azel;
+
+			azel(&ground_azel, &ao_ground_mag);
+			azel(&mag_azel, &ao_mag);
+			azel(&rot_azel, &ao_mag_rot);
+
+			ao_mag_angle = floor (acos(ao_dot) * 180 / M_PI + 0.5);
+
+			static struct ao_quaternion	ao_x = { .r = 0, .x = 1, .y = 0, .z = 0 };
+			struct ao_quaternion		ao_out;
+
+			ao_quaternion_rotate(&ao_out, &ao_x, &ao_rotation);
+
+			int	out = floor (atan2(ao_out.y, ao_out.x) * 180 / M_PI);
+
+			printf ("%7.2f state %-8.8s height %8.4f tilt %4d rot %4d mag_tilt %4d mag_rot %4d\n",
+				time,
+				ao_state_names[ao_flight_state],
+				ao_k_height / 65536.0,
+				ao_sample_orient, out,
+				mag_azel.el,
+				mag_azel.az);
+			
+
+#if 0
+			printf ("\t\tstate %-8.8s ground az: %4d el %4d mag az %4d el %4d rot az %4d el %4d el_diff %4d az_diff %4d angle %4d tilt %4d ground %8.5f %8.5f %8.5f cur %8.5f %8.5f %8.5f rot %8.5f %8.5f %8.5f\n",
+				ao_state_names[ao_flight_state],
+				ground_azel.az, ground_azel.el,
+				mag_azel.az, mag_azel.el,
+				rot_azel.az, rot_azel.el,
+				ground_azel.el - rot_azel.el,
+				ground_azel.az - rot_azel.az,
+				ao_mag_angle,
+				ao_sample_orient,
+				ao_ground_mag.x,
+				ao_ground_mag.y,
+				ao_ground_mag.z,
+				ao_mag.x,
+				ao_mag.y,
+				ao_mag.z,
+				ao_mag_rot.x,
+				ao_mag_rot.y,
+				ao_mag_rot.z);
+#endif
+#endif
+
+#if 0
 			printf("%7.2f height %8.2f accel %8.3f "
 #if TELEMEGA
 			       "angle %5d "
-/*			       "accel_x %8.3f accel_y %8.3f accel_z %8.3f gyro_x %8.3f gyro_y %8.3f gyro_z %8.3f " */
+			       "accel_x %8.3f accel_y %8.3f accel_z %8.3f gyro_x %8.3f gyro_y %8.3f gyro_z %8.3f mag_x %8d mag_y %8d, mag_z %8d mag_angle %4d "
 #endif
 			       "state %-8.8s k_height %8.2f k_speed %8.3f k_accel %8.3f avg_height %5d drogue %4d main %4d error %5d\n",
 			       time,
@@ -413,14 +507,17 @@ ao_insert(void)
 			       accel,
 #if TELEMEGA
 			       ao_sample_orient,
-/*
+
 			       ao_mpu6000_accel(ao_data_static.mpu6000.accel_x),
 			       ao_mpu6000_accel(ao_data_static.mpu6000.accel_y),
 			       ao_mpu6000_accel(ao_data_static.mpu6000.accel_z),
 			       ao_mpu6000_gyro(ao_data_static.mpu6000.gyro_x - ao_ground_mpu6000.gyro_x),
 			       ao_mpu6000_gyro(ao_data_static.mpu6000.gyro_y - ao_ground_mpu6000.gyro_y),
 			       ao_mpu6000_gyro(ao_data_static.mpu6000.gyro_z - ao_ground_mpu6000.gyro_z),
-*/
+			       ao_data_static.hmc5883.x,
+			       ao_data_static.hmc5883.y,
+			       ao_data_static.hmc5883.z,
+			       ao_mag_angle,
 #endif
 			       ao_state_names[ao_flight_state],
 			       ao_k_height / 65536.0,
@@ -430,6 +527,7 @@ ao_insert(void)
 			       drogue_height,
 			       main_height,
 			       ao_error_h_sq_avg);
+#endif
 			
 //			if (ao_flight_state == ao_flight_landed)
 //				ao_test_exit();
@@ -659,11 +757,14 @@ ao_sleep(void *wchan)
 					ao_data_static.ms5607_raw.temp = int32(bytes, 4);
 					ao_ms5607_convert(&ao_data_static.ms5607_raw, &value);
 					ao_data_static.mpu6000.accel_x = int16(bytes, 8);
-					ao_data_static.mpu6000.accel_y = -int16(bytes, 10);
+					ao_data_static.mpu6000.accel_y = int16(bytes, 10);
 					ao_data_static.mpu6000.accel_z = int16(bytes, 12);
 					ao_data_static.mpu6000.gyro_x = int16(bytes, 14);
-					ao_data_static.mpu6000.gyro_y = -int16(bytes, 16);
+					ao_data_static.mpu6000.gyro_y = int16(bytes, 16);
 					ao_data_static.mpu6000.gyro_z = int16(bytes, 18);
+					ao_data_static.hmc5883.x = int16(bytes, 20);
+					ao_data_static.hmc5883.y = int16(bytes, 22);
+					ao_data_static.hmc5883.z = int16(bytes, 24);
 #if HAS_MMA655X
 					ao_data_static.mma655x = int16(bytes, 26);
 #endif

@@ -319,4 +319,16 @@ typedef int16_t angle_t;	/* in degrees */
 
 #endif
 
+#if !HAS_MAG && HAS_HMC5883
+
+#define HAS_MAG		1
+
+typedef int16_t ao_mag_t;		/* in raw sample units */
+
+#define ao_data_mag_along(packet)	((packet)->hmc5883.x)
+#define ao_data_mag_across(packet)	((packet)->hmc5883.y)
+#define ao_data_mag_through(packet)	((packet)->hmc5883.z)
+
+#endif
+
 #endif /* _AO_DATA_H_ */

@@ -109,6 +109,15 @@ static inline void ao_quaternion_normalize(struct ao_quaternion *r,
 		*r = *a;
 }
 
+static inline float ao_quaternion_dot(const struct ao_quaternion *a,
+				      const struct ao_quaternion *b)
+{
+#define T(_a)	(((a)->_a) * ((b)->_a))
+	return T(r) + T(x) + T(y) + T(z);
+#undef T
+}
+				     
+
 static inline void ao_quaternion_rotate(struct ao_quaternion *r,
 					const struct ao_quaternion *a,
 					const struct ao_quaternion *b)
