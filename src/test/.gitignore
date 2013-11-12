@@ -5,6 +5,10 @@ ao_flight_test_baro
 ao_flight_test_accel
 ao_gps_test
 ao_gps_test_skytraq
+ao_gps_test_ublox
+ao_int64_test
+ao_ms5607_convert_test
+ao_quaternion_test
 ao_convert_test
 ao_convert_pa_test
 ao_fat_test

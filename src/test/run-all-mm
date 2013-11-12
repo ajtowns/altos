@@ -1,0 +1,2 @@
+#!/bin/sh
+./run-mm `cat mega.flights`
