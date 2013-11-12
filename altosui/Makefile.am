@@ -1,6 +1,6 @@
 
 JAVAROOT=classes
-AM_JAVACFLAGS=-encoding UTF-8 -Xlint:deprecation
+AM_JAVACFLAGS=-encoding UTF-8 -Xlint:deprecation -source 6
 
 man_MANS=altosui.1
 
@@ -37,7 +37,7 @@ altosui_JAVA = \
 	AltosEepromDownload.java \
 	AltosEepromList.java \
 	AltosEepromManage.java \
-	AltosEepromMonitor.java \
+	AltosEepromMonitorUI.java \
 	AltosEepromSelect.java \
 	AltosFlashUI.java \
 	AltosFlightDisplay.java \

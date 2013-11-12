@@ -72,7 +72,7 @@ public class AltosEepromDownload implements Runnable {
 
 			eeprom_file = new FileWriter(eeprom_name);
 			if (eeprom_file != null) {
-				monitor.set_file(eeprom_name.getName());
+				monitor.set_filename(eeprom_name.getName());
 				FlushPending();
 				eeprom_pending = null;
 			}
@@ -298,12 +298,9 @@ public class AltosEepromDownload implements Runnable {
 		flights = given_flights;
 		success = false;
 
-		monitor = new AltosEepromMonitor(frame, Altos.ao_flight_boost, Altos.ao_flight_landed);
-		monitor.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					if (eeprom_thread != null)
-						eeprom_thread.interrupt();
-				}
-			});
+		monitor = new AltosEepromMonitorUI(given_frame);
+		monitor.set_states(Altos.ao_flight_boost, Altos.ao_flight_landed);
+
+		monitor.set_thread(eeprom_thread);
 	}
 }
