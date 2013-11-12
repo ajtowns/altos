@@ -64,8 +64,11 @@
 #define ao_gps_set_speed	ao_serial3_set_speed
 #define ao_gps_fifo		(ao_stm_usart3.rx_fifo)
 
+#define AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX	(1024 * 1024)
 #define HAS_EEPROM		1
 #define USE_INTERNAL_FLASH	0
+#define USE_EEPROM_CONFIG	1
+#define USE_STORAGE_CONFIG	0
 #define HAS_USB			1
 #define HAS_BEEP		1
 #define HAS_RADIO		1
