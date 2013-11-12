@@ -27,11 +27,12 @@ ao_gps_report_metrum(void)
 	uint8_t	c, n, i, p, valid, packets;
 	uint8_t svid;
 	uint8_t	date_reported = 0;
+	uint8_t new;
 
 	for (;;) {
-		ao_mutex_get(&ao_gps_mutex);
 		while (!(new = ao_gps_new))
 			ao_sleep(&ao_gps_new);
+		ao_mutex_get(&ao_gps_mutex);
 		if (new & AO_GPS_NEW_DATA)
 			ao_xmemcpy(&gps_data, &ao_gps_data, sizeof (ao_gps_data));
 		if (new & AO_GPS_NEW_TRACKING)
