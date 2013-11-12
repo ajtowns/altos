@@ -22,6 +22,7 @@
 #include <ao_exti.h>
 #include <ao_packet.h>
 #include <ao_companion.h>
+#include <ao_eeprom.h>
 #include <ao_profile.h>
 #if HAS_SAMPLE_PROFILE
 #include <ao_sample_profile.h>
