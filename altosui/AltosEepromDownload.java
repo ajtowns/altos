@@ -92,7 +92,7 @@ public class AltosEepromDownload implements Runnable {
 		}
 	}
 
-	void CaptureEeprom(AltosEepromChunk eechunk, int log_format) throws IOException {
+	void CaptureEeprom(AltosEepromChunk eechunk, int log_format) throws IOException, ParseException {
 		boolean any_valid = false;
 		boolean got_flight = false;
 
@@ -138,7 +138,7 @@ public class AltosEepromDownload implements Runnable {
 		CheckFile(false);
 	}
 	
-	void CaptureLog(AltosEepromLog log) throws IOException, InterruptedException, TimeoutException {
+	void CaptureLog(AltosEepromLog log) throws IOException, InterruptedException, TimeoutException, ParseException {
 		int			block, state_block = 0;
 		int			log_format = flights.config_data.log_format;
 
@@ -222,7 +222,11 @@ public class AltosEepromDownload implements Runnable {
 				parse_exception = null;
 				if (log.selected) {
 					monitor.reset();
-					CaptureLog(log);
+					try {
+						CaptureLog(log);
+					} catch (ParseException e) {
+						parse_exception = e;
+					}
 				}
 				if (parse_exception != null) {
 					failed = true;

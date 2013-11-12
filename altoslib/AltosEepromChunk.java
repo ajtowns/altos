@@ -62,31 +62,30 @@ public class AltosEepromChunk {
 		return true;
 	}
 
-	public AltosEeprom eeprom(int offset, int log_format, AltosState state) {
+	public AltosEeprom eeprom(int offset, int log_format, AltosState state) throws ParseException {
 		AltosEeprom	eeprom = null;
-		try {
-			switch (log_format) {
-			case AltosLib.AO_LOG_FORMAT_FULL:
-				eeprom = new AltosEepromTM(this, offset);
-				break;
-			case AltosLib.AO_LOG_FORMAT_TINY:
-				eeprom = new AltosEepromTm(this, offset, state);
-				break;
-			case AltosLib.AO_LOG_FORMAT_TELEMETRY:
-			case AltosLib.AO_LOG_FORMAT_TELESCIENCE:
-				break;
-			case AltosLib.AO_LOG_FORMAT_TELEMEGA:
-				eeprom = new AltosEepromMega(this, offset);
-				break;
-			case AltosLib.AO_LOG_FORMAT_TELEMETRUM:
-				eeprom = new AltosEepromMetrum2(this, offset);
-				break;
-			case AltosLib.AO_LOG_FORMAT_TELEMINI:
-			case AltosLib.AO_LOG_FORMAT_EASYMINI:
-				eeprom = new AltosEepromMini(this, offset);
-				break;
-			}
-		} catch (ParseException e) {
+		switch (log_format) {
+		case AltosLib.AO_LOG_FORMAT_FULL:
+			eeprom = new AltosEepromTM(this, offset);
+			break;
+		case AltosLib.AO_LOG_FORMAT_TINY:
+			eeprom = new AltosEepromTm(this, offset, state);
+			break;
+		case AltosLib.AO_LOG_FORMAT_TELEMETRY:
+		case AltosLib.AO_LOG_FORMAT_TELESCIENCE:
+			break;
+		case AltosLib.AO_LOG_FORMAT_TELEMEGA:
+			eeprom = new AltosEepromMega(this, offset);
+			break;
+		case AltosLib.AO_LOG_FORMAT_TELEMETRUM:
+			eeprom = new AltosEepromMetrum2(this, offset);
+			break;
+		case AltosLib.AO_LOG_FORMAT_TELEMINI:
+		case AltosLib.AO_LOG_FORMAT_EASYMINI:
+			eeprom = new AltosEepromMini(this, offset);
+			break;
+		default:
+			throw new ParseException("unknown eeprom format " + log_format, 0);
 		}
 		return eeprom;
 	}
