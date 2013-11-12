@@ -49,7 +49,7 @@ static __xdata struct ao_log_erase erase;
 static uint32_t
 ao_log_erase_pos(uint8_t i)
 {
-	return i * sizeof (struct ao_log_erase);
+	return i * sizeof (struct ao_log_erase) + AO_CONFIG_MAX_SIZE;
 }
 
 void

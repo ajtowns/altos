@@ -51,8 +51,6 @@ extern __pdata ao_pos_t	ao_storage_config;
 /* Storage unit size - device reads and writes must be within blocks of this size. Usually 256 bytes. */
 extern __pdata uint16_t ao_storage_unit;
 
-#define AO_STORAGE_ERASE_LOG	(ao_storage_config + AO_CONFIG_MAX_SIZE)
-
 /* Initialize above values. Can only be called once the OS is running */
 void
 ao_storage_setup(void) __reentrant;
