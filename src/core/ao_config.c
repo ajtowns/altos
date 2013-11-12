@@ -60,7 +60,8 @@ static void
 _ao_config_put(void)
 {
 	ao_config_setup();
-	ao_config_write(&ao_config, sizeof (ao_config));
+	ao_config_erase();
+	ao_config_write(0, &ao_config, sizeof (ao_config));
 #if HAS_FLIGHT
 	ao_log_write_erase(0);
 #endif
@@ -97,7 +98,7 @@ _ao_config_get(void)
 	 * need before calling ao_storage_read here
 	 */
 	ao_config_setup();
-	ao_config_read(&ao_config, sizeof (ao_config));
+	ao_config_read(0, &ao_config, sizeof (ao_config));
 #endif
 	if (ao_config.major != AO_CONFIG_MAJOR) {
 		ao_config.major = AO_CONFIG_MAJOR;
@@ -466,7 +467,7 @@ void
 ao_config_log_set(void) __reentrant
 {
 	uint16_t	block = (uint16_t) (ao_storage_block >> 10);
-	uint16_t	config = (uint16_t) (ao_storage_config >> 10);
+	uint16_t	log_max = (uint16_t) (ao_storage_log_max >> 10);
 
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
@@ -475,8 +476,8 @@ ao_config_log_set(void) __reentrant
 		printf("Storage must be empty before changing log size\n");
 	else if (block > 1024 && (ao_cmd_lex_i & (block - 1)))
 		printf("Flight log size must be multiple of %d kB\n", block);
-	else if (ao_cmd_lex_i > config)
-		printf("Flight log max %d kB\n", config);
+	else if (ao_cmd_lex_i > log_max)
+		printf("Flight log max %d kB\n", log_max);
 	else {
 		_ao_config_edit_start();
 		ao_config.flight_log_max = (uint32_t) ao_cmd_lex_i << 10;

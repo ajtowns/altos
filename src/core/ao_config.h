@@ -31,14 +31,9 @@
 #include <ao_storage.h>
 
 #define ao_config_setup() 		ao_storage_setup()
-
-#define ao_config_write(bytes, len)	do {				\
-		ao_storage_erase(ao_storage_config);			\
-		ao_storage_write(ao_storage_config, bytes, len);	\
-	} while (0)
-
-#define ao_config_read(bytes, len)	ao_storage_read(ao_storage_config, bytes, len)
-
+#define ao_config_erase()		ao_storage_erase(ao_storage_config)
+#define ao_config_write(pos,bytes, len)	ao_storage_write(ao_storage_config+(pos), bytes, len)
+#define ao_config_read(pos,bytes, len)	ao_storage_read(ao_storage_config+(pos), bytes, len)
 #define ao_config_flush()		ao_storage_flush()
 
 #endif
@@ -48,8 +43,9 @@
 #include <ao_eeprom.h>
 
 #define ao_config_setup()
-#define ao_config_write(bytes, len)	ao_eeprom_write(0, bytes, len)
-#define ao_config_read(bytes, len)	ao_eeprom_read(0, bytes, len)
+#define ao_config_erase()
+#define ao_config_write(pos,bytes, len)	ao_eeprom_write(pos, bytes, len)
+#define ao_config_read(pos,bytes, len)	ao_eeprom_read(pos, bytes, len)
 #define ao_config_flush()
 
 #endif

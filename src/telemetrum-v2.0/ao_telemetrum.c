@@ -62,6 +62,8 @@ main(void)
 	ao_mma655x_init();
 #endif
 
+	ao_eeprom_init();
+
 	ao_storage_init();
 	
 	ao_flight_init();

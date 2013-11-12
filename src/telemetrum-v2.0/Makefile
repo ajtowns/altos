@@ -70,6 +70,7 @@ ALTOS_SRC = \
 	ao_m25.c \
 	ao_usb_stm.c \
 	ao_exti_stm.c \
+	ao_eeprom_stm.c \
 	ao_report.c \
 	ao_convert_pa.c \
 	ao_log.c \

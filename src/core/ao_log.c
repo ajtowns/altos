@@ -17,6 +17,7 @@
 
 #include "ao.h"
 #include <ao_log.h>
+#include <ao_config.h>
 
 __pdata uint32_t ao_log_current_pos;
 __pdata uint32_t ao_log_end_pos;
@@ -48,7 +49,7 @@ static __xdata struct ao_log_erase erase;
 static uint32_t
 ao_log_erase_pos(uint8_t i)
 {
-	return i * sizeof (struct ao_log_erase) + AO_STORAGE_ERASE_LOG;
+	return i * sizeof (struct ao_log_erase);
 }
 
 void
@@ -56,14 +57,14 @@ ao_log_write_erase(uint8_t pos)
 {
 	erase.unused = 0x00;
 	erase.flight = ao_flight_number;
-	ao_storage_write(ao_log_erase_pos(pos),  &erase, sizeof (erase));
-	ao_storage_flush();
+	ao_config_write(ao_log_erase_pos(pos),  &erase, sizeof (erase));
+	ao_config_flush();
 }
 
 static void
 ao_log_read_erase(uint8_t pos)
 {
-	ao_storage_read(ao_log_erase_pos(pos), &erase, sizeof (erase));
+	ao_config_read(ao_log_erase_pos(pos), &erase, sizeof (erase));
 }
 
 
@@ -87,7 +88,7 @@ ao_log_erase_mark(void)
 static uint8_t
 ao_log_slots()
 {
-	return (uint8_t) (ao_storage_config / ao_config.flight_log_max);
+	return (uint8_t) (ao_storage_log_max / ao_config.flight_log_max);
 }
 
 uint32_t
