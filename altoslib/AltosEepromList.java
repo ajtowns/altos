@@ -15,13 +15,12 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altoslib_2;
 
 import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.concurrent.*;
-import org.altusmetrum.altoslib_2.*;
 
 /*
  * Temporary structure to hold the list of stored flights;
@@ -46,15 +45,15 @@ class AltosEepromFlight {
  */
 
 public class AltosEepromList extends ArrayList<AltosEepromLog> {
-	AltosConfigData	config_data;
+	public AltosConfigData	config_data;
 
-	public AltosEepromList (AltosSerial serial_line, boolean remote)
+	public AltosEepromList (AltosLink link, boolean remote)
 		throws IOException, InterruptedException, TimeoutException
 	{
 		try {
 			if (remote)
-				serial_line.start_remote();
-			config_data = new AltosConfigData (serial_line);
+				link.start_remote();
+			config_data = new AltosConfigData (link);
 //			if (config_data.serial == 0)
 //				throw new IOException("no serial number found");
 
@@ -66,9 +65,9 @@ public class AltosEepromList extends ArrayList<AltosEepromLog> {
 				 * command which will list the region of storage
 				 * occupied by each available flight
 				 */
-				serial_line.printf("l\n");
+				link.printf("l\n");
 				for (;;) {
-					String line = serial_line.get_reply(5000);
+					String line = link.get_reply(5000);
 					if (line == null)
 						throw new TimeoutException();
 					if (line.contains("done"))
@@ -106,13 +105,13 @@ public class AltosEepromList extends ArrayList<AltosEepromLog> {
 			 * firmware, this will also extract the flight number.
 			 */
 			for (AltosEepromFlight flight : flights) {
-				add(new AltosEepromLog(config_data, serial_line,
+				add(new AltosEepromLog(config_data, link,
 						       flight.flight, flight.start, flight.end));
 			}
 		} finally {
 			if (remote)
-				serial_line.stop_remote();
-			serial_line.flush_output();
+				link.stop_remote();
+			link.flush_output();
 		}
 	}
 }

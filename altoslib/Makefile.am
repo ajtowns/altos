@@ -1,4 +1,4 @@
-AM_JAVACFLAGS=-encoding UTF-8 -Xlint:deprecation
+AM_JAVACFLAGS=-encoding UTF-8 -Xlint:deprecation -source 6
 
 JAVAROOT=bin
 
@@ -34,11 +34,13 @@ altoslib_JAVA = \
 	AltosDebug.java \
 	AltosEeprom.java \
 	AltosEepromChunk.java \
+	AltosEepromDownload.java \
 	AltosEepromFile.java \
 	AltosEepromTM.java \
 	AltosEepromTm.java \
 	AltosEepromHeader.java \
 	AltosEepromIterable.java \
+	AltosEepromList.java \
 	AltosEepromLog.java \
 	AltosEepromMega.java \
 	AltosEepromMetrum2.java \

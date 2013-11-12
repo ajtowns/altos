@@ -34,8 +34,6 @@ altosui_JAVA = \
 	AltosDeviceUIDialog.java \
 	AltosDisplayThread.java \
 	AltosEepromDelete.java \
-	AltosEepromDownload.java \
-	AltosEepromList.java \
 	AltosEepromManage.java \
 	AltosEepromMonitorUI.java \
 	AltosEepromSelect.java \

@@ -15,17 +15,16 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altoslib_2;
 
 import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.concurrent.*;
-import org.altusmetrum.altoslib_2.*;
 
 public class AltosEepromDownload implements Runnable {
 
-	AltosSerial		serial_line;
+	AltosLink		link;
 	boolean			remote;
 	Thread			eeprom_thread;
 	AltosEepromMonitor	monitor;
@@ -79,7 +78,7 @@ public class AltosEepromDownload implements Runnable {
 	boolean			start;
 
 	void LogEeprom(AltosEeprom r) throws IOException {
-		if (r.cmd != Altos.AO_LOG_INVALID) {
+		if (r.cmd != AltosLib.AO_LOG_INVALID) {
 			String line = r.string();
 			if (eeprom_file != null)
 				eeprom_file.write(line);
@@ -114,7 +113,7 @@ public class AltosEepromDownload implements Runnable {
 			if (state.state != AltosLib.ao_flight_invalid &&
 			    state.state <= AltosLib.ao_flight_landed)
 			{
-				if (state.state > Altos.ao_flight_pad)
+				if (state.state > AltosLib.ao_flight_pad)
 					want_file = true;
 				if (state.state == AltosLib.ao_flight_landed)
 					done = true;
@@ -161,19 +160,19 @@ public class AltosEepromDownload implements Runnable {
 					  block - state_block,
 					  block - log.start_block);
 
-			AltosEepromChunk	eechunk = new AltosEepromChunk(serial_line, block, block == log.start_block);
+			AltosEepromChunk	eechunk = new AltosEepromChunk(link, block, block == log.start_block);
 
 			/*
 			 * Guess what kind of data is there if the device
 			 * didn't tell us
 			 */
 
-			if (log_format == Altos.AO_LOG_FORMAT_UNKNOWN) {
+			if (log_format == AltosLib.AO_LOG_FORMAT_UNKNOWN) {
 				if (block == log.start_block) {
-					if (eechunk.data(0) == Altos.AO_LOG_FLIGHT)
-						log_format = Altos.AO_LOG_FORMAT_FULL;
+					if (eechunk.data(0) == AltosLib.AO_LOG_FLIGHT)
+						log_format = AltosLib.AO_LOG_FORMAT_FULL;
 					else
-						log_format = Altos.AO_LOG_FORMAT_TINY;
+						log_format = AltosLib.AO_LOG_FORMAT_TINY;
 				}
 			}
 
@@ -190,7 +189,7 @@ public class AltosEepromDownload implements Runnable {
 		try {
 			boolean	failed = false;
 			if (remote)
-				serial_line.start_remote();
+				link.start_remote();
 
 			for (AltosEepromLog log : flights) {
 				parse_exception = null;
@@ -207,33 +206,33 @@ public class AltosEepromDownload implements Runnable {
 					monitor.show_message(String.format("Flight %d download error\n%s\nValid log data saved",
 									   log.flight,
 									   parse_exception.getMessage()),
-							     serial_line.device.toShortString(),
+							     link.name,
 							     AltosEepromMonitor.WARNING_MESSAGE);
 				}
 			}
 			success = !failed;
 		} catch (IOException ee) {
 			monitor.show_message(ee.getLocalizedMessage(),
-					     serial_line.device.toShortString(),
+					     link.name,
 					     AltosEepromMonitor.ERROR_MESSAGE);
 		} catch (InterruptedException ie) {
 			monitor.show_message(String.format("Connection to \"%s\" interrupted",
-							   serial_line.device.toShortString()),
+							   link.name),
 					     "Connection Interrupted",
 					     AltosEepromMonitor.ERROR_MESSAGE);
 		} catch (TimeoutException te) {
 			monitor.show_message(String.format("Connection to \"%s\" failed",
-							   serial_line.device.toShortString()),
+							   link.name),
 					     "Connection Failed",
 					     AltosEepromMonitor.ERROR_MESSAGE);
 		} finally {
 			if (remote) {
 				try {
-					serial_line.stop_remote();
+					link.stop_remote();
 				} catch (InterruptedException ie) {
 				}
 			}
-			serial_line.flush_output();
+			link.flush_output();
 		}
 		monitor.done(success);
 	}
@@ -244,17 +243,17 @@ public class AltosEepromDownload implements Runnable {
 	}
 
 	public AltosEepromDownload(AltosEepromMonitor given_monitor,
-				   AltosSerial given_serial_line,
+				   AltosLink given_link,
 				   boolean given_remote,
 				   AltosEepromList given_flights) {
 
 		monitor = given_monitor;
-		serial_line = given_serial_line;
+		link = given_link;
 		remote = given_remote;
 		flights = given_flights;
 		success = false;
 
-		monitor.set_states(Altos.ao_flight_boost, Altos.ao_flight_landed);
+		monitor.set_states(AltosLib.ao_flight_boost, AltosLib.ao_flight_landed);
 
 		monitor.set_thread(eeprom_thread);
 		monitor.start();
