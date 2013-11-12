@@ -42,6 +42,7 @@ ao-tools/ao-view/ao-view
 ao-view/Makefile
 ao-view/ao-view
 autom4te.cache
+compile
 config.*
 config.h
 config.h.in
