@@ -28,6 +28,7 @@
 #include <ao_lco.h>
 #include <ao_lco_cmd.h>
 #include <ao_radio_cmac_cmd.h>
+#include <ao_eeprom.h>
 
 int
 main(void)
@@ -52,7 +53,7 @@ main(void)
 	ao_quadrature_init();
 	ao_button_init();
 
-	ao_storage_init();
+	ao_eeprom_init();
 	
 	ao_radio_init();
 

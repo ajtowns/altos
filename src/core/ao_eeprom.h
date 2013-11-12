@@ -15,55 +15,29 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include <ao.h>
-#include <ao_exti.h>
-#include <ao_fat.h>
-#include <ao_eeprom.h>
+#ifndef _AO_EEPROM_H_
+#define _AO_EEPROM_H_
 
-uint16_t	ao_flight_number = 1;
+extern const ao_pos_t	ao_eeprom_total;
 
-int
-main(void)
-{
-	ao_clock_init();
-	
-#if HAS_STACK_GUARD
-	ao_mpu_init();
-#endif
+/*
+ * Write to eeprom
+ */
 
-	ao_task_init();
-//	ao_led_init(LEDS_AVAILABLE);
-//	ao_led_on(AO_LED_RED);
-	ao_timer_init();
+uint8_t
+ao_eeprom_write(ao_pos_t pos32, __xdata void *v, uint16_t len);
 
+/*
+ * Read from eeprom
+ */
+uint8_t
+ao_eeprom_read(ao_pos_t pos, __xdata void *v, uint16_t len);
 
-	ao_spi_init();
-	ao_dma_init();
-	ao_exti_init();
+/*
+ * Initialize eeprom
+ */
 
-	ao_eeprom_init();
+void
+ao_eeprom_init(void);
 
-	ao_serial_init();
-
-	ao_cmd_init();
-
-	ao_usb_init();
-	ao_radio_init();
-
-	ao_fat_init();
-
-	ao_gps_init();
-	ao_gps_report_mega_init();
-
-	ao_telemetry_init();
-	ao_telemetry_set_interval(AO_SEC_TO_TICKS(1));
-	ao_rdf_set(1);
-
-#if HAS_SAMPLE_PROFILE
-	ao_sample_profile_init();
-#endif
-	ao_config_init();
-	
-	ao_start_scheduler();
-	return 0;
-}
+#endif /* _AO_EEPROM_H_ */

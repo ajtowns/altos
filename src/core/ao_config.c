@@ -17,7 +17,7 @@
 
 #include "ao.h"
 #include "ao_log.h"
-#include <ao_storage.h>
+#include <ao_config.h>
 #if HAS_FLIGHT
 #include <ao_sample.h>
 #include <ao_data.h>
@@ -59,13 +59,12 @@ __xdata uint8_t ao_config_mutex;
 static void
 _ao_config_put(void)
 {
-	ao_storage_setup();
-	ao_storage_erase(ao_storage_config);
-	ao_storage_write(ao_storage_config, &ao_config, sizeof (ao_config));
+	ao_config_setup();
+	ao_config_write(&ao_config, sizeof (ao_config));
 #if HAS_FLIGHT
 	ao_log_write_erase(0);
 #endif
-	ao_storage_flush();
+	ao_config_flush();
 }
 
 void
@@ -97,8 +96,8 @@ _ao_config_get(void)
 	 * but ao_storage_setup *also* sets ao_storage_config, which we
 	 * need before calling ao_storage_read here
 	 */
-	ao_storage_setup();
-	ao_storage_read(ao_storage_config, &ao_config, sizeof (ao_config));
+	ao_config_setup();
+	ao_config_read(&ao_config, sizeof (ao_config));
 #endif
 	if (ao_config.major != AO_CONFIG_MAJOR) {
 		ao_config.major = AO_CONFIG_MAJOR;
@@ -127,8 +126,10 @@ _ao_config_get(void)
 			ao_config.radio_cal = ao_radio_cal;
 #endif
 		/* Fixups for minor version 4 */
+#if HAS_FLIGHT
 		if (minor < 4)
 			ao_config.flight_log_max = AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX;
+#endif
 		/* Fixupes for minor version 5 */
 		if (minor < 5)
 			ao_config.ignite_mode = AO_CONFIG_DEFAULT_IGNITE_MODE;
@@ -655,7 +656,7 @@ static void
 ao_config_show(void) __reentrant;
 
 static void
-ao_config_write(void) __reentrant;
+ao_config_save(void) __reentrant;
 
 __code struct ao_config_var ao_config_vars[] = {
 #if HAS_FLIGHT
@@ -714,7 +715,7 @@ __code struct ao_config_var ao_config_vars[] = {
 	  ao_config_show,		0 },
 #if HAS_EEPROM
 	{ "w\0Write to eeprom",
-	  ao_config_write,		0 },
+	  ao_config_save,		0 },
 #endif
 	{ "?\0Help",
 	  ao_config_help,		0 },
@@ -766,7 +767,7 @@ ao_config_show(void) __reentrant
 
 #if HAS_EEPROM
 static void
-ao_config_write(void) __reentrant
+ao_config_save(void) __reentrant
 {
 	uint8_t saved = 0;
 	ao_mutex_get(&ao_config_mutex);

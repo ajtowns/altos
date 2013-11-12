@@ -35,8 +35,18 @@ extern __pdata ao_pos_t	ao_storage_total;
 /* Block size - device is erased in these units. At least 256 bytes */
 extern __pdata ao_pos_t	ao_storage_block;
 
+#ifndef USE_STORAGE_CONFIG
+#define USE_STORAGE_CONFIG 1
+#endif
+
+#if USE_STORAGE_CONFIG
 /* Byte offset of config block. Will be ao_storage_block bytes long */
 extern __pdata ao_pos_t	ao_storage_config;
+
+#define ao_storage_log_max	ao_storage_config
+#else
+#define ao_storage_log_max	ao_storage_total
+#endif
 
 /* Storage unit size - device reads and writes must be within blocks of this size. Usually 256 bytes. */
 extern __pdata uint16_t ao_storage_unit;

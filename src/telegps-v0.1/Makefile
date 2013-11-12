@@ -57,7 +57,6 @@ ALTOS_SRC = \
 	ao_fec_tx.c \
 	ao_rfpa0133.c \
 	ao_aprs.c \
-	ao_storage.c \
 	ao_eeprom_stm.c \
 	ao_sdcard.c \
 	ao_bufio.c \

@@ -16,19 +16,10 @@
  */
 
 #include <ao.h>
-#include <ao_storage.h>
+#include <ao_eeprom.h>
 
 /* Total bytes of available storage */
-ao_pos_t	ao_storage_total = 4096;
-
-/* Block size - device is erased in these units. */
-ao_pos_t	ao_storage_block = 1024;
-
-/* Byte offset of config block. Will be ao_storage_block bytes long */
-ao_pos_t	ao_storage_config = 0;
-
-/* Storage unit size - device reads and writes must be within blocks of this size. */
-uint16_t	ao_storage_unit = 1024;
+const ao_pos_t ao_eeprom_total = 4096;
 
 /* Location of eeprom in address space */
 #define stm_eeprom	((uint8_t *) 0x08080000)
@@ -41,16 +32,6 @@ uint16_t	ao_storage_unit = 1024;
  * can only change bits from 1 to 0. So, you can rewrite
  * the same contents, or append to an existing page easily enough
  */
-
-/*
- * Erase the specified sector
- */
-uint8_t
-ao_storage_erase(ao_pos_t pos) __reentrant
-{
-	/* Not necessary */
-	return 1;
-}
 
 static void
 ao_intflash_unlock(void)
@@ -131,16 +112,16 @@ ao_intflash_read(uint16_t pos)
 }
 
 /*
- * Write to flash
+ * Write to eeprom
  */
 
 uint8_t
-ao_storage_device_write(ao_pos_t pos32, __xdata void *v, uint16_t len) __reentrant
+ao_eeprom_write(ao_pos_t pos32, __xdata void *v, uint16_t len)
 {
 	uint16_t pos = pos32;
 	__xdata uint8_t *d = v;
 
-	if (pos >= ao_storage_total || pos + len > ao_storage_total)
+	if (pos >= ao_eeprom_total || pos + len > ao_eeprom_total)
 		return 0;
 
 	ao_intflash_unlock();
@@ -166,38 +147,26 @@ ao_storage_device_write(ao_pos_t pos32, __xdata void *v, uint16_t len) __reentra
 }
 
 /*
- * Read from flash
+ * Read from eeprom
  */
 uint8_t
-ao_storage_device_read(ao_pos_t pos, __xdata void *v, uint16_t len) __reentrant
+ao_eeprom_read(ao_pos_t pos, __xdata void *v, uint16_t len)
 {
 	uint8_t	*d = v;
 	
-	if (pos >= ao_storage_total || pos + len > ao_storage_total)
+	if (pos >= ao_eeprom_total || pos + len > ao_eeprom_total)
 		return 0;
 	while (len--)
 		*d++ = ao_intflash_read(pos++);
 	return 1;
 }
 
-void
-ao_storage_flush(void) __reentrant
-{
-}
+/*
+ * Initialize eeprom
+ */
 
 void
-ao_storage_setup(void)
+ao_eeprom_init(void)
 {
-}
-
-void
-ao_storage_device_info(void) __reentrant
-{
-	uint8_t	i;
-	printf ("Using internal flash\n");
-}
-
-void
-ao_storage_device_init(void)
-{
+	/* Nothing to do here */
 }
