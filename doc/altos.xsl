@@ -265,16 +265,22 @@
 	    will fail to compile.
 	    <itemizedlist>
 	      <listitem>
+<para>
 		AO_EXTI_MODE_PULL_UP. Apply a pull-up to the pin; a
 		disconnected pin will read as 1.
+</para>
 	      </listitem>
 	      <listitem>
+<para>
 		AO_EXTI_MODE_PULL_DOWN. Apply a pull-down to the pin;
 		a disconnected pin will read as 0.
+</para>
 	      </listitem>
 	      <listitem>
+<para>
 		0. Don't apply either a pull-up or pull-down. A
 		disconnected pin will read an undetermined value.
+</para>
 	      </listitem>
 	    </itemizedlist>
 	  </para>
@@ -1005,7 +1011,7 @@
 	variable with one of the following values:
 	<variablelist>
 	  <varlistentry>
-	    <title>ao_cmd_success</title>
+	    <term>ao_cmd_success</term>
 	    <listitem>
 	      <para>
 		The command was parsed successfully. There is no
@@ -1014,7 +1020,7 @@
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <title>ao_cmd_lex_error</title>
+	    <term>ao_cmd_lex_error</term>
 	    <listitem>
 	      <para>
 		A token in the line was invalid, such as a number
@@ -1024,7 +1030,7 @@
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <title>ao_syntax_error</title>
+	    <term>ao_syntax_error</term>
 	    <listitem>
 	      <para>
 		The command line is invalid for some reason other
@@ -1323,57 +1329,60 @@
   </chapter>
   <chapter>
     <title>CC1111 Radio peripheral</title>
-    <para>
-      The CC1111 radio transceiver sends and receives digital packets
-      with forward error correction and detection. The AltOS driver is
-      fairly specific to the needs of the TeleMetrum and TeleDongle
-      devices, using it for other tasks may require customization of
-      the driver itself. There are three basic modes of operation:
-      <orderedlist>
-	<listitem>
-	  <para>
-	    Telemetry mode. In this mode, TeleMetrum transmits telemetry
-	    frames at a fixed rate. The frames are of fixed size. This
-	    is strictly a one-way communication from TeleMetrum to
-	    TeleDongle.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Packet mode. In this mode, the radio is used to create a
-	    reliable duplex byte stream between TeleDongle and
-	    TeleMetrum. This is an asymmetrical protocol with
-	    TeleMetrum only transmitting in response to a packet sent
-	    from TeleDongle. Thus getting data from TeleMetrum to
-	    TeleDongle requires polling. The polling rate is adaptive,
-	    when no data has been received for a while, the rate slows
-	    down. The packets are checked at both ends and invalid
-	    data are ignored.
-	  </para>
-	  <para>
-	    On the TeleMetrum side, the packet link is hooked into the
-	    stdio mechanism, providing an alternate data path for the
-	    command processor. It is enabled when the unit boots up in
-	    'idle' mode.
-	  </para>
-	  <para>
-	    On the TeleDongle side, the packet link is enabled with a
-	    command; data from the stdio package is forwarded over the
-	    packet link providing a connection from the USB command
-	    stream to the remote TeleMetrum device.
-	  </para>
-	</listitem>
-	<listitem>
-	  <para>
-	    Radio Direction Finding mode. In this mode, TeleMetrum
-	    constructs a special packet that sounds like an audio tone
-	    when received by a conventional narrow-band FM
-	    receiver. This is designed to provide a beacon to track
-	    the device when other location mechanisms fail.
-	  </para>
-	</listitem>
-      </orderedlist>
-    </para>
+    <section>
+      <title>Radio Introduction</title>
+      <para>
+	The CC1111 radio transceiver sends and receives digital packets
+	with forward error correction and detection. The AltOS driver is
+	fairly specific to the needs of the TeleMetrum and TeleDongle
+	devices, using it for other tasks may require customization of
+	the driver itself. There are three basic modes of operation:
+	<orderedlist>
+	  <listitem>
+	    <para>
+	      Telemetry mode. In this mode, TeleMetrum transmits telemetry
+	      frames at a fixed rate. The frames are of fixed size. This
+	      is strictly a one-way communication from TeleMetrum to
+	      TeleDongle.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Packet mode. In this mode, the radio is used to create a
+	      reliable duplex byte stream between TeleDongle and
+	      TeleMetrum. This is an asymmetrical protocol with
+	      TeleMetrum only transmitting in response to a packet sent
+	      from TeleDongle. Thus getting data from TeleMetrum to
+	      TeleDongle requires polling. The polling rate is adaptive,
+	      when no data has been received for a while, the rate slows
+	      down. The packets are checked at both ends and invalid
+	      data are ignored.
+	    </para>
+	    <para>
+	      On the TeleMetrum side, the packet link is hooked into the
+	      stdio mechanism, providing an alternate data path for the
+	      command processor. It is enabled when the unit boots up in
+	      'idle' mode.
+	    </para>
+	    <para>
+	      On the TeleDongle side, the packet link is enabled with a
+	      command; data from the stdio package is forwarded over the
+	      packet link providing a connection from the USB command
+	      stream to the remote TeleMetrum device.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Radio Direction Finding mode. In this mode, TeleMetrum
+	      constructs a special packet that sounds like an audio tone
+	      when received by a conventional narrow-band FM
+	      receiver. This is designed to provide a beacon to track
+	      the device when other location mechanisms fail.
+	    </para>
+	  </listitem>
+	</orderedlist>
+      </para>
+    </section>
     <section>
       <title>ao_radio_set_telemetry</title>
 	<programlisting>
@@ -1463,14 +1472,16 @@
 	  the radio operation.
 	</para>
     </section>
-    <para>
-      In telemetry mode, you can send or receive a telemetry
-      packet. The data from receiving a packet also includes the RSSI
-      and status values supplied by the receiver. These are added
-      after the telemetry data.
-    </para>
     <section>
-      <title>ao_radio_send</title>
+      <title>Radio Telemetry</title>
+      <para>
+	In telemetry mode, you can send or receive a telemetry
+	packet. The data from receiving a packet also includes the RSSI
+	and status values supplied by the receiver. These are added
+	after the telemetry data.
+      </para>
+      <section>
+	<title>ao_radio_send</title>
 	<programlisting>
 	  void
 	  ao_radio_send(__xdata struct ao_telemetry *telemetry);
@@ -1482,9 +1493,9 @@
 	  sending, and ao_radio_put() afterwards, to correctly
 	  serialize access to the radio device.
 	</para>
-    </section>
-    <section>
-      <title>ao_radio_recv</title>
+      </section>
+      <section>
+	<title>ao_radio_recv</title>
 	<programlisting>
 	  void
 	  ao_radio_recv(__xdata struct ao_radio_recv *radio);
@@ -1498,13 +1509,16 @@
 	  received, or zero if the operation was aborted (from some
 	  other task calling ao_radio_abort()).
 	</para>
+      </section>
     </section>
-    <para>
-      In radio direction finding mode, there's just one function to
-      use
-    </para>
     <section>
-      <title>ao_radio_rdf</title>
+      <title>Radio Direction Finding</title>
+      <para>
+	In radio direction finding mode, there's just one function to
+	use
+      </para>
+      <section>
+	<title>ao_radio_rdf</title>
 	<programlisting>
 	  void
 	  ao_radio_rdf(int ms);
@@ -1513,15 +1527,18 @@
 	  This sends an RDF packet lasting for the specified amount
 	  of time. The maximum length is 1020 ms.
 	</para>
+      </section>
     </section>
-    <para>
-      Packet mode is asymmetrical and is configured at compile time
-      for either master or slave mode (but not both). The basic I/O
-      functions look the same at both ends, but the internals are
-      different, along with the initialization steps.
-    </para>
     <section>
-      <title>ao_packet_putchar</title>
+      <title>Radio Packet Mode</title>
+      <para>
+	Packet mode is asymmetrical and is configured at compile time
+	for either master or slave mode (but not both). The basic I/O
+	functions look the same at both ends, but the internals are
+	different, along with the initialization steps.
+      </para>
+      <section>
+	<title>ao_packet_putchar</title>
 	<programlisting>
 	  void
 	  ao_packet_putchar(char c);
@@ -1534,9 +1551,9 @@
 	  slave side, any pending data will be sent the next time
 	  the master polls for data.
 	</para>
-    </section>
-    <section>
-      <title>ao_packet_pollchar</title>
+      </section>
+      <section>
+	<title>ao_packet_pollchar</title>
 	<programlisting>
 	  char
 	  ao_packet_pollchar(void);
@@ -1546,9 +1563,9 @@
 	  otherwise returns AO_READ_AGAIN. On the master side, if
 	  this empties the buffer, it triggers a poll for more data.
 	</para>
-    </section>
-    <section>
-      <title>ao_packet_slave_start</title>
+      </section>
+      <section>
+	<title>ao_packet_slave_start</title>
 	<programlisting>
 	  void
 	  ao_packet_slave_start(void);
@@ -1557,9 +1574,9 @@
 	  This is available only on the slave side and starts a task
 	  to listen for packet data.
 	</para>
-    </section>
-    <section>
-      <title>ao_packet_slave_stop</title>
+      </section>
+      <section>
+	<title>ao_packet_slave_stop</title>
 	<programlisting>
 	  void
 	  ao_packet_slave_stop(void);
@@ -1567,9 +1584,9 @@
 	<para>
 	  Disables the packet slave task, stopping the radio receiver.
 	</para>
-    </section>
-    <section>
-      <title>ao_packet_slave_init</title>
+      </section>
+      <section>
+	<title>ao_packet_slave_init</title>
 	<programlisting>
 	  void
 	  ao_packet_slave_init(void);
@@ -1579,9 +1596,9 @@
 	  that when packet slave mode is enabled, characters will
 	  get send and received through the stdio functions.
 	</para>
-    </section>
-    <section>
-      <title>ao_packet_master_init</title>
+      </section>
+      <section>
+	<title>ao_packet_master_init</title>
 	<programlisting>
 	  void
 	  ao_packet_master_init(void);
@@ -1589,6 +1606,7 @@
 	<para>
 	  Adds the 'p' packet forward command to start packet mode.
 	</para>
+      </section>
     </section>
   </chapter>
 </book>
