@@ -55,7 +55,8 @@
       </revision>
     </revhistory>
   </bookinfo>
-  <acknowledgements>
+  <dedication>
+    <title>Acknowledgements</title>
     <para>
       Thanks to John Lyngdal for suggesting that we build something like this.
     </para>
@@ -70,7 +71,7 @@ Keith Packard, KD7SQG
 NAR #88757, TRA #12200
       </literallayout>
     </para>
-  </acknowledgements>
+  </dedication>
   <chapter>
     <title>Quick Start Guide</title>
     <para>
