@@ -36,6 +36,15 @@
     </legalnotice>
     <revhistory>
       <revision>
+	<revnumber>1.3</revnumber>
+	<date>12 November 2013</date>
+	<revremark>
+	  Updated for software version 1.3. Version 1.3 adds support
+	  for TeleMega, TeleMetrum v2.0, TeleMini v2.0 and EasyMini
+	  and fixes bugs in AltosUI and the AltOS firmware.
+	</revremark>
+      </revision>
+      <revision>
 	<revnumber>1.2.1</revnumber>
 	<date>21 May 2013</date>
 	<revremark>
@@ -136,13 +145,27 @@ NAR #88757, TRA #12200
       The first device created for our community was TeleMetrum, a dual
       deploy altimeter with fully integrated GPS and radio telemetry
       as standard features, and a "companion interface" that will
-      support optional capabilities in the future.
+      support optional capabilities in the future. The latest version
+      of TeleMetrum, v2.0, has all of the same features but with
+      improved sensors and radio to offer increased performance.
     </para>
     <para>
       Our second device was TeleMini, a dual deploy altimeter with
-      radio telemetry and radio direction finding. This device is only
-      13mm by 38mm (½ inch by 1½ inches) and can fit easily in an 18mm 
-      air-frame.
+      radio telemetry and radio direction finding. The first version
+      of this device was only 13mm by 38mm (½ inch by 1½ inches) and
+      could fit easily in an 18mm air-frame. The latest version, v2.0,
+      includes a beeper, USB data download and extended on-board
+      flight logging, along with an improved barometric sensor.
+    </para>
+    <para>
+      TeleMega is our most sophisticated device, including six pyro
+      channels (four of which are fully programmable), integrated GPS,
+      integrated gyroscopes for staging/air-start inhibit and high
+      performance telemetry.
+    </para>
+    <para>
+      EasyMini is a dual-deploy altimeter with logging and built-in
+      USB data download.
     </para>
     <para>
       TeleDongle was our first ground station, providing a USB to RF
@@ -173,32 +196,48 @@ NAR #88757, TRA #12200
       "starter kit" is to charge the battery.
     </para>
     <para>
-      The TeleMetrum battery can be charged by plugging it into the
-      corresponding socket of the TeleMetrum and then using the USB A to
-      mini B
-      cable to plug the TeleMetrum into your computer's USB socket. The
-      TeleMetrum circuitry will charge the battery whenever it is plugged
-      in, because the TeleMetrum's on-off switch does NOT control the
+      For TeleMetrum and TeleMega, the battery can be charged by plugging it into the
+      corresponding socket of the device and then using the USB
+      cable to plug the flight computer into your computer's USB socket. The
+      on-board circuitry will charge the battery whenever it is plugged
+      in, because the on-off switch does NOT control the
       charging circuitry.
     </para>
     <para>
-      When the GPS chip is initially searching for
-      satellites, TeleMetrum will consume more current than it can pull
-      from the USB port, so the battery must be attached in order to get
-      satellite lock.  Once GPS is locked, the current consumption goes back
-      down enough to enable charging while
-      running. So it's a good idea to fully charge the battery as your
-      first item of business so there is no issue getting and maintaining
-      satellite lock.  The yellow charge indicator led will go out when the
-      battery is nearly full and the charger goes to trickle charge. It
-      can take several hours to fully recharge a deeply discharged battery.
+      On TeleMetrum v1 boards, when the GPS chip is initially
+      searching for satellites, TeleMetrum will consume more current
+      than it can pull from the USB port, so the battery must be
+      attached in order to get satellite lock.  Once GPS is locked,
+      the current consumption goes back down enough to enable charging
+      while running. So it's a good idea to fully charge the battery
+      as your first item of business so there is no issue getting and
+      maintaining satellite lock.  The yellow charge indicator led
+      will go out when the battery is nearly full and the charger goes
+      to trickle charge. It can take several hours to fully recharge a
+      deeply discharged battery.
     </para>
     <para>
-      The TeleMini battery can be charged by disconnecting it from the
-      TeleMini board and plugging it into a standalone battery charger 
-      such as the LipoCharger product included in TeleMini Starter Kits, 
-      and connecting that via a USB cable to a laptop or other USB
-      power source.  
+      TeleMetrum v2.0 and TeleMega use a higher power battery charger,
+      allowing them to charge the battery while running the board at
+      maximum power. When the battery is charging, or when the board
+      is consuming a lot of power, the red LED will be lit. When the
+      battery is fully charged, the green LED will be lit. When the
+      battery is damaged or missing, both LEDs will be lit, which
+      appears yellow.
+    </para>
+    <para>
+      The Lithium Polymer TeleMini and EasyMini battery can be charged by
+      disconnecting it from the board and plugging it into a
+      standalone battery charger such as the LipoCharger product
+      included in TeleMini Starter Kits, and connecting that via a USB
+      cable to a laptop or other USB power source.
+    </para>
+    <para>
+      You can also choose to use another battery with TeleMini v2.0
+      and EasyMini, anything supplying between 4 and 12 volts should
+      work fine (like a standard 9V battery), but if you are planning
+      to fire pyro charges, ground testing is required to verify that
+      the battery supplies enough current.
     </para>
     <para>
       The other active device in the starter kit is the TeleDongle USB to
@@ -212,13 +251,13 @@ NAR #88757, TRA #12200
       ugly bugs in some earlier versions.
     </para>
     <para>
-      Next you should obtain and install the AltOS software.  These include
-      the AltosUI ground station program, current firmware images for
-      TeleMetrum, TeleMini and TeleDongle, and a number of standalone 
-      utilities that are rarely needed.  Pre-built binary packages are 
-      available for Linux, Microsoft Windows, and recent MacOSX versions.  
-      Full source code and build instructions are also available.
-      The latest version may always be downloaded from
+      Next you should obtain and install the AltOS software.  These
+      include the AltosUI ground station program, current firmware
+      images for all of the hardware, and a number of standalone
+      utilities that are rarely needed.  Pre-built binary packages are
+      available for Linux, Microsoft Windows, and recent MacOSX
+      versions.  Full source code and build instructions are also
+      available.  The latest version may always be downloaded from
       <ulink url="http://altusmetrum.org/AltOS"/>.
     </para>
     <para>
@@ -253,14 +292,14 @@ NAR #88757, TRA #12200
       strapping them down, for example.
     </para>
     <para>
-      The barometric sensors used on both TeleMetrum and TeleMini are 
-      sensitive to sunlight.  In normal TeleMetrum mounting situations, it 
+      The barometric sensors used on all of our flight computers are 
+      sensitive to sunlight.  In normal mounting situations, the baro sensor
       and all of the other surface mount components
       are "down" towards whatever the underlying mounting surface is, so
       this is not normally a problem.  Please consider this, though, when
       designing an installation, for example, in an air-frame with a
       see-through plastic payload bay.  It is particularly important to
-      consider this with TeleMini, both because the baro sensor is on the
+      consider this with TeleMini v1.0, both because the baro sensor is on the
       "top" of the board, and because many model rockets with payload bays
       use clear plastic for the payload bay!  Replacing these with an opaque
       cardboard tube, painting them, or wrapping them with a layer of masking
@@ -282,7 +321,7 @@ NAR #88757, TRA #12200
   <chapter>
     <title>Hardware Overview</title>
     <para>
-      TeleMetrum is a 1 inch by 2.75 inch circuit board.  It was designed to
+      TeleMetrum is a 1 inch by 2¾ inch circuit board.  It was designed to
       fit inside coupler for 29mm air-frame tubing, but using it in a tube that
       small in diameter may require some creativity in mounting and wiring
       to succeed!  The presence of an accelerometer means TeleMetrum should
@@ -294,11 +333,11 @@ NAR #88757, TRA #12200
       bay for TeleMetrum should have at least 10 inches of interior length.
     </para>
     <para>
-      TeleMini is a 0.5 inch by 1.5 inch circuit board.   It was designed to
+      TeleMini v1.0 is a ½ inch by 1½ inch circuit board.   It was designed to
       fit inside an 18mm air-frame tube, but using it in a tube that
       small in diameter may require some creativity in mounting and wiring
       to succeed!  Since there is no accelerometer, TeleMini can be mounted
-      in any convenient orientation.  The default 1/4
+      in any convenient orientation.  The default ¼
       wave UHF wire antenna attached to the center of one end of
       the board is about 7 inches long, and wiring for a power switch and
       the e-matches for apogee and main ejection charges depart from the
@@ -306,11 +345,31 @@ NAR #88757, TRA #12200
       bay for TeleMini should have at least 9 inches of interior length.
     </para>
     <para>
-      A typical TeleMetrum or TeleMini installation involves attaching 
-      only a suitable Lithium Polymer battery, a single pole switch for 
+      TeleMini v2.0 and EasyMini are both built on a 0.8 inch by 1½
+      inch circuit board. They're designed to fit in a 24mm coupler
+      tube. TeleMini has an antenna, which must be run straight out
+      fro the board. Bending or folding it will dramatically reduce RF
+      performance. For smaller rockets, it's often best to drill a
+      hole in the bulkhead forward of TeleMini and run the antenna
+      wire through that and alongside any recovery components
+      there. Be careful to seal the hole to prevent ejection gasses
+      from passing through the hole and damaging the electronics.
+    </para>
+    <para>
+      TeleMega is a 1¼ inch by 3¼ inch circuit board. It was
+      designed to easily fit in a 38mm coupler. Like TeleMetrum,
+      TeleMega has an accelerometer and so it must be mounted so that
+      the board is aligned with the flight axis. It can be mounted
+      either antenna up or down.
+    </para>
+    <para>
+      A typical installation involves attaching 
+      only a suitable battery, a single pole switch for 
       power on/off, and two pairs of wires connecting e-matches for the 
       apogee and main ejection charges.  All Altus Metrum products are 
-      designed for use with single-cell batteries with 3.7 volts nominal.
+      designed for use with single-cell batteries with 3.7 volts
+      nominal. TeleMini v2.0 and EasyMini may also be used with other
+      batteries as long as they supply between 4 and 12 volts.
     </para>
     <para>
       The battery connectors are a standard 2-pin JST connector and
@@ -326,7 +385,7 @@ NAR #88757, TRA #12200
       from Altus Metrum or Spark Fun.</emphasis>
     </para>
     <para>
-      By default, we use the unregulated output of the Li-Po battery directly
+      By default, we use the unregulated output of the battery directly
       to fire ejection charges.  This works marvelously with standard
       low-current e-matches like the J-Tek from MJG Technologies, and with
       Quest Q2G2 igniters.  However, if you want or need to use a separate 
@@ -341,9 +400,10 @@ NAR #88757, TRA #12200
       jeweler's screwdriver set.
     </para>
     <para>
-      TeleMetrum also uses the screw terminal block for the power
-      switch leads. On TeleMini, the power switch leads are soldered
-      directly to the board and can be connected directly to a switch.
+      Except for TeleMini v1.0, the flight computers also use the
+      screw terminal block for the power switch leads. On TeleMini v1.0,
+      the power switch leads are soldered directly to the board and
+      can be connected directly to a switch.
     </para>
     <para>
       For most air-frames, the integrated antennas are more than
@@ -351,7 +411,7 @@ NAR #88757, TRA #12200
       metal electronics bay which is opaque to RF signals, you may need to
       use off-board external antennas instead.  In this case, you can
       order an altimeter with an SMA connector for the UHF antenna
-      connection, and, on TeleMetrum, you can unplug the integrated GPS
+      connection, and, on TeleMetrum v1, you can unplug the integrated GPS
       antenna and select an appropriate off-board GPS antenna with
       cable terminating in a U.FL connector.
     </para>
@@ -370,11 +430,12 @@ NAR #88757, TRA #12200
         TeleMetrum assumes it's on a rail or rod being prepared for
         launch, so the firmware chooses flight mode.  However, if the
         rocket is more or less horizontal, the firmware instead enters
-        idle mode.  Since TeleMini doesn't have an accelerometer we can
-        use to determine orientation, "idle" mode is selected when the
-        board receives a command packet within the first five seconds
-        of operation; if no packet is received, the board enters
-        "flight" mode.
+        idle mode.  Since TeleMini v2.0 and EasyMini don't have an
+        accelerometer we can use to determine orientation, "idle" mode
+        is selected if the board is connected via USB to a computer,
+        otherwise the board enters "flight" mode. TeleMini v1.0
+        selects "idle" mode if it receives a command packet within the
+        first five seconds of operation.
       </para>
       <para>
         At power on, you will hear three beeps or see three flashes
@@ -403,14 +464,14 @@ NAR #88757, TRA #12200
         machine is disengaged, thus no ejection charges will fire.
         The altimeters also listen for the radio link when in idle
         mode for requests sent via TeleDongle.  Commands can be issued
-        to a TeleMetrum in idle mode over either USB or the radio link
-        equivalently. TeleMini only has the radio link.  Idle mode is
-        useful for configuring the altimeter, for extracting data from
-        the on-board storage chip after flight, and for ground testing
-        pyro charges.
+        in idle mode over either USB or the radio link
+        equivalently. TeleMini v1.0 only has the radio link.  Idle
+        mode is useful for configuring the altimeter, for extracting
+        data from the on-board storage chip after flight, and for
+        ground testing pyro charges.
       </para>
       <para>
-        One "neat trick" of particular value when TeleMetrum is used with 
+        One "neat trick" of particular value when TeleMetrum or TeleMega are used with 
         very large air-frames, is that you can power the board up while the 
         rocket is horizontal, such that it comes up in idle mode.  Then you can
         raise the air-frame to launch position, and issue a 'reset' command 
@@ -421,10 +482,10 @@ NAR #88757, TRA #12200
         installing igniters!
       </para>
       <para>
-	TeleMini is configured via the radio link. Of course, that
+	TeleMini v1.0 is configured solely via the radio link. Of course, that
 	means you need to know the TeleMini radio configuration values
 	or you won't be able to communicate with it. For situations
-	when you don't have the radio configuration values, TeleMini
+	when you don't have the radio configuration values, TeleMini v1.0
 	offers an 'emergency recovery' mode. In this mode, TeleMini is
 	configured as follows:
 	<itemizedlist>
@@ -454,17 +515,17 @@ NAR #88757, TRA #12200
     <section>
       <title>GPS </title>
       <para>
-        TeleMetrum includes a complete GPS receiver.  A complete explanation 
-        of how GPS works is beyond the scope of this manual, but the bottom 
-        line is that the TeleMetrum GPS receiver needs to lock onto at least 
-        four satellites to obtain a solid 3 dimensional position fix and know
-        what time it is.
+        TeleMetrum and TeleMega include a complete GPS receiver.  A
+        complete explanation of how GPS works is beyond the scope of
+        this manual, but the bottom line is that the GPS receiver
+        needs to lock onto at least four satellites to obtain a solid
+        3 dimensional position fix and know what time it is.
       </para>
       <para>
-        TeleMetrum provides backup power to the GPS chip any time a 
+        The flight computers provide backup power to the GPS chip any time a 
         battery is connected.  This allows the receiver to "warm start" on
         the launch rail much faster than if every power-on were a GPS 
-	"cold start".  In typical operations, powering up TeleMetrum
+	"cold start".  In typical operations, powering up
         on the flight line in idle mode while performing final air-frame
         preparation will be sufficient to allow the GPS receiver to cold
         start and acquire lock.  Then the board can be powered down during
@@ -485,10 +546,10 @@ NAR #88757, TRA #12200
         computer.
       </para>
       <para>
-        Any operation which can be performed with TeleMetrum can
-        either be done with TeleMetrum directly connected to the
+        Any operation which can be performed with a flight computer can
+        either be done with the device directly connected to the
         computer via the USB cable, or through the radio
-        link. TeleMini doesn't provide a USB connector and so it is
+        link. TeleMini v1.0 doesn't provide a USB connector and so it is
         always communicated with over radio.  Select the appropriate 
         TeleDongle device when the list of devices is presented and 
         AltosUI will interact with an altimeter over the radio link.
@@ -514,10 +575,11 @@ NAR #88757, TRA #12200
         </listitem>
         <listitem>
           <para>
-            Configure altimeter apogee delays or main deploy heights
+            Configure altimeter apogee delays, main deploy heights
+	    and additional pyro event conditions
             to respond to changing launch conditions. You can also
             'reboot' the altimeter. Use this to remotely enable the
-            flight computer by turning TeleMetrum on in "idle" mode,
+            flight computer by turning TeleMetrum or TeleMega on in "idle" mode,
             then once the air-frame is oriented for launch, you can
             reboot the altimeter and have it restart in pad mode
             without having to climb the scary ladder.
@@ -526,7 +588,7 @@ NAR #88757, TRA #12200
         <listitem>
           <para>
             Fire Igniters—Test your deployment charges without snaking
-            wires out through holes in the air-frame. Simply assembly the
+            wires out through holes in the air-frame. Simply assemble the
             rocket as if for flight with the apogee and main charges
             loaded, then remotely command the altimeter to fire the
             igniters.
@@ -541,9 +603,10 @@ NAR #88757, TRA #12200
         close the window before performing other desired radio operations.
       </para>
       <para>
-        TeleMetrum only enables radio commanding in 'idle' mode, so
-        make sure you have TeleMetrum lying horizontally when you turn
-        it on. Otherwise, TeleMetrum will start in 'pad' mode ready for
+        The flight computers only enable radio commanding in 'idle' mode.
+	TeleMetrum and TeleMega use the accelerometer to detect which orientation they
+	start up in, so make sure you have the flight computer lying horizontally when you turn
+        it on. Otherwise, it will start in 'pad' mode ready for
         flight, and will not be listening for command packets from TeleDongle.
       </para>
       <para>
@@ -570,14 +633,14 @@ NAR #88757, TRA #12200
         An important aspect of preparing a rocket using electronic deployment
         for flight is ground testing the recovery system.  Thanks
         to the bi-directional radio link central to the Altus Metrum system,
-        this can be accomplished in a TeleMetrum or TeleMini equipped rocket 
+        this can be accomplished in a TeleMega, TeleMetrum or TeleMini equipped rocket 
         with less work than you may be accustomed to with other systems.  It 
         can even be fun!
       </para>
       <para>
         Just prep the rocket for flight, then power up the altimeter
-        in "idle" mode (placing air-frame horizontal for TeleMetrum or
-        selected the Configure Altimeter tab for TeleMini).  This will cause 
+        in "idle" mode (placing air-frame horizontal for TeleMetrum or TeleMega, or
+        selecting the Configure Altimeter tab for TeleMini).  This will cause 
         the firmware to go into "idle" mode, in which the normal flight
         state machine is disabled and charges will not fire without
         manual command.  You can now command the altimeter to fire the apogee
@@ -607,7 +670,7 @@ NAR #88757, TRA #12200
         data later...
       </para>
       <para>
-        We don't use a 'normal packet radio' mode like APRS because they're 
+        We don't generally use a 'normal packet radio' mode like APRS because they're 
         just too inefficient.  The GFSK modulation we use is FSK with the
         base-band pulses passed through a
         Gaussian filter before they go into the modulator to limit the
@@ -621,12 +684,18 @@ NAR #88757, TRA #12200
         altitudes over time, and would of course appreciate customer feedback 
         on performance in higher altitude flights!
       </para>
+      <para>
+	However, TeleMetrum v2.0 and TeleMega can send APRS if
+	desired, the interval between APRS packets can be
+	configured. As each APRS packet takes a full second to
+	transmit, we recommend an interval of at least 5 seconds.
+      </para>
     </section>
     <section>
       <title>Configurable Parameters</title>
       <para>
         Configuring an Altus Metrum altimeter for flight is very
-        simple.  Even on our baro-only TeleMini board, the use of a Kalman 
+        simple.  Even on our baro-only TeleMini and EasyMini boards, the use of a Kalman 
         filter means there is no need to set a "mach delay".  The few 
         configurable parameters can all be set using AltosUI over USB or
         or radio link via TeleDongle.
@@ -688,6 +757,9 @@ NAR #88757, TRA #12200
 	  storage. As data are stored at a reduced rate during descent
 	  (10 samples/second), there's plenty of space to store many
 	  flights worth of data.
+	</para>
+	<para>
+	  TeleMetrum v2.0 and TeleMega have 8MB of on-board flash stroage, enough to hold 
 	</para>
 	<para>
 	  The on-board flash is partitioned into separate flight logs,
@@ -2867,7 +2939,8 @@ NAR #88757, TRA #12200
   <appendix
       xmlns:xi="http://www.w3.org/2001/XInclude">
     <title>Release Notes</title>
-    <simplesect><title>Version 1.21</title><xi:include	href="release-notes-1.2.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
+    <simplesect><title>Version 1.3</title><xi:include	href="release-notes-1.3.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
+    <simplesect><title>Version 1.2.1</title><xi:include	href="release-notes-1.2.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
     <simplesect><title>Version 1.2</title><xi:include	href="release-notes-1.2.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
     <simplesect><title>Version 1.1.1</title><xi:include	href="release-notes-1.1.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
     <simplesect><title>Version 1.1</title><xi:include	href="release-notes-1.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
