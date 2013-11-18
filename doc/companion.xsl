@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "/usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd">
 
 <article>
@@ -44,18 +44,22 @@
       The Companion Port provides two different functions:
       <itemizedlist>
 	<listitem>
+	  <para>
 	  Power. Both battery-level and 3.3V regulated power are
 	  available. Note that the amount of regulated power is not
 	  huge; TeleMetrum contains a 150mA regulator and uses, at
 	  peak, about 120mA or so. For applications needing more than
 	  a few dozen mA, placing a separate regulator on them and
 	  using the battery for power is probably a good idea.
+	  </para>
 	</listitem>
 	<listitem>
+	  <para>
 	  SPI. The flight computer operates as a SPI master, using
 	  a protocol defined in this document. Companion boards
 	  provide a matching SPI slave implementation which supplies
 	  telemetry information for the radio downlink during flight
+	  </para>
 	</listitem>
       </itemizedlist>
     </para>
@@ -85,9 +89,11 @@
   </section>
   <section>
     <title>SPI Message Formats</title>
+    <para>
     This section first defines the command message format sent from
     the flight computer to the companion board, and then the various
     reply message formats for each type of command message.
+    </para>
     <section>
       <title>Command Message</title>
       <table frame='all'>
