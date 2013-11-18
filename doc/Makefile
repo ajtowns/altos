@@ -11,29 +11,27 @@ RELNOTES=\
 	release-notes-1.1.html \
 	release-notes-1.1.1.html \
 	release-notes-1.2.html \
-	release-notes-1.2.1.html
+	release-notes-1.2.1.html \
+	release-notes-1.3.html
 
 RELNOTES_XSL=$(RELNOTES:.html=.xsl)
 HTML=altusmetrum.html altos.html telemetry.html companion.html micropeak.html $(RELNOTES)
 PDF=altusmetrum.pdf altos.pdf telemetry.pdf companion.pdf micropeak.pdf
 DOC=$(HTML) $(PDF)
 HTMLSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/html/docbook.xsl
-FOSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl
+FOSTYLE=./xorg-fo.xsl
 PDFSTYLE=
 IMAGES=telemetrum.svg telemini.svg
 
-.SUFFIXES: .xsl .html .fo .pdf
+.SUFFIXES: .xsl .html .pdf
 
 XSLTFLAGS=--stringparam section.autolabel 1 --xinclude
 
 .xsl.html:
 	xsltproc $(XSLTFLAGS) -o $@ $(HTMLSTYLE) $*.xsl
 
-.xsl.fo:
-	xsltproc $(XSLTFLAGS) -o $@ $(FOSTYLE) $*.xsl
-
-.fo.pdf:
-	fop -fo $*.fo -pdf $@
+.xsl.pdf:
+	xmlto -x $(FOSTYLE) --with-fop pdf $*.xsl
 
 all:	$(HTML) $(PDF)
 
@@ -48,10 +46,10 @@ publish:	$(DOC)
 	 git push)
 
 clean:
-	rm -f $(HTML) $(PDF) *.fo
+	rm -f $(HTML) $(PDF)
 
 distclean:
-	rm -f $(HTML) $(PDF) *.fo
+	rm -f $(HTML) $(PDF)
 
 altusmetrum.html: $(RELNOTES_XSL) $(IMAGES)
 altusmetrum.fo: $(RELNOTES_XSL) $(IMAGES)
