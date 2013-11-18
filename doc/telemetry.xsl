@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
 "/usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd">
 
 <article>
@@ -57,8 +57,10 @@
   </section>
   <section>
     <title>Packet Formats</title>
-    This section first defines the packet header common to all packets
-    and then the per-packet data layout.
+    <para>
+      This section first defines the packet header common to all packets
+      and then the per-packet data layout.
+    </para>
     <section>
       <title>Packet Header</title>
       <table frame='all'>
@@ -621,9 +623,10 @@
 	resulting in the following signal parmeters:
       </para>
       <table>
+	<title>Modulation Scheme</title>
 	<tgroup cols='3'>
 	  <colspec align="center" colwidth="*" colname="parameter"/>
-	  <colspec align="center" text-align="." colwidth="*" colname="value"/>
+	  <colspec align="center" colwidth="*" colname="value"/>
 	  <colspec align="center" colwidth="*" colname="description"/>
 	  <thead>
 	    <row>
@@ -663,14 +666,15 @@
       </table>
     </section>
     <section>
+      <title>Error Correction</title>
       <para>
 	The cc1111 provides forward error correction in hardware,
 	which AltOS uses to improve reception of weak signals. The
 	overall effect of this is to halve the available bandwidth for
 	data from 38 kBaud to 19 kBaud.
       </para>
-      <title>Error Correction</title>
       <table>
+	<title>Error Correction</title>
 	<tgroup cols='3'>
 	  <colspec align="center" colwidth="*" colname="parameter"/>
 	  <colspec align="center" colwidth="*" colname="value"/>
@@ -685,8 +689,8 @@
 	  <tbody>
 	    <row>
 	      <entry>Error Correction</entry>
-	      <entry>Convolutional coding FEC</entry>
-	      <entry>1/2 code, constraint length m=4</entry>
+	      <entry>Convolutional coding</entry>
+	      <entry>1/2 rate, constraint length m=4</entry>
 	    </row>
 	    <row>
 	      <entry>Interleaving</entry>
@@ -722,6 +726,7 @@
       validate that the line was transmitted without any errors.
     </para>
     <table>
+      <title>Packet Format</title>
       <tgroup cols='4'>
 	<colspec align="center" colwidth="2*" colname="offset"/>
 	<colspec align="center" colwidth="*" colname="name"/>
