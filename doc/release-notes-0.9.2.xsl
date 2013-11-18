@@ -8,13 +8,19 @@
   </para>
   <itemizedlist>
     <listitem>
+<para>
       Fix plotting problems due to missing file in the Mac OS install image.
+</para>
     </listitem>
     <listitem>
+<para>
       Always read whole eeprom blocks, mark empty records invalid, display parsing errors to user.
+</para>
     </listitem>
     <listitem>
+      <para>
       Add software version to Configure AltosUI dialog
+</para>
     </listitem>
   </itemizedlist>
 </article>

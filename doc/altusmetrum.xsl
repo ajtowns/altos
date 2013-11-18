@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
   "/usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd">
 <book>
@@ -103,7 +103,8 @@
       </revision>
     </revhistory>
   </bookinfo>
-  <acknowledgements>
+  <dedication>
+    <title>Acknowledgements</title>
     <para>
       Thanks to Bob Finch, W9YA, NAR 12965, TRA 12350 for writing "The
       Mere-Mortals Quick Start/Usage Guide to the Altus Metrum Starter
@@ -130,7 +131,7 @@ Keith Packard, KD7SQG
 NAR #88757, TRA #12200
       </literallayout>
     </para>
-  </acknowledgements>
+  </dedication>
   <chapter>
     <title>Introduction and Overview</title>
     <para>
@@ -490,16 +491,24 @@ NAR #88757, TRA #12200
 	configured as follows:
 	<itemizedlist>
 	  <listitem>
+	    <para>
 	    Sets the radio frequency to 434.550MHz
+	    </para>
 	  </listitem>
 	  <listitem>
+	    <para>
 	    Sets the radio calibration back to the factory value.
+	    </para>
 	  </listitem>
 	  <listitem>
+	    <para>
 	    Sets the callsign to N0CALL
+	    </para>
 	  </listitem>
 	  <listitem>
+	    <para>
 	    Does not go to 'pad' mode after five seconds.
+	    </para>
 	  </listitem>
 	</itemizedlist>
       </para>
@@ -991,12 +1000,12 @@ NAR #88757, TRA #12200
               </para>
             </listitem>
           </itemizedlist>
-          <para>
-            The Launchpad tab also shows the computed launch pad position
-            and altitude, averaging many reported positions to improve the
-            accuracy of the fix.
-          </para>
         </para>
+	<para>
+	  The Launchpad tab also shows the computed launch pad position
+	  and altitude, averaging many reported positions to improve the
+	  accuracy of the fix.
+	</para>
       </section>
       <section>
         <title>Ascent</title>
@@ -1821,12 +1830,12 @@ NAR #88757, TRA #12200
               </para>
             </listitem>
           </itemizedlist>
-          <para>
-            The Launchpad tab also shows the computed launch pad position
-            and altitude, averaging many reported positions to improve the
-            accuracy of the fix.
-          </para>
-        </para>
+	</para>
+	<para>
+	  The Launchpad tab also shows the computed launch pad position
+	  and altitude, averaging many reported positions to improve the
+	  accuracy of the fix.
+	</para>
       </section>
     </section>
     <section>
@@ -1913,19 +1922,29 @@ NAR #88757, TRA #12200
           So, to recap, on the ground the hardware you'll need includes:
           <orderedlist inheritnum='inherit' numeration='arabic'>
             <listitem>
-              an antenna and feed-line or adapter
+              <para>
+	      an antenna and feed-line or adapter
+	      </para>
             </listitem>
             <listitem>
-              a TeleDongle
+              <para>
+	      a TeleDongle
+	      </para>
             </listitem>
             <listitem>
-              a notebook computer
+              <para>
+	      a notebook computer
+	      </para>
             </listitem>
             <listitem>
-              optionally, a hand-held GPS receiver
+              <para>
+	      optionally, a hand-held GPS receiver
+	      </para>
             </listitem>
             <listitem>
-              optionally, an HT or receiver covering 435 MHz
+              <para>
+	      optionally, an HT or receiver covering 435 MHz
+	      </para>
             </listitem>
           </orderedlist>
         </para>
@@ -2021,14 +2040,18 @@ NAR #88757, TRA #12200
       </para>
       <orderedlist inheritnum='inherit' numeration='arabic'>
 	<listitem>
-	  Make sure TeleMetrum is aligned precisely along the axis of
-	  acceleration so that the accelerometer can accurately
-	  capture data during the flight.
+	  <para>
+	    Make sure TeleMetrum is aligned precisely along the axis of
+	    acceleration so that the accelerometer can accurately
+	    capture data during the flight.
+	  </para>
 	</listitem>
 	<listitem>
-	  Watch for any metal touching components on the
-	  board. Shorting out connections on the bottom of the board
-	  can cause the altimeter to fail during flight.
+	  <para>
+	    Watch for any metal touching components on the
+	    board. Shorting out connections on the bottom of the board
+	    can cause the altimeter to fail during flight.
+	  </para>
 	</listitem>
       </orderedlist>
     </section>
@@ -2094,18 +2117,22 @@ NAR #88757, TRA #12200
 	attenuate the GPS signal.
       <orderedlist inheritnum='inherit' numeration='arabic'>
 	<listitem>
-	  Conductive tubing or coatings. Carbon fiber and metal
-	  tubing, or metallic paint will all dramatically attenuate the
-	  GPS signal. We've never heard of anyone successfully
-	  receiving GPS from inside these materials.
+	  <para>
+	    Conductive tubing or coatings. Carbon fiber and metal
+	    tubing, or metallic paint will all dramatically attenuate the
+	    GPS signal. We've never heard of anyone successfully
+	    receiving GPS from inside these materials.
+	  </para>
 	</listitem>
 	<listitem>
-	  Metal components near the GPS patch antenna. These will
-	  de-tune the patch antenna, changing the resonant frequency
-	  away from the L1 carrier and reduce the effectiveness of the
-	  antenna. You can place as much stuff as you like beneath the
-	  antenna as that's covered with a ground plane. But, keep
-	  wires and metal out from above the patch antenna.
+	  <para>
+	    Metal components near the GPS patch antenna. These will
+	    de-tune the patch antenna, changing the resonant frequency
+	    away from the L1 carrier and reduce the effectiveness of the
+	    antenna. You can place as much stuff as you like beneath the
+	    antenna as that's covered with a ground plane. But, keep
+	    wires and metal out from above the patch antenna.
+	  </para>
 	</listitem>
       </orderedlist>
       </para>
@@ -2132,16 +2159,21 @@ NAR #88757, TRA #12200
       </para>
       <itemizedlist>
 	<listitem>
-	  Keep wires from different circuits apart. Moving circuits
-	  further apart will reduce RFI.
+	  <para>
+	    Keep wires from different circuits apart. Moving circuits
+	    further apart will reduce RFI.
+	  </para>
 	</listitem>
 	<listitem>
+	  <para>
 	  Avoid parallel wires from different circuits. The longer two
 	  wires run parallel to one another, the larger the amount of
 	  transferred energy. Cross wires at right angles to reduce
 	  RFI.
+	  </para>
 	</listitem>
 	<listitem>
+	  <para>
 	  Twist wires from the same circuits. Two wires the same
 	  distance from the transmitter will get the same amount of
 	  induced energy which will then cancel out. Any time you have
@@ -2149,14 +2181,17 @@ NAR #88757, TRA #12200
 	  even out distances and reduce RFI. For altimeters, this
 	  includes battery leads, switch hookups and igniter
 	  circuits.
+	  </para>
 	</listitem>
 	<listitem>
+	  <para>
 	  Avoid resonant lengths. Know what frequencies are present
 	  in the environment and avoid having wire lengths near a
 	  natural resonant length. Altusmetrum products transmit on the
 	  70cm amateur band, so you should avoid lengths that are a
 	  simple ratio of that length; essentially any multiple of 1/4
 	  of the wavelength (17.5cm).
+	  </para>
 	</listitem>
       </itemizedlist>
     </section>
@@ -2238,59 +2273,83 @@ NAR #88757, TRA #12200
       <title>Updating TeleMetrum Firmware</title>
       <orderedlist inheritnum='inherit' numeration='arabic'>
         <listitem>
+	  <para>
           Find the 'programming cable' that you got as part of the starter
           kit, that has a red 8-pin MicroMaTch connector on one end and a
           red 4-pin MicroMaTch connector on the other end.
+	  </para>
         </listitem>
         <listitem>
+	  <para>
           Take the 2 screws out of the TeleDongle case to get access
           to the circuit board.
+	  </para>
         </listitem>
         <listitem>
+	  <para>
           Plug the 8-pin end of the programming cable to the
           matching connector on the TeleDongle, and the 4-pin end to the
           matching connector on the TeleMetrum.
 	  Note that each MicroMaTch connector has an alignment pin that
 	  goes through a hole in the PC board when you have the cable
 	  oriented correctly.
+	  </para>
         </listitem>
         <listitem>
+	  <para>
           Attach a battery to the TeleMetrum board.
+	  </para>
         </listitem>
         <listitem>
+	  <para>
           Plug the TeleDongle into your computer's USB port, and power
           up the TeleMetrum.
+	  </para>
         </listitem>
         <listitem>
+	  <para>
           Run AltosUI, and select 'Flash Image' from the File menu.
+	  </para>
         </listitem>
         <listitem>
+	  <para>
           Pick the TeleDongle device from the list, identifying it as the
           programming device.
+	  </para>
         </listitem>
         <listitem>
+	  <para>
           Select the image you want put on the TeleMetrum, which should have a
           name in the form telemetrum-v1.2-1.0.0.ihx.  It should be visible
 	in the default directory, if not you may have to poke around
 	your system to find it.
+	  </para>
         </listitem>
         <listitem>
+	  <para>
           Make sure the configuration parameters are reasonable
           looking. If the serial number and/or RF configuration
           values aren't right, you'll need to change them.
+	  </para>
         </listitem>
         <listitem>
+	  <para>
           Hit the 'OK' button and the software should proceed to flash
           the TeleMetrum with new firmware, showing a progress bar.
+	  </para>
         </listitem>
         <listitem>
+	  <para>
           Confirm that the TeleMetrum board seems to have updated OK, which you
           can do by plugging in to it over USB and using a terminal program
           to connect to the board and issue the 'v' command to check
           the version, etc.
+	  </para>
         </listitem>
         <listitem>
+	  <para>
           If something goes wrong, give it another try.
+	  </para>
         </listitem>
       </orderedlist>
     </section>
@@ -2298,16 +2357,21 @@ NAR #88757, TRA #12200
       <title>Updating TeleMini Firmware</title>
       <orderedlist inheritnum='inherit' numeration='arabic'>
         <listitem>
+<para>
 	  You'll need a special 'programming cable' to reprogram the
 	  TeleMini. It's available on the Altus Metrum web store, or
 	  you can make your own using an 8-pin MicroMaTch connector on
 	  one end and a set of four pins on the other.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Take the 2 screws out of the TeleDongle case to get access
           to the circuit board.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Plug the 8-pin end of the programming cable to the matching
           connector on the TeleDongle, and the 4-pins into the holes
           in the TeleMini circuit board.  Note that the MicroMaTch
@@ -2315,44 +2379,63 @@ NAR #88757, TRA #12200
           the PC board when you have the cable oriented correctly, and
           that pin 1 on the TeleMini board is marked with a square pad
           while the other pins have round pads.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Attach a battery to the TeleMini board.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Plug the TeleDongle into your computer's USB port, and power
           up the TeleMini
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Run AltosUI, and select 'Flash Image' from the File menu.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Pick the TeleDongle device from the list, identifying it as the
           programming device.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Select the image you want put on the TeleMini, which should have a
           name in the form telemini-v1.0-1.0.0.ihx.  It should be visible
 	in the default directory, if not you may have to poke around
 	your system to find it.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Make sure the configuration parameters are reasonable
           looking. If the serial number and/or RF configuration
           values aren't right, you'll need to change them.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Hit the 'OK' button and the software should proceed to flash
           the TeleMini with new firmware, showing a progress bar.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Confirm that the TeleMini board seems to have updated OK, which you
           can do by configuring it over the radio link through the TeleDongle, or
 	  letting it come up in "flight" mode and listening for telemetry.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           If something goes wrong, give it another try.
-        </listitem>
+        </para>
+</listitem>
       </orderedlist>
     </section>
     <section>
@@ -2363,68 +2446,94 @@ NAR #88757, TRA #12200
 	</para>
       <orderedlist inheritnum='inherit' numeration='arabic'>
         <listitem>
+<para>
           Find the 'programming cable' that you got as part of the starter
           kit, that has a red 8-pin MicroMaTch connector on one end and a
           red 4-pin MicroMaTch connector on the other end.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
 	  Find the USB cable that you got as part of the starter kit, and
 	  plug the "mini" end in to the mating connector on TeleMetrum or TeleDongle.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Take the 2 screws out of the TeleDongle case to get access
           to the circuit board.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Plug the 8-pin end of the programming cable to the
           matching connector on the programmer, and the 4-pin end to the
           matching connector on the TeleDongle.
 	  Note that each MicroMaTch connector has an alignment pin that
 	  goes through a hole in the PC board when you have the cable
 	  oriented correctly.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Attach a battery to the TeleMetrum board if you're using one.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Plug both the programmer and the TeleDongle into your computer's USB
 	  ports, and power up the programmer.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Run AltosUI, and select 'Flash Image' from the File menu.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Pick the programmer device from the list, identifying it as the
           programming device.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Select the image you want put on the TeleDongle, which should have a
           name in the form teledongle-v0.2-1.0.0.ihx.  It should be visible
 	in the default directory, if not you may have to poke around
 	your system to find it.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Make sure the configuration parameters are reasonable
           looking. If the serial number and/or RF configuration
           values aren't right, you'll need to change them.  The TeleDongle
 	  serial number is on the "bottom" of the circuit board, and can
 	  usually be read through the translucent blue plastic case without
 	  needing to remove the board from the case.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Hit the 'OK' button and the software should proceed to flash
           the TeleDongle with new firmware, showing a progress bar.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           Confirm that the TeleDongle board seems to have updated OK, which you
           can do by plugging in to it over USB and using a terminal program
           to connect to the board and issue the 'v' command to check
           the version, etc.  Once you're happy, remove the programming cable
 	  and put the cover back on the TeleDongle.
-        </listitem>
+        </para>
+</listitem>
         <listitem>
+<para>
           If something goes wrong, give it another try.
-        </listitem>
+        </para>
+</listitem>
       </orderedlist>
       <para>
         Be careful removing the programming cable from the locking 8-pin
@@ -2936,21 +3045,80 @@ NAR #88757, TRA #12200
         </para>
       </section>
   </appendix>
-  <appendix
-      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <appendix>
     <title>Release Notes</title>
-    <simplesect><title>Version 1.3</title><xi:include	href="release-notes-1.3.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
-    <simplesect><title>Version 1.2.1</title><xi:include	href="release-notes-1.2.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
-    <simplesect><title>Version 1.2</title><xi:include	href="release-notes-1.2.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
-    <simplesect><title>Version 1.1.1</title><xi:include	href="release-notes-1.1.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
-    <simplesect><title>Version 1.1</title><xi:include	href="release-notes-1.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
-    <simplesect><title>Version 1.0.1</title><xi:include	href="release-notes-1.0.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
-    <simplesect><title>Version 0.9.2</title><xi:include	href="release-notes-0.9.2.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
-    <simplesect><title>Version 0.9</title><xi:include	href="release-notes-0.9.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
-    <simplesect><title>Version 0.8</title><xi:include	href="release-notes-0.8.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
-    <simplesect><title>Version 0.7.1</title><xi:include	href="release-notes-0.7.1.xsl"  xpointer="xpointer(/article/*)"/></simplesect>
+    <simplesect>
+      <title>Version 1.3</title>
+      <xi:include
+	  xmlns:xi="http://www.w3.org/2001/XInclude"
+	  href="release-notes-1.3.xsl"
+	  xpointer="xpointer(/article/*)"/>
+    </simplesect>
+    <simplesect>
+      <title>Version 1.2.1</title>
+      <xi:include
+	  xmlns:xi="http://www.w3.org/2001/XInclude"
+	  href="release-notes-1.2.1.xsl"
+	  xpointer="xpointer(/article/*)"/>
+    </simplesect>
+    <simplesect>
+      <title>Version 1.2</title>
+      <xi:include
+	  xmlns:xi="http://www.w3.org/2001/XInclude"
+	  href="release-notes-1.2.xsl"
+	  xpointer="xpointer(/article/*)"/>
+    </simplesect>
+    <simplesect>
+      <title>Version 1.1.1</title>
+      <xi:include
+	  xmlns:xi="http://www.w3.org/2001/XInclude"
+	  href="release-notes-1.1.1.xsl"
+	  xpointer="xpointer(/article/*)"/>
+    </simplesect>
+    <simplesect>
+      <title>Version 1.1</title>
+      <xi:include
+	  xmlns:xi="http://www.w3.org/2001/XInclude"
+	  href="release-notes-1.1.xsl"
+	  xpointer="xpointer(/article/*)"/>
+    </simplesect>
+    <simplesect>
+      <title>Version 1.0.1</title>
+      <xi:include
+	  xmlns:xi="http://www.w3.org/2001/XInclude"
+	  href="release-notes-1.0.1.xsl"
+	  xpointer="xpointer(/article/*)"/>
+    </simplesect>
+    <simplesect>
+      <title>Version 0.9.2</title>
+      <xi:include
+	  xmlns:xi="http://www.w3.org/2001/XInclude"
+	  href="release-notes-0.9.2.xsl"
+	  xpointer="xpointer(/article/*)"/>
+    </simplesect>
+    <simplesect>
+      <title>Version 0.9</title>
+      <xi:include
+	  xmlns:xi="http://www.w3.org/2001/XInclude"
+	  href="release-notes-0.9.xsl"
+	  xpointer="xpointer(/article/*)"/>
+    </simplesect>
+    <simplesect>
+      <title>Version 0.8</title>
+      <xi:include
+	  xmlns:xi="http://www.w3.org/2001/XInclude"
+	  href="release-notes-0.8.xsl"
+	  xpointer="xpointer(/article/*)"/>
+    </simplesect>
+    <simplesect>
+      <title>Version 0.7.1</title>
+      <xi:include
+	  xmlns:xi="http://www.w3.org/2001/XInclude"
+	  href="release-notes-0.7.1.xsl"
+	  xpointer="xpointer(/article/*)"/>
+    </simplesect>
   </appendix>
 </book>
 
-<!--  LocalWords:  Altusmetrum
+<!-- LocalWords: Altusmetrum
 -->
