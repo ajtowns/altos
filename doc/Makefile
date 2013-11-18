@@ -19,7 +19,7 @@ HTML=altusmetrum.html altos.html telemetry.html companion.html micropeak.html $(
 PDF=altusmetrum.pdf altos.pdf telemetry.pdf companion.pdf micropeak.pdf
 DOC=$(HTML) $(PDF)
 HTMLSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/html/docbook.xsl
-FOSTYLE=./xorg-fo.xsl
+FOSTYLE=xorg-fo.xsl
 PDFSTYLE=
 IMAGES=telemetrum.svg telemini.svg
 
@@ -52,7 +52,9 @@ distclean:
 	rm -f $(HTML) $(PDF)
 
 altusmetrum.html: $(RELNOTES_XSL) $(IMAGES)
-altusmetrum.fo: $(RELNOTES_XSL) $(IMAGES)
+altusmetrum.pdf: $(RELNOTES_XSL) $(IMAGES)
+
+$(PDF): $(FOSTYLE)
 
 indent:		altusmetrum.xsl
 	xmlindent -i 2 < altusmetrum.xsl > altusmetrum.new
