@@ -549,7 +549,7 @@ NAR #88757, TRA #12200
 	fit inside coupler for 29mm air-frame tubing, but using it in a tube that
 	small in diameter may require some creativity in mounting and wiring
 	to succeed!  The presence of an accelerometer means TeleMetrum should
-	be aligned along the flight axis of the airframe, and by default the 1/4
+	be aligned along the flight axis of the airframe, and by default the ¼
 	wave UHF wire antenna should be on the nose-cone end of the board.  The
 	antenna wire is about 7 inches long, and wiring for a power switch and
 	the e-matches for apogee and main ejection charges depart from the
@@ -2657,7 +2657,7 @@ NAR #88757, TRA #12200
 	  in the environment and avoid having wire lengths near a
 	  natural resonant length. Altusmetrum products transmit on the
 	  70cm amateur band, so you should avoid lengths that are a
-	  simple ratio of that length; essentially any multiple of 1/4
+	  simple ratio of that length; essentially any multiple of ¼
 	  of the wavelength (17.5cm).
 	  </para>
 	</listitem>
