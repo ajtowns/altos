@@ -1919,18 +1919,109 @@ NAR #88757, TRA #12200
 	<title>Configure Pyro Channels</title>
 	<para>
 	  This opens a separate window to configure the additional
-	  pyro channels available on TeleMega. One column is presented
-	  for each channel. Each row represents a single parameter, if
-	  enabled the parameter must meet the specified test for the
-	  pyro channel to be fired.
+	  pyro channels available on TeleMega.  One column is
+	  presented for each channel. Each row represents a single
+	  parameter, if enabled the parameter must meet the specified
+	  test for the pyro channel to be fired.
 	</para>
 	<itemizedlist>
 	  <listitem>
 	    <para>
-	      
+	      Acceleration less than.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Acceleration greater than.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Speed less than.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Speed greater than.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Height less than.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Height greater than.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Angle from vertical less than.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Angle from vertical greater than.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Time since boost less than.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Time since boost greater than.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Ascending. This is exactly the same as setting a
+	      condition for speed &gt; 0.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Descending. This is exactly the same as setting a
+	      condition for speed &lt; 0.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      After motor number.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Delay after other conditions.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Flight state before.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Flight state after.
 	    </para>
 	  </listitem>
 	</itemizedlist>
+	<para>
+	  Select conditions and set the related value; the pyro
+	  channel will be activated when <emphasis>all</emphasis> of the
+	  conditions are met. Each pyro channel has a separate set of
+	  configuration values, so you can use different values for
+	  the same condition with different channels.
+	</para>
+	<para>
+	  Once you have selected the appropriate configuration for all
+	  of the necessary pyro channels, you can save the pyro
+	  configuration along with the rest of the flight computer
+	  configuration by pressing the 'Save' button in the main
+	  Configure Flight Computer window.
+	</para>
       </section>
     </section>
     <section>
@@ -1995,9 +2086,10 @@ NAR #88757, TRA #12200
 	<para>
 	  This switches between metric units (meters) and imperial
 	  units (feet and miles). This affects the display of values
-	  use during flight monitoring, data graphing and all of the
-	  voice announcements. It does not change the units used when
-	  exporting to CSV files, those are always produced in metric units.
+	  use during flight monitoring, configuration, data graphing
+	  and all of the voice announcements. It does not change the
+	  units used when exporting to CSV files, those are always
+	  produced in metric units.
 	</para>
       </section>
       <section>
@@ -2205,7 +2297,11 @@ NAR #88757, TRA #12200
 	This brings up a dialog similar to the Monitor Flight UI,
 	except it works with the altimeter in “idle” mode by sending
 	query commands to discover the current state rather than
-	listening for telemetry packets.
+	listening for telemetry packets. Because this uses command
+	mode, it needs to have the TeleDongle and flight computer
+	callsigns match exactly. If you can receive telemetry, but
+	cannot manage to run Monitor Idle, then it's very likely that
+	your callsigns are different in some way.
       </para>
     </section>
   </chapter>
