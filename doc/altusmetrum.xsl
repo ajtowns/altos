@@ -106,9 +106,9 @@
   <dedication>
     <title>Acknowledgements</title>
     <para>
-      Thanks to Bob Finch, W9YA, NAR 12965, TRA 12350 for writing "The
+      Thanks to Bob Finch, W9YA, NAR 12965, TRA 12350 for writing “The
       Mere-Mortals Quick Start/Usage Guide to the Altus Metrum Starter
-      Kit" which formed the basis of the original Getting Started chapter 
+      Kit” which formed the basis of the original Getting Started chapter 
       in this manual.  Bob was one of our first customers for a production
       TeleMetrum, and his continued enthusiasm and contributions
       are immensely gratifying and highly appreciated!
@@ -145,7 +145,7 @@ NAR #88757, TRA #12200
     <para>
       The first device created for our community was TeleMetrum, a dual
       deploy altimeter with fully integrated GPS and radio telemetry
-      as standard features, and a "companion interface" that will
+      as standard features, and a “companion interface” that will
       support optional capabilities in the future. The latest version
       of TeleMetrum, v2.0, has all of the same features but with
       improved sensors and radio to offer increased performance.
@@ -194,7 +194,7 @@ NAR #88757, TRA #12200
     <title>Getting Started</title>
     <para>
       The first thing to do after you check the inventory of parts in your
-      "starter kit" is to charge the battery.
+      “starter kit” is to charge the battery.
     </para>
     <para>
       For TeleMetrum and TeleMega, the battery can be charged by plugging it into the
@@ -243,7 +243,7 @@ NAR #88757, TRA #12200
     <para>
       The other active device in the starter kit is the TeleDongle USB to
       RF interface.  If you plug it in to your Mac or Linux computer it should
-      "just work", showing up as a serial port device.  Windows systems need
+      “just work”, showing up as a serial port device.  Windows systems need
       driver information that is part of the AltOS download to know that the
       existing USB modem driver will work.  We therefore recommend installing
       our software before plugging in TeleDongle if you are using a Windows
@@ -296,19 +296,19 @@ NAR #88757, TRA #12200
       The barometric sensors used on all of our flight computers are 
       sensitive to sunlight.  In normal mounting situations, the baro sensor
       and all of the other surface mount components
-      are "down" towards whatever the underlying mounting surface is, so
+      are “down” towards whatever the underlying mounting surface is, so
       this is not normally a problem.  Please consider this, though, when
       designing an installation, for example, in an air-frame with a
       see-through plastic payload bay.  It is particularly important to
       consider this with TeleMini v1.0, both because the baro sensor is on the
-      "top" of the board, and because many model rockets with payload bays
+      “top” of the board, and because many model rockets with payload bays
       use clear plastic for the payload bay!  Replacing these with an opaque
       cardboard tube, painting them, or wrapping them with a layer of masking
       tape are all reasonable approaches to keep the sensor out of direct
       sunlight.
     </para>
     <para>
-      The barometric sensor sampling port must be able to "breathe",
+      The barometric sensor sampling port must be able to “breathe”,
       both by not being covered by foam or tape or other materials that might
       directly block the hole on the top of the sensor, and also by having a
       suitable static vent to outside air.
@@ -553,7 +553,7 @@ NAR #88757, TRA #12200
 	wave UHF wire antenna should be on the nose-cone end of the board.  The
 	antenna wire is about 7 inches long, and wiring for a power switch and
 	the e-matches for apogee and main ejection charges depart from the
-	fin can end of the board, meaning an ideal "simple" avionics
+	fin can end of the board, meaning an ideal “simple” avionics
 	bay for TeleMetrum should have at least 10 inches of interior length.
       </para>
     </section>
@@ -570,7 +570,7 @@ NAR #88757, TRA #12200
 	wires for the power switch are connected to holes in the
 	middle of the board. Screw terminals for the e-matches for
 	apogee and main ejection charges depart from the other end of
-	the board, meaning an ideal "simple" avionics bay for TeleMini
+	the board, meaning an ideal “simple” avionics bay for TeleMini
 	should have at least 9 inches of interior length.
       </para>
       <para>
@@ -740,7 +740,7 @@ NAR #88757, TRA #12200
 	to fire ejection charges.  This works marvelously with standard
 	low-current e-matches like the J-Tek from MJG Technologies, and with
 	Quest Q2G2 igniters.  However, if you want or need to use a separate 
-	pyro battery, check out the "External Pyro Battery" section in this 
+	pyro battery, check out the “External Pyro Battery” section in this 
 	manual for instructions on how to wire that up. The altimeters are 
 	designed to work with an external pyro battery of no more than 15 volts.
 
@@ -775,45 +775,45 @@ NAR #88757, TRA #12200
       <title>Firmware Modes </title>
       <para>
         The AltOS firmware build for the altimeters has two
-        fundamental modes, "idle" and "flight".  Which of these modes
+        fundamental modes, “idle” and “flight”.  Which of these modes
         the firmware operates in is determined at start up time. For
         TeleMetrum, the mode is controlled by the orientation of the
         rocket (well, actually the board, of course...) at the time
-        power is switched on.  If the rocket is "nose up", then
+        power is switched on.  If the rocket is “nose up”, then
         TeleMetrum assumes it's on a rail or rod being prepared for
         launch, so the firmware chooses flight mode.  However, if the
         rocket is more or less horizontal, the firmware instead enters
         idle mode.  Since TeleMini v2.0 and EasyMini don't have an
-        accelerometer we can use to determine orientation, "idle" mode
+        accelerometer we can use to determine orientation, “idle” mode
         is selected if the board is connected via USB to a computer,
-        otherwise the board enters "flight" mode. TeleMini v1.0
-        selects "idle" mode if it receives a command packet within the
+        otherwise the board enters “flight” mode. TeleMini v1.0
+        selects “idle” mode if it receives a command packet within the
         first five seconds of operation.
       </para>
       <para>
         At power on, you will hear three beeps or see three flashes
-        ("S" in Morse code for start up) and then a pause while
+        (“S” in Morse code for start up) and then a pause while
         the altimeter completes initialization and self test, and decides 
 	which mode to enter next.
       </para>
       <para>
-        In flight or "pad" mode, the altimeter engages the flight
+        In flight or “pad” mode, the altimeter engages the flight
         state machine, goes into transmit-only mode to
         send telemetry, and waits for launch to be detected.
-        Flight mode is indicated by an "di-dah-dah-dit" ("P" for pad)
+        Flight mode is indicated by an “di-dah-dah-dit” (“P” for pad)
         on the beeper or lights, followed by beeps or flashes
         indicating the state of the pyrotechnic igniter continuity.
         One beep/flash indicates apogee continuity, two beeps/flashes
         indicate main continuity, three beeps/flashes indicate both
-        apogee and main continuity, and one longer "brap" sound or
+        apogee and main continuity, and one longer “brap” sound or
         rapidly alternating lights indicates no continuity.  For a
         dual deploy flight, make sure you're getting three beeps or
         flashes before launching!  For apogee-only or motor eject
         flights, do what makes sense.
       </para>
       <para>
-        If idle mode is entered, you will hear an audible "di-dit" or
-        see two short flashes ("I" for idle), and the flight state
+        If idle mode is entered, you will hear an audible “di-dit” or
+        see two short flashes (“I” for idle), and the flight state
         machine is disengaged, thus no ejection charges will fire.
         The altimeters also listen for the radio link when in idle
         mode for requests sent via TeleDongle.  Commands can be issued
@@ -824,7 +824,7 @@ NAR #88757, TRA #12200
         ground testing pyro charges.
       </para>
       <para>
-        One "neat trick" of particular value when TeleMetrum or TeleMega are used with 
+        One “neat trick” of particular value when TeleMetrum or TeleMega are used with 
         very large air-frames, is that you can power the board up while the 
         rocket is horizontal, such that it comes up in idle mode.  Then you can
         raise the air-frame to launch position, and issue a 'reset' command 
@@ -884,9 +884,9 @@ NAR #88757, TRA #12200
       </para>
       <para>
         The flight computers provide backup power to the GPS chip any time a 
-        battery is connected.  This allows the receiver to "warm start" on
+        battery is connected.  This allows the receiver to “warm start” on
         the launch rail much faster than if every power-on were a GPS 
-	"cold start".  In typical operations, powering up
+	“cold start”.  In typical operations, powering up
         on the flight line in idle mode while performing final air-frame
         preparation will be sufficient to allow the GPS receiver to cold
         start and acquire lock.  Then the board can be powered down during
@@ -940,7 +940,7 @@ NAR #88757, TRA #12200
 	    and additional pyro event conditions
             to respond to changing launch conditions. You can also
             'reboot' the altimeter. Use this to remotely enable the
-            flight computer by turning TeleMetrum or TeleMega on in "idle" mode,
+            flight computer by turning TeleMetrum or TeleMega on in “idle” mode,
             then once the air-frame is oriented for launch, you can
             reboot the altimeter and have it restart in pad mode
             without having to climb the scary ladder.
@@ -1000,9 +1000,9 @@ NAR #88757, TRA #12200
       </para>
       <para>
         Just prep the rocket for flight, then power up the altimeter
-        in "idle" mode (placing air-frame horizontal for TeleMetrum or TeleMega, or
+        in “idle” mode (placing air-frame horizontal for TeleMetrum or TeleMega, or
         selecting the Configure Altimeter tab for TeleMini).  This will cause 
-        the firmware to go into "idle" mode, in which the normal flight
+        the firmware to go into “idle” mode, in which the normal flight
         state machine is disabled and charges will not fire without
         manual command.  You can now command the altimeter to fire the apogee
         or main charges from a safe distance using your computer and 
@@ -1019,11 +1019,11 @@ NAR #88757, TRA #12200
       </para>
       <para>
         By design, the altimeter firmware listens for the radio link when
-        it's in "idle mode", which
+        it's in “idle mode”, which
         allows us to use the radio link to configure the rocket, do things like
         ejection tests, and extract data after a flight without having to
-        crack open the air-frame.  However, when the board is in "flight
-        mode", the altimeter only
+        crack open the air-frame.  However, when the board is in “flight
+        mode”, the altimeter only
         transmits and doesn't listen at all.  That's because we want to put
         ultimate priority on event detection and getting telemetry out of
         the rocket through
@@ -1060,7 +1060,7 @@ NAR #88757, TRA #12200
       <para>
         Configuring an Altus Metrum altimeter for flight is very
         simple.  Even on our baro-only TeleMini and EasyMini boards, the use of a Kalman 
-        filter means there is no need to set a "mach delay".  The few 
+        filter means there is no need to set a “mach delay”.  The few 
         configurable parameters can all be set using AltosUI over USB or
         or radio link via TeleDongle.
       </para>
@@ -1069,7 +1069,7 @@ NAR #88757, TRA #12200
         <para>
 	  Altus Metrum boards support radio frequencies in the 70cm
 	  band. By default, the configuration interface provides a
-	  list of 10 "standard" frequencies in 100kHz channels starting at
+	  list of 10 “standard” frequencies in 100kHz channels starting at
 	  434.550MHz.  However, the firmware supports use of
 	  any 50kHz multiple within the 70cm band. At any given
 	  launch, we highly recommend coordinating when and by whom each
@@ -2167,7 +2167,7 @@ NAR #88757, TRA #12200
       <title>Monitor Idle</title>
       <para>
 	This brings up a dialog similar to the Monitor Flight UI,
-	except it works with the altimeter in "idle" mode by sending
+	except it works with the altimeter in “idle” mode by sending
 	query commands to discover the current state rather than
 	listening for telemetry packets.
       </para>
@@ -2193,8 +2193,8 @@ NAR #88757, TRA #12200
       <para>
 	AltosDroid is included in the Google Play store. To install
 	it on your Android device, open open the Google Play Store
-	application and search for "altosdroid". Make sure you don't
-	have a space between "altos" and "droid" or you probably won't
+	application and search for “altosdroid”. Make sure you don't
+	have a space between “altos” and “droid” or you probably won't
 	find what you want. That should bring you to the right page
 	from which you can download and install the application.
       </para>
@@ -2378,7 +2378,7 @@ NAR #88757, TRA #12200
           Geo-Caching... just go to the way-point and look around starting from there.
         </para>
         <para>
-          You may also enjoy having a ham radio "HT" that covers the 70cm band... you
+          You may also enjoy having a ham radio “HT” that covers the 70cm band... you
           can use that with your antenna to direction-find the rocket on the ground
           the same way you can use a Walston or Beeline tracker.  This can be handy
           if the rocket is hiding in sage brush or a tree, or if the last GPS position
@@ -2451,7 +2451,7 @@ NAR #88757, TRA #12200
       <section>
         <title>Future Plans</title>
         <para>
-          In the future, we intend to offer "companion boards" for the rocket 
+          In the future, we intend to offer “companion boards” for the rocket 
 	  that will plug in to TeleMetrum to collect additional data, provide 
 	  more pyro channels, and so forth.  
         </para>
@@ -2501,7 +2501,7 @@ NAR #88757, TRA #12200
 	securely fastened to the air-frame. For TeleMetrum, we use
 	nylon standoffs and nylon screws; they're good to at least 50G
 	and cannot cause any electrical issues on the board. For
-	TeleMini, we usually cut small pieces of 1/16" balsa to fit
+	TeleMini, we usually cut small pieces of 1/16 inch balsa to fit
 	under the screw holes, and then take 2x56 nylon screws and
 	screw them through the TeleMini mounting holes, through the
 	balsa and into the underlying material.
@@ -2896,7 +2896,7 @@ NAR #88757, TRA #12200
 <para>
           Confirm that the TeleMini board seems to have updated OK, which you
           can do by configuring it over the radio link through the TeleDongle, or
-	  letting it come up in "flight" mode and listening for telemetry.
+	  letting it come up in “flight” mode and listening for telemetry.
         </para>
 </listitem>
         <listitem>
@@ -2923,7 +2923,7 @@ NAR #88757, TRA #12200
         <listitem>
 <para>
 	  Find the USB cable that you got as part of the starter kit, and
-	  plug the "mini" end in to the mating connector on TeleMetrum or TeleDongle.
+	  plug the “mini” end in to the mating connector on TeleMetrum or TeleDongle.
         </para>
 </listitem>
         <listitem>
@@ -2977,7 +2977,7 @@ NAR #88757, TRA #12200
           Make sure the configuration parameters are reasonable
           looking. If the serial number and/or RF configuration
           values aren't right, you'll need to change them.  The TeleDongle
-	  serial number is on the "bottom" of the circuit board, and can
+	  serial number is on the “bottom” of the circuit board, and can
 	  usually be read through the translucent blue plastic case without
 	  needing to remove the board from the case.
         </para>
@@ -3135,15 +3135,15 @@ NAR #88757, TRA #12200
         TeleMetrum seems to shut off when disconnected from the
         computer.  Make sure the battery is adequately charged.  Remember the
         unit will pull more power than the USB port can deliver before the
-        GPS enters "locked" mode.  The battery charges best when TeleMetrum
+        GPS enters “locked” mode.  The battery charges best when TeleMetrum
         is turned off.
       </para>
       <para>
-        It's impossible to stop the TeleDongle when it's in "p" mode, I have
-        to unplug the USB cable?  Make sure you have tried to "escape out" of
+        It's impossible to stop the TeleDongle when it's in “p” mode, I have
+        to unplug the USB cable?  Make sure you have tried to “escape out” of
         this mode.  If this doesn't work the reboot procedure for the
         TeleDongle *is* to simply unplug it. 'cu' however will retain it's
-        outgoing buffer IF your "escape out" ('~~') does not work.
+        outgoing buffer IF your “escape out” ('~~') does not work.
         At this point using either 'ao-view' (or possibly
         'cutemon') instead of 'cu' will 'clear' the issue and allow renewed
         communication.
@@ -3156,11 +3156,11 @@ NAR #88757, TRA #12200
         then the battery is being charged at a 'trickle' rate.
       </para>
       <para>
-        There are no "dit-dah-dah-dit" sound or lights like the manual mentions?
-        That's the "pad" mode.  Weak batteries might be the problem.
+        There are no “dit-dah-dah-dit” sound or lights like the manual mentions?
+        That's the “pad” mode.  Weak batteries might be the problem.
         It is also possible that the TeleMetrum is horizontal and the output
-        is instead a "dit-dit" meaning 'idle'. For TeleMini, it's possible that
-	it received a command packet which would have left it in "pad" mode.
+        is instead a “dit-dit” meaning 'idle'. For TeleMini, it's possible that
+	it received a command packet which would have left it in “pad” mode.
       </para>
       <para>
         How do I save flight data?
@@ -3301,18 +3301,18 @@ NAR #88757, TRA #12200
     </para>
     <para>
       Now might be a good time to take a break and read the rest of this
-      manual, particularly about the two "modes" that the altimeters
+      manual, particularly about the two “modes” that the altimeters
       can be placed in. TeleMetrum uses the position of the device when booting
-      up will determine whether the unit is in "pad" or "idle" mode. TeleMini
-      enters "idle" mode when it receives a command packet within the first 5 seconds
-      of being powered up, otherwise it enters "pad" mode.
+      up will determine whether the unit is in “pad” or “idle” mode. TeleMini
+      enters “idle” mode when it receives a command packet within the first 5 seconds
+      of being powered up, otherwise it enters “pad” mode.
     </para>
     <para>
       You can access an altimeter in idle mode from the TeleDongle's USB
       connection using the radio link
       by issuing a 'p' command to the TeleDongle. Practice connecting and
       disconnecting ('~~' while using 'cu') from the altimeter.  If
-      you cannot escape out of the "p" command, (by using a '~~' when in
+      you cannot escape out of the “p” command, (by using a '~~' when in
       CU) then it is likely that your kernel has issues.  Try a newer version.
     </para>
     <para>
@@ -3322,7 +3322,7 @@ NAR #88757, TRA #12200
       is in 'idle mode' and then place the
       rocket vertically on the launch pad, walk away and then issue a
       reboot command.  The altimeter will reboot and start sending data
-      having changed to the "pad" mode. If the TeleDongle is not receiving
+      having changed to the “pad” mode. If the TeleDongle is not receiving
       this data, you can disconnect 'cu' from the TeleDongle using the
       procedures mentioned above and THEN connect to the TeleDongle from
       inside 'ao-view'. If this doesn't work, disconnect from the
@@ -3492,8 +3492,8 @@ NAR #88757, TRA #12200
           The +1g and -1g calibration points are included in each telemetry
           frame and are part of the header stored in onboard flash to be
 	  downloaded after flight.  We always store and return raw ADC 
-	  samples for each sensor... so nothing is permanently "lost" or 
-	  "damaged" if the calibration is poor.
+	  samples for each sensor... so nothing is permanently “lost” or 
+	  “damaged” if the calibration is poor.
         </para>
         <para>
          In the unlikely event an accel cal goes badly, it is possible
