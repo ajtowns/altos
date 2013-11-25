@@ -320,102 +320,454 @@ NAR #88757, TRA #12200
     </para>
   </chapter>
   <chapter>
-    <title>Hardware Overview</title>
-    <para>
-      TeleMetrum is a 1 inch by 2¾ inch circuit board.  It was designed to
-      fit inside coupler for 29mm air-frame tubing, but using it in a tube that
-      small in diameter may require some creativity in mounting and wiring
-      to succeed!  The presence of an accelerometer means TeleMetrum should
-      be aligned along the flight axis of the airframe, and by default the 1/4
-      wave UHF wire antenna should be on the nose-cone end of the board.  The
-      antenna wire is about 7 inches long, and wiring for a power switch and
-      the e-matches for apogee and main ejection charges depart from the
-      fin can end of the board, meaning an ideal "simple" avionics
-      bay for TeleMetrum should have at least 10 inches of interior length.
-    </para>
-    <para>
-      TeleMini v1.0 is a ½ inch by 1½ inch circuit board.   It was designed to
-      fit inside an 18mm air-frame tube, but using it in a tube that
-      small in diameter may require some creativity in mounting and wiring
-      to succeed!  Since there is no accelerometer, TeleMini can be mounted
-      in any convenient orientation.  The default ¼
-      wave UHF wire antenna attached to the center of one end of
-      the board is about 7 inches long, and wiring for a power switch and
-      the e-matches for apogee and main ejection charges depart from the
-      other end of the board, meaning an ideal "simple" avionics
-      bay for TeleMini should have at least 9 inches of interior length.
-    </para>
-    <para>
-      TeleMini v2.0 and EasyMini are both built on a 0.8 inch by 1½
-      inch circuit board. They're designed to fit in a 24mm coupler
-      tube. TeleMini has an antenna, which must be run straight out
-      fro the board. Bending or folding it will dramatically reduce RF
-      performance. For smaller rockets, it's often best to drill a
-      hole in the bulkhead forward of TeleMini and run the antenna
-      wire through that and alongside any recovery components
-      there. Be careful to seal the hole to prevent ejection gasses
-      from passing through the hole and damaging the electronics.
-    </para>
-    <para>
-      TeleMega is a 1¼ inch by 3¼ inch circuit board. It was
-      designed to easily fit in a 38mm coupler. Like TeleMetrum,
-      TeleMega has an accelerometer and so it must be mounted so that
-      the board is aligned with the flight axis. It can be mounted
-      either antenna up or down.
-    </para>
-    <para>
-      A typical installation involves attaching 
-      only a suitable battery, a single pole switch for 
-      power on/off, and two pairs of wires connecting e-matches for the 
-      apogee and main ejection charges.  All Altus Metrum products are 
-      designed for use with single-cell batteries with 3.7 volts
-      nominal. TeleMini v2.0 and EasyMini may also be used with other
-      batteries as long as they supply between 4 and 12 volts.
-    </para>
-    <para>
-      The battery connectors are a standard 2-pin JST connector and
-      match batteries sold by Spark Fun. These batteries are
-      single-cell Lithium Polymer batteries that nominally provide 3.7
-      volts.  Other vendors sell similar batteries for RC aircraft
-      using mating connectors, however the polarity for those is
-      generally reversed from the batteries used by Altus Metrum
-      products. In particular, the Tenergy batteries supplied for use
-      in Featherweight flight computers are not compatible with Altus
-      Metrum flight computers or battery chargers. <emphasis>Check
-      polarity and voltage before connecting any battery not purchased
-      from Altus Metrum or Spark Fun.</emphasis>
-    </para>
-    <para>
-      By default, we use the unregulated output of the battery directly
-      to fire ejection charges.  This works marvelously with standard
-      low-current e-matches like the J-Tek from MJG Technologies, and with
-      Quest Q2G2 igniters.  However, if you want or need to use a separate 
-      pyro battery, check out the "External Pyro Battery" section in this 
-      manual for instructions on how to wire that up. The altimeters are 
-      designed to work with an external pyro battery of no more than 15 volts.
-    </para>
-    <para>
-      Ejection charges are wired directly to the screw terminal block
-      at the aft end of the altimeter.  You'll need a very small straight 
-      blade screwdriver for these screws, such as you might find in a 
-      jeweler's screwdriver set.
-    </para>
-    <para>
-      Except for TeleMini v1.0, the flight computers also use the
-      screw terminal block for the power switch leads. On TeleMini v1.0,
-      the power switch leads are soldered directly to the board and
-      can be connected directly to a switch.
-    </para>
-    <para>
-      For most air-frames, the integrated antennas are more than
-      adequate.   However, if you are installing in a carbon-fiber or
-      metal electronics bay which is opaque to RF signals, you may need to
-      use off-board external antennas instead.  In this case, you can
-      order an altimeter with an SMA connector for the UHF antenna
-      connection, and, on TeleMetrum v1, you can unplug the integrated GPS
-      antenna and select an appropriate off-board GPS antenna with
-      cable terminating in a U.FL connector.
-    </para>
+    <title>Altus Metrum Hardware</title>
+    <section>
+      <title>Overview</title>
+      <para>
+	Here's the full set of Altus Metrum products, both in
+	production and retired.
+      </para>
+      <table frame='all'>
+	<title>Altus Metrum Electronics</title>
+	<tgroup cols='8' align='center' colsep='1' rowsep='1'>
+	  <colspec align='center' colwidth='*' colname='Device'/>
+	  <colspec align='center' colwidth='*' colname='Barometer'/>
+	  <colspec align='center' colwidth='*' colname='Z-axis accelerometer'/>
+	  <colspec align='center' colwidth='*' colname='GPS'/>
+	  <colspec align='center' colwidth='*' colname='3D sensors'/>
+	  <colspec align='center' colwidth='*' colname='Storage'/>
+	  <colspec align='center' colwidth='*' colname='RF'/>
+	  <colspec align='center' colwidth='*' colname='Battery'/>
+	  <thead>
+	    <row>
+	      <entry align='center'>Device</entry>
+	      <entry align='center'>Barometer</entry>
+	      <entry align='center'>Z-axis accelerometer</entry>
+	      <entry align='center'>GPS</entry>
+	      <entry align='center'>3D sensors</entry>
+	      <entry align='center'>Storage</entry>
+	      <entry align='center'>RF Output</entry>
+	      <entry align='center'>Battery</entry>
+	    </row>
+	  </thead>
+	  <tbody>
+	    <row>
+	      <entry>TeleMetrum v1.0</entry>
+	      <entry><para>MP3H6115 10km (33k')</para></entry>
+	      <entry><para>MMA2202 50g</para></entry>
+	      <entry>SkyTraq</entry>
+	      <entry>-</entry>
+	      <entry>1MB</entry>
+	      <entry>10mW</entry>
+	      <entry>3.7V</entry>
+	    </row>
+	    <row>
+	      <entry>TeleMetrum v1.1</entry>
+	      <entry><para>MP3H6115 10km (33k')</para></entry>
+	      <entry><para>MMA2202 50g</para></entry>
+	      <entry>SkyTraq</entry>
+	      <entry>-</entry>
+	      <entry>2MB</entry>
+	      <entry>10mW</entry>
+	      <entry>3.7V</entry>
+	    </row>
+	    <row>
+	      <entry>TeleMetrum v1.2</entry>
+	      <entry><para>MP3H6115 10km (33k')</para></entry>
+	      <entry><para>ADXL78 70g</para></entry>
+	      <entry>SkyTraq</entry>
+	      <entry>-</entry>
+	      <entry>2MB</entry>
+	      <entry>10mW</entry>
+	      <entry>3.7V</entry>
+	    </row>
+	    <row>
+	      <entry>TeleMetrum v2.0</entry>
+	      <entry><para>MS5607 30km (100k')</para></entry>
+	      <entry><para>MMA6555 102g</para></entry>
+	      <entry>uBlox Max-7Q</entry>
+	      <entry>-</entry>
+	      <entry>8MB</entry>
+	      <entry>40mW</entry>
+	      <entry>3.7V</entry>
+	    </row>
+	    <row>
+	      <entry><para>TeleMini <?linebreak?>v1.0</para></entry>
+	      <entry><para>MP3H6115 10km (33k')</para></entry>
+	      <entry>-</entry>
+	      <entry>-</entry>
+	      <entry>-</entry>
+	      <entry>5kB</entry>
+	      <entry>10mW</entry>
+	      <entry>3.7V</entry>
+	    </row>
+	    <row>
+	      <entry>TeleMini <?linebreak?>v2.0</entry>
+	      <entry><para>MS5607 30km (100k')</para></entry>
+	      <entry>-</entry>
+	      <entry>-</entry>
+	      <entry>-</entry>
+	      <entry>1MB</entry>
+	      <entry>10mW</entry>
+	      <entry>3.7-12V</entry>
+	    </row>
+	    <row>
+	      <entry>EasyMini <?linebreak?>v1.0</entry>
+	      <entry><para>MS5607 30km (100k')</para></entry>
+	      <entry>-</entry>
+	      <entry>-</entry>
+	      <entry>-</entry>
+	      <entry>1MB</entry>
+	      <entry>-</entry>
+	      <entry>3.7-12V</entry>
+	    </row>
+	    <row>
+	      <entry>TeleMega <?linebreak?>v1.0</entry>
+	      <entry><para>MS5607 30km (100k')</para></entry>
+	      <entry><para>MMA6555 102g</para></entry>
+	      <entry>uBlox Max-7Q</entry>
+	      <entry><para>MPU6000 HMC5883</para></entry>
+	      <entry>8MB</entry>
+	      <entry>40mW</entry>
+	      <entry>3.7V</entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </table>
+      <table frame='all'>
+	<title>Altus Metrum Boards</title>
+	<tgroup cols='6' align='center' colsep='1' rowsep='1'>
+	  <colspec align='center' colwidth='*' colname='Device'/>
+	  <colspec align='center' colwidth='*' colname='Connectors'/>
+	  <colspec align='center' colwidth='*' colname='Screw Terminals'/>
+	  <colspec align='center' colwidth='*' colname='Width'/>
+	  <colspec align='center' colwidth='*' colname='Length'/>
+	  <colspec align='center' colwidth='*' colname='Tube Size'/>
+	  <thead>
+	    <row>
+	      <entry align='center'>Device</entry>
+	      <entry align='center'>Connectors</entry>
+	      <entry align='center'>Screw Terminals</entry>
+	      <entry align='center'>Width</entry>
+	      <entry align='center'>Length</entry>
+	      <entry align='center'>Tube Size</entry>
+	    </row>
+	  </thead>
+	  <tbody>
+	    <row>
+	      <entry>TeleMetrum</entry>
+	      <entry><para>
+		Antenna<?linebreak?>
+		Debug<?linebreak?>
+		Companion<?linebreak?>
+		USB<?linebreak?>
+		Battery
+	      </para></entry>
+	      <entry><para>Apogee pyro <?linebreak?>Main pyro <?linebreak?>Switch</para></entry>
+	      <entry>1 inch (2.54cm)</entry>
+	      <entry>2 ¾ inch (6.99cm)</entry>
+	      <entry>29mm coupler</entry>
+	    </row>
+	    <row>
+	      <entry><para>TeleMini <?linebreak?>v1.0</para></entry>
+	      <entry><para>
+		Antenna<?linebreak?>
+		Debug<?linebreak?>
+		Battery
+	      </para></entry>
+	      <entry><para>
+		Apogee pyro <?linebreak?>
+		Main pyro
+	      </para></entry>
+	      <entry>½ inch (1.27cm)</entry>
+	      <entry>1½ inch (3.81cm)</entry>
+	      <entry>18mm aiframe</entry>
+	    </row>
+	    <row>
+	      <entry>TeleMini <?linebreak?>v2.0</entry>
+	      <entry><para>
+		Antenna<?linebreak?>
+		Debug<?linebreak?>
+		USB<?linebreak?>
+		Battery
+	      </para></entry>
+	      <entry><para>
+		Apogee pyro <?linebreak?>
+		Main pyro <?linebreak?>
+		Battery <?linebreak?>
+		Switch
+		</para></entry>
+	      <entry>0.8 inch (2.03cm)</entry>
+	      <entry>1½ inch (3.81cm)</entry>
+	      <entry>24mm coupler</entry>
+	    </row>
+	    <row>
+	      <entry>EasyMini</entry>
+	      <entry><para>
+		Debug<?linebreak?>
+		USB<?linebreak?>
+		Battery
+	      </para></entry>
+	      <entry><para>
+		Apogee pyro <?linebreak?>
+		Main pyro <?linebreak?>
+		Battery <?linebreak?>
+		Switch
+		</para></entry>
+	      <entry>0.8 inch (2.03cm)</entry>
+	      <entry>1½ inch (3.81cm)</entry>
+	      <entry>24mm coupler</entry>
+	    </row>
+	    <row>
+	      <entry>TeleMega</entry>
+	      <entry><para>
+		Antenna<?linebreak?>
+		Debug<?linebreak?>
+		Companion<?linebreak?>
+		USB<?linebreak?>
+		Battery
+	      </para></entry>
+	      <entry><para>
+		Apogee pyro <?linebreak?>
+		Main pyro<?linebreak?>
+		Pyro A-D<?linebreak?>
+		Switch<?linebreak?>
+		Pyro battery
+	      </para></entry>
+	      <entry>1¼ inch (3.18cm)</entry>
+	      <entry>3¼ inch (8.26cm)</entry>
+	      <entry>38mm coupler</entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </table>
+    </section>
+    <section>
+      <title>TeleMetrum</title>
+      <para>
+	TeleMetrum is a 1 inch by 2¾ inch circuit board.  It was designed to
+	fit inside coupler for 29mm air-frame tubing, but using it in a tube that
+	small in diameter may require some creativity in mounting and wiring
+	to succeed!  The presence of an accelerometer means TeleMetrum should
+	be aligned along the flight axis of the airframe, and by default the 1/4
+	wave UHF wire antenna should be on the nose-cone end of the board.  The
+	antenna wire is about 7 inches long, and wiring for a power switch and
+	the e-matches for apogee and main ejection charges depart from the
+	fin can end of the board, meaning an ideal "simple" avionics
+	bay for TeleMetrum should have at least 10 inches of interior length.
+      </para>
+    </section>
+    <section>
+      <title>TeleMini</title>
+      <para>
+	TeleMini v1.0 is ½ inches by 1½ inches.  It was
+	designed to fit inside an 18mm air-frame tube, but using it in
+	a tube that small in diameter may require some creativity in
+	mounting and wiring to succeed!  Since there is no
+	accelerometer, TeleMini can be mounted in any convenient
+	orientation.  The default ¼ wave UHF wire antenna attached to
+	the center of one end of the board is about 7 inches long. Two
+	wires for the power switch are connected to holes in the
+	middle of the board. Screw terminals for the e-matches for
+	apogee and main ejection charges depart from the other end of
+	the board, meaning an ideal "simple" avionics bay for TeleMini
+	should have at least 9 inches of interior length.
+      </para>
+      <para>
+	TeleMini v2.0 is 0.8 inches by 1½ inches. It adds more
+	on-board data logging memory, a built-in USB connector and
+	screw terminals for the battery and power switch. The larger
+	board fits in a 24mm coupler. There's also a battery connector
+	for a LiPo battery if you want to use one of those.
+      </para>
+    </section>
+    <section>
+      <title>EasyMini</title>
+      <para>
+	EasyMini is built on a 0.8 inch by 1½ inch circuit board. It's
+	designed to fit in a 24mm coupler tube. The connectors and
+	screw terminals match TeleMini, so you can swap an EasyMini
+	with a TeleMini.
+      </para>
+    </section>
+    <section>
+      <title>TeleMega</title>
+      <para>
+	TeleMega is a 1¼ inch by 3¼ inch circuit board. It was
+	designed to easily fit in a 38mm coupler. Like TeleMetrum,
+	TeleMega has an accelerometer and so it must be mounted so that
+	the board is aligned with the flight axis. It can be mounted
+	either antenna up or down.
+      </para>
+    </section>
+    <section>
+      <title>Flight Data Recording</title>
+      <para>
+	Each flight computer logs data at 100 samples per second
+	during ascent and 10 samples per second during descent, except
+	for TeleMini v1.0, which records ascent at 10 samples per
+	second and descent at 1 sample per second. Data are logged to
+	an on-board flash memory part, which can be partitioned into
+	several equal-sized blocks, one for each flight.
+      </para>
+      <table frame='all'>
+	<title>Data Storage on Altus Metrum altimeters</title>
+	<tgroup cols='4' align='center' colsep='1' rowsep='1'>
+	  <colspec align='center' colwidth='*' colname='Device'/>
+	  <colspec align='center' colwidth='*' colname='Bytes per sample'/>
+	  <colspec align='center' colwidth='*' colname='Total storage'/>
+	  <colspec align='center' colwidth='*' colname='Minutes of
+							full-rate'/>
+	  <thead>
+	    <row>
+	      <entry align='center'>Device</entry>
+	      <entry align='center'>Bytes per Sample</entry>
+	      <entry align='center'>Total Storage</entry>
+	      <entry align='center'>Minutes at Full Rate</entry>
+	    </row>
+	  </thead>
+	  <tbody>
+	    <row>
+	      <entry>TeleMetrum v1.0</entry>
+	      <entry>8</entry>
+	      <entry>1MB</entry>
+	      <entry>20</entry>
+	    </row>
+	    <row>
+	      <entry>TeleMetrum v1.1 v1.2</entry>
+	      <entry>8</entry>
+	      <entry>2MB</entry>
+	      <entry>40</entry>
+	    </row>
+	    <row>
+	      <entry>TeleMetrum v2.0</entry>
+	      <entry>16</entry>
+	      <entry>8MB</entry>
+	      <entry>80</entry>
+	    </row>
+	    <row>
+	      <entry>TeleMini v1.0</entry>
+	      <entry>2</entry>
+	      <entry>5kB</entry>
+	      <entry>4</entry>
+	    </row>
+	    <row>
+	      <entry>TeleMini v2.0</entry>
+	      <entry>16</entry>
+	      <entry>1MB</entry>
+	      <entry>10</entry>
+	    </row>
+	    <row>
+	      <entry>EasyMini</entry>
+	      <entry>16</entry>
+	      <entry>1MB</entry>
+	      <entry>10</entry>
+	    </row>
+	    <row>
+	      <entry>TeleMega</entry>
+	      <entry>32</entry>
+	      <entry>8MB</entry>
+	      <entry>40</entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </table>
+      <para>
+	The on-board flash is partitioned into separate flight logs,
+	each of a fixed maximum size. Increase the maximum size of
+	each log and you reduce the number of flights that can be
+	stored. Decrease the size and you can store more flights.
+      </para>
+      <para>
+	Configuration data is also stored in the flash memory on
+	TeleMetrum v1.x, TeleMini and EasyMini. This consumes 64kB
+	of flash space.  This configuration space is not available
+	for storing flight log data. TeleMetrum v2.0 and TeleMega
+	store configuration data in a bit of eeprom available within
+	the processor chip, leaving that space available in flash for
+	more flight data.
+      </para>
+      <para>
+	To compute the amount of space needed for a single flight, you
+	can multiply the expected ascent time (in seconds) by 100
+	times bytes-per-sample, multiply the expected descent time (in
+	seconds) by 10 times the bytes per sample and add the two
+	together. That will slightly under-estimate the storage (in
+	bytes) needed for the flight. For instance, a TeleMetrum v2.0 flight spending
+	20 seconds in ascent and 150 seconds in descent will take
+	about (20 * 1600) + (150 * 160) = 56000 bytes of storage. You
+	could store dozens of these flights in the on-board flash.
+      </para>
+      <para>
+	The default size allows for several flights on each flight
+	computer, except for TeleMini v1.0, which only holds data for a
+	single flight. You can adjust the size.
+      </para>
+      <para>
+	Altus Metrum flight computers will not overwrite existing
+	flight data, so be sure to download flight data and erase it
+	from the flight computer before it fills up. The flight
+	computer will still successfully control the flight even if it
+	cannot log data, so the only thing you will lose is the data.
+      </para>
+    </section>
+    <section>
+      <title>Installation</title>
+      <para>
+	A typical installation involves attaching 
+	only a suitable battery, a single pole switch for 
+	power on/off, and two pairs of wires connecting e-matches for the 
+	apogee and main ejection charges.  All Altus Metrum products are 
+	designed for use with single-cell batteries with 3.7 volts
+	nominal. TeleMini v2.0 and EasyMini may also be used with other
+	batteries as long as they supply between 4 and 12 volts.
+      </para>
+      <para>
+	The battery connectors are a standard 2-pin JST connector and
+	match batteries sold by Spark Fun. These batteries are
+	single-cell Lithium Polymer batteries that nominally provide 3.7
+	volts.  Other vendors sell similar batteries for RC aircraft
+	using mating connectors, however the polarity for those is
+	generally reversed from the batteries used by Altus Metrum
+	products. In particular, the Tenergy batteries supplied for use
+	in Featherweight flight computers are not compatible with Altus
+	Metrum flight computers or battery chargers. <emphasis>Check
+	polarity and voltage before connecting any battery not purchased
+	from Altus Metrum or Spark Fun.</emphasis>
+      </para>
+      <para>
+	By default, we use the unregulated output of the battery directly
+	to fire ejection charges.  This works marvelously with standard
+	low-current e-matches like the J-Tek from MJG Technologies, and with
+	Quest Q2G2 igniters.  However, if you want or need to use a separate 
+	pyro battery, check out the "External Pyro Battery" section in this 
+	manual for instructions on how to wire that up. The altimeters are 
+	designed to work with an external pyro battery of no more than 15 volts.
+
+      </para>
+      <para>
+	Ejection charges are wired directly to the screw terminal block
+	at the aft end of the altimeter.  You'll need a very small straight 
+	blade screwdriver for these screws, such as you might find in a 
+	jeweler's screwdriver set.
+      </para>
+      <para>
+	Except for TeleMini v1.0, the flight computers also use the
+	screw terminal block for the power switch leads. On TeleMini v1.0,
+	the power switch leads are soldered directly to the board and
+	can be connected directly to a switch.
+      </para>
+      <para>
+	For most air-frames, the integrated antennas are more than
+	adequate.   However, if you are installing in a carbon-fiber or
+	metal electronics bay which is opaque to RF signals, you may need to
+	use off-board external antennas instead.  In this case, you can
+	order an altimeter with an SMA connector for the UHF antenna
+	connection, and, on TeleMetrum v1, you can unplug the integrated GPS
+	antenna and select an appropriate off-board GPS antenna with
+	cable terminating in a U.FL connector.
+      </para>
+    </section>
   </chapter>
   <chapter>
     <title>System Operation</title>
@@ -679,25 +1031,28 @@ NAR #88757, TRA #12200
         data later...
       </para>
       <para>
-        We don't generally use a 'normal packet radio' mode like APRS because they're 
-        just too inefficient.  The GFSK modulation we use is FSK with the
-        base-band pulses passed through a
-        Gaussian filter before they go into the modulator to limit the
-        transmitted bandwidth.  When combined with the hardware forward error
-        correction support in the cc1111 chip, this allows us to have a very
-        robust 38.4 kilobit data link with only 10 milliwatts of transmit 
-        power, a whip antenna in the rocket, and a hand-held Yagi on the 
-        ground.  We've had flights to above 21k feet AGL with great reception, 
-        and calculations suggest we should be good to well over 40k feet AGL 
-        with a 5-element yagi on the ground.  We hope to fly boards to higher 
-        altitudes over time, and would of course appreciate customer feedback 
-        on performance in higher altitude flights!
+        We don't generally use a 'normal packet radio' mode like APRS
+        because they're just too inefficient.  The GFSK modulation we
+        use is FSK with the base-band pulses passed through a Gaussian
+        filter before they go into the modulator to limit the
+        transmitted bandwidth.  When combined with forward error
+        correction and interleaving, this allows us to have a very
+        robust 19.2 kilobit data link with only 10-40 milliwatts of
+        transmit power, a whip antenna in the rocket, and a hand-held
+        Yagi on the ground.  We've had flights to above 21k feet AGL
+        with great reception, and calculations suggest we should be
+        good to well over 40k feet AGL with a 5-element yagi on the
+        ground with our 10mW units and over 100k feet AGL with the
+        40mW devices.  We hope to fly boards to higher altitudes over
+        time, and would of course appreciate customer feedback on
+        performance in higher altitude flights!
       </para>
       <para>
-	However, TeleMetrum v2.0 and TeleMega can send APRS if
-	desired, the interval between APRS packets can be
-	configured. As each APRS packet takes a full second to
-	transmit, we recommend an interval of at least 5 seconds.
+	TeleMetrum v2.0 and TeleMega can send APRS if desired, the
+	interval between APRS packets can be configured. As each APRS
+	packet takes a full second to transmit, we recommend an
+	interval of at least 5 seconds to avoid consuming too much
+	battery power or radio channel bandwidth.
       </para>
     </section>
     <section>
@@ -760,16 +1115,38 @@ NAR #88757, TRA #12200
       <section>
 	<title>Maximum Flight Log</title>
 	<para>
-	  TeleMetrum version 1.1 and 1.2 have 2MB of on-board flash storage,
-	  enough to hold over 40 minutes of data at full data rate
-	  (100 samples/second). TeleMetrum 1.0 has 1MB of on-board
-	  storage. As data are stored at a reduced rate during descent
-	  (10 samples/second), there's plenty of space to store many
-	  flights worth of data.
+	  Each flight computer logs data at 100 samples per second
+	  during ascent and 10 samples per second during descent. Data
+	  are logged to an on-board flash memory part, which can be
+	  partitioned into several equal-sized blocks, one for each
+	  flight.
 	</para>
-	<para>
-	  TeleMetrum v2.0 and TeleMega have 8MB of on-board flash stroage, enough to hold 
-	</para>
+	<table frame='all'>
+	  <title>Data Storage on Altus Metrum altimeters</title>
+	  <tgroup cols='4' align='center' colsep='1' rowsep='1'>
+	    <colspec align='center' colwidth='*' colname='Device'/>
+	    <colspec align='center' colwidth='*' colname='Bytes per sample'/>
+	    <colspec align='center' colwidth='*' colname='Total storage'/>
+	    <colspec align='center' colwidth='*' colname='Minutes of
+							  full-rate'/>
+	    <thead>
+	      <row>
+		<entry align='center'>Device</entry>
+		<entry align='center'>Bytes per Sample</entry>
+		<entry align='center'>Total Storage</entry>
+		<entry align='center'>Minutes at Full Rate</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>TeleMetrum v1.x</entry>
+		<entry>8</entry>
+		<entry>2MB</entry>
+		<entry>40</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
 	<para>
 	  The on-board flash is partitioned into separate flight logs,
 	  each of a fixed maximum size. Increase the maximum size of
@@ -778,21 +1155,25 @@ NAR #88757, TRA #12200
 	  flights.
 	</para>
 	<para>
-	  All of the configuration data is also stored in the flash
-	  memory, which consumes 64kB on TeleMetrum v1.1/v1.2 and 256B on
-	  TeleMetrum v1.0. This configuration space is not available
-	  for storing flight log data.
+	  Configuration data is also stored in the flash memory on
+	  TeleMetrum v1.x, TeleMini and EasyMini. This consumes 64kB
+	  of flash space.  This configuration space is not available
+	  for storing flight log data. TeleMetrum v2.0 and TeleMega
+	  store configuration data in a bit of eeprom available within
+	  the processor chip.
 	</para>
 	<para>
 	  To compute the amount of space needed for a single flight,
 	  you can multiply the expected ascent time (in seconds) by
-	  800, multiply the expected descent time (in seconds) by 80
-	  and add the two together. That will slightly under-estimate
-	  the storage (in bytes) needed for the flight. For instance,
-	  a flight spending 20 seconds in ascent and 150 seconds in
-	  descent will take about (20 * 800) + (150 * 80) = 28000
-	  bytes of storage. You could store dozens of these flights in
-	  the on-board flash.
+	  100 times bytes-per-sample (8 for TeleMetrum v1.x, 16 for
+	  TeleMetrum v2.0 and 32 for TeleMega), multiply the expected
+	  descent time (in seconds) by 80 and add the two
+	  together. That will slightly under-estimate the storage (in
+	  bytes) needed for the flight. For instance, a flight
+	  spending 20 seconds in ascent and 150 seconds in descent
+	  will take about (20 * 800) + (150 * 80) = 28000 bytes of
+	  storage. You could store dozens of these flights in the
+	  on-board flash.
 	</para>
 	<para>
 	  The default size, 192kB, allows for 10 flights of storage on
@@ -820,7 +1201,7 @@ NAR #88757, TRA #12200
 	  a fixed height above the ground, you can configure the
 	  altimeter to fire both at apogee or both during
 	  descent. This was added to support an airframe that has two
-	  TeleMetrum computers, one in the fin can and one in the
+	  altimeters, one in the fin can and one in the
 	  nose.
 	</para>
 	<para>
@@ -833,15 +1214,21 @@ NAR #88757, TRA #12200
       <section>
 	<title>Pad Orientation</title>
 	<para>
-	  TeleMetrum measures acceleration along the axis of the
-	  board. Which way the board is oriented affects the sign of
-	  the acceleration value. Instead of trying to guess which way
-	  the board is mounted in the air frame, TeleMetrum must be
-	  explicitly configured for either Antenna Up or Antenna
-	  Down. The default, Antenna Up, expects the end of the
-	  TeleMetrum board connected to the 70cm antenna to be nearest
-	  the nose of the rocket, with the end containing the screw
+	  TeleMetrum and TeleMega measure acceleration along the axis
+	  of the board. Which way the board is oriented affects the
+	  sign of the acceleration value. Instead of trying to guess
+	  which way the board is mounted in the air frame, the
+	  altimeter must be explicitly configured for either Antenna
+	  Up or Antenna Down. The default, Antenna Up, expects the end
+	  of the board connected to the 70cm antenna to be nearest the
+	  nose of the rocket, with the end containing the screw
 	  terminals nearest the tail.
+	</para>
+      </section>
+      <section>
+	<title>Pyro Channels</title>
+	<para>
+	  TeleMega
 	</para>
       </section>
     </section>
