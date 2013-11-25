@@ -1729,7 +1729,7 @@ NAR #88757, TRA #12200
     <section>
       <title>Configure Altimeter</title>
       <para>
-        Select this button and then select either a TeleMetrum or
+        Select this button and then select either an altimeter or
         TeleDongle Device from the list provided. Selecting a TeleDongle
         device will use the radio link to configure a remote altimeter. 
       </para>
@@ -1800,15 +1800,15 @@ NAR #88757, TRA #12200
       <section>
         <title>Radio Frequency</title>
         <para>
-          This configures which of the configured frequencies to use for both
+          This configures which of the frequencies to use for both
           telemetry and packet command mode. Note that if you set this
-          value via packet command mode, you will have to reconfigure
-          the TeleDongle frequency before you will be able to use packet
-          command mode again.
+          value via packet command mode, the TeleDongle frequency will
+          also be automatically reconfigured to match so that
+          communication will continue afterwards.
         </para>
       </section>
       <section>
-        <title>Radio Calibration</title>
+        <title>RF Calibration</title>
         <para>
           The radios in every Altus Metrum device are calibrated at the
           factory to ensure that they transmit and receive on the
@@ -1818,6 +1818,25 @@ NAR #88757, TRA #12200
 	  code for more information.  To change a TeleDongle's calibration, 
 	  you must reprogram the unit completely.
         </para>
+      </section>
+      <section>
+	<title>Telemetry/RDF/APRS Enable</title>
+	<para>
+	  Enables the radio for transmission during flight. When
+	  disabled, the radio will not transmit anything during flight
+	  at all.
+	</para>
+      </section>
+      <section>
+	<title>APRS Interval</title>
+	<para>
+	  How often to transmit GPS information via APRS. This option
+	  is available on TeleMetrum v2 and TeleMega
+	  boards. TeleMetrum v1 boards cannot transmit APRS
+	  packets. Note that a single APRS packet takes nearly a full
+	  second to transmit, so enabling this option will prevent
+	  sending any other telemetry during that time.
+	</para>
       </section>
       <section>
         <title>Callsign</title>
@@ -1892,6 +1911,23 @@ NAR #88757, TRA #12200
 	      Antenna Down. In this mode, the antenna end of the
 	      TeleMetrum board must point aft, in line with the
 	      expected flight path.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </section>
+      <section>
+	<title>Configure Pyro Channels</title>
+	<para>
+	  This opens a separate window to configure the additional
+	  pyro channels available on TeleMega. One column is presented
+	  for each channel. Each row represents a single parameter, if
+	  enabled the parameter must meet the specified test for the
+	  pyro channel to be fired.
+	</para>
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      
 	    </para>
 	  </listitem>
 	</itemizedlist>
