@@ -1115,83 +1115,13 @@ NAR #88757, TRA #12200
       <section>
 	<title>Maximum Flight Log</title>
 	<para>
-	  Each flight computer logs data at 100 samples per second
-	  during ascent and 10 samples per second during descent. Data
-	  are logged to an on-board flash memory part, which can be
-	  partitioned into several equal-sized blocks, one for each
-	  flight.
-	</para>
-	<table frame='all'>
-	  <title>Data Storage on Altus Metrum altimeters</title>
-	  <tgroup cols='4' align='center' colsep='1' rowsep='1'>
-	    <colspec align='center' colwidth='*' colname='Device'/>
-	    <colspec align='center' colwidth='*' colname='Bytes per sample'/>
-	    <colspec align='center' colwidth='*' colname='Total storage'/>
-	    <colspec align='center' colwidth='*' colname='Minutes of
-							  full-rate'/>
-	    <thead>
-	      <row>
-		<entry align='center'>Device</entry>
-		<entry align='center'>Bytes per Sample</entry>
-		<entry align='center'>Total Storage</entry>
-		<entry align='center'>Minutes at Full Rate</entry>
-	      </row>
-	    </thead>
-	    <tbody>
-	      <row>
-		<entry>TeleMetrum v1.x</entry>
-		<entry>8</entry>
-		<entry>2MB</entry>
-		<entry>40</entry>
-	      </row>
-	    </tbody>
-	  </tgroup>
-	</table>
-	<para>
-	  The on-board flash is partitioned into separate flight logs,
-	  each of a fixed maximum size. Increase the maximum size of
-	  each log and you reduce the number of flights that can be
-	  stored. Decrease the size and TeleMetrum can store more
-	  flights.
-	</para>
-	<para>
-	  Configuration data is also stored in the flash memory on
-	  TeleMetrum v1.x, TeleMini and EasyMini. This consumes 64kB
-	  of flash space.  This configuration space is not available
-	  for storing flight log data. TeleMetrum v2.0 and TeleMega
-	  store configuration data in a bit of eeprom available within
-	  the processor chip.
-	</para>
-	<para>
-	  To compute the amount of space needed for a single flight,
-	  you can multiply the expected ascent time (in seconds) by
-	  100 times bytes-per-sample (8 for TeleMetrum v1.x, 16 for
-	  TeleMetrum v2.0 and 32 for TeleMega), multiply the expected
-	  descent time (in seconds) by 80 and add the two
-	  together. That will slightly under-estimate the storage (in
-	  bytes) needed for the flight. For instance, a flight
-	  spending 20 seconds in ascent and 150 seconds in descent
-	  will take about (20 * 800) + (150 * 80) = 28000 bytes of
-	  storage. You could store dozens of these flights in the
-	  on-board flash.
-	</para>
-	<para>
-	  The default size, 192kB, allows for 10 flights of storage on
-	  TeleMetrum v1.1/v1.2 and 5 flights on TeleMetrum v1.0. This
-	  ensures that you won't need to erase the memory before
-	  flying each time while still allowing more than sufficient
-	  storage for each flight.
-	</para>
-	<para>
-	  As TeleMini does not contain an accelerometer, it stores
-	  data at 10 samples per second during ascent and one sample
-	  per second during descent. Each sample is a two byte reading
-	  from the barometer. These are stored in 5kB of
-	  on-chip flash memory which can hold 256 seconds at the
-	  ascent rate or 2560 seconds at the descent rate. Because of
-	  the limited storage, TeleMini cannot hold data for more than
-	  one flight, and so must be erased after each flight or it
-	  will not capture data for subsequent flights.
+	  Changing this value will set the maximum amount of flight
+	  log storage that an individual flight will use. The
+	  available storage is divided into as many flights of the
+	  specified size as can fit in the available space. You can
+	  download and erase individual flight logs. If you fill up
+	  the available storage, future flights will not get logged
+	  until you erase some of the stored ones.
 	</para>
       </section>
       <section>
@@ -1228,8 +1158,160 @@ NAR #88757, TRA #12200
       <section>
 	<title>Pyro Channels</title>
 	<para>
-	  TeleMega
+	  In addition to the usual Apogee and Main pyro channels,
+	  TeleMega has four additional channels that can be configured
+	  to activate when various flight conditions are
+	  satisfied. You can select as many conditions as necessary;
+	  all of them must be met in order to activate the
+	  channel. The conditions available are:
 	</para>
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      Acceleration away from the ground. Select a value, and
+	      then choose whether acceleration should be above or
+	      below that value. Acceleration is positive upwards, so
+	      accelerating towards the ground would produce negative
+	      numbers. Acceleration during descent is noisy and
+	      inaccurate, so be careful when using it during these
+	      phases of the flight.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Vertical speed.  Select a value, and then choose whether
+	      vertical speed should be above or below that
+	      value. Speed is positive upwards, so moving towards the
+	      ground would produce negative numbers. Speed during
+	      descent is a bit noisy and so be careful when using it
+	      during these phases of the flight.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Height. Select a value, and then choose whether the
+	      height above the launch pad should be above or below
+	      that value.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Orientation. TeleMega contains a 3-axis gyroscope and
+	      accelerometer which is used to measure the current
+	      angle. Note that this angle is not the change in angle
+	      from the launch pad, but rather absolute relative to
+	      gravity; the 3-axis accelerometer is used to compute the
+	      angle of the rocket on the launch pad and initialize the
+	      system. Because this value is computed by integrating
+	      rate gyros, it gets progressively less accurate as the
+	      flight goes on. It should have an accumulated error of
+	      less than .2°/second (after 10 seconds of flight, the
+	      error should be less than 2°).
+	    </para>
+	    <para>
+	      The usual use of the orientation configuration is to
+	      ensure that the rocket is traveling mostly upwards when
+	      deciding whether to ignite air starts or additional
+	      stages. For that, choose a reasonable maximum angle
+	      (like 20°) and set the motor igniter to require an angle
+	      of less than that value.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Flight Time. Time since boost was detected. Select a
+	      value and choose whether to activate the pyro channel
+	      before or after that amount of time.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Ascending. A simple test saying whether the rocket is
+	      going up or not. This is exactly equivalent to testing
+	      whether the speed is &gt; 0.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Descending. A simple test saying whether the rocket is
+	      going down or not. This is exactly equivalent to testing
+	      whether the speed is &lt; 0.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      After Motor. The flight software counts each time the
+	      rocket starts accelerating (presumably due to a motor or
+	      motors igniting). Use this value to count ignitions for
+	      multi-staged or multi-airstart launches.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Delay. This value doesn't perform any checks, instead it
+	      inserts a delay between the time when the other
+	      parameters become true and when the pyro channel is
+	      activated.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Flight State. The flight software tracks the flight
+	      through a sequence of states:
+	      <orderedlist>
+		<listitem>
+		  <para>
+		    Boost. The motor has lit and the rocket is
+		    accelerating upwards.
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		    Fast. The motor has burned out and the rocket is
+		    descellerating, but it is going faster than 200m/s.
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		    Coast. The rocket is still moving upwards and
+		    decelerating, but the speed is less than 200m/s.
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		    Drogue. The rocket has reached apogee and is heading
+		    back down, but is above the configured Main
+		    altitude.
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		    Main. The rocket is still descending, and is blow
+		    the Main altitude
+		  </para>
+		</listitem>
+		<listitem>
+		  <para>
+		    Landed. The rocket is no longer moving.
+		  </para>
+		</listitem>
+	      </orderedlist>
+	    </para>
+	    <para>
+	      You can select a state to limit when the pyro channel
+	      may activate; note that the check is based on when the
+	      rocket transitions *into* the state, and so checking for
+	      'greater than Boost' means that the rocket is currently
+	      in boost state.
+	    </para>
+	    <para>
+	      When a motor burns out, the rocket enters either Fast or
+	      Coast state (depending on how fast it is moving). If the
+	      computer detects upwards acceleration again, it will
+	      move back to Boost state.
+	    </para>
+	  </listitem>
+	</itemizedlist>
       </section>
     </section>
 
@@ -1239,9 +1321,8 @@ NAR #88757, TRA #12200
     <title>AltosUI</title>
     <para>
       The AltosUI program provides a graphical user interface for
-      interacting with the Altus Metrum product family, including
-      TeleMetrum, TeleMini and TeleDongle. AltosUI can monitor telemetry data,
-      configure TeleMetrum, TeleMini and TeleDongle devices and many other
+      interacting with the Altus Metrum product family. AltosUI can
+      monitor telemetry data, configure devices and many other
       tasks. The primary interface window provides a selection of
       buttons, one for each major activity in the system.  This manual
       is split into chapters, each of which documents one of the tasks
@@ -1792,11 +1873,11 @@ NAR #88757, TRA #12200
       <section>
         <title>Pad Orientation</title>
 	<para>
-	  Because it includes an accelerometer, TeleMetrum is
-	  sensitive to the orientation of the board. By default, it
-	  expects the antenna end to point forward. This parameter
-	  allows that default to be changed, permitting the board to
-	  be mounted with the antenna pointing aft instead.
+	  Because it includes an accelerometer, TeleMetrum and
+	  TeleMega are sensitive to the orientation of the board. By
+	  default, it expects the antenna end to point forward. This
+	  parameter allows that default to be changed, permitting the
+	  board to be mounted with the antenna pointing aft instead.
 	</para>
 	<itemizedlist>
 	  <listitem>

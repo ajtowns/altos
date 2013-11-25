@@ -7,7 +7,11 @@
 	http://docbook.sourceforge.net/release/xsl/current/doc/fo/
 -->
 
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version='1.0'>
+<xsl:stylesheet
+    version='1.0'
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+    xmlns:fo="http://www.w3.org/1999/XSL/Format" 
+    >
 <xsl:import href="file:///usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl"/>
 
 
@@ -93,5 +97,21 @@
     -->
   <xsl:param name="body.font.family">DejaVu Serif</xsl:param>
   <xsl:param name="symbol.font.family">serif,Symbol,AR PL UMing CN,AR PL ShanHeiSun Uni,GNU Unifont</xsl:param>
+
+
+			<!-- Paragraph template bits -->
+
+  <!--  make it possible to turn off hyphenation when it's giving us probs -->
+  <xsl:template match="para[@hyphenate='false']">
+    <fo:block hyphenate="false" xsl:use-attribute-sets="normal.para.spacing">
+      <xsl:call-template name="anchor"/>
+      <xsl:apply-templates/>
+    </fo:block>
+  </xsl:template>
+
+  <!-- force line break -->
+  <xsl:template match="processing-instruction('linebreak')">
+    <fo:block/>
+  </xsl:template>
 
 </xsl:stylesheet>
