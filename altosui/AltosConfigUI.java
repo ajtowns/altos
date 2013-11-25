@@ -185,7 +185,7 @@ public class AltosConfigUI
 
 	void set_pad_orientation_tool_tip() {
 		if (pad_orientation_value.isEnabled())
-			pad_orientation_value.setToolTipText("How will TeleMetrum be mounted in the airframe");
+			pad_orientation_value.setToolTipText("How will the computer be mounted in the airframe");
 		else {
 			if (is_telemetrum())
 				pad_orientation_value.setToolTipText("Older TeleMetrum firmware must fly antenna forward");
@@ -198,7 +198,7 @@ public class AltosConfigUI
 
 	/* Build the UI using a grid bag */
 	public AltosConfigUI(JFrame in_owner, boolean remote) {
-		super (in_owner, "Configure TeleMetrum", false);
+		super (in_owner, "Configure Flight Computer", false);
 
 		owner = in_owner;
 		GridBagConstraints c;
@@ -661,7 +661,10 @@ public class AltosConfigUI
 	AltosConfigPyroUI	pyro_ui;
 
 	public void dispose() {
+		if (pyro_ui != null)
+			pyro_ui.dispose();
 		AltosPreferences.unregister_units_listener(this);
+		super.dispose();
 	}
 
 	/* Listen for events from our buttons */
@@ -669,10 +672,10 @@ public class AltosConfigUI
 		String	cmd = e.getActionCommand();
 
 		if (cmd.equals("Pyro")) {
-			if (pyro_ui == null && pyros != null) {
+			if (pyro_ui == null && pyros != null)
 				pyro_ui = new AltosConfigPyroUI(this, pyros);
+			if (pyro_ui != null)
 				pyro_ui.make_visible();
-			}
 			return;
 		}
 
@@ -757,9 +760,11 @@ public class AltosConfigUI
 	}
 	
 	public void units_changed(boolean imperial_units) {
+		String v = main_deploy_value.getSelectedItem().toString();
 		main_deploy_label.setText(get_main_deploy_label());
 		set_main_deploy_values();
-		listener.actionPerformed(new ActionEvent(this, 0, "Reset"));
+		int m = (int) (AltosConvert.height.parse(v, !imperial_units) + 0.5);
+		set_main_deploy(m);
 	}
 
 	public void set_apogee_delay(int new_apogee_delay) {

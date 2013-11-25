@@ -19,32 +19,38 @@ package org.altusmetrum.altoslib_2;
 
 public class AltosDistance extends AltosUnits {
 
-	public double value(double v) {
-		if (AltosConvert.imperial_units)
+	public double value(double v, boolean imperial_units) {
+		if (imperial_units)
 			return AltosConvert.meters_to_miles(v);
 		return v;
 	}
 
-	public String show_units() {
-		if (AltosConvert.imperial_units)
+	public double inverse(double v, boolean imperial_units) {
+		if (imperial_units)
+			return AltosConvert.miles_to_meters(v);
+		return v;
+	}
+
+	public String show_units(boolean imperial_units) {
+		if (imperial_units)
 			return "miles";
 		return "m";
 	}
 
-	public String say_units() {
-		if (AltosConvert.imperial_units)
+	public String say_units(boolean imperial_units) {
+		if (imperial_units)
 			return "miles";
 		return "meters";
 	}
 
-	public int show_fraction(int width) {
-		if (AltosConvert.imperial_units)
+	public int show_fraction(int width, boolean imperial_units) {
+		if (imperial_units)
 			return width / 3;
 		return width / 9;
 	}
 
-	public int say_fraction() {
-		if (AltosConvert.imperial_units)
+	public int say_fraction(boolean imperial_units) {
+		if (imperial_units)
 			return 1;
 		return 0;
 	}

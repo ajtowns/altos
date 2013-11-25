@@ -37,76 +37,92 @@ import org.jfree.data.*;
 
 class AltosVoltage extends AltosUnits {
 
-	public double value(double v) {
+	public double value(double v, boolean imperial_units) {
 		return v;
 	}
 
-	public String show_units() {
+	public double inverse(double v, boolean imperial_units) {
+		return v;
+	}
+
+	public String show_units(boolean imperial_units) {
 		return "V";
 	}
 
-	public String say_units() {
+	public String say_units(boolean imperial_units) {
 		return "volts";
 	}
 
-	public int show_fraction(int width) {
+	public int show_fraction(int width, boolean imperial_units) {
 		return width / 2;
 	}
 }
 
 class AltosNsat extends AltosUnits {
 
-	public double value(double v) {
+	public double value(double v, boolean imperial_units) {
 		return v;
 	}
 
-	public String show_units() {
+	public double inverse(double v, boolean imperial_units) {
+		return v;
+	}
+
+	public String show_units(boolean imperial_units) {
 		return "Sats";
 	}
 
-	public String say_units() {
+	public String say_units(boolean imperial_units) {
 		return "Satellites";
 	}
 
-	public int show_fraction(int width) {
+	public int show_fraction(int width, boolean imperial_units) {
 		return 0;
 	}
 }
 
 class AltosPressure extends AltosUnits {
 
-	public double value(double p) {
+	public double value(double p, boolean imperial_units) {
 		return p;
 	}
 
-	public String show_units() {
+	public double inverse(double p, boolean imperial_units) {
+		return p;
+	}
+
+	public String show_units(boolean imperial_units) {
 		return "Pa";
 	}
 
-	public String say_units() {
+	public String say_units(boolean imperial_units) {
 		return "pascals";
 	}
 
-	public int show_fraction(int width) {
+	public int show_fraction(int width, boolean imperial_units) {
 		return 0;
 	}
 }
 
 class AltosDbm extends AltosUnits {
 
-	public double value(double d) {
+	public double value(double d, boolean imperial_units) {
 		return d;
 	}
 
-	public String show_units() {
+	public double inverse(double d, boolean imperial_units) {
+		return d;
+	}
+
+	public String show_units(boolean imperial_units) {
 		return "dBm";
 	}
 
-	public String say_units() {
+	public String say_units(boolean imperial_units) {
 		return "D B M";
 	}
 
-	public int show_fraction(int width) {
+	public int show_fraction(int width, boolean imperial_units) {
 		return 0;
 	}
 }

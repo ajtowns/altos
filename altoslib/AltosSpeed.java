@@ -19,25 +19,31 @@ package org.altusmetrum.altoslib_2;
 
 public class AltosSpeed extends AltosUnits {
 
-	public double value(double v) {
-		if (AltosConvert.imperial_units)
+	public double value(double v, boolean imperial_units) {
+		if (imperial_units)
 			return AltosConvert.meters_to_mph(v);
 		return v;
 	}
 
-	public String show_units() {
-		if (AltosConvert.imperial_units)
+	public double inverse(double v, boolean imperial_units) {
+		if (imperial_units)
+			return AltosConvert.mph_to_meters(v);
+		return v;
+	}
+
+	public String show_units(boolean imperial_units) {
+		if (imperial_units)
 			return "mph";
 		return "m/s";
 	}
 
-	public String say_units() {
-		if (AltosConvert.imperial_units)
+	public String say_units(boolean imperial_units) {
+		if (imperial_units)
 			return "miles per hour";
 		return "meters per second";
 	}
 
-	public int show_fraction(int width) {
+	public int show_fraction(int width, boolean imperial_units) {
 		return width / 9;
 	}
 }

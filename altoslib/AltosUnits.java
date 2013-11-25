@@ -19,43 +19,90 @@ package org.altusmetrum.altoslib_2;
 
 public abstract class AltosUnits {
 
-	public abstract double value(double v);
+	public abstract double value(double v, boolean imperial_units);
 
-	public abstract String show_units();
+	public abstract double inverse(double v, boolean imperial_units);
 
-	public abstract String say_units();
+	public abstract String show_units(boolean imperial_units);
 
-	public abstract int show_fraction(int width);
+	public abstract String say_units(boolean imperial_units);
 
-	int say_fraction() {
+	public abstract int show_fraction(int width, boolean imperial_units);
+
+	public double parse(String s, boolean imperial_units) throws NumberFormatException {
+		double v = Double.parseDouble(s);
+		return inverse(v, imperial_units);
+	}
+
+	public double parse(String s) throws NumberFormatException {
+		return parse(s, AltosConvert.imperial_units);
+	}
+
+	public double value(double v) {
+		return value(v, AltosConvert.imperial_units);
+	}
+		
+	public double inverse(double v) {
+		return inverse(v, AltosConvert.imperial_units);
+	}
+
+	public String show_units() {
+		return show_units(AltosConvert.imperial_units);
+	}
+		
+	public String say_units() {
+		return say_units(AltosConvert.imperial_units);
+	}
+		
+	public int show_fraction(int width) {
+		return show_fraction(width, AltosConvert.imperial_units);
+	}
+		
+	int say_fraction(boolean imperial_units) {
 		return 0;
 	}
 
-	private String show_format(int width) {
-		return String.format("%%%d.%df %s", width, show_fraction(width), show_units());
+	private String show_format(int width, boolean imperial_units) {
+		return String.format("%%%d.%df %s", width, show_fraction(width, imperial_units), show_units(imperial_units));
 	}
 
-	private String say_format() {
-		return String.format("%%1.%df", say_fraction());
+	private String say_format(boolean imperial_units) {
+		return String.format("%%1.%df", say_fraction(imperial_units));
 	}
 
-	private String say_units_format() {
-		return String.format("%%1.%df %s", say_fraction(), say_units());
+	private String say_units_format(boolean imperial_units) {
+		return String.format("%%1.%df %s", say_fraction(imperial_units), say_units(imperial_units));
+	}
+
+	public String graph_format(int width, boolean imperial_units) {
+		return String.format(String.format("%%%d.%df", width, show_fraction(width, imperial_units)), 0.0);
 	}
 
 	public String graph_format(int width) {
-		return String.format(String.format("%%%d.%df", width, show_fraction(width)), 0.0);
+		return graph_format(width, AltosConvert.imperial_units);
+	}
+
+	public String show(int width, double v, boolean imperial_units) {
+		return String.format(show_format(width, imperial_units), value(v, imperial_units));
 	}
 
 	public String show(int width, double v) {
-		return String.format(show_format(width), value(v));
+		return show(width, v, AltosConvert.imperial_units);
+	}
+
+	public String say(double v, boolean imperial_units) {
+		return String.format(say_format(imperial_units), value(v, imperial_units));
 	}
 
 	public String say(double v) {
-		return String.format(say_format(), value(v));
+		return say(v, AltosConvert.imperial_units);
+	}
+
+	public String say_units(double v, boolean imperial_units) {
+		return String.format(say_units_format(imperial_units), value(v, imperial_units));
 	}
 
 	public String say_units(double v) {
-		return String.format(say_units_format(), value(v));
+		return say_units(v, AltosConvert.imperial_units);
 	}
 }

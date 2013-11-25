@@ -19,32 +19,31 @@ package org.altusmetrum.altoslib_2;
 
 public class AltosHeight extends AltosUnits {
 
-	public double value(double v) {
-		if (AltosConvert.imperial_units)
+	public double value(double v, boolean imperial_units) {
+		if (imperial_units)
 			return AltosConvert.meters_to_feet(v);
 		return v;
 	}
 
-	public double parse(String s) throws NumberFormatException {
-		double	v = Double.parseDouble(s);
-		if (AltosConvert.imperial_units)
-			v = AltosConvert.feet_to_meters(v);
+	public double inverse(double v, boolean imperial_units) {
+		if (imperial_units)
+			return AltosConvert.feet_to_meters(v);
 		return v;
 	}
 
-	public String show_units() {
-		if (AltosConvert.imperial_units)
+	public String show_units(boolean imperial_units) {
+		if (imperial_units)
 			return "ft";
 		return "m";
 	}
 
-	public String say_units() {
-		if (AltosConvert.imperial_units)
+	public String say_units(boolean imperial_units) {
+		if (imperial_units)
 			return "feet";
 		return "meters";
 	}
 
-	public int show_fraction(int width) {
+	public int show_fraction(int width, boolean imperial_units) {
 		return width / 9;
 	}
 }

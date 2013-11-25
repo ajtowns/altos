@@ -28,24 +28,24 @@ public class AltosPyro {
 	public static final int pyro_accel_greater		= 0x00000002;
 	public static final String pyro_accel_less_string	= "a<";
 	public static final String pyro_accel_greater_string	= "a>";
-	public static final String pyro_accel_less_name		= "Acceleration less than (m/s²)";
-	public static final String pyro_accel_greater_name	= "Acceleration greater than (m/s²)";
+	public static final String pyro_accel_less_name		= "Acceleration less than";
+	public static final String pyro_accel_greater_name	= "Acceleration greater than";
 	public static final double pyro_accel_scale		= 16.0;
 
 	public static final int pyro_speed_less			= 0x00000004;
 	public static final int pyro_speed_greater		= 0x00000008;
 	public static final String pyro_speed_less_string	= "s<";
 	public static final String pyro_speed_greater_string	= "s>";
-	public static final String pyro_speed_less_name		= "Speed less than (m/s)";
-	public static final String pyro_speed_greater_name	= "Speed greater than (m/s)";
+	public static final String pyro_speed_less_name		= "Speed less than";
+	public static final String pyro_speed_greater_name	= "Speed greater than";
 	public static final double pyro_speed_scale		= 16.0;
 
 	public static final int pyro_height_less		= 0x00000010;
 	public static final int pyro_height_greater		= 0x00000020;
 	public static final String pyro_height_less_string	= "h<";
 	public static final String pyro_height_greater_string	= "h>";
-	public static final String pyro_height_less_name	= "Height less than (m)";
-	public static final String pyro_height_greater_name	= "Height greater than (m)";
+	public static final String pyro_height_less_name	= "Height less than";
+	public static final String pyro_height_greater_name	= "Height greater than";
 	public static final double pyro_height_scale		= 1.0;
 
 	public static final int pyro_orient_less		= 0x00000040;
@@ -102,12 +102,16 @@ public class AltosPyro {
 
 	private static HashMap<Integer,String> pyro_to_name = new HashMap<Integer,String>();
 
+	private static HashMap<Integer,AltosUnits> pyro_to_units = new HashMap<Integer,AltosUnits>();
+
 	private static HashMap<Integer,Double> pyro_to_scale = new HashMap<Integer,Double>();
 	
-	private static void insert_map(int flag, String string, String name, double scale) {
+	private static void insert_map(int flag, String string, String name, AltosUnits units, double scale) {
 		string_to_pyro.put(string, flag);
 		pyro_to_string.put(flag, string);
 		pyro_to_name.put(flag, name);
+		if (units != null)
+			pyro_to_units.put(flag, units);
 		pyro_to_scale.put(flag, scale);
 	}
 	
@@ -124,8 +128,22 @@ public class AltosPyro {
 	}
 
 	public static String pyro_to_name(int flag) {
-		if (pyro_to_name.containsKey(flag))
-			return pyro_to_name.get(flag);
+		String		name;
+		AltosUnits	units = null;
+		if (!pyro_to_name.containsKey(flag))
+			return null;
+
+		name = pyro_to_name.get(flag);
+		if (pyro_to_units.containsKey(flag))
+			units = pyro_to_units.get(flag);
+		if (units == null)
+			return name;
+		return String.format ("%s (%s)", name, units.show_units());
+	}
+
+	public static AltosUnits pyro_to_units(int flag) {
+		if (pyro_to_units.containsKey(flag))
+			return pyro_to_units.get(flag);
 		return null;
 	}
 
@@ -136,29 +154,29 @@ public class AltosPyro {
 	}
 
 	private static void initialize_maps() {
-		insert_map(pyro_accel_less, pyro_accel_less_string, pyro_accel_less_name, pyro_accel_scale);
-		insert_map(pyro_accel_greater, pyro_accel_greater_string, pyro_accel_greater_name, pyro_accel_scale);
+		insert_map(pyro_accel_less, pyro_accel_less_string, pyro_accel_less_name, AltosConvert.accel, pyro_accel_scale);
+		insert_map(pyro_accel_greater, pyro_accel_greater_string, pyro_accel_greater_name, AltosConvert.accel, pyro_accel_scale);
 
-		insert_map(pyro_speed_less, pyro_speed_less_string, pyro_speed_less_name, pyro_speed_scale);
-		insert_map(pyro_speed_greater, pyro_speed_greater_string, pyro_speed_greater_name, pyro_speed_scale);
+		insert_map(pyro_speed_less, pyro_speed_less_string, pyro_speed_less_name, AltosConvert.speed, pyro_speed_scale);
+		insert_map(pyro_speed_greater, pyro_speed_greater_string, pyro_speed_greater_name, AltosConvert.speed, pyro_speed_scale);
 
-		insert_map(pyro_height_less, pyro_height_less_string, pyro_height_less_name, pyro_height_scale);
-		insert_map(pyro_height_greater, pyro_height_greater_string, pyro_height_greater_name, pyro_height_scale);
+		insert_map(pyro_height_less, pyro_height_less_string, pyro_height_less_name, AltosConvert.height, pyro_height_scale);
+		insert_map(pyro_height_greater, pyro_height_greater_string, pyro_height_greater_name, AltosConvert.height, pyro_height_scale);
 
-		insert_map(pyro_orient_less, pyro_orient_less_string, pyro_orient_less_name, pyro_orient_scale);
-		insert_map(pyro_orient_greater, pyro_orient_greater_string, pyro_orient_greater_name, pyro_orient_scale);
+		insert_map(pyro_orient_less, pyro_orient_less_string, pyro_orient_less_name, null, pyro_orient_scale);
+		insert_map(pyro_orient_greater, pyro_orient_greater_string, pyro_orient_greater_name, null, pyro_orient_scale);
 
-		insert_map(pyro_time_less, pyro_time_less_string, pyro_time_less_name, pyro_time_scale);
-		insert_map(pyro_time_greater, pyro_time_greater_string, pyro_time_greater_name, pyro_time_scale);
+		insert_map(pyro_time_less, pyro_time_less_string, pyro_time_less_name, null, pyro_time_scale);
+		insert_map(pyro_time_greater, pyro_time_greater_string, pyro_time_greater_name, null, pyro_time_scale);
 
-		insert_map(pyro_ascending, pyro_ascending_string, pyro_ascending_name, 1.0);
-		insert_map(pyro_descending, pyro_descending_string, pyro_descending_name, 1.0);
+		insert_map(pyro_ascending, pyro_ascending_string, pyro_ascending_name, null, 1.0);
+		insert_map(pyro_descending, pyro_descending_string, pyro_descending_name, null, 1.0);
 
-		insert_map(pyro_after_motor, pyro_after_motor_string, pyro_after_motor_name, 1.0);
-		insert_map(pyro_delay, pyro_delay_string, pyro_delay_name, pyro_delay_scale);
+		insert_map(pyro_after_motor, pyro_after_motor_string, pyro_after_motor_name, null, 1.0);
+		insert_map(pyro_delay, pyro_delay_string, pyro_delay_name, null, pyro_delay_scale);
 		
-		insert_map(pyro_state_less, pyro_state_less_string, pyro_state_less_name, 1.0);
-		insert_map(pyro_state_greater_or_equal, pyro_state_greater_or_equal_string, pyro_state_greater_or_equal_name, 1.0);
+		insert_map(pyro_state_less, pyro_state_less_string, pyro_state_less_name, null, 1.0);
+		insert_map(pyro_state_greater_or_equal, pyro_state_greater_or_equal_string, pyro_state_greater_or_equal_name, null, 1.0);
 	}
 
 	{

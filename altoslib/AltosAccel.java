@@ -19,25 +19,31 @@ package org.altusmetrum.altoslib_2;
 
 public class AltosAccel extends AltosUnits {
 
-	public double value(double v) {
-		if (AltosConvert.imperial_units)
+	public double value(double v, boolean imperial_units) {
+		if (imperial_units)
 			return AltosConvert.meters_to_feet(v);
 		return v;
 	}
 
-	public String show_units() {
-		if (AltosConvert.imperial_units)
+	public double inverse(double v, boolean imperial_units) {
+		if (imperial_units)
+			return AltosConvert.feet_to_meters(v);
+		return v;
+	}
+
+	public String show_units(boolean imperial_units) {
+		if (imperial_units)
 			return "ft/s²";
 		return "m/s²";
 	}
 
-	public String say_units() {
-		if (AltosConvert.imperial_units)
+	public String say_units(boolean imperial_units) {
+		if (imperial_units)
 			return "feet per second squared";
 		return "meters per second squared";
 	}
 
-	public int show_fraction(int width) {
+	public int show_fraction(int width, boolean imperial_units) {
 		return width / 9;
 	}
 }

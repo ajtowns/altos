@@ -290,8 +290,16 @@ public class AltosConvert {
 		return meters_to_feet(meters) / 5280;
 	}
 
+	public static double miles_to_meters(double miles) {
+		return feet_to_meters(miles * 5280);
+	}
+
 	public static double meters_to_mph(double mps) {
 		return meters_to_miles(mps) * 3600;
+ 	}
+
+	public static double mph_to_meters(double mps) {
+		return miles_to_meters(mps) / 3600;
  	}
 
 	public static double meters_to_mach(double meters) {
@@ -304,6 +312,10 @@ public class AltosConvert {
 
 	public static double c_to_f(double c) {
 		return c * 9/5 + 32;
+	}
+
+	public static double f_to_c(double c) {
+		return (c - 32) * 5/9;
 	}
 
 	public static boolean imperial_units = false;

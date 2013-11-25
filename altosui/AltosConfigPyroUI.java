@@ -26,7 +26,7 @@ import org.altusmetrum.altosuilib_1.*;
 
 public class AltosConfigPyroUI
 	extends AltosUIDialog
-	implements ItemListener, DocumentListener
+	implements ItemListener, DocumentListener, AltosUnitsListener
 {
 	AltosConfigUI	owner;
 	Container	pane;
@@ -45,13 +45,14 @@ public class AltosConfigPyroUI
 		}
 	}
 
-	class PyroItem implements ItemListener, DocumentListener
+	class PyroItem implements ItemListener, DocumentListener, AltosUnitsListener
 	{
 		public int		flag;
 		public JRadioButton	enable;
 		public JTextField	value;
 		public JComboBox	combo;
 		AltosConfigPyroUI	ui;
+		boolean			setting;
 
 		public void set_enable(boolean enable) {
 			if (value != null)
@@ -62,36 +63,59 @@ public class AltosConfigPyroUI
 
 		public void itemStateChanged(ItemEvent e) {
 			set_enable(enable.isSelected());
-			ui.set_dirty();
+			if (!setting) 
+				ui.set_dirty();
 		}
 
 		public void changedUpdate(DocumentEvent e) {
-			ui.set_dirty();
+			if (!setting) 
+				ui.set_dirty();
 		}
 
 		public void insertUpdate(DocumentEvent e) {
-			ui.set_dirty();
+			if (!setting) 
+				ui.set_dirty();
 		}
 
 		public void removeUpdate(DocumentEvent e) {
-			ui.set_dirty();
+			if (!setting) 
+				ui.set_dirty();
+		}
+
+		public void units_changed(boolean imperial_units) {
+			AltosUnits units = AltosPyro.pyro_to_units(flag);
+
+			if (units != null) {
+				try {
+					double v = units.parse(value.getText(), !imperial_units);
+					set(enabled(), v);
+				} catch (NumberFormatException ne) {
+					set(enabled(), 0.0);
+				}
+			}
 		}
 
 		public void set(boolean new_enable, double new_value) {
+			setting = true;
 			enable.setSelected(new_enable);
 			set_enable(new_enable);
 			if (value != null) {
 				double	scale = AltosPyro.pyro_to_scale(flag);
+				double 	unit_value = new_value;
+				AltosUnits units = AltosPyro.pyro_to_units(flag);
+				if (units != null)
+					unit_value = units.value(new_value);
 				String	format = "%6.0f";
 				if (scale >= 10)
 					format = "%6.1f";
 				else if (scale >= 100)
 					format = "%6.2f";
-				value.setText(String.format(format, new_value));
+				value.setText(String.format(format, unit_value));
 			}
 			if (combo != null)
 				if (new_value >= AltosLib.ao_flight_boost && new_value <= AltosLib.ao_flight_landed)
 					combo.setSelectedIndex((int) new_value - AltosLib.ao_flight_boost);
+			setting = false;
 		}
 
 		public boolean enabled() {
@@ -99,8 +123,12 @@ public class AltosConfigPyroUI
 		}
 
 		public double value() {
-			if (value != null)
+			if (value != null) {
+				AltosUnits units = AltosPyro.pyro_to_units(flag);
+				if (units != null)
+					return units.parse(value.getText());
 				return Double.parseDouble(value.getText());
+			}
 			if (combo != null)
 				return combo.getSelectedIndex() + AltosLib.ao_flight_boost;
 			return 0;
@@ -143,7 +171,7 @@ public class AltosConfigPyroUI
 		}
 	}
 
-	class PyroColumn {
+	class PyroColumn implements AltosUnitsListener {
 		public PyroItem[]	items;
 		public JLabel		label;
 		int			channel;
@@ -166,15 +194,23 @@ public class AltosConfigPyroUI
 			for (int flag = 1; flag < AltosPyro.pyro_all; flag <<= 1) {
 				if ((AltosPyro.pyro_all & flag) != 0) {
 					if (items[row].enabled()) {
-						System.out.printf ("Flag %x enabled\n", flag);
 						p.flags |= flag;
 						p.set_value(flag, items[row].value());
 					}
 					row++;
 				}
 			}
-			System.out.printf ("Pyro %x %s\n", p.flags, p.toString());
 			return p;
+		}
+
+		public void units_changed(boolean imperial_units) {
+			int row = 0;
+			for (int flag = 1; flag < AltosPyro.pyro_all; flag <<= 1) {
+				if ((AltosPyro.pyro_all & flag) != 0) {
+					items[row].units_changed(imperial_units);
+					row++;
+				}
+			}
 		}
 
 		public PyroColumn(AltosConfigPyroUI ui, int x, int y, int in_channel) {
@@ -209,6 +245,7 @@ public class AltosConfigPyroUI
 	}
 
 	PyroColumn[]	columns;
+	JLabel[]	labels;
 
 	public void set_pyros(AltosPyro[] pyros) {
 		for (int i = 0; i < pyros.length; i++) {
@@ -244,6 +281,34 @@ public class AltosConfigPyroUI
 		owner.set_dirty();
 	}
 
+	public void units_changed(boolean imperial_units) {
+		for (int c = 0; c < columns.length; c++)
+			columns[c].units_changed(imperial_units);
+		int r = 0;
+		for (int flag = 1; flag <= AltosPyro.pyro_all; flag <<= 1) {
+			String n = AltosPyro.pyro_to_name(flag);
+			if (n != null) {
+				labels[r].setText(n);
+				r++;
+			}
+		}
+	}
+
+	/* A window listener to catch closing events and tell the config code */
+	class ConfigListener extends WindowAdapter {
+		AltosConfigPyroUI	ui;
+		AltosConfigUI		owner;
+
+		public ConfigListener(AltosConfigPyroUI this_ui, AltosConfigUI this_owner) {
+			ui = this_ui;
+			owner = this_owner;
+		}
+
+		public void windowClosing(WindowEvent e) {
+			ui.setVisible(false);
+		}
+	}
+
 	public AltosConfigPyroUI(AltosConfigUI in_owner, AltosPyro[] pyros) {
 
 		super(in_owner, "Configure Pyro Channels", false);
@@ -254,6 +319,13 @@ public class AltosConfigPyroUI
 
 		pane = getContentPane();
 		pane.setLayout(new GridBagLayout());
+
+		int	nrow = 0;
+		for (int flag = 1; flag < AltosPyro.pyro_all; flag <<= 1)
+			if ((flag & AltosPyro.pyro_all) != 0)
+				nrow++;
+
+		labels = new JLabel[nrow];
 
 		int	row = 1;
 
@@ -270,6 +342,7 @@ public class AltosConfigPyroUI
 				c.insets = il;
 				JLabel label = new JLabel(n);
 				pane.add(label, c);
+				labels[row-1] = label;
 				row++;
 			}
 		}
@@ -280,6 +353,13 @@ public class AltosConfigPyroUI
 			columns[i] = new PyroColumn(this, i*2 + 1, 0, i);
 			columns[i].set(pyros[i]);
 		}
+		addWindowListener(new ConfigListener(this, owner));
+		AltosPreferences.register_units_listener(this);
+	}
+
+	public void dispose() {
+		AltosPreferences.unregister_units_listener(this);
+		super.dispose();
 	}
 
 	public void make_visible() {
