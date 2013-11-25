@@ -3,7 +3,7 @@
   "/usr/share/xml/docbook/schema/dtd/4.5/docbookx.dtd">
 <book>
   <title>The Altus Metrum System</title>
-  <subtitle>An Owner's Manual for TeleMetrum, TeleMini, TeleDongle and TeleBT Devices</subtitle>
+  <subtitle>An Owner's Manual for Altus Metrum Rocketry Electronics</subtitle>
   <bookinfo>
     <author>
       <firstname>Bdale</firstname>
