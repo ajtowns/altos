@@ -15,37 +15,36 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "ao-elf.h"
 #include <err.h>
-#include <gelf.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <string.h>
-#include "ccdbg.h"
-#include "ao-stmload.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include "ao-elf.h"
+#include "ao-hex.h"
 
 /*
- * Look through the Elf file for the AltOS symbols
- * that can be adjusted before the image is written
- * to the device
+ * Look through the Elf file for symbols that can be adjusted before
+ * the image is written to the device
  */
-static int
-find_symbols (Elf *e)
+static bool
+find_symbols (Elf *e, struct ao_elf_sym *symbols, int num_symbols)
 {
 	Elf_Scn 	*scn;
 	Elf_Data	*symbol_data = NULL;
 	GElf_Shdr	shdr;
 	GElf_Sym       	sym;
 	int		i, symbol_count, s;
-	int		required = 0;
 	char		*symbol_name;
-	char		*section_name;
 	size_t		shstrndx;
 
 	if (elf_getshdrstrndx(e, &shstrndx) < 0)
-		return 0;
+		return false;
 
 	/*
 	 * Find the symbols
@@ -55,7 +54,7 @@ find_symbols (Elf *e)
 	while ((scn = elf_nextscn(e, scn)) != NULL) {
 
 		if (gelf_getshdr(scn, &shdr) != &shdr)
-			return 0;
+			return false;
 
 		if (shdr.sh_type == SHT_SYMTAB) {
 			symbol_data = elf_getdata(scn, NULL);
@@ -65,36 +64,37 @@ find_symbols (Elf *e)
 	}
 
 	if (!symbol_data)
-		return 0;
+		return false;
 
 	for (i = 0; i < symbol_count; i++) {
 		gelf_getsym(symbol_data, i, &sym);
 
 		symbol_name = elf_strptr(e, shdr.sh_link, sym.st_name);
 
-		for (s = 0; s < ao_num_symbols; s++)
-			if (!strcmp (ao_symbols[s].name, symbol_name)) {
-				int	t;
-				ao_symbols[s].addr = sym.st_value;
-				if (ao_symbols[s].required)
-					++required;
+		for (s = 0; s < num_symbols; s++)
+			if (!strcmp (symbols[s].name, symbol_name)) {
+				symbols[s].addr = sym.st_value;
+				symbols[s].found = true;
 			}
 	}
-
-	return required >= ao_num_required_symbols;
+	for (s = 0; s < num_symbols; s++)
+		if (symbols[s].required && !symbols[s].found)
+			return false;
+	return true;
 }
 
-uint32_t round4(uint32_t a) {
+static uint32_t
+round4(uint32_t a) {
 	return (a + 3) & ~3;
 }
 
-struct hex_image *
+static struct ao_hex_image *
 new_load (uint32_t addr, uint32_t len)
 {
-	struct hex_image *new;
+	struct ao_hex_image *new;
 
 	len = round4(len);
-	new = calloc (1, sizeof (struct hex_image) + len);
+	new = calloc (1, sizeof (struct ao_hex_image) + len);
 	if (!new)
 		abort();
 
@@ -103,8 +103,8 @@ new_load (uint32_t addr, uint32_t len)
 	return new;
 }
 
-void
-load_paste(struct hex_image *into, struct hex_image *from)
+static void
+load_paste(struct ao_hex_image *into, struct ao_hex_image *from)
 {
 	if (from->address < into->address || into->address + into->length < from->address + from->length)
 		abort();
@@ -116,10 +116,10 @@ load_paste(struct hex_image *into, struct hex_image *from)
  * Make a new load structure large enough to hold the old one and
  * the new data
  */
-struct hex_image *
-expand_load(struct hex_image *from, uint32_t address, uint32_t length)
+static struct ao_hex_image *
+expand_load(struct ao_hex_image *from, uint32_t address, uint32_t length)
 {
-	struct hex_image	*new;
+	struct ao_hex_image	*new;
 
 	if (from) {
 		uint32_t	from_last = from->address + from->length;
@@ -147,10 +147,10 @@ expand_load(struct hex_image *from, uint32_t address, uint32_t length)
  * Create a new load structure with data from the existing one
  * and the new data
  */
-struct hex_image *
-load_write(struct hex_image *from, uint32_t address, uint32_t length, void *data)
+static struct ao_hex_image *
+load_write(struct ao_hex_image *from, uint32_t address, uint32_t length, void *data)
 {
-	struct hex_image	*new;
+	struct ao_hex_image	*new;
 
 	new = expand_load(from, address, length);
 	memcpy(new->data + address - new->address, data, length);
@@ -161,21 +161,18 @@ load_write(struct hex_image *from, uint32_t address, uint32_t length, void *data
  * Construct a large in-memory block for all
  * of the loaded sections of the program
  */
-static struct hex_image *
+static struct ao_hex_image *
 get_load(Elf *e)
 {
 	Elf_Scn 	*scn;
 	size_t		shstrndx;
 	GElf_Shdr	shdr;
 	Elf_Data	*data;
-	char		*got_name;
 	size_t		nphdr;
 	size_t		p;
 	GElf_Phdr	phdr;
-	GElf_Addr	p_paddr;
-	GElf_Off	p_offset;
 	GElf_Addr	sh_paddr;
-	struct hex_image	*load = NULL;
+	struct ao_hex_image	*load = NULL;
 	char		*section_name;
 	size_t		nshdr;
 	size_t		s;
@@ -201,7 +198,6 @@ get_load(Elf *e)
 		if (phdr.p_type != PT_LOAD)
 			continue;
 
-		p_offset = phdr.p_offset;
 		/* Get the associated file section */
 
 #if 0
@@ -255,19 +251,13 @@ get_load(Elf *e)
  * check for the symbols we need
  */
 
-struct hex_image *
-ao_load_elf(char *name)
+struct ao_hex_image *
+ao_load_elf(char *name, struct ao_elf_sym *symbols, int num_symbols)
 {
 	int		fd;
 	Elf		*e;
-	Elf_Scn 	*scn;
-	Elf_Data	*symbol_data = NULL;
-	GElf_Shdr	shdr;
-	GElf_Sym       	sym;
-	size_t		n, shstrndx, sz;
-	int		i, symbol_count, s;
-	int		required = 0;
-	struct hex_image	*image;
+	size_t		shstrndx;
+	struct ao_hex_image	*image;
 
 	if (elf_version(EV_CURRENT) == EV_NONE)
 		return NULL;
@@ -288,7 +278,7 @@ ao_load_elf(char *name)
 	if (elf_getshdrstrndx(e, &shstrndx) != 0)
 		return NULL;
 
-	if (!find_symbols(e)) {
+	if (!find_symbols(e, symbols, num_symbols)) {
 		fprintf (stderr, "Cannot find required symbols\n");
 		return NULL;
 	}

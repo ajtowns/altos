@@ -18,7 +18,22 @@
 #ifndef _AO_ELF_H_
 #define _AO_ELF_H_
 
-struct hex_image *
-ao_load_elf(char *name);
+#include <stdbool.h>
+#include <gelf.h>
+#include "ao-hex.h"
 
-#endif
+struct ao_elf_sym {
+	unsigned	addr;
+	unsigned	default_addr;
+	char		*name;
+	bool		required;
+	bool		found;
+};
+
+struct ao_hex_image *
+ao_load_elf(char *name, struct ao_elf_sym *symbols, int num_symbols);
+
+int
+ao_elf_find_symbols (Elf *e, struct ao_elf_sym *symbols, int num_symbols);
+
+#endif /* _AO_ELF_H_ */

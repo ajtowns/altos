@@ -11,7 +11,6 @@ libao_tools_a_SOURCES = \
 	ccdbg-debug.h \
 	ccdbg-flash.c \
 	ccdbg.h \
-	ccdbg-hex.c \
 	ccdbg-io.c \
 	ccdbg-manual.c \
 	ccdbg-memory.c \
@@ -40,4 +39,8 @@ libao_tools_a_SOURCES = \
 	i0.c \
 	chbevl.c \
 	mconf.h \
-	cephes.h
+	cephes.h \
+	ao-hex.c \
+	ao-hex.h \
+	ao-elf.c \
+	ao-elf.h

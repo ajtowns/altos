@@ -16,17 +16,20 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#include "ccdbg.h"
 #include <stdarg.h>
 #include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "ao-hex.h"
 
-struct hex_input {
+struct ao_hex_input {
 	FILE	*file;
 	int	line;
 	char	*name;
 };
 
-enum hex_read_state {
+enum ao_hex_read_state {
 	read_marker,
 	read_length,
 	read_address,
@@ -40,7 +43,7 @@ enum hex_read_state {
 
 
 static void
-ccdbg_hex_error(struct hex_input *input, char *format, ...)
+ao_hex_error(struct ao_hex_input *input, char *format, ...)
 {
 	va_list ap;
 
@@ -52,18 +55,18 @@ ccdbg_hex_error(struct hex_input *input, char *format, ...)
 }
 
 static void
-ccdbg_hex_free(struct hex_record *record)
+ao_hex_free(struct ao_hex_record *record)
 {
 	if (!record) return;
 	free(record);
 }
 
-static struct hex_record *
-ccdbg_hex_alloc(uint8_t length)
+static struct ao_hex_record *
+ao_hex_alloc(uint8_t length)
 {
-	struct hex_record *record;
+	struct ao_hex_record *record;
 
-	record = calloc(1, sizeof(struct hex_record) + length);
+	record = calloc(1, sizeof(struct ao_hex_record) + length);
 	record->length = length;
 	return record;
 }
@@ -88,7 +91,7 @@ fromhex(char c)
 }
 
 static uint8_t
-ccdbg_hex_checksum(struct hex_record *record)
+ao_hex_checksum(struct ao_hex_record *record)
 {
 	uint8_t	checksum = 0;
 	int i;
@@ -102,11 +105,11 @@ ccdbg_hex_checksum(struct hex_record *record)
 	return -checksum;
 }
 
-static struct hex_record *
-ccdbg_hex_read_record(struct hex_input *input)
+static struct ao_hex_record *
+ao_hex_read_record(struct ao_hex_input *input)
 {
-	struct hex_record *record = NULL;
-	enum hex_read_state state = read_marker;
+	struct ao_hex_record *record = NULL;
+	enum ao_hex_read_state state = read_marker;
 	char c;
 	int nhexbytes;
 	uint32_t hex;
@@ -116,7 +119,7 @@ ccdbg_hex_read_record(struct hex_input *input)
 	while (state != read_done) {
 		c = getc(input->file);
 		if (c == EOF && state != read_white) {
-			ccdbg_hex_error(input, "Unexpected EOF");
+			ao_hex_error(input, "Unexpected EOF");
 			goto bail;
 		}
 		if (c == ' ')
@@ -126,7 +129,7 @@ ccdbg_hex_read_record(struct hex_input *input)
 		switch (state) {
 		case read_marker:
 			if (c != ':') {
-				ccdbg_hex_error(input, "Missing ':'");
+				ao_hex_error(input, "Missing ':'");
 				goto bail;
 			}
 			state = read_length;
@@ -139,7 +142,7 @@ ccdbg_hex_read_record(struct hex_input *input)
 		case read_data:
 		case read_checksum:
 			if (!ishex(c)) {
-				ccdbg_hex_error(input, "Non-hex char '%c'",
+				ao_hex_error(input, "Non-hex char '%c'",
 						c);
 				goto bail;
 			}
@@ -150,9 +153,9 @@ ccdbg_hex_read_record(struct hex_input *input)
 
 			switch (state) {
 			case read_length:
-				record = ccdbg_hex_alloc(hex);
+				record = ao_hex_alloc(hex);
 				if (!record) {
-					ccdbg_hex_error(input, "Out of memory");
+					ao_hex_error(input, "Out of memory");
 					goto bail;
 				}
 				state = read_address;
@@ -190,7 +193,7 @@ ccdbg_hex_read_record(struct hex_input *input)
 			break;
 		case read_newline:
 			if (c != '\n' && c != '\r') {
-				ccdbg_hex_error(input, "Missing newline");
+				ao_hex_error(input, "Missing newline");
 				goto bail;
 			}
 			state = read_white;
@@ -208,73 +211,73 @@ ccdbg_hex_read_record(struct hex_input *input)
 			break;
 		}
 	}
-	checksum = ccdbg_hex_checksum(record);
+	checksum = ao_hex_checksum(record);
 	if (checksum != record->checksum) {
-		ccdbg_hex_error(input, "Invalid checksum (read 0x%02x computed 0x%02x)\n",
+		ao_hex_error(input, "Invalid checksum (read 0x%02x computed 0x%02x)\n",
 				record->checksum, checksum);
 		goto bail;
 	}
 	return record;
 
 bail:
-	ccdbg_hex_free(record);
+	ao_hex_free(record);
 	return NULL;
 }
 
 void
-ccdbg_hex_file_free(struct hex_file *hex)
+ao_hex_file_free(struct ao_hex_file *hex)
 {
 	int	i;
 
 	if (!hex)
 		return;
 	for (i = 0; i < hex->nrecord; i++)
-		ccdbg_hex_free(hex->records[i]);
+		ao_hex_free(hex->records[i]);
 	free(hex);
 }
 
-struct hex_file *
-ccdbg_hex_file_read(FILE *file, char *name)
+struct ao_hex_file *
+ao_hex_file_read(FILE *file, char *name)
 {
-	struct hex_input input;
-	struct hex_file	*hex = NULL, *newhex;
-	struct hex_record *record;
+	struct ao_hex_input input;
+	struct ao_hex_file	*hex = NULL, *newhex;
+	struct ao_hex_record *record;
 	int srecord = 1;
 	int done = 0;
 
-	hex = calloc(sizeof (struct hex_file) + sizeof (struct hex_record *), 1);
+	hex = calloc(sizeof (struct ao_hex_file) + sizeof (struct ao_hex_record *), 1);
 	input.name = name;
 	input.line = 1;
 	input.file = file;
 	while (!done) {
-		record = ccdbg_hex_read_record(&input);
+		record = ao_hex_read_record(&input);
 		if (!record)
 			goto bail;
 		if (hex->nrecord == srecord) {
 			srecord *= 2;
 			newhex = realloc(hex,
-					 sizeof (struct hex_file) +
-					 srecord * sizeof (struct hex_record *));
+					 sizeof (struct ao_hex_file) +
+					 srecord * sizeof (struct ao_hex_record *));
 			if (!newhex)
 				goto bail;
 			hex = newhex;
 		}
 		hex->records[hex->nrecord++] = record;
-		if (record->type == HEX_RECORD_EOF)
+		if (record->type == AO_HEX_RECORD_EOF)
 			done = 1;
 	}
 	return hex;
 
 bail:
-	ccdbg_hex_file_free(hex);
+	ao_hex_file_free(hex);
 	return NULL;
 }
 
-struct hex_image *
-ccdbg_hex_image_create(struct hex_file *hex)
+struct ao_hex_image *
+ao_hex_image_create(struct ao_hex_file *hex)
 {
-	struct hex_image *image;
-	struct hex_record *record;
+	struct ao_hex_image *image;
+	struct ao_hex_record *record;
 	int i;
 	uint32_t addr;
 	uint32_t base, bound;
@@ -314,7 +317,7 @@ ccdbg_hex_image_create(struct hex_file *hex)
 
 	}
 	length = bound - base;
-	image = calloc(sizeof(struct hex_image) + length, 1);
+	image = calloc(sizeof(struct ao_hex_image) + length, 1);
 	if (!image)
 		return NULL;
 	image->address = base;
@@ -343,13 +346,13 @@ ccdbg_hex_image_create(struct hex_file *hex)
 }
 
 void
-ccdbg_hex_image_free(struct hex_image *image)
+ao_hex_image_free(struct ao_hex_image *image)
 {
 	free(image);
 }
 
 int
-ccdbg_hex_image_equal(struct hex_image *a, struct hex_image *b)
+ao_hex_image_equal(struct ao_hex_image *a, struct ao_hex_image *b)
 {
 	if (a->length != b->length)
 		return 0;
@@ -358,24 +361,24 @@ ccdbg_hex_image_equal(struct hex_image *a, struct hex_image *b)
 	return 1;
 }
 
-struct hex_image *
-ccdbg_hex_load(char *filename)
+struct ao_hex_image *
+ao_hex_load(char *filename)
 {
 	FILE *file;
-	struct hex_file	*hex_file;
-	struct hex_image *hex_image;
+	struct ao_hex_file	*hex_file;
+	struct ao_hex_image *hex_image;
 
 	file = fopen (filename, "r");
 	if (!file)
 		return 0;
 	
-	hex_file = ccdbg_hex_file_read(file, filename);
+	hex_file = ao_hex_file_read(file, filename);
 	fclose(file);
 	if (!hex_file)
 		return 0;
-	hex_image = ccdbg_hex_image_create(hex_file);
+	hex_image = ao_hex_image_create(hex_file);
 	if (!hex_image)
 		return 0;
-	ccdbg_hex_file_free(hex_file);
+	ao_hex_file_free(hex_file);
 	return hex_image;
 }

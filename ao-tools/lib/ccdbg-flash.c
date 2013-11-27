@@ -238,7 +238,7 @@ ccdbg_flash_lock(struct ccdbg *dbg, uint8_t lock)
 #endif
 
 uint8_t
-ccdbg_flash_hex_image(struct ccdbg *dbg, struct hex_image *image)
+ccdbg_flash_hex_image(struct ccdbg *dbg, struct ao_hex_image *image)
 {
 	uint16_t flash_prog;
 	uint16_t flash_len;

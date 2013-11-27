@@ -157,7 +157,7 @@ ccdbg_set_pc(struct ccdbg *dbg, uint16_t pc)
 }
 
 uint8_t
-ccdbg_execute_hex_image(struct ccdbg *dbg, struct hex_image *image)
+ccdbg_execute_hex_image(struct ccdbg *dbg, struct ao_hex_image *image)
 {
 	uint16_t pc;
 	uint8_t status;

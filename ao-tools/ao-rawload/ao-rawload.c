@@ -40,8 +40,8 @@ main (int argc, char **argv)
 	struct ccdbg	*dbg;
 	uint8_t		status;
 	uint16_t	pc;
-	struct hex_file	*hex;
-	struct hex_image *image;
+	struct ao_hex_file	*hex;
+	struct ao_hex_image *image;
 	char		*filename;
 	FILE		*file;
 	char		*tty = NULL;
@@ -75,17 +75,17 @@ main (int argc, char **argv)
 		perror(filename);
 		exit(1);
 	}
-	hex = ccdbg_hex_file_read(file, filename);
+	hex = ao_hex_file_read(file, filename);
 	fclose(file);
 	if (!hex)
 		exit (1);
-	image = ccdbg_hex_image_create(hex);
+	image = ao_hex_image_create(hex);
 	if (!image) {
 		fprintf(stderr, "image create failed\n");
 		exit (1);
 	}
 
-	ccdbg_hex_file_free(hex);
+	ao_hex_file_free(hex);
 	if (!tty)
 		tty = cc_usbdevs_find_by_arg(device, "TIDongle");
 	dbg = ccdbg_open(tty);
@@ -107,7 +107,7 @@ main (int argc, char **argv)
 	} else {
 		printf("Cannot load code to 0x%04x\n",
 		       image->address);
-		ccdbg_hex_image_free(image);
+		ao_hex_image_free(image);
 		ccdbg_close(dbg);
 		exit(1);
 	}

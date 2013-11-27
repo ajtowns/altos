@@ -34,7 +34,7 @@
 
 #define AO_USB_DESC_STRING		3
 
-struct sym ao_symbols[] = {
+struct ao_elf_sym ao_symbols[] = {
 
 	{ 0, AO_BOOT_APPLICATION_BASE + 0x100,	"ao_romconfig_version",	1 },
 #define AO_ROMCONFIG_VERSION	(ao_symbols[0].addr)
@@ -62,7 +62,7 @@ int ao_num_required_symbols = NUM_REQUIRED_SYMBOLS;
  * Edit the to-be-written memory block
  */
 static int
-rewrite(struct hex_image *load, unsigned address, uint8_t *data, int length)
+rewrite(struct ao_hex_image *load, unsigned address, uint8_t *data, int length)
 {
 	int 		i;
 
@@ -86,7 +86,7 @@ rewrite(struct hex_image *load, unsigned address, uint8_t *data, int length)
 static uint16_t
 get_uint16_cc(struct cc_usb *cc, uint32_t addr)
 {
-	struct hex_image	*hex = ao_self_read(cc, addr, 2);
+	struct ao_hex_image	*hex = ao_self_read(cc, addr, 2);
 	uint16_t		v;
 	uint8_t			*data;
 
@@ -101,7 +101,7 @@ get_uint16_cc(struct cc_usb *cc, uint32_t addr)
 static uint32_t
 get_uint32_cc(struct cc_usb *cc, uint32_t addr)
 {
-	struct hex_image	*hex = ao_self_read(cc, addr, 4);
+	struct ao_hex_image	*hex = ao_self_read(cc, addr, 4);
 	uint32_t		v;
 	uint8_t			*data;
 
@@ -281,7 +281,7 @@ main (int argc, char **argv)
 	int			c;
 	stlink_t		*sl = NULL;
 	int			was_flashed = 0;
-	struct hex_image	*load;
+	struct ao_hex_image	*load;
 	int			tries;
 	struct cc_usb		*cc = NULL;
 	int			use_stlink = 0;
@@ -329,10 +329,10 @@ main (int argc, char **argv)
 		usage(argv[0]);
 
 	if (ends_with (filename, ".elf")) {
-		load = ao_load_elf(filename);
+		load = ao_load_elf(filename, ao_symbols, ao_num_symbols);
 	} else if (ends_with (filename, ".ihx")) {
 		int	i;
-		load = ccdbg_hex_load(filename);
+		load = ao_hex_load(filename);
 		for (i = 0; i < ao_num_symbols; i++)
 			ao_symbols[i].addr = ao_symbols[i].default_addr;
 	} else

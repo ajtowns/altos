@@ -64,16 +64,16 @@ ao_self_block_write(struct cc_usb *cc, uint32_t address, uint8_t block[256])
 	}
 }
 
-struct hex_image *
+struct ao_hex_image *
 ao_self_read(struct cc_usb *cc, uint32_t address, uint32_t length)
 {
-	struct hex_image	*image;
+	struct ao_hex_image	*image;
 	int			pages;
 	int			page;
 	uint32_t		base = address & ~0xff;
 	uint32_t		bound = (address + length + 0xff) & ~0xff;
 
-	image = calloc(sizeof (struct hex_image) + (bound - base), 1);
+	image = calloc(sizeof (struct ao_hex_image) + (bound - base), 1);
 	image->address = base;
 	image->length = bound - base;
 	pages = image->length / 0x100;
@@ -83,7 +83,7 @@ ao_self_read(struct cc_usb *cc, uint32_t address, uint32_t length)
 }
 
 int
-ao_self_write(struct cc_usb *cc, struct hex_image *image)
+ao_self_write(struct cc_usb *cc, struct ao_hex_image *image)
 {
 	uint8_t		block[256];
 	uint8_t		check[256];

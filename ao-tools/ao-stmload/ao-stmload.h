@@ -18,16 +18,11 @@
 #ifndef _AO_STMLOAD_H_
 #define _AO_STMLOAD_H_
 
-struct sym {
-	unsigned	addr;
-	unsigned	default_addr;
-	char		*name;
-	int		required;
-};
+#include "ao-elf.h"
 
 #define AO_BOOT_APPLICATION_BASE	0x08001000
 
-extern struct sym ao_symbols[];
+extern struct ao_elf_sym ao_symbols[];
 
 extern int ao_num_symbols;
 extern int ao_num_required_symbols;
@@ -38,11 +33,11 @@ ao_self_block_read(struct cc_usb *cc, uint32_t address, uint8_t block[256]);
 void
 ao_self_block_write(struct cc_usb *cc, uint32_t address, uint8_t block[256]);
 
-struct hex_image *
+struct ao_hex_image *
 ao_self_read(struct cc_usb *cc, uint32_t address, uint32_t length);
 
 int
-ao_self_write(struct cc_usb *cc, struct hex_image *image);
+ao_self_write(struct cc_usb *cc, struct ao_hex_image *image);
 
 extern int ao_self_verbose;
 

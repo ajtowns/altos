@@ -117,18 +117,18 @@ ccdbg_write_uint8(struct ccdbg *dbg, uint16_t addr, uint8_t byte)
 }
 
 uint8_t
-ccdbg_write_hex_image(struct ccdbg *dbg, struct hex_image *image, uint16_t offset)
+ccdbg_write_hex_image(struct ccdbg *dbg, struct ao_hex_image *image, uint16_t offset)
 {
 	ccdbg_write_memory(dbg, image->address + offset, image->data, image->length);
 	return 0;
 }
 
-struct hex_image *
+struct ao_hex_image *
 ccdbg_read_hex_image(struct ccdbg *dbg, uint16_t address, uint16_t length)
 {
-	struct hex_image *image;
+	struct ao_hex_image *image;
 
-	image = calloc(sizeof(struct hex_image) + length, 1);
+	image = calloc(sizeof(struct ao_hex_image) + length, 1);
 	image->address = address;
 	image->length = length;
 	memset(image->data, 0xff, length);

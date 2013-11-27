@@ -202,8 +202,8 @@ command_dump (int argc, char **argv)
 enum command_result
 command_file (int argc, char **argv)
 {
-	struct hex_file *hex;
-	struct hex_image *image;
+	struct ao_hex_file *hex;
+	struct ao_hex_image *image;
 	FILE *file;
 
 	if (argc != 2)
@@ -211,16 +211,16 @@ command_file (int argc, char **argv)
 	file = fopen (argv[1], "r");
 	if (!file)
 		return command_error;
-	hex = ccdbg_hex_file_read(file, argv[1]);
+	hex = ao_hex_file_read(file, argv[1]);
 	fclose(file);
 	if (!hex)
 		return command_error;
 	if (hex->nrecord == 0) {
-		ccdbg_hex_file_free(hex);
+		ao_hex_file_free(hex);
 		return command_error;
 	}
-	image = ccdbg_hex_image_create(hex);
-	ccdbg_hex_file_free(hex);
+	image = ao_hex_image_create(hex);
+	ao_hex_file_free(hex);
 	start_address = image->address;
 	ccdbg_set_rom(s51_dbg, image);
 	return command_success;
@@ -495,8 +495,8 @@ command_load (int argc, char **argv)
 {
 	char *filename = argv[1];
 	FILE *file;
-	struct hex_file	*hex;
-	struct hex_image *image;
+	struct ao_hex_file	*hex;
+	struct ao_hex_image *image;
 
 	if (!filename)
 		return command_error;
@@ -505,13 +505,13 @@ command_load (int argc, char **argv)
 		perror(filename);
 		return command_error;
 	}
-	hex = ccdbg_hex_file_read(file, filename);
+	hex = ao_hex_file_read(file, filename);
 	fclose(file);
 	if (!hex) {
 		return command_error;
 	}
-	image = ccdbg_hex_image_create(hex);
-	ccdbg_hex_file_free(hex);
+	image = ao_hex_image_create(hex);
+	ao_hex_file_free(hex);
 	if (!image) {
 		fprintf(stderr, "image create failed\n");
 		return command_error;
@@ -523,7 +523,7 @@ command_load (int argc, char **argv)
 	} else {
 		fprintf(stderr, "Can only load to RAM\n");
 	}
-	ccdbg_hex_image_free(image);
+	ao_hex_image_free(image);
 	return command_success;
 }
 

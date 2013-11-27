@@ -80,7 +80,7 @@ find_symbols(FILE *map)
 }
 
 static int
-rewrite(struct hex_image *image, unsigned addr, char *data, int len)
+rewrite(struct ao_hex_image *image, unsigned addr, char *data, int len)
 {
 	int i;
 	if (addr < image->address || image->address + image->length < addr + len)
@@ -114,8 +114,8 @@ main (int argc, char **argv)
 	struct ccdbg	*dbg;
 	uint8_t		status;
 	uint16_t	pc;
-	struct hex_file	*hex;
-	struct hex_image *image;
+	struct ao_hex_file	*hex;
+	struct ao_hex_image *image;
 	char		*filename;
 	FILE		*file;
 	FILE		*map;
@@ -182,18 +182,18 @@ main (int argc, char **argv)
 	}
 	fclose(map);
 
-	hex = ccdbg_hex_file_read(file, filename);
+	hex = ao_hex_file_read(file, filename);
 	fclose(file);
 	if (!hex) {
 		perror(filename);
 		exit (1);
 	}
-	image = ccdbg_hex_image_create(hex);
+	image = ao_hex_image_create(hex);
 	if (!image) {
 		fprintf(stderr, "image create failed\n");
 		exit (1);
 	}
-	ccdbg_hex_file_free(hex);
+	ao_hex_file_free(hex);
 
 	serial = strtoul(serial_string, NULL, 0);
 	if (!serial)
@@ -276,7 +276,7 @@ main (int argc, char **argv)
 	} else {
 		printf("Cannot load code to 0x%04x\n",
 		       image->address);
-		ccdbg_hex_image_free(image);
+		ao_hex_image_free(image);
 		ccdbg_close(dbg);
 		exit(1);
 	}

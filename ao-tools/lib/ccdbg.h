@@ -33,6 +33,7 @@
 #include "ccdbg-debug.h"
 #include "cc-bitbang.h"
 #include "cc-usb.h"
+#include "ao-hex.h"
 
 /* 8051 instructions
  */
@@ -103,29 +104,9 @@
 struct ccdbg {
 	struct cc_bitbang	*bb;
 	struct cc_usb		*usb;
-	struct hex_image	*rom;
+	struct ao_hex_image	*rom;
 };
 
-/* Intel hex file format data
- */
-struct hex_record {
-	uint8_t	length;
-	uint16_t address;
-	uint8_t type;
-	uint8_t checksum;
-	uint8_t data[0];
-};
-
-struct hex_file {
-	int			nrecord;
-	struct hex_record	*records[0];
-};
-
-struct hex_image {
-	uint32_t	address;
-	uint32_t	length;
-	uint8_t		data[0];
-};
 
 #define CC_STATE_ACC	0x1
 #define CC_STATE_PSW	0x2
@@ -138,10 +119,6 @@ struct ccstate {
 	uint8_t		acc;
 	uint8_t		sfr[CC_STATE_NSFR];
 };
-
-#define HEX_RECORD_NORMAL		0x00
-#define HEX_RECORD_EOF			0x01
-#define HEX_RECORD_EXTENDED_ADDRESS	0x02
 
 /* CC1111 debug port commands
  */
@@ -234,30 +211,11 @@ uint8_t
 ccdbg_set_pc(struct ccdbg *dbg, uint16_t pc);
 
 uint8_t
-ccdbg_execute_hex_image(struct ccdbg *dbg, struct hex_image *image);
+ccdbg_execute_hex_image(struct ccdbg *dbg, struct ao_hex_image *image);
 
 /* ccdbg-flash.c */
 uint8_t
-ccdbg_flash_hex_image(struct ccdbg *dbg, struct hex_image *image);
-
-/* ccdbg-hex.c */
-struct hex_file *
-ccdbg_hex_file_read(FILE *file, char *name);
-
-void
-ccdbg_hex_file_free(struct hex_file *hex);
-
-struct hex_image *
-ccdbg_hex_image_create(struct hex_file *hex);
-
-void
-ccdbg_hex_image_free(struct hex_image *image);
-
-struct hex_image *
-ccdbg_hex_load(char *filename);
-
-int
-ccdbg_hex_image_equal(struct hex_image *a, struct hex_image *b);
+ccdbg_flash_hex_image(struct ccdbg *dbg, struct ao_hex_image *image);
 
 /* ccdbg-io.c */
 struct ccdbg *
@@ -304,9 +262,9 @@ uint8_t
 ccdbg_write_uint8(struct ccdbg *dbg, uint16_t addr, uint8_t byte);
 
 uint8_t
-ccdbg_write_hex_image(struct ccdbg *dbg, struct hex_image *image, uint16_t offset);
+ccdbg_write_hex_image(struct ccdbg *dbg, struct ao_hex_image *image, uint16_t offset);
 
-struct hex_image *
+struct ao_hex_image *
 ccdbg_read_hex_image(struct ccdbg *dbg, uint16_t address, uint16_t length);
 
 uint8_t
@@ -317,7 +275,7 @@ ccdbg_write_sfr(struct ccdbg *dbg, uint8_t addr, uint8_t *bytes, int nbytes);
 
 /* ccdbg-rom.c */
 uint8_t
-ccdbg_set_rom(struct ccdbg *dbg, struct hex_image *rom);
+ccdbg_set_rom(struct ccdbg *dbg, struct ao_hex_image *rom);
 
 uint8_t
 ccdbg_rom_contains(struct ccdbg *dbg, uint16_t addr, int nbytes);

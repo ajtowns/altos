@@ -19,10 +19,10 @@
 #include "ccdbg.h"
 
 uint8_t
-ccdbg_set_rom(struct ccdbg *dbg, struct hex_image *rom)
+ccdbg_set_rom(struct ccdbg *dbg, struct ao_hex_image *rom)
 {
 	if (dbg->rom)
-		ccdbg_hex_image_free(dbg->rom);
+		ao_hex_image_free(dbg->rom);
 	dbg->rom = rom;
 	return 0;
 }
@@ -30,7 +30,7 @@ ccdbg_set_rom(struct ccdbg *dbg, struct hex_image *rom)
 uint8_t
 ccdbg_rom_contains(struct ccdbg *dbg, uint16_t addr, int nbytes)
 {
-	struct hex_image *rom = dbg->rom;
+	struct ao_hex_image *rom = dbg->rom;
 	if (!rom)
 		return 0;
 	if (addr < rom->address || rom->address + rom->length < addr + nbytes)
@@ -42,7 +42,7 @@ uint8_t
 ccdbg_rom_replace_xmem(struct ccdbg *dbg,
 		       uint16_t addr, uint8_t *bytes, int nbytes)
 {
-	struct hex_image *rom = dbg->rom;
+	struct ao_hex_image *rom = dbg->rom;
 	if (!rom)
 		return 0;
 
