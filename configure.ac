@@ -407,6 +407,7 @@ ao-tools/ao-dumpflash/Makefile
 ao-tools/ao-edit-telem/Makefile
 ao-tools/ao-dump-up/Makefile
 ao-tools/ao-elftohex/Makefile
+ao-tools/ao-usbload/Makefile
 ao-utils/Makefile
 src/Version
 ])
