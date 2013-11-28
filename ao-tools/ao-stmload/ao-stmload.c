@@ -56,10 +56,8 @@ struct ao_sym ao_symbols[] = {
 };
 
 #define NUM_SYMBOLS		5
-#define NUM_REQUIRED_SYMBOLS	3
 
 int ao_num_symbols = NUM_SYMBOLS;
-int ao_num_required_symbols = NUM_REQUIRED_SYMBOLS;
 
 /*
  * Edit the to-be-written memory block
@@ -80,40 +78,6 @@ rewrite(struct ao_hex_image *load, unsigned address, uint8_t *data, int length)
 		printf (" %02x", data[i]);
 	printf("\n");
 	memcpy(load->data + address - load->address, data, length);
-}
-
-/*
- * Read a 16-bit value from the USB target
- */
-
-static uint16_t
-get_uint16_cc(struct cc_usb *cc, uint32_t addr)
-{
-	struct ao_hex_image	*hex = ao_self_read(cc, addr, 2);
-	uint16_t		v;
-	uint8_t			*data;
-
-	if (!hex)
-		return 0;
-	data = hex->data + addr - hex->address;
-	v = data[0] | (data[1] << 8);
-	free(hex);
-	return v;
-}
-
-static uint32_t
-get_uint32_cc(struct cc_usb *cc, uint32_t addr)
-{
-	struct ao_hex_image	*hex = ao_self_read(cc, addr, 4);
-	uint32_t		v;
-	uint8_t			*data;
-
-	if (!hex)
-		return 0;
-	data = hex->data + addr - hex->address;
-	v = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
-	free(hex);
-	return v;
 }
 
 /*
@@ -148,7 +112,7 @@ get_uint16(stlink_t *sl, struct cc_usb *cc, uint32_t addr)
 {
 	uint16_t	result;
 	if (cc)
-		result = get_uint16_cc(cc, addr);
+		result = ao_self_get_uint16(cc, addr);
 	else
 		result = get_uint16_sl(sl, addr);
 	printf ("read 0x%08x = 0x%04x\n", addr, result);
@@ -193,7 +157,7 @@ get_uint32(stlink_t *sl, struct cc_usb *cc, uint32_t addr)
 	uint32_t	result;
 
 	if (cc)
-		result = get_uint32_cc(cc, addr);
+		result = ao_self_get_uint32(cc, addr);
 	else
 		result = get_uint32_sl(sl, addr);
 	printf ("read 0x%08x = 0x%08x\n", addr, result);

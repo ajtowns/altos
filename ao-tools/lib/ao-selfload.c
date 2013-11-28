@@ -122,3 +122,37 @@ ao_self_write(struct cc_usb *cc, struct ao_hex_image *image)
 	cc_usb_printf(cc,"a\n");
 	return 1;
 }
+
+/*
+ * Read a 16-bit value from the USB target
+ */
+
+uint16_t
+ao_self_get_uint16(struct cc_usb *cc, uint32_t addr)
+{
+	struct ao_hex_image	*hex = ao_self_read(cc, addr, 2);
+	uint16_t		v;
+	uint8_t			*data;
+
+	if (!hex)
+		return 0;
+	data = hex->data + addr - hex->address;
+	v = data[0] | (data[1] << 8);
+	free(hex);
+	return v;
+}
+
+uint32_t
+ao_self_get_uint32(struct cc_usb *cc, uint32_t addr)
+{
+	struct ao_hex_image	*hex = ao_self_read(cc, addr, 4);
+	uint32_t		v;
+	uint8_t			*data;
+
+	if (!hex)
+		return 0;
+	data = hex->data + addr - hex->address;
+	v = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+	free(hex);
+	return v;
+}
