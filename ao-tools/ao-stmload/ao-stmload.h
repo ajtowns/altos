@@ -33,12 +33,4 @@ ao_self_block_read(struct cc_usb *cc, uint32_t address, uint8_t block[256]);
 void
 ao_self_block_write(struct cc_usb *cc, uint32_t address, uint8_t block[256]);
 
-struct ao_hex_image *
-ao_self_read(struct cc_usb *cc, uint32_t address, uint32_t length);
-
-int
-ao_self_write(struct cc_usb *cc, struct ao_hex_image *image);
-
-extern int ao_self_verbose;
-
 #endif /* _AO_STMLOAD_H_ */

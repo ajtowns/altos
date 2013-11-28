@@ -24,6 +24,7 @@
 uint32_t	ao_verbose;
 
 #define AO_VERBOSE_EXE	1
+#define AO_VERBOSE_SELF	2
 
 void
 ao_printf(uint32_t verbose, const char *format, ...);

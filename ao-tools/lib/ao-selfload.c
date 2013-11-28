@@ -21,16 +21,13 @@
 #include <sysexits.h>
 #include <unistd.h>
 #include <string.h>
-#include "cc.h"
-#include "cc-usb.h"
-#include "ccdbg.h"
-#include "ao-stmload.h"
+#include "ao-hex.h"
+#include "ao-selfload.h"
+#include "ao-verbose.h"
 
-int	ao_self_verbose;
+#define TRACE(...) ao_printf(AO_VERBOSE_SELF, __VA_ARGS__)
 
-#define TRACE(...) if (ao_self_verbose) printf (__VA_ARGS__)
-
-void
+static void
 ao_self_block_read(struct cc_usb *cc, uint32_t address, uint8_t block[256])
 {
 	int			byte;
@@ -47,7 +44,7 @@ ao_self_block_read(struct cc_usb *cc, uint32_t address, uint8_t block[256])
 	}
 }
 
-void
+static void
 ao_self_block_write(struct cc_usb *cc, uint32_t address, uint8_t block[256])
 {
 	int			byte;
@@ -82,7 +79,7 @@ ao_self_read(struct cc_usb *cc, uint32_t address, uint32_t length)
 	return image;
 }
 
-int
+bool
 ao_self_write(struct cc_usb *cc, struct ao_hex_image *image)
 {
 	uint8_t		block[256];

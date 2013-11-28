@@ -11,7 +11,7 @@ ao_stmload_DEPENDENCIES = $(AO_STMLOAD_LIBS)
 
 ao_stmload_LDADD=$(AO_STMLOAD_LIBS) $(LIBSTLINK_LIBS) $(LIBUSB_LIBS) -lelf
 
-ao_stmload_SOURCES=ao-stmload.c ao-stmload.h ao-selfload.c
+ao_stmload_SOURCES=ao-stmload.c ao-stmload.h
 
 man_MANS = ao-stmload.1
 

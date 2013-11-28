@@ -32,6 +32,8 @@
 #include "cc-usb.h"
 #include "cc.h"
 #include "ao-stmload.h"
+#include "ao-selfload.h"
+#include "ao-verbose.h"
 
 #define AO_USB_DESC_STRING		3
 
@@ -249,13 +251,13 @@ static const struct option options[] = {
 	{ .name = "device", .has_arg = 1, .val = 'D' },
 	{ .name = "cal", .has_arg = 1, .val = 'c' },
 	{ .name = "serial", .has_arg = 1, .val = 's' },
-	{ .name = "verbose", .has_arg = 0, .val = 'v' },
+	{ .name = "verbose", .has_arg = 1, .val = 'v' },
 	{ 0, 0, 0, 0},
 };
 
 static void usage(char *program)
 {
-	fprintf(stderr, "usage: %s [--stlink] [--verbose] [--device=<device>] [-tty=<tty>] [--cal=<radio-cal>] [--serial=<serial>] file.{elf,ihx}\n", program);
+	fprintf(stderr, "usage: %s [--stlink] [--verbose=<verbose>] [--device=<device>] [-tty=<tty>] [--cal=<radio-cal>] [--serial=<serial>] file.{elf,ihx}\n", program);
 	exit(1);
 }
 
@@ -316,7 +318,7 @@ main (int argc, char **argv)
 	struct ao_sym		*file_symbols;
 	int			num_file_symbols;
 
-	while ((c = getopt_long(argc, argv, "T:D:c:s:Sv", options, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "T:D:c:s:Sv:", options, NULL)) != -1) {
 		switch (c) {
 		case 'T':
 			tty = optarg;
@@ -346,7 +348,7 @@ main (int argc, char **argv)
 		}
 	}
 
-	ao_self_verbose = verbose;
+	ao_verbose = verbose;
 
 	if (verbose > 1)
 		ccdbg_add_debug(CC_DEBUG_BITBANG);
