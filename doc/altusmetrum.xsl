@@ -2191,16 +2191,26 @@ NAR #88757, TRA #12200
     <section>
       <title>Flash Image</title>
       <para>
-        This reprograms any Altus Metrum device by using a TeleMetrum
-        or TeleDongle as a programming dongle. Please read the
-        directions for flashing devices in the Updating Device
-        Firmware chapter below.
+        This reprograms Altus Metrum device with new
+        firmware. TeleMetrum v1.x, TeleDongle, TeleMini and TeleBT are
+        all reprogrammed by using another similar unit as a
+        programming dongle (pair programming). TeleMega, TeleMetrum v2
+        and EasyMini are all programmed directly over their USB ports
+        (self programming).  Please read the directions for flashing
+        devices in the Updating Device Firmware chapter below.
       </para>
       <para>
-        Once you have the programmer and target devices connected,
-        push the 'Flash Image' button. That will present a dialog box
-        listing all of the connected devices. Carefully select the
-        programmer device, not the device to be programmed.
+	For “self programming”, connect USB to the device to be
+	programmed and push the 'Flash Image' button. That will
+	present a dialog box listing all of the connected
+	devices. Carefully select the device to be programmed.
+      </para>
+      <para>
+        For “pair programming”, once you have the programmer and
+        target devices connected, push the 'Flash Image' button. That
+        will present a dialog box listing all of the connected
+        devices. Carefully select the programmer device, not the
+        device to be programmed.
       </para>
       <para>
         Next, select the image to flash to the device. These are named
@@ -2221,10 +2231,10 @@ NAR #88757, TRA #12200
       </para>
       <para>
         When programming is complete, the target device will
-        reboot. Note that if the target device is connected via USB, you
-        will have to unplug it and then plug it back in for the USB
-        connection to reset so that you can communicate with the device
-        again.
+        reboot. Note that if a pair programmed target device is
+        connected via USB, you will have to unplug it and then plug it
+        back in for the USB connection to reset so that you can
+        communicate with the device again.
       </para>
     </section>
     <section>
@@ -2851,11 +2861,11 @@ NAR #88757, TRA #12200
   <chapter>
     <title>Updating Device Firmware</title>
     <para>
-      The big concept to understand is that you have to use a
-      TeleDongle as a programmer to update a TeleMetrum or TeleMini,
-      and a TeleMetrum or other TeleDongle to program the TeleDongle
-      Due to limited memory resources in the cc1111, we don't support
-      programming directly over USB. 
+      TeleMega, TeleMetrum v2 and EasMini are all programmed directly
+      over their USB connectors (self programming). TeleMetrum v1, TeleMini and
+      TeleDongle are all programmed by using another device as a
+      programmer (pair programming). It's important to recognize which
+      kind of devices you have before trying to reprogram them.
     </para>
     <para>
       You may wish to begin by ensuring you have current firmware images.
@@ -2869,8 +2879,70 @@ NAR #88757, TRA #12200
     <para>
       We recommend updating the altimeter first, before updating TeleDongle.
     </para>
+    <para>
+      Self-programmable devices (TeleMega, TeleMetrum v2 and EasyMini)
+      are reprogrammed by connecting them to your computer over USB
+    </para>
+    <para>
+      The big concept to understand is that you have to use a
+      TeleMega, TeleMetrum or TeleDongle as a programmer to update a
+      pair programmed device. Due to limited memory resources in the
+      cc1111, we don't support programming directly over USB for these
+      devices.
+    </para>
     <section>
-      <title>Updating TeleMetrum Firmware</title>
+      <title>
+	Updating TeleMega, TeleMetrum v2 or EasyMini Firmware
+      </title>
+      <orderedlist inheritnum='inherit' numeration='arabic'>
+	<listitem>
+	  <para>
+	    Attach a battery and power switch to the target
+	    device. Power up the device.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Using a Micro USB cable, connect the target device to your
+	    computer's USB socket.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Run AltosUI, and select 'Flash Image' from the File menu.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Select the image you want to flash to the device, which
+	    should have a name in the form
+	    &lt;product&gt;-v&lt;product-version&gt;-&lt;software-version&gt;.ihx, such
+	    as TeleMega-v1.0-1.3.0.ihx.
+	  </para>
+	</listitem>
+        <listitem>
+	  <para>
+	    Make sure the configuration parameters are reasonable
+	    looking. If the serial number and/or RF configuration
+	    values aren't right, you'll need to change them.
+	  </para>
+        </listitem>
+        <listitem>
+	  <para>
+	    Hit the 'OK' button and the software should proceed to flash
+	    the device with new firmware, showing a progress bar.
+	  </para>
+        </listitem>
+	<listitem>
+	  <para>
+	    Verify that the device is working by using the 'Configure
+	    Altimeter' item to check over the configuration.
+	  </para>
+	</listitem>
+      </orderedlist>
+    </section>
+    <section>
+      <title>Updating TeleMetrum v1.x Firmware</title>
       <orderedlist inheritnum='inherit' numeration='arabic'>
         <listitem>
 	  <para>
@@ -3148,7 +3220,79 @@ NAR #88757, TRA #12200
   <chapter>
     <title>Hardware Specifications</title>
     <section>
-      <title>TeleMetrum Specifications</title>
+      <title>
+	TeleMega Specifications
+      </title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Recording altimeter for model rocketry.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Supports dual deployment and four auxilary pyro channels (can initiate 6 events).
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    70cm 40mW ham-band transceiver for telemetry down-link.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Barometric pressure sensor good to 100k feet MSL.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    1-axis high-g accelerometer for motor characterization, capable of
+	    +/- 102g.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    9-axis IMU including integrated 3-axis accelerometer,
+	    3-axis gyroscope and 3-axis magnetometer.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    On-board, integrated uBlox Max 7 GPS receiver with 5Hz update rate capability.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    On-board 8 Megabyte non-volatile memory for flight data storage.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    USB interface for battery charging, configuration, and data recovery.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Fully integrated support for Li-Po rechargeable batteries.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Uses Li-Po to fire e-matches, can be modified to support 
+	    optional separate pyro battery if needed.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    3.25 x 1.25 inch board designed to fit inside 38mm air-frame coupler tube.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>
+	TeleMetrum v2 Specifications
+      </title>
       <itemizedlist>
 	<listitem>
 	  <para>
@@ -3162,7 +3306,69 @@ NAR #88757, TRA #12200
 	</listitem>
 	<listitem>
 	  <para>
-	    70cm ham-band transceiver for telemetry down-link.
+	    70cm, 40mW ham-band transceiver for telemetry down-link.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Barometric pressure sensor good to 100k feet MSL.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    1-axis high-g accelerometer for motor characterization, capable of
+	    +/- 102g.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    On-board, integrated uBlox Max 7 GPS receiver with 5Hz update rate capability.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    On-board 8 Megabyte non-volatile memory for flight data storage.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    USB interface for battery charging, configuration, and data recovery.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Fully integrated support for Li-Po rechargeable batteries.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Uses Li-Po to fire e-matches, can be modified to support 
+	    optional separate pyro battery if needed.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    2.75 x 1 inch board designed to fit inside 29mm air-frame coupler tube.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>TeleMetrum v1 Specifications</title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Recording altimeter for model rocketry.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Supports dual deployment (can fire 2 ejection charges).
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    70cm, 10mW ham-band transceiver for telemetry down-link.
 	  </para>
 	</listitem>
 	<listitem>
@@ -3210,7 +3416,9 @@ NAR #88757, TRA #12200
       </itemizedlist>
     </section>
     <section>
-      <title>TeleMini Specifications</title>
+      <title>
+	TeleMini v2.0 Specifications
+      </title>
       <itemizedlist>
 	<listitem>
 	  <para>
@@ -3224,7 +3432,61 @@ NAR #88757, TRA #12200
 	</listitem>
 	<listitem>
 	  <para>
-	    70cm ham-band transceiver for telemetry down-link.
+	    70cm, 10mW ham-band transceiver for telemetry down-link.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Barometric pressure sensor good to 100k feet MSL.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    On-board 1 megabyte non-volatile memory for flight data storage.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    USB interface for configuration, and data recovery.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Support for Li-Po rechargeable batteries (using an
+	    external charger), or any 3.7-15V external battery.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Uses Li-Po to fire e-matches, can be modified to support 
+	    optional separate pyro battery if needed.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    1.5 x .8 inch board designed to fit inside 24mm air-frame coupler tube.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>
+	TeleMini v1.0 Specifications
+      </title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Recording altimeter for model rocketry.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Supports dual deployment (can fire 2 ejection charges).
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    70cm, 10mW ham-band transceiver for telemetry down-link.
 	  </para>
 	</listitem>
 	<listitem>
@@ -3256,6 +3518,55 @@ NAR #88757, TRA #12200
 	<listitem>
 	  <para>
 	    1.5 x .5 inch board designed to fit inside 18mm air-frame coupler tube.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>
+	EasyMini Specifications
+      </title>
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Recording altimeter for model rocketry.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Supports dual deployment (can fire 2 ejection charges).
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Barometric pressure sensor good to 100k feet MSL.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    On-board 1 megabyte non-volatile memory for flight data storage.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    USB interface for configuration, and data recovery.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Support for Li-Po rechargeable batteries (using an
+	    external charger), or any 3.7-15V external battery.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Uses Li-Po to fire e-matches, can be modified to support 
+	    optional separate pyro battery if needed.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    1.5 x .8 inch board designed to fit inside 24mm air-frame coupler tube.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -3516,6 +3827,18 @@ NAR #88757, TRA #12200
       mounting holes in Altus Metrum flight computers
     </para>
     <section>
+      <title>TeleMega template</title>
+      <para>
+	TeleMega has overall dimensions of 1.250 x 3.250 inches, and
+	the mounting holes are sized for use with 4-40 or M3 screws.
+      </para>
+      <mediaobject id="TeleMegaTemplate">
+	<imageobject>
+	  <imagedata format="SVG" fileref="telemega-outline.svg"/>
+	</imageobject>
+      </mediaobject>
+    </section>
+    <section>
       <title>TeleMetrum template</title>
       <para>
 	TeleMetrum has overall dimensions of 1.000 x 2.750 inches, and the
@@ -3528,7 +3851,19 @@ NAR #88757, TRA #12200
       </mediaobject>
     </section>
     <section>
-      <title>TeleMini template</title>
+      <title>TeleMini v2/EasyMini template</title>
+      <para>
+	TeleMini v2 and EasyMini have overall dimensions of 0.800 x 1.500 inches, and the
+	mounting holes are sized for use with 4-40 or M3 screws.
+      </para>
+      <mediaobject id="MiniTemplate">
+	<imageobject>
+	  <imagedata format="SVG" fileref="easymini-outline.svg"/>
+	</imageobject>
+      </mediaobject>
+    </section>
+    <section>
+      <title>TeleMini v1 template</title>
       <para>
 	TeleMini has overall dimensions of 0.500 x 1.500 inches, and the
 	mounting holes are sized for use with 2-56 or M2 screws.
@@ -3543,18 +3878,19 @@ NAR #88757, TRA #12200
   <appendix>
       <title>Calibration</title>
       <para>
-        There are only two calibrations required for a TeleMetrum board, and
-        only one for TeleDongle and TeleMini.  All boards are shipped from
-        the factory pre-calibrated, but the procedures are documented here
-	in case they are ever needed.  Re-calibration is not supported by
-	AltosUI, you must connect to the board with a serial terminal program
-	and interact directly with the on-board command interpreter to effect
-	calibration.
+        There are only two calibrations required for TeleMetrum and
+        TeleMega, and only one for TeleDongle, TeleMini and EasyMini.
+        All boards are shipped from the factory pre-calibrated, but
+        the procedures are documented here in case they are ever
+        needed.  Re-calibration is not supported by AltosUI, you must
+        connect to the board with a serial terminal program and
+        interact directly with the on-board command interpreter to
+        effect calibration.
       </para>
       <section>
         <title>Radio Frequency</title>
         <para>
-          The radio frequency is synthesized from a clock based on the 48 MHz
+          The radio frequency is synthesized from a clock based on the
           crystal on the board.  The actual frequency of this oscillator 
           must be measured to generate a calibration constant.  While our 
           GFSK modulation
@@ -3567,13 +3903,14 @@ NAR #88757, TRA #12200
           should generally not be required.
         </para>
         <para>
-          To calibrate the radio frequency, connect the UHF antenna port to a
-          frequency counter, set the board to 434.550MHz, and use the 'C'
-          command in the on-board command interpreter to generate a CW 
-          carrier.  For TeleMetrum, this is best done over USB.  For TeleMini,
-	  note that the only way to escape the 'C' command is via power cycle
-	  since the board will no longer be listening for commands once it
-	  starts generating a CW carrier.
+          To calibrate the radio frequency, connect the UHF antenna
+          port to a frequency counter, set the board to 434.550MHz,
+          and use the 'C' command in the on-board command interpreter
+          to generate a CW carrier.  For USB-enabled boards, this is
+          best done over USB.  For TeleMini v1, note that the only way
+          to escape the 'C' command is via power cycle since the board
+          will no longer be listening for commands once it starts
+          generating a CW carrier.
 	</para>
 	<para>
 	  Wait for the transmitter temperature to stabilize and the frequency 
@@ -3584,7 +3921,7 @@ NAR #88757, TRA #12200
           command.  Testing with the 'C' command again should show a carrier
           within a few tens of Hertz of the intended frequency.
           As with all 'c' sub-commands, follow this with a 'c w' to write the
-          change to the parameter block in the on-board DataFlash chip.
+          change to the parameter block in the on-board storage chip.
         </para>
 	<para>
 	  Note that any time you re-do the radio frequency calibration, the
@@ -3594,21 +3931,13 @@ NAR #88757, TRA #12200
 	</para>
       </section>
       <section>
-        <title>TeleMetrum Accelerometer</title>
+        <title>TeleMetrum and TeleMega Accelerometers</title>
         <para>
-          The TeleMetrum accelerometer we use has its own 5 volt power 
-	  supply and
-          the output must be passed through a resistive voltage divider to match
-          the input of our 3.3 volt ADC.  This means that unlike the barometric
-          sensor, the output of the acceleration sensor is not ratio-metric to
-          the ADC converter, and calibration is required.  Explicitly 
-	  calibrating the accelerometers also allows us to load any device
-	  from a Freescale family that includes at least +/- 40g, 50g, 100g, 
-	  and 200g parts.  Using gravity,
-          a simple 2-point calibration yields acceptable results capturing both
-          the different sensitivities and ranges of the different accelerometer
-          parts and any variation in power supply voltages or resistor values
-          in the divider network.
+          While barometric sensors are factory-calibrated,
+          accelerometers are not, and so each must be calibrated once
+          installed in a flight computer.  Explicitly calibrating the
+          accelerometers also allows us to load any compatible device.
+          We perform a two-point calibration using gravity.
         </para>
         <para>
           To calibrate the acceleration sensor, use the 'c a 0' command.  You
@@ -3629,19 +3958,20 @@ NAR #88757, TRA #12200
         </para>
         <para>
          In the unlikely event an accel cal goes badly, it is possible
-         that TeleMetrum may always come up in 'pad mode' and as such not be
-         listening to either the USB or radio link.  If that happens,
-         there is a special hook in the firmware to force the board back
-         in to 'idle mode' so you can re-do the cal.  To use this hook, you
-         just need to ground the SPI clock pin at power-on.  This pin is
-         available as pin 2 on the 8-pin companion connector, and pin 1 is
-         ground.  So either carefully install a fine-gauge wire jumper
-         between the two pins closest to the index hole end of the 8-pin
-         connector, or plug in the programming cable to the 8-pin connector
-         and use a small screwdriver or similar to short the two pins closest
-         to the index post on the 4-pin end of the programming cable, and
-         power up the board.  It should come up in 'idle mode' (two beeps),
-	 allowing a re-cal.
+         that TeleMetrum or TeleMega may always come up in 'pad mode'
+         and as such not be listening to either the USB or radio link.
+         If that happens, there is a special hook in the firmware to
+         force the board back in to 'idle mode' so you can re-do the
+         cal.  To use this hook, you just need to ground the SPI clock
+         pin at power-on.  This pin is available as pin 2 on the 8-pin
+         companion connector, and pin 1 is ground.  So either
+         carefully install a fine-gauge wire jumper between the two
+         pins closest to the index hole end of the 8-pin connector, or
+         plug in the programming cable to the 8-pin connector and use
+         a small screwdriver or similar to short the two pins closest
+         to the index post on the 4-pin end of the programming cable,
+         and power up the board.  It should come up in 'idle mode'
+         (two beeps), allowing a re-cal.
         </para>
       </section>
   </appendix>
