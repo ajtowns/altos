@@ -34,51 +34,8 @@
 #include "ao-stmload.h"
 #include "ao-selfload.h"
 #include "ao-verbose.h"
+#include "ao-editaltos.h"
 
-#define AO_USB_DESC_STRING		3
-
-struct ao_sym ao_symbols[] = {
-
-	{ 0, AO_BOOT_APPLICATION_BASE + 0x100,	"ao_romconfig_version",	1 },
-#define AO_ROMCONFIG_VERSION	(ao_symbols[0].addr)
-
-	{ 0, AO_BOOT_APPLICATION_BASE + 0x102,	"ao_romconfig_check",	1 },
-#define AO_ROMCONFIG_CHECK	(ao_symbols[1].addr)
-
-	{ 0, AO_BOOT_APPLICATION_BASE + 0x104,	"ao_serial_number", 1 },
-#define AO_SERIAL_NUMBER	(ao_symbols[2].addr)
-
-	{ 0, AO_BOOT_APPLICATION_BASE + 0x108,	"ao_radio_cal", 0 },
-#define AO_RADIO_CAL		(ao_symbols[3].addr)
-
-	{ 0, AO_BOOT_APPLICATION_BASE + 0x10c,	"ao_usb_descriptors", 0 },
-#define AO_USB_DESCRIPTORS	(ao_symbols[4].addr)
-};
-
-#define NUM_SYMBOLS		5
-
-int ao_num_symbols = NUM_SYMBOLS;
-
-/*
- * Edit the to-be-written memory block
- */
-static int
-rewrite(struct ao_hex_image *load, unsigned address, uint8_t *data, int length)
-{
-	int 		i;
-
-	if (address < load->address || load->address + load->length < address + length)
-		return 0;
-
-	printf("rewrite %04x:", address);
-	for (i = 0; i < length; i++)
-		printf (" %02x", load->data[address - load->address + i]);
-	printf(" ->");
-	for (i = 0; i < length; i++)
-		printf (" %02x", data[i]);
-	printf("\n");
-	memcpy(load->data + address - load->address, data, length);
-}
 
 /*
  * Read a 16-bit value from the target device with arbitrary
@@ -183,30 +140,6 @@ check_flashed(stlink_t *sl, struct cc_usb *cc)
 		return 0;
 	}
 	return 1;
-}
-
-/*
- * Find the symbols needed to correctly load the program
- */
-
-static bool
-find_symbols(struct ao_sym *file_symbols, int num_file_symbols,
-	     struct ao_sym *symbols, int num_symbols)
-{
-	int	f, s;
-
-	for (f = 0; f < num_file_symbols; f++) {
-		for (s = 0; s < num_symbols; s++) {
-			if (strcmp(symbols[s].name, file_symbols[f].name) == 0) {
-				symbols[s].addr = file_symbols[f].addr;
-				symbols[s].found = true;
-			}
-		}
-	}
-	for (s = 0; s < num_symbols; s++)
-		if (!symbols[s].found && symbols[s].required)
-			return false;
-	return true;
 }
 
 static const struct option options[] = {
@@ -328,7 +261,7 @@ main (int argc, char **argv)
 	} else
 		usage(argv[0]);
 
-	if (!find_symbols(file_symbols, num_file_symbols, ao_symbols, ao_num_symbols))
+	if (ao_editaltos_find_symbols(file_symbols, num_file_symbols, ao_symbols, ao_num_symbols))
 		fprintf(stderr, "Cannot find required symbols\n");
 
 	if (use_stlink) {
@@ -465,64 +398,8 @@ main (int argc, char **argv)
 		}
 	}
 
-	/* Write the config values into the flash image
-	 */
-
-	serial_int[0] = serial & 0xff;
-	serial_int[1] = (serial >> 8) & 0xff;
-
-	if (!rewrite(load, AO_SERIAL_NUMBER, serial_int, sizeof (serial_int))) {
-		fprintf(stderr, "Cannot rewrite serial integer at %08x\n",
-			AO_SERIAL_NUMBER);
+	if (!ao_editaltos(load, serial, cal))
 		done(sl, cc, 1);
-	}
-
-	if (AO_USB_DESCRIPTORS) {
-		uint32_t	usb_descriptors = AO_USB_DESCRIPTORS - load->address;
-		string_num = 0;
-
-		while (load->data[usb_descriptors] != 0 && usb_descriptors < load->length) {
-			if (load->data[usb_descriptors+1] == AO_USB_DESC_STRING) {
-				++string_num;
-				if (string_num == 4)
-					break;
-			}
-			usb_descriptors += load->data[usb_descriptors];
-		}
-		if (usb_descriptors >= load->length || load->data[usb_descriptors] == 0 ) {
-			fprintf(stderr, "Cannot rewrite serial string at %08x\n", AO_USB_DESCRIPTORS);
-			done(sl, cc, 1);
-		}
-
-		serial_ucs2_len = load->data[usb_descriptors] - 2;
-		serial_ucs2 = malloc(serial_ucs2_len);
-		if (!serial_ucs2) {
-			fprintf(stderr, "Malloc(%d) failed\n", serial_ucs2_len);
-			done(sl, cc, 1);
-		}
-		s = serial;
-		for (i = serial_ucs2_len / 2; i; i--) {
-			serial_ucs2[i * 2 - 1] = 0;
-			serial_ucs2[i * 2 - 2] = (s % 10) + '0';
-			s /= 10;
-		}
-		if (!rewrite(load, usb_descriptors + 2 + load->address, serial_ucs2, serial_ucs2_len)) {
-			fprintf (stderr, "Cannot rewrite USB descriptor at %08x\n", AO_USB_DESCRIPTORS);
-			done(sl, cc, 1);
-		}
-	}
-
-	if (cal && AO_RADIO_CAL) {
-		cal_int[0] = cal & 0xff;
-		cal_int[1] = (cal >> 8) & 0xff;
-		cal_int[2] = (cal >> 16) & 0xff;
-		cal_int[3] = (cal >> 24) & 0xff;
-
-		if (!rewrite(load, AO_RADIO_CAL, cal_int, sizeof (cal_int))) {
-			fprintf(stderr, "Cannot rewrite radio calibration at %08x\n", AO_RADIO_CAL);
-			exit(1);
-		}
-	}
 
 	/* And flash the resulting image to the device
 	 */

@@ -42,6 +42,8 @@ libao_tools_a_SOURCES = \
 	cephes.h \
 	ao-hex.c \
 	ao-hex.h \
+	ao-editaltos.c \
+	ao-editaltos.h \
 	ao-elf.c \
 	ao-elf.h \
 	ao-selfload.c \
