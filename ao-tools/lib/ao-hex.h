@@ -19,6 +19,8 @@
 #define _AO_HEX_H_
 
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdio.h>
 
 #define AO_HEX_RECORD_NORMAL			0x00
 #define AO_HEX_RECORD_EOF			0x01
@@ -47,6 +49,14 @@ struct ao_hex_image {
 	uint8_t		data[0];
 };
 
+struct ao_sym {
+	unsigned	addr;
+	unsigned	default_addr;
+	char		*name;
+	bool		required;
+	bool		found;
+};
+
 struct ao_hex_file *
 ao_hex_file_read(FILE *file, char *name);
 
@@ -60,9 +70,13 @@ void
 ao_hex_image_free(struct ao_hex_image *image);
 
 struct ao_hex_image *
-ao_hex_load(char *filename);
+ao_hex_load(char *filename, struct ao_sym **symbols, int *num_symbols);
 
 int
 ao_hex_image_equal(struct ao_hex_image *a, struct ao_hex_image *b);
+
+bool
+ao_hex_save(FILE *file, struct ao_hex_image *image,
+	    struct ao_sym *symbols, int num_symbols);
 
 #endif /* _AO_HEX_H_ */

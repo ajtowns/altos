@@ -22,7 +22,7 @@
 
 #define AO_BOOT_APPLICATION_BASE	0x08001000
 
-extern struct ao_elf_sym ao_symbols[];
+extern struct ao_sym ao_symbols[];
 
 extern int ao_num_symbols;
 extern int ao_num_required_symbols;

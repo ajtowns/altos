@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <string.h>
+#include <stdbool.h>
 #include "stlink-common.h"
 #include "ao-elf.h"
 #include "ccdbg.h"
@@ -34,7 +35,7 @@
 
 #define AO_USB_DESC_STRING		3
 
-struct ao_elf_sym ao_symbols[] = {
+struct ao_sym ao_symbols[] = {
 
 	{ 0, AO_BOOT_APPLICATION_BASE + 0x100,	"ao_romconfig_version",	1 },
 #define AO_ROMCONFIG_VERSION	(ao_symbols[0].addr)
@@ -218,6 +219,30 @@ check_flashed(stlink_t *sl, struct cc_usb *cc)
 	return 1;
 }
 
+/*
+ * Find the symbols needed to correctly load the program
+ */
+
+static bool
+find_symbols(struct ao_sym *file_symbols, int num_file_symbols,
+	     struct ao_sym *symbols, int num_symbols)
+{
+	int	f, s;
+
+	for (f = 0; f < num_file_symbols; f++) {
+		for (s = 0; s < num_symbols; s++) {
+			if (strcmp(symbols[s].name, file_symbols[f].name) == 0) {
+				symbols[s].addr = file_symbols[f].addr;
+				symbols[s].found = true;
+			}
+		}
+	}
+	for (s = 0; s < num_symbols; s++)
+		if (!symbols[s].found && symbols[s].required)
+			return false;
+	return true;
+}
+
 static const struct option options[] = {
 	{ .name = "stlink", .has_arg = 0, .val = 'S' },
 	{ .name = "tty", .has_arg = 1, .val = 'T' },
@@ -288,6 +313,8 @@ main (int argc, char **argv)
 	char			*tty = NULL;
 	int			success;
 	int			verbose = 0;
+	struct ao_sym		*file_symbols;
+	int			num_file_symbols;
 
 	while ((c = getopt_long(argc, argv, "T:D:c:s:Sv", options, NULL)) != -1) {
 		switch (c) {
@@ -329,14 +356,14 @@ main (int argc, char **argv)
 		usage(argv[0]);
 
 	if (ends_with (filename, ".elf")) {
-		load = ao_load_elf(filename, ao_symbols, ao_num_symbols);
+		load = ao_load_elf(filename, &file_symbols, &num_file_symbols);
 	} else if (ends_with (filename, ".ihx")) {
-		int	i;
-		load = ao_hex_load(filename);
-		for (i = 0; i < ao_num_symbols; i++)
-			ao_symbols[i].addr = ao_symbols[i].default_addr;
+		load = ao_hex_load(filename, &file_symbols, &num_file_symbols);
 	} else
 		usage(argv[0]);
+
+	if (!find_symbols(file_symbols, num_file_symbols, ao_symbols, ao_num_symbols))
+		fprintf(stderr, "Cannot find required symbols\n");
 
 	if (use_stlink) {
 		/* Connect to the programming dongle

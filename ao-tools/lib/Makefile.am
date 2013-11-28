@@ -43,4 +43,6 @@ libao_tools_a_SOURCES = \
 	ao-hex.c \
 	ao-hex.h \
 	ao-elf.c \
-	ao-elf.h
+	ao-elf.h \
+	ao-verbose.c \
+	ao-verbose.h

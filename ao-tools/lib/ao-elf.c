@@ -27,21 +27,26 @@
 #include <fcntl.h>
 #include "ao-elf.h"
 #include "ao-hex.h"
+#include "ao-verbose.h"
 
 /*
  * Look through the Elf file for symbols that can be adjusted before
  * the image is written to the device
  */
-static bool
-find_symbols (Elf *e, struct ao_elf_sym *symbols, int num_symbols)
+static struct ao_sym *
+load_symbols (Elf *e, int *num_symbolsp)
 {
 	Elf_Scn 	*scn;
 	Elf_Data	*symbol_data = NULL;
 	GElf_Shdr	shdr;
 	GElf_Sym       	sym;
-	int		i, symbol_count, s;
+	int		i, symbol_count;
 	char		*symbol_name;
 	size_t		shstrndx;
+	struct ao_sym	*symbols = NULL;
+	struct ao_sym	*symbol;
+	int		num_symbols = 0;
+	int		size_symbols = 0;
 
 	if (elf_getshdrstrndx(e, &shstrndx) < 0)
 		return false;
@@ -64,23 +69,46 @@ find_symbols (Elf *e, struct ao_elf_sym *symbols, int num_symbols)
 	}
 
 	if (!symbol_data)
-		return false;
+		return NULL;
 
 	for (i = 0; i < symbol_count; i++) {
 		gelf_getsym(symbol_data, i, &sym);
 
 		symbol_name = elf_strptr(e, shdr.sh_link, sym.st_name);
+		if (!symbol_name[0])
+			continue;
 
-		for (s = 0; s < num_symbols; s++)
-			if (!strcmp (symbols[s].name, symbol_name)) {
-				symbols[s].addr = sym.st_value;
-				symbols[s].found = true;
-			}
+		if (num_symbols == size_symbols) {
+			struct ao_sym	*new_symbols;
+			int		new_size;
+
+			if (!size_symbols)
+				new_size = 16;
+			else
+				new_size = size_symbols * 2;
+			new_symbols = realloc(symbols, new_size * sizeof (struct ao_sym));
+			if (!new_symbols)
+				goto bail;
+
+			symbols = new_symbols;
+			size_symbols = new_size;
+		}
+		symbol = &symbols[num_symbols];
+		memset(symbol, 0, sizeof (struct ao_sym));
+		symbol->name = strdup(symbol_name);
+		if (!symbol->name)
+			goto bail;
+		symbol->addr = sym.st_value;
+		ao_printf(AO_VERBOSE_EXE, "Add symbol %s: %08x\n", symbol->name, symbol->addr);
+		num_symbols++;
 	}
-	for (s = 0; s < num_symbols; s++)
-		if (symbols[s].required && !symbols[s].found)
-			return false;
-	return true;
+	*num_symbolsp = num_symbols;
+	return symbols;
+bail:
+	for (i = 0; i < num_symbols; i++)
+		free(symbols[i].name);
+	free(symbols);
+	return NULL;
 }
 
 static uint32_t
@@ -173,7 +201,9 @@ get_load(Elf *e)
 	GElf_Phdr	phdr;
 	GElf_Addr	sh_paddr;
 	struct ao_hex_image	*load = NULL;
+#if 0
 	char		*section_name;
+#endif
 	size_t		nshdr;
 	size_t		s;
 	
@@ -201,27 +231,29 @@ get_load(Elf *e)
 		/* Get the associated file section */
 
 #if 0
-		printf ("offset %08x vaddr %08x paddr %08x filesz %08x memsz %08x\n",
-			(uint32_t) phdr.p_offset,
-			(uint32_t) phdr.p_vaddr,
-			(uint32_t) phdr.p_paddr,
-			(uint32_t) phdr.p_filesz,
-			(uint32_t) phdr.p_memsz);
+		fprintf (stderr, "offset %08x vaddr %08x paddr %08x filesz %08x memsz %08x\n",
+			 (uint32_t) phdr.p_offset,
+			 (uint32_t) phdr.p_vaddr,
+			 (uint32_t) phdr.p_paddr,
+			 (uint32_t) phdr.p_filesz,
+			 (uint32_t) phdr.p_memsz);
 #endif
 		
 		for (s = 0; s < nshdr; s++) {
 			scn = elf_getscn(e, s);
 
 			if (!scn) {
-				printf ("getscn failed\n");
+				fprintf (stderr, "getscn failed\n");
 				abort();
 			}
 			if (gelf_getshdr(scn, &shdr) != &shdr) {
-				printf ("gelf_getshdr failed\n");
+				fprintf (stderr, "gelf_getshdr failed\n");
 				abort();
 			}
 
+#if 0
 			section_name = elf_strptr(e, shstrndx, shdr.sh_name);
+#endif
 
 			if (phdr.p_offset <= shdr.sh_offset && shdr.sh_offset < phdr.p_offset + phdr.p_filesz) {
 					
@@ -230,11 +262,13 @@ get_load(Elf *e)
 
 				sh_paddr = phdr.p_paddr + shdr.sh_offset - phdr.p_offset;
 
-				printf ("\tsize %08x rom %08x exec %08x %s\n",
-					(uint32_t) shdr.sh_size,
-					(uint32_t) sh_paddr,
-					(uint32_t) shdr.sh_addr,
-					section_name);
+#if 0
+				fprintf (stderr, "\tsize %08x rom %08x exec %08x %s\n",
+					 (uint32_t) shdr.sh_size,
+					 (uint32_t) sh_paddr,
+					 (uint32_t) shdr.sh_addr,
+					 section_name);
+#endif
 
 				data = elf_getdata(scn, NULL);
 
@@ -252,7 +286,7 @@ get_load(Elf *e)
  */
 
 struct ao_hex_image *
-ao_load_elf(char *name, struct ao_elf_sym *symbols, int num_symbols)
+ao_load_elf(char *name, struct ao_sym **symbols, int *num_symbols)
 {
 	int		fd;
 	Elf		*e;
@@ -278,10 +312,8 @@ ao_load_elf(char *name, struct ao_elf_sym *symbols, int num_symbols)
 	if (elf_getshdrstrndx(e, &shstrndx) != 0)
 		return NULL;
 
-	if (!find_symbols(e, symbols, num_symbols)) {
-		fprintf (stderr, "Cannot find required symbols\n");
-		return NULL;
-	}
+	if (symbols)
+		*symbols = load_symbols(e, num_symbols);
 
 	image = get_load(e);
 	if (!image) {
