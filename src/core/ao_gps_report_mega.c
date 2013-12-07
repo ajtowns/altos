@@ -53,6 +53,13 @@ ao_gps_report_mega(void)
 			gps_log.u.gps.year = gps_data.year;
 			gps_log.u.gps.month = gps_data.month;
 			gps_log.u.gps.day = gps_data.day;
+			gps_log.u.gps.course = gps_data.course;
+			gps_log.u.gps.ground_speed = gps_data.ground_speed;
+			gps_log.u.gps.climb_rate = gps_data.climb_rate;
+			gps_log.u.gps.pdop = gps_data.pdop;
+			gps_log.u.gps.hdop = gps_data.hdop;
+			gps_log.u.gps.vdop = gps_data.vdop;
+			gps_log.u.gps.mode = gps_data.mode;
 			ao_log_mega(&gps_log);
 		}
 		if ((new & AO_GPS_NEW_TRACKING) && (n = gps_tracking_data.channels) != 0) {

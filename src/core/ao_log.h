@@ -253,8 +253,14 @@ struct ao_log_mega {
 			uint8_t		year;		/* 18 */
 			uint8_t		month;		/* 19 */
 			uint8_t		day;		/* 20 */
-			uint8_t		pad;		/* 21 */
-		} gps;	/* 22 */
+			uint8_t		course;		/* 21 */
+			uint16_t	ground_speed;	/* 22 */
+			int16_t		climb_rate;	/* 24 */
+			uint8_t		pdop;		/* 26 */
+			uint8_t		hdop;		/* 27 */
+			uint8_t		vdop;		/* 28 */
+			uint8_t		mode;		/* 29 */
+		} gps;	/* 30 */
 		/* AO_LOG_GPS_SAT */
 		struct {
 			uint16_t	channels;	/* 4 */
