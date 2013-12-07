@@ -24,6 +24,7 @@
 #include <ao_packet.h>
 #include <ao_companion.h>
 #include <ao_profile.h>
+#include <ao_eeprom.h>
 #if HAS_SAMPLE_PROFILE
 #include <ao_sample_profile.h>
 #endif
