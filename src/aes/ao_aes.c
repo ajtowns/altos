@@ -310,6 +310,10 @@ void xrijndaelEncrypt(word32 block[], roundkey *rkk)
   xKeyAddition(block, block2, rp, BC);
 }
 
+#if NOTUSED
+/* We don't actually need this in AltOS, so don't bother including it */
+
+/* Decryption of one block. */
 static
 void xrijndaelDecrypt(word32 block[], roundkey *rkk)
 {
@@ -352,6 +356,7 @@ void xrijndaelDecrypt(word32 block[], roundkey *rkk)
 
   xKeyAddition(block, block, rp, BC);
 }
+#endif
 
 uint8_t ao_aes_mutex;
 static uint8_t key[16];
