@@ -89,6 +89,7 @@ public class AltosDisplayThread extends Thread {
 			/* If the rocket isn't on the pad, then report height */
 			if (Altos.ao_flight_drogue <= state.state &&
 			    state.state < Altos.ao_flight_landed &&
+			    state.from_pad != null &&
 			    state.range >= 0)
 			{
 				voice.speak("Height %s, bearing %s %d, elevation %d, range %s.\n",
