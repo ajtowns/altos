@@ -95,6 +95,13 @@ ao_clock_init(void)
 	while (!(SLEEP & SLEEP_XOSC_STB))
 		;
 
+	/* Power down the unused HFRC oscillator */
+	SLEEP |= SLEEP_OSC_PD;
+
+	/* Wait for HFRC to power down */
+	while ((SLEEP & SLEEP_HFRC_STB) != 0)
+		;
+	
 	/* Crank up the timer tick and system clock speed */
 	CLKCON = ((CLKCON & ~(CLKCON_TICKSPD_MASK | CLKCON_CLKSPD_MASK)) |
 		  (CLKCON_TICKSPD_1 | CLKCON_CLKSPD_1));
