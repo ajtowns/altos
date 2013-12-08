@@ -17,8 +17,6 @@
 
 package org.altusmetrum.altoslib_2;
 
-import org.altusmetrum.altosuilib_1.*;
-
 public interface AltosEepromMonitor {
 
 	public void set_states(int min_state, int max_state);
