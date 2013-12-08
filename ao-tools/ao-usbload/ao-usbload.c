@@ -82,6 +82,7 @@ check_flashed(struct cc_usb *cc)
 static const struct option options[] = {
 	{ .name = "tty", .has_arg = 1, .val = 'T' },
 	{ .name = "device", .has_arg = 1, .val = 'D' },
+	{ .name = "raw", .has_arg = 0, .val = 'r' },
 	{ .name = "cal", .has_arg = 1, .val = 'c' },
 	{ .name = "serial", .has_arg = 1, .val = 's' },
 	{ .name = "verbose", .has_arg = 1, .val = 'v' },
@@ -90,7 +91,7 @@ static const struct option options[] = {
 
 static void usage(char *program)
 {
-	fprintf(stderr, "usage: %s [--verbose=<verbose>] [--device=<device>] [-tty=<tty>] [--cal=<radio-cal>] [--serial=<serial>] file.{elf,ihx}\n", program);
+	fprintf(stderr, "usage: %s [--raw] [--verbose=<verbose>] [--device=<device>] [-tty=<tty>] [--cal=<radio-cal>] [--serial=<serial>] file.{elf,ihx}\n", program);
 	exit(1);
 }
 
@@ -119,6 +120,7 @@ main (int argc, char **argv)
 	char			*device = NULL;
 	char			*filename;
 	Elf			*e;
+	int			raw = 0;
 	char			*serial_end;
 	unsigned int		serial = 0;
 	char			*serial_ucs2;
@@ -141,13 +143,16 @@ main (int argc, char **argv)
 	struct ao_sym		*file_symbols;
 	int			num_file_symbols;
 
-	while ((c = getopt_long(argc, argv, "T:D:c:s:v:", options, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "rT:D:c:s:v:", options, NULL)) != -1) {
 		switch (c) {
 		case 'T':
 			tty = optarg;
 			break;
 		case 'D':
 			device = optarg;
+			break;
+		case 'r':
+			raw = 1;
 			break;
 		case 'c':
 			cal = strtoul(optarg, &cal_end, 10);
@@ -184,9 +189,11 @@ main (int argc, char **argv)
 	} else
 		usage(argv[0]);
 
-	if (!ao_editaltos_find_symbols(file_symbols, num_file_symbols, ao_symbols, ao_num_symbols)) {
-		fprintf(stderr, "Cannot find required symbols\n");
-		usage(argv[0]);
+	if (!raw) {
+		if (!ao_editaltos_find_symbols(file_symbols, num_file_symbols, ao_symbols, ao_num_symbols)) {
+			fprintf(stderr, "Cannot find required symbols\n");
+			usage(argv[0]);
+		}
 	}
 
 	{
@@ -198,7 +205,7 @@ main (int argc, char **argv)
 			if (!this_tty)
 				this_tty = cc_usbdevs_find_by_arg(device, "AltosFlash");
 			if (!this_tty)
-				this_tty = cc_usbdevs_find_by_arg(device, "MegaMetrum");
+				this_tty = cc_usbdevs_find_by_arg(device, "TeleMega");
 			if (!this_tty)
 				this_tty = getenv("ALTOS_TTY");
 			if (!this_tty)
@@ -255,33 +262,35 @@ main (int argc, char **argv)
 #endif
 	}
 
-	/* Go fetch existing config values
-	 * if available
-	 */
-	was_flashed = check_flashed(cc);
+	if (!raw) {
+		/* Go fetch existing config values
+		 * if available
+		 */
+		was_flashed = check_flashed(cc);
 
-	if (!serial) {
-		if (!was_flashed) {
-			fprintf (stderr, "Must provide serial number\n");
-			done(cc, 1);
+		if (!serial) {
+			if (!was_flashed) {
+				fprintf (stderr, "Must provide serial number\n");
+				done(cc, 1);
+			}
+			serial = get_uint16(cc, AO_SERIAL_NUMBER);
+			if (!serial || serial == 0xffff) {
+				fprintf (stderr, "Invalid existing serial %d\n", serial);
+				done(cc, 1);
+			}
 		}
-		serial = get_uint16(cc, AO_SERIAL_NUMBER);
-		if (!serial || serial == 0xffff) {
-			fprintf (stderr, "Invalid existing serial %d\n", serial);
-			done(cc, 1);
+
+		if (!cal && AO_RADIO_CAL && was_flashed) {
+			cal = get_uint32(cc, AO_RADIO_CAL);
+			if (!cal || cal == 0xffffffff) {
+				fprintf (stderr, "Invalid existing rf cal %d\n", cal);
+				done(cc, 1);
+			}
 		}
+
+		if (!ao_editaltos(load, serial, cal))
+			done(cc, 1);
 	}
-
-	if (!cal && AO_RADIO_CAL && was_flashed) {
-		cal = get_uint32(cc, AO_RADIO_CAL);
-		if (!cal || cal == 0xffffffff) {
-			fprintf (stderr, "Invalid existing rf cal %d\n", cal);
-			done(cc, 1);
-		}
-	}
-
-	if (!ao_editaltos(load, serial, cal))
-		done(cc, 1);
 
 	/* And flash the resulting image to the device
 	 */

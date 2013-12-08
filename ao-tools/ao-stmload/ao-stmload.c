@@ -136,8 +136,8 @@ check_flashed(stlink_t *sl)
 }
 
 static const struct option options[] = {
-	{ .name = "tty", .has_arg = 1, .val = 'T' },
-	{ .name = "device", .has_arg = 1, .val = 'D' },
+	{ .name = "v1", .has_arg = 0, .val = '1' },
+	{ .name = "raw", .has_arg = 0, .val = 'r' },
 	{ .name = "cal", .has_arg = 1, .val = 'c' },
 	{ .name = "serial", .has_arg = 1, .val = 's' },
 	{ .name = "verbose", .has_arg = 1, .val = 'v' },
@@ -146,7 +146,7 @@ static const struct option options[] = {
 
 static void usage(char *program)
 {
-	fprintf(stderr, "usage: %s [--verbose=<verbose>] [--device=<device>] [-tty=<tty>] [--cal=<radio-cal>] [--serial=<serial>] file.{elf,ihx}\n", program);
+	fprintf(stderr, "usage: %s [--v1] [--raw] [--verbose=<verbose>] [--cal=<radio-cal>] [--serial=<serial>] file.{elf,ihx}\n", program);
 	exit(1);
 }
 
@@ -174,7 +174,8 @@ ends_with(char *whole, char *suffix)
 int
 main (int argc, char **argv)
 {
-	char			*device = NULL;
+	int			stlink_v1 = 0;
+	int			raw = 0;
 	char			*filename;
 	Elf			*e;
 	char			*serial_end;
@@ -193,19 +194,18 @@ main (int argc, char **argv)
 	int			was_flashed = 0;
 	struct ao_hex_image	*load;
 	int			tries;
-	char			*tty = NULL;
 	int			success;
 	int			verbose = 0;
 	struct ao_sym		*file_symbols;
 	int			num_file_symbols;
 
-	while ((c = getopt_long(argc, argv, "T:D:c:s:v:", options, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "1rc:s:v:", options, NULL)) != -1) {
 		switch (c) {
-		case 'T':
-			tty = optarg;
+		case '1':
+			stlink_v1 = 1;
 			break;
-		case 'D':
-			device = optarg;
+		case 'r':
+			raw = 1;
 			break;
 		case 'c':
 			cal = strtoul(optarg, &cal_end, 10);
@@ -242,16 +242,18 @@ main (int argc, char **argv)
 	} else
 		usage(argv[0]);
 
-	if (!ao_editaltos_find_symbols(file_symbols, num_file_symbols, ao_symbols, ao_num_symbols)) {
-		fprintf(stderr, "Cannot find required symbols\n");
-		usage(argv[0]);
+	if (!raw) {
+		if (!ao_editaltos_find_symbols(file_symbols, num_file_symbols, ao_symbols, ao_num_symbols)) {
+			fprintf(stderr, "Cannot find required symbols\n");
+			usage(argv[0]);
+		}
 	}
 
 	/* Connect to the programming dongle
 	 */
 	
 	for (tries = 0; tries < 3; tries++) {
-		if (device) {
+		if (stlink_v1) {
 			sl = stlink_v1_open(50);
 		} else {
 			sl = stlink_open_usb(50);
@@ -290,33 +292,36 @@ main (int argc, char **argv)
 	if (stlink_current_mode(sl) != STLINK_DEV_DEBUG_MODE)
 		stlink_enter_swd_mode(sl);
 
-	/* Go fetch existing config values
-	 * if available
-	 */
-	was_flashed = check_flashed(sl);
 
-	if (!serial) {
-		if (!was_flashed) {
-			fprintf (stderr, "Must provide serial number\n");
-			done(sl, 1);
+	if (!raw) {
+		/* Go fetch existing config values
+		 * if available
+		 */
+		was_flashed = check_flashed(sl);
+
+		if (!serial) {
+			if (!was_flashed) {
+				fprintf (stderr, "Must provide serial number\n");
+				done(sl, 1);
+			}
+			serial = get_uint16(sl, AO_SERIAL_NUMBER);
+			if (!serial || serial == 0xffff) {
+				fprintf (stderr, "Invalid existing serial %d\n", serial);
+				done(sl, 1);
+			}
 		}
-		serial = get_uint16(sl, AO_SERIAL_NUMBER);
-		if (!serial || serial == 0xffff) {
-			fprintf (stderr, "Invalid existing serial %d\n", serial);
-			done(sl, 1);
+
+		if (!cal && AO_RADIO_CAL && was_flashed) {
+			cal = get_uint32(sl, AO_RADIO_CAL);
+			if (!cal || cal == 0xffffffff) {
+				fprintf (stderr, "Invalid existing rf cal %d\n", cal);
+				done(sl, 1);
+			}
 		}
+
+		if (!ao_editaltos(load, serial, cal))
+			done(sl, 1);
 	}
-
-	if (!cal && AO_RADIO_CAL && was_flashed) {
-		cal = get_uint32(sl, AO_RADIO_CAL);
-		if (!cal || cal == 0xffffffff) {
-			fprintf (stderr, "Invalid existing rf cal %d\n", cal);
-			done(sl, 1);
-		}
-	}
-
-	if (!ao_editaltos(load, serial, cal))
-		done(sl, 1);
 
 	/* And flash the resulting image to the device
 	 */
