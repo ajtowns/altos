@@ -10,7 +10,7 @@ vpath ao-make-product.5c ../util
 .SUFFIXES: .elf .ihx
 
 .elf.ihx:
-	objcopy -O ihex $*.elf $@
+	$(ELFTOHEX) --output=$@ $*.elf
 
 ifndef TOPDIR
 TOPDIR=..
@@ -30,6 +30,7 @@ STM_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m3 -mthumb -ffreestanding -no
 LDFLAGS=-L../stm -Wl,-Taltos.ld
 
 NICKLE=nickle
+ELFTOHEX=$(TOPDIR)/../ao-tools/ao-elftohex/ao-elftohex
 
 V=0
 # The user has explicitly enabled quiet compilation.

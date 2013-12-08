@@ -16,13 +16,14 @@ vpath ao-make-product.5c $(TOPDIR)/util
 .SUFFIXES: .elf .ihx
 
 .elf.ihx:
-	objcopy -O ihex $*.elf $@
+	$(ELFTOHEX) --output=$@ $*.elf
 
 
 ifndef VERSION
 include $(TOPDIR)/Version
 endif
 
+ELFTOHEX=$(TOPDIR)/../ao-tools/ao-elftohex/ao-elftohex
 CC=$(ARM_CC)
 
 AO_CFLAGS=-I. -I$(TOPDIR)/lpc -I$(TOPDIR)/core -I$(TOPDIR)/drivers -I$(TOPDIR)/product -I$(TOPDIR)

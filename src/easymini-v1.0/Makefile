@@ -54,11 +54,12 @@ CFLAGS = $(PRODUCT_DEF) $(LPC_CFLAGS) -g -Os
 
 PROGNAME=easymini-v1.0
 PROG=$(PROGNAME)-$(VERSION).elf
+HEX=$(PROGNAME)-$(VERSION).ihx
 
 SRC=$(ALTOS_SRC) ao_easymini.c
 OBJ=$(SRC:.c=.o)
 
-all: $(PROG)
+all: $(PROG) $(HEX)
 
 $(PROG): Makefile $(OBJ) altos.ld
 	$(call quiet,CC) $(LDFLAGS) $(CFLAGS) -o $(PROG) $(OBJ) $(LIBS)
@@ -74,7 +75,7 @@ load: $(PROG)
 distclean:	clean
 
 clean:
-	rm -f *.o $(PROG)
+	rm -f *.o $(PROGNAME)-*.elf
 	rm -f ao_product.h
 
 install:
