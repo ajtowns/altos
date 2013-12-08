@@ -16,6 +16,10 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "ao-dbg.h"
 #include <unistd.h>
 #include <sys/types.h>
@@ -204,13 +208,16 @@ s51_putc(int c)
 	putc(c, s51_output);
 }
 
+#if HAVE_LIBREADLINE
 #include <readline/readline.h>
 #include <readline/history.h>
+#endif
 
 int
 s51_read_line(char *line, int len)
 {
 	int ret;
+#if HAVE_LIBREADLINE
 	if (s51_output == stdout && s51_input == stdin && s51_prompt) {
 		char *r;
 
@@ -221,7 +228,9 @@ s51_read_line(char *line, int len)
 		line[len-1] = '\0';
 		add_history(r);
 		return 1;
-	} else {
+	} else
+#endif
+	{
 		if (s51_prompt)
 			s51_printf("%s", s51_prompt);
 		else

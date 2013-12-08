@@ -1,5 +1,3 @@
-if LIBSTLINK
-
 bin_PROGRAMS=ao-usbload
 
 AM_CFLAGS=-I$(top_srcdir)/ao-tools/lib $(LIBUSB_CFLAGS)
@@ -12,5 +10,3 @@ ao_usbload_LDADD=$(AO_STMLOAD_LIBS) $(LIBUSB_LIBS) -lelf
 ao_usbload_SOURCES=ao-usbload.c ao-usbload.h
 
 man_MANS = ao-usbload.1
-
-endif

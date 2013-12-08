@@ -7,6 +7,6 @@ man_MANS = ao-dbg.1
 
 ao_dbg_DEPENDENCIES = $(AO_DBG_LIBS)
 
-ao_dbg_LDADD=$(AO_DBG_LIBS) $(LIBUSB_LIBS)  -lreadline
+ao_dbg_LDADD=$(AO_DBG_LIBS) $(LIBUSB_LIBS) $(LIBREADLINE)
 
 ao_dbg_SOURCES = ao-dbg-parse.c ao-dbg-command.c ao-dbg-main.c

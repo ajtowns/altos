@@ -26,7 +26,6 @@ AM_MAINTAINER_MODE
 VERSION_DASH=`echo $VERSION | sed 's/\./-/g'`
 AC_SUBST(VERSION_DASH)
 
-
 dnl ==========================================================================
 dnl Java library versions
 
@@ -365,16 +364,50 @@ if test "x$HAVE_NICKLE" = "xno"; then
 	AC_MSG_ERROR([Please install nickle to build AltOs])
 fi
 
-AC_CHECK_LIB(readline, readline)
+AC_ARG_WITH([readline],
+	    [AS_HELP_STRING([--with-readline],
+			      [enable readline functionality in ao-dbg @<:@default=auto@:>@])],
+	      [],
+	      [with_readline=auto])
+			      
+LIBREADLINE_LIBS=
+
+if test x"$with_readline" != "xno"; then
+	AC_CHECK_LIB([readline], [main],
+                      [AC_SUBST([LIBREADLINE], ["-lreadline -lncurses"])
+	               AC_DEFINE([HAVE_LIBREADLINE], [1],
+                         [Define if you have libreadline])],
+		      [if test "x$with_readline" != xauto; then
+	                 AC_MSG_ERROR([--with-readline was given, but test for readline failed])
+	               fi],
+		       -lncurses)
+fi
 
 PKG_CHECK_MODULES([LIBUSB], [libusb-1.0])
 
 AC_CHECK_HEADERS(libelf.h libelf/libelf.h, [break])
 AC_CHECK_HEADERS(gelf.h libelf/gelf.h, [break])
 
-PKG_CHECK_MODULES([LIBSTLINK], [stlink], [HAVE_STLINK=yes], [HAVE_STLINK=no])
+AC_ARG_WITH([stlink],
+	    [AS_HELP_STRING([--with-stlink],
+	                    [Build tools that use the stlink library (default: auto)])],
+	    [],
+	    [with_stlink=auto])
 
-AM_CONDITIONAL([LIBSTLINK], [test x$HAVE_STLINK != xno])
+if test x"$with_stlink" != "xno"; then
+	PKG_CHECK_MODULES([STLINK], [stlink], [HAVE_STLINK=yes], [HAVE_STLINK=no])
+	if test x"$HAVE_STLINK" = "xno" -a x"$with_stlink" != "xauto"; then
+		AC_MSG_ERROR([--with-stlink was given, but stlink was not found])
+	fi
+else
+	HAVE_STLINK=no
+fi
+
+if test x"$HAVE_STLINK" = "xyes"; then
+	AC_DEFINE(HAVE_STLINK,1,[Using STlink library])
+fi
+
+AM_CONDITIONAL([LIBSTLINK], [test x$HAVE_STLINK == xyes])
 
 AC_OUTPUT([
 Makefile
