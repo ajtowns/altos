@@ -242,8 +242,10 @@ main (int argc, char **argv)
 	} else
 		usage(argv[0]);
 
-	if (ao_editaltos_find_symbols(file_symbols, num_file_symbols, ao_symbols, ao_num_symbols))
+	if (!ao_editaltos_find_symbols(file_symbols, num_file_symbols, ao_symbols, ao_num_symbols)) {
 		fprintf(stderr, "Cannot find required symbols\n");
+		usage(argv[0]);
+	}
 
 	/* Connect to the programming dongle
 	 */

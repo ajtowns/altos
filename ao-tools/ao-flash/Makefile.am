@@ -1,0 +1,1 @@
+bin_SCRIPTS=ao-flash-stm ao-flash-lpc
