@@ -27,6 +27,12 @@ const char ao_product[] = AO_iProduct_STRING;
 #define LE_WORD(x)    ((x)&0xFF),((uint8_t) (((uint16_t) (x))>>8))
 
 #if HAS_USB
+
+/* Maximum power in mA */
+#ifndef AO_USB_MAX_POWER
+#define AO_USB_MAX_POWER	100
+#endif
+
 #include "ao_usb.h"
 /* USB descriptors in one giant block of bytes */
 AO_ROMCONFIG_SYMBOL(0x00aa) uint8_t ao_usb_descriptors [] =
@@ -55,7 +61,7 @@ AO_ROMCONFIG_SYMBOL(0x00aa) uint8_t ao_usb_descriptors [] =
 	0x01,			/*  bConfigurationValue */
 	0x00,			/*  iConfiguration */
 	0xC0,			/*  bmAttributes */
-	0x32,			/*  bMaxPower */
+	AO_USB_MAX_POWER >> 1,	/*  bMaxPower, 2mA units */
 
 	/* Control class interface */
 	0x09,
