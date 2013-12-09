@@ -104,6 +104,42 @@ public class AltosLib {
 	public final static int product_basestation = 0x10000 + 1;
 	public final static int product_altimeter = 0x10000 + 2;
 
+	private static class Product {
+		final String	name;
+		final int	product;
+
+		Product (String name, int product) {
+			this.name = name;
+			this.product = product;
+		}
+	}
+
+	private static Product[] products = {
+		new Product("telemetrum", product_telemetrum),
+		new Product("teleballoon", product_telemetrum),
+		new Product("teledongle", product_teledongle),
+		new Product("teleterra", product_teledongle),
+		new Product("telebt", product_telebt),
+		new Product("telelaunch", product_telelaunch),
+		new Product("telelco", product_telelco),
+		new Product("telescience", product_telescience),
+		new Product("telepyro", product_telepyro),
+		new Product("telemega", product_telemega),
+		new Product("megadongle", product_megadongle),
+		new Product("telegps", product_telegps),
+		new Product("easymini", product_easymini),
+		new Product("telemini", product_telemini)
+	};
+
+	public static int name_to_product(String name) {
+		String low = name.toLowerCase();
+
+		for (int i = 0; i < products.length; i++)
+			if (low.startsWith(products[i].name))
+				return products[i].product;
+		return product_any;
+	}
+
 	/* Bluetooth "identifier" (bluetooth sucks) */
 	public final static String bt_product_telebt = "TeleBT";
 
