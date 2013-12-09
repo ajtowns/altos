@@ -19,14 +19,14 @@ package org.altusmetrum.altoslib_2;
 
 import java.io.*;
 
-public class AltosSelfFlash {
+public class AltosSelfFlash extends AltosProgrammer {
 	File			file;
 	FileInputStream		input;
 	AltosHexfile		image;
 	AltosLink		link;
 	boolean			aborted;
 	AltosFlashListener	listener;
-	byte[]			read_block, write_block;
+	AltosRomconfig		rom_config;
 
 	void action(String s, int percent) {
 		if (listener != null && !aborted)
@@ -40,23 +40,49 @@ public class AltosSelfFlash {
 		       percent);
 	}
 
-	void read_block(long addr) {
-		link.printf("R %x\n", addr);
-		
-	}
+	byte[] read_memory(long addr, int len) throws InterruptedException, IOException {
+		int b;
+		byte[]	data = new byte[len];
 
-	void read_memory(long addr, int len) {
+		for (int offset = 0; offset < len; offset += 0x100) {
+			link.printf("R %x\n", addr + offset);
+			byte[]	reply = link.get_binary_reply(5000, 0x100);
+			
+			if (reply == null)
+				throw new IOException("Read device memory timeout");
+			for (b = 0; b < len; b++)
+				data[b+offset] = reply[b];
+		}
+		return data;
 	}
 		
 	void write_memory(long addr, byte[] data, int start, int len) {
-		
+		int b;
+		System.out.printf ("write_memory %x %d\n", addr, len);
+		link.printf("W %x\n", addr);
+		link.flush_output();
+		for (b = 0; b < len; b++)
+			link.putchar(data[start + b]);
+		for (; b < 0x100; b++)
+			link.putchar((byte) 0xff);
 	}
 
 	void reboot() {
+		System.out.printf("reboot\n");
+		link.printf("a\n");
+		link.flush_output();
 	}
 
 	public void flash() {
 		try {
+			if (!check_rom_config())
+				throw new IOException("Invalid rom config settings");
+
+			/*
+			 * Store desired config values into image
+			 */
+			rom_config.write(image);
+
 			int remain = image.data.length;
 			long flash_addr = image.address;
 			int image_start = 0;
@@ -89,13 +115,10 @@ public class AltosSelfFlash {
 				action(image.data.length - remain, image.data.length);
 			}
 			if (!aborted) {
+				System.out.printf ("done\n");
 				action("done", 100);
-				if (link != null) {
-					reboot();
-				}
 			}
-			if (link != null)
-				link.close();
+			close();
 		} catch (IOException ie) {
 			action(ie.getMessage(), -1);
 			abort();
@@ -105,8 +128,11 @@ public class AltosSelfFlash {
 	}
 
 	public void close() {
-		if (link != null)
+		if (link != null) {
+			reboot();
 			link.close();
+			link = null;
+		}
 	}
 
 	synchronized public void abort() {
@@ -114,11 +140,36 @@ public class AltosSelfFlash {
 		close();
 	}
 
+	private AltosHexfile get_rom() {
+		System.out.printf("get rom\n");
+		try {
+			int base = AltosRomconfig.fetch_base(image);
+			int bounds = AltosRomconfig.fetch_bounds(image);
+			byte[] data = read_memory(base, bounds - base);
+			AltosHexfile hexfile = new AltosHexfile(data, base);
+			hexfile.add_symbols(image);
+			return hexfile;
+		} catch (AltosNoSymbol none) {
+			System.out.printf("no symbol %s\n", none.getMessage());
+			return null;
+		} catch (InterruptedException ie) {
+			return null;
+		} catch (IOException ie) {
+			return null;
+		}
+
+	}
+
 	public boolean check_rom_config() {
-		if (link == null)
+		if (link == null) {
+			System.out.printf ("no link\n");
 			return true;
-		if (rom_config == null)
-			rom_config = debug.romconfig();
+		}
+		if (rom_config == null) {
+			AltosHexfile hexfile = get_rom();
+			if (hexfile != null)
+				rom_config = new AltosRomconfig(hexfile);
+		}
 		return rom_config != null && rom_config.valid();
 	}
 
@@ -127,23 +178,19 @@ public class AltosSelfFlash {
 	}
 
 	public AltosRomconfig romconfig() {
+		System.out.printf("fetch romconfig\n");
 		if (!check_rom_config())
 			return null;
 		return rom_config;
 	}
 
-	public AltosFlash(File file, AltosLink link, AltosFlashListener listener)
+	public AltosSelfFlash(File file, AltosLink link, AltosFlashListener listener)
 		throws IOException, FileNotFoundException, InterruptedException {
 		this.file = file;
 		this.link = link;
 		this.listener = listener;
-		this.read_block = new byte[256];
-		this.write_block = new byte[256];
 		input = new FileInputStream(file);
 		image = new AltosHexfile(input);
-		if (link != null) {
-			debug.close();
-			throw new IOException("Debug port not connected");
-		}
+		System.out.printf ("AltosSelfFlash %x\n", image.address);
 	}
 }

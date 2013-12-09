@@ -76,6 +76,7 @@ altoslib_JAVA = \
 	AltosProgrammer.java \
 	AltosReplayReader.java \
 	AltosRomconfig.java \
+	AltosSelfFlash.java \
 	AltosSensorMM.java \
 	AltosSensorEMini.java \
 	AltosSensorTM.java \

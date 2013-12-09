@@ -45,18 +45,42 @@ public class AltosFlashUI
 	File		file;
 
 	// Debug connection
-	AltosDevice	debug_dongle;
+	AltosDevice	device;
+
+	AltosLink	link;
 
 	// Desired Rom configuration
 	AltosRomconfig	rom_config;
 
 	// Flash controller
-	AltosFlash	flash;
+	AltosProgrammer	programmer;
+
+	private static String[] pair_programmed = {
+		"teleballoon",
+		"telebt",
+		"teledongle",
+		"telefire",
+		"telemetrum-v0",
+		"telemetrum-v1",
+		"telemini",
+		"telenano",
+		"teleshield",
+		"teleterra"
+	};
+
+	private boolean is_pair_programmed() {
+		String	name = file.getName();
+		for (int i = 0; i < pair_programmed.length; i++) {
+			if (name.startsWith(pair_programmed[i]))
+				return true;
+		}
+		return false;
+	}
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == cancel) {
-			if (flash != null)
-				flash.abort();
+			if (programmer != null)
+				programmer.abort();
 			setVisible(false);
 			dispose();
 		} else {
@@ -156,6 +180,33 @@ public class AltosFlashUI
 		serial_value.setText(String.format("%d", serial_number));
 	}
 
+	static class AltosHexfileFilter extends javax.swing.filechooser.FileFilter {
+		int product;
+		String head;
+		String description;
+
+		public AltosHexfileFilter(int product, String head, String description) {
+			this.product = product;
+			this.head = head;
+			this.description = description;
+		}
+
+		public boolean accept(File file) {
+			return file.getName().startsWith(head) && file.getName().endsWith(".ihx");
+		}
+
+		public String getDescription() {
+			return description;
+		}
+	}
+
+	static AltosHexfileFilter[] filters = {
+		new AltosHexfileFilter(AltosLib.product_telemetrum, "telemetrum", "TeleMetrum Image"),
+		new AltosHexfileFilter(AltosLib.product_teledongle, "teledongle", "TeleDongle Image"),
+		new AltosHexfileFilter(AltosLib.product_telemega, "telemega", "TeleMega Image"),
+		new AltosHexfileFilter(AltosLib.product_easymini, "easymini", "EasyMini Image"),
+	};
+
 	boolean select_source_file() {
 		JFileChooser	hexfile_chooser = new JFileChooser();
 
@@ -164,7 +215,24 @@ public class AltosFlashUI
 			hexfile_chooser.setCurrentDirectory(firmwaredir);
 
 		hexfile_chooser.setDialogTitle("Select Flash Image");
-		hexfile_chooser.setFileFilter(new FileNameExtensionFilter("Flash Image", "ihx"));
+
+		for (int i = 0; i < filters.length; i++) {
+			hexfile_chooser.addChoosableFileFilter(filters[i]);
+		}
+		javax.swing.filechooser.FileFilter ihx_filter = new FileNameExtensionFilter("Flash Image", "ihx");
+		hexfile_chooser.addChoosableFileFilter(ihx_filter);
+		hexfile_chooser.setFileFilter(ihx_filter);
+		
+		if (!device.matchProduct(AltosLib.product_altusmetrum)) {
+			for (int i = 0; i < filters.length; i++) {
+				System.out.printf ("device %s filter %d\n", device, filters[i].product);
+				if (device != null && device.matchProduct(filters[i].product)) {
+					System.out.printf ("select filter %s\n", filters[i].head);
+					hexfile_chooser.setFileFilter(filters[i]);
+				}
+			}
+		}
+
 		int returnVal = hexfile_chooser.showOpenDialog(frame);
 
 		if (returnVal != JFileChooser.APPROVE_OPTION)
@@ -173,13 +241,16 @@ public class AltosFlashUI
 		if (file == null)
 			return false;
 		AltosUIPreferences.set_firmwaredir(file.getParentFile());
+		
 		return true;
 	}
 
-	boolean select_debug_dongle() {
-		debug_dongle = AltosDeviceUIDialog.show(frame, Altos.product_any);
+	boolean select_device() {
+		int	product = Altos.product_any;
 
-		if (debug_dongle == null)
+		device = AltosDeviceUIDialog.show(frame, Altos.product_any);
+
+		if (device == null)
 			return false;
 		return true;
 	}
@@ -204,7 +275,7 @@ public class AltosFlashUI
 		} else if (e instanceof AltosSerialInUseException) {
 			JOptionPane.showMessageDialog(frame,
 						      String.format("Device \"%s\" already in use",
-								    debug_dongle.toShortString()),
+								    device.toShortString()),
 						      "Device in use",
 						      JOptionPane.ERROR_MESSAGE);
 		} else if (e instanceof IOException) {
@@ -218,7 +289,7 @@ public class AltosFlashUI
 	class flash_task implements Runnable, AltosFlashListener {
 		AltosFlashUI	ui;
 		Thread		t;
-		AltosFlash	flash;
+		AltosProgrammer	programmer;
 
 		public void position(String in_s, int in_percent) {
 			final String s = in_s;
@@ -238,14 +309,17 @@ public class AltosFlashUI
 
 		public void run () {
 			try {
-				flash = new AltosFlash(ui.file, new AltosSerial(ui.debug_dongle), this);
+				if (ui.is_pair_programmed())
+					programmer = new AltosFlash(ui.file, link, this);
+				else
+					programmer = new AltosSelfFlash(ui.file, link, this);
 
-				final AltosRomconfig	current_config = flash.romconfig();
+				final AltosRomconfig	current_config = programmer.romconfig();
 
 				final Semaphore await_rom_config = new Semaphore(0);
 				SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
-							ui.flash = flash;
+							ui.programmer = programmer;
 							ui.update_rom_config_info(current_config);
 							await_rom_config.release();
 						}
@@ -253,8 +327,8 @@ public class AltosFlashUI
 				await_rom_config.acquire();
 
 				if (ui.rom_config != null) {
-					flash.set_romconfig(ui.rom_config);
-					flash.flash();
+					programmer.set_romconfig(ui.rom_config);
+					programmer.flash();
 				}
 			} catch (InterruptedException ee) {
 				final Exception	e = ee;
@@ -270,16 +344,9 @@ public class AltosFlashUI
 							ui.exception(e);
 						}
 					});
-			} catch (AltosSerialInUseException ee) {
-				final Exception	e = ee;
-				SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
-							ui.exception(e);
-						}
-					});
 			} finally {
-				if (flash != null)
-					flash.close();
+				if (programmer != null)
+					programmer.close();
 			}
 		}
 
@@ -292,15 +359,50 @@ public class AltosFlashUI
 
 	flash_task	flasher;
 
+	private boolean open_device() {
+		try {
+			link = new AltosSerial(device);
+			if (is_pair_programmed())
+				return true;
+
+			if (link == null)
+				throw new IOException(String.format("%s: open failed", device.toShortString()));
+
+			while (!link.is_loader()) {
+				link.to_loader();
+
+				java.util.List<AltosDevice> devices = AltosUSBDevice.list(AltosLib.product_altusmetrum);
+				if (devices.size() == 1)
+					device = devices.get(0);
+				else {
+					device = AltosDeviceUIDialog.show(frame, AltosLib.product_altusmetrum);
+					if (device == null)
+						return false;
+				}
+				link = new AltosSerial(device);
+			}
+			return true;
+		} catch (AltosSerialInUseException ee) {
+			exception(ee);
+		} catch (FileNotFoundException fe) {
+			exception(fe);
+		} catch (IOException ie) {
+			exception (ie);
+		}
+		return false;
+	}
+
 	/*
 	 * Execute the steps for flashing
 	 * a device. Note that this returns immediately;
 	 * this dialog is not modal
 	 */
 	void showDialog() {
-		if (!select_debug_dongle())
+		if (!select_device())
 			return;
 		if (!select_source_file())
+			return;
+		if (!open_device())
 			return;
 		build_dialog();
 		flash_task	f = new flash_task(this);
