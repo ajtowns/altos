@@ -192,7 +192,7 @@ public class AltosFlashUI
 		}
 
 		public boolean accept(File file) {
-			return file.getName().startsWith(head) && file.getName().endsWith(".ihx");
+			return !file.isFile() || (file.getName().startsWith(head) && file.getName().endsWith(".ihx"));
 		}
 
 		public String getDescription() {
@@ -225,11 +225,8 @@ public class AltosFlashUI
 		
 		if (!device.matchProduct(AltosLib.product_altusmetrum)) {
 			for (int i = 0; i < filters.length; i++) {
-				System.out.printf ("device %s filter %d\n", device, filters[i].product);
-				if (device != null && device.matchProduct(filters[i].product)) {
-					System.out.printf ("select filter %s\n", filters[i].head);
+				if (device != null && device.matchProduct(filters[i].product))
 					hexfile_chooser.setFileFilter(filters[i]);
-				}
 			}
 		}
 
