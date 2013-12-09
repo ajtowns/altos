@@ -162,6 +162,20 @@ public class AltosBluetooth extends AltosLink {
 		}
 	}
 
+	public void putchar(byte c) {
+		byte[] bytes = { c };
+		if (D) Log.d(TAG, "print(): begin");
+		try {
+			wait_connected();
+			output.write(bytes);
+			if (D) Log.d(TAG, "print(): Wrote byte: '" + c + "'");
+		} catch (IOException e) {
+			connection_lost();
+		} catch (InterruptedException e) {
+			connection_lost();
+		}
+	}		
+
 	public int getchar() {
 		try {
 			wait_connected();

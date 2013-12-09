@@ -28,6 +28,7 @@ public abstract class AltosLink implements Runnable {
 
 	public abstract int getchar();
 	public abstract void print(String data);
+	public abstract void putchar(byte c);
 	public abstract void close();
 
 	public static boolean debug = false;
@@ -39,6 +40,7 @@ public abstract class AltosLink implements Runnable {
 
 	public LinkedList<LinkedBlockingQueue<AltosLine>> monitors = new LinkedList<LinkedBlockingQueue<AltosLine>> ();;
 	public LinkedBlockingQueue<AltosLine> reply_queue = new LinkedBlockingQueue<AltosLine>();
+	public LinkedBlockingQueue<byte[]> binary_queue = new LinkedBlockingQueue<byte[]>();
 
 	public synchronized void add_monitor(LinkedBlockingQueue<AltosLine> q) {
 		set_monitor(true);
@@ -93,6 +95,7 @@ public abstract class AltosLink implements Runnable {
 		}
 	}
 
+	private int	len_read = 0;
 
 	public void run () {
 		int c;
@@ -103,8 +106,6 @@ public abstract class AltosLink implements Runnable {
 			for (;;) {
 				c = getchar();
 				if (Thread.interrupted()) {
-					if (debug)
-						System.out.printf("INTERRUPTED\n");
 					break;
 				}
 				if (c == ERROR) {
@@ -120,10 +121,10 @@ public abstract class AltosLink implements Runnable {
 						System.out.printf("TIMEOUT\n");
 					continue;
 				}
-				if (c == '\r')
+				if (c == '\r' && len_read == 0)
 					continue;
 				synchronized(this) {
-					if (c == '\n') {
+					if (c == '\n' && len_read == 0) {
 						if (line_count != 0) {
 							add_bytes(line_bytes, line_count);
 							line_count = 0;
@@ -138,12 +139,18 @@ public abstract class AltosLink implements Runnable {
 						}
 						line_bytes[line_count] = (byte) c;
 						line_count++;
+						if (len_read !=0 && line_count == len_read) {
+							add_binary(line_bytes, line_count);
+							line_count = 0;
+							len_read = 0;
+						}
 					}
 				}
 			}
 		} catch (InterruptedException e) {
 		}
 	}
+
 
 	public String get_reply(int timeout) throws InterruptedException {
 		boolean	can_cancel = can_cancel_reply();
@@ -177,6 +184,38 @@ public abstract class AltosLink implements Runnable {
 			--in_reply;
 		}
 		return reply;
+	}
+
+	public byte[] get_binary_reply(int timeout, int len) throws InterruptedException {
+		boolean	can_cancel = can_cancel_reply();
+		byte[] bytes = null;
+
+		synchronized(this) {
+			len_read = len;
+		}
+		try {
+			++in_reply;
+
+			flush_output();
+
+			reply_abort = false;
+			reply_timeout_shown = false;
+			for (;;) {
+				bytes = binary_queue.poll(timeout, TimeUnit.MILLISECONDS);
+				if (bytes != null) {
+					cleanup_reply_timeout();
+					break;
+				}
+				if (!remote || !can_cancel || check_reply_timeout()) {
+					bytes = null;
+					break;
+				}
+			}
+			
+		} finally {
+			--in_reply;
+		}
+		return bytes;
 	}
 
 	public void add_telem(AltosLine line) throws InterruptedException {
@@ -218,6 +257,22 @@ public abstract class AltosLink implements Runnable {
 		if (debug)
 			System.out.printf("\t\t\t\t\t%s\n", line);
 		add_string(line);
+	}
+
+	public void add_binary(byte[] bytes, int len) throws InterruptedException {
+		byte[] dup = new byte[len];
+
+		if (debug)
+			System.out.printf ("\t\t\t\t\t%d:", len);
+		for(int i = 0; i < len; i++) {
+			dup[i] = bytes[i];
+			if (debug)
+				System.out.printf(" %02x", dup[i]);
+		}
+		if (debug)
+			System.out.printf("\n");
+
+		binary_queue.put(dup);
 	}
 
 	public void flush_output() {
@@ -342,6 +397,35 @@ public abstract class AltosLink implements Runnable {
 		this.callsign = callsign;
 		printf ("c c %s\n", callsign);
 		flush_output();
+	}
+
+	public boolean is_loader() {
+		boolean	ret = false;
+		printf("v\n");
+		try {
+			for (;;) {
+				String line = get_reply();
+
+				if (line == null)
+					return false;
+				if (line.startsWith("software-version"))
+					break;
+				if (line.startsWith("altos-loader"))
+					ret = true;
+			}
+		} catch (InterruptedException ie) {
+		}
+		return ret;
+	}
+
+	public void to_loader() {
+		printf("X\n");
+		flush_output();
+		close();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException ie) {
+		}
 	}
 
 	public boolean remote;

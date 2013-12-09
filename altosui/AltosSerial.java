@@ -161,6 +161,16 @@ public class AltosSerial extends AltosLink  {
 			}
 	}
 
+	public void putchar(byte c) {
+		if (altos != null) {
+			if (debug)
+				System.out.printf(" %02x", (int) c & 0xff);
+			if (libaltos.altos_putchar(altos, (char) c) != 0) {
+				close_serial();
+			}
+		}
+	}
+
 	public void print(String data) {
 		for (int i = 0; i < data.length(); i++)
 			putc(data.charAt(i));
