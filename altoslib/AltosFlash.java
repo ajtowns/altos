@@ -19,7 +19,7 @@ package org.altusmetrum.altoslib_2;
 
 import java.io.*;
 
-public class AltosFlash {
+public class AltosFlash extends AltosProgrammer {
 	File			file;
 	FileInputStream		input;
 	AltosHexfile		image;

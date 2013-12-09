@@ -73,6 +73,7 @@ altoslib_JAVA = \
 	AltosParse.java \
 	AltosPreferences.java \
 	AltosPreferencesBackend.java \
+	AltosProgrammer.java \
 	AltosReplayReader.java \
 	AltosRomconfig.java \
 	AltosSensorMM.java \
