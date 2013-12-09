@@ -32,12 +32,14 @@ ao-tools/ao-dumplog/ao-dumplog
 ao-tools/ao-dump-up/ao-dump-up
 ao-tools/ao-eeprom/ao-eeprom
 ao-tools/ao-edit-telem/ao-edit-telem
+ao-tools/ao-elftohex/ao-elftohex
 ao-tools/ao-list/ao-list
 ao-tools/ao-load/ao-load
 ao-tools/ao-postflight/ao-postflight
 ao-tools/ao-rawload/ao-rawload
 ao-tools/ao-send-telem/ao-send-telem
 ao-tools/ao-sky-flash/ao-sky-flash
+ao-tools/ao-usbload/ao-usbload
 ao-tools/ao-view/ao-view
 ao-view/Makefile
 ao-view/ao-view
