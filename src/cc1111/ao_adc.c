@@ -85,6 +85,7 @@ ao_adc_isr(void) __interrupt 1
 		else
 #endif
 			ADCCON3 = ADCCON3_EREF_VDD | ADCCON3_EDIV_512 | sequence;
+		return;
 	}
 #endif
 
