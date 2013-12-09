@@ -118,7 +118,11 @@ public class AltosRomconfig {
 				case 2:
 				case 1:
 					serial_number = get_int(hexfile, ao_serial_number, 2);
-					radio_calibration = get_int(hexfile, ao_radio_cal, 4);
+					try {
+						radio_calibration = get_int(hexfile, ao_radio_cal, 4);
+					} catch (AltosNoSymbol missing) {
+						radio_calibration = 0;
+					}
 					valid = true;
 					break;
 				}
@@ -128,19 +132,37 @@ public class AltosRomconfig {
 		}
 	}
 
-	final static String[] fetch_names = {
+	private final static String[] fetch_names = {
 		ao_romconfig_version,
 		ao_romconfig_check,
 		ao_serial_number,
 		ao_radio_cal
 	};
 
+	private final static String[] required_names = {
+		ao_romconfig_version,
+		ao_romconfig_check,
+		ao_serial_number
+	};
+		
+	private static boolean name_required(String name) {
+		for (String required : required_names)
+			if (name.equals(required))
+				return true;
+		return false;
+	}
+
 	public static int fetch_base(AltosHexfile hexfile) throws AltosNoSymbol {
 		int	base = 0x7fffffff;
 		for (String name : fetch_names) {
-			int	addr = find_offset(hexfile, name, 2) + hexfile.address;
-			if (addr < base)
-				base = addr;
+			try {
+				int	addr = find_offset(hexfile, name, 2) + hexfile.address;
+				if (addr < base)
+					base = addr;
+			} catch (AltosNoSymbol ns) {
+				if (name_required(name))
+					throw (ns);
+			}
 		}
 		return base;
 	}
@@ -148,9 +170,14 @@ public class AltosRomconfig {
 	public static int fetch_bounds(AltosHexfile hexfile) throws AltosNoSymbol {
 		int	bounds = 0;
 		for (String name : fetch_names) {
-			int	addr = find_offset(hexfile, name, 2) + hexfile.address;
-			if (addr > bounds)
-				bounds = addr;
+			try {
+				int	addr = find_offset(hexfile, name, 2) + hexfile.address;
+				if (addr > bounds)
+					bounds = addr;
+			} catch (AltosNoSymbol ns) {
+				if (name_required(name))
+					throw (ns);
+			}
 		}
 		return bounds + 2;
 	}
@@ -166,10 +193,17 @@ public class AltosRomconfig {
 		try {
 			switch (existing.version) {
 			case 2:
-				put_usb_serial(serial_number, hexfile, ao_usb_descriptors);
+				try {
+					put_usb_serial(serial_number, hexfile, ao_usb_descriptors);
+				} catch (AltosNoSymbol missing) {
+				}
+				/* fall through ... */
 			case 1:
 				put_int(serial_number, hexfile, ao_serial_number, 2);
-				put_int(radio_calibration, hexfile, ao_radio_cal, 4);
+				try {
+					put_int(radio_calibration, hexfile, ao_radio_cal, 4);
+				} catch (AltosNoSymbol missing) {
+				}
 				break;
 			}
 		} catch (AltosNoSymbol missing) {
