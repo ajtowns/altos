@@ -68,20 +68,20 @@ public class AltosUSBDevice  extends altos_device implements AltosDevice {
 		if (want_product == AltosUILib.product_any)
 			return true;
 
+		int have_product = getProduct();
+
 		if (want_product == AltosUILib.product_basestation)
-			return matchProduct(AltosUILib.product_teledongle) ||
-				matchProduct(AltosUILib.product_teleterra) ||
-				matchProduct(AltosUILib.product_telebt) ||
-				matchProduct(AltosUILib.product_megadongle);
+			return have_product == AltosUILib.product_teledongle ||
+				have_product == AltosUILib.product_teleterra ||
+				have_product == AltosUILib.product_telebt ||
+				have_product == AltosUILib.product_megadongle;
 
 		if (want_product == AltosUILib.product_altimeter)
-			return matchProduct(AltosUILib.product_telemetrum) ||
-				matchProduct(AltosUILib.product_telemega) ||
-				matchProduct(AltosUILib.product_telegps) ||
-				matchProduct(AltosUILib.product_easymini) ||
-				matchProduct(AltosUILib.product_telemini);
-
-		int have_product = getProduct();
+			return have_product == AltosUILib.product_telemetrum ||
+				have_product == AltosUILib.product_telemega ||
+				have_product == AltosUILib.product_telegps ||
+				have_product == AltosUILib.product_easymini ||
+				have_product == AltosUILib.product_telemini;
 
 		if (have_product == AltosUILib.product_altusmetrum)	/* old devices match any request */
 			return true;
