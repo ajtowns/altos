@@ -37,11 +37,11 @@ SECTIONS {
 
 		ao_romconfig.o(.romconfig*)
 		ao_product.o(.romconfig*)
-		*(.text)	/* Executable code */
+		*(.text*)	/* Executable code */
 		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
 		*(.rodata*)	/* Constants */
-		__text_end__ = .;
 	} > rom
+	__text_end__ = .;
 
 	/* Boot data which must live at the start of ram so that
 	 * the application and bootloader share the same addresses.
@@ -66,7 +66,7 @@ SECTIONS {
 	.textram BLOCK(8): {
 		__data_start__ = .;
 		__text_ram_start__ = .;
-		*(.text.ram)
+		*(.ramtext)
 		__text_ram_end = .;
 	} >ram AT>rom
 
