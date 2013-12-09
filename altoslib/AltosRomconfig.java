@@ -26,7 +26,20 @@ public class AltosRomconfig {
 	public int	serial_number;
 	public int	radio_calibration;
 
-	static int get_int(byte[] bytes, int start, int len) {
+	static private int find_offset(AltosHexfile hexfile, String name, int len) throws AltosNoSymbol {
+		AltosHexsym symbol = hexfile.lookup_symbol(name);
+		if (symbol == null)
+			throw new AltosNoSymbol(name);
+		int offset = (int) symbol.address - hexfile.address;
+		if (offset < 0 || hexfile.data.length < offset + len)
+			throw new AltosNoSymbol(name);
+		return offset;
+	}
+
+	static int get_int(AltosHexfile hexfile, String name, int len) throws AltosNoSymbol {
+		byte[] bytes = hexfile.data;
+		int start = find_offset(hexfile, name, len);
+
 		int	v = 0;
 		int	o = 0;
 		while (len > 0) {
@@ -38,7 +51,10 @@ public class AltosRomconfig {
 		return v;
 	}
 
-	static void put_int(int value, byte[] bytes, int start, int len) {
+	static void put_int(int value, AltosHexfile hexfile, String name, int len) throws AltosNoSymbol, IOException {
+		byte[] bytes = hexfile.data;
+		int start = find_offset(hexfile, name, len);
+
 		while (len > 0) {
 			bytes[start] = (byte) (value & 0xff);
 			start++;
@@ -47,86 +63,121 @@ public class AltosRomconfig {
 		}
 	}
 
-	static void put_string(String value, byte[] bytes, int start) {
+	static void put_string(String value, AltosHexfile hexfile, String name) throws AltosNoSymbol {
+		byte[] bytes = hexfile.data;
+		int start = find_offset(hexfile, name, value.length());
+
 		for (int i = 0; i < value.length(); i++)
 			bytes[start + i] = (byte) value.charAt(i);
 	}
 
 	static final int AO_USB_DESC_STRING	= 3;
 
-	static void put_usb_serial(int value, byte[] bytes, int start) {
-		int offset = start + 0xa;
+	static void put_usb_serial(int value, AltosHexfile hexfile, String name) throws AltosNoSymbol {
+		byte[] bytes = hexfile.data;
+		int start = find_offset(hexfile, name, 2);
+
 		int string_num = 0;
 
-		while (offset < bytes.length && bytes[offset] != 0) {
-			if (bytes[offset + 1] == AO_USB_DESC_STRING) {
+		while (start < bytes.length && bytes[start] != 0) {
+			if (bytes[start + 1] == AO_USB_DESC_STRING) {
 				++string_num;
 				if (string_num == 4)
 					break;
 			}
-			offset += ((int) bytes[offset]) & 0xff;
+			start += ((int) bytes[start]) & 0xff;
 		}
-		if (offset >= bytes.length || bytes[offset] == 0)
-			return;
-		int len = ((((int) bytes[offset]) & 0xff) - 2) / 2;
+		if (start >= bytes.length || bytes[start] == 0)
+			throw new AltosNoSymbol(name);
+
+		int len = ((((int) bytes[start]) & 0xff) - 2) / 2;
 		String fmt = String.format("%%0%dd", len);
 
 		String s = String.format(fmt, value);
-		if (s.length() != len) {
-			System.out.printf("weird usb length issue %s isn't %d\n",
-					  s, len);
-			return;
-		}
+		if (s.length() != len)
+			throw new AltosNoSymbol(String.format("weird usb length issue %s isn't %d\n", s, len));
+
 		for (int i = 0; i < len; i++) {
-			bytes[offset + 2 + i*2] = (byte) s.charAt(i);
-			bytes[offset + 2 + i*2+1] = 0;
+			bytes[start + 2 + i*2] = (byte) s.charAt(i);
+			bytes[start + 2 + i*2+1] = 0;
 		}
 	}
 
-	public AltosRomconfig(byte[] bytes, int offset) {
-		version = get_int(bytes, offset + 0, 2);
-		check = get_int(bytes, offset + 2, 2);
-		if (check == (~version & 0xffff)) {
-			switch (version) {
-			case 2:
-			case 1:
-				serial_number = get_int(bytes, offset + 4, 2);
-				radio_calibration = get_int(bytes, offset + 6, 4);
-				valid = true;
-				break;
-			}
-		}
-	}
+	final static String ao_romconfig_version = "ao_romconfig_version";
+	final static String ao_romconfig_check = "ao_romconfig_check";
+	final static String ao_serial_number = "ao_serial_number";
+	final static String ao_radio_cal = "ao_radio_cal";
+	final static String ao_usb_descriptors = "ao_usb_descriptors";
 
 	public AltosRomconfig(AltosHexfile hexfile) {
-		this(hexfile.data, 0xa0 - hexfile.address);
+		try {
+			version = get_int(hexfile, ao_romconfig_version, 2);
+			check = get_int(hexfile, ao_romconfig_check, 2);
+			if (check == (~version & 0xffff)) {
+				switch (version) {
+				case 2:
+				case 1:
+					serial_number = get_int(hexfile, ao_serial_number, 2);
+					radio_calibration = get_int(hexfile, ao_radio_cal, 4);
+					valid = true;
+					break;
+				}
+			}
+		} catch (AltosNoSymbol missing) {
+			valid = false;
+		}
 	}
 
-	public void write(byte[] bytes, int offset) throws IOException {
-		if (!valid)
-			throw new IOException("rom configuration invalid");
+	final static String[] fetch_names = {
+		ao_romconfig_version,
+		ao_romconfig_check,
+		ao_serial_number,
+		ao_radio_cal
+	};
 
-		if (offset < 0 || bytes.length < offset + 10)
-			throw new IOException("image cannot contain rom config");
-
-		AltosRomconfig existing = new AltosRomconfig(bytes, offset);
-		if (!existing.valid)
-			throw new IOException("image does not contain existing rom config");
-
-		switch (existing.version) {
-		case 2:
-			put_usb_serial(serial_number, bytes, offset);
-		case 1:
-			put_int(serial_number, bytes, offset + 4, 2);
-			put_int(radio_calibration, bytes, offset + 6, 4);
-			break;
+	public static int fetch_base(AltosHexfile hexfile) throws AltosNoSymbol {
+		int	base = 0x7fffffff;
+		for (String name : fetch_names) {
+			int	addr = find_offset(hexfile, name, 2) + hexfile.address;
+			if (addr < base)
+				base = addr;
 		}
+		return base;
+	}
+
+	public static int fetch_bounds(AltosHexfile hexfile) throws AltosNoSymbol {
+		int	bounds = 0;
+		for (String name : fetch_names) {
+			int	addr = find_offset(hexfile, name, 2) + hexfile.address;
+			if (addr > bounds)
+				bounds = addr;
+		}
+		return bounds + 2;
 	}
 
 	public void write (AltosHexfile hexfile) throws IOException {
-		write(hexfile.data, 0xa0 - hexfile.address);
+		if (!valid)
+			throw new IOException("rom configuration invalid");
+
+		AltosRomconfig existing = new AltosRomconfig(hexfile);
+		if (!existing.valid)
+			throw new IOException("image does not contain existing rom config");
+
+		try {
+			switch (existing.version) {
+			case 2:
+				put_usb_serial(serial_number, hexfile, ao_usb_descriptors);
+			case 1:
+				put_int(serial_number, hexfile, ao_serial_number, 2);
+				put_int(radio_calibration, hexfile, ao_radio_cal, 4);
+				break;
+			}
+		} catch (AltosNoSymbol missing) {
+			throw new IOException(missing.getMessage());
+		}
+
 		AltosRomconfig check = new AltosRomconfig(hexfile);
-		if (!check.valid())
+		if (!check.valid)
 			throw new IOException("writing new rom config failed\n");
 	}
 

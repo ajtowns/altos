@@ -260,7 +260,8 @@ public class AltosDebug {
 	public AltosRomconfig romconfig() {
 		try {
 			byte[] bytes = read_memory(0xa0, 10);
-			return new AltosRomconfig(bytes, 0);
+			AltosHexfile hexfile = new AltosHexfile (bytes, 0xa0);
+			return new AltosRomconfig(hexfile);
 		} catch (IOException ie) {
 		} catch (InterruptedException ie) {
 		}
