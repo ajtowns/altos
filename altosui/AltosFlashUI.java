@@ -69,9 +69,18 @@ public class AltosFlashUI
 	};
 
 	private boolean is_pair_programmed() {
-		String	name = file.getName();
-		for (int i = 0; i < pair_programmed.length; i++) {
-			if (name.startsWith(pair_programmed[i]))
+
+		if (file != null) {
+			String	name = file.getName();
+			for (int i = 0; i < pair_programmed.length; i++) {
+				if (name.startsWith(pair_programmed[i]))
+					return true;
+			}
+		}
+		if (device != null) {
+			if (!device.matchProduct(AltosLib.product_altusmetrum) &&
+			    (device.matchProduct(AltosLib.product_teledongle) ||
+			     device.matchProduct(AltosLib.product_telebt)))
 				return true;
 		}
 		return false;
@@ -223,7 +232,7 @@ public class AltosFlashUI
 		hexfile_chooser.addChoosableFileFilter(ihx_filter);
 		hexfile_chooser.setFileFilter(ihx_filter);
 		
-		if (!device.matchProduct(AltosLib.product_altusmetrum)) {
+		if (!is_pair_programmed() && !device.matchProduct(AltosLib.product_altusmetrum)) {
 			for (int i = 0; i < filters.length; i++) {
 				if (device != null && device.matchProduct(filters[i].product))
 					hexfile_chooser.setFileFilter(filters[i]);
