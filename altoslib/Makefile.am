@@ -55,6 +55,7 @@ altoslib_JAVA = \
 	AltosGPSSat.java \
 	AltosGreatCircle.java \
 	AltosHexfile.java \
+	AltosHexsym.java \
 	AltosIdle.java \
 	AltosIdleFetch.java \
 	AltosIdleMonitor.java \
@@ -68,6 +69,7 @@ altoslib_JAVA = \
 	AltosMag.java \
 	AltosMma655x.java \
 	AltosMs5607.java \
+	AltosNoSymbol.java \
 	AltosParse.java \
 	AltosPreferences.java \
 	AltosPreferencesBackend.java \

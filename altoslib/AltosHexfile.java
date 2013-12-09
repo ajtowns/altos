@@ -116,7 +116,7 @@ class HexRecord implements Comparable<Object> {
 		return String.format("%04x: %02x (%d)", address, type, data.length);
 	}
 
-	public HexRecord(HexFileInputStream input) throws IOException {
+	public HexRecord(HexFileInputStream input) throws IOException, EOFException {
 		read_state	state = read_state.marker;
 		int		nhexbytes = 0;
 		int		hex = 0;
@@ -125,14 +125,16 @@ class HexRecord implements Comparable<Object> {
 
 		while (state != read_state.done) {
 			int c = input.read();
-			if (c < 0 && state != read_state.white)
+			if (c < 0 && state != read_state.white && state != read_state.marker)
 				throw new IOException(String.format("%d: Unexpected EOF", input.line));
 			if (c == ' ')
 				continue;
 			switch (state) {
 			case marker:
+				if (c == EOF || c == -1)
+					throw new EOFException();
 				if (c != ':')
-					throw new IOException("Missing ':'");
+					throw new IOException(String.format ("Missing ':' (got %x)", c));
 				state = read_state.length;
 				nhexbytes = 2;
 				hex = 0;
@@ -208,11 +210,67 @@ class HexRecord implements Comparable<Object> {
 }
 
 public class AltosHexfile {
-	public int	address;
-	public byte[]	data;
+	public int		address;
+	public byte[]		data;
+	LinkedList<AltosHexsym>	symlist = new LinkedList<AltosHexsym>();
 
 	public byte get_byte(int a) {
 		return data[a - address];
+	}
+
+	/* CC1111-based products have the romconfig stuff located
+	 * at a fixed address; when the file we load has no symbols,
+	 * assume it is one of those and set the symbols appropriately
+	 */
+	final static int ao_romconfig_version_addr = 0xa0;
+	final static int ao_romconfig_check_addr = 0xa2;
+	final static int ao_serial_number_addr = 0xa4;
+	final static int ao_radio_cal_addr = 0xa6;
+	final static int ao_usb_descriptors_addr = 0xaa;
+
+	static AltosHexsym[] cc_symbols = {
+		new AltosHexsym("ao_romconfig_version", ao_romconfig_version_addr),
+		new AltosHexsym("ao_romconfig_check", ao_romconfig_check_addr),
+		new AltosHexsym("ao_serial_number", ao_serial_number_addr),
+		new AltosHexsym("ao_radio_cal", ao_radio_cal_addr),
+		new AltosHexsym("ao_usb_descriptors", ao_usb_descriptors_addr)
+	};
+
+	private void add_cc_symbols() {
+		for (int i = 0; i < cc_symbols.length; i++)
+			symlist.add(cc_symbols[i]);
+	}
+
+	public void add_symbol(AltosHexsym symbol) {
+		symlist.add(symbol);
+	}
+
+	/* Take symbols from another hexfile and duplicate them here */
+	public void add_symbols(AltosHexfile other) {
+		for (AltosHexsym symbol : other.symlist)
+			symlist.add(symbol);
+	}
+
+	public AltosHexsym lookup_symbol(String name) {
+		if (symlist.isEmpty())
+			add_cc_symbols();
+
+		for (AltosHexsym symbol : symlist)
+			if (name.equals(symbol.name))
+				return symbol;
+		return null;
+	}
+
+	private String make_string(byte[] data, int start, int length) {
+		String s = "";
+		for (int i = 0; i < length; i++)
+			s += (char) data[start + i];
+		return s;
+	}
+
+	public AltosHexfile(byte[] bytes, int offset) {
+		data = bytes;
+		address = offset;
 	}
 
 	public AltosHexfile(FileInputStream file) throws IOException {
@@ -221,12 +279,13 @@ public class AltosHexfile {
 		boolean			done = false;
 
 		while (!done) {
-			HexRecord	record = new HexRecord(input);
+			try {
+				HexRecord	record = new HexRecord(input);
 
-			if (record.type == HexRecord.EOF)
-				done = true;
-			else
 				record_list.add(record);
+			} catch (EOFException eof) {
+				done = true;
+			}
 		}
 
 		long	extended_addr = 0;
@@ -234,9 +293,10 @@ public class AltosHexfile {
 		long	bound = 0;
 		boolean	set = false;
 		for (HexRecord record : record_list) {
+			long addr;
 			switch (record.type) {
 			case 0:
-				long addr = extended_addr + record.address;
+				addr = extended_addr + record.address;
 				long r_bound = addr + record.data.length;
 				if (!set || addr < base)
 					base = addr;
@@ -255,6 +315,14 @@ public class AltosHexfile {
 				if (record.data.length != 2)
 					throw new IOException("invalid extended segment address record");
 				extended_addr = ((record.data[0] << 8) + (record.data[1])) << 16;
+				break;
+			case 0xfe:
+				String name = make_string(record.data, 0, record.data.length);
+				addr = extended_addr + record.address;
+				if (name.startsWith("ao_romconfig"))
+					System.out.printf ("%08x: %s\n", addr, name);
+				AltosHexsym s = new AltosHexsym(name, addr);
+				symlist.add(s);
 				break;
 			default:
 				throw new IOException ("invalid hex record type");
@@ -291,6 +359,8 @@ public class AltosHexfile {
 				if (record.data.length != 2)
 					throw new IOException("invalid extended segment address record");
 				extended_addr = ((record.data[0] << 8) + (record.data[1])) << 16;
+				break;
+			case 0xfe:
 				break;
 			default:
 				throw new IOException ("invalid hex record type");
