@@ -75,7 +75,7 @@ load: $(PROG)
 distclean:	clean
 
 clean:
-	rm -f *.o $(PROGNAME)-*.elf
+	rm -f *.o $(PROGNAME)-*.elf $(PROGNAME)-*.ihx
 	rm -f ao_product.h
 
 install:

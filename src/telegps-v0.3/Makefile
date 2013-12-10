@@ -76,7 +76,7 @@ ao_product.h: ao-make-product.5c ../Version
 distclean:	clean
 
 clean:
-	rm -f *.o ao_serial_lpc.h $(PROGNAME)-*.elf
+	rm -f *.o ao_serial_lpc.h $(PROGNAME)-*.elf $(PROGNAME)-*.ihx
 	rm -f ao_product.h
 
 install:

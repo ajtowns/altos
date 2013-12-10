@@ -66,7 +66,7 @@ $(OBJ): $(INC)
 distclean:	clean
 
 clean:
-	rm -f *.o stm-demo-*.elf
+	rm -f *.o *.elf *.ihx
 	rm -f ao_product.h
 
 install:
