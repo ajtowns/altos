@@ -1,0 +1,66 @@
+#!/usr/bin/nickle
+
+import File;
+
+string timed_read(file f, int timeout) {
+	thread reader = fork func() { try { return fgets(f); } catch Thread::signal(int i) { return ""; } }();
+	thread killer = fork func() { sleep (timeout); Thread::send_signal(reader, 1); }();
+	poly v = Thread::join(reader);
+	if (is_string(v))
+		return v;
+	return "";
+}
+
+void flush_input(file f) {
+	for (;;) {
+		string s = timed_read(f, 100);
+		if (s == "")
+			break;
+	}
+}
+
+string[*] settings(file f) {
+	string[...] x = {};
+
+	flush_input(f);
+	fprintf (f, "c s\nv\n");
+	flush(f);
+	for (;;) {
+		string l = File::fgets(f);
+		x[dim(x)] = l;
+		if (String::index(l, "software-version") == 0)
+			break;
+	}
+	return x;
+}
+
+string[*] find_setting(string[*] s, string match) {
+	for (int i = 0; i < dim(s); i++)
+		if (String::index(s[i], match) == 0)
+			return String::split(s[i], " ");
+	return (string[*]) {};
+}
+
+int[*]
+get_radio (file f) {
+	string[*] s = settings(f);
+
+	string[*] cal = find_setting(s, "Radio cal:");
+	string[*] freq = find_setting(s, "Frequency:");
+	if (dim(cal) == 0 || dim(freq) == 0)
+		return (int[2]) { 0, 0 };
+
+	int cal_val = string_to_integer(cal[2]);
+	int freq_val = string_to_integer(freq[1]);
+	return (int[2]) { cal_val, freq_val };
+}
+
+void main () {
+	string	name = argv[1];
+	file	f = open(name, "r+");
+
+	int[*] vals = get_radio(f);
+	printf ("cal %d freq %f\n", vals[0], vals[1] / 1000);
+}
+
+main();

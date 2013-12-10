@@ -1,0 +1,46 @@
+#!/bin/sh
+
+case $# in
+1)
+	dev="$1"
+	;;
+*)
+	echo "Usage: $0 <device>"
+	exit 1;
+	;;
+esac
+
+while true; do
+	echo 'C 1' > $dev
+
+	echo -n "Generating RF carrier. Please enter measured frequency [enter for done]: "
+
+	read FREQ
+
+	echo 'C 0' > $dev
+
+	case "$FREQ" in
+	"")
+		exit 0
+		;;
+	*)
+		calline=`./get-radio-cal $dev`
+		CURRENT_CAL=`echo $calline | awk '{print $2}'`
+		CURRENT_FREQ=`echo $calline | awk '{print $4}'`
+
+		echo "Current radio calibration "$CURRENT_CAL
+		echo "Current radio frequency "$CURRENT_FREQ
+
+		CAL_VALUE=`nickle -e "floor($CURRENT_FREQ / $FREQ * $CURRENT_CAL + 0.5)"`
+
+		echo "Programming flash with cal value " $CAL_VALUE
+
+		cat << EOF > $dev
+c f $CAL_VALUE
+c w
+EOF
+
+		echo "Serial number "$SERIAL" programmed with RF cal value "$CAL_VALUE
+		;;
+	esac
+done

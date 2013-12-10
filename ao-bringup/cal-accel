@@ -1,0 +1,120 @@
+#!/usr/bin/nickle
+
+import File;
+
+string timed_read(file f, int timeout) {
+	thread reader = fork func() {
+		try {
+			return fgets(f);
+		} catch Thread::signal(int i) {
+			return "";
+		}
+	}();
+
+	thread killer = fork func() {
+		try {
+			sleep (timeout);
+			Thread::send_signal(reader, 1);
+		} catch Thread::signal(int i) {
+			return;
+		}
+	}();
+
+	poly v = Thread::join(reader);
+	Thread::send_signal(killer, 1);
+	Thread::join(killer);
+	if (is_string(v))
+		return v;
+	return "";
+}
+
+void flush_input(file f) {
+	for (;;) {
+		string s = timed_read(f, 200);
+		if (s == "")
+			break;
+	}
+}
+
+string[*] settings(file f) {
+	string[...] x = {};
+
+	flush_input(f);
+	fprintf (f, "c s\nv\n");
+	flush(f);
+	for (;;) {
+		string l = File::fgets(f);
+		x[dim(x)] = l;
+		if (String::index(l, "software-version") == 0)
+			break;
+	}
+	return x;
+}
+
+string[*] find_setting(string[*] s, string match) {
+	for (int i = 0; i < dim(s); i++)
+		if (String::index(s[i], match) == 0)
+			return String::split(s[i], " ");
+	return (string[*]) {};
+}
+
+bool
+do_cal(file f) {
+	flush_input(f);
+	fprintf(f, "E 1\nc a 0\n");
+	flush(f);
+	string s = "";
+	bool worked = true;
+	bool running = false;
+
+	thread put = fork func() {
+		try {
+			for (;;) {
+				putc(getchar(), f);
+				flush(f);
+			}
+		} catch Thread::signal(int i) {
+			return;
+		}
+	}();
+
+	for (;;) {
+		int c = getc(f);
+		if (c == '\n')
+			s = "";
+		else
+			s = s + String::new(c);
+		putchar(c); flush(stdout);
+		if (String::index(s, "press a key...") >= 0)
+			running = true;
+		if (String::index(s, "Invalid") >= 0)
+			worked = false;
+		if (running && String::index(s, ">") >= 0)
+			break;
+	}
+	fprintf (f, "E 0\n");
+	if (worked)
+		fprintf (f, "c w\n");
+	sleep(200);
+	Thread::send_signal(put, 1);
+	Thread::join(put);
+
+	return worked;
+}
+
+void main () {
+	string	name = argv[1];
+	file	f = open(name, "r+");
+
+	if (do_cal(f)) {
+		string[*] s = settings(f);
+		string[*] ac = find_setting(s, "Accel cal");
+		printf ("Calibration value +1g %s -1g %s saved\n", ac[3], ac[5]);
+		exit (0);
+	} else {
+		printf ("Calibration failed\n");
+		exit (1);
+	}
+}
+
+main();
