@@ -104,7 +104,7 @@
     </revhistory>
   </bookinfo>
   <dedication>
-    <title>Acknowledgements</title>
+    <title>Acknowledgments</title>
     <para>
       Thanks to Bob Finch, W9YA, NAR 12965, TRA 12350 for writing “The
       Mere-Mortals Quick Start/Usage Guide to the Altus Metrum Starter
@@ -481,7 +481,7 @@ NAR #88757, TRA #12200
 	      </para></entry>
 	      <entry>½ inch (1.27cm)</entry>
 	      <entry>1½ inch (3.81cm)</entry>
-	      <entry>18mm aiframe</entry>
+	      <entry>18mm airframe</entry>
 	    </row>
 	    <row>
 	      <entry>TeleMini <?linebreak?>v2.0</entry>
@@ -1286,7 +1286,7 @@ NAR #88757, TRA #12200
 		</listitem>
 		<listitem>
 		  <para>
-		    Main. The rocket is still descending, and is blow
+		    Main. The rocket is still descending, and is below
 		    the Main altitude
 		  </para>
 		</listitem>
@@ -1300,9 +1300,9 @@ NAR #88757, TRA #12200
 	    <para>
 	      You can select a state to limit when the pyro channel
 	      may activate; note that the check is based on when the
-	      rocket transitions *into* the state, and so checking for
-	      'greater than Boost' means that the rocket is currently
-	      in boost state.
+	      rocket transitions <emphasis>into</emphasis> the state, and so checking for
+	      “greater than Boost” means that the rocket is currently
+	      in boost or some later state.
 	    </para>
 	    <para>
 	      When a motor burns out, the rocket enters either Fast or
@@ -1410,64 +1410,82 @@ NAR #88757, TRA #12200
           rocket is ready for flight. The first elements include red/green
           indicators, if any of these is red, you'll want to evaluate
           whether the rocket is ready to launch:
-          <itemizedlist>
-            <listitem>
-              <para>
-                Battery Voltage. This indicates whether the Li-Po battery
-                powering the TeleMetrum has sufficient charge to last for
-                the duration of the flight. A value of more than
-                3.7V is required for a 'GO' status.
-              </para>
-            </listitem>
-            <listitem>
-              <para>
-                Apogee Igniter Voltage. This indicates whether the apogee
-                igniter has continuity. If the igniter has a low
-                resistance, then the voltage measured here will be close
-                to the Li-Po battery voltage. A value greater than 3.2V is
-                required for a 'GO' status.
-              </para>
-            </listitem>
-            <listitem>
-              <para>
-                Main Igniter Voltage. This indicates whether the main
-                igniter has continuity. If the igniter has a low
-                resistance, then the voltage measured here will be close
-                to the Li-Po battery voltage. A value greater than 3.2V is
-                required for a 'GO' status.
-              </para>
-            </listitem>
-	    <listitem>
-	      <para>
-		On-board Data Logging. This indicates whether there is
-		space remaining on-board to store flight data for the
-		upcoming flight. If you've downloaded data, but failed
-		to erase flights, there may not be any space
-		left. TeleMetrum can store multiple flights, depending
-		on the configured maximum flight log size. TeleMini
-		stores only a single flight, so it will need to be
-		downloaded and erased after each flight to capture
-		data. This only affects on-board flight logging; the
-		altimeter will still transmit telemetry and fire
-		ejection charges at the proper times.
-	      </para>
-	    </listitem>
-            <listitem>
-              <para>
-                GPS Locked. For a TeleMetrum device, this indicates whether the GPS receiver is
-                currently able to compute position information. GPS requires
-                at least 4 satellites to compute an accurate position.
-              </para>
-            </listitem>
-            <listitem>
-              <para>
-                GPS Ready. For a TeleMetrum device, this indicates whether GPS has reported at least
-                10 consecutive positions without losing lock. This ensures
-                that the GPS receiver has reliable reception from the
-                satellites.
-              </para>
-            </listitem>
-          </itemizedlist>
+          <variablelist>
+	    <varlistentry>
+	      <term>Battery Voltage</term>
+	      <listitem>
+		<para>
+		  This indicates whether the Li-Po battery
+		  powering the TeleMetrum has sufficient charge to last for
+		  the duration of the flight. A value of more than
+		  3.8V is required for a 'GO' status.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>Apogee Igniter Voltage</term>
+	      <listitem>
+		<para>
+		  This indicates whether the apogee
+		  igniter has continuity. If the igniter has a low
+		  resistance, then the voltage measured here will be close
+		  to the Li-Po battery voltage. A value greater than 3.2V is
+		  required for a 'GO' status.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>Main Igniter Voltage</term>
+	      <listitem>
+		<para>
+		  This indicates whether the main
+		  igniter has continuity. If the igniter has a low
+		  resistance, then the voltage measured here will be close
+		  to the Li-Po battery voltage. A value greater than 3.2V is
+		  required for a 'GO' status.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>On-board Data Logging</term>
+	      <listitem>
+		<para>
+		  This indicates whether there is
+		  space remaining on-board to store flight data for the
+		  upcoming flight. If you've downloaded data, but failed
+		  to erase flights, there may not be any space
+		  left. TeleMetrum can store multiple flights, depending
+		  on the configured maximum flight log size. TeleMini
+		  stores only a single flight, so it will need to be
+		  downloaded and erased after each flight to capture
+		  data. This only affects on-board flight logging; the
+		  altimeter will still transmit telemetry and fire
+		  ejection charges at the proper times.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>GPS Locked</term>
+	      <listitem>
+		<para>
+		  For a TeleMetrum or TeleMega device, this indicates whether the GPS receiver is
+		  currently able to compute position information. GPS requires
+		  at least 4 satellites to compute an accurate position.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>GPS Ready</term>
+	      <listitem>
+		<para>
+		  For a TeleMetrum or TeleMega device, this indicates whether GPS has reported at least
+		  10 consecutive positions without losing lock. This ensures
+		  that the GPS receiver has reliable reception from the
+		  satellites.
+		</para>
+	      </listitem>
+	    </varlistentry>
+          </variablelist>
         </para>
 	<para>
 	  The Launchpad tab also shows the computed launch pad position
@@ -1662,15 +1680,48 @@ NAR #88757, TRA #12200
         flash memory.
       </para>
       <para>
-        Once a flight record is selected, a window with four tabs is
-        opened. The first tab contains a graph with acceleration
-        (blue), velocity (green) and altitude (red) of the flight,
-        measured in metric units. The apogee(yellow) and main(magenta)
-        igniter voltages are also displayed; high voltages indicate
-        continuity, low voltages indicate open circuits. The second
-        tab lets you configure which data to show in the graph.  The
-        third contains some basic flight statistics while the fourth
-        has a map with the ground track of the flight displayed.
+        Once a flight record is selected, a window with multiple tabs is
+        opened.
+	<variablelist>
+	  <varlistentry>
+	    <term>Flight Graph</term>
+	    <listitem>
+	      <para>
+		By default, the graph contains acceleration (blue),
+		velocity (green) and altitude (red).
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>Configure Graph</term>
+	    <listitem>
+	      <para>
+		This selects which graph elements to show, and, at the
+		very bottom, lets you switch between metric and
+		imperial units
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>Flight Statistics</term>
+	    <listitem>
+	      <para>
+		Shows overall data computed from the flight.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>Map</term>
+	    <listitem>
+	      <para>
+		Shows a satellite image of the flight area overlaid
+		with the path of the flight. The red concentric
+		circles mark the launch pad, the black concentric
+		circles mark the landing location.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
       </para>
       <para>
         The graph can be zoomed into a particular area by clicking and
@@ -1922,92 +1973,10 @@ NAR #88757, TRA #12200
 	  pyro channels available on TeleMega.  One column is
 	  presented for each channel. Each row represents a single
 	  parameter, if enabled the parameter must meet the specified
-	  test for the pyro channel to be fired.
+	  test for the pyro channel to be fired. See the Pyro Channels
+	  section in the System Operation chapter above for a
+	  description of these parameters.
 	</para>
-	<itemizedlist>
-	  <listitem>
-	    <para>
-	      Acceleration less than.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Acceleration greater than.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Speed less than.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Speed greater than.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Height less than.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Height greater than.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Angle from vertical less than.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Angle from vertical greater than.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Time since boost less than.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Time since boost greater than.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Ascending. This is exactly the same as setting a
-	      condition for speed &gt; 0.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Descending. This is exactly the same as setting a
-	      condition for speed &lt; 0.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      After motor number.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Delay after other conditions.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Flight state before.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Flight state after.
-	    </para>
-	  </listitem>
-	</itemizedlist>
 	<para>
 	  Select conditions and set the related value; the pyro
 	  channel will be activated when <emphasis>all</emphasis> of the
@@ -2382,64 +2351,82 @@ NAR #88757, TRA #12200
           rocket is ready for flight. The first elements include red/green
           indicators, if any of these is red, you'll want to evaluate
           whether the rocket is ready to launch:
-          <itemizedlist>
-            <listitem>
-              <para>
-                Battery Voltage. This indicates whether the Li-Po battery
-                powering the TeleMetrum has sufficient charge to last for
-                the duration of the flight. A value of more than
-                3.7V is required for a 'GO' status.
-              </para>
-            </listitem>
-            <listitem>
-              <para>
-                Apogee Igniter Voltage. This indicates whether the apogee
-                igniter has continuity. If the igniter has a low
-                resistance, then the voltage measured here will be close
-                to the Li-Po battery voltage. A value greater than 3.2V is
-                required for a 'GO' status.
-              </para>
-            </listitem>
-            <listitem>
-              <para>
-                Main Igniter Voltage. This indicates whether the main
-                igniter has continuity. If the igniter has a low
-                resistance, then the voltage measured here will be close
-                to the Li-Po battery voltage. A value greater than 3.2V is
-                required for a 'GO' status.
-              </para>
-            </listitem>
-	    <listitem>
-	      <para>
-		On-board Data Logging. This indicates whether there is
-		space remaining on-board to store flight data for the
-		upcoming flight. If you've downloaded data, but failed
-		to erase flights, there may not be any space
-		left. TeleMetrum can store multiple flights, depending
-		on the configured maximum flight log size. TeleMini
-		stores only a single flight, so it will need to be
-		downloaded and erased after each flight to capture
-		data. This only affects on-board flight logging; the
-		altimeter will still transmit telemetry and fire
-		ejection charges at the proper times.
-	      </para>
-	    </listitem>
-            <listitem>
-              <para>
-                GPS Locked. For a TeleMetrum device, this indicates whether the GPS receiver is
-                currently able to compute position information. GPS requires
-                at least 4 satellites to compute an accurate position.
-              </para>
-            </listitem>
-            <listitem>
-              <para>
-                GPS Ready. For a TeleMetrum device, this indicates whether GPS has reported at least
-                10 consecutive positions without losing lock. This ensures
-                that the GPS receiver has reliable reception from the
-                satellites.
-              </para>
-            </listitem>
-          </itemizedlist>
+          <variablelist>
+	    <varlistentry>
+	      <term>Battery Voltage</term>
+	      <listitem>
+		<para>
+		  This indicates whether the Li-Po battery
+		  powering the TeleMetrum has sufficient charge to last for
+		  the duration of the flight. A value of more than
+		  3.8V is required for a 'GO' status.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>Apogee Igniter Voltage</term>
+	      <listitem>
+		<para>
+		  This indicates whether the apogee
+		  igniter has continuity. If the igniter has a low
+		  resistance, then the voltage measured here will be close
+		  to the Li-Po battery voltage. A value greater than 3.2V is
+		  required for a 'GO' status.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>Main Igniter Voltage</term>
+	      <listitem>
+		<para>
+		  This indicates whether the main
+		  igniter has continuity. If the igniter has a low
+		  resistance, then the voltage measured here will be close
+		  to the Li-Po battery voltage. A value greater than 3.2V is
+		  required for a 'GO' status.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>On-board Data Logging</term>
+	      <listitem>
+		<para>
+		  This indicates whether there is
+		  space remaining on-board to store flight data for the
+		  upcoming flight. If you've downloaded data, but failed
+		  to erase flights, there may not be any space
+		  left. TeleMetrum can store multiple flights, depending
+		  on the configured maximum flight log size. TeleMini
+		  stores only a single flight, so it will need to be
+		  downloaded and erased after each flight to capture
+		  data. This only affects on-board flight logging; the
+		  altimeter will still transmit telemetry and fire
+		  ejection charges at the proper times.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>GPS Locked</term>
+	      <listitem>
+		<para>
+		  For a TeleMetrum or TeleMega device, this indicates whether the GPS receiver is
+		  currently able to compute position information. GPS requires
+		  at least 4 satellites to compute an accurate position.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>GPS Ready</term>
+	      <listitem>
+		<para>
+		  For a TeleMetrum or TeleMega device, this indicates whether GPS has reported at least
+		  10 consecutive positions without losing lock. This ensures
+		  that the GPS receiver has reliable reception from the
+		  satellites.
+		</para>
+	      </listitem>
+	    </varlistentry>
+          </variablelist>
 	</para>
 	<para>
 	  The Launchpad tab also shows the computed launch pad position
@@ -2526,7 +2513,8 @@ NAR #88757, TRA #12200
           if the rocket is hiding in sage brush or a tree, or if the last GPS position
           doesn't get you close enough because the rocket dropped into a canyon, or
           the wind is blowing it across a dry lake bed, or something like that...  Keith
-          and Bdale both currently own and use the Yaesu VX-7R at launches.
+          currently uses a Yaesu VX-7R, Bdale has a Baofung UV-5R
+	  which isn't as nice, but was a whole lot cheaper.
         </para>
         <para>
           So, to recap, on the ground the hardware you'll need includes:
@@ -2861,7 +2849,7 @@ NAR #88757, TRA #12200
   <chapter>
     <title>Updating Device Firmware</title>
     <para>
-      TeleMega, TeleMetrum v2 and EasMini are all programmed directly
+      TeleMega, TeleMetrum v2 and EasyMini are all programmed directly
       over their USB connectors (self programming). TeleMetrum v1, TeleMini and
       TeleDongle are all programmed by using another device as a
       programmer (pair programming). It's important to recognize which
@@ -2910,6 +2898,11 @@ NAR #88757, TRA #12200
 	<listitem>
 	  <para>
 	    Run AltosUI, and select 'Flash Image' from the File menu.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Select the target device in the Device Selection dialog.
 	  </para>
 	</listitem>
 	<listitem>
@@ -3231,7 +3224,8 @@ NAR #88757, TRA #12200
 	</listitem>
 	<listitem>
 	  <para>
-	    Supports dual deployment and four auxilary pyro channels (can initiate 6 events).
+	    Supports dual deployment and four auxiliary pyro channels
+	    (a total of 6 events).
 	  </para>
 	</listitem>
 	<listitem>
