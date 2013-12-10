@@ -1,6 +1,6 @@
 JAVAC=javac
 AM_CFLAGS=-DLINUX -DPOSIX_TTY -I$(JVM_INCLUDE)
-AM_JAVACFLAGS=-encoding UTF-8
+AM_JAVACFLAGS=-target 1.6 -encoding UTF-8 -Xlint:deprecation -source 6
 
 altoslibdir=$(libdir)/altos
 
