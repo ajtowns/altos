@@ -4,5 +4,5 @@
 #
 
 TOPDIR=../..
-HARDWARE=telemega-v0.3
+HARDWARE=telemega-v1.0
 include $(TOPDIR)/stm/Makefile-flash.defs
