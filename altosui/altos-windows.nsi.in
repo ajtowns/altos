@@ -121,6 +121,7 @@ Section "TeleMetrum, TeleDongle and TeleBT Firmware"
 	File "../src/telemini-v1.0/telemini-v1.0-${VERSION}.ihx"
 	File "../src/teledongle-v0.2/teledongle-v0.2-${VERSION}.ihx"
 	File "../src/telebt-v1.0/telebt-v1.0-${VERSION}.ihx"
+	File "../src/telemega-v1.0/telemega-v1.0-${VERSION}.ihx"
 
 SectionEnd
 
