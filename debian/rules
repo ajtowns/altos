@@ -18,7 +18,7 @@ prebuild:
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
-	./autogen.sh --prefix=/usr
+	PKG_CONFIG_PATH=/opt/stlink/lib/pkgconfig ./autogen.sh --prefix=/usr
 	touch configure-stamp
 
 build: build-arch build-indep
