@@ -5,17 +5,20 @@ case "$#" in
 	exit 1
 	;;
 esac
-cmds=/tmp/flash$$
-trap "rm $cmds" 0 1 15
-for file in "$@"; do
-	echo "flash write_image $file"
-done > $cmds
-openocd \
-	-f interface/stlink-v2.cfg \
-	-f target/stm32lx_stlink.cfg \
-	-c init \
-	-c 'reset halt' \
-	-f $cmds \
-	-c 'reset init' \
-        -c 'reset run' \
-	-c shutdown
+
+file=$1
+
+bin=/tmp/flash$$.bin
+trap "rm $bin" 0 1 15
+
+base=`arm-none-eabi-nm $file | awk '/interrupt_vector/ { print $1 }'`
+case x"$base" in
+x)
+    echo "$file: No interrupt vector address found"
+    exit 1
+    ;;
+esac
+
+arm-none-eabi-objcopy -O binary $file $bin
+
+st-flash --reset write $bin $base
