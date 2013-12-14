@@ -38,7 +38,7 @@ $STMLOAD --raw ../src/telemega-v$VERSION/flash-loader/*.elf || exit 1
 
 sleep 2
 
-$USBLOAD ../src/telemega-v$VERSION/*.ihx || exit 1
+$USBLOAD --serial=$SERIAL ../src/telemega-v$VERSION/*.ihx || exit 1
 
 sleep 2
 
@@ -56,6 +56,6 @@ esac
 
 echo 'E 0' > $dev
 
-./cal-freq $dev
+SERIAL=$SERIAL ./cal-freq $dev
 
 ./cal-accel $dev
