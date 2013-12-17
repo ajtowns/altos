@@ -2871,13 +2871,6 @@ NAR #88757, TRA #12200
       Self-programmable devices (TeleMega, TeleMetrum v2 and EasyMini)
       are reprogrammed by connecting them to your computer over USB
     </para>
-    <para>
-      The big concept to understand is that you have to use a
-      TeleMega, TeleMetrum or TeleDongle as a programmer to update a
-      pair programmed device. Due to limited memory resources in the
-      cc1111, we don't support programming directly over USB for these
-      devices.
-    </para>
     <section>
       <title>
 	Updating TeleMega, TeleMetrum v2 or EasyMini Firmware
@@ -2933,6 +2926,72 @@ NAR #88757, TRA #12200
 	  </para>
 	</listitem>
       </orderedlist>
+      <section>
+	<title>Recovering From Self-Flashing Failure</title>
+	<para>
+	  If the firmware loading fails, it can leave the device
+	  unable to boot. Not to worry, you can force the device to
+	  start the boot loader instead, which will let you try to
+	  flash the device again.
+	</para>
+	<para>
+	  On each device, connecting two pins from one of the exposed
+	  connectors will force the boot loader to start, even if the
+	  regular operating system has been corrupted in some way.
+	</para>
+	<variablelist>
+	  <varlistentry>
+	    <term>TeleMega</term>
+	    <listitem>
+	      <para>
+		Connect pin 6 and pin 1 of the companion connector. Pin 1
+		can be identified by the square pad around it, and then
+		the pins could sequentially across the board. Be very
+		careful to <emphasis>not</emphasis> short pin 8 to
+		anything as that is connected directly to the battery. Pin
+		7 carries 3.3V and the board will crash if that is
+		connected to pin 1, but shouldn't damage the board.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>TeleMetrum v2</term>
+	    <listitem>
+	      <para>
+		Connect pin 6 and pin 1 of the companion connector. Pin 1
+		can be identified by the square pad around it, and then
+		the pins could sequentially across the board. Be very
+		careful to <emphasis>not</emphasis> short pin 8 to
+		anything as that is connected directly to the battery. Pin
+		7 carries 3.3V and the board will crash if that is
+		connected to pin 1, but shouldn't damage the board.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>EasyMini</term>
+	    <listitem>
+	      <para>
+		Connect pin 6 and pin 1 of the debug connector, which is
+		the six holes next to the beeper. Pin 1 can be identified
+		by the square pad around it, and then the pins could
+		sequentially across the board, making Pin 6 the one on the
+		other end of the row.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </section>
+    </section>
+    <section>
+      <title>Pair Programming</title>
+      <para>
+	The big concept to understand is that you have to use a
+	TeleMega, TeleMetrum or TeleDongle as a programmer to update a
+	pair programmed device. Due to limited memory resources in the
+	cc1111, we don't support programming directly over USB for these
+	devices.
+      </para>
     </section>
     <section>
       <title>Updating TeleMetrum v1.x Firmware</title>
