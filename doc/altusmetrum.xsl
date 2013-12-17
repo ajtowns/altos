@@ -1793,35 +1793,47 @@ NAR #88757, TRA #12200
       <para>
         At the bottom of the dialog, there are four buttons:
       </para>
-      <itemizedlist>
-        <listitem>
-          <para>
-            Save. This writes any changes to the
-            configuration parameter block in flash memory. If you don't
-            press this button, any changes you make will be lost.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            Reset. This resets the dialog to the most recently saved values,
-            erasing any changes you have made.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            Reboot. This reboots the device. Use this to
-            switch from idle to pad mode by rebooting once the rocket is
-            oriented for flight, or to confirm changes you think you saved 
-	    are really saved.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            Close. This closes the dialog. Any unsaved changes will be
-            lost.
-          </para>
-        </listitem>
-      </itemizedlist>
+      <variablelist>
+	<varlistentry>
+	  <term>Save</term>
+	  <listitem>
+	    <para>
+	      This writes any changes to the
+	      configuration parameter block in flash memory. If you don't
+	      press this button, any changes you make will be lost.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>Reset</term>
+	  <listitem>
+	    <para>
+	      This resets the dialog to the most recently saved values,
+	      erasing any changes you have made.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>Reboot</term>
+	  <listitem>
+	    <para>
+	      This reboots the device. Use this to
+	      switch from idle to pad mode by rebooting once the rocket is
+	      oriented for flight, or to confirm changes you think you saved 
+	      are really saved.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>Close</term>
+	  <listitem>
+	    <para>
+	      This closes the dialog. Any unsaved changes will be
+	      lost.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
       <para>
         The rest of the dialog contains the parameters to be configured.
       </para>
@@ -1913,32 +1925,41 @@ NAR #88757, TRA #12200
 	  computers. This configuration parameter allows the two
 	  channels to be used in different configurations.
 	</para>
-	<itemizedlist>
-	  <listitem>
-	    <para>
-	      Dual Deploy. This is the usual mode of operation; the
-	      'apogee' channel is fired at apogee and the 'main'
-	      channel at the height above ground specified by the
-	      'Main Deploy Altitude' during descent.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Redundant Apogee. This fires both channels at
-	      apogee, the 'apogee' channel first followed after a two second
-	      delay by the 'main' channel.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Redundant Main. This fires both channels at the
-	      height above ground specified by the Main Deploy
-	      Altitude setting during descent. The 'apogee'
-	      channel is fired first, followed after a two second
-	      delay by the 'main' channel.
-	    </para>
-	  </listitem>
-	</itemizedlist>
+          <variablelist>
+	    <varlistentry>
+	      <term>Dual Deploy</term>
+	      <listitem>
+		<para>
+		  This is the usual mode of operation; the
+		  'apogee' channel is fired at apogee and the 'main'
+		  channel at the height above ground specified by the
+		  'Main Deploy Altitude' during descent.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>Redundant Apogee</term>
+	      <listitem>
+		<para>
+		  This fires both channels at
+		  apogee, the 'apogee' channel first followed after a two second
+		  delay by the 'main' channel.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>Redundant Main</term>
+	      <listitem>
+		<para>
+		  This fires both channels at the
+		  height above ground specified by the Main Deploy
+		  Altitude setting during descent. The 'apogee'
+		  channel is fired first, followed after a two second
+		  delay by the 'main' channel.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	</variablelist>
       </section>
       <section>
         <title>Pad Orientation</title>
@@ -1949,22 +1970,28 @@ NAR #88757, TRA #12200
 	  parameter allows that default to be changed, permitting the
 	  board to be mounted with the antenna pointing aft instead.
 	</para>
-	<itemizedlist>
-	  <listitem>
-	    <para>
-	      Antenna Up. In this mode, the antenna end of the
-	      TeleMetrum board must point forward, in line with the
-	      expected flight path.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Antenna Down. In this mode, the antenna end of the
-	      TeleMetrum board must point aft, in line with the
-	      expected flight path.
-	    </para>
-	  </listitem>
-	</itemizedlist>
+	<variablelist>
+	  <varlistentry>
+	    <term>Antenna Up</term>
+	    <listitem>
+	      <para>
+		In this mode, the antenna end of the
+		TeleMetrum board must point forward, in line with the
+		expected flight path.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>Antenna Down</term>
+	    <listitem>
+	      <para>
+		In this mode, the antenna end of the
+		TeleMetrum board must point aft, in line with the
+		expected flight path.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
       </section>
       <section>
 	<title>Configure Pyro Channels</title>
@@ -2111,27 +2138,36 @@ NAR #88757, TRA #12200
       <para>
         At the bottom of the dialog, there are three buttons:
       </para>
-      <itemizedlist>
-        <listitem>
-          <para>
-            Save. This writes any changes to the
-            local Java preferences file. If you don't
-            press this button, any changes you make will be lost.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            Reset. This resets the dialog to the most recently saved values,
-            erasing any changes you have made.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            Close. This closes the dialog. Any unsaved changes will be
-            lost.
-          </para>
-        </listitem>
-      </itemizedlist>
+      <variablelist>
+	<varlistentry>
+	  <term>Save</term>
+	  <listitem>
+	    <para>
+	      This writes any changes to the
+	      local Java preferences file. If you don't
+	      press this button, any changes you make will be lost.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>Reset</term>
+	  <listitem>
+	    <para>
+	      This resets the dialog to the most recently saved values,
+	      erasing any changes you have made.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>Close</term>
+	  <listitem>
+	    <para>
+	      This closes the dialog. Any unsaved changes will be
+	      lost.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
       <para>
         The rest of the dialog contains the parameters to be configured.
       </para>
