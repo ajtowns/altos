@@ -2371,8 +2371,8 @@ NAR #88757, TRA #12200
     <section>
       <title>Installing AltosDroid</title>
       <para>
-	AltosDroid is included in the Google Play store. To install
-	it on your Android device, open open the Google Play Store
+	AltosDroid is available from the Google Play store. To install
+	it on your Android device, open the Google Play Store
 	application and search for “altosdroid”. Make sure you don't
 	have a space between “altos” and “droid” or you probably won't
 	find what you want. That should bring you to the right page
@@ -2529,20 +2529,22 @@ NAR #88757, TRA #12200
       <section>
         <title>In the Rocket</title>
         <para>
-          In the rocket itself, you just need a <ulink url="http://www.altusmetrum.org/TeleMetrum/">TeleMetrum</ulink> or
-	  <ulink url="http://www.altusmetrum.org/TeleMini/">TeleMini</ulink> board and
+          In the rocket itself, you just need a flight computer and
           a single-cell, 3.7 volt nominal Li-Po rechargeable battery.  An 
 	  850mAh battery weighs less than a 9V alkaline battery, and will 
-	  run a TeleMetrum for hours.
-	  A 110mAh battery weighs less than a triple A battery and will run a TeleMetrum for
-	  a few hours, or a TeleMini for much (much) longer.
+	  run a TeleMetrum or TeleMega for hours.
+	  A 110mAh battery weighs less than a triple A battery and is a good
+	  choice for use with TeleMini.
         </para>
         <para>
-          By default, we ship the altimeters with a simple wire antenna.  If your
-          electronics bay or the air-frame it resides within is made of carbon fiber,
-          which is opaque to RF signals, you may choose to have an SMA connector
-          installed so that you can run a coaxial cable to an antenna mounted
-          elsewhere in the rocket.
+          By default, we ship flight computers with a simple wire antenna.  
+	  If your electronics bay or the air-frame it resides within is made 
+	  of carbon fiber, which is opaque to RF signals, you may prefer to 
+	  install an SMA connector so that you can run a coaxial cable to an 
+	  antenna mounted elsewhere in the rocket.  However, note that the 
+	  GPS antenna is fixed on all current products, so you really want
+	  to install the flight computer in a bay made of RF-transparent
+	  materials if at all possible.
         </para>
       </section>
       <section>
@@ -2562,6 +2564,11 @@ NAR #88757, TRA #12200
 	  for Linux which can perform most of the same tasks.
         </para>
         <para>
+	  Alternatively, a TeleBT attached with an SMA to BNC adapter at the
+	  feed point of a hand-held yagi used in conjunction with an Android
+	  device running AltosDroid makes an outstanding ground station.
+        </para>
+        <para>
           After the flight, you can use the radio link to extract the more detailed data
           logged in either TeleMetrum or TeleMini devices, or you can use a mini USB cable to plug into the
           TeleMetrum board directly.  Pulling out the data without having to open up
@@ -2570,10 +2577,12 @@ NAR #88757, TRA #12200
           of digital cameras and other modern electronic stuff will work fine.
         </para>
         <para>
-          If your TeleMetrum-equipped rocket lands out of sight, you may enjoy having a hand-held GPS
-          receiver, so that you can put in a way-point for the last reported rocket
-          position before touch-down.  This makes looking for your rocket a lot like
-          Geo-Caching... just go to the way-point and look around starting from there.
+          If your rocket lands out of sight, you may enjoy having a hand-held 
+	  GPS receiver, so that you can put in a way-point for the last 
+	  reported rocket position before touch-down.  This makes looking for 
+	  your rocket a lot like Geo-Caching... just go to the way-point and 
+	  look around starting from there.  AltosDroid on an Android device
+	  with GPS receiver works great for this, too!
         </para>
         <para>
           You may also enjoy having a ham radio “HT” that covers the 70cm band... you
@@ -2649,25 +2658,20 @@ NAR #88757, TRA #12200
       </section>
       <section>
         <title>Future Plans</title>
+	<para>
+	  We've designed a simple GPS based radio tracker called TeleGPS.  
+	  If all goes well, we hope to introduce this in the first
+	  half of 2014.
+	</para>
         <para>
-          In the future, we intend to offer “companion boards” for the rocket 
-	  that will plug in to TeleMetrum to collect additional data, provide 
-	  more pyro channels, and so forth.  
-        </para>
-        <para>
-	  Also under design is a new flight computer with more sensors, more
-	  pyro channels, and a more powerful radio system designed for use
-	  in multi-stage, complex, and extreme altitude projects.
-        </para>
-        <para>
-          We are also working on alternatives to TeleDongle.  One is a
-	  a stand-alone, hand-held ground terminal that will allow monitoring 
-	  the rocket's status, collecting data during flight, and logging data 
-	  after flight without the need for a notebook computer on the
-          flight line.  Particularly since it is so difficult to read most 
-	  notebook screens in direct sunlight, we think this will be a great 
-	  thing to have.  We are also working on a TeleDongle variant with
-	  Bluetooth™ that will work with Android phones and tablets.
+          We have designed and prototyped several “companion boards” that 
+	  can attach to the companion connector on TeleMetrum and TeleMega
+	  flight computers to collect more data, provide more pyro channels, 
+	  and so forth.  We do not yet know if or when any of these boards
+	  will be produced in enough quantity to sell.  If you have specific
+	  interests for data collection or control of events in your rockets
+	  beyond the capabilities of our existing productions, please let 
+	  us know!
         </para>
         <para>
           Because all of our work is open, both the hardware designs and the 
@@ -2688,19 +2692,21 @@ NAR #88757, TRA #12200
     <para>
       Building high-power rockets that fly safely is hard enough. Mix
       in some sophisticated electronics and a bunch of radio energy
-      and oftentimes you find few perfect solutions. This chapter
+      and some creativity and/or compromise may be required. This chapter
       contains some suggestions about how to install Altus Metrum
-      products into the rocket air-frame, including how to safely and
+      products into a rocket air-frame, including how to safely and
       reliably mix a variety of electronics into the same air-frame.
     </para>
     <section>
       <title>Mounting the Altimeter</title>
       <para>
 	The first consideration is to ensure that the altimeter is
-	securely fastened to the air-frame. For TeleMetrum, we use
-	nylon standoffs and nylon screws; they're good to at least 50G
-	and cannot cause any electrical issues on the board. For
-	TeleMini, we usually cut small pieces of 1/16 inch balsa to fit
+	securely fastened to the air-frame. For most of our products, we 
+	prefer nylon standoffs and nylon screws; they're good to at least 50G
+	and cannot cause any electrical issues on the board.  Metal screws
+	and standoffs are fine, too, just be careful to avoid electrical
+	shorts!  For TeleMini v1.0, we usually cut small pieces of 1/16 inch 
+	balsa to fit
 	under the screw holes, and then take 2x56 nylon screws and
 	screw them through the TeleMini mounting holes, through the
 	balsa and into the underlying material.
@@ -2708,7 +2714,8 @@ NAR #88757, TRA #12200
       <orderedlist inheritnum='inherit' numeration='arabic'>
 	<listitem>
 	  <para>
-	    Make sure TeleMetrum is aligned precisely along the axis of
+	    Make sure accelerometer-equipped products like TeleMetrum and
+	    TeleMega are aligned precisely along the axis of
 	    acceleration so that the accelerometer can accurately
 	    capture data during the flight.
 	  </para>
@@ -2746,7 +2753,7 @@ NAR #88757, TRA #12200
 	culprit here -- CF is a good conductor and will effectively
 	shield the antenna, dramatically reducing signal strength and
 	range. Metallic flake paint is another effective shielding
-	material which is to be avoided around any antennas.
+	material which should be avoided around any antennas.
       </para>
       <para>
 	If the ebay is large enough, it can be convenient to simply
@@ -2767,7 +2774,7 @@ NAR #88757, TRA #12200
 	consuming very little space.
       </para>
       <para>
-	If you need to place the antenna at a distance from the
+	If you need to place the UHF antenna at a distance from the
 	altimeter, you can replace the antenna with an edge-mounted
 	SMA connector, and then run 50Ω coax from the board to the
 	antenna. Building a remote antenna is beyond the scope of this
@@ -2777,11 +2784,11 @@ NAR #88757, TRA #12200
     <section>
       <title>Preserving GPS Reception</title>
       <para>
-	The GPS antenna and receiver in TeleMetrum are highly
-	sensitive and normally have no trouble tracking enough
+	The GPS antenna and receiver used in TeleMetrum and TeleMega is 
+	highly sensitive and normally have no trouble tracking enough
 	satellites to provide accurate position information for
-	recovering the rocket. However, there are many ways to
-	attenuate the GPS signal.
+	recovering the rocket. However, there are many ways the GPS signal
+	can end up attenuated, negatively affecting GPS performance. 
       <orderedlist inheritnum='inherit' numeration='arabic'>
 	<listitem>
 	  <para>
@@ -2854,7 +2861,7 @@ NAR #88757, TRA #12200
 	  <para>
 	  Avoid resonant lengths. Know what frequencies are present
 	  in the environment and avoid having wire lengths near a
-	  natural resonant length. Altusmetrum products transmit on the
+	  natural resonant length. Altus Metrum products transmit on the
 	  70cm amateur band, so you should avoid lengths that are a
 	  simple ratio of that length; essentially any multiple of ¼
 	  of the wavelength (17.5cm).
@@ -2880,10 +2887,10 @@ NAR #88757, TRA #12200
 	decreasing pressure.
       </para>
       <para>
-	The barometric sensor in the altimeter is quite sensitive to
-	chemical damage from the products of APCP or BP combustion, so
-	make sure the ebay is carefully sealed from any compartment
-	which contains ejection charges or motors.
+	All barometric sensors are quite sensitive to chemical damage from 
+	the products of APCP or BP combustion, so make sure the ebay is 
+	carefully sealed from any compartment which contains ejection 
+	charges or motors.
       </para>
     </section>
     <section>
@@ -2934,7 +2941,11 @@ NAR #88757, TRA #12200
       version from <ulink url="http://www.altusmetrum.org/AltOS/"/>.
     </para>
     <para>
-      We recommend updating the altimeter first, before updating TeleDongle.
+      If you need to update the firmware on a TeleDongle, we recommend 
+      updating the altimeter first, before updating TeleDongle.  However,
+      note that TeleDongle rarely need to be updated.  Any firmware version
+      1.0.1 or later will work, version 1.2.1 may have improved receiver
+      performance slightly.
     </para>
     <para>
       Self-programmable devices (TeleMega, TeleMetrum v2 and EasyMini)
@@ -3152,9 +3163,8 @@ NAR #88757, TRA #12200
         <listitem>
 <para>
 	  You'll need a special 'programming cable' to reprogram the
-	  TeleMini. It's available on the Altus Metrum web store, or
-	  you can make your own using an 8-pin MicroMaTch connector on
-	  one end and a set of four pins on the other.
+	  TeleMini.  You can make your own using an 8-pin MicroMaTch 
+	  connector on one end and a set of four pins on the other.
         </para>
 </listitem>
         <listitem>
@@ -3400,8 +3410,8 @@ NAR #88757, TRA #12200
 	</listitem>
 	<listitem>
 	  <para>
-	    Uses Li-Po to fire e-matches, can be modified to support 
-	    optional separate pyro battery if needed.
+	    Can use either main system Li-Po or optional separate pyro battery
+	    to fire e-matches.
 	  </para>
 	</listitem>
 	<listitem>
@@ -3697,15 +3707,17 @@ NAR #88757, TRA #12200
   <chapter>
     <title>FAQ</title>
       <para>
-        TeleMetrum seems to shut off when disconnected from the
-        computer.  Make sure the battery is adequately charged.  Remember the
+        <emphasis>TeleMetrum seems to shut off when disconnected from the
+        computer.</emphasis>  <?linebreak?>
+	Make sure the battery is adequately charged.  Remember the
         unit will pull more power than the USB port can deliver before the
         GPS enters “locked” mode.  The battery charges best when TeleMetrum
         is turned off.
       </para>
       <para>
-        It's impossible to stop the TeleDongle when it's in “p” mode, I have
-        to unplug the USB cable?  Make sure you have tried to “escape out” of
+        <emphasis>It's impossible to stop the TeleDongle when it's in “p” mode, I have
+        to unplug the USB cable? </emphasis><?linebreak?>
+	Make sure you have tried to “escape out” of
         this mode.  If this doesn't work the reboot procedure for the
         TeleDongle *is* to simply unplug it. 'cu' however will retain it's
         outgoing buffer IF your “escape out” ('~~') does not work.
@@ -3714,21 +3726,24 @@ NAR #88757, TRA #12200
         communication.
       </para>
       <para>
-        The amber LED (on the TeleMetrum) lights up when both
-        battery and USB are connected. Does this mean it's charging?
+        <emphasis>The amber LED (on the TeleMetrum) lights up when both
+        battery and USB are connected. Does this mean it's charging? 
+	</emphasis><?linebreak?>
         Yes, the yellow LED indicates the charging at the 'regular' rate.
         If the led is out but the unit is still plugged into a USB port,
         then the battery is being charged at a 'trickle' rate.
       </para>
       <para>
-        There are no “dit-dah-dah-dit” sound or lights like the manual mentions?
+        <emphasis>There are no “dit-dah-dah-dit” sound or lights like the manual 
+	mentions?</emphasis><?linebreak?>
         That's the “pad” mode.  Weak batteries might be the problem.
-        It is also possible that the TeleMetrum is horizontal and the output
+        It is also possible that the flight computer is horizontal and the 
+	output
         is instead a “dit-dit” meaning 'idle'. For TeleMini, it's possible that
 	it received a command packet which would have left it in “pad” mode.
       </para>
       <para>
-        How do I save flight data?
+        <emphasis>How do I save flight data?</emphasis><?linebreak?>
         Live telemetry is written to file(s) whenever AltosUI is connected
         to the TeleDongle.  The file area defaults to ~/TeleMetrum
         but is easily changed using the menus in AltosUI. The files that
