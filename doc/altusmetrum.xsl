@@ -546,6 +546,11 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>TeleMetrum</title>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="telemetrum-v1.1-thside.jpg" width="5.5in" scalefit="1"/>
+	</imageobject>
+      </mediaobject>
       <para>
 	TeleMetrum is a 1 inch by 2¾ inch circuit board.  It was designed to
 	fit inside coupler for 29mm air-frame tubing, but using it in a tube that
@@ -561,6 +566,11 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>TeleMini</title>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="telemini-v1-top.jpg" width="5.5in" scalefit="1"/>
+	</imageobject>
+      </mediaobject>
       <para>
 	TeleMini v1.0 is ½ inches by 1½ inches.  It was
 	designed to fit inside an 18mm air-frame tube, but using it in
@@ -575,6 +585,11 @@ NAR #88757, TRA #12200
 	the board, meaning an ideal “simple” avionics bay for TeleMini
 	should have at least 9 inches of interior length.
       </para>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="telemini-v2-top.jpg" width="5.5in" scalefit="1"/>
+	</imageobject>
+      </mediaobject>
       <para>
 	TeleMini v2.0 is 0.8 inches by 1½ inches. It adds more
 	on-board data logging memory, a built-in USB connector and
@@ -585,6 +600,11 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>EasyMini</title>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="easymini-top.jpg" width="5.5in" scalefit="1"/>
+	</imageobject>
+      </mediaobject>
       <para>
 	EasyMini is built on a 0.8 inch by 1½ inch circuit board. It's
 	designed to fit in a 24mm coupler tube. The connectors and
@@ -594,6 +614,11 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>TeleMega</title>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="telemega-v1.0-top.jpg" width="5.5in" scalefit="1"/>
+	</imageobject>
+      </mediaobject>
       <para>
 	TeleMega is a 1¼ inch by 3¼ inch circuit board. It was
 	designed to easily fit in a 38mm coupler. Like TeleMetrum,
