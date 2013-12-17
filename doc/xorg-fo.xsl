@@ -17,7 +17,7 @@
 
 			<!-- Reference Pages HTML/FO Parameters -->
 
-  <!-- The formatting of a function element will include generated parentheses -->
+
   <xsl:param name="function.parens" select="1"/>
 
   <!-- ANSI-style function synopses are generated for a funcsynopsis element -->
@@ -97,7 +97,6 @@
     -->
   <xsl:param name="body.font.family">DejaVu Serif</xsl:param>
   <xsl:param name="symbol.font.family">serif,Symbol,AR PL UMing CN,AR PL ShanHeiSun Uni,GNU Unifont</xsl:param>
-
 
 			<!-- Paragraph template bits -->
 

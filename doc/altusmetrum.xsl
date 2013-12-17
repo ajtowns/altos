@@ -329,6 +329,7 @@ NAR #88757, TRA #12200
       </para>
       <table frame='all'>
 	<title>Altus Metrum Electronics</title>
+	<?dbfo keep-together="always"?>
 	<tgroup cols='8' align='center' colsep='1' rowsep='1'>
 	  <colspec align='center' colwidth='*' colname='Device'/>
 	  <colspec align='center' colwidth='*' colname='Barometer'/>
@@ -436,6 +437,7 @@ NAR #88757, TRA #12200
       </table>
       <table frame='all'>
 	<title>Altus Metrum Boards</title>
+	<?dbfo keep-together="always"?>
 	<tgroup cols='6' align='center' colsep='1' rowsep='1'>
 	  <colspec align='center' colwidth='*' colname='Device'/>
 	  <colspec align='center' colwidth='*' colname='Connectors'/>
@@ -544,6 +546,11 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>TeleMetrum</title>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="telemetrum-v1.1-thside.jpg" width="5.5in" scalefit="1"/>
+	</imageobject>
+      </mediaobject>
       <para>
 	TeleMetrum is a 1 inch by 2¾ inch circuit board.  It was designed to
 	fit inside coupler for 29mm air-frame tubing, but using it in a tube that
@@ -559,6 +566,11 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>TeleMini</title>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="telemini-v1-top.jpg" width="5.5in" scalefit="1"/>
+	</imageobject>
+      </mediaobject>
       <para>
 	TeleMini v1.0 is ½ inches by 1½ inches.  It was
 	designed to fit inside an 18mm air-frame tube, but using it in
@@ -573,6 +585,11 @@ NAR #88757, TRA #12200
 	the board, meaning an ideal “simple” avionics bay for TeleMini
 	should have at least 9 inches of interior length.
       </para>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="telemini-v2-top.jpg" width="5.5in" scalefit="1"/>
+	</imageobject>
+      </mediaobject>
       <para>
 	TeleMini v2.0 is 0.8 inches by 1½ inches. It adds more
 	on-board data logging memory, a built-in USB connector and
@@ -583,6 +600,11 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>EasyMini</title>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="easymini-top.jpg" width="5.5in" scalefit="1"/>
+	</imageobject>
+      </mediaobject>
       <para>
 	EasyMini is built on a 0.8 inch by 1½ inch circuit board. It's
 	designed to fit in a 24mm coupler tube. The connectors and
@@ -592,6 +614,11 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>TeleMega</title>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="telemega-v1.0-top.jpg" width="5.5in" scalefit="1"/>
+	</imageobject>
+      </mediaobject>
       <para>
 	TeleMega is a 1¼ inch by 3¼ inch circuit board. It was
 	designed to easily fit in a 38mm coupler. Like TeleMetrum,
@@ -612,6 +639,7 @@ NAR #88757, TRA #12200
       </para>
       <table frame='all'>
 	<title>Data Storage on Altus Metrum altimeters</title>
+	<?dbfo keep-together="always"?>
 	<tgroup cols='4' align='center' colsep='1' rowsep='1'>
 	  <colspec align='center' colwidth='*' colname='Device'/>
 	  <colspec align='center' colwidth='*' colname='Bytes per sample'/>
@@ -1798,35 +1826,47 @@ NAR #88757, TRA #12200
       <para>
         At the bottom of the dialog, there are four buttons:
       </para>
-      <itemizedlist>
-        <listitem>
-          <para>
-            Save. This writes any changes to the
-            configuration parameter block in flash memory. If you don't
-            press this button, any changes you make will be lost.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            Reset. This resets the dialog to the most recently saved values,
-            erasing any changes you have made.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            Reboot. This reboots the device. Use this to
-            switch from idle to pad mode by rebooting once the rocket is
-            oriented for flight, or to confirm changes you think you saved 
-	    are really saved.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            Close. This closes the dialog. Any unsaved changes will be
-            lost.
-          </para>
-        </listitem>
-      </itemizedlist>
+      <variablelist>
+	<varlistentry>
+	  <term>Save</term>
+	  <listitem>
+	    <para>
+	      This writes any changes to the
+	      configuration parameter block in flash memory. If you don't
+	      press this button, any changes you make will be lost.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>Reset</term>
+	  <listitem>
+	    <para>
+	      This resets the dialog to the most recently saved values,
+	      erasing any changes you have made.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>Reboot</term>
+	  <listitem>
+	    <para>
+	      This reboots the device. Use this to
+	      switch from idle to pad mode by rebooting once the rocket is
+	      oriented for flight, or to confirm changes you think you saved 
+	      are really saved.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>Close</term>
+	  <listitem>
+	    <para>
+	      This closes the dialog. Any unsaved changes will be
+	      lost.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
       <para>
         The rest of the dialog contains the parameters to be configured.
       </para>
@@ -1918,32 +1958,41 @@ NAR #88757, TRA #12200
 	  computers. This configuration parameter allows the two
 	  channels to be used in different configurations.
 	</para>
-	<itemizedlist>
-	  <listitem>
-	    <para>
-	      Dual Deploy. This is the usual mode of operation; the
-	      'apogee' channel is fired at apogee and the 'main'
-	      channel at the height above ground specified by the
-	      'Main Deploy Altitude' during descent.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Redundant Apogee. This fires both channels at
-	      apogee, the 'apogee' channel first followed after a two second
-	      delay by the 'main' channel.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Redundant Main. This fires both channels at the
-	      height above ground specified by the Main Deploy
-	      Altitude setting during descent. The 'apogee'
-	      channel is fired first, followed after a two second
-	      delay by the 'main' channel.
-	    </para>
-	  </listitem>
-	</itemizedlist>
+          <variablelist>
+	    <varlistentry>
+	      <term>Dual Deploy</term>
+	      <listitem>
+		<para>
+		  This is the usual mode of operation; the
+		  'apogee' channel is fired at apogee and the 'main'
+		  channel at the height above ground specified by the
+		  'Main Deploy Altitude' during descent.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>Redundant Apogee</term>
+	      <listitem>
+		<para>
+		  This fires both channels at
+		  apogee, the 'apogee' channel first followed after a two second
+		  delay by the 'main' channel.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>Redundant Main</term>
+	      <listitem>
+		<para>
+		  This fires both channels at the
+		  height above ground specified by the Main Deploy
+		  Altitude setting during descent. The 'apogee'
+		  channel is fired first, followed after a two second
+		  delay by the 'main' channel.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	</variablelist>
       </section>
       <section>
         <title>Pad Orientation</title>
@@ -1954,22 +2003,28 @@ NAR #88757, TRA #12200
 	  parameter allows that default to be changed, permitting the
 	  board to be mounted with the antenna pointing aft instead.
 	</para>
-	<itemizedlist>
-	  <listitem>
-	    <para>
-	      Antenna Up. In this mode, the antenna end of the
-	      flight computer must point forward, in line with the
-	      expected flight path.
-	    </para>
-	  </listitem>
-	  <listitem>
-	    <para>
-	      Antenna Down. In this mode, the antenna end of the
-	      flight computer must point aft, in line with the
-	      expected flight path.
-	    </para>
-	  </listitem>
-	</itemizedlist>
+	<variablelist>
+	  <varlistentry>
+	    <term>Antenna Up</term>
+	    <listitem>
+	      <para>
+		In this mode, the antenna end of the
+		flight computer must point forward, in line with the
+		expected flight path.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>Antenna Down</term>
+	    <listitem>
+	      <para>
+		In this mode, the antenna end of the
+		flight computer must point aft, in line with the
+		expected flight path.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
       </section>
       <section>
 	<title>Configure Pyro Channels</title>
@@ -2116,27 +2171,36 @@ NAR #88757, TRA #12200
       <para>
         At the bottom of the dialog, there are three buttons:
       </para>
-      <itemizedlist>
-        <listitem>
-          <para>
-            Save. This writes any changes to the
-            local Java preferences file. If you don't
-            press this button, any changes you make will be lost.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            Reset. This resets the dialog to the most recently saved values,
-            erasing any changes you have made.
-          </para>
-        </listitem>
-        <listitem>
-          <para>
-            Close. This closes the dialog. Any unsaved changes will be
-            lost.
-          </para>
-        </listitem>
-      </itemizedlist>
+      <variablelist>
+	<varlistentry>
+	  <term>Save</term>
+	  <listitem>
+	    <para>
+	      This writes any changes to the
+	      local Java preferences file. If you don't
+	      press this button, any changes you make will be lost.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>Reset</term>
+	  <listitem>
+	    <para>
+	      This resets the dialog to the most recently saved values,
+	      erasing any changes you have made.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>Close</term>
+	  <listitem>
+	    <para>
+	      This closes the dialog. Any unsaved changes will be
+	      lost.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
       <para>
         The rest of the dialog contains the parameters to be configured.
       </para>
