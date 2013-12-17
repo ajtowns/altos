@@ -329,6 +329,7 @@ NAR #88757, TRA #12200
       </para>
       <table frame='all'>
 	<title>Altus Metrum Electronics</title>
+	<?dbfo keep-together="always"?>
 	<tgroup cols='8' align='center' colsep='1' rowsep='1'>
 	  <colspec align='center' colwidth='*' colname='Device'/>
 	  <colspec align='center' colwidth='*' colname='Barometer'/>
@@ -436,6 +437,7 @@ NAR #88757, TRA #12200
       </table>
       <table frame='all'>
 	<title>Altus Metrum Boards</title>
+	<?dbfo keep-together="always"?>
 	<tgroup cols='6' align='center' colsep='1' rowsep='1'>
 	  <colspec align='center' colwidth='*' colname='Device'/>
 	  <colspec align='center' colwidth='*' colname='Connectors'/>
@@ -612,6 +614,7 @@ NAR #88757, TRA #12200
       </para>
       <table frame='all'>
 	<title>Data Storage on Altus Metrum altimeters</title>
+	<?dbfo keep-together="always"?>
 	<tgroup cols='4' align='center' colsep='1' rowsep='1'>
 	  <colspec align='center' colwidth='*' colname='Device'/>
 	  <colspec align='center' colwidth='*' colname='Bytes per sample'/>
