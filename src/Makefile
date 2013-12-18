@@ -44,6 +44,7 @@ SUBDIRS=
 
 ifeq ($(strip $(HAVE_PDCLIB)),yes)
 PDCLIB=pdclib
+CLEAN_PDCLIB=clean-pdclib
 endif
 
 ifeq ($(strip $(HAVE_SDCC)),yes)
@@ -110,8 +111,11 @@ ao_kalman.h: make-kalman kalman.5c kalman_filter.5c load_csv.5c matrix.5c
 ao_whiten.h: make-whiten
 	nickle $< > $@
 
-clean-local:
+clean-local: $(CLEAN_PDCLIB)
 	rm -f altitude.h ao_kalman.h
 
 pdclib:
-	cd ../pdclib && make && make prefix=`pwd`/opt install
+	cd ../pdclib && mkdir -p opt/include opt/lib && make && make prefix=`pwd`/opt install
+
+clean-pdclib:
+	cd ../pdclib && make clean && rm -rf opt
