@@ -104,13 +104,13 @@ public class TabPad extends Fragment implements AltosDroidTab {
 	public void update_ui(AltosState state, AltosGreatCircle from_receiver, Location receiver) {
 		if (state != null) {
 			mBatteryVoltageView.setText(AltosDroid.number("%4.2f V", state.battery_voltage));
-			mBatteryLights.set(state.battery_voltage > 3.7, state.battery_voltage == AltosLib.MISSING);
+			mBatteryLights.set(state.battery_voltage >= AltosLib.ao_battery_good, state.battery_voltage == AltosLib.MISSING);
 
 			mApogeeVoltageView.setText(AltosDroid.number("%4.2f V", state.apogee_voltage));
-			mApogeeLights.set(state.apogee_voltage > 3.2, state.apogee_voltage == AltosLib.MISSING);
+			mApogeeLights.set(state.apogee_voltage >= AltosLib.ao_igniter_good, state.apogee_voltage == AltosLib.MISSING);
 
 			mMainVoltageView.setText(AltosDroid.number("%4.2f V", state.main_voltage));
-			mMainLights.set(state.main_voltage > 3.2, state.main_voltage == AltosLib.MISSING);
+			mMainLights.set(state.main_voltage >= AltosLib.ao_igniter_good, state.main_voltage == AltosLib.MISSING);
 
 			if (state.flight != 0) {
 				if (state.state <= AltosLib.ao_flight_pad)
