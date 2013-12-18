@@ -13,6 +13,7 @@ vpath load_csv.5c kalman
 vpath matrix.5c kalman
 
 include Version
+TOPDIR=.
 include Makedefs
 
 SDCCDIRS=\
@@ -114,7 +115,9 @@ clean-local: $(CLEAN_PDCLIB)
 	rm -f altitude.h ao_kalman.h
 
 pdclib:
-	cd ../pdclib && mkdir -p opt/include opt/lib && make && make prefix=`pwd`/opt install
+	mkdir -p $(PDCLIB_ROOT)/include $(PDCLIB_ROOT)/lib 
+	cd ../pdclib && make && make prefix=`pwd`/../pdclib-root install
 
 clean-pdclib:
-	cd ../pdclib && make clean && rm -rf opt
+	rm -rf $(PDCLIB_ROOT)
+	cd ../pdclib && make clean

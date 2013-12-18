@@ -239,9 +239,10 @@ AC_SUBST(HAVE_ARM_CC)
 AC_SUBST(ARM_CC)
 
 if test -d pdclib -a x"$HAVE_ARM_CC" = xyes; then
-	PDCLIB_INCLUDES='-I$(TOPDIR)/../pdclib/opt/include'
-	PDCLIB_LIBS_M0='-L$(TOPDIR)/../pdclib/opt/lib -lpdclib-cortex-m0'
-	PDCLIB_LIBS_M3='-L$(TOPDIR)/../pdclib/opt/lib -lpdclib-cortex-m3'
+	PDCLIB_ROOT='$(TOPDIR)/../pdclib-root'
+	PDCLIB_INCLUDES='-I$(TOPDIR)/../pdclib-root/include'
+	PDCLIB_LIBS_M0='-L$(TOPDIR)/../pdclib-root/lib -lpdclib-cortex-m0'
+	PDCLIB_LIBS_M3='-L$(TOPDIR)/../pdclib-root/lib -lpdclib-cortex-m3'
 	HAVE_PDCLIB=yes
 else
 	PDCLIB_INCLUDES=''
@@ -255,6 +256,7 @@ AM_CONDITIONAL(PDCLIB, [test x$HAVE_PDCLIB = xyes])
 AC_SUBST(PDCLIB_INCLUDES)
 AC_SUBST(PDCLIB_LIBS_M0)
 AC_SUBST(PDCLIB_LIBS_M3)
+AC_SUBST(PDCLIB_ROOT)
 AC_SUBST(HAVE_PDCLIB)
 
 if test "x$HAVE_ARM_CC" = "xyes"; then
