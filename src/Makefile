@@ -42,6 +42,10 @@ AVRDIRS=\
 
 SUBDIRS=
 
+ifeq ($(strip $(HAVE_PDCLIB)),yes)
+PDCLIB=pdclib
+endif
+
 ifeq ($(strip $(HAVE_SDCC)),yes)
 SUBDIRS+=$(SDCCDIRS)
 endif
@@ -92,7 +96,7 @@ uninstall:
 
 all-recursive: all-local
 
-all-local: altitude.h altitude-pa.h ao_kalman.h ao_whiten.h
+all-local: altitude.h altitude-pa.h ao_kalman.h ao_whiten.h $(PDCLIB)
 
 altitude.h: make-altitude
 	nickle $< > $@
@@ -108,3 +112,6 @@ ao_whiten.h: make-whiten
 
 clean-local:
 	rm -f altitude.h ao_kalman.h
+
+pdclib:
+	cd ../pdclib && make && make prefix=`pwd`/opt install

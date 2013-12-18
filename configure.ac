@@ -238,6 +238,25 @@ fi
 AC_SUBST(HAVE_ARM_CC)
 AC_SUBST(ARM_CC)
 
+if test -d pdclib -a x"$HAVE_ARM_CC" = xyes; then
+	PDCLIB_INCLUDES='-I$(TOPDIR)/../pdclib/opt/include'
+	PDCLIB_LIBS_M0='-L$(TOPDIR)/../pdclib/opt/lib -lpdclib-cortex-m0'
+	PDCLIB_LIBS_M3='-L$(TOPDIR)/../pdclib/opt/lib -lpdclib-cortex-m3'
+	HAVE_PDCLIB=yes
+else
+	PDCLIB_INCLUDES=''
+	PDCLIB_LIBS_M0='-lpdclib-cortex-m0'
+	PDCLIB_LIBS_M3='-lpdclib-cortex-m3'
+	HAVE_PDCLIB=no
+fi
+
+AM_CONDITIONAL(PDCLIB, [test x$HAVE_PDCLIB = xyes])
+
+AC_SUBST(PDCLIB_INCLUDES)
+AC_SUBST(PDCLIB_LIBS_M0)
+AC_SUBST(PDCLIB_LIBS_M3)
+AC_SUBST(HAVE_PDCLIB)
+
 if test "x$HAVE_ARM_CC" = "xyes"; then
 	save_CC="$CC"
 	save_CFLAGS="$CFLAGS"
@@ -253,10 +272,6 @@ if test "x$HAVE_ARM_CC" = "xyes"; then
 			  [HAVE_ARM_M0_CC=no])
         AC_MSG_RESULT([$HAVE_ARM_M0_CC])
 
-	AC_CHECK_LIB(pdclib-cortex-m0,memcpy,
-		     [],
-		     [HAVE_ARM_M0_CC=no])
-
 	CFLAGS="-mthumb -mcpu=cortex-m3"
 	AC_MSG_CHECKING([if ]$ARM_CC[ supports cortex-m3])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([int i;])],
@@ -264,9 +279,15 @@ if test "x$HAVE_ARM_CC" = "xyes"; then
 			  [HAVE_ARM_M3_CC=no])
         AC_MSG_RESULT([$HAVE_ARM_M3_CC])
 
-	AC_CHECK_LIB(pdclib-cortex-m3,memcpy,
-		     [],
-		     [HAVE_ARM_M3_CC=no])
+	if test x$HAVE_PDCLIB != xyes; then
+		AC_CHECK_LIB(pdclib-cortex-m0,memcpy,
+			     [],
+			     [HAVE_ARM_M0_CC=no])
+
+		AC_CHECK_LIB(pdclib-cortex-m3,memcpy,
+			     [],
+			     [HAVE_ARM_M3_CC=no])
+        fi
 
 	AC_LANG_POP([C])
 	LIBS="$save_LIBS"
@@ -459,6 +480,7 @@ echo "    AVR compiler................: ${AVR_CC} ${AVR_OBJCOPY}"
 echo "    AVR support.................: ${HAVE_AVR_CC}"
 echo "    Android support.............: ${HAVE_ANDROID_SDK}"
 echo "    STlink support..............: ${HAVE_STLINK}"
+echo "    Local pdclib................: ${HAVE_PDCLIB}"
 echo ""
 echo "  Java paths"
 echo "    freetts.....................: ${FREETTS}"
