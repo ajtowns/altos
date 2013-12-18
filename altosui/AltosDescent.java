@@ -323,7 +323,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	class Apogee extends DescentStatus {
 		void show (AltosState state, AltosListenerState listener_state) {
 			show("%4.2f V", state.apogee_voltage);
-			lights.set(state.apogee_voltage > 3.7);
+			lights.set(state.apogee_voltage >= AltosLib.ao_igniter_good);
 		}
 		public Apogee (GridBagLayout layout, int y) {
 			super(layout, y, "Apogee Igniter Voltage");
@@ -335,7 +335,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	class Main extends DescentStatus {
 		void show (AltosState state, AltosListenerState listener_state) {
 			show("%4.2f V", state.main_voltage);
-			lights.set(state.main_voltage > 3.7);
+			lights.set(state.main_voltage >= AltosLib.ao_igniter_good);
 		}
 		public Main (GridBagLayout layout, int y) {
 			super(layout, y, "Main Igniter Voltage");

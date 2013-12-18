@@ -180,7 +180,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 				hide();
 			else {
 				show("%4.2f V", state.battery_voltage);
-				lights.set(state.battery_voltage > 3.7);
+				lights.set(state.battery_voltage >= AltosLib.ao_battery_good);
 			}
 		}
 		public Battery (GridBagLayout layout, int y) {
@@ -196,7 +196,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 				hide();
 			else {
 				show("%4.2f V", state.apogee_voltage);
-				lights.set(state.apogee_voltage > 3.7);
+				lights.set(state.apogee_voltage >= AltosLib.ao_igniter_good);
 			}
 		}
 		public Apogee (GridBagLayout layout, int y) {
@@ -212,7 +212,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 				hide();
 			else {
 				show("%4.2f V", state.main_voltage);
-				lights.set(state.main_voltage > 3.7);
+				lights.set(state.main_voltage >= AltosLib.ao_igniter_good);
 			}
 		}
 		public Main (GridBagLayout layout, int y) {
@@ -287,7 +287,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 				hide();
 			else {
 				show("%4.2f V", listener_state.battery);
-				lights.set(listener_state.battery > 3.7);
+				lights.set(listener_state.battery > AltosLib.ao_battery_good);
 			}
 		}
 		public ReceiverBattery (GridBagLayout layout, int y) {
