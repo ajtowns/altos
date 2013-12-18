@@ -115,20 +115,20 @@ NAR #88757, TRA #12200
 	<para>
 	  Finish preparing the rocket for flight. After the
 	  previous flight data have been reported, MicroPeak waits for
-	  30 seconds before starting to check for launch. This gives
+	  one minute before starting to check for launch. This gives
 	  you time to finish assembling the rocket. As those
 	  activities might cause pressure changes inside the airframe,
 	  MicroPeak might accidentally detect boost. If you need to do
-	  anything to the airframe after the 30 second window passes,
+	  anything to the airframe after the one minute window passes,
 	  make sure to be careful not to disturb the altimeter. The
-	  LED will remain dark during the 30 second delay, but after
+	  LED will remain dark during the one minute delay, but after
 	  that, it will start blinking once every 3 seconds.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  Fly the rocket. Once the rocket passes about 10m in height
-	  (32 feet), the micro-controller will record the ground
+	  Fly the rocket. Once the rocket passes about 30m in height
+	  (100 feet), the micro-controller will record the ground
 	  pressure and track the pressure seen during the flight. In
 	  this mode, the LED flickers rapidly. When the rocket lands,
 	  and the pressure stabilizes, the micro-controller will record
