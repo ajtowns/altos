@@ -401,7 +401,7 @@ NAR #88757, TRA #12200
     <section>
       <title>Lithium Battery</title>
       <para>
-	The CR1025 battery used by MicroPeak holes 30mAh of power,
+	The CR1025 battery used by MicroPeak holds 30mAh of power,
 	which is sufficient to run for over 40 hours. Because
 	MicroPeak powers down on landing, run time includes only time
 	sitting on the launch pad or during flight.
