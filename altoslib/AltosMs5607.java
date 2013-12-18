@@ -85,12 +85,10 @@ public class AltosMs5607 {
 	}
 
 	public boolean parse_line(String line) {
-		System.out.printf ("parse %s\n", line);
 		String[] items = line.split("\\s+");
 		if (line.startsWith("Pressure:")) {
 			if (items.length >= 2) {
 				raw_pres = Integer.parseInt(items[1]);
-				System.out.printf ("raw_pres %d\n", raw_pres);
 			}
 		} else if (line.startsWith("Temperature:")) {
 			if (items.length >= 2)
@@ -99,10 +97,8 @@ public class AltosMs5607 {
 			if (items.length >= 3)
 				reserved = Integer.parseInt(items[2]);
 		} else if (line.startsWith("ms5607 sens:")) {
-			System.out.printf ("found sens length %d\n", items.length);
 			if (items.length >= 3) {
 				sens = Integer.parseInt(items[2]);
-				System.out.printf ("sens %d\n", sens);
 			}
 		} else if (line.startsWith("ms5607 off:")) {
 			if (items.length >= 3)
@@ -156,13 +152,9 @@ public class AltosMs5607 {
 				throw new TimeoutException();
 			}
 			if (!parse_line(line)) {
-				System.out.printf ("stop parsing at %s\n", line);
 				break;
 			}
 		}
-		System.out.printf ("sens %d off %d tcs %d tco %d tref %d tempsens %d crc %d pres %d temp %d\n",
-				   sens, off, tcs, tco, tref, tempsens, crc, raw_pres, raw_temp);
 		convert();
-		System.out.printf ("pa %d cc %d\n", pa, cc);
 	}
 }
