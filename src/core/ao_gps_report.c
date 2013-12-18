@@ -27,9 +27,9 @@ ao_gps_report(void)
 	uint8_t new;
 
 	for (;;) {
-		ao_mutex_get(&ao_gps_mutex);
 		while ((new = ao_gps_new) == 0)
 			ao_sleep(&ao_gps_new);
+		ao_mutex_get(&ao_gps_mutex);
 		if (new & AO_GPS_NEW_DATA)
 			ao_xmemcpy(&gps_data, &ao_gps_data, sizeof (ao_gps_data));
 		if (new & AO_GPS_NEW_TRACKING)
