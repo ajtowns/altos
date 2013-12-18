@@ -128,7 +128,7 @@ public class AltosMs5607 {
 		return true;
 	}
 
-	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) {
+	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) throws InterruptedException {
 		try {
 			AltosMs5607	ms5607 = new AltosMs5607(link);
 
@@ -137,7 +137,6 @@ public class AltosMs5607 {
 				return;
 			}
 		} catch (TimeoutException te) {
-		} catch (InterruptedException ie) {
 		}
 	}
 

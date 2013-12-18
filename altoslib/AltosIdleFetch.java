@@ -125,7 +125,7 @@ public class AltosIdleFetch implements AltosStateUpdate {
 	double			frequency;
 	String			callsign;
 
-	public void update_state(AltosState state) {
+	public void update_state(AltosState state) throws InterruptedException {
 		try {
 			AltosConfigData config_data = new AltosConfigData(link);
 			state.set_state(AltosLib.ao_flight_startup);
@@ -140,7 +140,6 @@ public class AltosIdleFetch implements AltosStateUpdate {
 				}
 			}
 			state.set_received_time(System.currentTimeMillis());
-		} catch (InterruptedException ie) {
 		} catch (TimeoutException te) {
 		}
 		

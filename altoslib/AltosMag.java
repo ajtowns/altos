@@ -25,6 +25,11 @@ public class AltosMag implements Cloneable {
 	public int		z;
 
 	public boolean parse_string(String line) {
+//		if (line.startsWith("Syntax error")) {
+//			x = y = z = 0;
+//			return true;
+//		}
+
 		if (!line.startsWith("X:"))
 			return false;
 
@@ -53,14 +58,13 @@ public class AltosMag implements Cloneable {
 		z = AltosLib.MISSING;
 	}
 
-	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) {
+	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) throws InterruptedException {
 		try {
 			AltosMag	mag = new AltosMag(link);
 
 			if (mag != null)
 				state.set_mag(mag);
 		} catch (TimeoutException te) {
-		} catch (InterruptedException ie) {
 		}
 	}
 

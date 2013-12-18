@@ -18,5 +18,5 @@
 package org.altusmetrum.altoslib_2;
 
 public interface AltosStateUpdate {
-	public void	update_state(AltosState state);
+	public void	update_state(AltosState state) throws InterruptedException;
 }

@@ -141,7 +141,7 @@ public class AltosIgnite {
 		}
 	}
 
-	public void fire(int igniter) {
+	public void fire(int igniter) throws InterruptedException {
 		if (link == null)
 			return;
 		try {
@@ -154,21 +154,14 @@ public class AltosIgnite {
 				link.printf("i DoIt drogue\n");
 				break;
 			}
-		} catch (InterruptedException ie) {
 		} catch (TimeoutException te) {
 		} finally {
-			try {
-				stop_link();
-			} catch (InterruptedException ie) {
-			}
+			stop_link();
 		}
 	}
 
-	public void close() {
-		try {
-			stop_link();
-		} catch (InterruptedException ie) {
-		}
+	public void close() throws InterruptedException {
+		stop_link();
 		link.close();
 		link = null;
 	}

@@ -90,15 +90,16 @@ public class AltosIdleMonitor extends Thread {
 		link.abort_reply();
 	}
 
-	public void abort() {
-		if (isAlive()) {
+	public void abort() throws InterruptedException {
+		System.out.printf("Attempting to abort monitor thread\n");
+		while (isAlive()) {
+			System.out.printf("Interrupting\n");
 			interrupt();
 			link.abort_reply();
-			try {
-				join();
-			} catch (InterruptedException ie) {
-			}
+			Thread.sleep(100);
 		}
+		System.out.printf("Appears to be dead now\n");
+		join();
 	}
 
 	public void run() {
@@ -115,7 +116,10 @@ public class AltosIdleMonitor extends Thread {
 			}
 		} catch (InterruptedException ie) {
 		}
-		link.close();
+		try {
+			link.close();
+		} catch (InterruptedException ie) {
+		}
 	}
 
 	public AltosIdleMonitor(AltosIdleMonitorListener in_listener, AltosLink in_link, boolean in_remote)

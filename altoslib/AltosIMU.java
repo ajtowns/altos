@@ -58,14 +58,13 @@ public class AltosIMU implements Cloneable {
 		return n;
 	}
 
-	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) {
+	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) throws InterruptedException {
 		try {
 			AltosIMU	imu = new AltosIMU(link);
 
 			if (imu != null)
 				state.set_imu(imu);
 		} catch (TimeoutException te) {
-		} catch (InterruptedException ie) {
 		}
 	}
 

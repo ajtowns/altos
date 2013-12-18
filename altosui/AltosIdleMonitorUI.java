@@ -23,6 +23,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.io.*;
 import java.util.concurrent.*;
+import java.util.Arrays;
 import org.altusmetrum.altoslib_2.*;
 import org.altusmetrum.altosuilib_1.*;
 
@@ -38,7 +39,10 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 
 	void stop_display() {
 		if (thread != null) {
-			thread.abort();
+			try {
+				thread.abort();
+			} catch (InterruptedException ie) {
+			}
 		}
 		thread = null;
 	}
@@ -191,7 +195,13 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 		addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosing(WindowEvent e) {
-					disconnect();
+					System.out.printf("Closing idle monitor window\n");
+					try {
+						disconnect();
+					} catch (Exception ex) {
+						System.out.println(Arrays.toString(ex.getStackTrace()));
+					}
+					System.out.printf("hiding\n");
 					setVisible(false);
 					dispose();
 					AltosUIPreferences.unregister_font_listener(AltosIdleMonitorUI.this);

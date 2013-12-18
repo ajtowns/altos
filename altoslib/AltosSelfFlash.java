@@ -130,7 +130,10 @@ public class AltosSelfFlash extends AltosProgrammer {
 	public void close() {
 		if (link != null) {
 			reboot();
-			link.close();
+			try {
+				link.close();
+			} catch (InterruptedException ie) {
+			}
 			link = null;
 		}
 	}
@@ -140,7 +143,7 @@ public class AltosSelfFlash extends AltosProgrammer {
 		close();
 	}
 
-	private AltosHexfile get_rom() {
+	private AltosHexfile get_rom() throws InterruptedException {
 		System.out.printf("get rom\n");
 		try {
 			int base = AltosRomconfig.fetch_base(image);
@@ -152,15 +155,13 @@ public class AltosSelfFlash extends AltosProgrammer {
 		} catch (AltosNoSymbol none) {
 			System.out.printf("no symbol %s\n", none.getMessage());
 			return null;
-		} catch (InterruptedException ie) {
-			return null;
 		} catch (IOException ie) {
 			return null;
 		}
 
 	}
 
-	public boolean check_rom_config() {
+	public boolean check_rom_config() throws InterruptedException {
 		if (link == null) {
 			System.out.printf ("no link\n");
 			return true;
@@ -177,7 +178,7 @@ public class AltosSelfFlash extends AltosProgrammer {
 		rom_config = romconfig;
 	}
 
-	public AltosRomconfig romconfig() {
+	public AltosRomconfig romconfig() throws InterruptedException {
 		System.out.printf("fetch romconfig\n");
 		if (!check_rom_config())
 			return null;

@@ -85,7 +85,7 @@ public class AltosBTManage extends AltosUIDialog implements ActionListener, Iter
 			return devices.iterator();
 		}
 
-		public java.util.List<AltosBTDevice> selected_list() {
+		public java.util.List<AltosBTDevice> selected_list() throws InterruptedException {
 			java.util.LinkedList<AltosBTDevice> l = new java.util.LinkedList<AltosBTDevice>();
 			Object[] a = getSelectedValues();
 			for (int i = 0; i < a.length; i++)
@@ -117,16 +117,22 @@ public class AltosBTManage extends AltosUIDialog implements ActionListener, Iter
 	}
 
 	public void add_known() {
-		for (AltosBTDevice device : visible_devices.selected_list()) {
-			known_devices.add(device);
-			visible_devices.remove(device);
+		try {
+			for (AltosBTDevice device : visible_devices.selected_list()) {
+				known_devices.add(device);
+				visible_devices.remove(device);
+			}
+		} catch (InterruptedException ie) {
 		}
 	}
 
 	public void remove_known() {
-		for (AltosBTDevice device : known_devices.selected_list()) {
-			known_devices.remove(device);
-			visible_devices.add(device);
+		try {
+			for (AltosBTDevice device : known_devices.selected_list()) {
+				known_devices.remove(device);
+				visible_devices.add(device);
+			}
+		} catch (InterruptedException ie) {
 		}
 	}
 

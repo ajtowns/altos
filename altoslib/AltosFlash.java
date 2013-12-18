@@ -318,7 +318,7 @@ public class AltosFlash extends AltosProgrammer {
 		close();
 	}
 
-	public boolean check_rom_config() {
+	public boolean check_rom_config() throws InterruptedException {
 		if (debug == null)
 			return true;
 		if (rom_config == null)
@@ -330,7 +330,7 @@ public class AltosFlash extends AltosProgrammer {
 		rom_config = romconfig;
 	}
 
-	public AltosRomconfig romconfig() {
+	public AltosRomconfig romconfig() throws InterruptedException {
 		if (!check_rom_config())
 			return null;
 		return rom_config;

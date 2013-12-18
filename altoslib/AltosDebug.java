@@ -56,13 +56,10 @@ public class AltosDebug {
 
 	boolean	debug_mode;
 
-	void ensure_debug_mode() {
+	void ensure_debug_mode() throws InterruptedException {
 		if (!debug_mode) {
 			link.printf("D\n");
-			try {
-				link.flush_input();
-			} catch (InterruptedException ie) {
-			}
+			link.flush_input();
 			debug_mode = true;
 		}
 	}
@@ -81,13 +78,16 @@ public class AltosDebug {
 	}
 
 	public void close() {
-		link.close();
+		try {
+			link.close();
+		} catch (InterruptedException ie) {
+		}
 	}
 
 	/*
 	 * Write target memory
 	 */
-	public void write_memory(int address, byte[] bytes, int start, int len) {
+	public void write_memory(int address, byte[] bytes, int start, int len) throws InterruptedException {
 		ensure_debug_mode();
 //		dump_memory("write_memory", address, bytes, start, len);
 		link.printf("O %x %x\n", len, address);
@@ -95,7 +95,7 @@ public class AltosDebug {
 			link.printf("%02x", bytes[start + i]);
 	}
 
-	public void write_memory(int address, byte[] bytes) {
+	public void write_memory(int address, byte[] bytes) throws InterruptedException {
 		write_memory(address, bytes, 0, bytes.length);
 	}
 
@@ -132,7 +132,7 @@ public class AltosDebug {
 	/*
 	 * Write raw bytes to the debug link using the 'P' command
 	 */
-	public void write_bytes(byte[] bytes) throws IOException {
+	public void write_bytes(byte[] bytes) throws IOException, InterruptedException {
 		int i = 0;
 		ensure_debug_mode();
 		while (i < bytes.length) {
@@ -147,7 +147,7 @@ public class AltosDebug {
 		}
 	}
 
-	public void write_byte(byte b) throws IOException {
+	public void write_byte(byte b) throws IOException, InterruptedException {
 		byte[] bytes = { b };
 		write_bytes(bytes);
 	}
@@ -257,13 +257,12 @@ public class AltosDebug {
 		return true;
 	}
 
-	public AltosRomconfig romconfig() {
+	public AltosRomconfig romconfig() throws InterruptedException {
 		try {
 			byte[] bytes = read_memory(0xa0, 10);
 			AltosHexfile hexfile = new AltosHexfile (bytes, 0xa0);
 			return new AltosRomconfig(hexfile);
 		} catch (IOException ie) {
-		} catch (InterruptedException ie) {
 		}
 		return new AltosRomconfig();
 	}

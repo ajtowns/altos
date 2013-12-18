@@ -59,18 +59,15 @@ public class AltosLog implements Runnable {
 		return file;
 	}
 
-	boolean open (AltosState state) throws IOException {
+	boolean open (AltosState state) throws IOException, InterruptedException {
 		AltosFile	a = new AltosFile(state);
 
 		log_file = new FileWriter(a, true);
 		if (log_file != null) {
 			while (!pending_queue.isEmpty()) {
-				try {
-					String s = pending_queue.take();
-					log_file.write(s);
-					log_file.write('\n');
-				} catch (InterruptedException ie) {
-				}
+				String s = pending_queue.take();
+				log_file.write(s);
+				log_file.write('\n');
 			}
 			log_file.flush();
 			file = a;

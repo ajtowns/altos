@@ -26,10 +26,10 @@ public abstract class AltosLink implements Runnable {
 	public final static int ERROR = -1;
 	public final static int TIMEOUT = -2;
 
-	public abstract int getchar();
-	public abstract void print(String data);
+	public abstract int getchar() throws InterruptedException;
+	public abstract void print(String data) throws InterruptedException;
 	public abstract void putchar(byte c);
-	public abstract void close();
+	public abstract void close() throws InterruptedException;
 
 	public static boolean debug = false;
 	public static void set_debug(boolean in_debug) { debug = in_debug; }
@@ -57,7 +57,11 @@ public abstract class AltosLink implements Runnable {
 		String	line = String.format(format, arguments);
 		if (debug)
 			pending_output.add(line);
-		print(line);
+		try {
+			print(line);
+		} catch (InterruptedException ie) {
+
+		}
 	}
 
 	public String get_reply_no_dialog(int timeout) throws InterruptedException, TimeoutException {
@@ -233,7 +237,7 @@ public abstract class AltosLink implements Runnable {
 		try {
 			add_telem (new AltosLine());
 			add_reply (new AltosLine());
-		} catch (InterruptedException e) {
+		} catch (InterruptedException ie) {
 		}
 	}
 
@@ -399,33 +403,27 @@ public abstract class AltosLink implements Runnable {
 		flush_output();
 	}
 
-	public boolean is_loader() {
+	public boolean is_loader() throws InterruptedException {
 		boolean	ret = false;
 		printf("v\n");
-		try {
-			for (;;) {
-				String line = get_reply();
+		for (;;) {
+			String line = get_reply();
 
-				if (line == null)
-					return false;
-				if (line.startsWith("software-version"))
-					break;
-				if (line.startsWith("altos-loader"))
-					ret = true;
-			}
-		} catch (InterruptedException ie) {
+			if (line == null)
+				return false;
+			if (line.startsWith("software-version"))
+				break;
+			if (line.startsWith("altos-loader"))
+				ret = true;
 		}
 		return ret;
 	}
 
-	public void to_loader() {
+	public void to_loader() throws InterruptedException {
 		printf("X\n");
 		flush_output();
 		close();
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException ie) {
-		}
+		Thread.sleep(1000);
 	}
 
 	public boolean remote;
@@ -490,7 +488,7 @@ public abstract class AltosLink implements Runnable {
 		return config_data.has_monitor_battery();
 	}
 
-	public double monitor_battery() {
+	public double monitor_battery() throws InterruptedException {
 		int monitor_batt = AltosLib.MISSING;
 
 		if (config_data.has_monitor_battery()) {
@@ -504,7 +502,6 @@ public abstract class AltosLink implements Runnable {
 				}
 				i++;
 			}
-			} catch (InterruptedException ie) {
 			} catch (TimeoutException te) {
 			}
 		}

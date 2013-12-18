@@ -28,7 +28,7 @@ public class AltosSensorTM {
 	public int	drogue;
 	public int	main;
 
-	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) {
+	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) throws InterruptedException {
 		try {
 			AltosSensorTM	sensor_tm = new AltosSensorTM(link);
 
@@ -42,7 +42,6 @@ public class AltosSensorTM {
 			state.set_main_voltage(AltosConvert.cc_ignitor_to_voltage(sensor_tm.main));
 			
 		} catch (TimeoutException te) {
-		} catch (InterruptedException ie) {
 		}
 	}
 

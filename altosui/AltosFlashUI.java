@@ -365,7 +365,7 @@ public class AltosFlashUI
 
 	flash_task	flasher;
 
-	private boolean open_device() {
+	private boolean open_device() throws InterruptedException {
 		try {
 			link = new AltosSerial(device);
 			if (is_pair_programmed())
@@ -408,8 +408,12 @@ public class AltosFlashUI
 			return;
 		if (!select_source_file())
 			return;
-		if (!open_device())
+		try {
+			if (!open_device())
+				return;
+		} catch (InterruptedException ie) {
 			return;
+		}
 		build_dialog();
 		flash_task	f = new flash_task(this);
 	}

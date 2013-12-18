@@ -161,9 +161,9 @@ public class AltosConfig implements ActionListener {
 			} finally {
 				try {
 					stop_serial();
+					serial_line.close();
 				} catch (InterruptedException ie) {
 				}
-				serial_line.close();
 			}
 		}
 

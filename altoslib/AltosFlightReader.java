@@ -46,7 +46,7 @@ public class AltosFlightReader {
 
 	public File backing_file() { return null; }
 
-	public boolean has_monitor_battery() { return false; }
+	public boolean has_monitor_battery() throws InterruptedException { return false; }
 
-	public double monitor_battery() { return AltosLib.MISSING; }
+	public double monitor_battery() throws InterruptedException { return AltosLib.MISSING; }
 }

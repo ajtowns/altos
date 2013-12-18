@@ -88,7 +88,7 @@ class AltosSensorMega {
 		}
 	}
 
-	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) {
+	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) throws InterruptedException {
 		try {
 			AltosSensorMega	sensor_mega = new AltosSensorMega(link);
 
@@ -102,7 +102,6 @@ class AltosSensorMega {
 			state.set_ignitor_voltage(ignitor_voltage);
 
 		} catch (TimeoutException te) {
-		} catch (InterruptedException ie) {
 		}
 	}
 }

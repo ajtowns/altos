@@ -25,7 +25,7 @@ public class AltosSensorTMini {
 	public int	main;
 	public int	batt;
 
-	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) {
+	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) throws InterruptedException {
 		try {
 			AltosSensorTMini	sensor_tmini = new AltosSensorTMini(link);
 
@@ -36,7 +36,6 @@ public class AltosSensorTMini {
 			state.set_main_voltage(AltosConvert.easy_mini_voltage(sensor_tmini.main));
 			
 		} catch (TimeoutException te) {
-		} catch (InterruptedException ie) {
 		}
 	}
 

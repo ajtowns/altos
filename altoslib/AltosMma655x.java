@@ -44,14 +44,13 @@ public class AltosMma655x implements Cloneable {
 		return n;
 	}
 
-	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) {
+	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) throws InterruptedException {
 		try {
 			AltosMma655x	mma655x = new AltosMma655x(link);
 
 			if (mma655x != null)
 				state.set_accel(mma655x.accel);
 		} catch (TimeoutException te) {
-		} catch (InterruptedException ie) {
 		}
 	}
 

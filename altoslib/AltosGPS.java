@@ -348,7 +348,7 @@ public class AltosGPS implements Cloneable {
 		}
 	}
 
-	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) {
+	static public void update_state(AltosState state, AltosLink link, AltosConfigData config_data) throws InterruptedException {
 		try {
 			AltosGPS	gps = new AltosGPS(link, config_data);
 
@@ -357,7 +357,6 @@ public class AltosGPS implements Cloneable {
 				return;
 			}
 		} catch (TimeoutException te) {
-		} catch (InterruptedException ie) {
 		}
 		state.set_gps(null, 0);
 	}

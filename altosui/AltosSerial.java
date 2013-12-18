@@ -146,7 +146,7 @@ public class AltosSerial extends AltosLink  {
 			try {
 				input_thread.interrupt();
 				input_thread.join();
-			} catch (InterruptedException e) {
+			} catch (InterruptedException ie) {
 			}
 			input_thread = null;
 		}
@@ -156,18 +156,16 @@ public class AltosSerial extends AltosLink  {
 
 	private void putc(char c) {
 		if (altos != null)
-			if (libaltos.altos_putchar(altos, c) != 0) {
+			if (libaltos.altos_putchar(altos, c) != 0)
 				close_serial();
-			}
 	}
 
 	public void putchar(byte c) {
 		if (altos != null) {
 			if (debug)
 				System.out.printf(" %02x", (int) c & 0xff);
-			if (libaltos.altos_putchar(altos, (char) c) != 0) {
+			if (libaltos.altos_putchar(altos, (char) c) != 0)
 				close_serial();
-			}
 		}
 	}
 

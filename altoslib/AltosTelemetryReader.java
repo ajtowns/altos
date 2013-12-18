@@ -54,7 +54,10 @@ public class AltosTelemetryReader extends AltosFlightReader {
 	public void close(boolean interrupted) {
 		link.remove_monitor(telem);
 		log.close();
-		link.close();
+		try {
+			link.close();
+		} catch (InterruptedException ie) {
+		}
 	}
 
 	public void set_frequency(double in_frequency) throws InterruptedException, TimeoutException {
@@ -83,7 +86,7 @@ public class AltosTelemetryReader extends AltosFlightReader {
 			else
 				return false;
 		} catch (InterruptedException ie) {
-			return true;
+			return false;
 		} catch (TimeoutException te) {
 			return true;
 		}
@@ -114,7 +117,7 @@ public class AltosTelemetryReader extends AltosFlightReader {
 		return link.has_monitor_battery();
 	}
 
-	public double monitor_battery() {
+	public double monitor_battery() throws InterruptedException {
 		return link.monitor_battery();
 	}
 
@@ -130,12 +133,8 @@ public class AltosTelemetryReader extends AltosFlightReader {
 			telemetry = AltosPreferences.telemetry(link.serial);
 			set_telemetry(telemetry);
 			link.add_monitor(telem);
-		} catch (TimeoutException e) {
+		} finally {
 			close(true);
-			throw(e);
-		} catch (InterruptedException e) {
-			close(true);
-			throw(e);
 		}
 	}
 }
