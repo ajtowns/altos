@@ -1,5 +1,5 @@
 JAVAROOT=classes
-AM_JAVACFLAGS=-encoding UTF-8 -Xlint:deprecation
+AM_JAVACFLAGS=-target 1.6 -encoding UTF-8 -Xlint:deprecation -source 6
 
 altoslibdir=$(libdir)/altos
 
