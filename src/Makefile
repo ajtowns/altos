@@ -30,7 +30,6 @@ ARMM3DIRS=\
 	telemetrum-v2.0 telemetrum-v2.0/flash-loader \
 	megadongle-v0.1 megadongle-v0.1/flash-loader \
 	telegps-v0.3 telegps-v0.3/flash-loader \
-	stm-bringup stm-demo \
 	telelco-v0.2 telelco-v0.2/flash-loader \
 	telescience-v0.2 telescience-v0.2/flash-loader
 
