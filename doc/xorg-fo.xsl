@@ -113,4 +113,8 @@
     <fo:block/>
   </xsl:template>
 
+  <xsl:attribute-set name="informalfigure.properties">
+    <xsl:attribute name="text-align">center</xsl:attribute>
+  </xsl:attribute-set>
+
 </xsl:stylesheet>

@@ -5,11 +5,6 @@
   <title>The Altus Metrum System</title>
   <subtitle>An Owner's Manual for Altus Metrum Rocketry Electronics</subtitle>
   <bookinfo>
-    <mediaobject>
-      <imageobject>
-	<imagedata fileref="../altosui/altusmetrum.jpg" role="top"/>
-      </imageobject>
-    </mediaobject>
     <author>
       <firstname>Bdale</firstname>
       <surname>Garbee</surname>
@@ -551,11 +546,13 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>TeleMetrum</title>
-      <mediaobject>
-	<imageobject>
-	  <imagedata fileref="telemetrum-v1.1-thside.jpg" width="5.5in" scalefit="1"/>
-	</imageobject>
-      </mediaobject>
+      <informalfigure>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="telemetrum-v1.1-thside.jpg" width="5.5in" scalefit="1"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
       <para>
 	TeleMetrum is a 1 inch by 2¾ inch circuit board.  It was designed to
 	fit inside coupler for 29mm air-frame tubing, but using it in a tube that
@@ -571,11 +568,13 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>TeleMini</title>
-      <mediaobject>
-	<imageobject>
-	  <imagedata fileref="telemini-v1-top.jpg" width="5.5in" scalefit="1"/>
-	</imageobject>
-      </mediaobject>
+      <informalfigure>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="telemini-v1-top.jpg" width="5.5in" scalefit="1"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
       <para>
 	TeleMini v1.0 is ½ inches by 1½ inches.  It was
 	designed to fit inside an 18mm air-frame tube, but using it in
@@ -590,11 +589,13 @@ NAR #88757, TRA #12200
 	the board, meaning an ideal “simple” avionics bay for TeleMini
 	should have at least 9 inches of interior length.
       </para>
-      <mediaobject>
-	<imageobject>
-	  <imagedata fileref="telemini-v2-top.jpg" width="5.5in" scalefit="1"/>
-	</imageobject>
-      </mediaobject>
+      <informalfigure>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="telemini-v2-top.jpg" width="5.5in" scalefit="1"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
       <para>
 	TeleMini v2.0 is 0.8 inches by 1½ inches. It adds more
 	on-board data logging memory, a built-in USB connector and
@@ -605,11 +606,13 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>EasyMini</title>
-      <mediaobject>
-	<imageobject>
-	  <imagedata fileref="easymini-top.jpg" width="5.5in" scalefit="1"/>
-	</imageobject>
-      </mediaobject>
+      <informalfigure>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="easymini-top.jpg" width="5.5in" scalefit="1"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
       <para>
 	EasyMini is built on a 0.8 inch by 1½ inch circuit board. It's
 	designed to fit in a 24mm coupler tube. The connectors and
@@ -619,11 +622,13 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>TeleMega</title>
-      <mediaobject>
-	<imageobject>
-	  <imagedata fileref="telemega-v1.0-top.jpg" width="5.5in" scalefit="1"/>
-	</imageobject>
-      </mediaobject>
+      <informalfigure>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="telemega-v1.0-top.jpg" width="5.5in" scalefit="1"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
       <para>
 	TeleMega is a 1¼ inch by 3¼ inch circuit board. It was
 	designed to easily fit in a 38mm coupler. Like TeleMetrum,
@@ -1356,6 +1361,13 @@ NAR #88757, TRA #12200
   </chapter>
   <chapter>
     <title>AltosUI</title>
+    <informalfigure>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="altosui.png" width="5.5in"/>
+	</imageobject>
+      </mediaobject>
+    </informalfigure>
     <para>
       The AltosUI program provides a graphical user interface for
       interacting with the Altus Metrum product family. AltosUI can
@@ -1365,11 +1377,6 @@ NAR #88757, TRA #12200
       is split into sections, each of which documents one of the tasks
       provided from the top-level toolbar.
     </para>
-    <mediaobject>
-      <imageobject>
-	<imagedata fileref="altosui.png" width="5.5in"/>
-      </imageobject>
-    </mediaobject>
     <section>
       <title>Monitor Flight</title>
       <subtitle>Receive, Record and Display Telemetry Data</subtitle>
@@ -1379,6 +1386,13 @@ NAR #88757, TRA #12200
         AltosUI will create a window to display telemetry data as
         received by the selected TeleDongle device.
       </para>
+      <informalfigure>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="device-selection.png" width="3.5in"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
       <para>
         All telemetry data received are automatically recorded in
         suitable log files. The name of the files includes the current
@@ -1447,6 +1461,13 @@ NAR #88757, TRA #12200
       </para>
       <section>
         <title>Launch Pad</title>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="launch-pad.png" width="5.5in"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
         <para>
           The 'Launch Pad' tab shows information used to decide when the
           rocket is ready for flight. The first elements include red/green
@@ -1539,6 +1560,13 @@ NAR #88757, TRA #12200
       </section>
       <section>
         <title>Ascent</title>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="ascent.png" width="5.5in"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
         <para>
           This tab is shown during Boost, Fast and Coast
           phases. The information displayed here helps monitor the
@@ -1565,6 +1593,13 @@ NAR #88757, TRA #12200
       </section>
       <section>
         <title>Descent</title>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="descent.png" width="5.5in"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
         <para>
           Once the rocket has reached apogee and (we hope) activated the
           apogee charge, attention switches to tracking the rocket on
@@ -1601,6 +1636,13 @@ NAR #88757, TRA #12200
       </section>
       <section>
         <title>Landed</title>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="landed.png" width="5.5in"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
         <para>
           Once the rocket is on the ground, attention switches to
           recovery. While the radio signal is often lost once the
@@ -1637,7 +1679,31 @@ NAR #88757, TRA #12200
 	</para>
       </section>
       <section>
+	<title>Table</title>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="table.png" width="5.5in"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
+	<para>
+	  The table view shows all of the data available from the
+	  flight computer. Probably the most useful data on
+	  this tab is the detailed GPS information, which includes
+	  horizontal dilution of precision information, and
+	  information about the signal being received from the satellites.
+	</para>
+      </section>
+      <section>
         <title>Site Map</title>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="site-map.png" width="5.5in"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
         <para>
           When the TeleMetrum has a GPS fix, the Site Map tab will map
           the rocket's position to make it easier for you to locate the
@@ -1722,49 +1788,27 @@ NAR #88757, TRA #12200
         flash memory.
       </para>
       <para>
+        Note that telemetry files will generally produce poor graphs
+        due to the lower sampling rate and missed telemetry packets.
+        Use saved flight data in .eeprom files for graphing where possible.
+      </para>
+      <para>
         Once a flight record is selected, a window with multiple tabs is
         opened.
-	<variablelist>
-	  <varlistentry>
-	    <term>Flight Graph</term>
-	    <listitem>
-	      <para>
-		By default, the graph contains acceleration (blue),
-		velocity (green) and altitude (red).
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <term>Configure Graph</term>
-	    <listitem>
-	      <para>
-		This selects which graph elements to show, and, at the
-		very bottom, lets you switch between metric and
-		imperial units
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <term>Flight Statistics</term>
-	    <listitem>
-	      <para>
-		Shows overall data computed from the flight.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <term>Map</term>
-	    <listitem>
-	      <para>
-		Shows a satellite image of the flight area overlaid
-		with the path of the flight. The red concentric
-		circles mark the launch pad, the black concentric
-		circles mark the landing location.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	</variablelist>
       </para>
+      <section>
+	<title>Flight Graph</title>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="graph.png" width="5.5in" scalefit="1"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
+	<para>
+	  By default, the graph contains acceleration (blue),
+	  velocity (green) and altitude (red).
+	</para>
       <para>
         The graph can be zoomed into a particular area by clicking and
         dragging down and to the right. Once zoomed, the graph can be
@@ -1773,11 +1817,51 @@ NAR #88757, TRA #12200
         The right mouse button causes a pop-up menu to be displayed, giving
         you the option save or print the plot.
       </para>
-      <para>
-        Note that telemetry files will generally produce poor graphs
-        due to the lower sampling rate and missed telemetry packets.
-        Use saved flight data in .eeprom files for graphing where possible.
-      </para>
+      </section>
+      <section>
+	<title>Configure Graph</title>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="graph-configure.png" width="5.5in" scalefit="1"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
+	<para>
+	  This selects which graph elements to show, and, at the
+	  very bottom, lets you switch between metric and
+	  imperial units
+	</para>
+      </section>
+      <section>
+	<title>Flight Statistics</title>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="graph-stats.png" width="5.5in" scalefit="1"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
+	<para>
+	  Shows overall data computed from the flight.
+	</para>
+      </section>
+      <section>
+	<title>Map</title>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="graph-map.png" width="5.5in" scalefit="1"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
+	<para>
+	  Shows a satellite image of the flight area overlaid
+	  with the path of the flight. The red concentric
+	  circles mark the launch pad, the black concentric
+	  circles mark the landing location.
+	</para>
+      </section>
     </section>
     <section>
       <title>Export Data</title>
@@ -1821,6 +1905,13 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>Configure Altimeter</title>
+      <informalfigure>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="configure-altimeter.png" width="3in" scalefit="1"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
       <para>
         Select this button and then select either an altimeter or
         TeleDongle Device from the list provided. Selecting a TeleDongle
@@ -2037,6 +2128,13 @@ NAR #88757, TRA #12200
       </section>
       <section>
 	<title>Configure Pyro Channels</title>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="configure-pyro.png" width="6in" scalefit="1"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
 	<para>
 	  This opens a separate window to configure the additional
 	  pyro channels available on TeleMega.  One column is
@@ -2064,6 +2162,13 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>Configure AltosUI</title>
+      <informalfigure>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="configure-altosui.png" width="2.5in" scalefit="1"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
       <para>
         This button presents a dialog so that you can configure the AltosUI global settings.
       </para>
@@ -2075,18 +2180,24 @@ NAR #88757, TRA #12200
           the current flight status. However, sometimes you don't want
           to hear them.
         </para>
-        <itemizedlist>
-          <listitem>
-            <para>Enable—turns all voice announcements on and off</para>
-          </listitem>
-          <listitem>
-            <para>
-              Test Voice—Plays a short message allowing you to verify
-              that the audio system is working and the volume settings
-              are reasonable
-            </para>
-          </listitem>
-        </itemizedlist>
+        <variablelist>
+	  <varlistentry>
+	    <term>Enable</term>
+	    <listitem>
+	      <para>Turns all voice announcements on and off</para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>Test Voice</term>
+	    <listitem>
+	      <para>
+		Plays a short message allowing you to verify
+		that the audio system is working and the volume settings
+		are reasonable
+	      </para>
+	    </listitem>
+	  </varlistentry>
+        </variablelist>
       </section>
       <section>
         <title>Log Directory</title>
@@ -2161,6 +2272,13 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>Configure Groundstation</title>
+      <informalfigure>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="configure-groundstation.png" width="3in" scalefit="1"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
       <para>
         Select this button and then select a TeleDongle Device from the list provided.
       </para>
@@ -2246,46 +2364,16 @@ NAR #88757, TRA #12200
         (self programming).  Please read the directions for flashing
         devices in the Updating Device Firmware chapter below.
       </para>
-      <para>
-	For “self programming”, connect USB to the device to be
-	programmed and push the 'Flash Image' button. That will
-	present a dialog box listing all of the connected
-	devices. Carefully select the device to be programmed.
-      </para>
-      <para>
-        For “pair programming”, once you have the programmer and
-        target devices connected, push the 'Flash Image' button. That
-        will present a dialog box listing all of the connected
-        devices. Carefully select the programmer device, not the
-        device to be programmed.
-      </para>
-      <para>
-        Next, select the image to flash to the device. These are named
-        with the product name and firmware version. The file selector
-        will start in the directory containing the firmware included
-        with the AltosUI package. Navigate to the directory containing
-        the desired firmware if it isn't there.
-      </para>
-      <para>
-        Next, a small dialog containing the device serial number and
-        RF calibration values should appear. If these values are
-        incorrect (possibly due to a corrupted image in the device),
-        enter the correct values here.
-      </para>
-      <para>
-        Finally, a dialog containing a progress bar will follow the
-        programming process.
-      </para>
-      <para>
-        When programming is complete, the target device will
-        reboot. Note that if a pair programmed target device is
-        connected via USB, you will have to unplug it and then plug it
-        back in for the USB connection to reset so that you can
-        communicate with the device again.
-      </para>
     </section>
     <section>
       <title>Fire Igniter</title>
+      <informalfigure>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="fire-igniter.png" width="1in" scalefit="1"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
       <para>
 	This activates the igniter circuits in the flight computer to help 
 	test recovery systems deployment. Because this command can operate
@@ -2313,6 +2401,13 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>Scan Channels</title>
+      <informalfigure>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="scan-channels.png" width="2.75in" scalefit="1"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
       <para>
 	This listens for telemetry packets on all of the configured
 	frequencies, displaying information about each device it
@@ -2324,6 +2419,13 @@ NAR #88757, TRA #12200
     </section>
     <section>
       <title>Load Maps</title>
+      <informalfigure>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="load-maps.png" width="5.5in" scalefit="1"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
       <para>
 	Before heading out to a new launch site, you can use this to
 	load satellite images in case you don't have internet
@@ -3978,11 +4080,13 @@ NAR #88757, TRA #12200
 	TeleMega has overall dimensions of 1.250 x 3.250 inches, and
 	the mounting holes are sized for use with 4-40 or M3 screws.
       </para>
-      <mediaobject id="TeleMegaTemplate">
-	<imageobject>
-	  <imagedata format="SVG" fileref="telemega-outline.svg"/>
-	</imageobject>
-      </mediaobject>
+      <informalfigure>
+	<mediaobject id="TeleMegaTemplate">
+	  <imageobject>
+	    <imagedata format="SVG" fileref="telemega-outline.svg"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
     </section>
     <section>
       <title>TeleMetrum template</title>
@@ -3990,11 +4094,13 @@ NAR #88757, TRA #12200
 	TeleMetrum has overall dimensions of 1.000 x 2.750 inches, and the
 	mounting holes are sized for use with 4-40 or M3 screws.
       </para>
-      <mediaobject id="TeleMetrumTemplate">
-	<imageobject>
-	  <imagedata format="SVG" fileref="telemetrum.svg"/>
-	</imageobject>
-      </mediaobject>
+      <informalfigure>
+	<mediaobject id="TeleMetrumTemplate">
+	  <imageobject>
+	    <imagedata format="SVG" fileref="telemetrum.svg"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
     </section>
     <section>
       <title>TeleMini v2/EasyMini template</title>
@@ -4002,11 +4108,13 @@ NAR #88757, TRA #12200
 	TeleMini v2 and EasyMini have overall dimensions of 0.800 x 1.500 inches, and the
 	mounting holes are sized for use with 4-40 or M3 screws.
       </para>
-      <mediaobject id="MiniTemplate">
-	<imageobject>
-	  <imagedata format="SVG" fileref="easymini-outline.svg"/>
-	</imageobject>
-      </mediaobject>
+      <informalfigure>
+	<mediaobject id="MiniTemplate">
+	  <imageobject>
+	    <imagedata format="SVG" fileref="easymini-outline.svg"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
     </section>
     <section>
       <title>TeleMini v1 template</title>
@@ -4014,11 +4122,13 @@ NAR #88757, TRA #12200
 	TeleMini has overall dimensions of 0.500 x 1.500 inches, and the
 	mounting holes are sized for use with 2-56 or M2 screws.
       </para>
-      <mediaobject id="TeleMiniTemplate">
-	<imageobject>
-	  <imagedata format="SVG" fileref="telemini.svg"/>
-	</imageobject>
-      </mediaobject>
+      <informalfigure>
+	<mediaobject id="TeleMiniTemplate">
+	  <imageobject>
+	    <imagedata format="SVG" fileref="telemini.svg"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
     </section>
   </appendix>
   <appendix>
