@@ -53,7 +53,7 @@ SECTIONS {
 	 */
 	.boot ORIGIN(ram) + SIZEOF(.interrupt) (NOLOAD) : {
 		__boot_start__ = .;
-		*(.boot)
+		*(.boot*)
 		__boot_end__ = .;
 	} >ram
 
@@ -61,15 +61,15 @@ SECTIONS {
 	 */
 	.data : {
 		__data_start__ = .;
-		*(.data)	/* initialized data */
+		*(.data*)	/* initialized data */
 		__data_end__ = .;
 	} >ram AT>rom
 
 
 	.bss : {
 		__bss_start__ = .;
-		*(.bss)
-		*(COMMON)
+		*(.bss*)
+		*(COMMON*)
 		__bss_end__ = .;
 	} >ram
 
