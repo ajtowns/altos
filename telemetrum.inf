@@ -33,8 +33,8 @@ DefaultDestDir	= 12
 %TeleMega%	= AltusMetrum.Install, USB\VID_FFFE&PID_0023, AltusMetrumSerial
 %MegaDongle	= AltusMetrum.Install, USB\VID_FFFE&PID_0024, AltusMetrumSerial
 %TeleGPS%	= AltusMetrum.Install, USB\VID_FFFE&PID_0025, AltusMetrumSerial
-%AltusMetrum26%	= AltusMetrum.Install, USB\VID_FFFE&PID_0026, AltusMetrumSerial
-%AltusMetrum27%	= AltusMetrum.Install, USB\VID_FFFE&PID_0027, AltusMetrumSerial
+%EasyMini%	= AltusMetrum.Install, USB\VID_FFFE&PID_0026, AltusMetrumSerial
+%TeleMini%	= AltusMetrum.Install, USB\VID_FFFE&PID_0027, AltusMetrumSerial
 %AltusMetrum28%	= AltusMetrum.Install, USB\VID_FFFE&PID_0028, AltusMetrumSerial
 %AltusMetrum29%	= AltusMetrum.Install, USB\VID_FFFE&PID_0029, AltusMetrumSerial
 %AltusMetrum2a%	= AltusMetrum.Install, USB\VID_FFFE&PID_002a, AltusMetrumSerial
@@ -55,8 +55,8 @@ DefaultDestDir	= 12
 %TeleMega%	= AltusMetrum.Install, USB\VID_FFFE&PID_0023, AltusMetrumSerial
 %MegaDongle	= AltusMetrum.Install, USB\VID_FFFE&PID_0024, AltusMetrumSerial
 %TeleGPS%	= AltusMetrum.Install, USB\VID_FFFE&PID_0025, AltusMetrumSerial
-%AltusMetrum26%	= AltusMetrum.Install, USB\VID_FFFE&PID_0026, AltusMetrumSerial
-%AltusMetrum27%	= AltusMetrum.Install, USB\VID_FFFE&PID_0027, AltusMetrumSerial
+%EasyMini%	= AltusMetrum.Install, USB\VID_FFFE&PID_0026, AltusMetrumSerial
+%TeleMini%	= AltusMetrum.Install, USB\VID_FFFE&PID_0027, AltusMetrumSerial
 %AltusMetrum28%	= AltusMetrum.Install, USB\VID_FFFE&PID_0028, AltusMetrumSerial
 %AltusMetrum29%	= AltusMetrum.Install, USB\VID_FFFE&PID_0029, AltusMetrumSerial
 %AltusMetrum2a%	= AltusMetrum.Install, USB\VID_FFFE&PID_002a, AltusMetrumSerial
@@ -77,8 +77,8 @@ DefaultDestDir	= 12
 %TeleMega%	= AltusMetrum.Install, USB\VID_FFFE&PID_0023, AltusMetrumSerial
 %MegaDongle	= AltusMetrum.Install, USB\VID_FFFE&PID_0024, AltusMetrumSerial
 %TeleGPS%	= AltusMetrum.Install, USB\VID_FFFE&PID_0025, AltusMetrumSerial
-%AltusMetrum26%	= AltusMetrum.Install, USB\VID_FFFE&PID_0026, AltusMetrumSerial
-%AltusMetrum27%	= AltusMetrum.Install, USB\VID_FFFE&PID_0027, AltusMetrumSerial
+%EasyMini%	= AltusMetrum.Install, USB\VID_FFFE&PID_0026, AltusMetrumSerial
+%TeleMini%	= AltusMetrum.Install, USB\VID_FFFE&PID_0027, AltusMetrumSerial
 %AltusMetrum28%	= AltusMetrum.Install, USB\VID_FFFE&PID_0028, AltusMetrumSerial
 %AltusMetrum29%	= AltusMetrum.Install, USB\VID_FFFE&PID_0029, AltusMetrumSerial
 %AltusMetrum2a%	= AltusMetrum.Install, USB\VID_FFFE&PID_002a, AltusMetrumSerial
@@ -99,8 +99,8 @@ DefaultDestDir	= 12
 %TeleMega%	= AltusMetrum.Install, USB\VID_FFFE&PID_0023, AltusMetrumSerial
 %MegaDongle	= AltusMetrum.Install, USB\VID_FFFE&PID_0024, AltusMetrumSerial
 %TeleGPS%	= AltusMetrum.Install, USB\VID_FFFE&PID_0025, AltusMetrumSerial
-%AltusMetrum26%	= AltusMetrum.Install, USB\VID_FFFE&PID_0026, AltusMetrumSerial
-%AltusMetrum27%	= AltusMetrum.Install, USB\VID_FFFE&PID_0027, AltusMetrumSerial
+%EasyMini%	= AltusMetrum.Install, USB\VID_FFFE&PID_0026, AltusMetrumSerial
+%TeleMini%	= AltusMetrum.Install, USB\VID_FFFE&PID_0027, AltusMetrumSerial
 %AltusMetrum28%	= AltusMetrum.Install, USB\VID_FFFE&PID_0028, AltusMetrumSerial
 %AltusMetrum29%	= AltusMetrum.Install, USB\VID_FFFE&PID_0029, AltusMetrumSerial
 %AltusMetrum2a%	= AltusMetrum.Install, USB\VID_FFFE&PID_002a, AltusMetrumSerial
@@ -140,7 +140,7 @@ HKR,,DeviceType, 1,		01
 HKR,, Properties, 1, C0,01,00,00, 00,00,00,00, FF,00,00,00, 07,00,00,00, 0F,00,00,00, F7,0F,00,00, 00,84,03,00, C0,DA,00,00
 
 [Uninstall.AddReg]
-HKLM,Software\Microsoft\Windows\CurrentVersion\Uninstall\%TeleMetrum%,DisplayName,,"%TeleMetrum%"
+HKLM,Software\Microsoft\Windows\CurrentVersion\Uninstall\%AltusMetrum%,DisplayName,,"%AltusMetrum%"
 
 [Strings]
 Mfg		= "altusmetrum.org"
@@ -148,5 +148,22 @@ AltusMetrum	= "AltusMetrum"
 TeleMetrum	= "TeleMetrum"
 TeleDongle	= "TeleDongle"
 TeleTerra	= "TeleTerra"
+TeleBT		= "TeleBT"
+TeleLaunch	= "TeleLaunch"
+TeleLCO		= "TeleLCO"
+TeleScience	= "TeleScience"
+TelePyro	= "TelePyro"
+TeleShield	= "TeleShield"
+TeleMega	= "TeleMega"
+MegaDongle	= "MegaDongle"
+TeleGPS		= "TeleGPS"
+EasyMini	= "EasyMini"
+TeleMini	= "TeleMini"
+AltusMetrum28	= "AltusMetrum28"
+AltusMetrum29	= "AltusMetrum29"
+AltusMetrum2a	= "AltusMetrum2a"
+AltusMetrum2b	= "AltusMetrum2b"
+AltusMetrum2c	= "AltusMetrum2c"
+
 DriverName	= "Altus Metrum Device Driver"
 

@@ -152,7 +152,9 @@ FIRMWARE_TBT=$(FIRMWARE_TBT_1_0)
 FIRMWARE_TMEGA_1_0=$(top_srcdir)/src/telemega-v1.0/telemega-v1.0-$(VERSION).ihx
 FIRMWARE_TMEGA=$(FIRMWARE_TMEGA_1_0)
 
-FIRMWARE=$(FIRMWARE_TM) $(FIRMWARE_TELEMINI) $(FIRMWARE_TD) $(FIRMWARE_TBT) $(FIRMWARE_TMEGA)
+FIRMWARE_EMINI_1_0=$(top_srcdir)/src/easymini-v1.0/easymini-v1.0-$(VERSION).ihx
+
+FIRMWARE=$(FIRMWARE_TM) $(FIRMWARE_TELEMINI) $(FIRMWARE_TD) $(FIRMWARE_TBT) $(FIRMWARE_TMEGA) $(FIRMWARE_EMINI)
 
 ALTUSMETRUM_DOC=$(top_srcdir)/doc/altusmetrum.pdf
 ALTOS_DOC=$(top_srcdir)/doc/altos.pdf
@@ -160,7 +162,8 @@ TELEMETRY_DOC=$(top_srcdir)/doc/telemetry.pdf
 TEMPLATE_DOC=\
 	$(top_srcdir)/doc/telemetrum-outline.pdf \
 	$(top_srcdir)/doc/easymini-outline.pdf \
-	$(top_srcdir)/doc/telemega-outline.pdf
+	$(top_srcdir)/doc/telemega-outline.pdf \
+	$(top_srcdir)/doc/easymini-outline.pdf
 
 DOC=$(ALTUSMETRUM_DOC) $(ALTOS_DOC) $(TELEMETRY_DOC) $(TEMPLATE_DOC)
 

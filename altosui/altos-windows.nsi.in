@@ -122,6 +122,7 @@ Section "TeleMetrum, TeleDongle and TeleBT Firmware"
 	File "../src/teledongle-v0.2/teledongle-v0.2-${VERSION}.ihx"
 	File "../src/telebt-v1.0/telebt-v1.0-${VERSION}.ihx"
 	File "../src/telemega-v1.0/telemega-v1.0-${VERSION}.ihx"
+	File "../src/easymini-v1.0/easymini-v1.0-${VERSION}.ihx"
 
 SectionEnd
 
@@ -134,6 +135,7 @@ Section "Documentation"
 	File "../doc/telemetry.pdf"
 	File "../doc/telemetrum-outline.pdf"
 	File "../doc/telemega-outline.pdf"
+	File "../doc/easymini-outline.pdf"
 SectionEnd
 
 Section "Uninstaller"
