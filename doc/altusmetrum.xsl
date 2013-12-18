@@ -5,6 +5,11 @@
   <title>The Altus Metrum System</title>
   <subtitle>An Owner's Manual for Altus Metrum Rocketry Electronics</subtitle>
   <bookinfo>
+    <mediaobject>
+      <imageobject>
+	<imagedata fileref="../altosui/altusmetrum.jpg" role="top"/>
+      </imageobject>
+    </mediaobject>
     <author>
       <firstname>Bdale</firstname>
       <surname>Garbee</surname>
@@ -1350,7 +1355,6 @@ NAR #88757, TRA #12200
 
   </chapter>
   <chapter>
-
     <title>AltosUI</title>
     <para>
       The AltosUI program provides a graphical user interface for
@@ -1361,6 +1365,11 @@ NAR #88757, TRA #12200
       is split into sections, each of which documents one of the tasks
       provided from the top-level toolbar.
     </para>
+    <mediaobject>
+      <imageobject>
+	<imagedata fileref="altosui.png" width="5.5in"/>
+      </imageobject>
+    </mediaobject>
     <section>
       <title>Monitor Flight</title>
       <subtitle>Receive, Record and Display Telemetry Data</subtitle>
