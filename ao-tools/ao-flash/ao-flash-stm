@@ -6,6 +6,15 @@ case "$#" in
 	;;
 esac
 
+ST_FLASH=st-flash
+
+if which $ST_FLASH > /dev/null; then
+    :
+else
+    echo "$0: $ST_FLASH not found. Check to see if the stlink package is installed"
+    exit 1
+fi
+
 file=$1
 
 bin=/tmp/flash$$.bin
@@ -21,4 +30,4 @@ esac
 
 arm-none-eabi-objcopy -O binary $file $bin
 
-st-flash --reset write $bin $base
+$ST_FLASH --reset write $bin $base
