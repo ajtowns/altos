@@ -12,9 +12,9 @@ endif
 include $(TOPDIR)/Makedefs
 
 CC=$(ARM_CC)
-LIBS=-lpdclib-cortex-m3 -lgcc
+LIBS=$(PDCLIB_LIBS_M3) -lgcc
 
-AO_CFLAGS=-I. -I$(TOPDIR)/stm -I$(TOPDIR)/core -I$(TOPDIR)/drivers -I$(TOPDIR)/product -I$(TOPDIR)
+AO_CFLAGS=-I. -I$(TOPDIR)/stm -I$(TOPDIR)/core -I$(TOPDIR)/drivers -I$(TOPDIR)/product -I$(TOPDIR) $(PDCLIB_INCLUDES)
 STM_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m3 -mthumb -ffreestanding -nostdlib $(AO_CFLAGS) $(SAT_CFLAGS)
 
 LDFLAGS=-L$(TOPDIR)/stm -Wl,-Taltos-loader.ld
