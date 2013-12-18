@@ -124,6 +124,7 @@ public class AltosTelemetryReader extends AltosFlightReader {
 	public AltosTelemetryReader (AltosLink in_link)
 		throws IOException, InterruptedException, TimeoutException {
 		link = in_link;
+		boolean success = false;
 		try {
 			log = new AltosLog(link);
 			name = link.name;
@@ -133,8 +134,10 @@ public class AltosTelemetryReader extends AltosFlightReader {
 			telemetry = AltosPreferences.telemetry(link.serial);
 			set_telemetry(telemetry);
 			link.add_monitor(telem);
+			success = true;
 		} finally {
-			close(true);
+			if (!success)
+				close(true);
 		}
 	}
 }
