@@ -10,7 +10,8 @@ altos_puts(struct altos_file *file, char *string)
 		altos_putchar(file, c);
 }
 
-main ()
+int
+main (int argc, char **argv)
 {
 	struct altos_device	device;
 	struct altos_list	*list;
