@@ -1,0 +1,3 @@
+[submodule "pdclib"]
+	path = pdclib
+	url = ssh://gag.com/scm/git/fw/pdclib
