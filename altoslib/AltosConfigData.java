@@ -336,6 +336,10 @@ public class AltosConfigData implements Iterable<String> {
 	public double frequency() {
 		int	channel = radio_channel;
 		int	setting = radio_setting;
+
+		if (radio_frequency < 0 && channel < 0 && setting < 0)
+			return -1;
+
 		if (channel < 0)
 			channel = 0;
 		if (setting < 0)

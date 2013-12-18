@@ -786,28 +786,7 @@ public class AltosConfigUI
 	}
 
 	public void set_radio_frequency(double new_radio_frequency) {
-		int i;
-		for (i = 0; i < radio_frequency_value.getItemCount(); i++) {
-			AltosFrequency	f = (AltosFrequency) radio_frequency_value.getItemAt(i);
-			
-			if (f.close(new_radio_frequency)) {
-				radio_frequency_value.setSelectedIndex(i);
-				return;
-			}
-		}
-		for (i = 0; i < radio_frequency_value.getItemCount(); i++) {
-			AltosFrequency	f = (AltosFrequency) radio_frequency_value.getItemAt(i);
-			
-			if (new_radio_frequency < f.frequency)
-				break;
-		}
-		String	description = String.format("%s serial %s",
-						    product_value.getText(),
-						    serial_value.getText());
-		AltosFrequency	new_frequency = new AltosFrequency(new_radio_frequency, description);
-		AltosUIPreferences.add_common_frequency(new_frequency);
-		radio_frequency_value.insertItemAt(new_frequency, i);
-		radio_frequency_value.setSelectedIndex(i);
+		radio_frequency_value.set_frequency(new_radio_frequency);
 	}
 
 	public double radio_frequency() {
@@ -815,7 +794,11 @@ public class AltosConfigUI
 	}
 
 	public void set_radio_calibration(int new_radio_calibration) {
-		radio_calibration_value.setText(String.format("%d", new_radio_calibration));
+		radio_calibration_value.setVisible(new_radio_calibration >= 0);
+		if (new_radio_calibration < 0)
+			radio_calibration_value.setText("Disabled");
+		else
+			radio_calibration_value.setText(String.format("%d", new_radio_calibration));
 	}
 
 	public int radio_calibration() {
@@ -828,6 +811,7 @@ public class AltosConfigUI
 			radio_enable_value.setEnabled(true);
 		} else {
 			radio_enable_value.setSelected(true);
+			radio_enable_value.setVisible(radio_frequency() > 0);
 			radio_enable_value.setEnabled(false);
 		}
 		set_radio_enable_tool_tip();
@@ -841,6 +825,7 @@ public class AltosConfigUI
 	}
 
 	public void set_callsign(String new_callsign) {
+		callsign_value.setVisible(new_callsign != null);
 		callsign_value.setText(new_callsign);
 	}
 
@@ -900,10 +885,10 @@ public class AltosConfigUI
 		if (new_pad_orientation >= pad_orientation_values.length)
 			new_pad_orientation = 0;
 		if (new_pad_orientation < 0) {
-			pad_orientation_value.setEnabled(false);
+			pad_orientation_value.setVisible(false);
 			new_pad_orientation = 0;
 		} else {
-			pad_orientation_value.setEnabled(true);
+			pad_orientation_value.setVisible(true);
 		}
 		pad_orientation_value.setSelectedIndex(new_pad_orientation);
 		set_pad_orientation_tool_tip();
@@ -918,7 +903,7 @@ public class AltosConfigUI
 
 	public void set_pyros(AltosPyro[] new_pyros) {
 		pyros = new_pyros;
-		pyro.setEnabled(pyros != null);
+		pyro.setVisible(pyros != null);
 		if (pyros != null && pyro_ui != null)
 			pyro_ui.set_pyros(pyros);
 	}
@@ -937,7 +922,7 @@ public class AltosConfigUI
 		else
 			s = Integer.toString(new_aprs_interval);
 		aprs_interval_value.setSelectedItem(s);
-		aprs_interval_value.setEnabled(new_aprs_interval >= 0);
+		aprs_interval_value.setVisible(new_aprs_interval >= 0);
 		set_aprs_interval_tool_tip();
 	}
 
