@@ -24,6 +24,7 @@
 #include <ao_packet.h>
 #include <ao_companion.h>
 #include <ao_profile.h>
+#include <ao_eeprom.h>
 #if HAS_SAMPLE_PROFILE
 #include <ao_sample_profile.h>
 #endif
@@ -71,6 +72,7 @@ main(void)
 	ao_mma655x_init();
 #endif
 
+	ao_eeprom_init();
 	ao_storage_init();
 	
 	ao_flight_init();

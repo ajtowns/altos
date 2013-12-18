@@ -90,6 +90,7 @@ ALTOS_SRC = \
 	ao_hmc5883.c \
 	ao_adc_stm.c \
 	ao_beep_stm.c \
+	ao_eeprom_stm.c \
 	ao_storage.c \
 	ao_m25.c \
 	ao_usb_stm.c \
@@ -109,9 +110,9 @@ ALTOS_SRC = \
 	ao_companion.c \
 	ao_pyro.c \
 	ao_aprs.c \
+	$(MATH_SRC) \
 	$(PROFILE) \
 	$(SAMPLE_PROFILE) \
-	$(MATH_SRC) \
 	$(STACK_GUARD)
 
 PRODUCT=TeleMega-v0.1
