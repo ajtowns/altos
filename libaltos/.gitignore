@@ -3,6 +3,7 @@
 *.la
 *.java
 *.class
+*.dll
 .libs/
 classlibaltos.stamp
 libaltos_wrap.c
