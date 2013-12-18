@@ -53,6 +53,8 @@ altos_get_last_error(struct altos_error *error)
 
 #ifdef DARWIN
 
+#include <unistd.h>
+
 #undef USE_POLL
 
 /* Mac OS X don't have strndup even if _GNU_SOURCE is defined */
@@ -887,15 +889,6 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 		if (!get_number (object, CFSTR(kUSBVendorID), &device->vendor) ||
 		    !get_number (object, CFSTR(kUSBProductID), &device->product))
 			continue;
-		if (list->ftdi) {
-			if (device->vendor != 0x0403)
-				continue;
-		} else {
-			if (device->vendor != 0xfffe)
-				continue;
-			if (device->product < 0x000a || 0x0013 < device->product)
-				continue;
-		}
 		if (get_string (object, CFSTR("IOCalloutDevice"), device->path, sizeof (device->path)) &&
 		    get_string (object, CFSTR("USB Product Name"), device->name, sizeof (device->name)) &&
 		    get_string (object, CFSTR("USB Serial Number"), serial_string, sizeof (serial_string))) {
