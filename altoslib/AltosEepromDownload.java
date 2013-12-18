@@ -239,6 +239,7 @@ public class AltosEepromDownload implements Runnable {
 
 	public void start() {
 		eeprom_thread = new Thread(this);
+		monitor.set_thread(eeprom_thread);
 		eeprom_thread.start();
 	}
 
@@ -255,7 +256,6 @@ public class AltosEepromDownload implements Runnable {
 
 		monitor.set_states(AltosLib.ao_flight_boost, AltosLib.ao_flight_landed);
 
-		monitor.set_thread(eeprom_thread);
 		monitor.start();
 	}
 }
