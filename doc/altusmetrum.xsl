@@ -836,16 +836,143 @@ NAR #88757, TRA #12200
 	which mode to enter next.
       </para>
       <para>
+	Here's a short summary of all of the modes and the beeping (or
+	flashing, in the case of TeleMini v1) that accompanies each
+	mode. In the description of the beeping pattern, “dit” means a
+	short beep while "dah" means a long beep (three times as
+	long). “Brap” means a long dissonant tone.
+	<table frame='all'>
+	  <title>AltOS Modes</title>
+	  <?dbfo keep-together="always"?>
+	  <tgroup cols='4' align='center' colsep='1' rowsep='1'>
+	    <colspec align='center' colwidth='*' colname='Mode Name'/>
+	    <colspec align='center' colwidth='*' colname='Letter'/>
+	    <colspec align='center' colwidth='*' colname='Beeps'/>
+	    <colspec align='center' colwidth='*' colname='Description'/>
+	    <thead>
+	      <row>
+		<entry>Mode Name</entry>
+		<entry>Abbreviation</entry>
+		<entry>Beeps</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>Startup</entry>
+		<entry>S</entry>
+		<entry>dit dit dit</entry>
+		<entry>
+		  <para>
+		    Calibrating sensors, detecting orientation.
+		  </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>Idle</entry>
+		<entry>I</entry>
+		<entry>dit dit</entry>
+		<entry>
+		  <para>
+		    Ready to accept commands over USB or radio link.
+		  </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>Pad</entry>
+		<entry>P</entry>
+		<entry>dit dah dah dit</entry>
+		<entry>
+		  <para>
+		    Waiting for launch. Not listening for commands.
+		  </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>Boost</entry>
+		<entry>B</entry>
+		<entry>dah dit dit dit</entry>
+		<entry>
+		  <para>
+		    Accelerating upwards.
+		  </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>Fast</entry>
+		<entry>F</entry>
+		<entry>dit dit dah dit</entry>
+		<entry>
+		  <para>
+		    Decellerating, but moving faster than 200m/s.
+		  </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>Coast</entry>
+		<entry>C</entry>
+		<entry>dah dit dah dit</entry>
+		<entry>
+		  <para>
+		    Decellerating, moving slower than 200m/s
+		  </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>Drogue</entry>
+		<entry>D</entry>
+		<entry>dah dit dit</entry>
+		<entry>
+		  <para>
+		    Descending after apogee. Above main height.
+		  </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>Main</entry>
+		<entry>M</entry>
+		<entry>dah dah</entry>
+		<entry>
+		  <para>
+		    Descending. Below main height.
+		  </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>Landed</entry>
+		<entry>L</entry>
+		<entry>dit dah dit dit</entry>
+		<entry>
+		  <para>
+		    Stable altitude for at least ten seconds.
+		  </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>Sensor error</entry>
+		<entry>X</entry>
+		<entry>dah dit dit dah</entry>
+		<entry>
+		  <para>
+		    Error detected during sensor calibration.
+		  </para>
+		</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+      </para>
+      <para>
         In flight or “pad” mode, the altimeter engages the flight
-        state machine, goes into transmit-only mode to
-        send telemetry, and waits for launch to be detected.
-        Flight mode is indicated by an “di-dah-dah-dit” (“P” for pad)
-        on the beeper or lights, followed by beeps or flashes
-        indicating the state of the pyrotechnic igniter continuity.
-        One beep/flash indicates apogee continuity, two beeps/flashes
-        indicate main continuity, three beeps/flashes indicate both
-        apogee and main continuity, and one longer “brap” sound or
-        rapidly alternating lights indicates no continuity.  For a
+        state machine, goes into transmit-only mode to send telemetry,
+        and waits for launch to be detected.  Flight mode is indicated
+        by an “di-dah-dah-dit” (“P” for pad) on the beeper or lights,
+        followed by beeps or flashes indicating the state of the
+        pyrotechnic igniter continuity.  One beep/flash indicates
+        apogee continuity, two beeps/flashes indicate main continuity,
+        three beeps/flashes indicate both apogee and main continuity,
+        and one longer “brap” sound which is made by rapidly
+        alternating between two tones indicates no continuity.  For a
         dual deploy flight, make sure you're getting three beeps or
         flashes before launching!  For apogee-only or motor eject
         flights, do what makes sense.
@@ -861,6 +988,93 @@ NAR #88757, TRA #12200
         mode is useful for configuring the altimeter, for extracting
         data from the on-board storage chip after flight, and for
         ground testing pyro charges.
+      </para>
+      <para>
+	In “Idle” and “Pad” modes, once the mode indication
+	beeps/flashes and continuity indication has been sent, if
+	there is no space available to log the flight in on-board
+	memory, the flight computer will emit a warbling tone (much
+	slower than the “no continuity tone”)
+      </para>
+      <para>
+	Here's a summary of all of the “pad” and “idle” mode indications.
+	<table frame='all'>
+	  <title>Pad/Idle Indications</title>
+	  <?dbfo keep-together="always"?>
+	  <tgroup cols='3' align='center' colsep='1' rowsep='1'>
+	    <colspec align='center' colwidth='*' colname='Name'/>
+	    <colspec align='center' colwidth='*' colname='Beeps'/>
+	    <colspec align='center' colwidth='*' colname='Description'/>
+	    <thead>
+	      <row>
+		<entry>Name</entry>
+		<entry>Beeps</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry>Neither</entry>
+		<entry>brap</entry>
+		<entry>
+		  <para>
+		    No continuity detected on either apogee or main
+		    igniters.
+		  </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>Apogee</entry>
+		<entry>dit</entry>
+		<entry>
+		  <para>
+		    Continuity detected only on apogee igniter.
+		  </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>Main</entry>
+		<entry>dit dit</entry>
+		<entry>
+		  <para>
+		    Continuity detected only on main igniter.
+		  </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>Both</entry>
+		<entry>dit dit dit</entry>
+		<entry>
+		  <para>
+		    Continuity detected on both igniters.
+		  </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry>Storage Full</entry>
+		<entry>warble</entry>
+		<entry>
+		  <para>
+		    On-board data logging storage is full. This will
+		    not prevent the flight computer from safely
+		    controlling the flight or transmitting telemetry
+		    signals, but no record of the flight will be
+		    stored in on-board flash.
+		  </para>
+		</entry>
+	      </row>
+	    </tbody>
+	  </tgroup>
+	</table>
+      </para>
+      <para>
+	Once landed, the flight computer will signal that by emitting
+	the “Landed” sound described above, after which it will beep
+	out the apogee height (in meters). Each digit is represented
+	by a sequence of short “dit” beeps, with a pause between
+	digits. A zero digit is represented with one long “dah”
+	beep. The flight computer will continue to report landed mode
+	and beep out the maximum height until turned off.
       </para>
       <para>
         One “neat trick” of particular value when TeleMetrum or TeleMega are used with 

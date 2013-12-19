@@ -137,10 +137,10 @@ ao_mpu6000_accel_check(int16_t normal, int16_t test, char *which)
 {
 	int16_t	diff = test - normal;
 
-	if (diff < MPU6000_ST_ACCEL(16) / 2) {
+	if (diff < MPU6000_ST_ACCEL(16) / 4) {
 		return 1;
 	}
-	if (diff > MPU6000_ST_ACCEL(16) * 2) {
+	if (diff > MPU6000_ST_ACCEL(16) * 4) {
 		return 1;
 	}
 	return 0;
@@ -153,10 +153,10 @@ ao_mpu6000_gyro_check(int16_t normal, int16_t test, char *which)
 
 	if (diff < 0)
 		diff = -diff;
-	if (diff < MPU6000_ST_GYRO(2000) / 2) {
+	if (diff < MPU6000_ST_GYRO(2000) / 4) {
 		return 1;
 	}
-	if (diff > MPU6000_ST_GYRO(2000) * 2) {
+	if (diff > MPU6000_ST_GYRO(2000) * 4) {
 		return 1;
 	}
 	return 0;
@@ -177,11 +177,14 @@ _ao_mpu6000_wait_alive(void)
 		ao_panic(AO_PANIC_SELF_TEST_MPU6000);
 }
 
+#define ST_TRIES	10
+
 static void
 _ao_mpu6000_setup(void)
 {
 	struct ao_mpu6000_sample	normal_mode, test_mode;
-	int				errors =0;
+	int				errors;
+	int				st_tries;
 
 	if (ao_mpu6000_configured)
 		return;
@@ -236,23 +239,6 @@ _ao_mpu6000_setup(void)
 			      (MPU6000_CONFIG_EXT_SYNC_SET_DISABLED << MPU6000_CONFIG_EXT_SYNC_SET) |
 			      (MPU6000_CONFIG_DLPF_CFG_260_256 << MPU6000_CONFIG_DLPF_CFG));
 
-	/* Configure accelerometer to +/-16G in self-test mode */
-	_ao_mpu6000_reg_write(MPU6000_ACCEL_CONFIG,
-			      (1 << MPU600_ACCEL_CONFIG_XA_ST) |
-			      (1 << MPU600_ACCEL_CONFIG_YA_ST) |
-			      (1 << MPU600_ACCEL_CONFIG_ZA_ST) |
-			      (MPU600_ACCEL_CONFIG_AFS_SEL_16G << MPU600_ACCEL_CONFIG_AFS_SEL));
-
-	/* Configure gyro to +/- 2000°/s in self-test mode */
-	_ao_mpu6000_reg_write(MPU6000_GYRO_CONFIG,
-			      (1 << MPU600_GYRO_CONFIG_XG_ST) |
-			      (1 << MPU600_GYRO_CONFIG_YG_ST) |
-			      (1 << MPU600_GYRO_CONFIG_ZG_ST) |
-			      (MPU600_GYRO_CONFIG_FS_SEL_2000 << MPU600_GYRO_CONFIG_FS_SEL));
-
-	ao_delay(AO_MS_TO_TICKS(200));
-	_ao_mpu6000_sample(&test_mode);
-
 #if TRIDGE
 	// read the product ID rev c has 1/2 the sensitivity of rev d
 	_mpu6000_product_id = _register_read(MPUREG_PRODUCT_ID);
@@ -268,36 +254,58 @@ _ao_mpu6000_setup(void)
 		register_write(MPUREG_ACCEL_CONFIG,2<<3);
 	}
 	hal.scheduler->delay(1);
-
 #endif
 
-	/* Configure accelerometer to +/-16G */
-	_ao_mpu6000_reg_write(MPU6000_ACCEL_CONFIG,
-			      (0 << MPU600_ACCEL_CONFIG_XA_ST) |
-			      (0 << MPU600_ACCEL_CONFIG_YA_ST) |
-			      (0 << MPU600_ACCEL_CONFIG_ZA_ST) |
-			      (MPU600_ACCEL_CONFIG_AFS_SEL_16G << MPU600_ACCEL_CONFIG_AFS_SEL));
+	for (st_tries = 0; st_tries < ST_TRIES; st_tries++) {
+		errors = 0;
 
-	/* Configure gyro to +/- 2000°/s */
-	_ao_mpu6000_reg_write(MPU6000_GYRO_CONFIG,
-			      (0 << MPU600_GYRO_CONFIG_XG_ST) |
-			      (0 << MPU600_GYRO_CONFIG_YG_ST) |
-			      (0 << MPU600_GYRO_CONFIG_ZG_ST) |
-			      (MPU600_GYRO_CONFIG_FS_SEL_2000 << MPU600_GYRO_CONFIG_FS_SEL));
+		/* Configure accelerometer to +/-16G in self-test mode */
+		_ao_mpu6000_reg_write(MPU6000_ACCEL_CONFIG,
+				      (1 << MPU600_ACCEL_CONFIG_XA_ST) |
+				      (1 << MPU600_ACCEL_CONFIG_YA_ST) |
+				      (1 << MPU600_ACCEL_CONFIG_ZA_ST) |
+				      (MPU600_ACCEL_CONFIG_AFS_SEL_16G << MPU600_ACCEL_CONFIG_AFS_SEL));
 
-	ao_delay(AO_MS_TO_TICKS(10));
-	_ao_mpu6000_sample(&normal_mode);
+		/* Configure gyro to +/- 2000°/s in self-test mode */
+		_ao_mpu6000_reg_write(MPU6000_GYRO_CONFIG,
+				      (1 << MPU600_GYRO_CONFIG_XG_ST) |
+				      (1 << MPU600_GYRO_CONFIG_YG_ST) |
+				      (1 << MPU600_GYRO_CONFIG_ZG_ST) |
+				      (MPU600_GYRO_CONFIG_FS_SEL_2000 << MPU600_GYRO_CONFIG_FS_SEL));
+
+		ao_delay(AO_MS_TO_TICKS(200));
+		_ao_mpu6000_sample(&test_mode);
+
+		/* Configure accelerometer to +/-16G */
+		_ao_mpu6000_reg_write(MPU6000_ACCEL_CONFIG,
+				      (0 << MPU600_ACCEL_CONFIG_XA_ST) |
+				      (0 << MPU600_ACCEL_CONFIG_YA_ST) |
+				      (0 << MPU600_ACCEL_CONFIG_ZA_ST) |
+				      (MPU600_ACCEL_CONFIG_AFS_SEL_16G << MPU600_ACCEL_CONFIG_AFS_SEL));
+
+		/* Configure gyro to +/- 2000°/s */
+		_ao_mpu6000_reg_write(MPU6000_GYRO_CONFIG,
+				      (0 << MPU600_GYRO_CONFIG_XG_ST) |
+				      (0 << MPU600_GYRO_CONFIG_YG_ST) |
+				      (0 << MPU600_GYRO_CONFIG_ZG_ST) |
+				      (MPU600_GYRO_CONFIG_FS_SEL_2000 << MPU600_GYRO_CONFIG_FS_SEL));
+
+		ao_delay(AO_MS_TO_TICKS(200));
+		_ao_mpu6000_sample(&normal_mode);
 	
-	errors += ao_mpu6000_accel_check(normal_mode.accel_x, test_mode.accel_x, "x");
-	errors += ao_mpu6000_accel_check(normal_mode.accel_y, test_mode.accel_y, "y");
-	errors += ao_mpu6000_accel_check(normal_mode.accel_z, test_mode.accel_z, "z");
+		errors += ao_mpu6000_accel_check(normal_mode.accel_x, test_mode.accel_x, "x");
+		errors += ao_mpu6000_accel_check(normal_mode.accel_y, test_mode.accel_y, "y");
+		errors += ao_mpu6000_accel_check(normal_mode.accel_z, test_mode.accel_z, "z");
 
-	errors += ao_mpu6000_gyro_check(normal_mode.gyro_x, test_mode.gyro_x, "x");
-	errors += ao_mpu6000_gyro_check(normal_mode.gyro_y, test_mode.gyro_y, "y");
-	errors += ao_mpu6000_gyro_check(normal_mode.gyro_z, test_mode.gyro_z, "z");
+		errors += ao_mpu6000_gyro_check(normal_mode.gyro_x, test_mode.gyro_x, "x");
+		errors += ao_mpu6000_gyro_check(normal_mode.gyro_y, test_mode.gyro_y, "y");
+		errors += ao_mpu6000_gyro_check(normal_mode.gyro_z, test_mode.gyro_z, "z");
+		if (!errors)
+			break;
+	}
 
-	if (errors)
-		ao_panic(AO_PANIC_SELF_TEST_MPU6000);
+	if (st_tries == ST_TRIES)
+		ao_sensor_errors = 1;
 
 	/* Filter to about 100Hz, which also sets the gyro rate to 1000Hz */
 	_ao_mpu6000_reg_write(MPU6000_CONFIG,

@@ -46,6 +46,11 @@ __pdata enum ao_flight_state	ao_flight_state;	/* current flight state */
 __pdata uint16_t		ao_boost_tick;		/* time of launch detect */
 __pdata uint16_t		ao_motor_number;	/* number of motors burned so far */
 
+#if HAS_IMU
+/* Any sensor can set this to mark the flight computer as 'broken' */
+__xdata uint8_t			ao_sensor_errors;
+#endif
+
 /*
  * track min/max data over a long interval to detect
  * resting
@@ -99,6 +104,9 @@ ao_flight(void)
 			    ao_config.accel_minus_g == 0 ||
 			    ao_ground_accel < ao_config.accel_plus_g - ACCEL_NOSE_UP ||
 			    ao_ground_accel > ao_config.accel_minus_g + ACCEL_NOSE_UP ||
+#if HAS_IMU
+			    ao_sensor_errors ||
+#endif
 			    ao_ground_height < -1000 ||
 			    ao_ground_height > 7000)
 			{

@@ -318,8 +318,7 @@ struct ao_adc {
 #define AO_MPU6000_SPI_BUS	AO_SPI_1_PE13_PE14_PE15
 #define AO_MPU6000_SPI_CS_PORT	(&stm_gpiod)
 #define AO_MPU6000_SPI_CS_PIN	2
-
-#define HAS_HIGHG_ACCEL		1
+#define HAS_IMU			1
 
 /*
  * mma655x
