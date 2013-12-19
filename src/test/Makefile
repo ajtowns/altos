@@ -83,3 +83,4 @@ ao_ms5607_convert_test: ao_ms5607_convert_test.c ao_ms5607_convert_8051.c ao_int
 
 ao_quaternion_test: ao_quaternion_test.c ao_quaternion.h
 	cc $(CFLAGS) -o $@ ao_quaternion_test.c -lm
+
