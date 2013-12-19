@@ -317,6 +317,13 @@ ao_usb_disable_epn(uint8_t n)
 }
 
 static void
+ao_usb_reset(void)
+{
+	ao_usb_set_address(0);
+	ao_usb_configuration = 0;
+}
+
+static void
 ao_usb_set_ep0(void)
 {
 	int			e;
@@ -326,10 +333,7 @@ ao_usb_set_ep0(void)
 	lpc_usb.epinuse = 0;
 	lpc_usb.epskip = 0xffffffff;
 
-	ao_usb_set_address(0);
 	lpc_usb.intstat = 0xc00003ff;
-
-	ao_usb_configuration = 0;
 
 	ao_usb_sram = lpc_usb_sram;
 
@@ -346,7 +350,7 @@ ao_usb_set_ep0(void)
 	/* Clear all of the other endpoints */
 	for (e = 1; e <= 4; e++)
 		ao_usb_disable_epn(e);
-
+	ao_usb_reset();
 }
 
 static void
@@ -590,7 +594,7 @@ ao_usb_ep0_handle(uint8_t receive)
 
 	if (receive & AO_USB_EP0_GOT_RESET) {
 		debug ("\treset\n");
-		ao_usb_set_ep0();
+		ao_usb_reset();
 		return;
 	}
 	if (receive & AO_USB_EP0_GOT_SETUP) {
@@ -936,11 +940,11 @@ ao_usb_enable(void)
 	for (t = 0; t < 1000; t++)
 		ao_arch_nop();
 
+	ao_usb_set_ep0();
+
 #if HAS_USB_PULLUP
 	ao_gpio_set(AO_USB_PULLUP_PORT, AO_USB_PULLUP_PIN, AO_USB_PULLUP, 1);
 #endif
-
-	ao_usb_set_ep0();
 }
 
 #if USB_ECHO
