@@ -10,7 +10,11 @@ These are Bdale's notes on how to do a release.
 	- update the version in configure.ac
         git log > ChangeLog
 	git commit -a
+
 	- make absolutely sure checked-out tree is "clean" 
+	- make absolutely sure the pdclib/ submodule is on the master branch,
+	  up to date, and "clean"
+
 	- if this is an x.y release, then:
 		git checkout -b branch-<version>
 		git tag -a <version>
@@ -31,12 +35,12 @@ These are Bdale's notes on how to do a release.
         git commit -n debian/changelog -m "update changelog for Debian build"
 
 	- if this is a -1 release, then
-		git-buildpackage --git-no-pristine-tar 
+		git-buildpackage --git-no-pristine-tar --git-submodules
 		pristine-tar commit \
 			../build-area/altos/altos_<version>.orig.tar.gz \
 			branch-<version>
 	  else if this is not a -1 release
-		git-buildpackage
+		git-buildpackage --git-submodules
 
 	git tag debian/<version>
 
