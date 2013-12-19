@@ -91,7 +91,7 @@ public class AltosRomconfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		radio_calibration_value = new JTextField("1186611");
+		radio_calibration_value = new JTextField("0");
 		pane.add(radio_calibration_value, c);
 
 		/* Buttons */
