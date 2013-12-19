@@ -18,12 +18,12 @@ These are Bdale's notes on how to do a release.
 	- if this is an x.y release, then:
 		git checkout -b branch-<version>
 		git tag -a <version>
+		- edit .git/gbp.conf to use branch-<version> as upstream
+
 	- if this is an x.y.z release, then:
 		git checkout branch-<version>		# the x.y parts only
 		git merge master
 		git tag -a <version>			# full x.y.z version
-
-	- edit .git/gbp.conf to use branch-<version> as upstream if needed
 
 	git checkout debian
 	git merge branch-<version>
@@ -35,9 +35,10 @@ These are Bdale's notes on how to do a release.
         git commit -n debian/changelog -m "update changelog for Debian build"
 
 	- if this is a -1 release, then
-		git-buildpackage --git-no-pristine-tar --git-submodules
+		git-buildpackage --git-no-pristine-tar --git-submodules \
+			--git-upstream-branch=branch-<version>
 		pristine-tar commit \
-			../build-area/altos/altos_<version>.orig.tar.gz \
+			../build-area/altos_<version>.orig.tar.gz \
 			branch-<version>
 	  else if this is not a -1 release
 		git-buildpackage --git-submodules
@@ -57,16 +58,20 @@ These are Bdale's notes on how to do a release.
 	- copy the relevant release notes file from doc/ to 
 	    /home/bdale/web/altusmetrum/AltOS/releases/<rev>
 
-	- go edit ~/web/altusmetrum/AltOS/releases/<rev>.mdwn to include
-	  release date and explicit ref to dir contents so the AltOS page
-	  shows versioned links, commit and push
+	- create /home/bdale/web/altusmetrum/MicroPeak/releases/<rev>,
+	  and move the MicroPeak installers from AltOS/releases to there
+		
+	- go edit ~/web/altusmetrum/AltOS/releases/<rev>.mdwn and 
+	  /home/bdale/web/altusmetrum/MicroPeak/releases/<rev>.mdwn, to 
+	  include release date and explicit ref to dir contents so the 
+	  web pages shows versioned links, commit and push
 
 	(cd doc ; make publish)
 
 		this pushes fresh documents to the web site
 
 	sudo debian/rules clean
-	git push origin master branch-1.1 debian
+	git push origin master branch-<version> debian
 	git push --tags
 
 		push commits and leave the build tree in an uncluttered state
