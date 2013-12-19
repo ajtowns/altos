@@ -1,6 +1,8 @@
 JAVAROOT=classes
 AM_JAVACFLAGS=-target 1.6 -encoding UTF-8 -Xlint:deprecation -source 6
 
+man_MANS=micropeak.1
+
 altoslibdir=$(libdir)/altos
 
 CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../altoslib/*:../altosuilib/*:../libaltos:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar"
