@@ -316,6 +316,7 @@ struct ao_adc {
 #define AO_MPU6000_INT_PORT	(&stm_gpioc)
 #define AO_MPU6000_INT_PIN	13
 #define AO_MPU6000_I2C_INDEX	STM_I2C_INDEX(1)
+#define HAS_IMU			1
 
 /*
  * mma655x

@@ -41,6 +41,10 @@ extern __pdata enum ao_flight_state	ao_flight_state;
 extern __pdata uint16_t			ao_boost_tick;
 extern __pdata uint16_t			ao_motor_number;
 
+#if HAS_IMU
+extern __xdata uint8_t			ao_sensor_errors;
+#endif
+
 extern __pdata uint16_t			ao_launch_time;
 extern __pdata uint8_t			ao_flight_force_idle;
 
