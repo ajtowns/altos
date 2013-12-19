@@ -319,8 +319,6 @@ public class AltosHexfile {
 			case 0xfe:
 				String name = make_string(record.data, 0, record.data.length);
 				addr = extended_addr + record.address;
-				if (name.startsWith("ao_romconfig"))
-					System.out.printf ("%08x: %s\n", addr, name);
 				AltosHexsym s = new AltosHexsym(name, addr);
 				symlist.add(s);
 				break;

@@ -58,7 +58,6 @@ public class AltosSelfFlash extends AltosProgrammer {
 		
 	void write_memory(long addr, byte[] data, int start, int len) {
 		int b;
-		System.out.printf ("write_memory %x %d\n", addr, len);
 		link.printf("W %x\n", addr);
 		link.flush_output();
 		for (b = 0; b < len; b++)
@@ -68,7 +67,6 @@ public class AltosSelfFlash extends AltosProgrammer {
 	}
 
 	void reboot() {
-		System.out.printf("reboot\n");
 		link.printf("a\n");
 		link.flush_output();
 	}
@@ -115,7 +113,6 @@ public class AltosSelfFlash extends AltosProgrammer {
 				action(image.data.length - remain, image.data.length);
 			}
 			if (!aborted) {
-				System.out.printf ("done\n");
 				action("done", 100);
 			}
 			close();
@@ -144,7 +141,6 @@ public class AltosSelfFlash extends AltosProgrammer {
 	}
 
 	private AltosHexfile get_rom() throws InterruptedException {
-		System.out.printf("get rom\n");
 		try {
 			int base = AltosRomconfig.fetch_base(image);
 			int bounds = AltosRomconfig.fetch_bounds(image);
@@ -153,7 +149,6 @@ public class AltosSelfFlash extends AltosProgrammer {
 			hexfile.add_symbols(image);
 			return hexfile;
 		} catch (AltosNoSymbol none) {
-			System.out.printf("no symbol %s\n", none.getMessage());
 			return null;
 		} catch (IOException ie) {
 			return null;
@@ -163,7 +158,6 @@ public class AltosSelfFlash extends AltosProgrammer {
 
 	public boolean check_rom_config() throws InterruptedException {
 		if (link == null) {
-			System.out.printf ("no link\n");
 			return true;
 		}
 		if (rom_config == null) {
@@ -179,7 +173,6 @@ public class AltosSelfFlash extends AltosProgrammer {
 	}
 
 	public AltosRomconfig romconfig() throws InterruptedException {
-		System.out.printf("fetch romconfig\n");
 		if (!check_rom_config())
 			return null;
 		return rom_config;
@@ -192,6 +185,5 @@ public class AltosSelfFlash extends AltosProgrammer {
 		this.listener = listener;
 		input = new FileInputStream(file);
 		image = new AltosHexfile(input);
-		System.out.printf ("AltosSelfFlash %x\n", image.address);
 	}
 }
