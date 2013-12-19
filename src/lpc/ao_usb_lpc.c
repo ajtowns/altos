@@ -58,6 +58,7 @@ static uint8_t 	ao_usb_ep0_state;
 /* Pending EP0 IN data */
 static const uint8_t	*ao_usb_ep0_in_data;	/* Remaining data */
 static uint8_t 		ao_usb_ep0_in_len;	/* Remaining amount */
+static uint16_t		ao_usb_ep0_in_max;	/* Requested amount from host */
 
 /* Temp buffer for smaller EP0 in data */
 static uint8_t	ao_usb_ep0_in_buf[2];
@@ -380,10 +381,11 @@ ao_usb_ep0_flush(void)
 	if (this_len > AO_USB_CONTROL_SIZE)
 		this_len = AO_USB_CONTROL_SIZE;
 
-	if (this_len < AO_USB_CONTROL_SIZE)
-		ao_usb_ep0_state = AO_USB_EP0_IDLE;
-
 	ao_usb_ep0_in_len -= this_len;
+	ao_usb_ep0_in_max -= this_len;
+
+	if (this_len < AO_USB_CONTROL_SIZE || ao_usb_ep0_in_max == 0)
+		ao_usb_ep0_state = AO_USB_EP0_IDLE;
 
 	debug_data ("Flush EP0 len %d:", this_len);
 	memcpy(ao_usb_ep0_tx_buffer, ao_usb_ep0_in_data, this_len);
@@ -456,6 +458,7 @@ ao_usb_ep0_out_set(uint8_t *data, uint8_t len)
 static void
 ao_usb_ep0_in_start(uint16_t max)
 {
+	ao_usb_ep0_in_max = max;
 	/* Don't send more than asked for */
 	if (ao_usb_ep0_in_len > max)
 		ao_usb_ep0_in_len = max;
