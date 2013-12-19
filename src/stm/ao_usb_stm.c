@@ -965,7 +965,7 @@ ao_usb_disable(void)
 	stm_usb.cntr = (1 << STM_USB_CNTR_PDWN) | (1 << STM_USB_CNTR_FRES);
 
 	/* Disable the interface */
-	stm_rcc.apb1enr &+ ~(1 << STM_RCC_APB1ENR_USBEN);
+	stm_rcc.apb1enr &= ~(1 << STM_RCC_APB1ENR_USBEN);
 	ao_arch_release_interrupts();
 }
 
