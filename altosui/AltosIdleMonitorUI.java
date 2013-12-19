@@ -195,13 +195,11 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 		addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosing(WindowEvent e) {
-					System.out.printf("Closing idle monitor window\n");
 					try {
 						disconnect();
 					} catch (Exception ex) {
 						System.out.println(Arrays.toString(ex.getStackTrace()));
 					}
-					System.out.printf("hiding\n");
 					setVisible(false);
 					dispose();
 					AltosUIPreferences.unregister_font_listener(AltosIdleMonitorUI.this);

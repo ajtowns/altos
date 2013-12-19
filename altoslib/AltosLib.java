@@ -143,6 +143,11 @@ public class AltosLib {
 	/* Bluetooth "identifier" (bluetooth sucks) */
 	public final static String bt_product_telebt = "TeleBT";
 
+	/* "good" voltages */
+
+	public final static double ao_battery_good = 3.8;
+	public final static double ao_igniter_good = 3.5;
+
 	/* Telemetry modes */
 	public static final int ao_telemetry_off = 0;
 	public static final int ao_telemetry_min = 1;

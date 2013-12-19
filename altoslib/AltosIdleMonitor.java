@@ -91,14 +91,11 @@ public class AltosIdleMonitor extends Thread {
 	}
 
 	public void abort() throws InterruptedException {
-		System.out.printf("Attempting to abort monitor thread\n");
 		while (isAlive()) {
-			System.out.printf("Interrupting\n");
 			interrupt();
 			link.abort_reply();
 			Thread.sleep(100);
 		}
-		System.out.printf("Appears to be dead now\n");
 		join();
 	}
 
