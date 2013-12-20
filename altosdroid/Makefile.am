@@ -29,7 +29,7 @@ SUPPORT_V4=$(EXT_LIBDIR)/$(SUPPORT_V4_JAR)
 GOOGLE_PLAY_SERVICES_LIB_SRCDIR=$(SDK)/extras/google/google_play_services/libproject
 GOOGLE_PLAY_SERVICES_LIB=google-play-services_lib
 
-JAVA_SRC=$(JAVA_SRC_DIR)/*.java
+JAVA_SRC=$(JAVA_SRC_DIR)/*.java $(JAVA_SRC_DIR)/BuildInfo.java
 
 DRAWABLES=\
     $(DRAWABLE_DIR)/redled.png \
@@ -53,7 +53,7 @@ $(GOOGLE_PLAY_SERVICES_LIB): $(GOOGLE_PLAY_SERVICES_LIB_SRCDIR)/$(GOOGLE_PLAY_SE
 	cp -a $(GOOGLE_PLAY_SERVICES_LIB_SRCDIR)/$(GOOGLE_PLAY_SERVICES_LIB) .
 	cd $(GOOGLE_PLAY_SERVICES_LIB) && $(SDK)/tools/android update project --target $(SDK_TARGET) --path .
 
-$(JAVA_SRC_DIR)/BuildInfo.java: $(JAVA_SRC)
+$(JAVA_SRC_DIR)/BuildInfo.java: $(filter-out $(JAVA_SRC_DIR)/BuildInfo.java,$(shell echo $(JAVA_SRC)))
 	./buildinfo.sh
 
 $(DRAWABLE_DIR)/%.png: ../icon/%.png
@@ -72,7 +72,7 @@ bin/AltosDroid-debug.apk: $(SRC) $(ALTOSLIB) $(SUPPORT_V4) $(GOOGLE_PLAY_SERVICE
 bin/AltosDroid-release-unsigned.apk: $(SRC) $(ALTOSLIB) $(SUPPORT_V4) $(GOOGLE_PLAY_SERVICES_LIB)
 	ant release
 
-release: bin/AltosDroid-release-unsigned.apk
+bin/AltosDroid-release.apk: bin/AltosDroid-release-unsigned.apk
 	jarsigner -sigalg SHA1withDSA -digestalg SHA1 \
 	   -keystore release.keystore \
 	   -signedjar bin/AltosDroid-release-signed.apk \
@@ -81,10 +81,13 @@ release: bin/AltosDroid-release-unsigned.apk
 	   bin/AltosDroid-release-signed.apk \
 	   bin/AltosDroid-release.apk
 
+release: bin/AltosDroid-release.apk
+
 clean-local: $(GOOGLE_PLAY_SERVICES_LIB)
 	ant clean
-	rm -rf $(EXT_LIBDIR)
+	rm -f $(JAVA_SRC_DIR)/BuildInfo.java
 	rm -f $(DRAWABLES)
+	rm -rf $(EXT_LIBDIR)
 	rm -rf $(GOOGLE_PLAY_SERVICES_LIB)
 
 else
