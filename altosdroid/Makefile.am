@@ -73,7 +73,8 @@ bin/AltosDroid-release-unsigned.apk: $(SRC) $(ALTOSLIB) $(SUPPORT_V4) $(GOOGLE_P
 	ant release
 
 release: bin/AltosDroid-release-unsigned.apk
-	jarsigner -keystore release.keystore \
+	jarsigner -sigalg SHA1withDSA -digestalg SHA1 \
+	   -keystore release.keystore \
 	   -signedjar bin/AltosDroid-release-signed.apk \
 	   bin/AltosDroid-release-unsigned.apk AltosDroid
 	$(ZIPALIGN) -f 4 \
