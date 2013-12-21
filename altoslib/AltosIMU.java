@@ -20,13 +20,25 @@ package org.altusmetrum.altoslib_2;
 import java.util.concurrent.*;
 
 public class AltosIMU implements Cloneable {
-	public int		accel_x;
-	public int		accel_y;
-	public int		accel_z;
+	public double		accel_x;
+	public double		accel_y;
+	public double		accel_z;
 
-	public int		gyro_x;
-	public int		gyro_y;
-	public int		gyro_z;
+	public double		gyro_x;
+	public double		gyro_y;
+	public double		gyro_z;
+
+	public static int	counts_per_g = 2048;
+
+	public static double convert_accel(int counts) {
+		return (double) counts / (double) counts_per_g * (-AltosConvert.GRAVITATIONAL_ACCELERATION);
+	}
+
+	public static double	counts_per_degsec = 16.4;
+
+	public static double convert_gyro(int counts) {
+		return (double) counts / counts_per_degsec;
+	}
 
 	public boolean parse_string(String line) {
 		if (!line.startsWith("Accel:"))
@@ -35,12 +47,12 @@ public class AltosIMU implements Cloneable {
 		String[] items = line.split("\\s+");
 
 		if (items.length >= 8) {
-			accel_x = Integer.parseInt(items[1]);
-			accel_y = Integer.parseInt(items[2]);
-			accel_z = Integer.parseInt(items[3]);
-			gyro_x = Integer.parseInt(items[5]);
-			gyro_y = Integer.parseInt(items[6]);
-			gyro_z = Integer.parseInt(items[7]);
+			accel_x = convert_accel(Integer.parseInt(items[1]));
+			accel_y = convert_accel(Integer.parseInt(items[2]));
+			accel_z = convert_accel(Integer.parseInt(items[3]));
+			gyro_x = convert_gyro(Integer.parseInt(items[5]));
+			gyro_y = convert_gyro(Integer.parseInt(items[6]));
+			gyro_z = convert_gyro(Integer.parseInt(items[7]));
 		}
 		return true;
 	}

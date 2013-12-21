@@ -20,9 +20,15 @@ package org.altusmetrum.altoslib_2;
 import java.util.concurrent.*;
 
 public class AltosMag implements Cloneable {
-	public int		x;
-	public int		y;
-	public int		z;
+	public double		x;
+	public double		y;
+	public double		z;
+
+	public static double counts_per_gauss = 1090;
+
+	public static double convert_gauss(int counts) {
+		return (double) counts / counts_per_gauss;
+	}
 
 	public boolean parse_string(String line) {
 //		if (line.startsWith("Syntax error")) {
@@ -36,9 +42,9 @@ public class AltosMag implements Cloneable {
 		String[] items = line.split("\\s+");
 
 		if (items.length >= 6) {
-			x = Integer.parseInt(items[1]);
-			y = Integer.parseInt(items[3]);
-			z = Integer.parseInt(items[5]);
+			x = convert_gauss(Integer.parseInt(items[1]));
+			y = convert_gauss(Integer.parseInt(items[3]));
+			z = convert_gauss(Integer.parseInt(items[5]));
 		}
 		return true;
 	}
