@@ -436,7 +436,7 @@ ao_pyro_set(void)
 	if (ao_cmd_status != ao_cmd_success)
 		return;
 	p = ao_cmd_lex_i;
-	if (p < 0 || AO_PYRO_NUM <= p) {
+	if (AO_PYRO_NUM <= p) {
 		printf ("invalid pyro channel %d\n", p);
 		return;
 	}
