@@ -26,7 +26,7 @@ import org.altusmetrum.altosuilib_1.*;
 
 public class AltosConfigPyroUI
 	extends AltosUIDialog
-	implements ItemListener, DocumentListener, AltosUnitsListener
+	implements ItemListener, DocumentListener, AltosUnitsListener, ActionListener
 {
 	AltosConfigUI	owner;
 	Container	pane;
@@ -48,7 +48,7 @@ public class AltosConfigPyroUI
 	class PyroItem implements ItemListener, DocumentListener, AltosUnitsListener
 	{
 		public int		flag;
-		public JRadioButton	enable;
+		public JCheckBox	enable;
 		public JTextField	value;
 		public JComboBox	combo;
 		AltosConfigPyroUI	ui;
@@ -146,7 +146,7 @@ public class AltosConfigPyroUI
 			c.fill = GridBagConstraints.NONE;
 			c.anchor = GridBagConstraints.LINE_START;
 			c.insets = il;
-			enable = new JRadioButton();
+			enable = new JCheckBox();
 			enable.addItemListener(this);
 			pane.add(enable, c);
 			
@@ -309,6 +309,14 @@ public class AltosConfigPyroUI
 		}
 	}
 
+	/* Listen for events from our buttons */
+	public void actionPerformed(ActionEvent e) {
+		String	cmd = e.getActionCommand();
+
+		if (cmd.equals("Close"))
+			setVisible(false);
+	}
+
 	public AltosConfigPyroUI(AltosConfigUI in_owner, AltosPyro[] pyros) {
 
 		super(in_owner, "Configure Pyro Channels", false);
@@ -353,6 +361,17 @@ public class AltosConfigPyroUI
 			columns[i] = new PyroColumn(this, i*2 + 1, 0, i);
 			columns[i].set(pyros[i]);
 		}
+
+		c = new GridBagConstraints();
+		c.gridx = pyros.length*2-1;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridwidth = 2;
+		c.gridy = 1000;
+		JButton close = new JButton("Close");
+		pane.add(close, c);
+		close.addActionListener(this);
+		close.setActionCommand("Close");
+		
 		addWindowListener(new ConfigListener(this, owner));
 		AltosPreferences.register_units_listener(this);
 	}
