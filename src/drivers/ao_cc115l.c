@@ -564,6 +564,7 @@ ao_radio_tone_run(struct ao_radio_tone *tones, int ntones)
 	ao_radio_tone = tones;
 	ao_radio_tone_current = 0;
 	ao_radio_tone_offset = 0;
+	ao_radio_tone_count = ntones;
 	_ao_radio_send_lots(ao_radio_tone_fill, AO_RADIO_MODE_RDF);
 	ao_radio_put();
 }
