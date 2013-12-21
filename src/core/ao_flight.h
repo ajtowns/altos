@@ -41,7 +41,11 @@ extern __pdata enum ao_flight_state	ao_flight_state;
 extern __pdata uint16_t			ao_boost_tick;
 extern __pdata uint16_t			ao_motor_number;
 
-#if HAS_IMU
+#if HAS_IMU || HAS_MMA655X
+#define HAS_SENSOR_ERRORS	1
+#endif
+
+#if HAS_SENSOR_ERRORS
 extern __xdata uint8_t			ao_sensor_errors;
 #endif
 

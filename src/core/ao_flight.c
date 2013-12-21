@@ -46,7 +46,7 @@ __pdata enum ao_flight_state	ao_flight_state;	/* current flight state */
 __pdata uint16_t		ao_boost_tick;		/* time of launch detect */
 __pdata uint16_t		ao_motor_number;	/* number of motors burned so far */
 
-#if HAS_IMU
+#if HAS_SENSOR_ERRORS
 /* Any sensor can set this to mark the flight computer as 'broken' */
 __xdata uint8_t			ao_sensor_errors;
 #endif
@@ -150,7 +150,7 @@ ao_flight(void)
 			} else {
 				/* Set idle mode */
 				ao_flight_state = ao_flight_idle;
-#if HAS_IMU
+#if HAS_SENSOR_ERRORS
 				if (ao_sensor_errors)
 					ao_flight_state = ao_flight_invalid;
 #endif
