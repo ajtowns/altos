@@ -22,6 +22,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import java.text.*;
+import java.util.*;
 import java.util.concurrent.*;
 import org.altusmetrum.altoslib_3.*;
 import org.altusmetrum.altosuilib_1.*;
@@ -33,17 +34,13 @@ public class AltosIgniteUI
 	AltosDevice	device;
 	JFrame		owner;
 	JLabel		label;
-	JRadioButton	apogee;
-	JLabel		apogee_status_label;
-	JRadioButton	main;
-	JLabel		main_status_label;
 	JToggleButton	arm;
 	JButton		fire;
 	javax.swing.Timer	timer;
 	JButton		close;
+	ButtonGroup	group;
 
-	int		apogee_status;
-	int		main_status;
+	int		npyro;
 
 	final static int	timeout = 1 * 1000;
 
@@ -51,6 +48,64 @@ public class AltosIgniteUI
 	boolean		timer_running;
 
 	LinkedBlockingQueue<String>	command_queue;
+
+	LinkedBlockingQueue<String>	reply_queue;
+
+	class Igniter {
+		JRadioButton	button;
+		JLabel		status_label;
+		String		name;
+		int		status;
+
+		void set_status (int status) {
+			this.status = status;
+			status_label.setText(String.format("\"%s\"", AltosIgnite.status_string(status)));
+		}
+
+		Igniter(AltosIgniteUI ui, String label, String name, int y) {
+			Container		pane = getContentPane();
+			GridBagConstraints	c = new GridBagConstraints();
+			Insets			i = new Insets(4,4,4,4);
+
+			this.name = name;
+			this.status = AltosIgnite.Unknown;
+
+			c.gridx = 0;
+			c.gridy = y;
+			c.gridwidth = 1;
+			c.anchor = GridBagConstraints.WEST;
+			button = new JRadioButton (label);
+			pane.add(button, c);
+			button.addActionListener(ui);
+			button.setActionCommand(name);
+			group.add(button);
+
+			c.gridx = 1;
+			c.gridy = y;
+			c.gridwidth = 1;
+			c.anchor = GridBagConstraints.WEST;
+			status_label = new JLabel("plenty of text");
+			pane.add(status_label, c);
+
+			status = AltosIgnite.Unknown;
+		}
+	}
+
+	Igniter	igniters[];
+
+	void set_status(String _name, int _status) {
+
+		final String name = _name;
+		final int status = _status;
+		Runnable r = new Runnable() {
+				public void run() {
+					for (int p = 0; p < igniters.length; p++)
+						if (name.equals(igniters[p].name))
+							igniters[p].set_status(status);
+				}
+			};
+		SwingUtilities.invokeLater(r);
+	}
 
 	class IgniteHandler implements Runnable {
 		AltosIgnite	ignite;
@@ -86,20 +141,23 @@ public class AltosIgniteUI
 					String		reply = null;
 
 					if (command.equals("get_status")) {
-						apogee_status = ignite.status(AltosIgnite.Apogee);
-						main_status = ignite.status(AltosIgnite.Main);
+						HashMap<String,Integer> status_map = ignite.status();
+
+						for (int p = 0; p < igniters.length; p++) {
+							Integer i = status_map.get(igniters[p].name);
+							if (i != null)
+								set_status(igniters[p].name, i);
+						}
 						reply = "status";
-					} else if (command.equals("main")) {
-						ignite.fire(AltosIgnite.Main);
-						reply = "fired";
-					} else if (command.equals("apogee")) {
-						ignite.fire(AltosIgnite.Apogee);
-						reply = "fired";
+					} else if (command.equals("get_npyro")) {
+						put_reply(String.format("%d", ignite.npyro()));
+						continue;
 					} else if (command.equals("quit")) {
 						ignite.close();
 						break;
 					} else {
-						throw new ParseException(String.format("invalid command %s", command), 0);
+						ignite.fire(command);
+						reply = "fired";
 					}
 					final String f_reply = reply;
 					r = new Runnable() {
@@ -170,16 +228,15 @@ public class AltosIgniteUI
 
 	void stop_timer() {
 		time_remaining = 0;
-		arm.setSelected(false);
-		arm.setEnabled(false);
 		fire.setEnabled(false);
 		timer_running = false;
+		arm.setSelected(false);
+		arm.setEnabled(false);
 		set_arm_text();
 	}
 
 	void cancel () {
-		apogee.setSelected(false);
-		main.setSelected(false);
+		group.clearSelection();
 		fire.setEnabled(false);
 		stop_timer();
 	}
@@ -192,13 +249,30 @@ public class AltosIgniteUI
 		}
 	}
 
+	void put_reply(String reply) {
+		try {
+			reply_queue.put(reply);
+		} catch (Exception ex) {
+			ignite_exception(ex);
+		}
+	}
+
+	String get_reply() {
+		String reply = "";
+		try {
+			reply = reply_queue.take();
+		} catch (Exception ex) {
+			ignite_exception(ex);
+		}
+		return reply;
+	}
+
 	boolean	getting_status = false;
 
 	boolean	visible = false;
+
 	void set_ignite_status() {
 		getting_status = false;
-		apogee_status_label.setText(String.format("\"%s\"", AltosIgnite.status_string(apogee_status)));
-		main_status_label.setText(String.format("\"%s\"", AltosIgnite.status_string(main_status)));
 		if (!visible) {
 			visible = true;
 			setVisible(true);
@@ -210,6 +284,12 @@ public class AltosIgniteUI
 			getting_status = true;
 			send_command("get_status");
 		}
+	}
+
+	int get_npyro() {
+		send_command("get_npyro");
+		String reply = get_reply();
+		return Integer.parseInt(reply);
 	}
 
 	boolean	firing = false;
@@ -247,10 +327,12 @@ public class AltosIgniteUI
 	void fire() {
 		if (arm.isEnabled() && arm.isSelected() && time_remaining > 0) {
 			String	igniter = "none";
-			if (apogee.isSelected() && !main.isSelected())
-				igniter = "apogee";
-			else if (main.isSelected() && !apogee.isSelected())
-				igniter = "main";
+
+			for (int p = 0; p < igniters.length; p++)
+				if (igniters[p].button.isSelected()) {
+					igniter = igniters[p].name;
+					break;
+				}
 			send_command(igniter);
 			cancel();
 		}
@@ -258,18 +340,13 @@ public class AltosIgniteUI
 
 	public void actionPerformed(ActionEvent e) {
 		String cmd = e.getActionCommand();
-		if (cmd.equals("apogee") || cmd.equals("main")) {
-			stop_timer();
-		}
 
-		if (cmd.equals("apogee") && apogee.isSelected()) {
-			main.setSelected(false);
-			arm.setEnabled(true);
-		}
-		if (cmd.equals("main") && main.isSelected()) {
-			apogee.setSelected(false);
-			arm.setEnabled(true);
-		}
+		for (int p = 0; p < igniters.length; p++)
+			if (cmd.equals(igniters[p].name)) {
+				stop_timer();
+				arm.setEnabled(true);
+				break;
+			}
 
 		if (cmd.equals("arm")) {
 			if (arm.isSelected()) {
@@ -282,9 +359,8 @@ public class AltosIgniteUI
 			fire();
 		if (cmd.equals("tick"))
 			tick_timer();
-		if (cmd.equals("close")) {
+		if (cmd.equals("close"))
 			close();
-		}
 	}
 
 	/* A window listener to catch closing events and tell the config code */
@@ -304,6 +380,7 @@ public class AltosIgniteUI
 
 	private boolean open() {
 		command_queue = new LinkedBlockingQueue<String>();
+		reply_queue = new LinkedBlockingQueue<String>();
 
 		device = AltosDeviceUIDialog.show(owner, Altos.product_any);
 		if (device != null) {
@@ -318,13 +395,14 @@ public class AltosIgniteUI
 	public AltosIgniteUI(JFrame in_owner) {
 
 		owner = in_owner;
-		apogee_status = AltosIgnite.Unknown;
-		main_status = AltosIgnite.Unknown;
 
 		if (!open())
 			return;
 
+		group = new ButtonGroup();
+
 		Container		pane = getContentPane();
+
 		GridBagConstraints	c = new GridBagConstraints();
 		Insets			i = new Insets(4,4,4,4);
 
@@ -343,47 +421,32 @@ public class AltosIgniteUI
 		c.weightx = 0;
 		c.weighty = 0;
 
+		int y = 0;
+
 		c.gridx = 0;
-		c.gridy = 0;
+		c.gridy = y;
 		c.gridwidth = 2;
 		c.anchor = GridBagConstraints.CENTER;
 		label = new JLabel ("Fire Igniter");
 		pane.add(label, c);
 
-		c.gridx = 0;
-		c.gridy = 1;
-		c.gridwidth = 1;
-		c.anchor = GridBagConstraints.WEST;
-		apogee = new JRadioButton ("Apogee");
-		pane.add(apogee, c);
-		apogee.addActionListener(this);
-		apogee.setActionCommand("apogee");
+		y++;
 
-		c.gridx = 1;
-		c.gridy = 1;
-		c.gridwidth = 1;
-		c.anchor = GridBagConstraints.WEST;
-		apogee_status_label = new JLabel();
-		pane.add(apogee_status_label, c);
+		int npyro = get_npyro();
 
-		c.gridx = 0;
-		c.gridy = 2;
-		c.gridwidth = 1;
-		c.anchor = GridBagConstraints.WEST;
-		main = new JRadioButton ("Main");
-		pane.add(main, c);
-		main.addActionListener(this);
-		main.setActionCommand("main");
+		igniters = new Igniter[2 + npyro];
 
-		c.gridx = 1;
-		c.gridy = 2;
-		c.gridwidth = 1;
-		c.anchor = GridBagConstraints.WEST;
-		main_status_label = new JLabel();
-		pane.add(main_status_label, c);
+		igniters[0] = new Igniter(this, "Apogee", AltosIgnite.Apogee, y++);
+		igniters[1] = new Igniter(this, "Main", AltosIgnite.Main, y++);
+
+		for (int p = 0; p < npyro; p++) {
+			String	name = String.format("%d", p);
+			String	label = String.format("%c", 'A' + p);
+			igniters[2+p] = new Igniter(this, label, name, y++);
+		}
 
 		c.gridx = 0;
-		c.gridy = 3;
+		c.gridy = y;
 		c.gridwidth = 1;
 		c.anchor = GridBagConstraints.CENTER;
 		arm = new JToggleButton ("Arm");
@@ -393,7 +456,7 @@ public class AltosIgniteUI
 		arm.setEnabled(false);
 
 		c.gridx = 1;
-		c.gridy = 3;
+		c.gridy = y;
 		c.gridwidth = 1;
 		c.anchor = GridBagConstraints.CENTER;
 		fire = new JButton ("Fire");
@@ -402,8 +465,10 @@ public class AltosIgniteUI
 		fire.addActionListener(this);
 		fire.setActionCommand("fire");
 
+		y++;
+
 		c.gridx = 0;
-		c.gridy = 4;
+		c.gridy = y;
 		c.gridwidth = 2;
 		c.anchor = GridBagConstraints.CENTER;
 		close = new JButton ("Close");

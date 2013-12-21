@@ -17,6 +17,7 @@
 
 package org.altusmetrum.altoslib_3;
 
+import java.util.*;
 import java.io.*;
 import java.util.concurrent.*;
 
@@ -24,10 +25,12 @@ public class AltosIgnite {
 	AltosLink	link;
 	boolean		remote;
 	boolean		link_started;
+	boolean		have_npyro = false;
+	int		npyro;
 
-	public final static int	None = 0;
-	public final static int	Apogee = 1;
-	public final static int	Main = 2;
+	public final static String	None = null;
+	public final static String	Apogee = "drogue";
+	public final static String	Main = "main";
 
 	public final static int	Unknown = 0;
 	public final static int	Ready = 1;
@@ -81,7 +84,7 @@ public class AltosIgnite {
 	}
 	*/
 
-	private int status(String status_name) {
+	private int map_status(String status_name) {
 		if (status_name.equals("unknown"))
 			return Unknown;
 		if (status_name.equals("ready"))
@@ -93,13 +96,34 @@ public class AltosIgnite {
 		return Unknown;
 	}
 
-	public int status(int igniter) throws InterruptedException, TimeoutException {
-		int status = Unknown;
+	private void get_npyro() throws InterruptedException, TimeoutException {
+		AltosConfigData	config_data = link.config_data();
+		npyro = config_data.npyro;
+		have_npyro = true;
+	}
+
+	public int npyro() throws InterruptedException, TimeoutException {
+		if (!have_npyro) {
+			start_link();
+			get_npyro();
+			stop_link();
+		}
+		return npyro;
+	}
+
+	public HashMap<String,Integer> status() throws InterruptedException, TimeoutException {
+		HashMap<String,Integer> status = new HashMap<String,Integer>();
+
 		if (link == null)
 			return status;
-		//string_ref status_name = new string_ref();
 		try {
 			start_link();
+			get_npyro();
+
+			String last_igniter = Main;
+			if (npyro > 0)
+				last_igniter = String.format("%d", npyro - 1);
+
 			link.printf("t\n");
 			for (;;) {
 				String line = link.get_reply(5000);
@@ -116,14 +140,10 @@ public class AltosIgnite {
 				if (!items[2].equals("Status:"))
 					continue;
 
-				if (items[1].equals("drogue")) {
-					if (igniter == Apogee)
-						status = status(items[3]);
-				} else if (items[1].equals("main")) {
-					if (igniter == Main)
-						status = status(items[3]);
+				status.put(items[1], map_status(items[3]));
+
+				if (items[1].equals(last_igniter))
 					break;
-				}
 			}
 		} finally {
 			stop_link();
@@ -141,19 +161,12 @@ public class AltosIgnite {
 		}
 	}
 
-	public void fire(int igniter) throws InterruptedException {
+	public void fire(String igniter) throws InterruptedException {
 		if (link == null)
 			return;
 		try {
 			start_link();
-			switch (igniter) {
-			case Main:
-				link.printf("i DoIt main\n");
-				break;
-			case Apogee:
-				link.printf("i DoIt drogue\n");
-				break;
-			}
+			link.printf("i DoIt %s\n", igniter);
 		} catch (TimeoutException te) {
 		} finally {
 			stop_link();
