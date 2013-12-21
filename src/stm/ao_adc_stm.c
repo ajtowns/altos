@@ -109,8 +109,10 @@ static void
 ao_adc_dump(void) __reentrant
 {
 	struct ao_data	packet;
-	int16_t *d;
+#ifndef AO_ADC_DUMP
 	uint8_t i;
+	int16_t *d;
+#endif
 
 	ao_data_get(&packet);
 #ifdef AO_ADC_DUMP

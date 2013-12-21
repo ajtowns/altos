@@ -70,7 +70,6 @@ ao_hmc5883_sample(struct ao_hmc5883_sample *sample)
 {
 	uint16_t	*d = (uint16_t *) sample;
 	int		i = sizeof (*sample) / 2;
-	uint8_t		single = HMC5883_MODE_SINGLE;
 
 	ao_hmc5883_done = 0;
 	ao_exti_enable(AO_HMC5883_INT_PORT, AO_HMC5883_INT_PIN);

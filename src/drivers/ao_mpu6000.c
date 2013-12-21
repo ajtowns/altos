@@ -21,7 +21,6 @@
 
 #if HAS_MPU6000
 
-static uint8_t	ao_mpu6000_wake;
 static uint8_t	ao_mpu6000_configured;
 
 #ifndef AO_MPU6000_I2C_INDEX

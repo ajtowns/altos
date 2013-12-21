@@ -185,7 +185,6 @@ uint8_t
 ao_i2c_start(uint8_t index, uint16_t addr)
 {
 	struct stm_i2c	*stm_i2c = ao_i2c_stm_info[index].stm_i2c;
-	uint32_t	sr1, sr2;
 	int		t;
 
 	ao_i2c_state[index] = I2C_IDLE;
@@ -239,10 +238,7 @@ uint8_t
 ao_i2c_send(void *block, uint16_t len, uint8_t index, uint8_t stop)
 {
 	struct stm_i2c	*stm_i2c = ao_i2c_stm_info[index].stm_i2c;
-	uint8_t		*b = block;
-	uint32_t	sr1;
 	uint8_t		tx_dma_index = ao_i2c_stm_info[index].tx_dma_index;
-	int		t;
 
 	/* Clear any pending ADDR bit */
 	(void) stm_i2c->sr2;
@@ -304,8 +300,6 @@ uint8_t
 ao_i2c_recv(void *block, uint16_t len, uint8_t index, uint8_t stop)
 {
 	struct stm_i2c	*stm_i2c = ao_i2c_stm_info[index].stm_i2c;
-	uint8_t		*b = block;
-	int		t;
 	uint8_t		ret = TRUE;
 
 	if (len == 0)

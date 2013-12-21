@@ -114,6 +114,8 @@ ao_igniter_fire(enum ao_igniter igniter)
 			ao_delay(AO_IGNITER_FIRE_TIME);
 			AO_IGNITER_SET_MAIN(0);
 			break;
+		default:
+			break;
 		}
 		break;
 	case AO_IGNITE_MODE_MAIN:
@@ -126,6 +128,8 @@ ao_igniter_fire(enum ao_igniter igniter)
 			AO_IGNITER_SET_MAIN(1);
 			ao_delay(AO_IGNITER_FIRE_TIME);
 			AO_IGNITER_SET_MAIN(0);
+			break;
+		default:
 			break;
 		}
 		break;

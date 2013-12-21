@@ -473,7 +473,6 @@ ao_telemetry(void)
 			}
 			else
 				time = ao_time();
-		bottom:	;
 		}
 	}
 }

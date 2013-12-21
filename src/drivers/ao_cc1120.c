@@ -152,6 +152,7 @@ ao_radio_strobe(uint8_t addr)
 	return in;
 }
 
+#if 0
 static uint8_t
 ao_radio_fifo_read(uint8_t *data, uint8_t len)
 {
@@ -166,6 +167,7 @@ ao_radio_fifo_read(uint8_t *data, uint8_t len)
 	ao_radio_deselect();
 	return status;
 }
+#endif
 
 static uint8_t
 ao_radio_fifo_write_start(void)
@@ -207,11 +209,13 @@ ao_radio_tx_fifo_space(void)
 	return CC1120_FIFO_SIZE - ao_radio_reg_read(CC1120_NUM_TXBYTES);
 }
 
+#if 0
 static uint8_t
 ao_radio_status(void)
 {
 	return ao_radio_strobe (CC1120_SNOP);
 }
+#endif
 
 void
 ao_radio_recv_abort(void)
@@ -751,13 +755,11 @@ static uint8_t	tx_data[(AO_RADIO_MAX_SEND + 4) * 2];
 void
 ao_radio_send(const void *d, uint8_t size)
 {
-	uint8_t		marc_status;
 	uint8_t		*e = tx_data;
 	uint8_t		encode_len;
 	uint8_t		this_len;
 	uint8_t		started = 0;
 	uint8_t		fifo_space;
-	uint8_t		q;
 
 	encode_len = ao_fec_encode(d, size, tx_data);
 
@@ -948,11 +950,9 @@ uint8_t
 ao_radio_recv(__xdata void *d, uint8_t size, uint8_t timeout)
 {
 	uint8_t		len;
-	uint16_t	i;
 	uint8_t		radio_rssi = 0;
 	uint8_t		rssi0;
 	uint8_t		ret;
-	static int been_here = 0;
 
 	size -= 2;			/* status bytes */
 	if (size > AO_RADIO_MAX_RECV) {
@@ -1334,8 +1334,6 @@ static const struct ao_cmds ao_radio_cmds[] = {
 void
 ao_radio_init(void)
 {
-	int	i;
-
 	ao_radio_configured = 0;
 	ao_spi_init_cs (AO_CC1120_SPI_CS_PORT, (1 << AO_CC1120_SPI_CS_PIN));
 

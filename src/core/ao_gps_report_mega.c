@@ -24,7 +24,6 @@ ao_gps_report_mega(void)
 	static __xdata struct ao_log_mega		gps_log;
 	static __xdata struct ao_telemetry_location	gps_data;
 	static __xdata struct ao_telemetry_satellite	gps_tracking_data;
-	uint8_t	date_reported = 0;
 	uint8_t	new;
 	uint8_t	c, n, i;
 

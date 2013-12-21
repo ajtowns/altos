@@ -119,7 +119,6 @@ static uint8_t	ao_usb_in_pending;
 static uint8_t	ao_usb_out_avail;
 static uint8_t	ao_usb_running;
 static uint8_t	ao_usb_configuration;
-static uint8_t	ueienx_0;
 
 #define AO_USB_EP0_GOT_RESET	1
 #define AO_USB_EP0_GOT_SETUP	2
@@ -313,7 +312,6 @@ ao_usb_init_ep(uint8_t ep, uint32_t addr, uint32_t type, uint32_t stat_rx, uint3
 static void
 ao_usb_set_ep0(void)
 {
-	uint32_t		epr;
 	int			e;
 
 	ao_usb_sram_addr = 0;
@@ -356,8 +354,6 @@ ao_usb_set_ep0(void)
 static void
 ao_usb_set_configuration(void)
 {
-	uint32_t		epr;
-
 	debug ("ao_usb_set_configuration\n");
 
 	/* Set up the INT end point */
