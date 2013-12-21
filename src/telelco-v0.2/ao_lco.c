@@ -37,7 +37,6 @@ static uint8_t	ao_lco_debug;
 #define AO_LCO_BOX_DIGIT_10	2
 
 static uint8_t	ao_lco_min_box, ao_lco_max_box;
-static uint8_t	ao_lco_mutex;
 static uint8_t	ao_lco_pad;
 static uint8_t	ao_lco_box;
 static uint8_t	ao_lco_armed;
@@ -281,12 +280,9 @@ static void
 ao_lco_igniter_status(void)
 {
 	uint8_t		c;
-	uint16_t	delay;
 
 	for (;;) {
-//		ao_alarm(delay);
 		ao_sleep(&ao_pad_query);
-//		ao_clear_alarm();
 		if (!ao_lco_valid) {
 			ao_led_on(AO_LED_RED);
 			ao_led_off(AO_LED_GREEN|AO_LED_AMBER);

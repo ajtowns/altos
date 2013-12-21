@@ -26,7 +26,6 @@ static __xdata uint8_t			ao_lco_mutex;
 int8_t
 ao_lco_query(uint16_t box, struct ao_pad_query *query, uint16_t *tick_offset)
 {
-	uint8_t		i;
 	int8_t		r;
 	uint16_t	sent_time;
 

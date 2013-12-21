@@ -346,8 +346,7 @@ static const struct ao_cmds ao_lcd_stm_cmds[] = {
 void
 ao_lcd_stm_init(void)
 {
-	int s, c;
-	int r;
+	unsigned int s, c;
 	uint32_t	csr;
 
 	stm_rcc.ahbenr |= ((AO_LCD_STM_USES_GPIOA << STM_RCC_AHBENR_GPIOAEN) |

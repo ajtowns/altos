@@ -31,7 +31,7 @@ void
 ao_fec_dump_bytes(const uint8_t *bytes, uint16_t len, const char *name);
 #endif
 
-static uint16_t inline
+static inline uint16_t
 ao_fec_crc_byte(uint8_t byte, uint16_t crc)
 {
 	uint8_t	bit;

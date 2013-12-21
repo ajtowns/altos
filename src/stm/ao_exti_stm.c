@@ -119,6 +119,8 @@ ao_exti_setup (struct stm_gpio *gpio, uint8_t pin, uint8_t mode, void (*callback
 
 void
 ao_exti_set_mode(struct stm_gpio *gpio, uint8_t pin, uint8_t mode) {
+	(void) gpio;
+
 	uint32_t	mask = 1 << pin;
 	
 	if (mode & AO_EXTI_MODE_RISING)
@@ -133,12 +135,14 @@ ao_exti_set_mode(struct stm_gpio *gpio, uint8_t pin, uint8_t mode) {
 
 void
 ao_exti_set_callback(struct stm_gpio *gpio, uint8_t pin, void (*callback)()) {
+	(void) gpio;
 	ao_exti_callback[pin] = callback;
 }
 
 void
 ao_exti_enable(struct stm_gpio *gpio, uint8_t pin) {
 	uint32_t	mask = (1 << pin);
+	(void) gpio;
 	stm_exti.pr = mask;
 	stm_exti.imr |= (1 << pin);
 }
@@ -146,6 +150,7 @@ ao_exti_enable(struct stm_gpio *gpio, uint8_t pin) {
 void
 ao_exti_disable(struct stm_gpio *gpio, uint8_t pin) {
 	uint32_t	mask = (1 << pin);
+	(void) gpio;
 	stm_exti.imr &= ~mask;
 	stm_exti.pr = mask;
 }

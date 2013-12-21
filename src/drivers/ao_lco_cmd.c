@@ -119,7 +119,6 @@ lco_report_cmd(void) __reentrant
 static void
 lco_fire_cmd(void) __reentrant
 {
-	static __xdata struct ao_pad_command	command;
 	uint8_t		secs;
 	uint8_t		i;
 	int8_t		r;

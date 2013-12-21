@@ -658,8 +658,10 @@ ao_config_help(void) __reentrant;
 static void
 ao_config_show(void) __reentrant;
 
+#if HAS_EEPROM
 static void
 ao_config_save(void) __reentrant;
+#endif
 
 __code struct ao_config_var ao_config_vars[] = {
 #if HAS_FLIGHT

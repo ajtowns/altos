@@ -81,7 +81,6 @@ void
 ao_log(void)
 {
 	__pdata uint16_t	next_sensor, next_other;
-	uint8_t			i;
 
 	ao_storage_setup();
 

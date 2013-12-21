@@ -509,7 +509,7 @@ static void
 ao_radio_set_mode(uint16_t new_mode)
 {
 	uint16_t changes;
-	int i;
+	unsigned int i;
 
 	if (new_mode == ao_radio_mode)
 		return;
@@ -563,7 +563,7 @@ static uint8_t	ao_radio_configured = 0;
 static void
 ao_radio_setup(void)
 {
-	int	i;
+	unsigned int	i;
 
 	ao_radio_strobe(CC1120_SRES);
 

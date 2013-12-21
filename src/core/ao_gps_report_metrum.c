@@ -24,9 +24,8 @@ ao_gps_report_metrum(void)
 	static __xdata struct ao_log_metrum		gps_log;
 	static __xdata struct ao_telemetry_location	gps_data;
 	static __xdata struct ao_telemetry_satellite	gps_tracking_data;
-	uint8_t	c, n, i, p, valid, packets;
+	uint8_t	c, n, i;
 	uint8_t svid;
-	uint8_t	date_reported = 0;
 	uint8_t new;
 
 	for (;;) {

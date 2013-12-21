@@ -52,7 +52,7 @@ stm_moder_set(struct stm_gpio *gpio, int pin, vuint32_t value) {
 		       value << STM_MODER_SHIFT(pin));
 }
 	
-static inline vuint32_t
+static inline uint32_t
 stm_moder_get(struct stm_gpio *gpio, int pin) {
 	return (gpio->moder >> STM_MODER_SHIFT(pin)) & STM_MODER_MASK;
 }
@@ -69,7 +69,7 @@ stm_otyper_set(struct stm_gpio *gpio, int pin, vuint32_t value) {
 			value << STM_OTYPER_SHIFT(pin));
 }
 	
-static inline vuint32_t
+static inline uint32_t
 stm_otyper_get(struct stm_gpio *gpio, int pin) {
 	return (gpio->otyper >> STM_OTYPER_SHIFT(pin)) & STM_OTYPER_MASK;
 }
@@ -88,7 +88,7 @@ stm_ospeedr_set(struct stm_gpio *gpio, int pin, vuint32_t value) {
 		       value << STM_OSPEEDR_SHIFT(pin));
 }
 	
-static inline vuint32_t
+static inline uint32_t
 stm_ospeedr_get(struct stm_gpio *gpio, int pin) {
 	return (gpio->ospeedr >> STM_OSPEEDR_SHIFT(pin)) & STM_OSPEEDR_MASK;
 }

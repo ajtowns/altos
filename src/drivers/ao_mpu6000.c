@@ -132,7 +132,7 @@ ao_mpu6000_gyro(int16_t v)
 #endif
 
 static uint8_t
-ao_mpu6000_accel_check(int16_t normal, int16_t test, char *which)
+ao_mpu6000_accel_check(int16_t normal, int16_t test)
 {
 	int16_t	diff = test - normal;
 
@@ -146,7 +146,7 @@ ao_mpu6000_accel_check(int16_t normal, int16_t test, char *which)
 }
 
 static uint8_t
-ao_mpu6000_gyro_check(int16_t normal, int16_t test, char *which)
+ao_mpu6000_gyro_check(int16_t normal, int16_t test)
 {
 	int16_t	diff = test - normal;
 
@@ -292,13 +292,13 @@ _ao_mpu6000_setup(void)
 		ao_delay(AO_MS_TO_TICKS(200));
 		_ao_mpu6000_sample(&normal_mode);
 	
-		errors += ao_mpu6000_accel_check(normal_mode.accel_x, test_mode.accel_x, "x");
-		errors += ao_mpu6000_accel_check(normal_mode.accel_y, test_mode.accel_y, "y");
-		errors += ao_mpu6000_accel_check(normal_mode.accel_z, test_mode.accel_z, "z");
+		errors += ao_mpu6000_accel_check(normal_mode.accel_x, test_mode.accel_x);
+		errors += ao_mpu6000_accel_check(normal_mode.accel_y, test_mode.accel_y);
+		errors += ao_mpu6000_accel_check(normal_mode.accel_z, test_mode.accel_z);
 
-		errors += ao_mpu6000_gyro_check(normal_mode.gyro_x, test_mode.gyro_x, "x");
-		errors += ao_mpu6000_gyro_check(normal_mode.gyro_y, test_mode.gyro_y, "y");
-		errors += ao_mpu6000_gyro_check(normal_mode.gyro_z, test_mode.gyro_z, "z");
+		errors += ao_mpu6000_gyro_check(normal_mode.gyro_x, test_mode.gyro_x);
+		errors += ao_mpu6000_gyro_check(normal_mode.gyro_y, test_mode.gyro_y);
+		errors += ao_mpu6000_gyro_check(normal_mode.gyro_z, test_mode.gyro_z);
 		if (!errors)
 			break;
 	}

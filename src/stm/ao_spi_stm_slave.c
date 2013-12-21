@@ -97,7 +97,6 @@ ao_spi_slave_send(void *block, uint16_t len)
 	ao_dma_done_transfer(miso_dma_index);
 }
 
-
 uint8_t
 ao_spi_slave_recv(void *block, uint16_t len)
 {
@@ -153,6 +152,7 @@ ao_spi_slave_recv(void *block, uint16_t len)
 
 	ao_dma_done_transfer(mosi_dma_index);
 	ao_dma_done_transfer(miso_dma_index);
+	return 1;
 }
 
 static void

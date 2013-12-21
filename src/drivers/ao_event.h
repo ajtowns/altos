@@ -29,7 +29,7 @@ struct ao_event {
 	int32_t		value;
 };
 
-uint8_t
+void
 ao_event_get(struct ao_event *ev);
 
 void

@@ -21,7 +21,6 @@
 static __xdata uint8_t ao_radio_cmac_mutex;
 __pdata int8_t ao_radio_cmac_rssi;
 static __xdata uint8_t cmac_data[AO_CMAC_MAX_LEN + AO_CMAC_KEY_LEN + 2 + AO_CMAC_KEY_LEN];
-static __pdata uint8_t ao_radio_cmac_len;
 
 static uint8_t
 round_len(uint8_t len)

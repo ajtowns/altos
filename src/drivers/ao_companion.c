@@ -67,8 +67,8 @@ ao_companion_get_setup(void)
 	ao_companion_send_command(AO_COMPANION_SETUP);
 	ao_spi_recv(&ao_companion_setup, sizeof (ao_companion_setup), AO_COMPANION_SPI_BUS);
 	COMPANION_DESELECT();
-	return (ao_companion_setup.board_id ==
-		(uint16_t) ~ao_companion_setup.board_id_inverse);
+	return ((int16_t) ao_companion_setup.board_id ==
+		(int16_t) (uint16_t) (~ao_companion_setup.board_id_inverse));
 }
 
 static void

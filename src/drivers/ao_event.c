@@ -30,7 +30,7 @@ uint8_t		ao_event_queue_insert;
 uint8_t		ao_event_queue_remove;
 
 
-uint8_t
+void
 ao_event_get(struct ao_event *ev)
 {
 	ao_arch_critical(

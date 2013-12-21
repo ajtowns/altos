@@ -367,6 +367,7 @@ static uint8_t iv[16];
 void
 ao_aes_set_mode(enum ao_aes_mode mode)
 {
+	(void) mode;
 	/* we only do CBC_MAC anyways... */
 }
 

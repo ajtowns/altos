@@ -211,7 +211,6 @@ ao_send_metrum_data(void)
 {
 	if (--ao_telemetry_metrum_data_cur <= 0) {
 		__xdata	struct ao_data *packet = (__xdata struct ao_data *) &ao_data_ring[ao_data_ring_prev(ao_sample_data)];
-		uint8_t	i;
 
 		telemetry.generic.tick = packet->tick;
 		telemetry.generic.type = AO_TELEMETRY_METRUM_DATA;
