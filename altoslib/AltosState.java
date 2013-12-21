@@ -464,6 +464,16 @@ public class AltosState implements Cloneable {
 		return acceleration.max();
 	}
 
+	public AltosValue	orient;
+
+	public void set_orient(double new_orient) {
+		orient.set(new_orient, time);
+	}
+
+	public double orient() {
+		return orient.value();
+	}
+
 	public AltosValue	kalman_height, kalman_speed, kalman_acceleration;
 
 	public void set_kalman(double height, double speed, double acceleration) {
@@ -560,6 +570,7 @@ public class AltosState implements Cloneable {
 		pressure = new AltosPressure();
 		speed = new AltosSpeed();
 		acceleration = new AltosAccel();
+		orient = new AltosValue();
 
 		temperature = AltosLib.MISSING;
 		battery_voltage = AltosLib.MISSING;
@@ -621,6 +632,7 @@ public class AltosState implements Cloneable {
 		pressure.finish_update();
 		speed.finish_update();
 		acceleration.finish_update();
+		orient.finish_update();
 
 		kalman_height.finish_update();
 		kalman_speed.finish_update();
@@ -665,6 +677,7 @@ public class AltosState implements Cloneable {
 		pressure.copy(old.pressure);
 		speed.copy(old.speed);
 		acceleration.copy(old.acceleration);
+		orient.copy(old.orient);
 
 		battery_voltage = old.battery_voltage;
 		pyro_voltage = old.pyro_voltage;

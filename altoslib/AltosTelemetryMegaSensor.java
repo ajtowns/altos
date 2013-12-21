@@ -34,9 +34,12 @@ public class AltosTelemetryMegaSensor extends AltosTelemetryStandard {
 	int	mag_y;
 	int	mag_z;
 
+	int	orient;
+
 	public AltosTelemetryMegaSensor(int[] bytes) {
 		super(bytes);
 
+		orient	      = int8(5);
 		accel         = int16(6);
 		pres          = int32(8);
 		temp          = int16(12);
@@ -60,6 +63,8 @@ public class AltosTelemetryMegaSensor extends AltosTelemetryStandard {
 		state.set_accel(accel);
 		state.set_pressure(pres);
 		state.set_temperature(temp / 100.0);
+
+		state.set_orient(orient);
 
 		AltosIMU imu = new AltosIMU();
 		
