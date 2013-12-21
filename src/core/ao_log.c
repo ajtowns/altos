@@ -196,7 +196,9 @@ ao_log_full(void)
 	return ao_log_current_pos == ao_log_end_pos;
 }
 
+#if HAS_ADC
 static __xdata struct ao_task ao_log_task;
+#endif
 
 void
 ao_log_list(void) __reentrant

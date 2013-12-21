@@ -78,7 +78,7 @@ typedef uint8_t check_log_size[1-(256 % sizeof(struct ao_log_mini))] ;
 void
 ao_log(void)
 {
-	__pdata uint16_t	next_sensor, next_other;
+	__pdata uint16_t	next_sensor;
 
 	ao_storage_setup();
 
@@ -99,7 +99,7 @@ ao_log(void)
 	 * when starting up.
 	 */
 	ao_log_data_pos = ao_data_ring_next(ao_data_head);
-	next_other = next_sensor = ao_data_ring[ao_log_data_pos].tick;
+	next_sensor = ao_data_ring[ao_log_data_pos].tick;
 	ao_log_state = ao_flight_startup;
 	for (;;) {
 		/* Write samples to EEPROM */

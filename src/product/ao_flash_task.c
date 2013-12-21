@@ -24,6 +24,7 @@
 void
 ao_panic(uint8_t reason)
 {
+	(void) reason;
 }
 
 void

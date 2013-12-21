@@ -21,8 +21,6 @@ static uint8_t		ao_spi_mutex[LPC_NUM_SPI];
 
 static struct lpc_ssp * const ao_lpc_ssp[LPC_NUM_SPI] = { &lpc_ssp0, &lpc_ssp1 };
 
-static uint8_t	spi_dev_null;
-
 #define tx_busy(lpc_ssp) (lpc_ssp->sr & ((1 << LPC_SSP_SR_BSY) | (1 << LPC_SSP_SR_TNF))) != (1 << LPC_SSP_SR_TNF)
 #define rx_busy(lpc_ssp) (lpc_ssp->sr & ((1 << LPC_SSP_SR_BSY) | (1 << LPC_SSP_SR_RNE))) != (1 << LPC_SSP_SR_RNE)
 

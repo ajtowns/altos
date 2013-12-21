@@ -24,9 +24,9 @@
 #endif
 
 static __pdata uint16_t ao_telemetry_interval;
-static __pdata uint8_t ao_rdf = 0;
 
 #if HAS_RDF
+static __pdata uint8_t ao_rdf = 0;
 static __pdata uint16_t ao_rdf_time;
 #endif
 

@@ -41,5 +41,6 @@ ao_sleep(__xdata void *wchan)
 void
 ao_wakeup(__xdata void *wchan)
 {
+	(void) wchan;
 	ao_wchan = 0;
 }

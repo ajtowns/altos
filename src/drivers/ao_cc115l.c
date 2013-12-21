@@ -29,8 +29,6 @@ static uint8_t ao_radio_fifo;		/* fifo drained interrupt received */
 static uint8_t ao_radio_done;		/* tx done interrupt received */
 static uint8_t ao_radio_wake;		/* sleep address for radio interrupts */
 static uint8_t ao_radio_abort;		/* radio operation should abort */
-static uint8_t ao_radio_mcu_wake;	/* MARC status change */
-static uint8_t ao_radio_marcstate;	/* Last read MARC state value */
 
 /* Debugging commands */
 #define CC115L_DEBUG	0
@@ -106,7 +104,6 @@ static uint8_t
 ao_radio_reg_read(uint8_t addr)
 {
 	uint8_t	data[1];
-	uint8_t	d;
 
 	data[0] = ((1 << CC115L_READ)  |
 		   (0 << CC115L_BURST) |
@@ -123,7 +120,6 @@ static void
 ao_radio_reg_write(uint8_t addr, uint8_t value)
 {
 	uint8_t	data[2];
-	uint8_t	d;
 
 	trace_add(trace_write, addr, value, NULL);
 	data[0] = ((0 << CC115L_READ)  |
@@ -135,11 +131,11 @@ ao_radio_reg_write(uint8_t addr, uint8_t value)
 	ao_radio_deselect();
 }
 
+#if UNUSED
 static void
 ao_radio_burst_read_start (uint16_t addr)
 {
 	uint8_t data[1];
-	uint8_t d;
 
 	data[0] = ((1 << CC115L_READ)  |
 		   (1 << CC115L_BURST) |
@@ -153,6 +149,7 @@ ao_radio_burst_read_stop (void)
 {
 	ao_radio_deselect();
 }
+#endif
 
 
 static uint8_t
@@ -200,19 +197,23 @@ ao_radio_tx_fifo_space(void)
 	return CC115L_FIFO_SIZE - (ao_radio_reg_read(CC115L_TXBYTES) & CC115L_TXBYTES_NUM_TX_BYTES_MASK);
 }
 
+#if UNUSED
 static uint8_t
 ao_radio_status(void)
 {
 	return ao_radio_strobe (CC115L_SNOP);
 }
+#endif
 
 #define ao_radio_rdf_value 0x55
 
+#if UNUSED
 static uint8_t
 ao_radio_get_marcstate(void)
 {
 	return ao_radio_reg_read(CC115L_MARCSTATE) & CC115L_MARCSTATE_MASK;
 }
+#endif
 	  
 static void
 ao_radio_done_isr(void)
@@ -230,11 +231,6 @@ ao_radio_fifo_isr(void)
 	trace_add(trace_line, __LINE__, 0, "fifo_isr");
 	ao_radio_fifo = 1;
 	ao_wakeup(&ao_radio_wake);
-}
-
-static void
-ao_radio_start_tx(void)
-{
 }
 
 static void
@@ -401,7 +397,7 @@ static void
 ao_radio_set_mode(uint16_t new_mode)
 {
 	uint16_t changes;
-	int i;
+	unsigned int i;
 
 	if (new_mode == ao_radio_mode)
 		return;
@@ -466,7 +462,7 @@ static uint8_t	ao_radio_configured = 0;
 static void
 ao_radio_setup(void)
 {
-	int	i;
+	unsigned int	i;
 
 	ao_radio_strobe(CC115L_SRES);
 	ao_delay(AO_MS_TO_TICKS(10));
@@ -730,8 +726,6 @@ ao_radio_send_fill(uint8_t *buf, int16_t len)
 void
 ao_radio_send(const void *d, uint8_t size)
 {
-	int i;
-
 	ao_radio_get();
 	ao_radio_send_len = ao_fec_encode(d, size, tx_data);
 	ao_radio_send_buf = tx_data;
@@ -912,7 +906,6 @@ static void ao_radio_packet(void) {
 	ao_radio_send(packet, sizeof (packet));
 }
 
-#endif /* CC115L_DEBUG */
 
 #if HAS_APRS
 #include <ao_aprs.h>
@@ -926,6 +919,7 @@ ao_radio_aprs()
 	ao_aprs_send();
 }
 #endif
+#endif /* CC115L_DEBUG */
 
 static const struct ao_cmds ao_radio_cmds[] = {
 	{ ao_radio_test_cmd,	"C <1 start, 0 stop, none both>\0Radio carrier test" },
@@ -943,7 +937,9 @@ static const struct ao_cmds ao_radio_cmds[] = {
 void
 ao_radio_init(void)
 {
+#if 0
 	int	i;
+#endif
 
 	ao_radio_configured = 0;
 	ao_spi_init_cs (AO_CC115L_SPI_CS_PORT, (1 << AO_CC115L_SPI_CS_PIN));

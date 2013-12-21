@@ -111,7 +111,6 @@ static uint8_t	ao_usb_in_pending;
 static uint8_t	ao_usb_out_avail;
 static uint8_t	ao_usb_running;
 static uint8_t	ao_usb_configuration;
-static uint8_t	ueienx_0;
 
 #define AO_USB_EP0_GOT_RESET	1
 #define AO_USB_EP0_GOT_SETUP	2
@@ -246,11 +245,13 @@ ao_usb_epn_in(uint8_t n)
 	return &lpc_usb_endpoint.epn[n-1].in[0];
 }
 
+#if UNUSED
 static void
 ao_usb_set_epn_in(uint8_t n, uint8_t *addr, uint16_t nbytes)
 {
 	ao_usb_set_ep(ao_usb_epn_in(n), addr, nbytes);
 }
+#endif
 
 static void
 ao_usb_set_epn_out(uint8_t n, uint8_t *addr, uint16_t nbytes)
@@ -633,11 +634,12 @@ ao_usb_ep0_handle(uint8_t receive)
 	}
 }
 
-static uint16_t	control_count;
+#if USB_DEBUG
 static uint16_t int_count;
 static uint16_t	in_count;
 static uint16_t	out_count;
 static uint16_t	reset_count;
+#endif
 
 void
 lpc_usb_irq_isr(void)
@@ -665,7 +667,9 @@ lpc_usb_irq_isr(void)
 
 	/* Handle OUT packets */
 	if (intstat & (1 << LPC_USB_INT_EPOUT(AO_USB_OUT_EP))) {
+#if USB_DEBUG
 		++out_count;
+#endif
 		_rx_dbg1("RX ISR", *ao_usb_epn_out(AO_USB_OUT_EP));
 		ao_usb_out_avail = 1;
 		_rx_dbg0("out avail set");
@@ -675,7 +679,9 @@ lpc_usb_irq_isr(void)
 
 	/* Handle IN packets */
 	if (intstat & (1 << LPC_USB_INT_EPIN(AO_USB_IN_EP))) {
+#if USB_DEBUG
 		++in_count;
+#endif
 		_tx_dbg1("TX ISR", *ao_usb_epn_in(AO_USB_IN_EP));
 		ao_usb_in_pending = 0;
 		ao_wakeup(&ao_usb_in_pending);
