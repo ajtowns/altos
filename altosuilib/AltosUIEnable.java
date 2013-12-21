@@ -39,10 +39,12 @@ public class AltosUIEnable extends Container {
 
 	Insets	il, ir;
 	int	y;
+	int	x;
+
+	static final int max_rows = 14;
 
 	class GraphElement implements ActionListener {
 		AltosUIGrapher	grapher;
-		JLabel		label;
 		JRadioButton	enable;
 		String		name;
 
@@ -53,8 +55,7 @@ public class AltosUIEnable extends Container {
 		GraphElement (String name, AltosUIGrapher grapher, boolean enabled) {
 			this.name = name;
 			this.grapher = grapher;
-			label = new JLabel(name);
-			enable = new JRadioButton("Enable", enabled);
+			enable = new JRadioButton(name, enabled);
 			grapher.set_enable(enabled);			  
 			enable.addActionListener(this);
 		}
@@ -63,18 +64,11 @@ public class AltosUIEnable extends Container {
 	public void add(String name, AltosUIGrapher grapher, boolean enabled) {
 
 		GraphElement	e = new GraphElement(name, grapher, enabled);
-
-		/* Add label */
 		GridBagConstraints c = new GridBagConstraints();
-		c.gridx = 0; c.gridy = y;
-		c.fill = GridBagConstraints.NONE;
-		c.anchor = GridBagConstraints.LINE_START;
-		c.insets = il;
-		add(e.label, c);
 
-		/* Add radio button */
+		/* Add element */
 		c = new GridBagConstraints();
-		c.gridx = 1; c.gridy = y;
+		c.gridx = x; c.gridy = y;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.CENTER;
 		c.insets = ir;
@@ -82,19 +76,17 @@ public class AltosUIEnable extends Container {
 
 		/* Next row */
 		y++;
+		if (y == max_rows) {
+			x++;
+			y = 0;
+		}
 	}
 
 	public void add_units() {
 		/* Imperial units setting */
-		/* Add label */
-		GridBagConstraints c = new GridBagConstraints();
-		c.gridx = 0; c.gridy = 1000;
-		c.fill = GridBagConstraints.NONE;
-		c.anchor = GridBagConstraints.LINE_START;
-		c.insets = il;
-		add(new JLabel("Imperial Units"), c);
 
-		JRadioButton imperial_units = new JRadioButton("Enable", AltosUIPreferences.imperial_units());
+		/* Add label */
+		JRadioButton imperial_units = new JRadioButton("Imperial Units", AltosUIPreferences.imperial_units());
 		imperial_units.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					JRadioButton item = (JRadioButton) e.getSource();
@@ -103,8 +95,8 @@ public class AltosUIEnable extends Container {
 				}
 			});
 		imperial_units.setToolTipText("Use Imperial units instead of metric");
-		c = new GridBagConstraints();
-		c.gridx = 1; c.gridy = 1000;
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = 1000;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
@@ -114,6 +106,7 @@ public class AltosUIEnable extends Container {
 	public AltosUIEnable() {
 		il = new Insets(4,4,4,4);
 		ir = new Insets(4,4,4,4);
+		x = 0;
 		y = 0;
 		setLayout(new GridBagLayout());
 		add_units();
