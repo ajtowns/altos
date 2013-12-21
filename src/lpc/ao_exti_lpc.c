@@ -91,7 +91,7 @@ ao_exti_setup (uint8_t port, uint8_t pin, uint8_t mode, void (*callback)(void)) 
 	if (pint == LPC_NUM_PINT)
 		ao_panic(AO_PANIC_EXTI);
 
-	if (!mode & AO_EXTI_PIN_NOCONFIGURE)
+	if (!(mode & AO_EXTI_PIN_NOCONFIGURE))
 		ao_enable_input(port, pin, mode);
 
 	ao_arch_block_interrupts();
