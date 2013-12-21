@@ -78,6 +78,14 @@
 #define AO_MMA655X_COUNT	0x15
 #define AO_MMA655X_OFFCORR	0x16
 
+/*
+ * Range of valid self-test difference from
+ * normal measurement
+ */
+
+#define AO_ST_MIN	300
+#define AO_ST_MAX	800
+
 extern uint16_t	ao_mma655x_current;
 
 void

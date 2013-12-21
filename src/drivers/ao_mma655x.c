@@ -20,13 +20,14 @@
 
 #if HAS_MMA655X
 
-#if 0
-#define PRINTD(...) do { printf ("\r%5u %s: ", ao_tick_count, __func__); printf(__VA_ARGS__); } while(0)
+#define DEBUG		0
+#define DEBUG_LOW	1
+#define DEBUG_HIGH	2
+#if 1
+#define PRINTD(l, ...) do { if (DEBUG & (l)) { printf ("\r%5u %s: ", ao_tick_count, __func__); printf(__VA_ARGS__); flush(); } } while(0)
 #else
-#define PRINTD(...) 
+#define PRINTD(l,...) 
 #endif
-
-static uint8_t	mma655x_configured;
 
 uint8_t	ao_mma655x_spi_index = AO_MMA655X_SPI_INDEX;
 
@@ -53,7 +54,7 @@ ao_mma655x_restart(void) {
 	ao_gpio_set(AO_MMA655X_CS_PORT, AO_MMA655X_CS_PIN, AO_MMA655X_CS, 1);
 
 	/* Emperical testing on STM32L151 at 32MHz for this delay amount */
-	for (i = 0; i < 9; i++)
+	for (i = 0; i < 10; i++)
 		ao_arch_nop();
 	ao_gpio_set(AO_MMA655X_CS_PORT, AO_MMA655X_CS_PIN, AO_MMA655X_CS, 0);
 }
@@ -72,15 +73,17 @@ ao_parity(uint8_t v)
 	return p;
 }
 
+#if 0
 static void
 ao_mma655x_cmd(uint8_t d[2])
 {
 	ao_mma655x_start();
-	PRINTD("\tSEND %02x %02x\n", d[0], d[1]);
+	PRINTD(DEBUG_LOW, "\tSEND %02x %02x\n", d[0], d[1]);
 	ao_spi_duplex(d, d, 2, AO_MMA655X_SPI_INDEX);
-	PRINTD("\t\tRECV %02x %02x\n", d[0], d[1]);
+	PRINTD(DEBUG_LOW, "\t\tRECV %02x %02x\n", d[0], d[1]);
 	ao_mma655x_stop();
 }
+#endif
 
 static uint8_t
 ao_mma655x_reg_read(uint8_t addr)
@@ -97,6 +100,7 @@ ao_mma655x_reg_read(uint8_t addr)
 	d[1] = 0x00;
 	ao_spi_duplex(&d, &d, 2, AO_MMA655X_SPI_INDEX);
 	ao_mma655x_stop();
+	PRINTD(DEBUG_LOW, "read %x = %x %x\n", addr, d[0], d[1]);
 	return d[1];
 }
 
@@ -105,6 +109,7 @@ ao_mma655x_reg_write(uint8_t addr, uint8_t value)
 {
 	uint8_t	d[2];
 
+	PRINTD(DEBUG_LOW, "write %x %x\n", addr, value);
 	addr |= (1 << 6);	/* write mode */
 	d[0] = addr | (ao_parity(addr^value) << 7);
 	d[1] = value;
@@ -113,8 +118,6 @@ ao_mma655x_reg_write(uint8_t addr, uint8_t value)
 	ao_mma655x_stop();
 
 	addr &= ~(1 << 6);
-	PRINTD("write %x %x = %x\n",
-	       addr, value, ao_mma655x_reg_read(addr));
 }
 
 static uint16_t
@@ -131,14 +134,14 @@ ao_mma655x_value(void)
 		(0 << 1) |	/* Arm disabled */
 		(1 << 0));	/* Odd parity */
 	ao_mma655x_start();
-	PRINTD("value SEND %02x %02x\n", d[0], d[1]);
+	PRINTD(DEBUG_LOW, "value SEND %02x %02x\n", d[0], d[1]);
 	ao_spi_send(d, 2, AO_MMA655X_SPI_INDEX);
 	ao_mma655x_restart();
 	d[0] = 0x80;
 	d[1] = 0x00;
 	ao_spi_duplex(d, d, 2, AO_MMA655X_SPI_INDEX);
 	ao_mma655x_stop();
-	PRINTD("value RECV %02x %02x\n", d[0], d[1]);
+	PRINTD(DEBUG_LOW, "value RECV %02x %02x\n", d[0], d[1]);
 
 	v = (uint16_t) d[1] << 2;
 	v |= d[0] >> 6;
@@ -148,15 +151,16 @@ ao_mma655x_value(void)
 
 static void
 ao_mma655x_reset(void) {
+	PRINTD(DEBUG_HIGH, "reset\n");
 	ao_mma655x_reg_write(AO_MMA655X_DEVCTL,
 			     (0 << AO_MMA655X_DEVCTL_RES_1) |
-			     (0 << AO_MMA655X_DEVCTL_RES_1));
+			     (0 << AO_MMA655X_DEVCTL_RES_0));
 	ao_mma655x_reg_write(AO_MMA655X_DEVCTL,
 			     (1 << AO_MMA655X_DEVCTL_RES_1) |
-			     (1 << AO_MMA655X_DEVCTL_RES_1));
+			     (1 << AO_MMA655X_DEVCTL_RES_0));
 	ao_mma655x_reg_write(AO_MMA655X_DEVCTL,
 			     (0 << AO_MMA655X_DEVCTL_RES_1) |
-			     (1 << AO_MMA655X_DEVCTL_RES_1));
+			     (1 << AO_MMA655X_DEVCTL_RES_0));
 }
 
 #define DEVCFG_VALUE	(\
@@ -169,54 +173,73 @@ ao_mma655x_reset(void) {
 		(0 << AO_MMA655X_AXISCFG_LPF))	/* 100Hz 4-pole filter */
 
 
+#define AO_ST_TRIES	10
+#define AO_ST_DELAY	AO_MS_TO_TICKS(100)
+
 static void
 ao_mma655x_setup(void)
 {
-	uint8_t		v;
 	uint16_t	a, a_st;
-	uint8_t		stdefl;
-	uint8_t		i;
+	int16_t		st_change;
+	int		tries;
+	uint8_t		devstat;
+#if 0
 	uint8_t	s0, s1, s2, s3;
-	uint8_t	pn;
 	uint32_t	lot;
-	uint16_t	serial;
+#endif
 
+	for (tries = 0; tries < AO_ST_TRIES; tries++) {
+		ao_delay(AO_MS_TO_TICKS(10));
+		ao_mma655x_reset();
+		ao_delay(AO_MS_TO_TICKS(10));
 
-	if (mma655x_configured)
-		return;
-	mma655x_configured = 1;
-	ao_delay(AO_MS_TO_TICKS(10));	/* Top */
-	ao_mma655x_reset();
-	ao_delay(AO_MS_TO_TICKS(10));	/* Top */
-	(void) ao_mma655x_reg_read(AO_MMA655X_DEVSTAT);
-	v = ao_mma655x_reg_read(AO_MMA655X_DEVSTAT);
+		devstat = ao_mma655x_reg_read(AO_MMA655X_DEVSTAT);
+		PRINTD(DEBUG_HIGH, "devstat %x\n", devstat);
 
-	/* Configure R/W register values.
-	 * Most of them relate to the arming feature, which
-	 * we don't use, so the only registers we need to
-	 * write are DEVCFG and AXISCFG
-	 */
+		if (!(devstat & (1 << AO_MMA655X_DEVSTAT_DEVRES)))
+			continue;
 
-	ao_mma655x_reg_write(AO_MMA655X_DEVCFG,
-			     DEVCFG_VALUE | (0 << AO_MMA655X_DEVCFG_ENDINIT));
+		/* Configure R/W register values.
+		 * Most of them relate to the arming feature, which
+		 * we don't use, so the only registers we need to
+		 * write are DEVCFG and AXISCFG
+		 */
 
-	/* Test X axis
-	 */
+		ao_mma655x_reg_write(AO_MMA655X_DEVCFG,
+				     DEVCFG_VALUE | (0 << AO_MMA655X_DEVCFG_ENDINIT));
+
+		/* Test X axis
+		 */
 	
-	ao_mma655x_reg_write(AO_MMA655X_AXISCFG,
-			     AXISCFG_VALUE |
-			     (1 << AO_MMA655X_AXISCFG_ST));
-	a_st = ao_mma655x_value();
+		ao_mma655x_reg_write(AO_MMA655X_AXISCFG,
+				     AXISCFG_VALUE |
+				     (1 << AO_MMA655X_AXISCFG_ST));
+		ao_delay(AO_MS_TO_TICKS(10));
 
-	stdefl = ao_mma655x_reg_read(AO_MMA655X_STDEFL);
+		a_st = ao_mma655x_value();
 
-	ao_mma655x_reg_write(AO_MMA655X_AXISCFG,
-			     AXISCFG_VALUE |
-			     (0 << AO_MMA655X_AXISCFG_ST));
-	a = ao_mma655x_value();
+		ao_mma655x_reg_write(AO_MMA655X_AXISCFG,
+				     AXISCFG_VALUE |
+				     (0 << AO_MMA655X_AXISCFG_ST));
+
+		ao_delay(AO_MS_TO_TICKS(10));
+
+		a = ao_mma655x_value();
+
+		st_change = a_st - a;
+
+		PRINTD(DEBUG_HIGH, "self test %d normal %d change %d\n", a_st, a, st_change);
+
+		if (AO_ST_MIN <= st_change && st_change <= AO_ST_MAX)
+			break;
+		ao_delay(AO_ST_DELAY);
+	}
+	if (tries == AO_ST_TRIES)
+		ao_sensor_errors = 1;
 
 	ao_mma655x_reg_write(AO_MMA655X_DEVCFG,
 			     DEVCFG_VALUE | (1 << AO_MMA655X_DEVCFG_ENDINIT));
+#if 0
 	s0 = ao_mma655x_reg_read(AO_MMA655X_SN0);
 	s1 = ao_mma655x_reg_read(AO_MMA655X_SN1);
 	s2 = ao_mma655x_reg_read(AO_MMA655X_SN2);
@@ -226,6 +249,7 @@ ao_mma655x_setup(void)
 	serial = lot & 0x1fff;
 	lot >>= 12;
 	pn = ao_mma655x_reg_read(AO_MMA655X_PN);
+#endif
 }
 
 uint16_t	ao_mma655x_current;
@@ -259,8 +283,6 @@ static __xdata struct ao_task ao_mma655x_task;
 void
 ao_mma655x_init(void)
 {
-	mma655x_configured = 0;
-
 	ao_cmd_register(&ao_mma655x_cmds[0]);
 	ao_spi_init_cs(AO_MMA655X_CS_PORT, (1 << AO_MMA655X_CS_PIN));
 
