@@ -59,6 +59,7 @@ _ao_button_get(struct ao_debounce *debounce)
 	case 4: return ao_button_value(4);
 #endif
 	}
+	return 0;
 }
 
 static void
