@@ -20,7 +20,7 @@ package altosui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import org.altusmetrum.altoslib_2.*;
+import org.altusmetrum.altoslib_3.*;
 import org.altusmetrum.altosuilib_1.*;
 
 public class AltosRomconfigUI

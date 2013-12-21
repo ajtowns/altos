@@ -25,7 +25,7 @@ import java.io.*;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
-import org.altusmetrum.altoslib_2.*;
+import org.altusmetrum.altoslib_3.*;
 import org.altusmetrum.altosuilib_1.*;
 
 import libaltosJNI.*;

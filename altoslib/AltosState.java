@@ -19,7 +19,7 @@
  * Track flight state from telemetry or eeprom data stream
  */
 
-package org.altusmetrum.altoslib_2;
+package org.altusmetrum.altoslib_3;
 
 public class AltosState implements Cloneable {
 

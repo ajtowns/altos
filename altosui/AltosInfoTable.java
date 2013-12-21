@@ -20,7 +20,7 @@ package altosui;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.*;
-import org.altusmetrum.altoslib_2.*;
+import org.altusmetrum.altoslib_3.*;
 
 public class AltosInfoTable extends JTable {
 	private AltosFlightInfoTableModel model;

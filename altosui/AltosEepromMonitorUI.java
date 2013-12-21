@@ -21,7 +21,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import org.altusmetrum.altosuilib_1.*;
-import org.altusmetrum.altoslib_2.*;
+import org.altusmetrum.altoslib_3.*;
 
 public class AltosEepromMonitorUI extends AltosUIDialog implements AltosEepromMonitor {
 	JFrame		owner;

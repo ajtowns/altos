@@ -20,7 +20,7 @@ package altosui;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.*;
-import org.altusmetrum.altoslib_2.*;
+import org.altusmetrum.altoslib_3.*;
 import org.altusmetrum.altosuilib_1.*;
 
 public class AltosDataChooser extends JFileChooser {

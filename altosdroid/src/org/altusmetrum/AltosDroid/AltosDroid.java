@@ -49,7 +49,7 @@ import android.widget.Toast;
 import android.app.AlertDialog;
 import android.location.Location;
 
-import org.altusmetrum.altoslib_2.*;
+import org.altusmetrum.altoslib_3.*;
 
 public class AltosDroid extends FragmentActivity {
 	// Debugging

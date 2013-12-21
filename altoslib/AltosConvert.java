@@ -18,7 +18,7 @@
 /*
  * Sensor data conversion functions
  */
-package org.altusmetrum.altoslib_2;
+package org.altusmetrum.altoslib_3;
 
 public class AltosConvert {
 	/*

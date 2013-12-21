@@ -18,7 +18,7 @@
 package altosui;
 
 import org.altusmetrum.altosuilib_1.*;
-import org.altusmetrum.altoslib_2.*;
+import org.altusmetrum.altoslib_3.*;
 
 public class AltosGraphDataPoint implements AltosUIDataPoint {
 

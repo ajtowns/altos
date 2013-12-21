@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 import java.awt.*;
 import javax.swing.*;
-import org.altusmetrum.altoslib_2.*;
+import org.altusmetrum.altoslib_3.*;
 
 import org.jfree.ui.*;
 import org.jfree.chart.*;

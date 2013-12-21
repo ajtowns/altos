@@ -23,7 +23,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
 
-import org.altusmetrum.altoslib_2.*;
+import org.altusmetrum.altoslib_3.*;
 
 public class AltosDroidPreferences implements AltosPreferencesBackend {
 	public final static String        NAME    = "org.altusmetrum.AltosDroid";

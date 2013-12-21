@@ -18,7 +18,7 @@
 package altosui;
 
 import java.io.*;
-import org.altusmetrum.altoslib_2.*;
+import org.altusmetrum.altoslib_3.*;
 
 public class AltosKML implements AltosWriter {
 
