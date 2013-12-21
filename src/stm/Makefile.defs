@@ -24,7 +24,7 @@ include $(TOPDIR)/Makedefs
 CC=$(ARM_CC)
 LIBS=$(PDCLIB_LIBS_M3) -lgcc
 
-WARN_FLAGS=-Wall
+WARN_FLAGS=-Wall -Wextra
 
 AO_CFLAGS=-I. -I../stm -I../core -I../drivers -I../math -I.. $(PDCLIB_INCLUDES)
 STM_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m3 -mthumb \
