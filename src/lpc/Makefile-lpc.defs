@@ -26,8 +26,11 @@ endif
 ELFTOHEX=$(TOPDIR)/../ao-tools/ao-elftohex/ao-elftohex
 CC=$(ARM_CC)
 
+WARN_FLAGS=-Wall -Wextra
+
 AO_CFLAGS=-I. -I$(TOPDIR)/lpc -I$(TOPDIR)/core -I$(TOPDIR)/drivers -I$(TOPDIR)/product -I$(TOPDIR) $(PDCLIB_INCLUDES) 
-LPC_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m0 -mthumb -ffreestanding -nostdlib $(AO_CFLAGS)
+LPC_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m0 -mthumb\
+	-ffreestanding -nostdlib $(AO_CFLAGS) $(WARN_FLAGS)
 
 NICKLE=nickle
 
