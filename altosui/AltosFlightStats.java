@@ -38,6 +38,9 @@ public class AltosFlightStats {
 	boolean		has_gps;
 	boolean		has_other_adc;
 	boolean		has_rssi;
+	boolean		has_imu;
+	boolean		has_mag;
+	boolean		has_orient;
 
 	double landed_time(AltosStateIterable states) {
 		AltosState state = null;
@@ -108,6 +111,9 @@ public class AltosFlightStats {
 		has_gps = false;
 		has_other_adc = false;
 		has_rssi = false;
+		has_imu = false;
+		has_mag = false;
+		has_orient = false;
 		for (AltosState state : states) {
 			if (serial == AltosLib.MISSING && state.serial != AltosLib.MISSING)
 				serial = state.serial;
@@ -157,6 +163,12 @@ public class AltosFlightStats {
 				lon = state.gps.lon;
 				has_gps = true;
 			}
+			if (state.imu != null)
+				has_imu = true;
+			if (state.mag != null)
+				has_mag = true;
+			if (state.orient() != AltosLib.MISSING)
+				has_orient = true;
 		}
 		for (int s = Altos.ao_flight_startup; s <= Altos.ao_flight_landed; s++) {
 			if (state_count[s] > 0) {

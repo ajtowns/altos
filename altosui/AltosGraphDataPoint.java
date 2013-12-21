@@ -40,6 +40,16 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 	public static final int data_range = 13;
 	public static final int data_distance = 14;
 	public static final int data_pressure = 15;
+	public static final int data_accel_x = 16;
+	public static final int data_accel_y = 17;
+	public static final int data_accel_z = 18;
+	public static final int data_gyro_x = 19;
+	public static final int data_gyro_y = 20;
+	public static final int data_gyro_z = 21;
+	public static final int data_mag_x = 22;
+	public static final int data_mag_y = 23;
+	public static final int data_mag_z = 24;
+	public static final int data_orient = 25;
 
 	public double x() throws AltosUIDataMissing {
 		double	time = state.time_since_boost();
@@ -98,6 +108,58 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 			break;
 		case data_pressure:
 			y = state.pressure();
+			break;
+			
+		case data_accel_x:
+		case data_accel_y:
+		case data_accel_z:
+		case data_gyro_x:
+		case data_gyro_y:
+		case data_gyro_z:
+			AltosIMU	imu = state.imu;
+			if (imu == null)
+				break;
+			switch (index) {
+			case data_accel_x:
+				y = imu.accel_x;
+				break;
+			case data_accel_y:
+				y = imu.accel_y;
+				break;
+			case data_accel_z:
+				y = imu.accel_z;
+				break;
+			case data_gyro_x:
+				y = imu.gyro_x;
+				break;
+			case data_gyro_y:
+				y = imu.gyro_y;
+				break;
+			case data_gyro_z:
+				y = imu.gyro_z;
+				break;
+			}
+			break;
+		case data_mag_x:
+		case data_mag_y:
+		case data_mag_z:
+			AltosMag	mag = state.mag;
+			if (mag == null)
+				break;
+			switch (index) {
+			case data_mag_x:
+				y = mag.x;
+				break;
+			case data_mag_y:
+				y = mag.y;
+				break;
+			case data_mag_z:
+				y = mag.z;
+				break;
+			}
+			break;
+		case data_orient:
+			y = state.orient();
 			break;
 		}
 		if (y == AltosLib.MISSING)
