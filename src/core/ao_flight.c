@@ -104,9 +104,6 @@ ao_flight(void)
 			    ao_config.accel_minus_g == 0 ||
 			    ao_ground_accel < ao_config.accel_plus_g - ACCEL_NOSE_UP ||
 			    ao_ground_accel > ao_config.accel_minus_g + ACCEL_NOSE_UP ||
-#if HAS_IMU
-			    ao_sensor_errors ||
-#endif
 			    ao_ground_height < -1000 ||
 			    ao_ground_height > 7000)
 			{
@@ -152,7 +149,11 @@ ao_flight(void)
 #endif
 			} else {
 				/* Set idle mode */
- 				ao_flight_state = ao_flight_idle;
+				ao_flight_state = ao_flight_idle;
+#if HAS_IMU
+				if (ao_sensor_errors)
+					ao_flight_state = ao_flight_invalid;
+#endif
  
 #if HAS_ACCEL && HAS_RADIO && PACKET_HAS_SLAVE
 				/* Turn on packet system in idle mode on TeleMetrum */
