@@ -120,7 +120,7 @@ extern struct lpc_ioconf lpc_ioconf;
 #define  LPC_IOCONF_FUNC_PIO0_3		0
 #define  LPC_IOCONF_FUNC_USB_VBUS	1
 
-/* PIO0_4
+/* PIO0_4 */
 #define  LPC_IOCONF_FUNC_PIO0_4		0
 #define  LPC_IOCONF_FUNC_I2C_SCL	1
 
