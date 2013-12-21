@@ -353,9 +353,9 @@ ao_config_accel_calibrate_set(void) __reentrant
 {
 	int16_t	up, down;
 #if HAS_GYRO
-	int16_t	accel_along_up, accel_along_down;
-	int16_t	accel_across_up, accel_across_down;
-	int16_t	accel_through_up, accel_through_down;
+	int16_t	accel_along_up = 0, accel_along_down = 0;
+	int16_t	accel_across_up = 0, accel_across_down = 0;
+	int16_t	accel_through_up = 0, accel_through_down = 0;
 #endif
 	
 	ao_cmd_decimal();
@@ -390,9 +390,11 @@ ao_config_accel_calibrate_set(void) __reentrant
 	ao_config.accel_plus_g = up;
 	ao_config.accel_minus_g = down;
 #if HAS_GYRO
-	ao_config.accel_zero_along = (accel_along_up + accel_along_down) / 2;
-	ao_config.accel_zero_across = (accel_across_up + accel_across_down) / 2;
-	ao_config.accel_zero_through = (accel_through_up + accel_through_down) / 2;
+	if (ao_cmd_lex_i == 0) {
+		ao_config.accel_zero_along = (accel_along_up + accel_along_down) / 2;
+		ao_config.accel_zero_across = (accel_across_up + accel_across_down) / 2;
+		ao_config.accel_zero_through = (accel_through_up + accel_through_down) / 2;
+	}
 #endif
 	_ao_config_edit_finish();
 }
