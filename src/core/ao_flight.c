@@ -443,9 +443,18 @@ ao_gyro_test(void)
 	ao_flight_state = ao_flight_idle;
 }
 
+uint8_t ao_orient_test;
+
+static void
+ao_orient_test_select(void)
+{
+	ao_orient_test = !ao_orient_test;
+}
+
 __code struct ao_cmds ao_flight_cmds[] = {
 	{ ao_flight_dump, 	"F\0Dump flight status" },
 	{ ao_gyro_test,		"G\0Test gyro code" },
+	{ ao_orient_test_select,"O\0Test orientation code" },
 	{ 0, NULL },
 };
 #endif

@@ -92,6 +92,10 @@ __pdata int32_t	ao_sample_roll_sum;
 static struct ao_quaternion ao_rotation;
 #endif
 
+#if HAS_FLIGHT_DEBUG
+extern uint8_t ao_orient_test;
+#endif
+
 static void
 ao_sample_preflight_add(void)
 {
@@ -159,7 +163,11 @@ ao_sample_preflight_set(void)
 	 * that as the current rotation vector
 	 */
 	ao_quaternion_vectors_to_rotation(&ao_rotation, &up, &orient);
+#if HAS_FLIGHT_DEBUG
+	if (ao_orient_test)
+		printf("\n\treset\n");
 #endif	
+#endif
 	nsamples = 0;
 }
 
@@ -210,6 +218,17 @@ ao_sample_rotate(void)
 	rotz = ao_rotation.z * ao_rotation.z - ao_rotation.y * ao_rotation.y - ao_rotation.x * ao_rotation.x + ao_rotation.r * ao_rotation.r;
 
 	ao_sample_orient = acosf(rotz) * (float) (180.0/M_PI);
+
+#if HAS_FLIGHT_DEBUG
+	if (ao_orient_test) {
+		printf ("rot %d %d %d orient %d     \r",
+			(int) (x * 1000),
+			(int) (y * 1000),
+			(int) (z * 1000),
+			ao_sample_orient);
+	}
+#endif
+
 }
 #endif
 
