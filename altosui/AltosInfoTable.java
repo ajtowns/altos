@@ -125,6 +125,10 @@ public class AltosInfoTable extends JTable {
 				info_add_row(0, "Speed", "%8.1f  m/s", state.speed());
 			if (state.max_speed() != AltosLib.MISSING)
 				info_add_row(0, "Max Speed", "%8.1f  m/s", state.max_speed());
+			if (state.orient() != AltosLib.MISSING)
+				info_add_row(0, "Tilt", "%4.0f °", state.orient());
+			if (state.max_orient() != AltosLib.MISSING)
+				info_add_row(0, "Max Tilt", "%4.0f °", state.max_orient());
 			if (state.temperature != AltosLib.MISSING)
 				info_add_row(0, "Temperature", "%9.2f °C", state.temperature);
 			if (state.battery_voltage != AltosLib.MISSING)

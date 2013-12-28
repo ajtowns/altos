@@ -271,6 +271,17 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	Accel	accel;
 
+	class Orient extends AscentValueHold {
+		void show (AltosState state, AltosListenerState listener_state) {
+			show(AltosConvert.orient, state.orient());
+		}
+		public Orient (GridBagLayout layout, int y) {
+			super (layout, y, "Tilt Angle");
+		}
+	}
+
+	Orient	orient;
+
 	String pos(double p, String pos, String neg) {
 		String	h = pos;
 		if (p < 0) {
@@ -342,6 +353,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		height.reset();
 		speed.reset();
 		accel.reset();
+		orient.reset();
 	}
 
 	public void set_font() {
@@ -354,6 +366,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		height.set_font();
 		speed.set_font();
 		accel.set_font();
+		orient.set_font();
 	}
 
 	public void show(AltosState state, AltosListenerState listener_state) {
@@ -375,6 +388,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			apogee.hide();
 		speed.show(state, listener_state);
 		accel.show(state, listener_state);
+		orient.show(state, listener_state);
 	}
 
 	public void labels(GridBagLayout layout, int y) {
@@ -410,13 +424,15 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		 * lon
 		 * height
 		 */
-		labels(layout, 0);
-		height = new Height(layout, 1);
-		speed = new Speed(layout, 2);
-		accel = new Accel(layout, 3);
-		lat = new Lat(layout, 4);
-		lon = new Lon(layout, 5);
-		apogee = new Apogee(layout, 6);
-		main = new Main(layout, 7);
+		int y = 0;
+		labels(layout, y++);
+		height = new Height(layout, y++);
+		speed = new Speed(layout, y++);
+		accel = new Accel(layout, y++);
+		orient = new Orient(layout, y++);
+		lat = new Lat(layout, y++);
+		lon = new Lon(layout, y++);
+		apogee = new Apogee(layout, y++);
+		main = new Main(layout, y++);
 	}
 }
