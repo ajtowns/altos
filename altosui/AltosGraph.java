@@ -150,29 +150,6 @@ class AltosGyroUnits extends AltosUnits {
 	}
 }
 
-class AltosOrientUnits extends AltosUnits {
-
-	public double value(double p, boolean imperial_units) {
-		return p;
-	}
-
-	public double inverse(double p, boolean imperial_units) {
-		return p;
-	}
-
-	public String show_units(boolean imperial_units) {
-		return "°";
-	}
-
-	public String say_units(boolean imperial_units) {
-		return "degrees";
-	}
-
-	public int show_fraction(int width, boolean imperial_units) {
-		return 1;
-	}
-}
-
 class AltosMagUnits extends AltosUnits {
 
 	public double value(double p, boolean imperial_units) {
@@ -231,7 +208,7 @@ public class AltosGraph extends AltosUIGraph {
 	static AltosNsat nsat_units = new AltosNsat();
 	static AltosDbm dbm_units = new AltosDbm();
 	static AltosGyroUnits gyro_units = new AltosGyroUnits();
-	static AltosOrientUnits orient_units = new AltosOrientUnits();
+	static AltosOrient orient_units = new AltosOrient();
 	static AltosMagUnits mag_units = new AltosMagUnits();
 
 	AltosUIAxis	height_axis, speed_axis, accel_axis, voltage_axis, temperature_axis, nsat_axis, dbm_axis;
