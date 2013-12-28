@@ -474,6 +474,10 @@ public class AltosState implements Cloneable {
 		return orient.value();
 	}
 
+	public double max_orient() {
+		return orient.max();
+	}
+
 	public AltosValue	kalman_height, kalman_speed, kalman_acceleration;
 
 	public void set_kalman(double height, double speed, double acceleration) {

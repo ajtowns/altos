@@ -330,6 +330,8 @@ public class AltosConvert {
 
 	public static AltosTemperature temperature = new AltosTemperature();
 
+	public static AltosOrient orient = new AltosOrient();
+
 	public static String show_gs(String format, double a) {
 		a = meters_to_g(a);
 		format = format.concat(" g");

@@ -70,6 +70,7 @@ altoslib_JAVA = \
 	AltosMma655x.java \
 	AltosMs5607.java \
 	AltosNoSymbol.java \
+	AltosOrient.java \
 	AltosParse.java \
 	AltosPreferences.java \
 	AltosPreferencesBackend.java \
