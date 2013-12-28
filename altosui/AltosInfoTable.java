@@ -46,9 +46,9 @@ public class AltosInfoTable extends JTable {
 			TableColumn column = getColumnModel().getColumn(i);
 
 			if ((i & 1) == 0)
-				column.setPreferredWidth(text_width(" Satellites Visible "));
+				column.setPreferredWidth(text_width(" Satellites Visible"));
 			else
-				column.setPreferredWidth(text_width(" 179°59.99999' "));
+				column.setPreferredWidth(text_width("W 179°59.99999' "));
 		}
 	}
 
