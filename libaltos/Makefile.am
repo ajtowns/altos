@@ -5,8 +5,7 @@ AM_JAVACFLAGS=-target 1.6 -encoding UTF-8 -Xlint:deprecation -source 6
 altoslibdir=$(libdir)/altos
 
 altoslib_LTLIBRARIES=libaltos.la
-
-libaltos_la_LDFLAGS = -version-info 1:0:1
+libaltos_la_LDFLAGS=-version-info 1:0:1
 
 libaltos_la_SOURCES=\
 	libaltos.c \
@@ -14,7 +13,34 @@ libaltos_la_SOURCES=\
 
 noinst_PROGRAMS=cjnitest
 
+cjnitest_SOURCES=cjnitest.c
 cjnitest_LDADD=libaltos.la
+
+if MULTI_ARCH
+altoslib_LTLIBRARIES+=libaltos32.la libaltos64.la
+
+libaltos32_la_LDFLAGS=$(libaltos_la_LDFLAGS)
+libaltos64_la_LDFLAGS=$(libaltos_la_LDFLAGS)
+
+libaltos32_la_CFLAGS=-m32 $(AM_CFLAGS)
+libaltos64_la_CFLAGS=-m64 $(AM_CFLAGS)
+
+libaltos32_la_SOURCES=$(libaltos_la_SOURCES)
+libaltos64_la_SOURCES=$(libaltos_la_SOURCES)
+
+noinst_PROGRAMS+=cjnitest32 cjnitest64
+
+cjnitest32_CFLAGS=-m32
+cjnitest64_CFLAGS=-m64
+
+cjnitest32_SOURCES=$(cjnitest_SOURCES)
+cjnitest64_SOURCES=$(cjnitest_SOURCES)
+
+cjnitest32_LDADD=libaltos32.la
+cjnitest64_LDADD=libaltos64.la
+
+endif
+
 
 LIBS=-lbluetooth
 

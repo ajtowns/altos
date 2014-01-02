@@ -175,7 +175,13 @@ WINDOWS_DIST=Altos-Windows-$(VERSION_DASH).exe
 
 FAT_FILES=$(FATJAR) $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS)
 
-LINUX_FILES=$(FAT_FILES) libaltos.so $(FIRMWARE) $(DOC)
+if MULTI_ARCH
+LINUX_LIBS=libaltos32.so libaltos64.so
+else
+LINUX_LIBS=libaltos.so
+endif
+
+LINUX_FILES=$(FAT_FILES) $(LINUX_LIBS) $(FIRMWARE) $(DOC)
 LINUX_EXTRA=altosui-fat
 
 MACOSX_INFO_PLIST=Info.plist
@@ -266,6 +272,14 @@ altosui-jdb: Makefile
 	chmod +x $@
 
 libaltos.so: build-libaltos
+	-rm -f "$@"
+	$(LN_S) ../libaltos/.libs/"$@" .
+
+libaltos32.so: build-libaltos
+	-rm -f "$@"
+	$(LN_S) ../libaltos/.libs/"$@" .
+
+libaltos64.so: build-libaltos
 	-rm -f "$@"
 	$(LN_S) ../libaltos/.libs/"$@" .
 
