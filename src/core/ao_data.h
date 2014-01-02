@@ -273,20 +273,24 @@ typedef int16_t accel_t;
 
 /* MMA655X is hooked up so that positive values represent negative acceleration */
 
+#define AO_ACCEL_INVERT		4095
+
 #define ao_data_accel(packet)			((packet)->mma655x)
 #if AO_MMA655X_INVERT
-#define ao_data_accel_cook(packet)		(4095 - (packet)->mma655x)
+#define ao_data_accel_cook(packet)		(AO_ACCEL_INVERT - (packet)->mma655x)
 #else
 #define ao_data_accel_cook(packet)		((packet)->mma655x)
 #endif
 #define ao_data_set_accel(packet, accel)	((packet)->mma655x = (accel))
-#define ao_data_accel_invert(accel)		(4095 - (accel))
+#define ao_data_accel_invert(accel)		(AO_ACCEL_INVERT - (accel))
 
 #endif
 
 #if !HAS_ACCEL && HAS_MPU6000
 
 #define HAS_ACCEL	1
+
+#define AO_ACCEL_INVERT		0
 
 typedef int16_t accel_t;
 
