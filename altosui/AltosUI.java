@@ -560,8 +560,9 @@ public class AltosUI extends AltosUIFrame {
 			AltosUI altosui = new AltosUI();
 
 			java.util.List<AltosDevice> devices = AltosUSBDevice.list(Altos.product_basestation);
-			for (AltosDevice device : devices)
-				altosui.telemetry_window(device);
+			if (devices != null)
+				for (AltosDevice device : devices)
+					altosui.telemetry_window(device);
 		} else {
 			int process = process_none;
 			for (int i = 0; i < args.length; i++) {
