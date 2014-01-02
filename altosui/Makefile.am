@@ -98,7 +98,8 @@ ALTOSUILIB_CLASS=\
 	altosuilib_$(ALTOSUILIB_VERSION).jar
 
 LIBALTOS= \
-	libaltos.so \
+	libaltos32.so \
+	libaltos64.so \
 	libaltos.dylib \
 	altos.dll
 
@@ -175,11 +176,7 @@ WINDOWS_DIST=Altos-Windows-$(VERSION_DASH).exe
 
 FAT_FILES=$(FATJAR) $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS)
 
-if MULTI_ARCH
 LINUX_LIBS=libaltos32.so libaltos64.so
-else
-LINUX_LIBS=libaltos.so
-endif
 
 LINUX_FILES=$(FAT_FILES) $(LINUX_LIBS) $(FIRMWARE) $(DOC)
 LINUX_EXTRA=altosui-fat
@@ -271,10 +268,6 @@ altosui-jdb: Makefile
 	echo 'exec jdb -classpath "classes:./*:../libaltos:$(FREETTS)/freetts.jar:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar" -Djava.library.path="../libaltos/.libs" altosui/AltosUI "$$@"' >> $@
 	chmod +x $@
 
-libaltos.so: build-libaltos
-	-rm -f "$@"
-	$(LN_S) ../libaltos/.libs/"$@" .
-
 libaltos32.so: build-libaltos
 	-rm -f "$@"
 	$(LN_S) ../libaltos/.libs/"$@" .
@@ -295,7 +288,9 @@ altos64.dll: ../libaltos/altos64.dll
 	-rm -f "$@"
 	$(LN_S) ../libaltos/"$@" .
 
-../libaltos/.libs/libaltos.so: build-libaltos
+../libaltos/.libs/libaltos64.so: ../libaltos/.libs/libaltos32.so
+
+../libaltos/.libs/libaltos32.so: build-libaltos
 
 ../libaltos/altos.dll: build-altos-dll
 
