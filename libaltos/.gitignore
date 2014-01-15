@@ -9,5 +9,7 @@ classlibaltos.stamp
 libaltos_wrap.c
 libaltosJNI
 cjnitest
+cjnitest32
+cjnitest64
 libaltos.swig
 swig_bindings/
