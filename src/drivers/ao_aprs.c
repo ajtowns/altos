@@ -144,6 +144,7 @@
 #endif
 
 #include <ao_aprs.h>
+#include <math.h>
 
 // Public methods, constants, and data structures for each class.
 
@@ -254,9 +255,9 @@ typedef enum
 /// AX.25 compliant packet header that contains destination, station call sign, and path.
 /// 0x76 for SSID-11, 0x78 for SSID-12
 static uint8_t TNC_AX25_HEADER[] = { 
-    'A' << 1, 'P' << 1, 'A' << 1, 'M' << 1, ' ' << 1, ' ' << 1, 0x60, \
-    'N' << 1, '0' << 1, 'C' << 1, 'A' << 1, 'L' << 1, 'L' << 1, 0x78, \
-    'W' << 1, 'I' << 1, 'D' << 1, 'E' << 1, '2' << 1, ' ' << 1, 0x65, \
+    'A' << 1, 'P' << 1, 'A' << 1, 'M' << 1, ' ' << 1, ' ' << 1, 0x60,
+    'N' << 1, '0' << 1, 'C' << 1, 'A' << 1, 'L' << 1, 'L' << 1, 0x78,
+    'W' << 1, 'I' << 1, 'D' << 1, 'E' << 1, '2' << 1, ' ' << 1, 0x65,
     0x03, 0xf0 };
 
 #define TNC_CALLSIGN_OFF	7
@@ -479,6 +480,14 @@ static void tnc1200TimerTick()
     } // END switch
 }
 
+static void tncCompressInt(uint8_t *dest, int32_t value, int len) {
+	int i;
+	for (i = len - 1; i >= 0; i--) {
+		dest[i] = value % 91 + 33;
+		value /= 91;
+	}
+}
+
 /**
  *   Generate the plain text position packet.
  */
@@ -487,15 +496,20 @@ static int tncPositionPacket(void)
     int32_t	latitude = ao_gps_data.latitude;
     int32_t	longitude = ao_gps_data.longitude;
     int32_t	altitude = ao_gps_data.altitude;
+    uint8_t	*buf;
 
+    if (altitude < 0)
+	altitude = 0;
+    altitude = (altitude * (int32_t) 10000 + (3048/2)) / (int32_t) 3048;
+    
+#if 0
+    char	lat_sign = 'N', lon_sign = 'E';
     uint16_t	lat_deg;
     uint16_t	lon_deg;
     uint16_t	lat_min;
     uint16_t	lat_frac;
     uint16_t	lon_min;
     uint16_t	lon_frac;
-
-    char	lat_sign = 'N', lon_sign = 'E';
 
     if (latitude < 0) {
 	lat_sign = 'S';
@@ -529,15 +543,56 @@ static int tncPositionPacket(void)
     longitude -= lon_min * 10000000;
     lon_frac = longitude / 100000;
 
-    if (altitude < 0)
-	altitude = 0;
-
-    altitude = (altitude * (int32_t) 10000 + (3048/2)) / (int32_t) 3048;
-    
+#if 0
     return sprintf ((char *) tncBuffer, "=%02u%02u.%02u%c\\%03u%02u.%02u%cO /A=%06u\015",
 		    lat_deg, lat_min, lat_frac, lat_sign,
 		    lon_deg, lon_min, lon_frac, lon_sign,
 		    altitude);
+#endif
+
+    return sprintf ((char *) tncBuffer, "/%02u%02u%02uh%02u%02u.%02u%c/%03u%02u.%02u%c'/A=%06u\015",
+		    ao_gps_data.hour,
+		    ao_gps_data.minute,
+		    ao_gps_data.second,
+		    lat_deg, lat_min, lat_frac, lat_sign,
+		    lon_deg, lon_min, lon_frac, lon_sign,
+		    altitude);
+#endif
+    buf = tncBuffer;
+#if APRS_TIME
+    sprintf ((char *) buf, "/%02u%02u%02uh",
+	     ao_gps_data.hour,
+	     ao_gps_data.minute,
+	     ao_gps_data.second);
+    buf += 8;
+#else
+    *buf++ = '!';
+#endif
+
+    /* Symbol table ID */
+    *buf++ = '/';
+
+    latitude = ((uint64_t) 380926 * (900000000 - latitude)) / 10000000;
+    longitude = ((uint64_t) 190463 * (1800000000 + longitude)) / 10000000;
+
+#define ALTITUDE_LOG_BASE	0.001998002662673f	/* log(1.002) */
+
+    altitude = logf((float) altitude) * (1/ALTITUDE_LOG_BASE);
+
+    tncCompressInt(buf, latitude, 4);
+    buf += 4;
+    tncCompressInt(buf, longitude, 4);
+    buf += 4;
+
+    /* Symbol code */
+    *buf++ = '\'';
+
+    tncCompressInt(buf, altitude, 2);
+    buf += 2;
+
+    *buf++ = 33 + ((1 << 5) | (2 << 3));
+    *buf++ = '\0';
+    return buf - tncBuffer;
 }
 
 static int16_t

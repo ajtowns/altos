@@ -59,7 +59,8 @@ MATH_SRC=\
 	sf_fabs.c \
 	sf_floor.c \
 	sf_scalbn.c \
-	sf_sin.c
+	sf_sin.c \
+	ef_log.c
 
 ALTOS_SRC = \
 	ao_boot_chain.c \

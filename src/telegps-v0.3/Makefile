@@ -19,6 +19,9 @@ INC = \
 	Makefile
 
 
+MATH_SRC=\
+	ef_log.c
+
 ALTOS_SRC = \
 	ao_interrupt.c \
 	ao_boot_chain.c \
@@ -47,6 +50,7 @@ ALTOS_SRC = \
 	ao_log.c \
 	ao_log_mega.c \
 	ao_gps_report_mega.c \
+	$(MATH_SRC) \
 	$(SAMPLE_PROFILE)
 
 PRODUCT=TeleGPS-v0.3

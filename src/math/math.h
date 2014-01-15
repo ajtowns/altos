@@ -34,4 +34,6 @@ float scalbnf(float x, int n);
 
 float copysignf(float x, float y);
 
+float logf(float x);
+
 #endif

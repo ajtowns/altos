@@ -19,6 +19,7 @@
 
 #define __ieee754_acosf acosf
 #define __ieee754_sqrtf sqrtf
+#define __ieee754_logf logf
 
 /* REDHAT LOCAL: Include files.  */
 #include <math.h>
