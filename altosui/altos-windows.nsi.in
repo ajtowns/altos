@@ -136,6 +136,7 @@ Section "Documentation"
 	File "../doc/telemetrum-outline.pdf"
 	File "../doc/telemega-outline.pdf"
 	File "../doc/easymini-outline.pdf"
+	File "../doc/telemini.pdf"
 SectionEnd
 
 Section "Uninstaller"
