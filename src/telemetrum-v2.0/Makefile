@@ -76,6 +76,7 @@ ALTOS_SRC = \
 	ao_eeprom_stm.c \
 	ao_report.c \
 	ao_convert_pa.c \
+	ao_convert_volt.c \
 	ao_log.c \
 	ao_log_metrum.c \
 	ao_sample.c \

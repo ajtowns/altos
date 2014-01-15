@@ -101,6 +101,7 @@ ALTOS_SRC = \
 	ao_i2c_stm.c \
 	ao_mpu6000.c \
 	ao_convert_pa.c \
+	ao_convert_volt.c \
 	ao_log.c \
 	ao_log_mega.c \
 	ao_sample.c \

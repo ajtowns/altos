@@ -307,6 +307,17 @@ ao_altitude_to_pa(alt_t alt);
 #include <ao_serial.h>
 #endif
 
+/*
+ * ao_convert_volt.c
+ *
+ * Convert ADC readings to decivolts
+ */
+
+int16_t
+ao_battery_decivolt(int16_t adc);
+
+int16_t
+ao_ignite_decivolt(int16_t adc);
 
 /*
  * ao_spi_slave.c
