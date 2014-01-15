@@ -166,7 +166,7 @@ ao_kalman_err_accel(void)
 {
 	int32_t	accel;
 
-	accel = (ao_ground_accel - ao_sample_accel) * ao_accel_scale;
+	accel = (ao_config.accel_plus_g - ao_sample_accel) * ao_accel_scale;
 
 	/* Can't use ao_accel here as it is the pre-prediction value still */
 	ao_error_a = (accel - ao_k_accel) >> 16;

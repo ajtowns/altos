@@ -401,7 +401,7 @@ ao_flight_dump(void)
 #if HAS_ACCEL
 	int16_t	accel;
 
-	accel = ((ao_ground_accel - ao_sample_accel) * ao_accel_scale) >> 16;
+	accel = ((ao_config.accel_plus_g - ao_sample_accel) * ao_accel_scale) >> 16;
 #endif
 
 	printf ("sample:\n");

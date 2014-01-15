@@ -949,13 +949,7 @@ public class AltosState implements Cloneable {
 	}
 
 	void update_accel() {
-		double	ground = ground_accel;
-
-		if (ground == AltosLib.MISSING)
-			ground = ground_accel_avg;
 		if (accel == AltosLib.MISSING)
-			return;
-		if (ground == AltosLib.MISSING)
 			return;
 		if (accel_plus_g == AltosLib.MISSING)
 			return;
@@ -964,7 +958,7 @@ public class AltosState implements Cloneable {
 
 		double counts_per_g = (accel_minus_g - accel_plus_g) / 2.0;
 		double counts_per_mss = counts_per_g / 9.80665;
-		acceleration.set_measured((ground - accel) / counts_per_mss, time);
+		acceleration.set_measured((accel_plus_g - accel) / counts_per_mss, time);
 	}
 
 	public void set_accel_g(double accel_plus_g, double accel_minus_g) {
@@ -976,10 +970,8 @@ public class AltosState implements Cloneable {
 	}
 
 	public void set_ground_accel(double ground_accel) {
-		if (ground_accel != AltosLib.MISSING) {
+		if (ground_accel != AltosLib.MISSING)
 			this.ground_accel = ground_accel;
-			update_accel();
-		}
 	}
 
 	public void set_accel(double accel) {
