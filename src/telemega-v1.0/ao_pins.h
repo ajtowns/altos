@@ -250,6 +250,23 @@ struct ao_adc {
 #define AO_ADC_SQ9		AO_ADC_TEMP
 
 /*
+ * Voltage divider on ADC battery sampler
+ */
+#define AO_BATTERY_DIV_PLUS	56	/* 5.6k */
+#define AO_BATTERY_DIV_MINUS	100	/* 10k */
+
+/*
+ * Voltage divider on ADC igniter samplers
+ */
+#define AO_IGNITE_DIV_PLUS	100	/* 100k */
+#define AO_IGNITE_DIV_MINUS	27	/* 27k */
+
+/*
+ * ADC reference in decivolts
+ */
+#define AO_ADC_REFERENCE_DV	33
+
+/*
  * Pressure sensor settings
  */
 #define HAS_MS5607		1
