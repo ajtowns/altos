@@ -38,7 +38,8 @@ $STMLOAD --raw ../src/telemega-v$VERSION/flash-loader/*.elf || exit 1
 
 sleep 2
 
-$USBLOAD --serial=$SERIAL ../src/telemega-v$VERSION/*.ihx || exit 1
+#$USBLOAD --serial=$SERIAL ../src/telemega-v$VERSION/*.ihx || exit 1
+$USBLOAD --serial=$SERIAL /usr/share/altos/telemega-v$VERSION*.ihx || exit 1
 
 sleep 2
 
