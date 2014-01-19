@@ -574,7 +574,7 @@ public class AltosUI extends AltosUIFrame {
 					} else {
 						double lat = Double.parseDouble(args[i+1]);
 						double lon = Double.parseDouble(args[i+2]);
-						AltosSiteMap.prefetchMaps(lat, lon, 5, 5);
+						AltosSiteMap.prefetchMaps(lat, lon);
 						i += 2;
 					}
 				} else if (args[i].equals("--replay"))
