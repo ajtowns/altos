@@ -69,7 +69,7 @@ public class AltosRomconfigUI
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
-		serial_value = new JTextField("0");
+		serial_value = new JTextField("00000000");
 		pane.add(serial_value, c);
 
 		/* Radio calibration value */
@@ -91,7 +91,7 @@ public class AltosRomconfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		radio_calibration_value = new JTextField("0");
+		radio_calibration_value = new JTextField("00000000");
 		pane.add(radio_calibration_value, c);
 
 		/* Buttons */
