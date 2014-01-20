@@ -25,8 +25,13 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class AltosSiteMapCache extends JLabel {
+	static final long google_maps_ratelimit_ms = 1200;
+	// Google limits static map queries to 50 per minute per IP, so
+	// each query should take at least 1.2 seconds.
+
 	public static boolean fetchMap(File file, String url) {
 		URL u;
+		long startTime = System.nanoTime();
 
 		try {
 			u = new URL(url);
@@ -70,6 +75,16 @@ public class AltosSiteMapCache extends JLabel {
 			}
 			return false;
 		}
+
+		long duration_ms = (System.nanoTime() - startTime) / 1000000;
+		if (duration_ms < google_maps_ratelimit_ms) {
+			try {
+				Thread.sleep(google_maps_ratelimit_ms - duration_ms);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+
 		return true;
 	}
 

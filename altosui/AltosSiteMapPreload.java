@@ -213,7 +213,7 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 	AltosMapPos	lat;
 	AltosMapPos	lon;
 
-	final static int	radius = 3;
+	final static int	radius = 5;
 	final static int	width = (radius * 2 + 1);
 	final static int	height = (radius * 2 + 1);
 
