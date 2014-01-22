@@ -132,8 +132,35 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 		return constraints(x, width, GridBagConstraints.NONE);
 	}
 
+	void idle_exception(JFrame owner, Exception e) {
+		if (e instanceof FileNotFoundException) {
+			JOptionPane.showMessageDialog(owner,
+						      ((FileNotFoundException) e).getMessage(),
+						      "Cannot open target device",
+						      JOptionPane.ERROR_MESSAGE);
+		} else if (e instanceof AltosSerialInUseException) {
+			JOptionPane.showMessageDialog(owner,
+						      String.format("Device \"%s\" already in use",
+								    device.toShortString()),
+						      "Device in use",
+						      JOptionPane.ERROR_MESSAGE);
+		} else if (e instanceof IOException) {
+			IOException ee = (IOException) e;
+			JOptionPane.showMessageDialog(owner,
+						      device.toShortString(),
+						      ee.getLocalizedMessage(),
+						      JOptionPane.ERROR_MESSAGE);
+		} else {
+			JOptionPane.showMessageDialog(owner,
+						      String.format("Connection to \"%s\" failed",
+								    device.toShortString()),
+						      "Connection Failed",
+						      JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
 	public AltosIdleMonitorUI(JFrame in_owner)
-		throws FileNotFoundException, AltosSerialInUseException, TimeoutException, InterruptedException {
+		throws FileNotFoundException, TimeoutException, InterruptedException {
 
 		device = AltosDeviceUIDialog.show(in_owner, Altos.product_any);
 		remote = false;
@@ -141,6 +168,15 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 			remote = true;
 
 		serial = device.getSerial();
+
+		AltosLink link;
+		try {
+			link = new AltosSerial(device);
+		} catch (Exception ex) {
+			idle_exception(in_owner, ex);
+			return;
+		}
+
 		bag = getContentPane();
 		bag.setLayout(new GridBagLayout());
 
@@ -209,7 +245,7 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 		pack();
 		setVisible(true);
 
-		thread = new AltosIdleMonitor((AltosIdleMonitorListener) this, (AltosLink) new AltosSerial (device), (boolean) remote);
+		thread = new AltosIdleMonitor((AltosIdleMonitorListener) this, link, (boolean) remote);
 
 		status_update = new AltosFlightStatusUpdate(flightStatus);
 
