@@ -27,6 +27,7 @@ public class AltosIgnite {
 	boolean		link_started;
 	boolean		have_npyro = false;
 	int		npyro;
+	AltosConfigData	config_data;
 
 	public final static String	None = null;
 	public final static String	Apogee = "drogue";
@@ -97,8 +98,12 @@ public class AltosIgnite {
 	}
 
 	private void get_npyro() throws InterruptedException, TimeoutException {
-		AltosConfigData	config_data = link.config_data();
-		npyro = config_data.npyro;
+		if (config_data == null)
+			config_data = new AltosConfigData(link);
+		if (config_data != null)
+			npyro = config_data.npyro;
+		else
+			npyro = 0;
 		have_npyro = true;
 	}
 
