@@ -1578,7 +1578,7 @@ NAR #88757, TRA #12200
     <informalfigure>
       <mediaobject>
 	<imageobject>
-	  <imagedata fileref="altosui.png" width="5.5in"/>
+	  <imagedata fileref="altosui.png" width="4.6in"/>
 	</imageobject>
       </mediaobject>
     </informalfigure>
@@ -1603,7 +1603,7 @@ NAR #88757, TRA #12200
       <informalfigure>
 	<mediaobject>
 	  <imageobject>
-	    <imagedata fileref="device-selection.png" width="3.5in"/>
+	    <imagedata fileref="device-selection.png" width="3.1in"/>
 	  </imageobject>
 	</mediaobject>
       </informalfigure>
@@ -2015,7 +2015,7 @@ NAR #88757, TRA #12200
 	<informalfigure>
 	  <mediaobject>
 	    <imageobject>
-	      <imagedata fileref="graph.png" width="5.5in" scalefit="1"/>
+	      <imagedata fileref="graph.png" width="6in" scalefit="1"/>
 	    </imageobject>
 	  </mediaobject>
 	</informalfigure>
@@ -2037,7 +2037,7 @@ NAR #88757, TRA #12200
 	<informalfigure>
 	  <mediaobject>
 	    <imageobject>
-	      <imagedata fileref="graph-configure.png" width="5.5in" scalefit="1"/>
+	      <imagedata fileref="graph-configure.png" width="6in" scalefit="1"/>
 	    </imageobject>
 	  </mediaobject>
 	</informalfigure>
@@ -2052,7 +2052,7 @@ NAR #88757, TRA #12200
 	<informalfigure>
 	  <mediaobject>
 	    <imageobject>
-	      <imagedata fileref="graph-stats.png" width="5.5in" scalefit="1"/>
+	      <imagedata fileref="graph-stats.png" width="6in" scalefit="1"/>
 	    </imageobject>
 	  </mediaobject>
 	</informalfigure>
@@ -2065,7 +2065,7 @@ NAR #88757, TRA #12200
 	<informalfigure>
 	  <mediaobject>
 	    <imageobject>
-	      <imagedata fileref="graph-map.png" width="5.5in" scalefit="1"/>
+	      <imagedata fileref="graph-map.png" width="6in" scalefit="1"/>
 	    </imageobject>
 	  </mediaobject>
 	</informalfigure>
@@ -2122,7 +2122,7 @@ NAR #88757, TRA #12200
       <informalfigure>
 	<mediaobject>
 	  <imageobject>
-	    <imagedata fileref="configure-altimeter.png" width="3in" scalefit="1"/>
+	    <imagedata fileref="configure-altimeter.png" width="3.6in" scalefit="1"/>
 	  </imageobject>
 	</mediaobject>
       </informalfigure>
@@ -2379,7 +2379,7 @@ NAR #88757, TRA #12200
       <informalfigure>
 	<mediaobject>
 	  <imageobject>
-	    <imagedata fileref="configure-altosui.png" width="2.5in" scalefit="1"/>
+	    <imagedata fileref="configure-altosui.png" width="2.4in" scalefit="1"/>
 	  </imageobject>
 	</mediaobject>
       </informalfigure>
@@ -2489,7 +2489,7 @@ NAR #88757, TRA #12200
       <informalfigure>
 	<mediaobject>
 	  <imageobject>
-	    <imagedata fileref="configure-groundstation.png" width="3in" scalefit="1"/>
+	    <imagedata fileref="configure-groundstation.png" width="3.1in" scalefit="1"/>
 	  </imageobject>
 	</mediaobject>
       </informalfigure>
@@ -2584,7 +2584,7 @@ NAR #88757, TRA #12200
       <informalfigure>
 	<mediaobject>
 	  <imageobject>
-	    <imagedata fileref="fire-igniter.png" width="1in" scalefit="1"/>
+	    <imagedata fileref="fire-igniter.png" width="1.2in" scalefit="1"/>
 	  </imageobject>
 	</mediaobject>
       </informalfigure>
@@ -2618,7 +2618,7 @@ NAR #88757, TRA #12200
       <informalfigure>
 	<mediaobject>
 	  <imageobject>
-	    <imagedata fileref="scan-channels.png" width="2.75in" scalefit="1"/>
+	    <imagedata fileref="scan-channels.png" width="3.2in" scalefit="1"/>
 	  </imageobject>
 	</mediaobject>
       </informalfigure>
@@ -2636,7 +2636,7 @@ NAR #88757, TRA #12200
       <informalfigure>
 	<mediaobject>
 	  <imageobject>
-	    <imagedata fileref="load-maps.png" width="5.5in" scalefit="1"/>
+	    <imagedata fileref="load-maps.png" width="5.2in" scalefit="1"/>
 	  </imageobject>
 	</mediaobject>
       </informalfigure>
