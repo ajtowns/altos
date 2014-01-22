@@ -36,6 +36,14 @@
     </legalnotice>
     <revhistory>
       <revision>
+	<revnumber>1.3.1</revnumber>
+	<date>21 January 2014</date>
+	<revremark>
+	  Bug fixes for TeleMega and TeleMetrum v2.0 along with a few
+	  small UI improvements.
+	</revremark>
+      </revision>
+      <revision>
 	<revnumber>1.3</revnumber>
 	<date>12 November 2013</date>
 	<revremark>
@@ -1787,10 +1795,10 @@ NAR #88757, TRA #12200
           rocket as it heads towards apogee.
         </para>
         <para>
-          The height, speed and acceleration are shown along with the
-          maximum values for each of them. This allows you to quickly
-          answer the most commonly asked questions you'll hear during
-          flight.
+          The height, speed, acceleration and tilt are shown along
+          with the maximum values for each of them. This allows you to
+          quickly answer the most commonly asked questions you'll hear
+          during flight.
         </para>
         <para>
           The current latitude and longitude reported by the GPS are
@@ -2598,8 +2606,8 @@ NAR #88757, TRA #12200
       <para>
 	Selecting the 'Fire Igniter' button brings up the usual device
 	selection dialog. Pick the desired device. This brings up another 
-	window which shows the current continuity test status for both 
-	apogee and main charges.
+	window which shows the current continuity test status for all
+	of the pyro channels.
       </para>
       <para>
 	Next, select the desired igniter to fire. This will enable the
@@ -4186,11 +4194,12 @@ NAR #88757, TRA #12200
           Then, divide 434.550 MHz by the
           measured frequency and multiply by the current radio cal value show
           in the 'c s' command.  For an unprogrammed board, the default value
-          is 1186611.  Take the resulting integer and program it using the 'c f'
+          is 1186611 for cc1111 based products and 7119667 for cc1120
+	  based products.  Take the resulting integer and program it using the 'c f'
           command.  Testing with the 'C' command again should show a carrier
           within a few tens of Hertz of the intended frequency.
           As with all 'c' sub-commands, follow this with a 'c w' to write the
-          change to the parameter block in the on-board DataFlash chip.
+          change to the configuration memory.
         </para>
     <para>
       Note that the 'reboot' command, which is very useful on the altimeters,
@@ -4447,6 +4456,13 @@ NAR #88757, TRA #12200
   </appendix>
   <appendix>
     <title>Release Notes</title>
+    <simplesect>
+      <title>Version 1.3.1</title>
+      <xi:include
+	  xmlns:xi="http://www.w3.org/2001/XInclude"
+	  href="release-notes-1.3.1.xsl"
+	  xpointer="xpointer(/article/*)"/>
+    </simplesect>
     <simplesect>
       <title>Version 1.3</title>
       <xi:include
