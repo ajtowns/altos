@@ -39,6 +39,7 @@ public class AltosIgniteUI
 	javax.swing.Timer	timer;
 	JButton		close;
 	ButtonGroup	group;
+	Boolean		opened;
 
 	int		npyro;
 
@@ -110,6 +111,7 @@ public class AltosIgniteUI
 	class IgniteHandler implements Runnable {
 		AltosIgnite	ignite;
 		JFrame		owner;
+		AltosLink	link;
 
 		void send_exception(Exception e) {
 			final Exception	f_e = e;
@@ -123,9 +125,7 @@ public class AltosIgniteUI
 
 		public void run () {
 			try {
-				AltosSerial	serial = new AltosSerial(device);
-				serial.set_frame(owner);
-				ignite = new AltosIgnite(serial,
+				ignite = new AltosIgnite(link,
 							 !device.matchProduct(Altos.product_altimeter));
 
 			} catch (Exception e) {
@@ -172,8 +172,9 @@ public class AltosIgniteUI
 			}
 		}
 
-		public IgniteHandler(JFrame in_owner) {
+		public IgniteHandler(JFrame in_owner, AltosLink in_link) {
 			owner = in_owner;
+			link = in_link;
 		}
 	}
 
@@ -307,8 +308,10 @@ public class AltosIgniteUI
 	}
 
 	void close() {
-		send_command("quit");
-		timer.stop();
+		if (opened) {
+			send_command("quit");
+			timer.stop();
+		}
 		setVisible(false);
 		dispose();
 	}
@@ -382,12 +385,20 @@ public class AltosIgniteUI
 		command_queue = new LinkedBlockingQueue<String>();
 		reply_queue = new LinkedBlockingQueue<String>();
 
+		opened = false;
 		device = AltosDeviceUIDialog.show(owner, Altos.product_any);
 		if (device != null) {
-				IgniteHandler	handler = new IgniteHandler(owner);
+			try {
+				AltosSerial	serial = new AltosSerial(device);
+				serial.set_frame(owner);
+				IgniteHandler	handler = new IgniteHandler(owner, serial);
 				Thread		t = new Thread(handler);
 				t.start();
+				opened = true;
 				return true;
+			} catch (Exception ex) {
+				ignite_exception(ex);
+			}
 		}
 		return false;
 	}
