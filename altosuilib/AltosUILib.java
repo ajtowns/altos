@@ -87,11 +87,9 @@ public class AltosUILib extends AltosLib {
 		if (!initialized) {
 			for (String name : library_names) {
 				try {
-					System.out.printf ("Trying library %s\n", name);
 					System.loadLibrary(name);
 					libaltos.altos_init();
 					loaded_library = true;
-					System.out.printf ("Using library %s\n", name);
 					break;
 				} catch (UnsatisfiedLinkError e) {
 					System.out.printf("Link error %s\n", e.getMessage());
