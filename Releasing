@@ -36,7 +36,8 @@ These are Bdale's notes on how to do a release.
 
 	- if this is a -1 release, then
 		git-buildpackage --git-no-pristine-tar --git-submodules \
-			--git-upstream-branch=branch-<version>
+			--git-upstream-branch=branch-<version> \ # eg 1.3
+			--git-upstream-tag=<version>	         # eg 1.3.1
 		pristine-tar commit \
 			../build-area/altos_<version>.orig.tar.gz \
 			branch-<version>
@@ -71,7 +72,7 @@ These are Bdale's notes on how to do a release.
 		this pushes fresh documents to the web site
 
 	sudo debian/rules clean
-	git push origin master branch-<version> debian
+	git push origin master branch-<version> debian pristine-tar
 	git push --tags
 
 		push commits and leave the build tree in an uncluttered state
