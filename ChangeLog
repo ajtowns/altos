@@ -1,3 +1,605 @@
+commit 200137060651f48c99276c8feb0e15980a9b46be
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Jan 22 20:52:09 2014 -0700
+
+    update copyright date on main documentation file
+
+commit 63171339c03cf9bf3d691511889223bf43024124
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 21 23:02:27 2014 -0800
+
+    doc: Update for 1.3.1
+    
+    Add 1.3.1 release notes. Update screen shots. Document new functionality
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e6a73d6cbe149a930f8c4e2dac655bc3f6270013
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 21 23:01:28 2014 -0800
+
+    doc: Fix image widths to make them all scale the same amount
+    
+    Hand-compute scale factors so that all images are presented at the
+    same relative size as they would be on the screen.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e61c02b51e069aa58b36f59b9ca8e7c8284bc93a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 21 22:13:01 2014 -0800
+
+    altosui: Handle serial-port startup errors in idle-monitor
+    
+    Trap exceptions during idle monitor startup and report them.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 42922b40fc695bdaa92e3fb0b41a248f7df918d0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 21 22:01:39 2014 -0800
+
+    altosui: Handle already-opened link in IgniteUI
+    
+    Must run the link open from the UI thread so that we can put up the
+    in-use dialog immdiately; otherwise the UI thread is blocked which
+    means the dialog never appears and the app appears to hang.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f118e33416e45ea9a2b5ede4157bd8b58ddb6ebb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 21 21:37:18 2014 -0800
+
+    altosuilib: Remove some spurious debug printfs
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 677fcafd3816b6d8d86b2dc41b840d97b5ccbf07
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 21 21:34:58 2014 -0800
+
+    altoslib: Fetch target device config for Fire Igniter npyro value
+    
+    The code was using the AltosLink config_data, which is always the
+    locally connected device's configuration. When using the packet link,
+    that's not terribly useful when asking how many extra pyro channels
+    are available.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 13cf4000bd53ac4af66231d56e24c9eb11178a5f
+Merge: 7a8551f 99fedbf
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 21 20:59:06 2014 -0800
+
+    Merge remote-tracking branch 'origin/master'
+
+commit 99fedbf0ed42a5d4fa80f094576ca0260040ef5e
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jan 21 21:31:25 2014 -0700
+
+    set version to 1.3.1 for release
+
+commit 7a8551fe8e5f0a90cbc494842715a96f08c11900
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Mon Jan 20 19:38:21 2014 +1000
+
+    altosui: rate limit map downloads
+
+commit 0faa098f05d43eefc1fa54462401171fca5034cb
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Mon Jan 20 05:10:58 2014 +1000
+
+    altosui: --fetchmaps gets same number of maps as GUI
+
+commit aab5873c87d6ecfe0854751746f80d4bc7ebeffa
+Author: Anthony Towns <aj@erisian.com.au>
+Date:   Mon Jan 20 04:52:43 2014 +1000
+
+    AltosSiteMapPreload: only load 49 maps
+    
+    Google Static Maps API limits queries to 50 maps per IP per minute,
+    so querying a 7x7 array instead of a 9x9 array seems more likely to
+    work well.
+
+commit 7f9cda0e2531a7bba7f1b4e3b7212a62b5bec1ed
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Jan 19 00:17:06 2014 -0800
+
+    altosui: Make romconfig serial and radio cal fields 8 digits wide
+    
+    This ensure that they are wide enough to show a cc1120 calibration
+    value, which is 7 digits.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2b891115c95453d9002d8ef307a27e14eda145a5
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Jan 17 20:55:45 2014 -0700
+
+    set version to 1.3.0.2 for test flights this weekend
+
+commit c33ec8207c0e5d4c855e87b2746371b19d437f7d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Fri Jan 17 20:47:16 2014 -0700
+
+    use firmware in /usr/share/altos for production flashing
+
+commit cfcb127b248b62231049b6b50cf9b7edc2731f0a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jan 15 13:28:16 2014 -0800
+
+    altos: Add missing ADC divider values for Tmega v1.0
+    
+    Somehow I left these out of the previous commit
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9001d5780a41986017bd3bbc7f8c5556b116c351
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jan 15 12:42:59 2014 -0800
+
+    Ignore 32 and 64 bit cjnitest apps
+
+commit c743eaa060080a7bd236466b93cff3abc96f405b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jan 15 12:40:26 2014 -0800
+
+    altos: Report battery, apogee and main voltages over APRS
+    
+    This makes APRS more usable when you mute the RF audio on the HT.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit cc06242e882cba462791962c199b7c89e79adc65
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 14 23:29:59 2014 -0800
+
+    altos: Use factory calibration for all acceleration computations
+    
+    The ground acceleration value will vary depending on the tilt angle of
+    the airframe, which will result in incorrect acceleration computations
+    during flight. This also avoids accidental boost detect when moving
+    the airframe around in pad mode.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9d812b3db418fd9816731b761a0853eb38f5a265
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 14 23:21:40 2014 -0800
+
+    altos: Switch APRS to compressed position format
+    
+    This provides lat/lon/alt in fewer bytes while improving precision.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f560d5063b1339dbfb3e6723cfadb7b4c5eace25
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 14 23:18:40 2014 -0800
+
+    doc: Ship telemini outline as pdf file too
+    
+    Build telemini.pdf from telemini.svg and include it in all of the
+    released packages.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 06ffd8022ff5ac74274c9839d42c0c47274cb8b9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jan 1 22:08:13 2014 -0800
+
+    altosui: Require both libaltos32 and libaltos64 for fat Linux tarball
+    
+    No sense shipping a broken tarball ever
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8bff2822c242d2878b408b9c0d8a7647108ea4b1
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jan 1 22:02:56 2014 -0800
+
+    libaltos: Build -m64 and -m32 for fat tarball when possible
+    
+    Check to see if we can compile libaltos for both 32 bit and 64 bit
+    systems, and then use those when generating the linux tarball.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 95d77eaff708397d8b1e29904dc47d8ea09e8754
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jan 1 22:02:04 2014 -0800
+
+    Bump version to 1.3.9.1
+    
+    Lots of new features; let's not release with 1.3 set
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b15bd24bbe48e338497c6257f5fe2c7fd1cbffbb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jan 1 22:00:24 2014 -0800
+
+    altosui: Handle a missing libaltos when starting up
+    
+    Skip a null list of devices when figuring out what to open monitor
+    windows for during startup.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c35ea586b9e792c45b287924fd256928308d9a36
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jan 1 21:12:20 2014 -0800
+
+    altos: Flip acceleration data consistently for orientation changes
+    
+    Must flip the acceleration calibration data using the same function as
+    flipping the actual acceleration data or the calibration will no
+    longer be valid after changing orientation. For the MMA655x, this
+    means using 4095 in both places, rather than using 0x7fff for the
+    calibration data changes and 4095 for the data value changes. For the
+    MPU6000, this means using 0 in both places.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit afc16e805145c3e9ab4ba948f9ab1d9aa2b27afb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Dec 28 10:18:53 2013 -0800
+
+    altos: Add 'O' command for TeleMega orient testing
+    
+    Only present when HAS_FLIGHT_DEBUG is enabled, this command lets the
+    user check the orientation tracking code by showing the current
+    orientation and when the calibration values are reset.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9877f6b880a0e89fbfbf1a39ded94bdc1891f3d9
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Dec 28 10:17:37 2013 -0800
+
+    altosui: Switch Graph to AltosOrient type
+    
+    The graph was using a private class for orient type, use the altoslib one
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit aa01f06acfbf029958a55f68175b6868817b333f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Dec 28 10:16:24 2013 -0800
+
+    altosui: Adjust info table column width
+    
+    Make sure the info table can show a full longitude value
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit bbc4940730e6b431f1b9ccd9bbaf9faa0ffb2b1f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Dec 28 10:15:26 2013 -0800
+
+    altosui: Add orient to ascent and info table views
+    
+    This adds 'tilt angle' to both ascent and info table views
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 053d092b3dca4ebb98e97ec0fe24f5f5e1c31f88
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Dec 28 10:13:05 2013 -0800
+
+    altoslib: Add AltosOrient class and max_orient()
+    
+    This adds the class necessary to put orient into a UI.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 081455dcba860f3e4df8cd66f3fe686b204034ad
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Dec 21 08:56:00 2013 -0800
+
+    altosui: Extend Fire Igniter to additional channels
+    
+    This lets the UI test fire other pyro channels on TeleMega
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9cf9a67f937185c0c0bb5b2bae4f420755965799
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Dec 21 06:46:46 2013 -0800
+
+    altosui: Switch from radio buttons to check boxes in pyro config. Add close
+    
+    First of (we hope) many review comments from Troj.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9289200ccb661b10ff892760ecbc752c7745de6b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 23:04:43 2013 -0800
+
+    altos: Turn on -Werror for STM and LPC builds
+    
+    Now that the build completes with no warnings, make future warnings
+    into errors.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 16b37b49985daf21ebb93b3d6ae64af67533be22
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 23:02:51 2013 -0800
+
+    altos: Turn on warnings for LPC products too
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f578d9455eec9ea0eccd2d5e21349e274ea4281a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 23:02:21 2013 -0800
+
+    altos/lpc: Missing */ in definition of PIO0_4
+    
+    Would maek using these values pretty hard.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 14790172e02d4e1624c35797f87ffd94345d54ff
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 23:00:43 2013 -0800
+
+    altos: lpc exti setup was incorrectly testing mode
+    
+    Check for NOCONFIGURE bit was missing parens
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 48f996a9d65631238b4de446530f31f83acb99f5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 22:59:42 2013 -0800
+
+    altos: cc115l driver tone_run wasn't recording number of tones
+    
+    This would prevent the cc115l driver from ever sending tones.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e11fcc299f4a1a0461a3442ca13f8984d76c30ff
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 22:58:10 2013 -0800
+
+    altos: Clean up warnings for LPC products
+    
+    Unused varibles, functions and parameters.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4ed108fb86676daea17264d7159c2cff9ea7a6e4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 22:45:56 2013 -0800
+
+    altos/stm: Turn on -Wextra
+    
+    All of the warnings for STM projects are cleaned up now
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1406a5b0721a135913a9801e9eea9e91f0a536b4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 22:45:01 2013 -0800
+
+    altos: Add default button return value from ao_button_get
+    
+    This "can't" happen, but it's not unreasonable to have a default
+    return value.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 316d898715746a379068ac8511692bdb9da14b39
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 22:44:20 2013 -0800
+
+    altos: unsigned value in ao_pyro_set checked for negative value
+    
+    No sense checking unsigned values for less than zero.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5c9172ba5681ff93d63c9c263a453d0025170045
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 22:43:18 2013 -0800
+
+    altos: Clean up -Wextra warnings
+    
+    Unused variables, mismatching signed/unsigned and a few other misc
+    warnings.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit db8f3426ac1cf756a2e4974ca61a5ae9048c80ce
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 22:21:23 2013 -0800
+
+    altos: Turn on -Wall for stm compiles
+    
+    The warnings are all cleaned up now, leave this on by default
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b31b4622d5bd92c0cc0851818f5b595dbdb60ead
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 22:15:25 2013 -0800
+
+    altos: Clean up some minor warnings from -Wall
+    
+    Unused variables, functions and labels, missing enums in switch.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 755082d36231c1b247bc0e1f13919dd9b5c362a8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 22:13:32 2013 -0800
+
+    altos: mma655x also needs ao_sensor_errors
+    
+    TeleMetrum has an MMA655X but no IMU, so it needs an explicit addition
+    for sensor errors.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 758acb92cccbe4b64a35a1883b42713738c90630
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 22:08:11 2013 -0800
+
+    altos: Complain about sensor self-test errors only in idle mode
+    
+    When the accelerometer says to go into pad mode, don't look for other
+    sensor self test errors. Only look for sensor self test errors to
+    choose between idle and invalid mode. This will prevent minor sensor
+    self test errors from letting the rocket fly safely.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit c8b27410e45cc3d80ad4b896bffe70e9aec5e3aa
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 22:06:52 2013 -0800
+
+    altos: 3-axis accel calibration was invalid in explicit accel cal mode
+    
+    When explicit Z-axis accel calibration values were provided to the 'c
+    a' command, the 3-axis accelerometer calibration values would get set
+    to uninitialized values. Not so helpful.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2a912dcde191e2f750845c464611641a5abdc28a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 22:04:53 2013 -0800
+
+    altos: Execute self-test on MMA655X part
+    
+    This doesn't check for fine calibration, just makes sure the part is
+    within the broad tolerances specified by the manufacturer. The subtle fix
+    here was actually getting reset working -- there was a typo in the
+    bitpattern definition which caused the reset to fail, making it hard
+    to self-test the part, as self-test is only valid before the part is running.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit b89fb51a963635e2effe3a31f803bfc29c2c46b7
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 19:44:38 2013 -0800
+
+    altoslib: Bump library version
+    
+    Prepare for next release by making sure we notice that the API/ABI for
+    this library has changed.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8e5f3b922100f9de54b9650df14749e81b1a6562
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 19:40:31 2013 -0800
+
+    altosui: Add imu and mag sensor values to plots
+    
+    Makes for a lot of potential graph elements.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f65880cf5bfcba5005c32db2b300448e585f3e45
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 19:39:40 2013 -0800
+
+    altosuilib: Rearrange graph enable buttons
+    
+    Eliminate separate 'enable' radio button, provide for multiple columns
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 796cb90e3241103f79ae12565cf6f0dad21cb57c
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 19:38:29 2013 -0800
+
+    altoslib: Fetch 'orient' value from Mega Sensor packet
+    
+    The mega sensor packet had a spare byte to hold the current
+    orientation value.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 91bcfae2e64ecb2e7de1292b264910382b635aea
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Dec 20 19:37:08 2013 -0800
+
+    altoslib: Convert IMU and Mag sensor values to useful units
+    
+    Convert from raw sensor values to metric units
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2ad31bad20b20615e9d8b29088e2488fddc81ac9
+Author: Mike Beattie <mike@ethernal.org>
+Date:   Fri Dec 20 15:06:37 2013 +1300
+
+    altosdroid: improve build system dependencies
+    
+    Signed-off-by: Mike Beattie <mike@ethernal.org>
+
+commit 0e3b3ce66035e8a90fd708d9a4bc01370174c9eb
+Author: Mike Beattie <mike@ethernal.org>
+Date:   Fri Dec 20 15:06:07 2013 +1300
+
+    altosdroid: update to latest google play services
+    
+    Signed-off-by: Mike Beattie <mike@ethernal.org>
+
+commit 96f2ae5fc0d3bf88704d2ae1b4df5dc6aefc523b
+Author: Mike Beattie <mike@ethernal.org>
+Date:   Fri Dec 20 15:05:42 2013 +1300
+
+    altosdroid: force older jarsigner signing algorithm for java 1.7
+    
+    (increment versionCode, re-upload to Play Store)
+    
+    Signed-off-by: Mike Beattie <mike@ethernal.org>
+
+commit ac12e77e3dffc9e9ddb1578a38b32783ad64e940
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Dec 19 03:22:21 2013 -0700
+
+    updated notes from 1.3 release
+
+commit 27528961457865acc3a38b822268df6d7cb86cfd
+Merge: 4006eff a31629d
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Dec 19 02:00:10 2013 -0700
+
+    Merge branch 'master' of ssh://git.gag.com/scm/git/fw/altos
+
+commit 4006effc538289c36a1563c1b717231991292c0c
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Dec 19 01:58:24 2013 -0700
+
+    fix missing newline at end of src/test/Makefile
+
+commit a31629dfceb5e9cf1d5c654b8bd87d575f73c34b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Dec 19 00:58:50 2013 -0800
+
+    altosui: Ship EasyMini firmware too
+    
+    Missing the FIRMWARE_EMINI define left all easy mini firmware out of
+    the distribution
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit bc3610d8cecbfed40c62d4dcb93fc9a4d2a7c9e3
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Thu Dec 19 01:29:55 2013 -0700
+
+    update ChangeLog from git
+
 commit 701c26ed85c28ac59e338975f2a6ba6bd25f6493
 Author: Keith Packard <keithp@keithp.com>
 Date:   Thu Dec 19 00:16:16 2013 -0800
