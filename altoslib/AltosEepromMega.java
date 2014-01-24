@@ -24,6 +24,8 @@ import java.text.*;
 public class AltosEepromMega extends AltosEeprom {
 	public static final int	record_length = 32;
 
+	public static final int max_sat = 12;
+
 	public int record_length() { return record_length; }
 
 	/* AO_LOG_FLIGHT elements */
@@ -176,6 +178,8 @@ public class AltosEepromMega extends AltosEeprom {
 			gps = state.make_temp_gps(true);
 
 			int n = nsat();
+			if (n > max_sat)
+				n = max_sat;
 			for (int i = 0; i < n; i++)
 				gps.add_sat(svid(i), c_n(i));
 			break;
