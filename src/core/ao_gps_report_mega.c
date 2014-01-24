@@ -70,6 +70,8 @@ ao_gps_report_mega(void)
 				{
 					gps_log.u.gps_sat.sats[i].c_n = gps_tracking_data.sats[c].c_n_1;
 					i++;
+					if (i >= 12)
+						break;
 				}
 			gps_log.u.gps_sat.channels = i;
 			ao_log_mega(&gps_log);
