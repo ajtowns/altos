@@ -36,6 +36,13 @@
     </legalnotice>
     <revhistory>
       <revision>
+	<revnumber>1.3.2</revnumber>
+	<date>24 January 2014</date>
+	<revremark>
+	  Bug fixes for TeleMega and AltosUI.
+	</revremark>
+      </revision>
+      <revision>
 	<revnumber>1.3.1</revnumber>
 	<date>21 January 2014</date>
 	<revremark>
@@ -4456,6 +4463,13 @@ NAR #88757, TRA #12200
   </appendix>
   <appendix>
     <title>Release Notes</title>
+    <simplesect>
+      <title>Version 1.3.2</title>
+      <xi:include
+	  xmlns:xi="http://www.w3.org/2001/XInclude"
+	  href="release-notes-1.3.2.xsl"
+	  xpointer="xpointer(/article/*)"/>
+    </simplesect>
     <simplesect>
       <title>Version 1.3.1</title>
       <xi:include
