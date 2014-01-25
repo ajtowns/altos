@@ -838,7 +838,6 @@ public class AltosState implements Cloneable {
 	void update_gps() {
 		elevation = 0;
 		range = -1;
-		gps_height = 0;
 
 		if (gps == null)
 			return;
