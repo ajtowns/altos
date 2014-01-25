@@ -91,6 +91,11 @@ public class AltosFlightStatsTable extends JComponent {
 		new FlightStat(layout, y++, "Maximum height",
 			       String.format("%5.0f m", stats.max_height),
 			       String.format("%5.0f ft", AltosConvert.meters_to_feet(stats.max_height)));
+		if (stats.max_gps_height != AltosLib.MISSING) {
+			new FlightStat(layout, y++, "Maximum GPS height",
+				       String.format("%5.0f m", stats.max_gps_height),
+				       String.format("%5.0f ft", AltosConvert.meters_to_feet(stats.max_gps_height)));
+		}
 		new FlightStat(layout, y++, "Maximum speed",
 			       String.format("%5.0f m/s", stats.max_speed),
 			       String.format("%5.0f mph", AltosConvert.meters_to_mph(stats.max_speed)),

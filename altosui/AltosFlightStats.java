@@ -22,6 +22,7 @@ import org.altusmetrum.altoslib_3.*;
 
 public class AltosFlightStats {
 	double		max_height;
+	double		max_gps_height;
 	double		max_speed;
 	double		max_acceleration;
 	double[]	state_speed = new double[Altos.ao_flight_invalid + 1];
@@ -153,6 +154,7 @@ public class AltosFlightStats {
 				max_height = state.max_height();
 				max_speed = state.max_speed();
 				max_acceleration = state.max_acceleration();
+				max_gps_height = state.max_gps_height();
 			}
 			if (state.gps != null && state.gps.locked && state.gps.nsat >= 4) {
 				if (state_id <= Altos.ao_flight_pad) {
