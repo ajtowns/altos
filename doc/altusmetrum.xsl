@@ -1596,7 +1596,7 @@ NAR #88757, TRA #12200
 		<entry>dit dit dah dit</entry>
 		<entry>
 		  <para>
-		    Decellerating, but moving faster than 200m/s.
+		    Decelerating, but moving faster than 200m/s.
 		  </para>
 		</entry>
 	      </row>
@@ -1606,7 +1606,7 @@ NAR #88757, TRA #12200
 		<entry>dah dit dah dit</entry>
 		<entry>
 		  <para>
-		    Decellerating, moving slower than 200m/s
+		    Decelerating, moving slower than 200m/s
 		  </para>
 		</entry>
 	      </row>
@@ -2217,7 +2217,7 @@ NAR #88757, TRA #12200
 		<listitem>
 		  <para>
 		    Fast. The motor has burned out and the rocket is
-		    descellerating, but it is going faster than 200m/s.
+		    decelerating, but it is going faster than 200m/s.
 		  </para>
 		</listitem>
 		<listitem>
