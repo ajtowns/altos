@@ -299,6 +299,30 @@ public class AltosState implements Cloneable {
 		ground_altitude.set_measured(a, time);
 	}
 
+	class AltosGpsGroundAltitude extends AltosValue {
+		void set(double a, double t) {
+			super.set(a, t);
+			pad_alt = value();
+			gps_altitude.set_gps_height();
+		}
+
+		void set_filtered(double a, double t) {
+			super.set_filtered(a, t);
+			pad_alt = value();
+			gps_altitude.set_gps_height();
+		}
+	}
+
+	private AltosGpsGroundAltitude gps_ground_altitude;
+
+	public double gps_ground_altitude() {
+		return gps_ground_altitude.value();
+	}
+
+	public void set_gps_ground_altitude(double a) {
+		gps_ground_altitude.set(a, time);
+	}
+
 	class AltosGroundPressure extends AltosCValue {
 		void set_filtered(double p, double time) {
 			computed.set_filtered(p, time);
@@ -344,24 +368,54 @@ public class AltosState implements Cloneable {
 
 	private AltosAltitude	altitude;
 
+	class AltosGpsAltitude extends AltosValue {
+
+		private void set_gps_height() {
+			double	a = value();
+			double	g = gps_ground_altitude.value();
+
+			if (a != AltosLib.MISSING && g != AltosLib.MISSING)
+				gps_height = a - g;
+			else
+				gps_height = AltosLib.MISSING;
+		}
+
+		void set(double a, double t) {
+			super.set(a, t);
+			set_gps_height();
+		}
+	}
+
+	private AltosGpsAltitude	gps_altitude;
+
 	public double altitude() {
 		double a = altitude.value();
 		if (a != AltosLib.MISSING)
 			return a;
-		if (gps != null)
-			return gps.alt;
-		return AltosLib.MISSING;
+		return gps_altitude.value();
 	}
 
 	public double max_altitude() {
 		double a = altitude.max();
 		if (a != AltosLib.MISSING)
 			return a;
-		return AltosLib.MISSING;
+		return gps_altitude.max();
 	}
 
 	public void set_altitude(double new_altitude) {
 		altitude.set_measured(new_altitude, time);
+	}
+
+	public double gps_altitude() {
+		return gps_altitude.value();
+	}
+
+	public double max_gps_altitude() {
+		return gps_altitude.max();
+	}
+
+	public void set_gps_altitude(double new_gps_altitude) {
+		gps_altitude.set(new_gps_altitude, time);
 	}
 
 	class AltosPressure extends AltosValue {
@@ -403,6 +457,24 @@ public class AltosState implements Cloneable {
 
 		double a = altitude.max();
 		double g = ground_altitude();
+		if (a != AltosLib.MISSING && g != AltosLib.MISSING)
+			return a - g;
+		return AltosLib.MISSING;
+	}
+
+	public double gps_height() {
+		double a = gps_altitude();
+		double g = gps_ground_altitude();
+
+		if (a != AltosLib.MISSING && g != AltosLib.MISSING)
+			return a - g;
+		return AltosLib.MISSING;
+	}
+
+	public double max_gps_height() {
+		double a = gps_altitude.max();
+		double g = gps_ground_altitude();
+
 		if (a != AltosLib.MISSING && g != AltosLib.MISSING)
 			return a - g;
 		return AltosLib.MISSING;
@@ -608,6 +680,9 @@ public class AltosState implements Cloneable {
 		pad_lon = AltosLib.MISSING;
 		pad_alt = AltosLib.MISSING;
 
+		gps_altitude = new AltosGpsAltitude();
+		gps_ground_altitude = new AltosGpsGroundAltitude();
+
 		speak_tick = AltosLib.MISSING;
 		speak_altitude = AltosLib.MISSING;
 
@@ -730,6 +805,10 @@ public class AltosState implements Cloneable {
 		range = old.range;
 
 		gps_height = old.gps_height;
+
+		gps_altitude.copy(old.gps_altitude);
+		gps_ground_altitude.copy(old.gps_ground_altitude);
+
 		pad_lat = old.pad_lat;
 		pad_lon = old.pad_lon;
 		pad_alt = old.pad_alt;
@@ -771,14 +850,15 @@ public class AltosState implements Cloneable {
 				if (pad_lat != AltosLib.MISSING) {
 					pad_lat = (pad_lat * 31 + gps.lat) / 32;
 					pad_lon = (pad_lon * 31 + gps.lon) / 32;
-					pad_alt = (pad_alt * 31 + gps.alt) / 32;
+					gps_ground_altitude.set_filtered(gps.alt, time);
 				}
 			}
 			if (pad_lat == AltosLib.MISSING) {
 				pad_lat = gps.lat;
 				pad_lon = gps.lon;
-				pad_alt = gps.alt;
+				gps_ground_altitude.set(gps.alt, time);
 			}
+			gps_altitude.set(gps.alt, time);
 		}
 		if (gps.lat != 0 && gps.lon != 0 &&
 		    pad_lat != AltosLib.MISSING &&
@@ -791,7 +871,6 @@ public class AltosState implements Cloneable {
 			from_pad = new AltosGreatCircle(pad_lat, pad_lon, 0, gps.lat, gps.lon, h);
 			elevation = from_pad.elevation;
 			range = from_pad.range;
-			gps_height = gps.alt - pad_alt;
 		}
 	}
 
