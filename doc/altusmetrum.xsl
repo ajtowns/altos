@@ -1317,6 +1317,18 @@ NAR #88757, TRA #12200
 	</para>
       </section>
       <section>
+	<title>Using Only One Battery With TeleMega</title>
+	<para>
+	  Because TeleMega has built-in support for a separate pyro
+	  battery, if you want to fly with just one battery running
+	  both the computer and firing the charges, you need to
+	  connect the flight computer battery to the pyro
+	  circuit. TeleMega has two screw terminals for this—hook a
+	  wire from the Lipo terminal (Bottom 3) to the Pyro terminal
+	  (Bottom 2).
+	</para>
+      </section>
+      <section>
 	<title>Using an Active Switch with TeleMega</title>
 	<para>
 	  As explained above, an external active switch requires three
