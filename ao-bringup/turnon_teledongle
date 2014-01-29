@@ -42,7 +42,7 @@ read FREQ
 CAL_VALUE=`nickle -e "floor(434.55 / $FREQ * 1186611 + 0.5)"`
 
 echo "Programming flash with cal value " $CAL_VALUE
-$AOLOAD -D 100 --cal $CAL_VALUE /usr/share/altos/stable/teledongle-v0.2*.ihx $SERIAL
+$AOLOAD -D 100 --cal $CAL_VALUE /usr/share/altos/teledongle-v0.2*.ihx $SERIAL
 
 echo "Serial number "$SERIAL" programmed with RF cal value "$CAL_VALUE
 echo "Unplug and replug USB, cu to the board, confirm freq and record power"

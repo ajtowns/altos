@@ -1,49 +1,60 @@
 #!/bin/sh
 
-if [ -x ../ao-tools/ao-load/ao-load ]; then
-	AOLOAD=../ao-tools/ao-load/ao-load
-elif [ -x /usr/bin/ao-load ]; then
-	AOLOAD=/usr/bin/ao-load
+if [ -x ../ao-tools/ao-stmload/ao-stmload ]; then
+	STMLOAD=../ao-tools/ao-stmload/ao-stmload
+elif [ -x /usr/bin/ao-stmload ]; then
+	STMLOAD=/usr/bin/ao-stmload
 else
-	echo "Can't find ao-load!  Aborting."
+	echo "Can't find ao-stmload!  Aborting."
 	exit 1
 fi
 
-if [ -x ../ao-tools/ao-rawload/ao-rawload ]; then
-	RAWLOAD=../ao-tools/ao-rawload/ao-rawload
-elif [ -x /usr/bin/ao-rawload ]; then
-	RAWLOAD=/usr/bin/ao-rawload
+if [ -x ../ao-tools/ao-usbload/ao-usbload ]; then
+	USBLOAD=../ao-tools/ao-usbload/ao-usbload
+elif [ -x /usr/bin/ao-usbload ]; then
+	USBLOAD=/usr/bin/ao-usbload
 else
-	echo "Can't find ao-rawload!  Aborting."
+	echo "Can't find ao-usbload!  Aborting."
 	exit 1
 fi
 
-echo "TeleMetrum v1.2 Turn-On and Calibration Program"
-echo "Copyright 2010 by Bdale Garbee.  Released under GPL v2"
+VERSION=2.0
+
+echo "TeleMetrum v$VERSION Turn-On and Calibration Program"
+echo "Copyright 2014 by Bdale Garbee.  Released under GPL v2"
 echo
 echo "Expectations:"
-echo "\tTeleMetrum v1.2 powered from USB"
-echo "\t\twith TeleDongle (on /dev/ttyACM0) cabled to debug header"
+echo "\tTeleMetrum v$VERSIOn powered from USB"
+echo "\t\twith ST-Link-V2 cabled to debug header"
 echo "\t\twith coax from UHF to frequency counter"
 echo
-echo -n "TeleMetrum serial number: "
+echo -n "TeleMetrum-$VERSION serial number: "
 read SERIAL
 
-echo $RAWLOAD
+echo $STMLOAD
 
-$RAWLOAD --device 100 -r ao_led_blink.ihx
-echo "the red LED should be blinking"
-sleep 5
+$STMLOAD --raw ../src/telemetrum-v$VERSION/flash-loader/*.elf || exit 1
 
-$RAWLOAD --device 100 -r ao_radio_xmit.ihx
-echo -n "Generating RF carrier.  Please enter measured frequency: "
-read FREQ
+sleep 2
 
-CAL_VALUE=`nickle -e "floor(434.55 / $FREQ * 1186611 + 0.5)"`
+$USBLOAD --serial=$SERIAL /usr/share/altos/telemetrum-v$VERSION*.ihx || exit 1
 
-echo "Programming flash with cal value " $CAL_VALUE
-$AOLOAD --device 100 --cal $CAL_VALUE \
-	/usr/share/altos/stable/telemetrum-v1.2*.ihx $SERIAL
+sleep 2
 
-echo "Serial number "$SERIAL" programmed with RF cal value "$CAL_VALUE
-echo "Unplug and replug USB, cu to the board, confirm freq and record power"
+dev=`ao-list | awk '/TeleMetrum-v'"$VERSION"'/ { print $3; exit(0); }'`
+
+case "$dev" in
+/dev/tty*)
+	echo "TeleMetrum found on $dev"
+	;;
+*)
+	echo 'No TeleMetrum-v'"$VERSION"' found'
+	exit 1
+	;;
+esac
+
+echo 'E 0' > $dev
+
+SERIAL=$SERIAL ./cal-freq $dev
+
+./cal-accel $dev
