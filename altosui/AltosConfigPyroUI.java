@@ -232,7 +232,7 @@ public class AltosConfigPyroUI
 			c.fill = GridBagConstraints.NONE;
 			c.anchor = GridBagConstraints.CENTER;
 			c.insets = il;
-			label = new JLabel(String.format("Pyro Channel %d", channel));
+			label = new JLabel(String.format("Pyro Channel %c", 'A' + channel));
 			pane.add(label, c);
 			y++;
 
