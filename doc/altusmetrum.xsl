@@ -2944,9 +2944,10 @@ NAR #88757, TRA #12200
       <section>
 	<title>APRS Interval</title>
 	<para>
-	  How often to transmit GPS information via APRS. This option
-	  is available on TeleMetrum v2 and TeleMega
-	  boards. TeleMetrum v1 boards cannot transmit APRS
+	  How often to transmit GPS information via APRS (in
+	  seconds). When set to zero, APRS transmission is
+	  disabled. This option is available on TeleMetrum v2 and
+	  TeleMega boards. TeleMetrum v1 boards cannot transmit APRS
 	  packets. Note that a single APRS packet takes nearly a full
 	  second to transmit, so enabling this option will prevent
 	  sending any other telemetry during that time.
