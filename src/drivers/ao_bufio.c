@@ -45,7 +45,7 @@ static uint8_t		ao_bufio_mutex;
 #if 0
 #define DBG(...) printf(__VA_ARGS__)
 #else
-#define DBG(...)
+#define DBG(...) (void) 0
 #endif
 
 static inline void

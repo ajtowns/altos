@@ -187,7 +187,7 @@ _ao_fat_entry_replace(cluster_t  cluster, cluster_t new_value)
 	sector_t		sector;
 	cluster_offset_t	offset;
 	uint8_t			*buf;
-	cluster_t		ret;
+	cluster_t		ret = 0;
 	cluster_t		old_value;
 	uint8_t			fat;
 
@@ -747,7 +747,7 @@ _ao_fat_current_sector(struct ao_file *file)
 	DBG("current sector offset %d size %d\n",
 	    file->offset, file->dirent->size);
 
-	if (file->offset > file->dirent->size) {
+	if (file->offset > (offset_t) file->dirent->size) {
 		printf ("file offset %d larger than size %d\n",
 			file->offset, file->dirent->size);
 		return 0xffffffff;
@@ -761,7 +761,7 @@ _ao_fat_current_sector(struct ao_file *file)
 		DBG("\treset to start of file %08x\n", file->cluster);
 	}
 
-	if (file->cluster_offset + bytes_per_cluster <= file->offset) {
+	if ((offset_t) (file->cluster_offset + bytes_per_cluster) <= file->offset) {
 		cluster_t	cluster_distance;
 
 		cluster_offset = sector_offset / sectors_per_cluster;
@@ -804,7 +804,7 @@ _ao_fat_invalidate_cluster_offset(struct ao_fat_dirent *dirent)
 		if (!file->busy)
 			continue;
 		if (file->dirent == dirent) {
-			if (file->cluster_offset >= dirent->size) {
+			if (file->cluster_offset >= (offset_t) dirent->size) {
 				file->cluster_offset = 0;
 				file->cluster = dirent->cluster;
 			}
@@ -838,7 +838,7 @@ _ao_fat_set_size(struct ao_file *file, uint32_t size)
 
 	DBG ("\tfirst cluster %08x have %d need %d\n", first_cluster, have_clusters, need_clusters);
 	if (have_clusters != need_clusters) {
-		if (file->cluster && size > file->cluster_offset) {
+		if (file->cluster && (offset_t) size > file->cluster_offset) {
 			cluster_t	offset_clusters = (file->cluster_offset + bytes_per_cluster) / bytes_per_cluster;
 			cluster_t	extra_clusters = need_clusters - offset_clusters;
 			cluster_t	next_cluster;
@@ -888,6 +888,7 @@ _ao_fat_set_size(struct ao_file *file, uint32_t size)
 static void
 _ao_fat_root_init(uint8_t *dent, char name[11], uint8_t attr)
 {
+	(void) attr;
 	memset(dent, '\0', 0x20);
 	memmove(dent, name, 11);
 
@@ -1249,7 +1250,7 @@ ao_fat_read(int8_t fd, void *dst, int len)
 		goto done;
 	}
 
-	if (file->offset + len > file->dirent->size)
+	if (file->offset + len > (offset_t) file->dirent->size)
 		len = file->dirent->size - file->offset;
 
 	if (len < 0)
@@ -1296,7 +1297,7 @@ ao_fat_write(int8_t fd, void *src, int len)
 		goto done;
 	}
 
-	if (file->offset + len > file->dirent->size) {
+	if (file->offset + len > (offset_t) file->dirent->size) {
 		ret = _ao_fat_set_size(file, file->offset + len);
 		if (ret < 0)
 			goto done;
@@ -1424,6 +1425,8 @@ done:
 int8_t
 ao_fat_rename(char old[11], char new[11])
 {
+	(void) old;
+	(void) new;
 	return -AO_FAT_EIO;
 }
 
@@ -1499,7 +1502,7 @@ ao_fat_list_cmd(void)
 		putchar('.');
 		for (; i < 11; i++)
 			putchar(dirent.name[i]);
-		for (i = 0; i < NUM_FAT_ATTR; i++)
+		for (i = 0; i < (int) NUM_FAT_ATTR; i++)
 			putchar (dirent.attr & ao_fat_attr[i].bit ? ao_fat_attr[i].label : ' ');
 		printf (" @%08x %d\n", dirent.cluster, dirent.size);
 	}
@@ -1507,7 +1510,7 @@ ao_fat_list_cmd(void)
 		printf ("readdir failed: %d\n", status);
 }
 
-static uint8_t
+static void
 ao_fat_parse_name(char name[11])
 {
 	uint8_t	c;
@@ -1560,8 +1563,6 @@ ao_fat_write_cmd(void)
 {
 	static char	name[11];
 	int8_t		fd;
-	int		cnt, i;
-	static char	buf[64];
 	char		c;
 	int		status;
 

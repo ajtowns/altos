@@ -56,13 +56,13 @@ static enum ao_sdtype sdtype;
 #if SDCARD_TRACE
 #define DBG(...) printf(__VA_ARGS__)
 #else
-#define DBG(...)
+#define DBG(...) (void) 0
 #endif
 
 #if SDCARD_WARN
 #define WARN(...) printf(__VA_ARGS__)
 #else
-#define WARN(...)
+#define WARN(...) (void) 0
 #endif
 
 #define later(x,y)	((int16_t) ((x) - (y)) >= 0)
@@ -100,7 +100,6 @@ ao_sdcard_send_cmd(uint8_t cmd, uint32_t arg)
 {
 	uint8_t	data[6];
 	uint8_t	reply;
-	int i;
 	uint16_t timeout;
 
 	DBG ("\tsend_cmd %d arg %08x\n", cmd, arg);
@@ -111,7 +110,7 @@ ao_sdcard_send_cmd(uint8_t cmd, uint32_t arg)
 			return SDCARD_STATUS_TIMEOUT;
 	}
 	
-	data[0] = cmd & 0x3f | 0x40;
+	data[0] = (cmd & 0x3f) | 0x40;
 	data[1] = arg >> 24;
 	data[2] = arg >> 16;
 	data[3] = arg >> 8;
@@ -402,7 +401,7 @@ static uint8_t
 _ao_sdcard_reset(void)
 {
 	int i;
-	uint8_t	ret;
+	uint8_t	ret = 0x3f;
 	uint8_t	response[10];
 
 	for (i = 0; i < SDCARD_IDLE_RETRY; i++) {
@@ -419,12 +418,12 @@ _ao_sdcard_reset(void)
 	 */
 	if (ao_sdcard_send_if_cond(0x1aa, response) == SDCARD_STATUS_IDLE_STATE) {
 		uint32_t	arg = 0;
-		uint8_t		sdver2 = 0;
+//		uint8_t		sdver2 = 0;
 
 		/* Check for SD version 2 */
 		if ((response[2] & 0xf) == 1 && response[3] == 0xaa) {
 			arg = 0x40000000;
-			sdver2 = 1;
+//			sdver2 = 1;
 		}
 
 		for (i = 0; i < SDCARD_IDLE_RETRY; i++) {
@@ -487,7 +486,7 @@ ao_sdcard_wait_block_start(void)
 uint8_t
 ao_sdcard_read_block(uint32_t block, uint8_t *data)
 {
-	uint8_t	ret;
+	uint8_t	ret = 0x3f;
 	uint8_t start_block;
 	uint8_t crc[2];
 	int tries;
@@ -518,6 +517,7 @@ ao_sdcard_read_block(uint32_t block, uint8_t *data)
 			WARN ("read block command failed %d status %02x\n", block, ret);
 			status = _ao_sdcard_send_status();
 			WARN ("\tstatus now %04x\n", status);
+			(void) status;
 			goto bail;
 		}
 
@@ -567,8 +567,6 @@ ao_sdcard_write_block(uint32_t block, uint8_t *data)
 	uint8_t	response[1];
 	uint8_t	start_block[8];
 	uint16_t status;
-	static uint8_t	check_data[512];
-	int	i;
 	int	tries;
 
 	ao_sdcard_lock();
@@ -612,7 +610,7 @@ ao_sdcard_write_block(uint32_t block, uint8_t *data)
 		if ((response[0] & SDCARD_DATA_RES_MASK) != SDCARD_DATA_RES_ACCEPTED) {
 			int i;
 			WARN("Data not accepted, response");
-			for (i = 0; i < sizeof (response); i++)
+			for (i = 0; i < (int) sizeof (response); i++)
 				WARN(" %02x", response[i]);
 			WARN("\n");
 			ret = 0x3f;
