@@ -27,7 +27,9 @@
 #define HAS_BEEP		0
 #define HAS_TASK		0
 #define HAS_ECHO		0
+#ifndef HAS_TICK
 #define HAS_TICK		0
+#endif
 
 #define PACKET_HAS_SLAVE	0
 

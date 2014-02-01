@@ -27,6 +27,13 @@ main(void)
 
 	ao_usb_init();
 
+#if HAS_TICK
+	ao_timer_init();
+#endif
+
+#ifdef AO_FLASH_LOADER_INIT
+	AO_FLASH_LOADER_INIT;
+#endif	
 	ao_flash_task();
 	return 0;
 }

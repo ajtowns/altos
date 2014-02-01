@@ -53,6 +53,9 @@ void stm_systick_isr(void)
 #endif
 		}
 #endif
+#ifdef AO_TIMER_HOOK
+		AO_TIMER_HOOK;
+#endif
 	}
 }
 
