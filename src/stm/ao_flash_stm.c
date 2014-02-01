@@ -83,12 +83,14 @@ _ao_flash_erase_page(uint32_t *page)
 void
 ao_flash_erase_page(uint32_t *page)
 {
+	ao_arch_block_interrupts();
 	ao_flash_pecr_unlock();
 	ao_flash_pgr_unlock();
 
 	_ao_flash_erase_page(page);
 
 	ao_flash_lock();
+	ao_arch_release_interrupts();
 }
 
 static void __attribute__ ((section(".ramtext"), noinline))
@@ -116,6 +118,8 @@ ao_flash_page(uint32_t *page, uint32_t *src)
 	uint8_t		h;
 
 	ao_flash_erase_page(page);
+
+	ao_arch_block_interrupts();
 	ao_flash_pecr_unlock();
 	ao_flash_pgr_unlock();
 	for (h = 0; h < 2; h++) {
@@ -124,4 +128,5 @@ ao_flash_page(uint32_t *page, uint32_t *src)
 		src += 32;
 	}
 	ao_flash_lock();
+	ao_arch_release_interrupts();
 }
