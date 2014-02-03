@@ -26,17 +26,21 @@ import java.util.*;
 import org.altusmetrum.altoslib_3.*;
 import org.altusmetrum.altosuilib_1.*;
 
-public class MicroDownload extends AltosUIDialog implements Runnable, ActionListener {
+public class MicroDownload extends AltosUIDialog implements Runnable, ActionListener, MicroSerialLog {
 	MicroPeak	owner;
 	Container	pane;
 	AltosDevice	device;
 	JButton		cancel;
 	MicroData	data;
 	MicroSerial	serial;
+	LinkedList<Integer> log_queue = new LinkedList<Integer>();
+	Runnable	log_run;
+	JTextArea	serial_log;
+	JLabel		status_value;
 
 	private void done_internal() {
-		setVisible(false);
 		if (data != null) {
+			status_value.setText("Received MicroPeak Data");
 			if (data.crc_valid) {
 				owner = owner.SetData(data);
 				MicroSave save = new MicroSave(owner, data);
@@ -48,8 +52,43 @@ public class MicroDownload extends AltosUIDialog implements Runnable, ActionList
 							      "Download Failed",
 							      JOptionPane.ERROR_MESSAGE);
 			}
+			setVisible(false);
+			dispose();
+		} else {
+			status_value.setText("Download Failed");
 		}
-		dispose();
+	}
+
+	public void drain_queue() {
+		for (;;) {
+			int	c;
+			synchronized(this) {
+				if (log_queue.isEmpty()) {
+					log_run = null;
+					break;
+				}
+				c = log_queue.remove();
+			}
+			if (c == '\r')
+				continue;
+			byte[] bytes = new byte[1];
+			bytes[0] = (byte) c;
+			serial_log.append(new String(bytes, AltosLib.unicode_set));
+		}
+	}
+
+	public void log_char(int c) {
+		synchronized(this) {
+			log_queue.add(c);
+			if (log_run == null) {
+				log_run = new Runnable() {
+						public void run() {
+							drain_queue();
+						}
+					};
+				SwingUtilities.invokeLater(log_run);
+			}
+		}
 	}
 
 	public void done() {
@@ -80,6 +119,7 @@ public class MicroDownload extends AltosUIDialog implements Runnable, ActionList
 	public void start() {
 		try {
 			serial = new MicroSerial(device);
+			serial.set_log(this);
 		} catch (FileNotFoundException fe) {
 			return;
 		}
@@ -120,7 +160,7 @@ public class MicroDownload extends AltosUIDialog implements Runnable, ActionList
 
 		c = new GridBagConstraints();
 		c.gridx = 1; c.gridy = y;
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = GridBagConstraints.NONE;
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
@@ -135,39 +175,49 @@ public class MicroDownload extends AltosUIDialog implements Runnable, ActionList
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
-		JTextArea help_text = new JTextArea(
-
-			"Locate the photo transistor on the MicroPeak USB adapter\n" +
-			"and place the LED on the MicroPeak directly in contact\n" +
-			"with it.\n" +
-			"\n" +
-			"The MicroPeak LED and the MicroPeak USB adapter\n" +
-			"photo need to be touching—even a millimeters of space\n" +
-			"between them will reduce the light intensity from the LED\n" +
-			"enough that the phototransistor will not sense it.\n" +
-			"\n" +
-			"Turn on the MicroPeak board and adjust the position until\n" +
-			"the blue LED on the MicroPeak USB adapter blinks in time\n" +
-			"with the orange LED on the MicroPeak board.");
+		JLabel help_text = new JLabel(
+			"<html><i>Turn on the MicroPeak and place the LED inside the<br>" +
+			"opening in the top of the MicroPeak USB adapter.<br>" +
+			"Verify that the blue LED in the side of the USB adapter<br>" +
+			"is blinking along with the orange LED on the MicroPeak.</i></html>");
+//		help_text.setEditable(false);
 
 		pane.add(help_text, c);
 		y++;
 
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = y;
-		c.gridwidth = 1;
+		c.gridwidth = 2;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
-		JLabel waiting_value = new JLabel("Waiting for MicroPeak data...");
-		pane.add(waiting_value, c);
+		status_value = new JLabel("Waiting for MicroPeak data...");
+		pane.add(status_value, c);
+		y++;
+
+		serial_log = new JTextArea(10, 20);
+		serial_log.setEditable(false);
+
+		JScrollPane serial_scroll = new JScrollPane(serial_log);
+		serial_scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+		c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = y;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+
+		pane.add(serial_scroll, c);
+		y++;
 
 		cancel = new JButton("Cancel");
 		c = new GridBagConstraints();
 		c.fill = GridBagConstraints.NONE;
-		c.anchor = GridBagConstraints.CENTER;
-		c.gridx = 1; c.gridy = y;
+		c.anchor = GridBagConstraints.EAST;
+		c.gridx = 0; c.gridy = y;
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		Insets ic = new Insets(4,4,4,4);
 		c.insets = ic;

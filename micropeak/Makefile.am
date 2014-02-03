@@ -23,6 +23,7 @@ micropeak_JAVA= \
 	MicroRaw.java \
 	MicroSave.java \
 	MicroSerial.java \
+	MicroSerialLog.java \
 	MicroStats.java \
 	MicroStatsTable.java \
 	MicroFileChooser.java \

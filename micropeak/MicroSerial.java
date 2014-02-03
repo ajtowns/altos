@@ -24,6 +24,7 @@ import org.altusmetrum.altosuilib_1.*;
 
 public class MicroSerial extends InputStream {
 	SWIGTYPE_p_altos_file	file;
+	private MicroSerialLog	log;
 
 	public int read() {
 		int	c = libaltos.altos_getchar(file, 0);
@@ -33,6 +34,8 @@ public class MicroSerial extends InputStream {
 			return -1;
 		if (AltosUIPreferences.serial_debug)
 			System.out.printf("%c", c);
+		if (log != null)
+			log.log_char(c);
 		return c;
 	}
 
@@ -43,8 +46,13 @@ public class MicroSerial extends InputStream {
 		}
 	}
 
+	public void set_log(MicroSerialLog log) {
+		this.log = log;
+	}
+
 	public MicroSerial(AltosDevice device) throws FileNotFoundException {
 		file = device.open();
+		log = null;
 		if (file == null) {
 			final String message = device.getErrorString();
 			throw new FileNotFoundException(String.format("%s (%s)",
