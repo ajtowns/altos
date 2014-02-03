@@ -251,13 +251,7 @@ public abstract class AltosLink implements Runnable {
 
 	public void add_bytes(byte[] bytes, int len) throws InterruptedException {
 		String	line;
-		try {
-			line = new String(bytes, 0, len, "UTF-8");
-		} catch (UnsupportedEncodingException ue) {
-			line = "";
-			for (int i = 0; i < len; i++)
-				line = line + bytes[i];
-		}
+		line = new String(bytes, 0, len, AltosLib.unicode_set);
 		if (debug)
 			System.out.printf("\t\t\t\t\t%s\n", line);
 		add_string(line);
