@@ -515,13 +515,19 @@ static int tncComment(uint8_t *buf)
  */
 static int tncPositionPacket(void)
 {
-    int32_t	latitude = ao_gps_data.latitude;
-    int32_t	longitude = ao_gps_data.longitude;
-    int32_t	altitude = ao_gps_data.altitude;
+    int32_t	latitude = 0;
+    int32_t	longitude = 0;
+    int32_t	altitude = 0;
     uint8_t	*buf;
 
-    if (altitude < 0)
-	altitude = 0;
+    if (ao_gps_data.flags & AO_GPS_VALID) {
+	latitude = ao_gps_data.latitude;
+	longitude = ao_gps_data.longitude;
+	altitude = ao_gps_data.altitude;
+	if (altitude < 0)
+	    altitude = 0;
+    }
+
     altitude = (altitude * (int32_t) 10000 + (3048/2)) / (int32_t) 3048;
     
     buf = tncBuffer;
