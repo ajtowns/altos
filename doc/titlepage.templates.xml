@@ -156,8 +156,7 @@
            because only the first editor generates the list of editors.
       <editor t:predicate="[position() = 1]"/>
       -->
-      <mediaobject t:predicate="[1]"
-		   space-before="2in"/>
+      <mediaobject space-before="1.5in"/>
       <itermset/>
     </t:titlepage-content>
 

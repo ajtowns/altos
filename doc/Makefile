@@ -83,7 +83,7 @@ publish:	$(DOC)
 	 git push)
 
 clean:
-	rm -f $(HTML) $(PDF)
+	rm -f $(HTML) $(PDF) $(TEMPLATES)
 
 distclean:
 	rm -f $(HTML) $(PDF)
@@ -91,9 +91,7 @@ distclean:
 altusmetrum.html: $(RELNOTES_XSL) $(IMAGES)
 altusmetrum.pdf: $(RELNOTES_XSL) $(IMAGES)
 
-$(PDF): $(FOSTYLE)
-
-micropeak.pdf:  $(TEMPLATES)
+$(PDF): $(FOSTYLE) $(TEMPLATES)
 
 indent:		altusmetrum.xsl
 	xmlindent -i 2 < altusmetrum.xsl > altusmetrum.new

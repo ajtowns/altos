@@ -25,6 +25,11 @@
       <year>2014</year>
       <holder>Bdale Garbee and Keith Packard</holder>
     </copyright>
+    <mediaobject>
+      <imageobject>
+	<imagedata fileref="../themes/background.png" width="6.0in"/>
+      </imageobject>
+    </mediaobject>
     <legalnotice>
       <para>
         This document is released under the terms of the
