@@ -53,6 +53,18 @@
 	  determination.
 	</revremark>
       </revision>
+      <revision>
+	<revnumber>1.3.2</revnumber>
+	<date>12 February 2014</date>
+	<revremark>
+	  Add a "Download" button to the main window, which makes it
+	  quicker to access the download function. Update the data
+	  download documentation to reflect the new MicroPeak USB
+	  adapter design. Monitor data during download to let you see
+	  if the USB connection is working at all by showing the
+	  characters received from the MicroPeak USB adapter.
+	</revremark>
+      </revision>
     </revhistory>
   </bookinfo>
   <dedication>
@@ -213,29 +225,24 @@ NAR #88757, TRA #12200
       <itemizedlist>
 	<listitem>
 	  <para>
-	    Connect the MicroPeak USB adapter to a USB cable and plug it
-	    in to your computer.
+	    Plug the MicroPeak USB adapter in to your computer.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    Start the MicroPeak application, locate the File menu and
-	    select the Download entry.
+	    Start the MicroPeak application and click on the Download
+	    button at the top of the window.
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    The MicroPeak USB adapter has a small phototransistor on
-	    the end of the board furthest from the USB
-	    connector. Locate this and place the LED on the MicroPeak
-	    directly in contact with it. The MicroPeak LED and the
-	    MicroPeak USB adapter photo need to be touching—even a
-	    millimeters of space between them will reduce the light
-	    intensity from the LED enough that the phototransistor
-	    will not sense it. Turn on the MicroPeak board and adjust
-	    the position until the blue LED on the MicroPeak USB
-	    adapter blinks in time with the orange LED on the
-	    MicroPeak board.
+	    The MicroPeak USB adapter has a small phototransistor
+	    under the hole in the center of the box.
+	    Locate this, turn on the MicroPeak and place the orange LED on the MicroPeak
+	    directly inside the hole, resting the MicroPeak itself on
+	    the box. You should see the blue LED on the MicroPeak USB
+	    adapter blinking in time with the orange LED on the
+	    MicroPeak board itself.
 	  </para>
 	</listitem>
 	<listitem>
@@ -377,9 +384,11 @@ NAR #88757, TRA #12200
       </para>
       <para>
 	Ground pressure is computed from an average of 16 samples,
-	taken while the altimeter is at rest. Flight pressure is
-	computed from a Kalman filter designed to smooth out any minor
-	noise in the sensor values. 
+	taken while the altimeter is at rest. The flight pressure used to
+	report maximum height is computed from a Kalman filter
+	designed to smooth out any minor noise in the sensor
+	values. The flight pressure recorded to non-volatile storage
+	is unfiltered, coming directly from the pressure sensor.
       </para>
     </section>
     <section>
@@ -426,20 +435,25 @@ NAR #88757, TRA #12200
       <para>
 	MicroPeak contains a fixed atmospheric model which is used to
 	convert barometric pressure into altitude. The model was
-	converted into a 469-element piece wise linear approximation
+	converted into a 469-element piece-wise linear approximation
 	which is then used to compute the altitude of the ground and
 	apogee. The difference between these represents the maximum
 	height of the flight.
       </para>
       <para>
 	The model assumes a particular set of atmospheric conditions,
-	which while a reasonable average cannot represent the changing
+	which, while a reasonable average, cannot represent the changing
 	nature of the real atmosphere. Fortunately, for flights
 	reasonably close to the ground, the effect of this global
 	inaccuracy are largely canceled out when the computed ground
 	altitude is subtracted from the computed apogee altitude, so
 	the resulting height is more accurate than either the ground
 	or apogee altitudes.
+      </para>
+      <para>
+	Because the raw pressure data is recorded to non-volatile
+	storage, you can use that, along with a more sophisticated
+	atmospheric model, to compute your own altitude values.
       </para>
     </section>
     <section>
@@ -477,8 +491,9 @@ NAR #88757, TRA #12200
       <para>
 	In addition to the data used to present the height of the last
 	flight, MicroPeak also stores barometric information sampled
-	at regular intervals during the flight. This information can
-	be extracted from MicroPeak through any AVR programming
+	at regular intervals during the flight. This is the
+	information captured with the MicroPeak USB adapter. It can
+	also be read from MicroPeak through any AVR programming
 	tool.
       </para>
       <table frame='all'>
