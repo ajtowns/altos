@@ -52,11 +52,12 @@ HTML=altusmetrum.html altos.html telemetry.html companion.html micropeak.html $(
 PDF=altusmetrum.pdf altos.pdf telemetry.pdf companion.pdf micropeak.pdf
 HTMLSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/html/docbook.xsl
 FOSTYLE=xorg-fo.xsl
+TEMPLATES=titlepage.templates.xsl
 PDFSTYLE=
 IMAGES=$(PICTURES) $(SVG)
 DOC=$(HTML) $(PDF) $(PICTURES)
 
-.SUFFIXES: .xsl .html .pdf
+.SUFFIXES: .xml .xsl .html .pdf
 
 XSLTFLAGS=--stringparam section.autolabel 1 --xinclude
 
@@ -65,6 +66,9 @@ XSLTFLAGS=--stringparam section.autolabel 1 --xinclude
 
 .xsl.pdf:
 	xmlto -x $(FOSTYLE) --with-fop pdf $*.xsl
+
+.xml.xsl:
+	xsltproc --output $@ /usr/share/xml/docbook/stylesheet/docbook-xsl/template/titlepage.xsl $*.xml
 
 all:	$(HTML) $(PDF)
 
@@ -88,6 +92,8 @@ altusmetrum.html: $(RELNOTES_XSL) $(IMAGES)
 altusmetrum.pdf: $(RELNOTES_XSL) $(IMAGES)
 
 $(PDF): $(FOSTYLE)
+
+micropeak.pdf:  $(TEMPLATES)
 
 indent:		altusmetrum.xsl
 	xmlindent -i 2 < altusmetrum.xsl > altusmetrum.new

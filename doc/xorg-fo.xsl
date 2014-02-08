@@ -13,6 +13,7 @@
     xmlns:fo="http://www.w3.org/1999/XSL/Format" 
     >
 <xsl:import href="file:///usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl"/>
+<xsl:include href="titlepage.templates.xsl"/>
 
 
 			<!-- Reference Pages HTML/FO Parameters -->

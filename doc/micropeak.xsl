@@ -13,6 +13,11 @@
       <year>2012</year>
       <holder>Bdale Garbee and Keith Packard</holder>
     </copyright>
+    <mediaobject>
+      <imageobject>
+	<imagedata fileref="micropeak-dime.jpg" width="6in"/>
+      </imageobject>
+    </mediaobject>
     <legalnotice>
       <para>
         This document is released under the terms of the
@@ -99,6 +104,13 @@ NAR #88757, TRA #12200
 	  holder with the positive (+) terminal facing away from the
 	  circuit board.
 	</para>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="micropeak-back.jpg" width="4.5in"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
       </listitem>
       <listitem>
 	<para>
@@ -199,6 +211,13 @@ NAR #88757, TRA #12200
   </chapter>
   <chapter>
     <title>The MicroPeak USB adapter</title>
+    <informalfigure>
+      <mediaobject>
+	<imageobject>
+	  <imagedata fileref="MicroPeakUSB-2.0.jpg" width="4.5in"/>
+	</imageobject>
+      </mediaobject>
+    </informalfigure>
     <para>
       MicroPeak stores barometric pressure information for the first
       48 seconds of the flight in on-board non-volatile memory. The
@@ -229,12 +248,57 @@ NAR #88757, TRA #12200
 	  </para>
 	</listitem>
 	<listitem>
+	  <?dbfo keep-together="always"?>
 	  <para>
-	    Start the MicroPeak application and click on the Download
-	    button at the top of the window.
+	    Start the MicroPeak application.
 	  </para>
+	  <informalfigure>
+	    <mediaobject>
+	      <imageobject>
+		<imagedata fileref="micropeak-nofont.svg" width="0.5in"/>
+	      </imageobject>
+	    </mediaobject>
+	  </informalfigure>
 	</listitem>
 	<listitem>
+	  <?dbfo keep-together="always"?>
+	  <para>
+	     Click on the Download button at the top of the window.
+	  </para>
+	  <informalfigure>
+	    <mediaobject>
+	      <imageobject>
+		<imagedata fileref="micropeak-app.png" width="4.5in"/>
+	      </imageobject>
+	    </mediaobject>
+	  </informalfigure>
+	</listitem>
+	<listitem>
+	  <?dbfo keep-together="always"?>
+	  <para>
+	    Select from the listed devices. There will probably be
+	    only one.
+	  </para>
+	  <informalfigure>
+	    <mediaobject>
+	      <imageobject>
+		<imagedata fileref="micropeak-device-dialog.png" width="2.3in"/>
+	      </imageobject>
+	    </mediaobject>
+	  </informalfigure>
+	</listitem>
+	<listitem>
+	  <para>
+	    The application will now wait until it receives valid data
+	    from the MicroPeak USB adapter.
+	  </para>
+	  <informalfigure>
+	    <mediaobject>
+	      <imageobject>
+		<imagedata fileref="micropeak-download.png" width="2in"/>
+	      </imageobject>
+	    </mediaobject>
+	  </informalfigure>
 	  <para>
 	    The MicroPeak USB adapter has a small phototransistor
 	    under the hole in the center of the box.
@@ -244,8 +308,16 @@ NAR #88757, TRA #12200
 	    adapter blinking in time with the orange LED on the
 	    MicroPeak board itself.
 	  </para>
+	  <informalfigure>
+	    <mediaobject>
+	      <imageobject>
+		<imagedata fileref="MicroPeakUSB-2.0-inuse.jpg" width="4.5in"/>
+	      </imageobject>
+	    </mediaobject>
+	  </informalfigure>
 	</listitem>
 	<listitem>
+	  <?dbfo keep-together="always"?>
 	  <para>
 	    After the maximum flight height is reported, MicroPeak will
 	    pause for a few seconds, blink the LED four times rapidly
@@ -254,6 +326,22 @@ NAR #88757, TRA #12200
 	    it will present the data in a graph and offer to save the
 	    data to a file. If not, you can power cycle the MicroPeak
 	    board and try again.
+	  </para>
+	  <informalfigure>
+	    <mediaobject>
+	      <imageobject>
+		<imagedata fileref="micropeak-save-dialog.png" width="2.3in"/>
+	      </imageobject>
+	    </mediaobject>
+	  </informalfigure>
+	</listitem>
+	<listitem>
+	  <?dbfo keep-together="always"?>
+	  <para>
+	    Once the data are saved, a graph will be displayed with
+	    height, speed and acceleration values computed from the
+	    recorded barometric pressure data. See the next section
+	    for more details on that.
 	  </para>
 	</listitem>
       </itemizedlist>
@@ -283,26 +371,6 @@ NAR #88757, TRA #12200
 	otherwise be swamped with noise.
       </para>
       <para>
-	Under the Graph tab, the height, speed and acceleration values
-	are displayed together. You can zoom in on the graph by
-	clicking and dragging to sweep out an area of
-	interest. Right-click on the plot to bring up a menu that will
-	let you save, copy or print the graph.
-      </para>
-      <para>
-	The Statistics tab presents overall data from the flight. Note
-	that the Maximum height value is taken from the minumum
-	pressure captured in flight, and may be different from the
-	apparant apogee value as the on-board data are sampled twice
-	as fast as the recorded values, or because the true apogee
-	occurred after the on-board memory was full. Each value is
-	presented in several units as appropriate.
-      </para>
-      <para>
-	A table consisting of the both the raw barometric pressure
-	data and values computed from that for each recorded time.
-      </para>
-      <para>
 	The File menu has operations to open existing flight logs,
 	Download new data from MicroPeak, Save a copy of the flight
 	log to a new file, Export the tabular data (as seen in the Raw
@@ -310,9 +378,80 @@ NAR #88757, TRA #12200
 	the current window or close all windows and Exit the
 	application.
       </para>
+      <section>
+	<title>MicroPeak Graphs</title>
+	<para>
+	  Under the Graph tab, the height, speed and acceleration values
+	  are displayed together. You can zoom in on the graph by
+	  clicking and dragging to sweep out an area of
+	  interest. Right-click on the plot to bring up a menu that will
+	  let you save, copy or print the graph.
+	</para>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="micropeak-graph.png" width="4.5in"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
+      </section>
+      <section>
+	<title>MicroPeak Flight Statistics</title>
+	<para>
+	  The Statistics tab presents overall data from the flight. Note
+	  that the Maximum height value is taken from the minumum
+	  pressure captured in flight, and may be different from the
+	  apparant apogee value as the on-board data are sampled twice
+	  as fast as the recorded values, or because the true apogee
+	  occurred after the on-board memory was full. Each value is
+	  presented in several units as appropriate.
+	</para>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="micropeak-statistics.png" width="4.5in"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
+      </section>
+      <section>
+	<title>Raw Data</title>
+	<para>
+	  A table consisting of the both the raw barometric pressure
+	  data and values computed from that for each recorded time.
+	</para>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="micropeak-raw-data.png" width="4.5in"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
+      </section>
+      <section>
+	<title>Configuring the Graph</title>
+	<para>
+	  This selects which graph elements to show, and lets you
+	  switch between metric and imperial units
+	</para>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="micropeak-graph-configure.png" width="4.5in"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
+      </section>
     </section>
     <section>
-      <title>Configuring the MicroPeak application</title>
+      <title>Setting MicroPeak Preferences</title>
+      <informalfigure>
+	<mediaobject>
+	  <imageobject>
+	    <imagedata fileref="micropeak-preferences.png" width="1.8in"/>
+	  </imageobject>
+	</mediaobject>
+      </informalfigure>
       <para>
 	The MicroPeak application has a few user settings which are
 	configured through the Preferences dialog, which can be
