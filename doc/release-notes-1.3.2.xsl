@@ -29,6 +29,12 @@
 	  as the log only holds 12 satellite records.
 	</para>
       </listitem>
+      <listitem>
+	<para>
+	  Track the maximum height as computed from GPS altitude
+	  data and report that in the flight summary data.
+	</para>
+      </listitem>
     </itemizedlist>
   </para>
 </article>
