@@ -26,7 +26,7 @@ import java.util.*;
 import org.altusmetrum.altoslib_3.*;
 import org.altusmetrum.altosuilib_1.*;
 
-public class MicroDownload extends AltosUIDialog implements Runnable, ActionListener, MicroSerialLog {
+public class MicroDownload extends AltosUIDialog implements Runnable, ActionListener, MicroSerialLog, WindowListener {
 	MicroPeak	owner;
 	Container	pane;
 	AltosDevice	device;
@@ -37,25 +37,46 @@ public class MicroDownload extends AltosUIDialog implements Runnable, ActionList
 	Runnable	log_run;
 	JTextArea	serial_log;
 	JLabel		status_value;
+	int		log_column;
+
+	public void windowActivated(WindowEvent e) {
+	}
+
+	public void windowClosed(WindowEvent e) {
+		setVisible(false);
+		dispose();
+	}
+
+	public void windowClosing(WindowEvent e) {
+	}
+
+	public void windowDeactivated(WindowEvent e) {
+	}
+
+	public void windowDeiconified(WindowEvent e) {
+	}
+
+	public void windowIconified(WindowEvent e) {
+	}
+
+	public void windowOpened(WindowEvent e) {
+	}
 
 	private void done_internal() {
-		if (data != null) {
+		setVisible(false);
+		dispose();
+
+		if (data != null && data.crc_valid) {
 			status_value.setText("Received MicroPeak Data");
-			if (data.crc_valid) {
-				owner = owner.SetData(data);
-				MicroSave save = new MicroSave(owner, data);
-				if (save.runDialog())
-					owner.SetName(data.name);
-			} else {
-				JOptionPane.showMessageDialog(owner,
-							      "Flight data corrupted",
-							      "Download Failed",
-							      JOptionPane.ERROR_MESSAGE);
-			}
-			setVisible(false);
-			dispose();
+			owner = owner.SetData(data);
+			MicroSave save = new MicroSave(owner, data);
+			if (save.runDialog())
+				owner.SetName(data.name);
 		} else {
-			status_value.setText("Download Failed");
+			JOptionPane.showMessageDialog(owner,
+						      "Download Failed",
+						      "Flight data corrupted",
+						      JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -71,9 +92,26 @@ public class MicroDownload extends AltosUIDialog implements Runnable, ActionList
 			}
 			if (c == '\r')
 				continue;
-			byte[] bytes = new byte[1];
-			bytes[0] = (byte) c;
-			serial_log.append(new String(bytes, AltosLib.unicode_set));
+			if (c == '\0')
+				continue;
+			String s;
+			if (c == '\n') {
+				s = "\n";
+				log_column = 0;
+			} else if (' ' <= c && c <= '~') {
+				byte[] bytes = new byte[1];
+				bytes[0] = (byte) c;
+				s = new String(bytes, AltosLib.unicode_set);
+				log_column += 1;
+			} else {
+				s = String.format("\\0x%02x", c & 0xff);
+				log_column += 5;
+			}
+			serial_log.append(s);
+			if (log_column > 40) {
+				serial_log.append("\n");
+				log_column = 0;
+			}
 		}
 	}
 
@@ -105,12 +143,20 @@ public class MicroDownload extends AltosUIDialog implements Runnable, ActionList
 
 	public void run() {
 		try {
-			data = new MicroData(serial, device.toShortString());
-			serial.close();
+			for (;;) {
+				try {
+					data = new MicroData(serial, device.toShortString());
+					if (data != null && data.crc_valid)
+						break;
+				} catch (MicroData.NonHexcharException nhe) {
+				}
+			}
 		} catch (FileNotFoundException fe) {
 		} catch (IOException ioe) {
 		} catch (InterruptedException ie) {
+		} catch (MicroData.FileEndedException fee) {
 		}
+		serial.close();
 		done();
 	}
 
@@ -172,12 +218,12 @@ public class MicroDownload extends AltosUIDialog implements Runnable, ActionList
 		c.gridx = 0; c.gridy = y;
 		c.gridwidth = GridBagConstraints.REMAINDER;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.weightx = 1;
+		c.weightx = 0;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		JLabel help_text = new JLabel(
 			"<html><i>Turn on the MicroPeak and place the LED inside the<br>" +
-			"opening in the top of the MicroPeak USB adapter.<br>" +
+			"opening in the top of the MicroPeak USB adapter.<br> " +
 			"Verify that the blue LED in the side of the USB adapter<br>" +
 			"is blinking along with the orange LED on the MicroPeak.</i></html>");
 //		help_text.setEditable(false);
@@ -205,8 +251,9 @@ public class MicroDownload extends AltosUIDialog implements Runnable, ActionList
 		c = new GridBagConstraints();
 		c.gridx = 0; c.gridy = y;
 		c.gridwidth = GridBagConstraints.REMAINDER;
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = GridBagConstraints.BOTH;
 		c.weightx = 1;
+		c.weighty = 1;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 

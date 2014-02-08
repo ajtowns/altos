@@ -100,13 +100,13 @@ public class MicroData implements AltosUIDataSet {
 	String			name;
 	MicroStats		stats;
 	
-	class FileEndedException extends Exception {
+	public class FileEndedException extends Exception {
 	}
 
-	class NonHexcharException extends Exception {
+	public class NonHexcharException extends Exception {
 	}
 
-	class InvalidCrcException extends Exception {
+	public class InvalidCrcException extends Exception {
 	}
 
 	private int getc(InputStream f) throws IOException, FileEndedException {
@@ -167,14 +167,10 @@ public class MicroData implements AltosUIDataSet {
 		return h;
 	}
 
-	private boolean find_header(InputStream f) throws IOException {
-		try {
-			for (;;) {
-				if (get_nonwhite(f) == 'M' && get_nonwhite(f) == 'P')
-					return true;
-			}
-		} catch (FileEndedException fe) {
-			return false;
+	private boolean find_header(InputStream f) throws IOException, FileEndedException {
+		for (;;) {
+			if (get_nonwhite(f) == 'M' && get_nonwhite(f) == 'P')
+				return true;
 		}
 	} 
 
@@ -339,7 +335,7 @@ public class MicroData implements AltosUIDataSet {
 		this.name = name;
 	}
 
-	public MicroData (InputStream f, String name) throws IOException, InterruptedException {
+	public MicroData (InputStream f, String name) throws IOException, InterruptedException, NonHexcharException, FileEndedException {
 		this.name = name;
 		bytes = new ArrayList<Integer>();
 		if (!find_header(f))
@@ -384,8 +380,6 @@ public class MicroData implements AltosUIDataSet {
 			stats = new MicroStats(this);
 		} catch (FileEndedException fe) {
 			throw new IOException("File Ended Unexpectedly");
-		} catch (NonHexcharException ne) {
-			throw new IOException("Non hexadecimal character found");
 		}
 	}
 
