@@ -32,6 +32,9 @@ INC = \
 #STACK_GUARD=ao_mpu_stm.c
 #STACK_GUARD_DEF=-DHAS_STACK_GUARD=1
 
+MATH_SRC=\
+	ef_log.c
+
 ALTOS_SRC = \
 	ao_boot_chain.c \
 	ao_interrupt.c \
@@ -64,7 +67,8 @@ ALTOS_SRC = \
 	ao_log_fat.c \
 	ao_gps_report_mega.c \
 	ao_telemetry.c \
-	$(SAMPLE_PROFILE)
+	$(SAMPLE_PROFILE) \
+	$(MATH_SRC)
 
 PRODUCT=TeleGPS-v0.1
 PRODUCT_DEF=-DTELEGPS
