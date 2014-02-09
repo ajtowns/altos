@@ -190,7 +190,7 @@ ao_adc_dump(void) __reentrant
 	for (i = 0; i < AO_NUM_ADC; i++) {
 #ifdef AO_ADC_SQ1_NAME
 		if (ao_adc_name[i])
-			printf ("\t%s: %5d\n", ao_adc_name[i], d[i]);
+			printf (" %s: %5d", ao_adc_name[i], d[i]);
 		else		
 #endif
 			printf (" %2d: %5d", i, d[i]);
