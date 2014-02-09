@@ -488,9 +488,21 @@ static void tncCompressInt(uint8_t *dest, int32_t value, int len) {
 	}
 }
 
-#if HAS_ADC
+static int ao_num_sats(void)
+{
+    int i;
+    int n = 0;
+
+    for (i = 0; i < ao_gps_tracking_data.channels; i++) {
+	if (ao_gps_tracking_data.sats[i].svid)
+	    n++;
+    }
+    return n;
+}
+
 static int tncComment(uint8_t *buf)
 {
+#if HAS_ADC
 	struct ao_data packet;
 	
 	ao_arch_critical(ao_data_get(&packet););
@@ -500,15 +512,19 @@ static int tncComment(uint8_t *buf)
 	int16_t main = ao_ignite_decivolt(AO_SENSE_MAIN(&packet));
 
 	return sprintf((char *) buf,
-		       "B:%d.%d A:%d.%d M:%d.%d",
+		       "S: %d B:%d.%d A:%d.%d M:%d.%d",
+		       ao_num_sats(),
 		       battery/10,
 		       battery % 10,
 		       apogee/10,
 		       apogee%10,
 		       main/10,
 		       main%10);
-}
+#else
+	return sprintf((char *) buf,
+		       "S: %d", ao_num_sats());
 #endif
+}
 
 /**
  *   Generate the plain text position packet.
@@ -556,11 +572,7 @@ static int tncPositionPacket(void)
 
     *buf++ = 33 + ((1 << 5) | (2 << 3));
 
-#if HAS_ADC
     buf += tncComment(buf);
-#else
-    *buf = '\0';
-#endif
 
     return buf - tncBuffer;
 }
