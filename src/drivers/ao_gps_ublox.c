@@ -746,18 +746,20 @@ ao_gps(void) __reentrant
 				ao_gps_tracking_data.channels = 0;
 
 				struct ao_telemetry_satellite_info *dst = &ao_gps_tracking_data.sats[0];
+				struct nav_svinfo_sat *src = &nav_svinfo_sat[0];
 
 				for (i = 0; i < nav_svinfo_nsat; i++) {
-					struct nav_svinfo_sat *src = &nav_svinfo_sat[i];
-
 					if (!(src->flags & (1 << NAV_SVINFO_SAT_FLAGS_UNHEALTHY)) &&
 					    src->quality >= NAV_SVINFO_SAT_QUALITY_ACQUIRED)
 					{
-						dst->svid = src->svid;
-						dst->c_n_1 = src->cno;
-						dst++;
-						ao_gps_tracking_data.channels++;
+						if (ao_gps_tracking_data.channels < AO_TELEMETRY_SATELLITE_MAX_SAT) {
+							dst->svid = src->svid;
+							dst->c_n_1 = src->cno;
+							dst++;
+							ao_gps_tracking_data.channels++;
+						}
 					}
+					src++;
 				}
 
 				ao_mutex_put(&ao_gps_mutex);
