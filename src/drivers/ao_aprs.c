@@ -500,6 +500,14 @@ static int ao_num_sats(void)
     return n;
 }
 
+static char ao_gps_locked(void)
+{
+    if (ao_gps_data.flags & AO_GPS_VALID)
+	return 'L';
+    else
+	return 'U';
+}
+
 static int tncComment(uint8_t *buf)
 {
 #if HAS_ADC
@@ -512,7 +520,8 @@ static int tncComment(uint8_t *buf)
 	int16_t main = ao_ignite_decivolt(AO_SENSE_MAIN(&packet));
 
 	return sprintf((char *) buf,
-		       "S: %d B:%d.%d A:%d.%d M:%d.%d",
+		       "%c%d B%d.%d A%d.%d M%d.%d",
+		       ao_gps_locked(),
 		       ao_num_sats(),
 		       battery/10,
 		       battery % 10,
@@ -522,7 +531,9 @@ static int tncComment(uint8_t *buf)
 		       main%10);
 #else
 	return sprintf((char *) buf,
-		       "S: %d", ao_num_sats());
+		       "%c%d",
+		       ao_gps_locked(),
+		       ao_num_sats());
 #endif
 }
 
