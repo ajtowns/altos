@@ -2009,22 +2009,112 @@ NAR #88757, TRA #12200
         time, and would of course appreciate customer feedback on
         performance in higher altitude flights!
       </para>
+    </section>
+    <section>
+      <title>APRS</title>
       <para>
 	TeleMetrum v2.0 and TeleMega can send APRS if desired, and the
 	interval between APRS packets can be configured. As each APRS
 	packet takes a full second to transmit, we recommend an
 	interval of at least 5 seconds to avoid consuming too much
-	battery power or radio channel bandwidth.
+	battery power or radio channel bandwidth. You can configure
+	the APRS interval using AltosUI; that process is described in
+	the Configure Altimeter section of the AltosUI chapter.
+      </para>
+      <para>
+	AltOS uses the APRS compressed position report data format,
+	which provides for higher position precision and shorter
+	packets than the original APRS format. It also includes
+	altitude data, which is invaluable when tracking rockets. We
+	haven't found a receiver which doesn't handle compressed
+	positions, but it's just possible that you have one, so if you
+	have an older device that can receive the raw packets but
+	isn't displaying position information, it's possible that this
+	is the cause.
+      </para>
+      <para>
+	The APRS packet format includes a comment field that can have
+	arbitrary text in it. AltOS uses this to send status
+	information about the flight computer. It sends four fields as
+	shown in the following table.
+      </para>
+      <table frame='all'>
+	<title>Altus Metrum APRS Comments</title>
+	<?dbfo keep-together="always"?>
+	<tgroup cols='3' align='center' colsep='1' rowsep='1'>
+	  <colspec align='center' colwidth='*' colname='Field'/>
+	  <colspec align='center' colwidth='*' colname='Example'/>
+	  <colspec align='center' colwidth='4*' colname='Description'/>
+	  <thead>
+	    <row>
+	      <entry align='center'>Field</entry>
+	      <entry align='center'>Example</entry>
+	      <entry align='center'>Description</entry>
+	    </row>
+	  </thead>
+	  <tbody>
+	    <row>
+	      <entry>1</entry>
+	      <entry>L</entry>
+	      <entry>GPS Status U for unlocked, L for locked</entry>
+	    </row>
+	    <row>
+	      <entry>2</entry>
+	      <entry>6</entry>
+	      <entry>Number of Satellites in View</entry>
+	    </row>
+	    <row>
+	      <entry>3</entry>
+	      <entry>B4.0</entry>
+	      <entry>Altimeter Battery Voltage</entry>
+	    </row>
+	    <row>
+	      <entry>4</entry>
+	      <entry>A3.7</entry>
+	      <entry>Apogee Igniter Voltage</entry>
+	    </row>
+	    <row>
+	      <entry>5</entry>
+	      <entry>M3.7</entry>
+	      <entry>Main Igniter Voltage</entry>
+	    </row>
+	  </tbody>
+	</tgroup>
+      </table>
+      <para>
+	Here's an example of an APRS comment showing GPS lock with 6
+	satellites in view, a primary battery at 4.0V, and
+	apogee and main igniters both at 3.7V.
+	<screen>
+	  L6 B4.0 A3.7 M3.7
+	</screen>
+      </para>
+      <para>
+	Make sure your primary battery is above 3.8V, any connected
+	igniters are above 3.5V and GPS is locked with at least 5 or 6
+	satellites in view before flying. If GPS is switching between
+	L and U regularly, then it doesn't have a good lock and you
+	should wait until it becomes stable.
+      </para>
+      <para>
+	If the GPS receiver loses lock, the APRS data transmitted will
+	contain the last position for which GPS lock was
+	available. You can tell that this has happened by noticing
+	that the GPS status character switches from 'L' to 'U'. Before
+	GPS has locked, APRS will transmit zero for latitude,
+	longitude and altitude.
       </para>
     </section>
     <section>
       <title>Configurable Parameters</title>
       <para>
         Configuring an Altus Metrum altimeter for flight is very
-        simple.  Even on our baro-only TeleMini and EasyMini boards, the use of a Kalman 
-        filter means there is no need to set a “mach delay”.  The few 
-        configurable parameters can all be set using AltosUI over USB or
-        or radio link via TeleDongle.
+        simple.  Even on our baro-only TeleMini and EasyMini boards,
+        the use of a Kalman filter means there is no need to set a
+        “mach delay”.  The few configurable parameters can all be set
+        using AltosUI over USB or or radio link via TeleDongle. Read
+	the Configure Altimeter section in the AltosUI chapter below
+	for more information.
       </para>
       <section>
         <title>Radio Frequency</title>
@@ -2039,6 +2129,35 @@ NAR #88757, TRA #12200
 	  altimeter and TeleDongle must be configured to the same
 	  frequency to successfully communicate with each other.
         </para>
+      </section>
+      <section>
+	<title>Callsign</title>
+	<para>
+	  This sets the callsign used for telemetry, APRS and the
+	  packet link. For telemetry and APRS, this is used to
+	  identify the device. For the packet link, the callsign must
+	  match that configured in AltosUI or the link will not
+	  work. This is to prevent accidental configuration of another
+	  Altus Metrum flight computer operating on the same frequency nearby.
+	</para>
+      </section>
+      <section>
+	<title>Telemetry/RDF/APRS Enable</title>
+	<para>
+	  You can completely disable the radio while in flight, if
+	  necessary. This doesn't disable the packet link in idle
+	  mode.
+	</para>
+      </section>
+      <section>
+	<title>APRS Interval</title>
+	<para>
+	  This selects how often APRS packets are transmitted. Set
+	  this to zero to disable APRS without also disabling the
+	  regular telemetry and RDF transmissions. As APRS takes a
+	  full second to transmit a single position report, we
+	  recommend sending packets no more than once every 5 seconds.
+	</para>
       </section>
       <section>
         <title>Apogee Delay</title>
