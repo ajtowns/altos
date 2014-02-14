@@ -1,3 +1,409 @@
+commit e53be56179f4cd93227b6bdc28c2ae60b81db57d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Feb 9 23:47:47 2014 -0800
+
+    doc: Update the 1.3.2 release notes to include APRS and Fire Igniter changes
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d24ef4aa9429f4884548e5c9fd48d57e640f0d9d
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Feb 9 23:46:39 2014 -0800
+
+    doc: Add remaining configurable parameters to the System Operation chapter
+    
+    Yes, this duplicates the section in the AltosUI chapter, but I'm not
+    sure how to describe the device without talking about it in two
+    places, so we might as well make both of them complete.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e76948d382cf6980c3a5b6c48405d71c8811780b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Feb 9 22:54:31 2014 -0800
+
+    altos: Put locked/unlocked GPS status in APRS comments
+    
+    Replace the 'S' (which marks the field showing sats in view) with
+    either 'L' or 'U' to tell the user whether the GPS receiver is locked
+    or unlocked.
+    
+    This also removes the colons in the comment field to shorten it. This
+    makes it fit on one line of my FT1D display.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 5001a0f882af53dde33fc531215944c9d727baf4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sun Feb 9 22:53:05 2014 -0800
+
+    altos: Re-send previous GPS position in APRS if lock is lost
+    
+    APRS radios often show only the last received APRS packet, which means
+    that erasing the last known GPS position when we lose lock by sending
+    0/0/0 is unhelpful. Instead, just send the last known position, and
+    make sure that we send 0/0/0 before we're locked the first time.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 864d1e2282ac1d241478cf663ee24112c9d3dc37
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 8 22:02:02 2014 -0800
+
+    altos: Fixup named ADC printing
+    
+    Print all ADC values on one line when using named ADC values
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f750ef6f9745b15af45bb80f5b46b9e6f51796d8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 8 20:05:02 2014 -0800
+
+    altos: Add needed math sources to TeleGPS v0.1 build
+    
+    APRS requires the logf function to report altitude.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 6367ab2dec718c512073f70dfab86dbd1656b1fe
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 8 20:02:54 2014 -0800
+
+    altos: Report nsat in view in APRS packet
+    
+    This adds the number of sats in view (as opposed to the number of sats
+    in solution) to the APRS packet.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8ddbbdcdc498a19ebf4a440bbf5d73b6538e0a57
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 8 20:00:56 2014 -0800
+
+    altos: Don't write more than 12 sat infos in ublox driver
+    
+    This was overwriting memory past the end of the ao_gps_tracking_data
+    array, which isn't a good idea.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 324073d14ed8215b74d9df51f2229827cd4401d0
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 1 00:32:43 2014 -0800
+
+    altos/stm: Block interrupts while reprogramming flash
+    
+    Wouldn't work well to get interrupted...
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit d6d56c20465455b759f60a03fc96aa228ab9102e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 1 00:06:30 2014 -0800
+
+    altos: Enable system timer in flash loader and prod watchdog with it
+    
+    This makes it possible to reflash the board without needing to disable
+    the watchdog.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 1d3420e51db4d1a46237e97aeb189d2a8eba7f5e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 31 17:44:45 2014 -0800
+
+    altos: Eliminate warnings in FAT code
+    
+    The FAT file system code wasn't cleaned up when the warning fixes were
+    done recently.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7a8adfed8fbbcaac71da9c6d54bbd3091f4d7511
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Mar 21 10:16:35 2013 -0700
+
+    altos: Add watchdog timer task
+    
+    This new task frobs a pin periodically to inform the hardware that the
+    operating system is running.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 63683f91f5fe9588c1d905a572509cb674aaad68
+Author: Keith Packard <keithp@keithp.com>
+Date:   Wed Jan 23 21:36:18 2013 -0800
+
+    altos: Add names when reporting STM ADC values
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7fdf6a6cc252c7813a857714f6088b7fd5bfab40
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 8 14:31:06 2014 -0800
+
+    doc: Add title page image to altusmetrum.pdf
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2c70a7a49cc0e92df90ea17a870d661ca857c145
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 8 14:30:52 2014 -0800
+
+    doc: Ignore generate template XSL file
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 2320b788c47757032b2874e64479ef382456c2d3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 8 14:24:48 2014 -0800
+
+    doc: Document GPS max height addition
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8363326cd87fb1e53ad78146c0503aa476d2da89
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 8 14:24:13 2014 -0800
+
+    doc: Update micropeak docs to include lots of pictures
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 306028b33ebed45bcf379740cc3c01c2360c51f4
+Author: Keith Packard <keithp@keithp.com>
+Date:   Sat Feb 8 10:25:33 2014 -0800
+
+    doc: Micropeak doc updates for 1.3.2
+    
+    New 'download' button.
+    Update download instructions for new USB adapter.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 28d5239bff234cc1158a270a29c0e39067f613c3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Feb 7 22:45:26 2014 -0800
+
+    micropeak: Missing a couple of new exceptions when loading files
+    
+    The change to keep reading on invalid chars from the serial port
+    exposed a couple of new exceptions from the MicroData code which the
+    file loading code needs to cope with.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 8d0d59c51138dc1b1bbf6933354fe9faf4d67986
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Feb 7 22:32:17 2014 -0800
+
+    micropeak: Keep reading until we get valid data
+    
+    Don't stop just because we saw something invalid on the serial line;
+    let the user try again, or cancel when they get bored.
+    
+    However, if the serial line disappears or some other fatal error
+    occurs, then do stop and put up an error dialog.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4a5b3837b460d1b6fcea99312728114c4734495a
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Feb 6 17:08:34 2014 -0800
+
+    altos: report 0/0/0 for APRS position when GPS is not locked
+    
+    We were reporting whatever the GPS device sent, even if it wasn't
+    reporting a valid status. That's not terribly useful.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9e0bda088c097ac6bcc677d7b6d00683e73a68fb
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Feb 3 00:24:38 2014 -0800
+
+    micropeak: Watch serial data during download
+    
+    This adds a text area to monitor the incoming serial data in case some
+    problem occurs.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 0c2f28cbc1cb312d3bcc8951176d79f234a1af04
+Author: Keith Packard <keithp@keithp.com>
+Date:   Mon Feb 3 00:26:42 2014 -0800
+
+    altoslib: Use existing unicode Charset in AltosLink
+    
+    Instead of making AltosLink look up the unicode charset, just provide
+    it directly.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7df221c42948cb42cf777b899263c8ec9067bd55
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 31 18:09:26 2014 -0800
+
+    doc: Mention that an APRS interval of 0 disables it entirely
+    
+    And mention that the value is a time in seconds between APRS packets.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 230af613d372afe540c6a8860199d717eedecf57
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jan 30 20:54:24 2014 -0800
+
+    doc: Replace screen captures with 'active' window ones
+    
+    These are the same as the previous captures, just with the titlebar
+    highlighted instead of grey so that they're all consistent. These were
+    also done with the gimp which makes the areas outside of the window
+    (like outside the rounded corners) have zero alpha so that the white
+    background shows through.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 7e3088ece81ef85f3dbd4df51954bc90681d6b6e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jan 30 18:42:08 2014 -0800
+
+    doc: Update screen capture of pyro config with correct names
+    
+    With the UI now using letters as TeleMega does, update the screen shot
+    used in the manual to match
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit eb9262901aff4f69fa3d2357693634cbee9bca46
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jan 30 18:38:01 2014 -0800
+
+    altosui: Use letter names for pyro channels in pyro config UI
+    
+    TeleMega has the extra pyro channels labeled A, B, C, D instead of 0,
+    1, 2, 3. Use those names in the UI to avoid confusion.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 4e94d785d9a1cce4eb5b3063d55e825719afb58e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Tue Jan 28 21:52:57 2014 -0800
+
+    doc: Add explicit paragraph about using one battery with Tmega
+    
+    Just in case the factory-supplied jumper gets lost.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit f4f31590518875eda40473dd2178d6976a4f86a3
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Tue Jan 28 18:21:10 2014 -0700
+
+    use firmware in /usr/share/altos for teledongle, update telemetrum for v2.0
+
+commit 6b70b8b6bb4e8eae8159ec966847092d0b1deab3
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 24 22:43:25 2014 -0800
+
+    altoslib: Don't lose gps_height value between GPS samples
+    
+    gps_height is now reliably updated whenever GPS altitude data is
+    received, so don't try to reset it between samples.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ea8c9ca9dd24a026ea5bfe5a1ac70857181a88c8
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 24 22:40:49 2014 -0800
+
+    altosui: Show GPS max height in flight stats window of graph
+    
+    Uses the new state.max_gps_height() function.#
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit e4616233f3942d2796ba6633477670a83669957b
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 24 22:39:10 2014 -0800
+
+    altoslib: Track GPS altitude values to be able to report max gps height
+    
+    This adds separate GPS altitude and GPS ground altitude values so that
+    the AltosState object can report GPS max height.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit aa2edc97ac0c880e569baca453ff6302ad6da65f
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 24 21:34:39 2014 -0800
+
+    doc: Fix spelling of decelerate
+
+commit eb3ffd06575ddd0be061aa2717c7075c823ed54e
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 24 21:31:17 2014 -0800
+
+    doc: Document flight computer wiring connections
+    
+    This details all of the wiring connections for each flight computer
+    and explains how to wire batteries, switches and how to use external
+    pyro batteries and active switches with each one.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit ee480d180cbdd712ab13d39716c38aabd4678d95
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 24 10:10:00 2014 -0800
+
+    Set version to 1.3.2 in preparation for release
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 9c4674d90f9b111e1b47abb7aee714ed12fa3aa5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 24 09:35:55 2014 -0800
+
+    doc: Add 1.3.2 release notes
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit 94be1e3eb9f94a59522743374d02a1f229266931
+Author: Keith Packard <keithp@keithp.com>
+Date:   Fri Jan 24 09:21:46 2014 -0800
+
+    altos: Tmega Don't try to log info about more than 12 GPS sats
+    
+    The mega log format has a single packet for GPS info which holds a
+    maximum of 12 satellites. Bdale managed to get 14 sats in view, which
+    ended up crashing the ground station software, and also overflowed the
+    gps_tracking_data structure.
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit dd28429405498fca0788ce9c19093898c84b10e5
+Author: Keith Packard <keithp@keithp.com>
+Date:   Thu Jan 23 22:16:36 2014 -0800
+
+    altoslib: Validate TeleMega GPS_SAT log packet nsat
+    
+    Make sure nsat is not more than the size of the array
+    
+    Signed-off-by: Keith Packard <keithp@keithp.com>
+
+commit afbae4c6b7a658f690cb827acfef015e9e2da318
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Jan 22 21:31:03 2014 -0700
+
+    update notes on how to release
+
+commit 0ef0c50536e5eb6ad3455b5828983307edbab828
+Author: Bdale Garbee <bdale@gag.com>
+Date:   Wed Jan 22 20:53:03 2014 -0700
+
+    freshen ChangeLog for release
+
 commit 200137060651f48c99276c8feb0e15980a9b46be
 Author: Bdale Garbee <bdale@gag.com>
 Date:   Wed Jan 22 20:52:09 2014 -0700
