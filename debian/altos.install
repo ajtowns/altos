@@ -1,4 +1,5 @@
 debian/altos.desktop	usr/share/applications
+debian/altusmetrum.svg	usr/share/pixmaps
 debian/altusmetrum.xpm	usr/share/pixmaps
 src/*/*.ihx		usr/share/altos
 src/*/*.map		usr/share/altos
