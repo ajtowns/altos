@@ -171,6 +171,7 @@ DOC=$(ALTUSMETRUM_DOC) $(ALTOS_DOC) $(TELEMETRY_DOC) $(TEMPLATE_DOC)
 
 # Distribution targets
 LINUX_DIST=Altos-Linux-$(VERSION).tar.bz2
+LINUX_SH=Altos-Linux-$(VERSION).sh
 MACOSX_DIST=Altos-Mac-$(VERSION).dmg
 WINDOWS_DIST=Altos-Windows-$(VERSION_DASH).exe
 
@@ -179,7 +180,7 @@ FAT_FILES=$(FATJAR) $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) $(FREETTS_CLASS) $(JFR
 LINUX_LIBS=libaltos32.so libaltos64.so
 
 LINUX_FILES=$(FAT_FILES) $(LINUX_LIBS) $(FIRMWARE) $(DOC)
-LINUX_EXTRA=altosui-fat
+LINUX_EXTRA=altosui-fat ../debian/altos.desktop ../debian/altusmetrum.xpm
 
 MACOSX_INFO_PLIST=Info.plist
 MACOSX_FILES=$(FAT_FILES) libaltos.dylib $(MACOSX_INFO_PLIST) $(DOC) ReadMe-Mac.rtf
@@ -191,7 +192,7 @@ all-local: classes/altosui $(JAR) altosui altosui-test altosui-jdb
 
 clean-local:
 	-rm -rf classes $(JAR) $(FATJAR) \
-		$(LINUX_DIST) $(MACOSX_DIST) windows $(WINDOWS_DIST) $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) $(FREETTS_CLASS) \
+		$(LINUX_DIST) $(LINUX_SH) $(MACOSX_DIST) windows $(WINDOWS_DIST) $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) $(FREETTS_CLASS) \
 		$(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) Manifest.txt Manifest-fat.txt altos-windows.log altos-windows.nsi \
 		altosui altosui-test altosui-jdb macosx linux
 
@@ -200,12 +201,17 @@ if FATINSTALL
 FATTARGET=$(FATDIR)/$(VERSION)
 
 LINUX_DIST_TARGET=$(FATTARGET)/$(LINUX_DIST)
+LINUX_SH_TARGET=$(FATTARGET)/$(LINUX_SH)
 MACOSX_DIST_TARGET=$(FATTARGET)/$(MACOSX_DIST)
 WINDOWS_DIST_TARGET=$(FATTARGET)/$(WINDOWS_DIST)
 
-fat: $(LINUX_DIST_TARGET) $(MACOSX_DIST_TARGET) $(WINDOWS_DIST_TARGET)
+fat: $(LINUX_DIST_TARGET) $(LINUX_SH_TARGET) $(MACOSX_DIST_TARGET) $(WINDOWS_DIST_TARGET)
 
 $(LINUX_DIST_TARGET): $(LINUX_DIST)
+	mkdir -p $(FATTARGET)
+	cp -p $< $@
+
+$(LINUX_SH_TARGET): $(LINUX_SH)
 	mkdir -p $(FATTARGET)
 	cp -p $< $@
 
@@ -218,7 +224,7 @@ $(WINDOWS_DIST_TARGET): $(WINDOWS_DIST)
 	cp -p $< $@
 
 else
-fat: $(LINUX_DIST) $(MACOSX_DIST) $(WINDOWS_DIST)
+fat: $(LINUX_DIST) $(LINUX_SH) $(MACOSX_DIST) $(WINDOWS_DIST)
 endif
 
 
@@ -329,9 +335,15 @@ $(LINUX_DIST): $(LINUX_FILES) $(LINUX_EXTRA)
 	-rm -rf linux
 	mkdir -p linux/AltOS
 	cp -p $(LINUX_FILES) linux/AltOS
+	sed -e 's;/usr/bin;%BIN%;' -e 's;/usr/share/pixmaps;%BIN%;' $(srcdir)/../debian/altos.desktop > linux/AltOS/altos.desktop.in
+	cp -p $(srcdir)/../debian/altusmetrum.xpm linux/AltOS/altusmetrum.xpm
 	cp -p altosui-fat linux/AltOS/altosui
 	chmod +x linux/AltOS/altosui
 	tar cjf $@ -C linux AltOS
+
+$(LINUX_SH): $(LINUX_DIST) linux-install.sh
+	cat linux-install.sh $(LINUX_DIST) > $@
+	chmod +x $@
 
 $(MACOSX_DIST): $(MACOSX_FILES) $(MACOSX_EXTRA) Makefile
 	-rm -f $@
