@@ -103,6 +103,10 @@ LIBALTOS= \
 	libaltos.dylib \
 	altos.dll
 
+desktopdir = $(datadir)/applications
+desktop_file = altos.desktop
+desktop_DATA = $(desktop_file)
+
 JAR=altosui.jar
 
 FATJAR=altosui-fat.jar
@@ -179,8 +183,8 @@ FAT_FILES=$(FATJAR) $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) $(FREETTS_CLASS) $(JFR
 
 LINUX_LIBS=libaltos32.so libaltos64.so
 
-LINUX_FILES=$(FAT_FILES) $(LINUX_LIBS) $(FIRMWARE) $(DOC)
-LINUX_EXTRA=altosui-fat ../debian/altos.desktop ../debian/altusmetrum.xpm
+LINUX_FILES=$(FAT_FILES) $(LINUX_LIBS) $(FIRMWARE) $(DOC) altos.desktop.in ../icon/altusmetrum.svg
+LINUX_EXTRA=altosui-fat
 
 MACOSX_INFO_PLIST=Info.plist
 MACOSX_FILES=$(FAT_FILES) libaltos.dylib $(MACOSX_INFO_PLIST) $(DOC) ReadMe-Mac.rtf
@@ -195,6 +199,11 @@ clean-local:
 		$(LINUX_DIST) $(LINUX_SH) $(MACOSX_DIST) windows $(WINDOWS_DIST) $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) $(FREETTS_CLASS) \
 		$(JFREECHART_CLASS) $(JCOMMON_CLASS) $(LIBALTOS) Manifest.txt Manifest-fat.txt altos-windows.log altos-windows.nsi \
 		altosui altosui-test altosui-jdb macosx linux
+
+EXTRA_DIST = $(desktop_file).in
+
+$(desktop_file): $(desktop_file).in
+	sed -e 's#%bindir%#@bindir@#' -e 's#%icondir%#$(datadir)/icons/hicolor/scalable/apps#' ${srcdir}/altos.desktop.in > $@
 
 if FATINSTALL
 
@@ -335,8 +344,6 @@ $(LINUX_DIST): $(LINUX_FILES) $(LINUX_EXTRA)
 	-rm -rf linux
 	mkdir -p linux/AltOS
 	cp -p $(LINUX_FILES) linux/AltOS
-	sed -e 's;/usr/bin;%BIN%;' -e 's;/usr/share/pixmaps;%BIN%;' $(srcdir)/../debian/altos.desktop > linux/AltOS/altos.desktop.in
-	cp -p $(srcdir)/../debian/altusmetrum.xpm linux/AltOS/altusmetrum.xpm
 	cp -p altosui-fat linux/AltOS/altosui
 	chmod +x linux/AltOS/altosui
 	tar cjf $@ -C linux AltOS

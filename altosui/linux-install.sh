@@ -144,7 +144,7 @@ BIN="$target_abs"/AltOS
 desktop="$target"/AltOS/altos.desktop
 
 rm -f "$desktop"
-sed "s;%BIN%;$BIN;" "$target"/AltOS/altos.desktop.in > "$desktop"
+sed -e "s;%bindir%;$BIN;" -e "s;%icondir%;$BIN;" "$target"/AltOS/altos.desktop.in > "$desktop"
 
 #
 # Figure out where to install the .desktop file. If we can, write it
@@ -184,6 +184,12 @@ case "$?" in
     echo " failed."
     ;;
 esac
+
+#
+# Install icon to desktop if desired
+#
+
+
 
 finish 0
 
