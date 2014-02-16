@@ -21,6 +21,7 @@ while true; do
 
 	case "$FREQ" in
 	"")
+		echo $SERIAL","$CAL_VALUE >> cal_values
 		exit 0
 		;;
 	*)
@@ -44,3 +45,4 @@ EOF
 		;;
 	esac
 done
+
