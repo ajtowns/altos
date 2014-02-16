@@ -11,6 +11,7 @@ micropeak-windows.nsi
 MicroPeak-Linux-*
 MicroPeak-Mac-*
 MicroPeak-Windows-*
+micropeak.desktop
 *.dll
 *.dylib
 *.so

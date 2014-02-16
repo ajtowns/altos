@@ -141,13 +141,15 @@ esac
 
 BIN="$target_abs"/AltOS
 
-desktop="$target"/AltOS/altos.desktop
-
-rm -f "$desktop"
-sed -e "s;%bindir%;$BIN;" -e "s;%icondir%;$BIN;" "$target"/AltOS/altos.desktop.in > "$desktop"
+for infile in "$target"/AltOS/*.desktop.in; do
+    desktop="$target"/AltOS/`basename "$infile" .in`
+    rm -f "$desktop"
+    sed -e "s;%bindir%;$BIN;" -e "s;%icondir%;$BIN;" "$infile" > "$desktop"
+    chmod +x "$desktop"
+done
 
 #
-# Figure out where to install the .desktop file. If we can, write it
+# Figure out where to install the .desktop files. If we can, write it
 # to the public /usr/share/applications, otherwise, write it to the
 # per-user ~/.local/share/applications
 #
@@ -172,9 +174,9 @@ case "$apps" in
     ;;
 esac
 
-echo -n "Installing .desktop file to $apps..."
+echo -n "Installing .desktop files to $apps..."
 
-cp "$desktop" "$apps"
+cp "$target"/AltOS/*.desktop "$apps"
 
 case "$?" in
 0)
@@ -189,7 +191,48 @@ esac
 # Install icon to desktop if desired
 #
 
+if [ -d $HOME/Desktop ]; then
+    default_desktop=n
+    if [ "$can_ask" = "y" ]; then
+	:
+    else
+	default_desktop=y
+    fi
 
+    answered=n
+    while [ "$answered" = "n" ]; do
+	echo -n "Install icons to desktop? [default: $default_desktop] "
+	if [ "$can_ask" = "y" ]; then
+	    read do_desktop
+	else
+	    echo
+	    do_desktop=""
+	fi
+
+	case "$do_desktop" in
+	    "")
+	    do_desktop=$default_desktop
+	    ;;
+	esac
+
+	case "$do_desktop" in
+	[yYnN]*)
+	    answered=y
+	    ;;
+	esac
+    done
+
+    echo -n "Installing desktop icons..."
+    case "$do_desktop" in
+    [yY]*)
+	for d in "$target"/AltOS/*.desktop; do
+	    ln -f -s "$d" "$HOME/Desktop/"
+	done
+	;;
+    esac
+
+    echo " done."
+fi
 
 finish 0
 
