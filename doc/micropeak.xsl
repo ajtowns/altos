@@ -10,7 +10,7 @@
       <surname>Packard</surname>
     </author>
     <copyright>
-      <year>2012</year>
+      <year>2014</year>
       <holder>Bdale Garbee and Keith Packard</holder>
     </copyright>
     <mediaobject>
