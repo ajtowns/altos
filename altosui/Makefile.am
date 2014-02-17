@@ -204,6 +204,7 @@ EXTRA_DIST = $(desktop_file).in
 
 $(desktop_file): $(desktop_file).in
 	sed -e 's#%bindir%#@bindir@#' -e 's#%icondir%#$(datadir)/icons/hicolor/scalable/apps#' ${srcdir}/altos.desktop.in > $@
+	chmod +x $@
 
 if FATINSTALL
 

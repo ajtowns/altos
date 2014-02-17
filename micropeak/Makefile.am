@@ -92,6 +92,7 @@ EXTRA_DIST = $(desktop_file).in
 
 $(desktop_file): $(desktop_file).in
 	sed -e 's#%bindir%#@bindir@#' -e 's#%icondir%#$(datadir)/icons/hicolor/scalable/apps#' ${srcdir}/micropeak.desktop.in > $@
+	chmod +x $@
 
 LINUX_DIST=MicroPeak-Linux-$(VERSION).tar.bz2
 LINUX_SH=MicroPeak-Linux-$(VERSION).sh
