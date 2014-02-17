@@ -34,6 +34,19 @@ PICTURES=\
 	landed.png \
 	launch-pad.png \
 	load-maps.png \
+	micropeak-app.png \
+	micropeak-back.jpg \
+	micropeak-device-dialog.png \
+	micropeak-dime.jpg \
+	micropeak-download.png \
+	micropeak-graph-configure.png \
+	micropeak-graph.png \
+	micropeak-preferences.png \
+	micropeak-raw-data.png \
+	micropeak-save-dialog.png \
+	micropeak-statistics.png \
+	MicroPeakUSB-2.0-inuse.jpg \
+	MicroPeakUSB-2.0.jpg \
 	scan-channels.png \
 	site-map.png \
 	table.png \
@@ -41,6 +54,7 @@ PICTURES=\
 	telemetrum-v1.1-thside.jpg \
 	telemini-v1-top.jpg \
 	telemini-v2-top.jpg
+
 SVG=\
 	easymini-outline.svg \
 	telemega-outline.svg \
