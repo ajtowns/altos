@@ -31,6 +31,13 @@
 #error Please define HAS_USB
 #endif
 
+#if HAS_SENSOR_ERRORS
+/* Any sensor can set this to mark the flight computer as 'broken' */
+__xdata uint8_t			ao_sensor_errors;
+#endif
+
+__pdata uint16_t		ao_motor_number;	/* number of motors burned so far */
+
 /* Main flight thread. */
 
 __pdata enum ao_flight_state	ao_flight_state;	/* current flight state */
@@ -67,7 +74,8 @@ ao_flight(void)
 				/* Disable the USB controller in flight mode
 				 * to save power
 				 */
-				ao_usb_disable();
+				if (!ao_usb_running)
+					ao_usb_disable();
 #endif
 
 				/* Disable packet mode in pad state */
@@ -112,9 +120,8 @@ ao_flight(void)
 				ao_wakeup(DATA_TO_XDATA(&ao_flight_state));
 			}
 			break;
-		case ao_flight_drogue:
+		default:
 			break;
-			
 		}
 	}
 }
