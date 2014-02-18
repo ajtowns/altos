@@ -116,7 +116,9 @@ ao_log(void)
 				log.u.sensor.pres = ao_data_ring[ao_log_data_pos].ms5607_raw.pres;
 				log.u.sensor.temp = ao_data_ring[ao_log_data_pos].ms5607_raw.temp;
 #endif
+#if HAS_ACCEL
 				log.u.sensor.accel = ao_data_accel(&ao_data_ring[ao_log_data_pos]);
+#endif
 				ao_log_metrum(&log);
 				if (ao_log_state <= ao_flight_coast)
 					next_sensor = log.tick + AO_SENSOR_INTERVAL_ASCENT;
