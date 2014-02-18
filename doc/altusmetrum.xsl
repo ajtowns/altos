@@ -5127,7 +5127,8 @@ NAR #88757, TRA #12200
       <informalfigure>
 	<mediaobject id="TeleMegaTemplate">
 	  <imageobject>
-	    <imagedata format="SVG" fileref="telemega-outline.svg"/>
+	    <imagedata format="SVG" fileref="telemega.svg"
+		       scalefit="0" scale="100" align="center" />
 	  </imageobject>
 	</mediaobject>
       </informalfigure>
@@ -5141,7 +5142,8 @@ NAR #88757, TRA #12200
       <informalfigure>
 	<mediaobject id="TeleMetrumTemplate">
 	  <imageobject>
-	    <imagedata format="SVG" fileref="telemetrum.svg"/>
+	    <imagedata format="SVG" fileref="telemetrum.svg"
+		       scalefit="0" scale="100" align="center" />
 	  </imageobject>
 	</mediaobject>
       </informalfigure>
@@ -5155,7 +5157,8 @@ NAR #88757, TRA #12200
       <informalfigure>
 	<mediaobject id="MiniTemplate">
 	  <imageobject>
-	    <imagedata format="SVG" fileref="easymini-outline.svg"/>
+	    <imagedata format="SVG" fileref="easymini.svg"
+		       scalefit="0" scale="100" align="center" />
 	  </imageobject>
 	</mediaobject>
       </informalfigure>
@@ -5169,7 +5172,8 @@ NAR #88757, TRA #12200
       <informalfigure>
 	<mediaobject id="TeleMiniTemplate">
 	  <imageobject>
-	    <imagedata format="SVG" fileref="telemini.svg"/>
+	    <imagedata format="SVG" fileref="telemini.svg"
+		       scalefit="0" scale="100" align="center" />
 	  </imageobject>
 	</mediaobject>
       </informalfigure>

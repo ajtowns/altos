@@ -6,14 +6,14 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   width="5in"
-   height="2.5in"
-   viewBox="0 0 500 250"
+   width="3in"
+   height="1.25in"
+   viewBox="0 0 300 125"
    preserveaspectratio="none"
    id="svg2"
    version="1.1">
-  <g transform="translate(112.5,75)"
-     style="fill:none;stroke:#000000;stroke-width:1;stroke-linejoin:miter;font-family:Frutiger LT Std">
+  <g transform="translate(12.5,12.5)"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linejoin:miter;font-size:24">
     <!-- outline -->
     <rect width="275" height="100" x="0" y="0"/>
     <!-- holes -->

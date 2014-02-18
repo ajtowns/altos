@@ -56,8 +56,8 @@ PICTURES=\
 	telemini-v2-top.jpg
 
 SVG=\
-	easymini-outline.svg \
-	telemega-outline.svg \
+	easymini.svg \
+	telemega.svg \
 	telemetrum.svg \
 	telemini.svg
 

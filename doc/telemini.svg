@@ -6,26 +6,26 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   width="5in"
-   height="2in"
-   viewBox="0 0 500 200"
+   width="1.75in"
+   height=".75in"
+   viewBox="0 0 175 75"
    preserveaspectratio="none"
    id="svg2"
    version="1.1">
-  <g transform="translate(175,75)"
-     style="fill:none;stroke:#000000;stroke-width:1;stroke-linejoin:miter;font-family:Frutiger LT Std">
+  <g transform="translate(12.5,12.5)"
+     style="fill:none;stroke:#000000;stroke-width:1;stroke-linejoin:miter;font-size:20">
     <!-- outline -->
     <rect width="150" height="50" x="0" y="0"/>
     <!-- holes -->
-    <path d="M135,10 A5,5,0,1,0,145,10 A5,5,0,1,0,135,10 M135,10 l10,0 M140,5 l0,10"/>
-    <path d="M135,40 A5,5,0,1,0,145,40 A5,5,0,1,0,135,40 M135,40 l10,0 M140,35 l0,10"/>
+    <path d="M140,10 m-5,0 a5,5,0,1,0,10,0 a5,5,0,1,0,-10,0 l10,0 m-5,-5 l0,10"/>
+    <path d="M140,40 m-5,0 a5,5,0,1,0,10,0 a5,5,0,1,0,-10,0 l10,0 m-5,-5 l0,10"/>
     <!-- arrow -->
-    <path d="M25,25 l90,0"/>
-    <path style="fill:#000000;stroke:none" d="M115,20 l10,5 l-10,5 z"/>
+    <path d="M25,25 l100,0"/>
+    <path style="fill:#000000;stroke:none" d="M125,20 l10,5 l-10,5 z"/>
     <!-- label -->
     <text x="75" y="20" style="fill:#000000;stroke:none" text-anchor="middle">TeleMini</text>
-    <g transform="rotate(90)">
-      <text x="25" y="-130" style="fill:#000000;stroke:none" text-anchor="middle">UP</text>
+    <g transform="rotate(90)" style="font-size:14">
+      <text x="25" y="-133" style="fill:#000000;stroke:none" text-anchor="middle">UP</text>
     </g>
   </g>
 </svg>
