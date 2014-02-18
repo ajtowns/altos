@@ -69,7 +69,7 @@ FOSTYLE=xorg-fo.xsl
 TEMPLATES=titlepage.templates.xsl
 PDFSTYLE=
 IMAGES=$(PICTURES) $(SVG)
-DOC=$(HTML) $(PDF) $(PICTURES)
+DOC=$(HTML) $(PDF) $(IMAGES)
 
 .SUFFIXES: .xml .xsl .html .pdf
 
