@@ -24,7 +24,7 @@ static __xdata uint16_t	ao_usb_in_bytes;
 static __pdata uint16_t ao_usb_in_bytes_last;
 static __xdata uint16_t	ao_usb_out_bytes;
 static __pdata uint8_t	ao_usb_iif;
-static __pdata uint8_t	ao_usb_running;
+__pdata uint8_t		ao_usb_running;
 
 static void
 ao_usb_set_interrupts(void)
