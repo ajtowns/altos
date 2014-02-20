@@ -187,7 +187,9 @@ ao_send_metrum_sensor(void)
 	telemetry.generic.type = AO_TELEMETRY_METRUM_SENSOR;
 
 	telemetry.metrum_sensor.state = ao_flight_state;
+#if HAS_ACCEL
 	telemetry.metrum_sensor.accel = ao_data_accel(packet);
+#endif
 	telemetry.metrum_sensor.pres = ao_data_pres(packet);
 	telemetry.metrum_sensor.temp = ao_data_temp(packet);
 
@@ -216,9 +218,15 @@ ao_send_metrum_data(void)
 		telemetry.generic.type = AO_TELEMETRY_METRUM_DATA;
 
 		telemetry.metrum_data.ground_pres = ao_ground_pres;
+#if HAS_ACCEL
 		telemetry.metrum_data.ground_accel = ao_ground_accel;
 		telemetry.metrum_data.accel_plus_g = ao_config.accel_plus_g;
 		telemetry.metrum_data.accel_minus_g = ao_config.accel_minus_g;
+#else
+		telemetry.metrum_data.ground_accel = 1;
+		telemetry.metrum_data.accel_plus_g = 0;
+		telemetry.metrum_data.accel_minus_g = 2;
+#endif
 
 		ao_radio_send(&telemetry, sizeof (telemetry));
 		ao_telemetry_metrum_data_cur = ao_telemetry_metrum_data_max;

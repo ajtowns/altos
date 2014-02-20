@@ -46,7 +46,7 @@ static __xdata uint8_t 	ao_usb_ep0_out_len;
 static __xdata uint8_t *__xdata ao_usb_ep0_out_data;
 
 static __xdata uint8_t	ao_usb_in_flushed;
-static __xdata uint8_t	ao_usb_running;
+__xdata uint8_t		ao_usb_running;
 static __xdata uint8_t	ao_usb_configuration;
 static __xdata uint8_t	ueienx_0;
 

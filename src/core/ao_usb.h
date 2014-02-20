@@ -137,4 +137,6 @@ struct ao_usb_line_coding {
 	uint8_t		data_bits;
 } ;
 
+extern __pdata uint8_t ao_usb_running;
+
 #endif /* _AO_USB_H_ */

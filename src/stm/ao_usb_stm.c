@@ -117,7 +117,7 @@ static uint8_t	ao_usb_in_pending;
  * but not pulled to the shadow buffer.
  */
 static uint8_t	ao_usb_out_avail;
-static uint8_t	ao_usb_running;
+uint8_t		ao_usb_running;
 static uint8_t	ao_usb_configuration;
 
 #define AO_USB_EP0_GOT_RESET	1
@@ -727,6 +727,9 @@ ao_usb_ep0_handle(uint8_t receive)
 	if (receive & AO_USB_EP0_GOT_TX_ACK) {
 		debug ("\tgot tx ack\n");
 
+#if HAS_FLIGHT && AO_USB_FORCE_IDLE
+		ao_flight_force_idle = 1;
+#endif
 		/* Wait until the IN packet is received from addr 0
 		 * before assigning our local address
 		 */

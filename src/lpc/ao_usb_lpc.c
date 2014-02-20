@@ -109,7 +109,7 @@ static uint8_t	ao_usb_in_pending;
  * but not pulled to the shadow buffer.
  */
 static uint8_t	ao_usb_out_avail;
-static uint8_t	ao_usb_running;
+uint8_t		ao_usb_running;
 static uint8_t	ao_usb_configuration;
 
 #define AO_USB_EP0_GOT_RESET	1
