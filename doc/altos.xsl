@@ -413,7 +413,7 @@
 	<title>__sfr, __sfr16, __sfr32, __sbit</title>
 	<para>
 	  Access to physical registers in the device use this mode
-	  which declares the variable name, it's type and the
+	  which declares the variable name, its type and the
 	  address it lives at. No memory is allocated for these
 	  variables.
 	</para>
@@ -809,7 +809,7 @@
 	  ao_dma_abort(uint8_t id)
 	</programlisting>
 	<para>
-	  Terminate any in-progress DMA transation, marking its
+	  Terminate any in-progress DMA transaction, marking its
 	  'done' variable with the AO_DMA_ABORTED bit.
 	</para>
       </section>
@@ -894,7 +894,7 @@
 	  ao_dma_abort(uint8_t id)
 	</programlisting>
 	<para>
-	  Terminate any in-progress DMA transation, marking its
+	  Terminate any in-progress DMA transaction, marking its
 	  'done' variable with the AO_DMA_ABORTED bit.
 	</para>
       </section>
@@ -904,7 +904,7 @@
     <title>Stdio interface</title>
     <para>
       AltOS offers a stdio interface over USB, serial and the RF
-      packet link. This provides for control of the device localy or
+      packet link. This provides for control of the device locally or
       remotely. This is hooked up to the stdio functions by providing
       the standard putchar/getchar/flush functions. These
       automatically multiplex the available communication channels;
@@ -944,7 +944,7 @@
       <para>
 	Flushes the current console device output buffer. Any
 	pending characters will be delivered to the target device.
-      xo	  </para>
+      </para>
     </section>
     <section>
       <title>ao_add_stdio</title>
