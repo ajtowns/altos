@@ -5,7 +5,7 @@ AM_JAVACFLAGS=-target 1.6 -encoding UTF-8 -Xlint:deprecation -source 6
 altoslibdir=$(libdir)/altos
 
 altoslib_LTLIBRARIES=libaltos.la
-libaltos_la_LDFLAGS=-version-info 1:0:1
+libaltos_la_LDFLAGS=-version-info 1:0:1 -Wl,-znoexecstack
 
 libaltos_la_SOURCES=\
 	libaltos.c \
