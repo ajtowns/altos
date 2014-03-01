@@ -377,7 +377,15 @@ public class AltosFlashUI
 			while (!link.is_loader()) {
 				link.to_loader();
 
-				java.util.List<AltosDevice> devices = AltosUSBDevice.list(AltosLib.product_altusmetrum);
+				java.util.List<AltosDevice> devices = null;
+
+				for (int tries = 0; tries < 10; tries++) {
+					Thread.sleep(100);
+					devices = AltosUSBDevice.list(AltosLib.product_altusmetrum);
+					if (devices.size() != 0)
+						break;
+				}
+
 				if (devices.size() == 1)
 					device = devices.get(0);
 				else {
