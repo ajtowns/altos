@@ -105,7 +105,7 @@ LIBALTOS= \
 
 desktopdir = $(datadir)/applications
 desktop_file = altos.desktop
-desktop_DATA = $(desktop_file)
+desktop_SCRIPTS = $(desktop_file)
 
 JAR=altosui.jar
 

@@ -75,7 +75,7 @@ WINDOWS_ICON=$(ICONDIR)/micro-peak.ico
 
 desktopdir = $(datadir)/applications
 desktop_file = micropeak.desktop
-desktop_DATA = $(desktop_file)
+desktop_SCRIPTS = $(desktop_file)
 
 all-local: micropeak-test micropeak-jdb $(JAR)
 
