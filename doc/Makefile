@@ -63,7 +63,8 @@ SVG=\
 
 RELNOTES_XSL=$(RELNOTES:.html=.xsl)
 HTML=altusmetrum.html altos.html telemetry.html companion.html micropeak.html $(RELNOTES)
-PDF=altusmetrum.pdf altos.pdf telemetry.pdf companion.pdf micropeak.pdf
+PDF=altusmetrum.pdf altos.pdf telemetry.pdf companion.pdf micropeak.pdf \
+	telemetrum-outline.pdf telemega-outline.pdf easymini-outline.pdf
 HTMLSTYLE=/usr/share/xml/docbook/stylesheet/docbook-xsl/html/docbook.xsl
 FOSTYLE=xorg-fo.xsl
 TEMPLATES=titlepage.templates.xsl
