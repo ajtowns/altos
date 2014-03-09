@@ -192,8 +192,8 @@ main(void)
 	ao_timer_init();
 	ao_dma_init();
 	ao_cmd_init();
-//	ao_lcd_stm_init();
-//	ao_lcd_font_init();
+	ao_lcd_stm_init();
+	ao_lcd_font_init();
 	ao_spi_init();
 	ao_i2c_init();
 	ao_exti_init();
