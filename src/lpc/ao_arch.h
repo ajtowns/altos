@@ -28,9 +28,9 @@
 #define AO_STACK_SIZE	512
 #endif
 
-#define AO_LED_TYPE	uint16_t
-
 #define AO_PORT_TYPE	uint32_t
+
+#define AO_LED_TYPE	AO_PORT_TYPE
 
 #ifndef AO_TICK_TYPE
 #define AO_TICK_TYPE	uint16_t

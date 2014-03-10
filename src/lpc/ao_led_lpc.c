@@ -17,38 +17,38 @@
 
 #include <ao.h>
 
-__pdata uint16_t ao_led_enable;
+__pdata AO_PORT_TYPE ao_led_enable;
 
 void
-ao_led_on(uint16_t colors)
+ao_led_on(AO_PORT_TYPE colors)
 {
 	lpc_gpio.pin[LED_PORT] |= colors;
 }
 
 void
-ao_led_off(uint16_t colors)
+ao_led_off(AO_PORT_TYPE colors)
 {
 	lpc_gpio.pin[LED_PORT] &= ~colors;
 }
 
 void
-ao_led_set(uint16_t colors)
+ao_led_set(AO_PORT_TYPE colors)
 {
-	uint16_t	on = colors & ao_led_enable;
-	uint16_t	off = ~colors & ao_led_enable;
+	AO_PORT_TYPE	on = colors & ao_led_enable;
+	AO_PORT_TYPE	off = ~colors & ao_led_enable;
 
 	ao_led_off(off);
 	ao_led_on(on);
 }
 
 void
-ao_led_toggle(uint16_t colors)
+ao_led_toggle(AO_PORT_TYPE colors)
 {
 	lpc_gpio.pin[LED_PORT] ^= colors;
 }
 
 void
-ao_led_for(uint16_t colors, uint16_t ticks) __reentrant
+ao_led_for(AO_PORT_TYPE colors, uint16_t ticks) __reentrant
 {
 	ao_led_on(colors);
 	ao_delay(ticks);
@@ -56,10 +56,8 @@ ao_led_for(uint16_t colors, uint16_t ticks) __reentrant
 }
 
 void
-ao_led_init(uint16_t enable)
+ao_led_init(AO_PORT_TYPE enable)
 {
-	int	bit;
-
 	ao_led_enable = enable;
 	lpc_scb.sysahbclkctrl |= (1 << LPC_SCB_SYSAHBCLKCTRL_GPIO);
 	lpc_gpio.dir[LED_PORT] |= enable;
