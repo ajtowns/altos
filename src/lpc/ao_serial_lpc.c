@@ -206,8 +206,8 @@ ao_serial_init(void)
 	lpc_nvic_set_enable(LPC_ISR_USART_POS);
 	lpc_nvic_set_priority(LPC_ISR_USART_POS, 0);
 #if USE_SERIAL_0_STDIN
-	ao_add_stdio(_ao_serial_pollchar,
-		     ao_serial_putchar,
+	ao_add_stdio(_ao_serial0_pollchar,
+		     ao_serial0_putchar,
 		     NULL);
 #endif
 }
