@@ -51,6 +51,9 @@
 #ifndef USE_SERIAL_9_STDIN
 #define USE_SERIAL_9_STDIN	0
 #endif
+#ifndef PACKET_HAS_SLAVE
+#define PACKET_HAS_SLAVE	0
+#endif
 
 #define USE_SERIAL_STDIN (USE_SERIAL_0_STDIN +	\
 			  USE_SERIAL_1_STDIN +	\
