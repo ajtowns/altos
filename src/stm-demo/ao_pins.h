@@ -42,13 +42,13 @@
 #define AO_APB2_PRESCALER      	1
 #define AO_RCC_CFGR_PPRE2_DIV	STM_RCC_CFGR_PPRE2_DIV_1
 
-#define HAS_SERIAL_1		1
-#define USE_SERIAL_1_STDIN	1
+#define HAS_SERIAL_1		0
+#define USE_SERIAL_1_STDIN	0
 #define SERIAL_1_PB6_PB7	1
 #define SERIAL_1_PA9_PA10	0
 
 #define HAS_SERIAL_2		0
-#define USE_SERIAL_2_STDIN	1
+#define USE_SERIAL_2_STDIN	0
 #define SERIAL_2_PA2_PA3	0
 #define SERIAL_2_PD5_PD6	1
 
@@ -70,7 +70,7 @@
 
 #define AO_BOOT_CHAIN		1
 
-#define LOW_LEVEL_DEBUG		1
+#define LOW_LEVEL_DEBUG		0
 
 #define LED_PORT_ENABLE		STM_RCC_AHBENR_GPIOBEN
 #define LED_PORT		(&stm_gpiob)
@@ -78,8 +78,7 @@
 #define LED_PIN_BLUE		6
 #define AO_LED_GREEN		(1 << LED_PIN_GREEN)
 #define AO_LED_BLUE		(1 << LED_PIN_BLUE)
-
-#define AO_LED_RED		AO_LED_BLUE	/* a patent lie */
+#define AO_LED_PANIC		AO_LED_BLUE
 
 #define LEDS_AVAILABLE		(AO_LED_BLUE | AO_LED_GREEN)
 

@@ -171,12 +171,38 @@ ao_event(void)
 }
 #endif
 
+static uint8_t ao_blinking = 0;
+
+static void
+ao_blink(void)
+{
+	for (;;) {
+		while (!ao_blinking)
+			ao_sleep(&ao_blinking);
+		while (ao_blinking) {
+			ao_led_toggle(AO_LED_BLUE|AO_LED_GREEN);
+			ao_delay(AO_MS_TO_TICKS(500));
+		}
+	}
+}
+
+static struct ao_task ao_blink_task;
+
+static void
+ao_blink_toggle(void)
+{
+	ao_blinking = !ao_blinking;
+	ao_wakeup(&ao_blinking);
+}
+
+
 __code struct ao_cmds ao_demo_cmds[] = {
 	{ ao_dma_test,	"D\0DMA test" },
 	{ ao_spi_write, "W\0SPI write" },
 	{ ao_spi_read, "R\0SPI read" },
 	{ ao_i2c_write, "i\0I2C write" },
 	{ ao_temp, "t\0Show temp" },
+	{ ao_blink_toggle, "b\0Toggle LED blinking" },
 /*	{ ao_event, "e\0Monitor event queue" }, */
 	{ 0, NULL }
 };
@@ -188,23 +214,26 @@ main(void)
 	
 	ao_task_init();
 
-	ao_serial_init();
+	ao_led_init(LEDS_AVAILABLE);
+	ao_led_on(AO_LED_GREEN);
+	ao_led_off(AO_LED_BLUE);
 	ao_timer_init();
 	ao_dma_init();
 	ao_cmd_init();
-	ao_lcd_stm_init();
-	ao_lcd_font_init();
-	ao_spi_init();
-	ao_i2c_init();
-	ao_exti_init();
+//	ao_lcd_stm_init();
+//	ao_lcd_font_init();
+//	ao_spi_init();
+//	ao_i2c_init();
+//	ao_exti_init();
 //	ao_quadrature_init();
 //	ao_button_init();
 
-	ao_timer_set_adc_interval(100);
+//	ao_timer_set_adc_interval(100);
 
-	ao_adc_init();
+//	ao_adc_init();
 	ao_usb_init();
 
+	ao_add_task(&ao_blink_task, ao_blink, "blink");
 	ao_cmd_register(&ao_demo_cmds[0]);
 	
 	ao_start_scheduler();

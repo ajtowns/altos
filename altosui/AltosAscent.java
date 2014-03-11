@@ -200,6 +200,13 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 				}
 			}
 		}
+
+		void hide() {
+			label.setVisible(false);
+			value.setVisible(false);
+			max_value.setVisible(false);
+		}
+
 		public AscentValueHold (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
 			c.weighty = 1;
@@ -388,7 +395,10 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			apogee.hide();
 		speed.show(state, listener_state);
 		accel.show(state, listener_state);
-		orient.show(state, listener_state);
+		if (state.orient() != AltosLib.MISSING)
+			orient.show(state, listener_state);
+		else
+			orient.hide();
 	}
 
 	public void labels(GridBagLayout layout, int y) {

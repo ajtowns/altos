@@ -26,7 +26,6 @@ ALTOS_SRC = \
 	ao_stdio.c \
 	ao_panic.c \
 	ao_timer.c \
-	ao_serial_stm.c \
 	ao_lcd_stm.c \
 	ao_lcd_font.c \
 	ao_mutex.c \
