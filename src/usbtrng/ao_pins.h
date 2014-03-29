@@ -16,7 +16,6 @@
  */
 
 #define HAS_BEEP	0
-#define	HAS_LED		1
 
 #define AO_STACK_SIZE	384
 

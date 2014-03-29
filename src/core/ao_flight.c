@@ -143,7 +143,7 @@ ao_flight(void)
 				ao_rdf_set(1);
 				ao_telemetry_set_interval(AO_TELEMETRY_INTERVAL_PAD);
 #endif
-#if HAS_LED
+#if AO_LED_RED
 				/* signal successful initialization by turning off the LED */
 				ao_led_off(AO_LED_RED);
 #endif
@@ -160,7 +160,7 @@ ao_flight(void)
 				ao_packet_slave_start();
 #endif
 
-#if HAS_LED
+#if AO_LED_RED
 				/* signal successful initialization by turning off the LED */
 				ao_led_off(AO_LED_RED);
 #endif

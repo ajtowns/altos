@@ -16,7 +16,6 @@
  */
 
 #define HAS_BEEP	0
-#define	HAS_LED		1
 
 /* Crystal on the board */
 #define AO_LPC_CLKIN	12000000
