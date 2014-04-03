@@ -50,12 +50,13 @@ public class AltosState implements Cloneable {
 		private double	set_time;
 		private double	prev_set_time;
 
+		boolean can_max() { return true; }
+
 		void set(double new_value, double time) {
 			if (new_value != AltosLib.MISSING) {
 				value = new_value;
-				if (max_value == AltosLib.MISSING || value > max_value) {
+				if (can_max() && (max_value == AltosLib.MISSING || value > max_value))
 					max_value = value;
-				}
 				set_time = time;
 			}
 		}
@@ -108,7 +109,7 @@ public class AltosState implements Cloneable {
 
 		void set_derivative(AltosValue in) {
 			double	n = in.rate();
-			
+
 			if (n == AltosLib.MISSING)
 				return;
 
@@ -123,7 +124,7 @@ public class AltosState implements Cloneable {
 			/* Clip changes to reduce noise */
 			double	ddt = in.time() - pt;
 			double	ddv = (n - p) / ddt;
-				
+
 			final double max = 100000;
 
 			/* 100gs */
@@ -246,11 +247,11 @@ public class AltosState implements Cloneable {
 		void set_integral(AltosValue in) {
 			computed.set_integral(in);
 		}
-		
+
 		void set_integral(AltosCValue in) {
 			set_integral(in.altos_value());
 		}
-		
+
 		void copy(AltosCValue old) {
 			measured.copy(old.measured);
 			computed.copy(old.computed);
@@ -337,7 +338,7 @@ public class AltosState implements Cloneable {
 	}
 
 	private AltosGroundPressure ground_pressure;
-		
+
 	public double ground_pressure() {
 		return ground_pressure.value();
 	}
@@ -481,7 +482,11 @@ public class AltosState implements Cloneable {
 	}
 
 	class AltosSpeed extends AltosCValue {
-		
+
+		boolean can_max() {
+			return state < AltosLib.ao_flight_fast;
+		}
+
 		void set_accel() {
 			acceleration.set_derivative(this);
 		}
@@ -519,6 +524,11 @@ public class AltosState implements Cloneable {
 	}
 
 	class AltosAccel extends AltosCValue {
+
+		boolean can_max() {
+			return state < AltosLib.ao_flight_fast;
+		}
+
 		void set_measured(double a, double time) {
 			super.set_measured(a, time);
 			if (ascent)
@@ -729,7 +739,7 @@ public class AltosState implements Cloneable {
 		time = old.time;
 		time_change = old.time_change;
 		prev_time = old.time;
-		
+
 		tick = old.tick;
 		prev_tick = old.tick;
 		boost_tick = old.boost_tick;
@@ -747,7 +757,7 @@ public class AltosState implements Cloneable {
 		apogee_delay = old.apogee_delay;
 		main_deploy = old.main_deploy;
 		flight_log_max = old.flight_log_max;
-		
+
 		set = 0;
 
 		ground_pressure.copy(old.ground_pressure);
@@ -831,7 +841,7 @@ public class AltosState implements Cloneable {
 		baro = old.baro;
 		companion = old.companion;
 	}
-	
+
 	void update_time() {
 	}
 
