@@ -224,10 +224,21 @@ public class AltosConvert {
 		return sensor / 32767.0 * supply * 127/27;
 	}
 
-	static double easy_mini_voltage(int sensor) {
-		double	supply = 3.0;
+	static double easy_mini_voltage(int sensor, int serial) {
+		double	supply = 3.3;
+		double	diode_offset = 0.0;
 
-		return sensor / 32767.0 * supply * 127/27;
+		/* early prototypes had a 3.0V regulator */
+		if (serial < 1000)
+			supply = 3.0;
+
+		/* Purple v1.0 boards had the sensor after the
+		 * blocking diode, which drops about 150mV
+		 */
+		if (serial < 1665)
+			diode_offset = 0.150;
+
+		return sensor / 32767.0 * supply * 127/27 + diode_offset;
 	}
 
 	public static double radio_to_frequency(int freq, int setting, int cal, int channel) {
