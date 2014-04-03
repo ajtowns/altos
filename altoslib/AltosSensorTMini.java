@@ -31,9 +31,9 @@ public class AltosSensorTMini {
 
 			if (sensor_tmini == null)
 				return;
-			state.set_battery_voltage(AltosConvert.easy_mini_voltage(sensor_tmini.batt));
-			state.set_apogee_voltage(AltosConvert.easy_mini_voltage(sensor_tmini.apogee));
-			state.set_main_voltage(AltosConvert.easy_mini_voltage(sensor_tmini.main));
+			state.set_battery_voltage(AltosConvert.tele_mini_voltage(sensor_tmini.batt));
+			state.set_apogee_voltage(AltosConvert.tele_mini_voltage(sensor_tmini.apogee));
+			state.set_main_voltage(AltosConvert.tele_mini_voltage(sensor_tmini.main));
 			
 		} catch (TimeoutException te) {
 		}

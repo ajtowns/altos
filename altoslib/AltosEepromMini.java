@@ -43,7 +43,7 @@ public class AltosEepromMini extends AltosEeprom {
 
 	double voltage(AltosState state, int sensor) {
 		if (state.log_format == AltosLib.AO_LOG_FORMAT_EASYMINI)
-			return AltosConvert.easy_mini_voltage(sensor);
+			return AltosConvert.easy_mini_voltage(sensor, state.serial);
 		else
 			return AltosConvert.tele_mini_voltage(sensor);
 	}
