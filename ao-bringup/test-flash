@@ -1,0 +1,119 @@
+#!/usr/bin/nickle
+
+import File;
+
+string timed_read(file f, int timeout) {
+	thread reader = fork func() {
+		try {
+			return fgets(f);
+		} catch Thread::signal(int i) {
+			return "";
+		}
+	}();
+
+	thread killer = fork func() {
+		try {
+			sleep (timeout);
+			Thread::send_signal(reader, 1);
+		} catch Thread::signal(int i) {
+			return;
+		}
+	}();
+
+	poly v = Thread::join(reader);
+	Thread::send_signal(killer, 1);
+	Thread::join(killer);
+	if (is_string(v))
+		return v;
+	return "";
+}
+
+void flush_input(file f) {
+	for (;;) {
+		string s = timed_read(f, 200);
+		if (s == "")
+			break;
+	}
+}
+
+string[*] settings(file f) {
+	string[...] x = {};
+
+	flush_input(f);
+	fprintf (f, "c s\nv\n");
+	flush(f);
+	for (;;) {
+		string l = File::fgets(f);
+		x[dim(x)] = l;
+		if (String::index(l, "software-version") == 0)
+			break;
+	}
+	return x;
+}
+
+string[*] find_setting(string[*] s, string match) {
+	for (int i = 0; i < dim(s); i++)
+		if (String::index(s[i], match) == 0)
+			return String::wordsplit(s[i], " ");
+	return (string[*]) {};
+}
+
+string[*] flash(file f) {
+	string[...] x = {};
+
+	flush_input(f);
+	fprintf (f, "f\nv\n");
+	flush(f);
+	for (;;) {
+		string l = File::fgets(f);
+		x[dim(x)] = l;
+		if (String::index(l, "software-version") == 0)
+			break;
+	}
+	return x;
+}
+
+string[*] find_flash(string[*] s, string match) {
+	for (int i = 0; i < dim(s); i++)
+		if (String::index(s[i], match) >= 0)
+			return String::wordsplit(s[i], " ");
+	return (string[*]) {};
+}
+
+bool
+do_flash(file f, int expected_size) {
+	string[*] i = flash(f);
+	string[*] size = find_flash(i, "Storage size:");
+	string[*] erase = find_flash(i, "Storage erase unit:");
+
+	int actual_size = string_to_integer(size[2]);
+
+	if (actual_size != expected_size) {
+		printf ("weird flash size %d != %d\n", actual_size, expected_size);
+		return false;
+	}
+
+	int actual_erase = string_to_integer(erase[3]);
+
+	if (actual_erase != 65536) {
+		printf ("weird erase size %d\n", actual_erase);
+		return false;
+	}
+
+	printf ("flash size %d erase block %d\n", actual_size, actual_erase);
+
+	return true;
+}
+
+void main () {
+	string	name = argv[1];
+	string	size = argv[2];
+	file	f = open(name, "r+");
+	bool ret = true;
+
+	if (!do_flash(f, string_to_integer(size)))
+		ret = false;
+	exit (ret? 0 : 1);
+}
+
+main();

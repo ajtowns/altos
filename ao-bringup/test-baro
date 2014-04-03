@@ -1,0 +1,117 @@
+#!/usr/bin/nickle
+
+import File;
+
+string timed_read(file f, int timeout) {
+	thread reader = fork func() {
+		try {
+			return fgets(f);
+		} catch Thread::signal(int i) {
+			return "";
+		}
+	}();
+
+	thread killer = fork func() {
+		try {
+			sleep (timeout);
+			Thread::send_signal(reader, 1);
+		} catch Thread::signal(int i) {
+			return;
+		}
+	}();
+
+	poly v = Thread::join(reader);
+	Thread::send_signal(killer, 1);
+	Thread::join(killer);
+	if (is_string(v))
+		return v;
+	return "";
+}
+
+void flush_input(file f) {
+	for (;;) {
+		string s = timed_read(f, 200);
+		if (s == "")
+			break;
+	}
+}
+
+string[*] settings(file f) {
+	string[...] x = {};
+
+	flush_input(f);
+	fprintf (f, "c s\nv\n");
+	flush(f);
+	for (;;) {
+		string l = File::fgets(f);
+		x[dim(x)] = l;
+		if (String::index(l, "software-version") == 0)
+			break;
+	}
+	return x;
+}
+
+string[*] find_setting(string[*] s, string match) {
+	for (int i = 0; i < dim(s); i++)
+		if (String::index(s[i], match) == 0)
+			return String::wordsplit(s[i], " ");
+	return (string[*]) {};
+}
+
+string[*] baro(file f) {
+	string[...] x = {};
+
+	flush_input(f);
+	fprintf (f, "B\n");
+	flush(f);
+	for (;;) {
+		string l = File::fgets(f);
+		x[dim(x)] = l;
+		if (String::index(l, "Altitude:") == 0)
+			break;
+	}
+	return x;
+}
+
+string[*] find_baro(string[*] s, string match) {
+	for (int i = 0; i < dim(s); i++)
+		if (String::index(s[i], match) >= 0)
+			return String::wordsplit(s[i], " ");
+	return (string[*]) {};
+}
+
+bool
+do_baro(file f) {
+	string[*] i = baro(f);
+	string[*] temp = find_baro(i, "Temperature");
+	string[*] alt = find_baro(i, "Altitude");
+
+	real temperature = string_to_integer(temp[2]) / 100.0;
+	real altitude = string_to_integer(alt[1]);
+
+	if (altitude < 0 || 3000 < altitude) {
+		printf ("weird altitude %f\n", altitude);
+		return false;
+	}
+
+	if (temperature < 20 || 30 < temperature) {
+		printf ("weird temperature %f\n", temperature);
+		return false;
+	}
+
+	printf ("altitude %f temperature %f\n", altitude, temperature);
+
+	return true;
+}
+
+void main () {
+	string	name = argv[1];
+	file	f = open(name, "r+");
+	bool ret = true;
+
+	if (!do_baro(f))
+		ret = false;
+	exit (ret? 0 : 1);
+}
+
+main();

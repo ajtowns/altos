@@ -1,0 +1,114 @@
+#!/usr/bin/nickle
+
+import File;
+
+string timed_read(file f, int timeout) {
+	thread reader = fork func() {
+		try {
+			return fgets(f);
+		} catch Thread::signal(int i) {
+			return "";
+		}
+	}();
+
+	thread killer = fork func() {
+		try {
+			sleep (timeout);
+			Thread::send_signal(reader, 1);
+		} catch Thread::signal(int i) {
+			return;
+		}
+	}();
+
+	poly v = Thread::join(reader);
+	Thread::send_signal(killer, 1);
+	Thread::join(killer);
+	if (is_string(v))
+		return v;
+	return "";
+}
+
+void flush_input(file f) {
+	for (;;) {
+		string s = timed_read(f, 200);
+		if (s == "")
+			break;
+	}
+}
+
+string[*] settings(file f) {
+	string[...] x = {};
+
+	flush_input(f);
+	fprintf (f, "c s\nv\n");
+	flush(f);
+	for (;;) {
+		string l = File::fgets(f);
+		x[dim(x)] = l;
+		if (String::index(l, "software-version") == 0)
+			break;
+	}
+	return x;
+}
+
+string[*] find_setting(string[*] s, string match) {
+	for (int i = 0; i < dim(s); i++)
+		if (String::index(s[i], match) == 0)
+			return String::wordsplit(s[i], " ");
+	return (string[*]) {};
+}
+
+string[*] igniters(file f) {
+	string[...] x = {};
+
+	flush_input(f);
+	fprintf (f, "t\nv\n");
+	flush(f);
+	for (;;) {
+		string l = File::fgets(f);
+		x[dim(x)] = l;
+		if (String::index(l, "software-version") == 0)
+			break;
+	}
+	return x;
+}
+
+string[*] find_igniter(string[*] s, string match) {
+	for (int i = 0; i < dim(s); i++)
+		if (String::index(s[i], match) >= 0)
+			return String::wordsplit(s[i], " ");
+	return (string[*]) {};
+}
+
+bool
+do_igniter(file f, string igniter) {
+	string[*] i = igniters(f);
+	string[*] status = find_igniter(i, igniter);
+	if (dim(status) < 4) {
+		printf ("no igniter %s found in %v\n", igniter, i);
+		return false;
+	}
+	if (String::index(status[3], "ready") < 0) {
+		printf("igniter %s status is \"%s\"\n", igniter, status[3]);
+		return false;
+	}
+	fprintf(f, "i DoIt %s\n", igniter);
+	flush(f);
+	flush_input(f);
+	return true;
+}
+
+void main () {
+	string	name = argv[1];
+	string[dim(argv)-2]	igniters = { [i] = argv[i+2] };
+	file	f = open(name, "r+");
+	bool ret = true;
+
+	for (int i = 0; i < dim(igniters); i++) {
+		if (!do_igniter(f, igniters[i]))
+			ret = false;
+	}
+	exit (ret? 0 : 1);
+}
+
+main();

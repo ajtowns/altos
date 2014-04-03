@@ -1,0 +1,78 @@
+#!/bin/sh
+
+if [ -x ../ao-tools/ao-flash/ao-flash-lpc ]; then
+	FLASH_LPC=../ao-tools/ao-flash/ao-flash-lpc
+elif [ -x /usr/bin/ao-flash-lpc ]; then
+	FLASH_LPC=/usr/bin/ao-flash-lpc
+else
+	echo "Can't find ao-flash-lpc!  Aborting."
+	exit 1
+fi
+
+if [ -x ../ao-tools/ao-usbload/ao-usbload ]; then
+	USBLOAD=../ao-tools/ao-usbload/ao-usbload
+elif [ -x /usr/bin/ao-usbload ]; then
+	USBLOAD=/usr/bin/ao-usbload
+else
+	echo "Can't find ao-usbload!  Aborting."
+	exit 1
+fi
+
+VERSION=1.0
+PRODUCT=EasyMini
+#VERSION=0.1
+
+echo "$PRODUCT v$VERSION Turn-On and Calibration Program"
+echo "Copyright 2010 by Bdale Garbee.  Released under GPL v2"
+echo
+echo "Expectations:"
+echo "\t$PRODUCT v$VERSION powered from USB"
+echo "\t\twith ST-Link-V2 cabled to debug header"
+echo
+echo -n "$PRODUCT-$VERSION serial number: "
+read SERIAL
+
+echo $FLASH_LPC
+
+$FLASH_LPC ../src/easymini-v$VERSION/flash-loader/*.elf || exit 1
+
+sleep 2
+
+$USBLOAD --serial=$SERIAL ../src/easymini-v$VERSION/*.ihx || exit 1
+#$USBLOAD --serial=$SERIAL /usr/share/altos/telemega-v$VERSION*.ihx || exit 1
+
+sleep 2
+
+dev=`ao-list | awk '/$PRODUCT-v'"$VERSION"'/ { print $3; exit(0); }'`
+
+case "$dev" in
+/dev/tty*)
+	echo "$PRODUCT found on $dev"
+	;;
+*)
+	echo 'No $PRODUCT-v'"$VERSION"' found'
+	exit 1
+	;;
+esac
+
+echo "Testing igniters. Both should flash"
+./test-igniter "$dev" drogue main
+
+case $? in
+0)
+	;;
+*)
+	echo "failed"
+	exit 1
+esac
+
+echo "Testing baro sensor"
+./test-baro "$dev"
+
+case $? in
+0)
+	;;
+*)
+	echo "failed"
+	exit 1
+esac
