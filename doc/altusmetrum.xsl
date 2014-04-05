@@ -1539,10 +1539,13 @@ NAR #88757, TRA #12200
         first five seconds of operation.
       </para>
       <para>
-        At power on, you will hear three beeps or see three flashes
-        (“S” in Morse code for start up) and then a pause while
-        the altimeter completes initialization and self test, and decides 
-	which mode to enter next.
+        At power on, the altimeter will beep out the battery voltage
+        to the nearest tenth of a volt.  Each digit is represented by
+        a sequence of short “dit” beeps, with a pause between
+        digits. A zero digit is represented with one long “dah”
+        beep. Then there will be a short pause while the altimeter
+        completes initialization and self test, and decides which mode
+        to enter next.
       </para>
       <para>
 	Here's a short summary of all of the modes and the beeping (or
@@ -1570,7 +1573,7 @@ NAR #88757, TRA #12200
 	      <row>
 		<entry>Startup</entry>
 		<entry>S</entry>
-		<entry>dit dit dit</entry>
+		<entry>battery voltage in decivolts</entry>
 		<entry>
 		  <para>
 		    Calibrating sensors, detecting orientation.
