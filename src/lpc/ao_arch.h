@@ -143,4 +143,8 @@ ao_serial_init(void);
 #define AO_BOOT_LOADER_BASE		((uint32_t *) 0x00000000)
 #define HAS_BOOT_LOADER			1
 
+/* ADC definitions */
+
+#define AO_ADC_MAX	32767
+
 #endif /* _AO_ARCH_H_ */

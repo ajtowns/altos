@@ -15,7 +15,8 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-#define HAS_BEEP	1
+#define HAS_BEEP		1
+#define HAS_BATTERY_REPORT	1
 
 #define AO_STACK_SIZE	384
 
@@ -133,3 +134,20 @@ struct ao_adc {
 #define AO_ADC_DUMP(p) \
 	printf("tick: %5u apogee: %5d main: %5d batt: %5d\n", \
 	       (p)->tick, (p)->adc.sense_a, (p)->adc.sense_m, (p)->adc.v_batt)
+
+/*
+ * Voltage divider on ADC battery sampler
+ */
+#define AO_BATTERY_DIV_PLUS	100	/* 100k */
+#define AO_BATTERY_DIV_MINUS	27	/* 27k */
+
+/*
+ * Voltage divider on ADC igniter samplers
+ */
+#define AO_IGNITE_DIV_PLUS	100	/* 100k */
+#define AO_IGNITE_DIV_MINUS	27	/* 27k */
+
+/*
+ * ADC reference in decivolts
+ */
+#define AO_ADC_REFERENCE_DV	33

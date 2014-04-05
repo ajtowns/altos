@@ -326,4 +326,6 @@ void
 ao_p0_isr(void) __interrupt(13);
 #endif
 
+#define AO_ADC_MAX	32767
+
 #endif /* _AO_ARCH_H_ */

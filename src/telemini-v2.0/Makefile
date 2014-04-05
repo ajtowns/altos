@@ -59,6 +59,7 @@ CC1111_SRC = \
 	ao_spi.c \
 	ao_usb.c \
 	ao_convert_pa.c \
+	ao_convert_volt.c \
 	ao_beep.c \
 	ao_timer.c \
 	ao_exti.c \

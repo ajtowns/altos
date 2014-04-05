@@ -12,6 +12,7 @@ TM_SRC = \
 	ao_companion.c \
 	ao_gps_skytraq.c \
 	ao_gps_show.c \
+	ao_convert_volt.c \
 	ao_m25.c
 
 include ../product/Makefile.telemetrum

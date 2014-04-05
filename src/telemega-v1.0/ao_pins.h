@@ -71,6 +71,7 @@
 #define USE_STORAGE_CONFIG	0
 #define HAS_USB			1
 #define HAS_BEEP		1
+#define HAS_BATTERY_REPORT	1
 #define HAS_RADIO		1
 #define HAS_TELEMETRY		1
 #define HAS_APRS		1

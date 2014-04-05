@@ -87,25 +87,45 @@ ao_report_digit(uint8_t digit) __reentrant
 }
 
 static void
-ao_report_altitude(void)
+ao_report_number(int16_t n)
 {
-	__pdata int16_t	agl = ao_max_height;
 	__xdata uint8_t	digits[10];
 	__pdata uint8_t ndigits, i;
 
-	if (agl < 0)
-		agl = 0;
+	if (n < 0)
+		n = 0;
 	ndigits = 0;
 	do {
-		digits[ndigits++] = agl % 10;
-		agl /= 10;
-	} while (agl);
+		digits[ndigits++] = n % 10;
+		n /= 10;
+	} while (n);
 
 	i = ndigits;
 	do
 		ao_report_digit(digits[--i]);
 	while (i != 0);
 }
+
+static void
+ao_report_altitude(void)
+{
+	ao_report_number(ao_max_height);
+}
+
+#if HAS_BATTERY_REPORT
+static void
+ao_report_battery(void)
+{
+	__xdata struct ao_data packet;
+	for (;;) {
+		ao_data_get(&packet);
+		if (packet.adc.v_batt != 0)
+			break;
+		ao_sleep(DATA_TO_XDATA(&ao_sample_data));
+	}
+	ao_report_number(ao_battery_decivolt(packet.adc.v_batt));
+}
+#endif
 
 #if HAS_IGNITE_REPORT
 static uint8_t
@@ -163,7 +183,12 @@ ao_report(void)
 {
 	ao_report_state = ao_flight_state;
 	for(;;) {
-		ao_report_beep();
+#if HAS_BATTERY_REPORT
+		if (ao_flight_state == ao_flight_startup)
+			ao_report_battery();
+		else
+#endif
+			ao_report_beep();
 		if (ao_flight_state == ao_flight_landed) {
 			ao_report_altitude();
 #if HAS_FLIGHT

@@ -17,17 +17,23 @@
 
 #include "ao.h"
 
-#define scale(v,p,m)	((int32_t) (v) * (AO_ADC_REFERENCE_DV * ((p) + (m))) / (AO_ADC_MAX * (m)))
+#define MUL(p,m)	((int32_t) AO_ADC_REFERENCE_DV * ((p) + (m)))
+#define ADD(p,m)	(MUL(p,m)/2)
+#define DIV(p,m)	((int32_t) AO_ADC_MAX * (m))
+#define scale(v,p,m)	(((int32_t) (v) * MUL(p,m) + ADD(p,m)) / DIV(p,m))
 
+#if HAS_APRS || HAS_BATTERY_REPORT
 int16_t
 ao_battery_decivolt(int16_t adc)
 {
 	return scale(adc, AO_BATTERY_DIV_PLUS, AO_BATTERY_DIV_MINUS);
 }
+#endif
 
+#if HAS_APRS
 int16_t
 ao_ignite_decivolt(int16_t adc)
 {
 	return scale(adc, AO_IGNITE_DIV_PLUS, AO_IGNITE_DIV_MINUS);
 }
-
+#endif
