@@ -7,15 +7,10 @@ case "$#" in
 esac
 cmds=/tmp/flash$$
 trap "rm $cmds" 0 1 15
-for file in "$@"; do
-	echo "flash write_image $file"
-done > $cmds
+file="$1"
+echo "program $file verify reset" > $cmds
 openocd \
 	-f interface/stlink-v2.cfg \
 	-f target/lpc11u14.cfg \
-	-c init \
-	-c 'reset halt' \
 	-f $cmds \
-	-c 'reset init' \
-        -c 'reset run' \
 	-c shutdown
