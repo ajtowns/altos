@@ -98,10 +98,32 @@ do_igniter(file f, string igniter) {
 	return true;
 }
 
+file
+open_tty(string name)
+{
+	int i = 0;
+	for (;;) {
+		try {
+			return open (name, "r+");
+		} catch open_error(string error, File::error_type error, string name) {
+			if (error == File::error_type.BUSY) {
+				if (i < 30) {
+					printf ("waiting for %s to be usable\n", name);
+					sleep(2000);
+					continue;
+				}
+			} else {
+				printf ("%s: %s\n", name, error);
+				exit(1);
+			}
+		}
+	}
+}
+
 void main () {
 	string	name = argv[1];
 	string[dim(argv)-2]	igniters = { [i] = argv[i+2] };
-	file	f = open(name, "r+");
+	file	f = open_tty(name);
 	bool ret = true;
 
 	for (int i = 0; i < dim(igniters); i++) {
