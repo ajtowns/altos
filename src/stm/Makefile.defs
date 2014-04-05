@@ -1,4 +1,4 @@
-vpath % ../stm:../product:../drivers:../core:../util:../kalman:../aes:../math:..
+vpath % ../stm:../product:../drivers:../kernel:../util:../kalman:../aes:../math:..
 vpath make-altitude ../util
 vpath make-kalman ../util
 vpath kalman.5c ../kalman
@@ -26,7 +26,7 @@ LIBS=$(PDCLIB_LIBS_M3) -lgcc
 
 WARN_FLAGS=-Wall -Wextra -Werror
 
-AO_CFLAGS=-I. -I../stm -I../core -I../drivers -I../math -I.. $(PDCLIB_INCLUDES)
+AO_CFLAGS=-I. -I../stm -I../kernel -I../drivers -I../math -I.. $(PDCLIB_INCLUDES)
 STM_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m3 -mthumb \
 	-ffreestanding -nostdlib $(AO_CFLAGS) $(WARN_FLAGS)
 

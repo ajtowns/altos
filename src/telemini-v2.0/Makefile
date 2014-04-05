@@ -5,8 +5,8 @@
 TELEMINI_VER=2.0
 TELEMINI_DEF=2_0
 
-vpath %.c ..:../core:../cc1111:../drivers:../product
-vpath %.h ..:../core:../cc1111:../drivers:../product
+vpath %.c ..:../kernel:../cc1111:../drivers:../product
+vpath %.h ..:../kernel:../cc1111:../drivers:../product
 vpath ao-make-product.5c ../util
 
 ifndef VERSION

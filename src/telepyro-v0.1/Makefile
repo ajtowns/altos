@@ -2,7 +2,7 @@
 # AltOS build
 #
 #
-vpath % .:..:../core:../product:../drivers:../avr
+vpath % .:..:../kernel:../product:../drivers:../avr
 vpath ao-make-product.5c ../util
 
 include ../avr/Makefile.defs
@@ -45,7 +45,7 @@ PRODUCT=TelePyro-v0.1
 MCU=atmega32u4
 PRODUCT_DEF=-DTELEPYRO
 IDPRODUCT=0x0011
-CFLAGS = $(PRODUCT_DEF) -I. -I../avr -I../core -I..
+CFLAGS = $(PRODUCT_DEF) -I. -I../avr -I../kernel -I..
 CFLAGS += -mmcu=$(MCU) -Wall -Wstrict-prototypes -O3 -mcall-prologues -DAVR
 
 NICKLE=nickle

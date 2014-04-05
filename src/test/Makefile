@@ -1,4 +1,4 @@
-vpath % ..:../core:../drivers:../util:../micropeak:../aes:../product
+vpath % ..:../kernel:../drivers:../util:../micropeak:../aes:../product
 
 PROGS=ao_flight_test ao_flight_test_baro ao_flight_test_accel ao_flight_test_noisy_accel ao_flight_test_mm \
 	ao_gps_test ao_gps_test_skytraq ao_gps_test_ublox ao_convert_test ao_convert_pa_test ao_fec_test \
@@ -9,7 +9,7 @@ INCS=ao_kalman.h ao_ms5607.h ao_log.h ao_data.h altitude-pa.h altitude.h ao_quat
 
 KALMAN=make-kalman 
 
-CFLAGS=-I.. -I. -I../core -I../drivers -I../micropeak -I../product -O0 -g -Wall
+CFLAGS=-I.. -I. -I../kernel -I../drivers -I../micropeak -I../product -O0 -g -Wall
 
 all: $(PROGS) ao_aprs_data.wav
 
@@ -52,7 +52,7 @@ ao_kalman.h: $(KALMAN)
 	(cd .. && make ao_kalman.h)
 
 ao_fec_test: ao_fec_test.c ao_fec_tx.c ao_fec_rx.c
-	cc $(CFLAGS) -DAO_FEC_DEBUG=1 -o $@ ao_fec_test.c ../core/ao_fec_tx.c ../core/ao_fec_rx.c -lm
+	cc $(CFLAGS) -DAO_FEC_DEBUG=1 -o $@ ao_fec_test.c ../kernel/ao_fec_tx.c ../kernel/ao_fec_rx.c -lm
 
 ao_aprs_test: ao_aprs_test.c ao_aprs.c
 	cc $(CFLAGS) -o $@ ao_aprs_test.c

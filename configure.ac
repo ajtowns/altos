@@ -19,7 +19,7 @@ dnl Process this file with autoconf to create configure.
 
 AC_PREREQ(2.57)
 AC_INIT([altos], 1.3.2.1)
-AC_CONFIG_SRCDIR([src/core/ao.h])
+AC_CONFIG_SRCDIR([src/kernel/ao.h])
 AM_INIT_AUTOMAKE([foreign dist-bzip2])
 AM_MAINTAINER_MODE
 

@@ -2,7 +2,7 @@
 # Tiny AltOS build
 #
 #
-vpath % ../attiny:../drivers:../core:../product:..
+vpath % ../attiny:../drivers:../kernel:../product:..
 vpath ao-make-product.5c ../util
 vpath make-altitude-pa ../util
 
@@ -47,7 +47,7 @@ INC=\
 IDPRODUCT=0
 PRODUCT=NanoPeak-v0.1
 PRODUCT_DEF=-DNANOPEAK
-CFLAGS = $(PRODUCT_DEF) -I. -I../attiny -I../core -I.. -I../drivers -I../product
+CFLAGS = $(PRODUCT_DEF) -I. -I../attiny -I../kernel -I.. -I../drivers -I../product
 CFLAGS += -g -mmcu=$(MCU) -Wall -Wstrict-prototypes -O2 -mcall-prologues -DATTINY
 
 NICKLE=nickle

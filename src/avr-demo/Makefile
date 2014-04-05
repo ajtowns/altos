@@ -2,7 +2,7 @@
 # AltOS build
 #
 #
-vpath % ..:../core:../product:../drivers:../avr
+vpath % ..:../kernel:../product:../drivers:../avr
 vpath make-altitude ..
 vpath make-kalman ..
 vpath kalman.5c ../kalman
@@ -46,7 +46,7 @@ PRODUCT=AvrDemo-v0.0
 MCU=atmega32u4
 PRODUCT_DEF=-DAVR_DEMO
 IDPRODUCT=0x000a
-CFLAGS = $(PRODUCT_DEF) -I. -I../avr -I../core -I..
+CFLAGS = $(PRODUCT_DEF) -I. -I../avr -I../kernel -I..
 CFLAGS += -g -mmcu=$(MCU) -Wall -Wstrict-prototypes -Os -mcall-prologues
 
 NICKLE=nickle

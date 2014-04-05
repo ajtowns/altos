@@ -3,7 +3,7 @@ CC=$(SDCC)
 
 CFLAGS=--model-small --debug --opt-code-speed -DCODESIZE=$(CODESIZE)
 
-CFLAGS += $(PRODUCT_DEF) -I. -I.. -I../core -I../cc1111 -I../drivers -I../product
+CFLAGS += $(PRODUCT_DEF) -I. -I.. -I../kernel -I../cc1111 -I../drivers -I../product
 
 CODESIZE ?= 0x8000
 

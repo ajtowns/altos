@@ -1,4 +1,4 @@
-vpath % ..:../core:../product:../drivers:../stm
+vpath % ..:../kernel:../product:../drivers:../stm
 vpath ao-make-product.5c ../util
 
 ifndef VERSION

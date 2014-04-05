@@ -1,4 +1,4 @@
-vpath % $(TOPDIR)/stm:$(TOPDIR)/product:$(TOPDIR)/drivers:$(TOPDIR)/core:$(TOPDIR)/util:$(TOPDIR)
+vpath % $(TOPDIR)/stm:$(TOPDIR)/product:$(TOPDIR)/drivers:$(TOPDIR)/kernel:$(TOPDIR)/util:$(TOPDIR)
 vpath ao-make-product.5c $(TOPDIR)/util
 
 .SUFFIXES: .elf .ihx
@@ -14,7 +14,7 @@ include $(TOPDIR)/Makedefs
 CC=$(ARM_CC)
 LIBS=$(PDCLIB_LIBS_M3) -lgcc
 
-AO_CFLAGS=-I. -I$(TOPDIR)/stm -I$(TOPDIR)/core -I$(TOPDIR)/drivers -I$(TOPDIR)/product -I$(TOPDIR) $(PDCLIB_INCLUDES)
+AO_CFLAGS=-I. -I$(TOPDIR)/stm -I$(TOPDIR)/kernel -I$(TOPDIR)/drivers -I$(TOPDIR)/product -I$(TOPDIR) $(PDCLIB_INCLUDES)
 STM_CFLAGS=-std=gnu99 -mlittle-endian -mcpu=cortex-m3 -mthumb -ffreestanding -nostdlib $(AO_CFLAGS) $(SAT_CFLAGS)
 
 LDFLAGS=-L$(TOPDIR)/stm -Wl,-Taltos-loader.ld

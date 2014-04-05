@@ -17,8 +17,8 @@ TELEBALLOON_SRC = \
 	ao_gps_skytraq.c \
 	ao_m25.c
 
-vpath %.c ..:../core:../cc1111:../drivers:../product:.
-vpath %.h ..:../core:../cc1111:../drivers:../product:.
+vpath %.c ..:../kernel:../cc1111:../drivers:../product:.
+vpath %.h ..:../kernel:../cc1111:../drivers:../product:.
 vpath ao-make-product.5c ../util
 
 ifndef VERSION
