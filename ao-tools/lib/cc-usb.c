@@ -412,19 +412,35 @@ cc_usb_close_remote(struct cc_usb *cc)
 
 static struct termios	save_termios;
 
+#include <errno.h>
+
 struct cc_usb *
 cc_usb_open(char *tty)
 {
 	struct cc_usb	*cc;
 	struct termios	termios;
+	int		i;
 
 	if (!tty)
 		tty = DEFAULT_TTY;
 	cc = calloc (sizeof (struct cc_usb), 1);
 	if (!cc)
 		return NULL;
-	cc->fd = open(tty, O_RDWR | O_NONBLOCK);
-	if (cc->fd < 0) {
+	i = 0;
+	for (;;) {
+		cc->fd = open(tty, O_RDWR | O_NONBLOCK);
+		if (cc->fd >= 0)
+			break;
+		i++;
+		if (errno == EBUSY || errno == EPERM || errno == EACCES) {
+			fprintf(stderr, "open failed, pausing");
+			perror(tty);
+			if (i < 20) {
+				sleep(3);
+				continue;
+			}
+		}
+
 		perror(tty);
 		free (cc);
 		return NULL;
