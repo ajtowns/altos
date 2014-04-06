@@ -49,6 +49,7 @@ altosui_JAVA = \
 	Altos.java \
 	AltosIdleMonitorUI.java \
 	AltosIgniteUI.java \
+	AltosIgnitor.java \
 	AltosLaunch.java \
 	AltosLaunchUI.java \
 	AltosInfoTable.java \
