@@ -36,28 +36,6 @@ void flush_input(file f) {
 	}
 }
 
-string[*] settings(file f) {
-	string[...] x = {};
-
-	flush_input(f);
-	fprintf (f, "c s\nv\n");
-	flush(f);
-	for (;;) {
-		string l = File::fgets(f);
-		x[dim(x)] = l;
-		if (String::index(l, "software-version") == 0)
-			break;
-	}
-	return x;
-}
-
-string[*] find_setting(string[*] s, string match) {
-	for (int i = 0; i < dim(s); i++)
-		if (String::index(s[i], match) == 0)
-			return String::wordsplit(s[i], " ");
-	return (string[*]) {};
-}
-
 string[*] flash(file f) {
 	string[...] x = {};
 
@@ -65,7 +43,11 @@ string[*] flash(file f) {
 	fprintf (f, "f\nv\n");
 	flush(f);
 	for (;;) {
-		string l = File::fgets(f);
+		string l = timed_read(f, 1000);
+		if (l == "") {
+			File::fprintf(stderr, "Read timedout\n");
+			exit(1);
+		}
 		x[dim(x)] = l;
 		if (String::index(l, "software-version") == 0)
 			break;

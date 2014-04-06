@@ -1,0 +1,63 @@
+#!/bin/sh
+
+VERSION=1.0
+PRODUCT=EasyMini
+BASE=`echo $PRODUCT | tr 'A-Z' 'a-z'`
+
+echo "$PRODUCT-v$VERSION Test Program"
+echo "Copyright 2014 by Keith Packard.  Released under GPL v2"
+echo
+echo "Expectations:"
+echo "\t$PRODUCT v$VERSION powered from USB"
+echo
+
+ret=1
+ao-list | while read product serial dev; do
+    case "$product" in
+	"$PRODUCT-v$VERSION")
+
+	    echo "Testing $product $serial $dev"
+
+	    echo "Testing igniters. Both should flash"
+	    ./test-igniter "$dev" drogue main
+
+	    case $? in
+		0)
+		    ;;
+		*)
+		    echo "failed"
+		    exit 1
+	    esac
+
+	    echo "Testing baro sensor"
+	    ./test-baro "$dev"
+
+	    case $? in
+		0)
+		    ;;
+		*)
+		    echo "failed"
+		    exit 1
+	    esac
+
+	    FLASHSIZE=1048576
+
+	    echo "Testing flash"
+	    ./test-flash "$dev" "$FLASHSIZE"
+
+	    case $? in
+		0)
+		    ;;
+		*)
+		    echo "failed"
+		    exit 1
+	    esac
+
+	    echo "$PRODUCT-v$VERSION" serial "$serial" is ready to ship
+	    ret=0
+	    ;;
+	*)
+	    echo "Skipping $product $serial $dev"
+	    ;;
+    esac
+done

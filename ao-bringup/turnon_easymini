@@ -30,67 +30,38 @@ echo "Expectations:"
 echo "\t$PRODUCT v$VERSION powered from USB"
 echo "\t\twith ST-Link-V2 cabled to debug header"
 echo
-echo -n "$PRODUCT-$VERSION serial number: "
-read SERIAL
 
-echo $FLASH_LPC
+case $# in
+    1)
+	SERIAL="$1"
+	echo "$PRODUCT-$VERSION serial number: $SERIAL" 
+	;;
+    0)
+	echo -n "$PRODUCT-$VERSION serial number: "
+	read SERIAL
+	;;
+    *)
+	echo "Usage: $0 <serial-number>" 1>&2
+	exit 1;
+	;;
+esac
 
-$FLASH_LPC ../src/$BASE-v$VERSION/flash-loader/$BASE-v$VERSION-altos-flash-*.elf || exit 1
+FLASH_FILE=../src/$BASE-v$VERSION/flash-loader/$BASE-v$VERSION-altos-flash-*.elf
 
-sleep 1
+echo $FLASH_LPC $FLASH_FILE
 
-echo $USBLOAD
+$FLASH_LPC $FLASH_FILE || exit 1
 
-$USBLOAD --serial=$SERIAL ../src/$BASE-v$VERSION/*.ihx || exit 1
+sleep 10
+
+ALTOS_FILE=../src/$BASE-v$VERSION/*.ihx
+
+echo $USBLOAD $ALTOS_FILE
+
+$USBLOAD --serial=$SERIAL $ALTOS_FILE || exit 1
 
 sleep 2
 
-dev=`ao-list | awk '/'"$PRODUCT"'-v'"$VERSION"'/ { print $3; exit(0); }'`
+./test-easymini
 
-case "$dev" in
-/dev/tty*)
-	echo "$PRODUCT found on $dev"
-	;;
-*)
-	echo 'No '"$PRODUCT"'-v'"$VERSION"' found'
-	exit 1
-	;;
-esac
-
-echo "Testing igniters. Both should flash"
-./test-igniter "$dev" drogue main
-
-case $? in
-0)
-	;;
-*)
-	echo "failed"
-	exit 1
-esac
-
-echo "Testing baro sensor"
-./test-baro "$dev"
-
-case $? in
-0)
-	;;
-*)
-	echo "failed"
-	exit 1
-esac
-
-FLASHSIZE=1048576
-
-echo "Testing flash"
-./test-flash "$dev" "$FLASHSIZE"
-
-case $? in
-0)
-	;;
-*)
-	echo "failed"
-	exit 1
-esac
-
-echo "$PRODUCT-v$VERSION" serial "$SERIAL" is ready to ship
-exit 0
+exit $?
