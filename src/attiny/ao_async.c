@@ -52,10 +52,6 @@ ao_async_byte(uint8_t byte)
 
 	ao_arch_block_interrupts();
 
-#if AO_LED_SERIAL != 4
-#error "expect AO_LED_SERIAL to be 4"
-#endif
-
 	/* Ok, this is a bit painful.
 	 * We need this loop to be precisely timed, which
 	 * means knowing exactly how many instructions will
@@ -72,18 +68,45 @@ ao_async_byte(uint8_t byte)
 		"	andi	%[v], %[led_mask]\n"	// mask to clear LED bit
 		"	mov	%[bit], %[w_lo]\n"	// get current data byte
 		"	andi	%[bit], 0x01\n"		// get current data bit
-		"	swap	%[bit]\n"		// rotate by 4 (AO_LED_SERIAL is 4)
-		"	andi	%[bit], 0xf0\n"		// mask off other 4 bits
+#if AO_LED_SERIAL >= 1
+		"	add	%[bit],%[bit]\n"	// shift by one
+#else
+		"	nop\n"
+#endif
+#if AO_LED_SERIAL >= 2
+		"	add	%[bit],%[bit]\n"	// shift by one
+#else
+		"	nop\n"
+#endif
+#if AO_LED_SERIAL >= 3
+		"	add	%[bit],%[bit]\n"	// shift by one
+#else
+		"	nop\n"
+#endif
+#if AO_LED_SERIAL >= 4
+		"	add	%[bit],%[bit]\n"	// shift by one
+#else
+		"	nop\n"
+#endif
+#if AO_LED_SERIAL >= 5
+		"	add	%[bit],%[bit]\n"	// shift by one
+#else
+		"	nop\n"
+#endif
+#if AO_LED_SERIAL >= 6
+		"	add	%[bit],%[bit]\n"	// shift by one
+#else
+		"	nop\n"
+#endif
+#if AO_LED_SERIAL >= 7
+		"	add	%[bit],%[bit]\n"	// shift by one
+#else
+		"	nop\n"
+#endif
 		"	or	%[v], %[bit]\n"		// add to register
 		"	out	%[port], %[v]\n"	// write current value
 		"	lsr	%[w_hi]\n"		// shift data
 		"	ror	%[w_lo]\n"		//  ...
-		"	nop\n"
-		"	nop\n"
-		"	nop\n"
-		"	nop\n"
-		"	nop\n"
-
 		"	nop\n"
 		"	nop\n"
 		"	nop\n"

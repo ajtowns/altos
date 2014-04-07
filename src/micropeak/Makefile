@@ -84,8 +84,8 @@ $(PROG).hex: $(PROG)
 load: $(PROG).hex
 	$(LOADCMD) $(LOADARG)$(PROG).hex
 
-#load-slow: $(PROG).hex
-#	$(LOADCMD) $(LOADSLOW) $(LOADARG)$(PROG).hex
+load-slow: $(PROG).hex
+	$(LOADCMD) $(LOADSLOW) $(LOADARG)$(PROG).hex
 
 ao_product.h: ao-make-product.5c ../Version
 	$(call quiet,NICKLE,$<) $< -m altusmetrum.org -i $(IDPRODUCT) -p $(PRODUCT) -v $(VERSION) > $@
