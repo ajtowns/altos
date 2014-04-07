@@ -351,9 +351,22 @@ public class AltosConfigData implements Iterable<String> {
 						       channel);
 	}
 
+	boolean use_flash_for_config() {
+		if (product.startsWith("TeleMega"))
+			return false;
+		if (product.startsWith("TeleMetrum-v2"))
+			return false;
+		return true;
+	}
+
+
 	public int log_limit() {
-		if (storage_size > 0 && storage_erase_unit > 0) {
-			int	log_limit = storage_size - storage_erase_unit;
+		if (storage_size > 0) {
+			int	log_limit = storage_size;
+
+			if (storage_erase_unit > 0 && use_flash_for_config())
+				log_limit -= storage_erase_unit;
+
 			if (log_limit > 0)
 				return log_limit / 1024;
 		}
@@ -410,15 +423,20 @@ public class AltosConfigData implements Iterable<String> {
 		dest.set_radio_calibration(radio_calibration);
 		dest.set_radio_frequency(frequency());
 		boolean max_enabled = true;
+
+		if (log_limit() == 0)
+			max_enabled = false;
+
 		switch (log_format) {
 		case AltosLib.AO_LOG_FORMAT_TINY:
 			max_enabled = false;
 			break;
 		default:
-			if (stored_flight >= 0)
+			if (stored_flight > 0)
 				max_enabled = false;
 			break;
 		}
+
 		dest.set_flight_log_max_enabled(max_enabled);
 		dest.set_radio_enable(radio_enable);
 		dest.set_flight_log_max_limit(log_limit());

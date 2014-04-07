@@ -132,9 +132,19 @@ public class AltosConfigUI
 		}
 	}
 
+	boolean is_telemini_v1() {
+		String	product = product_value.getText();
+		return product != null && product.startsWith("TeleMini-v1");
+	}
+
 	boolean is_telemini() {
 		String	product = product_value.getText();
 		return product != null && product.startsWith("TeleMini");
+	}
+
+	boolean is_easymini() {
+		String	product = product_value.getText();
+		return product != null && product.startsWith("EasyMini");
 	}
 
 	boolean is_telemetrum() {
@@ -167,12 +177,10 @@ public class AltosConfigUI
 		if (flight_log_max_value.isEnabled())
 			flight_log_max_value.setToolTipText("Size reserved for each flight log (in kB)");
 		else {
-			if (is_telemetrum())
-				flight_log_max_value.setToolTipText("Cannot set max value with flight logs in memory");
-			else if (is_telemini())
-				flight_log_max_value.setToolTipText("TeleMini stores only one flight");
+			if (is_telemini_v1())
+				flight_log_max_value.setToolTipText("TeleMini-v1 stores only one flight");
 			else
-				flight_log_max_value.setToolTipText("Cannot set max flight log value");
+				flight_log_max_value.setToolTipText("Cannot set max value with flight logs in memory");
 		}
 	}
 
@@ -189,8 +197,8 @@ public class AltosConfigUI
 		else {
 			if (is_telemetrum())
 				pad_orientation_value.setToolTipText("Older TeleMetrum firmware must fly antenna forward");
-			else if (is_telemini())
-				pad_orientation_value.setToolTipText("TeleMini doesn't care how it is mounted");
+			else if (is_telemini() || is_easymini())
+				pad_orientation_value.setToolTipText("TeleMini and EasyMini don't care how they are mounted");
 			else
 				pad_orientation_value.setToolTipText("Can't select orientation");
 		}
@@ -742,14 +750,14 @@ public class AltosConfigUI
 	String get_main_deploy_label() {
 		return String.format("Main Deploy Altitude(%s):", AltosConvert.height.show_units());
 	}
-	
+
 	String[] main_deploy_values() {
 		if (AltosConvert.imperial_units)
 			return main_deploy_values_ft;
 		else
 			return main_deploy_values_m;
 	}
-			
+
 	void set_main_deploy_values() {
 		String[]	v = main_deploy_values();
 		while (main_deploy_value.getItemCount() > 0)
@@ -758,7 +766,7 @@ public class AltosConfigUI
 			main_deploy_value.addItem(v[i]);
 		main_deploy_value.setMaximumRowCount(v.length);
 	}
-	
+
 	public void units_changed(boolean imperial_units) {
 		String v = main_deploy_value.getSelectedItem().toString();
 		main_deploy_label.setText(get_main_deploy_label());
@@ -834,7 +842,6 @@ public class AltosConfigUI
 	}
 
 	public void set_flight_log_max(int new_flight_log_max) {
-		flight_log_max_value.setEnabled(new_flight_log_max > 0);
 		flight_log_max_value.setSelectedItem(Integer.toString(new_flight_log_max));
 		set_flight_log_max_tool_tip();
 	}
