@@ -8,6 +8,9 @@ vpath make-altitude-pa ../util
 
 include ../avr/Makefile.defs
 
+PUBLISH_DIR=$(HOME)/altusmetrumllc/Binaries
+PUBLISH_FILE=$(PUBLISH_DIR)/$(PROG)-$(VERSION).hex
+
 MCU=attiny85
 DUDECPUTYPE=t85
 #PROGRAMMER=stk500v2 -P usb
@@ -81,8 +84,8 @@ $(PROG).hex: $(PROG)
 load: $(PROG).hex
 	$(LOADCMD) $(LOADARG)$(PROG).hex
 
-load-slow: $(PROG).hex
-	$(LOADCMD) $(LOADSLOW) $(LOADARG)$(PROG).hex
+#load-slow: $(PROG).hex
+#	$(LOADCMD) $(LOADSLOW) $(LOADARG)$(PROG).hex
 
 ao_product.h: ao-make-product.5c ../Version
 	$(call quiet,NICKLE,$<) $< -m altusmetrum.org -i $(IDPRODUCT) -p $(PRODUCT) -v $(VERSION) > $@
@@ -97,6 +100,16 @@ distclean:	clean
 clean:
 	rm -f *.o $(PROG) $(PROG).hex
 	rm -f ao_product.h
+
+
+publish: $(PROG).hex
+	cp -a $(PROG).hex $(PUBLISH_FILE)
+
+load-product:
+	$(LOADCMD) $(LOADARG)$(PUBLISH_FILE)
+
+load-product-slow:
+	$(LOADCMD) $(LOADSLOW) $(LOADARG)$(PUBLISH_FILE)
 
 ../altitude-pa.h: make-altitude-pa
 	nickle $< > $@
