@@ -123,10 +123,10 @@ public class AltosConfigureUI
 		"Bottom",
 		"Bottom right",
 	};
-		
+
 	public void add_position() {
 		pane.add(new JLabel ("Menu position"), constraints(0, 1));
-		
+
 		position_value = new JComboBox (position_names);
 		position_value.setMaximumRowCount(position_names.length);
 		int position = AltosUIPreferences.position();

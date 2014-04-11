@@ -132,7 +132,7 @@ public class AltosEepromDownload implements Runnable {
 
 		CheckFile(false);
 	}
-	
+
 	void CaptureLog(AltosEepromLog log) throws IOException, InterruptedException, TimeoutException, ParseException {
 		int			block, state_block = 0;
 		int			log_format = flights.config_data.log_format;

@@ -63,22 +63,22 @@ public class AltosConfigPyroUI
 
 		public void itemStateChanged(ItemEvent e) {
 			set_enable(enable.isSelected());
-			if (!setting) 
+			if (!setting)
 				ui.set_dirty();
 		}
 
 		public void changedUpdate(DocumentEvent e) {
-			if (!setting) 
+			if (!setting)
 				ui.set_dirty();
 		}
 
 		public void insertUpdate(DocumentEvent e) {
-			if (!setting) 
+			if (!setting)
 				ui.set_dirty();
 		}
 
 		public void removeUpdate(DocumentEvent e) {
-			if (!setting) 
+			if (!setting)
 				ui.set_dirty();
 		}
 
@@ -149,7 +149,7 @@ public class AltosConfigPyroUI
 			enable = new JCheckBox();
 			enable.addItemListener(this);
 			pane.add(enable, c);
-			
+
 			if ((flag & AltosPyro.pyro_no_value) == 0) {
 				c = new GridBagConstraints();
 				c.gridx = x+1; c.gridy = y;
@@ -224,7 +224,7 @@ public class AltosConfigPyroUI
 
 			items = new PyroItem[nrow];
 			int row = 0;
-			
+
 			GridBagConstraints	c;
 			c = new GridBagConstraints();
 			c.gridx = x; c.gridy = y;
@@ -371,7 +371,7 @@ public class AltosConfigPyroUI
 		pane.add(close, c);
 		close.addActionListener(this);
 		close.setActionCommand("Close");
-		
+
 		addWindowListener(new ConfigListener(this, owner));
 		AltosPreferences.register_units_listener(this);
 	}

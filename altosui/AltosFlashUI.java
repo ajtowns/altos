@@ -231,7 +231,7 @@ public class AltosFlashUI
 		javax.swing.filechooser.FileFilter ihx_filter = new FileNameExtensionFilter("Flash Image", "ihx");
 		hexfile_chooser.addChoosableFileFilter(ihx_filter);
 		hexfile_chooser.setFileFilter(ihx_filter);
-		
+
 		if (!is_pair_programmed() && !device.matchProduct(AltosLib.product_altusmetrum)) {
 			for (int i = 0; i < filters.length; i++) {
 				if (device != null && device.matchProduct(filters[i].product))
@@ -247,7 +247,7 @@ public class AltosFlashUI
 		if (file == null)
 			return false;
 		AltosUIPreferences.set_firmwaredir(file.getParentFile());
-		
+
 		return true;
 	}
 

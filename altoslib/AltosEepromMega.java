@@ -70,7 +70,7 @@ public class AltosEepromMega extends AltosEeprom {
 	public int year() { return data8(14); }
 	public int month() { return data8(15); }
 	public int day() { return data8(16); }
-	
+
 	/* AO_LOG_GPS_SAT elements */
 	public int nsat() { return data16(0); }
 	public int svid(int n) { return data8(2 + n * 2); }

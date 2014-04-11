@@ -40,7 +40,7 @@ public class AltosSensorTM {
 			state.set_battery_voltage(AltosConvert.cc_battery_to_voltage(sensor_tm.batt));
 			state.set_apogee_voltage(AltosConvert.cc_ignitor_to_voltage(sensor_tm.drogue));
 			state.set_main_voltage(AltosConvert.cc_ignitor_to_voltage(sensor_tm.main));
-			
+
 		} catch (TimeoutException te) {
 		}
 	}

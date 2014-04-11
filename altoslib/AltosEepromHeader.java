@@ -162,7 +162,7 @@ public class AltosEepromHeader extends AltosEeprom {
 			break;
 		}
 	}
-	
+
 	public AltosEepromHeader (String[] tokens) {
 		last = false;
 		valid = true;
@@ -269,7 +269,7 @@ public class AltosEepromHeader extends AltosEeprom {
 		for (AltosEepromHeader header : headers) {
 			header.write(out);
 		}
-		
+
 	}
 
 	public AltosEepromHeader (String line) {

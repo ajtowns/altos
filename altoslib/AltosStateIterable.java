@@ -24,6 +24,6 @@ public abstract class AltosStateIterable implements Iterable<AltosState> {
 
 	public void write_comments (PrintStream out) {
 	}
-	
+
 	public abstract void write(PrintStream out);
 }

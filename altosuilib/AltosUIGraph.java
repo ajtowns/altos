@@ -82,7 +82,7 @@ public class AltosUIGraph implements AltosUnitsListener {
 	public void addSeries(String label, int fetch, AltosUnits units, Color color) {
 		addSeries(label, fetch, units, color, true, newAxis(label, units, color));
 	}
-	
+
 	public void addMarker(String label, int fetch, Color color) {
 		AltosUIMarker		marker = new AltosUIMarker(fetch, color, plot);
 		if (enable != null)
@@ -131,7 +131,7 @@ public class AltosUIGraph implements AltosUnitsListener {
 		this.axis_index = 0;
 
 		xAxis = new NumberAxis("Time (s)");
-		
+
 		xAxis.setAutoRangeIncludesZero(true);
 
 		plot = new XYPlot();

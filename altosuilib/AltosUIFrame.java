@@ -45,7 +45,7 @@ public class AltosUIFrame extends JFrame implements AltosUIListener, AltosPositi
 	};
 
 	static public String[] icon_names;
-	
+
 	static public void set_icon_names(String[] new_icon_names) { icon_names = new_icon_names; }
 
 	public String[] icon_names() {
@@ -57,7 +57,7 @@ public class AltosUIFrame extends JFrame implements AltosUIListener, AltosPositi
 	public void set_icon() {
 		ArrayList<Image> icons = new ArrayList<Image>();
 		String[] icon_names = icon_names();
-		
+
 		for (int i = 0; i < icon_names.length; i++) {
 			java.net.URL imgURL = AltosUIFrame.class.getResource(icon_names[i]);
 			if (imgURL != null)
@@ -65,14 +65,14 @@ public class AltosUIFrame extends JFrame implements AltosUIListener, AltosPositi
 		}
 		setIconImages(icons);
 	}
-			
+
 	private boolean location_by_platform = true;
 
 	public void setLocationByPlatform(boolean lbp) {
 		location_by_platform = lbp;
 		super.setLocationByPlatform(lbp);
 	}
-		
+
 	public void setSize() {
 		/* Smash sizes around so that the window comes up in the right shape */
 		Insets i = getInsets();
@@ -153,7 +153,7 @@ public class AltosUIFrame extends JFrame implements AltosUIListener, AltosPositi
 				setPosition(position);
 		}
 	}
-		
+
 	void init() {
 		AltosUIPreferences.register_ui_listener(this);
 		AltosUIPreferences.register_position_listener(this);

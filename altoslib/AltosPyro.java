@@ -105,7 +105,7 @@ public class AltosPyro {
 	private static HashMap<Integer,AltosUnits> pyro_to_units = new HashMap<Integer,AltosUnits>();
 
 	private static HashMap<Integer,Double> pyro_to_scale = new HashMap<Integer,Double>();
-	
+
 	private static void insert_map(int flag, String string, String name, AltosUnits units, double scale) {
 		string_to_pyro.put(string, flag);
 		pyro_to_string.put(flag, string);
@@ -114,7 +114,7 @@ public class AltosPyro {
 			pyro_to_units.put(flag, units);
 		pyro_to_scale.put(flag, scale);
 	}
-	
+
 	public static int string_to_pyro(String name) {
 		if (string_to_pyro.containsKey(name))
 			return string_to_pyro.get(name);
@@ -174,7 +174,7 @@ public class AltosPyro {
 
 		insert_map(pyro_after_motor, pyro_after_motor_string, pyro_after_motor_name, null, 1.0);
 		insert_map(pyro_delay, pyro_delay_string, pyro_delay_name, null, pyro_delay_scale);
-		
+
 		insert_map(pyro_state_less, pyro_state_less_string, pyro_state_less_name, null, 1.0);
 		insert_map(pyro_state_greater_or_equal, pyro_state_greater_or_equal_string, pyro_state_greater_or_equal_name, null, 1.0);
 	}

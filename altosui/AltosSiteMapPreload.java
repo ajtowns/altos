@@ -178,7 +178,7 @@ class AltosSites extends Thread {
 		try {
 			URLConnection uc = url.openConnection();
 			//int length = uc.getContentLength();
-			
+
 			InputStreamReader in_stream = new InputStreamReader(uc.getInputStream(), Altos.unicode_set);
 			BufferedReader in = new BufferedReader(in_stream);
 
@@ -222,7 +222,7 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 	AltosSites	sites;
 	JLabel		site_list_label;
 	JComboBox	site_list;
-		
+
 	JToggleButton	load_button;
 	boolean		loading;
 	JButton		close_button;
@@ -347,7 +347,7 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 		pbar.setValue(0);
 		pbar.setString("");
 		pbar.setStringPainted(true);
-		
+
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.CENTER;
 		c.insets = i;
@@ -373,7 +373,7 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 		c.gridwidth = 1;
 
 		pane.add(site_list_label, c);
-		
+
 		site_list = new JComboBox(new String[] { "Site List" });
 		site_list.addItemListener(this);
 
@@ -390,7 +390,7 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 		c.gridwidth = 1;
 
 		pane.add(site_list, c);
-		
+
 		lat = new AltosMapPos(owner,
 				      "Latitude:",
 				      lat_hemi_names,
@@ -407,7 +407,7 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 		c.anchor = GridBagConstraints.CENTER;
 
 		pane.add(lat, c);
-		
+
 		lon = new AltosMapPos(owner,
 				      "Longitude:",
 				      lon_hemi_names,
@@ -429,7 +429,7 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 		load_button = new JToggleButton("Load Map");
 		load_button.addActionListener(this);
 		load_button.setActionCommand("load");
-		
+
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
 		c.insets = i;
@@ -446,7 +446,7 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 		close_button = new JButton("Close");
 		close_button.addActionListener(this);
 		close_button.setActionCommand("close");
-		
+
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
 		c.insets = i;

@@ -71,7 +71,7 @@ class AltosEditFreqUI extends AltosUIDialog implements ActionListener {
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.insets = new Insets (4,4,4,4);
-		
+
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.WEST;
 		c.gridx = 0;
@@ -126,7 +126,7 @@ class AltosEditFreqUI extends AltosUIDialog implements ActionListener {
 		c.weightx = 0;
 		c.weighty = 0;
 		pane.add(ok_button, c);
-		
+
 		cancel_button = new JButton("Cancel");
 		cancel_button.setActionCommand("cancel");
 		cancel_button.addActionListener(this);
@@ -139,7 +139,7 @@ class AltosEditFreqUI extends AltosUIDialog implements ActionListener {
 		c.weightx = 0;
 		c.weighty = 0;
 		pane.add(cancel_button, c);
-		
+
 		if (existing == null)
 			setTitle("Add New Frequency");
 		else {
@@ -151,7 +151,7 @@ class AltosEditFreqUI extends AltosUIDialog implements ActionListener {
 
 		pack();
 		setLocationRelativeTo(frame);
-		
+
 	}
 
 	public AltosEditFreqUI(Frame in_frame) {
@@ -290,7 +290,7 @@ public class AltosConfigFreqUI extends AltosUIDialog implements ActionListener {
 	public AltosFrequency[] frequencies() {
 		return frequencies.frequencies();
 	}
-	
+
 	public AltosConfigFreqUI(Frame in_frame,
 				 AltosFrequency[] in_frequencies) {
 		super(in_frame, "Manage Frequencies", true);

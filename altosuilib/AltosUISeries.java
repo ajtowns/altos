@@ -38,7 +38,7 @@ class AltosUITime extends AltosUnits {
 	public double value(double v, boolean imperial_units) { return v; }
 
 	public double inverse(double v, boolean imperial_unis) { return v; }
-	
+
 	public String show_units(boolean imperial_units) { return "s"; }
 
 	public String say_units(boolean imperial_units) { return "seconds"; }
@@ -60,7 +60,7 @@ public class AltosUISeries extends XYSeries implements AltosUIGrapher {
 	XYItemRenderer	renderer;
 	int		fetch;
 	boolean		enable;
-	
+
 	public void set_units() {
 		axis.set_units();
 		StandardXYToolTipGenerator	ttg;

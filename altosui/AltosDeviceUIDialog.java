@@ -46,7 +46,7 @@ public class AltosDeviceUIDialog extends AltosDeviceDialog {
 		buttonPane.add(manage_bluetooth_button);
 		buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
 	}
-	
+
 	public void actionPerformed(ActionEvent e) {
 		super.actionPerformed(e);
 		if ("manage".equals(e.getActionCommand())) {

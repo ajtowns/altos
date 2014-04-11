@@ -226,7 +226,7 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay, A
 			// Telemetry format menu
 			if (reader.supports_telemetry(Altos.ao_telemetry_standard)) {
 				telemetries = new JComboBox();
-				for (int i = 1; i <= Altos.ao_telemetry_max; i++) 
+				for (int i = 1; i <= Altos.ao_telemetry_max; i++)
 					telemetries.addItem(Altos.telemetry_name(i));
 				int telemetry = AltosPreferences.telemetry(serial);
 				if (telemetry <= Altos.ao_telemetry_off ||

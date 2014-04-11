@@ -55,7 +55,7 @@ public class AltosPreferences {
 
 	/* Launcher channel preference name */
 	public final static String launcherChannelPreference = "LAUNCHER-CHANNEL";
-	
+
 	/* Default logdir is ~/TeleMetrum */
 	public final static String logdirName = "TeleMetrum";
 
@@ -349,7 +349,7 @@ public class AltosPreferences {
 			return launcher_channel;
 		}
 	}
-	
+
 	public static AltosPreferencesBackend bt_devices() {
 		synchronized (backend) {
 			return backend.node("bt_devices");

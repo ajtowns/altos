@@ -155,7 +155,7 @@ public class AltosDisplayThread extends Thread {
 							wait(sleep_time);
 						}
 					}
-					
+
 					report(false);
 				}
 			} catch (InterruptedException ie) {

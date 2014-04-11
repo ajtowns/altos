@@ -25,7 +25,7 @@ import javax.swing.filechooser.FileSystemView;
 public class AltosUIPreferencesBackend implements AltosPreferencesBackend {
 
 	private Preferences _preferences = null;
-	
+
 	public AltosUIPreferencesBackend() {
 		_preferences = Preferences.userRoot().node("/org/altusmetrum/altosui");
 	}

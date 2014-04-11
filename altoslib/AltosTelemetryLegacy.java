@@ -470,7 +470,7 @@ public class AltosTelemetryLegacy extends AltosTelemetry {
 		batt = int16(29);
 		apogee = int16(31);
 		main = int16(33);
-		
+
 		ground_accel = int16(7);
 		ground_pres = int16(15);
 		accel_plus_g = int16(17);

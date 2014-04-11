@@ -44,7 +44,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 			show();
 			value.setText(s);
 		}
-		
+
 		void show(AltosUnits units, double v) {
 			show(units.show(8, v));
 		}

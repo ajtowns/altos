@@ -37,7 +37,7 @@ import org.jfree.data.*;
 interface AltosUIGrapher {
 
 	public abstract void set_units();
-	
+
 	public abstract void clear();
 
 	public abstract void add(AltosUIDataPoint dataPoint);

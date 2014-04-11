@@ -205,7 +205,7 @@ public class AltosInfoTable extends JTable {
 					info_add_deg(1, "Pad longitude", state.pad_lon, 'E', 'W');
 					info_add_row(1, "Pad GPS alt", "%6.0f m", state.pad_alt);
 				}
-				if (state.gps.year != AltosLib.MISSING) 
+				if (state.gps.year != AltosLib.MISSING)
 					info_add_row(1, "GPS date", "%04d-%02d-%02d",
 						     state.gps.year,
 						     state.gps.month,

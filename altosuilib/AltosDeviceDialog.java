@@ -30,7 +30,7 @@ public abstract class AltosDeviceDialog extends AltosUIDialog implements ActionL
 	public Frame		frame;
 	public int		product;
 	public JPanel		buttonPane;
-	
+
 	public AltosDevice getValue() {
 		return value;
 	}

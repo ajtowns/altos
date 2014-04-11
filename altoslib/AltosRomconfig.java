@@ -144,7 +144,7 @@ public class AltosRomconfig {
 		ao_romconfig_check,
 		ao_serial_number
 	};
-		
+
 	private static boolean name_required(String name) {
 		for (String required : required_names)
 			if (name.equals(required))

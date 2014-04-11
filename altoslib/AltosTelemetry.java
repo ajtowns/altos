@@ -67,7 +67,7 @@ public abstract class AltosTelemetry implements AltosStateUpdate {
 	final static int packet_type_metrum_sensor = 0x0a;
 	final static int packet_type_metrum_data = 0x0b;
 	final static int packet_type_mini = 0x10;
-	
+
 	static AltosTelemetry parse_hex(String hex)  throws ParseException, AltosCRCException {
 		AltosTelemetry	telem = null;
 

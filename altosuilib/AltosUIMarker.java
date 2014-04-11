@@ -41,7 +41,7 @@ public class AltosUIMarker implements AltosUIGrapher {
 	boolean			enabled;
 	int			fetch;
 	Color			color;
-	
+
 	private void remove_markers() {
 		for (ValueMarker marker : markers)
 			plot.removeDomainMarker(marker);

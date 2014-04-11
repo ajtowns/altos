@@ -318,7 +318,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	}
 
 	Distance distance;
-		
+
 
 	class Apogee extends DescentStatus {
 		void show (AltosState state, AltosListenerState listener_state) {

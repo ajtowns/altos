@@ -82,7 +82,7 @@ public class AltosCompanionInfo extends JTable {
 			return String.format("%02x\n", companion.board_id);
 		}
 	}
-	
+
 	public void show(AltosState state, AltosListenerState listener_state) {
 		if (state == null)
 			return;

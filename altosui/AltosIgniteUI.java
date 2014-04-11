@@ -486,7 +486,7 @@ public class AltosIgniteUI
 		pane.add(close, c);
 		close.addActionListener(this);
 		close.setActionCommand("close");
-			
+
 		pack();
 		setLocationRelativeTo(owner);
 

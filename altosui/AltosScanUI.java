@@ -34,9 +34,9 @@ class AltosScanResult {
 	int		flight;
 	AltosFrequency	frequency;
 	int		telemetry;
-	
+
 	boolean	interrupted = false;
-	
+
 	public String toString() {
 		return String.format("%-9.9s serial %-4d flight %-4d (%s %s)",
 				     callsign, serial, flight, frequency.toShortString(), Altos.telemetry_name(telemetry));
@@ -76,7 +76,7 @@ class AltosScanResult {
 }
 
 class AltosScanResults extends LinkedList<AltosScanResult> implements ListModel {
-	
+
 	LinkedList<ListDataListener>	listeners = new LinkedList<ListDataListener>();
 
 	void changed(ListDataEvent de) {
@@ -107,7 +107,7 @@ class AltosScanResults extends LinkedList<AltosScanResult> implements ListModel 
 	public void addListDataListener(ListDataListener l) {
 		listeners.add(l);
 	}
-	
+
 	public void removeListDataListener(ListDataListener l) {
 		listeners.remove(l);
 	}
@@ -221,12 +221,12 @@ public class AltosScanUI
 	void set_telemetry() {
 		reader.set_telemetry(telemetry);
 	}
-	
+
 	void set_frequency() throws InterruptedException, TimeoutException {
 		reader.set_frequency(frequencies[frequency_index].frequency);
 		reader.reset();
 	}
-	
+
 	void next() throws InterruptedException, TimeoutException {
 		reader.set_monitor(false);
 		Thread.sleep(100);
@@ -402,7 +402,7 @@ public class AltosScanUI
 		scanning_label = new JLabel("Scanning:");
 		frequency_label = new JLabel("");
 		telemetry_label = new JLabel("");
-		
+
 		set_label();
 
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -434,7 +434,7 @@ public class AltosScanUI
 		}
 
 		int	y_offset = 3 + (Altos.ao_telemetry_max - Altos.ao_telemetry_min + 1);
-				
+
 		list = new JList(results) {
 				//Subclass JList to workaround bug 4832765, which can cause the
 				//scroll pane to not let the user easily scroll up to the beginning

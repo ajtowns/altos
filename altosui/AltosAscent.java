@@ -48,7 +48,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			show();
 			value.setText(s);
 		}
-		
+
 		void show(AltosUnits units, double v) {
 			show(units.show(8, v));
 		}
@@ -122,7 +122,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			show();
 			value.setText(s);
 		}
-		
+
 		void show(AltosUnits units, double v) {
 			show(units.show(8, v));
 		}

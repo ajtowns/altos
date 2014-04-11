@@ -237,7 +237,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 			AltosSiteMapTile tile = mapTiles.get(k);
 			tile.clearMap();
 		}
-			
+
 		centre = getBaseLocation(lat, lng);
 		scrollRocketToVisible(pt(lat,lng));
 	}

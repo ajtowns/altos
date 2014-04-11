@@ -37,7 +37,7 @@ public class AltosFreqList extends JComboBox {
 
 		for (i = 0; i < getItemCount(); i++) {
 			AltosFrequency	f = (AltosFrequency) getItemAt(i);
-			
+
 			if (f.close(new_frequency)) {
 				setSelectedIndex(i);
 				return;
@@ -45,7 +45,7 @@ public class AltosFreqList extends JComboBox {
 		}
 		for (i = 0; i < getItemCount(); i++) {
 			AltosFrequency	f = (AltosFrequency) getItemAt(i);
-			
+
 			if (new_frequency < f.frequency)
 				break;
 		}
@@ -59,7 +59,7 @@ public class AltosFreqList extends JComboBox {
 	public void set_product(String new_product) {
 		product = new_product;
 	}
-		
+
 	public void set_serial(int new_serial) {
 		serial = new_serial;
 	}

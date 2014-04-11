@@ -56,7 +56,7 @@ public class AltosUIEnable extends Container {
 			this.name = name;
 			this.grapher = grapher;
 			enable = new JRadioButton(name, enabled);
-			grapher.set_enable(enabled);			  
+			grapher.set_enable(enabled);
 			enable.addActionListener(this);
 		}
 	}

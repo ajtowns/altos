@@ -87,7 +87,7 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 			break;
 		case data_gps_height:
 			y = state.gps_height;
-			break;	
+			break;
 		case data_gps_nsat_solution:
 			if (state.gps != null)
 				y = state.gps.nsat;
@@ -109,7 +109,7 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 		case data_pressure:
 			y = state.pressure();
 			break;
-			
+
 		case data_accel_x:
 		case data_accel_y:
 		case data_accel_z:

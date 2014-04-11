@@ -203,7 +203,7 @@ public class AltosLib {
 		throw new IllegalArgumentException(String.format("Invalid telemetry %d",
 								 telemetry));
 	}
-	
+
 	private static String[] state_to_string = {
 		"startup",
 		"idle",

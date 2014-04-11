@@ -233,7 +233,7 @@ public class AltosUI extends AltosUIFrame {
 		});
 
 		setLocationByPlatform(false);
-		
+
 		/* Insets aren't set before the window is visible */
 		setVisible(true);
 	}
@@ -468,7 +468,7 @@ public class AltosUI extends AltosUIFrame {
 		}
 		return false;
 	}
-	
+
 	static boolean process_summary(File file) {
 		AltosStateIterable states = record_iterable(file);
 		if (states == null)
@@ -547,7 +547,7 @@ public class AltosUI extends AltosUIFrame {
 		System.out.printf("    --kml\tgenerate KML output for use with Google Earth\n");
 		System.exit(code);
 	}
-	
+
 	public static void main(final String[] args) {
 		int	errors = 0;
 		load_library(null);

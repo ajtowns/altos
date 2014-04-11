@@ -62,7 +62,7 @@ public class AltosTelemetryFile extends AltosStateIterable {
 	}
 
 	public void write(PrintStream out) {
-		
+
 	}
 
 	public AltosTelemetryFile(FileInputStream input) {

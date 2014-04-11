@@ -142,7 +142,7 @@ public class AltosIdleFetch implements AltosStateUpdate {
 			state.set_received_time(System.currentTimeMillis());
 		} catch (TimeoutException te) {
 		}
-		
+
 	}
 
 	public AltosIdleFetch(AltosLink link) {

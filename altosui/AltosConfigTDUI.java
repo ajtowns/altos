@@ -311,7 +311,7 @@ public class AltosConfigTDUI
 		int i;
 		for (i = 0; i < radio_frequency_value.getItemCount(); i++) {
 			AltosFrequency	f = (AltosFrequency) radio_frequency_value.getItemAt(i);
-			
+
 			if (f.close(new_radio_frequency)) {
 				radio_frequency_value.setSelectedIndex(i);
 				return;
@@ -319,7 +319,7 @@ public class AltosConfigTDUI
 		}
 		for (i = 0; i < radio_frequency_value.getItemCount(); i++) {
 			AltosFrequency	f = (AltosFrequency) radio_frequency_value.getItemAt(i);
-			
+
 			if (new_radio_frequency < f.frequency)
 				break;
 		}

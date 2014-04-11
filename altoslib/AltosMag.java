@@ -87,4 +87,3 @@ public class AltosMag implements Cloneable {
 		}
 	}
 }
-	

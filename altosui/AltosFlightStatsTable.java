@@ -140,5 +140,5 @@ public class AltosFlightStatsTable extends JComponent {
 				       pos(stats.lon,"E","W"));
 		}
 	}
-	
+
 }

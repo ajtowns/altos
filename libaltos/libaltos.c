@@ -817,7 +817,7 @@ get_string(io_object_t object, CFStringRef entry, char *result, int result_len)
 		got_string = CFStringGetCString(entry_as_string,
 						result, result_len,
 						kCFStringEncodingASCII);
-    
+
 		CFRelease(entry_as_string);
 		if (got_string)
 			return 1;
@@ -830,7 +830,7 @@ get_number(io_object_t object, CFStringRef entry, int *result)
 {
 	CFTypeRef entry_as_number;
 	Boolean got_number;
-	
+
 	entry_as_number = IORegistryEntrySearchCFProperty (object,
 							   kIOServicePlane,
 							   entry,
@@ -885,7 +885,7 @@ altos_list_next(struct altos_list *list, struct altos_device *device)
 		object = IOIteratorNext(list->iterator);
 		if (!object)
 			return 0;
-  
+
 		if (!get_number (object, CFSTR(kUSBVendorID), &device->vendor) ||
 		    !get_number (object, CFSTR(kUSBProductID), &device->product))
 			continue;
@@ -989,7 +989,7 @@ log_message(char *fmt, ...)
 	if (log) {
 		SYSTEMTIME time;
 		GetLocalTime(&time);
-		fprintf (log, "%4d-%02d-%02d %2d:%02d:%02d. ", 
+		fprintf (log, "%4d-%02d-%02d %2d:%02d:%02d. ",
 			 time.wYear, time.wMonth, time.wDay,
 			 time.wHour, time.wMinute, time.wSecond);
 		va_start(a, fmt);
@@ -1340,7 +1340,7 @@ altos_open(struct altos_device *device)
 		altos_set_last_windows_error();
 		Sleep(100);
 	}
-	
+
 	if (file->handle == INVALID_HANDLE_VALUE) {
 		free(file);
 		return NULL;

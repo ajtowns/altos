@@ -50,7 +50,7 @@ public class AltosUIAxis extends NumberAxis {
 	public void set_units() {
 		setLabel(String.format("%s (%s)", label, units.show_units()));
 	}
-	
+
 	public void set_enable(boolean enable) {
 		if (enable) {
 			visible++;

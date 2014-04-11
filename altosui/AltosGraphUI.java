@@ -16,7 +16,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.ui.RefineryUtilities;
 
-public class AltosGraphUI extends AltosUIFrame 
+public class AltosGraphUI extends AltosUIFrame
 {
 	JTabbedPane		pane;
 	AltosGraph		graph;

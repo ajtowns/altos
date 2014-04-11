@@ -47,7 +47,7 @@ public class AltosSelfFlash extends AltosProgrammer {
 		for (int offset = 0; offset < len; offset += 0x100) {
 			link.printf("R %x\n", addr + offset);
 			byte[]	reply = link.get_binary_reply(5000, 0x100);
-			
+
 			if (reply == null)
 				throw new IOException("Read device memory timeout");
 			for (b = 0; b < len; b++)
@@ -55,7 +55,7 @@ public class AltosSelfFlash extends AltosProgrammer {
 		}
 		return data;
 	}
-		
+
 	void write_memory(long addr, byte[] data, int start, int len) {
 		int b;
 		link.printf("W %x\n", addr);

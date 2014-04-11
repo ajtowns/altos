@@ -59,7 +59,7 @@ public class AltosEepromMetrum2 extends AltosEeprom {
 	public int year() { return data8(4); }
 	public int month() { return data8(5); }
 	public int day() { return data8(6); }
-	
+
 	/* AO_LOG_GPS_SAT elements */
 	public int nsat() { return data8(0); }
 	public int more() { return data8(1); }
@@ -161,7 +161,7 @@ public class AltosEepromMetrum2 extends AltosEeprom {
 					break;
 				try {
 					AltosEepromMetrum2 metrum = new AltosEepromMetrum2(line);
-					
+
 					if (metrum.cmd != AltosLib.AO_LOG_INVALID)
 						metrums.add(metrum);
 				} catch (Exception e) {

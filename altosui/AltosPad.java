@@ -69,7 +69,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		public void set_label(String text) {
 			label.setText(text);
 		}
-		
+
 		public LaunchStatus (GridBagLayout layout, int y, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
 			c.weighty = 1;
@@ -142,7 +142,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		public void set_label(String text) {
 			label.setText(text);
 		}
-		
+
 		void reset() {
 			value.setText("");
 		}
@@ -414,7 +414,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		pad_lon.set_font();
 		pad_alt.set_font();
 	}
-	
+
 	public void show(AltosState state, AltosListenerState listener_state) {
 		battery.show(state, listener_state);
 		apogee.show(state, listener_state);

@@ -67,7 +67,7 @@ public class AltosTelemetryMegaSensor extends AltosTelemetryStandard {
 		state.set_orient(orient);
 
 		AltosIMU imu = new AltosIMU();
-		
+
 		imu.accel_x = AltosIMU.convert_accel(accel_x);
 		imu.accel_y = AltosIMU.convert_accel(accel_y);
 		imu.accel_z = AltosIMU.convert_accel(accel_z);
