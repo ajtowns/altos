@@ -25,7 +25,9 @@
 #define GROUND_AVG		(1 << GROUND_AVG_SHIFT)
 
 /* Pressure change (in Pa) to detect boost */
+#ifndef BOOST_DETECT
 #define BOOST_DETECT		360	/* 30m at sea level, 36m at 2000m */
+#endif
 
 /* Wait after power on before doing anything to give the user time to assemble the rocket */
 #define BOOST_DELAY		AO_SEC_TO_TICKS(60)
