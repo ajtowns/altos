@@ -52,6 +52,60 @@ static const uint8_t flight_reports[] = {
 
 static __pdata enum ao_flight_state ao_report_state;
 
+/*
+ * Farnsworth spacing
+ *
+ * From: http://www.arrl.org/files/file/Technology/x9004008.pdf
+ *
+ *	c:	character rate in wpm
+ *	s:	overall rate in wpm
+ *	u:	unit rate (dit speed)
+ *
+ *	dit:			u
+ *	dah:			3u
+ *	intra-character-time:	u
+ *
+ * 	u = 1.2/c
+ *
+ * Because our clock runs at 10ms, we'll round up to 70ms for u, which
+ * is about 17wpm
+ *
+ *	Farnsworth adds space between characters and
+ *	words:
+ *           60 c - 37.2 s
+ *	Ta = -------------
+ *                sc
+ *
+ *           3 Ta
+ *	Tc = ----
+ *            19
+ *
+ *           7 Ta
+ *	Tw = ----
+ *            19
+ *
+ *	Ta = total delay to add to the characters (31 units)
+ *           of a standard 50-unit "word", in seconds
+ *
+ *      Tc = period between characters, in seconds
+ *
+ *	Tw = period between words, in seconds
+ *
+ * We'll use Farnsworth spacing with c=18 and s=12:
+ *
+ *	u = 1.2/18 = 0.0667
+ *
+ *	Ta = (60 * 17 - 37.2 * 12) / (17 * 12) = 2.812
+ *
+ *	Tc = 3 * Ta / 19 = .444
+ *
+ *	Tw = 1.036
+ *
+ * Note that the values below are all reduced by 10ms; that's because
+ * the timer always adds a tick to make sure the task actually sleeps
+ * at least as long as the argument.
+ */
+
 static void
 ao_report_beep(void) __reentrant
 {
@@ -62,13 +116,13 @@ ao_report_beep(void) __reentrant
 		return;
 	while (l--) {
 		if (r & 8)
-			mid(AO_MS_TO_TICKS(600));
-		else
 			mid(AO_MS_TO_TICKS(200));
-		pause(AO_MS_TO_TICKS(200));
+		else
+			mid(AO_MS_TO_TICKS(60));
+		pause(AO_MS_TO_TICKS(60));
 		r >>= 1;
 	}
-	pause(AO_MS_TO_TICKS(400));
+	pause(AO_MS_TO_TICKS(360));
 }
 
 static void
