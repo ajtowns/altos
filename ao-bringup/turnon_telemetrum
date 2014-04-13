@@ -39,7 +39,7 @@ sleep 2
 
 $USBLOAD --serial=$SERIAL /usr/share/altos/telemetrum-v$VERSION*.ihx || exit 1
 
-sleep 2
+sleep 5
 
 dev=`ao-list | awk '/TeleMetrum-v'"$VERSION"'/ { print $3; exit(0); }'`
 
