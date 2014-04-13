@@ -104,6 +104,7 @@ public class AltosUISeries extends XYSeries implements AltosUIGrapher {
 
 		renderer = new XYLineAndShapeRenderer(true, false);
 		renderer.setSeriesPaint(0, color);
+		renderer.setSeriesStroke(0, new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 		renderer.setSeriesVisible(0, enable);
 		set_units();
 	}
