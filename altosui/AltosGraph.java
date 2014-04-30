@@ -389,6 +389,15 @@ public class AltosGraph extends AltosUIGraph {
 				  orient_color,
 				  false,
 				  orient_axis);
+		if (stats.num_ignitor > 0) {
+			for (int i = 0; i < stats.num_ignitor; i++)
+				addSeries(AltosIgnitor.ignitor_name(i),
+					  AltosGraphDataPoint.data_ignitor_0 + i,
+					  voltage_units,
+					  main_voltage_color,
+					  false,
+					  voltage_axis);
+		}
 
 		setDataSet(dataSet);
 	}

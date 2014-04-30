@@ -42,6 +42,7 @@ public class AltosFlightStats {
 	boolean		has_imu;
 	boolean		has_mag;
 	boolean		has_orient;
+	int		num_ignitor;
 
 	double landed_time(AltosStateIterable states) {
 		AltosState state = null;
@@ -171,6 +172,8 @@ public class AltosFlightStats {
 				has_mag = true;
 			if (state.orient() != AltosLib.MISSING)
 				has_orient = true;
+			if (state.ignitor_voltage != null && state.ignitor_voltage.length > num_ignitor)
+				num_ignitor = state.ignitor_voltage.length;
 		}
 		for (int s = Altos.ao_flight_startup; s <= Altos.ao_flight_landed; s++) {
 			if (state_count[s] > 0) {

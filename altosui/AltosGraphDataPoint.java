@@ -50,6 +50,9 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 	public static final int data_mag_y = 23;
 	public static final int data_mag_z = 24;
 	public static final int data_orient = 25;
+	public static final int data_ignitor_0 = 26;
+	public static final int data_ignitor_num = 32;
+	public static final int data_ignitor_max = data_ignitor_0 + data_ignitor_num - 1;
 
 	public double x() throws AltosUIDataMissing {
 		double	time = state.time_since_boost();
@@ -160,6 +163,13 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 			break;
 		case data_orient:
 			y = state.orient();
+			break;
+		default:
+			if (data_ignitor_0 <= index && index <= data_ignitor_max) {
+				int ignitor = index - data_ignitor_0;
+				if (state.ignitor_voltage != null && ignitor < state.ignitor_voltage.length)
+					y = state.ignitor_voltage[ignitor];
+			}
 			break;
 		}
 		if (y == AltosLib.MISSING)
