@@ -20,12 +20,26 @@
 #include "ao-editaltos.h"
 
 struct ao_sym ao_symbols[] = {
-
-	{ 0, 0,	"ao_romconfig_version",	1 },
-	{ 0, 0,	"ao_romconfig_check",	1 },
-	{ 0, 0,	"ao_serial_number", 1 },
-	{ 0, 0,	"ao_radio_cal", 0 },
-	{ 0, 0,	"ao_usb_descriptors", 0 },
+	{
+		.name = "ao_romconfig_version",
+		.required = 1
+	},
+	{
+		.name = "ao_romconfig_check",
+		.required = 1
+	},
+	{
+		.name = "ao_serial_number",
+		.required = 1
+	},
+	{
+		.name = "ao_radio_cal",
+		.required = 0
+	},
+	{
+		.name = "ao_usb_descriptors",
+		.required = 0
+	},
 };
 
 #define NUM_SYMBOLS		5

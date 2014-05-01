@@ -51,7 +51,6 @@ struct ao_hex_image {
 
 struct ao_sym {
 	unsigned	addr;
-	unsigned	default_addr;
 	char		*name;
 	bool		required;
 	bool		found;
