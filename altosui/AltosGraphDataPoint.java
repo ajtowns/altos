@@ -53,6 +53,8 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 	public static final int data_ignitor_0 = 26;
 	public static final int data_ignitor_num = 32;
 	public static final int data_ignitor_max = data_ignitor_0 + data_ignitor_num - 1;
+	public static final int data_ignitor_fired_0 = data_ignitor_0 + data_ignitor_num;
+	public static final int data_ignitor_fired_max = data_ignitor_fired_0 + data_ignitor_num - 1;
 
 	public double x() throws AltosUIDataMissing {
 		double	time = state.time_since_boost();
@@ -169,6 +171,14 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 				int ignitor = index - data_ignitor_0;
 				if (state.ignitor_voltage != null && ignitor < state.ignitor_voltage.length)
 					y = state.ignitor_voltage[ignitor];
+			} else if (data_ignitor_fired_0 <= index && index <= data_ignitor_fired_max) {
+				int ignitor = index - data_ignitor_fired_0;
+				if (state.ignitor_voltage != null && ignitor < state.ignitor_voltage.length) {
+					if ((state.pyro_fired & (1 << ignitor)) != 0)
+						y = 1;
+					else
+						y = 0;
+				}
 			}
 			break;
 		}
@@ -183,13 +193,26 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 			if (s < Altos.ao_flight_boost || s > Altos.ao_flight_landed)
 				return -1;
 			return s;
+		} else if (data_ignitor_fired_0 <= index && index <= data_ignitor_fired_max) {
+			int ignitor = index - data_ignitor_fired_0;
+			if (state.ignitor_voltage != null && ignitor < state.ignitor_voltage.length) {
+				if (state.ignitor_voltage != null && ignitor < state.ignitor_voltage.length) {
+					if ((state.pyro_fired & (1 << ignitor)) != 0)
+						return 1;
+				}
+			}
 		}
 		return 0;
 	}
 
 	public String id_name(int index) {
-		if (index == data_state)
+		if (index == data_state) {
 			return state.state_name();
+		} else if (data_ignitor_fired_0 <= index && index <= data_ignitor_fired_max) {
+			int ignitor = index - data_ignitor_fired_0;
+			if (state.ignitor_voltage != null && ignitor < state.ignitor_voltage.length)
+				return AltosIgnitor.ignitor_name(ignitor);
+		}
 		return "";
 	}
 

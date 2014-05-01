@@ -397,6 +397,8 @@ public class AltosGraph extends AltosUIGraph {
 					  main_voltage_color,
 					  false,
 					  voltage_axis);
+			for (int i = 0; i < stats.num_ignitor; i++)
+				addMarker(AltosIgnitor.ignitor_name(i), AltosGraphDataPoint.data_ignitor_fired_0 + i, state_color);
 		}
 
 		setDataSet(dataSet);
