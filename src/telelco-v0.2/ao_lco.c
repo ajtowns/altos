@@ -251,18 +251,22 @@ ao_lco_search(void)
 {
 	uint16_t	tick_offset;
 	int8_t		r;
+	int8_t		try;
 	uint8_t		box;
 
 	ao_lco_box_reset_present();
 	for (box = 0; box < AO_PAD_MAX_BOXES; box++) {
 		if ((box % 10) == 0)
 			ao_lco_set_box(box);
-		tick_offset = 0;
-		r = ao_lco_query(box, &ao_pad_query, &tick_offset);
-		PRINTD("box %d result %d\n", box, r);
-		if (r == AO_RADIO_CMAC_OK) {
-			ao_lco_box_set_present(box);
-			ao_delay(AO_MS_TO_TICKS(30));
+		for (try = 0; try < 5; try++) {
+			tick_offset = 0;
+			r = ao_lco_query(box, &ao_pad_query, &tick_offset);
+			PRINTD("box %d result %d\n", box, r);
+			if (r == AO_RADIO_CMAC_OK) {
+				ao_lco_box_set_present(box);
+				ao_delay(AO_MS_TO_TICKS(30));
+				break;
+			}
 		}
 	}
 	if (ao_lco_min_box <= ao_lco_max_box)

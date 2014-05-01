@@ -36,7 +36,7 @@ ao_lco_query(uint16_t box, struct ao_pad_query *query, uint16_t *tick_offset)
 	command.channels = 0;
 	ao_radio_cmac_send(&command, sizeof (command));
 	sent_time = ao_time();
-	r = ao_radio_cmac_recv(query, sizeof (*query), AO_MS_TO_TICKS(20));
+	r = ao_radio_cmac_recv(query, sizeof (*query), AO_MS_TO_TICKS(10));
 	if (r == AO_RADIO_CMAC_OK)
 		*tick_offset = sent_time - query->tick;
 	ao_mutex_put(&ao_lco_mutex);
