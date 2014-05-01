@@ -26,7 +26,7 @@
 
 #define AO_USB_DESC_STRING		3
 
-struct sym {
+static struct sym {
 	unsigned	addr;
 	char		*name;
 	int		required;
