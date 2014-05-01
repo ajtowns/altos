@@ -158,7 +158,8 @@ main (int argc, char **argv)
 					printf ("\n");
 					break;
 				case AO_TELEMETRY_MEGA_SENSOR:
-					printf ("accel %5d pres %9d temp %5d accel_x %5d accel_y %5d accel_z %5d gyro_x %5d gyro_y %5d gyro_z %5d mag_x %5d mag_y %5d mag_z %5d\n",
+					printf ("orient %3d accel %5d pres %9d temp %5d accel_x %5d accel_y %5d accel_z %5d gyro_x %5d gyro_y %5d gyro_z %5d mag_x %5d mag_y %5d mag_z %5d\n",
+						telem.mega_sensor.orient,
 						telem.mega_sensor.accel,
 						telem.mega_sensor.pres,
 						telem.mega_sensor.temp,

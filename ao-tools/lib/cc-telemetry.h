@@ -157,7 +157,7 @@ struct ao_telemetry_mega_sensor {
 	uint16_t	tick;		/*  2 */
 	uint8_t		type;		/*  4 */
 
-	uint8_t		pad5;		/*  5 */
+	uint8_t		orient;		/*  5 angle from vertical */
 	int16_t		accel;		/*  6 Z axis */
 
 	int32_t		pres;		/*  8 Pa * 10 */
