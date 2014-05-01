@@ -619,6 +619,8 @@ public class AltosState implements Cloneable {
 
 	public AltosCompanion	companion;
 
+	public int	pyro_fired;
+
 	public void set_npad(int npad) {
 		this.npad = npad;
 		gps_waiting = MIN_PAD_SAMPLES - npad;
@@ -711,6 +713,8 @@ public class AltosState implements Cloneable {
 
 		baro = null;
 		companion = null;
+
+		pyro_fired = 0;
 	}
 
 	void finish_update() {
@@ -840,6 +844,8 @@ public class AltosState implements Cloneable {
 
 		baro = old.baro;
 		companion = old.companion;
+
+		pyro_fired = old.pyro_fired;
 	}
 
 	void update_time() {
@@ -1112,6 +1118,10 @@ public class AltosState implements Cloneable {
 
 	public void set_ignitor_voltage(double[] voltage) {
 		this.ignitor_voltage = voltage;
+	}
+
+	public void set_pyro_fired(int fired) {
+		this.pyro_fired = fired;
 	}
 
 	public double time_since_boost() {

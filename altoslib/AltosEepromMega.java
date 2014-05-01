@@ -150,6 +150,7 @@ public class AltosEepromMega extends AltosEeprom {
 				voltages[i] = AltosConvert.mega_pyro_voltage(sense(i));
 
 			state.set_ignitor_voltage(voltages);
+			state.set_pyro_fired(pyro());
 			break;
 		case AltosLib.AO_LOG_GPS_TIME:
 			state.set_tick(tick);
