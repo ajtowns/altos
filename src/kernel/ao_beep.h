@@ -18,6 +18,12 @@
 #ifndef _AO_BEEP_H_
 #define _AO_BEEP_H_
 
+#ifndef HAS_BEEP_CONFIG
+#if defined(USE_EEPROM_CONFIG) && USE_EEPROM_CONFIG || HAS_EEPROM
+#define HAS_BEEP_CONFIG	1
+#endif
+#endif
+
 /*
  * ao_beep.c
  */
@@ -28,9 +34,16 @@
  * frequency = 1/2 (24e6/32) / beep
  */
 
-#define AO_BEEP_LOW	150	/* 2500Hz */
-#define AO_BEEP_MID	94	/* 3989Hz */
-#define AO_BEEP_HIGH	75	/* 5000Hz */
+#define AO_BEEP_MID_DEFAULT	94	/* 3989Hz */
+
+#if HAS_BEEP_CONFIG
+#define AO_BEEP_MID	ao_config.mid_beep
+#else
+#define AO_BEEP_MID	AO_BEEP_MID_DEFAULT
+#endif
+#define AO_BEEP_LOW	AO_BEEP_MID * 150 / 94	/* 2500Hz */
+#define AO_BEEP_HIGH	AO_BEEP_MID * 75 / 94	/* 5000Hz */
+
 #define AO_BEEP_OFF	0	/* off */
 
 #define AO_BEEP_g	240	/* 1562.5Hz */

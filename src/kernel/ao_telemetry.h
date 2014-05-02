@@ -154,7 +154,7 @@ struct ao_telemetry_companion {
 	uint16_t				companion_data[AO_COMPANION_MAX_CHANNELS];	/*  8 */
 	/* 32 */
 };
-	
+
 #define AO_TELEMETRY_MEGA_SENSOR	0x08
 
 struct ao_telemetry_mega_sensor {
@@ -181,7 +181,7 @@ struct ao_telemetry_mega_sensor {
 	int16_t		mag_z;		/* 30 */
 	/* 32 */
 };
-	
+
 #define AO_TELEMETRY_MEGA_DATA		0x09
 
 struct ao_telemetry_mega_data {
@@ -231,7 +231,7 @@ struct ao_telemetry_metrum_sensor {
 	uint8_t		pad[6];		/* 26 */
 	/* 32 */
 };
-	
+
 #define AO_TELEMETRY_METRUM_DATA	0x0B
 
 struct ao_telemetry_metrum_data {

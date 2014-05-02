@@ -24,6 +24,7 @@
 	#define HAS_FLIGHT		1
 	#define HAS_USB			1
 	#define HAS_BEEP		1
+	#define HAS_BEEP_CONFIG		0
 	#define HAS_GPS			1
 	#define HAS_SERIAL_1		1
 	#define HAS_ADC			1
@@ -58,6 +59,7 @@
 	#define HAS_FLIGHT		1
 	#define HAS_USB			1
 	#define HAS_BEEP		1
+	#define HAS_BEEP_CONFIG		0
 	#define HAS_BATTERY_REPORT	1
 	#define HAS_GPS			1
 	#define HAS_SERIAL_1		1
@@ -95,6 +97,7 @@
 	#define HAS_FLIGHT		1
 	#define HAS_USB			1
 	#define HAS_BEEP		1
+	#define HAS_BEEP_CONFIG		0
 	#define HAS_BATTERY_REPORT	1
 	#define HAS_GPS			1
 	#define HAS_SERIAL_1		1
@@ -212,6 +215,7 @@
 	#define HAS_FLIGHT		1
 	#define HAS_USB			1
 	#define HAS_BEEP		1
+	#define HAS_BEEP_CONFIG		0
 	#define HAS_GPS			1
 	#define HAS_SERIAL_1		1
 	#define HAS_ADC			1
@@ -333,6 +337,7 @@
 	#define HAS_FLIGHT		0
 	#define HAS_USB			1
 	#define HAS_BEEP		1
+	#define HAS_BEEP_CONFIG		0
 	#define HAS_SERIAL_1		1
 	#define HAS_SERIAL_1_ALT_1	1
 	#define HAS_SERIAL_1_ALT_2	0

@@ -22,6 +22,9 @@
 #include <ao_sample.h>
 #include <ao_data.h>
 #endif
+#if HAS_BEEP
+#include <ao_beep.h>
+#endif
 
 __xdata struct ao_config ao_config;
 __pdata uint8_t ao_config_loaded;
@@ -170,6 +173,10 @@ _ao_config_get(void)
 			ao_config.accel_plus_g = 0;
 			ao_config.accel_minus_g = 0;
 		}
+#endif
+#if HAS_BEEP_CONFIG
+		if (minor < 16)
+			ao_config.mid_beep = AO_BEEP_MID_DEFAULT;
 #endif
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
@@ -357,7 +364,7 @@ ao_config_accel_calibrate_set(void) __reentrant
 	int16_t	accel_across_up = 0, accel_across_down = 0;
 	int16_t	accel_through_up = 0, accel_through_down = 0;
 #endif
-	
+
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
 		return;
@@ -555,7 +562,7 @@ ao_config_radio_enable_set(void) __reentrant
 	_ao_config_edit_finish();
 }
 #endif /* HAS_RADIO */
-	
+
 #if HAS_AES
 
 __xdata uint8_t	ao_config_aes_seq = 1;
@@ -650,6 +657,26 @@ ao_config_radio_power_set(void)
 
 #endif
 
+#if HAS_BEEP_CONFIG
+void
+ao_config_beep_show(void)
+{
+	printf ("Beeper setting: %d\n", ao_config.mid_beep);
+}
+
+void
+ao_config_beep_set(void)
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	_ao_config_edit_start();
+	ao_config.mid_beep = ao_cmd_lex_i;
+	_ao_config_edit_finish();
+}
+#endif
+
+
 struct ao_config_var {
 	__code char	*str;
 	void		(*set)(void) __reentrant;
@@ -719,6 +746,10 @@ __code struct ao_config_var ao_config_vars[] = {
 #if HAS_APRS
 	{ "A <secs>\0APRS packet interval (0 disable)",
 	  ao_config_aprs_set, ao_config_aprs_show },
+#endif
+#if HAS_BEEP_CONFIG
+	{ "b <val>\0Configure beeper tone (freq = 1/2 (24e6/32) / beep",
+	  ao_config_beep_set, ao_config_beep_show },
 #endif
 	{ "s\0Show",
 	  ao_config_show,		0 },

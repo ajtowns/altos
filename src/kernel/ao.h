@@ -750,7 +750,7 @@ extern __xdata uint8_t ao_force_freq;
 #endif
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	15
+#define AO_CONFIG_MINOR	16
 
 #define AO_AES_LEN 16
 
@@ -788,6 +788,9 @@ struct ao_config {
 	int16_t		accel_zero_along;	/* minor version 15 */
 	int16_t		accel_zero_across;	/* minor version 15 */
 	int16_t		accel_zero_through;	/* minor version 15 */
+#endif
+#if HAS_BEEP
+	uint8_t		mid_beep;		/* minor version 16 */
 #endif
 };
 
