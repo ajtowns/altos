@@ -359,4 +359,16 @@ public class AltosConvert {
 			csum += data[i + start];
 		return csum & 0xff;
 	}
+
+	public static double beep_value_to_freq(int value) {
+		if (value == 0)
+			return 4000;
+		return 1.0/2.0 * (24.0e6/32.0) / (double) value;
+	}
+
+	public static int beep_freq_to_value(double freq) {
+		if (freq == 0)
+			return 94;
+		return (int) Math.floor (1.0/2.0 * (24.0e6/32.0) / freq + 0.5);
+	}
 }

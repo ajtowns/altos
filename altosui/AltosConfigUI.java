@@ -45,6 +45,7 @@ public class AltosConfigUI
 	JLabel		ignite_mode_label;
 	JLabel		pad_orientation_label;
 	JLabel		callsign_label;
+	JLabel		beep_label;
 
 	public boolean		dirty;
 
@@ -63,6 +64,7 @@ public class AltosConfigUI
 	JComboBox	ignite_mode_value;
 	JComboBox	pad_orientation_value;
 	JTextField	callsign_value;
+	JComboBox	beep_value;
 
 	JButton		pyro;
 
@@ -110,6 +112,12 @@ public class AltosConfigUI
 		"2",
 		"5",
 		"10"
+	};
+
+	static String[] beep_values = {
+		"3750",
+		"4000",
+		"4250",
 	};
 
 	static String[] pad_orientation_values = {
@@ -202,6 +210,13 @@ public class AltosConfigUI
 			else
 				pad_orientation_value.setToolTipText("Can't select orientation");
 		}
+	}
+
+	void set_beep_tool_tip() {
+		if (beep_value.isEnabled())
+			beep_value.setToolTipText("What frequency the beeper will sound at");
+		else
+			beep_value.setToolTipText("Older firmware could not select beeper frequency");
 	}
 
 	/* Build the UI using a grid bag */
@@ -569,6 +584,32 @@ public class AltosConfigUI
 		set_pad_orientation_tool_tip();
 		row++;
 
+		/* Beeper */
+		c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = row;
+		c.gridwidth = 4;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
+		c.ipady = 5;
+		beep_label = new JLabel("Beeper Frequency:");
+		pane.add(beep_label, c);
+
+		c = new GridBagConstraints();
+		c.gridx = 4; c.gridy = row;
+		c.gridwidth = 4;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		c.ipady = 5;
+		beep_value = new JComboBox(beep_values);
+		beep_value.setEditable(true);
+		beep_value.addItemListener(this);
+		pane.add(beep_value, c);
+		set_beep_tool_tip();
+		row++;
+
 		/* Pyro channels */
 		c = new GridBagConstraints();
 		c.gridx = 4; c.gridy = row;
@@ -904,6 +945,27 @@ public class AltosConfigUI
 	public int pad_orientation() {
 		if (pad_orientation_value.isEnabled())
 			return pad_orientation_value.getSelectedIndex();
+		else
+			return -1;
+	}
+
+	public void set_beep(int new_beep) {
+		int new_freq = (int) Math.floor (AltosConvert.beep_value_to_freq(new_beep) + 0.5);
+		System.out.printf("set_beep %d %d\n", new_beep, new_freq);
+		for (int i = 0; i < beep_values.length; i++)
+			if (new_beep == AltosConvert.beep_freq_to_value(Integer.parseInt(beep_values[i]))) {
+				beep_value.setSelectedIndex(i);
+				set_beep_tool_tip();
+				return;
+			}
+		beep_value.setSelectedItem(String.format("%d", new_freq));
+		beep_value.setEnabled(new_beep >= 0);
+		set_beep_tool_tip();
+	}
+
+	public int beep() {
+		if (beep_value.isEnabled())
+			return AltosConvert.beep_freq_to_value(Integer.parseInt(beep_value.getSelectedItem().toString()));
 		else
 			return -1;
 	}

@@ -76,4 +76,8 @@ public interface AltosConfigValues {
 	public abstract int aprs_interval();
 
 	public abstract void set_aprs_interval(int new_aprs_interval);
+
+	public abstract int beep();
+
+	public abstract void set_beep(int new_beep);
 }

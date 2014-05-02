@@ -70,6 +70,9 @@ public class AltosConfigData implements Iterable<String> {
 	/* HAS_APRS */
 	public int		aprs_interval;
 
+	/* HAS_BEEP */
+	public int		beep;
+
 	/* Storage info replies */
 	public int	storage_size;
 	public int	storage_erase_unit;
@@ -210,6 +213,8 @@ public class AltosConfigData implements Iterable<String> {
 
 		aprs_interval = -1;
 
+		beep = -1;
+
 		storage_size = -1;
 		storage_erase_unit = -1;
 		stored_flight = 0;
@@ -285,6 +290,9 @@ public class AltosConfigData implements Iterable<String> {
 
 		/* HAS_APRS */
 		try { aprs_interval = get_int(line, "APRS interval:"); } catch (Exception e) {}
+
+		/* HAS_BEEP */
+		try { beep = get_int(line, "Beeper setting:"); System.out.printf ("beeper now %d\n", beep); } catch (Exception e) {}
 
 		/* Storage info replies */
 		try { storage_size = get_int(line, "Storage size:"); } catch (Exception e) {}
@@ -409,8 +417,13 @@ public class AltosConfigData implements Iterable<String> {
 		if (npyro > 0)
 			pyros = source.pyros();
 
+		/* HAS_APRS */
 		if (aprs_interval >= 0)
 			aprs_interval = source.aprs_interval();
+
+		/* HAS_BEEP */
+		if (beep >= 0)
+			beep = source.beep();
 	}
 
 	public void set_values(AltosConfigValues dest) {
@@ -449,6 +462,7 @@ public class AltosConfigData implements Iterable<String> {
 		else
 			dest.set_pyros(null);
 		dest.set_aprs_interval(aprs_interval);
+		dest.set_beep(beep);
 	}
 
 	public void save(AltosLink link, boolean remote) throws InterruptedException, TimeoutException {
@@ -514,6 +528,10 @@ public class AltosConfigData implements Iterable<String> {
 		/* HAS_APRS */
 		if (aprs_interval >= 0)
 			link.printf("c A %d\n", aprs_interval);
+
+		/* HAS_BEEP */
+		if (beep >= 0)
+			link.printf("c b %d\n", beep);
 
 		link.printf("c w\n");
 		link.flush_output();
