@@ -17,8 +17,6 @@
 
 #include <ao_int64.h>
 
-__pdata ao_int64_t *__data ao_64r, *__data ao_64a, *__data ao_64b;
-
 void ao_plus64(__pdata ao_int64_t *r, __pdata ao_int64_t *a, __pdata ao_int64_t *b) __FATTR {
 	__LOCAL uint32_t	t;
 
@@ -151,8 +149,8 @@ void ao_mul64_64_16(__ARG ao_int64_t *r, __ARG ao_int64_t *a, __ARG uint16_t b) 
 		ao_neg64(&ap, a);
 		a = &ap;
 		negative++;
-	} else
-		ao_umul64_64_16(r, a, b);
+	}
+	ao_umul64_64_16(r, a, b);
 	if (negative)
 		ao_neg64(r, r);
 }
