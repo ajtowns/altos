@@ -713,7 +713,7 @@ ao_gps(void) __reentrant
 				ao_gps_data.flags |= AO_GPS_RUNNING;
 				if (nav_sol.gps_fix & (1 << NAV_SOL_FLAGS_GPSFIXOK)) {
 					uint8_t	nsat = nav_sol.nsat;
-					ao_gps_data.flags |= AO_GPS_VALID;
+					ao_gps_data.flags |= AO_GPS_VALID | AO_GPS_COURSE_VALID;
 					if (nsat > 15)
 						nsat = 15;
 					ao_gps_data.flags |= nsat;
