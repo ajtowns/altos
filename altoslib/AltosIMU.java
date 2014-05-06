@@ -28,6 +28,18 @@ public class AltosIMU implements Cloneable {
 	public double		gyro_y;
 	public double		gyro_z;
 
+/*
+ * XXX use ground measurements to adjust values
+
+	public double		ground_accel_x;
+	public double		ground_accel_y;
+	public double		ground_accel_z;
+
+	public double		ground_gyro_x;
+	public double		ground_gyro_y;
+	public double		ground_gyro_z;
+*/
+
 	public static int	counts_per_g = 2048;
 
 	public static double convert_accel(int counts) {
