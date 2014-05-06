@@ -206,9 +206,9 @@ struct ao_log_mega {
 			uint16_t	flight;			/* 4 */
 			int16_t		ground_accel;		/* 6 */
 			uint32_t	ground_pres;		/* 8 */
-			int16_t		ground_accel_along;	/* 16 */
-			int16_t		ground_accel_across;	/* 12 */
-			int16_t		ground_accel_through;	/* 14 */
+			int16_t		ground_accel_along;	/* 12 */
+			int16_t		ground_accel_across;	/* 14 */
+			int16_t		ground_accel_through;	/* 16 */
 			int16_t		ground_roll;		/* 18 */
 			int16_t		ground_pitch;		/* 20 */
 			int16_t		ground_yaw;		/* 22 */
