@@ -189,6 +189,9 @@ public class AltosGraph extends AltosUIGraph {
 	static final private Color gps_nsat_color = new Color (194, 31, 194);
 	static final private Color gps_nsat_solution_color = new Color (194, 31, 194);
 	static final private Color gps_nsat_view_color = new Color (150, 31, 150);
+	static final private Color gps_course_color = new Color (100, 31, 112);
+	static final private Color gps_ground_speed_color = new Color (31, 112, 100);
+	static final private Color gps_climb_rate_color = new Color (31, 31, 112);
 	static final private Color temperature_color = new Color (31, 194, 194);
 	static final private Color dbm_color = new Color(31, 100, 100);
 	static final private Color state_color = new Color(0,0,0);
@@ -214,6 +217,7 @@ public class AltosGraph extends AltosUIGraph {
 	AltosUIAxis	height_axis, speed_axis, accel_axis, voltage_axis, temperature_axis, nsat_axis, dbm_axis;
 	AltosUIAxis	distance_axis, pressure_axis;
 	AltosUIAxis	gyro_axis, orient_axis, mag_axis;
+	AltosUIAxis	course_axis;
 
 	public AltosGraph(AltosUIEnable enable, AltosFlightStats stats, AltosGraphDataSet dataSet) {
 		super(enable);
@@ -232,6 +236,7 @@ public class AltosGraph extends AltosUIGraph {
 		gyro_axis = newAxis("Rotation Rate", gyro_units, gyro_z_color, 0);
 		orient_axis = newAxis("Tilt Angle", orient_units, orient_color, 0);
 		mag_axis = newAxis("Magnetic Field", mag_units, mag_x_color, 0);
+		course_axis = newAxis("Course", orient_units, gps_course_color, 0);
 
 		addMarker("State", AltosGraphDataPoint.data_state, state_color);
 		addSeries("Height",
@@ -288,7 +293,25 @@ public class AltosGraph extends AltosUIGraph {
 				  nsat_units,
 				  gps_nsat_view_color,
 				  false,
-			  nsat_axis);
+				  nsat_axis);
+			addSeries("GPS Course",
+				  AltosGraphDataPoint.data_gps_course,
+				  orient_units,
+				  gps_course_color,
+				  false,
+				  course_axis);
+			addSeries("GPS Ground Speed",
+				  AltosGraphDataPoint.data_gps_ground_speed,
+				  AltosConvert.speed,
+				  gps_ground_speed_color,
+				  false,
+				  speed_axis);
+			addSeries("GPS Climb Rate",
+				  AltosGraphDataPoint.data_gps_climb_rate,
+				  AltosConvert.speed,
+				  gps_climb_rate_color,
+				  false,
+				  speed_axis);
 		}
 		if (stats.has_rssi)
 			addSeries("Received Signal Strength",

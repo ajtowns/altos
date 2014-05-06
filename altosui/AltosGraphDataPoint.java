@@ -50,7 +50,10 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 	public static final int data_mag_y = 23;
 	public static final int data_mag_z = 24;
 	public static final int data_orient = 25;
-	public static final int data_ignitor_0 = 26;
+	public static final int data_gps_course = 26;
+	public static final int data_gps_ground_speed = 27;
+	public static final int data_gps_climb_rate = 28;
+	public static final int data_ignitor_0 = 29;
 	public static final int data_ignitor_num = 32;
 	public static final int data_ignitor_max = data_ignitor_0 + data_ignitor_num - 1;
 	public static final int data_ignitor_fired_0 = data_ignitor_0 + data_ignitor_num;
@@ -166,6 +169,24 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 		case data_orient:
 			y = state.orient();
 			break;
+		case data_gps_course:
+			if (state.gps != null)
+				y = state.gps.course;
+			else
+				y = AltosLib.MISSING;
+			break;
+		case data_gps_ground_speed:
+			if (state.gps != null)
+				y = state.gps.ground_speed;
+			else
+				y = AltosLib.MISSING;
+			break;
+		case data_gps_climb_rate:
+			if (state.gps != null)
+				y = state.gps.climb_rate;
+			else
+				y = AltosLib.MISSING;
+			break;
 		default:
 			if (data_ignitor_0 <= index && index <= data_ignitor_max) {
 				int ignitor = index - data_ignitor_0;
@@ -190,9 +211,8 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 	public int id(int index) {
 		if (index == data_state) {
 			int s = state.state;
-			if (s < Altos.ao_flight_boost || s > Altos.ao_flight_landed)
-				return -1;
-			return s;
+			if (Altos.ao_flight_boost <= s && s <= Altos.ao_flight_landed)
+				return s;
 		} else if (data_ignitor_fired_0 <= index && index <= data_ignitor_fired_max) {
 			int ignitor = index - data_ignitor_fired_0;
 			if (state.ignitor_voltage != null && ignitor < state.ignitor_voltage.length) {
@@ -202,7 +222,7 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 				}
 			}
 		}
-		return 0;
+		return -1;
 	}
 
 	public String id_name(int index) {
