@@ -153,11 +153,11 @@ ao_pad_monitor(void)
 			 *
 			 *		v_pyro \
 			 *	100k		igniter
-			 *		output /	
+			 *		output /
 			 *	100k           \
 			 *		sense   relay
-			 *	27k            / 
-			 *		gnd ---   
+			 *	27k            /
+			 *		gnd ---
 			 *
 			 *	If the relay is closed, then sense will be 0
 			 *	If no igniter is present, then sense will be v_pyro * 27k/227k = pyro * 127 / 227 ~= pyro/2
