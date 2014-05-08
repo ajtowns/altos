@@ -19,16 +19,25 @@
 
 uint8_t		relay_output;
 
+void
+ao_relay_init(void)
+{
+	lpc_scb.sysahbclkctrl |= (1 << LPC_SCB_SYSAHBCLKCTRL_GPIO);
+        lpc_gpio.dir[RELAY_PORT] |= RELAY_BIT;
+}
+
 // switch relay to selected output, turn correct LED on as a side effect
 static void
 ao_relay_control(uint8_t output)
 {
 	switch (output) {
 	case 1:
+		lpc_gpio.pin[RELAY_PORT] |= RELAY_BIT;
 		ao_led_on(AO_LED_RED);
 		ao_led_off(AO_LED_GREEN);
 		break;
 	default:
+		lpc_gpio.pin[RELAY_PORT] &= ~RELAY_BIT;
 		ao_led_off(AO_LED_RED);
 		ao_led_on(AO_LED_GREEN);
 	}
@@ -43,9 +52,10 @@ ao_relay_select(void) __reentrant
         if (ao_cmd_status != ao_cmd_success)
                 return;
 	output = ao_cmd_lex_i;
-
-	printf ("Relay control not implemented yet, %u selected\n", output);
-	ao_relay_control(output);
+	if (output > 1) 
+		printf ("Invalid relay position %u\n", output);
+	else
+		ao_relay_control(output);
 }
 
 static __code struct ao_cmds ao_relay_cmds[] = {
@@ -65,6 +75,8 @@ main(void)
 	ao_serial_init();
 
 	ao_led_init(LEDS_AVAILABLE);
+
+	ao_relay_init();
 
 	// initialize to default output
 	relay_output = 0;

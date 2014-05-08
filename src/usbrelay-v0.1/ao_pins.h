@@ -66,6 +66,12 @@
 
 #define LEDS_AVAILABLE		(AO_LED_RED|AO_LED_GREEN)
 
+/* RELAY */
+
+#define RELAY_PORT		0
+#define RELAY_PIN		3
+#define RELAY_BIT		(1 << RELAY_PIN)
+
 /* Kludge the SPI driver to not configure any
  * pin for SCK or MOSI
  */
