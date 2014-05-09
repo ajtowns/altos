@@ -88,7 +88,11 @@ void stm_tim6_isr(void)
 #define TIMER_23467_SCALER 1
 #endif
 
-#define TIMER_10kHz	((AO_PCLK1 * TIMER_23467_SCALER) / 10000)
+#ifndef FAST_TIMER_FREQ
+#define FAST_TIMER_FREQ	10000
+#endif
+
+#define TIMER_FAST	((AO_PCLK1 * TIMER_23467_SCALER) / FAST_TIMER_FREQ)
 
 void
 ao_fast_timer_init(void)
@@ -100,7 +104,7 @@ ao_fast_timer_init(void)
 		/* Turn on timer 6 */
 		stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_TIM6EN);
 
-		stm_tim6.psc = TIMER_10kHz;
+		stm_tim6.psc = TIMER_FAST;
 		stm_tim6.arr = 9;
 		stm_tim6.cnt = 0;
 
