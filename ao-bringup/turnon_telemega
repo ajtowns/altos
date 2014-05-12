@@ -1,17 +1,13 @@
 #!/bin/sh
 
-if [ -x ../ao-tools/ao-stmload/ao-stmload ]; then
-	STMLOAD=../ao-tools/ao-stmload/ao-stmload
-elif [ -x /usr/bin/ao-stmload ]; then
-	STMLOAD=/usr/bin/ao-stmload
+if [ -x /usr/bin/ao-flash-stm ]; then
+	STMLOAD=/usr/bin/ao-flash-stm
 else
-	echo "Can't find ao-stmload!  Aborting."
+	echo "Can't find ao-flash-stm!  Aborting."
 	exit 1
 fi
 
-if [ -x ../ao-tools/ao-usbload/ao-usbload ]; then
-	USBLOAD=../ao-tools/ao-usbload/ao-usbload
-elif [ -x /usr/bin/ao-usbload ]; then
+if [ -x /usr/bin/ao-usbload ]; then
 	USBLOAD=/usr/bin/ao-usbload
 else
 	echo "Can't find ao-usbload!  Aborting."
@@ -19,10 +15,10 @@ else
 fi
 
 VERSION=1.0
-#VERSION=0.1
+REPO=~/altusmetrumllc/Binaries
 
 echo "TeleMega v$VERSION Turn-On and Calibration Program"
-echo "Copyright 2010 by Bdale Garbee.  Released under GPL v2"
+echo "Copyright 2014 by Bdale Garbee.  Released under GPL v2"
 echo
 echo "Expectations:"
 echo "\tTeleMega v$VERSIOn powered from USB"
@@ -34,12 +30,11 @@ read SERIAL
 
 echo $STMLOAD
 
-$STMLOAD --raw ../src/telemega-v$VERSION/flash-loader/*.elf || exit 1
+$STMLOAD $REPO/loaders/telemega-v$VERSION*.elf || exit 1
 
 sleep 2
 
-#$USBLOAD --serial=$SERIAL ../src/telemega-v$VERSION/*.ihx || exit 1
-$USBLOAD --serial=$SERIAL /usr/share/altos/telemega-v$VERSION*.ihx || exit 1
+$USBLOAD --serial=$SERIAL $REPO/telemega-v$VERSION*.elf || exit 1
 
 sleep 2
 

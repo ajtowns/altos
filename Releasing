@@ -6,7 +6,6 @@ These are Bdale's notes on how to do a release.
 	- make sure that doc/altusmetrum.xsl has the right copyright year,
 	  and add release to the revision history at the front (release notes
 	  will be pulled in automatically)
-	- do the same for doc/micropeak.xsl
 
 	- update the version in configure.ac
         git log > ChangeLog
@@ -56,6 +55,17 @@ These are Bdale's notes on how to do a release.
 	make && make fat
 
 		this pushes packages for each platform to web site
+
+	# store a stable copy of ARM binaries for production use
+	cp src/easymini-v1.0/*.elf \
+	   src/telemega-v1.0/*.elf \
+	   src/telemetrum-v2.0/*.elf \
+	   ~/altusmetrumllc/Binaries/
+	cp src/easymini-v1.0/flash-loader/*.elf \
+	   src/telemega-v1.0/flash-loader/*.elf \
+	   src/telemetrum-v2.0/flash-loader/*.elf \
+	   ~/altusmetrumllc/Binaries/loaders/
+	(cd ~/altusmetrumllc ; git commit -a) 
 
 	- copy the relevant release notes file from doc/ to 
 	    /home/bdale/web/altusmetrum/AltOS/releases/<rev>
