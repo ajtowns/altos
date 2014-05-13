@@ -71,7 +71,7 @@ do_baro(file f) {
 	real temperature = string_to_integer(temp[2]) / 100.0;
 	real altitude = string_to_integer(alt[1]);
 
-	if (altitude < 0 || 3000 < altitude) {
+	if (altitude < -50 || 3000 < altitude) {
 		printf ("weird altitude %f\n", altitude);
 		return false;
 	}
