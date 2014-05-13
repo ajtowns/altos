@@ -46,15 +46,20 @@ case $# in
 	;;
 esac
 
-FLASH_FILE=../src/$BASE-v$VERSION/flash-loader/$BASE-v$VERSION-altos-flash-*.elf
+#
+# Use released versions of everything
+#
+FLASH_FILE=~/altusmetrumllc/Binaries/loaders/easymini-v1.0-altos-flash-*.elf
+ALTOS_FILE=~/altusmetrumllc/Binaries/easymini-v1.0-*.elf
+
+#FLASH_FILE=../src/$BASE-v$VERSION/flash-loader/$BASE-v$VERSION-altos-flash-*.elf
+#ALTOS_FILE=../src/$BASE-v$VERSION/*.ihx
 
 echo $FLASH_LPC $FLASH_FILE
 
 $FLASH_LPC $FLASH_FILE || exit 1
 
-sleep 10
-
-ALTOS_FILE=../src/$BASE-v$VERSION/*.ihx
+sleep 1
 
 echo $USBLOAD $ALTOS_FILE
 
