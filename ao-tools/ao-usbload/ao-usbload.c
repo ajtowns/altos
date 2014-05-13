@@ -142,6 +142,8 @@ main (int argc, char **argv)
 	int			verbose = 0;
 	struct ao_sym		*file_symbols;
 	int			num_file_symbols;
+	uint32_t		flash_base, flash_bound;
+	int			has_flash_size = 0;
 
 	while ((c = getopt_long(argc, argv, "rT:D:c:s:v:", options, NULL)) != -1) {
 		switch (c) {
@@ -222,6 +224,14 @@ main (int argc, char **argv)
 				cc_usb_getline(cc, line, sizeof(line));
 				if (!strncmp(line, "altos-loader", 12))
 					is_loader = 1;
+				if (!strncmp(line, "flash-range", 11)) {
+					int i;
+					for (i = 11; i < strlen(line); i++)
+						if (line[i] != ' ')
+							break;
+					if (sscanf(line + i, "%x %x", &flash_base, &flash_bound) == 2)
+						has_flash_size = 1;
+				}
 				if (!strncmp(line, "software-version", 16))
 					break;
 			}
@@ -262,6 +272,22 @@ main (int argc, char **argv)
 #endif
 	}
 
+	/* If the device can tell us the size of flash, make sure
+	 * the image fits in that
+	 */
+	if (has_flash_size) {
+		if (load->address < flash_base ||
+		    load->address + load->length > flash_bound)
+		{
+			fprintf(stderr, "Image does not fit on device.\n");
+			fprintf(stderr, "  Image base:  %08x bounds %08x\n",
+				load->address, load->address + load->length);
+			fprintf(stderr, "  Device base: %08x bounds %08x\n",
+				flash_base, flash_bound);
+			done(cc, 1);
+		}
+	}
+
 	if (!raw) {
 		/* Go fetch existing config values
 		 * if available
@@ -295,7 +321,7 @@ main (int argc, char **argv)
 	/* And flash the resulting image to the device
 	 */
 	success = ao_self_write(cc, load);
-		
+
 	if (!success) {
 		fprintf (stderr, "\"%s\": Write failed\n", filename);
 		done(cc, 1);
