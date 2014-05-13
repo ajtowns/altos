@@ -39,6 +39,11 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 			value.setFont(Altos.status_font);
 		}
 
+		void setVisible(boolean visible) {
+			label.setVisible(visible);
+			value.setVisible(visible);
+		}
+
 		public FlightValue (GridBagLayout layout, int x, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
 			c.insets = new Insets(5, 5, 5, 5);
@@ -66,6 +71,10 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 	class Call extends FlightValue {
 		void show(AltosState state, AltosListenerState listener_state) {
 			value.setText(state.callsign);
+			if (state.callsign == null)
+				setVisible(false);
+			else
+				setVisible(true);
 		}
 		public Call (GridBagLayout layout, int x) {
 			super (layout, x, "Callsign");
@@ -116,6 +125,10 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 	class RSSI extends FlightValue {
 		void show(AltosState state, AltosListenerState listener_state) {
 			value.setText(String.format("%d", state.rssi()));
+			if (state.rssi == AltosLib.MISSING)
+				setVisible(false);
+			else
+				setVisible(true);
 		}
 		public RSSI (GridBagLayout layout, int x) {
 			super (layout, x, "RSSI");
