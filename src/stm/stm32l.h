@@ -176,12 +176,27 @@ stm_gpio_get_all(struct stm_gpio *gpio) {
 	return gpio->idr;
 }
 
-extern struct stm_gpio stm_gpioa;
-extern struct stm_gpio stm_gpiob;
-extern struct stm_gpio stm_gpioc;
-extern struct stm_gpio stm_gpiod;
-extern struct stm_gpio stm_gpioe;
-extern struct stm_gpio stm_gpioh;
+/*
+ * We can't define these in registers.ld or our fancy
+ * ao_enable_gpio macro will expand into a huge pile of code
+ * as the compiler won't do correct constant folding and
+ * dead-code elimination
+
+ extern struct stm_gpio stm_gpioa;
+ extern struct stm_gpio stm_gpiob;
+ extern struct stm_gpio stm_gpioc;
+ extern struct stm_gpio stm_gpiod;
+ extern struct stm_gpio stm_gpioe;
+ extern struct stm_gpio stm_gpioh;
+
+*/
+
+#define stm_gpioh  (*((struct stm_gpio *) 0x40021400))
+#define stm_gpioe  (*((struct stm_gpio *) 0x40021000))
+#define stm_gpiod  (*((struct stm_gpio *) 0x40020c00))
+#define stm_gpioc  (*((struct stm_gpio *) 0x40020800))
+#define stm_gpiob  (*((struct stm_gpio *) 0x40020400))
+#define stm_gpioa  (*((struct stm_gpio *) 0x40020000))
 
 struct stm_usart {
 	vuint32_t	sr;	/* status register */
