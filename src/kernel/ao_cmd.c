@@ -280,6 +280,9 @@ version(void)
 #if HAS_LOG
 	       "log-format       %u\n"
 #endif
+#if defined(AO_BOOT_APPLICATION_BASE) && defined(AO_BOOT_APPLICATION_BOUND)
+	       "program-space    %u\n"
+#endif
 	       , ao_manufacturer
 	       , ao_product
 	       , ao_serial_number
@@ -288,6 +291,9 @@ version(void)
 #endif
 #if HAS_LOG
 	       , ao_log_format
+#endif
+#if defined(AO_BOOT_APPLICATION_BASE) && defined(AO_BOOT_APPLICATION_BOUND)
+	       , (uint32_t) AO_BOOT_APPLICATION_BOUND - (uint32_t) AO_BOOT_APPLICATION_BASE
 #endif
 		);
 	printf("software-version %s\n", ao_version);
