@@ -140,6 +140,7 @@ ao_serial_init(void);
 #define AO_SPI_SPEED_FAST	AO_SPI_SPEED_12MHz
 
 #define AO_BOOT_APPLICATION_BASE	((uint32_t *) 0x00001000)
+#define AO_BOOT_APPLICATION_BOUND	((uint32_t *) (0x00000000 + 32 * 1024))
 #define AO_BOOT_LOADER_BASE		((uint32_t *) 0x00000000)
 #define HAS_BOOT_LOADER			1
 
