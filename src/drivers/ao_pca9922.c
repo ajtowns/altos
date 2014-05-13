@@ -66,6 +66,24 @@ ao_led_set_mask(uint8_t colors, uint8_t mask)
 	ao_led_apply();
 }
 
+#define LED_TEST	1
+#if LED_TEST
+static void
+ao_led_test(void)
+{
+	ao_cmd_hexbyte();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	ao_led_set(ao_cmd_lex_i);
+	printf("LEDs set to %02x\n", ao_cmd_lex_i);
+}
+
+static const struct ao_cmds ao_led_cmds[] = {
+	{ ao_led_test,	"l <value>\0Set LEDs to <value>" },
+	{ 0, NULL }
+};
+#endif
+
 void
 ao_led_toggle(uint8_t colors)
 {
@@ -86,4 +104,7 @@ ao_led_init(uint8_t enable)
 {
 	(void) enable;
 	ao_enable_output(AO_PCA9922_CS_PORT, AO_PCA9922_CS_PIN, AO_PCA9922_CS, 1);
+#if LED_TEST
+	ao_cmd_register(&ao_led_cmds[0]);
+#endif
 }
