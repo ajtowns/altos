@@ -52,5 +52,10 @@ stm_scb    = 0xe000ed00;
 
 stm_mpu    = 0xe000ed90;
 
+stm_dbg_mcu = 0xe0042000;
+
 /* calibration data in system memory */
 stm_temp_cal = 0x1ff80078;
+stm_flash_size_medium = 0x1ff8004c;
+stm_flash_size_large = 0x1ff800cc;
+stm_device_id = 0x1ff80050;

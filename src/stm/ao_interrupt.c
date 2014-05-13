@@ -39,6 +39,38 @@ void stm_ignore_isr(void)
 
 const void *stm_interrupt_vector[];
 
+uint32_t
+stm_flash_size(void) {
+	uint16_t	dev_id = stm_dev_id();
+	uint16_t	kbytes = 0;
+
+	switch (dev_id) {
+	case 0x416:	/* cat 1 */
+		kbytes = stm_flash_size_medium.f_size;
+		break;
+	case 0x429:	/* cat 2 */
+		kbytes = stm_flash_size_medium.f_size & 0xff;
+		break;
+	case 0x427:	/* cat 3 */
+		kbytes = stm_flash_size_large.f_size;
+		break;
+	case 0x436:	/* cat 4 */
+		switch (stm_flash_size_large.f_size) {
+		case 0:
+			kbytes = 256;
+			break;
+		case 1:
+			kbytes = 384;
+			break;
+		}
+		break;
+	case 0x437:	/* cat 5 */
+		kbytes = stm_flash_size_large.f_size;
+		break;
+	}
+	return (uint32_t) kbytes * 1024;
+}
+
 void start(void)
 {
 #ifdef AO_BOOT_CHAIN
