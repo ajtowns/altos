@@ -79,6 +79,14 @@ ao_block_erase(void)
 	ao_flash_erase_page(p);
 }
 
+static int
+ao_block_valid_address(uint32_t addr)
+{
+	if ((uint32_t) AO_BOOT_APPLICATION_BASE <= addr && addr <= (uint32_t) AO_BOOT_APPLICATION_BOUND - 256)
+		return 1;
+	return 0;
+}
+
 static void
 ao_block_write(void)
 {
@@ -87,12 +95,10 @@ ao_block_write(void)
 	uint8_t		data[256];
 	uint16_t	i;
 
-	if (addr < (uint32_t) AO_BOOT_APPLICATION_BASE) {
-		ao_put_string("Invalid address\n");
-		return;
-	}
 	for (i = 0; i < 256; i++)
 		data[i] = ao_usb_getchar();
+	if (!ao_block_valid_address(addr))
+		return;
 	ao_flash_page(p, (void *) data);
 }
 
@@ -104,10 +110,31 @@ ao_block_read(void)
 	uint16_t	i;
 	uint8_t		c;
 
+	if (!ao_block_valid_address(addr)) {
+		for (i = 0; i < 256; i++)
+			ao_usb_putchar(0xff);
+		return;
+	}
 	for (i = 0; i < 256; i++) {
 		c = *p++;
 		ao_usb_putchar(c);
 	}
+}
+
+static inline void
+hexchar(uint8_t c)
+{
+	if (c > 10)
+		c += 'a' - ('9' + 1);
+	ao_usb_putchar(c + '0');
+}
+
+static void
+ao_put_hex(uint32_t u)
+{
+	int8_t i;
+	for (i = 28; i >= 0; i -= 4)
+		hexchar((u >> i) & 0xf);
 }
 
 static void
@@ -116,6 +143,10 @@ ao_show_version(void)
 	ao_put_string("altos-loader");
 	ao_put_string("\nmanufacturer     "); ao_put_string(ao_manufacturer);
 	ao_put_string("\nproduct          "); ao_put_string(ao_product);
+	ao_put_string("\nflash-range      ");
+	ao_put_hex((uint32_t) AO_BOOT_APPLICATION_BASE);
+	ao_usb_putchar(' ');
+	ao_put_hex((uint32_t) AO_BOOT_APPLICATION_BOUND);
 	ao_put_string("\nsoftware-version "); ao_put_string(ao_version);
 	ao_put_string("\n");
 }
