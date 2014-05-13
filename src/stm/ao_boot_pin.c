@@ -26,7 +26,7 @@ ao_boot_check_pin(void)
 
 	/* Enable power interface clock */
 	stm_rcc.apb1enr |= (1 << STM_RCC_APB1ENR_PWREN);
-	
+
 	/* Enable the input pin */
 	ao_enable_input(&AO_BOOT_APPLICATION_GPIO, AO_BOOT_APPLICATION_PIN,
 			AO_BOOT_APPLICATION_MODE);
