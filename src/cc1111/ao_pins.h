@@ -21,6 +21,8 @@
 #define HAS_RADIO	1
 
 #if defined(TELEMETRUM_V_1_0)
+	/* Discontinued and was never built with CC1111 chips needing this */
+	#define NEEDS_CC1111_CLOCK_HACK	0
 	#define HAS_FLIGHT		1
 	#define HAS_USB			1
 	#define HAS_BEEP		1
@@ -56,6 +58,8 @@
 #endif
 
 #if defined(TELEMETRUM_V_1_1)
+	/* Discontinued and was never built with CC1111 chips needing this */
+	#define NEEDS_CC1111_CLOCK_HACK	0
 	#define HAS_FLIGHT		1
 	#define HAS_USB			1
 	#define HAS_BEEP		1
@@ -94,6 +98,8 @@
 #endif
 
 #if defined(TELEMETRUM_V_1_2)
+	/* Discontinued and was never built with CC1111 chips needing this */
+	#define NEEDS_CC1111_CLOCK_HACK	0
 	#define HAS_FLIGHT		1
 	#define HAS_USB			1
 	#define HAS_BEEP		1
@@ -160,6 +166,8 @@
 #endif
 
 #if defined(TELEMINI_V_1_0)
+	/* Discontinued and was never built with CC1111 chips needing this */
+	#define NEEDS_CC1111_CLOCK_HACK	0
 	#define HAS_FLIGHT		1
 	#define HAS_USB			0
 	#define HAS_BEEP		0
@@ -187,6 +195,8 @@
 #endif
 
 #if defined(TELENANO_V_0_1)
+	/* Discontinued and was never built with CC1111 chips needing this */
+	#define NEEDS_CC1111_CLOCK_HACK	0
 	#define HAS_FLIGHT		1
 	#define HAS_USB			0
 	#define HAS_BEEP		0
@@ -212,6 +222,8 @@
 #endif
 
 #if defined(TELEMETRUM_V_0_1)
+	/* Discontinued and was never built with CC1111 chips needing this */
+	#define NEEDS_CC1111_CLOCK_HACK	0
 	#define HAS_FLIGHT		1
 	#define HAS_USB			1
 	#define HAS_BEEP		1
@@ -243,6 +255,8 @@
 #endif
 
 #if defined(TELEDONGLE_V_0_1)
+	/* Discontinued and was never built with CC1111 chips needing this */
+	#define NEEDS_CC1111_CLOCK_HACK	0
 	#define HAS_FLIGHT		0
 	#define HAS_USB			1
 	#define HAS_BEEP		0
@@ -271,6 +285,8 @@
 #endif
 
 #if defined(TIDONGLE)
+	/* Discontinued and was never built with CC1111 chips needing this */
+	#define NEEDS_CC1111_CLOCK_HACK	0
 	#define HAS_FLIGHT		0
 	#define HAS_USB			1
 	#define HAS_BEEP		0
@@ -298,6 +314,8 @@
 #endif
 
 #if defined(TELEBT_V_0_0)
+	/* Discontinued and was never built with CC1111 chips needing this */
+	#define NEEDS_CC1111_CLOCK_HACK	0
 	#define HAS_FLIGHT		0
 	#define HAS_USB			1
 	#define HAS_BEEP		0
@@ -334,6 +352,8 @@
 #endif
 
 #if defined(TELEBT_V_0_1)
+	/* Discontinued and was never built with CC1111 chips needing this */
+	#define NEEDS_CC1111_CLOCK_HACK	0
 	#define HAS_FLIGHT		0
 	#define HAS_USB			1
 	#define HAS_BEEP		1
@@ -378,6 +398,8 @@
 #endif
 
 #if defined(TELELAUNCH_V_0_1)
+	/* Discontinued and was never built with CC1111 chips needing this */
+	#define NEEDS_CC1111_CLOCK_HACK	0
 	#define HAS_FLIGHT		0
 	#define HAS_USB			1
 	#define HAS_BEEP		1
