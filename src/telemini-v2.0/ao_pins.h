@@ -30,7 +30,7 @@
 
 #define USB_FORCE_FLIGHT_IDLE	1
 #define HAS_BEEP		1
-#define HAS_BEEP_CONFIG		0
+#define HAS_BEEP_CONFIG		1
 #define HAS_BATTERY_REPORT	1
 #define HAS_GPS			0
 #define HAS_SERIAL_1		0
