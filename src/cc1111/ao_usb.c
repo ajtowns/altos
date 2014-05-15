@@ -274,7 +274,7 @@ ao_usb_ep0_setup(void)
 			ao_usb_ep0_in_len = ao_usb_setup.length;
 		ao_usb_ep0_flush();
 	} else if (ao_usb_ep0_out_len) {
-		
+
 		/* Receiving data from the host
 		 */
 		ao_usb_ep0_state = AO_USB_EP0_DATA_OUT;
@@ -448,6 +448,9 @@ ao_usb_enable(void)
 	USBCIF = 0;
 	USBOIF = 0;
 	USBIIF = 0;
+#if HAS_USB_PULLUP
+	ao_gpio_set(AO_USB_PULLUP_PORT, AO_USB_PULLUP_PIN, AO_USB_PULLUP, 0);
+#endif
 }
 
 void
@@ -458,6 +461,10 @@ ao_usb_disable(void)
 	USBOIE = 0;
 	USBCIE = 0;
 	IEN2 &= ~IEN2_USBIE;
+
+#if HAS_USB_PULLUP
+	ao_gpio_set(AO_USB_PULLUP_PORT, AO_USB_PULLUP_PIN, AO_USB_PULLUP, 0);
+#endif
 
 	/* Clear any pending interrupts */
 	USBCIF = 0;
@@ -471,6 +478,9 @@ ao_usb_disable(void)
 void
 ao_usb_init(void)
 {
+#if HAS_USB_PULLUP
+	ao_enable_output(AO_USB_PULLUP_PORT, AO_USB_PULLUP_PIN, AO_USB_PULLUP, 0);
+#endif
 	ao_usb_enable();
 
 	ao_add_task(&ao_usb_task, ao_usb_ep0, "usb");
