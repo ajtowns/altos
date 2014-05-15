@@ -72,7 +72,7 @@
 #define PACKET_HAS_SLAVE	0
 #define PACKET_HAS_MASTER	0
 
-#define FAST_TIMER_FREQ		200	/* 5ms for debouncing */
+#define FAST_TIMER_FREQ		10000	/* .1ms for debouncing */
 
 /*
  * Radio is a cc1120 connected via SPI

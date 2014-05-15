@@ -24,6 +24,13 @@
 __xdata int32_t ao_quadrature_count[AO_QUADRATURE_COUNT];
 static uint8_t  ao_quadrature_state[AO_QUADRATURE_COUNT];
 
+struct ao_debounce {
+	uint8_t	state;
+	uint8_t	count;
+};
+
+static struct ao_debounce ao_debounce_state[AO_QUADRATURE_COUNT][2];
+
 #define port(q)	AO_QUADRATURE_ ## q ## _PORT
 #define bita(q) AO_QUADRATURE_ ## q ## _A
 #define bitb(q) AO_QUADRATURE_ ## q ## _B
@@ -31,14 +38,35 @@ static uint8_t  ao_quadrature_state[AO_QUADRATURE_COUNT];
 #define pinb(q) AO_QUADRATURE_ ## q ## _B ## _PIN
 #define isr(q)  ao_quadrature_isr_ ## q
 
-static inline uint16_t
-ao_quadrature_read(struct stm_gpio *gpio, uint8_t pin_a, uint8_t pin_b) {
-	uint16_t	v = stm_gpio_get_all(gpio);
+#define DEBOUNCE	10
 
-	return ~((((v >> pin_a) & 1) | (((v >> pin_b) & 1) << 1))) & 3;
+static uint8_t
+ao_debounce(uint8_t cur, struct ao_debounce *debounce)
+{
+	if (cur == debounce->state)
+		debounce->count = 0;
+	else {
+		if (++debounce->count == DEBOUNCE) {
+			debounce->state = cur;
+			debounce->count = 0;
+		}
+	}
+	return debounce->state;
 }
 
-#define _ao_quadrature_get(q)	ao_quadrature_read(port(q), bita(q), bitb(q))
+static uint16_t
+ao_quadrature_read(struct stm_gpio *gpio, uint8_t pin_a, uint8_t pin_b, struct ao_debounce debounce_state[2]) {
+	uint16_t	v = ~stm_gpio_get_all(gpio);
+	uint8_t		a = (v >> pin_a) & 1;
+	uint8_t		b = (v >> pin_b) & 1;
+
+	a = ao_debounce(a, &debounce_state[0]);
+	b = ao_debounce(b, &debounce_state[1]);
+
+	return a | (b << 1);
+}
+
+#define _ao_quadrature_get(q)	ao_quadrature_read(port(q), bita(q), bitb(q), ao_debounce_state[q])
 
 static void
 _ao_quadrature_queue(uint8_t q, int8_t step)
@@ -49,7 +77,6 @@ _ao_quadrature_queue(uint8_t q, int8_t step)
 #endif
 	ao_wakeup(&ao_quadrature_count[q]);
 }
-
 
 static void
 _ao_quadrature_set(uint8_t q, uint8_t new) {
