@@ -30,7 +30,6 @@ INC = \
 CORE_SRC = \
 	ao_cmd.c \
 	ao_config.c \
-	ao_convert.c \
 	ao_flight.c \
 	ao_kalman.c \
 	ao_log.c \
