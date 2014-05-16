@@ -292,7 +292,7 @@ public class AltosConfigData implements Iterable<String> {
 		try { aprs_interval = get_int(line, "APRS interval:"); } catch (Exception e) {}
 
 		/* HAS_BEEP */
-		try { beep = get_int(line, "Beeper setting:"); System.out.printf ("beeper now %d\n", beep); } catch (Exception e) {}
+		try { beep = get_int(line, "Beeper setting:"); } catch (Exception e) {}
 
 		/* Storage info replies */
 		try { storage_size = get_int(line, "Storage size:"); } catch (Exception e) {}
