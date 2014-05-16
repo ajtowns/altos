@@ -2184,6 +2184,20 @@ NAR #88757, TRA #12200
         </para>
       </section>
       <section>
+	<title>Apogee Lockout</title>
+	<para>
+	  Apogee lockout is the number of seconds after boost where
+	  the flight computer will not fire the apogee charge, even if
+	  the rocket appears to be at apogee. This is often called
+	  'Mach Delay', as it is intended to prevent a flight computer
+	  from unintentionally firing apogee charges due to the pressure
+	  spike that occurrs across a mach transition. Altus Metrum
+	  flight computers include a Kalman filter which is not fooled
+	  by this sharp pressure increase, and so this setting should
+	  be left at the default value of zero to disable it.
+	</para>
+      </section>
+      <section>
         <title>Main Deployment Altitude</title>
         <para>
           By default, the altimeter will fire the main deployment charge at an
