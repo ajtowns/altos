@@ -951,7 +951,6 @@ public class AltosConfigUI
 
 	public void set_beep(int new_beep) {
 		int new_freq = (int) Math.floor (AltosConvert.beep_value_to_freq(new_beep) + 0.5);
-		System.out.printf("set_beep %d %d\n", new_beep, new_freq);
 		for (int i = 0; i < beep_values.length; i++)
 			if (new_beep == AltosConvert.beep_freq_to_value(Integer.parseInt(beep_values[i]))) {
 				beep_value.setSelectedIndex(i);
