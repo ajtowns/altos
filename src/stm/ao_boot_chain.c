@@ -50,7 +50,7 @@ ao_boot_check_chain(void)
 	if (ao_boot.signal == AO_BOOT_SIGNAL && ao_boot.check == AO_BOOT_CHECK) {
 		ao_boot.signal = 0;
 		ao_boot.check = 0;
-		if (ao_boot.base == 0)
+		if (ao_boot.base == AO_BOOT_FORCE_LOADER)
 			return 0;
 		ao_boot_chain(ao_boot.base);
 	}
