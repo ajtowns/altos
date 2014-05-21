@@ -9,6 +9,7 @@ INC = \
 	ao.h \
 	ao_arch.h \
 	ao_arch_funcs.h \
+	ao_boot.h \
 	ao_companion.h \
 	ao_data.h \
 	ao_sample.h \
