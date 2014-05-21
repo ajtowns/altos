@@ -30,7 +30,7 @@ ao_battery_decivolt(int16_t adc)
 }
 #endif
 
-#if HAS_APRS
+#if HAS_APRS && defined(AO_IGNITE_DIV_PLUS)
 int16_t
 ao_ignite_decivolt(int16_t adc)
 {
