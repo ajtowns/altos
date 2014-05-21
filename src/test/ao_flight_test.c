@@ -732,6 +732,18 @@ ao_sleep(void *wchan)
 					ao_flight_started = 1;
 					ao_ground_pres = int32(bytes, 4);
 					ao_ground_height = ao_pa_to_altitude(ao_ground_pres);
+					ao_ground_accel_along = int16(bytes, 8);
+					ao_ground_accel_across = int16(bytes, 10);
+					ao_ground_accel_through = int16(bytes, 12);
+					ao_ground_roll = int16(bytes, 14);
+					ao_ground_pitch = int16(bytes, 16);
+					ao_ground_yaw = int16(bytes, 18);
+					ao_ground_mpu6000.accel_x = ao_ground_accel_across;
+					ao_ground_mpu6000.accel_y = ao_ground_accel_along;
+					ao_ground_mpu6000.accel_z = ao_ground_accel_through;
+					ao_ground_mpu6000.gyro_x = ao_ground_pitch >> 9;
+					ao_ground_mpu6000.gyro_y = ao_ground_roll >> 9;
+					ao_ground_mpu6000.gyro_z = ao_ground_yaw >> 9;
 					break;
 				case 'A':
 					ao_data_static.tick = tick;
@@ -791,7 +803,7 @@ ao_sleep(void *wchan)
 
 				for (i = 2; i < nword; i++) {
 					for (j = 0; j < NUM_PYRO_VALUES; j++)
-						if (!strcmp (words[2], ao_pyro_values[j].name))
+						if (!strcmp (words[i], ao_pyro_values[j].name))
 							break;
 					if (j == NUM_PYRO_VALUES)
 						continue;
