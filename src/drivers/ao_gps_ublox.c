@@ -601,6 +601,14 @@ static const uint8_t ublox_enable_nav[] = {
 };
 
 void
+ao_gps_set_rate(uint8_t rate)
+{
+	uint8_t	i;
+	for (i = 0; i < sizeof (ublox_enable_nav); i++)
+		ao_ublox_set_message_rate(UBLOX_NAV, ublox_enable_nav[i], rate);
+}
+
+void
 ao_gps(void) __reentrant
 {
 	uint8_t			class, id;
@@ -616,8 +624,7 @@ ao_gps(void) __reentrant
 		ao_ublox_set_message_rate(UBLOX_NAV, ublox_disable_nav[i], 0);
 
 	/* Enable all of the messages we want */
-	for (i = 0; i < sizeof (ublox_enable_nav); i++)
-		ao_ublox_set_message_rate(UBLOX_NAV, ublox_enable_nav[i], 1);
+	ao_gps_set_rate(1);
 
 	ao_ublox_set_navigation_settings((1 << UBLOX_CFG_NAV5_MASK_DYN) | (1 << UBLOX_CFG_NAV5_MASK_FIXMODE),
 					 UBLOX_CFG_NAV5_DYNMODEL_AIRBORNE_4G,

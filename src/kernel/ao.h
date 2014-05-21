@@ -394,6 +394,9 @@ struct ao_gps_tracking_orig {
 };
 
 void
+ao_gps_set_rate(uint8_t rate);
+
+void
 ao_gps(void);
 
 void
