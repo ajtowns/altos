@@ -23,7 +23,16 @@
 
 #include <ao_telemetry.h>
 
+#define AO_GPS_NUM_SAT_MASK	(0xf << 0)
+#define AO_GPS_NUM_SAT_SHIFT	(0)
+
+#define AO_GPS_VALID		(1 << 4)
+#define AO_GPS_RUNNING		(1 << 5)
+#define AO_GPS_DATE_VALID	(1 << 6)
+#define AO_GPS_COURSE_VALID	(1 << 7)
+
 struct ao_telemetry_location ao_gps_data;
+struct ao_telemetry_satellite ao_gps_tracking_data;
 
 #define AO_APRS_TEST
 
@@ -73,7 +82,7 @@ ao_radio_send_aprs(ao_radio_fill_func fill);
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *  
+ *
 
  */
 
@@ -96,6 +105,7 @@ int main(int argc, char **argv)
     ao_gps_data.latitude = (45.0 + 28.25 / 60.0) * 10000000;
     ao_gps_data.longitude = (-(122 + 44.2649 / 60.0)) * 10000000;
     ao_gps_data.altitude = 84;
+    ao_gps_data.flags = (AO_GPS_VALID|AO_GPS_RUNNING);
 
     /* Transmit one packet */
     ao_aprs_send();

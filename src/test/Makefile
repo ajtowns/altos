@@ -55,7 +55,7 @@ ao_fec_test: ao_fec_test.c ao_fec_tx.c ao_fec_rx.c
 	cc $(CFLAGS) -DAO_FEC_DEBUG=1 -o $@ ao_fec_test.c ../kernel/ao_fec_tx.c ../kernel/ao_fec_rx.c -lm
 
 ao_aprs_test: ao_aprs_test.c ao_aprs.c
-	cc $(CFLAGS) -o $@ ao_aprs_test.c
+	cc $(CFLAGS) -o $@ ao_aprs_test.c -lm
 
 SOX_INPUT_ARGS=--type raw --encoding unsigned-integer -b 8 -c 1 -r 9600
 SOX_OUTPUT_ARGS=--type wav
