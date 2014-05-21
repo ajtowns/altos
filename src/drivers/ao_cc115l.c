@@ -52,8 +52,8 @@ struct ao_cc115l_reg {
 
 #if CC115L_TRACE
 
-const static struct ao_cc115l_reg ao_cc115l_reg[];
-const static char *cc115l_state_name[];
+static const struct ao_cc115l_reg ao_cc115l_reg[];
+static const char *cc115l_state_name[];
 
 enum ao_cc115l_trace_type {
 	trace_strobe,
@@ -87,6 +87,8 @@ static void trace_add(enum ao_cc115l_trace_type type, int16_t addr, int16_t valu
 		break;
 	case trace_strobe:
 		comment = cc115l_state_name[(value >> 4) & 0x7];
+		break;
+	default:
 		break;
 	}
 	trace[trace_i].type = type;
@@ -197,24 +199,22 @@ ao_radio_tx_fifo_space(void)
 	return CC115L_FIFO_SIZE - (ao_radio_reg_read(CC115L_TXBYTES) & CC115L_TXBYTES_NUM_TX_BYTES_MASK);
 }
 
-#if UNUSED
+#if CC115L_DEBUG
 static uint8_t
 ao_radio_status(void)
 {
 	return ao_radio_strobe (CC115L_SNOP);
 }
-#endif
 
-#define ao_radio_rdf_value 0x55
-
-#if UNUSED
 static uint8_t
 ao_radio_get_marcstate(void)
 {
 	return ao_radio_reg_read(CC115L_MARCSTATE) & CC115L_MARCSTATE_MASK;
 }
 #endif
-	  
+
+#define ao_radio_rdf_value 0x55
+
 static void
 ao_radio_done_isr(void)
 {
@@ -668,8 +668,8 @@ ao_radio_test_cmd(void)
 static inline int16_t
 ao_radio_gpio_bits(void)
 {
-	return AO_CC115L_DONE_INT_PORT->idr & ((1 << AO_CC115L_FIFO_INT_PIN) |
-					       (1 << AO_CC115L_DONE_INT_PIN));
+	return ((ao_gpio_get(AO_CC115L_DONE_INT_PORT, AO_CC115L_DONE_INT_PIN, AO_CC115L_DONE_INT) << 1) |
+		ao_gpio_get(AO_CC115L_FIFO_INT_PORT, AO_CC115L_FIFO_INT_PIN, AO_CC115L_FIFO_INT));
 }
 #endif
 
@@ -819,7 +819,7 @@ ao_radio_send_aprs(ao_radio_fill_func fill)
 }
 
 #if CC115L_DEBUG
-const static char *cc115l_state_name[] = {
+static const char *cc115l_state_name[] = {
 	[CC115L_STATUS_STATE_IDLE] = "IDLE",
 	[CC115L_STATUS_STATE_TX] = "TX",
 	[CC115L_STATUS_STATE_FSTXON] = "FSTXON",
@@ -828,7 +828,7 @@ const static char *cc115l_state_name[] = {
 	[CC115L_STATUS_STATE_TX_FIFO_UNDERFLOW] = "TX_FIFO_UNDERFLOW",
 };
 
-const static struct ao_cc115l_reg ao_cc115l_reg[] = {
+static const struct ao_cc115l_reg ao_cc115l_reg[] = {
 	{ .addr = CC115L_IOCFG2, .name = "IOCFG2" },
 	{ .addr = CC115L_IOCFG1, .name = "IOCFG1" },
 	{ .addr = CC115L_IOCFG0, .name = "IOCFG0" },
@@ -874,7 +874,7 @@ const static struct ao_cc115l_reg ao_cc115l_reg[] = {
 
 static void ao_radio_show(void) {
 	uint8_t	status = ao_radio_status();
-	int	i;
+	unsigned int	i;
 
 	ao_radio_get();
 	status = ao_radio_status();
