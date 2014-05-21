@@ -160,7 +160,7 @@ ao_adc_dump(void) __reentrant
 #else
 	printf("tick: %5u",  packet.tick);
 	d = (int16_t *) (&packet.adc);
-	for (i = 0; i < AO_NUM_ADC; i++)
+	for (i = 0; i < AO_ADC_NUM; i++)
 		printf (" %2d: %5d", i, d[i]);
 	printf("\n");
 #endif
