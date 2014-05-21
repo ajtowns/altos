@@ -512,23 +512,38 @@ static int tncComment(uint8_t *buf)
 {
 #if HAS_ADC
 	struct ao_data packet;
-	
+
 	ao_arch_critical(ao_data_get(&packet););
 
 	int16_t battery = ao_battery_decivolt(packet.adc.v_batt);
+#ifdef AO_SENSE_DROGUE
 	int16_t apogee = ao_ignite_decivolt(AO_SENSE_DROGUE(&packet));
+#endif
+#ifdef AO_SENSE_MAIN
 	int16_t main = ao_ignite_decivolt(AO_SENSE_MAIN(&packet));
+#endif
 
 	return sprintf((char *) buf,
-		       "%c%d B%d.%d A%d.%d M%d.%d",
-		       ao_gps_locked(),
+		       "%c%d B%d.%d"
+#ifdef AO_SENSE_DROGUE
+		       " A%d.%d"
+#endif
+#ifdef AO_SENSE_MAIN
+		       " M%d.%d"
+#endif
+		       , ao_gps_locked(),
 		       ao_num_sats(),
 		       battery/10,
-		       battery % 10,
-		       apogee/10,
-		       apogee%10,
-		       main/10,
-		       main%10);
+		       battery % 10
+#ifdef AO_SENSE_DROGUE
+		       , apogee/10,
+		       apogee%10
+#endif
+#ifdef AO_SENSE_MAIN
+		       , main/10,
+		       main%10
+#endif
+		);
 #else
 	return sprintf((char *) buf,
 		       "%c%d",
