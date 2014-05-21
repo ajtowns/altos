@@ -753,7 +753,7 @@ extern __xdata uint8_t ao_force_freq;
 #endif
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	16
+#define AO_CONFIG_MINOR	17
 
 #define AO_AES_LEN 16
 
@@ -794,6 +794,10 @@ struct ao_config {
 #endif
 #if HAS_BEEP
 	uint8_t		mid_beep;		/* minor version 16 */
+#endif
+#if HAS_TRACKER
+	uint16_t	tracker_start_horiz;	/* minor version 17 */
+	uint16_t	tracker_start_vert;	/* minor version 17 */
 #endif
 };
 

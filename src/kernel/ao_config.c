@@ -25,6 +25,9 @@
 #if HAS_BEEP
 #include <ao_beep.h>
 #endif
+#if HAS_TRACKER
+#include <ao_tracker.h>
+#endif
 
 __xdata struct ao_config ao_config;
 __pdata uint8_t ao_config_loaded;
@@ -177,6 +180,12 @@ _ao_config_get(void)
 #if HAS_BEEP_CONFIG
 		if (minor < 16)
 			ao_config.mid_beep = AO_BEEP_MID_DEFAULT;
+#endif
+#if HAS_TRACKER
+		if (minor < 17) {
+			ao_config.tracker_start_horiz = AO_CONFIG_DEFAULT_TRACKER_START_HORIZ;
+			ao_config.tracker_start_vert = AO_CONFIG_DEFAULT_TRACKER_START_VERT;
+		}
 #endif
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
@@ -676,6 +685,33 @@ ao_config_beep_set(void)
 }
 #endif
 
+#if HAS_TRACKER
+void
+ao_config_tracker_show(void)
+{
+	printf ("Tracker setting: %d %d\n",
+		ao_config.tracker_start_horiz,
+		ao_config.tracker_start_vert);
+}
+
+void
+ao_config_tracker_set(void)
+{
+	uint16_t	h, v;
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	h = ao_cmd_lex_i;
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	v = ao_cmd_lex_i;
+	_ao_config_edit_start();
+	ao_config.tracker_start_horiz = h;
+	ao_config.tracker_start_vert = v;
+	_ao_config_edit_finish();
+}
+#endif /* HAS_TRACKER */
 
 struct ao_config_var {
 	__code char	*str;
@@ -724,7 +760,7 @@ __code struct ao_config_var ao_config_vars[] = {
 #if HAS_ACCEL
 	{ "a <+g> <-g>\0Accel calib (0 for auto)",
 	  ao_config_accel_calibrate_set,ao_config_accel_calibrate_show },
-	{ "o <0 antenna up, 1 antenna down>\0Set pad orientation",
+	{ "o <0 antenna up, 1 antenna down>\0Pad orientation",
 	  ao_config_pad_orientation_set,ao_config_pad_orientation_show },
 #endif /* HAS_ACCEL */
 #if HAS_LOG
@@ -732,15 +768,15 @@ __code struct ao_config_var ao_config_vars[] = {
 	  ao_config_log_set,		ao_config_log_show },
 #endif
 #if HAS_IGNITE
-	{ "i <0 dual, 1 apogee, 2 main>\0Set igniter mode",
+	{ "i <0 dual, 1 apogee, 2 main>\0Igniter mode",
 	  ao_config_ignite_mode_set,	ao_config_ignite_mode_show },
 #endif
 #if HAS_AES
-	{ "k <32 hex digits>\0Set AES encryption key",
+	{ "k <32 hex digits>\0AES encryption key",
 	  ao_config_key_set, ao_config_key_show },
 #endif
 #if AO_PYRO_NUM
-	{ "P <n,?>\0Configure pyro channels",
+	{ "P <n,?>\0Pyro channels",
 	  ao_pyro_set, ao_pyro_show },
 #endif
 #if HAS_APRS
@@ -748,8 +784,12 @@ __code struct ao_config_var ao_config_vars[] = {
 	  ao_config_aprs_set, ao_config_aprs_show },
 #endif
 #if HAS_BEEP_CONFIG
-	{ "b <val>\0Configure beeper tone (freq = 1/2 (24e6/32) / beep",
+	{ "b <val>\0Beeper tone (freq = 1/2 (24e6/32) / beep",
 	  ao_config_beep_set, ao_config_beep_show },
+#endif
+#if HAS_TRACKER
+	{ "t <horiz> <vert>\0Tracker start trigger distances",
+	  ao_config_tracker_set, ao_config_tracker_show },
 #endif
 	{ "s\0Show",
 	  ao_config_show,		0 },
