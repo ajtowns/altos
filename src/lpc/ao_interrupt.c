@@ -172,5 +172,5 @@ const void *lpc_interrupt_vector[] = {
 	i(0xb0, hardfault),	/* IRQ28 */
 	i(0xb4, hardfault),
 	i(0xb8, usb_wakeup),
-	i(0xbc, hardfault),	
+	i(0xbc, hardfault),
 };

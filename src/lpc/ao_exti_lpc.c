@@ -69,7 +69,7 @@ _ao_exti_set_enable(uint8_t pint)
 		lpc_gpio_pin.sienr = mask;
 	else
 		lpc_gpio_pin.cienr = mask;
-		
+
 	if (mode & AO_EXTI_MODE_FALLING)
 		lpc_gpio_pin.sienf = mask;
 	else
@@ -98,7 +98,7 @@ ao_exti_setup (uint8_t port, uint8_t pin, uint8_t mode, void (*callback)(void)) 
 	mask = (1 << pint);
 	ao_pint_inuse |= mask;
 	ao_pint_enabled &= ~mask;
-	
+
 	ao_pint_map[id] = pint;
 	ao_exti_callback[pint] = callback;
 
