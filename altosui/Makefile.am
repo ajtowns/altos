@@ -28,7 +28,6 @@ altosui_JAVA = \
 	AltosConfigureUI.java \
 	AltosConfigTD.java \
 	AltosConfigTDUI.java \
-	AltosCSV.java \
 	AltosCSVUI.java \
 	AltosDescent.java \
 	AltosDeviceUIDialog.java \
@@ -53,7 +52,6 @@ altosui_JAVA = \
 	AltosLaunch.java \
 	AltosLaunchUI.java \
 	AltosInfoTable.java \
-	AltosKML.java \
 	AltosLanded.java \
 	AltosLed.java \
 	AltosLights.java \
@@ -68,7 +66,6 @@ altosui_JAVA = \
 	AltosSiteMapCache.java \
 	AltosSiteMapTile.java \
 	AltosUI.java \
-	AltosWriter.java \
 	AltosGraph.java \
 	AltosGraphDataPoint.java \
 	AltosGraphDataSet.java \

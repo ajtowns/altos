@@ -31,6 +31,7 @@ altoslib_JAVA = \
 	AltosConfigValues.java \
 	AltosConvert.java \
 	AltosCRCException.java \
+	AltosCSV.java \
 	AltosDebug.java \
 	AltosEeprom.java \
 	AltosEepromChunk.java \
@@ -62,6 +63,7 @@ altoslib_JAVA = \
 	AltosIdleMonitorListener.java \
 	AltosIgnite.java \
 	AltosIMU.java \
+	AltosKML.java \
 	AltosLine.java \
 	AltosLink.java \
 	AltosListenerState.java \
@@ -114,7 +116,8 @@ altoslib_JAVA = \
 	AltosSpeed.java \
 	AltosTemperature.java \
 	AltosAccel.java \
-	AltosPyro.java
+	AltosPyro.java \
+	AltosWriter.java
 
 JAR=altoslib_$(ALTOSLIB_VERSION).jar
 

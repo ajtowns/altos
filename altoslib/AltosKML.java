@@ -15,10 +15,9 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altoslib_3;
 
 import java.io.*;
-import org.altusmetrum.altoslib_3.*;
 
 public class AltosKML implements AltosWriter {
 
@@ -95,7 +94,7 @@ public class AltosKML implements AltosWriter {
 	boolean	started = false;
 
 	void state_start(AltosState state) {
-		String	state_name = Altos.state_name(state.state);
+		String	state_name = AltosLib.state_name(state.state);
 		out.printf(kml_style_start, state_name, kml_state_colors[state.state]);
 		out.printf("\tState: %s\n", state_name);
 		out.printf("%s", kml_style_end);

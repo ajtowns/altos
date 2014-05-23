@@ -15,11 +15,10 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altoslib_3;
 
 import java.io.*;
 import java.util.*;
-import org.altusmetrum.altoslib_3.*;
 
 public class AltosCSV implements AltosWriter {
 	File			name;
@@ -281,7 +280,7 @@ public class AltosCSV implements AltosWriter {
 	}
 
 	public void write(AltosState state) {
-		if (state.state == Altos.ao_flight_startup)
+		if (state.state == AltosLib.ao_flight_startup)
 			return;
 		if (!header_written) {
 			write_header(state.imu != null || state.mag != null,
@@ -289,7 +288,7 @@ public class AltosCSV implements AltosWriter {
 			header_written = true;
 		}
 		if (!seen_boost) {
-			if (state.state >= Altos.ao_flight_boost) {
+			if (state.state >= AltosLib.ao_flight_boost) {
 				seen_boost = true;
 				boost_tick = state.tick;
 				flush_pad();
