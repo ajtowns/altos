@@ -53,6 +53,7 @@ struct cc_usb {
 
 	struct cc_hex_read	hex_buf[CC_NUM_HEX_READ];
 	int			hex_count;
+	int			show_input;
 
 	int			remote;
 };
@@ -156,7 +157,7 @@ cc_usb_dbg(int indent, uint8_t *bytes, int len)
  */
 
 static int
-_cc_usb_sync(struct cc_usb *cc, int wait_for_input)
+_cc_usb_sync(struct cc_usb *cc, int wait_for_input, int write_timeout)
 {
 	int		ret;
 	struct pollfd	fds;
@@ -165,7 +166,7 @@ _cc_usb_sync(struct cc_usb *cc, int wait_for_input)
 	fds.fd = cc->fd;
 	for (;;) {
 		if (cc->hex_count || cc->out_count)
-			timeout = 5000;
+			timeout = write_timeout;
 		else if (wait_for_input && cc->in_pos == cc->in_count)
 			timeout = wait_for_input;
 		else
@@ -200,6 +201,10 @@ _cc_usb_sync(struct cc_usb *cc, int wait_for_input)
 				cc->in_count += ret;
 				if (cc->hex_count)
 					cc_handle_hex_read(cc);
+				if (cc->show_input && cc->in_count) {
+					write(2, cc->in_buf, cc->in_count);
+					cc->in_count = 0;
+				}
 			} else if (ret < 0)
 				perror("read");
 		}
@@ -222,7 +227,7 @@ _cc_usb_sync(struct cc_usb *cc, int wait_for_input)
 void
 cc_usb_sync(struct cc_usb *cc)
 {
-	if (_cc_usb_sync(cc, 0) < 0) {
+	if (_cc_usb_sync(cc, 0, 5000) < 0) {
 		fprintf(stderr, "USB link timeout\n");
 		exit(1);
 	}
@@ -263,7 +268,7 @@ int
 cc_usb_getchar_timeout(struct cc_usb *cc, int timeout)
 {
 	while (cc->in_pos == cc->in_count) {
-		if (_cc_usb_sync(cc, timeout) < 0) {
+		if (_cc_usb_sync(cc, timeout, 5000) < 0) {
 			fprintf(stderr, "USB link timeout\n");
 			exit(1);
 		}
@@ -395,7 +400,7 @@ cc_usb_open_remote(struct cc_usb *cc, int freq, char *call)
 		cc_usb_printf(cc, "\nc F %d\nc c %s\np\nE 0\n", freq, call);
 		do {
 			cc->in_count = cc->in_pos = 0;
-			_cc_usb_sync(cc, 100);
+			_cc_usb_sync(cc, 100, 5000);
 		} while (cc->in_count > 0);
 		cc->remote = 1;
 	}
@@ -454,7 +459,7 @@ cc_usb_open(char *tty)
 	cc_usb_printf(cc, "\nE 0\nm 0\n");
 	do {
 		cc->in_count = cc->in_pos = 0;
-		_cc_usb_sync(cc, 100);
+		_cc_usb_sync(cc, 100, 5000);
 	} while (cc->in_count > 0);
 	return cc;
 }
@@ -467,4 +472,27 @@ cc_usb_close(struct cc_usb *cc)
 	tcsetattr(cc->fd, TCSAFLUSH, &save_termios);
 	close (cc->fd);
 	free (cc);
+}
+
+int
+cc_usb_write(struct cc_usb *cc, void *buf, int c)
+{
+	uint8_t	*b;
+	int this_time;
+
+	b = buf;
+	cc->show_input = 1;
+	while (c > 0) {
+		this_time = c;
+		if (this_time > CC_OUT_BUF - cc->out_count)
+			this_time = CC_OUT_BUF - cc->out_count;
+		memcpy(cc->out_buf + cc->out_count, b, this_time);
+		cc->out_count += this_time;
+		c -= this_time;
+		b += this_time;
+		while (cc->out_count >= CC_OUT_BUF) {
+			_cc_usb_sync(cc, 0, -1);
+		}
+	}
+	return 1;
 }
