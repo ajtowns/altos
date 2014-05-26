@@ -19,8 +19,8 @@ package org.altusmetrum.micropeak;
 
 import java.awt.*;
 import javax.swing.*;
-import org.altusmetrum.altoslib_3.*;
-import org.altusmetrum.altosuilib_1.*;
+import org.altusmetrum.altoslib_4.*;
+import org.altusmetrum.altosuilib_2.*;
 
 public class MicroStatsTable extends JComponent implements AltosFontListener {
 	GridBagLayout	layout;

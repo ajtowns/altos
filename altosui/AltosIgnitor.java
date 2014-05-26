@@ -19,7 +19,8 @@ package altosui;
 
 import java.awt.*;
 import javax.swing.*;
-import org.altusmetrum.altoslib_3.*;
+import org.altusmetrum.altoslib_4.*;
+import org.altusmetrum.altosuilib_2.*;
 
 public class AltosIgnitor extends JComponent implements AltosFlightDisplay {
 	GridBagLayout	layout;

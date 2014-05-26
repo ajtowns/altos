@@ -29,8 +29,8 @@ AC_SUBST(VERSION_DASH)
 dnl ==========================================================================
 dnl Java library versions
 
-ALTOSUILIB_VERSION=1
-ALTOSLIB_VERSION=3
+ALTOSUILIB_VERSION=2
+ALTOSLIB_VERSION=4
 
 AC_SUBST(ALTOSLIB_VERSION)
 AC_DEFINE(ALTOSLIB_VERSION,$ALTOSLIB_VERSION,[Version of the AltosLib package])

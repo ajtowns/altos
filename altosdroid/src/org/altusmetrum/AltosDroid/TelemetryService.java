@@ -44,7 +44,7 @@ import android.location.LocationManager;
 import android.location.LocationListener;
 import android.location.Criteria;
 
-import org.altusmetrum.altoslib_3.*;
+import org.altusmetrum.altoslib_4.*;
 
 
 public class TelemetryService extends Service implements LocationListener {

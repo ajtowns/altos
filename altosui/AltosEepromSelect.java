@@ -21,8 +21,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
-import org.altusmetrum.altoslib_3.*;
-import org.altusmetrum.altosuilib_1.*;
+import org.altusmetrum.altoslib_4.*;
+import org.altusmetrum.altosuilib_2.*;
 
 class AltosEepromItem implements ActionListener {
 	AltosEepromLog	log;

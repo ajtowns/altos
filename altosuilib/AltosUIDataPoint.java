@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.altosuilib_1;
+package org.altusmetrum.altosuilib_2;
 
 public interface AltosUIDataPoint {
 	public abstract double x() throws AltosUIDataMissing;

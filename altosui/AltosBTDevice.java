@@ -17,7 +17,7 @@
 
 package altosui;
 import libaltosJNI.*;
-import org.altusmetrum.altosuilib_1.*;
+import org.altusmetrum.altosuilib_2.*;
 
 public class AltosBTDevice extends altos_bt_device implements AltosDevice {
 

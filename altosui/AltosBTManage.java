@@ -23,7 +23,7 @@ import javax.swing.*;
 import javax.swing.plaf.basic.*;
 import java.util.*;
 import java.util.concurrent.*;
-import org.altusmetrum.altosuilib_1.*;
+import org.altusmetrum.altosuilib_2.*;
 
 public class AltosBTManage extends AltosUIDialog implements ActionListener, Iterable<AltosBTDevice> {
 	LinkedBlockingQueue<AltosBTDevice> found_devices;

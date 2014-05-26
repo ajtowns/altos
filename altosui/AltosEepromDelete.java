@@ -21,7 +21,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import java.util.concurrent.*;
-import org.altusmetrum.altoslib_3.*;
+import org.altusmetrum.altoslib_4.*;
 
 public class AltosEepromDelete implements Runnable {
 	AltosEepromList		flights;

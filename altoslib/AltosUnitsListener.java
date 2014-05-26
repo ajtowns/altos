@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package org.altusmetrum.altoslib_3;
+package org.altusmetrum.altoslib_4;
 
 public interface AltosUnitsListener {
 	public void units_changed(boolean imperial_units);
