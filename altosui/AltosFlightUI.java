@@ -179,7 +179,7 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay, A
 
 	Container	bag;
 	AltosFreqList	frequencies;
-	JComboBox	telemetries;
+	JComboBox<String>	telemetries;
 	JLabel		telemetry;
 
 	ActionListener	show_timer;
@@ -225,7 +225,7 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay, A
 
 			// Telemetry format menu
 			if (reader.supports_telemetry(Altos.ao_telemetry_standard)) {
-				telemetries = new JComboBox();
+				telemetries = new JComboBox<String>();
 				for (int i = 1; i <= Altos.ao_telemetry_max; i++)
 					telemetries.addItem(Altos.telemetry_name(i));
 				int telemetry = AltosPreferences.telemetry(serial);

@@ -23,13 +23,13 @@ import java.awt.event.*;
 
 public abstract class AltosDeviceDialog extends AltosUIDialog implements ActionListener {
 
-	private AltosDevice	value;
-	private JList		list;
-	private JButton		cancel_button;
-	private JButton		select_button;
-	public Frame		frame;
-	public int		product;
-	public JPanel		buttonPane;
+	private AltosDevice		value;
+	private JList<AltosDevice>	list;
+	private JButton			cancel_button;
+	private JButton			select_button;
+	public Frame			frame;
+	public int			product;
+	public JPanel			buttonPane;
 
 	public AltosDevice getValue() {
 		return value;
@@ -65,7 +65,7 @@ public abstract class AltosDeviceDialog extends AltosUIDialog implements ActionL
 			select_button.setEnabled(false);
 		getRootPane().setDefaultButton(select_button);
 
-		list = new JList(devices) {
+		list = new JList<AltosDevice>(devices) {
 				//Subclass JList to workaround bug 4832765, which can cause the
 				//scroll pane to not let the user easily scroll up to the beginning
 				//of the list.  An alternative would be to set the unitIncrement

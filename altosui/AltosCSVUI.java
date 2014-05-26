@@ -30,7 +30,7 @@ public class AltosCSVUI
 {
 	JFileChooser		csv_chooser;
 	JPanel			accessory;
-	JComboBox		combo_box;
+	JComboBox<String>	combo_box;
 	Iterable<AltosState>	states;
 	AltosWriter		writer;
 
@@ -73,7 +73,7 @@ public class AltosCSVUI
 		c.gridy = 0;
 		accessory.add(accessory_label, c);
 
-		combo_box = new JComboBox(combo_box_items);
+		combo_box = new JComboBox<String>(combo_box_items);
 		combo_box.addActionListener(this);
 		c.gridx = 0;
 		c.gridy = 1;

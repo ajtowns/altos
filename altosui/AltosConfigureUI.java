@@ -31,7 +31,7 @@ public class AltosConfigureUI
 	AltosVoice	voice;
 
 	public JTextField	callsign_value;
-	public JComboBox	position_value;
+	public JComboBox<String>	position_value;
 
 	/* DocumentListener interface methods */
 	public void insertUpdate(DocumentEvent e) {
@@ -127,7 +127,7 @@ public class AltosConfigureUI
 	public void add_position() {
 		pane.add(new JLabel ("Menu position"), constraints(0, 1));
 
-		position_value = new JComboBox (position_names);
+		position_value = new JComboBox<String>(position_names);
 		position_value.setMaximumRowCount(position_names.length);
 		int position = AltosUIPreferences.position();
 		position_value.setSelectedIndex(position);

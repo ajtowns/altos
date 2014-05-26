@@ -23,10 +23,10 @@ import java.beans.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-class DelegatingRenderer implements ListCellRenderer {
+class DelegatingRenderer implements ListCellRenderer<Object> {
 
 	// ...
-	public static void install(JComboBox comboBox) {
+	public static void install(JComboBox<Object> comboBox) {
 		DelegatingRenderer renderer = new DelegatingRenderer(comboBox);
 		renderer.initialise();
 		comboBox.setRenderer(renderer);
@@ -36,7 +36,7 @@ class DelegatingRenderer implements ListCellRenderer {
 	private final JComboBox comboBox;
 
 	// ...
-	private ListCellRenderer delegate;
+	private ListCellRenderer<? super Object> delegate;
 
 	// ...
 	private DelegatingRenderer(JComboBox comboBox) {
@@ -45,21 +45,22 @@ class DelegatingRenderer implements ListCellRenderer {
 
 	// ...
 	private void initialise() {
-		delegate = new JComboBox().getRenderer();
+		JComboBox<Object> c = new JComboBox<Object>();
+		delegate = c.getRenderer();
 		comboBox.addPropertyChangeListener("UI", new PropertyChangeListener() {
 
 				public void propertyChange(PropertyChangeEvent evt) {
-					delegate = new JComboBox().getRenderer();
+					delegate = new JComboBox<Object>().getRenderer();
 				}
 			});
 	}
 
 	// ...
-	public Component getListCellRendererComponent(JList list,
+	public Component getListCellRendererComponent(JList<?> list,
 						      Object value, int index, boolean isSelected, boolean cellHasFocus) {
 
 		return delegate.getListCellRendererComponent(list,
-							     ((UIManager.LookAndFeelInfo) value).getName(),
+							     ((UIManager.LookAndFeelInfo)value).getName(),
 							     index, isSelected, cellHasFocus);
 	}
 }
@@ -139,7 +140,7 @@ public class AltosUIConfigure
 		/* Font size setting */
 		pane.add(new JLabel("Font size"), constraints(0, 1));
 
-		final JComboBox font_size_value = new JComboBox(font_size_names);
+		final JComboBox<String> font_size_value = new JComboBox<String>(font_size_names);
 		int font_size = AltosUIPreferences.font_size();
 		font_size_value.setSelectedIndex(font_size - AltosUILib.font_size_small);
 		font_size_value.addActionListener(new ActionListener() {
@@ -181,7 +182,7 @@ public class AltosUIConfigure
 
 		final UIManager.LookAndFeelInfo[] look_and_feels = UIManager.getInstalledLookAndFeels();
 
-		final JComboBox look_and_feel_value = new JComboBox(look_and_feels);
+		final JComboBox<Object> look_and_feel_value = new JComboBox<Object>(look_and_feels);
 
 		DelegatingRenderer.install(look_and_feel_value);
 

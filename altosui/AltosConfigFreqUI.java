@@ -164,8 +164,8 @@ public class AltosConfigFreqUI extends AltosUIDialog implements ActionListener {
 	Frame frame;
 	LinkedList<ActionListener> listeners;
 
-	class FrequencyList extends JList {
-		DefaultListModel list_model;
+	class FrequencyList extends JList<AltosFrequency> {
+		DefaultListModel<AltosFrequency> list_model;
 
 		public void add(AltosFrequency frequency) {
 			int i;
@@ -226,7 +226,7 @@ public class AltosConfigFreqUI extends AltosUIDialog implements ActionListener {
 		}
 
 		public FrequencyList(AltosFrequency[] in_frequencies) {
-			list_model = new DefaultListModel();
+			list_model = new DefaultListModel<AltosFrequency>();
 			setModel(list_model);
 			setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			setLayoutOrientation(JList.HORIZONTAL_WRAP);

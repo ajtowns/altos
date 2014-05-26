@@ -75,7 +75,7 @@ class AltosScanResult {
 	}
 }
 
-class AltosScanResults extends LinkedList<AltosScanResult> implements ListModel {
+class AltosScanResults extends LinkedList<AltosScanResult> implements ListModel<AltosScanResult> {
 
 	LinkedList<ListDataListener>	listeners = new LinkedList<ListDataListener>();
 
@@ -129,7 +129,7 @@ public class AltosScanUI
 	AltosDevice			device;
 	AltosConfigData			config_data;
 	AltosTelemetryReader		reader;
-	private JList			list;
+	private JList<AltosScanResult>	list;
 	private JLabel			scanning_label;
 	private JLabel			frequency_label;
 	private JLabel			telemetry_label;
@@ -435,7 +435,7 @@ public class AltosScanUI
 
 		int	y_offset = 3 + (Altos.ao_telemetry_max - Altos.ao_telemetry_min + 1);
 
-		list = new JList(results) {
+		list = new JList<AltosScanResult>(results) {
 				//Subclass JList to workaround bug 4832765, which can cause the
 				//scroll pane to not let the user easily scroll up to the beginning
 				//of the list.  An alternative would be to set the unitIncrement

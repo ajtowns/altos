@@ -50,7 +50,7 @@ public class AltosConfigPyroUI
 		public int		flag;
 		public JCheckBox	enable;
 		public JTextField	value;
-		public JComboBox	combo;
+		public JComboBox<String>	combo;
 		AltosConfigPyroUI	ui;
 		boolean			setting;
 
@@ -159,7 +159,7 @@ public class AltosConfigPyroUI
 				c.insets = il;
 				if ((flag & AltosPyro.pyro_state_value) != 0) {
 					make_state_names();
-					combo = new JComboBox(state_names);
+					combo = new JComboBox<String>(state_names);
 					combo.addItemListener(this);
 					pane.add(combo, c);
 				} else {

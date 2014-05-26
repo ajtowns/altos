@@ -31,9 +31,9 @@ public class AltosBTManage extends AltosUIDialog implements ActionListener, Iter
 	LinkedList<ActionListener> listeners;
 	AltosBTKnown	bt_known;
 
-	class DeviceList extends JList implements Iterable<AltosBTDevice> {
-		LinkedList<AltosBTDevice> devices;
-		DefaultListModel	list_model;
+	class DeviceList extends JList<AltosBTDevice> implements Iterable<AltosBTDevice> {
+		LinkedList<AltosBTDevice> 	devices;
+		DefaultListModel<AltosBTDevice>	list_model;
 
 		public void add (AltosBTDevice device) {
 			if (!devices.contains(device)) {
@@ -86,16 +86,12 @@ public class AltosBTManage extends AltosUIDialog implements ActionListener, Iter
 		}
 
 		public java.util.List<AltosBTDevice> selected_list() throws InterruptedException {
-			java.util.LinkedList<AltosBTDevice> l = new java.util.LinkedList<AltosBTDevice>();
-			Object[] a = getSelectedValues();
-			for (int i = 0; i < a.length; i++)
-				l.add((AltosBTDevice)a[i]);
-			return l;
+			return getSelectedValuesList();
 		}
 
 		public DeviceList() {
 			devices = new LinkedList<AltosBTDevice>();
-			list_model = new DefaultListModel();
+			list_model = new DefaultListModel<AltosBTDevice>();
 			setModel(list_model);
 			setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			setLayoutOrientation(JList.HORIZONTAL_WRAP);

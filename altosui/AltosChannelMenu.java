@@ -20,7 +20,7 @@ package altosui;
 import java.awt.event.*;
 import javax.swing.*;
 
-public class AltosChannelMenu extends JComboBox implements ActionListener {
+public class AltosChannelMenu extends JComboBox<String> implements ActionListener {
 	int				channel;
 
 	public AltosChannelMenu(int current_channel) {

@@ -29,98 +29,98 @@ public class AltosConfigUI
 	implements ActionListener, ItemListener, DocumentListener, AltosConfigValues, AltosUnitsListener
 {
 
-	Container	pane;
-	JLabel		product_label;
-	JLabel		version_label;
-	JLabel		serial_label;
-	JLabel		main_deploy_label;
-	JLabel		apogee_delay_label;
-	JLabel		apogee_lockout_label;
-	JLabel		frequency_label;
-	JLabel		radio_calibration_label;
-	JLabel		radio_frequency_label;
-	JLabel		radio_enable_label;
-	JLabel		aprs_interval_label;
-	JLabel		flight_log_max_label;
-	JLabel		ignite_mode_label;
-	JLabel		pad_orientation_label;
-	JLabel		callsign_label;
-	JLabel		beep_label;
+	Container		pane;
+	JLabel			product_label;
+	JLabel			version_label;
+	JLabel			serial_label;
+	JLabel			main_deploy_label;
+	JLabel			apogee_delay_label;
+	JLabel			apogee_lockout_label;
+	JLabel			frequency_label;
+	JLabel			radio_calibration_label;
+	JLabel			radio_frequency_label;
+	JLabel			radio_enable_label;
+	JLabel			aprs_interval_label;
+	JLabel			flight_log_max_label;
+	JLabel			ignite_mode_label;
+	JLabel			pad_orientation_label;
+	JLabel			callsign_label;
+	JLabel			beep_label;
 
 	public boolean		dirty;
 
-	JFrame		owner;
-	JLabel		product_value;
-	JLabel		version_value;
-	JLabel		serial_value;
-	JComboBox	main_deploy_value;
-	JComboBox	apogee_delay_value;
-	JComboBox	apogee_lockout_value;
-	AltosFreqList	radio_frequency_value;
-	JTextField	radio_calibration_value;
-	JRadioButton	radio_enable_value;
-	JComboBox	aprs_interval_value;
-	JComboBox	flight_log_max_value;
-	JComboBox	ignite_mode_value;
-	JComboBox	pad_orientation_value;
-	JTextField	callsign_value;
-	JComboBox	beep_value;
+	JFrame			owner;
+	JLabel			product_value;
+	JLabel			version_value;
+	JLabel			serial_value;
+	JComboBox<String>	main_deploy_value;
+	JComboBox<String>	apogee_delay_value;
+	JComboBox<String>	apogee_lockout_value;
+	AltosFreqList		radio_frequency_value;
+	JTextField		radio_calibration_value;
+	JRadioButton		radio_enable_value;
+	JComboBox<String>	aprs_interval_value;
+	JComboBox<String>	flight_log_max_value;
+	JComboBox<String>	ignite_mode_value;
+	JComboBox<String>	pad_orientation_value;
+	JTextField		callsign_value;
+	JComboBox<String>	beep_value;
 
-	JButton		pyro;
+	JButton			pyro;
 
-	JButton		save;
-	JButton		reset;
-	JButton		reboot;
-	JButton		close;
+	JButton			save;
+	JButton			reset;
+	JButton			reboot;
+	JButton			close;
 
-	AltosPyro[]	pyros;
+	AltosPyro[]		pyros;
 
-	ActionListener	listener;
+	ActionListener		listener;
 
-	static String[] main_deploy_values_m = {
+	static String[] 	main_deploy_values_m = {
 		"100", "150", "200", "250", "300", "350",
 		"400", "450", "500"
 	};
 
-	static String[] main_deploy_values_ft = {
+	static String[] 	main_deploy_values_ft = {
 		"250", "500", "750", "1000", "1250", "1500",
 		"1750", "2000"
 	};
 
-	static String[] apogee_delay_values = {
+	static String[] 	apogee_delay_values = {
 		"0", "1", "2", "3", "4", "5"
 	};
 
-	static String[] apogee_lockout_values = {
+	static String[] 	apogee_lockout_values = {
 		"0", "5", "10", "15", "20"
 	};
 
-	static String[] flight_log_max_values = {
+	static String[] 	flight_log_max_values = {
 		"64", "128", "192", "256", "320",
 		"384", "448", "512", "576", "640",
 		"704", "768", "832", "896", "960",
 	};
 
-	static String[] ignite_mode_values = {
+	static String[] 	ignite_mode_values = {
 		"Dual Deploy",
 		"Redundant Apogee",
 		"Redundant Main",
 	};
 
-	static String[] aprs_interval_values = {
+	static String[] 	aprs_interval_values = {
 		"Disabled",
 		"2",
 		"5",
 		"10"
 	};
 
-	static String[] beep_values = {
+	static String[] 	beep_values = {
 		"3750",
 		"4000",
 		"4250",
 	};
 
-	static String[] pad_orientation_values = {
+	static String[] 	pad_orientation_values = {
 		"Antenna Up",
 		"Antenna Down",
 	};
@@ -319,7 +319,7 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		main_deploy_value = new JComboBox(main_deploy_values());
+		main_deploy_value = new JComboBox<String>(main_deploy_values());
 		main_deploy_value.setEditable(true);
 		main_deploy_value.addItemListener(this);
 		pane.add(main_deploy_value, c);
@@ -345,7 +345,7 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		apogee_delay_value = new JComboBox(apogee_delay_values);
+		apogee_delay_value = new JComboBox<String>(apogee_delay_values);
 		apogee_delay_value.setEditable(true);
 		apogee_delay_value.addItemListener(this);
 		pane.add(apogee_delay_value, c);
@@ -371,7 +371,7 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		apogee_lockout_value = new JComboBox(apogee_lockout_values);
+		apogee_lockout_value = new JComboBox<String>(apogee_lockout_values);
 		apogee_lockout_value.setEditable(true);
 		apogee_lockout_value.addItemListener(this);
 		pane.add(apogee_lockout_value, c);
@@ -474,7 +474,7 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		aprs_interval_value = new JComboBox(aprs_interval_values);
+		aprs_interval_value = new JComboBox<String>(aprs_interval_values);
 		aprs_interval_value.setEditable(true);
 		aprs_interval_value.addItemListener(this);
 		pane.add(aprs_interval_value, c);
@@ -525,7 +525,7 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		flight_log_max_value = new JComboBox(flight_log_max_values);
+		flight_log_max_value = new JComboBox<String>(flight_log_max_values);
 		flight_log_max_value.setEditable(true);
 		flight_log_max_value.addItemListener(this);
 		pane.add(flight_log_max_value, c);
@@ -551,7 +551,7 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		ignite_mode_value = new JComboBox(ignite_mode_values);
+		ignite_mode_value = new JComboBox<String>(ignite_mode_values);
 		ignite_mode_value.setEditable(false);
 		ignite_mode_value.addItemListener(this);
 		pane.add(ignite_mode_value, c);
@@ -577,7 +577,7 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		pad_orientation_value = new JComboBox(pad_orientation_values);
+		pad_orientation_value = new JComboBox<String>(pad_orientation_values);
 		pad_orientation_value.setEditable(false);
 		pad_orientation_value.addItemListener(this);
 		pane.add(pad_orientation_value, c);
@@ -603,7 +603,7 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		beep_value = new JComboBox(beep_values);
+		beep_value = new JComboBox<String>(beep_values);
 		beep_value.setEditable(true);
 		beep_value.addItemListener(this);
 		pane.add(beep_value, c);
