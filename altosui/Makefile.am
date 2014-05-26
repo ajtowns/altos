@@ -1,6 +1,6 @@
 
 JAVAROOT=classes
-AM_JAVACFLAGS=-target 1.6 -encoding UTF-8 -Xlint:deprecation -source 6
+AM_JAVACFLAGS=-target 1.6 -encoding UTF-8 -Xlint:deprecation -Xlint:unchecked -source 6
 
 man_MANS=altosui.1
 
@@ -17,7 +17,6 @@ altosui_BT = \
 	AltosBTKnown.java
 
 altosui_JAVA = \
-	GrabNDrag.java \
 	AltosAscent.java \
 	AltosChannelMenu.java \
 	AltosCompanionInfo.java \
@@ -31,20 +30,16 @@ altosui_JAVA = \
 	AltosCSVUI.java \
 	AltosDescent.java \
 	AltosDeviceUIDialog.java \
-	AltosDisplayThread.java \
 	AltosEepromDelete.java \
 	AltosEepromManage.java \
 	AltosEepromMonitorUI.java \
 	AltosEepromSelect.java \
 	AltosFlashUI.java \
-	AltosFlightDisplay.java \
 	AltosFlightInfoTableModel.java \
-	AltosFlightStats.java \
 	AltosFlightStatsTable.java \
 	AltosFlightStatus.java \
 	AltosFlightStatusUpdate.java \
 	AltosFlightUI.java \
-	AltosFreqList.java \
 	Altos.java \
 	AltosIdleMonitorUI.java \
 	AltosIgniteUI.java \
@@ -61,17 +56,12 @@ altosui_JAVA = \
 	AltosScanUI.java \
 	AltosSerial.java \
 	AltosSerialInUseException.java \
-	AltosSiteMap.java \
-	AltosSiteMapPreload.java \
-	AltosSiteMapCache.java \
-	AltosSiteMapTile.java \
 	AltosUI.java \
 	AltosGraph.java \
 	AltosGraphDataPoint.java \
 	AltosGraphDataSet.java \
 	AltosGraphUI.java \
 	AltosDataChooser.java \
-	AltosVoice.java \
 	$(altosui_BT)
 
 JFREECHART_CLASS= \

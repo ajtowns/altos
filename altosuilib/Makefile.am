@@ -1,4 +1,4 @@
-AM_JAVACFLAGS=-target 1.6 -encoding UTF-8 -Xlint:deprecation -source 6
+AM_JAVACFLAGS=-target 1.6 -encoding UTF-8 -Xlint:deprecation -Xlint:unchecked -source 6
 
 JAVAROOT=bin
 
@@ -9,8 +9,10 @@ SRC=.
 altosuilibdir = $(datadir)/java
 
 altosuilib_JAVA = \
+	GrabNDrag.java \
 	AltosDevice.java \
 	AltosDeviceDialog.java \
+	AltosFlightDisplay.java \
 	AltosFontListener.java \
 	AltosPositionListener.java \
 	AltosUIConfigure.java \
@@ -30,7 +32,14 @@ altosuilib_JAVA = \
 	AltosUIPreferences.java \
 	AltosUISeries.java \
 	AltosUIVersion.java \
-	AltosUSBDevice.java
+	AltosUSBDevice.java \
+	AltosSiteMap.java \
+	AltosSiteMapCache.java \
+	AltosSiteMapPreload.java \
+	AltosSiteMapTile.java \
+	AltosVoice.java \
+	AltosDisplayThread.java \
+	AltosFreqList.java
 
 JAR=altosuilib_$(ALTOSUILIB_VERSION).jar
 

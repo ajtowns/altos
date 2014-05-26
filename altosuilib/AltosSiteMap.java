@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import java.awt.*;
 import javax.swing.*;
@@ -23,8 +23,7 @@ import java.io.*;
 import java.lang.Math;
 import java.awt.geom.Point2D;
 import java.util.concurrent.*;
-import org.altusmetrum.altoslib_3.*;
-import org.altusmetrum.altosuilib_1.*;
+import org.altusmetrum.altoslib_4.*;
 
 public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	// preferred vertical step in a tile in naut. miles
@@ -149,13 +148,13 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	}
 
 	private void loadMap(final AltosSiteMapTile tile,
-			     File pngfile, String pngurl)
+			     final File pngfile, String pngurl)
 	{
-		final ImageIcon res = AltosSiteMapCache.fetchAndLoadMap(pngfile, pngurl);
-		if (res != null) {
+		boolean loaded = AltosSiteMapCache.fetchMap(pngfile, pngurl);
+		if (loaded) {
 			SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
-						tile.loadMap(res);
+						tile.loadMap(pngfile);
 					}
 				});
 		} else {
@@ -164,22 +163,30 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		}
 	}
 
-	File pngfile;
-	String pngurl;
 
-	public int prefetchMap(int x, int y) {
+	class AltosSiteMapPrefetch {
+		int	x;
+		int	y;
+		int	result;
+		File	pngfile;
+		String	pngurl;
+	}
+
+	public AltosSiteMapPrefetch prefetchMap(int x, int y) {
+		AltosSiteMapPrefetch	prefetch = new AltosSiteMapPrefetch();
 		LatLng map_latlng = latlng(
 			-centre.x + x*px_size + px_size/2,
 			-centre.y + y*px_size + px_size/2);
-		pngfile = MapFile(map_latlng.lat, map_latlng.lng, zoom);
-		pngurl = MapURL(map_latlng.lat, map_latlng.lng, zoom);
-		if (pngfile.exists()) {
-			return 1;
-		} else if (AltosSiteMapCache.fetchMap(pngfile, pngurl)) {
-			return 0;
+		prefetch.pngfile = MapFile(map_latlng.lat, map_latlng.lng, zoom);
+		prefetch.pngurl = MapURL(map_latlng.lat, map_latlng.lng, zoom);
+		if (prefetch.pngfile.exists()) {
+			prefetch.result = 1;
+		} else if (AltosSiteMapCache.fetchMap(prefetch.pngfile, prefetch.pngurl)) {
+			prefetch.result = 0;
 		} else {
-			return -1;
+			prefetch.result = -1;
 		}
+		return prefetch;
 	}
 
 	public static void prefetchMaps(double lat, double lng) {
@@ -193,17 +200,18 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		int dx = -w/2, dy = -h/2;
 		for (int y = dy; y < h+dy; y++) {
 			for (int x = dx; x < w+dx; x++) {
-				int r = asm.prefetchMap(x, y);
-				switch (r) {
+				AltosSiteMapPrefetch prefetch = asm.prefetchMap(x, y);
+				switch (prefetch.result) {
 				case 1:
-					System.out.printf("Already have %s\n", asm.pngfile);
+					System.out.printf("Already have %s\n", prefetch.pngfile);
 					break;
 				case 0:
-					System.out.printf("Fetched map %s\n", asm.pngfile);
+					System.out.printf("Fetched map %s\n", prefetch.pngfile);
 					break;
 				case -1:
-					System.out.printf("# Failed to fetch file %s\n", asm.pngfile);
-					System.out.printf(" wget -O '%s' ''\n", asm.pngfile, asm.pngurl);
+					System.out.printf("# Failed to fetch file %s\n", prefetch.pngfile);
+					System.out.printf(" wget -O '%s' ''\n",
+							  prefetch.pngfile, prefetch.pngurl);
 					break;
 				}
 			}
@@ -362,7 +370,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		for (Point offset : mapTiles.keySet()) {
 			AltosSiteMapTile tile = mapTiles.get(offset);
 			Point2D.Double ref = translatePoint(pt, tileCoordOffset(offset));
-			tile.draw_circle(ref);
+			tile.set_boost(ref);
 		}
 	}
 

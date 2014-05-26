@@ -15,12 +15,11 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import com.sun.speech.freetts.Voice;
 import com.sun.speech.freetts.VoiceManager;
 import java.util.concurrent.LinkedBlockingQueue;
-import org.altusmetrum.altosuilib_1.*;
 
 public class AltosVoice implements Runnable {
 	VoiceManager			voice_manager;

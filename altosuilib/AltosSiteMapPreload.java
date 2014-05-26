@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -26,10 +26,10 @@ import java.text.*;
 import java.lang.Math;
 import java.net.URL;
 import java.net.URLConnection;
-import org.altusmetrum.altosuilib_1.*;
+import org.altusmetrum.altoslib_4.*;
 
 class AltosMapPos extends Box {
-	AltosUI		owner;
+	AltosUIFrame	owner;
 	JLabel		label;
 	JComboBox	hemi;
 	JTextField	deg;
@@ -87,14 +87,14 @@ class AltosMapPos extends Box {
 		return v;
 	}
 
-	public AltosMapPos(AltosUI in_owner,
+	public AltosMapPos(AltosUIFrame in_owner,
 			   String label_value,
 			   String[] hemi_names,
 			   double default_value) {
 		super(BoxLayout.X_AXIS);
 		owner = in_owner;
 		label = new JLabel(label_value);
-		hemi = new JComboBox(hemi_names);
+		hemi = new JComboBox<String>(hemi_names);
 		hemi.setEditable(false);
 		deg = new JTextField(5);
 		deg.setMinimumSize(deg.getPreferredSize());
@@ -179,7 +179,7 @@ class AltosSites extends Thread {
 			URLConnection uc = url.openConnection();
 			//int length = uc.getContentLength();
 
-			InputStreamReader in_stream = new InputStreamReader(uc.getInputStream(), Altos.unicode_set);
+			InputStreamReader in_stream = new InputStreamReader(uc.getInputStream(), AltosLib.unicode_set);
 			BufferedReader in = new BufferedReader(in_stream);
 
 			for (;;) {
@@ -198,7 +198,7 @@ class AltosSites extends Thread {
 		sites = new LinkedList<AltosSite>();
 		preload = in_preload;
 		try {
-			url = new URL(Altos.launch_sites_url);
+			url = new URL(AltosLib.launch_sites_url);
 		} catch (java.net.MalformedURLException e) {
 			notify_complete();
 		}
@@ -207,7 +207,7 @@ class AltosSites extends Thread {
 }
 
 public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener, ItemListener {
-	AltosUI		owner;
+	AltosUIFrame	owner;
 	AltosSiteMap	map;
 
 	AltosMapPos	lat;
@@ -221,7 +221,7 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 
 	AltosSites	sites;
 	JLabel		site_list_label;
-	JComboBox	site_list;
+	JComboBox<AltosSite>	site_list;
 
 	JToggleButton	load_button;
 	boolean		loading;
@@ -317,7 +317,7 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 		}
 	}
 
-	public AltosSiteMapPreload(AltosUI in_owner) {
+	public AltosSiteMapPreload(AltosUIFrame in_owner) {
 		owner = in_owner;
 
 		Container		pane = getContentPane();
@@ -374,7 +374,7 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 
 		pane.add(site_list_label, c);
 
-		site_list = new JComboBox(new String[] { "Site List" });
+		site_list = new JComboBox<AltosSite>(new AltosSite[] { new AltosSite("Site List", 0, 0) });
 		site_list.addItemListener(this);
 
 		sites = new AltosSites(this);

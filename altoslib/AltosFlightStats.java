@@ -15,41 +15,40 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altoslib_4;
 
 import java.io.*;
-import org.altusmetrum.altoslib_3.*;
 
 public class AltosFlightStats {
-	double		max_height;
-	double		max_gps_height;
-	double		max_speed;
-	double		max_acceleration;
-	double[]	state_speed = new double[Altos.ao_flight_invalid + 1];
-	double[]	state_accel = new double[Altos.ao_flight_invalid + 1];
-	int[]		state_count = new int[Altos.ao_flight_invalid + 1];
-	double[]	state_start = new double[Altos.ao_flight_invalid + 1];
-	double[]	state_end = new double[Altos.ao_flight_invalid + 1];
-	int		serial;
-	int		flight;
-	int		year, month, day;
-	int		hour, minute, second;
-	double		lat, lon;
-	double		pad_lat, pad_lon;
-	boolean		has_gps;
-	boolean		has_other_adc;
-	boolean		has_rssi;
-	boolean		has_imu;
-	boolean		has_mag;
-	boolean		has_orient;
-	int		num_ignitor;
+	public double		max_height;
+	public double		max_gps_height;
+	public double		max_speed;
+	public double		max_acceleration;
+	public double[]	state_speed = new double[AltosLib.ao_flight_invalid + 1];
+	public double[]	state_accel = new double[AltosLib.ao_flight_invalid + 1];
+	public int[]		state_count = new int[AltosLib.ao_flight_invalid + 1];
+	public double[]	state_start = new double[AltosLib.ao_flight_invalid + 1];
+	public double[]	state_end = new double[AltosLib.ao_flight_invalid + 1];
+	public int		serial;
+	public int		flight;
+	public int		year, month, day;
+	public int		hour, minute, second;
+	public double		lat, lon;
+	public double		pad_lat, pad_lon;
+	public boolean		has_gps;
+	public boolean		has_other_adc;
+	public boolean		has_rssi;
+	public boolean		has_imu;
+	public boolean		has_mag;
+	public boolean		has_orient;
+	public int		num_ignitor;
 
 	double landed_time(AltosStateIterable states) {
 		AltosState state = null;
 
 		for (AltosState s : states) {
 			state = s;
-			if (state.state == Altos.ao_flight_landed)
+			if (state.state == AltosLib.ao_flight_landed)
 				break;
 		}
 
@@ -128,10 +127,10 @@ public class AltosFlightStats {
 			end_time = state.time;
 
 			int state_id = state.state;
-			if (state.time >= boost_time && state_id < Altos.ao_flight_boost)
-				state_id = Altos.ao_flight_boost;
-			if (state.time >= landed_time && state_id < Altos.ao_flight_landed)
-				state_id = Altos.ao_flight_landed;
+			if (state.time >= boost_time && state_id < AltosLib.ao_flight_boost)
+				state_id = AltosLib.ao_flight_boost;
+			if (state.time >= landed_time && state_id < AltosLib.ao_flight_landed)
+				state_id = AltosLib.ao_flight_landed;
 			if (state.gps != null && state.gps.locked) {
 				year = state.gps.year;
 				month = state.gps.month;
@@ -140,7 +139,7 @@ public class AltosFlightStats {
 				minute = state.gps.minute;
 				second = state.gps.second;
 			}
-			if (0 <= state_id && state_id < Altos.ao_flight_invalid) {
+			if (0 <= state_id && state_id < AltosLib.ao_flight_invalid) {
 				double acceleration = state.acceleration();
 				double speed = state.speed();
 				if (acceleration != AltosLib.MISSING && speed != AltosLib.MISSING) {
@@ -158,7 +157,7 @@ public class AltosFlightStats {
 				max_gps_height = state.max_gps_height();
 			}
 			if (state.gps != null && state.gps.locked && state.gps.nsat >= 4) {
-				if (state_id <= Altos.ao_flight_pad) {
+				if (state_id <= AltosLib.ao_flight_pad) {
 					pad_lat = state.gps.lat;
 					pad_lon = state.gps.lon;
 				}
@@ -175,7 +174,7 @@ public class AltosFlightStats {
 			if (state.ignitor_voltage != null && state.ignitor_voltage.length > num_ignitor)
 				num_ignitor = state.ignitor_voltage.length;
 		}
-		for (int s = Altos.ao_flight_startup; s <= Altos.ao_flight_landed; s++) {
+		for (int s = AltosLib.ao_flight_startup; s <= AltosLib.ao_flight_landed; s++) {
 			if (state_count[s] > 0) {
 				state_speed[s] /= state_count[s];
 				state_accel[s] /= state_count[s];

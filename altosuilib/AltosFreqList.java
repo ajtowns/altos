@@ -15,13 +15,12 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import javax.swing.*;
-import org.altusmetrum.altoslib_3.*;
-import org.altusmetrum.altosuilib_1.*;
+import org.altusmetrum.altoslib_4.*;
 
-public class AltosFreqList extends JComboBox {
+public class AltosFreqList extends JComboBox<AltosFrequency> {
 
 	String	product;
 	int	serial;

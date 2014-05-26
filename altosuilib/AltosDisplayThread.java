@@ -15,13 +15,13 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import java.awt.*;
 import javax.swing.*;
 import java.io.*;
 import java.text.*;
-import org.altusmetrum.altoslib_3.*;
+import org.altusmetrum.altoslib_4.*;
 
 public class AltosDisplayThread extends Thread {
 
@@ -78,7 +78,7 @@ public class AltosDisplayThread extends Thread {
 				return;
 
 			/* reset the landing count once we hear about a new flight */
-			if (state.state < Altos.ao_flight_drogue)
+			if (state.state < AltosLib.ao_flight_drogue)
 				reported_landing = 0;
 
 			/* Shut up once the rocket is on the ground */
@@ -87,8 +87,8 @@ public class AltosDisplayThread extends Thread {
 			}
 
 			/* If the rocket isn't on the pad, then report height */
-			if (Altos.ao_flight_drogue <= state.state &&
-			    state.state < Altos.ao_flight_landed &&
+			if (AltosLib.ao_flight_drogue <= state.state &&
+			    state.state < AltosLib.ao_flight_landed &&
 			    state.from_pad != null &&
 			    state.range >= 0)
 			{
@@ -99,7 +99,7 @@ public class AltosDisplayThread extends Thread {
 					    (int) (state.from_pad.bearing + 0.5),
 					    (int) (state.elevation + 0.5),
 					    AltosConvert.distance.say(state.range));
-			} else if (state.state > Altos.ao_flight_pad) {
+			} else if (state.state > AltosLib.ao_flight_pad) {
 				voice.speak(AltosConvert.height.say_units(state.height()));
 			} else {
 				reported_landing = 0;
@@ -109,10 +109,10 @@ public class AltosDisplayThread extends Thread {
 			 * either we've got a landed report or we haven't heard from it in
 			 * a long time
 			 */
-			if (state.state >= Altos.ao_flight_drogue &&
+			if (state.state >= AltosLib.ao_flight_drogue &&
 			    (last ||
 			     System.currentTimeMillis() - state.received_time >= 15000 ||
-			     state.state == Altos.ao_flight_landed))
+			     state.state == AltosLib.ao_flight_landed))
 			{
 				if (Math.abs(state.speed()) < 20 && state.height() < 100)
 					voice.speak("rocket landed safely");
@@ -123,8 +123,8 @@ public class AltosDisplayThread extends Thread {
 						    (int) (state.from_pad.bearing + 0.5),
 						    AltosConvert.distance.say_units(state.from_pad.distance));
 				++reported_landing;
-				if (state.state != Altos.ao_flight_landed) {
-					state.state = Altos.ao_flight_landed;
+				if (state.state != AltosLib.ao_flight_landed) {
+					state.state = AltosLib.ao_flight_landed;
 					show_safely();
 				}
 			}
@@ -183,13 +183,13 @@ public class AltosDisplayThread extends Thread {
 		boolean	ret = false;
 		if (old_state == null || old_state.state != state.state) {
 			voice.speak(state.state_name());
-			if ((old_state == null || old_state.state <= Altos.ao_flight_boost) &&
-			    state.state > Altos.ao_flight_boost) {
+			if ((old_state == null || old_state.state <= AltosLib.ao_flight_boost) &&
+			    state.state > AltosLib.ao_flight_boost) {
 				voice.speak("max speed: %s.",
 					    AltosConvert.speed.say_units(state.max_speed() + 0.5));
 				ret = true;
-			} else if ((old_state == null || old_state.state < Altos.ao_flight_drogue) &&
-				   state.state >= Altos.ao_flight_drogue) {
+			} else if ((old_state == null || old_state.state < AltosLib.ao_flight_drogue) &&
+				   state.state >= AltosLib.ao_flight_drogue) {
 				voice.speak("max height: %s.",
 					    AltosConvert.height.say_units(state.max_height() + 0.5));
 				ret = true;
