@@ -18,6 +18,8 @@
 #ifndef _AO_CONFIG_H_
 #define _AO_CONFIG_H_
 
+#include <ao_pyro.h>
+
 #ifndef USE_STORAGE_CONFIG
 #define USE_STORAGE_CONFIG 1
 #endif
@@ -49,5 +51,88 @@
 #define ao_config_flush()
 
 #endif
+
+#define AO_CONFIG_MAJOR	1
+#define AO_CONFIG_MINOR	17
+
+#define AO_AES_LEN 16
+
+extern __xdata uint8_t ao_config_aes_seq;
+
+struct ao_config {
+	uint8_t		major;
+	uint8_t		minor;
+	uint16_t	main_deploy;
+	int16_t		accel_plus_g;		/* changed for minor version 2 */
+	uint8_t		_legacy_radio_channel;
+	char		callsign[AO_MAX_CALLSIGN + 1];
+	uint8_t		apogee_delay;		/* minor version 1 */
+	int16_t		accel_minus_g;		/* minor version 2 */
+	uint32_t	radio_cal;		/* minor version 3 */
+	uint32_t	flight_log_max;		/* minor version 4 */
+	uint8_t		ignite_mode;		/* minor version 5 */
+	uint8_t		pad_orientation;	/* minor version 6 */
+	uint32_t	radio_setting;		/* minor version 7 */
+	uint8_t		radio_enable;		/* minor version 8 */
+	uint8_t		aes_key[AO_AES_LEN];	/* minor version 9 */
+	uint32_t	frequency;		/* minor version 10 */
+	uint16_t	apogee_lockout;		/* minor version 11 */
+#if AO_PYRO_NUM
+	struct ao_pyro	pyro[AO_PYRO_NUM];	/* minor version 12 */
+#endif
+	uint16_t	aprs_interval;		/* minor version 13 */
+#if HAS_RADIO_POWER
+	uint8_t		radio_power;		/* minor version 14 */
+#endif
+#if HAS_RADIO_AMP
+	uint8_t		radio_amp;		/* minor version 14 */
+#endif
+#if HAS_GYRO
+	int16_t		accel_zero_along;	/* minor version 15 */
+	int16_t		accel_zero_across;	/* minor version 15 */
+	int16_t		accel_zero_through;	/* minor version 15 */
+#endif
+#if HAS_BEEP
+	uint8_t		mid_beep;		/* minor version 16 */
+#endif
+#if HAS_TRACKER
+	uint16_t	tracker_start_horiz;	/* minor version 17 */
+	uint16_t	tracker_start_vert;	/* minor version 17 */
+#endif
+};
+
+#define AO_IGNITE_MODE_DUAL		0
+#define AO_IGNITE_MODE_APOGEE		1
+#define AO_IGNITE_MODE_MAIN		2
+
+#define AO_RADIO_ENABLE_CORE		1
+#define AO_RADIO_DISABLE_TELEMETRY	2
+#define AO_RADIO_DISABLE_RDF		4
+
+#define AO_PAD_ORIENTATION_ANTENNA_UP	0
+#define AO_PAD_ORIENTATION_ANTENNA_DOWN	1
+
+#define AO_CONFIG_MAX_SIZE	128
+
+extern __xdata struct ao_config ao_config;
+extern __pdata uint8_t ao_config_loaded;
+
+void
+_ao_config_edit_start(void);
+
+void
+_ao_config_edit_finish(void);
+
+void
+ao_config_get(void);
+
+void
+ao_config_put(void);
+
+void
+ao_config_set_radio(void);
+
+void
+ao_config_init(void);
 
 #endif /* _AO_CONFIG_H_ */
