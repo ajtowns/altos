@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include <ao_ms5607.h>
 
-struct ao_ms5607_prom ms5607_prom = {
+struct ao_ms5607_prom ao_ms5607_prom = {
 	0x002c,
 	0xa6e0,
 	0x988e,

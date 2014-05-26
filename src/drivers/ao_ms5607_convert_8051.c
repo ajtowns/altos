@@ -40,30 +40,30 @@ ao_ms5607_convert(__xdata struct ao_ms5607_sample *sample,
 	__LOCAL ao_int64_t SENS;
 	__LOCAL ao_int64_t a;
 
-	dT = sample->temp - ((int32_t) ms5607_prom.tref << 8);
+	dT = sample->temp - ((int32_t) ao_ms5607_prom.tref << 8);
 	
-	/* TEMP = 2000 + (((int64_t) dT * ms5607_prom.tempsens) >> 23); */
-	ao_mul64_32_32(&a, dT, ms5607_prom.tempsens);
+	/* TEMP = 2000 + (((int64_t) dT * ao_ms5607_prom.tempsens) >> 23); */
+	ao_mul64_32_32(&a, dT, ao_ms5607_prom.tempsens);
 	ao_rshift64(&a, &a, 23);
 	TEMP = 2000 + a.low;
 	/* */
 
-	/* OFF = ((int64_t) ms5607_prom.off << SHIFT_OFF) + (((int64_t) ms5607_prom.tco * dT) >> SHIFT_TCO);*/
+	/* OFF = ((int64_t) ao_ms5607_prom.off << SHIFT_OFF) + (((int64_t) ao_ms5607_prom.tco * dT) >> SHIFT_TCO);*/
 #if SHIFT_OFF > 16
-	OFF.high = ms5607_prom.off >> (32 - SHIFT_OFF);
+	OFF.high = ao_ms5607_prom.off >> (32 - SHIFT_OFF);
 #else
 	OFF.high = 0;
 #endif
-	OFF.low = (uint32_t) ms5607_prom.off << SHIFT_OFF;
-	ao_mul64_32_32(&a, ms5607_prom.tco, dT);
+	OFF.low = (uint32_t) ao_ms5607_prom.off << SHIFT_OFF;
+	ao_mul64_32_32(&a, ao_ms5607_prom.tco, dT);
 	ao_rshift64(&a, &a, SHIFT_TCO);
 	ao_plus64(&OFF, &OFF, &a);
 	/**/
 
-	/* SENS = ((int64_t) ms5607_prom.sens << SHIFT_SENS) + (((int64_t) ms5607_prom.tcs * dT) >> SHIFT_TCS); */
+	/* SENS = ((int64_t) ao_ms5607_prom.sens << SHIFT_SENS) + (((int64_t) ao_ms5607_prom.tcs * dT) >> SHIFT_TCS); */
 	SENS.high = 0;
-	SENS.low = (uint32_t) ms5607_prom.sens << SHIFT_SENS;
-	ao_mul64_32_32(&a, ms5607_prom.tcs, dT);
+	SENS.low = (uint32_t) ao_ms5607_prom.sens << SHIFT_SENS;
+	ao_mul64_32_32(&a, ao_ms5607_prom.tcs, dT);
 	ao_rshift64(&a, &a, SHIFT_TCS);
 	ao_plus64(&SENS, &SENS, &a);
 	/**/

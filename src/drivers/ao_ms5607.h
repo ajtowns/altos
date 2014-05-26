@@ -57,6 +57,7 @@ struct ao_ms5607_value {
 };
 
 extern __xdata struct ao_ms5607_sample	ao_ms5607_current;
+extern __xdata struct ao_ms5607_prom	ao_ms5607_prom;
 
 void
 ao_ms5607_setup(void);
@@ -73,8 +74,5 @@ ao_ms5607_sample(__xdata struct ao_ms5607_sample *sample);
 void
 ao_ms5607_convert(__xdata struct ao_ms5607_sample *sample,
 		  __xdata struct ao_ms5607_value *value);
-
-void
-ao_ms5607_get_prom(__data struct ao_ms5607_prom *prom);
 
 #endif /* _AO_MS5607_H_ */

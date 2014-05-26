@@ -21,8 +21,8 @@
 
 #if HAS_MS5607 || HAS_MS5611
 
-static __xdata struct ao_ms5607_prom	ms5607_prom;
-static __xdata uint8_t	  		ms5607_configured;
+__xdata struct ao_ms5607_prom	ao_ms5607_prom;
+static __xdata uint8_t	  	ms5607_configured;
 
 static void
 ao_ms5607_start(void) {
@@ -111,7 +111,7 @@ ao_ms5607_setup(void)
 		return;
 	ms5607_configured = 1;
 	ao_ms5607_reset();
-	ao_ms5607_prom_read(&ms5607_prom);
+	ao_ms5607_prom_read(&ao_ms5607_prom);
 }
 
 static __xdata volatile uint8_t	ao_ms5607_done;
@@ -208,14 +208,14 @@ __xdata struct ao_task ao_ms5607_task;
 void
 ao_ms5607_info(void)
 {
-	printf ("ms5607 reserved: %u\n", ms5607_prom.reserved);
-	printf ("ms5607 sens: %u\n", ms5607_prom.sens);
-	printf ("ms5607 off: %u\n", ms5607_prom.off);
-	printf ("ms5607 tcs: %u\n", ms5607_prom.tcs);
-	printf ("ms5607 tco: %u\n", ms5607_prom.tco);
-	printf ("ms5607 tref: %u\n", ms5607_prom.tref);
-	printf ("ms5607 tempsens: %u\n", ms5607_prom.tempsens);
-	printf ("ms5607 crc: %u\n", ms5607_prom.crc);
+	printf ("ms5607 reserved: %u\n", ao_ms5607_prom.reserved);
+	printf ("ms5607 sens: %u\n", ao_ms5607_prom.sens);
+	printf ("ms5607 off: %u\n", ao_ms5607_prom.off);
+	printf ("ms5607 tcs: %u\n", ao_ms5607_prom.tcs);
+	printf ("ms5607 tco: %u\n", ao_ms5607_prom.tco);
+	printf ("ms5607 tref: %u\n", ao_ms5607_prom.tref);
+	printf ("ms5607 tempsens: %u\n", ao_ms5607_prom.tempsens);
+	printf ("ms5607 crc: %u\n", ao_ms5607_prom.crc);
 }
 
 static void

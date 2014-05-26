@@ -309,7 +309,7 @@ struct ao_cmds {
 #if TELEMEGA
 #include "ao_convert_pa.c"
 #include <ao_ms5607.h>
-struct ao_ms5607_prom	ms5607_prom;
+struct ao_ms5607_prom	ao_ms5607_prom;
 #include "ao_ms5607_convert.c"
 #define AO_PYRO_NUM	4
 #include <ao_pyro.h>
@@ -780,21 +780,21 @@ ao_sleep(void *wchan)
 				continue;
 			} else if (nword == 3 && strcmp(words[0], "ms5607") == 0) {
 				if (strcmp(words[1], "reserved:") == 0)
-					ms5607_prom.reserved = strtoul(words[2], NULL, 10);
+					ao_ms5607_prom.reserved = strtoul(words[2], NULL, 10);
 				else if (strcmp(words[1], "sens:") == 0)
-					ms5607_prom.sens = strtoul(words[2], NULL, 10);
+					ao_ms5607_prom.sens = strtoul(words[2], NULL, 10);
 				else if (strcmp(words[1], "off:") == 0)
-					ms5607_prom.off = strtoul(words[2], NULL, 10);
+					ao_ms5607_prom.off = strtoul(words[2], NULL, 10);
 				else if (strcmp(words[1], "tcs:") == 0)
-					ms5607_prom.tcs = strtoul(words[2], NULL, 10);
+					ao_ms5607_prom.tcs = strtoul(words[2], NULL, 10);
 				else if (strcmp(words[1], "tco:") == 0)
-					ms5607_prom.tco = strtoul(words[2], NULL, 10);
+					ao_ms5607_prom.tco = strtoul(words[2], NULL, 10);
 				else if (strcmp(words[1], "tref:") == 0)
-					ms5607_prom.tref = strtoul(words[2], NULL, 10);
+					ao_ms5607_prom.tref = strtoul(words[2], NULL, 10);
 				else if (strcmp(words[1], "tempsens:") == 0)
-					ms5607_prom.tempsens = strtoul(words[2], NULL, 10);
+					ao_ms5607_prom.tempsens = strtoul(words[2], NULL, 10);
 				else if (strcmp(words[1], "crc:") == 0)
-					ms5607_prom.crc = strtoul(words[2], NULL, 10);
+					ao_ms5607_prom.crc = strtoul(words[2], NULL, 10);
 				continue;
 			} else if (nword >= 3 && strcmp(words[0], "Pyro") == 0) {
 				int	p = strtoul(words[1], NULL, 10);
