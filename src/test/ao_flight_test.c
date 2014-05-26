@@ -49,13 +49,12 @@ int ao_gps_new;
 #define HAS_MPU6000		1
 #define HAS_MMA655X		1
 #define HAS_HMC5883 		1
+#define HAS_BEEP		1
 
 struct ao_adc {
 	int16_t			sense[AO_ADC_NUM_SENSE];
 	int16_t			v_batt;
 	int16_t			v_pbatt;
-	int16_t			accel_ref;
-	int16_t			accel;
 	int16_t			temp;
 };
 #else
@@ -317,22 +316,8 @@ struct ao_ms5607_prom	ao_ms5607_prom;
 #include "ao_convert.c"
 #endif
 
-struct ao_config {
-	uint16_t	main_deploy;
-	int16_t		accel_plus_g;
-	int16_t		accel_minus_g;
-	uint8_t		pad_orientation;
-	uint16_t	apogee_lockout;
-#if TELEMEGA
-	struct ao_pyro	pyro[AO_PYRO_NUM];	/* minor version 12 */
-	int16_t		accel_zero_along;
-	int16_t		accel_zero_across;
-	int16_t		accel_zero_through;
-#endif
-};
-
-#define AO_PAD_ORIENTATION_ANTENNA_UP	0
-#define AO_PAD_ORIENTATION_ANTENNA_DOWN	1
+#include <ao_config.h>
+#include <ao_fake_flight.h>
 
 #define ao_config_get()
 
@@ -1003,6 +988,7 @@ void run_flight_fixed(char *name, FILE *f, int summary, char *info)
 	emulator_in = f;
 	emulator_info = info;
 	ao_summary = summary;
+
 	ao_flight_init();
 	ao_flight();
 }
