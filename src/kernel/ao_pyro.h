@@ -45,7 +45,11 @@ enum ao_pyro_flag {
 
 	ao_pyro_state_less		= 0x00004000,
 	ao_pyro_state_greater_or_equal  = 0x00008000,
-};
+}
+#ifdef __GNUC__
+	__attribute__ ((packed))
+#endif
+	;
 
 struct ao_pyro {
 	enum ao_pyro_flag	flags;

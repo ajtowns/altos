@@ -17,6 +17,9 @@
 
 #include "ao.h"
 #include <ao_task.h>
+#if HAS_FAKE_FLIGHT
+#include <ao_fake_flight.h>
+#endif
 
 #ifndef HAS_TICK
 #define HAS_TICK 1
@@ -47,7 +50,12 @@ void stm_systick_isr(void)
 #if AO_DATA_ALL
 		if (++ao_data_count == ao_data_interval) {
 			ao_data_count = 0;
-			ao_adc_poll();
+#if HAS_FAKE_FLIGHT
+			if (ao_fake_flight_active)
+				ao_fake_flight_poll();
+			else
+#endif
+				ao_adc_poll();
 #if (AO_DATA_ALL & ~(AO_DATA_ADC))
 			ao_wakeup((void *) &ao_data_count);
 #endif

@@ -36,6 +36,10 @@
 #error Please define HAS_USB
 #endif
 
+#if HAS_FAKE_FLIGHT
+#include <ao_fake_flight.h>
+#endif
+
 #ifndef HAS_TELEMETRY
 #define HAS_TELEMETRY	HAS_RADIO
 #endif
@@ -130,7 +134,10 @@ ao_flight(void)
 				/* Disable the USB controller in flight mode
 				 * to save power
 				 */
-				ao_usb_disable();
+#if HAS_FAKE_FLIGHT
+				if (!ao_fake_flight_active)
+#endif
+					ao_usb_disable();
 #endif
 
 #if !HAS_ACCEL && PACKET_HAS_SLAVE
@@ -170,7 +177,6 @@ ao_flight(void)
 
 			break;
 		case ao_flight_pad:
-
 			/* pad to boost:
 			 *
 			 * barometer: > 20m vertical motion
