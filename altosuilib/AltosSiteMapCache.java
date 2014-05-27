@@ -91,7 +91,7 @@ public class AltosSiteMapCache {
 	static final int	bad_request = 3;
 	static final int	forbidden = 4;
 
-	public static synchronized boolean has_map(File file, String url) {
+	public static boolean has_map(File file, String url) {
 		return file.exists();
 	}
 
@@ -182,7 +182,7 @@ public class AltosSiteMapCache {
 
 	static long			used;
 
-	public static synchronized Image get_image(Component component, File file, int width, int height) {
+	public static Image get_image(Component component, File file, int width, int height) {
 		int		oldest = -1;
 		long		age = used;
 		AltosCacheImage	image;

@@ -33,16 +33,23 @@ class GrabNDrag extends MouseInputAdapter {
 		scroll.setAutoscrolls(true);
 	}
 
+	public static boolean grab_n_drag(MouseEvent e) {
+		return e.getModifiers() == InputEvent.BUTTON1_MASK;
+	}
+
 	public void mousePressed(MouseEvent e) {
-		startPt.setLocation(e.getPoint());
+		if (grab_n_drag(e))
+			startPt.setLocation(e.getPoint());
 	}
 	public void mouseDragged(MouseEvent e) {
-		int xd = e.getX() - startPt.x;
-		int yd = e.getY() - startPt.y;
+		if (grab_n_drag(e)) {
+			int xd = e.getX() - startPt.x;
+			int yd = e.getY() - startPt.y;
 
-		Rectangle r = scroll.getVisibleRect();
-		r.x -= xd;
-		r.y -= yd;
-		scroll.scrollRectToVisible(r);
+			Rectangle r = scroll.getVisibleRect();
+			r.x -= xd;
+			r.y -= yd;
+			scroll.scrollRectToVisible(r);
+		}
 	}
 }

@@ -44,6 +44,9 @@ public class AltosSiteMapTile extends JComponent {
 
 	Point2D.Double	boost;
 	Point2D.Double	landed;
+	Line2D.Double	line;
+	double		line_course;
+	double		line_dist;
 
 	LinkedList<AltosPoint>	points;
 
@@ -81,6 +84,7 @@ public class AltosSiteMapTile extends JComponent {
 		file = null;
 		status = AltosSiteMapCache.success;
 		queue_repaint();
+		line = null;
 	}
 
 	static Color stateColors[] = {
@@ -104,6 +108,47 @@ public class AltosSiteMapTile extends JComponent {
 	public void set_boost(Point2D.Double boost) {
 		this.boost = boost;
 		queue_repaint();
+	}
+
+	public void set_line(Line2D.Double line, double distance) {
+		this.line = line;
+		line_dist = distance;
+		queue_repaint();
+	}
+
+	private String line_dist() {
+		String	format;
+		double	distance = line_dist;
+
+		if (AltosConvert.imperial_units) {
+			distance = AltosConvert.meters_to_feet(distance);
+			if (distance < 10000) {
+				format = "%4.0fft";
+			} else {
+				distance /= 5280;
+				if (distance < 10)
+					format = "%5.3fmi";
+				else if (distance < 100)
+					format = "%5.2fmi";
+				else if (distance < 1000)
+					format = "%5.1fmi";
+				else
+					format = "%5.0fmi";
+			}
+		} else {
+			if (distance < 10000) {
+				format = "%4.0fm";
+			} else {
+				distance /= 1000;
+				if (distance < 100)
+					format = "%5.2fkm";
+				else if (distance < 1000)
+					format = "%5.1fkm";
+				else
+					format = "%5.0fkm";
+			}
+		}
+		return String.format(format, distance);
 	}
 
 	public void paint(Graphics g) {
@@ -143,7 +188,7 @@ public class AltosSiteMapTile extends JComponent {
 				float x = getWidth() / 2.0f;
 				float y = getHeight() / 2.0f;
 				x = x - (float) bounds.getWidth() / 2.0f;
-				y = y - (float) bounds.getHeight() / 2.0f;
+				y = y + (float) bounds.getHeight() / 2.0f;
 				g2d.setColor(Color.BLACK);
 				g2d.drawString(message, x, y);
 			}
@@ -170,6 +215,27 @@ public class AltosSiteMapTile extends JComponent {
 		if (landed != null) {
 			g2d.setColor(Color.BLACK);
 			draw_circle(g2d, landed);
+		}
+
+		if (line != null) {
+			g2d.setColor(Color.BLUE);
+			g2d.draw(line);
+
+			String	message = line_dist();
+			g2d.setFont(font);
+			g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			Rectangle2D	bounds;
+			bounds = font.getStringBounds(message, g2d.getFontRenderContext());
+
+			float x = (float) line.x1;
+			float y = (float) line.y1 + (float) bounds.getHeight() / 2.0f;
+
+			if (line.x1 < line.x2) {
+				x -= (float) bounds.getWidth() + 2.0f;
+			} else {
+				x += 2.0f;
+			}
+			g2d.drawString(message, x, y);
 		}
 	}
 

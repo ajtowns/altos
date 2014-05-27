@@ -22,7 +22,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import java.lang.Math;
-import java.awt.geom.Point2D;
+import java.awt.geom.*;
 import java.util.*;
 import java.util.concurrent.*;
 import org.altusmetrum.altoslib_4.*;
@@ -50,7 +50,7 @@ class MapPoint {
 	}
 }
 
-public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
+public class AltosSiteMap extends JComponent implements AltosFlightDisplay, MouseMotionListener, MouseListener {
 	// preferred vertical step in a tile in naut. miles
 	// will actually choose a step size between x and 2x, where this
 	// is 1.5x
@@ -159,6 +159,10 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
 		return latlng(pt, scale_x, scale_y);
 	}
 	*/
+
+	private LatLng latlng(Point pt) {
+		return latlng(new Point2D.Double(pt.x, pt.y), scale_x, scale_y);
+	}
 
 	ConcurrentHashMap<Point,AltosSiteMapTile> mapTiles = new ConcurrentHashMap<Point,AltosSiteMapTile>();
 	Point2D.Double centre;
@@ -307,16 +311,15 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
 		base_location_set = false;
 		circle_set = false;
 		points = new LinkedList<MapPoint>();
-		for (AltosSiteMapTile tile : mapTiles.values())
-			tile.clearMap();
+		line_start = line_end = null;
 	}
 
 	public void setBaseLocation(double lat, double lng) {
+		for (AltosSiteMapTile tile : mapTiles.values())
+			tile.clearMap();
 		this.lat = lat;
 		this.lon = lng;
 		base_location_set = true;
-		for (AltosSiteMapTile tile : mapTiles.values())
-			tile.clearMap();
 
 		centre = getBaseLocation(lat, lng);
 		scrollRocketToVisible(pt(lat,lng));
@@ -442,6 +445,8 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
 		}
 		if (circle_set)
 			draw_circle(circle_lat, circle_lon);
+		if (line_start != null)
+			set_line();
 	}
 
 	public void show(final AltosState state, final AltosListenerState listener_state) {
@@ -598,13 +603,84 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
 		}
 	}
 
-	JComponent comp = new JComponent() { };
+	JComponent comp;
+
 	private GridBagLayout layout = new GridBagLayout();
+
+	LatLng	line_start, line_end;
+
+	private void set_line() {
+		if (line_start != null && line_end != null) {
+			Point2D.Double	start = pt(line_start.lat, line_start.lng);
+			Point2D.Double	end = pt(line_end.lat, line_end.lng);
+			AltosGreatCircle	g = new AltosGreatCircle(line_start.lat, line_start.lng,
+									 line_end.lat, line_end.lng);
+
+			for (Point offset : mapTiles.keySet()) {
+				AltosSiteMapTile tile = mapTiles.get(offset);
+				Point2D.Double s, e;
+				s = translatePoint(start, tileCoordOffset(offset));
+				e = translatePoint(end, tileCoordOffset(offset));
+				tile.set_line(new Line2D.Double(s.x, s.y, e.x, e.y), g.distance);
+			}
+		} else {
+			for (AltosSiteMapTile tile : mapTiles.values())
+				tile.set_line(null, 0);
+		}
+	}
+
+	LatLng latlng(MouseEvent e) {
+		if (!base_location_set)
+			return null;
+
+		Rectangle	zerozero = mapTiles.get(new Point(0, 0)).getBounds();
+
+		return latlng(-centre.x + e.getPoint().x - zerozero.x, -centre.y + e.getPoint().y - zerozero.y);
+	}
+
+	/* MouseMotionListener methods */
+	public void mouseDragged(MouseEvent e) {
+		if (!GrabNDrag.grab_n_drag(e)) {
+			LatLng	loc = latlng(e);
+			line_end = loc;
+			set_line();
+		}
+	}
+
+	public void mouseMoved(MouseEvent e) {
+	}
+
+	/* MouseListener methods */
+	public void mouseClicked(MouseEvent e) {
+	}
+
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	public void mouseExited(MouseEvent e) {
+	}
+
+	public void mousePressed(MouseEvent e) {
+		if (!GrabNDrag.grab_n_drag(e)) {
+			LatLng	loc = latlng(e);
+			line_start = loc;
+			line_end = null;
+			set_line();
+		}
+	}
+
+	public void mouseReleased(MouseEvent e) {
+	}
 
 	JScrollPane	pane = new JScrollPane();
 
 	public AltosSiteMap(int in_radius) {
 		radius = in_radius;
+
+		comp = new JComponent() { };
+
+		comp.addMouseMotionListener(this);
+		comp.addMouseListener(this);
 
 		GrabNDrag scroller = new GrabNDrag(comp);
 
