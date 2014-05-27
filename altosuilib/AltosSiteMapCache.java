@@ -22,9 +22,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.*;
 import java.awt.*;
 import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
-
+import java.net.*;
 
 class AltosCacheImage {
 	Component	component;
@@ -36,9 +34,12 @@ class AltosCacheImage {
 
 	public void load_image() throws IOException {
 		BufferedImage	bimg = ImageIO.read(file);
+		if (bimg == null)
+			throw new IOException("Can't load image file");
 		Graphics2D	g = image.createGraphics();
 		g.drawImage(bimg, 0, 0, null);
 		bimg.flush();
+		bimg = null;
 	}
 
 	public Image validate() {
@@ -79,14 +80,31 @@ class AltosCacheImage {
 	}
 }
 
-public class AltosSiteMapCache extends JLabel {
+public class AltosSiteMapCache {
 	static final long google_maps_ratelimit_ms = 1200;
 	// Google limits static map queries to 50 per minute per IP, so
 	// each query should take at least 1.2 seconds.
 
-	public static boolean fetchMap(File file, String url) {
+	static final int	success = 0;
+	static final int	loading = 1;
+	static final int	failed = 2;
+	static final int	bad_request = 3;
+	static final int	forbidden = 4;
+
+	public static synchronized boolean has_map(File file, String url) {
+		return file.exists();
+	}
+
+	static long	forbidden_time;
+	static boolean	forbidden_set = false;
+	static final long	forbidden_interval = 60l * 1000l * 1000l * 1000l;
+
+	public static synchronized int fetch_map(File file, String url) {
 		if (file.exists())
-			return true;
+			return success;
+
+		if (forbidden_set && (System.nanoTime() - forbidden_time) < forbidden_interval)
+			return forbidden;
 
 		URL u;
 		long startTime = System.nanoTime();
@@ -94,13 +112,26 @@ public class AltosSiteMapCache extends JLabel {
 		try {
 			u = new URL(url);
 		} catch (java.net.MalformedURLException e) {
-			return false;
+			return bad_request;
 		}
 
 		byte[] data;
+		URLConnection uc = null;
 		try {
-			URLConnection uc = u.openConnection();
+			uc = u.openConnection();
+			String type = uc.getContentType();
 			int contentLength = uc.getContentLength();
+			if (uc instanceof HttpURLConnection) {
+				int response = ((HttpURLConnection) uc).getResponseCode();
+				switch (response) {
+				case HttpURLConnection.HTTP_FORBIDDEN:
+				case HttpURLConnection.HTTP_PAYMENT_REQUIRED:
+				case HttpURLConnection.HTTP_UNAUTHORIZED:
+					forbidden_time = System.nanoTime();
+					forbidden_set = true;
+					return forbidden;
+				}
+			}
 			InputStream in = new BufferedInputStream(uc.getInputStream());
 			int bytesRead = 0;
 			int offset = 0;
@@ -113,11 +144,11 @@ public class AltosSiteMapCache extends JLabel {
 			}
 			in.close();
 
-			if (offset != contentLength) {
-				return false;
-			}
+			if (offset != contentLength)
+				return failed;
+
 		} catch (IOException e) {
-			return false;
+			return failed;
 		}
 
 		try {
@@ -126,12 +157,11 @@ public class AltosSiteMapCache extends JLabel {
 			out.flush();
 			out.close();
 		} catch (FileNotFoundException e) {
-			return false;
+			return bad_request;
 		} catch (IOException e) {
-			if (file.exists()) {
+			if (file.exists())
 				file.delete();
-			}
-			return false;
+			return bad_request;
 		}
 
 		long duration_ms = (System.nanoTime() - startTime) / 1000000;
@@ -143,21 +173,16 @@ public class AltosSiteMapCache extends JLabel {
 			}
 		}
 
-		return true;
+		return success;
 	}
 
-	static int			cache_size = 9;
+	static final int		cache_size = 12;
 
 	static AltosCacheImage[]	images;
 
 	static long			used;
 
-	public static void set_cache_size(int cache_size) {
-		AltosSiteMapCache.cache_size = cache_size;
-		images = null;
-	}
-
-	public static Image get_image(Component component, File file, int width, int height) {
+	public static synchronized Image get_image(Component component, File file, int width, int height) {
 		int		oldest = -1;
 		long		age = used;
 		AltosCacheImage	image;

@@ -21,10 +21,10 @@ import java.awt.*;
 import java.awt.image.*;
 import javax.swing.*;
 import javax.imageio.*;
-import java.awt.geom.Point2D;
-import java.awt.geom.Line2D;
+import java.awt.geom.*;
 import java.io.*;
 import java.util.*;
+import java.awt.RenderingHints.*;
 import org.altusmetrum.altoslib_4.*;
 
 class AltosPoint {
@@ -40,15 +40,38 @@ class AltosPoint {
 public class AltosSiteMapTile extends JComponent {
 	int px_size;
 	File file;
+	int status;
 
 	Point2D.Double	boost;
 	Point2D.Double	landed;
 
 	LinkedList<AltosPoint>	points;
 
-	public void loadMap(File pngFile) {
+	public synchronized void queue_repaint() {
+		SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					repaint();
+				}
+			});
+	}
+
+	public void load_map(File pngFile) {
 		file = pngFile;
-		repaint();
+		queue_repaint();
+	}
+
+	private Font	font = null;
+
+	public void set_font(Font font) {
+		this.font = font;
+		this.status = AltosSiteMapCache.success;
+		queue_repaint();
+	}
+
+	public void set_status(int status) {
+		file = null;
+		this.status = status;
+		queue_repaint();
 	}
 
 	public void clearMap() {
@@ -56,6 +79,8 @@ public class AltosSiteMapTile extends JComponent {
 		landed = null;
 		points = null;
 		file = null;
+		status = AltosSiteMapCache.success;
+		queue_repaint();
 	}
 
 	static Color stateColors[] = {
@@ -78,7 +103,7 @@ public class AltosSiteMapTile extends JComponent {
 
 	public void set_boost(Point2D.Double boost) {
 		this.boost = boost;
-		repaint();
+		queue_repaint();
 	}
 
 	public void paint(Graphics g) {
@@ -94,6 +119,34 @@ public class AltosSiteMapTile extends JComponent {
 		} else {
 			g2d.setColor(Color.GRAY);
 			g2d.fillRect(0, 0, getWidth(), getHeight());
+			String	message = null;
+			switch (status) {
+			case AltosSiteMapCache.loading:
+				message = "Loading...";
+				break;
+			case AltosSiteMapCache.bad_request:
+				message = "Internal error";
+				break;
+			case AltosSiteMapCache.failed:
+				message = "Network error, check connection";
+				break;
+			case AltosSiteMapCache.forbidden:
+				message = "Too many requests, try later";
+				break;
+			}
+			if (message != null && font != null) {
+				g2d.setFont(font);
+				g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+				Rectangle2D	bounds;
+				bounds = font.getStringBounds(message, g2d.getFontRenderContext());
+
+				float x = getWidth() / 2.0f;
+				float y = getHeight() / 2.0f;
+				x = x - (float) bounds.getWidth() / 2.0f;
+				y = y - (float) bounds.getHeight() / 2.0f;
+				g2d.setColor(Color.BLACK);
+				g2d.drawString(message, x, y);
+			}
 		}
 
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -120,19 +173,18 @@ public class AltosSiteMapTile extends JComponent {
 		}
 	}
 
-	public synchronized void show(AltosState state, AltosListenerState listener_state,
-				      Point2D.Double last_pt, Point2D.Double pt)
+	public synchronized void show(int state, Point2D.Double last_pt, Point2D.Double pt)
 	{
 		if (points == null)
 			points = new LinkedList<AltosPoint>();
 
-		points.add(new AltosPoint(pt, state.state));
+		points.add(new AltosPoint(pt, state));
 
-		if (state.state == AltosLib.ao_flight_boost && boost == null)
+		if (state == AltosLib.ao_flight_boost && boost == null)
 			boost = pt;
-		if (state.state == AltosLib.ao_flight_landed && landed == null)
+		if (state == AltosLib.ao_flight_landed && landed == null)
 			landed = pt;
-		repaint();
+		queue_repaint();
 	}
 
 	public AltosSiteMapTile(int in_px_size) {

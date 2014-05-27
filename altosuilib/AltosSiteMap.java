@@ -18,14 +18,39 @@
 package org.altusmetrum.altosuilib_2;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import java.lang.Math;
 import java.awt.geom.Point2D;
+import java.util.*;
 import java.util.concurrent.*;
 import org.altusmetrum.altoslib_4.*;
 
-public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
+class MapPoint {
+	double	lat, lon;
+	int	state;
+
+	public MapPoint(double lat, double lon, int state) {
+		this.lat = lat;
+		this.lon = lon;
+		this.state = state;
+	}
+
+	public boolean equals(MapPoint other) {
+		if (other == null)
+			return false;
+		if (other.lat != lat)
+			return false;
+		if (other.lon != lon)
+			return false;
+		if (other.state != state)
+			return false;
+		return true;
+	}
+}
+
+public class AltosSiteMap extends JComponent implements AltosFlightDisplay {
 	// preferred vertical step in a tile in naut. miles
 	// will actually choose a step size between x and 2x, where this
 	// is 1.5x
@@ -34,6 +59,29 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	static final int px_size = 512;
 
 	static final int MAX_TILE_DELTA = 100;
+
+	static final int maptype_hybrid = 0;
+	static final int maptype_roadmap = 1;
+	static final int maptype_satellite = 2;
+	static final int maptype_terrain = 3;
+
+	int maptype = maptype_hybrid;
+
+	static final String[] maptype_names = {
+		"hybrid",
+		"roadmap",
+		"satellite",
+		"terrain"
+	};
+
+	static final String[] maptype_labels = {
+		"Hybrid",
+		"Roadmap",
+		"Satellite",
+		"Terrain"
+	};
+
+	LinkedList<MapPoint> points = new LinkedList<MapPoint>();
 
 	private static Point2D.Double translatePoint(Point2D.Double p,
 			Point2D.Double d)
@@ -89,7 +137,12 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		return new LatLng(lat,lng);
 	}
 
-	int zoom;
+	static final int default_zoom = 15;
+	static final int min_zoom = 3;
+	static final int max_zoom = 21;
+
+	int zoom = default_zoom;
+
 	double scale_x, scale_y;
 
 	int radius;	/* half width/height of tiles to load */
@@ -112,7 +165,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 
 	private Point2D.Double tileCoordOffset(Point p) {
 		return new Point2D.Double(centre.x - p.x*px_size,
-					  centre.y - p.y * px_size);
+					  centre.y - p.y*px_size);
 	}
 
 	private Point tileOffset(Point2D.Double p) {
@@ -121,19 +174,11 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	}
 
 	private Point2D.Double getBaseLocation(double lat, double lng) {
-		Point2D.Double locn, north_step;
+		Point2D.Double locn = pt(0,0), north_step;
 
-		zoom = 2;
-		// stupid loop structure to please Java's control flow analysis
-		do {
-			zoom++;
-			scale_x = 256/360.0 * Math.pow(2, zoom);
-			scale_y = 256/(2.0*Math.PI) * Math.pow(2, zoom);
-			locn = pt(lat, lng);
-			north_step = pt(lat+tile_size_nmi*4/3/60.0, lng);
-			if (locn.y - north_step.y > px_size)
-				break;
-		} while (zoom < 22);
+		scale_x = 256/360.0 * Math.pow(2, zoom);
+		scale_y = 256/(2.0*Math.PI) * Math.pow(2, zoom);
+		locn = pt(lat, lng);
 		locn.x = -px_size * Math.floor(locn.x/px_size);
 		locn.y = -px_size * Math.floor(locn.y/px_size);
 		return locn;
@@ -144,23 +189,38 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	}
 
 	public void set_font() {
-		// nothing
+		for (AltosSiteMapTile tile : mapTiles.values())
+			tile.set_font(AltosUILib.value_font);
 	}
 
-	private void loadMap(final AltosSiteMapTile tile,
-			     final File pngfile, String pngurl)
+	static final int load_mode_cached = 1;
+	static final int load_mode_uncached = 2;
+
+	private boolean load_map(final AltosSiteMapTile tile,
+				 final File pngfile, String pngurl,
+				 int load_mode)
 	{
-		boolean loaded = AltosSiteMapCache.fetchMap(pngfile, pngurl);
-		if (loaded) {
+		boolean has_map = AltosSiteMapCache.has_map(pngfile, pngurl);
+		if ((load_mode & load_mode_uncached) == 0 && !has_map)
+			return false;
+		if ((load_mode & load_mode_cached) == 0 && has_map)
+			return false;
+
+		tile.set_status(AltosSiteMapCache.loading);
+		int status = AltosSiteMapCache.fetch_map(pngfile, pngurl);
+		if (status == AltosSiteMapCache.success) {
 			SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
-						tile.loadMap(pngfile);
+						tile.load_map(pngfile);
 					}
 				});
 		} else {
-			System.out.printf("# Failed to fetch file %s\n", pngfile);
+			tile.set_status(status);
+			System.out.printf("# Failed to fetch file %s (status %d)\n", pngfile, status);
 			System.out.printf(" wget -O '%s' '%s'\n", pngfile, pngurl);
+			System.out.printf(" sleep 1\n");
 		}
+		return true;
 	}
 
 
@@ -177,11 +237,11 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		LatLng map_latlng = latlng(
 			-centre.x + x*px_size + px_size/2,
 			-centre.y + y*px_size + px_size/2);
-		prefetch.pngfile = MapFile(map_latlng.lat, map_latlng.lng, zoom);
-		prefetch.pngurl = MapURL(map_latlng.lat, map_latlng.lng, zoom);
-		if (prefetch.pngfile.exists()) {
+		prefetch.pngfile = MapFile(map_latlng.lat, map_latlng.lng, zoom, maptype_hybrid);
+		prefetch.pngurl = MapURL(map_latlng.lat, map_latlng.lng, zoom, maptype_hybrid);
+		if (AltosSiteMapCache.has_map(prefetch.pngfile, prefetch.pngurl)) {
 			prefetch.result = 1;
-		} else if (AltosSiteMapCache.fetchMap(prefetch.pngfile, prefetch.pngurl)) {
+		} else if (AltosSiteMapCache.fetch_map(prefetch.pngfile, prefetch.pngurl) == AltosSiteMapCache.success) {
 			prefetch.result = 0;
 		} else {
 			prefetch.result = -1;
@@ -218,33 +278,45 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		}
 	}
 
-	public String initMap(Point offset) {
+	public File init_map(Point offset, int load_mode) {
 		AltosSiteMapTile tile = mapTiles.get(offset);
 		Point2D.Double coord = tileCoordOffset(offset);
 
 		LatLng map_latlng = latlng(px_size/2-coord.x, px_size/2-coord.y);
 
-		File pngfile = MapFile(map_latlng.lat, map_latlng.lng, zoom);
-		String pngurl = MapURL(map_latlng.lat, map_latlng.lng, zoom);
-		loadMap(tile, pngfile, pngurl);
-		return pngfile.toString();
+		File pngfile = MapFile(map_latlng.lat, map_latlng.lng, zoom, maptype);
+		String pngurl = MapURL(map_latlng.lat, map_latlng.lng, zoom, maptype);
+		load_map(tile, pngfile, pngurl, load_mode);
+		return pngfile;
 	}
 
 	public void initAndFinishMapAsync (final AltosSiteMapTile tile, final Point offset) {
 		Thread thread = new Thread() {
 				public void run() {
-					initMap(offset);
+					init_map(offset, load_mode_cached|load_mode_uncached);
 					finishTileLater(tile, offset);
 				}
 			};
 		thread.start();
 	}
 
-	public void setBaseLocation(double lat, double lng) {
-		for (Point k : mapTiles.keySet()) {
-			AltosSiteMapTile tile = mapTiles.get(k);
+	double	lat, lon;
+	boolean base_location_set = false;
+
+	public void clear_base_location() {
+		base_location_set = false;
+		circle_set = false;
+		points = new LinkedList<MapPoint>();
+		for (AltosSiteMapTile tile : mapTiles.values())
 			tile.clearMap();
-		}
+	}
+
+	public void setBaseLocation(double lat, double lng) {
+		this.lat = lat;
+		this.lon = lng;
+		base_location_set = true;
+		for (AltosSiteMapTile tile : mapTiles.values())
+			tile.clearMap();
 
 		centre = getBaseLocation(lat, lng);
 		scrollRocketToVisible(pt(lat,lng));
@@ -256,28 +328,42 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		Thread thread = new Thread() {
 				public void run() {
 					for (Point k : mapTiles.keySet())
-						initMap(k);
+						init_map(k, load_mode_cached);
+					for (Point k : mapTiles.keySet())
+						init_map(k, load_mode_uncached);
 				}
 			};
 		thread.start();
 	}
 
-	private static File MapFile(double lat, double lng, int zoom) {
+	private static File MapFile(double lat, double lng, int zoom, int maptype) {
 		char chlat = lat < 0 ? 'S' : 'N';
 		char chlng = lng < 0 ? 'W' : 'E';
 		if (lat < 0) lat = -lat;
 		if (lng < 0) lng = -lng;
+		String maptype_string = String.format("%s-", maptype_names[maptype]);
+		String format_string;
+		if (maptype == maptype_hybrid || maptype == maptype_satellite || maptype == maptype_terrain)
+			format_string = "jpg";
+		else
+			format_string = "png";
 		return new File(AltosUIPreferences.mapdir(),
-				String.format("map-%c%.6f,%c%.6f-%d.png",
-					      chlat, lat, chlng, lng, zoom));
+				String.format("map-%c%.6f,%c%.6f-%s%d.%s",
+					      chlat, lat, chlng, lng, maptype_string, zoom, format_string));
 	}
 
-	private static String MapURL(double lat, double lng, int zoom) {
-		return String.format("http://maps.google.com/maps/api/staticmap?center=%.6f,%.6f&zoom=%d&size=%dx%d&sensor=false&maptype=hybrid&format=png32", lat, lng, zoom, px_size, px_size);
+	private static String MapURL(double lat, double lng, int zoom, int maptype) {
+		String format_string;
+		if (maptype == maptype_hybrid || maptype == maptype_satellite || maptype == maptype_terrain)
+			format_string = "jpg";
+		else
+			format_string = "png32";
+		return String.format("http://maps.google.com/maps/api/staticmap?center=%.6f,%.6f&zoom=%d&size=%dx%d&sensor=false&maptype=%s&format=%s",
+				     lat, lng, zoom, px_size, px_size, maptype_names[maptype], format_string);
 	}
 
 	boolean initialised = false;
-	Point2D.Double last_pt = null;
+	MapPoint last_point = null;
 	int last_state = -1;
 
 	public void show(double lat, double lon) {
@@ -286,6 +372,78 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 //		initMaps(lat, lon);
 //		scrollRocketToVisible(pt(lat, lon));
 	}
+
+	JLabel	zoom_label;
+
+	public void set_zoom_label() {
+		zoom_label.setText(String.format("- %d -", zoom - default_zoom));
+	}
+
+	public void set_zoom(int zoom) {
+		if (min_zoom <= zoom && zoom <= max_zoom) {
+			this.zoom = zoom;
+			if (base_location_set)
+				initMaps(lat, lon);
+			redraw();
+			set_zoom_label();
+		}
+	}
+
+	public int get_zoom() {
+		return zoom;
+	}
+
+	public void draw(MapPoint last_point, MapPoint point) {
+		boolean	force_ensure = false;
+		if (last_point == null) {
+			force_ensure = true;
+			last_point = point;
+		}
+
+		Point2D.Double pt = pt(point.lat, point.lon);
+		Point2D.Double last_pt = pt(last_point.lat, last_point.lon);
+
+		boolean in_any = false;
+		for (Point offset : mapTiles.keySet()) {
+			AltosSiteMapTile tile = mapTiles.get(offset);
+			Point2D.Double ref, lref;
+			ref = translatePoint(pt, tileCoordOffset(offset));
+			lref = translatePoint(last_pt, tileCoordOffset(offset));
+			tile.show(point.state, lref, ref);
+			if (0 <= ref.x && ref.x < px_size)
+				if (0 <= ref.y && ref.y < px_size)
+					in_any = true;
+		}
+
+		Point offset = tileOffset(pt);
+		if (!in_any) {
+			Point2D.Double ref, lref;
+			ref = translatePoint(pt, tileCoordOffset(offset));
+			lref = translatePoint(last_pt, tileCoordOffset(offset));
+
+			AltosSiteMapTile tile = createTile(offset);
+			tile.show(point.state, lref, ref);
+			initAndFinishMapAsync(tile, offset);
+		}
+
+		scrollRocketToVisible(pt);
+
+		if (force_ensure || offset != tileOffset(last_pt)) {
+			ensureTilesAround(offset);
+		}
+	}
+
+	public void redraw() {
+		MapPoint	last_point = null;
+
+		for (MapPoint point : points) {
+			draw(last_point, point);
+			last_point = point;
+		}
+		if (circle_set)
+			draw_circle(circle_lat, circle_lon);
+	}
+
 	public void show(final AltosState state, final AltosListenerState listener_state) {
 		// if insufficient gps data, nothing to update
 		AltosGPS	gps = state.gps;
@@ -308,44 +466,16 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 			}
 		}
 
-		final Point2D.Double pt = pt(gps.lat, gps.lon);
-		if (last_pt == pt && last_state == state.state)
+		MapPoint	point = new MapPoint(gps.lat, gps.lon, state.state);
+
+		if (point.equals(last_point))
 			return;
 
-		if (last_pt == null) {
-			last_pt = pt;
-		}
-		boolean in_any = false;
-		for (Point offset : mapTiles.keySet()) {
-			AltosSiteMapTile tile = mapTiles.get(offset);
-			Point2D.Double ref, lref;
-			ref = translatePoint(pt, tileCoordOffset(offset));
-			lref = translatePoint(last_pt, tileCoordOffset(offset));
-			tile.show(state, listener_state, lref, ref);
-			if (0 <= ref.x && ref.x < px_size)
-				if (0 <= ref.y && ref.y < px_size)
-					in_any = true;
-		}
+		points.add(point);
 
-		Point offset = tileOffset(pt);
-		if (!in_any) {
-			Point2D.Double ref, lref;
-			ref = translatePoint(pt, tileCoordOffset(offset));
-			lref = translatePoint(last_pt, tileCoordOffset(offset));
+		draw(last_point, point);
 
-			AltosSiteMapTile tile = createTile(offset);
-			tile.show(state, listener_state, lref, ref);
-			initAndFinishMapAsync(tile, offset);
-		}
-
-		scrollRocketToVisible(pt);
-
-		if (offset != tileOffset(last_pt)) {
-			ensureTilesAround(offset);
-		}
-
-		last_pt = pt;
-		last_state = state.state;
+		last_point = point;
 	}
 
 	public void centre(Point2D.Double pt) {
@@ -355,6 +485,8 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		int dy = (int)copt.y - r.height/2 - r.y;
 		r.x += dx;
 		r.y += dy;
+		r.width = 1;
+		r.height = 1;
 		comp.scrollRectToVisible(r);
 	}
 
@@ -364,8 +496,15 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		centre(pt(state.gps.lat, state.gps.lon));
 	}
 
+	private double circle_lat, circle_lon;
+	private boolean circle_set = false;
+
 	public void draw_circle(double lat, double lon) {
-		final Point2D.Double pt = pt(lat, lon);
+		circle_lat = lat;
+		circle_lon = lon;
+		circle_set = true;
+
+		Point2D.Double pt = pt(lat, lon);
 
 		for (Point offset : mapTiles.keySet()) {
 			AltosSiteMapTile tile = mapTiles.get(offset);
@@ -376,6 +515,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 
 	private AltosSiteMapTile createTile(Point offset) {
 		AltosSiteMapTile tile = new AltosSiteMapTile(px_size);
+		tile.set_font(AltosUILib.value_font);
 		mapTiles.put(offset, tile);
 		return tile;
 	}
@@ -405,6 +545,7 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 	private void scrollRocketToVisible(Point2D.Double pt) {
 		Rectangle r = comp.getVisibleRect();
 		Point2D.Double copt = translatePoint(pt, tileCoordOffset(topleft));
+
 		int dx = (int)copt.x - r.width/2 - r.x;
 		int dy = (int)copt.y - r.height/2 - r.y;
 		if (Math.abs(dx) > r.width/4 || Math.abs(dy) > r.height/4) {
@@ -446,9 +587,9 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 		layout.setConstraints(tile, c);
 
 		comp.add(tile);
-		if (review) {
-			comp.scrollRectToVisible(r);
-		}
+//		if (review) {
+//			comp.scrollRectToVisible(r);
+//		}
 	}
 
 	private AltosSiteMap(boolean knowWhatYouAreDoing) {
@@ -459,6 +600,8 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 
 	JComponent comp = new JComponent() { };
 	private GridBagLayout layout = new GridBagLayout();
+
+	JScrollPane	pane = new JScrollPane();
 
 	public AltosSiteMap(int in_radius) {
 		radius = in_radius;
@@ -474,8 +617,108 @@ public class AltosSiteMap extends JScrollPane implements AltosFlightDisplay {
 				addTileAt(t, offset);
 			}
 		}
-		setViewportView(comp);
-		setPreferredSize(new Dimension(500,500));
+		pane.setViewportView(comp);
+		pane.setPreferredSize(new Dimension(500,500));
+		pane.setVisible(true);
+		pane.setEnabled(true);
+
+		GridBagLayout	my_layout = new GridBagLayout();
+
+		setLayout(my_layout);
+
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.CENTER;
+		c.fill = GridBagConstraints.BOTH;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 1;
+		c.gridheight = 10;
+		c.weightx = 1;
+		c.weighty = 1;
+		add(pane, c);
+
+		int	y = 0;
+
+		zoom_label = new JLabel("", JLabel.CENTER);
+		set_zoom_label();
+
+		c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.CENTER;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = y++;
+		c.weightx = 0;
+		c.weighty = 0;
+		add(zoom_label, c);
+
+		JButton zoom_reset = new JButton("0");
+		zoom_reset.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					set_zoom(default_zoom);
+				}
+			});
+
+		c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.CENTER;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = y++;
+		c.weightx = 0;
+		c.weighty = 0;
+		add(zoom_reset, c);
+
+		JButton zoom_in = new JButton("+");
+		zoom_in.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					set_zoom(get_zoom() + 1);
+				}
+			});
+
+		c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.CENTER;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = y++;
+		c.weightx = 0;
+		c.weighty = 0;
+		add(zoom_in, c);
+
+		JButton zoom_out = new JButton("-");
+		zoom_out.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					set_zoom(get_zoom() - 1);
+				}
+			});
+		c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.CENTER;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = y++;
+		c.weightx = 0;
+		c.weighty = 0;
+		add(zoom_out, c);
+
+		final JComboBox<String>	maptype_combo = new JComboBox<String>(maptype_labels);
+
+		maptype_combo.setEditable(false);
+		maptype_combo.setMaximumRowCount(maptype_combo.getItemCount());
+		maptype_combo.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent e) {
+					maptype = maptype_combo.getSelectedIndex();
+					if (base_location_set)
+						initMaps(lat, lon);
+					redraw();
+				}
+			});
+
+		c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.CENTER;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = y++;
+		c.weightx = 0;
+		c.weighty = 0;
+		add(maptype_combo, c);
 	}
 
 	public AltosSiteMap() {

@@ -265,9 +265,10 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 		public void run() {
 			for (int y = -map.radius; y <= map.radius; y++) {
 				for (int x = -map.radius; x <= map.radius; x++) {
-					String	pngfile;
-					pngfile = map.initMap(new Point(x,y));
-					SwingUtilities.invokeLater(new updatePbar(x, y, pngfile));
+					File	pngfile;
+					pngfile = map.init_map(new Point(x,y),
+							       AltosSiteMap.load_mode_cached|AltosSiteMap.load_mode_uncached);
+					SwingUtilities.invokeLater(new updatePbar(x, y, pngfile.toString()));
 				}
 			}
 		}
@@ -305,6 +306,7 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 				try {
 					final double	latitude = lat.get_value();
 					final double	longitude = lon.get_value();
+					map.clear_base_location();
 					map.setBaseLocation(latitude,longitude);
 					map.draw_circle(latitude,longitude);
 					loading = true;
