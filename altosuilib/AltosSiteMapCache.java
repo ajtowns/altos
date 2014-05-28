@@ -48,7 +48,6 @@ public class AltosSiteMapCache {
 	private static int fetch_one(File file, String url) {
 		URL u;
 
-		System.out.printf("Loading URL %s\n", url);
 		try {
 			u = new URL(url);
 		} catch (java.net.MalformedURLException e) {
