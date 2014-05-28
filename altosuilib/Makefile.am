@@ -40,7 +40,15 @@ altosuilib_JAVA = \
 	AltosSiteMapImage.java \
 	AltosVoice.java \
 	AltosDisplayThread.java \
-	AltosFreqList.java
+	AltosDeviceUIDialog.java \
+	AltosFreqList.java \
+	AltosSerial.java \
+	AltosSerialInUseException.java \
+	AltosBTDevice.java \
+	AltosBTDeviceIterator.java \
+	AltosBTManage.java \
+	AltosBTKnown.java
+
 
 JAR=altosuilib_$(ALTOSUILIB_VERSION).jar
 

@@ -15,9 +15,11 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
+
 import java.util.*;
 import libaltosJNI.*;
+import org.altusmetrum.altoslib_4.*;
 
 public class AltosBTDeviceIterator implements Iterator<AltosBTDevice> {
 	AltosBTDevice	current;

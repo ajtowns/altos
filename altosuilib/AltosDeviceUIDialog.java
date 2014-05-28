@@ -15,12 +15,11 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import org.altusmetrum.altosuilib_2.*;
 
 public class AltosDeviceUIDialog extends AltosDeviceDialog {
 

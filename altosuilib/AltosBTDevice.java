@@ -15,9 +15,10 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
+
 import libaltosJNI.*;
-import org.altusmetrum.altosuilib_2.*;
+import org.altusmetrum.altoslib_4.*;
 
 public class AltosBTDevice extends altos_bt_device implements AltosDevice {
 
@@ -32,8 +33,8 @@ public class AltosBTDevice extends altos_bt_device implements AltosDevice {
 	}
 
 	public int getProduct() {
-		if (Altos.bt_product_telebt.equals(getProductName()))
-			return Altos.product_telebt;
+		if (AltosLib.bt_product_telebt.equals(getProductName()))
+			return AltosLib.product_telebt;
 		return 0;
 	}
 
@@ -91,11 +92,11 @@ public class AltosBTDevice extends altos_bt_device implements AltosDevice {
 //		if (!isAltusMetrum())
 //			return false;
 
-		if (want_product == Altos.product_any)
+		if (want_product == AltosLib.product_any)
 			return true;
 
-		if (want_product == Altos.product_basestation)
-			return matchProduct(Altos.product_telebt);
+		if (want_product == AltosLib.product_basestation)
+			return matchProduct(AltosLib.product_telebt);
 
 		if (want_product == getProduct())
 			return true;
@@ -115,7 +116,7 @@ public class AltosBTDevice extends altos_bt_device implements AltosDevice {
 	}
 
 	public AltosBTDevice(String name, String addr) {
-		Altos.load_library();
+		AltosUILib.load_library();
 		libaltos.altos_bt_fill_in(name, addr,this);
 	}
 

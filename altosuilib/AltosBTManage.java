@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -23,7 +23,7 @@ import javax.swing.*;
 import javax.swing.plaf.basic.*;
 import java.util.*;
 import java.util.concurrent.*;
-import org.altusmetrum.altosuilib_2.*;
+import org.altusmetrum.altoslib_4.*;
 
 public class AltosBTManage extends AltosUIDialog implements ActionListener, Iterable<AltosBTDevice> {
 	LinkedBlockingQueue<AltosBTDevice> found_devices;

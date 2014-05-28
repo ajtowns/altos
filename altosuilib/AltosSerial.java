@@ -19,15 +19,13 @@
  * Deal with TeleDongle on a serial port
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import java.io.*;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
 import org.altusmetrum.altoslib_4.*;
-import org.altusmetrum.altosuilib_2.*;
-
 import libaltosJNI.*;
 
 /*
@@ -40,7 +38,7 @@ public class AltosSerial extends AltosLink  {
 
 	static java.util.List<String> devices_opened = Collections.synchronizedList(new LinkedList<String>());
 
-	AltosDevice device;
+	public AltosDevice device;
 	SWIGTYPE_p_altos_file altos;
 	Thread input_thread;
 	String line;

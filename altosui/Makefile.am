@@ -10,12 +10,6 @@ CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH="$(JAVAROOT):../altoslib/*:../alto
 
 bin_SCRIPTS=altosui
 
-altosui_BT = \
-	AltosBTDevice.java \
-	AltosBTDeviceIterator.java \
-	AltosBTManage.java \
-	AltosBTKnown.java
-
 altosui_JAVA = \
 	AltosAscent.java \
 	AltosChannelMenu.java \
@@ -29,7 +23,6 @@ altosui_JAVA = \
 	AltosConfigTDUI.java \
 	AltosCSVUI.java \
 	AltosDescent.java \
-	AltosDeviceUIDialog.java \
 	AltosEepromDelete.java \
 	AltosEepromManage.java \
 	AltosEepromMonitorUI.java \
@@ -54,15 +47,12 @@ altosui_JAVA = \
 	AltosUIPreferencesBackend.java \
 	AltosRomconfigUI.java \
 	AltosScanUI.java \
-	AltosSerial.java \
-	AltosSerialInUseException.java \
 	AltosUI.java \
 	AltosGraph.java \
 	AltosGraphDataPoint.java \
 	AltosGraphDataSet.java \
 	AltosGraphUI.java \
-	AltosDataChooser.java \
-	$(altosui_BT)
+	AltosDataChooser.java
 
 JFREECHART_CLASS= \
     jfreechart.jar
