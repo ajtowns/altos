@@ -1,0 +1,132 @@
+!addplugindir Instdrv/NSIS/Plugins
+; Definitions for Java 1.6 Detection
+!define JRE_VERSION "1.6"
+!define JRE_ALTERNATE "1.7"
+!define JRE_URL "http://javadl.sun.com/webapps/download/AutoDL?BundleId=52247&/jre-6u27-windows-i586-p.exe"
+!define PRODUCT_NAME "Altus Metrum Windows Software"
+
+Name "Altus Metrum MicroPeak Installer"
+
+; Default install directory
+InstallDir "$PROGRAMFILES\AltusMetrum"
+
+; Tell the installer where to re-install a new version
+InstallDirRegKey HKLM "Software\AltusMetrum" "Install_Dir"
+
+LicenseText "GNU General Public License Version 2"
+LicenseData "../COPYING"
+
+; Need admin privs for Vista or Win7
+RequestExecutionLevel admin
+
+ShowInstDetails Show
+
+ComponentText "Altus Metrum MicroPeak Software Installer"
+
+Function GetJRE
+        MessageBox MB_OK "${PRODUCT_NAME} uses Java ${JRE_VERSION} 32-bit, it will now \
+                         be downloaded and installed"
+
+        StrCpy $2 "$TEMP\Java Runtime Environment.exe"
+        nsisdl::download /TIMEOUT=30000 ${JRE_URL} $2
+        Pop $R0 ;Get the return value
+                StrCmp $R0 "success" +3
+                MessageBox MB_OK "Download failed: $R0"
+                Quit
+        ExecWait $2
+        Delete $2
+FunctionEnd
+
+
+Function DetectJRE
+  ReadRegStr $2 HKLM "SOFTWARE\JavaSoft\Java Runtime Environment" \
+             "CurrentVersion"
+  StrCmp $2 ${JRE_VERSION} done
+
+  StrCmp $2 ${JRE_ALTERNATE} done
+
+  Call GetJRE
+
+  done:
+FunctionEnd
+
+; Pages to present
+
+Page license
+Page components
+Page directory
+Page instfiles
+
+UninstPage uninstConfirm
+UninstPage instfiles
+
+; And the stuff to install
+
+Section "MicroPeak Application"
+	Call DetectJRE
+
+	SetOutPath $INSTDIR
+
+	File "micropeak-fat.jar"
+	File "altoslib_@ALTOSLIB_VERSION@.jar"
+	File "altosuilib_@ALTOSUILIB_VERSION@.jar"
+	File "jfreechart.jar"
+	File "jcommon.jar"
+
+	File "*.dll"
+
+	File "../icon/*.ico"
+
+	CreateShortCut "$SMPROGRAMS\MicroPeak.lnk" "$SYSDIR\javaw.exe" "-jar micropeak-fat.jar" "$INSTDIR\micro-peak.ico"
+SectionEnd
+
+Section "FTDI USB Driver"
+	SetOutPath $INSTDIR
+
+	File "CDM20824_Setup.exe"
+
+	StrCpy $2 "$INSTDIR\CDM20824_Setup.exe"
+	ExecWait $2
+SectionEnd
+
+Section "MicroPeak Desktop Shortcut"
+	CreateShortCut "$DESKTOP\MicroPeak.lnk" "$INSTDIR\micropeak-fat.jar"  "" "$INSTDIR\micro-peak.ico"
+SectionEnd
+
+Section "Documentation"
+
+	SetOutPath $INSTDIR
+
+	File "../doc/micropeak.pdf"
+SectionEnd
+
+Section "Uninstaller"
+
+	; Deal with the uninstaller
+
+	SetOutPath $INSTDIR
+
+	; Write the install path to the registry
+	WriteRegStr HKLM SOFTWARE\AltusMetrum "Install_Dir" "$INSTDIR"
+
+	; Write the uninstall keys for windows
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AltusMetrum" "DisplayName" "Altus Metrum"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AltusMetrum" "UninstallString" '"$INSTDIR\uninstall.exe"'
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AltusMetrum" "NoModify" "1"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AltusMetrum" "NoRepair" "1"
+
+	WriteUninstaller "uninstall.exe"
+SectionEnd
+
+Section "Uninstall"
+	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\AltusMetrum"
+	DeleteRegKey HKLM "Software\AltusMetrum"
+
+	Delete "$INSTDIR\*.*"
+	RMDir "$INSTDIR"
+
+	; Remove shortcuts, if any
+	Delete "$SMPROGRAMS\MicroPeak.lnk"
+	Delete "$DESKTOP\MicroPeak.lnk"
+	
+SectionEnd

@@ -511,6 +511,9 @@ libaltos/Makefile
 micropeak/Makefile
 micropeak/Info.plist
 micropeak/micropeak-windows.nsi
+telegps/Makefile
+telegps/Info.plist
+telegps/telegps-windows.nsi
 altosdroid/Makefile
 altosdroid/local.properties
 ao-tools/Makefile
