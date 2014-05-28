@@ -50,7 +50,8 @@ public class AltosSiteMapImage {
 								public void run() {
 									AltosSiteMap.debug_component(tile, file.toString());
 									Graphics2D g2d = (Graphics2D) tile.getGraphics();
-									tile.paint_graphics(g2d, image, serial);
+									if (g2d != null)
+										tile.paint_graphics(g2d, image, serial);
 									load_thread = null;
 								}
 							});
