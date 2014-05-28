@@ -7,6 +7,12 @@ These are Bdale's notes on how to do a release.
 	  and add release to the revision history at the front (release notes
 	  will be pulled in automatically)
 
+	- get a Google Maps API key and install it in
+          ~/altusmetrumllc/google-maps-api-key. If you don't have a
+          key, the app will still work, but downloading map tiles will
+          be slow, and you will only be able to download a limited
+          number per day.
+
 	- update the version in configure.ac
         git log > ChangeLog
 	git commit -a
