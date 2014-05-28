@@ -614,6 +614,7 @@ public class AltosState implements Cloneable {
 	public double	ground_accel_avg;
 
 	public int	log_format;
+	public String	product;
 
 	public AltosMs5607	baro;
 
@@ -708,6 +709,7 @@ public class AltosState implements Cloneable {
 		ground_accel_avg = AltosLib.MISSING;
 
 		log_format = AltosLib.MISSING;
+		product = null;
 		serial = AltosLib.MISSING;
 		receiver_serial = AltosLib.MISSING;
 
@@ -839,6 +841,7 @@ public class AltosState implements Cloneable {
 		ground_accel_avg = old.ground_accel_avg;
 
 		log_format = old.log_format;
+		product = old.product;
 		serial = old.serial;
 		receiver_serial = old.receiver_serial;
 

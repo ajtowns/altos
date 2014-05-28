@@ -74,6 +74,15 @@ public class AltosEepromFile extends AltosStateIterable {
 		start = headers.state();
 		start.set_state(AltosLib.ao_flight_pad);
 
+		if (start.log_format == AltosLib.MISSING) {
+			if (start.product != null) {
+				if (start.product.startsWith("TeleMetrum"))
+					start.log_format = AltosLib.AO_LOG_FORMAT_FULL;
+				else if (start.product.startsWith("TeleMini"))
+					start.log_format = AltosLib.AO_LOG_FORMAT_TINY;
+			}
+		}
+
 		switch (start.log_format) {
 		case AltosLib.AO_LOG_FORMAT_FULL:
 			body = new AltosEepromIterable(AltosEepromTM.read(input));
