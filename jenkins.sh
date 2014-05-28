@@ -6,6 +6,11 @@
 prefix="--prefix=/usr/local"
 ANDROID_SDK="${ANDROID_SDK:-$HOME/android-sdk-linux}"
 android="--with-android=$ANDROID_SDK"
+# use time if we have it
+time=`which time`
+if [ -n "$time" ]; then
+    time="$time -v"
+fi
 
 echo "=== starting altos build at $(date) ==="
 env
@@ -14,5 +19,4 @@ set -x
 
 ./autogen.sh $prefix $android
 make -j $(nproc) clean
-time make -j $(nproc)
-time make -j $(nproc) fat
+$time make -j $(nproc) all fat
