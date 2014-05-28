@@ -290,6 +290,10 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		}
 	}
 
+	public static void prefetchMaps(double lat, double lon) {
+		prefetchMaps(lat, lon, 2, 1 << maptype_hybrid, 0, 0);
+	}
+
 	public File init_map(Point offset, int load_mode) {
 		AltosSiteMapTile tile = mapTiles.get(offset);
 		Point2D.Double coord = tileCoordOffset(offset);
@@ -516,7 +520,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		last_point = point;
 	}
 
-	private void centre(Point2D.Double pt) {
+	public void centre(Point2D.Double pt) {
 		Rectangle r = comp.getVisibleRect();
 		Point2D.Double copt = translatePoint(pt, tileCoordOffset(topleft));
 		int dx = (int)copt.x - r.width/2 - r.x;
@@ -528,7 +532,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		comp.scrollRectToVisible(r);
 	}
 
-	private void centre(AltosState state) {
+	public void centre(AltosState state) {
 		if (!state.gps.locked && state.gps.nsat < 4)
 			return;
 		centre(pt(state.gps.lat, state.gps.lon));
