@@ -162,6 +162,20 @@ AM_CONDITIONAL(FATINSTALL, [test "x$FATDIR" != "xnone"])
 
 AC_SUBST(FATDIR)
 
+AC_ARG_WITH(google-key, AS_HELP_STRING([--with-google-key=PATH],
+	    [Set the file to read the google maps API key from (defaults to ~/altusmetrumllc/google-maps-api-key)]),
+	    [GOOGLEKEYFILE=$withval], [GOOGLEKEYFILE=$HOME/altusmetrumllc/google-maps-api-key])
+
+if test -r "$GOOGLEKEYFILE" -a -s "$GOOGLEKEYFILE"; then
+	GOOGLEKEY='"'`cat "$GOOGLEKEYFILE"`'"'
+	HAVE_GOOGLE_KEY="yes"
+else
+	GOOGLEKEY='null'
+	HAVE_GOOGLE_KEY="no"
+fi
+
+AC_SUBST(GOOGLEKEY)
+
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
@@ -537,11 +551,12 @@ echo "    STlink support..............: ${HAVE_STLINK}"
 echo "    Local pdclib................: ${HAVE_PDCLIB}"
 echo "    i386 and amd64 libaltos.....: ${MULTI_ARCH}"
 echo ""
-echo "  Java paths"
+echo "  Java"
 echo "    freetts.....................: ${FREETTS}"
 echo "    jfreechart..................: ${JFREECHART}"
 echo "    jcommon.....................: ${JCOMMON}"
 echo "    JVM include.................: ${JVM_INCLUDE}"
+echo "    Google maps API key.........: ${HAVE_GOOGLE_KEY}"
 if test x${ANDROID_SDK} != "xno"; then
 echo ""
 echo "  Android path"

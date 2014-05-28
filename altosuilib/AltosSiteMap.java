@@ -263,8 +263,6 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		AltosSiteMap asm = new AltosSiteMap(true);
 		asm.centre = asm.getBaseLocation(lat, lng);
 
-		//Point2D.Double p = new Point2D.Double();
-		//Point2D.Double p2;
 		int dx = -w/2, dy = -h/2;
 		for (int y = dy; y < h+dy; y++) {
 			for (int x = dx; x < w+dx; x++) {
@@ -334,8 +332,10 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 	private void initMaps(double lat, double lng) {
 		setBaseLocation(lat, lng);
 
-		for (AltosSiteMapTile tile : mapTiles.values())
+		for (AltosSiteMapTile tile : mapTiles.values()) {
 			tile.clearMap();
+			tile.set_status(AltosSiteMapCache.loading);
+		}
 		Thread thread = new Thread() {
 				public void run() {
 					for (Point k : mapTiles.keySet())
@@ -369,8 +369,13 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 			format_string = "jpg";
 		else
 			format_string = "png32";
-		return String.format("http://maps.google.com/maps/api/staticmap?center=%.6f,%.6f&zoom=%d&size=%dx%d&sensor=false&maptype=%s&format=%s",
-				     lat, lng, zoom, px_size, px_size, maptype_names[maptype], format_string);
+
+		if (AltosUIVersion.has_google_maps_api_key())
+			return String.format("http://maps.google.com/maps/api/staticmap?center=%.6f,%.6f&zoom=%d&size=%dx%d&sensor=false&maptype=%s&format=%s&key=%s",
+					     lat, lng, zoom, px_size, px_size, maptype_names[maptype], format_string, AltosUIVersion.google_maps_api_key);
+		else
+			return String.format("http://maps.google.com/maps/api/staticmap?center=%.6f,%.6f&zoom=%d&size=%dx%d&sensor=false&maptype=%s&format=%s",
+					     lat, lng, zoom, px_size, px_size, maptype_names[maptype], format_string);
 	}
 
 	boolean initialised = false;

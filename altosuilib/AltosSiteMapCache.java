@@ -45,6 +45,67 @@ public class AltosSiteMapCache {
 
 	static private Object fetch_lock = new Object();
 
+	private static int fetch_one(File file, String url) {
+		URL u;
+
+		System.out.printf("Loading URL %s\n", url);
+		try {
+			u = new URL(url);
+		} catch (java.net.MalformedURLException e) {
+			return bad_request;
+		}
+
+		byte[] data;
+		URLConnection uc = null;
+		try {
+			uc = u.openConnection();
+			String type = uc.getContentType();
+			int contentLength = uc.getContentLength();
+			if (uc instanceof HttpURLConnection) {
+				int response = ((HttpURLConnection) uc).getResponseCode();
+				switch (response) {
+				case HttpURLConnection.HTTP_FORBIDDEN:
+				case HttpURLConnection.HTTP_PAYMENT_REQUIRED:
+				case HttpURLConnection.HTTP_UNAUTHORIZED:
+					forbidden_time = System.nanoTime();
+					forbidden_set = true;
+					return forbidden;
+				}
+			}
+			InputStream in = new BufferedInputStream(uc.getInputStream());
+			int bytesRead = 0;
+			int offset = 0;
+			data = new byte[contentLength];
+			while (offset < contentLength) {
+				bytesRead = in.read(data, offset, data.length - offset);
+				if (bytesRead == -1)
+					break;
+				offset += bytesRead;
+			}
+			in.close();
+
+			if (offset != contentLength)
+				return failed;
+
+		} catch (IOException e) {
+			return failed;
+		}
+
+		try {
+			FileOutputStream out = new FileOutputStream(file);
+			out.write(data);
+			out.flush();
+			out.close();
+		} catch (FileNotFoundException e) {
+			return bad_request;
+		} catch (IOException e) {
+			if (file.exists())
+				file.delete();
+			return bad_request;
+		}
+		return success;
+	}
+
 	public static int fetch_map(File file, String url) {
 		if (file.exists())
 			return success;
@@ -52,75 +113,27 @@ public class AltosSiteMapCache {
 		if (forbidden_set && (System.nanoTime() - forbidden_time) < forbidden_interval)
 			return forbidden;
 
-		synchronized (fetch_lock) {
-			URL u;
-			long startTime = System.nanoTime();
+		int	status = bad_request;
 
-			try {
-				u = new URL(url);
-			} catch (java.net.MalformedURLException e) {
-				return bad_request;
-			}
-
-			byte[] data;
-			URLConnection uc = null;
-			try {
-				uc = u.openConnection();
-				String type = uc.getContentType();
-				int contentLength = uc.getContentLength();
-				if (uc instanceof HttpURLConnection) {
-					int response = ((HttpURLConnection) uc).getResponseCode();
-					switch (response) {
-					case HttpURLConnection.HTTP_FORBIDDEN:
-					case HttpURLConnection.HTTP_PAYMENT_REQUIRED:
-					case HttpURLConnection.HTTP_UNAUTHORIZED:
-						forbidden_time = System.nanoTime();
-						forbidden_set = true;
-						return forbidden;
+		if (!AltosUIVersion.has_google_maps_api_key()) {
+			synchronized (fetch_lock) {
+				long startTime = System.nanoTime();
+				status = fetch_one(file, url);
+				if (status == success) {
+					long duration_ms = (System.nanoTime() - startTime) / 1000000;
+					if (duration_ms < google_maps_ratelimit_ms) {
+						try {
+							Thread.sleep(google_maps_ratelimit_ms - duration_ms);
+						} catch (InterruptedException e) {
+							Thread.currentThread().interrupt();
+						}
 					}
 				}
-				InputStream in = new BufferedInputStream(uc.getInputStream());
-				int bytesRead = 0;
-				int offset = 0;
-				data = new byte[contentLength];
-				while (offset < contentLength) {
-					bytesRead = in.read(data, offset, data.length - offset);
-					if (bytesRead == -1)
-						break;
-					offset += bytesRead;
-				}
-				in.close();
-
-				if (offset != contentLength)
-					return failed;
-
-			} catch (IOException e) {
-				return failed;
 			}
-
-			try {
-				FileOutputStream out = new FileOutputStream(file);
-				out.write(data);
-				out.flush();
-				out.close();
-			} catch (FileNotFoundException e) {
-				return bad_request;
-			} catch (IOException e) {
-				if (file.exists())
-					file.delete();
-				return bad_request;
-			}
-
-			long duration_ms = (System.nanoTime() - startTime) / 1000000;
-			if (duration_ms < google_maps_ratelimit_ms) {
-				try {
-					Thread.sleep(google_maps_ratelimit_ms - duration_ms);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
-			}
-			return success;
+		} else {
+			status = fetch_one(file, url);
 		}
+		return status;
 	}
 
 	static final int		min_cache_size = 9;
