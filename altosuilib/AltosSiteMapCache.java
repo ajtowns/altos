@@ -176,6 +176,7 @@ public class AltosSiteMapCache {
 		return new Point (x, y);
 	}
 
+/*
 	private static void dump_cache() {
 		int	min_x = 1000, max_x = -1000, min_y = 1000, max_y = -1000;
 
@@ -208,6 +209,7 @@ public class AltosSiteMapCache {
 			System.out.printf("\n");
 		}
 	}
+*/
 
 	public static AltosSiteMapImage get_image(AltosSiteMapTile tile, File file, int width, int height) {
 		int		oldest = -1;

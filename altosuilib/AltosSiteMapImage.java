@@ -34,7 +34,7 @@ public class AltosSiteMapImage {
 
 	Thread	load_thread;
 
-	public boolean validate() {
+	public boolean validate(final int serial) {
 		if (image != null) {
 			AltosSiteMap.debug_component(tile, "valid");
 			return true;
@@ -42,16 +42,15 @@ public class AltosSiteMapImage {
 			AltosSiteMap.debug_component(tile, "loading");
 			load_thread = new Thread() {
 					public void run() {
-						image = null;
 						try {
 							image = ImageIO.read(file);
 						} catch (Exception e) {
 						}
 						SwingUtilities.invokeLater( new Runnable() {
 								public void run() {
-									AltosSiteMap.debug_component(tile, "later");
+									AltosSiteMap.debug_component(tile, file.toString());
 									Graphics2D g2d = (Graphics2D) tile.getGraphics();
-									tile.paint_graphics(g2d, image);
+									tile.paint_graphics(g2d, image, serial);
 									load_thread = null;
 								}
 							});

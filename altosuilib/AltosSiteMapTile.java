@@ -155,9 +155,16 @@ public class AltosSiteMapTile extends JComponent {
 		return String.format(format, distance);
 	}
 
-	boolean	painting;
+	int	painting_serial;
+	int	painted_serial;
 
-	public void paint_graphics(Graphics2D g2d, Image image) {
+	public void paint_graphics(Graphics2D g2d, Image image, int serial) {
+
+		if (serial < painted_serial)
+			return;
+
+		painted_serial = serial;
+
 		if (image != null) {
 			AltosSiteMap.debug_component(this, "paint_graphics");
 			g2d.drawImage(image, 0, 0, null);
@@ -239,7 +246,6 @@ public class AltosSiteMapTile extends JComponent {
 			}
 			g2d.drawString(message, x, y);
 		}
-		painting = false;
 	}
 
 	public void paint(Graphics g) {
@@ -247,26 +253,23 @@ public class AltosSiteMapTile extends JComponent {
 		Image			image = null;
 		boolean			queued = false;
 
-		if (painting) {
-			AltosSiteMap.debug_component(this, "already painting");
-			return;
-		}
 		AltosSiteMap.debug_component(this, "paint");
+
+		++painting_serial;
 
 		if (file != null) {
 			AltosSiteMapImage	aimage;
 
 			aimage = AltosSiteMapCache.get_image(this, file, px_size, px_size);
 			if (aimage != null) {
-				if (aimage.validate())
+				if (aimage.validate(painting_serial))
 					image = aimage.image;
 				else
 					queued = true;
 			}
 		}
 		if (!queued)
-			paint_graphics(g2d, image);
-		painting = queued;
+			paint_graphics(g2d, image, painting_serial);
 	}
 
 	public void show(int state, Point2D.Double last_pt, Point2D.Double pt)

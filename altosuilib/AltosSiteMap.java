@@ -74,7 +74,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		"terrain"
 	};
 
-	static final String[] maptype_labels = {
+	public static final String[] maptype_labels = {
 		"Hybrid",
 		"Roadmap",
 		"Satellite",
@@ -240,7 +240,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		String	pngurl;
 	}
 
-	public AltosSiteMapPrefetch prefetchMap(int x, int y) {
+	private AltosSiteMapPrefetch prefetchMap(int x, int y) {
 		AltosSiteMapPrefetch	prefetch = new AltosSiteMapPrefetch();
 		LatLng map_latlng = latlng(
 			-centre.x + x*px_size + px_size/2,
@@ -257,28 +257,34 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		return prefetch;
 	}
 
-	public static void prefetchMaps(double lat, double lng) {
-		int w = AltosSiteMapPreload.width;
-		int h = AltosSiteMapPreload.height;
+	public static void prefetchMaps(double lat, double lng, int radius, int maptypes, int min_zoom, int max_zoom) {
 		AltosSiteMap asm = new AltosSiteMap(true);
-		asm.centre = asm.getBaseLocation(lat, lng);
 
-		int dx = -w/2, dy = -h/2;
-		for (int y = dy; y < h+dy; y++) {
-			for (int x = dx; x < w+dx; x++) {
-				AltosSiteMapPrefetch prefetch = asm.prefetchMap(x, y);
-				switch (prefetch.result) {
-				case 1:
-					System.out.printf("Already have %s\n", prefetch.pngfile);
-					break;
-				case 0:
-					System.out.printf("Fetched map %s\n", prefetch.pngfile);
-					break;
-				case -1:
-					System.out.printf("# Failed to fetch file %s\n", prefetch.pngfile);
-					System.out.printf(" wget -O '%s' ''\n",
-							  prefetch.pngfile, prefetch.pngurl);
-					break;
+		for (int z = min_zoom; z <= max_zoom; z++) {
+			asm.zoom = z;
+			asm.set_radius(radius);
+			asm.centre = asm.getBaseLocation(lat, lng);
+			for (int t = maptype_hybrid; t <= maptype_terrain; t++) {
+				if ((maptypes & (1 << t)) !=0) {
+					asm.maptype = t;
+					for (int y = -radius; y <= radius; y++) {
+						for (int x = -radius; x <= radius; x++) {
+							AltosSiteMapPrefetch prefetch = asm.prefetchMap(x, y);
+							switch (prefetch.result) {
+							case 1:
+								System.out.printf("Already have %s\n", prefetch.pngfile);
+								break;
+							case 0:
+								System.out.printf("Fetched map %s\n", prefetch.pngfile);
+								break;
+							case -1:
+								System.out.printf("# Failed to fetch file %s\n", prefetch.pngfile);
+								System.out.printf(" wget -O '%s' ''\n",
+										  prefetch.pngfile, prefetch.pngurl);
+								break;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -296,7 +302,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		return pngfile;
 	}
 
-	public void initAndFinishMapAsync (final AltosSiteMapTile tile, final Point offset) {
+	private void initAndFinishMapAsync (final AltosSiteMapTile tile, final Point offset) {
 		Thread thread = new Thread() {
 				public void run() {
 					init_map(offset, load_mode_cached|load_mode_uncached);
@@ -318,6 +324,10 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		circle_set = false;
 		points = new LinkedList<MapPoint>();
 		line_start = line_end = null;
+		for (AltosSiteMapTile tile : mapTiles.values()) {
+			tile.clearMap();
+			tile.set_status(AltosSiteMapCache.loading);
+		}
 	}
 
 	public void setBaseLocation(double lat, double lng) {
@@ -382,7 +392,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 	MapPoint last_point = null;
 	int last_state = -1;
 
-	public void show(double lat, double lon) {
+	private void show(double lat, double lon) {
 		System.out.printf ("show %g %g\n", lat, lon);
 		return;
 //		initMaps(lat, lon);
@@ -391,15 +401,17 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 
 	JLabel	zoom_label;
 
-	public void set_zoom_label() {
+	private void set_zoom_label() {
 		zoom_label.setText(String.format("Zoom %d", zoom - default_zoom));
 	}
 
 	public void set_zoom(int zoom) {
 		if (min_zoom <= zoom && zoom <= max_zoom) {
 			this.zoom = zoom;
-			if (base_location_set)
+			if (base_location_set) {
+				set_tiles();
 				initMaps(lat, lon);
+			}
 			redraw();
 			set_zoom_label();
 		}
@@ -409,7 +421,15 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		return zoom;
 	}
 
-	public void draw(MapPoint last_point, MapPoint point) {
+	public void set_maptype(int type) {
+		maptype = type;
+		maptype_combo.setSelectedIndex(type);
+		if (base_location_set)
+			initMaps(lat, lon);
+		redraw();
+	}
+
+	private void draw(MapPoint last_point, MapPoint point) {
 		boolean	force_ensure = false;
 		if (last_point == null) {
 			force_ensure = true;
@@ -449,7 +469,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		}
 	}
 
-	public void redraw() {
+	private void redraw() {
 		MapPoint	last_point = null;
 
 		for (MapPoint point : points) {
@@ -496,7 +516,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		last_point = point;
 	}
 
-	public void centre(Point2D.Double pt) {
+	private void centre(Point2D.Double pt) {
 		Rectangle r = comp.getVisibleRect();
 		Point2D.Double copt = translatePoint(pt, tileCoordOffset(topleft));
 		int dx = (int)copt.x - r.width/2 - r.x;
@@ -508,7 +528,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		comp.scrollRectToVisible(r);
 	}
 
-	public void centre(AltosState state) {
+	private void centre(AltosState state) {
 		if (!state.gps.locked && state.gps.nsat < 4)
 			return;
 		centre(pt(state.gps.lat, state.gps.lon));
@@ -550,6 +570,32 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		}
 	}
 
+	private void set_tiles() {
+		for (int x = -radius; x <= radius; x++) {
+			for (int y = -radius; y <= radius; y++) {
+				Point offset = new Point(x, y);
+				if (mapTiles.containsKey(offset))
+					continue;
+				AltosSiteMapTile t = createTile(offset);
+				addTileAt(t, offset);
+			}
+		}
+		for (Point offset : mapTiles.keySet()) {
+			if (offset.x < -radius || offset.x > radius ||
+			    offset.y < -radius || offset.y > radius)
+			{
+				removeTileAt(offset);
+			}
+		}
+	}
+
+	public void set_radius(int radius) {
+		if (radius != this.radius) {
+			this.radius = radius;
+			set_tiles();
+		}
+	}
+
 	private Point topleft = new Point(0,0);
 	private void scrollRocketToVisible(Point2D.Double pt) {
 		Rectangle r = comp.getVisibleRect();
@@ -573,18 +619,11 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 			return;
 		}
 
-		boolean review = false;
-		Rectangle r = comp.getVisibleRect();
-		if (offset.x < topleft.x) {
-			r.x += (topleft.x - offset.x) * px_size;
+		if (offset.x < topleft.x)
 			topleft.x = offset.x;
-			review = true;
-		}
-		if (offset.y < topleft.y) {
-			r.y += (topleft.y - offset.y) * px_size;
+		if (offset.y < topleft.y)
 			topleft.y = offset.y;
-			review = true;
-		}
+
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.CENTER;
 		c.fill = GridBagConstraints.BOTH;
@@ -596,14 +635,26 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		layout.setConstraints(tile, c);
 
 		comp.add(tile);
-//		if (review) {
-//			comp.scrollRectToVisible(r);
-//		}
 	}
 
 	private AltosSiteMap(boolean knowWhatYouAreDoing) {
 		if (!knowWhatYouAreDoing) {
 			throw new RuntimeException("Arggh.");
+		}
+	}
+
+	private void removeTileAt(Point offset) {
+		AltosSiteMapTile	tile = mapTiles.get(offset);
+
+		mapTiles.remove(offset);
+		comp.remove(tile);
+
+		topleft = new Point(MAX_TILE_DELTA, MAX_TILE_DELTA);
+		for (Point o : mapTiles.keySet()) {
+			if (o.x < topleft.x)
+				topleft.x = o.x;
+			if (o.y < topleft.y)
+				topleft.y = o.y;
 		}
 	}
 
@@ -634,11 +685,13 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 	}
 
 	static void debug_component(Component who, String where) {
-//		Rectangle	r = who.getBounds();
-//		int		x = r.x / px_size;
-//		int		y = r.y / px_size;
-//
-//		System.out.printf ("%3d, %3d: %s\n", x, y, where);
+/*
+		Rectangle	r = who.getBounds();
+		int		x = r.x / px_size;
+		int		y = r.y / px_size;
+
+		System.out.printf ("%3d, %3d: %s\n", x, y, where);
+*/
 	}
 
 	LatLng latlng(MouseEvent e) {
@@ -684,7 +737,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 	public void mouseReleased(MouseEvent e) {
 	}
 
-	public void set_cache_size() {
+	private void set_cache_size() {
 		Rectangle	r = comp.getVisibleRect();
 
 		int	width_tiles = (r.width + 2*px_size) / px_size;
@@ -704,6 +757,8 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 
 	JScrollPane	pane = new JScrollPane();
 
+	JComboBox<String>	maptype_combo;
+
 	public AltosSiteMap(int in_radius) {
 		radius = in_radius;
 
@@ -717,13 +772,8 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 
 		comp.setLayout(layout);
 
-		for (int x = -radius; x <= radius; x++) {
-			for (int y = -radius; y <= radius; y++) {
-				Point offset = new Point(x, y);
-				AltosSiteMapTile t = createTile(offset);
-				addTileAt(t, offset);
-			}
-		}
+		set_tiles();
+
 		pane.setViewportView(comp);
 		pane.setPreferredSize(new Dimension(500,500));
 		pane.setVisible(true);
@@ -805,7 +855,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		c.weighty = 0;
 		add(zoom_out, c);
 
-		final JComboBox<String>	maptype_combo = new JComboBox<String>(maptype_labels);
+		maptype_combo = new JComboBox<String>(maptype_labels);
 
 		maptype_combo.setEditable(false);
 		maptype_combo.setMaximumRowCount(maptype_combo.getItemCount());

@@ -206,18 +206,15 @@ class AltosSites extends Thread {
 	}
 }
 
-public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener, ItemListener {
+public class AltosSiteMapPreload extends AltosUIFrame implements ActionListener, ItemListener {
 	AltosUIFrame	owner;
 	AltosSiteMap	map;
 
 	AltosMapPos	lat;
 	AltosMapPos	lon;
 
-	final static int	radius = 5;
-	final static int	width = (radius * 2 + 1);
-	final static int	height = (radius * 2 + 1);
-
 	JProgressBar	pbar;
+	int		pbar_max;
 
 	AltosSites	sites;
 	JLabel		site_list_label;
@@ -227,6 +224,15 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 	boolean		loading;
 	JButton		close_button;
 
+	JCheckBox[]	maptypes = new JCheckBox[AltosSiteMap.maptype_terrain - AltosSiteMap.maptype_hybrid + 1];
+
+	JComboBox<Integer>	min_zoom;
+	JComboBox<Integer>	max_zoom;
+	JComboBox<Integer>	radius;
+
+	Integer[]		zooms = { -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6 };
+	Integer[]		radii = { 1, 2, 3, 4, 5 };
+
 	static final String[]	lat_hemi_names = { "N", "S" };
 	static final String[]	lon_hemi_names = { "E", "W" };
 
@@ -234,15 +240,16 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 		int		n;
 		String		s;
 
-		public updatePbar(int x, int y, String in_s) {
-			n = (x + radius) + (y + radius) * width + 1;
+		public updatePbar(int n, String in_s) {
+			this.n = n;
 			s = in_s;
 		}
 
 		public void run() {
 			pbar.setValue(n);
 			pbar.setString(s);
-			if (n < width * height) {
+			if (n < pbar_max) {
+				pbar.setMaximum(pbar_max);
 				pbar.setValue(n);
 				pbar.setString(s);
 			} else {
@@ -258,17 +265,54 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 
 		AltosSiteMap	map;
 
-		public bgLoad(AltosSiteMap in_map) {
+		double		lat, lon;
+
+		int		types = 0;
+		int		r;
+
+		int	min_z = (Integer) min_zoom.getSelectedItem();
+		int	max_z = (Integer) max_zoom.getSelectedItem();
+
+		public bgLoad(AltosSiteMap in_map, double lat, double lon) {
 			map = in_map;
+			this.lat = lat;
+			this.lon = lon;
+			if (max_z < min_z)
+				max_z = min_z;
+			int ntype = 0;
+			for (int t = AltosSiteMap.maptype_hybrid; t <= AltosSiteMap.maptype_terrain; t++)
+				if (maptypes[t].isSelected()) {
+					types |= (1 << t);
+					ntype++;
+				}
+			if (ntype == 0) {
+				types |= (1 << AltosSiteMap.maptype_hybrid);
+				ntype = 1;
+			}
+			r = (Integer) radius.getSelectedItem();
+			pbar_max = (max_z - min_z + 1) * ntype * (r * 2 + 1) * (r * 2 + 1);
 		}
 
 		public void run() {
-			for (int y = -map.radius; y <= map.radius; y++) {
-				for (int x = -map.radius; x <= map.radius; x++) {
-					File	pngfile;
-					pngfile = map.init_map(new Point(x,y),
-							       AltosSiteMap.load_mode_cached|AltosSiteMap.load_mode_uncached);
-					SwingUtilities.invokeLater(new updatePbar(x, y, pngfile.toString()));
+			int	i = 0;
+			for (int z = min_z; z <= max_z; z++) {
+				for (int t = AltosSiteMap.maptype_hybrid; t <= AltosSiteMap.maptype_terrain; t++) {
+					if ((types & (1 << t)) == 0)
+						continue;
+					map.clear_base_location();
+					map.set_zoom(z + AltosSiteMap.default_zoom);
+					map.set_maptype(t);
+					map.set_radius(r);
+					map.setBaseLocation(lat, lon);
+					map.draw_circle(lat, lon);
+					for (int y = -r; y <= r; y++) {
+						for (int x = -r; x <= r; x++) {
+							File	pngfile;
+							pngfile = map.init_map(new Point(x,y),
+									       AltosSiteMap.load_mode_cached|AltosSiteMap.load_mode_uncached);
+							SwingUtilities.invokeLater(new updatePbar(++i, pngfile.toString()));
+						}
+					}
 				}
 			}
 		}
@@ -310,7 +354,7 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 					map.setBaseLocation(latitude,longitude);
 					map.draw_circle(latitude,longitude);
 					loading = true;
-					bgLoad thread = new bgLoad(map);
+					bgLoad thread = new bgLoad(map, latitude, longitude);
 					thread.start();
 				} catch (NumberFormatException ne) {
 					load_button.setSelected(false);
@@ -326,9 +370,11 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 		GridBagConstraints	c = new GridBagConstraints();
 		Insets			i = new Insets(4,4,4,4);
 
+		setTitle("AltOS Load Maps");
+
 		pane.setLayout(new GridBagLayout());
 
-		map = new AltosSiteMap(radius);
+		map = new AltosSiteMap(2);
 
 		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.CENTER;
@@ -338,14 +384,14 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 
 		c.gridx = 0;
 		c.gridy = 0;
-		c.gridwidth = 2;
+		c.gridwidth = 10;
 		c.anchor = GridBagConstraints.CENTER;
 
 		pane.add(map, c);
 
 		pbar = new JProgressBar();
 		pbar.setMinimum(0);
-		pbar.setMaximum(width * height);
+		pbar.setMaximum(1);
 		pbar.setValue(0);
 		pbar.setString("");
 		pbar.setStringPainted(true);
@@ -358,7 +404,7 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 
 		c.gridx = 0;
 		c.gridy = 1;
-		c.gridwidth = 2;
+		c.gridwidth = 10;
 
 		pane.add(pbar, c);
 
@@ -461,6 +507,59 @@ public class AltosSiteMapPreload extends AltosUIDialog implements ActionListener
 		c.anchor = GridBagConstraints.CENTER;
 
 		pane.add(close_button, c);
+
+		JLabel	types_label = new JLabel("Map Types");
+		c.gridx = 2;
+		c.gridwidth = 2;
+		c.gridy = 2;
+		pane.add(types_label, c);
+
+		c.gridwidth = 1;
+
+		for (int type = AltosSiteMap.maptype_hybrid; type <= AltosSiteMap.maptype_terrain; type++) {
+			maptypes[type] = new JCheckBox(AltosSiteMap.maptype_labels[type],
+						       type == AltosSiteMap.maptype_hybrid);
+			c.gridx = 2 + (type >> 1);
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.gridy = (type & 1) + 3;
+			pane.add(maptypes[type], c);
+		}
+
+		JLabel	min_zoom_label = new JLabel("Minimum Zoom");
+		c.gridx = 4;
+		c.gridy = 2;
+		pane.add(min_zoom_label, c);
+
+		min_zoom = new JComboBox<Integer>(zooms);
+		min_zoom.setSelectedItem(zooms[10]);
+		min_zoom.setEditable(false);
+		c.gridx = 5;
+		c.gridy = 2;
+		pane.add(min_zoom, c);
+
+		JLabel	max_zoom_label = new JLabel("Maximum Zoom");
+		c.gridx = 4;
+		c.gridy = 3;
+		pane.add(max_zoom_label, c);
+
+		max_zoom = new JComboBox<Integer>(zooms);
+		max_zoom.setSelectedItem(zooms[14]);
+		max_zoom.setEditable(false);
+		c.gridx = 5;
+		c.gridy = 3;
+		pane.add(max_zoom, c);
+
+		JLabel radius_label = new JLabel("Tile Radius");
+		c.gridx = 4;
+		c.gridy = 4;
+		pane.add(radius_label, c);
+
+		radius = new JComboBox<Integer>(radii);
+		radius.setSelectedItem(radii[4]);
+		radius.setEditable(false);
+		c.gridx = 5;
+		c.gridy = 4;
+		pane.add(radius, c);
 
 		pack();
 		setLocationRelativeTo(owner);
