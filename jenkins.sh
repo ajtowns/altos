@@ -11,6 +11,9 @@ time=`which time`
 if [ -n "$time" ]; then
     time="$time -v"
 fi
+# NOTE: the build process may fail on multi-cpu systems. If it fails try setting cpus=1
+# cpus=$(nproc)
+cpus=1
 
 echo "=== starting altos build at $(date) ==="
 env
@@ -18,5 +21,5 @@ echo "======================================="
 set -x
 
 ./autogen.sh $prefix $android
-make -j $(nproc) clean
-$time make -j $(nproc) all fat
+make -j $cpus clean
+$time make -j $cpus all fat

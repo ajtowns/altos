@@ -263,8 +263,12 @@ altosui: Makefile
 	chmod +x $@
 
 altosui-test: Makefile
-	echo "#!/bin/sh" > $@
-	echo 'exec java -Djava.library.path="../libaltos/.libs" -jar altosui.jar "$$@"' >> $@
+	echo '#!/bin/sh' > $@
+	echo 'dir="$$(dirname $$0)"' >> $@
+	echo 'cd "$$dir"' >> $@
+	echo 'altosui="$$(pwd -P)"' >> $@
+	echo 'altos="$$(dirname $$altosui)"' >> $@
+	echo 'exec java -Djava.library.path="$$altos/libaltos/.libs" -jar "$$altosui/altosui.jar" "$$@"' >> $@
 	chmod +x $@
 
 altosui-jdb: Makefile
@@ -364,4 +368,3 @@ $(MACOSX_DIST): $(MACOSX_FILES) $(MACOSX_EXTRA) Makefile
 $(WINDOWS_DIST): $(WINDOWS_FILES) altos-windows.nsi
 	-rm -f $@
 	makensis -Oaltos-windows.log "-XOutFile $@" "-DVERSION=$(VERSION)" altos-windows.nsi
-
