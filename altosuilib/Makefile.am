@@ -37,6 +37,7 @@ altosuilib_JAVA = \
 	AltosSiteMapCache.java \
 	AltosSiteMapPreload.java \
 	AltosSiteMapTile.java \
+	AltosSiteMapImage.java \
 	AltosVoice.java \
 	AltosDisplayThread.java \
 	AltosFreqList.java

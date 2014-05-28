@@ -50,7 +50,7 @@ class MapPoint {
 	}
 }
 
-public class AltosSiteMap extends JComponent implements AltosFlightDisplay, MouseMotionListener, MouseListener {
+public class AltosSiteMap extends JComponent implements AltosFlightDisplay, MouseMotionListener, MouseListener, HierarchyBoundsListener {
 	// preferred vertical step in a tile in naut. miles
 	// will actually choose a step size between x and 2x, where this
 	// is 1.5x
@@ -213,11 +213,15 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		tile.set_status(AltosSiteMapCache.loading);
 		int status = AltosSiteMapCache.fetch_map(pngfile, pngurl);
 		if (status == AltosSiteMapCache.success) {
-			SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						tile.load_map(pngfile);
-					}
-				});
+			if (SwingUtilities.isEventDispatchThread())
+				tile.load_map(pngfile);
+			else {
+				SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							tile.load_map(pngfile);
+						}
+					});
+			}
 		} else {
 			tile.set_status(status);
 			System.out.printf("# Failed to fetch file %s (status %d)\n", pngfile, status);
@@ -298,7 +302,11 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		Thread thread = new Thread() {
 				public void run() {
 					init_map(offset, load_mode_cached|load_mode_uncached);
-					finishTileLater(tile, offset);
+					SwingUtilities.invokeLater( new Runnable() {
+							public void run() {
+								addTileAt(tile, offset);
+							}
+						} );
 				}
 			};
 		thread.start();
@@ -315,8 +323,6 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 	}
 
 	public void setBaseLocation(double lat, double lng) {
-		for (AltosSiteMapTile tile : mapTiles.values())
-			tile.clearMap();
 		this.lat = lat;
 		this.lon = lng;
 		base_location_set = true;
@@ -328,6 +334,8 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 	private void initMaps(double lat, double lng) {
 		setBaseLocation(lat, lng);
 
+		for (AltosSiteMapTile tile : mapTiles.values())
+			tile.clearMap();
 		Thread thread = new Thread() {
 				public void run() {
 					for (Point k : mapTiles.keySet())
@@ -379,7 +387,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 	JLabel	zoom_label;
 
 	public void set_zoom_label() {
-		zoom_label.setText(String.format("- %d -", zoom - default_zoom));
+		zoom_label.setText(String.format("Zoom %d", zoom - default_zoom));
 	}
 
 	public void set_zoom(int zoom) {
@@ -524,15 +532,6 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		mapTiles.put(offset, tile);
 		return tile;
 	}
-	private void finishTileLater(final AltosSiteMapTile tile,
-				     final Point offset)
-	{
-		SwingUtilities.invokeLater( new Runnable() {
-			public void run() {
-				addTileAt(tile, offset);
-			}
-		} );
-	}
 
 	private void ensureTilesAround(Point base_offset) {
 		for (int x = -radius; x <= radius; x++) {
@@ -629,6 +628,14 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		}
 	}
 
+	static void debug_component(Component who, String where) {
+//		Rectangle	r = who.getBounds();
+//		int		x = r.x / px_size;
+//		int		y = r.y / px_size;
+//
+//		System.out.printf ("%3d, %3d: %s\n", x, y, where);
+	}
+
 	LatLng latlng(MouseEvent e) {
 		if (!base_location_set)
 			return null;
@@ -672,6 +679,24 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 	public void mouseReleased(MouseEvent e) {
 	}
 
+	public void set_cache_size() {
+		Rectangle	r = comp.getVisibleRect();
+
+		int	width_tiles = (r.width + 2*px_size) / px_size;
+		int	height_tiles = (r.height + 2*px_size) / px_size;
+		int	tiles = width_tiles * height_tiles;
+		AltosSiteMapCache.set_cache_size(tiles);
+	}
+
+	/* HierarchyBoundsListener methods */
+	public void ancestorMoved(HierarchyEvent e) {
+		set_cache_size();
+	}
+
+	public void ancestorResized(HierarchyEvent e) {
+		set_cache_size();
+	}
+
 	JScrollPane	pane = new JScrollPane();
 
 	public AltosSiteMap(int in_radius) {
@@ -681,6 +706,7 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 
 		comp.addMouseMotionListener(this);
 		comp.addMouseListener(this);
+		comp.addHierarchyBoundsListener(this);
 
 		GrabNDrag scroller = new GrabNDrag(comp);
 

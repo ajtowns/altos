@@ -51,11 +51,15 @@ public class AltosSiteMapTile extends JComponent {
 	LinkedList<AltosPoint>	points;
 
 	public synchronized void queue_repaint() {
-		SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					repaint();
-				}
-			});
+		if (SwingUtilities.isEventDispatchThread())
+			repaint();
+		else {
+			SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						repaint();
+					}
+				});
+		}
 	}
 
 	public void load_map(File pngFile) {
@@ -68,13 +72,14 @@ public class AltosSiteMapTile extends JComponent {
 	public void set_font(Font font) {
 		this.font = font;
 		this.status = AltosSiteMapCache.success;
-		queue_repaint();
 	}
 
 	public void set_status(int status) {
-		file = null;
-		this.status = status;
-		queue_repaint();
+		if (status != this.status || file != null) {
+			file = null;
+			this.status = status;
+			queue_repaint();
+		}
 	}
 
 	public void clearMap() {
@@ -83,7 +88,6 @@ public class AltosSiteMapTile extends JComponent {
 		points = null;
 		file = null;
 		status = AltosSiteMapCache.success;
-		queue_repaint();
 		line = null;
 	}
 
@@ -151,17 +155,14 @@ public class AltosSiteMapTile extends JComponent {
 		return String.format(format, distance);
 	}
 
-	public void paint(Graphics g) {
-		Graphics2D	g2d = (Graphics2D) g;
-		AltosPoint	prev = null;
-		Image		img = null;
+	boolean	painting;
 
-		if (file != null)
-			img = AltosSiteMapCache.get_image(this, file, px_size, px_size);
-
-		if (img != null) {
-			g2d.drawImage(img, 0, 0, null);
+	public void paint_graphics(Graphics2D g2d, Image image) {
+		if (image != null) {
+			AltosSiteMap.debug_component(this, "paint_graphics");
+			g2d.drawImage(image, 0, 0, null);
 		} else {
+			AltosSiteMap.debug_component(this, "erase_graphics");
 			g2d.setColor(Color.GRAY);
 			g2d.fillRect(0, 0, getWidth(), getHeight());
 			String	message = null;
@@ -199,6 +200,7 @@ public class AltosSiteMapTile extends JComponent {
 		g2d.setStroke(new BasicStroke(6, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
 		if (points != null) {
+			AltosPoint		prev = null;
 			for (AltosPoint point : points) {
 				if (prev != null) {
 					if (0 <= point.state && point.state < stateColors.length)
@@ -237,9 +239,37 @@ public class AltosSiteMapTile extends JComponent {
 			}
 			g2d.drawString(message, x, y);
 		}
+		painting = false;
 	}
 
-	public synchronized void show(int state, Point2D.Double last_pt, Point2D.Double pt)
+	public void paint(Graphics g) {
+		Graphics2D		g2d = (Graphics2D) g;
+		Image			image = null;
+		boolean			queued = false;
+
+		if (painting) {
+			AltosSiteMap.debug_component(this, "already painting");
+			return;
+		}
+		AltosSiteMap.debug_component(this, "paint");
+
+		if (file != null) {
+			AltosSiteMapImage	aimage;
+
+			aimage = AltosSiteMapCache.get_image(this, file, px_size, px_size);
+			if (aimage != null) {
+				if (aimage.validate())
+					image = aimage.image;
+				else
+					queued = true;
+			}
+		}
+		if (!queued)
+			paint_graphics(g2d, image);
+		painting = queued;
+	}
+
+	public void show(int state, Point2D.Double last_pt, Point2D.Double pt)
 	{
 		if (points == null)
 			points = new LinkedList<AltosPoint>();
