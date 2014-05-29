@@ -76,10 +76,13 @@ WINDOWS_ICON=$(ICONDIR)/telegps.ico
 FIRMWARE_TD_0_2=$(top_srcdir)/src/teledongle-v0.2/teledongle-v0.2-$(VERSION).ihx
 FIRMWARE_TD=$(FIRMWARE_TD_0_2)
 
-FIRMWARE_TG_1_0=$(top_srcdir)/src/telegps-v1.0/telegps-v1.0-$(VERSION).ihx
-FIRMWARE_TG=$(FIRMWARE_TG_1_0)
+FIRMWARE_TBT_1_0=$(top_srcdir)/src/telebt-v1.0/telebt-v1.0-$(VERSION).ihx
+FIRMWARE_TBT=$(FIRMWARE_TBT_1_0)
 
-FIRMWARE=$(FIRMWARE_TG)
+#FIRMWARE_TG_1_0=$(top_srcdir)/src/telegps-v1.0/telegps-v1.0-$(VERSION).ihx
+#FIRMWARE_TG=$(FIRMWARE_TG_1_0)
+
+FIRMWARE=$(FIRMWARE_TG) $(FIRMWARE_TD) $(FIRMWARE_TBT)
 
 desktopdir = $(datadir)/applications
 desktop_file = telegps.desktop
@@ -260,7 +263,7 @@ $(MACOSX_DIST): $(MACOSX_FILES) $(MACOSX_EXTRA) Makefile
 	cp -a $(MACOSX_README) macosx/ReadMe.rtf
 	cp -a $(DOC) macosx
 	cp -p Info.plist macosx/TeleGPS.app/Contents
-	mkdir -p macosx/TeleGPS.app/Contents/Resources/Java
+	mkdir -p macosx/AltOS-$(VERSION) macosx/TeleGPS.app/Contents/Resources/Java
 	cp -p $(FATJAR) macosx/TeleGPS.app/Contents/Resources/Java/telegps.jar
 	cp -p libaltos.dylib macosx/TeleGPS.app/Contents/Resources/Java
 	cp -p $(ALTOSLIB_CLASS) macosx/TeleGPS.app/Contents/Resources/Java
