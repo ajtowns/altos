@@ -217,6 +217,7 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 	}
 
 	void download(){
+		new AltosEepromManage(this, AltosLib.product_telegps);
 	}
 
 	void configure() {

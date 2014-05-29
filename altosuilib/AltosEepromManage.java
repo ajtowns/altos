@@ -15,14 +15,13 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import java.util.concurrent.*;
 import org.altusmetrum.altoslib_4.*;
-import org.altusmetrum.altosuilib_2.*;
 
 public class AltosEepromManage implements ActionListener {
 
@@ -205,19 +204,19 @@ public class AltosEepromManage implements ActionListener {
 		}
 	}
 
-	public AltosEepromManage(JFrame given_frame) {
+	public AltosEepromManage(JFrame given_frame, int product) {
 
 		//boolean	running = false;
 
 		frame = given_frame;
-		device = AltosDeviceUIDialog.show(frame, Altos.product_any);
+		device = AltosDeviceUIDialog.show(frame, product);
 
 		remote = false;
 
 		if (device != null) {
 			try {
 				serial_line = new AltosSerial(device);
-				if (device.matchProduct(Altos.product_basestation))
+				if (device.matchProduct(AltosLib.product_basestation))
 					remote = true;
 
 				serial_line.set_frame(frame);

@@ -46,6 +46,10 @@ altosuilib_JAVA = \
 	AltosSerialInUseException.java \
 	AltosConfigFreqUI.java \
 	AltosScanUI.java \
+	AltosEepromDelete.java \
+	AltosEepromManage.java \
+	AltosEepromMonitorUI.java \
+	AltosEepromSelect.java \
 	AltosBTDevice.java \
 	AltosBTDeviceIterator.java \
 	AltosBTManage.java \

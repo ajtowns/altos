@@ -22,10 +22,6 @@ altosui_JAVA = \
 	AltosConfigTDUI.java \
 	AltosCSVUI.java \
 	AltosDescent.java \
-	AltosEepromDelete.java \
-	AltosEepromManage.java \
-	AltosEepromMonitorUI.java \
-	AltosEepromSelect.java \
 	AltosFlashUI.java \
 	AltosFlightInfoTableModel.java \
 	AltosFlightStatsTable.java \

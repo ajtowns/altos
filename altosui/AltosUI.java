@@ -306,7 +306,7 @@ public class AltosUI extends AltosUIFrame {
 	 * a TeleDongle over the packet link
 	 */
 	private void SaveFlightData() {
-		new AltosEepromManage(AltosUI.this);
+		new AltosEepromManage(AltosUI.this, AltosLib.product_any);
 	}
 
 	/* Load a flight log file and write out a CSV file containing
