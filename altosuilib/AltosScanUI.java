@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -26,7 +26,6 @@ import java.util.*;
 import java.text.*;
 import java.util.concurrent.*;
 import org.altusmetrum.altoslib_4.*;
-import org.altusmetrum.altosuilib_2.*;
 
 class AltosScanResult {
 	String		callsign;
@@ -39,7 +38,7 @@ class AltosScanResult {
 
 	public String toString() {
 		return String.format("%-9.9s serial %-4d flight %-4d (%s %s)",
-				     callsign, serial, flight, frequency.toShortString(), Altos.telemetry_name(telemetry));
+				     callsign, serial, flight, frequency.toShortString(), AltosLib.telemetry_name(telemetry));
 	}
 
 	public String toShortString() {
@@ -125,7 +124,7 @@ public class AltosScanUI
 	extends AltosUIDialog
 	implements ActionListener
 {
-	AltosUI				owner;
+	AltosUIFrame			owner;
 	AltosDevice			device;
 	AltosConfigData			config_data;
 	AltosTelemetryReader		reader;
@@ -140,6 +139,7 @@ public class AltosScanUI
 	AltosScanResults		results = new AltosScanResults();
 
 	int				telemetry;
+	boolean				select_telemetry = false;
 
 	final static int		timeout = 1200;
 	TelemetryHandler		handler;
@@ -215,7 +215,8 @@ public class AltosScanUI
 
 	void set_label() {
 		frequency_label.setText(String.format("Frequency: %s", frequencies[frequency_index].toString()));
-		telemetry_label.setText(String.format("Telemetry: %s", Altos.telemetry_name(telemetry)));
+		if (select_telemetry)
+			telemetry_label.setText(String.format("Telemetry: %s", AltosLib.telemetry_name(telemetry)));
 	}
 
 	void set_telemetry() {
@@ -231,16 +232,21 @@ public class AltosScanUI
 		reader.set_monitor(false);
 		Thread.sleep(100);
 		++frequency_index;
-		if (frequency_index >= frequencies.length ||
-		    !telemetry_boxes[telemetry - Altos.ao_telemetry_min].isSelected())
-		{
-			frequency_index = 0;
-			do {
-				++telemetry;
-				if (telemetry > Altos.ao_telemetry_max)
-					telemetry = Altos.ao_telemetry_min;
-			} while (!telemetry_boxes[telemetry - Altos.ao_telemetry_min].isSelected());
-			set_telemetry();
+		if (select_telemetry) {
+			if (frequency_index >= frequencies.length ||
+			    !telemetry_boxes[telemetry - AltosLib.ao_telemetry_min].isSelected())
+			{
+				frequency_index = 0;
+				do {
+					++telemetry;
+					if (telemetry > AltosLib.ao_telemetry_max)
+						telemetry = AltosLib.ao_telemetry_min;
+				} while (!telemetry_boxes[telemetry - AltosLib.ao_telemetry_min].isSelected());
+				set_telemetry();
+			}
+		} else {
+			if (frequency_index >= frequencies.length)
+				frequency_index = 0;
 		}
 		set_frequency();
 		set_label();
@@ -279,14 +285,14 @@ public class AltosScanUI
 			if (cmd.equals("telemetry")) {
 				int k;
 				int scanning_telemetry = 0;
-				for (k = Altos.ao_telemetry_min; k <= Altos.ao_telemetry_max; k++) {
-					int j = k - Altos.ao_telemetry_min;
+				for (k = AltosLib.ao_telemetry_min; k <= AltosLib.ao_telemetry_max; k++) {
+					int j = k - AltosLib.ao_telemetry_min;
 					if (telemetry_boxes[j].isSelected())
 						scanning_telemetry |= (1 << k);
 				}
 				if (scanning_telemetry == 0) {
-					scanning_telemetry |= (1 << Altos.ao_telemetry_standard);
-					telemetry_boxes[Altos.ao_telemetry_standard - Altos.ao_telemetry_min].setSelected(true);
+					scanning_telemetry |= (1 << AltosLib.ao_telemetry_standard);
+					telemetry_boxes[AltosLib.ao_telemetry_standard - AltosLib.ao_telemetry_min].setSelected(true);
 				}
 				AltosUIPreferences.set_scanning_telemetry(scanning_telemetry);
 			}
@@ -300,7 +306,7 @@ public class AltosScanUI
 							reader.set_telemetry(r.telemetry);
 							reader.set_frequency(r.frequency.frequency);
 							reader.save_frequency();
-							owner.telemetry_window(device);
+							owner.scan_device_selected(device);
 						}
 					}
 				}
@@ -328,7 +334,7 @@ public class AltosScanUI
 	}
 
 	private boolean open() {
-		device = AltosDeviceUIDialog.show(owner, Altos.product_basestation);
+		device = AltosDeviceUIDialog.show(owner, AltosLib.product_basestation);
 		if (device == null)
 			return false;
 		try {
@@ -376,13 +382,15 @@ public class AltosScanUI
 		return false;
 	}
 
-	public AltosScanUI(AltosUI in_owner) {
+	public AltosScanUI(AltosUIFrame in_owner, boolean in_select_telemetry) {
 
 		owner = in_owner;
+		select_telemetry = in_select_telemetry;
 
 		frequencies = AltosUIPreferences.common_frequencies();
 		frequency_index = 0;
-		telemetry = Altos.ao_telemetry_min;
+
+		telemetry = AltosLib.ao_telemetry_standard;
 
 		if (!open())
 			return;
@@ -401,7 +409,13 @@ public class AltosScanUI
 
 		scanning_label = new JLabel("Scanning:");
 		frequency_label = new JLabel("");
-		telemetry_label = new JLabel("");
+
+		if (select_telemetry) {
+			telemetry_label = new JLabel("");
+			telemetry = AltosLib.ao_telemetry_min;
+		} else {
+			telemetry = AltosLib.ao_telemetry_standard;
+		}
 
 		set_label();
 
@@ -418,22 +432,26 @@ public class AltosScanUI
 		pane.add(scanning_label, c);
 		c.gridy = 1;
 		pane.add(frequency_label, c);
-		c.gridy = 2;
-		pane.add(telemetry_label, c);
 
-		int	scanning_telemetry = AltosUIPreferences.scanning_telemetry();
-		telemetry_boxes = new JCheckBox[Altos.ao_telemetry_max - Altos.ao_telemetry_min + 1];
-		for (int k = Altos.ao_telemetry_min; k <= Altos.ao_telemetry_max; k++) {
-			int j = k - Altos.ao_telemetry_min;
-			telemetry_boxes[j] = new JCheckBox(AltosLib.telemetry_name(k));
-			c.gridy = 3 + j;
-			pane.add(telemetry_boxes[j], c);
-			telemetry_boxes[j].setActionCommand("telemetry");
-			telemetry_boxes[j].addActionListener(this);
-			telemetry_boxes[j].setSelected((scanning_telemetry & (1 << k)) != 0);
+		int	y_offset = 3;
+
+		if (select_telemetry) {
+			c.gridy = 2;
+			pane.add(telemetry_label, c);
+
+			int	scanning_telemetry = AltosUIPreferences.scanning_telemetry();
+			telemetry_boxes = new JCheckBox[AltosLib.ao_telemetry_max - AltosLib.ao_telemetry_min + 1];
+			for (int k = AltosLib.ao_telemetry_min; k <= AltosLib.ao_telemetry_max; k++) {
+				int j = k - AltosLib.ao_telemetry_min;
+				telemetry_boxes[j] = new JCheckBox(AltosLib.telemetry_name(k));
+				c.gridy = 3 + j;
+				pane.add(telemetry_boxes[j], c);
+				telemetry_boxes[j].setActionCommand("telemetry");
+				telemetry_boxes[j].addActionListener(this);
+				telemetry_boxes[j].setSelected((scanning_telemetry & (1 << k)) != 0);
+			}
+			y_offset += (AltosLib.ao_telemetry_max - AltosLib.ao_telemetry_min + 1);
 		}
-
-		int	y_offset = 3 + (Altos.ao_telemetry_max - Altos.ao_telemetry_min + 1);
 
 		list = new JList<AltosScanResult>(results) {
 				//Subclass JList to workaround bug 4832765, which can cause the

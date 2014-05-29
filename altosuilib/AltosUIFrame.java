@@ -73,6 +73,9 @@ public class AltosUIFrame extends JFrame implements AltosUIListener, AltosPositi
 		super.setLocationByPlatform(lbp);
 	}
 
+	public void scan_device_selected(AltosDevice device) {
+	}
+
 	public void setSize() {
 		/* Smash sizes around so that the window comes up in the right shape */
 		Insets i = getInsets();

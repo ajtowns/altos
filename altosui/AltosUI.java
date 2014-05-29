@@ -74,6 +74,10 @@ public class AltosUI extends AltosUIFrame {
 		}
 	}
 
+	public void scan_device_selected(AltosDevice device) {
+		telemetry_window(device);
+	}
+
 	Container	pane;
 	GridBagLayout	gridbag;
 
@@ -272,7 +276,7 @@ public class AltosUI extends AltosUIFrame {
 	}
 
 	void ScanChannels() {
-		new AltosScanUI(AltosUI.this);
+		new AltosScanUI(AltosUI.this, true);
 	}
 
 	void LoadMaps() {

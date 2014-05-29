@@ -45,6 +45,7 @@ altosuilib_JAVA = \
 	AltosSerial.java \
 	AltosSerialInUseException.java \
 	AltosConfigFreqUI.java \
+	AltosScanUI.java \
 	AltosBTDevice.java \
 	AltosBTDeviceIterator.java \
 	AltosBTManage.java \

@@ -158,11 +158,13 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 		new AltosSiteMapPreload(this);
 	}
 
-	void monitor() {
-		AltosDevice	device = AltosDeviceUIDialog.show(this,
-								  AltosLib.product_basestation);
-		if (device == null)
-			return;
+	void disconnect() {
+		setTitle("TeleGPS");
+		stop_display();
+		remove_frequency_menu();
+	}
+
+	void connect(AltosDevice device) {
 		if (reader != null)
 			disconnect();
 		try {
@@ -198,13 +200,20 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 		}
 	}
 
-	void disconnect() {
-		setTitle("TeleGPS");
-		stop_display();
-		remove_frequency_menu();
+	void monitor() {
+		AltosDevice	device = AltosDeviceUIDialog.show(this,
+								  AltosLib.product_basestation);
+		if (device == null)
+			return;
+		connect(device);
+	}
+
+	public void scan_device_selected(AltosDevice device) {
+		connect(device);
 	}
 
 	void scan() {
+		new AltosScanUI(this, false);
 	}
 
 	void download(){

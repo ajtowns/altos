@@ -15,7 +15,6 @@ altosui_JAVA = \
 	AltosChannelMenu.java \
 	AltosCompanionInfo.java \
 	AltosConfig.java \
-	AltosConfigFreqUI.java \
 	AltosConfigUI.java \
 	AltosConfigPyroUI.java \
 	AltosConfigureUI.java \
@@ -46,7 +45,6 @@ altosui_JAVA = \
 	AltosPad.java \
 	AltosUIPreferencesBackend.java \
 	AltosRomconfigUI.java \
-	AltosScanUI.java \
 	AltosUI.java \
 	AltosGraph.java \
 	AltosGraphDataPoint.java \
