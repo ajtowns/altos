@@ -1,4 +1,4 @@
-!addplugindir Instdrv/NSIS/Plugins
+!addplugindir ../altosui/Instdrv/NSIS/Plugins
 ; Definitions for Java 1.6 Detection
 !define JRE_VERSION "1.6"
 !define JRE_ALTERNATE "1.7"

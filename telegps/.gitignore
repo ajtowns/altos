@@ -18,6 +18,7 @@ TeleGPS-Linux-*.sh
 TeleGPS-Mac-*.zip
 TeleGPS-Windows-*.exe
 telegps.desktop
+telegps-windows.log
 *.dll
 *.dylib
 *.so
