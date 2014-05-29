@@ -371,4 +371,30 @@ public class AltosConvert {
 			return 94;
 		return (int) Math.floor (1.0/2.0 * (24.0e6/32.0) / freq + 0.5);
 	}
+
+	public static final int BEARING_LONG = 0;
+	public static final int BEARING_SHORT = 1;
+	public static final int BEARING_VOICE = 2;
+
+	public static String bearing_to_words(int length, double bearing) {
+		String [][] bearing_string = {
+			{
+				"North", "North North East", "North East", "East North East",
+				"East", "East South East", "South East", "South South East",
+				"South", "South South West", "South West", "West South West",
+				"West", "West North West", "North West", "North North West"
+			}, {
+				"N", "NNE", "NE", "ENE",
+				"E", "ESE", "SE", "SSE",
+				"S", "SSW", "SW", "WSW",
+				"W", "WNW", "NW", "NNW"
+			}, {
+				"north", "nor nor east", "north east", "east nor east",
+				"east", "east sow east", "south east", "sow sow east",
+				"south", "sow sow west", "south west", "west sow west",
+				"west", "west nor west", "north west", "nor nor west "
+			}
+		};
+		return bearing_string[length][(int)((bearing / 90 * 8 + 1) / 2)%16];
+	}
 }

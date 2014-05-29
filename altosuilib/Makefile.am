@@ -50,6 +50,10 @@ altosuilib_JAVA = \
 	AltosEepromManage.java \
 	AltosEepromMonitorUI.java \
 	AltosEepromSelect.java \
+	AltosCSVUI.java \
+	AltosDataChooser.java \
+	AltosLights.java \
+	AltosLed.java \
 	AltosBTDevice.java \
 	AltosBTDeviceIterator.java \
 	AltosBTManage.java \
@@ -57,6 +61,18 @@ altosuilib_JAVA = \
 
 
 JAR=altosuilib_$(ALTOSUILIB_VERSION).jar
+
+# Icons
+ICONDIR=$(top_srcdir)/icon
+
+ICONS=	$(ICONDIR)/redled.png $(ICONDIR)/redoff.png \
+	$(ICONDIR)/greenled.png $(ICONDIR)/greenoff.png \
+	$(ICONDIR)/grayon.png $(ICONDIR)/grayled.png
+
+# icon base names for jar
+ICONJAR= -C $(ICONDIR) redled.png -C $(ICONDIR) redoff.png \
+	-C $(ICONDIR) greenled.png -C $(ICONDIR) greenoff.png \
+	-C $(ICONDIR) grayon.png -C $(ICONDIR) grayled.png
 
 all-local: $(JAR)
 
@@ -72,5 +88,5 @@ install-altosuilibJAVA: $(JAR)
 $(JAVAROOT):
 	mkdir -p $(JAVAROOT)
 
-$(JAR): classaltosuilib.stamp
-	jar cf $@ -C $(JAVAROOT) .
+$(JAR): classaltosuilib.stamp $(ICONS)
+	jar cf $@ $(ICONJAR) -C $(JAVAROOT) .

@@ -15,14 +15,13 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
 import org.altusmetrum.altoslib_4.*;
-import org.altusmetrum.altosuilib_2.*;
 
 public class AltosCSVUI
 	extends AltosUIDialog
@@ -43,9 +42,9 @@ public class AltosCSVUI
 		String	selected = (String) combo_box.getSelectedItem();
 
 		if (selected.contains("CSV"))
-			new_name = Altos.replace_extension(current_name, ".csv");
+			new_name = AltosLib.replace_extension(current_name, ".csv");
 		else if (selected.contains("KML"))
-			new_name = Altos.replace_extension(current_name, ".kml");
+			new_name = AltosLib.replace_extension(current_name, ".kml");
 		if (new_name != null)
 			csv_chooser.setSelectedFile(new File(new_name));
 	}

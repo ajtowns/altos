@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import javax.swing.*;
 
@@ -23,7 +23,7 @@ public class AltosLed extends JLabel {
 	ImageIcon	on, off;
 
 	ImageIcon create_icon(String path) {
-		java.net.URL imgURL = AltosUI.class.getResource(path);
+		java.net.URL imgURL = AltosUILib.class.getResource(path);
 		if (imgURL != null)
 			return new ImageIcon(imgURL);
 		System.err.printf("Cannot find icon \"%s\"\n", path);

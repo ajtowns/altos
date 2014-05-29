@@ -20,7 +20,6 @@ altosui_JAVA = \
 	AltosConfigureUI.java \
 	AltosConfigTD.java \
 	AltosConfigTDUI.java \
-	AltosCSVUI.java \
 	AltosDescent.java \
 	AltosFlashUI.java \
 	AltosFlightInfoTableModel.java \
@@ -36,8 +35,6 @@ altosui_JAVA = \
 	AltosLaunchUI.java \
 	AltosInfoTable.java \
 	AltosLanded.java \
-	AltosLed.java \
-	AltosLights.java \
 	AltosPad.java \
 	AltosUIPreferencesBackend.java \
 	AltosRomconfigUI.java \
@@ -45,8 +42,7 @@ altosui_JAVA = \
 	AltosGraph.java \
 	AltosGraphDataPoint.java \
 	AltosGraphDataSet.java \
-	AltosGraphUI.java \
-	AltosDataChooser.java
+	AltosGraphUI.java
 
 JFREECHART_CLASS= \
     jfreechart.jar
@@ -94,20 +90,13 @@ JAVA_ICONS=\
 	$(ICONDIR)/altus-metrum-128.png \
 	$(ICONDIR)/altus-metrum-256.png
 
-ICONS=	$(ICONDIR)/redled.png $(ICONDIR)/redoff.png \
-	$(ICONDIR)/greenled.png $(ICONDIR)/greenoff.png \
-	$(ICONDIR)/grayled.png $(ICONDIR)/grayoff.png
-
 # icon base names for jar
 ICONJAR= -C $(ICONDIR) altus-metrum-16.png \
 	-C $(ICONDIR) altus-metrum-32.png \
 	-C $(ICONDIR) altus-metrum-48.png \
 	-C $(ICONDIR) altus-metrum-64.png \
 	-C $(ICONDIR) altus-metrum-128.png \
-	-C $(ICONDIR) altus-metrum-256.png \
-	-C $(ICONDIR) redled.png -C $(ICONDIR) redoff.png \
-	-C $(ICONDIR) greenled.png -C $(ICONDIR) greenoff.png \
-	-C $(ICONDIR) grayon.png -C $(ICONDIR) grayled.png
+	-C $(ICONDIR) altus-metrum-256.png
 
 WINDOWS_ICON=$(ICONDIR)/altus-metrum.ico
 

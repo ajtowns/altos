@@ -53,6 +53,7 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 	JTabbedPane	pane;
 
 	AltosSiteMap    sitemap;
+	TeleGPSInfo	gps_info;
 	boolean		has_map;
 
 	JMenuBar	menu_bar;
@@ -115,10 +116,12 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 
 	public void reset() {
 		sitemap.reset();
+		gps_info.reset();
 	}
 
 	public void set_font() {
 		sitemap.set_font();
+		gps_info.set_font();
 	}
 
 	public void font_size_changed(int font_size) {
@@ -135,6 +138,7 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 			state = new AltosState();
 
 		sitemap.show(state, listener_state);
+		gps_info.show(state, listener_state);
 		telegps_status.show(state, listener_state);
 	}
 
@@ -225,6 +229,12 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 	}
 
 	void export() {
+		AltosDataChooser chooser;
+		chooser = new AltosDataChooser(this);
+		AltosStateIterable states = chooser.runDialog();
+		if (states == null)
+			return;
+		new AltosCSVUI(this, states, chooser.file());
 	}
 
 	void graph() {
@@ -393,6 +403,9 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 
 		sitemap = new AltosSiteMap();
 		pane.add("Site Map", sitemap);
+
+		gps_info = new TeleGPSInfo();
+		pane.add("Info", gps_info);
 
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
