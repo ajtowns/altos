@@ -5,7 +5,7 @@ man_MANS=telegps.1
 
 altoslibdir=$(libdir)/altos
 
-CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../altoslib/*:../altosuilib/*:../libaltos:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar"
+CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../altoslib/*:../altosuilib/*:../libaltos:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar $(FREETTS)/freetts.jar"
 
 bin_SCRIPTS=telegps
 
@@ -21,6 +21,15 @@ JFREECHART_CLASS= \
 
 JCOMMON_CLASS=\
     jcommon.jar
+
+FREETTS_CLASS= \
+	cmudict04.jar \
+	cmulex.jar \
+	cmu_time_awb.jar \
+	cmutimelex.jar \
+	cmu_us_kal.jar \
+	en_us.jar \
+	freetts.jar
 
 JAR=telegps.jar
 
@@ -59,6 +68,15 @@ ICONJAR= -C $(ICONDIR) telegps-16.png \
 
 WINDOWS_ICON=$(ICONDIR)/telegps.ico
 
+# Firmware
+FIRMWARE_TD_0_2=$(top_srcdir)/src/teledongle-v0.2/teledongle-v0.2-$(VERSION).ihx
+FIRMWARE_TD=$(FIRMWARE_TD_0_2)
+
+FIRMWARE_TG_1_0=$(top_srcdir)/src/telegps-v1.0/telegps-v1.0-$(VERSION).ihx
+FIRMWARE_TG=$(FIRMWARE_TG_1_0)
+
+FIRMWARE=$(FIRMWARE_TG)
+
 desktopdir = $(datadir)/applications
 desktop_file = telegps.desktop
 desktop_SCRIPTS = $(desktop_file)
@@ -85,31 +103,21 @@ LINUX_SH=TeleGPS-Linux-$(VERSION).sh
 MACOSX_DIST=TeleGPS-Mac-$(VERSION).dmg
 WINDOWS_DIST=TeleGPS-Windows-$(VERSION_DASH).exe
 
-MICROPEAK_DOC=$(top_srcdir)/doc/telegps.pdf
+TELEGPS_DOC=$(top_srcdir)/doc/telegps.pdf
 
-DOC=$(MICROPEAK_DOC)
+DOC=$(TELEGPS_DOC)
 
 FAT_FILES=$(FATJAR) $(ALTOSLIB_CLASS) $(ALTOSUILIB_CLASS) $(FREETTS_CLASS) $(JFREECHART_CLASS) $(JCOMMON_CLASS)
 
 LINUX_FILES=$(FAT_FILES) libaltos.so $(FIRMWARE) $(DOC) telegps.desktop.in ../icon/telegps.svg
 LINUX_EXTRA=telegps-fat telegps.desktop.in
 
-MACOSX_DRIVER_URL=http://www.ftdichip.com/Drivers/VCP/MacOSX/FTDIUSBSerialDriver_v2_2_18.dmg
-MACOSX_DRIVER=FTDIUSBSerialDriver_v2_2_18.dmg
 MACOSX_INFO_PLIST=Info.plist
 MACOSX_README=ReadMe-Mac.rtf
-MACOSX_FILES=$(FAT_FILES) libaltos.dylib $(MACOSX_INFO_PLIST) $(MACOSX_DRIVER) $(MACOSX_README) $(DOC)
+MACOSX_FILES=$(FAT_FILES) libaltos.dylib $(MACOSX_INFO_PLIST) $(MACOSX_README) $(DOC)
+MACOSX_EXTRA=$(FIRMWARE)
 
-$(MACOSX_DRIVER):
-	wget $(MACOSX_DRIVER_URL)
-
-WINDOWS_DRIVER_URL=http://www.ftdichip.com/Drivers/CDM/CDM20824_Setup.exe
-WINDOWS_DRIVER=CDM20824_Setup.exe
-
-$(WINDOWS_DRIVER):
-	wget $(WINDOWS_DRIVER_URL)
-
-WINDOWS_FILES=$(FAT_FILES) altos.dll altos64.dll $(DOC) $(WINDOWS_ICON) $(WINDOWS_DRIVER)
+WINDOWS_FILES=$(FAT_FILES) altos.dll altos64.dll $(top_srcdir)/telemetrum.inf $(DOC) $(WINDOWS_ICON)
 
 if FATINSTALL
 
@@ -215,6 +223,10 @@ $(ALTOSUILIB_CLASS):
 	-rm -f "$@"
 	$(LN_S) ../altosuilib/"$@" .
 
+$(FREETTS_CLASS):
+	-rm -f "$@"
+	$(LN_S) "$(FREETTS)"/"$@" .
+
 $(JFREECHART_CLASS):
 	-rm -f "$@"
 	$(LN_S) "$(JFREECHART)"/"$@" .
@@ -236,7 +248,7 @@ $(LINUX_SH): $(LINUX_DIST) $(srcdir)/../altosui/linux-install.sh
 	sed 's/AltOS/TeleGPS/g' $(srcdir)/../altosui/linux-install.sh | cat - $(LINUX_DIST) > $@
 	chmod +x $@
 
-$(MACOSX_DIST): $(MACOSX_FILES)
+$(MACOSX_DIST): $(MACOSX_FILES) $(MACOSX_EXTRA) Makefile
 	-rm -f $@
 	-rm -rf macosx
 	mkdir macosx
@@ -244,14 +256,15 @@ $(MACOSX_DIST): $(MACOSX_FILES)
 	cp -a $(MACOSX_README) macosx/ReadMe.rtf
 	cp -a $(DOC) macosx
 	cp -p Info.plist macosx/TeleGPS.app/Contents
-	cp -p $(MACOSX_DRIVER) macosx
 	mkdir -p macosx/TeleGPS.app/Contents/Resources/Java
 	cp -p $(FATJAR) macosx/TeleGPS.app/Contents/Resources/Java/telegps.jar
 	cp -p libaltos.dylib macosx/TeleGPS.app/Contents/Resources/Java
 	cp -p $(ALTOSLIB_CLASS) macosx/TeleGPS.app/Contents/Resources/Java
 	cp -p $(ALTOSUILIB_CLASS) macosx/TeleGPS.app/Contents/Resources/Java
+	cp -p $(FREETTS_CLASS) macosx/TeleGPS.app/Contents/Resources/Java
 	cp -p $(JFREECHART_CLASS) macosx/TeleGPS.app/Contents/Resources/Java
 	cp -p $(JCOMMON_CLASS) macosx/TeleGPS.app/Contents/Resources/Java
+	cp -p $(MACOSX_EXTRA) macosx/AltOS-$(VERSION)
 	genisoimage -D -V TeleGPS-$(VERSION) -no-pad -r -apple -o $@ macosx
 
 $(WINDOWS_DIST): $(WINDOWS_FILES) telegps-windows.nsi

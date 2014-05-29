@@ -3,7 +3,7 @@
 <plist version="0.9">
 <dict>
 	<key>CFBundleName</key>
-	<string>MicroPeak</string>
+	<string>TeleGPS</string>
 	<key>CFBundleVersion</key>
 	<string>@VERSION@</string>
 	<key>CFBundleAllowMixedLocalizations</key>
@@ -15,30 +15,26 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.altusmetrum.micropeak</string>
+	<string>org.altusmetrum.telegps</string>
 	<key>CFBundleSignature</key>
 	<string>Altu</string>
 	<key>CFBundleGetInfoString</key>
-	<string>MicroPeak UI version @VERSION@</string>
+	<string>TeleGPS version @VERSION@</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleIconFile</key>
-	<string>MicroPeak.icns</string>
+	<string>TeleGPSIcon.icns</string>
 	<key>Java</key>
 	<dict>
 		<key>MainClass</key>
-		<string>org.altusmetrum.micropeak.MicroPeak</string>
+		<string>org.altusmetrum.telegps.TeleGPS</string>
 		<key>JVMVersion</key>
 		<string>1.5+</string>
 		<key>ClassPath</key>
 		<array>
-			<string>$JAVAROOT/micropeak.jar</string>
+			<string>$JAVAROOT/telegps.jar</string>
+			<string>$JAVAROOT/freetts.jar</string>
 		</array>
-		<key>Properties</key>
-		<dict>
-		  <key>apple.laf.useScreenMenuBar</key>
-		  <string>true</string>
-		</dict>
 		<key>VMOptions</key>
 		<array>
 		  <string>-Xms512M</string>

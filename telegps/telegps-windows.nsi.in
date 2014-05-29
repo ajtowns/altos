@@ -5,7 +5,7 @@
 !define JRE_URL "http://javadl.sun.com/webapps/download/AutoDL?BundleId=52247&/jre-6u27-windows-i586-p.exe"
 !define PRODUCT_NAME "Altus Metrum Windows Software"
 
-Name "Altus Metrum MicroPeak Installer"
+Name "Altus Metrum TeleGPS Installer"
 
 ; Default install directory
 InstallDir "$PROGRAMFILES\AltusMetrum"
@@ -21,7 +21,7 @@ RequestExecutionLevel admin
 
 ShowInstDetails Show
 
-ComponentText "Altus Metrum MicroPeak Software Installer"
+ComponentText "Altus Metrum TeleGPS Software Installer"
 
 Function GetJRE
         MessageBox MB_OK "${PRODUCT_NAME} uses Java ${JRE_VERSION} 32-bit, it will now \
@@ -62,14 +62,41 @@ UninstPage instfiles
 
 ; And the stuff to install
 
-Section "MicroPeak Application"
+Section "Install Driver" InstDriver
+
+	InstDrv::InitDriverSetup /NOUNLOAD {4D36E96D-E325-11CE-BFC1-08002BE10318} AltusMetrumSerial
+	Pop $0
+	DetailPrint "InitDriverSetup: $0"
+	InstDrv::DeleteOemInfFiles /NOUNLOAD
+	InstDrv::CreateDevice /NOUNLOAD
+
+	SetOutPath $TEMP
+	File "../telemetrum.inf"
+	InstDrv::InstallDriver /NOUNLOAD "$TEMP\telemetrum.inf"
+
+	SetOutPath $INSTDIR
+	File "../telemetrum.inf"
+
+	SetOutPath $WINDIR\Inf
+	File "../telemetrum.inf"
+
+SectionEnd
+
+Section "TeleGPS Application"
 	Call DetectJRE
 
 	SetOutPath $INSTDIR
 
-	File "micropeak-fat.jar"
+	File "telegps-fat.jar"
 	File "altoslib_@ALTOSLIB_VERSION@.jar"
 	File "altosuilib_@ALTOSUILIB_VERSION@.jar"
+	File "cmudict04.jar"
+	File "cmulex.jar"
+	File "cmu_time_awb.jar"
+	File "cmutimelex.jar"
+	File "cmu_us_kal.jar"
+	File "en_us.jar"
+	File "freetts.jar"
 	File "jfreechart.jar"
 	File "jcommon.jar"
 
@@ -77,27 +104,27 @@ Section "MicroPeak Application"
 
 	File "../icon/*.ico"
 
-	CreateShortCut "$SMPROGRAMS\MicroPeak.lnk" "$SYSDIR\javaw.exe" "-jar micropeak-fat.jar" "$INSTDIR\micro-peak.ico"
+	CreateShortCut "$SMPROGRAMS\TeleGPS.lnk" "$SYSDIR\javaw.exe" "-jar telegps-fat.jar" "$INSTDIR\telegps.ico"
 SectionEnd
 
-Section "FTDI USB Driver"
+Section "TeleGPS Desktop Shortcut"
+	CreateShortCut "$DESKTOP\TeleGPS.lnk" "$INSTDIR\telegps-fat.jar"  "" "$INSTDIR\telegps.ico"
+SectionEnd
+
+Section "TeleGPS Firmware"
+
 	SetOutPath $INSTDIR
 
-	File "CDM20824_Setup.exe"
-
-	StrCpy $2 "$INSTDIR\CDM20824_Setup.exe"
-	ExecWait $2
-SectionEnd
-
-Section "MicroPeak Desktop Shortcut"
-	CreateShortCut "$DESKTOP\MicroPeak.lnk" "$INSTDIR\micropeak-fat.jar"  "" "$INSTDIR\micro-peak.ico"
+	File "../src/telegps-v1.0/telegps-v1.0-${VERSION}.ihx"
 SectionEnd
 
 Section "Documentation"
 
 	SetOutPath $INSTDIR
 
-	File "../doc/micropeak.pdf"
+	File "../doc/telegps.pdf"
+	File "../doc/altos.pdf"
+	File "../doc/telemetry.pdf"
 SectionEnd
 
 Section "Uninstaller"
@@ -126,7 +153,7 @@ Section "Uninstall"
 	RMDir "$INSTDIR"
 
 	; Remove shortcuts, if any
-	Delete "$SMPROGRAMS\MicroPeak.lnk"
-	Delete "$DESKTOP\MicroPeak.lnk"
+	Delete "$SMPROGRAMS\TeleGPS.lnk"
+	Delete "$DESKTOP\TeleGPS.lnk"
 	
 SectionEnd

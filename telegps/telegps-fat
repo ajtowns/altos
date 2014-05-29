@@ -1,0 +1,4 @@
+#!/bin/sh
+me=`which "$0"`
+dir=`dirname "$me"`
+exec java -cp "$dir/*" -Djava.library.path="$dir" -jar "$dir"/telegps-fat.jar  "$@"
