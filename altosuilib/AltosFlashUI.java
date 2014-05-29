@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -24,7 +24,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.*;
 import java.util.concurrent.*;
 import org.altusmetrum.altoslib_4.*;
-import org.altusmetrum.altosuilib_2.*;
 
 public class AltosFlashUI
 	extends AltosUIDialog
@@ -39,7 +38,7 @@ public class AltosFlashUI
 	JProgressBar	pbar;
 	JButton		cancel;
 
-	JFrame		frame;
+	AltosUIFrame	frame;
 
 	// Hex file with rom image
 	File		file;
@@ -252,9 +251,9 @@ public class AltosFlashUI
 	}
 
 	boolean select_device() {
-		int	product = Altos.product_any;
+		int	product = AltosLib.product_any;
 
-		device = AltosDeviceUIDialog.show(frame, Altos.product_any);
+		device = AltosDeviceUIDialog.show(frame, AltosLib.product_any);
 
 		if (device == null)
 			return false;
@@ -426,13 +425,12 @@ public class AltosFlashUI
 		flash_task	f = new flash_task(this);
 	}
 
-	static void show(JFrame frame) {
+	public static void show(AltosUIFrame frame) {
 		AltosFlashUI	ui = new AltosFlashUI(frame);
-
 		ui.showDialog();
 	}
 
-	public AltosFlashUI(JFrame in_frame) {
+	public AltosFlashUI(AltosUIFrame in_frame) {
 		super(in_frame, "Program Altusmetrum Device", false);
 
 		frame = in_frame;

@@ -89,20 +89,18 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 
 	/* Device menu */
 	final static String	download_command = "download";
-	final static String	configure_command = "configure";
 	final static String	export_command = "export";
 	final static String	graph_command = "graph";
+	final static String	configure_command = "configure";
+	final static String	flash_command = "flash";
 
 	static final String[][] device_menu_entries = new String[][] {
 		{ "Download Data",	download_command },
 		{ "Configure Device",	configure_command },
 		{ "Export Data",	export_command },
 		{ "Graph Data",		graph_command },
+		{ "Flash Device",	flash_command },
 	};
-
-//	private AltosInfoTable flightInfo;
-
-	boolean exit_on_close = false;
 
 	void stop_display() {
 		if (thread != null && thread.isAlive()) {
@@ -240,6 +238,10 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 	void graph() {
 	}
 
+	void flash() {
+		AltosFlashUI.show(this);
+	}
+
 	public void actionPerformed(ActionEvent ev) {
 
 		/* File menu */
@@ -291,6 +293,10 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 		}
 		if (graph_command.equals(ev.getActionCommand())) {
 			graph();
+			return;
+		}
+		if (flash_command.equals(ev.getActionCommand())) {
+			flash();
 			return;
 		}
 	}

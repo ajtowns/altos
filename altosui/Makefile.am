@@ -21,7 +21,6 @@ altosui_JAVA = \
 	AltosConfigTD.java \
 	AltosConfigTDUI.java \
 	AltosDescent.java \
-	AltosFlashUI.java \
 	AltosFlightInfoTableModel.java \
 	AltosFlightStatsTable.java \
 	AltosFlightStatus.java \
@@ -37,7 +36,6 @@ altosui_JAVA = \
 	AltosLanded.java \
 	AltosPad.java \
 	AltosUIPreferencesBackend.java \
-	AltosRomconfigUI.java \
 	AltosUI.java \
 	AltosGraph.java \
 	AltosGraphDataPoint.java \
