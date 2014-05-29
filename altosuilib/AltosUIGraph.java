@@ -85,8 +85,6 @@ public class AltosUIGraph implements AltosUnitsListener {
 
 	public void addMarker(String label, int fetch, Color color) {
 		AltosUIMarker		marker = new AltosUIMarker(fetch, color, plot);
-		if (enable != null)
-			enable.add(label, marker, true);
 		this.graphers.add(marker);
 	}
 

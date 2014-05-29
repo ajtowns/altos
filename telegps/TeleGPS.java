@@ -246,6 +246,16 @@ public class TeleGPS
 	}
 
 	void graph() {
+		AltosDataChooser chooser;
+		chooser = new AltosDataChooser(this);
+		AltosStateIterable states = chooser.runDialog();
+		if (states == null)
+			return;
+		try {
+			new TeleGPSGraphUI(states, chooser.file());
+		} catch (InterruptedException ie) {
+		} catch (IOException ie) {
+		}
 	}
 
 	void flash() {

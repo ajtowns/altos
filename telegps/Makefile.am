@@ -5,7 +5,7 @@ man_MANS=telegps.1
 
 altoslibdir=$(libdir)/altos
 
-CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../altoslib/*:../altosuilib/*:../libaltos:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar $(FREETTS)/freetts.jar"
+CLASSPATH_ENV=mkdir -p $(JAVAROOT); CLASSPATH=".:classes:../altoslib/*:../altosuilib/*:../libaltos:$(JCOMMON)/jcommon.jar:$(JFREECHART)/jfreechart.jar:$(FREETTS)/freetts.jar"
 
 bin_SCRIPTS=telegps
 
@@ -18,7 +18,8 @@ telegps_JAVA= \
 	TeleGPSInfo.java \
 	TeleGPSConfig.java \
 	TeleGPSConfigUI.java \
-	TeleGPSPreferences.java
+	TeleGPSPreferences.java \
+	TeleGPSGraphUI.java
 
 JFREECHART_CLASS= \
     jfreechart.jar

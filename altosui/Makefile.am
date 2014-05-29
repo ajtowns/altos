@@ -35,9 +35,6 @@ altosui_JAVA = \
 	AltosPad.java \
 	AltosUIPreferencesBackend.java \
 	AltosUI.java \
-	AltosGraph.java \
-	AltosGraphDataPoint.java \
-	AltosGraphDataSet.java \
 	AltosGraphUI.java
 
 JFREECHART_CLASS= \

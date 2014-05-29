@@ -15,7 +15,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.awt.*;
 import javax.swing.*;
 import org.altusmetrum.altoslib_4.*;
-import org.altusmetrum.altosuilib_2.*;
 
 import org.jfree.ui.*;
 import org.jfree.chart.*;
@@ -414,14 +413,14 @@ public class AltosGraph extends AltosUIGraph {
 				  orient_axis);
 		if (stats.num_ignitor > 0) {
 			for (int i = 0; i < stats.num_ignitor; i++)
-				addSeries(AltosIgnitor.ignitor_name(i),
+				addSeries(AltosLib.ignitor_name(i),
 					  AltosGraphDataPoint.data_ignitor_0 + i,
 					  voltage_units,
 					  main_voltage_color,
 					  false,
 					  voltage_axis);
 			for (int i = 0; i < stats.num_ignitor; i++)
-				addMarker(AltosIgnitor.ignitor_name(i), AltosGraphDataPoint.data_ignitor_fired_0 + i, state_color);
+				addMarker(AltosLib.ignitor_name(i), AltosGraphDataPoint.data_ignitor_fired_0 + i, state_color);
 		}
 
 		setDataSet(dataSet);

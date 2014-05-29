@@ -479,4 +479,8 @@ public class AltosLib {
 		default: return "unknown";
 		}
 	}
+
+	public static String ignitor_name(int i) {
+		return String.format("Ignitor %c", 'A' + i);
+	}
 }

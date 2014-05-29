@@ -15,13 +15,12 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import java.lang.*;
 import java.io.*;
 import java.util.*;
 import org.altusmetrum.altoslib_4.*;
-import org.altusmetrum.altosuilib_2.*;
 
 class AltosGraphIterator implements Iterator<AltosUIDataPoint> {
 	AltosGraphDataSet	dataSet;

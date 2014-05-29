@@ -114,10 +114,6 @@ public class AltosIgnitor extends JComponent implements AltosFlightDisplay {
 		}
 	}
 
-	public static String ignitor_name(int i) {
-		return String.format("Ignitor %c", 'A' + i);
-	}
-
 	class Ignitor extends LaunchStatus {
 		int ignitor;
 
@@ -131,7 +127,7 @@ public class AltosIgnitor extends JComponent implements AltosFlightDisplay {
 		}
 
 		public Ignitor (GridBagLayout layout, int y) {
-			super(layout, y, String.format ("%s Voltage", ignitor_name(y)));
+			super(layout, y, String.format ("%s Voltage", AltosLib.ignitor_name(y)));
 			ignitor = y;
 		}
 	}
