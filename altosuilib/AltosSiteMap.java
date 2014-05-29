@@ -192,9 +192,13 @@ public class AltosSiteMap extends JComponent implements AltosFlightDisplay, Mous
 		// nothing
 	}
 
-	public void set_font() {
+	public void font_size_changed(int font_size) {
 		for (AltosSiteMapTile tile : mapTiles.values())
 			tile.set_font(AltosUILib.value_font);
+	}
+
+	public void units_changed(boolean imperial_units) {
+		set_line();
 	}
 
 	static final int load_mode_cached = 1;

@@ -25,7 +25,7 @@ import org.altusmetrum.altosuilib_2.*;
 public class AltosPad extends JComponent implements AltosFlightDisplay {
 	GridBagLayout	layout;
 
-	public class LaunchStatus {
+	public class LaunchStatus implements AltosFontListener, AltosUnitsListener {
 		JLabel		label;
 		JTextField	value;
 		AltosLights	lights;
@@ -62,9 +62,12 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			lights.setVisible(false);
 		}
 
-		public void set_font() {
+		public void font_size_changed(int font_size) {
 			label.setFont(Altos.label_font);
 			value.setFont(Altos.value_font);
+		}
+
+		public void units_changed(boolean imperial_units) {
 		}
 
 		public void set_label(String text) {
@@ -107,10 +110,13 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		}
 	}
 
-	public class LaunchValue {
+	public abstract class LaunchValue implements AltosFontListener, AltosUnitsListener {
 		JLabel		label;
 		JTextField	value;
-		void show(AltosState state, AltosListenerState listener_state) {}
+		AltosUnits 	units;
+		double		v;
+
+		abstract void show(AltosState state, AltosListenerState listener_state);
 
 		void show() {
 			label.setVisible(true);
@@ -122,9 +128,14 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			value.setVisible(false);
 		}
 
-		public void set_font() {
+		public void font_size_changed(int font_size) {
 			label.setFont(Altos.label_font);
 			value.setFont(Altos.value_font);
+		}
+
+		public void units_changed(boolean imperial_units) {
+			if (units != null)
+				show(v);
 		}
 
 		void show(String s) {
@@ -132,7 +143,8 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			value.setText(s);
 		}
 
-		void show(AltosUnits units, double v) {
+		void show(double v) {
+			this.v = v;
 			show(units.show(8, v));
 		}
 
@@ -148,7 +160,9 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			value.setText("");
 		}
 
-		public LaunchValue (GridBagLayout layout, int y, String text) {
+		public LaunchValue (GridBagLayout layout, int y, AltosUnits units, String text) {
+			this.units = units;
+
 			GridBagConstraints	c = new GridBagConstraints();
 			c.insets = new Insets(Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad);
 			c.weighty = 1;
@@ -172,6 +186,10 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			c.weightx = 1;
 			layout.setConstraints(value, c);
 			add(value);
+		}
+
+		public LaunchValue (GridBagLayout layout, int y, String text) {
+			this(layout, y, null, text);
 		}
 	}
 
@@ -378,13 +396,13 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 				}
 			}
 			if (alt != AltosLib.MISSING) {
-				show("%4.0f m", state.gps.alt);
+				show(alt);
 				set_label(label);
 			} else
 				hide();
 		}
 		public PadAlt (GridBagLayout layout, int y) {
-			super (layout, y, "Pad Altitude");
+			super (layout, y, AltosConvert.height, "Pad Altitude");
 		}
 	}
 
@@ -403,17 +421,30 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		pad_alt.reset();
 	}
 
-	public void set_font() {
-		battery.set_font();
-		apogee.set_font();
-		main.set_font();
-		logging_ready.set_font();
-		gps_locked.set_font();
-		gps_ready.set_font();
-		receiver_battery.set_font();
-		pad_lat.set_font();
-		pad_lon.set_font();
-		pad_alt.set_font();
+	public void font_size_changed(int font_size) {
+		battery.font_size_changed(font_size);
+		apogee.font_size_changed(font_size);
+		main.font_size_changed(font_size);
+		logging_ready.font_size_changed(font_size);
+		gps_locked.font_size_changed(font_size);
+		gps_ready.font_size_changed(font_size);
+		receiver_battery.font_size_changed(font_size);
+		pad_lat.font_size_changed(font_size);
+		pad_lon.font_size_changed(font_size);
+		pad_alt.font_size_changed(font_size);
+	}
+
+	public void units_changed(boolean imperial_units) {
+		battery.units_changed(imperial_units);
+		apogee.units_changed(imperial_units);
+		main.units_changed(imperial_units);
+		logging_ready.units_changed(imperial_units);
+		gps_locked.units_changed(imperial_units);
+		gps_ready.units_changed(imperial_units);
+		receiver_battery.units_changed(imperial_units);
+		pad_lat.units_changed(imperial_units);
+		pad_lon.units_changed(imperial_units);
+		pad_alt.units_changed(imperial_units);
 	}
 
 	public void show(AltosState state, AltosListenerState listener_state) {

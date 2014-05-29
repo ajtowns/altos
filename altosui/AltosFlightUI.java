@@ -24,7 +24,7 @@ import java.util.concurrent.*;
 import org.altusmetrum.altoslib_4.*;
 import org.altusmetrum.altosuilib_2.*;
 
-public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay, AltosFontListener {
+public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay {
 	AltosVoice		voice;
 	AltosFlightReader	reader;
 	AltosDisplayThread	thread;
@@ -83,22 +83,29 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay, A
 		sitemap.reset();
 	}
 
-	public void set_font() {
-		pad.set_font();
-		ignitor.set_font();
-		ascent.set_font();
-		descent.set_font();
-		landed.set_font();
-		flightStatus.set_font();
-		flightInfo.set_font();
-		sitemap.set_font();
-		companion.set_font();
-	}
-
 	public void font_size_changed(int font_size) {
-		set_font();
+		pad.font_size_changed(font_size);
+		ignitor.font_size_changed(font_size);
+		ascent.font_size_changed(font_size);
+		descent.font_size_changed(font_size);
+		landed.font_size_changed(font_size);
+		flightStatus.font_size_changed(font_size);
+		flightInfo.font_size_changed(font_size);
+		sitemap.font_size_changed(font_size);
+		companion.font_size_changed(font_size);
 	}
 
+	public void units_changed(boolean imperial_units) {
+		pad.units_changed(imperial_units);
+		ignitor.units_changed(imperial_units);
+		ascent.units_changed(imperial_units);
+		descent.units_changed(imperial_units);
+		landed.units_changed(imperial_units);
+		flightStatus.units_changed(imperial_units);
+		flightInfo.units_changed(imperial_units);
+		sitemap.units_changed(imperial_units);
+		companion.units_changed(imperial_units);
+	}
 
 	AltosFlightStatusUpdate	status_update;
 
@@ -318,6 +325,7 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay, A
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 		AltosUIPreferences.register_font_listener(this);
+		AltosPreferences.register_units_listener(this);
 
 		addWindowListener(new WindowAdapter() {
 				@Override
@@ -326,6 +334,7 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay, A
 					setVisible(false);
 					dispose();
 					AltosUIPreferences.unregister_font_listener(AltosFlightUI.this);
+					AltosPreferences.unregister_units_listener(AltosFlightUI.this);
 					if (exit_on_close)
 						System.exit(0);
 				}

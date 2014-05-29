@@ -27,10 +27,13 @@ import org.altusmetrum.altosuilib_2.*;
 public class AltosLanded extends JComponent implements AltosFlightDisplay, ActionListener {
 	GridBagLayout	layout;
 
-	public class LandedValue {
+	public abstract class LandedValue implements AltosFontListener, AltosUnitsListener {
 		JLabel		label;
 		JTextField	value;
-		void show(AltosState state, AltosListenerState listener_state) {}
+		AltosUnits	units;
+		double		v;
+
+		abstract void show(AltosState state, AltosListenerState listener_state);
 
 		void reset() {
 			value.setText("");
@@ -46,7 +49,8 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 			value.setText(s);
 		}
 
-		void show(AltosUnits units, double v) {
+		void show(double v) {
+			this.v = v;
 			show(units.show(8, v));
 		}
 
@@ -54,9 +58,14 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 			show(String.format(format, v));
 		}
 
-		public void set_font() {
+		public void font_size_changed(int font_size) {
 			label.setFont(Altos.label_font);
 			value.setFont(Altos.value_font);
+		}
+
+		public void units_changed(boolean imperial_units) {
+			if (units != null)
+				show(v);
 		}
 
 		void hide() {
@@ -64,7 +73,9 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 			value.setVisible(false);
 		}
 
-		public LandedValue (GridBagLayout layout, int y, String text) {
+		public LandedValue (GridBagLayout layout, int y, AltosUnits units, String text) {
+			this.units = units;
+
 			GridBagConstraints	c = new GridBagConstraints();
 			c.weighty = 1;
 
@@ -88,6 +99,10 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 			c.fill = GridBagConstraints.BOTH;
 			layout.setConstraints(value, c);
 			add(value);
+		}
+
+		public LandedValue (GridBagLayout layout, int y, String text) {
+			this(layout, y, null, text);
 		}
 	}
 
@@ -151,12 +166,12 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 		void show (AltosState state, AltosListenerState listener_state) {
 			show();
 			if (state.from_pad != null)
-				show(AltosConvert.distance, state.from_pad.distance);
+				show(state.from_pad.distance);
 			else
 				show("???");
 		}
 		public Distance (GridBagLayout layout, int y) {
-			super (layout, y, "Distance");
+			super (layout, y, AltosConvert.distance, "Distance");
 		}
 	}
 
@@ -164,10 +179,10 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 
 	class Height extends LandedValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(AltosConvert.height, state.max_height());
+			show(state.max_height());
 		}
 		public Height (GridBagLayout layout, int y) {
-			super (layout, y, "Maximum Height");
+			super (layout, y, AltosConvert.height, "Maximum Height");
 		}
 	}
 
@@ -175,10 +190,10 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 
 	class Speed extends LandedValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(AltosConvert.speed, state.max_speed());
+			show(state.max_speed());
 		}
 		public Speed (GridBagLayout layout, int y) {
-			super (layout, y, "Maximum Speed");
+			super (layout, y, AltosConvert.speed, "Maximum Speed");
 		}
 	}
 
@@ -186,10 +201,10 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 
 	class Accel extends LandedValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(AltosConvert.accel, state.max_acceleration());
+			show(state.max_acceleration());
 		}
 		public Accel (GridBagLayout layout, int y) {
-			super (layout, y, "Maximum Acceleration");
+			super (layout, y, AltosConvert.accel, "Maximum Acceleration");
 		}
 	}
 
@@ -205,14 +220,24 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 		accel.reset();
 	}
 
-	public void set_font() {
-		lat.set_font();
-		lon.set_font();
-		bearing.set_font();
-		distance.set_font();
-		height.set_font();
-		speed.set_font();
-		accel.set_font();
+	public void font_size_changed(int font_size) {
+		lat.font_size_changed(font_size);
+		lon.font_size_changed(font_size);
+		bearing.font_size_changed(font_size);
+		distance.font_size_changed(font_size);
+		height.font_size_changed(font_size);
+		speed.font_size_changed(font_size);
+		accel.font_size_changed(font_size);
+	}
+
+	public void units_changed(boolean imperial_units) {
+		lat.units_changed(imperial_units);
+		lon.units_changed(imperial_units);
+		bearing.units_changed(imperial_units);
+		distance.units_changed(imperial_units);
+		height.units_changed(imperial_units);
+		speed.units_changed(imperial_units);
+		accel.units_changed(imperial_units);
 	}
 
 	public void show(AltosState state, AltosListenerState listener_state) {

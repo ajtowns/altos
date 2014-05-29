@@ -159,13 +159,16 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 		last_packet.reset();
 	}
 
-	public void set_font () {
+	public void font_size_changed(int font_size) {
 		call.set_font();
 		serial.set_font();
 		flight.set_font();
 		flight_state.set_font();
 		rssi.set_font();
 		last_packet.set_font();
+	}
+
+	public void units_changed(boolean imperial_units) {
 	}
 
 	public void show (AltosState state, AltosListenerState listener_state) {

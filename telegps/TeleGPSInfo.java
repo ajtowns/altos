@@ -26,10 +26,12 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 	GridBagLayout	layout;
 	JLabel			cur, max;
 
-	public class Info {
+	public abstract class Info implements AltosFontListener, AltosUnitsListener {
 		JLabel		label;
 		JTextField	value;
 		AltosLights	lights;
+		double		v;
+		AltosUnits	units;
 
 		void show() {
 			value.setVisible(true);
@@ -43,14 +45,15 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 			label.setVisible(false);
 		}
 
-		void show(AltosState state, AltosListenerState listener_state) {}
+		abstract void show(AltosState state, AltosListenerState listener_state);
 
 		void show(String s) {
 			show();
 			value.setText(s);
 		}
 
-		void show(AltosUnits units, double v) {
+		void show(double v) {
+			this.v = v;
 			show(units.show(8, v));
 		}
 
@@ -67,12 +70,19 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 			value.setText("");
 		}
 
-		void set_font() {
+		public void font_size_changed(int font_size) {
 			label.setFont(AltosUILib.label_font);
 			value.setFont(AltosUILib.value_font);
 		}
 
-		public Info (GridBagLayout layout, int y, String text) {
+		public void units_changed(boolean imperial_units) {
+			if (units != null)
+				show(v);
+		}
+
+		public Info (GridBagLayout layout, int y, AltosUnits units, String text) {
+			this.units = units;
+
 			GridBagConstraints	c = new GridBagConstraints();
 			c.weighty = 1;
 
@@ -106,12 +116,19 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 			layout.setConstraints(value, c);
 			add(value);
 		}
+
+		public Info (GridBagLayout layout, int y, String text) {
+			this(layout, y, null, text);
+		}
 	}
 
-	public class Value {
+	public abstract class Value implements AltosFontListener, AltosUnitsListener {
 		JLabel		label;
 		JTextField	value;
-		void show(AltosState state, AltosListenerState listener_state) {}
+		AltosUnits	units;
+		double		v = AltosLib.MISSING;
+
+		abstract void show(AltosState state, AltosListenerState listener_state);
 
 		void reset() {
 			value.setText("");
@@ -127,7 +144,8 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 			value.setText(s);
 		}
 
-		void show(AltosUnits units, double v) {
+		void show(double v) {
+			this.v = v;
 			show(units.show(8, v));
 		}
 
@@ -139,9 +157,13 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 			label.setVisible(false);
 			value.setVisible(false);
 		}
-		void set_font() {
+		public void font_size_changed(int font_size) {
 			label.setFont(AltosUILib.label_font);
 			value.setFont(AltosUILib.value_font);
+		}
+		public void units_changed(boolean imperial_units) {
+			if (units != null)
+				show(v);
 		}
 
 		public Value (GridBagLayout layout, int y, String text) {
@@ -172,32 +194,42 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 		}
 	}
 
-	public abstract class DualValue {
+	public abstract class DualValue implements AltosFontListener, AltosUnitsListener {
+		AltosLights	lights;
 		JLabel		label;
 		JTextField	value1;
 		JTextField	value2;
 
 		void reset() {
+			if (lights != null)
+				lights.set(false);
 			value1.setText("");
 			value2.setText("");
 		}
 
 		void show() {
+			if (lights != null)
+				lights.setVisible(true);
 			label.setVisible(true);
 			value1.setVisible(true);
 			value2.setVisible(true);
 		}
 
 		void hide() {
+			if (lights != null)
+				lights.setVisible(false);
 			label.setVisible(false);
 			value1.setVisible(false);
 			value2.setVisible(false);
 		}
 
-		void set_font() {
+		public void font_size_changed(int font_size) {
 			label.setFont(AltosUILib.label_font);
 			value1.setFont(AltosUILib.value_font);
 			value2.setFont(AltosUILib.value_font);
+		}
+
+		public void units_changed(boolean imperial_units) {
 		}
 
 		abstract void show(AltosState state, AltosListenerState listener_state);
@@ -207,20 +239,37 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 			value1.setText(v1);
 			value2.setText(v2);
 		}
+
 		void show(String f1, double v1, String f2, double v2) {
 			show();
 			value1.setText(String.format(f1, v1));
 			value2.setText(String.format(f2, v2));
 		}
 
-		public DualValue (GridBagLayout layout, int x, int y, String text) {
+		void show(String f1, int v1, String f2, int v2) {
+			show();
+			value1.setText(String.format(f1, v1));
+			value2.setText(String.format(f2, v2));
+		}
+
+		public DualValue (GridBagLayout layout, int y, String text, boolean want_lights) {
 			GridBagConstraints	c = new GridBagConstraints();
 			c.weighty = 1;
+
+			if (want_lights) {
+				lights = new AltosLights();
+				c.gridx = 0; c.gridy = y;
+				c.anchor = GridBagConstraints.CENTER;
+				c.fill = GridBagConstraints.VERTICAL;
+				c.weightx = 0;
+				layout.setConstraints(lights, c);
+				add(lights);
+			}
 
 			label = new JLabel(text);
 			label.setFont(AltosUILib.label_font);
 			label.setHorizontalAlignment(SwingConstants.LEFT);
-			c.gridx = x + 1; c.gridy = y;
+			c.gridx = 1; c.gridy = y;
 			c.insets = new Insets(AltosUILib.tab_elt_pad, AltosUILib.tab_elt_pad, AltosUILib.tab_elt_pad, AltosUILib.tab_elt_pad);
 			c.anchor = GridBagConstraints.WEST;
 			c.fill = GridBagConstraints.VERTICAL;
@@ -231,7 +280,7 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 			value1 = new JTextField(AltosUILib.text_width);
 			value1.setFont(AltosUILib.value_font);
 			value1.setHorizontalAlignment(SwingConstants.RIGHT);
-			c.gridx = x + 2; c.gridy = y;
+			c.gridx = 2; c.gridy = y;
 			c.anchor = GridBagConstraints.WEST;
 			c.fill = GridBagConstraints.BOTH;
 			c.weightx = 1;
@@ -241,7 +290,7 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 			value2 = new JTextField(AltosUILib.text_width);
 			value2.setFont(AltosUILib.value_font);
 			value2.setHorizontalAlignment(SwingConstants.RIGHT);
-			c.gridx = x + 3; c.gridy = y;
+			c.gridx = 3; c.gridy = y;
 			c.anchor = GridBagConstraints.WEST;
 			c.fill = GridBagConstraints.BOTH;
 			c.weightx = 1;
@@ -251,13 +300,15 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 		}
 	}
 
-	public class ValueHold {
+	abstract public class ValueHold implements AltosFontListener, AltosUnitsListener {
 		JLabel		label;
 		JTextField	value;
 		JTextField	max_value;
+		double		v;
 		double		max;
+		AltosUnits	units;
 
-		void show(AltosState state, AltosListenerState listener_state) {}
+		abstract void show(AltosState state, AltosListenerState listener_state);
 
 		void reset() {
 			value.setText("");
@@ -265,23 +316,29 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 			max = AltosLib.MISSING;
 		}
 
-		void set_font() {
+		public void font_size_changed(int font_size) {
 			label.setFont(AltosUILib.label_font);
 			value.setFont(AltosUILib.value_font);
 			max_value.setFont(AltosUILib.value_font);
 		}
 
-		void show(AltosUnits units, double v) {
+		public void units_changed(boolean imperial_units) {
+			show(v);
+		}
+
+		void show(double v) {
+			this.v = v;
 			if (v == AltosLib.MISSING) {
 				value.setText("Missing");
-				max_value.setText("Missing");
 			} else {
 				value.setText(units.show(8, v));
-				if (v > max || max == AltosLib.MISSING) {
-					max_value.setText(units.show(8, v));
+				if (v > max || max == AltosLib.MISSING)
 					max = v;
-				}
 			}
+			if (max == AltosLib.MISSING)
+				max_value.setText("Missing");
+			else
+				max_value.setText(units.show(8, max));
 		}
 
 		void hide() {
@@ -290,7 +347,8 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 			max_value.setVisible(false);
 		}
 
-		public ValueHold (GridBagLayout layout, int y, String text) {
+		public ValueHold (GridBagLayout layout, int y, AltosUnits units, String text) {
+			this.units = units;
 			GridBagConstraints	c = new GridBagConstraints();
 			c.weighty = 1;
 
@@ -330,10 +388,10 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 
 	class Altitude extends ValueHold {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(AltosConvert.height, state.altitude());
+			show(state.altitude());
 		}
 		public Altitude (GridBagLayout layout, int y) {
-			super (layout, y, "Altitude");
+			super (layout, y, AltosConvert.height, "Altitude");
 		}
 	}
 
@@ -341,10 +399,10 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 
 	class AscentRate extends ValueHold {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(AltosConvert.speed, state.gps_ascent_rate());
+			show(state.gps_ascent_rate());
 		}
 		public AscentRate (GridBagLayout layout, int y) {
-			super (layout, y, "Ascent Rate");
+			super (layout, y, AltosConvert.speed, "Ascent Rate");
 		}
 	}
 
@@ -352,10 +410,10 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 
 	class GroundSpeed extends ValueHold {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(AltosConvert.speed, state.gps_ground_speed());
+			show(state.gps_ground_speed());
 		}
 		public GroundSpeed (GridBagLayout layout, int y) {
-			super (layout, y, "Ground Speed");
+			super (layout, y, AltosConvert.speed, "Ground Speed");
 		}
 	}
 
@@ -382,7 +440,7 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 					      course));
 		}
 		public Course (GridBagLayout layout, int y) {
-			super (layout, 0, y, "Course");
+			super (layout, y, "Course", false);
 		}
 	}
 
@@ -416,17 +474,20 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 
 	Lon lon;
 
-	class GPSLocked extends Info {
+	class GPSLocked extends DualValue {
 		void show (AltosState state, AltosListenerState listener_state) {
 			if (state == null || state.gps == null)
 				hide();
 			else {
-				show("%4d sats", state.gps.nsat);
-				lights.set(state.gps.locked && state.gps.nsat >= 4);
+				int soln = state.gps.nsat;
+				int nsat = state.gps.cc_gps_sat != null ? state.gps.cc_gps_sat.length : 0;
+				show("%4d in solution", soln,
+				     "%4d in view", nsat);
+				lights.set(state.gps.locked && soln >= 4);
 			}
 		}
 		public GPSLocked (GridBagLayout layout, int y) {
-			super (layout, y, "GPS Locked");
+			super (layout, y, "GPS Locked", true);
 		}
 	}
 
@@ -442,16 +503,26 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 		gps_locked.reset();
 	}
 
-	public void set_font() {
+	public void font_size_changed(int font_size) {
 		cur.setFont(AltosUILib.label_font);
 		max.setFont(AltosUILib.label_font);
-		lat.set_font();
-		lon.set_font();
-		altitude.set_font();
-		ground_speed.set_font();
-		ascent_rate.set_font();
-		course.set_font();
-		gps_locked.set_font();
+		lat.font_size_changed(font_size);
+		lon.font_size_changed(font_size);
+		altitude.font_size_changed(font_size);
+		ground_speed.font_size_changed(font_size);
+		ascent_rate.font_size_changed(font_size);
+		course.font_size_changed(font_size);
+		gps_locked.font_size_changed(font_size);
+	}
+
+	public void units_changed(boolean imperial_units) {
+		lat.units_changed(imperial_units);
+		lon.units_changed(imperial_units);
+		altitude.units_changed(imperial_units);
+		ground_speed.units_changed(imperial_units);
+		ascent_rate.units_changed(imperial_units);
+		course.units_changed(imperial_units);
+		gps_locked.units_changed(imperial_units);
 	}
 
 	public void show(AltosState state, AltosListenerState listener_state) {

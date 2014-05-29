@@ -62,10 +62,13 @@ public class AltosInfoTable extends JTable implements AltosFlightDisplay {
 		doLayout();
 	}
 
-	public void set_font() {
+	public void font_size_changed(int font_size) {
 		setFont(AltosUILib.table_value_font);
 		set_layout();
 		doLayout();
+	}
+
+	public void units_changed(boolean imperial_units) {
 	}
 
 	public Dimension getPreferredScrollableViewportSize() {

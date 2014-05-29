@@ -27,7 +27,7 @@ import java.util.Arrays;
 import org.altusmetrum.altoslib_4.*;
 import org.altusmetrum.altosuilib_2.*;
 
-public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDisplay, AltosFontListener, AltosIdleMonitorListener, DocumentListener {
+public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDisplay, AltosIdleMonitorListener, DocumentListener {
 	AltosDevice		device;
 	JTabbedPane		pane;
 	AltosPad		pad;
@@ -56,13 +56,14 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 		flightInfo.clear();
 	}
 
-	public void set_font() {
-		pad.set_font();
-		flightInfo.set_font();
+	public void font_size_changed(int font_size) {
+		pad.font_size_changed(font_size);
+		flightInfo.font_size_changed(font_size);
 	}
 
-	public void font_size_changed(int font_size) {
-		set_font();
+	public void units_changed(boolean imperial_units) {
+		pad.units_changed(imperial_units);
+		flightInfo.units_changed(imperial_units);
 	}
 
 	AltosFlightStatusUpdate	status_update;
@@ -235,8 +236,8 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 						disconnect();
 					} catch (Exception ex) {
 						System.out.printf("Exception %s\n", ex.toString());
-						for (StackTraceElement e : ex.getStackTrace())
-							System.out.printf("%s\n", e.toString());
+						for (StackTraceElement el : ex.getStackTrace())
+							System.out.printf("%s\n", el.toString());
 					}
 					setVisible(false);
 					dispose();

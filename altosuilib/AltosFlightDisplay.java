@@ -19,10 +19,8 @@ package org.altusmetrum.altosuilib_2;
 
 import org.altusmetrum.altoslib_4.*;
 
-public interface AltosFlightDisplay {
+public interface AltosFlightDisplay extends AltosUnitsListener, AltosFontListener {
 	void reset();
 
 	void show(AltosState state, AltosListenerState listener_state);
-
-	void set_font();
 }

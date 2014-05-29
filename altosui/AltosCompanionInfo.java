@@ -33,10 +33,13 @@ public class AltosCompanionInfo extends JTable implements AltosFlightDisplay {
 		return (infoValueMetrics.getHeight() + infoValueMetrics.getLeading()) * 18 / 10;
 	}
 
-	public void set_font() {
+	public void font_size_changed(int font_size) {
 		setFont(Altos.table_value_font);
 		setRowHeight(desired_row_height());
 		doLayout();
+	}
+
+	public void units_changed(boolean imperial_units) {
 	}
 
 	public AltosCompanionInfo() {
@@ -44,7 +47,7 @@ public class AltosCompanionInfo extends JTable implements AltosFlightDisplay {
 		model = (AltosFlightInfoTableModel) getModel();
 		setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
 		setShowGrid(true);
-		set_font();
+		font_size_changed(AltosUIPreferences.font_size());
 	}
 
 	public Dimension getPreferredScrollableViewportSize() {

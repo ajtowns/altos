@@ -25,7 +25,7 @@ import org.altusmetrum.altosuilib_2.*;
 public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	GridBagLayout	layout;
 
-	public abstract class DescentStatus {
+	public abstract class DescentStatus implements AltosFontListener, AltosUnitsListener {
 		JLabel		label;
 		JTextField	value;
 		AltosLights	lights;
@@ -58,9 +58,12 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			lights.set(false);
 		}
 
-		void set_font() {
+		public void font_size_changed(int font_size) {
 			label.setFont(Altos.label_font);
 			value.setFont(Altos.value_font);
+		}
+
+		public void units_changed(boolean imperial_units) {
 		}
 
 		public DescentStatus (GridBagLayout layout, int y, String text) {
@@ -101,9 +104,11 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		}
 	}
 
-	public abstract class DescentValue {
+	public abstract class DescentValue implements AltosFontListener, AltosUnitsListener {
 		JLabel		label;
 		JTextField	value;
+		AltosUnits	units;
+		double		v;
 
 		void reset() {
 			value.setText("");
@@ -126,7 +131,8 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			value.setText(v);
 		}
 
-		void show(AltosUnits units, double v) {
+		void show(double v) {
+			this.v = v;
 			show(units.show(8, v));
 		}
 
@@ -134,12 +140,18 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			show(String.format(format, v));
 		}
 
-		void set_font() {
+		public void font_size_changed(int font_size) {
 			label.setFont(Altos.label_font);
 			value.setFont(Altos.value_font);
 		}
 
-		public DescentValue (GridBagLayout layout, int x, int y, String text) {
+		public void units_changed(boolean imperial_units) {
+			if (units != null)
+				show(v);
+		}
+
+		public DescentValue (GridBagLayout layout, int x, int y, AltosUnits units, String text) {
+			this.units = units;
 			GridBagConstraints	c = new GridBagConstraints();
 			c.weighty = 1;
 
@@ -163,9 +175,13 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			c.weightx = 1;
 			add(value, c);
 		}
+
+		public DescentValue (GridBagLayout layout, int x, int y, String text) {
+			this(layout, x, y, null, text);
+		}
 	}
 
-	public abstract class DescentDualValue {
+	public abstract class DescentDualValue implements AltosFontListener, AltosUnitsListener {
 		JLabel		label;
 		JTextField	value1;
 		JTextField	value2;
@@ -187,10 +203,13 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			value2.setVisible(false);
 		}
 
-		void set_font() {
+		public void font_size_changed(int font_size) {
 			label.setFont(Altos.label_font);
 			value1.setFont(Altos.value_font);
 			value2.setFont(Altos.value_font);
+		}
+
+		public void units_changed(boolean imperial_units) {
 		}
 
 		abstract void show(AltosState state, AltosListenerState listener_state);
@@ -246,10 +265,10 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	class Height extends DescentValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(AltosConvert.height, state.height());
+			show(state.height());
 		}
 		public Height (GridBagLayout layout, int x, int y) {
-			super (layout, x, y, "Height");
+			super (layout, x, y, AltosConvert.height, "Height");
 		}
 	}
 
@@ -257,10 +276,10 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	class Speed extends DescentValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(AltosConvert.speed, state.speed());
+			show(state.speed());
 		}
 		public Speed (GridBagLayout layout, int x, int y) {
-			super (layout, x, y, "Speed");
+			super (layout, x, y, AltosConvert.speed, "Speed");
 		}
 	}
 
@@ -308,13 +327,13 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	class Distance extends DescentValue {
 		void show(AltosState state, AltosListenerState listener_state) {
 			if (state.from_pad != null)
-				show(AltosConvert.distance, state.from_pad.distance);
+				show(state.from_pad.distance);
 			else
 				show("???");
 		}
 
 		public Distance (GridBagLayout layout, int x, int y) {
-			super(layout, x, y, "Ground Distance");
+			super(layout, x, y, AltosConvert.distance, "Ground Distance");
 		}
 	}
 
@@ -364,10 +383,10 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 	class Range extends DescentValue {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(AltosConvert.distance, state.range);
+			show(state.range);
 		}
 		public Range (GridBagLayout layout, int x, int y) {
-			super (layout, x, y, "Range");
+			super (layout, x, y, AltosConvert.distance, "Range");
 		}
 	}
 
@@ -397,17 +416,30 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		apogee.reset();
 	}
 
-	public void set_font() {
-		lat.set_font();
-		lon.set_font();
-		height.set_font();
-		speed.set_font();
-		bearing.set_font();
-		range.set_font();
-		distance.set_font();
-		elevation.set_font();
-		main.set_font();
-		apogee.set_font();
+	public void font_size_changed(int font_size) {
+		lat.font_size_changed(font_size);
+		lon.font_size_changed(font_size);
+		height.font_size_changed(font_size);
+		speed.font_size_changed(font_size);
+		bearing.font_size_changed(font_size);
+		range.font_size_changed(font_size);
+		distance.font_size_changed(font_size);
+		elevation.font_size_changed(font_size);
+		main.font_size_changed(font_size);
+		apogee.font_size_changed(font_size);
+	}
+
+	public void units_changed(boolean imperial_units) {
+		lat.units_changed(imperial_units);
+		lon.units_changed(imperial_units);
+		height.units_changed(imperial_units);
+		speed.units_changed(imperial_units);
+		bearing.units_changed(imperial_units);
+		range.units_changed(imperial_units);
+		distance.units_changed(imperial_units);
+		elevation.units_changed(imperial_units);
+		main.units_changed(imperial_units);
+		apogee.units_changed(imperial_units);
 	}
 
 	public void show(AltosState state, AltosListenerState listener_state) {

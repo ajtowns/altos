@@ -25,7 +25,7 @@ import org.altusmetrum.altosuilib_2.*;
 public class AltosIgnitor extends JComponent implements AltosFlightDisplay {
 	GridBagLayout	layout;
 
-	public class LaunchStatus {
+	public class LaunchStatus implements AltosFontListener, AltosUnitsListener {
 		JLabel		label;
 		JTextField	value;
 		AltosLights	lights;
@@ -66,9 +66,12 @@ public class AltosIgnitor extends JComponent implements AltosFlightDisplay {
 			hide();
 		}
 
-		public void set_font() {
+		public void font_size_changed(int font_size) {
 			label.setFont(Altos.label_font);
 			value.setFont(Altos.value_font);
+		}
+
+		public void units_changed(boolean imperial_units) {
 		}
 
 		public void set_label(String text) {
@@ -142,11 +145,14 @@ public class AltosIgnitor extends JComponent implements AltosFlightDisplay {
 			ignitors[i].reset();
 	}
 
-	public void set_font() {
+	public void font_size_changed(int font_size) {
 		if (ignitors == null)
 			return;
 		for (int i = 0; i < ignitors.length; i++)
-			ignitors[i].set_font();
+			ignitors[i].font_size_changed(font_size);
+	}
+
+	public void units_changed(boolean imperial_units) {
 	}
 
 	public void show(AltosState state, AltosListenerState listener_state) {

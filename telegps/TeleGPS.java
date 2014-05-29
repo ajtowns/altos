@@ -26,7 +26,10 @@ import java.util.*;
 import org.altusmetrum.altoslib_4.*;
 import org.altusmetrum.altosuilib_2.*;
 
-public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFontListener, ActionListener {
+public class TeleGPS
+	extends AltosUIFrame
+	implements AltosFlightDisplay, AltosFontListener, AltosUnitsListener, ActionListener
+{
 
 	static String[] telegps_icon_names = {
 		"/telegps-16.png",
@@ -126,13 +129,14 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 			display.reset();
 	}
 
-	public void set_font() {
+	public void font_size_changed(int font_size) {
 		for (AltosFlightDisplay display : displays)
-			display.set_font();
+			display.font_size_changed(font_size);
 	}
 
-	public void font_size_changed(int font_size) {
-		set_font();
+	public void units_changed(boolean imperial_units) {
+		for (AltosFlightDisplay display : displays)
+			display.units_changed(imperial_units);
 	}
 
 	public void show(AltosState state, AltosListenerState listener_state) {
@@ -343,6 +347,7 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 
 	private void close() {
 		AltosUIPreferences.unregister_font_listener(this);
+		AltosPreferences.unregister_units_listener(this);
 		setVisible(false);
 		dispose();
 		--number_of_windows;
@@ -430,6 +435,7 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 		AltosUIPreferences.register_font_listener(this);
+		AltosPreferences.register_units_listener(this);
 
 		addWindowListener(new WindowAdapter() {
 				@Override

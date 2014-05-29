@@ -25,7 +25,7 @@ import org.altusmetrum.altosuilib_2.*;
 public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 	GridBagLayout	layout;
 
-	public class FlightValue {
+	public class Value {
 		JLabel		label;
 		JTextField	value;
 
@@ -45,7 +45,7 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 			value.setVisible(visible);
 		}
 
-		public FlightValue (GridBagLayout layout, int x, String text) {
+		public Value (GridBagLayout layout, int x, String text) {
 			GridBagConstraints	c = new GridBagConstraints();
 			c.insets = new Insets(5, 5, 5, 5);
 			c.anchor = GridBagConstraints.CENTER;
@@ -69,7 +69,7 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 		}
 	}
 
-	class Call extends FlightValue {
+	class Call extends Value {
 		void show(AltosState state, AltosListenerState listener_state) {
 			value.setText(state.callsign);
 			if (state.callsign == null)
@@ -84,7 +84,7 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 
 	Call call;
 
-	class Serial extends FlightValue {
+	class Serial extends Value {
 		void show(AltosState state, AltosListenerState listener_state) {
 			if (state.serial == AltosLib.MISSING)
 				value.setText("none");
@@ -98,7 +98,7 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 
 	Serial serial;
 
-	class RSSI extends FlightValue {
+	class RSSI extends Value {
 		void show(AltosState state, AltosListenerState listener_state) {
 			value.setText(String.format("%d", state.rssi()));
 			if (state.rssi == AltosLib.MISSING)
@@ -113,7 +113,7 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 
 	RSSI rssi;
 
-	class LastPacket extends FlightValue {
+	class LastPacket extends Value {
 		void show(AltosState state, AltosListenerState listener_state) {
 			long secs = (System.currentTimeMillis() - state.received_time + 500) / 1000;
 			value.setText(String.format("%d", secs));
@@ -132,11 +132,14 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 		last_packet.reset();
 	}
 
-	public void set_font () {
+	public void font_size_changed(int font_size) {
 		call.set_font();
 		serial.set_font();
 		rssi.set_font();
 		last_packet.set_font();
+	}
+
+	public void units_changed(boolean imperial_units) {
 	}
 
 	public void show (AltosState state, AltosListenerState listener_state) {
