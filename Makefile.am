@@ -20,6 +20,7 @@ fat:
 	cd altosuilib && $(MAKE) all
 	cd altosui && $(MAKE) fat
 	cd micropeak && $(MAKE) fat
+	cd telegps && $(MAKE) fat
 
 set-java-versions:
 	$(top_srcdir)/fix-java-versions org.altusmetrum.altoslib=$(ALTOSLIB_VERSION) org.altusmetrum.altosuilib=$(ALTOSUILIB_VERSION)
