@@ -234,7 +234,9 @@ public class AltosIdleMonitorUI extends AltosUIFrame implements AltosFlightDispl
 					try {
 						disconnect();
 					} catch (Exception ex) {
-						System.out.println(Arrays.toString(ex.getStackTrace()));
+						System.out.printf("Exception %s\n", ex.toString());
+						for (StackTraceElement e : ex.getStackTrace())
+							System.out.printf("%s\n", e.toString());
 					}
 					setVisible(false);
 					dispose();

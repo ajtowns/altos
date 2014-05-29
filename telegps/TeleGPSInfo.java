@@ -58,6 +58,10 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay {
 			show(String.format(format, v));
 		}
 
+		void show(String format, int v) {
+			show(String.format(format, v));
+		}
+
 		void reset() {
 			lights.set(false);
 			value.setText("");

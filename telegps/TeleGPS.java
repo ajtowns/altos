@@ -50,16 +50,25 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 	AltosFlightReader	reader;
 	AltosDisplayThread	thread;
 
-	JTabbedPane	pane;
+	JMenuBar		menu_bar;
 
-	AltosSiteMap    sitemap;
-	TeleGPSInfo	gps_info;
-	boolean		has_map;
+	JMenu			file_menu;
+	JMenu			monitor_menu;
+	JMenu			device_menu;
+	AltosFreqList		frequencies;
 
-	JMenuBar	menu_bar;
-	JMenu		file_menu;
-	JMenu		monitor_menu;
-	JMenu		device_menu;
+	Container		bag;
+
+	TeleGPSStatus		telegps_status;
+	TeleGPSStatusUpdate	status_update;
+
+	JTabbedPane		pane;
+
+	AltosSiteMap   		sitemap;
+	TeleGPSInfo		gps_info;
+	AltosInfoTable		info_table;
+
+	LinkedList<AltosFlightDisplay>	displays;
 
 	/* File menu */
 	final static String	new_command = "new";
@@ -113,40 +122,37 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 	}
 
 	public void reset() {
-		sitemap.reset();
-		gps_info.reset();
+		for (AltosFlightDisplay display : displays)
+			display.reset();
 	}
 
 	public void set_font() {
-		sitemap.set_font();
-		gps_info.set_font();
+		for (AltosFlightDisplay display : displays)
+			display.set_font();
 	}
 
 	public void font_size_changed(int font_size) {
 		set_font();
 	}
 
-
-//	AltosFlightStatusUpdate	status_update;
-
 	public void show(AltosState state, AltosListenerState listener_state) {
-//		status_update.saved_state = state;
+		try {
+			status_update.saved_state = state;
 
-		if (state == null)
-			state = new AltosState();
+			if (state == null)
+				state = new AltosState();
 
-		sitemap.show(state, listener_state);
-		gps_info.show(state, listener_state);
-		telegps_status.show(state, listener_state);
+			int i = 0;
+			for (AltosFlightDisplay display : displays) {
+				display.show(state, listener_state);
+				i++;
+			}
+		} catch (Exception ex) {
+			System.out.printf("Exception %s\n", ex.toString());
+			for (StackTraceElement e : ex.getStackTrace())
+				System.out.printf("%s\n", e.toString());
+		}
 	}
-
-	Container		bag;
-	AltosFreqList		frequencies;
-	JLabel			telemetry;
-	TeleGPSStatus		telegps_status;
-	TeleGPSStatusUpdate	status_update;
-
-	ActionListener		show_timer;
 
 	void new_window() {
 		new TeleGPS();
@@ -379,6 +385,7 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 		file_menu = make_menu("File", file_menu_entries);
 		monitor_menu = make_menu("Monitor", monitor_menu_entries);
 		device_menu = make_menu("Device", device_menu_entries);
+		displays = new LinkedList<AltosFlightDisplay>();
 
 		int serial = -1;
 
@@ -391,6 +398,7 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 		c.gridwidth = 2;
 		bag.add(telegps_status, c);
 		c.gridwidth = 1;
+		displays.add(telegps_status);
 
 
 		/* The rest of the window uses a tabbed pane to
@@ -409,9 +417,15 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 
 		sitemap = new AltosSiteMap();
 		pane.add("Site Map", sitemap);
+		displays.add(sitemap);
 
 		gps_info = new TeleGPSInfo();
 		pane.add("Info", gps_info);
+		displays.add(gps_info);
+
+		info_table = new AltosInfoTable();
+		pane.add("Table", info_table);
+		displays.add(info_table);
 
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 

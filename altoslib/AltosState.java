@@ -713,6 +713,7 @@ public class AltosState implements Cloneable {
 		gps_ground_altitude = new AltosGpsGroundAltitude();
 		gps_ground_speed = new AltosValue();
 		gps_ascent_rate = new AltosValue();
+		gps_course = new AltosValue();
 
 		speak_tick = AltosLib.MISSING;
 		speak_altitude = AltosLib.MISSING;
@@ -842,6 +843,9 @@ public class AltosState implements Cloneable {
 
 		gps_altitude.copy(old.gps_altitude);
 		gps_ground_altitude.copy(old.gps_ground_altitude);
+		gps_ground_speed.copy(old.gps_ground_speed);
+		gps_ascent_rate.copy(old.gps_ascent_rate);
+		gps_course.copy(old.gps_course);
 
 		pad_lat = old.pad_lat;
 		pad_lon = old.pad_lon;

@@ -20,8 +20,9 @@ package altosui;
 import java.awt.*;
 import javax.swing.*;
 import org.altusmetrum.altoslib_4.*;
+import org.altusmetrum.altosuilib_2.*;
 
-public class AltosCompanionInfo extends JTable {
+public class AltosCompanionInfo extends JTable implements AltosFlightDisplay {
 	private AltosFlightInfoTableModel model;
 
 	static final int info_columns = 2;
@@ -50,7 +51,7 @@ public class AltosCompanionInfo extends JTable {
 		return getPreferredSize();
 	}
 
-	void info_reset() {
+	public void reset() {
 		model.reset();
 	}
 
@@ -88,7 +89,7 @@ public class AltosCompanionInfo extends JTable {
 			return;
 		if (state.companion != null)
 			companion = state.companion;
-		info_reset();
+		reset();
 		info_add_row(0, "Companion board", "%s", board_name());
 		if (companion != null) {
 			info_add_row(0, "Last Data", "%5d", companion.tick);

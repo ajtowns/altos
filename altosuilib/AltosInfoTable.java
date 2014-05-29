@@ -15,26 +15,26 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.*;
 import org.altusmetrum.altoslib_4.*;
 
-public class AltosInfoTable extends JTable {
+public class AltosInfoTable extends JTable implements AltosFlightDisplay {
 	private AltosFlightInfoTableModel model;
 
 	static final int info_columns = 3;
 	static final int info_rows = 17;
 
 	int desired_row_height() {
-		FontMetrics	infoValueMetrics = getFontMetrics(Altos.table_value_font);
+		FontMetrics	infoValueMetrics = getFontMetrics(AltosUILib.table_value_font);
 		return (infoValueMetrics.getHeight() + infoValueMetrics.getLeading()) * 18 / 10;
 	}
 
 	int text_width(String t) {
-		FontMetrics	infoValueMetrics = getFontMetrics(Altos.table_value_font);
+		FontMetrics	infoValueMetrics = getFontMetrics(AltosUILib.table_value_font);
 
 		return infoValueMetrics.stringWidth(t);
 	}
@@ -55,7 +55,7 @@ public class AltosInfoTable extends JTable {
 	public AltosInfoTable() {
 		super(new AltosFlightInfoTableModel(info_rows, info_columns));
 		model = (AltosFlightInfoTableModel) getModel();
-		setFont(Altos.table_value_font);
+		setFont(AltosUILib.table_value_font);
 		setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
 		setShowGrid(true);
 		set_layout();
@@ -63,7 +63,7 @@ public class AltosInfoTable extends JTable {
 	}
 
 	public void set_font() {
-		setFont(Altos.table_value_font);
+		setFont(AltosUILib.table_value_font);
 		set_layout();
 		doLayout();
 	}
@@ -72,7 +72,7 @@ public class AltosInfoTable extends JTable {
 		return getPreferredSize();
 	}
 
-	void info_reset() {
+	public void reset() {
 		model.reset();
 	}
 
@@ -105,7 +105,7 @@ public class AltosInfoTable extends JTable {
 	}
 
 	public void show(AltosState state, AltosListenerState listener_state) {
-		info_reset();
+		reset();
 		if (state != null) {
 			if (state.device_type != AltosLib.MISSING)
 				info_add_row(0, "Device", "%s", AltosLib.product_name(state.device_type));
