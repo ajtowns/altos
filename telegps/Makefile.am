@@ -14,7 +14,9 @@ telegpsdir=$(datadir)/java
 telegps_JAVA= \
 	TeleGPS.java \
 	TeleGPSStatus.java \
-	TeleGPSStatusUpdate.java
+	TeleGPSStatusUpdate.java \
+	TeleGPSConfig.java \
+	TeleGPSConfigUI.java
 
 JFREECHART_CLASS= \
     jfreechart.jar

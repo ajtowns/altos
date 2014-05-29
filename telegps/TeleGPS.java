@@ -210,6 +210,7 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 	}
 
 	void configure() {
+		new TeleGPSConfig(this);
 	}
 
 	void export() {
