@@ -433,6 +433,11 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 		set_reader(reader);
 	}
 
+	public TeleGPS(AltosDevice device) {
+		this();
+		connect(device);
+	}
+
 	static AltosStateIterable record_iterable(File file) {
 		FileInputStream in;
 		try {
@@ -562,7 +567,15 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 		}
 		if (errors != 0)
 			System.exit(errors);
-		if (!any_created)
-			new TeleGPS();
+		if (!any_created) {
+			java.util.List<AltosDevice> devices = AltosUSBDevice.list(AltosLib.product_basestation);
+			if (devices != null)
+				for (AltosDevice device : devices) {
+					new TeleGPS(device);
+					any_created = true;
+				}
+			if (!any_created)
+				new TeleGPS();
+		}
 	}
 }
