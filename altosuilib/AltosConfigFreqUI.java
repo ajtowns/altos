@@ -15,14 +15,13 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-package altosui;
+package org.altusmetrum.altosuilib_2;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 import org.altusmetrum.altoslib_4.*;
-import org.altusmetrum.altosuilib_2.*;
 
 class AltosEditFreqUI extends AltosUIDialog implements ActionListener {
 	Frame		frame;

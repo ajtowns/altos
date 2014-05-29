@@ -16,7 +16,8 @@ telegps_JAVA= \
 	TeleGPSStatus.java \
 	TeleGPSStatusUpdate.java \
 	TeleGPSConfig.java \
-	TeleGPSConfigUI.java
+	TeleGPSConfigUI.java \
+	TeleGPSPreferences.java
 
 JFREECHART_CLASS= \
     jfreechart.jar

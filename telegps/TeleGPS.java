@@ -151,6 +151,7 @@ public class TeleGPS extends AltosUIFrame implements AltosFlightDisplay, AltosFo
 	}
 
 	void preferences() {
+		new TeleGPSPreferences(this, voice());
 	}
 
 	void load_maps() {
