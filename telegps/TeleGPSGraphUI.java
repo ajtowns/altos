@@ -1,0 +1,75 @@
+/*
+ * Copyright © 2010 Anthony Towns
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 or any later version of the License.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
+package org.altusmetrum.telegps;
+
+import java.io.*;
+import java.util.ArrayList;
+
+import java.awt.*;
+import javax.swing.*;
+import org.altusmetrum.altoslib_4.*;
+import org.altusmetrum.altosuilib_2.*;
+
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.ui.RefineryUtilities;
+
+public class TeleGPSGraphUI extends AltosUIFrame
+{
+	JTabbedPane		pane;
+	AltosGraph		graph;
+	AltosUIEnable		enable;
+	AltosSiteMap		map;
+	AltosState		state;
+	AltosFlightStats	stats;
+	AltosGraphDataSet	graphDataSet;
+
+	void fill_map(AltosStateIterable states) {
+		for (AltosState state : states) {
+			if (state.gps != null && state.gps.locked && state.gps.nsat >= 4)
+				map.show(state, null);
+		}
+	}
+
+	TeleGPSGraphUI(AltosStateIterable states, File file) throws InterruptedException, IOException {
+		super(file.getName());
+		state = null;
+
+		pane = new JTabbedPane();
+
+		enable = new AltosUIEnable();
+		stats = new AltosFlightStats(states);
+		graphDataSet = new AltosGraphDataSet(states);
+		graph = new AltosGraph(enable, stats, graphDataSet);
+		map = new AltosSiteMap();
+
+		pane.add("Flight Graph", graph.panel);
+		pane.add("Configure Graph", enable);
+		fill_map(states);
+		pane.add("Map", map);
+
+		setContentPane (pane);
+
+		pack();
+
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setVisible(true);
+		if (state != null)
+			map.centre(state);
+	}
+}
