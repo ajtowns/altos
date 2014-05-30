@@ -115,7 +115,9 @@ Section "TeleGPS Firmware"
 
 	SetOutPath $INSTDIR
 
-	File "../src/telegps-v1.0/telegps-v1.0-${VERSION}.ihx"
+;	File "../src/telegps-v1.0/telegps-v1.0-${VERSION}.ihx"
+	File "../src/teledongle-v0.2/teledongle-v0.2-$(VERSION).ihx
+	File "../src/telebt-v1.0/telebt-v1.0-$(VERSION).ihx
 SectionEnd
 
 Section "Documentation"
