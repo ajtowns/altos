@@ -277,7 +277,7 @@ $(MACOSX_DIST): $(MACOSX_FILES) $(MACOSX_EXTRA) Makefile
 
 $(WINDOWS_DIST): $(WINDOWS_FILES) telegps-windows.nsi
 	-rm -f $@
-	makensis -Otelegps-windows.log "-XOutFile $@" "-DVERSION=$(VERSION)" telegps-windows.nsi
+	makensis -Otelegps-windows.log "-XOutFile $@" "-DVERSION=$(VERSION)" telegps-windows.nsi || cat telegps-windows.log && exit 1
 
 Manifest.txt: Makefile
 	echo 'Main-Class: org.altusmetrum.telegps.TeleGPS' > $@
