@@ -144,7 +144,6 @@
 #endif
 
 #include <ao_aprs.h>
-#include <math.h>
 
 // Public methods, constants, and data structures for each class.
 
@@ -552,6 +551,144 @@ static int tncComment(uint8_t *buf)
 #endif
 }
 
+/*
+ * APRS use a log encoding of altitude with a base of 1.002, such that
+ *
+ *	feet = 1.002 ** encoded_altitude
+ *
+ *	meters = (1.002 ** encoded_altitude) * 0.3048
+ *
+ *	log2(meters) = log2(1.002 ** encoded_altitude) + log2(0.3048)
+ *
+ *	log2(meters) = encoded_altitude * log2(1.002) + log2(0.3048)
+ *
+ *	encoded_altitude = (log2(meters) - log2(0.3048)) / log2(1.002)
+ *
+ *	encoded_altitude = (log2(meters) + log2(1/0.3048)) * (1/log2(1.002))
+ *
+ * We need 9 bits of mantissa to hold 1/log2(1.002) (~ 347), which leaves us
+ * 23 bits of fraction. That turns out to be *just* enough to avoid any
+ * errors in the result (cool, huh?).
+ */
+
+#define fixed23_int(x)		((uint32_t) ((x) << 23))
+#define fixed23_one		fixed23_int(1)
+#define fixed23_two 		fixed23_int(2)
+#define fixed23_half		(fixed23_one >> 1)
+#define fixed23_floor(x)	((x) >> 23)
+#define fixed23_real(x)		((uint32_t) ((x) * fixed23_one + 0.5))
+
+static inline uint64_t
+fixed23_mul(uint32_t x, uint32_t y)
+{
+	return ((uint64_t) x * y + fixed23_half) >> 23;
+}
+
+/*
+ * Use 30 fraction bits for the altitude. We need two bits at the
+ * top as we need to handle x, where 0 <= x < 4. We don't
+ * need 30 bits, but it's actually easier this way as we normalize
+ * the incoming value to 1 <= x < 2, and having the integer portion
+ * way up high means we don't have to deal with shifting in both
+ * directions to cover from 0 to 2**30-1.
+ */
+
+#define fixed30_int(x)	((uint32_t) ((x) << 30))
+#define fixed30_one 	fixed30_int(1)
+#define fixed30_half 	(fixed30_one >> 1)
+#define fixed30_two	fixed30_int(2)
+
+static inline uint32_t
+fixed30_mul(uint32_t x, uint32_t y)
+{
+	return ((uint64_t) x * y + fixed30_half) >> 30;
+}
+
+/*
+ * Fixed point log2. Takes integer argument, returns
+ * fixed point result with 23 bits of fraction
+ */
+
+static uint32_t
+ao_fixed_log2(uint32_t x)
+{
+	uint32_t	result;
+	uint32_t	frac = fixed23_one;
+
+	/* Bounds check for sanity */
+	if (x <= 0)
+		return 0;
+
+	if (x >= fixed30_one)
+		return 0xffffffff;
+
+	/*
+	 * Normalize and compute integer log portion
+	 *
+	 * This makes 1 <= x < 2, and computes result to be
+	 * the integer portion of the log2 of x
+	 */
+
+	for (result = fixed23_int(30); x < fixed30_one; result -= fixed23_one, x <<= 1)
+		;
+
+	/*
+	 * Given x, find y and n such that:
+	 *
+	 *	x = y * 2**n 		1 <= y < 2
+	 *
+	 * That means:
+	 *
+	 *	lb(x) = n + lb(y)
+	 *
+	 * Now, repeatedly square y to find find z and m such that:
+	 *
+	 *	z = y ** (2**m)	2 <= z < 4
+	 *
+	 * This is possible because 1 <= y < 2
+	 *
+	 *	lb(y) = lb(z) / 2**m
+ 	 *
+	 *	        (1 + lb(z/2))
+	 *	      = -------------
+	 *                  2**m
+	 *
+	 *            = 2**-m + 2**-m * lb(z/2)
+	 *
+	 * Note that if 2 <= z < 4, then 1 <= (z/2) < 2, so we can
+	 * iterate to find lb(z/2)
+	 *
+	 * In this implementation, we don't care about the 'm' value,
+	 * instead we only care about 2**-m, which we store in 'frac'
+	 */
+
+	while (frac != 0 && x != fixed30_one) {
+		/* Repeatedly square x until 2 <= x < 4 */
+		while (x < fixed30_two) {
+			x = fixed30_mul(x, x);
+
+			/* Divide the fractional result bit by 2 */
+			frac >>= 1;
+		}
+
+		/* Add in this result bit */
+		result |= frac;
+
+		/* Make 1 <= x < 2 again and iterate */
+		x >>= 1;
+	}
+	return result;
+}
+
+#define APRS_LOG_CONVERT	fixed23_real(1.714065192056127)
+#define APRS_LOG_BASE		fixed23_real(346.920048461100941)
+
+static int
+ao_aprs_encode_altitude(int meters)
+{
+	return fixed23_floor(fixed23_mul(ao_fixed_log2(meters) + APRS_LOG_CONVERT, APRS_LOG_BASE) + fixed23_half);
+}
+
 /**
  *   Generate the plain text position packet.
  */
@@ -580,10 +717,7 @@ static int tncPositionPacket(void)
     lat = ((uint64_t) 380926 * (900000000 - latitude)) / 10000000;
     lon = ((uint64_t) 190463 * (1800000000 + longitude)) / 10000000;
 
-#define ALTITUDE_LOG_BASE	0.001998002662673f	/* log(1.002) */
-
-    alt = (altitude * (int32_t) 10000 + (3048/2)) / (int32_t) 3048;
-    alt = logf((float) altitude) * (1/ALTITUDE_LOG_BASE);
+    alt = ao_aprs_encode_altitude(altitude);
 
     tncCompressInt(buf, lat, 4);
     buf += 4;
