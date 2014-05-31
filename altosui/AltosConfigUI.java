@@ -46,6 +46,8 @@ public class AltosConfigUI
 	JLabel			pad_orientation_label;
 	JLabel			callsign_label;
 	JLabel			beep_label;
+	JLabel			tracker_horiz_label;
+	JLabel			tracker_vert_label;
 
 	public boolean		dirty;
 
@@ -65,6 +67,8 @@ public class AltosConfigUI
 	JComboBox<String>	pad_orientation_value;
 	JTextField		callsign_value;
 	JComboBox<String>	beep_value;
+	JComboBox<String>	tracker_horiz_value;
+	JComboBox<String>	tracker_vert_value;
 
 	JButton			pyro;
 
@@ -123,6 +127,34 @@ public class AltosConfigUI
 	static String[] 	pad_orientation_values = {
 		"Antenna Up",
 		"Antenna Down",
+	};
+
+	static String[]		tracker_horiz_values_m = {
+		"250",
+		"500",
+		"1000",
+		"2000"
+	};
+
+	static String[]		tracker_horiz_values_ft = {
+		"500",
+		"1000",
+		"2500",
+		"5000"
+	};
+
+	static String[]		tracker_vert_values_m = {
+		"25",
+		"50",
+		"100",
+		"200"
+	};
+
+	static String[]		tracker_vert_values_ft = {
+		"50",
+		"100",
+		"250",
+		"500"
 	};
 
 	/* A window listener to catch closing events and tell the config code */
@@ -610,6 +642,57 @@ public class AltosConfigUI
 		set_beep_tool_tip();
 		row++;
 
+		/* Tracker triger horiz distances */
+		c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = row;
+		c.gridwidth = 4;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
+		c.ipady = 5;
+		tracker_horiz_label = new JLabel(get_tracker_horiz_label());
+		pane.add(tracker_horiz_label, c);
+
+		c = new GridBagConstraints();
+		c.gridx = 4; c.gridy = row;
+		c.gridwidth = 4;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		c.ipady = 5;
+		tracker_horiz_value = new JComboBox<String>(tracker_horiz_values());
+		tracker_horiz_value.setEditable(true);
+		tracker_horiz_value.addItemListener(this);
+		pane.add(tracker_horiz_value, c);
+		row++;
+
+		/* Tracker triger vert distances */
+		c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = row;
+		c.gridwidth = 4;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
+		c.ipady = 5;
+		tracker_vert_label = new JLabel(get_tracker_vert_label());
+		pane.add(tracker_vert_label, c);
+
+		c = new GridBagConstraints();
+		c.gridx = 4; c.gridy = row;
+		c.gridwidth = 4;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		c.ipady = 5;
+		tracker_vert_value = new JComboBox<String>(tracker_vert_values());
+		tracker_vert_value.setEditable(true);
+		tracker_vert_value.addItemListener(this);
+		pane.add(tracker_vert_value, c);
+		set_tracker_tool_tip();
+		row++;
+
 		/* Pyro channels */
 		c = new GridBagConstraints();
 		c.gridx = 4; c.gridy = row;
@@ -814,6 +897,20 @@ public class AltosConfigUI
 		set_main_deploy_values();
 		int m = (int) (AltosConvert.height.parse(v, !imperial_units) + 0.5);
 		set_main_deploy(m);
+
+		if (tracker_horiz_value.isEnabled() && tracker_vert_value.isEnabled()) {
+			String th = tracker_horiz_value.getSelectedItem().toString();
+			String tv = tracker_vert_value.getSelectedItem().toString();
+			tracker_horiz_label.setText(get_tracker_horiz_label());
+			tracker_vert_label.setText(get_tracker_vert_label());
+			set_tracker_horiz_values();
+			set_tracker_vert_values();
+			int[] t = {
+				(int) (AltosConvert.height.parse(th, !imperial_units) + 0.5),
+				(int) (AltosConvert.height.parse(tv, !imperial_units) + 0.5)
+			};
+			set_tracker_distances(t);
+		}
 	}
 
 	public void set_apogee_delay(int new_apogee_delay) {
@@ -967,6 +1064,80 @@ public class AltosConfigUI
 			return AltosConvert.beep_freq_to_value(Integer.parseInt(beep_value.getSelectedItem().toString()));
 		else
 			return -1;
+	}
+
+	String[] tracker_horiz_values() {
+		if (AltosConvert.imperial_units)
+			return tracker_horiz_values_ft;
+		else
+			return tracker_horiz_values_m;
+	}
+
+	void set_tracker_horiz_values() {
+		String[]	v = tracker_horiz_values();
+		while (tracker_horiz_value.getItemCount() > 0)
+			tracker_horiz_value.removeItemAt(0);
+		for (int i = 0; i < v.length; i++)
+			tracker_horiz_value.addItem(v[i]);
+		tracker_horiz_value.setMaximumRowCount(v.length);
+	}
+
+	String get_tracker_horiz_label() {
+		return String.format("Logging Trigger Horizontal (%s):", AltosConvert.height.show_units());
+	}
+
+	String[] tracker_vert_values() {
+		if (AltosConvert.imperial_units)
+			return tracker_vert_values_ft;
+		else
+			return tracker_vert_values_m;
+	}
+
+	void set_tracker_vert_values() {
+		String[]	v = tracker_vert_values();
+		while (tracker_vert_value.getItemCount() > 0)
+			tracker_vert_value.removeItemAt(0);
+		for (int i = 0; i < v.length; i++)
+			tracker_vert_value.addItem(v[i]);
+		tracker_vert_value.setMaximumRowCount(v.length);
+	}
+
+	void set_tracker_tool_tip() {
+		if (tracker_horiz_value.isEnabled())
+			tracker_horiz_value.setToolTipText("How far the device must move before logging is enabled");
+		else
+			tracker_horiz_value.setToolTipText("This device doesn't disable logging before motion");
+		if (tracker_vert_value.isEnabled())
+			tracker_vert_value.setToolTipText("How far the device must move before logging is enabled");
+		else
+			tracker_vert_value.setToolTipText("This device doesn't disable logging before motion");
+	}
+
+	String get_tracker_vert_label() {
+		return String.format("Logging Trigger Vertical (%s):", AltosConvert.height.show_units());
+	}
+
+	public void set_tracker_distances(int[] tracker_distances) {
+		if (tracker_distances != null) {
+			tracker_horiz_value.setSelectedItem(AltosConvert.height.say(tracker_distances[0]));
+			tracker_vert_value.setSelectedItem(AltosConvert.height.say(tracker_distances[1]));
+			tracker_horiz_value.setEnabled(true);
+			tracker_vert_value.setEnabled(true);
+		} else {
+			tracker_horiz_value.setEnabled(false);
+			tracker_vert_value.setEnabled(false);
+		}
+	}
+
+	public int[] tracker_distances() {
+		if (tracker_horiz_value.isEnabled() && tracker_vert_value.isEnabled()) {
+			int[] t = {
+				(int) (AltosConvert.height.parse(tracker_horiz_value.getSelectedItem().toString()) + 0.5),
+				(int) (AltosConvert.height.parse(tracker_vert_value.getSelectedItem().toString()) + 0.5),
+			};
+			return t;
+		}
+		return null;
 	}
 
 	public void set_pyros(AltosPyro[] new_pyros) {

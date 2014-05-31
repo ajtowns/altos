@@ -80,4 +80,8 @@ public interface AltosConfigValues {
 	public abstract int beep();
 
 	public abstract void set_beep(int new_beep);
+
+	public abstract int[] tracker_distances();
+
+	public abstract void set_tracker_distances(int[] tracker_distances);
 }
