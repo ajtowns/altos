@@ -18,6 +18,43 @@
 #include "ao.h"
 #include "ao_log.h"
 
+#ifndef GPS_SPARSE_LOG
+#define GPS_SPARSE_LOG	0
+#endif
+
+#if GPS_SPARSE_LOG
+static int32_t	prev_lat, prev_lon, int16_t prev_alt;
+static uint8_t	has_prev, unmoving;
+
+#define GPS_SPARSE_UNMOVING_REPORTS	10
+#define GPS_SPARSE_UNMOVING_GROUND	10
+#define GPS_SPARSE_UNMOVING_AIR		10
+
+static uint8_t
+ao_gps_sparse_should_log(int32_t lat, int32_t lon, int16_t alt)
+{
+	uint8_t	ret = 1;
+
+	if (has_prev && ao_log_running) {
+		uint32_t	h = ao_distance(prev_lat, prev_lon, lat, lon);
+		uint16_t	v = alt > prev_alt ? (alt - prev_alt) : (prev_alt - alt);
+
+		if (h < GPS_SPARSE_UNMOVING_GROUND && v < GPS_SPARSE_UNMOVING_AIR) {
+			if (unmoving < GPS_SPARSE_UNMOVING_REPORTS)
+				++unmoving;
+		} else
+			unmoving = 0;
+	} else
+		unmoving = 0;
+
+	prev_lat = lat;
+	prev_lon = lon;
+	prev_alt = alt;
+	has_prev = 1;
+	return unmoving >= GPS_SPARSE_UNMOVING_REPORTS;
+}
+#endif
+
 void
 ao_gps_report_mega(void)
 {
@@ -38,7 +75,14 @@ ao_gps_report_mega(void)
 		ao_gps_new = 0;
 		ao_mutex_put(&ao_gps_mutex);
 
+#if GPS_SPARSE_LOG
+		/* Don't log data if GPS has a fix and hasn't moved for a while */
+		if ((gps_data.flags & AO_GPS_VALID) &&
+		    !ao_gps_sparse_should_log(gps_data.latitude, gps_data.longitude, gps_data.altitude))
+			continue;
+#endif
 		if ((new & AO_GPS_NEW_DATA) && (gps_data.flags & AO_GPS_VALID)) {
+
 			gps_log.tick = ao_gps_tick;
 			gps_log.type = AO_LOG_GPS_TIME;
 			gps_log.u.gps.latitude = gps_data.latitude;
