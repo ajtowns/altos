@@ -65,6 +65,8 @@ struct ao_pyro {
 	uint8_t			fired;
 };
 
+#define AO_PYRO_8_BIT_VALUE	(ao_pyro_state_less|ao_pyro_state_greater_or_equal)
+
 extern uint8_t	ao_pyro_wakeup;
 
 extern uint16_t	ao_pyro_fired;
