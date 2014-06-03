@@ -28,6 +28,7 @@ altoslib_JAVA = \
 	AltosLib.java \
 	AltosCompanion.java \
 	AltosConfigData.java \
+	AltosConfigDataException.java \
 	AltosConfigValues.java \
 	AltosConvert.java \
 	AltosCRCException.java \

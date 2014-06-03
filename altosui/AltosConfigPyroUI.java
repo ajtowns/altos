@@ -124,12 +124,16 @@ public class AltosConfigPyroUI
 			return enable.isSelected();
 		}
 
-		public double value() {
+		public double value() throws AltosConfigDataException {
 			if (value != null) {
 				AltosUnits units = AltosPyro.pyro_to_units(flag);
-				if (units != null)
-					return units.parse(value.getText());
-				return Double.parseDouble(value.getText());
+				try {
+					if (units != null)
+						return units.parse(value.getText());
+					return Double.parseDouble(value.getText());
+				} catch (NumberFormatException e) {
+					throw new AltosConfigDataException("\"%s\": %s\n", value.getText(), e.getMessage());
+				}
 			}
 			if (combo != null)
 				return combo.getSelectedIndex() + AltosLib.ao_flight_boost;
@@ -189,15 +193,21 @@ public class AltosConfigPyroUI
 			}
 		}
 
-		public AltosPyro get() {
+		public AltosPyro get() throws AltosConfigDataException {
 			AltosPyro	p = new AltosPyro(channel);
 
 			int row = 0;
 			for (int flag = 1; flag < AltosPyro.pyro_all; flag <<= 1) {
 				if ((AltosPyro.pyro_all & flag) != 0) {
 					if (items[row].enabled()) {
+						try {
 						p.flags |= flag;
 						p.set_value(flag, items[row].value());
+						} catch (AltosConfigDataException ae) {
+							throw new AltosConfigDataException("%s, %s",
+											   AltosPyro.pyro_to_name(flag),
+											   ae.getMessage());
+						}
 					}
 					row++;
 				}
@@ -256,10 +266,15 @@ public class AltosConfigPyroUI
 		}
 	}
 
-	public AltosPyro[] get_pyros() {
+	public AltosPyro[] get_pyros() throws AltosConfigDataException {
 		AltosPyro[]	pyros = new AltosPyro[columns.length];
-		for (int c = 0; c < columns.length; c++)
-			pyros[c] = columns[c].get();
+		for (int c = 0; c < columns.length; c++) {
+			try {
+				pyros[c] = columns[c].get();
+			} catch (AltosConfigDataException ae) {
+				throw new AltosConfigDataException ("Channel %c, %s", c + 'A', ae.getMessage());
+			}
+		}
 		return pyros;
 	}
 

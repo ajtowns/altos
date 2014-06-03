@@ -1147,7 +1147,7 @@ public class AltosConfigUI
 			pyro_ui.set_pyros(pyros);
 	}
 
-	public AltosPyro[] pyros() {
+	public AltosPyro[] pyros() throws AltosConfigDataException {
 		if (pyro_ui != null)
 			pyros = pyro_ui.get_pyros();
 		return pyros;

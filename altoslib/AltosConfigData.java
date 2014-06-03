@@ -403,7 +403,7 @@ public class AltosConfigData implements Iterable<String> {
 		return 1024;
 	}
 
-	public void get_values(AltosConfigValues source) {
+	public void get_values(AltosConfigValues source) throws AltosConfigDataException {
 
 		/* HAS_FLIGHT */
 		if (main_deploy >= 0)
