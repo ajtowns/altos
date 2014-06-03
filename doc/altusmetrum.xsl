@@ -5299,6 +5299,13 @@ NAR #88757, TRA #12200
   <appendix>
     <title>Release Notes</title>
     <simplesect>
+      <title>Version 1.4</title>
+      <xi:include
+	  xmlns:xi="http://www.w3.org/2001/XInclude"
+	  href="release-notes-1.4.xsl"
+	  xpointer="xpointer(/article/*)"/>
+    </simplesect>
+    <simplesect>
       <title>Version 1.3.2</title>
       <xi:include
 	  xmlns:xi="http://www.w3.org/2001/XInclude"
