@@ -23,7 +23,11 @@ __pdata uint32_t ao_cmd_lex_u32;
 __pdata char	ao_cmd_lex_c;
 __pdata enum ao_cmd_status ao_cmd_status;
 
+#if AO_PYRO_NUM
+#define CMD_LEN 128
+#else
 #define CMD_LEN	48
+#endif
 
 static __xdata char	cmd_line[CMD_LEN];
 static __pdata uint8_t	cmd_len;
