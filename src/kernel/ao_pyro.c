@@ -281,7 +281,7 @@ ao_pyro_check(void)
 
 #define NO_VALUE	0xff
 
-#define AO_PYRO_NAME_LEN	3
+#define AO_PYRO_NAME_LEN	4
 
 #if !DISABLE_HELP
 #define ENABLE_HELP 1
