@@ -234,9 +234,15 @@ public class TeleGPSConfig implements ActionListener {
 
 		/* Pull data out of the UI and stuff back into our local data record */
 
-		data.get_values(config_ui);
-
-		run_serial_thread(serial_mode_save);
+		try {
+			data.get_values(config_ui);
+			run_serial_thread(serial_mode_save);
+		} catch (AltosConfigDataException ae) {
+			JOptionPane.showMessageDialog(owner,
+						      ae.getMessage(),
+						      "Configuration Data Error",
+						      JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	public void actionPerformed(ActionEvent e) {
