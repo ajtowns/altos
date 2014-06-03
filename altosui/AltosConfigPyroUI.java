@@ -105,11 +105,13 @@ public class AltosConfigPyroUI
 				AltosUnits units = AltosPyro.pyro_to_units(flag);
 				if (units != null)
 					unit_value = units.value(new_value);
-				String	format = "%6.0f";
-				if (scale >= 10)
-					format = "%6.1f";
-				else if (scale >= 100)
+				String	format;
+				if (scale >= 100)
 					format = "%6.2f";
+				else if (scale >= 10)
+					format = "%6.1f";
+				else
+					format = "%6.0f";
 				value.setText(String.format(format, unit_value));
 			}
 			if (combo != null)
