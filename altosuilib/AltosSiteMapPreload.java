@@ -556,7 +556,7 @@ public class AltosSiteMapPreload extends AltosUIFrame implements ActionListener,
 
 		radius = new JComboBox<Integer>(radii);
 		radius.setSelectedItem(radii[4]);
-		radius.setEditable(false);
+		radius.setEditable(true);
 		c.gridx = 5;
 		c.gridy = 4;
 		pane.add(radius, c);
