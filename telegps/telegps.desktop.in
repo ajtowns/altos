@@ -1,10 +1,10 @@
 [Desktop Entry]
 Type=Application
-Name=MicroPeak
-GenericName=MicroPeak download and analysis
-Comment=View and log data from MicroPeak altimeters
-Icon=%icondir%/micropeak.svg
-Exec=%bindir%/micropeak %f
+Name=TeleGPS
+GenericName=TeleGPS monitor, download and analysis
+Comment=View and log data from TeleGPS tracking devices
+Icon=%icondir%/telegps.svg
+Exec=%bindir%/telegps %f
 Terminal=false
 MimeType=text/plain;
 Categories=Education;Electronics;Science;
