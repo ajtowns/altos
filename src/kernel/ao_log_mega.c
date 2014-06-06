@@ -65,7 +65,7 @@ ao_log_dump_check_data(void)
 	return 1;
 }
 
-#if HAS_ADC
+#if HAS_FLIGHT
 static __data uint8_t	ao_log_data_pos;
 
 /* a hack to make sure that ao_log_megas fill the eeprom block in even units */
@@ -100,9 +100,9 @@ ao_log(void)
 	log.u.flight.ground_accel_along = ao_ground_accel_along;
 	log.u.flight.ground_accel_across = ao_ground_accel_across;
 	log.u.flight.ground_accel_through = ao_ground_accel_through;
+	log.u.flight.ground_roll = ao_ground_roll;
 	log.u.flight.ground_pitch = ao_ground_pitch;
 	log.u.flight.ground_yaw = ao_ground_yaw;
-	log.u.flight.ground_roll = ao_ground_roll;
 #endif
 	log.u.flight.ground_pres = ao_ground_pres;
 	log.u.flight.flight = ao_flight_number;
@@ -183,7 +183,7 @@ ao_log(void)
 			ao_sleep(&ao_log_running);
 	}
 }
-#endif
+#endif /* HAS_FLIGHT */
 
 uint16_t
 ao_log_flight(uint8_t slot)

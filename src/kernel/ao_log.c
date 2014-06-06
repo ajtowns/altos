@@ -196,7 +196,11 @@ ao_log_full(void)
 	return ao_log_current_pos == ao_log_end_pos;
 }
 
-#if HAS_ADC
+#ifndef LOG_ADC
+#define LOG_ADC	HAS_ADC
+#endif
+
+#if LOG_ADC
 static __xdata struct ao_task ao_log_task;
 #endif
 
@@ -284,7 +288,7 @@ ao_log_init(void)
 #ifndef HAS_ADC
 #error Define HAS_ADC for ao_log.c
 #endif
-#if HAS_ADC
+#if LOG_ADC
 	/* Create a task to log events to eeprom */
 	ao_add_task(&ao_log_task, ao_log, "log");
 #endif
