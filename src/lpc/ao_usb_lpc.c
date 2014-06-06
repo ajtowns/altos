@@ -875,7 +875,7 @@ ao_usb_enable(void)
 	int	t;
 
 	/* Enable USB pins */
-#if HAS_USB_CONNECT
+#if HAS_LPC_USB_CONNECT
 	lpc_ioconf.pio0_6 = ((LPC_IOCONF_FUNC_USB_CONNECT << LPC_IOCONF_FUNC) |
 			     (LPC_IOCONF_MODE_INACTIVE << LPC_IOCONF_MODE) |
 			     (0 << LPC_IOCONF_HYS) |
