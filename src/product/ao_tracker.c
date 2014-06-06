@@ -22,8 +22,8 @@
 
 enum ao_flight_state	ao_flight_state;
 
-/* Speeds for the various modes */
-#define AO_TRACKER_NOT_MOVING	100
+/* Speeds for the various modes, 2m/s seems reasonable for 'not moving' */
+#define AO_TRACKER_NOT_MOVING	200
 
 static uint8_t	ao_tracker_force_telem;
 
