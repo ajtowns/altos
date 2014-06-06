@@ -115,7 +115,7 @@ struct ao_telemetry_location {
 	uint16_t	ground_speed;	/* 26 cm/s */
 	int16_t		climb_rate;	/* 28 cm/s */
 	uint8_t		course;		/* 30 degrees / 2 */
-	uint8_t		unused[1];	/* 31 */
+	uint8_t		state;		/* 31 flight state */
 	/* 32 */
 };
 
