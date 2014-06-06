@@ -41,6 +41,31 @@ ao_usb_connected(void)
 #define STARTUP_AVERAGE	5
 
 static void
+ao_tracker_start_flight(void)
+{
+	struct ao_log_mega log;
+	ao_log_start();
+	log.type = AO_LOG_FLIGHT;
+	log.tick = ao_time();
+#if HAS_ACCEL
+	log.u.flight.ground_accel = ao_ground_accel;
+#endif
+#if HAS_GYRO
+	log.u.flight.ground_accel_along = ao_ground_accel_along;
+	log.u.flight.ground_accel_across = ao_ground_accel_across;
+	log.u.flight.ground_accel_through = ao_ground_accel_through;
+	log.u.flight.ground_roll = ao_ground_roll;
+	log.u.flight.ground_pitch = ao_ground_pitch;
+	log.u.flight.ground_yaw = ao_ground_yaw;
+#endif
+#if HAS_FLIGHT
+	log.u.flight.ground_pres = ao_ground_pres;
+#endif
+	log.u.flight.flight = ao_flight_number;
+	ao_log_mega(&log);
+}
+
+static void
 ao_tracker(void)
 {
 	uint16_t	telem_rate = AO_SEC_TO_TICKS(1), new_telem_rate;
@@ -112,10 +137,10 @@ ao_tracker(void)
 					ao_flight_state = ao_flight_drogue;
 					ao_wakeup(&ao_flight_state);
 					ao_log_start();
+					ao_tracker_start_flight();
 				}
 				break;
 			case ao_flight_drogue:
-
 				/* Modulate data rates based on speed (in cm/s) */
 				if (ao_gps_data.climb_rate < 0)
 					speed = -ao_gps_data.climb_rate;
