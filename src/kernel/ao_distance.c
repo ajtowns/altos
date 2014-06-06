@@ -24,6 +24,7 @@ ao_dist(int32_t a, int32_t b)
 	int32_t	d = a - b;
 	if (d < 0)
 		d = -d;
+
 	return (uint32_t) ((int64_t) d * 111198 / 10000000);
 }
 
@@ -98,7 +99,7 @@ ao_lon_dist(int32_t lon_a, int32_t lon_b)
 	uint32_t	lon_dist;
 
 	/* check if it's shorter to go the other way around */
-	if (lon_a < lon_b - 1800000000)
+	if ((lon_a >> 1) < (lon_b >> 1) - (1800000000 >> 1))
 		lon_a += 3600000000;
 	lon_dist = ao_dist(lon_a, lon_b);
 	if (c) {
