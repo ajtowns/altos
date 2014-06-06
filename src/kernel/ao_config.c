@@ -133,7 +133,7 @@ _ao_config_get(void)
 			ao_config.radio_cal = ao_radio_cal;
 #endif
 		/* Fixups for minor version 4 */
-#if HAS_FLIGHT
+#if HAS_LOG
 		if (minor < 4)
 			ao_config.flight_log_max = AO_CONFIG_DEFAULT_FLIGHT_LOG_MAX;
 #endif
