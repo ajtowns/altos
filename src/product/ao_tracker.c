@@ -70,7 +70,7 @@ ao_tracker(void)
 {
 	uint16_t	telem_rate = AO_SEC_TO_TICKS(1), new_telem_rate;
 	uint8_t		gps_rate = 1, new_gps_rate;
-	uint8_t		telem_enabled = 1, new_telem_enabled;
+	uint8_t		telem_enabled = 0, new_telem_enabled;
 	int32_t		start_latitude = 0, start_longitude = 0;
 	int16_t		start_altitude = 0;
 	uint32_t	ground_distance;
@@ -82,6 +82,10 @@ ao_tracker(void)
 
 #if HAS_ADC
 	ao_timer_set_adc_interval(100);
+#endif
+
+#if !HAS_USB_CONNECT
+	ao_tracker_force_telem = 1;
 #endif
 
 	ao_log_scan();
@@ -187,8 +191,9 @@ ao_tracker_set_telem(void)
 	if (ao_cmd_status == ao_cmd_success) {
 		ao_tracker_force_telem = (ao_cmd_lex_i & 1) != 0;
 		ao_tracker_force_launch = (ao_cmd_lex_i & 2) != 0;
-		printf ("force telem %d force launch %d\n", ao_tracker_force_telem, ao_tracker_force_launch);
 	}
+	printf ("flight %d force telem %d force launch %d\n",
+		ao_flight_number, ao_tracker_force_telem, ao_tracker_force_launch);
 }
 
 static const struct ao_cmds ao_tracker_cmds[] = {
