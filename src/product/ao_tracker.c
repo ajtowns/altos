@@ -97,12 +97,13 @@ ao_tracker(void)
 				break;
 			case ao_flight_pad:
 				ground_distance = ao_distance(ao_gps_data.latitude,
-							      start_latitude,
 							      ao_gps_data.longitude,
+							      start_latitude,
 							      start_longitude);
 				height = ao_gps_data.altitude - start_altitude;
 				if (height < 0)
 					height = -height;
+
 				if (ground_distance >= ao_config.tracker_start_horiz ||
 				    height >= ao_config.tracker_start_vert)
 				{
