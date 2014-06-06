@@ -26,6 +26,7 @@ enum ao_flight_state	ao_flight_state;
 #define AO_TRACKER_NOT_MOVING	200
 
 static uint8_t	ao_tracker_force_telem;
+static uint8_t	ao_tracker_force_launch;
 
 #if HAS_USB_CONNECT
 static inline uint8_t
@@ -105,9 +106,11 @@ ao_tracker(void)
 					height = -height;
 
 				if (ground_distance >= ao_config.tracker_start_horiz ||
-				    height >= ao_config.tracker_start_vert)
+				    height >= ao_config.tracker_start_vert ||
+				    ao_tracker_force_launch)
 				{
 					ao_flight_state = ao_flight_drogue;
+					ao_wakeup(&ao_flight_state);
 					ao_log_start();
 				}
 				break;
@@ -156,8 +159,11 @@ static void
 ao_tracker_set_telem(void)
 {
 	ao_cmd_hex();
-	if (ao_cmd_status == ao_cmd_success)
-		ao_tracker_force_telem = ao_cmd_lex_i;
+	if (ao_cmd_status == ao_cmd_success) {
+		ao_tracker_force_telem = (ao_cmd_lex_i & 1) != 0;
+		ao_tracker_force_launch = (ao_cmd_lex_i & 2) != 0;
+		printf ("force telem %d force launch %d\n", ao_tracker_force_telem, ao_tracker_force_launch);
+	}
 }
 
 static const struct ao_cmds ao_tracker_cmds[] = {
