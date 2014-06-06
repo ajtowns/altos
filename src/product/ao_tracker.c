@@ -36,6 +36,8 @@ ao_usb_connected(void)
 #else
 #define ao_usb_connected()	1
 #endif
+ 
+#define STARTUP_AVERAGE	5
 
 static void
 ao_tracker(void)
@@ -48,6 +50,9 @@ ao_tracker(void)
 	uint32_t	ground_distance;
 	int16_t		height;
 	uint16_t	speed;
+	int64_t		lat_sum = 0, lon_sum = 0;
+	int32_t		alt_sum = 0;
+	int		nsamples = 0;
 
 	ao_timer_set_adc_interval(100);
 
@@ -69,10 +74,18 @@ ao_tracker(void)
 			switch (ao_flight_state) {
 			case ao_flight_startup:
 				/* startup to pad when GPS locks */
-				ao_flight_state = ao_flight_pad;
-				start_latitude = ao_gps_data.longitude;
-				start_longitude = ao_gps_data.latitude;
-				start_altitude = ao_gps_data.altitude;
+
+				lat_sum += ao_gps_data.latitude;
+				lon_sum += ao_gps_data.longitude;
+				alt_sum += ao_gps_data.altitude;
+
+				if (++nsamples >= STARTUP_AVERAGE) {
+					ao_flight_state = ao_flight_pad;
+					ao_wakeup(&ao_flight_state);
+					start_latitude = lat_sum / nsamples;
+					start_longitude = lon_sum / nsamples;
+					start_altitude = alt_sum / nsamples;
+				}
 				break;
 			case ao_flight_pad:
 				ground_distance = ao_distance(ao_gps_data.latitude,
