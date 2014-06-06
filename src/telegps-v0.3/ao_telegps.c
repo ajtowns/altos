@@ -19,8 +19,6 @@
 #include <ao_exti.h>
 #include <ao_tracker.h>
 
-uint16_t	ao_flight_number = 1;
-
 int
 main(void)
 {
