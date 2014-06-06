@@ -612,6 +612,12 @@ ao_radio_rdf_abort(void)
 
 #define POWER_STEP	0x08
 
+#if HAS_RADIO_POWER
+#define RADIO_POWER	ao_config.radio_power
+#else
+#define RADIO_POWER	0xc0
+#endif
+
 static void
 ao_radio_stx(void)
 {
@@ -619,9 +625,10 @@ ao_radio_stx(void)
 	ao_radio_pa_on();
 	ao_radio_reg_write(CC115L_PA, 0);
 	ao_radio_strobe(CC115L_STX);
-	for (power = POWER_STEP; power < ao_config.radio_power; power += POWER_STEP)
+	for (power = POWER_STEP; power < RADIO_POWER; power += POWER_STEP)
 		ao_radio_reg_write(CC115L_PA, power);
-	ao_radio_reg_write(CC115L_PA, ao_config.radio_power);
+	if (power != RADIO_POWER)
+		ao_radio_reg_write(CC115L_PA, RADIO_POWER);
 }
 
 static void
