@@ -17,7 +17,7 @@
 
 #include <ao.h>
 #include <ao_exti.h>
-#include <ao_fat.h>
+#include <ao_tracker.h>
 
 uint16_t	ao_flight_number = 1;
 
@@ -25,7 +25,7 @@ int
 main(void)
 {
 	ao_clock_init();
-	
+
 #if HAS_STACK_GUARD
 	ao_mpu_init();
 #endif
@@ -52,6 +52,8 @@ main(void)
 	ao_log_init();
 #endif
 
+	ao_tracker_init();
+
 	ao_telemetry_init();
 	ao_telemetry_set_interval(AO_SEC_TO_TICKS(1));
 
@@ -59,7 +61,7 @@ main(void)
 	ao_sample_profile_init();
 #endif
 	ao_config_init();
-	
+
 	ao_start_scheduler();
 	return 0;
 }
