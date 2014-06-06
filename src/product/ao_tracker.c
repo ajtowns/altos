@@ -36,7 +36,7 @@ ao_usb_connected(void)
 #else
 #define ao_usb_connected()	1
 #endif
- 
+
 #define STARTUP_AVERAGE	5
 
 static void
@@ -54,7 +54,15 @@ ao_tracker(void)
 	int32_t		alt_sum = 0;
 	int		nsamples = 0;
 
+#if HAS_ADC
 	ao_timer_set_adc_interval(100);
+#endif
+
+	ao_log_scan();
+
+	ao_rdf_set(1);
+
+	ao_telemetry_set_interval(0);
 
 	ao_flight_state = ao_flight_startup;
 	for (;;) {
