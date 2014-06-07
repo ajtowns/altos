@@ -355,14 +355,22 @@ public class TeleGPS
 
 	static int	number_of_windows;
 
+	static public void add_window() {
+		++number_of_windows;
+	}
+
+	static public void subtract_window() {
+		--number_of_windows;
+		if (number_of_windows == 0)
+			System.exit(0);
+	}
+
 	private void close() {
 		AltosUIPreferences.unregister_font_listener(this);
 		AltosPreferences.unregister_units_listener(this);
 		setVisible(false);
 		dispose();
-		--number_of_windows;
-		if (number_of_windows == 0)
-			System.exit(0);
+		subtract_window();
 	}
 
 	private void add_menu(JMenu menu, String label, String action) {
@@ -457,7 +465,7 @@ public class TeleGPS
 		pack();
 		setVisible(true);
 
-		++number_of_windows;
+		add_window();
 
 		status_update = new TeleGPSStatusUpdate(telegps_status);
 
@@ -493,6 +501,18 @@ public class TeleGPS
 		if (states == null)
 			return null;
 		return new AltosReplayReader(states.iterator(), file);
+	}
+
+	static boolean process_graph(File file) {
+		AltosStateIterable states = record_iterable(file);
+		if (states == null)
+			return false;
+		try {
+			new TeleGPSGraphUI(states, file);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
 
 	static boolean process_replay(File file) {
@@ -578,10 +598,11 @@ public class TeleGPS
 			else {
 				File file = new File(args[i]);
 				switch (process) {
-				case process_graph:
-					++errors;
-					break;
 				case process_none:
+				case process_graph:
+					if (!process_graph(file))
+						++errors;
+					break;
 				case process_replay:
 					if (!process_replay(file))
 						++errors;
@@ -603,14 +624,14 @@ public class TeleGPS
 		}
 		if (errors != 0)
 			System.exit(errors);
-		if (!any_created) {
+		if (number_of_windows == 0) {
 			java.util.List<AltosDevice> devices = AltosUSBDevice.list(AltosLib.product_basestation);
 			if (devices != null)
 				for (AltosDevice device : devices) {
 					new TeleGPS(device);
 					any_created = true;
 				}
-			if (!any_created)
+			if (number_of_windows == 0)
 				new TeleGPS();
 		}
 	}

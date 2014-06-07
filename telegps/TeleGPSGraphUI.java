@@ -21,7 +21,11 @@ import java.io.*;
 import java.util.ArrayList;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
+import java.io.*;
+import java.util.concurrent.*;
+import java.util.*;
 import org.altusmetrum.altoslib_4.*;
 import org.altusmetrum.altosuilib_2.*;
 
@@ -46,6 +50,12 @@ public class TeleGPSGraphUI extends AltosUIFrame
 		}
 	}
 
+	private void close() {
+		setVisible(false);
+		dispose();
+		TeleGPS.subtract_window();
+	}
+
 	TeleGPSGraphUI(AltosStateIterable states, File file) throws InterruptedException, IOException {
 		super(file.getName());
 		state = null;
@@ -65,11 +75,23 @@ public class TeleGPSGraphUI extends AltosUIFrame
 
 		setContentPane (pane);
 
+		addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent e) {
+					close();
+				}
+			});
+
 		pack();
 
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+
+		TeleGPS.add_window();
+
 		setVisible(true);
+
 		if (state != null)
 			map.centre(state);
+
 	}
 }
