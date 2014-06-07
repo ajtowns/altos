@@ -158,7 +158,7 @@ public class AltosSiteMapCache {
 			for (int i = 0; i < cache_size; i++) {
 				if (i < new_size)
 					new_images[i] = images[i];
-				else
+				else if (images[i] != null)
 					images[i].flush();
 			}
 			images = new_images;
