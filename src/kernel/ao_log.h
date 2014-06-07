@@ -47,6 +47,7 @@ extern __pdata enum ao_flight_state ao_log_state;
 #define AO_LOG_FORMAT_EASYMINI		6	/* 16-byte MS5607 baro only, 3.0V supply */
 #define AO_LOG_FORMAT_TELEMETRUM	7	/* 16-byte typed telemetrum records */
 #define AO_LOG_FORMAT_TELEMINI		8	/* 16-byte MS5607 baro only, 3.3V supply */
+#define AO_LOG_FORMAT_TELEGPS		9	/* 32 byte telegps records */
 #define AO_LOG_FORMAT_NONE		127	/* No log at all */
 
 extern __code uint8_t ao_log_format;
@@ -364,6 +365,50 @@ struct ao_log_mini {
 		(dst)[2] = (value) >> 16;	\
 	} while (0)
 
+struct ao_log_gps {
+	char			type;			/* 0 */
+	uint8_t			csum;			/* 1 */
+	uint16_t		tick;			/* 2 */
+	union {						/* 4 */
+		/* AO_LOG_FLIGHT */
+		struct {
+			uint16_t	flight;			/* 4 */
+			int16_t		start_altitude;		/* 6 */
+			int32_t		start_latitude;		/* 8 */
+			int32_t		start_longitude;	/* 12 */
+		} flight;					/* 16 */
+		/* AO_LOG_GPS_TIME */
+		struct {
+			int32_t		latitude;	/* 4 */
+			int32_t		longitude;	/* 8 */
+			int16_t		altitude;	/* 12 */
+			uint8_t		hour;		/* 14 */
+			uint8_t		minute;		/* 15 */
+			uint8_t		second;		/* 16 */
+			uint8_t		flags;		/* 17 */
+			uint8_t		year;		/* 18 */
+			uint8_t		month;		/* 19 */
+			uint8_t		day;		/* 20 */
+			uint8_t		course;		/* 21 */
+			uint16_t	ground_speed;	/* 22 */
+			int16_t		climb_rate;	/* 24 */
+			uint8_t		pdop;		/* 26 */
+			uint8_t		hdop;		/* 27 */
+			uint8_t		vdop;		/* 28 */
+			uint8_t		mode;		/* 29 */
+			uint8_t		state;		/* 30 */
+		} gps;	/* 31 */
+		/* AO_LOG_GPS_SAT */
+		struct {
+			uint16_t	channels;	/* 4 */
+			struct {
+				uint8_t	svid;
+				uint8_t c_n;
+			} sats[12];			/* 6 */
+		} gps_sat;				/* 30 */
+	} u;
+};
+
 /* Write a record to the eeprom log */
 uint8_t
 ao_log_data(__xdata struct ao_log_record *log) __reentrant;
@@ -376,6 +421,9 @@ ao_log_metrum(__xdata struct ao_log_metrum *log) __reentrant;
 
 uint8_t
 ao_log_mini(__xdata struct ao_log_mini *log) __reentrant;
+
+uint8_t
+ao_log_gps(__xdata struct ao_log_gps *log) __reentrant;
 
 void
 ao_log_flush(void);
