@@ -47,6 +47,7 @@ altoslib_JAVA = \
 	AltosEepromMega.java \
 	AltosEepromMetrum2.java \
 	AltosEepromMini.java \
+	AltosEepromGPS.java \
 	AltosEepromMonitor.java \
 	AltosFile.java \
 	AltosFlash.java \

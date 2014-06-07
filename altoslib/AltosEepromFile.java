@@ -102,6 +102,9 @@ public class AltosEepromFile extends AltosStateIterable {
 		case AltosLib.AO_LOG_FORMAT_EASYMINI:
 			body = new AltosEepromIterable(AltosEepromMini.read(input));
 			break;
+		case AltosLib.AO_LOG_FORMAT_TELEGPS:
+			body = new AltosEepromIterable(AltosEepromGPS.read(input));
+			break;
 		default:
 			body = new AltosEepromIterable(new LinkedList<AltosEeprom>());
 			break;
