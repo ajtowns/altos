@@ -67,6 +67,18 @@ ao_log_write_erase(uint8_t pos)
 	erase.mark = LOG_ERASE_MARK;
 	erase.flight = ao_flight_number;
 	ao_config_write(ao_log_erase_pos(pos),  &erase, sizeof (erase));
+
+#if USE_EEPROM_CONFIG
+	if (pos == 0) {
+		uint8_t	i;
+		for (i = 1; i < LOG_MAX_ERASE; i++) {
+			erase.mark = ~LOG_ERASE_MARK;
+			erase.flight = 0;
+			ao_config_write(ao_log_erase_pos(i), &erase, sizeof (erase));
+		}
+	}
+#endif
+
 	ao_config_flush();
 }
 
