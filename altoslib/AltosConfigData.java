@@ -572,12 +572,12 @@ public class AltosConfigData implements Iterable<String> {
 		link.printf("c s\nf\nv\n");
 		read_link(link, "software-version");
 		switch (log_format) {
-		case AltosLib.AO_LOG_FORMAT_FULL:
-		case AltosLib.AO_LOG_FORMAT_TINY:
-		case AltosLib.AO_LOG_FORMAT_TELEMEGA:
+		case AltosLib.AO_LOG_FORMAT_UNKNOWN:
+		case AltosLib.AO_LOG_FORMAT_NONE:
+			break;
+		default:
 			link.printf("l\n");
 			read_link(link, "done");
-		default:
 			break;
 		}
 	}
