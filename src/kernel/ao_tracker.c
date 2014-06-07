@@ -17,13 +17,13 @@
 
 #include <ao.h>
 #include <ao_flight.h>
+#include <ao_log.h>
+#include <ao_log_gps.h>
 #include <ao_distance.h>
+#include <ao_tracker.h>
 #include <ao_exti.h>
 
 enum ao_flight_state	ao_flight_state;
-
-/* Speeds for the various modes, 2m/s seems reasonable for 'not moving' */
-#define AO_TRACKER_NOT_MOVING	200
 
 static uint8_t	ao_tracker_force_telem;
 static uint8_t	ao_tracker_force_launch;
@@ -40,45 +40,147 @@ ao_usb_connected(void)
 
 #define STARTUP_AVERAGE	5
 
+int32_t	ao_tracker_start_latitude;
+int32_t	ao_tracker_start_longitude;
+int16_t	ao_tracker_start_altitude;
+
+struct ao_tracker_data	ao_tracker_data[AO_TRACKER_RING];
+uint8_t			ao_tracker_head;
+static uint8_t		ao_tracker_log_pos;
+
+static uint16_t	telem_rate;
+static uint8_t	gps_rate;
+static uint8_t	telem_enabled;
+
+static int16_t	lat_sum, lon_sum;
+static int32_t	alt_sum;
+static int	nsamples;
+
 static void
-ao_tracker_start_flight(void)
+ao_tracker_state_update(struct ao_tracker_data *tracker)
 {
-	struct ao_log_mega log;
-	ao_log_start();
-	log.type = AO_LOG_FLIGHT;
-	log.tick = ao_time();
-#if HAS_ACCEL
-	log.u.flight.ground_accel = ao_ground_accel;
-#endif
-#if HAS_GYRO
-	log.u.flight.ground_accel_along = ao_ground_accel_along;
-	log.u.flight.ground_accel_across = ao_ground_accel_across;
-	log.u.flight.ground_accel_through = ao_ground_accel_through;
-	log.u.flight.ground_roll = ao_ground_roll;
-	log.u.flight.ground_pitch = ao_ground_pitch;
-	log.u.flight.ground_yaw = ao_ground_yaw;
-#endif
-#if HAS_FLIGHT
-	log.u.flight.ground_pres = ao_ground_pres;
-#endif
-	log.u.flight.flight = ao_flight_number;
-	ao_log_mega(&log);
+	uint16_t	new_telem_rate;
+	uint8_t		new_gps_rate;
+	uint8_t		new_telem_enabled;
+	uint32_t	ground_distance;
+	int16_t		height;
+	uint16_t	speed;
+
+	new_gps_rate = gps_rate;
+	new_telem_rate = telem_rate;
+
+	new_telem_enabled = ao_tracker_force_telem || !ao_usb_connected();
+
+	/* Don't change anything if GPS isn't locked */
+	if ((tracker->new & AO_GPS_NEW_DATA) &&
+	    (tracker->gps_data.flags & (AO_GPS_VALID|AO_GPS_COURSE_VALID)) ==
+	    (AO_GPS_VALID|AO_GPS_COURSE_VALID))
+	{
+		switch (ao_flight_state) {
+		case ao_flight_startup:
+			/* startup to pad when GPS locks */
+
+			lat_sum += tracker->gps_data.latitude;
+			lon_sum += tracker->gps_data.longitude;
+			alt_sum += tracker->gps_data.altitude;
+
+			if (++nsamples >= STARTUP_AVERAGE) {
+				ao_flight_state = ao_flight_pad;
+				ao_wakeup(&ao_flight_state);
+				ao_tracker_start_latitude = lat_sum / nsamples;
+				ao_tracker_start_longitude = lon_sum / nsamples;
+				ao_tracker_start_altitude = alt_sum / nsamples;
+			}
+			break;
+		case ao_flight_pad:
+			ground_distance = ao_distance(tracker->gps_data.latitude,
+						      tracker->gps_data.longitude,
+						      ao_tracker_start_latitude,
+						      ao_tracker_start_longitude);
+			height = tracker->gps_data.altitude - ao_tracker_start_altitude;
+			if (height < 0)
+				height = -height;
+
+			if (ground_distance >= ao_config.tracker_start_horiz ||
+			    height >= ao_config.tracker_start_vert ||
+			    ao_tracker_force_launch)
+			{
+				ao_flight_state = ao_flight_drogue;
+				ao_wakeup(&ao_flight_state);
+				ao_tracker_log_pos = ao_tracker_ring_next(ao_tracker_head);
+				ao_log_start();
+				ao_log_gps_flight();
+			}
+			break;
+		case ao_flight_drogue:
+			/* Modulate data rates based on speed (in cm/s) */
+			if (tracker->gps_data.climb_rate < 0)
+				speed = -tracker->gps_data.climb_rate;
+			else
+				speed = tracker->gps_data.climb_rate;
+			speed += tracker->gps_data.ground_speed;
+
+			if (speed < AO_TRACKER_NOT_MOVING) {
+				new_telem_rate = AO_SEC_TO_TICKS(10);
+				new_gps_rate = 10;
+			} else {
+				new_telem_rate = AO_SEC_TO_TICKS(1);
+				new_gps_rate = 1;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	if (new_telem_rate != telem_rate || new_telem_enabled != telem_enabled) {
+		if (new_telem_enabled)
+			ao_telemetry_set_interval(new_telem_rate);
+		else
+			ao_telemetry_set_interval(0);
+		telem_rate = new_telem_rate;
+		telem_enabled = new_telem_enabled;
+	}
+
+	if (new_gps_rate != gps_rate) {
+		ao_gps_set_rate(new_gps_rate);
+		gps_rate = new_gps_rate;
+	}
 }
+
+#if HAS_LOG
+static uint8_t	ao_tracker_should_log;
+
+static void
+ao_tracker_log(void)
+{
+	struct ao_tracker_data	*tracker;
+
+	if (ao_log_running) {
+		while (ao_tracker_log_pos != ao_tracker_head) {
+			tracker = &ao_tracker_data[ao_tracker_log_pos];
+			if (tracker->new & AO_GPS_NEW_DATA) {
+				ao_tracker_should_log = ao_log_gps_should_log(tracker->gps_data.latitude,
+									      tracker->gps_data.longitude,
+									      tracker->gps_data.altitude);
+				if (ao_tracker_should_log)
+					ao_log_gps_data(tracker->tick, tracker->state, &tracker->gps_data);
+			}
+			if (tracker->new & AO_GPS_NEW_TRACKING) {
+				if (ao_tracker_should_log)
+					ao_log_gps_tracking(tracker->tick, &tracker->gps_tracking_data);
+			}
+			ao_tracker_log_pos = ao_tracker_ring_next(ao_tracker_log_pos);
+		}
+	}
+}
+#endif
 
 static void
 ao_tracker(void)
 {
-	uint16_t	telem_rate = AO_SEC_TO_TICKS(1), new_telem_rate;
-	uint8_t		gps_rate = 1, new_gps_rate;
-	uint8_t		telem_enabled = 0, new_telem_enabled;
-	int32_t		start_latitude = 0, start_longitude = 0;
-	int16_t		start_altitude = 0;
-	uint32_t	ground_distance;
-	int16_t		height;
-	uint16_t	speed;
-	int64_t		lat_sum = 0, lon_sum = 0;
-	int32_t		alt_sum = 0;
-	int		nsamples = 0;
+	uint8_t		new;
+	struct ao_tracker_data	*tracker;
 
 #if HAS_ADC
 	ao_timer_set_adc_interval(100);
@@ -91,94 +193,36 @@ ao_tracker(void)
 	ao_log_scan();
 
 	ao_rdf_set(1);
-
 	ao_telemetry_set_interval(0);
+	telem_rate = AO_SEC_TO_TICKS(1);
+	telem_enabled = 0;
+	gps_rate = 1;
 
 	ao_flight_state = ao_flight_startup;
 	for (;;) {
-		ao_sleep(&ao_gps_new);
+		while (!(new = ao_gps_new))
+			ao_sleep(&ao_gps_new);
 
-		new_gps_rate = gps_rate;
-		new_telem_rate = telem_rate;
-
-		new_telem_enabled = ao_tracker_force_telem || !ao_usb_connected();
-
+		/* Stick GPS data into the ring */
 		ao_mutex_get(&ao_gps_mutex);
+		tracker = &ao_tracker_data[ao_tracker_head];
+		tracker->tick = ao_gps_tick;
+		tracker->new = new;
+		tracker->state = ao_flight_state;
+		tracker->gps_data = ao_gps_data;
+		tracker->gps_tracking_data = ao_gps_tracking_data;
+		ao_tracker_head = ao_tracker_ring_next(ao_tracker_head);
 
-		/* Don't change anything if GPS isn't locked */
-		if ((ao_gps_data.flags & (AO_GPS_VALID|AO_GPS_COURSE_VALID)) ==
-		    (AO_GPS_VALID|AO_GPS_COURSE_VALID))
-		{
-			switch (ao_flight_state) {
-			case ao_flight_startup:
-				/* startup to pad when GPS locks */
-
-				lat_sum += ao_gps_data.latitude;
-				lon_sum += ao_gps_data.longitude;
-				alt_sum += ao_gps_data.altitude;
-
-				if (++nsamples >= STARTUP_AVERAGE) {
-					ao_flight_state = ao_flight_pad;
-					ao_wakeup(&ao_flight_state);
-					start_latitude = lat_sum / nsamples;
-					start_longitude = lon_sum / nsamples;
-					start_altitude = alt_sum / nsamples;
-				}
-				break;
-			case ao_flight_pad:
-				ground_distance = ao_distance(ao_gps_data.latitude,
-							      ao_gps_data.longitude,
-							      start_latitude,
-							      start_longitude);
-				height = ao_gps_data.altitude - start_altitude;
-				if (height < 0)
-					height = -height;
-
-				if (ground_distance >= ao_config.tracker_start_horiz ||
-				    height >= ao_config.tracker_start_vert ||
-				    ao_tracker_force_launch)
-				{
-					ao_flight_state = ao_flight_drogue;
-					ao_wakeup(&ao_flight_state);
-					ao_log_start();
-					ao_tracker_start_flight();
-				}
-				break;
-			case ao_flight_drogue:
-				/* Modulate data rates based on speed (in cm/s) */
-				if (ao_gps_data.climb_rate < 0)
-					speed = -ao_gps_data.climb_rate;
-				else
-					speed = ao_gps_data.climb_rate;
-				speed += ao_gps_data.ground_speed;
-
-				if (speed < AO_TRACKER_NOT_MOVING) {
-					new_telem_rate = AO_SEC_TO_TICKS(10);
-					new_gps_rate = 10;
-				} else {
-					new_telem_rate = AO_SEC_TO_TICKS(1);
-					new_gps_rate = 1;
-				}
-				break;
-			default:
-				break;
-			}
-		}
+		ao_gps_new = 0;
 		ao_mutex_put(&ao_gps_mutex);
 
-		if (new_telem_rate != telem_rate || new_telem_enabled != telem_enabled) {
-			if (new_telem_enabled)
-				ao_telemetry_set_interval(new_telem_rate);
-			else
-				ao_telemetry_set_interval(0);
-			telem_rate = new_telem_rate;
-			telem_enabled = new_telem_enabled;
-		}
+		/* Update state based on current GPS data */
+		ao_tracker_state_update(tracker);
 
-		if (new_gps_rate != gps_rate) {
-			ao_gps_set_rate(new_gps_rate);
-			gps_rate = new_gps_rate;
-		}
+#if HAS_LOG
+		/* Log all gps data */
+		ao_tracker_log();
+#endif
 	}
 }
 
