@@ -238,31 +238,39 @@ public class AltosGraph extends AltosUIGraph {
 		course_axis = newAxis("Course", orient_units, gps_course_color, 0);
 
 		addMarker("State", AltosGraphDataPoint.data_state, state_color);
-		addSeries("Height",
-			  AltosGraphDataPoint.data_height,
-			  AltosConvert.height,
-			  height_color,
-			  true,
-			  height_axis);
-		addSeries("Pressure",
-			  AltosGraphDataPoint.data_pressure,
-			  pressure_units,
-			  pressure_color,
-			  false,
-			  pressure_axis);
-		addSeries("Speed",
-			  AltosGraphDataPoint.data_speed,
-			  AltosConvert.speed,
-			  speed_color,
-			  true,
-			  speed_axis);
-		addSeries("Acceleration",
-			  AltosGraphDataPoint.data_accel,
-			  AltosConvert.accel,
-			  accel_color,
-			  true,
-			  accel_axis);
+
+		if (stats.has_flight_data) {
+			addSeries("Height",
+				  AltosGraphDataPoint.data_height,
+				  AltosConvert.height,
+				  height_color,
+				  true,
+				  height_axis);
+			addSeries("Pressure",
+				  AltosGraphDataPoint.data_pressure,
+				  pressure_units,
+				  pressure_color,
+				  false,
+				  pressure_axis);
+			addSeries("Speed",
+				  AltosGraphDataPoint.data_speed,
+				  AltosConvert.speed,
+				  speed_color,
+				  true,
+				  speed_axis);
+			addSeries("Acceleration",
+				  AltosGraphDataPoint.data_accel,
+				  AltosConvert.accel,
+				  accel_color,
+				  true,
+				  accel_axis);
+		}
 		if (stats.has_gps) {
+			boolean	enable_gps = false;
+
+			if (!stats.has_flight_data)
+				enable_gps = true;
+
 			addSeries("Range",
 				  AltosGraphDataPoint.data_range,
 				  AltosConvert.distance,
@@ -273,10 +281,16 @@ public class AltosGraph extends AltosUIGraph {
 				  AltosGraphDataPoint.data_distance,
 				  AltosConvert.distance,
 				  distance_color,
-				  false,
+				  enable_gps,
 				  distance_axis);
 			addSeries("GPS Height",
 				  AltosGraphDataPoint.data_gps_height,
+				  AltosConvert.height,
+				  gps_height_color,
+				  enable_gps,
+				  height_axis);
+			addSeries("GPS Altitude",
+				  AltosGraphDataPoint.data_gps_altitude,
 				  AltosConvert.height,
 				  gps_height_color,
 				  false,
@@ -303,13 +317,13 @@ public class AltosGraph extends AltosUIGraph {
 				  AltosGraphDataPoint.data_gps_ground_speed,
 				  AltosConvert.speed,
 				  gps_ground_speed_color,
-				  false,
+				  enable_gps,
 				  speed_axis);
 			addSeries("GPS Climb Rate",
 				  AltosGraphDataPoint.data_gps_climb_rate,
 				  AltosConvert.speed,
 				  gps_climb_rate_color,
-				  false,
+				  enable_gps,
 				  speed_axis);
 		}
 		if (stats.has_rssi)
