@@ -112,7 +112,12 @@ struct ao_config {
 #define AO_PAD_ORIENTATION_ANTENNA_UP	0
 #define AO_PAD_ORIENTATION_ANTENNA_DOWN	1
 
+#ifndef AO_CONFIG_MAX_SIZE
 #define AO_CONFIG_MAX_SIZE	128
+#endif
+
+/* Make sure AO_CONFIG_MAX_SIZE is big enough */
+typedef uint8_t	config_check_space[(int) (AO_CONFIG_MAX_SIZE - sizeof (struct ao_config))];
 
 extern __xdata struct ao_config ao_config;
 extern __pdata uint8_t ao_config_loaded;
