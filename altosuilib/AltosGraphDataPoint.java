@@ -35,24 +35,25 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 	public static final int data_gps_height = 9;
 	public static final int data_gps_nsat_solution = 10;
 	public static final int data_gps_nsat_view = 11;
-	public static final int data_temperature = 12;
-	public static final int data_range = 13;
-	public static final int data_distance = 14;
-	public static final int data_pressure = 15;
-	public static final int data_accel_x = 16;
-	public static final int data_accel_y = 17;
-	public static final int data_accel_z = 18;
-	public static final int data_gyro_x = 19;
-	public static final int data_gyro_y = 20;
-	public static final int data_gyro_z = 21;
-	public static final int data_mag_x = 22;
-	public static final int data_mag_y = 23;
-	public static final int data_mag_z = 24;
-	public static final int data_orient = 25;
-	public static final int data_gps_course = 26;
-	public static final int data_gps_ground_speed = 27;
-	public static final int data_gps_climb_rate = 28;
-	public static final int data_ignitor_0 = 29;
+	public static final int data_gps_altitude = 12;
+	public static final int data_temperature = 13;
+	public static final int data_range = 14;
+	public static final int data_distance = 15;
+	public static final int data_pressure = 16;
+	public static final int data_accel_x = 17;
+	public static final int data_accel_y = 18;
+	public static final int data_accel_z = 19;
+	public static final int data_gyro_x = 20;
+	public static final int data_gyro_y = 21;
+	public static final int data_gyro_z = 22;
+	public static final int data_mag_x = 23;
+	public static final int data_mag_y = 24;
+	public static final int data_mag_z = 25;
+	public static final int data_orient = 26;
+	public static final int data_gps_course = 27;
+	public static final int data_gps_ground_speed = 28;
+	public static final int data_gps_climb_rate = 29;
+	public static final int data_ignitor_0 = 30;
 	public static final int data_ignitor_num = 32;
 	public static final int data_ignitor_max = data_ignitor_0 + data_ignitor_num - 1;
 	public static final int data_ignitor_fired_0 = data_ignitor_0 + data_ignitor_num;
@@ -102,6 +103,9 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 		case data_gps_nsat_view:
 			if (state.gps != null && state.gps.cc_gps_sat != null)
 				y = state.gps.cc_gps_sat.length;
+			break;
+		case data_gps_altitude:
+			y = state.gps_altitude();
 			break;
 		case data_temperature:
 			y = state.temperature;
