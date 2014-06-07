@@ -38,13 +38,22 @@ ao_log_flush(void)
  */
 
 struct ao_log_erase {
-	uint8_t	unused;
+	uint8_t	mark;
 	uint16_t flight;
 };
 
 static __xdata struct ao_log_erase erase;
 
+#ifndef LOG_MAX_ERASE
 #define LOG_MAX_ERASE	16
+#endif
+
+#ifndef LOG_ERASE_MARK
+#if USE_EEPROM_CONFIG
+#error "Must define LOG_ERASE_MARK with USE_EEPROM_CONFIG"
+#endif
+#define LOG_ERASE_MARK	0x00
+#endif
 
 static uint32_t
 ao_log_erase_pos(uint8_t i)
@@ -55,7 +64,7 @@ ao_log_erase_pos(uint8_t i)
 void
 ao_log_write_erase(uint8_t pos)
 {
-	erase.unused = 0x00;
+	erase.mark = LOG_ERASE_MARK;
 	erase.flight = ao_flight_number;
 	ao_config_write(ao_log_erase_pos(pos),  &erase, sizeof (erase));
 	ao_config_flush();
@@ -75,9 +84,9 @@ ao_log_erase_mark(void)
 
 	for (i = 0; i < LOG_MAX_ERASE; i++) {
 		ao_log_read_erase(i);
-		if (erase.unused == 0 && erase.flight == ao_flight_number)
+		if (erase.mark == LOG_ERASE_MARK && erase.flight == ao_flight_number)
 			return;
-		if (erase.unused == 0xff) {
+		if (erase.mark != LOG_ERASE_MARK) {
 			ao_log_write_erase(i);
 			return;
 		}
@@ -136,7 +145,7 @@ ao_log_scan(void) __reentrant
 	 */
 	for (log_slot = LOG_MAX_ERASE; log_slot-- > 0;) {
 		ao_log_read_erase(log_slot);
-		if (erase.unused == 0) {
+		if (erase.mark == LOG_ERASE_MARK) {
 			if (ao_flight_number == 0 ||
 			    (int16_t) (erase.flight - ao_flight_number) > 0)
 				ao_flight_number = erase.flight;
