@@ -50,8 +50,7 @@ ALTOS_SRC = \
 	ao_storage.c \
 	ao_m25.c \
 	ao_log.c \
-	ao_log_mega.c \
-	ao_gps_report_mega.c \
+	ao_log_gps.c \
 	ao_distance.c \
 	ao_sqrt.c \
 	$(SAMPLE_PROFILE)
