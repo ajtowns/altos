@@ -35,6 +35,7 @@ public class AltosFlightStats {
 	public int		hour, minute, second;
 	public double		lat, lon;
 	public double		pad_lat, pad_lon;
+	public boolean		has_flight_data;
 	public boolean		has_gps;
 	public boolean		has_other_adc;
 	public boolean		has_rssi;
@@ -109,6 +110,7 @@ public class AltosFlightStats {
 		hour = minute = second = AltosLib.MISSING;
 		serial = flight = AltosLib.MISSING;
 		lat = lon = AltosLib.MISSING;
+		has_flight_data = false;
 		has_gps = false;
 		has_other_adc = false;
 		has_rssi = false;
@@ -125,6 +127,9 @@ public class AltosFlightStats {
 			if (state.rssi != AltosLib.MISSING)
 				has_rssi = true;
 			end_time = state.time;
+
+			if (state.pressure() != AltosLib.MISSING)
+				has_flight_data = true;
 
 			int state_id = state.state;
 			if (state.time >= boost_time && state_id < AltosLib.ao_flight_boost)
