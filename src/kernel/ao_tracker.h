@@ -28,7 +28,7 @@ extern int32_t	ao_tracker_start_latitude;
 extern int32_t	ao_tracker_start_longitude;
 extern int16_t	ao_tracker_start_altitude;
 
-#define AO_TRACKER_RING	8
+#define AO_TRACKER_RING	4
 
 struct ao_tracker_data {
 	uint16_t			tick;
