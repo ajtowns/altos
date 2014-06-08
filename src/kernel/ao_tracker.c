@@ -52,7 +52,7 @@ static uint16_t	telem_rate;
 static uint8_t	gps_rate;
 static uint8_t	telem_enabled;
 
-static int16_t	lat_sum, lon_sum;
+static int64_t	lat_sum, lon_sum;
 static int32_t	alt_sum;
 static int	nsamples;
 
@@ -78,13 +78,18 @@ ao_tracker_state_update(struct ao_tracker_data *tracker)
 	{
 		switch (ao_flight_state) {
 		case ao_flight_startup:
+			new_telem_rate = AO_SEC_TO_TICKS(1);
+			new_gps_rate = 1;
+
 			/* startup to pad when GPS locks */
 
 			lat_sum += tracker->gps_data.latitude;
 			lon_sum += tracker->gps_data.longitude;
 			alt_sum += tracker->gps_data.altitude;
 
-			if (++nsamples >= STARTUP_AVERAGE) {
+			++nsamples;
+
+			if (nsamples >= STARTUP_AVERAGE) {
 				ao_flight_state = ao_flight_pad;
 				ao_wakeup(&ao_flight_state);
 				ao_tracker_start_latitude = lat_sum / nsamples;
@@ -93,6 +98,9 @@ ao_tracker_state_update(struct ao_tracker_data *tracker)
 			}
 			break;
 		case ao_flight_pad:
+			new_telem_rate = AO_SEC_TO_TICKS(1);
+			new_gps_rate = 1;
+
 			ground_distance = ao_distance(tracker->gps_data.latitude,
 						      tracker->gps_data.longitude,
 						      ao_tracker_start_latitude,
@@ -190,6 +198,11 @@ ao_tracker(void)
 	ao_tracker_force_telem = 1;
 #endif
 
+	nsamples = 0;
+	lat_sum = 0;
+	lon_sum = 0;
+	alt_sum = 0;
+
 	ao_log_scan();
 
 	ao_rdf_set(1);
@@ -231,11 +244,16 @@ static struct ao_task ao_tracker_task;
 static void
 ao_tracker_set_telem(void)
 {
+	uint8_t	telem, launch;
 	ao_cmd_hex();
+	telem = ao_cmd_lex_i;
+	ao_cmd_hex();
+	launch = ao_cmd_lex_i;
 	if (ao_cmd_status == ao_cmd_success) {
-		ao_tracker_force_telem = (ao_cmd_lex_i & 1) != 0;
-		ao_tracker_force_launch = (ao_cmd_lex_i & 2) != 0;
+		ao_tracker_force_telem = telem;
+		ao_tracker_force_launch = launch;
 	}
+	ao_cmd_status = ao_cmd_success;
 	printf ("flight %d force telem %d force launch %d\n",
 		ao_flight_number, ao_tracker_force_telem, ao_tracker_force_launch);
 }
