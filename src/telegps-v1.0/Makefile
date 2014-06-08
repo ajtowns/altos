@@ -11,6 +11,7 @@ INC = \
 	ao_arch_funcs.h \
 	ao_pins.h \
 	ao_product.h \
+	ao_tracker.h \
 	ao_task.h \
 	ao_whiten.h \
 	ao_cc115l.h \
