@@ -224,6 +224,12 @@ public class AltosConvert {
 		return sensor / 32767.0 * supply * 127/27;
 	}
 
+	static double tele_gps_voltage(int sensor) {
+		double	supply = 3.3;
+
+		return sensor / 32767.0 * supply * (5.6 + 10.0) / 10.0;
+	}
+
 	static double easy_mini_voltage(int sensor, int serial) {
 		double	supply = 3.3;
 		double	diode_offset = 0.0;

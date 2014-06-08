@@ -959,11 +959,14 @@ public class AltosState implements Cloneable {
 		this.device_type = device_type;
 	}
 
-	public void set_config(int major, int minor, int apogee_delay, int main_deploy, int flight_log_max) {
-		config_major = major;
-		config_minor = minor;
+	public void set_flight_params(int apogee_delay, int main_deploy) {
 		this.apogee_delay = apogee_delay;
 		this.main_deploy = main_deploy;
+	}
+
+	public void set_config(int major, int minor, int flight_log_max) {
+		config_major = major;
+		config_minor = minor;
 		this.flight_log_max = flight_log_max;
 	}
 

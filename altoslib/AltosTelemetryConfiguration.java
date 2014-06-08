@@ -25,6 +25,7 @@ public class AltosTelemetryConfiguration extends AltosTelemetryStandard {
 	int	config_minor;
 	int	apogee_delay;
 	int	main_deploy;
+	int	v_batt;
 	int	flight_log_max;
 	String	callsign;
 	String	version;
@@ -36,6 +37,7 @@ public class AltosTelemetryConfiguration extends AltosTelemetryStandard {
 		flight         = uint16(6);
 		config_major   = uint8(8);
 		config_minor   = uint8(9);
+		v_batt	       = uint16(10);
 		apogee_delay   = uint16(10);
 		main_deploy    = uint16(12);
 		flight_log_max = uint16(14);
@@ -47,7 +49,11 @@ public class AltosTelemetryConfiguration extends AltosTelemetryStandard {
 		super.update_state(state);
 		state.set_device_type(device_type);
 		state.set_flight(flight);
-		state.set_config(config_major, config_minor, apogee_delay, main_deploy, flight_log_max);
+		state.set_config(config_major, config_minor, flight_log_max);
+		if (device_type == AltosLib.product_telegps)
+			state.set_battery_voltage(AltosConvert.tele_gps_voltage(v_batt));
+		else
+			state.set_flight_params(apogee_delay, main_deploy);
 
 		state.set_callsign(callsign);
 		state.set_firmware_version(version);
