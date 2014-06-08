@@ -918,6 +918,9 @@ public class AltosState implements Cloneable {
 			elevation = from_pad.elevation;
 			range = from_pad.range;
 		}
+
+		if ((gps.state & AltosGPS.AO_GPS_STATE_VALID) != 0)
+			set_state (gps.state & ~(AltosGPS.AO_GPS_STATE_VALID));
 	}
 
 	public void set_tick(int new_tick) {
