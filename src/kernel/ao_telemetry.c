@@ -305,8 +305,14 @@ ao_send_configuration(void)
 #endif
 		telemetry.configuration.config_major = AO_CONFIG_MAJOR;
 		telemetry.configuration.config_minor = AO_CONFIG_MINOR;
+#if AO_idProduct_NUMBER == 0x25 && HAS_ADC
+		/* TeleGPS gets battery voltage instead of apogee delay */
+		telemetry.configuration.apogee_delay = ao_data_ring[ao_data_ring_prev(ao_data_head)].adc.v_batt;
+#else
 		telemetry.configuration.apogee_delay = ao_config.apogee_delay;
 		telemetry.configuration.main_deploy = ao_config.main_deploy;
+#endif
+
 		telemetry.configuration.flight_log_max = ao_config.flight_log_max >> 10;
 		ao_xmemcpy (telemetry.configuration.callsign,
 			    ao_config.callsign,
