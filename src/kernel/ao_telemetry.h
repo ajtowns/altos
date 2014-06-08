@@ -93,6 +93,8 @@ struct ao_telemetry_configuration {
 #define AO_GPS_MODE_MANUAL		'M'
 #define AO_GPS_MODE_SIMULATED		'S'
 
+#define AO_GPS_STATE_VALID		0x80
+
 struct ao_telemetry_location {
 	uint16_t	serial;		/*  0 */
 	uint16_t	tick;		/*  2 */
