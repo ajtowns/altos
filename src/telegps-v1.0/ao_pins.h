@@ -119,7 +119,7 @@
  * ADC
  */
 
-#define HAS_ADC			0
+#define HAS_ADC			1
 #define LOG_ADC			0
 
 #define AO_DATA_RING		4

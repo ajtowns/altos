@@ -20,10 +20,6 @@ INC = \
 	Makefile
 
 
-#	ao_data.c \
-#	ao_adc_lpc.c \
-#	ao_convert_volt.c \
-
 ALTOS_SRC = \
 	ao_interrupt.c \
 	ao_boot_chain.c \
@@ -54,6 +50,9 @@ ALTOS_SRC = \
 	ao_log_gps.c \
 	ao_distance.c \
 	ao_sqrt.c \
+	ao_data.c \
+	ao_adc_lpc.c \
+	ao_convert_volt.c \
 	$(SAMPLE_PROFILE)
 
 PRODUCT=TeleGPS-v1.0
