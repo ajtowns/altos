@@ -45,10 +45,6 @@ public class AltosGPS implements Cloneable {
 	public int	h_error;	/* m */
 	public int	v_error;	/* m */
 
-	public int	state;		/* for TeleGPS */
-
-	static final int AO_GPS_STATE_VALID = 0x80;
-
 	public AltosGPSSat[] cc_gps_sat;	/* tracking data */
 
 	public void ParseGPSDate(String date) throws ParseException {
@@ -302,7 +298,6 @@ public class AltosGPS implements Cloneable {
 		g.hdop = hdop;		/* unitless? */
 		g.h_error = h_error;	/* m */
 		g.v_error = v_error;	/* m */
-		g.state = state;
 
 		if (cc_gps_sat != null) {
 			g.cc_gps_sat = new AltosGPSSat[cc_gps_sat.length];
@@ -335,7 +330,6 @@ public class AltosGPS implements Cloneable {
 			hdop = old.hdop;		/* unitless? */
 			h_error = old.h_error;	/* m */
 			v_error = old.v_error;	/* m */
-			state = old.state;
 
 			if (old.cc_gps_sat != null) {
 				cc_gps_sat = new AltosGPSSat[old.cc_gps_sat.length];
@@ -351,7 +345,6 @@ public class AltosGPS implements Cloneable {
 			alt = AltosLib.MISSING;
 			ClearGPSTime();
 			cc_gps_sat = null;
-			state = 0;
 		}
 	}
 

@@ -36,7 +36,6 @@ public class AltosTelemetryLocation extends AltosTelemetryStandard {
 	int	ground_speed;
 	int	climb_rate;
 	int	course;
-	int	state;
 
 	public AltosTelemetryLocation(int[] bytes) {
 		super(bytes);
@@ -58,7 +57,6 @@ public class AltosTelemetryLocation extends AltosTelemetryStandard {
 		ground_speed   = uint16(26);
 		climb_rate     = int16(28);
 		course	       = uint8(30);
-		state	       = uint8(31);
 	}
 
 	public void update_state(AltosState state) {
@@ -68,7 +66,6 @@ public class AltosTelemetryLocation extends AltosTelemetryStandard {
 		gps.nsat = flags & 0xf;
 		gps.locked = (flags & (1 << 4)) != 0;
 		gps.connected = (flags & (1 << 5)) != 0;
-		gps.state = this.state;
 
 		if (gps.locked) {
 			gps.lat = latitude * 1.0e-7;
