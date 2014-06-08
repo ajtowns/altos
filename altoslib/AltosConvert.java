@@ -208,7 +208,7 @@ public class AltosConvert {
 
 	static public double mega_battery_voltage(int v_batt) {
 		if (v_batt != AltosLib.MISSING)
-			return 3.3 * mega_adc(v_batt) * (15.0 + 27.0) / 27.0;
+			return 3.3 * mega_adc(v_batt) * (5.6 + 10.0) / 10.0;
 		return AltosLib.MISSING;
 	}
 
