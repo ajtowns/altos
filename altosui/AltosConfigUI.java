@@ -46,8 +46,8 @@ public class AltosConfigUI
 	JLabel			pad_orientation_label;
 	JLabel			callsign_label;
 	JLabel			beep_label;
-	JLabel			tracker_horiz_label;
-	JLabel			tracker_vert_label;
+	JLabel			tracker_motion_label;
+	JLabel			tracker_interval_label;
 
 	public boolean		dirty;
 
@@ -67,8 +67,8 @@ public class AltosConfigUI
 	JComboBox<String>	pad_orientation_value;
 	JTextField		callsign_value;
 	JComboBox<String>	beep_value;
-	JComboBox<String>	tracker_horiz_value;
-	JComboBox<String>	tracker_vert_value;
+	JComboBox<String>	tracker_motion_value;
+	JComboBox<String>	tracker_interval_value;
 
 	JButton			pyro;
 
@@ -123,32 +123,25 @@ public class AltosConfigUI
 		"Antenna Down",
 	};
 
-	static String[]		tracker_horiz_values_m = {
-		"250",
-		"500",
-		"1000",
-		"2000"
-	};
-
-	static String[]		tracker_horiz_values_ft = {
-		"500",
-		"1000",
-		"2500",
-		"5000"
-	};
-
-	static String[]		tracker_vert_values_m = {
+	static String[]		tracker_motion_values_m = {
+		"2",
+		"5",
+		"10",
 		"25",
-		"50",
-		"100",
-		"200"
 	};
 
-	static String[]		tracker_vert_values_ft = {
+	static String[]		tracker_motion_values_ft = {
+		"5",
+		"20",
 		"50",
-		"100",
-		"250",
-		"500"
+		"100"
+	};
+
+	static String[]		tracker_interval_values = {
+		"1",
+		"2",
+		"5",
+		"10"
 	};
 
 	/* A window listener to catch closing events and tell the config code */
@@ -644,8 +637,8 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
 		c.ipady = 5;
-		tracker_horiz_label = new JLabel(get_tracker_horiz_label());
-		pane.add(tracker_horiz_label, c);
+		tracker_motion_label = new JLabel(get_tracker_motion_label());
+		pane.add(tracker_motion_label, c);
 
 		c = new GridBagConstraints();
 		c.gridx = 4; c.gridy = row;
@@ -655,10 +648,10 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		tracker_horiz_value = new JComboBox<String>(tracker_horiz_values());
-		tracker_horiz_value.setEditable(true);
-		tracker_horiz_value.addItemListener(this);
-		pane.add(tracker_horiz_value, c);
+		tracker_motion_value = new JComboBox<String>(tracker_motion_values());
+		tracker_motion_value.setEditable(true);
+		tracker_motion_value.addItemListener(this);
+		pane.add(tracker_motion_value, c);
 		row++;
 
 		/* Tracker triger vert distances */
@@ -669,8 +662,8 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
 		c.ipady = 5;
-		tracker_vert_label = new JLabel(get_tracker_vert_label());
-		pane.add(tracker_vert_label, c);
+		tracker_interval_label = new JLabel("Position Reporting Interval(s):");
+		pane.add(tracker_interval_label, c);
 
 		c = new GridBagConstraints();
 		c.gridx = 4; c.gridy = row;
@@ -680,10 +673,10 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		tracker_vert_value = new JComboBox<String>(tracker_vert_values());
-		tracker_vert_value.setEditable(true);
-		tracker_vert_value.addItemListener(this);
-		pane.add(tracker_vert_value, c);
+		tracker_interval_value = new JComboBox<String>(tracker_interval_values);
+		tracker_interval_value.setEditable(true);
+		tracker_interval_value.addItemListener(this);
+		pane.add(tracker_interval_value, c);
 		set_tracker_tool_tip();
 		row++;
 
@@ -892,18 +885,11 @@ public class AltosConfigUI
 		int m = (int) (AltosConvert.height.parse(v, !imperial_units) + 0.5);
 		set_main_deploy(m);
 
-		if (tracker_horiz_value.isEnabled() && tracker_vert_value.isEnabled()) {
-			String th = tracker_horiz_value.getSelectedItem().toString();
-			String tv = tracker_vert_value.getSelectedItem().toString();
-			tracker_horiz_label.setText(get_tracker_horiz_label());
-			tracker_vert_label.setText(get_tracker_vert_label());
-			set_tracker_horiz_values();
-			set_tracker_vert_values();
-			int[] t = {
-				(int) (AltosConvert.height.parse(th, !imperial_units) + 0.5),
-				(int) (AltosConvert.height.parse(tv, !imperial_units) + 0.5)
-			};
-			set_tracker_distances(t);
+		if (tracker_motion_value.isEnabled()) {
+			String motion = tracker_motion_value.getSelectedItem().toString();
+			tracker_motion_label.setText(get_tracker_motion_label());
+			set_tracker_motion_values();
+			set_tracker_motion((int) (AltosConvert.height.parse(motion, !imperial_units) + 0.5));
 		}
 	}
 
@@ -1084,78 +1070,51 @@ public class AltosConfigUI
 			return -1;
 	}
 
-	String[] tracker_horiz_values() {
+	String[] tracker_motion_values() {
 		if (AltosConvert.imperial_units)
-			return tracker_horiz_values_ft;
+			return tracker_motion_values_ft;
 		else
-			return tracker_horiz_values_m;
+			return tracker_motion_values_m;
 	}
 
-	void set_tracker_horiz_values() {
-		String[]	v = tracker_horiz_values();
-		while (tracker_horiz_value.getItemCount() > 0)
-			tracker_horiz_value.removeItemAt(0);
+	void set_tracker_motion_values() {
+		String[]	v = tracker_motion_values();
+		while (tracker_motion_value.getItemCount() > 0)
+			tracker_motion_value.removeItemAt(0);
 		for (int i = 0; i < v.length; i++)
-			tracker_horiz_value.addItem(v[i]);
-		tracker_horiz_value.setMaximumRowCount(v.length);
+			tracker_motion_value.addItem(v[i]);
+		tracker_motion_value.setMaximumRowCount(v.length);
 	}
 
-	String get_tracker_horiz_label() {
-		return String.format("Logging Trigger Horizontal (%s):", AltosConvert.height.show_units());
-	}
-
-	String[] tracker_vert_values() {
-		if (AltosConvert.imperial_units)
-			return tracker_vert_values_ft;
-		else
-			return tracker_vert_values_m;
-	}
-
-	void set_tracker_vert_values() {
-		String[]	v = tracker_vert_values();
-		while (tracker_vert_value.getItemCount() > 0)
-			tracker_vert_value.removeItemAt(0);
-		for (int i = 0; i < v.length; i++)
-			tracker_vert_value.addItem(v[i]);
-		tracker_vert_value.setMaximumRowCount(v.length);
+	String get_tracker_motion_label() {
+		return String.format("Logging Trigger Motion (%s):", AltosConvert.height.show_units());
 	}
 
 	void set_tracker_tool_tip() {
-		if (tracker_horiz_value.isEnabled())
-			tracker_horiz_value.setToolTipText("How far the device must move before logging is enabled");
+		if (tracker_motion_value.isEnabled())
+			tracker_motion_value.setToolTipText("How far the device must move before logging");
 		else
-			tracker_horiz_value.setToolTipText("This device doesn't disable logging before motion");
-		if (tracker_vert_value.isEnabled())
-			tracker_vert_value.setToolTipText("How far the device must move before logging is enabled");
+			tracker_motion_value.setToolTipText("This device doesn't disable logging when stationary");
+		if (tracker_interval_value.isEnabled())
+			tracker_interval_value.setToolTipText("How often to report GPS position");
 		else
-			tracker_vert_value.setToolTipText("This device doesn't disable logging before motion");
+			tracker_interval_value.setToolTipText("This device can't configure interval");
 	}
 
-	String get_tracker_vert_label() {
-		return String.format("Logging Trigger Vertical (%s):", AltosConvert.height.show_units());
+	public void set_tracker_motion(int tracker_motion) {
+		tracker_motion_value.setSelectedItem(AltosConvert.height.say(tracker_motion));
 	}
 
-	public void set_tracker_distances(int[] tracker_distances) {
-		if (tracker_distances != null) {
-			tracker_horiz_value.setSelectedItem(AltosConvert.height.say(tracker_distances[0]));
-			tracker_vert_value.setSelectedItem(AltosConvert.height.say(tracker_distances[1]));
-			tracker_horiz_value.setEnabled(true);
-			tracker_vert_value.setEnabled(true);
-		} else {
-			tracker_horiz_value.setEnabled(false);
-			tracker_vert_value.setEnabled(false);
-		}
+	public int tracker_motion() throws AltosConfigDataException {
+		return (int) AltosConvert.height.parse(tracker_motion_value.getSelectedItem().toString());
 	}
 
-	public int[] tracker_distances() {
-		if (tracker_horiz_value.isEnabled() && tracker_vert_value.isEnabled()) {
-			int[] t = {
-				(int) (AltosConvert.height.parse(tracker_horiz_value.getSelectedItem().toString()) + 0.5),
-				(int) (AltosConvert.height.parse(tracker_vert_value.getSelectedItem().toString()) + 0.5),
-			};
-			return t;
-		}
-		return null;
+	public void set_tracker_interval(int tracker_interval) {
+		tracker_interval_value.setSelectedItem(String.format("%d", tracker_interval));
+	}
+
+	public int tracker_interval() throws AltosConfigDataException {
+		return parse_int ("tracker interval", tracker_interval_value.getSelectedItem().toString(), false);
 	}
 
 	public void set_pyros(AltosPyro[] new_pyros) {

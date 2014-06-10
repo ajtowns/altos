@@ -82,7 +82,8 @@ public class AltosConfigData implements Iterable<String> {
 	public int	stored_flight;
 
 	/* HAS_TRACKER */
-	public int[]	tracker_distances;
+	public int	tracker_motion;
+	public int	tracker_interval;
 
 	public static String get_string(String line, String label) throws  ParseException {
 		if (line.startsWith(label)) {
@@ -107,15 +108,15 @@ public class AltosConfigData implements Iterable<String> {
 		throw new ParseException("mismatch", 0);
 	}
 
-	public static int[] get_distances(String line, String label) throws NumberFormatException, ParseException {
+	public static int[] get_values(String line, String label) throws NumberFormatException, ParseException {
 		if (line.startsWith(label)) {
 			String tail = line.substring(label.length()).trim();
 			String[] tokens = tail.split("\\s+");
 			if (tokens.length > 1) {
-				int[]	distances = new int[2];
-				distances[0] = Integer.parseInt(tokens[0]);
-				distances[1] = Integer.parseInt(tokens[1]);
-				return distances;
+				int[]	values = new int[2];
+				values[0] = Integer.parseInt(tokens[0]);
+				values[1] = Integer.parseInt(tokens[1]);
+				return values;
 			}
 		}
 		throw new ParseException("mismatch", 0);
@@ -250,7 +251,8 @@ public class AltosConfigData implements Iterable<String> {
 
 		beep = -1;
 
-		tracker_distances = null;
+		tracker_motion = -1;
+		tracker_interval = -1;
 
 		storage_size = -1;
 		storage_erase_unit = -1;
@@ -333,7 +335,11 @@ public class AltosConfigData implements Iterable<String> {
 		try { beep = get_int(line, "Beeper setting:"); } catch (Exception e) {}
 
 		/* HAS_TRACKER */
-		try { tracker_distances = get_distances(line, "Tracker setting:"); } catch (Exception e) {}
+		try {
+			int[] values = get_values(line, "Tracker setting:");
+			tracker_motion = values[0];
+			tracker_interval = values[1];
+		} catch (Exception e) {}
 
 		/* Storage info replies */
 		try { storage_size = get_int(line, "Storage size:"); } catch (Exception e) {}
@@ -453,8 +459,10 @@ public class AltosConfigData implements Iterable<String> {
 		if (beep >= 0)
 			beep = source.beep();
 		/* HAS_TRACKER */
-		if (tracker_distances != null)
-			tracker_distances = source.tracker_distances();
+		if (tracker_motion >= 0)
+			tracker_motion = source.tracker_motion();
+		if (tracker_interval >= 0)
+			tracker_interval = source.tracker_interval();
 	}
 
 	public void set_values(AltosConfigValues dest) {
@@ -494,7 +502,8 @@ public class AltosConfigData implements Iterable<String> {
 			dest.set_pyros(null);
 		dest.set_aprs_interval(aprs_interval);
 		dest.set_beep(beep);
-		dest.set_tracker_distances(tracker_distances);
+		dest.set_tracker_motion(tracker_motion);
+		dest.set_tracker_interval(tracker_interval);
 	}
 
 	public void save(AltosLink link, boolean remote) throws InterruptedException, TimeoutException {
@@ -566,8 +575,8 @@ public class AltosConfigData implements Iterable<String> {
 			link.printf("c b %d\n", beep);
 
 		/* HAS_TRACKER */
-		if (tracker_distances != null)
-			link.printf("c t %d %d\n", tracker_distances[0], tracker_distances[1]);
+		if (tracker_motion >= 0 && tracker_interval >= 0)
+			link.printf("c t %d %d\n", tracker_motion, tracker_interval);
 
 		link.printf("c w\n");
 		link.flush_output();

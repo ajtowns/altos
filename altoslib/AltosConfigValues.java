@@ -27,23 +27,23 @@ public interface AltosConfigValues {
 
 	public abstract void set_main_deploy(int new_main_deploy);
 
-	public abstract int main_deploy();
+	public abstract int main_deploy() throws AltosConfigDataException;
 
 	public abstract void set_apogee_delay(int new_apogee_delay);
 
-	public abstract int apogee_delay();
+	public abstract int apogee_delay() throws AltosConfigDataException;
 
 	public abstract void set_apogee_lockout(int new_apogee_lockout);
 
-	public abstract int apogee_lockout();
+	public abstract int apogee_lockout() throws AltosConfigDataException;
 
 	public abstract void set_radio_frequency(double new_radio_frequency);
 
-	public abstract double radio_frequency();
+	public abstract double radio_frequency() throws AltosConfigDataException;
 
 	public abstract void set_radio_calibration(int new_radio_calibration);
 
-	public abstract int radio_calibration();
+	public abstract int radio_calibration() throws AltosConfigDataException;
 
 	public abstract void set_radio_enable(int new_radio_enable);
 
@@ -57,7 +57,7 @@ public interface AltosConfigValues {
 
 	public abstract void set_flight_log_max_enabled(boolean enable);
 
-	public abstract int flight_log_max();
+	public abstract int flight_log_max() throws AltosConfigDataException;
 
 	public abstract void set_flight_log_max_limit(int flight_log_max_limit);
 
@@ -73,15 +73,19 @@ public interface AltosConfigValues {
 
 	public abstract AltosPyro[] pyros() throws AltosConfigDataException;
 
-	public abstract int aprs_interval();
+	public abstract int aprs_interval() throws AltosConfigDataException;
 
 	public abstract void set_aprs_interval(int new_aprs_interval);
 
-	public abstract int beep();
+	public abstract int beep() throws AltosConfigDataException;
 
 	public abstract void set_beep(int new_beep);
 
-	public abstract int[] tracker_distances();
+	public abstract int tracker_motion() throws AltosConfigDataException;
 
-	public abstract void set_tracker_distances(int[] tracker_distances);
+	public abstract void set_tracker_motion(int tracker_motion);
+
+	public abstract int tracker_interval() throws AltosConfigDataException;
+
+	public abstract void set_tracker_interval(int tracker_motion);
 }
