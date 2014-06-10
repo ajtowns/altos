@@ -79,6 +79,7 @@ public class AltosLib {
 	public static final int ao_flight_main = 7;
 	public static final int ao_flight_landed = 8;
 	public static final int ao_flight_invalid = 9;
+	public static final int ao_flight_stateless = 10;
 
 	/* USB product IDs */
 	public final static int vendor_altusmetrum = 0xfffe;
@@ -187,6 +188,7 @@ public class AltosLib {
 		string_to_state.put("main", ao_flight_main);
 		string_to_state.put("landed", ao_flight_landed);
 		string_to_state.put("invalid", ao_flight_invalid);
+		string_to_state.put("stateless", ao_flight_stateless);
 		map_initialized = true;
 	}
 
@@ -215,6 +217,7 @@ public class AltosLib {
 		"main",
 		"landed",
 		"invalid",
+		"stateless",
 	};
 
 	private static String[] state_to_string_capital = {
@@ -228,6 +231,7 @@ public class AltosLib {
 		"Main",
 		"Landed",
 		"Invalid",
+		"Stateless",
 	};
 
 	public static int state(String state) {

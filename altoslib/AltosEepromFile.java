@@ -72,7 +72,8 @@ public class AltosEepromFile extends AltosStateIterable {
 		headers = new AltosEepromIterable(AltosEepromHeader.read(input));
 
 		start = headers.state();
-		start.set_state(AltosLib.ao_flight_pad);
+		if (start.state != AltosLib.ao_flight_stateless)
+			start.set_state(AltosLib.ao_flight_pad);
 
 		if (start.log_format == AltosLib.MISSING) {
 			if (start.product != null) {

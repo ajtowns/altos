@@ -56,7 +56,7 @@ public class AltosEepromHeader extends AltosEeprom {
 			state.product = data;
 			break;
 		case AltosLib.AO_LOG_LOG_FORMAT:
-			state.log_format = config_a;
+			state.set_log_format(config_a);
 			break;
 		case AltosLib.AO_LOG_SERIAL_NUMBER:
 			state.set_serial(config_a);

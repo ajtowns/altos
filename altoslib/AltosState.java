@@ -500,7 +500,7 @@ public class AltosState implements Cloneable {
 	class AltosSpeed extends AltosCValue {
 
 		boolean can_max() {
-			return state < AltosLib.ao_flight_fast;
+			return state < AltosLib.ao_flight_fast || state == AltosLib.ao_flight_stateless;
 		}
 
 		void set_accel() {
@@ -542,7 +542,7 @@ public class AltosState implements Cloneable {
 	class AltosAccel extends AltosCValue {
 
 		boolean can_max() {
-			return state < AltosLib.ao_flight_fast;
+			return state < AltosLib.ao_flight_fast || state == AltosLib.ao_flight_stateless;
 		}
 
 		void set_measured(double a, double time) {
@@ -885,9 +885,9 @@ public class AltosState implements Cloneable {
 
 		if (gps.locked && gps.nsat >= 4) {
 			/* Track consecutive 'good' gps reports, waiting for 10 of them */
-			if (state == AltosLib.ao_flight_pad) {
+			if (state == AltosLib.ao_flight_pad || state == AltosLib.ao_flight_stateless) {
 				set_npad(npad+1);
-				if (pad_lat != AltosLib.MISSING) {
+				if (pad_lat != AltosLib.MISSING && (npad < 10 || state == AltosLib.ao_flight_pad)) {
 					pad_lat = (pad_lat * 31 + gps.lat) / 32;
 					pad_lon = (pad_lon * 31 + gps.lon) / 32;
 					gps_ground_altitude.set_filtered(gps.alt, time);
@@ -949,11 +949,24 @@ public class AltosState implements Cloneable {
 				  state <= AltosLib.ao_flight_coast);
 			boost = (AltosLib.ao_flight_boost == state);
 		}
-
 	}
 
 	public void set_device_type(int device_type) {
 		this.device_type = device_type;
+		switch (device_type) {
+		case AltosLib.product_telegps:
+			this.state = AltosLib.ao_flight_stateless;
+			break;
+		}
+	}
+
+	public void set_log_format(int log_format) {
+		this.log_format = log_format;
+		switch (log_format) {
+		case AltosLib.AO_LOG_FORMAT_TELEGPS:
+			this.state = AltosLib.ao_flight_stateless;
+			break;
+		}
 	}
 
 	public void set_flight_params(int apogee_delay, int main_deploy) {
