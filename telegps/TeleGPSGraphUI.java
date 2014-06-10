@@ -42,6 +42,7 @@ public class TeleGPSGraphUI extends AltosUIFrame
 	AltosState		state;
 	AltosFlightStats	stats;
 	AltosGraphDataSet	graphDataSet;
+	AltosFlightStatsTable	statsTable;
 
 	void fill_map(AltosStateIterable states) {
 		for (AltosState state : states) {
@@ -66,10 +67,13 @@ public class TeleGPSGraphUI extends AltosUIFrame
 		stats = new AltosFlightStats(states);
 		graphDataSet = new AltosGraphDataSet(states);
 		graph = new AltosGraph(enable, stats, graphDataSet);
+		statsTable = new AltosFlightStatsTable(stats);
+
 		map = new AltosSiteMap();
 
 		pane.add("Flight Graph", graph.panel);
 		pane.add("Configure Graph", enable);
+		pane.add("Statistics", statsTable);
 		fill_map(states);
 		pane.add("Map", map);
 
