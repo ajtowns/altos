@@ -53,7 +53,7 @@
 #endif
 
 #define AO_CONFIG_MAJOR	1
-#define AO_CONFIG_MINOR	17
+#define AO_CONFIG_MINOR	18
 
 #define AO_AES_LEN 16
 
@@ -98,6 +98,9 @@ struct ao_config {
 #if HAS_TRACKER
 	uint16_t	tracker_start_horiz;	/* minor version 17 */
 	uint16_t	tracker_start_vert;	/* minor version 17 */
+#endif
+#if AO_PYRO_NUM
+	uint16_t	pyro_time;		/* minor version 18 */
 #endif
 };
 

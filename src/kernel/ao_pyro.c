@@ -213,7 +213,7 @@ ao_pyro_pins_fire(uint16_t fire)
 		if (fire & (1 << p))
 			ao_pyro_pin_set(p, 1);
 	}
-	ao_delay(AO_MS_TO_TICKS(50));
+	ao_delay(ao_config.pyro_time);
 	for (p = 0; p < AO_PYRO_NUM; p++) {
 		if (fire & (1 << p)) {
 			ao_pyro_pin_set(p, 0);

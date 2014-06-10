@@ -44,6 +44,7 @@ __xdata uint8_t ao_config_mutex;
 #define AO_CONFIG_DEFAULT_APOGEE_DELAY	0
 #define AO_CONFIG_DEFAULT_IGNITE_MODE	AO_IGNITE_MODE_DUAL
 #define AO_CONFIG_DEFAULT_PAD_ORIENTATION	AO_PAD_ORIENTATION_ANTENNA_UP
+#define AO_CONFIG_DEFAULT_PYRO_TIME	AO_MS_TO_TICKS(50)
 #if HAS_EEPROM
 #ifndef USE_INTERNAL_FLASH
 #error Please define USE_INTERNAL_FLASH
@@ -186,6 +187,10 @@ _ao_config_get(void)
 			ao_config.tracker_start_horiz = AO_CONFIG_DEFAULT_TRACKER_START_HORIZ;
 			ao_config.tracker_start_vert = AO_CONFIG_DEFAULT_TRACKER_START_VERT;
 		}
+#endif
+#if AO_PYRO_NUM
+		if (minor < 18)
+			ao_config.pyro_time = AO_CONFIG_DEFAULT_PYRO_TIME;
 #endif
 		ao_config.minor = AO_CONFIG_MINOR;
 		ao_config_dirty = 1;
@@ -713,6 +718,25 @@ ao_config_tracker_set(void)
 }
 #endif /* HAS_TRACKER */
 
+#if AO_PYRO_NUM
+void
+ao_config_pyro_time_show(void)
+{
+	printf ("Pyro time: %d\n", ao_config.pyro_time);
+}
+
+void
+ao_config_pyro_time_set(void)
+{
+	ao_cmd_decimal();
+	if (ao_cmd_status != ao_cmd_success)
+		return;
+	_ao_config_edit_start();
+	ao_config.pyro_time = ao_cmd_lex_i;
+	_ao_config_edit_finish();
+}
+#endif
+
 struct ao_config_var {
 	__code char	*str;
 	void		(*set)(void) __reentrant;
@@ -778,6 +802,8 @@ __code struct ao_config_var ao_config_vars[] = {
 #if AO_PYRO_NUM
 	{ "P <n,?>\0Pyro channels",
 	  ao_pyro_set, ao_pyro_show },
+	{ "I <ticks>\0Pyro firing time",
+	  ao_config_pyro_time_set, ao_config_pyro_time_show },
 #endif
 #if HAS_APRS
 	{ "A <secs>\0APRS packet interval (0 disable)",
