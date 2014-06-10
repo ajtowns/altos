@@ -145,8 +145,6 @@ main (int argc, char **argv)
 							telem.location.ground_speed / 100.0,
 							telem.location.climb_rate / 100.0,
 							telem.location.course * 2);
-					if ((telem.location.state & AO_GPS_STATE_VALID))
-						printf (" state %1d", telem.location.state & ~(AO_GPS_STATE_VALID));
 					printf ("\n");
 					break;
 				case AO_TELEMETRY_SATELLITE:
