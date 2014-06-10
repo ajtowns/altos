@@ -184,8 +184,8 @@ _ao_config_get(void)
 #endif
 #if HAS_TRACKER
 		if (minor < 17) {
-			ao_config.tracker_start_horiz = AO_CONFIG_DEFAULT_TRACKER_START_HORIZ;
-			ao_config.tracker_start_vert = AO_CONFIG_DEFAULT_TRACKER_START_VERT;
+			ao_config.tracker_motion = AO_TRACKER_MOTION_DEFAULT;
+			ao_config.tracker_interval = AO_TRACKER_INTERVAL_DEFAULT;
 		}
 #endif
 #if AO_PYRO_NUM
@@ -695,25 +695,25 @@ void
 ao_config_tracker_show(void)
 {
 	printf ("Tracker setting: %d %d\n",
-		ao_config.tracker_start_horiz,
-		ao_config.tracker_start_vert);
+		ao_config.tracker_motion,
+		ao_config.tracker_interval);
 }
 
 void
 ao_config_tracker_set(void)
 {
-	uint16_t	h, v;
+	uint16_t	m, i;
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
 		return;
-	h = ao_cmd_lex_i;
+	m = ao_cmd_lex_i;
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
 		return;
-	v = ao_cmd_lex_i;
+	i = ao_cmd_lex_i;
 	_ao_config_edit_start();
-	ao_config.tracker_start_horiz = h;
-	ao_config.tracker_start_vert = v;
+	ao_config.tracker_motion = m;
+	ao_config.tracker_interval = i;
 	_ao_config_edit_finish();
 }
 #endif /* HAS_TRACKER */
@@ -814,7 +814,7 @@ __code struct ao_config_var ao_config_vars[] = {
 	  ao_config_beep_set, ao_config_beep_show },
 #endif
 #if HAS_TRACKER
-	{ "t <horiz> <vert>\0Tracker start trigger distances",
+	{ "t <motion> <interval>\0Tracker configuration",
 	  ao_config_tracker_set, ao_config_tracker_show },
 #endif
 	{ "s\0Show",

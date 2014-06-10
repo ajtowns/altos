@@ -55,7 +55,6 @@ main(void)
 	ao_tracker_init();
 
 	ao_telemetry_init();
-	ao_telemetry_set_interval(AO_SEC_TO_TICKS(1));
 
 #if HAS_SAMPLE_PROFILE
 	ao_sample_profile_init();

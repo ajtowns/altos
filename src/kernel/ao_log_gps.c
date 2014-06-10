@@ -60,51 +60,17 @@ ao_log_gps(__xdata struct ao_log_gps *log) __reentrant
 	return wrote;
 }
 
-
-static int32_t	prev_lat, prev_lon;
-static int16_t  prev_alt;
-static uint8_t	has_prev, unmoving;
-
-#define GPS_SPARSE_UNMOVING_REPORTS	10
-#define GPS_SPARSE_UNMOVING_GROUND	10
-#define GPS_SPARSE_UNMOVING_AIR		10
-
-uint8_t
-ao_log_gps_should_log(int32_t lat, int32_t lon, int16_t alt)
-{
-	if (has_prev && ao_log_running) {
-		uint32_t	h = ao_distance(prev_lat, prev_lon, lat, lon);
-		uint16_t	v = alt > prev_alt ? (alt - prev_alt) : (prev_alt - alt);
-
-		if (h < GPS_SPARSE_UNMOVING_GROUND && v < GPS_SPARSE_UNMOVING_AIR) {
-			if (unmoving < GPS_SPARSE_UNMOVING_REPORTS)
-				++unmoving;
-		} else
-			unmoving = 0;
-	} else
-		unmoving = 0;
-
-	prev_lat = lat;
-	prev_lon = lon;
-	prev_alt = alt;
-	has_prev = 1;
-	return unmoving >= GPS_SPARSE_UNMOVING_REPORTS;
-}
-
 void
 ao_log_gps_flight(void)
 {
 	log.type = AO_LOG_FLIGHT;
 	log.tick = ao_time();
 	log.u.flight.flight = ao_flight_number;
-	log.u.flight.start_altitude = ao_tracker_start_altitude;
-	log.u.flight.start_latitude = ao_tracker_start_latitude;
-	log.u.flight.start_longitude = ao_tracker_start_longitude;
 	ao_log_gps(&log);
 }
 
 void
-ao_log_gps_data(uint16_t tick, uint8_t state, struct ao_telemetry_location *gps_data)
+ao_log_gps_data(uint16_t tick, struct ao_telemetry_location *gps_data)
 {
 	log.tick = tick;
 	log.type = AO_LOG_GPS_TIME;
@@ -126,7 +92,6 @@ ao_log_gps_data(uint16_t tick, uint8_t state, struct ao_telemetry_location *gps_
 	log.u.gps.hdop = gps_data->hdop;
 	log.u.gps.vdop = gps_data->vdop;
 	log.u.gps.mode = gps_data->mode;
-	log.u.gps.state = state;
 	ao_log_gps(&log);
 }
 

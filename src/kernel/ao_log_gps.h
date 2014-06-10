@@ -18,6 +18,9 @@
 #include "ao.h"
 #include "ao_telemetry.h"
 
+#ifndef _AO_LOG_GPS_H_
+#define _AO_LOG_GPS_H_
+
 uint8_t
 ao_log_gps_should_log(int32_t lat, int32_t lon, int16_t alt);
 
@@ -25,8 +28,6 @@ void
 ao_log_gps_flight(void);
 
 void
-ao_log_gps_data(uint16_t tick, uint8_t state, struct ao_telemetry_location *gps_data);
+ao_log_gps_data(uint16_t tick, struct ao_telemetry_location *gps_data);
 
-void
-ao_log_gps_tracking(uint16_t tick, struct ao_telemetry_satellite *gps_tracking_data);
-
+#endif /* _AO_LOG_GPS_H_ */

@@ -96,8 +96,8 @@ struct ao_config {
 	uint8_t		mid_beep;		/* minor version 16 */
 #endif
 #if HAS_TRACKER
-	uint16_t	tracker_start_horiz;	/* minor version 17 */
-	uint16_t	tracker_start_vert;	/* minor version 17 */
+	uint16_t	tracker_motion;		/* minor version 17 */
+	uint8_t		tracker_interval;	/* minor version 17 */
 #endif
 #if AO_PYRO_NUM
 	uint16_t	pyro_time;		/* minor version 18 */
