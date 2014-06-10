@@ -39,7 +39,7 @@ public class AltosReplayReader extends AltosFlightReader {
 
 	public void update(AltosState state) throws InterruptedException {
 		/* Make it run in realtime after the rocket leaves the pad */
-		if (state.state > AltosLib.ao_flight_pad)
+		if (state.state > AltosLib.ao_flight_pad && state.time_change > 0)
 			Thread.sleep((int) (Math.min(state.time_change,10) * 1000));
 		state.set_received_time(System.currentTimeMillis());
 	}
