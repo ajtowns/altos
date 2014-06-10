@@ -52,12 +52,6 @@ public class AltosEepromGPS extends AltosEeprom {
 	public int hdop() { return data8(23); }
 	public int vdop() { return data8(24); }
 	public int mode() { return data8(25); }
-	public int state() { return data8(26); }
-
-	/* AO_LOG_GPS_SAT elements */
-	public int nsat() { return data16(0); }
-	public int svid(int n) { return data8(2 + n * 2); }
-	public int c_n(int n) { return data8(2 + n * 2 + 1); }
 
 	public AltosEepromGPS (AltosEepromChunk chunk, int start) throws ParseException {
 		parse_chunk(chunk, start);
@@ -91,7 +85,6 @@ public class AltosEepromGPS extends AltosEeprom {
 			break;
 		case AltosLib.AO_LOG_GPS_TIME:
 			state.set_tick(tick);
-			state.set_state(state());
 			gps = state.make_temp_gps(false);
 			gps.lat = latitude() / 1e7;
 			gps.lon = longitude() / 1e7;
@@ -116,16 +109,6 @@ public class AltosEepromGPS extends AltosEeprom {
 			gps.climb_rate = climb_rate() * 1.0e-2;
 			gps.hdop = hdop();
 			gps.vdop = vdop();
-			break;
-		case AltosLib.AO_LOG_GPS_SAT:
-			state.set_tick(tick);
-			gps = state.make_temp_gps(true);
-
-			int n = nsat();
-			if (n > max_sat)
-				n = max_sat;
-			for (int i = 0; i < n; i++)
-				gps.add_sat(svid(i), c_n(i));
 			break;
 		}
 	}
