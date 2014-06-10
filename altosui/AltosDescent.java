@@ -133,11 +133,17 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 		void show(double v) {
 			this.v = v;
-			show(units.show(8, v));
+			if (v == AltosLib.MISSING)
+				show("Missing");
+			else
+				show(units.show(8, v));
 		}
 
 		void show(String format, double v) {
-			show(String.format(format, v));
+			if (v == AltosLib.MISSING)
+				show("Missing");
+			else
+				show(String.format(format, v));
 		}
 
 		public void font_size_changed(int font_size) {

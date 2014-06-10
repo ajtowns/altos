@@ -51,7 +51,10 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 
 		void show(double v) {
 			this.v = v;
-			show(units.show(8, v));
+			if (v == AltosLib.MISSING)
+				show("Missing");
+			else
+				show(units.show(8, v));
 		}
 
 		void show(String format, double v) {
