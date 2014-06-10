@@ -99,12 +99,6 @@ public class AltosConfigUI
 		"0", "5", "10", "15", "20"
 	};
 
-	static String[] 	flight_log_max_values = {
-		"64", "128", "192", "256", "320",
-		"384", "448", "512", "576", "640",
-		"704", "768", "832", "896", "960",
-	};
-
 	static String[] 	ignite_mode_values = {
 		"Dual Deploy",
 		"Redundant Apogee",
@@ -546,7 +540,7 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = il;
 		c.ipady = 5;
-		flight_log_max_label = new JLabel("Maximum Flight Log Size:");
+		flight_log_max_label = new JLabel("Maximum Flight Log Size (kB):");
 		pane.add(flight_log_max_label, c);
 
 		c = new GridBagConstraints();
@@ -557,7 +551,7 @@ public class AltosConfigUI
 		c.anchor = GridBagConstraints.LINE_START;
 		c.insets = ir;
 		c.ipady = 5;
-		flight_log_max_value = new JComboBox<String>(flight_log_max_values);
+		flight_log_max_value = new JComboBox<String>();
 		flight_log_max_value.setEditable(true);
 		flight_log_max_value.addItemListener(this);
 		pane.add(flight_log_max_value, c);
@@ -918,8 +912,19 @@ public class AltosConfigUI
 		apogee_delay_value.setEnabled(new_apogee_delay >= 0);
 	}
 
-	public int apogee_delay() {
-		return Integer.parseInt(apogee_delay_value.getSelectedItem().toString());
+	private int parse_int(String name, String s, boolean split) throws AltosConfigDataException {
+		String v = s;
+		if (split)
+			v = s.split("\\s+")[0];
+		try {
+			return Integer.parseInt(v);
+		} catch (NumberFormatException ne) {
+			throw new AltosConfigDataException("Invalid %s \"%s\"", name, s);
+		}
+	}
+
+	public int apogee_delay() throws AltosConfigDataException {
+		return parse_int("apogee delay", apogee_delay_value.getSelectedItem().toString(), false);
 	}
 
 	public void set_apogee_lockout(int new_apogee_lockout) {
@@ -927,8 +932,8 @@ public class AltosConfigUI
 		apogee_lockout_value.setEnabled(new_apogee_lockout >= 0);
 	}
 
-	public int apogee_lockout() {
-		return Integer.parseInt(apogee_lockout_value.getSelectedItem().toString());
+	public int apogee_lockout() throws AltosConfigDataException {
+		return parse_int("apogee lockout", apogee_lockout_value.getSelectedItem().toString(), false);
 	}
 
 	public void set_radio_frequency(double new_radio_frequency) {
@@ -947,8 +952,8 @@ public class AltosConfigUI
 			radio_calibration_value.setText(String.format("%d", new_radio_calibration));
 	}
 
-	public int radio_calibration() {
-		return Integer.parseInt(radio_calibration_value.getText());
+	public int radio_calibration() throws AltosConfigDataException {
+		return parse_int("radio calibration", radio_calibration_value.getText(), false);
 	}
 
 	public void set_radio_enable(int new_radio_enable) {
@@ -979,8 +984,22 @@ public class AltosConfigUI
 		return callsign_value.getText();
 	}
 
+	int	flight_log_max_limit;
+	int	flight_log_max;
+
+	public String flight_log_max_label(int flight_log_max) {
+		if (flight_log_max_limit != 0) {
+			int	nflight = flight_log_max_limit / flight_log_max;
+			String	plural = nflight > 1 ? "s" : "";
+
+			return String.format("%d (%d flight%s)", flight_log_max, nflight, plural);
+		}
+		return String.format("%d", flight_log_max);
+	}
+
 	public void set_flight_log_max(int new_flight_log_max) {
-		flight_log_max_value.setSelectedItem(Integer.toString(new_flight_log_max));
+		flight_log_max_value.setSelectedItem(flight_log_max_label(new_flight_log_max));
+		flight_log_max = new_flight_log_max;
 		set_flight_log_max_tool_tip();
 	}
 
@@ -989,20 +1008,19 @@ public class AltosConfigUI
 		set_flight_log_max_tool_tip();
 	}
 
-	public int flight_log_max() {
-		return Integer.parseInt(flight_log_max_value.getSelectedItem().toString());
+	public int flight_log_max() throws AltosConfigDataException {
+		return parse_int("flight log max", flight_log_max_value.getSelectedItem().toString(), true);
 	}
 
-	public void set_flight_log_max_limit(int flight_log_max_limit) {
-		//boolean	any_added = false;
+	public void set_flight_log_max_limit(int new_flight_log_max_limit) {
+		flight_log_max_limit = new_flight_log_max_limit;
 		flight_log_max_value.removeAllItems();
-		for (int i = 0; i < flight_log_max_values.length; i++) {
-			if (Integer.parseInt(flight_log_max_values[i]) < flight_log_max_limit){
-				flight_log_max_value.addItem(flight_log_max_values[i]);
-				//any_added = true;
-			}
+		for (int i = 8; i >= 1; i--) {
+			int	size = flight_log_max_limit / i;
+			flight_log_max_value.addItem(String.format("%d (%d flights)", size, i));
 		}
-		flight_log_max_value.addItem(String.format("%d", flight_log_max_limit));
+		if (flight_log_max != 0)
+			set_flight_log_max(flight_log_max);
 	}
 
 	public void set_ignite_mode(int new_ignite_mode) {
@@ -1165,11 +1183,11 @@ public class AltosConfigUI
 		set_aprs_interval_tool_tip();
 	}
 
-	public int aprs_interval() {
+	public int aprs_interval() throws AltosConfigDataException {
 		String	s = aprs_interval_value.getSelectedItem().toString();
 
 		if (s.equals("Disabled"))
 			return 0;
-		return Integer.parseInt(s);
+		return parse_int("aprs interval", s, false);
 	}
 }

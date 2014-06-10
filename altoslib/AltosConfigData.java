@@ -29,6 +29,7 @@ public class AltosConfigData implements Iterable<String> {
 	public int	serial;
 	public int	flight;
 	public int	log_format;
+	public int	log_space;
 	public String	version;
 
 	/* Strings returned */
@@ -124,6 +125,22 @@ public class AltosConfigData implements Iterable<String> {
 		return lines.iterator();
 	}
 
+	public int log_space() {
+		if (log_space > 0)
+			return log_space;
+
+		if (storage_size > 0) {
+			int	space = storage_size;
+
+			if (storage_erase_unit > 0 && use_flash_for_config())
+				space -= storage_erase_unit;
+
+			if (space > 0)
+				return space;
+		}
+		return 0;
+	}
+
 	public int log_available() {
 		switch (log_format) {
 		case AltosLib.AO_LOG_FORMAT_TINY:
@@ -137,7 +154,7 @@ public class AltosConfigData implements Iterable<String> {
 			if (flight_log_max <= 0)
 				return 1;
 			int	log_max = flight_log_max * 1024;
-			int	log_space = storage_size - storage_erase_unit;
+			int	log_space = log_space();
 			int	log_used;
 
 			if (stored_flight <= 0)
@@ -202,6 +219,7 @@ public class AltosConfigData implements Iterable<String> {
 		serial = 0;
 		flight = 0;
 		log_format = AltosLib.AO_LOG_FORMAT_UNKNOWN;
+		log_space = -1;
 		version = "unknown";
 
 		main_deploy = -1;
@@ -247,6 +265,7 @@ public class AltosConfigData implements Iterable<String> {
 		try { serial = get_int(line, "serial-number"); } catch (Exception e) {}
 		try { flight = get_int(line, "current-flight"); } catch (Exception e) {}
 		try { log_format = get_int(line, "log-format"); } catch (Exception e) {}
+		try { log_space = get_int(line, "log-space"); } catch (Exception e) {}
 		try { version = get_string(line, "software-version"); } catch (Exception e) {}
 
 		/* Version also contains MS5607 info, which we ignore here */
@@ -390,19 +409,6 @@ public class AltosConfigData implements Iterable<String> {
 	}
 
 
-	public int log_limit() {
-		if (storage_size > 0) {
-			int	log_limit = storage_size;
-
-			if (storage_erase_unit > 0 && use_flash_for_config())
-				log_limit -= storage_erase_unit;
-
-			if (log_limit > 0)
-				return log_limit / 1024;
-		}
-		return 1024;
-	}
-
 	public void get_values(AltosConfigValues source) throws AltosConfigDataException {
 
 		/* HAS_FLIGHT */
@@ -462,7 +468,7 @@ public class AltosConfigData implements Iterable<String> {
 		dest.set_radio_frequency(frequency());
 		boolean max_enabled = true;
 
-		if (log_limit() == 0)
+		if (log_space() == 0)
 			max_enabled = false;
 
 		switch (log_format) {
@@ -477,7 +483,7 @@ public class AltosConfigData implements Iterable<String> {
 
 		dest.set_flight_log_max_enabled(max_enabled);
 		dest.set_radio_enable(radio_enable);
-		dest.set_flight_log_max_limit(log_limit());
+		dest.set_flight_log_max_limit(log_space() / 1024);
 		dest.set_flight_log_max(flight_log_max);
 		dest.set_ignite_mode(ignite_mode);
 		dest.set_pad_orientation(pad_orientation);

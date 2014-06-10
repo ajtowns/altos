@@ -229,20 +229,20 @@ public class AltosConfig implements ActionListener {
 
 	void save_data() {
 
-		/* bounds check stuff */
-		if (config_ui.flight_log_max() > data.log_limit()) {
-			JOptionPane.showMessageDialog(owner,
-						      String.format("Requested flight log, %dk, is larger than the available space, %dk.\n",
-								    config_ui.flight_log_max(),
-								    data.log_limit()),
-						      "Maximum Flight Log Too Large",
-						      JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-
-		/* Pull data out of the UI and stuff back into our local data record */
-
 		try {
+			/* bounds check stuff */
+			if (config_ui.flight_log_max() > data.log_space() / 1024) {
+				JOptionPane.showMessageDialog(owner,
+							      String.format("Requested flight log, %dk, is larger than the available space, %dk.\n",
+									    config_ui.flight_log_max(),
+									    data.log_space() / 1024),
+							      "Maximum Flight Log Too Large",
+							      JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
+			/* Pull data out of the UI and stuff back into our local data record */
+
 			data.get_values(config_ui);
 			run_serial_thread(serial_mode_save);
 		} catch (AltosConfigDataException ae) {

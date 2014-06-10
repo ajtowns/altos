@@ -19,7 +19,8 @@ telegps_JAVA= \
 	TeleGPSConfig.java \
 	TeleGPSConfigUI.java \
 	TeleGPSPreferences.java \
-	TeleGPSGraphUI.java
+	TeleGPSGraphUI.java \
+	TeleGPSDisplayThread.java
 
 JFREECHART_CLASS= \
     jfreechart.jar

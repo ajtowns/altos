@@ -51,7 +51,7 @@ public class TeleGPS
 	}
 
 	AltosFlightReader	reader;
-	AltosDisplayThread	thread;
+	TeleGPSDisplayThread	thread;
 
 	JMenuBar		menu_bar;
 
@@ -349,7 +349,7 @@ public class TeleGPS
 
 	public void set_reader(AltosFlightReader reader) {
 		setTitle(String.format("TeleGPS %s", reader.name));
-		thread = new AltosDisplayThread(this, voice(), this, reader);
+		thread = new TeleGPSDisplayThread(this, voice(), this, reader);
 		thread.start();
 	}
 
