@@ -18,7 +18,8 @@
 #ifndef _AO_PINS_H_
 #define _AO_PINS_H_
 
-#define HAS_RADIO	1
+#define HAS_RADIO		1
+#define DISABLE_LOG_SPACE	1
 
 #if defined(TELEMETRUM_V_1_0)
 	/* Discontinued and was never built with CC1111 chips needing this */

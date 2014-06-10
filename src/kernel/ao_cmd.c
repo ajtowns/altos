@@ -283,6 +283,9 @@ version(void)
 #endif
 #if HAS_LOG
 	       "log-format       %u\n"
+#if !DISABLE_LOG_SPACE
+	       "log-space	 %lu\n"
+#endif
 #endif
 #if defined(AO_BOOT_APPLICATION_BASE) && defined(AO_BOOT_APPLICATION_BOUND)
 	       "program-space    %u\n"
@@ -295,6 +298,9 @@ version(void)
 #endif
 #if HAS_LOG
 	       , ao_log_format
+#if !DISABLE_LOG_SPACE
+	       , (unsigned long) ao_storage_log_max
+#endif
 #endif
 #if defined(AO_BOOT_APPLICATION_BASE) && defined(AO_BOOT_APPLICATION_BOUND)
 	       , (uint32_t) AO_BOOT_APPLICATION_BOUND - (uint32_t) AO_BOOT_APPLICATION_BASE
