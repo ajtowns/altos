@@ -93,8 +93,6 @@ struct ao_telemetry_configuration {
 #define AO_GPS_MODE_MANUAL		'M'
 #define AO_GPS_MODE_SIMULATED		'S'
 
-#define AO_GPS_STATE_VALID		0x80
-
 struct ao_telemetry_location {
 	uint16_t	serial;		/*  0 */
 	uint16_t	tick;		/*  2 */
@@ -117,7 +115,7 @@ struct ao_telemetry_location {
 	uint16_t	ground_speed;	/* 26 cm/s */
 	int16_t		climb_rate;	/* 28 cm/s */
 	uint8_t		course;		/* 30 degrees / 2 */
-	uint8_t		state;		/* 31 flight state */
+	uint8_t		unused;		/* 31 unused */
 	/* 32 */
 };
 

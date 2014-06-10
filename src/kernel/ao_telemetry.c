@@ -340,9 +340,6 @@ ao_send_location(void)
 		ao_xmemcpy(&telemetry.location.flags,
 		       &ao_gps_data.flags,
 		       26);
-#if HAS_TRACKER
-		telemetry.location.state = ao_flight_state | AO_GPS_STATE_VALID;
-#endif
 		telemetry.location.tick = ao_gps_tick;
 		ao_mutex_put(&ao_gps_mutex);
 		ao_radio_send(&telemetry, sizeof (telemetry));
