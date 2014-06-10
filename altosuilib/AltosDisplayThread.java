@@ -99,7 +99,7 @@ public class AltosDisplayThread extends Thread {
 					    (int) (state.from_pad.bearing + 0.5),
 					    (int) (state.elevation + 0.5),
 					    AltosConvert.distance.say(state.range));
-			} else if (state.state > AltosLib.ao_flight_pad) {
+			} else if (state.state > AltosLib.ao_flight_pad && state.height() != AltosLib.MISSING) {
 				voice.speak(AltosConvert.height.say_units(state.height()));
 			} else {
 				reported_landing = 0;
@@ -109,7 +109,8 @@ public class AltosDisplayThread extends Thread {
 			 * either we've got a landed report or we haven't heard from it in
 			 * a long time
 			 */
-			if (state.state >= AltosLib.ao_flight_drogue &&
+			if (state.state != AltosLib.ao_flight_stateless &&
+			    state.state >= AltosLib.ao_flight_drogue &&
 			    (last ||
 			     System.currentTimeMillis() - state.received_time >= 15000 ||
 			     state.state == AltosLib.ao_flight_landed))
@@ -182,16 +183,19 @@ public class AltosDisplayThread extends Thread {
 	synchronized boolean tell() {
 		boolean	ret = false;
 		if (old_state == null || old_state.state != state.state) {
-			voice.speak(state.state_name());
+			if (state.state != AltosLib.ao_flight_stateless)
+				voice.speak(state.state_name());
 			if ((old_state == null || old_state.state <= AltosLib.ao_flight_boost) &&
 			    state.state > AltosLib.ao_flight_boost) {
-				voice.speak("max speed: %s.",
-					    AltosConvert.speed.say_units(state.max_speed() + 0.5));
+				if (state.max_speed() != AltosLib.MISSING)
+					voice.speak("max speed: %s.",
+						    AltosConvert.speed.say_units(state.max_speed() + 0.5));
 				ret = true;
 			} else if ((old_state == null || old_state.state < AltosLib.ao_flight_drogue) &&
 				   state.state >= AltosLib.ao_flight_drogue) {
-				voice.speak("max height: %s.",
-					    AltosConvert.height.say_units(state.max_height() + 0.5));
+				if (state.max_height() != AltosLib.MISSING)
+					voice.speak("max height: %s.",
+						    AltosConvert.height.say_units(state.max_height() + 0.5));
 				ret = true;
 			}
 		}
