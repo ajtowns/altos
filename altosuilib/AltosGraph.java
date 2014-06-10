@@ -333,19 +333,22 @@ public class AltosGraph extends AltosUIGraph {
 				  dbm_color,
 				  false,
 				  dbm_axis);
-		if (stats.has_other_adc) {
-			addSeries("Temperature",
-				  AltosGraphDataPoint.data_temperature,
-				  AltosConvert.temperature,
-				  temperature_color,
-				  false,
-				  temperature_axis);
+
+		if (stats.has_battery)
 			addSeries("Battery Voltage",
 				  AltosGraphDataPoint.data_battery_voltage,
 				  voltage_units,
 				  battery_voltage_color,
 				  false,
 				  voltage_axis);
+
+		if (stats.has_flight_adc) {
+			addSeries("Temperature",
+				  AltosGraphDataPoint.data_temperature,
+				  AltosConvert.temperature,
+				  temperature_color,
+				  false,
+				  temperature_axis);
 			addSeries("Drogue Voltage",
 				  AltosGraphDataPoint.data_drogue_voltage,
 				  voltage_units,
