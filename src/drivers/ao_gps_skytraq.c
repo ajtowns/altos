@@ -259,9 +259,6 @@ ao_nmea_gga(void)
 	ao_gps_next.minute = ao_gps_decimal(2);
 	ao_gps_next.second = ao_gps_decimal(2);
 	ao_gps_skip_field();	/* skip seconds fraction */
-#if HAS_FLIGHT || HAS_TRACKER
-				ao_gps_data.state = ao_flight_state;
-#endif
 
 	ao_gps_next.latitude = ao_gps_parse_pos(2);
 	if (ao_gps_parse_flag('N', 'S'))

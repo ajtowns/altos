@@ -749,9 +749,7 @@ ao_gps(void) __reentrant
 				ao_gps_data.ground_speed = nav_velned.g_speed;
 				ao_gps_data.climb_rate = -nav_velned.vel_d;
 				ao_gps_data.course = nav_velned.heading / 200000;
-#if HAS_FLIGHT || HAS_TRACKER
-				ao_gps_data.state = ao_flight_state;
-#endif
+
 				ao_gps_tracking_data.channels = 0;
 
 				struct ao_telemetry_satellite_info *dst = &ao_gps_tracking_data.sats[0];

@@ -413,9 +413,6 @@ ao_gps(void) __reentrant
 			ao_gps_data.hdop = ao_sirf_data.hdop;
 			ao_gps_data.climb_rate = ao_sirf_data.climb_rate;
 			ao_gps_data.flags |= AO_GPS_COURSE_VALID;
-#if HAS_FLIGHT || HAS_TRACKER
-			ao_gps_data.state = ao_flight_state;
-#endif
 #if 0
 			if (ao_sirf_data.h_error > 6553500)
 				ao_gps_data.h_error = 65535;
