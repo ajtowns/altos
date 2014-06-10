@@ -21,7 +21,6 @@ altosui_JAVA = \
 	AltosConfigTD.java \
 	AltosConfigTDUI.java \
 	AltosDescent.java \
-	AltosFlightStatsTable.java \
 	AltosFlightStatus.java \
 	AltosFlightStatusUpdate.java \
 	AltosFlightUI.java \
