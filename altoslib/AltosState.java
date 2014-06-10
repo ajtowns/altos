@@ -392,6 +392,7 @@ public class AltosState implements Cloneable {
 	private AltosValue		gps_ground_speed;
 	private AltosValue		gps_ascent_rate;
 	private AltosValue		gps_course;
+	private AltosValue		gps_speed;
 
 	public double altitude() {
 		double a = altitude.value();
@@ -427,12 +428,28 @@ public class AltosState implements Cloneable {
 		return gps_ground_speed.value();
 	}
 
+	public double max_gps_ground_speed() {
+		return gps_ground_speed.max();
+	}
+
 	public double gps_ascent_rate() {
 		return gps_ascent_rate.value();
 	}
 
+	public double max_gps_ascent_rate() {
+		return gps_ascent_rate.max();
+	}
+
 	public double gps_course() {
 		return gps_course.value();
+	}
+
+	public double gps_speed() {
+		return gps_speed.value();
+	}
+
+	public double max_gps_speed() {
+		return gps_speed.max();
 	}
 
 	class AltosPressure extends AltosValue {
@@ -476,7 +493,7 @@ public class AltosState implements Cloneable {
 		double g = ground_altitude();
 		if (a != AltosLib.MISSING && g != AltosLib.MISSING)
 			return a - g;
-		return AltosLib.MISSING;
+		return max_gps_height();
 	}
 
 	public double gps_height() {
@@ -529,14 +546,26 @@ public class AltosState implements Cloneable {
 		double v = kalman_speed.value();
 		if (v != AltosLib.MISSING)
 			return v;
-		return speed.value();
+		v = speed.value();
+		if (v != AltosLib.MISSING)
+			return v;
+		v = gps_speed();
+		if (v != AltosLib.MISSING)
+			return v;
+		return AltosLib.MISSING;
 	}
 
 	public double max_speed() {
 		double v = kalman_speed.max();
 		if (v != AltosLib.MISSING)
 			return v;
-		return speed.max();
+		v = speed.max();
+		if (v != AltosLib.MISSING)
+			return v;
+		v = max_gps_speed();
+		if (v != AltosLib.MISSING)
+			return v;
+		return AltosLib.MISSING;
 	}
 
 	class AltosAccel extends AltosCValue {
@@ -712,6 +741,7 @@ public class AltosState implements Cloneable {
 		gps_altitude = new AltosGpsAltitude();
 		gps_ground_altitude = new AltosGpsGroundAltitude();
 		gps_ground_speed = new AltosValue();
+		gps_speed = new AltosValue();
 		gps_ascent_rate = new AltosValue();
 		gps_course = new AltosValue();
 
@@ -846,6 +876,7 @@ public class AltosState implements Cloneable {
 		gps_ground_speed.copy(old.gps_ground_speed);
 		gps_ascent_rate.copy(old.gps_ascent_rate);
 		gps_course.copy(old.gps_course);
+		gps_speed.copy(old.gps_speed);
 
 		pad_lat = old.pad_lat;
 		pad_lon = old.pad_lon;
@@ -903,6 +934,9 @@ public class AltosState implements Cloneable {
 				gps_ascent_rate.set(gps.climb_rate, time);
 			if (gps.ground_speed != AltosLib.MISSING)
 				gps_ground_speed.set(gps.ground_speed, time);
+			if (gps.climb_rate != AltosLib.MISSING && gps.ground_speed != AltosLib.MISSING)
+				gps_speed.set(Math.sqrt(gps.ground_speed * gps.ground_speed +
+							gps.climb_rate * gps.climb_rate), time);
 			if (gps.course != AltosLib.MISSING)
 				gps_course.set(gps.course, time);
 		}
