@@ -9,7 +9,7 @@
     software for all our boards and the AltosUI ground station
   </para>
   <para>
-    AltOS Firmware Changes
+    AltOS New Features
     <itemizedlist>
       <listitem>
 	<para>
@@ -39,14 +39,37 @@
       </listitem>
       <listitem>
 	<para>
-	  Fix bug preventing the selection of the 'Flight State After'
-	  mode in pyro configuration.
+	  Make the firing time for extra pyro channels configurable,
+	  allowing longer (or shorter) than the default 50ms.
 	</para>
       </listitem>
     </itemizedlist>
   </para>
   <para>
-    AltosUI new features
+    AltOS Fixes
+    <itemizedlist>
+      <listitem>
+	<para>
+	  Fix bug preventing the selection of the 'Flight State After'
+	  mode in pyro configuration.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Fix bug where erasing flights would reset the flight number
+	  to 2 on TeleMega and TeleMetrum v2.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  Fix u-Blox GPS driver to mark course and speed data as being
+	  present.
+	</para>
+      </listitem>
+    </itemizedlist>
+  </para>
+  <para>
+    AltosUI New Features
     <itemizedlist>
       <listitem>
 	<para>
@@ -92,7 +115,7 @@
     </itemizedlist>
   </para>
   <para>
-    AltosUI fixes
+    AltosUI Fixes
     <itemizedlist>
       <listitem>
 	<para>
