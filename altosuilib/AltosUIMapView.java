@@ -134,8 +134,10 @@ public class AltosUIMapView extends Canvas implements MouseMotionListener, Mouse
 		notice_user_input();
 		if (is_drag_event(e))
 			drag_start(e);
-		else
+		else {
 			line.pressed(e, transform);
+			repaint();
+		}
 	}
 
 	public void mouseReleased(MouseEvent e) {
