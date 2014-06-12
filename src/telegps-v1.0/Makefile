@@ -63,11 +63,12 @@ CFLAGS = $(PRODUCT_DEF) $(LPC_CFLAGS) $(PROFILE_DEF) -Os -g
 
 PROGNAME=telegps-v1.0
 PROG=$(PROGNAME)-$(VERSION).elf
+HEX=$(PROGNAME)-$(VERSION).ihx
 
 SRC=$(ALTOS_SRC) ao_telegps.c
 OBJ=$(SRC:.c=.o)
 
-all: $(PROG)
+all: $(PROG) $(HEX)
 
 LDFLAGS=-L../lpc -Wl,-Taltos.ld
 
