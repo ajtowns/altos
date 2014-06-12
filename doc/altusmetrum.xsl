@@ -2772,10 +2772,19 @@ NAR #88757, TRA #12200
           dark blue for main, and black for landed.
         </para>
         <para>
-          The map's scale is approximately 3m (10ft) per pixel. The map
+          The map's default scale is approximately 3m (10ft) per pixel. The map
           can be dragged using the left mouse button. The map will attempt
           to keep the rocket roughly centered while data is being received.
         </para>
+	<para>
+	  You can adjust the style of map and the zoom level with
+	  buttons on the right side of the map window. You can draw a
+	  line on the map by moving the mouse over the map with a
+	  button other than the left one pressed, or by pressing the
+	  left button while also holding down the shift key. The
+	  length of the line in real-world units will be shown at the
+	  start of the line.
+	</para>
         <para>
           Images are fetched automatically via the Google Maps Static API,
           and cached on disk for reuse. If map images cannot be downloaded,
@@ -2785,6 +2794,24 @@ NAR #88757, TRA #12200
 	<para>
 	  You can pre-load images for your favorite launch sites
 	  before you leave home; check out the 'Preload Maps' section below.
+	</para>
+      </section>
+      <section>
+        <title>Ignitor</title>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="ignitor.png" width="5.5in"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
+        <para>
+          TeleMega includes four additional programmable pyro
+          channels. The Ignitor tab shows whether each of them has
+          continuity. If an ignitor has a low resistance, then the
+          voltage measured here will be close to the pyro battery
+          voltage. A value greater than 3.2V is required for a 'GO'
+          status.
 	</para>
       </section>
     </section>
@@ -3053,7 +3080,21 @@ NAR #88757, TRA #12200
         </para>
       </section>
       <section>
-        <title>Radio Frequency</title>
+        <title>Apogee Lockoug</title>
+        <para>
+	  Apogee lockout is the number of seconds after boost where
+	  the flight computer will not fire the apogee charge, even if
+	  the rocket appears to be at apogee. This is often called
+	  'Mach Delay', as it is intended to prevent a flight computer
+	  from unintentionally firing apogee charges due to the pressure
+	  spike that occurrs across a mach transition. Altus Metrum
+	  flight computers include a Kalman filter which is not fooled
+	  by this sharp pressure increase, and so this setting should
+	  be left at the default value of zero to disable it.
+        </para>
+      </section>
+      <section>
+        <title>Frequency</title>
         <para>
           This configures which of the frequencies to use for both
           telemetry and packet command mode. Note that if you set this
@@ -3111,12 +3152,11 @@ NAR #88757, TRA #12200
 	</para>
       </section>
       <section>
-        <title>Ignite Mode</title>
+        <title>Ignitor Firing Mode</title>
 	<para>
-	  TeleMetrum and TeleMini provide two igniter channels as they
-	  were originally designed as dual-deploy flight
-	  computers. This configuration parameter allows the two
-	  channels to be used in different configurations.
+	  This configuration parameter allows the two standard ignitor
+	  channels (Apogee and Main) to be used in different
+	  configurations.
 	</para>
           <variablelist>
 	    <varlistentry>
@@ -3187,6 +3227,16 @@ NAR #88757, TRA #12200
 	</variablelist>
       </section>
       <section>
+        <title>Beeper Frequency</title>
+	<para>
+	  The beeper on all Altus Metrum flight computers works best
+	  at 4000Hz, however if you have more than one flight computer
+	  in a single airframe, having all of them sound at the same
+	  frequency can be confusing. This parameter lets you adjust
+	  the base beeper frequency value.
+	</para>
+      </section>
+      <section>
 	<title>Configure Pyro Channels</title>
 	<informalfigure>
 	  <mediaobject>
@@ -3210,6 +3260,11 @@ NAR #88757, TRA #12200
 	  conditions are met. Each pyro channel has a separate set of
 	  configuration values, so you can use different values for
 	  the same condition with different channels.
+	</para>
+	<para>
+	  At the bottom of the window, the 'Pyro Firing Time'
+	  configuration sets the length of time (in seconds) which
+	  each of these pyro channels will fire for.
 	</para>
 	<para>
 	  Once you have selected the appropriate configuration for all
@@ -3498,9 +3553,62 @@ NAR #88757, TRA #12200
 	and name of the site. The contents of this list are actually
 	downloaded from our server at run-time, so as new sites are sent 
 	in, they'll get automatically added to this list.
+	If the launch site isn't in the list, you can manually enter the lat/lon values
       </para>
       <para>
-	If the launch site isn't in the list, you can manually enter the lat/lon values
+	There are four different kinds of maps you can view; you can
+	select which to download by selecting as many as you like from
+	the available types:
+	<variablelist>
+	  <varlistentry>
+	    <term>Hybrid</term>
+	    <listitem>
+	      <para>
+		A combination of satellite imagery and road data. This
+		is the default view.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>Satellite</term>
+	    <listitem>
+	      <para>
+		Just the satellite imagery without any annotation.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>Roadmap</term>
+	    <listitem>
+	      <para>
+		Roads, political boundaries and a few geographic features.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>Terrain</term>
+	    <listitem>
+	      <para>
+		Contour intervals and shading that show hills and
+		valleys.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </para>
+      <para>
+	You can specify the range of zoom levels to download; smaller
+	numbers show more area with less resolution. The default
+	level, 0, shows about 3m/pixel. One zoom level change
+	doubles or halves that number.
+      </para>
+      <para>
+	The Tile Radius value sets how large an area around the center
+	point to download. Each tile is 512x512 pixels, and the
+	'radius' value specifies how many tiles away from the center
+	will be downloaded. Specify a radius of 0 and you get only the
+	center tile. A radius of 1 loads a 3x3 grid, centered on the
+	specified location.
       </para>
       <para>
 	Clicking the 'Load Map' button will fetch images from Google
