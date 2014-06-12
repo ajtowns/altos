@@ -74,7 +74,7 @@ public class AltosUIMap extends JComponent implements AltosFlightDisplay, AltosU
 	}
 
 	public void units_changed(boolean imperial_units) {
-		repaint();
+		view.set_units();
 	}
 
 	JLabel	zoom_label;

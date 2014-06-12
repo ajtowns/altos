@@ -19,14 +19,23 @@ package org.altusmetrum.altosuilib_2;
 
 import java.awt.*;
 import javax.swing.*;
+import java.util.*;
 import org.altusmetrum.altoslib_4.*;
 
-public class AltosFlightStatsTable extends JComponent {
+public class AltosFlightStatsTable extends JComponent implements AltosFontListener {
 	GridBagLayout	layout;
 
-	class FlightStat {
+	LinkedList<FlightStat> flight_stats = new LinkedList<FlightStat>();
+
+	class FlightStat implements AltosFontListener {
 		JLabel		label;
-		JTextField	value;
+		JTextField[]	value;
+
+		public void font_size_changed(int font_size) {
+			label.setFont(AltosUILib.label_font);
+			for (int i = 0; i < value.length; i++)
+				value[i].setFont(AltosUILib.value_font);
+		}
 
 		public FlightStat(GridBagLayout layout, int y, String label_text, String ... values) {
 			GridBagConstraints	c = new GridBagConstraints();
@@ -43,19 +52,26 @@ public class AltosFlightStatsTable extends JComponent {
 			layout.setConstraints(label, c);
 			add(label);
 
+			value = new JTextField[values.length];
 			for (int j = 0; j < values.length; j++) {
-				value = new JTextField(values[j]);
-				value.setFont(AltosUILib.value_font);
-				value.setHorizontalAlignment(SwingConstants.RIGHT);
+				value[j] = new JTextField(values[j]);
+				value[j].setFont(AltosUILib.value_font);
+				value[j].setHorizontalAlignment(SwingConstants.RIGHT);
 				c.gridx = j+1; c.gridy = y;
 				c.anchor = GridBagConstraints.EAST;
 				c.fill = GridBagConstraints.BOTH;
 				c.weightx = 1;
-				layout.setConstraints(value, c);
-				add(value);
+				layout.setConstraints(value[j], c);
+				add(value[j]);
 			}
+			flight_stats.add(this);
 		}
 
+	}
+
+	public void font_size_changed(int font_size) {
+		for (FlightStat f : flight_stats)
+			f.font_size_changed(font_size);
 	}
 
 	static String pos(double p, String pos, String neg) {
@@ -147,5 +163,4 @@ public class AltosFlightStatsTable extends JComponent {
 				       pos(stats.lon,"E","W"));
 		}
 	}
-
 }

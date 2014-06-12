@@ -68,6 +68,11 @@ public class AltosUIMapView extends Canvas implements MouseMotionListener, Mouse
 		line.set_font(AltosUILib.value_font);
 		for (AltosUIMapTile tile : tiles.values())
 			tile.set_font(AltosUILib.value_font);
+		repaint();
+	}
+
+	public void set_units() {
+		repaint();
 	}
 
 	private boolean is_drag_event(MouseEvent e) {

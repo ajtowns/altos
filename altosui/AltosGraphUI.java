@@ -21,6 +21,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 import org.altusmetrum.altoslib_4.*;
 import org.altusmetrum.altosuilib_2.*;
@@ -29,7 +30,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.ui.RefineryUtilities;
 
-public class AltosGraphUI extends AltosUIFrame
+public class AltosGraphUI extends AltosUIFrame implements AltosFontListener, AltosUnitsListener
 {
 	JTabbedPane		pane;
 	AltosGraph		graph;
@@ -51,6 +52,15 @@ public class AltosGraphUI extends AltosUIFrame
 				has_gps = true;
 			}
 		}
+	}
+
+	public void font_size_changed(int font_size) {
+		map.font_size_changed(font_size);
+		statsTable.font_size_changed(font_size);
+	}
+
+	public void units_changed(boolean imperial_units) {
+		map.units_changed(imperial_units);
 	}
 
 	AltosGraphUI(AltosStateIterable states, File file) throws InterruptedException, IOException {
@@ -79,9 +89,20 @@ public class AltosGraphUI extends AltosUIFrame
 
 		setContentPane (pane);
 
+		AltosUIPreferences.register_font_listener(this);
+		AltosPreferences.register_units_listener(this);
+
+		addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent e) {
+					setVisible(false);
+					dispose();
+					AltosUIPreferences.unregister_font_listener(AltosGraphUI.this);
+					AltosPreferences.unregister_units_listener(AltosGraphUI.this);
+				}
+			});
 		pack();
 
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setVisible(true);
 		if (state != null && has_gps)
 			map.centre(state);
