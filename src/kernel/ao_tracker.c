@@ -91,8 +91,10 @@ ao_tracker(void)
 
 		if (new_tracker_running && !tracker_running) {
 			ao_telemetry_set_interval(AO_SEC_TO_TICKS(tracker_interval));
+			ao_log_start();
 		} else if (!new_tracker_running && tracker_running) {
 			ao_telemetry_set_interval(0);
+			ao_log_stop();
 		}
 
 		tracker_running = new_tracker_running;
