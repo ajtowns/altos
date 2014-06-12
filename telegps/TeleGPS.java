@@ -323,6 +323,9 @@ public class TeleGPS
 
 	void add_frequency_menu(int serial, final AltosFlightReader reader) {
 		// Channel menu
+		if (frequencies != null)
+			return;
+
 		frequencies = new AltosFreqList(AltosUIPreferences.frequency(serial));
 		frequencies.set_product("Monitor");
 		frequencies.set_serial(serial);
@@ -343,6 +346,7 @@ public class TeleGPS
 	void remove_frequency_menu() {
 		if (frequencies != null) {
 			menu_bar.remove(frequencies);
+			menu_bar.repaint();
 			frequencies = null;
 		}
 	}
