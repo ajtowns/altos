@@ -43,6 +43,10 @@ public abstract class AltosEeprom implements AltosStateUpdate {
 		return data8[i] | (data8[i+1] << 8) | (data8[i+2] << 16) | (data8[i+3] << 24);
 	}
 
+	public boolean has_seconds() { return false; }
+
+	public int seconds() { return 0; }
+
 	public final static int header_length = 4;
 
 	public abstract int record_length();

@@ -38,6 +38,13 @@ class AltosEepromOrdered implements Comparable<AltosEepromOrdered> {
 		if (cmd_diff != 0)
 			return cmd_diff;
 
+		if (eeprom.has_seconds() && o.eeprom.has_seconds()) {
+			int	seconds_diff = eeprom.seconds() - o.eeprom.seconds();
+
+			if (seconds_diff != 0)
+				return seconds_diff;
+		}
+
 		int	tick_diff = tick - o.tick;
 
 		if (tick_diff != 0)

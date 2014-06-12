@@ -53,6 +53,17 @@ public class AltosEepromGPS extends AltosEeprom {
 	public int vdop() { return data8(24); }
 	public int mode() { return data8(25); }
 
+	public boolean has_seconds() { return cmd == AltosLib.AO_LOG_GPS_TIME; }
+
+	public int seconds() {
+		switch (cmd) {
+		case AltosLib.AO_LOG_GPS_TIME:
+			return second() + 60 * (minute() + 60 * (hour() + 24 * (day() + 31 * month())));
+		default:
+			return 0;
+		}
+	}
+
 	public AltosEepromGPS (AltosEepromChunk chunk, int start) throws ParseException {
 		parse_chunk(chunk, start);
 	}
