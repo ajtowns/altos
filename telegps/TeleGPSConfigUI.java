@@ -157,7 +157,7 @@ public class TeleGPSConfigUI
 
 	/* Build the UI using a grid bag */
 	public TeleGPSConfigUI(JFrame in_owner) {
-		super (in_owner, "Configure Flight Computer", false);
+		super (in_owner, "Configure Device", false);
 
 		owner = in_owner;
 		GridBagConstraints c;

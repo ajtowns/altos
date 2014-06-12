@@ -71,7 +71,7 @@ public class TeleGPSGraphUI extends AltosUIFrame
 
 		map = new AltosUIMap();
 
-		pane.add("Flight Graph", graph.panel);
+		pane.add("Graph", graph.panel);
 		pane.add("Configure Graph", enable);
 		pane.add("Statistics", statsTable);
 		fill_map(states);
