@@ -481,7 +481,7 @@ public class AltosState implements Cloneable {
 		double g = ground_altitude();
 		if (a != AltosLib.MISSING && g != AltosLib.MISSING)
 			return a - g;
-		return AltosLib.MISSING;
+		return gps_height();
 	}
 
 	public double max_height() {
