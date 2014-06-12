@@ -78,6 +78,7 @@ public class AltosConfigUI
 	JButton			close;
 
 	AltosPyro[]		pyros;
+	double			pyro_firing_time;
 
 	ActionListener		listener;
 
@@ -792,7 +793,7 @@ public class AltosConfigUI
 
 		if (cmd.equals("Pyro")) {
 			if (pyro_ui == null && pyros != null)
-				pyro_ui = new AltosConfigPyroUI(this, pyros);
+				pyro_ui = new AltosConfigPyroUI(this, pyros, pyro_firing_time);
 			if (pyro_ui != null)
 				pyro_ui.make_visible();
 			return;
@@ -1128,6 +1129,19 @@ public class AltosConfigUI
 		if (pyro_ui != null)
 			pyros = pyro_ui.get_pyros();
 		return pyros;
+	}
+
+	public void set_pyro_firing_time(double new_pyro_firing_time) {
+		pyro_firing_time = new_pyro_firing_time;
+		pyro.setVisible(pyro_firing_time >= 0);
+		if (pyro_firing_time >= 0 && pyro_ui != null)
+			pyro_ui.set_pyro_firing_time(pyro_firing_time);
+	}
+
+	public double pyro_firing_time() throws AltosConfigDataException {
+		if (pyro_ui != null)
+			pyro_firing_time = pyro_ui.get_pyro_firing_time();
+		return pyro_firing_time;
 	}
 
 	public void set_aprs_interval(int new_aprs_interval) {

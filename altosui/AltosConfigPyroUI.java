@@ -278,6 +278,28 @@ public class AltosConfigPyroUI
 		return pyros;
 	}
 
+	JLabel			pyro_firing_time_label;
+	JComboBox<String>	pyro_firing_time_value;
+
+	static String[]		pyro_firing_time_values = {
+		"0.050", "0.100", "0.250", "0.500", "1.0", "2.0"
+	};
+
+	public void set_pyro_firing_time(double new_pyro_firing_time) {
+		pyro_firing_time_value.setSelectedItem(Double.toString(new_pyro_firing_time));
+		pyro_firing_time_value.setEnabled(new_pyro_firing_time >= 0);
+	}
+
+	public double get_pyro_firing_time() throws AltosConfigDataException {
+		String	v = pyro_firing_time_value.getSelectedItem().toString();
+
+		try {
+			return Double.parseDouble(v);
+		} catch (NumberFormatException e) {
+			throw new AltosConfigDataException("Invalid pyro firing time \"%s\"", v);
+		}
+	}
+
 	public void set_dirty() {
 		owner.set_dirty();
 	}
@@ -334,7 +356,7 @@ public class AltosConfigPyroUI
 			setVisible(false);
 	}
 
-	public AltosConfigPyroUI(AltosConfigUI in_owner, AltosPyro[] pyros) {
+	public AltosConfigPyroUI(AltosConfigUI in_owner, AltosPyro[] pyros, double pyro_firing_time) {
 
 		super(in_owner, "Configure Pyro Channels", false);
 
@@ -378,6 +400,32 @@ public class AltosConfigPyroUI
 			columns[i] = new PyroColumn(this, i*2 + 1, 0, i);
 			columns[i].set(pyros[i]);
 		}
+
+		/* Pyro firing time */
+		c = new GridBagConstraints();
+		c.gridx = 0; c.gridy = row;
+		c.gridwidth = 2;
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = il;
+		c.ipady = 5;
+		pyro_firing_time_label = new JLabel("Pyro Firing Time(s):");
+		pane.add(pyro_firing_time_label, c);
+
+		c = new GridBagConstraints();
+		c.gridx = 2; c.gridy = row;
+		c.gridwidth = 7;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.anchor = GridBagConstraints.LINE_START;
+		c.insets = ir;
+		c.ipady = 5;
+		pyro_firing_time_value = new JComboBox<String>(pyro_firing_time_values);
+		pyro_firing_time_value.setEditable(true);
+		pyro_firing_time_value.addItemListener(this);
+		set_pyro_firing_time(pyro_firing_time);
+		pane.add(pyro_firing_time_value, c);
+		pyro_firing_time_value.setToolTipText("Length of extra pyro channel firing pulse");
 
 		c = new GridBagConstraints();
 		c.gridx = pyros.length*2-1;

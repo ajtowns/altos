@@ -115,6 +115,13 @@ public class TeleGPSConfigUI
 		return null;
 	}
 
+	public void set_pyro_firing_time(double new_pyro_firing_time) {
+	}
+
+	public double pyro_firing_time() {
+		return -1;
+	}
+
 	boolean is_telemetrum() {
 		String	product = product_value.getText();
 		return product != null && product.startsWith("TeleGPS");

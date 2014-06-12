@@ -67,6 +67,7 @@ public class AltosConfigData implements Iterable<String> {
 	public AltosPyro[]	pyros;
 	public int		npyro;
 	public int		pyro;
+	public double		pyro_firing_time;
 
 	/* HAS_APRS */
 	public int		aprs_interval;
@@ -246,6 +247,7 @@ public class AltosConfigData implements Iterable<String> {
 		pyro = 0;
 		npyro = 0;
 		pyros = null;
+		pyro_firing_time = -1;
 
 		aprs_interval = -1;
 
@@ -327,6 +329,7 @@ public class AltosConfigData implements Iterable<String> {
 					pyros[pyro++] = p;
 			} catch (Exception e) {}
 		}
+		try { pyro_firing_time = get_int(line, "Pyro time:") / 100.0; } catch (Exception e) {}
 
 		/* HAS_APRS */
 		try { aprs_interval = get_int(line, "APRS interval:"); } catch (Exception e) {}
@@ -450,6 +453,8 @@ public class AltosConfigData implements Iterable<String> {
 		/* AO_PYRO_NUM */
 		if (npyro > 0)
 			pyros = source.pyros();
+		if (pyro_firing_time >= 0)
+			pyro_firing_time = source.pyro_firing_time();
 
 		/* HAS_APRS */
 		if (aprs_interval >= 0)
@@ -500,6 +505,7 @@ public class AltosConfigData implements Iterable<String> {
 			dest.set_pyros(pyros);
 		else
 			dest.set_pyros(null);
+		dest.set_pyro_firing_time(pyro_firing_time);
 		dest.set_aprs_interval(aprs_interval);
 		dest.set_beep(beep);
 		dest.set_tracker_motion(tracker_motion);
@@ -565,6 +571,8 @@ public class AltosConfigData implements Iterable<String> {
 						   pyros[p].toString());
 			}
 		}
+		if (pyro_firing_time >= 0)
+			link.printf("c I %d\n", (int) (pyro_firing_time * 100.0 + 0.5));
 
 		/* HAS_APRS */
 		if (aprs_interval >= 0)

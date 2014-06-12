@@ -73,6 +73,10 @@ public interface AltosConfigValues {
 
 	public abstract AltosPyro[] pyros() throws AltosConfigDataException;
 
+	public abstract void set_pyro_firing_time(double new_pyro_firing_time);
+
+	public abstract double pyro_firing_time() throws AltosConfigDataException;
+
 	public abstract int aprs_interval() throws AltosConfigDataException;
 
 	public abstract void set_aprs_interval(int new_aprs_interval);
