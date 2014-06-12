@@ -1103,7 +1103,14 @@ public class AltosConfigUI
 	}
 
 	public void set_tracker_motion(int tracker_motion) {
-		tracker_motion_value.setSelectedItem(AltosConvert.height.say(tracker_motion));
+		if (tracker_motion < 0) {
+			tracker_motion_label.setVisible(false);
+			tracker_motion_value.setVisible(false);
+		} else {
+			tracker_motion_label.setVisible(true);
+			tracker_motion_value.setVisible(true);
+			tracker_motion_value.setSelectedItem(AltosConvert.height.say(tracker_motion));
+		}
 	}
 
 	public int tracker_motion() throws AltosConfigDataException {
@@ -1111,7 +1118,14 @@ public class AltosConfigUI
 	}
 
 	public void set_tracker_interval(int tracker_interval) {
-		tracker_interval_value.setSelectedItem(String.format("%d", tracker_interval));
+		if (tracker_interval< 0) {
+			tracker_interval_label.setVisible(false);
+			tracker_interval_value.setVisible(false);
+		} else {
+			tracker_interval_label.setVisible(true);
+			tracker_interval_value.setVisible(true);
+			tracker_interval_value.setSelectedItem(String.format("%d", tracker_interval));
+		}
 	}
 
 	public int tracker_interval() throws AltosConfigDataException {
