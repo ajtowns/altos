@@ -40,6 +40,8 @@ SRC=$(JAVA_SRC) $(DRAWABLES)
 
 all: $(all_target)
 
+.NOTPARALLEL:
+
 $(EXT_LIBDIR):
 	mkdir -p $(EXT_LIBDIR)
 
