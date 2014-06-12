@@ -28,7 +28,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import org.altusmetrum.altoslib_4.*;
 
-public class AltosUIMapView extends Canvas implements MouseMotionListener, MouseListener, MouseWheelListener, ComponentListener, AltosUIMapTileListener, AltosUIMapStoreListener {
+public class AltosUIMapView extends Component implements MouseMotionListener, MouseListener, MouseWheelListener, ComponentListener, AltosUIMapTileListener, AltosUIMapStoreListener {
 
 	AltosUIMapPath	path = new AltosUIMapPath();
 
@@ -422,7 +422,6 @@ public class AltosUIMapView extends Canvas implements MouseMotionListener, Mouse
 	}
 
 	public void paint(Graphics g) {
-
 		VolatileImage	back_buffer = create_back_buffer();
 		do {
 			GraphicsConfiguration gc = getGraphicsConfiguration();

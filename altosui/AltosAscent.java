@@ -18,13 +18,17 @@
 package altosui;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 import org.altusmetrum.altoslib_4.*;
 import org.altusmetrum.altosuilib_2.*;
 
-public class AltosAscent extends JComponent implements AltosFlightDisplay {
+public class AltosAscent extends JComponent implements AltosFlightDisplay, HierarchyListener {
 	GridBagLayout	layout;
 	JLabel			cur, max;
+
+	private AltosState		last_state;
+	private AltosListenerState	last_listener_state;
 
 	public class AscentStatus implements AltosFontListener, AltosUnitsListener {
 		JLabel		label;
@@ -101,6 +105,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			add(label);
 
 			value = new JTextField(Altos.text_width);
+			value.setEditable(false);
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;
@@ -176,6 +181,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			add(label);
 
 			value = new JTextField(Altos.text_width);
+			value.setEditable(false);
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;
@@ -215,22 +221,21 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		}
 
 		public void units_changed(boolean imperial_units) {
-			show(v);
+			show(v, max);
 		}
 
-		void show(double v) {
+		void show(double v, double max) {
 			this.v = v;
+			this.max = max;
 			if (v == AltosLib.MISSING) {
 				value.setText("Missing");
 			} else {
 				value.setText(units.show(8, v));
-				if (v > max || max == AltosLib.MISSING)
-					max = v;
 			}
 			if (max == AltosLib.MISSING)
 				max_value.setText("Missing");
 			else
-				max_value.setText(units.show(8, v));
+				max_value.setText(units.show(8, max));
 		}
 
 		void hide() {
@@ -256,6 +261,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			add(label);
 
 			value = new JTextField(Altos.text_width);
+			value.setEditable(false);
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;
@@ -266,6 +272,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 			add(value);
 
 			max_value = new JTextField(Altos.text_width);
+			max_value.setEditable(false);
 			max_value.setFont(Altos.value_font);
 			max_value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 3; c.gridy = y;
@@ -279,7 +286,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Height extends AscentValueHold {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(state.height());
+			show(state.height(), state.max_height());
 		}
 		public Height (GridBagLayout layout, int y) {
 			super (layout, y, AltosConvert.height, "Height");
@@ -290,7 +297,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Speed extends AscentValueHold {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(state.speed());
+			show(state.speed(), state.max_speed());
 		}
 		public Speed (GridBagLayout layout, int y) {
 			super (layout, y, AltosConvert.speed, "Speed");
@@ -301,7 +308,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Accel extends AscentValueHold {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(state.acceleration());
+			show(state.acceleration(), state.max_acceleration());
 		}
 		public Accel (GridBagLayout layout, int y) {
 			super (layout, y, AltosConvert.accel, "Acceleration");
@@ -312,7 +319,7 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 
 	class Orient extends AscentValueHold {
 		void show (AltosState state, AltosListenerState listener_state) {
-			show(state.orient());
+			show(state.orient(), state.max_orient());
 		}
 		public Orient (GridBagLayout layout, int y) {
 			super (layout, y, AltosConvert.orient, "Tilt Angle");
@@ -420,6 +427,12 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 	}
 
 	public void show(AltosState state, AltosListenerState listener_state) {
+		if (!isShowing()) {
+			last_state = state;
+			last_listener_state = listener_state;
+			return;
+		}
+
 		if (state.gps != null && state.gps.connected) {
 			lat.show(state, listener_state);
 			lon.show(state, listener_state);
@@ -466,6 +479,17 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		return "Ascent";
 	}
 
+	public void hierarchyChanged(HierarchyEvent e) {
+		if (last_state != null && isShowing()) {
+			AltosState		state = last_state;
+			AltosListenerState	listener_state = last_listener_state;
+
+			last_state = null;
+			last_listener_state = null;
+			show(state, listener_state);
+		}
+	}
+
 	public AltosAscent() {
 		layout = new GridBagLayout();
 
@@ -487,5 +511,6 @@ public class AltosAscent extends JComponent implements AltosFlightDisplay {
 		lon = new Lon(layout, y++);
 		apogee = new Apogee(layout, y++);
 		main = new Main(layout, y++);
+		addHierarchyListener(this);
 	}
 }

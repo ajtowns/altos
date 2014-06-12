@@ -98,6 +98,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			add(label);
 
 			value = new JTextField(Altos.text_width);
+			value.setEditable(false);
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;
@@ -178,6 +179,7 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 			add(label);
 
 			value = new JTextField(Altos.text_width);
+			value.setEditable(false);
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;
@@ -193,50 +195,56 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 		}
 	}
 
-	class Battery extends LaunchStatus {
+	class Voltage extends LaunchStatus {
+
+		double voltage(AltosState state) { return AltosLib.MISSING; };
+		double good() { return 0; };
+
+		double	last_voltage = -1;
+
 		void show (AltosState state, AltosListenerState listener_state) {
-			if (state == null || state.battery_voltage == AltosLib.MISSING)
-				hide();
-			else {
-				show("%4.2f V", state.battery_voltage);
-				lights.set(state.battery_voltage >= AltosLib.ao_battery_good);
+			double	voltage = AltosLib.MISSING;
+			if (state != null)
+				voltage = voltage(state);
+
+			if (voltage != last_voltage) {
+				if (voltage == AltosLib.MISSING)
+					hide();
+				else {
+					show("%4.2f V", voltage);
+					lights.set(voltage >= good());
+				}
+				last_voltage = voltage;
 			}
 		}
+		public Voltage (GridBagLayout layout, int y, String name) { super(layout, y, name); }
+	}
+
+
+	class Battery extends Voltage {
+		double voltage(AltosState state) { return state.battery_voltage; }
+		double good() { return AltosLib.ao_battery_good; }
+
 		public Battery (GridBagLayout layout, int y) {
 			super(layout, y, "Battery Voltage");
 		}
+
 	}
 
 	Battery	battery;
 
-	class Apogee extends LaunchStatus {
-		void show (AltosState state, AltosListenerState listener_state) {
-			if (state == null || state.apogee_voltage == AltosLib.MISSING)
-				hide();
-			else {
-				show("%4.2f V", state.apogee_voltage);
-				lights.set(state.apogee_voltage >= AltosLib.ao_igniter_good);
-			}
-		}
-		public Apogee (GridBagLayout layout, int y) {
-			super(layout, y, "Apogee Igniter Voltage");
-		}
+	class Apogee extends Voltage {
+		double voltage(AltosState state) { return state.apogee_voltage; }
+		double good() { return AltosLib.ao_igniter_good; }
+		public Apogee (GridBagLayout layout, int y) { super(layout, y, "Apogee Igniter Voltage"); }
 	}
 
 	Apogee apogee;
 
-	class Main extends LaunchStatus {
-		void show (AltosState state, AltosListenerState listener_state) {
-			if (state == null || state.main_voltage == AltosLib.MISSING)
-				hide();
-			else {
-				show("%4.2f V", state.main_voltage);
-				lights.set(state.main_voltage >= AltosLib.ao_igniter_good);
-			}
-		}
-		public Main (GridBagLayout layout, int y) {
-			super(layout, y, "Main Igniter Voltage");
-		}
+	class Main extends  Voltage {
+		double voltage(AltosState state) { return state.main_voltage; }
+		double good() { return AltosLib.ao_igniter_good; }
+		public Main (GridBagLayout layout, int y) { super(layout, y, "Main Igniter Voltage"); }
 	}
 
 	Main main;
@@ -328,6 +336,9 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	}
 
 	class PadLat extends LaunchValue {
+
+		double	last_lat = 1000;
+
 		void show (AltosState state, AltosListenerState listener_state) {
 			double lat = AltosLib.MISSING;
 			String label = null;
@@ -341,11 +352,14 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 					label = "Pad Latitude";
 				}
 			}
-			if (lat != AltosLib.MISSING) {
-				show(pos(lat,"N", "S"));
-				set_label(label);
-			} else
-				hide();
+			if (lat != last_lat) {
+				if (lat != AltosLib.MISSING) {
+					show(pos(lat,"N", "S"));
+					set_label(label);
+				} else
+					hide();
+				last_lat = lat;
+			}
 		}
 		public PadLat (GridBagLayout layout, int y) {
 			super (layout, y, "Pad Latitude");
@@ -355,6 +369,9 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	PadLat pad_lat;
 
 	class PadLon extends LaunchValue {
+
+		double last_lon = 1000;
+
 		void show (AltosState state, AltosListenerState listener_state) {
 			double lon = AltosLib.MISSING;
 			String label = null;
@@ -368,11 +385,14 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 					label = "Pad Longitude";
 				}
 			}
-			if (lon != AltosLib.MISSING) {
-				show(pos(lon,"E", "W"));
-				set_label(label);
-			} else
-				hide();
+			if (lon != last_lon) {
+				if (lon != AltosLib.MISSING) {
+					show(pos(lon,"E", "W"));
+					set_label(label);
+				} else
+					hide();
+				last_lon = lon;
+			}
 		}
 		public PadLon (GridBagLayout layout, int y) {
 			super (layout, y, "Pad Longitude");
@@ -382,6 +402,9 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 	PadLon pad_lon;
 
 	class PadAlt extends LaunchValue {
+
+		double	last_alt = -1000000;
+
 		void show (AltosState state, AltosListenerState listener_state) {
 			double alt = AltosLib.MISSING;
 			String label = null;
@@ -395,11 +418,14 @@ public class AltosPad extends JComponent implements AltosFlightDisplay {
 					label = "Pad Altitude";
 				}
 			}
-			if (alt != AltosLib.MISSING) {
-				show(alt);
-				set_label(label);
-			} else
-				hide();
+			if (alt != last_alt) {
+				if (alt != AltosLib.MISSING) {
+					show(alt);
+					set_label(label);
+				} else
+					hide();
+				last_alt = alt;
+			}
 		}
 		public PadAlt (GridBagLayout layout, int y) {
 			super (layout, y, AltosConvert.height, "Pad Altitude");

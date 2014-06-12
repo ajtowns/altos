@@ -61,6 +61,7 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 			add(label);
 
 			value = new JTextField("");
+			value.setEditable(false);
 			value.setFont(Altos.status_font);
 			value.setHorizontalAlignment(SwingConstants.CENTER);
 			c.gridx = x; c.gridy = 1;
@@ -70,12 +71,25 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 	}
 
 	class Call extends FlightValue {
-		void show(AltosState state, AltosListenerState listener_state) {
-			value.setText(state.callsign);
-			if (state.callsign == null)
-				setVisible(false);
+
+		String last_call = "";
+
+		boolean same_call(String call) {
+			if (last_call == null)
+				return call == null;
 			else
-				setVisible(true);
+				return last_call.equals(call);
+		}
+
+		void show(AltosState state, AltosListenerState listener_state) {
+			if (!same_call(state.callsign)) {
+				value.setText(state.callsign);
+				if (state.callsign == null)
+					setVisible(false);
+				else
+					setVisible(true);
+				last_call = state.callsign;
+			}
 		}
 		public Call (GridBagLayout layout, int x) {
 			super (layout, x, "Callsign");
@@ -85,11 +99,16 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 	Call call;
 
 	class Serial extends FlightValue {
+
+		int	last_serial = -1;
 		void show(AltosState state, AltosListenerState listener_state) {
-			if (state.serial == AltosLib.MISSING)
-				value.setText("none");
-			else
-				value.setText(String.format("%d", state.serial));
+			if (state.serial != last_serial) {
+				if (state.serial == AltosLib.MISSING)
+					value.setText("none");
+				else
+					value.setText(String.format("%d", state.serial));
+				last_serial = state.serial;
+			}
 		}
 		public Serial (GridBagLayout layout, int x) {
 			super (layout, x, "Serial");
@@ -99,11 +118,17 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 	Serial serial;
 
 	class Flight extends FlightValue {
+
+		int	last_flight = -1;
+
 		void show(AltosState state, AltosListenerState listener_state) {
-			if (state.flight == AltosLib.MISSING)
-				value.setText("none");
-			else
-				value.setText(String.format("%d", state.flight));
+			if (state.flight != last_flight) {
+				if (state.flight == AltosLib.MISSING)
+					value.setText("none");
+				else
+					value.setText(String.format("%d", state.flight));
+				last_flight = state.flight;
+			}
 		}
 		public Flight (GridBagLayout layout, int x) {
 			super (layout, x, "Flight");
@@ -113,8 +138,14 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 	Flight flight;
 
 	class FlightState extends FlightValue {
+
+		int	last_state = -1;
+
 		void show(AltosState state, AltosListenerState listener_state) {
-			value.setText(state.state_name());
+			if (state.state != last_state) {
+				value.setText(state.state_name());
+				last_state = state.state;
+			}
 		}
 		public FlightState (GridBagLayout layout, int x) {
 			super (layout, x, "State");
@@ -124,12 +155,18 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 	FlightState flight_state;
 
 	class RSSI extends FlightValue {
+
+		int	last_rssi = 10000;
+
 		void show(AltosState state, AltosListenerState listener_state) {
-			value.setText(String.format("%d", state.rssi()));
-			if (state.rssi == AltosLib.MISSING)
-				setVisible(false);
-			else
-				setVisible(true);
+			if (state.rssi() != last_rssi) {
+				value.setText(String.format("%d", state.rssi()));
+				if (state.rssi == AltosLib.MISSING)
+					setVisible(false);
+				else
+					setVisible(true);
+				last_rssi = state.rssi();
+			}
 		}
 		public RSSI (GridBagLayout layout, int x) {
 			super (layout, x, "RSSI");
@@ -139,9 +176,15 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 	RSSI rssi;
 
 	class LastPacket extends FlightValue {
+
+		long	last_secs = -1;
+
 		void show(AltosState state, AltosListenerState listener_state) {
 			long secs = (System.currentTimeMillis() - state.received_time + 500) / 1000;
-			value.setText(String.format("%d", secs));
+			if (secs != last_secs) {
+				value.setText(String.format("%d", secs));
+				last_secs = secs;
+			}
 		}
 		public LastPacket(GridBagLayout layout, int x) {
 			super (layout, x, "Age");

@@ -102,6 +102,7 @@ public class AltosIgnitor extends JComponent implements AltosFlightDisplay {
 			add(label);
 
 			value = new JTextField(Altos.text_width);
+			value.setEditable(false);
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 2; c.gridy = y;

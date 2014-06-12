@@ -18,12 +18,16 @@
 package altosui;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 import org.altusmetrum.altoslib_4.*;
 import org.altusmetrum.altosuilib_2.*;
 
-public class AltosDescent extends JComponent implements AltosFlightDisplay {
+public class AltosDescent extends JComponent implements AltosFlightDisplay, HierarchyListener {
 	GridBagLayout	layout;
+
+	private AltosState		last_state;
+	private AltosListenerState	last_listener_state;
 
 	public abstract class DescentStatus implements AltosFontListener, AltosUnitsListener {
 		JLabel		label;
@@ -91,6 +95,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			add(label);
 
 			value = new JTextField(Altos.text_width);
+			value.setEditable(false);
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 4; c.gridy = y;
@@ -109,6 +114,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		JTextField	value;
 		AltosUnits	units;
 		double		v;
+		String		last_value = "";
 
 		void reset() {
 			value.setText("");
@@ -128,7 +134,11 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 		void show(String v) {
 			show();
-			value.setText(v);
+
+			if (!last_value.equals(v)) {
+				value.setText(v);
+				last_value = v;
+			}
 		}
 
 		void show(double v) {
@@ -172,6 +182,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			add(label, c);
 
 			value = new JTextField(Altos.text_width);
+			value.setEditable(false);
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = x + 2; c.gridy = y;
@@ -247,6 +258,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			add(label);
 
 			value1 = new JTextField(Altos.text_width);
+			value1.setEditable(false);
 			value1.setFont(Altos.value_font);
 			value1.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = x + 2; c.gridy = y;
@@ -257,6 +269,7 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 			add(value1);
 
 			value2 = new JTextField(Altos.text_width);
+			value2.setEditable(false);
 			value2.setFont(Altos.value_font);
 			value2.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = x + 4; c.gridy = y;
@@ -449,6 +462,12 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 	}
 
 	public void show(AltosState state, AltosListenerState listener_state) {
+		if (!isShowing()) {
+			last_state = state;
+			last_listener_state = listener_state;
+			return;
+		}
+
 		height.show(state, listener_state);
 		speed.show(state, listener_state);
 		if (state.gps != null && state.gps.connected) {
@@ -480,6 +499,17 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 		return "Descent";
 	}
 
+	public void hierarchyChanged(HierarchyEvent e) {
+		if (last_state != null && isShowing()) {
+			AltosState		state = last_state;
+			AltosListenerState	listener_state = last_listener_state;
+
+			last_state = null;
+			last_listener_state = null;
+			show(state, listener_state);
+		}
+	}
+
 	public AltosDescent() {
 		layout = new GridBagLayout();
 
@@ -497,5 +527,6 @@ public class AltosDescent extends JComponent implements AltosFlightDisplay {
 
 		apogee = new Apogee(layout, 5);
 		main = new Main(layout, 6);
+		addHierarchyListener(this);
 	}
 }

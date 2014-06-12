@@ -61,6 +61,7 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 			add(label);
 
 			value = new JTextField("");
+			value.setEditable(false);
 			value.setFont(AltosUILib.status_font);
 			value.setHorizontalAlignment(SwingConstants.CENTER);
 			c.gridx = x; c.gridy = 1;
@@ -70,8 +71,13 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 	}
 
 	class Call extends Value {
+		String	call;
+
 		void show(AltosState state, AltosListenerState listener_state) {
-			value.setText(state.callsign);
+			if (state.callsign != call) {
+				value.setText(state.callsign);
+				call = state.callsign;
+			}
 			if (state.callsign == null)
 				setVisible(false);
 			else
@@ -85,11 +91,15 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 	Call call;
 
 	class Serial extends Value {
+		int	serial = -1;
 		void show(AltosState state, AltosListenerState listener_state) {
-			if (state.serial == AltosLib.MISSING)
-				value.setText("none");
-			else
-				value.setText(String.format("%d", state.serial));
+			if (state.serial != serial) {
+				if (state.serial == AltosLib.MISSING)
+					value.setText("none");
+				else
+					value.setText(String.format("%d", state.serial));
+				serial = state.serial;
+			}
 		}
 		public Serial (GridBagLayout layout, int x) {
 			super (layout, x, "Serial");
@@ -99,12 +109,19 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 	Serial serial;
 
 	class RSSI extends Value {
+		int	rssi = 10000;
+
 		void show(AltosState state, AltosListenerState listener_state) {
-			value.setText(String.format("%d", state.rssi()));
-			if (state.rssi == AltosLib.MISSING)
-				setVisible(false);
-			else
-				setVisible(true);
+			int	new_rssi = state.rssi();
+
+			if (new_rssi != rssi) {
+				value.setText(String.format("%d", new_rssi));
+				if (state.rssi == AltosLib.MISSING)
+					setVisible(false);
+				else
+					setVisible(true);
+				rssi = new_rssi;
+			}
 		}
 		public RSSI (GridBagLayout layout, int x) {
 			super (layout, x, "RSSI");
@@ -114,9 +131,16 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 	RSSI rssi;
 
 	class LastPacket extends Value {
+
+		long	last_secs = -1;
+
 		void show(AltosState state, AltosListenerState listener_state) {
 			long secs = (System.currentTimeMillis() - state.received_time + 500) / 1000;
-			value.setText(String.format("%d", secs));
+
+			if (secs != last_secs) {
+				value.setText(String.format("%d", secs));
+				last_secs = secs;
+			}
 		}
 		public LastPacket(GridBagLayout layout, int x) {
 			super (layout, x, "Age");

@@ -24,14 +24,18 @@ import java.io.*;
 import org.altusmetrum.altoslib_4.*;
 import org.altusmetrum.altosuilib_2.*;
 
-public class AltosLanded extends JComponent implements AltosFlightDisplay, ActionListener {
+public class AltosLanded extends JComponent implements AltosFlightDisplay, ActionListener, HierarchyListener {
 	GridBagLayout	layout;
+
+	private AltosState		last_state;
+	private AltosListenerState	last_listener_state;
 
 	public abstract class LandedValue implements AltosFontListener, AltosUnitsListener {
 		JLabel		label;
 		JTextField	value;
 		AltosUnits	units;
 		double		v;
+		String		last_value = "";
 
 		abstract void show(AltosState state, AltosListenerState listener_state);
 
@@ -46,7 +50,10 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 
 		void show(String s) {
 			show();
-			value.setText(s);
+			if (!last_value.equals(s)) {
+				value.setText(s);
+				last_value = s;
+			}
 		}
 
 		void show(double v) {
@@ -94,6 +101,7 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 			add(label);
 
 			value = new JTextField(Altos.text_width);
+			value.setEditable(false);
 			value.setFont(Altos.value_font);
 			value.setHorizontalAlignment(SwingConstants.RIGHT);
 			c.gridx = 1; c.gridy = y;
@@ -244,6 +252,12 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 	}
 
 	public void show(AltosState state, AltosListenerState listener_state) {
+		if (!isShowing()) {
+			last_state = state;
+			last_listener_state = listener_state;
+			return;
+		}
+
 		if (state.gps != null && state.gps.connected) {
 			bearing.show(state, listener_state);
 			distance.show(state, listener_state);
@@ -302,6 +316,17 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 		return "Landed";
 	}
 
+	public void hierarchyChanged(HierarchyEvent e) {
+		if (last_state != null && isShowing()) {
+			AltosState		state = last_state;
+			AltosListenerState	listener_state = last_listener_state;
+
+			last_state = null;
+			last_listener_state = null;
+			show(state, listener_state);
+		}
+	}
+
 	public AltosLanded(AltosFlightReader in_reader) {
 		layout = new GridBagLayout();
 
@@ -332,5 +357,6 @@ public class AltosLanded extends JComponent implements AltosFlightDisplay, Actio
 		c.weighty = 0;
 		c.fill = GridBagConstraints.VERTICAL;
 		add(graph, c);
+		addHierarchyListener(this);
 	}
 }

@@ -18,15 +18,19 @@
 package org.altusmetrum.altosuilib_2;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.table.*;
 import org.altusmetrum.altoslib_4.*;
 
-public class AltosInfoTable extends JTable implements AltosFlightDisplay {
+public class AltosInfoTable extends JTable implements AltosFlightDisplay, HierarchyListener {
 	private AltosFlightInfoTableModel model;
 
 	static final int info_columns = 3;
 	static final int info_rows = 17;
+
+	private AltosState		last_state;
+	private AltosListenerState	last_listener_state;
 
 	int desired_row_height() {
 		FontMetrics	infoValueMetrics = getFontMetrics(AltosUILib.table_value_font);
@@ -56,6 +60,7 @@ public class AltosInfoTable extends JTable implements AltosFlightDisplay {
 		super(new AltosFlightInfoTableModel(info_rows, info_columns));
 		model = (AltosFlightInfoTableModel) getModel();
 		setFont(AltosUILib.table_value_font);
+		addHierarchyListener(this);
 		setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
 		setShowGrid(true);
 		set_layout();
@@ -69,6 +74,17 @@ public class AltosInfoTable extends JTable implements AltosFlightDisplay {
 	}
 
 	public void units_changed(boolean imperial_units) {
+	}
+
+	public void hierarchyChanged(HierarchyEvent e) {
+		if (last_state != null && isShowing()) {
+			AltosState		state = last_state;
+			AltosListenerState	listener_state = last_listener_state;
+
+			last_state = null;
+			last_listener_state = null;
+			show(state, listener_state);
+		}
 	}
 
 	public Dimension getPreferredScrollableViewportSize() {
@@ -108,6 +124,13 @@ public class AltosInfoTable extends JTable implements AltosFlightDisplay {
 	}
 
 	public void show(AltosState state, AltosListenerState listener_state) {
+
+		if (!isShowing()) {
+			last_state = state;
+			last_listener_state = listener_state;
+			return;
+		}
+
 		reset();
 		if (state != null) {
 			if (state.device_type != AltosLib.MISSING)
