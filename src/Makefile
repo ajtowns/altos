@@ -16,14 +16,15 @@ include Version
 TOPDIR=.
 include Makedefs
 
+#	telemini-v2.0
+
 SDCCDIRS=\
 	telemetrum-v1.2 telemetrum-v1.1 telemetrum-v1.0 \
 	teledongle-v0.2 \
 	telemini-v1.0 \
 	telebt-v1.0 \
 	teleterra-v0.2 teleshield-v0.1 \
-	telefire-v0.1 telefire-v0.2 \
-	telemini-v2.0
+	telefire-v0.1 telefire-v0.2
 
 ARMM3DIRS=\
 	telemega-v0.1 telemega-v0.1/flash-loader \
