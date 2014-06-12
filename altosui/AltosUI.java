@@ -280,7 +280,7 @@ public class AltosUI extends AltosUIFrame {
 	}
 
 	void LoadMaps() {
-		new AltosSiteMapPreload(AltosUI.this);
+		new AltosUIMapPreload(AltosUI.this);
 	}
 
 	void LaunchController() {
@@ -578,7 +578,7 @@ public class AltosUI extends AltosUIFrame {
 					} else {
 						double lat = Double.parseDouble(args[i+1]);
 						double lon = Double.parseDouble(args[i+2]);
-						AltosSiteMap.prefetchMaps(lat, lon);
+//						AltosSiteMap.prefetchMaps(lat, lon);
 						i += 2;
 					}
 				} else if (args[i].equals("--replay"))

@@ -37,7 +37,7 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay {
 	AltosDescent	descent;
 	AltosLanded	landed;
 	AltosCompanionInfo	companion;
-	AltosSiteMap    sitemap;
+	AltosUIMap      sitemap;
 	boolean		has_map;
 	boolean		has_companion;
 	boolean		has_state;
@@ -310,7 +310,7 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay {
 		has_companion = false;
 		has_state = false;
 
-		sitemap = new AltosSiteMap();
+		sitemap = new AltosUIMap();
 		has_map = false;
 
 		/* Make the tabbed pane use the rest of the window space */

@@ -34,7 +34,7 @@ public class AltosGraphUI extends AltosUIFrame
 	JTabbedPane		pane;
 	AltosGraph		graph;
 	AltosUIEnable		enable;
-	AltosSiteMap		map;
+	AltosUIMap		map;
 	AltosState		state;
 	AltosGraphDataSet	graphDataSet;
 	AltosFlightStats	stats;
@@ -46,7 +46,7 @@ public class AltosGraphUI extends AltosUIFrame
 		for (AltosState state : states) {
 			if (state.gps != null && state.gps.locked && state.gps.nsat >= 4) {
 				if (map == null)
-					map = new AltosSiteMap();
+					map = new AltosUIMap();
 				map.show(state, null);
 				has_gps = true;
 			}

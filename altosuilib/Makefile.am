@@ -33,11 +33,6 @@ altosuilib_JAVA = \
 	AltosUISeries.java \
 	AltosUIVersion.java \
 	AltosUSBDevice.java \
-	AltosSiteMap.java \
-	AltosSiteMapCache.java \
-	AltosSiteMapPreload.java \
-	AltosSiteMapTile.java \
-	AltosSiteMapImage.java \
 	AltosVoice.java \
 	AltosDisplayThread.java \
 	AltosDeviceUIDialog.java \
@@ -65,8 +60,23 @@ altosuilib_JAVA = \
 	AltosBTDevice.java \
 	AltosBTDeviceIterator.java \
 	AltosBTManage.java \
-	AltosBTKnown.java
-
+	AltosBTKnown.java \
+	AltosUIMap.java \
+	AltosUIMapView.java \
+	AltosUIMapLine.java \
+	AltosUIMapMark.java \
+	AltosUIMapPath.java \
+	AltosUIMapTile.java \
+	AltosUIMapCache.java \
+	AltosUIMapImage.java \
+	AltosUIMapTransform.java \
+	AltosUIMapRectangle.java \
+	AltosUIMapZoomListener.java \
+	AltosUIMapTileListener.java \
+	AltosUIMapPreload.java \
+	AltosUIMapStore.java \
+	AltosUIMapStoreListener.java \
+	AltosUILatLon.java
 
 JAR=altosuilib_$(ALTOSUILIB_VERSION).jar
 

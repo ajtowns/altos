@@ -38,7 +38,7 @@ public class TeleGPSGraphUI extends AltosUIFrame
 	JTabbedPane		pane;
 	AltosGraph		graph;
 	AltosUIEnable		enable;
-	AltosSiteMap		map;
+	AltosUIMap		map;
 	AltosState		state;
 	AltosFlightStats	stats;
 	AltosGraphDataSet	graphDataSet;
@@ -69,7 +69,7 @@ public class TeleGPSGraphUI extends AltosUIFrame
 		graph = new AltosGraph(enable, stats, graphDataSet);
 		statsTable = new AltosFlightStatsTable(stats);
 
-		map = new AltosSiteMap();
+		map = new AltosUIMap();
 
 		pane.add("Flight Graph", graph.panel);
 		pane.add("Configure Graph", enable);

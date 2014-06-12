@@ -67,7 +67,7 @@ public class TeleGPS
 
 	JTabbedPane		pane;
 
-	AltosSiteMap   		sitemap;
+	AltosUIMap   		map;
 	TeleGPSInfo		gps_info;
 	AltosInfoTable		info_table;
 
@@ -167,7 +167,7 @@ public class TeleGPS
 	}
 
 	void load_maps() {
-		new AltosSiteMapPreload(this);
+		new AltosUIMapPreload(this);
 	}
 
 	void disconnect() {
@@ -438,9 +438,9 @@ public class TeleGPS
 		c.gridwidth = 2;
 		bag.add(pane, c);
 
-		sitemap = new AltosSiteMap();
-		pane.add("Site Map", sitemap);
-		displays.add(sitemap);
+		map = new AltosUIMap();
+		pane.add("Map", map);
+		displays.add(map);
 
 		gps_info = new TeleGPSInfo();
 		pane.add("Info", gps_info);
@@ -578,7 +578,7 @@ public class TeleGPS
 				} else {
 					double lat = Double.parseDouble(args[i+1]);
 					double lon = Double.parseDouble(args[i+2]);
-					AltosSiteMap.prefetchMaps(lat, lon);
+					AltosUIMap.prefetch_maps(lat, lon);
 					i += 2;
 				}
 			} else if (args[i].equals("--replay"))
