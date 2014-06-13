@@ -119,6 +119,7 @@ altoslib_JAVA = \
 	AltosSpeed.java \
 	AltosTemperature.java \
 	AltosAccel.java \
+	AltosVoltage.java \
 	AltosPyro.java \
 	AltosWriter.java
 

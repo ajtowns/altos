@@ -349,6 +349,8 @@ public class AltosConvert {
 
 	public static AltosOrient orient = new AltosOrient();
 
+	public static AltosVoltage voltage = new AltosVoltage();
+
 	public static String show_gs(String format, double a) {
 		a = meters_to_g(a);
 		format = format.concat(" g");
