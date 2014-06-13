@@ -34,7 +34,11 @@ public class AltosViewPager extends ViewPager {
 
     @Override
     protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
-        if(v.getClass().getPackage().getName().startsWith("maps.")){
+	if(v.getClass() != null &&
+	   v.getClass().getPackage() != null &&
+	   v.getClass().getPackage().getName() != null &&
+	   v.getClass().getPackage().getName().startsWith("maps."))
+	{
             return true;
         }
         return super.canScroll(v, checkV, dx, x, y);
