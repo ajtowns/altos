@@ -16,6 +16,7 @@ telegps_JAVA= \
 	TeleGPSStatus.java \
 	TeleGPSStatusUpdate.java \
 	TeleGPSInfo.java \
+	TeleGPSState.java \
 	TeleGPSConfig.java \
 	TeleGPSConfigUI.java \
 	TeleGPSPreferences.java \

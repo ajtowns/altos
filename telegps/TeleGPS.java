@@ -69,6 +69,7 @@ public class TeleGPS
 
 	AltosUIMap   		map;
 	TeleGPSInfo		gps_info;
+	TeleGPSState		gps_state;
 	AltosInfoTable		info_table;
 
 	LinkedList<AltosFlightDisplay>	displays;
@@ -444,12 +445,16 @@ public class TeleGPS
 		bag.add(pane, c);
 
 		map = new AltosUIMap();
-		pane.add("Map", map);
+		pane.add(map.getName(), map);
 		displays.add(map);
 
 		gps_info = new TeleGPSInfo();
-		pane.add("Info", gps_info);
+		pane.add(gps_info.getName(), gps_info);
 		displays.add(gps_info);
+
+		gps_state = new TeleGPSState();
+		pane.add(gps_state.getName(), gps_state);
+		displays.add(gps_state);
 
 		info_table = new AltosInfoTable();
 		pane.add("Table", info_table);
