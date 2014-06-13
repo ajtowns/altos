@@ -63,14 +63,17 @@ public class AltosVoice {
 
 		boolean	spoke = false;
 		if (old_state == null || old_state.state != state.state) {
-			speak(state.state_name());
+			if (state.state != AltosLib.ao_flight_stateless)
+				speak(state.state_name());
 			if ((old_state == null || old_state.state <= AltosLib.ao_flight_boost) &&
 			    state.state > AltosLib.ao_flight_boost) {
-				speak(String.format("max speed: %d meters per second.", (int) (state.max_speed() + 0.5)));
+				if (state.max_speed() != AltosLib.MISSING)
+					speak(String.format("max speed: %d meters per second.", (int) (state.max_speed() + 0.5)));
 				spoke = true;
 			} else if ((old_state == null || old_state.state < AltosLib.ao_flight_drogue) &&
 			           state.state >= AltosLib.ao_flight_drogue) {
-				speak(String.format("max height: %d meters.", (int) (state.max_height() + 0.5)));
+				if (state.max_height() != AltosLib.MISSING)
+					speak(String.format("max height: %d meters.", (int) (state.max_height() + 0.5)));
 				spoke = true;
 			}
 		}
@@ -109,8 +112,9 @@ public class AltosVoice {
 			}
 
 			/* If the rocket isn't on the pad, then report height */
-			if (AltosLib.ao_flight_drogue <= state.state &&
-			    state.state < AltosLib.ao_flight_landed &&
+			if (((AltosLib.ao_flight_drogue <= state.state &&
+			      state.state < AltosLib.ao_flight_landed) ||
+			     state.state == AltosLib.ao_flight_stateless) &&
 			    state.range >= 0)
 			{
 				speak(String.format("Height %d, bearing %s %d, elevation %d, range %d.\n",
@@ -121,7 +125,8 @@ public class AltosVoice {
 				                    (int) (state.elevation + 0.5),
 				                    (int) (state.range + 0.5)));
 			} else if (state.state > AltosLib.ao_flight_pad) {
-				speak(String.format("%d meters", (int) (state.height() + 0.5)));
+				if (state.height() != AltosLib.MISSING)
+					speak(String.format("%d meters", (int) (state.height() + 0.5)));
 			} else {
 				reported_landing = 0;
 			}
