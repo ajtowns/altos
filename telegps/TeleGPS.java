@@ -370,6 +370,7 @@ public class TeleGPS
 	}
 
 	private void close() {
+		disconnect();
 		AltosUIPreferences.unregister_font_listener(this);
 		AltosPreferences.unregister_units_listener(this);
 		setVisible(false);
