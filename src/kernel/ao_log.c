@@ -18,6 +18,9 @@
 #include "ao.h"
 #include <ao_log.h>
 #include <ao_config.h>
+#if HAS_TRACKER
+#include <ao_tracker.h>
+#endif
 
 __xdata uint8_t	ao_log_mutex;
 __pdata uint32_t ao_log_current_pos;
@@ -251,6 +254,7 @@ ao_log_delete(void) __reentrant
 {
 	uint8_t slot;
 	uint8_t slots;
+	uint32_t log_current_pos, log_end_pos;
 
 	ao_cmd_decimal();
 	if (ao_cmd_status != ao_cmd_success)
@@ -261,10 +265,13 @@ ao_log_delete(void) __reentrant
 	if (ao_cmd_lex_i) {
 		for (slot = 0; slot < slots; slot++) {
 			if (ao_log_flight(slot) == ao_cmd_lex_i) {
+#if HAS_TRACKER
+				ao_tracker_erase_start(ao_cmd_lex_i);
+#endif
 				ao_log_erase_mark();
-				ao_log_current_pos = ao_log_pos(slot);
-				ao_log_end_pos = ao_log_current_pos + ao_config.flight_log_max;
-				while (ao_log_current_pos < ao_log_end_pos) {
+				log_current_pos = ao_log_pos(slot);
+				log_end_pos = log_current_pos + ao_config.flight_log_max;
+				while (log_current_pos < log_end_pos) {
 					uint8_t	i;
 					static __xdata uint8_t b;
 
@@ -274,15 +281,18 @@ ao_log_delete(void) __reentrant
 					 * memory over and over again
 					 */
 					for (i = 0; i < 16; i++) {
-						if (ao_storage_read(ao_log_current_pos + i, &b, 1))
+						if (ao_storage_read(log_current_pos + i, &b, 1))
 							if (b != 0xff)
 								break;
 					}
 					if (i == 16)
 						break;
-					ao_storage_erase(ao_log_current_pos);
-					ao_log_current_pos += ao_storage_block;
+					ao_storage_erase(log_current_pos);
+					log_current_pos += ao_storage_block;
 				}
+#if HAS_TRACKER
+				ao_tracker_erase_end();
+#endif
 				puts("Erased");
 				return;
 			}

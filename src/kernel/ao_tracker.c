@@ -50,6 +50,7 @@ struct gps_position	gps_position[GPS_RING];
 
 static uint8_t	gps_head;
 
+static uint8_t	tracker_mutex;
 static uint8_t	log_started;
 static struct ao_telemetry_location gps_data;
 static uint8_t	tracker_running;
@@ -100,17 +101,19 @@ ao_tracker(void)
 			tracker_running = 0;
 		}
 
-		if (new_tracker_running && !tracker_running) {
+		if (new_tracker_running && !tracker_running)
 			ao_telemetry_set_interval(AO_SEC_TO_TICKS(tracker_interval));
-			ao_log_start();
-		} else if (!new_tracker_running && tracker_running) {
+		else if (!new_tracker_running && tracker_running)
 			ao_telemetry_set_interval(0);
-			ao_log_stop();
-		}
 
 		tracker_running = new_tracker_running;
 
-		if (!tracker_running)
+		if (new_tracker_running && !ao_log_running)
+			ao_log_start();
+		else if (!new_tracker_running && ao_log_running)
+			ao_log_stop();
+
+		if (!ao_log_running)
 			continue;
 
 		if (new & AO_GPS_NEW_DATA) {
@@ -138,10 +141,11 @@ ao_tracker(void)
 					}
 				}
 				if (ao_tracker_force_telem) {
-					printf ("moving %d\n", moving);
+					printf ("moving %d started %d\n", moving, log_started);
 					flush();
 				}
 				if (moving) {
+					ao_mutex_get(&tracker_mutex);
 					if (!log_started) {
 						ao_log_gps_flight();
 						log_started = 1;
@@ -151,9 +155,34 @@ ao_tracker(void)
 					gps_position[gps_head].longitude = gps_data.longitude;
 					gps_position[gps_head].altitude = gps_data.altitude;
 					gps_head = ao_gps_ring_next(gps_head);
+					ao_mutex_put(&tracker_mutex);
 				}
 			}
 		}
+	}
+}
+
+static uint8_t erasing_current;
+
+void
+ao_tracker_erase_start(uint16_t flight)
+{
+	erasing_current = flight == ao_flight_number;
+	if (erasing_current) {
+		ao_mutex_get(&tracker_mutex);
+		ao_log_stop();
+		if (++ao_flight_number == 0)
+			ao_flight_number = 1;
+	}
+}
+
+void
+ao_tracker_erase_end(void)
+{
+	if (erasing_current) {
+		ao_log_scan();
+		log_started = 0;
+		ao_mutex_put(&tracker_mutex);
 	}
 }
 

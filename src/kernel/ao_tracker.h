@@ -28,4 +28,10 @@
 void
 ao_tracker_init(void);
 
+void
+ao_tracker_erase_start(uint16_t flight);
+
+void
+ao_tracker_erase_end(void);
+
 #endif /* _AO_TRACKER_H_ */
