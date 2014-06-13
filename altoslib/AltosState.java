@@ -749,6 +749,7 @@ public class AltosState implements Cloneable {
 		speak_altitude = AltosLib.MISSING;
 
 		callsign = null;
+		firmware_version = null;
 
 		accel_plus_g = AltosLib.MISSING;
 		accel_minus_g = AltosLib.MISSING;
@@ -886,6 +887,7 @@ public class AltosState implements Cloneable {
 		speak_altitude = old.speak_altitude;
 
 		callsign = old.callsign;
+		firmware_version = old.firmware_version;
 
 		accel_plus_g = old.accel_plus_g;
 		accel_minus_g = old.accel_minus_g;
