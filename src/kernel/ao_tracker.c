@@ -35,9 +35,21 @@ ao_usb_connected(void)
 #define ao_usb_connected()	1
 #endif
 
-static int32_t	last_log_latitude, last_log_longitude;
-static int16_t	last_log_altitude;
-static uint8_t	unmoving;
+struct gps_position {
+	int32_t	latitude;
+	int32_t	longitude;
+	int16_t	altitude;
+};
+
+#define GPS_RING	16
+
+struct gps_position	gps_position[GPS_RING];
+
+#define ao_gps_ring_next(n)	(((n) + 1) & (GPS_RING - 1))
+#define ao_gps_ring_prev(n)	(((n) - 1) & (GPS_RING - 1))
+
+static uint8_t	gps_head;
+
 static uint8_t	log_started;
 static struct ao_telemetry_location gps_data;
 static uint8_t	tracker_running;
@@ -60,7 +72,6 @@ ao_tracker(void)
 	ao_tracker_force_telem = 1;
 #endif
 	ao_log_scan();
-	ao_log_start();
 
 	ao_rdf_set(1);
 
@@ -106,36 +117,41 @@ ao_tracker(void)
 			if ((gps_data.flags & (AO_GPS_VALID|AO_GPS_COURSE_VALID)) ==
 			    (AO_GPS_VALID|AO_GPS_COURSE_VALID))
 			{
-				if (log_started) {
+				uint8_t	ring;
+				uint8_t	moving = 0;
+
+				for (ring = ao_gps_ring_next(gps_head); ring != gps_head; ring = ao_gps_ring_next(ring)) {
 					ground_distance = ao_distance(gps_data.latitude, gps_data.longitude,
-								      last_log_latitude, last_log_longitude);
-					height = last_log_altitude - gps_data.altitude;
+								      gps_position[ring].latitude,
+								      gps_position[ring].longitude);
+					height = gps_position[ring].altitude - gps_data.altitude;
 					if (height < 0)
 						height = -height;
-					if (ground_distance <= ao_config.tracker_motion &&
-					    height <= ao_config.tracker_motion)
-					{
-						if (unmoving < AO_TRACKER_MOTION_COUNT)
-							unmoving++;
-					} else
-						unmoving = 0;
-				}
-			} else {
-				if (!log_started)
-					continue;
-				if (unmoving < AO_TRACKER_MOTION_COUNT)
-					unmoving++;
-			}
 
-			if (unmoving < AO_TRACKER_MOTION_COUNT) {
-				if (!log_started) {
-					ao_log_gps_flight();
-					log_started = 1;
+					if (ao_tracker_force_telem)
+						printf("head %d ring %d ground_distance %d height %d\n", gps_head, ring, ground_distance, height);
+					if (ground_distance > ao_config.tracker_motion ||
+					    height > (ao_config.tracker_motion << 1))
+					{
+						moving = 1;
+						break;
+					}
 				}
-				ao_log_gps_data(gps_tick, &gps_data);
-				last_log_latitude = gps_data.latitude;
-				last_log_longitude = gps_data.longitude;
-				last_log_altitude = gps_data.altitude;
+				if (ao_tracker_force_telem) {
+					printf ("moving %d\n", moving);
+					flush();
+				}
+				if (moving) {
+					if (!log_started) {
+						ao_log_gps_flight();
+						log_started = 1;
+					}
+					ao_log_gps_data(gps_tick, &gps_data);
+					gps_position[gps_head].latitude = gps_data.latitude;
+					gps_position[gps_head].longitude = gps_data.longitude;
+					gps_position[gps_head].altitude = gps_data.altitude;
+					gps_head = ao_gps_ring_next(gps_head);
+				}
 			}
 		}
 	}
@@ -154,8 +170,8 @@ ao_tracker_set_telem(void)
 	ao_cmd_status = ao_cmd_success;
 	printf ("flight: %d\n", ao_flight_number);
 	printf ("force_telem: %d\n", ao_tracker_force_telem);
+	printf ("tracker_running: %d\n", tracker_running);
 	printf ("log_started: %d\n", log_started);
-	printf ("unmoving: %d\n", unmoving);
 	printf ("latitude: %ld\n", (long) gps_data.latitude);
 	printf ("longitude: %ld\n", (long) gps_data.longitude);
 	printf ("altitude: %d\n", gps_data.altitude);
