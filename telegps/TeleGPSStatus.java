@@ -108,6 +108,26 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 
 	Serial serial;
 
+	class Flight extends Value {
+
+		int	last_flight = -1;
+
+		void show(AltosState state, AltosListenerState listener_state) {
+			if (state.flight != last_flight) {
+				if (state.flight == AltosLib.MISSING)
+					value.setText("none");
+				else
+					value.setText(String.format("%d", state.flight));
+				last_flight = state.flight;
+			}
+		}
+		public Flight (GridBagLayout layout, int x) {
+			super (layout, x, "Flight");
+		}
+	}
+
+	Flight flight;
+
 	class RSSI extends Value {
 		int	rssi = 10000;
 
@@ -152,6 +172,7 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 	public void reset () {
 		call.reset();
 		serial.reset();
+		flight.reset();
 		rssi.reset();
 		last_packet.reset();
 	}
@@ -159,6 +180,7 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 	public void font_size_changed(int font_size) {
 		call.set_font();
 		serial.set_font();
+		flight.set_font();
 		rssi.set_font();
 		last_packet.set_font();
 	}
@@ -169,6 +191,7 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 	public void show (AltosState state, AltosListenerState listener_state) {
 		call.show(state, listener_state);
 		serial.show(state, listener_state);
+		flight.show(state, listener_state);
 		rssi.show(state, listener_state);
 		last_packet.show(state, listener_state);
 	}
@@ -185,6 +208,7 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 
 		call = new Call(layout, 0);
 		serial = new Serial(layout, 1);
+		flight = new Flight(layout, 2);
 		rssi = new RSSI(layout, 4);
 		last_packet = new LastPacket(layout, 5);
 	}
