@@ -139,6 +139,10 @@ public class AltosUIMap extends JComponent implements AltosFlightDisplay, AltosU
 	public static void prefetch_maps(double lat, double lon) {
 	}
 
+	public String getName() {
+		return "Map";
+	}
+
 	public AltosUIMap() {
 
 		view = new AltosUIMapView();
