@@ -19,6 +19,7 @@
 #include <ao_log.h>
 #include <ao_config.h>
 
+__xdata uint8_t	ao_log_mutex;
 __pdata uint32_t ao_log_current_pos;
 __pdata uint32_t ao_log_end_pos;
 __pdata uint32_t ao_log_start_pos;

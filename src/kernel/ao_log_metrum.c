@@ -20,7 +20,6 @@
 #include <ao_data.h>
 #include <ao_flight.h>
 
-static __xdata uint8_t	ao_log_mutex;
 static __xdata struct ao_log_metrum log;
 
 __code uint8_t ao_log_format = AO_LOG_FORMAT_TELEMETRUM;

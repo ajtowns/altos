@@ -29,7 +29,7 @@
  * by sleeping on this variable.
  */
 extern __xdata uint16_t ao_flight_number;
-
+extern __xdata uint8_t	ao_log_mutex;
 extern __pdata uint32_t ao_log_current_pos;
 extern __pdata uint32_t ao_log_end_pos;
 extern __pdata uint32_t ao_log_start_pos;
