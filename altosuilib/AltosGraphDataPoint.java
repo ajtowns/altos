@@ -101,8 +101,12 @@ public class AltosGraphDataPoint implements AltosUIDataPoint {
 				y = state.gps.nsat;
 			break;
 		case data_gps_nsat_view:
-			if (state.gps != null && state.gps.cc_gps_sat != null)
-				y = state.gps.cc_gps_sat.length;
+			if (state.gps != null) {
+				if (state.gps.cc_gps_sat != null)
+					y = state.gps.cc_gps_sat.length;
+				else
+					y = 0;
+			}
 			break;
 		case data_gps_altitude:
 			y = state.gps_altitude();
