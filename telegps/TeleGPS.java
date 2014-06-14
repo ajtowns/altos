@@ -76,42 +76,42 @@ public class TeleGPS
 
 	/* File menu */
 	final static String	new_command = "new";
-	final static String	preferences_command = "preferences";
+	final static String	graph_command = "graph";
+	final static String	export_command = "export";
 	final static String	load_maps_command = "loadmaps";
+	final static String	preferences_command = "preferences";
 	final static String	close_command = "close";
 	final static String	exit_command = "exit";
 
 	static final String[][] file_menu_entries = new String[][] {
 		{ "New Window",		new_command },
-		{ "Preferences",	preferences_command },
+		{ "Graph Data",		graph_command },
+		{ "Export Data",	export_command },
 		{ "Load Maps",		load_maps_command },
+		{ "Preferences",	preferences_command },
 		{ "Close",		close_command },
 		{ "Exit",		exit_command },
 	};
 
 	/* Monitor menu */
-	final static String	monitor_command = "monitor";
+	final static String	connect_command = "connect";
 	final static String	disconnect_command = "disconnect";
 	final static String	scan_command = "scan";
 
 	static final String[][] monitor_menu_entries = new String[][] {
-		{ "Monitor Device",	monitor_command },
+		{ "Connect Device",	connect_command },
 		{ "Disconnect",		disconnect_command },
 		{ "Scan Channels",	scan_command },
 	};
 
 	/* Device menu */
 	final static String	download_command = "download";
-	final static String	export_command = "export";
-	final static String	graph_command = "graph";
 	final static String	configure_command = "configure";
 	final static String	flash_command = "flash";
 
 	static final String[][] device_menu_entries = new String[][] {
 		{ "Download Data",	download_command },
 		{ "Configure Device",	configure_command },
-		{ "Export Data",	export_command },
-		{ "Graph Data",		graph_command },
 		{ "Flash Device",	flash_command },
 	};
 
@@ -213,7 +213,7 @@ public class TeleGPS
 		}
 	}
 
-	void monitor() {
+	void connect() {
 		AltosDevice	device = AltosDeviceUIDialog.show(this,
 								  AltosLib.product_basestation);
 		if (device == null)
@@ -286,8 +286,8 @@ public class TeleGPS
 			System.exit(0);
 
 		/* Monitor menu */
-		if (monitor_command.equals(ev.getActionCommand())) {
-			monitor();
+		if (connect_command.equals(ev.getActionCommand())) {
+			connect();
 			return;
 		}
 		if (disconnect_command.equals(ev.getActionCommand())) {
