@@ -87,6 +87,8 @@ public class AltosCompanionInfo extends JTable implements AltosFlightDisplay {
 		}
 	}
 
+	public String getName() { return "Companion"; }
+
 	public void show(AltosState state, AltosListenerState listener_state) {
 		if (state == null)
 			return;

@@ -17,516 +17,148 @@
 
 package altosui;
 
+import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import org.altusmetrum.altoslib_4.*;
 import org.altusmetrum.altosuilib_2.*;
 
-public class AltosDescent extends JComponent implements AltosFlightDisplay, HierarchyListener {
-	GridBagLayout	layout;
+public class AltosDescent extends AltosUIFlightTab {
 
-	private AltosState		last_state;
-	private AltosListenerState	last_listener_state;
+	class Height extends AltosUIUnitsIndicator {
+		public double value(AltosState state, int i) { return state.height(); }
 
-	public abstract class DescentStatus implements AltosFontListener, AltosUnitsListener {
-		JLabel		label;
-		JTextField	value;
-		AltosLights	lights;
-
-		abstract void show(AltosState state, AltosListenerState listener_state);
-
-		void show() {
-			label.setVisible(true);
-			value.setVisible(true);
-			lights.setVisible(true);
-		}
-
-		void show(String s) {
-			show();
-			value.setText(s);
-		}
-
-		void show(String format, double value) {
-			show(String.format(format, value));
-		}
-
-		void hide() {
-			label.setVisible(false);
-			value.setVisible(false);
-			lights.setVisible(false);
-		}
-
-		void reset() {
-			value.setText("");
-			lights.set(false);
-		}
-
-		public void font_size_changed(int font_size) {
-			label.setFont(Altos.label_font);
-			value.setFont(Altos.value_font);
-		}
-
-		public void units_changed(boolean imperial_units) {
-		}
-
-		public DescentStatus (GridBagLayout layout, int y, String text) {
-			GridBagConstraints	c = new GridBagConstraints();
-			c.weighty = 1;
-
-			lights = new AltosLights();
-			c.gridx = 0; c.gridy = y;
-			c.anchor = GridBagConstraints.CENTER;
-			c.fill = GridBagConstraints.VERTICAL;
-			c.weightx = 0;
-			layout.setConstraints(lights, c);
-			add(lights);
-
-			label = new JLabel(text);
-			label.setFont(Altos.label_font);
-			label.setHorizontalAlignment(SwingConstants.LEFT);
-			c.gridx = 1; c.gridy = y;
-			c.insets = new Insets(Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad);
-			c.anchor = GridBagConstraints.WEST;
-			c.fill = GridBagConstraints.VERTICAL;
-			c.gridwidth = 3;
-			c.weightx = 0;
-			layout.setConstraints(label, c);
-			add(label);
-
-			value = new JTextField(Altos.text_width);
-			value.setEditable(false);
-			value.setFont(Altos.value_font);
-			value.setHorizontalAlignment(SwingConstants.RIGHT);
-			c.gridx = 4; c.gridy = y;
-			c.gridwidth = 1;
-			c.anchor = GridBagConstraints.WEST;
-			c.fill = GridBagConstraints.BOTH;
-			c.weightx = 1;
-			layout.setConstraints(value, c);
-			add(value);
-
+		public Height (Container container, int x, int y) {
+			super (container, x, y, AltosConvert.height, "Height");
 		}
 	}
 
-	public abstract class DescentValue implements AltosFontListener, AltosUnitsListener {
-		JLabel		label;
-		JTextField	value;
-		AltosUnits	units;
-		double		v;
-		String		last_value = "";
+	class Speed extends AltosUIUnitsIndicator {
+		public double value(AltosState state, int i) { return state.speed(); }
 
-		void reset() {
-			value.setText("");
-		}
-
-		abstract void show(AltosState state, AltosListenerState listener_state);
-
-		void show() {
-			label.setVisible(true);
-			value.setVisible(true);
-		}
-
-		void hide() {
-			label.setVisible(false);
-			value.setVisible(false);
-		}
-
-		void show(String v) {
-			show();
-
-			if (!last_value.equals(v)) {
-				value.setText(v);
-				last_value = v;
-			}
-		}
-
-		void show(double v) {
-			this.v = v;
-			if (v == AltosLib.MISSING)
-				show("Missing");
-			else
-				show(units.show(8, v));
-		}
-
-		void show(String format, double v) {
-			if (v == AltosLib.MISSING)
-				show("Missing");
-			else
-				show(String.format(format, v));
-		}
-
-		public void font_size_changed(int font_size) {
-			label.setFont(Altos.label_font);
-			value.setFont(Altos.value_font);
-		}
-
-		public void units_changed(boolean imperial_units) {
-			if (units != null)
-				show(v);
-		}
-
-		public DescentValue (GridBagLayout layout, int x, int y, AltosUnits units, String text) {
-			this.units = units;
-			GridBagConstraints	c = new GridBagConstraints();
-			c.weighty = 1;
-
-			label = new JLabel(text);
-			label.setFont(Altos.label_font);
-			label.setHorizontalAlignment(SwingConstants.LEFT);
-			c.gridx = x + 1; c.gridy = y;
-			c.insets = new Insets(Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad);
-			c.anchor = GridBagConstraints.WEST;
-			c.fill = GridBagConstraints.VERTICAL;
-			c.weightx = 0;
-			add(label, c);
-
-			value = new JTextField(Altos.text_width);
-			value.setEditable(false);
-			value.setFont(Altos.value_font);
-			value.setHorizontalAlignment(SwingConstants.RIGHT);
-			c.gridx = x + 2; c.gridy = y;
-			c.gridwidth = 1;
-			c.anchor = GridBagConstraints.WEST;
-			c.fill = GridBagConstraints.BOTH;
-			c.weightx = 1;
-			add(value, c);
-		}
-
-		public DescentValue (GridBagLayout layout, int x, int y, String text) {
-			this(layout, x, y, null, text);
+		public Speed (Container container, int x, int y) {
+			super (container, x, y, AltosConvert.speed, "Speed");
 		}
 	}
 
-	public abstract class DescentDualValue implements AltosFontListener, AltosUnitsListener {
-		JLabel		label;
-		JTextField	value1;
-		JTextField	value2;
+	class Lat extends AltosUIUnitsIndicator {
 
-		void reset() {
-			value1.setText("");
-			value2.setText("");
+		public boolean hide (AltosState state, int i) { return state.gps == null || !state.gps.connected; }
+
+		public double value(AltosState state, int i) {
+			if (state.gps == null)
+				return AltosLib.MISSING;
+			if (!state.gps.connected)
+				return AltosLib.MISSING;
+			return state.gps.lat;
 		}
 
-		void show() {
-			label.setVisible(true);
-			value1.setVisible(true);
-			value2.setVisible(true);
-		}
-
-		void hide() {
-			label.setVisible(false);
-			value1.setVisible(false);
-			value2.setVisible(false);
-		}
-
-		public void font_size_changed(int font_size) {
-			label.setFont(Altos.label_font);
-			value1.setFont(Altos.value_font);
-			value2.setFont(Altos.value_font);
-		}
-
-		public void units_changed(boolean imperial_units) {
-		}
-
-		abstract void show(AltosState state, AltosListenerState listener_state);
-
-		void show(String v1, String v2) {
-			show();
-			value1.setText(v1);
-			value2.setText(v2);
-		}
-		void show(String f1, double v1, String f2, double v2) {
-			show();
-			value1.setText(String.format(f1, v1));
-			value2.setText(String.format(f2, v2));
-		}
-
-		public DescentDualValue (GridBagLayout layout, int x, int y, String text) {
-			GridBagConstraints	c = new GridBagConstraints();
-			c.weighty = 1;
-
-			label = new JLabel(text);
-			label.setFont(Altos.label_font);
-			label.setHorizontalAlignment(SwingConstants.LEFT);
-			c.gridx = x + 1; c.gridy = y;
-			c.insets = new Insets(Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad);
-			c.anchor = GridBagConstraints.WEST;
-			c.fill = GridBagConstraints.VERTICAL;
-			c.weightx = 0;
-			layout.setConstraints(label, c);
-			add(label);
-
-			value1 = new JTextField(Altos.text_width);
-			value1.setEditable(false);
-			value1.setFont(Altos.value_font);
-			value1.setHorizontalAlignment(SwingConstants.RIGHT);
-			c.gridx = x + 2; c.gridy = y;
-			c.anchor = GridBagConstraints.WEST;
-			c.fill = GridBagConstraints.BOTH;
-			c.weightx = 1;
-			layout.setConstraints(value1, c);
-			add(value1);
-
-			value2 = new JTextField(Altos.text_width);
-			value2.setEditable(false);
-			value2.setFont(Altos.value_font);
-			value2.setHorizontalAlignment(SwingConstants.RIGHT);
-			c.gridx = x + 4; c.gridy = y;
-			c.anchor = GridBagConstraints.WEST;
-			c.fill = GridBagConstraints.BOTH;
-			c.weightx = 1;
-			c.gridwidth = 1;
-			layout.setConstraints(value2, c);
-			add(value2);
+		public Lat (Container container, int x, int y) {
+			super (container, x, y, AltosConvert.latitude, "Latitude");
 		}
 	}
 
-	class Height extends DescentValue {
-		void show (AltosState state, AltosListenerState listener_state) {
-			show(state.height());
-		}
-		public Height (GridBagLayout layout, int x, int y) {
-			super (layout, x, y, AltosConvert.height, "Height");
-		}
-	}
+	class Lon extends AltosUIUnitsIndicator {
+		public boolean hide (AltosState state, int i) { return state.gps == null || !state.gps.connected; }
 
-	Height	height;
-
-	class Speed extends DescentValue {
-		void show (AltosState state, AltosListenerState listener_state) {
-			show(state.speed());
+		public double value(AltosState state, int i) {
+			if (state.gps == null)
+				return AltosLib.MISSING;
+			if (!state.gps.connected)
+				return AltosLib.MISSING;
+			return state.gps.lon;
 		}
-		public Speed (GridBagLayout layout, int x, int y) {
-			super (layout, x, y, AltosConvert.speed, "Speed");
+
+		public Lon (Container container, int x, int y) {
+			super (container, x, y, AltosConvert.longitude, "Longitude");
 		}
 	}
 
-	Speed	speed;
+	class Apogee extends AltosUIUnitsIndicator {
+		public boolean hide(double v) { return v == AltosLib.MISSING; }
+		public double value(AltosState state, int i) { return state.apogee_voltage; }
+		public double good() { return AltosLib.ao_igniter_good; }
 
-	String pos(double p, String pos, String neg) {
-		String	h = pos;
-		if (p < 0) {
-			h = neg;
-			p = -p;
-		}
-		int deg = (int) Math.floor(p);
-		double min = (p - Math.floor(p)) * 60.0;
-		return String.format("%s %d° %9.6f", h, deg, min);
-	}
-
-	class Lat extends DescentValue {
-		void show (AltosState state, AltosListenerState listener_state) {
-			if (state.gps != null && state.gps.connected && state.gps.lat != AltosLib.MISSING)
-				show(pos(state.gps.lat,"N", "S"));
-			else
-				show("???");
-		}
-		public Lat (GridBagLayout layout, int x, int y) {
-			super (layout, x, y, "Latitude");
+		public Apogee (Container container, int y) {
+			super(container, 0, y, 3, AltosConvert.voltage, "Apogee Igniter Voltage", 1, true, 3);
 		}
 	}
 
-	Lat lat;
+	class Main extends AltosUIUnitsIndicator {
+		public boolean hide(double v) { return v == AltosLib.MISSING; }
+		public double value(AltosState state, int i) { return state.main_voltage; }
+		public double good() { return AltosLib.ao_igniter_good; }
 
-	class Lon extends DescentValue {
-		void show (AltosState state, AltosListenerState listener_state) {
-			if (state.gps != null && state.gps.connected && state.gps.lon != AltosLib.MISSING)
-				show(pos(state.gps.lon,"W", "E"));
-			else
-				show("???");
-		}
-		public Lon (GridBagLayout layout, int x, int y) {
-			super (layout, x, y, "Longitude");
+		public Main (Container container, int y) {
+			super(container, 0, y, 3, AltosConvert.voltage, "Main Igniter Voltage", 1, true, 3);
 		}
 	}
 
-	Lon lon;
-
-	class Distance extends DescentValue {
-		void show(AltosState state, AltosListenerState listener_state) {
+	class Distance extends AltosUIUnitsIndicator {
+		public double value(AltosState state, int i) {
 			if (state.from_pad != null)
-				show(state.from_pad.distance);
+				return state.from_pad.distance;
 			else
-				show("???");
+				return AltosLib.MISSING;
 		}
 
-		public Distance (GridBagLayout layout, int x, int y) {
-			super(layout, x, y, AltosConvert.distance, "Ground Distance");
-		}
-	}
-
-	Distance distance;
-
-
-	class Apogee extends DescentStatus {
-		void show (AltosState state, AltosListenerState listener_state) {
-			show("%4.2f V", state.apogee_voltage);
-			lights.set(state.apogee_voltage >= AltosLib.ao_igniter_good);
-		}
-		public Apogee (GridBagLayout layout, int y) {
-			super(layout, y, "Apogee Igniter Voltage");
+		public Distance(Container container, int x, int y) {
+			super(container, x, y, AltosConvert.distance, "Ground Distance");
 		}
 	}
 
-	Apogee apogee;
-
-	class Main extends DescentStatus {
-		void show (AltosState state, AltosListenerState listener_state) {
-			show("%4.2f V", state.main_voltage);
-			lights.set(state.main_voltage >= AltosLib.ao_igniter_good);
+	class Range extends AltosUIUnitsIndicator {
+		public double value(AltosState state, int i) {
+			return state.range;
 		}
-		public Main (GridBagLayout layout, int y) {
-			super(layout, y, "Main Igniter Voltage");
+		public Range (Container container, int x, int y) {
+			super (container, x, y, AltosConvert.distance, "Range");
 		}
 	}
 
-	Main main;
-
-	class Bearing extends DescentDualValue {
-		void show (AltosState state, AltosListenerState listener_state) {
-			if (state.from_pad != null) {
+	class Bearing extends AltosUIIndicator {
+		public void show (AltosState state, AltosListenerState listener_state) {
+			if (state.from_pad != null && state.from_pad.bearing != AltosLib.MISSING) {
 				show( String.format("%3.0f°", state.from_pad.bearing),
 				      state.from_pad.bearing_words(
 					      AltosGreatCircle.BEARING_LONG));
 			} else {
-				show("???", "???");
+				show("Missing", "Missing");
 			}
 		}
-		public Bearing (GridBagLayout layout, int x, int y) {
-			super (layout, x, y, "Bearing");
+		public Bearing (Container container, int x, int y) {
+			super (container, x, y, 1, "Bearing", 2, false, 1, 2);
 		}
 	}
 
-	Bearing bearing;
-
-	class Range extends DescentValue {
-		void show (AltosState state, AltosListenerState listener_state) {
-			show(state.range);
+	class Elevation extends AltosUIIndicator {
+		public void show (AltosState state, AltosListenerState listener_state) {
+			if (state.elevation == AltosLib.MISSING)
+				show("Missing");
+			else
+				show("%3.0f°", state.elevation);
 		}
-		public Range (GridBagLayout layout, int x, int y) {
-			super (layout, x, y, AltosConvert.distance, "Range");
+		public Elevation (Container container, int x, int y) {
+			super (container, x, y, "Elevation", 1, false, 1);
 		}
-	}
-
-	Range range;
-
-	class Elevation extends DescentValue {
-		void show (AltosState state, AltosListenerState listener_state) {
-			show("%3.0f°", state.elevation);
-		}
-		public Elevation (GridBagLayout layout, int x, int y) {
-			super (layout, x, y, "Elevation");
-		}
-	}
-
-	Elevation elevation;
-
-	public void reset() {
-		lat.reset();
-		lon.reset();
-		height.reset();
-		speed.reset();
-		bearing.reset();
-		range.reset();
-		distance.reset();
-		elevation.reset();
-		main.reset();
-		apogee.reset();
-	}
-
-	public void font_size_changed(int font_size) {
-		lat.font_size_changed(font_size);
-		lon.font_size_changed(font_size);
-		height.font_size_changed(font_size);
-		speed.font_size_changed(font_size);
-		bearing.font_size_changed(font_size);
-		range.font_size_changed(font_size);
-		distance.font_size_changed(font_size);
-		elevation.font_size_changed(font_size);
-		main.font_size_changed(font_size);
-		apogee.font_size_changed(font_size);
-	}
-
-	public void units_changed(boolean imperial_units) {
-		lat.units_changed(imperial_units);
-		lon.units_changed(imperial_units);
-		height.units_changed(imperial_units);
-		speed.units_changed(imperial_units);
-		bearing.units_changed(imperial_units);
-		range.units_changed(imperial_units);
-		distance.units_changed(imperial_units);
-		elevation.units_changed(imperial_units);
-		main.units_changed(imperial_units);
-		apogee.units_changed(imperial_units);
-	}
-
-	public void show(AltosState state, AltosListenerState listener_state) {
-		if (!isShowing()) {
-			last_state = state;
-			last_listener_state = listener_state;
-			return;
-		}
-
-		height.show(state, listener_state);
-		speed.show(state, listener_state);
-		if (state.gps != null && state.gps.connected) {
-			bearing.show(state, listener_state);
-			range.show(state, listener_state);
-			distance.show(state, listener_state);
-			elevation.show(state, listener_state);
-			lat.show(state, listener_state);
-			lon.show(state, listener_state);
-		} else {
-			bearing.hide();
-			range.hide();
-			distance.hide();
-			elevation.hide();
-			lat.hide();
-			lon.hide();
-		}
-		if (state.main_voltage != AltosLib.MISSING)
-			main.show(state, listener_state);
-		else
-			main.hide();
-		if (state.apogee_voltage != AltosLib.MISSING)
-			apogee.show(state, listener_state);
-		else
-			apogee.hide();
 	}
 
 	public String getName() {
 		return "Descent";
 	}
 
-	public void hierarchyChanged(HierarchyEvent e) {
-		if (last_state != null && isShowing()) {
-			AltosState		state = last_state;
-			AltosListenerState	listener_state = last_listener_state;
-
-			last_state = null;
-			last_listener_state = null;
-			show(state, listener_state);
-		}
-	}
-
 	public AltosDescent() {
-		layout = new GridBagLayout();
-
-		setLayout(layout);
-
 		/* Elements in descent display */
-		speed = new Speed(layout, 0, 0);
-		height = new Height(layout, 2, 0);
-		elevation = new Elevation(layout, 0, 1);
-		range = new Range(layout, 2, 1);
-		bearing = new Bearing(layout, 0, 2);
-		distance = new Distance(layout, 0, 3);
-		lat = new Lat(layout, 0, 4);
-		lon = new Lon(layout, 2, 4);
-
-		apogee = new Apogee(layout, 5);
-		main = new Main(layout, 6);
-		addHierarchyListener(this);
+		add(new Speed(this, 0, 0));
+		add(new Height(this, 2, 0));
+		add(new Elevation(this, 0, 1));
+		add(new Range(this, 2, 1));
+		add(new Bearing(this, 0, 2));
+		add(new Distance(this, 0, 3));
+		add(new Lat(this, 0, 4));
+		add(new Lon(this, 2, 4));
+		add(new Apogee(this, 5));
+		add(new Main(this, 6));
 	}
 }

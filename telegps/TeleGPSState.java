@@ -24,12 +24,9 @@ import javax.swing.*;
 import org.altusmetrum.altoslib_4.*;
 import org.altusmetrum.altosuilib_2.*;
 
-public class TeleGPSState extends JComponent implements AltosFlightDisplay, HierarchyListener {
-	GridBagLayout			layout;
-	JLabel				cur, max;
+public class TeleGPSState extends AltosUIFlightTab {
 
-	private AltosState		last_state;
-	private AltosListenerState	last_listener_state;
+	JLabel	cur, max;
 
 	abstract class Value extends AltosUIUnitsIndicator {
 		public Value (Container container, int y, AltosUnits units, String text) {
@@ -44,10 +41,6 @@ public class TeleGPSState extends JComponent implements AltosFlightDisplay, Hier
 	}
 
 	abstract class ValueHold extends DualValue {
-		public void reset() {
-			super.reset();
-			last_values[1] = AltosLib.MISSING;
-		}
 		public ValueHold (Container container, int y, AltosUnits units, String text) {
 			super(container, y, units, text);
 		}
@@ -103,12 +96,12 @@ public class TeleGPSState extends JComponent implements AltosFlightDisplay, Hier
 
 	class Bearing extends AltosUIIndicator {
 		public void show (AltosState state, AltosListenerState listener_state) {
-			if (state.from_pad != null) {
+			if (state.from_pad != null && state.from_pad.bearing != AltosLib.MISSING) {
 				show( String.format("%3.0f°", state.from_pad.bearing),
 				      state.from_pad.bearing_words(
 					      AltosGreatCircle.BEARING_LONG));
 			} else {
-				show("???", "???");
+				show("Missing", "Missing");
 			}
 		}
 		public Bearing (Container container, int y) {
@@ -118,7 +111,10 @@ public class TeleGPSState extends JComponent implements AltosFlightDisplay, Hier
 
 	class Elevation extends AltosUIIndicator {
 		public void show (AltosState state, AltosListenerState listener_state) {
-			show("%3.0f°", state.elevation);
+			if (state.elevation == AltosLib.MISSING)
+				show("Missing");
+			else
+				show("%3.0f°", state.elevation);
 		}
 		public Elevation (Container container, int y) {
 			super (container, y, "Elevation", 1, false, 2);
@@ -165,7 +161,6 @@ public class TeleGPSState extends JComponent implements AltosFlightDisplay, Hier
 		}
 	}
 
-	LinkedList<AltosUIIndicator> indicators = new LinkedList<AltosUIIndicator>();
 
 	public void labels(Container container, int y) {
 		GridBagLayout		layout = (GridBagLayout)(container.getLayout());
@@ -186,69 +181,27 @@ public class TeleGPSState extends JComponent implements AltosFlightDisplay, Hier
 		add(max);
 	}
 
-	public void reset() {
-		for (AltosUIIndicator i : indicators)
-			i.reset();
-	}
-
 	public void font_size_changed(int font_size) {
-		for (AltosUIIndicator i : indicators)
-			i.font_size_changed(font_size);
-	}
-
-	public void units_changed(boolean imperial_units) {
-		for (AltosUIIndicator i : indicators)
-			i.units_changed(imperial_units);
-	}
-
-	public void show(AltosState state, AltosListenerState listener_state) {
-		if (!isShowing()) {
-			last_state = state;
-			last_listener_state = listener_state;
-			return;
-		}
-
-		for (AltosUIIndicator i : indicators)
-			i.show(state, listener_state);
+		cur.setFont(AltosUILib.label_font);
+		max.setFont(AltosUILib.label_font);
+		super.font_size_changed(font_size);
 	}
 
 	public String getName() {
 		return "Status";
 	}
 
-	public void hierarchyChanged(HierarchyEvent e) {
-		if (last_state != null && isShowing()) {
-			AltosState		state = last_state;
-			AltosListenerState	listener_state = last_listener_state;
-
-			last_state = null;
-			last_listener_state = null;
-			show(state, listener_state);
-		}
-	}
-
 	public TeleGPSState() {
-		layout = new GridBagLayout();
-
-		setLayout(layout);
-
-		/* Elements in state display:
-		 *
-		 * config_version;
-		 * lon
-		 * height
-		 */
 		int y = 0;
 		labels(this, y++);
-		indicators.add(new Height(this, y++));
-		indicators.add(new Speed(this, y++));
-		indicators.add(new Distance(this, y++));
-		indicators.add(new Range(this, y++));
-		indicators.add(new Bearing(this, y++));
-		indicators.add(new Elevation(this, y++));
-		indicators.add(new FirmwareVersion(this, y++));
-		indicators.add(new FlightLogMax(this, y++));
-		indicators.add(new BatteryVoltage(this, y++));
-		addHierarchyListener(this);
+		add(new Height(this, y++));
+		add(new Speed(this, y++));
+		add(new Distance(this, y++));
+		add(new Range(this, y++));
+		add(new Bearing(this, y++));
+		add(new Elevation(this, y++));
+		add(new FirmwareVersion(this, y++));
+		add(new FlightLogMax(this, y++));
+		add(new BatteryVoltage(this, y++));
 	}
 }

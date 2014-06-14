@@ -83,6 +83,12 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 			else
 				setVisible(true);
 		}
+
+		public void reset() {
+			super.reset();
+			call = "";
+		}
+
 		public Call (GridBagLayout layout, int x) {
 			super (layout, x, "Callsign");
 		}
@@ -101,6 +107,12 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 				serial = state.serial;
 			}
 		}
+
+		public void reset() {
+			super.reset();
+			serial = -1;
+		}
+
 		public Serial (GridBagLayout layout, int x) {
 			super (layout, x, "Serial");
 		}
@@ -121,6 +133,12 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 				last_flight = state.flight;
 			}
 		}
+
+		public void reset() {
+			super.reset();
+			last_flight = -1;
+		}
+
 		public Flight (GridBagLayout layout, int x) {
 			super (layout, x, "Flight");
 		}
@@ -143,6 +161,12 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 				rssi = new_rssi;
 			}
 		}
+
+		public void reset() {
+			super.reset();
+			rssi = 10000;
+		}
+
 		public RSSI (GridBagLayout layout, int x) {
 			super (layout, x, "RSSI");
 		}
@@ -162,12 +186,26 @@ public class TeleGPSStatus extends JComponent implements AltosFlightDisplay {
 				last_secs = secs;
 			}
 		}
+
+		void reset() {
+			super.reset();
+			last_secs = -1;
+		}
+
+		void disable() {
+			value.setText("");
+		}
+
 		public LastPacket(GridBagLayout layout, int x) {
 			super (layout, x, "Age");
 		}
 	}
 
 	LastPacket last_packet;
+
+	public void disable_receive() {
+		last_packet.disable();
+	}
 
 	public void reset () {
 		call.reset();

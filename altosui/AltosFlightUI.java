@@ -20,6 +20,7 @@ package altosui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.util.*;
 import java.util.concurrent.*;
 import org.altusmetrum.altoslib_4.*;
 import org.altusmetrum.altosuilib_2.*;
@@ -28,6 +29,8 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay {
 	AltosVoice		voice;
 	AltosFlightReader	reader;
 	AltosDisplayThread	thread;
+
+	LinkedList<AltosFlightDisplay> displays;
 
 	JTabbedPane	pane;
 
@@ -56,6 +59,8 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay {
 			return ascent;
 		if (state.state <= Altos.ao_flight_main)
 			return descent;
+		if (state.state == AltosLib.ao_flight_stateless)
+			return descent;
 		return landed;
 	}
 
@@ -74,37 +79,18 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay {
 	}
 
 	public void reset() {
-		pad.reset();
-		ignitor.reset();
-		ascent.reset();
-		descent.reset();
-		landed.reset();
-		flightInfo.clear();
-		sitemap.reset();
+		for (AltosFlightDisplay d : displays)
+			d.reset();
 	}
 
 	public void font_size_changed(int font_size) {
-		pad.font_size_changed(font_size);
-		ignitor.font_size_changed(font_size);
-		ascent.font_size_changed(font_size);
-		descent.font_size_changed(font_size);
-		landed.font_size_changed(font_size);
-		flightStatus.font_size_changed(font_size);
-		flightInfo.font_size_changed(font_size);
-		sitemap.font_size_changed(font_size);
-		companion.font_size_changed(font_size);
+		for (AltosFlightDisplay d : displays)
+			d.font_size_changed(font_size);
 	}
 
 	public void units_changed(boolean imperial_units) {
-		pad.units_changed(imperial_units);
-		ignitor.units_changed(imperial_units);
-		ascent.units_changed(imperial_units);
-		descent.units_changed(imperial_units);
-		landed.units_changed(imperial_units);
-		flightStatus.units_changed(imperial_units);
-		flightInfo.units_changed(imperial_units);
-		sitemap.units_changed(imperial_units);
-		companion.units_changed(imperial_units);
+		for (AltosFlightDisplay d : displays)
+			d.units_changed(imperial_units);
 	}
 
 	AltosFlightStatusUpdate	status_update;
@@ -114,8 +100,6 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay {
 
 		if (state == null)
 			state = new AltosState();
-
-		pad.show(state, listener_state);
 
 		if (state.state != Altos.ao_flight_startup) {
 			if (!has_state) {
@@ -127,10 +111,6 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay {
 			}
 		}
 
-		ascent.show(state, listener_state);
-		descent.show(state, listener_state);
-		landed.show(state, listener_state);
-
 		JComponent tab = which_tab(state);
 		if (tab != cur_tab) {
 			if (cur_tab == pane.getSelectedComponent()) {
@@ -138,15 +118,12 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay {
 			}
 			cur_tab = tab;
 		}
-		flightStatus.show(state, listener_state);
-		flightInfo.show(state, listener_state);
 
 		if (ignitor.should_show(state)) {
 			if (!has_ignitor) {
 				pane.add("Ignitor", ignitor);
 				has_ignitor = true;
 			}
-			ignitor.show(state, listener_state);
 		} else {
 			if (has_ignitor) {
 				pane.remove(ignitor);
@@ -159,23 +136,31 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay {
 				pane.add("Companion", companion);
 				has_companion= true;
 			}
-			companion.show(state, listener_state);
 		} else {
 			if (has_companion) {
 				pane.remove(companion);
 				has_companion = false;
 			}
 		}
+
 		if (state.gps != null && state.gps.connected) {
 			if (!has_map) {
 				pane.add("Site Map", sitemap);
 				has_map = true;
 			}
-			sitemap.show(state, listener_state);
 		} else {
 			if (has_map) {
 				pane.remove(sitemap);
 				has_map = false;
+			}
+		}
+
+		for (AltosFlightDisplay d : displays) {
+			try {
+				d.show(state, listener_state);
+			} catch (Exception e) {
+				System.out.printf("Exception showing %s\n", d.getName());
+				e.printStackTrace();
 			}
 		}
 	}
@@ -193,6 +178,8 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay {
 
 	public AltosFlightUI(AltosVoice in_voice, AltosFlightReader in_reader, final int serial) {
 		AltosUIPreferences.set_component(this);
+
+		displays = new LinkedList<AltosFlightDisplay>();
 
 		voice = in_voice;
 		reader = in_reader;
@@ -282,6 +269,7 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay {
 
 		/* Flight status is always visible */
 		flightStatus = new AltosFlightStatus();
+		displays.add(flightStatus);
 		c.gridx = 0;
 		c.gridy = 1;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -296,21 +284,29 @@ public class AltosFlightUI extends AltosUIFrame implements AltosFlightDisplay {
 		pane = new JTabbedPane();
 
 		pad = new AltosPad();
+		displays.add(pad);
 		pane.add("Status", pad);
 
 		ignitor = new AltosIgnitor();
+		displays.add(ignitor);
 		ascent = new AltosAscent();
+		displays.add(ascent);
 		descent = new AltosDescent();
+		displays.add(descent);
 		landed = new AltosLanded(reader);
+		displays.add(landed);
 
 		flightInfo = new AltosInfoTable();
+		displays.add(flightInfo);
 		pane.add("Table", new JScrollPane(flightInfo));
 
 		companion = new AltosCompanionInfo();
+		displays.add(companion);
 		has_companion = false;
 		has_state = false;
 
 		sitemap = new AltosUIMap();
+		displays.add(sitemap);
 		has_map = false;
 
 		/* Make the tabbed pane use the rest of the window space */

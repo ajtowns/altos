@@ -24,12 +24,9 @@ import javax.swing.*;
 import org.altusmetrum.altoslib_4.*;
 import org.altusmetrum.altosuilib_2.*;
 
-public class TeleGPSInfo extends JComponent implements AltosFlightDisplay, HierarchyListener {
+public class TeleGPSInfo extends AltosUIFlightTab {
 
 	JLabel				cur, max;
-
-	private AltosState		last_state;
-	private AltosListenerState	last_listener_state;
 
 	abstract class Value extends AltosUIUnitsIndicator {
 		public abstract void show(AltosState state, AltosListenerState listener_state);
@@ -48,7 +45,6 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay, Hiera
 	abstract class ValueHold extends DualValue {
 		public void reset() {
 			super.reset();
-			last_values[1] = AltosLib.MISSING;
 		}
 		public ValueHold (Container container, int y, AltosUnits units, String text) {
 			super(container, y, units, text);
@@ -96,7 +92,9 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay, Hiera
 
 		public void show (AltosState state, AltosListenerState listener_state) {
 			double	course = state.gps_course();
-			if (course != AltosLib.MISSING)
+			if (course == AltosLib.MISSING)
+				show("Missing", "Missing");
+			else
 				show( String.format("%3.0f°", course),
 				      AltosConvert.bearing_to_words(
 					      AltosConvert.BEARING_LONG,
@@ -124,7 +122,7 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay, Hiera
 			if (state.gps != null && state.gps.connected && state.gps.lat != AltosLib.MISSING)
 				show(pos(state.gps.lat,"N", "S"));
 			else
-				show("???");
+				show("Missing");
 		}
 		public Lat (Container container, int y) {
 			super (container, y, "Latitude", 1, false, 2);
@@ -148,7 +146,7 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay, Hiera
 			if (state.gps != null && state.gps.connected && state.gps.lon != AltosLib.MISSING)
 				show(pos(state.gps.lon,"E", "W"));
 			else
-				show("???");
+				show("Missing");
 		}
 		public Lon (Container container, int y) {
 			super (container, y, "Longitude", 1, false, 2);
@@ -173,34 +171,10 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay, Hiera
 		}
 	}
 
-	LinkedList<AltosUIIndicator> indicators = new LinkedList<AltosUIIndicator>();
-
-	public void reset() {
-		for (AltosUIIndicator i : indicators)
-			i.reset();
-	}
-
 	public void font_size_changed(int font_size) {
 		cur.setFont(AltosUILib.label_font);
 		max.setFont(AltosUILib.label_font);
-		for (AltosUIIndicator i : indicators)
-			i.font_size_changed(font_size);
-	}
-
-	public void units_changed(boolean imperial_units) {
-		for (AltosUIIndicator i : indicators)
-			i.units_changed(imperial_units);
-	}
-
-	public void show(AltosState state, AltosListenerState listener_state) {
-		if (!isShowing()) {
-			last_state = state;
-			last_listener_state = listener_state;
-			return;
-		}
-
-		for (AltosUIIndicator i : indicators)
-			i.show(state, listener_state);
+		super.font_size_changed(font_size);
 	}
 
 	public void labels(Container container, int y) {
@@ -226,29 +200,15 @@ public class TeleGPSInfo extends JComponent implements AltosFlightDisplay, Hiera
 		return "Location";
 	}
 
-	public void hierarchyChanged(HierarchyEvent e) {
-		if (last_state != null && isShowing()) {
-			AltosState		state = last_state;
-			AltosListenerState	listener_state = last_listener_state;
-
-			last_state = null;
-			last_listener_state = null;
-			show(state, listener_state);
-		}
-	}
-
 	public TeleGPSInfo() {
-		setLayout(new GridBagLayout());
-
 		int y = 0;
 		labels(this, y++);
-		indicators.add(new Altitude(this, y++));
-		indicators.add(new GroundSpeed(this, y++));
-		indicators.add(new AscentRate(this, y++));
-		indicators.add(new Course(this, y++));
-		indicators.add(new Lat(this, y++));
-		indicators.add(new Lon(this, y++));
-		indicators.add(new GPSLocked(this, y++));
-		addHierarchyListener(this);
+		add(new Altitude(this, y++));
+		add(new GroundSpeed(this, y++));
+		add(new AscentRate(this, y++));
+		add(new Course(this, y++));
+		add(new Lat(this, y++));
+		add(new Lon(this, y++));
+		add(new GPSLocked(this, y++));
 	}
 }

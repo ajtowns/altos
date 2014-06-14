@@ -25,11 +25,21 @@ import org.altusmetrum.altosuilib_2.*;
 public class AltosFlightStatus extends JComponent implements AltosFlightDisplay {
 	GridBagLayout	layout;
 
-	public class FlightValue {
+	public abstract class FlightValue {
 		JLabel		label;
 		JTextField	value;
 
-		void show(AltosState state, AltosListenerState listener_state) {}
+		void show() {
+			label.setVisible(true);
+			value.setVisible(true);
+		}
+
+		void hide() {
+			label.setVisible(false);
+			value.setVisible(false);
+		}
+
+		abstract void show(AltosState state, AltosListenerState listener_state);
 
 		void reset() {
 			value.setText("");
@@ -83,6 +93,7 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 
 		void show(AltosState state, AltosListenerState listener_state) {
 			if (!same_call(state.callsign)) {
+				show();
 				value.setText(state.callsign);
 				if (state.callsign == null)
 					setVisible(false);
@@ -91,6 +102,12 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 				last_call = state.callsign;
 			}
 		}
+
+		public void reset() {
+			super.reset();
+			last_call = "";
+		}
+
 		public Call (GridBagLayout layout, int x) {
 			super (layout, x, "Callsign");
 		}
@@ -103,6 +120,7 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 		int	last_serial = -1;
 		void show(AltosState state, AltosListenerState listener_state) {
 			if (state.serial != last_serial) {
+				show();
 				if (state.serial == AltosLib.MISSING)
 					value.setText("none");
 				else
@@ -110,6 +128,12 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 				last_serial = state.serial;
 			}
 		}
+
+		public void reset() {
+			super.reset();
+			last_serial = -1;
+		}
+
 		public Serial (GridBagLayout layout, int x) {
 			super (layout, x, "Serial");
 		}
@@ -123,6 +147,7 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 
 		void show(AltosState state, AltosListenerState listener_state) {
 			if (state.flight != last_flight) {
+				show();
 				if (state.flight == AltosLib.MISSING)
 					value.setText("none");
 				else
@@ -130,6 +155,12 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 				last_flight = state.flight;
 			}
 		}
+
+		public void reset() {
+			super.reset();
+			last_flight = -1;
+		}
+
 		public Flight (GridBagLayout layout, int x) {
 			super (layout, x, "Flight");
 		}
@@ -143,10 +174,21 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 
 		void show(AltosState state, AltosListenerState listener_state) {
 			if (state.state != last_state) {
-				value.setText(state.state_name());
+				if (state.state == AltosLib.ao_flight_stateless)
+					hide();
+				else {
+					show();
+					value.setText(state.state_name());
+				}
 				last_state = state.state;
 			}
 		}
+
+		public void reset() {
+			super.reset();
+			last_state = -1;
+		}
+
 		public FlightState (GridBagLayout layout, int x) {
 			super (layout, x, "State");
 		}
@@ -160,6 +202,7 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 
 		void show(AltosState state, AltosListenerState listener_state) {
 			if (state.rssi() != last_rssi) {
+				show();
 				value.setText(String.format("%d", state.rssi()));
 				if (state.rssi == AltosLib.MISSING)
 					setVisible(false);
@@ -168,6 +211,12 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 				last_rssi = state.rssi();
 			}
 		}
+
+		public void reset() {
+			super.reset();
+			last_rssi = 10000;
+		}
+
 		public RSSI (GridBagLayout layout, int x) {
 			super (layout, x, "RSSI");
 		}
@@ -186,6 +235,12 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 				last_secs = secs;
 			}
 		}
+
+		public void reset() {
+			super.reset();
+			last_secs = -1;
+		}
+
 		public LastPacket(GridBagLayout layout, int x) {
 			super (layout, x, "Age");
 		}
@@ -227,6 +282,8 @@ public class AltosFlightStatus extends JComponent implements AltosFlightDisplay 
 		Dimension d = layout.preferredLayoutSize(this);
 		return d.height;
 	}
+
+	public String getName() { return "Flight Status"; }
 
 	public AltosFlightStatus() {
 		layout = new GridBagLayout();

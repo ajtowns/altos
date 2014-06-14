@@ -18,147 +18,37 @@
 package altosui;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 import org.altusmetrum.altoslib_4.*;
 import org.altusmetrum.altosuilib_2.*;
 
-public class AltosIgnitor extends JComponent implements AltosFlightDisplay {
-	GridBagLayout	layout;
+public class AltosIgnitor extends AltosUIFlightTab {
 
-	public class LaunchStatus implements AltosFontListener, AltosUnitsListener {
-		JLabel		label;
-		JTextField	value;
-		AltosLights	lights;
+	public class Ignitor extends AltosUIUnitsIndicator {
+		int		ignitor;
 
-		void show(AltosState state, AltosListenerState listener_state) {}
-
-		void reset() {
-			value.setText("");
-			lights.set(false);
+		public double value(AltosState state, int i) {
+			if (state.ignitor_voltage == null ||
+			    state.ignitor_voltage.length < ignitor)
+				return AltosLib.MISSING;
+			return state.ignitor_voltage[ignitor];
 		}
 
-		public void show() {
-			label.setVisible(true);
-			value.setVisible(true);
-			lights.setVisible(true);
-		}
+		public double good() { return AltosLib.ao_igniter_good; }
 
-		void show(String s) {
-			show();
-			value.setText(s);
-		}
-
-		void show(String format, double value) {
-			show(String.format(format, value));
-		}
-
-		void show(String format, int value) {
-			show(String.format(format, value));
-		}
-
-		public void hide() {
-			label.setVisible(false);
-			value.setVisible(false);
-			lights.setVisible(false);
-		}
-
-		public void dispose() {
-			hide();
-		}
-
-		public void font_size_changed(int font_size) {
-			label.setFont(Altos.label_font);
-			value.setFont(Altos.value_font);
-		}
-
-		public void units_changed(boolean imperial_units) {
-		}
-
-		public void set_label(String text) {
-			label.setText(text);
-		}
-
-		public LaunchStatus (GridBagLayout layout, int y, String text) {
-			GridBagConstraints	c = new GridBagConstraints();
-			c.weighty = 1;
-
-			lights = new AltosLights();
-			c.gridx = 0; c.gridy = y;
-			c.anchor = GridBagConstraints.CENTER;
-			c.fill = GridBagConstraints.VERTICAL;
-			c.weightx = 0;
-			layout.setConstraints(lights, c);
-			add(lights);
-
-			label = new JLabel(text);
-			label.setFont(Altos.label_font);
-			label.setHorizontalAlignment(SwingConstants.LEFT);
-			c.gridx = 1; c.gridy = y;
-			c.insets = new Insets(Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad, Altos.tab_elt_pad);
-			c.anchor = GridBagConstraints.WEST;
-			c.fill = GridBagConstraints.VERTICAL;
-			c.weightx = 0;
-			layout.setConstraints(label, c);
-			add(label);
-
-			value = new JTextField(Altos.text_width);
-			value.setEditable(false);
-			value.setFont(Altos.value_font);
-			value.setHorizontalAlignment(SwingConstants.RIGHT);
-			c.gridx = 2; c.gridy = y;
-			c.anchor = GridBagConstraints.WEST;
-			c.fill = GridBagConstraints.BOTH;
-			c.weightx = 1;
-			layout.setConstraints(value, c);
-			add(value);
-
-		}
-	}
-
-	class Ignitor extends LaunchStatus {
-		int ignitor;
-
-		void show (AltosState state, AltosListenerState listener_state) {
-			if (state == null || state.ignitor_voltage[ignitor] == AltosLib.MISSING) {
-				hide();
-			} else {
-				show("%4.2f V", state.ignitor_voltage[ignitor]);
-				lights.set(state.ignitor_voltage[ignitor] >= AltosLib.ao_igniter_good);
-			}
-		}
-
-		public Ignitor (GridBagLayout layout, int y) {
-			super(layout, y, String.format ("%s Voltage", AltosLib.ignitor_name(y)));
+		public Ignitor (AltosUIFlightTab container, int y) {
+			super(container, y, AltosConvert.voltage, String.format ("%s Voltage", AltosLib.ignitor_name(y)), 1, true, 1);
 			ignitor = y;
 		}
 	}
 
 	Ignitor[] ignitors;
 
-	public void reset() {
-		if (ignitors == null)
-			return;
-		for (int i = 0; i < ignitors.length; i++)
-			ignitors[i].reset();
-	}
-
-	public void font_size_changed(int font_size) {
-		if (ignitors == null)
-			return;
-		for (int i = 0; i < ignitors.length; i++)
-			ignitors[i].font_size_changed(font_size);
-	}
-
-	public void units_changed(boolean imperial_units) {
-	}
-
 	public void show(AltosState state, AltosListenerState listener_state) {
-		make_ignitors(state);
-		if (ignitors == null)
-			return;
-		for (int i = 0; i < ignitors.length; i++)
-			ignitors[i].show(state, listener_state);
-		return;
+		if (isShowing())
+			make_ignitors(state);
+		super.show(state, listener_state);
 	}
 
 	public boolean should_show(AltosState state) {
@@ -170,33 +60,32 @@ public class AltosIgnitor extends JComponent implements AltosFlightDisplay {
 	}
 
 	void make_ignitors(AltosState state) {
-		int n = state == null ? 0 : state.ignitor_voltage.length;
+		int n = (state == null || state.ignitor_voltage == null) ? 0 : state.ignitor_voltage.length;
+		int old_n = ignitors == null ? 0 : ignitors.length;
 
-		if (n > 0) {
+		if (n != old_n) {
 
-			if (ignitors == null || ignitors.length != n) {
-				layout = new GridBagLayout();
-
-				setLayout(layout);
-				ignitors = new Ignitor[n];
-				for (int i = 0; i < n; i++)
-					ignitors[i] = new Ignitor(layout, i);
-			}
-		} else {
 			if (ignitors != null) {
-				for (int i = 0; i < n; i++)
-					ignitors[i].dispose();
-				ignitors = null;
-				setVisible(false);
+				for (int i = 0; i < ignitors.length; i++) {
+					remove(ignitors[i]);
+					ignitors[i].remove(this);
+					ignitors = null;
+				}
 			}
+
+			if (n > 0) {
+				setVisible(true);
+				ignitors = new Ignitor[n];
+				for (int i = 0; i < n; i++) {
+					ignitors[i] = new Ignitor(this, i);
+					add(ignitors[i]);
+				}
+			} else
+				setVisible(false);
 		}
 	}
 
 	public String getName() {
 		return "Ignitors";
-	}
-
-	public AltosIgnitor() {
-		make_ignitors(null);
 	}
 }

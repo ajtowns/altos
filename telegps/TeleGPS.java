@@ -59,11 +59,13 @@ public class TeleGPS
 	JMenu			monitor_menu;
 	JMenu			device_menu;
 	AltosFreqList		frequencies;
+	ActionListener		frequency_listener;
 
 	Container		bag;
 
 	TeleGPSStatus		telegps_status;
 	TeleGPSStatusUpdate	status_update;
+	javax.swing.Timer	status_timer;
 
 	JTabbedPane		pane;
 
@@ -174,7 +176,14 @@ public class TeleGPS
 	void disconnect() {
 		setTitle("TeleGPS");
 		stop_display();
-		remove_frequency_menu();
+		if (status_timer != null) {
+			status_timer.stop();
+			status_timer = null;
+			status_update = null;
+		}
+
+		telegps_status.disable_receive();
+		disable_frequency_menu();
 	}
 
 	void connect(AltosDevice device) {
@@ -182,8 +191,7 @@ public class TeleGPS
 			disconnect();
 		try {
 			AltosFlightReader	reader = new AltosTelemetryReader(new AltosSerial(device));
-			set_reader(reader);
-			add_frequency_menu(device.getSerial(), reader);
+			set_reader(reader, device);
 		} catch (FileNotFoundException ee) {
 			JOptionPane.showMessageDialog(this,
 						      ee.getMessage(),
@@ -322,15 +330,12 @@ public class TeleGPS
 		}
 	}
 
-	void add_frequency_menu(int serial, final AltosFlightReader reader) {
-		// Channel menu
-		if (frequencies != null)
-			return;
+	void enable_frequency_menu(int serial, final AltosFlightReader reader) {
 
-		frequencies = new AltosFreqList(AltosUIPreferences.frequency(serial));
-		frequencies.set_product("Monitor");
-		frequencies.set_serial(serial);
-		frequencies.addActionListener(new ActionListener() {
+		if (frequency_listener != null)
+			disable_frequency_menu();
+
+		frequency_listener = new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					double frequency = frequencies.frequency();
 					try {
@@ -340,22 +345,37 @@ public class TeleGPS
 					}
 					reader.save_frequency();
 				}
-			});
-		menu_bar.add(frequencies);
+			};
+
+		frequencies.addActionListener(frequency_listener);
+		frequencies.set_product("Monitor");
+		frequencies.set_serial(serial);
+		frequencies.set_frequency(AltosUIPreferences.frequency(serial));
+		frequencies.setEnabled(true);
+
 	}
 
-	void remove_frequency_menu() {
-		if (frequencies != null) {
-			menu_bar.remove(frequencies);
-			menu_bar.repaint();
-			frequencies = null;
+	void disable_frequency_menu() {
+		if (frequency_listener != null) {
+			frequencies.removeActionListener(frequency_listener);
+			frequencies.setEnabled(false);
+			frequency_listener = null;
 		}
+
 	}
 
-	public void set_reader(AltosFlightReader reader) {
+	public void set_reader(AltosFlightReader reader, AltosDevice device) {
+		status_update = new TeleGPSStatusUpdate(telegps_status);
+
+		status_timer = new javax.swing.Timer(100, status_update);
+		status_timer.start();
+
 		setTitle(String.format("TeleGPS %s", reader.name));
 		thread = new TeleGPSDisplayThread(this, voice(), this, reader);
 		thread.start();
+
+		if (device != null)
+			enable_frequency_menu(device.getSerial(), reader);
 	}
 
 	static int	number_of_windows;
@@ -414,6 +434,10 @@ public class TeleGPS
 		file_menu = make_menu("File", file_menu_entries);
 		monitor_menu = make_menu("Monitor", monitor_menu_entries);
 		device_menu = make_menu("Device", device_menu_entries);
+		frequencies = new AltosFreqList();
+		frequencies.setEnabled(false);
+		menu_bar.add(frequencies);
+
 		displays = new LinkedList<AltosFlightDisplay>();
 
 		int serial = -1;
@@ -476,15 +500,11 @@ public class TeleGPS
 		setVisible(true);
 
 		add_window();
-
-		status_update = new TeleGPSStatusUpdate(telegps_status);
-
-		new javax.swing.Timer(100, status_update).start();
 	}
 
 	public TeleGPS(AltosFlightReader reader) {
 		this();
-		set_reader(reader);
+		set_reader(reader, null);
 	}
 
 	public TeleGPS(AltosDevice device) {
