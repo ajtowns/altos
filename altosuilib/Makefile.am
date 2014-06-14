@@ -77,6 +77,7 @@ altosuilib_JAVA = \
 	AltosUIMapStore.java \
 	AltosUIMapStoreListener.java \
 	AltosUILatLon.java \
+	AltosUIFlightTab.java \
 	AltosUIIndicator.java \
 	AltosUIUnitsIndicator.java \
 	AltosUIVoltageIndicator.java
