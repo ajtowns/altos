@@ -123,6 +123,8 @@ public class AltosInfoTable extends JTable implements AltosFlightDisplay, Hierar
 		model.clear();
 	}
 
+	public String getName() { return "Table"; }
+
 	public void show(AltosState state, AltosListenerState listener_state) {
 
 		if (!isShowing()) {
