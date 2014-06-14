@@ -60,6 +60,7 @@ public abstract class AltosUIIndicator implements AltosFontListener, AltosUnitsL
 
 	public void show(String... s) {
 		int	n = Math.min(s.length, values.length);
+
 		show();
 		for (int i = 0; i < n; i++)
 			values[i].setText(s[i]);
@@ -102,7 +103,15 @@ public abstract class AltosUIIndicator implements AltosFontListener, AltosUnitsL
 		label.setText(text);
 	}
 
-	public AltosUIIndicator (Container container, int y, String text, int number_values, boolean has_lights, int value_width) {
+	public void remove(Container container) {
+		if (lights != null)
+			container.remove(lights);
+		container.remove(label);
+		for (int i = 0; i < values.length; i++)
+			container.remove(values[i]);
+	}
+
+	public AltosUIIndicator (Container container, int x, int y, int label_width, String text, int number_values, boolean has_lights, int value_width, int value_space) {
 		GridBagLayout		layout = (GridBagLayout)(container.getLayout());
 
 		GridBagConstraints	c = new GridBagConstraints();
@@ -110,7 +119,7 @@ public abstract class AltosUIIndicator implements AltosFontListener, AltosUnitsL
 
 		if (has_lights) {
 			lights = new AltosLights();
-			c.gridx = 0; c.gridy = y;
+			c.gridx = x; c.gridy = y;
 			c.anchor = GridBagConstraints.CENTER;
 			c.fill = GridBagConstraints.VERTICAL;
 			c.weightx = 0;
@@ -121,7 +130,8 @@ public abstract class AltosUIIndicator implements AltosFontListener, AltosUnitsL
 		label = new JLabel(text);
 		label.setFont(AltosUILib.label_font);
 		label.setHorizontalAlignment(SwingConstants.LEFT);
-		c.gridx = 1; c.gridy = y;
+		c.gridx = x + 1; c.gridy = y;
+		c.gridwidth = label_width;
 		c.insets = new Insets(AltosUILib.tab_elt_pad, AltosUILib.tab_elt_pad, AltosUILib.tab_elt_pad, AltosUILib.tab_elt_pad);
 		c.anchor = GridBagConstraints.WEST;
 		c.fill = GridBagConstraints.VERTICAL;
@@ -135,7 +145,7 @@ public abstract class AltosUIIndicator implements AltosFontListener, AltosUnitsL
 			values[i].setEditable(false);
 			values[i].setFont(AltosUILib.value_font);
 			values[i].setHorizontalAlignment(SwingConstants.RIGHT);
-			c.gridx = 2 + i; c.gridy = y;
+			c.gridx = 1 + label_width + x + i * value_space; c.gridy = y;
 			c.anchor = GridBagConstraints.WEST;
 			c.fill = GridBagConstraints.BOTH;
 			c.weightx = 1;
@@ -145,15 +155,27 @@ public abstract class AltosUIIndicator implements AltosFontListener, AltosUnitsL
 		}
 	}
 
-	public AltosUIIndicator (Container container, int y, String text) {
-		this(container, y, text, 1, false, 1);
+	public AltosUIIndicator (Container container, int x, int y, int label_width, String text, int number_values, boolean has_lights, int value_width) {
+		this(container, x, y, label_width, text, number_values, has_lights, value_width, 1);
 	}
 
-	public AltosUIIndicator (Container container, int y, String text, int number_values) {
-		this(container, y, text, number_values, false, 1);
+	public AltosUIIndicator (Container container, int x, int y, String text, int number_values, boolean has_lights, int value_width) {
+		this(container, x, y, 1, text, number_values, has_lights, value_width);
+	}
+
+	public AltosUIIndicator (Container container, int y, String text, int number_values, boolean has_lights, int value_width) {
+		this(container, 0, y, text, number_values, has_lights, value_width);
 	}
 
 	public AltosUIIndicator (Container container, int y, String text, int number_values, boolean has_lights) {
-		this(container, y, text, number_values, has_lights, 1);
+		this(container, 0, y, text, number_values, has_lights, 1);
+	}
+
+	public AltosUIIndicator (Container container, int y, String text, int number_values) {
+		this(container, 0, y, text, number_values, false, 1);
+	}
+
+	public AltosUIIndicator (Container container, int y, String text) {
+		this(container, 0, y, text, 1, false, 1);
 	}
 }

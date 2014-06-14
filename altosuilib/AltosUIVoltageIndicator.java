@@ -30,13 +30,13 @@ public abstract class AltosUIVoltageIndicator extends AltosUIUnitsIndicator {
 		return voltage(state);
 	}
 
-	public boolean good(double value) {
-		return value >= good();
-	}
-
 	double last_voltage = -1;
 
+	public AltosUIVoltageIndicator (Container container, int x, int y, String name, int width) {
+		super(container, x, y, AltosConvert.voltage, name, 1, true, width);
+	}
+
 	public AltosUIVoltageIndicator (Container container, int y, String name, int width) {
-		super(container, y, AltosConvert.voltage, name, 1, true, width);
+		this(container, 0, y, name, width);
 	}
 }

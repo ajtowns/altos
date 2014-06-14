@@ -26,11 +26,24 @@ public abstract class AltosUIUnitsIndicator extends AltosUIIndicator {
 	AltosUnits	units;
 
 	abstract public double value(AltosState state, int i);
-	public boolean good(double value) { return false; }
+	public double good() { return 0; }
+	public boolean good(double value) { return value != AltosLib.MISSING && value >= good(); }
+	public boolean hide(double value) { return false; }
+
+	public boolean hide(AltosState state, int i) {
+		if (state == null)
+			return hide(AltosLib.MISSING);
+		return hide(value(state, i));
+	}
+
+	public double value (AltosState state, AltosListenerState listener_state, int i) {
+		return value(state, i);
+	}
 
 	public double[] last_values;
 
 	public void show(double... v) {
+		show();
 		for (int i = 0; i < values.length; i++) {
 			if (v[i] != last_values[i]) {
 				String	value_text;
@@ -56,24 +69,54 @@ public abstract class AltosUIUnitsIndicator extends AltosUIIndicator {
 	}
 
 	public void show (AltosState state, AltosListenerState listener_state) {
-
 		double[] v = new double[values.length];
+		boolean hide = false;
 
 		for (int i = 0; i < values.length; i++) {
 			if (state != null)
-				v[i] = value(state, i);
+				v[i] = value(state, listener_state, i);
 			else
 				v[i] = AltosLib.MISSING;
+			if (hide(state, i))
+				hide = true;
 		}
-		show(v);
 
+		if (hide)
+			hide();
+		else
+			show(v);
 	}
 
-	public AltosUIUnitsIndicator (Container container, int y, AltosUnits units, String name, int number_values, boolean has_lights, int width) {
-		super(container, y, name, number_values, has_lights, width);
+	public void reset() {
+		for (int i = 0; i < last_values.length; i++)
+			last_values[i] = AltosLib.MISSING - 1;
+	}
+
+	public AltosUIUnitsIndicator (Container container, int x, int y, int label_width, AltosUnits units, String name, int number_values, boolean has_lights, int width) {
+		super(container, x, y, label_width, name, number_values, has_lights, width);
 		this.units = units;
 		last_values = new double[values.length];
 		for (int i = 0; i < last_values.length; i++)
 			last_values[i] = AltosLib.MISSING - 1;
+	}
+
+	public AltosUIUnitsIndicator (Container container, int x, int y, AltosUnits units, String name, int number_values, boolean has_lights, int width) {
+		this(container, x, y, 1, units, name, number_values, has_lights, width);
+	}
+
+	public AltosUIUnitsIndicator (Container container, int y, AltosUnits units, String name, int number_values, boolean has_lights, int width) {
+		this(container, 0, y, units, name, number_values, has_lights, width);
+	}
+
+	public AltosUIUnitsIndicator (Container container, int y, AltosUnits units, String name, int width) {
+		this(container, 0, y, units, name, 1, false, width);
+	}
+
+	public AltosUIUnitsIndicator (Container container, int y, AltosUnits units, String name) {
+		this(container, 0, y, units, name, 1, false, 1); 
+	}
+
+	public AltosUIUnitsIndicator (Container container, int x,int y, AltosUnits units, String name) {
+		this(container, x, y, units, name, 1, false, 1); 
 	}
 }
