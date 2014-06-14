@@ -117,7 +117,7 @@ public class AltosSerial extends AltosLink  {
 		SwingUtilities.invokeLater(r);
 	}
 
-	private void close_serial() {
+	private synchronized void close_serial() {
 		synchronized (devices_opened) {
 			devices_opened.remove(device.getPath());
 		}
