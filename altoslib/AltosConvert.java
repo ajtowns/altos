@@ -351,6 +351,10 @@ public class AltosConvert {
 
 	public static AltosVoltage voltage = new AltosVoltage();
 
+	public static AltosLatitude latitude = new AltosLatitude();
+
+	public static AltosLongitude longitude = new AltosLongitude();
+
 	public static String show_gs(String format, double a) {
 		a = meters_to_g(a);
 		format = format.concat(" g");

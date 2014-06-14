@@ -120,6 +120,9 @@ altoslib_JAVA = \
 	AltosTemperature.java \
 	AltosAccel.java \
 	AltosVoltage.java \
+	AltosLocation.java \
+	AltosLatitude.java \
+	AltosLongitude.java \
 	AltosPyro.java \
 	AltosWriter.java
 
