@@ -34,6 +34,7 @@ public class AltosUIMapTile {
 	int		zoom;
 	int		maptype;
 	AltosUIMapStore	store;
+	AltosUIMapCache	cache;
 	int		status;
 
 	private File map_file() {
@@ -153,7 +154,7 @@ public class AltosUIMapTile {
 		++painting_serial;
 
 		if (image == null && t.has_location())
-			image = AltosUIMapCache.get(this, store, px_size, px_size);
+			image = cache.get(this, store, px_size, px_size);
 
 		paint_graphics(g2d, t, painting_serial);
 	}
@@ -173,6 +174,7 @@ public class AltosUIMapTile {
 	public AltosUIMapTile(AltosUIMapTileListener listener, AltosUILatLon upper_left, AltosUILatLon center, int zoom, int maptype, int px_size, Font font) {
 		this.listener = listener;
 		this.upper_left = upper_left;
+		cache = listener.cache();
 
 		while (center.lon < -180.0)
 			center.lon += 360.0;

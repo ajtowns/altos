@@ -34,6 +34,8 @@ public class AltosUIMapView extends Component implements MouseMotionListener, Mo
 
 	AltosUIMapLine	line = new AltosUIMapLine();
 
+	AltosUIMapCache	cache = new AltosUIMapCache();
+
 	LinkedList<AltosUIMapMark> marks = new LinkedList<AltosUIMapMark>();
 
 	LinkedList<AltosUIMapZoomListener> zoom_listeners = new LinkedList<AltosUIMapZoomListener>();
@@ -368,7 +370,7 @@ public class AltosUIMapView extends Component implements MouseMotionListener, Mo
 		for (Point point : to_remove)
 			tiles.remove(point);
 
-		AltosUIMapCache.set_cache_size(((lower_right.y - upper_left.y) / px_size + 1) * ((lower_right.x - upper_left.x) / px_size + 1));
+		cache.set_cache_size(((lower_right.y - upper_left.y) / px_size + 1) * ((lower_right.x - upper_left.x) / px_size + 1));
 		for (int y = upper_left.y; y <= lower_right.y; y += px_size) {
 			for (int x = upper_left.x; x <= lower_right.x; x += px_size) {
 				Point point = new Point(x, y);
@@ -393,6 +395,8 @@ public class AltosUIMapView extends Component implements MouseMotionListener, Mo
 			}
 		}
 	}
+
+	public AltosUIMapCache cache() { return cache; }
 
 	/* AltosUIMapStoreListener methods */
 	public void notify_store(AltosUIMapStore store, int status) {

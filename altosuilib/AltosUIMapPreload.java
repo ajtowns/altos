@@ -209,6 +209,7 @@ class AltosUISites extends Thread {
 public class AltosUIMapPreload extends AltosUIFrame implements ActionListener, ItemListener, AltosUIMapTileListener {
 	AltosUIFrame	owner;
 	AltosUIMap	map;
+	AltosUIMapCache	cache = new AltosUIMapCache();
 
 	AltosUIMapPos	lat;
 	AltosUIMapPos	lon;
@@ -352,6 +353,8 @@ public class AltosUIMapPreload extends AltosUIFrame implements ActionListener, I
 			}
 		}
 	}
+
+	public AltosUIMapCache cache() { return cache; }
 
 	public void set_sites() {
 		int	i = 1;

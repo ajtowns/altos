@@ -31,18 +31,19 @@ public class AltosUIMapCache {
 	static final int	bad_request = 3;
 	static final int	forbidden = 4;
 
-	static private Object fetch_lock = new Object();
+	static final int	min_cache_size = 9;
+	static final int	max_cache_size = 24;
 
-	static final int		min_cache_size = 9;
-	static final int		max_cache_size = 24;
+	private Object 		fetch_lock = new Object();
+	private Object 		cache_lock = new Object();
 
-	static int			cache_size = min_cache_size;
+	int			cache_size = min_cache_size;
 
-	static AltosUIMapImage[]	images = new AltosUIMapImage[cache_size];
+	AltosUIMapImage[]	images = new AltosUIMapImage[cache_size];
 
-	static Object cache_lock = new Object();
+	long			used;
 
-	public  static void set_cache_size(int new_size) {
+	public void set_cache_size(int new_size) {
 		if (new_size < min_cache_size)
 			new_size = min_cache_size;
 		if (new_size > max_cache_size)
@@ -64,9 +65,7 @@ public class AltosUIMapCache {
 		}
 	}
 
-	static long			used;
-
-	public static Image get(AltosUIMapTile tile, AltosUIMapStore store, int width, int height) {
+	public Image get(AltosUIMapTile tile, AltosUIMapStore store, int width, int height) {
 		int		oldest = -1;
 		long		age = used;
 
@@ -108,5 +107,8 @@ public class AltosUIMapCache {
 				return null;
 			}
 		}
+	}
+
+	public AltosUIMapCache() {
 	}
 }

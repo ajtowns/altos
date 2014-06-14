@@ -19,4 +19,6 @@ package org.altusmetrum.altosuilib_2;
 
 public interface AltosUIMapTileListener {
 	abstract public void notify_tile(AltosUIMapTile tile, int status);
+
+	abstract public AltosUIMapCache cache();
 }
