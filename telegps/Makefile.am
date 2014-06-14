@@ -82,8 +82,8 @@ FIRMWARE_TD=$(FIRMWARE_TD_0_2)
 FIRMWARE_TBT_1_0=$(top_srcdir)/src/telebt-v1.0/telebt-v1.0-$(VERSION).ihx
 FIRMWARE_TBT=$(FIRMWARE_TBT_1_0)
 
-#FIRMWARE_TG_1_0=$(top_srcdir)/src/telegps-v1.0/telegps-v1.0-$(VERSION).ihx
-#FIRMWARE_TG=$(FIRMWARE_TG_1_0)
+FIRMWARE_TG_1_0=$(top_srcdir)/src/telegps-v1.0/telegps-v1.0-$(VERSION).ihx
+FIRMWARE_TG=$(FIRMWARE_TG_1_0)
 
 FIRMWARE=$(FIRMWARE_TG) $(FIRMWARE_TD) $(FIRMWARE_TBT)
 
