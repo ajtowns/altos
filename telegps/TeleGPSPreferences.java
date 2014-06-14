@@ -112,38 +112,8 @@ public class TeleGPSPreferences
 		row++;
 	}
 
-	final static String[] position_names = {
-		"Top left",
-		"Top",
-		"Top right",
-		"Left",
-		"Center",
-		"Right",
-		"Bottom left",
-		"Bottom",
-		"Bottom right",
-	};
-
-	public void add_position() {
-		pane.add(new JLabel ("Menu position"), constraints(0, 1));
-
-		position_value = new JComboBox<String>(position_names);
-		position_value.setMaximumRowCount(position_names.length);
-		int position = AltosUIPreferences.position();
-		position_value.setSelectedIndex(position);
-		position_value.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					int	position = position_value.getSelectedIndex();
-					AltosUIPreferences.set_position(position);
-				}
-			});
-		pane.add(position_value, constraints(1, 2, GridBagConstraints.BOTH));
-		position_value.setToolTipText("Position of main AltosUI window");
-		row++;
-	}
-
 	public TeleGPSPreferences(JFrame owner, AltosVoice voice) {
-		super(owner);
+		super(owner, "TeleGPS Preferences", "Configure TeleGPS");
 
 		this.voice = voice;
 	}

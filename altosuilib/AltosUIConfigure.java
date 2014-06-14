@@ -229,8 +229,8 @@ public class AltosUIConfigure
 	public void add_frequencies() {
 	}
 
-	public AltosUIConfigure(JFrame in_owner) {
-		super(in_owner, "Configure AltosUI", false);
+	public AltosUIConfigure(JFrame in_owner, String name, String label) {
+		super(in_owner, name, false);
 
 		owner = in_owner;
 		pane = getContentPane();
@@ -239,7 +239,7 @@ public class AltosUIConfigure
 		row = 0;
 
 		/* Nice label at the top */
-		pane.add(new JLabel ("Configure AltOS UI"),
+		pane.add(new JLabel (label),
 			 constraints(0, 3));
 		row++;
 
@@ -270,5 +270,9 @@ public class AltosUIConfigure
 		pack();
 		setLocationRelativeTo(owner);
 		setVisible(true);
+	}
+
+	public AltosUIConfigure(JFrame in_owner) {
+		this(in_owner, "Configure AltosUI", "Configure AltOS UI");
 	}
 }
