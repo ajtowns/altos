@@ -910,8 +910,8 @@ public class AltosState implements Cloneable {
 	}
 
 	void update_gps() {
-		elevation = 0;
-		range = -1;
+		elevation = AltosLib.MISSING;
+		range = AltosLib.MISSING;
 
 		if (gps == null)
 			return;
