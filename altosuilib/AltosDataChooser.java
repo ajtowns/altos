@@ -67,16 +67,12 @@ public class AltosDataChooser extends JFileChooser {
 	public AltosDataChooser(JFrame in_frame) {
 		frame = in_frame;
 		setDialogTitle("Select Flight Record File");
-		setFileFilter(new FileNameExtensionFilter("TeleMetrum eeprom file",
+		setFileFilter(new FileNameExtensionFilter("On-board Log file",
 							  "eeprom"));
 		setFileFilter(new FileNameExtensionFilter("Telemetry file",
 							  "telem"));
-		setFileFilter(new FileNameExtensionFilter("TeleMega eeprom file",
-							  "mega"));
-		setFileFilter(new FileNameExtensionFilter("EasyMini eeprom file",
-							  "mini"));
 		setFileFilter(new FileNameExtensionFilter("Flight data file",
-							  "telem", "eeprom", "mega", "mini"));
+							  "telem", "eeprom"));
 		setCurrentDirectory(AltosUIPreferences.logdir());
 	}
 }

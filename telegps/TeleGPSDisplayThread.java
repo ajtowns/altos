@@ -90,8 +90,6 @@ public class TeleGPSDisplayThread extends Thread {
 					voice.speak("Height %s.\n",
 						    AltosConvert.height.say(state.height()));
 				}
-			} else {
-				voice.speak("Height is unknown.\n");
 			}
 		}
 
