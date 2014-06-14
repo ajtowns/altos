@@ -23,4 +23,6 @@ public interface AltosFlightDisplay extends AltosUnitsListener, AltosFontListene
 	void reset();
 
 	void show(AltosState state, AltosListenerState listener_state);
+
+	String getName();
 }
