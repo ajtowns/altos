@@ -936,26 +936,323 @@ NAR #88757, TRA #12200
       <section>
 	<title>Scan Channels</title>
 	<para>
+	  Scans the configured set of frequencies looking for
+	  telemetry signals. A list of all of the discovered signals
+	  is show; selecting one of those and clicking on 'Monitor'
+	  will select that frequency in the associated TeleGPS
+	  application window.
 	</para>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="telegps-scan.png" width="3.1in"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
       </section>
       <section>
 	<title>Download Data</title>
 	<para>
-	  
+          TeleGPS records data to its internal flash memory.
+          On-board data is recorded at the same rate as telemetry
+          but is not subject to radio drop-outs. As
+          such, it generally provides a more complete and precise record.
+          The 'Download Data' menu entry allows you to read the
+          flash memory and write it to disk. 
+	</para>
+	<para>
+          Select the 'Download Data' menu entry to bring up a list of
+          connected TeleGPS devices. After the device has been
+          selected, a dialog showing the data stored in the
+          device will be shown allowing you to select which entries to
+          download and which to delete. You must erase flights in order for the space they
+          consume to be reused by another track. This prevents
+          accidentally losing data if you neglect to download
+          data before starting TeleGPS again. Note that if there is no more
+          space available in the device, then no data will be recorded.
+	</para>
+	<para>
+          The file name for each data log is computed automatically
+          from the recorded date, altimeter serial number and flight
+          number information.
 	</para>
       </section>
       <section>
 	<title>Configure Device</title>
+	<informalfigure>
+	  <mediaobject>
+	    <imageobject>
+	      <imagedata fileref="telegps-configure.png" width="3.6in" scalefit="1"/>
+	    </imageobject>
+	  </mediaobject>
+	</informalfigure>
 	<para>
-	  
+          Select this button and then select any connected TeleGPS
+          device from the list provided.
 	</para>
+	<para>
+          The first few lines of the dialog provide information about the
+          connected device, including the product name,
+          software version and hardware serial number. Below that are the
+          individual configuration entries.
+	</para>
+	<para>
+          At the bottom of the dialog, there are four buttons:
+	</para>
+	<variablelist>
+	  <varlistentry>
+	    <term>Save</term>
+	    <listitem>
+	      <para>
+		This writes any changes to the
+		configuration parameter block in flash memory. If you don't
+		press this button, any changes you make will be lost.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>Reset</term>
+	    <listitem>
+	      <para>
+		This resets the dialog to the most recently saved values,
+		erasing any changes you have made.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>Reboot</term>
+	    <listitem>
+	      <para>
+		This reboots the device. This will restart logging for
+		a new flight number, if any log information has been
+		saved for the current flight.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>Close</term>
+	    <listitem>
+	      <para>
+		This closes the dialog. Any unsaved changes will be
+		lost.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+	<para>
+          The rest of the dialog contains the parameters to be configured.
+	</para>
+	<section>
+          <title>Frequency</title>
+          <para>
+            This configures which of the frequencies to use for both
+            telemetry and packet command mode. Note that if you set this
+            value via packet command mode, the TeleDongle frequency will
+            also be automatically reconfigured to match so that
+            communication will continue afterwards.
+          </para>
+	</section>
+	<section>
+          <title>RF Calibration</title>
+          <para>
+            The radios in every Altus Metrum device are calibrated at the
+            factory to ensure that they transmit and receive on the
+            specified frequency.  If you need to you can adjust the calibration 
+	    by changing this value.  Do not do this without understanding what
+	    the value means, read the appendix on calibration and/or the source
+	    code for more information.  To change a TeleDongle's calibration, 
+	    you must reprogram the unit completely.
+          </para>
+	</section>
+	<section>
+	  <title>Telemetry/RDF/APRS Enable</title>
+	  <para>
+	    Enables the radio for transmission during flight. When
+	    disabled, the radio will not transmit anything during flight
+	    at all.
+	  </para>
+	</section>
+	<section>
+	  <title>APRS Interval</title>
+	  <para>
+	    How often to transmit GPS information via APRS (in
+	    seconds). When set to zero, APRS transmission is
+	    disabled. This option is available on TeleMetrum v2 and
+	    TeleMega boards. TeleMetrum v1 boards cannot transmit APRS
+	    packets. Note that a single APRS packet takes nearly a full
+	    second to transmit, so enabling this option will prevent
+	    sending any other telemetry during that time.
+	  </para>
+	</section>
+	<section>
+          <title>Callsign</title>
+          <para>
+            This sets the call sign included in each telemetry packet. Set this
+            as needed to conform to your local radio regulations.
+          </para>
+	</section>
+	<section>
+          <title>Maximum Log Size</title>
+          <para>
+            This sets the space (in kilobytes) allocated for each data
+            log. The available space will be divided into chunks of this
+            size. A smaller value will allow more logs to be stored,
+            a larger value will record data for longer times.
+	  </para>
+	</section>
+	<section>
+	  <title>Logging Trigger Motion</title>
+	  <para>
+	    If TeleGPS moves less than this distance over a long period
+	    of time, it will not log that location, saving storage space.
+	  </para>
+	</section>
+	<section>
+	  <title>Position Reporting Interval</title>
+	  <para>
+	    This sets how often TeleGPS reports position information via
+	    telemetry and to the on-board log. Reducing this value will
+	    save power and logging memory consumption.
+	  </para>
+	</section>
       </section>
       <section>
 	<title>Flash Device</title>
 	<para>
-	  
+          This reprograms TeleGPS devices with new firmware. Please
+          read the directions for flashing devices in the Updating
+          Device Firmware chapter below.
 	</para>
       </section>
+    </section>
+  </chapter>
+  <chapter>
+    <title>Updating Device Firmware</title>
+    <para>
+      TeleGPS is programmed directly over its USB connectors.
+    </para>
+    <para>
+      You may wish to begin by ensuring you have current firmware images.
+      These are distributed as part of the TeleGPS software bundle that
+      also includes the TeleGPS ground station program.  Newer ground
+      station versions typically work fine with older firmware versions,
+      so you don't need to update your devices just to try out new
+      software features.  You can always download the most recent
+      version from <ulink url="http://www.altusmetrum.org/AltOS/"/>.
+    </para>
+    <section>
+      <title>
+	Updating TeleGPS Firmware
+      </title>
+      <orderedlist inheritnum='inherit' numeration='arabic'>
+	<listitem>
+	  <para>
+	    Attach a battery and power switch to the target
+	    device. Power up the device.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Using a Micro USB cable, connect the target device to your
+	    computer's USB socket.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Run TeleGPS, and select 'Flash Device' from the Device menu.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Select the target device in the Device Selection dialog.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Select the image you want to flash to the device, which
+	    should have a name in the form
+	    &lt;product&gt;-v&lt;product-version&gt;-&lt;software-version&gt;.ihx, such
+	    as TeleGPS-v1.0-1.4.0.ihx.
+	  </para>
+	</listitem>
+        <listitem>
+	  <para>
+	    Make sure the configuration parameters are reasonable
+	    looking. If the serial number and/or RF configuration
+	    values aren't right, you'll need to change them.
+	  </para>
+        </listitem>
+        <listitem>
+	  <para>
+	    Hit the 'OK' button and the software should proceed to flash
+	    the device with new firmware, showing a progress bar.
+	  </para>
+        </listitem>
+	<listitem>
+	  <para>
+	    Verify that the device is working by using the 'Configure
+	    Altimeter' item to check over the configuration.
+	  </para>
+	</listitem>
+      </orderedlist>
+<!--
+      <section>
+	<title>Recovering From Self-Flashing Failure</title>
+	<para>
+	  If the firmware loading fails, it can leave the device
+	  unable to boot. Not to worry, you can force the device to
+	  start the boot loader instead, which will let you try to
+	  flash the device again.
+	</para>
+	<para>
+	  On each device, connecting two pins from one of the exposed
+	  connectors will force the boot loader to start, even if the
+	  regular operating system has been corrupted in some way.
+	</para>
+	<variablelist>
+	  <varlistentry>
+	    <term>TeleMega</term>
+	    <listitem>
+	      <para>
+		Connect pin 6 and pin 1 of the companion connector. Pin 1
+		can be identified by the square pad around it, and then
+		the pins could sequentially across the board. Be very
+		careful to <emphasis>not</emphasis> short pin 8 to
+		anything as that is connected directly to the battery. Pin
+		7 carries 3.3V and the board will crash if that is
+		connected to pin 1, but shouldn't damage the board.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>TeleMetrum v2</term>
+	    <listitem>
+	      <para>
+		Connect pin 6 and pin 1 of the companion connector. Pin 1
+		can be identified by the square pad around it, and then
+		the pins could sequentially across the board. Be very
+		careful to <emphasis>not</emphasis> short pin 8 to
+		anything as that is connected directly to the battery. Pin
+		7 carries 3.3V and the board will crash if that is
+		connected to pin 1, but shouldn't damage the board.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>EasyMini</term>
+	    <listitem>
+	      <para>
+		Connect pin 6 and pin 1 of the debug connector, which is
+		the six holes next to the beeper. Pin 1 can be identified
+		by the square pad around it, and then the pins could
+		sequentially across the board, making Pin 6 the one on the
+		other end of the row.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </section>
+    -->
     </section>
   </chapter>
   <chapter>
