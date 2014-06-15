@@ -60,6 +60,8 @@ public class TeleGPS
 	JMenu			device_menu;
 	AltosFreqList		frequencies;
 	ActionListener		frequency_listener;
+	AltosReplaySpeed	replayspeed;
+	ActionListener		replayspeed_listener;
 
 	Container		bag;
 
@@ -187,6 +189,7 @@ public class TeleGPS
 		if (new_reader == null)
 			return;
 		set_reader(new_reader, null);
+		enable_replayspeed_menu(new_reader);
 	}
 
 	void disconnect() {
@@ -350,11 +353,40 @@ public class TeleGPS
 		}
 	}
 
-	void enable_frequency_menu(int serial, final AltosFlightReader reader) {
+	void enable_replayspeed_menu(final AltosReplayReader reader) {
+		if (frequency_listener != null)
+			disable_frequency_menu();
+		if (replayspeed_listener != null)
+			disable_replayspeed_menu();
 
+		replayspeed.set_replayspeed(reader.speedup());
+		menu_bar.add(replayspeed);
+		replayspeed_listener = new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					double new_speed = replayspeed.replayspeed();
+					reader.set_speedup(new_speed);
+				}
+			};
+		replayspeed.addActionListener(replayspeed_listener);
+		replayspeed.setEnabled(true);
+	}
+
+	void disable_replayspeed_menu() {
+		if (replayspeed_listener != null) {
+			replayspeed.removeActionListener(replayspeed_listener);
+			replayspeed.setEnabled(false);
+			replayspeed_listener = null;
+			menu_bar.remove(replayspeed);
+		}
+	}
+
+	void enable_frequency_menu(int serial, final AltosFlightReader reader) {
+		if (replayspeed_listener != null)
+			disable_replayspeed_menu();
 		if (frequency_listener != null)
 			disable_frequency_menu();
 
+		menu_bar.add(frequencies);
 		frequency_listener = new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					double frequency = frequencies.frequency();
@@ -380,8 +412,8 @@ public class TeleGPS
 			frequencies.removeActionListener(frequency_listener);
 			frequencies.setEnabled(false);
 			frequency_listener = null;
+			menu_bar.remove(frequencies);
 		}
-
 	}
 
 	public void set_reader(AltosFlightReader reader, AltosDevice device) {
@@ -456,7 +488,8 @@ public class TeleGPS
 		device_menu = make_menu("Device", device_menu_entries);
 		frequencies = new AltosFreqList();
 		frequencies.setEnabled(false);
-		menu_bar.add(frequencies);
+		replayspeed = new AltosReplaySpeed();
+		replayspeed.setEnabled(false);
 
 		displays = new LinkedList<AltosFlightDisplay>();
 
@@ -566,7 +599,8 @@ public class TeleGPS
 		if (new_reader == null)
 			return false;
 
-		new TeleGPS(new_reader);
+		TeleGPS t = new TeleGPS(new_reader);
+		t.enable_replayspeed_menu(new_reader);
 		return true;
 	}
 

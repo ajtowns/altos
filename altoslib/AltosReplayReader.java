@@ -27,6 +27,7 @@ import java.util.*;
 public class AltosReplayReader extends AltosFlightReader {
 	Iterator<AltosState>	iterator;
 	File	file;
+	double speed_up = 1.0;
 
 	public AltosState read() {
 		if (iterator.hasNext())
@@ -37,10 +38,17 @@ public class AltosReplayReader extends AltosFlightReader {
 	public void close (boolean interrupted) {
 	}
 
+	public double speedup() {
+		return speed_up;
+	}
+	public void set_speedup(double new_speed) {
+		speed_up = new_speed;
+	}
+
 	public void update(AltosState state) throws InterruptedException {
 		/* Make it run in realtime after the rocket leaves the pad */
 		if (state.state > AltosLib.ao_flight_pad && state.time_change > 0)
-			Thread.sleep((int) (Math.min(state.time_change,10) * 1000));
+			Thread.sleep((int) (Math.min(state.time_change,10) * 1000 / speed_up));
 		state.set_received_time(System.currentTimeMillis());
 	}
 

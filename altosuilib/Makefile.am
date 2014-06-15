@@ -37,6 +37,7 @@ altosuilib_JAVA = \
 	AltosDisplayThread.java \
 	AltosDeviceUIDialog.java \
 	AltosFreqList.java \
+	AltosReplaySpeed.java \
 	AltosSerial.java \
 	AltosSerialInUseException.java \
 	AltosConfigFreqUI.java \
