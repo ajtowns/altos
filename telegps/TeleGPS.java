@@ -99,11 +99,13 @@ public class TeleGPS
 	final static String	connect_command = "connect";
 	final static String	disconnect_command = "disconnect";
 	final static String	scan_command = "scan";
+	final static String	replay_command = "replay";
 
 	static final String[][] monitor_menu_entries = new String[][] {
 		{ "Connect Device",	connect_command },
 		{ "Disconnect",		disconnect_command },
 		{ "Scan Channels",	scan_command },
+		{ "Replay Saved Data",	replay_command },
 	};
 
 	/* Device menu */
@@ -171,6 +173,20 @@ public class TeleGPS
 
 	void load_maps() {
 		new AltosUIMapPreload(this);
+	}
+
+	void replay() {
+		disconnect();
+
+		AltosDataChooser chooser;
+		chooser = new AltosDataChooser(this);
+		AltosStateIterable states = chooser.runDialog();
+		if (states == null)
+			return;
+		AltosReplayReader new_reader = new AltosReplayReader(states.iterator(), chooser.file());
+		if (new_reader == null)
+			return;
+		set_reader(new_reader, null);
 	}
 
 	void disconnect() {
@@ -304,6 +320,10 @@ public class TeleGPS
 		}
 		if (scan_command.equals(ev.getActionCommand())) {
 			scan();
+			return;
+		}
+		if (replay_command.equals(ev.getActionCommand())) {
+			replay();
 			return;
 		}
 
@@ -526,13 +546,6 @@ public class TeleGPS
 			return new AltosEepromFile(in);
 	}
 
-	static AltosReplayReader replay_file(File file) {
-		AltosStateIterable states = record_iterable(file);
-		if (states == null)
-			return null;
-		return new AltosReplayReader(states.iterator(), file);
-	}
-
 	static boolean process_graph(File file) {
 		AltosStateIterable states = record_iterable(file);
 		if (states == null)
@@ -546,7 +559,10 @@ public class TeleGPS
 	}
 
 	static boolean process_replay(File file) {
-		AltosReplayReader new_reader = replay_file(file);
+		AltosStateIterable states = record_iterable(file);
+		if (states == null)
+			return false;
+		AltosReplayReader new_reader = new AltosReplayReader(states.iterator(), file);
 		if (new_reader == null)
 			return false;
 
