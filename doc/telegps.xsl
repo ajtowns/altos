@@ -552,7 +552,7 @@ NAR #88757, TRA #12200
 	    <term>Monitor</term>
 	    <listitem>
 	      <para>
-		Connect Device, Disconnect and Scan Channels
+		Connect Device, Disconnect, Scan Channels and Replay Saved Data
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -949,6 +949,14 @@ NAR #88757, TRA #12200
 	    </imageobject>
 	  </mediaobject>
 	</informalfigure>
+      </section>
+      <section>
+	<title>Replay Saved Data</title>
+	<para>
+          Replays saved data through the monitoring interface. While
+          replaying, the frequency menu is replaced with a menu to allow
+          you to set the replay speed.
+	</para>
       </section>
       <section>
 	<title>Download Data</title>
